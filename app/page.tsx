@@ -35,6 +35,14 @@ const BLOOD_PREVIEW: Record<'A' | 'B' | 'AB' | 'O', { score: number; lines: stri
   O: { score: 30, lines: ['血型會補充推進力、責任感與承壓方式。', '它只能修飾生日建立的骨架，不能推翻。'] },
 };
 
+async function readJsonResponse<T>(response: Response): Promise<T> {
+  const contentType = response.headers.get('content-type') ?? '';
+  if (!contentType.includes('application/json')) {
+    throw new Error('伺服器回傳非 JSON 內容（HTTP ' + response.status + '）。');
+  }
+  return response.json() as Promise<T>;
+}
+
 export default function HomePage() {
   const [person, setPerson] = useState<PersonInput>({ ...EMPTY_PERSON });
   const [loading, setLoading] = useState(false);
@@ -65,22 +73,26 @@ export default function HomePage() {
 
     if (!canPreview) {
       setPreviewResult(null);
+      setPreviewLoading(false);
       previewKeyRef.current = '';
       return;
     }
 
     if (previewKeyRef.current === previewKey) return;
 
+    const controller = new AbortController();
     const timer = setTimeout(async () => {
       setPreviewLoading(true);
+      setErrorMsg('');
       try {
         const response = await fetch('/api/preview', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ birthday: person.birthday, bloodType: person.bloodType }),
+          signal: controller.signal,
         });
 
-        const data = (await response.json()) as PreviewAnalysisResult | ApiError;
+        const data = await readJsonResponse<PreviewAnalysisResult | ApiError>(response);
         if (!response.ok) {
           setErrorMsg('error' in data ? data.error : '天地預分析暫時無法完成。');
           return;
@@ -89,14 +101,18 @@ export default function HomePage() {
         previewKeyRef.current = previewKey;
         setPreviewResult(data as PreviewAnalysisResult);
       } catch (error) {
+        if (controller.signal.aborted) return;
         console.error('[page] preview failed', error);
         setErrorMsg('天地預分析暫時中斷，請稍後再試。');
       } finally {
-        setPreviewLoading(false);
+        if (!controller.signal.aborted) setPreviewLoading(false);
       }
     }, 450);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [person.birthday, person.bloodType]);
 
   async function handleUnlock() {
@@ -113,7 +129,7 @@ export default function HomePage() {
         body: JSON.stringify({ person }),
       });
 
-      const data = (await response.json()) as AnalysisResult | ApiError;
+      const data = await readJsonResponse<AnalysisResult | ApiError>(response);
 
       if (!response.ok) {
         setErrorMsg('error' in data ? data.error : '系統暫時無法完成解碼，請稍後再試。');
@@ -318,12 +334,6 @@ export default function HomePage() {
                   maxLength={20}
                   placeholder="例如：王小明"
                   onChange={(event) => setPerson((prev) => ({ ...prev, name: event.target.value }))}
-                  onInput={(event) =>
-                    setPerson((prev) => ({
-                      ...prev,
-                      name: (event.target as HTMLInputElement).value,
-                    }))
-                  }
                   className="form-input"
                 />
                 <p className="mt-3 text-sm leading-7 text-[color:var(--text-muted)]">

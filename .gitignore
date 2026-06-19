@@ -10,6 +10,8 @@
 
 # misc
 .DS_Store
+*.log
+.tmp-*
 
 # 環境變數（含 API Key，嚴禁上傳）
 .env.local

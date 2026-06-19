@@ -1,4 +1,5 @@
 import type { MusicProfile as MusicProfileType } from '@/lib/types';
+import MusicPlayer from './MusicPlayer';
 
 interface MusicProfileProps {
   profile: MusicProfileType;
@@ -38,6 +39,16 @@ export default function MusicProfile({ profile, tier }: MusicProfileProps) {
         <p className="mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
           {listeningSummary}
         </p>
+      </div>
+
+      {/* Auto-play player for top genre */}
+      <div className="mb-6">
+        <MusicPlayer
+          genreKey={topGenres[0].key}
+          genreName={topGenres[0].name}
+          genreEmoji={topGenres[0].emoji}
+          affinityScore={topGenres[0].score}
+        />
       </div>
 
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">

@@ -158,20 +158,24 @@ function buildPreviewPrompt(input: { birthday: string; bloodType: Exclude<Person
 }
 
 function clampScore(value: number) {
+  if (!Number.isFinite(value)) throw new Error('AI 回傳了無效的維度分數。');
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
 function roundAdjustment(value: number) {
+  if (!Number.isFinite(value)) throw new Error('AI 回傳了無效的調整分數。');
   return Math.round(value);
 }
 
 function mapScores(scores: Record<string, number>): DimensionScores {
+  if (!scores || typeof scores !== 'object') throw new Error('AI 回傳缺少基礎分數。');
   return Object.fromEntries(
     DIMENSION_KEYS.map((key) => [key, clampScore(scores[key])]),
   ) as DimensionScores;
 }
 
 function mapAdjustments(scores: Record<string, number>): DimensionAdjustments {
+  if (!scores || typeof scores !== 'object') throw new Error('AI 回傳缺少調整分數。');
   return Object.fromEntries(
     DIMENSION_KEYS.map((key) => [key, roundAdjustment(scores[key])]),
   ) as DimensionAdjustments;

@@ -34,7 +34,6 @@ export default function InputForm({ value, onChange, disabled = false }: InputFo
           disabled={disabled}
           max={new Date().toISOString().split('T')[0]}
           onChange={(event) => handleBirthdayChange(event.target.value)}
-          onInput={(event) => handleBirthdayChange((event.target as HTMLInputElement).value)}
           className="form-input"
         />
         <p className="mt-3 min-h-6 text-sm leading-6 text-[color:var(--text-muted)]">
@@ -52,7 +51,6 @@ export default function InputForm({ value, onChange, disabled = false }: InputFo
           value={value.bloodType}
           disabled={disabled || !value.birthday}
           onChange={(event) => handleBloodTypeChange(event.target.value as BloodType)}
-          onInput={(event) => handleBloodTypeChange((event.target as HTMLSelectElement).value as BloodType)}
           className="form-select"
         >
           <option value="" className="bg-[#140f26] text-[color:var(--text-main)]">
