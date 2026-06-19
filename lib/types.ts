@@ -1,10 +1,35 @@
 export type BloodType = '' | 'A' | 'B' | 'AB' | 'O';
+export type Gender = 'male' | 'female';
 
-export interface PersonInput {
-  name: string;
-  bloodType: BloodType;
-  birthday: string;
+// ── 天地人 V5.0 人格解碼系統 ──────────────────────
+
+/**
+ * 第一階段：生日輸入
+ * 完成度 35% - 啟動天之人格
+ */
+export interface Step1_BirthdayInput {
+  birthday: string; // YYYY-MM-DD
 }
+
+/**
+ * 第二階段：血型輸入
+ * 完成度 70% - 地之人格融合
+ */
+export interface Step2_BloodTypeInput extends Step1_BirthdayInput {
+  bloodType: Exclude<BloodType, ''>;
+}
+
+/**
+ * 第三階段：姓名 + 性別輸入
+ * 完成度 100% - 人之人格完成
+ */
+export interface Step3_PersonInput extends Step2_BloodTypeInput {
+  name: string;
+  gender: Gender;
+}
+
+// 向後相容
+export interface PersonInput extends Step3_PersonInput {}
 
 export interface AnalyzeRequest {
   person: PersonInput;
@@ -15,19 +40,22 @@ export interface PreviewRequest {
   bloodType: Exclude<BloodType, ''>;
 }
 
+// ── 人格矩陣：12 個固定維度 ──────────────────────
+// 名稱對照：中文 → 英文代碼
+
 export const DIMENSION_KEYS = [
-  'emotion_sensitivity',
-  'logic',
-  'social_need',
-  'leadership',
-  'risk_tendency',
-  'execution',
-  'creativity',
-  'empathy',
-  'control',
-  'security_need',
-  'wealth_motivation',
-  'attachment',
+  'emotion',      // 情緒敏感度
+  'logic',        // 理性程度
+  'social',       // 社交需求
+  'leadership',   // 領導傾向
+  'security',     // 安全感需求
+  'execution',    // 執行力
+  'creativity',   // 創造力
+  'empathy',      // 同理心
+  'risk',         // 冒險傾向
+  'control',      // 控制傾向
+  'wealth',       // 財富動機
+  'attachment',   // 情感依附
 ] as const;
 
 export type DimensionKey = (typeof DIMENSION_KEYS)[number];
