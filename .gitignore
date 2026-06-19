@@ -1,0 +1,20 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+
+# 環境變數（含 API Key，嚴禁上傳）
+.env.local
+.env*.local
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

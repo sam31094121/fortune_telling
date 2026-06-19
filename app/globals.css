@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 全站基礎：乾淨白底、深灰文字、無襯線中文字體 */
+html,
+body {
+  background-color: #f8fafc;
+  color: #1f2937;
+  font-family: 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', system-ui, sans-serif;
+}
