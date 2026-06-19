@@ -1,79 +1,87 @@
-// 單一使用者的輸入卡片：姓名、血型、生日，並即時顯示星座
-// 受控元件，狀態由父層 page.tsx 統一管理
-
 'use client';
 
 import type { BloodType, PersonInput } from '@/lib/types';
 import { getZodiacSign } from '@/lib/zodiac';
 
 interface InputFormProps {
-  title: string;
   value: PersonInput;
   onChange: (next: PersonInput) => void;
   disabled?: boolean;
 }
 
-const BLOOD_TYPES: BloodType[] = ['A', 'B', 'AB', 'O'];
+const BLOOD_TYPES: Exclude<BloodType, ''>[] = ['A', 'B', 'AB', 'O'];
 
-export default function InputForm({ title, value, onChange, disabled = false }: InputFormProps) {
-  // 即時星座（生日有效才顯示）
+export default function InputForm({ value, onChange, disabled = false }: InputFormProps) {
   const zodiac = getZodiacSign(value.birthday);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-      <h2 className="mb-4 text-lg font-semibold text-gray-800">{title}</h2>
-
-      <div className="space-y-4">
-        {/* 姓名（可選） */}
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-600">
-            姓名 <span className="text-gray-400">（可不填）</span>
-          </label>
-          <input
-            type="text"
-            value={value.name}
-            disabled={disabled}
-            maxLength={20}
-            placeholder="請輸入姓名"
-            onChange={(e) => onChange({ ...value, name: e.target.value })}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-brand focus:ring-1 focus:ring-brand disabled:bg-gray-100"
-          />
+    <div className="grid gap-5">
+      <section className="fortune-card sky-card p-5">
+        <div className="mb-4 border-b border-white/10 pb-4">
+          <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">第一階段</p>
+          <h3 className="mt-2 font-serif text-xl text-[color:var(--text-main)]">輸入生日</h3>
         </div>
+        <label className="mb-2 block text-sm text-[color:var(--text-sub)]">出生日期</label>
+        <input
+          type="date"
+          value={value.birthday}
+          disabled={disabled}
+          max={new Date().toISOString().split('T')[0]}
+          onChange={(event) => onChange({ ...value, birthday: event.target.value })}
+          className="form-input"
+        />
+        <p className="mt-3 min-h-6 text-sm leading-6 text-[color:var(--text-muted)]">
+          {zodiac ? `天格分析完成，已匹配至 ${zodiac}。` : '生日決定你的輪廓與先天命格。'}
+        </p>
+      </section>
 
-        {/* 血型 */}
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-600">血型</label>
-          <select
-            value={value.bloodType}
-            disabled={disabled}
-            onChange={(e) => onChange({ ...value, bloodType: e.target.value as BloodType })}
-            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:border-brand focus:ring-1 focus:ring-brand disabled:bg-gray-100"
-          >
-            {BLOOD_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {type} 型
-              </option>
-            ))}
-          </select>
+      <section className={`fortune-card earth-card p-5 ${!value.birthday ? 'opacity-60' : ''}`}>
+        <div className="mb-4 border-b border-white/10 pb-4">
+          <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">第二階段</p>
+          <h3 className="mt-2 font-serif text-xl text-[color:var(--text-main)]">輸入血型</h3>
         </div>
+        <label className="mb-2 block text-sm text-[color:var(--text-sub)]">血型</label>
+        <select
+          value={value.bloodType}
+          disabled={disabled || !value.birthday}
+          onChange={(event) => onChange({ ...value, bloodType: event.target.value as BloodType })}
+          className="form-select"
+        >
+          <option value="" className="bg-[#140f26] text-[color:var(--text-main)]">
+            請選擇血型
+          </option>
+          {BLOOD_TYPES.map((type) => (
+            <option key={type} value={type} className="bg-[#140f26] text-[color:var(--text-main)]">
+              {type} 型
+            </option>
+          ))}
+        </select>
+        <p className="mt-3 min-h-6 text-sm leading-6 text-[color:var(--text-muted)]">
+          {value.bloodType ? '天地分析完成，後天氣場已納入人格模型。' : '血型決定你的行動風格與人際模式。'}
+        </p>
+      </section>
 
-        {/* 生日 */}
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-600">生日</label>
-          <input
-            type="date"
-            value={value.birthday}
-            disabled={disabled}
-            max={new Date().toISOString().split('T')[0]} // 不允許選未來
-            onChange={(e) => onChange({ ...value, birthday: e.target.value })}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-brand focus:ring-1 focus:ring-brand disabled:bg-gray-100"
-          />
-          {/* 即時星座提示 */}
-          {zodiac && (
-            <p className="mt-1.5 text-sm text-brand-dark">星座：{zodiac}</p>
-          )}
+      <section className={`fortune-card human-card p-5 ${!value.bloodType ? 'opacity-60' : ''}`}>
+        <div className="mb-4 border-b border-white/10 pb-4">
+          <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">第三階段</p>
+          <h3 className="mt-2 font-serif text-xl text-[color:var(--text-main)]">輸入姓名</h3>
         </div>
-      </div>
+        <label className="mb-2 block text-sm text-[color:var(--text-sub)]">姓名</label>
+        <input
+          type="text"
+          value={value.name}
+          disabled={disabled || !value.bloodType}
+          maxLength={20}
+          placeholder="例如：王小明"
+          onChange={(event) => onChange({ ...value, name: event.target.value })}
+          className="form-input"
+        />
+        <p className="mt-3 min-h-6 text-sm leading-6 text-[color:var(--text-muted)]">
+          {value.name.trim()
+            ? '姓名能量已準備解鎖，接下來將進入完整人格報告。'
+            : '名字決定你的獨特性，也是 70% 權重的核心模型。'}
+        </p>
+      </section>
     </div>
   );
 }

@@ -1,15 +1,9 @@
-// 星座計算：由生日推算十二星座
-// 前端即時顯示、後端組 prompt 時都會用到，集中在此處維護單一來源
-
-/** 星座資料：名稱 + 該星座的「結束日」邊界 */
 interface ZodiacRange {
   name: string;
-  // 此星座的最後一天（含）：[month, day]
   endMonth: number;
   endDay: number;
 }
 
-// 依日期由早到晚排列。摩羯座橫跨年末年初，故出現在頭尾兩處。
 const ZODIAC_TABLE: ZodiacRange[] = [
   { name: '摩羯座', endMonth: 1, endDay: 19 },
   { name: '水瓶座', endMonth: 2, endDay: 18 },
@@ -26,10 +20,6 @@ const ZODIAC_TABLE: ZodiacRange[] = [
   { name: '摩羯座', endMonth: 12, endDay: 31 },
 ];
 
-/**
- * 由生日字串（YYYY-MM-DD）回傳星座名稱。
- * 解析失敗時回傳空字串，呼叫端可據此判斷輸入是否有效。
- */
 export function getZodiacSign(birthday: string): string {
   if (!birthday) return '';
 
@@ -39,7 +29,6 @@ export function getZodiacSign(birthday: string): string {
   const month = Number(parts[1]);
   const day = Number(parts[2]);
 
-  // 防禦：非數字或超出合理範圍直接視為無效
   if (
     !Number.isInteger(month) ||
     !Number.isInteger(day) ||
@@ -51,15 +40,11 @@ export function getZodiacSign(birthday: string): string {
     return '';
   }
 
-  // 找出第一個「日期 <= 該星座結束邊界」的星座
   for (const zodiac of ZODIAC_TABLE) {
-    if (
-      month < zodiac.endMonth ||
-      (month === zodiac.endMonth && day <= zodiac.endDay)
-    ) {
+    if (month < zodiac.endMonth || (month === zodiac.endMonth && day <= zodiac.endDay)) {
       return zodiac.name;
     }
   }
 
-  return '摩羯座'; // 理論上不會走到，保底回傳
+  return '摩羯座';
 }
