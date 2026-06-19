@@ -9,6 +9,10 @@ import type { AnalyzeRequest, BloodType, PersonInput } from '@/lib/types';
 // 強制動態執行，避免被靜態快取（每次請求都要即時呼叫 AI）
 export const dynamic = 'force-dynamic';
 
+// 放寬 serverless function 逾時上限到 30 秒（Vercel 免費方案預設僅 10 秒）
+// 避免 Gemini 偶爾回應較慢時，線上版被提早切斷而失敗
+export const maxDuration = 30;
+
 const VALID_BLOOD_TYPES: BloodType[] = ['A', 'B', 'AB', 'O'];
 
 /** 驗證單一使用者輸入，回傳錯誤訊息字串；通過則回傳 null */
