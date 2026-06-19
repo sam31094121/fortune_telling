@@ -1,29 +1,39 @@
-'use client';
+﻿'use client';
 
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import MultiStepForm from '@/components/MultiStepForm';
 import ResultDisplay from '@/components/ResultDisplay';
-import type { AnalysisResult, PreviewAnalysisResult, ApiError, PersonInput } from '@/lib/types';
+import type {
+  AnalysisResult,
+  ApiError,
+  BloodType,
+  PersonInput,
+  PreviewAnalysisResult,
+} from '@/lib/types';
 
-const EMPTY_PERSON: PersonInput = {
+interface FormPersonInput {
+  name: string;
+  bloodType: BloodType;
+  birthday: string;
+  gender: 'male' | 'female';
+}
+
+const EMPTY_PERSON: FormPersonInput = {
   name: '',
   bloodType: '',
   birthday: '',
+  gender: 'female',
 };
 
 export default function HomePage() {
-  const [person, setPerson] = useState<PersonInput>({ ...EMPTY_PERSON });
-
+  const [person, setPerson] = useState<FormPersonInput>({ ...EMPTY_PERSON });
   const [loading, setLoading] = useState(false);
   const [isUnlocking, setIsUnlocking] = useState(false);
-  
   const [previewResult, setPreviewResult] = useState<PreviewAnalysisResult | null>(null);
   const [vipResult, setVipResult] = useState<AnalysisResult | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string>('');
-
+  const [errorMsg, setErrorMsg] = useState('');
   const resultRef = useRef<HTMLDivElement>(null);
 
-  // 1. 啟動免費天地預分析
   async function handleAnalyzePreview() {
     setErrorMsg('');
     setPreviewResult(null);
@@ -31,7 +41,7 @@ export default function HomePage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/preview', {
+      const response = await fetch('/api/preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -40,158 +50,170 @@ export default function HomePage() {
         }),
       });
 
-      const data = (await res.json()) as PreviewAnalysisResult | ApiError;
+      const data = (await response.json()) as PreviewAnalysisResult | ApiError;
 
-      if (!res.ok) {
-        const message = 'error' in data ? data.error : '天地預分析失敗，請稍後再試';
-        setErrorMsg(message);
+      if (!response.ok) {
+        setErrorMsg('error' in data ? data.error : '天地預分析失敗，請稍後再試。');
         return;
       }
 
       setPreviewResult(data as PreviewAnalysisResult);
 
-      // 產生結果後，平滑滾動到結果顯示區域
       setTimeout(() => {
-        resultRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 300);
-    } catch (err) {
-      console.error('[page] 呼叫 /api/preview 失敗：', err);
-      setErrorMsg('連線發生問題，請檢查網路後再試');
+        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 250);
+    } catch (error) {
+      console.error('[page] preview failed', error);
+      setErrorMsg('目前無法連線到分析服務，請稍後再試。');
     } finally {
       setLoading(false);
     }
   }
 
-  // 2. 解鎖 VIP 完整天地人三才分析
-  async function handleUnlockVip(nameInput: string) {
+  async function handleUnlockVip(nameInput: string, genderInput: 'male' | 'female') {
     setErrorMsg('');
     setIsUnlocking(true);
 
-    // 同步更新姓名狀態
-    const updatedPerson = { ...person, name: nameInput };
-    setPerson(updatedPerson);
+    const nextPerson: PersonInput = {
+      birthday: person.birthday,
+      bloodType: person.bloodType as Exclude<BloodType, ''>,
+      name: nameInput.trim(),
+      gender: genderInput,
+    };
+
+    setPerson((current) => ({
+      ...current,
+      name: nameInput.trim(),
+      gender: genderInput,
+    }));
 
     try {
-      const res = await fetch('/api/analyze', {
+      const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ person: updatedPerson }),
+        body: JSON.stringify({ person: nextPerson }),
       });
 
-      const data = (await res.json()) as AnalysisResult | ApiError;
+      const data = (await response.json()) as AnalysisResult | ApiError;
 
-      if (!res.ok) {
-        const message = 'error' in data ? data.error : 'VIP 解鎖失敗，請稍後再試';
-        setErrorMsg(message);
-        setIsUnlocking(false); // 出錯時提早關閉動畫
+      if (!response.ok) {
+        setErrorMsg('error' in data ? data.error : 'VIP 解碼失敗，請稍後再試。');
         return;
       }
 
       setVipResult(data as AnalysisResult);
-    } catch (err) {
-      console.error('[page] 呼叫 /api/analyze 失敗：', err);
-      setErrorMsg('連線發生問題，請檢查網路後再試');
-      setIsUnlocking(false);
+    } catch (error) {
+      console.error('[page] analyze failed', error);
+      setErrorMsg('目前無法完成姓名解碼，請稍後再試。');
     } finally {
-      // 這裡動畫結束在 ResultDisplay 中已有延遲，在此同步做保底控制
-      setTimeout(() => {
-        setIsUnlocking(false);
-      }, 500);
+      setIsUnlocking(false);
     }
   }
 
+  function handleReset() {
+    setPerson({ ...EMPTY_PERSON });
+    setPreviewResult(null);
+    setVipResult(null);
+    setErrorMsg('');
+    setLoading(false);
+    setIsUnlocking(false);
+  }
+
   return (
-    <div className="app-bg min-h-screen relative overflow-hidden">
-      {/* 炫光星空背景 */}
-      <div className="starfield z-0 pointer-events-none" />
-      <div className="constellation-ring constellation-ring-top z-0 pointer-events-none" />
-      <div className="constellation-ring constellation-ring-bottom z-0 pointer-events-none" />
+    <div className="app-bg min-h-screen overflow-hidden">
+      <div className="starfield pointer-events-none absolute inset-0 z-0" />
+      <div className="constellation-ring constellation-ring-top pointer-events-none z-0" />
+      <div className="constellation-ring constellation-ring-bottom pointer-events-none z-0" />
 
-      <main className="relative z-10 mx-auto max-w-2xl px-4 py-16">
-        {/* 標題 */}
-        <header className="mb-10 text-center space-y-3">
-          <div className="inline-block rounded-full bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-300 border border-amber-400/20">
-            🌌 大數據 · 天地人三才 AI 人格解碼系統
+      <main className="relative z-10 mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <section className="mb-8 grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="space-y-6">
+            <div className="inline-flex rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-1 text-xs font-semibold tracking-[0.3em] text-amber-300">
+              天・地・人 AI 人格解碼系統
+            </div>
+
+            <div className="space-y-4">
+              <h1 className="mystic-title font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">
+                天地人正在校準你的氣場
+              </h1>
+              <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)] sm:text-base">
+                先以生日與血型完成免費的天地預分析，快速建立人格骨架與行為模式。
+                若你要進一步解鎖姓名能量、財富磁場、感情依附與個人差異，再進入 VIP
+                的人層解碼。
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="fortune-card sky-card p-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-violet-300">天 35%</p>
+                <p className="mt-2 text-sm text-[color:var(--text-main)]">生日建立人格骨架</p>
+              </div>
+              <div className="fortune-card earth-card p-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-amber-300">地 35%</p>
+                <p className="mt-2 text-sm text-[color:var(--text-main)]">血型補充行為模式</p>
+              </div>
+              <div className="fortune-card human-card p-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-pink-300">人 30%</p>
+                <p className="mt-2 text-sm text-[color:var(--text-main)]">姓名解鎖個體差異</p>
+              </div>
+            </div>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold font-serif tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-violet-200 via-amber-200 to-pink-200 mystic-title">
-            天地人解碼
-          </h1>
-          <p className="max-w-md mx-auto text-sm text-slate-400 leading-relaxed">
-            輸入生日（天之星軌）與血型（地之行為），大數據即時演算。第二層輸入姓名（人之契合），解鎖靈魂聲學與核心命盤。
-          </p>
-        </header>
 
-        {/* 1. 多步驟引導表單區 (未有預分析結果時顯示) */}
-        {!previewResult && (
-          <section className="fortune-card p-6 sm:p-8 animate-rise">
+          <div className="flex justify-center">
+            <div className="destiny-orb">
+              <div className="destiny-orb-core" />
+            </div>
+          </div>
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+          <div className="fortune-card p-6 sm:p-8">
             <MultiStepForm
               person={person}
               onChange={setPerson}
               onSubmitPreview={handleAnalyzePreview}
-              onSubmitAnalyze={() => {}} // 完整分析會在結果頁解鎖時觸發
-              disabled={loading}
+              disabled={loading || isUnlocking}
             />
 
-            {/* 表單載入狀態 */}
             {loading && (
-              <div className="mt-8 flex flex-col items-center justify-center space-y-4 py-6 border-t border-white/5 animate-pulse-subtle">
-                <div className="flex space-x-2">
-                  <div className="h-3 w-3 rounded-full bg-violet-400 animate-bounce [animation-delay:-0.3s]" />
-                  <div className="h-3 w-3 rounded-full bg-amber-400 animate-bounce [animation-delay:-0.15s]" />
-                  <div className="h-3 w-3 rounded-full bg-pink-400 animate-bounce" />
-                </div>
-                <p className="text-sm font-serif text-amber-300">大數據星盤演算中，請稍候...</p>
+              <div className="mt-8 rounded-2xl border border-violet-400/15 bg-violet-950/20 p-4 text-center text-sm text-violet-200">
+                天地能量正在演算中，請稍候…
               </div>
             )}
 
-            {/* 錯誤訊息 */}
-            {errorMsg && (
-              <div className="mt-6 rounded-xl border border-rose-500/20 bg-rose-950/20 p-4 text-center text-sm text-rose-300 animate-rise">
-                ⚠️ {errorMsg}
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* 2. 分析結果展示區 */}
-        {previewResult && (
-          <div ref={resultRef} className="fortune-card p-6 sm:p-8 mt-6 border-amber-400/20 animate-rise">
-            <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
-              <div>
-                <span className="text-[10px] uppercase tracking-widest text-slate-500">大數據人格解碼</span>
-                <h2 className="text-xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-violet-300 to-amber-300 font-bold">
-                  分析結果
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setPreviewResult(null);
-                  setVipResult(null);
-                  setPerson({ ...EMPTY_PERSON });
-                  setErrorMsg('');
-                }}
-                className="text-xs text-slate-400 hover:text-white transition-colors"
-              >
-                ← 重新解碼
-              </button>
-            </div>
-            
-            <ResultDisplay 
-              previewResult={previewResult}
-              vipResult={vipResult}
-              onUnlock={handleUnlockVip}
-              isUnlocking={isUnlocking}
-            />
-
-            {/* 錯誤訊息 (在結果頁解鎖出錯時顯示) */}
-            {errorMsg && (
-              <div className="mt-6 rounded-xl border border-rose-500/20 bg-rose-950/20 p-4 text-center text-sm text-rose-300 animate-rise">
-                ⚠️ {errorMsg}
+            {errorMsg && !previewResult && (
+              <div className="mt-6 rounded-2xl border border-rose-400/20 bg-rose-950/20 p-4 text-sm text-rose-300">
+                {errorMsg}
               </div>
             )}
           </div>
-        )}
+
+          <div ref={resultRef} className="min-h-[320px]">
+            {previewResult ? (
+              <ResultDisplay
+                previewResult={previewResult}
+                vipResult={vipResult}
+                onUnlock={handleUnlockVip}
+                onReset={handleReset}
+                isUnlocking={isUnlocking}
+                errorMsg={errorMsg}
+              />
+            ) : (
+              <div className="fortune-card flex min-h-[320px] flex-col justify-center p-6 sm:p-8">
+                <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
+                  預備狀態
+                </p>
+                <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">
+                  先完成天地預分析
+                </h2>
+                <p className="mt-4 max-w-xl text-sm leading-8 text-[color:var(--text-sub)]">
+                  你輸入生日與血型後，系統會先建立免費的人格輪廓。等天地完成，再由姓名進入付費的
+                  VIP 解碼，這樣流程會更順，也符合你要的商業邏輯。
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
       </main>
     </div>
   );

@@ -1,202 +1,183 @@
-'use client';
+﻿'use client';
 
-import React, { useState, useEffect } from 'react';
-import type { BloodType, PersonInput } from '@/lib/types';
+import { useMemo, useState } from 'react';
+import type { BloodType } from '@/lib/types';
 import { getZodiacSign } from '@/lib/zodiac';
 
+interface FormPersonInput {
+  name: string;
+  bloodType: BloodType;
+  birthday: string;
+  gender: 'male' | 'female';
+}
+
 interface MultiStepFormProps {
-  person: PersonInput;
-  onChange: (next: PersonInput) => void;
-  onSubmitPreview: () => void; // 免費天地預分析
-  onSubmitAnalyze: () => void; // 完整天地人分析
+  person: FormPersonInput;
+  onChange: (next: FormPersonInput) => void;
+  onSubmitPreview: () => void;
   disabled?: boolean;
 }
 
 const ZODIAC_TRAITS: Record<string, string> = {
-  '牡羊座': '熱情率直、行動力強、富開創精神',
-  '金牛座': '沉穩務實、追求穩定、具極佳審美力',
-  '雙子座': '思維敏捷、善於溝通、充滿求知欲',
-  '巨蟹座': '重情守護、直覺敏銳、具備深厚同理心',
-  '獅子座': '自信慷慨、具領導力、渴望展現自我',
-  '處女座': '心思細密、善於分析、追求完美細節',
-  '天秤座': '優雅和諧、重視公正、善於協調人際',
-  '天蠍座': '深沉專注、洞察力極強、情感豐沛烈性',
-  '射手座': '熱愛自由、樂觀豁達、勇於探索未知',
-  '摩羯座': '堅毅沉著、富責任感、具長遠規劃力',
-  '水瓶座': '獨立創新、求新求變、具獨特人道思維',
-  '雙魚座': '溫柔浪漫、富有藝術氣息、善感且利他',
+  牡羊座: '行動快、反應直接，遇事傾向先衝出第一步。',
+  金牛座: '重視穩定與安全感，做決定時偏向務實與耐心。',
+  雙子座: '思路靈活、善於表達，喜歡在變化中找到新鮮感。',
+  巨蟹座: '情感細膩，對熟悉的人與環境有強烈守護心。',
+  獅子座: '自我驅動高，渴望被看見，也願意承擔舞台角色。',
+  處女座: '觀察敏銳，對細節要求高，傾向先整理再行動。',
+  天秤座: '重視互動與平衡，做選擇時會考量關係與氛圍。',
+  天蠍座: '情緒深度強，判斷事情時直覺與洞察力都很明顯。',
+  射手座: '喜歡自由與探索，面對未知時通常帶著冒險精神。',
+  摩羯座: '目標感強，做事穩定，會用長線思維安排人生。',
+  水瓶座: '獨立性高，常用不同角度理解世界與人際關係。',
+  雙魚座: '感受力豐富，共感能力強，容易感知細微情緒流動。',
 };
 
-const BLOOD_TRAITS: Record<BloodType, string> = {
-  'A': '細緻體貼、恪盡職守、追求完美',
-  'B': '自由隨性、創造力強、直覺敏銳',
-  'AB': '冷靜理性、善於分析、雙重魅力',
-  'O': '熱情開朗、意志堅定、具領導力',
-  '': '尚未選擇',
+const BLOOD_TRAITS: Record<Exclude<BloodType, ''>, string> = {
+  A: '偏向細膩與穩定，對秩序與關係品質較敏感。',
+  B: '自主性高，想法鮮明，容易展現個人節奏。',
+  AB: '理性與感性並存，常同時保有觀察與距離感。',
+  O: '行動力與帶動感較強，做事通常更直接果斷。',
 };
 
 export default function MultiStepForm({
   person,
   onChange,
   onSubmitPreview,
-  onSubmitAnalyze,
   disabled = false,
 }: MultiStepFormProps) {
-  // 步驟：0 = 天（生日），1 = 地（血型）
-  // 姓名（人）會作為結果頁的解鎖條件，或是第二層引導，讓填寫更簡單！
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState<1 | 2>(1);
 
+  const today = useMemo(() => new Date().toISOString().split('T')[0], []);
   const zodiac = getZodiacSign(person.birthday);
-
-  // 當生日選定後，在短暫延遲後滑入「地維度」
-  useEffect(() => {
-    if (step === 0 && person.birthday) {
-      const timer = setTimeout(() => {
-        setStep(1);
-      }, 900);
-      return () => clearTimeout(timer);
-    }
-  }, [person.birthday, step]);
-
-  const selectBloodType = (type: BloodType) => {
-    onChange({ ...person, bloodType: type });
-  };
+  const isBirthdayValid = person.birthday !== '' && !Number.isNaN(new Date(person.birthday).getTime());
+  const canSubmit = isBirthdayValid && person.bloodType !== '' && !disabled;
 
   return (
-    <div className="w-full space-y-6">
-      {/* 天地雙維度指示器 */}
-      <div className="relative flex items-center justify-between px-10 pb-6">
-        <div className="absolute top-1/2 left-0 h-0.5 w-full -translate-y-1/2 bg-white/10 z-0"></div>
-        <div 
-          className="absolute top-1/2 left-0 h-0.5 bg-gradient-to-r from-violet-500 to-amber-400 z-0 transition-all duration-500"
-          style={{ width: `${step * 100}%` }}
-        />
-        
-        {/* 天 */}
-        <button
-          type="button"
-          onClick={() => setStep(0)}
-          className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-serif transition-all duration-300 ${
-            step >= 0 
-              ? 'border-violet-500 bg-slate-950 text-violet-400 shadow-[0_0_15px_rgba(139,92,246,0.4)]' 
-              : 'border-white/20 bg-slate-900 text-white/40'
-          }`}
-        >
-          天
-        </button>
+    <div className="space-y-6">
+      <div className="space-y-3 text-center">
+        <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">免費天地預分析</p>
+        <h2 className="font-serif text-3xl text-[color:var(--text-main)]">先完成骨架，再進入姓名解碼</h2>
+        <p className="text-sm leading-7 text-[color:var(--text-sub)]">
+          第一步輸入生日，建立人格基底；第二步輸入血型，補充行為模式。
+        </p>
+      </div>
 
-        {/* 地 */}
+      <div className="flex items-center gap-3">
         <button
           type="button"
-          disabled={!person.birthday}
           onClick={() => setStep(1)}
-          className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-serif transition-all duration-300 ${
-            step >= 1 
-              ? 'border-amber-400 bg-slate-950 text-amber-300 shadow-[0_0_15px_rgba(201,162,74,0.4)]' 
-              : 'border-white/20 bg-slate-900 text-white/40 disabled:cursor-not-allowed'
+          className={`flex-1 rounded-full border px-4 py-3 text-sm font-semibold transition ${
+            step === 1
+              ? 'border-violet-400 bg-violet-500/15 text-violet-200'
+              : 'border-white/10 bg-white/5 text-[color:var(--text-muted)]'
           }`}
         >
-          地
+          天｜生日
+        </button>
+        <button
+          type="button"
+          disabled={!isBirthdayValid}
+          onClick={() => setStep(2)}
+          className={`flex-1 rounded-full border px-4 py-3 text-sm font-semibold transition ${
+            step === 2
+              ? 'border-amber-400 bg-amber-400/15 text-amber-200'
+              : 'border-white/10 bg-white/5 text-[color:var(--text-muted)] disabled:cursor-not-allowed disabled:opacity-50'
+          }`}
+        >
+          地｜血型
         </button>
       </div>
 
-      {/* 步驟 1：天之印記（生日） */}
-      {step === 0 && (
-        <div className="space-y-5 animate-rise">
-          <div className="text-center">
-            <h2 className="text-xl font-serif text-violet-300">天命之約 · 注入星辰能量</h2>
-            <p className="mt-1 text-sm text-slate-400">大數據將即時抓取你的天命星軌</p>
-          </div>
-
-          <div className="fortune-card sky-card p-6 space-y-4">
-            <label className="block text-xs uppercase tracking-[0.2em] text-violet-400">出生日期</label>
-            <input
-              type="date"
-              value={person.birthday}
-              disabled={disabled}
-              max={new Date().toISOString().split('T')[0]}
-              onChange={(e) => onChange({ ...person, birthday: e.target.value })}
-              className="form-input"
-            />
-            {zodiac ? (
-              <div className="mt-2 rounded-lg bg-violet-950/30 border border-violet-900/50 p-4 animate-rise">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">✨</span>
-                  <span className="font-semibold text-violet-300">{zodiac}</span>
-                </div>
-                <p className="mt-1 text-xs text-violet-400/90">{ZODIAC_TRAITS[zodiac]}</p>
-              </div>
-            ) : (
-              <p className="text-xs text-slate-500">生日決定你的天賦輪廓與思維模式。</p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 步驟 2：地之脈理（血型與免費預分析啟動） */}
       {step === 1 && (
-        <div className="space-y-5 animate-rise">
-          <div className="text-center">
-            <h2 className="text-xl font-serif text-amber-300">地緣之契 · 凝聚性格基底</h2>
-            <p className="mt-1 text-sm text-slate-400">選擇血型即可解鎖第一層大數據預分析</p>
+        <div className="fortune-card sky-card space-y-4 p-5 animate-rise">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-violet-300">天層輸入</p>
+            <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">輸入出生年月日</h3>
           </div>
 
-          <div className="fortune-card earth-card p-6 space-y-6">
-            <span className="block text-xs uppercase tracking-[0.2em] text-amber-400">選擇你的血型</span>
-            <div className="grid grid-cols-4 gap-3">
-              {(['A', 'B', 'AB', 'O'] as BloodType[]).map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => selectBloodType(type)}
-                  className={`py-4 rounded-2xl font-bold border text-lg transition-all duration-200 ${
-                    person.bloodType === type
-                      ? 'border-amber-400 bg-amber-400/10 text-amber-300 shadow-[0_0_15px_rgba(201,162,74,0.25)]'
-                      : 'border-white/10 bg-white/5 text-slate-400 hover:border-white/20'
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
+          <input
+            type="date"
+            value={person.birthday}
+            max={today}
+            disabled={disabled}
+            onChange={(event) => onChange({ ...person, birthday: event.target.value })}
+            onInput={(event) => onChange({ ...person, birthday: (event.target as HTMLInputElement).value })}
+            className="form-input"
+          />
+
+          {zodiac ? (
+            <div className="rounded-2xl border border-violet-400/15 bg-violet-950/20 p-4">
+              <p className="text-sm font-semibold text-violet-200">{zodiac}</p>
+              <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">
+                {ZODIAC_TRAITS[zodiac]}
+              </p>
             </div>
+          ) : (
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-[color:var(--text-muted)]">
+              選好生日後，系統會先顯示你的星座人格基底。
+            </div>
+          )}
 
-            {person.bloodType && (
-              <div className="mt-2 rounded-lg bg-amber-950/20 border border-amber-900/40 p-4 animate-rise space-y-2">
-                <p className="text-xs text-amber-300/90 font-semibold">
-                  血型特質：{BLOOD_TRAITS[person.bloodType]}
-                </p>
-                <p className="text-[10px] text-slate-500 leading-normal">
-                  生日星軌與血型行為模式的交涉場已具備，點擊下方即可開始免費預分析。
-                </p>
-              </div>
-            )}
-
-            <button
-              type="button"
-              disabled={disabled || !person.birthday || !person.bloodType}
-              onClick={onSubmitPreview}
-              className="primary-button w-full py-4 text-base tracking-[0.15em]"
-            >
-              啟動免費天地預分析
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* 返回按鈕 */}
-      {step > 0 && (
-        <div className="flex justify-start">
           <button
             type="button"
-            onClick={() => setStep(step - 1)}
-            disabled={disabled}
-            className="px-4 py-2 text-xs text-slate-500 hover:text-white transition-colors"
+            disabled={!isBirthdayValid || disabled}
+            onClick={() => setStep(2)}
+            className="primary-button w-full py-3.5 text-sm tracking-[0.12em]"
           >
-            ← 返回修改生日
+            確認生日，進入地層分析
+          </button>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="fortune-card earth-card space-y-5 p-5 animate-rise">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-amber-300">地層輸入</p>
+            <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">選擇血型</h3>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {(['A', 'B', 'AB', 'O'] as const).map((type) => (
+              <button
+                key={type}
+                type="button"
+                disabled={disabled}
+                onClick={() => onChange({ ...person, bloodType: type })}
+                className={`rounded-2xl border px-4 py-4 text-lg font-bold transition ${
+                  person.bloodType === type
+                    ? 'border-amber-400 bg-amber-400/15 text-amber-200 shadow-[0_0_18px_rgba(201,162,74,0.18)]'
+                    : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/20'
+                }`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+
+          {person.bloodType ? (
+            <div className="rounded-2xl border border-amber-400/15 bg-amber-950/20 p-4">
+              <p className="text-sm leading-7 text-[color:var(--text-sub)]">
+                {BLOOD_TRAITS[person.bloodType as Exclude<BloodType, ''>]}
+              </p>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-[color:var(--text-muted)]">
+              血型會補充你的行動風格、人際模式與安全感需求。
+            </div>
+          )}
+
+          <button
+            type="button"
+            disabled={!canSubmit}
+            onClick={onSubmitPreview}
+            className="primary-button w-full py-4 text-base tracking-[0.15em]"
+          >
+            啟動天地預分析
           </button>
         </div>
       )}
     </div>
   );
 }
+
