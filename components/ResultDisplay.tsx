@@ -63,7 +63,7 @@ export default function ResultDisplay({ result }: ResultDisplayProps) {
             </p>
             <h3 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">12 維度最終人格圖譜</h3>
             <p className="mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
-              生日負責建立骨架，血型只做修飾，姓名負責個人化校正；系統不允許後面的資訊推翻前面的結論。
+              固定採天 35%、地 35%、人 30% 融合；生日建立骨架，血型補充行為，姓名負責個人化校正。
             </p>
           </div>
 

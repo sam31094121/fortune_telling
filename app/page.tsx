@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import InputForm from '@/components/InputForm';
 import PreviewDisplay from '@/components/PreviewDisplay';
 import ResultDisplay from '@/components/ResultDisplay';
+import { TRINITY_DISPLAY_WEIGHTS, TRINITY_PROGRESS } from '@/lib/trinity-weights';
 import type { AnalysisResult, ApiError, PersonInput, PreviewAnalysisResult } from '@/lib/types';
 import { getZodiacSign } from '@/lib/zodiac';
 
@@ -14,31 +15,31 @@ const EMPTY_PERSON: PersonInput = {
 };
 
 const STAGE_ONE_COPY: Record<string, { score: number; title: string; lines: string[] }> = {
-  摩羯座: { score: 15, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  水瓶座: { score: 15, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  雙魚座: { score: 15, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  牡羊座: { score: 15, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  金牛座: { score: 15, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  雙子座: { score: 15, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  巨蟹座: { score: 15, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  獅子座: { score: 15, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  處女座: { score: 15, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  天秤座: { score: 15, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  天蠍座: { score: 15, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  射手座: { score: 15, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
+  摩羯座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
+  水瓶座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
+  雙魚座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
+  牡羊座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
+  金牛座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
+  雙子座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
+  巨蟹座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
+  獅子座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
+  處女座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
+  天秤座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
+  天蠍座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
+  射手座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
 };
 
 const BLOOD_PREVIEW: Record<'A' | 'B' | 'AB' | 'O', { score: number; lines: string[] }> = {
-  A: { score: 30, lines: ['血型會補充安全感與互動模式。', '它只能修飾生日建立的骨架，不能推翻。'] },
-  B: { score: 30, lines: ['血型會補充行動節奏與社交表現。', '它只能修飾生日建立的骨架，不能推翻。'] },
-  AB: { score: 30, lines: ['血型會補充矛盾感、抽離感與人際邊界。', '它只能修飾生日建立的骨架，不能推翻。'] },
-  O: { score: 30, lines: ['血型會補充推進力、責任感與承壓方式。', '它只能修飾生日建立的骨架，不能推翻。'] },
+  A: { score: TRINITY_PROGRESS.earth, lines: ['血型會補充安全感與互動模式。', '它只能修飾生日建立的骨架，不能推翻。'] },
+  B: { score: TRINITY_PROGRESS.earth, lines: ['血型會補充行動節奏與社交表現。', '它只能修飾生日建立的骨架，不能推翻。'] },
+  AB: { score: TRINITY_PROGRESS.earth, lines: ['血型會補充矛盾感、抽離感與人際邊界。', '它只能修飾生日建立的骨架，不能推翻。'] },
+  O: { score: TRINITY_PROGRESS.earth, lines: ['血型會補充推進力、責任感與承壓方式。', '它只能修飾生日建立的骨架，不能推翻。'] },
 };
 
 async function readJsonResponse<T>(response: Response): Promise<T> {
   const contentType = response.headers.get('content-type') ?? '';
   if (!contentType.includes('application/json')) {
-    throw new Error('伺服器回傳非 JSON 內容（HTTP ' + response.status + '）。');
+    throw new Error(`伺服器回傳非 JSON 內容（HTTP ${response.status}）。`);
   }
   return response.json() as Promise<T>;
 }
@@ -60,10 +61,9 @@ export default function HomePage() {
   const canOpenVip = Boolean(person.birthday && person.bloodType);
 
   const stageProgress = useMemo(() => {
-    if (result) return 100;
-    if (person.name.trim()) return 70;
-    if (person.bloodType) return 30;
-    if (person.birthday) return 15;
+    if (result) return TRINITY_PROGRESS.human;
+    if (person.bloodType) return TRINITY_PROGRESS.earth;
+    if (person.birthday) return TRINITY_PROGRESS.sky;
     return 0;
   }, [person, result]);
 
@@ -251,17 +251,17 @@ export default function HomePage() {
               <div className="mt-5 grid gap-4 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
                 <div className="rounded-[20px] border border-white/10 bg-white/5 p-4 text-center">
                   <p className="text-sm text-[color:var(--text-sub)]">天</p>
-                  <p className="mt-2 font-serif text-2xl text-[color:var(--human-cyan)]">15%</p>
+                  <p className="mt-2 font-serif text-2xl text-[color:var(--human-cyan)]">{TRINITY_DISPLAY_WEIGHTS.sky}%</p>
                   <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">人格骨架</p>
                 </div>
                 <div className="rounded-[20px] border border-white/10 bg-white/5 p-4 text-center">
                   <p className="text-sm text-[color:var(--text-sub)]">地</p>
-                  <p className="mt-2 font-serif text-2xl text-[color:var(--earth-gold)]">15%</p>
+                  <p className="mt-2 font-serif text-2xl text-[color:var(--earth-gold)]">{TRINITY_DISPLAY_WEIGHTS.earth}%</p>
                   <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">行為模式</p>
                 </div>
                 <div className="rounded-[20px] border border-white/10 bg-white/5 p-4 text-center">
                   <p className="text-sm text-[color:var(--text-sub)]">人</p>
-                  <p className="mt-2 font-serif text-2xl text-[color:var(--human-pink)]">70%</p>
+                  <p className="mt-2 font-serif text-2xl text-[color:var(--human-pink)]">{TRINITY_DISPLAY_WEIGHTS.human}%</p>
                   <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">個體差異</p>
                 </div>
               </div>
@@ -321,10 +321,10 @@ export default function HomePage() {
                 姓名專屬解碼區
               </h2>
               <p className="mt-2 text-lg text-[color:var(--fortune-good)] sm:text-xl">
-                解鎖剩餘 70% 個人專屬人格模型
+                解鎖剩餘 30% 個人專屬人格模型
               </p>
               <p className="mx-auto mt-4 max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
-                這裡是付費服務專區。天地預分析已先完成，現在只針對姓名做高權重個人化校正，完成三合一總和與更高精準度的人格模型。
+                這裡是付費服務專區。天地預分析已先完成，現在只針對姓名做最後個人化校正，完成三合一總和與更穩定的人格模型。
               </p>
               <div className="mx-auto mt-8 max-w-xl rounded-[24px] border border-[color:rgba(244,201,93,0.25)] bg-[color:rgba(109,74,255,0.09)] px-6 py-5 text-left">
                 <label className="mb-2 block text-sm text-[color:var(--text-sub)]">VIP 姓名輸入</label>
@@ -337,7 +337,7 @@ export default function HomePage() {
                   className="form-input"
                 />
                 <p className="mt-3 text-sm leading-7 text-[color:var(--text-muted)]">
-                  姓名屬於 VIP 解碼內容，會作為 70% 權重的最後校正器，不會推翻天地，只會深化你的個體差異。
+                  姓名屬於 VIP 解碼內容，會作為 30% 權重的最後校正器，不會推翻天地，只會深化你的個體差異。
                 </p>
               </div>
               <div className="mx-auto mt-8 grid max-w-4xl gap-4 md:grid-cols-2 xl:grid-cols-4">

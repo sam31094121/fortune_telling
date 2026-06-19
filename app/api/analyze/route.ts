@@ -28,7 +28,7 @@ function validatePerson(person: unknown): string | null {
     || candidate.name.trim().length < 2
     || candidate.name.trim().length > 20
   ) {
-    return '姓名需要 2 到 20 個字，才能解鎖剩餘 70% 的個人模型。';
+    return '姓名需要 2 到 20 個字，才能解鎖剩餘 30% 的個人模型。';
   }
 
   return null;

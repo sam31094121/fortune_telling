@@ -1,5 +1,6 @@
-import { computeMusicProfile } from './music-engine';
+﻿import { computeMusicProfile } from './music-engine';
 import { DIMENSION_META } from './personality';
+import { averageScore, clampPercentage } from './trinity-weights';
 import type {
   AnalysisResult,
   DimensionAdjustments,
@@ -22,18 +23,18 @@ function getTraitPhrase(key: DimensionKey, score: number) {
   const level = getLevel(score);
 
   const map: Record<DimensionKey, Record<string, string>> = {
-    emotion_sensitivity: { 高: '情緒感受細膩', 中: '情緒感知平衡', 低: '情緒邊界清楚' },
-    logic: { 高: '理性判斷穩定', 中: '理性與直覺並行', 低: '更依賴直覺感受' },
-    social_need: { 高: '需要互動與連結', 中: '社交節奏彈性', 低: '偏好保留個人空間' },
-    leadership: { 高: '帶動他人的意識強', 中: '必要時能承擔主導', 低: '更偏好觀察後行動' },
-    risk_tendency: { 高: '願意承擔變動', 中: '會衡量再出手', 低: '偏好穩定與可控' },
-    execution: { 高: '落地與推進能力強', 中: '執行力穩定', 低: '需要更明確的外部節奏' },
-    creativity: { 高: '想像與創造力突出', 中: '兼具實用與創意', 低: '偏好沿既有框架優化' },
-    empathy: { 高: '能快速感知他人狀態', 中: '同理與理性兼具', 低: '更重視界線與客觀' },
-    control: { 高: '對秩序與掌控有要求', 中: '控制與彈性平衡', 低: '較能接受流動與變化' },
-    security_need: { 高: '需要穩定安全感', 中: '安全感需求適中', 低: '對不確定性容忍較高' },
-    wealth_motivation: { 高: '對資源成長有驅動力', 中: '看重穩定累積', 低: '金錢不是唯一驅動' },
-    attachment: { 高: '感情投入深且黏著', 中: '依附與獨立平衡', 低: '關係中更需要呼吸感' },
+    emotion_sensitivity: { 高: '情緒感知細膩，對氣氛與關係變化非常敏銳', 中: '能感受到情緒波動，也保有自我緩衝', 低: '情緒相對穩定，不容易被外界波動牽動' },
+    logic: { 高: '思考偏理性，判斷時重視邏輯與證據', 中: '理性與直覺並用，能彈性看待問題', 低: '更依賴感受與直覺做決策' },
+    social_need: { 高: '需要互動與交流，從人際連結中獲得能量', 中: '能獨處也能社交，節奏拿捏較平衡', 低: '偏好保留私人空間，社交選擇較謹慎' },
+    leadership: { 高: '容易主動帶方向，面對局勢有掌控欲', 中: '在需要時願意承擔責任與帶頭', 低: '更擅長觀察與配合，不急著站上前線' },
+    risk_tendency: { 高: '面對未知較敢嘗試，行動帶有突破性', 中: '會評估風險後再決定是否前進', 低: '偏好穩定節奏，避免不必要的波動' },
+    execution: { 高: '落地能力強，想法能快速轉成行動', 中: '執行節奏穩健，能按步完成目標', 低: '需要更明確的動機或推力才容易啟動' },
+    creativity: { 高: '想像力活躍，能提出新視角與新做法', 中: '兼具實用與創意，能靈活調整', 低: '偏好成熟方法，較少主動顛覆既有模式' },
+    empathy: { 高: '容易感同身受，能接住他人的情緒與需求', 中: '具備理解他人的能力，也能保有界線', 低: '較重視事實與效率，不會先從情緒切入' },
+    control: { 高: '重視掌握度，習慣先規劃再行動', 中: '需要一定秩序，但也能接受彈性', 低: '傾向順勢而行，不喜歡過度框住自己' },
+    security_need: { 高: '非常重視安全感與可預期性', 中: '需要基本穩定，也接受適度變化', 低: '對不確定性的容忍度較高' },
+    wealth_motivation: { 高: '對成果與資源累積有明確動機', 中: '重視實際回報，也在意生活平衡', 低: '較少被外在報酬驅動，更重視感受與意義' },
+    attachment: { 高: '感情投入深，建立連結後會很在意關係品質', 中: '能投入感情，也保留自我節奏', 低: '情感表達較克制，需要時間建立依附感' },
   };
 
   return map[key][level];
@@ -47,10 +48,10 @@ function summarizeAdjustments(adjustments: DimensionAdjustments, threshold: numb
 }
 
 function describeAdjustment(value: number) {
-  if (value >= 10) return '明顯拉高';
-  if (value > 0) return '輕微拉高';
+  if (value >= 10) return '明顯增強';
+  if (value > 0) return '溫和增強';
   if (value <= -10) return '明顯收斂';
-  return '輕微收斂';
+  return '溫和收斂';
 }
 
 export function enrichAnalysis(result: AnalysisResult): AnalysisResult {
@@ -60,61 +61,36 @@ export function enrichAnalysis(result: AnalysisResult): AnalysisResult {
   const nameEffects = summarizeAdjustments(result.name_adjustments, 6);
 
   const skeleton_summary =
-    result.ai_skeleton_summary?.trim() ||
-    `生日先建立了你的人格骨架：${topBase
-      .map((item) => getTraitPhrase(item.key, result.base_scores[item.key]))
-      .join('、')}。這一層只定義底層輪廓，不急著下最終結論。`;
+    result.ai_skeleton_summary?.trim()
+    || `生日先建立你的人格骨架，核心特徵落在 ${topBase.map((item) => item.label).join('、')}，整體呈現 ${topBase.map((item) => getTraitPhrase(item.key, result.base_scores[item.key])).join('；')}。`;
 
   const behavior_summary =
-    result.ai_behavior_summary?.trim() ||
-    (bloodEffects.length
-      ? `血型沒有推翻原本骨架，而是補充行為模式：${bloodEffects
-          .map(
-            (item) =>
-              `${item.label}${describeAdjustment(result.blood_adjustments[item.key])}`,
-          )
-          .join('、')}。`
-      : '血型主要扮演微調角色，讓原本的人格骨架在互動與行動節奏上更具體。');
+    result.ai_behavior_summary?.trim()
+    || (bloodEffects.length
+      ? `血型在不推翻生日骨架的前提下，主要補強 ${bloodEffects.map((item) => `${item.label}${describeAdjustment(result.blood_adjustments[item.key])}`).join('、')}，讓你的外在表現更有層次。`
+      : '血型這一層提供的是細微修飾，讓原本的人格骨架在行為表現上更穩定。');
 
   const individuality_summary =
-    result.ai_individuality_summary?.trim() ||
-    (nameEffects.length
-      ? `姓名作為最後校正器，把個體差異集中放大在${nameEffects
-          .map((item) => item.label)
-          .join('、')}，讓同樣的骨架呈現出更獨特的個人風格。`
-      : '姓名沒有重新改寫你的人格，而是把原有特質個人化，讓整體表現更像你自己。');
+    result.ai_individuality_summary?.trim()
+    || (nameEffects.length
+      ? `姓名作為最後校正器，把個體差異集中深化在 ${nameEffects.map((item) => item.label).join('、')}，使整體人格輪廓更貼近你獨有的生命節奏。`
+      : '姓名主要扮演最後校正器，讓整體人格模型更個人化，但不會推翻前面的天地結論。');
 
   const final_summary =
-    result.ai_final_summary?.trim() ||
-    `最終融合後，你最鮮明的特質集中在${topFinal
-      .map((item) => item.label)
-      .join('、')}。整體模型呈現「先有骨架、再被修飾、最後被個性化」的穩定結構，不互相衝突。真正能讓人生走向更順的核心，仍然是以善為本、多行善念、多做善行。`;
+    result.ai_final_summary?.trim()
+    || `三合一融合後，你最鮮明的特質集中在 ${topFinal.map((item) => item.label).join('、')}。這代表你在人格節奏上兼具天生底色、後天表現與個體差異；若能以善為本、持續修心與行善，這份能量會更穩定地展開。`;
 
-  const wealth_motivation_summary = `你的財富動機為${getTraitPhrase(
-    'wealth_motivation',
-    result.final_scores.wealth_motivation,
-  )}，並受到${getTraitPhrase('execution', result.final_scores.execution)}與${getTraitPhrase(
-    'security_need',
-    result.final_scores.security_need,
-  )}影響。`;
+  const wealth_motivation_summary = `你的財富動機呈現 ${getTraitPhrase('wealth_motivation', result.final_scores.wealth_motivation)}，並且會受到 ${getTraitPhrase('execution', result.final_scores.execution)} 與 ${getTraitPhrase('security_need', result.final_scores.security_need)} 的共同影響。`;
 
-  const love_pattern_summary = `你的感情模式偏向${getTraitPhrase(
-    'attachment',
-    result.final_scores.attachment,
-  )}，同時帶有${getTraitPhrase('empathy', result.final_scores.empathy)}的互動傾向。`;
+  const love_pattern_summary = `你的感情模式偏向 ${getTraitPhrase('attachment', result.final_scores.attachment)}，同時伴隨 ${getTraitPhrase('empathy', result.final_scores.empathy)}，因此在親密關係中會特別在意安全感與互相理解。`;
 
-  const blind_spot_summary = `目前最需要留意的是${sortDimensions(result.final_scores)
-    .slice(-2)
-    .map((item) => item.label)
-    .join('與')}較弱時，容易讓你的優勢發揮被卡住。`;
+  const blind_spot_summary = `目前較需要留意的盲點落在 ${sortDimensions(result.final_scores).slice(-2).map((item) => item.label).join('、')}；當壓力升高時，這兩個面向最容易失去平衡。`;
 
-  const life_advantage_summary = `你的人生優勢主要來自${topFinal
-    .slice(0, 2)
-    .map((item) => item.label)
-    .join('與')}，這會成為你最穩定的個人驅動來源。`;
+  const life_advantage_summary = `你的人生優勢集中在 ${topFinal.slice(0, 2).map((item) => item.label).join('、')}，只要方向對了，這兩股能量很容易成為你長期發展的主軸。`;
 
   return {
     ...result,
+    resonance_score: clampPercentage(result.resonance_score),
     skeleton_summary,
     behavior_summary,
     individuality_summary,
@@ -123,6 +99,7 @@ export function enrichAnalysis(result: AnalysisResult): AnalysisResult {
     love_pattern_summary,
     blind_spot_summary,
     life_advantage_summary,
+    music_profile: computeMusicProfile(result.final_scores),
   };
 }
 
@@ -136,7 +113,7 @@ export function enrichPreview(
   const preview_scores = Object.fromEntries(
     DIMENSION_META.map((item) => [
       item.key,
-      Math.max(0, Math.min(100, Math.round(base_scores[item.key] + blood_adjustments[item.key]))),
+      clampPercentage(base_scores[item.key] + blood_adjustments[item.key]),
     ]),
   ) as DimensionScores;
 
@@ -145,31 +122,21 @@ export function enrichPreview(
   const bloodEffects = summarizeAdjustments(blood_adjustments, 4);
 
   const skeleton_summary =
-    aiSkeletonSummary?.trim() ||
-    `生日先建立了人格骨架：${topBase
-      .map((item) => getTraitPhrase(item.key, base_scores[item.key]))
-      .join('、')}。這個階段只先定義底層輪廓。`;
+    aiSkeletonSummary?.trim()
+    || `生日先建立人格骨架，目前最明顯的底層特徵是 ${topBase.map((item) => item.label).join('、')}。`;
 
   const behavior_summary =
-    aiBehaviorSummary?.trim() ||
-    (bloodEffects.length
-      ? `血型進一步補充了行為模式：${bloodEffects
-          .map((item) => `${item.label}${describeAdjustment(blood_adjustments[item.key])}`)
-          .join('、')}。`
-      : '血型目前只做輕量修飾，讓骨架更接近你在現實中的互動樣子。');
+    aiBehaviorSummary?.trim()
+    || (bloodEffects.length
+      ? `血型補強了 ${bloodEffects.map((item) => `${item.label}${describeAdjustment(blood_adjustments[item.key])}`).join('、')}，讓外在互動模式更具辨識度。`
+      : '血型目前帶來的是溫和修飾，還不會推翻先天人格骨架。');
 
   const preview_summary =
-    aiPreviewSummary?.trim() ||
-    `天地預分析完成後，你目前最突出的傾向集中在${topPreview
-      .map((item) => item.label)
-      .join('、')}。這是免費階段的人格輪廓，接下來姓名會解鎖更深的個體差異。`;
-
-  const preview_score = Math.round(
-    Object.values(preview_scores).reduce((sum, value) => sum + value, 0) / Object.values(preview_scores).length,
-  );
+    aiPreviewSummary?.trim()
+    || `天地預分析已建立完成，目前最突出的能量集中在 ${topPreview.map((item) => item.label).join('、')}；接下來若加入姓名，模型會進一步做個體化校正。`;
 
   return {
-    preview_score,
+    preview_score: averageScore(Object.values(preview_scores)),
     base_scores,
     blood_adjustments,
     preview_scores,

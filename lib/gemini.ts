@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from '@google/genai';
+﻿import { GoogleGenAI, Type } from '@google/genai';
 import { computeMusicProfile } from './music-engine';
 import { enrichAnalysis, enrichPreview } from './personality-engine';
 import {
@@ -9,6 +9,7 @@ import {
   type PersonInput,
   type PreviewAnalysisResult,
 } from './types';
+import { averageScore, clampPercentage, fuseTrinityStages } from './trinity-weights';
 import { getZodiacSign } from './zodiac';
 
 const MODEL_NAME = 'gemini-2.5-flash';
@@ -38,10 +39,10 @@ const RESPONSE_SCHEMA = {
       properties: DIMENSION_PROPERTIES,
       required: [...DIMENSION_KEYS],
     },
-    ai_skeleton_summary: { type: Type.STRING, description: '生日建立的人格骨架摘要，80字內。' },
-    ai_behavior_summary: { type: Type.STRING, description: '血型補充後的行為模式摘要，80字內。' },
-    ai_individuality_summary: { type: Type.STRING, description: '姓名個人化校正摘要，80字內。' },
-    ai_final_summary: { type: Type.STRING, description: '最終融合摘要，150字內。' },
+    ai_skeleton_summary: { type: Type.STRING, description: '生日建立的人格骨架摘要，80 字內。' },
+    ai_behavior_summary: { type: Type.STRING, description: '血型補充後的行為模式摘要，80 字內。' },
+    ai_individuality_summary: { type: Type.STRING, description: '姓名校正後的個體差異摘要，80 字內。' },
+    ai_final_summary: { type: Type.STRING, description: '最終整體摘要，150 字內。' },
   },
   required: [
     'resonance_score',
@@ -68,9 +69,9 @@ const PREVIEW_RESPONSE_SCHEMA = {
       properties: DIMENSION_PROPERTIES,
       required: [...DIMENSION_KEYS],
     },
-    ai_skeleton_summary: { type: Type.STRING, description: '生日建立的人格骨架摘要，80字內。' },
-    ai_behavior_summary: { type: Type.STRING, description: '血型補充後的行為模式摘要，80字內。' },
-    ai_preview_summary: { type: Type.STRING, description: '天地預分析摘要，120字內。' },
+    ai_skeleton_summary: { type: Type.STRING, description: '生日建立的人格骨架摘要，80 字內。' },
+    ai_behavior_summary: { type: Type.STRING, description: '血型補充後的行為模式摘要，80 字內。' },
+    ai_preview_summary: { type: Type.STRING, description: '天地預分析摘要，120 字內。' },
   },
   required: [
     'base_scores',
@@ -85,47 +86,33 @@ function buildPrompt(person: PersonInput): string {
   const zodiac = getZodiacSign(person.birthday);
 
   return `
-你是「天地人 AI 人格解碼系統™ V2.0」的核心分析引擎。
+你是「天地人 AI 人格解碼系統™ V2.0」的分析引擎，請用繁體中文輸出穩定、權威、神秘但不浮誇的結果。
 
-核心鐵律：
-1. 永遠禁止互相否定。
-2. 血型不能推翻生日，只能補充、修飾、細化。
-3. 姓名權重 70%，但姓名不是重新算一次，而是最後校正器；不得推翻天地結論，只能深化、補充、細化、個性化。
-4. 全系統只允許使用以下 12 個人格維度，不得新增、不得替換、不得隨機生成：
-   - emotion_sensitivity 情緒敏感度
-   - logic 理性程度
-   - social_need 社交需求
-   - leadership 領導傾向
-   - risk_tendency 冒險傾向
-   - execution 執行能力
-   - creativity 創造能力
-   - empathy 同理能力
-   - control 控制慾
-   - security_need 安全感需求
-   - wealth_motivation 財富動機
-   - attachment 感情依附
+核心規則：
+1. 全系統只分析 12 個固定維度：情緒敏感度、理性程度、社交需求、領導傾向、冒險傾向、執行能力、創造能力、同理能力、控制慾、安全感需求、財富動機、感情依附。
+2. 天代表生日，權重 35%，只負責建立人格骨架。
+3. 地代表血型，權重 35%，只負責補充行為模式；只能修飾天，不能推翻天。
+4. 人代表姓名，權重 30%，只負責最後個體化校正；只能深化與細化，不能推翻天地。
+5. 系統會在伺服器端把 35/35/30 做正規化融合，所以你只需要提供 base_scores、blood_adjustments、name_adjustments，不要自行輸出 final_scores。
 
-分析流程必須完全照做：
-STEP 1：根據生日與星座，建立人格骨架，只輸出 base_scores。
-STEP 2：根據血型，輸出 blood_adjustments，這些值只能修飾 base_scores，不可產生互相否定的敘述。
-STEP 3：根據姓名，輸出 name_adjustments，作為 70% 權重的個體差異校正器，不可推翻前兩步，只能讓人格更個人化。
-STEP 4：計算 final_scores = base_scores + blood_adjustments + name_adjustments。
-
-使用者資料：
+輸入資料：
 - 姓名：${person.name}
 - 生日：${person.birthday}
 - 星座：${zodiac}
 - 血型：${person.bloodType}
 
-輸出規則：
-1. 只輸出 JSON，不要輸出任何其他內容。
+輸出步驟：
+STEP 1：根據生日，輸出 12 維度的 base_scores，範圍 0 到 100。
+STEP 2：根據血型，輸出 blood_adjustments，作為小幅修正值，範圍建議 -12 到 +12。
+STEP 3：根據姓名，輸出 name_adjustments，作為最後校正值，範圍建議 -18 到 +18。
+STEP 4：輸出簡短摘要，但語氣要高級、穩定、像專業人格顧問。
+
+嚴格限制：
+1. 只能輸出合法 JSON。
 2. resonance_score 一律叫「人格共鳴度」，不可寫準確率。
-3. base_scores 與 final_scores 範圍為 0 到 100 的整數。
-4. blood_adjustments 與 name_adjustments 為整數，可正可負；其中血型修正幅度建議落在 -12 到 +12，姓名修正幅度建議落在 -18 到 +18。
-5. 不需要輸出 final_scores，本地系統會自行計算最終值。
-6. ai_skeleton_summary 描述生日建立的人格骨架；ai_behavior_summary 描述血型如何補充行為模式；ai_individuality_summary 描述姓名如何細化個體差異；ai_final_summary 是最終融合結論。
-7. 所有 summary 都要遵守「只能補充深化，不能互相否定」。
-8. 語氣是高級人格模型，不是算命口吻，不是紫微網站口吻，不要誇大，不要恐嚇。
+3. 不可出現互相矛盾的判斷。
+4. 摘要不可可愛、不可搞笑、不可過度誇張。
+5. 結尾精神要符合「以善為本，多行善才能改運」的價值觀，但不要說教。
 `.trim();
 }
 
@@ -133,58 +120,58 @@ function buildPreviewPrompt(input: { birthday: string; bloodType: Exclude<Person
   const zodiac = getZodiacSign(input.birthday);
 
   return `
-你是「天地人 AI 人格解碼系統™」的天地預分析引擎。
+你是「天地人 AI 人格解碼系統™ V2.0」的免費天地預分析引擎，請用繁體中文輸出穩定、權威、簡潔的結果。
 
-任務規則：
-1. 只分析天與地，不處理姓名。
-2. 生日負責建立人格骨架，血型只做補充修飾，不可推翻生日結論。
-3. 只能使用以下 12 個固定維度：
-   emotion_sensitivity, logic, social_need, leadership, risk_tendency, execution,
-   creativity, empathy, control, security_need, wealth_motivation, attachment
-4. 只輸出 JSON。
+核心規則：
+1. 只分析 12 個固定維度，不可新增。
+2. 天代表生日，建立人格骨架。
+3. 地代表血型，補充行為模式；只能修飾生日骨架，不能推翻。
+4. 這是免費天地預分析，尚未輸入姓名，因此不可假裝已完成最終人格模型。
 
-使用者資料：
+輸入資料：
 - 生日：${input.birthday}
 - 星座：${zodiac}
 - 血型：${input.bloodType}
 
-輸出規則：
-1. base_scores 為生日建立的人格骨架，0 到 100 整數。
-2. blood_adjustments 為血型修正值，整數，建議落在 -12 到 +12。
-3. ai_skeleton_summary 只描述天的骨架，不下太重結論。
-4. ai_behavior_summary 只描述地如何補充，不可否定天。
-5. ai_preview_summary 描述天地預分析已完成，並引導姓名解鎖更深層個體差異。
+請輸出：
+1. base_scores：生日建立的 12 維度基礎值，0 到 100。
+2. blood_adjustments：血型帶來的修正值，建議範圍 -12 到 +12。
+3. ai_skeleton_summary：人格骨架摘要，80 字內。
+4. ai_behavior_summary：血型補充後的行為模式摘要，80 字內。
+5. ai_preview_summary：天地預分析摘要，120 字內。
+
+嚴格限制：
+1. 只能輸出合法 JSON。
+2. 不可宣稱已完成姓名分析。
+3. 語氣必須穩定、神秘、高級，不可浮誇。
 `.trim();
 }
 
 function clampScore(value: number) {
-  if (!Number.isFinite(value)) throw new Error('AI 回傳了無效的維度分數。');
-  return Math.max(0, Math.min(100, Math.round(value)));
+  if (!Number.isFinite(value)) throw new Error('AI 回傳了無效的分數。');
+  return clampPercentage(value);
 }
 
 function roundAdjustment(value: number) {
-  if (!Number.isFinite(value)) throw new Error('AI 回傳了無效的調整分數。');
+  if (!Number.isFinite(value)) throw new Error('AI 回傳了無效的修正值。');
   return Math.round(value);
 }
 
 function mapScores(scores: Record<string, number>): DimensionScores {
-  if (!scores || typeof scores !== 'object') throw new Error('AI 回傳缺少基礎分數。');
+  if (!scores || typeof scores !== 'object') throw new Error('AI 回傳的基礎分數格式不正確。');
   return Object.fromEntries(
     DIMENSION_KEYS.map((key) => [key, clampScore(scores[key])]),
   ) as DimensionScores;
 }
 
 function mapAdjustments(scores: Record<string, number>): DimensionAdjustments {
-  if (!scores || typeof scores !== 'object') throw new Error('AI 回傳缺少調整分數。');
+  if (!scores || typeof scores !== 'object') throw new Error('AI 回傳的修正值格式不正確。');
   return Object.fromEntries(
     DIMENSION_KEYS.map((key) => [key, roundAdjustment(scores[key])]),
   ) as DimensionAdjustments;
 }
 
-function clampAdjustments(
-  scores: DimensionAdjustments,
-  cap: number,
-): DimensionAdjustments {
+function clampAdjustments(scores: DimensionAdjustments, cap: number): DimensionAdjustments {
   return Object.fromEntries(
     DIMENSION_KEYS.map((key) => [key, Math.max(-cap, Math.min(cap, roundAdjustment(scores[key])))]),
   ) as DimensionAdjustments;
@@ -195,15 +182,23 @@ function normalize(result: AnalysisResult): AnalysisResult {
   const blood_adjustments = clampAdjustments(mapAdjustments(result.blood_adjustments), BLOOD_ADJUSTMENT_CAP);
   const name_adjustments = clampAdjustments(mapAdjustments(result.name_adjustments), NAME_ADJUSTMENT_CAP);
 
+  const earth_stage_scores = Object.fromEntries(
+    DIMENSION_KEYS.map((key) => [key, clampScore(base_scores[key] + blood_adjustments[key])]),
+  ) as DimensionScores;
+
+  const human_stage_scores = Object.fromEntries(
+    DIMENSION_KEYS.map((key) => [key, clampScore(earth_stage_scores[key] + name_adjustments[key])]),
+  ) as DimensionScores;
+
   const final_scores = Object.fromEntries(
     DIMENSION_KEYS.map((key) => [
       key,
-      clampScore(base_scores[key] + blood_adjustments[key] + name_adjustments[key]),
+      fuseTrinityStages(base_scores[key], earth_stage_scores[key], human_stage_scores[key]),
     ]),
   ) as DimensionScores;
 
   return {
-    resonance_score: clampScore(result.resonance_score),
+    resonance_score: averageScore(Object.values(final_scores)),
     base_scores,
     blood_adjustments,
     name_adjustments,
@@ -220,7 +215,6 @@ function normalize(result: AnalysisResult): AnalysisResult {
     love_pattern_summary: '',
     blind_spot_summary: '',
     life_advantage_summary: '',
-    // computed from final_scores; enrichAnalysis may refine but won't recompute
     music_profile: computeMusicProfile(final_scores),
   };
 }
@@ -230,7 +224,7 @@ export async function analyzeDestiny(person: PersonInput): Promise<AnalysisResul
 
   if (!apiKey) {
     console.error('[gemini] GEMINI_API_KEY is missing');
-    throw new Error('找不到 Gemini API 金鑰，請先在 .env.local 設定 GEMINI_API_KEY。');
+    throw new Error('尚未設定 Gemini API 金鑰，請先在 .env.local 中加入 GEMINI_API_KEY。');
   }
 
   const ai = new GoogleGenAI({ apiKey });
@@ -256,14 +250,14 @@ export async function analyzeDestiny(person: PersonInput): Promise<AnalysisResul
   }
 
   if (!text) {
-    throw new Error('Gemini 沒有回傳可用內容，請稍後再試。');
+    throw new Error('Gemini 沒有回傳可解析的內容，請稍後再試。');
   }
 
   try {
     return enrichAnalysis(normalize(JSON.parse(text) as AnalysisResult));
   } catch (error) {
     console.error('[gemini] invalid JSON response', text, error);
-    throw new Error('Gemini 回傳格式異常，請重新啟動解碼。');
+    throw new Error('Gemini 回傳格式異常，系統無法完成穩定解碼。');
   }
 }
 
@@ -275,7 +269,7 @@ export async function analyzePreview(input: {
 
   if (!apiKey) {
     console.error('[gemini] GEMINI_API_KEY is missing');
-    throw new Error('找不到 Gemini API 金鑰，請先在 .env.local 設定 GEMINI_API_KEY。');
+    throw new Error('尚未設定 Gemini API 金鑰，請先在 .env.local 中加入 GEMINI_API_KEY。');
   }
 
   const ai = new GoogleGenAI({ apiKey });
