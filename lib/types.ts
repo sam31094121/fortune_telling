@@ -63,27 +63,75 @@ export type DimensionKey = (typeof DIMENSION_KEYS)[number];
 export type DimensionScores = Record<DimensionKey, number>;
 export type DimensionAdjustments = Record<DimensionKey, number>;
 
+/**
+ * 人格融合引擎結果
+ * 
+ * 權重公式：
+ * 人格原始分數 = 天模型(生日) × 35% + 地模型(血型) × 35% + 人模型(姓名) × 30%
+ * 最終人格 = 人格原始分數 + 性別校正值（性別只改變表現方式，不改變本質）
+ */
 export interface AnalysisResult {
-  resonance_score: number;
-  base_scores: DimensionScores;
-  blood_adjustments: DimensionAdjustments;
-  name_adjustments: DimensionAdjustments;
+  // ── 人格矩陣三層結構 ────────────────────────────
+  
+  /** 天模型：生日驅動的人格骨架 (35% 權重) */
+  birth_scores: DimensionScores;
+  
+  /** 地模型：血型驅動的行為補充 (35% 權重) */
+  blood_scores: DimensionScores;
+  
+  /** 人模型：姓名驅動的個體差異 (30% 權重) */
+  name_scores: DimensionScores;
+  
+  /** 融合後的原始人格分數 (在性別校正前) */
+  raw_personality: DimensionScores;
+  
+  /** 性別校正值：改變表現方式，不改變本質 */
+  gender_adjustments: DimensionAdjustments;
+  
+  /** 最終人格矩陣 */
   final_scores: DimensionScores;
+  
+  // ── AI 文字分析（依據順序不可推翻） ────────────────────
+  
+  /** 天分析：生日人格骨架的深度解讀 */
+  birth_analysis?: string;
+  
+  /** 地分析：血型如何補充天的模式 */
+  blood_analysis?: string;
+  
+  /** 人分析：姓名如何個人化整體特質 */
+  name_analysis?: string;
+  
+  /** 性別表現：根據性別校正的行為建議 */
+  gender_presentation?: string;
+  
+  /** 最終人格洞察 */
+  final_insight?: string;
+  
+  /** 善念因果結語 */
+  wisdom_conclusion?: string;
+  
+  // ── 向後相容舊欄位 ────────────────────
+  resonance_score?: number;
+  base_scores?: DimensionScores;
+  blood_adjustments?: DimensionAdjustments;
+  name_adjustments?: DimensionAdjustments;
   ai_skeleton_summary?: string;
   ai_behavior_summary?: string;
   ai_individuality_summary?: string;
   ai_final_summary?: string;
   ai_wisdom_perspective?: string;
-  skeleton_summary: string;
-  behavior_summary: string;
-  individuality_summary: string;
-  final_summary: string;
-  wealth_motivation_summary: string;
-  love_pattern_summary: string;
-  blind_spot_summary: string;
-  life_advantage_summary: string;
+  skeleton_summary?: string;
+  behavior_summary?: string;
+  individuality_summary?: string;
+  final_summary?: string;
+  wealth_motivation_summary?: string;
+  love_pattern_summary?: string;
+  blind_spot_summary?: string;
+  life_advantage_summary?: string;
+  
+  // ── 音樂與其他輸出 ────────────────────
   music_profile: MusicProfile;
-  wisdom_perspective: string;
 }
 
 export interface PreviewAnalysisResult {
