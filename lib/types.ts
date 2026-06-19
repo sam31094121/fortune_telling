@@ -45,6 +45,7 @@ export interface AnalysisResult {
   ai_behavior_summary?: string;
   ai_individuality_summary?: string;
   ai_final_summary?: string;
+  ai_wisdom_perspective?: string;
   skeleton_summary: string;
   behavior_summary: string;
   individuality_summary: string;
@@ -54,6 +55,7 @@ export interface AnalysisResult {
   blind_spot_summary: string;
   life_advantage_summary: string;
   music_profile: MusicProfile;
+  wisdom_perspective: string;
 }
 
 export interface PreviewAnalysisResult {

@@ -39,10 +39,11 @@ const RESPONSE_SCHEMA = {
       properties: DIMENSION_PROPERTIES,
       required: [...DIMENSION_KEYS],
     },
-    ai_skeleton_summary: { type: Type.STRING, description: '生日建立的人格骨架摘要，80 字內。' },
-    ai_behavior_summary: { type: Type.STRING, description: '血型補充後的行為模式摘要，80 字內。' },
-    ai_individuality_summary: { type: Type.STRING, description: '姓名校正後的個體差異摘要，80 字內。' },
-    ai_final_summary: { type: Type.STRING, description: '最終整體摘要，150 字內。' },
+    ai_skeleton_summary: { type: Type.STRING, description: '生日建立的人格骨架摘要，80 字內。純粹描述人格特質，不含善惡評價或人生建議。' },
+    ai_behavior_summary: { type: Type.STRING, description: '血型補充後的行為模式摘要，80 字內。純粹描述行為傾向，不含善惡評價或人生建議。' },
+    ai_individuality_summary: { type: Type.STRING, description: '姓名校正後的個體差異摘要，80 字內。純粹描述個體特質，不含善惡評價或人生建議。' },
+    ai_final_summary: { type: Type.STRING, description: '最終整體人格摘要，150 字內。純粹描述人格模型，不含善惡評價或人生建議。' },
+    ai_wisdom_perspective: { type: Type.STRING, description: '天地人智慧觀點，200 字內。這是唯一可以出現因果、善念、人生建議的字段。結合此人的人格特質，給出個人化的智慧洞見，風格深沉、高格局、不說教。' },
   },
   required: [
     'resonance_score',
@@ -53,6 +54,7 @@ const RESPONSE_SCHEMA = {
     'ai_behavior_summary',
     'ai_individuality_summary',
     'ai_final_summary',
+    'ai_wisdom_perspective',
   ],
 };
 
@@ -86,7 +88,11 @@ function buildPrompt(person: PersonInput): string {
   const zodiac = getZodiacSign(person.birthday);
 
   return `
-你是「天地人 AI 人格解碼系統™ V2.0」的分析引擎，請用繁體中文輸出穩定、權威、神秘但不浮誇的結果。
+你是「天地人 AI 人格解碼系統」的雙層引擎，請用繁體中文輸出穩定、權威、精準的結果。
+
+【第一層：人格引擎（嚴格中立）】
+這一層只分析。不評論。不說教。不涉及善惡判斷。
+只負責輸出：base_scores、blood_adjustments、name_adjustments、以及四段純人格描述摘要。
 
 核心規則：
 1. 全系統只分析 12 個固定維度：情緒敏感度、理性程度、社交需求、領導傾向、冒險傾向、執行能力、創造能力、同理能力、控制慾、安全感需求、財富動機、感情依附。
@@ -101,18 +107,31 @@ function buildPrompt(person: PersonInput): string {
 - 星座：${zodiac}
 - 血型：${person.bloodType}
 
-輸出步驟：
 STEP 1：根據生日，輸出 12 維度的 base_scores，範圍 0 到 100。
-STEP 2：根據血型，輸出 blood_adjustments，作為小幅修正值，範圍建議 -12 到 +12。
-STEP 3：根據姓名，輸出 name_adjustments，作為最後校正值，範圍建議 -18 到 +18。
-STEP 4：輸出簡短摘要，但語氣要高級、穩定、像專業人格顧問。
+STEP 2：根據血型，輸出 blood_adjustments，小幅修正值，建議範圍 -12 到 +12。
+STEP 3：根據姓名，輸出 name_adjustments，最後校正值，建議範圍 -18 到 +18。
+STEP 4：輸出 ai_skeleton_summary、ai_behavior_summary、ai_individuality_summary、ai_final_summary，語氣高級、穩定、像專業人格顧問。這四段必須保持純人格描述，不得出現善惡判斷或人生建議。
+
+【第二層：智慧引擎（ai_wisdom_perspective）】
+人格模型完成後，才進入第二層。
+這一層不再分析人格，而是產生個人化的智慧觀點。
+這是整個系統唯一可以出現因果、善念、人生方向的字段。
+
+請結合此人的人格特質，以下列思維框架生成 ai_wisdom_perspective（200 字內）：
+- 天地人塑造了他的傾向，但選擇塑造了他的人生
+- 人格決定習慣，習慣影響行動，行動累積結果，結果形成命運
+- 天地萬物皆有因果，每一個選擇都在創造未來的自己
+- 善念並非改變命運的捷徑，而是讓人生走向更好循環的開始
+- 以善念待人，以誠信處事，以感恩看待世界，往往能創造更長遠的福報與機會
+
+風格要求：深沉、高格局、不說教、不命中注定式的宿命論。結合此人具體的人格維度特質做個人化洞見。
 
 嚴格限制：
 1. 只能輸出合法 JSON。
 2. resonance_score 一律叫「人格共鳴度」，不可寫準確率。
 3. 不可出現互相矛盾的判斷。
 4. 摘要不可可愛、不可搞笑、不可過度誇張。
-5. 結尾精神要符合「以善為本，多行善才能改運」的價值觀，但不要說教。
+5. 因果、善念、人生建議只能出現在 ai_wisdom_perspective，不得滲入其他字段。
 `.trim();
 }
 
@@ -207,6 +226,7 @@ function normalize(result: AnalysisResult): AnalysisResult {
     ai_behavior_summary: result.ai_behavior_summary?.trim(),
     ai_individuality_summary: result.ai_individuality_summary?.trim(),
     ai_final_summary: result.ai_final_summary?.trim(),
+    ai_wisdom_perspective: result.ai_wisdom_perspective?.trim(),
     skeleton_summary: '',
     behavior_summary: '',
     individuality_summary: '',
@@ -215,6 +235,7 @@ function normalize(result: AnalysisResult): AnalysisResult {
     love_pattern_summary: '',
     blind_spot_summary: '',
     life_advantage_summary: '',
+    wisdom_perspective: '',
     music_profile: computeMusicProfile(final_scores),
   };
 }

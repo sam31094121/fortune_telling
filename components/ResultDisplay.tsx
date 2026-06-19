@@ -122,11 +122,38 @@ export default function ResultDisplay({ result }: ResultDisplayProps) {
             </div>
           </div>
 
-          {/* Music profile — refined by name adjustment in final_scores */}
+          {/* 第四段：專屬人格音樂 */}
           <div className="mt-8">
             <MusicProfile profile={result.music_profile} tier="full" />
           </div>
         </section>
+      </div>
+
+      {/* 第五段：AI 智慧觀點 */}
+      <div className="mt-10 rounded-[28px] border border-[color:rgba(244,201,93,0.28)] bg-[color:rgba(109,74,255,0.06)] px-7 py-8">
+        <div className="mb-5 flex items-center gap-3">
+          <span className="text-xl">✦</span>
+          <div>
+            <p className="text-xs uppercase tracking-[0.4em] text-[color:var(--text-muted)]">
+              第五段 · 智慧引擎
+            </p>
+            <h3 className="mt-1 font-serif text-2xl text-[color:var(--text-main)]">AI 智慧觀點</h3>
+          </div>
+          <span className="ml-auto text-xl">✦</span>
+        </div>
+        <div className="space-y-4">
+          {result.wisdom_perspective.split('\n\n').map((paragraph, index) => (
+            <p
+              key={index}
+              className="text-sm leading-8 text-[color:var(--text-sub)] sm:text-base sm:leading-9"
+            >
+              {paragraph}
+            </p>
+          ))}
+        </div>
+        <p className="mt-6 text-right text-xs tracking-[0.3em] text-[color:var(--text-muted)]">
+          天地萬物一切皆有靈
+        </p>
       </div>
     </div>
   );

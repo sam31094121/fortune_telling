@@ -78,7 +78,7 @@ export function enrichAnalysis(result: AnalysisResult): AnalysisResult {
 
   const final_summary =
     result.ai_final_summary?.trim()
-    || `三合一融合後，你最鮮明的特質集中在 ${topFinal.map((item) => item.label).join('、')}。這代表你在人格節奏上兼具天生底色、後天表現與個體差異；若能以善為本、持續修心與行善，這份能量會更穩定地展開。`;
+    || `三合一融合後，你最鮮明的特質集中在 ${topFinal.map((item) => item.label).join('、')}。這代表你在人格節奏上兼具天生底色、後天表現與個體差異，整體人格模型已完整建立。`;
 
   const wealth_motivation_summary = `你的財富動機呈現 ${getTraitPhrase('wealth_motivation', result.final_scores.wealth_motivation)}，並且會受到 ${getTraitPhrase('execution', result.final_scores.execution)} 與 ${getTraitPhrase('security_need', result.final_scores.security_need)} 的共同影響。`;
 
@@ -87,6 +87,12 @@ export function enrichAnalysis(result: AnalysisResult): AnalysisResult {
   const blind_spot_summary = `目前較需要留意的盲點落在 ${sortDimensions(result.final_scores).slice(-2).map((item) => item.label).join('、')}；當壓力升高時，這兩個面向最容易失去平衡。`;
 
   const life_advantage_summary = `你的人生優勢集中在 ${topFinal.slice(0, 2).map((item) => item.label).join('、')}，只要方向對了，這兩股能量很容易成為你長期發展的主軸。`;
+
+  const aiWisdom = result.ai_wisdom_perspective?.trim();
+  const topDim = topFinal[0];
+  const wisdom_perspective =
+    aiWisdom
+    || `天地人塑造了你的傾向，但選擇塑造了你的人生。你在${topDim.label}上所積累的能量，是命運交叉口最容易形成突破的地方。\n\n人格決定習慣，習慣影響行動，行動累積結果，結果形成命運。\n\n天地萬物皆有因果，每一個選擇都在創造未來的自己。善念並非改變命運的捷徑，而是讓人生走向更好循環的開始。以善念待人，以誠信處事，以感恩看待世界，往往能創造更長遠的福報與機會。`;
 
   return {
     ...result,
@@ -99,6 +105,7 @@ export function enrichAnalysis(result: AnalysisResult): AnalysisResult {
     love_pattern_summary,
     blind_spot_summary,
     life_advantage_summary,
+    wisdom_perspective,
     music_profile: computeMusicProfile(result.final_scores),
   };
 }
