@@ -14,17 +14,6 @@ function validatePerson(person: unknown): string | null {
 
   const candidate = person as Partial<PersonInput>;
 
-  if (typeof candidate.name !== 'string' || candidate.name.trim().length < 2) {
-    return '姓名至少需要 2 個字，才能啟動姓名能量模型。';
-  }
-
-  if (
-    typeof candidate.bloodType !== 'string' ||
-    !VALID_BLOOD_TYPES.includes(candidate.bloodType as Exclude<BloodType, ''>)
-  ) {
-    return '血型格式不正確。';
-  }
-
   if (typeof candidate.birthday !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(candidate.birthday)) {
     return '生日格式不正確。';
   }
@@ -36,6 +25,17 @@ function validatePerson(person: unknown): string | null {
 
   if (date.getTime() > Date.now()) {
     return '生日不能是未來日期。';
+  }
+
+  if (
+    typeof candidate.bloodType !== 'string' ||
+    !VALID_BLOOD_TYPES.includes(candidate.bloodType as Exclude<BloodType, ''>)
+  ) {
+    return '血型格式不正確。';
+  }
+
+  if (typeof candidate.name !== 'string' || candidate.name.trim().length < 2) {
+    return '姓名至少需要 2 個字，才能解鎖剩餘 70% 的個人模型。';
   }
 
   return null;

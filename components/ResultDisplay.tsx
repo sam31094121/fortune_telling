@@ -1,8 +1,13 @@
+import { DIMENSION_META } from '@/lib/personality';
 import type { AnalysisResult } from '@/lib/types';
 import ProgressBar from './ProgressBar';
 
 interface ResultDisplayProps {
   result: AnalysisResult;
+}
+
+function signed(value: number) {
+  return value > 0 ? `+${value}` : `${value}`;
 }
 
 export default function ResultDisplay({ result }: ResultDisplayProps) {
@@ -16,7 +21,7 @@ export default function ResultDisplay({ result }: ResultDisplayProps) {
           天地人融合完成
         </h2>
         <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
-          我們無法預測你的未來，但我們可以讓你看見那個連自己都沒發現的自己。
+          不是算命，而是以生日、血型、姓名建立你的專屬人格模型。
         </p>
       </div>
 
@@ -28,64 +33,92 @@ export default function ResultDisplay({ result }: ResultDisplayProps) {
               <p className="mt-2 text-sm text-[color:var(--text-sub)]">人格共鳴度</p>
             </div>
           </div>
-          <div className="mt-6 max-w-sm rounded-[22px] border border-white/10 bg-white/5 px-5 py-4">
-            <h3 className="font-serif text-xl text-[color:var(--text-main)]">人格主軸</h3>
-            <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">{result.summary}</p>
+
+          <div className="mt-6 max-w-sm rounded-[22px] border border-white/10 bg-white/5 px-5 py-4 text-left">
+            <h3 className="font-serif text-xl text-[color:var(--text-main)]">最終融合</h3>
+            <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">{result.final_summary}</p>
           </div>
-          <div className="mt-5 max-w-sm rounded-[22px] border border-[color:rgba(244,201,93,0.2)] bg-[color:rgba(109,74,255,0.09)] px-5 py-4 text-left">
-            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">姓名能量模型</p>
-            <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">{result.name_energy}</p>
+
+          <div className="mt-5 grid w-full max-w-sm gap-4">
+            <div className="rounded-[22px] border border-white/10 bg-white/5 px-5 py-4 text-left">
+              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">天｜人格骨架</p>
+              <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">{result.skeleton_summary}</p>
+            </div>
+            <div className="rounded-[22px] border border-white/10 bg-white/5 px-5 py-4 text-left">
+              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">地｜行為模式</p>
+              <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">{result.behavior_summary}</p>
+            </div>
+            <div className="rounded-[22px] border border-[color:rgba(244,201,93,0.2)] bg-[color:rgba(109,74,255,0.09)] px-5 py-4 text-left">
+              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">人｜個體差異</p>
+              <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">{result.individuality_summary}</p>
+            </div>
           </div>
         </section>
 
         <section className="min-w-0">
           <div className="mb-6">
             <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-              專屬天地人報告
+              專屬人格模型
             </p>
-            <h3 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">完整人格解碼</h3>
+            <h3 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">12 維度最終人格圖譜</h3>
             <p className="mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
-              這份報告綜合先天命格、後天氣場與姓名能量，重點不是判定好壞，而是幫你看見自己最真實的驅動來源。
+              生日負責建立骨架，血型只做修飾，姓名負責個人化校正；系統不允許後面的資訊推翻前面的結論。
             </p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <ProgressBar
-              label="人格輪廓"
-              score={result.personality.score}
-              description={result.personality.description}
-              tone="sky"
-            />
-            <ProgressBar
-              label="財富磁場"
-              score={result.wealth.score}
-              description={result.wealth.description}
-              tone="earth"
-            />
-            <ProgressBar
-              label="感情模式"
-              score={result.love.score}
-              description={result.love.description}
-              tone="love"
-            />
-            <ProgressBar
-              label="領導特質"
-              score={result.leadership.score}
-              description={result.leadership.description}
-              tone="human"
-            />
-            <ProgressBar
-              label="人生優勢"
-              score={result.advantage.score}
-              description={result.advantage.description}
-              tone="sky"
-            />
-            <ProgressBar
-              label="潛意識盲點"
-              score={result.blind_spot.score}
-              description={result.blind_spot.description}
-              tone="love"
-            />
+            {DIMENSION_META.map((dimension) => (
+              <div key={dimension.key} className="fortune-card min-w-0 p-5">
+                <div className="mb-3 flex items-end justify-between gap-4">
+                  <div className="min-w-0">
+                    <h4 className="font-serif text-xl text-[color:var(--text-main)]">{dimension.label}</h4>
+                    <p className="mt-1 text-xs text-[color:var(--text-muted)]">
+                      天 {result.base_scores[dimension.key]} / 地 {signed(result.blood_adjustments[dimension.key])} / 人 {signed(result.name_adjustments[dimension.key])}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-3xl font-semibold text-[color:var(--text-main)]">
+                      {result.final_scores[dimension.key]}
+                    </span>
+                    <span className="ml-1 text-sm text-[color:var(--text-sub)]">分</span>
+                  </div>
+                </div>
+
+                <ProgressBar
+                  label={dimension.shortLabel}
+                  score={result.final_scores[dimension.key]}
+                  description="最終融合值"
+                  tone={dimension.tone}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
+            <div className="fortune-card p-5">
+              <h4 className="font-serif text-xl text-[color:var(--text-main)]">財富動機</h4>
+              <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
+                {result.wealth_motivation_summary}
+              </p>
+            </div>
+            <div className="fortune-card p-5">
+              <h4 className="font-serif text-xl text-[color:var(--text-main)]">感情模式</h4>
+              <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
+                {result.love_pattern_summary}
+              </p>
+            </div>
+            <div className="fortune-card p-5">
+              <h4 className="font-serif text-xl text-[color:var(--text-main)]">潛意識盲點</h4>
+              <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
+                {result.blind_spot_summary}
+              </p>
+            </div>
+            <div className="fortune-card p-5">
+              <h4 className="font-serif text-xl text-[color:var(--text-main)]">人生優勢</h4>
+              <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
+                {result.life_advantage_summary}
+              </p>
+            </div>
           </div>
         </section>
       </div>
