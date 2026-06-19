@@ -1,4 +1,4 @@
-﻿import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 import { computeMusicProfile } from './music-engine';
 import { enrichAnalysis, enrichPreview } from './personality-engine';
 import {
@@ -260,6 +260,7 @@ export async function analyzeDestiny(person: PersonInput): Promise<AnalysisResul
         responseMimeType: 'application/json',
         responseSchema: RESPONSE_SCHEMA,
         temperature: 0.25,
+        maxOutputTokens: 800,
         thinkingConfig: { thinkingBudget: 0 },
       },
     });

@@ -640,6 +640,130 @@ body {
   }
 }
 
+/* ── VIP 奢華感官效果與動畫 ─────────────────────────────────────── */
+
+.vip-locked-overlay {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  backdrop-filter: blur(14px);
+  background: rgba(5, 7, 22, 0.55);
+  border: 1px solid rgba(201, 162, 74, 0.15);
+  box-shadow: 
+    inset 0 0 30px rgba(201, 162, 74, 0.05),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vip-locked-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(201, 162, 74, 0.03), transparent 60%);
+  pointer-events: none;
+}
+
+.vip-gold-btn {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(247, 239, 210, 0.45);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #c9a24a 0%, #f7efd2 50%, #8a6a2f 100%);
+  color: #050716;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  box-shadow: 
+    0 0 25px rgba(201, 162, 74, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vip-gold-btn:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 
+    0 0 40px rgba(201, 162, 74, 0.85),
+    0 0 15px rgba(139, 92, 246, 0.6);
+  filter: brightness(1.08);
+}
+
+.vip-gold-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: skewX(-20deg);
+  animation: shine 3.5s infinite ease-in-out;
+}
+
+.vip-gold-card {
+  border: 1px solid rgba(201, 162, 74, 0.35);
+  box-shadow: 
+    0 0 35px rgba(201, 162, 74, 0.18),
+    inset 0 0 20px rgba(201, 162, 74, 0.08);
+  background: rgba(201, 162, 74, 0.03);
+  animation: border-breath 4s ease-in-out infinite alternate;
+}
+
+.vip-glow-text {
+  color: #f7efd2;
+  text-shadow: 0 0 10px rgba(201, 162, 74, 0.6);
+}
+
+.vip-glow-progress {
+  box-shadow: 0 0 12px rgba(201, 162, 74, 0.7);
+}
+
+/* 星宿星盤旋轉動畫 */
+.mystic-spinner {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2px dashed rgba(201, 162, 74, 0.3);
+  position: relative;
+  animation: spin 8s linear infinite;
+}
+
+.mystic-spinner::before {
+  content: '✦';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #f7efd2;
+  text-shadow: 0 0 10px #c9a24a;
+  font-size: 20px;
+}
+
+.mystic-spinner-inner {
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  animation: spin 12s linear infinite reverse;
+}
+
+/* 動畫 Keyframes */
+@keyframes shine {
+  0% { left: -150%; }
+  25% { left: 150%; }
+  100% { left: 150%; }
+}
+
+@keyframes border-breath {
+  0% { border-color: rgba(201, 162, 74, 0.25); box-shadow: 0 0 25px rgba(201, 162, 74, 0.1); }
+  100% { border-color: rgba(201, 162, 74, 0.5); box-shadow: 0 0 45px rgba(201, 162, 74, 0.3); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
