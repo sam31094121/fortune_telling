@@ -15,25 +15,25 @@ const EMPTY_PERSON: PersonInput = {
 };
 
 const STAGE_ONE_COPY: Record<string, { score: number; title: string; lines: string[] }> = {
-  摩羯座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  水瓶座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  雙魚座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  牡羊座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  金牛座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  雙子座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  巨蟹座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  獅子座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  處女座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  天秤座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  天蠍座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
-  射手座: { score: TRINITY_PROGRESS.sky, title: '人格骨架已建立', lines: ['先建立情緒、理性、社交等基礎參數。', '這一階段不下結論，只建立人格骨架。'] },
+  摩羯座: { score: TRINITY_PROGRESS.sky, title: '天之人格已解鎖', lines: ['12 個人格維度初始參數已建立。', '天的維度只定義輪廓，不急著下最終結論。'] },
+  水瓶座: { score: TRINITY_PROGRESS.sky, title: '天之人格已解鎖', lines: ['12 個人格維度初始參數已建立。', '天的維度只定義輪廓，不急著下最終結論。'] },
+  雙魚座: { score: TRINITY_PROGRESS.sky, title: '天之人格已解鎖', lines: ['12 個人格維度初始參數已建立。', '天的維度只定義輪廓，不急著下最終結論。'] },
+  牡羊座: { score: TRINITY_PROGRESS.sky, title: '天之人格已解鎖', lines: ['12 個人格維度初始參數已建立。', '天的維度只定義輪廓，不急著下最終結論。'] },
+  金牛座: { score: TRINITY_PROGRESS.sky, title: '天之人格已解鎖', lines: ['12 個人格維度初始參數已建立。', '天的維度只定義輪廓，不急著下最終結論。'] },
+  雙子座: { score: TRINITY_PROGRESS.sky, title: '天之人格已解鎖', lines: ['12 個人格維度初始參數已建立。', '天的維度只定義輪廓，不急著下最終結論。'] },
+  巨蟹座: { score: TRINITY_PROGRESS.sky, title: '天之人格已解鎖', lines: ['12 個人格維度初始參數已建立。', '天的維度只定義輪廓，不急著下最終結論。'] },
+  獅子座: { score: TRINITY_PROGRESS.sky, title: '天之人格已解鎖', lines: ['12 個人格維度初始參數已建立。', '天的維度只定義輪廓，不急著下最終結論。'] },
+  處女座: { score: TRINITY_PROGRESS.sky, title: '天之人格已解鎖', lines: ['12 個人格維度初始參數已建立。', '天的維度只定義輪廓，不急著下最終結論。'] },
+  天秤座: { score: TRINITY_PROGRESS.sky, title: '天之人格已解鎖', lines: ['12 個人格維度初始參數已建立。', '天的維度只定義輪廓，不急著下最終結論。'] },
+  天蠍座: { score: TRINITY_PROGRESS.sky, title: '天之人格已解鎖', lines: ['12 個人格維度初始參數已建立。', '天的維度只定義輪廓，不急著下最終結論。'] },
+  射手座: { score: TRINITY_PROGRESS.sky, title: '天之人格已解鎖', lines: ['12 個人格維度初始參數已建立。', '天的維度只定義輪廓，不急著下最終結論。'] },
 };
 
 const BLOOD_PREVIEW: Record<'A' | 'B' | 'AB' | 'O', { score: number; lines: string[] }> = {
-  A: { score: TRINITY_PROGRESS.earth, lines: ['血型會補充安全感與互動模式。', '它只能修飾生日建立的骨架，不能推翻。'] },
-  B: { score: TRINITY_PROGRESS.earth, lines: ['血型會補充行動節奏與社交表現。', '它只能修飾生日建立的骨架，不能推翻。'] },
-  AB: { score: TRINITY_PROGRESS.earth, lines: ['血型會補充矛盾感、抽離感與人際邊界。', '它只能修飾生日建立的骨架，不能推翻。'] },
-  O: { score: TRINITY_PROGRESS.earth, lines: ['血型會補充推進力、責任感與承壓方式。', '它只能修飾生日建立的骨架，不能推翻。'] },
+  A: { score: TRINITY_PROGRESS.earth, lines: ['地的維度補充了安全感與互動模式的修正值。', '它只能深化天的結論，不能推翻。'] },
+  B: { score: TRINITY_PROGRESS.earth, lines: ['地的維度補充了行動節奏與社交表現的修正值。', '它只能深化天的結論，不能推翻。'] },
+  AB: { score: TRINITY_PROGRESS.earth, lines: ['地的維度補充了矛盾感與人際邊界的修正值。', '它只能深化天的結論，不能推翻。'] },
+  O: { score: TRINITY_PROGRESS.earth, lines: ['地的維度補充了推進力與承壓方式的修正值。', '它只能深化天的結論，不能推翻。'] },
 };
 
 async function readJsonResponse<T>(response: Response): Promise<T> {
@@ -156,19 +156,37 @@ export default function HomePage() {
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 pb-20 pt-8 sm:px-6 lg:px-8">
         <header className="animate-rise text-center">
-          <p className="mb-3 text-xs uppercase tracking-[0.35em] text-[color:var(--text-sub)] sm:text-sm sm:tracking-[0.45em]">
-            Trinity Destiny Engine V2.0
-          </p>
           <div className="mx-auto mb-8 flex justify-center">
-            <div className="destiny-orb">
-              <div className="destiny-orb-core" />
+            <div className="energy-trinity">
+              <div className="trinity-core" />
+              <span className="trinity-diamond trinity-diamond-sky">✦</span>
+              <span className="trinity-diamond trinity-diamond-earth">✦</span>
+              <span className="trinity-diamond trinity-diamond-human">✦</span>
+              <span className="trinity-diamond trinity-diamond-bottom">✦</span>
+              <div className="trinity-node trinity-node-sky">
+                <div className="trinity-dot trinity-dot-sky" />
+                <span className="trinity-node-label">天</span>
+              </div>
+              <div className="trinity-node trinity-node-earth">
+                <div className="trinity-dot trinity-dot-earth" />
+                <span className="trinity-node-label">地</span>
+              </div>
+              <div className="trinity-node trinity-node-human">
+                <div className="trinity-dot trinity-dot-human" />
+                <span className="trinity-node-label">人</span>
+              </div>
             </div>
           </div>
-          <h1 className="mystic-title mx-auto max-w-4xl text-3xl leading-tight sm:text-5xl lg:text-6xl">
-            天地人 AI 人格解碼系統™
+          <h1 className="mystic-title mx-auto text-5xl leading-tight sm:text-7xl lg:text-8xl">
+            天地人
           </h1>
-          <p className="mx-auto mt-5 max-w-3xl text-sm leading-7 text-[color:var(--text-sub)] sm:text-lg sm:leading-8">
-            透過生日、血型先完成免費天地預分析，再以 VIP 姓名解碼完成三合一最終融合；真正的改運之道，仍以善為本，多多行善。
+          <p className="mt-3 text-xs uppercase tracking-[0.45em] text-[color:var(--text-sub)] sm:text-sm sm:tracking-[0.55em]">
+            AI 人格解碼系統
+          </p>
+          <p className="mx-auto mt-6 max-w-2xl text-sm leading-8 text-[color:var(--text-sub)] sm:text-base sm:leading-9">
+            每個人都由三種力量組成。<br />
+            天，塑造你的天賦與思維。地，塑造你的行為與關係。人，塑造你的選擇與人生。<br />
+            透過天地人模型，探索更完整的自己。
           </p>
         </header>
 
@@ -177,14 +195,14 @@ export default function HomePage() {
             <div className="mb-6 flex flex-col gap-3 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-                  免費體驗區
+                  解鎖階段
                 </p>
                 <h2 className="mt-2 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-                  天 → 地 預分析引擎
+                  天地解鎖引擎
                 </h2>
               </div>
               <p className="max-w-md text-sm leading-7 text-[color:var(--text-sub)]">
-                免費只需輸入生日與血型，系統就會先做天地大數據預分析，建立你的人格骨架與行為模式。
+                輸入生日與出生資訊，AI 模型會先解鎖天之人格與地之維度，建立你的專屬人格基礎模型。
               </p>
             </div>
 
@@ -195,10 +213,10 @@ export default function HomePage() {
                 <div className="flex flex-wrap items-end justify-between gap-4">
                   <div>
                     <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">
-                      免費完成度
+                      人格完成度
                     </p>
                     <h3 className="mt-2 font-serif text-xl text-[color:var(--text-main)]">
-                      {previewResult ? '天地預分析已完成' : '免費人格輪廓建立中'}
+                      {previewResult ? '天地能量已融合' : '人格模型建構中'}
                     </h3>
                   </div>
                   <span className="text-3xl font-semibold text-[color:var(--fortune-good)]">
@@ -209,13 +227,13 @@ export default function HomePage() {
                   <div className="energy-fill" style={{ width: `${stageProgress}%` }} />
                 </div>
                 <p className="mt-3 text-sm leading-7 text-[color:var(--text-sub)]">
-                  生日與血型完成後會自動進行天地大數據預分析；姓名解碼屬於 VIP 付費服務，會在下一階段啟動三合一最終融合。
+                  輸入生日與出生資訊後，系統會自動解鎖天地兩個維度；人格核心融合為 VIP 專屬，在下一階段啟動。
                 </p>
               </div>
 
               {previewLoading ? (
                 <p className="text-center text-sm text-[color:var(--text-muted)]">
-                  天地大數據預分析運算中…
+                  人格維度分析運算中…
                 </p>
               ) : null}
 
@@ -225,12 +243,12 @@ export default function HomePage() {
                 disabled={!canOpenVip}
                 className="primary-button w-full px-6 py-4 text-sm sm:text-lg"
               >
-                進入 VIP 姓名解碼服務
+                融合人格核心
               </button>
 
               {!canOpenVip ? (
                 <p className="text-center text-sm text-[color:var(--text-muted)]">
-                  先完成生日與血型，免費建立天地預分析；再進入 VIP 姓名解碼服務。
+                  先解鎖天地兩個維度，再進行人格核心融合。
                 </p>
               ) : null}
 
@@ -245,24 +263,24 @@ export default function HomePage() {
           <aside className="grid min-w-0 gap-5">
             <div className="fortune-card sky-card animate-rise p-6">
               <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-                權重引擎
+                三力量架構
               </p>
-              <h2 className="mt-3 font-serif text-2xl text-[color:var(--text-main)]">固定權重，不可互推翻</h2>
+              <h2 className="mt-3 font-serif text-2xl text-[color:var(--text-main)]">天地人能量比例</h2>
               <div className="mt-5 grid gap-4 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
                 <div className="rounded-[20px] border border-white/10 bg-white/5 p-4 text-center">
                   <p className="text-sm text-[color:var(--text-sub)]">天</p>
                   <p className="mt-2 font-serif text-2xl text-[color:var(--human-cyan)]">{TRINITY_DISPLAY_WEIGHTS.sky}%</p>
-                  <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">人格骨架</p>
+                  <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">天賦 · 思維</p>
                 </div>
                 <div className="rounded-[20px] border border-white/10 bg-white/5 p-4 text-center">
                   <p className="text-sm text-[color:var(--text-sub)]">地</p>
                   <p className="mt-2 font-serif text-2xl text-[color:var(--earth-gold)]">{TRINITY_DISPLAY_WEIGHTS.earth}%</p>
-                  <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">行為模式</p>
+                  <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">行為 · 關係</p>
                 </div>
                 <div className="rounded-[20px] border border-white/10 bg-white/5 p-4 text-center">
                   <p className="text-sm text-[color:var(--text-sub)]">人</p>
                   <p className="mt-2 font-serif text-2xl text-[color:var(--human-pink)]">{TRINITY_DISPLAY_WEIGHTS.human}%</p>
-                  <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">個體差異</p>
+                  <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">選擇 · 人生</p>
                 </div>
               </div>
             </div>
@@ -273,7 +291,7 @@ export default function HomePage() {
                   STEP 1
                 </p>
                 <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)]">{stageOne.title}</h3>
-                <p className="mt-2 text-lg text-[color:var(--human-cyan)]">完成度 {stageOne.score}%</p>
+                <p className="mt-2 text-lg text-[color:var(--human-cyan)]">人格完成度 {stageOne.score}%</p>
                 <div className="mt-5 space-y-3 text-sm leading-7 text-[color:var(--text-sub)]">
                   {stageOne.lines.map((line) => (
                     <p key={line}>{line}</p>
@@ -287,8 +305,8 @@ export default function HomePage() {
                 <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
                   STEP 2
                 </p>
-                <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)]">天地完成</h3>
-                <p className="mt-2 text-lg text-[color:var(--earth-gold)]">完成度 {stageTwo.score}%</p>
+                <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)]">地之能量已融合</h3>
+                <p className="mt-2 text-lg text-[color:var(--earth-gold)]">人格完成度 {stageTwo.score}%</p>
                 <div className="mt-5 space-y-3 text-sm leading-7 text-[color:var(--text-sub)]">
                   {stageTwo.lines.map((line) => (
                     <p key={line}>{line}</p>
@@ -299,13 +317,13 @@ export default function HomePage() {
 
             <div className="fortune-card human-card animate-rise p-6">
               <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-                VIP 服務
+                人格核心
               </p>
               <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)]">
-                姓名解碼是付費專屬服務
+                融合人格核心
               </h3>
               <p className="mt-4 text-sm leading-8 text-[color:var(--text-sub)]">
-                名字不放在免費區。使用者進入 VIP 後，才會啟動姓名能量模型，完成三合一總和、財富動機、感情模式與最終個體差異分析。
+                完成天地兩個維度後，人格核心融合才會啟動。姓名負責最後 30% 的個體校正，完成天地人三合一最終人格模型。
               </p>
             </div>
           </aside>
@@ -315,19 +333,19 @@ export default function HomePage() {
           <section className="mt-10 animate-rise">
             <div className="fortune-card p-6 text-center sm:p-8">
               <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-                VIP 付費服務
+                人格核心融合
               </p>
               <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)] sm:text-4xl">
-                姓名專屬解碼區
+                融合人格核心
               </h2>
               <p className="mt-2 text-lg text-[color:var(--fortune-good)] sm:text-xl">
-                解鎖剩餘 30% 個人專屬人格模型
+                最後一步 完成天地人融合
               </p>
               <p className="mx-auto mt-4 max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
-                這裡是付費服務專區。天地預分析已先完成，現在只針對姓名做最後個人化校正，完成三合一總和與更穩定的人格模型。
+                天地兩個維度已建立完成。現在加入姓名，啟動人格核心校正，完成三合一最終人格模型與個體差異分析。
               </p>
               <div className="mx-auto mt-8 max-w-xl rounded-[24px] border border-[color:rgba(244,201,93,0.25)] bg-[color:rgba(109,74,255,0.09)] px-6 py-5 text-left">
-                <label className="mb-2 block text-sm text-[color:var(--text-sub)]">VIP 姓名輸入</label>
+                <label className="mb-2 block text-sm text-[color:var(--text-sub)]">輸入姓名，完成人格融合</label>
                 <input
                   type="text"
                   value={person.name}
@@ -337,7 +355,7 @@ export default function HomePage() {
                   className="form-input"
                 />
                 <p className="mt-3 text-sm leading-7 text-[color:var(--text-muted)]">
-                  姓名屬於 VIP 解碼內容，會作為 30% 權重的最後校正器，不會推翻天地，只會深化你的個體差異。
+                  姓名以 30% 權重作為人格核心校正器，不會推翻天地已建立的維度，只會深化你的個體差異。
                 </p>
               </div>
               <div className="mx-auto mt-8 grid max-w-4xl gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -365,11 +383,11 @@ export default function HomePage() {
                 disabled={!canUnlock}
                 className="primary-button mt-8 w-full px-8 py-4 text-sm sm:w-auto sm:text-lg"
               >
-                {loading ? '人格模型融合中…' : '立即解鎖完整報告'}
+                {loading ? '人格核心融合中…' : '啟動人格核心融合'}
               </button>
               {!person.name.trim() ? (
                 <p className="mt-4 text-sm leading-7 text-[color:var(--text-muted)]">
-                  請先在 VIP 區輸入姓名，才能啟動最終三合一解碼。
+                  請輸入姓名，才能啟動人格核心融合。
                 </p>
               ) : null}
             </div>
@@ -388,13 +406,13 @@ export default function HomePage() {
           <section className="mt-10">
             <div className="fortune-card animate-rise p-6 text-center sm:p-8">
               <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-                預分析待啟動
+                天地能量等待
               </p>
               <h2 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-                免費先看天地，VIP 再解姓名
+                天地能量等待啟動
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-sm leading-8 text-[color:var(--text-sub)] sm:text-base">
-                只要生日與血型輸入完成，系統就會先自動做免費天地預分析；姓名則獨立放在 VIP 專區，作為付費解碼服務。
+                輸入生日與出生資訊，AI 會自動解鎖天地兩個人格維度；完成後再融合人格核心，建立你的完整天地人模型。
               </p>
             </div>
           </section>

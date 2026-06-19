@@ -24,8 +24,8 @@ export default function InputForm({ value, onChange, disabled = false }: InputFo
     <div className="grid gap-5">
       <section className="fortune-card sky-card p-5">
         <div className="mb-4 border-b border-white/10 pb-4">
-          <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">第一階段</p>
-          <h3 className="mt-2 font-serif text-xl text-[color:var(--text-main)]">免費輸入生日</h3>
+          <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">天之維度</p>
+          <h3 className="mt-2 font-serif text-xl text-[color:var(--text-main)]">解鎖天之人格</h3>
         </div>
         <label className="mb-2 block text-sm text-[color:var(--text-sub)]">出生日期</label>
         <input
@@ -37,16 +37,16 @@ export default function InputForm({ value, onChange, disabled = false }: InputFo
           className="form-input"
         />
         <p className="mt-3 min-h-6 text-sm leading-6 text-[color:var(--text-muted)]">
-          {zodiac ? `天格分析完成，已匹配至 ${zodiac}。` : '生日決定你的輪廓與先天命格。'}
+          {zodiac ? `天之人格已解鎖，對應 ${zodiac} 人格維度。` : '生日決定你的天賦輪廓與思維模式。'}
         </p>
       </section>
 
       <section className={`fortune-card earth-card p-5 ${!value.birthday ? 'opacity-60' : ''}`}>
         <div className="mb-4 border-b border-white/10 pb-4">
-          <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">第二階段</p>
-          <h3 className="mt-2 font-serif text-xl text-[color:var(--text-main)]">免費輸入血型</h3>
+          <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">地之維度</p>
+          <h3 className="mt-2 font-serif text-xl text-[color:var(--text-main)]">解鎖地之人格</h3>
         </div>
-        <label className="mb-2 block text-sm text-[color:var(--text-sub)]">血型</label>
+        <label className="mb-2 block text-sm text-[color:var(--text-sub)]">出生資訊</label>
         <select
           value={value.bloodType}
           disabled={disabled || !value.birthday}
@@ -63,7 +63,7 @@ export default function InputForm({ value, onChange, disabled = false }: InputFo
           ))}
         </select>
         <p className="mt-3 min-h-6 text-sm leading-6 text-[color:var(--text-muted)]">
-          {value.bloodType ? '天地分析完成，後天氣場已納入人格模型。' : '血型決定你的行動風格與人際模式。'}
+          {value.bloodType ? '地之人格已解鎖，行為模式已納入人格模型。' : '出生資訊決定你的行為風格與人際關係模式。'}
         </p>
       </section>
     </div>

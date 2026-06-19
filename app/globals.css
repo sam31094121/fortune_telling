@@ -256,6 +256,177 @@ body {
   letter-spacing: 0.08em;
 }
 
+/* ── Energy Trinity Core ─────────────────────────────────────── */
+
+.energy-trinity {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+/* Central white-gold core */
+.trinity-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at center, #fff 0%, #f4c95d 40%, rgba(244, 201, 93, 0.2) 72%, transparent 100%);
+  box-shadow:
+    0 0 18px rgba(255, 255, 255, 0.95),
+    0 0 36px rgba(244, 201, 93, 0.75),
+    0 0 72px rgba(109, 74, 255, 0.45);
+  animation: trinity-core-pulse 4s ease-in-out infinite;
+  z-index: 2;
+}
+
+/* 天 — top, purple */
+.trinity-node-sky {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  animation: trinity-float-sky 5s ease-in-out infinite;
+  z-index: 2;
+}
+
+/* 地 — left, gold */
+.trinity-node-earth {
+  position: absolute;
+  left: 4px;
+  top: 56%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+  animation: trinity-float-earth 5s ease-in-out infinite;
+  z-index: 2;
+}
+
+/* 人 — right, pink/silver */
+.trinity-node-human {
+  position: absolute;
+  right: 4px;
+  top: 56%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 5px;
+  animation: trinity-float-human 5s ease-in-out infinite;
+  z-index: 2;
+}
+
+.trinity-node-label {
+  font-family: serif;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  color: var(--text-main);
+  text-shadow: 0 0 8px currentColor;
+}
+
+/* Energy dots */
+.trinity-dot {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+
+.trinity-dot::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  animation: dot-ring-expand 2.8s ease-out infinite;
+}
+
+.trinity-dot-sky {
+  background: #8b5cf6;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.9), 0 0 22px rgba(139, 92, 246, 0.5);
+}
+.trinity-dot-sky::after { border: 1px solid rgba(139, 92, 246, 0.5); }
+
+.trinity-dot-earth {
+  background: #c9a24a;
+  box-shadow: 0 0 10px rgba(201, 162, 74, 0.9), 0 0 22px rgba(201, 162, 74, 0.5);
+}
+.trinity-dot-earth::after { border: 1px solid rgba(201, 162, 74, 0.5); }
+
+.trinity-dot-human {
+  background: #d78bff;
+  box-shadow: 0 0 10px rgba(215, 139, 255, 0.9), 0 0 22px rgba(215, 139, 255, 0.5);
+}
+.trinity-dot-human::after { border: 1px solid rgba(215, 139, 255, 0.5); }
+
+/* ✦ diamond markers on lines */
+.trinity-diamond {
+  position: absolute;
+  font-size: 11px;
+  color: rgba(244, 201, 93, 0.7);
+  z-index: 1;
+  animation: diamond-twinkle 3s ease-in-out infinite;
+}
+
+.trinity-diamond-sky    { top: 26%; left: 50%; transform: translateX(-50%); animation-delay: 0s; }
+.trinity-diamond-earth  { top: 56%; left: 26%; transform: translateY(-50%); animation-delay: 0.9s; }
+.trinity-diamond-human  { top: 56%; right: 26%; transform: translateY(-50%); animation-delay: 1.8s; }
+.trinity-diamond-bottom { bottom: 12%; left: 50%; transform: translateX(-50%); animation-delay: 2.7s; }
+
+@keyframes trinity-core-pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 18px rgba(255,255,255,.95), 0 0 36px rgba(244,201,93,.75), 0 0 72px rgba(109,74,255,.45);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.18);
+    box-shadow: 0 0 28px rgba(255,255,255,1), 0 0 56px rgba(244,201,93,.9), 0 0 110px rgba(109,74,255,.6);
+  }
+}
+
+@keyframes trinity-float-sky {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(14px); }
+}
+
+@keyframes trinity-float-earth {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  50% { transform: translateY(-50%) translateX(14px); }
+}
+
+@keyframes trinity-float-human {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  50% { transform: translateY(-50%) translateX(-14px); }
+}
+
+@keyframes diamond-twinkle {
+  0%, 100% { opacity: 0.4; transform: translateX(-50%) scale(0.85); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.25); }
+}
+
+/* override translateX(-50%) for non-horizontal diamonds */
+.trinity-diamond-earth  { animation-name: diamond-twinkle-vert; }
+.trinity-diamond-human  { animation-name: diamond-twinkle-vert; }
+.trinity-diamond-bottom { animation-name: diamond-twinkle-vert; }
+
+@keyframes diamond-twinkle-vert {
+  0%, 100% { opacity: 0.4; scale: 0.85; }
+  50% { opacity: 1; scale: 1.25; }
+}
+
+@keyframes dot-ring-expand {
+  0% { transform: scale(1); opacity: 0.7; }
+  70% { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
 .energy-bar {
   height: 10px;
   overflow: hidden;
