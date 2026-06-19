@@ -53,6 +53,7 @@ export interface AnalysisResult {
   love_pattern_summary: string;
   blind_spot_summary: string;
   life_advantage_summary: string;
+  music_profile: MusicProfile;
 }
 
 export interface PreviewAnalysisResult {
@@ -63,8 +64,34 @@ export interface PreviewAnalysisResult {
   skeleton_summary: string;
   behavior_summary: string;
   preview_summary: string;
+  music_profile: MusicProfile;
 }
 
 export interface ApiError {
   error: string;
+}
+
+// ── Music Profile ──────────────────────────────────────────────
+
+export interface GenreMatch {
+  key: string;
+  name: string;
+  emoji: string;
+  score: number;      // 0-100 affinity score
+  artists: string[];
+  soundDesc: string;
+}
+
+export interface SoundProfile {
+  tempo: '快節奏' | '適中' | '慢節奏';
+  intensity: '高張力' | '平衡' | '輕柔';
+  emotionDepth: '情感濃郁' | '情感適中' | '清爽理性';
+  structure: '結構複雜' | '層次分明' | '簡潔直覺';
+}
+
+export interface MusicProfile {
+  topGenres: GenreMatch[];     // top 3 by affinity
+  allGenres: GenreMatch[];     // all 10, sorted
+  soundProfile: SoundProfile;
+  listeningSummary: string;
 }

@@ -1,3 +1,4 @@
+import { computeMusicProfile } from './music-engine';
 import { DIMENSION_META } from './personality';
 import type {
   AnalysisResult,
@@ -175,5 +176,6 @@ export function enrichPreview(
     skeleton_summary,
     behavior_summary,
     preview_summary,
+    music_profile: computeMusicProfile(preview_scores),
   };
 }

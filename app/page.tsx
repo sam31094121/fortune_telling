@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import InputForm from '@/components/InputForm';
@@ -49,13 +49,15 @@ export default function HomePage() {
   const stageOne = zodiac ? STAGE_ONE_COPY[zodiac] ?? STAGE_ONE_COPY.摩羯座 : null;
   const stageTwo = person.bloodType ? BLOOD_PREVIEW[person.bloodType] : null;
   const canUnlock = Boolean(person.birthday && person.bloodType && person.name.trim()) && !loading;
+  const canOpenVip = Boolean(person.birthday && person.bloodType);
 
   const stageProgress = useMemo(() => {
-    if (person.name.trim()) return 100;
+    if (result) return 100;
+    if (person.name.trim()) return 70;
     if (person.bloodType) return 30;
     if (person.birthday) return 15;
     return 0;
-  }, [person]);
+  }, [person, result]);
 
   useEffect(() => {
     const canPreview = Boolean(person.birthday && person.bloodType);
@@ -68,10 +70,6 @@ export default function HomePage() {
     }
 
     if (previewKeyRef.current === previewKey) return;
-
-    // 輸入變了：立即清掉舊結果與舊錯誤，避免顯示過期資料
-    setPreviewResult(null);
-    setErrorMsg('');
 
     const timer = setTimeout(async () => {
       setPreviewLoading(true);
@@ -154,7 +152,7 @@ export default function HomePage() {
             天地人 AI 人格解碼系統™
           </h1>
           <p className="mx-auto mt-5 max-w-3xl text-sm leading-7 text-[color:var(--text-sub)] sm:text-lg sm:leading-8">
-            透過生日、血型、姓名，先做天地預分析，再完成三合一最終融合；真正的改運之道，仍以善為本，多多行善。
+            透過生日、血型先完成免費天地預分析，再以 VIP 姓名解碼完成三合一最終融合；真正的改運之道，仍以善為本，多多行善。
           </p>
         </header>
 
@@ -163,14 +161,14 @@ export default function HomePage() {
             <div className="mb-6 flex flex-col gap-3 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-                  系統主流程
+                  免費體驗區
                 </p>
                 <h2 className="mt-2 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-                  天 → 地 → 人 融合引擎
+                  天 → 地 預分析引擎
                 </h2>
               </div>
               <p className="max-w-md text-sm leading-7 text-[color:var(--text-sub)]">
-                天先建骨架，地只做補充，人作為最後校正器。後面的資訊永遠不能推翻前面的結論。
+                免費只需輸入生日與血型，系統就會先做天地大數據預分析，建立你的人格骨架與行為模式。
               </p>
             </div>
 
@@ -184,7 +182,7 @@ export default function HomePage() {
                       免費完成度
                     </p>
                     <h3 className="mt-2 font-serif text-xl text-[color:var(--text-main)]">
-                      {previewResult ? '天地預分析已完成' : '人格輪廓已建立'}
+                      {previewResult ? '天地預分析已完成' : '免費人格輪廓建立中'}
                     </h3>
                   </div>
                   <span className="text-3xl font-semibold text-[color:var(--fortune-good)]">
@@ -195,7 +193,7 @@ export default function HomePage() {
                   <div className="energy-fill" style={{ width: `${stageProgress}%` }} />
                 </div>
                 <p className="mt-3 text-sm leading-7 text-[color:var(--text-sub)]">
-                  天地完成後會先自動進行大數據預分析；姓名輸入後，再啟動三合一總和與更高精準度的人格融合。
+                  生日與血型完成後會自動進行天地大數據預分析；姓名解碼屬於 VIP 付費服務，會在下一階段啟動三合一最終融合。
                 </p>
               </div>
 
@@ -208,15 +206,15 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => setPaywallOpen(true)}
-                disabled={!person.birthday || !person.bloodType || !person.name.trim()}
+                disabled={!canOpenVip}
                 className="primary-button w-full px-6 py-4 text-sm sm:text-lg"
               >
-                解鎖剩餘 70% 個人專屬人格模型
+                進入 VIP 姓名解碼服務
               </button>
 
-              {!person.name.trim() ? (
+              {!canOpenVip ? (
                 <p className="text-center text-sm text-[color:var(--text-muted)]">
-                  先完成生日與血型，建立骨架與行為模式；再用姓名解鎖最終個體差異。
+                  先完成生日與血型，免費建立天地預分析；再進入 VIP 姓名解碼服務。
                 </p>
               ) : null}
 
@@ -285,13 +283,13 @@ export default function HomePage() {
 
             <div className="fortune-card human-card animate-rise p-6">
               <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-                STEP 3
+                VIP 服務
               </p>
               <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)]">
-                姓名是最後校正器
+                姓名解碼是付費專屬服務
               </h3>
               <p className="mt-4 text-sm leading-8 text-[color:var(--text-sub)]">
-                姓名不會重新算一次，而是把你的人格模型個人化，補上財富動機、感情模式、盲點與優勢。
+                名字不放在免費區。使用者進入 VIP 後，才會啟動姓名能量模型，完成三合一總和、財富動機、感情模式與最終個體差異分析。
               </p>
             </div>
           </aside>
@@ -301,17 +299,37 @@ export default function HomePage() {
           <section className="mt-10 animate-rise">
             <div className="fortune-card p-6 text-center sm:p-8">
               <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-                個人專屬人格模型
+                VIP 付費服務
               </p>
               <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)] sm:text-4xl">
-                解鎖剩餘 70%
+                姓名專屬解碼區
               </h2>
               <p className="mt-2 text-lg text-[color:var(--fortune-good)] sm:text-xl">
-                姓名輸入完成，現在進入最終人格融合
+                解鎖剩餘 70% 個人專屬人格模型
               </p>
               <p className="mx-auto mt-4 max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
-                這一步不是推翻天地，而是在原本的預分析上，加入姓名校正器，完成三合一總和與更高精準度的人格模型。
+                這裡是付費服務專區。天地預分析已先完成，現在只針對姓名做高權重個人化校正，完成三合一總和與更高精準度的人格模型。
               </p>
+              <div className="mx-auto mt-8 max-w-xl rounded-[24px] border border-[color:rgba(244,201,93,0.25)] bg-[color:rgba(109,74,255,0.09)] px-6 py-5 text-left">
+                <label className="mb-2 block text-sm text-[color:var(--text-sub)]">VIP 姓名輸入</label>
+                <input
+                  type="text"
+                  value={person.name}
+                  maxLength={20}
+                  placeholder="例如：王小明"
+                  onChange={(event) => setPerson((prev) => ({ ...prev, name: event.target.value }))}
+                  onInput={(event) =>
+                    setPerson((prev) => ({
+                      ...prev,
+                      name: (event.target as HTMLInputElement).value,
+                    }))
+                  }
+                  className="form-input"
+                />
+                <p className="mt-3 text-sm leading-7 text-[color:var(--text-muted)]">
+                  姓名屬於 VIP 解碼內容，會作為 70% 權重的最後校正器，不會推翻天地，只會深化你的個體差異。
+                </p>
+              </div>
               <div className="mx-auto mt-8 grid max-w-4xl gap-4 md:grid-cols-2 xl:grid-cols-4">
                 {[
                   '個人專屬人格模型',
@@ -339,6 +357,11 @@ export default function HomePage() {
               >
                 {loading ? '人格模型融合中…' : '立即解鎖完整報告'}
               </button>
+              {!person.name.trim() ? (
+                <p className="mt-4 text-sm leading-7 text-[color:var(--text-muted)]">
+                  請先在 VIP 區輸入姓名，才能啟動最終三合一解碼。
+                </p>
+              ) : null}
             </div>
           </section>
         ) : null}
@@ -346,24 +369,6 @@ export default function HomePage() {
         {result ? (
           <section className="mt-10 animate-rise">
             <ResultDisplay result={result} />
-          </section>
-        ) : previewLoading ? (
-          /* 天地預分析進行中：顯示等待卡，不讓舊資料繼續停在畫面 */
-          <section className="mt-10">
-            <div className="fortune-card animate-rise p-6 text-center sm:p-8">
-              <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-                天地大數據運算中
-              </p>
-              <h2 className="mt-5 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-                正在建立人格骨架…
-              </h2>
-              <div className="mx-auto mt-6 h-1.5 w-48 overflow-hidden rounded-full bg-white/10">
-                <div className="h-full animate-[shimmer_1.6s_ease_infinite] rounded-full bg-gradient-to-r from-transparent via-[color:var(--fortune-good)] to-transparent" />
-              </div>
-              <p className="mx-auto mt-6 max-w-md text-sm leading-8 text-[color:var(--text-sub)]">
-                系統正在根據生日與血型建立你的人格骨架與行為模式，通常需要 2 至 4 秒。
-              </p>
-            </div>
           </section>
         ) : previewResult ? (
           <section className="mt-10 animate-rise">
@@ -376,10 +381,10 @@ export default function HomePage() {
                 預分析待啟動
               </p>
               <h2 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-                天地先行，人再融合
+                免費先看天地，VIP 再解姓名
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-sm leading-8 text-[color:var(--text-sub)] sm:text-base">
-                只要生日與血型輸入完成，系統就會先自動做天地預分析；姓名輸入後，再完成三合一總和與最終人格融合。
+                只要生日與血型輸入完成，系統就會先自動做免費天地預分析；姓名則獨立放在 VIP 專區，作為付費解碼服務。
               </p>
             </div>
           </section>

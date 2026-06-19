@@ -1,5 +1,6 @@
 import { DIMENSION_META } from '@/lib/personality';
 import type { AnalysisResult } from '@/lib/types';
+import MusicProfile from './MusicProfile';
 import ProgressBar from './ProgressBar';
 
 interface ResultDisplayProps {
@@ -119,6 +120,11 @@ export default function ResultDisplay({ result }: ResultDisplayProps) {
                 {result.life_advantage_summary}
               </p>
             </div>
+          </div>
+
+          {/* Music profile — refined by name adjustment in final_scores */}
+          <div className="mt-8">
+            <MusicProfile profile={result.music_profile} tier="full" />
           </div>
         </section>
       </div>

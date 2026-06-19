@@ -1,4 +1,5 @@
 import { GoogleGenAI, Type } from '@google/genai';
+import { computeMusicProfile } from './music-engine';
 import { enrichAnalysis, enrichPreview } from './personality-engine';
 import {
   DIMENSION_KEYS,
@@ -215,6 +216,8 @@ function normalize(result: AnalysisResult): AnalysisResult {
     love_pattern_summary: '',
     blind_spot_summary: '',
     life_advantage_summary: '',
+    // computed from final_scores; enrichAnalysis may refine but won't recompute
+    music_profile: computeMusicProfile(final_scores),
   };
 }
 

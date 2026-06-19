@@ -1,5 +1,6 @@
 import { DIMENSION_META } from '@/lib/personality';
 import type { PreviewAnalysisResult } from '@/lib/types';
+import MusicProfile from './MusicProfile';
 import ProgressBar from './ProgressBar';
 
 interface PreviewDisplayProps {
@@ -80,6 +81,11 @@ export default function PreviewDisplay({ result }: PreviewDisplayProps) {
             ))}
           </div>
         </section>
+      </div>
+
+      {/* Music profile — computed from birthday + blood type dimension scores */}
+      <div className="mt-10">
+        <MusicProfile profile={result.music_profile} tier="preview" />
       </div>
     </div>
   );
