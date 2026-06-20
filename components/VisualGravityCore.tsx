@@ -29,6 +29,9 @@ export default function VisualGravityCore() {
     const totalCycle = 4800; // ms (2.8 + 1.8 + 0.2 = 4.8s)
     let start = performance.now();
 
+    const focusRef = { current: false } as { current: boolean };
+    const explodeRef = { current: false } as { current: boolean };
+
     function draw(now: number) {
       const t = (now - start) % totalCycle;
       const w = canvas.width / dpr;
@@ -112,16 +115,31 @@ export default function VisualGravityCore() {
 
       // core glow (爆發時快速放大光芒，但位置不位移)
       const coreSize = 20; // px (16~24 推薦值)
-      const coreInner = coreSize * (1 + expT * 4);
-      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreInner * 3);
+      const coreInner = coreSize * (1 + expT * 5 + inT * 0.4);
+      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreInner * 4);
       glow.addColorStop(0, "rgba(255,255,255,1)");
-      glow.addColorStop(0.15, "rgba(255,250,240,0.9)");
-      glow.addColorStop(0.35 + expT * 0.2, "rgba(200,170,255,0.25)");
-      glow.addColorStop(1, "rgba(10,8,20,0)");
+      glow.addColorStop(0.08 + expT * 0.1, "rgba(255,250,230,0.98)");
+      glow.addColorStop(0.25 + expT * 0.2, "rgba(220,190,255,0.28)");
+      glow.addColorStop(0.45 + expT * 0.25, "rgba(140,80,240,0.08)");
+      glow.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.globalCompositeOperation = "lighter";
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(cx, cy, coreInner * 3, 0, Math.PI * 2);
+      ctx.arc(cx, cy, coreInner * 4, 0, Math.PI * 2);
       ctx.fill();
+      ctx.globalCompositeOperation = "source-over";
+
+      // chromatic rings for stronger focal contrast
+      for (let r = 0; r < 3; r++) {
+        const radius = coreInner * (0.9 + r * 0.6 + expT * 2);
+        ctx.beginPath();
+        ctx.lineWidth = 1 + r;
+        const alpha = 0.18 - r * 0.04 + expT * 0.25;
+        const col = r === 0 ? "rgba(255,245,220," + alpha + ")" : r === 1 ? "rgba(214,170,88," + alpha * 0.7 + ")" : "rgba(148,52,248," + alpha * 0.6 + ")";
+        ctx.strokeStyle = col;
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.stroke();
+      }
 
       // central fixed core (白金色外圍，中心純白)
       // white center
@@ -148,12 +166,53 @@ export default function VisualGravityCore() {
         ctx.fill();
       }
 
-      // subtle vignette line to deepen funnel
+      // dynamic vignette during contraction (edges darken)
+      const edgeDark = 0.45 + inT * 0.45 + expT * 0.6;
+      ctx.fillStyle = `rgba(0,0,0,${Math.min(0.9, edgeDark)})`;
       ctx.beginPath();
-      ctx.strokeStyle = "rgba(0,0,0,0.2)";
-      ctx.lineWidth = 1;
-      ctx.arc(cx, cy, Math.max(w, h) * 0.38, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.arc(cx, cy, Math.max(w, h) * 0.8, 0, Math.PI * 2);
+      ctx.rect(w, 0, -w, h); // fill whole canvas mask
+      ctx.fill();
+
+      // toggle body classes for subtle text distortion
+      try {
+        const body = document.body;
+        const focusOn = inT > 0.08; // when contraction begins, lock focus
+        if (focusOn && !focusRef.current) {
+          body.classList.add("vgc-focus");
+          focusRef.current = true;
+        } else if (!focusOn && focusRef.current) {
+          body.classList.remove("vgc-focus");
+          focusRef.current = false;
+        }
+
+        if (expT > 0 && !explodeRef.current) {
+          body.classList.add("vgc-explode");
+          explodeRef.current = true;
+        } else if (expT === 0 && explodeRef.current) {
+          body.classList.remove("vgc-explode");
+          explodeRef.current = false;
+        }
+      } catch (e) {
+        // ignore in non-browser contexts
+      }
+
+      // audio sync: gently increase gain during inT, strong burst on expT
+      if (gainRef.current && audioCtxRef.current) {
+        const ac = audioCtxRef.current;
+        try {
+          if (expT > 0) {
+            gainRef.current.gain.setTargetAtTime(0.35, ac.currentTime, 0.02);
+          } else if (inT > 0.02) {
+            const target = 0.06 + inT * 0.08;
+            gainRef.current.gain.setTargetAtTime(target, ac.currentTime, 0.12);
+          } else {
+            gainRef.current.gain.setTargetAtTime(0.0001, ac.currentTime, 0.4);
+          }
+        } catch (e) {
+          // ignore audio errors
+        }
+      }
 
       rafRef.current = requestAnimationFrame(draw);
     }

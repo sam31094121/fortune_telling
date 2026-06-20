@@ -777,3 +777,33 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Visual Gravity Core focus classes: 微幅扭曲與文字聚焦 */
+body.vgc-focus .mystic-title,
+body.vgc-focus h1,
+body.vgc-focus h2,
+body.vgc-focus h3 {
+  transform-origin: center center;
+  transform: scale(1.015) translateZ(0);
+  filter: blur(0.2px) contrast(1.02) saturate(1.02);
+  transition: transform 220ms ease, filter 220ms ease;
+}
+
+body.vgc-focus .fortune-card {
+  filter: brightness(0.94) saturate(0.98);
+}
+
+body.vgc-explode .mystic-title {
+  transform: scale(1.03) translateY(-4px) translateZ(0);
+  text-shadow: 0 0 20px rgba(255,255,255,0.9), 0 0 48px rgba(139,92,246,0.6);
+}
+
+/* 避免在偏好減少動作的環境中造成可及性問題 */
+@media (prefers-reduced-motion: reduce) {
+  body.vgc-focus .mystic-title,
+  body.vgc-explode .mystic-title {
+    transform: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+  }
+}
