@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import MultiStepForm from '@/components/MultiStepForm';
+import VisualGravityCore from '@/components/VisualGravityCore';
 import ResultDisplay from '@/components/ResultDisplay';
 import type {
   AnalysisResult,
@@ -160,9 +161,7 @@ export default function HomePage() {
           </div>
 
           <div className="flex justify-center">
-            <div className="destiny-orb">
-              <div className="destiny-orb-core" />
-            </div>
+            <VisualGravityCore />
           </div>
         </section>
 
