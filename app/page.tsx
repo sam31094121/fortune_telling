@@ -129,8 +129,16 @@ export default function HomePage() {
       <main className="relative z-10 mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <section className="mb-8 grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="space-y-6">
-            <div className="inline-flex rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-1 text-xs font-semibold tracking-[0.3em] text-amber-300">
-              天・地・人 AI 人格解碼系統
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="inline-flex rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-1 text-xs font-semibold tracking-[0.3em] text-amber-300">
+                天・地・人 AI 人格解碼系統
+              </div>
+              <a
+                href="/music"
+                className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/30 bg-violet-400/10 px-4 py-1 text-xs font-semibold tracking-[0.2em] text-violet-300 transition hover:bg-violet-400/20"
+              >
+                🎵 人格音樂系統 V1.0
+              </a>
             </div>
 
             <div className="space-y-4">

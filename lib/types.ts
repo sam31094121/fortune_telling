@@ -109,3 +109,59 @@ export interface MusicProfile {
   soundProfile: SoundProfile;
   listeningSummary: string;
 }
+
+/* ────────────────────────────────────────────
+   天地人 AI 人格音樂系統 V1.0 - 新增類型定義
+   ──────────────────────────────────────────── */
+
+export interface PersonalityMatrixData {
+  emotion: number;
+  logic: number;
+  social: number;
+  leadership: number;
+  security: number;
+  creativity: number;
+  risk: number;
+  attachment: number;
+}
+
+export interface MusicParametersData {
+  bpm: number;
+  key: string;
+  genre: string;
+  mood: string[];
+  vocal_style: string;
+  instrument: string[];
+  lyric_theme: string[];
+}
+
+export interface AIPersonalityMusicInput {
+  birthDate: string;
+  zodiacSign: string;
+  gender: "male" | "female" | "non-binary";
+  bloodType: "A" | "B" | "AB" | "O";
+  firstName: string;
+  lastName?: string;
+  voiceCharacteristics?: string[];
+  era?: string;
+}
+
+export interface AIPersonalityMusicReport {
+  input: {
+    birthDate: string;
+    zodiac: string;
+    gender: string;
+    bloodType: string;
+    name: string;
+  };
+  personality_matrix: PersonalityMatrixData;
+  music_parameters: MusicParametersData;
+  interpretation: {
+    dominant_trait: string;
+    emotional_signature: string;
+    creative_potential: number;
+    social_capacity: number;
+    life_philosophy: string;
+  };
+  ai_note: string;
+}

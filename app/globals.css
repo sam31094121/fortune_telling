@@ -807,3 +807,101 @@ body.vgc-explode .mystic-title {
     text-shadow: none !important;
   }
 }
+
+/* Core characters overlay */
+.vgc-core-text {
+  gap: 8px;
+  font-family: 'Noto Serif TC', serif;
+  font-size: 40px;
+  letter-spacing: 0.02em;
+  color: #fffdf8;
+  mix-blend-mode: screen;
+  transform-style: preserve-3d;
+  will-change: transform, opacity, filter, text-shadow;
+}
+
+.vgc-core-char {
+  display: inline-block;
+  line-height: 1;
+  transition: transform 200ms linear, opacity 160ms linear, text-shadow 160ms linear;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: #fff;
+}
+
+.vgc-core-char-1 { color: #e6e0ff; }
+.vgc-core-char-top { color: #e6e0ff; }
+.vgc-core-char-left { color: #ffdFA6; }
+.vgc-core-char-right { color: #fffef8; }
+
+/* stronger appearance on focus/explode */
+body.vgc-focus .vgc-core-char { filter: drop-shadow(0 6px 12px rgba(0,0,0,0.45)); }
+body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
+
+/* positional layout for top/left/right */
+.vgc-core-char-top {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 48px;
+}
+.vgc-core-char-left {
+  position: absolute;
+  left: 6%;
+  top: 52%;
+  transform: translateY(-50%);
+  font-size: 42px;
+}
+.vgc-core-char-right {
+  position: absolute;
+  right: 6%;
+  top: 52%;
+  transform: translateY(-50%);
+  font-size: 42px;
+}
+
+/* deeper abyss effect: glow rings and inner shadow behind characters */
+.vgc-core-char::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 8px;
+  filter: blur(22px);
+  opacity: 0.25;
+  pointer-events: none;
+}
+.vgc-core-char-top::after { background: radial-gradient(circle at 50% 30%, rgba(230,224,255,0.9), transparent 40%); }
+.vgc-core-char-left::after { background: radial-gradient(circle at 20% 50%, rgba(255,223,170,0.9), transparent 40%); }
+.vgc-core-char-right::after { background: radial-gradient(circle at 80% 50%, rgba(255,255,245,0.9), transparent 40%); }
+
+/* make whole core feel like a pit: subtle scale and perspective */
+.vgc-core-text { perspective: 900px; }
+.vgc-core-char { transform-origin: center center; }
+
+/* Intro overlay and skip button */
+.vgc-intro-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 40%, rgba(0,0,0,0.95), rgba(0,0,0,0.88) 35%, rgba(0,0,0,0.6) 60%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  pointer-events: auto;
+  transition: opacity 420ms ease;
+}
+.vgc-intro-overlay[aria-hidden="true"] { opacity: 0; pointer-events: none; }
+.vgc-intro-center { display:flex; align-items:center; justify-content:center; }
+.vgc-intro-dot {
+  width: 6px; height:6px; border-radius:50%; background: #fff; box-shadow: 0 0 12px #fff, 0 0 36px rgba(220,190,255,0.28);
+  animation: intro-dot-appear 1s ease forwards;
+}
+@keyframes intro-dot-appear { 0% { transform: scale(0.1); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
+.vgc-skip-btn {
+  position: fixed; right: 22px; top: 22px; z-index: 10001; background: rgba(255,255,255,0.06); color: var(--text-main);
+  border: 1px solid rgba(255,255,255,0.08); padding: 8px 12px; border-radius: 10px; backdrop-filter: blur(8px);
+}
+

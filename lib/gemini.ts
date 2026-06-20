@@ -253,6 +253,134 @@ export async function analyzeDestiny(person: PersonInput): Promise<AnalysisResul
   });
 }
 
+/* ─────────────────────────────────────────────────────────────
+   天地人 AI 人格音樂系統 V1.0 — Gemini 音樂報告生成
+   ───────────────────────────────────────────────────────────── */
+
+export interface MusicReportInput {
+  name: string;
+  birthDate: string;
+  zodiac: string;        // 中文星座
+  bloodType: 'A' | 'B' | 'AB' | 'O';
+  gender: 'male' | 'female';
+  era: string;           // 年代字串，e.g. "1990s"
+  personalityMatrix: Record<string, number>;
+  musicParameters: {
+    bpm: number;
+    key: string;
+    genre: string;
+    mood: string[];
+    vocal_style: string;
+    instrument: string[];
+    lyric_theme: string[];
+  };
+}
+
+export interface MusicReportOutput {
+  music_narrative: string;      // 人格音樂靈魂敘述，200字內
+  song_title_suggestion: string; // 建議歌名（繁中）
+  lyric_opening: string;        // 開場歌詞兩句
+  music_message: string;        // 這首歌想對使用者說的話，100字內
+  wisdom_note: string;          // 善念結語，80字內
+}
+
+const MUSIC_REPORT_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    music_narrative: {
+      type: Type.STRING,
+      description: '描述這個人的音樂靈魂，語調如命理詩人，200字內，繁體中文。',
+    },
+    song_title_suggestion: {
+      type: Type.STRING,
+      description: '建議的專屬歌曲名稱，繁體中文，4-10字。',
+    },
+    lyric_opening: {
+      type: Type.STRING,
+      description: '開場歌詞兩句，有詩意、有力量，繁體中文。',
+    },
+    music_message: {
+      type: Type.STRING,
+      description: '這首歌想對使用者說的一段話，溫暖、真實，100字內，繁體中文。',
+    },
+    wisdom_note: {
+      type: Type.STRING,
+      description: '以善念為核心的結語，不說教，80字內，繁體中文。',
+    },
+  },
+  required: [
+    'music_narrative',
+    'song_title_suggestion',
+    'lyric_opening',
+    'music_message',
+    'wisdom_note',
+  ],
+};
+
+function buildMusicReportPrompt(input: MusicReportInput): string {
+  const genderLabel = input.gender === 'male' ? '男性' : '女性';
+
+  return `
+你是「天地人 AI 人格音樂系統」的音樂靈魂顧問。
+根據使用者的人格音樂矩陣，寫出一份專屬的人格音樂報告。
+
+鐵律：
+1. 所有文字必須前後一致，不可互相矛盾。
+2. 語氣要有詩意、有深度、命理詩人的質感。
+3. 不可浮誇，不說教。
+4. 結語必須帶到「心存善念，才能讓命運更順」。
+
+人物資料：
+- 姓名：${input.name}
+- 生日：${input.birthDate}（${input.zodiac}）
+- 血型：${input.bloodType}
+- 性別：${genderLabel}
+- 年代：${input.era}
+
+人格音樂矩陣（0-100）：
+${JSON.stringify(input.personalityMatrix, null, 2)}
+
+生成音樂參數：
+- BPM：${input.musicParameters.bpm}
+- 音調：${input.musicParameters.key}
+- 風格：${input.musicParameters.genre}
+- 氛圍：${input.musicParameters.mood.join(', ')}
+- 唱腔：${input.musicParameters.vocal_style}
+- 樂器：${input.musicParameters.instrument.join(', ')}
+- 歌詞主題：${input.musicParameters.lyric_theme.join(', ')}
+
+請輸出 JSON，欄位為：
+- music_narrative（人格音樂靈魂敘述）
+- song_title_suggestion（建議歌名）
+- lyric_opening（開場歌詞兩句）
+- music_message（這首歌想說的話）
+- wisdom_note（善念結語）
+`.trim();
+}
+
+export async function generateMusicReport(input: MusicReportInput): Promise<MusicReportOutput> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('尚未設定 GEMINI_API_KEY。');
+
+  try {
+    const text = await generateStructuredText(
+      apiKey,
+      buildMusicReportPrompt(input),
+      MUSIC_REPORT_SCHEMA,
+    );
+    return safeJsonParse<MusicReportOutput>(text);
+  } catch (error) {
+    console.error('[gemini] music report failed', error);
+    return {
+      music_narrative: `${input.name}的人格音樂矩陣已完成融合，天地人三層能量交織出屬於你的聲音頻率。`,
+      song_title_suggestion: '命運共鳴',
+      lyric_opening: '天地之間有一道光，是你走過的每一個選擇。',
+      music_message: '這首歌是你內心深處最真實的聲音，聆聽它，你會找到屬於自己的方向。',
+      wisdom_note: '心存善念，多行善事，才是真正改變命運的開始。',
+    };
+  }
+}
+
 export async function analyzePreview(input: {
   birthday: string;
   bloodType: Exclude<PersonInput['bloodType'], ''>;

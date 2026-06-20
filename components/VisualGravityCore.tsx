@@ -7,6 +7,10 @@ export default function VisualGravityCore() {
   const rafRef = useRef<number | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const gainRef = useRef<GainNode | null>(null);
+  const coreTextRef = useRef<HTMLDivElement | null>(null);
+  const charRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  const startRef = useRef<number>(performance.now());
+  const [introSkipped, setIntroSkipped] = useState(false);
   const [audioStarted, setAudioStarted] = useState(false);
 
   useEffect(() => {
@@ -27,13 +31,15 @@ export default function VisualGravityCore() {
     window.addEventListener("resize", resize);
 
     const totalCycle = 4800; // ms (2.8 + 1.8 + 0.2 = 4.8s)
-    let start = performance.now();
+    // use startRef so skipIntro can shift the timeline
+    startRef.current = startRef.current || performance.now();
 
     const focusRef = { current: false } as { current: boolean };
     const explodeRef = { current: false } as { current: boolean };
 
     function draw(now: number) {
-      const t = (now - start) % totalCycle;
+      const t = (now - startRef.current) % totalCycle;
+      const elapsed = now - startRef.current;
       const w = canvas.width / dpr;
       const h = canvas.height / dpr;
       const cx = w / 2;
@@ -113,6 +119,23 @@ export default function VisualGravityCore() {
 
       ctx.restore();
 
+      // update SVG turbulence/displacement for stronger 3D warp
+      try {
+        const turb = (document.getElementById("vgc-turb") as SVGFEElement | null);
+        const disp = (document.getElementById("vgc-disp") as SVGFEElement | null);
+        if (turb) {
+          // baseFrequency: small normally, grows during contraction/explosion
+          const base = 0.0008 + inT * 0.018 + expT * 0.06;
+          turb.setAttribute("baseFrequency", base.toFixed(5));
+        }
+        if (disp) {
+          const scale = Math.min(120, 6 + inT * 42 + expT * 220);
+          disp.setAttribute("scale", String(Math.round(scale)));
+        }
+      } catch (e) {
+        // ignore
+      }
+
       // core glow (爆發時快速放大光芒，但位置不位移)
       const coreSize = 20; // px (16~24 推薦值)
       const coreInner = coreSize * (1 + expT * 5 + inT * 0.4);
@@ -174,6 +197,24 @@ export default function VisualGravityCore() {
       ctx.rect(w, 0, -w, h); // fill whole canvas mask
       ctx.fill();
 
+      // explosion particle rays
+      if (expT > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const rays = Math.min(36, 8 + Math.round(expT * 60));
+        for (let r = 0; r < rays; r++) {
+          const ang = (r / rays) * Math.PI * 2 + (now * 0.0005 * r);
+          const len = coreInner * (4 + expT * 18 + Math.random() * 6);
+          ctx.strokeStyle = `rgba(255,240,220,${0.06 + expT * 0.6})`;
+          ctx.lineWidth = 1 + Math.random() * 1.6;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(ang) * coreInner * 0.6, cy + Math.sin(ang) * coreInner * 0.6);
+          ctx.lineTo(cx + Math.cos(ang) * len, cy + Math.sin(ang) * len);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
       // toggle body classes for subtle text distortion
       try {
         const body = document.body;
@@ -212,6 +253,38 @@ export default function VisualGravityCore() {
         } catch (e) {
           // ignore audio errors
         }
+      }
+
+      // --- core text (天地人) control ---
+      try {
+        const core = coreTextRef.current;
+        if (core) {
+          // appear after ~5000ms initial intro, also pulse on explosion
+          const show = elapsed > 5000 || expT > 0.01;
+          core.style.opacity = show ? "1" : "0";
+          const chars = charRefs.current;
+          for (let i = 0; i < 3; i++) {
+            const el = chars[i];
+            if (!el) continue;
+            // base scale and slight float
+            const baseScale = 1 + Math.sin((now + i * 120) * 0.002) * 0.012;
+            // react to contraction (pull-in) and explosion (burst)
+            const pull = 1 + inT * 0.08;
+            const burst = 1 + expT * (0.9 + i * 0.15);
+            const finalScale = baseScale * pull * burst;
+            el.style.transform = `translate3d(0, ${-inT * 8 + i * 2}px, 0) scale(${finalScale})`;
+            // letter glow and shadow increases on burst
+            const glow = 0.12 + expT * 0.6 + i * 0.02;
+            el.style.textShadow = `0 0 ${12 * glow}px rgba(255,245,220,${0.85 * glow}) , 0 0 ${28 * glow}px rgba(139,92,246,${0.5 * glow})`;
+            // apply svg displacement filter stronger during explosion
+            el.style.filter = `url(#vgc-displace)`;
+            el.style.opacity = String(0.9 - inT * 0.3 + expT * 0.35);
+            el.style.letterSpacing = `${0.02 + expT * 0.08}em`;
+            el.style.transition = "transform 120ms linear, text-shadow 120ms linear, opacity 160ms linear";
+          }
+        }
+      } catch (e) {
+        // ignore DOM errors
       }
 
       rafRef.current = requestAnimationFrame(draw);
@@ -258,6 +331,12 @@ export default function VisualGravityCore() {
     setAudioStarted(true);
   }
 
+  function skipIntro() {
+    // advance timeline so intro and text are shown
+    startRef.current = performance.now() - 5200;
+    setIntroSkipped(true);
+  }
+
   return (
     <div
       className="relative flex h-80 w-80 items-center justify-center"
@@ -265,7 +344,14 @@ export default function VisualGravityCore() {
       onClick={startAudio}
       title={audioStarted ? "Audio active" : "點擊啟動低頻脈衝音效"}
     >
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full rounded-full" />
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full rounded-full" style={{filter: 'url(#vgc-displace)'}} />
+      {/* SVG filter for displacement warp */}
+      <svg width="0" height="0" style={{position: 'absolute'}} aria-hidden>
+        <filter id="vgc-displace">
+          <feTurbulence id="vgc-turb" baseFrequency="0.0008" numOctaves="2" seed="2" />
+          <feDisplacementMap id="vgc-disp" in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
       <div className="pointer-events-none z-10 flex items-center justify-center">
         <div
           style={{
@@ -276,6 +362,33 @@ export default function VisualGravityCore() {
             background: "radial-gradient(circle at 35% 30%, #ffffff, #f8f4ff 30%, #e0d8ff 70%)",
           }}
         />
+        <div
+          ref={coreTextRef}
+          className="vgc-core-text absolute inset-0 pointer-events-none"
+          style={{ opacity: 0 }}
+        >
+          <span
+            ref={(el) => (charRefs.current[0] = el)}
+            className="vgc-core-char vgc-core-char-top"
+            aria-hidden
+          >
+            天
+          </span>
+          <span
+            ref={(el) => (charRefs.current[1] = el)}
+            className="vgc-core-char vgc-core-char-left"
+            aria-hidden
+          >
+            地
+          </span>
+          <span
+            ref={(el) => (charRefs.current[2] = el)}
+            className="vgc-core-char vgc-core-char-right"
+            aria-hidden
+          >
+            人
+          </span>
+        </div>
       </div>
     </div>
   );
