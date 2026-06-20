@@ -14,16 +14,24 @@ const ZODIAC_ZH_TO_EN: Record<string, string> = {
 };
 
 interface PersonInput {
-  name: string;
+  name:      string;
   birthDate: string;
   bloodType: 'A' | 'B' | 'AB' | 'O';
-  gender: 'male' | 'female';
+  gender:    'male' | 'female';
 }
 
 interface MatchRequest {
   personA: PersonInput;
   personB: PersonInput;
-  relationshipType: 'love' | 'friend' | 'family' | 'partner';
+}
+
+// 顯示用資訊（不參與計算）
+interface PersonDisplay {
+  name:          string;
+  zodiacZh:      string;
+  chineseZodiac: string;
+  wuxing:        string;
+  bloodType:     string;
 }
 
 function validate(body: unknown): string | null {
@@ -39,74 +47,73 @@ function validate(body: unknown): string | null {
   return null;
 }
 
-function buildProfile(p: PersonInput): PersonProfile {
+// 使用天地人人格引擎生成矩陣（唯一入口）
+function buildProfile(p: PersonInput): { profile: PersonProfile; display: PersonDisplay } {
   const zodiacZh = getZodiacSign(p.birthDate);
   const zodiacEn = ZODIAC_ZH_TO_EN[zodiacZh] ?? 'Aries';
-  const destiny = computeDestinyProfile(p.birthDate);
+  const destiny  = computeDestinyProfile(p.birthDate);
 
   const matrix = PersonalityMatrixEngine.generatePersonalityMatrix(
     {
-      birthDate: p.birthDate,
-      zodiacSign: zodiacEn,
-      gender: p.gender,
-      bloodType: p.bloodType,
+      birthDate:           p.birthDate,
+      zodiacSign:          zodiacEn,
+      gender:              p.gender,
+      bloodType:           p.bloodType,
       voiceCharacteristics: [],
-      firstName: p.name.trim(),
+      firstName:           p.name.trim(),
     },
     destiny.personalityAdjust,
   );
 
   return {
-    name: p.name.trim(),
-    zodiacZh,
-    chineseZodiac: destiny.chineseZodiac,
-    wuxing: destiny.dominantWuxing,
-    bloodType: p.bloodType,
-    matrix: matrix as unknown as PersonalityMatrixCompat,
+    // 配對引擎只讀取：名字 + 矩陣
+    profile: {
+      name:   p.name.trim(),
+      matrix: matrix as unknown as PersonalityMatrixCompat,
+    },
+    // 顯示用（不進入計算）
+    display: {
+      name:          p.name.trim(),
+      zodiacZh,
+      chineseZodiac: destiny.chineseZodiac,
+      wuxing:        destiny.dominantWuxing,
+      bloodType:     p.bloodType,
+    },
   };
 }
 
-async function generateAIInsight(
-  result: ReturnType<typeof computeCompatibility>,
-  profileA: PersonProfile,
-  profileB: PersonProfile,
-  relType: string,
+async function enhanceSummaryWithAI(
+  summary: string,
+  matchScore: number,
+  displayA: PersonDisplay,
+  displayB: PersonDisplay,
 ): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return result.wisdomNote;
-
-  const relLabel = { love: '戀人', friend: '朋友', family: '家人', partner: '合夥人' }[relType] ?? '關係';
+  if (!apiKey) return summary;
 
   const prompt = `
-你是天地人 AI 人際關係顧問，精通命理學與深層心理學。
-請根據以下配對數據，為這對${relLabel}生成一段深刻且溫暖的相處智慧（200字內，繁體中文，不要提及分數或百分比）。
+你是天地人 AI 人際關係顧問，精通命理學與心理學。
+請根據以下配對數據，將這段摘要改寫得更有溫度（100字內，繁體中文，不提及分數或百分比）。
 
-━━━ 配對概況 ━━━
-${profileA.name}（${profileA.zodiacZh}・${profileA.chineseZodiac}・${profileA.wuxing}屬・${profileA.bloodType}型）
-${profileB.name}（${profileB.zodiacZh}・${profileB.chineseZodiac}・${profileB.wuxing}屬・${profileB.bloodType}型）
-關係類型：${relLabel}
-配對結果：${result.grade}
+甲方：${displayA.name}（${displayA.zodiacZh}・${displayA.chineseZodiac}・${displayA.wuxing}屬・${displayA.bloodType}型）
+乙方：${displayB.name}（${displayB.zodiacZh}・${displayB.chineseZodiac}・${displayB.wuxing}屬・${displayB.bloodType}型）
+配對指數：${matchScore}
 
-━━━ 能量強項 ━━━
-${result.strengthPoints.join('\n') || '暫無特別突出強項'}
+原始摘要：${summary}
 
-━━━ 摩擦警示 ━━━
-${result.frictionPoints.join('\n') || '摩擦點不明顯'}
-
-請輸出一段相處智慧，融合命理觀點與心理學洞見，告訴這兩個人如何讓這段關係走得更遠、更深。
-語氣溫暖，帶著善念，以「心存善念，懂得禮讓」的哲學作為核心。
-`.trim();
+請輸出改寫後的摘要，語氣溫暖，以「懂得禮讓、欣賞差異」為核心，不說「你們一定合/不合」。
+  `.trim();
 
   try {
     const genai = new GoogleGenAI({ apiKey });
-    const resp = await genai.models.generateContent({
-      model: 'gemini-2.5-flash',
+    const resp  = await genai.models.generateContent({
+      model:    'gemini-2.5-flash',
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      config: { maxOutputTokens: 400, temperature: 0.8 },
+      config:   { maxOutputTokens: 200, temperature: 0.75 },
     });
-    return resp.text?.trim() || result.wisdomNote;
+    return resp.text?.trim() || summary;
   } catch {
-    return result.wisdomNote;
+    return summary;
   }
 }
 
@@ -114,7 +121,7 @@ const ipCache = new Map<string, { count: number; resetTime: number }>();
 
 export async function POST(request: Request) {
   const now = Date.now();
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+  const ip  = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
   const rec = ipCache.get(ip);
   if (rec && now < rec.resetTime) {
     if (rec.count >= 5) return NextResponse.json({ error: '請求過於頻繁，請稍後再試。' }, { status: 429 });
@@ -130,27 +137,21 @@ export async function POST(request: Request) {
   const errMsg = validate(body);
   if (errMsg) return NextResponse.json({ error: errMsg }, { status: 400 });
 
-  const profileA = buildProfile(body.personA);
-  const profileB = buildProfile(body.personB);
+  // ── 各自走天地人人格引擎 ─────────────────────────────
+  const { profile: profileA, display: displayA } = buildProfile(body.personA);
+  const { profile: profileB, display: displayB } = buildProfile(body.personB);
+
+  // ── 配對：只比較兩個人格矩陣 ────────────────────────
   const result = computeCompatibility(profileA, profileB);
 
-  const aiInsight = await generateAIInsight(result, profileA, profileB, body.relationshipType);
+  // ── AI 潤色摘要（不改動計算結果）───────────────────
+  const aiSummary = await enhanceSummaryWithAI(
+    result.summary, result.match_score, displayA, displayB,
+  );
 
   return NextResponse.json({
-    result: { ...result, wisdomNote: aiInsight },
-    profileA: {
-      name: profileA.name,
-      zodiacZh: profileA.zodiacZh,
-      chineseZodiac: profileA.chineseZodiac,
-      wuxing: profileA.wuxing,
-      bloodType: profileA.bloodType,
-    },
-    profileB: {
-      name: profileB.name,
-      zodiacZh: profileB.zodiacZh,
-      chineseZodiac: profileB.chineseZodiac,
-      wuxing: profileB.wuxing,
-      bloodType: profileB.bloodType,
-    },
+    result: { ...result, summary: aiSummary },
+    displayA,
+    displayB,
   });
 }
