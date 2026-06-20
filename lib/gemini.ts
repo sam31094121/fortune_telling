@@ -260,10 +260,10 @@ export async function analyzeDestiny(person: PersonInput): Promise<AnalysisResul
 export interface MusicReportInput {
   name: string;
   birthDate: string;
-  zodiac: string;        // 中文星座
+  zodiac: string;
   bloodType: 'A' | 'B' | 'AB' | 'O';
   gender: 'male' | 'female';
-  era: string;           // 年代字串，e.g. "1990s"
+  era: string;
   personalityMatrix: Record<string, number>;
   musicParameters: {
     bpm: number;
@@ -273,6 +273,27 @@ export interface MusicReportInput {
     vocal_style: string;
     instrument: string[];
     lyric_theme: string[];
+  };
+  // 命理語境（五行 + 生肖）
+  destinyContext?: {
+    heavenlyStem: string;
+    wuxing: string;
+    wuxingDescription: string;
+    chineseZodiac: string;
+    zodiacTrait: string;
+    zodiacMusicTrait: string;
+  };
+  // 心理學語境（榮格原型 + OCEAN）
+  psychologyContext?: {
+    archetypePrimary: string;
+    archetypeDescription: string;
+    archetypeMusicPersona: string;
+    archetypeShadow: string;
+    archetypeCoreWound?: string;
+    archetypeCoreGift?: string;
+    archetypeLifeLesson?: string;
+    archetypeSecondary: string;
+    oceanHighlight: string;
   };
 }
 
@@ -319,42 +340,59 @@ const MUSIC_REPORT_SCHEMA = {
 
 function buildMusicReportPrompt(input: MusicReportInput): string {
   const genderLabel = input.gender === 'male' ? '男性' : '女性';
+  const d = input.destinyContext;
+  const p = input.psychologyContext;
 
   return `
-你是「天地人 AI 人格音樂系統」的音樂靈魂顧問。
-根據使用者的人格音樂矩陣，寫出一份專屬的人格音樂報告。
+你是「天地人 AI 人格音樂系統」的靈魂音樂顧問，同時精通命理學與深層心理學。
+根據以下三層數據——天地人命理架構、心理學原型、音樂矩陣——寫出一份深刻的人格音樂報告。
 
-鐵律：
-1. 所有文字必須前後一致，不可互相矛盾。
-2. 語氣要有詩意、有深度、命理詩人的質感。
-3. 不可浮誇，不說教。
-4. 結語必須帶到「心存善念，才能讓命運更順」。
+系統鐵律：
+1. 命理、心理學、音樂三個視角必須互相呼應，不可矛盾。
+2. 語氣如命理詩人：有深度、有詩意、有人性溫度，不浮誇不說教。
+3. 五行、生肖、榮格原型等概念要自然融入敘事，不要硬塞術語。
+4. 陰影面（Shadow）要輕描淡寫地提及，不是批評，而是提醒。
+5. 結語必須自然帶到「心存善念，命運才能更順」的智慧。
 
-人物資料：
-- 姓名：${input.name}
-- 生日：${input.birthDate}（${input.zodiac}）
-- 血型：${input.bloodType}
-- 性別：${genderLabel}
-- 年代：${input.era}
+━━━ 人物命格 ━━━
+姓名：${input.name}
+生日：${input.birthDate}（${input.zodiac}）
+血型：${input.bloodType} 型 · 性別：${genderLabel}
+音樂年代：${input.era}
 
-人格音樂矩陣（0-100）：
+━━━ 命理層（天）━━━
+天干：${d?.heavenlyStem ?? '—'} · 五行：${d?.wuxing ?? '—'}
+五行氣質：${d?.wuxingDescription ?? '—'}
+生肖：${d?.chineseZodiac ?? '—'} · 特質：${d?.zodiacTrait ?? '—'}
+音樂傾向：${d?.zodiacMusicTrait ?? '—'}
+
+━━━ 心理學層（人）━━━
+主原型：${p?.archetypePrimary ?? '—'}（${p?.archetypeDescription ?? '—'}）
+核心天賦：${p?.archetypeCoreGift ?? '—'}
+此生課題：${p?.archetypeLifeLesson ?? '—'}
+核心傷：${p?.archetypeCoreWound ?? '—'}
+音樂人格：${p?.archetypeMusicPersona ?? '—'}
+陰影面：${p?.archetypeShadow ?? '—'}
+輔助原型：${p?.archetypeSecondary ?? '—'}
+OCEAN 特質：${p?.oceanHighlight ?? '—'}
+
+━━━ 人格音樂矩陣（0-100）━━━
 ${JSON.stringify(input.personalityMatrix, null, 2)}
 
-生成音樂參數：
-- BPM：${input.musicParameters.bpm}
-- 音調：${input.musicParameters.key}
-- 風格：${input.musicParameters.genre}
-- 氛圍：${input.musicParameters.mood.join(', ')}
-- 唱腔：${input.musicParameters.vocal_style}
-- 樂器：${input.musicParameters.instrument.join(', ')}
-- 歌詞主題：${input.musicParameters.lyric_theme.join(', ')}
+━━━ 生成音樂參數 ━━━
+BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
+風格：${input.musicParameters.genre}
+氛圍：${input.musicParameters.mood.join(', ')}
+唱腔：${input.musicParameters.vocal_style}
+樂器：${input.musicParameters.instrument.join(', ')}
+歌詞主題：${input.musicParameters.lyric_theme.join(', ')}
 
 請輸出 JSON，欄位為：
-- music_narrative（人格音樂靈魂敘述）
-- song_title_suggestion（建議歌名）
-- lyric_opening（開場歌詞兩句）
-- music_message（這首歌想說的話）
-- wisdom_note（善念結語）
+- music_narrative：融合命理與心理學的人格音樂靈魂敘述，200字內
+- song_title_suggestion：有命理感的建議歌名，繁中，4-10字
+- lyric_opening：開場歌詞兩句，要有五行/命理意象，繁中
+- music_message：這首歌想對使用者說的話，溫暖且有深度，100字內
+- wisdom_note：以善念、因果、命運為核心的結語，80字內
 `.trim();
 }
 

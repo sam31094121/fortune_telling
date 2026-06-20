@@ -135,7 +135,7 @@ export class PersonalityMatrixEngine {
     for (const characteristic of voiceCharacteristics) {
       const charAdjust = VoiceCharacteristicMap[characteristic] || {};
       for (const key of Object.keys(charAdjust)) {
-        voiceAdjust[key] = (voiceAdjust[key] || 0) + charAdjust[key];
+        voiceAdjust[key] = (voiceAdjust[key] ?? 0) + (charAdjust[key] ?? 0);
       }
     }
 
@@ -175,9 +175,9 @@ export class PersonalityMatrixEngine {
 
     // 合併
     for (const key of Object.keys(matrix) as (keyof PersonalityMatrix)[]) {
-      const baseVal = matrix[key];
-      const nameVal = (nameAdjust[key] || 0) * 3;
-      const toneVal = (toneAdjust[key] || 0) * 2;
+      const baseVal = matrix[key] ?? 70;
+      const nameVal = (nameAdjust[key] ?? 0) * 3;
+      const toneVal = (toneAdjust[key] ?? 0) * 2;
       matrix[key] = Math.max(0, Math.min(100, baseVal + nameVal + toneVal));
     }
 
@@ -188,34 +188,33 @@ export class PersonalityMatrixEngine {
    * 融合三模型生成最終人格矩陣
    * 公式：天 35% + 地 35% + 人 30% + 聲音校正
    */
-  static generatePersonalityMatrix(input: PersonalityMatrixInput): PersonalityMatrix {
+  static generatePersonalityMatrix(
+    input: PersonalityMatrixInput,
+    destinyAdjust?: Partial<PersonalityMatrix>,
+  ): PersonalityMatrix {
     const sky = this.extractSkyModel(input.birthDate, input.zodiacSign);
     const earth = this.extractEarthModel(input.gender, input.bloodType, input.voiceCharacteristics);
     const human = this.extractHumanModel(input.firstName, input.lastName);
 
     const result: PersonalityMatrix = {
-      emotion: 0,
-      logic: 0,
-      social: 0,
-      leadership: 0,
-      security: 0,
-      creativity: 0,
-      risk: 0,
-      attachment: 0,
+      emotion: 0, logic: 0, social: 0, leadership: 0,
+      security: 0, creativity: 0, risk: 0, attachment: 0,
     };
 
     for (const key of Object.keys(result) as (keyof PersonalityMatrix)[]) {
       const skyVal = sky[key] || 70;
       const earthVal = earth[key] || 70;
       const humanVal = human[key] || 70;
-      
-      // 公式：35% + 35% + 30%
-      result[key] = Math.round(
-        skyVal * 0.35 + earthVal * 0.35 + humanVal * 0.3
-      );
-      
-      // 限制在 0-100 範圍
-      result[key] = Math.max(0, Math.min(100, result[key]));
+
+      // 公式：天 35% + 地 35% + 人 30%
+      let score = skyVal * 0.35 + earthVal * 0.35 + humanVal * 0.3;
+
+      // 命理加成（五行 + 生肖）：在天模型基礎上疊加，影響 ±8%
+      if (destinyAdjust?.[key]) {
+        score += destinyAdjust[key]! * 0.08;
+      }
+
+      result[key] = Math.max(0, Math.min(100, Math.round(score)));
     }
 
     return result;

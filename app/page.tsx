@@ -139,6 +139,12 @@ export default function HomePage() {
               >
                 🎵 人格音樂系統 V1.0
               </a>
+              <a
+                href="/match"
+                className="inline-flex items-center gap-1.5 rounded-full border border-rose-400/30 bg-rose-400/10 px-4 py-1 text-xs font-semibold tracking-[0.2em] text-rose-300 transition hover:bg-rose-400/20"
+              >
+                💕 人際配對系統
+              </a>
             </div>
 
             <div className="space-y-4">
