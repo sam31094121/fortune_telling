@@ -20,6 +20,24 @@ interface CompatDimension {
   emoji: string;
 }
 
+interface CommunicationStyle {
+  type: string; emoji: string; tagline: string;
+  howTheySpeak: string; whatTriggersShutdown: string; whatTheyNeedToHear: string;
+  pattern: string;
+}
+
+interface ConflictScenario {
+  title: string; howItStarts: string; whatHappens: string;
+  rootCause: string; solution: string;
+}
+
+interface CommunicationReport {
+  personA: CommunicationStyle; personB: CommunicationStyle;
+  clashType: string; clashDescription: string;
+  topConflicts: ConflictScenario[];
+  dailyHarmony: string[];
+}
+
 interface MatchResult {
   totalScore: number;
   grade: string;
@@ -29,6 +47,7 @@ interface MatchResult {
   frictionPoints: string[];
   strengthPoints: string[];
   wisdomNote: string;
+  communicationReport?: CommunicationReport;
 }
 
 interface MatchResponse {
@@ -427,6 +446,15 @@ function MatchReport({ data, relType, onReset }: { data: MatchResponse; relType:
         </div>
       )}
 
+      {/* ── 話術溝通配對 ──────────────────────────────────── */}
+      {result.communicationReport && (
+        <CommunicationSection
+          report={result.communicationReport}
+          nameA={profileA.name}
+          nameB={profileB.name}
+        />
+      )}
+
       {/* ── AI 相處智慧 ────────────────────────────────────── */}
       <div className="sky-card fortune-card p-6 sm:p-8">
         <p className="mb-4 text-xs uppercase tracking-[0.4em] text-violet-300/70">
@@ -456,6 +484,135 @@ function MatchReport({ data, relType, onReset }: { data: MatchResponse; relType:
           >
             重新配對
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── 話術溝通配對區塊 ─────────────────────────────────────────────────────────
+
+function CommunicationSection({
+  report, nameA, nameB,
+}: {
+  report: CommunicationReport;
+  nameA: string;
+  nameB: string;
+}) {
+  const [openConflict, setOpenConflict] = useState<number | null>(null);
+
+  return (
+    <div className="space-y-4">
+
+      {/* 標題卡：衝突型態 */}
+      <div className="fortune-card overflow-hidden">
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-rose-400/50 to-transparent" />
+        <div className="px-6 py-7 sm:px-8">
+          <p className="mb-5 text-xs uppercase tracking-[0.4em] text-rose-300/70">
+            💬 話術溝通配對 · 天地人大數據分析
+          </p>
+          <div className="mb-5 rounded-2xl border border-rose-400/15 bg-rose-950/10 px-5 py-4 text-center">
+            <p className="text-xs tracking-widest text-rose-300/70">你們的溝通衝突型態</p>
+            <p className="mt-2 font-serif text-xl text-[color:var(--text-main)]">{report.clashType}</p>
+            <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{report.clashDescription}</p>
+          </div>
+
+          {/* 兩人說話風格並排 */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            {([
+              { style: report.personA, name: nameA, accent: 'var(--sky-violet)', border: 'rgba(139,92,246,0.25)', bg: 'rgba(139,92,246,0.08)' },
+              { style: report.personB, name: nameB, accent: 'var(--earth-gold)', border: 'rgba(245,158,11,0.25)', bg: 'rgba(245,158,11,0.06)' },
+            ] as const).map(({ style, name, accent, border, bg }) => (
+              <div key={name} className="rounded-2xl p-5" style={{ border: `1px solid ${border}`, background: bg }}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-2xl">{style.emoji}</span>
+                  <div>
+                    <p className="text-xs tracking-widest" style={{ color: accent }}>{name}</p>
+                    <p className="font-semibold text-[color:var(--text-main)]">{style.type}</p>
+                  </div>
+                </div>
+                <p className="mb-3 text-xs italic text-[color:var(--text-muted)]">「{style.tagline}」</p>
+                <div className="space-y-3">
+                  <div>
+                    <p className="mb-1 text-xs tracking-widest text-[color:var(--text-muted)]">說話方式</p>
+                    <p className="text-xs leading-6 text-[color:var(--text-sub)]">{style.howTheySpeak}</p>
+                  </div>
+                  <div>
+                    <p className="mb-1 text-xs tracking-widest text-rose-400/70">關閉觸發點</p>
+                    <p className="text-xs leading-6 text-[color:var(--text-sub)]">{style.whatTriggersShutdown}</p>
+                  </div>
+                  <div>
+                    <p className="mb-1 text-xs tracking-widest text-emerald-400/70">最需要聽到</p>
+                    <p className="text-xs leading-6 text-[color:var(--text-sub)]">{style.whatTheyNeedToHear}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 衝突場景展開卡 */}
+      {report.topConflicts.length > 0 && (
+        <div className="fortune-card px-6 py-7 sm:px-8">
+          <p className="mb-5 text-xs uppercase tracking-[0.4em] text-rose-300/70">⚡ 你們最容易發生的衝突場景</p>
+          <div className="space-y-3">
+            {report.topConflicts.map((c, i) => (
+              <div key={i} className="overflow-hidden rounded-2xl border border-white/8">
+                <button
+                  type="button"
+                  onClick={() => setOpenConflict(openConflict === i ? null : i)}
+                  className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-white/4"
+                >
+                  <span className="shrink-0 text-lg text-rose-400">{i + 1}.</span>
+                  <span className="flex-1 text-sm font-semibold text-[color:var(--text-main)]">{c.title}</span>
+                  <span className="shrink-0 text-xs text-[color:var(--text-muted)]">
+                    {openConflict === i ? '▲' : '▼'}
+                  </span>
+                </button>
+                {openConflict === i && (
+                  <div className="border-t border-white/8 bg-white/3 px-5 pb-5 pt-4">
+                    <div className="space-y-4">
+                      <div>
+                        <p className="mb-1.5 text-xs tracking-widest text-[color:var(--text-muted)]">怎麼開始的</p>
+                        <p className="text-sm leading-7 text-[color:var(--text-sub)]">{c.howItStarts}</p>
+                      </div>
+                      <div>
+                        <p className="mb-1.5 text-xs tracking-widest text-rose-400/70">各自的反應</p>
+                        <p className="text-sm leading-7 text-[color:var(--text-sub)]">{c.whatHappens}</p>
+                      </div>
+                      <div>
+                        <p className="mb-1.5 text-xs tracking-widest text-amber-400/70">根本原因</p>
+                        <p className="text-sm leading-7 text-[color:var(--text-sub)]">{c.rootCause}</p>
+                      </div>
+                      <div className="rounded-xl border border-emerald-400/20 bg-emerald-950/15 px-4 py-3">
+                        <p className="mb-1 text-xs tracking-widest text-emerald-400/70">✦ 化解方式</p>
+                        <p className="text-sm leading-7 text-[color:var(--text-main)]">{c.solution}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 日常和諧三招 */}
+      <div className="fortune-card earth-card px-6 py-7 sm:px-8">
+        <p className="mb-5 text-xs uppercase tracking-[0.4em] text-amber-300/70">✦ 日常和諧相處三招</p>
+        <div className="space-y-3">
+          {report.dailyHarmony.map((tip, i) => (
+            <div key={i} className="flex gap-4 rounded-2xl border border-amber-400/12 bg-amber-950/8 px-4 py-4">
+              <span
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                style={{ background: 'rgba(245,158,11,0.2)', color: 'var(--earth-gold)' }}
+              >
+                {i + 1}
+              </span>
+              <p className="text-sm leading-7 text-[color:var(--text-main)]">{tip}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

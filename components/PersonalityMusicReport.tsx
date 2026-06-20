@@ -23,7 +23,7 @@ interface OceanProfile {
 }
 
 interface Meta {
-  zodiac: string; era: string;
+  zodiac: string; era: string; eraDisplayName?: string;
   wuxing?: string; wuxingColor?: string;
   chineseZodiac?: string; heavenlyStem?: string;
   archetype?: string; archetypeSymbol?: string; archetypeEn?: string;
@@ -153,7 +153,7 @@ export default function PersonalityMusicReport({
       {/* ─── 音樂播放器（國語歌曲優先）─────────────────── */}
       <MusicPlayer
         mandarinTracks={mandarinTracks}
-        eraDisplayName={(meta as { eraDisplayName?: string }).eraDisplayName ?? meta.era}
+        eraDisplayName={meta.eraDisplayName ?? meta.era}
         genreKey={playerGenreKey}
         genreName={genreName}
         genreEmoji={genreEmoji}

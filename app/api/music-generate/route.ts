@@ -136,7 +136,7 @@ export async function POST(request: Request) {
     bloodType,
     gender,
     era,
-    personalityMatrix: personalityMatrix as unknown as Record<string, number>,
+    personalityMatrix: Object.fromEntries(Object.entries(personalityMatrix)) as Record<string, number>,
     musicParameters: finalMusicParameters,
     // 傳入命理 + 心理學語境
     destinyContext: {
