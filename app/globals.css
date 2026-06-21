@@ -25,7 +25,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth 移除 — 全局 smooth 會讓 Chrome 在每次滾動時鎖主執行緒 */
 }
 
 body {
@@ -108,6 +108,7 @@ body {
   height: min(540px, 88vw);
   transform: translateX(-50%);
   animation: spin-centered 40s linear infinite;
+  will-change: transform;
 }
 
 .constellation-ring-bottom {
@@ -116,6 +117,7 @@ body {
   width: 420px;
   height: 420px;
   animation: spin 34s linear infinite reverse;
+  will-change: transform;
 }
 
 .fortune-card {
@@ -123,8 +125,8 @@ body {
   overflow: hidden;
   border: 1px solid rgba(244, 201, 93, 0.18);
   border-radius: 24px;
-  background: var(--bg-card);
-  backdrop-filter: blur(8px);
+  /* 用不透明背景取代 backdrop-filter — 視覺相近但滾動時不重算模糊 */
+  background: rgba(8, 6, 28, 0.82);
   box-shadow:
     0 0 40px rgba(109, 74, 255, 0.16),
     inset 0 0 24px rgba(255, 255, 255, 0.04);
