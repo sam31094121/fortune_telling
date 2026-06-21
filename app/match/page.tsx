@@ -59,7 +59,7 @@ const STEP_ORDER: StepKey[] = ['personA', 'personB', 'review'];
 
 function getPersonError(label: string, person: PersonInput) {
   if (person.name.trim().length < 2) return `請先輸入${label}姓名，至少 2 個字。`;
-  if (!person.birthDate) return `請先選好${label}的農曆生日。`;
+  if (!person.birthDate) return `請先輸入${label}的民國年國曆生日。`;
   return '';
 }
 
@@ -159,12 +159,12 @@ function PersonStep({
         </div>
 
         <div>
-          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">2. 農曆生日</label>
+          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">2. 國曆生日（民國年）</label>
           <LunarBirthdayInput
             value={value.birthDate}
             onChange={(solarDate) => onChange({ ...value, birthDate: solarDate })}
             accent={accent}
-            label="請輸入農曆生日（民國年）"
+            label="請輸入國曆生日（民國年）"
           />
         </div>
 
@@ -382,7 +382,7 @@ export default function MatchPage() {
             {step === 'personA' && (
               <PersonStep
                 title="第一位資料"
-                description="請先輸入第一位的姓名、農曆生日、血型和性別。每一步都幫你排好了。"
+                description="請先輸入第一位的姓名、民國年國曆生日、血型和性別。每一步都幫你排好了。"
                 accent="violet"
                 value={personA}
                 onChange={setPersonA}
@@ -421,7 +421,7 @@ export default function MatchPage() {
                           <span className="text-[color:var(--text-main)]">{person.name || '未填'}</span>
                         </div>
                         <div>
-                          <span className="text-[color:var(--text-muted)]">國曆生日：</span>
+                          <span className="text-[color:var(--text-muted)]">西元生日：</span>
                           <span className="text-[color:var(--text-main)]">{person.birthDate || '未換算完成'}</span>
                         </div>
                         <div>

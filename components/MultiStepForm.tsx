@@ -60,7 +60,7 @@ export default function MultiStepForm({
         <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">免費天地預分析</p>
         <h2 className="font-serif text-3xl text-[color:var(--text-main)]">先完成骨架，再進入姓名解碼</h2>
         <p className="text-sm leading-7 text-[color:var(--text-sub)]">
-          第一步輸入農曆生日，系統會自動換成國曆；第二步輸入血型，補充行為模式。
+          第一步輸入民國年表示的國曆生日，系統會自動換成西元；第二步輸入血型，補充行為模式。
         </p>
       </div>
 
@@ -94,7 +94,7 @@ export default function MultiStepForm({
         <div className="fortune-card sky-card space-y-4 p-5 animate-rise">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-violet-300">天層輸入</p>
-            <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">輸入農曆出生年月日</h3>
+            <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">輸入國曆出生年月日（民國年）</h3>
           </div>
 
           <LunarBirthdayInput
@@ -113,7 +113,7 @@ export default function MultiStepForm({
             </div>
           ) : (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-[color:var(--text-muted)]">
-              選好農曆生日後，系統會先自動換算國曆，再顯示星座人格基底。
+              輸入民國年國曆生日後，系統會先自動換算西元，再顯示星座人格基底。
             </div>
           )}
 

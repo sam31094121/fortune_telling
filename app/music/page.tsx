@@ -99,7 +99,7 @@ function LandingHero({ onStart }: { onStart: () => void }) {
         </h1>
 
         <p className="mt-8 max-w-2xl text-base leading-8 text-[color:var(--text-sub)]">
-          輸入農曆生日、血型、姓名與聲音特徵，系統會先自動換算國曆，再融合天地人模型與音樂參數，產出你的專屬人格音樂報告。
+          輸入民國年國曆生日、血型、姓名與聲音特徵，系統會先自動換算西元，再融合天地人模型與音樂參數，產出你的專屬人格音樂報告。
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-4">

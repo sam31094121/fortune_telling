@@ -1,7 +1,6 @@
 ﻿'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { lunarToSolar, solarToLunarParts } from '@/lib/lunar-calendar';
 
 interface LunarBirthdayInputProps {
   value: string;
@@ -11,22 +10,41 @@ interface LunarBirthdayInputProps {
   label?: string;
 }
 
-const MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) => index + 1);
-const DAY_OPTIONS = Array.from({ length: 30 }, (_, index) => index + 1);
+function pad2(value: number) {
+  return String(value).padStart(2, '0');
+}
+
+function resolveRocDate(rocYear: number, month: number, day: number) {
+  const year = rocYear + 1911;
+  if (rocYear <= 0 || month < 1 || month > 12 || day < 1 || day > 31) return null;
+
+  const date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
+
+  return `${year}-${pad2(month)}-${pad2(day)}`;
+}
 
 export default function LunarBirthdayInput({
   value,
   onChange,
   disabled = false,
   accent = 'violet',
-  label = '請輸入農曆生日（民國年）',
+  label = '請輸入國曆生日（民國年）',
 }: LunarBirthdayInputProps) {
   const [rocYear, setRocYear] = useState('');
   const [month, setMonth] = useState('');
   const [day, setDay] = useState('');
-  const [isLeapMonth, setIsLeapMonth] = useState(false);
   const [message, setMessage] = useState('');
   const lastEmittedRef = useRef('');
+
+  const todayHint = useMemo(() => {
+    const today = new Date();
+    return {
+      rocYear: String(today.getFullYear() - 1911),
+      month: pad2(today.getMonth() + 1),
+      day: pad2(today.getDate()),
+    };
+  }, []);
 
   const accentClass = useMemo(() => {
     if (accent === 'amber') return 'text-amber-300 border-amber-400/20 bg-amber-950/20';
@@ -36,19 +54,15 @@ export default function LunarBirthdayInput({
   }, [accent]);
 
   useEffect(() => {
-    if (!value) {
-      setMessage('');
-      return;
-    }
+    if (!value) return;
 
-    const lunar = solarToLunarParts(value);
-    if (!lunar) return;
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (!match) return;
 
-    setRocYear(String(lunar.rocYear));
-    setMonth(String(lunar.month));
-    setDay(String(lunar.day));
-    setIsLeapMonth(Boolean(lunar.isLeapMonth));
-    setMessage(`系統已換算國曆：${value}`);
+    setRocYear(String(Number(match[1]) - 1911));
+    setMonth(String(Number(match[2])));
+    setDay(String(Number(match[3])));
+    setMessage(`系統已換算西元：${value}`);
   }, [value]);
 
   useEffect(() => {
@@ -57,32 +71,27 @@ export default function LunarBirthdayInput({
         onChange('');
         lastEmittedRef.current = '';
       }
-      setMessage('請先完整選好農曆年月日。');
+      setMessage('請先完整輸入民國年、月、日。');
       return;
     }
 
-    const resolved = lunarToSolar({
-      rocYear: Number(rocYear),
-      month: Number(month),
-      day: Number(day),
-      isLeapMonth,
-    });
+    const resolved = resolveRocDate(Number(rocYear), Number(month), Number(day));
 
     if (!resolved) {
       if (lastEmittedRef.current !== '') {
         onChange('');
         lastEmittedRef.current = '';
       }
-      setMessage('這個農曆日期目前換算不到，請檢查是否輸入正確。');
+      setMessage('這個國曆日期不存在，請檢查民國年、月、日。');
       return;
     }
 
-    if (lastEmittedRef.current !== resolved.solarDate) {
-      onChange(resolved.solarDate);
-      lastEmittedRef.current = resolved.solarDate;
+    if (lastEmittedRef.current !== resolved) {
+      onChange(resolved);
+      lastEmittedRef.current = resolved;
     }
-    setMessage(`系統已換算國曆：${resolved.solarDate}`);
-  }, [rocYear, month, day, isLeapMonth]);
+    setMessage(`系統已換算西元：${resolved}`);
+  }, [rocYear, month, day]);
 
   return (
     <div className="space-y-3">
@@ -93,52 +102,41 @@ export default function LunarBirthdayInput({
           inputMode="numeric"
           type="number"
           min={1}
-          placeholder="民國年，例如 63"
+          aria-label="民國年"
+          placeholder={todayHint.rocYear}
           value={rocYear}
           disabled={disabled}
           onChange={(event) => setRocYear(event.target.value)}
           className="form-input"
         />
-        <select
+        <input
+          inputMode="numeric"
+          type="number"
+          min={1}
+          max={12}
+          aria-label="月份"
+          placeholder={todayHint.month}
           value={month}
           disabled={disabled}
           onChange={(event) => setMonth(event.target.value)}
-          className="form-select"
-        >
-          <option value="">月份</option>
-          {MONTH_OPTIONS.map((item) => (
-            <option key={item} value={item}>
-              {item} 月
-            </option>
-          ))}
-        </select>
-        <select
+          className="form-input"
+        />
+        <input
+          inputMode="numeric"
+          type="number"
+          min={1}
+          max={31}
+          aria-label="日期"
+          placeholder={todayHint.day}
           value={day}
           disabled={disabled}
           onChange={(event) => setDay(event.target.value)}
-          className="form-select"
-        >
-          <option value="">日期</option>
-          {DAY_OPTIONS.map((item) => (
-            <option key={item} value={item}>
-              {item} 日
-            </option>
-          ))}
-        </select>
+          className="form-input"
+        />
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-[color:var(--text-sub)]">
-        <input
-          type="checkbox"
-          checked={isLeapMonth}
-          disabled={disabled}
-          onChange={(event) => setIsLeapMonth(event.target.checked)}
-        />
-        這一天是農曆閏月
-      </label>
-
       <div className={`rounded-2xl border p-3 text-sm ${accentClass}`}>
-        {message || '請輸入農曆生日，系統會自動換算成國曆。'}
+        {message || '請輸入民國年國曆生日，系統會自動換算成西元。'}
       </div>
     </div>
   );
