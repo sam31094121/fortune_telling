@@ -15,7 +15,13 @@ export default function VisualGravityCore() {
 
   useEffect(() => {
     const canvas = canvasRef.current!;
+    // 告訴瀏覽器用 GPU 合成這個 canvas，不要擋主執行緒
+    canvas.style.willChange = "transform";
     const ctx = canvas.getContext("2d")!;
+
+    // 只查一次 DOM，存起來，draw loop 直接用
+    const turbEl = document.getElementById("vgc-turb") as SVGElement | null;
+    const dispEl = document.getElementById("vgc-disp") as SVGElement | null;
 
     let dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
 
@@ -119,21 +125,14 @@ export default function VisualGravityCore() {
 
       ctx.restore();
 
-      // update SVG turbulence/displacement for stronger 3D warp
-      try {
-        const turb = (document.getElementById("vgc-turb") as SVGElement | null);
-        const disp = (document.getElementById("vgc-disp") as SVGElement | null);
-        if (turb) {
-          // baseFrequency: small normally, grows during contraction/explosion
-          const base = 0.0008 + inT * 0.018 + expT * 0.06;
-          turb.setAttribute("baseFrequency", base.toFixed(5));
-        }
-        if (disp) {
-          const scale = Math.min(120, 6 + inT * 42 + expT * 220);
-          disp.setAttribute("scale", String(Math.round(scale)));
-        }
-      } catch (e) {
-        // ignore
+      // update SVG turbulence/displacement — 用快取變數，不再每幀查 DOM
+      if (turbEl) {
+        const base = 0.0008 + inT * 0.018 + expT * 0.06;
+        turbEl.setAttribute("baseFrequency", base.toFixed(5));
+      }
+      if (dispEl) {
+        const scale = Math.min(120, 6 + inT * 42 + expT * 220);
+        dispEl.setAttribute("scale", String(Math.round(scale)));
       }
 
       // core glow (??翰?憭批???雿?蝵桐?雿宏)
@@ -294,6 +293,9 @@ export default function VisualGravityCore() {
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if ((gainRef.current as any)?._pulseInterval) {
+        clearInterval((gainRef.current as any)._pulseInterval);
+      }
       window.removeEventListener("resize", resize);
     };
   }, []);
