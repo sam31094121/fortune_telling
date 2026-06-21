@@ -342,7 +342,7 @@ export default function VisualGravityCore() {
       className="relative flex h-80 w-80 items-center justify-center"
       style={{ touchAction: "manipulation" }}
       onClick={startAudio}
-      title={audioStarted ? "Audio active" : "暺???雿???單?"}
+      title={audioStarted ? "能量核心已啟動" : "點一下，啟動天地人能量核心"}
     >
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full rounded-full" style={{filter: 'url(#vgc-displace)'}} />
       {/* SVG filter for displacement warp */}
@@ -393,5 +393,6 @@ export default function VisualGravityCore() {
     </div>
   );
 }
+
 
 

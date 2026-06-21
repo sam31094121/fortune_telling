@@ -1,185 +1,312 @@
-'use client';
+﻿'use client';
 
-import { useState } from 'react';
-import VisualGravityCore from '@/components/VisualGravityCore';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import VisualGravityCore from '@/components/VisualGravityCore';
+import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 
 interface PersonInput {
-  name:      string;
+  name: string;
   birthDate: string;
   bloodType: 'A' | 'B' | 'AB' | 'O';
-  gender:    'male' | 'female';
-}
-
-interface CommunicationStyle {
-  type:                 string;
-  emoji:                string;
-  tagline:              string;
-  howTheySpeak:         string;
-  whatTriggersShutdown: string;
-  whatTheyNeedToHear:   string;
-  pattern:              string;
-}
-
-interface ConflictScenario {
-  title:       string;
-  howItStarts: string;
-  whatHappens: string;
-  rootCause:   string;
-  solution:    string;
-}
-
-interface CommunicationReport {
-  personA:          CommunicationStyle;
-  personB:          CommunicationStyle;
-  clashType:        string;
-  clashDescription: string;
-  topConflicts:     ConflictScenario[];
-  dailyHarmony:     string[];
+  gender: 'male' | 'female';
 }
 
 interface MatchZones {
-  resonance:   string[];
-  complement:  string[];
-  grinding:    string[];
-  conflict:    string[];
+  resonance: string[];
+  complement: string[];
+  grinding: string[];
+  conflict: string[];
 }
 
 interface MatchResult {
-  match_score:         number;
-  resonance:           number;
-  communication:       number;
-  stability:           number;
-  conflict_risk:       number;
-  summary:             string;
-  zones:               MatchZones;
-  communicationReport: CommunicationReport;
+  match_score: number;
+  resonance: number;
+  communication: number;
+  stability: number;
+  conflict_risk: number;
+  summary: string;
+  zones: MatchZones;
 }
 
 interface PersonDisplay {
-  name:          string;
-  zodiacZh:      string;
+  name: string;
+  zodiacZh: string;
   chineseZodiac: string;
-  wuxing:        string;
-  bloodType:     string;
+  wuxing: string;
+  bloodType: string;
 }
 
 interface MatchResponse {
-  result:   MatchResult;
+  result: MatchResult;
   displayA: PersonDisplay;
   displayB: PersonDisplay;
 }
 
-// ─── 常數 ──────────────────────────────────────────────────────────────────────
+type StepKey = 'personA' | 'personB' | 'review';
 
 const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const EMPTY: PersonInput = { name: '', birthDate: '', bloodType: 'A', gender: 'female' };
 
-// ─── 人員表單 ──────────────────────────────────────────────────────────────────
+const BLOOD_DESC: Record<PersonInput['bloodType'], string> = {
+  A: '細膩穩定，重視秩序與安全感。',
+  B: '自主鮮明，節奏感強，較有個人風格。',
+  AB: '理性感性並存，觀察力與距離感並行。',
+  O: '主動直接，行動力高，帶動感明顯。',
+};
 
-function PersonForm({
-  label,
-  accent,
-  value,
-  onChange,
+const STEP_ORDER: StepKey[] = ['personA', 'personB', 'review'];
+
+function getPersonError(label: string, person: PersonInput) {
+  if (person.name.trim().length < 2) return `請先輸入${label}姓名，至少 2 個字。`;
+  if (!person.birthDate) return `請先選好${label}的農曆生日。`;
+  return '';
+}
+
+function ElderChoiceCard({
+  active,
+  title,
+  description,
+  onClick,
+  tone,
 }: {
-  label:    string;
-  accent:   'violet' | 'amber';
-  value:    PersonInput;
-  onChange: (v: PersonInput) => void;
+  active: boolean;
+  title: string;
+  description: string;
+  onClick: () => void;
+  tone: 'violet' | 'amber' | 'pink' | 'cyan';
 }) {
-  const ring  = accent === 'violet' ? 'focus:ring-violet-500/40 border-violet-400/20' : 'focus:ring-amber-500/40 border-amber-400/20';
-  const badge = accent === 'violet'
-    ? 'border-violet-400/30 bg-violet-950/20 text-violet-300'
-    : 'border-amber-400/30 bg-amber-950/20 text-amber-300';
+  const tones = {
+    violet: active
+      ? 'border-violet-400 bg-violet-500/15 text-violet-100'
+      : 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
+    amber: active
+      ? 'border-amber-400 bg-amber-500/15 text-amber-100'
+      : 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
+    pink: active
+      ? 'border-pink-400 bg-pink-500/15 text-pink-100'
+      : 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
+    cyan: active
+      ? 'border-cyan-400 bg-cyan-500/15 text-cyan-100'
+      : 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
+  };
 
   return (
-    <div className="fortune-card p-5 sm:p-6">
-      <p className={`mb-5 inline-block rounded-full border px-3 py-0.5 text-xs tracking-widest ${badge}`}>{label}</p>
-      <div className="space-y-4">
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-full rounded-2xl border px-4 py-4 text-left transition-all hover:border-white/20 ${tones[tone]}`}
+    >
+      <p className="text-lg font-bold">{title}</p>
+      <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]">{description}</p>
+    </button>
+  );
+}
 
-        <div>
-          <label className="mb-1.5 block text-xs tracking-widest text-[color:var(--text-muted)]">姓名</label>
-          <input
-            type="text"
-            value={value.name}
-            onChange={e => onChange({ ...value, name: e.target.value })}
-            placeholder="至少 2 個字"
-            className={`w-full rounded-xl border bg-white/5 px-4 py-2.5 text-sm text-[color:var(--text-main)] outline-none ring-0 transition focus:ring-2 ${ring}`}
-          />
-        </div>
+function ScoreRow({ label, score, tone }: { label: string; score: number; tone: 'violet' | 'amber' | 'cyan' | 'pink' }) {
+  const gradients = {
+    violet: 'linear-gradient(90deg, #6D4AFF, #A78BFA)',
+    amber: 'linear-gradient(90deg, #C9A24A, #F4C95D)',
+    cyan: 'linear-gradient(90deg, #22D3EE, #6EE7F9)',
+    pink: 'linear-gradient(90deg, #EC4899, #F9A8D4)',
+  };
 
-        <div>
-          <label className="mb-1.5 block text-xs tracking-widest text-[color:var(--text-muted)]">生日</label>
-          <input
-            type="date"
-            value={value.birthDate}
-            onChange={e => onChange({ ...value, birthDate: e.target.value })}
-            className={`w-full rounded-xl border bg-white/5 px-4 py-2.5 text-sm text-[color:var(--text-main)] outline-none ring-0 transition focus:ring-2 ${ring}`}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="mb-1.5 block text-xs tracking-widest text-[color:var(--text-muted)]">血型</label>
-            <select
-              value={value.bloodType}
-              onChange={e => onChange({ ...value, bloodType: e.target.value as PersonInput['bloodType'] })}
-              className={`w-full rounded-xl border bg-white/5 px-4 py-2.5 text-sm text-[color:var(--text-main)] outline-none ring-0 transition focus:ring-2 ${ring}`}
-            >
-              {BLOOD_TYPES.map(t => <option key={t} value={t}>{t} 型</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs tracking-widest text-[color:var(--text-muted)]">性別</label>
-            <select
-              value={value.gender}
-              onChange={e => onChange({ ...value, gender: e.target.value as PersonInput['gender'] })}
-              className={`w-full rounded-xl border bg-white/5 px-4 py-2.5 text-sm text-[color:var(--text-main)] outline-none ring-0 transition focus:ring-2 ${ring}`}
-            >
-              <option value="female">女</option>
-              <option value="male">男</option>
-            </select>
-          </div>
-        </div>
-
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-sm text-[color:var(--text-sub)]">{label}</span>
+        <span className="text-sm font-semibold text-[color:var(--text-main)]">{score}</span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-white/8">
+        <div className="h-full rounded-full" style={{ width: `${score}%`, background: gradients[tone] }} />
       </div>
     </div>
   );
 }
 
-// ─── 主頁 ──────────────────────────────────────────────────────────────────────
+function PersonStep({
+  title,
+  description,
+  accent,
+  value,
+  onChange,
+}: {
+  title: string;
+  description: string;
+  accent: 'violet' | 'amber';
+  value: PersonInput;
+  onChange: (value: PersonInput) => void;
+}) {
+  return (
+    <div className="fortune-card p-6 sm:p-8">
+      <p className={`inline-flex rounded-full border px-4 py-1 text-xs tracking-[0.3em] ${accent === 'violet' ? 'border-violet-400/25 bg-violet-950/20 text-violet-300' : 'border-amber-400/25 bg-amber-950/20 text-amber-300'}`}>
+        {title}
+      </p>
+
+      <h2 className="mt-4 font-serif text-3xl text-[color:var(--text-main)]">一步一步輸入就好</h2>
+      <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">{description}</p>
+
+      <div className="mt-8 space-y-8">
+        <div>
+          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">1. 姓名</label>
+          <input
+            type="text"
+            value={value.name}
+            onChange={(event) => onChange({ ...value, name: event.target.value })}
+            placeholder="請輸入姓名，至少 2 個字"
+            className="form-input w-full text-base"
+          />
+        </div>
+
+        <div>
+          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">2. 農曆生日</label>
+          <LunarBirthdayInput
+            value={value.birthDate}
+            onChange={(solarDate) => onChange({ ...value, birthDate: solarDate })}
+            accent={accent}
+            label="請輸入農曆生日（民國年）"
+          />
+        </div>
+
+        <div>
+          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">3. 血型</label>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {BLOOD_TYPES.map((bloodType, index) => (
+              <ElderChoiceCard
+                key={bloodType}
+                active={value.bloodType === bloodType}
+                title={`${bloodType} 型`}
+                description={BLOOD_DESC[bloodType]}
+                onClick={() => onChange({ ...value, bloodType })}
+                tone={index % 2 === 0 ? accent : accent === 'violet' ? 'cyan' : 'pink'}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">4. 性別</label>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <ElderChoiceCard
+              active={value.gender === 'female'}
+              title="女性"
+              description="用來修飾外在表現，不會推翻前面結果。"
+              onClick={() => onChange({ ...value, gender: 'female' })}
+              tone="pink"
+            />
+            <ElderChoiceCard
+              active={value.gender === 'male'}
+              title="男性"
+              description="只做外在呈現修飾，保持整體邏輯穩定。"
+              onClick={() => onChange({ ...value, gender: 'male' })}
+              tone="cyan"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function MatchPage() {
+  const [step, setStep] = useState<StepKey>('personA');
   const [personA, setPersonA] = useState<PersonInput>({ ...EMPTY, gender: 'female' });
   const [personB, setPersonB] = useState<PersonInput>({ ...EMPTY, gender: 'male' });
   const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState('');
-  const [data,    setData]    = useState<MatchResponse | null>(null);
+  const [error, setError] = useState('');
+  const [data, setData] = useState<MatchResponse | null>(null);
 
-  const canSubmit = personA.name.trim().length >= 2 && personA.birthDate &&
-                    personB.name.trim().length >= 2 && personB.birthDate && !loading;
+  const stepIndex = STEP_ORDER.indexOf(step);
+  const personAError = getPersonError('第一位', personA);
+  const personBError = getPersonError('第二位', personB);
+
+  const reviewReady = !personAError && !personBError;
+
+  const reviewCards = useMemo(
+    () => [
+      { label: '第一位', person: personA, accent: 'violet' as const },
+      { label: '第二位', person: personB, accent: 'amber' as const },
+    ],
+    [personA, personB],
+  );
+
+  function goNext() {
+    setError('');
+
+    if (step === 'personA') {
+      if (personAError) {
+        setError(personAError);
+        return;
+      }
+      setStep('personB');
+      return;
+    }
+
+    if (step === 'personB') {
+      if (personBError) {
+        setError(personBError);
+        return;
+      }
+      setStep('review');
+    }
+  }
+
+  function goBack() {
+    setError('');
+
+    if (step === 'personB') {
+      setStep('personA');
+      return;
+    }
+
+    if (step === 'review') {
+      setStep('personB');
+    }
+  }
 
   async function handleSubmit() {
+    if (!reviewReady) {
+      setError(personAError || personBError || '請先把兩位資料填完整。');
+      return;
+    }
+
     setError('');
     setData(null);
     setLoading(true);
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 20_000);
+
     try {
-      const res = await fetch('/api/match-generate', {
-        method:  'POST',
+      const response = await fetch('/api/match-generate', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ personA: { ...personA, birthDate: personA.birthDate }, personB: { ...personB, birthDate: personB.birthDate } }),
+        signal: controller.signal,
+        body: JSON.stringify({ personA, personB }),
       });
-      const json = await res.json() as MatchResponse & { error?: string };
-      if (!res.ok) { setError(json.error ?? '配對分析失敗，請稍後再試。'); return; }
+
+      const json = (await response.json()) as MatchResponse & { error?: string };
+
+      if (!response.ok) {
+        setError(json.error ?? '配對分析失敗，請稍後再試。');
+        return;
+      }
+
       setData(json);
-    } catch {
-      setError('目前無法連線到分析服務，請稍後再試。');
+    } catch (error) {
+      setError(error instanceof DOMException && error.name === 'AbortError'
+        ? '配對分析等候時間過長，請稍後再試。'
+        : '目前無法連線到配對服務，請稍後再試。');
     } finally {
+      window.clearTimeout(timeout);
       setLoading(false);
     }
+  }
+
+  function resetAll() {
+    setData(null);
+    setError('');
+    setStep('personA');
   }
 
   return (
@@ -187,8 +314,6 @@ export default function MatchPage() {
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
 
       <main className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
-
-        {/* ── 頂部導覽 ─────────────────────────────────────── */}
         <div className="mb-8 flex items-center gap-4">
           <Link href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
             ← 返回首頁
@@ -201,17 +326,16 @@ export default function MatchPage() {
           <span className="text-xs tracking-widest text-rose-300">💕 配對</span>
         </div>
 
-        {/* ── Hero ─────────────────────────────────────────── */}
         <section className="mb-10 grid items-center gap-8 lg:grid-cols-[1fr_auto]">
           <div>
             <div className="mb-4 inline-block rounded-full border border-rose-400/20 bg-rose-400/8 px-4 py-1 text-xs tracking-[0.35em] text-rose-300">
               天・地・人 配對系統
             </div>
             <h1 className="mystic-title mb-4 font-serif text-4xl leading-tight sm:text-5xl">
-              兩個人格矩陣<br />的相遇
+              一步一步配對引導<br />簡單看得懂
             </h1>
-            <p className="max-w-lg text-sm leading-8 text-[color:var(--text-sub)]">
-              輸入雙方的天地人資料，系統分別生成兩份人格矩陣，再以矩陣對矩陣的方式分析共鳴、互補、磨合與衝突風險。
+            <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
+              不用一次看很多欄位。先填第一位，再填第二位，最後確認一次，系統就會幫你完成配對分析。
             </p>
           </div>
           <div className="flex justify-center lg:justify-end">
@@ -219,13 +343,101 @@ export default function MatchPage() {
           </div>
         </section>
 
-        {/* ── 輸入區 ───────────────────────────────────────── */}
         {!data && (
           <div className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <PersonForm label="甲方" accent="violet" value={personA} onChange={setPersonA} />
-              <PersonForm label="乙方" accent="amber"  value={personB} onChange={setPersonB} />
+            <div className="fortune-card p-5 sm:p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs tracking-[0.3em] text-[color:var(--text-muted)]">目前進度</p>
+                  <p className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">
+                    {step === 'personA' ? '先填第一位' : step === 'personB' ? '再填第二位' : '最後確認資料'}
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-2 sm:min-w-[280px]">
+                  {STEP_ORDER.map((item, index) => {
+                    const active = item === step;
+                    const done = index < stepIndex;
+                    return (
+                      <div
+                        key={item}
+                        className={`rounded-2xl border px-3 py-3 text-center ${
+                          active
+                            ? 'border-rose-400/40 bg-rose-500/12'
+                            : done
+                              ? 'border-violet-400/30 bg-violet-500/10'
+                              : 'border-white/10 bg-white/5'
+                        }`}
+                      >
+                        <p className="text-lg font-bold text-[color:var(--text-main)]">{done ? '✓' : index + 1}</p>
+                        <p className="mt-1 text-xs text-[color:var(--text-sub)]">
+                          {item === 'personA' ? '第一位' : item === 'personB' ? '第二位' : '確認'}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
+
+            {step === 'personA' && (
+              <PersonStep
+                title="第一位資料"
+                description="請先輸入第一位的姓名、農曆生日、血型和性別。每一步都幫你排好了。"
+                accent="violet"
+                value={personA}
+                onChange={setPersonA}
+              />
+            )}
+
+            {step === 'personB' && (
+              <PersonStep
+                title="第二位資料"
+                description="接著輸入第二位。填法完全一樣，不用擔心會亂掉。"
+                accent="amber"
+                value={personB}
+                onChange={setPersonB}
+              />
+            )}
+
+            {step === 'review' && (
+              <div className="space-y-6">
+                <div className="fortune-card p-6 sm:p-8">
+                  <p className="text-xs tracking-[0.3em] text-rose-300">最後確認</p>
+                  <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">請再看一次資料</h2>
+                  <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
+                    如果名字、生日、血型都沒問題，就可以開始配對。這一步是讓填寫更安心，不怕按太快送出去。
+                  </p>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {reviewCards.map(({ label, person, accent }) => (
+                    <div key={label} className="fortune-card p-5 sm:p-6">
+                      <p className={`inline-flex rounded-full border px-4 py-1 text-xs tracking-[0.3em] ${accent === 'violet' ? 'border-violet-400/25 bg-violet-950/20 text-violet-300' : 'border-amber-400/25 bg-amber-950/20 text-amber-300'}`}>
+                        {label}
+                      </p>
+                      <div className="mt-5 space-y-3 text-sm text-[color:var(--text-sub)]">
+                        <div>
+                          <span className="text-[color:var(--text-muted)]">姓名：</span>
+                          <span className="text-[color:var(--text-main)]">{person.name || '未填'}</span>
+                        </div>
+                        <div>
+                          <span className="text-[color:var(--text-muted)]">國曆生日：</span>
+                          <span className="text-[color:var(--text-main)]">{person.birthDate || '未換算完成'}</span>
+                        </div>
+                        <div>
+                          <span className="text-[color:var(--text-muted)]">血型：</span>
+                          <span className="text-[color:var(--text-main)]">{person.bloodType} 型</span>
+                        </div>
+                        <div>
+                          <span className="text-[color:var(--text-muted)]">性別：</span>
+                          <span className="text-[color:var(--text-main)]">{person.gender === 'female' ? '女性' : '男性'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {error && (
               <div className="rounded-2xl border border-rose-400/20 bg-rose-950/20 p-4 text-sm text-rose-300">
@@ -233,299 +445,119 @@ export default function MatchPage() {
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!canSubmit}
-              className="vip-gold-btn w-full py-5 text-base disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {loading ? '天地人矩陣計算中…' : '開始配對分析'}
-            </button>
-          </div>
-        )}
-
-        {/* ── 結果區 ───────────────────────────────────────── */}
-        {data && (
-          <MatchReport
-            data={data}
-            onReset={() => { setData(null); setError(''); }}
-          />
-        )}
-
-      </main>
-    </div>
-  );
-}
-
-// ─── 配對報告 ─────────────────────────────────────────────────────────────────
-
-function MatchReport({ data, onReset }: { data: MatchResponse; onReset: () => void }) {
-  const { result, displayA, displayB } = data;
-
-  // 分數顏色
-  function scoreColor(score: number, invert = false): string {
-    const v = invert ? 100 - score : score;
-    if (v >= 75) return '#4ade80';
-    if (v >= 50) return '#60a5fa';
-    return '#fb7185';
-  }
-
-  // 圓環參數
-  const R    = 54;
-  const circ = 2 * Math.PI * R;
-  const arc  = (result.match_score / 100) * circ;
-  const ringColor = scoreColor(result.match_score);
-
-  const DIMS: { label: string; value: number; note: string; invert: boolean }[] = [
-    { label: '共鳴指數', value: result.resonance,     note: '情感·社交·依附的契合程度',    invert: false },
-    { label: '溝通指數', value: result.communication, note: '說話節奏與表達方式的相似度',    invert: false },
-    { label: '穩定指數', value: result.stability,     note: '安全感基礎與生活節奏的穩定性', invert: false },
-    { label: '衝突風險', value: result.conflict_risk, note: '越低代表衝突觸發點越少',       invert: true  },
-  ];
-
-  return (
-    <div className="space-y-5">
-
-      {/* ── 主分數卡 ──────────────────────────────────────── */}
-      <div className="fortune-card overflow-hidden">
-        <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, var(--sky-violet), ${ringColor}, var(--earth-gold))` }} />
-        <div className="p-6 sm:p-8">
-
-          {/* 兩人名字 */}
-          <div className="mb-6 flex items-center justify-center gap-5">
-            <div className="text-center">
-              <div className="mb-1 inline-block rounded-full border border-violet-400/30 bg-violet-950/20 px-3 py-0.5 text-xs text-violet-300">甲方</div>
-              <p className="font-serif text-lg text-[color:var(--text-main)]">{displayA.name}</p>
-              <p className="text-xs text-[color:var(--text-muted)]">{displayA.zodiacZh} · {displayA.chineseZodiac} · {displayA.wuxing}</p>
-            </div>
-            <span className="text-2xl">💕</span>
-            <div className="text-center">
-              <div className="mb-1 inline-block rounded-full border border-amber-400/30 bg-amber-950/20 px-3 py-0.5 text-xs text-amber-300">乙方</div>
-              <p className="font-serif text-lg text-[color:var(--text-main)]">{displayB.name}</p>
-              <p className="text-xs text-[color:var(--text-muted)]">{displayB.zodiacZh} · {displayB.chineseZodiac} · {displayB.wuxing}</p>
-            </div>
-          </div>
-
-          {/* 圓環分數 */}
-          <div className="flex flex-col items-center">
-            <svg width="140" height="140" className="-rotate-90">
-              <circle cx="70" cy="70" r={R} fill="none" strokeWidth="10" stroke="rgba(255,255,255,0.06)" />
-              <circle
-                cx="70" cy="70" r={R} fill="none" strokeWidth="10"
-                stroke={ringColor} strokeLinecap="round"
-                strokeDasharray={`${arc} ${circ}`}
-                style={{ filter: `drop-shadow(0 0 8px ${ringColor}80)`, transition: 'stroke-dasharray 1s ease' }}
-              />
-            </svg>
-            <div className="-mt-[108px] mb-12 text-center">
-              <p className="text-4xl font-bold" style={{ color: ringColor }}>{result.match_score}</p>
-              <p className="text-xs tracking-widest text-[color:var(--text-muted)]">配對指數</p>
-            </div>
-          </div>
-
-          {/* 摘要 */}
-          <p className="mb-6 text-center font-serif text-sm leading-8 text-[color:var(--text-main)]">
-            {result.summary}
-          </p>
-
-          {/* 四項指數 */}
-          <div className="grid gap-3 sm:grid-cols-2">
-            {DIMS.map(d => {
-              const displayVal = d.invert ? 100 - d.value : d.value;
-              const color = scoreColor(d.value, d.invert);
-              return (
-                <div key={d.label} className="rounded-2xl border border-white/8 bg-white/3 p-4">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-xs tracking-widest text-[color:var(--text-muted)]">{d.label}</span>
-                    <span className="text-sm font-bold" style={{ color }}>{d.invert ? d.value : d.value}</span>
-                  </div>
-                  <div className="mb-2 h-1.5 w-full overflow-hidden rounded-full bg-white/8">
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${displayVal}%`, background: color }}
-                    />
-                  </div>
-                  <p className="text-xs text-[color:var(--text-muted)]">{d.note}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── 四象限分析 ────────────────────────────────────── */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        {[
-          { key: 'resonance',  label: '共鳴區',   emoji: '💫', color: 'emerald', items: result.zones.resonance },
-          { key: 'complement', label: '互補區',   emoji: '⚖️', color: 'violet',  items: result.zones.complement },
-          { key: 'grinding',   label: '磨合區',   emoji: '🔄', color: 'amber',   items: result.zones.grinding },
-          { key: 'conflict',   label: '衝突風險', emoji: '⚡', color: 'rose',    items: result.zones.conflict },
-        ].map(zone => (
-          <div key={zone.key} className="fortune-card p-5">
-            <p className={`mb-4 text-xs uppercase tracking-[0.35em] text-${zone.color}-400/70`}>
-              {zone.emoji} {zone.label}
-            </p>
-            <ul className="space-y-2">
-              {zone.items.map((item, i) => (
-                <li key={i} className="flex gap-2 text-sm leading-7 text-[color:var(--text-sub)]">
-                  <span className={`mt-1 shrink-0 text-${zone.color}-400`}>◆</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-
-      {/* ── 話術溝通配對 ──────────────────────────────────── */}
-      <CommunicationSection
-        report={result.communicationReport}
-        nameA={displayA.name}
-        nameB={displayB.name}
-      />
-
-      {/* ── 底部善念卡 ────────────────────────────────────── */}
-      <div className="vip-gold-card rounded-[24px] p-6 sm:p-8">
-        <p className="mb-2 text-xs uppercase tracking-[0.4em] text-amber-300/70">天地善念</p>
-        <p className="font-serif text-sm leading-8 text-[color:var(--text-main)]">
-          人與人之間最美的距離，不是零距離，而是剛好可以看見彼此的美好。
-          懂得禮讓，懂得欣賞，這才是關係最高的智慧。
-        </p>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <button type="button" onClick={() => window.print()} className="vip-gold-btn flex-1 py-4 text-sm">
-            匯出配對報告
-          </button>
-          <button
-            type="button"
-            onClick={onReset}
-            className="rounded-full border border-white/10 bg-white/5 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-white/20 hover:text-white"
-          >
-            重新配對
-          </button>
-        </div>
-      </div>
-
-    </div>
-  );
-}
-
-// ─── 話術溝通配對區塊 ─────────────────────────────────────────────────────────
-
-function CommunicationSection({
-  report, nameA, nameB,
-}: {
-  report: CommunicationReport;
-  nameA:  string;
-  nameB:  string;
-}) {
-  const [openIdx, setOpenIdx] = useState<number | null>(null);
-
-  return (
-    <div className="space-y-4">
-
-      {/* 衝突型態 + 雙人溝通卡 */}
-      <div className="fortune-card overflow-hidden">
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-rose-400/50 to-transparent" />
-        <div className="px-6 py-7 sm:px-8">
-          <p className="mb-5 text-xs uppercase tracking-[0.4em] text-rose-300/70">
-            💬 話術溝通配對 · 天地人矩陣分析
-          </p>
-          <div className="mb-5 rounded-2xl border border-rose-400/15 bg-rose-950/10 px-5 py-4 text-center">
-            <p className="text-xs tracking-widest text-rose-300/70">你們的溝通衝突型態</p>
-            <p className="mt-2 font-serif text-xl text-[color:var(--text-main)]">{report.clashType}</p>
-            <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{report.clashDescription}</p>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            {([
-              { style: report.personA, name: nameA, accent: 'var(--sky-violet)', border: 'rgba(139,92,246,0.25)', bg: 'rgba(139,92,246,0.08)' },
-              { style: report.personB, name: nameB, accent: 'var(--earth-gold)', border: 'rgba(245,158,11,0.25)', bg: 'rgba(245,158,11,0.06)' },
-            ] as const).map(({ style, name, accent, border, bg }) => (
-              <div key={name} className="rounded-2xl p-5" style={{ border: `1px solid ${border}`, background: bg }}>
-                <div className="mb-4 flex items-center gap-2">
-                  <span className="text-2xl">{style.emoji}</span>
-                  <div>
-                    <p className="text-xs tracking-widest" style={{ color: accent }}>{name}</p>
-                    <p className="font-semibold text-[color:var(--text-main)]">{style.type}</p>
-                  </div>
-                </div>
-                <p className="mb-3 text-xs italic text-[color:var(--text-muted)]">「{style.tagline}」</p>
-                <div className="space-y-3">
-                  {[
-                    { label: '說話方式',   labelColor: 'text-[color:var(--text-muted)]', text: style.howTheySpeak },
-                    { label: '關閉觸發點', labelColor: 'text-rose-400/70',              text: style.whatTriggersShutdown },
-                    { label: '最需要聽到', labelColor: 'text-emerald-400/70',           text: style.whatTheyNeedToHear },
-                  ].map(row => (
-                    <div key={row.label}>
-                      <p className={`mb-1 text-xs tracking-widest ${row.labelColor}`}>{row.label}</p>
-                      <p className="text-xs leading-6 text-[color:var(--text-sub)]">{row.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 衝突場景 */}
-      {report.topConflicts.length > 0 && (
-        <div className="fortune-card px-6 py-7 sm:px-8">
-          <p className="mb-5 text-xs uppercase tracking-[0.4em] text-rose-300/70">⚡ 最容易發生的衝突場景</p>
-          <div className="space-y-3">
-            {report.topConflicts.map((c, i) => (
-              <div key={i} className="overflow-hidden rounded-2xl border border-white/8">
+            <div className="flex flex-col gap-3 sm:flex-row">
+              {step !== 'personA' && (
                 <button
                   type="button"
-                  onClick={() => setOpenIdx(openIdx === i ? null : i)}
-                  className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-white/4"
+                  onClick={goBack}
+                  disabled={loading}
+                  className="rounded-full border border-white/10 bg-white/5 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <span className="shrink-0 text-lg text-rose-400">{i + 1}.</span>
-                  <span className="flex-1 text-sm font-semibold text-[color:var(--text-main)]">{c.title}</span>
-                  <span className="shrink-0 text-xs text-[color:var(--text-muted)]">{openIdx === i ? '▲' : '▼'}</span>
+                  上一步
                 </button>
-                {openIdx === i && (
-                  <div className="border-t border-white/8 bg-white/3 px-5 pb-5 pt-4 space-y-4">
-                    {[
-                      { label: '怎麼開始的', color: 'text-[color:var(--text-muted)]', text: c.howItStarts },
-                      { label: '各自的反應', color: 'text-rose-400/70',              text: c.whatHappens },
-                      { label: '根本原因',   color: 'text-amber-400/70',             text: c.rootCause },
-                    ].map(row => (
-                      <div key={row.label}>
-                        <p className={`mb-1.5 text-xs tracking-widest ${row.color}`}>{row.label}</p>
-                        <p className="text-sm leading-7 text-[color:var(--text-sub)]">{row.text}</p>
-                      </div>
-                    ))}
-                    <div className="rounded-xl border border-emerald-400/20 bg-emerald-950/15 px-4 py-3">
-                      <p className="mb-1 text-xs tracking-widest text-emerald-400/70">✦ 化解方式</p>
-                      <p className="text-sm leading-7 text-[color:var(--text-main)]">{c.solution}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+              )}
 
-      {/* 日常和諧三招 */}
-      <div className="fortune-card earth-card px-6 py-7 sm:px-8">
-        <p className="mb-5 text-xs uppercase tracking-[0.4em] text-amber-300/70">✦ 日常和諧相處三招</p>
-        <div className="space-y-3">
-          {report.dailyHarmony.map((tip, i) => (
-            <div key={i} className="flex gap-4 rounded-2xl border border-amber-400/12 bg-amber-950/8 px-4 py-4">
-              <span
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-                style={{ background: 'rgba(245,158,11,0.2)', color: 'var(--earth-gold)' }}
-              >
-                {i + 1}
-              </span>
-              <p className="text-sm leading-7 text-[color:var(--text-main)]">{tip}</p>
+              {step !== 'review' ? (
+                <button
+                  type="button"
+                  onClick={goNext}
+                  disabled={loading}
+                  className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {step === 'personA' ? '下一步：填第二位' : '下一步：確認資料'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={!reviewReady || loading}
+                  className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {loading ? '配對分析中…' : '開始配對分析'}
+                </button>
+              )}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        )}
 
+        {data && (
+          <div className="space-y-6">
+            <div className="fortune-card p-6 sm:p-8 text-center">
+              <p className="text-xs uppercase tracking-[0.35em] text-rose-300">配對結果</p>
+              <h2 className="mt-3 font-serif text-5xl text-[color:var(--text-main)]">{data.result.match_score}</h2>
+              <p className="mt-2 text-sm text-[color:var(--text-sub)]">人格共鳴指數</p>
+              <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">{data.result.summary}</p>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="fortune-card p-6 sm:p-8">
+                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">四項核心指標</p>
+                <div className="space-y-5">
+                  <ScoreRow label="共鳴感" score={data.result.resonance} tone="violet" />
+                  <ScoreRow label="溝通感" score={data.result.communication} tone="cyan" />
+                  <ScoreRow label="穩定度" score={data.result.stability} tone="amber" />
+                  <ScoreRow label="衝突風險" score={data.result.conflict_risk} tone="pink" />
+                </div>
+              </div>
+
+              <div className="fortune-card p-6 sm:p-8">
+                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">雙方基本資料</p>
+                <div className="space-y-5 text-sm">
+                  <div>
+                    <p className="font-semibold text-violet-300">{data.displayA.name}</p>
+                    <p className="mt-2 leading-7 text-[color:var(--text-sub)]">
+                      {data.displayA.zodiacZh} · {data.displayA.chineseZodiac} · 五行 {data.displayA.wuxing} · {data.displayA.bloodType} 型
+                    </p>
+                  </div>
+                  <div className="h-px bg-white/10" />
+                  <div>
+                    <p className="font-semibold text-amber-300">{data.displayB.name}</p>
+                    <p className="mt-2 leading-7 text-[color:var(--text-sub)]">
+                      {data.displayB.zodiacZh} · {data.displayB.chineseZodiac} · 五行 {data.displayB.wuxing} · {data.displayB.bloodType} 型
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {[
+                { title: '最有共鳴', items: data.result.zones.resonance, tone: 'violet' },
+                { title: '互補優勢', items: data.result.zones.complement, tone: 'amber' },
+                { title: '需要磨合', items: data.result.zones.grinding, tone: 'cyan' },
+                { title: '注意衝突', items: data.result.zones.conflict, tone: 'pink' },
+              ].map((section) => (
+                <div key={section.title} className="fortune-card p-5 sm:p-6">
+                  <p className={`text-sm font-semibold ${section.tone === 'violet' ? 'text-violet-300' : section.tone === 'amber' ? 'text-amber-300' : section.tone === 'cyan' ? 'text-cyan-300' : 'text-pink-300'}`}>
+                    {section.title}
+                  </p>
+                  <ul className="mt-4 space-y-3 text-sm leading-7 text-[color:var(--text-sub)]">
+                    {section.items.slice(0, 3).map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span>•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button type="button" onClick={() => window.print()} className="vip-gold-btn flex-1 py-4 text-sm">
+                匯出配對報告
+              </button>
+              <button
+                type="button"
+                onClick={resetAll}
+                className="rounded-full border border-white/10 bg-white/5 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-white/20 hover:text-white"
+              >
+                重新輸入
+              </button>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }

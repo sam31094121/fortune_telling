@@ -1,6 +1,7 @@
 ﻿import { NextResponse } from 'next/server';
 import { analyzeDestiny } from '@/lib/gemini';
 import type { AnalyzeRequest, BloodType, Gender, PersonInput } from '@/lib/types';
+import { isValidBirthday } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,13 +16,7 @@ function validatePerson(person: unknown): string | null {
 
   const p = person as Partial<PersonInput>;
 
-  if (typeof p.birthday !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(p.birthday)) {
-    return '生日格式不正確，請使用 YYYY-MM-DD。';
-  }
-
-  const date = new Date(p.birthday);
-  if (Number.isNaN(date.getTime())) return '生日不是有效日期。';
-  if (date.getTime() > Date.now()) return '生日不能晚於今天。';
+  if (!isValidBirthday(p.birthday)) return '生日不是有效日期或晚於今天。';
 
   if (typeof p.bloodType !== 'string' || !VALID_BLOOD_TYPES.includes(p.bloodType as Exclude<BloodType, ''>)) {
     return '血型只能是 A、B、AB、O。';

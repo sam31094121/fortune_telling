@@ -338,6 +338,16 @@ export interface MusicReportOutput {
   wisdom_note: string;
 }
 
+function createLocalMusicReport(input: MusicReportInput): MusicReportOutput {
+  return {
+    music_narrative: `${input.name}的人格音樂矩陣已完成融合，天地人三層能量交織出屬於你的聲音頻率。`,
+    song_title_suggestion: '命運共鳴',
+    lyric_opening: '天地之間有一道光，是你走過的每一個選擇。',
+    music_message: '這首歌是你內心深處最真實的聲音，聆聽它，你會找到屬於自己的方向。',
+    wisdom_note: '心存善念，多行善事，才是真正改變命運的開始。',
+  };
+}
+
 const MUSIC_REPORT_SCHEMA = {
   type: Type.OBJECT,
   properties: {
@@ -431,7 +441,7 @@ BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
 
 export async function generateMusicReport(input: MusicReportInput): Promise<MusicReportOutput> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error('尚未設定 GEMINI_API_KEY。');
+  if (!apiKey) return createLocalMusicReport(input);
 
   try {
     const text = await generateStructuredText(
@@ -442,13 +452,7 @@ export async function generateMusicReport(input: MusicReportInput): Promise<Musi
     return normalizeStructuredFields(safeJsonParse<MusicReportOutput>(text)) as unknown as MusicReportOutput;
   } catch (error) {
     console.error('[gemini] music report failed', error);
-    return {
-      music_narrative: `${input.name}的人格音樂矩陣已完成融合，天地人三層能量交織出屬於你的聲音頻率。`,
-      song_title_suggestion: '命運共鳴',
-      lyric_opening: '天地之間有一道光，是你走過的每一個選擇。',
-      music_message: '這首歌是你內心深處最真實的聲音，聆聽它，你會找到屬於自己的方向。',
-      wisdom_note: '心存善念，多行善事，才是真正改變命運的開始。',
-    };
+    return createLocalMusicReport(input);
   }
 }
 

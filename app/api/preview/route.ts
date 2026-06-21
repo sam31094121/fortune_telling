@@ -1,6 +1,7 @@
 ﻿import { NextResponse } from 'next/server';
 import { analyzePreview } from '@/lib/gemini';
 import type { BloodType, PreviewRequest } from '@/lib/types';
+import { isValidBirthday } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,13 +14,7 @@ function validatePreview(body: Partial<PreviewRequest>): string | null {
     return '請選擇正確的血型。';
   }
 
-  if (!body.birthday || !/^\d{4}-\d{2}-\d{2}$/.test(body.birthday)) {
-    return '生日格式不正確。';
-  }
-
-  const date = new Date(body.birthday);
-  if (Number.isNaN(date.getTime())) return '生日不是有效日期。';
-  if (date.getTime() > Date.now()) return '生日不能晚於今天。';
+  if (!isValidBirthday(body.birthday)) return '生日不是有效日期或晚於今天。';
 
   return null;
 }

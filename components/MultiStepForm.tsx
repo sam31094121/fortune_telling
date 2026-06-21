@@ -1,8 +1,10 @@
 ﻿'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import type { BloodType } from '@/lib/types';
 import { getZodiacSign } from '@/lib/zodiac';
+import LunarBirthdayInput from './LunarBirthdayInput';
+import { isValidBirthday } from '@/lib/validation';
 
 interface FormPersonInput {
   name: string;
@@ -48,9 +50,8 @@ export default function MultiStepForm({
 }: MultiStepFormProps) {
   const [step, setStep] = useState<1 | 2>(1);
 
-  const today = useMemo(() => new Date().toISOString().split('T')[0], []);
   const zodiac = getZodiacSign(person.birthday);
-  const isBirthdayValid = person.birthday !== '' && !Number.isNaN(new Date(person.birthday).getTime());
+  const isBirthdayValid = isValidBirthday(person.birthday);
   const canSubmit = isBirthdayValid && person.bloodType !== '' && !disabled;
 
   return (
@@ -59,7 +60,7 @@ export default function MultiStepForm({
         <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">免費天地預分析</p>
         <h2 className="font-serif text-3xl text-[color:var(--text-main)]">先完成骨架，再進入姓名解碼</h2>
         <p className="text-sm leading-7 text-[color:var(--text-sub)]">
-          第一步輸入生日，建立人格基底；第二步輸入血型，補充行為模式。
+          第一步輸入農曆生日，系統會自動換成國曆；第二步輸入血型，補充行為模式。
         </p>
       </div>
 
@@ -93,17 +94,14 @@ export default function MultiStepForm({
         <div className="fortune-card sky-card space-y-4 p-5 animate-rise">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-violet-300">天層輸入</p>
-            <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">輸入出生年月日</h3>
+            <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">輸入農曆出生年月日</h3>
           </div>
 
-          <input
-            type="date"
+          <LunarBirthdayInput
             value={person.birthday}
-            max={today}
             disabled={disabled}
-            onChange={(event) => onChange({ ...person, birthday: event.target.value })}
-            onInput={(event) => onChange({ ...person, birthday: (event.target as HTMLInputElement).value })}
-            className="form-input"
+            accent="violet"
+            onChange={(solarDate) => onChange({ ...person, birthday: solarDate })}
           />
 
           {zodiac ? (
@@ -115,7 +113,7 @@ export default function MultiStepForm({
             </div>
           ) : (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-[color:var(--text-muted)]">
-              選好生日後，系統會先顯示你的星座人格基底。
+              選好農曆生日後，系統會先自動換算國曆，再顯示星座人格基底。
             </div>
           )}
 
@@ -180,4 +178,3 @@ export default function MultiStepForm({
     </div>
   );
 }
-

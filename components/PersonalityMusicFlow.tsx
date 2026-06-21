@@ -1,6 +1,7 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
+import LunarBirthdayInput from './LunarBirthdayInput';
 
 type BloodType = 'A' | 'B' | 'AB' | 'O';
 type Gender = 'male' | 'female';
@@ -20,22 +21,22 @@ interface PersonalityMusicFlowProps {
 
 const BLOOD_TYPES: BloodType[] = ['A', 'B', 'AB', 'O'];
 const BLOOD_DESC: Record<BloodType, string> = {
-  A: '細膩·謹慎·規律',
-  B: '自由·創意·熱情',
-  AB: '理性·敏感·雙面',
-  O: '領導·社交·行動',
+  A: '細膩穩定，重視秩序與安全感。',
+  B: '自主鮮明，節奏感強，較有個人風格。',
+  AB: '理性感性並存，觀察力與距離感並行。',
+  O: '主動直接，行動力高，帶動感明顯。',
 };
 
 const VOICE_OPTIONS = [
-  { key: 'confident', label: '自信有力' },
-  { key: 'soft_spoken', label: '輕柔內斂' },
-  { key: 'emotional_tone', label: '情感豐富' },
-  { key: 'rhythmic_speech', label: '節奏感強' },
-  { key: 'high_energy', label: '能量高昂' },
-  { key: 'hesitant', label: '沉思型' },
+  { key: 'confident', label: '自信明亮' },
+  { key: 'soft_spoken', label: '輕柔慢說' },
+  { key: 'emotional_tone', label: '情感濃厚' },
+  { key: 'rhythmic_speech', label: '說話有節奏' },
+  { key: 'high_energy', label: '高能量表達' },
+  { key: 'hesitant', label: '較保留猶豫' },
 ];
 
-const STEPS = ['生日', '血型', '姓名', '聲音'];
+const STEPS = ['農曆生日', '血型', '姓名', '聲音特徵'];
 
 export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityMusicFlowProps) {
   const [step, setStep] = useState(0);
@@ -48,153 +49,149 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   });
   const [localError, setLocalError] = useState('');
 
-  function validateStep(): string | null {
-    if (step === 0) {
-      if (!form.birthDate) return '請輸入出生日期。';
-      const d = new Date(form.birthDate);
-      if (isNaN(d.getTime()) || d.getTime() > Date.now()) return '日期不合法，請重新輸入。';
-    }
-    if (step === 1 && !form.bloodType) return '請選擇血型。';
-    if (step === 2) {
-      if (form.name.trim().length < 2) return '姓名至少需要 2 個字。';
+  function validateStep(targetStep = step): string | null {
+    if (targetStep === 0 && !form.birthDate) return '請先輸入完整的農曆生日。';
+    if (targetStep === 1 && !form.bloodType) return '請先選擇血型。';
+    if (targetStep === 2) {
+      if (form.name.trim().length < 2) return '姓名至少要 2 個字。';
       if (form.name.trim().length > 20) return '姓名不可超過 20 個字。';
     }
     return null;
   }
 
+  const currentStepInvalid = Boolean(validateStep());
+
   function handleNext() {
-    const err = validateStep();
-    if (err) { setLocalError(err); return; }
-    setLocalError('');
-    if (step < STEPS.length - 1) {
-      setStep(step + 1);
-    } else {
-      onSubmit(form);
+    const error = validateStep();
+    if (error) {
+      setLocalError(error);
+      return;
     }
+
+    setLocalError('');
+
+    if (step < STEPS.length - 1) {
+      setStep((current) => current + 1);
+      return;
+    }
+
+    void onSubmit(form);
   }
 
   function toggleVoice(key: string) {
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
       voiceCharacteristics: prev.voiceCharacteristics.includes(key)
-        ? prev.voiceCharacteristics.filter(k => k !== key)
+        ? prev.voiceCharacteristics.filter((item) => item !== key)
         : [...prev.voiceCharacteristics, key],
     }));
   }
 
   return (
     <div className="space-y-8">
-      {/* 步驟指示器 */}
       <div className="flex items-center gap-2">
-        {STEPS.map((label, i) => (
+        {STEPS.map((label, index) => (
           <div key={label} className="flex items-center gap-2">
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all ${
-                i < step
+                index < step
                   ? 'bg-[color:var(--sky-violet)] text-white'
-                  : i === step
-                  ? 'border-2 border-[color:var(--sky-violet)] text-[color:var(--sky-violet)]'
-                  : 'border border-white/20 text-[color:var(--text-muted)]'
+                  : index === step
+                    ? 'border-2 border-[color:var(--sky-violet)] text-[color:var(--sky-violet)]'
+                    : 'border border-white/20 text-[color:var(--text-muted)]'
               }`}
             >
-              {i < step ? '✓' : i + 1}
+              {index < step ? '✓' : index + 1}
             </div>
             <span
               className={`text-xs tracking-wider ${
-                i === step ? 'text-[color:var(--text-main)]' : 'text-[color:var(--text-muted)]'
+                index === step ? 'text-[color:var(--text-main)]' : 'text-[color:var(--text-muted)]'
               }`}
             >
               {label}
             </span>
-            {i < STEPS.length - 1 && (
-              <div className={`h-px w-6 ${i < step ? 'bg-[color:var(--sky-violet)]' : 'bg-white/15'}`} />
+            {index < STEPS.length - 1 && (
+              <div className={`h-px w-6 ${index < step ? 'bg-[color:var(--sky-violet)]' : 'bg-white/15'}`} />
             )}
           </div>
         ))}
       </div>
 
-      {/* Step 0：生日 */}
       {step === 0 && (
         <div className="space-y-4">
-          <div>
-            <p className="mb-2 text-xs uppercase tracking-[0.3em] text-violet-300">天 · 出生日期</p>
-            <p className="mb-4 text-sm text-[color:var(--text-sub)]">
-              你的出生日期是人格音樂的骨架，決定主旋律與情緒基調。
-            </p>
-            <input
-              type="date"
-              value={form.birthDate}
-              onChange={e => { setForm(p => ({ ...p, birthDate: e.target.value })); setLocalError(''); }}
-              max={new Date().toISOString().split('T')[0]}
-              className="form-input w-full"
-            />
-          </div>
+          <p className="text-sm text-[color:var(--text-sub)]">
+            先輸入農曆生日，系統會自動換成國曆，再進入後面的音樂人格分析。
+          </p>
+          <LunarBirthdayInput
+            value={form.birthDate}
+            onChange={(solarDate) => {
+              setForm((prev) => ({ ...prev, birthDate: solarDate }));
+              setLocalError('');
+            }}
+            accent="violet"
+          />
         </div>
       )}
 
-      {/* Step 1：血型 */}
       {step === 1 && (
         <div className="space-y-4">
-          <div>
-            <p className="mb-2 text-xs uppercase tracking-[0.3em] text-amber-300">地 · 血型</p>
-            <p className="mb-4 text-sm text-[color:var(--text-sub)]">
-              血型決定節奏感、低頻厚度與音色風格。
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {BLOOD_TYPES.map(bt => (
-                <button
-                  key={bt}
-                  type="button"
-                  onClick={() => { setForm(p => ({ ...p, bloodType: bt })); setLocalError(''); }}
-                  className={`rounded-2xl border p-4 text-left transition-all ${
-                    form.bloodType === bt
-                      ? 'border-amber-400 bg-amber-400/15'
-                      : 'border-white/10 bg-white/5 hover:border-white/20'
-                  }`}
-                >
-                  <p className={`text-lg font-bold ${form.bloodType === bt ? 'text-amber-300' : 'text-[color:var(--text-main)]'}`}>
-                    {bt} 型
-                  </p>
-                  <p className="mt-1 text-xs text-[color:var(--text-muted)]">{BLOOD_DESC[bt]}</p>
-                </button>
-              ))}
-            </div>
+          <p className="text-sm text-[color:var(--text-sub)]">請選擇血型，系統會補充你的行為與表達風格。</p>
+          <div className="grid grid-cols-2 gap-3">
+            {BLOOD_TYPES.map((bloodType) => (
+              <button
+                key={bloodType}
+                type="button"
+                onClick={() => {
+                  setForm((prev) => ({ ...prev, bloodType }));
+                  setLocalError('');
+                }}
+                className={`rounded-2xl border p-4 text-left transition-all ${
+                  form.bloodType === bloodType
+                    ? 'border-amber-400 bg-amber-400/15'
+                    : 'border-white/10 bg-white/5 hover:border-white/20'
+                }`}
+              >
+                <p className={`text-lg font-bold ${form.bloodType === bloodType ? 'text-amber-300' : 'text-[color:var(--text-main)]'}`}>
+                  {bloodType} 型
+                </p>
+                <p className="mt-1 text-xs text-[color:var(--text-muted)]">{BLOOD_DESC[bloodType]}</p>
+              </button>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Step 2：姓名 + 性別 */}
       {step === 2 && (
         <div className="space-y-5">
           <div>
-            <p className="mb-2 text-xs uppercase tracking-[0.3em] text-pink-300">人 · 姓名與性別</p>
-            <p className="mb-4 text-sm text-[color:var(--text-sub)]">
-              姓名音韻決定歌詞主題與個人旋律記憶點。
-            </p>
+            <p className="mb-4 text-sm text-[color:var(--text-sub)]">請輸入姓名，系統會做最後的人層校正。</p>
             <input
               type="text"
               value={form.name}
               maxLength={20}
-              placeholder="輸入你的姓名"
-              onChange={e => { setForm(p => ({ ...p, name: e.target.value })); setLocalError(''); }}
+              placeholder="請輸入姓名"
+              onChange={(event) => {
+                setForm((prev) => ({ ...prev, name: event.target.value }));
+                setLocalError('');
+              }}
               className="form-input w-full"
             />
           </div>
           <div>
-            <p className="mb-2 text-xs text-[color:var(--text-muted)]">性別（影響唱腔音域校正）</p>
+            <p className="mb-2 text-xs text-[color:var(--text-muted)]">性別只做外在呈現修飾，不會推翻前面結果。</p>
             <div className="grid grid-cols-2 gap-3">
-              {(['female', 'male'] as Gender[]).map(g => (
+              {(['female', 'male'] as Gender[]).map((gender) => (
                 <button
-                  key={g}
+                  key={gender}
                   type="button"
-                  onClick={() => setForm(p => ({ ...p, gender: g }))}
+                  onClick={() => setForm((prev) => ({ ...prev, gender }))}
                   className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
-                    form.gender === g
+                    form.gender === gender
                       ? 'border-pink-400 bg-pink-400/15 text-pink-200'
                       : 'border-white/10 bg-white/5 text-[color:var(--text-sub)]'
                   }`}
                 >
-                  {g === 'female' ? '女性' : '男性'}
+                  {gender === 'female' ? '女性' : '男性'}
                 </button>
               ))}
             </div>
@@ -202,66 +199,57 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         </div>
       )}
 
-      {/* Step 3：聲音特徵（可選） */}
       {step === 3 && (
         <div className="space-y-4">
-          <div>
-            <p className="mb-2 text-xs uppercase tracking-[0.3em] text-[color:var(--human-cyan)]">
-              聲音特質 <span className="ml-2 normal-case tracking-normal text-[color:var(--text-muted)]">（可選）</span>
-            </p>
-            <p className="mb-4 text-sm text-[color:var(--text-sub)]">
-              選擇最貼近你說話風格的特質，AI 會用來校正唱腔音色。可不選，直接生成。
-            </p>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {VOICE_OPTIONS.map(opt => (
-                <button
-                  key={opt.key}
-                  type="button"
-                  onClick={() => toggleVoice(opt.key)}
-                  className={`rounded-[18px] border px-3 py-3 text-sm transition-all ${
-                    form.voiceCharacteristics.includes(opt.key)
-                      ? 'border-[color:var(--human-cyan)] bg-[color:rgba(110,231,249,0.1)] text-[color:var(--human-cyan)]'
-                      : 'border-white/10 bg-white/5 text-[color:var(--text-sub)]'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
+          <p className="text-sm text-[color:var(--text-sub)]">
+            這一步是選填，讓 AI 更了解你的說話節奏與聲音氣質。
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {VOICE_OPTIONS.map((option) => (
+              <button
+                key={option.key}
+                type="button"
+                onClick={() => toggleVoice(option.key)}
+                className={`rounded-[18px] border px-3 py-3 text-sm transition-all ${
+                  form.voiceCharacteristics.includes(option.key)
+                    ? 'border-[color:var(--human-cyan)] bg-[color:rgba(110,231,249,0.1)] text-[color:var(--human-cyan)]'
+                    : 'border-white/10 bg-white/5 text-[color:var(--text-sub)]'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
           </div>
         </div>
       )}
 
-      {/* 錯誤訊息 */}
       {localError && (
         <div className="rounded-2xl border border-rose-400/20 bg-rose-950/20 p-3 text-sm text-rose-300">
           {localError}
         </div>
       )}
 
-      {/* 按鈕列 */}
       <div className="flex gap-3">
         {step > 0 && (
           <button
             type="button"
-            onClick={() => { setStep(s => s - 1); setLocalError(''); }}
+            onClick={() => {
+              setStep((current) => current - 1);
+              setLocalError('');
+            }}
             disabled={loading}
-            className="rounded-full border border-white/10 bg-white/5 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-white/20"
+            className="rounded-full border border-white/10 bg-white/5 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            返回
+            上一步
           </button>
         )}
         <button
           type="button"
           onClick={handleNext}
-          disabled={loading}
-          className="vip-gold-btn flex-1 py-4 text-sm disabled:opacity-60"
+          disabled={loading || currentStepInvalid}
+          className="vip-gold-btn flex-1 py-4 text-sm disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading
-            ? '人格音樂生成中…'
-            : step === STEPS.length - 1
-            ? '啟動人格音樂生成'
-            : `下一步 · ${STEPS[step + 1]}`}
+          {loading ? '正在生成人格音樂報告…' : step === STEPS.length - 1 ? '開始音樂人格分析' : `前往下一步：${STEPS[step + 1]}`}
         </button>
       </div>
     </div>
