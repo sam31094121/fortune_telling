@@ -21,10 +21,7 @@ import {
 } from './types';
 
 const MODEL_NAME = 'gemini-2.5-flash';
-
-const DIMENSION_PROPERTIES = Object.fromEntries(
-  DIMENSION_KEYS.map((key) => [key, { type: Type.NUMBER }]),
-);
+const GEMINI_TIMEOUT_MS = 15000;
 
 const RESPONSE_SCHEMA = {
   type: Type.OBJECT,
@@ -58,8 +55,45 @@ function scoreBlock(scores: DimensionScores) {
   return JSON.stringify(scores, null, 2);
 }
 
+function extractJsonText(text: string) {
+  const trimmed = text.trim();
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  return (fenced?.[1] ?? trimmed).trim();
+}
+
 function safeJsonParse<T>(text: string): T {
-  return JSON.parse(text) as T;
+  return JSON.parse(extractJsonText(text)) as T;
+}
+
+function cleanAiText(value: unknown) {
+  if (typeof value !== 'string') return '';
+
+  return value
+    .replace(/[\u0000-\u001F]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/^["'「」]+|["'「」]+$/g, '')
+    .trim();
+}
+
+function normalizeStructuredFields<T extends object>(payload: T): T {
+  return Object.fromEntries(
+    Object.entries(payload).map(([key, value]) => [key, typeof value === 'string' ? cleanAiText(value) : value]),
+  ) as T;
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 function clampScore(value: number) {
@@ -159,17 +193,22 @@ function buildPreviewPrompt(
 
 async function generateStructuredText<T>(apiKey: string, prompt: string, schema: T): Promise<string> {
   const ai = new GoogleGenAI({ apiKey });
-  const response = await ai.models.generateContent({
-    model: MODEL_NAME,
-    contents: prompt,
-    config: {
-      responseMimeType: 'application/json',
-      responseSchema: schema as never,
-      temperature: 0.2,
-      maxOutputTokens: 900,
-      thinkingConfig: { thinkingBudget: 0 },
-    },
-  });
+
+  const response = await withTimeout(
+    ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: schema as never,
+        temperature: 0.2,
+        maxOutputTokens: 900,
+        thinkingConfig: { thinkingBudget: 0 },
+      },
+    }),
+    GEMINI_TIMEOUT_MS,
+    'Gemini 回應逾時。',
+  );
 
   if (!response.text) {
     throw new Error('Gemini 沒有回傳可解析的內容。');
@@ -212,7 +251,7 @@ export async function analyzeDestiny(person: PersonInput): Promise<AnalysisResul
       buildAnalysisPrompt(person, birthScores, bloodScores, nameScores, finalScores, bloodAdjustments, nameAdjustments),
       RESPONSE_SCHEMA,
     );
-    aiData = safeJsonParse(text);
+    aiData = normalizeStructuredFields(safeJsonParse(text));
   } catch (error) {
     console.error('[gemini] analysis failed, fallback to local summaries', error);
     aiData = {
@@ -235,11 +274,11 @@ export async function analyzeDestiny(person: PersonInput): Promise<AnalysisResul
     name_scores: nameScores,
     raw_personality: rawPersonality,
     gender_adjustments: genderAdjustments,
-    ai_skeleton_summary: aiData.ai_skeleton_summary?.trim(),
-    ai_behavior_summary: aiData.ai_behavior_summary?.trim(),
-    ai_individuality_summary: aiData.ai_individuality_summary?.trim(),
-    ai_final_summary: aiData.ai_final_summary?.trim(),
-    ai_wisdom_perspective: aiData.ai_wisdom_perspective?.trim(),
+    ai_skeleton_summary: aiData.ai_skeleton_summary,
+    ai_behavior_summary: aiData.ai_behavior_summary,
+    ai_individuality_summary: aiData.ai_individuality_summary,
+    ai_final_summary: aiData.ai_final_summary,
+    ai_wisdom_perspective: aiData.ai_wisdom_perspective,
     skeleton_summary: '',
     behavior_summary: '',
     individuality_summary: '',
@@ -252,10 +291,6 @@ export async function analyzeDestiny(person: PersonInput): Promise<AnalysisResul
     music_profile: computeMusicProfile(finalScores),
   });
 }
-
-/* ─────────────────────────────────────────────────────────────
-   天地人 AI 人格音樂系統 V1.0 — Gemini 音樂報告生成
-   ───────────────────────────────────────────────────────────── */
 
 export interface MusicReportInput {
   name: string;
@@ -274,7 +309,6 @@ export interface MusicReportInput {
     instrument: string[];
     lyric_theme: string[];
   };
-  // 命理語境（五行 + 生肖）
   destinyContext?: {
     heavenlyStem: string;
     wuxing: string;
@@ -283,7 +317,6 @@ export interface MusicReportInput {
     zodiacTrait: string;
     zodiacMusicTrait: string;
   };
-  // 心理學語境（榮格原型 + OCEAN）
   psychologyContext?: {
     archetypePrimary: string;
     archetypeDescription: string;
@@ -298,11 +331,11 @@ export interface MusicReportInput {
 }
 
 export interface MusicReportOutput {
-  music_narrative: string;      // 人格音樂靈魂敘述，200字內
-  song_title_suggestion: string; // 建議歌名（繁中）
-  lyric_opening: string;        // 開場歌詞兩句
-  music_message: string;        // 這首歌想對使用者說的話，100字內
-  wisdom_note: string;          // 善念結語，80字內
+  music_narrative: string;
+  song_title_suggestion: string;
+  lyric_opening: string;
+  music_message: string;
+  wisdom_note: string;
 }
 
 const MUSIC_REPORT_SCHEMA = {
@@ -406,7 +439,7 @@ export async function generateMusicReport(input: MusicReportInput): Promise<Musi
       buildMusicReportPrompt(input),
       MUSIC_REPORT_SCHEMA,
     );
-    return safeJsonParse<MusicReportOutput>(text);
+    return normalizeStructuredFields(safeJsonParse<MusicReportOutput>(text)) as unknown as MusicReportOutput;
   } catch (error) {
     console.error('[gemini] music report failed', error);
     return {
@@ -445,7 +478,7 @@ export async function analyzePreview(input: {
       buildPreviewPrompt(input.birthday, input.bloodType, birthScores, bloodScores, previewScores, bloodAdjustments),
       PREVIEW_RESPONSE_SCHEMA,
     );
-    aiData = safeJsonParse(text);
+    aiData = normalizeStructuredFields(safeJsonParse(text));
   } catch (error) {
     console.error('[gemini] preview failed, fallback to local summaries', error);
     aiData = {
@@ -458,8 +491,11 @@ export async function analyzePreview(input: {
   return enrichPreview(
     birthScores,
     bloodAdjustments,
-    aiData.ai_skeleton_summary?.trim(),
-    aiData.ai_behavior_summary?.trim(),
-    aiData.ai_preview_summary?.trim(),
+    aiData.ai_skeleton_summary,
+    aiData.ai_behavior_summary,
+    aiData.ai_preview_summary,
   );
 }
+
+
+

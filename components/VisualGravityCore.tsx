@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useRef, useState } from "react";
 
@@ -47,7 +47,7 @@ export default function VisualGravityCore() {
 
       ctx.clearRect(0, 0, w, h);
 
-      // Funnel vignette (亮度從中央到外圍降低)
+      // Funnel vignette (鈭桀漲敺葉憭桀憭???)
       const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.8);
       g.addColorStop(0, "rgba(255,255,255,0.0)");
       g.addColorStop(0.2, "rgba(255,255,255,0.01)");
@@ -57,7 +57,7 @@ export default function VisualGravityCore() {
 
       // breathing (0 - 2800ms)
       const breatheT = Math.min(1, Math.max(0, t / 2800));
-      const breatheScale = 1 + Math.sin(breatheT * Math.PI * 2) * 0.02; // 微幅壓縮/釋放
+      const breatheScale = 1 + Math.sin(breatheT * Math.PI * 2) * 0.02; // 敺桀?憯葬/?
 
       // contraction (2800 - 4600ms)
       const inStart = 2800;
@@ -80,14 +80,14 @@ export default function VisualGravityCore() {
 
       // three directional energy flows
       const dirs = [
-        { dx: 0, dy: -1, color: "rgba(148,52,248,0.9)" }, // 上方 紫
-        { dx: -0.86, dy: 0.5, color: "rgba(214,170,88,0.95)" }, // 左下 金
-        { dx: 0.86, dy: 0.5, color: "rgba(255,255,240,0.98)" }, // 右下 白金
+        { dx: 0, dy: -1, color: "rgba(148,52,248,0.9)" }, // 銝 蝝?
+        { dx: -0.86, dy: 0.5, color: "rgba(214,170,88,0.95)" }, // 撌虫? ??
+        { dx: 0.86, dy: 0.5, color: "rgba(255,255,240,0.98)" }, // ?喃? ?賡?
       ];
 
       dirs.forEach((dir, i) => {
-        const progress = inT; // 收縮階段推進
-        const beamWidth = 60 * (1 - progress) + 6; // 收縮時變窄
+        const progress = inT; // ?嗥葬?挾?券?
+        const beamWidth = 60 * (1 - progress) + 6; // ?嗥葬??蝒?
         const length = Math.hypot(w, h) * 0.9;
         const sx = cx + dir.dx * length * (1 + (1 - progress) * 0.05);
         const sy = cy + dir.dy * length * (1 + (1 - progress) * 0.05);
@@ -121,8 +121,8 @@ export default function VisualGravityCore() {
 
       // update SVG turbulence/displacement for stronger 3D warp
       try {
-        const turb = (document.getElementById("vgc-turb") as SVGFEElement | null);
-        const disp = (document.getElementById("vgc-disp") as SVGFEElement | null);
+        const turb = (document.getElementById("vgc-turb") as SVGElement | null);
+        const disp = (document.getElementById("vgc-disp") as SVGElement | null);
         if (turb) {
           // baseFrequency: small normally, grows during contraction/explosion
           const base = 0.0008 + inT * 0.018 + expT * 0.06;
@@ -136,8 +136,8 @@ export default function VisualGravityCore() {
         // ignore
       }
 
-      // core glow (爆發時快速放大光芒，但位置不位移)
-      const coreSize = 20; // px (16~24 推薦值)
+      // core glow (??翰?憭批???雿?蝵桐?雿宏)
+      const coreSize = 20; // px (16~24 ?刻??
       const coreInner = coreSize * (1 + expT * 5 + inT * 0.4);
       const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreInner * 4);
       glow.addColorStop(0, "rgba(255,255,255,1)");
@@ -164,7 +164,7 @@ export default function VisualGravityCore() {
         ctx.stroke();
       }
 
-      // central fixed core (白金色外圍，中心純白)
+      // central fixed core (?賡??脣???銝剖?蝝)
       // white center
       ctx.beginPath();
       ctx.arc(cx, cy, coreInner * 0.4, 0, Math.PI * 2);
@@ -255,7 +255,7 @@ export default function VisualGravityCore() {
         }
       }
 
-      // --- core text (天地人) control ---
+      // --- core text (憭拙鈭? control ---
       try {
         const core = coreTextRef.current;
         if (core) {
@@ -342,7 +342,7 @@ export default function VisualGravityCore() {
       className="relative flex h-80 w-80 items-center justify-center"
       style={{ touchAction: "manipulation" }}
       onClick={startAudio}
-      title={audioStarted ? "Audio active" : "點擊啟動低頻脈衝音效"}
+      title={audioStarted ? "Audio active" : "暺???雿???單?"}
     >
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full rounded-full" style={{filter: 'url(#vgc-displace)'}} />
       {/* SVG filter for displacement warp */}
@@ -368,21 +368,21 @@ export default function VisualGravityCore() {
           style={{ opacity: 0 }}
         >
           <span
-            ref={(el) => (charRefs.current[0] = el)}
+            ref={(el) => { charRefs.current[0] = el; }}
             className="vgc-core-char vgc-core-char-top"
             aria-hidden
           >
             天
           </span>
           <span
-            ref={(el) => (charRefs.current[1] = el)}
+            ref={(el) => { charRefs.current[1] = el; }}
             className="vgc-core-char vgc-core-char-left"
             aria-hidden
           >
             地
           </span>
           <span
-            ref={(el) => (charRefs.current[2] = el)}
+            ref={(el) => { charRefs.current[2] = el; }}
             className="vgc-core-char vgc-core-char-right"
             aria-hidden
           >
@@ -393,3 +393,5 @@ export default function VisualGravityCore() {
     </div>
   );
 }
+
+

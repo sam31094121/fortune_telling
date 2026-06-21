@@ -26,6 +26,26 @@ const EMPTY_PERSON: FormPersonInput = {
   gender: 'female',
 };
 
+const REQUEST_TIMEOUT_MS = 20000;
+
+async function fetchJsonWithTimeout<T>(input: RequestInfo, init: RequestInit, timeoutMs = REQUEST_TIMEOUT_MS): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(input, { ...init, signal: controller.signal });
+    const data = (await response.json()) as T;
+
+    if (!response.ok) {
+      throw data;
+    }
+
+    return data;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export default function HomePage() {
   const [person, setPerson] = useState<FormPersonInput>({ ...EMPTY_PERSON });
   const [loading, setLoading] = useState(false);
@@ -36,13 +56,14 @@ export default function HomePage() {
   const resultRef = useRef<HTMLDivElement>(null);
 
   async function handleAnalyzePreview() {
+    if (loading || isUnlocking) return;
     setErrorMsg('');
     setPreviewResult(null);
     setVipResult(null);
     setLoading(true);
 
     try {
-      const response = await fetch('/api/preview', {
+      const data = await fetchJsonWithTimeout<PreviewAnalysisResult | ApiError>('/api/preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -51,13 +72,6 @@ export default function HomePage() {
         }),
       });
 
-      const data = (await response.json()) as PreviewAnalysisResult | ApiError;
-
-      if (!response.ok) {
-        setErrorMsg('error' in data ? data.error : '天地預分析失敗，請稍後再試。');
-        return;
-      }
-
       setPreviewResult(data as PreviewAnalysisResult);
 
       setTimeout(() => {
@@ -65,13 +79,20 @@ export default function HomePage() {
       }, 250);
     } catch (error) {
       console.error('[page] preview failed', error);
-      setErrorMsg('目前無法連線到分析服務，請稍後再試。');
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        setErrorMsg('天地預分析逾時，請稍後再試。');
+      } else if (typeof error === 'object' && error && 'error' in error && typeof (error as ApiError).error === 'string') {
+        setErrorMsg((error as ApiError).error);
+      } else {
+        setErrorMsg('目前無法連線到分析服務，請稍後再試。');
+      }
     } finally {
       setLoading(false);
     }
   }
 
   async function handleUnlockVip(nameInput: string, genderInput: 'male' | 'female') {
+    if (loading || isUnlocking) return;
     setErrorMsg('');
     setIsUnlocking(true);
 
@@ -89,23 +110,22 @@ export default function HomePage() {
     }));
 
     try {
-      const response = await fetch('/api/analyze', {
+      const data = await fetchJsonWithTimeout<AnalysisResult | ApiError>('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ person: nextPerson }),
       });
 
-      const data = (await response.json()) as AnalysisResult | ApiError;
-
-      if (!response.ok) {
-        setErrorMsg('error' in data ? data.error : 'VIP 解碼失敗，請稍後再試。');
-        return;
-      }
-
       setVipResult(data as AnalysisResult);
     } catch (error) {
       console.error('[page] analyze failed', error);
-      setErrorMsg('目前無法完成姓名解碼，請稍後再試。');
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        setErrorMsg('VIP 解碼逾時，請稍後再試。');
+      } else if (typeof error === 'object' && error && 'error' in error && typeof (error as ApiError).error === 'string') {
+        setErrorMsg((error as ApiError).error);
+      } else {
+        setErrorMsg('目前無法完成姓名解碼，請稍後再試。');
+      }
     } finally {
       setIsUnlocking(false);
     }
@@ -137,13 +157,13 @@ export default function HomePage() {
                 href="/music"
                 className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/30 bg-violet-400/10 px-4 py-1 text-xs font-semibold tracking-[0.2em] text-violet-300 transition hover:bg-violet-400/20"
               >
-                🎵 人格音樂系統 V1.0
+                人格
               </a>
               <a
                 href="/match"
                 className="inline-flex items-center gap-1.5 rounded-full border border-rose-400/30 bg-rose-400/10 px-4 py-1 text-xs font-semibold tracking-[0.2em] text-rose-300 transition hover:bg-rose-400/20"
               >
-                💕 人際配對系統
+                配對
               </a>
             </div>
 
@@ -231,3 +251,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+

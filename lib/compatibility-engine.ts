@@ -355,6 +355,22 @@ function buildConflictScenarios(
     });
   }
 
+  // 情感型 vs 行動型
+  if (
+    (styleA.pattern === '情感型' && styleB.pattern === '行動型') ||
+    (styleA.pattern === '行動型' && styleB.pattern === '情感型')
+  ) {
+    const emotional = styleA.pattern === '情感型' ? nameA : nameB;
+    const action    = styleA.pattern === '行動型'  ? nameA : nameB;
+    scenarios.push({
+      title:       '「你只管做，都不問問我感受」',
+      howItStarts: `${action}直接做了決定或採取行動，沒有先問${emotional}的感受`,
+      whatHappens: `${emotional}感覺被忽視、不被在乎；${action}困惑「我做的一切都是為了我們，哪裡有問題？」——兩人都覺得委屈`,
+      rootCause:   '行動型以「做事」表達愛，情感型以「被問到」感受愛——付出方式不同，對方收不到',
+      solution:    `${action}做重要決定前多一句：「你覺得呢？」；${emotional}也練習把「我想被問」說出口，而不是等對方猜`,
+    });
+  }
+
   // 雙情感型
   if (styleA.pattern === '情感型' && styleB.pattern === '情感型') {
     scenarios.push({
