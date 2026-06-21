@@ -72,7 +72,7 @@ const ERA_MANDARIN_SONGS: Record<string, MandarinTrack[]> = {
 
   '2000s': [
     { title: '晴天',       artist: '周杰倫', videoId: 'OFS9xknDq3k', soulTags: ['清新','思念'],  eraLabel: '00年代' },
-    { title: '七里香',     artist: '周杰倫', videoId: 'e-ulxOHdMGM', soulTags: ['清新','情歌'],  eraLabel: '00年代' },
+    { title: '七里香',     artist: '周杰倫', videoId: 'Bbp9ZaJD_eA', soulTags: ['清新','情歌'],  eraLabel: '00年代' },
     { title: '以父之名',   artist: '周杰倫', videoId: 'lBG1RYiXLis', soulTags: ['磅礴','藝術'],  eraLabel: '00年代' },
     { title: '青花瓷',     artist: '周杰倫', videoId: 'pVuZGFPSSA8', soulTags: ['藝術','療癒'],  eraLabel: '00年代' },
     { title: '知足',       artist: '五月天', videoId: 'VxmL4DpDk9E', soulTags: ['療癒','情歌'],  eraLabel: '00年代' },

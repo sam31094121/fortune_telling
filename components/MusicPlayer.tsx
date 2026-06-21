@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 export interface Track {
   title: string;
@@ -17,9 +17,6 @@ interface MusicPlayerProps {
   affinityScore?: number;
 }
 
-function ytCmd(iframe: HTMLIFrameElement | null, func: string, args: unknown[] = []) {
-  iframe?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), '*');
-}
 
 export const GENRE_TRACKS: Record<string, Track[]> = {
   pop: [
@@ -33,10 +30,10 @@ export const GENRE_TRACKS: Record<string, Track[]> = {
   electronic: [
     { title: 'Faded', artist: 'Alan Walker', videoId: '60ItHLz5WEA' },
     { title: 'On My Way', artist: 'Alan Walker', videoId: 'dhYOPzcsbGM' },
-    { title: 'Darkside', artist: 'Alan Walker', videoId: 'AOeY-nDp7hI' },
+    { title: 'Darkside', artist: 'Alan Walker', videoId: 'M-P4QBt-FWw' },
   ],
   classical: [
-    { title: 'Experience', artist: 'Ludovico Einaudi', videoId: 'hN_q-_jjh0g' },
+    { title: 'Experience', artist: 'Ludovico Einaudi', videoId: 'hN_q-_nGv4U' },
     { title: 'River Flows In You', artist: 'Yiruma', videoId: '7maJOI3QMu0' },
   ],
   folk_indie: [
@@ -48,7 +45,7 @@ export const GENRE_TRACKS: Record<string, Track[]> = {
     { title: 'Someone Like You', artist: 'Adele', videoId: 'hLQl3WQQoQ0' },
   ],
   new_age: [
-    { title: 'Only Time', artist: 'Enya', videoId: 'BQnS4L7HJME' },
+    { title: 'Only Time', artist: 'Enya', videoId: '7wfYIMyS_dI' },
     { title: 'Orinoco Flow', artist: 'Enya', videoId: 'LTrk4X9ACtw' },
   ],
 };
@@ -61,59 +58,37 @@ export default function MusicPlayer({
   genreEmoji,
   affinityScore,
 }: MusicPlayerProps) {
-  const isMandarinMode = Boolean(mandarinTracks && mandarinTracks.length > 0);
-  const tracks: Track[] = isMandarinMode ? mandarinTracks! : (GENRE_TRACKS[genreKey ?? ''] ?? []);
+  const recommendations = mandarinTracks ?? [];
+  const tracks: Track[] = GENRE_TRACKS[genreKey ?? ''] ?? GENRE_TRACKS.pop;
 
   const [trackIdx, setTrackIdx] = useState(0);
-  const [isMuted, setIsMuted] = useState(true);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
 
   const track = tracks[trackIdx];
   if (!track) return null;
 
+  // YouTube requires an adequately sized, visible player. Sound also needs an
+  // explicit user gesture in modern browsers, so playback starts from its controls.
   const embedUrl =
     `https://www.youtube-nocookie.com/embed/${track.videoId}` +
-    '?autoplay=1&mute=1&enablejsapi=1&rel=0&modestbranding=1&playsinline=1';
-
-  function handleToggleMute() {
-    const iframe = iframeRef.current;
-    if (isMuted) {
-      ytCmd(iframe, 'unMute');
-      ytCmd(iframe, 'setVolume', [85]);
-    } else {
-      ytCmd(iframe, 'mute');
-    }
-    setIsMuted((value) => !value);
-  }
+    '?controls=1&rel=0&modestbranding=1&playsinline=1';
 
   function handleNext() {
-    setIsMuted(true);
+    setIsPlayerOpen(false);
     setTrackIdx((index) => (index + 1) % tracks.length);
   }
 
-  const headerLabel = isMandarinMode
-    ? `${eraDisplayName ?? '華語黃金年代'} 推薦歌單`
-    : `AI 音樂共鳴度 ${affinityScore ?? 0}`;
-
-  const headerSub = isMandarinMode ? '系統依人格氣場挑選的陪伴旋律' : (genreName ?? '專屬音樂風格');
-  const emoji = isMandarinMode ? '🎵' : (genreEmoji ?? '🎼');
+  const headerLabel = `AI 音樂共鳴度 ${affinityScore ?? 0}`;
+  const headerSub = genreName ?? '你的人格音樂試聽';
+  const emoji = genreEmoji ?? '🎧';
 
   return (
     <div className="relative overflow-hidden rounded-[24px] border border-[color:rgba(109,74,255,0.35)] bg-[color:rgba(109,74,255,0.08)]">
-      <iframe
-        ref={iframeRef}
-        key={track.videoId}
-        src={embedUrl}
-        title={`${track.title} - ${track.artist}`}
-        allow="autoplay; encrypted-media"
-        style={{ position: 'absolute', width: 1, height: 1, opacity: 0, pointerEvents: 'none' }}
-      />
-
       <div className="p-5">
         <div className="mb-4 flex items-center gap-3">
           <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[color:rgba(109,74,255,0.25)]">
             <span className="text-xl">{emoji}</span>
-            {!isMuted && <span className="absolute inset-0 animate-ping rounded-full bg-[color:rgba(109,74,255,0.4)]" />}
+            {isPlayerOpen && <span className="absolute inset-0 animate-ping rounded-full bg-[color:rgba(109,74,255,0.4)]" />}
           </div>
 
           <div>
@@ -126,9 +101,9 @@ export default function MusicPlayer({
               <span
                 key={n}
                 className={`block w-[3px] rounded-full bg-[color:var(--fortune-good)] transition-all ${
-                  isMuted ? 'opacity-30' : 'animate-pulse opacity-100'
+                  isPlayerOpen ? 'animate-pulse opacity-100' : 'opacity-30'
                 }`}
-                style={{ height: isMuted ? 4 : [12, 20, 14, 18][n - 1], animationDelay: `${n * 0.15}s` }}
+                style={{ height: isPlayerOpen ? [12, 20, 14, 18][n - 1] : 4, animationDelay: `${n * 0.15}s` }}
               />
             ))}
           </div>
@@ -143,15 +118,15 @@ export default function MusicPlayer({
           <div className="flex flex-shrink-0 items-center gap-2">
             <button
               type="button"
-              onClick={handleToggleMute}
+              onClick={() => setIsPlayerOpen((value) => !value)}
               className="rounded-full border px-4 py-2 text-sm font-medium transition-colors"
               style={{
-                borderColor: isMuted ? 'rgba(255,255,255,0.2)' : 'rgba(109,74,255,0.6)',
-                background: isMuted ? 'rgba(255,255,255,0.08)' : 'rgba(109,74,255,0.2)',
-                color: isMuted ? 'var(--text-sub)' : 'var(--text-main)',
+                borderColor: isPlayerOpen ? 'rgba(109,74,255,0.6)' : 'rgba(255,255,255,0.2)',
+                background: isPlayerOpen ? 'rgba(109,74,255,0.2)' : 'rgba(255,255,255,0.08)',
+                color: isPlayerOpen ? 'var(--text-main)' : 'var(--text-sub)',
               }}
             >
-              {isMuted ? '開啟聲音' : '靜音'}
+              {isPlayerOpen ? '收起播放器' : '開啟聲音'}
             </button>
 
             {tracks.length > 1 && (
@@ -167,11 +142,39 @@ export default function MusicPlayer({
           </div>
         </div>
 
-        {isMuted && (
+        {!isPlayerOpen && (
           <p className="mt-2 text-center text-xs text-[color:var(--text-muted)]">
-            若沒有聲音，請點一下「開啟聲音」，系統會播放你的共鳴歌曲。
+            點一下「開啟聲音」，再按影片中央即可播放你的共鳴歌曲。
           </p>
         )}
+
+        {isPlayerOpen && (
+          <div className="mt-4">
+            <div className="overflow-hidden rounded-[18px] border border-white/10 bg-black">
+              <iframe
+                key={track.videoId}
+                src={embedUrl}
+                title={`${track.title} - ${track.artist}`}
+                allow="encrypted-media; picture-in-picture"
+                allowFullScreen
+                referrerPolicy="strict-origin-when-cross-origin"
+                className="aspect-video w-full"
+              />
+            </div>
+            <p className="mt-2 text-center text-xs text-[color:var(--text-muted)]">
+              點影片中央播放；若無法嵌入，可改用 YouTube 開啟。
+            </p>
+          </div>
+        )}
+
+        <a
+          href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${track.title} ${track.artist}`)}`}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-3 block text-center text-xs text-[color:var(--sky-violet)] transition hover:text-white"
+        >
+          在 YouTube 開啟這首歌
+        </a>
 
         {tracks.length > 1 && (
           <div className="mt-4 space-y-1">
@@ -180,7 +183,7 @@ export default function MusicPlayer({
                 key={item.videoId}
                 type="button"
                 onClick={() => {
-                  setIsMuted(true);
+                  setIsPlayerOpen(false);
                   setTrackIdx(index);
                 }}
                 className="flex w-full items-center gap-3 rounded-2xl border px-4 py-2.5 text-left transition-colors"
@@ -190,7 +193,7 @@ export default function MusicPlayer({
                 }}
               >
                 <span className="text-xs" style={{ color: index === trackIdx ? 'var(--sky-violet)' : 'var(--text-muted)' }}>
-                  {index === trackIdx ? '播放中' : `${index + 1}.`}
+                  {index === trackIdx ? '已選擇' : `${index + 1}.`}
                 </span>
                 <span className="flex-1 truncate text-sm" style={{ color: index === trackIdx ? 'var(--text-main)' : 'var(--text-sub)' }}>
                   {item.title}
@@ -198,6 +201,29 @@ export default function MusicPlayer({
                 <span className="shrink-0 text-xs text-[color:var(--text-muted)]">{item.artist}</span>
               </button>
             ))}
+          </div>
+        )}
+
+        {recommendations.length > 0 && (
+          <div className="mt-5 border-t border-white/10 pt-4">
+            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">
+              {eraDisplayName ?? '你的年代'}共鳴歌單
+            </p>
+            <div className="space-y-1">
+              {recommendations.map((item, index) => (
+                <a
+                  key={`${item.title}-${item.artist}`}
+                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${item.title} ${item.artist}`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex w-full items-center gap-3 rounded-2xl border border-white/5 px-4 py-2.5 text-left transition-colors hover:border-white/15 hover:bg-white/5"
+                >
+                  <span className="text-xs text-[color:var(--text-muted)]">{index + 1}.</span>
+                  <span className="flex-1 truncate text-sm text-[color:var(--text-sub)]">{item.title}</span>
+                  <span className="shrink-0 text-xs text-[color:var(--text-muted)]">{item.artist} ↗</span>
+                </a>
+              ))}
+            </div>
           </div>
         )}
       </div>
