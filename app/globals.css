@@ -64,7 +64,8 @@ body {
   background-repeat: repeat;
   content: '';
   /* GPU 層提升，避免星空動畫每幀觸發主執行緒 paint */
-  will-change: opacity, transform;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .starfield {
