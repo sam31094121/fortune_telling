@@ -94,6 +94,7 @@ export default function HomePage() {
   async function handleUnlockVip(nameInput: string, genderInput: 'male' | 'female') {
     if (loading || isUnlocking) return;
     setErrorMsg('');
+    setPreviewResult(null);
     setIsUnlocking(true);
 
     const nextPerson: PersonInput = {
@@ -214,7 +215,7 @@ export default function HomePage() {
               </div>
             )}
 
-            {errorMsg && !previewResult && (
+            {errorMsg && (
               <div className="mt-6 rounded-2xl border border-rose-400/20 bg-rose-950/20 p-4 text-sm text-rose-300">
                 {errorMsg}
               </div>
@@ -228,7 +229,7 @@ export default function HomePage() {
                 vipResult={vipResult}
                 onUnlock={handleUnlockVip}
                 onReset={handleReset}
-                isUnlocking={isUnlocking}
+                isUnlocking={isUnlocking || loading}
                 errorMsg={errorMsg}
               />
             ) : (
