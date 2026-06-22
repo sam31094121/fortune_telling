@@ -1,0 +1,248 @@
+import { GoogleGenAI, Type } from '@google/genai';
+import { getBirthPersonalityScores, getBirthZodiac } from './birth-model-db';
+import { getBloodTypeDescription, getBloodTypePersonalityScores } from './blood-model-db';
+import { getNameDescription, getNamePersonalityScores } from './name-model-db';
+import {
+  DIMENSION_KEYS,
+  type DimensionScores,
+  type InsightRequest,
+} from './types';
+
+const MODEL_NAME = 'gemini-2.5-flash';
+const GEMINI_TIMEOUT_MS = 20000;
+
+interface InsightAnalysisResponse {
+  accuracyScore: number;
+  dataSourceCount: number;
+  psychologyInsights: {
+    title: string;
+    description: string;
+    confidence: number;
+  }[];
+  statisticalAnalysis: {
+    dimension: string;
+    score: number;
+    percentile: number;
+    globalComparison: string;
+  }[];
+  bigDataInsights: {
+    category: string;
+    finding: string;
+    sampleSize: number;
+  }[];
+  personalizedRecommendations: string[];
+  summary: string;
+}
+
+const INSIGHT_RESPONSE_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    psychology_insights: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          title: { type: Type.STRING },
+          description: { type: Type.STRING },
+          confidence: { type: Type.INTEGER },
+        },
+      },
+      description: '心理學洞察，3-5 項，信心度 0-100',
+    },
+    statistical_analysis: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          dimension: { type: Type.STRING },
+          score: { type: Type.INTEGER },
+          percentile: { type: Type.INTEGER },
+          globalComparison: { type: Type.STRING },
+        },
+      },
+      description: '統計分析數據，包含分數和百分位',
+    },
+    big_data_insights: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          category: { type: Type.STRING },
+          finding: { type: Type.STRING },
+          sampleSize: { type: Type.INTEGER },
+        },
+      },
+      description: '大數據發現，基於全球統計樣本',
+    },
+    recommendations: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+      description: '個性化建議，3-5 項',
+    },
+    summary: { type: Type.STRING, description: '完整摘要，200-300 字' },
+  },
+  required: [
+    'psychology_insights',
+    'statistical_analysis',
+    'big_data_insights',
+    'recommendations',
+    'summary',
+  ],
+};
+
+// 誤差函數的近似實現
+function computeErf(x: number): number {
+  // 誤差函數的近似值 (Abramowitz and Stegun)
+  const a1 = 0.254829592;
+  const a2 = -0.284496736;
+  const a3 = 1.421413741;
+  const a4 = -1.453152027;
+  const a5 = 1.061405429;
+  const p = 0.3275911;
+
+  const sign = x < 0 ? -1 : 1;
+  const absX = Math.abs(x);
+
+  const t = 1.0 / (1.0 + p * absX);
+  const y = 1.0 - (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t) * Math.exp(-absX * absX);
+
+  return sign * y;
+}
+
+function calculateGlobalPercentile(score: number): number {
+  // 模擬全球人口的百分位分布
+  // 基於常態分佈
+  const z = (score - 50) / 15;
+  const percentile = Math.round((1 + computeErf(z / Math.sqrt(2))) / 2 * 100);
+  return Math.max(0, Math.min(100, percentile));
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => {
+          reject(new Error(message));
+        }, timeoutMs);
+      }),
+    ]);
+  } catch (error) {
+    // 確保超時被正確捕獲
+    throw error;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+function extractJsonText(text: string): string {
+  const trimmed = text.trim();
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  return (fenced?.[1] ?? trimmed).trim();
+}
+
+function safeJsonParse<T>(text: string): T {
+  return JSON.parse(extractJsonText(text)) as T;
+}
+
+export async function generateInsightAnalysis(request: InsightRequest): Promise<InsightAnalysisResponse> {
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (!apiKey) {
+    throw new Error('未設置 GOOGLE_GENERATIVE_AI_API_KEY 環境變數。');
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
+  // 獲取基本人格分數
+  const birthScores = getBirthPersonalityScores(request.birthDate);
+  const bloodScores = getBloodTypePersonalityScores(request.bloodType);
+  const nameScores = getNamePersonalityScores(request.name);
+
+  const birthZodiac = getBirthZodiac(request.birthDate);
+
+  // 構建分析提示
+  const analysisPrompt = `
+你是一個專業的人格和心理分析專家，擁有統計學和大數據分析的專業知識。
+請根據以下天地人資料進行深度洞察分析：
+
+【基本資料】
+- 姓名: ${request.name}
+- 生日: ${request.birthDate} (星座: ${birthZodiac})
+- 血型: ${request.bloodType}型
+- 性別: ${request.gender === 'female' ? '女性' : '男性'}
+
+【個性特質分數】(0-100)
+生日骨架:
+${JSON.stringify(birthScores, null, 2)}
+
+血型補充:
+${JSON.stringify(bloodScores, null, 2)}
+
+姓名校正:
+${JSON.stringify(nameScores, null, 2)}
+
+請進行全面分析，包括：
+1. 基於全球數據庫的心理學洞察（3-5項）
+2. 各維度的統計分析和全球百分位
+3. 大數據發現（基於全球樣本的趨勢）
+4. 個性化建議（3-5項）
+5. 完整的分析摘要
+
+返回結構化的 JSON 格式。`;
+
+  const response = await withTimeout(
+    ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: analysisPrompt,
+      config: {
+        responseSchema: INSIGHT_RESPONSE_SCHEMA as never,
+        responseMimeType: 'application/json',
+        temperature: 1,
+        topP: 0.95,
+        topK: 40,
+        maxOutputTokens: 2048,
+      },
+    }),
+    GEMINI_TIMEOUT_MS,
+    '深度洞察分析超時，請稍後再試。'
+  );
+
+  const textContent = (response as { text?: string | (() => string) }).text;
+  const textStr = typeof textContent === 'function' ? textContent() : (textContent || '');
+
+  if (!textStr) {
+    throw new Error('AI 未返回有效回應。');
+  }
+
+  const aiAnalysis = safeJsonParse<{
+    psychology_insights: Array<{ title: string; description: string; confidence: number }>;
+    statistical_analysis: Array<{ dimension: string; score: number; percentile: number; globalComparison: string }>;
+    big_data_insights: Array<{ category: string; finding: string; sampleSize: number }>;
+    recommendations: string[];
+    summary: string;
+  }>(textStr);
+
+  // 計算整體精準度 (基於多個因素)
+  const dimensionCount = Object.keys(birthScores).length;
+  const avgScore = Object.values(birthScores).reduce((a, b) => a + b, 0) / dimensionCount;
+  const confidenceMultiplier = 1 - Math.abs(50 - avgScore) / 100;
+  const accuracyScore = Math.round(75 + confidenceMultiplier * 20);
+
+  // 全球數據樣本量 (虛擬數據，代表系統已學習的樣本)
+  const dataSourceCount = 5000000 + Math.floor(Math.random() * 5000000);
+
+  return {
+    accuracyScore: Math.max(50, Math.min(99, accuracyScore)),
+    dataSourceCount,
+    psychologyInsights: aiAnalysis.psychology_insights,
+    statisticalAnalysis: aiAnalysis.statistical_analysis.map(stat => ({
+      ...stat,
+      percentile: calculateGlobalPercentile(stat.score),
+    })),
+    bigDataInsights: aiAnalysis.big_data_insights,
+    personalizedRecommendations: aiAnalysis.recommendations,
+    summary: aiAnalysis.summary,
+  };
+}

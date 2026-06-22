@@ -166,6 +166,12 @@ export default function HomePage() {
               >
                 配對
               </a>
+              <a
+                href="/insight"
+                className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1 text-xs font-semibold tracking-[0.2em] text-cyan-300 transition hover:bg-cyan-400/20"
+              >
+                ✨ 深度洞察
+              </a>
             </div>
 
             <div className="space-y-4">

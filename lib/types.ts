@@ -20,6 +20,13 @@ export interface AnalyzeRequest {
   person: PersonInput;
 }
 
+export interface InsightRequest {
+  name: string;
+  birthDate: string;
+  bloodType: Exclude<BloodType, ''>;
+  gender: Gender;
+}
+
 export interface PreviewRequest {
   birthday: string;
   bloodType: Exclude<BloodType, ''>;
