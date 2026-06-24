@@ -44,11 +44,11 @@ export default function VisualGravityCore() {
       ctx.translate(cx, cy);
       ctx.globalCompositeOperation = "lighter";
 
-      const pulse = 0.55 + breathe * 0.45;
+      const pulse = 0.62 + breathe * 0.38;
       const halo = ctx.createRadialGradient(0, 0, radius * 0.16, 0, 0, radius * 1.46);
-      halo.addColorStop(0, `rgba(255,250,220,${0.18 + pulse * 0.08})`);
-      halo.addColorStop(0.28, `rgba(120,180,255,${0.08 + pulse * 0.05})`);
-      halo.addColorStop(0.58, `rgba(126,92,230,${0.1 + pulse * 0.04})`);
+      halo.addColorStop(0, `rgba(255,250,220,${0.22 + pulse * 0.1})`);
+      halo.addColorStop(0.24, `rgba(136,196,255,${0.11 + pulse * 0.06})`);
+      halo.addColorStop(0.56, `rgba(126,92,230,${0.12 + pulse * 0.04})`);
       halo.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = halo;
       ctx.beginPath();
@@ -60,9 +60,9 @@ export default function VisualGravityCore() {
         const x = Math.cos(drift) * radius * (0.18 + i * 0.13);
         const y = Math.sin(drift * 0.82) * radius * (0.1 + i * 0.07);
         const flow = ctx.createRadialGradient(x, y, 0, x, y, radius * (0.46 + i * 0.08));
-        flow.addColorStop(0, `rgba(255,248,220,${0.12 - i * 0.012})`);
-        flow.addColorStop(0.36, `rgba(150,205,255,${0.07 - i * 0.007})`);
-        flow.addColorStop(0.72, `rgba(126,92,230,${0.06 - i * 0.006})`);
+        flow.addColorStop(0, `rgba(255,248,220,${0.15 - i * 0.013})`);
+        flow.addColorStop(0.34, `rgba(150,205,255,${0.09 - i * 0.008})`);
+        flow.addColorStop(0.7, `rgba(126,92,230,${0.07 - i * 0.006})`);
         flow.addColorStop(1, "rgba(0,0,0,0)");
         ctx.fillStyle = flow;
         ctx.beginPath();
@@ -115,18 +115,18 @@ export default function VisualGravityCore() {
       ctx.clip();
 
       const darkBase = ctx.createRadialGradient(cx - radius * 0.32, bottomY, 0, cx - radius * 0.18, bottomY, radius * 1.05);
-      darkBase.addColorStop(0, "rgba(0,0,0,0.98)");
-      darkBase.addColorStop(0.32, "rgba(8,9,18,0.96)");
-      darkBase.addColorStop(0.62, "rgba(70,44,130,0.72)");
-      darkBase.addColorStop(1, "rgba(16,12,28,0.9)");
+      darkBase.addColorStop(0, "rgba(0,0,0,1)");
+      darkBase.addColorStop(0.34, "rgba(3,4,12,0.99)");
+      darkBase.addColorStop(0.64, "rgba(42,25,92,0.76)");
+      darkBase.addColorStop(1, "rgba(4,4,12,0.94)");
       ctx.fillStyle = darkBase;
       ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2);
 
       const lightBase = ctx.createRadialGradient(cx + radius * 0.32, topY, 0, cx + radius * 0.18, topY, radius * 1.08);
       lightBase.addColorStop(0, "rgba(255,255,255,1)");
-      lightBase.addColorStop(0.3, "rgba(255,246,204,0.98)");
-      lightBase.addColorStop(0.62, "rgba(225,176,84,0.86)");
-      lightBase.addColorStop(1, "rgba(82,55,26,0.65)");
+      lightBase.addColorStop(0.28, "rgba(255,250,220,1)");
+      lightBase.addColorStop(0.62, "rgba(238,190,92,0.9)");
+      lightBase.addColorStop(1, "rgba(96,62,24,0.68)");
       ctx.fillStyle = lightBase;
       ctx.fillRect(cx, cy - radius, radius, radius * 2);
 
@@ -238,49 +238,98 @@ export default function VisualGravityCore() {
       ctx.restore();
     }
 
-    function drawHumanCore(cx: number, cy: number, radius: number, breathe: number) {
+    function drawHumanCore(cx: number, cy: number, radius: number, time: number, breathe: number) {
+      const pulse = 0.6 + breathe * 0.4;
+
+      // 十字光束（垂直 + 水平鏡頭光暈，把焦點往外撐開）
       ctx.save();
       ctx.globalCompositeOperation = "lighter";
-      const verticalBeam = ctx.createLinearGradient(cx, cy - radius * 0.7, cx, cy + radius * 0.7);
+      const verticalBeam = ctx.createLinearGradient(cx, cy - radius * 0.82, cx, cy + radius * 0.82);
       verticalBeam.addColorStop(0, "rgba(255,255,255,0)");
-      verticalBeam.addColorStop(0.42, `rgba(255,236,174,${0.1 + breathe * 0.07})`);
-      verticalBeam.addColorStop(0.5, `rgba(255,255,255,${0.18 + breathe * 0.1})`);
-      verticalBeam.addColorStop(0.58, `rgba(156,202,255,${0.1 + breathe * 0.06})`);
+      verticalBeam.addColorStop(0.42, `rgba(255,236,174,${0.14 + breathe * 0.1})`);
+      verticalBeam.addColorStop(0.5, `rgba(255,255,255,${0.32 + breathe * 0.2})`);
+      verticalBeam.addColorStop(0.58, `rgba(156,202,255,${0.14 + breathe * 0.09})`);
       verticalBeam.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = verticalBeam;
       ctx.beginPath();
-      ctx.ellipse(cx, cy, radius * 0.055, radius * 0.72, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx, cy, radius * (0.05 + breathe * 0.012), radius * 0.82, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      const horizontalBeam = ctx.createLinearGradient(cx - radius * 0.95, cy, cx + radius * 0.95, cy);
+      horizontalBeam.addColorStop(0, "rgba(255,255,255,0)");
+      horizontalBeam.addColorStop(0.5, `rgba(255,244,206,${0.18 + breathe * 0.12})`);
+      horizontalBeam.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = horizontalBeam;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, radius * 0.95, radius * (0.024 + breathe * 0.01), 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
 
-      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.28);
+      // 外層放射光暈（更大更亮）
+      const outerGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.62);
+      outerGlow.addColorStop(0, `rgba(255,255,255,${0.5 + pulse * 0.3})`);
+      outerGlow.addColorStop(0.18, `rgba(255,240,188,${0.34 + pulse * 0.22})`);
+      outerGlow.addColorStop(0.5, `rgba(150,120,255,${0.16 + pulse * 0.07})`);
+      outerGlow.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.globalCompositeOperation = "lighter";
+      ctx.fillStyle = outerGlow;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.62, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 旋轉星芒（4 道，強化焦點銳利爆發感）
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(time * 0.12);
+      ctx.globalCompositeOperation = "lighter";
+      for (let i = 0; i < 4; i++) {
+        ctx.rotate(Math.PI / 2);
+        const spike = ctx.createLinearGradient(0, 0, 0, -radius * 0.8);
+        spike.addColorStop(0, `rgba(255,255,255,${0.46 + breathe * 0.3})`);
+        spike.addColorStop(0.5, `rgba(255,234,170,${0.12 + breathe * 0.08})`);
+        spike.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = spike;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-radius * 0.02, -radius * 0.2);
+        ctx.lineTo(0, -radius * 0.8);
+        ctx.lineTo(radius * 0.02, -radius * 0.2);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // 核心強光
+      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.42);
       glow.addColorStop(0, "rgba(255,255,255,1)");
-      glow.addColorStop(0.18, "rgba(255,230,162,0.82)");
-      glow.addColorStop(0.48, "rgba(126,92,230,0.18)");
+      glow.addColorStop(0.14, "rgba(255,240,180,0.95)");
+      glow.addColorStop(0.44, "rgba(150,120,255,0.26)");
       glow.addColorStop(1, "rgba(0,0,0,0)");
       ctx.globalCompositeOperation = "lighter";
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(cx, cy, radius * (0.18 + breathe * 0.022), 0, Math.PI * 2);
+      ctx.arc(cx, cy, radius * (0.3 + breathe * 0.04), 0, Math.PI * 2);
       ctx.fill();
       ctx.globalCompositeOperation = "source-over";
 
-      ctx.fillStyle = "rgba(4,4,9,0.86)";
+      // 中心眼（暗核 + 金邊）
+      ctx.fillStyle = "rgba(4,4,9,0.8)";
       ctx.beginPath();
-      ctx.arc(cx, cy, radius * 0.055, 0, Math.PI * 2);
+      ctx.arc(cx, cy, radius * 0.05, 0, Math.PI * 2);
       ctx.fill();
-      ctx.lineWidth = radius * 0.009;
-      ctx.strokeStyle = "rgba(255,232,170,0.95)";
+      ctx.lineWidth = radius * 0.012;
+      ctx.strokeStyle = "rgba(255,236,180,1)";
       ctx.stroke();
 
-      const focusBloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.18);
-      focusBloom.addColorStop(0, `rgba(255,255,255,${0.42 + breathe * 0.22})`);
-      focusBloom.addColorStop(0.38, `rgba(255,232,170,${0.18 + breathe * 0.1})`);
-      focusBloom.addColorStop(1, "rgba(255,255,255,0)");
+      // 最內熱白核（焦點的焦點）
+      const hotCore = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.13);
+      hotCore.addColorStop(0, `rgba(255,255,255,${0.92 + breathe * 0.08})`);
+      hotCore.addColorStop(0.5, `rgba(255,246,214,${0.5 + breathe * 0.22})`);
+      hotCore.addColorStop(1, "rgba(255,255,255,0)");
       ctx.globalCompositeOperation = "lighter";
-      ctx.fillStyle = focusBloom;
+      ctx.fillStyle = hotCore;
       ctx.beginPath();
-      ctx.arc(cx, cy, radius * 0.18, 0, Math.PI * 2);
+      ctx.arc(cx, cy, radius * 0.13, 0, Math.PI * 2);
       ctx.fill();
       ctx.globalCompositeOperation = "source-over";
     }
@@ -311,7 +360,7 @@ export default function VisualGravityCore() {
       drawTaijiBody(cx, cy, radius, t, breathe);
 
       ctx.restore();
-      drawHumanCore(cx, cy, radius, breathe);
+      drawHumanCore(cx, cy, radius, t, breathe);
 
       rafRef.current = requestAnimationFrame(draw);
     }
