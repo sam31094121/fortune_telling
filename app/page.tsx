@@ -80,7 +80,7 @@ export default function HomePage() {
     } catch (error) {
       console.error('[page] preview failed', error);
       if (error instanceof DOMException && error.name === 'AbortError') {
-        setErrorMsg('天地預分析逾時，請稍後再試。');
+        setErrorMsg('AI 總機分析逾時，請稍後再試。');
       } else if (typeof error === 'object' && error && 'error' in error && typeof (error as ApiError).error === 'string') {
         setErrorMsg((error as ApiError).error);
       } else {
@@ -121,7 +121,7 @@ export default function HomePage() {
     } catch (error) {
       console.error('[page] analyze failed', error);
       if (error instanceof DOMException && error.name === 'AbortError') {
-        setErrorMsg('VIP 解碼逾時，請稍後再試。');
+        setErrorMsg('完整分析逾時，請稍後再試。');
       } else if (typeof error === 'object' && error && 'error' in error && typeof (error as ApiError).error === 'string') {
         setErrorMsg((error as ApiError).error);
       } else {
@@ -152,7 +152,7 @@ export default function HomePage() {
           <div className="space-y-6">
             <div className="flex flex-wrap items-center gap-3">
               <div className="inline-flex rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-1 text-xs font-semibold tracking-[0.3em] text-amber-300">
-                天・地・人 AI 人格解碼系統
+                AI 總機人格分析系統
               </div>
               <a
                 href="/music"
@@ -176,27 +176,26 @@ export default function HomePage() {
 
             <div className="space-y-4">
               <h1 className="mystic-title font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">
-                天地人正在校準你的氣場
+                輸入資料，啟動 AI 總機分析
               </h1>
               <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)] sm:text-base">
-                先以生日與血型完成免費的天地預分析，快速建立人格骨架與行為模式。
-                若你要進一步解鎖姓名能量、財富磁場、感情依附與個人差異，再進入 VIP
-                的人層解碼。
+                只需要輸入基本資料；系統內部會結合八字、紫微斗數與 AI
+                總機模型進行綜合運算，完成後呈現清楚好懂的分析結果。
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="fortune-card sky-card p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-violet-300">天 35%</p>
-                <p className="mt-2 text-sm text-[color:var(--text-main)]">生日建立人格骨架</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-violet-300">輸入資料</p>
+                <p className="mt-2 text-sm text-[color:var(--text-main)]">生日、血型與基本資訊</p>
               </div>
               <div className="fortune-card earth-card p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-amber-300">地 35%</p>
-                <p className="mt-2 text-sm text-[color:var(--text-main)]">血型補充行為模式</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-amber-300">AI 總機</p>
+                <p className="mt-2 text-sm text-[color:var(--text-main)]">系統自動綜合運算</p>
               </div>
               <div className="fortune-card human-card p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-pink-300">人 30%</p>
-                <p className="mt-2 text-sm text-[color:var(--text-main)]">姓名・性別・時辰解鎖個體差異</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-pink-300">分析結果</p>
+                <p className="mt-2 text-sm text-[color:var(--text-main)]">只顯示客戶看得懂的重點</p>
               </div>
             </div>
           </div>
@@ -217,7 +216,7 @@ export default function HomePage() {
 
             {loading && (
               <div className="mt-8 rounded-2xl border border-violet-400/15 bg-violet-950/20 p-4 text-center text-sm text-violet-200">
-                天地能量正在演算中，請稍候…
+                AI 總機正在綜合運算，請稍候…
               </div>
             )}
 
@@ -244,11 +243,11 @@ export default function HomePage() {
                   預備狀態
                 </p>
                 <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">
-                  先完成天地預分析
+                  先完成基本資料輸入
                 </h2>
                 <p className="mt-4 max-w-xl text-sm leading-8 text-[color:var(--text-sub)]">
-                  你輸入生日與血型後，系統會先建立免費的人格輪廓。等天地完成，再由姓名進入付費的
-                  VIP 解碼，這樣流程會更順，也符合你要的商業邏輯。
+                  請先輸入生日與血型。系統會在內部完成八字、紫微斗數與 AI
+                  總機綜合分析；畫面不顯示內部算法，只呈現整理後的重點結果。
                 </p>
               </div>
             )}

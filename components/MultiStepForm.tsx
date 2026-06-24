@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import type { BloodType } from '@/lib/types';
-import { getZodiacSign } from '@/lib/zodiac';
 import LunarBirthdayInput from './LunarBirthdayInput';
 import { isValidBirthday } from '@/lib/validation';
 
@@ -20,28 +19,6 @@ interface MultiStepFormProps {
   disabled?: boolean;
 }
 
-const ZODIAC_TRAITS: Record<string, string> = {
-  牡羊座: '行動快、反應直接，遇事傾向先衝出第一步。',
-  金牛座: '重視穩定與安全感，做決定時偏向務實與耐心。',
-  雙子座: '思路靈活、善於表達，喜歡在變化中找到新鮮感。',
-  巨蟹座: '情感細膩，對熟悉的人與環境有強烈守護心。',
-  獅子座: '自我驅動高，渴望被看見，也願意承擔舞台角色。',
-  處女座: '觀察敏銳，對細節要求高，傾向先整理再行動。',
-  天秤座: '重視互動與平衡，做選擇時會考量關係與氛圍。',
-  天蠍座: '情緒深度強，判斷事情時直覺與洞察力都很明顯。',
-  射手座: '喜歡自由與探索，面對未知時通常帶著冒險精神。',
-  摩羯座: '目標感強，做事穩定，會用長線思維安排人生。',
-  水瓶座: '獨立性高，常用不同角度理解世界與人際關係。',
-  雙魚座: '感受力豐富，共感能力強，容易感知細微情緒流動。',
-};
-
-const BLOOD_TRAITS: Record<Exclude<BloodType, ''>, string> = {
-  A: '偏向細膩與穩定，對秩序與關係品質較敏感。',
-  B: '自主性高，想法鮮明，容易展現個人節奏。',
-  AB: '理性與感性並存，常同時保有觀察與距離感。',
-  O: '行動力與帶動感較強，做事通常更直接果斷。',
-};
-
 export default function MultiStepForm({
   person,
   onChange,
@@ -50,17 +27,16 @@ export default function MultiStepForm({
 }: MultiStepFormProps) {
   const [step, setStep] = useState<1 | 2>(1);
 
-  const zodiac = getZodiacSign(person.birthday);
   const isBirthdayValid = isValidBirthday(person.birthday);
   const canSubmit = isBirthdayValid && person.bloodType !== '' && !disabled;
 
   return (
     <div className="space-y-6">
       <div className="space-y-3 text-center">
-        <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">免費天地預分析</p>
-        <h2 className="font-serif text-3xl text-[color:var(--text-main)]">先完成骨架，再進入姓名解碼</h2>
+        <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">免費 AI 分析</p>
+        <h2 className="font-serif text-3xl text-[color:var(--text-main)]">先輸入資料，再查看分析</h2>
         <p className="text-sm leading-7 text-[color:var(--text-sub)]">
-          第一步輸入民國年表示的國曆生日，系統會自動換成西元；第二步輸入血型，補充行為模式。
+          輸入民國年國曆生日與血型後，AI 總機會在系統內部進行八字、紫微斗數與綜合資料運算。
         </p>
       </div>
 
@@ -74,7 +50,7 @@ export default function MultiStepForm({
               : 'border-white/10 bg-white/5 text-[color:var(--text-muted)]'
           }`}
         >
-          天｜生日
+          生日
         </button>
         <button
           type="button"
@@ -86,14 +62,14 @@ export default function MultiStepForm({
               : 'border-white/10 bg-white/5 text-[color:var(--text-muted)] disabled:cursor-not-allowed disabled:opacity-50'
           }`}
         >
-          地｜血型
+          血型
         </button>
       </div>
 
       {step === 1 && (
         <div className="fortune-card sky-card space-y-4 p-5 animate-rise">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-violet-300">天層輸入</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-violet-300">出生資料</p>
             <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">輸入國曆出生年月日（民國年）</h3>
           </div>
 
@@ -104,16 +80,16 @@ export default function MultiStepForm({
             onChange={(solarDate) => onChange({ ...person, birthday: solarDate })}
           />
 
-          {zodiac ? (
+          {isBirthdayValid ? (
             <div className="rounded-2xl border border-violet-400/15 bg-violet-950/20 p-4">
-              <p className="text-sm font-semibold text-violet-200">{zodiac}</p>
+              <p className="text-sm font-semibold text-violet-200">出生日期已確認</p>
               <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">
-                {ZODIAC_TRAITS[zodiac]}
+                系統已收到你的日期資料，接下來會自動納入八字、紫微斗數與 AI 總機分析。
               </p>
             </div>
           ) : (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-[color:var(--text-muted)]">
-              輸入民國年國曆生日後，系統會先自動換算西元，再顯示星座人格基底。
+              請輸入民國年國曆生日，系統會自動換算西元並進行分析。
             </div>
           )}
 
@@ -123,7 +99,7 @@ export default function MultiStepForm({
             onClick={() => setStep(2)}
             className="primary-button w-full py-3.5 text-sm tracking-[0.12em]"
           >
-            確認生日，進入地層分析
+            確認生日，下一步
           </button>
         </div>
       )}
@@ -131,7 +107,7 @@ export default function MultiStepForm({
       {step === 2 && (
         <div className="fortune-card earth-card space-y-5 p-5 animate-rise">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-amber-300">地層輸入</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-amber-300">補充資料</p>
             <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">選擇血型</h3>
           </div>
 
@@ -156,12 +132,12 @@ export default function MultiStepForm({
           {person.bloodType ? (
             <div className="rounded-2xl border border-amber-400/15 bg-amber-950/20 p-4">
               <p className="text-sm leading-7 text-[color:var(--text-sub)]">
-                {BLOOD_TRAITS[person.bloodType as Exclude<BloodType, ''>]}
+                血型資料已確認。AI 總機會與出生資料一起進行綜合運算。
               </p>
             </div>
           ) : (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-[color:var(--text-muted)]">
-              血型會補充你的行動風格、人際模式與安全感需求。
+              請選擇血型，讓 AI 總機完成第一階段資料分析。
             </div>
           )}
 
@@ -171,7 +147,7 @@ export default function MultiStepForm({
             onClick={onSubmitPreview}
             className="primary-button w-full py-4 text-base tracking-[0.15em]"
           >
-            啟動天地預分析
+            啟動 AI 總機分析
           </button>
         </div>
       )}

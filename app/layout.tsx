@@ -17,8 +17,8 @@ const serif = Noto_Serif_TC({
 });
 
 export const metadata: Metadata = {
-  title: '天地人 AI 人格解碼系統',
-  description: '結合生日、血型與姓名能量的 AI 人格解碼體驗，先完成天地預分析，再解鎖 VIP 人層校正。',
+  title: 'AI 總機人格分析系統',
+  description: '輸入基本資料後，由系統整合八字、紫微斗數與 AI 總機分析，只呈現清楚好懂的重點結果。',
 };
 
 export default function RootLayout({
