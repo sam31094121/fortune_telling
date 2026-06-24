@@ -273,6 +273,266 @@ function SongDraftCard({
   );
 }
 
+function getFirstLyricLine(draft: SongDraft) {
+  return draft.lyrics.find((line) => line.trim() && !/^\s*[\[【].+[\]】]\s*$/.test(line))?.trim() ?? draft.concept;
+}
+
+function getBilingualResonanceData(
+  songDrafts: SongDrafts,
+  personalityMatrix: PersonalityMatrix,
+  musicParameters: MusicParameters,
+) {
+  const englishScore = Math.round(clampNumber(
+    personalityMatrix.creativity * 0.38 +
+      personalityMatrix.emotion * 0.28 +
+      personalityMatrix.social * 0.18 +
+      personalityMatrix.risk * 0.16,
+    0,
+    100,
+  ));
+  const mandarinScore = Math.round(clampNumber(
+    personalityMatrix.attachment * 0.32 +
+      personalityMatrix.emotion * 0.28 +
+      personalityMatrix.security * 0.24 +
+      personalityMatrix.logic * 0.16,
+    0,
+    100,
+  ));
+  const combinedScore = Math.round(clampNumber(
+    englishScore * 0.46 +
+      mandarinScore * 0.46 +
+      Math.min(12, Math.abs(englishScore - mandarinScore) * 0.18 + 6),
+    0,
+    100,
+  ));
+  const safeBpm = Math.round(clampNumber(Number.isFinite(musicParameters.bpm) ? musicParameters.bpm : 96, 82, 132));
+  const moodText = musicParameters.mood.slice(0, 3).join('、') || '清楚、溫暖、有記憶點';
+  const englishHook = getFirstLyricLine(songDrafts.english);
+  const mandarinHook = getFirstLyricLine(songDrafts.mandarin);
+  const safeBpmText = `${safeBpm} BPM / ${musicParameters.key}`;
+  const instrumentText = musicParameters.instrument.slice(0, 5).join('、') || '鋼琴、合成器、鼓、弦樂、低頻';
+
+  return {
+    englishScore,
+    mandarinScore,
+    combinedScore,
+    commandText: `英文主題曲 AI 音樂共鳴度 ${englishScore}% + 國語主題曲 AI 音樂共鳴度 ${mandarinScore}% → 雙語剪接共鳴 ${combinedScore}%`,
+    editTimeline: [
+      {
+        time: '0–8 秒',
+        layer: 'English Theme',
+        role: '開場 Hook / 畫面感',
+        instruction: `用《${songDrafts.english.title}》的第一句「${englishHook}」做短句記憶點，音色保持空靈、明亮、簡潔。`,
+      },
+      {
+        time: '8–28 秒',
+        layer: '國語主題曲',
+        role: '主線敘事 / 情緒推進',
+        instruction: `切入《${songDrafts.mandarin.title}》的核心句「${mandarinHook}」，讓國語旋律承接故事與情感。`,
+      },
+      {
+        time: '28–42 秒',
+        layer: 'English + 國語',
+        role: '雙語副歌 / 精準交疊',
+        instruction: '英文只留 Hook，國語保留主句；兩邊不要整段互唱，像影片剪接一樣一刀一刀切乾淨。',
+      },
+      {
+        time: '42–60 秒',
+        layer: '國語收束',
+        role: '記憶點落地',
+        instruction: `回到國語主題，使用 ${safeBpm} BPM / ${musicParameters.key} / ${moodText} 的流行編曲感收尾。`,
+      },
+    ],
+    clipRules: [
+      '這一步只用英文與國語，台語先暫停不放入，避免資訊太多。',
+      '英文像影片開場字幕與主題 Hook，負責第一秒抓住耳朵。',
+      '國語像主角旁白與情緒主線，負責讓人聽懂、聽進去。',
+      '副歌只做短句交疊，不做整段混唱，讓歌曲保持簡潔。',
+      '每一次切換只保留一個主要旋律，避免兩首歌互相搶畫面。',
+    ],
+    projectPlan: [
+      {
+        title: '1. 雙語素材鎖定',
+        detail: `只採用英文《${songDrafts.english.title}》與國語《${songDrafts.mandarin.title}》。英文取 Hook 與空氣感，國語取主歌情緒與主題句。`,
+      },
+      {
+        title: '2. 歌手聲音方向',
+        detail: `AI 歌手不模仿任何真人；聲線設定為「${musicParameters.vocal_style}」，英文段落較空靈，國語段落更貼近、清楚、有故事感。`,
+      },
+      {
+        title: '3. 音樂生成方向',
+        detail: `使用 ${safeBpmText}，曲風以 ${musicParameters.genre} 為主，情緒關鍵字為 ${moodText}，樂器核心是 ${instrumentText}。`,
+      },
+      {
+        title: '4. 自動剪接成品',
+        detail: '輸出一條 60 秒左右的雙語主題曲草案：英文開場、國語推進、雙語副歌、國語落地，像短影片自動剪輯一樣乾淨接軌。',
+      },
+    ],
+    aiGenerationScript: [
+      `Project: bilingual original theme song generated from birthday, blood type, and name.`,
+      `Source A English Theme: "${songDrafts.english.title}" — use only the hook feeling and atmospheric identity.`,
+      `Source B Mandarin Theme: "《${songDrafts.mandarin.title}》" — use the emotional storyline and main lyrical message.`,
+      `Singer: original AI vocalist, ${musicParameters.vocal_style}, intimate, clear diction, warm emotional delivery, not imitating any real artist.`,
+      `Music: ${musicParameters.genre}, ${safeBpmText}, mood ${moodText}, instruments ${instrumentText}.`,
+      `Arrangement: cinematic intro, clean verse, bilingual hook chorus, simple outro; avoid over-layering and keep one main melody at a time.`,
+    ],
+    autoEditScript: [
+      {
+        shot: '開場鏡頭',
+        audio: `英文 Hook：「${englishHook}」`,
+        edit: '畫面慢慢推近，空氣感 Pad + 簡單鋼琴，字幕只放英文短句。',
+      },
+      {
+        shot: '主角敘事',
+        audio: `國語主句：「${mandarinHook}」`,
+        edit: '節奏進來，剪接速度稍微加快，畫面從抽象轉成故事感。',
+      },
+      {
+        shot: '雙語交會',
+        audio: '英文短 Hook 回答國語主句',
+        edit: '用兩次乾淨切點，不做複雜混唱；像影片剪接的 A-roll / B-roll 交替。',
+      },
+      {
+        shot: '情緒收束',
+        audio: `回到國語《${songDrafts.mandarin.title}》核心情緒`,
+        edit: '鼓組降低，保留主旋律與最後一句記憶點，讓成品聽起來完整。',
+      },
+    ],
+  };
+}
+
+function BilingualResonanceEditor({
+  songDrafts,
+  personalityMatrix,
+  musicParameters,
+}: {
+  songDrafts: SongDrafts;
+  personalityMatrix: PersonalityMatrix;
+  musicParameters: MusicParameters;
+}) {
+  const resonance = getBilingualResonanceData(songDrafts, personalityMatrix, musicParameters);
+
+  return (
+    <div className="fortune-card overflow-hidden px-6 py-8 sm:px-8">
+      <div className="mb-6 text-center">
+        <p className="text-xs uppercase tracking-[0.4em] text-fuchsia-300/70">
+          AI 音樂共鳴度 · 雙語剪接版
+        </p>
+        <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
+          英文主題曲 + 國語主題曲
+        </h3>
+        <p className="mx-auto mt-3 max-w-3xl text-xs leading-7 text-[color:var(--text-sub)]">
+          這一步只用英文與國語，像剪一支簡潔影片：英文做開場 Hook 與畫面感，國語做主線故事與情緒落地，先把 AI 音樂共鳴度整理清楚。
+        </p>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="rounded-[22px] border border-violet-300/20 bg-violet-950/15 p-5">
+          <p className="text-xs uppercase tracking-[0.25em] text-violet-200/70">English Theme</p>
+          <h4 className="mt-3 font-serif text-xl text-[color:var(--text-main)]">《{songDrafts.english.title}》</h4>
+          <p className="mt-3 text-4xl font-semibold text-violet-100">{resonance.englishScore}%</p>
+          <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">AI 音樂共鳴度：負責空氣感、開場記憶點、第一秒吸引力。</p>
+        </div>
+
+        <div className="rounded-[22px] border border-amber-300/20 bg-amber-950/10 p-5">
+          <p className="text-xs uppercase tracking-[0.25em] text-amber-200/70">Mandarin Theme</p>
+          <h4 className="mt-3 font-serif text-xl text-[color:var(--text-main)]">《{songDrafts.mandarin.title}》</h4>
+          <p className="mt-3 text-4xl font-semibold text-amber-100">{resonance.mandarinScore}%</p>
+          <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">AI 音樂共鳴度：負責故事線、情緒主軸、讓使用者聽懂與共感。</p>
+        </div>
+
+        <div className="rounded-[22px] border border-fuchsia-300/20 bg-fuchsia-950/15 p-5">
+          <p className="text-xs uppercase tracking-[0.25em] text-fuchsia-200/70">Bilingual Cut</p>
+          <h4 className="mt-3 font-serif text-xl text-[color:var(--text-main)]">雙語剪接共鳴</h4>
+          <p className="mt-3 text-4xl font-semibold text-fuchsia-100">{resonance.combinedScore}%</p>
+          <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">把兩首歌剪成一條簡潔主題曲企劃，不加入台語、不做過度混雜。</p>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-[20px] border border-white/10 bg-black/20 p-5">
+        <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">雙語剪接命令</p>
+        <p className="font-mono text-xs leading-7 text-fuchsia-50/85">{resonance.commandText}</p>
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
+          <p className="mb-3 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">像剪影片一樣的音樂段落</p>
+          <div className="space-y-3">
+            {resonance.editTimeline.map((item) => (
+              <div key={item.time} className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <span className="rounded-full border border-fuchsia-300/20 bg-fuchsia-950/20 px-3 py-1 text-fuchsia-100">{item.time}</span>
+                  <span className="text-[color:var(--text-main)]">{item.layer}</span>
+                  <span className="text-[color:var(--text-muted)]">/ {item.role}</span>
+                </div>
+                <p className="mt-2 text-xs leading-7 text-[color:var(--text-sub)]">{item.instruction}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
+          <p className="mb-3 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">穩定規則</p>
+          <ul className="space-y-2 text-xs leading-7 text-[color:var(--text-sub)]">
+            {resonance.clipRules.map((rule) => (
+              <li key={rule} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                {rule}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-[22px] border border-emerald-300/15 bg-emerald-950/10 p-5">
+        <div className="mb-4">
+          <p className="text-xs uppercase tracking-[0.3em] text-emerald-200/70">計劃案執行生成</p>
+          <h4 className="mt-2 font-serif text-xl text-[color:var(--text-main)]">
+            英文＋國語融入貫通製作腳本
+          </h4>
+          <p className="mt-2 text-xs leading-7 text-[color:var(--text-muted)]">
+            這份是接軌後面 AI 歌手聲音、音樂生成服務、影片式自動剪接的製作藍圖；目前先穩定產出腳本，不直接送出正式生成。
+          </p>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {resonance.projectPlan.map((item) => (
+            <div key={item.title} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+              <p className="text-xs font-semibold tracking-[0.16em] text-emerald-100">{item.title}</p>
+              <p className="mt-2 text-xs leading-7 text-[color:var(--text-sub)]">{item.detail}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="rounded-[22px] border border-violet-300/15 bg-violet-950/15 p-5">
+          <p className="mb-3 text-xs uppercase tracking-[0.25em] text-violet-200/70">AI 音樂 / 歌手生成腳本</p>
+          <div className="space-y-2">
+            {resonance.aiGenerationScript.map((line) => (
+              <p key={line} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 font-mono text-xs leading-6 text-violet-50/85">
+                {line}
+              </p>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[22px] border border-sky-300/15 bg-sky-950/10 p-5">
+          <p className="mb-3 text-xs uppercase tracking-[0.25em] text-sky-200/70">自動剪接腳本</p>
+          <div className="space-y-3">
+            {resonance.autoEditScript.map((item) => (
+              <div key={item.shot} className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+                <p className="text-xs font-semibold tracking-[0.16em] text-sky-100">{item.shot}</p>
+                <p className="mt-2 text-xs leading-6 text-[color:var(--text-main)]">聲音：{item.audio}</p>
+                <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">剪接：{item.edit}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const NOTE_FREQUENCIES: Record<string, number> = {
   C: 261.63,
   'C#': 277.18,
@@ -293,6 +553,8 @@ const NOTE_FREQUENCIES: Record<string, number> = {
   B: 493.88,
 };
 
+type SynthTone = 'sine' | 'soft' | 'bass' | 'bell' | 'pluck' | 'vocal';
+
 function clampNumber(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
@@ -309,7 +571,7 @@ function addTone(
   durationSeconds: number,
   frequency: number,
   gain: number,
-  tone: 'sine' | 'soft' | 'bass' | 'bell' | 'pluck' | 'vocal' = 'soft',
+  tone: SynthTone = 'soft',
 ) {
   const start = Math.floor(startSeconds * sampleRate);
   const length = Math.floor(durationSeconds * sampleRate);
@@ -317,10 +579,16 @@ function addTone(
   for (let i = 0; i < length && start + i < buffer.length; i += 1) {
     const t = i / sampleRate;
     const progress = i / Math.max(1, length);
-    const attack = tone === 'pluck' || tone === 'bell' ? Math.min(1, progress / 0.018) : Math.min(1, progress / 0.08);
-    const release = tone === 'pluck' || tone === 'bell' ? Math.exp(-progress * 5) : Math.min(1, (1 - progress) / 0.18);
+    const attack = tone === 'pluck' || tone === 'bell'
+        ? Math.min(1, progress / 0.018)
+        : Math.min(1, progress / 0.08);
+    const release = tone === 'pluck' || tone === 'bell'
+        ? Math.exp(-progress * 5)
+        : Math.min(1, (1 - progress) / 0.18);
     const envelope = Math.max(0, Math.min(attack, release));
-    const vibrato = tone === 'vocal' ? 1 + Math.sin(2 * Math.PI * 5.3 * t) * 0.006 : 1;
+    const vibrato = tone === 'vocal'
+        ? 1 + Math.sin(2 * Math.PI * 5.3 * t) * 0.006
+        : 1;
     const freq = frequency * vibrato;
     const base = Math.sin(2 * Math.PI * freq * t);
     const color =
@@ -347,7 +615,7 @@ function addEchoTone(
   durationSeconds: number,
   frequency: number,
   gain: number,
-  tone: 'sine' | 'soft' | 'bass' | 'bell' | 'pluck' | 'vocal' = 'soft',
+  tone: SynthTone = 'soft',
 ) {
   addTone(buffer, sampleRate, startSeconds, durationSeconds, frequency, gain, tone);
   addTone(buffer, sampleRate, startSeconds + 0.18, durationSeconds * 0.8, frequency, gain * 0.28, tone);
@@ -460,6 +728,15 @@ function buildMotif(seed: number, length: number, scale: number[], contour: 'ris
   });
 }
 
+function applySmallVariation(motif: number[], seed: number, direction: 'lift' | 'ground' | 'plain') {
+  const shift = seed % 3;
+  return motif.map((interval, index) => {
+    if (direction === 'lift' && index % 4 === 3) return interval + shift;
+    if (direction === 'ground' && index % 4 === 0) return interval - shift;
+    return interval;
+  });
+}
+
 function addMelodyLine(
   buffer: Float32Array,
   sampleRate: number,
@@ -478,12 +755,99 @@ function addMelodyLine(
   });
 }
 
+function addPatternedMelody(
+  buffer: Float32Array,
+  sampleRate: number,
+  root: number,
+  beat: number,
+  startBeat: number,
+  motif: number[],
+  rhythm: number[],
+  durations: number[],
+  gain: number,
+  tone: 'bell' | 'pluck' | 'vocal' | 'soft',
+  octave = 0,
+) {
+  rhythm.forEach((offset, index) => {
+    const interval = motif[index % motif.length];
+    const duration = durations[index % durations.length] * beat;
+    const freq = frequencyFromInterval(root, interval, octave);
+    addEchoTone(buffer, sampleRate, (startBeat + offset) * beat, duration, freq, gain, tone);
+  });
+}
+
+function addChordProgression(
+  buffer: Float32Array,
+  sampleRate: number,
+  root: number,
+  scale: number[],
+  beat: number,
+  startBar: number,
+  bars: number,
+  progression: number[],
+  gain: number,
+  color: 'soft' | 'pluck' | 'bell',
+) {
+  for (let bar = 0; bar < bars; bar += 1) {
+    const degree = progression[bar % progression.length];
+    addChord(buffer, sampleRate, (startBar + bar) * 4 * beat, beat * 3.82, root, scale, degree, gain, color);
+  }
+}
+
+function addBassProgression(
+  buffer: Float32Array,
+  sampleRate: number,
+  root: number,
+  scale: number[],
+  beat: number,
+  startBar: number,
+  bars: number,
+  progression: number[],
+  gain: number,
+  active = true,
+) {
+  if (!active) return;
+
+  for (let bar = 0; bar < bars; bar += 1) {
+    const degree = progression[bar % progression.length];
+    const base = (startBar + bar) * 4 * beat;
+    const bass = frequencyFromInterval(root, scale[degree], -2);
+    addTone(buffer, sampleRate, base, beat * 1.7, bass, gain, 'bass');
+    addTone(buffer, sampleRate, base + beat * 2, beat * 1.35, bass, gain * 0.78, 'bass');
+    if (bar % 2 === 1) {
+      addTone(buffer, sampleRate, base + beat * 3.25, beat * 0.55, bass * 1.5, gain * 0.35, 'bass');
+    }
+  }
+}
+
 function addDrumGroove(buffer: Float32Array, sampleRate: number, beat: number, startBeat: number, beats: number, intensity: number) {
   for (let i = 0; i < beats; i += 1) {
     const at = (startBeat + i) * beat;
     if (i % 4 === 0 || (intensity > 0.8 && i % 4 === 2)) addKick(buffer, sampleRate, at, 0.22 * intensity);
     if (i % 4 === 2) addNoiseHit(buffer, sampleRate, at, 0.09, 0.08 * intensity);
     if (i % 2 === 1) addHihat(buffer, sampleRate, at, 0.04 * intensity);
+  }
+}
+
+function addSectionDrums(
+  buffer: Float32Array,
+  sampleRate: number,
+  beat: number,
+  startBeat: number,
+  beats: number,
+  mode: 'verse' | 'bridge' | 'chorus' | 'outro',
+) {
+  const intensity = mode === 'chorus' ? 1 : mode === 'bridge' ? 0.46 : mode === 'outro' ? 0.3 : 0.62;
+
+  for (let i = 0; i < beats; i += 1) {
+    const at = (startBeat + i) * beat;
+
+    if (mode !== 'bridge' && i % 4 === 0) addKick(buffer, sampleRate, at, 0.2 * intensity);
+    if (mode === 'chorus' && i % 4 === 2) addKick(buffer, sampleRate, at, 0.16 * intensity);
+    if (mode === 'chorus' && (i % 8 === 5 || i % 8 === 7)) addKick(buffer, sampleRate, at + beat * 0.5, 0.1 * intensity);
+    if (i % 4 === 2) addNoiseHit(buffer, sampleRate, at, 0.09, 0.085 * intensity);
+    if (mode !== 'outro' && i % 2 === 1) addHihat(buffer, sampleRate, at, 0.045 * intensity);
+    if (mode === 'chorus') addHihat(buffer, sampleRate, at + beat * 0.5, 0.03 * intensity);
   }
 }
 
@@ -504,74 +868,85 @@ function createPlayableSongDemo(
   songDrafts?: SongDrafts,
 ) {
   const sampleRate = 22_050;
-  const bpm = clampNumber(Number.isFinite(musicParameters.bpm) ? musicParameters.bpm : 96, 72, 150);
+  const bpm = clampNumber(Number.isFinite(musicParameters.bpm) ? musicParameters.bpm : 96, 80, 138);
   const beat = 60 / bpm;
-  const totalBeats = 64;
+  const totalBeats = 80;
   const duration = totalBeats * beat;
   const buffer = new Float32Array(Math.ceil(duration * sampleRate));
   const root = getRootFrequency(musicParameters.key);
   const isMinor = /minor|小調/i.test(musicParameters.key);
   const scale = isMinor ? [0, 2, 3, 5, 7, 8, 10, 12] : [0, 2, 4, 5, 7, 9, 11, 12];
-  const progression = isMinor ? [0, 5, 3, 6] : [0, 4, 5, 3];
+  const progression = isMinor ? [0, 6, 3, 5] : [0, 5, 3, 4];
   const englishSeed = lyricSeed(songDrafts?.english.lyrics ?? fusionSong.fusion_lyrics.slice(0, 5));
   const mandarinSeed = lyricSeed(songDrafts?.mandarin.lyrics ?? fusionSong.fusion_lyrics.slice(5, 10));
   const taiwaneseSeed = lyricSeed(songDrafts?.taiwanese.lyrics ?? fusionSong.fusion_lyrics.slice(10));
-  const englishMotif = buildMotif(englishSeed, 8, scale, 'rise');
-  const mandarinMotif = buildMotif(mandarinSeed, 16, scale, 'wave');
-  const taiwaneseMotif = buildMotif(taiwaneseSeed, 8, scale, 'fall');
+  const sharedHookSeed = englishSeed + mandarinSeed + taiwaneseSeed;
+  const sharedHook = applySmallVariation(
+    isMinor ? [0, 3, 5, 7, 7, 5, 3, 2] : [0, 4, 5, 7, 7, 5, 4, 2],
+    sharedHookSeed,
+    'plain',
+  );
+  const englishHook = applySmallVariation([7, 10, 12, 10, 7, 5, 3, 2], englishSeed, 'lift');
+  const mandarinVerse = applySmallVariation(
+    isMinor ? [0, 2, 3, 5, 3, 2, 0, 2, 3, 5, 7, 5, 3, 2, 0, -2] : [0, 2, 4, 5, 4, 2, 0, 2, 4, 5, 7, 5, 4, 2, 0, -1],
+    mandarinSeed,
+    'plain',
+  );
+  const taiwaneseBridge = applySmallVariation(
+    isMinor ? [3, 2, 0, -2, -5, -2, 0, 2] : [4, 2, 0, -1, -5, -1, 0, 2],
+    taiwaneseSeed,
+    'ground',
+  );
   const chorusMotif = [
-    ...mandarinMotif.slice(0, 4),
-    ...englishMotif.slice(2, 6),
-    ...taiwaneseMotif.slice(0, 4),
-    ...mandarinMotif.slice(8, 12),
+    ...sharedHook,
+    ...englishHook.slice(0, 4),
+    ...taiwaneseBridge.slice(0, 4),
   ];
+  const liftedChorusMotif = chorusMotif.map((interval, index) => (
+    index % 4 === 3 ? interval + 2 : interval + 1
+  ));
+  const straightEight = [0, 1, 2, 3, 4, 5, 6, 7];
+  const verseRhythm = [0, 1, 2.5, 3.5, 4, 5, 6.5, 7.25, 8, 9, 10.5, 11.5, 12, 13, 14.5, 15.25];
+  const chorusRhythm = [0, 0.75, 1.5, 2.5, 4, 4.75, 5.5, 6.5, 8, 8.75, 9.5, 10.5, 12, 12.75, 13.5, 14.5];
+  const shortDurations = [0.62, 0.62, 0.9, 1.1];
+  const verseDurations = [0.78, 0.72, 0.95, 0.62, 0.78, 0.72, 1.1, 0.55];
 
-  // 0-8 beats：英文意境，空靈、夢境、先給高音記憶點
-  for (let bar = 0; bar < 2; bar += 1) {
-    addChord(buffer, sampleRate, bar * 4 * beat, beat * 3.7, root, scale, progression[bar], 0.05, 'bell');
-  }
-  addMelodyLine(buffer, sampleRate, root, beat, 0, englishMotif, 0.16, 'bell', 1);
+  // 0-8 beats：英文 Hook 先清楚出現，讓整首歌有共同主題，不再亂開場
+  addChordProgression(buffer, sampleRate, root, scale, beat, 0, 2, progression, 0.045, 'bell');
+  addPatternedMelody(buffer, sampleRate, root, beat, 0, englishHook, straightEight, [0.7, 0.7, 0.9, 1.15], 0.13, 'bell', 1);
+  addPatternedMelody(buffer, sampleRate, root, beat, 4, sharedHook, straightEight.slice(0, 4), [0.85, 0.85, 0.95, 1.2], 0.1, 'soft', 0);
 
-  // 8-24 beats：國語主歌，主要敘事旋律，節奏開始穩定
-  for (let bar = 2; bar < 6; bar += 1) {
-    const degree = progression[bar % progression.length];
-    addChord(buffer, sampleRate, bar * 4 * beat, beat * 3.8, root, scale, degree, 0.075, 'pluck');
-    addTone(buffer, sampleRate, bar * 4 * beat, beat * 3.8, frequencyFromInterval(root, scale[degree], -2), 0.08, 'bass');
-  }
-  addMelodyLine(buffer, sampleRate, root, beat, 8, mandarinMotif, 0.18, 'vocal', 0);
-  addDrumGroove(buffer, sampleRate, beat, 8, 16, 0.55);
+  // 8-24 beats：國語主歌，沿用同一組和弦，旋律下降到中音區負責敘事
+  addChordProgression(buffer, sampleRate, root, scale, beat, 2, 4, progression, 0.068, 'pluck');
+  addBassProgression(buffer, sampleRate, root, scale, beat, 2, 4, progression, 0.075);
+  addPatternedMelody(buffer, sampleRate, root, beat, 8, mandarinVerse, verseRhythm, verseDurations, 0.17, 'pluck', 0);
+  addPatternedMelody(buffer, sampleRate, root, beat, 16, sharedHook, straightEight, shortDurations, 0.08, 'bell', 1);
+  addSectionDrums(buffer, sampleRate, beat, 8, 16, 'verse');
 
-  // 24-32 beats：台語橋段，旋律往低處落地，像土地情感回來
-  for (let bar = 6; bar < 8; bar += 1) {
-    const degree = progression[(bar + 1) % progression.length];
-    addChord(buffer, sampleRate, bar * 4 * beat, beat * 3.8, root, scale, degree, 0.09, 'soft');
-    addTone(buffer, sampleRate, bar * 4 * beat, beat * 3.8, frequencyFromInterval(root, scale[degree], -2), 0.12, 'bass');
-  }
-  addMelodyLine(buffer, sampleRate, root, beat, 24, taiwaneseMotif, 0.21, 'vocal', -1);
-  addDrumGroove(buffer, sampleRate, beat, 24, 8, 0.7);
+  // 24-32 beats：台語橋段，鼓減少、Bass 留住心跳，旋律往低處落地
+  addChordProgression(buffer, sampleRate, root, scale, beat, 6, 2, progression.slice(1), 0.078, 'soft');
+  addBassProgression(buffer, sampleRate, root, scale, beat, 6, 2, progression.slice(1), 0.105);
+  addPatternedMelody(buffer, sampleRate, root, beat, 24, taiwaneseBridge, straightEight, [0.85, 0.85, 1.1, 1.2], 0.16, 'soft', -1);
+  addSectionDrums(buffer, sampleRate, beat, 24, 8, 'bridge');
 
-  // 32-56 beats：三合一副歌，三種動機疊在一起，音樂拉高
-  for (let bar = 8; bar < 14; bar += 1) {
-    const degree = progression[bar % progression.length];
-    const start = bar * 4 * beat;
-    addChord(buffer, sampleRate, start, beat * 3.9, root, scale, degree, 0.11, 'soft');
-    addTone(buffer, sampleRate, start, beat * 3.8, frequencyFromInterval(root, scale[degree], -2), 0.15, 'bass');
-  }
-  addMelodyLine(buffer, sampleRate, root, beat, 32, chorusMotif, 0.2, 'vocal', 0);
-  addMelodyLine(buffer, sampleRate, root, beat, 34, englishMotif, 0.08, 'bell', 1);
-  addMelodyLine(buffer, sampleRate, root, beat, 40, taiwaneseMotif, 0.09, 'soft', -1);
-  addMelodyLine(buffer, sampleRate, root, beat, 48, chorusMotif.slice(0, 8), 0.18, 'vocal', 1);
-  addMelodyLine(buffer, sampleRate, root, beat, 48, englishMotif.slice(0, 6), 0.08, 'bell', 2);
-  addDrumGroove(buffer, sampleRate, beat, 32, 24, 1);
-  addGlobalTrendPulse(buffer, sampleRate, beat, 32, 24, 0.75);
+  // 32-64 beats：三合一副歌，先唱共同 Hook，再重複一次；英文高音、台語低音只做回應，不互相打架
+  addChordProgression(buffer, sampleRate, root, scale, beat, 8, 8, progression, 0.095, 'soft');
+  addBassProgression(buffer, sampleRate, root, scale, beat, 8, 8, progression, 0.135);
+  addPatternedMelody(buffer, sampleRate, root, beat, 32, chorusMotif, chorusRhythm, shortDurations, 0.18, 'pluck', 0);
+  addPatternedMelody(buffer, sampleRate, root, beat, 36, englishHook, straightEight, [0.55, 0.55, 0.7, 0.95], 0.055, 'bell', 1);
+  addPatternedMelody(buffer, sampleRate, root, beat, 44, taiwaneseBridge, straightEight, [0.7, 0.7, 0.9, 1.15], 0.075, 'soft', -1);
+  addPatternedMelody(buffer, sampleRate, root, beat, 48, liftedChorusMotif, chorusRhythm, shortDurations, 0.19, 'pluck', 0);
+  addPatternedMelody(buffer, sampleRate, root, beat, 52, englishHook, straightEight, [0.55, 0.55, 0.7, 0.95], 0.065, 'bell', 1);
+  addPatternedMelody(buffer, sampleRate, root, beat, 56, sharedHook, straightEight, [0.65, 0.65, 0.82, 1.05], 0.11, 'soft', 1);
+  addSectionDrums(buffer, sampleRate, beat, 32, 32, 'chorus');
+  addGlobalTrendPulse(buffer, sampleRate, beat, 32, 32, 0.48);
 
-  // 56-64 beats：尾奏，保留台語/國語落點，讓整首歌收束
-  for (let bar = 14; bar < 16; bar += 1) {
-    const degree = progression[bar % progression.length];
-    addChord(buffer, sampleRate, bar * 4 * beat, beat * 3.8, root, scale, degree, 0.08, 'bell');
-  }
-  addMelodyLine(buffer, sampleRate, root, beat, 56, taiwaneseMotif.slice(0, 4), 0.12, 'vocal', -1);
-  addMelodyLine(buffer, sampleRate, root, beat, 60, mandarinMotif.slice(0, 4), 0.1, 'vocal', 0);
+  // 64-80 beats：尾奏，回到共同 Hook 的前半段，最後用台語低音落點收束
+  addChordProgression(buffer, sampleRate, root, scale, beat, 16, 4, progression, 0.065, 'bell');
+  addBassProgression(buffer, sampleRate, root, scale, beat, 16, 2, progression, 0.07);
+  addPatternedMelody(buffer, sampleRate, root, beat, 64, sharedHook, straightEight, [0.75, 0.75, 0.92, 1.2], 0.11, 'soft', 0);
+  addPatternedMelody(buffer, sampleRate, root, beat, 72, taiwaneseBridge.slice(0, 4), [0, 2, 4, 6], [1.2, 1.2, 1.2, 1.65], 0.09, 'soft', -1);
+  addSectionDrums(buffer, sampleRate, beat, 64, 12, 'outro');
 
   let peak = 0.001;
   for (let i = 0; i < buffer.length; i += 1) peak = Math.max(peak, Math.abs(buffer[i]));
@@ -935,13 +1310,13 @@ function IntegratedSongMaker({
               <div className="rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
                 <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">三合一邏輯音樂 Demo</p>
                 <p className="text-xs leading-7 text-[color:var(--text-muted)]">
-                  這版不是亂產音符：它會照「英文空靈前奏 → 國語主歌敘事 → 台語橋段落地 → 三語副歌融合」產出短版 WAV 預覽。
+                  這版禁止聲樂與主唱導唱，只做「純音樂流行編曲 Demo」：用同一個核心 Hook 貫穿全曲，先把英文、國語、台語三合一的編曲骨架整理清楚。
                 </p>
                 <div className="mt-3 grid gap-2 text-xs leading-6 text-[color:var(--text-sub)] sm:grid-cols-2">
-                  <p className="rounded-xl border border-violet-300/15 bg-violet-950/15 px-3 py-2">英文：高音鐘聲與空氣感旋律</p>
-                  <p className="rounded-xl border border-amber-300/15 bg-amber-950/10 px-3 py-2">國語：主歌中音旋律與敘事節奏</p>
-                  <p className="rounded-xl border border-cyan-300/15 bg-cyan-950/10 px-3 py-2">台語：低音橋段與土地感收束</p>
-                  <p className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">三合一：副歌疊合三個動機</p>
+                  <p className="rounded-xl border border-violet-300/15 bg-violet-950/15 px-3 py-2">0–8 拍：英文高音 Hook 建立流行歌記憶點</p>
+                  <p className="rounded-xl border border-amber-300/15 bg-amber-950/10 px-3 py-2">8–24 拍：國語主歌用器樂主旋律說故事</p>
+                  <p className="rounded-xl border border-cyan-300/15 bg-cyan-950/10 px-3 py-2">24–32 拍：台語橋段用低音器樂落地</p>
+                  <p className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">32–64 拍：副歌 Hook 重複兩次，只保留編曲骨架</p>
                 </div>
                 <button
                   type="button"
@@ -956,7 +1331,7 @@ function IntegratedSongMaker({
                       <track kind="captions" />
                     </audio>
                     <p className="text-xs leading-6 text-amber-100/75">
-                      已生成一段依照 {musicParameters.bpm} BPM / {musicParameters.key} 製作的三合一短版音樂預覽，可直接播放。
+                      已生成一段依照 {Math.min(musicParameters.bpm, 138)} BPM / {musicParameters.key} 製作的純音樂編曲草稿；目前禁止聲樂，正式唱歌留到音樂/人聲生成服務處理。
                     </p>
                   </div>
                 )}
@@ -1148,6 +1523,14 @@ export default function PersonalityMusicReport({
             <SongDraftCard draft={songDrafts.taiwanese} accent="cyan" />
           </div>
         </div>
+      )}
+
+      {songDrafts && (
+        <BilingualResonanceEditor
+          songDrafts={songDrafts}
+          personalityMatrix={personalityMatrix}
+          musicParameters={musicParameters}
+        />
       )}
 
       {productionPlan && (
