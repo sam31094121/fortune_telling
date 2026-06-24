@@ -702,6 +702,123 @@ export async function generateSongDrafts(input: MusicReportInput): Promise<Origi
 }
 
 // ────────────────────────────────────────────────────────────
+// AI 製作總監（輕量自動優化層：把三首歌整理成可製作的一首歌）
+// ────────────────────────────────────────────────────────────
+
+export interface AiProductionPlanInput extends MusicReportInput {
+  songDrafts: OriginalSongDraftsOutput;
+  fusionSong: FusionSongOutput;
+}
+
+export interface AiProductionPlanOutput {
+  producer_summary: string;
+  fusion_strategy: string;
+  final_song_brief: string;
+  arrangement_plan: string[];
+  vocal_cast: string[];
+  lead_vocal_choice: string;
+  language_distribution: string;
+  hook_design: string;
+  popular_music_dna: string[];
+  global_trend_blend: string[];
+  trend_arrangement_recipe: string;
+  rhythm_strategy: string;
+  trend_safety_note: string;
+  hit_formula: string;
+  hook_repeat_strategy: string;
+  emotional_arc: string;
+  generation_prompt: string;
+  next_step_note: string;
+}
+
+function pickTopMatrixKeys(matrix: Record<string, number>) {
+  return Object.entries(matrix)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 3)
+    .map(([key]) => key);
+}
+
+function describeVocalBlend(input: AiProductionPlanInput) {
+  const emotion = input.personalityMatrix.emotion ?? 50;
+  const creativity = input.personalityMatrix.creativity ?? 50;
+  const attachment = input.personalityMatrix.attachment ?? 50;
+
+  if (emotion >= 75 || attachment >= 75) return '深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。';
+  if (creativity >= 75) return '帶空氣感與穿透力的創作型主唱，橋段加入低聲呢喃與電子和聲。';
+  return '溫暖穩定的主唱，國語承接敘事，英文做副歌記憶點，台語收尾落地。';
+}
+
+export function generateAiProductionPlan(input: AiProductionPlanInput): AiProductionPlanOutput {
+  const topKeys = pickTopMatrixKeys(input.personalityMatrix);
+  const mood = input.musicParameters.mood.slice(0, 4).join('、') || '溫暖、真摯、有畫面';
+  const instruments = input.musicParameters.instrument.slice(0, 5).join('、') || '鋼琴、鼓、合成器、弦樂、吉他';
+  const themes = input.musicParameters.lyric_theme.slice(0, 4).join('、') || '自我覺醒、命運、希望、連結';
+  const leadVocal = describeVocalBlend(input);
+  const englishTitle = input.songDrafts.english.title;
+  const mandarinTitle = input.songDrafts.mandarin.title;
+  const taiwaneseTitle = input.songDrafts.taiwanese.title;
+  const popularMusicDna = [
+    '8 秒內先出現一個可記住的旋律、音色或短句 Hook，讓聽眾一開始就抓到歌曲身份。',
+    '主歌保留空間與故事感，副歌再把鼓組、和聲與旋律高度一起拉開，形成明顯爆發。',
+    '核心 Hook 重複 2 到 3 次，但每次換一點語言、和聲或樂器，熟悉但不單調。',
+    '歌詞短句優先，避免把太多文字塞進旋律，讓人可以跟著哼、跟著記。',
+    '橋段降低編曲密度，讓台語或低聲線把情緒落地，再回到最後副歌。',
+    '結尾保留一句最核心的國語或台語句子，像標誌一樣留在聽眾腦中。',
+  ];
+  const globalTrendBlend = [
+    'Global Pop：使用乾淨直接的主旋律、短句 Hook、清楚副歌，讓歌曲第一聽就能抓住重點。',
+    'K-Pop / Cross-genre：段落轉換要有驚喜，副歌前可用短暫停頓、上升音效或和聲堆疊製造期待。',
+    'Latin / Reggaeton / Trap Latino：鼓組加入穩定擺動感與切分節奏，讓三語歌詞不只好聽，也有身體律動。',
+    'Electronic / Synth Pop：用合成器、空氣墊、低頻脈衝與簡單音色標誌，讓歌曲有現代串流質感。',
+    'R&B / Emotional Pop：主歌保留人聲呼吸與親密感，副歌再加寬和聲，避免整首都太滿。',
+    'Short-form friendly：保留一段 12-18 秒可剪成短影音的核心副歌片段，但不能犧牲完整歌曲情緒。',
+  ];
+
+  return {
+    producer_summary:
+      `AI 製作總監會把《${englishTitle}》《${mandarinTitle}》《${taiwaneseTitle}》視為同一個靈魂的三個素材層，先保留共同情緒，再重寫成《${input.fusionSong.fusion_title}》這一首可製作的完整歌曲。`,
+    fusion_strategy:
+      `英文負責空間感與記憶句，國語負責主敘事，台語負責土地情感與收束；融合時不三首硬拼，而是以「${themes}」作為共同主軸。`,
+    final_song_brief:
+      `${input.musicParameters.genre} · ${input.musicParameters.bpm} BPM · ${input.musicParameters.key}，情緒走向為${mood}，人格高點集中在 ${topKeys.join(' / ')}。`,
+    arrangement_plan: [
+      `前奏：${instruments.split('、')[0] ?? '鋼琴'}先建立命格氛圍，保留空間，像故事慢慢被打開。`,
+      '主歌：以國語為主，放入少量英文尾句，讓旋律有國際感但不跳脫。',
+      '副歌：使用最容易記住的中英混合 Hook，旋律拉高，鼓組與弦樂一起推進。',
+      '橋段：加入台語句子，讓歌曲突然變得貼近、真實、有土地感。',
+      '尾奏：保留一句台語或國語核心句，搭配和聲漸弱，形成專屬主題曲記憶點。',
+    ],
+    vocal_cast: [
+      `主唱 A：${input.songDrafts.mandarin.vocal_direction}，負責主歌與故事線。`,
+      `主唱 B：${input.songDrafts.english.vocal_direction}，負責英文 Hook 與高音情緒。`,
+      `主唱 C：${input.songDrafts.taiwanese.vocal_direction}，負責橋段與結尾情感落點。`,
+    ],
+    lead_vocal_choice: leadVocal,
+    language_distribution: '國語 55% · English 25% · 台語 20%，讓歌聽起來像一首完整作品，不像三首剪貼。',
+    hook_design:
+      `副歌核心 Hook 以《${input.fusionSong.fusion_title}》為主題，保留一句短英文增加記憶點，再用一句台語作情感收尾。`,
+    popular_music_dna: popularMusicDna,
+    global_trend_blend: globalTrendBlend,
+    trend_arrangement_recipe:
+      '以 Global Pop 的清楚旋律當骨架，加入 K-Pop 式段落反差、Latin/Reggaeton 的律動推進、Electronic 的現代音色，再把國語敘事、English Hook、台語情感落點自然融合。',
+    rhythm_strategy:
+      '主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。',
+    trend_safety_note:
+      '只使用全球流行音樂的通用結構與聽感邏輯，不模仿特定歌手、特定歌曲、特定旋律或受版權保護的編曲細節。',
+    hit_formula:
+      '全球流行前奏 Hook 8 拍 → 國語主歌 16 拍 → K-pop 式短暫拉升 → 三語副歌 24 拍 → 台語橋段 8 拍 → 最終副歌與一句記憶收尾。',
+    hook_repeat_strategy:
+      '核心 Hook 出現三次：第一次用國語建立主題，第二次用 English 回應提高記憶度，第三次用台語收尾讓情緒落地。',
+    emotional_arc:
+      '0-25% 建立神秘與期待，25-50% 說出主角故事，50-75% 副歌爆發與三語融合，75-100% 降低密度後再回到最後副歌收束。',
+    generation_prompt:
+      `Create one original full song, ${input.musicParameters.genre}, ${input.musicParameters.bpm} BPM, ${input.musicParameters.key}. Mood: ${mood}. Instruments: ${instruments}. Vocal: ${leadVocal} Lyrics blend Mandarin, English, and Taiwanese naturally. Main theme: ${themes}. Apply global streaming-friendly arrangement logic: Global Pop clarity, K-Pop contrast, Latin/Reggaeton groove, Electronic/Synth Pop texture, R&B emotional vocal space, and a 12-18 second short-form friendly hook. Also apply broad human-friendly pop songwriting DNA: memorable hook within 8 seconds, spacious verse, clear chorus lift, repeatable motif, dynamic contrast, emotional bridge, and a final signature phrase. The song should feel cinematic, emotional, unique, modern, and singable. Do not copy any existing song, artist, melody, or protected arrangement.`,
+    next_step_note:
+      '下一步才接音樂/人聲生成服務；目前這一層先把製作、編曲、主唱分配與生成提示整理好，避免一次做太重造成當機。',
+  };
+}
+
+// ────────────────────────────────────────────────────────────
 // AI 三語融合原創主題曲（第一階段：文字版 — 歌名 + 三語融合歌詞 + 融合曲風）
 // ────────────────────────────────────────────────────────────
 
@@ -712,6 +829,7 @@ export interface FusionSongInput {
   englishSong: { title: string; artist: string };
   mandarinSong: { title: string; artist: string };
   taiwaneseSong?: { title: string; artist: string };
+  songDrafts?: OriginalSongDraftsOutput;
   genre?: string;
   bpm?: number;
   mood?: string[];
@@ -750,10 +868,13 @@ const FUSION_SONG_SCHEMA = {
 };
 
 function createLocalFusionSong(input: FusionSongInput): FusionSongOutput {
-  const tw = input.taiwaneseSong?.title ?? '';
+  const englishTitle = input.songDrafts?.english.title ?? input.englishSong.title;
+  const mandarinTitle = input.songDrafts?.mandarin.title ?? input.mandarinSong.title;
+  const taiwaneseTitle = input.songDrafts?.taiwanese.title ?? input.taiwaneseSong?.title ?? '';
+
   return {
     fusion_title: '三語共鳴曲',
-    fusion_concept: `融合《${input.englishSong.title}》《${input.mandarinSong.title}》${tw ? `《${tw}》` : ''}的情感頻率，化為一首屬於${input.name}的三語原創歌。`,
+    fusion_concept: `融合《${englishTitle}》《${mandarinTitle}》${taiwaneseTitle ? `《${taiwaneseTitle}》` : ''}的情感頻率，化為一首屬於${input.name}的三語原創歌。`,
     fusion_lyrics: [
       '[主歌]',
       '天地之間 我聽見自己的聲音',
@@ -770,6 +891,25 @@ function buildFusionSongPrompt(input: FusionSongInput): string {
   const tw = input.taiwaneseSong
     ? `台語素材：《${input.taiwaneseSong.title}》— ${input.taiwaneseSong.artist}`
     : '台語素材：（無，可省略台語段落或少量點綴）';
+  const drafts = input.songDrafts
+    ? `
+━━━ 第一階段 AI 已生成的三首原創歌雛形（這才是主要融合素材）━━━
+英文原創：《${input.songDrafts.english.title}》
+概念：${input.songDrafts.english.concept}
+歌詞：
+${input.songDrafts.english.lyrics.join('\n')}
+
+國語原創：《${input.songDrafts.mandarin.title}》
+概念：${input.songDrafts.mandarin.concept}
+歌詞：
+${input.songDrafts.mandarin.lyrics.join('\n')}
+
+台語原創：《${input.songDrafts.taiwanese.title}》
+概念：${input.songDrafts.taiwanese.concept}
+歌詞：
+${input.songDrafts.taiwanese.lyrics.join('\n')}
+`.trim()
+    : '';
 
   return `
 你是一位跨語言創作歌手與編曲人，擅長把不同語言、不同曲風的歌揉合成一首動人的原創歌。
@@ -780,8 +920,11 @@ function buildFusionSongPrompt(input: FusionSongInput): string {
 2. 英文、國語、台語三種語言要自然穿插，不可生硬翻譯堆疊。
 3. 以下三首是「靈感素材」，請吸收其情感與曲風，但要寫成「全新原創」歌詞，不可抄襲原歌詞。
 4. 歌詞要呼應此人的人格特質，溫暖、有畫面、不浮誇。
+5. 優先融合「AI 已生成的三首原創歌雛形」，參考曲只作年代/情緒輔助，不可搶主導。
 
-━━━ 靈感素材（三首主題曲）━━━
+${drafts}
+
+━━━ 參考曲（只作情緒錨點，不可模仿）━━━
 英文素材：《${input.englishSong.title}》— ${input.englishSong.artist}
 國語素材：《${input.mandarinSong.title}》— ${input.mandarinSong.artist}
 ${tw}
@@ -862,5 +1005,3 @@ export async function analyzePreview(input: {
     aiData.ai_preview_summary,
   );
 }
-
-

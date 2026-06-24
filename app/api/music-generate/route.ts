@@ -1,5 +1,5 @@
 ﻿import { NextResponse } from 'next/server';
-import { generateMusicReport, generateFusionSong, generateSongDrafts } from '@/lib/gemini';
+import { generateMusicReport, generateFusionSong, generateSongDrafts, generateAiProductionPlan } from '@/lib/gemini';
 import { PersonalityMatrixEngine } from '@/lib/personality-matrix-engine';
 import { MusicParameterGenerator } from '@/lib/music-parameter-generator';
 import { computeDestinyProfile } from '@/lib/destiny-engine';
@@ -186,22 +186,30 @@ export async function POST(request: Request) {
     selectedSongs: selectedSongsForAi,
   };
 
-  // 報告與「三語融合原創歌」並行生成：不增加等待，且融合歌失敗也不影響三首歌與報告
-  const [musicReport, songDrafts, fusionSong] = await Promise.all([
+  // 先生成報告與三首原創歌雛形；融合歌會以三首雛形作為主要素材，避免直接拼參考曲。
+  const [musicReport, songDrafts] = await Promise.all([
     generateMusicReport(musicAiInput),
     generateSongDrafts(musicAiInput),
-    generateFusionSong({
-      name: trimmedName,
-      era,
-      personalityMatrix: musicAiInput.personalityMatrix,
-      englishSong: selectedSongsForAi.english,
-      mandarinSong: selectedSongsForAi.mandarin,
-      taiwaneseSong: selectedSongsForAi.taiwanese,
-      genre: finalMusicParameters.genre,
-      bpm: finalMusicParameters.bpm,
-      mood: finalMusicParameters.mood,
-    }),
   ]);
+
+  const fusionSong = await generateFusionSong({
+    name: trimmedName,
+    era,
+    personalityMatrix: musicAiInput.personalityMatrix,
+    englishSong: selectedSongsForAi.english,
+    mandarinSong: selectedSongsForAi.mandarin,
+    taiwaneseSong: selectedSongsForAi.taiwanese,
+    songDrafts,
+    genre: finalMusicParameters.genre,
+    bpm: finalMusicParameters.bpm,
+    mood: finalMusicParameters.mood,
+  });
+
+  const productionPlan = generateAiProductionPlan({
+    ...musicAiInput,
+    songDrafts,
+    fusionSong,
+  });
 
     return NextResponse.json({
     personality_matrix: personalityMatrix,
@@ -209,6 +217,7 @@ export async function POST(request: Request) {
     music_report: musicReport,
     song_drafts: songDrafts,
     fusion_song: fusionSong,
+    production_plan: productionPlan,
     english_track: {
       title: englishTrack.title,
       artist: englishTrack.artist,

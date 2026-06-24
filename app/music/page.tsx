@@ -37,6 +37,7 @@ interface MusicGenerateResponse {
     mandarin: SongDraft;
     taiwanese: SongDraft;
   };
+  production_plan?: ProductionPlan;
   fusion_song?: {
     fusion_title: string;
     fusion_concept: string;
@@ -83,6 +84,27 @@ interface SongDraft {
   lyrics: string[];
   style: string;
   vocal_direction: string;
+}
+
+interface ProductionPlan {
+  producer_summary: string;
+  fusion_strategy: string;
+  final_song_brief: string;
+  arrangement_plan: string[];
+  vocal_cast: string[];
+  lead_vocal_choice: string;
+  language_distribution: string;
+  hook_design: string;
+  popular_music_dna?: string[];
+  global_trend_blend?: string[];
+  trend_arrangement_recipe?: string;
+  rhythm_strategy?: string;
+  trend_safety_note?: string;
+  hit_formula?: string;
+  hook_repeat_strategy?: string;
+  emotional_arc?: string;
+  generation_prompt: string;
+  next_step_note: string;
 }
 
 type PageState = 'landing' | 'form' | 'result';
@@ -177,7 +199,7 @@ export default function MusicSystemPage() {
     setSubmittedName(data.name.trim());
 
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 25_000);
+    const timeout = window.setTimeout(() => controller.abort(), 45_000);
 
     try {
       const response = await fetch('/api/music-generate', {
@@ -263,7 +285,7 @@ export default function MusicSystemPage() {
 
               {loading && (
                 <div className="mt-6 rounded-2xl border border-violet-400/15 bg-violet-950/20 p-4 text-center text-sm text-violet-200">
-                  正在生成三首原創歌雛形與人格音樂報告，請稍候…
+                  正在生成三首原創歌、融合主題曲與 AI 製作分配，請稍候…
                 </div>
               )}
 
@@ -324,6 +346,7 @@ export default function MusicSystemPage() {
             mandarinTrack={result.mandarin_track}
             taiwaneseTrack={result.taiwanese_track}
             songDrafts={result.song_drafts}
+            productionPlan={result.production_plan}
             fusionSong={result.fusion_song}
             name={submittedName}
             onReset={handleReset}
