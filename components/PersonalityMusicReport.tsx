@@ -273,266 +273,6 @@ function SongDraftCard({
   );
 }
 
-function getFirstLyricLine(draft: SongDraft) {
-  return draft.lyrics.find((line) => line.trim() && !/^\s*[\[【].+[\]】]\s*$/.test(line))?.trim() ?? draft.concept;
-}
-
-function getBilingualResonanceData(
-  songDrafts: SongDrafts,
-  personalityMatrix: PersonalityMatrix,
-  musicParameters: MusicParameters,
-) {
-  const englishScore = Math.round(clampNumber(
-    personalityMatrix.creativity * 0.38 +
-      personalityMatrix.emotion * 0.28 +
-      personalityMatrix.social * 0.18 +
-      personalityMatrix.risk * 0.16,
-    0,
-    100,
-  ));
-  const mandarinScore = Math.round(clampNumber(
-    personalityMatrix.attachment * 0.32 +
-      personalityMatrix.emotion * 0.28 +
-      personalityMatrix.security * 0.24 +
-      personalityMatrix.logic * 0.16,
-    0,
-    100,
-  ));
-  const combinedScore = Math.round(clampNumber(
-    englishScore * 0.46 +
-      mandarinScore * 0.46 +
-      Math.min(12, Math.abs(englishScore - mandarinScore) * 0.18 + 6),
-    0,
-    100,
-  ));
-  const safeBpm = Math.round(clampNumber(Number.isFinite(musicParameters.bpm) ? musicParameters.bpm : 96, 82, 132));
-  const moodText = musicParameters.mood.slice(0, 3).join('、') || '清楚、溫暖、有記憶點';
-  const englishHook = getFirstLyricLine(songDrafts.english);
-  const mandarinHook = getFirstLyricLine(songDrafts.mandarin);
-  const safeBpmText = `${safeBpm} BPM / ${musicParameters.key}`;
-  const instrumentText = musicParameters.instrument.slice(0, 5).join('、') || '鋼琴、合成器、鼓、弦樂、低頻';
-
-  return {
-    englishScore,
-    mandarinScore,
-    combinedScore,
-    commandText: `英文主題曲 AI 音樂共鳴度 ${englishScore}% + 國語主題曲 AI 音樂共鳴度 ${mandarinScore}% → 雙語剪接共鳴 ${combinedScore}%`,
-    editTimeline: [
-      {
-        time: '0–8 秒',
-        layer: 'English Theme',
-        role: '開場 Hook / 畫面感',
-        instruction: `用《${songDrafts.english.title}》的第一句「${englishHook}」做短句記憶點，音色保持空靈、明亮、簡潔。`,
-      },
-      {
-        time: '8–28 秒',
-        layer: '國語主題曲',
-        role: '主線敘事 / 情緒推進',
-        instruction: `切入《${songDrafts.mandarin.title}》的核心句「${mandarinHook}」，讓國語旋律承接故事與情感。`,
-      },
-      {
-        time: '28–42 秒',
-        layer: 'English + 國語',
-        role: '雙語副歌 / 精準交疊',
-        instruction: '英文只留 Hook，國語保留主句；兩邊不要整段互唱，像影片剪接一樣一刀一刀切乾淨。',
-      },
-      {
-        time: '42–60 秒',
-        layer: '國語收束',
-        role: '記憶點落地',
-        instruction: `回到國語主題，使用 ${safeBpm} BPM / ${musicParameters.key} / ${moodText} 的流行編曲感收尾。`,
-      },
-    ],
-    clipRules: [
-      '這一步只用英文與國語，台語先暫停不放入，避免資訊太多。',
-      '英文像影片開場字幕與主題 Hook，負責第一秒抓住耳朵。',
-      '國語像主角旁白與情緒主線，負責讓人聽懂、聽進去。',
-      '副歌只做短句交疊，不做整段混唱，讓歌曲保持簡潔。',
-      '每一次切換只保留一個主要旋律，避免兩首歌互相搶畫面。',
-    ],
-    projectPlan: [
-      {
-        title: '1. 雙語素材鎖定',
-        detail: `只採用英文《${songDrafts.english.title}》與國語《${songDrafts.mandarin.title}》。英文取 Hook 與空氣感，國語取主歌情緒與主題句。`,
-      },
-      {
-        title: '2. 歌手聲音方向',
-        detail: `AI 歌手不模仿任何真人；聲線設定為「${musicParameters.vocal_style}」，英文段落較空靈，國語段落更貼近、清楚、有故事感。`,
-      },
-      {
-        title: '3. 音樂生成方向',
-        detail: `使用 ${safeBpmText}，曲風以 ${musicParameters.genre} 為主，情緒關鍵字為 ${moodText}，樂器核心是 ${instrumentText}。`,
-      },
-      {
-        title: '4. 自動剪接成品',
-        detail: '輸出一條 60 秒左右的雙語主題曲草案：英文開場、國語推進、雙語副歌、國語落地，像短影片自動剪輯一樣乾淨接軌。',
-      },
-    ],
-    aiGenerationScript: [
-      `Project: bilingual original theme song generated from birthday, blood type, and name.`,
-      `Source A English Theme: "${songDrafts.english.title}" — use only the hook feeling and atmospheric identity.`,
-      `Source B Mandarin Theme: "《${songDrafts.mandarin.title}》" — use the emotional storyline and main lyrical message.`,
-      `Singer: original AI vocalist, ${musicParameters.vocal_style}, intimate, clear diction, warm emotional delivery, not imitating any real artist.`,
-      `Music: ${musicParameters.genre}, ${safeBpmText}, mood ${moodText}, instruments ${instrumentText}.`,
-      `Arrangement: cinematic intro, clean verse, bilingual hook chorus, simple outro; avoid over-layering and keep one main melody at a time.`,
-    ],
-    autoEditScript: [
-      {
-        shot: '開場鏡頭',
-        audio: `英文 Hook：「${englishHook}」`,
-        edit: '畫面慢慢推近，空氣感 Pad + 簡單鋼琴，字幕只放英文短句。',
-      },
-      {
-        shot: '主角敘事',
-        audio: `國語主句：「${mandarinHook}」`,
-        edit: '節奏進來，剪接速度稍微加快，畫面從抽象轉成故事感。',
-      },
-      {
-        shot: '雙語交會',
-        audio: '英文短 Hook 回答國語主句',
-        edit: '用兩次乾淨切點，不做複雜混唱；像影片剪接的 A-roll / B-roll 交替。',
-      },
-      {
-        shot: '情緒收束',
-        audio: `回到國語《${songDrafts.mandarin.title}》核心情緒`,
-        edit: '鼓組降低，保留主旋律與最後一句記憶點，讓成品聽起來完整。',
-      },
-    ],
-  };
-}
-
-function BilingualResonanceEditor({
-  songDrafts,
-  personalityMatrix,
-  musicParameters,
-}: {
-  songDrafts: SongDrafts;
-  personalityMatrix: PersonalityMatrix;
-  musicParameters: MusicParameters;
-}) {
-  const resonance = getBilingualResonanceData(songDrafts, personalityMatrix, musicParameters);
-
-  return (
-    <div className="fortune-card overflow-hidden px-6 py-8 sm:px-8">
-      <div className="mb-6 text-center">
-        <p className="text-xs uppercase tracking-[0.4em] text-fuchsia-300/70">
-          AI 音樂共鳴度 · 雙語剪接版
-        </p>
-        <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-          英文主題曲 + 國語主題曲
-        </h3>
-        <p className="mx-auto mt-3 max-w-3xl text-xs leading-7 text-[color:var(--text-sub)]">
-          這一步只用英文與國語，像剪一支簡潔影片：英文做開場 Hook 與畫面感，國語做主線故事與情緒落地，先把 AI 音樂共鳴度整理清楚。
-        </p>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-[22px] border border-violet-300/20 bg-violet-950/15 p-5">
-          <p className="text-xs uppercase tracking-[0.25em] text-violet-200/70">English Theme</p>
-          <h4 className="mt-3 font-serif text-xl text-[color:var(--text-main)]">《{songDrafts.english.title}》</h4>
-          <p className="mt-3 text-4xl font-semibold text-violet-100">{resonance.englishScore}%</p>
-          <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">AI 音樂共鳴度：負責空氣感、開場記憶點、第一秒吸引力。</p>
-        </div>
-
-        <div className="rounded-[22px] border border-amber-300/20 bg-amber-950/10 p-5">
-          <p className="text-xs uppercase tracking-[0.25em] text-amber-200/70">Mandarin Theme</p>
-          <h4 className="mt-3 font-serif text-xl text-[color:var(--text-main)]">《{songDrafts.mandarin.title}》</h4>
-          <p className="mt-3 text-4xl font-semibold text-amber-100">{resonance.mandarinScore}%</p>
-          <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">AI 音樂共鳴度：負責故事線、情緒主軸、讓使用者聽懂與共感。</p>
-        </div>
-
-        <div className="rounded-[22px] border border-fuchsia-300/20 bg-fuchsia-950/15 p-5">
-          <p className="text-xs uppercase tracking-[0.25em] text-fuchsia-200/70">Bilingual Cut</p>
-          <h4 className="mt-3 font-serif text-xl text-[color:var(--text-main)]">雙語剪接共鳴</h4>
-          <p className="mt-3 text-4xl font-semibold text-fuchsia-100">{resonance.combinedScore}%</p>
-          <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">把兩首歌剪成一條簡潔主題曲企劃，不加入台語、不做過度混雜。</p>
-        </div>
-      </div>
-
-      <div className="mt-4 rounded-[20px] border border-white/10 bg-black/20 p-5">
-        <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">雙語剪接命令</p>
-        <p className="font-mono text-xs leading-7 text-fuchsia-50/85">{resonance.commandText}</p>
-      </div>
-
-      <div className="mt-4 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
-          <p className="mb-3 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">像剪影片一樣的音樂段落</p>
-          <div className="space-y-3">
-            {resonance.editTimeline.map((item) => (
-              <div key={item.time} className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-                <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <span className="rounded-full border border-fuchsia-300/20 bg-fuchsia-950/20 px-3 py-1 text-fuchsia-100">{item.time}</span>
-                  <span className="text-[color:var(--text-main)]">{item.layer}</span>
-                  <span className="text-[color:var(--text-muted)]">/ {item.role}</span>
-                </div>
-                <p className="mt-2 text-xs leading-7 text-[color:var(--text-sub)]">{item.instruction}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
-          <p className="mb-3 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">穩定規則</p>
-          <ul className="space-y-2 text-xs leading-7 text-[color:var(--text-sub)]">
-            {resonance.clipRules.map((rule) => (
-              <li key={rule} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
-                {rule}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      <div className="mt-4 rounded-[22px] border border-emerald-300/15 bg-emerald-950/10 p-5">
-        <div className="mb-4">
-          <p className="text-xs uppercase tracking-[0.3em] text-emerald-200/70">計劃案執行生成</p>
-          <h4 className="mt-2 font-serif text-xl text-[color:var(--text-main)]">
-            英文＋國語融入貫通製作腳本
-          </h4>
-          <p className="mt-2 text-xs leading-7 text-[color:var(--text-muted)]">
-            這份是接軌後面 AI 歌手聲音、音樂生成服務、影片式自動剪接的製作藍圖；目前先穩定產出腳本，不直接送出正式生成。
-          </p>
-        </div>
-
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {resonance.projectPlan.map((item) => (
-            <div key={item.title} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-              <p className="text-xs font-semibold tracking-[0.16em] text-emerald-100">{item.title}</p>
-              <p className="mt-2 text-xs leading-7 text-[color:var(--text-sub)]">{item.detail}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-4 grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="rounded-[22px] border border-violet-300/15 bg-violet-950/15 p-5">
-          <p className="mb-3 text-xs uppercase tracking-[0.25em] text-violet-200/70">AI 音樂 / 歌手生成腳本</p>
-          <div className="space-y-2">
-            {resonance.aiGenerationScript.map((line) => (
-              <p key={line} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 font-mono text-xs leading-6 text-violet-50/85">
-                {line}
-              </p>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-[22px] border border-sky-300/15 bg-sky-950/10 p-5">
-          <p className="mb-3 text-xs uppercase tracking-[0.25em] text-sky-200/70">自動剪接腳本</p>
-          <div className="space-y-3">
-            {resonance.autoEditScript.map((item) => (
-              <div key={item.shot} className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-                <p className="text-xs font-semibold tracking-[0.16em] text-sky-100">{item.shot}</p>
-                <p className="mt-2 text-xs leading-6 text-[color:var(--text-main)]">聲音：{item.audio}</p>
-                <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">剪接：{item.edit}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 const NOTE_FREQUENCIES: Record<string, number> = {
   C: 261.63,
   'C#': 277.18,
@@ -862,15 +602,90 @@ function addGlobalTrendPulse(buffer: Float32Array, sampleRate: number, beat: num
   }
 }
 
+function addDanceDrums(
+  buffer: Float32Array,
+  sampleRate: number,
+  beat: number,
+  startBeat: number,
+  beats: number,
+  intensity: number,
+  mode: 'build' | 'drop' | 'outro',
+) {
+  for (let i = 0; i < beats; i += 1) {
+    const at = (startBeat + i) * beat;
+    const barBeat = i % 4;
+
+    if (mode !== 'outro' || i < beats - 4) {
+      addKick(buffer, sampleRate, at, (mode === 'drop' ? 0.24 : 0.17) * intensity);
+    }
+
+    if (barBeat === 1 || barBeat === 3) {
+      addNoiseHit(buffer, sampleRate, at, 0.1, (mode === 'drop' ? 0.095 : 0.07) * intensity);
+      addNoiseHit(buffer, sampleRate, at + beat * 0.03, 0.08, 0.035 * intensity);
+    }
+
+    addHihat(buffer, sampleRate, at + beat * 0.5, (mode === 'drop' ? 0.062 : 0.045) * intensity);
+
+    if (mode === 'drop') {
+      addHihat(buffer, sampleRate, at + beat * 0.25, 0.028 * intensity);
+      addHihat(buffer, sampleRate, at + beat * 0.75, 0.028 * intensity);
+    }
+  }
+}
+
+function addDanceBassLine(
+  buffer: Float32Array,
+  sampleRate: number,
+  root: number,
+  scale: number[],
+  beat: number,
+  startBeat: number,
+  bars: number,
+  progression: number[],
+  gain: number,
+) {
+  for (let bar = 0; bar < bars; bar += 1) {
+    const degree = progression[bar % progression.length];
+    const bass = frequencyFromInterval(root, scale[degree], -2);
+    const baseBeat = startBeat + bar * 4;
+
+    [0.12, 1.12, 2.12, 3.12].forEach((offset, index) => {
+      addTone(buffer, sampleRate, (baseBeat + offset) * beat, beat * 0.42, bass, gain * (index === 2 ? 0.82 : 1), 'bass');
+    });
+
+    addTone(buffer, sampleRate, (baseBeat + 3.58) * beat, beat * 0.22, bass * 1.5, gain * 0.42, 'bass');
+  }
+}
+
+function addDanceRiser(
+  buffer: Float32Array,
+  sampleRate: number,
+  root: number,
+  beat: number,
+  startBeat: number,
+  beats: number,
+  gain: number,
+) {
+  for (let i = 0; i < beats; i += 1) {
+    const progress = i / Math.max(1, beats - 1);
+    const frequency = frequencyFromInterval(root, 7 + progress * 12, 1);
+    addTone(buffer, sampleRate, (startBeat + i * 0.5) * beat, beat * 0.42, frequency, gain * (0.35 + progress * 0.65), 'bell');
+
+    if (i % 2 === 0) {
+      addNoiseHit(buffer, sampleRate, (startBeat + i) * beat, beat * 0.42, gain * (0.03 + progress * 0.05));
+    }
+  }
+}
+
 function createPlayableSongDemo(
   musicParameters: MusicParameters,
   fusionSong: FusionSong,
   songDrafts?: SongDrafts,
 ) {
   const sampleRate = 22_050;
-  const bpm = clampNumber(Number.isFinite(musicParameters.bpm) ? musicParameters.bpm : 96, 80, 138);
+  const bpm = clampNumber(Math.max(Number.isFinite(musicParameters.bpm) ? musicParameters.bpm : 124, 124), 122, 128);
   const beat = 60 / bpm;
-  const totalBeats = 80;
+  const totalBeats = 96;
   const duration = totalBeats * beat;
   const buffer = new Float32Array(Math.ceil(duration * sampleRate));
   const root = getRootFrequency(musicParameters.key);
@@ -879,8 +694,7 @@ function createPlayableSongDemo(
   const progression = isMinor ? [0, 6, 3, 5] : [0, 5, 3, 4];
   const englishSeed = lyricSeed(songDrafts?.english.lyrics ?? fusionSong.fusion_lyrics.slice(0, 5));
   const mandarinSeed = lyricSeed(songDrafts?.mandarin.lyrics ?? fusionSong.fusion_lyrics.slice(5, 10));
-  const taiwaneseSeed = lyricSeed(songDrafts?.taiwanese.lyrics ?? fusionSong.fusion_lyrics.slice(10));
-  const sharedHookSeed = englishSeed + mandarinSeed + taiwaneseSeed;
+  const sharedHookSeed = englishSeed + mandarinSeed;
   const sharedHook = applySmallVariation(
     isMinor ? [0, 3, 5, 7, 7, 5, 3, 2] : [0, 4, 5, 7, 7, 5, 4, 2],
     sharedHookSeed,
@@ -892,15 +706,15 @@ function createPlayableSongDemo(
     mandarinSeed,
     'plain',
   );
-  const taiwaneseBridge = applySmallVariation(
-    isMinor ? [3, 2, 0, -2, -5, -2, 0, 2] : [4, 2, 0, -1, -5, -1, 0, 2],
-    taiwaneseSeed,
-    'ground',
+  const mandarinPreChorus = applySmallVariation(
+    isMinor ? [2, 3, 5, 7, 5, 3, 2, 0] : [2, 4, 5, 7, 5, 4, 2, 0],
+    mandarinSeed + englishSeed,
+    'lift',
   );
   const chorusMotif = [
     ...sharedHook,
+    ...mandarinPreChorus.slice(0, 4),
     ...englishHook.slice(0, 4),
-    ...taiwaneseBridge.slice(0, 4),
   ];
   const liftedChorusMotif = chorusMotif.map((interval, index) => (
     index % 4 === 3 ? interval + 2 : interval + 1
@@ -911,42 +725,52 @@ function createPlayableSongDemo(
   const shortDurations = [0.62, 0.62, 0.9, 1.1];
   const verseDurations = [0.78, 0.72, 0.95, 0.62, 0.78, 0.72, 1.1, 0.55];
 
-  // 0-8 beats：英文 Hook 先清楚出現，讓整首歌有共同主題，不再亂開場
-  addChordProgression(buffer, sampleRate, root, scale, beat, 0, 2, progression, 0.045, 'bell');
-  addPatternedMelody(buffer, sampleRate, root, beat, 0, englishHook, straightEight, [0.7, 0.7, 0.9, 1.15], 0.13, 'bell', 1);
-  addPatternedMelody(buffer, sampleRate, root, beat, 4, sharedHook, straightEight.slice(0, 4), [0.85, 0.85, 0.95, 1.2], 0.1, 'soft', 0);
+  // 0-8 beats：Cold Hook，英文高音記憶點直接丟出來，像舞曲開場標誌
+  addChordProgression(buffer, sampleRate, root, scale, beat, 0, 2, progression, 0.05, 'bell');
+  addPatternedMelody(buffer, sampleRate, root, beat, 0, englishHook, straightEight, [0.6, 0.6, 0.78, 1.05], 0.14, 'bell', 1);
+  addPatternedMelody(buffer, sampleRate, root, beat, 4, sharedHook, straightEight.slice(0, 4), [0.78, 0.78, 0.92, 1.1], 0.1, 'pluck', 0);
+  addDanceRiser(buffer, sampleRate, root, beat, 4, 6, 0.035);
 
-  // 8-24 beats：國語主歌，沿用同一組和弦，旋律下降到中音區負責敘事
-  addChordProgression(buffer, sampleRate, root, scale, beat, 2, 4, progression, 0.068, 'pluck');
-  addBassProgression(buffer, sampleRate, root, scale, beat, 2, 4, progression, 0.075);
+  // 8-24 beats：國語主歌，四拍 Kick 低強度進場，主旋律保持清楚
+  addChordProgression(buffer, sampleRate, root, scale, beat, 2, 4, progression, 0.062, 'pluck');
+  addDanceBassLine(buffer, sampleRate, root, scale, beat, 8, 4, progression, 0.075);
   addPatternedMelody(buffer, sampleRate, root, beat, 8, mandarinVerse, verseRhythm, verseDurations, 0.17, 'pluck', 0);
   addPatternedMelody(buffer, sampleRate, root, beat, 16, sharedHook, straightEight, shortDurations, 0.08, 'bell', 1);
-  addSectionDrums(buffer, sampleRate, beat, 8, 16, 'verse');
+  addDanceDrums(buffer, sampleRate, beat, 8, 16, 0.58, 'build');
 
-  // 24-32 beats：台語橋段，鼓減少、Bass 留住心跳，旋律往低處落地
-  addChordProgression(buffer, sampleRate, root, scale, beat, 6, 2, progression.slice(1), 0.078, 'soft');
-  addBassProgression(buffer, sampleRate, root, scale, beat, 6, 2, progression.slice(1), 0.105);
-  addPatternedMelody(buffer, sampleRate, root, beat, 24, taiwaneseBridge, straightEight, [0.85, 0.85, 1.1, 1.2], 0.16, 'soft', -1);
-  addSectionDrums(buffer, sampleRate, beat, 24, 8, 'bridge');
+  // 24-32 beats：Pre-drop，低頻短暫收掉，用上升音效把英文 Hook 與國語主旋律接起來
+  addChordProgression(buffer, sampleRate, root, scale, beat, 6, 2, progression.slice(1), 0.06, 'soft');
+  addPatternedMelody(buffer, sampleRate, root, beat, 24, mandarinPreChorus, straightEight, [0.72, 0.72, 0.92, 1.08], 0.14, 'soft', 0);
+  addPatternedMelody(buffer, sampleRate, root, beat, 28, englishHook.slice(0, 4), [0, 1.5, 3, 5], [0.55, 0.62, 0.76, 0.96], 0.06, 'bell', 1);
+  addDanceRiser(buffer, sampleRate, root, beat, 26, 10, 0.05);
+  addNoiseHit(buffer, sampleRate, 31.75 * beat, beat * 0.2, 0.12);
 
-  // 32-64 beats：三合一副歌，先唱共同 Hook，再重複一次；英文高音、台語低音只做回應，不互相打架
-  addChordProgression(buffer, sampleRate, root, scale, beat, 8, 8, progression, 0.095, 'soft');
-  addBassProgression(buffer, sampleRate, root, scale, beat, 8, 8, progression, 0.135);
+  // 32-64 beats：Dance Drop，四拍鼓、彈跳 Bass、雙語 Hook 重複兩輪
+  addChordProgression(buffer, sampleRate, root, scale, beat, 8, 8, progression, 0.09, 'soft');
+  addDanceBassLine(buffer, sampleRate, root, scale, beat, 32, 8, progression, 0.135);
   addPatternedMelody(buffer, sampleRate, root, beat, 32, chorusMotif, chorusRhythm, shortDurations, 0.18, 'pluck', 0);
-  addPatternedMelody(buffer, sampleRate, root, beat, 36, englishHook, straightEight, [0.55, 0.55, 0.7, 0.95], 0.055, 'bell', 1);
-  addPatternedMelody(buffer, sampleRate, root, beat, 44, taiwaneseBridge, straightEight, [0.7, 0.7, 0.9, 1.15], 0.075, 'soft', -1);
-  addPatternedMelody(buffer, sampleRate, root, beat, 48, liftedChorusMotif, chorusRhythm, shortDurations, 0.19, 'pluck', 0);
-  addPatternedMelody(buffer, sampleRate, root, beat, 52, englishHook, straightEight, [0.55, 0.55, 0.7, 0.95], 0.065, 'bell', 1);
-  addPatternedMelody(buffer, sampleRate, root, beat, 56, sharedHook, straightEight, [0.65, 0.65, 0.82, 1.05], 0.11, 'soft', 1);
-  addSectionDrums(buffer, sampleRate, beat, 32, 32, 'chorus');
-  addGlobalTrendPulse(buffer, sampleRate, beat, 32, 32, 0.48);
+  addPatternedMelody(buffer, sampleRate, root, beat, 36, englishHook, straightEight, [0.5, 0.5, 0.66, 0.88], 0.065, 'bell', 1);
+  addPatternedMelody(buffer, sampleRate, root, beat, 44, mandarinVerse.slice(8, 16), straightEight, [0.62, 0.62, 0.82, 1.05], 0.1, 'soft', 0);
+  addPatternedMelody(buffer, sampleRate, root, beat, 48, liftedChorusMotif, chorusRhythm, shortDurations, 0.2, 'pluck', 0);
+  addPatternedMelody(buffer, sampleRate, root, beat, 52, englishHook, straightEight, [0.5, 0.5, 0.66, 0.88], 0.075, 'bell', 1);
+  addPatternedMelody(buffer, sampleRate, root, beat, 56, sharedHook, straightEight, [0.58, 0.58, 0.76, 0.98], 0.12, 'soft', 1);
+  addDanceDrums(buffer, sampleRate, beat, 32, 32, 1, 'drop');
+  addGlobalTrendPulse(buffer, sampleRate, beat, 32, 32, 0.36);
 
-  // 64-80 beats：尾奏，回到共同 Hook 的前半段，最後用台語低音落點收束
-  addChordProgression(buffer, sampleRate, root, scale, beat, 16, 4, progression, 0.065, 'bell');
-  addBassProgression(buffer, sampleRate, root, scale, beat, 16, 2, progression, 0.07);
-  addPatternedMelody(buffer, sampleRate, root, beat, 64, sharedHook, straightEight, [0.75, 0.75, 0.92, 1.2], 0.11, 'soft', 0);
-  addPatternedMelody(buffer, sampleRate, root, beat, 72, taiwaneseBridge.slice(0, 4), [0, 2, 4, 6], [1.2, 1.2, 1.2, 1.65], 0.09, 'soft', -1);
-  addSectionDrums(buffer, sampleRate, beat, 64, 12, 'outro');
+  // 64-80 beats：第二輪洗腦 Hook，保持舞曲推進但減少新元素，讓旋律更容易記住
+  addChordProgression(buffer, sampleRate, root, scale, beat, 16, 4, progression, 0.083, 'pluck');
+  addDanceBassLine(buffer, sampleRate, root, scale, beat, 64, 4, progression, 0.12);
+  addPatternedMelody(buffer, sampleRate, root, beat, 64, sharedHook, straightEight, [0.62, 0.62, 0.82, 1.02], 0.14, 'pluck', 0);
+  addPatternedMelody(buffer, sampleRate, root, beat, 68, englishHook.slice(0, 6), [0, 1, 2, 3, 4, 6], [0.48, 0.48, 0.62, 0.78], 0.07, 'bell', 1);
+  addPatternedMelody(buffer, sampleRate, root, beat, 72, mandarinPreChorus, straightEight, [0.68, 0.68, 0.86, 1.08], 0.105, 'soft', 0);
+  addDanceDrums(buffer, sampleRate, beat, 64, 16, 0.88, 'drop');
+
+  // 80-96 beats：Engineer Stop Cut，逐步收掉，只留下國語主旋律尾巴，方便後續接正式人聲
+  addChordProgression(buffer, sampleRate, root, scale, beat, 20, 4, progression, 0.06, 'bell');
+  addDanceBassLine(buffer, sampleRate, root, scale, beat, 80, 2, progression, 0.075);
+  addPatternedMelody(buffer, sampleRate, root, beat, 80, sharedHook.slice(0, 6), [0, 1, 2, 4, 6, 8], [0.72, 0.72, 0.9, 1.1], 0.1, 'soft', 0);
+  addPatternedMelody(buffer, sampleRate, root, beat, 88, mandarinPreChorus.slice(4, 8), [0, 2, 4, 6], [1.1, 1.1, 1.25, 1.65], 0.095, 'soft', 0);
+  addDanceDrums(buffer, sampleRate, beat, 80, 12, 0.42, 'outro');
 
   let peak = 0.001;
   for (let i = 0; i < buffer.length; i += 1) peak = Math.max(peak, Math.abs(buffer[i]));
@@ -961,7 +785,7 @@ const DEFAULT_POPULAR_MUSIC_DNA = [
   '主歌保留空間，副歌明顯拉高旋律、鼓組與和聲。',
   '核心 Hook 重複 2 到 3 次，每次用語言或和聲做小變化。',
   '歌詞短句優先，讓人容易跟唱與記住。',
-  '橋段降低密度，把台語情緒落地後再回副歌。',
+  '橋段降低密度，讓人層台語核心句完成情緒落點後再回副歌。',
   '結尾保留一句核心句子，形成專屬記憶點。',
 ];
 
@@ -987,28 +811,28 @@ function createRealAiServicePackage(
     ? productionPlan.global_trend_blend
     : DEFAULT_GLOBAL_TREND_BLEND;
   const trendArrangementRecipe = productionPlan.trend_arrangement_recipe ??
-    '以 Global Pop 的清楚旋律當骨架，加入 K-Pop 式段落反差、Latin/Reggaeton 的律動推進、Electronic 的現代音色，再把國語敘事、English Hook、台語情感落點自然融合。';
+    '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層台語故事只負責情感落點；三者進同一個歌曲矩陣。';
   const rhythmStrategy = productionPlan.rhythm_strategy ??
     '主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。';
   const trendSafetyNote = productionPlan.trend_safety_note ??
     '只使用全球流行音樂的通用結構與聽感邏輯，不模仿特定歌手、特定歌曲、特定旋律或受版權保護的編曲細節。';
   const hitFormula = productionPlan.hit_formula ??
-    '空靈前奏 → 國語主歌 → 三語副歌 → 台語橋段 → 最終副歌與一句記憶收尾。';
+    '天層英文音樂前奏 → 地層國語主歌與副歌情緒 → 人層台語核心句落點 → 融合引擎輸出一首歌。';
   const hookRepeatStrategy = productionPlan.hook_repeat_strategy ??
-    '核心 Hook 重複三次：國語建立主題，English 增加記憶點，台語完成情緒落地。';
+    '核心 Hook 重複三次：天層建立旋律記憶，地層推高副歌情緒，人層完成情感落點。';
   const emotionalArc = productionPlan.emotional_arc ??
-    '從神秘期待開始，進入故事敘事，副歌爆發融合三語，最後降低密度並收束。';
+    '先由天層建立音樂靈魂，再由地層建立歌曲身體，最後由人層放入故事落點並收束。';
   const cleanLyrics = fusionSong.fusion_lyrics
     .map((line) => line.trim())
     .filter(Boolean)
     .join('\n');
   const draftSummary = songDrafts
     ? [
-      `English draft: "${songDrafts.english.title}" — ${songDrafts.english.concept}`,
-      `Mandarin draft: "《${songDrafts.mandarin.title}》" — ${songDrafts.mandarin.concept}`,
-      `Taiwanese draft: "《${songDrafts.taiwanese.title}》" — ${songDrafts.taiwanese.concept}`,
+      `Heaven layer: "${songDrafts.english.title}" — ${songDrafts.english.concept}`,
+      `Earth layer: "《${songDrafts.mandarin.title}》" — ${songDrafts.mandarin.concept}`,
+      `Human layer: "《${songDrafts.taiwanese.title}》" — ${songDrafts.taiwanese.concept}`,
     ].join('\n')
-    : 'Use the trilingual fusion lyrics and production plan as source material.';
+    : 'Use the Tiandiren song matrix lyrics and production plan as source material.';
 
   return {
     status: 'ready_for_provider_connection',
@@ -1020,7 +844,7 @@ function createRealAiServicePackage(
       genre: musicParameters.genre,
       target_duration: '90-150 seconds for first render; extend later after the hook is approved',
       output: 'stereo wav or high-quality mp3',
-      vocal_language_mix: productionPlan.language_distribution,
+      tiandiren_weight: productionPlan.language_distribution,
     },
     popular_music_dna: popularMusicDna,
     global_trend_blend: globalTrendBlend,
@@ -1031,28 +855,27 @@ function createRealAiServicePackage(
     hook_repeat_strategy: hookRepeatStrategy,
     emotional_arc: emotionalArc,
     song_structure: [
-      'Intro: English atmosphere / airy motif',
-      'Verse: Mandarin main storytelling vocal',
-      'Pre-Chorus: Mandarin with short English response',
-      'Chorus: trilingual hook, emotional lift',
-      'Bridge: Taiwanese grounding line with warmer vocal texture',
-      'Final Chorus: blend English, Mandarin, Taiwanese naturally',
-      'Outro: keep one Mandarin or Taiwanese emotional phrase',
+      'Heaven intro: English music identity, airy motif, era feeling, space',
+      'Earth verse: Mandarin vocal phrasing, rhythm, drums, harmony, arrangement body',
+      'Earth chorus: chorus emotion and pop hook lift without overriding Heaven style',
+      'Human bridge: Taiwanese core lyric phrase and personal story landing',
+      'Fusion final chorus: one unified Tiandiren personality song',
+      'Outro: keep one personal signature phrase',
     ],
     arrangement_prompt:
       `Arrange a complete original song titled "${fusionSong.fusion_title}". ` +
       `Style: ${musicParameters.genre}, ${musicParameters.bpm} BPM, ${musicParameters.key}. ` +
       `Mood: ${musicParameters.mood.join(', ')}. Instruments: ${musicParameters.instrument.join(', ')}. ` +
-      `The arrangement must clearly fuse three identities: English = airy/dreamlike space, Mandarin = main emotional storytelling, Taiwanese = grounded human warmth. ` +
+      `The arrangement must follow one Tiandiren song matrix: Heaven 35% = English music identity, melody direction, era feeling, BPM, emotional color, and space; Earth 35% = Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Human 30% = Taiwanese lyric feeling, personal story, name temperament, core phrase, memory point, and emotional landing. ` +
       `Global trend blend: ${globalTrendBlend.join(' ')} ` +
       `Trend arrangement recipe: ${trendArrangementRecipe} Rhythm strategy: ${rhythmStrategy} ` +
       `Apply popular music DNA: ${popularMusicDna.join(' ')} ` +
       `Use this hit formula: ${hitFormula} Emotional arc: ${emotionalArc} ` +
-      `Build dynamically from intimate intro to a memorable trilingual chorus. ${trendSafetyNote}`,
+      `Build dynamically from intimate intro to one memorable Tiandiren chorus. ${trendSafetyNote}`,
     vocal_prompt:
       `${productionPlan.lead_vocal_choice} ` +
       `Lead vocal should sound emotional, intimate, natural, and singable. ` +
-      `Mandarin carries the main story, English adds a memorable hook, Taiwanese lands the emotional truth. ` +
+      `Heaven provides the music soul, Earth provides the song body and Mandarin vocal emotion, Human provides the Taiwanese story landing. ` +
       `Hook repeat strategy: ${hookRepeatStrategy} ` +
       `Avoid robotic delivery; use subtle breath, phrasing, and human-like dynamic changes.`,
     lyrics: cleanLyrics,
@@ -1118,21 +941,21 @@ function IntegratedSongMaker({
     ? productionPlan.global_trend_blend
     : DEFAULT_GLOBAL_TREND_BLEND;
   const trendArrangementRecipe = productionPlan.trend_arrangement_recipe ??
-    '以 Global Pop 的清楚旋律當骨架，加入 K-Pop 式段落反差、Latin/Reggaeton 的律動推進、Electronic 的現代音色，再把國語敘事、English Hook、台語情感落點自然融合。';
+    '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層台語故事只負責情感落點；三者進同一個歌曲矩陣。';
   const rhythmStrategy = productionPlan.rhythm_strategy ??
     '主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。';
   const hitFormula = productionPlan.hit_formula ??
-    '空靈前奏 → 國語主歌 → 三語副歌 → 台語橋段 → 最終副歌與一句記憶收尾。';
+    '天層英文音樂前奏 → 地層國語主歌與副歌情緒 → 人層台語核心句落點 → 融合引擎輸出一首歌。';
   const hookRepeatStrategy = productionPlan.hook_repeat_strategy ??
-    '核心 Hook 重複三次：國語建立主題，English 增加記憶點，台語完成情緒落地。';
+    '核心 Hook 重複三次：天層建立旋律記憶，地層推高副歌情緒，人層完成情感落點。';
   const emotionalArc = productionPlan.emotional_arc ??
-    '從神秘期待開始，進入故事敘事，副歌爆發融合三語，最後降低密度並收束。';
+    '先由天層建立音樂靈魂，再由地層建立歌曲身體，最後由人層放入故事落點並收束。';
 
   const readySteps = [
-    '三首原創歌已讀取',
-    '三語融合歌詞已整理',
-    'AI 製作/編曲/主唱分配已完成',
-    '下一階段音樂生成人聲指令已準備',
+    '依照你的資料生成',
+    '英文 Hook 建立記憶點',
+    '國語旋律唱出故事',
+    '點一下聽音樂預覽',
   ];
 
   function handleGeneratePlayableDemo() {
@@ -1221,13 +1044,13 @@ function IntegratedSongMaker({
     <div className="fortune-card overflow-hidden border-amber-300/20 px-6 py-8 sm:px-8">
       <div className="text-center">
         <p className="text-xs uppercase tracking-[0.4em] text-amber-300/70">
-          One Button Song Maker
+          Your Personal Theme Song
         </p>
         <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-          三合一會唱主題曲功能
+          你的專屬人格主題曲預覽
         </h3>
         <p className="mx-auto mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
-          這個按鈕會把英文、國語、台語三首原創歌，連同 AI 製作總監的編曲與主唱分配，整合成一份「可送去音樂/人聲生成」的完整歌曲製作包。
+          這首歌由你的生日、血型與姓名生成，融合英文 Hook 的記憶點與國語旋律的情緒故事。點一下，先聽見屬於你的音樂草稿。
         </p>
       </div>
 
@@ -1247,7 +1070,7 @@ function IntegratedSongMaker({
         onClick={onStart}
         className="vip-gold-btn mt-6 w-full py-4 text-sm sm:text-base"
       >
-        {started ? '三合一會唱主題曲製作包已啟動' : '啟動三合一會唱主題曲功能'}
+        {started ? '音樂預覽已開啟' : '產生我的音樂預覽'}
       </button>
 
       {started && (
@@ -1258,6 +1081,35 @@ function IntegratedSongMaker({
             <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">{fusionSong.fusion_concept}</p>
           </div>
 
+          <div className="rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
+            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">專屬音樂預覽</p>
+            <p className="text-sm leading-8 text-[color:var(--text-sub)]">
+              戴上耳機，聽見根據你資料生成的英文＋國語主題旋律。這是免費預覽版，正式歌曲與人聲可於下一階段升級。
+            </p>
+            <button
+              type="button"
+              onClick={handleGeneratePlayableDemo}
+              className="vip-gold-btn mt-4 w-full px-4 py-3 text-sm"
+            >
+              {audioReady ? '重新產生音樂預覽' : '產生音樂預覽'}
+            </button>
+            {audioUrl && (
+              <div className="mt-4 space-y-3">
+                <audio controls src={audioUrl} className="w-full">
+                  <track kind="captions" />
+                </audio>
+                <p className="text-xs leading-6 text-amber-100/75">
+                  這是一段根據你的資料生成的專屬音樂草稿；正式歌曲與人聲版本可於下一階段升級。
+                </p>
+              </div>
+            )}
+          </div>
+
+          <details className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
+            <summary className="cursor-pointer text-xs font-semibold tracking-[0.22em] text-[color:var(--text-muted)] transition hover:text-white">
+              進階製作資料（工程師模式）
+            </summary>
+            <div className="mt-4">
           <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
             <div className="rounded-[22px] border border-white/10 bg-white/5 p-5">
               <p className="mb-3 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">會唱歌詞包</p>
@@ -1298,7 +1150,7 @@ function IntegratedSongMaker({
               </div>
 
               <div className="rounded-[22px] border border-fuchsia-300/15 bg-fuchsia-950/10 p-5">
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-fuchsia-200/70">全球趨勢三合一編曲</p>
+              <p className="mb-2 text-xs uppercase tracking-[0.25em] text-fuchsia-200/70">全球趨勢天地人編曲</p>
                 <div className="space-y-2 text-xs leading-6 text-[color:var(--text-sub)]">
                   {globalTrendBlend.slice(0, 4).map((item) => (
                     <p key={item} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">{item}</p>
@@ -1308,22 +1160,24 @@ function IntegratedSongMaker({
               </div>
 
               <div className="rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">三合一邏輯音樂 Demo</p>
+                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">英文＋國語工程級舞曲 WAV 預覽</p>
                 <p className="text-xs leading-7 text-[color:var(--text-muted)]">
-                  這版禁止聲樂與主唱導唱，只做「純音樂流行編曲 Demo」：用同一個核心 Hook 貫穿全曲，先把英文、國語、台語三合一的編曲骨架整理清楚。
+                  這版禁止聲樂與主唱導唱，只做「工程師專用純音樂舞曲 Demo」：台語先不進 WAV 主線，先把英文 Hook、國語主旋律、四拍 Kick、Pre-drop 與 Dance Drop 做成可直接開工的全球舞曲骨架。
                 </p>
                 <div className="mt-3 grid gap-2 text-xs leading-6 text-[color:var(--text-sub)] sm:grid-cols-2">
-                  <p className="rounded-xl border border-violet-300/15 bg-violet-950/15 px-3 py-2">0–8 拍：英文高音 Hook 建立流行歌記憶點</p>
-                  <p className="rounded-xl border border-amber-300/15 bg-amber-950/10 px-3 py-2">8–24 拍：國語主歌用器樂主旋律說故事</p>
-                  <p className="rounded-xl border border-cyan-300/15 bg-cyan-950/10 px-3 py-2">24–32 拍：台語橋段用低音器樂落地</p>
-                  <p className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">32–64 拍：副歌 Hook 重複兩次，只保留編曲骨架</p>
+                  <p className="rounded-xl border border-violet-300/15 bg-violet-950/15 px-3 py-2">0–8 拍：Cold Hook，英文高音記憶點直接開場</p>
+                  <p className="rounded-xl border border-amber-300/15 bg-amber-950/10 px-3 py-2">8–24 拍：國語主旋律＋低強度四拍 Kick 進場</p>
+                  <p className="rounded-xl border border-cyan-300/15 bg-cyan-950/10 px-3 py-2">24–32 拍：Pre-drop 收低頻，上升音效銜接雙語 Hook</p>
+                  <p className="rounded-xl border border-orange-300/15 bg-orange-950/10 px-3 py-2">32–64 拍：Dance Drop，彈跳 Bass＋雙語副歌重複兩輪</p>
+                  <p className="rounded-xl border border-fuchsia-300/15 bg-fuchsia-950/10 px-3 py-2">64–80 拍：第二輪洗腦 Hook，保留舞曲推進</p>
+                  <p className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">80–96 拍：Engineer Stop Cut，方便後續接正式人聲</p>
                 </div>
                 <button
                   type="button"
                   onClick={handleGeneratePlayableDemo}
                   className="vip-gold-btn mt-4 w-full px-4 py-3 text-xs"
                 >
-                  {audioReady ? '重新生成三合一 WAV 預覽' : '產生三合一 WAV 預覽音檔'}
+                  {audioReady ? '重新生成工程級舞曲 WAV 預覽' : '產生工程級舞曲 WAV 預覽音檔'}
                 </button>
                 {audioUrl && (
                   <div className="mt-4 space-y-3">
@@ -1331,7 +1185,7 @@ function IntegratedSongMaker({
                       <track kind="captions" />
                     </audio>
                     <p className="text-xs leading-6 text-amber-100/75">
-                      已生成一段依照 {Math.min(musicParameters.bpm, 138)} BPM / {musicParameters.key} 製作的純音樂編曲草稿；目前禁止聲樂，正式唱歌留到音樂/人聲生成服務處理。
+                      已生成一段依照 {Math.round(clampNumber(Math.max(musicParameters.bpm, 124), 122, 128))} BPM / {musicParameters.key} 製作的英文＋國語工程級舞曲編曲草稿；目前禁止聲樂，正式唱歌留到音樂/人聲生成服務處理。
                     </p>
                   </div>
                 )}
@@ -1345,7 +1199,7 @@ function IntegratedSongMaker({
               <div className="rounded-[22px] border border-emerald-300/15 bg-emerald-950/10 p-5">
                 <p className="mb-2 text-xs uppercase tracking-[0.25em] text-emerald-200/70">真正 AI 編曲 / 人聲服務</p>
                 <p className="text-xs leading-7 text-[color:var(--text-muted)]">
-                  這裡先產生「服務請求包」：包含編曲 prompt、人聲 prompt、歌詞、BPM、Key、語言比例與禁止模仿規則。等你決定服務商與 API key，再把這包資料送出去產正式音檔。
+                  這裡先產生「服務請求包」：包含編曲 prompt、人聲 prompt、歌詞、BPM、Key、天地人權重與禁止模仿規則。等你決定服務商與 API key，再把這包資料送出去產正式音檔。
                 </p>
                 <div className="mt-3 rounded-xl border border-emerald-300/10 bg-black/20 px-3 py-2 text-xs leading-6 text-emerald-100/80">
                   狀態：等待外部音樂/人聲生成服務串接，不會在未設定 API 前亂送出。
@@ -1438,9 +1292,11 @@ function IntegratedSongMaker({
               </pre>
             </div>
           )}
+            </div>
+          </details>
 
           <p className="text-center text-xs leading-6 text-[color:var(--text-muted)]">
-            目前是穩定版入口：先整合成完整歌曲製作包與服務請求包。下一步再填入真正的音樂/人聲生成 API，讓它輸出正式可播放音檔。
+            免費預覽版已完成；如果想升級正式歌曲與人聲版本，可以進入下一階段製作。
           </p>
         </div>
       )}
@@ -1465,6 +1321,7 @@ export default function PersonalityMusicReport({
   // 同一時間只允許一首歌在播，避免多個播放器同時出聲互相衝突
   const [openPlayer, setOpenPlayer] = useState<'english' | 'mandarin' | 'taiwanese' | null>(null);
   const [songMakerStarted, setSongMakerStarted] = useState(false);
+  const [showAdvancedDetails, setShowAdvancedDetails] = useState(false);
 
   const genreName = GENRE_NAMES[musicParameters.genre] || musicParameters.genre;
   const genreEmoji = GENRE_EMOJI[musicParameters.genre] || '🎼';
@@ -1503,17 +1360,30 @@ export default function PersonalityMusicReport({
         </div>
       </div>
 
-      {songDrafts && (
+      <div className="fortune-card px-6 py-5 text-center sm:px-8">
+        <p className="text-sm leading-8 text-[color:var(--text-sub)]">
+          這是給客戶看的簡潔預覽版；系統已把製作細節收起來，只保留最重要的主題曲與音樂預覽。
+        </p>
+        <button
+          type="button"
+          onClick={() => setShowAdvancedDetails((value) => !value)}
+          className="mt-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 text-xs font-semibold tracking-[0.2em] text-[color:var(--text-muted)] transition hover:border-white/20 hover:text-white"
+        >
+          {showAdvancedDetails ? '隱藏進階製作資料' : '顯示進階製作資料'}
+        </button>
+      </div>
+
+      {showAdvancedDetails && songDrafts && (
         <div className="fortune-card px-6 py-8 sm:px-8">
           <div className="mb-6 text-center">
             <p className="text-xs uppercase tracking-[0.4em] text-cyan-300/70">
-              AI 原創歌資料 · 第一階段
+              天地人歌曲矩陣 · 第一階段
             </p>
             <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-              由生日、血型、姓名生成三首歌
+              由生日、血型、姓名生成三個素材層
             </h3>
             <p className="mx-auto mt-3 max-w-2xl text-xs leading-7 text-[color:var(--text-sub)]">
-              這裡先不產生音檔，只建立英文、國語、台語三首原創歌的歌名、歌詞、曲風與主唱方向；下一階段再把三首融合成可播放的人聲歌曲。
+              這裡先不產生音檔，也不是生成三首歌；系統只建立天層、地層、人層三個素材層，最後由歌曲融合引擎輸出一首專屬天地人人格歌曲。
             </p>
           </div>
 
@@ -1525,22 +1395,14 @@ export default function PersonalityMusicReport({
         </div>
       )}
 
-      {songDrafts && (
-        <BilingualResonanceEditor
-          songDrafts={songDrafts}
-          personalityMatrix={personalityMatrix}
-          musicParameters={musicParameters}
-        />
-      )}
-
-      {productionPlan && (
+      {showAdvancedDetails && productionPlan && (
         <div className="vip-gold-card rounded-[24px] px-6 py-8 sm:px-8">
           <div className="mb-6 text-center">
             <p className="text-xs uppercase tracking-[0.4em] text-amber-300/70">
               AI 製作總監 · 自動優化分配
             </p>
             <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-              把三首歌製作成一首會唱的主題曲
+              把天地人素材層製作成一首人格主題曲
             </h3>
             <p className="mx-auto mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
               {productionPlan.producer_summary}
@@ -1580,7 +1442,7 @@ export default function PersonalityMusicReport({
 
             <div className="space-y-4">
               <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">語言比例</p>
+                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">天地人權重</p>
                 <p className="text-sm leading-7 text-[color:var(--text-main)]">{productionPlan.language_distribution}</p>
               </div>
               <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
@@ -1606,13 +1468,13 @@ export default function PersonalityMusicReport({
               <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
                 <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">Hit Formula</p>
                 <p className="text-sm leading-7 text-[color:var(--text-main)]">
-                  {productionPlan.hit_formula ?? '空靈前奏 → 國語主歌 → 三語副歌 → 台語橋段 → 最終副歌與一句記憶收尾。'}
+                  {productionPlan.hit_formula ?? '天層英文音樂前奏 → 地層國語主歌與副歌情緒 → 人層台語核心句落點 → 融合引擎輸出一首歌。'}
                 </p>
               </div>
               <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
                 <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">情緒曲線 / Hook 重複</p>
                 <p className="text-sm leading-7 text-[color:var(--text-main)]">
-                  {productionPlan.emotional_arc ?? '從神秘期待開始，進入故事敘事，副歌爆發融合三語，最後降低密度並收束。'}
+                  {productionPlan.emotional_arc ?? '先由天層建立音樂靈魂，再由地層建立歌曲身體，最後由人層放入故事落點並收束。'}
                 </p>
                 <p className="mt-3 text-xs leading-7 text-[color:var(--text-muted)]">
                   {productionPlan.hook_repeat_strategy ?? '核心 Hook 重複三次：國語建立主題，English 增加記憶點，台語完成情緒落地。'}
@@ -1622,7 +1484,7 @@ export default function PersonalityMusicReport({
           </div>
 
           <div className="mt-4 rounded-[20px] border border-fuchsia-300/15 bg-fuchsia-950/10 p-5">
-            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-fuchsia-200/70">全球趨勢三合一編曲</p>
+            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-fuchsia-200/70">全球趨勢天地人編曲</p>
             <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
               {(productionPlan.global_trend_blend?.length ? productionPlan.global_trend_blend : DEFAULT_GLOBAL_TREND_BLEND).map((item) => (
                 <p key={item} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs leading-6 text-[color:var(--text-sub)]">
@@ -1632,7 +1494,7 @@ export default function PersonalityMusicReport({
             </div>
             <div className="mt-4 grid gap-3 lg:grid-cols-2">
               <p className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-xs leading-7 text-fuchsia-50/80">
-                {productionPlan.trend_arrangement_recipe ?? '以 Global Pop 的清楚旋律當骨架，加入 K-Pop 式段落反差、Latin/Reggaeton 的律動推進、Electronic 的現代音色，再把國語敘事、English Hook、台語情感落點自然融合。'}
+                {productionPlan.trend_arrangement_recipe ?? '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層台語故事只負責情感落點；三者進同一個歌曲矩陣。'}
               </p>
               <p className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-xs leading-7 text-fuchsia-50/80">
                 {productionPlan.rhythm_strategy ?? '主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。'}
@@ -1663,15 +1525,17 @@ export default function PersonalityMusicReport({
         onStart={() => setSongMakerStarted(true)}
       />
 
+      {showAdvancedDetails && (
+        <>
       <div className="space-y-4">
         <p className="text-center text-xs uppercase tracking-[0.4em] text-violet-300/70">
-          AI 大數據 · 參考播放測試（英文 · 國語 · 台語）
+          AI 大數據 · 參考錨點播放測試（天 · 地 · 人）
         </p>
         <p className="text-center text-xs text-[color:var(--text-muted)]">
           這裡是目前可播放的參考聲音層；一次只播一首，開啟另一首會自動停止目前這首
         </p>
         <MusicPlayer
-          label="英文主題曲"
+          label="天層英文音樂錨點"
           flag="🌍"
           track={englishTrack}
           reason={musicReport.english_song_reason}
@@ -1681,7 +1545,7 @@ export default function PersonalityMusicReport({
         />
         {mandarinTrack && (
           <MusicPlayer
-            label={`國語主題曲 · ${meta.eraDisplayName ?? meta.era}`}
+            label={`地層國語情緒錨點 · ${meta.eraDisplayName ?? meta.era}`}
             flag="🀄"
             track={mandarinTrack}
             reason={musicReport.mandarin_song_reason}
@@ -1692,7 +1556,7 @@ export default function PersonalityMusicReport({
         )}
         {taiwaneseTrack && (
           <MusicPlayer
-            label={`台語主題曲 · ${meta.eraDisplayName ?? meta.era}`}
+            label={`人層台語故事錨點 · ${meta.eraDisplayName ?? meta.era}`}
             flag="🌾"
             track={taiwaneseTrack}
             reason={musicReport.taiwanese_song_reason}
@@ -1707,7 +1571,7 @@ export default function PersonalityMusicReport({
         <div className="vip-gold-card rounded-[24px] px-6 py-8 sm:px-8">
           <div className="mb-5 text-center">
             <p className="text-xs uppercase tracking-[0.4em] text-amber-300/70">
-              ✦ AI 三語融合原創主題曲 ✦
+              ✦ AI 天地人人格原創主題曲 ✦
             </p>
             <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
               《{fusionSong.fusion_title}》
@@ -1718,7 +1582,7 @@ export default function PersonalityMusicReport({
           </div>
 
           <div className="rounded-[18px] border border-amber-300/15 bg-black/20 px-5 py-5">
-            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-amber-300/60">融合歌詞</p>
+            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-amber-300/60">天地人融合歌詞</p>
             <div className="space-y-1.5 font-serif text-sm leading-8 text-[color:var(--text-main)]">
               {fusionSong.fusion_lyrics.map((line, i) => {
                 const isSection = /^\s*[\[【].+[\]】]\s*$/.test(line);
@@ -1734,7 +1598,7 @@ export default function PersonalityMusicReport({
           </div>
 
           <div className="mt-4 rounded-[18px] border border-white/10 bg-white/5 px-5 py-4">
-            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">融合曲風設定</p>
+            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">天地人曲風設定</p>
             <p className="text-sm leading-7 text-[color:var(--text-sub)]">{fusionSong.fusion_style}</p>
           </div>
 
@@ -1834,6 +1698,8 @@ export default function PersonalityMusicReport({
           </div>
         </div>
       </div>
+        </>
+      )}
 
       <div className="sky-card fortune-card px-6 py-7 sm:px-8">
         <p className="mb-4 text-xs uppercase tracking-[0.4em] text-violet-300/70">這首歌想對你說</p>
@@ -1847,7 +1713,7 @@ export default function PersonalityMusicReport({
             {musicReport.wisdom_note}
           </p>
           <p className="mx-auto mt-4 max-w-2xl text-xs leading-7 text-[color:var(--text-sub)]">
-            {name} 的最終三合一結果已完成。系統會保留天地骨架，再以名字做最後校正；方向可以被看見，但真正讓命運變順的，仍然是以善為本、持續行善。
+            {name} 的人格主題曲預覽已完成。這段旋律是一個方向與提醒；真正讓生活變順的，仍然是以善為本、持續行動。
           </p>
         </div>
 

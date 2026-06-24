@@ -285,7 +285,7 @@ export default function MusicSystemPage() {
 
               {loading && (
                 <div className="mt-6 rounded-2xl border border-violet-400/15 bg-violet-950/20 p-4 text-center text-sm text-violet-200">
-                  正在生成三首原創歌、融合主題曲與 AI 製作分配，請稍候…
+                  正在生成天地人素材層、人格主題曲與 AI 製作分配，請稍候…
                 </div>
               )}
 

@@ -399,15 +399,15 @@ const MUSIC_REPORT_SCHEMA = {
     },
     english_song_reason: {
       type: Type.STRING,
-      description: '說明為何這首「英文主題曲」對應此人的人格與命格，具體呼應其特質，70字內，繁體中文。',
+      description: '說明為何這首英文參考音樂適合作為天層音樂格局錨點，70字內，繁體中文。',
     },
     mandarin_song_reason: {
       type: Type.STRING,
-      description: '說明為何這首「國語主題曲」對應此人的人格與成長年代，具體有感，70字內，繁體中文。',
+      description: '說明為何這首國語參考音樂適合作為地層情緒與唱腔錨點，70字內，繁體中文。',
     },
     taiwanese_song_reason: {
       type: Type.STRING,
-      description: '說明為何這首「台語主題曲」對應此人的人格與土地情感，真摯草根，70字內，繁體中文。',
+      description: '說明為何這首台語參考音樂適合作為人層故事與情感錨點，70字內，繁體中文。',
     },
   },
   required: [
@@ -471,11 +471,11 @@ BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
 樂器：${input.musicParameters.instrument.join(', ')}
 歌詞主題：${input.musicParameters.lyric_theme.join(', ')}
 
-━━━ 大數據選歌引擎已挑出的三首主題曲 ━━━
-英文主題曲：《${input.selectedSongs?.english.title ?? '—'}》— ${input.selectedSongs?.english.artist ?? '—'}
-國語主題曲：《${input.selectedSongs?.mandarin.title ?? '—'}》— ${input.selectedSongs?.mandarin.artist ?? '—'}
-台語主題曲：《${input.selectedSongs?.taiwanese?.title ?? '—'}》— ${input.selectedSongs?.taiwanese?.artist ?? '—'}
-（這三首是系統依此人生日、血型、性別融合出的人格特質精準匹配，請勿更換歌曲，只需說明為何契合。）
+━━━ 大數據選歌引擎已挑出的三個參考錨點 ━━━
+天層英文音樂錨點：《${input.selectedSongs?.english.title ?? '—'}》— ${input.selectedSongs?.english.artist ?? '—'}
+地層國語情緒錨點：《${input.selectedSongs?.mandarin.title ?? '—'}》— ${input.selectedSongs?.mandarin.artist ?? '—'}
+人層台語故事錨點：《${input.selectedSongs?.taiwanese?.title ?? '—'}》— ${input.selectedSongs?.taiwanese?.artist ?? '—'}
+（這三個只是資料庫參考錨點，不是要生成三首歌；請勿更換歌曲，只需說明為何契合各素材層。）
 
 請輸出 JSON，欄位為：
 - music_narrative：融合命理與心理學的人格音樂靈魂敘述，200字內
@@ -483,9 +483,9 @@ BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
 - lyric_opening：開場歌詞兩句，要有五行/命理意象，繁中
 - music_message：這首歌想對使用者說的話，溫暖且有深度，100字內
 - wisdom_note：以善念、因果、命運為核心的結語，80字內
-- english_song_reason：為何上方那首英文主題曲對應此人(具體呼應其人格特質)，70字內
-- mandarin_song_reason：為何上方那首國語主題曲對應此人(呼應人格與成長年代)，70字內
-- taiwanese_song_reason：為何上方那首台語主題曲對應此人(呼應人格與土地情感，真摯草根)，70字內
+- english_song_reason：為何上方英文錨點適合作為天層音樂格局，70字內
+- mandarin_song_reason：為何上方國語錨點適合作為地層情緒與唱腔，70字內
+- taiwanese_song_reason：為何上方台語錨點適合作為人層故事與情感，70字內
 `.trim();
 }
 
@@ -508,8 +508,20 @@ export async function generateMusicReport(input: MusicReportInput): Promise<Musi
 }
 
 // ────────────────────────────────────────────────────────────
-// AI 三首原創歌曲雛形（第一階段：英文 / 國語 / 台語文字資料）
+// 天地人歌曲矩陣（第一階段：天 / 地 / 人素材層）
 // ────────────────────────────────────────────────────────────
+
+const TIANDIREN_SONG_MATRIX_RULES = `
+天地人歌曲矩陣鐵律：
+- 最終只能生成一首「天地人人格歌曲」，不是英文歌 + 國語歌 + 台語歌硬湊。
+- 天 35%（出生日期）：只決定英文音樂感、主旋律方向、年代感、BPM、情緒色彩、空間感；天不能寫歌詞。
+- 地 35%（血型）：只決定國語流行唱腔、節奏、鼓點、和聲、編曲厚度、副歌情緒；地不能推翻天的曲風。
+- 人 30%（姓名 + 性別 + 名字性格男/女/中性）：只決定台語歌詞語感、姓名氣質、個人故事、歌詞核心句、記憶點、情感落點；人不能亂改編曲。
+- 天只決定音樂靈魂，地只決定音樂身體，人只決定音樂故事。
+- 三者不能互相推翻，所有結果都必須進入同一個歌曲矩陣。
+- AI 不能各自生成三套最終歌曲；english / mandarin / taiwanese 欄位只是素材層，不是三首正式歌。
+- 若規則衝突，停止擴寫，以歌曲矩陣為唯一輸出。
+`.trim();
 
 export interface OriginalSongDraft {
   language_label: string;
@@ -531,28 +543,28 @@ const SONG_DRAFT_SCHEMA_ITEM = {
   properties: {
     language_label: {
       type: Type.STRING,
-      description: '歌曲語言標籤，例如 English、國語、台語。',
+      description: '素材層標籤，例如 天層 English 音樂藍圖、地層國語唱腔、人格台語故事。',
     },
     title: {
       type: Type.STRING,
-      description: '原創歌名。英文歌用英文歌名；國語與台語歌用繁體中文歌名。',
+      description: '素材層標題。這不是正式三首歌，而是同一首歌的素材名稱。',
     },
     concept: {
       type: Type.STRING,
-      description: '這首歌從生日、血型、姓名萃取出的核心概念，繁體中文，60 字內。',
+      description: '此素材層在天地人歌曲矩陣中的分工，繁體中文，60 字內。',
     },
     lyrics: {
       type: Type.ARRAY,
       items: { type: Type.STRING },
-      description: '原創歌詞，每個元素一行，6-10 行。英文歌用英文；國語歌用繁中；台語歌用台語漢字。',
+      description: '素材文字，每個元素一行，6-10 行。天層不可寫完整歌詞，只能給旋律/音色/Hook 音節；地層給國語唱腔與情緒句；人層給台語歌詞核心句。',
     },
     style: {
       type: Type.STRING,
-      description: '曲風、BPM、樂器與情緒設定，繁體中文，80 字內。',
+      description: '此素材層允許負責的曲風、BPM、樂器或情緒設定，繁體中文，80 字內。',
     },
     vocal_direction: {
       type: Type.STRING,
-      description: '主唱聲線方向，繁體中文，40 字內。',
+      description: '此素材層允許負責的人聲/唱腔方向，繁體中文，40 字內。',
     },
   },
   required: ['language_label', 'title', 'concept', 'lyrics', 'style', 'vocal_direction'],
@@ -575,53 +587,50 @@ function createLocalSongDrafts(input: MusicReportInput): OriginalSongDraftsOutpu
 
   return {
     english: {
-      language_label: 'English',
-      title: 'Light Beneath My Name',
-      concept: `以${input.name}的生日節奏、${input.bloodType}型表達與姓名記憶點，寫成向內尋光的英文歌。`,
+      language_label: '天層 English 音樂藍圖',
+      title: 'Heaven Motif',
+      concept: `天層由生日決定英文音樂格局、年代感、主旋律方向與空間感，不寫完整歌詞。`,
       lyrics: [
-        '[Verse]',
-        'I was born where the quiet stars breathe',
-        'Carrying a fire no one else can see',
-        '[Pre-Chorus]',
-        'Every scar becomes a silver line',
-        '[Chorus]',
-        'I hear my name turning into light',
-        'One true song in the middle of the night',
+        '[天層動機]',
+        'Airy opening motif',
+        'Wide sky synth pad',
+        'Short English hook syllable: Light',
+        'Rising melody contour',
+        'Distant echo texture',
+        'No full lyric writing',
       ],
       style: baseStyle,
-      vocal_direction: '乾淨溫暖、有穿透力的英文主唱。',
+      vocal_direction: '只提供英文音樂感與空氣 Hook，不擔任完整主唱。',
     },
     mandarin: {
-      language_label: '國語',
-      title: '名字裡的光',
-      concept: `把${input.name}的命格底色化成一首國語歌，主題圍繞${themes}。`,
+      language_label: '地層國語唱腔',
+      title: '地層情緒線',
+      concept: `地層由${input.bloodType}型決定國語流行唱腔、節奏身體、鼓點、和聲與副歌情緒。`,
       lyrics: [
-        '[主歌]',
-        '我把生日藏進風裡 慢慢聽見自己',
-        '血液裡有一種節奏 陪我走過陰晴',
-        '[副歌]',
-        '名字裡的光 照亮沒說出口的願望',
-        '我不再怕遠方 因為心會替我導航',
-        '命運不是牆 是我學會溫柔的方向',
+        '[地層唱腔]',
+        '主歌保留呼吸，句尾微微上揚',
+        '副歌旋律打開，情緒推高但不推翻天層曲風',
+        '鼓點穩定向前，讓身體跟著節奏走',
+        '和聲加寬，主唱仍保持清楚',
+        `情緒主題圍繞${themes}`,
       ],
       style: baseStyle,
-      vocal_direction: '溫柔細膩、情緒慢慢推高的國語聲線。',
+      vocal_direction: '國語主唱承接歌曲身體與副歌情緒，但不可改變天層曲風。',
     },
     taiwanese: {
-      language_label: '台語',
-      title: '心內彼條歌',
-      concept: `以土地感與生命韌性承接${input.name}的人格節奏，寫成真摯的台語歌。`,
+      language_label: '人層台語故事',
+      title: '心內彼句話',
+      concept: `人層由${input.name}與性別氣質決定台語歌詞語感、個人故事、記憶點與情感落點。`,
       lyrics: [
-        '[主歌]',
+        '[人層核心句]',
         '風若吹過阮的名 心內有光袂孤單',
         '一步一步行過暗暝 才知影天會光',
-        '[副歌]',
-        '這條歌 唱予家己聽',
+        '這句話只負責故事，不改編曲',
         '有血有夢 有勇氣作伴',
         '命運的路 慢慢行嘛會到岸',
       ],
       style: baseStyle,
-      vocal_direction: '厚實真誠、帶一點沙啞故事感的台語聲線。',
+      vocal_direction: '台語只負責人格故事與情感落點，不亂改旋律與編曲。',
     },
   };
 }
@@ -631,15 +640,18 @@ function buildSongDraftsPrompt(input: MusicReportInput): string {
   const d = input.destinyContext;
 
   return `
-你是「AI 三融合創主題曲」的第一階段作曲資料生成器。
-請根據使用者的生日、血型、姓名、命理資料與音樂參數，先產生三首「原創文字歌雛形」：英文、國語、台語各一首。
+你是「天地人歌曲矩陣」的第一階段素材層生成器。
+請根據使用者的生日、血型、姓名、命理資料與音樂參數，先產生三個素材層：天層、地層、人層。
+
+${TIANDIREN_SONG_MATRIX_RULES}
 
 非常重要：
 1. 這一步只產生文字資料，不產生音檔、不產生 YouTube 連結。
-2. 三首歌都必須是原創，不可引用、改寫、模仿任何已存在歌曲的歌詞或旋律。
-3. 參考曲只可作為年代與情緒錨點，不可模仿歌手、不可抄歌詞。
-4. 三首歌要像同一個靈魂的三個面向，之後才會被融合成一首獨一無二的歌曲。
-5. 歌詞要可唱、有段落感，但先保持短版雛形，避免太長。
+2. 不是生成三首歌，而是生成同一首歌的三個資料層。
+3. 所有素材必須原創，不可引用、改寫、模仿任何已存在歌曲的歌詞或旋律。
+4. 參考曲只可作為年代與情緒錨點，不可模仿歌手、不可抄歌詞。
+5. 天層不能寫完整歌詞；地層不能推翻天層曲風；人層不能亂改編曲。
+6. 文字要短、清楚、可進入同一個歌曲矩陣，避免太長。
 
 ━━━ 使用者資料 ━━━
 姓名：${input.name}
@@ -669,15 +681,15 @@ BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
 台語參考：《${input.selectedSongs?.taiwanese?.title ?? '—'}》— ${input.selectedSongs?.taiwanese?.artist ?? '—'}
 
 請輸出 JSON：
-- english：英文原創歌雛形
-- mandarin：國語原創歌雛形
-- taiwanese：台語原創歌雛形
+- english：天層素材（英文音樂格局、主旋律方向、年代感、BPM、情緒色彩、空間感；不可寫完整歌詞）
+- mandarin：地層素材（國語唱腔、節奏、鼓點、和聲、編曲厚度、副歌情緒；不可推翻天層曲風）
+- taiwanese：人層素材（台語歌詞語感、姓名氣質、個人故事、核心句、記憶點、情感落點；不可亂改編曲）
 
-每首歌包含：
+每個素材層包含：
 - language_label
 - title
 - concept
-- lyrics：6-10 行，段落標記如 [Verse] / [主歌] 可獨立成行
+- lyrics：6-10 行素材文字；天層不可寫完整歌詞，地層給唱腔/節奏句，人層給台語故事核心句
 - style
 - vocal_direction
 `.trim();
@@ -702,7 +714,7 @@ export async function generateSongDrafts(input: MusicReportInput): Promise<Origi
 }
 
 // ────────────────────────────────────────────────────────────
-// AI 製作總監（輕量自動優化層：把三首歌整理成可製作的一首歌）
+// AI 製作總監（輕量自動優化層：把天地人素材層整理成一首歌）
 // ────────────────────────────────────────────────────────────
 
 export interface AiProductionPlanInput extends MusicReportInput {
@@ -745,7 +757,7 @@ function describeVocalBlend(input: AiProductionPlanInput) {
 
   if (emotion >= 75 || attachment >= 75) return '深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。';
   if (creativity >= 75) return '帶空氣感與穿透力的創作型主唱，橋段加入低聲呢喃與電子和聲。';
-  return '溫暖穩定的主唱，國語承接敘事，英文做副歌記憶點，台語收尾落地。';
+  return '溫暖穩定的主唱，地層國語承接歌曲身體，天層英文提供空間 Hook，人層台語完成情感落點。';
 }
 
 export function generateAiProductionPlan(input: AiProductionPlanInput): AiProductionPlanOutput {
@@ -754,21 +766,21 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
   const instruments = input.musicParameters.instrument.slice(0, 5).join('、') || '鋼琴、鼓、合成器、弦樂、吉他';
   const themes = input.musicParameters.lyric_theme.slice(0, 4).join('、') || '自我覺醒、命運、希望、連結';
   const leadVocal = describeVocalBlend(input);
-  const englishTitle = input.songDrafts.english.title;
-  const mandarinTitle = input.songDrafts.mandarin.title;
-  const taiwaneseTitle = input.songDrafts.taiwanese.title;
+  const heavenLayerTitle = input.songDrafts.english.title;
+  const earthLayerTitle = input.songDrafts.mandarin.title;
+  const humanLayerTitle = input.songDrafts.taiwanese.title;
   const popularMusicDna = [
     '8 秒內先出現一個可記住的旋律、音色或短句 Hook，讓聽眾一開始就抓到歌曲身份。',
     '主歌保留空間與故事感，副歌再把鼓組、和聲與旋律高度一起拉開，形成明顯爆發。',
     '核心 Hook 重複 2 到 3 次，但每次換一點語言、和聲或樂器，熟悉但不單調。',
     '歌詞短句優先，避免把太多文字塞進旋律，讓人可以跟著哼、跟著記。',
-    '橋段降低編曲密度，讓台語或低聲線把情緒落地，再回到最後副歌。',
-    '結尾保留一句最核心的國語或台語句子，像標誌一樣留在聽眾腦中。',
+    '橋段降低編曲密度，讓人層台語核心句或低聲線把情緒落地，再回到最後副歌。',
+    '結尾保留一句最核心的人格句子，像標誌一樣留在聽眾腦中。',
   ];
   const globalTrendBlend = [
     'Global Pop：使用乾淨直接的主旋律、短句 Hook、清楚副歌，讓歌曲第一聽就能抓住重點。',
     'K-Pop / Cross-genre：段落轉換要有驚喜，副歌前可用短暫停頓、上升音效或和聲堆疊製造期待。',
-    'Latin / Reggaeton / Trap Latino：鼓組加入穩定擺動感與切分節奏，讓三語歌詞不只好聽，也有身體律動。',
+    'Latin / Reggaeton / Trap Latino：鼓組加入穩定擺動感與切分節奏，讓地層節奏身體更有律動。',
     'Electronic / Synth Pop：用合成器、空氣墊、低頻脈衝與簡單音色標誌，讓歌曲有現代串流質感。',
     'R&B / Emotional Pop：主歌保留人聲呼吸與親密感，副歌再加寬和聲，避免整首都太滿。',
     'Short-form friendly：保留一段 12-18 秒可剪成短影音的核心副歌片段，但不能犧牲完整歌曲情緒。',
@@ -776,50 +788,50 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
 
   return {
     producer_summary:
-      `AI 製作總監會把《${englishTitle}》《${mandarinTitle}》《${taiwaneseTitle}》視為同一個靈魂的三個素材層，先保留共同情緒，再重寫成《${input.fusionSong.fusion_title}》這一首可製作的完整歌曲。`,
+      `AI 製作總監會把《${heavenLayerTitle}》《${earthLayerTitle}》《${humanLayerTitle}》視為天地人三個素材層，不視為三首歌，最後只整理成《${input.fusionSong.fusion_title}》這一首天地人人格歌曲。`,
     fusion_strategy:
-      `英文負責空間感與記憶句，國語負責主敘事，台語負責土地情感與收束；融合時不三首硬拼，而是以「${themes}」作為共同主軸。`,
+      `天層負責英文音樂格局、主旋律方向與空間感；地層負責國語唱腔、節奏身體與副歌情緒；人層負責台語故事核心句與情感落點。融合時不三首硬拼，而是以「${themes}」作為共同主軸。`,
     final_song_brief:
       `${input.musicParameters.genre} · ${input.musicParameters.bpm} BPM · ${input.musicParameters.key}，情緒走向為${mood}，人格高點集中在 ${topKeys.join(' / ')}。`,
     arrangement_plan: [
-      `前奏：${instruments.split('、')[0] ?? '鋼琴'}先建立命格氛圍，保留空間，像故事慢慢被打開。`,
-      '主歌：以國語為主，放入少量英文尾句，讓旋律有國際感但不跳脫。',
-      '副歌：使用最容易記住的中英混合 Hook，旋律拉高，鼓組與弦樂一起推進。',
-      '橋段：加入台語句子，讓歌曲突然變得貼近、真實、有土地感。',
-      '尾奏：保留一句台語或國語核心句，搭配和聲漸弱，形成專屬主題曲記憶點。',
+      `天層前奏：${instruments.split('、')[0] ?? '鋼琴'}先建立英文音樂格局、年代感與空間感，決定歌曲靈魂。`,
+      '地層主歌：國語唱腔進場，節奏、鼓點、和聲與編曲厚度承接天層曲風，不推翻原本方向。',
+      '地層副歌：把旋律與鼓組推高，建立最容易記住的流行 Hook 與副歌情緒。',
+      '人層橋段：只加入台語姓名故事與核心句，讓情感落地，但不改變編曲骨架。',
+      '融合收尾：由歌曲融合引擎統一收束成一首歌，保留一句人格記憶點。',
     ],
     vocal_cast: [
-      `主唱 A：${input.songDrafts.mandarin.vocal_direction}，負責主歌與故事線。`,
-      `主唱 B：${input.songDrafts.english.vocal_direction}，負責英文 Hook 與高音情緒。`,
-      `主唱 C：${input.songDrafts.taiwanese.vocal_direction}，負責橋段與結尾情感落點。`,
+      `天層聲音：${input.songDrafts.english.vocal_direction}`,
+      `地層主唱：${input.songDrafts.mandarin.vocal_direction}`,
+      `人層故事聲：${input.songDrafts.taiwanese.vocal_direction}`,
     ],
     lead_vocal_choice: leadVocal,
-    language_distribution: '國語 55% · English 25% · 台語 20%，讓歌聽起來像一首完整作品，不像三首剪貼。',
+    language_distribution: '天 35% · 地 35% · 人 30%。這是歌曲矩陣權重，不是三種語言硬性比例。',
     hook_design:
-      `副歌核心 Hook 以《${input.fusionSong.fusion_title}》為主題，保留一句短英文增加記憶點，再用一句台語作情感收尾。`,
+      `副歌核心 Hook 以《${input.fusionSong.fusion_title}》為主題：天層給音樂記憶點，地層給國語副歌情緒，人層給一句台語人格落點。`,
     popular_music_dna: popularMusicDna,
     global_trend_blend: globalTrendBlend,
     trend_arrangement_recipe:
-      '以 Global Pop 的清楚旋律當骨架，加入 K-Pop 式段落反差、Latin/Reggaeton 的律動推進、Electronic 的現代音色，再把國語敘事、English Hook、台語情感落點自然融合。',
+      '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層台語故事只負責情感落點；三者進同一個歌曲矩陣，不各自生成三套結果。',
     rhythm_strategy:
       '主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。',
     trend_safety_note:
       '只使用全球流行音樂的通用結構與聽感邏輯，不模仿特定歌手、特定歌曲、特定旋律或受版權保護的編曲細節。',
     hit_formula:
-      '全球流行前奏 Hook 8 拍 → 國語主歌 16 拍 → K-pop 式短暫拉升 → 三語副歌 24 拍 → 台語橋段 8 拍 → 最終副歌與一句記憶收尾。',
+      '天層英文音樂前奏 8 拍 → 地層國語主歌 16 拍 → 地層副歌情緒拉升 → 人層台語核心句落點 → 融合引擎統一輸出最終副歌與一句記憶收尾。',
     hook_repeat_strategy:
-      '核心 Hook 出現三次：第一次用國語建立主題，第二次用 English 回應提高記憶度，第三次用台語收尾讓情緒落地。',
+      '核心 Hook 出現三次：第一次由天層建立旋律記憶，第二次由地層推高副歌情緒，第三次由人層核心句完成情感落點。',
     emotional_arc:
-      '0-25% 建立神秘與期待，25-50% 說出主角故事，50-75% 副歌爆發與三語融合，75-100% 降低密度後再回到最後副歌收束。',
+      '0-35% 天層建立音樂靈魂，35-70% 地層建立歌曲身體，70-100% 人層放入故事落點後由融合引擎收束成一首歌。',
     generation_prompt:
-      `Create one original full song, ${input.musicParameters.genre}, ${input.musicParameters.bpm} BPM, ${input.musicParameters.key}. Mood: ${mood}. Instruments: ${instruments}. Vocal: ${leadVocal} Lyrics blend Mandarin, English, and Taiwanese naturally. Main theme: ${themes}. Apply global streaming-friendly arrangement logic: Global Pop clarity, K-Pop contrast, Latin/Reggaeton groove, Electronic/Synth Pop texture, R&B emotional vocal space, and a 12-18 second short-form friendly hook. Also apply broad human-friendly pop songwriting DNA: memorable hook within 8 seconds, spacious verse, clear chorus lift, repeatable motif, dynamic contrast, emotional bridge, and a final signature phrase. The song should feel cinematic, emotional, unique, modern, and singable. Do not copy any existing song, artist, melody, or protected arrangement.`,
+      `Create one original Tiandiren personality song, not three separate songs. ${input.musicParameters.genre}, ${input.musicParameters.bpm} BPM, ${input.musicParameters.key}. Mood: ${mood}. Instruments: ${instruments}. Vocal: ${leadVocal}. Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Taiwanese lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: ${themes}. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.`,
     next_step_note:
       '下一步才接音樂/人聲生成服務；目前這一層先把製作、編曲、主唱分配與生成提示整理好，避免一次做太重造成當機。',
   };
 }
 
 // ────────────────────────────────────────────────────────────
-// AI 三語融合原創主題曲（第一階段：文字版 — 歌名 + 三語融合歌詞 + 融合曲風）
+// AI 歌曲融合引擎（第一階段：文字版 — 歌名 + 天地人融合歌詞 + 融合曲風）
 // ────────────────────────────────────────────────────────────
 
 export interface FusionSongInput {
@@ -847,43 +859,43 @@ const FUSION_SONG_SCHEMA = {
   properties: {
     fusion_title: {
       type: Type.STRING,
-      description: '這首三語融合原創歌曲的歌名，繁體中文，4-12 字，有記憶點。',
+      description: '這首天地人人格歌曲的歌名，繁體中文，4-12 字，有記憶點。',
     },
     fusion_concept: {
       type: Type.STRING,
-      description: '一句話說明這首歌如何把英文、國語、台語三種語言與曲風融合貫通，60 字內，繁體中文。',
+      description: '一句話說明這首歌如何用英文音樂格局、國語情緒、台語故事融合成一首歌，60 字內，繁體中文。',
     },
     fusion_lyrics: {
       type: Type.ARRAY,
       items: { type: Type.STRING },
       description:
-        '原創歌詞，以字串陣列回傳，「每個元素為一行」。段落標記（如 [主歌]、[副歌]、[橋段]）各自獨立成一個元素。需自然穿插英文、國語、台語三種語言，台語用台語漢字書寫。共 12-18 個元素，每行精煉。',
+        '原創歌詞，以字串陣列回傳，「每個元素為一行」。段落標記（如 [主歌]、[副歌]、[橋段]）各自獨立成一個元素。以國語為主要可唱敘事，人層台語只放核心句與情感落點，天層英文只可作短 Hook 或音色記憶點。共 12-18 個元素，每行精煉。',
     },
     fusion_style: {
       type: Type.STRING,
-      description: '融合曲風設定：把三首主題曲的曲風/節奏/情緒揉合成一首歌的描述，80 字內，繁體中文。',
+      description: '融合曲風設定：描述天層音樂靈魂、地層歌曲身體、人層故事落點如何成為同一首歌，80 字內，繁體中文。',
     },
   },
   required: ['fusion_title', 'fusion_concept', 'fusion_lyrics', 'fusion_style'],
 };
 
 function createLocalFusionSong(input: FusionSongInput): FusionSongOutput {
-  const englishTitle = input.songDrafts?.english.title ?? input.englishSong.title;
-  const mandarinTitle = input.songDrafts?.mandarin.title ?? input.mandarinSong.title;
-  const taiwaneseTitle = input.songDrafts?.taiwanese.title ?? input.taiwaneseSong?.title ?? '';
+  const heavenLayerTitle = input.songDrafts?.english.title ?? input.englishSong.title;
+  const earthLayerTitle = input.songDrafts?.mandarin.title ?? input.mandarinSong.title;
+  const humanLayerTitle = input.songDrafts?.taiwanese.title ?? input.taiwaneseSong?.title ?? '';
 
   return {
-    fusion_title: '三語共鳴曲',
-    fusion_concept: `融合《${englishTitle}》《${mandarinTitle}》${taiwaneseTitle ? `《${taiwaneseTitle}》` : ''}的情感頻率，化為一首屬於${input.name}的三語原創歌。`,
+    fusion_title: '天地人共鳴曲',
+    fusion_concept: `以《${heavenLayerTitle}》作音樂格局、《${earthLayerTitle}》作情緒身體${humanLayerTitle ? `、《${humanLayerTitle}》作故事靈魂` : ''}，融合成一首屬於${input.name}的天地人人格歌曲。`,
     fusion_lyrics: [
       '[主歌]',
       '天地之間 我聽見自己的聲音',
-      'In every heartbeat, a story untold',
+      'Light in my heart',
       '[副歌]',
       '咱的人生 家己行 嘛要勇敢行',
       '唱出命運的光',
     ],
-    fusion_style: '以抒情流行為底，前段木吉他與鋼琴鋪陳，副歌加入弦樂與節奏，英文主導旋律、國語承接敘事、台語收束情感。',
+    fusion_style: '天層以英文音樂格局建立空間與旋律，地層以國語流行唱腔推動副歌，人層以台語核心句完成故事落點。',
   };
 }
 
@@ -893,34 +905,37 @@ function buildFusionSongPrompt(input: FusionSongInput): string {
     : '台語素材：（無，可省略台語段落或少量點綴）';
   const drafts = input.songDrafts
     ? `
-━━━ 第一階段 AI 已生成的三首原創歌雛形（這才是主要融合素材）━━━
-英文原創：《${input.songDrafts.english.title}》
+━━━ 第一階段 AI 已生成的天地人素材層（這才是主要融合素材）━━━
+天層素材：《${input.songDrafts.english.title}》
 概念：${input.songDrafts.english.concept}
-歌詞：
+素材文字：
 ${input.songDrafts.english.lyrics.join('\n')}
 
-國語原創：《${input.songDrafts.mandarin.title}》
+地層素材：《${input.songDrafts.mandarin.title}》
 概念：${input.songDrafts.mandarin.concept}
-歌詞：
+素材文字：
 ${input.songDrafts.mandarin.lyrics.join('\n')}
 
-台語原創：《${input.songDrafts.taiwanese.title}》
+人層素材：《${input.songDrafts.taiwanese.title}》
 概念：${input.songDrafts.taiwanese.concept}
-歌詞：
+素材文字：
 ${input.songDrafts.taiwanese.lyrics.join('\n')}
 `.trim()
     : '';
 
   return `
-你是一位跨語言創作歌手與編曲人，擅長把不同語言、不同曲風的歌揉合成一首動人的原創歌。
-請為「${input.name}」量身打造「一首」全新的三語融合原創主題曲。
+你是「歌曲融合引擎」，擅長把天、地、人三個素材層統一成一首動人的原創人格歌曲。
+請為「${input.name}」量身打造「一首」全新的天地人人格歌曲。
+
+${TIANDIREN_SONG_MATRIX_RULES}
 
 系統鐵律：
-1. 這是「一首歌」，不是三首拼貼——要融合貫通、自然流暢，副歌要有記憶點。
-2. 英文、國語、台語三種語言要自然穿插，不可生硬翻譯堆疊。
-3. 以下三首是「靈感素材」，請吸收其情感與曲風，但要寫成「全新原創」歌詞，不可抄襲原歌詞。
-4. 歌詞要呼應此人的人格特質，溫暖、有畫面、不浮誇。
-5. 優先融合「AI 已生成的三首原創歌雛形」，參考曲只作年代/情緒輔助，不可搶主導。
+1. 這是「一首歌」，不是三首拼貼；要融合貫通、自然流暢，副歌要有記憶點。
+2. 天層只給英文音樂格局、旋律方向、年代感與空間，不可寫完整歌詞。
+3. 地層只給國語唱腔、節奏、鼓點、和聲、編曲厚度與副歌情緒，不可推翻天層曲風。
+4. 人層只給台語歌詞語感、姓名故事、核心句、記憶點與情感落點，不可亂改編曲。
+5. 歌詞要呼應此人的人格特質，溫暖、有畫面、不浮誇。
+6. 優先融合「AI 已生成的天地人素材層」，參考曲只作年代/情緒輔助，不可搶主導。
 
 ${drafts}
 
@@ -937,9 +952,9 @@ ${JSON.stringify(input.personalityMatrix, null, 2)}
 
 請輸出 JSON，欄位為：
 - fusion_title：原創歌名（繁中，4-12 字）
-- fusion_concept：一句話說明三語如何融合（60 字內）
-- fusion_lyrics：三語穿插的原創歌詞，「字串陣列」每元素一行（[主歌]/[副歌] 各自一行，12-18 行，台語用台語漢字）
-- fusion_style：融合曲風設定（80 字內）
+- fusion_concept：一句話說明天地人如何融合成一首歌（60 字內）
+- fusion_lyrics：一首天地人人格歌曲的原創歌詞，「字串陣列」每元素一行（[主歌]/[副歌] 各自一行，12-18 行；國語為主線，英文只能短 Hook，台語作核心落點）
+- fusion_style：天地人歌曲矩陣的融合曲風設定（80 字內）
 `.trim();
 }
 

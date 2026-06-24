@@ -186,7 +186,7 @@ export async function POST(request: Request) {
     selectedSongs: selectedSongsForAi,
   };
 
-  // 先生成報告與三首原創歌雛形；融合歌會以三首雛形作為主要素材，避免直接拼參考曲。
+  // 先生成報告與天地人三個素材層；融合引擎只輸出一首天地人人格歌曲，避免三首硬拼。
   const [musicReport, songDrafts] = await Promise.all([
     generateMusicReport(musicAiInput),
     generateSongDrafts(musicAiInput),

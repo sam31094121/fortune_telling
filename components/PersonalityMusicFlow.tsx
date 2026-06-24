@@ -2,15 +2,20 @@
 
 import { useState } from 'react';
 import LunarBirthdayInput from './LunarBirthdayInput';
+import { SHICHEN_LIST } from '@/lib/shichen-engine';
 
 type BloodType = 'A' | 'B' | 'AB' | 'O';
 type Gender = 'male' | 'female';
+
+// 時辰：null=尚未選、'unknown'=不知道（自動套良辰吉時）、0–11=已選時辰地支序
+export type ShichenChoice = number | 'unknown' | null;
 
 export interface MusicFormData {
   birthDate: string;
   bloodType: BloodType | '';
   name: string;
   gender: Gender;
+  shichen: ShichenChoice;
   voiceCharacteristics: string[];
 }
 
@@ -36,7 +41,7 @@ const VOICE_OPTIONS = [
   { key: 'hesitant', label: '較保留猶豫' },
 ];
 
-const STEPS = ['國曆生日', '血型', '姓名', '聲音特徵'];
+const STEPS = ['國曆生日', '血型', '姓名', '時辰', '聲音特徵'];
 
 export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityMusicFlowProps) {
   const [step, setStep] = useState(0);
@@ -45,6 +50,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     bloodType: '',
     name: '',
     gender: 'female',
+    shichen: null,
     voiceCharacteristics: [],
   });
   const [localError, setLocalError] = useState('');
@@ -55,6 +61,9 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     if (targetStep === 2) {
       if (form.name.trim().length < 2) return '姓名至少要 2 個字。';
       if (form.name.trim().length > 20) return '姓名不可超過 20 個字。';
+    }
+    if (targetStep === 3 && form.shichen === null) {
+      return '請選擇出生時辰，或點「我不知道時辰」，系統會幫你挑良辰吉時。';
     }
     return null;
   }
@@ -200,6 +209,79 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
       )}
 
       {step === 3 && (
+        <div className="space-y-5">
+          <div>
+            <p className="text-sm text-[color:var(--text-sub)]">
+              時辰就是你出生的時間（每 2 小時為一個時辰）。系統會用八字與紫微斗數，為你的人層分析再加深一層。
+            </p>
+            <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
+              記不得也完全沒關係 — 點下面「我不知道時辰」，系統會自動幫你挑一個良辰吉時，分析照常完成。
+            </p>
+          </div>
+
+          {/* 不知道時辰 — 大而友善，長輩、年輕人都不會卡住 */}
+          <button
+            type="button"
+            onClick={() => {
+              setForm((prev) => ({ ...prev, shichen: 'unknown' }));
+              setLocalError('');
+            }}
+            className={`w-full rounded-2xl border px-5 py-4 text-left transition-all ${
+              form.shichen === 'unknown'
+                ? 'border-emerald-400 bg-emerald-400/15'
+                : 'border-white/15 bg-white/5 hover:border-white/25'
+            }`}
+          >
+            <p className={`text-base font-bold ${form.shichen === 'unknown' ? 'text-emerald-300' : 'text-[color:var(--text-main)]'}`}>
+              🕊️ 我不知道 / 記不得時辰
+            </p>
+            <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">
+              系統會依你的生辰，自動挑選與當日最相合的「良辰吉時」，一樣能完成分析。
+            </p>
+          </button>
+
+          {form.shichen === 'unknown' && (
+            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-950/20 p-4 text-xs leading-6 text-emerald-200">
+              放心，已為你預留「良辰吉時」。日後若想起真實的出生時辰，再回來補上會更精準。
+            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-white/10" />
+            <span className="shrink-0 text-xs text-[color:var(--text-muted)]">或選擇你知道的出生時辰</span>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {SHICHEN_LIST.map((s) => {
+              const selected = form.shichen === s.branchIndex;
+              return (
+                <button
+                  key={s.branchIndex}
+                  type="button"
+                  onClick={() => {
+                    setForm((prev) => ({ ...prev, shichen: s.branchIndex }));
+                    setLocalError('');
+                  }}
+                  className={`rounded-2xl border px-3 py-3 text-left transition-all ${
+                    selected ? 'border-cyan-400 bg-cyan-400/15' : 'border-white/10 bg-white/5 hover:border-white/20'
+                  }`}
+                >
+                  <div className="flex items-baseline justify-between gap-1">
+                    <p className={`text-base font-bold ${selected ? 'text-cyan-300' : 'text-[color:var(--text-main)]'}`}>
+                      {s.label}
+                    </p>
+                  </div>
+                  <p className="mt-0.5 text-xs font-semibold text-[color:var(--text-sub)]">{s.range}</p>
+                  <p className="mt-1 text-[11px] leading-4 text-[color:var(--text-muted)]">{s.imagery}</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {step === 4 && (
         <div className="space-y-4">
           <p className="text-sm text-[color:var(--text-sub)]">
             這一步是選填，讓 AI 更了解你的說話節奏與聲音氣質。
