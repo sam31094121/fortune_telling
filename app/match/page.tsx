@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
+import NextStepGuide from '@/components/NextStepGuide';
 
 interface PersonInput {
   name: string;
@@ -555,6 +556,8 @@ export default function MatchPage() {
                 重新輸入
               </button>
             </div>
+
+            <NextStepGuide current="match" />
           </div>
         )}
       </main>

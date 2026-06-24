@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
+import NextStepGuide from '@/components/NextStepGuide';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 
 // 時辰：null=未選（送出時自動採良辰吉時）、'unknown'=明確不知道、0–11=已選時辰
@@ -572,6 +573,8 @@ export default function InsightPage() {
                 匯出報告
               </button>
             </div>
+
+            <NextStepGuide current="insight" />
           </div>
         )}
       </main>

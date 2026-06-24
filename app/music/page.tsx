@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import VisualGravityCore from '@/components/VisualGravityCore';
 import PersonalityMusicFlow, { type MusicFormData } from '@/components/PersonalityMusicFlow';
 import PersonalityMusicReport from '@/components/PersonalityMusicReport';
+import NextStepGuide from '@/components/NextStepGuide';
 
 interface SongTrack {
   title: string;
@@ -362,6 +363,10 @@ export default function MusicSystemPage() {
             name={submittedName}
             onReset={handleReset}
           />
+
+          <div className="mt-8">
+            <NextStepGuide current="music" />
+          </div>
         </main>
       )}
     </div>
