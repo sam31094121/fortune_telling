@@ -20,6 +20,13 @@ interface MusicPlayerProps {
    * 此時設為 false，改用「歌名 + 歌手」開啟 YouTube 播放，確保一定播得出來。
    */
   embeddable?: boolean;
+  /**
+   * 受控模式：由父層統一管理「哪一個播放器正在開」，
+   * 確保同一時間只有一首歌在播，打開新的就自動關掉舊的（避免兩首同時出聲互相衝突）。
+   * 不傳則退回各自獨立的內部狀態。
+   */
+  isOpen?: boolean;
+  onToggleOpen?: (open: boolean) => void;
 }
 
 export default function MusicPlayer({
@@ -29,8 +36,18 @@ export default function MusicPlayer({
   reason,
   affinityScore,
   embeddable = true,
+  isOpen,
+  onToggleOpen,
 }: MusicPlayerProps) {
-  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  // 受控優先：父層有給 isOpen 就聽父層的，否則用自己的狀態
+  const isControlled = isOpen !== undefined;
+  const isPlayerOpen = isControlled ? isOpen : internalOpen;
+  const setIsPlayerOpen = (next: boolean) => {
+    if (isControlled) onToggleOpen?.(next);
+    else setInternalOpen(next);
+  };
 
   if (!track) return null;
 
@@ -82,7 +99,7 @@ export default function MusicPlayer({
           {embeddable ? (
             <button
               type="button"
-              onClick={() => setIsPlayerOpen((value) => !value)}
+              onClick={() => setIsPlayerOpen(!isPlayerOpen)}
               className="flex-shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors"
               style={{
                 borderColor: isPlayerOpen ? 'rgba(109,74,255,0.6)' : 'rgba(255,255,255,0.2)',

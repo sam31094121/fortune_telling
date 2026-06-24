@@ -30,9 +30,22 @@ interface MusicGenerateResponse {
     wisdom_note: string;
     english_song_reason: string;
     mandarin_song_reason: string;
+    taiwanese_song_reason: string;
+  };
+  song_drafts?: {
+    english: SongDraft;
+    mandarin: SongDraft;
+    taiwanese: SongDraft;
+  };
+  fusion_song?: {
+    fusion_title: string;
+    fusion_concept: string;
+    fusion_lyrics: string[];
+    fusion_style: string;
   };
   english_track: SongTrack;
   mandarin_track: SongTrack | null;
+  taiwanese_track: SongTrack | null;
   meta: {
     zodiac: string;
     era: string;
@@ -61,6 +74,15 @@ interface MusicGenerateResponse {
       neuroticism: number;
     };
   };
+}
+
+interface SongDraft {
+  language_label: string;
+  title: string;
+  concept: string;
+  lyrics: string[];
+  style: string;
+  vocal_direction: string;
 }
 
 type PageState = 'landing' | 'form' | 'result';
@@ -241,7 +263,7 @@ export default function MusicSystemPage() {
 
               {loading && (
                 <div className="mt-6 rounded-2xl border border-violet-400/15 bg-violet-950/20 p-4 text-center text-sm text-violet-200">
-                  正在生成人格音樂報告，請稍候…
+                  正在生成三首原創歌雛形與人格音樂報告，請稍候…
                 </div>
               )}
 
@@ -300,6 +322,9 @@ export default function MusicSystemPage() {
             meta={result.meta}
             englishTrack={result.english_track}
             mandarinTrack={result.mandarin_track}
+            taiwaneseTrack={result.taiwanese_track}
+            songDrafts={result.song_drafts}
+            fusionSong={result.fusion_song}
             name={submittedName}
             onReset={handleReset}
           />

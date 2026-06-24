@@ -1,5 +1,6 @@
 ﻿'use client';
 
+import { useState } from 'react';
 import MusicPlayer from './MusicPlayer';
 
 interface PersonalityMatrix {
@@ -31,6 +32,7 @@ interface MusicReport {
   wisdom_note: string;
   english_song_reason?: string;
   mandarin_song_reason?: string;
+  taiwanese_song_reason?: string;
 }
 
 interface OceanProfile {
@@ -70,6 +72,28 @@ interface SongTrack {
   videoId: string;
 }
 
+interface FusionSong {
+  fusion_title: string;
+  fusion_concept: string;
+  fusion_lyrics: string[];
+  fusion_style: string;
+}
+
+interface SongDraft {
+  language_label: string;
+  title: string;
+  concept: string;
+  lyrics: string[];
+  style: string;
+  vocal_direction: string;
+}
+
+interface SongDrafts {
+  english: SongDraft;
+  mandarin: SongDraft;
+  taiwanese: SongDraft;
+}
+
 interface PersonalityMusicReportProps {
   personalityMatrix: PersonalityMatrix;
   musicParameters: MusicParameters;
@@ -77,6 +101,9 @@ interface PersonalityMusicReportProps {
   meta: Meta;
   englishTrack: SongTrack;
   mandarinTrack: SongTrack | null;
+  taiwaneseTrack: SongTrack | null;
+  songDrafts?: SongDrafts;
+  fusionSong?: FusionSong;
   name: string;
   onReset: () => void;
 }
@@ -155,6 +182,75 @@ function renderTags(items: string[], tone: 'violet' | 'amber' | 'pink' | 'cyan')
   );
 }
 
+function SongDraftCard({
+  draft,
+  accent,
+}: {
+  draft: SongDraft;
+  accent: 'violet' | 'amber' | 'cyan';
+}) {
+  const accentStyle = {
+    violet: {
+      border: 'rgba(167,139,250,0.22)',
+      bg: 'rgba(76,29,149,0.16)',
+      text: '#ddd6fe',
+    },
+    amber: {
+      border: 'rgba(251,191,36,0.22)',
+      bg: 'rgba(120,53,15,0.16)',
+      text: '#fde68a',
+    },
+    cyan: {
+      border: 'rgba(34,211,238,0.22)',
+      bg: 'rgba(8,51,68,0.16)',
+      text: '#cffafe',
+    },
+  }[accent];
+
+  return (
+    <div className="rounded-[24px] border bg-white/[0.035] p-5" style={{ borderColor: accentStyle.border }}>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <span
+          className="rounded-full border px-3 py-1 text-xs font-semibold tracking-[0.25em]"
+          style={{ borderColor: accentStyle.border, background: accentStyle.bg, color: accentStyle.text }}
+        >
+          {draft.language_label}
+        </span>
+        <span className="text-xs text-[color:var(--text-muted)]">原創雛形</span>
+      </div>
+
+      <h4 className="font-serif text-xl text-[color:var(--text-main)]">《{draft.title}》</h4>
+      <p className="mt-3 text-xs leading-7 text-[color:var(--text-sub)]">{draft.concept}</p>
+
+      <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-4">
+        <div className="space-y-1.5 font-serif text-sm leading-7 text-[color:var(--text-main)]">
+          {draft.lyrics.map((line, index) => {
+            const isSection = /^\s*[\[【].+[\]】]\s*$/.test(line);
+            return isSection ? (
+              <p key={`${line}-${index}`} className="pt-2 text-xs font-semibold tracking-[0.25em]" style={{ color: accentStyle.text }}>
+                {line.replace(/[\[\]【】]/g, '')}
+              </p>
+            ) : (
+              <p key={`${line}-${index}`}>{line}</p>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-2 text-xs leading-6 text-[color:var(--text-muted)]">
+        <p>
+          <span style={{ color: accentStyle.text }}>曲風：</span>
+          {draft.style}
+        </p>
+        <p>
+          <span style={{ color: accentStyle.text }}>主唱方向：</span>
+          {draft.vocal_direction}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function PersonalityMusicReport({
   personalityMatrix,
   musicParameters,
@@ -162,9 +258,15 @@ export default function PersonalityMusicReport({
   meta,
   englishTrack,
   mandarinTrack,
+  taiwaneseTrack,
+  songDrafts,
+  fusionSong,
   name,
   onReset,
 }: PersonalityMusicReportProps) {
+  // 同一時間只允許一首歌在播，避免多個播放器同時出聲互相衝突
+  const [openPlayer, setOpenPlayer] = useState<'english' | 'mandarin' | 'taiwanese' | null>(null);
+
   const genreName = GENRE_NAMES[musicParameters.genre] || musicParameters.genre;
   const genreEmoji = GENRE_EMOJI[musicParameters.genre] || '🎼';
 
@@ -202,9 +304,34 @@ export default function PersonalityMusicReport({
         </div>
       </div>
 
+      {songDrafts && (
+        <div className="fortune-card px-6 py-8 sm:px-8">
+          <div className="mb-6 text-center">
+            <p className="text-xs uppercase tracking-[0.4em] text-cyan-300/70">
+              AI 原創歌資料 · 第一階段
+            </p>
+            <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
+              由生日、血型、姓名生成三首歌
+            </h3>
+            <p className="mx-auto mt-3 max-w-2xl text-xs leading-7 text-[color:var(--text-sub)]">
+              這裡先不產生音檔，只建立英文、國語、台語三首原創歌的歌名、歌詞、曲風與主唱方向；下一階段再把三首融合成可播放的人聲歌曲。
+            </p>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            <SongDraftCard draft={songDrafts.english} accent="violet" />
+            <SongDraftCard draft={songDrafts.mandarin} accent="amber" />
+            <SongDraftCard draft={songDrafts.taiwanese} accent="cyan" />
+          </div>
+        </div>
+      )}
+
       <div className="space-y-4">
         <p className="text-center text-xs uppercase tracking-[0.4em] text-violet-300/70">
-          AI 大數據 · 你的兩首專屬主題曲
+          AI 大數據 · 參考播放測試（英文 · 國語 · 台語）
+        </p>
+        <p className="text-center text-xs text-[color:var(--text-muted)]">
+          這裡是目前可播放的參考聲音層；一次只播一首，開啟另一首會自動停止目前這首
         </p>
         <MusicPlayer
           label="英文主題曲"
@@ -212,18 +339,73 @@ export default function PersonalityMusicReport({
           track={englishTrack}
           reason={musicReport.english_song_reason}
           affinityScore={Math.round((personalityMatrix.creativity + personalityMatrix.emotion) / 2)}
+          isOpen={openPlayer === 'english'}
+          onToggleOpen={(open) => setOpenPlayer(open ? 'english' : null)}
         />
         {mandarinTrack && (
           <MusicPlayer
             label={`國語主題曲 · ${meta.eraDisplayName ?? meta.era}`}
-            flag="🇹🇼"
+            flag="🀄"
             track={mandarinTrack}
             reason={musicReport.mandarin_song_reason}
             affinityScore={Math.round((personalityMatrix.attachment + personalityMatrix.emotion) / 2)}
-            embeddable={false}
+            isOpen={openPlayer === 'mandarin'}
+            onToggleOpen={(open) => setOpenPlayer(open ? 'mandarin' : null)}
+          />
+        )}
+        {taiwaneseTrack && (
+          <MusicPlayer
+            label={`台語主題曲 · ${meta.eraDisplayName ?? meta.era}`}
+            flag="🌾"
+            track={taiwaneseTrack}
+            reason={musicReport.taiwanese_song_reason}
+            affinityScore={Math.round((personalityMatrix.attachment + personalityMatrix.security) / 2)}
+            isOpen={openPlayer === 'taiwanese'}
+            onToggleOpen={(open) => setOpenPlayer(open ? 'taiwanese' : null)}
           />
         )}
       </div>
+
+      {fusionSong && (
+        <div className="vip-gold-card rounded-[24px] px-6 py-8 sm:px-8">
+          <div className="mb-5 text-center">
+            <p className="text-xs uppercase tracking-[0.4em] text-amber-300/70">
+              ✦ AI 三語融合原創主題曲 ✦
+            </p>
+            <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
+              《{fusionSong.fusion_title}》
+            </h3>
+            <p className="mx-auto mt-3 max-w-2xl text-xs leading-7 text-[color:var(--text-sub)]">
+              {fusionSong.fusion_concept}
+            </p>
+          </div>
+
+          <div className="rounded-[18px] border border-amber-300/15 bg-black/20 px-5 py-5">
+            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-amber-300/60">融合歌詞</p>
+            <div className="space-y-1.5 font-serif text-sm leading-8 text-[color:var(--text-main)]">
+              {fusionSong.fusion_lyrics.map((line, i) => {
+                const isSection = /^\s*[\[【].+[\]】]\s*$/.test(line);
+                return isSection ? (
+                  <p key={i} className="pt-2 text-xs font-semibold tracking-[0.3em] text-amber-300/70">
+                    {line.replace(/[\[\]【】]/g, '')}
+                  </p>
+                ) : (
+                  <p key={i}>{line}</p>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-[18px] border border-white/10 bg-white/5 px-5 py-4">
+            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">融合曲風設定</p>
+            <p className="text-sm leading-7 text-[color:var(--text-sub)]">{fusionSong.fusion_style}</p>
+          </div>
+
+          <p className="mt-4 text-center text-xs leading-6 text-[color:var(--text-muted)]">
+            目前為 AI 文字創作版（歌詞＋曲風）。下一階段可接音樂生成服務，把它變成真正能播放的原創歌曲。
+          </p>
+        </div>
+      )}
 
       <div className="fortune-card px-6 py-7 sm:px-8">
         <p className="mb-6 text-xs uppercase tracking-[0.4em] text-[color:var(--text-muted)]">人格能量矩陣</p>

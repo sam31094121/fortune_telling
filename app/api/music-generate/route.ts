@@ -1,11 +1,12 @@
 ﻿import { NextResponse } from 'next/server';
-import { generateMusicReport } from '@/lib/gemini';
+import { generateMusicReport, generateFusionSong, generateSongDrafts } from '@/lib/gemini';
 import { PersonalityMatrixEngine } from '@/lib/personality-matrix-engine';
 import { MusicParameterGenerator } from '@/lib/music-parameter-generator';
 import { computeDestinyProfile } from '@/lib/destiny-engine';
 import { computeOcean, identifyArchetypes, getOceanBpmAdjust } from '@/lib/psychology-engine';
 import { selectMandarinSongs, getEraDisplayName } from '@/lib/mandarin-songs-db';
 import { selectEnglishSong } from '@/lib/english-songs-db';
+import { selectTaiwaneseSong } from '@/lib/taiwanese-songs-db';
 import { getZodiacEnglishName, getZodiacSign } from '@/lib/zodiac';
 import { isValidBirthday } from '@/lib/validation';
 
@@ -149,12 +150,23 @@ export async function POST(request: Request) {
     ]),
   ).slice(0, 8);
 
-  // 大數據精準選歌：各取 1 首（英文 + 國語）
+  // 大數據精準選歌：各取 1 首（英文 + 國語 + 台語）
   const englishTrack = selectEnglishSong(personalityMatrix);
   const mandarinTrack = selectMandarinSongs(era, personalityMatrix, 1)[0];
+  const taiwaneseTrack = selectTaiwaneseSong(era, personalityMatrix);
   const eraDisplayName = getEraDisplayName(era);
 
-  const musicReport = await generateMusicReport({
+  const selectedSongsForAi = {
+    english: { title: englishTrack.title, artist: englishTrack.artist },
+    mandarin: mandarinTrack
+      ? { title: mandarinTrack.title, artist: mandarinTrack.artist }
+      : { title: '—', artist: '—' },
+    taiwanese: taiwaneseTrack
+      ? { title: taiwaneseTrack.title, artist: taiwaneseTrack.artist }
+      : undefined,
+  };
+
+  const musicAiInput = {
     name: trimmedName,
     birthDate,
     zodiac: zodiacZh,
@@ -171,18 +183,32 @@ export async function POST(request: Request) {
       zodiacTrait: destinyProfile.zodiacProfile.trait,
       zodiacMusicTrait: destinyProfile.zodiacProfile.musicTrait,
     },
-    selectedSongs: {
-      english: { title: englishTrack.title, artist: englishTrack.artist },
-      mandarin: mandarinTrack
-        ? { title: mandarinTrack.title, artist: mandarinTrack.artist }
-        : { title: '—', artist: '—' },
-    },
-  });
+    selectedSongs: selectedSongsForAi,
+  };
+
+  // 報告與「三語融合原創歌」並行生成：不增加等待，且融合歌失敗也不影響三首歌與報告
+  const [musicReport, songDrafts, fusionSong] = await Promise.all([
+    generateMusicReport(musicAiInput),
+    generateSongDrafts(musicAiInput),
+    generateFusionSong({
+      name: trimmedName,
+      era,
+      personalityMatrix: musicAiInput.personalityMatrix,
+      englishSong: selectedSongsForAi.english,
+      mandarinSong: selectedSongsForAi.mandarin,
+      taiwaneseSong: selectedSongsForAi.taiwanese,
+      genre: finalMusicParameters.genre,
+      bpm: finalMusicParameters.bpm,
+      mood: finalMusicParameters.mood,
+    }),
+  ]);
 
     return NextResponse.json({
     personality_matrix: personalityMatrix,
     music_parameters: finalMusicParameters,
     music_report: musicReport,
+    song_drafts: songDrafts,
+    fusion_song: fusionSong,
     english_track: {
       title: englishTrack.title,
       artist: englishTrack.artist,
@@ -190,6 +216,9 @@ export async function POST(request: Request) {
     },
     mandarin_track: mandarinTrack
       ? { title: mandarinTrack.title, artist: mandarinTrack.artist, videoId: mandarinTrack.videoId }
+      : null,
+    taiwanese_track: taiwaneseTrack
+      ? { title: taiwaneseTrack.title, artist: taiwaneseTrack.artist, videoId: taiwaneseTrack.videoId }
       : null,
     meta: {
       eraDisplayName,

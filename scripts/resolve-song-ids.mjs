@@ -1,22 +1,25 @@
 /**
- * 自動解析國語歌庫的正確 YouTube videoId。
+ * 通用版：自動解析任一歌庫檔的正確 YouTube videoId。
  *
- * 流程（每首歌）：
- *   1. 抓 YouTube 搜尋結果頁，取出前數個候選 videoId
- *   2. 逐一用 oEmbed 取得真實標題/作者
- *   3. 比對「歌名」或「歌手」是否吻合 → 接受第一個吻合者
+ * 用法：
+ *   node scripts/resolve-song-ids.mjs <歌庫.ts> <輸出.json>
+ *   例：node scripts/resolve-song-ids.mjs lib/taiwanese-songs-db.ts lib/generated/taiwanese-resolved.json
  *
- * 輸出：lib/generated/mandarin-resolved.json （title|artist → { id, embeddable, oembedTitle }）
- * 用法：node scripts/resolve-mandarin-ids.mjs
+ * 流程（每首歌）：搜尋 YouTube → 取候選 videoId → oEmbed 比對標題/歌手 → 接受第一個吻合者。
+ * 可續跑：已解析者跳過；每首即時存檔。
  */
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 
-const SRC = 'lib/mandarin-songs-db.ts';
-const OUT = 'lib/generated/mandarin-resolved.json';
+const SRC = process.argv[2];
+const OUT = process.argv[3];
+if (!SRC || !OUT) {
+  console.error('用法：node scripts/resolve-song-ids.mjs <歌庫.ts> <輸出.json>');
+  process.exit(1);
+}
 
 function extractTracks(src) {
-  const re = /title:\s*'([^']+)'[^}]*?artist:\s*'([^']+)'[^}]*?videoId:\s*'([^']+)'/g;
+  const re = /title:\s*'([^']+)'[^}]*?artist:\s*'([^']+)'[^}]*?videoId:\s*'([^']*)'/g;
   const out = [];
   let m;
   while ((m = re.exec(src))) out.push({ title: m[1], artist: m[2], oldId: m[3] });
@@ -24,7 +27,6 @@ function extractTracks(src) {
 }
 
 const norm = (s) => s.replace(/\s+/g, '').replace(/[【】\[\]()（）]/g, '').toLowerCase();
-
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function fetchWithRetry(url, opts = {}, tries = 4) {
@@ -37,7 +39,7 @@ async function fetchWithRetry(url, opts = {}, tries = 4) {
       return res;
     } catch (e) {
       if (attempt === tries) throw e;
-      await sleep(1500 * attempt); // 退避
+      await sleep(1500 * attempt);
     }
   }
 }
@@ -69,13 +71,12 @@ function isMatch(track, info) {
   const artist = norm(track.artist);
   const titleHasSong = t.includes(song);
   const artistOk = a.includes(artist) || t.includes(artist);
-  // 歌名吻合 + (作者或標題含歌手) 最可靠；歌名吻合且夠長也接受
   if (titleHasSong && (artistOk || song.length >= 3)) return true;
   return false;
 }
 
 async function resolveTrack(track) {
-  const candidates = await searchCandidates(`${track.title} ${track.artist}`);
+  const candidates = await searchCandidates(`${track.title} ${track.artist} 台語`);
   for (const id of candidates) {
     const info = await oembed(id);
     if (info && isMatch(track, info)) {
@@ -89,8 +90,6 @@ async function resolveTrack(track) {
 async function main() {
   const src = readFileSync(SRC, 'utf8');
   const tracks = extractTracks(src);
-
-  // 可續跑：載入既有結果，跳過已成功解析的
   const result = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : {};
 
   for (let i = 0; i < tracks.length; i++) {
@@ -107,8 +106,7 @@ async function main() {
     } catch (e) {
       console.log(`[${i + 1}/${tracks.length}] ${track.title} -> ERROR ${e.message}（保留待重跑）`);
     }
-    // 每首都即時存檔，續跑不丟進度
-    mkdirSync('lib/generated', { recursive: true });
+    mkdirSync(OUT.replace(/\/[^/]+$/, ''), { recursive: true });
     writeFileSync(OUT, JSON.stringify(result, null, 2), 'utf8');
     await sleep(700);
   }
