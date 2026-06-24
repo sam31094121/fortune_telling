@@ -1,395 +1,384 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+type FlameMode = "light" | "dark";
 
 export default function VisualGravityCore() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const workerRef = useRef<Worker | null>(null);
   const rafRef = useRef<number | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const gainRef = useRef<GainNode | null>(null);
-  const coreTextRef = useRef<HTMLDivElement | null>(null);
-  const charRefs = useRef<Array<HTMLSpanElement | null>>([]);
-  const startRef = useRef<number>(performance.now());
-  const transferredRef = useRef(false);
-  const [introSkipped, setIntroSkipped] = useState(false);
+  const startRef = useRef(0);
   const [audioStarted, setAudioStarted] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current!;
-    canvas.style.willChange = "transform";
+    if (!canvas) return;
 
-    const turbEl = document.getElementById("vgc-turb") as SVGElement | null;
-    const dispEl = document.getElementById("vgc-disp") as SVGElement | null;
-    const focusRef = { current: false } as { current: boolean };
-    const explodeRef = { current: false } as { current: boolean };
+    const ctx = canvas.getContext("2d")!;
+    if (!ctx) return;
 
-    // --- OffscreenCanvas path (Chrome / Edge / Firefox 105+) ---
-    if (typeof (canvas as any).transferControlToOffscreen === 'function') {
-      let worker: Worker;
-
-      if (!transferredRef.current) {
-        // 第一次：transfer canvas 並建立 Worker
-        transferredRef.current = true;
-        const offscreen = (canvas as any).transferControlToOffscreen() as OffscreenCanvas;
-        const dpr = window.devicePixelRatio || 1;
-        const rect = canvas.getBoundingClientRect();
-        worker = new Worker('/vgc-worker.js');
-        workerRef.current = worker;
-        worker.postMessage(
-          { type: 'init', canvas: offscreen,
-            width: Math.max(1, Math.floor(rect.width * dpr)),
-            height: Math.max(1, Math.floor(rect.height * dpr)),
-            dpr, startTime: startRef.current },
-          [offscreen]
-        );
-      } else {
-        // Strict Mode 第二次：Worker 仍存活，重新掛 onmessage 並繼續
-        worker = workerRef.current!;
-        worker.postMessage({ type: 'resume' });
-      }
-
-      worker.onmessage = function (e) {
-        const { type, inT, expT, elapsed, now } = e.data;
-        if (type !== 'frame') return;
-
-        // SVG filter — 只在動畫激活時更新
-        if ((inT > 0.001 || expT > 0.001) && turbEl && dispEl) {
-          turbEl.setAttribute('baseFrequency', (0.0008 + inT * 0.018 + expT * 0.06).toFixed(5));
-          dispEl.setAttribute('scale', String(Math.round(Math.min(120, 6 + inT * 42 + expT * 220))));
-        }
-
-        // body class toggle
-        const body = document.body;
-        const focusOn = inT > 0.08;
-        if (focusOn && !focusRef.current) { body.classList.add('vgc-focus'); focusRef.current = true; }
-        else if (!focusOn && focusRef.current) { body.classList.remove('vgc-focus'); focusRef.current = false; }
-        if (expT > 0 && !explodeRef.current) { body.classList.add('vgc-explode'); explodeRef.current = true; }
-        else if (expT === 0 && explodeRef.current) { body.classList.remove('vgc-explode'); explodeRef.current = false; }
-
-        // audio sync
-        if (gainRef.current && audioCtxRef.current) {
-          try {
-            const ac = audioCtxRef.current;
-            if (expT > 0) gainRef.current.gain.setTargetAtTime(0.35, ac.currentTime, 0.02);
-            else if (inT > 0.02) gainRef.current.gain.setTargetAtTime(0.06 + inT * 0.08, ac.currentTime, 0.12);
-            else gainRef.current.gain.setTargetAtTime(0.0001, ac.currentTime, 0.4);
-          } catch (_) {}
-        }
-
-        // core text — 天地人字體動畫
-        try {
-          const core = coreTextRef.current;
-          if (core) {
-            core.style.opacity = '1';
-            const chars = charRefs.current;
-            for (let i = 0; i < 3; i++) {
-              const el = chars[i];
-              if (!el) continue;
-              const baseScale = 1 + Math.sin((now + i * 120) * 0.002) * 0.012;
-              const pull = 1 + inT * 0.08;
-              const burst = 1 + expT * (0.9 + i * 0.15);
-              el.style.transform = `translate3d(0, ${-inT * 8 + i * 2}px, 0) scale(${baseScale * pull * burst})`;
-              const glow = 0.12 + expT * 0.6 + i * 0.02;
-              el.style.textShadow = `0 0 ${12 * glow}px rgba(255,245,220,${0.85 * glow}), 0 0 ${28 * glow}px rgba(139,92,246,${0.5 * glow})`;
-              el.style.opacity = String(0.9 - inT * 0.3 + expT * 0.35);
-            }
-          }
-        } catch (_) {}
-      };
-
-      function resizeWorker() {
-        const d = window.devicePixelRatio || 1;
-        const r = canvas.getBoundingClientRect();
-        worker.postMessage({
-          type: 'resize',
-          width: Math.max(1, Math.floor(r.width * d)),
-          height: Math.max(1, Math.floor(r.height * d)),
-          dpr: d,
-        });
-      }
-
-      window.addEventListener('resize', resizeWorker);
-
-      return () => {
-        // 只暫停 RAF，不 terminate — Strict Mode cleanup 後還需要 Worker 繼續
-        worker.postMessage({ type: 'stop' });
-        if ((gainRef.current as any)?._pulseInterval) clearInterval((gainRef.current as any)._pulseInterval);
-        window.removeEventListener('resize', resizeWorker);
-      };
-    }
-
-    // --- Fallback: 主執行緒 RAF（不支援 OffscreenCanvas 的環境）---
-    const ctx = canvas.getContext('2d')!;
     let dpr = window.devicePixelRatio || 1;
-    const totalCycle = 4800;
 
     function resize() {
-      dpr = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
+      dpr = window.devicePixelRatio || 1;
       canvas.width = Math.max(1, Math.floor(rect.width * dpr));
       canvas.height = Math.max(1, Math.floor(rect.height * dpr));
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-    resize();
-    window.addEventListener('resize', resize);
+
+    function drawAtmosphere(cx: number, cy: number, radius: number) {
+      const bg = ctx.createRadialGradient(cx, cy, radius * 0.08, cx, cy, radius * 1.9);
+      bg.addColorStop(0, "rgba(255,255,255,0.08)");
+      bg.addColorStop(0.28, "rgba(122,88,210,0.14)");
+      bg.addColorStop(0.68, "rgba(11,12,26,0.66)");
+      bg.addColorStop(1, "rgba(0,0,0,0.92)");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+    }
+
+    function drawTechEnergyField(cx: number, cy: number, radius: number, time: number, breathe: number) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.globalCompositeOperation = "lighter";
+
+      const pulse = 0.55 + breathe * 0.45;
+      const halo = ctx.createRadialGradient(0, 0, radius * 0.16, 0, 0, radius * 1.46);
+      halo.addColorStop(0, `rgba(255,250,220,${0.18 + pulse * 0.08})`);
+      halo.addColorStop(0.28, `rgba(120,180,255,${0.08 + pulse * 0.05})`);
+      halo.addColorStop(0.58, `rgba(126,92,230,${0.1 + pulse * 0.04})`);
+      halo.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(0, 0, radius * 1.46, 0, Math.PI * 2);
+      ctx.fill();
+
+      for (let i = 0; i < 5; i++) {
+        const drift = time * (0.22 + i * 0.035) + i * Math.PI * 0.8;
+        const x = Math.cos(drift) * radius * (0.18 + i * 0.13);
+        const y = Math.sin(drift * 0.82) * radius * (0.1 + i * 0.07);
+        const flow = ctx.createRadialGradient(x, y, 0, x, y, radius * (0.46 + i * 0.08));
+        flow.addColorStop(0, `rgba(255,248,220,${0.12 - i * 0.012})`);
+        flow.addColorStop(0.36, `rgba(150,205,255,${0.07 - i * 0.007})`);
+        flow.addColorStop(0.72, `rgba(126,92,230,${0.06 - i * 0.006})`);
+        flow.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = flow;
+        ctx.beginPath();
+        ctx.ellipse(x, y, radius * (0.62 + i * 0.08), radius * (0.18 + i * 0.025), drift * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function drawBeveledDisc(cx: number, cy: number, radius: number) {
+      ctx.save();
+
+      const shadow = ctx.createRadialGradient(cx, cy + radius * 0.28, radius * 0.2, cx, cy + radius * 0.44, radius * 1.18);
+      shadow.addColorStop(0, "rgba(0,0,0,0.58)");
+      shadow.addColorStop(0.6, "rgba(0,0,0,0.22)");
+      shadow.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = shadow;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + radius * 0.35, radius * 1.08, radius * 0.34, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      for (let i = 5; i >= 1; i--) {
+        const y = cy + i * 2.1;
+        const side = ctx.createLinearGradient(cx - radius, y, cx + radius, y);
+        side.addColorStop(0, "rgba(5,5,10,0.78)");
+        side.addColorStop(0.46, "rgba(56,42,106,0.48)");
+        side.addColorStop(1, "rgba(255,232,170,0.32)");
+        ctx.fillStyle = side;
+        ctx.beginPath();
+        ctx.arc(cx, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function drawTaijiPath(cx: number, cy: number, radius: number) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.closePath();
+    }
+
+    function drawTaijiBody(cx: number, cy: number, radius: number, time: number, breathe: number) {
+      const topY = cy - radius * 0.5;
+      const bottomY = cy + radius * 0.5;
+
+      ctx.save();
+      drawTaijiPath(cx, cy, radius);
+      ctx.clip();
+
+      const darkBase = ctx.createRadialGradient(cx - radius * 0.32, bottomY, 0, cx - radius * 0.18, bottomY, radius * 1.05);
+      darkBase.addColorStop(0, "rgba(0,0,0,0.98)");
+      darkBase.addColorStop(0.32, "rgba(8,9,18,0.96)");
+      darkBase.addColorStop(0.62, "rgba(70,44,130,0.72)");
+      darkBase.addColorStop(1, "rgba(16,12,28,0.9)");
+      ctx.fillStyle = darkBase;
+      ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2);
+
+      const lightBase = ctx.createRadialGradient(cx + radius * 0.32, topY, 0, cx + radius * 0.18, topY, radius * 1.08);
+      lightBase.addColorStop(0, "rgba(255,255,255,1)");
+      lightBase.addColorStop(0.3, "rgba(255,246,204,0.98)");
+      lightBase.addColorStop(0.62, "rgba(225,176,84,0.86)");
+      lightBase.addColorStop(1, "rgba(82,55,26,0.65)");
+      ctx.fillStyle = lightBase;
+      ctx.fillRect(cx, cy - radius, radius, radius * 2);
+
+      ctx.fillStyle = "rgba(5,6,14,0.96)";
+      ctx.beginPath();
+      ctx.arc(cx, topY, radius * 0.5, Math.PI * 0.5, Math.PI * 1.5);
+      ctx.arc(cx, bottomY, radius * 0.5, Math.PI * 1.5, Math.PI * 0.5);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(255,252,232,0.97)";
+      ctx.beginPath();
+      ctx.arc(cx, topY, radius * 0.5, Math.PI * 1.5, Math.PI * 0.5);
+      ctx.arc(cx, bottomY, radius * 0.5, Math.PI * 0.5, Math.PI * 1.5);
+      ctx.closePath();
+      ctx.fill();
+
+      const whiteCoreX = cx + Math.cos(time * 0.45) * radius * 0.015;
+      const blackCoreX = cx - Math.cos(time * 0.45) * radius * 0.015;
+
+      const darkEye = ctx.createRadialGradient(blackCoreX, topY, 0, blackCoreX, topY, radius * 0.22);
+      darkEye.addColorStop(0, "rgba(0,0,0,1)");
+      darkEye.addColorStop(0.62, "rgba(4,5,13,0.96)");
+      darkEye.addColorStop(1, "rgba(65,42,120,0)");
+      ctx.fillStyle = darkEye;
+      ctx.beginPath();
+      ctx.arc(blackCoreX, topY, radius * (0.105 + breathe * 0.008), 0, Math.PI * 2);
+      ctx.fill();
+
+      const lightEye = ctx.createRadialGradient(whiteCoreX, bottomY, 0, whiteCoreX, bottomY, radius * 0.25);
+      lightEye.addColorStop(0, "rgba(255,255,255,1)");
+      lightEye.addColorStop(0.45, "rgba(255,234,158,0.96)");
+      lightEye.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.globalCompositeOperation = "lighter";
+      ctx.fillStyle = lightEye;
+      ctx.beginPath();
+      ctx.arc(whiteCoreX, bottomY, radius * (0.108 + breathe * 0.012), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = "source-over";
+
+      const gloss = ctx.createLinearGradient(cx - radius * 0.72, cy - radius, cx + radius * 0.55, cy + radius * 0.24);
+      gloss.addColorStop(0, "rgba(255,255,255,0.42)");
+      gloss.addColorStop(0.28, "rgba(255,255,255,0.12)");
+      gloss.addColorStop(0.6, "rgba(255,255,255,0)");
+      ctx.fillStyle = gloss;
+      ctx.beginPath();
+      ctx.ellipse(cx - radius * 0.16, cy - radius * 0.38, radius * 0.76, radius * 0.16, -0.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      const innerVignette = ctx.createRadialGradient(cx, cy, radius * 0.38, cx, cy, radius * 1.02);
+      innerVignette.addColorStop(0, "rgba(0,0,0,0)");
+      innerVignette.addColorStop(0.72, "rgba(0,0,0,0.04)");
+      innerVignette.addColorStop(1, "rgba(0,0,0,0.42)");
+      ctx.fillStyle = innerVignette;
+      drawTaijiPath(cx, cy, radius);
+      ctx.fill();
+
+      ctx.restore();
+
+      const rim = ctx.createLinearGradient(cx - radius, cy - radius, cx + radius, cy + radius);
+      rim.addColorStop(0, "rgba(255,255,255,0.78)");
+      rim.addColorStop(0.28, "rgba(255,231,164,0.9)");
+      rim.addColorStop(0.55, "rgba(28,24,46,0.86)");
+      rim.addColorStop(1, "rgba(255,255,255,0.48)");
+
+      ctx.lineWidth = radius * 0.045;
+      ctx.strokeStyle = rim;
+      drawTaijiPath(cx, cy, radius);
+      ctx.stroke();
+
+      ctx.lineWidth = radius * 0.011;
+      ctx.strokeStyle = "rgba(255,255,255,0.64)";
+      drawTaijiPath(cx, cy, radius * 0.965);
+      ctx.stroke();
+    }
+
+    function drawEnergyWisps(cx: number, cy: number, radius: number, time: number, mode: FlameMode) {
+      const isLight = mode === "light";
+      const count = 7;
+      ctx.save();
+      ctx.globalCompositeOperation = isLight ? "lighter" : "source-over";
+
+      for (let i = 0; i < count; i++) {
+        const phase = (time * (isLight ? 0.11 : 0.095) + i * 0.173) % 1;
+        const angle = (isLight ? -0.35 : Math.PI + 0.25) + Math.sin(time * 1.2 + i) * 0.56;
+        const travel = radius * (isLight ? 0.2 + phase * 0.66 : 0.78 - phase * 0.45);
+        const x = cx + Math.cos(angle) * travel;
+        const y = cy + Math.sin(angle) * travel * 0.48;
+        const size = radius * (0.012 + (1 - Math.abs(phase - 0.5)) * 0.022);
+        const alpha = isLight ? 0.08 + (1 - phase) * 0.13 : 0.08 + phase * 0.13;
+
+        const flame = ctx.createRadialGradient(x, y, 0, x, y, size * 4.2);
+        if (isLight) {
+          flame.addColorStop(0, `rgba(255,255,255,${alpha + 0.18})`);
+          flame.addColorStop(0.42, `rgba(255,222,145,${alpha})`);
+          flame.addColorStop(1, "rgba(255,255,255,0)");
+        } else {
+          flame.addColorStop(0, `rgba(0,0,0,${alpha + 0.26})`);
+          flame.addColorStop(0.5, `rgba(54,35,103,${alpha})`);
+          flame.addColorStop(1, "rgba(0,0,0,0)");
+        }
+
+        ctx.fillStyle = flame;
+        ctx.beginPath();
+        ctx.ellipse(x, y, size * 0.95, size * 2.8, angle, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function drawHumanCore(cx: number, cy: number, radius: number, breathe: number) {
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      const verticalBeam = ctx.createLinearGradient(cx, cy - radius * 0.7, cx, cy + radius * 0.7);
+      verticalBeam.addColorStop(0, "rgba(255,255,255,0)");
+      verticalBeam.addColorStop(0.42, `rgba(255,236,174,${0.1 + breathe * 0.07})`);
+      verticalBeam.addColorStop(0.5, `rgba(255,255,255,${0.18 + breathe * 0.1})`);
+      verticalBeam.addColorStop(0.58, `rgba(156,202,255,${0.1 + breathe * 0.06})`);
+      verticalBeam.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = verticalBeam;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, radius * 0.055, radius * 0.72, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.28);
+      glow.addColorStop(0, "rgba(255,255,255,1)");
+      glow.addColorStop(0.18, "rgba(255,230,162,0.82)");
+      glow.addColorStop(0.48, "rgba(126,92,230,0.18)");
+      glow.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.globalCompositeOperation = "lighter";
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * (0.18 + breathe * 0.022), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = "source-over";
+
+      ctx.fillStyle = "rgba(4,4,9,0.86)";
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.055, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.lineWidth = radius * 0.009;
+      ctx.strokeStyle = "rgba(255,232,170,0.95)";
+      ctx.stroke();
+
+      const focusBloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.18);
+      focusBloom.addColorStop(0, `rgba(255,255,255,${0.42 + breathe * 0.22})`);
+      focusBloom.addColorStop(0.38, `rgba(255,232,170,${0.18 + breathe * 0.1})`);
+      focusBloom.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.globalCompositeOperation = "lighter";
+      ctx.fillStyle = focusBloom;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.18, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = "source-over";
+    }
 
     function draw(now: number) {
-      const t = (now - startRef.current) % totalCycle;
-      const elapsed = now - startRef.current;
+      if (!startRef.current) startRef.current = now;
+      const t = (now - startRef.current) * 0.001;
       const w = canvas.width / dpr;
       const h = canvas.height / dpr;
       const cx = w / 2;
       const cy = h / 2;
+      const radius = Math.min(w, h) * 0.39;
+      const breathe = (Math.sin(t * 1.1) + 1) / 2;
 
       ctx.clearRect(0, 0, w, h);
+      drawAtmosphere(cx, cy, radius);
+      drawTechEnergyField(cx, cy, radius, t, breathe);
 
-      const vg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.8);
-      vg.addColorStop(0, 'rgba(255,255,255,0.0)');
-      vg.addColorStop(0.2, 'rgba(255,255,255,0.01)');
-      vg.addColorStop(1, 'rgba(0,0,0,0.65)');
-      ctx.fillStyle = vg;
-      ctx.fillRect(0, 0, w, h);
-
-      const breatheT = Math.min(1, Math.max(0, t / 2800));
-      const inT = t < 2800 ? 0 : Math.min(1, (t - 2800) / 1800);
-      const expT = t < 4600 ? 0 : Math.min(1, (t - 4600) / 200);
-
-      const warp = (inT * 0.08 + expT * 0.15) * (1 - Math.abs(0.5 - breatheT));
       ctx.save();
       ctx.translate(cx, cy);
-      ctx.transform(1 + warp, 0, 0, 1 - warp, 0, 0);
+      ctx.rotate(Math.sin(t * 0.26) * 0.055);
+      ctx.transform(1.05 + breathe * 0.015, -0.035, 0.085, 0.78 + breathe * 0.02, 0, 0);
       ctx.translate(-cx, -cy);
 
-      const dirs = [
-        { dx: 0, dy: -1, color: 'rgba(148,52,248,0.9)' },
-        { dx: -0.86, dy: 0.5, color: 'rgba(214,170,88,0.95)' },
-        { dx: 0.86, dy: 0.5, color: 'rgba(255,255,240,0.98)' },
-      ];
-
-      dirs.forEach((dir) => {
-        const beamWidth = 60 * (1 - inT) + 6;
-        const length = Math.hypot(w, h) * 0.9;
-        const sx = cx + dir.dx * length * (1 + (1 - inT) * 0.05);
-        const sy = cy + dir.dy * length * (1 + (1 - inT) * 0.05);
-        const grd = ctx.createLinearGradient(sx, sy, cx, cy);
-        const stopA = Math.max(0, 0.05 + (1 - inT) * 0.4);
-        grd.addColorStop(0, 'rgba(0,0,0,0)');
-        const lastComma = dir.color.lastIndexOf(',');
-        const baseColor = lastComma >= 0 ? dir.color.slice(0, lastComma + 1) : dir.color;
-        grd.addColorStop(stopA, baseColor + '0.15)');
-        grd.addColorStop(Math.min(1, 1 - expT * 0.5), baseColor + '0.9)');
-        ctx.fillStyle = grd;
-        ctx.beginPath();
-        ctx.moveTo(sx, sy);
-        ctx.lineTo(sx + (-dir.dy) * beamWidth, sy + dir.dx * beamWidth);
-        ctx.lineTo(cx, cy);
-        ctx.lineTo(sx - (-dir.dy) * beamWidth, sy - dir.dx * beamWidth);
-        ctx.closePath();
-        ctx.globalCompositeOperation = 'lighter';
-        ctx.fill();
-        ctx.globalCompositeOperation = 'source-over';
-      });
+      drawBeveledDisc(cx, cy, radius);
+      drawEnergyWisps(cx - radius * 0.34, cy + radius * 0.08, radius, t, "dark");
+      drawEnergyWisps(cx + radius * 0.34, cy - radius * 0.08, radius, t, "light");
+      drawTaijiBody(cx, cy, radius, t, breathe);
 
       ctx.restore();
-
-      if ((inT > 0.001 || expT > 0.001) && turbEl && dispEl) {
-        turbEl.setAttribute('baseFrequency', (0.0008 + inT * 0.018 + expT * 0.06).toFixed(5));
-        dispEl.setAttribute('scale', String(Math.round(Math.min(120, 6 + inT * 42 + expT * 220))));
-      }
-
-      const coreSize = 20;
-      const coreInner = coreSize * (1 + expT * 5 + inT * 0.4);
-      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreInner * 4);
-      glow.addColorStop(0, 'rgba(255,255,255,1)');
-      glow.addColorStop(0.08 + expT * 0.1, 'rgba(255,250,230,0.98)');
-      glow.addColorStop(0.25 + expT * 0.2, 'rgba(220,190,255,0.28)');
-      glow.addColorStop(0.45 + expT * 0.25, 'rgba(140,80,240,0.08)');
-      glow.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.globalCompositeOperation = 'lighter';
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(cx, cy, coreInner * 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalCompositeOperation = 'source-over';
-
-      for (let r = 0; r < 3; r++) {
-        const radius = coreInner * (0.9 + r * 0.6 + expT * 2);
-        const alpha = 0.18 - r * 0.04 + expT * 0.25;
-        ctx.beginPath();
-        ctx.lineWidth = 1 + r;
-        ctx.strokeStyle = r === 0 ? `rgba(255,245,220,${alpha})` : r === 1 ? `rgba(214,170,88,${alpha * 0.7})` : `rgba(148,52,248,${alpha * 0.6})`;
-        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-
-      ctx.beginPath();
-      ctx.arc(cx, cy, coreInner * 0.4, 0, Math.PI * 2);
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(cx, cy, coreInner * 0.85, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(230,230,255,0.95)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      for (let i = 0; i < 6; i++) {
-        const angle = (i / 6) * Math.PI * 2 + now * 0.0002 * (i + 1);
-        ctx.fillStyle = `rgba(255,255,255,${0.08 + i * 0.02})`;
-        ctx.beginPath();
-        ctx.arc(cx + Math.cos(angle) * (coreInner * (1.8 + i * 0.06)), cy + Math.sin(angle) * (coreInner * (1.8 + i * 0.06)), 0.8 + i * 0.2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      const edgeDark = 0.45 + inT * 0.45 + expT * 0.6;
-      ctx.fillStyle = `rgba(0,0,0,${Math.min(0.9, edgeDark)})`;
-      ctx.beginPath();
-      ctx.arc(cx, cy, Math.max(w, h) * 0.8, 0, Math.PI * 2);
-      ctx.rect(w, 0, -w, h);
-      ctx.fill();
-
-      if (expT > 0) {
-        ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        const rays = Math.min(36, 8 + Math.round(expT * 60));
-        for (let r = 0; r < rays; r++) {
-          const ang = (r / rays) * Math.PI * 2 + now * 0.0005 * r;
-          const len = coreInner * (4 + expT * 18 + Math.random() * 6);
-          ctx.strokeStyle = `rgba(255,240,220,${0.06 + expT * 0.6})`;
-          ctx.lineWidth = 1 + Math.random() * 1.6;
-          ctx.beginPath();
-          ctx.moveTo(cx + Math.cos(ang) * coreInner * 0.6, cy + Math.sin(ang) * coreInner * 0.6);
-          ctx.lineTo(cx + Math.cos(ang) * len, cy + Math.sin(ang) * len);
-          ctx.stroke();
-        }
-        ctx.restore();
-      }
-
-      try {
-        const body = document.body;
-        const focusOn = inT > 0.08;
-        if (focusOn && !focusRef.current) { body.classList.add('vgc-focus'); focusRef.current = true; }
-        else if (!focusOn && focusRef.current) { body.classList.remove('vgc-focus'); focusRef.current = false; }
-        if (expT > 0 && !explodeRef.current) { body.classList.add('vgc-explode'); explodeRef.current = true; }
-        else if (expT === 0 && explodeRef.current) { body.classList.remove('vgc-explode'); explodeRef.current = false; }
-      } catch (_) {}
-
-      if (gainRef.current && audioCtxRef.current) {
-        try {
-          const ac = audioCtxRef.current;
-          if (expT > 0) gainRef.current.gain.setTargetAtTime(0.35, ac.currentTime, 0.02);
-          else if (inT > 0.02) gainRef.current.gain.setTargetAtTime(0.06 + inT * 0.08, ac.currentTime, 0.12);
-          else gainRef.current.gain.setTargetAtTime(0.0001, ac.currentTime, 0.4);
-        } catch (_) {}
-      }
-
-      try {
-        const core = coreTextRef.current;
-        if (core) {
-          core.style.opacity = '1';
-          const chars = charRefs.current;
-          for (let i = 0; i < 3; i++) {
-            const el = chars[i];
-            if (!el) continue;
-            const baseScale = 1 + Math.sin((now + i * 120) * 0.002) * 0.012;
-            const pull = 1 + inT * 0.08;
-            const burst = 1 + expT * (0.9 + i * 0.15);
-            el.style.transform = `translate3d(0, ${-inT * 8 + i * 2}px, 0) scale(${baseScale * pull * burst})`;
-            const glow2 = 0.12 + expT * 0.6 + i * 0.02;
-            el.style.textShadow = `0 0 ${12 * glow2}px rgba(255,245,220,${0.85 * glow2}), 0 0 ${28 * glow2}px rgba(139,92,246,${0.5 * glow2})`;
-            el.style.opacity = String(0.9 - inT * 0.3 + expT * 0.35);
-          }
-        }
-      } catch (_) {}
+      drawHumanCore(cx, cy, radius, breathe);
 
       rafRef.current = requestAnimationFrame(draw);
     }
 
+    resize();
     rafRef.current = requestAnimationFrame(draw);
+    window.addEventListener("resize", resize);
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      if ((gainRef.current as any)?._pulseInterval) clearInterval((gainRef.current as any)._pulseInterval);
-      window.removeEventListener('resize', resize);
+      window.removeEventListener("resize", resize);
+      const pulseInterval = (gainRef.current as (GainNode & { _pulseInterval?: number }) | null)?._pulseInterval;
+      if (pulseInterval) clearInterval(pulseInterval);
     };
   }, []);
 
   function startAudio() {
     if (audioStarted) return;
-    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-    const ac = new AudioCtx();
+
+    const AudioCtor =
+      window.AudioContext ||
+      (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtor) return;
+
+    const ac = new AudioCtor();
     audioCtxRef.current = ac;
+
     const osc = ac.createOscillator();
     const gain = ac.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = 45;
+    osc.type = "sine";
+    osc.frequency.value = 48;
     gain.gain.value = 0.0001;
     osc.connect(gain);
     gain.connect(ac.destination);
     osc.start();
+
     gainRef.current = gain;
-    let on = true;
-    const interval = setInterval(() => {
+
+    const interval = window.setInterval(() => {
       if (!gainRef.current) return;
-      gainRef.current.gain.cancelScheduledValues(ac.currentTime);
       const t = ac.currentTime;
-      if (on) {
-        gainRef.current.gain.setValueAtTime(0.0001, t);
-        gainRef.current.gain.linearRampToValueAtTime(0.08, t + 0.15);
-        gainRef.current.gain.linearRampToValueAtTime(0.0001, t + 1.2);
-      }
-      on = !on;
-    }, 1400);
-    (gainRef.current as any)._pulseInterval = interval;
+      gainRef.current.gain.cancelScheduledValues(t);
+      gainRef.current.gain.setValueAtTime(0.0001, t);
+      gainRef.current.gain.linearRampToValueAtTime(0.04, t + 0.18);
+      gainRef.current.gain.linearRampToValueAtTime(0.0001, t + 1.1);
+    }, 1700);
+
+    (gainRef.current as GainNode & { _pulseInterval?: number })._pulseInterval = interval;
     setAudioStarted(true);
   }
 
-  function skipIntro() {
-    startRef.current = performance.now() - 5200;
-    workerRef.current?.postMessage({ type: 'skipIntro' });
-    setIntroSkipped(true);
-  }
-
   return (
-    <div
-      className="relative flex h-80 w-80 items-center justify-center"
-      style={{ touchAction: 'manipulation' }}
+    <button
+      type="button"
+      className="group relative flex h-80 w-80 items-center justify-center rounded-full outline-none"
+      style={{ touchAction: "manipulation" }}
       onClick={startAudio}
-      title={audioStarted ? '能量核心已啟動' : '點一下，啟動天地人能量核心'}
+      title={audioStarted ? "Taiji Tiandiren core activated" : "Tap to activate Taiji Tiandiren core"}
+      aria-label="3D Taiji Tiandiren core animation"
     >
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 h-full w-full rounded-full"
-        style={{ filter: 'url(#vgc-displace)' }}
-      />
-      {/* SVG filter for displacement warp */}
-      <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden>
-        <filter id="vgc-displace">
-          <feTurbulence id="vgc-turb" baseFrequency="0.0008" numOctaves="2" seed="2" />
-          <feDisplacementMap id="vgc-disp" in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </svg>
-      <div className="pointer-events-none z-10 flex items-center justify-center">
-        <div
-          style={{
-            width: 20,
-            height: 20,
-            borderRadius: 9999,
-            boxShadow: '0 0 18px 6px rgba(200,170,255,0.18), 0 0 36px 12px rgba(255,245,220,0.08)',
-            background: 'radial-gradient(circle at 35% 30%, #ffffff, #f8f4ff 30%, #e0d8ff 70%)',
-          }}
-        />
-        <div
-          ref={coreTextRef}
-          className="vgc-core-text absolute inset-0 pointer-events-none"
-          style={{ opacity: 1 }}
-        >
-          <span ref={(el) => { charRefs.current[0] = el; }} className="vgc-core-char vgc-core-char-top" aria-hidden>天</span>
-          <span ref={(el) => { charRefs.current[1] = el; }} className="vgc-core-char vgc-core-char-left" aria-hidden>地</span>
-          <span ref={(el) => { charRefs.current[2] = el; }} className="vgc-core-char vgc-core-char-right" aria-hidden>人</span>
-        </div>
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full rounded-full" />
+
+      <div className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_50%_48%,rgba(255,255,255,0.09),transparent_42%,rgba(0,0,0,0.28)_70%,transparent_76%)]" />
+
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <div className="h-5 w-5 rounded-full border border-amber-100/40 bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,0.92),rgba(255,222,140,0.45)_34%,rgba(7,7,13,0.72)_72%)] shadow-[0_0_26px_rgba(255,226,160,0.28)] transition-transform duration-500 group-hover:scale-105" />
       </div>
-    </div>
+    </button>
   );
 }

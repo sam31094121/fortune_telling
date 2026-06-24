@@ -294,6 +294,13 @@ export default function InsightPage() {
                   }`}>
                     ✓ 血型 {input.bloodType ? input.bloodType + '型' : '(未選)'}
                   </div>
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    input.shichen !== null
+                      ? 'bg-green-500/20 text-green-300 border border-green-400/30'
+                      : 'bg-white/10 text-[color:var(--text-muted)] border border-white/10'
+                  }`}>
+                    ✓ 時辰 {input.shichen === null ? '(自動吉時)' : input.shichen === 'unknown' ? '(良辰吉時)' : SHICHEN_LIST[input.shichen].label}
+                  </div>
                 </div>
               </div>
 
@@ -376,6 +383,67 @@ export default function InsightPage() {
                     onClick={() => setInput({ ...input, gender: 'male' })}
                     tone="cyan"
                   />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
+                  5. 出生時辰
+                  <span className="ml-1 text-xs font-normal text-[color:var(--text-muted)]">（選填，給八字・紫微大數據用）</span>
+                  {input.shichen !== null && <span className="text-green-400"> ✓</span>}
+                </label>
+                <p className="mb-4 text-xs leading-6 text-[color:var(--text-muted)]">
+                  時辰是你出生的時間（每 2 小時為一個時辰）。填了，AI 就能加入八字（日柱／時柱）與紫微斗數的命理大數據，分析更深；
+                  記不得也完全沒關係 — 點「我不知道時辰」或直接送出，系統會自動幫你挑一個「良辰吉時」。
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => setInput({ ...input, shichen: 'unknown' })}
+                  className={`w-full rounded-2xl border px-5 py-4 text-left transition-all ${
+                    input.shichen === 'unknown'
+                      ? 'border-emerald-400 bg-emerald-400/15'
+                      : 'border-white/15 bg-white/5 hover:border-white/25'
+                  }`}
+                >
+                  <p className={`text-base font-bold ${input.shichen === 'unknown' ? 'text-emerald-300' : 'text-[color:var(--text-main)]'}`}>
+                    🕊️ 我不知道 / 記不得時辰
+                  </p>
+                  <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">
+                    系統會依你的生辰，自動挑選與當日最相合的「良辰吉時」，一樣能完成八字・紫微分析。
+                  </p>
+                </button>
+
+                {input.shichen === 'unknown' && (
+                  <div className="mt-3 rounded-2xl border border-emerald-400/20 bg-emerald-950/20 p-4 text-xs leading-6 text-emerald-200">
+                    放心，已為你預留「良辰吉時」。日後若想起真實的出生時辰，再回來補上會更精準。
+                  </div>
+                )}
+
+                <div className="my-4 flex items-center gap-3">
+                  <div className="h-px flex-1 bg-white/10" />
+                  <span className="shrink-0 text-xs text-[color:var(--text-muted)]">或選擇你知道的出生時辰</span>
+                  <div className="h-px flex-1 bg-white/10" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {SHICHEN_LIST.map((s) => {
+                    const selected = input.shichen === s.branchIndex;
+                    return (
+                      <button
+                        key={s.branchIndex}
+                        type="button"
+                        onClick={() => setInput({ ...input, shichen: s.branchIndex })}
+                        className={`rounded-2xl border px-3 py-3 text-left transition-all ${
+                          selected ? 'border-cyan-400 bg-cyan-400/15' : 'border-white/10 bg-white/5 hover:border-white/20'
+                        }`}
+                      >
+                        <p className={`text-base font-bold ${selected ? 'text-cyan-300' : 'text-[color:var(--text-main)]'}`}>{s.label}</p>
+                        <p className="mt-0.5 text-xs font-semibold text-[color:var(--text-sub)]">{s.range}</p>
+                        <p className="mt-1 text-[11px] leading-4 text-[color:var(--text-muted)]">{s.imagery}</p>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
