@@ -4,12 +4,17 @@ import { useState } from 'react';
 import Link from 'next/link';
 import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
+import { SHICHEN_LIST } from '@/lib/shichen-engine';
+
+// 時辰：null=未選（送出時自動採良辰吉時）、'unknown'=明確不知道、0–11=已選時辰
+type ShichenChoice = number | 'unknown' | null;
 
 interface InsightData {
   name: string;
   birthDate: string;
   bloodType: 'A' | 'B' | 'AB' | 'O';
   gender: 'male' | 'female';
+  shichen: ShichenChoice;
 }
 
 interface InsightResult {
@@ -109,6 +114,7 @@ export default function InsightPage() {
     birthDate: '',
     bloodType: 'A',
     gender: 'female',
+    shichen: null,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -174,6 +180,7 @@ export default function InsightPage() {
             birthDate: input.birthDate.trim(),
             bloodType: input.bloodType,
             gender: input.gender,
+            shichen: input.shichen,
           }),
         });
 
@@ -403,7 +410,7 @@ export default function InsightPage() {
                 {(input.name || input.birthDate) && (
                   <button
                     onClick={() => {
-                      setInput({ name: '', birthDate: '', bloodType: 'A', gender: 'female' });
+                      setInput({ name: '', birthDate: '', bloodType: 'A', gender: 'female', shichen: null });
                       setError('');
                     }}
                     disabled={loading}

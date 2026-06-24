@@ -196,7 +196,7 @@ export default function HomePage() {
               </div>
               <div className="fortune-card human-card p-4">
                 <p className="text-xs uppercase tracking-[0.3em] text-pink-300">人 30%</p>
-                <p className="mt-2 text-sm text-[color:var(--text-main)]">姓名解鎖個體差異</p>
+                <p className="mt-2 text-sm text-[color:var(--text-main)]">姓名・性別・時辰解鎖個體差異</p>
               </div>
             </div>
           </div>

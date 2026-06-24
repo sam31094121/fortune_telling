@@ -14,7 +14,8 @@ const analysisCache = new Map<string, { result: unknown; timestamp: number }>();
 const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 分鐘快取
 
 function getCacheKey(body: InsightRequest): string {
-  return `${body.name.trim()}|${body.birthDate}|${body.bloodType}|${body.gender}`;
+  const shichenKey = typeof body.shichen === 'number' ? String(body.shichen) : 'auto';
+  return `${body.name.trim()}|${body.birthDate}|${body.bloodType}|${body.gender}|${shichenKey}`;
 }
 
 function validateInsightRequest(body: unknown): string | null {
@@ -40,6 +41,15 @@ function validateInsightRequest(body: unknown): string | null {
 
   if (typeof req.gender !== 'string' || !VALID_GENDERS.includes(req.gender)) {
     return '性別只能是 male 或 female。';
+  }
+
+  if (
+    req.shichen !== undefined &&
+    req.shichen !== null &&
+    req.shichen !== 'unknown' &&
+    !(typeof req.shichen === 'number' && Number.isInteger(req.shichen) && req.shichen >= 0 && req.shichen <= 11)
+  ) {
+    return '時辰資料格式無效。';
   }
 
   return null;

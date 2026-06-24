@@ -25,6 +25,8 @@ export interface InsightRequest {
   birthDate: string;
   bloodType: Exclude<BloodType, ''>;
   gender: Gender;
+  // 時辰：number(0–11 地支序)=已知；'unknown'/null=不知道（自動套良辰吉時）
+  shichen?: number | 'unknown' | null;
 }
 
 export interface PreviewRequest {

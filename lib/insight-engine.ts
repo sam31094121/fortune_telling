@@ -2,6 +2,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { getBirthPersonalityScores, getBirthZodiac } from './birth-model-db';
 import { getBloodTypeDescription, getBloodTypePersonalityScores } from './blood-model-db';
 import { getNameDescription, getNamePersonalityScores } from './name-model-db';
+import { computeShichenProfile } from './shichen-engine';
 import {
   DIMENSION_KEYS,
   type DimensionScores,
@@ -173,9 +174,13 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 
   const birthZodiac = getBirthZodiac(request.birthDate);
 
+  // 時辰（人 30% 子層）：算八字日柱/時柱，不知道時辰時自動採良辰吉時。
+  const shichenBranchIndex = typeof request.shichen === 'number' ? request.shichen : null;
+  const shichen = computeShichenProfile({ birthDate: request.birthDate, shichenBranchIndex });
+
   // 構建分析提示
   const analysisPrompt = `
-你是一個專業的人格和心理分析專家，擁有統計學和大數據分析的專業知識。
+你是一個專業的人格和心理分析專家，同時精通八字命理與紫微斗數，並擁有統計學和大數據分析的專業知識。
 請根據以下天地人資料進行深度洞察分析：
 
 【基本資料】
@@ -183,6 +188,11 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 - 生日: ${request.birthDate} (星座: ${birthZodiac})
 - 血型: ${request.bloodType}型
 - 性別: ${request.gender === 'female' ? '女性' : '男性'}
+
+【八字時辰（人 30% 子層，供八字與紫微斗數分析）】
+- 出生時辰: ${shichen.shichen.label}（${shichen.shichen.range}）${shichen.isKnown ? '（使用者提供之真實時辰）' : '（使用者未提供時辰，已依生辰自動採用良辰吉時）'}
+- 八字日柱: ${shichen.dayPillar} · 時柱: ${shichen.hourPillar.ganzhi}
+- 時辰五行: ${shichen.wuxing}
 
 【個性特質分數】(0-100)
 生日骨架:
@@ -200,6 +210,11 @@ ${JSON.stringify(nameScores, null, 2)}
 3. 大數據發現（基於全球樣本的趨勢）
 4. 個性化建議（3-5項）
 5. 完整的分析摘要
+
+分析要求：
+- 至少有一項心理學洞察或大數據發現，要自然融入「八字（日柱/時柱五行）與紫微斗數」的命理視角，與心理學/統計資料彼此呼應、不可互相矛盾。
+- 若時辰為自動採用的良辰吉時，分析照常完成，語氣保持正向，不需強調資料不足。
+- 語氣專業、溫和、有依據，繁體中文。
 
 返回結構化的 JSON 格式。`;
 

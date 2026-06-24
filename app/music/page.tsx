@@ -74,6 +74,16 @@ interface MusicGenerateResponse {
       agreeableness: number;
       neuroticism: number;
     };
+    shichen?: {
+      isKnown: boolean;
+      label: string;
+      range: string;
+      branch: string;
+      wuxing: string;
+      dayPillar: string;
+      hourPillar: string;
+      friendlyNote: string;
+    };
   };
 }
 
@@ -162,7 +172,7 @@ function LandingHero({ onStart }: { onStart: () => void }) {
           {[
             { label: '天 35%', desc: '生日決定主旋律與情緒底色', color: 'rgba(109,74,255,0.7)' },
             { label: '地 35%', desc: '血型補充節奏感與表達方式', color: 'rgba(201,162,74,0.7)' },
-            { label: '人 30%', desc: '姓名校正歌詞靈魂與記憶點', color: 'rgba(215,139,255,0.7)' },
+            { label: '人 30%', desc: '姓名・性別・時辰解鎖歌詞靈魂', color: 'rgba(215,139,255,0.7)' },
           ].map((item) => (
             <div
               key={item.label}
@@ -211,6 +221,7 @@ export default function MusicSystemPage() {
           bloodType: data.bloodType,
           name: data.name.trim(),
           gender: data.gender,
+          shichen: data.shichen,
           voiceCharacteristics: data.voiceCharacteristics,
         }),
       });

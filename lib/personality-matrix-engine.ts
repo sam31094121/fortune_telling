@@ -90,7 +90,6 @@ export class PersonalityMatrixEngine {
    * 從地模型提取人格參數（35%）
    */
   static extractEarthModel(
-    gender: "male" | "female" | "non-binary",
     bloodType: "A" | "B" | "AB" | "O",
     voiceCharacteristics: string[] = []
   ): Partial<PersonalityMatrix> {
@@ -117,10 +116,6 @@ export class PersonalityMatrixEngine {
       attachment: 70,
     };
 
-    // 性別聲音特徵修正
-    const genderVoice = GenderVoiceMap[gender];
-    const genderModifier = genderVoice.emotionModifier || {};
-
     // 聲音特徵修正
     let voiceAdjust: Record<string, number> = {
       emotion: 0,
@@ -142,9 +137,8 @@ export class PersonalityMatrixEngine {
     // 合併
     for (const key of Object.keys(matrix) as (keyof PersonalityMatrix)[]) {
       const bloodVal = bloodTypeBase[key] || 70;
-      const genderVal = (genderModifier[key] || 0) * 2;
       const voiceVal = (voiceAdjust[key] || 0) * 1.5;
-      matrix[key] = Math.max(0, Math.min(100, bloodVal + genderVal + voiceVal));
+      matrix[key] = Math.max(0, Math.min(100, bloodVal + voiceVal));
     }
 
     return matrix;
@@ -152,8 +146,13 @@ export class PersonalityMatrixEngine {
 
   /**
    * 從人模型提取人格參數（30%）
+   * 人 = 姓名 + 性別（男女）+ 時辰（時辰加成於 generatePersonalityMatrix 併入）
    */
-  static extractHumanModel(firstName: string, lastName?: string): Partial<PersonalityMatrix> {
+  static extractHumanModel(
+    firstName: string,
+    gender: "male" | "female" | "non-binary",
+    lastName?: string,
+  ): Partial<PersonalityMatrix> {
     const matrix: Partial<PersonalityMatrix> = {
       emotion: 70,
       logic: 70,
@@ -173,12 +172,17 @@ export class PersonalityMatrixEngine {
     // 聲調偏好（漢語聲調或拼音）
     const toneAdjust = this.getToneAdjustment(firstName);
 
+    // 性別（男女）修正：併入人 30%，不再算在地層
+    const genderVoice = GenderVoiceMap[gender];
+    const genderModifier = genderVoice?.emotionModifier || {};
+
     // 合併
     for (const key of Object.keys(matrix) as (keyof PersonalityMatrix)[]) {
       const baseVal = matrix[key] ?? 70;
       const nameVal = (nameAdjust[key] ?? 0) * 3;
       const toneVal = (toneAdjust[key] ?? 0) * 2;
-      matrix[key] = Math.max(0, Math.min(100, baseVal + nameVal + toneVal));
+      const genderVal = (genderModifier[key] ?? 0) * 2;
+      matrix[key] = Math.max(0, Math.min(100, baseVal + nameVal + toneVal + genderVal));
     }
 
     return matrix;
@@ -191,20 +195,27 @@ export class PersonalityMatrixEngine {
   static generatePersonalityMatrix(
     input: PersonalityMatrixInput,
     destinyAdjust?: Partial<PersonalityMatrix>,
+    shichenAdjust?: Partial<PersonalityMatrix>,
   ): PersonalityMatrix {
     const sky = this.extractSkyModel(input.birthDate, input.zodiacSign);
-    const earth = this.extractEarthModel(input.gender, input.bloodType, input.voiceCharacteristics);
-    const human = this.extractHumanModel(input.firstName, input.lastName);
+    const earth = this.extractEarthModel(input.bloodType, input.voiceCharacteristics);
+    const human = this.extractHumanModel(input.firstName, input.gender, input.lastName);
 
     const result: PersonalityMatrix = {
       emotion: 0, logic: 0, social: 0, leadership: 0,
       security: 0, creativity: 0, risk: 0, attachment: 0,
     };
 
+    // 時辰（八字時柱）併入「人 30%」子層，不另立權重；放大係數讓它有感但不壓過姓名。
+    const SHICHEN_SCALE = 2;
+
     for (const key of Object.keys(result) as (keyof PersonalityMatrix)[]) {
       const skyVal = sky[key] || 70;
       const earthVal = earth[key] || 70;
-      const humanVal = human[key] || 70;
+
+      // 人層 = 姓名 + 時辰（時辰加成併進人 30% 內，不超出三層權重）
+      const shichenBoost = (shichenAdjust?.[key] ?? 0) * SHICHEN_SCALE;
+      const humanVal = Math.max(0, Math.min(100, (human[key] || 70) + shichenBoost));
 
       // 公式：天 35% + 地 35% + 人 30%
       let score = skyVal * 0.35 + earthVal * 0.35 + humanVal * 0.3;

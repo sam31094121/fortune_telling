@@ -9,6 +9,7 @@ import { selectEnglishSong } from '@/lib/english-songs-db';
 import { selectTaiwaneseSong } from '@/lib/taiwanese-songs-db';
 import { getZodiacEnglishName, getZodiacSign } from '@/lib/zodiac';
 import { isValidBirthday } from '@/lib/validation';
+import { computeShichenProfile } from '@/lib/shichen-engine';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,11 +30,15 @@ function getBirthEra(birthDate: string): string {
 const VALID_BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const VALID_GENDERS = ['male', 'female'] as const;
 
+// 時辰：number(0–11 地支序)=已知；'unknown'/null=不知道（自動套良辰吉時）
+type ShichenChoice = number | 'unknown' | null;
+
 interface MusicGenerateRequest {
   birthDate: string;
   bloodType: 'A' | 'B' | 'AB' | 'O';
   name: string;
   gender: 'male' | 'female';
+  shichen?: ShichenChoice;
   voiceCharacteristics?: string[];
 }
 
@@ -60,6 +65,15 @@ function validate(body: unknown): string | null {
 
   if (!payload.gender || !VALID_GENDERS.includes(payload.gender as (typeof VALID_GENDERS)[number])) {
     return '性別只能是 male 或 female。';
+  }
+
+  if (
+    payload.shichen !== undefined &&
+    payload.shichen !== null &&
+    payload.shichen !== 'unknown' &&
+    !(typeof payload.shichen === 'number' && Number.isInteger(payload.shichen) && payload.shichen >= 0 && payload.shichen <= 11)
+  ) {
+    return '時辰資料格式無效。';
   }
 
   if (payload.voiceCharacteristics !== undefined && (
@@ -102,13 +116,17 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { birthDate, bloodType, name, gender, voiceCharacteristics = [] } = body;
+    const { birthDate, bloodType, name, gender, shichen = null, voiceCharacteristics = [] } = body;
     const trimmedName = name.trim();
 
   const zodiacZh = getZodiacSign(birthDate);
   const zodiacEn = getZodiacEnglishName(birthDate);
   const era = getBirthEra(birthDate);
   const destinyProfile = computeDestinyProfile(birthDate);
+
+  // 時辰（八字時柱）：屬人 30% 子層；不知道時辰時自動套良辰吉時。
+  const shichenBranchIndex = typeof shichen === 'number' ? shichen : null;
+  const shichenProfile = computeShichenProfile({ birthDate, shichenBranchIndex });
 
   const matrixInput = {
     birthDate,
@@ -122,6 +140,7 @@ export async function POST(request: Request) {
   const personalityMatrix = PersonalityMatrixEngine.generatePersonalityMatrix(
     matrixInput,
     destinyProfile.personalityAdjust,
+    shichenProfile.personalityAdjust,
   );
 
   const ocean = computeOcean(personalityMatrix);
@@ -250,6 +269,16 @@ export async function POST(request: Request) {
       archetypeSecondary: archetypeSecondary.zh,
       archetypeSecondarySymbol: archetypeSecondary.symbol,
       ocean,
+      shichen: {
+        isKnown: shichenProfile.isKnown,
+        label: shichenProfile.shichen.label,
+        range: shichenProfile.shichen.range,
+        branch: shichenProfile.shichen.branch,
+        wuxing: shichenProfile.wuxing,
+        dayPillar: shichenProfile.dayPillar,
+        hourPillar: shichenProfile.hourPillar.ganzhi,
+        friendlyNote: shichenProfile.friendlyNote,
+      },
     },
     });
   } catch (error) {
