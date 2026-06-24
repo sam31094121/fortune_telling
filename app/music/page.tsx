@@ -5,7 +5,7 @@ import VisualGravityCore from '@/components/VisualGravityCore';
 import PersonalityMusicFlow, { type MusicFormData } from '@/components/PersonalityMusicFlow';
 import PersonalityMusicReport from '@/components/PersonalityMusicReport';
 
-interface MandarinTrack {
+interface SongTrack {
   title: string;
   artist: string;
   videoId: string;
@@ -28,8 +28,11 @@ interface MusicGenerateResponse {
     lyric_opening: string;
     music_message: string;
     wisdom_note: string;
+    english_song_reason: string;
+    mandarin_song_reason: string;
   };
-  mandarin_tracks?: MandarinTrack[];
+  english_track: SongTrack;
+  mandarin_track: SongTrack | null;
   meta: {
     zodiac: string;
     era: string;
@@ -295,7 +298,8 @@ export default function MusicSystemPage() {
             musicParameters={result.music_parameters}
             musicReport={result.music_report}
             meta={result.meta}
-            mandarinTracks={result.mandarin_tracks}
+            englishTrack={result.english_track}
+            mandarinTrack={result.mandarin_track}
             name={submittedName}
             onReset={handleReset}
           />

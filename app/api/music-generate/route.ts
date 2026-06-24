@@ -5,6 +5,7 @@ import { MusicParameterGenerator } from '@/lib/music-parameter-generator';
 import { computeDestinyProfile } from '@/lib/destiny-engine';
 import { computeOcean, identifyArchetypes, getOceanBpmAdjust } from '@/lib/psychology-engine';
 import { selectMandarinSongs, getEraDisplayName } from '@/lib/mandarin-songs-db';
+import { selectEnglishSong } from '@/lib/english-songs-db';
 import { getZodiacEnglishName, getZodiacSign } from '@/lib/zodiac';
 import { isValidBirthday } from '@/lib/validation';
 
@@ -148,6 +149,11 @@ export async function POST(request: Request) {
     ]),
   ).slice(0, 8);
 
+  // 大數據精準選歌：各取 1 首（英文 + 國語）
+  const englishTrack = selectEnglishSong(personalityMatrix);
+  const mandarinTrack = selectMandarinSongs(era, personalityMatrix, 1)[0];
+  const eraDisplayName = getEraDisplayName(era);
+
   const musicReport = await generateMusicReport({
     name: trimmedName,
     birthDate,
@@ -165,16 +171,26 @@ export async function POST(request: Request) {
       zodiacTrait: destinyProfile.zodiacProfile.trait,
       zodiacMusicTrait: destinyProfile.zodiacProfile.musicTrait,
     },
+    selectedSongs: {
+      english: { title: englishTrack.title, artist: englishTrack.artist },
+      mandarin: mandarinTrack
+        ? { title: mandarinTrack.title, artist: mandarinTrack.artist }
+        : { title: '—', artist: '—' },
+    },
   });
-
-  const mandarinTracks = selectMandarinSongs(era, personalityMatrix);
-  const eraDisplayName = getEraDisplayName(era);
 
     return NextResponse.json({
     personality_matrix: personalityMatrix,
     music_parameters: finalMusicParameters,
     music_report: musicReport,
-    mandarin_tracks: mandarinTracks,
+    english_track: {
+      title: englishTrack.title,
+      artist: englishTrack.artist,
+      videoId: englishTrack.videoId,
+    },
+    mandarin_track: mandarinTrack
+      ? { title: mandarinTrack.title, artist: mandarinTrack.artist, videoId: mandarinTrack.videoId }
+      : null,
     meta: {
       eraDisplayName,
       zodiac: zodiacZh,

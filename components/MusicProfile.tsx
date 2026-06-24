@@ -1,4 +1,5 @@
 import type { MusicProfile as MusicProfileType } from '@/lib/types';
+import { getGenreTrack } from '@/lib/genre-tracks';
 import MusicPlayer from './MusicPlayer';
 
 interface MusicProfileProps {
@@ -44,9 +45,9 @@ export default function MusicProfile({ profile, tier }: MusicProfileProps) {
       {/* Auto-play player for top genre */}
       <div className="mb-6">
         <MusicPlayer
-          genreKey={topGenres[0].key}
-          genreName={topGenres[0].name}
-          genreEmoji={topGenres[0].emoji}
+          label={`${topGenres[0].emoji} ${topGenres[0].name}`}
+          flag={topGenres[0].emoji}
+          track={getGenreTrack(topGenres[0].key)}
           affinityScore={topGenres[0].score}
         />
       </div>

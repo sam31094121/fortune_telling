@@ -116,7 +116,7 @@ const ERA_MANDARIN_SONGS: Record<string, MandarinTrack[]> = {
 // 人格矩陣 → 靈魂標籤偏好排序
 // ────────────────────────────────────────────────────────────
 
-interface PersonalityMatrixLike {
+export interface PersonalityMatrixLike {
   emotion: number;
   creativity: number;
   social: number;
@@ -127,7 +127,7 @@ interface PersonalityMatrixLike {
   logic: number;
 }
 
-function derivePreferredTags(matrix: PersonalityMatrixLike): SoulTag[] {
+export function derivePreferredTags(matrix: PersonalityMatrixLike): SoulTag[] {
   const tags: { tag: SoulTag; score: number }[] = [
     { tag: '情歌',  score: (matrix.emotion + matrix.attachment) / 2 },
     { tag: '深情',  score: (matrix.attachment + matrix.emotion * 1.2) / 2.2 },

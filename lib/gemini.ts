@@ -191,7 +191,12 @@ function buildPreviewPrompt(
 `.trim();
 }
 
-async function generateStructuredText<T>(apiKey: string, prompt: string, schema: T): Promise<string> {
+async function generateStructuredText<T>(
+  apiKey: string,
+  prompt: string,
+  schema: T,
+  maxOutputTokens = 900,
+): Promise<string> {
   const ai = new GoogleGenAI({ apiKey });
 
   const response = await withTimeout(
@@ -202,7 +207,7 @@ async function generateStructuredText<T>(apiKey: string, prompt: string, schema:
         responseMimeType: 'application/json',
         responseSchema: schema as never,
         temperature: 0.2,
-        maxOutputTokens: 900,
+        maxOutputTokens,
         thinkingConfig: { thinkingBudget: 0 },
       },
     }),
@@ -328,6 +333,11 @@ export interface MusicReportInput {
     archetypeSecondary: string;
     oceanHighlight: string;
   };
+  // 已由大數據選歌引擎挑出的兩首主題曲，請 AI 說明為何對應此人
+  selectedSongs?: {
+    english: { title: string; artist: string };
+    mandarin: { title: string; artist: string };
+  };
 }
 
 export interface MusicReportOutput {
@@ -336,15 +346,25 @@ export interface MusicReportOutput {
   lyric_opening: string;
   music_message: string;
   wisdom_note: string;
+  english_song_reason: string;
+  mandarin_song_reason: string;
 }
 
 function createLocalMusicReport(input: MusicReportInput): MusicReportOutput {
+  const en = input.selectedSongs?.english;
+  const zh = input.selectedSongs?.mandarin;
   return {
     music_narrative: `${input.name}的人格音樂矩陣已完成融合，天地人三層能量交織出屬於你的聲音頻率。`,
     song_title_suggestion: '命運共鳴',
     lyric_opening: '天地之間有一道光，是你走過的每一個選擇。',
     music_message: '這首歌是你內心深處最真實的聲音，聆聽它，你會找到屬於自己的方向。',
     wisdom_note: '心存善念，多行善事，才是真正改變命運的開始。',
+    english_song_reason: en
+      ? `《${en.title}》的情緒頻率，與你的人格底色相互呼應。`
+      : '',
+    mandarin_song_reason: zh
+      ? `《${zh.title}》的旋律記憶，貼合你成長年代的情感共鳴。`
+      : '',
   };
 }
 
@@ -371,6 +391,14 @@ const MUSIC_REPORT_SCHEMA = {
       type: Type.STRING,
       description: '以善念為核心的結語，不說教，80字內，繁體中文。',
     },
+    english_song_reason: {
+      type: Type.STRING,
+      description: '說明為何這首「英文主題曲」對應此人的人格與命格，具體呼應其特質，70字內，繁體中文。',
+    },
+    mandarin_song_reason: {
+      type: Type.STRING,
+      description: '說明為何這首「國語主題曲」對應此人的人格與成長年代，具體有感，70字內，繁體中文。',
+    },
   },
   required: [
     'music_narrative',
@@ -378,6 +406,8 @@ const MUSIC_REPORT_SCHEMA = {
     'lyric_opening',
     'music_message',
     'wisdom_note',
+    'english_song_reason',
+    'mandarin_song_reason',
   ],
 };
 
@@ -430,12 +460,19 @@ BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
 樂器：${input.musicParameters.instrument.join(', ')}
 歌詞主題：${input.musicParameters.lyric_theme.join(', ')}
 
+━━━ 大數據選歌引擎已挑出的兩首主題曲 ━━━
+英文主題曲：《${input.selectedSongs?.english.title ?? '—'}》— ${input.selectedSongs?.english.artist ?? '—'}
+國語主題曲：《${input.selectedSongs?.mandarin.title ?? '—'}》— ${input.selectedSongs?.mandarin.artist ?? '—'}
+（這兩首是系統依此人生日、血型、性別融合出的人格特質精準匹配，請勿更換歌曲，只需說明為何契合。）
+
 請輸出 JSON，欄位為：
 - music_narrative：融合命理與心理學的人格音樂靈魂敘述，200字內
 - song_title_suggestion：有命理感的建議歌名，繁中，4-10字
 - lyric_opening：開場歌詞兩句，要有五行/命理意象，繁中
 - music_message：這首歌想對使用者說的話，溫暖且有深度，100字內
 - wisdom_note：以善念、因果、命運為核心的結語，80字內
+- english_song_reason：為何上方那首英文主題曲對應此人(具體呼應其人格特質)，70字內
+- mandarin_song_reason：為何上方那首國語主題曲對應此人(呼應人格與成長年代)，70字內
 `.trim();
 }
 
@@ -448,6 +485,7 @@ export async function generateMusicReport(input: MusicReportInput): Promise<Musi
       apiKey,
       buildMusicReportPrompt(input),
       MUSIC_REPORT_SCHEMA,
+      1200,
     );
     return normalizeStructuredFields(safeJsonParse<MusicReportOutput>(text)) as unknown as MusicReportOutput;
   } catch (error) {

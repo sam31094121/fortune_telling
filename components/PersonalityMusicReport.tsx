@@ -29,6 +29,8 @@ interface MusicReport {
   lyric_opening: string;
   music_message: string;
   wisdom_note: string;
+  english_song_reason?: string;
+  mandarin_song_reason?: string;
 }
 
 interface OceanProfile {
@@ -62,7 +64,7 @@ interface Meta {
   ocean?: OceanProfile;
 }
 
-interface MandarinTrack {
+interface SongTrack {
   title: string;
   artist: string;
   videoId: string;
@@ -73,23 +75,11 @@ interface PersonalityMusicReportProps {
   musicParameters: MusicParameters;
   musicReport: MusicReport;
   meta: Meta;
-  mandarinTracks?: MandarinTrack[];
+  englishTrack: SongTrack;
+  mandarinTrack: SongTrack | null;
   name: string;
   onReset: () => void;
 }
-
-const GENRE_TO_PLAYER_KEY: Record<string, string> = {
-  cinematic_pop: 'ballad',
-  acoustic_pop: 'folk_indie',
-  indie_folk: 'folk_indie',
-  alternative_rock: 'rock',
-  electronic_pop: 'electronic',
-  experimental_electronic: 'electronic',
-  avant_garde: 'new_age',
-  ambient_electronic: 'new_age',
-  psychedelic_rock: 'rock',
-  classical_ambient: 'classical',
-};
 
 const GENRE_NAMES: Record<string, string> = {
   cinematic_pop: '電影流行',
@@ -170,11 +160,11 @@ export default function PersonalityMusicReport({
   musicParameters,
   musicReport,
   meta,
-  mandarinTracks,
+  englishTrack,
+  mandarinTrack,
   name,
   onReset,
 }: PersonalityMusicReportProps) {
-  const playerGenreKey = GENRE_TO_PLAYER_KEY[musicParameters.genre] || 'ballad';
   const genreName = GENRE_NAMES[musicParameters.genre] || musicParameters.genre;
   const genreEmoji = GENRE_EMOJI[musicParameters.genre] || '🎼';
 
@@ -212,14 +202,28 @@ export default function PersonalityMusicReport({
         </div>
       </div>
 
-      <MusicPlayer
-        mandarinTracks={mandarinTracks}
-        eraDisplayName={meta.eraDisplayName ?? meta.era}
-        genreKey={playerGenreKey}
-        genreName={genreName}
-        genreEmoji={genreEmoji}
-        affinityScore={Math.round((personalityMatrix.creativity + personalityMatrix.emotion) / 2)}
-      />
+      <div className="space-y-4">
+        <p className="text-center text-xs uppercase tracking-[0.4em] text-violet-300/70">
+          AI 大數據 · 你的兩首專屬主題曲
+        </p>
+        <MusicPlayer
+          label="英文主題曲"
+          flag="🌍"
+          track={englishTrack}
+          reason={musicReport.english_song_reason}
+          affinityScore={Math.round((personalityMatrix.creativity + personalityMatrix.emotion) / 2)}
+        />
+        {mandarinTrack && (
+          <MusicPlayer
+            label={`國語主題曲 · ${meta.eraDisplayName ?? meta.era}`}
+            flag="🇹🇼"
+            track={mandarinTrack}
+            reason={musicReport.mandarin_song_reason}
+            affinityScore={Math.round((personalityMatrix.attachment + personalityMatrix.emotion) / 2)}
+            embeddable={false}
+          />
+        )}
+      </div>
 
       <div className="fortune-card px-6 py-7 sm:px-8">
         <p className="mb-6 text-xs uppercase tracking-[0.4em] text-[color:var(--text-muted)]">人格能量矩陣</p>

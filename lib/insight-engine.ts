@@ -144,13 +144,24 @@ function extractJsonText(text: string): string {
 }
 
 function safeJsonParse<T>(text: string): T {
-  return JSON.parse(extractJsonText(text)) as T;
+  const jsonText = extractJsonText(text);
+  try {
+    return JSON.parse(jsonText) as T;
+  } catch (error) {
+    // 多半是輸出被 token 上限截斷，導致 JSON 不完整
+    const isTruncated = !jsonText.trimEnd().endsWith('}');
+    const reason = isTruncated
+      ? 'AI 回應內容過長被截斷，請稍後再試。'
+      : 'AI 回應格式異常，無法解析。';
+    throw new Error(reason);
+  }
 }
 
 export async function generateInsightAnalysis(request: InsightRequest): Promise<InsightAnalysisResponse> {
-  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  // 與專案其他模組一致使用 GEMINI_API_KEY，並保留舊名稱作為後備
+  const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (!apiKey) {
-    throw new Error('未設置 GOOGLE_GENERATIVE_AI_API_KEY 環境變數。');
+    throw new Error('未設定 GEMINI_API_KEY 環境變數。請在 .env.local 中填入你的 Google AI Studio 金鑰。');
   }
 
   const ai = new GoogleGenAI({ apiKey });
@@ -202,7 +213,10 @@ ${JSON.stringify(nameScores, null, 2)}
         temperature: 1,
         topP: 0.95,
         topK: 40,
-        maxOutputTokens: 2048,
+        // gemini-2.5-flash 為思考型模型，思考 tokens 會佔用輸出額度。
+        // 關閉思考並提高上限，避免中文 JSON 被截斷導致解析失敗。
+        thinkingConfig: { thinkingBudget: 0 },
+        maxOutputTokens: 8192,
       },
     }),
     GEMINI_TIMEOUT_MS,
