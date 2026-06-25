@@ -13,6 +13,10 @@ export default function VisualGravityCore() {
     let animId = 0;
     let domEl: HTMLCanvasElement | null = null;
     let resizeFn: (() => void) | null = null;
+    let cancelled = false;
+
+    // Clean any stale canvases from previous HMR mounts
+    Array.from(mount.querySelectorAll("canvas")).forEach(c => c.remove());
 
     async function boot() {
       try {
@@ -46,6 +50,7 @@ export default function VisualGravityCore() {
           renderer.outputColorSpace = (THREE as any).SRGBColorSpace;
         } catch (_) { /* r152 fallback */ }
         renderer.toneMapping = THREE.NoToneMapping;
+        if (cancelled) { renderer.dispose(); return; }
         mount.appendChild(renderer.domElement);
         domEl = renderer.domElement;
 
@@ -60,52 +65,6 @@ export default function VisualGravityCore() {
         const backL = new THREE.PointLight(0x4466cc, 1.2, 10);
         backL.position.set(0, 0, -4);
         scene.add(backL);
-
-        // ── Yin-Yang canvas texture ───────────────────────────────────────
-        function buildYYTex() {
-          const S = 1024, m = S / 2, r = m;
-
-          // Draw yin-yang on temp canvas
-          const tmp = document.createElement("canvas");
-          tmp.width = tmp.height = S;
-          const tx = tmp.getContext("2d")!;
-
-          tx.fillStyle = "#050505";
-          tx.beginPath();
-          tx.arc(m, m, r, 0, Math.PI * 2);
-          tx.fill();
-
-          // Yang (white) S-path — clockwise arc = RIGHT half
-          tx.fillStyle = "#FFFFFF";
-          tx.beginPath();
-          tx.arc(m, m, r, -Math.PI / 2, Math.PI / 2, false);
-          tx.arc(m, m + r / 2, r / 2, Math.PI / 2, -Math.PI / 2, true);
-          tx.arc(m, m - r / 2, r / 2, Math.PI / 2, -Math.PI / 2, false);
-          tx.closePath();
-          tx.fill();
-
-          // Yin dot in yang (black hole eye)
-          tx.fillStyle = "#000000";
-          tx.beginPath();
-          tx.arc(m, m - r / 2, r * 0.13, 0, Math.PI * 2);
-          tx.fill();
-
-          // Yang dot in yin (white hole eye)
-          tx.fillStyle = "#FFFFFF";
-          tx.beginPath();
-          tx.arc(m, m + r / 2, r * 0.13, 0, Math.PI * 2);
-          tx.fill();
-
-          // Flip horizontally so yang maps to U=0-0.5 (front-facing in Three.js sphere)
-          const cv = document.createElement("canvas");
-          cv.width = cv.height = S;
-          const cx = cv.getContext("2d")!;
-          cx.translate(S, 0);
-          cx.scale(-1, 1);
-          cx.drawImage(tmp, 0, 0);
-
-          return new THREE.CanvasTexture(cv);
-        }
 
         // ── Glow sprite texture helper ────────────────────────────────────
         function buildGlowTex(R: number, G: number, B: number) {
@@ -127,13 +86,36 @@ export default function VisualGravityCore() {
         const grp = new THREE.Group();
         scene.add(grp);
 
-        // Main yin-yang sphere
-        const yyTex  = buildYYTex();
-        try { (yyTex as any).colorSpace = (THREE as any).SRGBColorSpace; } catch (_) { /* ok */ }
+        // Main yin-yang sphere — ShaderMaterial computes pattern in GLSL (no texture issues)
         const sphGeo = new THREE.SphereGeometry(1.62, 128, 128);
-        // MeshBasicMaterial: shows texture color directly, not affected by lights
-        // This ensures yang (white) area is always visibly white
-        const sphMat = new THREE.MeshBasicMaterial({ map: yyTex });
+        const sphMat = new THREE.ShaderMaterial({
+          vertexShader: `
+            varying vec2 vUv;
+            void main() {
+              vUv = uv;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+          `,
+          fragmentShader: `
+            precision mediump float;
+            varying vec2 vUv;
+            void main() {
+              float x = (vUv.x - 0.5) * 2.0;
+              float y = (vUv.y - 0.5) * 2.0;
+              float r_yinHole  = sqrt(x*x + (y+0.5)*(y+0.5));
+              float r_yangBump = sqrt(x*x + (y-0.5)*(y-0.5));
+              bool yang;
+              if (x < 0.0) { yang = r_yinHole  >= 0.5; }
+              else          { yang = r_yangBump <  0.5; }
+              if (sqrt(x*x + (y-0.5)*(y-0.5)) < 0.115) yang = false;
+              if (sqrt(x*x + (y+0.5)*(y+0.5)) < 0.115) yang = true;
+              vec3 col = yang
+                ? vec3(0.96, 0.98, 1.00)
+                : vec3(0.02, 0.02, 0.07);
+              gl_FragColor = vec4(col, 1.0);
+            }
+          `,
+        });
         grp.add(new THREE.Mesh(sphGeo, sphMat));
 
 
@@ -315,9 +297,12 @@ export default function VisualGravityCore() {
     boot();
 
     return () => {
+      cancelled = true;
       cancelAnimationFrame(animId);
       if (resizeFn) window.removeEventListener("resize", resizeFn);
-      if (domEl && mount.contains(domEl)) mount.removeChild(domEl);
+      // Remove all canvases including stale ones from HMR
+      Array.from(mount.querySelectorAll("canvas")).forEach(c => c.remove());
+      domEl = null;
     };
   }, []);
 
