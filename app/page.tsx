@@ -5,12 +5,14 @@ import Link from 'next/link';
 import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
+import { SHICHEN_LIST } from '@/lib/shichen-engine';
 
 interface PersonInput {
   name: string;
   birthDate: string;
   bloodType: 'A' | 'B' | 'AB' | 'O';
   gender: 'male' | 'female';
+  shichen: number | 'unknown' | null;
 }
 
 interface MatchZones {
@@ -30,6 +32,16 @@ interface MatchResult {
   zones: MatchZones;
 }
 
+interface KarmaStory {
+  resonance_score: number;
+  active_giver: string;
+  needs_understanding: string;
+  relationship_theme: string;
+  story: string;
+  today_advice: string;
+  closing_wisdom: string;
+}
+
 interface PersonDisplay {
   name: string;
   zodiacZh: string;
@@ -42,12 +54,13 @@ interface MatchResponse {
   result: MatchResult;
   displayA: PersonDisplay;
   displayB: PersonDisplay;
+  karma_story?: KarmaStory;
 }
 
-type StepKey = 'personA' | 'personB' | 'review';
+type StepKey = 'personA-base' | 'personA-shichen' | 'personB-base' | 'personB-shichen' | 'review';
 
 const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
-const EMPTY: PersonInput = { name: '', birthDate: '', bloodType: 'A', gender: 'female' };
+const EMPTY: PersonInput = { name: '', birthDate: '', bloodType: 'A', gender: 'female', shichen: null };
 
 const BLOOD_DESC: Record<PersonInput['bloodType'], string> = {
   A: '細膩穩定，重視秩序與安全感。',
@@ -56,7 +69,7 @@ const BLOOD_DESC: Record<PersonInput['bloodType'], string> = {
   O: '主動直接，行動力高，帶動感明顯。',
 };
 
-const STEP_ORDER: StepKey[] = ['personA', 'personB', 'review'];
+const STEP_ORDER: StepKey[] = ['personA-base', 'personA-shichen', 'personB-base', 'personB-shichen', 'review'];
 
 function getPersonError(label: string, person: PersonInput) {
   if (person.name.trim().length < 2) return `請先輸入${label}姓名，至少 2 個字。`;
@@ -209,8 +222,78 @@ function PersonStep({
   );
 }
 
+function ShichenStep({
+  title,
+  description,
+  accent,
+  value,
+  onChange,
+}: {
+  title: string;
+  description: string;
+  accent: 'violet' | 'amber';
+  value: PersonInput;
+  onChange: (value: PersonInput) => void;
+}) {
+  const accentClasses = accent === 'violet'
+    ? { label: 'border-violet-400/25 bg-violet-950/20 text-violet-300', button: 'border-violet-400 bg-violet-500/15 text-violet-100' }
+    : { label: 'border-amber-400/25 bg-amber-950/20 text-amber-300', button: 'border-amber-400 bg-amber-500/15 text-amber-100' };
+
+  return (
+    <div className="fortune-card p-6 sm:p-8">
+      <p className={`inline-flex rounded-full border px-4 py-1 text-xs tracking-[0.3em] ${accentClasses.label}`}>
+        {title}
+      </p>
+
+      <h2 className="mt-4 font-serif text-3xl text-[color:var(--text-main)]">選擇出生時辰</h2>
+      <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">{description}</p>
+
+      <div className="mt-8 space-y-6">
+        <div>
+          <button
+            type="button"
+            onClick={() => onChange({ ...value, shichen: 'unknown' })}
+            className={`w-full rounded-2xl border px-4 py-4 text-left transition-all ${
+              value.shichen === 'unknown'
+                ? accentClasses.button
+                : 'border-white/10 bg-white/5 text-[color:var(--text-main)]'
+            }`}
+          >
+            <p className="text-lg font-bold">🕊️ 我不知道 / 記不得時辰</p>
+            <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]">已為你保留良辰吉時。日後想起真實時辰，再補上會更精準。</p>
+          </button>
+        </div>
+
+        <div>
+          <p className="mb-4 text-xs text-[color:var(--text-muted)]">或選擇真實出生時辰</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {SHICHEN_LIST.map((s) => {
+              const selected = value.shichen === s.branchIndex;
+              return (
+                <button
+                  key={s.branchIndex}
+                  type="button"
+                  onClick={() => onChange({ ...value, shichen: s.branchIndex })}
+                  className={`rounded-2xl border px-4 py-3 text-left transition-all ${
+                    selected
+                      ? accentClasses.button
+                      : 'border-white/10 bg-white/5 text-[color:var(--text-main)]'
+                  }`}
+                >
+                  <p className="font-semibold">{s.label}</p>
+                  <p className="mt-1 text-xs text-[color:var(--text-sub)]">{s.range}</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
-  const [step, setStep] = useState<StepKey>('personA');
+  const [step, setStep] = useState<StepKey>('personA-base');
   const [personA, setPersonA] = useState<PersonInput>({ ...EMPTY, gender: 'female' });
   const [personB, setPersonB] = useState<PersonInput>({ ...EMPTY, gender: 'male' });
   const [loading, setLoading] = useState(false);
@@ -220,8 +303,10 @@ export default function HomePage() {
   const stepIndex = STEP_ORDER.indexOf(step);
   const personAError = getPersonError('第一位', personA);
   const personBError = getPersonError('第二位', personB);
+  const personAShichenError = personA.shichen === null ? '請選擇時辰或點「我不知道」' : '';
+  const personBShichenError = personB.shichen === null ? '請選擇時辰或點「我不知道」' : '';
 
-  const reviewReady = !personAError && !personBError;
+  const reviewReady = !personAError && !personBError && personA.shichen !== null && personB.shichen !== null;
 
   const reviewCards = useMemo(
     () => [
@@ -234,18 +319,36 @@ export default function HomePage() {
   function goNext() {
     setError('');
 
-    if (step === 'personA') {
+    if (step === 'personA-base') {
       if (personAError) {
         setError(personAError);
         return;
       }
-      setStep('personB');
+      setStep('personA-shichen');
       return;
     }
 
-    if (step === 'personB') {
+    if (step === 'personA-shichen') {
+      if (personAShichenError) {
+        setError(personAShichenError);
+        return;
+      }
+      setStep('personB-base');
+      return;
+    }
+
+    if (step === 'personB-base') {
       if (personBError) {
         setError(personBError);
+        return;
+      }
+      setStep('personB-shichen');
+      return;
+    }
+
+    if (step === 'personB-shichen') {
+      if (personBShichenError) {
+        setError(personBShichenError);
         return;
       }
       setStep('review');
@@ -255,13 +358,23 @@ export default function HomePage() {
   function goBack() {
     setError('');
 
-    if (step === 'personB') {
-      setStep('personA');
+    if (step === 'personA-shichen') {
+      setStep('personA-base');
+      return;
+    }
+
+    if (step === 'personB-base') {
+      setStep('personA-shichen');
+      return;
+    }
+
+    if (step === 'personB-shichen') {
+      setStep('personB-base');
       return;
     }
 
     if (step === 'review') {
-      setStep('personB');
+      setStep('personB-shichen');
     }
   }
 
@@ -294,6 +407,30 @@ export default function HomePage() {
       }
 
       setData(json);
+
+      // 獲得配對結果後，嘗試生成因果故事
+      try {
+        const karmaResponse = await fetch('/api/karma-story-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          body: JSON.stringify({
+            personA,
+            personB,
+            matchResult: json.result,
+          }),
+        });
+
+        if (karmaResponse.ok) {
+          const karmaData = (await karmaResponse.json()) as { karma_story?: KarmaStory };
+          if (karmaData.karma_story) {
+            setData((prev) => (prev ? { ...prev, karma_story: karmaData.karma_story } : null));
+          }
+        }
+      } catch {
+        // 因果故事生成失敗時不影響配對結果
+        console.log('[karma-story] generation skipped or failed');
+      }
     } catch (error) {
       setError(error instanceof DOMException && error.name === 'AbortError'
         ? '配對分析等候時間過長，請稍後再試。'
@@ -307,7 +444,7 @@ export default function HomePage() {
   function resetAll() {
     setData(null);
     setError('');
-    setStep('personA');
+    setStep('personA-base');
   }
 
   return (
@@ -347,36 +484,51 @@ export default function HomePage() {
                 <div>
                   <p className="text-xs tracking-[0.3em] text-[color:var(--text-muted)]">目前進度</p>
                   <p className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">
-                    {step === 'personA' ? '先填第一位' : step === 'personB' ? '再填第二位' : '確認後開始配對'}
+                    {['personA-base', 'personA-shichen'].includes(step) && '先填第一位'}
+                    {['personB-base', 'personB-shichen'].includes(step) && '再填第二位'}
+                    {step === 'review' && '確認後開始配對'}
                   </p>
                 </div>
-                <div className="grid grid-cols-3 gap-2 sm:min-w-[280px]">
-                  {STEP_ORDER.map((item, index) => {
-                    const active = item === step;
-                    const done = index < stepIndex;
-                    return (
-                      <div
-                        key={item}
-                        className={`rounded-2xl border px-3 py-3 text-center ${
-                          active
-                            ? 'border-rose-400/40 bg-rose-500/12'
-                            : done
-                              ? 'border-violet-400/30 bg-violet-500/10'
-                              : 'border-white/10 bg-white/5'
-                        }`}
-                      >
-                        <p className="text-lg font-bold text-[color:var(--text-main)]">{done ? '✓' : index + 1}</p>
-                        <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                          {item === 'personA' ? '第一位' : item === 'personB' ? '第二位' : '確認'}
-                        </p>
-                      </div>
-                    );
-                  })}
+                <div className="grid grid-cols-3 gap-2 sm:min-w-[120px]">
+                  <div
+                    className={`rounded-2xl border px-3 py-3 text-center ${
+                      ['personA-base', 'personA-shichen'].includes(step)
+                        ? 'border-rose-400/40 bg-rose-500/12'
+                        : ['personB-base', 'personB-shichen', 'review'].includes(step)
+                          ? 'border-violet-400/30 bg-violet-500/10'
+                          : 'border-white/10 bg-white/5'
+                    }`}
+                  >
+                    <p className="text-lg font-bold text-[color:var(--text-main)]">{['personB-base', 'personB-shichen', 'review'].includes(step) ? '✓' : '1'}</p>
+                    <p className="mt-1 text-xs text-[color:var(--text-sub)]">第一位</p>
+                  </div>
+                  <div
+                    className={`rounded-2xl border px-3 py-3 text-center ${
+                      ['personB-base', 'personB-shichen'].includes(step)
+                        ? 'border-rose-400/40 bg-rose-500/12'
+                        : step === 'review'
+                          ? 'border-violet-400/30 bg-violet-500/10'
+                          : 'border-white/10 bg-white/5'
+                    }`}
+                  >
+                    <p className="text-lg font-bold text-[color:var(--text-main)]">{step === 'review' ? '✓' : '2'}</p>
+                    <p className="mt-1 text-xs text-[color:var(--text-sub)]">第二位</p>
+                  </div>
+                  <div
+                    className={`rounded-2xl border px-3 py-3 text-center ${
+                      step === 'review'
+                        ? 'border-rose-400/40 bg-rose-500/12'
+                        : 'border-white/10 bg-white/5'
+                    }`}
+                  >
+                    <p className="text-lg font-bold text-[color:var(--text-main)]">3</p>
+                    <p className="mt-1 text-xs text-[color:var(--text-sub)]">確認</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {step === 'personA' && (
+            {step === 'personA-base' && (
               <PersonStep
                 title="第一位資料"
                 description="先輸入第一位的姓名、生日、血型和性別。填好後再進下一位。"
@@ -386,10 +538,30 @@ export default function HomePage() {
               />
             )}
 
-            {step === 'personB' && (
+            {step === 'personA-shichen' && (
+              <ShichenStep
+                title="第一位時辰"
+                description="如果知道出生時辰，可以讓配對分析更精細；不知道也完全沒關係。"
+                accent="violet"
+                value={personA}
+                onChange={setPersonA}
+              />
+            )}
+
+            {step === 'personB-base' && (
               <PersonStep
                 title="第二位資料"
                 description="接著輸入第二位。欄位一樣，跟著順序填就好。"
+                accent="amber"
+                value={personB}
+                onChange={setPersonB}
+              />
+            )}
+
+            {step === 'personB-shichen' && (
+              <ShichenStep
+                title="第二位時辰"
+                description="同樣的，知道時辰更好，不知道也沒關係。"
                 accent="amber"
                 value={personB}
                 onChange={setPersonB}
@@ -429,6 +601,16 @@ export default function HomePage() {
                           <span className="text-[color:var(--text-muted)]">性別：</span>
                           <span className="text-[color:var(--text-main)]">{person.gender === 'female' ? '女性' : '男性'}</span>
                         </div>
+                        <div>
+                          <span className="text-[color:var(--text-muted)]">出生時辰：</span>
+                          <span className="text-[color:var(--text-main)]">
+                            {person.shichen === 'unknown'
+                              ? '系統已配置良辰吉時'
+                              : person.shichen !== null
+                                ? (SHICHEN_LIST.find((s) => s.branchIndex === person.shichen)?.label || '未知')
+                                : '未填'}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -443,7 +625,7 @@ export default function HomePage() {
             )}
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              {step !== 'personA' && (
+              {step !== 'personA-base' && (
                 <button
                   type="button"
                   onClick={goBack}
@@ -461,7 +643,10 @@ export default function HomePage() {
                   disabled={loading}
                   className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {step === 'personA' ? '下一步：填第二位' : '下一步：確認資料'}
+                  {step === 'personA-base' && '下一步：選擇時辰'}
+                  {step === 'personA-shichen' && '下一步：填第二位'}
+                  {step === 'personB-base' && '下一步：選擇時辰'}
+                  {step === 'personB-shichen' && '下一步：確認資料'}
                 </button>
               ) : (
                 <button
@@ -539,6 +724,54 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
+
+            {data.karma_story && (
+              <div className="space-y-6">
+                <div className="fortune-card p-6 sm:p-8 border-rose-400/20">
+                  <div className="mb-6 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.35em] text-rose-300">💫 因果故事</p>
+                      <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">配對前世今生因果關係</h2>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-[color:var(--text-muted)]">關係共鳴度</p>
+                      <p className="mt-2 font-serif text-3xl text-rose-300">{data.karma_story.resonance_score}%</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="fortune-card p-5 sm:p-6">
+                    <p className="text-xs text-violet-300 font-semibold">主動付出者</p>
+                    <p className="mt-3 text-lg text-[color:var(--text-main)]">{data.karma_story.active_giver}</p>
+                  </div>
+                  <div className="fortune-card p-5 sm:p-6">
+                    <p className="text-xs text-amber-300 font-semibold">需要被理解者</p>
+                    <p className="mt-3 text-lg text-[color:var(--text-main)]">{data.karma_story.needs_understanding}</p>
+                  </div>
+                </div>
+
+                <div className="fortune-card p-6 sm:p-8">
+                  <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">關係課題</p>
+                  <p className="mt-4 text-sm leading-8 text-[color:var(--text-sub)]">{data.karma_story.relationship_theme}</p>
+                </div>
+
+                <div className="fortune-card p-6 sm:p-8">
+                  <p className="text-xs uppercase tracking-[0.35em] text-rose-300">因果故事</p>
+                  <p className="mt-4 whitespace-pre-wrap text-sm leading-8 text-[color:var(--text-sub)]">{data.karma_story.story}</p>
+                </div>
+
+                <div className="fortune-card p-6 sm:p-8">
+                  <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">今生建議</p>
+                  <p className="mt-4 whitespace-pre-wrap text-sm leading-8 text-[color:var(--text-sub)]">{data.karma_story.today_advice}</p>
+                </div>
+
+                <div className="fortune-card p-6 sm:p-8 border-emerald-400/20">
+                  <p className="text-xs uppercase tracking-[0.35em] text-emerald-300">善念結語</p>
+                  <p className="mt-4 whitespace-pre-wrap italic text-sm leading-8 text-[color:var(--text-sub)]">{data.karma_story.closing_wisdom}</p>
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <button type="button" onClick={() => window.print()} className="vip-gold-btn flex-1 py-4 text-sm">
