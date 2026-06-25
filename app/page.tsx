@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useDeferredValue, useEffect } from 'react';
 import Link from 'next/link';
+import { injectPerformanceCSS } from '@/lib/performance-css';
 import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
@@ -300,6 +301,15 @@ export default function HomePage() {
   const [error, setError] = useState('');
   const [data, setData] = useState<MatchResponse | null>(null);
 
+  // 使用 useDeferredValue 防止表單輸入影響 3D 動畫
+  const deferredPersonA = useDeferredValue(personA);
+  const deferredPersonB = useDeferredValue(personB);
+
+  // 注入性能 CSS
+  useEffect(() => {
+    injectPerformanceCSS();
+  }, []);
+
   const stepIndex = STEP_ORDER.indexOf(step);
   const personAError = getPersonError('第一位', personA);
   const personBError = getPersonError('第二位', personB);
@@ -391,13 +401,27 @@ export default function HomePage() {
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 20_000);
 
+    // 帶重試機制的 fetch
+    async function fetchWithRetry(maxRetries = 2) {
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetch('/api/match-generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({ personA, personB }),
+          });
+          return response;
+        } catch (error) {
+          if (attempt === maxRetries) throw error;
+          // 等待後重試
+          await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+        }
+      }
+    }
+
     try {
-      const response = await fetch('/api/match-generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
-        body: JSON.stringify({ personA, personB }),
-      });
+      const response = await fetchWithRetry();
 
       const json = (await response.json()) as MatchResponse & { error?: string };
 
@@ -458,6 +482,10 @@ export default function HomePage() {
           <Link href="/music" className="text-xs tracking-widest text-violet-300/70 transition hover:text-violet-300">
             🎵 人格音樂
           </Link>
+          <span className="text-[color:var(--text-muted)]">·</span>
+          <Link href="/insight" className="text-xs tracking-widest text-amber-300/70 transition hover:text-amber-300">
+            🔍 AI 深度洞察
+          </Link>
         </div>
 
         <section className="mb-10 grid items-center gap-8 lg:grid-cols-[1fr_auto]">
@@ -465,12 +493,20 @@ export default function HomePage() {
             <div className="mb-4 inline-block rounded-full border border-rose-400/20 bg-rose-400/8 px-4 py-1 text-xs tracking-[0.35em] text-rose-300">
               配對你的命運靈魂伴侶
             </div>
-            <h1 className="mystic-title mb-4 font-serif text-4xl leading-tight sm:text-5xl">
-              輸入兩個人<br />看懂相處節奏
+            <h1 className="mystic-title mb-4 font-serif text-5xl leading-tight sm:text-6xl md:text-7xl">
+              探索靈魂連結<br />與個人深度洞察
             </h1>
-            <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
-              先填第一位，再填第二位，最後確認一次。AI 會整理共鳴、溝通、穩定與需要磨合的地方。
-            </p>
+            <div className="mt-8 space-y-5">
+              <p className="text-xl sm:text-2xl font-bold text-rose-300 tracking-wide">
+                💕 AI 靈魂配對 — 分析相處節奏與互補點
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-violet-300 tracking-wide">
+                🎵 人格音樂 — 生成個人主題曲
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-amber-300 tracking-wide">
+                🔍 AI 深度洞察 — 全面分析性格與潛能
+              </p>
+            </div>
           </div>
           <div className="flex justify-center lg:justify-end">
             <VisualGravityCore />
@@ -482,8 +518,8 @@ export default function HomePage() {
             <div className="fortune-card p-5 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-xs tracking-[0.3em] text-[color:var(--text-muted)]">目前進度</p>
-                  <p className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">
+                  <p className="text-sm tracking-[0.4em] font-semibold text-[color:var(--text-muted)]">目前進度</p>
+                  <p className="mt-3 font-serif text-3xl sm:text-4xl font-bold text-[color:var(--text-main)]">
                     {['personA-base', 'personA-shichen'].includes(step) && '先填第一位'}
                     {['personB-base', 'personB-shichen'].includes(step) && '再填第二位'}
                     {step === 'review' && '確認後開始配對'}
@@ -491,38 +527,38 @@ export default function HomePage() {
                 </div>
                 <div className="grid grid-cols-3 gap-2 sm:min-w-[120px]">
                   <div
-                    className={`rounded-2xl border px-3 py-3 text-center ${
+                    className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
                       ['personA-base', 'personA-shichen'].includes(step)
-                        ? 'border-rose-400/40 bg-rose-500/12'
+                        ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
                         : ['personB-base', 'personB-shichen', 'review'].includes(step)
-                          ? 'border-violet-400/30 bg-violet-500/10'
-                          : 'border-white/10 bg-white/5'
+                          ? 'border-violet-400/50 bg-violet-500/12 shadow-violet-500/15'
+                          : 'border-white/20 bg-white/8'
                     }`}
                   >
                     <p className="text-lg font-bold text-[color:var(--text-main)]">{['personB-base', 'personB-shichen', 'review'].includes(step) ? '✓' : '1'}</p>
-                    <p className="mt-1 text-xs text-[color:var(--text-sub)]">第一位</p>
+                    <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">第一位</p>
                   </div>
                   <div
-                    className={`rounded-2xl border px-3 py-3 text-center ${
+                    className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
                       ['personB-base', 'personB-shichen'].includes(step)
-                        ? 'border-rose-400/40 bg-rose-500/12'
+                        ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
                         : step === 'review'
-                          ? 'border-violet-400/30 bg-violet-500/10'
-                          : 'border-white/10 bg-white/5'
+                          ? 'border-violet-400/50 bg-violet-500/12 shadow-violet-500/15'
+                          : 'border-white/20 bg-white/8'
                     }`}
                   >
                     <p className="text-lg font-bold text-[color:var(--text-main)]">{step === 'review' ? '✓' : '2'}</p>
-                    <p className="mt-1 text-xs text-[color:var(--text-sub)]">第二位</p>
+                    <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">第二位</p>
                   </div>
                   <div
-                    className={`rounded-2xl border px-3 py-3 text-center ${
+                    className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
                       step === 'review'
-                        ? 'border-rose-400/40 bg-rose-500/12'
-                        : 'border-white/10 bg-white/5'
+                        ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
+                        : 'border-white/20 bg-white/8'
                     }`}
                   >
                     <p className="text-lg font-bold text-[color:var(--text-main)]">3</p>
-                    <p className="mt-1 text-xs text-[color:var(--text-sub)]">確認</p>
+                    <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">確認</p>
                   </div>
                 </div>
               </div>

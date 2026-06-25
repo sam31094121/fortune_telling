@@ -44,10 +44,22 @@ export default function VisualGravityCore() {
         camera.position.z = 5.8;
 
         // ── Renderer ─────────────────────────────────────────────────────
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        // 根據裝置調整抗鋸齒以平衡性能和質量
+        const pixelRatio = isMobile ? 1 : Math.min(devicePixelRatio, 2);
+        const renderer = new THREE.WebGLRenderer({
+          antialias: !isMobile,
+          powerPreference: 'high-performance',
+          alpha: true,
+          precision: 'highp',
+          logarithmicDepthBuffer: false,
+          stencil: false,
+        });
         renderer.setSize(W, H);
-        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-        // Explicit color space + no tone mapping so white stays white
+        renderer.setPixelRatio(pixelRatio);
+        renderer.shadowMap.enabled = false;
+        renderer.info.autoReset = true;
+
+        // Explicit color space + no tone mapping
         try {
           renderer.outputColorSpace = (THREE as any).SRGBColorSpace;
         } catch (_) { /* r152 fallback */ }
