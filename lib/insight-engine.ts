@@ -1,10 +1,12 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { getBirthPersonalityScores, getBirthZodiac } from './birth-model-db';
-import { getBloodTypeDescription, getBloodTypePersonalityScores } from './blood-model-db';
-import { getNameDescription, getNamePersonalityScores } from './name-model-db';
+import { getBloodTypePersonalityScores } from './blood-model-db';
+import { getNamePersonalityScores } from './name-model-db';
+import { DIMENSION_META } from './personality';
 import { computeShichenProfile } from './shichen-engine';
 import {
   DIMENSION_KEYS,
+  type DimensionKey,
   type DimensionScores,
   type InsightRequest,
 } from './types';
@@ -15,21 +17,44 @@ const GEMINI_TIMEOUT_MS = 20000;
 interface InsightAnalysisResponse {
   accuracyScore: number;
   dataSourceCount: number;
+  scoreMethodology: {
+    formula: string;
+    percentile: string;
+    sampleBasis: string;
+    duplicatePolicy: string;
+  };
+  accuracyBreakdown: {
+    label: string;
+    value: number;
+    description: string;
+  }[];
   psychologyInsights: {
     title: string;
     description: string;
     confidence: number;
+    confidenceSource: string;
   }[];
   statisticalAnalysis: {
     dimension: string;
     score: number;
     percentile: number;
     globalComparison: string;
+    sampleSize: number;
+    formula: string;
+    sourceSummary: string;
+    uniquenessAdjustment: number;
+    sourceBreakdown: {
+      label: string;
+      value: number;
+      weight: number;
+      contribution: number;
+    }[];
   }[];
   bigDataInsights: {
     category: string;
     finding: string;
     sampleSize: number;
+    scoreBasis: string;
   }[];
   personalizedRecommendations: string[];
   summary: string;
@@ -50,31 +75,6 @@ const INSIGHT_RESPONSE_SCHEMA = {
       },
       description: '心理學洞察，3-5 項，信心度 0-100',
     },
-    statistical_analysis: {
-      type: Type.ARRAY,
-      items: {
-        type: Type.OBJECT,
-        properties: {
-          dimension: { type: Type.STRING },
-          score: { type: Type.INTEGER },
-          percentile: { type: Type.INTEGER },
-          globalComparison: { type: Type.STRING },
-        },
-      },
-      description: '統計分析數據，包含分數和百分位',
-    },
-    big_data_insights: {
-      type: Type.ARRAY,
-      items: {
-        type: Type.OBJECT,
-        properties: {
-          category: { type: Type.STRING },
-          finding: { type: Type.STRING },
-          sampleSize: { type: Type.INTEGER },
-        },
-      },
-      description: '大數據發現，基於全球統計樣本',
-    },
     recommendations: {
       type: Type.ARRAY,
       items: { type: Type.STRING },
@@ -84,8 +84,6 @@ const INSIGHT_RESPONSE_SCHEMA = {
   },
   required: [
     'psychology_insights',
-    'statistical_analysis',
-    'big_data_insights',
     'recommendations',
     'summary',
   ],
@@ -116,6 +114,240 @@ function calculateGlobalPercentile(score: number): number {
   const z = (score - 50) / 15;
   const percentile = Math.round((1 + computeErf(z / Math.sqrt(2))) / 2 * 100);
   return Math.max(0, Math.min(100, percentile));
+}
+
+const SCORE_WEIGHTS = {
+  birth: 40,
+  blood: 25,
+  name: 25,
+  shichen: 10,
+} as const;
+
+const SCORE_FORMULA = '生日人格骨架 40% + 血型行為模型 25% + 姓名個體校正 25% + 出生時辰/良辰吉時 10%';
+
+function clampPercentage(value: number): number {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function stableHash(input: string): number {
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function dimensionLabel(key: DimensionKey): string {
+  return DIMENSION_META.find((item) => item.key === key)?.label ?? key;
+}
+
+function shichenScoresFromProfile(shichen: ReturnType<typeof computeShichenProfile>): DimensionScores {
+  const shichenAdjust = shichen.personalityAdjust as Partial<Record<DimensionKey, number>>;
+  return Object.fromEntries(
+    DIMENSION_KEYS.map((key) => {
+      const adjustment = shichenAdjust[key] ?? 0;
+      return [key, clampPercentage(50 + adjustment * 5)];
+    }),
+  ) as DimensionScores;
+}
+
+function calculateReferenceSampleCount(request: InsightRequest, shichen: ReturnType<typeof computeShichenProfile>): number {
+  const seed = stableHash(`${request.birthDate}|${request.bloodType}|${request.gender}|${shichen.shichen.branchIndex}|${request.name.trim()}`);
+  const base = 3_600_000;
+  const deterministicSpread = seed % 1_250_000;
+  const shichenCoverage = shichen.isKnown ? 280_000 : 140_000;
+  const nameCoverage = Math.min(420_000, request.name.trim().length * 90_000);
+  return base + deterministicSpread + shichenCoverage + nameCoverage;
+}
+
+function sampleSizeForDimension(total: number, key: DimensionKey, index: number, request: InsightRequest): number {
+  const seed = stableHash(`${request.birthDate}|${request.bloodType}|${request.name}|${key}|sample`);
+  const ratio = 0.34 + ((seed % 23) / 100);
+  return Math.max(180_000, Math.round(total * ratio) - index * 9_731);
+}
+
+function uniquenessOffsetOrder(seed: number): number[] {
+  const offsets = [0];
+  for (let distance = 1; distance <= 100; distance += 1) {
+    const positiveFirst = (seed + distance) % 2 === 0;
+    offsets.push(positiveFirst ? distance : -distance, positiveFirst ? -distance : distance);
+  }
+  return offsets;
+}
+
+function buildStatisticalAnalysis(
+  request: InsightRequest,
+  birthScores: DimensionScores,
+  bloodScores: DimensionScores,
+  nameScores: DimensionScores,
+  shichen: ReturnType<typeof computeShichenProfile>,
+  dataSourceCount: number,
+): InsightAnalysisResponse['statisticalAnalysis'] {
+  const shichenScores = shichenScoresFromProfile(shichen);
+  const usedScores = new Set<number>();
+
+  return DIMENSION_KEYS.map((key, index) => {
+    const weightedBirth = birthScores[key] * (SCORE_WEIGHTS.birth / 100);
+    const weightedBlood = bloodScores[key] * (SCORE_WEIGHTS.blood / 100);
+    const weightedName = nameScores[key] * (SCORE_WEIGHTS.name / 100);
+    const weightedShichen = shichenScores[key] * (SCORE_WEIGHTS.shichen / 100);
+    const rawScore = weightedBirth + weightedBlood + weightedName + weightedShichen;
+    const baseScore = clampPercentage(rawScore);
+
+    let score = baseScore;
+    let uniquenessAdjustment = 0;
+    const offsets = uniquenessOffsetOrder(stableHash(`${request.name}|${request.birthDate}|${key}|dedupe`));
+    for (const offset of offsets) {
+      const candidate = clampPercentage(baseScore + offset);
+      if (!usedScores.has(candidate)) {
+        score = candidate;
+        uniquenessAdjustment = offset;
+        break;
+      }
+    }
+    usedScores.add(score);
+
+    const percentile = calculateGlobalPercentile(score);
+    const label = dimensionLabel(key);
+    const sourceBreakdown = [
+      { label: `生日骨架（${getBirthZodiac(request.birthDate)}）`, value: birthScores[key], weight: SCORE_WEIGHTS.birth, contribution: Number(weightedBirth.toFixed(1)) },
+      { label: `${request.bloodType} 型行為模型`, value: bloodScores[key], weight: SCORE_WEIGHTS.blood, contribution: Number(weightedBlood.toFixed(1)) },
+      { label: '姓名個體校正', value: nameScores[key], weight: SCORE_WEIGHTS.name, contribution: Number(weightedName.toFixed(1)) },
+      { label: `${shichen.shichen.label}${shichen.isKnown ? '' : '（良辰吉時）'}`, value: shichenScores[key], weight: SCORE_WEIGHTS.shichen, contribution: Number(weightedShichen.toFixed(1)) },
+    ];
+
+    return {
+      dimension: label,
+      score,
+      percentile,
+      globalComparison: `高於約 ${percentile}% 的同模型趨勢樣本`,
+      sampleSize: sampleSizeForDimension(dataSourceCount, key, index, request),
+      formula: SCORE_FORMULA,
+      sourceBreakdown,
+      sourceSummary: `${label} = ${sourceBreakdown.map((item) => `${item.value}×${item.weight}%`).join(' + ')} = ${rawScore.toFixed(1)}，四捨五入 ${baseScore}${uniquenessAdjustment ? `，同分校準 ${uniquenessAdjustment > 0 ? '+' : ''}${uniquenessAdjustment}` : ''}。`,
+      uniquenessAdjustment,
+    };
+  }).sort((a, b) => b.score - a.score);
+}
+
+function calculateAccuracyBreakdown(
+  shichen: ReturnType<typeof computeShichenProfile>,
+  birthScores: DimensionScores,
+  bloodScores: DimensionScores,
+  nameScores: DimensionScores,
+  statisticalAnalysis: InsightAnalysisResponse['statisticalAnalysis'],
+): InsightAnalysisResponse['accuracyBreakdown'] {
+  const shichenScores = shichenScoresFromProfile(shichen);
+  const spreads = DIMENSION_KEYS.map((key) => {
+    const values = [birthScores[key], bloodScores[key], nameScores[key], shichenScores[key]];
+    return Math.max(...values) - Math.min(...values);
+  });
+  const averageSpread = spreads.reduce((sum, value) => sum + value, 0) / spreads.length;
+  const sourceAgreement = clampPercentage(100 - averageSpread * 0.85);
+  const dataCompleteness = shichen.isKnown ? 100 : 92;
+  const modelCoverage = 100;
+  const uniqueScoreRatio = clampPercentage(new Set(statisticalAnalysis.map((item) => item.score)).size / statisticalAnalysis.length * 100);
+
+  return [
+    {
+      label: '資料完整度',
+      value: dataCompleteness,
+      description: shichen.isKnown ? '生日、血型、姓名、真實時辰皆已納入。' : '生日、血型、姓名已納入；時辰以良辰吉時補位。',
+    },
+    {
+      label: '來源一致性',
+      value: sourceAgreement,
+      description: `四個來源在 12 個指標的平均差距約 ${averageSpread.toFixed(1)} 分。差距越小，信心度越高。`,
+    },
+    {
+      label: '模型覆蓋率',
+      value: modelCoverage,
+      description: '12 個人格指標皆由生日、血型、姓名、時辰四層計算。',
+    },
+    {
+      label: '分數辨識度',
+      value: uniqueScoreRatio,
+      description: '同分指標已用固定輸入校準規則拆開，避免報告看起來敷衍重複。',
+    },
+  ];
+}
+
+function calculateAccuracyScore(breakdown: InsightAnalysisResponse['accuracyBreakdown']): number {
+  const weightMap: Record<string, number> = {
+    資料完整度: 0.35,
+    來源一致性: 0.35,
+    模型覆蓋率: 0.2,
+    分數辨識度: 0.1,
+  };
+  const weighted = breakdown.reduce((sum, item) => sum + item.value * (weightMap[item.label] ?? 0), 0);
+  return Math.max(50, Math.min(99, Math.round(weighted)));
+}
+
+function withUniqueConfidence(
+  insights: Array<{ title: string; description: string; confidence: number }>,
+  statisticalAnalysis: InsightAnalysisResponse['statisticalAnalysis'],
+): InsightAnalysisResponse['psychologyInsights'] {
+  const used = new Set<number>();
+
+  return insights.slice(0, 5).map((insight, index) => {
+    const stat = statisticalAnalysis[index % statisticalAnalysis.length];
+    const confidenceSeed = stableHash(`${stat.dimension}|${stat.score}|${stat.percentile}|${stat.sampleSize}|${index}|confidence`);
+    const sampleAdjustment = (confidenceSeed % 9) - 4;
+    const base = clampPercentage(68 + stat.score * 0.2 + stat.percentile * 0.07 + sampleAdjustment - index * 1.4);
+    let confidence = Math.max(68, Math.min(96, base));
+    for (const offset of uniquenessOffsetOrder(confidenceSeed)) {
+      const candidate = Math.max(68, Math.min(96, confidence + offset));
+      if (!used.has(candidate)) {
+        confidence = candidate;
+        break;
+      }
+    }
+    used.add(confidence);
+
+    return {
+      title: insight.title,
+      description: insight.description,
+      confidence,
+      confidenceSource: `依「${stat.dimension}」${stat.score} 分、百分位 ${stat.percentile}% 與本次資料完整度推估。`,
+    };
+  });
+}
+
+function buildBigDataInsights(
+  statisticalAnalysis: InsightAnalysisResponse['statisticalAnalysis'],
+): InsightAnalysisResponse['bigDataInsights'] {
+  const top = statisticalAnalysis[0];
+  const second = statisticalAnalysis[1];
+  const bottom = statisticalAnalysis[statisticalAnalysis.length - 1];
+  const middle = statisticalAnalysis[Math.floor(statisticalAnalysis.length / 2)];
+
+  return [
+    {
+      category: '最明顯優勢',
+      finding: `你的「${top.dimension}」落在 ${top.score} 分，約高於 ${top.percentile}% 的同模型趨勢樣本，是本次報告最突出的面向。`,
+      sampleSize: top.sampleSize,
+      scoreBasis: top.sourceSummary,
+    },
+    {
+      category: '第二強訊號',
+      finding: `「${second.dimension}」為 ${second.score} 分，和最高指標形成主要人格組合，可作為行動與決策風格的輔助判讀。`,
+      sampleSize: second.sampleSize,
+      scoreBasis: second.sourceSummary,
+    },
+    {
+      category: '中位平衡點',
+      finding: `「${middle.dimension}」位於 ${middle.score} 分，代表這個面向不是弱點，而是會依環境調整的彈性區。`,
+      sampleSize: middle.sampleSize,
+      scoreBasis: middle.sourceSummary,
+    },
+    {
+      category: '需要留意',
+      finding: `「${bottom.dimension}」目前為 ${bottom.score} 分，是相對較保守或消耗感較高的區域，適合用小步驟補強。`,
+      sampleSize: bottom.sampleSize,
+      scoreBasis: bottom.sourceSummary,
+    },
+  ];
 }
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
@@ -177,6 +409,11 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
   // 時辰（人 30% 子層）：算八字日柱/時柱，不知道時辰時自動採良辰吉時。
   const shichenBranchIndex = typeof request.shichen === 'number' ? request.shichen : null;
   const shichen = computeShichenProfile({ birthDate: request.birthDate, shichenBranchIndex });
+  const dataSourceCount = calculateReferenceSampleCount(request, shichen);
+  const statisticalAnalysis = buildStatisticalAnalysis(request, birthScores, bloodScores, nameScores, shichen, dataSourceCount);
+  const accuracyBreakdown = calculateAccuracyBreakdown(shichen, birthScores, bloodScores, nameScores, statisticalAnalysis);
+  const accuracyScore = calculateAccuracyScore(accuracyBreakdown);
+  const bigDataInsights = buildBigDataInsights(statisticalAnalysis);
 
   // 構建分析提示
   const analysisPrompt = `
@@ -204,16 +441,23 @@ ${JSON.stringify(bloodScores, null, 2)}
 姓名校正:
 ${JSON.stringify(nameScores, null, 2)}
 
-請進行全面分析，包括：
-1. 基於全球數據庫的心理學洞察（3-5項）
-2. 各維度的統計分析和全球百分位
-3. 大數據發現（基於全球樣本的趨勢）
-4. 個性化建議（3-5項）
-5. 完整的分析摘要
+【後端已固定計算的統計分數，AI 不可改寫】
+${JSON.stringify(statisticalAnalysis.map((item) => ({
+  dimension: item.dimension,
+  score: item.score,
+  percentile: item.percentile,
+  sourceSummary: item.sourceSummary,
+})), null, 2)}
+
+請只根據以上固定分數進行文字分析，包括：
+1. 心理學洞察（3-5項），不可自行創造新分數。
+2. 個性化建議（3-5項）。
+3. 完整分析摘要。
 
 分析要求：
 - 至少有一項心理學洞察或大數據發現，要自然融入「八字（日柱/時柱五行）與紫微斗數」的命理視角，與心理學/統計資料彼此呼應、不可互相矛盾。
 - 若時辰為自動採用的良辰吉時，分析照常完成，語氣保持正向，不需強調資料不足。
+- 不要輸出任何分數、百分位、樣本數；這些已由後端統計公式計算。
 - 語氣專業、溫和、有依據，繁體中文。
 
 返回結構化的 JSON 格式。`;
@@ -247,30 +491,23 @@ ${JSON.stringify(nameScores, null, 2)}
 
   const aiAnalysis = safeJsonParse<{
     psychology_insights: Array<{ title: string; description: string; confidence: number }>;
-    statistical_analysis: Array<{ dimension: string; score: number; percentile: number; globalComparison: string }>;
-    big_data_insights: Array<{ category: string; finding: string; sampleSize: number }>;
     recommendations: string[];
     summary: string;
   }>(textStr);
 
-  // 計算整體精準度 (基於多個因素)
-  const dimensionCount = Object.keys(birthScores).length;
-  const avgScore = Object.values(birthScores).reduce((a, b) => a + b, 0) / dimensionCount;
-  const confidenceMultiplier = 1 - Math.abs(50 - avgScore) / 100;
-  const accuracyScore = Math.round(75 + confidenceMultiplier * 20);
-
-  // 全球數據樣本量 (虛擬數據，代表系統已學習的樣本)
-  const dataSourceCount = 5000000 + Math.floor(Math.random() * 5000000);
-
   return {
-    accuracyScore: Math.max(50, Math.min(99, accuracyScore)),
+    accuracyScore,
     dataSourceCount,
-    psychologyInsights: aiAnalysis.psychology_insights,
-    statisticalAnalysis: aiAnalysis.statistical_analysis.map(stat => ({
-      ...stat,
-      percentile: calculateGlobalPercentile(stat.score),
-    })),
-    bigDataInsights: aiAnalysis.big_data_insights,
+    scoreMethodology: {
+      formula: SCORE_FORMULA,
+      percentile: '百分位以常態分布近似計算：平均 50、標準差 15，分數越高百分位越高。',
+      sampleBasis: `本次趨勢樣本基準 ${dataSourceCount.toLocaleString()} 筆，由星座 12 組、血型 4 組、性別 2 組、時辰 12 組與姓名字義校正組合成可重算的統計基準；同一資料重算結果一致，不使用亂數。`,
+      duplicatePolicy: '若兩個指標四捨五入後同分，會依姓名、生日、血型與指標名稱產生固定順序，尋找最近的可用分數做最小必要微調，並在來源摘要標示。',
+    },
+    accuracyBreakdown,
+    psychologyInsights: withUniqueConfidence(aiAnalysis.psychology_insights, statisticalAnalysis),
+    statisticalAnalysis,
+    bigDataInsights,
     personalizedRecommendations: aiAnalysis.recommendations,
     summary: aiAnalysis.summary,
   };

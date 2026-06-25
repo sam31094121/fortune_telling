@@ -21,21 +21,44 @@ interface InsightData {
 interface InsightResult {
   accuracyScore: number;
   dataSourceCount: number;
+  scoreMethodology?: {
+    formula: string;
+    percentile: string;
+    sampleBasis: string;
+    duplicatePolicy: string;
+  };
+  accuracyBreakdown?: {
+    label: string;
+    value: number;
+    description: string;
+  }[];
   psychologyInsights: {
     title: string;
     description: string;
     confidence: number;
+    confidenceSource?: string;
   }[];
   statisticalAnalysis: {
     dimension: string;
     score: number;
     percentile: number;
     globalComparison: string;
+    sampleSize?: number;
+    formula?: string;
+    sourceSummary?: string;
+    uniquenessAdjustment?: number;
+    sourceBreakdown?: {
+      label: string;
+      value: number;
+      weight: number;
+      contribution: number;
+    }[];
   }[];
   bigDataInsights: {
     category: string;
     finding: string;
     sampleSize: number;
+    scoreBasis?: string;
   }[];
   personalizedRecommendations: string[];
   summary: string;
@@ -89,22 +112,58 @@ function ChoiceCard({
   );
 }
 
-function AccuracyBar({ score, label }: { score: number; label: string }) {
-  let color = 'bg-red-500';
-  if (score >= 80) color = 'bg-green-500';
-  else if (score >= 70) color = 'bg-emerald-500';
-  else if (score >= 60) color = 'bg-yellow-500';
-  else if (score >= 50) color = 'bg-orange-500';
+function getScoreColor(score: number) {
+  if (score >= 80) return '#22c55e';
+  if (score >= 70) return '#10b981';
+  if (score >= 60) return '#eab308';
+  if (score >= 50) return '#f97316';
+  return '#ef4444';
+}
+
+function ScoreEvidenceCard({ item }: { item: InsightResult['statisticalAnalysis'][number] }) {
+  const color = getScoreColor(item.score);
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-[color:var(--text-sub)]">{label}</span>
-        <span className="text-sm font-semibold text-[color:var(--text-main)]">{score}%</span>
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-semibold text-[color:var(--text-main)]">{item.dimension}</p>
+          <p className="mt-1 text-xs text-[color:var(--text-muted)]">{item.globalComparison}</p>
+        </div>
+        <div className="text-right">
+          <p className="text-3xl font-bold text-[color:var(--text-main)]">{item.score}</p>
+          <p className="text-xs text-[color:var(--text-muted)]">分</p>
+        </div>
       </div>
-      <div className="h-3 overflow-hidden rounded-full bg-white/10">
-        <div className="h-full rounded-full transition-all" style={{ width: `${score}%`, background: color }} />
+
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+        <div className="h-full rounded-full transition-all" style={{ width: `${item.score}%`, background: color }} />
       </div>
+
+      <div className="mt-4 grid gap-2 text-xs text-[color:var(--text-sub)] sm:grid-cols-2">
+        <p>百分位：PR {item.percentile}</p>
+        {item.sampleSize && <p>樣本基準：{item.sampleSize.toLocaleString()}</p>}
+      </div>
+
+      {item.sourceBreakdown && (
+        <div className="mt-4 grid gap-2">
+          {item.sourceBreakdown.map((source) => (
+            <div key={source.label} className="rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs leading-5">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[color:var(--text-sub)]">{source.label}</span>
+                <span className="font-semibold text-cyan-200">{source.value} × {source.weight}%</span>
+              </div>
+              <p className="mt-1 text-[color:var(--text-muted)]">貢獻值：{source.contribution}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {item.sourceSummary && (
+        <p className="mt-4 rounded-xl border border-cyan-400/15 bg-cyan-950/15 px-3 py-2 text-xs leading-6 text-cyan-100/85">
+          {item.sourceSummary}
+        </p>
+      )}
     </div>
   );
 }
@@ -502,12 +561,51 @@ export default function InsightPage() {
               </p>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-2">
+            {result.scoreMethodology && (
               <div className="fortune-card p-6 sm:p-8">
-                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">核心指標</p>
-                <div className="space-y-4">
-                  {result.statisticalAnalysis.slice(0, 4).map((item) => (
-                    <AccuracyBar key={item.dimension} score={item.score} label={item.dimension} />
+                <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">分數計算邏輯</p>
+                <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)]">每個分數都有固定來源</h3>
+                <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                  <div className="rounded-2xl border border-cyan-400/15 bg-cyan-950/15 p-4">
+                    <p className="text-xs tracking-[0.25em] text-cyan-300">公式</p>
+                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{result.scoreMethodology.formula}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs tracking-[0.25em] text-[color:var(--text-muted)]">百分位</p>
+                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{result.scoreMethodology.percentile}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs tracking-[0.25em] text-[color:var(--text-muted)]">樣本基準</p>
+                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{result.scoreMethodology.sampleBasis}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs tracking-[0.25em] text-[color:var(--text-muted)]">同分處理</p>
+                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{result.scoreMethodology.duplicatePolicy}</p>
+                  </div>
+                </div>
+
+                {result.accuracyBreakdown && (
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    {result.accuracyBreakdown.map((item) => (
+                      <div key={item.label} className="rounded-2xl border border-white/10 bg-black/15 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-sm font-semibold text-[color:var(--text-main)]">{item.label}</p>
+                          <p className="text-lg font-bold text-cyan-200">{item.value}</p>
+                        </div>
+                        <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">{item.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+              <div className="fortune-card p-6 sm:p-8">
+                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">核心指標來源</p>
+                <div className="grid gap-4 xl:grid-cols-2">
+                  {result.statisticalAnalysis.map((item) => (
+                    <ScoreEvidenceCard key={item.dimension} item={item} />
                   ))}
                 </div>
               </div>
@@ -520,6 +618,9 @@ export default function InsightPage() {
                       <p className="font-semibold text-cyan-300">{insight.title}</p>
                       <p className="mt-1 text-[color:var(--text-sub)]">{insight.description}</p>
                       <p className="mt-2 text-xs text-[color:var(--text-muted)]">信心度: {insight.confidence}%</p>
+                      {insight.confidenceSource && (
+                        <p className="mt-1 text-xs leading-6 text-cyan-100/70">{insight.confidenceSource}</p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -536,6 +637,9 @@ export default function InsightPage() {
                     <p className="mt-3 text-xs text-[color:var(--text-muted)]">
                       樣本數: {insight.sampleSize.toLocaleString()}
                     </p>
+                    {insight.scoreBasis && (
+                      <p className="mt-2 text-xs leading-6 text-cyan-100/70">{insight.scoreBasis}</p>
+                    )}
                   </div>
                 ))}
               </div>
