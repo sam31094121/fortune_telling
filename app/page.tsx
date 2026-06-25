@@ -176,26 +176,26 @@ export default function HomePage() {
 
             <div className="space-y-4">
               <h1 className="mystic-title font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">
-                先看懂自己，再做更好的選擇
+                配對你的命運靈魂伴侶
               </h1>
               <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)] sm:text-base">
-                輸入生日與血型，AI 會把命理、人格與行為訊號整理成白話重點。
-                進階細節留在背景，前台只呈現你看得懂、用得上的內容。
+                輸入你的生日、血型與姓名，AI 透過大數據分析配對最適合的靈魂伴侶。
+                不收費、不綁約，覺得有幫助再聊下一步。
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="fortune-card sky-card p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-violet-300">快速輸入</p>
-                <p className="mt-2 text-sm text-[color:var(--text-main)]">先填生日與血型</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-violet-300">輸入資料</p>
+                <p className="mt-2 text-sm text-[color:var(--text-main)]">生日、血型、姓名</p>
               </div>
               <div className="fortune-card earth-card p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-amber-300">AI 整理</p>
-                <p className="mt-2 text-sm text-[color:var(--text-main)]">自動抓出關鍵重點</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-amber-300">大數據分析</p>
+                <p className="mt-2 text-sm text-[color:var(--text-main)]">配對靈魂伴侶</p>
               </div>
               <div className="fortune-card human-card p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-pink-300">白話結果</p>
-                <p className="mt-2 text-sm text-[color:var(--text-main)]">留下真正能理解的內容</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-pink-300">配對結果</p>
+                <p className="mt-2 text-sm text-[color:var(--text-main)]">免費看配對分析</p>
               </div>
             </div>
           </div>

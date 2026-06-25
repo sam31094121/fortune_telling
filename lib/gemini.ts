@@ -642,6 +642,7 @@ function buildSongDraftsPrompt(input: MusicReportInput): string {
   return `
 你是「天地人歌曲矩陣」的第一階段素材層生成器。
 請根據使用者的生日、血型、姓名、命理資料與音樂參數，先產生三個素材層：天層、地層、人層。
+★ 重要：每次生成必須是完全新的創意表達，不要重複之前任何的組合或歌詞。確保這首歌獨一無二地反映此人的特質。
 
 ${TIANDIREN_SONG_MATRIX_RULES}
 
@@ -652,6 +653,7 @@ ${TIANDIREN_SONG_MATRIX_RULES}
 4. 參考曲只可作為年代與情緒錨點，不可模仿歌手、不可抄歌詞。
 5. 天層不能寫完整歌詞；地層不能推翻天層曲風；人層不能亂改編曲。
 6. 文字要短、清楚、可進入同一個歌曲矩陣，避免太長。
+7. 每次生成都要展現新的創意視角——用不同的比喻、不同的情緒切入點、不同的故事角度。
 
 ━━━ 使用者資料 ━━━
 姓名：${input.name}
@@ -697,7 +699,10 @@ BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
 
 export async function generateSongDrafts(input: MusicReportInput): Promise<OriginalSongDraftsOutput> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return createLocalSongDrafts(input);
+  if (!apiKey) {
+    console.warn('[generateSongDrafts] 無 API key，使用本地 fallback');
+    return createLocalSongDrafts(input);
+  }
 
   try {
     const text = await generateStructuredText(
@@ -708,7 +713,7 @@ export async function generateSongDrafts(input: MusicReportInput): Promise<Origi
     );
     return safeJsonParse<OriginalSongDraftsOutput>(text);
   } catch (error) {
-    console.error('[gemini] song drafts failed', error);
+    console.error('[gemini] song drafts failed，使用本地 fallback:', error);
     return createLocalSongDrafts(input);
   }
 }
@@ -926,6 +931,7 @@ ${input.songDrafts.taiwanese.lyrics.join('\n')}
   return `
 你是「歌曲融合引擎」，擅長把天、地、人三個素材層統一成一首動人的原創人格歌曲。
 請為「${input.name}」量身打造「一首」全新的天地人人格歌曲。
+★ 重要：每次融合都要用完全不同的創意角度、情緒切入和故事表達方式。確保這首歌獨特到不會與任何其他人的歌重複。
 
 ${TIANDIREN_SONG_MATRIX_RULES}
 
@@ -936,6 +942,7 @@ ${TIANDIREN_SONG_MATRIX_RULES}
 4. 人層只給台語歌詞語感、姓名故事、核心句、記憶點與情感落點，不可亂改編曲。
 5. 歌詞要呼應此人的人格特質，溫暖、有畫面、不浮誇。
 6. 優先融合「AI 已生成的天地人素材層」，參考曲只作年代/情緒輔助，不可搶主導。
+7. 每次融合都要展現新的創意組合——用不同的和聲安排、不同的節奏組織、不同的故事線索。
 
 ${drafts}
 
@@ -960,7 +967,10 @@ ${JSON.stringify(input.personalityMatrix, null, 2)}
 
 export async function generateFusionSong(input: FusionSongInput): Promise<FusionSongOutput> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return createLocalFusionSong(input);
+  if (!apiKey) {
+    console.warn('[generateFusionSong] 無 API key，使用本地 fallback');
+    return createLocalFusionSong(input);
+  }
 
   try {
     const text = await generateStructuredText(
@@ -971,7 +981,7 @@ export async function generateFusionSong(input: FusionSongInput): Promise<Fusion
     );
     return normalizeStructuredFields(safeJsonParse<FusionSongOutput>(text)) as unknown as FusionSongOutput;
   } catch (error) {
-    console.error('[gemini] fusion song failed', error);
+    console.error('[gemini] fusion song failed，使用本地 fallback:', error);
     return createLocalFusionSong(input);
   }
 }
