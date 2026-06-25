@@ -82,6 +82,23 @@ export default function VisualGravityCore() {
           return new THREE.CanvasTexture(cv);
         }
 
+        // ── Ring wave texture — soft hollow ring (transparent center+edge) ─
+        function buildRingTex(R: number, G: number, B: number) {
+          const S = 256, m2 = S / 2;
+          const cv = document.createElement("canvas");
+          cv.width = cv.height = S;
+          const cx = cv.getContext("2d")!;
+          const g = cx.createRadialGradient(m2, m2, 0, m2, m2, m2);
+          g.addColorStop(0.0,  `rgba(${R},${G},${B},0)`);
+          g.addColorStop(0.62, `rgba(${R},${G},${B},0)`);
+          g.addColorStop(0.80, `rgba(${R},${G},${B},0.9)`);
+          g.addColorStop(0.90, `rgba(${R},${G},${B},0.35)`);
+          g.addColorStop(1.0,  `rgba(${R},${G},${B},0)`);
+          cx.fillStyle = g;
+          cx.fillRect(0, 0, S, S);
+          return new THREE.CanvasTexture(cv);
+        }
+
         // ── Core group (rotates as one unit) ─────────────────────────────
         const grp = new THREE.Group();
         scene.add(grp);
@@ -119,14 +136,94 @@ export default function VisualGravityCore() {
         grp.add(new THREE.Mesh(sphGeo, sphMat));
 
 
-        // Outer glow shell
-        const glowGeo = new THREE.SphereGeometry(1.78, 32, 32);
-        const glowMat = new THREE.MeshBasicMaterial({
-          color: 0x7788cc, transparent: true, opacity: 0.052,
-          side: THREE.BackSide, depthWrite: false,
-          blending: THREE.AdditiveBlending,
-        });
-        grp.add(new THREE.Mesh(glowGeo, glowMat));
+        // ── Outer glow aura — like a glowing lightbulb releasing light ─────
+        // Multiple concentric BackSide shells: bright near surface, fading out.
+        // Colors blend the white-hole white & black-hole violet energy.
+        const auraShells: { mesh: THREE.Mesh; baseOp: number; pulse: number }[] = [];
+        const auraDefs = [
+          { r: 1.70, color: 0xf2f5ff, op: 0.30, pulse: 0.08 }, // inner bright white-blue
+          { r: 1.88, color: 0xb8c2ff, op: 0.20, pulse: 0.09 }, // mid violet-blue
+          { r: 2.12, color: 0x8a80ff, op: 0.13, pulse: 0.10 }, // outer violet
+          { r: 2.48, color: 0x6a74ff, op: 0.078, pulse: 0.12 }, // far halo
+          { r: 2.95, color: 0x5262e0, op: 0.045, pulse: 0.14 }, // faint outermost bloom
+        ];
+        for (const d of auraDefs) {
+          const m = new THREE.Mesh(
+            new THREE.SphereGeometry(d.r, 48, 48),
+            new THREE.MeshBasicMaterial({
+              color: d.color, transparent: true, opacity: d.op,
+              side: THREE.BackSide, depthWrite: false,
+              blending: THREE.AdditiveBlending,
+            })
+          );
+          grp.add(m);
+          auraShells.push({ mesh: m, baseOp: d.op, pulse: d.pulse });
+        }
+
+        // Big soft halo sprite behind the sphere — the radiant "bulb" bloom
+        const haloSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: buildGlowTex(165, 180, 255), transparent: true, opacity: 0.42,
+          blending: THREE.AdditiveBlending, depthWrite: false,
+        }));
+        haloSprite.position.set(0, 0, -0.6);
+        haloSprite.scale.set(7.0, 7.0, 1);
+        grp.add(haloSprite);
+
+        // Warm white bloom biased toward white-hole side, cool violet toward black-hole
+        const bloomWhite = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: buildGlowTex(255, 255, 255), transparent: true, opacity: 0.35,
+          blending: THREE.AdditiveBlending, depthWrite: false,
+        }));
+        bloomWhite.position.set(0, -1.0, 0.2);
+        bloomWhite.scale.set(4.0, 4.0, 1);
+        grp.add(bloomWhite);
+
+        const bloomViolet = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: buildGlowTex(135, 120, 255), transparent: true, opacity: 0.35,
+          blending: THREE.AdditiveBlending, depthWrite: false,
+        }));
+        bloomViolet.position.set(0, 1.0, 0.2);
+        bloomViolet.scale.set(4.0, 4.0, 1);
+        grp.add(bloomViolet);
+
+        // ── Energy waves — 3D tilted rings propagating outward in space ────
+        // Tilted on an elliptical plane so they read as depth, like shockwaves
+        // radiating through 3D space from the core.
+        const waveTex = buildRingTex(170, 195, 255);
+        const WAVE_N = 4;
+        const waves: { mesh: THREE.Mesh; phase: number }[] = [];
+        for (let i = 0; i < WAVE_N; i++) {
+          const m = new THREE.Mesh(
+            new THREE.PlaneGeometry(1, 1),
+            new THREE.MeshBasicMaterial({
+              map: waveTex, transparent: true, opacity: 0,
+              blending: THREE.AdditiveBlending, depthWrite: false,
+              side: THREE.DoubleSide,
+            })
+          );
+          m.rotation.x = Math.PI / 2.35; // tilt → 3D elliptical perspective
+          grp.add(m);
+          waves.push({ mesh: m, phase: i / WAVE_N });
+        }
+
+        // Vertical-plane waves (perpendicular tilt) for fuller 3D spherical feel
+        const waveTex2 = buildRingTex(180, 160, 255);
+        const WAVE2_N = 3;
+        const waves2: { mesh: THREE.Mesh; phase: number }[] = [];
+        for (let i = 0; i < WAVE2_N; i++) {
+          const m = new THREE.Mesh(
+            new THREE.PlaneGeometry(1, 1),
+            new THREE.MeshBasicMaterial({
+              map: waveTex2, transparent: true, opacity: 0,
+              blending: THREE.AdditiveBlending, depthWrite: false,
+              side: THREE.DoubleSide,
+            })
+          );
+          m.rotation.y = Math.PI / 2.6;
+          m.rotation.z = Math.PI / 3.5;
+          grp.add(m);
+          waves2.push({ mesh: m, phase: i / WAVE2_N + 0.16 });
+        }
 
         // ── Black hole (in white area, upper front) ───────────────────────
         const bhMesh = new THREE.Mesh(
@@ -136,42 +233,82 @@ export default function VisualGravityCore() {
         bhMesh.position.set(0, 0.8, 1.38);
         grp.add(bhMesh);
 
-        // Accretion disk
+        const BH_POS = new THREE.Vector3(0, 0.8, 1.42);
+
+        // Bright accretion disk — glowing ring of light orbiting the dark core
         const diskMesh = new THREE.Mesh(
-          new THREE.TorusGeometry(0.27, 0.033, 8, 64),
+          new THREE.TorusGeometry(0.28, 0.045, 10, 72),
           new THREE.MeshBasicMaterial({
-            color: 0x6644ee, transparent: true, opacity: 0.88,
+            color: 0x8a6cff, transparent: true, opacity: 1.0,
             blending: THREE.AdditiveBlending, depthWrite: false,
           })
         );
-        diskMesh.position.set(0, 0.8, 1.38);
+        diskMesh.position.copy(BH_POS);
         diskMesh.rotation.x = Math.PI / 2.6;
         grp.add(diskMesh);
 
-        const bhSprite = new THREE.Sprite(new THREE.SpriteMaterial({
-          map: buildGlowTex(100, 130, 255), transparent: true, opacity: 0.72,
+        // Lensing halo — bright light ring hugging the event horizon
+        const bhHaloSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: buildRingTex(150, 175, 255), transparent: true, opacity: 0.95,
           blending: THREE.AdditiveBlending, depthWrite: false,
         }));
-        bhSprite.position.set(0, 0.8, 1.38);
-        bhSprite.scale.set(0.8, 0.8, 1);
+        bhHaloSprite.position.copy(BH_POS);
+        bhHaloSprite.scale.set(0.95, 0.95, 1);
+        grp.add(bhHaloSprite);
+
+        // Outer radiant glow burst of the black hole
+        const bhSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: buildGlowTex(120, 150, 255), transparent: true, opacity: 0.9,
+          blending: THREE.AdditiveBlending, depthWrite: false,
+        }));
+        bhSprite.position.copy(BH_POS);
+        bhSprite.scale.set(1.5, 1.5, 1);
         grp.add(bhSprite);
 
         // ── White hole (in dark area, lower front) ────────────────────────
+        const WH_POS = new THREE.Vector3(0, -0.8, 1.42);
+
         const whMat = new THREE.MeshStandardMaterial({
-          color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 2.8,
+          color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 3.4,
           roughness: 0.04, metalness: 0.15,
         });
-        const whMesh = new THREE.Mesh(new THREE.SphereGeometry(0.17, 32, 32), whMat);
-        whMesh.position.set(0, -0.8, 1.38);
+        const whMesh = new THREE.Mesh(new THREE.SphereGeometry(0.16, 32, 32), whMat);
+        whMesh.position.copy(WH_POS);
         grp.add(whMesh);
 
-        const whSprite = new THREE.Sprite(new THREE.SpriteMaterial({
-          map: buildGlowTex(248, 250, 252), transparent: true, opacity: 0.95,
+        // Intense white core
+        const whCore = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: buildGlowTex(255, 255, 255), transparent: true, opacity: 1.0,
           blending: THREE.AdditiveBlending, depthWrite: false,
         }));
-        whSprite.position.set(0, -0.8, 1.38);
-        whSprite.scale.set(1.3, 1.3, 1);
+        whCore.position.copy(WH_POS);
+        whCore.scale.set(0.85, 0.85, 1);
+        grp.add(whCore);
+
+        // Radiant corona burst
+        const whSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: buildGlowTex(235, 242, 255), transparent: true, opacity: 0.95,
+          blending: THREE.AdditiveBlending, depthWrite: false,
+        }));
+        whSprite.position.copy(WH_POS);
+        whSprite.scale.set(1.8, 1.8, 1);
         grp.add(whSprite);
+
+        // Cross-flare light streak (lens flare) for star-like brilliance
+        const whFlare = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: buildGlowTex(255, 255, 255), transparent: true, opacity: 0.7,
+          blending: THREE.AdditiveBlending, depthWrite: false,
+        }));
+        whFlare.position.copy(WH_POS);
+        whFlare.scale.set(3.0, 0.12, 1);
+        grp.add(whFlare);
+        const whFlareV = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: buildGlowTex(255, 255, 255), transparent: true, opacity: 0.55,
+          blending: THREE.AdditiveBlending, depthWrite: false,
+        }));
+        whFlareV.position.copy(WH_POS);
+        whFlareV.scale.set(0.12, 2.2, 1);
+        grp.add(whFlareV);
 
         // ── Particles (star dust) ─────────────────────────────────────────
         const pN = isMobile ? 600 : 1800;
@@ -233,22 +370,37 @@ export default function VisualGravityCore() {
           animId = requestAnimationFrame(frame);
           const t = clock.getElapsedTime();
 
-          // Y-axis rotation makes yin/yang alternate facing camera
-          // Offset already puts yang at front at t=0; slow rotation shows both sides
-          grp.rotation.y = t * 0.10;
-          // Gentle Z tilt for 3D feel
-          grp.rotation.z = Math.sin(t * 0.28) * 0.10;
+          // Y-axis rotation: one full turn every 6s so the whole taiji
+          // structure (yang → yin → yang) is revealed within 6 seconds
+          grp.rotation.y = t * (Math.PI * 2 / 6);
+          // Fixed axis tilt + gentle sway → strong 3D spatial depth, the holes
+          // orbit on a visible elliptical 3D path rather than a flat line
+          grp.rotation.x = 0.16 + Math.sin(t * 0.5) * 0.05;
+          grp.rotation.z = Math.sin(t * 0.4) * 0.12;
 
           // Breathing
           grp.scale.setScalar(1 + Math.sin(t * 0.8) * 0.03);
 
-          // Accretion disk spin
-          diskMesh.rotation.z = t * 1.1;
+          // ── Black hole — accretion disk spin + radiant lensing halo ──────
+          diskMesh.rotation.z = t * 1.4;
+          const bhPulse = 1 + Math.sin(t * 1.9) * 0.18;
+          bhHaloSprite.scale.set(0.9 * bhPulse, 0.9 * bhPulse, 1);
+          (bhHaloSprite.material as THREE.SpriteMaterial).opacity = 0.8 + Math.sin(t * 1.9) * 0.2;
+          bhSprite.scale.set(1.5 * bhPulse, 1.5 * bhPulse, 1);
+          (bhSprite.material as THREE.SpriteMaterial).opacity = 0.75 + Math.sin(t * 1.3) * 0.2;
 
-          // White hole pulse
-          const wPulse = 1 + Math.sin(t * 1.6) * 0.2;
-          whSprite.scale.set(wPulse * 1.3, wPulse * 1.3, 1);
-          whMat.emissiveIntensity = 2.4 + Math.sin(t * 2.2) * 0.9;
+          // ── White hole — intense radiant light burst ─────────────────────
+          const wPulse = 1 + Math.sin(t * 1.6) * 0.22;
+          whSprite.scale.set(wPulse * 1.8, wPulse * 1.8, 1);
+          (whSprite.material as THREE.SpriteMaterial).opacity = 0.85 + Math.sin(t * 1.6) * 0.15;
+          whCore.scale.set(0.8 + Math.sin(t * 2.4) * 0.12, 0.8 + Math.sin(t * 2.4) * 0.12, 1);
+          whMat.emissiveIntensity = 3.0 + Math.sin(t * 2.2) * 1.2;
+          // Twinkling lens-flare streaks
+          const flareP = 0.55 + Math.abs(Math.sin(t * 1.1)) * 0.45;
+          (whFlare.material as THREE.SpriteMaterial).opacity = flareP * 0.7;
+          whFlare.scale.set(2.6 + Math.sin(t * 1.7) * 0.8, 0.12, 1);
+          (whFlareV.material as THREE.SpriteMaterial).opacity = flareP * 0.5;
+          whFlareV.scale.set(0.12, 1.9 + Math.sin(t * 1.5) * 0.6, 1);
 
           // Particles slow orbit
           particles.rotation.y += 0.0008;
@@ -268,6 +420,38 @@ export default function VisualGravityCore() {
             posArr[i * 3 + 2] = fPos[i * 3 + 2] * (1 - fPull * 0.68);
           }
           fAttr.needsUpdate = true;
+
+          // Aura shells pulse — radiating light like a breathing lightbulb
+          for (let i = 0; i < auraShells.length; i++) {
+            const s = auraShells[i];
+            const m = s.mesh.material as THREE.MeshBasicMaterial;
+            m.opacity = s.baseOp + Math.sin(t * 0.9 - i * 0.6) * s.pulse;
+            s.mesh.scale.setScalar(1 + Math.sin(t * 0.7 - i * 0.5) * 0.025);
+          }
+          // Halo & directional blooms breathe
+          (haloSprite.material as THREE.SpriteMaterial).opacity = 0.38 + Math.sin(t * 0.6) * 0.10;
+          haloSprite.scale.setScalar(6.6 + Math.sin(t * 0.5) * 0.7);
+          (bloomWhite.material as THREE.SpriteMaterial).opacity = 0.32 + Math.sin(t * 1.6) * 0.12;
+          (bloomViolet.material as THREE.SpriteMaterial).opacity = 0.32 + Math.sin(t * 1.3 + 1.0) * 0.12;
+
+          // Energy waves — expand outward from core then fade, looping
+          const WAVE_PERIOD = 4.2;
+          for (let i = 0; i < waves.length; i++) {
+            const w = waves[i];
+            const p = ((t / WAVE_PERIOD) + w.phase) % 1; // 0→1 expansion progress
+            const sc = 1.6 + p * 5.4;                    // grow from core outward
+            w.mesh.scale.set(sc, sc, sc);
+            const m = w.mesh.material as THREE.MeshBasicMaterial;
+            m.opacity = Math.sin(p * Math.PI) * 0.85;    // fade in then out
+          }
+          for (let i = 0; i < waves2.length; i++) {
+            const w = waves2[i];
+            const p = ((t / WAVE_PERIOD) + w.phase) % 1;
+            const sc = 1.6 + p * 5.0;
+            w.mesh.scale.set(sc, sc, sc);
+            const m = w.mesh.material as THREE.MeshBasicMaterial;
+            m.opacity = Math.sin(p * Math.PI) * 0.55;
+          }
 
           // Soul mist breathe
           (mistSprite.material as THREE.SpriteMaterial).opacity = 0.12 + Math.sin(t * 0.5) * 0.04;
