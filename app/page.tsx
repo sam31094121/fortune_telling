@@ -80,7 +80,7 @@ export default function HomePage() {
     } catch (error) {
       console.error('[page] preview failed', error);
       if (error instanceof DOMException && error.name === 'AbortError') {
-        setErrorMsg('AI 總機分析逾時，請稍後再試。');
+        setErrorMsg('AI 分析等候時間過長，請稍後再試。');
       } else if (typeof error === 'object' && error && 'error' in error && typeof (error as ApiError).error === 'string') {
         setErrorMsg((error as ApiError).error);
       } else {
@@ -121,7 +121,7 @@ export default function HomePage() {
     } catch (error) {
       console.error('[page] analyze failed', error);
       if (error instanceof DOMException && error.name === 'AbortError') {
-        setErrorMsg('完整分析逾時，請稍後再試。');
+        setErrorMsg('完整分析等候時間過長，請稍後再試。');
       } else if (typeof error === 'object' && error && 'error' in error && typeof (error as ApiError).error === 'string') {
         setErrorMsg((error as ApiError).error);
       } else {
@@ -152,13 +152,13 @@ export default function HomePage() {
           <div className="space-y-6">
             <div className="flex flex-wrap items-center gap-3">
               <div className="inline-flex rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-1 text-xs font-semibold tracking-[0.3em] text-amber-300">
-                AI 總機人格分析系統
+                AI 人格解碼
               </div>
               <a
                 href="/music"
                 className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/30 bg-violet-400/10 px-4 py-1 text-xs font-semibold tracking-[0.2em] text-violet-300 transition hover:bg-violet-400/20"
               >
-                人格
+                人格音樂
               </a>
               <a
                 href="/match"
@@ -170,32 +170,32 @@ export default function HomePage() {
                 href="/insight"
                 className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1 text-xs font-semibold tracking-[0.2em] text-cyan-300 transition hover:bg-cyan-400/20"
               >
-                ✨ 深度洞察
+                深度洞察
               </a>
             </div>
 
             <div className="space-y-4">
               <h1 className="mystic-title font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">
-                輸入資料，啟動 AI 總機分析
+                先看懂自己，再做更好的選擇
               </h1>
               <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)] sm:text-base">
-                只需要輸入基本資料；系統內部會結合八字、紫微斗數與 AI
-                總機模型進行綜合運算，完成後呈現清楚好懂的分析結果。
+                輸入生日與血型，AI 會把命理、人格與行為訊號整理成白話重點。
+                進階細節留在背景，前台只呈現你看得懂、用得上的內容。
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="fortune-card sky-card p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-violet-300">輸入資料</p>
-                <p className="mt-2 text-sm text-[color:var(--text-main)]">生日、血型與基本資訊</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-violet-300">快速輸入</p>
+                <p className="mt-2 text-sm text-[color:var(--text-main)]">先填生日與血型</p>
               </div>
               <div className="fortune-card earth-card p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-amber-300">AI 總機</p>
-                <p className="mt-2 text-sm text-[color:var(--text-main)]">系統自動綜合運算</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-amber-300">AI 整理</p>
+                <p className="mt-2 text-sm text-[color:var(--text-main)]">自動抓出關鍵重點</p>
               </div>
               <div className="fortune-card human-card p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-pink-300">分析結果</p>
-                <p className="mt-2 text-sm text-[color:var(--text-main)]">只顯示客戶看得懂的重點</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-pink-300">白話結果</p>
+                <p className="mt-2 text-sm text-[color:var(--text-main)]">留下真正能理解的內容</p>
               </div>
             </div>
           </div>
@@ -216,7 +216,7 @@ export default function HomePage() {
 
             {loading && (
               <div className="mt-8 rounded-2xl border border-violet-400/15 bg-violet-950/20 p-4 text-center text-sm text-violet-200">
-                AI 總機正在綜合運算，請稍候…
+                AI 正在整理重點，請稍候…
               </div>
             )}
 
@@ -240,14 +240,14 @@ export default function HomePage() {
             ) : (
               <div className="fortune-card flex min-h-[320px] flex-col justify-center p-6 sm:p-8">
                 <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-                  預備狀態
+                  等你開始
                 </p>
                 <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">
-                  先完成基本資料輸入
+                  輸入兩項資料，先拿到初步輪廓
                 </h2>
                 <p className="mt-4 max-w-xl text-sm leading-8 text-[color:var(--text-sub)]">
-                  請先輸入生日與血型。系統會在內部完成八字、紫微斗數與 AI
-                  總機綜合分析；畫面不顯示內部算法，只呈現整理後的重點結果。
+                  先填國曆生日與血型，AI 會把背景分析整理成白話結果。
+                  畫面不堆進階細節，只保留能幫你判斷的重點。
                 </p>
               </div>
             )}

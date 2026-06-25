@@ -149,31 +149,32 @@ function LandingHero({ onStart }: { onStart: () => void }) {
 
       <div className="relative z-20 flex max-w-3xl flex-col items-center">
         <div className="mb-8 inline-flex rounded-full border border-violet-400/35 bg-violet-500/10 px-5 py-1.5 text-xs font-semibold tracking-[0.35em] text-violet-200">
-          天・地・人 AI 人格音樂系統 V1.0
+          AI 人格音樂
         </div>
 
         <h1 className="mystic-title font-serif text-5xl leading-tight sm:text-6xl lg:text-7xl">
-          讓你的命格<br />變成一首歌
+          把你的性格<br />聽成一首歌
         </h1>
 
         <p className="mt-8 max-w-2xl text-base leading-8 text-[color:var(--text-sub)]">
-          輸入民國年國曆生日、血型、姓名與聲音特徵，系統會先自動換算西元，再融合天地人模型與音樂參數，產出你的專屬人格音樂報告。
+          輸入生日、血型、姓名與聲音特徵，AI 會整理你的性格節奏與音樂風格，
+          產出一份好懂的人格主題曲預覽。
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-4">
           <button type="button" onClick={onStart} className="vip-gold-btn px-14 py-5 text-lg">
-            啟動人格音樂
+            生成我的主題曲
           </button>
           <a href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
-            返回人格解碼首頁
+            回到人格解碼首頁
           </a>
         </div>
 
         <div className="mt-14 grid grid-cols-3 gap-4">
           {[
-            { label: '天 35%', desc: '生日決定主旋律與情緒底色', color: 'rgba(109,74,255,0.7)' },
-            { label: '地 35%', desc: '血型補充節奏感與表達方式', color: 'rgba(201,162,74,0.7)' },
-            { label: '人 30%', desc: '姓名・性別・時辰解鎖歌詞靈魂', color: 'rgba(215,139,255,0.7)' },
+            { label: '生日', desc: '抓出情緒底色', color: 'rgba(109,74,255,0.7)' },
+            { label: '血型', desc: '補上表達節奏', color: 'rgba(201,162,74,0.7)' },
+            { label: '姓名', desc: '生成專屬歌詞靈魂', color: 'rgba(215,139,255,0.7)' },
           ].map((item) => (
             <div
               key={item.label}
@@ -279,17 +280,17 @@ export default function MusicSystemPage() {
               ← 返回
             </button>
             <div className="rounded-full border border-violet-400/30 px-4 py-1 text-xs font-semibold tracking-[0.3em] text-violet-200">
-              天・地・人 AI 人格音樂系統 V1.0
+              AI 人格音樂
             </div>
           </div>
 
           <section className="grid gap-10 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)]">
             <div className="fortune-card p-6 sm:p-8">
               <div className="mb-6">
-                <p className="text-xs uppercase tracking-[0.35em] text-violet-300">人格音樂輸入</p>
-                <h2 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">建立你的音樂人格</h2>
+                <p className="text-xs uppercase tracking-[0.35em] text-violet-300">主題曲資料</p>
+                <h2 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">建立你的音樂輪廓</h2>
                 <p className="mt-2 text-xs text-[color:var(--text-muted)]">
-                  全球大數據分析 × 天地人三模型融合
+                  只填會影響音樂風格的重點資料
                 </p>
               </div>
 
@@ -297,7 +298,7 @@ export default function MusicSystemPage() {
 
               {loading && (
                 <div className="mt-6 rounded-2xl border border-violet-400/15 bg-violet-950/20 p-4 text-center text-sm text-violet-200">
-                  正在生成天地人素材層、人格主題曲與 AI 製作分配，請稍候…
+                  正在整理人格節奏與主題曲預覽，請稍候…
                 </div>
               )}
 
@@ -313,14 +314,14 @@ export default function MusicSystemPage() {
                 <VisualGravityCore />
               </div>
               <p className="text-center text-xs tracking-widest text-[color:var(--text-muted)]">
-                中央引力核正在校準你的氣場
+                正在校準你的音樂輪廓
               </p>
               <div className="w-full max-w-sm space-y-3 text-xs text-[color:var(--text-muted)]">
                 {[
-                  '全球 1950s–2020s 年代音樂數據庫',
-                  '12 星座 × 31 日 人格矩陣引擎',
-                  '4 血型 × 性別 行為模型校正',
-                  '姓名筆畫能量學 × 音韻心理學',
+                  '年代音樂偏好',
+                  '星座與人格節奏',
+                  '血型表達風格',
+                  '姓名與聲音氣質',
                 ].map((text) => (
                   <div key={text} className="flex items-center gap-2">
                     <div className="h-1 w-1 rounded-full bg-violet-400/60" />

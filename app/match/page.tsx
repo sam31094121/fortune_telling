@@ -144,7 +144,7 @@ function PersonStep({
         {title}
       </p>
 
-      <h2 className="mt-4 font-serif text-3xl text-[color:var(--text-main)]">一步一步輸入就好</h2>
+      <h2 className="mt-4 font-serif text-3xl text-[color:var(--text-main)]">照順序填，不會漏</h2>
       <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">{description}</p>
 
       <div className="mt-8 space-y-8">
@@ -191,14 +191,14 @@ function PersonStep({
             <ElderChoiceCard
               active={value.gender === 'female'}
               title="女性"
-              description="用來修飾外在表現，不會推翻前面結果。"
+              description="用來修飾外在表現。"
               onClick={() => onChange({ ...value, gender: 'female' })}
               tone="pink"
             />
             <ElderChoiceCard
               active={value.gender === 'male'}
               title="男性"
-              description="只做外在呈現修飾，保持整體邏輯穩定。"
+              description="只做外在呈現修飾。"
               onClick={() => onChange({ ...value, gender: 'male' })}
               tone="cyan"
             />
@@ -330,13 +330,13 @@ export default function MatchPage() {
         <section className="mb-10 grid items-center gap-8 lg:grid-cols-[1fr_auto]">
           <div>
             <div className="mb-4 inline-block rounded-full border border-rose-400/20 bg-rose-400/8 px-4 py-1 text-xs tracking-[0.35em] text-rose-300">
-              天・地・人 配對系統
+              AI 緣分配對
             </div>
             <h1 className="mystic-title mb-4 font-serif text-4xl leading-tight sm:text-5xl">
-              一步一步配對引導<br />簡單看得懂
+              輸入兩個人<br />看懂相處節奏
             </h1>
             <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
-              不用一次看很多欄位。先填第一位，再填第二位，最後確認一次，系統就會幫你完成配對分析。
+              先填第一位，再填第二位，最後確認一次。AI 會整理共鳴、溝通、穩定與需要磨合的地方。
             </p>
           </div>
           <div className="flex justify-center lg:justify-end">
@@ -351,7 +351,7 @@ export default function MatchPage() {
                 <div>
                   <p className="text-xs tracking-[0.3em] text-[color:var(--text-muted)]">目前進度</p>
                   <p className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">
-                    {step === 'personA' ? '先填第一位' : step === 'personB' ? '再填第二位' : '最後確認資料'}
+                    {step === 'personA' ? '先填第一位' : step === 'personB' ? '再填第二位' : '確認後開始配對'}
                   </p>
                 </div>
                 <div className="grid grid-cols-3 gap-2 sm:min-w-[280px]">
@@ -383,7 +383,7 @@ export default function MatchPage() {
             {step === 'personA' && (
               <PersonStep
                 title="第一位資料"
-                description="請先輸入第一位的姓名、民國年國曆生日、血型和性別。每一步都幫你排好了。"
+                description="先輸入第一位的姓名、生日、血型和性別。填好後再進下一位。"
                 accent="violet"
                 value={personA}
                 onChange={setPersonA}
@@ -393,7 +393,7 @@ export default function MatchPage() {
             {step === 'personB' && (
               <PersonStep
                 title="第二位資料"
-                description="接著輸入第二位。填法完全一樣，不用擔心會亂掉。"
+                description="接著輸入第二位。欄位一樣，跟著順序填就好。"
                 accent="amber"
                 value={personB}
                 onChange={setPersonB}
@@ -404,9 +404,9 @@ export default function MatchPage() {
               <div className="space-y-6">
                 <div className="fortune-card p-6 sm:p-8">
                   <p className="text-xs tracking-[0.3em] text-rose-300">最後確認</p>
-                  <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">請再看一次資料</h2>
+                  <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">確認資料後開始配對</h2>
                   <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
-                    如果名字、生日、血型都沒問題，就可以開始配對。這一步是讓填寫更安心，不怕按太快送出去。
+                    名字、生日、血型都沒問題，就可以開始。這一步讓你安心確認，不怕按太快。
                   </p>
                 </div>
 
@@ -474,7 +474,7 @@ export default function MatchPage() {
                   disabled={!reviewReady || loading}
                   className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {loading ? '配對分析中…' : '開始配對分析'}
+                  {loading ? '正在整理配對結果…' : '查看配對結果'}
                 </button>
               )}
             </div>
@@ -486,7 +486,7 @@ export default function MatchPage() {
             <div className="fortune-card p-6 sm:p-8 text-center">
               <p className="text-xs uppercase tracking-[0.35em] text-rose-300">配對結果</p>
               <h2 className="mt-3 font-serif text-5xl text-[color:var(--text-main)]">{data.result.match_score}</h2>
-              <p className="mt-2 text-sm text-[color:var(--text-sub)]">人格共鳴指數</p>
+              <p className="mt-2 text-sm text-[color:var(--text-sub)]">相處共鳴指數</p>
               <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">{data.result.summary}</p>
             </div>
 

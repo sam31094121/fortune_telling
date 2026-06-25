@@ -33,10 +33,10 @@ export default function MultiStepForm({
   return (
     <div className="space-y-6">
       <div className="space-y-3 text-center">
-        <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">免費 AI 分析</p>
-        <h2 className="font-serif text-3xl text-[color:var(--text-main)]">先輸入資料，再查看分析</h2>
+        <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">免費初步分析</p>
+        <h2 className="font-serif text-3xl text-[color:var(--text-main)]">填兩項資料，先看人格輪廓</h2>
         <p className="text-sm leading-7 text-[color:var(--text-sub)]">
-          輸入民國年國曆生日與血型後，AI 總機會在系統內部進行八字、紫微斗數與綜合資料運算。
+          先填民國年國曆生日與血型。AI 會在背景完成整理，前台只顯示白話重點。
         </p>
       </div>
 
@@ -70,7 +70,7 @@ export default function MultiStepForm({
         <div className="fortune-card sky-card space-y-4 p-5 animate-rise">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-violet-300">出生資料</p>
-            <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">輸入國曆出生年月日（民國年）</h3>
+            <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">輸入國曆生日（民國年）</h3>
           </div>
 
           <LunarBirthdayInput
@@ -84,12 +84,12 @@ export default function MultiStepForm({
             <div className="rounded-2xl border border-violet-400/15 bg-violet-950/20 p-4">
               <p className="text-sm font-semibold text-violet-200">出生日期已確認</p>
               <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">
-                系統已收到你的日期資料，接下來會自動納入八字、紫微斗數與 AI 總機分析。
+                日期已收好，下一步選血型，就能先看初步人格輪廓。
               </p>
             </div>
           ) : (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-[color:var(--text-muted)]">
-              請輸入民國年國曆生日，系統會自動換算西元並進行分析。
+              輸入民國年、月、日，系統會自動換算西元。
             </div>
           )}
 
@@ -99,7 +99,7 @@ export default function MultiStepForm({
             onClick={() => setStep(2)}
             className="primary-button w-full py-3.5 text-sm tracking-[0.12em]"
           >
-            確認生日，下一步
+            下一步：選血型
           </button>
         </div>
       )}
@@ -107,7 +107,7 @@ export default function MultiStepForm({
       {step === 2 && (
         <div className="fortune-card earth-card space-y-5 p-5 animate-rise">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-amber-300">補充資料</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-amber-300">第二項資料</p>
             <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">選擇血型</h3>
           </div>
 
@@ -132,12 +132,12 @@ export default function MultiStepForm({
           {person.bloodType ? (
             <div className="rounded-2xl border border-amber-400/15 bg-amber-950/20 p-4">
               <p className="text-sm leading-7 text-[color:var(--text-sub)]">
-                血型資料已確認。AI 總機會與出生資料一起進行綜合運算。
+                已選好。點下方按鈕，先查看你的初步人格輪廓。
               </p>
             </div>
           ) : (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-[color:var(--text-muted)]">
-              請選擇血型，讓 AI 總機完成第一階段資料分析。
+              選擇血型後，就能開始初步分析。
             </div>
           )}
 
@@ -147,7 +147,7 @@ export default function MultiStepForm({
             onClick={onSubmitPreview}
             className="primary-button w-full py-4 text-base tracking-[0.15em]"
           >
-            啟動 AI 總機分析
+            查看初步人格輪廓
           </button>
         </div>
       )}

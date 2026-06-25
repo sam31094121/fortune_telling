@@ -41,7 +41,7 @@ const VOICE_OPTIONS = [
   { key: 'hesitant', label: '較保留猶豫' },
 ];
 
-const STEPS = ['國曆生日', '血型', '姓名', '時辰', '聲音特徵'];
+const STEPS = ['生日', '血型', '姓名', '時辰', '聲音'];
 
 export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityMusicFlowProps) {
   const [step, setStep] = useState(0);
@@ -56,14 +56,14 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   const [localError, setLocalError] = useState('');
 
   function validateStep(targetStep = step): string | null {
-    if (targetStep === 0 && !form.birthDate) return '請先輸入完整的民國年國曆生日。';
+    if (targetStep === 0 && !form.birthDate) return '請先輸入完整的國曆生日。';
     if (targetStep === 1 && !form.bloodType) return '請先選擇血型。';
     if (targetStep === 2) {
       if (form.name.trim().length < 2) return '姓名至少要 2 個字。';
       if (form.name.trim().length > 20) return '姓名不可超過 20 個字。';
     }
     if (targetStep === 3 && form.shichen === null) {
-      return '請選擇出生時辰，或點「我不知道時辰」，系統會幫你挑良辰吉時。';
+      return '請選擇出生時辰；不知道也可以直接點「我不知道時辰」。';
     }
     return null;
   }
@@ -129,7 +129,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
       {step === 0 && (
         <div className="space-y-4">
           <p className="text-sm text-[color:var(--text-sub)]">
-            先輸入民國年國曆生日，系統會自動換成西元，再進入後面的音樂人格分析。
+            先輸入國曆生日，系統會自動換成西元，再整理你的音樂性格底色。
           </p>
           <LunarBirthdayInput
             value={form.birthDate}
@@ -144,7 +144,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
 
       {step === 1 && (
         <div className="space-y-4">
-          <p className="text-sm text-[color:var(--text-sub)]">請選擇血型，系統會補充你的行為與表達風格。</p>
+          <p className="text-sm text-[color:var(--text-sub)]">選擇血型，AI 會補上你的表達節奏與互動風格。</p>
           <div className="grid grid-cols-2 gap-3">
             {BLOOD_TYPES.map((bloodType) => (
               <button
@@ -173,7 +173,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
       {step === 2 && (
         <div className="space-y-5">
           <div>
-            <p className="mb-4 text-sm text-[color:var(--text-sub)]">請輸入姓名，系統會做最後的人層校正。</p>
+            <p className="mb-4 text-sm text-[color:var(--text-sub)]">輸入姓名，讓主題曲更貼近你的個人特質。</p>
             <input
               type="text"
               value={form.name}
@@ -187,7 +187,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
             />
           </div>
           <div>
-            <p className="mb-2 text-xs text-[color:var(--text-muted)]">性別只做外在呈現修飾，不會推翻前面結果。</p>
+            <p className="mb-2 text-xs text-[color:var(--text-muted)]">性別只用來修飾呈現語氣，不會推翻前面結果。</p>
             <div className="grid grid-cols-2 gap-3">
               {(['female', 'male'] as Gender[]).map((gender) => (
                 <button
@@ -212,10 +212,10 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         <div className="space-y-5">
           <div>
             <p className="text-sm text-[color:var(--text-sub)]">
-              時辰就是你出生的時間（每 2 小時為一個時辰）。系統會用八字與紫微斗數，為你的人層分析再加深一層。
+              如果知道出生時辰，可以讓分析更細；不知道也完全沒關係。
             </p>
             <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
-              記不得也完全沒關係 — 點下面「我不知道時辰」，系統會自動幫你挑一個良辰吉時，分析照常完成。
+              點下面「我不知道時辰」，系統會用良辰吉時補位，流程照樣完成。
             </p>
           </div>
 
@@ -236,19 +236,19 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
               🕊️ 我不知道 / 記不得時辰
             </p>
             <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">
-              系統會依你的生辰，自動挑選與當日最相合的「良辰吉時」，一樣能完成分析。
+              系統會用良辰吉時補位，一樣能完成分析。
             </p>
           </button>
 
           {form.shichen === 'unknown' && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-950/20 p-4 text-xs leading-6 text-emerald-200">
-              放心，已為你預留「良辰吉時」。日後若想起真實的出生時辰，再回來補上會更精準。
+              已為你保留良辰吉時。日後想起真實時辰，再補上會更精準。
             </div>
           )}
 
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-white/10" />
-            <span className="shrink-0 text-xs text-[color:var(--text-muted)]">或選擇你知道的出生時辰</span>
+            <span className="shrink-0 text-xs text-[color:var(--text-muted)]">或選擇真實出生時辰</span>
             <div className="h-px flex-1 bg-white/10" />
           </div>
 
@@ -284,7 +284,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
       {step === 4 && (
         <div className="space-y-4">
           <p className="text-sm text-[color:var(--text-sub)]">
-            這一步是選填，讓 AI 更了解你的說話節奏與聲音氣質。
+            這一步選填，讓 AI 更貼近你的說話節奏與聲音氣質。
           </p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {VOICE_OPTIONS.map((option) => (
@@ -331,7 +331,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
           disabled={loading || currentStepInvalid}
           className="vip-gold-btn flex-1 py-4 text-sm disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? '正在生成人格音樂報告…' : step === STEPS.length - 1 ? '開始音樂人格分析' : `前往下一步：${STEPS[step + 1]}`}
+          {loading ? '正在整理主題曲報告…' : step === STEPS.length - 1 ? '生成主題曲預覽' : `下一步：${STEPS[step + 1]}`}
         </button>
       </div>
     </div>

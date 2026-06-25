@@ -254,14 +254,14 @@ export default function InsightPage() {
             <section className="mb-10 grid items-center gap-8 lg:grid-cols-[1fr_auto]">
               <div>
                 <div className="mb-4 inline-block rounded-full border border-cyan-400/20 bg-cyan-400/8 px-4 py-1 text-xs tracking-[0.35em] text-cyan-300">
-                  ✨ AI 深度洞察系統
+                  AI 深度洞察
                 </div>
                 <h1 className="mystic-title mb-4 font-serif text-4xl leading-tight sm:text-5xl">
-                  用全球大數據<br />解鎖你的全部潛力
+                  看懂你的潛力<br />找到下一步方向
                 </h1>
                 <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
-                  只需輸入天地人的基本資料，AI 會根據全世界數百萬筆數據進行精準分析。
-                  基於心理學、統計學和大數據，給你最準確的個性洞察。
+                  輸入基本資料，AI 會把命理、心理與統計訊號整理成白話建議。
+                  重點放在能理解、能行動，不把多餘細節塞進畫面。
                 </p>
               </div>
               <div className="flex justify-center lg:justify-end">
@@ -271,8 +271,8 @@ export default function InsightPage() {
 
             <div className="fortune-card space-y-8 p-6 sm:p-8">
               {/* 狀態指示器 */}
-              <div className="rounded-lg border border-cyan-400/20 bg-cyan-400/5 p-4">
-                <p className="text-xs text-[color:var(--text-muted)] mb-3">表單進度</p>
+              <div className="hidden rounded-lg border border-cyan-400/20 bg-cyan-400/5 p-4 sm:block">
+                <p className="text-xs text-[color:var(--text-muted)] mb-3">資料進度</p>
                 <div className="flex gap-2 flex-wrap">
                   <div className={`px-3 py-1 rounded-full text-xs font-medium ${
                     input.name.trim().length >= 2
@@ -307,7 +307,7 @@ export default function InsightPage() {
 
               <div>
                 <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
-                  1. 你的名字 {input.name.trim().length >= 2 && <span className="text-green-400">✓</span>}
+                  1. 姓名 {input.name.trim().length >= 2 && <span className="text-green-400">✓</span>}
                 </label>
                 <input
                   type="text"
@@ -322,7 +322,7 @@ export default function InsightPage() {
                       setInput({ ...input, name: trimmed });
                     }
                   }}
-                  placeholder="請輸入你的名字（至少 2 個字）"
+                  placeholder="請輸入姓名（至少 2 個字）"
                   maxLength={20}
                   className="form-input w-full text-base border border-white/10 rounded-lg px-4 py-3"
                   autoComplete="off"
@@ -344,7 +344,7 @@ export default function InsightPage() {
                     }
                   }}
                   accent="violet"
-                  label="請輸入國曆生日（民國年）"
+                  label="國曆生日（民國年）"
                 />
                 {input.birthDate && (
                   <p className="mt-2 text-xs text-green-400">✓ 西元 {input.birthDate}</p>
@@ -390,12 +390,11 @@ export default function InsightPage() {
               <div>
                 <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
                   5. 出生時辰
-                  <span className="ml-1 text-xs font-normal text-[color:var(--text-muted)]">（選填，給八字・紫微大數據用）</span>
+                  <span className="ml-1 text-xs font-normal text-[color:var(--text-muted)]">（選填）</span>
                   {input.shichen !== null && <span className="text-green-400"> ✓</span>}
                 </label>
                 <p className="mb-4 text-xs leading-6 text-[color:var(--text-muted)]">
-                  時辰是你出生的時間（每 2 小時為一個時辰）。填了，AI 就能加入八字（日柱／時柱）與紫微斗數的命理大數據，分析更深；
-                  記不得也完全沒關係 — 點「我不知道時辰」或直接送出，系統會自動幫你挑一個「良辰吉時」。
+                  知道時辰會讓分析更細；不知道也沒關係。點「我不知道時辰」，系統會用良辰吉時補位。
                 </p>
 
                 <button
@@ -408,22 +407,22 @@ export default function InsightPage() {
                   }`}
                 >
                   <p className={`text-base font-bold ${input.shichen === 'unknown' ? 'text-emerald-300' : 'text-[color:var(--text-main)]'}`}>
-                    🕊️ 我不知道 / 記不得時辰
+                    我不知道 / 記不得時辰
                   </p>
                   <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">
-                    系統會依你的生辰，自動挑選與當日最相合的「良辰吉時」，一樣能完成八字・紫微分析。
+                    系統會用良辰吉時補位，一樣能完成分析。
                   </p>
                 </button>
 
                 {input.shichen === 'unknown' && (
                   <div className="mt-3 rounded-2xl border border-emerald-400/20 bg-emerald-950/20 p-4 text-xs leading-6 text-emerald-200">
-                    放心，已為你預留「良辰吉時」。日後若想起真實的出生時辰，再回來補上會更精準。
+                    已為你保留良辰吉時。日後想起真實時辰，再補上會更精準。
                   </div>
                 )}
 
                 <div className="my-4 flex items-center gap-3">
                   <div className="h-px flex-1 bg-white/10" />
-                  <span className="shrink-0 text-xs text-[color:var(--text-muted)]">或選擇你知道的出生時辰</span>
+                  <span className="shrink-0 text-xs text-[color:var(--text-muted)]">或選擇真實出生時辰</span>
                   <div className="h-px flex-1 bg-white/10" />
                 </div>
 
@@ -472,7 +471,7 @@ export default function InsightPage() {
                       分析中（請稍候）…
                     </span>
                   ) : (
-                    '✨ 開始 AI 深度洞察'
+                    '開始深度洞察'
                   )}
                 </button>
 
@@ -495,17 +494,17 @@ export default function InsightPage() {
         ) : (
           <div className="space-y-6">
             <div className="fortune-card p-6 sm:p-8 text-center">
-              <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">深度洞察結果</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">洞察報告完成</p>
               <h2 className="mt-3 font-serif text-5xl text-[color:var(--text-main)]">{result.accuracyScore}%</h2>
-              <p className="mt-2 text-sm text-[color:var(--text-sub)]">分析精準度</p>
+              <p className="mt-2 text-sm text-[color:var(--text-sub)]">資料信心度</p>
               <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
-                基於全球 {result.dataSourceCount.toLocaleString()} 筆數據的統計分析
+                整合 {result.dataSourceCount.toLocaleString()} 筆趨勢樣本與個人訊號
               </p>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
               <div className="fortune-card p-6 sm:p-8">
-                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">分析精準度</p>
+                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">核心指標</p>
                 <div className="space-y-4">
                   {result.statisticalAnalysis.slice(0, 4).map((item) => (
                     <AccuracyBar key={item.dimension} score={item.score} label={item.dimension} />
@@ -528,7 +527,7 @@ export default function InsightPage() {
             </div>
 
             <div className="fortune-card p-6 sm:p-8">
-              <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">大數據發現</p>
+              <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">關鍵發現</p>
               <div className="grid gap-4 sm:grid-cols-2">
                 {result.bigDataInsights.map((insight, index) => (
                   <div key={index} className="rounded-lg border border-white/5 bg-white/3 p-4">
@@ -555,7 +554,7 @@ export default function InsightPage() {
             </div>
 
             <div className="fortune-card p-6 sm:p-8 text-center">
-              <p className="mb-4 font-semibold text-[color:var(--text-main)]">完整摘要</p>
+              <p className="mb-4 font-semibold text-[color:var(--text-main)]">重點摘要</p>
               <p className="text-sm leading-8 text-[color:var(--text-sub)]">{result.summary}</p>
             </div>
 

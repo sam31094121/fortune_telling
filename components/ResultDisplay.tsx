@@ -15,9 +15,9 @@ interface ResultDisplayProps {
 }
 
 const CUSTOMER_FLOW_DISPLAY = [
-  { label: '資料已接收', desc: '生日與血型已送入 AI 總機' },
-  { label: '系統運算中', desc: '自動整合八字、紫微斗數與 AI 分析' },
-  { label: '結果已整理', desc: '畫面只顯示客戶看得懂的重點' },
+  { label: '資料已收好', desc: '生日與血型已完成初步整理' },
+  { label: 'AI 已歸納', desc: '背景運算只留下關鍵訊號' },
+  { label: '白話呈現', desc: '結果用容易理解的方式顯示' },
 ];
 
 export default function ResultDisplay({
@@ -38,15 +38,15 @@ export default function ResultDisplay({
   const summary = isUnlocked ? vipResult.final_summary : previewResult.preview_summary;
   const guidanceBlocks = isUnlocked
     ? [
-        { title: '人格輪廓', body: vipResult.skeleton_summary, tone: 'sky' },
-        { title: '行為傾向', body: vipResult.behavior_summary, tone: 'earth' },
+        { title: '性格底色', body: vipResult.skeleton_summary, tone: 'sky' },
+        { title: '日常行為傾向', body: vipResult.behavior_summary, tone: 'earth' },
         { title: '個人特質', body: vipResult.individuality_summary, tone: 'human' },
         { title: '善念提醒', body: vipResult.wisdom_perspective, tone: 'earth' },
       ]
     : [
-        { title: '人格輪廓', body: previewResult.skeleton_summary, tone: 'sky' },
-        { title: '行為傾向', body: previewResult.behavior_summary, tone: 'earth' },
-        { title: 'AI 綜合摘要', body: previewResult.preview_summary, tone: 'human' },
+        { title: '性格底色', body: previewResult.skeleton_summary, tone: 'sky' },
+        { title: '日常行為傾向', body: previewResult.behavior_summary, tone: 'earth' },
+        { title: 'AI 整理重點', body: previewResult.preview_summary, tone: 'human' },
       ];
 
   const unlockProgress = useMemo(() => (isUnlocked ? 100 : 70), [isUnlocked]);
@@ -74,10 +74,10 @@ export default function ResultDisplay({
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-3">
             <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-              {isUnlocked ? 'AI 總機分析完成' : 'AI 初步分析完成'}
+              {isUnlocked ? '完整分析完成' : '初步輪廓完成'}
             </p>
             <h2 className="font-serif text-3xl text-[color:var(--text-main)] sm:text-4xl">
-              {isUnlocked ? '完整人格分析已整理完成' : '人格輪廓已建立'}
+              {isUnlocked ? '專屬人格報告已整理好' : '你的核心特質先整理好了'}
             </h2>
             <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">{summary}</p>
           </div>
@@ -87,7 +87,7 @@ export default function ResultDisplay({
               <div className="text-center">
                 <p className="text-5xl font-semibold text-[color:var(--text-main)] sm:text-6xl">{score}</p>
                 <p className="mt-2 text-xs uppercase tracking-[0.3em] text-[color:var(--text-sub)]">
-                  {isUnlocked ? '完整分析分數' : 'AI 分析分數'}
+                  {isUnlocked ? '完整人格分數' : '人格輪廓分數'}
                 </p>
               </div>
             </div>
@@ -146,9 +146,9 @@ export default function ResultDisplay({
         <div className="fortune-card human-card p-6 sm:p-8">
           <div className="space-y-3">
             <p className="text-xs uppercase tracking-[0.35em] text-pink-300">完整分析</p>
-            <h3 className="font-serif text-3xl text-[color:var(--text-main)]">補充姓名，完成專屬結果</h3>
+            <h3 className="font-serif text-3xl text-[color:var(--text-main)]">想看更完整？補上姓名即可</h3>
             <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
-              初步分析已完成。補充姓名後，AI 總機會整合更多個人資料，整理出更完整的重點結果。
+              姓名會讓分析更貼近個人特質。補充後，AI 會整理財富動機、感情模式、優勢與盲點。
             </p>
           </div>
 
@@ -158,7 +158,7 @@ export default function ResultDisplay({
                 type="text"
                 value={name}
                 maxLength={20}
-                placeholder="請輸入姓名（完整分析）"
+                placeholder="輸入姓名，解鎖完整報告"
                 onChange={(event) => setName(event.target.value)}
                 className="form-input"
               />
@@ -198,7 +198,7 @@ export default function ResultDisplay({
             <div className="rounded-[22px] border border-amber-400/15 bg-amber-950/15 p-5">
               <p className="text-xs uppercase tracking-[0.3em] text-amber-300">解鎖內容</p>
               <ul className="mt-4 space-y-3 text-sm leading-7 text-[color:var(--text-main)]">
-                <li>姓名資料整合</li>
+                <li>姓名特質整合</li>
                 <li>財富動機分析</li>
                 <li>感情模式分析</li>
                 <li>人生優勢與盲點</li>
@@ -213,7 +213,7 @@ export default function ResultDisplay({
               disabled={isUnlocking}
               className="vip-gold-btn flex-1 py-4 text-sm"
             >
-              {isUnlocking ? 'AI 總機分析中…' : '啟動完整分析'}
+              {isUnlocking ? 'AI 正在整理完整報告…' : '查看完整人格報告'}
             </button>
             <button
               type="button"

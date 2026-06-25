@@ -29,7 +29,7 @@ export default function LunarBirthdayInput({
   onChange,
   disabled = false,
   accent = 'violet',
-  label = '請輸入國曆生日（民國年）',
+  label = '國曆生日（民國年）',
 }: LunarBirthdayInputProps) {
   const [rocYear, setRocYear] = useState('');
   const [month, setMonth] = useState('');
@@ -62,7 +62,7 @@ export default function LunarBirthdayInput({
     setRocYear(String(Number(match[1]) - 1911));
     setMonth(String(Number(match[2])));
     setDay(String(Number(match[3])));
-    setMessage(`系統已換算西元：${value}`);
+    setMessage(`已換算成西元：${value}`);
   }, [value]);
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export default function LunarBirthdayInput({
         onChange('');
         lastEmittedRef.current = '';
       }
-      setMessage('請先完整輸入民國年、月、日。');
+      setMessage('請完整輸入民國年、月、日。');
       return;
     }
 
@@ -90,7 +90,7 @@ export default function LunarBirthdayInput({
       onChange(resolved);
       lastEmittedRef.current = resolved;
     }
-    setMessage(`系統已換算西元：${resolved}`);
+    setMessage(`已換算成西元：${resolved}`);
   }, [rocYear, month, day]);
 
   return (
@@ -136,7 +136,7 @@ export default function LunarBirthdayInput({
       </div>
 
       <div className={`rounded-2xl border p-3 text-sm ${accentClass}`}>
-        {message || '請輸入民國年國曆生日，系統會自動換算成西元。'}
+        {message || '輸入民國年、月、日後會自動換算成西元。'}
       </div>
     </div>
   );

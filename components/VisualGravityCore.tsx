@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import type { Mesh, MeshBasicMaterial, SpriteMaterial } from "three";
 
 export default function VisualGravityCore() {
   const mountRef   = useRef<HTMLDivElement>(null);
@@ -9,6 +10,7 @@ export default function VisualGravityCore() {
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
+    const container: HTMLDivElement = mount;
 
     let animId = 0;
     let domEl: HTMLCanvasElement | null = null;
@@ -16,7 +18,7 @@ export default function VisualGravityCore() {
     let cancelled = false;
 
     // Clean any stale canvases from previous HMR mounts
-    Array.from(mount.querySelectorAll("canvas")).forEach(c => c.remove());
+    Array.from(container.querySelectorAll("canvas")).forEach(c => c.remove());
 
     async function boot() {
       try {
@@ -28,8 +30,8 @@ export default function VisualGravityCore() {
         const hasGL = testC.getContext("webgl") || testC.getContext("experimental-webgl");
         if (!hasGL) throw new Error("no-webgl");
 
-        const W = mount.clientWidth  || 320;
-        const H = mount.clientHeight || 320;
+        const W = container.clientWidth  || 320;
+        const H = container.clientHeight || 320;
         const isMobile = W < 768;
 
         // ── Scene ────────────────────────────────────────────────────────
@@ -51,7 +53,7 @@ export default function VisualGravityCore() {
         } catch (_) { /* r152 fallback */ }
         renderer.toneMapping = THREE.NoToneMapping;
         if (cancelled) { renderer.dispose(); return; }
-        mount.appendChild(renderer.domElement);
+        container.appendChild(renderer.domElement);
         domEl = renderer.domElement;
 
         // ── Lights ───────────────────────────────────────────────────────
@@ -139,7 +141,7 @@ export default function VisualGravityCore() {
         // ── Outer glow aura — like a glowing lightbulb releasing light ─────
         // Multiple concentric BackSide shells: bright near surface, fading out.
         // Colors blend the white-hole white & black-hole violet energy.
-        const auraShells: { mesh: THREE.Mesh; baseOp: number; pulse: number }[] = [];
+        const auraShells: { mesh: Mesh; baseOp: number; pulse: number }[] = [];
         const auraDefs = [
           { r: 1.70, color: 0xf2f5ff, op: 0.30, pulse: 0.08 }, // inner bright white-blue
           { r: 1.88, color: 0xb8c2ff, op: 0.20, pulse: 0.09 }, // mid violet-blue
@@ -191,7 +193,7 @@ export default function VisualGravityCore() {
         // radiating through 3D space from the core.
         const waveTex = buildRingTex(170, 195, 255);
         const WAVE_N = 4;
-        const waves: { mesh: THREE.Mesh; phase: number }[] = [];
+        const waves: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE_N; i++) {
           const m = new THREE.Mesh(
             new THREE.PlaneGeometry(1, 1),
@@ -209,7 +211,7 @@ export default function VisualGravityCore() {
         // Vertical-plane waves (perpendicular tilt) for fuller 3D spherical feel
         const waveTex2 = buildRingTex(180, 160, 255);
         const WAVE2_N = 3;
-        const waves2: { mesh: THREE.Mesh; phase: number }[] = [];
+        const waves2: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE2_N; i++) {
           const m = new THREE.Mesh(
             new THREE.PlaneGeometry(1, 1),
@@ -385,21 +387,21 @@ export default function VisualGravityCore() {
           diskMesh.rotation.z = t * 1.4;
           const bhPulse = 1 + Math.sin(t * 1.9) * 0.18;
           bhHaloSprite.scale.set(0.9 * bhPulse, 0.9 * bhPulse, 1);
-          (bhHaloSprite.material as THREE.SpriteMaterial).opacity = 0.8 + Math.sin(t * 1.9) * 0.2;
+          (bhHaloSprite.material as SpriteMaterial).opacity = 0.8 + Math.sin(t * 1.9) * 0.2;
           bhSprite.scale.set(1.5 * bhPulse, 1.5 * bhPulse, 1);
-          (bhSprite.material as THREE.SpriteMaterial).opacity = 0.75 + Math.sin(t * 1.3) * 0.2;
+          (bhSprite.material as SpriteMaterial).opacity = 0.75 + Math.sin(t * 1.3) * 0.2;
 
           // ── White hole — intense radiant light burst ─────────────────────
           const wPulse = 1 + Math.sin(t * 1.6) * 0.22;
           whSprite.scale.set(wPulse * 1.8, wPulse * 1.8, 1);
-          (whSprite.material as THREE.SpriteMaterial).opacity = 0.85 + Math.sin(t * 1.6) * 0.15;
+          (whSprite.material as SpriteMaterial).opacity = 0.85 + Math.sin(t * 1.6) * 0.15;
           whCore.scale.set(0.8 + Math.sin(t * 2.4) * 0.12, 0.8 + Math.sin(t * 2.4) * 0.12, 1);
           whMat.emissiveIntensity = 3.0 + Math.sin(t * 2.2) * 1.2;
           // Twinkling lens-flare streaks
           const flareP = 0.55 + Math.abs(Math.sin(t * 1.1)) * 0.45;
-          (whFlare.material as THREE.SpriteMaterial).opacity = flareP * 0.7;
+          (whFlare.material as SpriteMaterial).opacity = flareP * 0.7;
           whFlare.scale.set(2.6 + Math.sin(t * 1.7) * 0.8, 0.12, 1);
-          (whFlareV.material as THREE.SpriteMaterial).opacity = flareP * 0.5;
+          (whFlareV.material as SpriteMaterial).opacity = flareP * 0.5;
           whFlareV.scale.set(0.12, 1.9 + Math.sin(t * 1.5) * 0.6, 1);
 
           // Particles slow orbit
@@ -424,15 +426,15 @@ export default function VisualGravityCore() {
           // Aura shells pulse — radiating light like a breathing lightbulb
           for (let i = 0; i < auraShells.length; i++) {
             const s = auraShells[i];
-            const m = s.mesh.material as THREE.MeshBasicMaterial;
+            const m = s.mesh.material as MeshBasicMaterial;
             m.opacity = s.baseOp + Math.sin(t * 0.9 - i * 0.6) * s.pulse;
             s.mesh.scale.setScalar(1 + Math.sin(t * 0.7 - i * 0.5) * 0.025);
           }
           // Halo & directional blooms breathe
-          (haloSprite.material as THREE.SpriteMaterial).opacity = 0.38 + Math.sin(t * 0.6) * 0.10;
+          (haloSprite.material as SpriteMaterial).opacity = 0.38 + Math.sin(t * 0.6) * 0.10;
           haloSprite.scale.setScalar(6.6 + Math.sin(t * 0.5) * 0.7);
-          (bloomWhite.material as THREE.SpriteMaterial).opacity = 0.32 + Math.sin(t * 1.6) * 0.12;
-          (bloomViolet.material as THREE.SpriteMaterial).opacity = 0.32 + Math.sin(t * 1.3 + 1.0) * 0.12;
+          (bloomWhite.material as SpriteMaterial).opacity = 0.32 + Math.sin(t * 1.6) * 0.12;
+          (bloomViolet.material as SpriteMaterial).opacity = 0.32 + Math.sin(t * 1.3 + 1.0) * 0.12;
 
           // Energy waves — expand outward from core then fade, looping
           const WAVE_PERIOD = 4.2;
@@ -441,7 +443,7 @@ export default function VisualGravityCore() {
             const p = ((t / WAVE_PERIOD) + w.phase) % 1; // 0→1 expansion progress
             const sc = 1.6 + p * 5.4;                    // grow from core outward
             w.mesh.scale.set(sc, sc, sc);
-            const m = w.mesh.material as THREE.MeshBasicMaterial;
+            const m = w.mesh.material as MeshBasicMaterial;
             m.opacity = Math.sin(p * Math.PI) * 0.85;    // fade in then out
           }
           for (let i = 0; i < waves2.length; i++) {
@@ -449,12 +451,12 @@ export default function VisualGravityCore() {
             const p = ((t / WAVE_PERIOD) + w.phase) % 1;
             const sc = 1.6 + p * 5.0;
             w.mesh.scale.set(sc, sc, sc);
-            const m = w.mesh.material as THREE.MeshBasicMaterial;
+            const m = w.mesh.material as MeshBasicMaterial;
             m.opacity = Math.sin(p * Math.PI) * 0.55;
           }
 
           // Soul mist breathe
-          (mistSprite.material as THREE.SpriteMaterial).opacity = 0.12 + Math.sin(t * 0.5) * 0.04;
+          (mistSprite.material as SpriteMaterial).opacity = 0.12 + Math.sin(t * 0.5) * 0.04;
           mistSprite.scale.setScalar(7.0 + Math.sin(t * 0.4) * 0.6);
 
           renderer.render(scene, camera);
@@ -464,8 +466,8 @@ export default function VisualGravityCore() {
 
         // ── Resize ───────────────────────────────────────────────────────
         resizeFn = () => {
-          const nw = mount.clientWidth  || 320;
-          const nh = mount.clientHeight || 320;
+          const nw = container.clientWidth  || 320;
+          const nh = container.clientHeight || 320;
           camera.aspect = nw / nh;
           camera.updateProjectionMatrix();
           renderer.setSize(nw, nh);
@@ -485,7 +487,7 @@ export default function VisualGravityCore() {
       cancelAnimationFrame(animId);
       if (resizeFn) window.removeEventListener("resize", resizeFn);
       // Remove all canvases including stale ones from HMR
-      Array.from(mount.querySelectorAll("canvas")).forEach(c => c.remove());
+      Array.from(container.querySelectorAll("canvas")).forEach(c => c.remove());
       domEl = null;
     };
   }, []);

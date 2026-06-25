@@ -16,10 +16,10 @@ export default function PreviewDisplay({ result }: PreviewDisplayProps) {
     <div className="fortune-card overflow-hidden p-6 sm:p-8">
       <div className="mb-8 text-center">
         <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-          天地預分析
+          免費預覽
         </p>
         <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)] sm:text-4xl">
-          人格輪廓已建立
+          你的初步人格輪廓
         </h2>
         <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">{result.preview_summary}</p>
       </div>
@@ -29,17 +29,17 @@ export default function PreviewDisplay({ result }: PreviewDisplayProps) {
           <div className="score-orb mt-2">
             <div>
               <p className="text-6xl font-semibold text-[color:var(--text-main)]">{result.preview_score}</p>
-              <p className="mt-2 text-sm text-[color:var(--text-sub)]">天地預分析值</p>
+              <p className="mt-2 text-sm text-[color:var(--text-sub)]">初步輪廓分數</p>
             </div>
           </div>
 
           <div className="mt-6 grid w-full max-w-sm gap-4">
             <div className="rounded-[22px] border border-white/10 bg-white/5 px-5 py-4 text-left">
-              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">天｜人格骨架</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">性格底色</p>
               <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">{result.skeleton_summary}</p>
             </div>
             <div className="rounded-[22px] border border-white/10 bg-white/5 px-5 py-4 text-left">
-              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">地｜行為模式</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">行為模式</p>
               <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">{result.behavior_summary}</p>
             </div>
           </div>
@@ -48,9 +48,9 @@ export default function PreviewDisplay({ result }: PreviewDisplayProps) {
         <section className="min-w-0">
           <div className="mb-6">
             <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">免費預覽</p>
-            <h3 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">天 + 地 大數據預分析</h3>
+            <h3 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">先看懂核心輪廓</h3>
             <p className="mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
-              這一層只先建立人格骨架與行為模式。姓名加入後，系統才會展開個體差異校正與三合一最終融合。
+              這一層先整理性格底色與行為模式。補上姓名後，會再產出更完整的個人報告。
             </p>
           </div>
 
@@ -74,7 +74,7 @@ export default function PreviewDisplay({ result }: PreviewDisplayProps) {
                 <ProgressBar
                   label={dimension.shortLabel}
                   score={result.preview_scores[dimension.key]}
-                  description="天地預分析值"
+                  description="初步分數"
                   tone={dimension.tone}
                 />
               </div>

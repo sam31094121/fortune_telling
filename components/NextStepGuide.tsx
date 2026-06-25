@@ -34,7 +34,7 @@ const SYSTEMS: Record<SystemKey, SystemMeta> = {
     href: '/insight',
     emoji: '✨',
     title: '深度洞察',
-    desc: '用全球大數據與八字紫微，深入解讀你的潛力與個性。',
+    desc: '把潛力、盲點與下一步方向整理成白話建議。',
     tone: 'cyan',
   },
 };
@@ -60,10 +60,10 @@ export default function NextStepGuide({ current }: { current: SystemKey }) {
   return (
     <div className="fortune-card p-6 sm:p-8">
       <div className="mb-6 text-center">
-        <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">看完了嗎？</p>
-        <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">下一步，再多認識自己一點</h3>
+        <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">下一步</p>
+        <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">再多認識自己一點</h3>
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-[color:var(--text-sub)]">
-          這兩個系統也很值得試試，點下面任一張卡片就能前往。慢慢看、不用急。
+          依照你現在最想知道的方向，選一個繼續看。
         </p>
       </div>
 

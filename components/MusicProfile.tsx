@@ -32,7 +32,7 @@ export default function MusicProfile({ profile, tier }: MusicProfileProps) {
       {/* Header */}
       <div className="mb-6 border-b border-white/10 pb-6">
         <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">
-          {tier === 'preview' ? '大數據音樂偏好｜免費預覽' : '大數據音樂偏好｜完整版'}
+          {tier === 'preview' ? '音樂偏好｜免費預覽' : '音樂偏好｜完整版'}
         </p>
         <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
           你的音樂人格圖譜

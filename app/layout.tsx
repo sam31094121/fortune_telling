@@ -17,8 +17,8 @@ const serif = Noto_Serif_TC({
 });
 
 export const metadata: Metadata = {
-  title: 'AI 總機人格分析系統',
-  description: '輸入基本資料後，由系統整合八字、紫微斗數與 AI 總機分析，只呈現清楚好懂的重點結果。',
+  title: 'AI 人格解碼｜看懂自己的人格輪廓',
+  description: '輸入生日、血型與姓名，AI 會把命理與人格訊號整理成白話重點，快速看懂自己的優勢、盲點與行動方向。',
 };
 
 export default function RootLayout({

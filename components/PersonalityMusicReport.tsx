@@ -1050,7 +1050,7 @@ function IntegratedSongMaker({
           你的專屬人格主題曲預覽
         </h3>
         <p className="mx-auto mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
-          這首歌由你的生日、血型與姓名生成，融合英文 Hook 的記憶點與國語旋律的情緒故事。點一下，先聽見屬於你的音樂草稿。
+          這首歌依你的生日、血型與姓名整理出旋律方向。點一下，先聽見屬於你的音樂預覽。
         </p>
       </div>
 
@@ -1084,7 +1084,7 @@ function IntegratedSongMaker({
           <div className="rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
             <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">專屬音樂預覽</p>
             <p className="text-sm leading-8 text-[color:var(--text-sub)]">
-              戴上耳機，聽見根據你資料生成的英文＋國語主題旋律。這是免費預覽版，正式歌曲與人聲可於下一階段升級。
+              戴上耳機，先聽見根據你資料整理出的主題旋律。正式歌曲與人聲可在下一階段升級。
             </p>
             <button
               type="button"
@@ -1099,7 +1099,7 @@ function IntegratedSongMaker({
                   <track kind="captions" />
                 </audio>
                 <p className="text-xs leading-6 text-amber-100/75">
-                  這是一段根據你的資料生成的專屬音樂草稿；正式歌曲與人聲版本可於下一階段升級。
+                  這是一段專屬音樂預覽；正式歌曲與人聲版本可於下一階段升級。
                 </p>
               </div>
             )}
@@ -1107,7 +1107,7 @@ function IntegratedSongMaker({
 
           <details className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
             <summary className="cursor-pointer text-xs font-semibold tracking-[0.22em] text-[color:var(--text-muted)] transition hover:text-white">
-              進階製作資料（工程師模式）
+              進階製作資料
             </summary>
             <div className="mt-4">
           <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
@@ -1362,14 +1362,14 @@ export default function PersonalityMusicReport({
 
       <div className="fortune-card px-6 py-5 text-center sm:px-8">
         <p className="text-sm leading-8 text-[color:var(--text-sub)]">
-          這是給客戶看的簡潔預覽版；系統已把製作細節收起來，只保留最重要的主題曲與音樂預覽。
+          這是簡潔預覽版；製作細節已先收起來，只保留主題曲重點與音樂預覽。
         </p>
         <button
           type="button"
           onClick={() => setShowAdvancedDetails((value) => !value)}
           className="mt-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 text-xs font-semibold tracking-[0.2em] text-[color:var(--text-muted)] transition hover:border-white/20 hover:text-white"
         >
-          {showAdvancedDetails ? '隱藏進階製作資料' : '顯示進階製作資料'}
+          {showAdvancedDetails ? '收起進階資料' : '查看進階資料'}
         </button>
       </div>
 
@@ -1529,10 +1529,10 @@ export default function PersonalityMusicReport({
         <>
       <div className="space-y-4">
         <p className="text-center text-xs uppercase tracking-[0.4em] text-violet-300/70">
-          AI 大數據 · 參考錨點播放測試（天 · 地 · 人）
+          進階參考音樂
         </p>
         <p className="text-center text-xs text-[color:var(--text-muted)]">
-          這裡是目前可播放的參考聲音層；一次只播一首，開啟另一首會自動停止目前這首
+          這些是進階參考音樂；一次只會播放一首。
         </p>
         <MusicPlayer
           label="天層英文音樂錨點"
