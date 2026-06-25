@@ -41,7 +41,11 @@ export default function VisualGravityCore() {
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(W, H);
         renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-        renderer.outputColorSpace = (THREE as any).SRGBColorSpace ?? (THREE as any).sRGBEncoding;
+        // Explicit color space + no tone mapping so white stays white
+        try {
+          renderer.outputColorSpace = (THREE as any).SRGBColorSpace;
+        } catch (_) { /* r152 fallback */ }
+        renderer.toneMapping = THREE.NoToneMapping;
         mount.appendChild(renderer.domElement);
         domEl = renderer.domElement;
 
@@ -60,35 +64,45 @@ export default function VisualGravityCore() {
         // ── Yin-Yang canvas texture ───────────────────────────────────────
         function buildYYTex() {
           const S = 1024, m = S / 2, r = m;
+
+          // Draw yin-yang on temp canvas
+          const tmp = document.createElement("canvas");
+          tmp.width = tmp.height = S;
+          const tx = tmp.getContext("2d")!;
+
+          tx.fillStyle = "#050505";
+          tx.beginPath();
+          tx.arc(m, m, r, 0, Math.PI * 2);
+          tx.fill();
+
+          // Yang (white) S-path — clockwise arc = RIGHT half
+          tx.fillStyle = "#FFFFFF";
+          tx.beginPath();
+          tx.arc(m, m, r, -Math.PI / 2, Math.PI / 2, false);
+          tx.arc(m, m + r / 2, r / 2, Math.PI / 2, -Math.PI / 2, true);
+          tx.arc(m, m - r / 2, r / 2, Math.PI / 2, -Math.PI / 2, false);
+          tx.closePath();
+          tx.fill();
+
+          // Yin dot in yang (black hole eye)
+          tx.fillStyle = "#000000";
+          tx.beginPath();
+          tx.arc(m, m - r / 2, r * 0.13, 0, Math.PI * 2);
+          tx.fill();
+
+          // Yang dot in yin (white hole eye)
+          tx.fillStyle = "#FFFFFF";
+          tx.beginPath();
+          tx.arc(m, m + r / 2, r * 0.13, 0, Math.PI * 2);
+          tx.fill();
+
+          // Flip horizontally so yang maps to U=0-0.5 (front-facing in Three.js sphere)
           const cv = document.createElement("canvas");
           cv.width = cv.height = S;
           const cx = cv.getContext("2d")!;
-
-          cx.fillStyle = "#050505";
-          cx.beginPath();
-          cx.arc(m, m, r, 0, Math.PI * 2);
-          cx.fill();
-
-          // Yang (white) S-path
-          cx.fillStyle = "#FFFFFF";
-          cx.beginPath();
-          cx.arc(m, m, r, -Math.PI / 2, Math.PI / 2, false);
-          cx.arc(m, m + r / 2, r / 2, Math.PI / 2, -Math.PI / 2, true);
-          cx.arc(m, m - r / 2, r / 2, Math.PI / 2, -Math.PI / 2, false);
-          cx.closePath();
-          cx.fill();
-
-          // Yin dot in yang (black hole eye)
-          cx.fillStyle = "#000000";
-          cx.beginPath();
-          cx.arc(m, m - r / 2, r * 0.13, 0, Math.PI * 2);
-          cx.fill();
-
-          // Yang dot in yin (white hole eye)
-          cx.fillStyle = "#FFFFFF";
-          cx.beginPath();
-          cx.arc(m, m + r / 2, r * 0.13, 0, Math.PI * 2);
-          cx.fill();
+          cx.translate(S, 0);
+          cx.scale(-1, 1);
+          cx.drawImage(tmp, 0, 0);
 
           return new THREE.CanvasTexture(cv);
         }
@@ -115,6 +129,7 @@ export default function VisualGravityCore() {
 
         // Main yin-yang sphere
         const yyTex  = buildYYTex();
+        try { (yyTex as any).colorSpace = (THREE as any).SRGBColorSpace; } catch (_) { /* ok */ }
         const sphGeo = new THREE.SphereGeometry(1.62, 128, 128);
         // MeshBasicMaterial: shows texture color directly, not affected by lights
         // This ensures yang (white) area is always visibly white
@@ -236,9 +251,11 @@ export default function VisualGravityCore() {
           animId = requestAnimationFrame(frame);
           const t = clock.getElapsedTime();
 
-          // Rotation (spec: 0.002 per frame ≈ 0.12°/frame)
-          grp.rotation.z += 0.002;
-          grp.rotation.y  = Math.sin(t * 0.25) * 0.18;
+          // Y-axis rotation makes yin/yang alternate facing camera
+          // Offset already puts yang at front at t=0; slow rotation shows both sides
+          grp.rotation.y = t * 0.10;
+          // Gentle Z tilt for 3D feel
+          grp.rotation.z = Math.sin(t * 0.28) * 0.10;
 
           // Breathing
           grp.scale.setScalar(1 + Math.sin(t * 0.8) * 0.03);
