@@ -1,0 +1,63 @@
+{
+  "stability": {
+    "enabled": true,
+    "protection_level": "maximum",
+    "version": "1.0"
+  },
+  "monitoring": {
+    "enabled": true,
+    "check_interval_seconds": 30,
+    "health_check_timeout": 5,
+    "failure_threshold": 3,
+    "log_file": "/tmp/stability-monitor.log"
+  },
+  "auto_recovery": {
+    "enabled": true,
+    "strategy": "restore_to_stable",
+    "steps": [
+      "stop_node_processes",
+      "clear_next_cache",
+      "git_restore_files",
+      "restart_dev_server",
+      "verify_health"
+    ]
+  },
+  "locked_files": [
+    "app/page.tsx",
+    "app/layout.tsx",
+    "package.json",
+    ".env",
+    "next.config.js"
+  ],
+  "critical_services": [
+    "dev_server",
+    "database_connection",
+    "api_routes"
+  ],
+  "stability_rules": {
+    "max_api_response_time_ms": 30000,
+    "max_memory_usage_percent": 90,
+    "max_error_rate_percent": 10,
+    "auto_restart_on_error": true,
+    "auto_restore_on_crash": true
+  },
+  "emergency_protocols": {
+    "hard_crash_detection": {
+      "enabled": true,
+      "response": "immediate_restore"
+    },
+    "compilation_error": {
+      "enabled": true,
+      "response": "git_restore_and_restart"
+    },
+    "memory_leak": {
+      "enabled": true,
+      "response": "restart_node_process"
+    }
+  },
+  "notifications": {
+    "on_crash": "log_and_recover",
+    "on_recovery": "log_success",
+    "on_stability_restored": "silent"
+  }
+}

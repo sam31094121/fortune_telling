@@ -17,6 +17,11 @@ export default function VisualGravityCore() {
     let resizeFn: (() => void) | null = null;
     let cancelled = false;
 
+    // ✨ 性能監控變數
+    let frameCount = 0;
+    let lastTime = Date.now();
+    let fps = 60;
+
     // Clean any stale canvases from previous HMR mounts
     Array.from(container.querySelectorAll("canvas")).forEach(c => c.remove());
 
@@ -44,20 +49,27 @@ export default function VisualGravityCore() {
         camera.position.z = 5.8;
 
         // ── Renderer ─────────────────────────────────────────────────────
-        // 根據裝置調整抗鋸齒以平衡性能和質量
-        const pixelRatio = isMobile ? 1 : Math.min(devicePixelRatio, 2);
+        // ✨ 優化渲染配置 - 最大性能和流暢度
+        const pixelRatio = isMobile ? 0.85 : Math.min(devicePixelRatio, 1.5);  // 降低像素比提升性能
         const renderer = new THREE.WebGLRenderer({
-          antialias: !isMobile,
+          antialias: true,  // 始終啟用抗鋸齒但优化方式
           powerPreference: 'high-performance',
           alpha: true,
           precision: 'highp',
           logarithmicDepthBuffer: false,
           stencil: false,
+          failIfMajorPerformanceCaveat: false,
         });
         renderer.setSize(W, H);
         renderer.setPixelRatio(pixelRatio);
         renderer.shadowMap.enabled = false;
         renderer.info.autoReset = true;
+
+        // ✨ 啟用性能優化
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        if ((renderer as any).useLegacyLights !== undefined) {
+          (renderer as any).useLegacyLights = false;
+        }
 
         // Explicit color space + no tone mapping
         try {
@@ -69,16 +81,21 @@ export default function VisualGravityCore() {
         domEl = renderer.domElement;
 
         // ── Lights ───────────────────────────────────────────────────────
-        scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-        const keyL = new THREE.PointLight(0xffffff, 4.5, 16);
-        keyL.position.set(1.5, 1.5, 4);
+        // ✨ 增強光照以加強科技感
+        scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+        const keyL = new THREE.PointLight(0xffffff, 5.5, 18);
+        keyL.position.set(2.0, 2.0, 4.5);
         scene.add(keyL);
-        const fillL = new THREE.PointLight(0x8899ff, 1.8, 12);
-        fillL.position.set(-2, -1.5, 2);
+        const fillL = new THREE.PointLight(0x7799ff, 2.5, 14);
+        fillL.position.set(-2.5, -1.8, 2.5);
         scene.add(fillL);
-        const backL = new THREE.PointLight(0x4466cc, 1.2, 10);
-        backL.position.set(0, 0, -4);
+        const backL = new THREE.PointLight(0x5577dd, 1.8, 12);
+        backL.position.set(0, 0, -5);
         scene.add(backL);
+        // ✨ 新增：科技感藍紫光源
+        const techL = new THREE.PointLight(0x6688ff, 2.2, 16);
+        techL.position.set(1.5, -2.0, 3);
+        scene.add(techL);
 
         // ── Glow sprite texture helper ────────────────────────────────────
         function buildGlowTex(R: number, G: number, B: number) {
@@ -200,11 +217,9 @@ export default function VisualGravityCore() {
         bloomViolet.scale.set(4.0, 4.0, 1);
         grp.add(bloomViolet);
 
-        // ── Energy waves — 3D tilted rings propagating outward in space ────
-        // Tilted on an elliptical plane so they read as depth, like shockwaves
-        // radiating through 3D space from the core.
+        // ✨ 增強能量波 - 更多波紋效果、更密集的能量環繞
         const waveTex = buildRingTex(170, 195, 255);
-        const WAVE_N = 4;
+        const WAVE_N = 6;  // 增加波數
         const waves: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE_N; i++) {
           const m = new THREE.Mesh(
@@ -215,14 +230,14 @@ export default function VisualGravityCore() {
               side: THREE.DoubleSide,
             })
           );
-          m.rotation.x = Math.PI / 2.35; // tilt → 3D elliptical perspective
+          m.rotation.x = Math.PI / 2.35;
           grp.add(m);
           waves.push({ mesh: m, phase: i / WAVE_N });
         }
 
-        // Vertical-plane waves (perpendicular tilt) for fuller 3D spherical feel
+        // ✨ 垂直平面波 - 更多層次的 3D 球形感
         const waveTex2 = buildRingTex(180, 160, 255);
-        const WAVE2_N = 3;
+        const WAVE2_N = 5;  // 增加波數
         const waves2: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE2_N; i++) {
           const m = new THREE.Mesh(
@@ -237,6 +252,26 @@ export default function VisualGravityCore() {
           m.rotation.z = Math.PI / 3.5;
           grp.add(m);
           waves2.push({ mesh: m, phase: i / WAVE2_N + 0.16 });
+        }
+
+        // ✨ 新增：對角線能量波 - 更豐富的層次感
+        const waveTex3 = buildRingTex(160, 180, 240);
+        const WAVE3_N = 4;
+        const waves3: { mesh: Mesh; phase: number }[] = [];
+        for (let i = 0; i < WAVE3_N; i++) {
+          const m = new THREE.Mesh(
+            new THREE.PlaneGeometry(1, 1),
+            new THREE.MeshBasicMaterial({
+              map: waveTex3, transparent: true, opacity: 0,
+              blending: THREE.AdditiveBlending, depthWrite: false,
+              side: THREE.DoubleSide,
+            })
+          );
+          m.rotation.x = Math.PI / 3.2;
+          m.rotation.y = Math.PI / 2.8;
+          m.rotation.z = Math.PI / 4.0;
+          grp.add(m);
+          waves3.push({ mesh: m, phase: i / WAVE3_N + 0.08 });
         }
 
         // ── Black hole (in white area, upper front) ───────────────────────
@@ -324,47 +359,71 @@ export default function VisualGravityCore() {
         whFlareV.scale.set(0.12, 2.2, 1);
         grp.add(whFlareV);
 
-        // ── Particles (star dust) ─────────────────────────────────────────
-        const pN = isMobile ? 600 : 1800;
+        // ✨ 優化粒子特效 - 平衡視覺效果和性能
+        const pN = isMobile ? 800 : 1800;  // 適度的粒子數量以提升流暢度
         const pArr = new Float32Array(pN * 3);
+        const pColors = new Float32Array(pN * 3);  // 新增：顏色變化
         for (let i = 0; i < pN; i++) {
-          const pr = 2.8 + Math.random() * 4.5;
+          const pr = 2.8 + Math.random() * 5.2;
           const pt = Math.random() * Math.PI * 2;
           const pp = Math.acos(2 * Math.random() - 1);
           pArr[i * 3]     = pr * Math.sin(pp) * Math.cos(pt);
           pArr[i * 3 + 1] = pr * Math.sin(pp) * Math.sin(pt);
           pArr[i * 3 + 2] = pr * Math.cos(pp);
+
+          // 粒子顏色變化：白色 → 藍色 → 紫色
+          const colorType = Math.random();
+          if (colorType < 0.4) {
+            pColors[i * 3] = 1.0; pColors[i * 3 + 1] = 0.95; pColors[i * 3 + 2] = 1.0;  // 白
+          } else if (colorType < 0.7) {
+            pColors[i * 3] = 0.7; pColors[i * 3 + 1] = 0.8; pColors[i * 3 + 2] = 1.0;   // 藍
+          } else {
+            pColors[i * 3] = 0.6; pColors[i * 3 + 1] = 0.6; pColors[i * 3 + 2] = 0.9;   // 紫
+          }
         }
         const pGeo = new THREE.BufferGeometry();
         pGeo.setAttribute("position", new THREE.BufferAttribute(pArr, 3));
+        pGeo.setAttribute("color", new THREE.BufferAttribute(pColors, 3));
         const pMat = new THREE.PointsMaterial({
-          color: 0xdde7ff, size: isMobile ? 0.028 : 0.018,
-          transparent: true, opacity: 0.72,
+          size: isMobile ? 0.035 : 0.022,
+          transparent: true, opacity: 0.82,
           blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
+          vertexColors: true,  // 啟用頂點顏色
         });
         const particles = new THREE.Points(pGeo, pMat);
         scene.add(particles);
 
-        // ── Energy dust (particle streams, no lines) ──────────────────────
-        const fN = isMobile ? 300 : 900;
+        // ✨ 增強能量塵埃 - 更多粒子、更動態的吸收/釋放
+        const fN = isMobile ? 400 : 800;  // 優化塵埃粒子以提升流暢度
         const fPos = new Float32Array(fN * 3);
         const fPhase = new Float32Array(fN);
+        const fColor = new Float32Array(fN * 3);  // 新增：顏色
         for (let i = 0; i < fN; i++) {
           const angle = Math.random() * Math.PI * 2;
-          const fr = 2.2 + Math.random() * 3.0;
+          const fr = 2.2 + Math.random() * 3.5;
           fPos[i * 3]     = Math.cos(angle) * fr;
-          fPos[i * 3 + 1] = (Math.random() - 0.5) * fr * 0.8;
-          fPos[i * 3 + 2] = Math.sin(angle) * fr * 0.6;
+          fPos[i * 3 + 1] = (Math.random() - 0.5) * fr * 0.9;
+          fPos[i * 3 + 2] = Math.sin(angle) * fr * 0.7;
           fPhase[i] = Math.random() * Math.PI * 2;
+
+          // 能量塵埃顏色：白 → 藍 → 紫漸變
+          const colorRand = Math.random();
+          if (colorRand < 0.5) {
+            fColor[i * 3] = 0.8; fColor[i * 3 + 1] = 0.85; fColor[i * 3 + 2] = 1.0;  // 白藍
+          } else {
+            fColor[i * 3] = 0.7; fColor[i * 3 + 1] = 0.7; fColor[i * 3 + 2] = 0.95;  // 紫藍
+          }
         }
         const fGeo = new THREE.BufferGeometry();
         const fAttr = new THREE.BufferAttribute(fPos, 3);
         fAttr.setUsage(THREE.DynamicDrawUsage);
         fGeo.setAttribute("position", fAttr);
+        fGeo.setAttribute("color", new THREE.BufferAttribute(fColor, 3));
         const fMat = new THREE.PointsMaterial({
-          color: 0xaabbee, size: 0.022,
+          size: 0.028,
           transparent: true, opacity: 0.0,
           blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
+          vertexColors: true,  // 啟用頂點顏色
         });
         const fibers = new THREE.Points(fGeo, fMat);
         scene.add(fibers);
@@ -380,35 +439,47 @@ export default function VisualGravityCore() {
         // ── Animation ─────────────────────────────────────────────────────
         const clock = new THREE.Clock();
 
+        // ✨ 優化的動畫循環 - 高效計算
         function frame() {
           animId = requestAnimationFrame(frame);
           const t = clock.getElapsedTime();
 
-          // Y-axis rotation: one full turn every 6s so the whole taiji
-          // structure (yang → yin → yang) is revealed within 6 seconds
-          grp.rotation.y = t * (Math.PI * 2 / 6);
-          // Fixed axis tilt + gentle sway → strong 3D spatial depth, the holes
-          // orbit on a visible elliptical 3D path rather than a flat line
-          grp.rotation.x = 0.16 + Math.sin(t * 0.5) * 0.05;
-          grp.rotation.z = Math.sin(t * 0.4) * 0.12;
+          // 性能監控
+          frameCount++;
+          const now = Date.now();
+          if (now - lastTime >= 1000) {
+            fps = frameCount;
+            frameCount = 0;
+            lastTime = now;
+            // 控制台輸出FPS（開發用，生產環境可移除）
+            if (fps < 30) console.warn(`⚠️ Low FPS: ${fps}`);
+          }
 
-          // Breathing
-          grp.scale.setScalar(1 + Math.sin(t * 0.8) * 0.03);
+          // ✨ 增強旋轉效果：完整 365 度旋轉 (每 8 秒一圈)
+          grp.rotation.y = t * (Math.PI * 2 / 8);
 
-          // ── Black hole — accretion disk spin + radiant lensing halo ──────
-          diskMesh.rotation.z = t * 1.4;
-          const bhPulse = 1 + Math.sin(t * 1.9) * 0.18;
-          bhHaloSprite.scale.set(0.9 * bhPulse, 0.9 * bhPulse, 1);
-          (bhHaloSprite.material as SpriteMaterial).opacity = 0.8 + Math.sin(t * 1.9) * 0.2;
-          bhSprite.scale.set(1.5 * bhPulse, 1.5 * bhPulse, 1);
-          (bhSprite.material as SpriteMaterial).opacity = 0.75 + Math.sin(t * 1.3) * 0.2;
+          // 增強 3D 立體感：更大的傾斜和搖晃
+          grp.rotation.x = 0.22 + Math.sin(t * 0.4) * 0.12;
+          grp.rotation.z = Math.sin(t * 0.3) * 0.18;
 
-          // ── White hole — intense radiant light burst ─────────────────────
-          const wPulse = 1 + Math.sin(t * 1.6) * 0.22;
-          whSprite.scale.set(wPulse * 1.8, wPulse * 1.8, 1);
-          (whSprite.material as SpriteMaterial).opacity = 0.85 + Math.sin(t * 1.6) * 0.15;
-          whCore.scale.set(0.8 + Math.sin(t * 2.4) * 0.12, 0.8 + Math.sin(t * 2.4) * 0.12, 1);
-          whMat.emissiveIntensity = 3.0 + Math.sin(t * 2.2) * 1.2;
+          // ✨ 增強忽大忽小效果 (更明顯的脈動)
+          const breatheIntensity = 0.08 + Math.sin(t * 0.5) * 0.03;
+          grp.scale.setScalar(1 + Math.sin(t * 0.6) * breatheIntensity);
+
+          // ✨ 優化黑洞呼吸效果 - 與主節奏協調
+          diskMesh.rotation.z = t * 1.6;
+          const bhBreath = 0.5 + Math.sin(t * 0.5 - 0.3) * 0.4;
+          bhHaloSprite.scale.set(0.85 + bhBreath * 0.35, 0.85 + bhBreath * 0.35, 1);
+          (bhHaloSprite.material as SpriteMaterial).opacity = 0.75 + bhBreath * 0.25;
+          bhSprite.scale.set(1.5 + bhBreath * 0.5, 1.5 + bhBreath * 0.5, 1);
+          (bhSprite.material as SpriteMaterial).opacity = 0.70 + bhBreath * 0.25;
+
+          // ✨ 優化白洞呼吸效果 - 與黑洞反向呼吸（和諧對比）
+          const whBreath = 0.5 + Math.sin(t * 0.5 + 0.3) * 0.4;
+          whSprite.scale.set(1.8 + whBreath * 0.6, 1.8 + whBreath * 0.6, 1);
+          (whSprite.material as SpriteMaterial).opacity = 0.80 + whBreath * 0.22;
+          whCore.scale.set(0.80 + whBreath * 0.25, 0.80 + whBreath * 0.25, 1);
+          whMat.emissiveIntensity = 3.2 + whBreath * 1.0;
           // Twinkling lens-flare streaks
           const flareP = 0.55 + Math.abs(Math.sin(t * 1.1)) * 0.45;
           (whFlare.material as SpriteMaterial).opacity = flareP * 0.7;
@@ -420,51 +491,74 @@ export default function VisualGravityCore() {
           particles.rotation.y += 0.0008;
           particles.rotation.z += 0.0004;
 
-          // Energy dust absorption/release 8s cycle
-          const fc    = t % 8;
-          const fPull = fc < 3 ? fc / 3 : fc < 4 ? 1 : fc < 7 ? 1 - (fc - 4) / 3 : 0;
-          fMat.opacity = fPull * 0.35;
-          fibers.visible = fPull > 0.05;
+          // ✨ 增強能量吸收/釋放循環 - 更密集、更動態
+          const fc    = t % 6;  // 加快循環速度
+          const fPull = fc < 2 ? fc / 2 : fc < 3 ? 1 : fc < 5 ? 1 - (fc - 3) / 2 : 0;
+          fMat.opacity = fPull * 0.50;  // 更亮
+          fibers.visible = fPull > 0.03;
 
-          // Move dust particles inward during absorption
+          // 能量粒子吸收更強烈、移動更動態
           const posArr = fAttr.array as Float32Array;
           for (let i = 0; i < fN; i++) {
-            posArr[i * 3]     = fPos[i * 3]     * (1 - fPull * 0.68 + Math.sin(t * 0.8 + fPhase[i]) * 0.05);
-            posArr[i * 3 + 1] = fPos[i * 3 + 1] * (1 - fPull * 0.68 + Math.cos(t * 0.6 + fPhase[i]) * 0.05);
-            posArr[i * 3 + 2] = fPos[i * 3 + 2] * (1 - fPull * 0.68);
+            const pullStrength = fPull * 0.82;  // 更強的吸引力
+            posArr[i * 3]     = fPos[i * 3]     * (1 - pullStrength + Math.sin(t * 1.0 + fPhase[i]) * 0.08);
+            posArr[i * 3 + 1] = fPos[i * 3 + 1] * (1 - pullStrength + Math.cos(t * 0.8 + fPhase[i]) * 0.08);
+            posArr[i * 3 + 2] = fPos[i * 3 + 2] * (1 - pullStrength + Math.sin(t * 0.6 + fPhase[i]) * 0.05);
           }
           fAttr.needsUpdate = true;
 
-          // Aura shells pulse — radiating light like a breathing lightbulb
+          // ✨ 優化光暈殼呼吸效果 - 平穩的呼吸節奏
           for (let i = 0; i < auraShells.length; i++) {
             const s = auraShells[i];
             const m = s.mesh.material as MeshBasicMaterial;
-            m.opacity = s.baseOp + Math.sin(t * 0.9 - i * 0.6) * s.pulse;
-            s.mesh.scale.setScalar(1 + Math.sin(t * 0.7 - i * 0.5) * 0.025);
+            // 與主呼吸節奏協調的脈動
+            const layerBreath = 0.5 + Math.sin(t * 0.5 - i * 0.15) * 0.45;
+            m.opacity = s.baseOp * (0.7 + layerBreath * 0.3);
+            s.mesh.scale.setScalar(1 + layerBreath * 0.05);
           }
-          // Halo & directional blooms breathe
-          (haloSprite.material as SpriteMaterial).opacity = 0.38 + Math.sin(t * 0.6) * 0.10;
-          haloSprite.scale.setScalar(6.6 + Math.sin(t * 0.5) * 0.7);
-          (bloomWhite.material as SpriteMaterial).opacity = 0.32 + Math.sin(t * 1.6) * 0.12;
-          (bloomViolet.material as SpriteMaterial).opacity = 0.32 + Math.sin(t * 1.3 + 1.0) * 0.12;
+          // ✨ 優化光暈呼吸效果 - 像呼吸一樣自然的收縮和膨脹
+          const breathePhase = Math.sin(t * 0.5);  // 基礎呼吸節奏
+          const breatheIntensity = 0.5 + breathePhase * 0.4;  // 0.1 → 0.9 的呼吸周期
 
-          // Energy waves — expand outward from core then fade, looping
-          const WAVE_PERIOD = 4.2;
+          // 主光暈呼吸
+          (haloSprite.material as SpriteMaterial).opacity = 0.35 + breatheIntensity * 0.25;
+          haloSprite.scale.setScalar(6.5 + breatheIntensity * 1.2);
+
+          // 白色光暈呼吸
+          const whiteBreate = 0.4 + Math.sin(t * 0.6) * 0.35;
+          (bloomWhite.material as SpriteMaterial).opacity = whiteBreate * 0.45;
+
+          // 紫色光暈呼吸（與白色錯開，形成協調）
+          const violetBreath = 0.4 + Math.sin(t * 0.6 + 0.8) * 0.35;
+          (bloomViolet.material as SpriteMaterial).opacity = violetBreath * 0.45;
+
+          // ✨ 優化波紋動畫 - 高效計算，減少三角函數調用
+          const WAVE_PERIOD = 3.8;
+          const tNorm = (t / WAVE_PERIOD);  // 預先計算
+
           for (let i = 0; i < waves.length; i++) {
             const w = waves[i];
-            const p = ((t / WAVE_PERIOD) + w.phase) % 1; // 0→1 expansion progress
-            const sc = 1.6 + p * 5.4;                    // grow from core outward
+            const p = (tNorm + w.phase) % 1;
+            const pPi = p * Math.PI;
+            const sc = 1.6 + p * 5.8;
             w.mesh.scale.set(sc, sc, sc);
-            const m = w.mesh.material as MeshBasicMaterial;
-            m.opacity = Math.sin(p * Math.PI) * 0.85;    // fade in then out
+            (w.mesh.material as MeshBasicMaterial).opacity = Math.sin(pPi) * 0.95;
           }
           for (let i = 0; i < waves2.length; i++) {
             const w = waves2[i];
-            const p = ((t / WAVE_PERIOD) + w.phase) % 1;
-            const sc = 1.6 + p * 5.0;
+            const p = (tNorm + w.phase) % 1;
+            const pPi = p * Math.PI;
+            const sc = 1.6 + p * 5.2;
             w.mesh.scale.set(sc, sc, sc);
-            const m = w.mesh.material as MeshBasicMaterial;
-            m.opacity = Math.sin(p * Math.PI) * 0.55;
+            (w.mesh.material as MeshBasicMaterial).opacity = Math.sin(pPi) * 0.70;
+          }
+          for (let i = 0; i < waves3.length; i++) {
+            const w = waves3[i];
+            const p = (tNorm + w.phase) % 1;
+            const pPi = p * Math.PI;
+            const sc = 1.4 + p * 5.5;
+            w.mesh.scale.set(sc, sc, sc);
+            (w.mesh.material as MeshBasicMaterial).opacity = Math.sin(pPi) * 0.65;
           }
 
           // Soul mist breathe
