@@ -49,6 +49,8 @@ body {
 
 .app-bg {
   position: relative;
+  overflow: hidden; /* 防止內部絕對定位的星軌和裝飾光球在窄螢幕下把網頁寬度撐開跑版 */
+  min-height: 100vh;
   background:
     radial-gradient(circle at 50% 0%, rgba(109, 74, 255, 0.33), transparent 30%),
     radial-gradient(circle at 100% 100%, rgba(201, 162, 74, 0.12), transparent 20%),
@@ -908,3 +910,90 @@ body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
   border: 1px solid rgba(255,255,255,0.08); padding: 8px 12px; border-radius: 10px; backdrop-filter: blur(8px);
 }
 
+
+
+/* ── 完美科技版與仙氣發光視覺 ─────────────────────────────────────── */
+
+/* CSS 音波跳動波形 (Ethereal Spectrum) */
+.tech-waveform {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 20px;
+  width: auto;
+}
+
+.tech-waveform-bar {
+  width: 2.5px;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(180deg, #c9a24a, #d78bff);
+  transform-origin: bottom center;
+  animation: tech-wave-bounce 1.2s ease-in-out infinite alternate;
+  box-shadow: 0 0 8px rgba(215, 139, 255, 0.4);
+}
+
+.tech-waveform-bar:nth-child(1) { animation-delay: -0.2s; height: 35%; }
+.tech-waveform-bar:nth-child(2) { animation-delay: -0.7s; height: 75%; }
+.tech-waveform-bar:nth-child(3) { animation-delay: -0.4s; height: 50%; }
+.tech-waveform-bar:nth-child(4) { animation-delay: -0.9s; height: 95%; }
+.tech-waveform-bar:nth-child(5) { animation-delay: -0.3s; height: 60%; }
+.tech-waveform-bar:nth-child(6) { animation-delay: -0.6s; height: 80%; }
+.tech-waveform-bar:nth-child(7) { animation-delay: -0.1s; height: 40%; }
+.tech-waveform-bar:nth-child(8) { animation-delay: -0.8s; height: 85%; }
+
+@keyframes tech-wave-bounce {
+  0% { transform: scaleY(0.3); }
+  100% { transform: scaleY(1.0); }
+}
+
+/* 仙氣大羽化極光發光 (Ethereal Astral Glow) */
+.astral-glow-violet {
+  box-shadow: 0 0 45px 5px rgba(109, 74, 255, 0.22), inset 0 0 20px rgba(109, 74, 255, 0.08);
+}
+.astral-glow-amber {
+  box-shadow: 0 0 45px 5px rgba(201, 162, 74, 0.22), inset 0 0 20px rgba(201, 162, 74, 0.08);
+}
+.astral-glow-pink {
+  box-shadow: 0 0 45px 5px rgba(215, 139, 255, 0.22), inset 0 0 20px rgba(215, 139, 255, 0.08);
+}
+
+/* 霓虹輸入聚焦與卡片懸停效果 */
+.neon-input-focus:focus {
+  border-color: rgba(139, 92, 246, 0.55) !important;
+  box-shadow: 
+    0 0 18px rgba(139, 92, 246, 0.28), 
+    inset 0 0 8px rgba(139, 92, 246, 0.1) !important;
+}
+
+.neon-card-hover:hover {
+  border-color: rgba(201, 162, 74, 0.35) !important;
+  box-shadow: 
+    0 0 35px rgba(201, 162, 74, 0.14),
+    0 0 12px rgba(109, 74, 255, 0.08) !important;
+}
+
+/* 加密艙門解鎖動畫與字元瀑布 */
+.tech-decrypt-overlay {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  background: rgba(5, 7, 22, 0.68);
+  border: 1px solid rgba(201, 162, 74, 0.22);
+}
+
+.code-stream-effect {
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  background-image: linear-gradient(0deg, rgba(201, 162, 74, 0.1) 50%, transparent 50%);
+  background-size: 100% 4px;
+  animation: code-scan 6s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes code-scan {
+  from { background-position: 0 0; }
+  to { background-position: 0 100%; }
+}

@@ -53,7 +53,9 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
   }
 
   // 計算關係矩陣 — 故事的數據源
-  const relationshipMatrix = computeRelationshipMatrix(request.personA, request.personB);
+  const personAWithShichen = { ...request.personA, shichen: request.personA.shichen ?? null };
+  const personBWithShichen = { ...request.personB, shichen: request.personB.shichen ?? null };
+  const relationshipMatrix = computeRelationshipMatrix(personAWithShichen, personBWithShichen);
 
   // 計算修行哲學層 — 故事的靈魂維度
   const attachmentAnalysis = analyzeAttachment(

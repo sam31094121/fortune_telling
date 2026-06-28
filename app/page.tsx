@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useDeferredValue, useEffect } from 'react';
+import { useMemo, useState, useDeferredValue, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { injectPerformanceCSS } from '@/lib/performance-css';
 import VisualGravityCore from '@/components/VisualGravityCore';
@@ -93,24 +93,24 @@ function ElderChoiceCard({
 }) {
   const tones = {
     violet: active
-      ? 'border-violet-400 bg-violet-500/15 text-violet-100'
-      : 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
+      ? 'border-violet-400 bg-violet-500/20 text-violet-100 shadow-[0_0_20px_rgba(109,74,255,0.35)]'
+      : 'border-white/10 bg-white/5 text-[color:var(--text-main)] hover:border-violet-500/30',
     amber: active
-      ? 'border-amber-400 bg-amber-500/15 text-amber-100'
-      : 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
+      ? 'border-amber-400 bg-amber-500/20 text-amber-100 shadow-[0_0_20px_rgba(201,162,74,0.35)]'
+      : 'border-white/10 bg-white/5 text-[color:var(--text-main)] hover:border-amber-500/30',
     pink: active
-      ? 'border-pink-400 bg-pink-500/15 text-pink-100'
-      : 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
+      ? 'border-pink-400 bg-pink-500/20 text-pink-100 shadow-[0_0_20px_rgba(215,139,255,0.35)]'
+      : 'border-white/10 bg-white/5 text-[color:var(--text-main)] hover:border-pink-500/30',
     cyan: active
-      ? 'border-cyan-400 bg-cyan-500/15 text-cyan-100'
-      : 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
+      ? 'border-cyan-400 bg-cyan-500/20 text-cyan-100 shadow-[0_0_20px_rgba(34,211,238,0.35)]'
+      : 'border-white/10 bg-white/5 text-[color:var(--text-main)] hover:border-cyan-500/30',
   };
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`w-full rounded-2xl border px-4 py-4 text-left transition-all hover:border-white/20 ${tones[tone]}`}
+      className={`w-full rounded-2xl border px-4 py-4 text-left transition-all duration-300 neon-card-hover ${tones[tone]}`}
     >
       <p className="text-lg font-bold">{title}</p>
       <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]">{description}</p>
@@ -153,7 +153,7 @@ function PersonStep({
   onChange: (value: PersonInput) => void;
 }) {
   return (
-    <div className="fortune-card p-6 sm:p-8">
+    <div className={`fortune-card p-6 sm:p-8 transition-all duration-500 ${accent === 'violet' ? 'astral-glow-violet hover:border-violet-500/25' : 'astral-glow-amber hover:border-amber-500/25'}`}>
       <p className={`inline-flex rounded-full border px-4 py-1 text-xs tracking-[0.3em] ${accent === 'violet' ? 'border-violet-400/25 bg-violet-950/20 text-violet-300' : 'border-amber-400/25 bg-amber-950/20 text-amber-300'}`}>
         {title}
       </p>
@@ -169,7 +169,7 @@ function PersonStep({
             value={value.name}
             onChange={(event) => onChange({ ...value, name: event.target.value })}
             placeholder="請輸入姓名，至少 2 個字"
-            className="form-input w-full text-base"
+            className="form-input w-full text-base neon-input-focus neon-card-hover"
           />
         </div>
 
@@ -237,11 +237,17 @@ function ShichenStep({
   onChange: (value: PersonInput) => void;
 }) {
   const accentClasses = accent === 'violet'
-    ? { label: 'border-violet-400/25 bg-violet-950/20 text-violet-300', button: 'border-violet-400 bg-violet-500/15 text-violet-100' }
-    : { label: 'border-amber-400/25 bg-amber-950/20 text-amber-300', button: 'border-amber-400 bg-amber-500/15 text-amber-100' };
+    ? { 
+        label: 'border-violet-400/25 bg-violet-950/20 text-violet-300', 
+        button: 'border-violet-400 bg-violet-500/20 text-violet-100 shadow-[0_0_20px_rgba(109,74,255,0.35)]' 
+      }
+    : { 
+        label: 'border-amber-400/25 bg-amber-950/20 text-amber-300', 
+        button: 'border-amber-400 bg-amber-500/20 text-amber-100 shadow-[0_0_20px_rgba(201,162,74,0.35)]' 
+      };
 
   return (
-    <div className="fortune-card p-6 sm:p-8">
+    <div className={`fortune-card p-6 sm:p-8 transition-all duration-500 ${accent === 'violet' ? 'astral-glow-violet hover:border-violet-500/25' : 'astral-glow-amber hover:border-amber-500/25'}`}>
       <p className={`inline-flex rounded-full border px-4 py-1 text-xs tracking-[0.3em] ${accentClasses.label}`}>
         {title}
       </p>
@@ -254,10 +260,10 @@ function ShichenStep({
           <button
             type="button"
             onClick={() => onChange({ ...value, shichen: 'unknown' })}
-            className={`w-full rounded-2xl border px-4 py-4 text-left transition-all ${
+            className={`w-full rounded-2xl border px-4 py-4 text-left transition-all duration-300 neon-card-hover ${
               value.shichen === 'unknown'
                 ? accentClasses.button
-                : 'border-white/10 bg-white/5 text-[color:var(--text-main)]'
+                : 'border-white/10 bg-white/5 text-[color:var(--text-main)] hover:border-white/20'
             }`}
           >
             <p className="text-lg font-bold">🕊️ 我不知道 / 記不得時辰</p>
@@ -275,10 +281,10 @@ function ShichenStep({
                   key={s.branchIndex}
                   type="button"
                   onClick={() => onChange({ ...value, shichen: s.branchIndex })}
-                  className={`rounded-2xl border px-4 py-3 text-left transition-all ${
+                  className={`rounded-2xl border px-4 py-3 text-left transition-all duration-300 neon-card-hover ${
                     selected
                       ? accentClasses.button
-                      : 'border-white/10 bg-white/5 text-[color:var(--text-main)]'
+                      : 'border-white/10 bg-white/5 text-[color:var(--text-main)] hover:border-white/20'
                   }`}
                 >
                   <p className="font-semibold">{s.label}</p>
@@ -300,6 +306,25 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [data, setData] = useState<MatchResponse | null>(null);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [unlocking, setUnlocking] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+
+  function handleUnlockVIP() {
+    setUnlocking(true);
+    setTimeout(() => {
+      setUnlocking(false);
+      setIsUnlocked(true);
+    }, 2800);
+  }
+
+  // 監聽步驟切換與結果生成，自動平滑定位，避免螢幕異常跳動與跑版
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [step, !!data]);
 
   // 使用 useDeferredValue 防止表單輸入影響 3D 動畫
   const deferredPersonA = useDeferredValue(personA);
@@ -422,6 +447,9 @@ export default function HomePage() {
 
     try {
       const response = await fetchWithRetry();
+      if (!response) {
+        throw new Error('未收到伺服器回應');
+      }
 
       const json = (await response.json()) as MatchResponse & { error?: string };
 
@@ -469,13 +497,35 @@ export default function HomePage() {
     setData(null);
     setError('');
     setStep('personA-base');
+    setIsUnlocked(false);
   }
 
   return (
     <div className="app-bg min-h-screen overflow-hidden">
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
 
-      <main className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
+      {unlocking && (
+        <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md">
+          <div className="relative flex items-center justify-center">
+            {/* 三軌對齊 3D 科技星盤 */}
+            <div className="absolute h-48 w-48 rounded-full border-2 border-dashed border-violet-500/30 animate-spin" style={{ animationDuration: '6s' }} />
+            <div className="absolute h-40 w-40 rounded-full border border-double border-amber-500/40 animate-spin" style={{ animationDuration: '4s', animationDirection: 'reverse' }} />
+            <div className="absolute h-32 w-32 rounded-full border border-rose-500/30 animate-spin" style={{ animationDuration: '8s' }} />
+            {/* 仙氣天然發光中心 */}
+            <div className="z-10 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-tr from-violet-600/20 via-pink-600/20 to-amber-600/20 text-4xl font-bold text-white shadow-[0_0_50px_15px_rgba(215,139,255,0.4)]">
+              ☯️
+            </div>
+          </div>
+          <p className="mt-8 text-lg font-bold tracking-widest text-amber-200 animate-pulse">
+            🪐 天宿星軌對齊中，解密天宿命盤...
+          </p>
+          <div className="mt-4 flex gap-1.5 text-xs text-violet-300/70">
+            <span className="animate-bounce">🧬 正在重組前世今生大數據，啟封音律...</span>
+          </div>
+        </div>
+      )}
+
+      <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
         <div className="mb-8 flex items-center gap-4">
           <span className="text-xs tracking-widest text-rose-300">💕 AI 靈魂配對</span>
           <span className="text-[color:var(--text-muted)]">·</span>
@@ -700,16 +750,18 @@ export default function HomePage() {
 
         {data && (
           <div className="space-y-6">
-            <div className="fortune-card p-6 sm:p-8 text-center">
-              <p className="text-xs uppercase tracking-[0.35em] text-rose-300">配對結果</p>
-              <h2 className="mt-3 font-serif text-5xl text-[color:var(--text-main)]">{data.result.match_score}</h2>
+            <div className={`fortune-card p-6 sm:p-8 text-center transition-all duration-700 ${isUnlocked ? 'vip-gold-card shadow-[0_0_40px_rgba(201,162,74,0.3)]' : 'astral-glow-violet'}`}>
+              <p className={`text-xs uppercase tracking-[0.35em] ${isUnlocked ? 'text-amber-300 font-semibold' : 'text-rose-300 font-medium'}`}>
+                {isUnlocked ? '👑 尊榮 VIP 天宿配對報告' : '配對結果'}
+              </p>
+              <h2 className={`mt-3 font-serif text-5xl ${isUnlocked ? 'vip-glow-text font-black' : 'text-[color:var(--text-main)]'}`}>{data.result.match_score}</h2>
               <p className="mt-2 text-sm text-[color:var(--text-sub)]">相處共鳴指數</p>
               <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">{data.result.summary}</p>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="fortune-card p-6 sm:p-8">
-                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">四項核心指標</p>
+              <div className={`fortune-card p-6 sm:p-8 transition-all duration-500 ${isUnlocked ? 'vip-gold-card' : ''}`}>
+                <p className={`mb-6 text-xs uppercase tracking-[0.35em] ${isUnlocked ? 'text-amber-300 font-semibold' : 'text-[color:var(--text-muted)]'}`}>四項核心指標</p>
                 <div className="space-y-5">
                   <ScoreRow label="共鳴感" score={data.result.resonance} tone="violet" />
                   <ScoreRow label="溝通感" score={data.result.communication} tone="cyan" />
@@ -718,8 +770,8 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="fortune-card p-6 sm:p-8">
-                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">雙方基本資料</p>
+              <div className={`fortune-card p-6 sm:p-8 transition-all duration-500 ${isUnlocked ? 'vip-gold-card' : ''}`}>
+                <p className={`mb-6 text-xs uppercase tracking-[0.35em] ${isUnlocked ? 'text-amber-300 font-semibold' : 'text-[color:var(--text-muted)]'}`}>雙方基本資料</p>
                 <div className="space-y-5 text-sm">
                   <div>
                     <p className="font-semibold text-violet-300">{data.displayA.name}</p>
@@ -745,7 +797,7 @@ export default function HomePage() {
                 { title: '需要磨合', items: data.result.zones.grinding, tone: 'cyan' },
                 { title: '注意衝突', items: data.result.zones.conflict, tone: 'pink' },
               ].map((section) => (
-                <div key={section.title} className="fortune-card p-5 sm:p-6">
+                <div key={section.title} className={`fortune-card p-5 sm:p-6 transition-all duration-500 ${isUnlocked ? 'vip-gold-card' : ''}`}>
                   <p className={`text-sm font-semibold ${section.tone === 'violet' ? 'text-violet-300' : section.tone === 'amber' ? 'text-amber-300' : section.tone === 'cyan' ? 'text-cyan-300' : 'text-pink-300'}`}>
                     {section.title}
                   </p>
@@ -761,49 +813,101 @@ export default function HomePage() {
               ))}
             </div>
 
-            {data.karma_story && (
-              <div className="space-y-6">
-                <div className="fortune-card p-6 sm:p-8 border-rose-400/20">
-                  <div className="mb-6 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.35em] text-rose-300">💫 因果故事</p>
-                      <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">配對前世今生因果關係</h2>
+            {/* 未解鎖時顯示的科技加密艙門 */}
+            {!isUnlocked && (
+              <div className="tech-decrypt-overlay p-8 text-center relative border border-amber-500/20 shadow-[0_0_30px_rgba(201,162,74,0.12)] animate-rise">
+                <div className="code-stream-effect" />
+                <div className="relative z-10 py-10 space-y-6">
+                  <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/10 text-4xl shadow-[0_0_30px_10px_rgba(201,162,74,0.22)] border border-amber-400/30 animate-pulse">
+                    👑
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.4em] text-amber-300 font-semibold">大數據天宿因果 · VIP 專屬</p>
+                    <h3 className="mt-4 font-serif text-3xl font-bold text-white">解鎖前世因果故事與天命聲律</h3>
+                    <p className="mx-auto mt-4 max-w-lg text-sm leading-8 text-[color:var(--text-sub)]">
+                      包含雙方前世今生的緣分故事、今生修煉避坑建議，以及專屬生成的靈魂頻譜共振主題曲。
+                    </p>
+                  </div>
+                  <div className="pt-4">
+                    <button
+                      type="button"
+                      onClick={handleUnlockVIP}
+                      className="vip-gold-btn px-10 py-5 text-lg font-bold tracking-wider shadow-[0_0_30px_rgba(201,162,74,0.3)] hover:shadow-[0_0_40px_rgba(201,162,74,0.5)] transition-all duration-300"
+                    >
+                      ✨ 一鍵對齊星宿解鎖 VIP 報告
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 已解鎖時顯示的 VIP 聲學與天命報告 */}
+            {data.karma_story && isUnlocked && (
+              <div className="space-y-6 animate-rise">
+                {/* 聲學音樂適配區 (動態跳動頻譜) */}
+                <div className="fortune-card vip-gold-card p-6 sm:p-8 relative overflow-hidden">
+                  <div className="absolute right-6 top-6 flex items-center gap-2">
+                    <span className="text-[10px] tracking-wider text-amber-300/80 font-mono">432Hz CO-RESONANCE</span>
+                    <div className="tech-waveform">
+                      <div className="tech-waveform-bar" />
+                      <div className="tech-waveform-bar" />
+                      <div className="tech-waveform-bar" />
+                      <div className="tech-waveform-bar" />
+                      <div className="tech-waveform-bar" />
+                      <div className="tech-waveform-bar" />
+                      <div className="tech-waveform-bar" />
+                      <div className="tech-waveform-bar" />
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs text-[color:var(--text-muted)]">關係共鳴度</p>
-                      <p className="mt-2 font-serif text-3xl text-rose-300">{data.karma_story.resonance_score}%</p>
+                  </div>
+                  <p className="text-xs uppercase tracking-[0.35em] text-amber-300 font-semibold">🎵 人格天命主題音樂</p>
+                  <h3 className="mt-3 font-serif text-2xl text-white">天宿聲律共鳴頻率 — 仙宿調色盤</h3>
+                  <p className="mt-4 text-sm leading-8 text-[color:var(--text-sub)]">
+                    系統已自動提取雙方的生辰與血型能量頻率，合成了專屬的靈魂配對音樂。目前聲波正以 428Hz-432Hz 療癒共鳴頻率在瀏覽器背景對齊中。
+                  </p>
+                </div>
+
+                {/* 前世因果標題 */}
+                <div className="fortune-card vip-gold-card p-6 sm:p-8 relative">
+                  <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.35em] text-amber-300">💫 因果大數據故事</p>
+                      <h2 className="mt-3 font-serif text-3xl text-white">配對前世今生因果關係</h2>
+                    </div>
+                    <div className="text-left sm:text-right">
+                      <p className="text-xs text-[color:var(--text-muted)]">天宿關係共鳴度</p>
+                      <p className="mt-2 font-serif text-4xl text-amber-300 font-black text-shadow-glow">{data.karma_story.resonance_score}%</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="fortune-card p-5 sm:p-6">
+                  <div className="fortune-card vip-gold-card p-5 sm:p-6">
                     <p className="text-xs text-violet-300 font-semibold">主動付出者</p>
-                    <p className="mt-3 text-lg text-[color:var(--text-main)]">{data.karma_story.active_giver}</p>
+                    <p className="mt-3 text-lg text-white font-bold">{data.karma_story.active_giver}</p>
                   </div>
-                  <div className="fortune-card p-5 sm:p-6">
+                  <div className="fortune-card vip-gold-card p-5 sm:p-6">
                     <p className="text-xs text-amber-300 font-semibold">需要被理解者</p>
-                    <p className="mt-3 text-lg text-[color:var(--text-main)]">{data.karma_story.needs_understanding}</p>
+                    <p className="mt-3 text-lg text-white font-bold">{data.karma_story.needs_understanding}</p>
                   </div>
                 </div>
 
-                <div className="fortune-card p-6 sm:p-8">
-                  <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">關係課題</p>
+                <div className="fortune-card vip-gold-card p-6 sm:p-8">
+                  <p className="text-xs uppercase tracking-[0.35em] text-amber-300 font-semibold">關係課題</p>
                   <p className="mt-4 text-sm leading-8 text-[color:var(--text-sub)]">{data.karma_story.relationship_theme}</p>
                 </div>
 
-                <div className="fortune-card p-6 sm:p-8">
-                  <p className="text-xs uppercase tracking-[0.35em] text-rose-300">因果故事</p>
+                <div className="fortune-card vip-gold-card p-6 sm:p-8">
+                  <p className="text-xs uppercase tracking-[0.35em] text-rose-300 font-semibold">因果故事</p>
                   <p className="mt-4 whitespace-pre-wrap text-sm leading-8 text-[color:var(--text-sub)]">{data.karma_story.story}</p>
                 </div>
 
-                <div className="fortune-card p-6 sm:p-8">
-                  <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">今生建議</p>
+                <div className="fortune-card vip-gold-card p-6 sm:p-8">
+                  <p className="text-xs uppercase tracking-[0.35em] text-cyan-300 font-semibold">今生建議</p>
                   <p className="mt-4 whitespace-pre-wrap text-sm leading-8 text-[color:var(--text-sub)]">{data.karma_story.today_advice}</p>
                 </div>
 
-                <div className="fortune-card p-6 sm:p-8 border-emerald-400/20">
-                  <p className="text-xs uppercase tracking-[0.35em] text-emerald-300">善念結語</p>
+                <div className="fortune-card vip-gold-card p-6 sm:p-8 border-emerald-400/30">
+                  <p className="text-xs uppercase tracking-[0.35em] text-emerald-300 font-semibold">善念結語</p>
                   <p className="mt-4 whitespace-pre-wrap italic text-sm leading-8 text-[color:var(--text-sub)]">{data.karma_story.closing_wisdom}</p>
                 </div>
               </div>

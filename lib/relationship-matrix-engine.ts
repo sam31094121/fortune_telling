@@ -148,7 +148,7 @@ export function computeRelationshipMatrix(personA: PersonData, personB: PersonDa
       firstName: personA.name,
     },
     destinyA.personalityAdjust,
-  );
+  ) as any;
 
   const matrixB = PersonalityMatrixEngine.generatePersonalityMatrix(
     {
@@ -160,14 +160,15 @@ export function computeRelationshipMatrix(personA: PersonData, personB: PersonDa
       firstName: personB.name,
     },
     destinyB.personalityAdjust,
-  );
+  ) as any;
 
   // 計算人格共鳴度（相同特質）
   let resonanceSum = 0;
   let resonanceCount = 0;
   for (const key in matrixA) {
-    if (matrixB[key] !== undefined) {
-      const diff = Math.abs((matrixA[key] as number) - (matrixB[key] as number));
+    const k = key as keyof typeof matrixA;
+    if (matrixB[k] !== undefined) {
+      const diff = Math.abs((matrixA[k] as number) - (matrixB[k] as number));
       resonanceSum += Math.max(0, 100 - diff);
       resonanceCount += 1;
     }

@@ -174,15 +174,22 @@ export default function VisualGravityCore() {
         grp.add(new THREE.Mesh(sphGeo, sphMat));
 
 
-        // ── Five-element outer energy layers ──────────────────────────────
-        // 沿用既有透明球形光殼：由內而外自然重疊，不新增粒子或硬邊圓環。
+        // ✨ 第 5 步：仙氣完美升級 - 五行 + 仙氣特殊層
+        // 由內而外層層擴散，融合科技與仙氣
         const auraShells: { mesh: Mesh; baseOp: number; pulse: number }[] = [];
         const auraDefs = [
-          { r: 1.70, color: 0xf4f7ff, op: 0.24, pulse: 0.050 }, // 白金：核心生命能量
-          { r: 1.88, color: 0x83dfff, op: 0.18, pulse: 0.060 }, // 冰藍：科技能量
-          { r: 2.12, color: 0x63e6b2, op: 0.13, pulse: 0.072 }, // 青綠：生命能量
-          { r: 2.48, color: 0x9d7cff, op: 0.082, pulse: 0.086 }, // 量子紫：未來科技能量
-          { r: 2.95, color: 0xf2c86b, op: 0.048, pulse: 0.100 }, // 神聖金：宇宙能量
+          // 核心仙氣層 - 白金
+          { r: 1.72, color: 0xffffff, op: 0.28, pulse: 0.055 },  // 純白仙氣核心
+
+          // 五行能量層 - 增強飽和度 + 仙氣感
+          { r: 1.95, color: 0xe6ccff, op: 0.22, pulse: 0.065 },  // 粉紫仙氣
+          { r: 2.20, color: 0xa8e6ff, op: 0.18, pulse: 0.075 },  // 天藍仙氣
+          { r: 2.50, color: 0x80ffcc, op: 0.15, pulse: 0.085 },  // 青綠仙氣
+          { r: 2.80, color: 0xffd4a3, op: 0.12, pulse: 0.095 },  // 金色仙氣
+
+          // 外圍仙氣保護層 - 神聖融合
+          { r: 3.15, color: 0xe6d9ff, op: 0.085, pulse: 0.105 }, // 淡紫仙氣
+          { r: 3.50, color: 0xffd4a3, op: 0.045, pulse: 0.115 }, // 遠方金光
         ];
         for (const d of auraDefs) {
           const m = new THREE.Mesh(
@@ -521,21 +528,21 @@ export default function VisualGravityCore() {
             m.opacity = s.baseOp * (0.28 + sharedEnergyBreath * 0.72) * softFlow;
             s.mesh.scale.setScalar(0.955 + sharedEnergyBreath * (0.045 + s.pulse));
           }
-          // ✨ 優化光暈呼吸效果 - 像呼吸一樣自然的收縮和膨脹
-          const breathePhase = Math.sin(t * 0.5);  // 基礎呼吸節奏
-          const haloBreatheIntensity = 0.5 + breathePhase * 0.4;  // 0.1 → 0.9 的呼吸周期
+          // ✨ 第 5 步：仙氣完美升級 - 神聖呼吸脈衝
+          const breathePhase = Math.sin(t * 0.28);  // 仙氣呼吸（極慢、穩重）
+          const haloBreatheIntensity = 0.5 + breathePhase * 0.60;  // 仙氣感脈衝
 
-          // 主光暈呼吸
-          (haloSprite.material as SpriteMaterial).opacity = 0.35 + haloBreatheIntensity * 0.25;
-          haloSprite.scale.setScalar(6.5 + haloBreatheIntensity * 1.2);
+          // 主光暈呼吸 - 仙氣耀眼
+          (haloSprite.material as SpriteMaterial).opacity = 0.40 + haloBreatheIntensity * 0.42;  // 更耀眼
+          haloSprite.scale.setScalar(7.2 + haloBreatheIntensity * 2.2);  // 仙氣膨脹
 
-          // 白色光暈呼吸
-          const whiteBreate = 0.4 + Math.sin(t * 0.6) * 0.35;
-          (bloomWhite.material as SpriteMaterial).opacity = whiteBreate * 0.45;
+          // 白色光暈呼吸 - 仙氣純淨
+          const whiteBreath = 0.50 + Math.sin(t * 0.34) * 0.48;  // 仙氣漂浮感
+          (bloomWhite.material as SpriteMaterial).opacity = whiteBreath * 0.65;  // 更純淨透亮
 
-          // 紫色光暈呼吸（與白色錯開，形成協調）
-          const violetBreath = 0.4 + Math.sin(t * 0.6 + 0.8) * 0.35;
-          (bloomViolet.material as SpriteMaterial).opacity = violetBreath * 0.45;
+          // 紫色光暈呼吸 - 仙氣優雅
+          const violetBreath = 0.50 + Math.sin(t * 0.34 + 1.6) * 0.48;  // 優雅協調
+          (bloomViolet.material as SpriteMaterial).opacity = violetBreath * 0.65;  // 仙氣層次
 
           // ✨ 優化波紋動畫 - 高效計算，減少三角函數調用
           const WAVE_PERIOD = 3.8;
