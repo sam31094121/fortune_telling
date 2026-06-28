@@ -37,7 +37,7 @@ export default function VisualGravityCore() {
 
         const W = container.clientWidth  || 320;
         const H = container.clientHeight || 320;
-        const isMobile = W < 768;
+        const isMobile = window.innerWidth < 768;
 
         // ── Scene ────────────────────────────────────────────────────────
         const scene = new THREE.Scene();
@@ -65,8 +65,7 @@ export default function VisualGravityCore() {
         renderer.shadowMap.enabled = false;
         renderer.info.autoReset = true;
 
-        // ✨ 啟用性能優化
-        renderer.outputEncoding = THREE.sRGBEncoding;
+        // 使用新版 Three.js 色彩空間設定，避免舊屬性造成相容性問題
         if ((renderer as any).useLegacyLights !== undefined) {
           (renderer as any).useLegacyLights = false;
         }
@@ -135,31 +134,39 @@ export default function VisualGravityCore() {
         scene.add(grp);
 
         // Main yin-yang sphere — ShaderMaterial computes pattern in GLSL (no texture issues)
-        const sphGeo = new THREE.SphereGeometry(1.62, 128, 128);
+        const sphGeo = new THREE.SphereGeometry(1.62, isMobile ? 56 : 88, isMobile ? 56 : 88);
         const sphMat = new THREE.ShaderMaterial({
           vertexShader: `
-            varying vec2 vUv;
+            varying vec3 vLocalPosition;
             void main() {
-              vUv = uv;
+              vLocalPosition = position / 1.62;
               gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
           `,
           fragmentShader: `
             precision mediump float;
-            varying vec2 vUv;
+            varying vec3 vLocalPosition;
             void main() {
-              float x = (vUv.x - 0.5) * 2.0;
-              float y = (vUv.y - 0.5) * 2.0;
-              float r_yinHole  = sqrt(x*x + (y+0.5)*(y+0.5));
-              float r_yangBump = sqrt(x*x + (y-0.5)*(y-0.5));
-              bool yang;
-              if (x < 0.0) { yang = r_yinHole  >= 0.5; }
-              else          { yang = r_yangBump <  0.5; }
-              if (sqrt(x*x + (y-0.5)*(y-0.5)) < 0.115) yang = false;
-              if (sqrt(x*x + (y+0.5)*(y+0.5)) < 0.115) yang = true;
-              vec3 col = yang
-                ? vec3(0.96, 0.98, 1.00)
-                : vec3(0.02, 0.02, 0.07);
+              vec2 p = vLocalPosition.xy;
+              float upper = distance(p, vec2(0.0, 0.5));
+              float lower = distance(p, vec2(0.0, -0.5));
+
+              // 以球體正面的局部座標繪製太極，旋轉時仍維持完整清楚的 S 曲線。
+              float yang = step(0.0, p.x);
+              if (upper < 0.5) yang = 1.0;
+              if (lower < 0.5) yang = 0.0;
+              if (upper < 0.115) yang = 0.0;
+              if (lower < 0.115) yang = 1.0;
+
+              vec3 whiteTone = vec3(0.92, 0.96, 1.00);
+              vec3 blackTone = vec3(0.008, 0.012, 0.035);
+              vec3 col = mix(blackTone, whiteTone, yang);
+
+              // 柔和的球面明暗與邊緣收束，增加深度但不破壞圖騰辨識度。
+              float depthLight = 0.82 + max(vLocalPosition.z, 0.0) * 0.18;
+              float rim = smoothstep(0.0, 0.72, 1.0 - max(vLocalPosition.z, 0.0));
+              col *= depthLight;
+              col += vec3(0.10, 0.14, 0.28) * rim * 0.16;
               gl_FragColor = vec4(col, 1.0);
             }
           `,
@@ -219,7 +226,7 @@ export default function VisualGravityCore() {
 
         // ✨ 增強能量波 - 更多波紋效果、更密集的能量環繞
         const waveTex = buildRingTex(170, 195, 255);
-        const WAVE_N = 6;  // 增加波數
+        const WAVE_N = isMobile ? 3 : 5;
         const waves: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE_N; i++) {
           const m = new THREE.Mesh(
@@ -237,7 +244,7 @@ export default function VisualGravityCore() {
 
         // ✨ 垂直平面波 - 更多層次的 3D 球形感
         const waveTex2 = buildRingTex(180, 160, 255);
-        const WAVE2_N = 5;  // 增加波數
+        const WAVE2_N = isMobile ? 2 : 4;
         const waves2: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE2_N; i++) {
           const m = new THREE.Mesh(
@@ -256,7 +263,7 @@ export default function VisualGravityCore() {
 
         // ✨ 新增：對角線能量波 - 更豐富的層次感
         const waveTex3 = buildRingTex(160, 180, 240);
-        const WAVE3_N = 4;
+        const WAVE3_N = isMobile ? 2 : 3;
         const waves3: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE3_N; i++) {
           const m = new THREE.Mesh(
@@ -360,7 +367,7 @@ export default function VisualGravityCore() {
         grp.add(whFlareV);
 
         // ✨ 優化粒子特效 - 平衡視覺效果和性能
-        const pN = isMobile ? 800 : 1800;  // 適度的粒子數量以提升流暢度
+        const pN = isMobile ? 280 : 1100;
         const pArr = new Float32Array(pN * 3);
         const pColors = new Float32Array(pN * 3);  // 新增：顏色變化
         for (let i = 0; i < pN; i++) {
@@ -394,7 +401,7 @@ export default function VisualGravityCore() {
         scene.add(particles);
 
         // ✨ 增強能量塵埃 - 更多粒子、更動態的吸收/釋放
-        const fN = isMobile ? 400 : 800;  // 優化塵埃粒子以提升流暢度
+        const fN = isMobile ? 140 : 500;
         const fPos = new Float32Array(fN * 3);
         const fPhase = new Float32Array(fN);
         const fColor = new Float32Array(fN * 3);  // 新增：顏色
@@ -455,16 +462,14 @@ export default function VisualGravityCore() {
             if (fps < 30) console.warn(`⚠️ Low FPS: ${fps}`);
           }
 
-          // ✨ 增強旋轉效果：完整 365 度旋轉 (每 8 秒一圈)
-          grp.rotation.y = t * (Math.PI * 2 / 8);
+          // 維持太極正面辨識度，只用微量視差表現 3D 深度。
+          grp.rotation.y = Math.sin(t * 0.24) * 0.08;
+          grp.rotation.x = 0.06 + Math.sin(t * 0.19) * 0.035;
+          grp.rotation.z = Math.sin(t * 0.16) * 0.055;
 
-          // 增強 3D 立體感：更大的傾斜和搖晃
-          grp.rotation.x = 0.22 + Math.sin(t * 0.4) * 0.12;
-          grp.rotation.z = Math.sin(t * 0.3) * 0.18;
-
-          // ✨ 增強忽大忽小效果 (更明顯的脈動)
-          const breatheIntensity = 0.08 + Math.sin(t * 0.5) * 0.03;
-          grp.scale.setScalar(1 + Math.sin(t * 0.6) * breatheIntensity);
+          // 低幅度能量呼吸，避免忽大忽小造成視覺失焦。
+          const breatheIntensity = 0.014 + Math.sin(t * 0.42) * 0.004;
+          grp.scale.setScalar(1 + Math.sin(t * 0.55) * breatheIntensity);
 
           // ✨ 優化黑洞呼吸效果 - 與主節奏協調
           diskMesh.rotation.z = t * 1.6;
@@ -518,11 +523,11 @@ export default function VisualGravityCore() {
           }
           // ✨ 優化光暈呼吸效果 - 像呼吸一樣自然的收縮和膨脹
           const breathePhase = Math.sin(t * 0.5);  // 基礎呼吸節奏
-          const breatheIntensity = 0.5 + breathePhase * 0.4;  // 0.1 → 0.9 的呼吸周期
+          const haloBreatheIntensity = 0.5 + breathePhase * 0.4;  // 0.1 → 0.9 的呼吸周期
 
           // 主光暈呼吸
-          (haloSprite.material as SpriteMaterial).opacity = 0.35 + breatheIntensity * 0.25;
-          haloSprite.scale.setScalar(6.5 + breatheIntensity * 1.2);
+          (haloSprite.material as SpriteMaterial).opacity = 0.35 + haloBreatheIntensity * 0.25;
+          haloSprite.scale.setScalar(6.5 + haloBreatheIntensity * 1.2);
 
           // 白色光暈呼吸
           const whiteBreate = 0.4 + Math.sin(t * 0.6) * 0.35;
