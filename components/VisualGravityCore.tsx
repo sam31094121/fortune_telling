@@ -174,16 +174,15 @@ export default function VisualGravityCore() {
         grp.add(new THREE.Mesh(sphGeo, sphMat));
 
 
-        // ── Outer glow aura — like a glowing lightbulb releasing light ─────
-        // Multiple concentric BackSide shells: bright near surface, fading out.
-        // Colors blend the white-hole white & black-hole violet energy.
+        // ── Five-element outer energy layers ──────────────────────────────
+        // 沿用既有透明球形光殼：由內而外自然重疊，不新增粒子或硬邊圓環。
         const auraShells: { mesh: Mesh; baseOp: number; pulse: number }[] = [];
         const auraDefs = [
-          { r: 1.70, color: 0xf2f5ff, op: 0.30, pulse: 0.08 }, // inner bright white-blue
-          { r: 1.88, color: 0xb8c2ff, op: 0.20, pulse: 0.09 }, // mid violet-blue
-          { r: 2.12, color: 0x8a80ff, op: 0.13, pulse: 0.10 }, // outer violet
-          { r: 2.48, color: 0x6a74ff, op: 0.078, pulse: 0.12 }, // far halo
-          { r: 2.95, color: 0x5262e0, op: 0.045, pulse: 0.14 }, // faint outermost bloom
+          { r: 1.70, color: 0xf4f7ff, op: 0.24, pulse: 0.050 }, // 白金：核心生命能量
+          { r: 1.88, color: 0x83dfff, op: 0.18, pulse: 0.060 }, // 冰藍：科技能量
+          { r: 2.12, color: 0x63e6b2, op: 0.13, pulse: 0.072 }, // 青綠：生命能量
+          { r: 2.48, color: 0x9d7cff, op: 0.082, pulse: 0.086 }, // 量子紫：未來科技能量
+          { r: 2.95, color: 0xf2c86b, op: 0.048, pulse: 0.100 }, // 神聖金：宇宙能量
         ];
         for (const d of auraDefs) {
           const m = new THREE.Mesh(
@@ -512,14 +511,15 @@ export default function VisualGravityCore() {
           }
           fAttr.needsUpdate = true;
 
-          // ✨ 優化光暈殼呼吸效果 - 平穩的呼吸節奏
+          // 五層共用同一個 24 秒氣功式呼吸：聚集 → 散發 → 回收。
+          const energyCycle = (t % 24) / 24;
+          const sharedEnergyBreath = 0.5 - 0.5 * Math.cos(energyCycle * Math.PI * 2);
           for (let i = 0; i < auraShells.length; i++) {
             const s = auraShells[i];
             const m = s.mesh.material as MeshBasicMaterial;
-            // 與主呼吸節奏協調的脈動
-            const layerBreath = 0.5 + Math.sin(t * 0.5 - i * 0.15) * 0.45;
-            m.opacity = s.baseOp * (0.7 + layerBreath * 0.3);
-            s.mesh.scale.setScalar(1 + layerBreath * 0.05);
+            const softFlow = 0.96 + Math.sin(t * 0.16 + i * 0.38) * 0.04;
+            m.opacity = s.baseOp * (0.28 + sharedEnergyBreath * 0.72) * softFlow;
+            s.mesh.scale.setScalar(0.955 + sharedEnergyBreath * (0.045 + s.pulse));
           }
           // ✨ 優化光暈呼吸效果 - 像呼吸一樣自然的收縮和膨脹
           const breathePhase = Math.sin(t * 0.5);  // 基礎呼吸節奏
