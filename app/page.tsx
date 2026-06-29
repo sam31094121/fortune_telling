@@ -110,15 +110,54 @@ function ElderChoiceCard({
     <button
       type="button"
       onClick={onClick}
-      className={`w-full rounded-2xl border px-4 py-4 text-left transition-all duration-300 neon-card-hover ${tones[tone]}`}
+      className={`w-full rounded-2xl border px-4 py-4 text-left transition-all duration-300 neon-card-hover holo-card-container relative overflow-hidden ${tones[tone]}`}
     >
-      <p className="text-lg font-bold">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]">{description}</p>
+      <div className="holo-shine" />
+      <p className="text-lg font-bold relative z-10">{title}</p>
+      <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)] relative z-10">{description}</p>
     </button>
   );
 }
 
+function NumberTicker({ value }: { value: number }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const end = value;
+    if (start === end) {
+      setCount(value);
+      return;
+    }
+
+    const duration = 1000; // 1秒
+    const startTime = performance.now();
+
+    function updateNumber(now: number) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easeProgress = progress * (2 - progress);
+      setCount(Math.floor(easeProgress * end));
+
+      if (progress < 1) {
+        requestAnimationFrame(updateNumber);
+      }
+    }
+
+    requestAnimationFrame(updateNumber);
+  }, [value]);
+
+  return <>{count}</>;
+}
+
 function ScoreRow({ label, score, tone }: { label: string; score: number; tone: 'violet' | 'amber' | 'cyan' | 'pink' }) {
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setWidth(score), 80);
+    return () => clearTimeout(timer);
+  }, [score]);
+
   const gradients = {
     violet: 'linear-gradient(90deg, #6D4AFF, #A78BFA)',
     amber: 'linear-gradient(90deg, #C9A24A, #F4C95D)',
@@ -130,10 +169,70 @@ function ScoreRow({ label, score, tone }: { label: string; score: number; tone: 
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-4">
         <span className="text-sm text-[color:var(--text-sub)]">{label}</span>
-        <span className="text-sm font-semibold text-[color:var(--text-main)]">{score}</span>
+        <span className="text-sm font-semibold text-[color:var(--text-main)]">
+          <NumberTicker value={score} />
+        </span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-white/8">
-        <div className="h-full rounded-full" style={{ width: `${score}%`, background: gradients[tone] }} />
+        <div 
+          className="h-full rounded-full transition-all duration-1000 ease-out" 
+          style={{ width: `${width}%`, background: gradients[tone] }} 
+        />
+      </div>
+    </div>
+  );
+}
+
+function AnalyticalConsole({
+  nameA,
+  nameB,
+  birthA,
+  birthB,
+}: {
+  nameA: string;
+  nameB: string;
+  birthA: string;
+  birthB: string;
+}) {
+  const [logs, setLogs] = useState<string[]>([]);
+
+  const fullLogs = useMemo(() => [
+    `[SYSTEM] 讀取「天宿」星宮：第一位 ${nameA || '本體'} (${birthA || '吉時'})`,
+    `[SYSTEM] 讀取「天宿」星宮：第二位 ${nameB || '客體'} (${birthB || '吉時'})`,
+    `[CALCULATOR] 映射「地脈」血型引力場關係矩陣... OK`,
+    `[VOICE] 聲學頻率模型提取：合成 432Hz 靈魂能量音訊共鳴... READY`,
+    `[DECRYPT] 映射「人和」緣分課題... 正在寫入 VIP 加密天宿數據艙`,
+    `[AI_STATUS] 分析完成，正在載入最終配對結果...`
+  ], [nameA, nameB, birthA, birthB]);
+
+  useEffect(() => {
+    setLogs([]);
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      if (currentIndex < fullLogs.length) {
+        setLogs((prev) => [...prev, fullLogs[currentIndex]]);
+        currentIndex++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 400);
+    return () => clearInterval(interval);
+  }, [fullLogs]);
+
+  return (
+    <div className="fortune-card p-6 sm:p-8 font-mono border border-cyan-500/20 bg-slate-950/80 shadow-[0_0_30px_rgba(34,211,238,0.08)]">
+      <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">🧬 大數據 AI 運算終端</p>
+      <div className="mt-6 space-y-3.5 text-xs sm:text-sm text-cyan-100 leading-7 min-h-[160px]">
+        {logs.map((log, index) => (
+          <p key={index} className="animate-fade-in">
+            {log}
+          </p>
+        ))}
+        {logs.length < fullLogs.length && (
+          <p className="text-cyan-400">
+            [RUNNING] 正在解密星圖矩陣...<span className="console-cursor" />
+          </p>
+        )}
       </div>
     </div>
   );
@@ -504,6 +603,14 @@ export default function HomePage() {
     <div className="app-bg min-h-screen overflow-hidden">
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
 
+      {/* 仙氣天然流星雨天幕 */}
+      <div className="shooting-stars-container">
+        <div className="shooting-star" />
+        <div className="shooting-star" />
+        <div className="shooting-star" />
+        <div className="shooting-star" />
+      </div>
+
       {unlocking && (
         <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md">
           <div className="relative flex items-center justify-center">
@@ -565,186 +672,197 @@ export default function HomePage() {
 
         {!data && (
           <div className="space-y-6">
-            <div className="fortune-card p-5 sm:p-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm tracking-[0.4em] font-semibold text-[color:var(--text-muted)]">目前進度</p>
-                  <p className="mt-3 font-serif text-3xl sm:text-4xl font-bold text-[color:var(--text-main)]">
-                    {['personA-base', 'personA-shichen'].includes(step) && '先填第一位'}
-                    {['personB-base', 'personB-shichen'].includes(step) && '再填第二位'}
-                    {step === 'review' && '確認後開始配對'}
-                  </p>
-                </div>
-                <div className="grid grid-cols-3 gap-2 sm:min-w-[120px]">
-                  <div
-                    className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
-                      ['personA-base', 'personA-shichen'].includes(step)
-                        ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
-                        : ['personB-base', 'personB-shichen', 'review'].includes(step)
-                          ? 'border-violet-400/50 bg-violet-500/12 shadow-violet-500/15'
-                          : 'border-white/20 bg-white/8'
-                    }`}
-                  >
-                    <p className="text-lg font-bold text-[color:var(--text-main)]">{['personB-base', 'personB-shichen', 'review'].includes(step) ? '✓' : '1'}</p>
-                    <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">第一位</p>
-                  </div>
-                  <div
-                    className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
-                      ['personB-base', 'personB-shichen'].includes(step)
-                        ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
-                        : step === 'review'
-                          ? 'border-violet-400/50 bg-violet-500/12 shadow-violet-500/15'
-                          : 'border-white/20 bg-white/8'
-                    }`}
-                  >
-                    <p className="text-lg font-bold text-[color:var(--text-main)]">{step === 'review' ? '✓' : '2'}</p>
-                    <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">第二位</p>
-                  </div>
-                  <div
-                    className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
-                      step === 'review'
-                        ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
-                        : 'border-white/20 bg-white/8'
-                    }`}
-                  >
-                    <p className="text-lg font-bold text-[color:var(--text-main)]">3</p>
-                    <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">確認</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {step === 'personA-base' && (
-              <PersonStep
-                title="第一位資料"
-                description="先輸入第一位的姓名、生日、血型和性別。填好後再進下一位。"
-                accent="violet"
-                value={personA}
-                onChange={setPersonA}
+            {loading ? (
+              <AnalyticalConsole
+                nameA={personA.name}
+                nameB={personB.name}
+                birthA={personA.birthDate}
+                birthB={personB.birthDate}
               />
-            )}
-
-            {step === 'personA-shichen' && (
-              <ShichenStep
-                title="第一位時辰"
-                description="如果知道出生時辰，可以讓配對分析更精細；不知道也完全沒關係。"
-                accent="violet"
-                value={personA}
-                onChange={setPersonA}
-              />
-            )}
-
-            {step === 'personB-base' && (
-              <PersonStep
-                title="第二位資料"
-                description="接著輸入第二位。欄位一樣，跟著順序填就好。"
-                accent="amber"
-                value={personB}
-                onChange={setPersonB}
-              />
-            )}
-
-            {step === 'personB-shichen' && (
-              <ShichenStep
-                title="第二位時辰"
-                description="同樣的，知道時辰更好，不知道也沒關係。"
-                accent="amber"
-                value={personB}
-                onChange={setPersonB}
-              />
-            )}
-
-            {step === 'review' && (
-              <div className="space-y-6">
-                <div className="fortune-card p-6 sm:p-8">
-                  <p className="text-xs tracking-[0.3em] text-rose-300">最後確認</p>
-                  <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">確認資料後開始配對</h2>
-                  <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
-                    名字、生日、血型都沒問題，就可以開始。這一步讓你安心確認，不怕按太快。
-                  </p>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {reviewCards.map(({ label, person, accent }) => (
-                    <div key={label} className="fortune-card p-5 sm:p-6">
-                      <p className={`inline-flex rounded-full border px-4 py-1 text-xs tracking-[0.3em] ${accent === 'violet' ? 'border-violet-400/25 bg-violet-950/20 text-violet-300' : 'border-amber-400/25 bg-amber-950/20 text-amber-300'}`}>
-                        {label}
+            ) : (
+              <>
+                <div className="fortune-card p-5 sm:p-6">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm tracking-[0.4em] font-semibold text-[color:var(--text-muted)]">目前進度</p>
+                      <p className="mt-3 font-serif text-3xl sm:text-4xl font-bold text-[color:var(--text-main)]">
+                        {['personA-base', 'personA-shichen'].includes(step) && '先填第一位'}
+                        {['personB-base', 'personB-shichen'].includes(step) && '再填第二位'}
+                        {step === 'review' && '確認後開始配對'}
                       </p>
-                      <div className="mt-5 space-y-3 text-sm text-[color:var(--text-sub)]">
-                        <div>
-                          <span className="text-[color:var(--text-muted)]">姓名：</span>
-                          <span className="text-[color:var(--text-main)]">{person.name || '未填'}</span>
-                        </div>
-                        <div>
-                          <span className="text-[color:var(--text-muted)]">西元生日：</span>
-                          <span className="text-[color:var(--text-main)]">{person.birthDate || '未換算完成'}</span>
-                        </div>
-                        <div>
-                          <span className="text-[color:var(--text-muted)]">血型：</span>
-                          <span className="text-[color:var(--text-main)]">{person.bloodType} 型</span>
-                        </div>
-                        <div>
-                          <span className="text-[color:var(--text-muted)]">性別：</span>
-                          <span className="text-[color:var(--text-main)]">{person.gender === 'female' ? '女性' : '男性'}</span>
-                        </div>
-                        <div>
-                          <span className="text-[color:var(--text-muted)]">出生時辰：</span>
-                          <span className="text-[color:var(--text-main)]">
-                            {person.shichen === 'unknown'
-                              ? '系統已配置良辰吉時'
-                              : person.shichen !== null
-                                ? (SHICHEN_LIST.find((s) => s.branchIndex === person.shichen)?.label || '未知')
-                                : '未填'}
-                          </span>
-                        </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 sm:min-w-[120px]">
+                      <div
+                        className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
+                          ['personA-base', 'personA-shichen'].includes(step)
+                            ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
+                            : ['personB-base', 'personB-shichen', 'review'].includes(step)
+                              ? 'border-violet-400/50 bg-violet-500/12 shadow-violet-500/15'
+                              : 'border-white/20 bg-white/8'
+                        }`}
+                      >
+                        <p className="text-lg font-bold text-[color:var(--text-main)]">{['personB-base', 'personB-shichen', 'review'].includes(step) ? '✓' : '1'}</p>
+                        <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">第一位</p>
+                      </div>
+                      <div
+                        className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
+                          ['personB-base', 'personB-shichen'].includes(step)
+                            ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
+                            : step === 'review'
+                              ? 'border-violet-400/50 bg-violet-500/12 shadow-violet-500/15'
+                              : 'border-white/20 bg-white/8'
+                        }`}
+                      >
+                        <p className="text-lg font-bold text-[color:var(--text-main)]">{step === 'review' ? '✓' : '2'}</p>
+                        <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">第二位</p>
+                      </div>
+                      <div
+                        className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
+                          step === 'review'
+                            ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
+                            : 'border-white/20 bg-white/8'
+                        }`}
+                      >
+                        <p className="text-lg font-bold text-[color:var(--text-main)]">3</p>
+                        <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">確認</p>
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
+
+                {step === 'personA-base' && (
+                  <PersonStep
+                    title="第一位資料"
+                    description="先輸入第一位的姓名、生日、血型和性別。填好後再進下一位。"
+                    accent="violet"
+                    value={personA}
+                    onChange={setPersonA}
+                  />
+                )}
+
+                {step === 'personA-shichen' && (
+                  <ShichenStep
+                    title="第一位時辰"
+                    description="如果知道出生時辰，可以讓配對分析更精細；不知道也完全沒關係。"
+                    accent="violet"
+                    value={personA}
+                    onChange={setPersonA}
+                  />
+                )}
+
+                {step === 'personB-base' && (
+                  <PersonStep
+                    title="第二位資料"
+                    description="接著輸入第二位。欄位一樣，跟著順序填就好。"
+                    accent="amber"
+                    value={personB}
+                    onChange={setPersonB}
+                  />
+                )}
+
+                {step === 'personB-shichen' && (
+                  <ShichenStep
+                    title="第二位時辰"
+                    description="同樣的，知道時辰更好，不知道也沒關係。"
+                    accent="amber"
+                    value={personB}
+                    onChange={setPersonB}
+                  />
+                )}
+
+                {step === 'review' && (
+                  <div className="space-y-6">
+                    <div className="fortune-card p-6 sm:p-8">
+                      <p className="text-xs tracking-[0.3em] text-rose-300">最後確認</p>
+                      <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">確認資料後開始配對</h2>
+                      <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
+                        名字、生日、血型都沒問題，就可以開始。這一步讓你安心確認，不怕按太快。
+                      </p>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {reviewCards.map(({ label, person, accent }) => (
+                        <div key={label} className="fortune-card p-5 sm:p-6">
+                          <p className={`inline-flex rounded-full border px-4 py-1 text-xs tracking-[0.3em] ${accent === 'violet' ? 'border-violet-400/25 bg-violet-950/20 text-violet-300' : 'border-amber-400/25 bg-amber-950/20 text-amber-300'}`}>
+                            {label}
+                          </p>
+                          <div className="mt-5 space-y-3 text-sm text-[color:var(--text-sub)]">
+                            <div>
+                              <span className="text-[color:var(--text-muted)]">姓名：</span>
+                              <span className="text-[color:var(--text-main)]">{person.name || '未填'}</span>
+                            </div>
+                            <div>
+                              <span className="text-[color:var(--text-muted)]">西元生日：</span>
+                              <span className="text-[color:var(--text-main)]">{person.birthDate || '未換算完成'}</span>
+                            </div>
+                            <div>
+                              <span className="text-[color:var(--text-muted)]">血型：</span>
+                              <span className="text-[color:var(--text-main)]">{person.bloodType} 型</span>
+                            </div>
+                            <div>
+                              <span className="text-[color:var(--text-muted)]">性別：</span>
+                              <span className="text-[color:var(--text-main)]">{person.gender === 'female' ? '女性' : '男性'}</span>
+                            </div>
+                            <div>
+                              <span className="text-[color:var(--text-muted)]">出生時辰：</span>
+                              <span className="text-[color:var(--text-main)]">
+                                {person.shichen === 'unknown'
+                                  ? '系統已配置良辰吉時'
+                                  : person.shichen !== null
+                                    ? (SHICHEN_LIST.find((s) => s.branchIndex === person.shichen)?.label || '未知')
+                                    : '未填'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="rounded-2xl border border-rose-400/20 bg-rose-950/20 p-4 text-sm text-rose-300">
+                    {error}
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  {step !== 'personA-base' && (
+                    <button
+                      type="button"
+                      onClick={goBack}
+                      disabled={loading}
+                      className="rounded-full border border-white/10 bg-white/5 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      上一步
+                    </button>
+                  )}
+
+                  {step !== 'review' ? (
+                    <button
+                      type="button"
+                      onClick={goNext}
+                      disabled={loading}
+                      className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {step === 'personA-base' && '下一步：選擇時辰'}
+                      {step === 'personA-shichen' && '下一步：填第二位'}
+                      {step === 'personB-base' && '下一步：選擇時辰'}
+                      {step === 'personB-shichen' && '下一步：確認資料'}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleSubmit}
+                      disabled={!reviewReady || loading}
+                      className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      {loading ? '正在整理配對結果…' : '查看配對結果'}
+                    </button>
+                  )}
+                </div>
+              </>
             )}
-
-            {error && (
-              <div className="rounded-2xl border border-rose-400/20 bg-rose-950/20 p-4 text-sm text-rose-300">
-                {error}
-              </div>
-            )}
-
-            <div className="flex flex-col gap-3 sm:flex-row">
-              {step !== 'personA-base' && (
-                <button
-                  type="button"
-                  onClick={goBack}
-                  disabled={loading}
-                  className="rounded-full border border-white/10 bg-white/5 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  上一步
-                </button>
-              )}
-
-              {step !== 'review' ? (
-                <button
-                  type="button"
-                  onClick={goNext}
-                  disabled={loading}
-                  className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {step === 'personA-base' && '下一步：選擇時辰'}
-                  {step === 'personA-shichen' && '下一步：填第二位'}
-                  {step === 'personB-base' && '下一步：選擇時辰'}
-                  {step === 'personB-shichen' && '下一步：確認資料'}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={!reviewReady || loading}
-                  className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  {loading ? '正在整理配對結果…' : '查看配對結果'}
-                </button>
-              )}
-            </div>
           </div>
         )}
 
@@ -754,7 +872,9 @@ export default function HomePage() {
               <p className={`text-xs uppercase tracking-[0.35em] ${isUnlocked ? 'text-amber-300 font-semibold' : 'text-rose-300 font-medium'}`}>
                 {isUnlocked ? '👑 尊榮 VIP 天宿配對報告' : '配對結果'}
               </p>
-              <h2 className={`mt-3 font-serif text-5xl ${isUnlocked ? 'vip-glow-text font-black' : 'text-[color:var(--text-main)]'}`}>{data.result.match_score}</h2>
+              <h2 className={`mt-3 font-serif text-5xl ${isUnlocked ? 'vip-glow-text font-black' : 'text-[color:var(--text-main)]'}`}>
+                <NumberTicker value={data.result.match_score} />
+              </h2>
               <p className="mt-2 text-sm text-[color:var(--text-sub)]">相處共鳴指數</p>
               <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">{data.result.summary}</p>
             </div>
