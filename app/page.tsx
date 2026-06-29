@@ -947,6 +947,14 @@ export default function HomePage() {
                     <p className="mx-auto mt-4 max-w-lg text-sm leading-8 text-[color:var(--text-sub)]">
                       包含雙方前世今生的緣分故事、今生修煉避坑建議，以及專屬生成的靈魂頻譜共振主題曲。
                     </p>
+
+                    <div className="mt-8 border-t border-amber-500/15 pt-6 text-left max-w-xl mx-auto space-y-3.5">
+                      <p className="text-xs uppercase tracking-[0.25em] text-amber-300 font-semibold font-mono">🧬 釋義：天地人因果天宿密碼</p>
+                      <blockquote className="border-l border-amber-500/40 pl-4 text-xs italic text-[color:var(--text-sub)] leading-7">
+                        「人一出生，天宿天命便與天地人三才緊密相連。大樹落葉，落葉歸根，這是命運的因果軌道。然而『菩提本無樹，明鏡亦非台，本來無一物，何處惹塵埃』。世人之所以在紅塵關係中受盡折磨，是因為凡夫俗子執著於色相與得失，陷入『人有色無空』的執念。<br/><br/>
+                        天宿命運有軌跡，但命運絕對可以改變。改命的重中之重，在於『自己有沒有真正改過自新、廣結善緣、學會放下』。以善為本，順天而行則合；執迷不悟，逆天而行則亡。」
+                      </blockquote>
+                    </div>
                   </div>
                   <div className="pt-4">
                     <button
@@ -1029,6 +1037,26 @@ export default function HomePage() {
                 <div className="fortune-card vip-gold-card p-6 sm:p-8 border-emerald-400/30">
                   <p className="text-xs uppercase tracking-[0.35em] text-emerald-300 font-semibold">善念結語</p>
                   <p className="mt-4 whitespace-pre-wrap italic text-sm leading-8 text-[color:var(--text-sub)]">{data.karma_story.closing_wisdom}</p>
+                </div>
+
+                {/* 順天改命官方修行指引板塊 */}
+                <div className="fortune-card vip-gold-card p-6 sm:p-8 border border-amber-500/30 bg-gradient-to-br from-slate-950 via-slate-950 to-amber-950/20 shadow-[0_0_30px_rgba(201,162,74,0.15)] relative overflow-hidden">
+                  <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none translate-x-4 translate-y-4">
+                    <span className="text-8xl">☯️</span>
+                  </div>
+                  <p className="text-xs uppercase tracking-[0.35em] text-amber-300 font-semibold font-mono">☯️ 順天改命 · 天宿法門</p>
+                  <h3 className="mt-3 font-serif text-xl font-bold text-white">改命在於改心，行善方能順天</h3>
+                  <div className="mt-4 text-sm leading-8 text-[color:var(--text-sub)] space-y-4">
+                    <p>
+                      天宿因果有軌，如大樹落葉必將歸根；但人心無界，一念動則乾坤變。修行之要，不在於逃避業力，而在於「以善為本，順天而行」。
+                    </p>
+                    <p>
+                      「菩提本無樹，明鏡亦非台。」關係中的糾纏與痛楚，皆因心有色相、執迷不悟（人有色無空）。當你真正看透這層幻象，學會放下對他人的控制與索求，回歸「善」的本心，這段關係的因果便已在默默中改寫。
+                    </p>
+                    <p className="font-semibold text-amber-300">
+                      順天者昌，逆天者亡。改命的重中之重，永遠在於你今天是否願意跨出「改過自新、廣結善緣、放下執念」的第一步。
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
