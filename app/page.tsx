@@ -56,6 +56,27 @@ interface MatchResponse {
   displayA: PersonDisplay;
   displayB: PersonDisplay;
   karma_story?: KarmaStory;
+  karmaRelation?: {
+    nameHarmony: number;
+    birthdayAlignment: number;
+    bloodTypeCompatibility: number;
+    wuxingAlignment: number;
+    zodiacHarmony: number;
+    shichenBalance: number;
+    personalityResonance: number;
+    personalityComplementarity: number;
+    personalityConflict: number;
+    overallResonance: number;
+    activePerson: 'A' | 'B' | 'equal';
+    needsUnderstanding: 'A' | 'B' | 'mutual';
+    painPoint: string;
+    painPointIntensity: number;
+    deepPain: string;
+    harshTruth: string;
+    warmthFactor: string;
+    emotionalArc: string;
+    storyTwist: string;
+  };
 }
 
 type StepKey = 'personA-base' | 'personA-shichen' | 'personB-base' | 'personB-shichen' | 'review';
@@ -407,7 +428,121 @@ export default function HomePage() {
   const [data, setData] = useState<MatchResponse | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
+  const [isDemoRunning, setIsDemoRunning] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
+
+  // 一鍵自動對齊天宿配對演示
+  const startAutoDemo = async () => {
+    if (isDemoRunning || loading) return;
+    setIsDemoRunning(true);
+    resetAll();
+
+    // 1. 填入第一位資料
+    setPersonA({
+      name: '天宿乾坤',
+      birthDate: '1998-05-20',
+      bloodType: 'A',
+      gender: 'male',
+      shichen: null
+    });
+    setStep('personA-base');
+
+    await new Promise(r => setTimeout(r, 700));
+    setStep('personA-shichen');
+
+    await new Promise(r => setTimeout(r, 700));
+    // 2. 填入第一位時辰
+    setPersonA(prev => ({ ...prev, shichen: 2 })); // 丑時
+    setStep('personB-base');
+
+    // 3. 填入第二位資料
+    setPersonB({
+      name: '地脈坤艮',
+      birthDate: '2000-11-15',
+      bloodType: 'O',
+      gender: 'female',
+      shichen: null
+    });
+    
+    await new Promise(r => setTimeout(r, 700));
+    setStep('personB-shichen');
+
+    await new Promise(r => setTimeout(r, 700));
+    // 4. 填入第二位時辰
+    setPersonB(prev => ({ ...prev, shichen: 9 })); // 申時
+    setStep('review');
+
+    await new Promise(r => setTimeout(r, 1200));
+
+    // 5. 模擬提交
+    setError('');
+    setData(null);
+    setLoading(true);
+    
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 20_000);
+    
+    const demoA = { name: '天宿乾坤', birthDate: '1998-05-20', bloodType: 'A' as const, gender: 'male' as const, shichen: 2 };
+    const demoB = { name: '地脈坤艮', birthDate: '2000-11-15', bloodType: 'O' as const, gender: 'female' as const, shichen: 9 };
+    
+    try {
+      const response = await fetch('/api/match-generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({ personA: demoA, personB: demoB }),
+      });
+      
+      const json = await response.json();
+      if (json.error) {
+        setError(json.error);
+        setLoading(false);
+        setIsDemoRunning(false);
+        return;
+      }
+      
+      setData(json);
+      setLoading(false);
+
+      // 展示大數據分析結果，等候 2 秒後自動觸發 VIP 解鎖
+      await new Promise(r => setTimeout(r, 2000));
+
+      // 6. 自動觸發 VIP 解鎖充能
+      setUnlocking(true);
+      await new Promise(r => setTimeout(r, 2800));
+      setUnlocking(false);
+      setIsUnlocked(true);
+
+      // 7. 背景觸發 API 生成前世故事
+      try {
+        const karmaResponse = await fetch('/api/karma-story-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          body: JSON.stringify({
+            personA: demoA,
+            personB: demoB,
+            matchResult: json.result,
+          }),
+        });
+
+        if (karmaResponse.ok) {
+          const karmaData = await karmaResponse.json();
+          if (karmaData.karma_story) {
+            setData(prev => (prev ? { ...prev, karma_story: karmaData.karma_story } : null));
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    } catch (e) {
+      setError('演示分析發生異常，請重試。');
+    } finally {
+      window.clearTimeout(timeout);
+      setLoading(false);
+      setIsDemoRunning(false);
+    }
+  };
 
   function handleUnlockVIP() {
     setUnlocking(true);
@@ -417,13 +552,13 @@ export default function HomePage() {
     }, 2800);
   }
 
-  // 監聽步驟切換與結果生成，自動平滑定位，避免螢幕異常跳動與跑版
+  // 監聽步驟切換、結果生成、解鎖與錯誤狀態，自動平滑定位，避免螢幕異常跳動與跑版
   useEffect(() => {
     const timer = setTimeout(() => {
       mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
     return () => clearTimeout(timer);
-  }, [step, !!data]);
+  }, [step, !!data, unlocking, isUnlocked, error]);
 
   // 使用 useDeferredValue 防止表單輸入影響 3D 動畫
   const deferredPersonA = useDeferredValue(personA);
@@ -681,6 +816,16 @@ export default function HomePage() {
               />
             ) : (
               <>
+                <div className="flex justify-end mb-4">
+                  <button
+                    type="button"
+                    onClick={startAutoDemo}
+                    disabled={isDemoRunning}
+                    className="holo-shine vip-gold-btn px-6 py-3 text-xs font-bold tracking-widest uppercase shadow-[0_0_20px_rgba(201,162,74,0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isDemoRunning ? '🔮 天宿配對演示自動運行中…' : '🔮 一鍵自動跑完全流程 (Auto-Demo)'}
+                  </button>
+                </div>
                 <div className="fortune-card p-5 sm:p-6">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -817,6 +962,20 @@ export default function HomePage() {
                         </div>
                       ))}
                     </div>
+
+                    {/* 天命因果穩定性與天宿就緒檢測 */}
+                    <div className="fortune-card p-5 sm:p-6 border border-violet-500/20 bg-violet-950/10 shadow-[0_0_20px_rgba(139,92,246,0.05)] animate-pulse">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-3 w-3 relative">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-violet-500"></span>
+                        </span>
+                        <p className="text-xs uppercase tracking-[0.25em] text-violet-300 font-semibold font-mono">🧬 天宿重力場穩定度檢測：就緒 (READY)</p>
+                      </div>
+                      <p className="mt-3 text-xs leading-6 text-[color:var(--text-sub)]">
+                        系統已成功在底層聯結天宿、地脈、人和因果矩陣。雙方姓名五格與八字五行軌跡已安全掛載。按下「查看配對結果」將自動解密天命因果關係與共鳴分數。
+                      </p>
+                    </div>
                   </div>
                 )}
 
@@ -881,11 +1040,12 @@ export default function HomePage() {
 
             <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
               <div className={`fortune-card p-6 sm:p-8 transition-all duration-500 ${isUnlocked ? 'vip-gold-card' : ''}`}>
-                <p className={`mb-6 text-xs uppercase tracking-[0.35em] ${isUnlocked ? 'text-amber-300 font-semibold' : 'text-[color:var(--text-muted)]'}`}>四項核心指標</p>
+                <p className={`mb-6 text-xs uppercase tracking-[0.35em] ${isUnlocked ? 'text-amber-300 font-semibold' : 'text-[color:var(--text-muted)]'}`}>五項核心指標</p>
                 <div className="space-y-5">
                   <ScoreRow label="共鳴感" score={data.result.resonance} tone="violet" />
                   <ScoreRow label="溝通感" score={data.result.communication} tone="cyan" />
                   <ScoreRow label="穩定度" score={data.result.stability} tone="amber" />
+                  <ScoreRow label="因果關係" score={data.karmaRelation?.overallResonance ?? 50} tone="violet" />
                   <ScoreRow label="衝突風險" score={data.result.conflict_risk} tone="pink" />
                 </div>
               </div>
@@ -909,6 +1069,71 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+
+            {/* 天宿地脈人和·因果重力軌道分析板塊 */}
+            {data.karmaRelation && (
+              <div className={`fortune-card p-6 sm:p-8 transition-all duration-500 relative overflow-hidden ${isUnlocked ? 'vip-gold-card shadow-[0_0_35px_rgba(201,162,74,0.15)]' : 'border-amber-500/10'}`}>
+                <div className="absolute right-0 bottom-0 opacity-[0.06] pointer-events-none translate-x-6 translate-y-6">
+                  <svg
+                    className="w-64 h-64 text-violet-400"
+                    style={{ animation: 'spin 80s linear infinite' }}
+                    viewBox="0 0 100 100"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <defs>
+                      <linearGradient id="taijiGradViolet" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="currentColor" stopOpacity="0.8" />
+                        <stop offset="50%" stopColor="currentColor" stopOpacity="0.35" />
+                        <stop offset="100%" stopColor="currentColor" stopOpacity="0.9" />
+                      </linearGradient>
+                      <filter id="taijiGlowViolet" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="1.2" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                      </filter>
+                    </defs>
+
+                    {/* 外圈多重精細星軌 */}
+                    <circle cx="50" cy="50" r="48" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1,2" opacity="0.3" fill="none" />
+                    <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="0.75" strokeDasharray="4,4" opacity="0.5" fill="none" />
+                    <circle cx="50" cy="50" r="41" stroke="currentColor" strokeWidth="0.25" opacity="0.4" fill="none" />
+                    <circle cx="50" cy="50" r="38" stroke="currentColor" strokeWidth="0.5" strokeDasharray="8,2" opacity="0.3" fill="none" />
+
+                    {/* 八卦文字卦象 */}
+                    <g fontSize="4.5" fill="currentColor" opacity="0.7" fontFamily="monospace" filter="url(#taijiGlowViolet)">
+                      <text x="50" y="10" textAnchor="middle">☰</text>
+                      <text x="78" y="22" textAnchor="middle" transform="rotate(45, 78, 22)">☴</text>
+                      <text x="90" y="50" textAnchor="middle" transform="rotate(90, 90, 50)">☲</text>
+                      <text x="78" y="78" textAnchor="middle" transform="rotate(135, 78, 78)">☳</text>
+                      <text x="50" y="90" textAnchor="middle" transform="rotate(180, 50, 90)">☷</text>
+                      <text x="22" y="78" textAnchor="middle" transform="rotate(225, 22, 78)">☱</text>
+                      <text x="10" y="50" textAnchor="middle" transform="rotate(270, 10, 50)">☵</text>
+                      <text x="22" y="22" textAnchor="middle" transform="rotate(315, 22, 22)">☶</text>
+                    </g>
+
+                    {/* 太極本體 */}
+                    <g filter="url(#taijiGlowViolet)">
+                      <path
+                        d="M 50 16 A 34 34 0 0 1 50 84 A 17 17 0 0 1 50 50 A 17 17 0 0 0 50 16 Z"
+                        fill="url(#taijiGradViolet)"
+                        stroke="none"
+                      />
+                      <circle cx="50" cy="33" r="4" fill="#020617" stroke="none" />
+                      <circle cx="50" cy="67" r="4" fill="currentColor" stroke="none" opacity="0.9" />
+                    </g>
+                  </svg>
+                </div>
+                <p className={`text-xs uppercase tracking-[0.35em] ${isUnlocked ? 'text-amber-300 font-semibold' : 'text-rose-300 font-medium'}`}>🔮 天宿地脈人和 · 因果重力軌道</p>
+                <h3 className="mt-3 font-serif text-xl font-bold text-white">三才業力磁場引力</h3>
+                <div className="mt-6 grid gap-6 md:grid-cols-3">
+                  <ScoreRow label="🌌 天宿相引力 (生肖星曜月令)" score={data.karmaRelation.zodiacHarmony} tone="violet" />
+                  <ScoreRow label="⛰️ 地脈相融力 (血型五行喜忌)" score={data.karmaRelation.wuxingAlignment} tone="cyan" />
+                  <ScoreRow label="🧬 人和相應力 (姓名人格執念)" score={data.karmaRelation.nameHarmony} tone="amber" />
+                </div>
+                <p className="mt-6 text-xs leading-6 text-[color:var(--text-muted)] italic border-t border-white/5 pt-4">
+                  * 此項因果軌道結合了你的九宮姓名筆劃格局（人和）、生辰八字喜忌（天宿）與血型氣場引力（地脈）。「人一出生便與天地人緊密相連，修行在於以善為本、改心改命，一切順天而行。」
+                </p>
+              </div>
+            )}
 
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {[
@@ -965,6 +1190,26 @@ export default function HomePage() {
                       ✨ 一鍵對齊星宿解鎖 VIP 報告
                     </button>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* 解鎖中或已解鎖但 AI 前世故事尚未返回時，展示高科技因果解密骨架屏 */}
+            {isUnlocked && !data.karma_story && (
+              <div className="fortune-card vip-gold-card p-6 sm:p-8 text-center border border-amber-500/20 shadow-[0_0_30px_rgba(201,162,74,0.12)] space-y-6 animate-pulse">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/10 text-2xl border border-amber-500/30 animate-spin">
+                  ⏳
+                </div>
+                <div>
+                  <h3 className="font-serif text-xl font-bold text-amber-300">天宿星宮業力因果解密中…</h3>
+                  <p className="mt-3 text-xs leading-6 text-[color:var(--text-sub)]">
+                    系統正在為雙方聯結姓名五格、生辰八字天干地支與血型引力場。這段前世今生的宿因可能需要稍長的時間，Gemini AI 正在為你解鎖靈魂密碼，請稍候。
+                  </p>
+                </div>
+                <div className="space-y-3 pt-2 max-w-sm mx-auto">
+                  <div className="h-3.5 bg-white/5 rounded-full w-4/5 mx-auto" />
+                  <div className="h-3.5 bg-white/5 rounded-full w-11/12 mx-auto" />
+                  <div className="h-3.5 bg-white/5 rounded-full w-2/3 mx-auto" />
                 </div>
               </div>
             )}
@@ -1041,8 +1286,54 @@ export default function HomePage() {
 
                 {/* 順天改命官方修行指引板塊 */}
                 <div className="fortune-card vip-gold-card p-6 sm:p-8 border border-amber-500/30 bg-gradient-to-br from-slate-950 via-slate-950 to-amber-950/20 shadow-[0_0_30px_rgba(201,162,74,0.15)] relative overflow-hidden">
-                  <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none translate-x-4 translate-y-4">
-                    <span className="text-8xl">☯️</span>
+                  <div className="absolute right-0 bottom-0 opacity-[0.12] pointer-events-none translate-x-6 translate-y-6">
+                    <svg
+                      className="w-64 h-64 text-amber-500"
+                      style={{ animation: 'spin 80s linear infinite' }}
+                      viewBox="0 0 100 100"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <defs>
+                        <linearGradient id="taijiGradGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="currentColor" stopOpacity="0.8" />
+                          <stop offset="50%" stopColor="currentColor" stopOpacity="0.35" />
+                          <stop offset="100%" stopColor="currentColor" stopOpacity="0.9" />
+                        </linearGradient>
+                        <filter id="taijiGlowGold" x="-20%" y="-20%" width="140%" height="140%">
+                          <feGaussianBlur stdDeviation="1.2" result="blur" />
+                          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                      </defs>
+
+                      {/* 外圈多重精細星軌 */}
+                      <circle cx="50" cy="50" r="48" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1,2" opacity="0.3" fill="none" />
+                      <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="0.75" strokeDasharray="4,4" opacity="0.5" fill="none" />
+                      <circle cx="50" cy="50" r="41" stroke="currentColor" strokeWidth="0.25" opacity="0.4" fill="none" />
+                      <circle cx="50" cy="50" r="38" stroke="currentColor" strokeWidth="0.5" strokeDasharray="8,2" opacity="0.3" fill="none" />
+
+                      {/* 八卦文字卦象 */}
+                      <g fontSize="4.5" fill="currentColor" opacity="0.7" fontFamily="monospace" filter="url(#taijiGlowGold)">
+                        <text x="50" y="10" textAnchor="middle">☰</text>
+                        <text x="78" y="22" textAnchor="middle" transform="rotate(45, 78, 22)">☴</text>
+                        <text x="90" y="50" textAnchor="middle" transform="rotate(90, 90, 50)">☲</text>
+                        <text x="78" y="78" textAnchor="middle" transform="rotate(135, 78, 78)">☳</text>
+                        <text x="50" y="90" textAnchor="middle" transform="rotate(180, 50, 90)">☷</text>
+                        <text x="22" y="78" textAnchor="middle" transform="rotate(225, 22, 78)">☱</text>
+                        <text x="10" y="50" textAnchor="middle" transform="rotate(270, 10, 50)">☵</text>
+                        <text x="22" y="22" textAnchor="middle" transform="rotate(315, 22, 22)">☶</text>
+                      </g>
+
+                      {/* 太極本體 */}
+                      <g filter="url(#taijiGlowGold)">
+                        <path
+                          d="M 50 16 A 34 34 0 0 1 50 84 A 17 17 0 0 1 50 50 A 17 17 0 0 0 50 16 Z"
+                          fill="url(#taijiGradGold)"
+                          stroke="none"
+                        />
+                        <circle cx="50" cy="33" r="4" fill="#020617" stroke="none" />
+                        <circle cx="50" cy="67" r="4" fill="currentColor" stroke="none" opacity="0.9" />
+                      </g>
+                    </svg>
                   </div>
                   <p className="text-xs uppercase tracking-[0.35em] text-amber-300 font-semibold font-mono">☯️ 順天改命 · 天宿法門</p>
                   <h3 className="mt-3 font-serif text-xl font-bold text-white">改命在於改心，行善方能順天</h3>

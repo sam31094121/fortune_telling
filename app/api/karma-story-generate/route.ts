@@ -259,6 +259,19 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
   "closing_wisdom": "（150-200字，最後的心靈撫慰。不要安慰，要啟蒙。讀者應該在讀完這句話時，眼眶濕潤但眼神堅定。比如『有些傷，是愛過的證明。而選擇去理解那份傷，就是在改寫因果。不是時間治癒一切，而是愛的願意，讓所有的傷都變成了永恆的記號』。要讓讀者感到——被看見、被理解、被允許去傷、被邀請去成長。）"
 }`;
 
+function getFallbackKarmaStory(body: KarmaRequest): KarmaStory {
+  const score = body.matchResult?.match_score ?? 60;
+  return {
+    resonance_score: score,
+    active_giver: body.personA.name,
+    needs_understanding: body.personB.name,
+    relationship_theme: `天宿因果課題：在紅塵執念與靈魂改心中尋求順天之軌。`,
+    story: `在宿世天命的交錯中，${body.personA.name} 與 ${body.personB.name} 的相遇絕非偶然。這是一段註定要在「${score}%」重力場中反覆淬煉的緣分。大樹落葉，落葉歸根，前世的執念如今化為今生相處的拉扯。雙方最深處的摩擦正無聲地考驗著彼此的修行。人之所以受折磨，是因為凡夫俗子執著於色相與得失（人有色無空，執念難消）。只有看透「菩提本無樹，明鏡亦非台，本來無一物，何處惹塵埃」的空靈奧義，學會放下對彼此的索求，方能突破宿世的困局。`,
+    today_advice: `修行的重中之重在於改命，而改命的唯一法門是「自己有沒有真正改心、廣結善緣」。不要一味在控制與冷暴力中指責對方，而是要學會放下心中的執著與不甘。以善為本，順天而行，這段關係的因果便已在默默中改寫。`,
+    closing_wisdom: `順天而行，以善為道則合、則生；執迷不悟，逆天而行則離、則亡。當你願意跨出改心與放下的第一步，宿世的因果密碼便已為你悄然啟封。`
+  };
+}
+
   try {
     const genai = new GoogleGenAI({ apiKey });
     const response = await Promise.race([
@@ -277,16 +290,20 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
       throw new Error('Empty response from Gemini');
     }
 
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('No JSON found in response');
+    try {
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in response');
+      }
+      const result = JSON.parse(jsonMatch[0]) as KarmaStory;
+      return result;
+    } catch (parseError) {
+      console.warn('[karma-story] JSON parse failed, triggering fallback parser:', parseError);
+      return getFallbackKarmaStory(request);
     }
-
-    const result = JSON.parse(jsonMatch[0]) as KarmaStory;
-    return result;
   } catch (error) {
-    console.error('[karma-story] AI generation failed:', error);
-    throw error;
+    console.error('[karma-story] AI generation failed, triggering fallback story:', error);
+    return getFallbackKarmaStory(request);
   }
 }
 

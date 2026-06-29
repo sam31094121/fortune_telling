@@ -6,6 +6,7 @@ import { PersonalityMatrixEngine } from '@/lib/personality-matrix-engine';
 import { computeDestinyProfile } from '@/lib/destiny-engine';
 import { getZodiacEnglishName, getZodiacSign } from '@/lib/zodiac';
 import { isValidBirthday } from '@/lib/validation';
+import { computeRelationshipMatrix } from '@/lib/relationship-matrix-engine';
 
 export const dynamic = 'force-dynamic';
 
@@ -180,10 +181,29 @@ export async function POST(request: Request) {
     const aiSummary = await enhanceSummaryWithAI(result.summary, result, displayA, displayB);
     const finalSummary = isConsistentAiSummary(aiSummary, result) ? aiSummary : result.summary;
 
+    // 計算天地人因果三才軌道數據
+    const karmaRelation = computeRelationshipMatrix(
+      {
+        name: body.personA.name,
+        birthDate: body.personA.birthDate,
+        bloodType: body.personA.bloodType,
+        gender: body.personA.gender,
+        shichen: null,
+      },
+      {
+        name: body.personB.name,
+        birthDate: body.personB.birthDate,
+        bloodType: body.personB.bloodType,
+        gender: body.personB.gender,
+        shichen: null,
+      }
+    );
+
     return NextResponse.json({
       result: { ...result, summary: finalSummary },
       displayA,
       displayB,
+      karmaRelation,
     });
   } catch (error) {
     console.error('[match-generate] request failed', error);
