@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { computeCompatibility, type PersonProfile, type PersonalityMatrixCompat } from '@/lib/compatibility-engine';
 import { isConsistentAiSummary, stabilizeMatchResult } from '@/lib/match-stability';
@@ -104,16 +104,15 @@ async function enhanceSummaryWithAI(
   if (!apiKey) return summary;
 
   const prompt = `
-你是「天地人配對系統」的高級配對顧問。
-請根據以下資料，把原始配對摘要改寫成更自然、穩定、彼此不矛盾的繁體中文版本。
+你是「天地人配對系統」的玄學合盤大師。
+請根據以下大數據資料，把原始配對摘要改寫成更具穿透力、起落分明、一針見血的繁體中文分析。
 
 規則：
-1. 只做補充與整理，不可推翻原始結論。
-2. 語氣要高級、溫和、像命理顧問，不要浮誇。
+1. 只做補充與整理，不可推翻原始結論與分數方向。
+2. 語氣要高級、精準、高冷且字字扎心，直面雙方的合盤關卡，同時給予核心建議（激勵），拒絕平淡溫和的無用客套。
 3. 內容保持 120 字內。
 4. 不要輸出分點，只輸出一段文字。
-5. 如果衝突風險偏高，不可寫成完美契合或幾乎沒有問題。
-6. 只能順著分數解讀，不可與分數方向相反。
+5. 必須順著分數解讀，並融入姓名格局與星曜喜忌的穿透力。
 
 第一位：${displayA.name}，${displayA.zodiacZh}，${displayA.chineseZodiac}，${displayA.wuxing}，血型 ${displayA.bloodType}
 第二位：${displayB.name}，${displayB.zodiacZh}，${displayB.chineseZodiac}，${displayB.wuxing}，血型 ${displayB.bloodType}

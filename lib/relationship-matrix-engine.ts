@@ -91,12 +91,39 @@ function getChineseZodiac(birthDate: string): string {
   return zodiacs[(year - 1900) % 12];
 }
 
+function getCharStrokes(char: string): number {
+  const code = char.charCodeAt(0);
+  // 用一個確定的雜湊對應出分佈均勻的 2 到 25 之間的數值作為中文字筆劃數
+  return ((code * 17 + 3) % 24) + 2;
+}
+
+function getDeterministicHash(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0; // 轉換為 32 位元整數
+  }
+  return Math.abs(hash);
+}
+
 function calculateNameHarmony(nameA: string, nameB: string): number {
-  // 簡化版：名字筆畫相合度
-  const strokeA = Array.from(nameA).reduce((sum) => sum + 1, 0) * 10 % 81;
-  const strokeB = Array.from(nameB).reduce((sum) => sum + 1, 0) * 10 % 81;
-  const diff = Math.abs(strokeA - strokeB);
-  return Math.max(0, 100 - diff);
+  const strokesA = Array.from(nameA).map(getCharStrokes);
+  const strokesB = Array.from(nameB).map(getCharStrokes);
+
+  // 姓名學總格（所有字筆畫相加）
+  const totalA = strokesA.reduce((sum, val) => sum + val, 0);
+  const totalB = strokesB.reduce((sum, val) => sum + val, 0);
+
+  // 姓名學人格（姓氏最後一字 + 名字第一字）
+  const renA = (strokesA[0] ?? 0) + (strokesA[1] ?? 0);
+  const renB = (strokesB[0] ?? 0) + (strokesB[1] ?? 0);
+
+  const diffRen = Math.abs(renA - renB);
+  const diffTotal = Math.abs(totalA - totalB);
+
+  // 計算一個高靈敏度、不易出現滿分的姓名相合分數
+  return Math.max(35, 100 - (diffRen * 3.5 + diffTotal * 1.5));
 }
 
 function calculateBirthdayAlignment(dateA: string, dateB: string): number {
@@ -181,8 +208,21 @@ export function computeRelationshipMatrix(personA: PersonData, personB: PersonDa
   // 計算人格衝突度
   const personalityConflict = 100 - personalityResonance;
 
-  // 綜合計算總體共鳴度
-  const overallResonance = Math.round(
+  // 大數據唯一金鑰指紋雜湊，確保世界上沒有任何兩對伴侶的數據與話術完全相同
+  const relationKey = personA.name + personB.name + personA.birthDate + personB.birthDate + personA.bloodType + personB.bloodType + String(personA.shichen) + String(personB.shichen);
+  const seed = getDeterministicHash(relationKey);
+
+  // 各核心指標隨機波動 (Deterministic Jitter)
+  const jitterOverall = ((seed % 31) - 15);      // -15 ~ 15
+  const jitterResonance = (((seed >> 2) % 31) - 15);
+  const jitterWuxing = (((seed >> 4) % 25) - 12);
+  const jitterName = (((seed >> 6) % 25) - 12);
+  const jitterZodiac = (((seed >> 8) % 25) - 12);
+  const jitterShichen = (((seed >> 10) % 25) - 12);
+  const jitterConflictRisk = (((seed >> 12) % 31) - 15);
+
+  // 綜合計算總體共鳴度 (加入 Jitter 後限制邊界)
+  let rawResonance = Math.round(
     (nameHarmony * 0.1 +
       birthdayAlignment * 0.1 +
       bloodTypeCompatibility * 0.15 +
@@ -193,6 +233,7 @@ export function computeRelationshipMatrix(personA: PersonData, personB: PersonDa
       shichenBalance * 0.1) /
       0.8
   );
+  const overallResonance = Math.max(32, Math.min(99, rawResonance + jitterOverall));
 
   // 判斷誰比較主動付出（基於性格矩陣）
   const activeScore = (matrixA['dominance'] ?? 50) - (matrixB['dominance'] ?? 50);
@@ -262,17 +303,37 @@ export function computeRelationshipMatrix(personA: PersonData, personB: PersonDa
     (50 - Math.abs(activeScore)) // 互動差異越大越有故事張力
   ) / 3;
 
-  // 判斷靈魂痛點 — 故事的關鍵轉折點
-  let painPoint = '被看見的渴望';
-  if (personalityConflict > 60) {
-    painPoint = '理解與被理解的困難';
-  } else if (personalityResonance > 85) {
-    painPoint = '親密中保持自我';
-  } else if (activePerson !== 'equal') {
-    painPoint = activePerson === 'A'
-      ? '付出者的無言犧牲'
-      : '被保護者的自我懷疑';
-  }
+  // 3. 根據合盤基因 seed 動態多路選擇直擊痛點、具有強烈殺傷力與戲劇起伏的文案
+  const painPoints = [
+    '被看見與承認的潛意識渴望',
+    '控制與掙脫的邊界撕扯課題',
+    '信任崩塌後的防禦性自我冷漠',
+    '無聲付出與被視為理所當然的絕望感',
+    '靈魂相近卻因日常失焦的無聲撕裂',
+    '在親密包圍中喪失自我的宿命恐懼',
+    '被伴侶無意忽視的慢性靈魂窒息',
+    '期待落空後築起的防禦性心靈防線'
+  ];
+
+  const deepPains = [
+    `你在這段關係中習慣了默默吞下委屈，卻在某個無意間的冰冷細節裡發現——對方其實從未試圖真正看懂你的敏感。那一刻的荒涼，比任何激烈的爭吵都更具殺傷力。`,
+    `最深的刺痛，是看著眼前最親密的伴侶，卻感到相顧無言的絕望。你們曾經一見如故，如今卻在同一個屋簷下默默築起各自防禦的冰冷城牆。`,
+    `你傾其所有的無悔付出，最終成了對方予取予求的安全感。而當你展露出絲毫的疲憊時，得到的不是心疼，而是對方的冷眼與不解。`,
+    `每一次試圖溝通，最終都演變成情緒的宣洩與對人性的懷疑。最扎心的真相是——你們都在用「最愛對方」的藉口，精準地往對方最痛的傷口上灑鹽。`,
+    `你總是在期待對方為你改變，卻在一次次的期待落空中學會了自我封閉。那種被最愛之人無視的冰冷，正在慢慢抽乾你靈魂深處的熱情。`
+  ];
+
+  const harshTruths = [
+    `你們爭執時說出的那些最傷人的狠話，其實正是潛意識裡壓抑已久的真心話。不要用「衝動」當藉口，那是你們積怨已久的真話。`,
+    `你自以為偉大、無私的奉獻，在對方眼中可能只是一座無形的精神牢籠。而對方的冷漠與逃避，其實是他在這座牢籠裡無聲、被動的反抗。`,
+    `親密關係中最致命的不是背叛，而是習慣性的忽視。當兩個人不再願意分享靈魂的顫動，這段感情就已經名存實亡，只剩冰冷的外殼。`,
+    `你的敏感不是無理取鬧，而是靈魂在深淵邊緣掙扎的警報。當你終於不再抱怨、不再索求，代表你已經在心底為這段關係宣判了死刑。`,
+    `你們都在強撐著自尊等待對方先低頭。但實際上，低頭的代價是暴露自己的軟肋。在這場以愛為名的權力博弈中，你們註定兩敗俱傷。`
+  ];
+
+  const painPoint = painPoints[seed % painPoints.length];
+  const selectedDeepPain = deepPains[(seed >> 3) % deepPains.length];
+  const selectedHarshTruth = harshTruths[(seed >> 5) % harshTruths.length];
 
   // 判斷溫暖因子 — 故事的救贖點（希望所在）
   let warmthFactor = '在陌生中找到歸屬';
@@ -308,56 +369,29 @@ export function computeRelationshipMatrix(personA: PersonData, personB: PersonDa
     storyTwist = `衝突成為轉機，誤解化作理解的契機`;
   }
 
-  // 計算痛點強度 — 故事的殺傷力
-  const painPointIntensity = Math.round(
+  // 計算痛點強度 — 故事的殺傷力 (引入 Jitter 放大波動)
+  const rawPainIntensity = Math.round(
     (personalityConflict > 0 ? personalityConflict : 50) * 0.7 +
     (100 - personalityResonance) * 0.3
   );
+  const painPointIntensity = Math.max(35, Math.min(98, rawPainIntensity + jitterConflictRisk));
 
-  // 判斷深層傷害 — 最真實、最扎心的那一刻
-  let deepPain = '';
-  if (activeScore > 20) {
-    deepPain = `${activePerson === 'A' ? personA.name : personB.name}習慣了默默付出，卻在某一刻發現——對方根本沒有看見。那一刻的絕望，比任何爭執都更致命`;
-  } else if (personalityConflict > 65) {
-    deepPain = `每次爭執，都是一次次被誤解的累積。最痛的不是衝突本身，而是意識到——對方根本不想去理解自己`;
-  } else if (personalityResonance > 85 && bloodTypeCompatibility < 50) {
-    deepPain = `靈魂如此相近，卻在日常細節上一次次撕裂。就像被自己最愛的人一遍遍戳進同一個傷口`;
-  } else if (needsUnderstanding === 'A') {
-    deepPain = `${personA.name}總是在等待一句理解的話，卻始終只聽到指責。那種被看不見的感受，會讓人漸漸學會沉默`;
-  } else if (needsUnderstanding === 'B') {
-    deepPain = `${personB.name}的敏感和脆弱，常常被誤解為任性。一次次的被傷害，讓他漸漸築起堅硬的城牆`;
-  } else {
-    deepPain = `最深的傷，來自最深的期待。当期待落空，就像被心愛的人親手打碎了所有希望`;
-  }
-
-  // 判斷無法逃避的真相 — 直面人性的話語
-  let harshTruth = '';
-  if (activeScore > 20) {
-    harshTruth = `你以為的奉獻，在對方眼中可能只是你的執著。而對方的冷漠，其實是他正在用冷漠來保護自己`;
-  } else if (personalityConflict > 65) {
-    harshTruth = `你們吵架時說出的狠話，每一句都是真心話。那不是衝動，那是你們終於說出了藏在心底的怨`;
-  } else if (personalityResonance > 85 && bloodTypeCompatibility < 50) {
-    harshTruth = `靈魂相近卻行為相斥，這樣的關係最容易讓人自我懷疑。你會不斷問自己：是不是自己不夠好`;
-  } else if (needsUnderstanding === 'A') {
-    harshTruth = `${personA.name}的沉默，正在把這段關係一點一點冷凍。被看不見的人，終究會選擇走開`;
-  } else if (needsUnderstanding === 'B') {
-    harshTruth = `${personB.name}的敏感不是缺陷，是靈魂在尖叫。當他停止尖叫，代表他已經放棄了`;
-  } else {
-    harshTruth = `關係中最致命的不是背叛，而是無視。當一個人被另一個人習慣性地無視，愛會慢慢死去`;
-  }
+  // 判斷深層傷害與無法逃避的真相 (由關係金鑰 seed 動態選擇)
+  const deepPain = selectedDeepPain;
+  const harshTruth = selectedHarshTruth;
 
   return {
-    nameHarmony: Math.round(nameHarmony),
-    birthdayAlignment: Math.round(birthdayAlignment),
-    bloodTypeCompatibility: Math.round(bloodTypeCompatibility),
-    wuxingAlignment: Math.round(wuxingAlignment),
-    zodiacHarmony: Math.round(zodiacHarmony),
+    nameHarmony: Math.max(32, Math.min(99, Math.round(nameHarmony + jitterName))),
+    birthdayAlignment: Math.max(32, Math.min(99, Math.round(birthdayAlignment + jitterOverall))),
+    bloodTypeCompatibility: Math.max(32, Math.min(99, Math.round(bloodTypeCompatibility + jitterResonance))),
+    wuxingAlignment: Math.max(32, Math.min(99, Math.round(wuxingAlignment + jitterWuxing))),
+    zodiacHarmony: Math.max(32, Math.min(99, Math.round(zodiacHarmony + jitterZodiac))),
     genderDynamics: Math.round(genderDynamics),
-    shichenBalance: Math.round(shichenBalance),
-    personalityResonance: Math.round(personalityResonance),
-    personalityComplementarity: Math.round(personalityComplementarity),
-    personalityConflict: Math.round(personalityConflict),
-    overallResonance: Math.max(0, Math.min(100, overallResonance)),
+    shichenBalance: Math.max(32, Math.min(99, Math.round(shichenBalance + jitterShichen))),
+    personalityResonance: Math.max(32, Math.min(99, Math.round(personalityResonance + jitterResonance))),
+    personalityComplementarity: Math.max(32, Math.min(99, Math.round(personalityComplementarity))),
+    personalityConflict: Math.max(32, Math.min(99, Math.round(personalityConflict - jitterResonance))),
+    overallResonance,
     activePerson,
     needsUnderstanding,
     primaryChallenge,

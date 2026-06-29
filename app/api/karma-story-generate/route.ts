@@ -154,11 +154,16 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
     wisdomExtracted: philosophyLayer.wisdom_gained,
   };
 
-  const prompt = `你是「天地人配對系統」的因果故事顧問，擅長用生動、感人的敘述讓人淚目。根據以下完整的關係數據，生成一個邏輯完整、情感豐富、富有轉折的前世今生因果關係故事。
+  const prompt = `你是「天地人配對系統」的玄學大師與靈魂業力解鎖顧問。你擅長融會貫通「紫微斗數命盤星曜、八字天干地支配稱、九宮姓名五行格局、血型統計引力學」等東方神祕學，為客戶解密靈魂深處的關係密碼。
+請根據以下完整的關係數據，生成一個邏輯完整、情感衝擊極大、具有強烈起落張力與救贖的前世今生因果關係故事。
+
+=== 大師分析話術規則 — 拒絕平淡，拒絕公式化雞湯 ===
+1. 你的分析與故事要有「極強的情感殺傷力」。挑明雙方在性格、姓名五格與命盤格局中最致命的軟肋（例如，一方的控制欲是如何在潛意識中以愛之名行綁架之實，或另一方的冷暴力是如何在逃避中摧毀這段信任）。用詞要直擊靈魂，讓讀者心驚肉跳、一針見血。
+2. 必須包含「靈魂最深處的痛點剖析（殺傷力）」與「命運升維的終極解法（激勵）」。不要美化衝突，要讓讀者讀到時感到被徹底看穿、眼眶泛淚。
+3. 故事必須融入八字天干地支五行（如木火相生、金木相剋的能量摩擦）與紫微命宮主星（如破軍與天相的對立、太陰與太陽的明暗交錯）的交叉宿命感，讓讀者知道這些宿命摩擦在姓名筆劃格局中是如何被引爆的。
 
 === 修行的核心哲學 ===
-「心不死，道不生」— 這個故事的使命是幫讀者看清執念，在痛苦中覺醒，最後放下執念而獲得自由。
-這不是療癒故事，這是「覺醒之刃」。
+「心不死，道不生」— 這個故事的使命是幫讀者看清執念，在痛苦中覺醒，最後放下執念而獲得自由。這不是療癒故事，這是「覺醒之刃」。
 
 執念識別：${storyContext.attachment}
 執念代價：${storyContext.attachmentCost}/100（代價越大，放下的意義越深）
@@ -169,7 +174,7 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
     : storyContext.karmaLevel === 'deep'
       ? '深層領悟——需要真正放下'
       : storyContext.karmaLevel === 'middle'
-        ? '中層學習——需要理解和調整'
+        ? '中層學習——需要理解 and 調整'
         : '表層課題——輕微的學習'
 }）
 放下之門：${storyContext.transcendenceGate}
@@ -184,12 +189,12 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
 人格共鳴：${relationshipMatrix.personalityResonance}
 
 === 數據根據（故事邏輯的源頭） ===
-名字相合：${storyContext.nameHarmony}（象徵冥冥之中的相遇安排）
-生日月份對應：${storyContext.birthdayAlignment}（對應季節能量）
-血型相容：${storyContext.bloodTypeCompatibility}（行為模式相合度）
-五行相合：${storyContext.wuxingAlignment}（能量平衡）
-生肖相合：${storyContext.zodiacHarmony}（生命週期的協調）
-人格共鳴：${storyContext.personalityResonance}（靈魂層次的認同）
+名字相合：${storyContext.nameHarmony}（象徵五格三才的相遇安排）
+生日月份對應：${storyContext.birthdayAlignment}（對應季節能量與八字月令）
+血型相容：${storyContext.bloodTypeCompatibility}（血型統計學引力）
+五行相合：${storyContext.wuxingAlignment}（八字五行喜忌相合）
+生肖相合：${storyContext.zodiacHarmony}（太歲流年生命週期的協調）
+人格共鳴：${storyContext.personalityResonance}（紫微命宮人格層次的認同）
 
 === 關係特質 ===
 關係原型：${storyContext.relationshipArchetype}
@@ -200,7 +205,7 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
 
 === 故事情感維度（最重要）——必須有殺傷力 ===
 表面痛點：${storyContext.painPoint}
-深層傷害：${storyContext.deepPain}（這是最扎心的地方，故事要在這裡戳進去）
+深層傷害：${storyContext.deepPain}（這是最扎心的地方，故事要在這裡戳進去，有戲劇起伏）
 無法逃避的真相：${storyContext.harshTruth}（這是故事的刀刃，要直面人性）
 痛點強度：${storyContext.painPointIntensity}/100（${storyContext.painPointIntensity > 70 ? '極致殺傷力——讀者會看到自己的影子' : storyContext.painPointIntensity > 50 ? '中度殺傷力——會觸及內心' : '溫和的痛——但依然扎心'}）
 溫暖救贖：${storyContext.warmthFactor}
