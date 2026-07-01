@@ -12,6 +12,37 @@ export default function VisualGravityCore() {
     if (!mount) return;
     const container: HTMLDivElement = mount;
 
+    // Mount the decorative orbit layer after hydration. Keeping the server-side
+    // container empty avoids WebGL/DOM hydration races during development.
+    container.setAttribute("role", "img");
+    container.setAttribute("aria-label", "持續旋轉、三重光軌與金色仙氣環繞的立體太極圖騰");
+    container.setAttribute("data-testid", "taiji-orbit-emblem");
+    const orbitLayer = document.createElement("div");
+    orbitLayer.className = "taiji-orbit-layer";
+    orbitLayer.setAttribute("aria-hidden", "true");
+    orbitLayer.innerHTML = `
+      <div class="taiji-light-orbit taiji-light-orbit--cyan">
+        <span class="taiji-light-orbit__head"></span>
+      </div>
+      <div class="taiji-light-orbit taiji-light-orbit--violet">
+        <span class="taiji-light-orbit__head"></span>
+      </div>
+      <div class="taiji-light-orbit taiji-light-orbit--gold">
+        <span class="taiji-light-orbit__head"></span>
+      </div>
+      <div class="taiji-gold-waves">
+        <span class="taiji-gold-wave"></span>
+        <span class="taiji-gold-wave"></span>
+        <span class="taiji-gold-wave"></span>
+      </div>
+      <div class="taiji-celestial-mist">
+        <span class="taiji-celestial-wisp taiji-celestial-wisp--one"></span>
+        <span class="taiji-celestial-wisp taiji-celestial-wisp--two"></span>
+        <span class="taiji-celestial-wisp taiji-celestial-wisp--three"></span>
+      </div>
+    `;
+    container.appendChild(orbitLayer);
+
     let animId = 0;
     let domEl: HTMLCanvasElement | null = null;
     let resizeFn: (() => void) | null = null;
@@ -46,11 +77,12 @@ export default function VisualGravityCore() {
 
         // ── Camera ───────────────────────────────────────────────────────
         const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 100);
-        camera.position.z = 5.8;
+        // Leave enough breathing room for the layered luminous orbit paths.
+        camera.position.z = 7.15;
 
         // ── Renderer ─────────────────────────────────────────────────────
-        // ✨ 優化渲染配置 - 最大性能和流暢度
-        const pixelRatio = isMobile ? 0.85 : Math.min(devicePixelRatio, 1.5);  // 降低像素比提升性能
+        // Sharper supersampled rendering, capped to protect mobile GPUs.
+        const pixelRatio = Math.min(devicePixelRatio, isMobile ? 1.5 : 2.0);
         const renderer = new THREE.WebGLRenderer({
           antialias: true,  // 始終啟用抗鋸齒但优化方式
           powerPreference: 'high-performance',
@@ -78,6 +110,9 @@ export default function VisualGravityCore() {
         if (cancelled) { renderer.dispose(); return; }
         container.appendChild(renderer.domElement);
         domEl = renderer.domElement;
+        renderer.domElement.style.position = "absolute";
+        renderer.domElement.style.inset = "0";
+        renderer.domElement.style.zIndex = "1";
 
         // ── Lights ───────────────────────────────────────────────────────
         // ✨ 增強光照以加強科技感
@@ -95,6 +130,9 @@ export default function VisualGravityCore() {
         const techL = new THREE.PointLight(0x6688ff, 2.2, 16);
         techL.position.set(1.5, -2.0, 3);
         scene.add(techL);
+        const goldL = new THREE.PointLight(0xffc85c, 2.6, 16);
+        goldL.position.set(-2.2, 1.6, 3.4);
+        scene.add(goldL);
 
         // ── Glow sprite texture helper ────────────────────────────────────
         function buildGlowTex(R: number, G: number, B: number) {
@@ -134,18 +172,25 @@ export default function VisualGravityCore() {
         scene.add(grp);
 
         // Main yin-yang sphere — ShaderMaterial computes pattern in GLSL (no texture issues)
-        const sphGeo = new THREE.SphereGeometry(1.62, isMobile ? 56 : 88, isMobile ? 56 : 88);
+        const sphGeo = new THREE.SphereGeometry(1.62, isMobile ? 72 : 112, isMobile ? 72 : 112);
         const sphMat = new THREE.ShaderMaterial({
           vertexShader: `
             varying vec3 vLocalPosition;
+            varying vec3 vViewNormal;
+            varying vec3 vViewDirection;
             void main() {
               vLocalPosition = position / 1.62;
-              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+              vViewNormal = normalize(normalMatrix * normal);
+              vViewDirection = normalize(-viewPosition.xyz);
+              gl_Position = projectionMatrix * viewPosition;
             }
           `,
           fragmentShader: `
-            precision mediump float;
+            precision highp float;
             varying vec3 vLocalPosition;
+            varying vec3 vViewNormal;
+            varying vec3 vViewDirection;
             void main() {
               vec2 p = vLocalPosition.xy;
               float upper = distance(p, vec2(0.0, 0.5));
@@ -158,15 +203,25 @@ export default function VisualGravityCore() {
               if (upper < 0.115) yang = 0.0;
               if (lower < 0.115) yang = 1.0;
 
-              vec3 whiteTone = vec3(0.92, 0.96, 1.00);
-              vec3 blackTone = vec3(0.008, 0.012, 0.035);
+              vec3 whiteTone = vec3(0.94, 0.97, 1.00);
+              vec3 blackTone = vec3(0.006, 0.010, 0.030);
               vec3 col = mix(blackTone, whiteTone, yang);
 
-              // 柔和的球面明暗與邊緣收束，增加深度但不破壞圖騰辨識度。
-              float depthLight = 0.82 + max(vLocalPosition.z, 0.0) * 0.18;
-              float rim = smoothstep(0.0, 0.72, 1.0 - max(vLocalPosition.z, 0.0));
-              col *= depthLight;
-              col += vec3(0.10, 0.14, 0.28) * rim * 0.16;
+              // View-space lighting creates a rounded, polished sphere surface.
+              vec3 N = normalize(vViewNormal);
+              vec3 V = normalize(vViewDirection);
+              vec3 L = normalize(vec3(-0.48, 0.62, 0.86));
+              vec3 H = normalize(L + V);
+              float diffuse = 0.58 + max(dot(N, L), 0.0) * 0.42;
+              float specular = pow(max(dot(N, H), 0.0), 52.0);
+              float fresnel = pow(1.0 - max(dot(N, V), 0.0), 2.35);
+              float goldSide = smoothstep(-0.75, 0.85, N.x + N.y * 0.38);
+              vec3 coolRim = vec3(0.22, 0.40, 0.95);
+              vec3 goldRim = vec3(1.00, 0.64, 0.18);
+
+              col *= diffuse;
+              col += mix(coolRim, goldRim, goldSide) * fresnel * 0.28;
+              col += mix(vec3(0.72, 0.86, 1.00), vec3(1.00, 0.78, 0.38), goldSide) * specular * 0.62;
               gl_FragColor = vec4(col, 1.0);
             }
           `,
@@ -229,6 +284,16 @@ export default function VisualGravityCore() {
         bloomViolet.position.set(0, 1.0, 0.2);
         bloomViolet.scale.set(4.0, 4.0, 1);
         grp.add(bloomViolet);
+
+        // Warm celestial bloom sits behind the core to separate the gold layer
+        // from the cooler cyan and violet energy fields.
+        const bloomGold = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: buildGlowTex(255, 196, 88), transparent: true, opacity: 0.18,
+          blending: THREE.AdditiveBlending, depthWrite: false,
+        }));
+        bloomGold.position.set(-0.35, 0.2, -0.35);
+        bloomGold.scale.set(5.0, 5.0, 1);
+        grp.add(bloomGold);
 
         // ✨ 增強能量波 - 更多波紋效果、更密集的能量環繞
         const waveTex = buildRingTex(170, 195, 255);
@@ -450,12 +515,12 @@ export default function VisualGravityCore() {
         scene.add(mistSprite);
 
         // ── Animation ─────────────────────────────────────────────────────
-        const clock = new THREE.Clock();
+        const animationStartedAt = performance.now();
 
         // ✨ 優化的動畫循環 - 高效計算
-        function frame() {
+        function frame(frameTime = performance.now()) {
           animId = requestAnimationFrame(frame);
-          const t = clock.getElapsedTime();
+          const t = (frameTime - animationStartedAt) / 1000;
 
           // 性能監控
           frameCount++;
@@ -471,7 +536,9 @@ export default function VisualGravityCore() {
           // 維持太極正面辨識度，只用微量視差表現 3D 深度。
           grp.rotation.y = Math.sin(t * 0.24) * 0.08;
           grp.rotation.x = 0.06 + Math.sin(t * 0.19) * 0.035;
-          grp.rotation.z = Math.sin(t * 0.16) * 0.055;
+          // One complete revolution every 18 seconds. Elapsed-time animation
+          // keeps the speed stable on both high and low refresh-rate screens.
+          grp.rotation.z = -(t / 18) * Math.PI * 2;
 
           // 低幅度能量呼吸，避免忽大忽小造成視覺失焦。
           const breatheIntensity = 0.014 + Math.sin(t * 0.42) * 0.004;
@@ -499,8 +566,8 @@ export default function VisualGravityCore() {
           whFlareV.scale.set(0.12, 1.9 + Math.sin(t * 1.5) * 0.6, 1);
 
           // Particles slow orbit
-          particles.rotation.y += 0.0008;
-          particles.rotation.z += 0.0004;
+          particles.rotation.y = t * 0.048;
+          particles.rotation.z = t * 0.024;
 
           // ✨ 增強能量吸收/釋放循環 - 更密集、更動態
           const fc    = t % 6;  // 加快循環速度
@@ -543,6 +610,10 @@ export default function VisualGravityCore() {
           // 紫色光暈呼吸 - 仙氣優雅
           const violetBreath = 0.50 + Math.sin(t * 0.34 + 1.6) * 0.48;  // 優雅協調
           (bloomViolet.material as SpriteMaterial).opacity = violetBreath * 0.65;  // 仙氣層次
+
+          const goldBreath = 0.5 + Math.sin(t * 0.29 + 3.1) * 0.5;
+          (bloomGold.material as SpriteMaterial).opacity = 0.10 + goldBreath * 0.18;
+          bloomGold.scale.setScalar(4.7 + goldBreath * 1.1);
 
           // ✨ 優化波紋動畫 - 高效計算，減少三角函數調用
           const WAVE_PERIOD = 3.8;
@@ -606,6 +677,7 @@ export default function VisualGravityCore() {
       if (resizeFn) window.removeEventListener("resize", resizeFn);
       // Remove all canvases including stale ones from HMR
       Array.from(container.querySelectorAll("canvas")).forEach(c => c.remove());
+      orbitLayer.remove();
       domEl = null;
     };
   }, []);
