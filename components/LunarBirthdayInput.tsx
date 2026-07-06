@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -107,7 +107,7 @@ export default function LunarBirthdayInput({
           value={rocYear}
           disabled={disabled}
           onChange={(event) => setRocYear(event.target.value)}
-          className="form-input"
+          className={`form-input glass-input ${['cyan', 'violet'].includes(accent) ? 'glass-input-cyan' : ''}`}
         />
         <input
           inputMode="numeric"
@@ -119,7 +119,7 @@ export default function LunarBirthdayInput({
           value={month}
           disabled={disabled}
           onChange={(event) => setMonth(event.target.value)}
-          className="form-input"
+          className={`form-input glass-input ${['cyan', 'violet'].includes(accent) ? 'glass-input-cyan' : ''}`}
         />
         <input
           inputMode="numeric"
@@ -131,7 +131,7 @@ export default function LunarBirthdayInput({
           value={day}
           disabled={disabled}
           onChange={(event) => setDay(event.target.value)}
-          className="form-input"
+          className={`form-input glass-input ${['cyan', 'violet'].includes(accent) ? 'glass-input-cyan' : ''}`}
         />
       </div>
 

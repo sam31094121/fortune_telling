@@ -1337,3 +1337,149 @@ body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
   .taiji-gold-wave { animation-duration: 14s; }
   .taiji-celestial-wisp { animation-duration: 24s; }
 }
+
+/* ─── 🔮 手機極致 UX 升級與水晶流光美化 ─── */
+
+/* 1. 金屬高光橫掃按鈕 */
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  animation: shimmer-sweep 3.5s infinite ease-in-out;
+}
+
+@keyframes shimmer-sweep {
+  0% { left: -150%; }
+  35% { left: 150%; }
+  100% { left: 150%; }
+}
+
+/* 2. 太空艙水晶輸入框與 Focus 發光 */
+.glass-input {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(8px);
+  color: #fff !important;
+  transition: all 0.3s ease !important;
+}
+
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.glass-input:focus {
+  outline: none !important;
+  border-color: rgba(245, 158, 11, 0.45) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  box-shadow: 
+    0 0 20px rgba(245, 158, 11, 0.18),
+    inset 0 0 8px rgba(255, 255, 255, 0.03) !important;
+}
+
+.glass-input-cyan:focus {
+  border-color: rgba(34, 211, 238, 0.45) !important;
+  box-shadow: 
+    0 0 20px rgba(34, 211, 238, 0.18),
+    inset 0 0 8px rgba(255, 255, 255, 0.03) !important;
+}
+
+/* 3. 霓虹步驟指示雷達點 */
+.radar-node {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  transition: all 0.5s ease;
+}
+
+.radar-node::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  opacity: 0;
+}
+
+.radar-node--active::after {
+  animation: radar-pulse 2s infinite ease-out;
+}
+
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* 尊榮 VIP 皇家流光水晶卡 */
+.vip-crystal-glow {
+  position: relative;
+  background: rgba(8, 6, 28, 0.9) !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  box-shadow: 
+    0 0 35px rgba(245, 158, 11, 0.15),
+    inset 0 0 20px rgba(255, 255, 255, 0.02) !important;
+  border-radius: 24px;
+}
+
+.vip-crystal-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 24px;
+  background: linear-gradient(
+    90deg, 
+    #6d4aff, 
+    #c9a24a, 
+    #ff7ac8, 
+    #22d3ee, 
+    #6d4aff
+  );
+  background-size: 400% 400%;
+  z-index: -1;
+  animation: rainbow-shimmer 8s linear infinite;
+  opacity: 0.72;
+}
+
+@keyframes rainbow-shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 手機版極細太極流光軌道 - 精緻防跑版 */
+@media (max-width: 640px) {
+  .taiji-light-orbit--cyan {
+    inset: 22px 14px !important;
+  }
+  .taiji-light-orbit--violet {
+    inset: 14px 22px !important;
+  }
+  .taiji-light-orbit--gold {
+    inset: 8px 8px !important;
+  }
+  .taiji-light-orbit::before {
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 1.5px)) !important;
+    mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 1.5px)) !important;
+  }
+}

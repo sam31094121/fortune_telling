@@ -125,6 +125,39 @@ function ScoreRow({ label, score, tone }: { label: string; score: number; tone: 
   );
 }
 
+function OracleHint({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative inline-block ml-2 align-middle z-20 font-sans">
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(!open);
+        }}
+        className="flex h-5 w-5 items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-500/10 text-[11px] font-bold text-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.2)] hover:bg-cyan-500/25 transition-all focus:outline-none"
+      >
+        ?
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <span className="absolute bottom-7 left-1/2 -translate-x-1/2 z-50 w-56 rounded-xl border border-cyan-400/30 bg-slate-950/95 p-3.5 text-xs leading-5 text-cyan-100 shadow-[0_0_15px_rgba(34,211,238,0.25)] animate-fade-in font-sans">
+            {text}
+            <button 
+              type="button" 
+              className="block mt-2 text-[10px] font-bold text-cyan-400 text-right w-full hover:underline"
+              onClick={() => setOpen(false)}
+            >
+              我知道了 ✗
+            </button>
+          </span>
+        </>
+      )}
+    </span>
+  );
+}
+
 function PersonStep({
   title,
   description,
@@ -149,18 +182,24 @@ function PersonStep({
 
       <div className="mt-8 space-y-8">
         <div>
-          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">1. 姓名</label>
+          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
+            1. 姓名
+            <OracleHint text="🔮 姓名乃人和磁場之五格載體，大數據將通過姓名聲波諧振進行血緣與宿命課題共振。" />
+          </label>
           <input
             type="text"
             value={value.name}
             onChange={(event) => onChange({ ...value, name: event.target.value })}
             placeholder="請輸入姓名，至少 2 個字"
-            className="form-input w-full text-base"
+            className={`form-input w-full text-base neon-input-focus neon-card-hover glass-input ${accent === 'violet' ? 'glass-input-cyan' : ''}`}
           />
         </div>
 
         <div>
-          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">2. 國曆生日（民國年）</label>
+          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
+            2. 國曆生日（民國年）
+            <OracleHint text="🪐 生辰乃星曜入宮的天命坐標，系統將自動換算為紫微干支天盤以進行宿命軌道分析。" />
+          </label>
           <LunarBirthdayInput
             value={value.birthDate}
             onChange={(solarDate) => onChange({ ...value, birthDate: solarDate })}
@@ -170,7 +209,10 @@ function PersonStep({
         </div>
 
         <div>
-          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">3. 血型</label>
+          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
+            3. 血型
+            <OracleHint text="🧬 血型蘊含地脈遺傳之性格吸引力密碼，決定了雙人磁場的基礎吸引力與相處共鳴率。" />
+          </label>
           <div className="grid gap-3 sm:grid-cols-2">
             {BLOOD_TYPES.map((bloodType, index) => (
               <ElderChoiceCard
@@ -186,7 +228,10 @@ function PersonStep({
         </div>
 
         <div>
-          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">4. 性別</label>
+          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
+            4. 性別
+            <OracleHint text="✦ 性別主要作為外在表徵與修辭調整的輔助變數，不影響底層天盤骨架的因果計算。" />
+          </label>
           <div className="grid gap-3 sm:grid-cols-2">
             <ElderChoiceCard
               active={value.gender === 'female'}
@@ -467,7 +512,7 @@ export default function MatchPage() {
                   type="button"
                   onClick={goNext}
                   disabled={loading}
-                  className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-50"
+                  className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-50 shimmer-btn"
                 >
                   {step === 'personA' ? '下一步：填第二位' : '下一步：確認資料'}
                 </button>
@@ -476,7 +521,7 @@ export default function MatchPage() {
                   type="button"
                   onClick={handleSubmit}
                   disabled={!reviewReady || loading}
-                  className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-40"
+                  className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-40 shimmer-btn"
                 >
                   {loading ? '正在整理配對結果…' : '查看配對結果'}
                 </button>

@@ -408,10 +408,21 @@ export default function InsightPage() {
                       const target = document.getElementById('input-form');
                       target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }}
-                    className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-8 py-3 text-sm font-bold text-cyan-200 hover:bg-cyan-500/25 transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)] animate-bounce"
+                    className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-8 py-3 text-sm font-bold text-cyan-200 hover:bg-cyan-500/25 transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)] animate-bounce shimmer-btn"
                   >
                     <span>👇 一鍵開啟 · 探索本命軌跡</span>
                   </button>
+
+                  {/* 動態天宿氣場預言面板 */}
+                  <div className="mt-6 rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-4 text-left max-w-md shadow-[0_0_15px_rgba(34,211,238,0.05)]">
+                    <p className="text-xs uppercase tracking-[0.25em] text-cyan-300 font-bold font-mono flex items-center gap-2">
+                      <span className="animate-ping inline-block w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                      <span>🪐 今日天宿星格氣場</span>
+                    </p>
+                    <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">
+                      今日紫微天樞星高懸，血型磁場共振係數 0.92，宿命宮位大開，極利探索個人本命軌跡與潛能盲點。
+                    </p>
+                  </div>
                 </div>
               </div>
               <div className="flex justify-center lg:justify-end">

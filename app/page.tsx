@@ -206,6 +206,41 @@ function ScoreRow({ label, score, tone }: { label: string; score: number; tone: 
   );
 }
 
+function CelestialAstrolabe() {
+  return (
+    <div className="relative w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center shrink-0">
+      {/* 自轉的星曆八卦盤 */}
+      <div className="absolute inset-0 animate-[spin_20s_linear_infinite]">
+        <svg className="w-full h-full text-cyan-400/40" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="1.2" strokeDasharray="3 3" />
+          <circle cx="50" cy="50" r="41" fill="none" stroke="currentColor" strokeWidth="0.8" />
+          <circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="6 3" />
+          
+          {/* 四正位爻標記 */}
+          <line x1="50" y1="8" x2="50" y2="12" stroke="currentColor" strokeWidth="1.5" />
+          <line x1="50" y1="88" x2="50" y2="92" stroke="currentColor" strokeWidth="1.5" />
+          <line x1="8" y1="50" x2="12" y2="50" stroke="currentColor" strokeWidth="1.5" />
+          <line x1="88" y1="50" x2="92" y2="50" stroke="currentColor" strokeWidth="1.5" />
+          
+          {/* 內部太極雙魚陰陽 */}
+          <path d="M 50 16 A 17 17 0 0 0 50 50 A 17 17 0 0 1 50 84 A 34 35 0 0 1 50 16 Z" fill="currentColor" className="text-cyan-500/15" />
+          <circle cx="50" cy="33" r="3.5" fill="currentColor" className="text-cyan-400" />
+          <circle cx="50" cy="67" r="3.5" fill="currentColor" className="text-slate-950" />
+        </svg>
+      </div>
+      {/* 逆向旋轉的金光環 */}
+      <div className="absolute inset-2 animate-[spin_12s_linear_infinite_reverse]">
+        <svg className="w-full h-full text-amber-400/25" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" strokeWidth="0.6" strokeDasharray="2 6" />
+        </svg>
+      </div>
+      {/* 中心發光天樞點 */}
+      <div className="absolute w-3 h-3 rounded-full bg-cyan-400 animate-ping" />
+      <div className="absolute w-2 h-2 rounded-full bg-cyan-300 shadow-[0_0_8px_#22d3ee]" />
+    </div>
+  );
+}
+
 function AnalyticalConsole({
   nameA,
   nameB,
@@ -244,20 +279,58 @@ function AnalyticalConsole({
 
   return (
     <div className="fortune-card p-6 sm:p-8 font-mono border border-cyan-500/20 bg-slate-950/80 shadow-[0_0_30px_rgba(34,211,238,0.08)]">
-      <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">🧬 大數據 AI 運算終端</p>
-      <div className="mt-6 space-y-3.5 text-xs sm:text-sm text-cyan-100 leading-7 min-h-[160px]">
-        {logs.map((log, index) => (
-          <p key={index} className="animate-fade-in">
-            {log}
-          </p>
-        ))}
-        {logs.length < fullLogs.length && (
-          <p className="text-cyan-400">
-            [RUNNING] 正在解密星圖矩陣...<span className="console-cursor" />
-          </p>
-        )}
+      <div className="flex flex-col md:flex-row items-center gap-6 justify-between">
+        <div className="flex-1 w-full">
+          <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">🧬 大數據 AI 運算終端</p>
+          <div className="mt-6 space-y-3.5 text-xs sm:text-sm text-cyan-100 leading-7 min-h-[160px]">
+            {logs.map((log, index) => (
+              <p key={index} className="animate-fade-in">
+                {log}
+              </p>
+            ))}
+            {logs.length < fullLogs.length && (
+              <p className="text-cyan-400">
+                [RUNNING] 正在解密星圖矩陣...<span className="console-cursor" />
+              </p>
+            )}
+          </div>
+        </div>
+        <CelestialAstrolabe />
       </div>
     </div>
+  );
+}
+
+function OracleHint({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative inline-block ml-2 align-middle z-20">
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(!open);
+        }}
+        className="flex h-5 w-5 items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-500/10 text-[11px] font-bold text-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.2)] hover:bg-cyan-500/25 transition-all focus:outline-none"
+      >
+        ?
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <span className="absolute bottom-7 left-1/2 -translate-x-1/2 z-50 w-56 rounded-xl border border-cyan-400/30 bg-slate-950/95 p-3.5 text-xs leading-5 text-cyan-100 shadow-[0_0_15px_rgba(34,211,238,0.25)] animate-fade-in font-sans">
+            {text}
+            <button 
+              type="button" 
+              className="block mt-2 text-[10px] font-bold text-cyan-400 text-right w-full hover:underline"
+              onClick={() => setOpen(false)}
+            >
+              我知道了 ✗
+            </button>
+          </span>
+        </>
+      )}
+    </span>
   );
 }
 
@@ -285,18 +358,24 @@ function PersonStep({
 
       <div className="mt-8 space-y-8">
         <div>
-          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">1. 姓名</label>
+          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
+            1. 姓名
+            <OracleHint text="🔮 姓名乃人和磁場之五格載體，大數據將通過姓名聲波諧振進行血緣與宿命課題共振。" />
+          </label>
           <input
             type="text"
             value={value.name}
             onChange={(event) => onChange({ ...value, name: event.target.value })}
             placeholder="請輸入姓名，至少 2 個字"
-            className="form-input w-full text-base neon-input-focus neon-card-hover"
+            className={`form-input w-full text-base neon-input-focus neon-card-hover glass-input ${accent === 'violet' ? 'glass-input-cyan' : ''}`}
           />
         </div>
 
         <div>
-          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">2. 國曆生日（民國年）</label>
+          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
+            2. 國曆生日（民國年）
+            <OracleHint text="🪐 生辰乃星曜入宮的天命坐標，系統將自動換算為紫微干支天盤以進行宿命軌道分析。" />
+          </label>
           <LunarBirthdayInput
             value={value.birthDate}
             onChange={(solarDate) => onChange({ ...value, birthDate: solarDate })}
@@ -306,7 +385,10 @@ function PersonStep({
         </div>
 
         <div>
-          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">3. 血型</label>
+          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
+            3. 血型
+            <OracleHint text="🧬 血型蘊含地脈遺傳之性格吸引力密碼，決定了雙人磁場的基礎吸引力與相處共鳴率。" />
+          </label>
           <div className="grid gap-3 sm:grid-cols-2">
             {BLOOD_TYPES.map((bloodType, index) => (
               <ElderChoiceCard
@@ -322,7 +404,10 @@ function PersonStep({
         </div>
 
         <div>
-          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">4. 性別</label>
+          <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
+            4. 性別
+            <OracleHint text="✦ 性別主要作為外在表徵與修辭調整的輔助變數，不影響底層天盤骨架的因果計算。" />
+          </label>
           <div className="grid gap-3 sm:grid-cols-2">
             <ElderChoiceCard
               active={value.gender === 'female'}
@@ -815,7 +900,6 @@ export default function HomePage() {
                 🔍 AI 深度洞察 — 全面分析性格與潛能
               </p>
             </div>
-            
             <div className="mt-8">
               <button
                 type="button"
@@ -823,10 +907,21 @@ export default function HomePage() {
                   const target = document.getElementById('step-entry');
                   target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }}
-                className="inline-flex items-center gap-2 rounded-full border border-rose-400/30 bg-rose-500/10 px-8 py-3 text-sm font-bold text-rose-200 hover:bg-rose-500/25 transition-all shadow-[0_0_20px_rgba(244,63,94,0.2)] animate-bounce"
+                className="inline-flex items-center gap-2 rounded-full border border-rose-400/30 bg-rose-500/10 px-8 py-3 text-sm font-bold text-rose-200 hover:bg-rose-500/25 transition-all shadow-[0_0_20px_rgba(244,63,94,0.2)] animate-bounce shimmer-btn"
               >
                 <span>👇 一鍵開啟 · 填寫生辰軌道</span>
               </button>
+
+              {/* 動態天宿氣場預言面板 */}
+              <div className="mt-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-left max-w-md shadow-[0_0_15px_rgba(245,158,11,0.05)]">
+                <p className="text-xs uppercase tracking-[0.25em] text-amber-300 font-bold font-mono flex items-center gap-2">
+                  <span className="animate-ping inline-block w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span>🪐 今日天宿星格氣場</span>
+                </p>
+                <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">
+                  今日紫微天樞星高懸，血型磁場共振係數 0.92，宿命宮位大開，極利叩問前世因果修行與今生天命配對契合度。
+                </p>
+              </div>
             </div>
           </div>
           <div className="flex justify-center lg:justify-end">
@@ -865,40 +960,39 @@ export default function HomePage() {
                         {step === 'review' && '確認後開始配對'}
                       </p>
                     </div>
-                    <div className="grid grid-cols-3 gap-2 sm:min-w-[120px]">
-                      <div
-                        className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
+                    <div className="flex items-center gap-2.5 flex-wrap sm:min-w-[120px] mt-3 sm:mt-0">
+                      {/* 步驟 1 */}
+                      <div className="flex items-center gap-1.5">
+                        <div className={`radar-node ${
                           ['personA-base', 'personA-shichen'].includes(step)
-                            ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
+                            ? 'radar-node--active text-rose-400 bg-rose-400 shadow-[0_0_10px_#f43f5e]'
                             : ['personB-base', 'personB-shichen', 'review'].includes(step)
-                              ? 'border-violet-400/50 bg-violet-500/12 shadow-violet-500/15'
-                              : 'border-white/20 bg-white/8'
-                        }`}
-                      >
-                        <p className="text-lg font-bold text-[color:var(--text-main)]">{['personB-base', 'personB-shichen', 'review'].includes(step) ? '✓' : '1'}</p>
-                        <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">第一位</p>
+                              ? 'text-violet-400 bg-violet-400'
+                              : 'text-white/20 bg-white/20'
+                        }`} />
+                        <span className="text-xs font-bold text-[color:var(--text-sub)]">第一位</span>
                       </div>
-                      <div
-                        className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
+                      <div className="h-px w-3 bg-white/10" />
+                      {/* 步驟 2 */}
+                      <div className="flex items-center gap-1.5">
+                        <div className={`radar-node ${
                           ['personB-base', 'personB-shichen'].includes(step)
-                            ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
+                            ? 'radar-node--active text-rose-400 bg-rose-400 shadow-[0_0_10px_#f43f5e]'
                             : step === 'review'
-                              ? 'border-violet-400/50 bg-violet-500/12 shadow-violet-500/15'
-                              : 'border-white/20 bg-white/8'
-                        }`}
-                      >
-                        <p className="text-lg font-bold text-[color:var(--text-main)]">{step === 'review' ? '✓' : '2'}</p>
-                        <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">第二位</p>
+                              ? 'text-violet-400 bg-violet-400'
+                              : 'text-white/20 bg-white/20'
+                        }`} />
+                        <span className="text-xs font-bold text-[color:var(--text-sub)]">第二位</span>
                       </div>
-                      <div
-                        className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
+                      <div className="h-px w-3 bg-white/10" />
+                      {/* 步驟 3 */}
+                      <div className="flex items-center gap-1.5">
+                        <div className={`radar-node ${
                           step === 'review'
-                            ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
-                            : 'border-white/20 bg-white/8'
-                        }`}
-                      >
-                        <p className="text-lg font-bold text-[color:var(--text-main)]">3</p>
-                        <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">確認</p>
+                            ? 'radar-node--active text-rose-400 bg-rose-400 shadow-[0_0_10px_#f43f5e]'
+                            : 'text-white/20 bg-white/20'
+                        }`} />
+                        <span className="text-xs font-bold text-[color:var(--text-sub)]">確認</span>
                       </div>
                     </div>
                   </div>
@@ -1189,7 +1283,7 @@ export default function HomePage() {
 
             {/* 未解鎖時顯示的科技加密艙門 */}
             {!isUnlocked && (
-              <div className="tech-decrypt-overlay p-8 text-center relative border border-amber-500/35 bg-gradient-to-b from-slate-950/80 to-amber-950/15 shadow-[0_0_50px_rgba(201,162,74,0.25)] rounded-3xl overflow-hidden animate-rise">
+              <div className="tech-decrypt-overlay p-8 text-center relative vip-crystal-glow overflow-hidden animate-rise">
                 <div className="code-stream-effect" />
                 <div className="relative z-10 py-8 space-y-6">
                   {/* VIP 尊貴皇冠標章 */}
@@ -1227,7 +1321,7 @@ export default function HomePage() {
                     <button
                       type="button"
                       onClick={handleUnlockVIP}
-                      className="vip-gold-btn px-10 py-5 text-base font-black tracking-widest uppercase rounded-full shadow-[0_0_35px_rgba(201,162,74,0.4)] hover:shadow-[0_0_50px_rgba(201,162,74,0.7)] transition-all duration-300 border border-amber-300/30 transform hover:scale-[1.03] animate-pulse"
+                      className="vip-gold-btn px-10 py-5 text-base font-black tracking-widest uppercase rounded-full shadow-[0_0_35px_rgba(201,162,74,0.4)] hover:shadow-[0_0_50px_rgba(201,162,74,0.7)] transition-all duration-300 border border-amber-300/30 transform hover:scale-[1.03] animate-pulse shimmer-btn"
                     >
                       👑 叩問因果天命 · 一鍵啟開 VIP 專屬天盤
                     </button>

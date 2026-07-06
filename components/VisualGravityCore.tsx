@@ -6,6 +6,7 @@ import type { Mesh, MeshBasicMaterial, SpriteMaterial } from "three";
 export default function VisualGravityCore() {
   const mountRef   = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
+  const touchSpinSpeedRef = useRef(1.0);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -68,8 +69,6 @@ export default function VisualGravityCore() {
 
         const W = container.clientWidth  || 320;
         const H = container.clientHeight || 320;
-        const isMobile = window.innerWidth < 768;
-
         // ── Scene ────────────────────────────────────────────────────────
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x02030a);
@@ -82,7 +81,7 @@ export default function VisualGravityCore() {
 
         // ── Renderer ─────────────────────────────────────────────────────
         // Sharper supersampled rendering, capped to protect mobile GPUs.
-        const pixelRatio = Math.min(devicePixelRatio, isMobile ? 1.5 : 2.0);
+        const pixelRatio = Math.min(devicePixelRatio, 2.0);
         const renderer = new THREE.WebGLRenderer({
           antialias: true,  // 始終啟用抗鋸齒但优化方式
           powerPreference: 'high-performance',
@@ -167,95 +166,14 @@ export default function VisualGravityCore() {
           return new THREE.CanvasTexture(cv);
         }
 
-        // ── Yin-yang holographic emblem texture - beautiful custom canvas grid ─
-        function buildTaijiEmblemTex() {
-          const S = 512, m2 = S / 2;
-          const cv = document.createElement("canvas");
-          cv.width = cv.height = S;
-          const cx = cv.getContext("2d")!;
-          
-          // 1. 外圈發光金環
-          cx.beginPath();
-          cx.arc(m2, m2, 240, 0, Math.PI * 2);
-          cx.strokeStyle = "rgba(245, 158, 11, 0.45)";
-          cx.lineWidth = 2.0;
-          cx.stroke();
 
-          cx.beginPath();
-          cx.arc(m2, m2, 230, 0, Math.PI * 2);
-          cx.strokeStyle = "rgba(245, 158, 11, 0.25)";
-          cx.lineWidth = 1.0;
-          cx.stroke();
-
-          // 2. 十二地支刻度標記
-          cx.fillStyle = "rgba(245, 158, 11, 0.85)";
-          for (let i = 0; i < 12; i++) {
-            const angle = (i * Math.PI) / 6;
-            const x = m2 + Math.cos(angle) * 220;
-            const y = m2 + Math.sin(angle) * 220;
-            cx.beginPath();
-            cx.arc(x, y, 3.5, 0, Math.PI * 2);
-            cx.fill();
-          }
-
-          // 3. 繪製精美太極雙魚 (金與青雙向漸變)
-          // 繪製右半金魚
-          cx.beginPath();
-          cx.arc(m2, m2, 180, -Math.PI / 2, Math.PI / 2, false);
-          cx.arc(m2, m2 + 90, 90, Math.PI / 2, -Math.PI / 2, true);
-          cx.arc(m2, m2 - 90, 90, Math.PI / 2, -Math.PI / 2, false);
-          const goldGrad = cx.createRadialGradient(m2, m2 - 90, 20, m2, m2 - 90, 150);
-          goldGrad.addColorStop(0, "rgba(245, 158, 11, 0.95)");
-          goldGrad.addColorStop(1, "rgba(245, 158, 11, 0.15)");
-          cx.fillStyle = goldGrad;
-          cx.fill();
-
-          // 繪製左半青魚
-          cx.beginPath();
-          cx.arc(m2, m2, 180, Math.PI / 2, -Math.PI / 2, false);
-          cx.arc(m2, m2 - 90, 90, -Math.PI / 2, Math.PI / 2, true);
-          cx.arc(m2, m2 + 90, 90, -Math.PI / 2, Math.PI / 2, false);
-          const cyanGrad = cx.createRadialGradient(m2, m2 + 90, 20, m2, m2 + 90, 150);
-          cyanGrad.addColorStop(0, "rgba(34, 211, 238, 0.95)");
-          cyanGrad.addColorStop(1, "rgba(34, 211, 238, 0.15)");
-          cx.fillStyle = cyanGrad;
-          cx.fill();
-
-          // 4. 兩儀魚眼點
-          cx.beginPath();
-          cx.arc(m2, m2 - 90, 18, 0, Math.PI * 2);
-          cx.fillStyle = "#02030a";
-          cx.fill();
-          cx.beginPath();
-          cx.arc(m2, m2 - 90, 6, 0, Math.PI * 2);
-          cx.fillStyle = "rgba(34, 211, 238, 0.9)";
-          cx.fill();
-
-          cx.beginPath();
-          cx.arc(m2, m2 + 90, 18, 0, Math.PI * 2);
-          cx.fillStyle = "#02030a";
-          cx.fill();
-          cx.beginPath();
-          cx.arc(m2, m2 + 90, 6, 0, Math.PI * 2);
-          cx.fillStyle = "rgba(245, 158, 11, 0.9)";
-          cx.fill();
-
-          // 5. 繪製精細內分隔圓
-          cx.beginPath();
-          cx.arc(m2, m2, 180, 0, Math.PI * 2);
-          cx.strokeStyle = "rgba(255, 255, 255, 0.35)";
-          cx.lineWidth = 1.5;
-          cx.stroke();
-
-          return new THREE.CanvasTexture(cv);
-        }
 
         // ── Core group (rotates as one unit) ─────────────────────────────
         const grp = new THREE.Group();
         scene.add(grp);
 
         // Main yin-yang sphere — ShaderMaterial computes pattern in GLSL (no texture issues)
-        const sphGeo = new THREE.SphereGeometry(1.62, isMobile ? 72 : 112, isMobile ? 72 : 112);
+        const sphGeo = new THREE.SphereGeometry(1.62, 112, 112);
         const sphMat = new THREE.ShaderMaterial({
           vertexShader: `
             varying vec3 vLocalPosition;
@@ -380,7 +298,7 @@ export default function VisualGravityCore() {
 
         // ✨ 增強能量波 - 更多波紋效果、更密集的能量環繞
         const waveTex = buildRingTex(170, 195, 255);
-        const WAVE_N = isMobile ? 3 : 5;
+        const WAVE_N = 5;
         const waves: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE_N; i++) {
           const m = new THREE.Mesh(
@@ -398,7 +316,7 @@ export default function VisualGravityCore() {
 
         // ✨ 垂直平面波 - 更多層次的 3D 球形感
         const waveTex2 = buildRingTex(180, 160, 255);
-        const WAVE2_N = isMobile ? 2 : 4;
+        const WAVE2_N = 4;
         const waves2: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE2_N; i++) {
           const m = new THREE.Mesh(
@@ -417,7 +335,7 @@ export default function VisualGravityCore() {
 
         // ✨ 新增：對角線能量波 - 更豐富的層次感
         const waveTex3 = buildRingTex(160, 180, 240);
-        const WAVE3_N = isMobile ? 2 : 3;
+        const WAVE3_N = 3;
         const waves3: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE3_N; i++) {
           const m = new THREE.Mesh(
@@ -520,23 +438,10 @@ export default function VisualGravityCore() {
         whFlareV.scale.set(0.12, 2.2, 1);
         grp.add(whFlareV);
 
-        // ── Yin-yang holographic emblem mesh (centered floating/tilt) ──────
-        const taijiEmblemTex = buildTaijiEmblemTex();
-        const taijiPlaneMat = new THREE.MeshBasicMaterial({
-          map: taijiEmblemTex,
-          transparent: true,
-          opacity: 0.82,
-          blending: THREE.AdditiveBlending,
-          side: THREE.DoubleSide,
-          depthWrite: false,
-        });
-        const taijiPlane = new THREE.Mesh(new THREE.PlaneGeometry(5.2, 5.2), taijiPlaneMat);
-        taijiPlane.position.set(0, 0, -0.7);
-        taijiPlane.rotation.x = -Math.PI / 12; // 稍微向後傾斜，立體效果拉滿！
-        grp.add(taijiPlane);
+
 
         // ✨ 優化粒子特效 - 平衡視覺效果和性能
-        const pN = isMobile ? 280 : 1100;
+        const pN = 1100;
         const pArr = new Float32Array(pN * 3);
         const pColors = new Float32Array(pN * 3);  // 新增：顏色變化
         for (let i = 0; i < pN; i++) {
@@ -547,22 +452,24 @@ export default function VisualGravityCore() {
           pArr[i * 3 + 1] = pr * Math.sin(pp) * Math.sin(pt);
           pArr[i * 3 + 2] = pr * Math.cos(pp);
 
-          // 粒子顏色變化：白色 → 藍色 → 紫色
+          // 四色交織粒子光譜：白色、黃金色、天藍色、粉紫色
           const colorType = Math.random();
-          if (colorType < 0.4) {
+          if (colorType < 0.35) {
             pColors[i * 3] = 1.0; pColors[i * 3 + 1] = 0.95; pColors[i * 3 + 2] = 1.0;  // 白
-          } else if (colorType < 0.7) {
-            pColors[i * 3] = 0.7; pColors[i * 3 + 1] = 0.8; pColors[i * 3 + 2] = 1.0;   // 藍
+          } else if (colorType < 0.70) {
+            pColors[i * 3] = 0.98; pColors[i * 3 + 1] = 0.82; pColors[i * 3 + 2] = 0.45; // 金色
+          } else if (colorType < 0.85) {
+            pColors[i * 3] = 0.7; pColors[i * 3 + 1] = 0.85; pColors[i * 3 + 2] = 1.0;   // 天藍
           } else {
-            pColors[i * 3] = 0.6; pColors[i * 3 + 1] = 0.6; pColors[i * 3 + 2] = 0.9;   // 紫
+            pColors[i * 3] = 0.78; pColors[i * 3 + 1] = 0.6; pColors[i * 3 + 2] = 0.95;  // 粉紫
           }
         }
         const pGeo = new THREE.BufferGeometry();
         pGeo.setAttribute("position", new THREE.BufferAttribute(pArr, 3));
         pGeo.setAttribute("color", new THREE.BufferAttribute(pColors, 3));
         const pMat = new THREE.PointsMaterial({
-          size: isMobile ? 0.035 : 0.022,
-          transparent: true, opacity: 0.82,
+          size: 0.022,
+          transparent: true, opacity: 0.85,
           blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
           vertexColors: true,  // 啟用頂點顏色
         });
@@ -570,7 +477,7 @@ export default function VisualGravityCore() {
         scene.add(particles);
 
         // ✨ 增強能量塵埃 - 更多粒子、更動態的吸收/釋放
-        const fN = isMobile ? 140 : 500;
+        const fN = 500;
         const fPos = new Float32Array(fN * 3);
         const fPhase = new Float32Array(fN);
         const fColor = new Float32Array(fN * 3);  // 新增：顏色
@@ -613,6 +520,9 @@ export default function VisualGravityCore() {
         scene.add(mistSprite);
 
         // ── Animation ─────────────────────────────────────────────────────
+        let particlesAngleY = 0;
+        let particlesAngleZ = 0;
+        let grpAngleZ = 0;
         const animationStartedAt = performance.now();
 
         // ✨ 優化的動畫循環 - 高效計算
@@ -631,12 +541,16 @@ export default function VisualGravityCore() {
             if (fps < 30) console.warn(`⚠️ Low FPS: ${fps}`);
           }
 
-          // 維持太極正面辨識度，只用微量視差表現 3D 深度。
+          // 阻尼衰減回 1.0 基準公轉速度
+          touchSpinSpeedRef.current += (1.0 - touchSpinSpeedRef.current) * 0.032;
+          const speedMult = touchSpinSpeedRef.current;
+
+          // All breakpoints share the same tablet composition and viewing angle.
           grp.rotation.y = Math.sin(t * 0.24) * 0.08;
           grp.rotation.x = 0.06 + Math.sin(t * 0.19) * 0.035;
-          // One complete revolution every 18 seconds. Elapsed-time animation
-          // keeps the speed stable on both high and low refresh-rate screens.
-          grp.rotation.z = -(t / 18) * Math.PI * 2;
+          // 核心雙星太極公轉
+          grpAngleZ -= (0.349 / 18) * speedMult;
+          grp.rotation.z = grpAngleZ;
 
           // 低幅度能量呼吸，避免忽大忽小造成視覺失焦。
           const breatheIntensity = 0.014 + Math.sin(t * 0.42) * 0.004;
@@ -664,8 +578,10 @@ export default function VisualGravityCore() {
           whFlareV.scale.set(0.12, 1.9 + Math.sin(t * 1.5) * 0.6, 1);
 
           // Particles slow orbit
-          particles.rotation.y = t * 0.048;
-          particles.rotation.z = t * 0.024;
+          particlesAngleY += 0.048 * speedMult * 0.0167;
+          particlesAngleZ += 0.024 * speedMult * 0.0167;
+          particles.rotation.y = particlesAngleY;
+          particles.rotation.z = particlesAngleZ;
 
           // ✨ 增強能量吸收/釋放循環 - 更密集、更動態
           const fc    = t % 6;  // 加快循環速度
@@ -746,8 +662,7 @@ export default function VisualGravityCore() {
           (mistSprite.material as SpriteMaterial).opacity = 0.12 + Math.sin(t * 0.5) * 0.04;
           mistSprite.scale.setScalar(7.0 + Math.sin(t * 0.4) * 0.6);
 
-          // 旋轉全息太極盤 (自轉)
-          taijiPlane.rotation.z = t * 0.12;
+
 
           renderer.render(scene, camera);
         }
@@ -853,6 +768,7 @@ export default function VisualGravityCore() {
   };
 
   const triggerBurst = (clientX: number, clientY: number) => {
+    touchSpinSpeedRef.current = 2.4; // 觸碰時旋轉加速
     const canvas = interactionCanvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
@@ -1001,7 +917,7 @@ export default function VisualGravityCore() {
   if (failed) {
     return (
       <div
-        className="relative flex h-80 w-80 items-center justify-center rounded-full overflow-hidden"
+        className="relative flex aspect-square w-[min(20rem,calc(100vw-2rem))] items-center justify-center rounded-full overflow-hidden"
         style={{ background: "#02030A" }}
       >
         <div
@@ -1018,7 +934,7 @@ export default function VisualGravityCore() {
   return (
     <div
       ref={mountRef}
-      className="relative h-80 w-80 overflow-hidden rounded-full cursor-pointer select-none"
+      className="relative aspect-square w-[min(20rem,calc(100vw-2rem))] mx-auto overflow-hidden rounded-full cursor-pointer select-none"
       style={{ background: "#02030A" }}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import LunarBirthdayInput from './LunarBirthdayInput';
@@ -98,29 +98,27 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5 flex-wrap sm:min-w-[120px] pb-2 border-b border-white/5">
         {STEPS.map((label, index) => (
-          <div key={label} className="flex items-center gap-2">
+          <div key={label} className="flex items-center gap-1.5">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all ${
+              className={`radar-node ${
                 index < step
-                  ? 'bg-[color:var(--sky-violet)] text-white'
+                  ? 'text-cyan-400 bg-cyan-400'
                   : index === step
-                    ? 'border-2 border-[color:var(--sky-violet)] text-[color:var(--sky-violet)]'
-                    : 'border border-white/20 text-[color:var(--text-muted)]'
+                    ? 'radar-node--active text-rose-400 bg-rose-400 shadow-[0_0_10px_#f43f5e]'
+                    : 'text-white/20 bg-white/20'
               }`}
-            >
-              {index < step ? '✓' : index + 1}
-            </div>
+            />
             <span
-              className={`text-xs tracking-wider ${
+              className={`text-xs font-bold ${
                 index === step ? 'text-[color:var(--text-main)]' : 'text-[color:var(--text-muted)]'
               }`}
             >
               {label}
             </span>
             {index < STEPS.length - 1 && (
-              <div className={`h-px w-6 ${index < step ? 'bg-[color:var(--sky-violet)]' : 'bg-white/15'}`} />
+              <div className="h-px w-3 bg-white/10" />
             )}
           </div>
         ))}
@@ -183,7 +181,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                 setForm((prev) => ({ ...prev, name: event.target.value }));
                 setLocalError('');
               }}
-              className="form-input w-full"
+              className="form-input w-full text-base neon-input-focus neon-card-hover glass-input glass-input-cyan"
             />
           </div>
           <div>
@@ -320,7 +318,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
               setLocalError('');
             }}
             disabled={loading}
-            className="rounded-full border border-white/10 bg-white/5 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full border border-white/10 bg-slate-900/60 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] hover:border-cyan-500/25 hover:text-white transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50"
           >
             上一步
           </button>
@@ -329,7 +327,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
           type="button"
           onClick={handleNext}
           disabled={loading || currentStepInvalid}
-          className="vip-gold-btn flex-1 py-4 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+          className="vip-gold-btn flex-1 py-4 text-sm disabled:cursor-not-allowed disabled:opacity-60 shimmer-btn"
         >
           {loading ? '正在整理主題曲報告…' : step === STEPS.length - 1 ? '生成主題曲預覽' : `下一步：${STEPS[step + 1]}`}
         </button>
