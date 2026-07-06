@@ -389,12 +389,12 @@ export default function InsightPage() {
 
         {!result ? (
           <>
-            <section className="mb-10 grid items-center gap-8 lg:grid-cols-[1fr_auto]">
+            <section className="mb-6 sm:mb-10 grid items-center gap-6 lg:gap-8 lg:grid-cols-[1fr_auto]">
               <div>
                 <div className="mb-4 inline-block rounded-full border border-cyan-400/20 bg-cyan-400/8 px-4 py-1 text-xs tracking-[0.35em] text-cyan-300">
                   AI 深度洞察
                 </div>
-                <h1 className="mystic-title mb-4 font-serif text-4xl leading-tight sm:text-5xl">
+                <h1 className="mystic-title mb-3 font-serif text-3xl leading-tight sm:text-5xl">
                   看懂你的潛力<br />找到下一步方向
                 </h1>
                 <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">

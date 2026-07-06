@@ -796,15 +796,15 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <section className="mb-10 grid items-center gap-8 lg:grid-cols-[1fr_auto]">
+        <section className="mb-6 sm:mb-10 grid items-center gap-6 lg:gap-8 lg:grid-cols-[1fr_auto]">
           <div>
             <div className="mb-4 inline-block rounded-full border border-rose-400/20 bg-rose-400/8 px-4 py-1 text-xs tracking-[0.35em] text-rose-300">
               配對你的命運靈魂伴侶
             </div>
-            <h1 className="mystic-title mb-4 font-serif text-5xl leading-tight sm:text-6xl md:text-7xl">
+            <h1 className="mystic-title mb-3 font-serif text-4xl leading-tight sm:text-6xl md:text-7xl">
               探索靈魂連結<br />與個人深度洞察
             </h1>
-            <div className="mt-8 space-y-5">
+            <div className="mt-6 space-y-4">
               <p className="text-xl sm:text-2xl font-bold text-rose-300 tracking-wide">
                 💕 AI 靈魂配對 — 分析相處節奏與互補點
               </p>

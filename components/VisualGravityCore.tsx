@@ -167,6 +167,89 @@ export default function VisualGravityCore() {
           return new THREE.CanvasTexture(cv);
         }
 
+        // ── Yin-yang holographic emblem texture - beautiful custom canvas grid ─
+        function buildTaijiEmblemTex() {
+          const S = 512, m2 = S / 2;
+          const cv = document.createElement("canvas");
+          cv.width = cv.height = S;
+          const cx = cv.getContext("2d")!;
+          
+          // 1. 外圈發光金環
+          cx.beginPath();
+          cx.arc(m2, m2, 240, 0, Math.PI * 2);
+          cx.strokeStyle = "rgba(245, 158, 11, 0.45)";
+          cx.lineWidth = 2.0;
+          cx.stroke();
+
+          cx.beginPath();
+          cx.arc(m2, m2, 230, 0, Math.PI * 2);
+          cx.strokeStyle = "rgba(245, 158, 11, 0.25)";
+          cx.lineWidth = 1.0;
+          cx.stroke();
+
+          // 2. 十二地支刻度標記
+          cx.fillStyle = "rgba(245, 158, 11, 0.85)";
+          for (let i = 0; i < 12; i++) {
+            const angle = (i * Math.PI) / 6;
+            const x = m2 + Math.cos(angle) * 220;
+            const y = m2 + Math.sin(angle) * 220;
+            cx.beginPath();
+            cx.arc(x, y, 3.5, 0, Math.PI * 2);
+            cx.fill();
+          }
+
+          // 3. 繪製精美太極雙魚 (金與青雙向漸變)
+          // 繪製右半金魚
+          cx.beginPath();
+          cx.arc(m2, m2, 180, -Math.PI / 2, Math.PI / 2, false);
+          cx.arc(m2, m2 + 90, 90, Math.PI / 2, -Math.PI / 2, true);
+          cx.arc(m2, m2 - 90, 90, Math.PI / 2, -Math.PI / 2, false);
+          const goldGrad = cx.createRadialGradient(m2, m2 - 90, 20, m2, m2 - 90, 150);
+          goldGrad.addColorStop(0, "rgba(245, 158, 11, 0.95)");
+          goldGrad.addColorStop(1, "rgba(245, 158, 11, 0.15)");
+          cx.fillStyle = goldGrad;
+          cx.fill();
+
+          // 繪製左半青魚
+          cx.beginPath();
+          cx.arc(m2, m2, 180, Math.PI / 2, -Math.PI / 2, false);
+          cx.arc(m2, m2 - 90, 90, -Math.PI / 2, Math.PI / 2, true);
+          cx.arc(m2, m2 + 90, 90, -Math.PI / 2, Math.PI / 2, false);
+          const cyanGrad = cx.createRadialGradient(m2, m2 + 90, 20, m2, m2 + 90, 150);
+          cyanGrad.addColorStop(0, "rgba(34, 211, 238, 0.95)");
+          cyanGrad.addColorStop(1, "rgba(34, 211, 238, 0.15)");
+          cx.fillStyle = cyanGrad;
+          cx.fill();
+
+          // 4. 兩儀魚眼點
+          cx.beginPath();
+          cx.arc(m2, m2 - 90, 18, 0, Math.PI * 2);
+          cx.fillStyle = "#02030a";
+          cx.fill();
+          cx.beginPath();
+          cx.arc(m2, m2 - 90, 6, 0, Math.PI * 2);
+          cx.fillStyle = "rgba(34, 211, 238, 0.9)";
+          cx.fill();
+
+          cx.beginPath();
+          cx.arc(m2, m2 + 90, 18, 0, Math.PI * 2);
+          cx.fillStyle = "#02030a";
+          cx.fill();
+          cx.beginPath();
+          cx.arc(m2, m2 + 90, 6, 0, Math.PI * 2);
+          cx.fillStyle = "rgba(245, 158, 11, 0.9)";
+          cx.fill();
+
+          // 5. 繪製精細內分隔圓
+          cx.beginPath();
+          cx.arc(m2, m2, 180, 0, Math.PI * 2);
+          cx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+          cx.lineWidth = 1.5;
+          cx.stroke();
+
+          return new THREE.CanvasTexture(cv);
+        }
+
         // ── Core group (rotates as one unit) ─────────────────────────────
         const grp = new THREE.Group();
         scene.add(grp);
@@ -437,6 +520,21 @@ export default function VisualGravityCore() {
         whFlareV.scale.set(0.12, 2.2, 1);
         grp.add(whFlareV);
 
+        // ── Yin-yang holographic emblem mesh (centered floating/tilt) ──────
+        const taijiEmblemTex = buildTaijiEmblemTex();
+        const taijiPlaneMat = new THREE.MeshBasicMaterial({
+          map: taijiEmblemTex,
+          transparent: true,
+          opacity: 0.82,
+          blending: THREE.AdditiveBlending,
+          side: THREE.DoubleSide,
+          depthWrite: false,
+        });
+        const taijiPlane = new THREE.Mesh(new THREE.PlaneGeometry(5.2, 5.2), taijiPlaneMat);
+        taijiPlane.position.set(0, 0, -0.7);
+        taijiPlane.rotation.x = -Math.PI / 12; // 稍微向後傾斜，立體效果拉滿！
+        grp.add(taijiPlane);
+
         // ✨ 優化粒子特效 - 平衡視覺效果和性能
         const pN = isMobile ? 280 : 1100;
         const pArr = new Float32Array(pN * 3);
@@ -648,6 +746,9 @@ export default function VisualGravityCore() {
           (mistSprite.material as SpriteMaterial).opacity = 0.12 + Math.sin(t * 0.5) * 0.04;
           mistSprite.scale.setScalar(7.0 + Math.sin(t * 0.4) * 0.6);
 
+          // 旋轉全息太極盤 (自轉)
+          taijiPlane.rotation.z = t * 0.12;
+
           renderer.render(scene, camera);
         }
 
@@ -682,6 +783,220 @@ export default function VisualGravityCore() {
     };
   }, []);
 
+  // ─── 🔮 手機觸碰「科技仙氣芒光」發光粒子系統 (2D/3D 低耦合架構) ───
+  const interactionCanvasRef = useRef<HTMLCanvasElement>(null);
+  const particlesRef = useRef<any[]>([]);
+  const rippleRef = useRef<any | null>(null);
+  const animFrameIdRef = useRef<number>(0);
+
+  // 渲染與更新粒子與漣漪
+  const updateAndDraw = () => {
+    const canvas = interactionCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let active = false;
+
+    // 1. 繪製氣震波漣漪 (Aura Ripple)
+    const ripple = rippleRef.current;
+    if (ripple) {
+      ripple.radius += 3.8;
+      ripple.alpha -= 0.028;
+      if (ripple.alpha > 0 && ripple.radius < ripple.maxRadius) {
+        ctx.beginPath();
+        ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${ripple.rgb}, ${ripple.alpha})`;
+        ctx.lineWidth = 2.5;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = `rgba(${ripple.rgb}, ${ripple.alpha})`;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        active = true;
+      } else {
+        rippleRef.current = null;
+      }
+    }
+
+    // 2. 更新並繪製仙氣粒子 (Cosmic Sparkles)
+    const particles = particlesRef.current;
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.018; // 微弱重力下沉
+      p.vx += Math.sin(p.x * 0.05 + p.waveOffset) * 0.06; // 正弦 S 波仙氣擺動
+      p.alpha -= p.decay;
+      p.size = Math.max(0.1, p.size - 0.035);
+
+      if (p.alpha > 0 && p.size > 0.1) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color.replace("ALPHA", p.alpha.toFixed(2));
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = p.glowColor;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        active = true;
+      } else {
+        particles.splice(i, 1);
+      }
+    }
+
+    if (active) {
+      animFrameIdRef.current = requestAnimationFrame(updateAndDraw);
+    } else {
+      animFrameIdRef.current = 0;
+    }
+  };
+
+  const triggerBurst = (clientX: number, clientY: number) => {
+    const canvas = interactionCanvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    // 確保 Canvas 寬高設定正確，適應 Retina 視網膜高分屏
+    if (canvas.width !== rect.width || canvas.height !== rect.height) {
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    const isCyan = Math.random() > 0.5;
+    rippleRef.current = {
+      x,
+      y,
+      radius: 5,
+      maxRadius: 85,
+      alpha: 0.8,
+      rgb: isCyan ? "34, 211, 238" : "245, 158, 11",
+    };
+
+    const colorOptions = [
+      { fill: "rgba(34, 211, 238, ALPHA)", glow: "#22d3ee" }, // 青色
+      { fill: "rgba(245, 158, 11, ALPHA)", glow: "#f59e0b" },  // 金色
+      { fill: "rgba(139, 92, 246, ALPHA)", glow: "#8b5cf6" },  // 紫色
+      { fill: "rgba(236, 72, 153, ALPHA)", glow: "#ec4899" },  // 玫瑰粉
+    ];
+
+    const newParticles = [];
+    for (let i = 0; i < 55; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 0.8 + Math.random() * 3.5;
+      const col = colorOptions[Math.floor(Math.random() * colorOptions.length)];
+      newParticles.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 0.4,
+        color: col.fill,
+        glowColor: col.glow,
+        size: 2.0 + Math.random() * 2.8,
+        alpha: 1.0,
+        decay: 0.015 + Math.random() * 0.02,
+        waveOffset: Math.random() * 100,
+      });
+    }
+
+    particlesRef.current.push(...newParticles);
+
+    if (animFrameIdRef.current === 0) {
+      animFrameIdRef.current = requestAnimationFrame(updateAndDraw);
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches && e.touches[0]) {
+      triggerBurst(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    triggerBurst(e.clientX, e.clientY);
+  };
+
+  useEffect(() => {
+    // 1. 手機打開 Ready 800ms 後，自動首發大爆發一次芒光仙氣
+    const autoBurstTimeout = setTimeout(() => {
+      const canvas = interactionCanvasRef.current;
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        triggerBurst(rect.left + centerX, rect.top + centerY);
+      }
+    }, 800);
+
+    // 2. 每隔 5 秒，太極自動進行一次輕量級的金色氣波呼吸
+    const breathInterval = setInterval(() => {
+      const canvas = interactionCanvasRef.current;
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const canvasX = centerX;
+        const canvasY = centerY;
+
+        if (canvas.width !== rect.width || canvas.height !== rect.height) {
+          canvas.width = rect.width;
+          canvas.height = rect.height;
+        }
+
+        // 常駐金色呼吸波
+        rippleRef.current = {
+          x: canvasX,
+          y: canvasY,
+          radius: 5,
+          maxRadius: 75,
+          alpha: 0.55,
+          rgb: "245, 158, 11",
+        };
+
+        const colorOptions = [
+          { fill: "rgba(245, 158, 11, ALPHA)", glow: "#f59e0b" },  // 金色
+          { fill: "rgba(34, 211, 238, ALPHA)", glow: "#22d3ee" }, // 青色
+        ];
+
+        const breathParticles = [];
+        for (let i = 0; i < 18; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 0.5 + Math.random() * 2.0;
+          const col = colorOptions[Math.floor(Math.random() * colorOptions.length)];
+          breathParticles.push({
+            x: canvasX,
+            y: canvasY,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 0.2,
+            color: col.fill,
+            glowColor: col.glow,
+            size: 1.5 + Math.random() * 2.0,
+            alpha: 0.85,
+            decay: 0.01 + Math.random() * 0.015,
+            waveOffset: Math.random() * 100,
+          });
+        }
+
+        particlesRef.current.push(...breathParticles);
+
+        if (animFrameIdRef.current === 0) {
+          animFrameIdRef.current = requestAnimationFrame(updateAndDraw);
+        }
+      }
+    }, 5000);
+
+    return () => {
+      clearTimeout(autoBurstTimeout);
+      clearInterval(breathInterval);
+      if (animFrameIdRef.current) {
+        cancelAnimationFrame(animFrameIdRef.current);
+      }
+    };
+  }, []);
+
   // Fallback: static yin-yang if WebGL fails
   if (failed) {
     return (
@@ -703,8 +1018,15 @@ export default function VisualGravityCore() {
   return (
     <div
       ref={mountRef}
-      className="relative h-80 w-80 overflow-hidden rounded-full"
+      className="relative h-80 w-80 overflow-hidden rounded-full cursor-pointer select-none"
       style={{ background: "#02030A" }}
-    />
+      onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
+    >
+      <canvas
+        ref={interactionCanvasRef}
+        className="absolute inset-0 z-30 pointer-events-none w-full h-full"
+      />
+    </div>
   );
 }
