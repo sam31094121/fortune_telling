@@ -58,6 +58,17 @@ interface InsightAnalysisResponse {
   }[];
   personalizedRecommendations: string[];
   summary: string;
+  ziweiPalaces: {
+    palaceName: string;
+    starName: string;
+    statisticalInference: string;
+  }[];
+  meta?: {
+    dayPillar: string;
+    hourPillar: string;
+    wuxing: string;
+    shichenLabel: string;
+  };
 }
 
 const INSIGHT_RESPONSE_SCHEMA = {
@@ -81,11 +92,24 @@ const INSIGHT_RESPONSE_SCHEMA = {
       description: '個性化建議，3-5 項',
     },
     summary: { type: Type.STRING, description: '完整摘要，200-300 字' },
+    ziwei_palaces: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          palace_name: { type: Type.STRING },
+          star_name: { type: Type.STRING },
+          statistical_inference: { type: Type.STRING },
+        },
+      },
+      description: '紫微斗數三方四正與命身宮大數據推理，固定為 6 項：命宮、身宮、財帛宮、官祿宮、遷移宮、三方四正綜合推理。字數嚴格限制在 50 字以內，簡單明瞭。',
+    },
   },
   required: [
     'psychology_insights',
     'recommendations',
     'summary',
+    'ziwei_palaces',
   ],
 };
 
@@ -453,12 +477,16 @@ ${JSON.stringify(statisticalAnalysis.map((item) => ({
 1. 心理學洞察（3-5項），不可自行創造新分數。
 2. 個性化建議（3-5項）。
 3. 完整分析摘要。
+4. 紫微斗數三方四正與命身宮大數據推理（固定為 6 項：命宮、身宮、財帛宮、官祿宮、遷移宮、三方四正綜合推理），主星依據出生時辰、生日做推導，推理文字限 50 字以內，極度簡明扼要、直戳本質。
 
 分析要求：
-- 至少有一項心理學洞察或大數據發現，要自然融入「八字（日柱/時柱五行）與紫微斗數」的命理視角，與心理學/統計資料彼此呼應、不可互相矛盾。
-- 若時辰為自動採用的良辰吉時，分析照常完成，語氣保持正向，不需強調資料不足。
-- 不要輸出任何分數、百分位、樣本數；這些已由後端統計公式計算。
-- 語氣專業、溫和、有依據，繁體中文。
+- 【紫微八字精密推導】：必須根據輸入的國曆民國年生日（例如民國63年6月28日，即1974年6月28日）與出生時辰，精準推導出正確的紫微命宮主星（例如甲寅年五月初九生，若為時辰對應則推測出如貪狼、破軍、七殺等殺破狼或紫微天府格局主星曜，以此類推），以及身宮、財官遷的星曜。
+- 【數據源明確聲明】：在 'ziwei_palaces' 的推理（'statistical_inference'）中，字裡行間必須讓客戶「一清二楚地感知到」所有數據與洞察皆是基於其真實八字（日柱、時柱干支）與紫微斗數命宮星曜生剋邏輯的嚴密統計學推理，而非隨機文案。
+- 語氣定位：【直擊靈魂、犀利精準且極具穿透力與殺傷力】。拒絕平淡的雞湯安慰！要以鐵口直斷與大數據心理學家的口吻，一針見血地戳破客戶內心深處最真實的盲點、宿命掙扎與行為動機，讓客戶看了一清二楚、深感震撼。
+- 每一項「心理學洞察」與「建議」必須有完全不同的切入點與獨特話術，展現高智商、邏輯嚴密且不可複刻的專業性。
+- 若時辰為自動採用的良辰吉時，請直接以其干支五行演算法推導，不需強調資料不足。
+- 不要輸出任何具體的分數、百分位或樣本數（這些後端會自動渲染）。
+- 統一繁體中文，言字有物、精準犀利。
 
 返回結構化的 JSON 格式。`;
 
@@ -493,6 +521,7 @@ ${JSON.stringify(statisticalAnalysis.map((item) => ({
     psychology_insights: Array<{ title: string; description: string; confidence: number }>;
     recommendations: string[];
     summary: string;
+    ziwei_palaces: Array<{ palace_name: string; star_name: string; statistical_inference: string }>;
   }>(textStr);
 
   return {
@@ -510,5 +539,16 @@ ${JSON.stringify(statisticalAnalysis.map((item) => ({
     bigDataInsights,
     personalizedRecommendations: aiAnalysis.recommendations,
     summary: aiAnalysis.summary,
+    ziweiPalaces: aiAnalysis.ziwei_palaces?.map((p) => ({
+      palaceName: p.palace_name,
+      starName: p.star_name,
+      statisticalInference: p.statistical_inference,
+    })) ?? [],
+    meta: {
+      dayPillar: shichen.dayPillar,
+      hourPillar: shichen.hourPillar.ganzhi,
+      wuxing: shichen.wuxing,
+      shichenLabel: shichen.shichen.label,
+    },
   };
 }

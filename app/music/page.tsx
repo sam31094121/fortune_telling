@@ -1,6 +1,7 @@
-﻿'use client';
+'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import VisualGravityCore from '@/components/VisualGravityCore';
 import PersonalityMusicFlow, { type MusicFormData } from '@/components/PersonalityMusicFlow';
 import PersonalityMusicReport from '@/components/PersonalityMusicReport';
@@ -165,9 +166,9 @@ function LandingHero({ onStart }: { onStart: () => void }) {
           <button type="button" onClick={onStart} className="vip-gold-btn px-14 py-5 text-lg">
             生成我的主題曲
           </button>
-          <a href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
+          <Link href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
             回到人格解碼首頁
-          </a>
+          </Link>
         </div>
 
         <div className="mt-14 grid grid-cols-3 gap-4">
@@ -197,6 +198,54 @@ function LandingHero({ onStart }: { onStart: () => void }) {
   );
 }
 
+function MusicAnalyticalConsole({
+  name,
+}: {
+  name: string;
+}) {
+  const [logs, setLogs] = useState<string[]>([]);
+
+  const fullLogs = useMemo(() => [
+    `【天宿天盤】讀取聲音與姓名特徵：${name || '未知本體'}`,
+    `【地脈羅盤】校準星座與人格節奏軌道... 已就緒`,
+    `【人和音律】血型表達風格與年代偏好映射... 已就緒`,
+    `【天星解密】音律聲學模型提取：合成 432Hz 靈魂頻率預覽... 正在寫入`,
+    `【天宿智算】正在生成專屬歌詞與音樂敘述結構...`,
+  ], [name]);
+
+  useEffect(() => {
+    setLogs([]);
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      if (currentIndex < fullLogs.length) {
+        setLogs((prev) => [...prev, fullLogs[currentIndex]]);
+        currentIndex++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 450);
+    return () => clearInterval(interval);
+  }, [fullLogs]);
+
+  return (
+    <div className="fortune-card p-6 sm:p-8 font-mono border border-violet-500/20 bg-slate-950/80 shadow-[0_0_30px_rgba(139,92,246,0.08)]">
+      <p className="text-xs uppercase tracking-[0.35em] text-violet-300">🧬 大數據音樂人格運算終端</p>
+      <div className="mt-6 space-y-3.5 text-xs sm:text-sm text-violet-100 leading-7 min-h-[150px]">
+        {logs.map((log, index) => (
+          <p key={index} className="animate-fade-in">
+            {log}
+          </p>
+        ))}
+        {logs.length < fullLogs.length && (
+          <p className="text-violet-400">
+            【天盤運轉】正在解密聲律矩陣...<span className="console-cursor" />
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function MusicSystemPage() {
   const [pageState, setPageState] = useState<PageState>('landing');
   const [loading, setLoading] = useState(false);
@@ -204,6 +253,13 @@ export default function MusicSystemPage() {
   const [submittedName, setSubmittedName] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const formRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (pageState === 'result' || loading || errorMsg) {
+      mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [pageState, loading, errorMsg]);
 
   async function handleSubmit(data: MusicFormData) {
     setErrorMsg('');
@@ -262,7 +318,7 @@ export default function MusicSystemPage() {
   }
 
   return (
-    <div className="app-bg min-h-screen overflow-x-hidden">
+    <div ref={mainRef} className="app-bg min-h-screen overflow-x-hidden">
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
       <div className="constellation-ring constellation-ring-top pointer-events-none z-0" />
       <div className="constellation-ring constellation-ring-bottom pointer-events-none z-0" />
@@ -272,13 +328,23 @@ export default function MusicSystemPage() {
       {pageState === 'form' && (
         <main ref={formRef} className="relative z-10 mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
           <div className="mb-8 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => setPageState('landing')}
-              className="flex items-center gap-2 text-sm text-[color:var(--text-muted)] transition hover:text-white"
-            >
-              ← 返回
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => setPageState('landing')}
+                className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white"
+              >
+                ← 上一步
+              </button>
+              <span className="text-[color:var(--text-muted)]">·</span>
+              <Link href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
+                🏠 首頁
+              </Link>
+              <span className="text-[color:var(--text-muted)]">·</span>
+              <Link href="/insight" className="text-xs tracking-widest text-cyan-300/70 transition hover:text-cyan-300">
+                ✨ 深度洞察
+              </Link>
+            </div>
             <div className="rounded-full border border-violet-400/30 px-4 py-1 text-xs font-semibold tracking-[0.3em] text-violet-200">
               AI 人格音樂
             </div>
@@ -297,8 +363,8 @@ export default function MusicSystemPage() {
               <PersonalityMusicFlow onSubmit={handleSubmit} loading={loading} />
 
               {loading && (
-                <div className="mt-6 rounded-2xl border border-violet-400/15 bg-violet-950/20 p-4 text-center text-sm text-violet-200">
-                  正在整理人格節奏與主題曲預覽，請稍候…
+                <div className="mt-6">
+                  <MusicAnalyticalConsole name={submittedName} />
                 </div>
               )}
 
@@ -335,7 +401,50 @@ export default function MusicSystemPage() {
       )}
 
       {pageState === 'result' && result && (
-        <main className="relative z-10 mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <main className="relative z-10 mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14 overflow-hidden">
+          <div className="absolute right-0 top-0 opacity-[0.06] pointer-events-none translate-x-12 -translate-y-12">
+            <svg
+              className="w-80 h-80 text-violet-400"
+              style={{ animation: 'spin 80s linear infinite' }}
+              viewBox="0 0 100 100"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient id="taijiGradMusic" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="currentColor" stopOpacity="0.8" />
+                  <stop offset="50%" stopColor="currentColor" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="currentColor" stopOpacity="0.9" />
+                </linearGradient>
+                <filter id="taijiGlowMusic" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="1.2" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              <circle cx="50" cy="50" r="48" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1,2" opacity="0.3" fill="none" />
+              <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="0.75" strokeDasharray="4,4" opacity="0.5" fill="none" />
+              <circle cx="50" cy="50" r="41" stroke="currentColor" strokeWidth="0.25" opacity="0.4" fill="none" />
+              <circle cx="50" cy="50" r="38" stroke="currentColor" strokeWidth="0.5" strokeDasharray="8,2" opacity="0.3" fill="none" />
+              <g fontSize="4.5" fill="currentColor" opacity="0.7" fontFamily="monospace" filter="url(#taijiGlowMusic)">
+                <text x="50" y="10" textAnchor="middle">☰</text>
+                <text x="78" y="22" textAnchor="middle" transform="rotate(45, 78, 22)">☴</text>
+                <text x="90" y="50" textAnchor="middle" transform="rotate(90, 90, 50)">☲</text>
+                <text x="78" y="78" textAnchor="middle" transform="rotate(135, 78, 78)">☳</text>
+                <text x="50" y="90" textAnchor="middle" transform="rotate(180, 50, 90)">☷</text>
+                <text x="22" y="78" textAnchor="middle" transform="rotate(225, 22, 78)">☱</text>
+                <text x="10" y="50" textAnchor="middle" transform="rotate(270, 10, 50)">☵</text>
+                <text x="22" y="22" textAnchor="middle" transform="rotate(315, 22, 22)">☶</text>
+              </g>
+              <g filter="url(#taijiGlowMusic)">
+                <path
+                  d="M 50 16 A 34 34 0 0 1 50 84 A 17 17 0 0 1 50 50 A 17 17 0 0 0 50 16 Z"
+                  fill="url(#taijiGradMusic)"
+                  stroke="none"
+                />
+                <circle cx="50" cy="33" r="4" fill="#020617" stroke="none" />
+                <circle cx="50" cy="67" r="4" fill="currentColor" stroke="none" opacity="0.9" />
+              </g>
+            </svg>
+          </div>
           <div className="mb-6 flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.35em] text-violet-300">音樂人格結果</p>
@@ -351,16 +460,16 @@ export default function MusicSystemPage() {
           </div>
 
           <PersonalityMusicReport
-            personalityMatrix={result.personality_matrix as never}
-            musicParameters={result.music_parameters}
-            musicReport={result.music_report}
-            meta={result.meta}
-            englishTrack={result.english_track}
-            mandarinTrack={result.mandarin_track}
-            taiwaneseTrack={result.taiwanese_track}
-            songDrafts={result.song_drafts}
-            productionPlan={result.production_plan}
-            fusionSong={result.fusion_song}
+            personalityMatrix={(result?.personality_matrix ?? {}) as any}
+            musicParameters={result?.music_parameters ?? { bpm: 120, key: 'C', genre: 'Pop', mood: [], vocal_style: '', instrument: [], lyric_theme: [] }}
+            musicReport={result?.music_report ?? { music_narrative: '', song_title_suggestion: '', lyric_opening: '', music_message: '', wisdom_note: '', english_song_reason: '', mandarin_song_reason: '', taiwanese_song_reason: '' }}
+            meta={result?.meta ?? { zodiac: '', era: '' }}
+            englishTrack={result?.english_track ?? { title: '', artist: '', videoId: '' }}
+            mandarinTrack={result?.mandarin_track ?? null}
+            taiwaneseTrack={result?.taiwanese_track ?? null}
+            songDrafts={result?.song_drafts}
+            productionPlan={result?.production_plan}
+            fusionSong={result?.fusion_song}
             name={submittedName}
             onReset={handleReset}
           />

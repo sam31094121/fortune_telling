@@ -41,6 +41,8 @@ interface KarmaStory {
   story: string;
   today_advice: string;
   closing_wisdom: string;
+  personA_star?: string;
+  personB_star?: string;
 }
 
 interface PersonDisplay {
@@ -431,6 +433,18 @@ export default function HomePage() {
   const [isDemoRunning, setIsDemoRunning] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
 
+  // 檢測 Fast Refresh 或 Chunk 載入錯誤，自動維修重新載入，防禦白屏
+  useEffect(() => {
+    const handleChunkError = (e: ErrorEvent) => {
+      if (e.message && (e.message.includes('Loading chunk') || e.message.includes('Cannot find module') || e.message.includes('webpack'))) {
+        console.warn('檢測到快取 Chunk 異常，正在自動維修重載網頁...', e);
+        window.location.reload();
+      }
+    };
+    window.addEventListener('error', handleChunkError);
+    return () => window.removeEventListener('error', handleChunkError);
+  }, []);
+
   // 一鍵自動對齊天宿配對演示
   const startAutoDemo = async () => {
     if (isDemoRunning || loading) return;
@@ -693,6 +707,9 @@ export default function HomePage() {
       }
 
       setData(json);
+      if (!isUnlocked) {
+        handleUnlockVIP();
+      }
 
       // 獲得配對結果後，嘗試生成因果故事
       try {
@@ -731,7 +748,6 @@ export default function HomePage() {
     setData(null);
     setError('');
     setStep('personA-base');
-    setIsUnlocked(false);
   }
 
   return (
@@ -823,7 +839,7 @@ export default function HomePage() {
                     disabled={isDemoRunning}
                     className="holo-shine vip-gold-btn px-6 py-3 text-xs font-bold tracking-widest uppercase shadow-[0_0_20px_rgba(201,162,74,0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isDemoRunning ? '🔮 天宿配對演示自動運行中…' : '🔮 一鍵自動跑完全流程 (Auto-Demo)'}
+                    {isDemoRunning ? '🔮 天宿配對演示自動運行中…' : '🔮 一鍵自動天盤對齊演練'}
                   </button>
                 </div>
                 <div className="fortune-card p-5 sm:p-6">
@@ -970,7 +986,7 @@ export default function HomePage() {
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
                           <span className="relative inline-flex rounded-full h-3 w-3 bg-violet-500"></span>
                         </span>
-                        <p className="text-xs uppercase tracking-[0.25em] text-violet-300 font-semibold font-mono">🧬 天宿重力場穩定度檢測：就緒 (READY)</p>
+                        <p className="text-xs uppercase tracking-[0.25em] text-violet-300 font-semibold font-mono">🧬 天宿重力場穩定度檢測：已就緒</p>
                       </div>
                       <p className="mt-3 text-xs leading-6 text-[color:var(--text-sub)]">
                         系統已成功在底層聯結天宿、地脈、人和因果矩陣。雙方姓名五格與八字五行軌跡已安全掛載。按下「查看配對結果」將自動解密天命因果關係與共鳴分數。
@@ -1220,7 +1236,7 @@ export default function HomePage() {
                 {/* 聲學音樂適配區 (動態跳動頻譜) */}
                 <div className="fortune-card vip-gold-card p-6 sm:p-8 relative overflow-hidden">
                   <div className="absolute right-6 top-6 flex items-center gap-2">
-                    <span className="text-[10px] tracking-wider text-amber-300/80 font-mono">432Hz CO-RESONANCE</span>
+                    <span className="text-[10px] tracking-wider text-amber-300/80 font-mono">432Hz 靈魂共鳴</span>
                     <div className="tech-waveform">
                       <div className="tech-waveform-bar" />
                       <div className="tech-waveform-bar" />
@@ -1263,6 +1279,30 @@ export default function HomePage() {
                     <p className="mt-3 text-lg text-white font-bold">{data.karma_story.needs_understanding}</p>
                   </div>
                 </div>
+
+                {data.karma_story.personA_star && data.karma_story.personB_star && (
+                  <div className="fortune-card vip-gold-card p-6 sm:p-8 border-amber-500/20 bg-amber-950/10">
+                    <p className="mb-4 text-xs uppercase tracking-[0.35em] text-amber-300 font-semibold">☯️ 雙方本命紫微斗數命宮主星曜大數據</p>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="rounded-xl border border-violet-500/20 bg-slate-950/40 p-4">
+                        <p className="text-xs text-violet-300 font-medium">【{personA.name}】紫微坐命宮</p>
+                        <p className="mt-2 text-lg text-white font-black text-shadow-glow">
+                          {data.karma_story.personA_star}
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-amber-500/20 bg-slate-950/40 p-4">
+                        <p className="text-xs text-amber-300 font-medium">【{personB.name}】紫微坐命宮</p>
+                        <p className="mt-2 text-lg text-white font-black text-shadow-glow">
+                          {data.karma_story.personB_star}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="mt-4 text-[11px] text-[color:var(--text-muted)] leading-5">
+                      📊 <strong>宿命數據統計聲明：</strong>
+                      所有配對與業力意見均基於雙方紫微斗數命宮主星交匯軌道與八字十神（如日主生剋關係）進行統計學推演。數據均有邏輯根據，非隨機生成。
+                    </p>
+                  </div>
+                )}
 
                 <div className="fortune-card vip-gold-card p-6 sm:p-8">
                   <p className="text-xs uppercase tracking-[0.35em] text-amber-300 font-semibold">關係課題</p>

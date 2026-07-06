@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
@@ -62,6 +62,17 @@ interface InsightResult {
   }[];
   personalizedRecommendations: string[];
   summary: string;
+  ziweiPalaces?: {
+    palaceName: string;
+    starName: string;
+    statisticalInference: string;
+  }[];
+  meta?: {
+    dayPillar: string;
+    hourPillar: string;
+    wuxing: string;
+    shichenLabel: string;
+  };
 }
 
 const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
@@ -141,7 +152,7 @@ function ScoreEvidenceCard({ item }: { item: InsightResult['statisticalAnalysis'
       </div>
 
       <div className="mt-4 grid gap-2 text-xs text-[color:var(--text-sub)] sm:grid-cols-2">
-        <p>百分位：PR {item.percentile}</p>
+        <p>超越全國：{item.percentile}% 的人</p>
         {item.sampleSize && <p>樣本基準：{item.sampleSize.toLocaleString()}</p>}
       </div>
 
@@ -168,7 +179,69 @@ function ScoreEvidenceCard({ item }: { item: InsightResult['statisticalAnalysis'
   );
 }
 
+function InsightAnalyticalConsole({
+  name,
+}: {
+  name: string;
+}) {
+  const [logs, setLogs] = useState<string[]>([]);
+
+  const fullLogs = useMemo(() => [
+    `【天宿天盤】抓取個人命格星曜氣場：${name || '未知本體'}`,
+    `【地脈羅盤】比對血型地磁與五行相生喜忌... 已就緒`,
+    `【人和音律】姓名學五格剖析與人格超越基準映射... 已就緒`,
+    `【天宿智算】正在計算超越樣本數據庫基底...`,
+    `【天星解密】生成個人潛能、盲點與改命建議分析報告...`,
+  ], [name]);
+
+  useEffect(() => {
+    setLogs([]);
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      if (currentIndex < fullLogs.length) {
+        setLogs((prev) => [...prev, fullLogs[currentIndex]]);
+        currentIndex++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 450);
+    return () => clearInterval(interval);
+  }, [fullLogs]);
+
+  return (
+    <div className="fortune-card p-6 sm:p-8 font-mono border border-cyan-500/20 bg-slate-950/80 shadow-[0_0_30px_rgba(34,211,238,0.08)] w-full">
+      <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">🧬 大數據個人天宿洞察終端</p>
+      <div className="mt-6 space-y-3.5 text-xs sm:text-sm text-cyan-100 leading-7 min-h-[150px]">
+        {logs.map((log, index) => (
+          <p key={index} className="animate-fade-in">
+            {log}
+          </p>
+        ))}
+        {logs.length < fullLogs.length && (
+          <p className="text-cyan-400">
+            【天盤運轉】正在解密命相運算軌道...<span className="console-cursor" />
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function InsightPage() {
+  const mainRef = useRef<HTMLElement>(null);
+
+  // 檢測 Fast Refresh 或 Chunk 載入錯誤，自動維修重新載入，防禦白屏
+  useEffect(() => {
+    const handleChunkError = (e: ErrorEvent) => {
+      if (e.message && (e.message.includes('Loading chunk') || e.message.includes('Cannot find module') || e.message.includes('webpack'))) {
+        console.warn('檢測到快取 Chunk 異常，正在自動維修重載網頁...', e);
+        window.location.reload();
+      }
+    };
+    window.addEventListener('error', handleChunkError);
+    return () => window.removeEventListener('error', handleChunkError);
+  }, []);
+
   const [input, setInput] = useState<InsightData>({
     name: '',
     birthDate: '',
@@ -179,6 +252,12 @@ export default function InsightPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<InsightResult | null>(null);
+
+  useEffect(() => {
+    if (loading || result || error) {
+      mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [loading, !!result, error]);
 
   // 驗證函數
   const validateForm = (): string | null => {
@@ -291,7 +370,7 @@ export default function InsightPage() {
     <div className="app-bg min-h-screen overflow-hidden">
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
 
-      <main className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
+      <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
         <div className="mb-8 flex items-center gap-4">
           <Link href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
             ← 返回首頁
@@ -301,7 +380,7 @@ export default function InsightPage() {
             🎵 人格
           </Link>
           <span className="text-[color:var(--text-muted)]">·</span>
-          <Link href="/match" className="text-xs tracking-widest text-rose-300/70 transition hover:text-rose-300">
+          <Link href="/" className="text-xs tracking-widest text-rose-300/70 transition hover:text-rose-300">
             💕 配對
           </Link>
           <span className="text-[color:var(--text-muted)]">·</span>
@@ -328,8 +407,10 @@ export default function InsightPage() {
               </div>
             </section>
 
-            <div className="fortune-card space-y-8 p-6 sm:p-8">
-              {/* 狀態指示器 */}
+            <div className="fortune-card p-6 sm:p-8">
+              {loading && <InsightAnalyticalConsole name={input.name} />}
+              <div className={loading ? 'hidden' : 'space-y-8'}>
+                {/* 狀態指示器 */}
               <div className="hidden rounded-lg border border-cyan-400/20 bg-cyan-400/5 p-4 sm:block">
                 <p className="text-xs text-[color:var(--text-muted)] mb-3">資料進度</p>
                 <div className="flex gap-2 flex-wrap">
@@ -549,44 +630,89 @@ export default function InsightPage() {
                 )}
               </div>
             </div>
-          </>
+          </div>
+        </>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6 relative overflow-hidden">
+            <div className="absolute right-0 top-0 opacity-[0.06] pointer-events-none translate-x-12 -translate-y-12">
+              <svg
+                className="w-80 h-80 text-cyan-400"
+                style={{ animation: 'spin 80s linear infinite' }}
+                viewBox="0 0 100 100"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <linearGradient id="taijiGradInsight" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="currentColor" stopOpacity="0.8" />
+                    <stop offset="50%" stopColor="currentColor" stopOpacity="0.35" />
+                    <stop offset="100%" stopColor="currentColor" stopOpacity="0.9" />
+                  </linearGradient>
+                  <filter id="taijiGlowInsight" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="1.2" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+                <circle cx="50" cy="50" r="48" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1,2" opacity="0.3" fill="none" />
+                <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="0.75" strokeDasharray="4,4" opacity="0.5" fill="none" />
+                <circle cx="50" cy="50" r="41" stroke="currentColor" strokeWidth="0.25" opacity="0.4" fill="none" />
+                <circle cx="50" cy="50" r="38" stroke="currentColor" strokeWidth="0.5" strokeDasharray="8,2" opacity="0.3" fill="none" />
+                <g fontSize="4.5" fill="currentColor" opacity="0.7" fontFamily="monospace" filter="url(#taijiGlowInsight)">
+                  <text x="50" y="10" textAnchor="middle">☰</text>
+                  <text x="78" y="22" textAnchor="middle" transform="rotate(45, 78, 22)">☴</text>
+                  <text x="90" y="50" textAnchor="middle" transform="rotate(90, 90, 50)">☲</text>
+                  <text x="78" y="78" textAnchor="middle" transform="rotate(135, 78, 78)">☳</text>
+                  <text x="50" y="90" textAnchor="middle" transform="rotate(180, 50, 90)">☷</text>
+                  <text x="22" y="78" textAnchor="middle" transform="rotate(225, 22, 78)">☱</text>
+                  <text x="10" y="50" textAnchor="middle" transform="rotate(270, 10, 50)">☵</text>
+                  <text x="22" y="22" textAnchor="middle" transform="rotate(315, 22, 22)">☶</text>
+                </g>
+                <g filter="url(#taijiGlowInsight)">
+                  <path
+                    d="M 50 16 A 34 34 0 0 1 50 84 A 17 17 0 0 1 50 50 A 17 17 0 0 0 50 16 Z"
+                    fill="url(#taijiGradInsight)"
+                    stroke="none"
+                  />
+                  <circle cx="50" cy="33" r="4" fill="#020617" stroke="none" />
+                  <circle cx="50" cy="67" r="4" fill="currentColor" stroke="none" opacity="0.9" />
+                </g>
+              </svg>
+            </div>
+            <div className="space-y-6">
             <div className="fortune-card p-6 sm:p-8 text-center">
               <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">洞察報告完成</p>
-              <h2 className="mt-3 font-serif text-5xl text-[color:var(--text-main)]">{result.accuracyScore}%</h2>
+              <h2 className="mt-3 font-serif text-5xl text-[color:var(--text-main)]">{result?.accuracyScore ?? 0}%</h2>
               <p className="mt-2 text-sm text-[color:var(--text-sub)]">資料信心度</p>
               <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
-                整合 {result.dataSourceCount.toLocaleString()} 筆趨勢樣本與個人訊號
+                整合 {result?.dataSourceCount?.toLocaleString() ?? '0'} 筆趨勢樣本與個人訊號
               </p>
             </div>
 
-            {result.scoreMethodology && (
+            {result?.scoreMethodology && (
               <div className="fortune-card p-6 sm:p-8">
                 <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">分數計算邏輯</p>
                 <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)]">每個分數都有固定來源</h3>
                 <div className="mt-5 grid gap-4 lg:grid-cols-2">
                   <div className="rounded-2xl border border-cyan-400/15 bg-cyan-950/15 p-4">
                     <p className="text-xs tracking-[0.25em] text-cyan-300">公式</p>
-                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{result.scoreMethodology.formula}</p>
+                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{result?.scoreMethodology?.formula}</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                     <p className="text-xs tracking-[0.25em] text-[color:var(--text-muted)]">百分位</p>
-                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{result.scoreMethodology.percentile}</p>
+                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{result?.scoreMethodology?.percentile}</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                     <p className="text-xs tracking-[0.25em] text-[color:var(--text-muted)]">樣本基準</p>
-                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{result.scoreMethodology.sampleBasis}</p>
+                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{result?.scoreMethodology?.sampleBasis}</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                     <p className="text-xs tracking-[0.25em] text-[color:var(--text-muted)]">同分處理</p>
-                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{result.scoreMethodology.duplicatePolicy}</p>
+                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{result?.scoreMethodology?.duplicatePolicy}</p>
                   </div>
                 </div>
 
-                {result.accuracyBreakdown && (
+                {result?.accuracyBreakdown && (
                   <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    {result.accuracyBreakdown.map((item) => (
+                    {result?.accuracyBreakdown?.map((item) => (
                       <div key={item.label} className="rounded-2xl border border-white/10 bg-black/15 p-4">
                         <div className="flex items-center justify-between gap-3">
                           <p className="text-sm font-semibold text-[color:var(--text-main)]">{item.label}</p>
@@ -604,7 +730,7 @@ export default function InsightPage() {
               <div className="fortune-card p-6 sm:p-8">
                 <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">核心指標來源</p>
                 <div className="grid gap-4 xl:grid-cols-2">
-                  {result.statisticalAnalysis.map((item) => (
+                  {result?.statisticalAnalysis?.map((item) => (
                     <ScoreEvidenceCard key={item.dimension} item={item} />
                   ))}
                 </div>
@@ -613,7 +739,7 @@ export default function InsightPage() {
               <div className="fortune-card p-6 sm:p-8">
                 <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">心理學洞察</p>
                 <div className="space-y-4 text-sm">
-                  {result.psychologyInsights.slice(0, 3).map((insight, index) => (
+                  {result?.psychologyInsights?.slice(0, 3)?.map((insight, index) => (
                     <div key={index} className="border-l-2 border-cyan-400/30 pl-4">
                       <p className="font-semibold text-cyan-300">{insight.title}</p>
                       <p className="mt-1 text-[color:var(--text-sub)]">{insight.description}</p>
@@ -627,15 +753,53 @@ export default function InsightPage() {
               </div>
             </div>
 
+            {result?.ziweiPalaces && result.ziweiPalaces.length > 0 && (
+              <div className="fortune-card p-6 sm:p-8 relative overflow-hidden">
+                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">☯️ 紫微斗數 · 三方四正大數據推理</p>
+                
+                <div className="mb-6 rounded-2xl border border-cyan-400/20 bg-cyan-950/15 p-4 text-xs leading-6 text-cyan-200">
+                  📊 <strong>本命大數據命理校準源：</strong>
+                  八字日柱【<span className="text-amber-300 font-bold">{result.meta?.dayPillar}</span>】· 
+                  時柱【<span className="text-amber-300 font-bold">{result.meta?.hourPillar}</span>】· 
+                  時辰【<span className="text-cyan-300 font-bold">{result.meta?.shichenLabel}</span>】 · 
+                  時辰五行【<span className="text-violet-300 font-bold">{result.meta?.wuxing}</span>】。
+                  <p className="mt-1 text-[11px] text-[color:var(--text-muted)] leading-5">
+                    本項統計數據均基於你的真實八字格局與紫微斗數三方四正命盤星曜軌道精密推導，非隨機生成，特此聲明。
+                  </p>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {result.ziweiPalaces.map((palace, index) => (
+                    <div
+                      key={index}
+                      className="rounded-2xl border border-cyan-500/10 bg-slate-950/40 p-4 sm:p-5 transition hover:border-cyan-500/30"
+                    >
+                      <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                        <span className="text-sm font-bold text-cyan-300">
+                          {palace.palaceName}
+                        </span>
+                        <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-300 border border-amber-500/20">
+                          {palace.starName}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-xs leading-6 text-[color:var(--text-sub)]">
+                        {palace.statisticalInference}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="fortune-card p-6 sm:p-8">
               <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">關鍵發現</p>
               <div className="grid gap-4 sm:grid-cols-2">
-                {result.bigDataInsights.map((insight, index) => (
+                {result?.bigDataInsights?.map((insight, index) => (
                   <div key={index} className="rounded-lg border border-white/5 bg-white/3 p-4">
                     <p className="text-sm font-semibold text-cyan-300">{insight.category}</p>
                     <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]">{insight.finding}</p>
                     <p className="mt-3 text-xs text-[color:var(--text-muted)]">
-                      樣本數: {insight.sampleSize.toLocaleString()}
+                      樣本數: {insight?.sampleSize?.toLocaleString() ?? '0'}
                     </p>
                     {insight.scoreBasis && (
                       <p className="mt-2 text-xs leading-6 text-cyan-100/70">{insight.scoreBasis}</p>
@@ -648,7 +812,7 @@ export default function InsightPage() {
             <div className="fortune-card p-6 sm:p-8">
               <p className="mb-4 text-xs uppercase tracking-[0.35em] text-cyan-300">個性化建議</p>
               <ul className="space-y-3 text-sm">
-                {result.personalizedRecommendations.map((rec, index) => (
+                {result?.personalizedRecommendations?.map((rec, index) => (
                   <li key={index} className="flex gap-3">
                     <span className="text-cyan-400">→</span>
                     <span className="text-[color:var(--text-sub)]">{rec}</span>
@@ -659,7 +823,7 @@ export default function InsightPage() {
 
             <div className="fortune-card p-6 sm:p-8 text-center">
               <p className="mb-4 font-semibold text-[color:var(--text-main)]">重點摘要</p>
-              <p className="text-sm leading-8 text-[color:var(--text-sub)]">{result.summary}</p>
+              <p className="text-sm leading-8 text-[color:var(--text-sub)]">{result?.summary}</p>
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -679,8 +843,9 @@ export default function InsightPage() {
 
             <NextStepGuide current="insight" />
           </div>
-        )}
-      </main>
+        </div>
+      )}
+    </main>
     </div>
   );
 }

@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
@@ -210,6 +210,10 @@ function PersonStep({
 }
 
 export default function MatchPage() {
+  useEffect(() => {
+    window.location.replace('/');
+  }, []);
+
   const [step, setStep] = useState<StepKey>('personA');
   const [personA, setPersonA] = useState<PersonInput>({ ...EMPTY, gender: 'female' });
   const [personB, setPersonB] = useState<PersonInput>({ ...EMPTY, gender: 'male' });
