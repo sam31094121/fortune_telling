@@ -134,85 +134,64 @@ function LandingHero({ onStart }: { onStart: () => void }) {
         }}
       />
 
+      <div
+        className="pointer-events-none absolute"
+        style={{
+          width: 'min(640px, 95vw)',
+          height: 'min(640px, 95vw)',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          opacity: 0.55,
+        }}
+      >
+        <VisualGravityCore />
+      </div>
+
       <div className="relative z-20 flex max-w-3xl flex-col items-center">
-        {/* ☯️ 太極天宿羅盤主視覺焦點 (Hero Focus Section) */}
-        <div className="mb-8 text-center flex flex-col items-center justify-center relative overflow-hidden py-8 px-6 rounded-3xl border border-white/5 bg-slate-950/20 shadow-[0_0_50px_rgba(201,162,74,0.05)]">
-          {/* 大太極 SVG 動畫 */}
-          <div className="relative w-44 h-44 sm:w-52 sm:h-52 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full bg-cyan-500/10 blur-[30px] animate-pulse" />
-            <div className="absolute inset-0 rounded-full bg-amber-500/5 blur-[50px]" />
-            
-            {/* 旋轉外八卦盤 */}
-            <svg
-              className="w-full h-full text-cyan-400/25 absolute"
-              style={{ animation: 'spin 40s linear infinite' }}
-              viewBox="0 0 100 100"
-            >
-              <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1 3" />
-              <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="3 5" />
-              <g fontSize="3" fill="currentColor" opacity="0.6" fontFamily="monospace">
-                <text x="48.5" y="12">子</text>
-                <text x="68" y="17">丑</text>
-                <text x="83" y="32">寅</text>
-                <text x="88.5" y="51.5">卯</text>
-                <text x="83" y="71">辰</text>
-                <text x="68" y="86">巳</text>
-                <text x="48.5" y="91">午</text>
-                <text x="29" y="86">未</text>
-                <text x="14" y="71">申</text>
-                <text x="8.5" y="51.5">酉</text>
-                <text x="14" y="32">戌</text>
-                <text x="29" y="17">亥</text>
-              </g>
-            </svg>
+        <div className="mb-8 inline-flex rounded-full border border-violet-400/35 bg-violet-500/10 px-5 py-1.5 text-xs font-semibold tracking-[0.35em] text-violet-200">
+          AI 人格音樂
+        </div>
 
-            {/* 逆向旋轉內太極盤 */}
-            <svg
-              className="w-[74%] h-[74%] text-amber-400 absolute"
-              style={{ animation: 'spin 18s linear infinite reverse' }}
-              viewBox="0 0 100 100"
-            >
-              <defs>
-                <linearGradient id="focusTaijiGradMusic" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#C9A24A" />
-                  <stop offset="100%" stopColor="#22D3EE" />
-                </linearGradient>
-                <filter id="focusTaijiGlowMusic" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="2" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-              </defs>
-              <g filter="url(#focusTaijiGlowMusic)">
-                <path
-                  d="M 50,5 A 45,45 0 0,0 50,95 A 22.5,22.5 0 0,0 50,50 A 22.5,22.5 0 0,1 50,5 Z"
-                  fill="url(#focusTaijiGradMusic)"
-                />
-                <path
-                  d="M 50,95 A 45,45 0 0,0 50,5 A 22.5,22.5 0 0,0 50,50 A 22.5,22.5 0 0,1 50,95 Z"
-                  fill="#020617"
-                  opacity="0.9"
-                />
-                <circle cx="50" cy="27.5" r="5" fill="#020617" />
-                <circle cx="50" cy="72.5" r="5" fill="#22D3EE" />
-              </g>
-            </svg>
-          </div>
+        <h1 className="mystic-title font-serif text-5xl leading-tight sm:text-6xl lg:text-7xl">
+          把你的性格<br />聽成一首歌
+        </h1>
 
-          {/* 簡明吸睛引導 */}
-          <h1 className="mt-6 font-serif text-3xl sm:text-4xl text-white font-extrabold tracking-wider text-shadow-glow">
-            ☯️ 人格天命 · 宿命律動
-          </h1>
-          <p className="mt-3 text-xs sm:text-sm text-cyan-200/80 tracking-[0.2em] font-medium max-w-md px-6">
-            以聲波與天干五行合成專屬你的人格主題曲。
-          </p>
-          
-          <button
-            type="button"
-            onClick={onStart}
-            className="mt-8 inline-flex items-center gap-2 rounded-full border border-violet-400/40 bg-violet-500/20 px-10 py-4 text-base font-bold text-white hover:bg-violet-500/35 transition-all shadow-[0_0_20px_rgba(109,74,255,0.3)] animate-bounce"
-          >
-            <span>👇 一鍵開啟 · 生成我的主題曲</span>
+        <p className="mt-8 max-w-2xl text-base leading-8 text-[color:var(--text-sub)]">
+          輸入生日、血型、姓名與聲音特徵，AI 會整理你的性格節奏與音樂風格，
+          產出一份好懂的人格主題曲預覽。
+        </p>
+
+        <div className="mt-10 flex flex-col items-center gap-4">
+          <button type="button" onClick={onStart} className="vip-gold-btn px-14 py-5 text-lg">
+            生成我的主題曲
           </button>
+          <Link href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
+            回到人格解碼首頁
+          </Link>
+        </div>
+
+        <div className="mt-14 grid grid-cols-3 gap-4">
+          {[
+            { label: '生日', desc: '抓出情緒底色', color: 'rgba(109,74,255,0.7)' },
+            { label: '血型', desc: '補上表達節奏', color: 'rgba(201,162,74,0.7)' },
+            { label: '姓名', desc: '生成專屬歌詞靈魂', color: 'rgba(215,139,255,0.7)' },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="rounded-2xl px-4 py-4 text-center"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: `1px solid ${item.color.replace('0.7', '0.25')}`,
+                backdropFilter: 'blur(8px)',
+              }}
+            >
+              <p className="text-xs font-bold tracking-[0.3em]" style={{ color: item.color }}>
+                {item.label}
+              </p>
+              <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]">{item.desc}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

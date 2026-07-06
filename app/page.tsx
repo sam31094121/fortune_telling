@@ -796,92 +796,33 @@ export default function HomePage() {
           </Link>
         </div>
 
+        <section className="mb-10 grid items-center gap-8 lg:grid-cols-[1fr_auto]">
+          <div>
+            <div className="mb-4 inline-block rounded-full border border-rose-400/20 bg-rose-400/8 px-4 py-1 text-xs tracking-[0.35em] text-rose-300">
+              配對你的命運靈魂伴侶
+            </div>
+            <h1 className="mystic-title mb-4 font-serif text-5xl leading-tight sm:text-6xl md:text-7xl">
+              探索靈魂連結<br />與個人深度洞察
+            </h1>
+            <div className="mt-8 space-y-5">
+              <p className="text-xl sm:text-2xl font-bold text-rose-300 tracking-wide">
+                💕 AI 靈魂配對 — 分析相處節奏與互補點
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-violet-300 tracking-wide">
+                🎵 人格音樂 — 生成個人主題曲
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-amber-300 tracking-wide">
+                🔍 AI 深度洞察 — 全面分析性格與潛能
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-center lg:justify-end">
+            <VisualGravityCore />
+          </div>
+        </section>
 
         {!data && (
           <div className="space-y-6">
-            {/* ☯️ 太極天宿羅盤主視覺焦點 (Hero Focus Section) */}
-            <div className="mb-8 text-center flex flex-col items-center justify-center relative overflow-hidden py-8 rounded-3xl border border-white/5 bg-slate-950/20 shadow-[0_0_50px_rgba(201,162,74,0.05)]">
-              {/* 大太極 SVG 動畫 */}
-              <div className="relative w-44 h-44 sm:w-52 sm:h-52 flex items-center justify-center">
-                <div className="absolute inset-0 rounded-full bg-cyan-500/10 blur-[30px] animate-pulse" />
-                <div className="absolute inset-0 rounded-full bg-amber-500/5 blur-[50px]" />
-                
-                {/* 旋轉外八卦盤 */}
-                <svg
-                  className="w-full h-full text-cyan-400/25 absolute"
-                  style={{ animation: 'spin 40s linear infinite' }}
-                  viewBox="0 0 100 100"
-                >
-                  <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1 3" />
-                  <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="3 5" />
-                  <g fontSize="3" fill="currentColor" opacity="0.6" fontFamily="monospace">
-                    <text x="48.5" y="12">子</text>
-                    <text x="68" y="17">丑</text>
-                    <text x="83" y="32">寅</text>
-                    <text x="88.5" y="51.5">卯</text>
-                    <text x="83" y="71">辰</text>
-                    <text x="68" y="86">巳</text>
-                    <text x="48.5" y="91">午</text>
-                    <text x="29" y="86">未</text>
-                    <text x="14" y="71">申</text>
-                    <text x="8.5" y="51.5">酉</text>
-                    <text x="14" y="32">戌</text>
-                    <text x="29" y="17">亥</text>
-                  </g>
-                </svg>
-
-                {/* 逆向旋轉內太極盤 */}
-                <svg
-                  className="w-[74%] h-[74%] text-amber-400 absolute"
-                  style={{ animation: 'spin 18s linear infinite reverse' }}
-                  viewBox="0 0 100 100"
-                >
-                  <defs>
-                    <linearGradient id="focusTaijiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#C9A24A" />
-                      <stop offset="100%" stopColor="#22D3EE" />
-                    </linearGradient>
-                    <filter id="focusTaijiGlow" x="-20%" y="-20%" width="140%" height="140%">
-                      <feGaussianBlur stdDeviation="2" result="blur" />
-                      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                    </filter>
-                  </defs>
-                  <g filter="url(#focusTaijiGlow)">
-                    <path
-                      d="M 50,5 A 45,45 0 0,0 50,95 A 22.5,22.5 0 0,0 50,50 A 22.5,22.5 0 0,1 50,5 Z"
-                      fill="url(#focusTaijiGrad)"
-                    />
-                    <path
-                      d="M 50,95 A 45,45 0 0,0 50,5 A 22.5,22.5 0 0,0 50,50 A 22.5,22.5 0 0,1 50,95 Z"
-                      fill="#020617"
-                      opacity="0.9"
-                    />
-                    <circle cx="50" cy="27.5" r="5" fill="#020617" />
-                    <circle cx="50" cy="72.5" r="5" fill="#22D3EE" />
-                  </g>
-                </svg>
-              </div>
-
-              {/* 簡明吸睛引導 */}
-              <h1 className="mt-6 font-serif text-3xl sm:text-4xl text-white font-extrabold tracking-wider text-shadow-glow">
-                ☯️ 天地人 · 宿命重力場
-              </h1>
-              <p className="mt-3 text-xs sm:text-sm text-cyan-200/80 tracking-[0.2em] font-medium max-w-md px-6">
-                叩問前世因果，解鎖雙方紫微斗數命宮主星曜引力軌道。
-              </p>
-              
-              <button
-                type="button"
-                onClick={() => {
-                  const target = document.getElementById('step-entry');
-                  target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }}
-                className="mt-6 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-6 py-2.5 text-xs font-bold text-amber-300 hover:bg-amber-500/25 transition-all shadow-[0_0_15px_rgba(201,162,74,0.15)] animate-bounce"
-              >
-                <span>👇 一鍵開始 · 填寫生辰</span>
-              </button>
-            </div>
-
             {loading ? (
               <AnalyticalConsole
                 nameA={personA.name}
@@ -890,8 +831,8 @@ export default function HomePage() {
                 birthB={personB.birthDate}
               />
             ) : (
-              <div id="step-entry" className="space-y-6 scroll-mt-20">
-                <div className="flex justify-end mb-2">
+              <>
+                <div className="flex justify-end mb-4">
                   <button
                     type="button"
                     onClick={startAutoDemo}
@@ -901,7 +842,54 @@ export default function HomePage() {
                     {isDemoRunning ? '🔮 天宿配對演示自動運行中…' : '🔮 一鍵自動天盤對齊演練'}
                   </button>
                 </div>
-
+                <div className="fortune-card p-5 sm:p-6">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm tracking-[0.4em] font-semibold text-[color:var(--text-muted)]">目前進度</p>
+                      <p className="mt-3 font-serif text-3xl sm:text-4xl font-bold text-[color:var(--text-main)]">
+                        {['personA-base', 'personA-shichen'].includes(step) && '先填第一位'}
+                        {['personB-base', 'personB-shichen'].includes(step) && '再填第二位'}
+                        {step === 'review' && '確認後開始配對'}
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 sm:min-w-[120px]">
+                      <div
+                        className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
+                          ['personA-base', 'personA-shichen'].includes(step)
+                            ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
+                            : ['personB-base', 'personB-shichen', 'review'].includes(step)
+                              ? 'border-violet-400/50 bg-violet-500/12 shadow-violet-500/15'
+                              : 'border-white/20 bg-white/8'
+                        }`}
+                      >
+                        <p className="text-lg font-bold text-[color:var(--text-main)]">{['personB-base', 'personB-shichen', 'review'].includes(step) ? '✓' : '1'}</p>
+                        <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">第一位</p>
+                      </div>
+                      <div
+                        className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
+                          ['personB-base', 'personB-shichen'].includes(step)
+                            ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
+                            : step === 'review'
+                              ? 'border-violet-400/50 bg-violet-500/12 shadow-violet-500/15'
+                              : 'border-white/20 bg-white/8'
+                        }`}
+                      >
+                        <p className="text-lg font-bold text-[color:var(--text-main)]">{step === 'review' ? '✓' : '2'}</p>
+                        <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">第二位</p>
+                      </div>
+                      <div
+                        className={`rounded-2xl border-2 px-4 py-4 text-center transition-all shadow-sm ${
+                          step === 'review'
+                            ? 'border-rose-400/60 bg-rose-500/15 shadow-rose-500/20'
+                            : 'border-white/20 bg-white/8'
+                        }`}
+                      >
+                        <p className="text-lg font-bold text-[color:var(--text-main)]">3</p>
+                        <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">確認</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 {step === 'personA-base' && (
                   <PersonStep
@@ -1048,7 +1036,7 @@ export default function HomePage() {
                     </button>
                   )}
                 </div>
-              </div>
+              </>
             )}
           </div>
         )}

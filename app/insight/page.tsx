@@ -389,90 +389,25 @@ export default function InsightPage() {
 
         {!result ? (
           <>
-            {/* ☯️ 太極天宿羅盤主視覺焦點 (Hero Focus Section) */}
-            <div className="mb-8 text-center flex flex-col items-center justify-center relative overflow-hidden py-8 rounded-3xl border border-white/5 bg-slate-950/20 shadow-[0_0_50px_rgba(201,162,74,0.05)]">
-              {/* 大太極 SVG 動畫 */}
-              <div className="relative w-44 h-44 sm:w-52 sm:h-52 flex items-center justify-center">
-                <div className="absolute inset-0 rounded-full bg-cyan-500/10 blur-[30px] animate-pulse" />
-                <div className="absolute inset-0 rounded-full bg-amber-500/5 blur-[50px]" />
-                
-                {/* 旋轉外八卦盤 */}
-                <svg
-                  className="w-full h-full text-cyan-400/25 absolute"
-                  style={{ animation: 'spin 40s linear infinite' }}
-                  viewBox="0 0 100 100"
-                >
-                  <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1 3" />
-                  <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="3 5" />
-                  <g fontSize="3" fill="currentColor" opacity="0.6" fontFamily="monospace">
-                    <text x="48.5" y="12">子</text>
-                    <text x="68" y="17">丑</text>
-                    <text x="83" y="32">寅</text>
-                    <text x="88.5" y="51.5">卯</text>
-                    <text x="83" y="71">辰</text>
-                    <text x="68" y="86">巳</text>
-                    <text x="48.5" y="91">午</text>
-                    <text x="29" y="86">未</text>
-                    <text x="14" y="71">申</text>
-                    <text x="8.5" y="51.5">酉</text>
-                    <text x="14" y="32">戌</text>
-                    <text x="29" y="17">亥</text>
-                  </g>
-                </svg>
-
-                {/* 逆向旋轉內太極盤 */}
-                <svg
-                  className="w-[74%] h-[74%] text-amber-400 absolute"
-                  style={{ animation: 'spin 18s linear infinite reverse' }}
-                  viewBox="0 0 100 100"
-                >
-                  <defs>
-                    <linearGradient id="focusTaijiGradInsight" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#C9A24A" />
-                      <stop offset="100%" stopColor="#22D3EE" />
-                    </linearGradient>
-                    <filter id="focusTaijiGlowInsight" x="-20%" y="-20%" width="140%" height="140%">
-                      <feGaussianBlur stdDeviation="2" result="blur" />
-                      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                    </filter>
-                  </defs>
-                  <g filter="url(#focusTaijiGlowInsight)">
-                    <path
-                      d="M 50,5 A 45,45 0 0,0 50,95 A 22.5,22.5 0 0,0 50,50 A 22.5,22.5 0 0,1 50,5 Z"
-                      fill="url(#focusTaijiGradInsight)"
-                    />
-                    <path
-                      d="M 50,95 A 45,45 0 0,0 50,5 A 22.5,22.5 0 0,0 50,50 A 22.5,22.5 0 0,1 50,95 Z"
-                      fill="#020617"
-                      opacity="0.9"
-                    />
-                    <circle cx="50" cy="27.5" r="5" fill="#020617" />
-                    <circle cx="50" cy="72.5" r="5" fill="#22D3EE" />
-                  </g>
-                </svg>
+            <section className="mb-10 grid items-center gap-8 lg:grid-cols-[1fr_auto]">
+              <div>
+                <div className="mb-4 inline-block rounded-full border border-cyan-400/20 bg-cyan-400/8 px-4 py-1 text-xs tracking-[0.35em] text-cyan-300">
+                  AI 深度洞察
+                </div>
+                <h1 className="mystic-title mb-4 font-serif text-4xl leading-tight sm:text-5xl">
+                  看懂你的潛力<br />找到下一步方向
+                </h1>
+                <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
+                  輸入基本資料，AI 會把命理、心理與統計訊號整理成白話建議。
+                  重點放在能理解、能行動，不把多餘細節塞進畫面。
+                </p>
               </div>
+              <div className="flex justify-center lg:justify-end">
+                <VisualGravityCore />
+              </div>
+            </section>
 
-              {/* 簡明吸睛引導 */}
-              <h1 className="mt-6 font-serif text-3xl sm:text-4xl text-white font-extrabold tracking-wider text-shadow-glow">
-                ☯️ 天宿本命 · 深度洞察羅盤
-              </h1>
-              <p className="mt-3 text-xs sm:text-sm text-cyan-200/80 tracking-[0.2em] font-medium max-w-md px-6">
-                解鎖你的八字格柱與紫微斗數三方四正天命特質。
-              </p>
-              
-              <button
-                type="button"
-                onClick={() => {
-                  const target = document.getElementById('input-form');
-                  target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }}
-                className="mt-6 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-6 py-2.5 text-xs font-bold text-amber-300 hover:bg-amber-500/25 transition-all shadow-[0_0_15px_rgba(201,162,74,0.15)] animate-bounce"
-              >
-                <span>👇 一鍵開啟 · 探索本命軌跡</span>
-              </button>
-            </div>
-
-            <div id="input-form" className="fortune-card p-6 sm:p-8 scroll-mt-20">
+            <div className="fortune-card p-6 sm:p-8">
               {loading && <InsightAnalyticalConsole name={input.name} />}
               <div className={loading ? 'hidden' : 'space-y-8'}>
                 {/* 狀態指示器 */}
