@@ -163,8 +163,8 @@ function LandingHero({ onStart }: { onStart: () => void }) {
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-4">
-          <button type="button" onClick={onStart} className="vip-gold-btn px-14 py-5 text-lg">
-            生成我的主題曲
+          <button type="button" onClick={onStart} className="vip-gold-btn px-14 py-5 text-lg animate-bounce shadow-[0_0_25px_rgba(201,162,74,0.3)] border border-amber-400/20">
+            👇 一鍵開啟 · 生成我的主題曲
           </button>
           <Link href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
             回到人格解碼首頁

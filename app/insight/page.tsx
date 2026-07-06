@@ -401,13 +401,25 @@ export default function InsightPage() {
                   輸入基本資料，AI 會把命理、心理與統計訊號整理成白話建議。
                   重點放在能理解、能行動，不把多餘細節塞進畫面。
                 </p>
+                <div className="mt-8">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const target = document.getElementById('input-form');
+                      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }}
+                    className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-8 py-3 text-sm font-bold text-cyan-200 hover:bg-cyan-500/25 transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)] animate-bounce"
+                  >
+                    <span>👇 一鍵開啟 · 探索本命軌跡</span>
+                  </button>
+                </div>
               </div>
               <div className="flex justify-center lg:justify-end">
                 <VisualGravityCore />
               </div>
             </section>
 
-            <div className="fortune-card p-6 sm:p-8">
+            <div id="input-form" className="fortune-card p-6 sm:p-8 scroll-mt-20">
               {loading && <InsightAnalyticalConsole name={input.name} />}
               <div className={loading ? 'hidden' : 'space-y-8'}>
                 {/* 狀態指示器 */}

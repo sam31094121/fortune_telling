@@ -815,6 +815,19 @@ export default function HomePage() {
                 🔍 AI 深度洞察 — 全面分析性格與潛能
               </p>
             </div>
+            
+            <div className="mt-8">
+              <button
+                type="button"
+                onClick={() => {
+                  const target = document.getElementById('step-entry');
+                  target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }}
+                className="inline-flex items-center gap-2 rounded-full border border-rose-400/30 bg-rose-500/10 px-8 py-3 text-sm font-bold text-rose-200 hover:bg-rose-500/25 transition-all shadow-[0_0_20px_rgba(244,63,94,0.2)] animate-bounce"
+              >
+                <span>👇 一鍵開啟 · 填寫生辰軌道</span>
+              </button>
+            </div>
           </div>
           <div className="flex justify-center lg:justify-end">
             <VisualGravityCore />
@@ -831,7 +844,7 @@ export default function HomePage() {
                 birthB={personB.birthDate}
               />
             ) : (
-              <>
+              <div id="step-entry" className="space-y-6 scroll-mt-20">
                 <div className="flex justify-end mb-4">
                   <button
                     type="button"
@@ -1036,7 +1049,7 @@ export default function HomePage() {
                     </button>
                   )}
                 </div>
-              </>
+              </div>
             )}
           </div>
         )}
