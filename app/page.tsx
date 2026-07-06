@@ -1264,7 +1264,7 @@ export default function HomePage() {
                     </div>
                     <div className="text-left sm:text-right">
                       <p className="text-xs text-[color:var(--text-muted)]">天宿關係共鳴度</p>
-                      <p className="mt-2 font-serif text-4xl text-amber-300 font-black text-shadow-glow">{data.karma_story.resonance_score}%</p>
+                      <p className="mt-2 font-serif text-4xl text-amber-300 font-black text-shadow-glow">{data?.karma_story?.resonance_score ?? 60}%</p>
                     </div>
                   </div>
                 </div>
@@ -1272,28 +1272,28 @@ export default function HomePage() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="fortune-card vip-gold-card p-5 sm:p-6">
                     <p className="text-xs text-violet-300 font-semibold">主動付出者</p>
-                    <p className="mt-3 text-lg text-white font-bold">{data.karma_story.active_giver}</p>
+                    <p className="mt-3 text-lg text-white font-bold">{data?.karma_story?.active_giver ?? personA.name}</p>
                   </div>
                   <div className="fortune-card vip-gold-card p-5 sm:p-6">
                     <p className="text-xs text-amber-300 font-semibold">需要被理解者</p>
-                    <p className="mt-3 text-lg text-white font-bold">{data.karma_story.needs_understanding}</p>
+                    <p className="mt-3 text-lg text-white font-bold">{data?.karma_story?.needs_understanding ?? personB.name}</p>
                   </div>
                 </div>
 
-                {data.karma_story.personA_star && data.karma_story.personB_star && (
+                {data?.karma_story?.personA_star && data?.karma_story?.personB_star && (
                   <div className="fortune-card vip-gold-card p-6 sm:p-8 border-amber-500/20 bg-amber-950/10">
                     <p className="mb-4 text-xs uppercase tracking-[0.35em] text-amber-300 font-semibold">☯️ 雙方本命紫微斗數命宮主星曜大數據</p>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="rounded-xl border border-violet-500/20 bg-slate-950/40 p-4">
                         <p className="text-xs text-violet-300 font-medium">【{personA.name}】紫微坐命宮</p>
                         <p className="mt-2 text-lg text-white font-black text-shadow-glow">
-                          {data.karma_story.personA_star}
+                          {data?.karma_story?.personA_star}
                         </p>
                       </div>
                       <div className="rounded-xl border border-amber-500/20 bg-slate-950/40 p-4">
                         <p className="text-xs text-amber-300 font-medium">【{personB.name}】紫微坐命宮</p>
                         <p className="mt-2 text-lg text-white font-black text-shadow-glow">
-                          {data.karma_story.personB_star}
+                          {data?.karma_story?.personB_star}
                         </p>
                       </div>
                     </div>
@@ -1306,22 +1306,22 @@ export default function HomePage() {
 
                 <div className="fortune-card vip-gold-card p-6 sm:p-8">
                   <p className="text-xs uppercase tracking-[0.35em] text-amber-300 font-semibold">關係課題</p>
-                  <p className="mt-4 text-sm leading-8 text-[color:var(--text-sub)]">{data.karma_story.relationship_theme}</p>
+                  <p className="mt-4 text-sm leading-8 text-[color:var(--text-sub)]">{data?.karma_story?.relationship_theme ?? '天宿因果關係課題加載中...'}</p>
                 </div>
 
                 <div className="fortune-card vip-gold-card p-6 sm:p-8">
                   <p className="text-xs uppercase tracking-[0.35em] text-rose-300 font-semibold">因果故事</p>
-                  <p className="mt-4 whitespace-pre-wrap text-sm leading-8 text-[color:var(--text-sub)]">{data.karma_story.story}</p>
+                  <p className="mt-4 whitespace-pre-wrap text-sm leading-8 text-[color:var(--text-sub)]">{data?.karma_story?.story ?? '因果修行大數據運算中...'}</p>
                 </div>
 
                 <div className="fortune-card vip-gold-card p-6 sm:p-8">
                   <p className="text-xs uppercase tracking-[0.35em] text-cyan-300 font-semibold">今生建議</p>
-                  <p className="mt-4 whitespace-pre-wrap text-sm leading-8 text-[color:var(--text-sub)]">{data.karma_story.today_advice}</p>
+                  <p className="mt-4 whitespace-pre-wrap text-sm leading-8 text-[color:var(--text-sub)]">{data?.karma_story?.today_advice ?? '今生修行大數據建議運算中...'}</p>
                 </div>
 
                 <div className="fortune-card vip-gold-card p-6 sm:p-8 border-emerald-400/30">
                   <p className="text-xs uppercase tracking-[0.35em] text-emerald-300 font-semibold">善念結語</p>
-                  <p className="mt-4 whitespace-pre-wrap italic text-sm leading-8 text-[color:var(--text-sub)]">{data.karma_story.closing_wisdom}</p>
+                  <p className="mt-4 whitespace-pre-wrap italic text-sm leading-8 text-[color:var(--text-sub)]">{data?.karma_story?.closing_wisdom ?? '善念結語載入中...'}</p>
                 </div>
 
                 {/* 順天改命官方修行指引板塊 */}

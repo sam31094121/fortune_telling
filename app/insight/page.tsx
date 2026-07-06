@@ -753,23 +753,23 @@ export default function InsightPage() {
               </div>
             </div>
 
-            {result?.ziweiPalaces && result.ziweiPalaces.length > 0 && (
+            {result?.ziweiPalaces && result?.ziweiPalaces.length > 0 && (
               <div className="fortune-card p-6 sm:p-8 relative overflow-hidden">
                 <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">☯️ 紫微斗數 · 三方四正大數據推理</p>
                 
                 <div className="mb-6 rounded-2xl border border-cyan-400/20 bg-cyan-950/15 p-4 text-xs leading-6 text-cyan-200">
                   📊 <strong>本命大數據命理校準源：</strong>
-                  八字日柱【<span className="text-amber-300 font-bold">{result.meta?.dayPillar}</span>】· 
-                  時柱【<span className="text-amber-300 font-bold">{result.meta?.hourPillar}</span>】· 
-                  時辰【<span className="text-cyan-300 font-bold">{result.meta?.shichenLabel}</span>】 · 
-                  時辰五行【<span className="text-violet-300 font-bold">{result.meta?.wuxing}</span>】。
+                  八字日柱【<span className="text-amber-300 font-bold">{result?.meta?.dayPillar}</span>】· 
+                  時柱【<span className="text-amber-300 font-bold">{result?.meta?.hourPillar}</span>】· 
+                  時辰【<span className="text-cyan-300 font-bold">{result?.meta?.shichenLabel}</span>】 · 
+                  時辰五行【<span className="text-violet-300 font-bold">{result?.meta?.wuxing}</span>】。
                   <p className="mt-1 text-[11px] text-[color:var(--text-muted)] leading-5">
                     本項統計數據均基於你的真實八字格局與紫微斗數三方四正命盤星曜軌道精密推導，非隨機生成，特此聲明。
                   </p>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {result.ziweiPalaces.map((palace, index) => (
+                  {result?.ziweiPalaces?.map((palace, index) => (
                     <div
                       key={index}
                       className="rounded-2xl border border-cyan-500/10 bg-slate-950/40 p-4 sm:p-5 transition hover:border-cyan-500/30"
