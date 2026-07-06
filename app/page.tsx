@@ -1189,34 +1189,47 @@ export default function HomePage() {
 
             {/* 未解鎖時顯示的科技加密艙門 */}
             {!isUnlocked && (
-              <div className="tech-decrypt-overlay p-8 text-center relative border border-amber-500/20 shadow-[0_0_30px_rgba(201,162,74,0.12)] animate-rise">
+              <div className="tech-decrypt-overlay p-8 text-center relative border border-amber-500/35 bg-gradient-to-b from-slate-950/80 to-amber-950/15 shadow-[0_0_50px_rgba(201,162,74,0.25)] rounded-3xl overflow-hidden animate-rise">
                 <div className="code-stream-effect" />
-                <div className="relative z-10 py-10 space-y-6">
-                  <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/10 text-4xl shadow-[0_0_30px_10px_rgba(201,162,74,0.22)] border border-amber-400/30 animate-pulse">
+                <div className="relative z-10 py-8 space-y-6">
+                  {/* VIP 尊貴皇冠標章 */}
+                  <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-4xl shadow-[0_0_40px_rgba(201,162,74,0.4)] border border-amber-300/40 animate-pulse">
                     👑
                   </div>
+                  
                   <div>
-                    <p className="text-xs uppercase tracking-[0.4em] text-amber-300 font-semibold">大數據天宿因果 · VIP 專屬</p>
-                    <h3 className="mt-4 font-serif text-3xl font-bold text-white">解鎖前世因果故事與天命聲律</h3>
-                    <p className="mx-auto mt-4 max-w-lg text-sm leading-8 text-[color:var(--text-sub)]">
-                      包含雙方前世今生的緣分故事、今生修煉避坑建議，以及專屬生成的靈魂頻譜共振主題曲。
-                    </p>
+                    <p className="text-xs uppercase tracking-[0.45em] text-amber-300 font-bold font-mono">大數據天宿因果 · VIP 尊榮專屬</p>
+                    <h3 className="mt-4 font-serif text-3xl font-black text-white tracking-wide">解鎖前世因果故事與天命聲律</h3>
+                    
+                    {/* 黃金權益高亮 */}
+                    <div className="mt-6 flex flex-col items-center justify-center gap-3 text-xs text-amber-100/90 font-medium">
+                      <span className="flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-4 py-1.5 shadow-[0_0_10px_rgba(201,162,74,0.05)]">
+                        ✦ 雙人本命紫微斗數坐命主星曜碰撞解析
+                      </span>
+                      <span className="flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-4 py-1.5 shadow-[0_0_10px_rgba(201,162,74,0.05)]">
+                        ✦ 前世今生三生因果緣分與避坑修行天機
+                      </span>
+                      <span className="flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-4 py-1.5 shadow-[0_0_10px_rgba(201,162,74,0.05)]">
+                        ✦ 專屬聲波頻率合成 432Hz 人格音樂主題曲
+                      </span>
+                    </div>
 
                     <div className="mt-8 border-t border-amber-500/15 pt-6 text-left max-w-xl mx-auto space-y-3.5">
                       <p className="text-xs uppercase tracking-[0.25em] text-amber-300 font-semibold font-mono">🧬 釋義：天地人因果天宿密碼</p>
                       <blockquote className="border-l border-amber-500/40 pl-4 text-xs italic text-[color:var(--text-sub)] leading-7">
-                        「人一出生，天宿天命便與天地人三才緊密相連。大樹落葉，落葉歸根，這是命運的因果軌道。然而『菩提本無樹，明鏡亦非台，本來無一物，何處惹塵埃』。世人之所以在紅塵關係中受盡折磨，是因為凡夫俗子執著於色相與得失，陷入『人有色無空』的執念。<br/><br/>
-                        天宿命運有軌跡，但命運絕對可以改變。改命的重中之重，在於『自己有沒有真正改過自新、廣結善緣、學會放下』。以善為本，順天而行則合；執迷不悟，逆天而行則亡。」
+                        「人一出生，天宿天命便與天地人三才緊密相連。大樹落葉，落葉歸根，這是命運的因果軌道。天宿命運有軌跡，但命運絕對可以改變。改命的重中之重，在於『自己有沒有真正改過自新、廣結善緣、學會放下』。以善為本，順天而行則合；執迷不悟，逆天而行則亡。」
                       </blockquote>
                     </div>
                   </div>
-                  <div className="pt-4">
+
+                  <div className="pt-6">
+                    {/* 付費解鎖按鈕 - 呼吸脈衝發光動態 */}
                     <button
                       type="button"
                       onClick={handleUnlockVIP}
-                      className="vip-gold-btn px-10 py-5 text-lg font-bold tracking-wider shadow-[0_0_30px_rgba(201,162,74,0.3)] hover:shadow-[0_0_40px_rgba(201,162,74,0.5)] transition-all duration-300"
+                      className="vip-gold-btn px-10 py-5 text-base font-black tracking-widest uppercase rounded-full shadow-[0_0_35px_rgba(201,162,74,0.4)] hover:shadow-[0_0_50px_rgba(201,162,74,0.7)] transition-all duration-300 border border-amber-300/30 transform hover:scale-[1.03] animate-pulse"
                     >
-                      ✨ 一鍵對齊星宿解鎖 VIP 報告
+                      👑 叩問因果天命 · 一鍵啟開 VIP 專屬天盤
                     </button>
                   </div>
                 </div>
@@ -1225,12 +1238,18 @@ export default function HomePage() {
 
             {/* 解鎖中或已解鎖但 AI 前世故事尚未返回時，展示高科技因果解密骨架屏 */}
             {isUnlocked && !data.karma_story && (
-              <div className="fortune-card vip-gold-card p-6 sm:p-8 text-center border border-amber-500/20 shadow-[0_0_30px_rgba(201,162,74,0.12)] space-y-6 animate-pulse">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/10 text-2xl border border-amber-500/30 animate-spin">
-                  ⏳
+              <div className="fortune-card vip-gold-card p-6 sm:p-8 text-center border border-amber-500/20 shadow-[0_0_30px_rgba(201,162,74,0.15)] space-y-6 animate-pulse">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 text-2xl border border-amber-500/30 animate-spin">
+                  {/* 太極 SVG 加載中效果 */}
+                  <svg className="w-10 h-10 text-amber-400" viewBox="0 0 100 100">
+                    <path d="M 50,10 A 40,40 0 0,0 50,90 A 20,20 0 0,0 50,50 A 20,20 0 0,1 50,10 Z" fill="currentColor" />
+                    <path d="M 50,90 A 40,40 0 0,0 50,10 A 20,20 0 0,0 50,50 A 20,20 0 0,1 50,90 Z" fill="none" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="50" cy="30" r="4" fill="#020617" />
+                    <circle cx="50" cy="70" r="4" fill="currentColor" />
+                  </svg>
                 </div>
                 <div>
-                  <h3 className="font-serif text-xl font-bold text-amber-300">天宿星宮業力因果解密中…</h3>
+                  <h3 className="font-serif text-xl font-bold text-amber-300">🔮 天宿星宮因果密鑰解鎖中…</h3>
                   <p className="mt-3 text-xs leading-6 text-[color:var(--text-sub)]">
                     系統正在為雙方聯結姓名五格、生辰八字天干地支與血型引力場。這段前世今生的宿因可能需要稍長的時間，Gemini AI 正在為你解鎖靈魂密碼，請稍候。
                   </p>
