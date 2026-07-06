@@ -1466,20 +1466,3 @@ body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-
-/* 手機版極細太極流光軌道 - 精緻防跑版 */
-@media (max-width: 640px) {
-  .taiji-light-orbit--cyan {
-    inset: 22px 14px !important;
-  }
-  .taiji-light-orbit--violet {
-    inset: 14px 22px !important;
-  }
-  .taiji-light-orbit--gold {
-    inset: 8px 8px !important;
-  }
-  .taiji-light-orbit::before {
-    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 1.5px)) !important;
-    mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 1.5px)) !important;
-  }
-}

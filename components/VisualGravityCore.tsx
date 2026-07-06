@@ -3,6 +3,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { Mesh, MeshBasicMaterial, SpriteMaterial } from "three";
 
+const TABLET_VISUAL_PROFILE = Object.freeze({
+  cameraZ: 7.15,
+  pixelRatioCap: 2,
+  sphereSegments: 112,
+  waveCounts: [5, 4, 3] as const,
+  particleCount: 1100,
+  particleSize: 0.022,
+  fiberCount: 500,
+  tiltX: 0.06,
+  tiltXDrift: 0.035,
+  tiltYDrift: 0.08,
+});
+
 export default function VisualGravityCore() {
   const mountRef   = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
@@ -18,6 +31,7 @@ export default function VisualGravityCore() {
     container.setAttribute("role", "img");
     container.setAttribute("aria-label", "持續旋轉、三重光軌與金色仙氣環繞的立體太極圖騰");
     container.setAttribute("data-testid", "taiji-orbit-emblem");
+    container.setAttribute("data-visual-profile", "tablet-unified");
     const orbitLayer = document.createElement("div");
     orbitLayer.className = "taiji-orbit-layer";
     orbitLayer.setAttribute("aria-hidden", "true");
@@ -77,11 +91,11 @@ export default function VisualGravityCore() {
         // ── Camera ───────────────────────────────────────────────────────
         const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 100);
         // Leave enough breathing room for the layered luminous orbit paths.
-        camera.position.z = 7.15;
+        camera.position.z = TABLET_VISUAL_PROFILE.cameraZ;
 
         // ── Renderer ─────────────────────────────────────────────────────
         // Sharper supersampled rendering, capped to protect mobile GPUs.
-        const pixelRatio = Math.min(devicePixelRatio, 2.0);
+        const pixelRatio = Math.min(devicePixelRatio, TABLET_VISUAL_PROFILE.pixelRatioCap);
         const renderer = new THREE.WebGLRenderer({
           antialias: true,  // 始終啟用抗鋸齒但优化方式
           powerPreference: 'high-performance',
@@ -173,7 +187,11 @@ export default function VisualGravityCore() {
         scene.add(grp);
 
         // Main yin-yang sphere — ShaderMaterial computes pattern in GLSL (no texture issues)
-        const sphGeo = new THREE.SphereGeometry(1.62, 112, 112);
+        const sphGeo = new THREE.SphereGeometry(
+          1.62,
+          TABLET_VISUAL_PROFILE.sphereSegments,
+          TABLET_VISUAL_PROFILE.sphereSegments,
+        );
         const sphMat = new THREE.ShaderMaterial({
           vertexShader: `
             varying vec3 vLocalPosition;
@@ -298,7 +316,7 @@ export default function VisualGravityCore() {
 
         // ✨ 增強能量波 - 更多波紋效果、更密集的能量環繞
         const waveTex = buildRingTex(170, 195, 255);
-        const WAVE_N = 5;
+        const WAVE_N = TABLET_VISUAL_PROFILE.waveCounts[0];
         const waves: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE_N; i++) {
           const m = new THREE.Mesh(
@@ -316,7 +334,7 @@ export default function VisualGravityCore() {
 
         // ✨ 垂直平面波 - 更多層次的 3D 球形感
         const waveTex2 = buildRingTex(180, 160, 255);
-        const WAVE2_N = 4;
+        const WAVE2_N = TABLET_VISUAL_PROFILE.waveCounts[1];
         const waves2: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE2_N; i++) {
           const m = new THREE.Mesh(
@@ -335,7 +353,7 @@ export default function VisualGravityCore() {
 
         // ✨ 新增：對角線能量波 - 更豐富的層次感
         const waveTex3 = buildRingTex(160, 180, 240);
-        const WAVE3_N = 3;
+        const WAVE3_N = TABLET_VISUAL_PROFILE.waveCounts[2];
         const waves3: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE3_N; i++) {
           const m = new THREE.Mesh(
@@ -441,7 +459,7 @@ export default function VisualGravityCore() {
 
 
         // ✨ 優化粒子特效 - 平衡視覺效果和性能
-        const pN = 1100;
+        const pN = TABLET_VISUAL_PROFILE.particleCount;
         const pArr = new Float32Array(pN * 3);
         const pColors = new Float32Array(pN * 3);  // 新增：顏色變化
         for (let i = 0; i < pN; i++) {
@@ -468,7 +486,7 @@ export default function VisualGravityCore() {
         pGeo.setAttribute("position", new THREE.BufferAttribute(pArr, 3));
         pGeo.setAttribute("color", new THREE.BufferAttribute(pColors, 3));
         const pMat = new THREE.PointsMaterial({
-          size: 0.022,
+          size: TABLET_VISUAL_PROFILE.particleSize,
           transparent: true, opacity: 0.85,
           blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
           vertexColors: true,  // 啟用頂點顏色
@@ -477,7 +495,7 @@ export default function VisualGravityCore() {
         scene.add(particles);
 
         // ✨ 增強能量塵埃 - 更多粒子、更動態的吸收/釋放
-        const fN = 500;
+        const fN = TABLET_VISUAL_PROFILE.fiberCount;
         const fPos = new Float32Array(fN * 3);
         const fPhase = new Float32Array(fN);
         const fColor = new Float32Array(fN * 3);  // 新增：顏色
@@ -546,8 +564,9 @@ export default function VisualGravityCore() {
           const speedMult = touchSpinSpeedRef.current;
 
           // All breakpoints share the same tablet composition and viewing angle.
-          grp.rotation.y = Math.sin(t * 0.24) * 0.08;
-          grp.rotation.x = 0.06 + Math.sin(t * 0.19) * 0.035;
+          grp.rotation.y = Math.sin(t * 0.24) * TABLET_VISUAL_PROFILE.tiltYDrift;
+          grp.rotation.x = TABLET_VISUAL_PROFILE.tiltX
+            + Math.sin(t * 0.19) * TABLET_VISUAL_PROFILE.tiltXDrift;
           // 核心雙星太極公轉
           grpAngleZ -= (0.349 / 18) * speedMult;
           grp.rotation.z = grpAngleZ;
