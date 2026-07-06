@@ -791,6 +791,47 @@ export default function InsightPage() {
                   </p>
                 </div>
 
+                {/* 👑 天命格局解碼卡片 (宮位主星高階美化) */}
+                {(() => {
+                  const mingPalace = result?.ziweiPalaces?.find(p => p.palaceName === '命宮');
+                  const mainStar = mingPalace?.starName || '';
+                  if (!mainStar) return null;
+
+                  let patternTitle = '【府相朝垣】衣祿豐足格局';
+                  let patternStars = '天府 · 天相朝拱';
+                  let patternDesc = `本命主星格局溫和穩健，五行相生，一生事業平步青雲，多為管理、策劃或核心幕僚之才，細水長流。`;
+
+                  if (['貪狼', '七殺', '破軍'].some(s => mainStar.includes(s))) {
+                    patternTitle = '【殺破狼】強勢開疆拓土格局';
+                    patternStars = '七殺 · 破軍 · 貪狼共鳴';
+                    patternDesc = `你的命宮落入【${mainStar}】，與三方四正之七殺、破軍產生強烈引力共振，構成紫微斗數中能量最為強悍、主掌人生巨大變革與開拓事業版圖的「殺破狼」格局。你一生充滿冒險精神與絕處逢生的爆發力，適合在新創、商戰或開創性領域中開疆辟土，今生注定不凡。`;
+                  } else if (['紫微', '天府'].some(s => mainStar.includes(s))) {
+                    patternTitle = '【紫府同宮】尊貴帝皇格局';
+                    patternStars = '紫微 · 天府主曜雙輝';
+                    patternDesc = `你的命宮落入【${mainStar}】，乃紫微斗數十四主星之尊曜，具備極強的領導風範與福澤。你天生帶有管理與號召力，一生多得長輩與貴人扶持，在團體中極易脫穎而出，成就大業。`;
+                  } else if (['太陽', '太陰'].some(s => mainStar.includes(s))) {
+                    patternTitle = '【日月並明】日月經天格局';
+                    patternStars = '太陽 · 太陰日月交輝';
+                    patternDesc = `你的命宮落入【${mainStar}】，日月交輝，主一生光明磊落，思想宏大，名利雙收。你具備極強的洞察力與慈悲心，能在高壓環境下保持清醒，天命清貴，受人景仰。`;
+                  }
+
+                  return (
+                    <div className="mb-6 rounded-2xl border border-amber-500/25 bg-gradient-to-r from-amber-950/20 via-slate-900/50 to-amber-950/20 p-5 shadow-[0_0_20px_rgba(201,162,74,0.1)] relative overflow-hidden animate-rise">
+                      <div className="absolute top-0 right-0 p-3 text-3xl opacity-20 select-none">👑</div>
+                      <div className="relative z-10">
+                        <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-1 text-xs font-bold text-amber-300">
+                          🪐 天命星格解碼
+                        </span>
+                        <h3 className="mt-3 font-serif text-2xl text-amber-200">{patternTitle}</h3>
+                        <p className="mt-1 text-xs text-amber-400/80 font-mono">格局主星：{mainStar} ({patternStars})</p>
+                        <p className="mt-3 text-xs leading-6 text-[color:var(--text-sub)]">
+                          {patternDesc}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {result?.ziweiPalaces?.map((palace, index) => (
                     <div

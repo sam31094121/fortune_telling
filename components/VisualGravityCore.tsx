@@ -953,7 +953,7 @@ export default function VisualGravityCore() {
   return (
     <div
       ref={mountRef}
-      className="relative aspect-square w-[min(20rem,calc(100vw-2rem))] mx-auto overflow-hidden rounded-full cursor-pointer select-none"
+      className="relative h-80 w-80 mx-auto overflow-hidden rounded-full cursor-pointer select-none"
       style={{ background: "#02030A" }}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
