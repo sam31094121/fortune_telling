@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "start:mobile": "next start -H 0.0.0.0 -p 3000",
-    "lint": "next lint"
+    "lint": "next lint",
+    "share": "node scripts/share-tunnel.js"
   },
   "dependencies": {
     "@google/genai": "^1.9.0",
