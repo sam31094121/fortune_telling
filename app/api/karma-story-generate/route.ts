@@ -40,6 +40,7 @@ interface KarmaStory {
   closing_wisdom: string;
   personA_star?: string;
   personB_star?: string;
+  iching_hexagram?: string;
 }
 
 interface KarmaRequest {
@@ -156,8 +157,12 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
     wisdomExtracted: philosophyLayer.wisdom_gained,
   };
 
-  const prompt = `你是「天地人配對系統」的玄學大師與靈魂業力解鎖顧問。你擅長融會貫通「紫微斗數命盤星曜、八字天干地支配稱、九宮姓名五行格局、血型統計引力學」等東方神祕學，為客戶解密靈魂深處的關係密碼。
-請根據以下完整的關係數據，生成一個邏輯完整、情感衝擊極大、具有強烈起落張力與救贖的前世今生因果關係故事。
+  const prompt = `你是「天地人配對系統」的玄學大師與靈魂業力解鎖顧問。你擅長融會貫通「易經六十四卦爻象變易、紫微斗數命盤星曜、八字天干地支配稱、九宮姓名五行格局、血型統計引力學」等東方神祕學，為客戶解密靈魂深處的關係密碼。
+請根據以下完整的關係數據，生成一個邏輯完整、情感衝擊極大、具有強烈起落張力與宿命救贖的前世今生因果關係故事。
+
+【易經爻卦合盤與變易天機要求】：
+1. 必須精確推導並在 "iching_hexagram" 欄位中輸出本配對關係所對應的「易經爻卦卦象」（格式為：'【下卦】下【上卦】上：【卦名】 · 【爻象點評】'。例如：'坎下離上：水火既濟卦 · 剛柔相濟'、'離下坎上：火水未濟卦 · 乾坤流轉'、'巽下乾上：風天小畜卦 · 剛柔相推' 等，需根據雙方的八字五行與姓名格局調性合理挑選）。
+2. 在 'story'（因果故事）與 'today_advice'（修行建議）中，必須深度結合這個易經卦象的卦理與爻變哲理（如乾坤剛柔、動爻吉凶、陰陽失位）。將雙方性格拉扯（如一方主導、一方冷漠逃避）對應到卦象中的陰陽剛柔消長，以易理自證前世今生宿命軌道，文字要有千鈞之力、針針扎心！
 
 【紫微斗數命宮主星精準推導與融合要求】：
 - 甲方姓名：${request.personA.name}，生日：${request.personA.birthDate}，性別：${request.personA.gender === 'female' ? '女' : '男'}。請根據其民國/西元生日與時辰，精確推導出其「紫微斗數命宮主星曜」（如：紫微獨坐、破軍坐命、七殺坐命、貪狼坐命、天相坐命、太陰坐命等，以此類推）。
@@ -169,6 +174,15 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
 2. 必須包含「靈魂最深處的痛點剖析（殺傷力）」與「命運升維的終極解法（激勵）」。不要美化衝突，要讓讀者讀到時感到被徹底看穿、眼眶泛淚。
 3. 故事必須融入八字天干地支五行（如木火相生、金木相剋的能量摩擦）與紫微命宮主星（如破軍與天相的對立、太陰與太陽的明暗交錯）的交叉宿命感，讓讀者知道這些宿命摩擦在姓名筆劃格局中是如何被引爆的。
 
+=== 劇本隨機性與多樣性要求 ===
+1. 為徹底杜絕重複、缺乏變化的問題，請根據雙方的姓名筆劃、星座宿命及血型組合，**每次隨機從以下五種「宿世因果業力劇本」中擇一為藍本發揮**，且每次產生的前世背景設定（如朝代、身份、關鍵遺憾）必須具有強大的隨機變化：
+   - 【守護之債】（前世為報答守護，今生相遇卻因性格錯位而痛苦）
+   - 【錯過之憾】（前世因緣際會錯失，今生帶著強烈潛意識補償與不安相遇）
+   - 【競爭之仇】（前世為棋逢對手或對立陣營，今生相愛卻無法克制控制欲）
+   - 【拯救之恩】（一對一的拯救與依附，今生演變為沉重的依附關係）
+   - 【宿怨之糾】（前世相愛相殺，今生本能地互相吸引又互相傷害）
+2. 故事中不可出現公式化字眼，必須寫出極具畫面感、扎心且精準的「前世因果場景」（如：深秋未寄出的家書、兵臨城下時的轉身、朱門高牆內的相望），使其讀起來如同親身經歷，具有震撼性的說服力與殺傷力。
+
 === 修行的核心哲學 ===
 我們的核心修行真理為：「以善為本。心不死，道不生。順天而行，逆天而亡。」
 人一出生，天宿天命便與天地人三才緊密相連。大樹落葉，落葉歸根，這是命運的因果軌道。然而「菩提本無樹，明鏡亦非台，本來無一物，何處惹塵埃」。世人之所以在此段關係中受盡苦楚折磨，是因為凡夫俗子過度執著於色相與得失（人有色無空，執念難消）。
@@ -176,17 +190,9 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
 這段關係的故事，其使命是像「覺醒之刃」一樣直刺雙方心底，幫讀者看透宿世執念。
 
 執念識別：${storyContext.attachment}
-執念代價：${storyContext.attachmentCost}/100（代價越大，放下的意義越深）
-覺醒銳度：${storyContext.awakeningSharpness}/100（故事要有多尖銳？）
-修行等級：${storyContext.karmaLevel}（${
-  storyContext.karmaLevel === 'transcendence'
-    ? '終極考驗——最高的修行層級'
-    : storyContext.karmaLevel === 'deep'
-      ? '深層領悟——需要真正放下'
-      : storyContext.karmaLevel === 'middle'
-        ? '中層學習——需要理解 and 調整'
-        : '表層課題——輕微的學習'
-}）
+執念代價：${storyContext.attachmentCost}/100
+覺醒銳度：${storyContext.awakeningSharpness}/100
+修行等級：${storyContext.karmaLevel}
 放下之門：${storyContext.transcendenceGate}
 
 === 雙方資料 ===
@@ -198,45 +204,18 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
 配對分數：${request.matchResult.match_score}
 人格共鳴：${relationshipMatrix.personalityResonance}
 
-=== 數據根據（故事邏輯的源頭） ===
-名字相合：${storyContext.nameHarmony}（象徵五格三才的相遇安排）
-生日月份對應：${storyContext.birthdayAlignment}（對應季節能量與八字月令）
-血型相容：${storyContext.bloodTypeCompatibility}（血型統計學引力）
-五行相合：${storyContext.wuxingAlignment}（八字五行喜忌相合）
-生肖相合：${storyContext.zodiacHarmony}（太歲流年生命週期的協調）
-人格共鳴：${storyContext.personalityResonance}（紫微命宮人格層次的認同）
-
-=== 關係特質 ===
-關係原型：${storyContext.relationshipArchetype}
-業力主題：${storyContext.karmicTheme}
-主要課題：${storyContext.primaryChallenge}
-主要禮物：${storyContext.primaryGift}
-成長機會：${storyContext.growthOpportunity}
-
-=== 故事情感維度（最重要）——必須有殺傷力 ===
-表面痛點：${storyContext.painPoint}
-深層傷害：${storyContext.deepPain}（這是最扎心的地方，故事要在這裡戳進去，有戲劇起伏）
-無法逃避的真相：${storyContext.harshTruth}（這是故事的刀刃，要直面人性）
-痛點強度：${storyContext.painPointIntensity}/100（${storyContext.painPointIntensity > 70 ? '極致殺傷力——讀者會看到自己的影子' : storyContext.painPointIntensity > 50 ? '中度殺傷力——會觸及內心' : '溫和的痛——但依然扎心'}）
-溫暖救贖：${storyContext.warmthFactor}
-情感弧線：${storyContext.emotionalArc}
+=== 故事情感維度 ===
+深層傷害：${storyContext.deepPain}
+無法逃避的真相：${storyContext.harshTruth}
 關鍵轉折：${storyContext.storyTwist}
 
 === 故事結構與殺傷力要求 ===
 1. 故事必須有「開啟」「甜蜜」「衝突爆發」「深層傷害」「轉折」「救贖」的完整弧線。
-2. 第一部分要甜蜜但暗示危險：讓讀者先看到愛，再看到愛如何變成傷。
-3. 必須在「深層傷害」部分注入最大殺傷力：「${storyContext.deepPain}」
+2. 必須在「深層傷害」部分注入最大殺傷力：「${storyContext.deepPain}」
    - 這不是抽象的痛，這是具體的、會讓人淚目的痛
    - 要描寫被看不見、被誤解、被冷漠對待的具體時刻
-   - 讓讀者能看到自己在故事裡
-4. 必須直白地說出「無法逃避的真相」：「${storyContext.harshTruth}」
+3. 必須直白地說出「無法逃避的真相」：「${storyContext.harshTruth}」
    - 這句話就像故事的刀刃，要一句話戳進讀者的心
-   - 不要婉轉，要直接
-   - 讀者應該在讀到這句話時，感到被看透了
-5. 故事的高潮不是甜蜜，是「我終於明白我有多傷他人」或「我終於明白我有多被傷害」
-6. 用具體、有畫面感的表達，讓故事有視覺衝擊：
-   - 不要寫「被無視」，要寫「他在說話，我卻在玩手機。他的聲音漸漸變弱，最後完全停止了」
-   - 不要寫「爭執」，要寫「她哭著轉身離開，我卻沒有追上去。後來才明白，那一刻我失去了什麼」
    - 不要寫「期待落空」，要寫「我等了那麼久，結果他甚至沒有想起今天」
 7. 用『像是』『彷彿』『象徵』的語氣，但這些語氣要包裹著刀刃
 8. 轉折點「${storyContext.storyTwist}」必須是讓人瞬間淚崩的一刻
@@ -248,7 +227,7 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
 2. 清晰展現「因」→「緣」→「果」→「轉機」的邏輯鏈：
    - 「因」：前世的性靈特質（由五行、生肖、血型數據反映）
    - 「緣」：為什麼在今生相遇（由名字相合、生日對應數據反映）
-   - 「果」：今生相處的模式和課題（由人格共鳴、血型相容數據反映）
+   - 「果」：今生相處的模式 and 課題（由人格共鳴、血型相容數據反映）
    - 「轉機」：如何在衝突中看見彼此，走向成長（由成長機會反映）
 3. 故事要體現誰比較主動付出，誰比較需要被理解。
 4. 不可說『你上輩子欠他』，改成『像是曾經的承諾未竟』。
@@ -263,9 +242,10 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
   "relationship_theme": "${storyContext.primaryChallenge}",
   "personA_star": "（甲方的紫微斗數命宮主星格局，例如 '貪狼坐命宮'）",
   "personB_star": "（乙方的紫微斗數命宮主星格局，例如 '天相坐命宮'）",
-  "story": "（800-1000字，這是你最重要的故事。必須有足夠的篇幅和血肉感。故事結構：1）甜蜜開場——兩人相遇的溫暖時刻，但要暗示危險的種子已種下 2）甜蜜期崩裂——描寫從親密走向陌生的第一個裂縫 3）深層傷害爆發——這是高潮，必須寫出「${storyContext.deepPain}」的具體時刻，讓讀者感到被戳中 4）無法逃避的真相——冷冷地說出「${storyContext.harshTruth}」，不溫暖，不美化 5）轉折時刻——「${storyContext.storyTwist}」這一刻讓人瞬間淚崩 6）救贖呈現——不是消除傷害，而是「我們都受傷了，但我選擇去理解」7）希望的光——最後的希望不是「一切都會好」，而是「這份傷，教會了我什麼是愛）。關鍵：必須結合雙方的紫微坐命主星碰撞來闡述，字裡行間自證這些因果意見全是基於大數據命盤推演出來，有高度的統計學邏輯依據。）",
-  "today_advice": "（300-400字，這不是冷冰冰的建議，這是一份愛的功課。要包含：1）承認傷害——不要跳過這一步 2）結合雙方紫微主星格局，剖析相處時因星曜能量不對等引爆的控制與忽視 3）說出你的需要——具體、明確、無法迴避 4）邀請對方走向理解，而不是命令或哀求。語氣要犀利但充滿智慧，讓讀者知道改變的唯一路徑是改心。）",
-  "closing_wisdom": "（150-200字，最後的心靈撫慰。不要安慰，要啟蒙。讀者應該在讀完這句話時，眼眶濕潤但眼神堅定。讓讀者感到——被看見、被理解、被允許去傷、被邀請去成長。）"
+  "iching_hexagram": "（易經動爻卦象，例如 '離下坎上：火水未濟卦 · 乾坤流轉'）",
+  "story": "（800-1000字，這是你最重要的故事。必須結合雙方的紫微坐命主星與易經爻卦動爻變易的哲學來闡述，字裡行間自證這些因果意見全是基於大數據命盤推演出來，有高度的統計學邏輯自證與強烈殺傷力。）",
+  "today_advice": "（300-400字，這是一份修行功課。剖析相處時因易經剛柔失衡、星曜能量不對等引爆的控制與忽視。語氣要犀利但充滿智慧，讓讀者知道改變的唯一路徑是改心。）",
+  "closing_wisdom": "（150-200字，最後的心靈撫慰。不要安慰，要啟蒙。讓讀者感到被看見、被理解。）"
 }`;
 
 function getFallbackKarmaStory(body: KarmaRequest): KarmaStory {
@@ -275,11 +255,12 @@ function getFallbackKarmaStory(body: KarmaRequest): KarmaStory {
     active_giver: body.personA.name,
     needs_understanding: body.personB.name,
     relationship_theme: `天宿因果課題：在紅塵執念與靈魂改心中尋求順天之軌。`,
-    story: `在宿世天命的交錯中，${body.personA.name} 與 ${body.personB.name} 的相遇絕非偶然。這是一段註定要在「${score}%」的星盤引力場中反覆淬煉的緣分。前世的執念如今化為今生相處的拉扯。雙方最深處的命宮星曜正無聲地考驗著彼此的修行。人之所以受折磨，是因為凡夫俗子執著於色相與得失（人有色無空，執念難消）。只有看透「菩提本無樹，明鏡亦非台，本來無一物，何處惹塵埃」的空靈奧義，學會放下對彼此的索求，方能突破宿世的困局。`,
+    story: `在宿世天命的交錯中，${body.personA.name} 與 ${body.personB.name} 的相遇絕非偶然。這是一段註定要在「${score}%」的星盤引力場中反覆淬煉的緣分。前世的執念如今化為今生相處的拉扯。雙方最深處的命宮星曜正無聲地考驗著彼此的修行。人之所以受折磨，是因為凡夫俗子執著於色相與得失（人有色無空，執念難消）。只有看透「離下坎上：火水未濟卦」之變易道理，學會放下對彼此的索求，方能突破宿世的困局。`,
     today_advice: `修行的重中之重在於改命，而改命的唯一法門是「自己有沒有真正改心、廣結善緣」。不要一味在控制與冷暴力中指責對方，而是要學會放下心中的執著與不甘。以善為本，順天而行，這段關係的因果便已在默默中改寫。`,
     closing_wisdom: `順天而行，以善為道則合、則生；執迷不悟，逆天而行則離、則亡。當你願意跨出改心與放下的第一步，宿世的因果密碼便已為你悄然啟封。`,
     personA_star: `星曜交匯`,
-    personB_star: `星曜交匯`
+    personB_star: `星曜交匯`,
+    iching_hexagram: `震下巽上：雷風恆卦 · 剛柔並濟`
   };
 }
 

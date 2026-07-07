@@ -327,13 +327,30 @@ export default function MatchPage() {
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 20_000);
 
+    // 帶重試機制的 fetch
+    async function fetchWithRetry(maxRetries = 2) {
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetch('/api/match-generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({ personA, personB }),
+          });
+          return response;
+        } catch (error) {
+          if (attempt === maxRetries) throw error;
+          // 等待後重試，時間遞增
+          await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+        }
+      }
+    }
+
     try {
-      const response = await fetch('/api/match-generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
-        body: JSON.stringify({ personA, personB }),
-      });
+      const response = await fetchWithRetry();
+      if (!response) {
+        throw new Error('未收到伺服器回應');
+      }
 
       const json = (await response.json()) as MatchResponse & { error?: string };
 
@@ -551,19 +568,19 @@ export default function MatchPage() {
               </div>
 
               <div className="fortune-card p-6 sm:p-8">
-                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">雙方基本資料</p>
+                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-rose-300">雙方宿命星盤軌道</p>
                 <div className="space-y-5 text-sm">
                   <div>
                     <p className="font-semibold text-violet-300">{data.displayA.name}</p>
                     <p className="mt-2 leading-7 text-[color:var(--text-sub)]">
-                      {data.displayA.zodiacZh} · {data.displayA.chineseZodiac} · 五行 {data.displayA.wuxing} · {data.displayA.bloodType} 型
+                      {data.displayA.zodiacZh} · {data.displayA.chineseZodiac} · {data.displayA.bloodType} 型
                     </p>
                   </div>
                   <div className="h-px bg-white/10" />
                   <div>
                     <p className="font-semibold text-amber-300">{data.displayB.name}</p>
                     <p className="mt-2 leading-7 text-[color:var(--text-sub)]">
-                      {data.displayB.zodiacZh} · {data.displayB.chineseZodiac} · 五行 {data.displayB.wuxing} · {data.displayB.bloodType} 型
+                      {data.displayB.zodiacZh} · {data.displayB.chineseZodiac} · {data.displayB.bloodType} 型
                     </p>
                   </div>
                 </div>

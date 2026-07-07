@@ -89,41 +89,62 @@ function buildProfile(person: PersonInput): { profile: PersonProfile; display: P
   };
 }
 
-async function enhanceSummaryWithAI(
-  summary: string,
+async function enhanceMatchResultWithAI(
   result: {
     match_score: number;
     resonance: number;
     communication: number;
     stability: number;
     conflict_risk: number;
+    summary: string;
+    zones: {
+      resonance: string[];
+      complement: string[];
+      grinding: string[];
+      conflict: string[];
+    };
   },
   displayA: PersonDisplay,
   displayB: PersonDisplay,
-): Promise<string> {
+): Promise<{ summary: string; zones: { resonance: string[]; complement: string[]; grinding: string[]; conflict: string[] } }> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return summary;
+  if (!apiKey) return { summary: result.summary, zones: result.zones };
 
   const prompt = `
 你是「天地人配對系統」的玄學合盤大師。
-請根據以下大數據資料，把原始配對摘要改寫成更具穿透力、起落分明、一針見血的繁體中文分析。
+請根據以下雙方的基本資料與大數據配對指數，將原始配對結果（摘要與四個關係象限文字）改寫成極具個性化、起伏分明、字字扎心、絕不重複的繁體中文大師合盤結論。
 
-規則：
-1. 只做補充與整理，不可推翻原始結論與分數方向。
-2. 語氣要高級、精準、高冷且字字扎心，直面雙方的合盤關卡，同時給予核心建議（激勵），拒絕平淡溫和的無用客套。
-3. 內容保持 120 字內。
-4. 不要輸出分點，只輸出一段文字。
-5. 必須順著分數解讀，並融入姓名格局與星曜喜忌的穿透力。
+合盤對象：
+- 第一位：姓名 ${displayA.name}，生肖 ${displayA.chineseZodiac}，星座 ${displayA.zodiacZh}，五行 ${displayA.wuxing}，血型 ${displayA.bloodType}
+- 第二位：姓名 ${displayB.name}，生肖 ${displayB.chineseZodiac}，星座 ${displayB.zodiacZh}，五行 ${displayB.wuxing}，血型 ${displayB.bloodType}
 
-第一位：${displayA.name}，${displayA.zodiacZh}，${displayA.chineseZodiac}，${displayA.wuxing}，血型 ${displayA.bloodType}
-第二位：${displayB.name}，${displayB.zodiacZh}，${displayB.chineseZodiac}，${displayB.wuxing}，血型 ${displayB.bloodType}
-配對分數：${result.match_score}
-共鳴：${result.resonance}
-溝通：${result.communication}
-穩定：${result.stability}
-衝突風險：${result.conflict_risk}
-原始摘要：${summary}
-`.trim();
+配對數理指標：
+- 總體契合指數：${result.match_score}
+- 共鳴感：${result.resonance}
+- 溝通感：${result.communication}
+- 穩定度：${result.stability}
+- 衝突風險：${result.conflict_risk}
+
+原始基準文字（作為改寫方向參考，不可顛倒主次結論）：
+- 原始摘要：${result.summary}
+- 原始最有共鳴點：${result.zones.resonance.join('、')}
+- 原始互補優勢點：${result.zones.complement.join('、')}
+- 原始需要磨合點：${result.zones.grinding.join('、')}
+- 原始注意衝突點：${result.zones.conflict.join('、')}
+
+【改寫指令與限制】：
+1. 必須將原始各點改寫融入「雙方姓名、星座、生肖或血型五行」的特性（例如：星座配對、五行相生相剋、或生肖相合）。
+2. 四大關係象限（共鳴、互補、磨合、衝突）中，每一區請生成 1 到 2 條全新、扎心、個性化的合盤指點（每條請控制在 25 字內，切忌空洞泛泛的讚美，多說有用的修行相處建議）。
+3. 摘要 summary 請控制在 120 字內的一段話，語氣高冷犀利、字字點中要害，直接點破相處關卡。
+4. 必須以 JSON 格式回覆，不含任何外部 markdown 包裝，格式必須嚴格為：
+{
+  "summary": "改寫後的摘要",
+  "resonance": ["改寫後共鳴 1", "改寫後共鳴 2"],
+  "complement": ["改寫後互補 1", "改寫後互補 2"],
+  "grinding": ["改寫後磨合 1", "改寫後磨合 2"],
+  "conflict": ["改寫後衝突 1", "改寫後衝突 2"]
+}
+  `.trim();
 
   try {
     const genai = new GoogleGenAI({ apiKey });
@@ -131,16 +152,40 @@ async function enhanceSummaryWithAI(
       genai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        config: { maxOutputTokens: 180, temperature: 0.2 },
+        config: {
+          responseMimeType: 'application/json',
+          maxOutputTokens: 800,
+          temperature: 0.35
+        },
       }),
       new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Gemini timeout')), 10_000);
       }),
     ]);
 
-    return response.text?.trim() || summary;
-  } catch {
-    return summary;
+    const text = response.text?.trim();
+    if (!text) throw new Error('Empty response');
+
+    const parsed = JSON.parse(text) as {
+      summary: string;
+      resonance: string[];
+      complement: string[];
+      grinding: string[];
+      conflict: string[];
+    };
+
+    return {
+      summary: parsed.summary || result.summary,
+      zones: {
+        resonance: (parsed.resonance?.length ? parsed.resonance : result.zones.resonance).slice(0, 3),
+        complement: (parsed.complement?.length ? parsed.complement : result.zones.complement).slice(0, 3),
+        grinding: (parsed.grinding?.length ? parsed.grinding : result.zones.grinding).slice(0, 3),
+        conflict: (parsed.conflict?.length ? parsed.conflict : result.zones.conflict).slice(0, 3),
+      }
+    };
+  } catch (error) {
+    console.warn('[enhanceMatchResultWithAI] Fallback to static templates due to:', error);
+    return { summary: result.summary, zones: result.zones };
   }
 }
 
@@ -178,8 +223,8 @@ export async function POST(request: Request) {
 
     const rawResult = computeCompatibility(profileA, profileB);
     const result = stabilizeMatchResult(rawResult);
-    const aiSummary = await enhanceSummaryWithAI(result.summary, result, displayA, displayB);
-    const finalSummary = isConsistentAiSummary(aiSummary, result) ? aiSummary : result.summary;
+    const enhanced = await enhanceMatchResultWithAI(result, displayA, displayB);
+    const finalSummary = isConsistentAiSummary(enhanced.summary, result) ? enhanced.summary : result.summary;
 
     // 計算天地人因果三才軌道數據
     const karmaRelation = computeRelationshipMatrix(
@@ -200,7 +245,7 @@ export async function POST(request: Request) {
     );
 
     return NextResponse.json({
-      result: { ...result, summary: finalSummary },
+      result: { ...result, summary: finalSummary, zones: enhanced.zones },
       displayA,
       displayB,
       karmaRelation,

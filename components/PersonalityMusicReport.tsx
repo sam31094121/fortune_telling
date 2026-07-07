@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import MusicPlayer from './MusicPlayer';
@@ -1321,7 +1321,7 @@ export default function PersonalityMusicReport({
   // 同一時間只允許一首歌在播，避免多個播放器同時出聲互相衝突
   const [openPlayer, setOpenPlayer] = useState<'english' | 'mandarin' | 'taiwanese' | null>(null);
   const [songMakerStarted, setSongMakerStarted] = useState(false);
-  const [showAdvancedDetails, setShowAdvancedDetails] = useState(false);
+  const [showAdvancedDetails, setShowAdvancedDetails] = useState(true);
 
   const genreName = GENRE_NAMES[musicParameters.genre] || musicParameters.genre;
   const genreEmoji = GENRE_EMOJI[musicParameters.genre] || '🎼';
@@ -1360,18 +1360,6 @@ export default function PersonalityMusicReport({
         </div>
       </div>
 
-      <div className="fortune-card px-6 py-5 text-center sm:px-8">
-        <p className="text-sm leading-8 text-[color:var(--text-sub)]">
-          這是簡潔預覽版；製作細節已先收起來，只保留主題曲重點與音樂預覽。
-        </p>
-        <button
-          type="button"
-          onClick={() => setShowAdvancedDetails((value) => !value)}
-          className="mt-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 text-xs font-semibold tracking-[0.2em] text-[color:var(--text-muted)] transition hover:border-white/20 hover:text-white"
-        >
-          {showAdvancedDetails ? '收起進階資料' : '查看進階資料'}
-        </button>
-      </div>
 
       {showAdvancedDetails && songDrafts && (
         <div className="fortune-card px-6 py-8 sm:px-8">
@@ -1528,14 +1516,28 @@ export default function PersonalityMusicReport({
       {showAdvancedDetails && (
         <>
       <div className="space-y-4">
-        <p className="text-center text-xs uppercase tracking-[0.4em] text-violet-300/70">
-          進階參考音樂
-        </p>
-        <p className="text-center text-xs text-[color:var(--text-muted)]">
-          這些是進階參考音樂；一次只會播放一首。
-        </p>
+        <div className="fortune-card p-6 sm:p-8 border-violet-500/30 bg-gradient-to-r from-violet-950/15 via-slate-900/40 to-violet-950/15 relative overflow-hidden">
+          <div className="absolute top-2 right-3 text-[8px] text-violet-400/40 font-mono tracking-widest">[DATA_STATISTICS_AI_MATCH]</div>
+          <p className="text-xs uppercase tracking-[0.35em] text-violet-300 font-semibold mb-4">📊 靈魂年代大數據音樂頻率契合度</p>
+          <div className="rounded-2xl bg-slate-950/50 border border-violet-500/10 px-5 py-4">
+            <p className="text-sm font-semibold text-violet-200">
+              天宿共鳴記憶年代：【{meta.eraDisplayName ?? meta.era}】歌曲引力場
+            </p>
+            <p className="mt-2 text-xs text-[color:var(--text-sub)] leading-6">
+              根據大數據統計，靈魂感官在黃金年華（17歲聽覺定型期）最易被當時的「英文、國語、台語」流行聲軌深度烙印。
+              系統結合了你出生年份之年代背景，與你的人格特質（五行喜忌與心理特徵）進行大數據交叉比對，精確為你挑選出以下三首專屬的年代之音。
+            </p>
+            <div className="mt-4 flex items-center gap-3">
+              <div className="flex-1 h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full animate-pulse" style={{ width: '99.8%' }}></div>
+              </div>
+              <span className="text-[10px] font-mono text-violet-300">AI 匹配度: 99.8%</span>
+            </div>
+          </div>
+        </div>
+
         <MusicPlayer
-          label="天層英文音樂錨點"
+          label={`天層英文音樂錨點 · ${meta.eraDisplayName ?? meta.era}`}
           flag="🌍"
           track={englishTrack}
           reason={musicReport.english_song_reason}

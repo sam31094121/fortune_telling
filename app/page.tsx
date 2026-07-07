@@ -43,6 +43,7 @@ interface KarmaStory {
   closing_wisdom: string;
   personA_star?: string;
   personB_star?: string;
+  iching_hexagram?: string;
 }
 
 interface PersonDisplay {
@@ -516,7 +517,47 @@ export default function HomePage() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
   const [isDemoRunning, setIsDemoRunning] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showScrollDown, setShowScrollDown] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // 往上回到頂部
+      if (window.scrollY > 400) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+
+      // 往下滾動引導
+      if (window.scrollY < 80) {
+        // 只有解鎖了結果且尚未滑動時顯示
+        setShowScrollDown(true);
+      } else {
+        setShowScrollDown(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (isUnlocked && data) {
+      setShowScrollDown(true);
+      // 8 秒後自動優雅隱藏
+      const timer = setTimeout(() => {
+        setShowScrollDown(false);
+      }, 8000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowScrollDown(false);
+    }
+  }, [isUnlocked, !!data]);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // 檢測 Fast Refresh 或 Chunk 載入錯誤，自動維修重新載入，防禦白屏
   useEffect(() => {
@@ -1285,38 +1326,41 @@ export default function HomePage() {
                   </div>
                   
                   <div>
-                    <p className="text-xs uppercase tracking-[0.45em] text-amber-300 font-bold font-mono">大數據天宿因果 · VIP 尊榮專屬</p>
-                    <h3 className="mt-4 font-serif text-3xl font-black text-white tracking-wide">解鎖前世因果故事與天命聲律</h3>
+                    <p className="text-xs uppercase tracking-[0.45em] text-amber-300 font-bold font-mono">大數據天宿因果 · VIP 尊榮解鎖艙</p>
+                    <h3 className="mt-4 font-serif text-3xl font-black text-white tracking-wide">解鎖雙方前世今生修行密碼</h3>
                     
                     {/* 黃金權益高亮 */}
                     <div className="mt-6 flex flex-col items-center justify-center gap-3 text-xs text-amber-100/90 font-medium">
-                      <span className="flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-4 py-1.5 shadow-[0_0_10px_rgba(201,162,74,0.05)]">
-                        ✦ 雙人本命紫微斗數坐命主星曜碰撞解析
+                      <span className="flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 shadow-[0_0_10px_rgba(201,162,74,0.1)]">
+                        ✦ 雙人靈魂主星曜宿命引力軌道 (看懂他/她靈魂底牌)
                       </span>
-                      <span className="flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-4 py-1.5 shadow-[0_0_10px_rgba(201,162,74,0.05)]">
-                        ✦ 前世今生三生因果緣分與避坑修行天機
+                      <span className="flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 shadow-[0_0_10px_rgba(201,162,74,0.1)]">
+                        ✦ 前世今生修行課題與避坑天機 (一語道破相處痛點，準確率極高)
                       </span>
-                      <span className="flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-4 py-1.5 shadow-[0_0_10px_rgba(201,162,74,0.05)]">
-                        ✦ 專屬聲波頻率合成 432Hz 人格音樂主題曲
+                      <span className="flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 shadow-[0_0_10px_rgba(201,162,74,0.1)]">
+                        ✦ 專屬聲波頻率合成 432Hz 人格音樂主題曲 (穿透彼此靈魂)
                       </span>
                     </div>
 
                     <div className="mt-8 border-t border-amber-500/15 pt-6 text-left max-w-xl mx-auto space-y-3.5">
                       <p className="text-xs uppercase tracking-[0.25em] text-amber-300 font-semibold font-mono">🧬 釋義：天地人因果天宿密碼</p>
                       <blockquote className="border-l border-amber-500/40 pl-4 text-xs italic text-[color:var(--text-sub)] leading-7">
-                        「人一出生，天宿天命便與天地人三才緊密相連。大樹落葉，落葉歸根，這是命運的因果軌道。天宿命運有軌跡，但命運絕對可以改變。改命的重中之重，在於『自己有沒有真正改過自新、廣結善緣、學會放下』。以善為本，順天而行則合；執迷不悟，逆天而行則亡。」
+                        「人一出生，天宿天命便與天地人三才緊密相連。天宿命運有軌跡，但命運絕對可以改變。改命的重中之重，在於『自己有沒有真正改過自新、廣結善緣、學會放下』。以善為本，順天而行則合；執迷不悟，逆天而行則亡。」
                       </blockquote>
                     </div>
                   </div>
 
                   <div className="pt-6">
+                    <p className="mb-3 text-[11px] font-mono text-amber-400/80 tracking-widest">
+                      🌟 限時尊榮專屬：NT$ 299 (一次解鎖，永久叩問) 🌟
+                    </p>
                     {/* 付費解鎖按鈕 - 呼吸脈衝發光動態 */}
                     <button
                       type="button"
                       onClick={handleUnlockVIP}
                       className="vip-gold-btn px-10 py-5 text-base font-black tracking-widest uppercase rounded-full shadow-[0_0_35px_rgba(201,162,74,0.4)] hover:shadow-[0_0_50px_rgba(201,162,74,0.7)] transition-all duration-300 border border-amber-300/30 transform hover:scale-[1.03] animate-pulse shimmer-btn"
                     >
-                      👑 叩問因果天命 · 一鍵啟開 VIP 專屬天盤
+                      👑 叩問天命因果 · 一鍵開啟專屬 VIP 報告
                     </button>
                   </div>
                 </div>
@@ -1350,7 +1394,7 @@ export default function HomePage() {
             )}
 
             {/* 已解鎖時顯示的 VIP 聲學與天命報告 */}
-            {data.karma_story && isUnlocked && (
+            {data?.karma_story && isUnlocked && (
               <div className="space-y-6 animate-rise">
                 {/* 聲學音樂適配區 (動態跳動頻譜) */}
                 <div className="fortune-card vip-gold-card p-6 sm:p-8 relative overflow-hidden">
@@ -1400,26 +1444,31 @@ export default function HomePage() {
                 </div>
 
                 {data?.karma_story?.personA_star && data?.karma_story?.personB_star && (
-                  <div className="fortune-card vip-gold-card p-6 sm:p-8 border-amber-500/20 bg-amber-950/10">
-                    <p className="mb-4 text-xs uppercase tracking-[0.35em] text-amber-300 font-semibold">☯️ 雙方本命紫微斗數命宮主星曜大數據</p>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="rounded-xl border border-violet-500/20 bg-slate-950/40 p-4">
-                        <p className="text-xs text-violet-300 font-medium">【{personA.name}】紫微坐命宮</p>
-                        <p className="mt-2 text-lg text-white font-black text-shadow-glow">
-                          {data?.karma_story?.personA_star}
-                        </p>
-                      </div>
-                      <div className="rounded-xl border border-amber-500/20 bg-slate-950/40 p-4">
-                        <p className="text-xs text-amber-300 font-medium">【{personB.name}】紫微坐命宮</p>
-                        <p className="mt-2 text-lg text-white font-black text-shadow-glow">
-                          {data?.karma_story?.personB_star}
-                        </p>
-                      </div>
+                  <div className="fortune-card vip-gold-card p-6 sm:p-8 border-amber-500/30 bg-gradient-to-r from-amber-950/15 via-slate-900/40 to-amber-950/15">
+                    <p className="mb-4 text-xs uppercase tracking-[0.35em] text-amber-300 font-semibold">☯️ 雙方天命星軌契合解碼</p>
+                    <div className="rounded-2xl bg-slate-950/50 border border-amber-500/10 px-5 py-4 text-center">
+                      <p className="text-sm font-semibold text-amber-200">
+                        【{personA.name}】與【{personB.name}】的宿命引力軌道已接軌
+                      </p>
+                      <p className="mt-2 text-xs text-[color:var(--text-sub)]">
+                        星格對照：{data.karma_story.personA_star} × {data.karma_story.personB_star}
+                      </p>
                     </div>
-                    <p className="mt-4 text-[11px] text-[color:var(--text-muted)] leading-5">
-                      📊 <strong>宿命數據統計聲明：</strong>
-                      所有配對與業力意見均基於雙方紫微斗數命宮主星交匯軌道與八字十神（如日主生剋關係）進行統計學推演。數據均有邏輯根據，非隨機生成。
-                    </p>
+                  </div>
+                )}
+
+                {data?.karma_story?.iching_hexagram && (
+                  <div className="fortune-card vip-gold-card p-6 sm:p-8 border-violet-500/30 bg-gradient-to-r from-violet-950/15 via-slate-900/40 to-violet-950/15 relative overflow-hidden">
+                    <div className="absolute top-1.5 right-2.5 text-[7px] text-violet-400/30 font-mono tracking-widest">[I_CHING_MUTATION]</div>
+                    <p className="mb-4 text-xs uppercase tracking-[0.35em] text-violet-300 font-semibold">☯️ 易經動爻合盤卦象</p>
+                    <div className="rounded-2xl bg-slate-950/60 border border-violet-500/10 px-5 py-4 text-center">
+                      <p className="text-xl font-bold text-violet-200 tracking-wider">
+                        {data.karma_story.iching_hexagram}
+                      </p>
+                      <p className="mt-2 text-xs text-[color:var(--text-muted)] leading-5">
+                        易理爻象變易點評：此卦象精確對應雙方姓名三才與八字能量消長之天機。
+                      </p>
+                    </div>
                   </div>
                 )}
 
@@ -1511,6 +1560,16 @@ export default function HomePage() {
               </div>
             )}
 
+            {isUnlocked && (
+              <button
+                type="button"
+                onClick={scrollToTop}
+                className="w-full py-4.5 rounded-2xl border border-amber-500/20 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 text-center text-sm font-semibold text-amber-300 shadow-[0_0_15px_rgba(201,162,74,0.05)] hover:border-amber-500/40 hover:text-amber-200 transition-all duration-300 active:scale-[0.98] animate-pulse flex items-center justify-center gap-2 mb-4"
+              >
+                <span>☯️ 已悉知天宿業力指點 · 點擊平滑滑回頂部 ☯️</span>
+              </button>
+            )}
+
             <div className="flex flex-col gap-3 sm:flex-row">
               <button type="button" onClick={() => window.print()} className="vip-gold-btn flex-1 py-4 text-sm">
                 匯出配對報告
@@ -1528,6 +1587,24 @@ export default function HomePage() {
           </div>
         )}
       </main>
+
+      {showScrollDown && isUnlocked && data && (
+        <div className="fixed bottom-24 left-1/2 z-40 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none animate-bounce">
+          <span className="rounded-full border border-amber-500/30 bg-slate-950/90 px-4 py-2.5 text-xs font-semibold tracking-widest text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.25)] flex items-center gap-1.5 backdrop-blur-sm">
+            <span>👇</span> 向下滑動閱讀完整天命因果 <span>👇</span>
+          </span>
+        </div>
+      )}
+
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-amber-500/30 bg-slate-950/80 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all duration-300 hover:scale-110 hover:border-amber-400 hover:text-amber-200 active:scale-95"
+          aria-label="回到頂部"
+        >
+          <span className="text-sm">▲</span>
+        </button>
+      )}
     </div>
   );
 }

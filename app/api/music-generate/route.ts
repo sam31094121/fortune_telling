@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { generateMusicReport, generateFusionSong, generateSongDrafts, generateAiProductionPlan } from '@/lib/gemini';
 import { PersonalityMatrixEngine } from '@/lib/personality-matrix-engine';
 import { MusicParameterGenerator } from '@/lib/music-parameter-generator';
@@ -170,7 +170,7 @@ export async function POST(request: Request) {
   ).slice(0, 8);
 
   // 大數據精準選歌：各取 1 首（英文 + 國語 + 台語）
-  const englishTrack = selectEnglishSong(personalityMatrix);
+  const englishTrack = selectEnglishSong(era, personalityMatrix);
   const mandarinTrack = selectMandarinSongs(era, personalityMatrix, 1)[0];
   const taiwaneseTrack = selectTaiwaneseSong(era, personalityMatrix);
   const eraDisplayName = getEraDisplayName(era);

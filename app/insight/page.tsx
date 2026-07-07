@@ -725,131 +725,42 @@ export default function InsightPage() {
               </p>
             </div>
 
-            {result?.scoreMethodology && (
-              <div className="fortune-card p-6 sm:p-8">
-                <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">分數計算邏輯</p>
-                <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)]">每個分數都有固定來源</h3>
-                <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                  <div className="rounded-2xl border border-cyan-400/15 bg-cyan-950/15 p-4">
-                    <p className="text-xs tracking-[0.25em] text-cyan-300">公式</p>
-                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{result?.scoreMethodology?.formula}</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs tracking-[0.25em] text-[color:var(--text-muted)]">百分位</p>
-                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{result?.scoreMethodology?.percentile}</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs tracking-[0.25em] text-[color:var(--text-muted)]">樣本基準</p>
-                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{result?.scoreMethodology?.sampleBasis}</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs tracking-[0.25em] text-[color:var(--text-muted)]">同分處理</p>
-                    <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{result?.scoreMethodology?.duplicatePolicy}</p>
+            {/* 👑 天命格局解碼卡片 (置頂高亮展示) */}
+            {(() => {
+              const birthDate = result?.meta?.birthDate || input.birthDate;
+              const shichenValue = result?.meta?.shichen !== undefined ? result.meta.shichen : input.shichen;
+              
+              if (!birthDate) return null;
+              
+              const calc = calculateZiweiMainStar(birthDate, shichenValue);
+              if (!calc.starName) return null;
+
+              return (
+                <div className="rounded-3xl border-2 border-amber-500/30 bg-gradient-to-r from-amber-950/20 via-slate-900/60 to-amber-950/20 p-6 sm:p-8 shadow-[0_0_30px_rgba(201,162,74,0.15)] relative overflow-hidden animate-rise">
+                  <div className="absolute top-0 right-0 p-4 text-4xl opacity-20 select-none">🪐</div>
+                  <div className="relative z-10">
+                    <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3.5 py-1 text-xs font-bold text-amber-300 tracking-widest">
+                      天宿本命星格
+                    </span>
+                    <h3 className="mt-4 font-serif text-3xl text-amber-200 tracking-wider">{calc.patternName}</h3>
+                    <p className="mt-1.5 text-xs text-amber-400/80 font-mono">星曜定位：{calc.starName} ({calc.patternStars})</p>
+                    <p className="mt-4 text-sm leading-8 text-[color:var(--text-sub)]">
+                      {calc.patternDesc}
+                    </p>
                   </div>
                 </div>
+              );
+            })()}
 
-                {result?.accuracyBreakdown && (
-                  <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    {result?.accuracyBreakdown?.map((item) => (
-                      <div key={item.label} className="rounded-2xl border border-white/10 bg-black/15 p-4">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="text-sm font-semibold text-[color:var(--text-main)]">{item.label}</p>
-                          <p className="text-lg font-bold text-cyan-200">{item.value}</p>
-                        </div>
-                        <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">{item.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+            {/* 🔮 靈魂心理學洞察 */}
+            {result?.psychologyInsights && result.psychologyInsights.length > 0 && (
               <div className="fortune-card p-6 sm:p-8">
-                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">核心指標來源</p>
-                <div className="grid gap-4 xl:grid-cols-2">
-                  {result?.statisticalAnalysis?.map((item) => (
-                    <ScoreEvidenceCard key={item.dimension} item={item} />
-                  ))}
-                </div>
-              </div>
-
-              <div className="fortune-card p-6 sm:p-8">
-                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">心理學洞察</p>
-                <div className="space-y-4 text-sm">
-                  {result?.psychologyInsights?.slice(0, 3)?.map((insight, index) => (
-                    <div key={index} className="border-l-2 border-cyan-400/30 pl-4">
+                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">靈魂心理學洞察</p>
+                <div className="grid gap-6 md:grid-cols-3">
+                  {result.psychologyInsights.slice(0, 3).map((insight, index) => (
+                    <div key={index} className="border-l-2 border-cyan-400/30 pl-4 py-1">
                       <p className="font-semibold text-cyan-300">{insight.title}</p>
-                      <p className="mt-1 text-[color:var(--text-sub)]">{insight.description}</p>
-                      <p className="mt-2 text-xs text-[color:var(--text-muted)]">信心度: {insight.confidence}%</p>
-                      {insight.confidenceSource && (
-                        <p className="mt-1 text-xs leading-6 text-cyan-100/70">{insight.confidenceSource}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {result?.ziweiPalaces && result?.ziweiPalaces.length > 0 && (
-              <div className="fortune-card p-6 sm:p-8 relative overflow-hidden">
-                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">☯️ 紫微斗數 · 三方四正大數據推理</p>
-                
-                <div className="mb-6 rounded-2xl border border-cyan-400/20 bg-cyan-950/15 p-4 text-xs leading-6 text-cyan-200">
-                  📊 <strong>本命大數據命理校準源：</strong>
-                  八字日柱【<span className="text-amber-300 font-bold">{result?.meta?.dayPillar}</span>】· 
-                  時柱【<span className="text-amber-300 font-bold">{result?.meta?.hourPillar}</span>】· 
-                  時辰【<span className="text-cyan-300 font-bold">{result?.meta?.shichenLabel}</span>】 · 
-                  時辰五行【<span className="text-violet-300 font-bold">{result?.meta?.wuxing}</span>】。
-                  <p className="mt-1 text-[11px] text-[color:var(--text-muted)] leading-5">
-                    本項統計數據均基於你的真實八字格局與紫微斗數三方四正命盤星曜軌道精密推導，非隨機生成，特此聲明。
-                  </p>
-                </div>
-
-                {/* 👑 天命格局解碼卡片 (宮位主星高階美化) */}
-                {(() => {
-                  const birthDate = result?.meta?.birthDate || input.birthDate;
-                  const shichenValue = result?.meta?.shichen !== undefined ? result.meta.shichen : input.shichen;
-                  
-                  if (!birthDate) return null;
-                  
-                  const calc = calculateZiweiMainStar(birthDate, shichenValue);
-                  if (!calc.starName) return null;
-
-                  return (
-                    <div className="mb-6 rounded-2xl border border-amber-500/25 bg-gradient-to-r from-amber-950/20 via-slate-900/50 to-amber-950/20 p-5 shadow-[0_0_20px_rgba(201,162,74,0.1)] relative overflow-hidden animate-rise">
-                      <div className="absolute top-0 right-0 p-3 text-3xl opacity-20 select-none">👑</div>
-                      <div className="relative z-10">
-                        <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-1 text-xs font-bold text-amber-300">
-                          🪐 天命星格解碼
-                        </span>
-                        <h3 className="mt-3 font-serif text-2xl text-amber-200">{calc.patternName}</h3>
-                        <p className="mt-1 text-xs text-amber-400/80 font-mono">格局主星：{calc.starName} ({calc.patternStars})</p>
-                        <p className="mt-3 text-xs leading-6 text-[color:var(--text-sub)]">
-                          {calc.patternDesc}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {result?.ziweiPalaces?.map((palace, index) => (
-                    <div
-                      key={index}
-                      className="rounded-2xl border border-cyan-500/10 bg-slate-950/40 p-4 sm:p-5 transition hover:border-cyan-500/30"
-                    >
-                      <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                        <span className="text-sm font-bold text-cyan-300">
-                          {palace.palaceName}
-                        </span>
-                        <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-300 border border-amber-500/20">
-                          {palace.starName}
-                        </span>
-                      </div>
-                      <p className="mt-3 text-xs leading-6 text-[color:var(--text-sub)]">
-                        {palace.statisticalInference}
-                      </p>
+                      <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">{insight.description}</p>
                     </div>
                   ))}
                 </div>
