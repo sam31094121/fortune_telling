@@ -22,6 +22,73 @@ export default function VisualGravityCore() {
   const mountRef   = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
   const touchSpinSpeedRef = useRef(1.0);
+  const [tapCount, setTapCount] = useState(0);
+  const [showMantra, setShowMantra] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const explosionActiveRef = useRef(false);
+
+  const playBowlSound = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      
+      const baseFreq = 292;
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(baseFreq, ctx.currentTime);
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(baseFreq * 1.52, ctx.currentTime);
+      
+      gainNode.gain.setValueAtTime(0, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 4.5);
+      
+      osc1.connect(gainNode);
+      osc2.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      osc1.start();
+      osc2.start();
+      osc1.stop(ctx.currentTime + 4.8);
+      osc2.stop(ctx.currentTime + 4.8);
+    } catch (e) {
+      console.warn('Web Audio Playback failed:', e);
+    }
+  };
+
+  const handleTaiChiClick = () => {
+    if (showMantra) return;
+
+    setTapCount((prev) => {
+      const next = prev + 1;
+      
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
+        setTapCount(0);
+      }, 2000);
+
+      if (next >= 3) {
+        if (timerRef.current) clearTimeout(timerRef.current);
+        setTapCount(0);
+        setShowMantra(true);
+        playBowlSound();
+        
+        explosionActiveRef.current = true;
+        setTimeout(() => {
+          explosionActiveRef.current = false;
+        }, 2500);
+
+        setTimeout(() => {
+          setShowMantra(false);
+        }, 5200);
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -563,20 +630,26 @@ export default function VisualGravityCore() {
           }
 
           // 阻尼衰減回 1.0 基準公轉速度
-          touchSpinSpeedRef.current += (1.0 - touchSpinSpeedRef.current) * 0.032;
+          if (explosionActiveRef.current) {
+            touchSpinSpeedRef.current = 6.8;
+          } else {
+            touchSpinSpeedRef.current += (1.0 - touchSpinSpeedRef.current) * 0.032;
+          }
           const speedMult = touchSpinSpeedRef.current;
 
           // All breakpoints share the same tablet composition and viewing angle.
           grp.rotation.y = Math.sin(t * 0.24) * TABLET_VISUAL_PROFILE.tiltYDrift;
           grp.rotation.x = TABLET_VISUAL_PROFILE.tiltX
             + Math.sin(t * 0.19) * TABLET_VISUAL_PROFILE.tiltXDrift;
-          // 核心雙星太極公轉
+        // 核心雙星太極公轉
           grpAngleZ -= (0.349 / 18) * speedMult;
           grp.rotation.z = grpAngleZ;
 
           // 低幅度能量呼吸，避免忽大忽小造成視覺失焦。
           const breatheIntensity = 0.014 + Math.sin(t * 0.42) * 0.004;
-          grp.scale.setScalar(1 + Math.sin(t * 0.55) * breatheIntensity);
+          let currentScale = 1 + Math.sin(t * 0.55) * breatheIntensity;
+          if (explosionActiveRef.current) currentScale *= 1.6;
+          grp.scale.setScalar(currentScale);
 
           // ✨ 優化黑洞呼吸效果 - 與主節奏協調
           diskMesh.rotation.z = t * 1.6;
@@ -637,7 +710,9 @@ export default function VisualGravityCore() {
 
           // 主光暈呼吸 - 仙氣耀眼
           (haloSprite.material as SpriteMaterial).opacity = 0.40 + haloBreatheIntensity * 0.42;  // 更耀眼
-          haloSprite.scale.setScalar(7.2 + haloBreatheIntensity * 2.2);  // 仙氣膨脹
+          let currentHaloScale = 7.2 + haloBreatheIntensity * 2.2;
+          if (explosionActiveRef.current) currentHaloScale *= 2.5;
+          haloSprite.scale.setScalar(currentHaloScale);  // 仙氣膨脹
 
           // 白色光暈呼吸 - 仙氣純淨
           const whiteBreath = 0.50 + Math.sin(t * 0.34) * 0.48;  // 仙氣漂浮感
@@ -960,11 +1035,34 @@ export default function VisualGravityCore() {
       style={{ background: "#02030A" }}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
+      onClick={handleTaiChiClick}
     >
       <canvas
         ref={interactionCanvasRef}
         className="absolute inset-0 z-30 pointer-events-none w-full h-full"
       />
+
+      {/* 👑 觸碰 3 次爆發：五字真言梵文好運 Overlay */}
+      {showMantra && (
+        <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-slate-950/75 backdrop-blur-sm transition-all duration-700 animate-fade-in">
+          <div className="flex gap-2.5 text-3xl sm:text-4xl font-serif text-amber-200 drop-shadow-[0_0_15px_rgba(245,158,11,0.85)] animate-bounce" style={{ animationDuration: '2s' }}>
+            <span className="animate-pulse delay-75">ॐ</span>
+            <span className="animate-pulse delay-150">म</span>
+            <span className="animate-pulse delay-300">णि</span>
+            <span className="animate-pulse delay-500">पद्</span>
+            <span className="animate-pulse delay-700">मे</span>
+            <span className="animate-pulse delay-1000">हूँ</span>
+          </div>
+          <div className="mt-4 px-4 text-center">
+            <p className="text-[11px] font-semibold tracking-[0.2em] text-amber-300/90 animate-pulse font-serif">
+              ✨ 天宿好運已降臨 ✨
+            </p>
+            <p className="mt-1 text-[9px] text-cyan-200/80 leading-4 font-mono">
+              五字真言護持 · 諸邪退散 · 吉星高照
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
