@@ -416,32 +416,6 @@ function safeJsonParse<T>(text: string): T {
   }
 }
 
-    const rawStar = starMap[destinyPalaceIdx] || '天府';
-    starName = rawStar;
-    if (['貪狼', '七殺', '破軍', '廉貞貪狼'].some(s => rawStar.includes(s))) {
-      patternName = '【殺破狼】強勢開疆拓土格局';
-      patternStars = '七殺 · 破軍 · 貪狼共鳴';
-      patternDesc = `你的命宮落入【${rawStar}】，與三方四正之七殺、破軍產生強烈引力共振，構成紫微斗數中能量最為強悍、主掌人生變革與事業宏大開拓的「殺破狼」格局。你一生充滿冒險精神與絕處逢生的爆發力，適合在新創、商戰或開創性領域中開疆辟土，今生注定不凡。`;
-    } else if (['紫微', '天府', '紫微天府'].some(s => rawStar.includes(s))) {
-      patternName = '【紫府同宮】尊貴帝皇格局';
-      patternStars = '紫微 · 天府主曜雙輝';
-      patternDesc = `你的命宮落入【${rawStar}】，乃紫微斗數十四主星之尊曜，具備極強的領導風範與福澤。你天生帶有管理與號召力，一生多得長輩與貴人扶持，在團體中極易脫穎而出，成就大業。`;
-    } else if (['太陽', '太陰', '天機太陰'].some(s => rawStar.includes(s))) {
-      patternName = '【日月並明】日月經天格局';
-      patternStars = '太陽 · 太陰日月交輝';
-      patternDesc = `你的命宮落入【${rawStar}】，日月交輝，主一生光明磊落，思想宏大，名利雙收。你具備極強的洞察力與慈悲心，能在高壓環境下保持清醒，天命清貴，受人景仰。`;
-    }
-  }
-
-  return {
-    palaceName: '命宮',
-    starName,
-    patternName,
-    patternStars,
-    patternDesc
-  };
-}
-
 export async function generateInsightAnalysis(request: InsightRequest): Promise<InsightAnalysisResponse> {
   // 與專案其他模組一致使用 GEMINI_API_KEY，並保留舊名稱作為後備
   const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
