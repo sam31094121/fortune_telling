@@ -526,8 +526,7 @@ ${JSON.stringify(statisticalAnalysis.map((item) => ({
     ziwei_palaces: Array<{ palace_name: string; star_name: string; statistical_inference: string }>;
   }>(textStr);
 
-  // 🔮 執行紫微命宮與主星大數據硬核校正，保證排盤邏輯鐵律的 100% 準確！
-  const ziweiCalc = calculateZiweiMainStar(request.birthDate, request.shichen);
+  const ziweiCalc = calculateZiweiMainStar(request.birthDate, request.shichen ?? null);
   if (aiAnalysis.ziwei_palaces && Array.isArray(aiAnalysis.ziwei_palaces)) {
     const mingIndex = aiAnalysis.ziwei_palaces.findIndex(
       (p) => p.palace_name === '命宮'
