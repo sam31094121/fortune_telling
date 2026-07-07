@@ -848,21 +848,14 @@ export default function HomePage() {
       </div>
 
       {unlocking && (
-        <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md">
-          <div className="relative flex items-center justify-center">
-            {/* 三軌對齊 3D 科技星盤 */}
-            <div className="absolute h-48 w-48 rounded-full border-2 border-dashed border-violet-500/30 animate-spin" style={{ animationDuration: '6s' }} />
-            <div className="absolute h-40 w-40 rounded-full border border-double border-amber-500/40 animate-spin" style={{ animationDuration: '4s', animationDirection: 'reverse' }} />
-            <div className="absolute h-32 w-32 rounded-full border border-rose-500/30 animate-spin" style={{ animationDuration: '8s' }} />
-            {/* 仙氣天然發光中心 */}
-            <div className="z-10 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-tr from-violet-600/20 via-pink-600/20 to-amber-600/20 text-4xl font-bold text-white shadow-[0_0_50px_15px_rgba(215,139,255,0.4)]">
-              ☯️
-            </div>
+        <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-slate-950/95 backdrop-blur-md">
+          <div className="relative flex items-center justify-center w-80 h-80">
+            <VisualGravityCore />
           </div>
-          <p className="mt-8 text-lg font-bold tracking-widest text-amber-200 animate-pulse">
+          <p className="mt-4 text-lg font-bold tracking-widest text-amber-200 animate-pulse font-serif">
             🪐 天宿星軌對齊中，解密天宿命盤...
           </p>
-          <div className="mt-4 flex gap-1.5 text-xs text-violet-300/70">
+          <div className="mt-3 flex gap-1.5 text-xs text-violet-300/70">
             <span className="animate-bounce">🧬 正在重組前世今生大數據，啟封音律...</span>
           </div>
         </div>

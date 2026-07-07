@@ -211,19 +211,31 @@ function InsightAnalyticalConsole({
   }, [fullLogs]);
 
   return (
-    <div className="fortune-card p-6 sm:p-8 font-mono border border-cyan-500/20 bg-slate-950/80 shadow-[0_0_30px_rgba(34,211,238,0.08)] w-full">
-      <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">🧬 大數據個人天宿洞察終端</p>
-      <div className="mt-6 space-y-3.5 text-xs sm:text-sm text-cyan-100 leading-7 min-h-[150px]">
-        {logs.map((log, index) => (
-          <p key={index} className="animate-fade-in">
-            {log}
+    <div className="fortune-card p-6 sm:p-8 font-mono border border-cyan-500/20 bg-slate-950/80 shadow-[0_0_30px_rgba(34,211,238,0.08)] w-full relative overflow-hidden">
+      <div className="grid gap-6 items-center lg:grid-cols-[1.2fr_0.8fr]">
+        <div>
+          <p className="text-xs uppercase tracking-[0.35em] text-cyan-300 flex items-center gap-2">
+            <span className="animate-ping inline-block w-1.5 h-1.5 rounded-full bg-cyan-400" />
+            <span>🧬 大數據個人天宿洞察終端</span>
           </p>
-        ))}
-        {logs.length < fullLogs.length && (
-          <p className="text-cyan-400">
-            【天盤運轉】正在解密命相運算軌道...<span className="console-cursor" />
-          </p>
-        )}
+          <div className="mt-6 space-y-3.5 text-xs sm:text-sm text-cyan-100 leading-7 min-h-[150px]">
+            {logs.map((log, index) => (
+              <p key={index} className="animate-fade-in">
+                {log}
+              </p>
+            ))}
+            {logs.length < fullLogs.length && (
+              <p className="text-cyan-400">
+                【天盤運轉】正在解密命相運算軌道...<span className="console-cursor" />
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* 🔮 3D 命理太極公轉引力核心 */}
+        <div className="flex justify-center items-center py-4 lg:py-0">
+          <VisualGravityCore />
+        </div>
       </div>
     </div>
   );

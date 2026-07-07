@@ -27,18 +27,8 @@ const nextConfig = {
     ppr: false,
   },
 
-  // 缓存策略
-  headers: async () => [
-    {
-      source: '/:path*',
-      headers: [
-        {
-          key: 'Cache-Control',
-          value: 'public, max-age=3600, stale-while-revalidate=86400',
-        },
-      ],
-    },
-  ],
+  // Keep Next.js defaults: HTML is revalidated while hashed static assets
+  // remain immutable. A global one-hour cache made phones retain old UI.
 };
 
 export default nextConfig;

@@ -3,6 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { Mesh, MeshBasicMaterial, SpriteMaterial } from "three";
 
+const MOBILE_VISUAL_BUILD = "tablet-unified-20260707-1";
+
 const TABLET_VISUAL_PROFILE = Object.freeze({
   cameraZ: 7.15,
   pixelRatioCap: 2,
@@ -32,6 +34,7 @@ export default function VisualGravityCore() {
     container.setAttribute("aria-label", "持續旋轉、三重光軌與金色仙氣環繞的立體太極圖騰");
     container.setAttribute("data-testid", "taiji-orbit-emblem");
     container.setAttribute("data-visual-profile", "tablet-unified");
+    container.setAttribute("data-mobile-visual-build", MOBILE_VISUAL_BUILD);
     const orbitLayer = document.createElement("div");
     orbitLayer.className = "taiji-orbit-layer";
     orbitLayer.setAttribute("aria-hidden", "true");
