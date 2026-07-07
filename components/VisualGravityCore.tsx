@@ -24,8 +24,12 @@ export default function VisualGravityCore() {
   const touchSpinSpeedRef = useRef(1.0);
   const [tapCount, setTapCount] = useState(0);
   const [showMantra, setShowMantra] = useState(false);
+  const [showSuperMantra, setShowSuperMantra] = useState(false);
+  const [showMegaMantra, setShowMegaMantra] = useState(false);
+  const [showGreatMantra, setShowGreatMantra] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const explosionActiveRef = useRef(false);
+  const explosionLevelRef = useRef(1); // 1=正常爆發, 2=終極白金, 3=萬丈佛光, 4=萬佛朝宗終極大悲咒
 
   const playBowlSound = () => {
     try {
@@ -60,8 +64,115 @@ export default function VisualGravityCore() {
     }
   };
 
+  const playSuperBowlSound = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      
+      const oscLow = ctx.createOscillator();
+      const oscHigh = ctx.createOscillator();
+      const oscHarmonic = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      oscLow.type = 'sine';
+      oscLow.frequency.setValueAtTime(144, ctx.currentTime);
+      
+      oscHigh.type = 'sine';
+      oscHigh.frequency.setValueAtTime(432, ctx.currentTime);
+
+      oscHarmonic.type = 'sine';
+      oscHarmonic.frequency.setValueAtTime(432 * 1.5, ctx.currentTime);
+      
+      gainNode.gain.setValueAtTime(0, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 5.5);
+      
+      oscLow.connect(gainNode);
+      oscHigh.connect(gainNode);
+      oscHarmonic.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      oscLow.start();
+      oscHigh.start();
+      oscHarmonic.start();
+      
+      oscLow.stop(ctx.currentTime + 5.8);
+      oscHigh.stop(ctx.currentTime + 5.8);
+      oscHarmonic.stop(ctx.currentTime + 5.8);
+    } catch (e) {
+      console.warn('Web Audio Playback failed:', e);
+    }
+  };
+
+  const playMegaBowlSound = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const osc3 = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(144, ctx.currentTime);
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(292, ctx.currentTime);
+      osc3.type = 'sine';
+      osc3.frequency.setValueAtTime(528, ctx.currentTime); // 528Hz 招福奇蹟頻率
+      
+      gainNode.gain.setValueAtTime(0, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.8, ctx.currentTime + 0.04);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 7.5);
+      
+      osc1.connect(gainNode);
+      osc2.connect(gainNode);
+      osc3.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      osc1.start();
+      osc2.start();
+      osc3.start();
+      
+      osc1.stop(ctx.currentTime + 7.8);
+      osc2.stop(ctx.currentTime + 7.8);
+      osc3.stop(ctx.currentTime + 7.8);
+    } catch (e) {
+      console.warn('Web Audio Playback failed:', e);
+    }
+  };
+
+  const playGreatCompassionSound = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      
+      const frequencies = [108, 216, 432, 528, 999];
+      const gainNode = ctx.createGain();
+      
+      frequencies.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        osc.type = idx === 4 ? 'triangle' : 'sine'; // 999Hz 採用柔和三角波，其餘正弦波
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        osc.connect(gainNode);
+        osc.start();
+        osc.stop(ctx.currentTime + 10.5);
+      });
+      
+      gainNode.gain.setValueAtTime(0, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(1.0, ctx.currentTime + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 10.0);
+      gainNode.connect(ctx.destination);
+    } catch (e) {
+      console.warn('Web Audio Playback failed:', e);
+    }
+  };
+
   const handleTaiChiClick = () => {
-    if (showMantra) return;
+    if (showGreatMantra) return; // 終極萬佛朝宗中不重複觸發
 
     setTapCount((prev) => {
       const next = prev + 1;
@@ -69,22 +180,68 @@ export default function VisualGravityCore() {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
         setTapCount(0);
-      }, 2000);
+      }, 8000); // 增加寬限期至 8.0 秒，以便在層層發光下點完 24 下
 
-      if (next >= 3) {
-        if (timerRef.current) clearTimeout(timerRef.current);
-        setTapCount(0);
+      if (next === 3) {
         setShowMantra(true);
+        explosionLevelRef.current = 1;
+        explosionActiveRef.current = true;
         playBowlSound();
         
-        explosionActiveRef.current = true;
         setTimeout(() => {
           explosionActiveRef.current = false;
-        }, 2500);
+        }, 2000);
 
         setTimeout(() => {
           setShowMantra(false);
         }, 5200);
+      } else if (next === 6) {
+        setShowMantra(false);
+        setShowSuperMantra(true);
+        explosionLevelRef.current = 2;
+        explosionActiveRef.current = true;
+        playSuperBowlSound();
+
+        setTimeout(() => {
+          explosionActiveRef.current = false;
+        }, 3000);
+
+        setTimeout(() => {
+          setShowSuperMantra(false);
+        }, 6500);
+      } else if (next === 12) {
+        setShowMantra(false);
+        setShowSuperMantra(false);
+        setShowMegaMantra(true);
+        explosionLevelRef.current = 3;
+        explosionActiveRef.current = true;
+        playMegaBowlSound();
+
+        setTimeout(() => {
+          explosionActiveRef.current = false;
+        }, 4000);
+
+        setTimeout(() => {
+          setShowMegaMantra(false);
+        }, 8000);
+      } else if (next === 24) {
+        if (timerRef.current) clearTimeout(timerRef.current);
+        setTapCount(0);
+        setShowMantra(false);
+        setShowSuperMantra(false);
+        setShowMegaMantra(false);
+        setShowGreatMantra(true);
+        explosionLevelRef.current = 4;
+        explosionActiveRef.current = true;
+        playGreatCompassionSound();
+
+        setTimeout(() => {
+          explosionActiveRef.current = false;
+        }, 5500);
+
+        setTimeout(() => {
+          setShowGreatMantra(false);
+        }, 11000);
       }
       return next;
     });
@@ -631,24 +788,32 @@ export default function VisualGravityCore() {
 
           // 阻尼衰減回 1.0 基準公轉速度
           if (explosionActiveRef.current) {
-            touchSpinSpeedRef.current = 6.8;
+            touchSpinSpeedRef.current = 
+              explosionLevelRef.current === 4 ? 64.0 :
+              explosionLevelRef.current === 3 ? 32.0 :
+              explosionLevelRef.current === 2 ? 16.5 : 6.8;
           } else {
             touchSpinSpeedRef.current += (1.0 - touchSpinSpeedRef.current) * 0.032;
           }
           const speedMult = touchSpinSpeedRef.current;
-
+ 
           // All breakpoints share the same tablet composition and viewing angle.
           grp.rotation.y = Math.sin(t * 0.24) * TABLET_VISUAL_PROFILE.tiltYDrift;
           grp.rotation.x = TABLET_VISUAL_PROFILE.tiltX
             + Math.sin(t * 0.19) * TABLET_VISUAL_PROFILE.tiltXDrift;
-        // 核心雙星太極公轉
+          // 核心雙星太極公轉
           grpAngleZ -= (0.349 / 18) * speedMult;
           grp.rotation.z = grpAngleZ;
-
+ 
           // 低幅度能量呼吸，避免忽大忽小造成視覺失焦。
           const breatheIntensity = 0.014 + Math.sin(t * 0.42) * 0.004;
           let currentScale = 1 + Math.sin(t * 0.55) * breatheIntensity;
-          if (explosionActiveRef.current) currentScale *= 1.6;
+          if (explosionActiveRef.current) {
+            currentScale *= 
+              explosionLevelRef.current === 4 ? 4.5 :
+              explosionLevelRef.current === 3 ? 3.0 :
+              explosionLevelRef.current === 2 ? 2.3 : 1.6;
+          }
           grp.scale.setScalar(currentScale);
 
           // ✨ 優化黑洞呼吸效果 - 與主節奏協調
@@ -711,7 +876,12 @@ export default function VisualGravityCore() {
           // 主光暈呼吸 - 仙氣耀眼
           (haloSprite.material as SpriteMaterial).opacity = 0.40 + haloBreatheIntensity * 0.42;  // 更耀眼
           let currentHaloScale = 7.2 + haloBreatheIntensity * 2.2;
-          if (explosionActiveRef.current) currentHaloScale *= 2.5;
+          if (explosionActiveRef.current) {
+            currentHaloScale *= 
+              explosionLevelRef.current === 4 ? 8.0 :
+              explosionLevelRef.current === 3 ? 5.5 :
+              explosionLevelRef.current === 2 ? 3.8 : 2.5;
+          }
           haloSprite.scale.setScalar(currentHaloScale);  // 仙氣膨脹
 
           // 白色光暈呼吸 - 仙氣純淨
@@ -1042,23 +1212,395 @@ export default function VisualGravityCore() {
         className="absolute inset-0 z-30 pointer-events-none w-full h-full"
       />
 
-      {/* 👑 觸碰 3 次爆發：五字真言梵文好運 Overlay */}
+      {/* 👑 觸碰 3 次爆發：六字真言梵文自轉全息法陣 (科技神秘感優化) */}
       {showMantra && (
-        <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-slate-950/75 backdrop-blur-sm transition-all duration-700 animate-fade-in">
-          <div className="flex gap-2.5 text-3xl sm:text-4xl font-serif text-amber-200 drop-shadow-[0_0_15px_rgba(245,158,11,0.85)] animate-bounce" style={{ animationDuration: '2s' }}>
-            <span className="animate-pulse delay-75">ॐ</span>
-            <span className="animate-pulse delay-150">म</span>
-            <span className="animate-pulse delay-300">णि</span>
-            <span className="animate-pulse delay-500">पद्</span>
-            <span className="animate-pulse delay-700">मे</span>
-            <span className="animate-pulse delay-1000">हूँ</span>
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-slate-950/85 backdrop-blur-md transition-all duration-700 animate-fade-in overflow-hidden">
+          {/* 📡 全息掃描光線線條 */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_95%,rgba(245,158,11,0.15)_95%)] bg-[size:100%_15px] pointer-events-none opacity-40 animate-[cyberScan_6s_linear_infinite]" />
+          
+          {/* 🌀 雙重科幻旋轉刻度光環 */}
+          <div className="absolute w-[240px] h-[240px] rounded-full border border-amber-500/20 border-dashed animate-spin" style={{ animationDuration: '45s' }} />
+          <div className="absolute w-[220px] h-[220px] rounded-full border border-cyan-500/10 border-double animate-spin" style={{ animationDuration: '15s', animationDirection: 'reverse' }} />
+
+          {/* 🌀 緩慢自轉的梵文六字大明咒結界 */}
+          <div className="relative w-[230px] h-[230px] rounded-full flex items-center justify-center animate-spin" style={{ animationDuration: '28s' }}>
+            <span 
+              className="absolute text-2xl font-serif text-amber-200 drop-shadow-[0_0_15px_rgba(245,158,11,0.85)] animate-pulse" 
+              style={{ top: '6%', left: '50%', transform: 'translate(-50%, -50%)', animationDelay: '0.1s' }}
+            >
+              ॐ
+            </span>
+            <span 
+              className="absolute text-xl font-serif text-amber-200 drop-shadow-[0_0_15px_rgba(245,158,11,0.85)] animate-pulse" 
+              style={{ top: '28%', left: '88%', transform: 'translate(-50%, -50%)', animationDelay: '0.3s' }}
+            >
+              म
+            </span>
+            <span 
+              className="absolute text-xl font-serif text-amber-200 drop-shadow-[0_0_15px_rgba(245,158,11,0.85)] animate-pulse" 
+              style={{ top: '72%', left: '88%', transform: 'translate(-50%, -50%)', animationDelay: '0.6s' }}
+            >
+              णि
+            </span>
+            <span 
+              className="absolute text-xl font-serif text-amber-200 drop-shadow-[0_0_15px_rgba(245,158,11,0.85)] animate-pulse" 
+              style={{ top: '94%', left: '50%', transform: 'translate(-50%, -50%)', animationDelay: '0.9s' }}
+            >
+              पद्
+            </span>
+            <span 
+              className="absolute text-xl font-serif text-amber-200 drop-shadow-[0_0_15px_rgba(245,158,11,0.85)] animate-pulse" 
+              style={{ top: '72%', left: '12%', transform: 'translate(-50%, -50%)', animationDelay: '1.2s' }}
+            >
+              मे
+            </span>
+            <span 
+              className="absolute text-xl font-serif text-amber-200 drop-shadow-[0_0_15px_rgba(245,158,11,0.85)] animate-pulse" 
+              style={{ top: '28%', left: '12%', transform: 'translate(-50%, -50%)', animationDelay: '1.5s' }}
+            >
+              हूँ
+            </span>
           </div>
-          <div className="mt-4 px-4 text-center">
-            <p className="text-[11px] font-semibold tracking-[0.2em] text-amber-300/90 animate-pulse font-serif">
-              ✨ 天宿好運已降臨 ✨
+
+          {/* 💎 位於核心的靜態全息加持横幅 */}
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center pointer-events-none">
+            <div className="relative text-center px-4 py-3 rounded-2xl bg-slate-950/75 border border-cyan-500/20 shadow-[0_0_20px_rgba(34,211,238,0.15)] max-w-[195px] overflow-hidden">
+              {/* 角隅科技裝飾十字 */}
+              <span className="absolute top-1 left-1 text-[7px] text-cyan-500/40 font-mono">+</span>
+              <span className="absolute top-1 right-1 text-[7px] text-cyan-500/40 font-mono">+</span>
+              <span className="absolute bottom-1 left-1 text-[7px] text-cyan-500/40 font-mono">+</span>
+              <span className="absolute bottom-1 right-1 text-[7px] text-cyan-500/40 font-mono">+</span>
+
+              <p className="text-[10px] font-mono text-cyan-400/90 tracking-widest opacity-80 animate-pulse">
+                [SYS.DECRYPT: MODE_03]
+              </p>
+              <p className="mt-1 text-xs font-bold tracking-[0.2em] text-amber-200 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)] font-serif">
+                ॐ मणिपद्me हूँ
+              </p>
+              <p className="mt-1 text-[8.5px] font-semibold text-amber-400/90 tracking-[0.05em] font-serif">
+                ✨ 觀音六字大明咒護持 ✨
+              </p>
+              <div className="mt-1.5 pt-1.5 border-t border-cyan-500/10 text-[8.5px] text-cyan-200/80 tracking-wider font-mono leading-normal">
+                [狀態] 磁場重組 · 諸難消散<br />[能量] 福慧加載中...
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 👑 觸碰 6 次終極大加持：六字真言全息金剛法界 (重力扭曲、極致科幻黑暗與光芒) */}
+      {showSuperMantra && (
+        <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-slate-950/95 backdrop-blur-md transition-all duration-700 animate-fade-in overflow-hidden">
+          {/* 📡 數碼網格背景 */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(245,158,11,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(245,158,11,0.02)_1px,transparent_1px)] bg-[size:15px_15px] pointer-events-none" />
+          
+          {/* 🌀 金剛重力環動態 */}
+          <div className="absolute w-[250px] h-[250px] rounded-full border border-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.1)] animate-ping" style={{ animationDuration: '3.5s' }} />
+          <div className="absolute w-[240px] h-[240px] rounded-full bg-gradient-to-tr from-amber-500/10 via-white/20 to-cyan-500/10 opacity-35 blur-2xl animate-pulse" />
+          
+          <div className="relative z-10 text-center px-5 py-4 rounded-3xl bg-slate-950/80 border-2 border-amber-400/40 shadow-[0_0_40px_rgba(251,191,36,0.3)] max-w-[245px] animate-rise overflow-hidden">
+            {/* 角隅科技裝飾十字 */}
+            <span className="absolute top-1.5 left-1.5 text-[8px] text-amber-400/50 font-mono">+</span>
+            <span className="absolute top-1.5 right-1.5 text-[8px] text-amber-400/50 font-mono">+</span>
+            <span className="absolute bottom-1.5 left-1.5 text-[8px] text-amber-400/50 font-mono">+</span>
+            <span className="absolute bottom-1.5 right-1.5 text-[8px] text-amber-400/50 font-mono">+</span>
+
+            <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-[8.5px] font-mono font-bold text-amber-300 animate-pulse">
+              [ENERGY_STATUS: DECRYPT_OK]
+            </span>
+            
+            {/* 白金發光全息梵文 */}
+            <h3 className="mt-3.5 font-serif text-xl text-amber-200 tracking-widest drop-shadow-[0_0_12px_rgba(251,191,36,0.75)] animate-pulse">
+              ॐ मणिपद्me हूँ
+            </h3>
+            
+            <p className="mt-2.5 text-[9px] font-bold text-amber-400 font-serif border-t border-b border-cyan-500/10 py-1.5 tracking-wider uppercase">
+              ✨ 今日全息福運天盤已啟 ✨
             </p>
-            <p className="mt-1 text-[9px] text-cyan-200/80 leading-4 font-mono">
-              五字真言護持 · 諸邪退散 · 吉星高照
+            
+            <p className="mt-2.5 text-[8.5px] leading-relaxed text-cyan-200/90 font-medium font-mono">
+              [SYSTEM] 接引觀音大悲聖光波段，<br />
+              [輸出] 賜予你今日一整天重力福運，<br />
+              百無禁忌，諸事逢凶化吉！
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* 👑 觸碰 12 次終極大加持：六字真言無量超維佛光法界 (封印碎裂 · 科技全息色散梵文飄舞) */}
+      {showMegaMantra && (
+        <div className="absolute inset-0 z-[120] flex items-center justify-center bg-slate-950/95 backdrop-blur-lg transition-all duration-1000 animate-fade-in overflow-hidden">
+          <style dangerouslySetInnerHTML={{__html: `
+            @keyframes cyberScan {
+              0% { transform: translateY(-100%); }
+              100% { transform: translateY(100%); }
+            }
+            @keyframes megaFloat1 {
+              0% { transform: translate(-50%, -50%) scale(0.2) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #ff0055); }
+              20% { opacity: 1; }
+              100% { transform: translate(-100px, -110px) scale(1.6) rotate(-72deg); opacity: 0; filter: drop-shadow(0 0 10px #00ffcc); }
+            }
+            @keyframes megaFloat2 {
+              0% { transform: translate(-50%, -50%) scale(0.2) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #00ffcc); }
+              20% { opacity: 1; }
+              100% { transform: translate(100px, -110px) scale(1.6) rotate(60deg); opacity: 0; filter: drop-shadow(0 0 10px #ff0055); }
+            }
+            @keyframes megaFloat3 {
+              0% { transform: translate(-50%, -50%) scale(0.2) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #ffc85c); }
+              20% { opacity: 1; }
+              100% { transform: translate(120px, -10px) scale(1.6) rotate(35deg); opacity: 0; filter: drop-shadow(0 0 10px #ffc85c); }
+            }
+            @keyframes megaFloat4 {
+              0% { transform: translate(-50%, -50%) scale(0.2) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #ff0055); }
+              20% { opacity: 1; }
+              100% { transform: translate(90px, 90px) scale(1.6) rotate(-45deg); opacity: 0; filter: drop-shadow(0 0 10px #00ffcc); }
+            }
+            @keyframes megaFloat5 {
+              0% { transform: translate(-50%, -50%) scale(0.2) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #00ffcc); }
+              20% { opacity: 1; }
+              100% { transform: translate(-95px, 95px) scale(1.6) rotate(45deg); opacity: 0; filter: drop-shadow(0 0 10px #ff0055); }
+            }
+            @keyframes megaFloat6 {
+              0% { transform: translate(-50%, -50%) scale(0.2) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #ffc85c); }
+              20% { opacity: 1; }
+              100% { transform: translate(-120px, -10px) scale(1.6) rotate(-60deg); opacity: 0; filter: drop-shadow(0 0 10px #ffc85c); }
+            }
+          `}} />
+
+          {/* 🌟 數碼全息掃描線 */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_96%,rgba(34,211,238,0.25)_96%)] bg-[size:100%_12px] pointer-events-none animate-[cyberScan_4s_linear_infinite]" />
+
+          {/* 🌟 封印碎裂科幻光環 (結界破裂) */}
+          <div className="absolute inset-2 rounded-full border-2 border-dashed border-cyan-400/60 animate-ping opacity-70" style={{ animationDuration: '0.9s' }} />
+          <div className="absolute inset-4 rounded-full border border-double border-amber-500/40 animate-pulse opacity-40" />
+
+          {/* 萬丈金剛科幻佛光背景 */}
+          <div className="absolute w-[290px] h-[290px] rounded-full bg-gradient-radial from-amber-300/40 via-cyan-500/10 to-transparent opacity-90 blur-3xl animate-pulse" />
+
+          {/* 飄浮漫天的全息色散梵文 (帶有霓虹科技陰影特效) */}
+          <div className="absolute inset-0 pointer-events-none">
+            <span 
+              className="absolute text-3xl font-serif text-amber-200/90 drop-shadow-[0_0_15px_rgba(251,191,36,0.9)]"
+              style={{ 
+                top: '50%', left: '50%',
+                animation: 'megaFloat1 6.5s ease-out forwards',
+              }}
+            >
+              ॐ
+            </span>
+            <span 
+              className="absolute text-2xl font-serif text-amber-200/90 drop-shadow-[0_0_15px_rgba(251,191,36,0.9)]"
+              style={{ 
+                top: '50%', left: '50%',
+                animation: 'megaFloat2 6.5s ease-out forwards',
+              }}
+            >
+              म
+            </span>
+            <span 
+              className="absolute text-2xl font-serif text-amber-200/90 drop-shadow-[0_0_15px_rgba(251,191,36,0.9)]"
+              style={{ 
+                top: '50%', left: '50%',
+                animation: 'megaFloat3 6.5s ease-out forwards',
+              }}
+            >
+              णि
+            </span>
+            <span 
+              className="absolute text-2xl font-serif text-amber-200/90 drop-shadow-[0_0_15px_rgba(251,191,36,0.9)]"
+              style={{ 
+                top: '50%', left: '50%',
+                animation: 'megaFloat4 6.5s ease-out forwards',
+              }}
+            >
+              पद्
+            </span>
+            <span 
+              className="absolute text-2xl font-serif text-amber-200/90 drop-shadow-[0_0_15px_rgba(251,191,36,0.9)]"
+              style={{ 
+                top: '50%', left: '50%',
+                animation: 'megaFloat5 6.5s ease-out forwards',
+              }}
+            >
+              मे
+            </span>
+            <span 
+              className="absolute text-2xl font-serif text-amber-200/90 drop-shadow-[0_0_15px_rgba(251,191,36,0.9)]"
+              style={{ 
+                top: '50%', left: '50%',
+                animation: 'megaFloat6 6.5s ease-out forwards',
+              }}
+            >
+              हूँ
+            </span>
+          </div>
+
+          {/* 💎 位於核心的全息佛光普照橫幅 */}
+          <div className="relative z-20 text-center px-4 py-4 rounded-[2rem] bg-slate-950/85 border-2 border-cyan-400/40 shadow-[0_0_50px_rgba(34,211,238,0.35)] max-w-[250px] animate-rise overflow-hidden">
+            <span className="absolute top-2 left-2 text-[7px] text-cyan-400/30 font-mono">+</span>
+            <span className="absolute top-2 right-2 text-[7px] text-cyan-400/30 font-mono">+</span>
+            
+            <span className="inline-block rounded-full bg-gradient-to-r from-cyan-500 to-amber-300 px-3 py-0.5 text-[8.5px] font-black text-slate-950 uppercase tracking-widest shadow-md">
+              [STATUS: SYSTEM_SHATTERED_100%]
+            </span>
+            
+            <p className="mt-3.5 text-xs font-bold text-amber-300 font-serif border-b border-cyan-500/20 pb-2 tracking-widest uppercase">
+              ॐ ॐ मणिपद्me हूँ
+            </p>
+            
+            <p className="mt-3 text-[9px] leading-relaxed text-amber-100 font-medium font-mono">
+              [天宿福光] 佛光返照，超維降臨！<br />
+              [指令] 接引無量大悲能量本願，<br />
+              賜予你今日百無禁忌、天官賜福、<br />
+              大吉大利，好運維度拉滿！
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* 👑 觸碰 24 次終極天宿爆發：大悲咒梵文 · 萬佛朝宗無量佛光 (再度升級極致) */}
+      {showGreatMantra && (
+        <div className="absolute inset-0 z-[150] flex items-center justify-center bg-slate-950/98 backdrop-blur-xl transition-all duration-1000 animate-fade-in overflow-hidden">
+          <style dangerouslySetInnerHTML={{__html: `
+            @keyframes extremeScan {
+              0% { transform: translateY(-100%) scaleY(1); opacity: 0.3; }
+              50% { opacity: 0.8; }
+              100% { transform: translateY(100%) scaleY(1.5); opacity: 0.1; }
+            }
+            @keyframes greatFloat1 {
+              0% { transform: translate(-50%, -50%) scale(0.1) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #f59e0b) hue-rotate(0deg); }
+              10% { opacity: 1; }
+              100% { transform: translate(-130px, -140px) scale(1.9) rotate(-108deg); opacity: 0; filter: drop-shadow(0 0 15px #f59e0b) hue-rotate(360deg); }
+            }
+            @keyframes greatFloat2 {
+              0% { transform: translate(-50%, -50%) scale(0.1) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #06b6d4); }
+              10% { opacity: 1; }
+              100% { transform: translate(130px, -140px) scale(1.9) rotate(90deg); opacity: 0; filter: drop-shadow(0 0 15px #06b6d4); }
+            }
+            @keyframes greatFloat3 {
+              0% { transform: translate(-50%, -50%) scale(0.1) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #a855f7); }
+              10% { opacity: 1; }
+              100% { transform: translate(150px, -15px) scale(1.9) rotate(45deg); opacity: 0; filter: drop-shadow(0 0 15px #a855f7); }
+            }
+            @keyframes greatFloat4 {
+              0% { transform: translate(-50%, -50%) scale(0.1) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #ec4899); }
+              10% { opacity: 1; }
+              100% { transform: translate(110px, 120px) scale(1.9) rotate(-60deg); opacity: 0; filter: drop-shadow(0 0 15px #ec4899); }
+            }
+            @keyframes greatFloat5 {
+              0% { transform: translate(-50%, -50%) scale(0.1) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #10b981); }
+              10% { opacity: 1; }
+              100% { transform: translate(-110px, 120px) scale(1.9) rotate(60deg); opacity: 0; filter: drop-shadow(0 0 15px #10b981); }
+            }
+            @keyframes greatFloat6 {
+              0% { transform: translate(-50%, -50%) scale(0.1) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #f59e0b); }
+              10% { opacity: 1; }
+              100% { transform: translate(-150px, -15px) scale(1.9) rotate(-90deg); opacity: 0; filter: drop-shadow(0 0 15px #f59e0b); }
+            }
+            @keyframes greatFloat7 {
+              0% { transform: translate(-50%, -50%) scale(0.1) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #ffffff); }
+              10% { opacity: 1; }
+              100% { transform: translate(0px, -165px) scale(2.2) rotate(180deg); opacity: 0; filter: drop-shadow(0 0 20px #f59e0b); }
+            }
+            @keyframes greatFloat8 {
+              0% { transform: translate(-50%, -50%) scale(0.1) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 2px #06b6d4); }
+              10% { opacity: 1; }
+              100% { transform: translate(0px, 165px) scale(2.2) rotate(-180deg); opacity: 0; filter: drop-shadow(0 0 20px #06b6d4); }
+            }
+            @keyframes buddhaRadiation {
+              0% { transform: rotate(0deg) scale(0.9); opacity: 0.15; }
+              50% { transform: rotate(180deg) scale(1.1); opacity: 0.45; }
+              100% { transform: rotate(360deg) scale(0.9); opacity: 0.15; }
+            }
+          `}} />
+
+          {/* 🌟 數碼全息掃描線 */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_97%,rgba(245,158,11,0.3)_97%)] bg-[size:100%_10px] pointer-events-none animate-[extremeScan_3s_linear_infinite]" />
+
+          {/* 🌟 萬佛朝宗金色佛光輪 (向四周旋轉散射的千道聖光) */}
+          <div 
+            className="absolute w-[360px] h-[360px] rounded-full bg-[repeating-conic-gradient(from_0deg,rgba(245,158,11,0.08)_0deg_15deg,transparent_15deg_30deg)] pointer-events-none" 
+            style={{ animation: 'buddhaRadiation 15s linear infinite' }}
+          />
+
+          {/* 🌟 萬佛朝宗多重同心圓科技法輪 */}
+          <div className="absolute w-[280px] h-[280px] rounded-full border-2 border-dashed border-amber-400/40 animate-spin" style={{ animationDuration: '60s' }} />
+          <div className="absolute w-[260px] h-[260px] rounded-full border border-dotted border-cyan-400/30 animate-spin" style={{ animationDuration: '20s', animationDirection: 'reverse' }} />
+          <div className="absolute w-[240px] h-[240px] rounded-full border border-double border-purple-500/20 animate-spin" style={{ animationDuration: '40s' }} />
+
+          {/* 萬丈超維佛光背景 */}
+          <div className="absolute w-[320px] h-[320px] rounded-full bg-gradient-radial from-amber-200/50 via-cyan-500/10 to-transparent opacity-95 blur-3xl animate-pulse" />
+
+          {/* 飄浮漫天的千手觀音大悲咒咒心梵文 (帶有霓虹科技陰影特效) */}
+          <div className="absolute inset-0 pointer-events-none">
+            <span 
+              className="absolute text-4xl font-serif text-amber-200/90 drop-shadow-[0_0_20px_rgba(251,191,36,1.0)]"
+              style={{ top: '50%', left: '50%', animation: 'greatFloat1 8.5s ease-out forwards' }}
+            >
+              ह्रीः
+            </span>
+            <span 
+              className="absolute text-3xl font-serif text-cyan-200/90 drop-shadow-[0_0_20px_rgba(34,211,238,1.0)]"
+              style={{ top: '50%', left: '50%', animation: 'greatFloat2 8.5s ease-out forwards' }}
+            >
+              ॐ
+            </span>
+            <span 
+              className="absolute text-3xl font-serif text-purple-200/90 drop-shadow-[0_0_20px_rgba(168,85,247,1.0)]"
+              style={{ top: '50%', left: '50%', animation: 'greatFloat3 8.5s ease-out forwards' }}
+            >
+              व
+            </span>
+            <span 
+              className="absolute text-3xl font-serif text-pink-200/90 drop-shadow-[0_0_20px_rgba(236,72,153,1.0)]"
+              style={{ top: '50%', left: '50%', animation: 'greatFloat4 8.5s ease-out forwards' }}
+            >
+              ज्र
+            </span>
+            <span 
+              className="absolute text-3xl font-serif text-emerald-200/90 drop-shadow-[0_0_20px_rgba(16,185,129,1.0)]"
+              style={{ top: '50%', left: '50%', animation: 'greatFloat5 8.5s ease-out forwards' }}
+            >
+              ध
+            </span>
+            <span 
+              className="absolute text-3xl font-serif text-amber-200/90 drop-shadow-[0_0_20px_rgba(251,191,36,1.0)]"
+              style={{ top: '50%', left: '50%', animation: 'greatFloat6 8.5s ease-out forwards' }}
+            >
+              र्म
+            </span>
+            <span 
+              className="absolute text-4xl font-serif text-amber-100 drop-shadow-[0_0_25px_rgba(255,255,255,1.0)]"
+              style={{ top: '50%', left: '50%', animation: 'greatFloat7 8.5s ease-out forwards' }}
+            >
+              ह्र
+            </span>
+            <span 
+              className="absolute text-4xl font-serif text-cyan-100 drop-shadow-[0_0_25px_rgba(34,211,238,1.0)]"
+              style={{ top: '50%', left: '50%', animation: 'greatFloat8 8.5s ease-out forwards' }}
+            >
+              ीः
+            </span>
+          </div>
+
+          {/* 💎 位於核心的千手千眼大悲法輪橫幅 */}
+          <div className="relative z-20 text-center px-4 py-4.5 rounded-[2rem] bg-slate-950/90 border-2 border-amber-400/60 shadow-[0_0_60px_rgba(245,158,11,0.45)] max-w-[260px] animate-rise overflow-hidden">
+            <span className="absolute top-2 left-2 text-[8px] text-amber-400/40 font-mono">+</span>
+            <span className="absolute top-2 right-2 text-[8px] text-amber-400/40 font-mono">+</span>
+            
+            <span className="inline-block rounded-full bg-gradient-to-r from-amber-500 via-amber-300 to-cyan-400 px-3 py-0.5 text-[8px] font-black text-slate-950 uppercase tracking-widest shadow-md animate-pulse">
+              [STATUS: AVALOKITESVARA_ULTIMATE_AWAKEN]
+            </span>
+            
+            <p className="mt-3 text-[11px] font-bold text-amber-300 font-serif border-b border-amber-500/20 pb-2 tracking-[0.2em] uppercase">
+              ॐ वज्रधर्म ह्रीः
+            </p>
+            
+            <p className="mt-3 text-[8.5px] leading-relaxed text-amber-100/90 font-medium font-mono">
+              [極致法界] 萬佛朝宗 · 無量佛光！<br />
+              [本願] 接引千手千眼無礙大悲聖水，<br />
+              淨化三業，賜予你至高無上之<br />
+              宇宙福緣灌頂，今日百無禁忌！
             </p>
           </div>
         </div>
