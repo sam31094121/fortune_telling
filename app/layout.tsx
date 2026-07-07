@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { Noto_Sans_TC, Noto_Serif_TC } from 'next/font/google';
 import './globals.css';
 
@@ -17,8 +17,31 @@ const serif = Noto_Serif_TC({
 });
 
 export const metadata: Metadata = {
-  title: 'AI 人格解碼｜看懂自己的人格輪廓',
-  description: '輸入生日、血型與姓名，AI 會把命理與人格訊號整理成白話重點，快速看懂自己的優勢、盲點與行動方向。',
+  metadataBase: new URL('http://localhost:3000'),
+  title: '☯️ 天宿星軌 · 3D 命理雙星引力核心',
+  description: '自動換算農國曆雙向對照，精密算出生日主星，為你與伴侶解鎖【殺破狼】等尊榮天格與前世今生因果配對！',
+  openGraph: {
+    title: '☯️ 天宿星軌 · 3D 命理雙星引力核心',
+    description: '自動換算農國曆雙向對照，精密算出生日主星，為你與伴侶解鎖【殺破狼】等尊榮天格與前世今生因果配對！',
+    url: 'http://localhost:3000',
+    siteName: '天宿星軌命理系統',
+    images: [
+      {
+        url: '/images/og-taichi-preview.png',
+        width: 1200,
+        height: 630,
+        alt: '天宿 3D 命理太極雙星圖騰',
+      },
+    ],
+    locale: 'zh_TW',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '☯️ 天宿星軌 · 3D 命理雙星引力核心',
+    description: '自動換算農國曆雙向對照，精密算出生日主星，為你與伴侶解鎖【殺破狼】等尊榮天格與前世今生因果配對！',
+    images: ['/images/og-taichi-preview.png'],
+  },
 };
 
 export default function RootLayout({
