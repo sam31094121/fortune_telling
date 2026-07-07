@@ -70,6 +70,8 @@ interface InsightAnalysisResponse {
     hourPillar: string;
     wuxing: string;
     shichenLabel: string;
+    birthDate?: string;
+    shichen?: number | 'unknown' | null;
   };
 }
 
