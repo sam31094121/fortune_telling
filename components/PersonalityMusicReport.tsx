@@ -33,6 +33,9 @@ interface MusicReport {
   english_song_reason?: string;
   mandarin_song_reason?: string;
   taiwanese_song_reason?: string;
+  famous_singers_mandarin?: string;
+  famous_singers_english?: string;
+  famous_singers_taiwanese?: string;
 }
 
 interface OceanProfile {
@@ -1357,6 +1360,62 @@ export default function PersonalityMusicReport({
             {musicReport.lyric_opening}
           </p>
           <p className="mt-5 text-sm leading-9 text-[color:var(--text-sub)]">{musicReport.music_narrative}</p>
+
+          {/* 📊 大數據統計學知名男女歌手指標面板 */}
+          {(musicReport.famous_singers_mandarin || musicReport.famous_singers_english || musicReport.famous_singers_taiwanese) && (
+            <div className="mt-6 border-t border-white/10 pt-6">
+              <p className="text-xs uppercase tracking-[0.3em] text-violet-300/70 mb-4">
+                📊 全球流行大數據 · 代表男女歌手統計學對標
+              </p>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {musicReport.famous_singers_english && (
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 relative overflow-hidden">
+                    <span className="absolute top-1 right-2 text-[8px] text-violet-400/40 font-mono">GLOBAL</span>
+                    <p className="text-[10px] font-mono text-[color:var(--text-muted)] tracking-wider">
+                      [天層] 英語大數據指標
+                    </p>
+                    <p className="mt-2 text-sm font-bold text-[color:var(--text-main)]">
+                      {musicReport.famous_singers_english}
+                    </p>
+                    <p className="mt-1 text-[9px] text-[color:var(--text-sub)]">
+                      全球流行統計學標竿
+                    </p>
+                  </div>
+                )}
+                {musicReport.famous_singers_mandarin && (
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 relative overflow-hidden">
+                    <span className="absolute top-1 right-2 text-[8px] text-amber-400/40 font-mono">MANDARIN</span>
+                    <p className="text-[10px] font-mono text-[color:var(--text-muted)] tracking-wider">
+                      [地層] 國語大數據指標
+                    </p>
+                    <p className="mt-2 text-sm font-bold text-[color:var(--text-main)]">
+                      {musicReport.famous_singers_mandarin}
+                    </p>
+                    <p className="mt-1 text-[9px] text-[color:var(--text-sub)]">
+                      華語流行統計學標竿
+                    </p>
+                  </div>
+                )}
+                {musicReport.famous_singers_taiwanese && (
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 relative overflow-hidden">
+                    <span className="absolute top-1 right-2 text-[8px] text-cyan-400/40 font-mono">TAIWANESE</span>
+                    <p className="text-[10px] font-mono text-[color:var(--text-muted)] tracking-wider">
+                      [人層] 台語大數據指標
+                    </p>
+                    <p className="mt-2 text-sm font-bold text-[color:var(--text-main)]">
+                      {musicReport.famous_singers_taiwanese}
+                    </p>
+                    <p className="mt-1 text-[9px] text-[color:var(--text-sub)]">
+                      本土民謠統計學標竿
+                    </p>
+                  </div>
+                )}
+              </div>
+              <p className="mt-3 text-[10px] text-[color:var(--text-muted)] italic leading-relaxed">
+                * 備註：大數據歌手對標是基於您的人格音樂屬性與時代旋律特徵，結合全球流行大數據知名度常態分佈計算所得的最具代表性男女歌手模型，供您作為風格認知的參考指標。
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

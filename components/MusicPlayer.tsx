@@ -51,6 +51,9 @@ export default function MusicPlayer({
 
   if (!track) return null;
 
+  // 動態降級：若無 valid videoId，自動降級為不嵌入，改為外部連結播放以加強穩定性
+  const canEmbed = embeddable && track.videoId && track.videoId.length === 11;
+
   // YouTube 需要可見且足夠大的播放器，且現代瀏覽器要求使用者手勢才能發聲，
   // 因此播放從控制列開始。
   const embedUrl =
@@ -96,7 +99,7 @@ export default function MusicPlayer({
             <p className="text-xs text-[color:var(--text-muted)]">{track.artist}</p>
           </div>
 
-          {embeddable ? (
+          {canEmbed ? (
             <button
               type="button"
               onClick={() => setIsPlayerOpen(!isPlayerOpen)}
@@ -133,19 +136,19 @@ export default function MusicPlayer({
           </div>
         )}
 
-        {embeddable && !isPlayerOpen && (
+        {canEmbed && !isPlayerOpen && (
           <p className="mt-2 text-center text-xs text-[color:var(--text-muted)]">
             點一下「開啟聲音」，再按影片中央即可播放你的共鳴歌曲。
           </p>
         )}
 
-        {!embeddable && (
+        {!canEmbed && (
           <p className="mt-2 text-center text-xs text-[color:var(--text-muted)]">
             點「用 YouTube 播放」會在新分頁開啟並播放這首歌。
           </p>
         )}
 
-        {embeddable && isPlayerOpen && (
+        {canEmbed && isPlayerOpen && (
           <div className="mt-4">
             <div className="overflow-hidden rounded-[18px] border border-white/10 bg-black">
               <iframe

@@ -6,6 +6,7 @@ interface MusicProfileProps {
   profile: MusicProfileType;
   /** 'preview' = free tier (birthday + blood), 'full' = VIP (all three) */
   tier: 'preview' | 'full';
+  era?: string;
 }
 
 const SOUND_LABELS: Record<string, string> = {
@@ -23,7 +24,7 @@ const SOUND_LABELS: Record<string, string> = {
   簡潔直覺: '✦ 簡潔直覺',
 };
 
-export default function MusicProfile({ profile, tier }: MusicProfileProps) {
+export default function MusicProfile({ profile, tier, era }: MusicProfileProps) {
   if (!profile) return null;
   const { topGenres, allGenres, soundProfile, listeningSummary } = profile;
 
@@ -48,7 +49,7 @@ export default function MusicProfile({ profile, tier }: MusicProfileProps) {
           <MusicPlayer
             label={`${topGenres[0].emoji || '🎵'} ${topGenres[0].name || '推薦風格'}`}
             flag={topGenres[0].emoji || '🎵'}
-            track={getGenreTrack(topGenres[0].key)}
+            track={getGenreTrack(topGenres[0].key, era)}
             affinityScore={topGenres[0].score || 70}
           />
         </div>

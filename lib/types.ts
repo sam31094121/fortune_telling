@@ -1,4 +1,4 @@
-﻿export type BloodType = '' | 'A' | 'B' | 'AB' | 'O';
+export type BloodType = '' | 'A' | 'B' | 'AB' | 'O';
 export type Gender = 'male' | 'female';
 
 export interface Step1_BirthdayInput {
@@ -90,6 +90,7 @@ export interface PreviewAnalysisResult {
   behavior_summary: string;
   preview_summary: string;
   music_profile: MusicProfile;
+  era?: string;
 }
 
 export interface ApiError {
@@ -117,6 +118,7 @@ export interface MusicProfile {
   allGenres: GenreMatch[];
   soundProfile: SoundProfile;
   listeningSummary: string;
+  era?: string;
 }
 
 /* ────────────────────────────────────────────

@@ -85,7 +85,7 @@ export default function PreviewDisplay({ result }: PreviewDisplayProps) {
 
       {/* Music profile — computed from birthday + blood type dimension scores */}
       <div className="mt-10">
-        <MusicProfile profile={result.music_profile} tier="preview" />
+        <MusicProfile profile={result.music_profile} tier="preview" era={result.era} />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-﻿import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 import { getBirthPersonalityScores, getBirthZodiac } from './birth-model-db';
 import { getBloodTypeDescription, getBloodTypePersonalityScores } from './blood-model-db';
 import { generateGenderAdjustments, getGenderCorrectionExplanation } from './gender-corrector';
@@ -350,12 +350,27 @@ export interface MusicReportOutput {
   english_song_reason: string;
   mandarin_song_reason: string;
   taiwanese_song_reason: string;
+  famous_singers_mandarin: string;
+  famous_singers_english: string;
+  famous_singers_taiwanese: string;
 }
+
+const LOCAL_FAMOUS_SINGERS: Record<string, { mandarin: string; english: string; taiwanese: string }> = {
+  '1960s': { mandarin: '鄧麗君 / 謝雷', english: 'The Beatles / Elvis Presley', taiwanese: '鳳飛飛 / 文夏' },
+  '1970s': { mandarin: '鄧麗君 / 鳳飛飛', english: 'ABBA / John Lennon', taiwanese: '洪一峰 / 江蕙' },
+  '1980s': { mandarin: '童安格 / 蘇芮', english: 'Michael Jackson / George Michael', taiwanese: '洪榮宏 / 江蕙' },
+  '1990s': { mandarin: '張學友 / 王菲', english: 'Celine Dion / Backstreet Boys', taiwanese: '江蕙 / 葉啟田' },
+  '2000s': { mandarin: '周杰倫 / 張惠妹', english: 'Coldplay / Lady Gaga', taiwanese: '江蕙 / 金門王' },
+  '2010s': { mandarin: '周杰倫 / 鄧紫棋', english: 'Ed Sheeran / Adele', taiwanese: '茄子蛋 / 滅火器' },
+  '2020s': { mandarin: '告五人 / 毛不易', english: 'The Weeknd / Billie Eilish', taiwanese: '茄子蛋 / 鄭宜農' },
+};
 
 function createLocalMusicReport(input: MusicReportInput): MusicReportOutput {
   const en = input.selectedSongs?.english;
   const zh = input.selectedSongs?.mandarin;
   const tw = input.selectedSongs?.taiwanese;
+  const eraData = LOCAL_FAMOUS_SINGERS[input.era] ?? LOCAL_FAMOUS_SINGERS['2000s'];
+  
   return {
     music_narrative: `${input.name}的人格音樂矩陣已完成融合，天地人三層能量交織出屬於你的聲音頻率。`,
     song_title_suggestion: '命運共鳴',
@@ -371,6 +386,9 @@ function createLocalMusicReport(input: MusicReportInput): MusicReportOutput {
     taiwanese_song_reason: tw
       ? `《${tw.title}》的土地情感，呼應你性格中最真摯草根的那一面。`
       : '',
+    famous_singers_mandarin: eraData.mandarin,
+    famous_singers_english: eraData.english,
+    famous_singers_taiwanese: eraData.taiwanese,
   };
 }
 
@@ -409,6 +427,18 @@ const MUSIC_REPORT_SCHEMA = {
       type: Type.STRING,
       description: '說明為何這首台語參考音樂適合作為人層故事與情感錨點，70字內，繁體中文。',
     },
+    famous_singers_mandarin: {
+      type: Type.STRING,
+      description: '大數據統計學男女歌手：同風格(如Pop/R&B/Rock)、同年代中全球華人知名度最高、最具代表性、家喻戶曉的男女歌手，格式為："男歌手名 / 女歌手名"。',
+    },
+    famous_singers_english: {
+      type: Type.STRING,
+      description: '大數據統計學男女歌手：同風格、同年代英文知名度最高、最具代表性的全球歌手或樂團代表，格式為："男歌手/樂團名 / 女歌手/樂團名"。',
+    },
+    famous_singers_taiwanese: {
+      type: Type.STRING,
+      description: '大數據統計學男女歌手：同風格、同年代台語知名度最高、家喻戶曉的台灣男女歌手代表，格式為："男歌手名 / 女歌手名"。',
+    },
   },
   required: [
     'music_narrative',
@@ -419,6 +449,9 @@ const MUSIC_REPORT_SCHEMA = {
     'english_song_reason',
     'mandarin_song_reason',
     'taiwanese_song_reason',
+    'famous_singers_mandarin',
+    'famous_singers_english',
+    'famous_singers_taiwanese',
   ],
 };
 
@@ -437,6 +470,8 @@ function buildMusicReportPrompt(input: MusicReportInput): string {
 3. 五行、生肖、榮格原型等概念要自然融入敘事，不要硬塞術語。
 4. 陰影面（Shadow）要輕描淡寫地提及，不是批評，而是提醒。
 5. 結語必須自然帶到「心存善念，命運才能更順」的智慧。
+6. 【歌曲與原唱歌手一致性】：在分析與解釋提及的參考錨點歌曲時，其原唱歌手名字必須與系統提供的一模一樣，絕對禁止張冠李戴（例如《Yesterday》原唱是 The Beatles，不能寫成貓王或其他歌手；《月亮代表我的心》原唱是鄧麗君，不能寫成王菲或周杰倫等；《吻別》原唱是張學友，不能寫成周杰倫）。所有歌曲與歌手必須 100% 正確匹配，絕不能產生任何人為矛盾。
+7. 【大數據歌手年代一致性】：在 'famous_singers_mandarin'、'famous_singers_english' 與 'famous_singers_taiwanese' 推薦的歌手，其發跡、巔峰或代表作品之年代，**必須 100% 與使用者的音樂年代（${input.era}）完全相同！** 絕對不准在舊年代的大數據指標中推薦新年代的歌手，反之亦然。這是一致性鐵律，絕不准產生任何年代與歌手矛盾！
 
 ━━━ 人物命格 ━━━
 姓名：${input.name}
@@ -486,6 +521,9 @@ BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
 - english_song_reason：為何上方英文錨點適合作為天層音樂格局，70字內
 - mandarin_song_reason：為何上方國語錨點適合作為地層情緒與唱腔，70字內
 - taiwanese_song_reason：為何上方台語錨點適合作為人層故事與情感，70字內
+- famous_singers_mandarin：大數據同年代、同風格(如Pop/R&B/Rock等)之華語流行乐坛知名度最高、最具代表性的男女歌手代表，例如："周杰倫 / 蔡依林" 或 "張學友 / 王菲"
+- famous_singers_english：大數據同年代、同風格英文最知名、最具代表性的全球男女歌手/樂團代表，例如："Michael Jackson / Taylor Swift"
+- famous_singers_taiwanese：大數據同年代、同風格之台語最知名、家喻戶曉的台灣男女歌手代表，例如："洪榮宏 / 江蕙"
 `.trim();
 }
 
@@ -1022,11 +1060,28 @@ export async function analyzePreview(input: {
     };
   }
 
-  return enrichPreview(
+  const year = Number.parseInt(input.birthday.slice(0, 4), 10);
+  const peakMusicYear = year + 17;
+  let era = '2000s';
+  if (peakMusicYear < 1960) era = '1950s';
+  else if (peakMusicYear < 1970) era = '1960s';
+  else if (peakMusicYear < 1980) era = '1970s';
+  else if (peakMusicYear < 1990) era = '1980s';
+  else if (peakMusicYear < 2000) era = '1990s';
+  else if (peakMusicYear < 2010) era = '2000s';
+  else if (peakMusicYear < 2020) era = '2010s';
+  else era = '2020s';
+
+  const previewRes = enrichPreview(
     birthScores,
     bloodAdjustments,
     aiData.ai_skeleton_summary,
     aiData.ai_behavior_summary,
     aiData.ai_preview_summary,
   );
+
+  return {
+    ...previewRes,
+    era,
+  };
 }
