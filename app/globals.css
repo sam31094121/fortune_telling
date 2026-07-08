@@ -1,29 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   --sky-deep: #070b1f;
-  --sky-purple: #2d1b69;
-  --sky-violet: #6d4aff;
-  --earth-dark: #1a120b;
-  --earth-gold: #c9a24a;
-  --earth-bronze: #8a6a2f;
-  --human-light: #f7efd2;
-  --human-pink: #d78bff;
-  --human-cyan: #6ee7f9;
-  --bg-main: #050716;
-  --bg-card: rgba(255, 255, 255, 0.06);
-  --bg-card-strong: rgba(109, 74, 255, 0.16);
-  --text-main: #f8f4e6;
-  --text-sub: #b8aedd;
-  --text-muted: #7c7399;
-  --fortune-good: #f4c95d;
-  --fortune-love: #ff7ac8;
-  --fortune-career: #6ee7f9;
-  --fortune-warning: #ff5c7a;
+  --sky-purple: #1e124c;
+  --sky-violet: #4f35da;
+  --earth-dark: #140d08;
+  --earth-gold: #bca165;
+  --earth-bronze: #80622a;
+  --human-light: #f3edd3;
+  --human-pink: #c473f3;
+  --human-cyan: #59d3e6;
+  --bg-main: #050612;
+  --bg-card: rgba(255, 255, 255, 0.04);
+  --bg-card-strong: rgba(79, 53, 218, 0.12);
+  --text-main: #f5f0e1;
+  --text-sub: #a89ebd;
+  --text-muted: #6e6587;
+  --fortune-good: #e5bd50;
+  --fortune-love: #e86cb5;
+  --fortune-career: #59d3e6;
+  --fortune-warning: #eb4e6e;
 }
 
 html {
@@ -32,17 +30,17 @@ html {
 
 body {
   min-height: 100vh;
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-outfit), var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background:
-    radial-gradient(circle at top, rgba(109, 74, 255, 0.35), transparent 35%),
-    radial-gradient(circle at bottom, rgba(201, 162, 74, 0.16), transparent 30%),
+    radial-gradient(circle at top, rgba(79, 53, 218, 0.25), transparent 35%),
+    radial-gradient(circle at bottom, rgba(188, 161, 101, 0.12), transparent 30%),
     var(--bg-main);
   color: var(--text-main);
   overflow-x: hidden;
 }
 
 .font-serif {
-  font-family: 'Noto Serif TC', "Songti TC", "STSong", "PMingLiU", "MingLiU", Georgia, Cambria, "Times New Roman", Times, serif;
+  font-family: var(--font-serif), "Songti TC", "STSong", "PMingLiU", "MingLiU", Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
 * {

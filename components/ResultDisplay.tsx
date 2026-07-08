@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useMemo, useState } from 'react';
 import { DIMENSION_META } from '@/lib/personality';
@@ -115,7 +115,7 @@ export default function ResultDisplay({
             <div key={dimension.key} className="rounded-[22px] border border-white/10 bg-white/5 p-4">
               <ProgressBar
                 label={dimension.label}
-                score={dimensions[dimension.key]}
+                score={dimensions[dimension.key] ?? 70}
                 description={dimension.description}
                 tone={dimension.tone}
               />
@@ -148,73 +148,67 @@ export default function ResultDisplay({
             <p className="text-xs uppercase tracking-[0.35em] text-pink-300">完整分析</p>
             <h3 className="font-serif text-3xl text-[color:var(--text-main)]">想看更完整？補上姓名即可</h3>
             <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
-              姓名會讓分析更貼近個人特質。補充後，AI 會整理財富動機、感情模式、優勢與盲點。
+              你目前完成了天層（生日）與地層（血型）的預分析，這構成了你的人格骨架。
+              若要啟動人層（姓名）解碼，解鎖個體差異與最終智識，請輸入姓名以完成 VIP 完整分析。
             </p>
           </div>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px]">
-            <div className="space-y-4">
+          <div className="mt-6 max-w-md space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-[color:var(--text-main)]">真實姓名</label>
               <input
                 type="text"
                 value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="請輸入你的姓名"
+                className="form-input mt-2 w-full"
                 maxLength={20}
-                placeholder="輸入姓名，解鎖完整報告"
-                onChange={(event) => setName(event.target.value)}
-                className="form-input"
               />
+            </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setGender('male')}
-                  className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
-                    gender === 'male'
-                      ? 'border-amber-400 bg-amber-400/15 text-amber-200'
-                      : 'border-white/10 bg-white/5 text-[color:var(--text-sub)]'
-                  }`}
-                >
-                  男性
-                </button>
+            <div>
+              <label className="block text-sm font-semibold text-[color:var(--text-main)]">生理性別</label>
+              <div className="mt-2 grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setGender('female')}
-                  className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
+                  className={`rounded-2xl border py-3 text-sm font-semibold transition ${
                     gender === 'female'
-                      ? 'border-amber-400 bg-amber-400/15 text-amber-200'
+                      ? 'border-pink-400 bg-pink-500/15 text-pink-200 shadow-[0_0_15px_rgba(215,139,255,0.25)]'
                       : 'border-white/10 bg-white/5 text-[color:var(--text-sub)]'
                   }`}
                 >
                   女性
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setGender('male')}
+                  className={`rounded-2xl border py-3 text-sm font-semibold transition ${
+                    gender === 'male'
+                      ? 'border-cyan-400 bg-cyan-500/15 text-cyan-200 shadow-[0_0_15px_rgba(34,211,238,0.25)]'
+                      : 'border-white/10 bg-white/5 text-[color:var(--text-sub)]'
+                  }`}
+                >
+                  男性
+                </button>
               </div>
-
-              {(localError || errorMsg) && (
-                <div className="rounded-2xl border border-rose-400/20 bg-rose-950/20 p-4 text-sm text-rose-300">
-                  {localError || errorMsg}
-                </div>
-              )}
             </div>
 
-            <div className="rounded-[22px] border border-amber-400/15 bg-amber-950/15 p-5">
-              <p className="text-xs uppercase tracking-[0.3em] text-amber-300">解鎖內容</p>
-              <ul className="mt-4 space-y-3 text-sm leading-7 text-[color:var(--text-main)]">
-                <li>姓名特質整合</li>
-                <li>財富動機分析</li>
-                <li>感情模式分析</li>
-                <li>人生優勢與盲點</li>
-              </ul>
-            </div>
-          </div>
+            {errorMsg && (
+              <p className="text-sm text-[color:var(--fortune-warning)] animate-pulse">{errorMsg}</p>
+            )}
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
-              onClick={handleUnlock}
               disabled={isUnlocking}
-              className="vip-gold-btn flex-1 py-4 text-sm"
+              onClick={handleUnlock}
+              className="vip-gold-btn mt-4 w-full py-4 text-sm"
             >
-              {isUnlocking ? 'AI 正在整理完整報告…' : '查看完整人格報告'}
+              {isUnlocking ? '啟動三才融合中…' : '解鎖 VIP 完整人格分析'}
             </button>
+          </div>
+
+          <div className="mt-8 border-t border-white/10 pt-6">
             <button
               type="button"
               onClick={onReset}
@@ -237,25 +231,25 @@ export default function ResultDisplay({
             <div className="rounded-[22px] border border-amber-400/20 bg-black/15 p-5">
               <p className="text-xs uppercase tracking-[0.3em] text-amber-200">財富動機</p>
               <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">
-                {vipResult.wealth_motivation_summary}
+                {vipResult!.wealth_motivation_summary}
               </p>
             </div>
             <div className="rounded-[22px] border border-amber-400/20 bg-black/15 p-5">
               <p className="text-xs uppercase tracking-[0.3em] text-amber-200">感情模式</p>
               <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">
-                {vipResult.love_pattern_summary}
+                {vipResult!.love_pattern_summary}
               </p>
             </div>
             <div className="rounded-[22px] border border-amber-400/20 bg-black/15 p-5">
               <p className="text-xs uppercase tracking-[0.3em] text-amber-200">潛意識盲點</p>
               <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">
-                {vipResult.blind_spot_summary}
+                {vipResult!.blind_spot_summary}
               </p>
             </div>
             <div className="rounded-[22px] border border-amber-400/20 bg-black/15 p-5">
               <p className="text-xs uppercase tracking-[0.3em] text-amber-200">人生優勢</p>
               <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">
-                {vipResult.life_advantage_summary}
+                {vipResult!.life_advantage_summary}
               </p>
             </div>
           </div>

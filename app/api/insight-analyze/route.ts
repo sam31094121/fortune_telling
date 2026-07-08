@@ -13,6 +13,19 @@ const VALID_GENDERS = ['male', 'female'];
 const analysisCache = new Map<string, { result: unknown; timestamp: number }>();
 const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 分鐘快取
 
+const ipCache = new Map<string, { count: number; resetTime: number }>();
+
+function cleanIpCache() {
+  const now = Date.now();
+  if (ipCache.size > 200) {
+    for (const [key, val] of ipCache.entries()) {
+      if (now > val.resetTime) {
+        ipCache.delete(key);
+      }
+    }
+  }
+}
+
 function getCacheKey(body: InsightRequest): string {
   const shichenKey = typeof body.shichen === 'number' ? String(body.shichen) : 'auto';
   return `${body.name.trim()}|${body.birthDate}|${body.bloodType}|${body.gender}|${shichenKey}`;
@@ -56,6 +69,21 @@ function validateInsightRequest(body: unknown): string | null {
 }
 
 export async function POST(request: Request) {
+  const now = Date.now();
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown_ip';
+
+  cleanIpCache();
+
+  const limitRecord = ipCache.get(ip);
+  if (limitRecord && now < limitRecord.resetTime) {
+    if (limitRecord.count >= 5) {
+      return NextResponse.json({ error: '請求過於頻繁，請稍後再試。' }, { status: 429 });
+    }
+    limitRecord.count += 1;
+  } else {
+    ipCache.set(ip, { count: 1, resetTime: now + 60_000 });
+  }
+
   let body: InsightRequest;
 
   try {

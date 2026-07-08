@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { analyzeDestiny } from '@/lib/gemini';
 import type { AnalyzeRequest, BloodType, Gender, PersonInput } from '@/lib/types';
 import { isValidBirthday } from '@/lib/validation';
@@ -10,6 +10,20 @@ const VALID_GENDERS: Gender[] = ['male', 'female'];
 
 const ipCache = new Map<string, { count: number; resetTime: number }>();
 const responseCache = new Map<string, { result: unknown; expireTime: number }>();
+
+function cleanCaches() {
+  const now = Date.now();
+  if (ipCache.size > 200) {
+    for (const [key, val] of ipCache.entries()) {
+      if (now > val.resetTime) ipCache.delete(key);
+    }
+  }
+  if (responseCache.size > 200) {
+    for (const [key, val] of responseCache.entries()) {
+      if (now > val.expireTime) responseCache.delete(key);
+    }
+  }
+}
 
 function validatePerson(person: unknown): string | null {
   if (!person || typeof person !== 'object') return '請提供正確的人格解碼資料。';
@@ -37,6 +51,8 @@ function validatePerson(person: unknown): string | null {
 export async function POST(request: Request) {
   const now = Date.now();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown_ip';
+
+  cleanCaches();
 
   const limitRecord = ipCache.get(ip);
   if (limitRecord && now < limitRecord.resetTime) {

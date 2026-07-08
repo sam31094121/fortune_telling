@@ -12,6 +12,7 @@ import { isValidBirthday } from '@/lib/validation';
 import { computeShichenProfile } from '@/lib/shichen-engine';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 function getBirthEra(birthDate: string): string {
   const year = Number.parseInt(birthDate.slice(0, 4), 10);
@@ -89,9 +90,23 @@ function validate(body: unknown): string | null {
 
 const ipCache = new Map<string, { count: number; resetTime: number }>();
 
+function cleanIpCache() {
+  const now = Date.now();
+  if (ipCache.size > 200) {
+    for (const [key, val] of ipCache.entries()) {
+      if (now > val.resetTime) {
+        ipCache.delete(key);
+      }
+    }
+  }
+}
+
 export async function POST(request: Request) {
   const now = Date.now();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+  
+  cleanIpCache();
+  
   const record = ipCache.get(ip);
 
   if (record && now < record.resetTime) {

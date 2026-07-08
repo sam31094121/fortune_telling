@@ -43,14 +43,16 @@ export default function MusicProfile({ profile, tier }: MusicProfileProps) {
       </div>
 
       {/* Auto-play player for top genre */}
-      <div className="mb-6">
-        <MusicPlayer
-          label={`${topGenres[0].emoji} ${topGenres[0].name}`}
-          flag={topGenres[0].emoji}
-          track={getGenreTrack(topGenres[0].key)}
-          affinityScore={topGenres[0].score}
-        />
-      </div>
+      {topGenres && topGenres.length > 0 && (
+        <div className="mb-6">
+          <MusicPlayer
+            label={`${topGenres[0].emoji || '🎵'} ${topGenres[0].name || '推薦風格'}`}
+            flag={topGenres[0].emoji || '🎵'}
+            track={getGenreTrack(topGenres[0].key)}
+            affinityScore={topGenres[0].score || 70}
+          />
+        </div>
+      )}
 
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
         {/* Left: Top 3 genres */}

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Noto_Sans_TC, Noto_Serif_TC } from 'next/font/google';
+import { Noto_Sans_TC, Noto_Serif_TC, Outfit } from 'next/font/google';
 import './globals.css';
 
 const sans = Noto_Sans_TC({
@@ -16,14 +16,27 @@ const serif = Noto_Serif_TC({
   display: 'swap',
 });
 
+const outfit = Outfit({
+  variable: '--font-outfit',
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '700'],
+  display: 'swap',
+});
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL 
+  ? process.env.NEXT_PUBLIC_SITE_URL 
+  : process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'http://localhost:3000';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('http://localhost:3000'),
+  metadataBase: new URL(siteUrl),
   title: '☯️ 天宿星軌 · 3D 命理雙星引力核心',
   description: '自動換算農國曆雙向對照，精密算出生日主星，為你與伴侶解鎖【殺破狼】等尊榮天格與前世今生因果配對！',
   openGraph: {
     title: '☯️ 天宿星軌 · 3D 命理雙星引力核心',
     description: '自動換算農國曆雙向對照，精密算出生日主星，為你與伴侶解鎖【殺破狼】等尊榮天格與前世今生因果配對！',
-    url: 'http://localhost:3000',
+    url: siteUrl,
     siteName: '天宿星軌命理系統',
     images: [
       {
@@ -51,7 +64,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-Hant">
-      <body className={`${sans.variable} ${serif.variable} font-sans antialiased`}>{children}</body>
+      <body className={`${sans.variable} ${serif.variable} ${outfit.variable} font-sans antialiased`}>{children}</body>
     </html>
   );
 }

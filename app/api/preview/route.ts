@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { analyzePreview } from '@/lib/gemini';
 import type { BloodType, PreviewRequest } from '@/lib/types';
 import { isValidBirthday } from '@/lib/validation';
@@ -8,6 +8,20 @@ export const dynamic = 'force-dynamic';
 const VALID_BLOOD_TYPES: Exclude<BloodType, ''>[] = ['A', 'B', 'AB', 'O'];
 const ipCache = new Map<string, { count: number; resetTime: number }>();
 const responseCache = new Map<string, { result: unknown; expireTime: number }>();
+
+function cleanCaches() {
+  const now = Date.now();
+  if (ipCache.size > 200) {
+    for (const [key, val] of ipCache.entries()) {
+      if (now > val.resetTime) ipCache.delete(key);
+    }
+  }
+  if (responseCache.size > 200) {
+    for (const [key, val] of responseCache.entries()) {
+      if (now > val.expireTime) responseCache.delete(key);
+    }
+  }
+}
 
 function validatePreview(body: Partial<PreviewRequest>): string | null {
   if (!body.bloodType || !VALID_BLOOD_TYPES.includes(body.bloodType as Exclude<BloodType, ''>)) {
@@ -22,6 +36,8 @@ function validatePreview(body: Partial<PreviewRequest>): string | null {
 export async function POST(request: Request) {
   const now = Date.now();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown_ip';
+
+  cleanCaches();
 
   const limitRecord = ipCache.get(ip);
   if (limitRecord && now < limitRecord.resetTime) {

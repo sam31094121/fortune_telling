@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import LunarBirthdayInput from './LunarBirthdayInput';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
+import { saveUserData, loadUserData } from '@/lib/storage';
 
 type BloodType = 'A' | 'B' | 'AB' | 'O';
 type Gender = 'male' | 'female';
@@ -54,6 +55,32 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     voiceCharacteristics: [],
   });
   const [localError, setLocalError] = useState('');
+
+  // 載入 localStorage 預填
+  useEffect(() => {
+    const saved = loadUserData();
+    if (saved) {
+      setForm((prev) => ({
+        ...prev,
+        name: saved.name || prev.name,
+        birthDate: saved.birthday || prev.birthDate,
+        bloodType: saved.bloodType || prev.bloodType,
+        gender: saved.gender || prev.gender,
+      }));
+    }
+  }, []);
+
+  // 同步 form 的變更到 localStorage
+  useEffect(() => {
+    if (form.name || form.birthDate) {
+      saveUserData({
+        name: form.name,
+        birthday: form.birthDate,
+        bloodType: form.bloodType,
+        gender: form.gender,
+      });
+    }
+  }, [form.name, form.birthDate, form.bloodType, form.gender]);
 
   function validateStep(targetStep = step): string | null {
     if (targetStep === 0 && !form.birthDate) return '請先輸入完整的國曆生日。';

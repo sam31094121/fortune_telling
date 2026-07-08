@@ -7,6 +7,7 @@ import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
+import { saveUserData, loadUserData } from '@/lib/storage';
 
 interface PersonInput {
   name: string;
@@ -521,6 +522,32 @@ export default function HomePage() {
   const [showScrollDown, setShowScrollDown] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
 
+  // 載入 localStorage 預填
+  useEffect(() => {
+    const saved = loadUserData();
+    if (saved) {
+      setPersonA((prev) => ({
+        ...prev,
+        name: saved.name || prev.name,
+        birthDate: saved.birthday || prev.birthDate,
+        bloodType: saved.bloodType || prev.bloodType,
+        gender: saved.gender || prev.gender,
+      }));
+    }
+  }, []);
+
+  // 同步 personA 的變更到 localStorage
+  useEffect(() => {
+    if (personA.name || personA.birthDate) {
+      saveUserData({
+        name: personA.name,
+        birthday: personA.birthDate,
+        bloodType: personA.bloodType,
+        gender: personA.gender,
+      });
+    }
+  }, [personA.name, personA.birthDate, personA.bloodType, personA.gender]);
+
   useEffect(() => {
     const handleScroll = () => {
       // 往上回到頂部
@@ -904,14 +931,14 @@ export default function HomePage() {
 
       <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
         <div className="mb-8 flex items-center gap-4">
-          <span className="text-xs tracking-widest text-rose-300">💕 AI 靈魂配對</span>
+          <span className="text-xs tracking-widest text-rose-300">// AI 靈魂配對</span>
           <span className="text-[color:var(--text-muted)]">·</span>
           <Link href="/music" className="text-xs tracking-widest text-violet-300/70 transition hover:text-violet-300">
-            🎵 人格音樂
+            // 人格音樂
           </Link>
           <span className="text-[color:var(--text-muted)]">·</span>
           <Link href="/insight" className="text-xs tracking-widest text-amber-300/70 transition hover:text-amber-300">
-            🔍 AI 深度洞察
+            // AI 深度洞察
           </Link>
         </div>
 
@@ -925,13 +952,13 @@ export default function HomePage() {
             </h1>
             <div className="mt-6 space-y-4">
               <p className="text-xl sm:text-2xl font-bold text-rose-300 tracking-wide">
-                💕 AI 靈魂配對 — 分析相處節奏與互補點
+                AI 靈魂配對 — 分析相處節奏與互補點
               </p>
               <p className="text-xl sm:text-2xl font-bold text-violet-300 tracking-wide">
-                🎵 人格音樂 — 生成個人主題曲
+                人格音樂 — 生成個人主題曲
               </p>
               <p className="text-xl sm:text-2xl font-bold text-amber-300 tracking-wide">
-                🔍 AI 深度洞察 — 全面分析性格與潛能
+                AI 深度洞察 — 全面分析性格與潛能
               </p>
             </div>
             <div className="mt-8">

@@ -61,19 +61,19 @@ export default function PreviewDisplay({ result }: PreviewDisplayProps) {
                   <div className="min-w-0">
                     <h4 className="font-serif text-xl text-[color:var(--text-main)]">{dimension.label}</h4>
                     <p className="mt-1 text-xs text-[color:var(--text-muted)]">
-                      天 {result.base_scores[dimension.key]} / 地 {signed(result.blood_adjustments[dimension.key])}
+                      天 {result.base_scores[dimension.key] ?? 70} / 地 {signed(result.blood_adjustments[dimension.key] ?? 0)}
                     </p>
                   </div>
                   <div className="text-right">
                     <span className="text-3xl font-semibold text-[color:var(--text-main)]">
-                      {result.preview_scores[dimension.key]}
+                      {result.preview_scores[dimension.key] ?? 70}
                     </span>
                     <span className="ml-1 text-sm text-[color:var(--text-sub)]">分</span>
                   </div>
                 </div>
                 <ProgressBar
                   label={dimension.shortLabel}
-                  score={result.preview_scores[dimension.key]}
+                  score={result.preview_scores[dimension.key] ?? 70}
                   description="初步分數"
                   tone={dimension.tone}
                 />

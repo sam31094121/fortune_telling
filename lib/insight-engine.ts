@@ -514,8 +514,7 @@ ${JSON.stringify(statisticalAnalysis.map((item) => ({
     '深度洞察分析超時，請稍後再試。'
   );
 
-  const textContent = (response as { text?: string | (() => string) }).text;
-  const textStr = typeof textContent === 'function' ? textContent() : (textContent || '');
+  const textStr = response.text || '';
 
   if (!textStr) {
     throw new Error('AI 未返回有效回應。');

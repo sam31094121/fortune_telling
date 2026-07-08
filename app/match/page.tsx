@@ -5,6 +5,7 @@ import Link from 'next/link';
 import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
+import { saveUserData, loadUserData } from '@/lib/storage';
 
 interface PersonInput {
   name: string;
@@ -255,16 +256,38 @@ function PersonStep({
 }
 
 export default function MatchPage() {
-  useEffect(() => {
-    window.location.replace('/');
-  }, []);
-
   const [step, setStep] = useState<StepKey>('personA');
   const [personA, setPersonA] = useState<PersonInput>({ ...EMPTY, gender: 'female' });
   const [personB, setPersonB] = useState<PersonInput>({ ...EMPTY, gender: 'male' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [data, setData] = useState<MatchResponse | null>(null);
+
+  // 載入 localStorage 預填到 personA
+  useEffect(() => {
+    const saved = loadUserData();
+    if (saved) {
+      setPersonA((prev) => ({
+        ...prev,
+        name: saved.name || prev.name,
+        birthDate: saved.birthday || prev.birthDate,
+        bloodType: saved.bloodType || prev.bloodType,
+        gender: saved.gender || prev.gender,
+      }));
+    }
+  }, []);
+
+  // 同步 personA 的變更到 localStorage
+  useEffect(() => {
+    if (personA.name || personA.birthDate) {
+      saveUserData({
+        name: personA.name,
+        birthday: personA.birthDate,
+        bloodType: personA.bloodType,
+        gender: personA.gender,
+      });
+    }
+  }, [personA.name, personA.birthDate, personA.bloodType, personA.gender]);
 
   const stepIndex = STEP_ORDER.indexOf(step);
   const personAError = getPersonError('第一位', personA);

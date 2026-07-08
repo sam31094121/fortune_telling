@@ -190,10 +190,28 @@ async function enhanceMatchResultWithAI(
 }
 
 const ipCache = new Map<string, { count: number; resetTime: number }>();
+const responseCache = new Map<string, { result: any; expireTime: number }>();
+
+function cleanCaches() {
+  const now = Date.now();
+  if (ipCache.size > 200) {
+    for (const [key, val] of ipCache.entries()) {
+      if (now > val.resetTime) ipCache.delete(key);
+    }
+  }
+  if (responseCache.size > 200) {
+    for (const [key, val] of responseCache.entries()) {
+      if (now > val.expireTime) responseCache.delete(key);
+    }
+  }
+}
 
 export async function POST(request: Request) {
   const now = Date.now();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+  
+  cleanCaches();
+
   const record = ipCache.get(ip);
 
   if (record && now < record.resetTime) {
@@ -217,6 +235,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: errMsg }, { status: 400 });
   }
 
+  const cacheKey = `${body.personA.name}|${body.personA.birthDate}|${body.personA.bloodType}|${body.personA.gender}|${body.personB.name}|${body.personB.birthDate}|${body.personB.bloodType}|${body.personB.gender}`;
+  const cached = responseCache.get(cacheKey);
+  if (cached && now < cached.expireTime) {
+    return NextResponse.json(cached.result);
+  }
+
   try {
     const { profile: profileA, display: displayA } = buildProfile(body.personA);
     const { profile: profileB, display: displayB } = buildProfile(body.personB);
@@ -226,7 +250,6 @@ export async function POST(request: Request) {
     const enhanced = await enhanceMatchResultWithAI(result, displayA, displayB);
     const finalSummary = isConsistentAiSummary(enhanced.summary, result) ? enhanced.summary : result.summary;
 
-    // 計算天地人因果三才軌道數據
     const karmaRelation = computeRelationshipMatrix(
       {
         name: body.personA.name,
@@ -244,12 +267,16 @@ export async function POST(request: Request) {
       }
     );
 
-    return NextResponse.json({
+    const responseData = {
       result: { ...result, summary: finalSummary, zones: enhanced.zones },
       displayA,
       displayB,
       karmaRelation,
-    });
+    };
+
+    responseCache.set(cacheKey, { result: responseData, expireTime: now + 300_000 });
+
+    return NextResponse.json(responseData);
   } catch (error) {
     console.error('[match-generate] request failed', error);
     return NextResponse.json({ error: '配對分析暫時無法完成，請稍後再試。' }, { status: 500 });

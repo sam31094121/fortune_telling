@@ -113,13 +113,13 @@ export function getMonthWuxing(month: number): WuxingElement {
   return MONTH_WUXING[month] ?? '土';
 }
 
-// 年月五行融合（年主，月輔）
+// 年月五行融合（年干五行為主核心，月令五行為氣運輔助）
 export function getFusedWuxing(
   yearWuxing: WuxingElement,
   monthWuxing: WuxingElement,
 ): WuxingElement {
-  // 同五行則強化，不同取年主
-  return yearWuxing === monthWuxing ? yearWuxing : yearWuxing;
+  // 當前版本以年干五行為命主核心框架
+  return yearWuxing;
 }
 
 // ─── 生肖 ────────────────────────────────────────────────────────────
@@ -247,9 +247,11 @@ export interface DestinyProfile {
 }
 
 export function computeDestinyProfile(birthDate: string): DestinyProfile {
-  const [yearStr, monthStr] = birthDate.split('-');
-  const year = parseInt(yearStr, 10);
-  const month = parseInt(monthStr, 10);
+  // 防禦性輸入解析
+  const safeDate = (birthDate && typeof birthDate === 'string' && birthDate.includes('-')) ? birthDate : '1990-01-01';
+  const parts = safeDate.split('-');
+  const year = parseInt(parts[0] || '1990', 10) || 1990;
+  const month = parseInt(parts[1] || '1', 10) || 1;
 
   const heavenlyStem = getHeavenlyStem(year);
   const yearWuxing = getYearWuxing(year);

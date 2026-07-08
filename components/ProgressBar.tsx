@@ -18,10 +18,18 @@ export default function ProgressBar({
   description,
   tone = 'sky',
 }: ProgressBarProps) {
-  const safeScore = Math.max(0, Math.min(100, Math.round(score)));
+  const validScore = typeof score === 'number' && !isNaN(score) ? score : 70;
+  const safeScore = Math.max(0, Math.min(100, Math.round(validScore)));
 
   return (
-    <div className="min-w-0">
+    <div 
+      className="min-w-0"
+      role="progressbar"
+      aria-valuenow={safeScore}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={`${label}: ${description}`}
+    >
       <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
         <span className="text-sm text-[color:var(--text-muted)]">{label}</span>
         <span className="text-xs text-[color:var(--text-muted)]">{description}</span>

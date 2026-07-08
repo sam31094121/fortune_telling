@@ -31,11 +31,26 @@ export default function VisualGravityCore() {
   const explosionActiveRef = useRef(false);
   const explosionLevelRef = useRef(1); // 1=正常爆發, 2=終極白金, 3=萬丈佛光, 4=萬佛朝宗終極大悲咒
 
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const getAudioContext = (): AudioContext | null => {
+    if (typeof window === 'undefined') return null;
+    if (!audioCtxRef.current) {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtxRef.current = new AudioContextClass();
+      }
+    }
+    if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
+      audioCtxRef.current.resume().catch(() => {});
+    }
+    return audioCtxRef.current;
+  };
+
   const playBowlSound = () => {
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+      const ctx = getAudioContext();
+      if (!ctx) return;
       
       const baseFreq = 292;
       const osc1 = ctx.createOscillator();
@@ -66,9 +81,8 @@ export default function VisualGravityCore() {
 
   const playSuperBowlSound = () => {
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+      const ctx = getAudioContext();
+      if (!ctx) return;
       
       const oscLow = ctx.createOscillator();
       const oscHigh = ctx.createOscillator();
@@ -107,9 +121,8 @@ export default function VisualGravityCore() {
 
   const playMegaBowlSound = () => {
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+      const ctx = getAudioContext();
+      if (!ctx) return;
       
       const osc1 = ctx.createOscillator();
       const osc2 = ctx.createOscillator();
@@ -146,9 +159,8 @@ export default function VisualGravityCore() {
 
   const playGreatCompassionSound = () => {
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+      const ctx = getAudioContext();
+      if (!ctx) return;
       
       const frequencies = [108, 216, 432, 528, 999];
       const gainNode = ctx.createGain();

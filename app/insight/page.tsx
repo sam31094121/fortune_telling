@@ -5,6 +5,7 @@ import Link from 'next/link';
 import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
+import { saveUserData, loadUserData } from '@/lib/storage';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { calculateZiweiMainStar } from '@/lib/ziwei-calculator';
 
@@ -267,6 +268,32 @@ export default function InsightPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<InsightResult | null>(null);
+
+  // 載入 localStorage 預填
+  useEffect(() => {
+    const saved = loadUserData();
+    if (saved) {
+      setInput((prev) => ({
+        ...prev,
+        name: saved.name || prev.name,
+        birthDate: saved.birthday || prev.birthDate,
+        bloodType: saved.bloodType || prev.bloodType,
+        gender: saved.gender || prev.gender,
+      }));
+    }
+  }, []);
+
+  // 同步 input 的變更到 localStorage
+  useEffect(() => {
+    if (input.name || input.birthDate) {
+      saveUserData({
+        name: input.name,
+        birthday: input.birthDate,
+        bloodType: input.bloodType,
+        gender: input.gender,
+      });
+    }
+  }, [input.name, input.birthDate, input.bloodType, input.gender]);
 
   useEffect(() => {
     if (loading || result || error) {
