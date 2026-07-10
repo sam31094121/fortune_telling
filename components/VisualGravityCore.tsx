@@ -325,6 +325,8 @@ export default function VisualGravityCore() {
     let animId = 0;
     let domEl: HTMLCanvasElement | null = null;
     let resizeFn: (() => void) | null = null;
+    let visibilityHandler: (() => void) | null = null;
+    let disposeThree: (() => void) | null = null;
     let cancelled = false;
 
     // ✨ 性能監控變數
@@ -359,7 +361,10 @@ export default function VisualGravityCore() {
 
         // ── Renderer ─────────────────────────────────────────────────────
         // Sharper supersampled rendering, capped to protect mobile GPUs.
-        const pixelRatio = Math.min(devicePixelRatio, TABLET_VISUAL_PROFILE.pixelRatioCap);
+        const isLowPowerDevice = window.matchMedia('(max-width: 768px)').matches
+          || navigator.hardwareConcurrency <= 4
+          || (navigator as Navigator & { deviceMemory?: number }).deviceMemory === 2;
+        const pixelRatio = Math.min(devicePixelRatio, isLowPowerDevice ? 1.25 : TABLET_VISUAL_PROFILE.pixelRatioCap);
         const renderer = new THREE.WebGLRenderer({
           antialias: true,  // 始終啟用抗鋸齒但优化方式
           powerPreference: 'high-performance',
@@ -373,6 +378,19 @@ export default function VisualGravityCore() {
         renderer.setPixelRatio(pixelRatio);
         renderer.shadowMap.enabled = false;
         renderer.info.autoReset = true;
+
+        disposeThree = () => {
+          scene.traverse((object: any) => {
+            object.geometry?.dispose?.();
+            const materials = Array.isArray(object.material) ? object.material : [object.material];
+            materials.filter(Boolean).forEach((material: any) => {
+              Object.values(material).forEach((value: any) => value?.isTexture && value.dispose?.());
+              material.dispose?.();
+            });
+          });
+          renderer.dispose();
+          renderer.forceContextLoss?.();
+        };
 
         // 使用新版 Three.js 色彩空間設定，避免舊屬性造成相容性問題
         if ((renderer as any).useLegacyLights !== undefined) {
@@ -809,6 +827,10 @@ export default function VisualGravityCore() {
 
         // ✨ 優化的動畫循環 - 高效計算
         function frame(frameTime = performance.now()) {
+          if (cancelled || document.hidden) {
+            animId = 0;
+            return;
+          }
           animId = requestAnimationFrame(frame);
           const t = (frameTime - animationStartedAt) / 1000;
 
@@ -971,6 +993,15 @@ export default function VisualGravityCore() {
           renderer.render(scene, camera);
         }
 
+        visibilityHandler = () => {
+          if (document.hidden) {
+            cancelAnimationFrame(animId);
+            animId = 0;
+          } else if (!cancelled && animId === 0) {
+            frame();
+          }
+        };
+        document.addEventListener('visibilitychange', visibilityHandler);
         frame();
 
         // ── Resize ───────────────────────────────────────────────────────
@@ -995,8 +1026,10 @@ export default function VisualGravityCore() {
       cancelled = true;
       cancelAnimationFrame(animId);
       if (resizeFn) window.removeEventListener("resize", resizeFn);
+      if (visibilityHandler) document.removeEventListener('visibilitychange', visibilityHandler);
       window.removeEventListener('reset-audio-context', handleResetAudio);
       window.removeEventListener('reset-celestial-mist', handleResetMist);
+      disposeThree?.();
       // Remove all canvases including stale ones from HMR
       Array.from(container.querySelectorAll("canvas")).forEach(c => c.remove());
       orbitLayer.remove();
@@ -1012,6 +1045,10 @@ export default function VisualGravityCore() {
 
   // 渲染與更新粒子與漣漪
   const updateAndDraw = () => {
+    if (document.hidden) {
+      animFrameIdRef.current = 0;
+      return;
+    }
     const canvas = interactionCanvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -1143,6 +1180,7 @@ export default function VisualGravityCore() {
   useEffect(() => {
     // 1. 手機打開 Ready 800ms 後，自動首發大爆發一次芒光仙氣
     const autoBurstTimeout = setTimeout(() => {
+      if (document.hidden) return;
       const canvas = interactionCanvasRef.current;
       if (canvas) {
         const rect = canvas.getBoundingClientRect();
@@ -1154,6 +1192,7 @@ export default function VisualGravityCore() {
 
     // 2. 每隔 5 秒，太極自動進行一次輕量級的金色氣波呼吸
     const breathInterval = setInterval(() => {
+      if (document.hidden) return;
       const canvas = interactionCanvasRef.current;
       if (canvas) {
         const rect = canvas.getBoundingClientRect();

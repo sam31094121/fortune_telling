@@ -2,9 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   compress: true,
-  optimizeFonts: true,
-  swcMinify: true,
   productionBrowserSourceMaps: false,
+  outputFileTracingRoot: process.cwd(),
 
   // 性能优化
   poweredByHeader: false,

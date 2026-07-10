@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import MusicPlayer from './MusicPlayer';
 
 interface PersonalityMatrix {
@@ -912,11 +912,34 @@ interface ElevenLabsShellSummary {
   nextAction: string;
 }
 
+interface LyriaGenerateResponse {
+  audioBase64?: string;
+  mimeType?: string;
+  filename?: string;
+  lyricsText?: string;
+  promptPreview?: string;
+  error?: string;
+  detail?: string;
+  googleStatus?: string;
+}
+
+function base64ToBlob(base64: string, mimeType: string) {
+  const binary = window.atob(base64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  return new Blob([bytes], { type: mimeType });
+}
+
 function IntegratedSongMaker({
   fusionSong,
   productionPlan,
   musicParameters,
   songDrafts,
+  name,
   started,
   onStart,
 }: {
@@ -924,16 +947,30 @@ function IntegratedSongMaker({
   productionPlan?: ProductionPlan;
   musicParameters: MusicParameters;
   songDrafts?: SongDrafts;
+  name: string;
   started: boolean;
   onStart: () => void;
 }) {
   const [audioUrl, setAudioUrl] = useState('');
   const [audioReady, setAudioReady] = useState(false);
+  const [lyriaAudioUrl, setLyriaAudioUrl] = useState('');
+  const [lyriaFilename, setLyriaFilename] = useState('');
+  const [lyriaPromptPreview, setLyriaPromptPreview] = useState('');
+  const [lyriaLyricsText, setLyriaLyricsText] = useState('');
+  const [lyriaError, setLyriaError] = useState('');
+  const [lyriaLoading, setLyriaLoading] = useState(false);
+  const audioUrlRef = useRef('');
+  const lyriaAudioUrlRef = useRef('');
   const [servicePackageText, setServicePackageText] = useState('');
   const [copiedServicePackage, setCopiedServicePackage] = useState(false);
   const [elevenLabsShellText, setElevenLabsShellText] = useState('');
   const [elevenLabsShellSummary, setElevenLabsShellSummary] = useState<ElevenLabsShellSummary | null>(null);
   const [elevenLabsShellLoading, setElevenLabsShellLoading] = useState(false);
+
+  useEffect(() => () => {
+    if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
+    if (lyriaAudioUrlRef.current) URL.revokeObjectURL(lyriaAudioUrlRef.current);
+  }, []);
 
   if (!fusionSong || !productionPlan) return null;
 
@@ -965,12 +1002,64 @@ function IntegratedSongMaker({
     if (!fusionSong) return;
 
     setAudioReady(false);
-    if (audioUrl) URL.revokeObjectURL(audioUrl);
+    if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
 
     const blob = createPlayableSongDemo(musicParameters, fusionSong, songDrafts);
     const url = URL.createObjectURL(blob);
+    audioUrlRef.current = url;
     setAudioUrl(url);
     setAudioReady(true);
+  }
+
+  async function handleGenerateLyriaMp3() {
+    if (!fusionSong || !productionPlan || lyriaLoading) return;
+
+    setLyriaLoading(true);
+    setLyriaError('');
+    setLyriaPromptPreview('');
+    setLyriaLyricsText('');
+    if (lyriaAudioUrlRef.current) {
+      URL.revokeObjectURL(lyriaAudioUrlRef.current);
+      lyriaAudioUrlRef.current = '';
+      setLyriaAudioUrl('');
+    }
+
+    try {
+      const response = await fetch('/api/music-lyria', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subjectName: name,
+          fusionSong,
+          productionPlan,
+          musicParameters,
+        }),
+      });
+      const data = await response.json() as LyriaGenerateResponse;
+
+      if (!response.ok || !data.audioBase64) {
+        setLyriaError([
+          data.error || 'Lyria 30 秒 MP3 生成失敗，請稍後再試。',
+          data.googleStatus ? `狀態：${data.googleStatus}` : '',
+          data.detail ? `原因：${data.detail}` : '',
+        ].filter(Boolean).join('\n'));
+        setLyriaPromptPreview(data.promptPreview || '');
+        return;
+      }
+
+      const mimeType = data.mimeType || 'audio/mpeg';
+      const blob = base64ToBlob(data.audioBase64, mimeType);
+      const url = URL.createObjectURL(blob);
+      lyriaAudioUrlRef.current = url;
+      setLyriaAudioUrl(url);
+      setLyriaFilename(data.filename || `天宿人格主題曲-${name || fusionSong.fusion_title}.mp3`);
+      setLyriaPromptPreview(data.promptPreview || '');
+      setLyriaLyricsText(data.lyricsText || '');
+    } catch {
+      setLyriaError('目前無法連線到 Lyria 生成服務，請稍後再試。');
+    } finally {
+      setLyriaLoading(false);
+    }
   }
 
   function handleCreateServicePackage() {
@@ -1087,8 +1176,62 @@ function IntegratedSongMaker({
           <div className="rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
             <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">專屬音樂預覽</p>
             <p className="text-sm leading-8 text-[color:var(--text-sub)]">
-              戴上耳機，先聽見根據你資料整理出的主題旋律。正式歌曲與人聲可在下一階段升級。
+              戴上耳機，先聽見根據你資料整理出的主題旋律。Lyria MP3 會依照這次的人格資料重新生成，不是共用 Demo。
             </p>
+            <div className="mt-4 rounded-[20px] border border-emerald-300/20 bg-emerald-950/10 p-4">
+              <p className="text-xs uppercase tracking-[0.25em] text-emerald-200/80">Lyria 正式 AI 生成</p>
+              <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
+                產生一首新的 30 秒 MP3，會使用 {name || '這位使用者'} 的天地人歌曲矩陣、歌詞、BPM、Key 與編曲方向。
+              </p>
+              <button
+                type="button"
+                onClick={handleGenerateLyriaMp3}
+                disabled={lyriaLoading}
+                className="mt-4 w-full rounded-full border border-emerald-300/25 bg-emerald-400/10 px-4 py-3 text-xs font-semibold tracking-[0.18em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15 disabled:cursor-wait disabled:opacity-60"
+              >
+                {lyriaLoading ? 'Lyria 正在生成 30 秒 MP3…' : lyriaAudioUrl ? '重新生成專屬 30 秒 MP3' : '生成專屬 30 秒 MP3'}
+              </button>
+              {lyriaError && (
+                <div className="mt-3 whitespace-pre-wrap rounded-2xl border border-rose-400/20 bg-rose-950/20 p-3 text-xs leading-6 text-rose-200">
+                  {lyriaError}
+                </div>
+              )}
+              {lyriaAudioUrl && (
+                <div className="mt-4 space-y-3">
+                  <audio controls src={lyriaAudioUrl} className="w-full">
+                    <track kind="captions" />
+                  </audio>
+                  <a
+                    href={lyriaAudioUrl}
+                    download={lyriaFilename || '天宿人格主題曲.mp3'}
+                    className="inline-flex w-full items-center justify-center rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-3 text-xs font-bold tracking-[0.18em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15"
+                  >
+                    下載 MP3
+                  </a>
+                  <p className="text-xs leading-6 text-emerald-100/75">
+                    這是 Lyria 依照本次人格音樂資料生成的 30 秒 MP3，檔案只保存在此瀏覽器記憶體中。
+                  </p>
+                </div>
+              )}
+              {lyriaPromptPreview && (
+                <details className="mt-3 rounded-2xl border border-white/10 bg-black/20 p-3">
+                  <summary className="cursor-pointer text-xs font-semibold tracking-[0.18em] text-[color:var(--text-muted)] transition hover:text-white">
+                    查看本次送入 Lyria 的個人化 Prompt
+                  </summary>
+                  {lyriaLyricsText && (
+                    <p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-emerald-100/75">{lyriaLyricsText}</p>
+                  )}
+                  <pre className="mt-3 max-h-[260px] overflow-auto whitespace-pre-wrap rounded-2xl border border-white/10 bg-black/30 p-3 font-mono text-[11px] leading-6 text-emerald-50/80">
+                    {lyriaPromptPreview}
+                  </pre>
+                </details>
+              )}
+            </div>
+            <div className="mt-4 rounded-[20px] border border-amber-300/15 bg-amber-950/10 p-4">
+              <p className="text-xs uppercase tracking-[0.25em] text-amber-300/70">工程級本地 WAV 預覽</p>
+              <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
+                這段是瀏覽器本地合成的旋律草稿，用來快速聽編曲骨架；上方 Lyria MP3 才是正式 AI 生成歌曲。
+              </p>
             <button
               type="button"
               onClick={handleGeneratePlayableDemo}
@@ -1106,6 +1249,7 @@ function IntegratedSongMaker({
                 </p>
               </div>
             )}
+            </div>
           </div>
 
           <details className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
@@ -1568,6 +1712,7 @@ export default function PersonalityMusicReport({
         productionPlan={productionPlan}
         musicParameters={musicParameters}
         songDrafts={songDrafts}
+        name={name}
         started={songMakerStarted}
         onStart={() => setSongMakerStarted(true)}
       />

@@ -6,6 +6,7 @@ import VisualGravityCore from '@/components/VisualGravityCore';
 import PersonalityMusicFlow, { type MusicFormData } from '@/components/PersonalityMusicFlow';
 import PersonalityMusicReport from '@/components/PersonalityMusicReport';
 import NextStepGuide from '@/components/NextStepGuide';
+import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 
 interface SongTrack {
   title: string;
@@ -322,6 +323,9 @@ export default function MusicSystemPage() {
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
       <div className="constellation-ring constellation-ring-top pointer-events-none z-0" />
       <div className="constellation-ring constellation-ring-bottom pointer-events-none z-0" />
+      <div className="relative z-30 mx-auto max-w-6xl px-4 pt-6">
+        <FeatureVisitorCounter featureKey="music" />
+      </div>
 
       {pageState === 'landing' && <LandingHero onStart={handleStart} />}
 

@@ -6,6 +6,7 @@ import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import { saveUserData, loadUserData } from '@/lib/storage';
+import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 
 interface PersonInput {
   name: string;
@@ -404,6 +405,7 @@ export default function MatchPage() {
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
 
       <main className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
+        <FeatureVisitorCounter featureKey="matching" className="mb-6" />
         <div className="mb-8 flex items-center gap-4">
           <Link href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
             ← 返回首頁

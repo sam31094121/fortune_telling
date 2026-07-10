@@ -14,9 +14,10 @@
     "share": "node scripts/share-tunnel.js"
   },
   "dependencies": {
-    "@google/genai": "^1.9.0",
+    "@google/genai": "^2.11.0",
+    "@supabase/supabase-js": "2.110.2",
     "@types/three": "^0.184.1",
-    "next": "^14.2.35",
+    "next": "15.5.20",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.184.0"

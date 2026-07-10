@@ -8,6 +8,8 @@ import NextStepGuide from '@/components/NextStepGuide';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { calculateZiweiMainStar } from '@/lib/ziwei-calculator';
+import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
+import { recoverFromChunkError } from '@/lib/chunk-recovery';
 
 // 時辰：null=未選（送出時自動採良辰吉時）、'unknown'=明確不知道、0–11=已選時辰
 type ShichenChoice = number | 'unknown' | null;
@@ -249,9 +251,8 @@ export default function InsightPage() {
   // 檢測 Fast Refresh 或 Chunk 載入錯誤，自動維修重新載入，防禦白屏
   useEffect(() => {
     const handleChunkError = (e: ErrorEvent) => {
-      if (e.message && (e.message.includes('Loading chunk') || e.message.includes('Cannot find module') || e.message.includes('webpack'))) {
+      if (e.message && recoverFromChunkError(e.message)) {
         console.warn('檢測到快取 Chunk 異常，正在自動維修重載網頁...', e);
-        window.location.reload();
       }
     };
     window.addEventListener('error', handleChunkError);
@@ -413,6 +414,7 @@ export default function InsightPage() {
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
 
       <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
+        <FeatureVisitorCounter featureKey="personality" className="mb-6" />
         <div className="mb-8 flex items-center gap-4">
           <Link href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
             ← 返回首頁

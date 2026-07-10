@@ -9,6 +9,8 @@ import NextStepGuide from '@/components/NextStepGuide';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { analyzeNumberFortune } from '@/lib/number-fortune';
+import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
+import { recoverFromChunkError } from '@/lib/chunk-recovery';
 
 interface PersonInput {
   name: string;
@@ -159,6 +161,8 @@ function NumberTicker({ value }: { value: number }) {
     const duration = 1000; // 1秒
     const startTime = performance.now();
 
+    let frameId = 0;
+
     function updateNumber(now: number) {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
@@ -166,11 +170,12 @@ function NumberTicker({ value }: { value: number }) {
       setCount(Math.floor(easeProgress * end));
 
       if (progress < 1) {
-        requestAnimationFrame(updateNumber);
+        frameId = requestAnimationFrame(updateNumber);
       }
     }
 
-    requestAnimationFrame(updateNumber);
+    frameId = requestAnimationFrame(updateNumber);
+    return () => cancelAnimationFrame(frameId);
   }, [value]);
 
   return <>{count}</>;
@@ -522,6 +527,9 @@ export default function HomePage() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
+  const repairTimerRef = useRef<number | null>(null);
+  const scrollFrameRef = useRef<number | null>(null);
+  const scrollVisibilityRef = useRef({ top: false, down: false });
 
   // 數字論吉凶 state 與處理函數
   const [fortuneNumber, setFortuneNumber] = useState('');
@@ -558,6 +566,8 @@ export default function HomePage() {
   const [showModalMegaMantra, setShowModalMegaMantra] = useState(false);
   const [showModalGreatMantra, setShowModalGreatMantra] = useState(false);
   const modalTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const modalAudioContextsRef = useRef<Set<AudioContext>>(new Set());
+  const modalAudioTimersRef = useRef<Set<number>>(new Set());
 
   const playModalBowlSound = (type: number) => {
     if (typeof window === 'undefined') return;
@@ -614,10 +624,26 @@ export default function HomePage() {
         gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 10.0);
       }
       gainNode.connect(ctx.destination);
+      modalAudioContextsRef.current.add(ctx);
+      const closeAfterMs = type === 1 ? 5_000 : type === 2 ? 6_000 : type === 3 ? 8_000 : 11_000;
+      const closeTimer = window.setTimeout(() => {
+        modalAudioTimersRef.current.delete(closeTimer);
+        modalAudioContextsRef.current.delete(ctx);
+        void ctx.close().catch(() => {});
+      }, closeAfterMs);
+      modalAudioTimersRef.current.add(closeTimer);
     } catch (e) {
       console.warn(e);
     }
   };
+
+  useEffect(() => () => {
+    if (modalTimerRef.current) clearTimeout(modalTimerRef.current);
+    modalAudioTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    modalAudioContextsRef.current.forEach((context) => void context.close().catch(() => {}));
+    modalAudioTimersRef.current.clear();
+    modalAudioContextsRef.current.clear();
+  }, []);
 
   const handleModalTaiChiClick = () => {
     if (showModalGreatMantra) return;
@@ -660,40 +686,39 @@ export default function HomePage() {
   const handleNumberFortune = () => {
     if (!fortuneNumber.trim()) return;
     setFortuneLoading(true);
-    setTimeout(() => {
+    try {
       const res = analyzeNumberFortune(fortuneNumber);
       setFortuneResult(res);
+    } finally {
       setFortuneLoading(false);
-    }, 800);
+    }
   };
 
   // 自動恢復器 (Auto-Watchdog)
   useEffect(() => {
     const handleGlobalError = (event: ErrorEvent | PromiseRejectionEvent) => {
-      const errorMsg = event instanceof ErrorEvent ? event.message : String(event.reason);
+      const errorMsg = event instanceof ErrorEvent
+        ? event.message
+        : event.reason instanceof Error
+          ? event.reason.message
+          : String(event.reason);
+      const normalizedError = errorMsg.toLowerCase();
       if (
-        errorMsg.includes('WebGL') ||
-        errorMsg.includes('AudioContext') ||
-        errorMsg.includes('Cannot read properties') ||
-        errorMsg.includes('null') ||
-        errorMsg.includes('undefined')
+        normalizedError.includes('webgl') ||
+        normalizedError.includes('context lost') ||
+        normalizedError.includes('device lost') ||
+        normalizedError.includes('audiocontext') ||
+        normalizedError.includes('audio context')
       ) {
+        if (repairTimerRef.current) return;
         console.warn('⚠️ [天宿自動恢復器] 偵測到螢幕或渲染層發生異常:', errorMsg);
         setShowRepairToast(true);
-        setTimeout(() => {
-          localStorage.clear();
-          setPersonA({ ...EMPTY, gender: 'female' });
-          setPersonB({ ...EMPTY, gender: 'male' });
-          setData(null);
-          setError('');
-          setLoading(false);
-          setFortuneNumber('');
-          setFortuneResult(null);
-          setIsFortuneModalOpen(false);
+        repairTimerRef.current = window.setTimeout(() => {
           window.dispatchEvent(new CustomEvent('reset-audio-context'));
           window.dispatchEvent(new CustomEvent('reset-celestial-mist'));
           setShowRepairToast(false);
-        }, 2500);
+          repairTimerRef.current = null;
+        }, 600);
       }
     };
     window.addEventListener('error', handleGlobalError);
@@ -701,6 +726,7 @@ export default function HomePage() {
     return () => {
       window.removeEventListener('error', handleGlobalError);
       window.removeEventListener('unhandledrejection', handleGlobalError);
+      if (repairTimerRef.current) window.clearTimeout(repairTimerRef.current);
     };
   }, []);
 
@@ -733,11 +759,18 @@ export default function HomePage() {
   useEffect(() => {
     const handleScroll = () => {
       // 往上回到頂部
-      if (window.scrollY > 400) {
-        setShowScrollTop(true);
-      } else {
-        setShowScrollTop(false);
-      }
+      if (scrollFrameRef.current !== null) return;
+      scrollFrameRef.current = requestAnimationFrame(() => {
+        const nextTop = window.scrollY > 400;
+        const nextDown = window.scrollY < 80;
+        const previous = scrollVisibilityRef.current;
+
+        if (previous.top !== nextTop) setShowScrollTop(nextTop);
+        if (previous.down !== nextDown) setShowScrollDown(nextDown);
+        scrollVisibilityRef.current = { top: nextTop, down: nextDown };
+        scrollFrameRef.current = null;
+      });
+      return;
 
       // 往下滾動引導
       if (window.scrollY < 80) {
@@ -747,8 +780,12 @@ export default function HomePage() {
         setShowScrollDown(false);
       }
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -771,9 +808,8 @@ export default function HomePage() {
   // 檢測 Fast Refresh 或 Chunk 載入錯誤，自動維修重新載入，防禦白屏
   useEffect(() => {
     const handleChunkError = (e: ErrorEvent) => {
-      if (e.message && (e.message.includes('Loading chunk') || e.message.includes('Cannot find module') || e.message.includes('webpack'))) {
+      if (e.message && recoverFromChunkError(e.message)) {
         console.warn('檢測到快取 Chunk 異常，正在自動維修重載網頁...', e);
-        window.location.reload();
       }
     };
     window.addEventListener('error', handleChunkError);
@@ -1112,7 +1148,8 @@ export default function HomePage() {
       )}
 
       <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
-        <div className="mb-8 flex items-center gap-4">
+        <FeatureVisitorCounter featureKey="home" className="mb-6" />
+        <div className="hidden mb-8 items-center gap-4">
           <span className="text-xs tracking-widest text-rose-300">// AI 靈魂配對</span>
           <span className="text-[color:var(--text-muted)]">·</span>
           <Link href="/music" className="text-xs tracking-widest text-violet-300/70 transition hover:text-violet-300">
@@ -1132,17 +1169,6 @@ export default function HomePage() {
             <h1 className="mystic-title mb-3 font-serif text-4xl leading-tight sm:text-6xl md:text-7xl">
               探索靈魂連結<br />與個人深度洞察
             </h1>
-            <div className="mt-6 space-y-4">
-              <p className="text-xl sm:text-2xl font-bold text-rose-300 tracking-wide">
-                AI 靈魂配對 — 分析相處節奏與互補點
-              </p>
-              <p className="text-xl sm:text-2xl font-bold text-violet-300 tracking-wide">
-                人格音樂 — 生成個人主題曲
-              </p>
-              <p className="text-xl sm:text-2xl font-bold text-amber-300 tracking-wide">
-                AI 深度洞察 — 全面分析性格與潛能
-              </p>
-            </div>
             <div className="mt-8">
               <button
                 type="button"
@@ -1172,8 +1198,107 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 頂部科技耀眼推廣橫幅 */}
-        <div className="mb-8 w-full">
+        {/* 頂部科技耀眼功能入口 */}
+        <div className="mb-8 w-full space-y-4">
+          <Link
+            href="/match"
+            className="w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-all duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+          >
+            {/* 炫光掃過特效 */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+
+            <div className="flex items-center gap-4.5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-rose-500/30 bg-rose-950/40 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.2)] animate-spin-slow">
+                <span className="text-2xl font-serif">☯️</span>
+              </div>
+              <div>
+                <span className="inline-block rounded-full bg-rose-500/10 border border-rose-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-rose-300 uppercase animate-pulse">
+                  AI · 靈魂雙星配對
+                </span>
+                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-rose-100 tracking-wide flex items-center gap-2">
+                  <span>AI 靈魂配對</span>
+                  <span className="text-xs font-sans text-rose-300 font-normal opacity-85 hidden sm:inline">
+                    // 雙人命盤 · 相處節奏 · 互補點分析
+                  </span>
+                </h2>
+                <p className="mt-1 text-xs text-[color:var(--text-sub)]">
+                  輸入兩位資料，分析相處頻率、吸引力、溝通模式與命定互補關係。
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 px-5 py-3 text-xs font-bold text-rose-200 transition group-hover:bg-rose-500/25">
+              <span>立即開啟配對</span>
+              <span className="transition-transform group-hover:translate-x-1.5">➜</span>
+            </div>
+          </Link>
+
+          <Link
+            href="/music"
+            className="w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+          >
+            {/* 炫光掃過特效 */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+
+            <div className="flex items-center gap-4.5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-violet-500/30 bg-violet-950/40 text-violet-300 shadow-[0_0_15px_rgba(139,92,246,0.2)] animate-spin-slow">
+                <span className="text-2xl font-serif">♪</span>
+              </div>
+              <div>
+                <span className="inline-block rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-violet-300 uppercase animate-pulse">
+                  AI · 人格聲波合成
+                </span>
+                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-violet-100 tracking-wide flex items-center gap-2">
+                  <span>人格音樂</span>
+                  <span className="text-xs font-sans text-violet-300 font-normal opacity-85 hidden sm:inline">
+                    // 命理頻率 · 音樂人格 · 主題曲生成
+                  </span>
+                </h2>
+                <p className="mt-1 text-xs text-[color:var(--text-sub)]">
+                  將生日、血型與人格矩陣轉譯成專屬音樂風格、旋律敘事與靈魂主題曲。
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-950/30 px-5 py-3 text-xs font-bold text-violet-200 transition group-hover:bg-violet-500/25">
+              <span>立即開啟音樂</span>
+              <span className="transition-transform group-hover:translate-x-1.5">➜</span>
+            </div>
+          </Link>
+
+          <Link
+            href="/insight"
+            className="w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+          >
+            {/* 炫光掃過特效 */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+
+            <div className="flex items-center gap-4.5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-950/40 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)] animate-spin-slow">
+                <span className="text-2xl font-serif">✦</span>
+              </div>
+              <div>
+                <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-300 uppercase animate-pulse">
+                  AI · 深度命格洞察
+                </span>
+                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-amber-100 tracking-wide flex items-center gap-2">
+                  <span>AI 深度洞察</span>
+                  <span className="text-xs font-sans text-amber-300 font-normal opacity-85 hidden sm:inline">
+                    // 性格潛能 · 紫微星曜 · 大數據解析
+                  </span>
+                </h2>
+                <p className="mt-1 text-xs text-[color:var(--text-sub)]">
+                  整合命理、心理與統計模型，生成個人性格、潛能與人生節奏分析。
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/30 px-5 py-3 text-xs font-bold text-amber-200 transition group-hover:bg-amber-500/25">
+              <span>立即開啟洞察</span>
+              <span className="transition-transform group-hover:translate-x-1.5">➜</span>
+            </div>
+          </Link>
+
           <button
             type="button"
             onClick={() => setIsFortuneModalOpen(true)}
@@ -1221,7 +1346,7 @@ export default function HomePage() {
             ) : (
               <div id="step-entry" className="space-y-6 scroll-mt-20">
                 <div className="flex justify-between items-center gap-4 mb-4 flex-wrap">
-                  <div className="flex items-center gap-2.5 flex-wrap">
+                  <div className="hidden items-center gap-2.5 flex-wrap">
                     <button
                       type="button"
                       onClick={() => setIsFortuneModalOpen(true)}
@@ -1673,6 +1798,7 @@ export default function HomePage() {
             {/* 已解鎖時顯示的 VIP 聲學與天命報告 */}
             {data?.karma_story && isUnlocked && (
               <div className="space-y-6 animate-rise">
+                <FeatureVisitorCounter featureKey="karma" />
                 {/* 聲學音樂適配區 (動態跳動頻譜) */}
                 <div className="fortune-card vip-gold-card p-6 sm:p-8 relative overflow-hidden">
                   <div className="absolute right-6 top-6 flex items-center gap-2">
@@ -1946,6 +2072,8 @@ export default function HomePage() {
               </p>
             </div>
 
+            <FeatureVisitorCounter featureKey="number" className="mb-6" />
+
             <div className="flex flex-col gap-3 sm:flex-row">
               <input
                 type="text"
@@ -1984,6 +2112,7 @@ export default function HomePage() {
 
             {fortuneResult && !fortuneLoading && (
               <div className="mt-6 rounded-2xl border border-cyan-500/25 bg-cyan-950/20 p-5 space-y-4 animate-fade-in font-sans">
+                <FeatureVisitorCounter featureKey="iching" className="mb-4" />
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-semibold text-cyan-200">
                     解碼對象：<span className="text-base text-cyan-100 font-mono font-bold">{fortuneResult.number}</span>

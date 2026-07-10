@@ -5,8 +5,10 @@
 
 export function injectPerformanceCSS() {
   if (typeof document === 'undefined') return;
+  if (document.getElementById('tian-su-performance-css')) return;
 
   const style = document.createElement('style');
+  style.id = 'tian-su-performance-css';
   style.textContent = `
     /* 為 Three.js Canvas 啟用 GPU 加速 */
     canvas {
