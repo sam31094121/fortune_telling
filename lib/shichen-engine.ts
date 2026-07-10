@@ -75,6 +75,10 @@ export function shichenFromClockHour(hour24: number): number {
 // ─── 八字日柱（儒略日推算）────────────────────────────────────
 /** 公曆 (年, 月, 日) → 正午儒略日 JDN（標準公式）。 */
 export function julianDayNumber(year: number, month: number, day: number): number {
+  if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
+    // 降級退回 2000-01-07 (儒略日 2451551)
+    return 2451551;
+  }
   const a = Math.floor((14 - month) / 12);
   const y = year + 4800 - a;
   const m = month + 12 * a - 3;
@@ -89,13 +93,16 @@ export function julianDayNumber(year: number, month: number, day: number): numbe
   );
 }
 
-/**
- * 公曆日期 → 日柱干支序（0=甲子 … 59=癸亥）。
- * 校準錨：2000-01-07 為甲子日（JDN 2451551 → 序 0）。
- * 公式：dayIndex = (JDN - 11) mod 60。
- */
 export function getDayPillarIndex(birthDate: string): number {
-  const [y, m, d] = birthDate.split('-').map((v) => parseInt(v, 10));
+  if (!birthDate || typeof birthDate !== 'string') {
+    return 0; // 甲子日
+  }
+  const parts = birthDate.split('-');
+  if (parts.length !== 3) return 0;
+  const [y, m, d] = parts.map((v) => parseInt(v, 10));
+  if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) {
+    return 0;
+  }
   const jdn = julianDayNumber(y, m, d);
   return (((jdn - 11) % 60) + 60) % 60;
 }
