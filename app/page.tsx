@@ -529,6 +529,112 @@ export default function HomePage() {
   const [fortuneLoading, setFortuneLoading] = useState(false);
   const [isFortuneModalOpen, setIsFortuneModalOpen] = useState(false);
 
+  // Modal 太極點擊彩蛋 States & Audio
+  const [modalTapCount, setModalTapCount] = useState(0);
+  const [showModalMantra, setShowModalMantra] = useState(false);
+  const [showModalSuperMantra, setShowModalSuperMantra] = useState(false);
+  const [showModalMegaMantra, setShowModalMegaMantra] = useState(false);
+  const [showModalGreatMantra, setShowModalGreatMantra] = useState(false);
+  const modalTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const playModalBowlSound = (type: number) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const gainNode = ctx.createGain();
+      gainNode.gain.setValueAtTime(0, ctx.currentTime);
+      
+      if (type === 1) {
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        osc1.frequency.setValueAtTime(292, ctx.currentTime);
+        osc2.frequency.setValueAtTime(292 * 1.52, ctx.currentTime);
+        osc1.connect(gainNode); osc2.connect(gainNode);
+        gainNode.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 4.5);
+        osc1.start(); osc2.start();
+        osc1.stop(ctx.currentTime + 4.8); osc2.stop(ctx.currentTime + 4.8);
+      } else if (type === 2) {
+        const oscLow = ctx.createOscillator();
+        const oscHigh = ctx.createOscillator();
+        oscLow.frequency.setValueAtTime(144, ctx.currentTime);
+        oscHigh.frequency.setValueAtTime(432, ctx.currentTime);
+        oscLow.connect(gainNode); oscHigh.connect(gainNode);
+        gainNode.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 5.5);
+        oscLow.start(); oscHigh.start();
+        oscLow.stop(ctx.currentTime + 5.8); oscHigh.stop(ctx.currentTime + 5.8);
+      } else if (type === 3) {
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const osc3 = ctx.createOscillator();
+        osc1.frequency.setValueAtTime(144, ctx.currentTime);
+        osc2.frequency.setValueAtTime(292, ctx.currentTime);
+        osc3.frequency.setValueAtTime(528, ctx.currentTime);
+        osc1.connect(gainNode); osc2.connect(gainNode); osc3.connect(gainNode);
+        gainNode.gain.linearRampToValueAtTime(0.8, ctx.currentTime + 0.04);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 7.5);
+        osc1.start(); osc2.start(); osc3.start();
+        osc1.stop(ctx.currentTime + 7.8); osc2.stop(ctx.currentTime + 7.8); osc3.stop(ctx.currentTime + 7.8);
+      } else {
+        const frequencies = [108, 216, 432, 528, 999];
+        frequencies.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          osc.type = idx === 4 ? 'triangle' : 'sine';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          osc.connect(gainNode);
+          osc.start();
+          osc.stop(ctx.currentTime + 10.5);
+        });
+        gainNode.gain.linearRampToValueAtTime(1.0, ctx.currentTime + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 10.0);
+      }
+      gainNode.connect(ctx.destination);
+    } catch (e) {
+      console.warn(e);
+    }
+  };
+
+  const handleModalTaiChiClick = () => {
+    if (showModalGreatMantra) return;
+    setModalTapCount((prev) => {
+      const next = prev + 1;
+      if (modalTimerRef.current) clearTimeout(modalTimerRef.current);
+      modalTimerRef.current = setTimeout(() => {
+        setModalTapCount(0);
+      }, 8000);
+
+      if (next === 3) {
+        setShowModalMantra(true);
+        playModalBowlSound(1);
+        setTimeout(() => setShowModalMantra(false), 5200);
+      } else if (next === 6) {
+        setShowModalMantra(false);
+        setShowModalSuperMantra(true);
+        playModalBowlSound(2);
+        setTimeout(() => setShowModalSuperMantra(false), 6500);
+      } else if (next === 12) {
+        setShowModalMantra(false);
+        setShowModalSuperMantra(false);
+        setShowModalMegaMantra(true);
+        playModalBowlSound(3);
+        setTimeout(() => setShowModalMegaMantra(false), 8000);
+      } else if (next === 24) {
+        if (modalTimerRef.current) clearTimeout(modalTimerRef.current);
+        setModalTapCount(0);
+        setShowModalMantra(false);
+        setShowModalSuperMantra(false);
+        setShowModalMegaMantra(false);
+        setShowModalGreatMantra(true);
+        playModalBowlSound(4);
+        setTimeout(() => setShowModalGreatMantra(false), 11000);
+      }
+      return next;
+    });
+  };
+
   const handleNumberFortune = () => {
     if (!fortuneNumber.trim()) return;
     setFortuneLoading(true);
@@ -1006,6 +1112,43 @@ export default function HomePage() {
             <VisualGravityCore />
           </div>
         </section>
+
+        {/* 頂部科技耀眼推廣橫幅 */}
+        <div className="mb-8 w-full">
+          <button
+            type="button"
+            onClick={() => setIsFortuneModalOpen(true)}
+            className="w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-all duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+          >
+            {/* 炫光掃過特效 */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+            
+            <div className="flex items-center gap-4.5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.2)] animate-spin-slow">
+                <span className="text-2xl font-serif">☯️</span>
+              </div>
+              <div>
+                <span className="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse">
+                  NEW · 零開銷即時解碼
+                </span>
+                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-100 tracking-wide flex items-center gap-2">
+                  <span>天宿數字吉凶解碼艙</span>
+                  <span className="text-xs font-sans text-cyan-300 font-normal opacity-85 hidden sm:inline">
+                    // 手機後四碼 · 車牌 · 幸運數字吉凶對齊
+                  </span>
+                </h2>
+                <p className="mt-1 text-xs text-[color:var(--text-sub)]">
+                  融合八十一數理靈動數與易經梅花拆分起卦，不需填寫隱私生日，即刻測試數字能量。
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-200 transition group-hover:bg-cyan-500/25">
+              <span>立即開啟解碼艙</span>
+              <span className="transition-transform group-hover:translate-x-1.5">➜</span>
+            </div>
+          </button>
+        </div>
 
         {!data && (
           <div className="space-y-6">
@@ -1676,6 +1819,43 @@ export default function HomePage() {
               ✕
             </button>
 
+            {/* Modal 頂部立體優美太極圖案 (升級版) - 帶點擊爆發音效與大悲咒彩蛋功能 */}
+            <div className="flex justify-center mb-5">
+              <button
+                type="button"
+                onClick={handleModalTaiChiClick}
+                className="relative w-24 h-24 rounded-full border border-cyan-500/30 bg-slate-950/80 shadow-[0_0_20px_rgba(34,211,238,0.2)] flex items-center justify-center overflow-hidden group cursor-pointer transition active:scale-95"
+                title="點擊敲擊法磬，叩問天意 (連點 3/6/12/24 次觸發天宿彩蛋)"
+              >
+                {/* 3D 邊框旋轉氣流 */}
+                <div className="absolute inset-0 border border-dashed border-cyan-500/20 rounded-full animate-spin-slow group-hover:border-cyan-400 group-hover:scale-105 transition-all duration-700" />
+                <div className="absolute inset-1.5 border border-dotted border-amber-500/20 rounded-full animate-[spin_12s_linear_infinite] reverse" />
+                
+                {/* 核心立體太極圖 (雙魚立體陰陽) */}
+                <div className={`w-14 h-14 rounded-full relative overflow-hidden shadow-inner border border-white/10 ${
+                  fortuneLoading || modalTapCount > 0 ? 'animate-[spin_1.2s_linear_infinite]' : 'animate-spin-slow'
+                }`}>
+                  {/* 左半邊陽 (白) */}
+                  <div className="absolute top-0 left-0 w-7 h-14 bg-gradient-to-b from-slate-100 to-slate-200 rounded-l-full" />
+                  {/* 右半邊陰 (黑) */}
+                  <div className="absolute top-0 right-0 w-7 h-14 bg-gradient-to-b from-slate-950 to-slate-900 rounded-r-full" />
+                  
+                  {/* 上魚眼 (陽中有陰) */}
+                  <div className="absolute top-0 left-3.5 w-7 h-7 bg-gradient-to-b from-slate-100 to-slate-200 rounded-full flex items-center justify-center">
+                    <div className="w-2 h-2 bg-gradient-to-b from-slate-950 to-slate-900 rounded-full shadow" />
+                  </div>
+                  
+                  {/* 下魚眼 (陰中有陽) */}
+                  <div className="absolute bottom-0 left-3.5 w-7 h-7 bg-gradient-to-b from-slate-950 to-slate-900 rounded-full flex items-center justify-center">
+                    <div className="w-2 h-2 bg-gradient-to-b from-slate-100 to-slate-200 rounded-full shadow" />
+                  </div>
+                </div>
+
+                {/* 外圈散發的五行極光粒子 */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-cyan-500/5 via-violet-500/5 to-amber-500/5 mix-blend-screen pointer-events-none" />
+              </button>
+            </div>
+
             <div className="mb-6">
               <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">☯️ 天宿數理神數</p>
               <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">數字吉凶解碼艙</h3>
@@ -1701,6 +1881,24 @@ export default function HomePage() {
                 {fortuneLoading ? '解碼中...' : '開始吉凶解碼'}
               </button>
             </div>
+
+            {fortuneLoading && (
+              <div className="mt-6 rounded-2xl border border-cyan-500/25 bg-cyan-950/20 p-5 space-y-3 animate-pulse font-mono">
+                <div className="flex justify-between text-xs text-cyan-300 font-bold">
+                  <span>🛰️ 正在連結天宿數理中樞...</span>
+                  <span className="animate-bounce">80%</span>
+                </div>
+                <div className="w-full h-1.5 bg-cyan-950 rounded-full overflow-hidden border border-cyan-500/10">
+                  <div className="h-full bg-gradient-to-r from-cyan-500 via-amber-400 to-cyan-500 w-4/5 animate-[grow-x_1.5s_infinite]" />
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-[10px] text-cyan-400/70">
+                  <div>[STATUS] ALIGNING QUANTUM MATRIX</div>
+                  <div className="text-right">[STABILITY] 100% OK</div>
+                  <div>[METHOD] I-CHING HEXAGRAM CALC</div>
+                  <div className="text-right">[TARGET] {fortuneNumber}</div>
+                </div>
+              </div>
+            )}
 
             {fortuneResult && !fortuneLoading && (
               <div className="mt-6 rounded-2xl border border-cyan-500/25 bg-cyan-950/20 p-5 space-y-4 animate-fade-in font-sans">
@@ -1741,9 +1939,69 @@ export default function HomePage() {
                 </div>
               </div>
             )}
+
+            {/* 唵嘛念叭咪吽 (3點擊) */}
+            {showModalMantra && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none bg-cyan-950/20 backdrop-blur-[2px] rounded-3xl animate-fade-in">
+                <span className="text-amber-300 text-3xl font-serif font-black tracking-widest animate-pulse drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]">
+                  唵 嘛 呢 叭 咪 吽
+                </span>
+                <span className="text-xs text-amber-200/70 mt-2 font-mono">// 觀音大明六字大白傘蓋守護</span>
+              </div>
+            )}
+
+            {/* 大悲咒初照 (6點擊) */}
+            {showModalSuperMantra && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none bg-violet-950/20 backdrop-blur-[3px] rounded-3xl animate-fade-in">
+                <span className="text-cyan-200 text-2xl font-serif font-black tracking-[0.2em] text-center max-w-md px-6 leading-10 drop-shadow-[0_0_15px_rgba(34,211,238,0.8)]">
+                  南無喝囉怛那哆囉夜耶 · 南無阿唎耶
+                </span>
+                <span className="text-xs text-cyan-300/70 mt-3 font-mono">// 大悲法水淨化 · 時空命盤調諧中</span>
+              </div>
+            )}
+
+            {/* 佛光普照 (12點擊) */}
+            {showModalMegaMantra && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none bg-slate-950/30 backdrop-blur-[4px] rounded-3xl animate-fade-in">
+                <span className="text-amber-200 text-3xl font-serif font-black tracking-widest text-center animate-bounce drop-shadow-[0_0_20px_rgba(251,191,36,0.9)]">
+                  ✨ 萬丈佛光普照 ✨
+                </span>
+                <span className="text-xs text-amber-300/80 mt-3 font-mono max-w-xs text-center leading-5">
+                  五行圓融，天宿齊鳴。今生善因在此匯聚。
+                </span>
+              </div>
+            )}
+
+            {/* 萬佛朝宗大悲咒 (24點擊) */}
+            {showModalGreatMantra && (
+              <div className="absolute inset-0 z-25 flex flex-col items-center justify-center pointer-events-none bg-amber-950/40 backdrop-blur-[5px] rounded-3xl animate-[rise-in_0.6s_ease-out]">
+                <div className="text-center space-y-4 px-6">
+                  <h4 className="text-amber-300 text-4xl font-serif font-black tracking-[0.3em] drop-shadow-[0_0_25px_rgba(251,191,36,1.0)] animate-pulse">
+                    卍 萬佛朝宗大悲咒 卍
+                  </h4>
+                  <p className="text-[10px] text-amber-100/90 leading-6 font-serif max-w-lg mx-auto">
+                    婆盧吉帝室佛囉楞馱婆 · 南無那囉謹墀 · 醯利摩訶皤哆沙咩 · 薩婆阿他豆輸朋
+                  </p>
+                  <p className="text-xs text-amber-400 font-bold tracking-widest animate-pulse mt-2">
+                    ☯️ 天地人八格功德圓滿 · 因果業障退散 ☯️
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
+
+      {/* 懸浮霓虹解碼球 (Floating Cybernetic Badge) */}
+      <button
+        type="button"
+        onClick={() => setIsFortuneModalOpen(true)}
+        className="fixed bottom-24 right-6 z-40 flex h-14 w-14 flex-col items-center justify-center rounded-full border border-cyan-500/40 bg-slate-950/90 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-300 hover:scale-110 hover:border-cyan-300 hover:text-cyan-200 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 animate-pulse cursor-pointer group"
+        aria-label="數字吉凶"
+      >
+        <span className="text-xl group-hover:rotate-180 transition-transform duration-500">☯️</span>
+        <span className="text-[9px] font-bold tracking-tighter mt-0.5 scale-90">數理</span>
+      </button>
     </div>
   );
 }
