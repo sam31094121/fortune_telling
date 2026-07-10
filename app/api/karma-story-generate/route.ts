@@ -12,6 +12,24 @@ import {
 } from '@/lib/karma-story-philosophy';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
+const ipCache = new Map<string, { count: number; resetTime: number }>();
+const responseCache = new Map<string, { result: unknown; expireTime: number }>();
+
+function cleanCaches() {
+  const now = Date.now();
+  if (ipCache.size > 200) {
+    for (const [key, val] of ipCache.entries()) {
+      if (now > val.resetTime) ipCache.delete(key);
+    }
+  }
+  if (responseCache.size > 200) {
+    for (const [key, val] of responseCache.entries()) {
+      if (now > val.expireTime) responseCache.delete(key);
+    }
+  }
+}
 
 interface PersonInput {
   name: string;
@@ -234,6 +252,11 @@ async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
 5. 故事的高潮必須在「${storyContext.storyTwist}」這一刻達到。
 6. 收尾要充滿希望和愛意。
 
+=== JSON 安全格式與轉義鐵律 ===
+1. 輸出必須是合法的 JSON，只回傳 JSON 物件，不准包裹任何 markdown 語法外殼。
+2. ⚠️【禁止內部雙引號】：絕對不准在 JSON 值（value）的文字內容內部使用任何「雙引號（"）」。如果你需要引用，請一律使用「單引號（'）」或是「書名號（《》）」。例如：不准寫 "summary": "他是 "守護之債"..."，必須寫成 "summary": "他是 '守護之債'..."。
+3. ⚠️【換行轉義】：絕對不准在值內包含實體換行鍵。所有的換行必須使用 '\\n' 進行轉義。
+
 請輸出以下結構的 JSON（僅JSON，無其他文字）：
 {
   "resonance_score": ${relationshipMatrix.overallResonance},
@@ -270,7 +293,11 @@ function getFallbackKarmaStory(body: KarmaRequest): KarmaStory {
       genai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        config: { maxOutputTokens: 1500, temperature: 0.7 },
+        config: {
+          maxOutputTokens: 1800,
+          temperature: 0.7,
+          responseMimeType: 'application/json',
+        },
       }),
       new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Gemini timeout')), 15_000);
@@ -283,11 +310,7 @@ function getFallbackKarmaStory(body: KarmaRequest): KarmaStory {
     }
 
     try {
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('No JSON found in response');
-      }
-      const result = JSON.parse(jsonMatch[0]) as KarmaStory;
+      const result = JSON.parse(text) as KarmaStory;
       return result;
     } catch (parseError) {
       console.warn('[karma-story] JSON parse failed, triggering fallback parser:', parseError);
@@ -300,6 +323,21 @@ function getFallbackKarmaStory(body: KarmaRequest): KarmaStory {
 }
 
 export async function POST(request: Request) {
+  const now = Date.now();
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown_ip';
+
+  cleanCaches();
+
+  const limitRecord = ipCache.get(ip);
+  if (limitRecord && now < limitRecord.resetTime) {
+    if (limitRecord.count >= 5) {
+      return NextResponse.json({ error: '請求過於頻繁，請稍後再試。' }, { status: 429 });
+    }
+    limitRecord.count += 1;
+  } else {
+    ipCache.set(ip, { count: 1, resetTime: now + 60_000 });
+  }
+
   try {
     const body = (await request.json()) as KarmaRequest;
 
@@ -310,7 +348,22 @@ export async function POST(request: Request) {
       );
     }
 
+    const cacheKey = [
+      body.personA.name.trim(),
+      body.personA.birthDate,
+      body.personA.bloodType,
+      body.personB.name.trim(),
+      body.personB.birthDate,
+      body.personB.bloodType,
+    ].join('|');
+
+    const cached = responseCache.get(cacheKey);
+    if (cached && now < cached.expireTime) {
+      return NextResponse.json({ karma_story: cached.result }, { status: 200 });
+    }
+
     const karmaStory = await generateKarmaStory(body);
+    responseCache.set(cacheKey, { result: karmaStory, expireTime: now + 300_000 });
 
     return NextResponse.json({ karma_story: karmaStory });
   } catch (error) {

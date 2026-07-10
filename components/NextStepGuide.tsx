@@ -24,7 +24,7 @@ const SYSTEMS: Record<SystemKey, SystemMeta> = {
     tone: 'violet',
   },
   match: {
-    href: '/',
+    href: '/match',
     emoji: '💕',
     title: '緣分配對',
     desc: '輸入兩個人的資料，看你們的人格契合度與相處之道。',

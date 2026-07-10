@@ -89,13 +89,21 @@ function validate(body: unknown): string | null {
 }
 
 const ipCache = new Map<string, { count: number; resetTime: number }>();
+const responseCache = new Map<string, { result: unknown; expireTime: number }>();
 
-function cleanIpCache() {
+function cleanCaches() {
   const now = Date.now();
   if (ipCache.size > 200) {
     for (const [key, val] of ipCache.entries()) {
       if (now > val.resetTime) {
         ipCache.delete(key);
+      }
+    }
+  }
+  if (responseCache.size > 200) {
+    for (const [key, val] of responseCache.entries()) {
+      if (now > val.expireTime) {
+        responseCache.delete(key);
       }
     }
   }
@@ -105,7 +113,7 @@ export async function POST(request: Request) {
   const now = Date.now();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
   
-  cleanIpCache();
+  cleanCaches();
   
   const record = ipCache.get(ip);
 
@@ -128,6 +136,20 @@ export async function POST(request: Request) {
   const errMsg = validate(body);
   if (errMsg) {
     return NextResponse.json({ error: errMsg }, { status: 400 });
+  }
+
+  const cacheKey = [
+    body.birthDate,
+    body.bloodType,
+    body.name.trim(),
+    body.gender,
+    body.shichen !== undefined && body.shichen !== null ? String(body.shichen) : 'null',
+    (body.voiceCharacteristics || []).join(','),
+  ].join('|');
+
+  const cached = responseCache.get(cacheKey);
+  if (cached && now < cached.expireTime) {
+    return NextResponse.json(cached.result, { status: 200 });
   }
 
   try {
@@ -245,57 +267,60 @@ export async function POST(request: Request) {
     fusionSong,
   });
 
-    return NextResponse.json({
-    personality_matrix: personalityMatrix,
-    music_parameters: finalMusicParameters,
-    music_report: musicReport,
-    song_drafts: songDrafts,
-    fusion_song: fusionSong,
-    production_plan: productionPlan,
-    english_track: {
-      title: englishTrack.title,
-      artist: englishTrack.artist,
-      videoId: englishTrack.videoId,
-    },
-    mandarin_track: mandarinTrack
-      ? { title: mandarinTrack.title, artist: mandarinTrack.artist, videoId: mandarinTrack.videoId }
-      : null,
-    taiwanese_track: taiwaneseTrack
-      ? { title: taiwaneseTrack.title, artist: taiwaneseTrack.artist, videoId: taiwaneseTrack.videoId }
-      : null,
-    meta: {
-      eraDisplayName,
-      zodiac: zodiacZh,
-      era,
-      wuxing: destinyProfile.dominantWuxing,
-      wuxingColor: destinyProfile.wuxingProfile.color,
-      chineseZodiac: destinyProfile.chineseZodiac,
-      heavenlyStem: destinyProfile.heavenlyStem,
-      archetype: archetype.zh,
-      archetypeSymbol: archetype.symbol,
-      archetypeEn: archetype.en,
-      archetypeDescription: archetype.description,
-      archetypeMusicPersona: archetype.musicPersona,
-      archetypeShadow: archetype.shadowSide,
-      archetypeCoreWound: archetype.coreWound,
-      archetypeCoreGift: archetype.coreGift,
-      archetypeLifeLesson: archetype.lifeLesson,
-      archetypeShadowIntegration: archetype.shadowIntegration,
-      archetypeSecondary: archetypeSecondary.zh,
-      archetypeSecondarySymbol: archetypeSecondary.symbol,
-      ocean,
-      shichen: {
-        isKnown: shichenProfile.isKnown,
-        label: shichenProfile.shichen.label,
-        range: shichenProfile.shichen.range,
-        branch: shichenProfile.shichen.branch,
-        wuxing: shichenProfile.wuxing,
-        dayPillar: shichenProfile.dayPillar,
-        hourPillar: shichenProfile.hourPillar.ganzhi,
-        friendlyNote: shichenProfile.friendlyNote,
+    const resultPayload = {
+      personality_matrix: personalityMatrix,
+      music_parameters: finalMusicParameters,
+      music_report: musicReport,
+      song_drafts: songDrafts,
+      fusion_song: fusionSong,
+      production_plan: productionPlan,
+      english_track: {
+        title: englishTrack.title,
+        artist: englishTrack.artist,
+        videoId: englishTrack.videoId,
       },
-    },
-    });
+      mandarin_track: mandarinTrack
+        ? { title: mandarinTrack.title, artist: mandarinTrack.artist, videoId: mandarinTrack.videoId }
+        : null,
+      taiwanese_track: taiwaneseTrack
+        ? { title: taiwaneseTrack.title, artist: taiwaneseTrack.artist, videoId: taiwaneseTrack.videoId }
+        : null,
+      meta: {
+        eraDisplayName,
+        zodiac: zodiacZh,
+        era,
+        wuxing: destinyProfile.dominantWuxing,
+        wuxingColor: destinyProfile.wuxingProfile.color,
+        chineseZodiac: destinyProfile.chineseZodiac,
+        heavenlyStem: destinyProfile.heavenlyStem,
+        archetype: archetype.zh,
+        archetypeSymbol: archetype.symbol,
+        archetypeEn: archetype.en,
+        archetypeDescription: archetype.description,
+        archetypeMusicPersona: archetype.musicPersona,
+        archetypeShadow: archetype.shadowSide,
+        archetypeCoreWound: archetype.coreWound,
+        archetypeCoreGift: archetype.coreGift,
+        archetypeLifeLesson: archetype.lifeLesson,
+        archetypeShadowIntegration: archetype.shadowIntegration,
+        archetypeSecondary: archetypeSecondary.zh,
+        archetypeSecondarySymbol: archetypeSecondary.symbol,
+        ocean,
+        shichen: {
+          isKnown: shichenProfile.isKnown,
+          label: shichenProfile.shichen.label,
+          range: shichenProfile.shichen.range,
+          branch: shichenProfile.shichen.branch,
+          wuxing: shichenProfile.wuxing,
+          dayPillar: shichenProfile.dayPillar,
+          hourPillar: shichenProfile.hourPillar.ganzhi,
+          friendlyNote: shichenProfile.friendlyNote,
+        },
+      },
+    };
+
+    responseCache.set(cacheKey, { result: resultPayload, expireTime: now + 300_000 });
+    return NextResponse.json(resultPayload);
   } catch (error) {
     console.error('[music-generate] request failed', error);
     return NextResponse.json({ error: '音樂人格分析暫時無法完成，請稍後再試。' }, { status: 500 });

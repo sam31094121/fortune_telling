@@ -136,7 +136,11 @@ async function enhanceMatchResultWithAI(
 1. 必須將原始各點改寫融入「雙方姓名、星座、生肖或血型五行」的特性（例如：星座配對、五行相生相剋、或生肖相合）。
 2. 四大關係象限（共鳴、互補、磨合、衝突）中，每一區請生成 1 到 2 條全新、扎心、個性化的合盤指點（每條請控制在 25 字內，切忌空洞泛泛的讚美，多說有用的修行相處建議）。
 3. 摘要 summary 請控制在 120 字內的一段話，語氣高冷犀利、字字點中要害，直接點破相處關卡。
-4. 必須以 JSON 格式回覆，不含任何外部 markdown 包裝，格式必須嚴格為：
+4. ⚠️【JSON 安全與轉義鐵律】：
+   - 輸出必須是合法的 JSON。
+   - 絕對不准在 JSON 值（value）的文字內容內部使用任何「雙引號（"）」。若需使用引用，請一律使用「單引號（'）」或「書名號（《》）」。
+   - 絕對不准在值內包含實體換行鍵。所有的換行必須使用 '\\n' 進行轉義。
+5. 必須以 JSON 格式回覆，不含任何外部 markdown 包裝，格式必須嚴格為：
 {
   "summary": "改寫後的摘要",
   "resonance": ["改寫後共鳴 1", "改寫後共鳴 2"],
@@ -154,7 +158,7 @@ async function enhanceMatchResultWithAI(
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         config: {
           responseMimeType: 'application/json',
-          maxOutputTokens: 800,
+          maxOutputTokens: 1500,
           temperature: 0.35
         },
       }),
