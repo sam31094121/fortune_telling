@@ -260,6 +260,31 @@ export default function VisualGravityCore() {
   };
 
   useEffect(() => {
+    const handleResetAudio = () => {
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+        audioCtxRef.current = null;
+      }
+    };
+    window.addEventListener('reset-audio-context', handleResetAudio);
+
+    const handleResetMist = () => {
+      const existingMist = orbitLayer.querySelector('.taiji-celestial-mist');
+      if (existingMist) {
+        existingMist.remove();
+      }
+      const newMist = document.createElement('div');
+      newMist.className = 'taiji-celestial-mist';
+      newMist.setAttribute('aria-hidden', 'true');
+      newMist.innerHTML = `
+        <span class="taiji-celestial-wisp taiji-celestial-wisp--one"></span>
+        <span class="taiji-celestial-wisp taiji-celestial-wisp--two"></span>
+        <span class="taiji-celestial-wisp taiji-celestial-wisp--three"></span>
+      `;
+      orbitLayer.appendChild(newMist);
+    };
+    window.addEventListener('reset-celestial-mist', handleResetMist);
+
     const mount = mountRef.current;
     if (!mount) return;
     const container: HTMLDivElement = mount;
@@ -970,6 +995,8 @@ export default function VisualGravityCore() {
       cancelled = true;
       cancelAnimationFrame(animId);
       if (resizeFn) window.removeEventListener("resize", resizeFn);
+      window.removeEventListener('reset-audio-context', handleResetAudio);
+      window.removeEventListener('reset-celestial-mist', handleResetMist);
       // Remove all canvases including stale ones from HMR
       Array.from(container.querySelectorAll("canvas")).forEach(c => c.remove());
       orbitLayer.remove();

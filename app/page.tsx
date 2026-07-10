@@ -529,6 +529,28 @@ export default function HomePage() {
   const [fortuneLoading, setFortuneLoading] = useState(false);
   const [isFortuneModalOpen, setIsFortuneModalOpen] = useState(false);
 
+  // 系統自我修復 States & Handler
+  const [showRepairToast, setShowRepairToast] = useState(false);
+  const handleSystemSelfRepair = () => {
+    try {
+      localStorage.clear();
+      window.dispatchEvent(new CustomEvent('reset-audio-context'));
+      window.dispatchEvent(new CustomEvent('reset-celestial-mist'));
+      setPersonA({ ...EMPTY, gender: 'female' });
+      setPersonB({ ...EMPTY, gender: 'male' });
+      setData(null);
+      setError('');
+      setLoading(false);
+      setFortuneNumber('');
+      setFortuneResult(null);
+      setIsFortuneModalOpen(false);
+      setShowRepairToast(true);
+      setTimeout(() => setShowRepairToast(false), 3000);
+    } catch (e) {
+      console.warn('System self-repair execution failed:', e);
+    }
+  };
+
   // Modal 太極點擊彩蛋 States & Audio
   const [modalTapCount, setModalTapCount] = useState(0);
   const [showModalMantra, setShowModalMantra] = useState(false);
@@ -644,6 +666,43 @@ export default function HomePage() {
       setFortuneLoading(false);
     }, 800);
   };
+
+  // 自動恢復器 (Auto-Watchdog)
+  useEffect(() => {
+    const handleGlobalError = (event: ErrorEvent | PromiseRejectionEvent) => {
+      const errorMsg = event instanceof ErrorEvent ? event.message : String(event.reason);
+      if (
+        errorMsg.includes('WebGL') ||
+        errorMsg.includes('AudioContext') ||
+        errorMsg.includes('Cannot read properties') ||
+        errorMsg.includes('null') ||
+        errorMsg.includes('undefined')
+      ) {
+        console.warn('⚠️ [天宿自動恢復器] 偵測到螢幕或渲染層發生異常:', errorMsg);
+        setShowRepairToast(true);
+        setTimeout(() => {
+          localStorage.clear();
+          setPersonA({ ...EMPTY, gender: 'female' });
+          setPersonB({ ...EMPTY, gender: 'male' });
+          setData(null);
+          setError('');
+          setLoading(false);
+          setFortuneNumber('');
+          setFortuneResult(null);
+          setIsFortuneModalOpen(false);
+          window.dispatchEvent(new CustomEvent('reset-audio-context'));
+          window.dispatchEvent(new CustomEvent('reset-celestial-mist'));
+          setShowRepairToast(false);
+        }, 2500);
+      }
+    };
+    window.addEventListener('error', handleGlobalError);
+    window.addEventListener('unhandledrejection', handleGlobalError);
+    return () => {
+      window.removeEventListener('error', handleGlobalError);
+      window.removeEventListener('unhandledrejection', handleGlobalError);
+    };
+  }, []);
 
   // 載入 localStorage 預填
   useEffect(() => {
@@ -1162,13 +1221,36 @@ export default function HomePage() {
             ) : (
               <div id="step-entry" className="space-y-6 scroll-mt-20">
                 <div className="flex justify-between items-center gap-4 mb-4 flex-wrap">
-                  <button
-                    type="button"
-                    onClick={() => setIsFortuneModalOpen(true)}
-                    className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 px-5 py-3 text-xs font-bold tracking-widest text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.15)] hover:bg-cyan-500/20 transition-all duration-300 flex items-center gap-1.5 animate-pulse"
-                  >
-                    <span>☯️ 數字吉凶解碼</span>
-                  </button>
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => setIsFortuneModalOpen(true)}
+                      className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 px-5 py-3 text-xs font-bold tracking-widest text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.15)] hover:bg-cyan-500/20 transition-all duration-300 flex items-center gap-1.5 animate-pulse"
+                    >
+                      <span>☯️ 數字吉凶解碼</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleSystemSelfRepair}
+                      className="rounded-xl border border-rose-500/30 bg-rose-950/20 px-5 py-3 text-xs font-bold tracking-widest text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.15)] hover:bg-rose-500/20 transition-all duration-300 flex items-center gap-1.5"
+                      title="重設天宿、清除 localStorage 快取，修復卡死異常"
+                    >
+                      <span>🔮 系統自我修復</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        console.log('⚡ [手動模擬] 觸發螢幕與渲染異常...');
+                        throw new Error('Simulated WebGL Device Lost anomaly event');
+                      }}
+                      className="rounded-xl border border-amber-500/30 bg-amber-950/20 px-5 py-3 text-xs font-bold tracking-widest text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:bg-amber-500/20 transition-all duration-300 flex items-center gap-1.5"
+                      title="手動模擬 WebGL 設備丟失與螢幕卡死異常，測試 Watchdog 自動恢復功能"
+                    >
+                      <span>⚠️ 模擬顯示崩潰</span>
+                    </button>
+                  </div>
 
                   <button
                     type="button"
@@ -2002,6 +2084,14 @@ export default function HomePage() {
         <span className="text-xl group-hover:rotate-180 transition-transform duration-500">☯️</span>
         <span className="text-[9px] font-bold tracking-tighter mt-0.5 scale-90">數理</span>
       </button>
+
+      {/* 系統自我修復極光 Toast 提示 */}
+      {showRepairToast && (
+        <div className="fixed top-12 left-1/2 z-[99999] -translate-x-1/2 flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-slate-950/90 px-6 py-4.5 text-xs font-bold tracking-widest text-emerald-300 shadow-[0_0_30px_rgba(16,185,129,0.35)] animate-fade-in backdrop-blur-md">
+          <span>⚙️</span>
+          <span>天宿量子磁場對齊與顯示卡尺修復... 100% 正常恢復！</span>
+        </div>
+      )}
     </div>
   );
 }
