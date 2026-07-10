@@ -527,6 +527,7 @@ export default function HomePage() {
   const [fortuneNumber, setFortuneNumber] = useState('');
   const [fortuneResult, setFortuneResult] = useState<any>(null);
   const [fortuneLoading, setFortuneLoading] = useState(false);
+  const [isFortuneModalOpen, setIsFortuneModalOpen] = useState(false);
 
   const handleNumberFortune = () => {
     if (!fortuneNumber.trim()) return;
@@ -1017,7 +1018,15 @@ export default function HomePage() {
               />
             ) : (
               <div id="step-entry" className="space-y-6 scroll-mt-20">
-                <div className="flex justify-end mb-4">
+                <div className="flex justify-between items-center gap-4 mb-4 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setIsFortuneModalOpen(true)}
+                    className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 px-5 py-3 text-xs font-bold tracking-widest text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.15)] hover:bg-cyan-500/20 transition-all duration-300 flex items-center gap-1.5 animate-pulse"
+                  >
+                    <span>☯️ 數字吉凶解碼</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={startAutoDemo}
@@ -1626,75 +1635,6 @@ export default function HomePage() {
               </button>
             </div>
 
-            {/* 數字論吉凶獨立功能區 */}
-            <div className="fortune-card p-6 sm:p-8 astral-glow-cyan border border-cyan-500/20 bg-slate-950/40 mt-8 mb-8">
-              <div className="mb-6">
-                <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">☯️ 天宿數理神數</p>
-                <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">數字吉凶解碼</h3>
-                <p className="mt-2 text-xs leading-5 text-[color:var(--text-muted)]">
-                  輸入手機後四碼、車牌號碼或幸運數字，以易經八卦起卦與 81 數理靈動數解密其吉凶能量。
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <input
-                  type="text"
-                  value={fortuneNumber}
-                  onChange={(e) => setFortuneNumber(e.target.value.replace(/\D/g, ''))}
-                  placeholder="請輸入任意純數字"
-                  className="form-input flex-1 text-base glass-input glass-input-cyan neon-input-focus"
-                />
-                <button
-                  type="button"
-                  onClick={handleNumberFortune}
-                  disabled={fortuneLoading || !fortuneNumber.trim()}
-                  className="vip-gold-btn px-8 py-3.5 text-sm font-semibold disabled:opacity-40"
-                >
-                  {fortuneLoading ? '解碼中...' : '開始吉凶解碼'}
-                </button>
-              </div>
-
-              {fortuneResult && !fortuneLoading && (
-                <div className="mt-6 rounded-2xl border border-cyan-500/25 bg-cyan-950/20 p-5 space-y-4 animate-fade-in font-sans">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <span className="text-sm font-semibold text-cyan-200">
-                      解碼對象：<span className="text-base text-cyan-100 font-mono font-bold">{fortuneResult.number}</span>
-                    </span>
-                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${
-                      fortuneResult.fortuneLevel.includes('吉') ? 'bg-emerald-500/25 text-emerald-300' : 'bg-rose-500/25 text-rose-300'
-                    }`}>
-                      吉凶斷語：{fortuneResult.fortuneLevel}
-                    </span>
-                  </div>
-
-                  <div className="h-px bg-cyan-500/10" />
-
-                  <div className="grid gap-4 sm:grid-cols-2 text-xs leading-6">
-                    <div>
-                      <p className="font-semibold text-cyan-300">八十一靈動數理 · {fortuneResult.lingdongNum}</p>
-                      <p className="mt-1 text-cyan-100 font-medium">【{fortuneResult.lingdongTitle}】</p>
-                      <p className="mt-1 text-[color:var(--text-sub)]">{fortuneResult.lingdongDesc}</p>
-                    </div>
-
-                    <div>
-                      <p className="font-semibold text-amber-300">易經梅花易數卦象</p>
-                      <p className="mt-1 text-amber-100 font-medium">【{fortuneResult.hexagramName}】</p>
-                      <p className="mt-1 text-[color:var(--text-sub)]">{fortuneResult.hexagramDesc}</p>
-                    </div>
-                  </div>
-
-                  <div className="h-px bg-cyan-500/10" />
-
-                  <div className="text-xs leading-5">
-                    <p className="font-semibold text-cyan-300">五行屬性：{fortuneResult.wuxing}</p>
-                    <p className="mt-2 text-xs italic leading-6 text-[color:var(--text-muted)]">
-                      {fortuneResult.wisdomNote}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
             <NextStepGuide current="match" />
           </div>
         )}
@@ -1716,6 +1656,93 @@ export default function HomePage() {
         >
           <span className="text-sm">▲</span>
         </button>
+      )}
+
+      {/* 數字論吉凶 Modal 彈窗 */}
+      {isFortuneModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in font-sans">
+          <div className="relative w-full max-w-2xl rounded-3xl border border-cyan-500/30 bg-slate-900/95 p-6 sm:p-8 shadow-[0_0_50px_rgba(34,211,238,0.25)] max-h-[90vh] overflow-y-auto">
+            
+            {/* 關閉按鈕 */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsFortuneModalOpen(false);
+                setFortuneResult(null);
+                setFortuneNumber('');
+              }}
+              className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm text-[color:var(--text-sub)] hover:border-white/20 hover:text-white transition"
+            >
+              ✕
+            </button>
+
+            <div className="mb-6">
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">☯️ 天宿數理神數</p>
+              <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">數字吉凶解碼艙</h3>
+              <p className="mt-2 text-xs leading-5 text-[color:var(--text-muted)]">
+                輸入手機後四碼、車牌號碼或幸運數字，以易經八卦起卦與 81 數理靈動數解密其吉凶能量。
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <input
+                type="text"
+                value={fortuneNumber}
+                onChange={(e) => setFortuneNumber(e.target.value.replace(/\D/g, ''))}
+                placeholder="請輸入任意純數字"
+                className="form-input flex-1 text-base glass-input glass-input-cyan neon-input-focus"
+              />
+              <button
+                type="button"
+                onClick={handleNumberFortune}
+                disabled={fortuneLoading || !fortuneNumber.trim()}
+                className="vip-gold-btn px-8 py-3.5 text-sm font-semibold disabled:opacity-40"
+              >
+                {fortuneLoading ? '解碼中...' : '開始吉凶解碼'}
+              </button>
+            </div>
+
+            {fortuneResult && !fortuneLoading && (
+              <div className="mt-6 rounded-2xl border border-cyan-500/25 bg-cyan-950/20 p-5 space-y-4 animate-fade-in font-sans">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-sm font-semibold text-cyan-200">
+                    解碼對象：<span className="text-base text-cyan-100 font-mono font-bold">{fortuneResult.number}</span>
+                  </span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${
+                    fortuneResult.fortuneLevel.includes('吉') ? 'bg-emerald-500/25 text-emerald-300' : 'bg-rose-500/25 text-rose-300'
+                  }`}>
+                    吉凶斷語：{fortuneResult.fortuneLevel}
+                  </span>
+                </div>
+
+                <div className="h-px bg-cyan-500/10" />
+
+                <div className="grid gap-4 sm:grid-cols-2 text-xs leading-6">
+                  <div>
+                    <p className="font-semibold text-cyan-300">八十一靈動數理 · {fortuneResult.lingdongNum}</p>
+                    <p className="mt-1 text-cyan-100 font-medium">【{fortuneResult.lingdongTitle}】</p>
+                    <p className="mt-1 text-[color:var(--text-sub)]">{fortuneResult.lingdongDesc}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-amber-300">易經梅花易數卦象</p>
+                    <p className="mt-1 text-amber-100 font-medium">【{fortuneResult.hexagramName}】</p>
+                    <p className="mt-1 text-[color:var(--text-sub)]">{fortuneResult.hexagramDesc}</p>
+                  </div>
+                </div>
+
+                <div className="h-px bg-cyan-500/10" />
+
+                <div className="text-xs leading-5">
+                  <p className="font-semibold text-cyan-300">五行屬性：{fortuneResult.wuxing}</p>
+                  <p className="mt-2 text-xs italic leading-6 text-[color:var(--text-muted)]">
+                    {fortuneResult.wisdomNote}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
