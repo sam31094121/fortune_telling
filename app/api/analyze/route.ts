@@ -4,6 +4,7 @@ import type { AnalyzeRequest, BloodType, Gender, PersonInput } from '@/lib/types
 import { isValidBirthday } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 const VALID_BLOOD_TYPES: Exclude<BloodType, ''>[] = ['A', 'B', 'AB', 'O'];
 const VALID_GENDERS: Gender[] = ['male', 'female'];

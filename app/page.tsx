@@ -1084,10 +1084,13 @@ export default function HomePage() {
 
       // 獲得配對結果後，嘗試生成因果故事
       try {
+        const karmaController = new AbortController();
+        const karmaTimeout = window.setTimeout(() => karmaController.abort(), 35_000);
+
         const karmaResponse = await fetch('/api/karma-story-generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          signal: controller.signal,
+          signal: karmaController.signal,
           body: JSON.stringify({
             personA,
             personB,
@@ -1095,15 +1098,17 @@ export default function HomePage() {
           }),
         });
 
+        window.clearTimeout(karmaTimeout);
+
         if (karmaResponse.ok) {
           const karmaData = (await karmaResponse.json()) as { karma_story?: KarmaStory };
           if (karmaData.karma_story) {
             setData((prev) => (prev ? { ...prev, karma_story: karmaData.karma_story } : null));
           }
         }
-      } catch {
+      } catch (karmaErr) {
         // 因果故事生成失敗時不影響配對結果
-        console.log('[karma-story] generation skipped or failed');
+        console.log('[karma-story] generation skipped or failed:', karmaErr);
       }
     } catch (error) {
       setError(error instanceof DOMException && error.name === 'AbortError'

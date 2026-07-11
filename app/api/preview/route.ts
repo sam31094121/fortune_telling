@@ -4,6 +4,7 @@ import type { BloodType, PreviewRequest } from '@/lib/types';
 import { isValidBirthday } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 const VALID_BLOOD_TYPES: Exclude<BloodType, ''>[] = ['A', 'B', 'AB', 'O'];
 const ipCache = new Map<string, { count: number; resetTime: number }>();
