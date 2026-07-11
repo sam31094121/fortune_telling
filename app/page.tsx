@@ -2032,10 +2032,16 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={handleModalTaiChiClick}
-                className="relative w-24 h-24 rounded-full border border-cyan-500/30 bg-slate-950/80 shadow-[0_0_20px_rgba(34,211,238,0.2)] flex items-center justify-center overflow-hidden group cursor-pointer transition active:scale-95"
+                className="relative w-24 h-24 rounded-full border border-cyan-500/30 bg-slate-950/80 shadow-[0_0_28px_rgba(255,255,255,0.18),0_0_55px_rgba(255,255,255,0.12),0_0_100px_rgba(34,211,238,0.16)] flex items-center justify-center overflow-visible group cursor-pointer transition active:scale-95"
                 title="點擊敲擊法磬，叩問天意 (連點 3/6/12/24 次觸發天宿彩蛋)"
               >
                 {/* 3D 邊框旋轉氣流 */}
+                <div className="pointer-events-none absolute -inset-4 rounded-full bg-white/20 blur-[16px] mix-blend-screen animate-[pulse_4s_ease-in-out_infinite] group-hover:bg-white/35 group-hover:blur-[22px] transition-all duration-1000" />
+                <div className="pointer-events-none absolute -inset-6 rounded-full border border-white/25 shadow-[0_0_32px_rgba(255,255,255,0.3),0_0_82px_rgba(255,255,255,0.2)] blur-[1px] animate-[pulse_4.8s_ease-in-out_infinite] group-hover:border-white/45 group-hover:shadow-[0_0_52px_rgba(255,255,255,0.42),0_0_125px_rgba(255,255,255,0.3)] transition-all duration-1000" />
+                <div className="pointer-events-none absolute -inset-14 rounded-full border border-white/10 shadow-[0_0_42px_rgba(255,255,255,0.18),0_0_125px_rgba(255,255,255,0.14)] blur-[3px] animate-[pulse_6s_ease-in-out_infinite] group-hover:border-white/25 group-hover:shadow-[0_0_64px_rgba(255,255,255,0.28),0_0_165px_rgba(255,255,255,0.22)] transition-all duration-1000" />
+                <div className="pointer-events-none absolute -inset-6 rounded-full border border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.14),0_0_54px_rgba(255,255,255,0.1)] blur-[1px] animate-[pulse_4.5s_ease-in-out_infinite] group-hover:scale-110 group-hover:border-white/20 transition-all duration-1000" />
+                <div className="pointer-events-none absolute -inset-8 rounded-full border border-cyan-300/10 shadow-[0_0_18px_rgba(34,211,238,0.12),0_0_60px_rgba(34,211,238,0.08)] animate-[pulse_5s_ease-in-out_infinite] group-hover:border-cyan-300/25 group-hover:shadow-[0_0_28px_rgba(34,211,238,0.2),0_0_90px_rgba(34,211,238,0.12)] transition-all duration-1000" />
+                <div className="pointer-events-none absolute -inset-4 rounded-full border border-cyan-400/15 shadow-[0_0_24px_rgba(34,211,238,0.18),0_0_42px_rgba(34,211,238,0.1)] animate-[pulse_3.5s_ease-in-out_infinite] group-hover:scale-110 group-hover:border-cyan-300/35 transition-all duration-1000" />
                 <div className="absolute inset-0 border border-dashed border-cyan-500/20 rounded-full animate-spin-slow group-hover:border-cyan-400 group-hover:scale-105 transition-all duration-700" />
                 <div className="absolute inset-1.5 border border-dotted border-amber-500/20 rounded-full animate-[spin_12s_linear_infinite] reverse" />
                 

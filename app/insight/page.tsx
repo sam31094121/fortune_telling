@@ -6,8 +6,7 @@ import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import { saveUserData, loadUserData } from '@/lib/storage';
-import { SHICHEN_LIST } from '@/lib/shichen-engine';
-import { calculateZiweiMainStar } from '@/lib/ziwei-calculator';
+import { SHICHEN_LIST, shichenFromClockHour } from '@/lib/shichen-engine';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 
@@ -17,9 +16,11 @@ type ShichenChoice = number | 'unknown' | null;
 interface InsightData {
   name: string;
   birthDate: string;
+  birthTime: string;
   bloodType: 'A' | 'B' | 'AB' | 'O';
   gender: 'male' | 'female';
   shichen: ShichenChoice;
+  longitude: number | null;
 }
 
 interface InsightResult {
@@ -71,6 +72,55 @@ interface InsightResult {
     starName: string;
     statisticalInference: string;
   }[];
+  ziweiSanFang?: {
+    methodVersion: string;
+    timeConfidence: 'exact' | 'estimated';
+    timeNote: string;
+    trueSolarTimeApplied: boolean;
+    dataCompleteness: number;
+    consistencyScore: number;
+    summary: string;
+    bazi: {
+      year: string;
+      month: string;
+      day: string;
+      hour: string;
+      dayMaster: string;
+      elementBalance: Record<string, number>;
+    };
+    palaces: {
+      key: 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI';
+      name: string;
+      focus: string;
+      branch: string;
+      palaceStem: string;
+      majorStars: string[];
+      minorStars: string[];
+      transformations: string[];
+    }[];
+    crossChecks: {
+      palaceKey: 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI';
+      status: 'reinforce' | 'neutral' | 'tension';
+      title: string;
+      detail: string;
+      ruleId: string;
+    }[];
+    pattern: {
+      name: string;
+      stars: string[];
+      description: string;
+      basis: string;
+    };
+    patternMetrics: {
+      coreStarCount: number;
+      patternStarCount: number;
+      transformationCount: number;
+      supportiveRelationCount: number;
+      constrainingRelationCount: number;
+      methodology: string;
+    };
+    ruleCount: number;
+  };
   meta?: {
     dayPillar: string;
     hourPillar: string;
@@ -185,6 +235,204 @@ function ScoreEvidenceCard({ item }: { item: InsightResult['statisticalAnalysis'
   );
 }
 
+function ZiweiSanFangPanel({ analysis }: { analysis?: InsightResult['ziweiSanFang'] }) {
+  if (!analysis) return null;
+
+  const statusTone = {
+    reinforce: 'border-emerald-400/35 text-emerald-100',
+    neutral: 'border-cyan-400/30 text-cyan-100',
+    tension: 'border-amber-400/35 text-amber-100',
+  };
+  const statusLabel = { reinforce: '補強', neutral: '中性', tension: '張力' };
+  const palaceTone = {
+    MING: { glyph: '命', border: 'border-cyan-400/30', label: 'text-cyan-200', chip: 'border-cyan-400/25 bg-cyan-950/30 text-cyan-100' },
+    CAI_BO: { glyph: '財', border: 'border-emerald-400/30', label: 'text-emerald-200', chip: 'border-emerald-400/25 bg-emerald-950/25 text-emerald-100' },
+    GUAN_LU: { glyph: '官', border: 'border-amber-400/30', label: 'text-amber-200', chip: 'border-amber-400/25 bg-amber-950/25 text-amber-100' },
+    QIAN_YI: { glyph: '遷', border: 'border-rose-400/30', label: 'text-rose-200', chip: 'border-rose-400/25 bg-rose-950/25 text-rose-100' },
+  };
+
+  if (analysis.timeConfidence !== 'exact') {
+    return (
+      <section className="fortune-card p-6 sm:p-8">
+        <p className="text-xs uppercase tracking-[0.35em] text-amber-300">紫微斗數核心三方四正</p>
+        <h3 className="mt-3 font-serif text-2xl text-amber-100">等待真實出生時辰定盤</h3>
+        <p className="mt-4 max-w-3xl border-l-2 border-amber-400 px-4 text-sm leading-7 text-amber-100/85">
+          命宮、財帛宮、官祿宮與遷移宮會隨時辰改變。為了避免把預設時辰誤當成你的命盤，系統已暫停顯示單一宮位、主星、四化與格局。
+        </p>
+        <div className="mt-6 grid gap-3 border-y border-white/10 py-4 sm:grid-cols-3">
+          <div>
+            <p className="text-xs text-[color:var(--text-muted)]">目前可確定</p>
+            <p className="mt-1 text-sm font-semibold text-cyan-100">出生日期與年、月、日三柱</p>
+          </div>
+          <div>
+            <p className="text-xs text-[color:var(--text-muted)]">仍待確認</p>
+            <p className="mt-1 text-sm font-semibold text-amber-100">出生時辰與時柱</p>
+          </div>
+          <div>
+            <p className="text-xs text-[color:var(--text-muted)]">可再提高精度</p>
+            <p className="mt-1 text-sm font-semibold text-emerald-100">出生地經度的真太陽時校正</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="fortune-card p-6 sm:p-8">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-xs uppercase tracking-[0.35em] text-amber-300">紫微斗數核心三方四正</p>
+          <h3 className="mt-3 font-serif text-2xl text-amber-100">命財官遷 × 八字四柱</h3>
+          <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">{analysis.methodVersion}</p>
+        </div>
+        <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${analysis.timeConfidence === 'exact' ? 'border-cyan-400/25 bg-cyan-950/20 text-cyan-100' : 'border-amber-400/25 bg-amber-950/20 text-amber-100'}`}>
+          {analysis.timeConfidence === 'exact' ? '出生時辰已確認' : '時辰待校正'}
+        </span>
+      </div>
+
+      <p className={`mt-5 border-l-2 px-4 py-1 text-xs leading-6 ${analysis.timeConfidence === 'exact' ? 'border-cyan-400 text-cyan-100' : 'border-amber-400 text-amber-100'}`}>
+        {analysis.timeNote}
+      </p>
+
+      <div className="mt-7 grid border-y border-white/10 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          ['年柱', analysis.bazi.year],
+          ['月柱', analysis.bazi.month],
+          ['日柱', analysis.bazi.day],
+          ['時柱', analysis.bazi.hour],
+        ].map(([label, value]) => (
+          <div key={label} className="border-b border-r border-white/10 px-4 py-4 last:border-r-0 sm:border-b-0">
+            <p className="text-xs text-[color:var(--text-muted)]">{label}</p>
+            <p className="mt-1 font-serif text-xl text-amber-100">{value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[color:var(--text-sub)]">
+        <span>日主 <b className="font-semibold text-amber-200">{analysis.bazi.dayMaster}</b></span>
+        {Object.entries(analysis.bazi.elementBalance).map(([element, count]) => (
+          <span key={element} className="border-l border-white/10 pl-3">{element} {count}</span>
+        ))}
+      </div>
+
+      {analysis.palaces.length === 0 ? (
+        <div className="mt-8 border-l-2 border-amber-400 px-4 py-3 text-sm leading-7 text-amber-100">
+          <p className="font-semibold">命宮尚未定盤</p>
+          <p className="mt-1 text-xs text-amber-100/75">出生日期可以計算年、月、日，但命宮與三方四正必須先確認出生時辰。請選擇真實時辰後重新分析。</p>
+        </div>
+      ) : (
+      <div className="mt-8">
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">三方四正宮位</p>
+          <p className="text-xs text-[color:var(--text-muted)]">命 · 財 · 官 · 遷</p>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+        {analysis.palaces.map((palace) => {
+          const tone = palaceTone[palace.key];
+          return (
+          <article key={palace.key} className={`relative overflow-hidden rounded-lg border bg-white/[0.02] p-5 ${tone.border}`}>
+            <span className={`pointer-events-none absolute right-4 top-2 font-serif text-5xl opacity-10 ${tone.label}`}>{tone.glyph}</span>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className={`font-semibold ${tone.label}`}>{palace.name}</p>
+                <p className="mt-1 text-xs text-[color:var(--text-muted)]">{palace.focus} · {palace.palaceStem}{palace.branch}</p>
+              </div>
+              <span className="text-xs text-[color:var(--text-muted)]">{palace.key === 'QIAN_YI' ? '對宮' : '三方'}</span>
+            </div>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {(palace.majorStars.length > 0 ? palace.majorStars : ['無十四主星坐守']).map((star) => (
+                <span key={star} className={`rounded-md border px-2.5 py-1 text-sm font-semibold ${tone.chip}`}>{star}</span>
+              ))}
+            </div>
+            {palace.minorStars.length > 0 && <p className="mt-4 text-xs leading-5 text-[color:var(--text-sub)]">輔星：{palace.minorStars.join('、')}</p>}
+            <p className="mt-2 text-xs text-cyan-100/80">生年四化：{palace.transformations.join('、') || '無'}</p>
+          </article>
+          );
+        })}
+        </div>
+      </div>
+      )}
+
+      {analysis.crossChecks.length > 0 && <div className="mt-7 border-t border-white/10 pt-5">
+        <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">八字交叉判讀</p>
+        <div className="mt-4 grid gap-3">
+          {analysis.crossChecks.map((check) => (
+            <div key={check.ruleId} className={`border-l-2 px-4 py-3 ${statusTone[check.status]}`}>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-semibold">{check.title}</p>
+                <span className="text-xs">{statusLabel[check.status]}</span>
+              </div>
+              <p className="mt-2 text-xs leading-6 opacity-85">{check.detail}</p>
+            </div>
+          ))}
+        </div>
+      </div>}
+    </section>
+  );
+}
+
+function SanFangSummaryCard({ analysis }: { analysis?: InsightResult['ziweiSanFang'] }) {
+  if (!analysis) return null;
+
+  const palaceLabels = {
+    MING: '命宮',
+    CAI_BO: '財帛宮',
+    GUAN_LU: '官祿宮',
+    QIAN_YI: '遷移宮',
+  } as const;
+  const palaceTone = {
+    MING: 'border-cyan-400/30 text-cyan-100',
+    CAI_BO: 'border-emerald-400/30 text-emerald-100',
+    GUAN_LU: 'border-amber-400/30 text-amber-100',
+    QIAN_YI: 'border-rose-400/30 text-rose-100',
+  } as const;
+
+  return (
+    <section className="fortune-card relative overflow-hidden p-6 sm:p-8">
+      <div className="absolute inset-4 border border-cyan-400/10 pointer-events-none" />
+      <div className="relative">
+        <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">紫微斗數・八字</p>
+        <div className="mt-3 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="font-serif text-3xl text-amber-100 sm:text-4xl">三方四正</h2>
+            <p className="mt-2 text-sm text-[color:var(--text-sub)]">命宮 × 財帛宮 × 官祿宮 × 遷移宮</p>
+          </div>
+          <div className="text-left sm:text-right">
+            <p className="text-5xl font-bold text-amber-200">{analysis.consistencyScore}<span className="ml-1 text-xl">%</span></p>
+            <p className="mt-1 text-xs text-[color:var(--text-muted)]">結構匹配度</p>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center gap-3 border-y border-white/10 py-3 text-xs">
+          <span className="text-[color:var(--text-muted)]">命盤資料完整度</span>
+          <span className="font-semibold text-cyan-100">{analysis.dataCompleteness}%</span>
+          <span className="text-[color:var(--text-muted)]">·</span>
+          <span className="text-[color:var(--text-muted)]">主要結構</span>
+          <span className="font-semibold text-amber-200">{analysis.pattern.name}</span>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {(['MING', 'CAI_BO', 'GUAN_LU', 'QIAN_YI'] as const).map((key) => {
+            const palace = analysis.palaces.find((item) => item.key === key);
+            return (
+              <div key={key} className={`min-h-24 border px-3 py-3 ${palaceTone[key]}`}>
+                <p className="text-xs opacity-75">{palaceLabels[key]}</p>
+                <p className="mt-2 text-sm font-semibold leading-6">
+                  {palace?.majorStars.join('、') || '待確認'}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        <p className="mt-6 border-l-2 border-amber-400 px-4 text-sm leading-7 text-[color:var(--text-sub)]">
+          {analysis.summary}
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function InsightAnalyticalConsole({
   name,
 }: {
@@ -262,9 +510,11 @@ export default function InsightPage() {
   const [input, setInput] = useState<InsightData>({
     name: '',
     birthDate: '',
+    birthTime: '',
     bloodType: 'A',
     gender: 'female',
     shichen: null,
+    longitude: null,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -318,6 +568,14 @@ export default function InsightPage() {
       return '請輸入完整的生日日期。';
     }
 
+    if (typeof input.shichen !== 'number') {
+      return '紫微精準定盤需要真實出生時辰，請先選擇時辰。';
+    }
+
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(input.birthTime)) {
+      return '請輸入精確出生時間（時：分）。';
+    }
+
     if (!input.bloodType || !['A', 'B', 'AB', 'O'].includes(input.bloodType)) {
       return '請選擇有效的血型。';
     }
@@ -360,9 +618,11 @@ export default function InsightPage() {
           body: JSON.stringify({
             name: input.name.trim(),
             birthDate: input.birthDate.trim(),
+            birthTime: input.birthTime,
             bloodType: input.bloodType,
             gender: input.gender,
             shichen: input.shichen,
+            longitude: input.longitude,
           }),
         });
 
@@ -507,7 +767,7 @@ export default function InsightPage() {
                       ? 'bg-green-500/20 text-green-300 border border-green-400/30'
                       : 'bg-white/10 text-[color:var(--text-muted)] border border-white/10'
                   }`}>
-                    ✓ 時辰 {input.shichen === null ? '(自動吉時)' : input.shichen === 'unknown' ? '(良辰吉時)' : SHICHEN_LIST[input.shichen].label}
+                  ✓ 時辰 {typeof input.shichen === 'number' ? SHICHEN_LIST[input.shichen].label : '(尚未確認)'}
                   </div>
                 </div>
               </div>
@@ -597,39 +857,39 @@ export default function InsightPage() {
               <div>
                 <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
                   5. 出生時辰
-                  <span className="ml-1 text-xs font-normal text-[color:var(--text-muted)]">（選填）</span>
+                  <span className="ml-1 text-xs font-normal text-amber-300">（紫微定盤必填）</span>
                   {input.shichen !== null && <span className="text-green-400"> ✓</span>}
                 </label>
                 <p className="mb-4 text-xs leading-6 text-[color:var(--text-muted)]">
-                  知道時辰會讓分析更細；不知道也沒關係。點「我不知道時辰」，系統會用良辰吉時補位。
+                  真實時辰是紫微命宮、三方四正與八字時柱的必要資料；未確認時辰不會產生單一命宮。
                 </p>
 
-                <button
-                  type="button"
-                  onClick={() => setInput({ ...input, shichen: 'unknown' })}
-                  className={`w-full rounded-2xl border px-5 py-4 text-left transition-all ${
-                    input.shichen === 'unknown'
-                      ? 'border-emerald-400 bg-emerald-400/15'
-                      : 'border-white/15 bg-white/5 hover:border-white/25'
-                  }`}
-                >
-                  <p className={`text-base font-bold ${input.shichen === 'unknown' ? 'text-emerald-300' : 'text-[color:var(--text-main)]'}`}>
-                    我不知道 / 記不得時辰
-                  </p>
-                  <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">
-                    系統會用良辰吉時補位，一樣能完成分析。
-                  </p>
-                </button>
-
-                {input.shichen === 'unknown' && (
-                  <div className="mt-3 rounded-2xl border border-emerald-400/20 bg-emerald-950/20 p-4 text-xs leading-6 text-emerald-200">
-                    已為你保留良辰吉時。日後想起真實時辰，再補上會更精準。
-                  </div>
-                )}
+                <label className="block text-xs font-semibold tracking-wide text-cyan-200" htmlFor="insight-birth-time">
+                  精確出生時間（24 小時制）
+                </label>
+                <input
+                  id="insight-birth-time"
+                  type="time"
+                  step="60"
+                  value={input.birthTime}
+                  onChange={(event) => {
+                    const birthTime = event.target.value;
+                    const hour = Number(birthTime.split(':')[0]);
+                    setInput({
+                      ...input,
+                      birthTime,
+                      shichen: Number.isInteger(hour) ? shichenFromClockHour(hour) : null,
+                    });
+                  }}
+                  className="mt-2 w-full rounded-lg border border-cyan-400/30 bg-cyan-950/20 px-4 py-3 text-lg font-semibold tracking-widest text-cyan-100 outline-none transition focus:border-cyan-300"
+                />
+                <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
+                  系統會以這個實際分鐘計算八字時柱與真太陽時；下方十二時辰僅作核對。
+                </p>
 
                 <div className="my-4 flex items-center gap-3">
                   <div className="h-px flex-1 bg-white/10" />
-                  <span className="shrink-0 text-xs text-[color:var(--text-muted)]">或選擇真實出生時辰</span>
+                  <span className="shrink-0 text-xs text-cyan-200">請選擇真實出生時辰</span>
                   <div className="h-px flex-1 bg-white/10" />
                 </div>
 
@@ -652,6 +912,29 @@ export default function InsightPage() {
                     );
                   })}
                 </div>
+              </div>
+
+              <div>
+                <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
+                  6. 出生地經度
+                  <span className="ml-1 text-xs font-normal text-[color:var(--text-muted)]">（紫微真太陽時校正，選填）</span>
+                </label>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min="-180"
+                  max="180"
+                  step="0.0001"
+                  value={input.longitude ?? ''}
+                  onChange={(event) => {
+                    const value = event.target.value.trim();
+                    const longitude = value === '' ? null : Number(value);
+                    setInput({ ...input, longitude: Number.isFinite(longitude) ? longitude : null });
+                  }}
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-[color:var(--text-main)] outline-none transition placeholder:text-[color:var(--text-muted)] focus:border-cyan-400/60"
+                  placeholder="例如台北 121.5654、台中 120.6736、高雄 120.3014"
+                />
+                <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">已提供真實時辰與經度時，系統會以 UTC+8 真太陽時校正排盤；未填經度則採標準時。</p>
               </div>
 
               {error && (
@@ -685,7 +968,7 @@ export default function InsightPage() {
                 {(input.name || input.birthDate) && (
                   <button
                     onClick={() => {
-                      setInput({ name: '', birthDate: '', bloodType: 'A', gender: 'female', shichen: null });
+                      setInput({ name: '', birthDate: '', birthTime: '', bloodType: 'A', gender: 'female', shichen: null, longitude: null });
                       setError('');
                     }}
                     disabled={loading}
@@ -745,45 +1028,60 @@ export default function InsightPage() {
               </svg>
             </div>
             <div className="space-y-6">
-            <div className="fortune-card p-6 sm:p-8 text-center">
-              <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">洞察報告完成</p>
-              <h2 className="mt-3 font-serif text-5xl text-[color:var(--text-main)]">{result?.accuracyScore ?? 0}%</h2>
-              <p className="mt-2 text-sm text-[color:var(--text-sub)]">資料信心度</p>
-              <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
-                整合 {result?.dataSourceCount?.toLocaleString() ?? '0'} 筆趨勢樣本與個人訊號
+            <div className="hidden fortune-card relative overflow-hidden border-amber-400/25 bg-slate-950/55 p-6 sm:p-8">
+              <div className="pointer-events-none absolute inset-4 border border-cyan-400/10" />
+              <div className="relative flex flex-col gap-5 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">命盤格局定位</p>
+                  <h2 className="mt-3 font-serif text-4xl text-amber-100 sm:text-5xl">
+                    {result?.ziweiSanFang?.pattern.name ?? '三方四正排盤中'}
+                  </h2>
+                  <p className="mt-3 text-sm font-semibold tracking-wide text-cyan-100">
+                    核心星曜：{result?.ziweiSanFang?.pattern.stars.join('、') || '等待命盤資料'}
+                  </p>
+                  <p className="mt-4 max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
+                    {result?.ziweiSanFang?.pattern.description ?? '紫微命財官遷三方四正，配合八字四柱與五行訊號進行可重算比對。'}
+                  </p>
+                </div>
+                <div className="shrink-0 border-l-0 border-cyan-400/20 px-0 text-center sm:border-l sm:px-6">
+                  <p className="text-xs text-[color:var(--text-muted)]">排盤狀態</p>
+                  <p className={`mt-2 text-lg font-semibold ${result?.ziweiSanFang?.timeConfidence === 'exact' ? 'text-cyan-200' : 'text-amber-200'}`}>
+                    {result?.ziweiSanFang?.timeConfidence === 'exact' ? '時辰已確認' : '時辰待校正'}
+                  </p>
+                  <p className="mt-1 text-xs text-cyan-100/70">{result?.ziweiSanFang?.timeConfidence === 'exact' ? '命財官遷已完成比對' : '暫不顯示單一命盤'}</p>
+                </div>
+              </div>
+
+              {result?.ziweiSanFang?.timeConfidence === 'exact' && <div className="relative mt-6 grid grid-cols-2 border-y border-white/10 sm:grid-cols-5">
+                {[
+                  ['三方主星', result?.ziweiSanFang?.patternMetrics.coreStarCount ?? 0],
+                  ['關鍵星覆蓋', result?.ziweiSanFang?.patternMetrics.patternStarCount ?? 0],
+                  ['生年四化', result?.ziweiSanFang?.patternMetrics.transformationCount ?? 0],
+                  ['生扶／比和', result?.ziweiSanFang?.patternMetrics.supportiveRelationCount ?? 0],
+                  ['制約訊號', result?.ziweiSanFang?.patternMetrics.constrainingRelationCount ?? 0],
+                ].map(([label, value]) => (
+                  <div key={label} className="border-b border-r border-white/10 px-3 py-3 text-center last:border-r-0 sm:border-b-0">
+                    <p className="text-xs text-[color:var(--text-muted)]">{label}</p>
+                    <p className="mt-1 text-lg font-semibold text-cyan-100">{value}</p>
+                  </div>
+                ))}
+              </div>}
+              <p className="relative mt-5 border-t border-white/10 pt-4 text-xs text-[color:var(--text-muted)]">
+                {result?.ziweiSanFang?.timeConfidence === 'exact'
+                  ? `結構統計：${result.ziweiSanFang.patternMetrics.methodology} · 定格依據：${result.ziweiSanFang.pattern.basis}`
+                  : '定格依據：請先提供真實出生時辰，避免以預設時辰產生錯誤命盤。'}
               </p>
             </div>
 
-            {/* 👑 天命格局解碼卡片 (置頂高亮展示) */}
-            {(() => {
-              const birthDate = result?.meta?.birthDate || input.birthDate;
-              const shichenValue = result?.meta?.shichen !== undefined ? result.meta.shichen : input.shichen;
-              
-              if (!birthDate) return null;
-              
-              const calc = calculateZiweiMainStar(birthDate, shichenValue);
-              if (!calc.starName) return null;
+            <SanFangSummaryCard analysis={result?.ziweiSanFang} />
 
-              return (
-                <div className="rounded-3xl border-2 border-amber-500/30 bg-gradient-to-r from-amber-950/20 via-slate-900/60 to-amber-950/20 p-6 sm:p-8 shadow-[0_0_30px_rgba(201,162,74,0.15)] relative overflow-hidden animate-rise">
-                  <div className="absolute top-0 right-0 p-4 text-4xl opacity-20 select-none">🪐</div>
-                  <div className="relative z-10">
-                    <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3.5 py-1 text-xs font-bold text-amber-300 tracking-widest">
-                      天宿本命星格
-                    </span>
-                    <h3 className="mt-4 font-serif text-3xl text-amber-200 tracking-wider">{calc.patternName}</h3>
-                    <p className="mt-1.5 text-xs text-amber-400/80 font-mono">星曜定位：{calc.starName} ({calc.patternStars})</p>
-                    <p className="mt-4 text-sm leading-8 text-[color:var(--text-sub)]">
-                      {calc.patternDesc}
-                    </p>
-                  </div>
-                </div>
-              );
-            })()}
+            <div className="hidden">
+              <ZiweiSanFangPanel analysis={result?.ziweiSanFang} />
+            </div>
 
-            {/* 🔮 靈魂心理學洞察 */}
+            {/* Gemini 文字洞察保留於回傳資料；紫微三方四正以可重算排盤面板呈現。 */}
             {result?.psychologyInsights && result.psychologyInsights.length > 0 && (
-              <div className="fortune-card p-6 sm:p-8">
+              <div className="hidden fortune-card p-6 sm:p-8">
                 <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">靈魂心理學洞察</p>
                 <div className="grid gap-6 md:grid-cols-3">
                   {result.psychologyInsights.slice(0, 3).map((insight, index) => (
@@ -796,7 +1094,7 @@ export default function InsightPage() {
               </div>
             )}
 
-            <div className="fortune-card p-6 sm:p-8">
+            <div className="hidden fortune-card p-6 sm:p-8">
               <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">關鍵發現</p>
               <div className="grid gap-4 sm:grid-cols-2">
                 {result?.bigDataInsights?.map((insight, index) => (

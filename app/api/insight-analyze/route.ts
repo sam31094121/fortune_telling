@@ -28,7 +28,8 @@ function cleanIpCache() {
 
 function getCacheKey(body: InsightRequest): string {
   const shichenKey = typeof body.shichen === 'number' ? String(body.shichen) : 'auto';
-  return `${body.name.trim()}|${body.birthDate}|${body.bloodType}|${body.gender}|${shichenKey}`;
+  const longitudeKey = typeof body.longitude === 'number' ? String(body.longitude) : 'standard-time';
+  return `${body.name.trim()}|${body.birthDate}|${body.birthTime}|${body.bloodType}|${body.gender}|${shichenKey}|${longitudeKey}`;
 }
 
 function validateInsightRequest(body: unknown): string | null {
@@ -48,6 +49,10 @@ function validateInsightRequest(body: unknown): string | null {
     return '生日不是有效日期。';
   }
 
+  if (typeof req.birthTime !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(req.birthTime)) {
+    return '請提供精確出生時間（時：分）。';
+  }
+
   if (typeof req.bloodType !== 'string' || !VALID_BLOOD_TYPES.includes(req.bloodType)) {
     return '血型只能是 A、B、AB、O。';
   }
@@ -56,13 +61,16 @@ function validateInsightRequest(body: unknown): string | null {
     return '性別只能是 male 或 female。';
   }
 
+  if (!(typeof req.shichen === 'number' && Number.isInteger(req.shichen) && req.shichen >= 0 && req.shichen <= 11)) {
+    return '紫微精準定盤需要真實出生時辰。';
+  }
+
   if (
-    req.shichen !== undefined &&
-    req.shichen !== null &&
-    req.shichen !== 'unknown' &&
-    !(typeof req.shichen === 'number' && Number.isInteger(req.shichen) && req.shichen >= 0 && req.shichen <= 11)
+    req.longitude !== undefined &&
+    req.longitude !== null &&
+    !(typeof req.longitude === 'number' && Number.isFinite(req.longitude) && req.longitude >= -180 && req.longitude <= 180)
   ) {
-    return '時辰資料格式無效。';
+    return '出生地經度必須介於 -180 至 180。';
   }
 
   return null;

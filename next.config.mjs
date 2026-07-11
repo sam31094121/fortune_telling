@@ -4,6 +4,9 @@ const nextConfig = {
   compress: true,
   productionBrowserSourceMaps: false,
   outputFileTracingRoot: process.cwd(),
+  // ZiWei's published runtime bundles its own module loader. It is only used by
+  // the server-side insight API, so let Node load it instead of re-bundling it.
+  serverExternalPackages: ['@ziweijs/core', 'tyme4ts'],
 
   // 性能优化
   poweredByHeader: false,

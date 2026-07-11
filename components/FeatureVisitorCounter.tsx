@@ -21,6 +21,18 @@ interface VisitorResponse {
   displayCount?: number;
 }
 
+function createVisitId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (character) => {
+    const random = Math.floor(Math.random() * 16);
+    const value = character === 'x' ? random : (random & 0x3) | 0x8;
+    return value.toString(16);
+  });
+}
+
 export default function FeatureVisitorCounter({
   featureKey,
   className = '',
@@ -30,10 +42,12 @@ export default function FeatureVisitorCounter({
 }) {
   const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT);
   const didRecord = useRef(false);
+  const visitId = useRef<string | null>(null);
 
   useEffect(() => {
     if (didRecord.current) return;
     didRecord.current = true;
+    visitId.current ??= createVisitId();
 
     const controller = new AbortController();
 
@@ -42,7 +56,7 @@ export default function FeatureVisitorCounter({
         const response = await fetch('/api/visitor/record', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ featureKey }),
+          body: JSON.stringify({ featureKey, visitId: visitId.current }),
           cache: 'no-store',
           signal: controller.signal,
         });
@@ -64,7 +78,7 @@ export default function FeatureVisitorCounter({
 
   return (
     <aside
-      className={`w-fit rounded-2xl border border-amber-300/30 bg-white/[0.08] px-[18px] py-[14px] text-[color:var(--text-main)] shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl ${className}`}
+      className={`inline-flex w-fit flex-col rounded-2xl border border-amber-300/30 bg-white/[0.08] px-[18px] py-[14px] text-[color:var(--text-main)] shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl ${className}`}
       aria-label="目前瀏覽人數"
     >
       <div className="text-[13px] text-[color:var(--text-main)] opacity-75">目前瀏覽人數</div>

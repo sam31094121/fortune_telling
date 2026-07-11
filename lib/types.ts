@@ -23,10 +23,13 @@ export interface AnalyzeRequest {
 export interface InsightRequest {
   name: string;
   birthDate: string;
+  birthTime: string;
   bloodType: Exclude<BloodType, ''>;
   gender: Gender;
-  // 時辰：number(0–11 地支序)=已知；'unknown'/null=不知道（自動套良辰吉時）
+  // 時辰：number(0–11 地支序)=已知；'unknown'/null=未知。
   shichen?: number | 'unknown' | null;
+  // Optional true-solar-time correction. The UI only sends this when the user provides it.
+  longitude?: number | null;
 }
 
 export interface PreviewRequest {
