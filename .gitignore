@@ -17,6 +17,10 @@
 .env.local
 .env*.local
 
+# Local fallback visitor counters (created when Supabase is not configured).
+/data/visitor-counters.json
+/data/visitor-counters.json.tmp
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

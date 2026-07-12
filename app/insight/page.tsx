@@ -6,21 +6,19 @@ import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import { saveUserData, loadUserData } from '@/lib/storage';
-import { SHICHEN_LIST, shichenFromClockHour } from '@/lib/shichen-engine';
+import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 
-// 時辰：null=未選（送出時自動採良辰吉時）、'unknown'=明確不知道、0–11=已選時辰
-type ShichenChoice = number | 'unknown' | null;
+// 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
+type ShichenChoice = number | 'unknown' | 'known' | null;
 
 interface InsightData {
   name: string;
   birthDate: string;
-  birthTime: string;
   bloodType: 'A' | 'B' | 'AB' | 'O';
   gender: 'male' | 'female';
   shichen: ShichenChoice;
-  longitude: number | null;
 }
 
 interface InsightResult {
@@ -114,6 +112,9 @@ interface InsightResult {
     patternMetrics: {
       coreStarCount: number;
       patternStarCount: number;
+      patternCoverage: number;
+      trinePalaceCoverage: number;
+      oppositePalaceStarCount: number;
       transformationCount: number;
       supportiveRelationCount: number;
       constrainingRelationCount: number;
@@ -394,8 +395,8 @@ function SanFangSummaryCard({ analysis }: { analysis?: InsightResult['ziweiSanFa
         <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">紫微斗數・八字</p>
         <div className="mt-3 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="font-serif text-3xl text-amber-100 sm:text-4xl">三方四正</h2>
-            <p className="mt-2 text-sm text-[color:var(--text-sub)]">命宮 × 財帛宮 × 官祿宮 × 遷移宮</p>
+            <h2 className="font-serif text-3xl text-amber-100 sm:text-4xl">{analysis.pattern.name}</h2>
+            <p className="mt-2 text-sm text-[color:var(--text-sub)]">命宮 × 財帛宮 × 官祿宮 × 遷移宮主星交叉定格</p>
           </div>
           <div className="text-left sm:text-right">
             <p className="text-5xl font-bold text-amber-200">{analysis.consistencyScore}<span className="ml-1 text-xl">%</span></p>
@@ -407,8 +408,8 @@ function SanFangSummaryCard({ analysis }: { analysis?: InsightResult['ziweiSanFa
           <span className="text-[color:var(--text-muted)]">命盤資料完整度</span>
           <span className="font-semibold text-cyan-100">{analysis.dataCompleteness}%</span>
           <span className="text-[color:var(--text-muted)]">·</span>
-          <span className="text-[color:var(--text-muted)]">主要結構</span>
-          <span className="font-semibold text-amber-200">{analysis.pattern.name}</span>
+          <span className="text-[color:var(--text-muted)]">定格依據</span>
+          <span className="font-semibold text-amber-200">{analysis.pattern.basis}</span>
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -423,6 +424,19 @@ function SanFangSummaryCard({ analysis }: { analysis?: InsightResult['ziweiSanFa
               </div>
             );
           })}
+        </div>
+
+        <div className="mt-4 grid grid-cols-3 border-y border-white/10">
+          {[
+            ['關鍵星覆蓋', `${analysis.patternMetrics.patternCoverage}%`],
+            ['三方分布', `${analysis.patternMetrics.trinePalaceCoverage}%`],
+            ['遷移對宮訊號', analysis.patternMetrics.oppositePalaceStarCount],
+          ].map(([label, value]) => (
+            <div key={label} className="border-r border-white/10 px-3 py-3 text-center last:border-r-0">
+              <p className="text-[11px] text-[color:var(--text-muted)]">{label}</p>
+              <p className="mt-1 text-lg font-semibold text-cyan-100">{value}</p>
+            </div>
+          ))}
         </div>
 
         <p className="mt-6 border-l-2 border-amber-400 px-4 text-sm leading-7 text-[color:var(--text-sub)]">
@@ -510,11 +524,9 @@ export default function InsightPage() {
   const [input, setInput] = useState<InsightData>({
     name: '',
     birthDate: '',
-    birthTime: '',
     bloodType: 'A',
     gender: 'female',
     shichen: null,
-    longitude: null,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -568,13 +580,10 @@ export default function InsightPage() {
       return '請輸入完整的生日日期。';
     }
 
-    if (typeof input.shichen !== 'number') {
-      return '紫微精準定盤需要真實出生時辰，請先選擇時辰。';
+    if (input.shichen === 'known') {
+      return '請先選擇出生時辰，或改選「不知道出生時辰」。';
     }
 
-    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(input.birthTime)) {
-      return '請輸入精確出生時間（時：分）。';
-    }
 
     if (!input.bloodType || !['A', 'B', 'AB', 'O'].includes(input.bloodType)) {
       return '請選擇有效的血型。';
@@ -618,11 +627,10 @@ export default function InsightPage() {
           body: JSON.stringify({
             name: input.name.trim(),
             birthDate: input.birthDate.trim(),
-            birthTime: input.birthTime,
+            birthTime: '12:00',
             bloodType: input.bloodType,
             gender: input.gender,
-            shichen: input.shichen,
-            longitude: input.longitude,
+            shichen: typeof input.shichen === 'number' ? input.shichen : 'unknown',
           }),
         });
 
@@ -763,11 +771,11 @@ export default function InsightPage() {
                     ✓ 血型 {input.bloodType ? input.bloodType + '型' : '(未選)'}
                   </div>
                   <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    input.shichen !== null
+                    input.shichen !== null && input.shichen !== 'known'
                       ? 'bg-green-500/20 text-green-300 border border-green-400/30'
                       : 'bg-white/10 text-[color:var(--text-muted)] border border-white/10'
                   }`}>
-                  ✓ 時辰 {typeof input.shichen === 'number' ? SHICHEN_LIST[input.shichen].label : '(尚未確認)'}
+                  ✓ 時辰 {typeof input.shichen === 'number' ? SHICHEN_LIST[input.shichen].label : input.shichen === 'known' ? '等待選擇' : '自動良辰'}
                   </div>
                 </div>
               </div>
@@ -857,85 +865,91 @@ export default function InsightPage() {
               <div>
                 <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
                   5. 出生時辰
-                  <span className="ml-1 text-xs font-normal text-amber-300">（紫微定盤必填）</span>
-                  {input.shichen !== null && <span className="text-green-400"> ✓</span>}
+                  <span className="ml-1 text-xs font-normal text-amber-300">（選填）</span>
+                  {input.shichen !== null && input.shichen !== 'known' && <span className="text-green-400"> ✓</span>}
                 </label>
                 <p className="mb-4 text-xs leading-6 text-[color:var(--text-muted)]">
-                  真實時辰是紫微命宮、三方四正與八字時柱的必要資料；未確認時辰不會產生單一命宮。
+                  真實時辰可提升紫微命宮精準度；不知道也沒關係，系統會依你的生日自動挑選良辰吉時，分析仍可照常完成。
                 </p>
 
-                <label className="block text-xs font-semibold tracking-wide text-cyan-200" htmlFor="insight-birth-time">
-                  精確出生時間（24 小時制）
-                </label>
-                <input
-                  id="insight-birth-time"
-                  type="time"
-                  step="60"
-                  value={input.birthTime}
-                  onChange={(event) => {
-                    const birthTime = event.target.value;
-                    const hour = Number(birthTime.split(':')[0]);
-                    setInput({
-                      ...input,
-                      birthTime,
-                      shichen: Number.isInteger(hour) ? shichenFromClockHour(hour) : null,
-                    });
-                  }}
-                  className="mt-2 w-full rounded-lg border border-cyan-400/30 bg-cyan-950/20 px-4 py-3 text-lg font-semibold tracking-widest text-cyan-100 outline-none transition focus:border-cyan-300"
-                />
-                <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
-                  系統會以這個實際分鐘計算八字時柱與真太陽時；下方十二時辰僅作核對。
-                </p>
 
-                <div className="my-4 flex items-center gap-3">
-                  <div className="h-px flex-1 bg-white/10" />
-                  <span className="shrink-0 text-xs text-cyan-200">請選擇真實出生時辰</span>
-                  <div className="h-px flex-1 bg-white/10" />
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => setInput({ ...input, shichen: 'unknown' })}
+                    className={`group relative overflow-hidden rounded-2xl border px-5 py-5 text-left transition-all duration-500 ${
+                      input.shichen === 'unknown'
+                        ? 'border-amber-200/80 bg-amber-300/15 text-amber-100 shadow-[0_0_28px_rgba(255,255,255,0.3),0_0_70px_rgba(251,191,36,0.25)]'
+                        : 'border-white/20 bg-white/[0.06] text-[color:var(--text-main)] shadow-[0_0_24px_rgba(255,255,255,0.08)] hover:border-amber-200/70 hover:bg-amber-200/10 hover:shadow-[0_0_34px_rgba(255,255,255,0.22),0_0_80px_rgba(251,191,36,0.2)]'
+                    }`}
+                  >
+                    <span className="pointer-events-none absolute -inset-8 rounded-[2rem] bg-white/10 opacity-60 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
+                    <span className="pointer-events-none absolute inset-0 rounded-2xl border border-white/10 opacity-70" />
+                    <span className="relative flex items-start gap-3">
+                      <span className="mt-0.5 text-2xl text-amber-100 drop-shadow-[0_0_12px_rgba(255,255,255,0.9)]">✦</span>
+                      <span>
+                        <span className="block text-base font-bold">不知道出生時辰</span>
+                        <span className="mt-1.5 block text-xs leading-5 text-[color:var(--text-sub)]">
+                          系統依生日自動挑選良辰吉時，直接完成初步排盤。
+                        </span>
+                      </span>
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setInput({ ...input, shichen: typeof input.shichen === 'number' ? input.shichen : 'known' })}
+                    className={`group relative overflow-hidden rounded-2xl border px-5 py-5 text-left transition-all duration-500 ${
+                      input.shichen === 'known' || typeof input.shichen === 'number'
+                        ? 'border-cyan-200/80 bg-cyan-300/15 text-cyan-100 shadow-[0_0_28px_rgba(255,255,255,0.3),0_0_70px_rgba(34,211,238,0.25)]'
+                        : 'border-white/20 bg-white/[0.06] text-[color:var(--text-main)] shadow-[0_0_24px_rgba(255,255,255,0.08)] hover:border-cyan-200/70 hover:bg-cyan-200/10 hover:shadow-[0_0_34px_rgba(255,255,255,0.22),0_0_80px_rgba(34,211,238,0.2)]'
+                    }`}
+                  >
+                    <span className="pointer-events-none absolute -inset-8 rounded-[2rem] bg-white/10 opacity-60 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
+                    <span className="pointer-events-none absolute inset-0 rounded-2xl border border-white/10 opacity-70" />
+                    <span className="relative flex items-start gap-3">
+                      <span className="mt-0.5 text-2xl text-cyan-100 drop-shadow-[0_0_12px_rgba(255,255,255,0.9)]">◌</span>
+                      <span>
+                        <span className="block text-base font-bold">我知道出生時辰</span>
+                        <span className="mt-1.5 block text-xs leading-5 text-[color:var(--text-sub)]">
+                          展開時辰選單，使用真實資料完成更精準的排盤。
+                        </span>
+                      </span>
+                    </span>
+                  </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {SHICHEN_LIST.map((s) => {
-                    const selected = input.shichen === s.branchIndex;
-                    return (
-                      <button
-                        key={s.branchIndex}
-                        type="button"
-                        onClick={() => setInput({ ...input, shichen: s.branchIndex })}
-                        className={`rounded-2xl border px-3 py-3 text-left transition-all ${
-                          selected ? 'border-cyan-400 bg-cyan-400/15' : 'border-white/10 bg-white/5 hover:border-white/20'
-                        }`}
-                      >
-                        <p className={`text-base font-bold ${selected ? 'text-cyan-300' : 'text-[color:var(--text-main)]'}`}>{s.label}</p>
-                        <p className="mt-0.5 text-xs font-semibold text-[color:var(--text-sub)]">{s.range}</p>
-                        <p className="mt-1 text-[11px] leading-4 text-[color:var(--text-muted)]">{s.imagery}</p>
-                      </button>
-                    );
-                  })}
-                </div>
+                {(input.shichen === 'known' || typeof input.shichen === 'number') && (
+                  <div className="mt-5 rounded-2xl border border-cyan-300/25 bg-cyan-950/20 p-4 shadow-[0_0_30px_rgba(34,211,238,0.12)]">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <span className="text-xs font-semibold tracking-wide text-cyan-100">請選擇你的出生時辰</span>
+                      <span className="text-[11px] text-cyan-200/70">選定後自動套用</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {SHICHEN_LIST.map((s) => {
+                        const selected = input.shichen === s.branchIndex;
+                        return (
+                          <button
+                            key={s.branchIndex}
+                            type="button"
+                            onClick={() => setInput({ ...input, shichen: s.branchIndex })}
+                            className={`rounded-xl border px-3 py-3 text-left transition-all ${
+                              selected ? 'border-cyan-200 bg-cyan-400/20 text-cyan-100 shadow-[0_0_18px_rgba(255,255,255,0.18)]' : 'border-white/10 bg-white/5 hover:border-cyan-300/50 hover:bg-cyan-400/10'
+                            }`}
+                          >
+                            <p className={`text-base font-bold ${selected ? 'text-cyan-100' : 'text-[color:var(--text-main)]'}`}>{s.label}</p>
+                            <p className="mt-0.5 text-xs font-semibold text-[color:var(--text-sub)]">{s.range}</p>
+                            <p className="mt-1 text-[11px] leading-4 text-[color:var(--text-muted)]">{s.imagery}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div>
-                <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
-                  6. 出生地經度
-                  <span className="ml-1 text-xs font-normal text-[color:var(--text-muted)]">（紫微真太陽時校正，選填）</span>
-                </label>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  min="-180"
-                  max="180"
-                  step="0.0001"
-                  value={input.longitude ?? ''}
-                  onChange={(event) => {
-                    const value = event.target.value.trim();
-                    const longitude = value === '' ? null : Number(value);
-                    setInput({ ...input, longitude: Number.isFinite(longitude) ? longitude : null });
-                  }}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-[color:var(--text-main)] outline-none transition placeholder:text-[color:var(--text-muted)] focus:border-cyan-400/60"
-                  placeholder="例如台北 121.5654、台中 120.6736、高雄 120.3014"
-                />
-                <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">已提供真實時辰與經度時，系統會以 UTC+8 真太陽時校正排盤；未填經度則採標準時。</p>
-              </div>
+
 
               {error && (
                 <div className="rounded-2xl border-l-4 border-l-rose-400 border border-rose-400/20 bg-rose-950/30 p-4 text-sm text-rose-300 animate-pulse">
@@ -968,7 +982,7 @@ export default function InsightPage() {
                 {(input.name || input.birthDate) && (
                   <button
                     onClick={() => {
-                      setInput({ name: '', birthDate: '', birthTime: '', bloodType: 'A', gender: 'female', shichen: null, longitude: null });
+                      setInput({ name: '', birthDate: '', bloodType: 'A', gender: 'female', shichen: null });
                       setError('');
                     }}
                     disabled={loading}

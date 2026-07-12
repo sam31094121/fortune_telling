@@ -398,9 +398,10 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
   // qualify a single Ziwei chart as confirmed.
   const shichenBranchIndex = typeof request.shichen === 'number' ? request.shichen : null;
   const shichen = computeShichenProfile({ birthDate: request.birthDate, shichenBranchIndex });
+  const selectedHour = `${String(shichen.shichen.startHour).padStart(2, '0')}:00`;
   const ziweiSanFang = calculateZiweiSanFang({
     birthDate: request.birthDate,
-    birthTime: request.birthTime,
+    birthTime: selectedHour,
     gender: request.gender,
     // Unknown hours share the same auspicious fallback as the existing profile,
     // but remain explicitly marked as an estimate in the Ziwei result.
@@ -426,7 +427,7 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 - 性別: ${request.gender === 'female' ? '女性' : '男性'}
 
 【八字時辰（人 30% 子層，供八字與紫微斗數分析）】
-- 出生時間: ${request.birthTime} · ${shichen.shichen.label}（${shichen.shichen.range}）
+  - 出生時間: ${selectedHour} · ${shichen.shichen.label}（${shichen.shichen.range}）
 - 八字日柱: ${shichen.dayPillar} · 時柱: ${shichen.hourPillar.ganzhi}
 - 時辰五行: ${shichen.wuxing}
 
@@ -434,7 +435,7 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 - 四柱: ${ziweiSanFang.bazi.year} ${ziweiSanFang.bazi.month} ${ziweiSanFang.bazi.day} ${ziweiSanFang.bazi.hour}
 - 日主: ${ziweiSanFang.bazi.dayMaster}
 - 命、財帛、官祿、遷移宮: ${ziweiSanFang.timeConfidence === 'exact' ? ziweiSanFang.palaces.map((palace) => `${palace.name}(${palace.majorStars.join('、') || '無主星'})`).join('；') : '時辰未確認，不提供單一命宮或格局'}
-- 時辰可靠度: ${ziweiSanFang.timeConfidence === 'exact' ? '使用者已提供時辰' : '時辰未確認，僅可作趨勢參考'}
+  - 時辰可靠度: ${ziweiSanFang.timeConfidence === 'exact' ? '使用者已提供時辰' : '系統依生日自動選用良辰吉時，待真實時辰校正'}
 
 【個性特質分數】(0-100)
 生日骨架:

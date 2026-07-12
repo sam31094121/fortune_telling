@@ -28,8 +28,7 @@ function cleanIpCache() {
 
 function getCacheKey(body: InsightRequest): string {
   const shichenKey = typeof body.shichen === 'number' ? String(body.shichen) : 'auto';
-  const longitudeKey = typeof body.longitude === 'number' ? String(body.longitude) : 'standard-time';
-  return `${body.name.trim()}|${body.birthDate}|${body.birthTime}|${body.bloodType}|${body.gender}|${shichenKey}|${longitudeKey}`;
+  return `${body.name.trim()}|${body.birthDate}|${body.bloodType}|${body.gender}|${shichenKey}`;
 }
 
 function validateInsightRequest(body: unknown): string | null {
@@ -49,8 +48,11 @@ function validateInsightRequest(body: unknown): string | null {
     return '生日不是有效日期。';
   }
 
-  if (typeof req.birthTime !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(req.birthTime)) {
-    return '請提供精確出生時間（時：分）。';
+  // birthTime 為選填，前端已移除此欄位，後端容許缺失並預設 '12:00'
+  if (req.birthTime !== undefined && typeof req.birthTime === 'string' && req.birthTime.length > 0) {
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(req.birthTime)) {
+      return '出生時間格式不正確（時：分）。';
+    }
   }
 
   if (typeof req.bloodType !== 'string' || !VALID_BLOOD_TYPES.includes(req.bloodType)) {
@@ -61,8 +63,13 @@ function validateInsightRequest(body: unknown): string | null {
     return '性別只能是 male 或 female。';
   }
 
-  if (!(typeof req.shichen === 'number' && Number.isInteger(req.shichen) && req.shichen >= 0 && req.shichen <= 11)) {
-    return '紫微精準定盤需要真實出生時辰。';
+  const hasValidShichen =
+    req.shichen === undefined ||
+    req.shichen === null ||
+    req.shichen === 'unknown' ||
+    (typeof req.shichen === 'number' && Number.isInteger(req.shichen) && req.shichen >= 0 && req.shichen <= 11);
+  if (!hasValidShichen) {
+    return '出生時辰格式不正確。';
   }
 
   if (
@@ -95,7 +102,11 @@ export async function POST(request: Request) {
   let body: InsightRequest;
 
   try {
-    body = (await request.json()) as InsightRequest;
+    const rawBody = (await request.json()) as Partial<InsightRequest>;
+    body = {
+      ...rawBody,
+      birthTime: typeof rawBody.birthTime === 'string' && rawBody.birthTime.length > 0 ? rawBody.birthTime : '12:00',
+    } as InsightRequest;
   } catch {
     return NextResponse.json({ error: '請傳入有效的 JSON。' }, { status: 400 });
   }

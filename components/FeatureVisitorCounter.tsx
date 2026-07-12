@@ -36,22 +36,25 @@ function createVisitId() {
 export default function FeatureVisitorCounter({
   featureKey,
   className = '',
+  trackWhenVisible = false,
 }: {
   featureKey: FeatureKey;
   className?: string;
+  trackWhenVisible?: boolean;
 }) {
   const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT);
+  const cardRef = useRef<HTMLElement>(null);
   const didRecord = useRef(false);
   const visitId = useRef<string | null>(null);
 
   useEffect(() => {
-    if (didRecord.current) return;
-    didRecord.current = true;
-    visitId.current ??= createVisitId();
-
     const controller = new AbortController();
 
     async function recordFeatureVisit() {
+      if (didRecord.current) return;
+      didRecord.current = true;
+      visitId.current ??= createVisitId();
+
       try {
         const response = await fetch('/api/visitor/record', {
           method: 'POST',
@@ -71,13 +74,32 @@ export default function FeatureVisitorCounter({
       }
     }
 
-    void recordFeatureVisit();
+    if (!trackWhenVisible || typeof IntersectionObserver === 'undefined' || !cardRef.current) {
+      void recordFeatureVisit();
+    } else {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            void recordFeatureVisit();
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.5 },
+      );
+      observer.observe(cardRef.current);
+
+      return () => {
+        observer.disconnect();
+        controller.abort();
+      };
+    }
 
     return () => controller.abort();
-  }, [featureKey]);
+  }, [featureKey, trackWhenVisible]);
 
   return (
     <aside
+      ref={cardRef}
       className={`inline-flex w-fit flex-col rounded-2xl border border-amber-300/30 bg-white/[0.08] px-[18px] py-[14px] text-[color:var(--text-main)] shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl ${className}`}
       aria-label="目前瀏覽人數"
     >

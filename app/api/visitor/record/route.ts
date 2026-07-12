@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 
+import { recordLocalVisitorVisit } from '@/lib/local-visitor-counter';
 import { getVisitorSupabaseClient, isFeatureKey } from '@/lib/visitor-counter';
 
 export const dynamic = 'force-dynamic';
@@ -19,25 +20,32 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ ok: false, message: '請求格式錯誤。' }, { status: 400 });
+    return NextResponse.json({ ok: false, message: '請提供有效的請求資料。' }, { status: 400 });
   }
 
   if (!isFeatureKey(body.featureKey)) {
-    return NextResponse.json({ ok: false, message: '缺少或不支援的功能代碼。' }, { status: 400 });
+    return NextResponse.json({ ok: false, message: '缺少有效的功能代碼。' }, { status: 400 });
   }
 
-  // Cached clients from a previous release may not send an ID yet. They still
-  // count once, while current clients get retry-safe idempotency.
   const visitId = typeof body.visitId === 'string' && UUID_PATTERN.test(body.visitId)
     ? body.visitId
     : randomUUID();
 
   const supabase = getVisitorSupabaseClient();
   if (!supabase) {
-    return NextResponse.json(
-      { ok: false, message: '瀏覽計數服務尚未設定。' },
-      { status: 503, headers: { 'Cache-Control': 'no-store' } },
-    );
+    try {
+      const displayCount = await recordLocalVisitorVisit(body.featureKey);
+      return NextResponse.json(
+        { ok: true, featureKey: body.featureKey, displayCount, storage: 'local' },
+        { headers: { 'Cache-Control': 'no-store' } },
+      );
+    } catch (error) {
+      console.error('[visitor-counter] local record failed', error);
+      return NextResponse.json(
+        { ok: false, message: '瀏覽計數暫時無法保存。' },
+        { status: 503, headers: { 'Cache-Control': 'no-store' } },
+      );
+    }
   }
 
   const { data, error } = await supabase.rpc('record_visitor_visit', {
@@ -49,7 +57,7 @@ export async function POST(request: Request) {
   if (error || !row || !Number.isSafeInteger(Number(row.display_count))) {
     console.error('[visitor-counter] record failed', error?.message ?? 'No counter row returned');
     return NextResponse.json(
-      { ok: false, message: '系統正在重新整理。' },
+      { ok: false, message: '瀏覽計數暫時無法保存。' },
       { status: 503, headers: { 'Cache-Control': 'no-store' } },
     );
   }
@@ -59,6 +67,7 @@ export async function POST(request: Request) {
       ok: true,
       featureKey: row.feature_key,
       displayCount: Number(row.display_count),
+      storage: 'supabase',
     },
     { headers: { 'Cache-Control': 'no-store' } },
   );

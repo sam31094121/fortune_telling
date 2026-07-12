@@ -1,6 +1,6 @@
 import { calculateHourByIndex, calculateTrueSolarTime, ziwei } from '@ziweijs/core';
 import { LunarHour } from 'tyme4ts';
-import { shichenFromClockHour } from './shichen-engine';
+import { getShichenInfo, shichenFromClockHour } from './shichen-engine';
 
 const PALACE_CONFIG = [
   { key: 'MING', name: '命宮', focus: '核心人格與行動動能' },
@@ -49,6 +49,9 @@ export interface ZiweiPattern {
 export interface ZiweiPatternMetrics {
   coreStarCount: number;
   patternStarCount: number;
+  patternCoverage: number;
+  trinePalaceCoverage: number;
+  oppositePalaceStarCount: number;
   transformationCount: number;
   supportiveRelationCount: number;
   constrainingRelationCount: number;
@@ -189,13 +192,38 @@ function identifyCorePattern(palaces: ZiweiPalaceEvidence[]): ZiweiPattern {
   const corePalaces = palaces.filter((palace) => palace.key !== 'QIAN_YI');
   const coreStars = [...new Set(corePalaces.flatMap((palace) => palace.majorStars))];
   const hasEvery = (stars: string[]) => stars.every((star) => coreStars.includes(star));
+  const hasDistributedStars = (stars: string[]) => {
+    const coveredPalaces = stars
+      .map((star) => corePalaces.find((palace) => palace.majorStars.includes(star))?.key)
+      .filter((key): key is PalaceKey => Boolean(key));
+    return new Set(coveredPalaces).size === Math.min(stars.length, corePalaces.length);
+  };
+  const sharesPalace = (stars: string[]) => corePalaces.some((palace) => stars.every((star) => palace.majorStars.includes(star)));
 
-  if (hasEvery(['七殺', '破軍', '貪狼'])) {
+  if (hasEvery(['七殺', '破軍', '貪狼']) && hasDistributedStars(['七殺', '破軍', '貪狼'])) {
     return {
       name: '殺破狼格局',
       stars: ['七殺', '破軍', '貪狼'],
       description: '命、財帛、官祿三方同見七殺、破軍、貪狼。此為變動、開創與突破訊號較集中的三方組合。',
-      basis: '命財官三方主星完整包含七殺、破軍、貪狼',
+      basis: '七殺、破軍、貪狼分布於命財官三方核心宮位',
+    };
+  }
+
+  if (hasEvery(['天機', '太陰', '天同', '天梁'])) {
+    return {
+      name: '機月同梁格局',
+      stars: ['天機', '太陰', '天同', '天梁'],
+      description: '命財官三方四正同見天機、太陰、天同、天梁，形成思考、協調、規劃與服務能力交會的主星結構。',
+      basis: '命財官三方四正完整包含天機、太陰、天同、天梁',
+    };
+  }
+
+  if (sharesPalace(['紫微', '天府'])) {
+    return {
+      name: '紫府同宮格局',
+      stars: ['紫微', '天府'],
+      description: '命宮或三方核心宮位同宮見紫微、天府，形成統整資源、承擔責任與管理全局的主星組合。',
+      basis: '同一核心宮位同見紫微、天府',
     };
   }
 
@@ -217,8 +245,17 @@ function identifyCorePattern(palaces: ZiweiPalaceEvidence[]): ZiweiPattern {
     };
   }
 
+  if (hasEvery(['天府', '天相'])) {
+    return {
+      name: '府相朝垣格局',
+      stars: ['天府', '天相'],
+      description: '命財官三方四正同見天府與天相，呈現資源整合、制度協作與穩定承擔的主星結構。',
+      basis: '命財官三方四正同見天府、天相',
+    };
+  }
+
   return {
-    name: '命財官三方格局',
+    name: '命財官遷綜合格局',
     stars: coreStars,
     description: '依命宮、財帛宮與官祿宮的實際主星組成，搭配遷移對宮完成三方四正的整體判讀。',
     basis: '命財官三方主星組合，遷移宮作對宮交叉比對',
@@ -231,7 +268,19 @@ function calculatePatternMetrics(
   dayMasterElement: string,
 ): ZiweiPatternMetrics {
   const corePalaces = palaces.filter((palace) => palace.key !== 'QIAN_YI');
-  const coreStars = corePalaces.flatMap((palace) => palace.majorStars);
+  const coreStars = [...new Set(corePalaces.flatMap((palace) => palace.majorStars))];
+  const patternStarSet = new Set(pattern.stars);
+  const patternStarCount = pattern.stars.filter((star) => coreStars.includes(star)).length;
+  const trinePalaceCoverage = pattern.stars.length === 0
+    ? 0
+    : Math.round(
+        (corePalaces.filter((palace) => palace.majorStars.some((star) => patternStarSet.has(star))).length /
+          Math.max(1, corePalaces.length)) * 100,
+      );
+  const patternCoverage = pattern.stars.length === 0
+    ? 100
+    : Math.round((patternStarCount / pattern.stars.length) * 100);
+  const oppositePalaceStarCount = palaces.find((palace) => palace.key === 'QIAN_YI')?.majorStars.length ?? 0;
   let supportiveRelationCount = 0;
   let constrainingRelationCount = 0;
 
@@ -246,11 +295,14 @@ function calculatePatternMetrics(
 
   return {
     coreStarCount: coreStars.length,
-    patternStarCount: pattern.stars.filter((star) => coreStars.includes(star)).length,
+    patternStarCount,
+    patternCoverage,
+    trinePalaceCoverage,
+    oppositePalaceStarCount,
     transformationCount: corePalaces.reduce((count, palace) => count + palace.transformations.length, 0),
     supportiveRelationCount,
     constrainingRelationCount,
-    methodology: '命財官三方主星數 + 格局關鍵星覆蓋 + 生年四化落宮數 + 主星五行對日主關係',
+    methodology: '關鍵主星覆蓋率 + 三方宮位分布率 + 遷移對宮訊號 + 生年四化 + 八字日主五行關係',
   };
 }
 
@@ -260,10 +312,7 @@ function calculateConsistencyScore(
   dataCompleteness: number,
 ) {
   const coreStructure = Math.min(100, Math.round((patternMetrics.coreStarCount / 6) * 100));
-  const patternCoverage = pattern.stars.length === 0
-    ? 0
-    : Math.round((patternMetrics.patternStarCount / pattern.stars.length) * 100);
-  const transformationConsistency = Math.min(100, 60 + patternMetrics.transformationCount * 10);
+  const transformationConsistency = Math.min(100, 40 + patternMetrics.transformationCount * 15);
   const relationTotal = patternMetrics.supportiveRelationCount + patternMetrics.constrainingRelationCount;
   const supportiveSignals = relationTotal === 0
     ? 50
@@ -272,12 +321,16 @@ function calculateConsistencyScore(
     ? 0
     : Math.round((patternMetrics.constrainingRelationCount / relationTotal) * 100);
 
+  const oppositeSignal = Math.min(100, patternMetrics.oppositePalaceStarCount * 50);
+
   return Math.max(0, Math.min(100, Math.round(
-    coreStructure * 0.3
-    + patternCoverage * 0.2
-    + transformationConsistency * 0.2
-    + supportiveSignals * 0.15
+    coreStructure * 0.2
+    + patternMetrics.patternCoverage * 0.2
+    + patternMetrics.trinePalaceCoverage * 0.2
+    + transformationConsistency * 0.1
+    + supportiveSignals * 0.1
     + (100 - constrainingSignals) * 0.1
+    + oppositeSignal * 0.05
     + dataCompleteness * 0.05,
   )));
 }
@@ -298,6 +351,7 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
   const exactClock = parseBirthTime(input.birthTime);
   const exactShichen = shichenFromClockHour(exactClock.hour);
   const shichen = resolveShichen(exactShichen, input.isTimeConfirmed);
+  const resolvedShichen = getShichenInfo(shichen.index);
   const [fallbackHour, fallbackMinute, fallbackSecond] = calculateHourByIndex(shichen.index);
   const hour = exactClock.hour ?? fallbackHour;
   const minute = exactClock.minute ?? fallbackMinute;
@@ -331,7 +385,7 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
     hour: eightChar.getHour().getName(),
   };
   const isExactTime = shichen.confidence === 'exact';
-  const pillars = isExactTime ? [bazi.year, bazi.month, bazi.day, bazi.hour] : [bazi.year, bazi.month, bazi.day];
+  const pillars = [bazi.year, bazi.month, bazi.day, bazi.hour];
   const elementBalance = getElementBalance(pillars);
   const dayMaster = bazi.day.charAt(0);
   const dayMasterElement = STEM_ELEMENT[dayMaster] ?? '未知';
@@ -356,37 +410,32 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
     };
   });
 
-  const visiblePalaces = isExactTime ? palaces : [];
+  // 未知時辰也先使用生日挑出的良辰吉時完成暫定排盤，並透過
+  // timeConfidence 清楚標記為 estimated，讓客戶可以先取得結果。
+  const visiblePalaces = palaces;
   const corePalaces = visiblePalaces.filter((palace) => palace.key !== 'QIAN_YI');
   const crossChecks = corePalaces.map((palace) => makeCrossCheck(palace, dayMasterElement, elementBalance));
-  const pattern = isExactTime
-    ? identifyCorePattern(palaces)
-    : {
-        name: '時辰待確認',
-        stars: [],
-        description: '紫微命宮、三方四正與格局會隨出生時辰改變。未提供真實時辰時，系統不顯示單一命宮或格局，以避免誤導。',
-        basis: '請提供真實出生時辰後再定格',
-      };
+  const pattern = identifyCorePattern(palaces);
   const patternMetrics = calculatePatternMetrics(visiblePalaces, pattern, dayMasterElement);
-  const dataCompleteness = isExactTime ? (hasLongitude ? 100 : 90) : 0;
+  const dataCompleteness = isExactTime ? (hasLongitude ? 100 : 90) : (hasLongitude ? 75 : 65);
   const consistencyScore = calculateConsistencyScore(patternMetrics, pattern, dataCompleteness);
   const summary = isExactTime
     ? buildSanFangSummary(visiblePalaces, pattern)
-    : '出生時辰尚未確認，暫不產生單一命宮與三方四正結論。';
+    : `系統依生日自動選用${resolvedShichen.label}作為暫定時辰，先完成命財官遷三方四正與「${pattern.name}」判讀；日後補上真實時辰即可重新校正。`;
 
   return {
     methodVersion: '北派十四主星 + 節氣八字四柱 + 命財官遷三方四正 V1.0',
     timeConfidence: shichen.confidence,
     timeNote: shichen.confidence === 'exact'
       ? hasLongitude ? '已依使用者選定時辰與出生地經度套用真太陽時校正。' : '已依使用者選定時辰排盤；尚未提供出生地經度，採標準時。'
-      : '未提供出生時辰。為避免產生錯誤命宮，紫微格局與四宮判讀已暫停顯示。',
+      : `未提供真實出生時辰；系統已依生日自動採用${resolvedShichen.label}（${resolvedShichen.range}）完成暫定排盤，之後可用真實時辰重新校正。`,
     trueSolarTimeApplied: hasLongitude && isExactTime,
     dataCompleteness,
     consistencyScore,
     summary,
     bazi: {
       ...bazi,
-      hour: isExactTime ? bazi.hour : '待確認',
+      hour: bazi.hour,
       dayMaster: `${dayMaster}${dayMasterElement}`,
       elementBalance,
     },
