@@ -244,3 +244,25 @@
 [2026-07-13T05:21:59.988Z] [INFO] /music health check: ok
 [2026-07-13T05:22:15.006Z] [INFO] /match health check: ok
 [2026-07-13T05:22:30.016Z] [INFO] /insight health check: ok
+[2026-07-13T05:22:45.022Z] [INFO] / health check: ok
+[2026-07-13T05:23:00.026Z] [INFO] /music health check: ok
+[2026-07-13T05:23:15.028Z] [INFO] /match health check: ok
+[2026-07-13T05:23:30.040Z] [INFO] /insight health check: ok
+[2026-07-13T05:23:45.044Z] [INFO] / health check: ok
+[2026-07-13T05:24:00.049Z] [INFO] /music health check: ok
+[2026-07-13T05:24:15.058Z] [INFO] /match health check: ok
+[2026-07-13T05:24:30.064Z] [INFO] /insight health check: ok
+[2026-07-13T05:24:45.067Z] [INFO] / health check: ok
+[2026-07-13T05:25:04.793Z] [INFO] ============================================================
+[2026-07-13T05:25:04.796Z] [INFO] Port 3000 guardian started.
+[2026-07-13T05:25:04.797Z] [INFO] Interval: 15000ms
+[2026-07-13T05:25:04.797Z] [INFO] Failure threshold: 3
+[2026-07-13T05:25:04.798Z] [INFO] Routes: /, /music, /match, /insight
+[2026-07-13T05:25:04.798Z] [INFO] ============================================================
+[2026-07-13T05:25:04.799Z] [INFO] Local preview: http://localhost:3000/
+[2026-07-13T05:25:04.805Z] [INFO] Mobile preview: http://192.168.66.135:3000/
+[2026-07-13T05:25:19.830Z] [INFO] / health check: ok
+[2026-07-13T05:25:34.827Z] [INFO] /music health check: ok
+[2026-07-13T05:25:49.832Z] [INFO] /match health check: ok
+[2026-07-13T05:26:04.835Z] [INFO] /insight health check: ok
+[2026-07-13T05:26:19.839Z] [INFO] / health check: ok
