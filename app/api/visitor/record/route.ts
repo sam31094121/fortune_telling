@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 
-import { recordLocalVisitorVisit } from '@/lib/local-visitor-counter';
-import { getVisitorSupabaseClient, isFeatureKey } from '@/lib/visitor-counter';
+import { readLocalVisitorCount, recordLocalVisitorVisit } from '@/lib/local-visitor-counter';
+import { VISITOR_SEED_COUNT, getVisitorSupabaseClient, isFeatureKey } from '@/lib/visitor-counter';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -12,7 +12,69 @@ type VisitorCounterRow = {
   display_count: number;
 };
 
+type VisitorCounterTableRow = {
+  feature_key: string;
+  real_count: number | string | null;
+  seed_count: number | string | null;
+};
+
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const featureKey = searchParams.get('featureKey');
+
+  if (!isFeatureKey(featureKey)) {
+    return NextResponse.json({ ok: false, message: '缺少有效的功能代碼。' }, { status: 400 });
+  }
+
+  const supabase = getVisitorSupabaseClient();
+  if (!supabase) {
+    try {
+      const displayCount = await readLocalVisitorCount(featureKey);
+      return NextResponse.json(
+        { ok: true, featureKey, displayCount, storage: 'local' },
+        { headers: { 'Cache-Control': 'no-store' } },
+      );
+    } catch (error) {
+      console.error('[visitor-counter] local read failed', error);
+      return NextResponse.json(
+        { ok: false, message: '瀏覽計數暫時無法讀取。' },
+        { status: 503, headers: { 'Cache-Control': 'no-store' } },
+      );
+    }
+  }
+
+  const { data, error } = await supabase
+    .from('visitor_counters')
+    .select('feature_key, real_count, seed_count')
+    .eq('feature_key', featureKey)
+    .maybeSingle<VisitorCounterTableRow>();
+
+  if (error) {
+    console.error('[visitor-counter] read failed', error.message);
+    return NextResponse.json(
+      { ok: false, message: '瀏覽計數暫時無法讀取。' },
+      { status: 503, headers: { 'Cache-Control': 'no-store' } },
+    );
+  }
+
+  const realCount = Number(data?.real_count ?? 0);
+  const seedCount = Number(data?.seed_count ?? VISITOR_SEED_COUNT);
+  const displayCount = seedCount + realCount;
+
+  if (!Number.isSafeInteger(displayCount)) {
+    return NextResponse.json(
+      { ok: false, message: '瀏覽計數暫時無法讀取。' },
+      { status: 503, headers: { 'Cache-Control': 'no-store' } },
+    );
+  }
+
+  return NextResponse.json(
+    { ok: true, featureKey, displayCount, storage: 'supabase' },
+    { headers: { 'Cache-Control': 'no-store' } },
+  );
+}
 
 export async function POST(request: Request) {
   let body: { featureKey?: unknown; visitId?: unknown };

@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 0.0.0.0 -p 3000",
     "dev:optimize": "node scripts/optimize-start.js",
-    "dev:safe": "concurrently \"next dev\" \"node scripts/homepage-guardian.js\"",
+    "dev:safe": "concurrently \"next dev -H 0.0.0.0 -p 3000\" \"node scripts/homepage-guardian.js\"",
     "dev:guardian-only": "node scripts/homepage-guardian.js",
     "build": "next build",
     "start": "next start",

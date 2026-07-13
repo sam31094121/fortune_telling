@@ -59,3 +59,8 @@ export function recordLocalVisitorVisit(featureKey: FeatureKey): Promise<number>
   writeQueue = operation.then(() => undefined, () => undefined);
   return operation;
 }
+
+export async function readLocalVisitorCount(featureKey: FeatureKey): Promise<number> {
+  const counters = await readCounters();
+  return counters[featureKey];
+}

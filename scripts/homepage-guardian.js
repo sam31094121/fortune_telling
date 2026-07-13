@@ -1,183 +1,250 @@
 #!/usr/bin/env node
 
 /**
- * 首頁衛士 - 24/7 監控和自動恢復系統
- * 確保首頁永遠不會消失，如果發生問題立刻自動修復
+ * Port 3000 guardian.
+ *
+ * Keeps the local Next.js preview reachable on desktop and phone without
+ * hammering the app. It checks one route per interval, restarts only the
+ * process listening on port 3000 when needed, and clears the Next.js cache
+ * when the server appears stuck.
  */
 
-const http = require('http');
-const { spawn, spawnSync } = require('child_process');
+const { execFileSync, spawn } = require('child_process');
 const fs = require('fs');
+const http = require('http');
+const os = require('os');
 const path = require('path');
 
-const HOMEPAGE_URL = 'http://localhost:3000';
-const CHECK_INTERVAL = 10000; // 每10秒檢查一次
-const LOG_FILE = path.join(__dirname, '../.guardian-log.txt');
-const MAX_RETRIES = 3;
+const PROJECT_ROOT = path.resolve(__dirname, '..');
+const PORT = Number(process.env.GUARDIAN_PORT || 3000);
+const HOST = '0.0.0.0';
+const CHECK_INTERVAL_MS = Number(process.env.GUARDIAN_INTERVAL_MS || 15000);
+const CHECK_TIMEOUT_MS = Number(process.env.GUARDIAN_TIMEOUT_MS || 5000);
+const FAILURE_THRESHOLD = Number(process.env.GUARDIAN_FAILURE_THRESHOLD || 3);
+const HEALTH_PATHS = ['/', '/music', '/match', '/insight'];
+const LOG_FILE = path.join(PROJECT_ROOT, '.guardian-log.txt');
+const NEXT_OUT_LOG = path.join(PROJECT_ROOT, '.guardian-next.out.log');
+const NEXT_ERR_LOG = path.join(PROJECT_ROOT, '.guardian-next.err.log');
 
 class HomepageGuardian {
   constructor() {
-    this.isHealthy = true;
     this.failureCount = 0;
-    this.devServerProcess = null;
+    this.routeIndex = 0;
+    this.recovering = false;
   }
 
   log(message, type = 'INFO') {
-    const timestamp = new Date().toISOString();
-    const logMessage = `[${timestamp}] [${type}] ${message}`;
-    console.log(logMessage);
+    const line = `[${new Date().toISOString()}] [${type}] ${message}`;
+    console.log(line);
+
     try {
-      fs.appendFileSync(LOG_FILE, logMessage + '\n');
-    } catch (e) {
-      console.error('日誌寫入失敗:', e.message);
+      fs.appendFileSync(LOG_FILE, `${line}\n`, 'utf8');
+    } catch (error) {
+      console.error(`[GUARDIAN] Unable to write log: ${error.message}`);
     }
   }
 
-  /**
-   * 檢查首頁是否健康
-   */
-  async checkHomepage() {
+  getLanAddresses() {
+    return Object.values(os.networkInterfaces())
+      .flat()
+      .filter(Boolean)
+      .filter((item) => item.family === 'IPv4' && !item.internal)
+      .map((item) => item.address);
+  }
+
+  showAddresses() {
+    this.log(`Local preview: http://localhost:${PORT}/`);
+
+    const addresses = this.getLanAddresses();
+    if (addresses.length === 0) {
+      this.log('Mobile preview: no LAN IPv4 address detected.');
+      return;
+    }
+
+    for (const address of addresses) {
+      this.log(`Mobile preview: http://${address}:${PORT}/`);
+    }
+  }
+
+  checkRoute(routePath) {
     return new Promise((resolve) => {
-      const timeout = setTimeout(() => {
-        this.log('首頁檢查超時（15秒）', 'WARN');
-        resolve(false);
-      }, 15000);
+      const request = http.request(
+        {
+          hostname: '127.0.0.1',
+          port: PORT,
+          path: routePath,
+          method: 'HEAD',
+          timeout: CHECK_TIMEOUT_MS,
+          headers: { 'Cache-Control': 'no-cache' },
+        },
+        (response) => {
+          response.resume();
+          resolve(response.statusCode >= 200 && response.statusCode < 400);
+        },
+      );
 
-      const req = http.get(HOMEPAGE_URL, (res) => {
-        clearTimeout(timeout);
-        let data = '';
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-        res.on('end', () => {
-          // 檢查是否返回了實際的首頁內容
-          const isValid =
-            res.statusCode === 200 &&
-            (data.includes('天地人') || data.includes('人格'));
-          resolve(isValid);
-        });
-      });
-
-      req.on('error', (err) => {
-        clearTimeout(timeout);
-        this.log(`首頁連接失敗: ${err.message}`, 'ERROR');
-        resolve(false);
-      });
+      request.on('timeout', () => request.destroy(new Error('Health check timeout')));
+      request.on('error', () => resolve(false));
+      request.end();
     });
   }
 
-  /**
-   * 自動恢復首頁
-   */
-  async autoRecover() {
-    this.log('⚠️  首頁無法訪問，開始自動恢復流程...', 'CRITICAL');
+  async checkNextRoute() {
+    const routePath = HEALTH_PATHS[this.routeIndex % HEALTH_PATHS.length];
+    this.routeIndex += 1;
 
-    // 步驟1: 強制殺死所有 Node/npm 進程
-    this.log('步驟1: 清理現存進程...', 'INFO');
-    spawnSync('pkill', ['-9', '-f', 'node.*next'], { stdio: 'ignore' });
-    spawnSync('pkill', ['-9', '-f', 'npm run dev'], { stdio: 'ignore' });
-    await new Promise((r) => setTimeout(r, 2000));
+    const healthy = await this.checkRoute(routePath);
+    this.log(`${routePath} health check: ${healthy ? 'ok' : 'failed'}`, healthy ? 'INFO' : 'WARN');
+    return healthy;
+  }
 
-    // 步驟2: 驗證配置
-    this.log('步驟2: 驗證 next.config.mjs...', 'INFO');
-    const configPath = path.join(__dirname, '../next.config.mjs');
-    let config = fs.readFileSync(configPath, 'utf-8');
+  getPortPids() {
+    if (process.platform === 'win32') {
+      try {
+        const output = execFileSync(
+          'powershell.exe',
+          [
+            '-NoProfile',
+            '-Command',
+            `Get-NetTCPConnection -LocalPort ${PORT} -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique`,
+          ],
+          { cwd: PROJECT_ROOT, encoding: 'utf8', windowsHide: true },
+        );
 
-    // 移除危險的 optimizeCss
-    if (config.includes('optimizeCss: true')) {
-      this.log('⚠️  偵測到危險配置 optimizeCss: true，移除中...', 'WARN');
-      config = config.replace(/\s*optimizeCss:\s*true,?\n/g, '');
-      fs.writeFileSync(configPath, config);
-      this.log('✓ 配置已修復', 'INFO');
+        return output
+          .split(/\r?\n/)
+          .map((line) => Number(line.trim()))
+          .filter((pid) => Number.isInteger(pid) && pid > 0 && pid !== process.pid);
+      } catch {
+        return [];
+      }
     }
 
-    // 步驟3: 清理構建
-    this.log('步驟3: 清理舊的構建文件...', 'INFO');
-    const nextDir = path.join(__dirname, '../.next');
-    if (fs.existsSync(nextDir)) {
-      spawnSync('rm', ['-rf', nextDir], { stdio: 'ignore' });
+    try {
+      const output = execFileSync('sh', ['-c', `lsof -ti tcp:${PORT}`], {
+        cwd: PROJECT_ROOT,
+        encoding: 'utf8',
+      });
+
+      return output
+        .split(/\r?\n/)
+        .map((line) => Number(line.trim()))
+        .filter((pid) => Number.isInteger(pid) && pid > 0 && pid !== process.pid);
+    } catch {
+      return [];
+    }
+  }
+
+  stopPortProcesses() {
+    const pids = this.getPortPids();
+    if (pids.length === 0) {
+      this.log(`No process is listening on port ${PORT}.`);
+      return;
     }
 
-    // 步驟4: 重新啟動 dev server
-    this.log('步驟4: 重新啟動 dev server...', 'INFO');
-    const projectRoot = path.join(__dirname, '..');
-    this.devServerProcess = spawn('npm', ['run', 'dev'], {
-      cwd: projectRoot,
+    for (const pid of pids) {
+      try {
+        process.kill(pid, 'SIGTERM');
+        this.log(`Stopped process ${pid} on port ${PORT}.`);
+      } catch (error) {
+        this.log(`Unable to stop process ${pid}: ${error.message}`, 'WARN');
+      }
+    }
+  }
+
+  clearNextCache() {
+    const cachePath = path.join(PROJECT_ROOT, '.next', 'cache');
+
+    try {
+      fs.rmSync(cachePath, { recursive: true, force: true });
+      this.log('Cleared .next/cache.');
+    } catch (error) {
+      this.log(`Unable to clear .next/cache: ${error.message}`, 'WARN');
+    }
+  }
+
+  startDevServer() {
+    const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+    const child = spawn(npmCommand, ['run', 'dev'], {
+      cwd: PROJECT_ROOT,
       detached: true,
-      stdio: 'ignore',
-      shell: true,
+      windowsHide: true,
+      stdio: [
+        'ignore',
+        fs.openSync(NEXT_OUT_LOG, 'a'),
+        fs.openSync(NEXT_ERR_LOG, 'a'),
+      ],
     });
-    this.devServerProcess.unref();
 
-    // 步驟5: 等待服務啟動
-    this.log('步驟5: 等待服務啟動（最多30秒）...', 'INFO');
-    for (let i = 0; i < 30; i++) {
-      await new Promise((r) => setTimeout(r, 1000));
-      const isHealthy = await this.checkHomepage();
-      if (isHealthy) {
-        this.log('✅ 首頁已成功恢復！', 'SUCCESS');
-        this.failureCount = 0;
+    child.unref();
+    this.log(`Started Next.js dev server on ${HOST}:${PORT} (PID ${child.pid}).`);
+  }
+
+  async waitUntilHealthy(maxAttempts = 24) {
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 2500));
+
+      if (await this.checkRoute('/')) {
+        this.log(`Port ${PORT} is healthy after ${attempt} check(s).`, 'SUCCESS');
         return true;
       }
     }
 
-    this.log(
-      '❌ 自動恢復失敗，超過最大重試次數',
-      'ERROR'
-    );
+    this.log(`Port ${PORT} did not become healthy after recovery.`, 'ERROR');
     return false;
   }
 
-  /**
-   * 持續監控循環
-   */
-  async guardianLoop() {
-    this.log('🛡️  首頁衛士已啟動，開始監控...', 'INFO');
+  async recover() {
+    if (this.recovering) return;
 
-    setInterval(async () => {
-      const isHealthy = await this.checkHomepage();
+    this.recovering = true;
+    this.log(`Starting automatic recovery for port ${PORT}.`, 'CRITICAL');
 
-      if (isHealthy) {
-        if (!this.isHealthy) {
-          this.log('✅ 首頁已恢復正常', 'SUCCESS');
-        }
-        this.isHealthy = true;
+    try {
+      this.stopPortProcesses();
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      this.clearNextCache();
+      this.startDevServer();
+
+      if (await this.waitUntilHealthy()) {
         this.failureCount = 0;
-      } else {
-        this.failureCount++;
-        this.log(
-          `❌ 首頁檢查失敗 (${this.failureCount}/${MAX_RETRIES})`,
-          'WARN'
-        );
-
-        if (this.failureCount >= MAX_RETRIES) {
-          this.isHealthy = false;
-          await this.autoRecover();
-        }
+        this.showAddresses();
       }
-    }, CHECK_INTERVAL);
+    } finally {
+      this.recovering = false;
+    }
   }
 
-  /**
-   * 啟動衛士
-   */
-  start() {
-    this.log('=' .repeat(60), 'INFO');
-    this.log('首頁衛士系統已啟動', 'INFO');
-    this.log('監控間隔: ' + CHECK_INTERVAL + 'ms', 'INFO');
-    this.log('自動恢復: 已啟用', 'INFO');
-    this.log('=' .repeat(60), 'INFO');
+  async start() {
+    this.log('='.repeat(60));
+    this.log('Port 3000 guardian started.');
+    this.log(`Interval: ${CHECK_INTERVAL_MS}ms`);
+    this.log(`Failure threshold: ${FAILURE_THRESHOLD}`);
+    this.log(`Routes: ${HEALTH_PATHS.join(', ')}`);
+    this.log('='.repeat(60));
+    this.showAddresses();
 
-    this.guardianLoop();
+    setInterval(async () => {
+      if (this.recovering) return;
+
+      const healthy = await this.checkNextRoute();
+      if (healthy) {
+        this.failureCount = 0;
+        return;
+      }
+
+      this.failureCount += 1;
+      this.log(`Health check failed (${this.failureCount}/${FAILURE_THRESHOLD}).`, 'WARN');
+
+      if (this.failureCount >= FAILURE_THRESHOLD) {
+        await this.recover();
+      }
+    }, CHECK_INTERVAL_MS);
   }
 }
 
-// 啟動衛士
 const guardian = new HomepageGuardian();
-guardian.start();
-
-// 優雅退出
-process.on('SIGINT', () => {
-  guardian.log('首頁衛士已關閉', 'INFO');
-  process.exit(0);
+guardian.start().catch((error) => {
+  guardian.log(`Guardian crashed: ${error.message}`, 'ERROR');
+  process.exitCode = 1;
 });
