@@ -33,6 +33,7 @@ const VALID_GENDERS = ['male', 'female'] as const;
 
 // 時辰：number(0–11 地支序)=已知；'unknown'/null=不知道（自動套良辰吉時）
 type ShichenChoice = number | 'unknown' | null;
+type VocalGenderPreference = 'male' | 'female' | null;
 
 interface MusicGenerateRequest {
   birthDate: string;
@@ -41,6 +42,7 @@ interface MusicGenerateRequest {
   gender: 'male' | 'female';
   shichen?: ShichenChoice;
   voiceCharacteristics?: string[];
+  vocalGenderPreference?: VocalGenderPreference;
 }
 
 function validate(body: unknown): string | null {
@@ -83,6 +85,15 @@ function validate(body: unknown): string | null {
     || payload.voiceCharacteristics.some((item) => typeof item !== 'string' || item.length > 40)
   )) {
     return '聲音特徵資料格式無效。';
+  }
+
+  if (
+    payload.vocalGenderPreference !== undefined &&
+    payload.vocalGenderPreference !== null &&
+    payload.vocalGenderPreference !== 'male' &&
+    payload.vocalGenderPreference !== 'female'
+  ) {
+    return '主唱聲線偏好格式無效。';
   }
 
   return null;
@@ -145,6 +156,7 @@ export async function POST(request: Request) {
     body.gender,
     body.shichen !== undefined && body.shichen !== null ? String(body.shichen) : 'null',
     (body.voiceCharacteristics || []).join(','),
+    body.vocalGenderPreference ?? 'auto',
   ].join('|');
 
   const cached = responseCache.get(cacheKey);
@@ -153,7 +165,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { birthDate, bloodType, name, gender, shichen = null, voiceCharacteristics = [] } = body;
+    const {
+      birthDate,
+      bloodType,
+      name,
+      gender,
+      shichen = null,
+      voiceCharacteristics = [],
+      vocalGenderPreference = null,
+    } = body;
     const trimmedName = name.trim();
 
   const zodiacZh = getZodiacSign(birthDate);
@@ -171,6 +191,7 @@ export async function POST(request: Request) {
     gender: gender as 'male' | 'female' | 'non-binary',
     bloodType,
     voiceCharacteristics,
+    vocalGenderPreference,
     firstName: trimmedName,
   };
 
@@ -228,6 +249,7 @@ export async function POST(request: Request) {
     zodiac: zodiacZh,
     bloodType,
     gender,
+    vocalGenderPreference,
     era,
     personalityMatrix: Object.fromEntries(Object.entries(personalityMatrix)) as Record<string, number>,
     musicParameters: finalMusicParameters,
@@ -259,6 +281,7 @@ export async function POST(request: Request) {
     genre: finalMusicParameters.genre,
     bpm: finalMusicParameters.bpm,
     mood: finalMusicParameters.mood,
+    vocalGenderPreference,
   });
 
   const productionPlan = generateAiProductionPlan({

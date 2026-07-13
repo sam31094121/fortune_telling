@@ -280,8 +280,9 @@ export default function MusicSystemPage() {
           bloodType: data.bloodType,
           name: data.name.trim(),
           gender: data.gender,
-          shichen: data.shichen,
-          voiceCharacteristics: data.voiceCharacteristics,
+            shichen: data.shichen,
+            voiceCharacteristics: data.voiceCharacteristics,
+            vocalGenderPreference: data.vocalGenderPreference,
         }),
       });
 

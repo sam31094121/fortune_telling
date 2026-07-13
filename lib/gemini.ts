@@ -303,6 +303,7 @@ export interface MusicReportInput {
   zodiac: string;
   bloodType: 'A' | 'B' | 'AB' | 'O';
   gender: 'male' | 'female';
+  vocalGenderPreference?: 'male' | 'female' | null;
   era: string;
   personalityMatrix: Record<string, number>;
   musicParameters: {
@@ -457,6 +458,11 @@ const MUSIC_REPORT_SCHEMA = {
 
 function buildMusicReportPrompt(input: MusicReportInput): string {
   const genderLabel = input.gender === 'male' ? '男性' : '女性';
+  const vocalPreferenceLabel = input.vocalGenderPreference === 'male'
+    ? '偏好男聲主唱'
+    : input.vocalGenderPreference === 'female'
+      ? '偏好女聲主唱'
+      : '未指定，請依人格音樂與曲風自動配置主唱聲線';
   const d = input.destinyContext;
   const p = input.psychologyContext;
 
@@ -477,6 +483,7 @@ function buildMusicReportPrompt(input: MusicReportInput): string {
 姓名：${input.name}
 生日：${input.birthDate}（${input.zodiac}）
 血型：${input.bloodType} 型 · 性別：${genderLabel}
+主唱聲線偏好：${vocalPreferenceLabel}
 音樂年代：${input.era}
 
 ━━━ 命理層（天）━━━
@@ -675,6 +682,11 @@ function createLocalSongDrafts(input: MusicReportInput): OriginalSongDraftsOutpu
 
 function buildSongDraftsPrompt(input: MusicReportInput): string {
   const genderLabel = input.gender === 'male' ? '男性' : '女性';
+  const vocalPreferenceLabel = input.vocalGenderPreference === 'male'
+    ? '偏好男聲主唱'
+    : input.vocalGenderPreference === 'female'
+      ? '偏好女聲主唱'
+      : '未指定，請依人格音樂與曲風自動配置主唱聲線';
   const d = input.destinyContext;
 
   return `
@@ -697,6 +709,7 @@ ${TIANDIREN_SONG_MATRIX_RULES}
 姓名：${input.name}
 生日：${input.birthDate}（${input.zodiac}）
 血型：${input.bloodType} 型 · 性別：${genderLabel}
+主唱聲線偏好：${vocalPreferenceLabel}
 音樂年代：${input.era}
 
 ━━━ 命理資料 ━━━
@@ -798,9 +811,17 @@ function describeVocalBlend(input: AiProductionPlanInput) {
   const creativity = input.personalityMatrix.creativity ?? 50;
   const attachment = input.personalityMatrix.attachment ?? 50;
 
-  if (emotion >= 75 || attachment >= 75) return '深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。';
-  if (creativity >= 75) return '帶空氣感與穿透力的創作型主唱，橋段加入低聲呢喃與電子和聲。';
-  return '溫暖穩定的主唱，地層國語承接歌曲身體，天層英文提供空間 Hook，人層台語完成情感落點。';
+  const vocalPreference = input.vocalGenderPreference === 'male'
+    ? '男聲主唱'
+    : input.vocalGenderPreference === 'female'
+      ? '女聲主唱'
+      : '主唱性別由系統依人格與曲風自動配置';
+  const blend = emotion >= 75 || attachment >= 75
+    ? '深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。'
+    : creativity >= 75
+      ? '帶空氣感與穿透力的創作型主唱，橋段加入低聲呢喃與電子和聲。'
+      : '溫暖穩定的主唱，地層國語承接歌曲身體，天層英文提供空間 Hook，人層台語完成情感落點。';
+  return `${vocalPreference}；${blend}`;
 }
 
 export function generateAiProductionPlan(input: AiProductionPlanInput): AiProductionPlanOutput {
@@ -888,6 +909,7 @@ export interface FusionSongInput {
   genre?: string;
   bpm?: number;
   mood?: string[];
+  vocalGenderPreference?: 'male' | 'female' | null;
 }
 
 export interface FusionSongOutput {
@@ -994,6 +1016,7 @@ ${JSON.stringify(input.personalityMatrix, null, 2)}
 
 ━━━ 音樂參數參考 ━━━
 曲風：${input.genre ?? '抒情流行'} · BPM：${input.bpm ?? 90} · 氛圍：${(input.mood ?? []).join(', ') || '溫暖、真摯'}
+主唱聲線：${input.vocalGenderPreference === 'male' ? '男聲' : input.vocalGenderPreference === 'female' ? '女聲' : '未指定，依歌曲人格自動配置'}
 
 請輸出 JSON，欄位為：
 - fusion_title：原創歌名（繁中，4-12 字）

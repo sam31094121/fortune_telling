@@ -10,6 +10,7 @@ type Gender = 'male' | 'female';
 
 // 時辰：null=尚未選、'unknown'=不知道（自動套良辰吉時）、0–11=已選時辰地支序
 export type ShichenChoice = number | 'unknown' | null;
+export type VocalGenderPreference = 'male' | 'female' | null;
 
 export interface MusicFormData {
   birthDate: string;
@@ -18,6 +19,7 @@ export interface MusicFormData {
   gender: Gender;
   shichen: ShichenChoice;
   voiceCharacteristics: string[];
+  vocalGenderPreference: VocalGenderPreference;
 }
 
 interface PersonalityMusicFlowProps {
@@ -53,6 +55,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     gender: 'female',
     shichen: null,
     voiceCharacteristics: [],
+    vocalGenderPreference: null,
   });
   const [localError, setLocalError] = useState('');
 
@@ -326,6 +329,44 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                 {option.label}
               </button>
             ))}
+          </div>
+          <div className="border-t border-white/10 pt-4">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm font-semibold text-cyan-100">主唱聲線偏好 <span className="text-xs font-normal text-amber-200">（選填）</span></p>
+              <p className="text-xs text-[color:var(--text-muted)]">不選也沒關係，系統會自動配置</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {([
+                { key: 'female', label: '偏好女聲', icon: '✦', tone: 'rose' },
+                { key: 'male', label: '偏好男聲', icon: '◌', tone: 'cyan' },
+              ] as const).map((option) => {
+                const selected = form.vocalGenderPreference === option.key;
+                return (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => setForm((prev) => ({
+                      ...prev,
+                      vocalGenderPreference: selected ? null : option.key,
+                    }))}
+                    className={`group relative overflow-hidden rounded-[18px] border px-4 py-3 text-left text-sm transition-all duration-500 ${
+                      selected
+                        ? option.tone === 'rose'
+                          ? 'border-rose-200/80 bg-rose-300/15 text-rose-100 shadow-[0_0_24px_rgba(255,255,255,0.28),0_0_60px_rgba(244,63,94,0.25)]'
+                          : 'border-cyan-200/80 bg-cyan-300/15 text-cyan-100 shadow-[0_0_24px_rgba(255,255,255,0.28),0_0_60px_rgba(34,211,238,0.25)]'
+                        : 'border-white/10 bg-white/5 text-[color:var(--text-sub)] hover:border-white/35 hover:bg-white/10 hover:shadow-[0_0_24px_rgba(255,255,255,0.16)]'
+                    }`}
+                  >
+                    <span className="pointer-events-none absolute -inset-6 rounded-full bg-white/10 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
+                    <span className="relative flex items-center gap-2.5">
+                      <span className="text-lg drop-shadow-[0_0_10px_rgba(255,255,255,0.9)]">{option.icon}</span>
+                      <span className="font-semibold">{option.label}</span>
+                      {selected && <span className="ml-auto text-xs text-white">✓</span>}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
