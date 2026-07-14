@@ -3,6 +3,7 @@ import 'server-only';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 export const VISITOR_SEED_COUNT = 1_010_128;
+export const VISITOR_MIN_DISPLAY_COUNT = 1_011_500;
 
 export const FEATURE_KEYS = {
   home: 'home',

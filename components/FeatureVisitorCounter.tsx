@@ -14,10 +14,12 @@ export const FEATURE_KEYS = {
 
 export type FeatureKey = (typeof FEATURE_KEYS)[keyof typeof FEATURE_KEYS];
 
-const INITIAL_DISPLAY_COUNT = 1_010_128;
-const FRONTEND_INCREMENT_INTERVAL_MS = 1000;
-const BACKEND_SYNC_INTERVAL_MS = 15_000;
-const MAX_VISIBLE_CATCH_UP_INCREMENT = 600;
+const MINIMUM_DISPLAY_COUNT = 1_011_500;
+const FRONTEND_CATCH_UP_INTERVAL_MS = 18_000;
+const FRONTEND_MIN_INCREMENT_DELAY_MS = 7_000;
+const FRONTEND_MAX_INCREMENT_DELAY_MS = 24_000;
+const BACKEND_SYNC_INTERVAL_MS = 20_000;
+const MAX_VISIBLE_CATCH_UP_INCREMENT = 30;
 
 type StoredCounter = {
   displayCount: number;
@@ -34,7 +36,7 @@ function getStorageKey(featureKey: FeatureKey) {
 }
 
 function isSafeDisplayCount(value: unknown): value is number {
-  return typeof value === 'number' && Number.isSafeInteger(value) && value >= INITIAL_DISPLAY_COUNT;
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= MINIMUM_DISPLAY_COUNT;
 }
 
 function readStoredDisplayCount(featureKey: FeatureKey) {
@@ -49,7 +51,7 @@ function readStoredDisplayCount(featureKey: FeatureKey) {
 
     const elapsedIntervals = Math.max(
       0,
-      Math.floor((Date.now() - stored.updatedAt) / FRONTEND_INCREMENT_INTERVAL_MS),
+      Math.floor((Date.now() - stored.updatedAt) / FRONTEND_CATCH_UP_INTERVAL_MS),
     );
 
     return stored.displayCount + Math.min(elapsedIntervals, MAX_VISIBLE_CATCH_UP_INCREMENT);
@@ -92,7 +94,7 @@ export default function FeatureVisitorCounter({
   className?: string;
   trackWhenVisible?: boolean;
 }) {
-  const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT);
+  const [displayCount, setDisplayCount] = useState<number | null>(null);
   const cardRef = useRef<HTMLElement>(null);
   const didRecord = useRef(false);
   const visitId = useRef<string | null>(null);
@@ -100,10 +102,11 @@ export default function FeatureVisitorCounter({
   const commitDisplayCount = useCallback(
     (nextDisplayCount: number | ((currentCount: number) => number)) => {
       setDisplayCount((currentCount) => {
+        const currentBaseCount = currentCount ?? MINIMUM_DISPLAY_COUNT;
         const requestedCount =
-          typeof nextDisplayCount === 'function' ? nextDisplayCount(currentCount) : nextDisplayCount;
-        const safeRequestedCount = isSafeDisplayCount(requestedCount) ? requestedCount : currentCount;
-        const nextCount = Math.max(currentCount, safeRequestedCount);
+          typeof nextDisplayCount === 'function' ? nextDisplayCount(currentBaseCount) : nextDisplayCount;
+        const safeRequestedCount = isSafeDisplayCount(requestedCount) ? requestedCount : currentBaseCount;
+        const nextCount = Math.max(currentBaseCount, safeRequestedCount);
 
         writeStoredDisplayCount(featureKey, nextCount);
         return nextCount;
@@ -122,18 +125,35 @@ export default function FeatureVisitorCounter({
 
   useEffect(() => {
     let lastTickAt = Date.now();
+    let timeoutId: number | undefined;
+
+    function getNextDelay() {
+      return Math.floor(
+        FRONTEND_MIN_INCREMENT_DELAY_MS +
+          Math.random() * (FRONTEND_MAX_INCREMENT_DELAY_MS - FRONTEND_MIN_INCREMENT_DELAY_MS),
+      );
+    }
 
     function applyElapsedIncrement() {
       const now = Date.now();
-      const elapsedIntervals = Math.floor((now - lastTickAt) / FRONTEND_INCREMENT_INTERVAL_MS);
+      const elapsedIntervals = Math.floor((now - lastTickAt) / FRONTEND_CATCH_UP_INTERVAL_MS);
 
       if (elapsedIntervals <= 0) return;
 
-      lastTickAt += elapsedIntervals * FRONTEND_INCREMENT_INTERVAL_MS;
+      lastTickAt += elapsedIntervals * FRONTEND_CATCH_UP_INTERVAL_MS;
       commitDisplayCount((currentCount) => currentCount + Math.min(elapsedIntervals, MAX_VISIBLE_CATCH_UP_INCREMENT));
     }
 
-    const intervalId = window.setInterval(applyElapsedIncrement, FRONTEND_INCREMENT_INTERVAL_MS);
+    function scheduleNextIncrement() {
+      timeoutId = window.setTimeout(() => {
+        if (document.visibilityState === 'visible') {
+          lastTickAt = Date.now();
+          commitDisplayCount((currentCount) => currentCount + 1);
+        }
+
+        scheduleNextIncrement();
+      }, getNextDelay());
+    }
 
     function handlePageVisible() {
       if (document.visibilityState === 'visible') {
@@ -141,11 +161,12 @@ export default function FeatureVisitorCounter({
       }
     }
 
+    scheduleNextIncrement();
     document.addEventListener('visibilitychange', handlePageVisible);
     window.addEventListener('focus', applyElapsedIncrement);
 
     return () => {
-      window.clearInterval(intervalId);
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
       document.removeEventListener('visibilitychange', handlePageVisible);
       window.removeEventListener('focus', applyElapsedIncrement);
     };
@@ -237,11 +258,11 @@ export default function FeatureVisitorCounter({
       ref={cardRef}
       data-visitor-counter={featureKey}
       className={`inline-flex w-fit flex-col rounded-2xl border border-amber-300/30 bg-white/[0.08] px-[18px] py-[14px] text-[color:var(--text-main)] shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl ${className}`}
-      aria-label="目前瀏覽人數"
+      aria-label="累計瀏覽人數"
     >
-      <div className="text-[13px] text-[color:var(--text-main)] opacity-75">目前瀏覽人數</div>
+      <div className="text-[13px] text-[color:var(--text-main)] opacity-75">累計瀏覽人數</div>
       <div className="mt-1 text-2xl font-bold tracking-[0.05em] text-amber-300" aria-live="polite">
-        {displayCount.toLocaleString('zh-TW')}
+        {displayCount === null ? '同步中' : displayCount.toLocaleString('zh-TW')}
       </div>
     </aside>
   );

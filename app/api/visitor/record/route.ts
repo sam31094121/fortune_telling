@@ -2,7 +2,12 @@ import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 
 import { readLocalVisitorCount, recordLocalVisitorVisit } from '@/lib/local-visitor-counter';
-import { VISITOR_SEED_COUNT, getVisitorSupabaseClient, isFeatureKey } from '@/lib/visitor-counter';
+import {
+  VISITOR_MIN_DISPLAY_COUNT,
+  VISITOR_SEED_COUNT,
+  getVisitorSupabaseClient,
+  isFeatureKey,
+} from '@/lib/visitor-counter';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -16,7 +21,10 @@ type VisitorCounterTableRow = {
   feature_key: string;
   real_count: number | string | null;
   seed_count: number | string | null;
+  updated_at: string | null;
 };
+
+const DISPLAY_AUTO_INCREMENT_INTERVAL_MS = 18_000;
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -31,7 +39,7 @@ export async function GET(request: Request) {
   const supabase = getVisitorSupabaseClient();
   if (!supabase) {
     try {
-      const displayCount = await readLocalVisitorCount(featureKey);
+      const displayCount = Math.max(await readLocalVisitorCount(featureKey), VISITOR_MIN_DISPLAY_COUNT);
       return NextResponse.json(
         { ok: true, featureKey, displayCount, storage: 'local' },
         { headers: { 'Cache-Control': 'no-store' } },
@@ -47,7 +55,7 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabase
     .from('visitor_counters')
-    .select('feature_key, real_count, seed_count')
+    .select('feature_key, real_count, seed_count, updated_at')
     .eq('feature_key', featureKey)
     .maybeSingle<VisitorCounterTableRow>();
 
@@ -61,7 +69,10 @@ export async function GET(request: Request) {
 
   const realCount = Number(data?.real_count ?? 0);
   const seedCount = Number(data?.seed_count ?? VISITOR_SEED_COUNT);
-  const displayCount = seedCount + realCount;
+  const updatedAtMs = data?.updated_at ? Date.parse(data.updated_at) : Date.now();
+  const elapsedMs = Math.max(0, Date.now() - (Number.isNaN(updatedAtMs) ? Date.now() : updatedAtMs));
+  const elapsedDisplayCount = Math.floor(elapsedMs / DISPLAY_AUTO_INCREMENT_INTERVAL_MS);
+  const displayCount = Math.max(seedCount + realCount + elapsedDisplayCount, VISITOR_MIN_DISPLAY_COUNT);
 
   if (!Number.isSafeInteger(displayCount)) {
     return NextResponse.json(
@@ -96,7 +107,7 @@ export async function POST(request: Request) {
   const supabase = getVisitorSupabaseClient();
   if (!supabase) {
     try {
-      const displayCount = await recordLocalVisitorVisit(body.featureKey);
+      const displayCount = Math.max(await recordLocalVisitorVisit(body.featureKey), VISITOR_MIN_DISPLAY_COUNT);
       return NextResponse.json(
         { ok: true, featureKey: body.featureKey, displayCount, storage: 'local' },
         { headers: { 'Cache-Control': 'no-store' } },
@@ -128,7 +139,7 @@ export async function POST(request: Request) {
     {
       ok: true,
       featureKey: row.feature_key,
-      displayCount: Number(row.display_count),
+      displayCount: Math.max(Number(row.display_count), VISITOR_MIN_DISPLAY_COUNT),
       storage: 'supabase',
     },
     { headers: { 'Cache-Control': 'no-store' } },
