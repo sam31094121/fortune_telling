@@ -8,9 +8,9 @@ import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
-import { analyzeNumberFortune } from '@/lib/number-fortune';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
+import type { NumberAnalysisResponse } from '@/lib/number-core-engine';
 
 interface PersonInput {
   name: string;
@@ -49,6 +49,8 @@ interface KarmaStory {
   personB_star?: string;
   iching_hexagram?: string;
 }
+
+type NumberAnalysisResult = NumberAnalysisResponse;
 
 type EvolutionStage = 'idle' | 'taiji' | 'liangyi' | 'sixiang' | 'bagua';
 
@@ -247,11 +249,11 @@ function NumberTicker({ value }: { value: number }) {
 }
 
 function getNumberFortuneAura(level?: string) {
-  if (level === '大吉') {
+  if (level === '高正向') {
     return {
       stage: 24,
-      label: '24 階大吉帝光',
-      blessing: '大吉彩蛋已開啟，數理光芒進入最高階。',
+      label: '24 階高正向光場',
+      blessing: '高正向光場已開啟，數字結構呈現強支撐傾向。',
       taijiClass:
         'border-amber-200/70 shadow-[0_0_34px_rgba(253,230,138,0.78),0_0_90px_rgba(245,158,11,0.52),0_0_150px_rgba(255,255,255,0.22)]',
       resultClass:
@@ -261,11 +263,11 @@ function getNumberFortuneAura(level?: string) {
     } as const;
   }
 
-  if (level === '吉') {
+  if (level === '偏正向') {
     return {
       stage: 12,
-      label: '12 階祥光',
-      blessing: '吉祥彩蛋已開啟，太極光輪正在放大。',
+      label: '12 階偏正向光場',
+      blessing: '偏正向光場已開啟，核心矩陣支撐度良好。',
       taijiClass:
         'border-emerald-300/60 shadow-[0_0_30px_rgba(52,211,153,0.48),0_0_76px_rgba(34,211,238,0.26)]',
       resultClass:
@@ -275,11 +277,11 @@ function getNumberFortuneAura(level?: string) {
     } as const;
   }
 
-  if (level === '半吉') {
+  if (level === '穩定') {
     return {
       stage: 3,
-      label: '3 階初光',
-      blessing: '半吉初光已亮起，數理能量開始轉正。',
+      label: '3 階穩定光場',
+      blessing: '穩定光場已亮起，數字結構偏向平衡與承載。',
       taijiClass:
         'border-cyan-300/55 shadow-[0_0_24px_rgba(34,211,238,0.42),0_0_60px_rgba(139,92,246,0.2)]',
       resultClass:
@@ -652,8 +654,9 @@ export default function HomePage() {
 
   // 數字論吉凶 state 與處理函數
   const [fortuneNumber, setFortuneNumber] = useState('');
-  const [fortuneResult, setFortuneResult] = useState<any>(null);
+  const [fortuneResult, setFortuneResult] = useState<NumberAnalysisResult | null>(null);
   const [fortuneLoading, setFortuneLoading] = useState(false);
+  const [fortuneError, setFortuneError] = useState('');
   const [isFortuneModalOpen, setIsFortuneModalOpen] = useState(false);
   const [modalEvolutionStage, setModalEvolutionStage] = useState<EvolutionStage>('idle');
   const [modalEvolutionLabel, setModalEvolutionLabel] = useState('觸碰太極，觀察萬象演化');
@@ -921,12 +924,35 @@ export default function HomePage() {
     });
   };
 
-  const handleNumberFortune = () => {
-    if (!fortuneNumber.trim()) return;
+  const handleNumberFortune = async () => {
+    if (!fortuneNumber) return;
+    if (!/^\d+$/.test(fortuneNumber) || ![4, 10].includes(fortuneNumber.length)) {
+      setFortuneResult(null);
+      setFortuneError('只能輸入後 4 碼或完整手機號碼 10 碼，且不可包含空格、符號或英文字母。');
+      return;
+    }
+
     setFortuneLoading(true);
+    setFortuneError('');
     try {
-      const res = analyzeNumberFortune(fortuneNumber);
-      setFortuneResult(res);
+      const response = await fetch('/api/number-fortune', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: fortuneNumber }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok || !payload?.ok) {
+        setFortuneResult(null);
+        setFortuneError(payload?.message ?? '數字分析暫時無法完成，請稍後再試。');
+        return;
+      }
+
+      setFortuneResult(payload as NumberAnalysisResult);
+    } catch (error) {
+      console.error('[number-fortune] API request failed', error);
+      setFortuneResult(null);
+      setFortuneError('系統暫時無法連線至數字分析引擎，已保留你的輸入。');
     } finally {
       setFortuneLoading(false);
     }
@@ -1364,7 +1390,7 @@ export default function HomePage() {
     setStep('personA-base');
   }
 
-  const fortuneAura = getNumberFortuneAura(fortuneResult?.fortuneLevel);
+  const fortuneAura = getNumberFortuneAura(fortuneResult?.level);
 
   return (
     <div className="app-bg min-h-screen overflow-hidden">
@@ -1605,7 +1631,7 @@ export default function HomePage() {
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-100 tracking-wide flex items-center gap-2">
                   <span>天宿數字吉凶解碼艙</span>
                   <span className="text-xs font-sans text-cyan-300 font-normal opacity-85 hidden sm:inline">
-                    // 手機後四碼 · 車牌 · 幸運數字吉凶對齊
+                    // 手機後 4 碼 · 完整 10 碼固定分析
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
@@ -2430,32 +2456,43 @@ export default function HomePage() {
             </div>
 
             <div className="mb-6">
-              <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">☯️ 天宿數理神數</p>
-              <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">數字吉凶解碼艙</h3>
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">☯️ 數字結構統計分析</p>
+              <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">數字能量傾向分析</h3>
               <p className="mt-2 text-xs leading-5 text-[color:var(--text-muted)]">
-                輸入手機後四碼、車牌號碼或幸運數字，以易經八卦起卦與 81 數理靈動數解密其吉凶能量。
+                請輸入手機後 4 碼或完整手機號碼 10 碼，由後端固定規則版本產生一致結果。
               </p>
             </div>
 
-            <FeatureVisitorCounter featureKey="number" className="mb-6" />
+            <FeatureVisitorCounter featureKey="number" className="hidden" />
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <input
                 type="text"
                 value={fortuneNumber}
-                onChange={(e) => setFortuneNumber(e.target.value.replace(/\D/g, ''))}
-                placeholder="請輸入任意純數字"
+                inputMode="numeric"
+                autoComplete="off"
+                onChange={(e) => {
+                  setFortuneNumber(e.target.value);
+                  setFortuneError('');
+                }}
+                placeholder="後 4 碼或完整 10 碼"
                 className="form-input flex-1 text-base glass-input glass-input-cyan neon-input-focus"
               />
               <button
                 type="button"
                 onClick={handleNumberFortune}
-                disabled={fortuneLoading || !fortuneNumber.trim()}
+                disabled={fortuneLoading || !fortuneNumber}
                 className="vip-gold-btn px-8 py-3.5 text-sm font-semibold disabled:opacity-40"
               >
-                {fortuneLoading ? '解碼中...' : '開始吉凶解碼'}
+                {fortuneLoading ? '分析中...' : '開始分析'}
               </button>
             </div>
+
+            {fortuneError && (
+              <p className="mt-3 rounded-xl border border-rose-400/25 bg-rose-950/20 px-4 py-3 text-xs leading-5 text-rose-100">
+                {fortuneError}
+              </p>
+            )}
 
             {fortuneLoading && (
               <div className="mt-6 rounded-2xl border border-cyan-500/25 bg-cyan-950/20 p-5 space-y-3 animate-pulse font-mono">
@@ -2467,9 +2504,9 @@ export default function HomePage() {
                   <div className="h-full bg-gradient-to-r from-cyan-500 via-amber-400 to-cyan-500 w-4/5 animate-[grow-x_1.5s_infinite]" />
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-[10px] text-cyan-400/70">
-                  <div>[STATUS] ALIGNING QUANTUM MATRIX</div>
+                  <div>[STATUS] RUNNING V4 CORE</div>
                   <div className="text-right">[STABILITY] 100% OK</div>
-                  <div>[METHOD] I-CHING HEXAGRAM CALC</div>
+                  <div>[METHOD] BACKEND ANALYSIS</div>
                   <div className="text-right">[TARGET] {fortuneNumber}</div>
                 </div>
               </div>
@@ -2496,41 +2533,103 @@ export default function HomePage() {
                     </div>
                   </>
                 )}
-                <FeatureVisitorCounter featureKey="iching" className="mb-4" />
+                <FeatureVisitorCounter featureKey="iching" className="hidden" />
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-semibold text-cyan-200">
-                    解碼對象：<span className="text-base text-cyan-100 font-mono font-bold">{fortuneResult.number}</span>
+                    分析對象：<span className="text-base text-cyan-100 font-mono font-bold">{fortuneResult.value}</span>
                   </span>
-                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${
-                    fortuneResult.fortuneLevel.includes('吉') ? 'bg-emerald-500/25 text-emerald-300' : 'bg-rose-500/25 text-rose-300'
-                  }`}>
-                    吉凶斷語：{fortuneResult.fortuneLevel}
+                  <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-xs font-bold text-cyan-100">
+                    {fortuneResult.mode === 'phone10' ? '完整 10 碼' : '後 4 碼'}
                   </span>
+                </div>
+
+                <div className="h-px bg-cyan-500/10" />
+
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-2xl border border-cyan-300/15 bg-slate-950/35 p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-300">綜合分數</p>
+                    <p className="mt-2 font-mono text-4xl font-black text-cyan-100">
+                      {fortuneResult.finalScore}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-amber-300/15 bg-slate-950/35 p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-300">結果分級</p>
+                    <p className="mt-3 text-xl font-black text-amber-100">{fortuneResult.level}</p>
+                    <p className="mt-1 text-[10px] text-[color:var(--text-muted)]">規則版本 {fortuneResult.ruleVersion}</p>
+                  </div>
+                  <div className="rounded-2xl border border-emerald-300/15 bg-slate-950/35 p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300">分析可信度</p>
+                    <p className="mt-2 font-mono text-4xl font-black text-emerald-100">
+                      {fortuneResult.confidenceScore}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="h-px bg-cyan-500/10" />
+
+                <div className="grid grid-cols-2 gap-2 text-[10px] leading-5 sm:grid-cols-5">
+                  {[
+                    ['結構', fortuneResult.indexes.structure],
+                    ['平衡', fortuneResult.indexes.balance],
+                    ['組合', fortuneResult.indexes.pattern],
+                    ['穩定', fortuneResult.indexes.stability],
+                    ['趨勢', fortuneResult.indexes.trend],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+                      <p className="text-[color:var(--text-muted)]">{label}</p>
+                      <p className="font-mono text-sm font-black text-cyan-100">{value}</p>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="h-px bg-cyan-500/10" />
 
                 <div className="grid gap-4 sm:grid-cols-2 text-xs leading-6">
                   <div>
-                    <p className="font-semibold text-cyan-300">八十一靈動數理 · {fortuneResult.lingdongNum}</p>
-                    <p className="mt-1 text-cyan-100 font-medium">【{fortuneResult.lingdongTitle}】</p>
-                    <p className="mt-1 text-[color:var(--text-sub)]">{fortuneResult.lingdongDesc}</p>
+                    <p className="font-semibold text-cyan-300">主要優勢</p>
+                    <div className="mt-2 space-y-2">
+                      {fortuneResult.strengths.map((item) => (
+                        <div key={item} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-cyan-100">
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   <div>
-                    <p className="font-semibold text-amber-300">易經梅花易數卦象</p>
-                    <p className="mt-1 text-amber-100 font-medium">【{fortuneResult.hexagramName}】</p>
-                    <p className="mt-1 text-[color:var(--text-sub)]">{fortuneResult.hexagramDesc}</p>
+                    <p className="font-semibold text-amber-300">需要留意</p>
+                    <div className="mt-2 space-y-2">
+                      {fortuneResult.cautions.map((item) => (
+                        <div key={item} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-amber-100">
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
                 <div className="h-px bg-cyan-500/10" />
 
-                <div className="text-xs leading-5">
-                  <p className="font-semibold text-cyan-300">五行屬性：{fortuneResult.wuxing}</p>
-                  <p className="mt-2 text-xs italic leading-6 text-[color:var(--text-muted)]">
-                    {fortuneResult.wisdomNote}
-                  </p>
+                {fortuneResult.suitableDirections.length > 0 && (
+                  <>
+                    <div className="h-px bg-cyan-500/10" />
+                    <div className="text-xs leading-6">
+                      <p className="font-semibold text-cyan-300">適合方向</p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {fortuneResult.suitableDirections.map((item) => (
+                          <span key={item} className="rounded-full border border-cyan-300/15 bg-cyan-500/10 px-3 py-1 text-cyan-100">
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div className="text-xs leading-6">
+                  <p className="font-semibold text-cyan-300">參考建議</p>
+                  <p className="mt-2 text-[color:var(--text-sub)]">{fortuneResult.summary}</p>
+                  <p className="mt-2 text-[color:var(--text-muted)]">{fortuneResult.advice}</p>
                 </div>
               </div>
             )}
