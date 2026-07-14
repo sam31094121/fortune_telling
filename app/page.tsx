@@ -1415,15 +1415,15 @@ export default function HomePage() {
             <h1 className="mystic-title home-hero-title mb-4 font-serif text-4xl leading-tight sm:text-6xl md:text-7xl">
               天宿命理<br />AI 能量解碼艙
             </h1>
-            <p className="max-w-2xl text-sm leading-7 text-[color:var(--text-sub)] sm:text-base">
+            <p className="hidden max-w-2xl text-sm leading-7 text-[color:var(--text-sub)] sm:text-base">
               靈魂配對、人格聲波、深度洞察與數字吉凶集中啟動，讓每一次進站都像打開一座會呼吸的命理主控台。
             </p>
 
-            <div className="home-signal-grid mt-6 grid gap-3 sm:grid-cols-3">
+            <div className="hidden home-signal-grid mt-6 grid gap-3 sm:grid-cols-3">
               {HOME_SIGNAL_METRICS.map((item) => (
                 <div key={item.label} className={`home-signal-chip home-signal-${item.tone}`}>
                   <span>{item.label}</span>
-                  <strong>{item.value}</strong>
+                  <strong className="hidden">{item.value}</strong>
                 </div>
               ))}
             </div>
@@ -1457,7 +1457,7 @@ export default function HomePage() {
                   <span className="animate-ping inline-block w-1.5 h-1.5 rounded-full bg-amber-400" />
                   <span>🪐 今日天宿星格氣場</span>
                 </p>
-                <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">
+                <p className="hidden mt-2 text-xs leading-6 text-[color:var(--text-sub)]">
                   今日紫微天樞星高懸，血型磁場共振係數 0.92，宿命宮位大開，極利叩問前世因果修行與今生天命配對契合度。
                 </p>
               </div>
@@ -1473,7 +1473,7 @@ export default function HomePage() {
                   ONLINE
                 </span>
               </div>
-              <div className="mt-3 space-y-2">
+              <div className="hidden mt-3 space-y-2">
                 {HOME_COMMAND_STATUS.map(([label, status]) => (
                   <div key={label} className="flex items-center justify-between gap-3 text-xs">
                     <span className="font-semibold text-[color:var(--text-main)]">{label}</span>

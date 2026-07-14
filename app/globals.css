@@ -2212,6 +2212,172 @@ body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
   .taiji-celestial-wisp { animation-duration: 24s; }
 }
 
+/* Tai Chi 4D visual polish: material, light, depth, and energy only. */
+.home-core-panel [data-testid="taiji-orbit-emblem"],
+.modal-taiji-button .modal-taiji-orbit-emblem {
+  background:
+    radial-gradient(circle at 33% 19%, rgba(255, 255, 255, 0.28), transparent 13%),
+    radial-gradient(circle at 64% 73%, rgba(34, 211, 238, 0.17), transparent 22%),
+    radial-gradient(circle at 38% 66%, rgba(251, 191, 36, 0.14), transparent 24%),
+    radial-gradient(circle at 50% 50%, rgba(5, 8, 24, 0.78), rgba(2, 3, 10, 0.96) 66%, #02030a 100%) !important;
+  box-shadow:
+    inset 16px 12px 28px rgba(255, 255, 255, 0.12),
+    inset -22px -28px 44px rgba(0, 0, 0, 0.74),
+    inset 0 0 62px rgba(125, 211, 252, 0.1),
+    0 24px 58px rgba(0, 0, 0, 0.48),
+    0 0 44px rgba(255, 255, 255, 0.14),
+    0 0 86px rgba(34, 211, 238, 0.24),
+    0 0 132px rgba(251, 191, 36, 0.18),
+    0 0 180px rgba(139, 92, 246, 0.13);
+  filter: saturate(1.14) contrast(1.05);
+}
+
+.home-core-panel [data-testid="taiji-orbit-emblem"]::before,
+.home-core-panel [data-testid="taiji-orbit-emblem"]::after,
+.modal-taiji-button .modal-taiji-orbit-emblem::before,
+.modal-taiji-button .modal-taiji-orbit-emblem::after {
+  position: absolute;
+  inset: 0;
+  z-index: 24;
+  border-radius: inherit;
+  pointer-events: none;
+  content: '';
+}
+
+.home-core-panel [data-testid="taiji-orbit-emblem"]::before,
+.modal-taiji-button .modal-taiji-orbit-emblem::before {
+  background:
+    radial-gradient(circle at 31% 18%, rgba(255, 255, 255, 0.46), transparent 12%),
+    radial-gradient(ellipse at 22% 28%, rgba(186, 230, 253, 0.24), transparent 30%),
+    linear-gradient(126deg, rgba(255, 255, 255, 0.24), transparent 24%, transparent 58%, rgba(255, 255, 255, 0.08) 72%, transparent 86%);
+  mix-blend-mode: screen;
+  opacity: 0.72;
+  animation: taiji-crystal-caustics 9.6s ease-in-out infinite;
+}
+
+.home-core-panel [data-testid="taiji-orbit-emblem"]::after,
+.modal-taiji-button .modal-taiji-orbit-emblem::after {
+  inset: 7%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background:
+    conic-gradient(from 140deg, rgba(255, 255, 255, 0.16), transparent 16%, rgba(34, 211, 238, 0.13) 28%, transparent 44%, rgba(251, 191, 36, 0.14) 58%, transparent 76%, rgba(255, 255, 255, 0.12)),
+    radial-gradient(circle, transparent 54%, rgba(255, 255, 255, 0.13) 65%, transparent 76%);
+  box-shadow:
+    inset 0 0 24px rgba(255, 255, 255, 0.12),
+    0 0 28px rgba(125, 211, 252, 0.14);
+  mix-blend-mode: screen;
+  opacity: 0.58;
+  animation: taiji-refractive-lens 13s linear infinite;
+}
+
+.home-core-panel [data-testid="taiji-orbit-emblem"] canvas:not(.pointer-events-none) {
+  filter:
+    saturate(1.18)
+    contrast(1.08)
+    brightness(1.08)
+    drop-shadow(0 0 18px rgba(255, 255, 255, 0.12))
+    drop-shadow(0 0 34px rgba(34, 211, 238, 0.22));
+}
+
+.home-core-panel .taiji-orbit-layer,
+.modal-taiji-button .taiji-orbit-layer {
+  filter:
+    saturate(1.22)
+    drop-shadow(0 0 16px rgba(255, 255, 255, 0.12))
+    drop-shadow(0 0 26px rgba(34, 211, 238, 0.16));
+}
+
+.home-core-panel .taiji-light-orbit::before,
+.modal-taiji-button .taiji-light-orbit::before {
+  opacity: 1;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 2px));
+}
+
+.home-core-panel .taiji-light-orbit__head,
+.modal-taiji-button .taiji-light-orbit__head {
+  background:
+    radial-gradient(circle, #fff 0 12%, currentColor 28%, rgba(255, 255, 255, 0.22) 48%, transparent 74%);
+  box-shadow:
+    0 0 10px #fff,
+    0 0 24px currentColor,
+    0 0 48px currentColor;
+}
+
+.home-core-panel .taiji-gold-wave,
+.modal-taiji-button .taiji-gold-wave {
+  border-color: rgba(255, 248, 214, 0.84);
+  box-shadow:
+    0 0 12px rgba(255, 255, 255, 0.3),
+    0 0 26px rgba(251, 191, 36, 0.5),
+    inset 0 0 14px rgba(255, 248, 214, 0.34);
+}
+
+.home-core-panel .taiji-celestial-mist,
+.modal-taiji-button .taiji-celestial-mist {
+  filter: saturate(1.38) blur(0.2px);
+}
+
+.home-core-panel .taiji-celestial-wisp,
+.modal-taiji-button .taiji-celestial-wisp {
+  background:
+    radial-gradient(ellipse at 28% 50%, rgba(255, 255, 255, 0.64) 0%, rgba(186, 230, 253, 0.26) 26%, rgba(251, 191, 36, 0.18) 52%, transparent 78%);
+  box-shadow:
+    0 0 22px rgba(255, 255, 255, 0.16),
+    0 0 42px rgba(34, 211, 238, 0.1);
+}
+
+.home-core-halo,
+.modal-taiji-natural-bloom {
+  background:
+    radial-gradient(circle at 50% 48%, rgba(255, 255, 255, 0.24), transparent 17%),
+    radial-gradient(circle at 36% 38%, rgba(34, 211, 238, 0.2), transparent 35%),
+    radial-gradient(circle at 66% 62%, rgba(251, 191, 36, 0.18), transparent 42%),
+    conic-gradient(from 0deg, transparent, rgba(34, 211, 238, 0.24), transparent, rgba(251, 191, 36, 0.24), transparent, rgba(167, 139, 250, 0.18), transparent);
+  filter: blur(18px) saturate(1.28);
+}
+
+.modal-taiji-3d-core {
+  background:
+    radial-gradient(circle at 31% 19%, rgba(255, 255, 255, 0.46), transparent 18%),
+    linear-gradient(132deg, rgba(255, 255, 255, 0.16), transparent 38%),
+    #02030a;
+  box-shadow:
+    inset 16px 0 26px rgba(255, 255, 255, 0.18),
+    inset -20px -22px 34px rgba(0, 0, 0, 0.76),
+    inset 0 18px 28px rgba(255, 255, 255, 0.11),
+    0 0 30px rgba(255, 255, 255, 0.2),
+    0 0 58px rgba(34, 211, 238, 0.18),
+    0 0 92px rgba(251, 191, 36, 0.12);
+}
+
+.modal-taiji-half--yang {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.96), transparent 26%),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.99), rgba(226, 232, 240, 0.92) 54%, rgba(148, 163, 184, 0.84));
+}
+
+.modal-taiji-half--yin {
+  background:
+    radial-gradient(circle at 73% 74%, rgba(34, 211, 238, 0.2), transparent 38%),
+    linear-gradient(150deg, rgba(18, 24, 45, 0.98), rgba(2, 6, 23, 1) 56%, rgba(0, 0, 0, 1));
+}
+
+.modal-taiji-core-glaze {
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.72), transparent 20%),
+    linear-gradient(126deg, rgba(255, 255, 255, 0.2), transparent 38%, rgba(186, 230, 253, 0.13) 62%, transparent 82%);
+}
+
+@keyframes taiji-crystal-caustics {
+  0%, 100% { opacity: 0.58; transform: rotate(0deg) scale(1); }
+  50% { opacity: 0.86; transform: rotate(7deg) scale(1.018); }
+}
+
+@keyframes taiji-refractive-lens {
+  to { rotate: 360deg; }
+}
+
 /* ─── 🔮 手機極致 UX 升級與水晶流光美化 ─── */
 
 /* 1. 金屬高光橫掃按鈕 */
