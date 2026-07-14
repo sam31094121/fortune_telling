@@ -50,6 +50,71 @@ interface KarmaStory {
   iching_hexagram?: string;
 }
 
+type EvolutionStage = 'idle' | 'taiji' | 'liangyi' | 'sixiang' | 'bagua';
+
+type EvolutionConfig = {
+  clickCount: 1 | 2 | 4 | 8;
+  stage: EvolutionStage;
+  label: string;
+  description: string;
+  durationMs: number;
+};
+
+const EVOLUTION_CONFIG: Record<1 | 2 | 4 | 8, EvolutionConfig> = {
+  1: {
+    clickCount: 1,
+    stage: 'taiji',
+    label: '太極',
+    description: '核心甦醒 · 黑白氣息呼吸',
+    durationMs: 1200,
+  },
+  2: {
+    clickCount: 2,
+    stage: 'liangyi',
+    label: '兩儀',
+    description: '陰陽分離 · 同源雙旋',
+    durationMs: 1600,
+  },
+  4: {
+    clickCount: 4,
+    stage: 'sixiang',
+    label: '四象',
+    description: '老陽少陰 · 少陽老陰',
+    durationMs: 2000,
+  },
+  8: {
+    clickCount: 8,
+    stage: 'bagua',
+    label: '八卦',
+    description: '乾兌離震 · 巽坎艮坤',
+    durationMs: 2400,
+  },
+};
+
+const BAGUA_SYMBOLS = [
+  ['乾', '☰'],
+  ['兌', '☱'],
+  ['離', '☲'],
+  ['震', '☳'],
+  ['巽', '☴'],
+  ['坎', '☵'],
+  ['艮', '☶'],
+  ['坤', '☷'],
+] as const;
+
+const HOME_SIGNAL_METRICS = [
+  { label: '即時人氣', value: 'LIVE', tone: 'cyan' },
+  { label: 'AI 命理艙', value: '4 核同步', tone: 'rose' },
+  { label: '數字解碼', value: '1 秒啟動', tone: 'amber' },
+] as const;
+
+const HOME_COMMAND_STATUS = [
+  ['靈魂配對', '雙人命盤待命'],
+  ['人格聲波', '赫茲矩陣在線'],
+  ['深度洞察', '紫微星曜同步'],
+  ['數字吉凶', '太極八卦已啟封'],
+] as const;
+
 interface PersonDisplay {
   name: string;
   zodiacZh: string;
@@ -179,6 +244,60 @@ function NumberTicker({ value }: { value: number }) {
   }, [value]);
 
   return <>{count}</>;
+}
+
+function getNumberFortuneAura(level?: string) {
+  if (level === '大吉') {
+    return {
+      stage: 24,
+      label: '24 階大吉帝光',
+      blessing: '大吉彩蛋已開啟，數理光芒進入最高階。',
+      taijiClass:
+        'border-amber-200/70 shadow-[0_0_34px_rgba(253,230,138,0.78),0_0_90px_rgba(245,158,11,0.52),0_0_150px_rgba(255,255,255,0.22)]',
+      resultClass:
+        'number-aura-card number-aura-card--great border-amber-300/60 bg-amber-950/20 shadow-[0_0_42px_rgba(251,191,36,0.28),inset_0_0_24px_rgba(253,230,138,0.08)]',
+      badgeClass: 'border-amber-200/50 bg-amber-300/20 text-amber-100 shadow-[0_0_18px_rgba(251,191,36,0.42)]',
+      textClass: 'text-amber-100',
+    } as const;
+  }
+
+  if (level === '吉') {
+    return {
+      stage: 12,
+      label: '12 階祥光',
+      blessing: '吉祥彩蛋已開啟，太極光輪正在放大。',
+      taijiClass:
+        'border-emerald-300/60 shadow-[0_0_30px_rgba(52,211,153,0.48),0_0_76px_rgba(34,211,238,0.26)]',
+      resultClass:
+        'number-aura-card number-aura-card--good border-emerald-300/45 bg-emerald-950/15 shadow-[0_0_32px_rgba(16,185,129,0.2),inset_0_0_18px_rgba(52,211,153,0.06)]',
+      badgeClass: 'border-emerald-300/45 bg-emerald-400/16 text-emerald-100 shadow-[0_0_16px_rgba(52,211,153,0.34)]',
+      textClass: 'text-emerald-100',
+    } as const;
+  }
+
+  if (level === '半吉') {
+    return {
+      stage: 3,
+      label: '3 階初光',
+      blessing: '半吉初光已亮起，數理能量開始轉正。',
+      taijiClass:
+        'border-cyan-300/55 shadow-[0_0_24px_rgba(34,211,238,0.42),0_0_60px_rgba(139,92,246,0.2)]',
+      resultClass:
+        'number-aura-card number-aura-card--half border-cyan-300/38 bg-cyan-950/16 shadow-[0_0_26px_rgba(34,211,238,0.16),inset_0_0_16px_rgba(34,211,238,0.05)]',
+      badgeClass: 'border-cyan-300/40 bg-cyan-400/14 text-cyan-100 shadow-[0_0_14px_rgba(34,211,238,0.28)]',
+      textClass: 'text-cyan-100',
+    } as const;
+  }
+
+  return {
+    stage: 0,
+    label: '',
+    blessing: '',
+    taijiClass: '',
+    resultClass: 'border-cyan-500/25 bg-cyan-950/20',
+    badgeClass: '',
+    textClass: 'text-cyan-100',
+  } as const;
 }
 
 function ScoreRow({ label, score, tone }: { label: string; score: number; tone: 'violet' | 'amber' | 'cyan' | 'pink' }) {
@@ -536,6 +655,9 @@ export default function HomePage() {
   const [fortuneResult, setFortuneResult] = useState<any>(null);
   const [fortuneLoading, setFortuneLoading] = useState(false);
   const [isFortuneModalOpen, setIsFortuneModalOpen] = useState(false);
+  const [modalEvolutionStage, setModalEvolutionStage] = useState<EvolutionStage>('idle');
+  const [modalEvolutionLabel, setModalEvolutionLabel] = useState('觸碰太極，觀察萬象演化');
+  const [modalEvolutionDescription, setModalEvolutionDescription] = useState('');
 
   // 系統自我修復 States & Handler
   const [showRepairToast, setShowRepairToast] = useState(false);
@@ -552,6 +674,9 @@ export default function HomePage() {
       setFortuneNumber('');
       setFortuneResult(null);
       setIsFortuneModalOpen(false);
+      setModalEvolutionStage('idle');
+      setModalEvolutionLabel('觸碰太極，觀察萬象演化');
+      setModalEvolutionDescription('');
       setShowRepairToast(true);
       setTimeout(() => setShowRepairToast(false), 3000);
     } catch (e) {
@@ -566,6 +691,7 @@ export default function HomePage() {
   const [showModalMegaMantra, setShowModalMegaMantra] = useState(false);
   const [showModalGreatMantra, setShowModalGreatMantra] = useState(false);
   const modalTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const modalEvolutionTimerRef = useRef<number | null>(null);
   const modalAudioContextsRef = useRef<Set<AudioContext>>(new Set());
   const modalAudioTimersRef = useRef<Set<number>>(new Set());
 
@@ -637,8 +763,116 @@ export default function HomePage() {
     }
   };
 
+  const playEvolutionTone = (stage: EvolutionStage) => {
+    if (typeof window === 'undefined' || stage === 'idle') return;
+
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+
+      const ctx = new AudioContextClass();
+      void ctx.resume?.();
+      const gainNode = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+      const compressor = ctx.createDynamicsCompressor();
+      const delay = ctx.createDelay();
+      const echoGain = ctx.createGain();
+      const stageFrequencies: Record<Exclude<EvolutionStage, 'idle'>, number[]> = {
+        taiji: [128, 256, 384],
+        liangyi: [216, 324, 432, 648],
+        sixiang: [144, 288, 432, 576, 720],
+        bagua: [108, 216, 324, 432, 540, 648, 756, 864, 972],
+      };
+      const duration = stage === 'taiji' ? 1.5 : stage === 'liangyi' ? 1.9 : stage === 'sixiang' ? 2.35 : 3.1;
+      const peakGain = stage === 'bagua' ? 0.52 : stage === 'sixiang' ? 0.46 : 0.38;
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(stage === 'bagua' ? 2600 : 1600, ctx.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(stage === 'bagua' ? 4200 : 2400, ctx.currentTime + duration * 0.55);
+      gainNode.gain.setValueAtTime(0, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(peakGain, ctx.currentTime + 0.045);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+      delay.delayTime.setValueAtTime(stage === 'bagua' ? 0.19 : 0.13, ctx.currentTime);
+      echoGain.gain.setValueAtTime(stage === 'bagua' ? 0.22 : 0.14, ctx.currentTime);
+      compressor.threshold.setValueAtTime(-20, ctx.currentTime);
+      compressor.knee.setValueAtTime(18, ctx.currentTime);
+      compressor.ratio.setValueAtTime(8, ctx.currentTime);
+      compressor.attack.setValueAtTime(0.012, ctx.currentTime);
+      compressor.release.setValueAtTime(0.22, ctx.currentTime);
+
+      stageFrequencies[stage].forEach((frequency, index) => {
+        const osc = ctx.createOscillator();
+        const partialGain = ctx.createGain();
+        osc.type = index % 2 === 0 ? 'sine' : 'triangle';
+        osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+        osc.detune.setValueAtTime(index % 2 === 0 ? -5 : 7, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(frequency * (stage === 'bagua' ? 1.06 : 1.035), ctx.currentTime + duration * 0.58);
+        partialGain.gain.setValueAtTime(0, ctx.currentTime);
+        partialGain.gain.linearRampToValueAtTime(1 / Math.max(2.2, stageFrequencies[stage].length), ctx.currentTime + 0.035 + index * 0.018);
+        partialGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+        osc.connect(partialGain);
+        partialGain.connect(filter);
+        osc.start(ctx.currentTime + index * 0.022);
+        osc.stop(ctx.currentTime + duration + 0.12);
+      });
+
+      const shimmer = ctx.createBufferSource();
+      const shimmerBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.38), ctx.sampleRate);
+      const data = shimmerBuffer.getChannelData(0);
+      for (let i = 0; i < data.length; i += 1) {
+        const fade = 1 - i / data.length;
+        data[i] = (Math.random() * 2 - 1) * fade * fade * 0.28;
+      }
+      const shimmerGain = ctx.createGain();
+      shimmer.buffer = shimmerBuffer;
+      shimmerGain.gain.setValueAtTime(stage === 'bagua' ? 0.22 : 0.12, ctx.currentTime);
+      shimmerGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.38);
+      shimmer.connect(shimmerGain);
+      shimmerGain.connect(filter);
+      shimmer.start(ctx.currentTime + 0.02);
+      shimmer.stop(ctx.currentTime + 0.42);
+
+      filter.connect(gainNode);
+      filter.connect(delay);
+      delay.connect(echoGain);
+      echoGain.connect(gainNode);
+      gainNode.connect(compressor);
+      compressor.connect(ctx.destination);
+      modalAudioContextsRef.current.add(ctx);
+
+      const closeAfterMs = Math.ceil((duration + 0.35) * 1000);
+      const closeTimer = window.setTimeout(() => {
+        modalAudioTimersRef.current.delete(closeTimer);
+        modalAudioContextsRef.current.delete(ctx);
+        void ctx.close().catch(() => {});
+      }, closeAfterMs);
+      modalAudioTimersRef.current.add(closeTimer);
+    } catch (e) {
+      console.warn(e);
+    }
+  };
+
+  const triggerModalEvolution = (config: EvolutionConfig) => {
+    setModalEvolutionStage(config.stage);
+    setModalEvolutionLabel(config.label);
+    setModalEvolutionDescription(config.description);
+    playEvolutionTone(config.stage);
+
+    if (modalEvolutionTimerRef.current) {
+      window.clearTimeout(modalEvolutionTimerRef.current);
+    }
+
+    modalEvolutionTimerRef.current = window.setTimeout(() => {
+      setModalEvolutionStage('idle');
+      setModalEvolutionLabel('觸碰太極，觀察萬象演化');
+      setModalEvolutionDescription('');
+      modalEvolutionTimerRef.current = null;
+    }, config.durationMs + 1600);
+  };
+
   useEffect(() => () => {
     if (modalTimerRef.current) clearTimeout(modalTimerRef.current);
+    if (modalEvolutionTimerRef.current) window.clearTimeout(modalEvolutionTimerRef.current);
     modalAudioTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     modalAudioContextsRef.current.forEach((context) => void context.close().catch(() => {}));
     modalAudioTimersRef.current.clear();
@@ -653,6 +887,10 @@ export default function HomePage() {
       modalTimerRef.current = setTimeout(() => {
         setModalTapCount(0);
       }, 8000);
+
+      if (next === 1 || next === 2 || next === 4 || next === 8) {
+        triggerModalEvolution(EVOLUTION_CONFIG[next]);
+      }
 
       if (next === 3) {
         setShowModalMantra(true);
@@ -1126,6 +1364,8 @@ export default function HomePage() {
     setStep('personA-base');
   }
 
+  const fortuneAura = getNumberFortuneAura(fortuneResult?.fortuneLevel);
+
   return (
     <div className="app-bg min-h-screen overflow-hidden">
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
@@ -1166,28 +1406,53 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <section className="mb-6 sm:mb-10 grid items-center gap-6 lg:gap-8 lg:grid-cols-[1fr_auto]">
-          <div>
-            <div className="mb-4 inline-block rounded-full border border-rose-400/20 bg-rose-400/8 px-4 py-1 text-xs tracking-[0.35em] text-rose-300">
+        <section className="home-hero-stage mb-8 sm:mb-10 grid items-center gap-7 lg:gap-10 lg:grid-cols-[1fr_360px]">
+          <div className="relative z-10">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-rose-400/25 bg-rose-400/10 px-4 py-1.5 text-xs font-bold tracking-[0.28em] text-rose-200 shadow-[0_0_24px_rgba(244,63,94,0.12)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-300 shadow-[0_0_12px_rgba(253,164,175,0.9)]" />
               配對你的命運靈魂伴侶
             </div>
-            <h1 className="mystic-title mb-3 font-serif text-4xl leading-tight sm:text-6xl md:text-7xl">
-              探索靈魂連結<br />與個人深度洞察
+            <h1 className="mystic-title home-hero-title mb-4 font-serif text-4xl leading-tight sm:text-6xl md:text-7xl">
+              天宿命理<br />AI 能量解碼艙
             </h1>
+            <p className="max-w-2xl text-sm leading-7 text-[color:var(--text-sub)] sm:text-base">
+              靈魂配對、人格聲波、深度洞察與數字吉凶集中啟動，讓每一次進站都像打開一座會呼吸的命理主控台。
+            </p>
+
+            <div className="home-signal-grid mt-6 grid gap-3 sm:grid-cols-3">
+              {HOME_SIGNAL_METRICS.map((item) => (
+                <div key={item.label} className={`home-signal-chip home-signal-${item.tone}`}>
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
+                </div>
+              ))}
+            </div>
+
             <div className="mt-8">
+              <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 onClick={() => {
                   const target = document.getElementById('step-entry');
                   target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }}
-                className="inline-flex items-center gap-2 rounded-full border border-rose-400/30 bg-rose-500/10 px-8 py-3 text-sm font-bold text-rose-200 hover:bg-rose-500/25 transition-all shadow-[0_0_20px_rgba(244,63,94,0.2)] animate-bounce shimmer-btn"
+                className="home-primary-cta group inline-flex items-center justify-center gap-2 rounded-full border border-rose-300/45 bg-rose-500/15 px-8 py-3 text-sm font-black text-rose-100 transition-all shadow-[0_0_28px_rgba(244,63,94,0.24)] shimmer-btn"
               >
-                <span>👇 一鍵開啟 · 填寫生辰軌道</span>
+                <span>一鍵開啟生辰軌道</span>
+                <span className="transition-transform group-hover:translate-x-1">➜</span>
               </button>
+              <button
+                type="button"
+                onClick={() => setIsFortuneModalOpen(true)}
+                className="home-secondary-cta inline-flex items-center justify-center gap-2 rounded-full border border-cyan-300/35 bg-cyan-400/10 px-8 py-3 text-sm font-black text-cyan-100 transition-all shadow-[0_0_24px_rgba(34,211,238,0.18)]"
+              >
+                <span>立即解碼數字吉凶</span>
+                <span>☯</span>
+              </button>
+              </div>
 
               {/* 動態天宿氣場預言面板 */}
-              <div className="mt-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-left max-w-md shadow-[0_0_15px_rgba(245,158,11,0.05)]">
+              <div className="home-forecast-panel mt-6 max-w-xl rounded-2xl border border-amber-500/25 bg-amber-500/7 p-4 text-left shadow-[0_0_24px_rgba(245,158,11,0.08)]">
                 <p className="text-xs uppercase tracking-[0.25em] text-amber-300 font-bold font-mono flex items-center gap-2">
                   <span className="animate-ping inline-block w-1.5 h-1.5 rounded-full bg-amber-400" />
                   <span>🪐 今日天宿星格氣場</span>
@@ -1198,8 +1463,25 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div className="flex justify-center lg:justify-end">
+          <div className="home-core-panel relative flex flex-col items-center justify-center">
+            <div className="home-core-halo" aria-hidden="true" />
             <VisualGravityCore />
+            <div className="home-command-panel mt-5 w-full">
+              <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+                <span className="text-[10px] font-black uppercase tracking-[0.28em] text-cyan-200">Command Sync</span>
+                <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold tracking-[0.16em] text-emerald-200">
+                  ONLINE
+                </span>
+              </div>
+              <div className="mt-3 space-y-2">
+                {HOME_COMMAND_STATUS.map(([label, status]) => (
+                  <div key={label} className="flex items-center justify-between gap-3 text-xs">
+                    <span className="font-semibold text-[color:var(--text-main)]">{label}</span>
+                    <span className="text-[color:var(--text-sub)]">{status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -1207,7 +1489,7 @@ export default function HomePage() {
         <div className="mb-8 w-full space-y-4">
           <Link
             href="/match"
-            className="w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-all duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-rose w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-all duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -1240,7 +1522,7 @@ export default function HomePage() {
 
           <Link
             href="/music"
-            className="w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-violet w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -1273,7 +1555,7 @@ export default function HomePage() {
 
           <Link
             href="/insight"
-            className="w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-amber w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -1307,7 +1589,7 @@ export default function HomePage() {
           <button
             type="button"
             onClick={() => setIsFortuneModalOpen(true)}
-            className="w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-all duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-cyan w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-all duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -2026,6 +2308,9 @@ export default function HomePage() {
                 setIsFortuneModalOpen(false);
                 setFortuneResult(null);
                 setFortuneNumber('');
+                setModalEvolutionStage('idle');
+                setModalEvolutionLabel('觸碰太極，觀察萬象演化');
+                setModalEvolutionDescription('');
               }}
               className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm text-[color:var(--text-sub)] hover:border-white/20 hover:text-white transition"
             >
@@ -2033,46 +2318,115 @@ export default function HomePage() {
             </button>
 
             {/* Modal 頂部立體優美太極圖案 (升級版) - 帶點擊爆發音效與大悲咒彩蛋功能 */}
-            <div className="flex justify-center mb-5">
+            <div className="mb-8 flex flex-col items-center justify-center">
               <button
                 type="button"
                 onClick={handleModalTaiChiClick}
-                className="relative w-24 h-24 rounded-full border border-cyan-500/30 bg-slate-950/80 shadow-[0_0_28px_rgba(255,255,255,0.18),0_0_55px_rgba(255,255,255,0.12),0_0_100px_rgba(34,211,238,0.16)] flex items-center justify-center overflow-visible group cursor-pointer transition active:scale-95"
-                title="點擊敲擊法磬，叩問天意 (連點 3/6/12/24 次觸發天宿彩蛋)"
+                className={`modal-taiji-button taiji-evolution-stage stage-${modalEvolutionStage} group ${fortuneAura.taijiClass}`}
+                title="觸碰太極，觀察一二四八萬象演化；連點 3/6/12/24 保留天宿彩蛋"
               >
-                {/* 3D 邊框旋轉氣流 */}
-                <div className="pointer-events-none absolute -inset-4 rounded-full bg-white/20 blur-[16px] mix-blend-screen animate-[pulse_4s_ease-in-out_infinite] group-hover:bg-white/35 group-hover:blur-[22px] transition-all duration-1000" />
-                <div className="pointer-events-none absolute -inset-6 rounded-full border border-white/25 shadow-[0_0_32px_rgba(255,255,255,0.3),0_0_82px_rgba(255,255,255,0.2)] blur-[1px] animate-[pulse_4.8s_ease-in-out_infinite] group-hover:border-white/45 group-hover:shadow-[0_0_52px_rgba(255,255,255,0.42),0_0_125px_rgba(255,255,255,0.3)] transition-all duration-1000" />
-                <div className="pointer-events-none absolute -inset-14 rounded-full border border-white/10 shadow-[0_0_42px_rgba(255,255,255,0.18),0_0_125px_rgba(255,255,255,0.14)] blur-[3px] animate-[pulse_6s_ease-in-out_infinite] group-hover:border-white/25 group-hover:shadow-[0_0_64px_rgba(255,255,255,0.28),0_0_165px_rgba(255,255,255,0.22)] transition-all duration-1000" />
-                <div className="pointer-events-none absolute -inset-6 rounded-full border border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.14),0_0_54px_rgba(255,255,255,0.1)] blur-[1px] animate-[pulse_4.5s_ease-in-out_infinite] group-hover:scale-110 group-hover:border-white/20 transition-all duration-1000" />
-                <div className="pointer-events-none absolute -inset-8 rounded-full border border-cyan-300/10 shadow-[0_0_18px_rgba(34,211,238,0.12),0_0_60px_rgba(34,211,238,0.08)] animate-[pulse_5s_ease-in-out_infinite] group-hover:border-cyan-300/25 group-hover:shadow-[0_0_28px_rgba(34,211,238,0.2),0_0_90px_rgba(34,211,238,0.12)] transition-all duration-1000" />
-                <div className="pointer-events-none absolute -inset-4 rounded-full border border-cyan-400/15 shadow-[0_0_24px_rgba(34,211,238,0.18),0_0_42px_rgba(34,211,238,0.1)] animate-[pulse_3.5s_ease-in-out_infinite] group-hover:scale-110 group-hover:border-cyan-300/35 transition-all duration-1000" />
-                <div className="absolute inset-0 border border-dashed border-cyan-500/20 rounded-full animate-spin-slow group-hover:border-cyan-400 group-hover:scale-105 transition-all duration-700" />
-                <div className="absolute inset-1.5 border border-dotted border-amber-500/20 rounded-full animate-[spin_12s_linear_infinite] reverse" />
-                
-                {/* 核心立體太極圖 (雙魚立體陰陽) */}
-                <div className={`w-14 h-14 rounded-full relative overflow-hidden shadow-inner border border-white/10 ${
-                  fortuneLoading || modalTapCount > 0 ? 'animate-[spin_1.2s_linear_infinite]' : 'animate-spin-slow'
-                }`}>
-                  {/* 左半邊陽 (白) */}
-                  <div className="absolute top-0 left-0 w-7 h-14 bg-gradient-to-b from-slate-100 to-slate-200 rounded-l-full" />
-                  {/* 右半邊陰 (黑) */}
-                  <div className="absolute top-0 right-0 w-7 h-14 bg-gradient-to-b from-slate-950 to-slate-900 rounded-r-full" />
-                  
-                  {/* 上魚眼 (陽中有陰) */}
-                  <div className="absolute top-0 left-3.5 w-7 h-7 bg-gradient-to-b from-slate-100 to-slate-200 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-gradient-to-b from-slate-950 to-slate-900 rounded-full shadow" />
+                {fortuneAura.stage > 0 && (
+                  <>
+                    <div className="pointer-events-none absolute -inset-14 rounded-full border border-current opacity-20 blur-[5px] animate-[pulse_3.2s_ease-in-out_infinite]" />
+                    <div className="pointer-events-none absolute -inset-24 rounded-full bg-[conic-gradient(from_0deg,transparent,rgba(255,255,255,0.14),transparent,rgba(251,191,36,0.16),transparent)] opacity-45 blur-[3px] animate-[spin_22s_linear_infinite]" />
+                    <span className={`pointer-events-none absolute -bottom-9 rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.2em] backdrop-blur-md ${fortuneAura.badgeClass}`}>
+                      {fortuneAura.label}
+                    </span>
+                  </>
+                )}
+                <div className="modal-taiji-natural-bloom" aria-hidden="true" />
+                <div className="modal-taiji-orbit-emblem" aria-hidden="true">
+                  <div className="taiji-orbit-layer modal-taiji-orbit-layer">
+                    <div className="taiji-light-orbit taiji-light-orbit--cyan">
+                      <span className="taiji-light-orbit__head" />
+                    </div>
+                    <div className="taiji-light-orbit taiji-light-orbit--violet">
+                      <span className="taiji-light-orbit__head" />
+                    </div>
+                    <div className="taiji-light-orbit taiji-light-orbit--gold">
+                      <span className="taiji-light-orbit__head" />
+                    </div>
+                    <div className="taiji-gold-waves">
+                      <span className="taiji-gold-wave" />
+                      <span className="taiji-gold-wave" />
+                      <span className="taiji-gold-wave" />
+                    </div>
+                    <div className="taiji-celestial-mist">
+                      <span className="taiji-celestial-wisp taiji-celestial-wisp--one" />
+                      <span className="taiji-celestial-wisp taiji-celestial-wisp--two" />
+                      <span className="taiji-celestial-wisp taiji-celestial-wisp--three" />
+                    </div>
                   </div>
-                  
-                  {/* 下魚眼 (陰中有陽) */}
-                  <div className="absolute bottom-0 left-3.5 w-7 h-7 bg-gradient-to-b from-slate-950 to-slate-900 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-gradient-to-b from-slate-100 to-slate-200 rounded-full shadow" />
+                  <div className={`modal-taiji-3d-core ${
+                    fortuneLoading || modalTapCount > 0 ? 'modal-taiji-3d-core--active' : ''
+                  }`}>
+                    <div className="modal-taiji-core-glaze" />
+                    <div className="modal-taiji-half modal-taiji-half--yang" />
+                    <div className="modal-taiji-half modal-taiji-half--yin" />
+                    <div className="modal-taiji-fish modal-taiji-fish--yang">
+                      <span />
+                    </div>
+                    <div className="modal-taiji-fish modal-taiji-fish--yin">
+                      <span />
+                    </div>
+                    <div className="modal-taiji-core-depth" />
                   </div>
                 </div>
 
-                {/* 外圈散發的五行極光粒子 */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-cyan-500/5 via-violet-500/5 to-amber-500/5 mix-blend-screen pointer-events-none" />
+                {modalEvolutionStage !== 'idle' && (
+                  <>
+                    <div className="modal-evolution-flare" aria-hidden="true" />
+                    <div className="modal-evolution-scan" aria-hidden="true" />
+                    <div className="modal-evolution-orbit modal-evolution-orbit-a" aria-hidden="true" />
+                    <div className="modal-evolution-orbit modal-evolution-orbit-b" aria-hidden="true" />
+                    <div className="modal-evolution-rays" aria-hidden="true">
+                      {Array.from({ length: 16 }, (_, index) => (
+                        <span key={index} className={`modal-energy-ray modal-energy-ray-${index}`} />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {modalEvolutionStage === 'taiji' && (
+                  <div className="modal-evolution-breath" />
+                )}
+
+                {modalEvolutionStage === 'liangyi' && (
+                  <div className="modal-evolution-layer modal-liangyi-layer" aria-hidden="true">
+                    <span className="modal-liangyi-node modal-liangyi-yang">陽</span>
+                    <span className="modal-liangyi-node modal-liangyi-yin">陰</span>
+                  </div>
+                )}
+
+                {modalEvolutionStage === 'sixiang' && (
+                  <div className="modal-evolution-layer modal-sixiang-layer" aria-hidden="true">
+                    <span className="modal-sixiang-node modal-sixiang-0">老陽</span>
+                    <span className="modal-sixiang-node modal-sixiang-1">少陰</span>
+                    <span className="modal-sixiang-node modal-sixiang-2">少陽</span>
+                    <span className="modal-sixiang-node modal-sixiang-3">老陰</span>
+                  </div>
+                )}
+
+                {modalEvolutionStage === 'bagua' && (
+                  <div className="modal-evolution-layer modal-bagua-layer" aria-hidden="true">
+                    {BAGUA_SYMBOLS.map(([name, symbol], index) => (
+                      <span key={name} className={`modal-bagua-node modal-bagua-${index}`}>
+                        <b>{symbol}</b>
+                        <small>{name}</small>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="modal-taiji-ground-glow" aria-hidden="true" />
               </button>
+              <p className="mt-8 min-h-[34px] text-center text-xs font-semibold tracking-[0.18em] text-cyan-100/85" aria-live="polite">
+                {modalEvolutionLabel}
+                {modalEvolutionDescription && (
+                  <span className="mt-1 block text-[10px] tracking-[0.14em] text-amber-200/75">
+                    {modalEvolutionDescription}
+                  </span>
+                )}
+              </p>
             </div>
 
             <div className="mb-6">
@@ -2122,7 +2476,26 @@ export default function HomePage() {
             )}
 
             {fortuneResult && !fortuneLoading && (
-              <div className="mt-6 rounded-2xl border border-cyan-500/25 bg-cyan-950/20 p-5 space-y-4 animate-fade-in font-sans">
+              <div className={`mt-6 rounded-2xl border p-5 space-y-4 animate-fade-in font-sans relative overflow-hidden ${fortuneAura.resultClass}`}>
+                {fortuneAura.stage > 0 && (
+                  <>
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.16),transparent_38%),linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent)] mix-blend-screen" />
+                    <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full border border-current opacity-20 animate-[spin_16s_linear_infinite]" />
+                    <div className="relative z-10 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className={`rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.22em] ${fortuneAura.badgeClass}`}>
+                          彩蛋解鎖 · {fortuneAura.label}
+                        </span>
+                        <span className="text-[10px] font-mono tracking-[0.18em] text-white/55">
+                          TAIJI AURA {fortuneAura.stage}
+                        </span>
+                      </div>
+                      <p className={`mt-2 text-xs font-semibold leading-5 ${fortuneAura.textClass}`}>
+                        {fortuneAura.blessing}
+                      </p>
+                    </div>
+                  </>
+                )}
                 <FeatureVisitorCounter featureKey="iching" className="mb-4" />
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-semibold text-cyan-200">
