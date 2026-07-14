@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
+import { createRequestId, friendlyErrorResponse } from '@/lib/api-stability';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -274,21 +275,22 @@ function mapLyriaError(message: string, status = '') {
 }
 
 export async function POST(request: Request) {
+  const requestId = createRequestId();
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
-    return NextResponse.json({ error: '尚未設定 GEMINI_API_KEY，無法產生 Lyria MP3。' }, { status: 500 });
+    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '系統正在重新同步，請稍候再試。', 503);
   }
 
   let body: MusicLyriaRequest;
   try {
     body = (await request.json()) as MusicLyriaRequest;
   } catch {
-    return NextResponse.json({ error: '無法解析請求 JSON。' }, { status: 400 });
+    return friendlyErrorResponse(requestId, 'INVALID_JSON', '無法解析請求 JSON。', 400);
   }
 
   const error = validatePayload(body);
   if (error) {
-    return NextResponse.json({ error }, { status: 400 });
+    return friendlyErrorResponse(requestId, 'INVALID_INPUT', error, 400);
   }
 
   const promptPreview = buildLyriaPrompt(body);
@@ -304,11 +306,7 @@ export async function POST(request: Request) {
     const { audioBase64, mimeType, lyricsText } = extractLyriaResult(interaction);
 
     if (!audioBase64) {
-      return NextResponse.json({
-        error: 'Lyria 沒有回傳可播放的 MP3 音檔。',
-        detail: '回傳中沒有 output_audio，也沒有 steps[].content[] audio block。',
-        promptPreview,
-      }, { status: 502 });
+      return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '系統正在重新同步，請稍候再試。', 502);
     }
 
     return NextResponse.json({
@@ -319,14 +317,14 @@ export async function POST(request: Request) {
       promptPreview,
     });
   } catch (err) {
-    console.error('[music-lyria] generation failed', err);
+    console.error('[music-lyria] generation failed', requestId, err instanceof Error ? err.message : String(err));
     const googleError = normalizeSdkError(err);
     const message = googleError.message || (err instanceof Error ? err.message : String(err));
-    return NextResponse.json({
-      error: mapLyriaError(message, googleError.status),
-      detail: message,
-      googleStatus: googleError.status || undefined,
-      promptPreview,
-    }, { status: googleError.httpStatus === 400 ? 400 : 502 });
+    return friendlyErrorResponse(
+      requestId,
+      googleError.httpStatus === 400 ? 'INVALID_INPUT' : 'TEMPORARILY_UNAVAILABLE',
+      mapLyriaError(message, googleError.status),
+      googleError.httpStatus === 400 ? 400 : 502,
+    );
   }
 }

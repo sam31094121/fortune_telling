@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
 
 import {
@@ -126,10 +126,11 @@ async function persistAnalysisResult(result: NumberAnalysisResponse, rawValue: s
 
 export async function POST(request: Request) {
   let body: NumberFortuneRequest;
+  const requestId = randomUUID();
 
   if (isRateLimited(clientKey(request))) {
     return NextResponse.json(
-      { ok: false, message: '請稍候再試，系統正在保護分析服務穩定性。', ruleVersion: NUMBER_CORE_ENGINE_VERSION },
+      { ok: false, requestId, code: 'RATE_LIMITED', message: '請稍候再試，系統正在保護分析服務穩定性。', ruleVersion: NUMBER_CORE_ENGINE_VERSION },
       { status: 429, headers: { 'Cache-Control': 'no-store' } },
     );
   }
@@ -138,18 +139,18 @@ export async function POST(request: Request) {
     body = await request.json();
   } catch {
     return NextResponse.json(
-      { ok: false, message: '請提供有效的 JSON 請求資料。', ruleVersion: NUMBER_CORE_ENGINE_VERSION },
+      { ok: false, requestId, code: 'INVALID_JSON', message: '請提供有效的 JSON 請求資料。', ruleVersion: NUMBER_CORE_ENGINE_VERSION },
       { status: 400, headers: { 'Cache-Control': 'no-store' } },
     );
   }
 
   const validation = validateNumberCoreInput(body.value);
   if (typeof validation !== 'string') {
-    return NextResponse.json(validation, { status: 400, headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json({ ...validation, requestId, code: 'INVALID_INPUT' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
   }
   if (body.mode !== undefined && body.mode !== validation) {
     return NextResponse.json(
-      { ok: false, message: '輸入模式與數字長度不一致。', ruleVersion: NUMBER_CORE_ENGINE_VERSION },
+      { ok: false, requestId, code: 'MODE_MISMATCH', message: '輸入模式與數字長度不一致。', ruleVersion: NUMBER_CORE_ENGINE_VERSION },
       { status: 400, headers: { 'Cache-Control': 'no-store' } },
     );
   }
@@ -159,12 +160,13 @@ export async function POST(request: Request) {
   const analysisId = hashToUuid(analysisHash);
   const result = analyzeNumberCore(rawValue);
   if (!result.ok) {
-    return NextResponse.json(result, { status: 400, headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json({ ...result, requestId, code: 'ANALYSIS_REJECTED' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
   }
 
-  const response: NumberAnalysisResponse & { analysisId: string; mode: NumberAnalysisMode } = {
+  const response: NumberAnalysisResponse & { analysisId: string; requestId: string; mode: NumberAnalysisMode } = {
     ...result,
     analysisId,
+    requestId,
   };
 
   await persistAnalysisResult(response, rawValue, analysisHash, analysisId);

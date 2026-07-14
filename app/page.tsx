@@ -1,16 +1,27 @@
 'use client';
 
 import { useMemo, useState, useDeferredValue, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { injectPerformanceCSS } from '@/lib/performance-css';
-import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
+import { safeJsonFetch } from '@/lib/safe-fetch';
 import type { NumberAnalysisResponse } from '@/lib/number-core-engine';
+
+const VisualGravityCore = dynamic(() => import('@/components/VisualGravityCore'), {
+  ssr: false,
+  loading: () => (
+    <div
+      aria-hidden="true"
+      className="mx-auto aspect-square w-[min(20rem,calc(100vw-2rem))] rounded-full border border-cyan-300/15 bg-slate-950/30 shadow-[0_0_45px_rgba(34,211,238,0.14)]"
+    />
+  ),
+});
 
 interface PersonInput {
   name: string;
@@ -51,6 +62,7 @@ interface KarmaStory {
 }
 
 type NumberAnalysisResult = NumberAnalysisResponse;
+type SystemStatus = 'idle' | 'validating' | 'loading' | 'success' | 'recovering' | 'error';
 
 type EvolutionStage = 'idle' | 'taiji' | 'liangyi' | 'sixiang' | 'bagua';
 
@@ -655,12 +667,15 @@ export default function HomePage() {
   // 數字論吉凶 state 與處理函數
   const [fortuneNumber, setFortuneNumber] = useState('');
   const [fortuneResult, setFortuneResult] = useState<NumberAnalysisResult | null>(null);
-  const [fortuneLoading, setFortuneLoading] = useState(false);
+  const [fortuneStatus, setFortuneStatus] = useState<SystemStatus>('idle');
   const [fortuneError, setFortuneError] = useState('');
   const [isFortuneModalOpen, setIsFortuneModalOpen] = useState(false);
   const [modalEvolutionStage, setModalEvolutionStage] = useState<EvolutionStage>('idle');
   const [modalEvolutionLabel, setModalEvolutionLabel] = useState('觸碰太極，觀察萬象演化');
   const [modalEvolutionDescription, setModalEvolutionDescription] = useState('');
+  const fortuneRequestRef = useRef<AbortController | null>(null);
+  const fortuneSubmittingRef = useRef(false);
+  const fortuneLoading = fortuneStatus === 'validating' || fortuneStatus === 'loading' || fortuneStatus === 'recovering';
 
   // 系統自我修復 States & Handler
   const [showRepairToast, setShowRepairToast] = useState(false);
@@ -676,6 +691,7 @@ export default function HomePage() {
       setLoading(false);
       setFortuneNumber('');
       setFortuneResult(null);
+      setFortuneStatus('idle');
       setIsFortuneModalOpen(false);
       setModalEvolutionStage('idle');
       setModalEvolutionLabel('觸碰太極，觀察萬象演化');
@@ -926,37 +942,65 @@ export default function HomePage() {
 
   const handleNumberFortune = async () => {
     if (!fortuneNumber) return;
+    if (fortuneSubmittingRef.current) return;
+
+    setFortuneStatus('validating');
     if (!/^\d+$/.test(fortuneNumber) || ![4, 10].includes(fortuneNumber.length)) {
       setFortuneResult(null);
       setFortuneError('只能輸入後 4 碼或完整手機號碼 10 碼，且不可包含空格、符號或英文字母。');
+      setFortuneStatus('error');
       return;
     }
 
-    setFortuneLoading(true);
+    fortuneSubmittingRef.current = true;
+    fortuneRequestRef.current?.abort();
+    const requestController = new AbortController();
+    fortuneRequestRef.current = requestController;
+    setFortuneStatus('loading');
     setFortuneError('');
+
     try {
-      const response = await fetch('/api/number-fortune', {
+      const { ok, data } = await safeJsonFetch<NumberAnalysisResult | { ok: false; message?: string }>('/api/number-fortune', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: fortuneNumber }),
+        body: JSON.stringify({
+          mode: fortuneNumber.length === 10 ? 'phone10' : 'last4',
+          value: fortuneNumber,
+        }),
+        signal: requestController.signal,
+        timeoutMs: 12_000,
+        retries: 2,
       });
-      const payload = await response.json();
 
-      if (!response.ok || !payload?.ok) {
+      if (!ok || !data?.ok) {
         setFortuneResult(null);
-        setFortuneError(payload?.message ?? '數字分析暫時無法完成，請稍後再試。');
+        setFortuneError(data && 'message' in data && data.message ? data.message : '系統正在重新同步，請稍候再試。');
+        setFortuneStatus('error');
         return;
       }
 
-      setFortuneResult(payload as NumberAnalysisResult);
+      setFortuneResult(data);
+      setFortuneStatus('success');
     } catch (error) {
-      console.error('[number-fortune] API request failed', error);
+      if (requestController.signal.aborted) {
+        setFortuneStatus('idle');
+        return;
+      }
+      console.warn('[number-fortune] request recovered with friendly error');
       setFortuneResult(null);
-      setFortuneError('系統暫時無法連線至數字分析引擎，已保留你的輸入。');
+      setFortuneStatus('error');
+      setFortuneError('系統正在重新同步，已保留你的輸入，請稍候再試。');
     } finally {
-      setFortuneLoading(false);
+      fortuneSubmittingRef.current = false;
+      if (fortuneRequestRef.current === requestController) {
+        fortuneRequestRef.current = null;
+      }
     }
   };
+
+  useEffect(() => () => {
+    fortuneRequestRef.current?.abort();
+  }, []);
 
   // 自動恢復器 (Auto-Watchdog)
   useEffect(() => {
@@ -1419,7 +1463,7 @@ export default function HomePage() {
       )}
 
       <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
-        <FeatureVisitorCounter featureKey="home" className="mb-6" />
+        <FeatureVisitorCounter featureKey="home" className="mb-6" deferMs={1500} />
         <div className="hidden mb-8 items-center gap-4">
           <span className="text-xs tracking-widest text-rose-300">// AI 靈魂配對</span>
           <span className="text-[color:var(--text-muted)]">·</span>
@@ -2495,7 +2539,7 @@ export default function HomePage() {
             )}
 
             {fortuneLoading && (
-              <div className="mt-6 rounded-2xl border border-cyan-500/25 bg-cyan-950/20 p-5 space-y-3 animate-pulse font-mono">
+              <div className="result-container mt-6 rounded-2xl border border-cyan-500/25 bg-cyan-950/20 p-5 space-y-3 animate-pulse font-mono">
                 <div className="flex justify-between text-xs text-cyan-300 font-bold">
                   <span>🛰️ 正在連結天宿數理中樞...</span>
                   <span className="animate-bounce">80%</span>
@@ -2513,7 +2557,7 @@ export default function HomePage() {
             )}
 
             {fortuneResult && !fortuneLoading && (
-              <div className={`mt-6 rounded-2xl border p-5 space-y-4 animate-fade-in font-sans relative overflow-hidden ${fortuneAura.resultClass}`}>
+              <div className={`result-container fade-result mt-6 rounded-2xl border p-5 space-y-4 font-sans relative overflow-hidden ${fortuneAura.resultClass}`}>
                 {fortuneAura.stage > 0 && (
                   <>
                     <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.16),transparent_38%),linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent)] mix-blend-screen" />

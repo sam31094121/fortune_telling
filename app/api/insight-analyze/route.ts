@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { generateInsightAnalysis } from '@/lib/insight-engine';
 import type { InsightRequest } from '@/lib/types';
 import { isValidBirthday } from '@/lib/validation';
+import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // 設定最大執行時間 60 秒
@@ -28,7 +29,7 @@ function cleanIpCache() {
 
 function getCacheKey(body: InsightRequest): string {
   const shichenKey = typeof body.shichen === 'number' ? String(body.shichen) : 'auto';
-  return `${body.name.trim()}|${body.birthDate}|${body.bloodType}|${body.gender}|${shichenKey}`;
+  return hashedCacheKey([body.name.trim(), body.birthDate, body.bloodType, body.gender, shichenKey]);
 }
 
 function validateInsightRequest(body: unknown): string | null {
@@ -84,6 +85,7 @@ function validateInsightRequest(body: unknown): string | null {
 }
 
 export async function POST(request: Request) {
+  const requestId = createRequestId();
   const now = Date.now();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown_ip';
 
@@ -92,7 +94,7 @@ export async function POST(request: Request) {
   const limitRecord = ipCache.get(ip);
   if (limitRecord && now < limitRecord.resetTime) {
     if (limitRecord.count >= 5) {
-      return NextResponse.json({ error: '請求過於頻繁，請稍後再試。' }, { status: 429 });
+      return friendlyErrorResponse(requestId, 'RATE_LIMITED', '請求過於頻繁，請稍後再試。', 429);
     }
     limitRecord.count += 1;
   } else {
@@ -108,12 +110,12 @@ export async function POST(request: Request) {
       birthTime: typeof rawBody.birthTime === 'string' && rawBody.birthTime.length > 0 ? rawBody.birthTime : '12:00',
     } as InsightRequest;
   } catch {
-    return NextResponse.json({ error: '請傳入有效的 JSON。' }, { status: 400 });
+    return friendlyErrorResponse(requestId, 'INVALID_JSON', '請傳入有效的 JSON。', 400);
   }
 
   const errorMsg = validateInsightRequest(body);
   if (errorMsg) {
-    return NextResponse.json({ error: errorMsg }, { status: 400 });
+    return friendlyErrorResponse(requestId, 'INVALID_INPUT', errorMsg, 400);
   }
 
   // 檢查快取
@@ -147,7 +149,7 @@ export async function POST(request: Request) {
       headers: { 'X-Cache': 'MISS' },
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : '深度洞察分析失敗，請稍後再試。';
-    return NextResponse.json({ error: message }, { status: 502 });
+    console.error('[insight-analyze] request failed', requestId, err instanceof Error ? err.message : String(err));
+    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '系統正在重新同步，請稍候再試。', 502);
   }
 }

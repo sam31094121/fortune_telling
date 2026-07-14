@@ -10,6 +10,7 @@ import { selectTaiwaneseSong } from '@/lib/taiwanese-songs-db';
 import { getZodiacEnglishName, getZodiacSign } from '@/lib/zodiac';
 import { isValidBirthday } from '@/lib/validation';
 import { computeShichenProfile } from '@/lib/shichen-engine';
+import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -121,6 +122,7 @@ function cleanCaches() {
 }
 
 export async function POST(request: Request) {
+  const requestId = createRequestId();
   const now = Date.now();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
   
@@ -130,7 +132,7 @@ export async function POST(request: Request) {
 
   if (record && now < record.resetTime) {
     if (record.count >= 5) {
-      return NextResponse.json({ error: '操作太頻繁，請稍後再試。' }, { status: 429 });
+      return friendlyErrorResponse(requestId, 'RATE_LIMITED', '操作太頻繁，請稍後再試。', 429);
     }
     record.count += 1;
   } else {
@@ -141,15 +143,15 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as MusicGenerateRequest;
   } catch {
-    return NextResponse.json({ error: '無法解析請求 JSON。' }, { status: 400 });
+    return friendlyErrorResponse(requestId, 'INVALID_JSON', '無法解析請求 JSON。', 400);
   }
 
   const errMsg = validate(body);
   if (errMsg) {
-    return NextResponse.json({ error: errMsg }, { status: 400 });
+    return friendlyErrorResponse(requestId, 'INVALID_INPUT', errMsg, 400);
   }
 
-  const cacheKey = [
+  const cacheKey = hashedCacheKey([
     body.birthDate,
     body.bloodType,
     body.name.trim(),
@@ -157,7 +159,7 @@ export async function POST(request: Request) {
     body.shichen !== undefined && body.shichen !== null ? String(body.shichen) : 'null',
     (body.voiceCharacteristics || []).join(','),
     body.vocalGenderPreference ?? 'auto',
-  ].join('|');
+  ]);
 
   const cached = responseCache.get(cacheKey);
   if (cached && now < cached.expireTime) {
@@ -345,7 +347,7 @@ export async function POST(request: Request) {
     responseCache.set(cacheKey, { result: resultPayload, expireTime: now + 300_000 });
     return NextResponse.json(resultPayload);
   } catch (error) {
-    console.error('[music-generate] request failed', error);
-    return NextResponse.json({ error: '音樂人格分析暫時無法完成，請稍後再試。' }, { status: 500 });
+    console.error('[music-generate] request failed', requestId, error instanceof Error ? error.message : String(error));
+    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '系統正在重新同步，請稍候再試。', 503);
   }
 }

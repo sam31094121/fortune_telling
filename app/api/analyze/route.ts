@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { analyzeDestiny } from '@/lib/gemini';
 import type { AnalyzeRequest, BloodType, Gender, PersonInput } from '@/lib/types';
 import { isValidBirthday } from '@/lib/validation';
+import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -50,6 +51,7 @@ function validatePerson(person: unknown): string | null {
 }
 
 export async function POST(request: Request) {
+  const requestId = createRequestId();
   const now = Date.now();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown_ip';
 
@@ -58,7 +60,7 @@ export async function POST(request: Request) {
   const limitRecord = ipCache.get(ip);
   if (limitRecord && now < limitRecord.resetTime) {
     if (limitRecord.count >= 5) {
-      return NextResponse.json({ error: '請求過於頻繁，請稍後再試。' }, { status: 429 });
+      return friendlyErrorResponse(requestId, 'RATE_LIMITED', '請求過於頻繁，請稍後再試。', 429);
     }
     limitRecord.count += 1;
   } else {
@@ -69,20 +71,20 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as AnalyzeRequest;
   } catch {
-    return NextResponse.json({ error: '請傳入有效的 JSON。' }, { status: 400 });
+    return friendlyErrorResponse(requestId, 'INVALID_JSON', '請傳入有效的 JSON。', 400);
   }
 
   const errorMsg = validatePerson(body.person);
   if (errorMsg) {
-    return NextResponse.json({ error: errorMsg }, { status: 400 });
+    return friendlyErrorResponse(requestId, 'INVALID_INPUT', errorMsg, 400);
   }
 
-  const cacheKey = [
+  const cacheKey = hashedCacheKey([
     body.person.birthday,
     body.person.bloodType,
     body.person.name.trim(),
     body.person.gender,
-  ].join('|');
+  ]);
 
   const cached = responseCache.get(cacheKey);
   if (cached && now < cached.expireTime) {
@@ -94,7 +96,7 @@ export async function POST(request: Request) {
     responseCache.set(cacheKey, { result, expireTime: now + 300_000 });
     return NextResponse.json(result, { status: 200 });
   } catch (err) {
-    const message = err instanceof Error ? err.message : '人格解碼失敗，請稍後再試。';
-    return NextResponse.json({ error: message }, { status: 502 });
+    console.error('[analyze] request failed', requestId, err instanceof Error ? err.message : String(err));
+    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '系統正在重新同步，請稍候再試。', 502);
   }
 }

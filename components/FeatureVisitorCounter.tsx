@@ -89,10 +89,12 @@ export default function FeatureVisitorCounter({
   featureKey,
   className = '',
   trackWhenVisible = false,
+  deferMs = 0,
 }: {
   featureKey: FeatureKey;
   className?: string;
   trackWhenVisible?: boolean;
+  deferMs?: number;
 }) {
   const [displayCount, setDisplayCount] = useState<number | null>(null);
   const cardRef = useRef<HTMLElement>(null);
@@ -174,6 +176,9 @@ export default function FeatureVisitorCounter({
 
   useEffect(() => {
     const controller = new AbortController();
+    let mounted = true;
+    let intervalId: number | undefined;
+    let startTimerId: number | undefined;
 
     async function syncDisplayCount() {
       try {
@@ -192,19 +197,31 @@ export default function FeatureVisitorCounter({
       }
     }
 
-    void syncDisplayCount();
-    const intervalId = window.setInterval(syncDisplayCount, BACKEND_SYNC_INTERVAL_MS);
+    function startSync() {
+      if (!mounted) return;
+      void syncDisplayCount();
+      intervalId = window.setInterval(syncDisplayCount, BACKEND_SYNC_INTERVAL_MS);
+    }
+
+    if (deferMs > 0) {
+      startTimerId = window.setTimeout(startSync, deferMs);
+    } else {
+      startSync();
+    }
     window.addEventListener('focus', syncDisplayCount);
 
     return () => {
+      mounted = false;
       controller.abort();
-      window.clearInterval(intervalId);
+      if (startTimerId !== undefined) window.clearTimeout(startTimerId);
+      if (intervalId !== undefined) window.clearInterval(intervalId);
       window.removeEventListener('focus', syncDisplayCount);
     };
-  }, [commitDisplayCount, featureKey]);
+  }, [commitDisplayCount, deferMs, featureKey]);
 
   useEffect(() => {
     const controller = new AbortController();
+    let startTimerId: number | undefined;
 
     async function recordFeatureVisit() {
       if (didRecord.current) return;
@@ -231,7 +248,11 @@ export default function FeatureVisitorCounter({
     }
 
     if (!trackWhenVisible || typeof IntersectionObserver === 'undefined' || !cardRef.current) {
-      void recordFeatureVisit();
+      if (deferMs > 0) {
+        startTimerId = window.setTimeout(() => void recordFeatureVisit(), deferMs);
+      } else {
+        void recordFeatureVisit();
+      }
     } else {
       const observer = new IntersectionObserver(
         (entries) => {
@@ -245,13 +266,17 @@ export default function FeatureVisitorCounter({
       observer.observe(cardRef.current);
 
       return () => {
+        if (startTimerId !== undefined) window.clearTimeout(startTimerId);
         observer.disconnect();
         controller.abort();
       };
     }
 
-    return () => controller.abort();
-  }, [commitDisplayCount, featureKey, trackWhenVisible]);
+    return () => {
+      if (startTimerId !== undefined) window.clearTimeout(startTimerId);
+      controller.abort();
+    };
+  }, [commitDisplayCount, deferMs, featureKey, trackWhenVisible]);
 
   return (
     <aside

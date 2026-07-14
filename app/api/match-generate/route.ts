@@ -7,6 +7,7 @@ import { computeDestinyProfile } from '@/lib/destiny-engine';
 import { getZodiacEnglishName, getZodiacSign } from '@/lib/zodiac';
 import { isValidBirthday } from '@/lib/validation';
 import { computeRelationshipMatrix } from '@/lib/relationship-matrix-engine';
+import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
 
 export const dynamic = 'force-dynamic';
 
@@ -211,6 +212,7 @@ function cleanCaches() {
 }
 
 export async function POST(request: Request) {
+  const requestId = createRequestId();
   const now = Date.now();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
   
@@ -220,7 +222,7 @@ export async function POST(request: Request) {
 
   if (record && now < record.resetTime) {
     if (record.count >= 5) {
-      return NextResponse.json({ error: '操作太頻繁，請稍後再試。' }, { status: 429 });
+      return friendlyErrorResponse(requestId, 'RATE_LIMITED', '操作太頻繁，請稍後再試。', 429);
     }
     record.count += 1;
   } else {
@@ -231,15 +233,24 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as MatchRequest;
   } catch {
-    return NextResponse.json({ error: '無法解析請求 JSON。' }, { status: 400 });
+    return friendlyErrorResponse(requestId, 'INVALID_JSON', '無法解析請求 JSON。', 400);
   }
 
   const errMsg = validate(body);
   if (errMsg) {
-    return NextResponse.json({ error: errMsg }, { status: 400 });
+    return friendlyErrorResponse(requestId, 'INVALID_INPUT', errMsg, 400);
   }
 
-  const cacheKey = `${body.personA.name}|${body.personA.birthDate}|${body.personA.bloodType}|${body.personA.gender}|${body.personB.name}|${body.personB.birthDate}|${body.personB.bloodType}|${body.personB.gender}`;
+  const cacheKey = hashedCacheKey([
+    body.personA.name.trim(),
+    body.personA.birthDate,
+    body.personA.bloodType,
+    body.personA.gender,
+    body.personB.name.trim(),
+    body.personB.birthDate,
+    body.personB.bloodType,
+    body.personB.gender,
+  ]);
   const cached = responseCache.get(cacheKey);
   if (cached && now < cached.expireTime) {
     return NextResponse.json(cached.result);
@@ -282,7 +293,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(responseData);
   } catch (error) {
-    console.error('[match-generate] request failed', error);
-    return NextResponse.json({ error: '配對分析暫時無法完成，請稍後再試。' }, { status: 500 });
+    console.error('[match-generate] request failed', requestId, error instanceof Error ? error.message : String(error));
+    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '系統正在重新同步，請稍候再試。', 503);
   }
 }

@@ -741,7 +741,9 @@ export default function VisualGravityCore() {
 
 
         // ✨ 優化粒子特效 - 平衡視覺效果和性能
-        const pN = TABLET_VISUAL_PROFILE.particleCount;
+        const pN = isLowPowerDevice
+          ? Math.round(TABLET_VISUAL_PROFILE.particleCount * 0.4)
+          : TABLET_VISUAL_PROFILE.particleCount;
         const pArr = new Float32Array(pN * 3);
         const pColors = new Float32Array(pN * 3);  // 新增：顏色變化
         for (let i = 0; i < pN; i++) {
@@ -777,7 +779,9 @@ export default function VisualGravityCore() {
         scene.add(particles);
 
         // ✨ 增強能量塵埃 - 更多粒子、更動態的吸收/釋放
-        const fN = TABLET_VISUAL_PROFILE.fiberCount;
+        const fN = isLowPowerDevice
+          ? Math.round(TABLET_VISUAL_PROFILE.fiberCount * 0.4)
+          : TABLET_VISUAL_PROFILE.fiberCount;
         const fPos = new Float32Array(fN * 3);
         const fPhase = new Float32Array(fN);
         const fColor = new Float32Array(fN * 3);  // 新增：顏色
@@ -1042,6 +1046,7 @@ export default function VisualGravityCore() {
   const particlesRef = useRef<any[]>([]);
   const rippleRef = useRef<any | null>(null);
   const animFrameIdRef = useRef<number>(0);
+  const isCompactPointer = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
 
   // 渲染與更新粒子與漣漪
   const updateAndDraw = () => {
@@ -1141,8 +1146,9 @@ export default function VisualGravityCore() {
       { fill: "rgba(236, 72, 153, ALPHA)", glow: "#ec4899" },  // 玫瑰粉
     ];
 
+    const burstParticleCount = isCompactPointer() ? 22 : 55;
     const newParticles = [];
-    for (let i = 0; i < 55; i++) {
+    for (let i = 0; i < burstParticleCount; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = 0.8 + Math.random() * 3.5;
       const col = colorOptions[Math.floor(Math.random() * colorOptions.length)];
@@ -1161,6 +1167,9 @@ export default function VisualGravityCore() {
     }
 
     particlesRef.current.push(...newParticles);
+    if (particlesRef.current.length > 140) {
+      particlesRef.current.splice(0, particlesRef.current.length - 140);
+    }
 
     if (animFrameIdRef.current === 0) {
       animFrameIdRef.current = requestAnimationFrame(updateAndDraw);
@@ -1222,8 +1231,9 @@ export default function VisualGravityCore() {
           { fill: "rgba(34, 211, 238, ALPHA)", glow: "#22d3ee" }, // 青色
         ];
 
+        const breathParticleCount = isCompactPointer() ? 7 : 18;
         const breathParticles = [];
-        for (let i = 0; i < 18; i++) {
+        for (let i = 0; i < breathParticleCount; i++) {
           const angle = Math.random() * Math.PI * 2;
           const speed = 0.5 + Math.random() * 2.0;
           const col = colorOptions[Math.floor(Math.random() * colorOptions.length)];
@@ -1242,6 +1252,9 @@ export default function VisualGravityCore() {
         }
 
         particlesRef.current.push(...breathParticles);
+        if (particlesRef.current.length > 140) {
+          particlesRef.current.splice(0, particlesRef.current.length - 140);
+        }
 
         if (animFrameIdRef.current === 0) {
           animFrameIdRef.current = requestAnimationFrame(updateAndDraw);

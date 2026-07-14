@@ -58,6 +58,43 @@ body {
   }
 }
 
+.result-container {
+  min-height: 320px;
+  contain: layout paint;
+}
+
+.fade-result {
+  animation: fade-result 280ms ease-out;
+}
+
+@keyframes fade-result {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .starfield::after,
+  .constellation-ring-bottom {
+    display: none;
+  }
+
+  .starfield,
+  .starfield::before {
+    animation-duration: 16s;
+  }
+
+  .result-container {
+    min-height: 360px;
+  }
+}
+
 ::selection {
   background: rgba(215, 139, 255, 0.35);
   color: var(--text-main);
@@ -926,11 +963,11 @@ body {
   content: '';
   position: absolute;
   top: 0;
-  left: -150%;
+  left: 0;
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
-  transform: skewX(-20deg);
+  transform: translateX(-150%) skewX(-20deg);
   animation: shine 3.5s infinite ease-in-out;
 }
 
@@ -983,9 +1020,9 @@ body {
 
 /* 動畫 Keyframes */
 @keyframes shine {
-  0% { left: -150%; }
-  25% { left: 150%; }
-  100% { left: 150%; }
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  25% { transform: translateX(150%) skewX(-20deg); }
+  100% { transform: translateX(150%) skewX(-20deg); }
 }
 
 @keyframes border-breath {
@@ -2390,7 +2427,7 @@ body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
   content: '';
   position: absolute;
   top: 0;
-  left: -150%;
+  left: 0;
   width: 50%;
   height: 100%;
   background: linear-gradient(
@@ -2399,14 +2436,14 @@ body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
     rgba(255, 255, 255, 0.45) 50%,
     transparent 100%
   );
-  transform: skewX(-20deg);
+  transform: translateX(-220%) skewX(-20deg);
   animation: shimmer-sweep 3.5s infinite ease-in-out;
 }
 
 @keyframes shimmer-sweep {
-  0% { left: -150%; }
-  35% { left: 150%; }
-  100% { left: 150%; }
+  0% { transform: translateX(-220%) skewX(-20deg); }
+  35% { transform: translateX(320%) skewX(-20deg); }
+  100% { transform: translateX(320%) skewX(-20deg); }
 }
 
 /* 2. 太空艙水晶輸入框與 Focus 發光 */

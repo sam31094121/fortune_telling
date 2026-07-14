@@ -10,6 +10,7 @@ import {
   extractWisdom,
   type KarmaPhilosophyLayer,
 } from '@/lib/karma-story-philosophy';
+import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -323,6 +324,7 @@ function getFallbackKarmaStory(body: KarmaRequest): KarmaStory {
 }
 
 export async function POST(request: Request) {
+  const requestId = createRequestId();
   const now = Date.now();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown_ip';
 
@@ -331,31 +333,33 @@ export async function POST(request: Request) {
   const limitRecord = ipCache.get(ip);
   if (limitRecord && now < limitRecord.resetTime) {
     if (limitRecord.count >= 5) {
-      return NextResponse.json({ error: '請求過於頻繁，請稍後再試。' }, { status: 429 });
+      return friendlyErrorResponse(requestId, 'RATE_LIMITED', '請求過於頻繁，請稍後再試。', 429);
     }
     limitRecord.count += 1;
   } else {
     ipCache.set(ip, { count: 1, resetTime: now + 60_000 });
   }
 
+  let body: KarmaRequest;
   try {
-    const body = (await request.json()) as KarmaRequest;
+    body = (await request.json()) as KarmaRequest;
+  } catch {
+    return friendlyErrorResponse(requestId, 'INVALID_JSON', '無法解析請求 JSON。', 400);
+  }
 
+  try {
     if (!body.personA || !body.personB || !body.matchResult) {
-      return NextResponse.json(
-        { error: '請提供完整的配對資料。' },
-        { status: 400 }
-      );
+      return friendlyErrorResponse(requestId, 'INVALID_INPUT', '請提供完整的配對資料。', 400);
     }
 
-    const cacheKey = [
+    const cacheKey = hashedCacheKey([
       body.personA.name.trim(),
       body.personA.birthDate,
       body.personA.bloodType,
       body.personB.name.trim(),
       body.personB.birthDate,
       body.personB.bloodType,
-    ].join('|');
+    ]);
 
     const cached = responseCache.get(cacheKey);
     if (cached && now < cached.expireTime) {
@@ -367,10 +371,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ karma_story: karmaStory });
   } catch (error) {
-    console.error('[karma-story-generate] request failed', error);
-    return NextResponse.json(
-      { error: '因果故事生成暫時無法完成，請稍後再試。' },
-      { status: 500 }
-    );
+    console.error('[karma-story-generate] request failed', requestId, error instanceof Error ? error.message : String(error));
+    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '系統正在重新同步，請稍候再試。', 503);
   }
 }
