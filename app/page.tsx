@@ -171,7 +171,7 @@ const STEP_ORDER: StepKey[] = ['personA-base', 'personA-shichen', 'personB-base'
 
 function getPersonError(label: string, person: PersonInput) {
   if (person.name.trim().length < 2) return `請先輸入${label}姓名，至少 2 個字。`;
-  if (!person.birthDate) return `請先輸入${label}的民國年國曆生日。`;
+  if (!person.birthDate) return `請先完成${label}的萬年曆生日推算。`;
   return '';
 }
 
@@ -504,14 +504,14 @@ function PersonStep({
 
         <div>
           <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
-            2. 國曆生日（民國年）
+            2. 出生日期（萬年曆）
             <OracleHint text="🪐 生辰乃星曜入宮的天命坐標，系統將自動換算為紫微干支天盤以進行宿命軌道分析。" />
           </label>
           <LunarBirthdayInput
             value={value.birthDate}
             onChange={(solarDate) => onChange({ ...value, birthDate: solarDate })}
             accent={accent}
-            label="請輸入國曆生日（民國年）"
+            label="請選擇國曆或農曆"
           />
         </div>
 

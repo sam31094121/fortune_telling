@@ -1,7 +1,8 @@
 'use client';
 
+import type { ChangeEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { solarToLunarParts, lunarToSolar } from '@/lib/lunar-calendar';
+import { normalizeCalendarInput, solarToLunarParts } from '@/lib/lunar-calendar';
 
 interface LunarBirthdayInputProps {
   value: string;
@@ -15,17 +16,6 @@ function pad2(value: number) {
   return String(value).padStart(2, '0');
 }
 
-// 根據國曆民國年月日換算成西元 ISO 日期字串
-function resolveRocDate(rocYear: number, month: number, day: number) {
-  const year = rocYear + 1911;
-  if (rocYear <= 0 || month < 1 || month > 12 || day < 1 || day > 31) return null;
-
-  const date = new Date(year, month - 1, day);
-  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
-
-  return `${year}-${pad2(month)}-${pad2(day)}`;
-}
-
 // 農曆中文數字映射
 const LUNAR_MONTH_NAMES = ['', '正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
 const LUNAR_DAY_NAMES = [
@@ -33,6 +23,16 @@ const LUNAR_DAY_NAMES = [
   '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
   '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'
 ];
+
+function onlyDigits(value: string) {
+  return value.replace(/\D/g, '');
+}
+
+function formatLunarDate(lunar: { rocYear: number; month: number; day: number; isLeapMonth?: boolean }) {
+  const lunarMonthName = LUNAR_MONTH_NAMES[lunar.month] || `${lunar.month}`;
+  const lunarDayName = LUNAR_DAY_NAMES[lunar.day] || `${lunar.day}日`;
+  return `民國 ${lunar.rocYear} 年 ${lunar.isLeapMonth ? '閏' : ''}${lunarMonthName}月 ${lunarDayName}`;
+}
 
 export default function LunarBirthdayInput({
   value,
@@ -64,6 +64,32 @@ export default function LunarBirthdayInput({
     if (accent === 'cyan') return 'text-cyan-300 border-cyan-400/20 bg-cyan-950/20';
     return 'text-violet-300 border-violet-400/20 bg-violet-950/20';
   }, [accent]);
+
+  const hasCompleteDate = rocYear !== '' && month !== '' && day !== '';
+  const normalizedCalendar = useMemo(() => {
+    if (!hasCompleteDate) return null;
+
+    return normalizeCalendarInput(mode, {
+      rocYear: Number(rocYear),
+      month: Number(month),
+      day: Number(day),
+      isLeapMonth,
+    });
+  }, [day, hasCompleteDate, isLeapMonth, mode, month, rocYear]);
+
+  const statusMessage = useMemo(() => {
+    if (!hasCompleteDate) return '輸入年月日後，系統會自動完成國曆、農曆與萬年曆對照。';
+    if (!normalizedCalendar) {
+      return mode === 'solar'
+        ? '此國曆日期不存在，請檢查民國年、月、日。'
+        : '此農曆日期不存在，請檢查農曆民國年、月、日與閏月。';
+    }
+    return '萬年曆已推算完成。';
+  }, [hasCompleteDate, mode, normalizedCalendar]);
+
+  const handleNumberInput = (setter: (next: string) => void) => (event: ChangeEvent<HTMLInputElement>) => {
+    setter(onlyDigits(event.target.value));
+  };
 
   // 切換模式時，清空當前輸入
   const handleModeChange = (newMode: 'solar' | 'lunar') => {
@@ -105,119 +131,61 @@ export default function LunarBirthdayInput({
     }
   }, [value, mode]);
 
-  // 主要的轉換與推算 Effect
+  // 主要的轉換與推算 Effect：所有頁面只送出標準西元生日。
   useEffect(() => {
-    if (!rocYear || !month || !day) {
+    setMessage(statusMessage);
+
+    if (!normalizedCalendar) {
       if (lastEmittedRef.current !== '') {
         onChange('');
         lastEmittedRef.current = '';
       }
-      setMessage(`請輸入完整農國曆生日資料。`);
       return;
     }
 
-    const yNum = Number(rocYear);
-    const mNum = Number(month);
-    const dNum = Number(day);
-
-    if (mode === 'solar') {
-      // 國曆模式下：
-      const resolvedSolar = resolveRocDate(yNum, mNum, dNum);
-      if (!resolvedSolar) {
-        if (lastEmittedRef.current !== '') {
-          onChange('');
-          lastEmittedRef.current = '';
-        }
-        setMessage('⚠️ 此國曆日期不存在，請檢查民國年、月、日。');
-        return;
-      }
-
-      // 國曆推農曆
-      const lunar = solarToLunarParts(resolvedSolar);
-      if (lunar) {
-        const lunarMonthName = LUNAR_MONTH_NAMES[lunar.month] || `${lunar.month}月`;
-        const lunarDayName = LUNAR_DAY_NAMES[lunar.day] || `${lunar.day}日`;
-        setMessage(
-          `📅 國農曆自動推算：\n` +
-          `• 國曆：民國 ${rocYear} 年 ${month} 月 ${day} 日 (西元 ${resolvedSolar})\n` +
-          `• 農曆：民國 ${lunar.rocYear} 年 ${lunar.isLeapMonth ? '閏' : ''}${lunarMonthName}月 ${lunarDayName}`
-        );
-      } else {
-        setMessage(`• 國曆：民國 ${rocYear} 年 ${month} 月 ${day} 日 (西元 ${resolvedSolar})`);
-      }
-
-      if (lastEmittedRef.current !== resolvedSolar) {
-        onChange(resolvedSolar);
-        lastEmittedRef.current = resolvedSolar;
-      }
-    } else {
-      // 農曆模式下：
-      const resolvedSolarObj = lunarToSolar({
-        rocYear: yNum,
-        month: mNum,
-        day: dNum,
-        isLeapMonth
-      });
-
-      if (!resolvedSolarObj) {
-        if (lastEmittedRef.current !== '') {
-          onChange('');
-          lastEmittedRef.current = '';
-        }
-        setMessage('⚠️ 此農曆日期不存在，請檢查農曆民國年、月、日是否正確。');
-        return;
-      }
-
-      const resolvedSolar = resolvedSolarObj.solarDate;
-      const solarRocYear = resolvedSolarObj.gregorianYear - 1911;
-      const [, solarM, solarD] = resolvedSolar.split('-').map(Number);
-
-      const lunarMonthName = LUNAR_MONTH_NAMES[mNum] || `${mNum}月`;
-      const lunarDayName = LUNAR_DAY_NAMES[dNum] || `${dNum}日`;
-
-      // 農曆推國曆
-      setMessage(
-        `📅 農國曆自動推算：\n` +
-        `• 農曆：民國 ${rocYear} 年 ${isLeapMonth ? '閏' : ''}${lunarMonthName}月 ${lunarDayName}\n` +
-        `• 國曆：民國 ${solarRocYear} 年 ${solarM} 月 ${solarD} 日 (西元 ${resolvedSolar})`
-      );
-
-      if (lastEmittedRef.current !== resolvedSolar) {
-        onChange(resolvedSolar);
-        lastEmittedRef.current = resolvedSolar;
-      }
+    if (lastEmittedRef.current !== normalizedCalendar.solarDate) {
+      onChange(normalizedCalendar.solarDate);
+      lastEmittedRef.current = normalizedCalendar.solarDate;
     }
-  }, [rocYear, month, day, isLeapMonth, mode]);
+  }, [normalizedCalendar, onChange, statusMessage]);
 
   return (
     <div className="space-y-3">
-      {/* 國農曆切換 Tab */}
-      <div className="flex justify-between items-center">
-        <p className="text-sm font-semibold text-[color:var(--text-sub)]">{label}</p>
-        <div className="flex rounded-lg bg-slate-900/60 p-0.5 border border-white/5 text-xs">
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="text-xs font-semibold text-cyan-200">推算萬年曆</p>
+            <p className="text-sm font-semibold text-[color:var(--text-sub)]">{label}</p>
+          </div>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-[color:var(--text-muted)]">
+            自動對照
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-slate-950/55 p-1 text-sm">
           <button
             type="button"
             disabled={disabled}
             onClick={() => handleModeChange('solar')}
-            className={`rounded-md px-3 py-1 transition-all ${
+            className={`rounded-lg px-3 py-2.5 font-semibold transition-all ${
               mode === 'solar'
-                ? 'bg-gradient-to-r from-cyan-500/25 to-blue-500/25 text-cyan-200 border border-cyan-500/20 font-bold'
+                ? 'border border-cyan-300/30 bg-cyan-400/15 text-cyan-100 shadow-[0_0_18px_rgba(34,211,238,0.12)]'
                 : 'text-[color:var(--text-muted)] hover:text-white'
             }`}
           >
-            ☀️ 國曆輸入
+            國曆推算
           </button>
           <button
             type="button"
             disabled={disabled}
             onClick={() => handleModeChange('lunar')}
-            className={`rounded-md px-3 py-1 transition-all ${
+            className={`rounded-lg px-3 py-2.5 font-semibold transition-all ${
               mode === 'lunar'
-                ? 'bg-gradient-to-r from-violet-500/25 to-purple-500/25 text-violet-200 border border-violet-500/20 font-bold'
+                ? 'border border-violet-300/30 bg-violet-400/15 text-violet-100 shadow-[0_0_18px_rgba(167,139,250,0.12)]'
                 : 'text-[color:var(--text-muted)] hover:text-white'
             }`}
           >
-            🌙 農曆輸入
+            農曆推算
           </button>
         </div>
       </div>
@@ -227,13 +195,12 @@ export default function LunarBirthdayInput({
         <div className="relative">
           <input
             inputMode="numeric"
-            type="number"
-            min={1}
+            type="text"
             aria-label="民國年"
             placeholder={todayHint.rocYear}
             value={rocYear}
             disabled={disabled}
-            onChange={(event) => setRocYear(event.target.value)}
+            onChange={handleNumberInput(setRocYear)}
             className={`w-full form-input glass-input ${['cyan', 'violet'].includes(accent) ? 'glass-input-cyan' : ''}`}
           />
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)] pointer-events-none">年</span>
@@ -242,14 +209,12 @@ export default function LunarBirthdayInput({
         <div className="relative">
           <input
             inputMode="numeric"
-            type="number"
-            min={1}
-            max={12}
+            type="text"
             aria-label="月份"
             placeholder={todayHint.month}
             value={month}
             disabled={disabled}
-            onChange={(event) => setMonth(event.target.value)}
+            onChange={handleNumberInput(setMonth)}
             className={`w-full form-input glass-input ${['cyan', 'violet'].includes(accent) ? 'glass-input-cyan' : ''}`}
           />
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)] pointer-events-none">月</span>
@@ -258,14 +223,12 @@ export default function LunarBirthdayInput({
         <div className="relative">
           <input
             inputMode="numeric"
-            type="number"
-            min={1}
-            max={31}
+            type="text"
             aria-label="日期"
             placeholder={todayHint.day}
             value={day}
             disabled={disabled}
-            onChange={(event) => setDay(event.target.value)}
+            onChange={handleNumberInput(setDay)}
             className={`w-full form-input glass-input ${['cyan', 'violet'].includes(accent) ? 'glass-input-cyan' : ''}`}
           />
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)] pointer-events-none">日</span>
@@ -289,77 +252,36 @@ export default function LunarBirthdayInput({
         </div>
       )}
 
-      {/* 自動推算對照發光面板 */}
-      {rocYear && month && day && !message.includes('⚠️') ? (
-        <div className="rounded-2xl border border-cyan-500/25 bg-slate-950/70 p-4 text-xs space-y-2.5 transition-all duration-300 shadow-[0_0_15px_rgba(34,211,238,0.06)] relative overflow-hidden">
-          <div className="absolute top-1.5 right-2.5 text-[7px] text-cyan-400/20 font-mono tracking-widest">[CONVERT_OK]</div>
-          <p className="text-[10px] font-mono text-cyan-400/90 tracking-widest font-bold border-b border-white/5 pb-1.5 uppercase">
-            🧬 天宿自動雙向推算對照
-          </p>
-          <div className="space-y-2 leading-relaxed">
-            {mode === 'solar' ? (
-              <>
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-[color:var(--text-muted)] flex items-center gap-1.5 font-medium">☀️ 輸入國曆:</span>
-                  <span className="text-white font-semibold">民國 {rocYear} 年 {month} 月 {day} 日</span>
-                </div>
-                {(() => {
-                  const resolvedSolar = resolveRocDate(Number(rocYear), Number(month), Number(day));
-                  if (!resolvedSolar) return null;
-                  const lunar = solarToLunarParts(resolvedSolar);
-                  if (!lunar) return null;
-                  const lunarMonthName = LUNAR_MONTH_NAMES[lunar.month] || `${lunar.month}月`;
-                  const lunarDayName = LUNAR_DAY_NAMES[lunar.day] || `${lunar.day}日`;
-                  return (
-                    <div className="flex items-center justify-between gap-4 pt-1.5 border-t border-white/5">
-                      <span className="text-amber-300 flex items-center gap-1.5 font-bold">🌙 自動推算農曆:</span>
-                      <span className="text-amber-200 font-bold text-shadow-glow">
-                        民國 {lunar.rocYear} 年 {lunar.isLeapMonth ? '閏' : ''}{lunarMonthName}月 {lunarDayName}
-                      </span>
-                    </div>
-                  );
-                })()}
-              </>
-            ) : (
-              <>
-                {(() => {
-                  const resolvedSolarObj = lunarToSolar({
-                    rocYear: Number(rocYear),
-                    month: Number(month),
-                    day: Number(day),
-                    isLeapMonth
-                  });
-                  if (!resolvedSolarObj) return null;
-                  const resolvedSolar = resolvedSolarObj.solarDate;
-                  const solarRocYear = resolvedSolarObj.gregorianYear - 1911;
-                  const [, solarM, solarD] = resolvedSolar.split('-').map(Number);
-                  
-                  const lunarMonthName = LUNAR_MONTH_NAMES[Number(month)] || `${month}月`;
-                  const lunarDayName = LUNAR_DAY_NAMES[Number(day)] || `${day}日`;
-                  return (
-                    <>
-                      <div className="flex items-center justify-between gap-4">
-                        <span className="text-violet-300 flex items-center gap-1.5 font-bold">🌙 輸入農曆:</span>
-                        <span className="text-violet-200 font-semibold">
-                          民國 {rocYear} 年 {isLeapMonth ? '閏' : ''}{lunarMonthName}月 {lunarDayName}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between gap-4 pt-1.5 border-t border-white/5">
-                        <span className="text-white flex items-center gap-1.5 font-medium">☀️ 自動推算國曆:</span>
-                        <span className="text-white font-bold text-shadow-glow">
-                          民國 {solarRocYear} 年 {solarM} 月 {solarD} 日
-                        </span>
-                      </div>
-                    </>
-                  );
-                })()}
-              </>
-            )}
+      {normalizedCalendar ? (
+        <div className="rounded-2xl border border-cyan-400/25 bg-slate-950/70 p-4 text-xs shadow-[0_0_18px_rgba(34,211,238,0.08)]">
+          <div className="mb-3 flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+            <span className="font-semibold text-cyan-100">萬年曆推算完成</span>
+            <span className="rounded-full border border-emerald-300/20 bg-emerald-400/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-200">
+              已套用
+            </span>
+          </div>
+          <div className="grid gap-2 leading-relaxed">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-[color:var(--text-muted)]">國曆</span>
+              <span className="text-right font-semibold text-white">
+                民國 {normalizedCalendar.solar.rocYear} 年 {normalizedCalendar.solar.month} 月 {normalizedCalendar.solar.day} 日
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-[color:var(--text-muted)]">農曆</span>
+              <span className="text-right font-semibold text-amber-200">
+                {formatLunarDate(normalizedCalendar.lunar)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-3 border-t border-white/10 pt-2">
+              <span className="text-[color:var(--text-muted)]">西元</span>
+              <span className="text-right font-semibold text-cyan-100">{normalizedCalendar.solarDate}</span>
+            </div>
           </div>
         </div>
       ) : (
-        <div className={`rounded-2xl border p-3.5 text-xs whitespace-pre-line leading-6 transition-all duration-300 ${accentClass}`}>
-          {message || (mode === 'solar' ? '💡 輸入國曆民國年、月、日後，系統會自動推算出對應 spacing 的農曆與西元日期。' : '💡 輸入農曆民國年、月、日後，系統會自動推算出對應的國曆與西元日期。')}
+        <div className={`rounded-2xl border p-3.5 text-xs leading-6 transition-all duration-300 ${accentClass}`}>
+          {message || statusMessage}
         </div>
       )}
     </div>

@@ -12,6 +12,7 @@ import {
 } from './types';
 import { solarToLunarParts } from './lunar-calendar';
 import { calculateZiweiSanFang, type ZiweiSanFangAnalysis } from './ziwei-sanfang-engine';
+import { calculateAnnualFortune, type AnnualFortuneAnalysis } from './annual-fortune-engine';
 
 const MODEL_NAME = 'gemini-2.5-flash';
 const GEMINI_TIMEOUT_MS = 20000;
@@ -66,6 +67,7 @@ interface InsightAnalysisResponse {
     statisticalInference: string;
   }[];
   ziweiSanFang: ZiweiSanFangAnalysis;
+  annualFortune: AnnualFortuneAnalysis;
   meta?: {
     dayPillar: string;
     hourPillar: string;
@@ -414,6 +416,11 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
   const accuracyBreakdown = calculateAccuracyBreakdown(shichen, birthScores, bloodScores, nameScores, statisticalAnalysis);
   const accuracyScore = calculateAccuracyScore(accuracyBreakdown);
   const bigDataInsights: InsightAnalysisResponse['bigDataInsights'] = [];
+  const annualFortune = calculateAnnualFortune({
+    request,
+    ziweiSanFang,
+    sourceSignals: statisticalAnalysis.map((item) => ({ dimension: item.dimension, score: item.score })),
+  });
 
   // 構建分析提示
   const analysisPrompt = `
@@ -436,6 +443,14 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 - 日主: ${ziweiSanFang.bazi.dayMaster}
 - 命、財帛、官祿、遷移宮: ${ziweiSanFang.timeConfidence === 'exact' ? ziweiSanFang.palaces.map((palace) => `${palace.name}(${palace.majorStars.join('、') || '無主星'})`).join('；') : '時辰未確認，不提供單一命宮或格局'}
   - 時辰可靠度: ${ziweiSanFang.timeConfidence === 'exact' ? '使用者已提供時辰' : '系統依生日自動選用良辰吉時，待真實時辰校正'}
+
+【已由後端固定計算的今年流年運勢：只講今年，不是終身本命】
+- 年份: ${annualFortune.year} ${annualFortune.ganzhi}年
+- 流年五行: ${annualFortune.yearElement}
+- 整體分數: ${annualFortune.overallScore}
+- 等級: ${annualFortune.level}
+- 主題: ${annualFortune.annualTheme}
+- 今年命盤三方四正重點: ${annualFortune.sanFangFourZheng.map((item) => `今年${item.palaceName}${item.score}分/${item.trend}/${item.focus}`).join('；')}
 
 【個性特質分數】(0-100)
 生日骨架:
@@ -461,6 +476,7 @@ ${JSON.stringify(statisticalAnalysis.map((item) => ({
 
 分析要求：
 - 紫微命財官遷由後端規則引擎產出，你只能引用上方已給定的宮位與四柱，不可自行推導、補充或改寫星曜。
+- 今年流年運勢、今年命盤三方四正年度分數與年度建議已由後端固定產生；你只能呼應今年，不可自行改分數、改宮位，也不可把今年運勢寫成終身本命。
 - 語氣應具體、有建設性，避免宿命論、恐嚇、鐵口直斷或過度保證。
 - 每一項「心理學洞察」與「建議」必須有完全不同的切入點與獨特話術，展現高智商、邏輯嚴密且不可複刻的專業性。
 - 若時辰未確認，只能使用「趨勢參考」的措辭，不可宣稱精準定盤。
@@ -522,6 +538,7 @@ ${JSON.stringify(statisticalAnalysis.map((item) => ({
       statisticalInference: palace.focus,
     })),
     ziweiSanFang,
+    annualFortune,
     meta: {
       dayPillar: shichen.dayPillar,
       hourPillar: shichen.hourPillar.ganzhi,

@@ -245,7 +245,7 @@ export default function UnifiedTaijiCore({
   }, []);
 
   return (
-    <div className="unified-taiji-shell">
+    <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage}`}>
       <button
         type="button"
         onClick={handleClick}
@@ -300,6 +300,8 @@ export default function UnifiedTaijiCore({
 
         {evolutionStage !== 'idle' && (
           <>
+            <div className="unified-evolution-screen" aria-hidden="true" />
+            <div className="unified-evolution-pulse" aria-hidden="true" />
             <div className="modal-evolution-flare" aria-hidden="true" />
             <div className="modal-evolution-scan" aria-hidden="true" />
             <div className="modal-evolution-orbit modal-evolution-orbit-a" aria-hidden="true" />
@@ -315,30 +317,49 @@ export default function UnifiedTaijiCore({
         {evolutionStage === 'taiji' && <div className="modal-evolution-breath" />}
 
         {evolutionStage === 'liangyi' && (
-          <div className="modal-evolution-layer modal-liangyi-layer" aria-hidden="true">
-            <span className="modal-liangyi-node modal-liangyi-yang">陽</span>
-            <span className="modal-liangyi-node modal-liangyi-yin">陰</span>
-          </div>
+          <>
+            <div className="unified-liangyi-split" aria-hidden="true">
+              <span />
+              <span />
+            </div>
+            <div className="modal-evolution-layer modal-liangyi-layer" aria-hidden="true">
+              <span className="modal-liangyi-node modal-liangyi-yang">陽</span>
+              <span className="modal-liangyi-node modal-liangyi-yin">陰</span>
+            </div>
+          </>
         )}
 
         {evolutionStage === 'sixiang' && (
-          <div className="modal-evolution-layer modal-sixiang-layer" aria-hidden="true">
-            <span className="modal-sixiang-node modal-sixiang-0">少陽</span>
-            <span className="modal-sixiang-node modal-sixiang-1">太陽</span>
-            <span className="modal-sixiang-node modal-sixiang-2">少陰</span>
-            <span className="modal-sixiang-node modal-sixiang-3">太陰</span>
-          </div>
+          <>
+            <div className="unified-sixiang-cross" aria-hidden="true">
+              <span />
+              <span />
+            </div>
+            <div className="modal-evolution-layer modal-sixiang-layer" aria-hidden="true">
+              <span className="modal-sixiang-node modal-sixiang-0">少陽</span>
+              <span className="modal-sixiang-node modal-sixiang-1">太陽</span>
+              <span className="modal-sixiang-node modal-sixiang-2">少陰</span>
+              <span className="modal-sixiang-node modal-sixiang-3">太陰</span>
+            </div>
+          </>
         )}
 
         {evolutionStage === 'bagua' && (
-          <div className="modal-evolution-layer modal-bagua-layer" aria-hidden="true">
-            {BAGUA_SYMBOLS.map(([name, symbol], index) => (
-              <span key={name} className={`modal-bagua-node modal-bagua-${index}`}>
-                <b>{symbol}</b>
-                <small>{name}</small>
-              </span>
-            ))}
-          </div>
+          <>
+            <div className="unified-bagua-mandala" aria-hidden="true">
+              {Array.from({ length: 8 }, (_, index) => (
+                <span key={index} className={`unified-bagua-line unified-bagua-line-${index}`} />
+              ))}
+            </div>
+            <div className="modal-evolution-layer modal-bagua-layer" aria-hidden="true">
+              {BAGUA_SYMBOLS.map(([name, symbol], index) => (
+                <span key={name} className={`modal-bagua-node modal-bagua-${index}`}>
+                  <b>{symbol}</b>
+                  <small>{name}</small>
+                </span>
+              ))}
+            </div>
+          </>
         )}
         <div className="modal-taiji-ground-glow" aria-hidden="true" />
       </button>
@@ -355,11 +376,11 @@ export default function UnifiedTaijiCore({
       )}
 
       {mantraLevel > 0 && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-3xl bg-slate-950/30 px-4 text-center backdrop-blur-[3px] pointer-events-none animate-fade-in">
-          <span className="text-2xl font-black tracking-[0.24em] text-amber-200 drop-shadow-[0_0_16px_rgba(251,191,36,0.85)]">
+        <div className={`unified-mantra-badge unified-mantra-badge--${mantraLevel} pointer-events-none animate-fade-in`}>
+          <span className="unified-mantra-title">
             {mantraLevel === 3 ? '三響開光' : mantraLevel === 6 ? '六合共鳴' : mantraLevel === 12 ? '十二宮輪' : '二十四天門'}
           </span>
-          <span className="mt-2 text-[10px] font-mono tracking-[0.18em] text-cyan-100/75">
+          <span className="unified-mantra-subtitle">
             TAIJI TAP {mantraLevel}
           </span>
         </div>

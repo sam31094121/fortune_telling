@@ -14,6 +14,20 @@ export interface LunarParts extends LunarInput {
   gregorianYear: number;
 }
 
+export type CalendarInputMode = 'solar' | 'lunar';
+
+export interface NormalizedCalendarResult {
+  mode: CalendarInputMode;
+  solarDate: string;
+  solar: {
+    gregorianYear: number;
+    rocYear: number;
+    month: number;
+    day: number;
+  };
+  lunar: LunarParts;
+}
+
 const MONTH_MAP: Record<string, number> = {
   正月: 1,
   一月: 1,
@@ -44,6 +58,20 @@ function pad2(value: number) {
 
 function toIsoDate(date: Date) {
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+}
+
+export function resolveRocSolarDate(rocYear: number, month: number, day: number) {
+  const gregorianYear = rocYear + 1911;
+  if (rocYear <= 0 || month < 1 || month > 12 || day < 1 || day > 31) return null;
+
+  const date = new Date(gregorianYear, month - 1, day);
+  if (
+    date.getFullYear() !== gregorianYear
+    || date.getMonth() !== month - 1
+    || date.getDate() !== day
+  ) return null;
+
+  return toIsoDate(date);
 }
 
 function getPartValue(parts: Intl.DateTimeFormatPart[], type: string) {
@@ -121,4 +149,52 @@ export function lunarToSolar(input: LunarInput): LunarResolved | null {
   }
 
   return null;
+}
+
+export function normalizeCalendarInput(
+  mode: CalendarInputMode,
+  input: LunarInput
+): NormalizedCalendarResult | null {
+  if (!Number.isFinite(input.rocYear) || !Number.isFinite(input.month) || !Number.isFinite(input.day)) {
+    return null;
+  }
+
+  if (mode === 'solar') {
+    const solarDate = resolveRocSolarDate(input.rocYear, input.month, input.day);
+    if (!solarDate) return null;
+
+    const lunar = solarToLunarParts(solarDate);
+    if (!lunar) return null;
+
+    return {
+      mode,
+      solarDate,
+      solar: {
+        gregorianYear: input.rocYear + 1911,
+        rocYear: input.rocYear,
+        month: input.month,
+        day: input.day,
+      },
+      lunar,
+    };
+  }
+
+  const resolvedSolar = lunarToSolar(input);
+  if (!resolvedSolar) return null;
+
+  const [gregorianYear, month, day] = resolvedSolar.solarDate.split('-').map(Number);
+  const lunar = solarToLunarParts(resolvedSolar.solarDate);
+  if (!lunar) return null;
+
+  return {
+    mode,
+    solarDate: resolvedSolar.solarDate,
+    solar: {
+      gregorianYear,
+      rocYear: gregorianYear - 1911,
+      month,
+      day,
+    },
+    lunar,
+  };
 }

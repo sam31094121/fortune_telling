@@ -86,7 +86,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   }, [form.name, form.birthDate, form.bloodType, form.gender]);
 
   function validateStep(targetStep = step): string | null {
-    if (targetStep === 0 && !form.birthDate) return '請先輸入完整的國曆生日。';
+    if (targetStep === 0 && !form.birthDate) return '請先完成萬年曆生日推算。';
     if (targetStep === 1 && !form.bloodType) return '請先選擇血型。';
     if (targetStep === 2) {
       if (form.name.trim().length < 2) return '姓名至少要 2 個字。';
@@ -157,7 +157,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
       {step === 0 && (
         <div className="space-y-4">
           <p className="text-sm text-[color:var(--text-sub)]">
-            先輸入國曆生日，系統會自動換成西元，再整理你的音樂性格底色。
+            先用萬年曆確認生日，系統會自動換成標準日期，再整理你的音樂性格底色。
           </p>
           <LunarBirthdayInput
             value={form.birthDate}

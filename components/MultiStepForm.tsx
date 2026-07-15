@@ -36,7 +36,7 @@ export default function MultiStepForm({
         <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">免費初步分析</p>
         <h2 className="font-serif text-3xl text-[color:var(--text-main)]">填兩項資料，先看人格輪廓</h2>
         <p className="text-sm leading-7 text-[color:var(--text-sub)]">
-          先填民國年國曆生日與血型。AI 會在背景完成整理，前台只顯示白話重點。
+          先用萬年曆確認生日，再選血型。AI 會在背景完成整理，前台只顯示白話重點。
         </p>
       </div>
 
@@ -70,7 +70,7 @@ export default function MultiStepForm({
         <div className="fortune-card sky-card space-y-4 p-5 animate-rise">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-violet-300">出生資料</p>
-            <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">輸入國曆生日（民國年）</h3>
+            <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">推算出生日期</h3>
           </div>
 
           <LunarBirthdayInput
@@ -89,7 +89,7 @@ export default function MultiStepForm({
             </div>
           ) : (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-[color:var(--text-muted)]">
-              輸入民國年、月、日，系統會自動換算西元。
+              選擇國曆或農曆，系統會自動完成萬年曆對照。
             </div>
           )}
 

@@ -122,6 +122,68 @@ interface InsightResult {
     };
     ruleCount: number;
   };
+  annualFortune?: {
+    year: number;
+    ganzhi: string;
+    yearElement: string;
+    level: string;
+    overallScore: number;
+    annualTheme: string;
+    timeConfidence: 'exact' | 'estimated';
+    baziFocus: {
+      dayMaster: string;
+      yearRelation: string;
+      elementBalanceSummary: string;
+      advice: string;
+    };
+    sanFangFourZheng: {
+      palaceKey: 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI';
+      palaceName: string;
+      focus: string;
+      score: number;
+      trend: string;
+      basis: string;
+      strengths: string[];
+      tensions: string[];
+      behaviorTags: string[];
+      scores: {
+        initiative: number;
+        stability: number;
+        flexibility: number;
+        social: number;
+        execution: number;
+        resource: number;
+        pressure: number;
+        growth: number;
+      };
+      advice: string;
+      encouragement: string;
+      action: string;
+    }[];
+    adviceMatrix: {
+      confidence: number;
+      initiative: number;
+      patience: number;
+      communication: number;
+      execution: number;
+      financialDiscipline: number;
+      adaptability: number;
+      relationshipAwareness: number;
+      stressManagement: number;
+      learningGrowth: number;
+    };
+    motivation: {
+      coreEncouragement: string;
+      mainStrength: string;
+      mainWarning: string;
+      actionAdvice: string;
+      growthReminder: string;
+    };
+    recommendations: string[];
+    encouragements: string[];
+    summary: string;
+    ruleVersion: string;
+  };
   meta?: {
     dayPillar: string;
     hourPillar: string;
@@ -443,6 +505,172 @@ function SanFangSummaryCard({ analysis }: { analysis?: InsightResult['ziweiSanFa
           {analysis.summary}
         </p>
       </div>
+    </section>
+  );
+}
+
+function AnnualFortunePanel({ analysis }: { analysis?: InsightResult['annualFortune'] }) {
+  if (!analysis) return null;
+
+  const palaceTone = {
+    MING: 'border-cyan-400/30 bg-cyan-950/15 text-cyan-100',
+    CAI_BO: 'border-emerald-400/30 bg-emerald-950/15 text-emerald-100',
+    GUAN_LU: 'border-amber-400/30 bg-amber-950/15 text-amber-100',
+    QIAN_YI: 'border-rose-400/30 bg-rose-950/15 text-rose-100',
+  } as const;
+
+  const scoreTone = analysis.overallScore >= 75
+    ? 'text-emerald-200'
+    : analysis.overallScore >= 60
+      ? 'text-amber-200'
+      : 'text-rose-200';
+
+  return (
+    <section className="fortune-card relative overflow-hidden p-6 sm:p-8">
+      <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/60 to-transparent" />
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-[0.3em] text-amber-300">今年流年運勢・命盤三方四正</p>
+          <h2 className="mt-3 font-serif text-3xl text-amber-100 sm:text-4xl">
+            只看今年：{analysis.year} {analysis.ganzhi}年 · {analysis.level}
+          </h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--text-sub)]">
+            {analysis.annualTheme}
+          </p>
+          <p className="mt-3 inline-flex rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-100">
+            本區只講今年流年運勢，不是終身本命定論。
+          </p>
+        </div>
+        <div className="shrink-0 rounded-2xl border border-amber-300/25 bg-amber-950/20 px-5 py-4 text-left sm:text-right">
+          <p className={`text-5xl font-bold ${scoreTone}`}>{analysis.overallScore}</p>
+          <p className="mt-1 text-xs text-[color:var(--text-muted)]">年度綜合分數</p>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:col-span-2">
+          <p className="text-xs font-semibold text-cyan-200">今年八字流年重點</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">
+            日主 <span className="font-semibold text-amber-200">{analysis.baziFocus.dayMaster}</span>
+            ，今年流年五行為 <span className="font-semibold text-cyan-100">{analysis.yearElement}</span>
+            ，關係為 <span className="font-semibold text-amber-100">{analysis.baziFocus.yearRelation}</span>。
+            {analysis.baziFocus.advice}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <p className="text-xs font-semibold text-amber-200">今年流年定盤狀態</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">
+            {analysis.timeConfidence === 'exact' ? '已使用真實時辰，只判讀今年命盤三方四正年度走勢。' : '目前採良辰暫定盤，只先看今年趨勢；補上真實時辰後可再校正今年走勢。'}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-amber-300/25 bg-amber-950/15 p-4">
+        <p className="text-xs font-semibold tracking-[0.2em] text-amber-200">年度激勵摘要</p>
+        <p className="mt-3 text-sm leading-7 text-amber-50">{analysis.motivation.coreEncouragement}</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-white/10 bg-black/15 p-3">
+            <p className="text-[11px] font-semibold text-cyan-200">目前優勢</p>
+            <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">{analysis.motivation.mainStrength}</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-black/15 p-3">
+            <p className="text-[11px] font-semibold text-rose-200">需要留意</p>
+            <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">{analysis.motivation.mainWarning}</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-black/15 p-3">
+            <p className="text-[11px] font-semibold text-emerald-200">可執行建議</p>
+            <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">{analysis.motivation.actionAdvice}</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-black/15 p-3">
+            <p className="text-[11px] font-semibold text-amber-200">成長提醒</p>
+            <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">{analysis.motivation.growthReminder}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-5">
+        {[
+          ['主動', analysis.adviceMatrix.initiative],
+          ['耐心', analysis.adviceMatrix.patience],
+          ['溝通', analysis.adviceMatrix.communication],
+          ['執行', analysis.adviceMatrix.execution],
+          ['財務', analysis.adviceMatrix.financialDiscipline],
+          ['適應', analysis.adviceMatrix.adaptability],
+          ['關係', analysis.adviceMatrix.relationshipAwareness],
+          ['壓力', analysis.adviceMatrix.stressManagement],
+          ['成長', analysis.adviceMatrix.learningGrowth],
+          ['完整', analysis.adviceMatrix.confidence],
+        ].map(([label, value]) => (
+          <div key={label} className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-center">
+            <p className="text-[11px] text-[color:var(--text-muted)]">{label}</p>
+            <p className="mt-1 text-lg font-bold text-cyan-100">{value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
+        {analysis.sanFangFourZheng.map((item) => (
+          <article key={item.palaceKey} className={`rounded-2xl border p-4 ${palaceTone[item.palaceKey]}`}>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs opacity-75">今年{item.focus}</p>
+                <h3 className="mt-1 text-xl font-bold">今年{item.palaceName}</h3>
+              </div>
+              <div className="text-right">
+                <p className="text-3xl font-bold">{item.score}</p>
+                <p className="text-[11px] opacity-75">{item.trend}</p>
+              </div>
+            </div>
+            <p className="mt-4 text-sm leading-7 text-[color:var(--text-sub)]">{item.advice}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {item.strengths.slice(0, 2).map((strength) => (
+                <span key={strength} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px]">
+                  優勢 {strength}
+                </span>
+              ))}
+              {item.tensions.slice(0, 1).map((tension) => (
+                <span key={tension} className="rounded-full border border-amber-300/15 bg-amber-950/20 px-2.5 py-1 text-[11px] text-amber-100">
+                  留意 {tension}
+                </span>
+              ))}
+            </div>
+            <p className="mt-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs leading-6 text-[color:var(--text-main)]">
+              鼓勵：{item.encouragement}
+            </p>
+            <p className="mt-3 text-xs leading-6 text-[color:var(--text-muted)]">行動：{item.action}</p>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-950/15 p-4">
+          <p className="text-xs font-semibold tracking-[0.2em] text-cyan-200">今年建議</p>
+          <ul className="mt-3 space-y-2 text-sm leading-6 text-[color:var(--text-sub)]">
+            {analysis.recommendations.map((item) => (
+              <li key={item} className="flex gap-2">
+                <span className="text-cyan-300">→</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="rounded-2xl border border-amber-400/20 bg-amber-950/15 p-4">
+          <p className="text-xs font-semibold tracking-[0.2em] text-amber-200">鼓勵與激勵</p>
+          <ul className="mt-3 space-y-2 text-sm leading-6 text-[color:var(--text-sub)]">
+            {analysis.encouragements.map((item) => (
+              <li key={item} className="flex gap-2">
+                <span className="text-amber-300">✦</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <p className="mt-6 border-l-2 border-amber-300 px-4 text-sm leading-7 text-[color:var(--text-sub)]">
+        {analysis.summary}
+      </p>
+      <p className="mt-3 text-[11px] text-[color:var(--text-muted)]">規則版本：{analysis.ruleVersion}</p>
     </section>
   );
 }
@@ -813,13 +1041,9 @@ export default function InsightPage() {
                 </label>
                 <LunarBirthdayInput
                   value={input.birthDate}
-                  onChange={(solarDate) => {
-                    if (solarDate && solarDate.trim()) {
-                      setInput({ ...input, birthDate: solarDate.trim() });
-                    }
-                  }}
+                  onChange={(solarDate) => setInput({ ...input, birthDate: solarDate.trim() })}
                   accent="violet"
-                  label="國曆生日（民國年）"
+                  label="出生日期（萬年曆）"
                 />
                 {input.birthDate && (
                   <p className="mt-2 text-xs text-green-400">✓ 西元 {input.birthDate}</p>
@@ -1088,6 +1312,8 @@ export default function InsightPage() {
             </div>
 
             <SanFangSummaryCard analysis={result?.ziweiSanFang} />
+
+            <AnnualFortunePanel analysis={result?.annualFortune} />
 
             <div className="hidden">
               <ZiweiSanFangPanel analysis={result?.ziweiSanFang} />
