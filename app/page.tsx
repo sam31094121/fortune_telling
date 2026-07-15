@@ -155,6 +155,35 @@ interface MatchResponse {
   };
 }
 
+function buildPersonalizedPracticeLine(data: MatchResponse) {
+  const personAName = data.displayA.name || '第一位';
+  const personBName = data.displayB.name || '第二位';
+  const karma = data.karmaRelation;
+  const conflictRisk = data.result.conflict_risk;
+  const matchScore = data.result.match_score;
+  const activeName = karma?.activePerson === 'A'
+    ? personAName
+    : karma?.activePerson === 'B'
+      ? personBName
+      : '你們彼此';
+  const needsUnderstandingName = karma?.needsUnderstanding === 'A'
+    ? personAName
+    : karma?.needsUnderstanding === 'B'
+      ? personBName
+      : '彼此';
+  const mainPractice = conflictRisk >= 65
+    ? '先放下爭輸贏的執念，把話說慢、把界線說清楚'
+    : matchScore >= 75
+      ? '把善意落在日常行動裡，讓好的共鳴不只停在感覺'
+      : '先從改過自新做起，願意看見自己在關係裡的慣性';
+  const connectionPractice = (karma?.overallResonance ?? matchScore) >= 70
+    ? '這段緣分已有可貴的相應力'
+    : '這段緣分更需要耐心修正相處節奏';
+  const painPoint = karma?.painPoint ? `，尤其要留意「${karma.painPoint}」` : '';
+
+  return `對${personAName}與${personBName}而言，順天不是硬求結果，而是順著善念修正自己；${connectionPractice}${painPoint}。改命的第一步，是${activeName}願意先跨出「${mainPractice}」的行動，也讓${needsUnderstandingName}被真正理解。當你們願意改過自新、廣結善緣、放下執念，關係就會從消耗走向清明。`;
+}
+
 type StepKey = 'personA-base' | 'personA-shichen' | 'personB-base' | 'personB-shichen' | 'review';
 
 const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
@@ -2094,7 +2123,7 @@ export default function HomePage() {
                     <div className="mt-8 border-t border-amber-500/15 pt-6 text-left max-w-xl mx-auto space-y-3.5">
                       <p className="text-xs uppercase tracking-[0.25em] text-amber-300 font-semibold font-mono">🧬 釋義：天地人因果天宿密碼</p>
                       <blockquote className="border-l border-amber-500/40 pl-4 text-xs italic text-[color:var(--text-sub)] leading-7">
-                        「人一出生，天宿天命便與天地人三才緊密相連。天宿命運有軌跡，但命運絕對可以改變。改命的重中之重，在於『自己有沒有真正改過自新、廣結善緣、學會放下』。以善為本，順天而行則合；執迷不悟，逆天而行則亡。」
+                        「{buildPersonalizedPracticeLine(data)}」
                       </blockquote>
                     </div>
                   </div>
@@ -2303,7 +2332,7 @@ export default function HomePage() {
                       「菩提本無樹，明鏡亦非台。」關係中的糾纏與痛楚，皆因心有色相、執迷不悟（人有色無空）。當你真正看透這層幻象，學會放下對他人的控制與索求，回歸「善」的本心，這段關係的因果便已在默默中改寫。
                     </p>
                     <p className="font-semibold text-amber-300">
-                      順天者昌，逆天者亡。改命的重中之重，永遠在於你今天是否願意跨出「改過自新、廣結善緣、放下執念」的第一步。
+                      {buildPersonalizedPracticeLine(data)}
                     </p>
                   </div>
                 </div>

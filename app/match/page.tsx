@@ -66,6 +66,89 @@ function getPersonError(label: string, person: PersonInput) {
   return '';
 }
 
+function stableHash(input: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function pickStable<T>(items: T[], seed: number, salt = 0) {
+  return items[(seed + salt) % items.length];
+}
+
+function buildMatchGuidance(data: MatchResponse) {
+  const aName = data.displayA.name || '第一位';
+  const bName = data.displayB.name || '第二位';
+  const result = data.result;
+  const seed = stableHash([
+    aName,
+    bName,
+    data.displayA.zodiacZh,
+    data.displayB.zodiacZh,
+    data.displayA.bloodType,
+    data.displayB.bloodType,
+    result.match_score,
+    result.resonance,
+    result.communication,
+    result.stability,
+    result.conflict_risk,
+  ].join('|'));
+  const strongestMetric = [
+    ['共鳴感', result.resonance],
+    ['溝通感', result.communication],
+    ['穩定度', result.stability],
+  ].sort((a, b) => Number(b[1]) - Number(a[1]))[0];
+  const weakestMetric = [
+    ['共鳴感', result.resonance],
+    ['溝通感', result.communication],
+    ['穩定度', result.stability],
+    ['衝突風險', 100 - result.conflict_risk],
+  ].sort((a, b) => Number(a[1]) - Number(b[1]))[0];
+  const strongestZone = result.zones.resonance[seed % Math.max(1, result.zones.resonance.length)] ?? '彼此有值得珍惜的吸引力';
+  const frictionZone = result.zones.conflict[seed % Math.max(1, result.zones.conflict.length)] ?? result.zones.grinding[0] ?? '先把溝通節奏放慢';
+  const scoreLevel = result.match_score >= 80 ? '高共鳴' : result.match_score >= 65 ? '可經營' : '需要耐心磨合';
+
+  const encouragementOptions = [
+    `${aName}與${bName}的關係不是只看分數，而是看你們願不願意把「${strongestMetric[0]}」變成日常裡可被感受到的善意。`,
+    `${aName}與${bName}目前屬於「${scoreLevel}」型配對；真正能讓關係往前的，是把優勢用在理解，而不是用在拉扯。`,
+    `這段關係最值得珍惜的是「${strongestZone}」。只要願意把這份相應力落到行動，關係就會比現在更穩。`,
+  ];
+  const warningOptions = result.conflict_risk >= 60
+    ? [
+        `目前需要留意「${frictionZone}」。衝突不是不能化解，但一定要先停止互相猜測。`,
+        `這段關係的壓力點不小，越在意彼此，越要避免用情緒逼對方立刻理解。`,
+        `當衝突升高時，先暫停、再表達需求；不要把一時的語氣當成整段關係的答案。`,
+      ]
+    : [
+        `目前最大提醒是別把好感當成理所當然，穩定關係仍需要持續回應。`,
+        `即使衝突風險不高，也要避免冷處理；小事說清楚，大事才不會累積。`,
+        `這段關係適合慢慢加深，但仍要定期確認彼此的安全感與期待。`,
+      ];
+  const actionOptions = [
+    result.communication < 65
+      ? '每次談重要事情前，先說清楚「我需要被聽見」還是「我需要建議」，讓對方知道怎麼愛你。'
+      : '保留固定的深聊時間，把感謝、壓力與期待說成具體事件，不用讓對方猜。',
+    result.stability < 65
+      ? '先建立一個固定相處節奏，例如每週一次不被打擾的對話，讓安全感慢慢回來。'
+      : '把已經穩定的地方延續下去，再慢慢處理需要磨合的小裂縫。',
+    result.conflict_risk >= 60
+      ? '約定暫停信號：任何一方情緒上來時先停五分鐘，再回來講真正需求。'
+      : '主動放大對方做對的事，讓關係靠鼓勵前進，而不是靠糾錯維持。',
+  ];
+
+  return {
+    level: scoreLevel,
+    coreEncouragement: pickStable(encouragementOptions, seed),
+    mainStrength: `目前優勢在「${strongestMetric[0]}」，代表${aName}與${bName}之間有一個可以被經營放大的正向入口。`,
+    mainWarning: pickStable(warningOptions, seed, 5),
+    actionAdvice: pickStable(actionOptions, seed, 9),
+    growthReminder: `成長提醒：${weakestMetric[0]}不是判決，而是你們今年最適合一起練習的功課；願意改過、願意靠近，才是真正的順天。`,
+  };
+}
+
 function ElderChoiceCard({
   active,
   title,
@@ -574,6 +657,46 @@ export default function MatchPage() {
 
         {data && (
           <div className="space-y-6">
+            {(() => {
+              const guidance = buildMatchGuidance(data);
+              return (
+                <div className="fortune-card border border-amber-300/25 bg-amber-950/10 p-6 sm:p-8">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-amber-300">專屬配對鼓勵與建議</p>
+                      <h2 className="mt-3 font-serif text-2xl text-amber-100 sm:text-3xl">
+                        {data.displayA.name} × {data.displayB.name} · {guidance.level}
+                      </h2>
+                    </div>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-[color:var(--text-sub)]">
+                      依輸入資料生成
+                    </span>
+                  </div>
+
+                  <p className="mt-5 text-sm leading-8 text-amber-50">{guidance.coreEncouragement}</p>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-cyan-300/20 bg-cyan-950/15 p-4">
+                      <p className="text-xs font-semibold text-cyan-200">目前優勢</p>
+                      <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{guidance.mainStrength}</p>
+                    </div>
+                    <div className="rounded-2xl border border-rose-300/20 bg-rose-950/15 p-4">
+                      <p className="text-xs font-semibold text-rose-200">需要留意</p>
+                      <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{guidance.mainWarning}</p>
+                    </div>
+                    <div className="rounded-2xl border border-emerald-300/20 bg-emerald-950/15 p-4">
+                      <p className="text-xs font-semibold text-emerald-200">可執行建議</p>
+                      <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{guidance.actionAdvice}</p>
+                    </div>
+                    <div className="rounded-2xl border border-amber-300/20 bg-black/15 p-4">
+                      <p className="text-xs font-semibold text-amber-200">成長提醒</p>
+                      <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{guidance.growthReminder}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
             <div className="fortune-card p-6 sm:p-8 text-center">
               <p className="text-xs uppercase tracking-[0.35em] text-rose-300">配對結果</p>
               <h2 className="mt-3 font-serif text-5xl text-[color:var(--text-main)]">{data.result.match_score}</h2>
