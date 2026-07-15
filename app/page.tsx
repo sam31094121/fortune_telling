@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState, useDeferredValue, useEffect, useRef } from 'react';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { injectPerformanceCSS } from '@/lib/performance-css';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
@@ -13,16 +12,6 @@ import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import { safeJsonFetch } from '@/lib/safe-fetch';
 import type { NumberAnalysisResponse } from '@/lib/number-core-engine';
-
-const VisualGravityCore = dynamic(() => import('@/components/VisualGravityCore'), {
-  ssr: false,
-  loading: () => (
-    <div
-      aria-hidden="true"
-      className="mx-auto aspect-square w-[min(20rem,calc(100vw-2rem))] rounded-full border border-cyan-300/15 bg-slate-950/30 shadow-[0_0_45px_rgba(34,211,238,0.14)]"
-    />
-  ),
-});
 
 interface PersonInput {
   name: string;
@@ -1452,7 +1441,7 @@ export default function HomePage() {
       {unlocking && (
         <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-slate-950/95 backdrop-blur-md">
           <div className="relative flex items-center justify-center w-80 h-80">
-            <VisualGravityCore />
+            <TaijiStandaloneCard />
           </div>
           <p className="mt-4 text-lg font-bold tracking-widest text-amber-200 animate-pulse font-serif">
             🪐 天宿星軌對齊中，解密天宿命盤...
