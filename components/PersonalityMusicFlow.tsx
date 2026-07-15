@@ -7,6 +7,7 @@ import { saveUserData, loadUserData } from '@/lib/storage';
 
 type BloodType = 'A' | 'B' | 'AB' | 'O';
 type Gender = 'male' | 'female';
+type PreferredSongLanguage = 'mandarin' | 'english' | 'taiwanese';
 
 // 時辰：null=尚未選、'unknown'=不知道（自動套良辰吉時）、0–11=已選時辰地支序
 export type ShichenChoice = number | 'unknown' | null;
@@ -20,6 +21,7 @@ export interface MusicFormData {
   shichen: ShichenChoice;
   voiceCharacteristics: string[];
   vocalGenderPreference: VocalGenderPreference;
+  preferredSongLanguage: PreferredSongLanguage;
 }
 
 interface PersonalityMusicFlowProps {
@@ -44,6 +46,30 @@ const VOICE_OPTIONS = [
   { key: 'hesitant', label: '較保留猶豫' },
 ];
 
+const SONG_LANGUAGE_OPTIONS: Array<{
+  key: PreferredSongLanguage;
+  label: string;
+  hint: string;
+  badge?: string;
+}> = [
+  {
+    key: 'mandarin',
+    label: '國語生成',
+    hint: '建議優先使用，國語是本系統 AI 生成的主打強項。',
+    badge: '主打推薦',
+  },
+  {
+    key: 'english',
+    label: '英文生成',
+    hint: '適合做國際感 Hook、旋律感與流行編曲方向。',
+  },
+  {
+    key: 'taiwanese',
+    label: '台語生成',
+    hint: '適合加強故事感、情感落點與在地記憶點。',
+  },
+];
+
 const STEPS = ['生日', '血型', '姓名', '時辰', '聲音'];
 
 export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityMusicFlowProps) {
@@ -56,6 +82,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     shichen: null,
     voiceCharacteristics: [],
     vocalGenderPreference: null,
+    preferredSongLanguage: 'mandarin',
   });
   const [localError, setLocalError] = useState('');
 
@@ -362,6 +389,47 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                       <span className="text-lg drop-shadow-[0_0_10px_rgba(255,255,255,0.9)]">{option.icon}</span>
                       <span className="font-semibold">{option.label}</span>
                       {selected && <span className="ml-auto text-xs text-white">✓</span>}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="border-t border-white/10 pt-4">
+            <div className="mb-3 space-y-1">
+              <p className="text-sm font-semibold text-amber-100">歌曲語言</p>
+              <p className="text-xs leading-6 text-[color:var(--text-muted)]">
+                英文、國語、台語都可以生成；建議優先用國語，國語是本系統 AI 生成的強項。
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {SONG_LANGUAGE_OPTIONS.map((option) => {
+                const selected = form.preferredSongLanguage === option.key;
+                return (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => setForm((prev) => ({
+                      ...prev,
+                      preferredSongLanguage: option.key,
+                    }))}
+                    className={`rounded-[18px] border px-4 py-3 text-left transition-all ${
+                      selected
+                        ? 'border-amber-300/80 bg-amber-300/15 text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.18)]'
+                        : 'border-white/10 bg-white/5 text-[color:var(--text-sub)] hover:border-amber-200/35 hover:bg-white/10'
+                    }`}
+                  >
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="font-semibold">{option.label}</span>
+                      {option.badge && (
+                        <span className="rounded-full border border-amber-200/30 px-2 py-0.5 text-[10px] text-amber-200">
+                          {option.badge}
+                        </span>
+                      )}
+                    </span>
+                    <span className="mt-2 block text-xs leading-5 text-[color:var(--text-muted)]">
+                      {option.hint}
                     </span>
                   </button>
                 );

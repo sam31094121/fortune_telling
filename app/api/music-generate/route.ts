@@ -31,10 +31,12 @@ function getBirthEra(birthDate: string): string {
 
 const VALID_BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const VALID_GENDERS = ['male', 'female'] as const;
+const VALID_SONG_LANGUAGES = ['mandarin', 'english', 'taiwanese'] as const;
 
 // 時辰：number(0–11 地支序)=已知；'unknown'/null=不知道（自動套良辰吉時）
 type ShichenChoice = number | 'unknown' | null;
 type VocalGenderPreference = 'male' | 'female' | null;
+type PreferredSongLanguage = 'mandarin' | 'english' | 'taiwanese';
 
 interface MusicGenerateRequest {
   birthDate: string;
@@ -44,6 +46,7 @@ interface MusicGenerateRequest {
   shichen?: ShichenChoice;
   voiceCharacteristics?: string[];
   vocalGenderPreference?: VocalGenderPreference;
+  preferredSongLanguage?: PreferredSongLanguage;
 }
 
 function validate(body: unknown): string | null {
@@ -95,6 +98,13 @@ function validate(body: unknown): string | null {
     payload.vocalGenderPreference !== 'female'
   ) {
     return '主唱聲線偏好格式無效。';
+  }
+
+  if (
+    payload.preferredSongLanguage !== undefined &&
+    !VALID_SONG_LANGUAGES.includes(payload.preferredSongLanguage as (typeof VALID_SONG_LANGUAGES)[number])
+  ) {
+    return '歌曲語言只能選擇國語、英文或台語。';
   }
 
   return null;
@@ -159,6 +169,7 @@ export async function POST(request: Request) {
     body.shichen !== undefined && body.shichen !== null ? String(body.shichen) : 'null',
     (body.voiceCharacteristics || []).join(','),
     body.vocalGenderPreference ?? 'auto',
+    body.preferredSongLanguage ?? 'mandarin',
   ]);
 
   const cached = responseCache.get(cacheKey);
@@ -175,6 +186,7 @@ export async function POST(request: Request) {
       shichen = null,
       voiceCharacteristics = [],
       vocalGenderPreference = null,
+      preferredSongLanguage = 'mandarin',
     } = body;
     const trimmedName = name.trim();
 
@@ -252,6 +264,7 @@ export async function POST(request: Request) {
     bloodType,
     gender,
     vocalGenderPreference,
+    preferredSongLanguage,
     era,
     personalityMatrix: Object.fromEntries(Object.entries(personalityMatrix)) as Record<string, number>,
     musicParameters: finalMusicParameters,
@@ -284,6 +297,7 @@ export async function POST(request: Request) {
     bpm: finalMusicParameters.bpm,
     mood: finalMusicParameters.mood,
     vocalGenderPreference,
+    preferredSongLanguage,
   });
 
   const productionPlan = generateAiProductionPlan({

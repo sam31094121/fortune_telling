@@ -124,7 +124,7 @@ type PageState = 'landing' | 'form' | 'result';
 
 function LandingHero({ onStart }: { onStart: () => void }) {
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center">
+    <section className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-5 text-center sm:px-6">
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -152,7 +152,7 @@ function LandingHero({ onStart }: { onStart: () => void }) {
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-4">
-          <button type="button" onClick={onStart} className="vip-gold-btn px-14 py-5 text-lg animate-bounce shadow-[0_0_25px_rgba(201,162,74,0.3)] border border-amber-400/20">
+          <button type="button" onClick={onStart} className="vip-gold-btn w-full max-w-[22rem] px-8 py-5 text-base shadow-[0_0_25px_rgba(201,162,74,0.3)] border border-amber-400/20 sm:w-auto sm:px-14 sm:text-lg sm:animate-bounce">
             👇 一鍵開啟 · 生成我的主題曲
           </button>
           <Link href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
@@ -271,6 +271,7 @@ export default function MusicSystemPage() {
             shichen: data.shichen,
             voiceCharacteristics: data.voiceCharacteristics,
             vocalGenderPreference: data.vocalGenderPreference,
+            preferredSongLanguage: data.preferredSongLanguage,
         }),
       });
 
@@ -308,7 +309,7 @@ export default function MusicSystemPage() {
   }
 
   return (
-    <div ref={mainRef} className="app-bg min-h-screen overflow-x-hidden">
+    <div ref={mainRef} className="app-bg min-h-[100svh] overflow-x-hidden">
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
       <div className="constellation-ring constellation-ring-top pointer-events-none z-0" />
       <div className="constellation-ring constellation-ring-bottom pointer-events-none z-0" />

@@ -297,6 +297,30 @@ export async function analyzeDestiny(person: PersonInput): Promise<AnalysisResul
   });
 }
 
+type PreferredSongLanguage = 'mandarin' | 'english' | 'taiwanese';
+
+const SONG_LANGUAGE_GUIDANCE: Record<PreferredSongLanguage, { label: string; prompt: string; distribution: string }> = {
+  mandarin: {
+    label: '國語生成',
+    prompt: '本次請以國語為主要可唱語言與副歌核心。英文只作短 Hook、音色記憶點或少量點綴；台語只作情感落點。國語是本系統主打強項，請讓歌曲最終聽感以國語流行歌為主。',
+    distribution: '國語主唱 70% · 英文 Hook 15% · 台語情感落點 15%',
+  },
+  english: {
+    label: '英文生成',
+    prompt: '本次請以英文為主要可唱語言與 Hook 核心。國語只作情緒輔助與少量關鍵句；台語只作故事落點。請保留天地人人格融合，但最終聽感以英文流行歌為主。',
+    distribution: '英文主唱 70% · 國語情緒句 20% · 台語情感落點 10%',
+  },
+  taiwanese: {
+    label: '台語生成',
+    prompt: '本次請以台語為主要可唱語言與故事核心。國語只作副歌銜接與情緒輔助；英文只作短 Hook 或音色點綴。請保留天地人人格融合，但最終聽感以台語故事歌為主。',
+    distribution: '台語主唱 70% · 國語情緒句 20% · 英文 Hook 10%',
+  },
+};
+
+function getSongLanguageGuidance(language?: PreferredSongLanguage) {
+  return SONG_LANGUAGE_GUIDANCE[language ?? 'mandarin'];
+}
+
 export interface MusicReportInput {
   name: string;
   birthDate: string;
@@ -304,6 +328,7 @@ export interface MusicReportInput {
   bloodType: 'A' | 'B' | 'AB' | 'O';
   gender: 'male' | 'female';
   vocalGenderPreference?: 'male' | 'female' | null;
+  preferredSongLanguage?: PreferredSongLanguage;
   era: string;
   personalityMatrix: Record<string, number>;
   musicParameters: {
@@ -465,8 +490,14 @@ function buildMusicReportPrompt(input: MusicReportInput): string {
       : '未指定，請依人格音樂與曲風自動配置主唱聲線';
   const d = input.destinyContext;
   const p = input.psychologyContext;
+  const languageGuidance = getSongLanguageGuidance(input.preferredSongLanguage);
+  const languageInstructionBlock = `歌曲語言主軸：${languageGuidance.label}
+語言生成規則：${languageGuidance.prompt}
+語言比例建議：${languageGuidance.distribution}`;
 
   return `
+${languageInstructionBlock}
+
 你是「天地人 AI 人格音樂系統」的靈魂音樂顧問，同時精通命理學與深層心理學。
 根據以下三層數據——天地人命理架構、心理學原型、音樂矩陣——寫出一份深刻的人格音樂報告。
 
@@ -688,8 +719,14 @@ function buildSongDraftsPrompt(input: MusicReportInput): string {
       ? '偏好女聲主唱'
       : '未指定，請依人格音樂與曲風自動配置主唱聲線';
   const d = input.destinyContext;
+  const languageGuidance = getSongLanguageGuidance(input.preferredSongLanguage);
+  const languageInstructionBlock = `歌曲語言主軸：${languageGuidance.label}
+語言生成規則：${languageGuidance.prompt}
+語言比例建議：${languageGuidance.distribution}`;
 
   return `
+${languageInstructionBlock}
+
 你是「天地人歌曲矩陣」的第一階段素材層生成器。
 請根據使用者的生日、血型、姓名、命理資料與音樂參數，先產生三個素材層：天層、地層、人層。
 ★ 重要：每次生成必須是完全新的創意表達，不要重複之前任何的組合或歌詞。確保這首歌獨一無二地反映此人的特質。
@@ -830,6 +867,7 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
   const instruments = input.musicParameters.instrument.slice(0, 5).join('、') || '鋼琴、鼓、合成器、弦樂、吉他';
   const themes = input.musicParameters.lyric_theme.slice(0, 4).join('、') || '自我覺醒、命運、希望、連結';
   const leadVocal = describeVocalBlend(input);
+  const languageGuidance = getSongLanguageGuidance(input.preferredSongLanguage);
   const heavenLayerTitle = input.songDrafts.english.title;
   const earthLayerTitle = input.songDrafts.mandarin.title;
   const humanLayerTitle = input.songDrafts.taiwanese.title;
@@ -870,7 +908,7 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
       `人層故事聲：${input.songDrafts.taiwanese.vocal_direction}`,
     ],
     lead_vocal_choice: leadVocal,
-    language_distribution: '天 35% · 地 35% · 人 30%。這是歌曲矩陣權重，不是三種語言硬性比例。',
+    language_distribution: `${languageGuidance.distribution}。天地人人格權重仍保留，但最終歌曲以「${languageGuidance.label}」為主要聽感。`,
     hook_design:
       `副歌核心 Hook 以《${input.fusionSong.fusion_title}》為主題：天層給音樂記憶點，地層給國語副歌情緒，人層給一句台語人格落點。`,
     popular_music_dna: popularMusicDna,
@@ -888,7 +926,7 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
     emotional_arc:
       '0-35% 天層建立音樂靈魂，35-70% 地層建立歌曲身體，70-100% 人層放入故事落點後由融合引擎收束成一首歌。',
     generation_prompt:
-      `Create one original Tiandiren personality song, not three separate songs. ${input.musicParameters.genre}, ${input.musicParameters.bpm} BPM, ${input.musicParameters.key}. Mood: ${mood}. Instruments: ${instruments}. Vocal: ${leadVocal}. Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Taiwanese lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: ${themes}. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.`,
+      `Create one original Tiandiren personality song, not three separate songs. Primary song language: ${languageGuidance.label}. ${languageGuidance.prompt} Suggested language balance: ${languageGuidance.distribution}. ${input.musicParameters.genre}, ${input.musicParameters.bpm} BPM, ${input.musicParameters.key}. Mood: ${mood}. Instruments: ${instruments}. Vocal: ${leadVocal}. Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Taiwanese lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: ${themes}. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.`,
     next_step_note:
       '下一步才接音樂/人聲生成服務；目前這一層先把製作、編曲、主唱分配與生成提示整理好，避免一次做太重造成當機。',
   };
@@ -910,6 +948,7 @@ export interface FusionSongInput {
   bpm?: number;
   mood?: string[];
   vocalGenderPreference?: 'male' | 'female' | null;
+  preferredSongLanguage?: PreferredSongLanguage;
 }
 
 export interface FusionSongOutput {
@@ -968,6 +1007,10 @@ function buildFusionSongPrompt(input: FusionSongInput): string {
   const tw = input.taiwaneseSong
     ? `台語素材：《${input.taiwaneseSong.title}》— ${input.taiwaneseSong.artist}`
     : '台語素材：（無，可省略台語段落或少量點綴）';
+  const languageGuidance = getSongLanguageGuidance(input.preferredSongLanguage);
+  const languageInstructionBlock = `歌曲語言主軸：${languageGuidance.label}
+語言生成規則：${languageGuidance.prompt}
+語言比例建議：${languageGuidance.distribution}`;
   const drafts = input.songDrafts
     ? `
 ━━━ 第一階段 AI 已生成的天地人素材層（這才是主要融合素材）━━━
@@ -989,6 +1032,8 @@ ${input.songDrafts.taiwanese.lyrics.join('\n')}
     : '';
 
   return `
+${languageInstructionBlock}
+
 你是「歌曲融合引擎」，擅長把天、地、人三個素材層統一成一首動人的原創人格歌曲。
 請為「${input.name}」量身打造「一首」全新的天地人人格歌曲。
 ★ 重要：每次融合都要用完全不同的創意角度、情緒切入和故事表達方式。確保這首歌獨特到不會與任何其他人的歌重複。

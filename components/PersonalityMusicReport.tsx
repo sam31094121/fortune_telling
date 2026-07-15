@@ -184,6 +184,16 @@ function getScoreWord(score: number, low: string, mid: string, high: string) {
   return low;
 }
 
+function simplifyClientText(value?: string, fallback = '') {
+  if (!value) return fallback;
+  const simplified = value
+    .replace(/[A-Za-z][A-Za-z0-9+./_-]*/g, '')
+    .replace(/\b\d+\s*(?:BPM|MP3|WAV|API|AI|KEY)\b/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  return simplified || fallback;
+}
+
 function renderTags(items: string[], tone: 'violet' | 'amber' | 'pink' | 'cyan') {
   const toneStyle = {
     violet: { border: 'rgba(167,139,250,0.28)', bg: 'rgba(76,29,149,0.18)', color: '#ddd6fe' },
@@ -1468,7 +1478,7 @@ export default function PersonalityMusicReport({
   // 同一時間只允許一首歌在播，避免多個播放器同時出聲互相衝突
   const [openPlayer, setOpenPlayer] = useState<'english' | 'mandarin' | 'taiwanese' | null>(null);
   const [songMakerStarted, setSongMakerStarted] = useState(false);
-  const [showAdvancedDetails, setShowAdvancedDetails] = useState(true);
+  const [showAdvancedDetails] = useState(false);
 
   const genreName = GENRE_NAMES[musicParameters.genre] || musicParameters.genre;
   const genreEmoji = GENRE_EMOJI[musicParameters.genre] || '🎼';
@@ -1498,15 +1508,15 @@ export default function PersonalityMusicReport({
         <div className="px-6 py-8 sm:px-8">
           <p className="text-xs uppercase tracking-[0.4em] text-violet-300/70">人格主題曲完成</p>
           <h2 className="mt-3 font-serif leading-tight text-[color:var(--text-main)]" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.6rem)' }}>
-            《{musicReport.song_title_suggestion}》
+            《{simplifyClientText(musicReport.song_title_suggestion, '專屬人格主題曲')}》
           </h2>
           <p className="mt-3 font-serif text-base italic leading-8 sm:text-lg" style={{ color: meta.wuxingColor ?? 'var(--earth-gold)' }}>
-            {musicReport.lyric_opening}
+            {simplifyClientText(musicReport.lyric_opening)}
           </p>
-          <p className="mt-5 text-sm leading-9 text-[color:var(--text-sub)]">{musicReport.music_narrative}</p>
+          <p className="mt-5 text-sm leading-9 text-[color:var(--text-sub)]">{simplifyClientText(musicReport.music_narrative)}</p>
 
           {/* 📊 大數據統計學知名男女歌手指標面板 */}
-          {(musicReport.famous_singers_mandarin || musicReport.famous_singers_english || musicReport.famous_singers_taiwanese) && (
+          {showAdvancedDetails && (musicReport.famous_singers_mandarin || musicReport.famous_singers_english || musicReport.famous_singers_taiwanese) && (
             <div className="mt-6 border-t border-white/10 pt-6">
               <p className="text-xs uppercase tracking-[0.3em] text-violet-300/70 mb-4">
                 📊 全球流行大數據 · 代表男女歌手統計學對標
@@ -1707,15 +1717,17 @@ export default function PersonalityMusicReport({
         </div>
       )}
 
-      <IntegratedSongMaker
-        fusionSong={fusionSong}
-        productionPlan={productionPlan}
-        musicParameters={musicParameters}
-        songDrafts={songDrafts}
-        name={name}
-        started={songMakerStarted}
-        onStart={() => setSongMakerStarted(true)}
-      />
+      {showAdvancedDetails && (
+        <IntegratedSongMaker
+          fusionSong={fusionSong}
+          productionPlan={productionPlan}
+          musicParameters={musicParameters}
+          songDrafts={songDrafts}
+          name={name}
+          started={songMakerStarted}
+          onStart={() => setSongMakerStarted(true)}
+        />
+      )}
 
       {showAdvancedDetails && (
         <>
@@ -1909,14 +1921,14 @@ export default function PersonalityMusicReport({
 
       <div className="sky-card fortune-card px-6 py-7 sm:px-8">
         <p className="mb-4 text-xs uppercase tracking-[0.4em] text-violet-300/70">這首歌想對你說</p>
-        <p className="text-sm leading-9 text-[color:var(--text-main)]">{musicReport.music_message}</p>
+        <p className="text-sm leading-9 text-[color:var(--text-main)]">{simplifyClientText(musicReport.music_message)}</p>
       </div>
 
       <div className="vip-gold-card rounded-[24px] px-6 py-8 sm:px-8">
         <div className="mb-7 text-center">
           <p className="text-xs uppercase tracking-[0.4em] text-amber-300/70">善意提醒</p>
           <p className="mx-auto mt-5 max-w-2xl font-serif text-sm leading-9 text-[color:var(--text-main)]">
-            {musicReport.wisdom_note}
+            {simplifyClientText(musicReport.wisdom_note)}
           </p>
           <p className="mx-auto mt-4 max-w-2xl text-xs leading-7 text-[color:var(--text-sub)]">
             {name} 的人格主題曲預覽已完成。這段旋律是一個方向與提醒；真正讓生活變順的，仍然是以善為本、持續行動。

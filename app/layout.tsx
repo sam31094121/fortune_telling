@@ -1,5 +1,6 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Noto_Sans_TC, Noto_Serif_TC, Outfit } from 'next/font/google';
+import AppStabilityGuard from '@/components/AppStabilityGuard';
 import './globals.css';
 
 const sans = Noto_Sans_TC({
@@ -23,27 +24,38 @@ const outfit = Outfit({
   display: 'swap',
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL 
-  ? process.env.NEXT_PUBLIC_SITE_URL 
-  : process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}` 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+  ? process.env.NEXT_PUBLIC_SITE_URL
+  : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
     : 'http://localhost:3000';
+
+const shareImage = '/images/line-share-taichi.jpg?v=20260715-3';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#050612',
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: '☯️ 天宿星軌 · 3D 命理雙星引力核心',
-  description: '自動換算農國曆雙向對照，精密算出生日主星，為你與伴侶解鎖【殺破狼】等尊榮天格與前世今生因果配對！',
+  title: '☯ 太極命理 AI｜天地人智慧分析系統',
+  description: 'AI 紫微斗數、八字、數字論吉凶、天地人智慧分析，一站式命理智慧平台。',
   openGraph: {
-    title: '☯️ 天宿星軌 · 3D 命理雙星引力核心',
-    description: '自動換算農國曆雙向對照，精密算出生日主星，為你與伴侶解鎖【殺破狼】等尊榮天格與前世今生因果配對！',
+    title: '☯ 太極命理 AI｜智慧命理分析平台',
+    description: '輸入出生資料，立即體驗 AI 紫微斗數、八字、數字論吉凶與天地人智慧分析。',
     url: siteUrl,
-    siteName: '天宿星軌命理系統',
+    siteName: '太極命理 AI',
     images: [
       {
-        url: '/images/og-taichi-preview.png',
+        url: shareImage,
+        secureUrl: shareImage,
         width: 1200,
         height: 630,
-        alt: '天宿 3D 命理太極雙星圖騰',
+        type: 'image/jpeg',
+        alt: '太極命理 AI 智慧分析系統',
       },
     ],
     locale: 'zh_TW',
@@ -51,9 +63,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: '☯️ 天宿星軌 · 3D 命理雙星引力核心',
-    description: '自動換算農國曆雙向對照，精密算出生日主星，為你與伴侶解鎖【殺破狼】等尊榮天格與前世今生因果配對！',
-    images: ['/images/og-taichi-preview.png'],
+    title: '☯ 太極命理 AI',
+    description: 'AI 紫微斗數｜八字｜數字論吉凶｜天地人智慧分析',
+    images: [shareImage],
   },
 };
 
@@ -64,7 +76,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-Hant">
-      <body className={`${sans.variable} ${serif.variable} ${outfit.variable} font-sans antialiased`}>{children}</body>
+      <body className={`${sans.variable} ${serif.variable} ${outfit.variable} font-sans antialiased`}>
+        <AppStabilityGuard />
+        {children}
+      </body>
     </html>
   );
 }

@@ -18,7 +18,7 @@ const MINIMUM_DISPLAY_COUNT = 1_011_500;
 const FRONTEND_CATCH_UP_INTERVAL_MS = 18_000;
 const FRONTEND_MIN_INCREMENT_DELAY_MS = 7_000;
 const FRONTEND_MAX_INCREMENT_DELAY_MS = 24_000;
-const BACKEND_SYNC_INTERVAL_MS = 20_000;
+const BACKEND_SYNC_INTERVAL_MS = 60_000;
 const MAX_VISIBLE_CATCH_UP_INCREMENT = 30;
 
 type StoredCounter = {
@@ -181,6 +181,8 @@ export default function FeatureVisitorCounter({
     let startTimerId: number | undefined;
 
     async function syncDisplayCount() {
+      if (document.visibilityState !== 'visible') return;
+
       try {
         const response = await fetch(`/api/visitor/record?featureKey=${encodeURIComponent(featureKey)}`, {
           cache: 'no-store',
