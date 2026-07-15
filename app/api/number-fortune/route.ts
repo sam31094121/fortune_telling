@@ -64,10 +64,6 @@ async function withTimeout<T>(task: Promise<T>, ms: number) {
   }
 }
 
-type PersistResult = {
-  error: { message?: string } | null;
-};
-
 async function persistAnalysisResult(result: NumberAnalysisResponse, rawValue: string, analysisHash: string, analysisId: string) {
   const supabase = getVisitorSupabaseClient();
   if (!supabase) return;
@@ -112,7 +108,7 @@ async function persistAnalysisResult(result: NumberAnalysisResponse, rawValue: s
     let persisted = false;
     for (let attempt = 0; attempt < 2 && !persisted; attempt += 1) {
       try {
-        const { error } = await withTimeout(insert() as unknown as Promise<PersistResult>, 1500);
+        const { error } = await withTimeout(insert(), 1500);
         if (error) throw error;
         persisted = true;
       } catch (error) {

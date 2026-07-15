@@ -77,13 +77,6 @@ grant all on table public.number_feedback_records to service_role;
 grant all on table public.number_model_metrics to service_role;
 
 alter table public.number_analysis_results
-  drop constraint if exists number_analysis_results_level_check;
-
-alter table public.number_analysis_results
-  add constraint number_analysis_results_level_check
-  check (level in ('高正向', '偏正向', '穩定', '吉勢較強', '偏吉', '平衡穩定', '需要留意', '波動較高'));
-
-alter table public.number_analysis_results
   add column if not exists indexes jsonb not null default '{}'::jsonb,
   add column if not exists confidence_score smallint check (confidence_score is null or (confidence_score >= 0 and confidence_score <= 100));
 

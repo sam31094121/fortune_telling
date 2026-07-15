@@ -1476,8 +1476,8 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <section className="home-hero-stage mb-8 sm:mb-10 grid items-center gap-7 lg:gap-10 lg:grid-cols-[1fr_360px]">
-          <div className="relative z-10">
+        <section className="home-hero-stage mb-8 flex justify-center sm:mb-10">
+          <div className="hidden relative z-10">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-rose-400/25 bg-rose-400/10 px-4 py-1.5 text-xs font-bold tracking-[0.28em] text-rose-200 shadow-[0_0_24px_rgba(244,63,94,0.12)]">
               <span className="h-1.5 w-1.5 rounded-full bg-rose-300 shadow-[0_0_12px_rgba(253,164,175,0.9)]" />
               配對你的命運靈魂伴侶
@@ -1533,10 +1533,10 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div className="home-core-panel relative flex flex-col items-center justify-center">
-            <div className="home-core-halo" aria-hidden="true" />
+          <div className="home-core-panel relative flex w-full max-w-[360px] flex-col items-center justify-center">
+            <div className="home-core-halo hidden" aria-hidden="true" />
             <VisualGravityCore />
-            <div className="home-command-panel mt-5 w-full">
+            <div className="home-command-panel hidden mt-5 w-full">
               <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
                 <span className="text-[10px] font-black uppercase tracking-[0.28em] text-cyan-200">Command Sync</span>
                 <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold tracking-[0.16em] text-emerald-200">
