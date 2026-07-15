@@ -2,11 +2,11 @@
 
 import { useRef, useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import VisualGravityCore from '@/components/VisualGravityCore';
 import PersonalityMusicFlow, { type MusicFormData } from '@/components/PersonalityMusicFlow';
 import PersonalityMusicReport from '@/components/PersonalityMusicReport';
 import NextStepGuide from '@/components/NextStepGuide';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
+import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 
 interface SongTrack {
   title: string;
@@ -135,30 +135,18 @@ function LandingHero({ onStart }: { onStart: () => void }) {
         }}
       />
 
-      <div
-        className="pointer-events-none absolute"
-        style={{
-          width: 'min(640px, 95vw)',
-          height: 'min(640px, 95vw)',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          opacity: 0.55,
-        }}
-      >
-        <VisualGravityCore />
-      </div>
-
       <div className="relative z-20 flex max-w-3xl flex-col items-center">
-        <div className="mb-8 inline-flex rounded-full border border-violet-400/35 bg-violet-500/10 px-5 py-1.5 text-xs font-semibold tracking-[0.35em] text-violet-200">
+        <TaijiStandaloneCard className="mb-8" />
+
+        <div className="hidden mb-8 rounded-full border border-violet-400/35 bg-violet-500/10 px-5 py-1.5 text-xs font-semibold tracking-[0.35em] text-violet-200">
           AI 人格音樂
         </div>
 
-        <h1 className="mystic-title font-serif text-5xl leading-tight sm:text-6xl lg:text-7xl">
+        <h1 className="hidden mystic-title font-serif text-5xl leading-tight sm:text-6xl lg:text-7xl">
           把你的性格<br />聽成一首歌
         </h1>
 
-        <p className="mt-8 max-w-2xl text-base leading-8 text-[color:var(--text-sub)]">
+        <p className="hidden mt-8 max-w-2xl text-base leading-8 text-[color:var(--text-sub)]">
           輸入生日、血型、姓名與聲音特徵，AI 會整理你的性格節奏與音樂風格，
           產出一份好懂的人格主題曲預覽。
         </p>
@@ -172,7 +160,7 @@ function LandingHero({ onStart }: { onStart: () => void }) {
           </Link>
         </div>
 
-        <div className="mt-14 grid grid-cols-3 gap-4">
+        <div className="hidden mt-14 grid grid-cols-3 gap-4">
           {[
             { label: '生日', desc: '抓出情緒底色', color: 'rgba(109,74,255,0.7)' },
             { label: '血型', desc: '補上表達節奏', color: 'rgba(201,162,74,0.7)' },
@@ -381,13 +369,11 @@ export default function MusicSystemPage() {
             </div>
 
             <div className="flex flex-col items-center justify-center gap-6">
-              <div style={{ width: 'min(380px, 90vw)', height: 'min(380px, 90vw)' }}>
-                <VisualGravityCore />
-              </div>
-              <p className="text-center text-xs tracking-widest text-[color:var(--text-muted)]">
+              <TaijiStandaloneCard />
+              <p className="hidden text-center text-xs tracking-widest text-[color:var(--text-muted)]">
                 正在校準你的音樂輪廓
               </p>
-              <div className="w-full max-w-sm space-y-3 text-xs text-[color:var(--text-muted)]">
+              <div className="hidden w-full max-w-sm space-y-3 text-xs text-[color:var(--text-muted)]">
                 {[
                   '年代音樂偏好',
                   '星座與人格節奏',

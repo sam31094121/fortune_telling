@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
-import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
+import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
 type ShichenChoice = number | 'unknown' | 'known' | null;
@@ -500,7 +500,7 @@ function InsightAnalyticalConsole({
 
         {/* 🔮 3D 命理太極公轉引力核心 */}
         <div className="flex justify-center items-center py-4 lg:py-0">
-          <VisualGravityCore />
+          <TaijiStandaloneCard />
         </div>
       </div>
     </div>
@@ -701,8 +701,8 @@ export default function InsightPage() {
 
         {!result ? (
           <>
-            <section className="mb-6 sm:mb-10 grid items-center gap-6 lg:gap-8 lg:grid-cols-[1fr_auto]">
-              <div>
+            <section className="mb-6 flex justify-center sm:mb-10">
+              <div className="hidden">
                 <div className="mb-4 inline-block rounded-full border border-cyan-400/20 bg-cyan-400/8 px-4 py-1 text-xs tracking-[0.35em] text-cyan-300">
                   AI 深度洞察
                 </div>
@@ -737,8 +737,8 @@ export default function InsightPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex justify-center lg:justify-end">
-                <VisualGravityCore />
+              <div className="flex w-full justify-center">
+                <TaijiStandaloneCard />
               </div>
             </section>
 

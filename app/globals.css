@@ -464,6 +464,54 @@ body {
   content: '';
 }
 
+.home-hero-stage.home-hero-stage--taiji-only {
+  overflow: visible;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.home-hero-stage.home-hero-stage--taiji-only::before,
+.home-hero-stage.home-hero-stage--taiji-only::after {
+  display: none;
+}
+
+.taiji-standalone-card {
+  position: relative;
+  display: flex;
+  width: min(23rem, 100%);
+  min-height: min(23rem, calc(100vw - 2rem));
+  align-items: center;
+  justify-content: center;
+  margin-inline: auto;
+  padding: clamp(0.5rem, 2.6vw, 1.25rem);
+  overflow: hidden;
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(34, 211, 238, 0.1), transparent 58%),
+    rgba(2, 6, 23, 0.62);
+  box-shadow:
+    0 0 34px rgba(34, 211, 238, 0.1),
+    inset 0 0 22px rgba(255, 255, 255, 0.035);
+  contain: layout paint;
+}
+
+.taiji-standalone-card > * {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+  .taiji-standalone-card {
+    width: min(21rem, 100%);
+    min-height: min(21rem, calc(100vw - 2rem));
+    border-radius: 22px;
+    padding: 0.35rem;
+    background: rgba(2, 6, 23, 0.48);
+  }
+}
+
 .home-feature-launch {
   min-height: 150px;
 }

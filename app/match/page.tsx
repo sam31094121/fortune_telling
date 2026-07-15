@@ -2,11 +2,11 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
-import VisualGravityCore from '@/components/VisualGravityCore';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
+import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 
 interface PersonInput {
   name: string;
@@ -418,8 +418,8 @@ export default function MatchPage() {
           <span className="text-xs tracking-widest text-rose-300">💕 配對</span>
         </div>
 
-        <section className="mb-10 grid items-center gap-8 lg:grid-cols-[1fr_auto]">
-          <div>
+        <section className="mb-10 flex justify-center">
+          <div className="hidden">
             <div className="mb-4 inline-block rounded-full border border-rose-400/20 bg-rose-400/8 px-4 py-1 text-xs tracking-[0.35em] text-rose-300">
               AI 緣分配對
             </div>
@@ -430,8 +430,8 @@ export default function MatchPage() {
               先填第一位，再填第二位，最後確認一次。AI 會整理共鳴、溝通、穩定與需要磨合的地方。
             </p>
           </div>
-          <div className="flex justify-center lg:justify-end">
-            <VisualGravityCore />
+          <div className="flex w-full justify-center">
+            <TaijiStandaloneCard />
           </div>
         </section>
 
