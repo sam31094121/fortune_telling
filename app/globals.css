@@ -100,6 +100,10 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+.number-fortune-panel .result-container {
+  min-height: auto;
+}
+
 @keyframes fade-result {
   from {
     opacity: 0;

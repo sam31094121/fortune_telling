@@ -2,7 +2,17 @@ export const NUMBER_CORE_ENGINE_VERSION = 'V5.0.0';
 
 export type NumberAnalysisMode = 'last4' | 'phone10';
 
-export type NumberFortuneLevel = '吉勢較強' | '偏吉' | '平衡穩定' | '需要留意' | '波動較高';
+export type NumberFortuneLevel =
+  | '大吉'
+  | '吉'
+  | '次吉'
+  | '吉中帶凶'
+  | '中平'
+  | '凶中帶吉'
+  | '平下'
+  | '凶'
+  | '大凶'
+  | '最凶';
 
 export type NumberMatrixKey =
   | 'wealth'
@@ -209,6 +219,107 @@ const DIRECTION_LABELS: Record<NumberMatrixKey, string> = {
   pressure: '壓力管理',
   stability: '穩定累積',
 };
+
+const FORTUNE_LEVEL_RULES: Array<{
+  min: number;
+  max: number;
+  level: NumberFortuneLevel;
+  headline: string;
+  principle: string;
+  adviceTone: string;
+  encouragement: string;
+}> = [
+  {
+    min: 90,
+    max: 100,
+    level: '大吉',
+    headline: '大展鴻圖，順勢成局。',
+    principle: '正向支撐非常集中，適合把握資源、擴大布局，但仍要守住節奏。',
+    adviceTone: '宜主動推進，將好條件落成長期成果。',
+    encouragement: '這組數字給你的提醒是：條件已經到位，接下來要靠紀律把機會真正接住。',
+  },
+  {
+    min: 80,
+    max: 89,
+    level: '吉',
+    headline: '名利有望，穩中有進。',
+    principle: '整體結構偏順，資源與行動配合度高，適合穩定累積。',
+    adviceTone: '宜持續耕耘，避免因過度樂觀而分散焦點。',
+    encouragement: '你不需要急著證明自己，只要照著正確方向持續推進，好運會慢慢變成成果。',
+  },
+  {
+    min: 70,
+    max: 79,
+    level: '次吉',
+    headline: '根基穩固，偶有波折。',
+    principle: '主體分數具支撐力，但仍有小型阻力，需要用紀律補強。',
+    adviceTone: '宜先穩根基，再逐步放大成果。',
+    encouragement: '次吉不是差，而是提醒你已經有底氣；只要不要貪快，這組數字適合靠穩定行動慢慢轉強。',
+  },
+  {
+    min: 60,
+    max: 69,
+    level: '吉中帶凶',
+    headline: '表面順勢，內有壓力。',
+    principle: '正向條件存在，但風險或壓力訊號同步抬頭，容易先順後緊。',
+    adviceTone: '宜先做風險控管，再談擴張與速度。',
+    encouragement: '這不是叫你退縮，而是提醒你先把風險看清楚；能穩住的人，後面反而更容易走長遠。',
+  },
+  {
+    min: 50,
+    max: 59,
+    level: '中平',
+    headline: '吉凶參半，成敗看取捨。',
+    principle: '結構不偏不倚，結果更依賴使用者的選擇、紀律與執行。',
+    adviceTone: '宜用穩定行動累積，不急著下重注。',
+    encouragement: '中平代表主導權回到你手上；選擇越清楚、行動越穩，分數背後的能量就越容易被帶起來。',
+  },
+  {
+    min: 40,
+    max: 49,
+    level: '凶中帶吉',
+    headline: '壓力較明，仍有轉機。',
+    principle: '阻力訊號高於支撐訊號，但仍保有可調整的方向。',
+    adviceTone: '宜先止損、修正節奏，再尋找可用資源。',
+    encouragement: '凶中帶吉的重點是轉念與修正；只要願意調整做法，低點也能變成重新開始的入口。',
+  },
+  {
+    min: 30,
+    max: 39,
+    level: '平下',
+    headline: '前進受阻，宜守不宜躁。',
+    principle: '穩定與支撐不足，容易因急進而放大阻礙。',
+    adviceTone: '宜保守配置，先把基礎補穩。',
+    encouragement: '現在最重要的不是衝刺，而是把基本盤顧好；穩住一步，就等於替下一次轉強鋪路。',
+  },
+  {
+    min: 20,
+    max: 29,
+    level: '凶',
+    headline: '波折較多，需避開硬衝。',
+    principle: '風險、壓力或失衡訊號偏高，短期不宜冒進。',
+    adviceTone: '宜降低槓桿、減少衝動決策，以穩守為先。',
+    encouragement: '分數偏低不代表沒有機會，而是提醒你先避開錯誤方向；能停下來修正，就是轉運的開始。',
+  },
+  {
+    min: 10,
+    max: 19,
+    level: '大凶',
+    headline: '阻力沉重，先求穩住。',
+    principle: '整體結構偏弱，容易遇到資源消耗或反覆受阻。',
+    adviceTone: '宜先整頓、保守、止損，不宜急著擴張。',
+    encouragement: '這組數字提醒你先保護自己；把消耗停下來，把心定下來，路才會重新清楚。',
+  },
+  {
+    min: 0,
+    max: 9,
+    level: '最凶',
+    headline: '萬事宜守，重在調整。',
+    principle: '此分段代表警示訊號最強，重點不是恐懼，而是立刻降低風險。',
+    adviceTone: '宜暫停重大決策，重新校準方向與資源配置。',
+    encouragement: '最凶不是終點，而是一個強烈提醒：先止損、先修心、先重整，越早調整越有機會翻盤。',
+  },
+];
 
 function clamp(value: number, min = 0, max = 100) {
   return Math.max(min, Math.min(max, value));
@@ -558,11 +669,11 @@ function confidenceFromEvidence(mode: NumberAnalysisMode, indexes: NumberAnalysi
 }
 
 function levelFromScore(score: number): NumberFortuneLevel {
-  if (score >= 85) return '吉勢較強';
-  if (score >= 75) return '偏吉';
-  if (score >= 65) return '平衡穩定';
-  if (score >= 50) return '需要留意';
-  return '波動較高';
+  return FORTUNE_LEVEL_RULES.find((rule) => score >= rule.min && score <= rule.max)?.level ?? '中平';
+}
+
+function levelRuleFromScore(score: number) {
+  return FORTUNE_LEVEL_RULES.find((rule) => score >= rule.min && score <= rule.max) ?? FORTUNE_LEVEL_RULES[4];
 }
 
 function topDimensions(matrix: NumberAnalysisMatrix, keys: NumberMatrixKey[], count: number) {
@@ -577,18 +688,25 @@ function maskNumberValue(value: string, mode: NumberAnalysisMode) {
   return value;
 }
 
-function buildText(value: string, mode: NumberAnalysisMode, score: number, level: NumberFortuneLevel, matrix: NumberAnalysisMatrix, indexes: NumberAnalysisIndexes, confidenceScore: number) {
-  const strengths = topDimensions(matrix, ['wealth', 'career', 'love', 'family', 'social', 'health', 'growth', 'stability'], 3);
-  const cautions = topDimensions(matrix, ['risk', 'pressure'], 2);
+function buildText(value: string, mode: NumberAnalysisMode, score: number, level: NumberFortuneLevel, matrix: NumberAnalysisMatrix, indexes: NumberAnalysisIndexes) {
+  const strengths = topDimensions(matrix, ['wealth', 'career', 'love', 'family', 'social', 'health', 'growth', 'stability'], 2);
+  const cautions = topDimensions(matrix, ['risk', 'pressure'], 1);
   const directions = strengths.map((item) => item.label);
   const subject = mode === 'phone10' ? `十位數字 ${maskNumberValue(value, mode)}` : `後四碼 ${value}`;
+  const rule = levelRuleFromScore(score);
+  const keyStrength = strengths[0]?.label ?? '整體結構';
+  const keyCaution = cautions[0]?.label ?? '節奏管理';
+  const scorePrinciple = mode === 'phone10'
+    ? '十碼模式加重後四碼與三段結構，並交叉檢查全碼統計、重複排列與數字根。'
+    : '後四碼模式以單碼、雙碼、三碼、整體組合、重複排列與數字根加權。';
+  const levelExplanation = `${score} 分屬於「${level}」，代表目前數字結構的主軸是「${rule.headline}」${rule.principle}`;
 
   return {
     strengths: strengths.map((item) => `${item.label} ${item.value}`),
     cautions: cautions.map((item) => `${item.label} ${item.value}`),
     suitableDirections: directions,
-    summary: `${subject} 由 Number Core Engine ${NUMBER_CORE_ENGINE_VERSION} 統一運算，綜合分數 ${score}，屬於「${level}」傾向。主要優勢集中在${directions.join('、')}，分析可信度 ${confidenceScore}。`,
-    advice: `建議優先用在${directions.slice(0, 2).join('與')}相關情境，並留意${cautions.map((item) => item.label).join('與')}。本次依據結構 ${indexes.structure}、平衡 ${indexes.balance}、組合 ${indexes.pattern}、穩定 ${indexes.stability}、趨勢 ${indexes.trend} 五項指標生成，僅作為方向參考。`,
+    summary: `${subject} 的要害分數為 ${score} 分，級別為「${level}」。分析解說：${levelExplanation}`,
+    advice: `計分原則：${scorePrinciple}系統會把結構、平衡、組合、穩定、趨勢五項合成一個總分，因此前端只呈現一個要害分數。本次最值得把握的是${keyStrength}，最需要留意的是${keyCaution}。建議：${rule.adviceTone}鼓勵：${rule.encouragement}此結果屬數字結構傾向分析，作為調整方向參考。`,
   };
 }
 
@@ -695,7 +813,7 @@ export function analyzeNumberCore(value: string): NumberAnalysisResponse | Numbe
   const score = scoreFromIndexes(indexes);
   const level = levelFromScore(score);
   const confidenceScore = confidenceFromEvidence(mode, indexes, evidence);
-  const text = buildText(value, mode, score, level, matrix, indexes, confidenceScore);
+  const text = buildText(value, mode, score, level, matrix, indexes);
   const valueMasked = maskNumberValue(value, mode);
 
   return {

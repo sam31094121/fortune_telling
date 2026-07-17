@@ -280,11 +280,11 @@ function NumberTicker({ value }: { value: number }) {
 }
 
 function getNumberFortuneAura(level?: string) {
-  if (level === '高正向') {
+  if (level === '大吉' || level === '吉' || level === '次吉') {
     return {
       stage: 24,
-      label: '24 階高正向光場',
-      blessing: '高正向光場已開啟，數字結構呈現強支撐傾向。',
+      label: '24 階吉勢光場',
+      blessing: '吉勢光場已開啟，數字結構呈現較強支撐。',
       taijiClass:
         'border-amber-200/70 shadow-[0_0_34px_rgba(253,230,138,0.78),0_0_90px_rgba(245,158,11,0.52),0_0_150px_rgba(255,255,255,0.22)]',
       resultClass:
@@ -294,11 +294,11 @@ function getNumberFortuneAura(level?: string) {
     } as const;
   }
 
-  if (level === '偏正向') {
+  if (level === '吉中帶凶' || level === '中平' || level === '凶中帶吉') {
     return {
       stage: 12,
-      label: '12 階偏正向光場',
-      blessing: '偏正向光場已開啟，核心矩陣支撐度良好。',
+      label: '12 階轉化光場',
+      blessing: '轉化光場已開啟，重點在把順勢與阻力分清楚。',
       taijiClass:
         'border-emerald-300/60 shadow-[0_0_30px_rgba(52,211,153,0.48),0_0_76px_rgba(34,211,238,0.26)]',
       resultClass:
@@ -308,11 +308,11 @@ function getNumberFortuneAura(level?: string) {
     } as const;
   }
 
-  if (level === '穩定') {
+  if (level === '平下' || level === '凶' || level === '大凶' || level === '最凶') {
     return {
       stage: 3,
-      label: '3 階穩定光場',
-      blessing: '穩定光場已亮起，數字結構偏向平衡與承載。',
+      label: '3 階守成光場',
+      blessing: '守成光場已亮起，重點在降低風險、先穩住節奏。',
       taijiClass:
         'border-cyan-300/55 shadow-[0_0_24px_rgba(34,211,238,0.42),0_0_60px_rgba(139,92,246,0.2)]',
       resultClass:
@@ -2608,91 +2608,23 @@ export default function HomePage() {
 
                 <div className="h-px bg-cyan-500/10" />
 
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-2xl border border-cyan-300/15 bg-slate-950/35 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-300">綜合分數</p>
-                    <p className="mt-2 font-mono text-4xl font-black text-cyan-100">
-                      {fortuneResult.finalScore}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-amber-300/15 bg-slate-950/35 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-300">結果分級</p>
-                    <p className="mt-3 text-xl font-black text-amber-100">{fortuneResult.level}</p>
-                    <p className="mt-1 text-[10px] text-[color:var(--text-muted)]">規則版本 {fortuneResult.ruleVersion}</p>
-                  </div>
-                  <div className="rounded-2xl border border-emerald-300/15 bg-slate-950/35 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300">分析可信度</p>
-                    <p className="mt-2 font-mono text-4xl font-black text-emerald-100">
-                      {fortuneResult.confidenceScore}
-                    </p>
-                  </div>
+                <div className="rounded-2xl border border-cyan-300/15 bg-slate-950/35 p-5 text-center">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-300">要害分數</p>
+                  <p className="mt-3 font-mono text-6xl font-black leading-none text-cyan-100">
+                    {fortuneResult.finalScore}
+                  </p>
+                  <p className="mt-3 text-2xl font-black text-amber-100">{fortuneResult.level}</p>
+                  <p className="mt-2 text-[10px] text-[color:var(--text-muted)]">
+                    10 級吉凶分級 · 規則版本 {fortuneResult.ruleVersion}
+                  </p>
                 </div>
 
                 <div className="h-px bg-cyan-500/10" />
 
-                <div className="grid grid-cols-2 gap-2 text-[10px] leading-5 sm:grid-cols-5">
-                  {[
-                    ['結構', fortuneResult.indexes.structure],
-                    ['平衡', fortuneResult.indexes.balance],
-                    ['組合', fortuneResult.indexes.pattern],
-                    ['穩定', fortuneResult.indexes.stability],
-                    ['趨勢', fortuneResult.indexes.trend],
-                  ].map(([label, value]) => (
-                    <div key={label} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-                      <p className="text-[color:var(--text-muted)]">{label}</p>
-                      <p className="font-mono text-sm font-black text-cyan-100">{value}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="h-px bg-cyan-500/10" />
-
-                <div className="grid gap-4 sm:grid-cols-2 text-xs leading-6">
-                  <div>
-                    <p className="font-semibold text-cyan-300">主要優勢</p>
-                    <div className="mt-2 space-y-2">
-                      {fortuneResult.strengths.map((item) => (
-                        <div key={item} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-cyan-100">
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="font-semibold text-amber-300">需要留意</p>
-                    <div className="mt-2 space-y-2">
-                      {fortuneResult.cautions.map((item) => (
-                        <div key={item} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-amber-100">
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="h-px bg-cyan-500/10" />
-
-                {fortuneResult.suitableDirections.length > 0 && (
-                  <>
-                    <div className="h-px bg-cyan-500/10" />
-                    <div className="text-xs leading-6">
-                      <p className="font-semibold text-cyan-300">適合方向</p>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {fortuneResult.suitableDirections.map((item) => (
-                          <span key={item} className="rounded-full border border-cyan-300/15 bg-cyan-500/10 px-3 py-1 text-cyan-100">
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                <div className="text-xs leading-6">
-                  <p className="font-semibold text-cyan-300">參考建議</p>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-7">
+                  <p className="font-semibold text-cyan-300">分析解說・建議鼓勵</p>
                   <p className="mt-2 text-[color:var(--text-sub)]">{fortuneResult.summary}</p>
-                  <p className="mt-2 text-[color:var(--text-muted)]">{fortuneResult.advice}</p>
+                  <p className="mt-3 text-xs leading-6 text-[color:var(--text-muted)]">{fortuneResult.advice}</p>
                 </div>
               </div>
             )}
