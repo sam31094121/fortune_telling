@@ -1,7 +1,7 @@
 'use client';
 
 import type { ChangeEvent } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { normalizeCalendarInput, solarToLunarParts } from '@/lib/lunar-calendar';
 
 interface LunarBirthdayInputProps {
@@ -28,6 +28,74 @@ function onlyDigits(value: string) {
   return value.replace(/\D/g, '');
 }
 
+function toHalfWidthDigits(value: string) {
+  return value.replace(/[０-９]/g, (char) => String(char.charCodeAt(0) - 0xff10));
+}
+
+function normalizeRocYear(year: number) {
+  return year >= 1912 ? year - 1911 : year;
+}
+
+function buildFriendlyDateParts(year: number, month: number, day: number) {
+  const rocYear = normalizeRocYear(year);
+  const maxRocYear = new Date().getFullYear() - 1911;
+  if (!Number.isInteger(rocYear) || !Number.isInteger(month) || !Number.isInteger(day)) return null;
+  if (rocYear <= 0 || rocYear > maxRocYear || month < 1 || month > 12 || day < 1 || day > 31) return null;
+
+  return {
+    rocYear: String(rocYear),
+    month: String(month),
+    day: String(day),
+  };
+}
+
+function parseCompactDateDigits(digits: string) {
+  const candidates: Array<[number, number, number]> = [];
+
+  if (digits.length === 8) {
+    candidates.push([Number(digits.slice(0, 4)), Number(digits.slice(4, 6)), Number(digits.slice(6, 8))]);
+  }
+
+  if (digits.length === 7) {
+    candidates.push([Number(digits.slice(0, 3)), Number(digits.slice(3, 5)), Number(digits.slice(5, 7))]);
+    candidates.push([Number(digits.slice(0, 4)), Number(digits.slice(4, 5)), Number(digits.slice(5, 7))]);
+  }
+
+  if (digits.length === 6) {
+    candidates.push([Number(digits.slice(0, 3)), Number(digits.slice(3, 4)), Number(digits.slice(4, 6))]);
+    candidates.push([Number(digits.slice(0, 2)), Number(digits.slice(2, 4)), Number(digits.slice(4, 6))]);
+  }
+
+  if (digits.length === 5) {
+    candidates.push([Number(digits.slice(0, 2)), Number(digits.slice(2, 3)), Number(digits.slice(3, 5))]);
+    candidates.push([Number(digits.slice(0, 1)), Number(digits.slice(1, 3)), Number(digits.slice(3, 5))]);
+  }
+
+  for (const [year, month, day] of candidates) {
+    const parsed = buildFriendlyDateParts(year, month, day);
+    if (parsed) return parsed;
+  }
+
+  return null;
+}
+
+function parseFriendlyBirthdayInput(value: string) {
+  const normalized = toHalfWidthDigits(value).trim();
+  if (!normalized) return null;
+
+  const groups = normalized.match(/\d+/g)?.map(Number) ?? [];
+  if (groups.length >= 3) {
+    return buildFriendlyDateParts(groups[0], groups[1], groups[2]);
+  }
+
+  const digits = onlyDigits(normalized);
+  if (digits.length >= 5) {
+    return parseCompactDateDigits(digits);
+  }
+
+  return null;
+}
+
 function formatLunarDate(lunar: { rocYear: number; month: number; day: number; isLeapMonth?: boolean }) {
   const lunarMonthName = LUNAR_MONTH_NAMES[lunar.month] || `${lunar.month}`;
   const lunarDayName = LUNAR_DAY_NAMES[lunar.day] || `${lunar.day}日`;
@@ -47,6 +115,8 @@ export default function LunarBirthdayInput({
   const [day, setDay] = useState('');
   const [isLeapMonth, setIsLeapMonth] = useState(false);
   const [message, setMessage] = useState('');
+  const [quickDateInput, setQuickDateInput] = useState('');
+  const friendlyInputId = useId();
   const lastEmittedRef = useRef('');
 
   const todayHint = useMemo(() => {
@@ -87,8 +157,31 @@ export default function LunarBirthdayInput({
     return '萬年曆已推算完成。';
   }, [hasCompleteDate, mode, normalizedCalendar]);
 
+  const applyFriendlyDateInput = (rawValue: string) => {
+    const parsed = parseFriendlyBirthdayInput(rawValue);
+    if (!parsed) return false;
+
+    setRocYear(parsed.rocYear);
+    setMonth(parsed.month);
+    setDay(parsed.day);
+    setMessage('已自動拆解生日，請確認下方換算結果。');
+    return true;
+  };
+
+  const handleQuickDateInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const rawValue = event.target.value;
+    setQuickDateInput(rawValue);
+    applyFriendlyDateInput(rawValue);
+  };
+
   const handleNumberInput = (setter: (next: string) => void) => (event: ChangeEvent<HTMLInputElement>) => {
-    setter(onlyDigits(event.target.value));
+    const rawValue = event.target.value;
+    if (applyFriendlyDateInput(rawValue)) {
+      setQuickDateInput(rawValue);
+      return;
+    }
+
+    setter(onlyDigits(rawValue));
   };
 
   // 切換模式時，清空當前輸入
@@ -99,6 +192,7 @@ export default function LunarBirthdayInput({
     setDay('');
     setIsLeapMonth(false);
     setMessage('');
+    setQuickDateInput('');
     onChange('');
     lastEmittedRef.current = '';
   };
@@ -191,6 +285,25 @@ export default function LunarBirthdayInput({
       </div>
 
       {/* 輸入區 */}
+      <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-3">
+        <label className="mb-2 block text-xs font-semibold text-cyan-100" htmlFor={friendlyInputId}>
+          手機快速輸入
+        </label>
+        <input
+          id={friendlyInputId}
+          inputMode="text"
+          type="text"
+          value={quickDateInput}
+          disabled={disabled}
+          onChange={handleQuickDateInput}
+          placeholder="例如：63年6月28、63/6/28、630628"
+          className={`w-full form-input glass-input text-base ${['cyan', 'violet'].includes(accent) ? 'glass-input-cyan' : ''}`}
+        />
+        <p className="mt-2 text-[11px] leading-5 text-[color:var(--text-muted)]">
+          手機可直接輸入整段生日，系統會自動拆成年、月、日再推算。
+        </p>
+      </div>
+
       <div className="grid grid-cols-3 gap-3">
         <div className="relative">
           <input
