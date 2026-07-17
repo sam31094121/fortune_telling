@@ -12,7 +12,6 @@ export function injectPerformanceCSS() {
       will-change: contents;
     }
 
-    .app-bg,
     .mystic-title,
     .fortune-card,
     .vip-gold-card,

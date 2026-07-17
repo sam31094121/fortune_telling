@@ -2387,8 +2387,8 @@ export default function HomePage() {
 
       {/* 數字論吉凶 Modal 彈窗 */}
       {isFortuneModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in font-sans">
-          <div className="relative w-full max-w-2xl rounded-3xl border border-cyan-500/30 bg-slate-900/95 p-6 sm:p-8 shadow-[0_0_50px_rgba(34,211,238,0.25)] max-h-[90vh] overflow-y-auto">
+        <div className="number-fortune-modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in font-sans">
+          <div className="number-fortune-panel relative w-full max-w-2xl rounded-3xl border border-cyan-500/30 bg-slate-900/95 p-6 sm:p-8 shadow-[0_0_50px_rgba(34,211,238,0.25)] max-h-[90vh] overflow-y-auto">
             
             {/* 關閉按鈕 */}
             <button
@@ -2407,7 +2407,7 @@ export default function HomePage() {
             </button>
 
             {/* Modal 頂部立體優美太極圖案 (升級版) - 帶點擊爆發音效與大悲咒彩蛋功能 */}
-            <div className="mb-8 flex flex-col items-center justify-center">
+            <div className="number-fortune-taiji-wrap mb-8 flex flex-col items-center justify-center">
               <button
                 type="button"
                 onClick={handleModalTaiChiClick}
@@ -2518,7 +2518,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="mb-6">
+            <div className="number-fortune-intro mb-6">
               <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">☯️ 數字結構統計分析</p>
               <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">數字能量傾向分析</h3>
               <p className="mt-2 text-xs leading-5 text-[color:var(--text-muted)]">

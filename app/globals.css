@@ -75,6 +75,31 @@ body {
   animation: fade-result 280ms ease-out;
 }
 
+.number-fortune-modal {
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+@supports (height: 100svh) {
+  .number-fortune-modal {
+    height: 100svh;
+    min-height: 100svh;
+  }
+}
+
+@supports (height: 100dvh) {
+  .number-fortune-modal {
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+}
+
+.number-fortune-panel {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 @keyframes fade-result {
   from {
     opacity: 0;
@@ -100,6 +125,43 @@ body {
 
   .result-container {
     min-height: 360px;
+  }
+
+  .number-fortune-modal {
+    align-items: flex-start;
+    padding: max(0.75rem, env(safe-area-inset-top)) 0.75rem max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .number-fortune-panel {
+    max-height: calc(100vh - 1.5rem);
+    border-radius: 1.5rem;
+    padding: 1rem;
+  }
+
+  @supports (height: 100svh) {
+    .number-fortune-panel {
+      max-height: calc(100svh - 1.5rem);
+    }
+  }
+
+  @supports (height: 100dvh) {
+    .number-fortune-panel {
+      max-height: calc(100dvh - 1.5rem);
+    }
+  }
+
+  .number-fortune-taiji-wrap {
+    margin-bottom: 1rem;
+  }
+
+  .number-fortune-taiji-wrap > p {
+    margin-top: 1rem;
+    min-height: 1.5rem;
+    letter-spacing: 0.12em;
+  }
+
+  .number-fortune-intro {
+    margin-bottom: 1rem;
   }
 }
 
