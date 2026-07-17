@@ -1,4 +1,6 @@
-﻿export interface LunarInput {
+import { SolarTime } from 'tyme4ts';
+
+export interface LunarInput {
   rocYear: number;
   month: number;
   day: number;
@@ -60,18 +62,51 @@ function toIsoDate(date: Date) {
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
 }
 
+function createNoonDate(gregorianYear: number, month: number, day: number) {
+  return new Date(gregorianYear, month - 1, day, 12, 0, 0);
+}
+
+function isValidSolarDateParts(gregorianYear: number, month: number, day: number) {
+  const date = createNoonDate(gregorianYear, month, day);
+
+  return (
+    !Number.isNaN(date.getTime())
+    && date.getFullYear() === gregorianYear
+    && date.getMonth() === month - 1
+    && date.getDate() === day
+  );
+}
+
+function solarToLunarPartsByCore(gregorianYear: number, month: number, day: number): LunarParts | null {
+  try {
+    const lunarHour = SolarTime.fromYmdHms(gregorianYear, month, day, 12, 0, 0).getLunarHour();
+    const lunarDay = lunarHour.getLunarDay();
+    const lunarMonth = lunarDay.getLunarMonth();
+    const lunarYear = lunarMonth.getLunarYear();
+    const lunarGregorianYear = lunarYear.getYear();
+    const lunarMonthNumber = Math.abs(lunarMonth.getMonth());
+    const lunarDayNumber = lunarDay.getDay();
+
+    if (!lunarGregorianYear || !lunarMonthNumber || !lunarDayNumber) return null;
+
+    return {
+      gregorianYear: lunarGregorianYear,
+      rocYear: lunarGregorianYear - 1911,
+      month: lunarMonthNumber,
+      day: lunarDayNumber,
+      isLeapMonth: lunarMonth.isLeap(),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function resolveRocSolarDate(rocYear: number, month: number, day: number) {
   const gregorianYear = rocYear + 1911;
   if (rocYear <= 0 || month < 1 || month > 12 || day < 1 || day > 31) return null;
+  if (!isValidSolarDateParts(gregorianYear, month, day)) return null;
 
-  const date = new Date(gregorianYear, month - 1, day);
-  if (
-    date.getFullYear() !== gregorianYear
-    || date.getMonth() !== month - 1
-    || date.getDate() !== day
-  ) return null;
-
-  return toIsoDate(date);
+  return toIsoDate(createNoonDate(gregorianYear, month, day));
 }
 
 function getPartValue(parts: Intl.DateTimeFormatPart[], type: string) {
@@ -89,33 +124,38 @@ function normalizeMonth(rawMonth: string) {
   };
 }
 
+function solarToLunarPartsByIntl(gregorianYear: number, month: number, day: number): LunarParts | null {
+  try {
+    const parts = lunarFormatter.formatToParts(createNoonDate(gregorianYear, month, day));
+    const relatedYear = Number(getPartValue(parts, 'relatedYear') || NaN);
+    const rawMonth = getPartValue(parts, 'month');
+    const lunarDay = Number(getPartValue(parts, 'day') || NaN);
+    const lunarMonth = normalizeMonth(rawMonth);
+
+    if (!relatedYear || !lunarMonth.month || !lunarDay) return null;
+
+    return {
+      gregorianYear: relatedYear,
+      rocYear: relatedYear - 1911,
+      month: lunarMonth.month,
+      day: lunarDay,
+      isLeapMonth: lunarMonth.isLeapMonth,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function solarToLunarParts(solarDate: string): LunarParts | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(solarDate)) return null;
 
-  const date = new Date(`${solarDate}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return null;
   const [solarYear, solarMonth, solarDay] = solarDate.split('-').map(Number);
-  if (
-    date.getFullYear() !== solarYear
-    || date.getMonth() !== solarMonth - 1
-    || date.getDate() !== solarDay
-  ) return null;
+  if (!isValidSolarDateParts(solarYear, solarMonth, solarDay)) return null;
 
-  const parts = lunarFormatter.formatToParts(date);
-  const relatedYear = Number(getPartValue(parts, 'relatedYear') || NaN);
-  const rawMonth = getPartValue(parts, 'month');
-  const day = Number(getPartValue(parts, 'day') || NaN);
-  const { month, isLeapMonth } = normalizeMonth(rawMonth);
-
-  if (!relatedYear || !month || !day) return null;
-
-  return {
-    gregorianYear: relatedYear,
-    rocYear: relatedYear - 1911,
-    month,
-    day,
-    isLeapMonth,
-  };
+  return (
+    solarToLunarPartsByCore(solarYear, solarMonth, solarDay)
+    ?? solarToLunarPartsByIntl(solarYear, solarMonth, solarDay)
+  );
 }
 
 export function lunarToSolar(input: LunarInput): LunarResolved | null {
@@ -125,21 +165,17 @@ export function lunarToSolar(input: LunarInput): LunarResolved | null {
     return null;
   }
 
-  const start = new Date(gregorianYear, 0, 1);
-  const end = new Date(gregorianYear + 1, 2, 1);
+  const start = new Date(gregorianYear, 0, 1, 12, 0, 0);
+  const end = new Date(gregorianYear + 1, 2, 1, 12, 0, 0);
 
   for (let cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
-    const parts = lunarFormatter.formatToParts(cursor);
-    const relatedYear = Number(getPartValue(parts, 'relatedYear') || NaN);
-    const rawMonth = getPartValue(parts, 'month');
-    const day = Number(getPartValue(parts, 'day') || NaN);
-    const { month, isLeapMonth } = normalizeMonth(rawMonth);
+    const lunar = solarToLunarParts(toIsoDate(cursor));
 
     if (
-      relatedYear === gregorianYear &&
-      month === input.month &&
-      day === input.day &&
-      Boolean(isLeapMonth) === Boolean(input.isLeapMonth)
+      lunar?.gregorianYear === gregorianYear
+      && lunar.month === input.month
+      && lunar.day === input.day
+      && Boolean(lunar.isLeapMonth) === Boolean(input.isLeapMonth)
     ) {
       return {
         solarDate: toIsoDate(cursor),
@@ -153,7 +189,7 @@ export function lunarToSolar(input: LunarInput): LunarResolved | null {
 
 export function normalizeCalendarInput(
   mode: CalendarInputMode,
-  input: LunarInput
+  input: LunarInput,
 ): NormalizedCalendarResult | null {
   if (!Number.isFinite(input.rocYear) || !Number.isFinite(input.month) || !Number.isFinite(input.day)) {
     return null;
