@@ -85,6 +85,28 @@ function createVisitId() {
   });
 }
 
+function isHiddenClassName(className: string) {
+  return className.split(/\s+/).includes('hidden');
+}
+
+function isMobileOrSocialBrowser() {
+  if (typeof window === 'undefined') return false;
+
+  const mobileDevice = window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
+  const userAgent = navigator.userAgent.toLowerCase();
+  const socialBrowser = /line|fbav|fb_iab|fban|instagram|micromessenger/.test(userAgent);
+
+  return mobileDevice || socialBrowser;
+}
+
+function getCounterStartDelayMs(deferMs: number) {
+  return Math.max(deferMs, isMobileOrSocialBrowser() ? 2500 : 0);
+}
+
+function getCounterSyncIntervalMs() {
+  return isMobileOrSocialBrowser() ? 180_000 : BACKEND_SYNC_INTERVAL_MS;
+}
+
 export default function FeatureVisitorCounter({
   featureKey,
   className = '',
@@ -100,6 +122,7 @@ export default function FeatureVisitorCounter({
   const cardRef = useRef<HTMLElement>(null);
   const didRecord = useRef(false);
   const visitId = useRef<string | null>(null);
+  const hiddenCounter = isHiddenClassName(className);
 
   const commitDisplayCount = useCallback(
     (nextDisplayCount: number | ((currentCount: number) => number)) => {
@@ -126,6 +149,8 @@ export default function FeatureVisitorCounter({
   }, [commitDisplayCount, featureKey]);
 
   useEffect(() => {
+    if (hiddenCounter) return;
+
     let lastTickAt = Date.now();
     let timeoutId: number | undefined;
 
@@ -172,9 +197,11 @@ export default function FeatureVisitorCounter({
       document.removeEventListener('visibilitychange', handlePageVisible);
       window.removeEventListener('focus', applyElapsedIncrement);
     };
-  }, [commitDisplayCount]);
+  }, [commitDisplayCount, hiddenCounter]);
 
   useEffect(() => {
+    if (hiddenCounter) return;
+
     const controller = new AbortController();
     let mounted = true;
     let intervalId: number | undefined;
@@ -202,11 +229,13 @@ export default function FeatureVisitorCounter({
     function startSync() {
       if (!mounted) return;
       void syncDisplayCount();
-      intervalId = window.setInterval(syncDisplayCount, BACKEND_SYNC_INTERVAL_MS);
+      intervalId = window.setInterval(syncDisplayCount, getCounterSyncIntervalMs());
     }
 
-    if (deferMs > 0) {
-      startTimerId = window.setTimeout(startSync, deferMs);
+    const effectiveDeferMs = getCounterStartDelayMs(deferMs);
+
+    if (effectiveDeferMs > 0) {
+      startTimerId = window.setTimeout(startSync, effectiveDeferMs);
     } else {
       startSync();
     }
@@ -219,9 +248,11 @@ export default function FeatureVisitorCounter({
       if (intervalId !== undefined) window.clearInterval(intervalId);
       window.removeEventListener('focus', syncDisplayCount);
     };
-  }, [commitDisplayCount, deferMs, featureKey]);
+  }, [commitDisplayCount, deferMs, featureKey, hiddenCounter]);
 
   useEffect(() => {
+    if (hiddenCounter) return;
+
     const controller = new AbortController();
     let startTimerId: number | undefined;
 
@@ -249,9 +280,11 @@ export default function FeatureVisitorCounter({
       }
     }
 
+    const effectiveDeferMs = getCounterStartDelayMs(deferMs);
+
     if (!trackWhenVisible || typeof IntersectionObserver === 'undefined' || !cardRef.current) {
-      if (deferMs > 0) {
-        startTimerId = window.setTimeout(() => void recordFeatureVisit(), deferMs);
+      if (effectiveDeferMs > 0) {
+        startTimerId = window.setTimeout(() => void recordFeatureVisit(), effectiveDeferMs);
       } else {
         void recordFeatureVisit();
       }
@@ -278,7 +311,7 @@ export default function FeatureVisitorCounter({
       if (startTimerId !== undefined) window.clearTimeout(startTimerId);
       controller.abort();
     };
-  }, [commitDisplayCount, deferMs, featureKey, trackWhenVisible]);
+  }, [commitDisplayCount, deferMs, featureKey, hiddenCounter, trackWhenVisible]);
 
   return (
     <aside
