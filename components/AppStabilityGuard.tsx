@@ -29,6 +29,7 @@ export default function AppStabilityGuard() {
 
     const body = document.body;
     const mobileMedia = window.matchMedia('(max-width: 768px), (pointer: coarse)');
+    const reducedMotionMedia = window.matchMedia('(prefers-reduced-motion: reduce)');
     const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
     const connection = (navigator as Navigator & { connection?: NetworkInformationLike }).connection;
     const userAgent = navigator.userAgent.toLowerCase();
@@ -42,10 +43,14 @@ export default function AppStabilityGuard() {
       const effectiveType = connection?.effectiveType ?? '';
       const slowNetwork = effectiveType === 'slow-2g' || effectiveType === '2g';
       const mobileDevice = mobileMedia.matches;
-      const lowPowerDevice = mobileDevice || limitedCpu || limitedMemory || saveData || slowNetwork;
+      const reducedMotion = reducedMotionMedia.matches;
+      const smallScreen = window.innerWidth <= 430;
+      const lowPowerDevice = mobileDevice || limitedCpu || limitedMemory || saveData || slowNetwork || reducedMotion;
 
       body.classList.toggle('app-mobile-device', mobileDevice);
+      body.classList.toggle('app-small-screen', smallScreen);
       body.classList.toggle('app-social-browser', socialBrowser);
+      body.classList.toggle('app-reduced-motion', reducedMotion);
       body.classList.toggle('app-low-power-device', lowPowerDevice);
       body.classList.toggle('app-lite-effects', lowPowerDevice || socialBrowser);
     };
@@ -95,6 +100,22 @@ export default function AppStabilityGuard() {
       }
     };
 
+    const addReducedMotionListener = () => {
+      if (typeof reducedMotionMedia.addEventListener === 'function') {
+        reducedMotionMedia.addEventListener('change', schedulePerformanceModeUpdate);
+      } else {
+        reducedMotionMedia.addListener(schedulePerformanceModeUpdate);
+      }
+    };
+
+    const removeReducedMotionListener = () => {
+      if (typeof reducedMotionMedia.removeEventListener === 'function') {
+        reducedMotionMedia.removeEventListener('change', schedulePerformanceModeUpdate);
+      } else {
+        reducedMotionMedia.removeListener(schedulePerformanceModeUpdate);
+      }
+    };
+
     const addConnectionListener = () => {
       connection?.addEventListener?.('change', schedulePerformanceModeUpdate);
     };
@@ -111,6 +132,7 @@ export default function AppStabilityGuard() {
     window.addEventListener('resize', schedulePerformanceModeUpdate);
     document.addEventListener('visibilitychange', updatePageVisibility);
     addMobileMediaListener();
+    addReducedMotionListener();
     addConnectionListener();
 
     return () => {
@@ -121,10 +143,13 @@ export default function AppStabilityGuard() {
       window.removeEventListener('resize', schedulePerformanceModeUpdate);
       document.removeEventListener('visibilitychange', updatePageVisibility);
       removeMobileMediaListener();
+      removeReducedMotionListener();
       removeConnectionListener();
       body.classList.remove('app-page-hidden');
       body.classList.remove('app-mobile-device');
+      body.classList.remove('app-small-screen');
       body.classList.remove('app-social-browser');
+      body.classList.remove('app-reduced-motion');
       body.classList.remove('app-low-power-device');
       body.classList.remove('app-lite-effects');
     };

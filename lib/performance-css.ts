@@ -9,7 +9,7 @@ export function injectPerformanceCSS() {
       max-width: 100%;
       transform: translateZ(0);
       backface-visibility: hidden;
-      will-change: contents;
+      contain: layout paint;
     }
 
     html {
@@ -61,6 +61,15 @@ export function injectPerformanceCSS() {
       display: none !important;
     }
 
+    body.app-page-hidden *,
+    body.app-reduced-motion * {
+      animation-play-state: paused !important;
+    }
+
+    body.app-page-hidden * {
+      transition: none !important;
+    }
+
     body.app-lite-effects .starfield,
     body.app-lite-effects .starfield::before {
       animation-duration: 32s !important;
@@ -79,6 +88,51 @@ export function injectPerformanceCSS() {
       animation-duration: 4.8s !important;
     }
 
+    body.app-lite-effects .taiji-celestial-mist,
+    body.app-lite-effects .taiji-celestial-wisp,
+    body.app-lite-effects .modal-taiji-natural-bloom {
+      opacity: 0.34 !important;
+      filter: none !important;
+    }
+
+    body.app-lite-effects .modal-evolution-rays .modal-energy-ray:nth-child(n+9),
+    body.app-lite-effects .taiji-gold-waves .taiji-gold-wave:nth-child(n+3) {
+      display: none !important;
+    }
+
+    body.app-lite-effects .modal-evolution-flare,
+    body.app-lite-effects .modal-evolution-scan,
+    body.app-lite-effects .modal-evolution-breath,
+    body.app-lite-effects .unified-evolution-pulse,
+    body.app-lite-effects .unified-evolution-screen {
+      filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    body.app-lite-effects .modal-taiji-orbit-emblem,
+    body.app-lite-effects .modal-taiji-3d-core,
+    body.app-lite-effects .unified-bagua-mandala,
+    body.app-lite-effects .modal-bagua-node,
+    body.app-lite-effects .modal-sixiang-node,
+    body.app-lite-effects .modal-liangyi-node {
+      will-change: transform, opacity;
+    }
+
+    body.app-lite-effects .fortune-card,
+    body.app-lite-effects .vip-gold-card,
+    body.app-lite-effects .taiji-standalone-card,
+    body.app-lite-effects [data-visitor-counter] {
+      filter: none !important;
+      text-shadow: none !important;
+    }
+
+    body.app-small-screen .fortune-card,
+    body.app-small-screen .vip-gold-card,
+    body.app-small-screen [data-visitor-counter] {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
+    }
+
     body.app-social-browser .fortune-card,
     body.app-social-browser .vip-gold-card,
     body.app-social-browser [data-visitor-counter],
@@ -91,6 +145,12 @@ export function injectPerformanceCSS() {
       .fortune-card,
       .vip-gold-card {
         contain: layout paint;
+      }
+
+      .fortune-card,
+      .vip-gold-card {
+        content-visibility: auto;
+        contain-intrinsic-size: 1px 680px;
       }
 
       .constellation-ring-bottom {

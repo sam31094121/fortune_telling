@@ -20,6 +20,7 @@ const FRONTEND_MIN_INCREMENT_DELAY_MS = 7_000;
 const FRONTEND_MAX_INCREMENT_DELAY_MS = 24_000;
 const BACKEND_SYNC_INTERVAL_MS = 60_000;
 const MAX_VISIBLE_CATCH_UP_INCREMENT = 30;
+const VISITOR_FETCH_TIMEOUT_MS = 8_000;
 
 type StoredCounter = {
   displayCount: number;
@@ -105,6 +106,28 @@ function getCounterStartDelayMs(deferMs: number) {
 
 function getCounterSyncIntervalMs() {
   return isMobileOrSocialBrowser() ? 180_000 : BACKEND_SYNC_INTERVAL_MS;
+}
+
+async function fetchVisitorRecord(url: string, options: RequestInit = {}) {
+  const requestController = new AbortController();
+  const timeoutId = window.setTimeout(() => requestController.abort(), VISITOR_FETCH_TIMEOUT_MS);
+  const parentSignal = options.signal;
+  const abortRequest = () => requestController.abort();
+
+  if (parentSignal?.aborted) {
+    requestController.abort();
+  }
+  parentSignal?.addEventListener('abort', abortRequest, { once: true });
+
+  try {
+    return await fetch(url, {
+      ...options,
+      signal: requestController.signal,
+    });
+  } finally {
+    window.clearTimeout(timeoutId);
+    parentSignal?.removeEventListener('abort', abortRequest);
+  }
 }
 
 export default function FeatureVisitorCounter({
@@ -211,7 +234,7 @@ export default function FeatureVisitorCounter({
       if (document.visibilityState !== 'visible') return;
 
       try {
-        const response = await fetch(`/api/visitor/record?featureKey=${encodeURIComponent(featureKey)}`, {
+        const response = await fetchVisitorRecord(`/api/visitor/record?featureKey=${encodeURIComponent(featureKey)}`, {
           cache: 'no-store',
           signal: controller.signal,
         });
@@ -262,7 +285,7 @@ export default function FeatureVisitorCounter({
       visitId.current ??= createVisitId();
 
       try {
-        const response = await fetch('/api/visitor/record', {
+        const response = await fetchVisitorRecord('/api/visitor/record', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ featureKey, visitId: visitId.current }),
