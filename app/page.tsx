@@ -508,7 +508,7 @@ function PersonStep({
   onChange: (value: PersonInput) => void;
 }) {
   return (
-    <div className={`fortune-card p-6 sm:p-8 transition-all duration-500 ${accent === 'violet' ? 'astral-glow-violet hover:border-violet-500/25' : 'astral-glow-amber hover:border-amber-500/25'}`}>
+    <div id="active-step-panel" className={`fortune-card p-6 sm:p-8 scroll-mt-24 transition-all duration-500 ${accent === 'violet' ? 'astral-glow-violet hover:border-violet-500/25' : 'astral-glow-amber hover:border-amber-500/25'}`}>
       <p className={`inline-flex rounded-full border px-4 py-1 text-xs tracking-[0.3em] ${accent === 'violet' ? 'border-violet-400/25 bg-violet-950/20 text-violet-300' : 'border-amber-400/25 bg-amber-950/20 text-amber-300'}`}>
         {title}
       </p>
@@ -614,7 +614,7 @@ function ShichenStep({
       };
 
   return (
-    <div className={`fortune-card p-6 sm:p-8 transition-all duration-500 ${accent === 'violet' ? 'astral-glow-violet hover:border-violet-500/25' : 'astral-glow-amber hover:border-amber-500/25'}`}>
+    <div id="active-step-panel" className={`fortune-card p-6 sm:p-8 scroll-mt-24 transition-all duration-500 ${accent === 'violet' ? 'astral-glow-violet hover:border-violet-500/25' : 'astral-glow-amber hover:border-amber-500/25'}`}>
       <p className={`inline-flex rounded-full border px-4 py-1 text-xs tracking-[0.3em] ${accentClasses.label}`}>
         {title}
       </p>
@@ -682,6 +682,7 @@ export default function HomePage() {
   const repairTimerRef = useRef<number | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
   const scrollVisibilityRef = useRef({ top: false, down: false });
+  const hasMountedStepGuideRef = useRef(false);
 
   // 數字論吉凶 state 與處理函數
   const [fortuneNumber, setFortuneNumber] = useState('');
@@ -1267,7 +1268,18 @@ export default function HomePage() {
   // 監聽步驟切換、結果生成、解鎖與錯誤狀態，自動平滑定位，避免螢幕異常跳動與跑版
   useEffect(() => {
     const timer = setTimeout(() => {
-      mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (data || unlocking || isUnlocked) {
+        mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+
+      if (!hasMountedStepGuideRef.current) {
+        hasMountedStepGuideRef.current = true;
+        return;
+      }
+
+      const target = document.getElementById('active-step-panel') ?? document.getElementById('step-entry');
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
     return () => clearTimeout(timer);
   }, [step, !!data, unlocking, isUnlocked, error]);

@@ -3838,3 +3838,211 @@ body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
   .taiji-standalone-card .modal-sixiang-2 { --x: 0px; --y: 78px; }
   .taiji-standalone-card .modal-sixiang-3 { --x: -78px; --y: 0px; }
 }
+
+/* Home Taiji card proportion: homepage only, visual spacing only. */
+.home-core-panel {
+  max-width: min(24.5rem, calc(100vw - 1.5rem)) !important;
+}
+
+.home-core-panel .taiji-standalone-card {
+  width: min(24.5rem, 100%);
+  min-height: clamp(25.75rem, 102vw, 28rem);
+  padding: clamp(0.85rem, 2.4vw, 1.25rem);
+  border-radius: 1.65rem;
+  overflow: hidden;
+}
+
+.home-core-panel .taiji-standalone-card .unified-taiji-shell {
+  min-height: clamp(23.75rem, 96vw, 25.5rem);
+  padding-top: clamp(1rem, 4vw, 1.35rem);
+  padding-bottom: clamp(6.1rem, 20vw, 6.9rem);
+}
+
+.home-core-panel .modal-taiji-button {
+  width: clamp(11.75rem, 53vw, 13rem);
+  height: clamp(11.75rem, 53vw, 13rem);
+}
+
+.home-core-panel .modal-taiji-orbit-emblem {
+  width: 100%;
+  height: 100%;
+}
+
+.home-core-panel .modal-taiji-3d-core {
+  width: clamp(5.55rem, 24vw, 6.35rem);
+  height: clamp(5.55rem, 24vw, 6.35rem);
+}
+
+.home-core-panel .taiji-standalone-card .unified-mantra-badge {
+  bottom: clamp(0.8rem, 3.5vw, 1.05rem);
+  width: min(19rem, calc(100% - 1.35rem));
+  max-width: min(19rem, calc(100vw - 2.75rem));
+}
+
+.home-core-panel .taiji-standalone-card .unified-mantra-title {
+  font-size: clamp(1rem, 4.2vw, 1.26rem);
+  letter-spacing: 0.08em;
+}
+
+.home-core-panel .taiji-standalone-card .modal-liangyi-node,
+.home-core-panel .taiji-standalone-card .modal-sixiang-node,
+.home-core-panel .taiji-standalone-card .modal-bagua-node {
+  z-index: 34;
+}
+
+@media (max-width: 430px) {
+  .home-core-panel {
+    max-width: min(23rem, calc(100vw - 1rem)) !important;
+  }
+
+  .home-core-panel .taiji-standalone-card {
+    width: min(23rem, 100%);
+    min-height: min(26.75rem, calc(100vw + 4.75rem));
+    padding: 0.72rem;
+  }
+
+  .home-core-panel .taiji-standalone-card .unified-taiji-shell {
+    min-height: min(25rem, calc(100vw + 3rem));
+    padding-top: 0.95rem;
+    padding-bottom: 6.15rem;
+  }
+
+  .home-core-panel .modal-taiji-button {
+    width: min(12.35rem, 58vw);
+    height: min(12.35rem, 58vw);
+  }
+
+  .home-core-panel .modal-taiji-3d-core {
+    width: min(5.95rem, 27vw);
+    height: min(5.95rem, 27vw);
+  }
+
+  .home-core-panel .taiji-standalone-card .unified-mantra-badge {
+    bottom: 0.75rem;
+    width: min(18rem, calc(100% - 1rem));
+  }
+}
+
+/* Home Taiji open-stage: keep layout space, remove clipping edge for emitted light. */
+.home-hero-stage.home-hero-stage--taiji-only,
+.home-core-panel,
+.home-core-panel .taiji-standalone-card,
+.home-core-panel .unified-taiji-shell {
+  overflow: visible !important;
+}
+
+.home-core-panel .taiji-standalone-card {
+  border-color: transparent;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(34, 211, 238, 0.12), transparent 54%),
+    radial-gradient(ellipse at 50% 78%, rgba(251, 191, 36, 0.08), transparent 42%),
+    transparent;
+  box-shadow: none;
+  contain: layout;
+}
+
+.home-core-panel .taiji-standalone-card::before {
+  position: absolute;
+  inset: 0.7rem;
+  z-index: -1;
+  border-radius: 2rem;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(2, 6, 23, 0.66), rgba(2, 6, 23, 0.28) 56%, transparent 74%),
+    radial-gradient(ellipse at 50% 82%, rgba(34, 211, 238, 0.12), transparent 58%);
+  box-shadow:
+    0 24px 58px rgba(0, 0, 0, 0.28),
+    0 0 82px rgba(34, 211, 238, 0.12);
+  content: '';
+  pointer-events: none;
+}
+
+.home-core-panel .modal-taiji-natural-bloom,
+.home-core-panel .modal-taiji-ground-glow,
+.home-core-panel .unified-evolution-screen,
+.home-core-panel .unified-evolution-pulse,
+.home-core-panel .modal-evolution-flare,
+.home-core-panel .modal-evolution-scan,
+.home-core-panel .modal-evolution-orbit,
+.home-core-panel .modal-evolution-rays,
+.home-core-panel .modal-evolution-breath {
+  overflow: visible;
+}
+
+@media (max-width: 430px) {
+  .home-core-panel .taiji-standalone-card::before {
+    inset: 0.35rem;
+    border-radius: 1.55rem;
+    box-shadow:
+      0 18px 42px rgba(0, 0, 0, 0.24),
+      0 0 58px rgba(34, 211, 238, 0.1);
+  }
+}
+
+/* Home Taiji invisible stage: remove the visible rectangle and scale the symbol by proportion. */
+.home-core-panel {
+  max-width: min(27rem, calc(100vw - 0.75rem)) !important;
+}
+
+.home-core-panel .taiji-standalone-card {
+  width: min(27rem, 100%);
+  min-height: clamp(25.5rem, 105vw, 29rem);
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: clamp(0.35rem, 1.6vw, 0.75rem);
+}
+
+.home-core-panel .taiji-standalone-card::before,
+.home-core-panel .taiji-standalone-card::after {
+  display: none !important;
+}
+
+.home-core-panel .taiji-standalone-card .unified-taiji-shell {
+  min-height: clamp(24rem, 100vw, 27rem);
+  padding-top: clamp(0.65rem, 2.8vw, 1rem);
+  padding-bottom: clamp(5.5rem, 17vw, 6.4rem);
+}
+
+.home-core-panel .modal-taiji-button {
+  width: clamp(12.75rem, 61vw, 14.75rem);
+  height: clamp(12.75rem, 61vw, 14.75rem);
+}
+
+.home-core-panel .modal-taiji-3d-core {
+  width: clamp(6.1rem, 28vw, 7.1rem);
+  height: clamp(6.1rem, 28vw, 7.1rem);
+}
+
+.home-core-panel .taiji-standalone-card .unified-mantra-badge {
+  bottom: clamp(0.45rem, 2.8vw, 0.85rem);
+  width: min(19.5rem, calc(100% - 0.75rem));
+  max-width: min(19.5rem, calc(100vw - 1.5rem));
+}
+
+@media (max-width: 430px) {
+  .home-core-panel {
+    max-width: min(24.5rem, calc(100vw - 0.5rem)) !important;
+  }
+
+  .home-core-panel .taiji-standalone-card {
+    width: min(24.5rem, 100%);
+    min-height: min(27rem, calc(100vw + 5.25rem));
+    padding: 0.25rem;
+  }
+
+  .home-core-panel .taiji-standalone-card .unified-taiji-shell {
+    min-height: min(25.75rem, calc(100vw + 4rem));
+    padding-top: 0.55rem;
+    padding-bottom: 5.85rem;
+  }
+
+  .home-core-panel .modal-taiji-button {
+    width: min(13.65rem, 66vw);
+    height: min(13.65rem, 66vw);
+  }
+
+  .home-core-panel .modal-taiji-3d-core {
+    width: min(6.45rem, 31vw);
+    height: min(6.45rem, 31vw);
+  }
+}
