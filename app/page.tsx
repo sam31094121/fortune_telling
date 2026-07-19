@@ -185,9 +185,11 @@ function buildPersonalizedPracticeLine(data: MatchResponse) {
 }
 
 type StepKey = 'personA-base' | 'personA-shichen' | 'personB-base' | 'personB-shichen' | 'review';
+type SelectionConfirm = { bloodType: boolean; gender: boolean };
 
 const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const EMPTY: PersonInput = { name: '', birthDate: '', bloodType: 'A', gender: 'female', shichen: null };
+const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { bloodType: false, gender: false };
 
 const BLOOD_DESC: Record<PersonInput['bloodType'], string> = {
   A: '細膩穩定，重視秩序與安全感。',
@@ -198,9 +200,11 @@ const BLOOD_DESC: Record<PersonInput['bloodType'], string> = {
 
 const STEP_ORDER: StepKey[] = ['personA-base', 'personA-shichen', 'personB-base', 'personB-shichen', 'review'];
 
-function getPersonError(label: string, person: PersonInput) {
+function getPersonError(label: string, person: PersonInput, selectionConfirm?: SelectionConfirm) {
   if (person.name.trim().length < 2) return `請先輸入${label}姓名，至少 2 個字。`;
   if (!person.birthDate) return `請先完成${label}的萬年曆生日推算。`;
+  if (selectionConfirm && !selectionConfirm.bloodType) return `請點選${label}血型。`;
+  if (selectionConfirm && !selectionConfirm.gender) return `請點選${label}性別。`;
   return '';
 }
 
@@ -236,10 +240,16 @@ function ElderChoiceCard({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`w-full rounded-2xl border px-4 py-4 text-left transition-all duration-300 neon-card-hover holo-card-container relative overflow-hidden ${tones[tone]}`}
     >
       <div className="holo-shine" />
-      <p className="text-lg font-bold relative z-10">{title}</p>
+      <div className="relative z-10 flex items-center justify-between gap-3">
+        <p className="text-lg font-bold">{title}</p>
+        <span className={`choice-signal ${active ? 'choice-signal--done' : 'choice-signal--idle'}`}>
+          {active ? '已選' : '點選'}
+        </span>
+      </div>
       <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)] relative z-10">{description}</p>
     </button>
   );
@@ -500,12 +510,16 @@ function PersonStep({
   accent,
   value,
   onChange,
+  selectionConfirm,
+  onSelectionConfirm,
 }: {
   title: string;
   description: string;
   accent: 'violet' | 'amber';
   value: PersonInput;
   onChange: (value: PersonInput) => void;
+  selectionConfirm: SelectionConfirm;
+  onSelectionConfirm: (value: SelectionConfirm) => void;
 }) {
   return (
     <div id="active-step-panel" className={`fortune-card p-6 sm:p-8 scroll-mt-24 transition-all duration-500 ${accent === 'violet' ? 'astral-glow-violet hover:border-violet-500/25' : 'astral-glow-amber hover:border-amber-500/25'}`}>
@@ -553,10 +567,13 @@ function PersonStep({
             {BLOOD_TYPES.map((bloodType, index) => (
               <ElderChoiceCard
                 key={bloodType}
-                active={value.bloodType === bloodType}
+                active={selectionConfirm.bloodType && value.bloodType === bloodType}
                 title={`${bloodType} 型`}
                 description={BLOOD_DESC[bloodType]}
-                onClick={() => onChange({ ...value, bloodType })}
+                onClick={() => {
+                  onChange({ ...value, bloodType });
+                  onSelectionConfirm({ ...selectionConfirm, bloodType: true });
+                }}
                 tone={index % 2 === 0 ? accent : accent === 'violet' ? 'cyan' : 'pink'}
               />
             ))}
@@ -570,17 +587,23 @@ function PersonStep({
           </label>
           <div className="grid gap-3 sm:grid-cols-2">
             <ElderChoiceCard
-              active={value.gender === 'female'}
+              active={selectionConfirm.gender && value.gender === 'female'}
               title="女性"
               description="用來修飾外在表現。"
-              onClick={() => onChange({ ...value, gender: 'female' })}
+              onClick={() => {
+                onChange({ ...value, gender: 'female' });
+                onSelectionConfirm({ ...selectionConfirm, gender: true });
+              }}
               tone="pink"
             />
             <ElderChoiceCard
-              active={value.gender === 'male'}
+              active={selectionConfirm.gender && value.gender === 'male'}
               title="男性"
               description="只做外在呈現修飾。"
-              onClick={() => onChange({ ...value, gender: 'male' })}
+              onClick={() => {
+                onChange({ ...value, gender: 'male' });
+                onSelectionConfirm({ ...selectionConfirm, gender: true });
+              }}
               tone="cyan"
             />
           </div>
@@ -703,6 +726,8 @@ export default function HomePage() {
   const [step, setStep] = useState<StepKey>('personA-base');
   const [personA, setPersonA] = useState<PersonInput>({ ...EMPTY, gender: 'female' });
   const [personB, setPersonB] = useState<PersonInput>({ ...EMPTY, gender: 'male' });
+  const [personASelectionConfirm, setPersonASelectionConfirm] = useState<SelectionConfirm>(EMPTY_SELECTION_CONFIRM);
+  const [personBSelectionConfirm, setPersonBSelectionConfirm] = useState<SelectionConfirm>(EMPTY_SELECTION_CONFIRM);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [data, setData] = useState<MatchResponse | null>(null);
@@ -750,6 +775,8 @@ export default function HomePage() {
       window.dispatchEvent(new CustomEvent('reset-celestial-mist'));
       setPersonA({ ...EMPTY, gender: 'female' });
       setPersonB({ ...EMPTY, gender: 'male' });
+      setPersonASelectionConfirm(EMPTY_SELECTION_CONFIRM);
+      setPersonBSelectionConfirm(EMPTY_SELECTION_CONFIRM);
       setData(null);
       setError('');
       setLoading(false);
@@ -1202,6 +1229,7 @@ export default function HomePage() {
       gender: 'male',
       shichen: null
     });
+    setPersonASelectionConfirm({ bloodType: true, gender: true });
     setStep('personA-base');
 
     await new Promise(r => setTimeout(r, 700));
@@ -1220,6 +1248,7 @@ export default function HomePage() {
       gender: 'female',
       shichen: null
     });
+    setPersonBSelectionConfirm({ bloodType: true, gender: true });
     
     await new Promise(r => setTimeout(r, 700));
     setStep('personB-shichen');
@@ -1344,8 +1373,8 @@ export default function HomePage() {
   }, []);
 
   const stepIndex = STEP_ORDER.indexOf(step);
-  const personAError = getPersonError('第一位', personA);
-  const personBError = getPersonError('第二位', personB);
+  const personAError = getPersonError('第一位', personA, personASelectionConfirm);
+  const personBError = getPersonError('第二位', personB, personBSelectionConfirm);
   const personAShichenError = personA.shichen === null ? '請選擇時辰或點「我不知道」' : '';
   const personBShichenError = personB.shichen === null ? '請選擇時辰或點「我不知道」' : '';
 
@@ -1513,6 +1542,8 @@ export default function HomePage() {
     setData(null);
     setError('');
     setStep('personA-base');
+    setPersonASelectionConfirm(EMPTY_SELECTION_CONFIRM);
+    setPersonBSelectionConfirm(EMPTY_SELECTION_CONFIRM);
   }
 
   const fortuneAura = getNumberFortuneAura(fortuneResult?.level);
@@ -1881,6 +1912,8 @@ export default function HomePage() {
                     accent="violet"
                     value={personA}
                     onChange={setPersonA}
+                    selectionConfirm={personASelectionConfirm}
+                    onSelectionConfirm={setPersonASelectionConfirm}
                   />
                 )}
 
@@ -1901,6 +1934,8 @@ export default function HomePage() {
                     accent="amber"
                     value={personB}
                     onChange={setPersonB}
+                    selectionConfirm={personBSelectionConfirm}
+                    onSelectionConfirm={setPersonBSelectionConfirm}
                   />
                 )}
 

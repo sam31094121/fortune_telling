@@ -8,6 +8,7 @@ import { saveUserData, loadUserData } from '@/lib/storage';
 type BloodType = 'A' | 'B' | 'AB' | 'O';
 type Gender = 'male' | 'female';
 type PreferredSongLanguage = 'mandarin' | 'english' | 'taiwanese';
+type SelectionConfirm = { gender: boolean };
 
 // 時辰：null=尚未選、'unknown'=不知道（自動套良辰吉時）、0–11=已選時辰地支序
 export type ShichenChoice = number | 'unknown' | null;
@@ -30,6 +31,7 @@ interface PersonalityMusicFlowProps {
 }
 
 const BLOOD_TYPES: BloodType[] = ['A', 'B', 'AB', 'O'];
+const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { gender: false };
 const BLOOD_DESC: Record<BloodType, string> = {
   A: '細膩穩定，重視秩序與安全感。',
   B: '自主鮮明，節奏感強，較有個人風格。',
@@ -84,6 +86,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     vocalGenderPreference: null,
     preferredSongLanguage: 'mandarin',
   });
+  const [selectionConfirm, setSelectionConfirm] = useState<SelectionConfirm>(EMPTY_SELECTION_CONFIRM);
   const [localError, setLocalError] = useState('');
 
   // 載入 localStorage 預填
@@ -119,6 +122,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
       if (form.name.trim().length < 2) return '姓名至少要 2 個字。';
       if (form.name.trim().length > 20) return '姓名不可超過 20 個字。';
     }
+    if (targetStep === 2 && !selectionConfirm.gender) return '請點選性別。';
     if (targetStep === 3 && form.shichen === null) {
       return '請選擇出生時辰；不知道也可以直接點「我不知道時辰」。';
     }
@@ -215,9 +219,14 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                     : 'border-white/10 bg-white/5 hover:border-white/20'
                 }`}
               >
-                <p className={`text-lg font-bold ${form.bloodType === bloodType ? 'text-amber-300' : 'text-[color:var(--text-main)]'}`}>
-                  {bloodType} 型
-                </p>
+                <div className="flex items-center justify-between gap-3">
+                  <p className={`text-lg font-bold ${form.bloodType === bloodType ? 'text-amber-300' : 'text-[color:var(--text-main)]'}`}>
+                    {bloodType} 型
+                  </p>
+                  <span className={`choice-signal ${form.bloodType === bloodType ? 'choice-signal--done' : 'choice-signal--idle'}`}>
+                    {form.bloodType === bloodType ? '已選' : '點選'}
+                  </span>
+                </div>
                 <p className="mt-1 text-xs text-[color:var(--text-muted)]">{BLOOD_DESC[bloodType]}</p>
               </button>
             ))}
@@ -248,14 +257,22 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                 <button
                   key={gender}
                   type="button"
-                  onClick={() => setForm((prev) => ({ ...prev, gender }))}
+                  onClick={() => {
+                    setForm((prev) => ({ ...prev, gender }));
+                    setSelectionConfirm({ gender: true });
+                  }}
                   className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
-                    form.gender === gender
+                    selectionConfirm.gender && form.gender === gender
                       ? 'border-pink-400 bg-pink-400/15 text-pink-200'
                       : 'border-white/10 bg-white/5 text-[color:var(--text-sub)]'
                   }`}
                 >
-                  {gender === 'female' ? '女性' : '男性'}
+                  <span className="flex items-center justify-between gap-3">
+                    <span>{gender === 'female' ? '女性' : '男性'}</span>
+                    <span className={`choice-signal ${selectionConfirm.gender && form.gender === gender ? 'choice-signal--done' : 'choice-signal--idle'}`}>
+                      {selectionConfirm.gender && form.gender === gender ? '已選' : '點選'}
+                    </span>
+                  </span>
                 </button>
               ))}
             </div>

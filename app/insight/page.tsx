@@ -12,6 +12,7 @@ import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
 type ShichenChoice = number | 'unknown' | 'known' | null;
+type SelectionConfirm = { bloodType: boolean; gender: boolean };
 
 interface InsightData {
   name: string;
@@ -195,6 +196,7 @@ interface InsightResult {
 }
 
 const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
+const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { bloodType: false, gender: false };
 const BLOOD_DESC: Record<InsightData['bloodType'], string> = {
   A: '細膩穩定，重視秩序與安全感。',
   B: '自主鮮明，節奏感強，較有個人風格。',
@@ -234,9 +236,15 @@ function ChoiceCard({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`w-full rounded-2xl border px-4 py-4 text-left transition-all hover:border-white/20 ${tones[tone]}`}
     >
-      <p className="text-lg font-bold">{title}</p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-lg font-bold">{title}</p>
+        <span className={`choice-signal ${active ? 'choice-signal--done' : 'choice-signal--idle'}`}>
+          {active ? '已選' : '點選'}
+        </span>
+      </div>
       <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]">{description}</p>
     </button>
   );
@@ -756,6 +764,7 @@ export default function InsightPage() {
     gender: 'female',
     shichen: null,
   });
+  const [selectionConfirm, setSelectionConfirm] = useState<SelectionConfirm>(EMPTY_SELECTION_CONFIRM);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<InsightResult | null>(null);
@@ -819,6 +828,14 @@ export default function InsightPage() {
 
     if (!input.gender || !['male', 'female'].includes(input.gender)) {
       return '請選擇性別。';
+    }
+
+    if (!selectionConfirm.bloodType) {
+      return '請點選血型。';
+    }
+
+    if (!selectionConfirm.gender) {
+      return '請點選性別。';
     }
 
     return null;
@@ -1056,10 +1073,13 @@ export default function InsightPage() {
                   {BLOOD_TYPES.map((bloodType, index) => (
                     <ChoiceCard
                       key={bloodType}
-                      active={input.bloodType === bloodType}
+                      active={selectionConfirm.bloodType && input.bloodType === bloodType}
                       title={`${bloodType} 型`}
                       description={BLOOD_DESC[bloodType]}
-                      onClick={() => setInput({ ...input, bloodType })}
+                      onClick={() => {
+                        setInput({ ...input, bloodType });
+                        setSelectionConfirm({ ...selectionConfirm, bloodType: true });
+                      }}
                       tone={index % 2 === 0 ? 'violet' : 'cyan'}
                     />
                   ))}
@@ -1070,17 +1090,23 @@ export default function InsightPage() {
                 <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">4. 性別</label>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <ChoiceCard
-                    active={input.gender === 'female'}
+                    active={selectionConfirm.gender && input.gender === 'female'}
                     title="女性"
                     description="用來修飾外在表現。"
-                    onClick={() => setInput({ ...input, gender: 'female' })}
+                    onClick={() => {
+                      setInput({ ...input, gender: 'female' });
+                      setSelectionConfirm({ ...selectionConfirm, gender: true });
+                    }}
                     tone="pink"
                   />
                   <ChoiceCard
-                    active={input.gender === 'male'}
+                    active={selectionConfirm.gender && input.gender === 'male'}
                     title="男性"
                     description="只做外在呈現修飾。"
-                    onClick={() => setInput({ ...input, gender: 'male' })}
+                    onClick={() => {
+                      setInput({ ...input, gender: 'male' });
+                      setSelectionConfirm({ ...selectionConfirm, gender: true });
+                    }}
                     tone="cyan"
                   />
                 </div>
@@ -1207,6 +1233,7 @@ export default function InsightPage() {
                   <button
                     onClick={() => {
                       setInput({ name: '', birthDate: '', bloodType: 'A', gender: 'female', shichen: null });
+                      setSelectionConfirm(EMPTY_SELECTION_CONFIRM);
                       setError('');
                     }}
                     disabled={loading}
