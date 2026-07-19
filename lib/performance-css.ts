@@ -88,6 +88,31 @@ export function injectPerformanceCSS() {
       animation-duration: 4.8s !important;
     }
 
+    body.app-mobile-device .group-hover\\:animate-\\[shimmer_2s_infinite\\],
+    body.app-social-browser .group-hover\\:animate-\\[shimmer_2s_infinite\\],
+    body.app-lite-effects .group-hover\\:animate-\\[shimmer_2s_infinite\\] {
+      animation: none !important;
+      opacity: 0 !important;
+    }
+
+    body.app-mobile-device .animate-spin-slow,
+    body.app-social-browser .animate-spin-slow,
+    body.app-lite-effects .animate-spin-slow {
+      animation-duration: 52s !important;
+    }
+
+    body.app-lite-effects .number-taiji-blessing-overlay::before,
+    body.app-lite-effects .home-core-panel::before,
+    body.app-lite-effects .home-line-share-card::before,
+    body.app-lite-effects .home-line-share-card::after {
+      filter: none !important;
+    }
+
+    body.app-mobile-device .choice-signal,
+    body.app-social-browser .choice-signal {
+      box-shadow: none;
+    }
+
     body.app-lite-effects .taiji-celestial-mist,
     body.app-lite-effects .taiji-celestial-wisp,
     body.app-lite-effects .modal-taiji-natural-bloom {
@@ -148,9 +173,13 @@ export function injectPerformanceCSS() {
       }
 
       .fortune-card,
-      .vip-gold-card {
+      .vip-gold-card,
+      .result-container,
+      .number-fortune-card,
+      .music-song-maker-card,
+      .music-primary-generate-panel {
         content-visibility: auto;
-        contain-intrinsic-size: 1px 680px;
+        contain-intrinsic-size: 1px 620px;
       }
 
       .constellation-ring-bottom {
@@ -159,9 +188,16 @@ export function injectPerformanceCSS() {
 
       .fortune-card,
       .vip-gold-card,
+      .result-container,
+      .number-fortune-card,
       [data-visitor-counter] {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
+      }
+
+      .choice-signal {
+        min-width: 3rem;
+        padding-inline: 0.5rem;
       }
     }
   `;

@@ -108,6 +108,16 @@ function getCounterSyncIntervalMs() {
   return isMobileOrSocialBrowser() ? 180_000 : BACKEND_SYNC_INTERVAL_MS;
 }
 
+function getFrontendIncrementRangeMs() {
+  return isMobileOrSocialBrowser()
+    ? { min: 16_000, max: 38_000, catchUp: 30_000 }
+    : {
+        min: FRONTEND_MIN_INCREMENT_DELAY_MS,
+        max: FRONTEND_MAX_INCREMENT_DELAY_MS,
+        catchUp: FRONTEND_CATCH_UP_INTERVAL_MS,
+      };
+}
+
 async function fetchVisitorRecord(url: string, options: RequestInit = {}) {
   const requestController = new AbortController();
   const timeoutId = window.setTimeout(() => requestController.abort(), VISITOR_FETCH_TIMEOUT_MS);
@@ -178,19 +188,17 @@ export default function FeatureVisitorCounter({
     let timeoutId: number | undefined;
 
     function getNextDelay() {
-      return Math.floor(
-        FRONTEND_MIN_INCREMENT_DELAY_MS +
-          Math.random() * (FRONTEND_MAX_INCREMENT_DELAY_MS - FRONTEND_MIN_INCREMENT_DELAY_MS),
-      );
+      const range = getFrontendIncrementRangeMs();
+      return Math.floor(range.min + Math.random() * (range.max - range.min));
     }
 
     function applyElapsedIncrement() {
       const now = Date.now();
-      const elapsedIntervals = Math.floor((now - lastTickAt) / FRONTEND_CATCH_UP_INTERVAL_MS);
+      const elapsedIntervals = Math.floor((now - lastTickAt) / getFrontendIncrementRangeMs().catchUp);
 
       if (elapsedIntervals <= 0) return;
 
-      lastTickAt += elapsedIntervals * FRONTEND_CATCH_UP_INTERVAL_MS;
+      lastTickAt += elapsedIntervals * getFrontendIncrementRangeMs().catchUp;
       commitDisplayCount((currentCount) => currentCount + Math.min(elapsedIntervals, MAX_VISIBLE_CATCH_UP_INCREMENT));
     }
 
