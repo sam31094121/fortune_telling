@@ -1024,6 +1024,7 @@ function IntegratedSongMaker({
   async function handleGenerateLyriaMp3() {
     if (!fusionSong || !productionPlan || lyriaLoading) return;
 
+    onStart();
     setLyriaLoading(true);
     setLyriaError('');
     setLyriaPromptPreview('');
@@ -1143,20 +1144,27 @@ function IntegratedSongMaker({
   }
 
   return (
-    <div className="fortune-card overflow-hidden border-amber-300/20 px-6 py-8 sm:px-8">
+    <div className="fortune-card music-song-maker-card overflow-hidden border-amber-300/20 px-6 py-8 sm:px-8">
       <div className="text-center">
-        <p className="text-xs uppercase tracking-[0.4em] text-amber-300/70">
+        <div className="mx-auto mb-5 max-w-2xl rounded-[22px] border border-amber-300/25 bg-amber-300/10 px-5 py-4 shadow-[0_0_34px_rgba(251,191,36,0.12)]">
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-200">金鑰匙功能</p>
+          <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">正式生成專屬 30 秒 MP3</h3>
+          <p className="mt-3 text-sm leading-7 text-[color:var(--text-sub)]">
+            資料已整理完成，請直接按下方主按鈕生成歌曲。畫面已簡化，只保留客戶最需要的生成與播放功能。
+          </p>
+        </div>
+        <p className="hidden text-xs uppercase tracking-[0.4em] text-amber-300/70">
           Your Personal Theme Song
         </p>
-        <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
+        <h3 className="hidden mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
           你的專屬人格主題曲預覽
         </h3>
-        <p className="mx-auto mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
+        <p className="hidden mx-auto mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
           這首歌依你的生日、血型與姓名整理出旋律方向。點一下，先聽見屬於你的音樂預覽。
         </p>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-4">
+      <div className="hidden mt-6 grid gap-4 md:grid-cols-4">
         {readySteps.map((step, index) => (
           <div key={step} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
             <p className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-amber-300/15 text-sm font-bold text-amber-200">
@@ -1170,12 +1178,12 @@ function IntegratedSongMaker({
       <button
         type="button"
         onClick={onStart}
-        className="vip-gold-btn mt-6 w-full py-4 text-sm sm:text-base"
+        className="hidden vip-gold-btn mt-6 w-full py-4 text-sm sm:text-base"
       >
         {started ? '音樂預覽已開啟' : '產生我的音樂預覽'}
       </button>
 
-      {started && (
+      {true && (
         <div className="mt-6 space-y-4">
           <div className="rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
             <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">最終歌曲核心</p>
@@ -1183,7 +1191,7 @@ function IntegratedSongMaker({
             <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">{fusionSong.fusion_concept}</p>
           </div>
 
-          <div className="rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
+          <div className="music-primary-generate-panel rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
             <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">專屬音樂預覽</p>
             <p className="text-sm leading-8 text-[color:var(--text-sub)]">
               戴上耳機，先聽見根據你資料整理出的主題旋律。Lyria MP3 會依照這次的人格資料重新生成，不是共用 Demo。
@@ -1197,7 +1205,7 @@ function IntegratedSongMaker({
                 type="button"
                 onClick={handleGenerateLyriaMp3}
                 disabled={lyriaLoading}
-                className="mt-4 w-full rounded-full border border-emerald-300/25 bg-emerald-400/10 px-4 py-3 text-xs font-semibold tracking-[0.18em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15 disabled:cursor-wait disabled:opacity-60"
+                className="music-primary-generate-button mt-4 w-full rounded-full border border-emerald-300/25 bg-emerald-400/10 px-4 py-4 text-sm font-black tracking-[0.18em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15 disabled:cursor-wait disabled:opacity-60"
               >
                 {lyriaLoading ? 'Lyria 正在生成 30 秒 MP3…' : lyriaAudioUrl ? '重新生成專屬 30 秒 MP3' : '生成專屬 30 秒 MP3'}
               </button>
@@ -1224,7 +1232,7 @@ function IntegratedSongMaker({
                 </div>
               )}
               {lyriaPromptPreview && (
-                <details className="mt-3 rounded-2xl border border-white/10 bg-black/20 p-3">
+                <details className="hidden mt-3 rounded-2xl border border-white/10 bg-black/20 p-3">
                   <summary className="cursor-pointer text-xs font-semibold tracking-[0.18em] text-[color:var(--text-muted)] transition hover:text-white">
                     查看本次送入 Lyria 的個人化 Prompt
                   </summary>
@@ -1237,7 +1245,7 @@ function IntegratedSongMaker({
                 </details>
               )}
             </div>
-            <div className="mt-4 rounded-[20px] border border-amber-300/15 bg-amber-950/10 p-4">
+            <div className="hidden mt-4 rounded-[20px] border border-amber-300/15 bg-amber-950/10 p-4">
               <p className="text-xs uppercase tracking-[0.25em] text-amber-300/70">工程級本地 WAV 預覽</p>
               <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
                 這段是瀏覽器本地合成的旋律草稿，用來快速聽編曲骨架；上方 Lyria MP3 才是正式 AI 生成歌曲。
@@ -1717,7 +1725,7 @@ export default function PersonalityMusicReport({
         </div>
       )}
 
-      {showAdvancedDetails && (
+      {fusionSong && productionPlan && (
         <IntegratedSongMaker
           fusionSong={fusionSong}
           productionPlan={productionPlan}

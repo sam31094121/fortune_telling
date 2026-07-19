@@ -2407,6 +2407,8 @@ export default function HomePage() {
             </button>
 
             {/* Modal 頂部立體優美太極圖案 (升級版) - 帶點擊爆發音效與大悲咒彩蛋功能 */}
+            <div className="number-fortune-split-stack">
+              <section className="number-fortune-card number-fortune-taiji-card" aria-label="Tai Chi interaction">
             <div className="number-fortune-taiji-wrap mb-8 flex flex-col items-center justify-center">
               <button
                 type="button"
@@ -2518,6 +2520,9 @@ export default function HomePage() {
               </p>
             </div>
 
+              </section>
+
+              <section className="number-fortune-card number-fortune-analysis-card" aria-label="Number fortune analysis">
             <div className="number-fortune-intro mb-6">
               <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">☯️ 數字結構統計分析</p>
               <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">數字能量傾向分析</h3>
@@ -2629,9 +2634,12 @@ export default function HomePage() {
               </div>
             )}
 
+              </section>
+            </div>
+
             {/* 唵嘛念叭咪吽 (3點擊) */}
             {showModalMantra && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none bg-cyan-950/20 backdrop-blur-[2px] rounded-3xl animate-fade-in">
+              <div className="number-taiji-blessing-overlay number-taiji-blessing-overlay--mantra absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none rounded-3xl animate-fade-in">
                 <span className="text-amber-300 text-3xl font-serif font-black tracking-widest animate-pulse drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]">
                   唵 嘛 呢 叭 咪 吽
                 </span>
@@ -2641,7 +2649,7 @@ export default function HomePage() {
 
             {/* 大悲咒初照 (6點擊) */}
             {showModalSuperMantra && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none bg-violet-950/20 backdrop-blur-[3px] rounded-3xl animate-fade-in">
+              <div className="number-taiji-blessing-overlay number-taiji-blessing-overlay--super absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none rounded-3xl animate-fade-in">
                 <span className="text-cyan-200 text-2xl font-serif font-black tracking-[0.2em] text-center max-w-md px-6 leading-10 drop-shadow-[0_0_15px_rgba(34,211,238,0.8)]">
                   南無喝囉怛那哆囉夜耶 · 南無阿唎耶
                 </span>
@@ -2651,7 +2659,7 @@ export default function HomePage() {
 
             {/* 佛光普照 (12點擊) */}
             {showModalMegaMantra && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none bg-slate-950/30 backdrop-blur-[4px] rounded-3xl animate-fade-in">
+              <div className="number-taiji-blessing-overlay number-taiji-blessing-overlay--mega absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none rounded-3xl animate-fade-in">
                 <span className="text-amber-200 text-3xl font-serif font-black tracking-widest text-center animate-bounce drop-shadow-[0_0_20px_rgba(251,191,36,0.9)]">
                   ✨ 萬丈佛光普照 ✨
                 </span>
@@ -2663,7 +2671,7 @@ export default function HomePage() {
 
             {/* 萬佛朝宗大悲咒 (24點擊) */}
             {showModalGreatMantra && (
-              <div className="absolute inset-0 z-25 flex flex-col items-center justify-center pointer-events-none bg-amber-950/40 backdrop-blur-[5px] rounded-3xl animate-[rise-in_0.6s_ease-out]">
+              <div className="number-taiji-blessing-overlay number-taiji-blessing-overlay--great absolute inset-0 z-25 flex flex-col items-center justify-center pointer-events-none rounded-3xl animate-[rise-in_0.6s_ease-out]">
                 <div className="text-center space-y-4 px-6">
                   <h4 className="text-amber-300 text-4xl font-serif font-black tracking-[0.3em] drop-shadow-[0_0_25px_rgba(251,191,36,1.0)] animate-pulse">
                     卍 萬佛朝宗大悲咒 卍
