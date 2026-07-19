@@ -1633,17 +1633,17 @@ export default function HomePage() {
         {/* 頂部科技耀眼功能入口 */}
         <LineVipShareCard shareHref={lineShareHref} />
 
-        <div className="mb-8 w-full space-y-4">
+        <div className="mb-8 flex w-full flex-col gap-4">
           <Link
             href="/match"
-            className="home-feature-launch home-feature-rose w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-all duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-rose order-2 w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-all duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex items-center gap-4.5">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-rose-500/30 bg-rose-950/40 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.2)] animate-spin-slow">
-                <span className="text-2xl font-serif">☯️</span>
+                <span className="text-2xl font-serif">緣</span>
               </div>
               <div>
                 <span className="inline-block rounded-full bg-rose-500/10 border border-rose-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-rose-300 uppercase animate-pulse">
@@ -1669,7 +1669,7 @@ export default function HomePage() {
 
           <Link
             href="/music"
-            className="home-feature-launch home-feature-violet w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-violet order-3 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -1702,7 +1702,7 @@ export default function HomePage() {
 
           <Link
             href="/insight"
-            className="home-feature-launch home-feature-amber w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-amber order-4 w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -1736,14 +1736,14 @@ export default function HomePage() {
           <button
             type="button"
             onClick={() => setIsFortuneModalOpen(true)}
-            className="home-feature-launch home-feature-cyan w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-all duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-cyan order-1 w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-all duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
             
             <div className="flex items-center gap-4.5">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.2)] animate-spin-slow">
-                <span className="text-2xl font-serif">☯️</span>
+                <span className="text-xl font-black font-mono tracking-[-0.08em]">123</span>
               </div>
               <div>
                 <span className="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse">
