@@ -4167,3 +4167,172 @@ body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
     bottom: 0.6rem !important;
   }
 }
+
+/* Auspicious tap radiance: stronger lucky tap levels get wider, clearer light without covering the Taiji core. */
+.taiji-open-stage .unified-taiji-shell {
+  --taiji-lucky-size: min(22rem, 92vw);
+  --taiji-lucky-opacity: 0;
+  --taiji-lucky-glow: rgba(251, 191, 36, 0.4);
+  --taiji-lucky-ray: rgba(255, 255, 255, 0.38);
+}
+
+.taiji-open-stage .unified-taiji-shell::before,
+.taiji-open-stage .unified-taiji-shell::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--taiji-lucky-size);
+  height: var(--taiji-lucky-size);
+  border-radius: 999px;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.72);
+  opacity: 0;
+  z-index: 1;
+  will-change: transform, opacity;
+}
+
+.taiji-open-stage .modal-taiji-button {
+  position: relative;
+  z-index: 8;
+}
+
+.taiji-open-stage .unified-taiji-shell::before {
+  background:
+    radial-gradient(circle, transparent 0 27%, var(--taiji-lucky-glow) 38%, transparent 64%),
+    repeating-conic-gradient(from 0deg, transparent 0deg 9deg, var(--taiji-lucky-ray) 10deg 12deg, transparent 13deg 22deg);
+  filter: saturate(1.18);
+  mix-blend-mode: screen;
+}
+
+.taiji-open-stage .unified-taiji-shell::after {
+  width: calc(var(--taiji-lucky-size) * 0.76);
+  height: calc(var(--taiji-lucky-size) * 0.76);
+  background:
+    radial-gradient(circle, transparent 0 34%, rgba(255, 255, 255, 0.22) 36%, transparent 48%),
+    conic-gradient(from 90deg, transparent, var(--taiji-lucky-glow), transparent, rgba(34, 211, 238, 0.22), transparent);
+  filter: blur(0.5px) saturate(1.12);
+  mix-blend-mode: screen;
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-3 {
+  --taiji-lucky-size: min(22rem, 92vw);
+  --taiji-lucky-opacity: 0.44;
+  --taiji-lucky-glow: rgba(251, 191, 36, 0.42);
+  --taiji-lucky-ray: rgba(255, 244, 196, 0.34);
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-6 {
+  --taiji-lucky-size: min(25rem, 102vw);
+  --taiji-lucky-opacity: 0.52;
+  --taiji-lucky-glow: rgba(45, 212, 191, 0.42);
+  --taiji-lucky-ray: rgba(252, 211, 77, 0.42);
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-8 {
+  --taiji-lucky-size: min(28rem, 112vw);
+  --taiji-lucky-opacity: 0.62;
+  --taiji-lucky-glow: rgba(250, 204, 21, 0.56);
+  --taiji-lucky-ray: rgba(255, 255, 255, 0.46);
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-12 {
+  --taiji-lucky-size: min(32rem, 124vw);
+  --taiji-lucky-opacity: 0.7;
+  --taiji-lucky-glow: rgba(168, 85, 247, 0.46);
+  --taiji-lucky-ray: rgba(103, 232, 249, 0.5);
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-24 {
+  --taiji-lucky-size: min(38rem, 142vw);
+  --taiji-lucky-opacity: 0.82;
+  --taiji-lucky-glow: rgba(255, 231, 138, 0.72);
+  --taiji-lucky-ray: rgba(255, 255, 255, 0.62);
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-3::before,
+.taiji-open-stage .unified-taiji-shell--lucky-6::before,
+.taiji-open-stage .unified-taiji-shell--lucky-8::before,
+.taiji-open-stage .unified-taiji-shell--lucky-12::before,
+.taiji-open-stage .unified-taiji-shell--lucky-24::before {
+  animation: taiji-auspicious-rays 2.8s ease-out both;
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-3::after,
+.taiji-open-stage .unified-taiji-shell--lucky-6::after,
+.taiji-open-stage .unified-taiji-shell--lucky-8::after,
+.taiji-open-stage .unified-taiji-shell--lucky-12::after,
+.taiji-open-stage .unified-taiji-shell--lucky-24::after {
+  animation: taiji-auspicious-halo 3.2s ease-out both;
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-24::before {
+  background:
+    radial-gradient(circle, transparent 0 24%, rgba(255, 255, 255, 0.26) 32%, var(--taiji-lucky-glow) 42%, transparent 67%),
+    repeating-conic-gradient(from 0deg, transparent 0deg 5deg, var(--taiji-lucky-ray) 6deg 7.5deg, transparent 8.5deg 15deg);
+  animation-duration: 3.5s;
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-24::after {
+  animation-duration: 3.9s;
+}
+
+@keyframes taiji-auspicious-rays {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.42) rotate(0deg);
+  }
+  22% {
+    opacity: var(--taiji-lucky-opacity);
+  }
+  64% {
+    opacity: calc(var(--taiji-lucky-opacity) * 0.62);
+  }
+  100% {
+    opacity: calc(var(--taiji-lucky-opacity) * 0.28);
+    transform: translate(-50%, -50%) scale(1.08) rotate(32deg);
+  }
+}
+
+@keyframes taiji-auspicious-halo {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.58) rotate(16deg);
+  }
+  28% {
+    opacity: calc(var(--taiji-lucky-opacity) * 0.74);
+  }
+  100% {
+    opacity: calc(var(--taiji-lucky-opacity) * 0.24);
+    transform: translate(-50%, -50%) scale(1.18) rotate(-24deg);
+  }
+}
+
+@media (max-width: 430px) {
+  .taiji-open-stage .unified-taiji-shell--lucky-3 {
+    --taiji-lucky-size: min(19rem, 88vw);
+  }
+
+  .taiji-open-stage .unified-taiji-shell--lucky-6 {
+    --taiji-lucky-size: min(21rem, 96vw);
+  }
+
+  .taiji-open-stage .unified-taiji-shell--lucky-8 {
+    --taiji-lucky-size: min(23rem, 104vw);
+  }
+
+  .taiji-open-stage .unified-taiji-shell--lucky-12 {
+    --taiji-lucky-size: min(25rem, 112vw);
+  }
+
+  .taiji-open-stage .unified-taiji-shell--lucky-24 {
+    --taiji-lucky-size: min(27rem, 120vw);
+    --taiji-lucky-opacity: 0.68;
+  }
+}
+
+.app-lite-effects .taiji-open-stage .unified-taiji-shell::before,
+.app-lite-effects .taiji-open-stage .unified-taiji-shell::after {
+  animation-duration: 2.2s !important;
+  filter: none;
+}

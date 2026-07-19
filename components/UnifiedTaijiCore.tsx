@@ -244,8 +244,22 @@ export default function UnifiedTaijiCore({
     audioContextsRef.current.clear();
   }, []);
 
+  const luckyAuraLevel =
+    mantraLevel === 24 || tapCount >= 24
+      ? 24
+      : mantraLevel === 12 || tapCount >= 12
+        ? 12
+        : evolutionStage === 'bagua' || tapCount >= 8
+          ? 8
+          : mantraLevel === 6 || tapCount >= 6
+            ? 6
+            : mantraLevel === 3 || tapCount >= 3
+              ? 3
+              : 0;
+  const luckyAuraClass = luckyAuraLevel > 0 ? `unified-taiji-shell--lucky-${luckyAuraLevel}` : '';
+
   return (
-    <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage}`}>
+    <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} ${luckyAuraClass}`.trim()}>
       <button
         type="button"
         onClick={handleClick}
