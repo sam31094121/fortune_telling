@@ -4046,3 +4046,90 @@ body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
     height: min(6.45rem, 31vw);
   }
 }
+
+/* Shared Taiji open stage: all standalone Taiji cards use the same invisible frame. */
+.taiji-open-stage {
+  width: min(27rem, 100%) !important;
+  min-height: clamp(25.5rem, 104vw, 29rem) !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: clamp(0.35rem, 1.6vw, 0.8rem) !important;
+  overflow: visible !important;
+  contain: layout !important;
+}
+
+.taiji-open-stage::before,
+.taiji-open-stage::after {
+  display: none !important;
+}
+
+.taiji-open-stage .unified-taiji-shell {
+  width: 100%;
+  min-height: clamp(24rem, 100vw, 27rem) !important;
+  align-items: flex-start;
+  padding-top: clamp(0.65rem, 2.8vw, 1rem) !important;
+  padding-bottom: clamp(5.5rem, 17vw, 6.4rem) !important;
+  overflow: visible !important;
+}
+
+.taiji-open-stage .modal-taiji-button {
+  width: clamp(12.75rem, 61vw, 14.75rem) !important;
+  height: clamp(12.75rem, 61vw, 14.75rem) !important;
+}
+
+.taiji-open-stage .modal-taiji-orbit-emblem {
+  width: 100%;
+  height: 100%;
+}
+
+.taiji-open-stage .modal-taiji-3d-core {
+  width: clamp(6.1rem, 28vw, 7.1rem) !important;
+  height: clamp(6.1rem, 28vw, 7.1rem) !important;
+}
+
+.taiji-open-stage .unified-mantra-badge {
+  left: 50%;
+  top: auto;
+  bottom: clamp(0.45rem, 2.8vw, 0.85rem) !important;
+  width: min(19.5rem, calc(100% - 0.75rem)) !important;
+  min-width: 0;
+  max-width: min(19.5rem, calc(100vw - 1.5rem));
+  transform: translateX(-50%);
+}
+
+.taiji-open-stage .modal-taiji-natural-bloom,
+.taiji-open-stage .modal-taiji-ground-glow,
+.taiji-open-stage .unified-evolution-screen,
+.taiji-open-stage .unified-evolution-pulse,
+.taiji-open-stage .modal-evolution-flare,
+.taiji-open-stage .modal-evolution-scan,
+.taiji-open-stage .modal-evolution-orbit,
+.taiji-open-stage .modal-evolution-rays,
+.taiji-open-stage .modal-evolution-breath {
+  overflow: visible !important;
+}
+
+@media (max-width: 430px) {
+  .taiji-open-stage {
+    width: min(24.5rem, 100%) !important;
+    min-height: min(27rem, calc(100vw + 5.25rem)) !important;
+    padding: 0.25rem !important;
+  }
+
+  .taiji-open-stage .unified-taiji-shell {
+    min-height: min(25.75rem, calc(100vw + 4rem)) !important;
+    padding-top: 0.55rem !important;
+    padding-bottom: 5.85rem !important;
+  }
+
+  .taiji-open-stage .modal-taiji-button {
+    width: min(13.65rem, 66vw) !important;
+    height: min(13.65rem, 66vw) !important;
+  }
+
+  .taiji-open-stage .modal-taiji-3d-core {
+    width: min(6.45rem, 31vw) !important;
+    height: min(6.45rem, 31vw) !important;
+  }
+}

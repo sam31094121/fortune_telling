@@ -8,7 +8,7 @@ type TaijiStandaloneCardProps = {
 
 export default function TaijiStandaloneCard({ className = '' }: TaijiStandaloneCardProps) {
   return (
-    <div className={`taiji-standalone-card ${className}`.trim()}>
+    <div className={`taiji-standalone-card taiji-open-stage ${className}`.trim()}>
       <UnifiedTaijiCore />
     </div>
   );
