@@ -1312,8 +1312,14 @@ export default function HomePage() {
   // 監聽步驟切換、結果生成、解鎖與錯誤狀態，自動平滑定位，避免螢幕異常跳動與跑版
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (data || unlocking || isUnlocked) {
-        mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (data) {
+        const targetId = isUnlocked ? 'vip-result-anchor' : 'match-result-anchor';
+        const target = document.getElementById(targetId) ?? document.getElementById('match-result-anchor');
+        target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+
+      if (unlocking) {
         return;
       }
 
@@ -2019,8 +2025,8 @@ export default function HomePage() {
         )}
 
         {data && (
-          <div className="space-y-6">
-            <div className={`fortune-card p-6 sm:p-8 text-center transition-all duration-700 ${isUnlocked ? 'vip-gold-card shadow-[0_0_40px_rgba(201,162,74,0.3)]' : 'astral-glow-violet'}`}>
+          <div id="match-result-anchor" className="space-y-6 scroll-mt-24">
+            <div id="vip-result-anchor" className={`fortune-card p-6 sm:p-8 text-center scroll-mt-24 transition-all duration-700 ${isUnlocked ? 'vip-gold-card shadow-[0_0_40px_rgba(201,162,74,0.3)]' : 'astral-glow-violet'}`}>
               <p className={`text-xs uppercase tracking-[0.35em] ${isUnlocked ? 'text-amber-300 font-semibold' : 'text-rose-300 font-medium'}`}>
                 {isUnlocked ? '👑 尊榮 VIP 天宿配對報告' : '配對結果'}
               </p>
