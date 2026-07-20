@@ -145,11 +145,13 @@ export default function FeatureVisitorCounter({
   className = '',
   trackWhenVisible = false,
   deferMs = 0,
+  compact = false,
 }: {
   featureKey: FeatureKey;
   className?: string;
   trackWhenVisible?: boolean;
   deferMs?: number;
+  compact?: boolean;
 }) {
   const [displayCount, setDisplayCount] = useState<number | null>(null);
   const cardRef = useRef<HTMLElement>(null);
@@ -348,11 +350,11 @@ export default function FeatureVisitorCounter({
     <aside
       ref={cardRef}
       data-visitor-counter={featureKey}
-      className={`inline-flex w-fit flex-col rounded-2xl border border-amber-300/30 bg-white/[0.08] px-[18px] py-[14px] text-[color:var(--text-main)] shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl ${className}`}
+      className={`inline-flex w-fit flex-col border border-amber-300/30 bg-white/[0.08] text-[color:var(--text-main)] shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl ${compact ? 'rounded-xl px-3 py-2.5' : 'rounded-2xl px-[18px] py-[14px]'} ${className}`}
       aria-label="累計瀏覽人數"
     >
-      <div className="text-[13px] text-[color:var(--text-main)] opacity-75">累計瀏覽人數</div>
-      <div className="mt-1 text-2xl font-bold tracking-[0.05em] text-amber-300" aria-live="polite">
+      <div className={`${compact ? 'text-[11px]' : 'text-[13px]'} text-[color:var(--text-main)] opacity-75`}>累計瀏覽人數</div>
+      <div className={`${compact ? 'mt-0.5 text-lg sm:text-xl' : 'mt-1 text-2xl'} font-bold tracking-[0.05em] text-amber-300`} aria-live="polite">
         {displayCount === null ? '同步中' : displayCount.toLocaleString('zh-TW')}
       </div>
     </aside>
