@@ -721,118 +721,156 @@ const ZIWEI_PALACE_STORY: Record<string, {
   opportunity: string;
   pressure: string;
   action: string;
+  likely: string;
+  repair: string;
+  encouragement: string;
   tone: string;
 }> = {
   MING: {
     subtitle: '性格、天賦與人生核心',
     icon: '✦',
-    story: '命宮像整張命盤的主控室，主星代表你今年最自然的反應方式，三方四正會補足你能借力的位置。',
-    opportunity: '適合重新確認自我定位，把優勢放在真正重要的方向。',
-    pressure: '容易因為想一次處理太多事，讓心力分散。',
-    action: '先定一個年度主軸，把力氣集中在最能累積成果的地方。',
+    story: '命宮只看你本人：你的性格底色、天賦反應、做決定的方式，以及今年如何把自己站穩。',
+    opportunity: '今年適合把自我定位講清楚，讓別人知道你的能力與界線。',
+    pressure: '較容易出現想證明自己、急著承擔過多角色的情況。',
+    action: '先定一個年度主軸，其他事情都回到這個主軸判斷。',
+    likely: '容易在自我定位、方向選擇、個人信心上被提醒。',
+    repair: '把目標縮小成每週可完成的行動，先穩住節奏再放大格局。',
+    encouragement: '你的格局不是靠一次表現證明，而是靠穩定選擇慢慢成形。',
     tone: 'border-cyan-400/30 bg-cyan-950/15 text-cyan-100',
   },
   XIONG_DI: {
     subtitle: '手足、朋友與同輩互動',
     icon: '◇',
-    story: '兄弟宮像身邊同輩的支援站，能看見手足、朋友與熟人互動對今年選擇的影響。',
-    opportunity: '同輩合作容易帶來資訊、資源或情緒上的支持。',
-    pressure: '若界線不清，容易把別人的急事變成自己的負擔。',
-    action: '需要幫忙時說清楚，也要把責任範圍先講明白。',
+    story: '兄弟宮只看兄弟姊妹、同輩、密友與近距離朋友，重點是支援、比較、合作與界線。',
+    opportunity: '今年同輩或密友可能帶來消息、介紹、幫忙或情緒支撐。',
+    pressure: '較容易因人情、比較心、界線不清，把別人的壓力扛到自己身上。',
+    action: '合作前先講清楚責任，幫忙可以，但不要無條件消耗自己。',
+    likely: '容易發生同輩互動變多、朋友求助、兄弟姊妹議題被看見。',
+    repair: '把關係分成可深交、可合作、需保持距離三類，避免混在一起。',
+    encouragement: '真正的好朋友會讓你變穩，不會讓你一直失衡。',
     tone: 'border-sky-400/30 bg-sky-950/15 text-sky-100',
   },
   FU_QI: {
     subtitle: '感情、伴侶與相處模式',
     icon: '♡',
-    story: '夫妻宮像關係中的會客室，主星看相處需求，三方四正看彼此如何在現實生活中互相配合。',
-    opportunity: '適合把關係中的期待說清楚，讓理解替代猜測。',
-    pressure: '容易因為情緒沒有被看見，而累積沉默或誤會。',
-    action: '今年多用具體溝通取代試探，關係會更安定。',
+    story: '夫妻宮只看伴侶、親密關係、長期相處與彼此期待，不把事業或財務混成感情結論。',
+    opportunity: '今年適合把關係需求說明白，讓互相理解變成穩定力量。',
+    pressure: '較容易因猜測、沉默、期待落差，讓小事變成情緒累積。',
+    action: '用具體句子表達需求，不用試探代替溝通。',
+    likely: '容易出現感情定位、伴侶相處、承諾感與安全感的課題。',
+    repair: '把「你應該懂我」改成「我真正需要的是什麼」，關係會更清楚。',
+    encouragement: '好的關係不是沒有摩擦，而是兩個人願意一起修正相處方式。',
     tone: 'border-rose-400/30 bg-rose-950/15 text-rose-100',
   },
   ZI_NV: {
     subtitle: '子女、創造與成果延續',
     icon: '✣',
-    story: '子女宮也像成果孵化室，看創作、晚輩、部屬與你投入心血後長出來的東西。',
-    opportunity: '適合培養作品、教學、陪伴或可延續的計畫。',
-    pressure: '若急著看到成果，反而容易打亂原本節奏。',
-    action: '保留固定時間讓計畫慢慢成形，先重品質再重速度。',
+    story: '子女宮只看子女、晚輩、部屬、創作、作品與成果延續，是你投入心血後長出來的東西。',
+    opportunity: '今年適合培養作品、教學、陪伴、內容輸出或長期計畫。',
+    pressure: '較容易因急著看到成果，忽略培養期需要時間。',
+    action: '把成果拆成小階段，先養成固定輸出，再談爆發。',
+    likely: '容易發生子女晚輩互動、作品卡關、創造力需要被安排的情況。',
+    repair: '不要一直更換方向，先讓一個作品或計畫完整長出來。',
+    encouragement: '你的成果會慢慢替你說話，穩定投入比急著證明更有力量。',
     tone: 'border-pink-400/30 bg-pink-950/15 text-pink-100',
   },
   CAI_BO: {
     subtitle: '收入、金錢與資源運用',
     icon: '◎',
-    story: '財帛宮像管理收入與資源的房間，主星看金錢處理方式，三方四正看工作、定位與外部機會如何共同影響財務。',
-    opportunity: '適合整理收入來源與資源配置，把能累積的價值留下來。',
-    pressure: '容易因短期支出或情緒性決策，讓資源流動變得不穩。',
-    action: '今年先記帳與分配，再談擴張；把錢放到最有回收力的地方。',
+    story: '財帛宮只看錢財：收入方式、支出習慣、金錢態度、資源配置與今年財務壓力。',
+    opportunity: '今年適合整理收入來源、降低浪費、把資源放到能累積價值的地方。',
+    pressure: '較容易出現臨時支出、人情消費、投資衝動或現金流卡住。',
+    action: '先做預算、記帳與保留安全金，再評估擴張或投入。',
+    likely: '容易發生收入調整、支出變多、資源重新分配、錢要花在刀口上的情況。',
+    repair: '把每筆錢分成必要、投資自己、可延後三類，先止漏再開源。',
+    encouragement: '財帛宮要你學會掌握資源，不是害怕花錢，而是讓錢流向更值得的地方。',
     tone: 'border-emerald-400/30 bg-emerald-950/15 text-emerald-100',
   },
   JI_E: {
     subtitle: '身心負荷與生活節奏',
     icon: '✧',
-    story: '疾厄宮像身心節奏的儀表板，用來看壓力、作息與恢復力，不做疾病診斷。',
-    opportunity: '只要節奏穩，今年反而能把體力與專注力用得更精準。',
-    pressure: '長期忽略休息，容易讓情緒與效率一起下滑。',
-    action: '固定睡眠、飲食與放鬆，先把身體顧好再衝刺。',
+    story: '疾厄宮只看身心負荷、壓力反應、作息節奏與生活管理；此處不做疾病診斷。',
+    opportunity: '今年只要節奏穩，體力、專注力與恢復力都能成為助力。',
+    pressure: '較容易因睡眠不足、壓力累積、過度操勞而降低效率。',
+    action: '先固定睡眠、飲食、休息與運動節奏，再處理高壓任務。',
+    likely: '容易發生疲勞感增加、生活節奏被打亂、壓力需要出口的情況。',
+    repair: '用規律取代硬撐，把休息排進行程，不要等到耗盡才停。',
+    encouragement: '照顧身體不是退後，是讓你走得更長、更穩。',
     tone: 'border-lime-400/30 bg-lime-950/15 text-lime-100',
   },
   QIAN_YI: {
     subtitle: '外出發展與外在形象',
     icon: '↗',
-    story: '遷移宮像外部舞台，會看你走出去後遇到的機會、人脈與外界回饋。',
-    opportunity: '適合曝光、拓展場域、接觸新客群或不同環境。',
-    pressure: '外界變化快時，容易被他人的節奏拉著走。',
-    action: '今年可以主動出擊，但要守住時間與合作界線。',
+    story: '遷移宮只看外出、外地、外界舞台、社會形象與別人看到的你。',
+    opportunity: '今年適合曝光、拓展場域、接觸新環境、讓外界看見你的價值。',
+    pressure: '較容易因外部變化、人際場合或新環境節奏，讓自己被拉著走。',
+    action: '主動出去，但每次合作與曝光都要有明確目的。',
+    likely: '容易發生出差、移動、換環境、新客戶、外部邀約或形象被檢視。',
+    repair: '先準備好自我介紹、作品與界線，出門才不會被場面牽著跑。',
+    encouragement: '你的舞台不只在熟悉的地方，走出去會看見新的可能。',
     tone: 'border-orange-400/30 bg-orange-950/15 text-orange-100',
   },
   JIAO_YOU: {
     subtitle: '人脈、合作與團隊關係',
     icon: '✺',
-    story: '交友宮像合作網絡，看團隊、客戶、夥伴與人脈品質如何影響今年發展。',
-    opportunity: '圈子對了，資源與消息會更容易流向你。',
-    pressure: '人情壓力或消耗型合作，可能讓判斷變慢。',
-    action: '選擇能互相成就的人，合作前先確認目標與分工。',
+    story: '交友宮只看朋友、人脈、合作夥伴、客戶、團隊與部屬，不直接斷言誰是好壞。',
+    opportunity: '今年適合篩選合作圈，讓對的人帶來資源、客源或實際支援。',
+    pressure: '較容易遇到溝通成本高、責任不清或消耗型合作。',
+    action: '合作前確認目標、分工、期限與利益分配。',
+    likely: '容易發生客戶關係、團隊協調、朋友介紹、合作邀約增多。',
+    repair: '不要只看熱情，要看對方是否守信用、能不能一起完成事。',
+    encouragement: '圈子對了，你的努力會被放大；圈子不對，越努力越耗力。',
     tone: 'border-teal-400/30 bg-teal-950/15 text-teal-100',
   },
   GUAN_LU: {
     subtitle: '工作、事業與職涯方向',
     icon: '▣',
-    story: '官祿宮像事業部門，主星看工作方式，三方四正看能力、責任與外部位置如何連動。',
-    opportunity: '適合把專業整理成可被看見的成果，提升信任感。',
-    pressure: '責任增加時，若流程沒整理好，容易忙而不精。',
-    action: '把任務拆成清楚步驟，先做最能代表專業的成果。',
+    story: '官祿宮只看事業：工作方式、職涯定位、責任角色、專業成果與今年事業改進方向。',
+    opportunity: '今年適合把專業變成可被看見的成果，讓職場信任感提升。',
+    pressure: '較容易出現任務變多、責任加重、流程不清或角色需要升級。',
+    action: '把今年工作目標拆成可驗收節點，先完成最能代表專業的一項成果。',
+    likely: '容易發生工作調整、職位責任變化、專案壓力、需要證明能力的情況。',
+    repair: '先整理流程與優先順序，不要用忙碌取代成果。',
+    encouragement: '你的事業格局要靠作品和信用撐起來，一步一步會越站越穩。',
     tone: 'border-amber-400/30 bg-amber-950/15 text-amber-100',
   },
   TIAN_ZHAI: {
     subtitle: '家庭、居住與資產基礎',
     icon: '⌂',
-    story: '田宅宮像根基與安住的房間，看家庭、居住、空間與資產基礎帶來的安全感。',
-    opportunity: '整理空間與生活秩序，會讓後續行動更有底氣。',
-    pressure: '家庭或資產議題若拖太久，容易變成隱性壓力。',
-    action: '先處理看得見的環境，再慢慢整理資產與家庭共識。',
+    story: '田宅宮只看家庭、居住環境、房產、內部資源與安全感，不提供投資保證。',
+    opportunity: '今年適合整理住家、家庭秩序、資產基礎與長期安全感。',
+    pressure: '較容易因家中雜務、居住安排、資產壓力或家人意見而分心。',
+    action: '先處理看得見的空間，再整理家庭共識與資源規劃。',
+    likely: '容易發生搬動整理、家庭討論、居住品質、資產配置需要重看。',
+    repair: '把家變成補充能量的地方，不要讓環境一直消耗你。',
+    encouragement: '根基穩，外面的路才走得遠；整理田宅就是整理你的底氣。',
     tone: 'border-yellow-400/30 bg-yellow-950/15 text-yellow-100',
   },
   FU_DE: {
     subtitle: '內心、興趣與精神狀態',
     icon: '◐',
-    story: '福德宮像心裡的休息室，看精神能量、興趣、慾望與內在滿足感。',
-    opportunity: '內心穩定時，判斷會更清楚，福氣也比較留得住。',
-    pressure: '若只顧外在成果，容易忽略真正需要修復的地方。',
-    action: '每天留一點安靜時間，讓心氣回來。',
+    story: '福德宮只看內心世界、精神狀態、興趣慾望、休息方式與享受生活的能力。',
+    opportunity: '今年適合修復心氣、培養興趣、找回讓自己安定的生活節奏。',
+    pressure: '較容易外表正常、內心消耗，或因想太多而睡不穩、心不定。',
+    action: '每天安排一段不被打擾的安靜時間，讓心慢慢回來。',
+    likely: '容易發生內心疲倦、興趣轉換、想休息卻放不下責任的狀況。',
+    repair: '把休息當成能量管理，不要把安靜時間視為浪費。',
+    encouragement: '心穩，運就不容易散；你越能安住，越能看清真正想要的路。',
     tone: 'border-violet-400/30 bg-violet-950/15 text-violet-100',
   },
   FU_MU: {
     subtitle: '父母、長輩與支持系統',
     icon: '△',
-    story: '父母宮像長輩與制度的支持系統，也看上級、師長、傳承與保護力量。',
-    opportunity: '適合請益、學習與修正舊觀念，讓經驗成為助力。',
-    pressure: '權威或期待太重時，容易讓你忽略自己的節奏。',
-    action: '尊重經驗，但把最後選擇放回自己手上。',
+    story: '父母宮只看父母、長輩、上級、制度、教育資源與支持系統。',
+    opportunity: '今年適合請益、學習、修正舊觀念，讓長輩或制度資源成為助力。',
+    pressure: '較容易被期待、規範、權威意見影響，或與長輩觀念不同。',
+    action: '尊重經驗，但最後仍要把選擇放回自己的人生節奏。',
+    likely: '容易發生長輩溝通、上級要求、制度流程、學習證照或資源申請。',
+    repair: '把對立變成請益，把壓力轉成規劃，不要用硬碰硬消耗自己。',
+    encouragement: '你可以承接好的經驗，也可以走出自己的新路。',
     tone: 'border-indigo-400/30 bg-indigo-950/15 text-indigo-100',
   },
 };
-
 const ZIWEI_PALACE_ANNUAL_LENS: Record<string, { label: string; matrixKey: ZiweiAdviceMatrixKey; source: string }> = {
   MING: { label: '自我定位', matrixKey: 'confidence', source: '今年整體信心與自我穩定度' },
   XIONG_DI: { label: '同輩互動', matrixKey: 'communication', source: '今年溝通、人際協調與同輩支援' },
@@ -881,6 +919,15 @@ function ZiweiTwelvePalaceCards({
   annual?: InsightResult['annualFortune'];
 }) {
   const [selectedPalaceKey, setSelectedPalaceKey] = useState<string | null>(null);
+  const storyPanelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!selectedPalaceKey) return;
+    const timer = window.setTimeout(() => {
+      storyPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [selectedPalaceKey]);
 
   if (!analysis) return null;
 
@@ -928,10 +975,13 @@ function ZiweiTwelvePalaceCards({
           const story = ZIWEI_PALACE_STORY[palace.key] ?? {
             subtitle: `${normalizeZiweiPalaceName(palace.name)}主題`,
             icon: '✦',
-            story: `${normalizeZiweiPalaceName(palace.name)}代表一段生活主題，今年先看它帶來的提醒。`,
+            story: `${normalizeZiweiPalaceName(palace.name)}只看這一宮代表的生活主題，今年先看它帶來的具體提醒。`,
             opportunity: '適合把重點整理清楚，找到可執行方向。',
             pressure: '訊號不足時，先以保守判讀為主。',
             action: '把重點化成一個可執行的小步驟。',
+            likely: '容易在這個宮位主題上出現需要處理的變化。',
+            repair: '先把問題分清楚，再用小步驟補強。',
+            encouragement: '看清楚這一宮的提醒，就能把壓力轉成可行動的方向。',
             tone: 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
           };
           const annualPalace = annualMap.get(palace.key as 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI');
@@ -967,6 +1017,7 @@ function ZiweiTwelvePalaceCards({
 
       {selectedPalace ? (
         <ZiweiPalaceStoryPanel
+          panelRef={storyPanelRef}
           palace={selectedPalace}
           annualPalace={annualMap.get(selectedPalace.key as 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI')}
           annual={annual}
@@ -984,6 +1035,7 @@ function ZiweiTwelvePalaceCards({
 }
 
 function ZiweiPalaceStoryPanel({
+  panelRef,
   palace,
   annualPalace,
   annual,
@@ -991,6 +1043,7 @@ function ZiweiPalaceStoryPanel({
   year,
   patternName,
 }: {
+  panelRef: React.RefObject<HTMLDivElement | null>;
   palace: ZiweiFullPalace;
   annualPalace?: ZiweiAnnualPalace;
   annual?: ZiweiAnnualFortune;
@@ -1001,10 +1054,13 @@ function ZiweiPalaceStoryPanel({
   const config = story ?? {
     subtitle: `${normalizeZiweiPalaceName(palace.name)}主題`,
     icon: '✦',
-    story: `${normalizeZiweiPalaceName(palace.name)}代表一段生活主題，今年先看它帶來的提醒。`,
+    story: `${normalizeZiweiPalaceName(palace.name)}只看這一宮代表的生活主題，今年先看它帶來的具體提醒。`,
     opportunity: '適合把重點整理清楚，找到可執行方向。',
     pressure: '訊號不足時，先以保守判讀為主。',
     action: '把重點化成一個可執行的小步驟。',
+    likely: '容易在這個宮位主題上出現需要處理的變化。',
+    repair: '先把問題分清楚，再用小步驟補強。',
+    encouragement: '看清楚這一宮的提醒，就能把壓力轉成可行動的方向。',
     tone: 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
   };
   const mainStars = palace.majorStars.length > 0 ? palace.majorStars.join('、') : '無主星坐守';
@@ -1013,7 +1069,7 @@ function ZiweiPalaceStoryPanel({
   const annualSignal = getZiweiAnnualSignal(palace.key, annualPalace, annual);
 
   return (
-    <div className={`mt-6 rounded-[24px] border p-5 sm:p-6 ${config.tone}`}>
+    <div ref={panelRef} className={`mt-6 scroll-mt-24 rounded-[24px] border p-5 sm:p-6 ${config.tone}`}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold tracking-[0.24em] opacity-70">{year} 年專屬分析</p>
@@ -1826,6 +1882,8 @@ export default function InsightPage() {
     </div>
   );
 }
+
+
 
 
 
