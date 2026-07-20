@@ -293,6 +293,7 @@ body {
   }
 }
 
+
 @media (max-width: 768px) {
   .starfield::after,
   .constellation-ring-bottom {
@@ -471,6 +472,49 @@ body.app-mobile-device [data-visitor-counter] {
   -webkit-backdrop-filter: none !important;
 }
 
+
+body.app-mobile-device .home-feature-launch,
+body.app-social-browser .home-feature-launch,
+body.app-lite-effects .home-feature-launch,
+body.app-mobile-device .ziwei-palace-card,
+body.app-social-browser .ziwei-palace-card,
+body.app-lite-effects .ziwei-palace-card {
+  contain: layout paint;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 10px 26px rgba(2, 6, 23, 0.22) !important;
+}
+
+body.app-mobile-device .home-feature-launch:hover,
+body.app-social-browser .home-feature-launch:hover,
+body.app-mobile-device .ziwei-palace-card:hover,
+body.app-social-browser .ziwei-palace-card:hover {
+  transform: none !important;
+}
+
+body.app-mobile-device .ziwei-palace-card[aria-expanded="true"],
+body.app-social-browser .ziwei-palace-card[aria-expanded="true"],
+body.app-lite-effects .ziwei-palace-card[aria-expanded="true"] {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 14px 34px rgba(2, 6, 23, 0.3), 0 0 22px rgba(251, 191, 36, 0.12) !important;
+}
+
+body.app-lite-effects .modal-taiji-button .modal-taiji-orbit-emblem::before,
+body.app-lite-effects .modal-taiji-button .modal-taiji-orbit-emblem::after,
+body.app-lite-effects .modal-taiji-natural-bloom,
+body.app-lite-effects .modal-taiji-ground-glow,
+body.app-lite-effects .unified-evolution-screen,
+body.app-lite-effects .unified-evolution-pulse {
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.app-lite-effects .taiji-celestial-wisp--three,
+body.app-lite-effects .modal-evolution-rays .modal-energy-ray:nth-child(n+7),
+body.app-lite-effects .taiji-light-orbit--violet .taiji-light-orbit__head {
+  display: none !important;
+}
 @media (max-width: 768px) {
   .fortune-card,
   .vip-gold-card {

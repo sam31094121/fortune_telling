@@ -1586,7 +1586,7 @@ export default function HomePage() {
           </Link>
           <span className="text-[color:var(--text-muted)]">·</span>
           <Link href="/insight" className="text-xs tracking-widest text-amber-300/70 transition hover:text-amber-300">
-            // AI 深度洞察
+            // AI 姓名學
           </Link>
         </div>
 
@@ -1748,26 +1748,26 @@ export default function HomePage() {
 
             <div className="flex items-center gap-4.5">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-950/40 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)] animate-spin-slow">
-                <span className="text-2xl font-serif">✦</span>
+                <span className="text-2xl font-serif">名</span>
               </div>
               <div>
                 <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-300 uppercase animate-pulse">
-                  AI · 深度命格洞察
+                  AI · 姓名五格解析
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-amber-100 tracking-wide flex items-center gap-2">
-                  <span>AI 深度洞察</span>
+                  <span>AI 姓名學</span>
                   <span className="text-xs font-sans text-amber-300 font-normal opacity-85 hidden sm:inline">
-                    // 性格潛能 · 紫微星曜 · 大數據解析
+                    // 姓名五格 · 人格特質 · 能量建議
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  整合命理、心理與統計模型，生成個人性格、潛能與人生節奏分析。
+                  以姓名結構為核心，整理人格特質、行動優勢與適合補強的方向。
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/30 px-5 py-3 text-xs font-bold text-amber-200 transition group-hover:bg-amber-500/25">
-              <span>立即開啟洞察</span>
+              <span>立即開啟姓名學</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
