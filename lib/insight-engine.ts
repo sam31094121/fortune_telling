@@ -395,7 +395,7 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
   const birthScores = getBirthPersonalityScores(request.birthDate);
   const bloodScores = getBloodTypePersonalityScores(request.bloodType);
   const nameScores = getNamePersonalityScores(request.name);
-  const nameology = buildNameologyAnalysis(request.name, nameScores);
+  const nameology = buildNameologyAnalysis(request.name, nameScores, { gender: request.gender, bloodType: request.bloodType, birthDate: request.birthDate });
 
   const birthZodiac = getBirthZodiac(request.birthDate);
 
@@ -446,7 +446,11 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 - 姓名學等級: ${nameology.level}
 - 核心人格: ${nameology.corePersonality}
 - 形象偏好: ${nameology.imageAndPreference}
-- 每字拆解: ${nameology.characters.map((item) => `${item.char}${item.strokeCount}畫/${item.element}${item.yinYang}/${item.role}`).join('；')}
+- 24性情矩陣: ${nameology.temperamentProfile.topTendencies.map((item) => `${item.label}${item.score}分/${item.tone}`).join('；')}
+- 明確性情方向: ${nameology.temperamentProfile.clearDirection}
+- 姓名結構: ${nameology.composition.surnameSummary} ${nameology.composition.givenNameSummary} ${nameology.composition.combinedIntent}
+- 交叉校正: ${nameology.crossCheck.alignmentLabel}；${nameology.crossCheck.genderLens}；${nameology.crossCheck.bloodTypeLens}；${nameology.crossCheck.birthdayLens}
+- 每字拆解: ${nameology.characters.map((item) => `${item.char}${item.strokeCount}畫/${item.element}${item.yinYang}/${item.role}/部首${item.glyph.radical}/拆字${item.glyph.parts.join('+')}/象意${item.glyph.meaning}/取名意圖${item.glyph.namingIntent}/性情${item.tendencies.slice(0, 3).map((tendency) => tendency.label).join('、')}`).join('；')}
 - 五格: ${nameology.grids.map((item) => `${item.label}${item.value}畫${item.element}`).join('；')}
 - 相生相剋: ${nameology.elementFlow.map((item) => `${item.from}->${item.to}/${item.relation}`).join('；')}
 
@@ -482,12 +486,12 @@ ${JSON.stringify(statisticalAnalysis.map((item) => ({
 })), null, 2)}
 
 請只根據以上固定分數進行文字分析，包括：
-1. 姓名學洞察（3-5項），必須以姓名字義、筆畫、五格、相生相剋為主，不可自行創造新分數。
+1. 姓名學洞察（3-5項），必須以姓名字義、字形拆解、24性情矩陣、筆畫五格、相生相剋為主，不可自行創造新分數。
 2. 個性化建議（3-5項）。
 3. 完整分析摘要。
 
 分析要求：
-- 姓名學是主軸，紫微命財官遷只作輔助；你只能引用上方已給定的宮位與四柱，不可自行推導、補充或改寫星曜。
+- 姓名學是主軸，紫微命財官遷只作輔助；你只能引用上方已給定的宮位與四柱，不可自行推導、補充或改寫星曜。姓名學部分只能讀取後端給定的字形、字義、取名意圖與24性情矩陣，不可自己新增拆字規則或分數。
 - 今年流年運勢、今年命盤三方四正年度分數與年度建議已由後端固定產生；你只能呼應今年，不可自行改分數、改宮位，也不可把今年運勢寫成終身本命。
 - 語氣應具體、有建設性，避免宿命論、恐嚇、鐵口直斷或過度保證。
 - 每一項「心理學洞察」與「建議」必須有完全不同的切入點與獨特話術，展現高智商、邏輯嚴密且不可複刻的專業性。

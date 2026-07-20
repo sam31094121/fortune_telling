@@ -247,6 +247,21 @@ interface InsightResult {
   };
   nameology?: {
     name: string;
+    composition?: {
+      surname: string;
+      givenName: string;
+      surnameSummary: string;
+      givenNameSummary: string;
+      combinedIntent: string;
+    };
+    crossCheck?: {
+      genderLens: string;
+      bloodTypeLens: string;
+      birthdayLens: string;
+      alignmentLabel: string;
+      summary: string;
+      corrections: string[];
+    };
     characters: {
       char: string;
       position: number;
@@ -258,6 +273,20 @@ interface InsightResult {
       imagery: string;
       traits: string[];
       caution: string;
+      glyph?: {
+        radical: string;
+        parts: string[];
+        structure: string;
+        meaning: string;
+        namingIntent: string;
+      };
+      tendencies?: {
+        key: string;
+        label: string;
+        score: number;
+        tone: string;
+        meaning: string;
+      }[];
     }[];
     grids: {
       key: 'sky' | 'person' | 'earth' | 'outer' | 'total';
@@ -273,6 +302,24 @@ interface InsightResult {
       relation: '相生' | '相剋' | '比和';
       note: string;
     }[];
+    temperamentProfile?: {
+      topTendencies: {
+        key: string;
+        label: string;
+        score: number;
+        tone: string;
+        meaning: string;
+      }[];
+      allTendencies: {
+        key: string;
+        label: string;
+        score: number;
+        tone: string;
+        meaning: string;
+      }[];
+      summary: string;
+      clearDirection: string;
+    };
     corePersonality: string;
     imageAndPreference: string;
     strengths: string[];
@@ -282,8 +329,7 @@ interface InsightResult {
     level: string;
     summary: string;
     ruleVersion: string;
-  };
-  meta?: {
+  };  meta?: {
     dayPillar: string;
     hourPillar: string;
     wuxing: string;
@@ -362,6 +408,9 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
   const characters = analysis.characters ?? [];
   const grids = analysis.grids ?? [];
   const elementFlow = analysis.elementFlow ?? [];
+  const topTendencies = analysis.temperamentProfile?.topTendencies ?? [];
+  const composition = analysis.composition;
+  const crossCheck = analysis.crossCheck;
   const relationTone: Record<string, string> = {
     相生: 'border-emerald-300/35 bg-emerald-400/10 text-emerald-100',
     比和: 'border-cyan-300/35 bg-cyan-400/10 text-cyan-100',
@@ -384,7 +433,7 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
             {analysis.name}
           </h2>
           <p className="mt-4 text-sm font-semibold tracking-[0.16em] text-cyan-100 sm:text-base">
-            AI 姓名學 · 字義意境 × 筆畫五格 × 相生相剋
+            AI 姓名學 · 測字意境 × 24性情矩陣 × 相生相剋
           </p>
           <p className="mx-auto mt-4 max-w-3xl text-sm leading-7 text-[color:var(--text-sub)] lg:mx-0">
             {analysis.summary}
@@ -398,6 +447,43 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
         </div>
       </div>
 
+      {(composition || crossCheck) && (
+        <div className="relative mt-6 grid gap-3 lg:grid-cols-2">
+          {composition && (
+            <article className="rounded-3xl border border-cyan-300/20 bg-cyan-400/8 p-5">
+              <p className="text-xs font-semibold tracking-[0.24em] text-cyan-200">姓名結構</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+                  <p className="text-xs text-[color:var(--text-muted)]">姓氏根基</p>
+                  <p className="mt-2 font-serif text-3xl font-black text-cyan-100">{composition.surname || '姓'}</p>
+                  <p className="mt-3 text-xs leading-6 text-[color:var(--text-sub)]">{composition.surnameSummary}</p>
+                </div>
+                <div className="rounded-2xl border border-amber-300/20 bg-amber-400/10 p-4">
+                  <p className="text-xs text-amber-100/75">名字主意境</p>
+                  <p className="mt-2 font-serif text-3xl font-black text-amber-100">{composition.givenName || '名'}</p>
+                  <p className="mt-3 text-xs leading-6 text-amber-50/90">{composition.givenNameSummary}</p>
+                </div>
+              </div>
+              <p className="mt-4 border-l-2 border-cyan-200/40 pl-3 text-xs leading-6 text-cyan-50/85">{composition.combinedIntent}</p>
+            </article>
+          )}
+
+          {crossCheck && (
+            <article className="rounded-3xl border border-emerald-300/20 bg-emerald-400/8 p-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold tracking-[0.24em] text-emerald-200">資料交叉校正</p>
+                <span className="rounded-full border border-emerald-200/25 bg-emerald-300/10 px-3 py-1 text-xs font-bold text-emerald-100">{crossCheck.alignmentLabel}</span>
+              </div>
+              <p className="mt-4 text-sm leading-7 text-emerald-50/90">{crossCheck.summary}</p>
+              <div className="mt-4 space-y-3 text-xs leading-6 text-[color:var(--text-sub)]">
+                <p>{crossCheck.genderLens}</p>
+                <p>{crossCheck.bloodTypeLens}</p>
+                <p>{crossCheck.birthdayLens}</p>
+              </div>
+            </article>
+          )}
+        </div>
+      )}
       {characters.length > 0 && (
         <div className="relative mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {characters.map((item) => (
@@ -412,6 +498,31 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
         </div>
       )}
 
+      {topTendencies.length > 0 && (
+        <div className="relative mt-6 rounded-3xl border border-amber-300/20 bg-amber-400/8 p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold tracking-[0.24em] text-amber-200">24 性情主軸</p>
+              <p className="mt-3 text-sm leading-7 text-amber-50/90">{analysis.temperamentProfile?.summary}</p>
+            </div>
+            <p className="text-xs leading-6 text-amber-100/75 sm:max-w-xs">{analysis.temperamentProfile?.clearDirection}</p>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {topTendencies.slice(0, 5).map((item) => (
+              <article key={item.key} className="rounded-2xl border border-white/10 bg-black/15 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-black text-amber-100">{item.label}</p>
+                  <span className="text-xs font-bold text-cyan-100">{item.score}</span>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full rounded-full bg-gradient-to-r from-amber-200 to-cyan-200" style={{ width: `${item.score}%` }} />
+                </div>
+                <p className="mt-2 text-[11px] leading-5 text-[color:var(--text-sub)]">{item.tone}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="relative mt-6 rounded-3xl border border-cyan-300/20 bg-cyan-400/8 p-5">
         <p className="text-xs font-semibold tracking-[0.24em] text-cyan-200">取名意境</p>
         <p className="mt-3 text-sm leading-7 text-cyan-50/90">{namingIntent}</p>
@@ -447,8 +558,24 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
                 </span>
               </div>
               <p className="mt-3 text-xs leading-6 text-[color:var(--text-sub)]">{item.imagery}</p>
+              {item.glyph && (
+                <div className="mt-3 rounded-2xl border border-amber-300/15 bg-amber-300/8 p-3">
+                  <div className="flex flex-wrap gap-2 text-[11px] font-semibold text-amber-100/90">
+                    <span className="rounded-full border border-amber-200/20 px-2 py-1">部首：{item.glyph.radical}</span>
+                    <span className="rounded-full border border-amber-200/20 px-2 py-1">拆字：{item.glyph.parts.join('＋')}</span>
+                    <span className="rounded-full border border-amber-200/20 px-2 py-1">{item.glyph.structure}</span>
+                  </div>
+                  <p className="mt-3 text-[11px] leading-5 text-amber-50/85">{item.glyph.meaning}</p>
+                  <p className="mt-2 border-l-2 border-cyan-200/40 pl-3 text-[11px] leading-5 text-cyan-50/85">{item.glyph.namingIntent}</p>
+                </div>
+              )}
               <div className="mt-3 flex flex-wrap gap-2">
-                {item.traits.slice(0, 3).map((trait) => (
+                {(item.tendencies ?? []).slice(0, 3).map((tendency) => (
+                  <span key={tendency.key} className="rounded-full border border-amber-300/20 bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-100">
+                    {tendency.label} {tendency.score}
+                  </span>
+                ))}
+                {item.traits.slice(0, 2).map((trait) => (
                   <span key={trait} className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-100">
                     {trait}
                   </span>
