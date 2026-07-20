@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
+import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
 import type { BloodType, Gender } from '@/lib/types';
 import type { NameologyAnalysis } from '@/lib/nameology-engine';
 
@@ -21,7 +22,6 @@ type FormState = {
 
 type SelectionConfirm = { bloodType: boolean; gender: boolean };
 
-type ChoiceTone = 'amber' | 'cyan' | 'pink' | 'violet';
 
 const BLOOD_TYPES: Array<Exclude<BloodType, ''>> = ['A', 'B', 'AB', 'O'];
 
@@ -40,55 +40,6 @@ const BLOOD_DESC: Record<Exclude<BloodType, ''>, string> = {
   AB: '理性感性並存，觀察力與整合力較明顯。',
   O: '主動直接，行動力、號召力與外放感較強。',
 };
-
-function ChoiceButton({
-  active,
-  title,
-  description,
-  onClick,
-  tone,
-}: {
-  active: boolean;
-  title: string;
-  description: string;
-  onClick: () => void;
-  tone: ChoiceTone;
-}) {
-  const tones: Record<ChoiceTone, string> = {
-    amber: active
-      ? 'border-amber-300 bg-amber-400/18 text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.22)]'
-      : 'border-white/10 bg-white/[0.04] text-[color:var(--text-main)] hover:border-amber-300/45 hover:bg-amber-400/10',
-    cyan: active
-      ? 'border-cyan-300 bg-cyan-400/18 text-cyan-100 shadow-[0_0_24px_rgba(34,211,238,0.22)]'
-      : 'border-white/10 bg-white/[0.04] text-[color:var(--text-main)] hover:border-cyan-300/45 hover:bg-cyan-400/10',
-    pink: active
-      ? 'border-pink-300 bg-pink-400/18 text-pink-100 shadow-[0_0_24px_rgba(244,114,182,0.22)]'
-      : 'border-white/10 bg-white/[0.04] text-[color:var(--text-main)] hover:border-pink-300/45 hover:bg-pink-400/10',
-    violet: active
-      ? 'border-violet-300 bg-violet-400/18 text-violet-100 shadow-[0_0_24px_rgba(167,139,250,0.22)]'
-      : 'border-white/10 bg-white/[0.04] text-[color:var(--text-main)] hover:border-violet-300/45 hover:bg-violet-400/10',
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`group relative min-h-[104px] overflow-hidden rounded-2xl border px-4 py-4 text-left transition-all duration-300 ${tones[tone]}`}
-    >
-      <span className="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-white/45 to-transparent" />
-      <span className="relative z-10 flex items-start justify-between gap-3">
-        <span>
-          <span className="block text-base font-black">{title}</span>
-          <span className="mt-1.5 block text-xs leading-5 text-[color:var(--text-sub)]">{description}</span>
-        </span>
-        <span className={`choice-signal ${active ? 'choice-signal--done' : 'choice-signal--idle'}`}>
-          {active ? '已選' : '點選'}
-        </span>
-      </span>
-    </button>
-  );
-}
 
 function ResultPanel({ analysis }: { analysis: NameologyAnalysis }) {
   const topTendencies = analysis.temperamentProfile.topTendencies.slice(0, 4);
@@ -348,7 +299,7 @@ export default function NameologyPage() {
               </label>
               <div className="grid gap-3 sm:grid-cols-2">
                 {BLOOD_TYPES.map((bloodType, index) => (
-                  <ChoiceButton
+                  <FriendlyChoiceCard
                     key={bloodType}
                     active={selectionConfirm.bloodType && form.bloodType === bloodType}
                     title={`${bloodType} 型`}
@@ -368,7 +319,7 @@ export default function NameologyPage() {
                 4. 性別 {selectionConfirm.gender && <span className="text-green-400">✓</span>}
               </label>
               <div className="grid gap-3 sm:grid-cols-2">
-                <ChoiceButton
+                <FriendlyChoiceCard
                   active={selectionConfirm.gender && form.gender === 'female'}
                   title="女性"
                   description="用來校正姓名外在形象、柔性特質與互動呈現。"
@@ -378,7 +329,7 @@ export default function NameologyPage() {
                   }}
                   tone="pink"
                 />
-                <ChoiceButton
+                <FriendlyChoiceCard
                   active={selectionConfirm.gender && form.gender === 'male'}
                   title="男性"
                   description="用來校正姓名外在形象、行動特質與表現方向。"

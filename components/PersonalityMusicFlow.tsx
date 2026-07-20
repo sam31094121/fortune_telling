@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import LunarBirthdayInput from './LunarBirthdayInput';
+import FriendlyChoiceCard from './FriendlyChoiceCard';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
 
@@ -205,30 +206,18 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         <div className="space-y-4">
           <p className="text-sm text-[color:var(--text-sub)]">選擇血型，AI 會補上你的表達節奏與互動風格。</p>
           <div className="grid grid-cols-2 gap-3">
-            {BLOOD_TYPES.map((bloodType) => (
-              <button
+            {BLOOD_TYPES.map((bloodType, index) => (
+              <FriendlyChoiceCard
                 key={bloodType}
-                type="button"
+                active={form.bloodType === bloodType}
+                title={`${bloodType} 型`}
+                description={BLOOD_DESC[bloodType]}
                 onClick={() => {
                   setForm((prev) => ({ ...prev, bloodType }));
                   setLocalError('');
                 }}
-                className={`rounded-2xl border p-4 text-left transition-all ${
-                  form.bloodType === bloodType
-                    ? 'border-amber-400 bg-amber-400/15'
-                    : 'border-white/10 bg-white/5 hover:border-white/20'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <p className={`text-lg font-bold ${form.bloodType === bloodType ? 'text-amber-300' : 'text-[color:var(--text-main)]'}`}>
-                    {bloodType} 型
-                  </p>
-                  <span className={`choice-signal ${form.bloodType === bloodType ? 'choice-signal--done' : 'choice-signal--idle'}`}>
-                    {form.bloodType === bloodType ? '已選' : '點選'}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs text-[color:var(--text-muted)]">{BLOOD_DESC[bloodType]}</p>
-              </button>
+                tone={index % 2 === 0 ? 'violet' : 'cyan'}
+              />
             ))}
           </div>
         </div>
@@ -254,26 +243,19 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
             <p className="mb-2 text-xs text-[color:var(--text-muted)]">性別只用來修飾呈現語氣，不會推翻前面結果。</p>
             <div className="grid grid-cols-2 gap-3">
               {(['female', 'male'] as Gender[]).map((gender) => (
-                <button
+                <FriendlyChoiceCard
                   key={gender}
-                  type="button"
+                  active={selectionConfirm.gender && form.gender === gender}
+                  title={gender === 'female' ? '女性' : '男性'}
+                  description={gender === 'female' ? '用來修飾音樂語氣、情感細膩度與聲線提示。' : '用來修飾音樂語氣、行動力度與聲線提示。'}
                   onClick={() => {
                     setForm((prev) => ({ ...prev, gender }));
                     setSelectionConfirm({ gender: true });
+                    setLocalError('');
                   }}
-                  className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
-                    selectionConfirm.gender && form.gender === gender
-                      ? 'border-pink-400 bg-pink-400/15 text-pink-200'
-                      : 'border-white/10 bg-white/5 text-[color:var(--text-sub)]'
-                  }`}
-                >
-                  <span className="flex items-center justify-between gap-3">
-                    <span>{gender === 'female' ? '女性' : '男性'}</span>
-                    <span className={`choice-signal ${selectionConfirm.gender && form.gender === gender ? 'choice-signal--done' : 'choice-signal--idle'}`}>
-                      {selectionConfirm.gender && form.gender === gender ? '已選' : '點選'}
-                    </span>
-                  </span>
-                </button>
+                  tone={gender === 'female' ? 'pink' : 'cyan'}
+                  compact
+                />
               ))}
             </div>
           </div>

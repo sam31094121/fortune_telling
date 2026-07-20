@@ -1577,6 +1577,14 @@ export default function HomePage() {
       )}
 
       <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
+        <section className="mb-4 overflow-hidden rounded-[28px] border border-amber-300/25 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.20),rgba(15,23,42,0.72)_48%,rgba(2,6,23,0.92)_100%)] px-5 py-5 text-center shadow-[0_0_42px_rgba(251,191,36,0.16)] sm:mb-5 sm:px-7 sm:py-6">
+          <p className="text-[11px] font-bold uppercase tracking-[0.34em] text-amber-200/75">ZHAO GUI DESTINY SYSTEM</p>
+          <h1 className="mt-2 font-serif text-5xl font-black tracking-[0.18em] text-amber-100 drop-shadow-[0_0_22px_rgba(251,191,36,0.42)] sm:text-6xl">
+            兆櫃
+          </h1>
+          <div className="mx-auto mt-3 h-px max-w-[220px] bg-gradient-to-r from-transparent via-amber-200/70 to-transparent" />
+          <p className="mt-3 text-sm font-bold tracking-[0.28em] text-cyan-100/85">命理專用</p>
+        </section>
         <FeatureVisitorCounter featureKey="home" className="mb-6" deferMs={1500} />
         <div className="hidden mb-8 items-center gap-4">
           <span className="text-xs tracking-widest text-rose-300">// AI 靈魂配對</span>
