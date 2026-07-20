@@ -190,6 +190,7 @@ type SelectionConfirm = { bloodType: boolean; gender: boolean };
 const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const EMPTY: PersonInput = { name: '', birthDate: '', bloodType: 'A', gender: 'female', shichen: null };
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { bloodType: false, gender: false };
+const SHOW_HOME_EMBEDDED_MATCH = false;
 
 const BLOOD_DESC: Record<PersonInput['bloodType'], string> = {
   A: '細膩穩定，重視秩序與安全感。',
@@ -1805,7 +1806,7 @@ export default function HomePage() {
           </button>
         </div>
 
-        {!data && (
+        {SHOW_HOME_EMBEDDED_MATCH && !data && (
           <div className="space-y-6">
             {loading ? (
               <AnalyticalConsole
@@ -2059,7 +2060,7 @@ export default function HomePage() {
           </div>
         )}
 
-        {data && (
+        {SHOW_HOME_EMBEDDED_MATCH && data && (
           <div id="match-result-anchor" className="space-y-6 scroll-mt-24">
             <div id="vip-result-anchor" className={`fortune-card p-6 sm:p-8 text-center scroll-mt-24 transition-all duration-700 ${isUnlocked ? 'vip-gold-card shadow-[0_0_40px_rgba(201,162,74,0.3)]' : 'astral-glow-violet'}`}>
               <p className={`text-xs uppercase tracking-[0.35em] ${isUnlocked ? 'text-amber-300 font-semibold' : 'text-rose-300 font-medium'}`}>
