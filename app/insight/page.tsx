@@ -2189,38 +2189,7 @@ export default function InsightPage() {
 
             {/* 紫微斗數資料保留在後端回傳作姓名學參考；姓名學主畫面不渲染紫微面板。 */}
 
-            {/* Gemini 文字洞察保留於回傳資料；紫微三方四正以可重算排盤面板呈現。 */}
-            {result?.psychologyInsights && result.psychologyInsights.length > 0 && (
-              <div className="hidden fortune-card p-6 sm:p-8">
-                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">靈魂心理學洞察</p>
-                <div className="grid gap-6 md:grid-cols-3">
-                  {result.psychologyInsights.slice(0, 3).map((insight, index) => (
-                    <div key={index} className="border-l-2 border-cyan-400/30 pl-4 py-1">
-                      <p className="font-semibold text-cyan-300">{insight.title}</p>
-                      <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">{insight.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="hidden fortune-card p-6 sm:p-8">
-              <p className="mb-6 text-xs uppercase tracking-[0.35em] text-cyan-300">關鍵發現</p>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {result?.bigDataInsights?.map((insight, index) => (
-                  <div key={index} className="rounded-lg border border-white/5 bg-white/3 p-4">
-                    <p className="text-sm font-semibold text-cyan-300">{insight.category}</p>
-                    <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]">{insight.finding}</p>
-                    <p className="mt-3 text-xs text-[color:var(--text-muted)]">
-                      樣本數: {insight?.sampleSize?.toLocaleString() ?? '0'}
-                    </p>
-                    {insight.scoreBasis && (
-                      <p className="mt-2 text-xs leading-6 text-cyan-100/70">{insight.scoreBasis}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* 心理洞察與關鍵發現保留於 API 回傳，不在姓名學手機主畫面渲染。 */}
 
             <details className="fortune-card p-5 sm:p-6">
               <summary className="cursor-pointer list-none text-sm font-semibold text-cyan-100">

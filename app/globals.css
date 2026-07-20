@@ -4634,3 +4634,105 @@ body.app-lite-effects .home-line-share-card::after {
     letter-spacing: 0.1em;
   }
 }
+
+/* Mobile card smoothness pass: keep the look, reduce paint cost in phone browsers. */
+@media (max-width: 768px), (pointer: coarse) {
+  .fortune-card,
+  .vip-gold-card,
+  .home-feature-launch,
+  .number-fortune-card,
+  .music-song-maker-card,
+  .music-primary-generate-panel,
+  .result-container {
+    contain: layout paint style;
+    content-visibility: auto;
+    contain-intrinsic-size: 560px;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: 0 10px 26px rgba(2, 6, 23, 0.2), inset 0 0 14px rgba(255, 255, 255, 0.025) !important;
+  }
+
+  .fortune-card::before,
+  .vip-gold-card::before,
+  .home-feature-launch::before,
+  .home-feature-launch > .absolute.inset-0,
+  .music-song-maker-card::after,
+  .home-line-share-card::before,
+  .home-line-share-card::after,
+  .holo-shine,
+  .shooting-stars-container {
+    animation: none !important;
+    filter: none !important;
+    opacity: 0.18 !important;
+  }
+
+  .home-feature-launch,
+  .neon-card-hover,
+  .holo-card-container,
+  .vip-gold-btn,
+  .primary-button,
+  .music-primary-generate-button {
+    transition-duration: 160ms !important;
+    will-change: auto !important;
+  }
+
+  .home-feature-launch:hover,
+  .fortune-card:hover,
+  .vip-gold-card:hover,
+  .neon-card-hover:hover,
+  .holo-card-container:hover,
+  .vip-gold-btn:hover,
+  .primary-button:hover {
+    transform: none !important;
+    box-shadow: 0 10px 26px rgba(2, 6, 23, 0.2), inset 0 0 14px rgba(255, 255, 255, 0.025) !important;
+  }
+
+  .number-fortune-taiji-card::before {
+    opacity: 0.38 !important;
+    filter: none !important;
+  }
+
+  .number-fortune-taiji-card::after,
+  .number-taiji-blessing-overlay::before {
+    filter: none !important;
+    opacity: 0.34 !important;
+  }
+
+  .modal-evolution-flare,
+  .modal-evolution-scan,
+  .modal-evolution-breath,
+  .unified-evolution-pulse,
+  .unified-evolution-screen,
+  .taiji-celestial-mist,
+  .modal-taiji-natural-bloom,
+  .modal-taiji-ground-glow {
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .modal-evolution-rays .modal-energy-ray:nth-child(n+7),
+  .taiji-gold-waves .taiji-gold-wave:nth-child(n+3),
+  .taiji-celestial-wisp--three {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .fortune-card,
+  .vip-gold-card,
+  .home-feature-launch,
+  .number-fortune-card,
+  .music-song-maker-card,
+  .result-container {
+    border-radius: 18px !important;
+    box-shadow: 0 8px 20px rgba(2, 6, 23, 0.18), inset 0 0 10px rgba(255, 255, 255, 0.02) !important;
+  }
+
+  .animate-pulse,
+  .animate-bounce,
+  .animate-ping,
+  .shimmer-btn {
+    animation-duration: 5.2s !important;
+  }
+}

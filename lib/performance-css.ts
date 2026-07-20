@@ -209,6 +209,76 @@ export function injectPerformanceCSS() {
     body.app-lite-effects .taiji-light-orbit--violet .taiji-light-orbit__head {
       display: none !important;
     }
+    body.app-mobile-device .fortune-card,
+    body.app-mobile-device .vip-gold-card,
+    body.app-mobile-device .home-feature-launch,
+    body.app-mobile-device .number-fortune-card,
+    body.app-mobile-device .music-song-maker-card,
+    body.app-mobile-device .music-primary-generate-panel,
+    body.app-mobile-device .result-container,
+    body.app-social-browser .fortune-card,
+    body.app-social-browser .vip-gold-card,
+    body.app-social-browser .home-feature-launch,
+    body.app-social-browser .number-fortune-card,
+    body.app-social-browser .music-song-maker-card,
+    body.app-social-browser .music-primary-generate-panel,
+    body.app-social-browser .result-container,
+    body.app-lite-effects .fortune-card,
+    body.app-lite-effects .vip-gold-card,
+    body.app-lite-effects .number-fortune-card,
+    body.app-lite-effects .music-song-maker-card,
+    body.app-lite-effects .music-primary-generate-panel,
+    body.app-lite-effects .result-container {
+      contain: layout paint style;
+      content-visibility: auto;
+      contain-intrinsic-size: 560px;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      box-shadow: 0 10px 26px rgba(2, 6, 23, 0.2), inset 0 0 14px rgba(255, 255, 255, 0.025) !important;
+    }
+
+    body.app-mobile-device .fortune-card::before,
+    body.app-mobile-device .vip-gold-card::before,
+    body.app-mobile-device .home-feature-launch::before,
+    body.app-mobile-device .music-song-maker-card::after,
+    body.app-mobile-device .home-line-share-card::before,
+    body.app-mobile-device .home-line-share-card::after,
+    body.app-mobile-device .holo-shine,
+    body.app-mobile-device .shooting-stars-container,
+    body.app-social-browser .fortune-card::before,
+    body.app-social-browser .vip-gold-card::before,
+    body.app-social-browser .home-feature-launch::before,
+    body.app-social-browser .music-song-maker-card::after,
+    body.app-social-browser .home-line-share-card::before,
+    body.app-social-browser .home-line-share-card::after,
+    body.app-social-browser .holo-shine,
+    body.app-social-browser .shooting-stars-container {
+      animation: none !important;
+      filter: none !important;
+      opacity: 0.18 !important;
+    }
+
+    body.app-mobile-device .home-feature-launch:hover,
+    body.app-mobile-device .fortune-card:hover,
+    body.app-mobile-device .vip-gold-card:hover,
+    body.app-mobile-device .neon-card-hover:hover,
+    body.app-mobile-device .holo-card-container:hover,
+    body.app-social-browser .home-feature-launch:hover,
+    body.app-social-browser .fortune-card:hover,
+    body.app-social-browser .vip-gold-card:hover,
+    body.app-social-browser .neon-card-hover:hover,
+    body.app-social-browser .holo-card-container:hover {
+      transform: none !important;
+      box-shadow: 0 10px 26px rgba(2, 6, 23, 0.2), inset 0 0 14px rgba(255, 255, 255, 0.025) !important;
+    }
+
+    body.app-mobile-device .number-fortune-taiji-card::after,
+    body.app-mobile-device .number-taiji-blessing-overlay::before,
+    body.app-social-browser .number-fortune-taiji-card::after,
+    body.app-social-browser .number-taiji-blessing-overlay::before {
+      filter: none !important;
+      opacity: 0.34 !important;
+    }
     @media (max-width: 768px), (pointer: coarse) {
       .fortune-card,
       .vip-gold-card {
