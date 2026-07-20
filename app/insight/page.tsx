@@ -107,6 +107,56 @@ interface InsightResult {
       minorStars: string[];
       transformations: string[];
     }[];
+    palaceAnalyses?: {
+      palaceKey: string;
+      palaceName: string;
+      directConclusion: string;
+      palaceDefinition: string;
+      likelyEvents: {
+        title: string;
+        eventType: string;
+        priority: 'P1' | 'P2' | 'P3' | 'P4';
+        likelyScenario: string;
+        riskScenario?: string;
+        conditions: string[];
+        evidence: {
+          sourceType: string;
+          sourceName: string;
+          effect: 'support' | 'pressure' | 'mixed';
+          explanation: string;
+        }[];
+      }[];
+      primaryRisk: {
+        title: string;
+        description: string;
+        triggerConditions: string[];
+        preventionActions: string[];
+      };
+      primaryOpportunity: {
+        title: string;
+        description: string;
+        activationConditions: string[];
+        recommendedActions: string[];
+      };
+      actionPlan: {
+        doFirst: string[];
+        avoid: string[];
+        observe: string[];
+      };
+      evidenceSummary: {
+        sourceType: string;
+        sourceName: string;
+        effect: 'support' | 'pressure' | 'mixed';
+        explanation: string;
+      }[];
+      confidence: {
+        birthDataCompleteness: 'high' | 'medium' | 'low';
+        ruleCoverage: 'complete' | 'partial' | 'insufficient';
+        signalConsistency: 'concentrated' | 'mixed' | 'conflicting';
+      };
+      limitations: string[];
+      ruleVersion: string;
+    }[];
     crossChecks: {
       palaceKey: 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI';
       status: 'reinforce' | 'neutral' | 'tension';
@@ -695,6 +745,7 @@ function AnnualFortunePanel({ analysis }: { analysis?: InsightResult['annualFort
 
 type ZiweiFullPalace = NonNullable<NonNullable<InsightResult['ziweiSanFang']>['allPalaces']>[number];
 type ZiweiAnnualFortune = NonNullable<InsightResult['annualFortune']>;
+type ZiweiPrecisionAnalysis = NonNullable<NonNullable<InsightResult['ziweiSanFang']>['palaceAnalyses']>[number];
 type ZiweiAnnualPalace = ZiweiAnnualFortune['sanFangFourZheng'][number];
 type ZiweiAdviceMatrixKey = keyof ZiweiAnnualFortune['adviceMatrix'];
 type ZiweiPalaceKey = typeof ZIWEI_TWELVE_PALACE_ORDER[number];
@@ -933,6 +984,7 @@ function ZiweiTwelvePalaceCards({
 
   const palaceSource: ZiweiFullPalace[] = analysis.allPalaces?.length ? analysis.allPalaces : analysis.palaces;
   const annualMap = new Map((annual?.sanFangFourZheng ?? []).map((item) => [item.palaceKey, item]));
+  const precisionMap = new Map((analysis.palaceAnalyses ?? []).map((item) => [item.palaceKey, item]));
   const sortedPalaces = [...palaceSource].sort((a, b) => {
     const aIndex = ZIWEI_TWELVE_PALACE_ORDER.indexOf(a.key as ZiweiPalaceKey);
     const bIndex = ZIWEI_TWELVE_PALACE_ORDER.indexOf(b.key as ZiweiPalaceKey);
@@ -1021,6 +1073,7 @@ function ZiweiTwelvePalaceCards({
           palace={selectedPalace}
           annualPalace={annualMap.get(selectedPalace.key as 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI')}
           annual={annual}
+          precisionAnalysis={precisionMap.get(selectedPalace.key)}
           story={ZIWEI_PALACE_STORY[selectedPalace.key]}
           year={annual?.year ?? new Date().getFullYear()}
           patternName={analysis.pattern.name}
@@ -1039,6 +1092,7 @@ function ZiweiPalaceStoryPanel({
   palace,
   annualPalace,
   annual,
+  precisionAnalysis,
   story,
   year,
   patternName,
@@ -1047,6 +1101,7 @@ function ZiweiPalaceStoryPanel({
   palace: ZiweiFullPalace;
   annualPalace?: ZiweiAnnualPalace;
   annual?: ZiweiAnnualFortune;
+  precisionAnalysis?: ZiweiPrecisionAnalysis;
   story?: (typeof ZIWEI_PALACE_STORY)[string];
   year: number;
   patternName: string;
@@ -1067,11 +1122,15 @@ function ZiweiPalaceStoryPanel({
   const supportStars = palace.minorStars.slice(0, 5).join('、') || '依三方四正補足訊號';
   const transformations = palace.transformations.length > 0 ? palace.transformations.join('、') : '今年以宮位結構與主星互動為主';
   const annualSignal = getZiweiAnnualSignal(palace.key, annualPalace, annual);
-  const primaryOpportunity = annualPalace?.focus ?? config.opportunity;
-  const primaryPressure = annualPalace?.tensions[0] ?? config.pressure;
-  const primaryAction = annualPalace?.action ?? config.action;
-  const primaryAdvice = annualPalace?.advice ?? config.story;
+  const firstEvent = precisionAnalysis?.likelyEvents[0];
+  const primaryOpportunity = precisionAnalysis?.primaryOpportunity.description ?? annualPalace?.focus ?? config.opportunity;
+  const primaryPressure = precisionAnalysis?.primaryRisk.description ?? annualPalace?.tensions[0] ?? config.pressure;
+  const primaryAction = precisionAnalysis?.actionPlan.doFirst[0] ?? annualPalace?.action ?? config.action;
+  const primaryAdvice = precisionAnalysis?.directConclusion ?? annualPalace?.advice ?? config.story;
   const primaryEncouragement = annualPalace?.encouragement ?? config.encouragement;
+  const likelyText = firstEvent?.likelyScenario ?? config.likely;
+  const repairText = precisionAnalysis?.actionPlan.doFirst.slice(0, 2).join('；') ?? config.repair;
+  const evidenceItems = precisionAnalysis?.evidenceSummary ?? [];
 
   return (
     <div ref={panelRef} className={`mt-6 scroll-mt-24 rounded-[24px] border p-5 sm:p-6 ${config.tone}`}>
@@ -1106,11 +1165,11 @@ function ZiweiPalaceStoryPanel({
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
           <p className="text-xs font-semibold opacity-70">較容易發生</p>
-          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{config.likely}</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{likelyText}</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
           <p className="text-xs font-semibold opacity-70">補足方式</p>
-          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{config.repair}</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{repairText}</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
           <p className="text-xs font-semibold opacity-70">鼓勵</p>
@@ -1119,16 +1178,44 @@ function ZiweiPalaceStoryPanel({
       </div>
 
       <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
-        <p className="text-xs font-semibold tracking-[0.2em] opacity-70">看圖說故事</p>
+        <p className="text-xs font-semibold tracking-[0.2em] opacity-70">一句話結論</p>
         <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
           {primaryAdvice}
         </p>
+        {precisionAnalysis?.palaceDefinition && (
+          <p className="mt-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs leading-6 text-[color:var(--text-main)]">
+            本宮分析：{precisionAnalysis.palaceDefinition}
+          </p>
+        )}
         {primaryEncouragement && (
           <p className="mt-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs leading-6 text-[color:var(--text-main)]">
             鼓勵：{primaryEncouragement}
           </p>
         )}
       </div>
+
+      {precisionAnalysis && (
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+            <p className="text-xs font-semibold opacity-70">優先做</p>
+            <ul className="mt-2 space-y-2 text-xs leading-6 text-[color:var(--text-main)]">
+              {precisionAnalysis.actionPlan.doFirst.slice(0, 3).map((item) => <li key={item}>→ {item}</li>)}
+            </ul>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+            <p className="text-xs font-semibold opacity-70">先不要做</p>
+            <ul className="mt-2 space-y-2 text-xs leading-6 text-[color:var(--text-main)]">
+              {precisionAnalysis.actionPlan.avoid.slice(0, 3).map((item) => <li key={item}>→ {item}</li>)}
+            </ul>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+            <p className="text-xs font-semibold opacity-70">持續觀察</p>
+            <ul className="mt-2 space-y-2 text-xs leading-6 text-[color:var(--text-main)]">
+              {precisionAnalysis.actionPlan.observe.slice(0, 3).map((item) => <li key={item}>→ {item}</li>)}
+            </ul>
+          </div>
+        </div>
+      )}
 
       {annual && (
         <div className="mt-4 rounded-2xl border border-white/10 bg-black/15 p-4">
@@ -1155,6 +1242,9 @@ function ZiweiPalaceStoryPanel({
           <p>本宮主星：{mainStars}</p>
           <p>輔助星曜：{supportStars}</p>
           <p>四化訊號：{transformations}</p>
+          {evidenceItems.slice(0, 4).map((item) => (
+            <p key={`${item.sourceType}-${item.sourceName}`}>{item.sourceName}：{item.explanation}</p>
+          ))}
         </div>
       </details>
     </div>
@@ -1902,6 +1992,7 @@ export default function InsightPage() {
     </div>
   );
 }
+
 
 
 
