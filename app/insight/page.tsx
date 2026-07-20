@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, type Ref } from 'react';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
@@ -1043,7 +1043,7 @@ function ZiweiPalaceStoryPanel({
   year,
   patternName,
 }: {
-  panelRef: React.RefObject<HTMLDivElement | null>;
+  panelRef: Ref<HTMLDivElement>;
   palace: ZiweiFullPalace;
   annualPalace?: ZiweiAnnualPalace;
   annual?: ZiweiAnnualFortune;
@@ -1067,6 +1067,11 @@ function ZiweiPalaceStoryPanel({
   const supportStars = palace.minorStars.slice(0, 5).join('、') || '依三方四正補足訊號';
   const transformations = palace.transformations.length > 0 ? palace.transformations.join('、') : '今年以宮位結構與主星互動為主';
   const annualSignal = getZiweiAnnualSignal(palace.key, annualPalace, annual);
+  const primaryOpportunity = annualPalace?.focus ?? config.opportunity;
+  const primaryPressure = annualPalace?.tensions[0] ?? config.pressure;
+  const primaryAction = annualPalace?.action ?? config.action;
+  const primaryAdvice = annualPalace?.advice ?? config.story;
+  const primaryEncouragement = annualPalace?.encouragement ?? config.encouragement;
 
   return (
     <div ref={panelRef} className={`mt-6 scroll-mt-24 rounded-[24px] border p-5 sm:p-6 ${config.tone}`}>
@@ -1086,26 +1091,41 @@ function ZiweiPalaceStoryPanel({
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
           <p className="text-xs font-semibold opacity-70">機會</p>
-          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{annualSignal.focus ?? config.opportunity}</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{primaryOpportunity}</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
           <p className="text-xs font-semibold opacity-70">壓力</p>
-          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{annualSignal.tensions[0] ?? config.pressure}</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{primaryPressure}</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
           <p className="text-xs font-semibold opacity-70">建議</p>
-          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{annualSignal.action ?? config.action}</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{primaryAction}</p>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+          <p className="text-xs font-semibold opacity-70">較容易發生</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{config.likely}</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+          <p className="text-xs font-semibold opacity-70">補足方式</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{config.repair}</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+          <p className="text-xs font-semibold opacity-70">鼓勵</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{config.encouragement}</p>
         </div>
       </div>
 
       <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
         <p className="text-xs font-semibold tracking-[0.2em] opacity-70">看圖說故事</p>
         <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
-          {annualSignal.advice ?? config.story}
+          {primaryAdvice}
         </p>
-        {annualSignal.encouragement && (
+        {primaryEncouragement && (
           <p className="mt-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs leading-6 text-[color:var(--text-main)]">
-            鼓勵：{annualSignal.encouragement}
+            鼓勵：{primaryEncouragement}
           </p>
         )}
       </div>
@@ -1882,6 +1902,8 @@ export default function InsightPage() {
     </div>
   );
 }
+
+
 
 
 
