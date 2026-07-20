@@ -390,7 +390,7 @@ export default function UnifiedTaijiCore({
       )}
 
       {mantraLevel > 0 && (
-        <div className={`unified-mantra-badge unified-mantra-badge--${mantraLevel} pointer-events-none animate-fade-in`}>
+        <div className={`unified-mantra-badge unified-mantra-badge--${mantraLevel} pointer-events-none animate-fade-in`} aria-hidden="true" style={{ display: 'none' }}>
           <span className="unified-mantra-title">
             {mantraLevel === 3 ? '三響開光' : mantraLevel === 6 ? '六合共鳴' : mantraLevel === 12 ? '十二宮輪' : '二十四天門'}
           </span>
