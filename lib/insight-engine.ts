@@ -427,7 +427,7 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 
   // 構建分析提示
   const analysisPrompt = `
-你是一個專業姓名學與人格分析顧問，熟悉姓名字義、筆畫五格、五行相生相剋與八字輔助語言，但不可把規則推論宣稱為真實大數據或科學定論。
+你是一個專業紫微斗數與八字輔助分析顧問，熟悉命盤格局、三方四正、流年運勢與五行語言，但不可把規則推論宣稱為真實大數據或科學定論。
 請根據以下天地人資料進行深度洞察分析：
 
 【基本資料】
@@ -441,7 +441,7 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 - 八字日柱: ${shichen.dayPillar} · 時柱: ${shichen.hourPillar.ganzhi}
 - 時辰五行: ${shichen.wuxing}
 
-【姓名學核心分析：後端固定產生，AI 不可改分數】
+【姓名學輔助資料：後端固定產生，僅作人格文字參考】
 - 姓名學分數: ${nameology.score}
 - 姓名學等級: ${nameology.level}
 - 核心人格: ${nameology.corePersonality}
@@ -454,7 +454,7 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 - 五格: ${nameology.grids.map((item) => `${item.label}${item.value}畫${item.element}`).join('；')}
 - 相生相剋: ${nameology.elementFlow.map((item) => `${item.from}->${item.to}/${item.relation}`).join('；')}
 
-【紫微命財官遷規則：僅作輔助參考，不可搶過姓名學主軸】
+【紫微命財官遷規則：本頁主軸，AI 不可改分數】
 - 四柱: ${ziweiSanFang.bazi.year} ${ziweiSanFang.bazi.month} ${ziweiSanFang.bazi.day} ${ziweiSanFang.bazi.hour}
 - 日主: ${ziweiSanFang.bazi.dayMaster}
 - 命、財帛、官祿、遷移宮: ${ziweiSanFang.timeConfidence === 'exact' ? ziweiSanFang.palaces.map((palace) => `${palace.name}(${palace.majorStars.join('、') || '無主星'})`).join('；') : '時辰未確認，不提供單一命宮或格局'}
@@ -486,12 +486,12 @@ ${JSON.stringify(statisticalAnalysis.map((item) => ({
 })), null, 2)}
 
 請只根據以上固定分數進行文字分析，包括：
-1. 姓名學洞察（3-5項），必須以姓名字義、字形拆解、24性情矩陣、筆畫五格、相生相剋為主，不可自行創造新分數。
+1. 紫微斗數洞察（3-5項），必須以命盤格局、三方四正、今年流年運勢、命財官遷為主，不可自行創造新分數。
 2. 個性化建議（3-5項）。
 3. 完整分析摘要。
 
 分析要求：
-- 姓名學是主軸，紫微命財官遷只作輔助；你只能引用上方已給定的宮位與四柱，不可自行推導、補充或改寫星曜。姓名學部分只能讀取後端給定的字形、字義、取名意圖與24性情矩陣，不可自己新增拆字規則或分數。
+- 紫微斗數是主軸，姓名學只作輔助人格參考；你只能引用上方已給定的宮位、四柱、三方四正與今年流年資料，不可自行推導、補充或改寫星曜。
 - 今年流年運勢、今年命盤三方四正年度分數與年度建議已由後端固定產生；你只能呼應今年，不可自行改分數、改宮位，也不可把今年運勢寫成終身本命。
 - 語氣應具體、有建設性，避免宿命論、恐嚇、鐵口直斷或過度保證。
 - 每一項「心理學洞察」與「建議」必須有完全不同的切入點與獨特話術，展現高智商、邏輯嚴密且不可複刻的專業性。

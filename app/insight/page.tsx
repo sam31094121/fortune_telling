@@ -1086,6 +1086,35 @@ const ZIWEI_TWELVE_PALACE_ORDER = [
   'FU_MU',
 ] as const;
 
+
+const ZIWEI_PALACE_FALLBACK: Record<ZiweiPalaceKey, { name: string; focus: string }> = {
+  MING: { name: '命', focus: '自我定位、性格主軸與人生方向。' },
+  XIONG_DI: { name: '兄弟', focus: '手足、同輩、密友與合作支援。' },
+  FU_QI: { name: '夫妻', focus: '伴侶關係、親密互動與承諾模式。' },
+  ZI_NV: { name: '子女', focus: '子女、創造力、教養與傳承。' },
+  CAI_BO: { name: '財帛', focus: '財務節奏、收入模式與資源管理。' },
+  JI_E: { name: '疾厄', focus: '身心狀態、壓力反應與健康習慣。' },
+  QIAN_YI: { name: '遷移', focus: '外出發展、移動機會與環境適應。' },
+  JIAO_YOU: { name: '交友', focus: '朋友圈、人脈互動與外部助力。' },
+  GUAN_LU: { name: '官祿', focus: '事業定位、工作表現與責任舞台。' },
+  TIAN_ZHAI: { name: '田宅', focus: '家庭根基、居住空間與資產配置。' },
+  FU_DE: { name: '福德', focus: '內在安定、福分累積與精神能量。' },
+  FU_MU: { name: '父母', focus: '長輩緣分、資源傳承與支持系統。' },
+};
+
+function createZiweiFallbackPalace(key: ZiweiPalaceKey): ZiweiFullPalace {
+  const fallback = ZIWEI_PALACE_FALLBACK[key];
+  return {
+    key,
+    name: fallback.name,
+    focus: fallback.focus,
+    branch: '',
+    palaceStem: '',
+    majorStars: [],
+    minorStars: [],
+    transformations: [],
+  };
+}
 const ZIWEI_PALACE_STORY: Record<string, {
   subtitle: string;
   icon: string;
@@ -1304,13 +1333,11 @@ function ZiweiTwelvePalaceCards({
   if (!analysis) return null;
 
   const palaceSource: ZiweiFullPalace[] = analysis.allPalaces?.length ? analysis.allPalaces : analysis.palaces;
+  const palaceMap = new Map<string, ZiweiFullPalace>();
+  palaceSource.forEach((palace) => palaceMap.set(palace.key, palace));
   const annualMap = new Map((annual?.sanFangFourZheng ?? []).map((item) => [item.palaceKey, item]));
   const precisionMap = new Map((analysis.palaceAnalyses ?? []).map((item) => [item.palaceKey, item]));
-  const sortedPalaces = [...palaceSource].sort((a, b) => {
-    const aIndex = ZIWEI_TWELVE_PALACE_ORDER.indexOf(a.key as ZiweiPalaceKey);
-    const bIndex = ZIWEI_TWELVE_PALACE_ORDER.indexOf(b.key as ZiweiPalaceKey);
-    return (aIndex === -1 ? 99 : aIndex) - (bIndex === -1 ? 99 : bIndex);
-  });
+  const sortedPalaces = ZIWEI_TWELVE_PALACE_ORDER.map((key) => palaceMap.get(key) ?? createZiweiFallbackPalace(key));
   const selectedPalace = sortedPalaces.find((palace) => palace.key === selectedPalaceKey) ?? null;
 
   return (
@@ -1583,7 +1610,7 @@ function InsightAnalyticalConsole({
   const fullLogs = useMemo(() => [
     `【天宿天盤】抓取個人命格星曜氣場：${name || '未知本體'}`,
     `【地脈羅盤】比對血型地磁與五行相生喜忌... 已就緒`,
-    `【人和音律】姓名學五格剖析與人格超越基準映射... 已就緒`,
+    `【紫微排盤】命盤格局、三方四正與今年流年資料... 已就緒`,
     `【天宿智算】正在計算超越樣本數據庫基底...`,
     `【天星解密】生成個人潛能、盲點與改命建議分析報告...`,
   ], [name]);
@@ -1831,7 +1858,7 @@ export default function InsightPage() {
             💕 配對
           </Link>
           <span className="text-[color:var(--text-muted)]">·</span>
-          <span className="text-xs tracking-widest text-cyan-300">✨ 姓名學</span>
+          <span className="text-xs tracking-widest text-cyan-300">✨ 紫微斗數</span>
         </div>
 
         {!result ? (
@@ -1839,14 +1866,14 @@ export default function InsightPage() {
             <section className="mb-6 flex justify-center sm:mb-10">
               <div className="hidden">
                 <div className="mb-4 inline-block rounded-full border border-cyan-400/20 bg-cyan-400/8 px-4 py-1 text-xs tracking-[0.35em] text-cyan-300">
-                  AI 姓名學
+                  AI 紫微斗數
                 </div>
                 <h1 className="mystic-title mb-3 font-serif text-3xl leading-tight sm:text-5xl">
-                  看懂你的姓名<br />找到人格方向
+                  看懂你的命盤<br />掌握今年方向
                 </h1>
                 <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
-                  輸入基本資料，AI 會把姓名字義、筆畫五格與五行相生相剋整理成白話建議。
-                  重點放在作為形象、人格偏好與可行動的補強方向。
+                  輸入基本資料，AI 會把紫微命盤、三方四正與今年運勢整理成白話建議。
+                  重點放在命盤格局、今年運勢與可行動的調整方向。
                 </p>
                 <div className="mt-8">
                   <button
@@ -1857,7 +1884,7 @@ export default function InsightPage() {
                     }}
                     className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-8 py-3 text-sm font-bold text-cyan-200 hover:bg-cyan-500/25 transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)] animate-bounce shimmer-btn"
                   >
-                    <span>👇 一鍵開啟 · 姓名學分析</span>
+                    <span>👇 一鍵開啟 · 紫微斗數分析</span>
                   </button>
 
                   {/* 動態天宿氣場預言面板 */}
@@ -1867,7 +1894,7 @@ export default function InsightPage() {
                       <span>🪐 今日天宿星格氣場</span>
                     </p>
                     <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">
-                      姓名如相，由字義、筆畫與五行交會成形；先看名字如何影響你的作為形象，再把優勢落成行動。
+                      今日紫微天樞星高懸，出生資料將轉為命盤格局、三方四正與今年運勢方向。
                     </p>
                   </div>
                 </div>
@@ -2009,7 +2036,7 @@ export default function InsightPage() {
                   {input.shichen !== null && input.shichen !== 'known' && <span className="text-green-400"> ✓</span>}
                 </label>
                 <p className="mb-4 text-xs leading-6 text-[color:var(--text-muted)]">
-                  時辰可作為姓名學的輔助參考；不知道也沒關係，姓名字義與筆畫五格仍可先完成主要分析。
+                  真實時辰可提升紫微命宮精準度；不知道也沒關係，系統會先以生日資料完成趨勢參考。
                 </p>
 
 
@@ -2031,7 +2058,7 @@ export default function InsightPage() {
                       <span>
                         <span className="block text-base font-bold">不知道出生時辰</span>
                         <span className="mt-1.5 block text-xs leading-5 text-[color:var(--text-sub)]">
-                          系統先以姓名字義與筆畫五格為主，生日時辰只作輔助。
+                          系統先以生日資料推算趨勢參考，待時辰確認後可提升命盤精準度。
                         </span>
                       </span>
                     </span>
@@ -2053,7 +2080,7 @@ export default function InsightPage() {
                       <span>
                         <span className="block text-base font-bold">我知道出生時辰</span>
                         <span className="mt-1.5 block text-xs leading-5 text-[color:var(--text-sub)]">
-                          展開時辰選單，讓姓名學分析多一層出生節奏參考。
+                          展開時辰選單，使用真實資料完成更精準的紫微排盤。
                         </span>
                       </span>
                     </span>
@@ -2115,7 +2142,7 @@ export default function InsightPage() {
                       分析中（請稍候）…
                     </span>
                   ) : (
-                    '開始姓名學分析'
+                    '開始紫微斗數分析'
                   )}
                 </button>
 
@@ -2183,33 +2210,34 @@ export default function InsightPage() {
               </svg>
             </div>
             <div className="space-y-6">
-            {/* 紫微命盤摘要保留於後端資料，不在姓名學結果主畫面渲染。 */}
-
-            <NameologyResultPanel analysis={result?.nameology} />
-
-            {/* 紫微斗數資料保留在後端回傳作姓名學參考；姓名學主畫面不渲染紫微面板。 */}
-
-            {/* 心理洞察與關鍵發現保留於 API 回傳，不在姓名學手機主畫面渲染。 */}
-
-            <details className="fortune-card p-5 sm:p-6">
-              <summary className="cursor-pointer list-none text-sm font-semibold text-cyan-100">
-                姓名學補充建議與摘要
-                <span className="ml-2 text-xs font-normal text-[color:var(--text-muted)]">點開查看</span>
-              </summary>
-              <div className="mt-5 space-y-5 border-t border-white/10 pt-5">
-                {result?.personalizedRecommendations && result.personalizedRecommendations.length > 0 && (
-                  <ul className="space-y-3 text-sm">
-                    {result.personalizedRecommendations.slice(0, 4).map((rec, index) => (
-                      <li key={index} className="flex gap-3">
-                        <span className="text-cyan-400">→</span>
-                        <span className="text-[color:var(--text-sub)]">{rec}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <p className="text-sm leading-8 text-[color:var(--text-sub)]">{result?.summary}</p>
+            <div className="fortune-card relative hidden overflow-hidden border-amber-400/25 bg-slate-950/55 p-6 sm:p-8">
+              <div className="pointer-events-none absolute inset-4 border border-cyan-400/10" />
+              <div className="relative flex flex-col gap-5 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">命盤格局定位</p>
+                  <h2 className="mt-3 font-serif text-4xl text-amber-100 sm:text-5xl">
+                    {result?.ziweiSanFang?.pattern.name ?? '三方四正排盤中'}
+                  </h2>
+                  <p className="mt-3 text-sm font-semibold tracking-wide text-cyan-100">
+                    核心星曜：{result?.ziweiSanFang?.pattern.stars.join('、') || '等待命盤資料'}
+                  </p>
+                  <p className="mt-4 max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
+                    {result?.ziweiSanFang?.pattern.description ?? '紫微命財官遷三方四正，配合八字四柱與五行訊號進行可重算比對。'}
+                  </p>
+                </div>
+                <div className="shrink-0 border-l-0 border-cyan-400/20 px-0 text-center sm:border-l sm:px-6">
+                  <p className="text-xs text-[color:var(--text-muted)]">排盤狀態</p>
+                  <p className={`mt-2 text-lg font-semibold ${result?.ziweiSanFang?.timeConfidence === 'exact' ? 'text-cyan-200' : 'text-amber-200'}`}>
+                    {result?.ziweiSanFang?.timeConfidence === 'exact' ? '時辰已確認' : '時辰待校正'}
+                  </p>
+                  <p className="mt-1 text-xs text-cyan-100/70">{result?.ziweiSanFang?.timeConfidence === 'exact' ? '命財官遷已完成比對' : '暫以趨勢參考呈現'}</p>
+                </div>
               </div>
-            </details>
+            </div>
+
+            <ZiweiTwelvePalaceCards analysis={result?.ziweiSanFang} annual={result?.annualFortune} />
+
+            {/* 三方四正摘要、今年運勢、補充建議與姓名學資料保留於 API 回傳；手機主畫面只保留主格局與十二宮。 */}
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <button

@@ -1586,7 +1586,7 @@ export default function HomePage() {
           </Link>
           <span className="text-[color:var(--text-muted)]">·</span>
           <Link href="/insight" className="text-xs tracking-widest text-amber-300/70 transition hover:text-amber-300">
-            // AI 姓名學
+            // AI 姓名學（首頁入口正常顯示，保留原本功能資料）
           </Link>
         </div>
 
@@ -1740,7 +1740,7 @@ export default function HomePage() {
           </Link>
 
           <Link
-            href="/insight"
+            href="/nameology"
             className="home-feature-launch home-feature-amber order-5 w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
