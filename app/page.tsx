@@ -191,6 +191,7 @@ const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const EMPTY: PersonInput = { name: '', birthDate: '', bloodType: 'A', gender: 'female', shichen: null };
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { bloodType: false, gender: false };
 const SHOW_HOME_EMBEDDED_MATCH = false;
+const SHOW_HOME_FLOATING_NUMBER_BUTTON = false;
 
 const BLOOD_DESC: Record<PersonInput['bloodType'], string> = {
   A: '細膩穩定，重視秩序與安全感。',
@@ -1674,7 +1675,7 @@ export default function HomePage() {
         <div className="mb-8 flex w-full flex-col gap-4">
           <Link
             href="/match"
-            className="home-feature-launch home-feature-rose order-2 w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-all duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-rose order-3 w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-all duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -1707,7 +1708,7 @@ export default function HomePage() {
 
           <Link
             href="/music"
-            className="home-feature-launch home-feature-violet order-3 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-violet order-4 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -1740,7 +1741,7 @@ export default function HomePage() {
 
           <Link
             href="/insight"
-            className="home-feature-launch home-feature-amber order-4 w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-amber order-5 w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -1804,6 +1805,38 @@ export default function HomePage() {
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </button>
+          <Link
+            href="/insight"
+            className="home-feature-launch home-feature-indigo order-2 w-full relative group overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-all duration-500 hover:border-indigo-400 hover:shadow-[0_0_50px_rgba(99,102,241,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+          >
+            {/* 炫光掃過特效 */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+
+            <div className="flex items-center gap-4.5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-950/40 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.2)] animate-spin-slow">
+                <span className="text-2xl font-serif">斗</span>
+              </div>
+              <div>
+                <span className="inline-block rounded-full bg-indigo-500/10 border border-indigo-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-indigo-300 uppercase animate-pulse">
+                  AI · 紫微斗數命盤
+                </span>
+                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-indigo-100 tracking-wide flex items-center gap-2">
+                  <span>AI 紫微斗數</span>
+                  <span className="text-xs font-sans text-indigo-300 font-normal opacity-85 hidden sm:inline">
+                    // 命盤格局 · 三方四正 · 今年運勢
+                  </span>
+                </h2>
+                <p className="mt-1 text-xs text-[color:var(--text-sub)]">
+                  依出生資料整理紫微命盤方向，聚焦今年運勢、三方四正與行動建議。
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-950/30 px-5 py-3 text-xs font-bold text-indigo-200 transition group-hover:bg-indigo-500/25">
+              <span>立即開啟紫微</span>
+              <span className="transition-transform group-hover:translate-x-1.5">➜</span>
+            </div>
+          </Link>
         </div>
 
         {SHOW_HOME_EMBEDDED_MATCH && !data && (
@@ -2789,16 +2822,20 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* 懸浮霓虹解碼球 (Floating Cybernetic Badge) */}
-      <button
-        type="button"
-        onClick={() => setIsFortuneModalOpen(true)}
-        className="fixed bottom-24 right-6 z-40 flex h-14 w-14 flex-col items-center justify-center rounded-full border border-cyan-500/40 bg-slate-950/90 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-300 hover:scale-110 hover:border-cyan-300 hover:text-cyan-200 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 animate-pulse cursor-pointer group"
-        aria-label="數字吉凶"
-      >
-        <span className="text-xl group-hover:rotate-180 transition-transform duration-500">☯️</span>
-        <span className="text-[9px] font-bold tracking-tighter mt-0.5 scale-90">數理</span>
-      </button>
+      {SHOW_HOME_FLOATING_NUMBER_BUTTON && (
+        <>
+          {/* 懸浮霓虹解碼球 (Floating Cybernetic Badge) */}
+          <button
+            type="button"
+            onClick={() => setIsFortuneModalOpen(true)}
+            className="fixed bottom-24 right-6 z-40 flex h-14 w-14 flex-col items-center justify-center rounded-full border border-cyan-500/40 bg-slate-950/90 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-300 hover:scale-110 hover:border-cyan-300 hover:text-cyan-200 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 animate-pulse cursor-pointer group"
+            aria-label="數字吉凶"
+          >
+            <span className="text-xl group-hover:rotate-180 transition-transform duration-500">☯️</span>
+            <span className="text-[9px] font-bold tracking-tighter mt-0.5 scale-90">數理</span>
+          </button>
+        </>
+      )}
 
       {/* 系統自我修復極光 Toast 提示 */}
       {showRepairToast && (

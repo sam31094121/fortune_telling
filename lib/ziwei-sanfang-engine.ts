@@ -31,6 +31,17 @@ export interface ZiweiPalaceEvidence {
   transformations: string[];
 }
 
+export interface ZiweiFullPalaceEvidence {
+  key: string;
+  name: string;
+  focus: string;
+  branch: string;
+  palaceStem: string;
+  majorStars: string[];
+  minorStars: string[];
+  transformations: string[];
+}
+
 export interface ZiweiCrossCheck {
   palaceKey: PalaceKey;
   status: 'reinforce' | 'neutral' | 'tension';
@@ -75,6 +86,7 @@ export interface ZiweiSanFangAnalysis {
     elementBalance: Record<string, number>;
   };
   palaces: ZiweiPalaceEvidence[];
+  allPalaces: ZiweiFullPalaceEvidence[];
   crossChecks: ZiweiCrossCheck[];
   pattern: ZiweiPattern;
   patternMetrics: ZiweiPatternMetrics;
@@ -86,6 +98,24 @@ const STEM_ELEMENT: Record<string, string> = {
   庚: '金', 辛: '金', 壬: '水', 癸: '水',
 };
 
+const FULL_PALACE_FOCUS: Record<string, string> = {
+  MING: '自我核心、性格底色與今年起心動念',
+  XIONG_DI: '手足同輩、協作關係與支援感',
+  FU_QI: '伴侶相處、親密關係與互相成全',
+  ZI_NV: '子女晚輩、創造力與作品延伸',
+  CAI_BO: '財務資源、收入模式與價值配置',
+  JI_E: '身心狀態、壓力節奏與健康提醒',
+  QIAN_YI: '外出移動、人際舞台與外部機會',
+  JIAO_YOU: '朋友團隊、合作網絡與貴人互動',
+  GUAN_LU: '事業定位、責任承擔與專業成就',
+  TIAN_ZHAI: '家庭居所、資產根基與安全感',
+  FU_DE: '精神能量、內在福分與情緒修復',
+  FU_MU: '長輩關係、學習傳承與保護力量',
+};
+
+function buildFullPalaceFocus(key: string, name: string) {
+  return FULL_PALACE_FOCUS[key] ?? `${name}主題、生活場景與今年行動提醒`;
+}
 const BRANCH_ELEMENT: Record<string, string> = {
   寅: '木', 卯: '木', 巳: '火', 午: '火', 辰: '土', 戌: '土', 丑: '土', 未: '土',
   申: '金', 酉: '金', 亥: '水', 子: '水',
@@ -390,6 +420,22 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
   const dayMaster = bazi.day.charAt(0);
   const dayMasterElement = STEM_ELEMENT[dayMaster] ?? '未知';
 
+  const allPalaces = chart.palaces.map((palace) => {
+    const transformations = palace.majorStars
+      .map((star) => transformationLabel(star.YT))
+      .filter((value): value is string => Boolean(value));
+
+    return {
+      key: palace.key,
+      name: palace.name,
+      focus: buildFullPalaceFocus(palace.key, palace.name),
+      branch: palace.branch,
+      palaceStem: palace.stem,
+      majorStars: palace.majorStars.map((star) => star.name),
+      minorStars: palace.minorStars.map((star) => star.name),
+      transformations,
+    };
+  });
   const palaces = PALACE_CONFIG.map((config) => {
     const palace = chart.palaces.find((item) => item.key === config.key);
     if (!palace) throw new Error(`排盤缺少${config.name}。`);
@@ -440,6 +486,7 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
       elementBalance,
     },
     palaces: visiblePalaces,
+    allPalaces,
     crossChecks,
     pattern,
     patternMetrics,

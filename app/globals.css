@@ -1347,6 +1347,7 @@ body.app-mobile-device [data-visitor-counter] {
 .home-feature-violet { box-shadow: 0 0 34px rgba(139, 92, 246, 0.16), inset 0 0 22px rgba(139, 92, 246, 0.05); }
 .home-feature-amber { box-shadow: 0 0 34px rgba(245, 158, 11, 0.16), inset 0 0 22px rgba(245, 158, 11, 0.05); }
 .home-feature-cyan { box-shadow: 0 0 34px rgba(34, 211, 238, 0.16), inset 0 0 22px rgba(34, 211, 238, 0.05); }
+.home-feature-indigo { box-shadow: 0 0 34px rgba(99, 102, 241, 0.16), inset 0 0 22px rgba(99, 102, 241, 0.05); }
 
 @keyframes home-hero-scan {
   0%, 42% { transform: translateX(-120%); opacity: 0; }

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
@@ -89,6 +89,16 @@ interface InsightResult {
     };
     palaces: {
       key: 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI';
+      name: string;
+      focus: string;
+      branch: string;
+      palaceStem: string;
+      majorStars: string[];
+      minorStars: string[];
+      transformations: string[];
+    }[];
+    allPalaces?: {
+      key: string;
       name: string;
       focus: string;
       branch: string;
@@ -683,6 +693,397 @@ function AnnualFortunePanel({ analysis }: { analysis?: InsightResult['annualFort
   );
 }
 
+type ZiweiFullPalace = NonNullable<NonNullable<InsightResult['ziweiSanFang']>['allPalaces']>[number];
+type ZiweiAnnualFortune = NonNullable<InsightResult['annualFortune']>;
+type ZiweiAnnualPalace = ZiweiAnnualFortune['sanFangFourZheng'][number];
+type ZiweiAdviceMatrixKey = keyof ZiweiAnnualFortune['adviceMatrix'];
+type ZiweiPalaceKey = typeof ZIWEI_TWELVE_PALACE_ORDER[number];
+
+const ZIWEI_TWELVE_PALACE_ORDER = [
+  'MING',
+  'XIONG_DI',
+  'FU_QI',
+  'ZI_NV',
+  'CAI_BO',
+  'JI_E',
+  'QIAN_YI',
+  'JIAO_YOU',
+  'GUAN_LU',
+  'TIAN_ZHAI',
+  'FU_DE',
+  'FU_MU',
+] as const;
+
+const ZIWEI_PALACE_STORY: Record<string, {
+  subtitle: string;
+  icon: string;
+  story: string;
+  opportunity: string;
+  pressure: string;
+  action: string;
+  tone: string;
+}> = {
+  MING: {
+    subtitle: '性格、天賦與人生核心',
+    icon: '✦',
+    story: '命宮像整張命盤的主控室，主星代表你今年最自然的反應方式，三方四正會補足你能借力的位置。',
+    opportunity: '適合重新確認自我定位，把優勢放在真正重要的方向。',
+    pressure: '容易因為想一次處理太多事，讓心力分散。',
+    action: '先定一個年度主軸，把力氣集中在最能累積成果的地方。',
+    tone: 'border-cyan-400/30 bg-cyan-950/15 text-cyan-100',
+  },
+  XIONG_DI: {
+    subtitle: '手足、朋友與同輩互動',
+    icon: '◇',
+    story: '兄弟宮像身邊同輩的支援站，能看見手足、朋友與熟人互動對今年選擇的影響。',
+    opportunity: '同輩合作容易帶來資訊、資源或情緒上的支持。',
+    pressure: '若界線不清，容易把別人的急事變成自己的負擔。',
+    action: '需要幫忙時說清楚，也要把責任範圍先講明白。',
+    tone: 'border-sky-400/30 bg-sky-950/15 text-sky-100',
+  },
+  FU_QI: {
+    subtitle: '感情、伴侶與相處模式',
+    icon: '♡',
+    story: '夫妻宮像關係中的會客室，主星看相處需求，三方四正看彼此如何在現實生活中互相配合。',
+    opportunity: '適合把關係中的期待說清楚，讓理解替代猜測。',
+    pressure: '容易因為情緒沒有被看見，而累積沉默或誤會。',
+    action: '今年多用具體溝通取代試探，關係會更安定。',
+    tone: 'border-rose-400/30 bg-rose-950/15 text-rose-100',
+  },
+  ZI_NV: {
+    subtitle: '子女、創造與成果延續',
+    icon: '✣',
+    story: '子女宮也像成果孵化室，看創作、晚輩、部屬與你投入心血後長出來的東西。',
+    opportunity: '適合培養作品、教學、陪伴或可延續的計畫。',
+    pressure: '若急著看到成果，反而容易打亂原本節奏。',
+    action: '保留固定時間讓計畫慢慢成形，先重品質再重速度。',
+    tone: 'border-pink-400/30 bg-pink-950/15 text-pink-100',
+  },
+  CAI_BO: {
+    subtitle: '收入、金錢與資源運用',
+    icon: '◎',
+    story: '財帛宮像管理收入與資源的房間，主星看金錢處理方式，三方四正看工作、定位與外部機會如何共同影響財務。',
+    opportunity: '適合整理收入來源與資源配置，把能累積的價值留下來。',
+    pressure: '容易因短期支出或情緒性決策，讓資源流動變得不穩。',
+    action: '今年先記帳與分配，再談擴張；把錢放到最有回收力的地方。',
+    tone: 'border-emerald-400/30 bg-emerald-950/15 text-emerald-100',
+  },
+  JI_E: {
+    subtitle: '身心負荷與生活節奏',
+    icon: '✧',
+    story: '疾厄宮像身心節奏的儀表板，用來看壓力、作息與恢復力，不做疾病診斷。',
+    opportunity: '只要節奏穩，今年反而能把體力與專注力用得更精準。',
+    pressure: '長期忽略休息，容易讓情緒與效率一起下滑。',
+    action: '固定睡眠、飲食與放鬆，先把身體顧好再衝刺。',
+    tone: 'border-lime-400/30 bg-lime-950/15 text-lime-100',
+  },
+  QIAN_YI: {
+    subtitle: '外出發展與外在形象',
+    icon: '↗',
+    story: '遷移宮像外部舞台，會看你走出去後遇到的機會、人脈與外界回饋。',
+    opportunity: '適合曝光、拓展場域、接觸新客群或不同環境。',
+    pressure: '外界變化快時，容易被他人的節奏拉著走。',
+    action: '今年可以主動出擊，但要守住時間與合作界線。',
+    tone: 'border-orange-400/30 bg-orange-950/15 text-orange-100',
+  },
+  JIAO_YOU: {
+    subtitle: '人脈、合作與團隊關係',
+    icon: '✺',
+    story: '交友宮像合作網絡，看團隊、客戶、夥伴與人脈品質如何影響今年發展。',
+    opportunity: '圈子對了，資源與消息會更容易流向你。',
+    pressure: '人情壓力或消耗型合作，可能讓判斷變慢。',
+    action: '選擇能互相成就的人，合作前先確認目標與分工。',
+    tone: 'border-teal-400/30 bg-teal-950/15 text-teal-100',
+  },
+  GUAN_LU: {
+    subtitle: '工作、事業與職涯方向',
+    icon: '▣',
+    story: '官祿宮像事業部門，主星看工作方式，三方四正看能力、責任與外部位置如何連動。',
+    opportunity: '適合把專業整理成可被看見的成果，提升信任感。',
+    pressure: '責任增加時，若流程沒整理好，容易忙而不精。',
+    action: '把任務拆成清楚步驟，先做最能代表專業的成果。',
+    tone: 'border-amber-400/30 bg-amber-950/15 text-amber-100',
+  },
+  TIAN_ZHAI: {
+    subtitle: '家庭、居住與資產基礎',
+    icon: '⌂',
+    story: '田宅宮像根基與安住的房間，看家庭、居住、空間與資產基礎帶來的安全感。',
+    opportunity: '整理空間與生活秩序，會讓後續行動更有底氣。',
+    pressure: '家庭或資產議題若拖太久，容易變成隱性壓力。',
+    action: '先處理看得見的環境，再慢慢整理資產與家庭共識。',
+    tone: 'border-yellow-400/30 bg-yellow-950/15 text-yellow-100',
+  },
+  FU_DE: {
+    subtitle: '內心、興趣與精神狀態',
+    icon: '◐',
+    story: '福德宮像心裡的休息室，看精神能量、興趣、慾望與內在滿足感。',
+    opportunity: '內心穩定時，判斷會更清楚，福氣也比較留得住。',
+    pressure: '若只顧外在成果，容易忽略真正需要修復的地方。',
+    action: '每天留一點安靜時間，讓心氣回來。',
+    tone: 'border-violet-400/30 bg-violet-950/15 text-violet-100',
+  },
+  FU_MU: {
+    subtitle: '父母、長輩與支持系統',
+    icon: '△',
+    story: '父母宮像長輩與制度的支持系統，也看上級、師長、傳承與保護力量。',
+    opportunity: '適合請益、學習與修正舊觀念，讓經驗成為助力。',
+    pressure: '權威或期待太重時，容易讓你忽略自己的節奏。',
+    action: '尊重經驗，但把最後選擇放回自己手上。',
+    tone: 'border-indigo-400/30 bg-indigo-950/15 text-indigo-100',
+  },
+};
+
+const ZIWEI_PALACE_ANNUAL_LENS: Record<string, { label: string; matrixKey: ZiweiAdviceMatrixKey; source: string }> = {
+  MING: { label: '自我定位', matrixKey: 'confidence', source: '今年整體信心與自我穩定度' },
+  XIONG_DI: { label: '同輩互動', matrixKey: 'communication', source: '今年溝通、人際協調與同輩支援' },
+  FU_QI: { label: '關係覺察', matrixKey: 'relationshipAwareness', source: '今年感情互動與關係覺察' },
+  ZI_NV: { label: '成果延續', matrixKey: 'learningGrowth', source: '今年成長、創造與成果延續' },
+  CAI_BO: { label: '財務紀律', matrixKey: 'financialDiscipline', source: '今年財務紀律與資源配置' },
+  JI_E: { label: '壓力管理', matrixKey: 'stressManagement', source: '今年壓力管理與身心節奏' },
+  QIAN_YI: { label: '外部適應', matrixKey: 'adaptability', source: '今年外部機會與環境適應' },
+  JIAO_YOU: { label: '合作溝通', matrixKey: 'communication', source: '今年合作、人脈與團隊溝通' },
+  GUAN_LU: { label: '執行落地', matrixKey: 'execution', source: '今年事業執行與責任落地' },
+  TIAN_ZHAI: { label: '根基耐心', matrixKey: 'patience', source: '今年家庭根基、穩定度與耐心' },
+  FU_DE: { label: '心氣修復', matrixKey: 'stressManagement', source: '今年內在修復與精神能量' },
+  FU_MU: { label: '支持系統', matrixKey: 'learningGrowth', source: '今年長輩支持、學習與經驗吸收' },
+};
+
+function getZiweiAnnualSignal(
+  palaceKey: string,
+  annualPalace?: ZiweiAnnualPalace,
+  annual?: ZiweiAnnualFortune,
+) {
+  const lens = ZIWEI_PALACE_ANNUAL_LENS[palaceKey];
+  const matrixScore = annual && lens ? annual.adviceMatrix[lens.matrixKey] : undefined;
+  return {
+    score: annualPalace?.score ?? matrixScore ?? annual?.overallScore ?? null,
+    label: annualPalace?.trend ?? lens?.label ?? annual?.level ?? '年度訊號',
+    focus: annualPalace?.focus ?? lens?.source ?? annual?.annualTheme ?? '今年整體運勢訊號',
+    advice: annualPalace?.advice ?? annual?.motivation.actionAdvice,
+    encouragement: annualPalace?.encouragement ?? annual?.motivation.coreEncouragement,
+    action: annualPalace?.action ?? annual?.motivation.growthReminder,
+    basis: annualPalace?.basis ?? annual?.baziFocus.advice,
+    strengths: annualPalace?.strengths ?? annual?.recommendations.slice(0, 2) ?? [],
+    tensions: annualPalace?.tensions ?? (annual ? [annual.motivation.mainWarning] : []),
+    scoreSource: annualPalace ? '宮位年度分數' : lens ? '年度矩陣分數' : '整體年度分數',
+  };
+}
+function normalizeZiweiPalaceName(name: string) {
+  const normalized = name === '奴僕宮' || name === '奴僕' ? '交友宮' : name;
+  return normalized.endsWith('宮') ? normalized : `${normalized}宮`;
+}
+
+function ZiweiTwelvePalaceCards({
+  analysis,
+  annual,
+}: {
+  analysis?: InsightResult['ziweiSanFang'];
+  annual?: InsightResult['annualFortune'];
+}) {
+  const [selectedPalaceKey, setSelectedPalaceKey] = useState<string | null>(null);
+
+  if (!analysis) return null;
+
+  const palaceSource: ZiweiFullPalace[] = analysis.allPalaces?.length ? analysis.allPalaces : analysis.palaces;
+  const annualMap = new Map((annual?.sanFangFourZheng ?? []).map((item) => [item.palaceKey, item]));
+  const sortedPalaces = [...palaceSource].sort((a, b) => {
+    const aIndex = ZIWEI_TWELVE_PALACE_ORDER.indexOf(a.key as ZiweiPalaceKey);
+    const bIndex = ZIWEI_TWELVE_PALACE_ORDER.indexOf(b.key as ZiweiPalaceKey);
+    return (aIndex === -1 ? 99 : aIndex) - (bIndex === -1 ? 99 : bIndex);
+  });
+  const selectedPalace = sortedPalaces.find((palace) => palace.key === selectedPalaceKey) ?? null;
+
+  return (
+    <section className="fortune-card p-5 sm:p-8">
+      <div className="rounded-[28px] border border-amber-300/35 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),rgba(15,23,42,0.56)_42%,rgba(2,6,23,0.82)_100%)] p-5 text-center shadow-[0_0_46px_rgba(251,191,36,0.14)] sm:p-7">
+        <p className="text-xs font-semibold uppercase tracking-[0.32em] text-amber-200/85">主要格局</p>
+        <h2 className="mx-auto mt-3 max-w-4xl break-words font-serif text-5xl font-black leading-tight text-amber-100 drop-shadow-[0_0_20px_rgba(251,191,36,0.35)] sm:text-7xl">
+          {analysis.pattern.name}
+        </h2>
+        <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-amber-50/78">
+          你是有格局的人。先看格局定錨，再從十二宮位找到今年最適合發力的位置。
+        </p>
+        <p className="mt-3 text-xs text-amber-100/60">分析年份：{annual?.year ?? new Date().getFullYear()}</p>
+      </div>
+
+      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-[0.28em] text-indigo-300">ZI WEI PALACES</p>
+          <h3 className="mt-3 font-serif text-3xl text-indigo-100 sm:text-4xl">選擇想了解的宮位</h3>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-[color:var(--text-sub)]">
+            點選宮位，查看專屬分析。
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-2 text-xs">
+        <span className="rounded-full border border-cyan-300/20 bg-cyan-950/20 px-3 py-1 text-cyan-100">
+          {analysis.timeConfidence === 'exact' ? '已依真實時辰排盤' : '暫定時辰排盤，可再校正'}
+        </span>
+
+      </div>
+
+      <div className="mt-6 grid grid-cols-2 gap-3 max-[340px]:grid-cols-1 sm:grid-cols-3 xl:grid-cols-4">
+        {sortedPalaces.map((palace, index) => {
+          const story = ZIWEI_PALACE_STORY[palace.key] ?? {
+            subtitle: `${normalizeZiweiPalaceName(palace.name)}主題`,
+            icon: '✦',
+            story: `${normalizeZiweiPalaceName(palace.name)}代表一段生活主題，今年先看它帶來的提醒。`,
+            opportunity: '適合把重點整理清楚，找到可執行方向。',
+            pressure: '訊號不足時，先以保守判讀為主。',
+            action: '把重點化成一個可執行的小步驟。',
+            tone: 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
+          };
+          const annualPalace = annualMap.get(palace.key as 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI');
+          const annualSignal = getZiweiAnnualSignal(palace.key, annualPalace, annual);
+          const active = selectedPalaceKey === palace.key;
+
+          return (
+            <button
+              key={palace.key}
+              type="button"
+              onClick={() => setSelectedPalaceKey(active ? null : palace.key)}
+              className={`group min-h-[132px] rounded-[22px] border p-4 text-left transition duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-200/70 ${story.tone} ${active ? 'ring-2 ring-white/50' : ''}`}
+              aria-expanded={active}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/15 bg-black/20 text-xl shadow-[inset_0_0_18px_rgba(255,255,255,0.08)]">
+                  {story.icon}
+                </span>
+                <span className="text-[11px] font-semibold tracking-[0.18em] opacity-60">{String(index + 1).padStart(2, '0')}</span>
+              </div>
+              <h3 className="mt-4 font-serif text-xl font-black leading-tight sm:text-2xl">{normalizeZiweiPalaceName(palace.name)}</h3>
+              <p className="mt-2 text-xs leading-5 opacity-75">{story.subtitle}</p>
+              {annualSignal.score !== null && (
+                <p className="mt-3 inline-flex rounded-full border border-white/15 bg-black/15 px-2.5 py-1 text-[11px] font-semibold opacity-90">
+                  {annualSignal.label} · {annualSignal.score}
+                </p>
+              )}
+              <p className="mt-4 text-xs font-semibold opacity-90">查看分析 →</p>
+            </button>
+          );
+        })}
+      </div>
+
+      {selectedPalace ? (
+        <ZiweiPalaceStoryPanel
+          palace={selectedPalace}
+          annualPalace={annualMap.get(selectedPalace.key as 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI')}
+          annual={annual}
+          story={ZIWEI_PALACE_STORY[selectedPalace.key]}
+          year={annual?.year ?? new Date().getFullYear()}
+          patternName={analysis.pattern.name}
+        />
+      ) : (
+        <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-sm leading-7 text-[color:var(--text-sub)]">
+          先點一張宮位卡片，系統會只展開該宮位的故事分析，畫面保持乾淨不擁擠。
+        </div>
+      )}
+    </section>
+  );
+}
+
+function ZiweiPalaceStoryPanel({
+  palace,
+  annualPalace,
+  annual,
+  story,
+  year,
+  patternName,
+}: {
+  palace: ZiweiFullPalace;
+  annualPalace?: ZiweiAnnualPalace;
+  annual?: ZiweiAnnualFortune;
+  story?: (typeof ZIWEI_PALACE_STORY)[string];
+  year: number;
+  patternName: string;
+}) {
+  const config = story ?? {
+    subtitle: `${normalizeZiweiPalaceName(palace.name)}主題`,
+    icon: '✦',
+    story: `${normalizeZiweiPalaceName(palace.name)}代表一段生活主題，今年先看它帶來的提醒。`,
+    opportunity: '適合把重點整理清楚，找到可執行方向。',
+    pressure: '訊號不足時，先以保守判讀為主。',
+    action: '把重點化成一個可執行的小步驟。',
+    tone: 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
+  };
+  const mainStars = palace.majorStars.length > 0 ? palace.majorStars.join('、') : '無主星坐守';
+  const supportStars = palace.minorStars.slice(0, 5).join('、') || '依三方四正補足訊號';
+  const transformations = palace.transformations.length > 0 ? palace.transformations.join('、') : '今年以宮位結構與主星互動為主';
+  const annualSignal = getZiweiAnnualSignal(palace.key, annualPalace, annual);
+
+  return (
+    <div className={`mt-6 rounded-[24px] border p-5 sm:p-6 ${config.tone}`}>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold tracking-[0.24em] opacity-70">{year} 年專屬分析</p>
+          <h3 className="mt-2 font-serif text-3xl font-black leading-tight">{normalizeZiweiPalaceName(palace.name)}</h3>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{config.subtitle}</p>
+        </div>
+        <div className="rounded-2xl border border-white/15 bg-black/15 px-4 py-3 text-left sm:text-right">
+          <p className="text-xs opacity-70">格局</p>
+          <p className="mt-1 text-sm font-bold">{patternName}</p>
+          {annualSignal.score !== null && <p className="mt-2 text-xs opacity-80">{annualSignal.scoreSource} {annualSignal.score}</p>}
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+          <p className="text-xs font-semibold opacity-70">機會</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{annualSignal.focus ?? config.opportunity}</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+          <p className="text-xs font-semibold opacity-70">壓力</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{annualSignal.tensions[0] ?? config.pressure}</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+          <p className="text-xs font-semibold opacity-70">建議</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{annualSignal.action ?? config.action}</p>
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+        <p className="text-xs font-semibold tracking-[0.2em] opacity-70">看圖說故事</p>
+        <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
+          {annualSignal.advice ?? config.story}
+        </p>
+        {annualSignal.encouragement && (
+          <p className="mt-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs leading-6 text-[color:var(--text-main)]">
+            鼓勵：{annualSignal.encouragement}
+          </p>
+        )}
+      </div>
+
+      {annual && (
+        <div className="mt-4 rounded-2xl border border-white/10 bg-black/15 p-4">
+          <p className="text-xs font-semibold tracking-[0.2em] opacity-70">今年統計灌入</p>
+          <p className="mt-3 text-sm leading-7 text-[color:var(--text-sub)]">
+            {annual.year} {annual.ganzhi}年整體為「{annual.level}」，綜合分數 {annual.overallScore}。此宮位採用「{annualSignal.label}」作為年度切入點，把原本年度運勢統計轉成這一宮的實用提醒。
+          </p>
+          {annualSignal.strengths.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {annualSignal.strengths.slice(0, 2).map((item) => (
+                <span key={item} className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[11px] text-[color:var(--text-main)]">
+                  {item}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <details className="mt-4 rounded-2xl border border-white/10 bg-black/15 p-4 text-sm">
+        <summary className="cursor-pointer font-semibold text-[color:var(--text-main)]">分析依據</summary>
+        <div className="mt-3 grid gap-2 text-xs leading-6 text-[color:var(--text-sub)] sm:grid-cols-2">
+          <p>宮位座標：{palace.palaceStem}{palace.branch}</p>
+          <p>本宮主星：{mainStars}</p>
+          <p>輔助星曜：{supportStars}</p>
+          <p>四化訊號：{transformations}</p>
+        </div>
+      </details>
+    </div>
+  );
+}
 function InsightAnalyticalConsole({
   name,
 }: {
@@ -1338,9 +1739,12 @@ export default function InsightPage() {
               </p>
             </div>
 
-            <SanFangSummaryCard analysis={result?.ziweiSanFang} />
+            <ZiweiTwelvePalaceCards analysis={result?.ziweiSanFang} annual={result?.annualFortune} />
 
-            <AnnualFortunePanel analysis={result?.annualFortune} />
+            <div className="hidden">
+              <SanFangSummaryCard analysis={result?.ziweiSanFang} />
+              <AnnualFortunePanel analysis={result?.annualFortune} />
+            </div>
 
             <div className="hidden">
               <ZiweiSanFangPanel analysis={result?.ziweiSanFang} />
@@ -1379,22 +1783,25 @@ export default function InsightPage() {
               </div>
             </div>
 
-            <div className="fortune-card p-6 sm:p-8">
-              <p className="mb-4 text-xs uppercase tracking-[0.35em] text-cyan-300">個性化建議</p>
-              <ul className="space-y-3 text-sm">
-                {result?.personalizedRecommendations?.map((rec, index) => (
-                  <li key={index} className="flex gap-3">
-                    <span className="text-cyan-400">→</span>
-                    <span className="text-[color:var(--text-sub)]">{rec}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="fortune-card p-6 sm:p-8 text-center">
-              <p className="mb-4 font-semibold text-[color:var(--text-main)]">重點摘要</p>
-              <p className="text-sm leading-8 text-[color:var(--text-sub)]">{result?.summary}</p>
-            </div>
+            <details className="fortune-card p-5 sm:p-6">
+              <summary className="cursor-pointer list-none text-sm font-semibold text-cyan-100">
+                補充建議與摘要
+                <span className="ml-2 text-xs font-normal text-[color:var(--text-muted)]">點開查看</span>
+              </summary>
+              <div className="mt-5 space-y-5 border-t border-white/10 pt-5">
+                {result?.personalizedRecommendations && result.personalizedRecommendations.length > 0 && (
+                  <ul className="space-y-3 text-sm">
+                    {result.personalizedRecommendations.slice(0, 4).map((rec, index) => (
+                      <li key={index} className="flex gap-3">
+                        <span className="text-cyan-400">→</span>
+                        <span className="text-[color:var(--text-sub)]">{rec}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p className="text-sm leading-8 text-[color:var(--text-sub)]">{result?.summary}</p>
+              </div>
+            </details>
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
@@ -1419,3 +1826,7 @@ export default function InsightPage() {
     </div>
   );
 }
+
+
+
+
