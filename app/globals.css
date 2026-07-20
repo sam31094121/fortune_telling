@@ -4426,6 +4426,48 @@ body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
     inset 0 1px 0 rgba(255, 255, 255, 0.62);
 }
 
+.home-line-share-card,
+.home-line-share-card * {
+  min-width: 0;
+}
+
+.home-line-share-card {
+  overflow-wrap: anywhere;
+}
+
+.home-line-share-button {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.25;
+}
+
+.home-line-share-button > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 430px) {
+  .home-line-share-card {
+    padding-inline: 1rem;
+  }
+
+  .home-line-share-button {
+    width: 100%;
+    gap: 0.6rem;
+    padding-inline: 1rem;
+    letter-spacing: 0.08em;
+  }
+
+  .home-line-share-card::after {
+    right: 0.25rem;
+    top: -2.6rem;
+    width: 8rem;
+    height: 8rem;
+    opacity: 0.38;
+  }
+}
+
 body.app-lite-effects .home-line-share-card::after {
   opacity: 0.28;
   filter: none;
