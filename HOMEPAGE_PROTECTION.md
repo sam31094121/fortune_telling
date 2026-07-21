@@ -41,7 +41,7 @@ npm run dev:guardian-only
 ```
 每10秒檢查一次
     ↓
-訪問 http://localhost:3000
+訪問 http://localhost:8888
     ↓
 檢查是否返回正常內容（天地人/人格）
     ├─ ✅ 正常 → 繼續監控
@@ -105,7 +105,7 @@ npm run dev:guardian-only
 ### 什麼不會再發生
 
 ❌ 首頁突然 404  
-❌ 無法連接 localhost:3000  
+❌ 無法連接 localhost:8888  
 ❌ 配置錯誤導致構建失敗  
 ❌ 需要手動重啟 dev server  
 ❌ 問題持續多次而不恢復  

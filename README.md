@@ -33,7 +33,7 @@ GEMINI_API_KEY=你的金鑰
 npm run dev
 ```
 
-打開瀏覽器前往 http://localhost:3000
+打開瀏覽器前往 http://localhost:8888（天宿命理固定專用）
 
 ## 功能說明
 

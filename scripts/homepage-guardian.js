@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 /**
- * Port 3000 guardian.
+ * Port 8888 guardian.
  *
  * Keeps the local Next.js preview reachable on desktop and phone without
  * hammering the app. It checks one route per interval, restarts only the
- * process listening on port 3000 when needed, and clears the Next.js cache
+ * process listening on port 8888 when needed, and clears the Next.js cache
  * when the server appears stuck.
  */
 
@@ -16,7 +16,7 @@ const os = require('os');
 const path = require('path');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const PORT = Number(process.env.GUARDIAN_PORT || 3000);
+const PORT = Number(process.env.GUARDIAN_PORT || 8888);
 const HOST = '0.0.0.0';
 const CHECK_INTERVAL_MS = Number(process.env.GUARDIAN_INTERVAL_MS || 15000);
 const CHECK_TIMEOUT_MS = Number(process.env.GUARDIAN_TIMEOUT_MS || 5000);
@@ -217,7 +217,7 @@ class HomepageGuardian {
 
   async start() {
     this.log('='.repeat(60));
-    this.log('Port 3000 guardian started.');
+    this.log('Port 8888 guardian started.');
     this.log(`Interval: ${CHECK_INTERVAL_MS}ms`);
     this.log(`Failure threshold: ${FAILURE_THRESHOLD}`);
     this.log(`Routes: ${HEALTH_PATHS.join(', ')}`);

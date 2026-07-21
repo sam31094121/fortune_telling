@@ -1,0 +1,13 @@
+{
+  "totalCount": 169,
+  "deviceIds": [
+    "c13f310b-7d84-4a3b-b846-5e41699e244f"
+  ],
+  "logs": [
+    {
+      "deviceId": "c13f310b-7d84-4a3b-b846-5e41699e244f",
+      "ipHash": "47d4a928e4737456305e23ece2a75c6a634d089e40042b8d4e86b8a0a70bb35b",
+      "sentAt": "2026-07-21T16:07:08.005Z"
+    }
+  ]
+}

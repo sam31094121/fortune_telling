@@ -5,7 +5,7 @@ const os = require('os');
 const path = require('path');
 
 const projectRoot = path.resolve(__dirname, '..');
-const port = 3000;
+const port = 8888;
 
 function getLanAddresses() {
   return Object.values(os.networkInterfaces())

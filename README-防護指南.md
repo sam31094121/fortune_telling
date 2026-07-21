@@ -119,7 +119,7 @@ npm run dev:safe
 ### 訪問首頁：
 打開瀏覽器，訪問：
 ```
-http://localhost:3000
+http://localhost:8888
 ```
 
 ---

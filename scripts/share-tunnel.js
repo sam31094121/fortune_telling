@@ -6,7 +6,7 @@ console.log('💡 提示：因為 Facebook 和 LINE 機器人無法讀取你電�
 
 const checkDevServer = () => {
   return new Promise((resolve) => {
-    http.get('http://localhost:3000', (res) => {
+    http.get('http://localhost:8888', (res) => {
       resolve(true);
     }).on('error', () => {
       resolve(false);
@@ -17,7 +17,7 @@ const checkDevServer = () => {
 const main = async () => {
   const isRunning = await checkDevServer();
   if (!isRunning) {
-    console.log('⚠️ 檢測到 localhost:3000 開發伺服器尚未啟動！');
+    console.log('⚠️ 檢測到 localhost:8888 開發伺服器尚未啟動！');
     console.log('🚀 正在為您背景啟動 Next.js 開發伺服器...');
     exec('npm run dev', { cwd: process.cwd() });
     await new Promise((resolve) => setTimeout(resolve, 4000));
@@ -25,7 +25,7 @@ const main = async () => {
 
   console.log('⚡ 正在建立外網穿透隧道...');
   // 使用 localtunnel 來建立外網連接埠對應
-  const lt = exec('npx localtunnel --port 3000');
+  const lt = exec('npx localtunnel --port 8888');
 
   lt.stdout.on('data', (data) => {
     const output = data.toString().trim();

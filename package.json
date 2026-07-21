@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0 -p 3000",
+    "dev": "next dev -H 0.0.0.0 -p 8888",
     "dev:optimize": "node scripts/optimize-start.js",
-    "dev:safe": "concurrently \"next dev -H 0.0.0.0 -p 3000\" \"node scripts/homepage-guardian.js\"",
+    "dev:safe": "concurrently \"next dev -H 0.0.0.0 -p 8888\" \"node scripts/homepage-guardian.js\"",
     "dev:guardian-only": "node scripts/homepage-guardian.js",
     "build": "next build",
-    "start": "next start",
-    "start:mobile": "next start -H 0.0.0.0 -p 3000",
+    "start": "next start -H 0.0.0.0 -p 8888",
+    "start:mobile": "next start -H 0.0.0.0 -p 8888",
     "lint": "next lint",
     "share": "node scripts/share-tunnel.js"
   },

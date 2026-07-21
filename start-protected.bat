@@ -11,7 +11,7 @@ echo ║  - Dev Server: 運行中                                      ║
 echo ║  - 首頁衛士: 24/7 監控中                                    ║
 echo ║  - 自動恢復: 已啟用                                        ║
 echo ║                                                            ║
-echo ║  首頁地址: http://localhost:3000                          ║
+echo ║  首頁地址: http://localhost:8888                          ║
 echo ║  監控日誌: .guardian-log.txt                              ║
 echo ║                                                            ║
 echo ║  按 Ctrl+C 停止（不建議）                                  ║

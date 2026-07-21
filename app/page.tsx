@@ -3,6 +3,8 @@
 import { useMemo, useState, useDeferredValue, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { injectPerformanceCSS } from '@/lib/performance-css';
+import AiLikeFeedback from '@/components/AiLikeFeedback';
+import AiSuggestionFeedback from '@/components/AiSuggestionFeedback';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
@@ -739,7 +741,7 @@ export default function HomePage() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [lineShareHref, setLineShareHref] = useState(
-    'https://social-plugins.line.me/lineit/share?url=http%3A%2F%2Flocalhost%3A3000%2F',
+    'https://social-plugins.line.me/lineit/share?url=http%3A%2F%2Flocalhost%3A8888%2F',
   );
   const mainRef = useRef<HTMLElement>(null);
   const repairTimerRef = useRef<number | null>(null);
@@ -764,7 +766,7 @@ export default function HomePage() {
     const origin =
       typeof window !== 'undefined'
         ? window.location.origin
-        : process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+        : process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:8888';
     setLineShareHref(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`${origin}/`)}`);
   }, []);
 
@@ -1578,17 +1580,9 @@ export default function HomePage() {
 
       <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
         <div className="mb-5 grid grid-cols-[minmax(88px,0.3fr)_minmax(0,0.4fr)_minmax(88px,0.3fr)] items-stretch gap-2">
-          <section className="flex min-h-[64px] flex-col justify-center overflow-hidden rounded-xl border border-amber-300/25 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.16),rgba(15,23,42,0.74)_54%,rgba(2,6,23,0.92)_100%)] px-2.5 py-2.5 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl">
-            <h2 className="font-serif text-lg font-black tracking-[0.16em] text-amber-100 drop-shadow-[0_0_16px_rgba(251,191,36,0.35)] sm:text-2xl">
-              準准隼
-            </h2>
-          </section>
+          <AiLikeFeedback className="flex min-h-[64px] flex-col justify-center overflow-hidden rounded-xl border border-amber-300/25 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.16),rgba(15,23,42,0.74)_54%,rgba(2,6,23,0.92)_100%)] px-2.5 py-2 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl" />
           <FeatureVisitorCounter featureKey="home" className="h-full !w-full" deferMs={1500} compact />
-          <section className="flex min-h-[64px] flex-col justify-center overflow-hidden rounded-xl border border-cyan-300/25 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.16),rgba(15,23,42,0.74)_54%,rgba(2,6,23,0.92)_100%)] px-2.5 py-2.5 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl">
-            <h2 className="font-serif text-lg font-black tracking-[0.16em] text-cyan-100 drop-shadow-[0_0_16px_rgba(34,211,238,0.35)] sm:text-2xl">
-              快狠準
-            </h2>
-          </section>
+          <AiSuggestionFeedback className="flex min-h-[64px] flex-col justify-center overflow-hidden rounded-xl border border-cyan-300/25 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.16),rgba(15,23,42,0.74)_54%,rgba(2,6,23,0.92)_100%)] px-2.5 py-2 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl" />
         </div>
         <div className="hidden mb-8 items-center gap-4">
           <span className="text-xs tracking-widest text-rose-300">// AI 靈魂配對</span>

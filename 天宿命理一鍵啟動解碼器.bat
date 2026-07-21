@@ -29,11 +29,11 @@ echo [INFO] 正在進行量子矩陣對齊與編譯，請稍候 3 秒...
 timeout /t 3 /nobreak >nul
 
 echo [INFO] 正在為您自動開啟天宿命理解碼系統網頁 (多重相容性防線)...
-start "" "chrome.exe" "http://localhost:3000" 2>nul
+start "" "chrome.exe" "http://localhost:8888" 2>nul
 if %errorlevel% neq 0 (
-    start "" "msedge.exe" "http://localhost:3000" 2>nul
+    start "" "msedge.exe" "http://localhost:8888" 2>nul
     if %errorlevel% neq 0 (
-        explorer "http://localhost:3000"
+        explorer "http://localhost:8888"
     )
 )
 

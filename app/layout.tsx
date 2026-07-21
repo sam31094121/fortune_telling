@@ -28,7 +28,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
   ? process.env.NEXT_PUBLIC_SITE_URL
   : process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
-    : 'http://localhost:3000';
+    : 'http://localhost:8888';
 
 const shareImage = '/images/line-share-taichi.jpg?v=20260715-3';
 
