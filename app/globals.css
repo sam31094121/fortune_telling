@@ -1827,6 +1827,10 @@ body.app-lite-effects .taiji-light-orbit--violet .taiji-light-orbit__head {
     min-height: 44px;
   }
 
+  button.top-feedback-action {
+    min-height: 1.35rem;
+  }
+
   input,
   select,
   textarea,

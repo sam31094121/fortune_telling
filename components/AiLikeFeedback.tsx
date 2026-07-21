@@ -99,7 +99,7 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
         type="button"
         onClick={handleLike}
         disabled={liked || submitting}
-        className="mx-auto inline-flex max-w-full items-center justify-center rounded-full border border-amber-300/25 bg-amber-300/10 px-2.5 py-1 text-[11px] font-black leading-none text-amber-100 transition hover:border-amber-200/60 hover:bg-amber-300/18 disabled:cursor-default disabled:border-emerald-300/25 disabled:bg-emerald-300/10 disabled:text-emerald-100 sm:px-3 sm:py-1.5 sm:text-xs"
+        className="top-feedback-action mx-auto inline-flex max-w-full items-center justify-center whitespace-nowrap rounded-full border border-amber-300/25 bg-amber-300/10 px-2 py-1 text-[10px] font-black leading-none text-amber-100 transition hover:border-amber-200/60 hover:bg-amber-300/18 disabled:cursor-default disabled:border-emerald-300/25 disabled:bg-emerald-300/10 disabled:text-emerald-100 sm:px-3 sm:py-1.5 sm:text-xs"
       >
         {liked ? '❤️ 已感謝支持' : submitting ? '送出中...' : '👍 我認同'}
       </button>

@@ -1728,7 +1728,7 @@ export default function HomePage() {
                   AI · 人格聲波合成
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-violet-100 tracking-wide flex items-center gap-2">
-                  <span>人格音樂</span>
+                  <span>AI人格音樂</span>
                   <span className="text-xs font-sans text-violet-300 font-normal opacity-85 hidden sm:inline">
                     // 命理頻率 · 音樂人格 · 主題曲生成
                   </span>
@@ -1788,14 +1788,14 @@ export default function HomePage() {
             
             <div className="flex items-center gap-4.5">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.2)] animate-spin-slow">
-                <span className="text-xl font-black font-mono tracking-[-0.08em]">123</span>
+                <span className="font-serif text-2xl font-black leading-none tracking-[0.06em] text-rose-100 drop-shadow-[0_0_10px_rgba(244,63,94,0.65)]">凶</span>
               </div>
               <div>
                 <span className="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse">
                   NEW · 零開銷即時解碼
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-100 tracking-wide flex items-center gap-2">
-                  <span>天宿數字吉凶解碼艙</span>
+                  <span>數字論吉凶</span>
                   <span className="text-xs font-sans text-cyan-300 font-normal opacity-85 hidden sm:inline">
                     // 手機後 4 碼 · 完整 10 碼固定分析
                   </span>

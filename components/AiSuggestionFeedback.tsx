@@ -95,7 +95,7 @@ export default function AiSuggestionFeedback({ className = '' }: { className?: s
         type="button"
         onClick={handleSend}
         disabled={sent || submitting}
-        className="mx-auto inline-flex max-w-full items-center justify-center rounded-full border border-cyan-300/25 bg-cyan-300/10 px-2.5 py-1 text-[11px] font-black leading-none text-cyan-100 transition hover:border-cyan-200/60 hover:bg-cyan-300/18 disabled:cursor-default disabled:border-emerald-300/25 disabled:bg-emerald-300/10 disabled:text-emerald-100 sm:px-3 sm:py-1.5 sm:text-xs"
+        className="top-feedback-action mx-auto inline-flex max-w-full items-center justify-center whitespace-nowrap rounded-full border border-cyan-300/25 bg-cyan-300/10 px-2 py-1 text-[10px] font-black leading-none text-cyan-100 transition hover:border-cyan-200/60 hover:bg-cyan-300/18 disabled:cursor-default disabled:border-emerald-300/25 disabled:bg-emerald-300/10 disabled:text-emerald-100 sm:px-3 sm:py-1.5 sm:text-xs"
       >
         {sent ? '已送出' : submitting ? '送出中...' : '👎 不同意'}
       </button>
