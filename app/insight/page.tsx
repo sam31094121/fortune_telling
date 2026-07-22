@@ -1913,26 +1913,17 @@ export default function InsightPage() {
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
 
       <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
-        <FeatureVisitorCounter featureKey="personality" className="mb-6" />
-        <div className="mb-8 flex items-center gap-4">
-          <Link href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
-            ← 返回首頁
-          </Link>
-          <span className="text-[color:var(--text-muted)]">·</span>
-          <Link href="/music" className="text-xs tracking-widest text-violet-300/70 transition hover:text-violet-300">
-            🎵 人格
-          </Link>
-          <span className="text-[color:var(--text-muted)]">·</span>
-          <Link href="/" className="text-xs tracking-widest text-rose-300/70 transition hover:text-rose-300">
-            💕 配對
-          </Link>
-          <span className="text-[color:var(--text-muted)]">·</span>
-          <span className="text-xs tracking-widest text-cyan-300">✨ 紫微斗數</span>
-        </div>
-
+        <FeatureVisitorCounter featureKey="personality" className="mb-4" />
+        <Link
+          href="/"
+          className="absolute right-4 top-4 inline-flex min-h-0 items-center rounded-full border border-cyan-300/20 bg-slate-950/55 px-3 py-1.5 text-[11px] font-semibold tracking-[0.18em] text-cyan-100/85 shadow-[0_0_18px_rgba(34,211,238,0.16)] backdrop-blur-xl transition hover:border-cyan-200/45 hover:bg-cyan-300/12 hover:text-cyan-50 animate-pulse sm:right-6 sm:top-6"
+          aria-label="返回首頁"
+        >
+          {'\u2190 \u8fd4\u56de\u9996\u9801'}
+        </Link>
         {!result ? (
           <>
-            <section className="mb-6 flex justify-center sm:mb-10">
+            <section className="mb-5 flex justify-center sm:mb-8">
               <div className="hidden">
                 <div className="mb-4 inline-block rounded-full border border-cyan-400/20 bg-cyan-400/8 px-4 py-1 text-xs tracking-[0.35em] text-cyan-300">
                   AI 紫微斗數
