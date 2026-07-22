@@ -38,6 +38,24 @@ function normalizeCount(value: unknown) {
     ? count
     : AI_LIKE_INITIAL_COUNT;
 }
+async function readLocalCountFloor() {
+  try {
+    return await readLocalAiLikeCount();
+  } catch (error) {
+    console.error('[ai-like] local floor read failed', error);
+    return AI_LIKE_INITIAL_COUNT;
+  }
+}
+
+async function raiseSupabaseCountFloor(supabase: NonNullable<ReturnType<typeof getVisitorSupabaseClient>>, totalCount: number) {
+  const { error } = await supabase
+    .from('like_counter')
+    .upsert({ id: 'global', total_count: totalCount, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+
+  if (error) {
+    console.error('[ai-like] count floor sync failed', error.message);
+  }
+}
 
 export async function GET() {
   const supabase = getVisitorSupabaseClient();
@@ -72,8 +90,16 @@ export async function GET() {
     );
   }
 
+  const remoteCount = normalizeCount(data?.total_count);
+  const localCount = await readLocalCountFloor();
+  const totalCount = Math.max(remoteCount, localCount);
+
+  if (totalCount > remoteCount) {
+    await raiseSupabaseCountFloor(supabase, totalCount);
+  }
+
   return NextResponse.json(
-    { ok: true, totalCount: normalizeCount(data?.total_count), storage: 'supabase' },
+    { ok: true, totalCount, storage: 'supabase' },
     { headers: { 'Cache-Control': 'no-store' } },
   );
 }
@@ -126,10 +152,20 @@ export async function POST(request: Request) {
   }
 
   const didLike = row.did_like === true;
+  const remoteCount = normalizeCount(row.total_count);
+  const localCount = didLike
+    ? (await recordLocalAiLike(body.deviceId, ipHash)).totalCount
+    : await readLocalCountFloor();
+  const totalCount = Math.max(remoteCount, localCount);
+
+  if (totalCount > remoteCount) {
+    await raiseSupabaseCountFloor(supabase, totalCount);
+  }
+
   return NextResponse.json(
     {
       ok: true,
-      totalCount: normalizeCount(row.total_count),
+      totalCount,
       didLike,
       alreadyLiked: !didLike,
       storage: 'supabase',

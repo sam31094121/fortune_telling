@@ -17,6 +17,7 @@ type LikeLog = {
 
 type StoredAiLikeCounter = {
   totalCount: number;
+  highestCount: number;
   deviceIds: string[];
   logs: LikeLog[];
 };
@@ -25,13 +26,14 @@ let writeQueue = Promise.resolve();
 
 function normalizeCounter(value: unknown): StoredAiLikeCounter {
   if (!value || typeof value !== 'object') {
-    return { totalCount: AI_LIKE_INITIAL_COUNT, deviceIds: [], logs: [] };
+    return { totalCount: AI_LIKE_INITIAL_COUNT, highestCount: AI_LIKE_INITIAL_COUNT, deviceIds: [], logs: [] };
   }
 
   const stored = value as Partial<StoredAiLikeCounter>;
   const totalCount = Number(stored.totalCount);
+  const highestCount = Number(stored.highestCount);
   const deviceIds = Array.isArray(stored.deviceIds)
-    ? stored.deviceIds.filter((item): item is string => typeof item === 'string')
+    ? Array.from(new Set(stored.deviceIds.filter((item): item is string => typeof item === 'string')))
     : [];
   const logs = Array.isArray(stored.logs)
     ? stored.logs.filter((item): item is LikeLog => (
@@ -39,11 +41,19 @@ function normalizeCounter(value: unknown): StoredAiLikeCounter {
         typeof item?.likedAt === 'string'
       ))
     : [];
+  const loggedDeviceCount = new Set(logs.map((log) => log.deviceId)).size;
+  const countFromLogs = AI_LIKE_INITIAL_COUNT + Math.max(deviceIds.length, loggedDeviceCount);
+  const safeTotalCount = Number.isSafeInteger(totalCount) && totalCount >= AI_LIKE_INITIAL_COUNT
+    ? totalCount
+    : AI_LIKE_INITIAL_COUNT;
+  const safeHighestCount = Number.isSafeInteger(highestCount) && highestCount >= AI_LIKE_INITIAL_COUNT
+    ? highestCount
+    : AI_LIKE_INITIAL_COUNT;
+  const permanentCount = Math.max(safeTotalCount, safeHighestCount, countFromLogs);
 
   return {
-    totalCount: Number.isSafeInteger(totalCount) && totalCount >= AI_LIKE_INITIAL_COUNT
-      ? totalCount
-      : AI_LIKE_INITIAL_COUNT,
+    totalCount: permanentCount,
+    highestCount: permanentCount,
     deviceIds,
     logs,
   };
@@ -56,7 +66,7 @@ async function readCounter(): Promise<StoredAiLikeCounter> {
     try {
       const content = await readFile(filePath, 'utf8');
       const parsed = normalizeCounter(JSON.parse(content));
-      if (parsed.totalCount >= strongest.totalCount) {
+      if (parsed.highestCount >= strongest.highestCount) {
         strongest = parsed;
       }
     } catch {
@@ -69,7 +79,8 @@ async function readCounter(): Promise<StoredAiLikeCounter> {
 
 async function persistCounter(counter: StoredAiLikeCounter) {
   await mkdir(DATA_DIRECTORY, { recursive: true });
-  const content = `${JSON.stringify(counter, null, 2)}\n`;
+  const permanentCounter = normalizeCounter(counter);
+  const content = `${JSON.stringify(permanentCounter, null, 2)}\n`;
   const temporaryFile = `${COUNTER_FILE}.tmp`;
   const backupTemporaryFile = `${COUNTER_BACKUP_FILE}.tmp`;
 
@@ -97,7 +108,8 @@ export function recordLocalAiLike(deviceId: string, ipHash?: string): Promise<{ 
 
     if (!alreadyLiked) {
       counter.deviceIds.push(deviceId);
-      counter.totalCount += 1;
+      counter.totalCount = Math.max(counter.totalCount, counter.highestCount, AI_LIKE_INITIAL_COUNT) + 1;
+      counter.highestCount = counter.totalCount;
       counter.logs.push({
         deviceId,
         ipHash,
