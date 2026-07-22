@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const INITIAL_COUNT = 168;
 const DEVICE_ID_KEY = 'taiji_ai_suggestion_device_id_v1';
 const SENT_KEY = 'taiji_ai_suggestion_done_v1';
+const HIGHEST_COUNT_KEY = 'taiji_ai_suggestion_highest_count_v1';
 
 type SuggestionResponse = {
   ok?: boolean;
@@ -31,6 +32,31 @@ function getDeviceId() {
   return next;
 }
 
+function normalizeTotalCount(value: unknown) {
+  const count = Number(value);
+  return Number.isSafeInteger(count) && count >= INITIAL_COUNT ? count : INITIAL_COUNT;
+}
+
+function readStoredHighestCount() {
+  if (typeof window === 'undefined') return INITIAL_COUNT;
+
+  try {
+    return normalizeTotalCount(window.localStorage.getItem(HIGHEST_COUNT_KEY));
+  } catch {
+    return INITIAL_COUNT;
+  }
+}
+
+function writeStoredHighestCount(count: number) {
+  if (typeof window === 'undefined') return;
+
+  try {
+    window.localStorage.setItem(HIGHEST_COUNT_KEY, String(normalizeTotalCount(count)));
+  } catch {
+    // Some LINE in-app browser modes can block storage; the API value still protects the shared count.
+  }
+}
+
 export default function AiSuggestionFeedback({ className = '' }: { className?: string }) {
   const [totalCount, setTotalCount] = useState(INITIAL_COUNT);
   const [sent, setSent] = useState(false);
@@ -38,6 +64,18 @@ export default function AiSuggestionFeedback({ className = '' }: { className?: s
   const [messageVisible, setMessageVisible] = useState(false);
 
   const formattedCount = useMemo(() => totalCount.toLocaleString('zh-TW'), [totalCount]);
+
+  const commitTotalCount = useCallback((nextCount: unknown) => {
+    setTotalCount((currentCount) => {
+      const permanentCount = Math.max(currentCount, readStoredHighestCount(), normalizeTotalCount(nextCount));
+      writeStoredHighestCount(permanentCount);
+      return permanentCount;
+    });
+  }, []);
+
+  useEffect(() => {
+    commitTotalCount(readStoredHighestCount());
+  }, [commitTotalCount]);
 
   useEffect(() => {
     let active = true;
@@ -49,7 +87,7 @@ export default function AiSuggestionFeedback({ className = '' }: { className?: s
       .then((data: SuggestionResponse) => {
         if (!active) return;
         if (data?.ok && typeof data.totalCount === 'number') {
-          setTotalCount(data.totalCount);
+          commitTotalCount(data.totalCount);
         }
       })
       .catch(() => undefined);
@@ -57,7 +95,7 @@ export default function AiSuggestionFeedback({ className = '' }: { className?: s
     return () => {
       active = false;
     };
-  }, []);
+  }, [commitTotalCount]);
 
   async function handleSend() {
     if (sent || submitting) return;
@@ -73,11 +111,11 @@ export default function AiSuggestionFeedback({ className = '' }: { className?: s
       const data = await response.json() as SuggestionResponse;
 
       if (!response.ok || !data?.ok) {
-        throw new Error(data?.message || '暫時無法送出');
+        throw new Error(data?.message || '送出失敗');
       }
 
       if (typeof data.totalCount === 'number') {
-        setTotalCount(data.totalCount);
+        commitTotalCount(data.totalCount);
       }
 
       setSent(true);
