@@ -1728,7 +1728,7 @@ export default function HomePage() {
                   AI · 人格聲波合成
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-violet-100 tracking-wide flex items-center gap-2">
-                  <span>AI人格音樂</span>
+                  <span>AI 人格音樂</span>
                   <span className="text-xs font-sans text-violet-300 font-normal opacity-85 hidden sm:inline">
                     // 命理頻率 · 音樂人格 · 主題曲生成
                   </span>
