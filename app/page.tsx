@@ -1579,10 +1579,10 @@ export default function HomePage() {
       )}
 
       <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
-        <div className="mb-5 grid grid-cols-[minmax(88px,0.3fr)_minmax(0,0.4fr)_minmax(88px,0.3fr)] items-stretch gap-2">
-          <AiLikeFeedback className="flex min-h-[64px] flex-col justify-center overflow-hidden rounded-xl border border-amber-300/25 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.16),rgba(15,23,42,0.74)_54%,rgba(2,6,23,0.92)_100%)] px-2.5 py-2 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl" />
-          <FeatureVisitorCounter featureKey="home" className="h-full !w-full" deferMs={1500} compact />
-          <AiSuggestionFeedback className="flex min-h-[64px] flex-col justify-center overflow-hidden rounded-xl border border-cyan-300/25 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.16),rgba(15,23,42,0.74)_54%,rgba(2,6,23,0.92)_100%)] px-2.5 py-2 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl" />
+        <div className="home-trust-strip mb-5 grid grid-cols-[minmax(0,1fr)_minmax(0,1.12fr)_minmax(0,1fr)] items-stretch gap-1.5 sm:gap-2">
+          <AiLikeFeedback className="home-trust-card flex min-h-[64px] min-w-0 flex-col justify-center overflow-hidden rounded-xl border border-amber-300/25 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.16),rgba(15,23,42,0.74)_54%,rgba(2,6,23,0.92)_100%)] px-2.5 py-2 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl" />
+          <FeatureVisitorCounter featureKey="home" className="home-trust-card home-trust-card--visitor h-full !w-full min-w-0" deferMs={1500} compact />
+          <AiSuggestionFeedback className="home-trust-card flex min-h-[64px] min-w-0 flex-col justify-center overflow-hidden rounded-xl border border-cyan-300/25 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.16),rgba(15,23,42,0.74)_54%,rgba(2,6,23,0.92)_100%)] px-2.5 py-2 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl" />
         </div>
         <div className="hidden mb-8 items-center gap-4">
           <span className="text-xs tracking-widest text-rose-300">// AI 靈魂配對</span>

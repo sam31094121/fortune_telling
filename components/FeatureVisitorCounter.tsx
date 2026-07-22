@@ -354,7 +354,7 @@ export default function FeatureVisitorCounter({
       aria-label="累計瀏覽人數"
     >
       <div className={`${compact ? 'text-[9px] leading-tight sm:text-[10px]' : 'text-[13px]'} font-semibold text-[color:var(--text-main)] opacity-75`}>累計瀏覽人數</div>
-      <div className={`${compact ? 'mt-1 font-serif text-2xl leading-none' : 'mt-1 text-2xl'} font-black tracking-[0.04em] text-amber-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.28)]`} aria-live="polite">
+      <div className={`top-feedback-count ${compact ? 'mt-1 font-serif text-2xl leading-none' : 'mt-1 text-2xl'} font-black tracking-[0.04em] text-amber-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.28)]`} aria-live="polite">
         {displayCount === null ? '同步中' : displayCount.toLocaleString('zh-TW')}
       </div>
       {compact && (

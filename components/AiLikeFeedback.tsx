@@ -105,7 +105,7 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
       </button>
 
       <p className="mt-1.5 text-[9px] font-semibold leading-tight text-[color:var(--text-sub)] sm:text-[10px]">已有</p>
-      <p className="font-serif text-2xl font-black leading-none tracking-[0.04em] text-amber-100 drop-shadow-[0_0_14px_rgba(251,191,36,0.35)]">
+      <p className="top-feedback-count font-serif text-2xl font-black leading-none tracking-[0.04em] text-amber-100 drop-shadow-[0_0_14px_rgba(251,191,36,0.35)]">
         {formattedCount}
       </p>
       <p className="mt-1 text-[9px] font-medium leading-tight text-[color:var(--text-sub)] sm:text-[10px]">人認同本系統</p>

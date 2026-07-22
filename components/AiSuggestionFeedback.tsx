@@ -101,7 +101,7 @@ export default function AiSuggestionFeedback({ className = '' }: { className?: s
       </button>
 
       <p className="mt-1.5 text-[9px] font-semibold leading-tight text-[color:var(--text-sub)] sm:text-[10px]">已收到</p>
-      <p className="font-serif text-2xl font-black leading-none tracking-[0.04em] text-cyan-100 drop-shadow-[0_0_14px_rgba(34,211,238,0.35)]">
+      <p className="top-feedback-count font-serif text-2xl font-black leading-none tracking-[0.04em] text-cyan-100 drop-shadow-[0_0_14px_rgba(34,211,238,0.35)]">
         {formattedCount}
       </p>
       <p className="mt-1 text-[9px] font-medium leading-tight text-[color:var(--text-sub)] sm:text-[10px]">則改善建議</p>
