@@ -2504,7 +2504,7 @@ export default function HomePage() {
         )}
 
         <div className="mt-10 pb-2 text-center text-[10px] font-semibold tracking-[0.32em] text-[color:var(--text-muted)] opacity-45">
-          兆櫃
+          080
         </div>
       </main>
 
@@ -2519,10 +2519,11 @@ export default function HomePage() {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-amber-500/30 bg-slate-950/80 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all duration-300 hover:scale-110 hover:border-amber-400 hover:text-amber-200 active:scale-95"
+          className="fixed bottom-6 right-6 z-50 flex h-12 w-12 flex-col items-center justify-center gap-0.5 rounded-full border border-amber-500/30 bg-slate-950/80 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all duration-300 hover:scale-110 hover:border-amber-400 hover:text-amber-200 active:scale-95"
           aria-label="回到頂部"
         >
-          <span className="text-sm">▲</span>
+          <span className="text-[11px] leading-none">▲</span>
+          <span className="text-[8px] font-black leading-none tracking-0">{'\u5146\u6ac3'}</span>
         </button>
       )}
 
