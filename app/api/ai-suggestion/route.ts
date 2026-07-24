@@ -151,12 +151,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const didSend = row.did_send === true;
+  const localResult = await recordLocalAiSuggestion(body.deviceId, ipHash);
+  const didSend = localResult.didSend;
   const remoteCount = normalizeCount(row.total_count);
-  const localCount = didSend
-    ? (await recordLocalAiSuggestion(body.deviceId, ipHash)).totalCount
-    : await readLocalCountFloor();
-  const totalCount = Math.max(remoteCount, localCount);
+  const totalCount = Math.max(remoteCount, localResult.totalCount);
 
   if (totalCount > remoteCount) {
     await raiseSupabaseCountFloor(supabase, totalCount);

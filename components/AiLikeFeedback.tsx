@@ -9,7 +9,7 @@ const HIGHEST_COUNT_KEY = 'taiji_ai_like_highest_count_v1';
 const NOTICE_DURATION_MS = 5200;
 
 const COPY = {
-  alreadyLiked: '\u5df2\u8a8d\u540c',
+  alreadyLiked: '\u518d\u6b21\u8a8d\u540c',
   submitting: '\u9001\u51fa\u4e2d',
   likeAction: '\u6211\u8a8d\u540c',
   countPrefix: '\u5df2\u6709',
@@ -46,12 +46,36 @@ function createDeviceId() {
 }
 
 function getDeviceId() {
-  const existing = window.localStorage.getItem(DEVICE_ID_KEY);
-  if (existing) return existing;
+  try {
+    const existing = window.localStorage.getItem(DEVICE_ID_KEY);
+    if (existing) return existing;
+  } catch {
+    // LINE in-app browser private modes can block storage reads.
+  }
 
   const next = createDeviceId();
-  window.localStorage.setItem(DEVICE_ID_KEY, next);
+  try {
+    window.localStorage.setItem(DEVICE_ID_KEY, next);
+  } catch {
+    // The API can still record the temporary device id for this request.
+  }
   return next;
+}
+
+function readStoredLiked() {
+  try {
+    return window.localStorage.getItem(LIKED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function writeStoredLiked() {
+  try {
+    window.localStorage.setItem(LIKED_KEY, '1');
+  } catch {
+    // The shared counter is protected by the API even when storage is blocked.
+  }
 }
 
 function normalizeTotalCount(value: unknown) {
@@ -83,8 +107,10 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
   const [totalCount, setTotalCount] = useState(INITIAL_COUNT);
   const [liked, setLiked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [countPulse, setCountPulse] = useState(0);
   const [notice, setNotice] = useState<FeedbackNotice | null>(null);
   const noticeTimerRef = useRef<number | null>(null);
+  const countPulseTimerRef = useRef<number | null>(null);
 
   const formattedCount = useMemo(() => totalCount.toLocaleString('zh-TW'), [totalCount]);
 
@@ -94,6 +120,23 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
       writeStoredHighestCount(permanentCount);
       return permanentCount;
     });
+  }, []);
+
+  const flashCountIncrease = useCallback(() => {
+    setTotalCount((currentCount) => {
+      const nextCount = Math.max(currentCount, readStoredHighestCount(), INITIAL_COUNT) + 1;
+      writeStoredHighestCount(nextCount);
+      return nextCount;
+    });
+
+    setCountPulse((currentPulse) => currentPulse + 1);
+    if (countPulseTimerRef.current !== null) {
+      window.clearTimeout(countPulseTimerRef.current);
+    }
+    countPulseTimerRef.current = window.setTimeout(() => {
+      setCountPulse(0);
+      countPulseTimerRef.current = null;
+    }, 900);
   }, []);
 
   const showNotice = useCallback((nextNotice: FeedbackNotice) => {
@@ -115,7 +158,7 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
   useEffect(() => {
     let active = true;
 
-    setLiked(window.localStorage.getItem(LIKED_KEY) === '1');
+    setLiked(readStoredLiked());
 
     fetch('/api/ai-like', { cache: 'no-store' })
       .then((response) => response.json())
@@ -137,14 +180,18 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
       if (noticeTimerRef.current !== null) {
         window.clearTimeout(noticeTimerRef.current);
       }
+      if (countPulseTimerRef.current !== null) {
+        window.clearTimeout(countPulseTimerRef.current);
+      }
     };
   }, []);
 
   async function handleLike() {
-    if (liked || submitting) return;
+    if (submitting) return;
 
     setSubmitting(true);
     setNotice(null);
+    flashCountIncrease();
 
     try {
       const response = await fetch('/api/ai-like', {
@@ -163,7 +210,7 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
       }
 
       setLiked(true);
-      window.localStorage.setItem(LIKED_KEY, '1');
+      writeStoredLiked();
       showNotice({
         title: data.alreadyLiked ? COPY.alreadyNoticeTitle : COPY.thankNoticeTitle,
         body: data.alreadyLiked ? COPY.alreadyNoticeBody : COPY.thankNoticeBody,
@@ -185,15 +232,16 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
       <button
         type="button"
         onClick={handleLike}
-        disabled={liked || submitting}
+        disabled={submitting}
         className="top-feedback-action mx-auto inline-flex max-w-full items-center justify-center whitespace-nowrap rounded-full border border-amber-300/25 bg-amber-300/10 px-2 py-1 text-[10px] font-black leading-none text-amber-100 transition hover:border-amber-200/60 hover:bg-amber-300/18 disabled:cursor-default disabled:border-emerald-300/25 disabled:bg-emerald-300/10 disabled:text-emerald-100 sm:px-3 sm:py-1.5 sm:text-xs"
       >
         {liked ? COPY.alreadyLiked : submitting ? COPY.submitting : COPY.likeAction}
       </button>
 
       <p className="mt-1.5 text-[9px] font-semibold leading-tight text-[color:var(--text-sub)] sm:text-[10px]">{COPY.countPrefix}</p>
-      <p className="top-feedback-count font-serif text-2xl font-black leading-none tracking-[0.04em] text-amber-100 drop-shadow-[0_0_14px_rgba(251,191,36,0.35)]">
+      <p className={`top-feedback-count relative font-serif text-2xl font-black leading-none tracking-[0.04em] text-amber-100 drop-shadow-[0_0_14px_rgba(251,191,36,0.35)] ${countPulse > 0 ? 'top-feedback-count--bump' : ''}`}>
         {formattedCount}
+        {countPulse > 0 && <span key={countPulse} className="top-feedback-delta top-feedback-delta--amber">+1</span>}
       </p>
       <p className="mt-1 text-[9px] font-medium leading-tight text-[color:var(--text-sub)] sm:text-[10px]">{COPY.countSuffix}</p>
 

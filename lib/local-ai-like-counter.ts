@@ -104,21 +104,21 @@ export function readLocalAiLikeCount(): Promise<number> {
 export function recordLocalAiLike(deviceId: string, ipHash?: string): Promise<{ totalCount: number; didLike: boolean }> {
   const operation = writeQueue.then(async () => {
     const counter = await readCounter();
-    const alreadyLiked = counter.deviceIds.includes(deviceId);
 
-    if (!alreadyLiked) {
+    if (!counter.deviceIds.includes(deviceId)) {
       counter.deviceIds.push(deviceId);
-      counter.totalCount = Math.max(counter.totalCount, counter.highestCount, AI_LIKE_INITIAL_COUNT) + 1;
-      counter.highestCount = counter.totalCount;
-      counter.logs.push({
-        deviceId,
-        ipHash,
-        likedAt: new Date().toISOString(),
-      });
     }
 
+    counter.totalCount = Math.max(counter.totalCount, counter.highestCount, AI_LIKE_INITIAL_COUNT) + 1;
+    counter.highestCount = counter.totalCount;
+    counter.logs.push({
+      deviceId,
+      ipHash,
+      likedAt: new Date().toISOString(),
+    });
+
     await persistCounter(counter);
-    return { totalCount: counter.totalCount, didLike: !alreadyLiked };
+    return { totalCount: counter.totalCount, didLike: true };
   });
 
   writeQueue = operation.then(() => undefined, () => undefined);

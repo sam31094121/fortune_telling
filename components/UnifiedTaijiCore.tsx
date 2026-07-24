@@ -69,9 +69,11 @@ export default function UnifiedTaijiCore({
   const [evolutionLabel, setEvolutionLabel] = useState('觸碰太極，觀察萬象演化');
   const [evolutionDescription, setEvolutionDescription] = useState('');
   const [mantraLevel, setMantraLevel] = useState<0 | 3 | 6 | 12 | 24>(0);
+  const [touchPulse, setTouchPulse] = useState(0);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const evolutionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mantraTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchPulseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const audioContextsRef = useRef<Set<AudioContext>>(new Set());
   const audioTimersRef = useRef<Set<number>>(new Set());
 
@@ -214,9 +216,31 @@ export default function UnifiedTaijiCore({
     }, level === 24 ? 7800 : level === 12 ? 6200 : level === 6 ? 5000 : 4200);
   };
 
+  const triggerTouchFeedback = (nextTapCount: number) => {
+    setTouchPulse((previous) => previous + 1);
+
+    if (touchPulseTimerRef.current) clearTimeout(touchPulseTimerRef.current);
+    touchPulseTimerRef.current = setTimeout(() => {
+      setTouchPulse(0);
+      touchPulseTimerRef.current = null;
+    }, 620);
+
+    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+      if (nextTapCount === 24) {
+        navigator.vibrate([18, 36, 28]);
+      } else if (nextTapCount === 12 || nextTapCount === 6 || nextTapCount === 3) {
+        navigator.vibrate([14, 24, 14]);
+      } else {
+        navigator.vibrate(10);
+      }
+    }
+  };
+
   const handleClick = () => {
     setTapCount((previous) => {
       const next = previous + 1;
+      triggerTouchFeedback(next);
+
       if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
       tapTimerRef.current = setTimeout(() => setTapCount(0), 8000);
 
@@ -238,6 +262,7 @@ export default function UnifiedTaijiCore({
     if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
     if (evolutionTimerRef.current) clearTimeout(evolutionTimerRef.current);
     if (mantraTimerRef.current) clearTimeout(mantraTimerRef.current);
+    if (touchPulseTimerRef.current) clearTimeout(touchPulseTimerRef.current);
     audioTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     audioContextsRef.current.forEach((context) => void context.close().catch(() => {}));
     audioTimersRef.current.clear();
@@ -259,10 +284,12 @@ export default function UnifiedTaijiCore({
   const luckyAuraClass = luckyAuraLevel > 0 ? `unified-taiji-shell--lucky-${luckyAuraLevel}` : '';
 
   return (
-    <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} ${luckyAuraClass}`.trim()}>
+    <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} ${luckyAuraClass}`.trim()} data-taiji-stage={evolutionStage} data-tap-level={luckyAuraLevel}>
       <button
         type="button"
         onClick={handleClick}
+        aria-label="Taiji interaction"
+        data-tap-count={tapCount}
         className={`modal-taiji-button taiji-evolution-stage stage-${evolutionStage} group ${auraClass}`}
         title="觸碰太極，觀察一、二、四、八萬象演化；連點 3/6/12/24 觸發彩蛋"
       >
@@ -375,6 +402,7 @@ export default function UnifiedTaijiCore({
             </div>
           </>
         )}
+        {touchPulse > 0 && <span key={touchPulse} className="taiji-touch-ripple" aria-hidden="true" />}
         <div className="modal-taiji-ground-glow" aria-hidden="true" />
       </button>
 

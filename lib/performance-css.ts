@@ -1,4 +1,4 @@
-export function injectPerformanceCSS() {
+﻿export function injectPerformanceCSS() {
   if (typeof document === 'undefined') return;
   if (document.getElementById('tian-su-performance-css')) return;
 
@@ -185,6 +185,27 @@ export function injectPerformanceCSS() {
     body.app-social-browser .ziwei-palace-card:hover {
       transform: none !important;
     }
+    .home-feature-direct-form {
+      display: contents;
+    }
+
+    @supports not (display: contents) {
+      .home-feature-direct-form {
+        display: block;
+        width: 100%;
+      }
+    }
+    .home-feature-direct-link {
+      cursor: pointer;
+      touch-action: manipulation;
+      content-visibility: visible !important;
+      contain: layout paint !important;
+      pointer-events: auto !important;
+    }
+
+    .home-feature-direct-link * {
+      pointer-events: none !important;
+    }
 
     body.app-mobile-device .ziwei-palace-card[aria-expanded="true"],
     body.app-social-browser .ziwei-palace-card[aria-expanded="true"],
@@ -237,6 +258,59 @@ export function injectPerformanceCSS() {
       box-shadow: 0 10px 26px rgba(2, 6, 23, 0.2), inset 0 0 14px rgba(255, 255, 255, 0.025) !important;
     }
 
+    body.app-mobile-device .home-feature-direct-form,
+    body.app-social-browser .home-feature-direct-form,
+    body.app-lite-effects .home-feature-direct-form {
+      display: block !important;
+      width: 100%;
+      min-width: 0;
+    }
+
+    body.app-mobile-device .home-feature-launch,
+    body.app-mobile-device .home-feature-direct-link,
+    body.app-mobile-device .top-feedback-action,
+    body.app-mobile-device .home-ai-feedback-action,
+    body.app-social-browser .home-feature-launch,
+    body.app-social-browser .home-feature-direct-link,
+    body.app-social-browser .top-feedback-action,
+    body.app-social-browser .home-ai-feedback-action,
+    body.app-lite-effects .home-feature-launch,
+    body.app-lite-effects .home-feature-direct-link,
+    body.app-lite-effects .top-feedback-action,
+    body.app-lite-effects .home-ai-feedback-action {
+      content-visibility: visible !important;
+      contain: layout paint !important;
+      pointer-events: auto !important;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body.app-mobile-device .home-feature-launch > *,
+    body.app-mobile-device .home-trust-card > *,
+    body.app-mobile-device .home-ai-feedback-card > *,
+    body.app-social-browser .home-feature-launch > *,
+    body.app-social-browser .home-trust-card > *,
+    body.app-social-browser .home-ai-feedback-card > *,
+    body.app-lite-effects .home-feature-launch > *,
+    body.app-lite-effects .home-trust-card > *,
+    body.app-lite-effects .home-ai-feedback-card > * {
+      min-width: 0;
+    }
+
+    body.app-mobile-device .top-feedback-count--bump,
+    body.app-social-browser .top-feedback-count--bump,
+    body.app-lite-effects .top-feedback-count--bump {
+      overflow: visible !important;
+      animation-duration: 420ms !important;
+    }
+
+    body.app-mobile-device .top-feedback-delta,
+    body.app-social-browser .top-feedback-delta,
+    body.app-lite-effects .top-feedback-delta {
+      filter: none !important;
+      animation-duration: 760ms !important;
+    }
+
     body.app-mobile-device .fortune-card::before,
     body.app-mobile-device .vip-gold-card::before,
     body.app-mobile-device .home-feature-launch::before,
@@ -270,6 +344,25 @@ export function injectPerformanceCSS() {
     body.app-social-browser .holo-card-container:hover {
       transform: none !important;
       box-shadow: 0 10px 26px rgba(2, 6, 23, 0.2), inset 0 0 14px rgba(255, 255, 255, 0.025) !important;
+    }
+
+    body.app-mobile-device .modal-taiji-button,
+    body.app-social-browser .modal-taiji-button,
+    body.app-lite-effects .modal-taiji-button {
+      content-visibility: visible !important;
+      contain: layout paint !important;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body.app-mobile-device .taiji-touch-ripple,
+    body.app-social-browser .taiji-touch-ripple,
+    body.app-lite-effects .taiji-touch-ripple {
+      filter: none !important;
+      animation-duration: 480ms !important;
     }
 
     body.app-mobile-device .number-fortune-taiji-card::after,
@@ -321,3 +414,5 @@ export function injectPerformanceCSS() {
 if (typeof window !== 'undefined') {
   injectPerformanceCSS();
 }
+
+
