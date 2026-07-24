@@ -103,21 +103,21 @@ export function readLocalAiSuggestionCount(): Promise<number> {
 export function recordLocalAiSuggestion(deviceId: string, ipHash?: string): Promise<{ totalCount: number; didSend: boolean }> {
   const operation = writeQueue.then(async () => {
     const counter = await readCounter();
+    const alreadyRecorded = counter.deviceIds.includes(deviceId);
 
-    if (!counter.deviceIds.includes(deviceId)) {
+    if (!alreadyRecorded) {
       counter.deviceIds.push(deviceId);
+      counter.totalCount = Math.max(counter.totalCount, counter.highestCount, AI_SUGGESTION_INITIAL_COUNT) + 1;
+      counter.highestCount = counter.totalCount;
+      counter.logs.push({
+        deviceId,
+        ipHash,
+        sentAt: new Date().toISOString(),
+      });
     }
 
-    counter.totalCount = Math.max(counter.totalCount, counter.highestCount, AI_SUGGESTION_INITIAL_COUNT) + 1;
-    counter.highestCount = counter.totalCount;
-    counter.logs.push({
-      deviceId,
-      ipHash,
-      sentAt: new Date().toISOString(),
-    });
-
     await persistCounter(counter);
-    return { totalCount: counter.totalCount, didSend: true };
+    return { totalCount: counter.totalCount, didSend: !alreadyRecorded };
   });
 
   writeQueue = operation.then(() => undefined, () => undefined);

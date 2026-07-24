@@ -151,10 +151,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const localResult = await recordLocalAiLike(body.deviceId, ipHash);
-  const didLike = localResult.didLike;
+  const didLike = row.did_like === true;
   const remoteCount = normalizeCount(row.total_count);
-  const totalCount = Math.max(remoteCount, localResult.totalCount);
+  const localCount = didLike
+    ? (await recordLocalAiLike(body.deviceId, ipHash)).totalCount
+    : await readLocalCountFloor();
+  const totalCount = Math.max(remoteCount, localCount);
 
   if (totalCount > remoteCount) {
     await raiseSupabaseCountFloor(supabase, totalCount);

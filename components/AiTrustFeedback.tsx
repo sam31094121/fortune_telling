@@ -14,7 +14,7 @@ const NOTICE_DURATION_MS = 5200;
 
 const COPY = {
   title: '\u0041\u0049 \u56de\u994b\u6821\u6e96',
-  subtitle: '\u611f\u8b1d\u6bcf\u4e00\u4efd\u56de\u994b',
+  subtitle: '\u6bcf\u53f0\u624b\u6a5f\u4fdd\u7559\u4e00\u6b21\u6b63\u5f0f\u56de\u994b',
   likeLabel: '\u6211\u8a8d\u540c',
   improveLabel: '\u5e0c\u671b\u6539\u5584',
   likeStatLabel: '\u8a8d\u540c',
@@ -22,16 +22,17 @@ const COPY = {
   likeUnit: '\u4eba',
   improveUnit: '\u5247',
   submitting: '\u9001\u51fa\u4e2d',
-  selectedLike: '\u5df2\u9078\u64c7\u8a8d\u540c',
-  selectedImprove: '\u5df2\u9001\u51fa\u6539\u5584',
+  selectedLike: '\u56de\u994b\u5df2\u5b8c\u6210',
+  selectedImprove: '\u56de\u994b\u5df2\u5b8c\u6210',
   thankLikeTitle: '\u611f\u8b1d\u4f60\u7684\u8a8d\u540c',
   thankLikeBody: '\u4f60\u7684\u652f\u6301\u5df2\u7d2f\u8a08\u9032\u7cfb\u7d71\uff0c\u6211\u5011\u6703\u7e7c\u7e8c\u628a\u9ad4\u9a57\u505a\u5f97\u66f4\u7a69\u3001\u66f4\u6e96\u3002',
   thankImproveTitle: '\u8b1d\u8b1d\u4f60\u9858\u610f\u63d0\u9192\u6211\u5011',
   thankImproveBody: '\u4f60\u7684\u56de\u994b\u5df2\u9032\u5165\u6539\u5584\u6e05\u55ae\uff0c\u6211\u5011\u6703\u7528\u5b83\u6821\u6b63\u9ad4\u9a57\u8207\u8aaa\u660e\u3002',
   lockedTitle: '\u672c\u6b21\u56de\u994b\u5df2\u5b8c\u6210',
-  lockedBody: '\u70ba\u4e86\u8b93\u7d50\u679c\u4e0d\u77db\u76fe\uff0c\u6bcf\u4f4d\u5ba2\u6236\u4fdd\u7559\u4e00\u500b\u6e05\u695a\u9078\u64c7\u3002',
+  lockedBody: '\u70ba\u4e86\u8b93\u6578\u64da\u66f4\u53ef\u4fe1\uff0c\u6bcf\u53f0\u624b\u6a5f\u50c5\u4fdd\u7559\u4e00\u6b21\u6b63\u5f0f\u56de\u994b\u3002',
   errorTitle: '\u66ab\u6642\u7121\u6cd5\u9001\u51fa',
-  errorBody: '\u8acb\u7a0d\u5f8c\u518d\u8a66\u4e00\u6b21\uff0c\u4f60\u7684\u64cd\u4f5c\u5c1a\u672a\u88ab\u8a18\u9304\u3002',
+  errorBody: '\u8acb\u7a0d\u5f8c\u518d\u8a66\u4e00\u6b21\uff0c\u9019\u6b21\u56de\u994b\u5c1a\u672a\u8a18\u9304\u6210\u6b63\u5f0f\u6578\u64da\u3002',
+  note: '\u4e00\u53f0\u624b\u6a5f\uff0c\u4e00\u6b21\u6e05\u695a\u56de\u994b',
 } as const;
 
 type FeedbackChoice = 'like' | 'improve';
@@ -39,6 +40,10 @@ type FeedbackChoice = 'like' | 'improve';
 type CounterResponse = {
   ok?: boolean;
   totalCount?: number;
+  didLike?: boolean;
+  alreadyLiked?: boolean;
+  didSend?: boolean;
+  alreadySent?: boolean;
   message?: string;
 };
 
@@ -157,17 +162,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
     }, NOTICE_DURATION_MS);
   }, []);
 
-  const flashCountIncrease = useCallback((nextChoice: FeedbackChoice) => {
-    if (nextChoice === 'like') {
-      setLikeCount((currentCount) => {
-        return Math.max(currentCount, readStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, LIKE_INITIAL_COUNT), LIKE_INITIAL_COUNT) + 1;
-      });
-    } else {
-      setImproveCount((currentCount) => {
-        return Math.max(currentCount, readStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, SUGGESTION_INITIAL_COUNT), SUGGESTION_INITIAL_COUNT) + 1;
-      });
-    }
-
+  const pulseAcceptedCount = useCallback((nextChoice: FeedbackChoice) => {
     setPulseChoice(nextChoice);
     if (pulseTimerRef.current !== null) {
       window.clearTimeout(pulseTimerRef.current);
@@ -235,9 +230,6 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
 
     setSubmittingChoice(nextChoice);
     setNotice(null);
-    setChoice(nextChoice);
-    writeStorage(CHOICE_KEY, nextChoice);
-    flashCountIncrease(nextChoice);
 
     try {
       const response = await fetch(nextChoice === 'like' ? '/api/ai-like' : '/api/ai-suggestion', {
@@ -251,6 +243,10 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         throw new Error(data?.message || COPY.errorBody);
       }
 
+      const accepted = nextChoice === 'like'
+        ? data.didLike !== false && data.alreadyLiked !== true
+        : data.didSend !== false && data.alreadySent !== true;
+
       if (typeof data.totalCount === 'number') {
         if (nextChoice === 'like') {
           commitLikeCount(data.totalCount);
@@ -259,9 +255,20 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         }
       }
 
+      setChoice(nextChoice);
+      writeStorage(CHOICE_KEY, nextChoice);
+
+      if (accepted) {
+        pulseAcceptedCount(nextChoice);
+      }
+
       showNotice({
-        title: nextChoice === 'like' ? COPY.thankLikeTitle : COPY.thankImproveTitle,
-        body: nextChoice === 'like' ? COPY.thankLikeBody : COPY.thankImproveBody,
+        title: accepted
+          ? (nextChoice === 'like' ? COPY.thankLikeTitle : COPY.thankImproveTitle)
+          : COPY.lockedTitle,
+        body: accepted
+          ? (nextChoice === 'like' ? COPY.thankLikeBody : COPY.thankImproveBody)
+          : COPY.lockedBody,
         tone: nextChoice,
       });
     } catch (error) {
@@ -286,6 +293,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   const improveSelected = choice === 'improve';
   const isSubmittingLike = submittingChoice === 'like';
   const isSubmittingImprove = submittingChoice === 'improve';
+  const feedbackLocked = Boolean(choice);
 
   return (
     <section className={`${className} home-ai-feedback-card`}>
@@ -329,7 +337,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         <button
           type="button"
           onClick={() => submitChoice('like')}
-          disabled={Boolean(submittingChoice) || improveSelected}
+          disabled={Boolean(submittingChoice) || feedbackLocked}
           className={`home-ai-feedback-action home-ai-feedback-action--like ${likeSelected ? 'home-ai-feedback-action--selected' : ''}`}
         >
           <span aria-hidden="true">\u2713</span>
@@ -339,13 +347,15 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         <button
           type="button"
           onClick={() => submitChoice('improve')}
-          disabled={Boolean(submittingChoice) || likeSelected}
+          disabled={Boolean(submittingChoice) || feedbackLocked}
           className={`home-ai-feedback-action home-ai-feedback-action--improve ${improveSelected ? 'home-ai-feedback-action--selected' : ''}`}
         >
           <span aria-hidden="true">\u21ba</span>
           <span>{isSubmittingImprove ? COPY.submitting : COPY.improveLabel}</span>
         </button>
       </div>
+
+      <p className="home-ai-feedback-note mt-2 text-[9px] font-semibold leading-none text-[color:var(--text-sub)] opacity-75">{COPY.note}</p>
 
       {notice && (
         <div
