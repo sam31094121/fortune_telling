@@ -2597,6 +2597,12 @@ export default function HomePage() {
                     <div className="taiji-light-orbit taiji-light-orbit--gold">
                       <span className="taiji-light-orbit__head" />
                     </div>
+                    <div className="taiji-light-orbit taiji-light-orbit--emerald">
+                      <span className="taiji-light-orbit__head" />
+                    </div>
+                    <div className="taiji-light-orbit taiji-light-orbit--rose">
+                      <span className="taiji-light-orbit__head" />
+                    </div>
                     <div className="taiji-gold-waves">
                       <span className="taiji-gold-wave" />
                       <span className="taiji-gold-wave" />

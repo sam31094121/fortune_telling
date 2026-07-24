@@ -309,6 +309,12 @@ export default function VisualGravityCore() {
       <div class="taiji-light-orbit taiji-light-orbit--gold">
         <span class="taiji-light-orbit__head"></span>
       </div>
+      <div class="taiji-light-orbit taiji-light-orbit--emerald">
+        <span class="taiji-light-orbit__head"></span>
+      </div>
+      <div class="taiji-light-orbit taiji-light-orbit--rose">
+        <span class="taiji-light-orbit__head"></span>
+      </div>
       <div class="taiji-gold-waves">
         <span class="taiji-gold-wave"></span>
         <span class="taiji-gold-wave"></span>

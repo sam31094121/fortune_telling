@@ -30,7 +30,7 @@
     input,
     select,
     textarea {
-      touch-action: manipulation;
+      touch-action: pan-y pinch-zoom;
     }
 
     input,
@@ -52,7 +52,7 @@
 
     body.app-mobile-device,
     body.app-social-browser {
-      overscroll-behavior-y: contain;
+      overscroll-behavior-y: auto;
       scroll-behavior: auto;
     }
 
@@ -197,7 +197,7 @@
     }
     .home-feature-direct-link {
       cursor: pointer;
-      touch-action: manipulation;
+      touch-action: pan-y pinch-zoom;
       content-visibility: visible !important;
       contain: layout paint !important;
       pointer-events: auto !important;
@@ -281,7 +281,7 @@
       content-visibility: visible !important;
       contain: layout paint !important;
       pointer-events: auto !important;
-      touch-action: manipulation;
+      touch-action: pan-y pinch-zoom;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -352,7 +352,7 @@
       content-visibility: visible !important;
       contain: layout paint !important;
       cursor: pointer;
-      touch-action: manipulation;
+      touch-action: pan-y pinch-zoom;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
       -webkit-user-select: none;

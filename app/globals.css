@@ -489,7 +489,7 @@ body.app-low-power-device .shimmer-btn {
 
 body.app-mobile-device,
 body.app-social-browser {
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: auto;
   scroll-behavior: auto;
 }
 
@@ -1899,7 +1899,7 @@ body.app-lite-effects .taiji-light-orbit--violet .taiji-light-orbit__head {
   input,
   select,
   textarea {
-    touch-action: manipulation;
+    touch-action: pan-y pinch-zoom;
   }
 
   button,
@@ -4927,7 +4927,7 @@ body.app-lite-effects .home-line-share-card::after {
   letter-spacing: 0;
   color: rgba(255, 255, 255, 0.9);
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
-  touch-action: manipulation;
+  touch-action: pan-y pinch-zoom;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -5075,7 +5075,7 @@ body.app-lite-effects .home-line-share-card::after {
   box-shadow: 0 10px 24px rgba(2, 6, 23, 0.18);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  touch-action: manipulation;
+  touch-action: pan-y pinch-zoom;
   -webkit-tap-highlight-color: transparent;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease;
 }
@@ -5677,7 +5677,7 @@ body {
 .form-input,
 .glass-input {
   -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
+  touch-action: pan-y pinch-zoom;
 }
 
 .home-feature-launch,
@@ -6819,5 +6819,527 @@ body.app-touching .home-trust-card::after {
     flex-wrap: wrap;
     gap: 0.45rem;
     font-size: 1.75rem;
+  }
+}
+/* Touch activation rescue: keep decorative Taiji/light layers from stealing taps in mobile LINE browsers. */
+.modal-taiji-button,
+.music-start-button,
+.music-landing-actions,
+.music-landing-actions .feature-home-link,
+.home-feature-launch,
+.home-music-cta {
+  pointer-events: auto !important;
+  touch-action: pan-y pinch-zoom !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.modal-taiji-button > *,
+.modal-taiji-orbit-emblem > *,
+.taiji-orbit-layer,
+.taiji-orbit-layer *,
+.modal-evolution-rays,
+.modal-evolution-rays *,
+.unified-evolution-screen,
+.unified-evolution-pulse,
+.modal-evolution-flare,
+.modal-evolution-scan,
+.modal-evolution-orbit,
+.modal-evolution-layer,
+.modal-taiji-natural-bloom,
+.modal-taiji-ground-glow,
+.modal-taiji-core-glaze,
+.modal-taiji-core-depth {
+  pointer-events: none !important;
+}
+
+.music-landing-taiji {
+  position: relative;
+  z-index: 10;
+}
+
+.music-landing-copy {
+  position: relative;
+  z-index: 20;
+}
+
+.music-landing-actions {
+  position: relative;
+  z-index: 40;
+}
+
+.music-start-button {
+  position: relative;
+  z-index: 45;
+  min-height: 3.35rem;
+}
+
+body.app-touching .modal-taiji-button,
+body.app-scrolling .modal-taiji-button {
+  animation-play-state: running !important;
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+  .music-start-button,
+  .feature-home-link,
+  .home-feature-launch,
+  .modal-taiji-button {
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+/* Music flow: three clear mobile stages, from data to calibration to generation. */
+.music-flow-stage-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.42);
+  padding: 1rem;
+  box-shadow: 0 10px 28px rgba(2, 6, 23, 0.2);
+}
+
+.music-flow-stage-card::before {
+  content: '';
+  position: absolute;
+  inset-inline: 1rem;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+  pointer-events: none;
+}
+
+.music-flow-stage-card--data {
+  border-color: rgba(167, 139, 250, 0.22);
+  background: linear-gradient(145deg, rgba(109, 40, 217, 0.12), rgba(15, 23, 42, 0.44));
+}
+
+.music-flow-stage-card--voice {
+  border-color: rgba(34, 211, 238, 0.22);
+  background: linear-gradient(145deg, rgba(8, 145, 178, 0.12), rgba(15, 23, 42, 0.44));
+}
+
+.music-flow-stage-card--generate {
+  border-color: rgba(251, 191, 36, 0.24);
+  background: linear-gradient(145deg, rgba(180, 83, 9, 0.12), rgba(15, 23, 42, 0.44));
+}
+
+.music-flow-stage-heading {
+  margin-bottom: 0.85rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.music-flow-stage-heading p {
+  color: rgba(251, 191, 36, 0.88);
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.08em;
+}
+
+.music-flow-stage-heading h3 {
+  color: var(--text-main);
+  font-size: 1.08rem;
+  font-weight: 900;
+  line-height: 1.22;
+  letter-spacing: 0;
+}
+
+.music-flow-stage-heading span {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.55;
+  letter-spacing: 0;
+}
+
+@media (max-width: 430px) {
+  .music-flow-stage-card {
+    border-radius: 1.15rem;
+    padding: 0.88rem;
+  }
+
+  .music-flow-stage-heading {
+    margin-bottom: 0.72rem;
+  }
+
+  .music-flow-stage-heading h3 {
+    font-size: 1rem;
+  }
+}
+
+/* Mobile scroll unlock: cards must allow vertical finger scrolling across the whole screen. */
+html,
+body {
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
+  touch-action: pan-y pinch-zoom;
+}
+
+body.app-mobile-device,
+body.app-social-browser,
+body.app-lite-effects {
+  overscroll-behavior-y: auto !important;
+}
+
+.app-bg,
+main,
+section,
+.home-feature-launch,
+.home-trust-card,
+.home-ai-feedback-card,
+.home-line-share-card,
+.fortune-card,
+.vip-gold-card,
+.number-fortune-card,
+.music-flow-stage-card,
+.voice-song-consent-card,
+.taiji-standalone-card,
+[data-visitor-counter] {
+  touch-action: pan-y pinch-zoom !important;
+}
+
+a,
+button,
+input,
+select,
+textarea,
+.feature-home-link,
+.vip-gold-btn,
+.form-input,
+.glass-input,
+.top-feedback-action,
+.home-ai-feedback-action,
+.modal-taiji-button,
+.music-start-button {
+  touch-action: pan-y pinch-zoom !important;
+}
+
+.number-fortune-panel,
+.max-h-[90vh].overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
+  touch-action: pan-y pinch-zoom !important;
+}
+
+
+/* Professional mobile voice recorder for personality music calibration. */
+.voice-recorder-console {
+  display: grid;
+  grid-template-columns: 3.65rem minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: center;
+  border-radius: 1.35rem;
+  border: 1px solid rgba(167, 139, 250, 0.22);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(88, 28, 135, 0.16) 48%, rgba(8, 47, 73, 0.18));
+  padding: 0.75rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 26px rgba(2, 6, 23, 0.18);
+}
+
+.voice-recorder-orb {
+  position: relative;
+  display: grid;
+  width: 3.55rem;
+  height: 3.55rem;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(216, 180, 254, 0.34);
+  background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.34), rgba(168, 85, 247, 0.32) 34%, rgba(15, 23, 42, 0.82) 72%);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.2), inset 0 -10px 18px rgba(2, 6, 23, 0.35);
+}
+
+.voice-recorder-orb::after {
+  content: '';
+  position: absolute;
+  inset: -0.42rem;
+  border-radius: inherit;
+  border: 1px solid rgba(34, 211, 238, 0.16);
+  opacity: 0.78;
+}
+
+.voice-recorder-orb span {
+  position: relative;
+  z-index: 1;
+  font-size: 1.35rem;
+  filter: drop-shadow(0 0 10px rgba(216, 180, 254, 0.5));
+}
+
+.voice-recorder-console__body {
+  min-width: 0;
+}
+
+.voice-recorder-console__title {
+  overflow-wrap: anywhere;
+  color: rgba(245, 243, 255, 0.96);
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.voice-recorder-console__hint {
+  margin-top: 0.18rem;
+  overflow-wrap: anywhere;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+
+.voice-recorder-time {
+  flex: 0 0 auto;
+  min-width: 2.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  background: rgba(34, 211, 238, 0.1);
+  padding: 0.38rem 0.45rem;
+  color: rgba(165, 243, 252, 0.98);
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.voice-recorder-wave {
+  display: flex;
+  height: 2rem;
+  align-items: center;
+  gap: 0.18rem;
+  margin-top: 0.62rem;
+  overflow: hidden;
+}
+
+.voice-recorder-bar {
+  width: 100%;
+  max-width: 0.32rem;
+  min-width: 0.12rem;
+  height: var(--bar-height);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(253, 224, 71, 0.95), rgba(34, 211, 238, 0.82));
+  opacity: 0.42;
+  transform-origin: center;
+}
+
+.voice-recorder-progress {
+  height: 0.32rem;
+  margin-top: 0.58rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.voice-recorder-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.95), rgba(34, 211, 238, 0.95), rgba(251, 191, 36, 0.95));
+  transition: width 240ms ease;
+}
+
+.voice-recorder-console--recording {
+  border-color: rgba(244, 114, 182, 0.38);
+  background: linear-gradient(135deg, rgba(76, 5, 25, 0.28), rgba(88, 28, 135, 0.2), rgba(8, 47, 73, 0.2));
+}
+
+.voice-recorder-console--recording .voice-recorder-orb {
+  animation: voiceRecorderPulse 1.28s ease-in-out infinite;
+  border-color: rgba(251, 113, 133, 0.55);
+  box-shadow: 0 0 24px rgba(251, 113, 133, 0.28), 0 0 34px rgba(34, 211, 238, 0.14), inset 0 -10px 18px rgba(2, 6, 23, 0.32);
+}
+
+.voice-recorder-console--recording .voice-recorder-bar {
+  animation: voiceRecorderWave 760ms ease-in-out infinite alternate;
+  animation-delay: var(--bar-delay);
+  opacity: 0.9;
+}
+
+.voice-recorder-console--ready {
+  border-color: rgba(52, 211, 153, 0.34);
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.22), rgba(8, 47, 73, 0.2), rgba(15, 23, 42, 0.68));
+}
+
+.voice-recorder-console--ready .voice-recorder-orb {
+  border-color: rgba(52, 211, 153, 0.44);
+  background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.34), rgba(52, 211, 153, 0.3) 36%, rgba(15, 23, 42, 0.82) 72%);
+  box-shadow: 0 0 22px rgba(52, 211, 153, 0.2), inset 0 -10px 18px rgba(2, 6, 23, 0.35);
+}
+
+.voice-recorder-console--ready .voice-recorder-bar {
+  opacity: 0.74;
+}
+
+.voice-recorder-console--fallback {
+  border-color: rgba(251, 191, 36, 0.34);
+  background: linear-gradient(135deg, rgba(113, 63, 18, 0.26), rgba(15, 23, 42, 0.66));
+}
+
+.voice-recorder-console--fallback .voice-recorder-orb {
+  border-color: rgba(251, 191, 36, 0.42);
+  background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.3), rgba(251, 191, 36, 0.28) 36%, rgba(15, 23, 42, 0.84) 72%);
+}
+
+@keyframes voiceRecorderPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.045); }
+}
+
+@keyframes voiceRecorderWave {
+  0% { transform: scaleY(0.42); }
+  100% { transform: scaleY(1.08); }
+}
+
+@media (max-width: 430px) {
+  .voice-recorder-console {
+    grid-template-columns: 3.25rem minmax(0, 1fr);
+    gap: 0.7rem;
+    border-radius: 1.1rem;
+    padding: 0.68rem;
+  }
+
+  .voice-recorder-orb {
+    width: 3.15rem;
+    height: 3.15rem;
+  }
+
+  .voice-recorder-console__title {
+    font-size: 0.78rem;
+  }
+
+  .voice-recorder-console__hint {
+    font-size: 0.68rem;
+  }
+
+  .voice-recorder-wave {
+    height: 1.75rem;
+    gap: 0.13rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .voice-recorder-console--recording .voice-recorder-orb,
+  .voice-recorder-console--recording .voice-recorder-bar {
+    animation: none;
+  }
+}
+
+/* Taiji five-element orbit additions: two more 360-degree companion stars. */
+.taiji-light-orbit--emerald {
+  inset: 22px 8px;
+  z-index: 4;
+  border: 1px solid rgba(52, 211, 153, 0.24);
+  box-shadow: inset 0 0 8px rgba(16, 185, 129, 0.12), 0 0 10px rgba(52, 211, 153, 0.12);
+  animation: taiji-orbit-emerald 9.8s linear infinite;
+}
+
+.taiji-light-orbit--emerald::before {
+  background: conic-gradient(
+    from 88deg,
+    transparent 0deg 188deg,
+    rgba(52, 211, 153, 0.06) 218deg,
+    rgba(110, 231, 183, 0.82) 304deg,
+    rgba(236, 253, 245, 0.9) 330deg,
+    transparent 360deg
+  );
+  filter: drop-shadow(0 0 4px rgba(110, 231, 183, 0.76))
+          drop-shadow(0 0 12px rgba(16, 185, 129, 0.48));
+}
+
+.taiji-light-orbit--emerald .taiji-light-orbit__head {
+  --taiji-orb-mid: #6ee7b7;
+  --taiji-orb-glow: rgba(110, 231, 183, 0.82);
+  color: #6ee7b7;
+  width: 20px;
+  height: 20px;
+  box-shadow: 0 0 8px rgba(236, 253, 245, 0.85),
+              0 0 22px rgba(52, 211, 153, 0.72),
+              0 0 34px rgba(16, 185, 129, 0.36);
+}
+
+.taiji-light-orbit--rose {
+  inset: 4px 58px;
+  z-index: 5;
+  border: 1px solid rgba(251, 113, 133, 0.24);
+  box-shadow: inset 0 0 8px rgba(244, 63, 94, 0.12), 0 0 10px rgba(251, 113, 133, 0.12);
+  animation: taiji-orbit-rose 13.4s linear infinite;
+}
+
+.taiji-light-orbit--rose::before {
+  background: conic-gradient(
+    from 262deg,
+    transparent 0deg 194deg,
+    rgba(251, 113, 133, 0.06) 222deg,
+    rgba(253, 164, 175, 0.76) 300deg,
+    rgba(255, 241, 242, 0.9) 332deg,
+    transparent 360deg
+  );
+  filter: drop-shadow(0 0 4px rgba(253, 164, 175, 0.8))
+          drop-shadow(0 0 12px rgba(244, 63, 94, 0.46));
+}
+
+.taiji-light-orbit--rose .taiji-light-orbit__head {
+  --taiji-orb-mid: #fda4af;
+  --taiji-orb-glow: rgba(253, 164, 175, 0.84);
+  color: #fda4af;
+  width: 18px;
+  height: 18px;
+  box-shadow: 0 0 8px rgba(255, 241, 242, 0.82),
+              0 0 22px rgba(251, 113, 133, 0.7),
+              0 0 34px rgba(190, 18, 60, 0.32);
+}
+
+.taiji-open-stage .taiji-light-orbit--emerald .taiji-light-orbit__head {
+  animation-delay: -0.8s !important;
+}
+
+.taiji-open-stage .taiji-light-orbit--rose .taiji-light-orbit__head {
+  animation-delay: -3.4s !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--emerald {
+  inset: 8px 4px !important;
+  animation: taiji-orbit-emerald 10.2s linear infinite !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--rose {
+  inset: -10px 50px !important;
+  animation: taiji-orbit-rose 13.8s linear infinite !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--emerald .taiji-light-orbit__head,
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--rose .taiji-light-orbit__head {
+  opacity: 0.84 !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--emerald .taiji-light-orbit__head {
+  width: 19px !important;
+  height: 19px !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--rose .taiji-light-orbit__head {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+@keyframes taiji-orbit-emerald {
+  from { transform: rotateX(56deg) rotateY(28deg) rotateZ(0deg); }
+  to { transform: rotateX(56deg) rotateY(28deg) rotateZ(360deg); }
+}
+
+@keyframes taiji-orbit-rose {
+  from { transform: rotateX(-46deg) rotateY(-30deg) rotateZ(360deg); }
+  to { transform: rotateX(-46deg) rotateY(-30deg) rotateZ(0deg); }
+}
+
+@media (max-width: 430px) {
+  .modal-taiji-button .taiji-light-orbit--emerald .taiji-light-orbit__head {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .modal-taiji-button .taiji-light-orbit--rose .taiji-light-orbit__head {
+    width: 17px !important;
+    height: 17px !important;
   }
 }

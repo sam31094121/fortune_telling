@@ -34,7 +34,7 @@ interface PersonalityMusicFlowProps {
 
 const BLOOD_TYPES: BloodType[] = ['A', 'B', 'AB', 'O'];
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { gender: false };
-const STEPS = ['\u751f\u65e5', '\u8840\u578b', '\u59d3\u540d', '\u6642\u8fb0', '\u8072\u97f3'];
+const STEPS = ['\u8cc7\u6599', '\u6821\u6e96', '\u751f\u6210'];
 
 const BLOOD_DESC: Record<BloodType, string> = {
   A: '\u7d30\u81a9\u7a69\u5b9a\uff0c\u9069\u5408\u6574\u7406\u65cb\u5f8b\u4e2d\u7684\u5b89\u5168\u611f\u8207\u60c5\u7dd2\u5c64\u6b21\u3002',
@@ -116,27 +116,26 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   }, [form.name, form.birthDate, form.bloodType, form.gender]);
 
   function validateStep(targetStep = step): string | null {
-    if (targetStep === 0 && !form.birthDate) return '\u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\uff0c\u9019\u662f\u751f\u6210\u7d50\u679c\u7684\u57fa\u790e\u3002';
-    if (targetStep === 1 && !form.bloodType) return '\u8acb\u9ede\u9078\u8840\u578b\uff0c\u9078\u4e00\u500b\u5c31\u53ef\u4ee5\u7e7c\u7e8c\u3002';
-    if (targetStep === 2) {
+    if (targetStep === 0) {
+      if (!form.birthDate) return '\u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\uff0c\u9019\u662f\u751f\u6210\u7d50\u679c\u7684\u57fa\u790e\u3002';
+      if (!form.bloodType) return '\u8acb\u9ede\u9078\u8840\u578b\uff0c\u9078\u4e00\u500b\u5c31\u53ef\u4ee5\u7e7c\u7e8c\u3002';
       if (form.name.trim().length < 2) return '\u8acb\u586b\u5beb\u59d3\u540d\uff0c\u81f3\u5c11 2 \u500b\u5b57\u3002';
       if (form.name.trim().length > 20) return '\u59d3\u540d\u8acb\u63a7\u5236\u5728 20 \u500b\u5b57\u4ee5\u5167\u3002';
       if (!selectionConfirm.gender) return '\u8acb\u9ede\u9078\u6027\u5225\uff0c\u9019\u6b04\u9084\u6c92\u6709\u78ba\u8a8d\u3002';
+      if (form.shichen === null) return '\u8acb\u9078\u64c7\u51fa\u751f\u6642\u8fb0\uff1b\u82e5\u4e0d\u77e5\u9053\uff0c\u8acb\u9ede\u9078\u300c\u4e0d\u77e5\u9053\u6642\u8fb0\u300d\u3002';
     }
-    if (targetStep === 3 && form.shichen === null) return '\u8acb\u9078\u64c7\u51fa\u751f\u6642\u8fb0\uff1b\u82e5\u4e0d\u77e5\u9053\uff0c\u8acb\u9ede\u9078\u300c\u4e0d\u77e5\u9053\u6642\u8fb0\u300d\u3002';
-    if (targetStep === 4) {
-      if (!form.voiceConsent.accepted) return '\u8acb\u5148\u52fe\u9078\u672c\u4eba\u8072\u97f3\u6388\u6b0a\uff0c\u624d\u80fd\u9032\u884c\u8072\u97f3\u6458\u8981\u6821\u6e96\u6b4c\u66f2\u751f\u6210\u3002';
-      if (!form.voiceConsent.sample) return '\u8acb\u5148\u5b8c\u6210\u4e00\u6bb5\u9304\u97f3\u6821\u6e96\uff0c\u9019\u6a23\u6b4c\u66f2\u624d\u6703\u4f9d\u672c\u4eba\u8072\u97f3\u6458\u8981\u904b\u7b97\uff0c\u4e0d\u6703\u8aa4\u8a8d\u6210\u8072\u97f3\u8907\u88fd\u3002';
+    if (targetStep === 1 && !form.voiceConsent.sample) {
+      return '\u8acb\u9078\u64c7\u4e00\u7a2e\u6821\u6e96\u65b9\u5f0f\uff1a\u53ef\u52fe\u9078\u6388\u6b0a\u5f8c\u9304\u97f3\uff0c\u82e5 LINE \u6216\u624b\u6a5f\u64cb\u4f4f\u9ea5\u514b\u98a8\uff0c\u8acb\u76f4\u63a5\u6309\u300c\u4e0d\u7528\u9ea5\u514b\u98a8\uff0c\u76f4\u63a5\u5b89\u5168\u6821\u6e96\u300d\u7e7c\u7e8c\u3002';
     }
     return null;
   }
 
   const showMissingBirthDate = Boolean(localError) && step === 0 && !form.birthDate;
-  const showMissingBloodType = Boolean(localError) && step === 1 && !form.bloodType;
-  const showMissingName = Boolean(localError) && step === 2 && form.name.trim().length < 2;
-  const showMissingGender = Boolean(localError) && step === 2 && !selectionConfirm.gender;
-  const showMissingShichen = Boolean(localError) && step === 3 && form.shichen === null;
-  const showMissingVoice = Boolean(localError) && step === 4 && (!form.voiceConsent.accepted || !form.voiceConsent.sample);
+  const showMissingBloodType = Boolean(localError) && step === 0 && !form.bloodType;
+  const showMissingName = Boolean(localError) && step === 0 && form.name.trim().length < 2;
+  const showMissingGender = Boolean(localError) && step === 0 && !selectionConfirm.gender;
+  const showMissingShichen = Boolean(localError) && step === 0 && form.shichen === null;
+  const showMissingVoice = Boolean(localError) && step === 1 && !form.voiceConsent.sample;
 
   function handleNext() {
     const error = validateStep();
@@ -176,6 +175,12 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
       </div>
 
       {step === 0 && (
+        <div className="music-flow-stage-card music-flow-stage-card--data">
+          <div className="music-flow-stage-heading">
+            <p>{"\u7b2c\u4e00\u6bb5"}</p>
+            <h3>{"\u5148\u5b8c\u6210\u500b\u4eba\u8cc7\u6599"}</h3>
+            <span>{"\u751f\u65e5\u3001\u8840\u578b\u3001\u59d3\u540d\u3001\u6642\u8fb0\u4e00\u6b21\u6574\u7406\u597d"}</span>
+          </div>
         <div className="space-y-4">
           <p className="text-sm leading-6 text-[color:var(--text-sub)]">{'\u751f\u65e5\u6703\u4f5c\u70ba\u6b4c\u66f2\u4eba\u683c\u5e95\u8272\uff0c\u8acb\u7528\u624b\u6a5f\u5bb9\u6613\u8f38\u5165\u7684\u6c11\u570b\u5e74\u683c\u5f0f\u586b\u5beb\u3002'}</p>
           <LunarBirthdayInput
@@ -188,9 +193,10 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
           />
           {showMissingBirthDate && <p className="form-missing-alert">{'\u26a0\ufe0f \u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\uff0c\u9019\u6b04\u9084\u6c92\u6709\u586b\u5beb\u3002'}</p>}
         </div>
+        </div>
       )}
 
-      {step === 1 && (
+      {step === 0 && (
         <div className="space-y-4">
           <p className="text-sm leading-6 text-[color:var(--text-sub)]">{'\u8840\u578b\u6703\u5354\u52a9 AI \u6821\u6e96\u6b4c\u66f2\u7684\u60c5\u7dd2\u901f\u5ea6\u8207\u81ea\u6211\u5c0d\u8a71\u65b9\u5f0f\u3002'}</p>
           {showMissingBloodType && <p className="form-missing-alert">{'\u26a0\ufe0f \u8acb\u9ede\u9078\u8840\u578b\uff0c\u9078\u4e00\u500b\u5c31\u53ef\u4ee5\u7e7c\u7e8c\u3002'}</p>}
@@ -213,7 +219,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         </div>
       )}
 
-      {step === 2 && (
+      {step === 0 && (
         <div className="space-y-5">
           <div>
             <p className="mb-4 text-sm leading-6 text-[color:var(--text-sub)]">{'\u59d3\u540d\u6703\u7528\u4f86\u5efa\u7acb\u6b4c\u66f2\u4e3b\u89d2\uff0c\u8b93\u6b4c\u8a5e\u66f4\u50cf\u5728\u8ddf\u81ea\u5df1\u8aaa\u8a71\u3002'}</p>
@@ -256,7 +262,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         </div>
       )}
 
-      {step === 3 && (
+      {step === 0 && (
         <div className="space-y-5">
           <p className="text-sm leading-6 text-[color:var(--text-sub)]">{'\u6642\u8fb0\u6703\u8b93\u6b4c\u66f2\u591a\u4e00\u5c64\u7bc0\u594f\u611f\u3002\u82e5\u4e0d\u78ba\u5b9a\uff0c\u76f4\u63a5\u9078\u4e0d\u77e5\u9053\uff0c\u7cfb\u7d71\u6703\u7528\u4fdd\u5b88\u65b9\u5f0f\u63a8\u4f30\u3002'}</p>
           <button
@@ -299,8 +305,14 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         </div>
       )}
 
-      {step === 4 && (
+      {step === 1 && (
         <div className="space-y-4">
+          <div className="music-flow-stage-card music-flow-stage-card--voice">
+            <div className="music-flow-stage-heading">
+              <p>{"\u7b2c\u4e8c\u6bb5"}</p>
+              <h3>{"\u8072\u97f3\u6216\u5b89\u5168\u6821\u6e96"}</h3>
+              <span>{"\u9ea5\u514b\u98a8\u53ef\u7528\u5c31\u9304\u97f3\uff0c\u88ab LINE \u64cb\u4f4f\u5c31\u76f4\u63a5\u5b89\u5168\u6821\u6e96"}</span>
+            </div>
           <p className="text-sm leading-6 text-[color:var(--text-sub)]">{'\u9019\u662f\u8072\u97f3\u6458\u8981\u6821\u6e96\u7248\uff1a\u8acb\u5148\u6388\u6b0a\u4e26\u9304\u4e00\u6bb5\u8072\u97f3\uff0c\u7cfb\u7d71\u6703\u4f9d\u8072\u97f3\u6458\u8981\u8abf\u6574\u300c\u81ea\u6211\u5c0d\u8a71\u300d\u6b4c\u66f2\uff1b\u9019\u4e0d\u662f\u8072\u97f3\u8907\u88fd\u6216\u8072\u7dda\u514b\u9686\u3002'}</p>
           <VoiceConsentRecorder
             value={form.voiceConsent}
@@ -328,6 +340,18 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
               ))}
             </div>
           </div>
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="space-y-4">
+          <div className="music-flow-stage-card music-flow-stage-card--generate">
+            <div className="music-flow-stage-heading">
+              <p>{"\u7b2c\u4e09\u6bb5"}</p>
+              <h3>{"\u78ba\u8a8d\u6b4c\u66f2\u8a2d\u5b9a\u5f8c\u751f\u6210"}</h3>
+              <span>{"\u5f8c\u7aef\u8ca0\u8cac\u904b\u7b97\u751f\u6210\uff0c\u524d\u7aef\u53ea\u505a\u6e05\u695a\u7f8e\u89c0\u7684\u5f15\u5c0e"}</span>
+            </div>
 
           <div className="border-t border-white/10 pt-4">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -383,6 +407,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
               })}
             </div>
           </div>
+          </div>
         </div>
       )}
 
@@ -403,7 +428,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
           </button>
         )}
         <button type="button" onClick={handleNext} disabled={loading} className="vip-gold-btn shimmer-btn flex-1 py-4 text-sm disabled:cursor-not-allowed disabled:opacity-60">
-          {loading ? 'AI \u6b63\u5728\u751f\u6210\u6b4c\u66f2...' : step === STEPS.length - 1 ? '\u751f\u6210\u8072\u97f3\u6821\u6e96\u4e3b\u984c\u66f2' : `\u4e0b\u4e00\u6b65\uff1a${STEPS[step + 1]}`}
+          {loading ? 'AI \u6b63\u5728\u751f\u6210\u6b4c\u66f2...' : step === STEPS.length - 1 ? '\u751f\u6210\u500b\u4eba\u4eba\u683c\u5206\u88c2\u6b4c\u66f2' : step === 0 ? '\u4e0b\u4e00\u6b65\uff1a\u8072\u97f3\u6216\u5b89\u5168\u6821\u6e96' : '\u4e0b\u4e00\u6b65\uff1a\u751f\u6210\u6b4c\u66f2'}
         </button>
       </div>
     </div>

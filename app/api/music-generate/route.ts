@@ -99,11 +99,16 @@ function validateVoiceConsent(payload: unknown): string | null {
   return null;
 }
 
+function isVoicePermissionFallback(sample?: VoiceSampleSummary) {
+  return Boolean(sample?.mimeType === 'application/x-voice-permission-fallback' || sample?.inferredCharacteristics?.includes('permission_fallback'));
+}
+
 function normalizeVoiceConsent(payload?: VoiceConsentPayload) {
   const sample = payload?.accepted && payload.confirmedOwnVoice && payload.allowSongGeneration ? payload.sample : undefined;
   const inferredCharacteristics = sample?.inferredCharacteristics?.filter((item) => typeof item === 'string') ?? [];
   const authorized = Boolean(payload?.accepted && payload.confirmedOwnVoice && payload.allowSongGeneration);
-  const recorded = Boolean(authorized && sample);
+  const permissionFallback = Boolean(authorized && sample && isVoicePermissionFallback(sample));
+  const recorded = Boolean(authorized && sample && !permissionFallback);
 
   return {
     authorized,
@@ -122,7 +127,7 @@ function normalizeVoiceConsent(payload?: VoiceConsentPayload) {
         ? 'voice-consent-only'
         : 'voice-none',
     profile: {
-      workflowStatus: recorded ? 'VOICE_SUMMARY_READY' : authorized ? 'VOICE_RECORDING_REQUIRED' : 'VOICE_CONSENT_REQUIRED',
+      workflowStatus: recorded ? 'VOICE_SUMMARY_READY' : permissionFallback ? 'VOICE_PERMISSION_FALLBACK_READY' : authorized ? 'VOICE_RECORDING_REQUIRED' : 'VOICE_CONSENT_REQUIRED',
       consentAccepted: authorized,
       recorded,
       localOnly: true,

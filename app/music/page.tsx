@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect, useMemo } from 'react';
+import { useRef, useState, useEffect, useMemo, type PointerEvent } from 'react';
 import Link from 'next/link';
 import PersonalityMusicFlow, { type MusicFormData } from '@/components/PersonalityMusicFlow';
 import PersonalityMusicReport from '@/components/PersonalityMusicReport';
@@ -141,6 +141,19 @@ interface ProductionPlan {
 type PageState = 'landing' | 'form' | 'result';
 
 function LandingHero({ onStart }: { onStart: () => void }) {
+  const lastStartTouchRef = useRef(0);
+
+  const handleStartPointerUp = (event: PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
+    lastStartTouchRef.current = Date.now();
+    onStart();
+  };
+
+  const handleStartClick = () => {
+    if (Date.now() - lastStartTouchRef.current < 650) return;
+    onStart();
+  };
+
   return (
     <section className="music-landing-hero relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-5 text-center sm:px-6">
       <div
@@ -169,7 +182,7 @@ function LandingHero({ onStart }: { onStart: () => void }) {
         </div>
 
         <div className="music-landing-actions mt-5 flex flex-col items-center gap-3">
-          <button type="button" onClick={onStart} className="vip-gold-btn w-full max-w-[22rem] px-8 py-4 text-base shadow-[0_0_25px_rgba(201,162,74,0.26)] border border-amber-400/20 sm:w-auto sm:px-14 sm:py-5 sm:text-lg sm:animate-bounce">
+          <button type="button" onPointerUp={handleStartPointerUp} onClick={handleStartClick} className="vip-gold-btn music-start-button w-full max-w-[22rem] px-8 py-4 text-base shadow-[0_0_25px_rgba(201,162,74,0.26)] border border-amber-400/20 sm:w-auto sm:px-14 sm:py-5 sm:text-lg sm:animate-bounce">
             {"\u4e00\u9375\u958b\u555f \u00b7 \u751f\u6210\u6211\u7684\u4e3b\u984c\u66f2"}
           </button>
           <Link href="/" className="feature-home-link feature-home-link--violet">

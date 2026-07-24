@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
 
 type EvolutionStage = 'idle' | 'taiji' | 'liangyi' | 'sixiang' | 'bagua';
 
@@ -74,6 +74,7 @@ export default function UnifiedTaijiCore({
   const evolutionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mantraTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchPulseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTouchTriggerRef = useRef(0);
   const audioContextsRef = useRef<Set<AudioContext>>(new Set());
   const audioTimersRef = useRef<Set<number>>(new Set());
 
@@ -258,6 +259,17 @@ export default function UnifiedTaijiCore({
     });
   };
 
+
+  const handlePointerUp = (event: PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
+    lastTouchTriggerRef.current = Date.now();
+    handleClick();
+  };
+
+  const handleSafeClick = () => {
+    if (Date.now() - lastTouchTriggerRef.current < 650) return;
+    handleClick();
+  };
   useEffect(() => () => {
     if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
     if (evolutionTimerRef.current) clearTimeout(evolutionTimerRef.current);
@@ -287,7 +299,8 @@ export default function UnifiedTaijiCore({
     <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} ${luckyAuraClass}`.trim()} data-taiji-stage={evolutionStage} data-tap-level={luckyAuraLevel}>
       <button
         type="button"
-        onClick={handleClick}
+        onPointerUp={handlePointerUp}
+        onClick={handleSafeClick}
         aria-label="Taiji interaction"
         data-tap-count={tapCount}
         className={`modal-taiji-button taiji-evolution-stage stage-${evolutionStage} group ${auraClass}`}
@@ -312,6 +325,12 @@ export default function UnifiedTaijiCore({
               <span className="taiji-light-orbit__head" />
             </div>
             <div className="taiji-light-orbit taiji-light-orbit--gold">
+              <span className="taiji-light-orbit__head" />
+            </div>
+            <div className="taiji-light-orbit taiji-light-orbit--emerald">
+              <span className="taiji-light-orbit__head" />
+            </div>
+            <div className="taiji-light-orbit taiji-light-orbit--rose">
               <span className="taiji-light-orbit__head" />
             </div>
             <div className="taiji-gold-waves">
