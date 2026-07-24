@@ -33,10 +33,32 @@ const VALID_BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const VALID_GENDERS = ['male', 'female'] as const;
 const VALID_SONG_LANGUAGES = ['mandarin', 'english', 'taiwanese'] as const;
 
-// 時辰：number(0–11 地支序)=已知；'unknown'/null=不知道（自動套良辰吉時）
+// ?蹇???umber(0??1 ??啾???=?貔??unknown'/null=??貔?????????剝３???蹇?
 type ShichenChoice = number | 'unknown' | null;
 type VocalGenderPreference = 'male' | 'female' | null;
 type PreferredSongLanguage = 'mandarin' | 'english' | 'taiwanese';
+
+interface VoiceSampleSummary {
+  durationSeconds: number;
+  averageVolume: number;
+  dynamicRange: number;
+  brightness: number;
+  tempoPulse: number;
+  qualityScore: number;
+  inferredCharacteristics: string[];
+  recordedAt: string;
+  mimeType: string;
+  localOnly: true;
+}
+
+interface VoiceConsentPayload {
+  accepted: boolean;
+  version: string;
+  confirmedOwnVoice: boolean;
+  allowSongGeneration: boolean;
+  recordedAt?: string;
+  sample?: VoiceSampleSummary;
+}
 
 interface MusicGenerateRequest {
   birthDate: string;
@@ -47,31 +69,100 @@ interface MusicGenerateRequest {
   voiceCharacteristics?: string[];
   vocalGenderPreference?: VocalGenderPreference;
   preferredSongLanguage?: PreferredSongLanguage;
+  voiceConsent?: VoiceConsentPayload;
+}
+
+function isStringArray(value: unknown, maxLength = 10, maxItemLength = 48): value is string[] {
+  return Array.isArray(value) && value.length <= maxLength && value.every((item) => typeof item === 'string' && item.length <= maxItemLength);
+}
+
+function validateVoiceConsent(payload: unknown): string | null {
+  if (payload === undefined || payload === null) return '\u8acb\u5148\u5b8c\u6210\u672c\u4eba\u8072\u97f3\u6388\u6b0a\u8207\u9304\u97f3\u6458\u8981\u6821\u6e96\u3002';
+  if (typeof payload !== 'object') return '\u8072\u97f3\u6388\u6b0a\u8cc7\u6599\u683c\u5f0f\u7121\u6548\u3002';
+  const consent = payload as Partial<VoiceConsentPayload>;
+
+  if (typeof consent.accepted !== 'boolean') return '\u8072\u97f3\u6388\u6b0a\u72c0\u614b\u683c\u5f0f\u7121\u6548\u3002';
+  if (!consent.accepted) return '\u8acb\u5148\u52fe\u9078\u672c\u4eba\u8072\u97f3\u6388\u6b0a\u3002';
+  if (consent.confirmedOwnVoice !== true || consent.allowSongGeneration !== true) {
+    return '\u8acb\u5148\u78ba\u8a8d\u9019\u662f\u672c\u4eba\u8072\u97f3\uff0c\u4e26\u540c\u610f\u7528\u65bc\u672c\u6b21 AI \u6b4c\u66f2\u751f\u6210\u3002';
+  }
+
+  if (consent.version !== 'voice-song-consent-v1') return '\u8072\u97f3\u6388\u6b0a\u7248\u672c\u7121\u6548\uff0c\u8acb\u91cd\u65b0\u78ba\u8a8d\u6388\u6b0a\u3002';
+  if (!consent.sample) return '\u8acb\u5148\u5b8c\u6210\u9304\u97f3\u6458\u8981\u6821\u6e96\uff0c\u7cfb\u7d71\u624d\u80fd\u4f9d\u672c\u4eba\u8072\u97f3\u6458\u8981\u751f\u6210\u6b4c\u66f2\u3002';
+
+  const sample = consent.sample;
+  if (!Number.isFinite(sample.durationSeconds) || sample.durationSeconds < 1 || sample.durationSeconds > 60) {
+    return '\u9304\u97f3\u79d2\u6578\u683c\u5f0f\u7121\u6548\uff0c\u5efa\u8b70\u9304 4 \u5230 8 \u79d2\u3002';
+  }
+  if (!Number.isFinite(sample.qualityScore) || sample.qualityScore < 0 || sample.qualityScore > 100) return '\u8072\u97f3\u6e05\u6670\u5ea6\u683c\u5f0f\u7121\u6548\u3002';
+  if (!isStringArray(sample.inferredCharacteristics, 12, 48)) return '\u9304\u97f3\u63a8\u8ad6\u7279\u5fb5\u683c\u5f0f\u7121\u6548\u3002';
+  return null;
+}
+
+function normalizeVoiceConsent(payload?: VoiceConsentPayload) {
+  const sample = payload?.accepted && payload.confirmedOwnVoice && payload.allowSongGeneration ? payload.sample : undefined;
+  const inferredCharacteristics = sample?.inferredCharacteristics?.filter((item) => typeof item === 'string') ?? [];
+  const authorized = Boolean(payload?.accepted && payload.confirmedOwnVoice && payload.allowSongGeneration);
+  const recorded = Boolean(authorized && sample);
+
+  return {
+    authorized,
+    recorded,
+    inferredCharacteristics,
+    cacheKey: recorded
+      ? [
+          'voice-v1',
+          Math.round(sample!.durationSeconds),
+          Math.round(sample!.qualityScore),
+          Math.round(sample!.averageVolume * 1000),
+          Math.round(sample!.brightness * 1000),
+          inferredCharacteristics.join('|'),
+        ].join(':')
+      : authorized
+        ? 'voice-consent-only'
+        : 'voice-none',
+    profile: {
+      workflowStatus: recorded ? 'VOICE_SUMMARY_READY' : authorized ? 'VOICE_RECORDING_REQUIRED' : 'VOICE_CONSENT_REQUIRED',
+      consentAccepted: authorized,
+      recorded,
+      localOnly: true,
+      sample: sample
+        ? {
+            durationSeconds: sample.durationSeconds,
+            qualityScore: sample.qualityScore,
+            averageVolume: sample.averageVolume,
+            dynamicRange: sample.dynamicRange,
+            brightness: sample.brightness,
+            tempoPulse: sample.tempoPulse,
+            inferredCharacteristics,
+            recordedAt: sample.recordedAt,
+          }
+        : null,
+      selfDialogueConcept: recorded
+        ? '\u5df2\u7528\u672c\u4eba\u6388\u6b0a\u8072\u97f3\u6458\u8981\u6821\u6e96\u6b4c\u66f2\u7684\u4eba\u8072\u7bc0\u594f\u3001\u60c5\u7dd2\u5f35\u529b\u8207\u81ea\u6211\u5c0d\u8a71\u5c64\u6b21\uff1b\u9019\u662f\u8072\u97f3\u6458\u8981\u904b\u7b97\uff0c\u4e0d\u662f\u8072\u97f3\u8907\u88fd\u6216\u8072\u7dda\u514b\u9686\u3002'
+        : authorized
+          ? '\u5df2\u53d6\u5f97\u672c\u4eba\u8072\u97f3\u6388\u6b0a\uff0c\u4f46\u5c1a\u672a\u5b8c\u6210\u9304\u97f3\u6821\u6e96\uff1b\u672c\u4eba\u8072\u97f3\u6b4c\u66f2\u5c1a\u4e0d\u6703\u751f\u6210\u3002'
+          : '\u5c1a\u672a\u555f\u7528\u672c\u4eba\u8072\u97f3\u6388\u6b0a\uff0c\u7cfb\u7d71\u4e0d\u6703\u7522\u751f\u672c\u4eba\u8072\u97f3\u6b4c\u66f2\u3002',
+    },
+  };
 }
 
 function validate(body: unknown): string | null {
-  if (!body || typeof body !== 'object') return '請提供有效的請求資料。';
+  if (!body || typeof body !== 'object') return '\u8acb\u9001\u51fa\u6b63\u78ba\u7684\u8868\u55ae\u8cc7\u6599\u3002';
 
   const payload = body as Partial<MusicGenerateRequest>;
 
-  if (!isValidBirthday(payload.birthDate)) {
-    return '生日日期無效。';
-  }
+  if (!isValidBirthday(payload.birthDate)) return '\u751f\u65e5\u683c\u5f0f\u7121\u6548\u3002';
 
   if (!payload.bloodType || !VALID_BLOOD_TYPES.includes(payload.bloodType as (typeof VALID_BLOOD_TYPES)[number])) {
-    return '血型只能是 A、B、AB、O。';
+    return '\u8840\u578b\u5fc5\u9808\u662f A\u3001B\u3001AB \u6216 O\u3002';
   }
 
-  if (typeof payload.name !== 'string' || payload.name.trim().length < 2) {
-    return '姓名至少需要 2 個字。';
-  }
-
-  if (payload.name.trim().length > 20) {
-    return '姓名長度不可超過 20 個字。';
-  }
+  if (typeof payload.name !== 'string' || payload.name.trim().length < 2) return '\u59d3\u540d\u81f3\u5c11\u9700\u8981 2 \u500b\u5b57\u3002';
+  if (payload.name.trim().length > 20) return '\u59d3\u540d\u4e0d\u53ef\u8d85\u904e 20 \u500b\u5b57\u3002';
 
   if (!payload.gender || !VALID_GENDERS.includes(payload.gender as (typeof VALID_GENDERS)[number])) {
-    return '性別只能是 male 或 female。';
+    return '\u8acb\u9078\u64c7\u6027\u5225\u3002';
   }
 
   if (
@@ -80,16 +171,15 @@ function validate(body: unknown): string | null {
     payload.shichen !== 'unknown' &&
     !(typeof payload.shichen === 'number' && Number.isInteger(payload.shichen) && payload.shichen >= 0 && payload.shichen <= 11)
   ) {
-    return '時辰資料格式無效。';
+    return '\u6642\u8fb0\u8cc7\u6599\u683c\u5f0f\u7121\u6548\u3002';
   }
 
-  if (payload.voiceCharacteristics !== undefined && (
-    !Array.isArray(payload.voiceCharacteristics)
-    || payload.voiceCharacteristics.length > 10
-    || payload.voiceCharacteristics.some((item) => typeof item !== 'string' || item.length > 40)
-  )) {
-    return '聲音特徵資料格式無效。';
+  if (payload.voiceCharacteristics !== undefined && !isStringArray(payload.voiceCharacteristics, 10, 40)) {
+    return '\u8072\u97f3\u7279\u5fb5\u8cc7\u6599\u683c\u5f0f\u7121\u6548\u3002';
   }
+
+  const voiceConsentError = validateVoiceConsent(payload.voiceConsent);
+  if (voiceConsentError) return voiceConsentError;
 
   if (
     payload.vocalGenderPreference !== undefined &&
@@ -97,14 +187,14 @@ function validate(body: unknown): string | null {
     payload.vocalGenderPreference !== 'male' &&
     payload.vocalGenderPreference !== 'female'
   ) {
-    return '主唱聲線偏好格式無效。';
+    return '\u6f14\u5531\u8072\u7dda\u504f\u597d\u683c\u5f0f\u7121\u6548\u3002';
   }
 
   if (
     payload.preferredSongLanguage !== undefined &&
     !VALID_SONG_LANGUAGES.includes(payload.preferredSongLanguage as (typeof VALID_SONG_LANGUAGES)[number])
   ) {
-    return '歌曲語言只能選擇國語、英文或台語。';
+    return '\u6b4c\u66f2\u8a9e\u8a00\u504f\u597d\u683c\u5f0f\u7121\u6548\u3002';
   }
 
   return null;
@@ -142,7 +232,7 @@ export async function POST(request: Request) {
 
   if (record && now < record.resetTime) {
     if (record.count >= 5) {
-      return friendlyErrorResponse(requestId, 'RATE_LIMITED', '操作太頻繁，請稍後再試。', 429);
+      return friendlyErrorResponse(requestId, 'RATE_LIMITED', '\u8acb\u7a0d\u5f8c\u518d\u8a66\uff0c\u7cfb\u7d71\u6b63\u5728\u8655\u7406\u5176\u4ed6\u8acb\u6c42\u3002', 429);
     }
     record.count += 1;
   } else {
@@ -153,7 +243,7 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as MusicGenerateRequest;
   } catch {
-    return friendlyErrorResponse(requestId, 'INVALID_JSON', '無法解析請求 JSON。', 400);
+    return friendlyErrorResponse(requestId, 'INVALID_JSON', '\u8acb\u9001\u51fa\u6b63\u78ba JSON\u3002', 400);
   }
 
   const errMsg = validate(body);
@@ -161,15 +251,22 @@ export async function POST(request: Request) {
     return friendlyErrorResponse(requestId, 'INVALID_INPUT', errMsg, 400);
   }
 
+  const voiceWorkflowForCache = normalizeVoiceConsent(body.voiceConsent);
+  const mergedVoiceCharacteristicsForCache = Array.from(new Set([
+    ...(body.voiceCharacteristics || []),
+    ...voiceWorkflowForCache.inferredCharacteristics,
+  ])).slice(0, 10);
+
   const cacheKey = hashedCacheKey([
     body.birthDate,
     body.bloodType,
     body.name.trim(),
     body.gender,
     body.shichen !== undefined && body.shichen !== null ? String(body.shichen) : 'null',
-    (body.voiceCharacteristics || []).join(','),
+    mergedVoiceCharacteristicsForCache.join(','),
     body.vocalGenderPreference ?? 'auto',
     body.preferredSongLanguage ?? 'mandarin',
+    voiceWorkflowForCache.cacheKey,
   ]);
 
   const cached = responseCache.get(cacheKey);
@@ -184,18 +281,22 @@ export async function POST(request: Request) {
       name,
       gender,
       shichen = null,
-      voiceCharacteristics = [],
+      voiceCharacteristics: manualVoiceCharacteristics = [],
       vocalGenderPreference = null,
       preferredSongLanguage = 'mandarin',
+      voiceConsent,
     } = body;
     const trimmedName = name.trim();
+    const voiceWorkflow = normalizeVoiceConsent(voiceConsent);
+    const finalVoiceCharacteristics = Array.from(new Set([
+      ...manualVoiceCharacteristics,
+      ...voiceWorkflow.inferredCharacteristics,
+    ])).slice(0, 10);
 
   const zodiacZh = getZodiacSign(birthDate);
   const zodiacEn = getZodiacEnglishName(birthDate);
   const era = getBirthEra(birthDate);
   const destinyProfile = computeDestinyProfile(birthDate);
-
-  // 時辰（八字時柱）：屬人 30% 子層；不知道時辰時自動套良辰吉時。
   const shichenBranchIndex = typeof shichen === 'number' ? shichen : null;
   const shichenProfile = computeShichenProfile({ birthDate, shichenBranchIndex });
 
@@ -204,7 +305,7 @@ export async function POST(request: Request) {
     zodiacSign: zodiacEn,
     gender: gender as 'male' | 'female' | 'non-binary',
     bloodType,
-    voiceCharacteristics,
+    voiceCharacteristics: finalVoiceCharacteristics,
     vocalGenderPreference,
     firstName: trimmedName,
   };
@@ -240,8 +341,6 @@ export async function POST(request: Request) {
       ...archetype.lyricThemes.slice(0, 2),
     ]),
   ).slice(0, 8);
-
-  // 大數據精準選歌：各取 1 首（英文 + 國語 + 台語）
   const englishTrack = selectEnglishSong(era, personalityMatrix);
   const mandarinTrack = selectMandarinSongs(era, personalityMatrix, 1)[0];
   const taiwaneseTrack = selectTaiwaneseSong(era, personalityMatrix);
@@ -251,7 +350,7 @@ export async function POST(request: Request) {
     english: { title: englishTrack.title, artist: englishTrack.artist },
     mandarin: mandarinTrack
       ? { title: mandarinTrack.title, artist: mandarinTrack.artist }
-      : { title: '—', artist: '—' },
+      : { title: 'N/A', artist: 'N/A' },
     taiwanese: taiwaneseTrack
       ? { title: taiwaneseTrack.title, artist: taiwaneseTrack.artist }
       : undefined,
@@ -277,9 +376,8 @@ export async function POST(request: Request) {
       zodiacMusicTrait: destinyProfile.zodiacProfile.musicTrait,
     },
     selectedSongs: selectedSongsForAi,
+    voiceProfile: voiceWorkflow.profile,
   };
-
-  // 先生成報告與天地人三個素材層；融合引擎只輸出一首天地人人格歌曲，避免三首硬拼。
   const [musicReport, songDrafts] = await Promise.all([
     generateMusicReport(musicAiInput),
     generateSongDrafts(musicAiInput),
@@ -313,6 +411,7 @@ export async function POST(request: Request) {
       song_drafts: songDrafts,
       fusion_song: fusionSong,
       production_plan: productionPlan,
+      voice_profile: voiceWorkflow.profile,
       english_track: {
         title: englishTrack.title,
         artist: englishTrack.artist,
@@ -362,6 +461,6 @@ export async function POST(request: Request) {
     return NextResponse.json(resultPayload);
   } catch (error) {
     console.error('[music-generate] request failed', requestId, error instanceof Error ? error.message : String(error));
-    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '系統正在重新同步，請稍候再試。', 503);
+    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '\u97f3\u6a02\u751f\u6210\u66ab\u6642\u5fd9\u788c\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002', 503);
   }
 }

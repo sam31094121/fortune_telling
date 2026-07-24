@@ -22,6 +22,24 @@ interface ProductionPlan {
   trend_safety_note?: string;
 }
 
+interface VoiceProfile {
+  workflowStatus: string;
+  consentAccepted: boolean;
+  recorded: boolean;
+  localOnly: boolean;
+  selfDialogueConcept: string;
+  sample: null | {
+    durationSeconds: number;
+    qualityScore: number;
+    averageVolume: number;
+    dynamicRange: number;
+    brightness: number;
+    tempoPulse: number;
+    inferredCharacteristics: string[];
+    recordedAt: string;
+  };
+}
+
 interface MusicParameters {
   bpm: number;
   key: string;
@@ -37,6 +55,7 @@ interface MusicLyriaRequest {
   fusionSong: FusionSong;
   productionPlan: ProductionPlan;
   musicParameters: MusicParameters;
+  voiceProfile?: VoiceProfile;
 }
 
 function isStringArray(value: unknown): value is string[] {
@@ -85,12 +104,22 @@ function sanitizeFilename(value: string) {
 }
 
 function buildLyriaPrompt(body: MusicLyriaRequest) {
-  const { subjectName, fusionSong, productionPlan, musicParameters } = body;
+  const { subjectName, fusionSong, productionPlan, musicParameters, voiceProfile } = body;
   const lyrics = fusionSong.fusion_lyrics
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 28)
     .join('\n');
+  const voiceCalibrationRule = voiceProfile?.recorded && voiceProfile.sample
+    ? [
+        'Voice summary calibration:',
+        '- The user authorized an own-voice recording, but only a local summary is provided.',
+        '- Use this summary to shape phrasing, breath spacing, emotional pressure, and self-dialogue rhythm.',
+        `- Summary: duration=${voiceProfile.sample.durationSeconds}s, quality=${voiceProfile.sample.qualityScore}, tempoPulse=${voiceProfile.sample.tempoPulse}, traits=${voiceProfile.sample.inferredCharacteristics.join(', ')}.`,
+        '- Do not claim voice cloning, voice copying, or raw voice upload. This is voice-summary calibration only.',
+      ].join('\n')
+    : 'No voice-summary calibration is available; do not mention own-voice generation or voice cloning.';
+
 
   return limitText(`
 Create a polished 30-second MP3 preview for one original Tiandiren personality theme song.
@@ -115,6 +144,8 @@ ${productionPlan.arrangement_prompt || productionPlan.generation_prompt}
 Vocal direction:
 ${productionPlan.vocal_prompt || musicParameters.vocal_style}
 
+${voiceCalibrationRule}
+
 Tiandiren language / layer balance:
 ${productionPlan.language_distribution || 'Heaven layer English identity, Earth layer Mandarin phrasing, Human layer Taiwanese emotional landing.'}
 
@@ -123,6 +154,7 @@ ${lyrics}
 
 Important rules:
 - This must be a newly generated personalized song preview for this user's profile, not a shared demo, fixed template, or generic stock loop.
+- If voice calibration exists, it is only a local summary for phrasing and emotion; do not present the output as cloned from the user's real voice.
 - Generate exactly one unified 30-second song preview, not three separate songs.
 - Make it immediately playable, emotional, modern, and hook-forward.
 - Include vocals only if the model can render them naturally; otherwise prioritize a high-quality instrumental arrangement.

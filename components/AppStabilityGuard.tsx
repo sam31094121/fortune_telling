@@ -37,6 +37,10 @@ export default function AppStabilityGuard() {
     const limitedCpu = navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4;
     const limitedMemory = typeof deviceMemory === 'number' && deviceMemory <= 4;
     let resizeFrameId: number | undefined;
+    let scrollIdleTimerId: number | undefined;
+    let touchIdleTimerId: number | undefined;
+    let stressTimerId: number | undefined;
+    let longTaskObserver: PerformanceObserver | undefined;
 
     const updatePerformanceMode = () => {
       const saveData = Boolean(connection?.saveData);
@@ -65,6 +69,30 @@ export default function AppStabilityGuard() {
 
     const updatePageVisibility = () => {
       body.classList.toggle('app-page-hidden', document.visibilityState !== 'visible');
+    };
+
+    const markScrolling = () => {
+      body.classList.add('app-scrolling');
+      if (scrollIdleTimerId !== undefined) window.clearTimeout(scrollIdleTimerId);
+      scrollIdleTimerId = window.setTimeout(() => {
+        body.classList.remove('app-scrolling');
+      }, 520);
+    };
+
+    const markTouching = () => {
+      body.classList.add('app-touching');
+      if (touchIdleTimerId !== undefined) window.clearTimeout(touchIdleTimerId);
+      touchIdleTimerId = window.setTimeout(() => {
+        body.classList.remove('app-touching');
+      }, 620);
+    };
+
+    const markStressMode = () => {
+      body.classList.add('app-stress-mode');
+      if (stressTimerId !== undefined) window.clearTimeout(stressTimerId);
+      stressTimerId = window.setTimeout(() => {
+        body.classList.remove('app-stress-mode');
+      }, 5200);
     };
 
     const handleError = (event: ErrorEvent) => {
@@ -129,6 +157,19 @@ export default function AppStabilityGuard() {
       connection?.removeEventListener?.('change', schedulePerformanceModeUpdate);
     };
 
+    if (typeof PerformanceObserver !== 'undefined') {
+      try {
+        longTaskObserver = new PerformanceObserver((list) => {
+          if (list.getEntries().some((entry) => entry.duration >= 90)) {
+            markStressMode();
+          }
+        });
+        longTaskObserver.observe({ entryTypes: ['longtask'] });
+      } catch {
+        longTaskObserver = undefined;
+      }
+    }
+
     updatePerformanceMode();
     updatePageVisibility();
     window.addEventListener('error', handleError);
@@ -137,6 +178,10 @@ export default function AppStabilityGuard() {
     window.addEventListener('online', handleNetworkStateChange);
     window.addEventListener('offline', handleNetworkStateChange);
     window.addEventListener('resize', schedulePerformanceModeUpdate);
+    window.addEventListener('scroll', markScrolling, { passive: true });
+    window.addEventListener('touchstart', markTouching, { passive: true });
+    window.addEventListener('touchmove', markTouching, { passive: true });
+    window.addEventListener('pointerdown', markTouching, { passive: true });
     document.addEventListener('visibilitychange', updatePageVisibility);
     addMobileMediaListener();
     addReducedMotionListener();
@@ -144,17 +189,28 @@ export default function AppStabilityGuard() {
 
     return () => {
       if (resizeFrameId !== undefined) window.cancelAnimationFrame(resizeFrameId);
+      if (scrollIdleTimerId !== undefined) window.clearTimeout(scrollIdleTimerId);
+      if (touchIdleTimerId !== undefined) window.clearTimeout(touchIdleTimerId);
+      if (stressTimerId !== undefined) window.clearTimeout(stressTimerId);
+      longTaskObserver?.disconnect();
       window.removeEventListener('error', handleError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
       window.removeEventListener('pageshow', handlePageShow);
       window.removeEventListener('online', handleNetworkStateChange);
       window.removeEventListener('offline', handleNetworkStateChange);
       window.removeEventListener('resize', schedulePerformanceModeUpdate);
+      window.removeEventListener('scroll', markScrolling);
+      window.removeEventListener('touchstart', markTouching);
+      window.removeEventListener('touchmove', markTouching);
+      window.removeEventListener('pointerdown', markTouching);
       document.removeEventListener('visibilitychange', updatePageVisibility);
       removeMobileMediaListener();
       removeReducedMotionListener();
       removeConnectionListener();
       body.classList.remove('app-page-hidden');
+      body.classList.remove('app-scrolling');
+      body.classList.remove('app-touching');
+      body.classList.remove('app-stress-mode');
       body.classList.remove('app-mobile-device');
       body.classList.remove('app-small-screen');
       body.classList.remove('app-social-browser');
@@ -166,3 +222,4 @@ export default function AppStabilityGuard() {
 
   return null;
 }
+

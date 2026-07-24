@@ -118,6 +118,24 @@ interface ProductionPlan {
   next_step_note: string;
 }
 
+interface VoiceProfile {
+  workflowStatus: string;
+  consentAccepted: boolean;
+  recorded: boolean;
+  localOnly: boolean;
+  selfDialogueConcept: string;
+  sample: null | {
+    durationSeconds: number;
+    qualityScore: number;
+    averageVolume: number;
+    dynamicRange: number;
+    brightness: number;
+    tempoPulse: number;
+    inferredCharacteristics: string[];
+    recordedAt: string;
+  };
+}
+
 interface PersonalityMusicReportProps {
   personalityMatrix: PersonalityMatrix;
   musicParameters: MusicParameters;
@@ -129,6 +147,7 @@ interface PersonalityMusicReportProps {
   songDrafts?: SongDrafts;
   productionPlan?: ProductionPlan;
   fusionSong?: FusionSong;
+  voiceProfile?: VoiceProfile;
   name: string;
   onReset: () => void;
 }
@@ -950,6 +969,7 @@ function IntegratedSongMaker({
   musicParameters,
   songDrafts,
   name,
+  voiceProfile,
   started,
   onStart,
 }: {
@@ -958,6 +978,7 @@ function IntegratedSongMaker({
   musicParameters: MusicParameters;
   songDrafts?: SongDrafts;
   name: string;
+  voiceProfile?: VoiceProfile;
   started: boolean;
   onStart: () => void;
 }) {
@@ -1044,6 +1065,7 @@ function IntegratedSongMaker({
           fusionSong,
           productionPlan,
           musicParameters,
+          voiceProfile,
         }),
       });
       const data = await response.json() as LyriaGenerateResponse;
@@ -1480,6 +1502,7 @@ export default function PersonalityMusicReport({
   songDrafts,
   productionPlan,
   fusionSong,
+  voiceProfile,
   name,
   onReset,
 }: PersonalityMusicReportProps) {
@@ -1732,6 +1755,7 @@ export default function PersonalityMusicReport({
           musicParameters={musicParameters}
           songDrafts={songDrafts}
           name={name}
+          voiceProfile={voiceProfile}
           started={songMakerStarted}
           onStart={() => setSongMakerStarted(true)}
         />

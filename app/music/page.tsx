@@ -13,6 +13,24 @@ interface SongTrack {
   videoId: string;
 }
 
+interface VoiceProfile {
+  workflowStatus: string;
+  consentAccepted: boolean;
+  recorded: boolean;
+  localOnly: boolean;
+  sample: null | {
+    durationSeconds: number;
+    qualityScore: number;
+    averageVolume: number;
+    dynamicRange: number;
+    brightness: number;
+    tempoPulse: number;
+    inferredCharacteristics: string[];
+    recordedAt: string;
+  };
+  selfDialogueConcept: string;
+}
+
 interface MusicGenerateResponse {
   personality_matrix: Record<string, number>;
   music_parameters: {
@@ -40,6 +58,7 @@ interface MusicGenerateResponse {
     taiwanese: SongDraft;
   };
   production_plan?: ProductionPlan;
+  voice_profile?: VoiceProfile;
   fusion_song?: {
     fusion_title: string;
     fusion_concept: string;
@@ -128,64 +147,39 @@ function LandingHero({ onStart }: { onStart: () => void }) {
         className="pointer-events-none absolute inset-0"
         style={{
           background: `
-            radial-gradient(ellipse 70% 60% at 50% 50%, rgba(109,74,255,0.22) 0%, transparent 70%),
-            radial-gradient(ellipse 40% 40% at 50% 50%, rgba(201,162,74,0.10) 0%, transparent 60%)
+            radial-gradient(ellipse 70% 60% at 50% 50%, rgba(109,74,255,0.18) 0%, transparent 70%),
+            radial-gradient(ellipse 42% 42% at 50% 54%, rgba(201,162,74,0.09) 0%, transparent 62%)
           `,
         }}
       />
 
       <div className="music-landing-stack relative z-20 flex max-w-3xl flex-col items-center">
-        <TaijiStandaloneCard className="music-landing-taiji mb-5" />
+        <TaijiStandaloneCard className="music-landing-taiji mb-4" />
 
-        <div className="hidden mb-8 rounded-full border border-violet-400/35 bg-violet-500/10 px-5 py-1.5 text-xs font-semibold tracking-[0.35em] text-violet-200">
-          AI 人格音樂
+        <div className="music-landing-copy">
+          <span className="music-landing-eyebrow">{"AI \u8072\u97f3\u6b4c\u66f2"}</span>
+          <h1 className="music-landing-title">
+            <span className="music-landing-title-line">{"AI\u751f\u6210\u4e00\u9996\u6b4c"}</span>
+            <span className="music-landing-title-line music-landing-title-line--accent">{"\u81ea\u6211\u4eba\u683c\u5206\u88c2"}</span>
+            <span className="music-landing-title-line">{"\u8ddf\u4f60\u81ea\u6211\u5c0d\u8a71"}</span>
+          </h1>
+          <p className="music-landing-subcopy">
+            {"\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002"}
+          </p>
         </div>
 
-        <h1 className="hidden mystic-title font-serif text-5xl leading-tight sm:text-6xl lg:text-7xl">
-          把你的性格<br />聽成一首歌
-        </h1>
-
-        <p className="hidden mt-8 max-w-2xl text-base leading-8 text-[color:var(--text-sub)]">
-          輸入生日、血型、姓名與聲音特徵，AI 會整理你的性格節奏與音樂風格，
-          產出一份好懂的人格主題曲預覽。
-        </p>
-
-        <div className="music-landing-actions mt-6 flex flex-col items-center gap-3">
-          <button type="button" onClick={onStart} className="vip-gold-btn w-full max-w-[22rem] px-8 py-5 text-base shadow-[0_0_25px_rgba(201,162,74,0.3)] border border-amber-400/20 sm:w-auto sm:px-14 sm:text-lg sm:animate-bounce">
-            👇 一鍵開啟 · 生成我的主題曲
+        <div className="music-landing-actions mt-5 flex flex-col items-center gap-3">
+          <button type="button" onClick={onStart} className="vip-gold-btn w-full max-w-[22rem] px-8 py-4 text-base shadow-[0_0_25px_rgba(201,162,74,0.26)] border border-amber-400/20 sm:w-auto sm:px-14 sm:py-5 sm:text-lg sm:animate-bounce">
+            {"\u4e00\u9375\u958b\u555f \u00b7 \u751f\u6210\u6211\u7684\u4e3b\u984c\u66f2"}
           </button>
           <Link href="/" className="feature-home-link feature-home-link--violet">
             {"\u8fd4\u56de\u9996\u9801"}
           </Link>
         </div>
-
-        <div className="hidden mt-14 grid grid-cols-3 gap-4">
-          {[
-            { label: '生日', desc: '抓出情緒底色', color: 'rgba(109,74,255,0.7)' },
-            { label: '血型', desc: '補上表達節奏', color: 'rgba(201,162,74,0.7)' },
-            { label: '姓名', desc: '生成專屬歌詞靈魂', color: 'rgba(215,139,255,0.7)' },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="rounded-2xl px-4 py-4 text-center"
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: `1px solid ${item.color.replace('0.7', '0.25')}`,
-                backdropFilter: 'blur(8px)',
-              }}
-            >
-              <p className="text-xs font-bold tracking-[0.3em]" style={{ color: item.color }}>
-                {item.label}
-              </p>
-              <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]">{item.desc}</p>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
 }
-
 function MusicAnalyticalConsole({
   name,
 }: {
@@ -194,11 +188,11 @@ function MusicAnalyticalConsole({
   const [logs, setLogs] = useState<string[]>([]);
 
   const fullLogs = useMemo(() => [
-    `【天宿天盤】讀取聲音與姓名特徵：${name || '未知本體'}`,
-    `【地脈羅盤】校準星座與人格節奏軌道... 已就緒`,
-    `【人和音律】血型表達風格與年代偏好映射... 已就緒`,
-    `【天星解密】音律聲學模型提取：合成 432Hz 靈魂頻率預覽... 正在寫入`,
-    `【天宿智算】正在生成專屬歌詞與音樂敘述結構...`,
+    `\u8b80\u53d6\u4f7f\u7528\u8005\u8cc7\u6599\uff1a${name || '\u672a\u547d\u540d'}`,
+    '\u78ba\u8a8d\u672c\u4eba\u8072\u97f3\u6388\u6b0a\u8207\u8072\u97f3\u6458\u8981\u6821\u6e96...',
+    '\u5efa\u7acb\u4eba\u683c\u5206\u88c2\u8207\u81ea\u6211\u5c0d\u8a71\u7684\u6b4c\u66f2\u7d50\u69cb...',
+    '\u628a\u60c5\u7dd2\u3001\u7bc0\u594f\u8207\u5167\u5fc3\u7368\u767d\u8f49\u6210\u65cb\u5f8b\u65b9\u5411...',
+    '\u6e96\u5099\u751f\u6210\u4e00\u9996\u7531\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u6b4c...',
   ], [name]);
 
   useEffect(() => {
@@ -216,24 +210,19 @@ function MusicAnalyticalConsole({
   }, [fullLogs]);
 
   return (
-    <div className="fortune-card p-6 sm:p-8 font-mono border border-violet-500/20 bg-slate-950/80 shadow-[0_0_30px_rgba(139,92,246,0.08)]">
-      <p className="text-xs uppercase tracking-[0.35em] text-violet-300">🧬 大數據音樂人格運算終端</p>
-      <div className="mt-6 space-y-3.5 text-xs sm:text-sm text-violet-100 leading-7 min-h-[150px]">
+    <div className="fortune-card border border-violet-500/20 bg-slate-950/80 p-6 font-mono shadow-[0_0_30px_rgba(139,92,246,0.08)] sm:p-8">
+      <p className="text-xs uppercase tracking-[0.22em] text-violet-300">{"AI \u8072\u97f3\u4eba\u683c\u751f\u6210\u4e2d"}</p>
+      <div className="mt-6 min-h-[150px] space-y-3.5 text-xs leading-7 text-violet-100 sm:text-sm">
         {logs.map((log, index) => (
-          <p key={index} className="animate-fade-in">
-            {log}
-          </p>
+          <div key={`${log}-${index}`} className="flex items-start gap-2">
+            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-300 shadow-[0_0_12px_rgba(167,139,250,0.8)]" />
+            <span>{log}</span>
+          </div>
         ))}
-        {logs.length < fullLogs.length && (
-          <p className="text-violet-400">
-            【天盤運轉】正在解密聲律矩陣...<span className="console-cursor" />
-          </p>
-        )}
       </div>
     </div>
   );
 }
-
 export default function MusicSystemPage() {
   const [pageState, setPageState] = useState<PageState>('landing');
   const [loading, setLoading] = useState(false);
@@ -271,13 +260,14 @@ export default function MusicSystemPage() {
             voiceCharacteristics: data.voiceCharacteristics,
             vocalGenderPreference: data.vocalGenderPreference,
             preferredSongLanguage: data.preferredSongLanguage,
+            voiceConsent: data.voiceConsent,
         }),
       });
 
       const json = await response.json();
 
       if (!response.ok) {
-        setErrorMsg(json.error || '音樂人格分析失敗，請稍後再試。');
+        setErrorMsg(json.error || '\u97f3\u6a02\u751f\u6210\u66ab\u6642\u6c92\u6709\u5b8c\u6210\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002');
         return;
       }
 
@@ -287,8 +277,8 @@ export default function MusicSystemPage() {
     } catch (error) {
       console.error('[music] generate failed', error);
       setErrorMsg(error instanceof DOMException && error.name === 'AbortError'
-        ? '分析等候時間過長，請稍後再試。'
-        : '目前無法連線到音樂人格服務，請稍後再試。');
+        ? '\u5206\u6790\u7b49\u5019\u6642\u9593\u8f03\u4e45\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002'
+        : '\u76ee\u524d\u7121\u6cd5\u9023\u7dda\u5230\u97f3\u6a02\u4eba\u683c\u670d\u52d9\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002');
     } finally {
       window.clearTimeout(timeout);
       setLoading(false);
@@ -331,10 +321,10 @@ export default function MusicSystemPage() {
           <section className="grid gap-10 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)]">
             <div className="fortune-card p-6 sm:p-8">
               <div className="mb-6">
-                <p className="text-xs uppercase tracking-[0.35em] text-violet-300">主題曲資料</p>
-                <h2 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">建立你的音樂輪廓</h2>
-                <p className="mt-2 text-xs text-[color:var(--text-muted)]">
-                  只填會影響音樂風格的重點資料
+                <p className="text-xs uppercase tracking-[0.35em] text-violet-300">{"AI VOICE SONG"}</p>
+                <h2 className="music-form-title mt-2 font-serif text-[color:var(--text-main)]"><span>{"AI\u751f\u6210\u4e00\u9996\u6b4c"}</span><span>{"\u81ea\u6211\u4eba\u683c\u5206\u88c2"}</span><span>{"\u8ddf\u4f60\u81ea\u6211\u5c0d\u8a71"}</span></h2>
+                <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
+                  {"\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002"}
                 </p>
               </div>
 
@@ -355,22 +345,7 @@ export default function MusicSystemPage() {
 
             <div className="flex flex-col items-center justify-center gap-6">
               <TaijiStandaloneCard />
-              <p className="hidden text-center text-xs tracking-widest text-[color:var(--text-muted)]">
-                正在校準你的音樂輪廓
-              </p>
-              <div className="hidden w-full max-w-sm space-y-3 text-xs text-[color:var(--text-muted)]">
-                {[
-                  '年代音樂偏好',
-                  '星座與人格節奏',
-                  '血型表達風格',
-                  '姓名與聲音氣質',
-                ].map((text) => (
-                  <div key={text} className="flex items-center gap-2">
-                    <div className="h-1 w-1 rounded-full bg-violet-400/60" />
-                    {text}
-                  </div>
-                ))}
-              </div>
+              <div className="hidden w-full max-w-sm" />
             </div>
           </section>
         </main>
@@ -400,16 +375,6 @@ export default function MusicSystemPage() {
               <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="0.75" strokeDasharray="4,4" opacity="0.5" fill="none" />
               <circle cx="50" cy="50" r="41" stroke="currentColor" strokeWidth="0.25" opacity="0.4" fill="none" />
               <circle cx="50" cy="50" r="38" stroke="currentColor" strokeWidth="0.5" strokeDasharray="8,2" opacity="0.3" fill="none" />
-              <g fontSize="4.5" fill="currentColor" opacity="0.7" fontFamily="monospace" filter="url(#taijiGlowMusic)">
-                <text x="50" y="10" textAnchor="middle">☰</text>
-                <text x="78" y="22" textAnchor="middle" transform="rotate(45, 78, 22)">☴</text>
-                <text x="90" y="50" textAnchor="middle" transform="rotate(90, 90, 50)">☲</text>
-                <text x="78" y="78" textAnchor="middle" transform="rotate(135, 78, 78)">☳</text>
-                <text x="50" y="90" textAnchor="middle" transform="rotate(180, 50, 90)">☷</text>
-                <text x="22" y="78" textAnchor="middle" transform="rotate(225, 22, 78)">☱</text>
-                <text x="10" y="50" textAnchor="middle" transform="rotate(270, 10, 50)">☵</text>
-                <text x="22" y="22" textAnchor="middle" transform="rotate(315, 22, 22)">☶</text>
-              </g>
               <g filter="url(#taijiGlowMusic)">
                 <path
                   d="M 50 16 A 34 34 0 0 1 50 84 A 17 17 0 0 1 50 50 A 17 17 0 0 0 50 16 Z"
@@ -424,10 +389,42 @@ export default function MusicSystemPage() {
           <div className="mb-6 flex flex-col items-start gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <p className="max-w-2xl text-xs font-semibold leading-6 tracking-[0.08em] text-violet-300 sm:text-sm">{"AI\u751f\u6210\u4e00\u9996\u6b4c \u81ea\u6211\u4eba\u683c\u5206\u88c2\u8ddf\u81ea\u6211\u5c0d\u8a71\u3002\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002"}</p>
-              <h2 className="mt-1 font-serif text-3xl text-[color:var(--text-main)]">{submittedName} 的人格主題曲</h2>
+              <h2 className="mt-1 font-serif text-3xl text-[color:var(--text-main)]">
+                {submittedName}{"\u7684\u4eba\u683c\u4e3b\u984c\u66f2"}
+              </h2>
             </div>
             <Link href="/" className="feature-home-link feature-home-link--violet self-end shrink-0 sm:self-start">{"\u8fd4\u56de\u9996\u9801"}</Link>
           </div>
+
+          {result.voice_profile && (
+            <section className="mb-6 rounded-[22px] border border-violet-300/20 bg-violet-950/20 p-4 shadow-[0_10px_28px_rgba(2,6,23,0.22)]">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-black tracking-[0.22em] text-violet-200">{"\u672c\u4eba\u8072\u97f3\u6458\u8981\u6821\u6e96"}</p>
+                  <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]">{result.voice_profile.selfDialogueConcept}</p>
+                </div>
+                <span className="shrink-0 rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1.5 text-xs font-bold text-cyan-100">
+                  {result.voice_profile.recorded ? "\u5df2\u9304\u97f3\u6458\u8981\u6821\u6e96" : result.voice_profile.consentAccepted ? "\u5df2\u6388\u6b0a" : "\u672a\u555f\u7528"}
+                </span>
+              </div>
+              {result.voice_profile.sample && (
+                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-2 py-3">
+                    <p className="text-[10px] text-[color:var(--text-muted)]">{"\u9304\u97f3\u79d2\u6578"}</p>
+                    <p className="mt-1 text-sm font-black text-violet-100">{result.voice_profile.sample.durationSeconds}s</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-2 py-3">
+                    <p className="text-[10px] text-[color:var(--text-muted)]">{"\u8072\u97f3\u6e05\u6670\u5ea6"}</p>
+                    <p className="mt-1 text-sm font-black text-cyan-100">{result.voice_profile.sample.qualityScore}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-2 py-3">
+                    <p className="text-[10px] text-[color:var(--text-muted)]">{"\u5c0d\u8a71\u7bc0\u594f"}</p>
+                    <p className="mt-1 text-sm font-black text-amber-100">{Math.round(result.voice_profile.sample.tempoPulse * 100)}</p>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
 
           <PersonalityMusicReport
             personalityMatrix={(result?.personality_matrix ?? {}) as any}
@@ -440,6 +437,7 @@ export default function MusicSystemPage() {
             songDrafts={result?.song_drafts}
             productionPlan={result?.production_plan}
             fusionSong={result?.fusion_song}
+            voiceProfile={result?.voice_profile}
             name={submittedName}
             onReset={handleReset}
           />

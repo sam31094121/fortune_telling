@@ -1717,34 +1717,32 @@ export default function HomePage() {
 
           <Link
             href="/music"
-            className="home-feature-launch home-feature-violet order-4 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-violet order-4 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-4 flex-wrap sm:p-6 sm:gap-6"
           >
-            {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className="flex items-center gap-4.5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-violet-500/30 bg-violet-950/40 text-violet-300 shadow-[0_0_15px_rgba(139,92,246,0.2)] animate-spin-slow">
-                <span className="text-2xl font-serif">♪</span>
+            <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-violet-500/30 bg-violet-950/40 text-violet-300 shadow-[0_0_15px_rgba(139,92,246,0.2)] animate-spin-slow">
+                <span className="text-2xl font-serif">{"\u6b4c"}</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block max-w-full rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-violet-300 uppercase animate-pulse">
-                  AI · 人格聲波合成
+                <span className="inline-flex max-w-full rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-1 text-[10px] font-bold leading-none tracking-[0.12em] text-violet-300 uppercase animate-pulse">
+                  {"AI \u8072\u97f3\u6b4c\u66f2"}
                 </span>
-                <h2 className="mt-1.5 flex min-w-0 flex-col items-start gap-1 font-serif text-lg font-black leading-tight tracking-wide text-violet-100 sm:flex-row sm:items-center sm:gap-2 sm:text-2xl">
-                  <span className="min-w-0 break-words">{"AI\u751f\u6210\u4e00\u9996\u6b4c+\u81ea\u6211\u4eba\u683c\u5206\u88c2\u8ddf\u81ea\u6211\u5c0d\u8a71"}</span>
-                  <span className="text-xs font-sans text-violet-300 font-normal opacity-85 hidden sm:inline">
-                    // 命理頻率 · 音樂人格 · 主題曲生成
-                  </span>
+                <h2 className="home-music-title mt-2 font-serif font-black text-violet-100">
+                  <span className="home-music-title-line">{"AI\u751f\u6210\u4e00\u9996\u6b4c"}</span>
+                  <span className="home-music-title-line">{"\u81ea\u6211\u4eba\u683c\u5206\u88c2"}</span>
+                  <span className="home-music-title-line home-music-title-line--soft">{"\u8ddf\u4f60\u81ea\u6211\u5c0d\u8a71"}</span>
                 </h2>
-                <p className="mt-1 text-xs text-[color:var(--text-sub)]">
+                <p className="home-music-copy mt-1.5 text-xs text-[color:var(--text-sub)]">
                   {"\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002"}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-950/30 px-5 py-3 text-xs font-bold text-violet-200 transition group-hover:bg-violet-500/25">
-              <span>立即開啟音樂</span>
-              <span className="transition-transform group-hover:translate-x-1.5">➜</span>
+            <div className="home-music-cta flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-950/30 px-5 py-3 text-xs font-bold text-violet-200 transition group-hover:bg-violet-500/25">
+              <span>{"\u7acb\u5373\u751f\u6210\u6b4c\u66f2"}</span>
+              <span className="transition-transform group-hover:translate-x-1.5">{"\u279c"}</span>
             </div>
           </Link>
 

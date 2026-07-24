@@ -5238,3 +5238,1586 @@ body.app-lite-effects .home-line-share-card::after {
   }
 }
 
+
+
+/* Taiji premium material pass: less artificial glow, stronger depth, smoother mobile rendering. */
+:root {
+  --taiji-premium-shadow: rgba(0, 0, 0, 0.56);
+  --taiji-premium-cyan: rgba(103, 232, 249, 0.16);
+  --taiji-premium-gold: rgba(253, 230, 138, 0.13);
+  --taiji-premium-violet: rgba(167, 139, 250, 0.09);
+}
+
+.modal-taiji-button {
+  filter: none !important;
+  will-change: transform;
+  transition: transform 220ms cubic-bezier(0.2, 0.7, 0.25, 1), opacity 220ms ease !important;
+}
+
+.modal-taiji-button:hover {
+  filter: none !important;
+  transform: translateY(-1px) scale(1.012) !important;
+}
+
+.modal-taiji-natural-bloom {
+  inset: -28px !important;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.12), transparent 21%),
+    radial-gradient(ellipse at 42% 38%, var(--taiji-premium-cyan), transparent 42%),
+    radial-gradient(ellipse at 63% 66%, var(--taiji-premium-gold), transparent 46%),
+    radial-gradient(ellipse at 50% 54%, var(--taiji-premium-violet), transparent 62%) !important;
+  filter: blur(18px) saturate(1.02) !important;
+  opacity: 0.42 !important;
+  mix-blend-mode: screen;
+}
+
+.modal-taiji-ground-glow {
+  inset: 46px !important;
+  background: radial-gradient(ellipse at 50% 58%, rgba(255, 255, 255, 0.1), rgba(34, 211, 238, 0.06) 42%, transparent 74%) !important;
+  filter: blur(16px) !important;
+  opacity: 0.32 !important;
+}
+
+.modal-taiji-orbit-emblem {
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.2), transparent 12%),
+    radial-gradient(circle at 68% 74%, rgba(34, 211, 238, 0.08), transparent 26%),
+    radial-gradient(circle at 40% 70%, rgba(253, 230, 138, 0.07), transparent 30%),
+    linear-gradient(145deg, rgba(10, 14, 31, 0.98), rgba(2, 3, 10, 1) 62%, rgba(0, 0, 0, 1)) !important;
+  box-shadow:
+    inset 14px 12px 24px rgba(255, 255, 255, 0.1),
+    inset -24px -30px 44px rgba(0, 0, 0, 0.82),
+    inset 0 0 34px rgba(103, 232, 249, 0.06),
+    0 24px 46px rgba(0, 0, 0, 0.48),
+    0 0 24px rgba(255, 255, 255, 0.06),
+    0 0 54px rgba(34, 211, 238, 0.09),
+    0 0 82px rgba(253, 230, 138, 0.07) !important;
+  filter: saturate(0.98) contrast(1.04) brightness(0.98) !important;
+  backface-visibility: hidden;
+}
+
+.modal-taiji-button:hover .modal-taiji-orbit-emblem {
+  box-shadow:
+    inset 15px 13px 25px rgba(255, 255, 255, 0.12),
+    inset -24px -30px 44px rgba(0, 0, 0, 0.82),
+    inset 0 0 36px rgba(103, 232, 249, 0.08),
+    0 26px 50px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(255, 255, 255, 0.08),
+    0 0 62px rgba(34, 211, 238, 0.11),
+    0 0 90px rgba(253, 230, 138, 0.08) !important;
+}
+
+.modal-taiji-button .modal-taiji-orbit-emblem::before {
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.34), transparent 10%),
+    linear-gradient(126deg, rgba(255, 255, 255, 0.15), transparent 25%, transparent 66%, rgba(186, 230, 253, 0.08) 79%, transparent 90%) !important;
+  opacity: 0.42 !important;
+  animation-duration: 14s !important;
+}
+
+.modal-taiji-button .modal-taiji-orbit-emblem::after {
+  inset: 9% !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background:
+    conic-gradient(from 150deg, rgba(255, 255, 255, 0.08), transparent 18%, rgba(34, 211, 238, 0.07) 33%, transparent 51%, rgba(253, 230, 138, 0.08) 64%, transparent 82%),
+    radial-gradient(circle, transparent 61%, rgba(255, 255, 255, 0.07) 70%, transparent 80%) !important;
+  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.07), 0 0 18px rgba(34, 211, 238, 0.06) !important;
+  opacity: 0.3 !important;
+  animation-duration: 24s !important;
+}
+
+.modal-taiji-button .taiji-orbit-layer {
+  filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.08)) !important;
+  opacity: 0.82;
+}
+
+.modal-taiji-button .taiji-light-orbit::before {
+  opacity: 0.38 !important;
+  filter: blur(0.4px) !important;
+}
+
+.modal-taiji-button .taiji-light-orbit__head {
+  opacity: 0.7 !important;
+  box-shadow: 0 0 8px currentColor, 0 0 18px currentColor !important;
+}
+
+.modal-taiji-button .taiji-gold-wave {
+  border-color: rgba(253, 230, 138, 0.28) !important;
+  box-shadow: 0 0 12px rgba(253, 230, 138, 0.12), inset 0 0 10px rgba(253, 230, 138, 0.08) !important;
+  opacity: 0.42 !important;
+}
+
+.modal-taiji-button .taiji-celestial-mist,
+.modal-taiji-button .taiji-celestial-wisp {
+  opacity: 0.18 !important;
+  filter: blur(2px) saturate(0.92) !important;
+}
+
+.modal-taiji-3d-core {
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  background:
+    radial-gradient(circle at 28% 17%, rgba(255, 255, 255, 0.34), transparent 16%),
+    radial-gradient(circle at 70% 78%, rgba(34, 211, 238, 0.1), transparent 30%),
+    linear-gradient(136deg, rgba(255, 255, 255, 0.12), transparent 36%),
+    #02030a !important;
+  box-shadow:
+    inset 16px 0 26px rgba(255, 255, 255, 0.16),
+    inset -22px -25px 38px rgba(0, 0, 0, 0.84),
+    inset 0 18px 26px rgba(255, 255, 255, 0.1),
+    inset 0 0 16px rgba(34, 211, 238, 0.06),
+    0 10px 22px rgba(0, 0, 0, 0.36),
+    0 0 18px rgba(255, 255, 255, 0.1),
+    0 0 36px rgba(34, 211, 238, 0.1) !important;
+  filter: contrast(1.04) saturate(0.98);
+}
+
+.modal-taiji-3d-core::before {
+  background:
+    radial-gradient(circle at 28% 16%, rgba(255, 255, 255, 0.46), transparent 13%),
+    linear-gradient(118deg, rgba(255, 255, 255, 0.16), transparent 27%, transparent 62%, rgba(125, 211, 252, 0.08) 77%, transparent 88%) !important;
+  opacity: 0.48 !important;
+}
+
+.modal-taiji-3d-core::after {
+  inset: 7px !important;
+  border-color: rgba(255, 255, 255, 0.11) !important;
+  opacity: 0.26 !important;
+  animation-duration: 28s !important;
+}
+
+.modal-taiji-half--yang {
+  background:
+    radial-gradient(circle at 25% 16%, rgba(255, 255, 255, 0.92), transparent 22%),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.96), rgba(226, 232, 240, 0.92) 48%, rgba(148, 163, 184, 0.78)) !important;
+}
+
+.modal-taiji-half--yin {
+  background:
+    radial-gradient(circle at 72% 76%, rgba(34, 211, 238, 0.12), transparent 34%),
+    linear-gradient(150deg, rgba(15, 23, 42, 1), rgba(2, 6, 23, 1) 58%, rgba(0, 0, 0, 1)) !important;
+}
+
+.modal-taiji-fish {
+  box-shadow: inset 0 0 13px rgba(255, 255, 255, 0.12), inset 0 -8px 15px rgba(0, 0, 0, 0.22) !important;
+}
+
+.modal-taiji-fish span {
+  box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.24), 0 0 8px rgba(255, 255, 255, 0.14) !important;
+}
+
+.taiji-evolution-stage.stage-taiji,
+.taiji-evolution-stage.stage-liangyi,
+.taiji-evolution-stage.stage-sixiang,
+.taiji-evolution-stage.stage-bagua {
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.08), 0 0 54px rgba(34, 211, 238, 0.1) !important;
+}
+
+.taiji-open-stage .unified-taiji-shell::before {
+  filter: blur(0.8px) saturate(0.95) !important;
+  opacity: min(var(--taiji-lucky-opacity), 0.42) !important;
+}
+
+.taiji-open-stage .unified-taiji-shell::after {
+  filter: blur(1.2px) saturate(0.92) !important;
+  opacity: min(var(--taiji-lucky-opacity), 0.28) !important;
+}
+
+@media (max-width: 430px) {
+  .modal-taiji-natural-bloom {
+    inset: -22px !important;
+    opacity: 0.34 !important;
+    filter: blur(16px) saturate(0.96) !important;
+  }
+
+  .modal-taiji-button .taiji-celestial-mist,
+  .modal-taiji-button .taiji-celestial-wisp {
+    display: none !important;
+  }
+
+  .modal-taiji-button .taiji-gold-wave:nth-child(n+2) {
+    display: none !important;
+  }
+
+  .modal-taiji-button .taiji-light-orbit__head {
+    opacity: 0.54 !important;
+  }
+}
+
+
+/* Taiji balanced orbit pass: idle is calm, tap releases soft energy without clipping the three orbit stars. */
+.taiji-open-stage,
+.taiji-open-stage .unified-taiji-shell,
+.taiji-open-stage .modal-taiji-button,
+.taiji-open-stage .modal-taiji-orbit-emblem,
+.taiji-open-stage .taiji-orbit-layer,
+.taiji-open-stage .taiji-gold-waves,
+.taiji-open-stage .taiji-celestial-mist,
+.home-core-panel,
+.home-core-panel .taiji-standalone-card,
+.home-core-panel .unified-taiji-shell,
+.home-core-panel .modal-taiji-button,
+.home-core-panel .modal-taiji-orbit-emblem,
+.home-core-panel .taiji-orbit-layer,
+.home-core-panel .taiji-gold-waves {
+  overflow: visible !important;
+}
+
+.home-core-panel {
+  max-width: min(23.5rem, calc(100vw - 1rem)) !important;
+}
+
+.home-core-panel .taiji-standalone-card,
+.home-core-panel .taiji-open-stage {
+  width: min(23.5rem, 100%) !important;
+  min-height: clamp(18.25rem, 84vw, 22.5rem) !important;
+  padding: clamp(0.25rem, 1.4vw, 0.55rem) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-core-panel .taiji-standalone-card .unified-taiji-shell,
+.home-core-panel .taiji-open-stage .unified-taiji-shell {
+  min-height: clamp(17.25rem, 78vw, 21.25rem) !important;
+  padding: clamp(0.45rem, 1.8vw, 0.75rem) !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.home-core-panel .modal-taiji-button {
+  width: clamp(13.1rem, 58vw, 14.45rem) !important;
+  height: clamp(13.1rem, 58vw, 14.45rem) !important;
+}
+
+.home-core-panel .modal-taiji-3d-core {
+  width: clamp(6.2rem, 27vw, 7rem) !important;
+  height: clamp(6.2rem, 27vw, 7rem) !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .modal-taiji-natural-bloom {
+  inset: -18px !important;
+  opacity: 0.2 !important;
+  filter: blur(18px) saturate(0.92) !important;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(34, 211, 238, 0.1), transparent 42%),
+    radial-gradient(ellipse at 52% 58%, rgba(253, 230, 138, 0.07), transparent 54%) !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .modal-taiji-ground-glow {
+  opacity: 0.16 !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .modal-taiji-orbit-emblem {
+  box-shadow:
+    inset 13px 12px 24px rgba(255, 255, 255, 0.09),
+    inset -23px -30px 44px rgba(0, 0, 0, 0.82),
+    inset 0 0 30px rgba(34, 211, 238, 0.05),
+    0 22px 42px rgba(0, 0, 0, 0.44),
+    0 0 28px rgba(34, 211, 238, 0.06) !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .modal-taiji-orbit-emblem::before {
+  opacity: 0.3 !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .modal-taiji-orbit-emblem::after,
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit::before,
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-gold-wave,
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-celestial-mist {
+  opacity: 0 !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-orbit-layer {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit__head {
+  opacity: 0.72 !important;
+  width: 17px !important;
+  height: 17px !important;
+  background: radial-gradient(circle, #fff 0 10%, currentColor 34%, rgba(255, 255, 255, 0.14) 56%, transparent 76%) !important;
+  box-shadow: 0 0 8px currentColor, 0 0 18px currentColor !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--cyan {
+  inset: 10px -2px !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--violet {
+  inset: -2px 18px !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--gold {
+  inset: -8px 34px !important;
+}
+
+.unified-taiji-shell:not([data-taiji-stage="idle"]) .modal-taiji-natural-bloom,
+.unified-taiji-shell:not([data-tap-level="0"]) .modal-taiji-natural-bloom,
+.modal-taiji-3d-core--active ~ .modal-taiji-natural-bloom {
+  opacity: 0.5 !important;
+}
+
+.unified-taiji-shell:not([data-taiji-stage="idle"]) .taiji-light-orbit::before,
+.unified-taiji-shell:not([data-tap-level="0"]) .taiji-light-orbit::before {
+  opacity: 0.34 !important;
+}
+
+.unified-taiji-shell:not([data-taiji-stage="idle"]) .taiji-gold-wave,
+.unified-taiji-shell:not([data-tap-level="0"]) .taiji-gold-wave {
+  opacity: 0.34 !important;
+}
+
+.taiji-touch-ripple {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  width: min(18rem, 78vw);
+  height: min(18rem, 78vw);
+  border-radius: 999px;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.35);
+  background:
+    radial-gradient(circle, transparent 0 34%, rgba(255, 255, 255, 0.16) 39%, rgba(34, 211, 238, 0.12) 48%, transparent 68%),
+    radial-gradient(circle, rgba(253, 230, 138, 0.12), transparent 58%);
+  filter: blur(0.8px) saturate(0.95);
+  animation: taiji-soft-touch-release 1.65s cubic-bezier(0.18, 0.68, 0.2, 1) both;
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-3,
+.taiji-open-stage .unified-taiji-shell--lucky-6,
+.taiji-open-stage .unified-taiji-shell--lucky-8,
+.taiji-open-stage .unified-taiji-shell--lucky-12,
+.taiji-open-stage .unified-taiji-shell--lucky-24 {
+  --taiji-lucky-opacity: 0.34;
+  --taiji-lucky-glow: rgba(125, 211, 252, 0.24);
+  --taiji-lucky-ray: rgba(253, 230, 138, 0.24);
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-3::before,
+.taiji-open-stage .unified-taiji-shell--lucky-6::before,
+.taiji-open-stage .unified-taiji-shell--lucky-8::before,
+.taiji-open-stage .unified-taiji-shell--lucky-12::before,
+.taiji-open-stage .unified-taiji-shell--lucky-24::before {
+  background:
+    radial-gradient(circle, transparent 0 32%, rgba(255, 255, 255, 0.1) 38%, var(--taiji-lucky-glow) 47%, transparent 69%),
+    radial-gradient(circle, rgba(253, 230, 138, 0.08), transparent 62%) !important;
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-3::after,
+.taiji-open-stage .unified-taiji-shell--lucky-6::after,
+.taiji-open-stage .unified-taiji-shell--lucky-8::after,
+.taiji-open-stage .unified-taiji-shell--lucky-12::after,
+.taiji-open-stage .unified-taiji-shell--lucky-24::after {
+  background:
+    radial-gradient(circle, transparent 0 40%, rgba(255, 255, 255, 0.08) 50%, transparent 68%),
+    conic-gradient(from 90deg, transparent, rgba(34, 211, 238, 0.14), transparent, rgba(253, 230, 138, 0.12), transparent) !important;
+}
+
+@keyframes taiji-soft-touch-release {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.34); }
+  18% { opacity: 0.54; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.12); }
+}
+
+@media (max-width: 430px) {
+  .home-core-panel {
+    max-width: min(22.75rem, calc(100vw - 0.75rem)) !important;
+  }
+
+  .home-core-panel .taiji-standalone-card,
+  .home-core-panel .taiji-open-stage {
+    min-height: min(21rem, calc(100vw + 0.75rem)) !important;
+    padding: 0.2rem !important;
+  }
+
+  .home-core-panel .taiji-standalone-card .unified-taiji-shell,
+  .home-core-panel .taiji-open-stage .unified-taiji-shell {
+    min-height: min(20.25rem, calc(100vw + 0.05rem)) !important;
+    padding: 0.35rem !important;
+  }
+
+  .home-core-panel .modal-taiji-button {
+    width: min(14rem, 70vw) !important;
+    height: min(14rem, 70vw) !important;
+  }
+
+  .home-core-panel .modal-taiji-3d-core {
+    width: min(6.7rem, 32vw) !important;
+    height: min(6.7rem, 32vw) !important;
+  }
+
+  .unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit__head {
+    width: 15px !important;
+    height: 15px !important;
+    opacity: 0.68 !important;
+  }
+}
+
+
+/* Mobile patrol maintenance: card stability plus living Taiji motion. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.home-trust-card,
+.home-feature-launch,
+.fortune-card,
+.number-fortune-card,
+.feature-home-link,
+.vip-gold-btn,
+.form-input,
+.glass-input {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.home-feature-launch,
+.fortune-card,
+.number-fortune-card,
+.home-line-share-card,
+.home-ai-feedback-card {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  backface-visibility: hidden;
+}
+
+.home-feature-launch > *,
+.fortune-card > *,
+.number-fortune-card > * {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .home-trust-strip {
+    gap: 0.45rem !important;
+  }
+
+  .home-feature-launch {
+    min-height: 118px !important;
+    gap: 0.85rem !important;
+    border-radius: 1.25rem !important;
+    padding: 1rem !important;
+    box-shadow: 0 10px 28px rgba(2, 6, 23, 0.22), inset 0 0 16px rgba(255, 255, 255, 0.025) !important;
+  }
+
+  .home-feature-launch .animate-spin-slow,
+  .home-feature-launch .animate-pulse,
+  .home-feature-launch .group-hover\:animate-\[shimmer_2s_infinite\] {
+    animation-duration: 8s !important;
+  }
+
+  .home-feature-launch h2 {
+    line-height: 1.22 !important;
+  }
+
+  .home-feature-launch p {
+    line-height: 1.5 !important;
+  }
+
+  .fortune-card,
+  .number-fortune-card {
+    border-radius: 1.15rem !important;
+  }
+
+  .home-feature-launch:active,
+  .fortune-card:active,
+  .number-fortune-card:active,
+  .vip-gold-btn:active {
+    transform: scale(0.992) translateZ(0) !important;
+  }
+}
+
+.taiji-open-stage,
+.taiji-open-stage .unified-taiji-shell,
+.home-core-panel,
+.home-core-panel .taiji-standalone-card,
+.music-landing-taiji.taiji-open-stage,
+.number-fortune-taiji-card,
+.number-fortune-taiji-card .number-fortune-taiji-wrap {
+  overflow: visible !important;
+}
+
+.home-core-panel,
+.music-landing-hero .music-landing-taiji,
+.number-fortune-taiji-card {
+  isolation: isolate;
+}
+
+.taiji-open-stage .modal-taiji-button {
+  animation: taiji-living-body 7.6s ease-in-out infinite !important;
+  transform-origin: 50% 50%;
+}
+
+.taiji-open-stage .modal-taiji-orbit-emblem {
+  animation: taiji-living-disc 9.2s ease-in-out infinite !important;
+}
+
+.taiji-open-stage .modal-taiji-3d-core {
+  animation: taiji-living-core 6.4s ease-in-out infinite !important;
+}
+
+.taiji-open-stage .modal-taiji-3d-core--active,
+.taiji-open-stage .unified-taiji-shell:not([data-taiji-stage="idle"]) .modal-taiji-3d-core {
+  animation: taiji-living-core-awake 2.2s ease-in-out infinite !important;
+}
+
+.taiji-open-stage .taiji-light-orbit__head {
+  animation: taiji-star-breathe 3.8s ease-in-out infinite !important;
+}
+
+.taiji-open-stage .taiji-light-orbit--violet .taiji-light-orbit__head {
+  animation-delay: -1.2s !important;
+}
+
+.taiji-open-stage .taiji-light-orbit--gold .taiji-light-orbit__head {
+  animation-delay: -2.35s !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .modal-taiji-button {
+  color: #8fe7ee !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .modal-taiji-3d-core {
+  transform: translate(-50%, -50%) translateZ(31px) rotateX(9deg) scale(1) !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .modal-taiji-half--yin {
+  background:
+    radial-gradient(circle at 72% 76%, rgba(34, 211, 238, 0.11), transparent 34%),
+    linear-gradient(150deg, rgba(13, 21, 39, 1), rgba(2, 6, 23, 1) 58%, rgba(0, 0, 0, 1)) !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .modal-taiji-half--yang {
+  background:
+    radial-gradient(circle at 25% 16%, rgba(255, 255, 255, 0.88), transparent 22%),
+    linear-gradient(150deg, rgba(248, 250, 252, 0.96), rgba(226, 232, 240, 0.9) 48%, rgba(148, 163, 184, 0.76)) !important;
+}
+
+.unified-taiji-shell:not([data-taiji-stage="idle"]),
+.unified-taiji-shell:not([data-tap-level="0"]) {
+  --taiji-lucky-opacity: 0.42;
+}
+
+.unified-taiji-shell:not([data-taiji-stage="idle"]) .modal-taiji-natural-bloom,
+.unified-taiji-shell:not([data-tap-level="0"]) .modal-taiji-natural-bloom {
+  opacity: 0.48 !important;
+  filter: blur(18px) saturate(1.04) !important;
+}
+
+.unified-taiji-shell:not([data-taiji-stage="idle"]) .modal-taiji-ground-glow,
+.unified-taiji-shell:not([data-tap-level="0"]) .modal-taiji-ground-glow {
+  opacity: 0.36 !important;
+}
+
+.home-core-panel .taiji-standalone-card {
+  min-height: clamp(17.5rem, 78vw, 21.5rem) !important;
+}
+
+.home-core-panel .taiji-standalone-card .unified-taiji-shell {
+  min-height: clamp(16.75rem, 73vw, 20.5rem) !important;
+}
+
+.home-core-panel .modal-taiji-natural-bloom::after,
+.music-landing-taiji .modal-taiji-natural-bloom::after,
+.number-fortune-taiji-card .modal-taiji-natural-bloom::after {
+  content: '';
+  position: absolute;
+  inset: 22%;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 62%);
+  opacity: 0.28;
+  animation: taiji-soft-heartbeat 4.8s ease-in-out infinite;
+}
+
+@keyframes taiji-living-body {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  42% { transform: translate3d(0, -2px, 0) scale(1.006); }
+  68% { transform: translate3d(0, 1px, 0) scale(0.998); }
+}
+
+@keyframes taiji-living-disc {
+  0%, 100% { transform: rotateX(8deg) rotateY(-7deg) translateZ(0) scale(1); }
+  36% { transform: rotateX(10deg) rotateY(-3deg) translateZ(5px) scale(1.006); }
+  72% { transform: rotateX(7deg) rotateY(-9deg) translateZ(1px) scale(0.998); }
+}
+
+@keyframes taiji-living-core {
+  0%, 100% { transform: translate(-50%, -50%) translateZ(31px) rotateX(9deg) scale(1); }
+  45% { transform: translate(-50%, calc(-50% - 2px)) translateZ(38px) rotateX(12deg) scale(1.018); }
+  74% { transform: translate(-50%, calc(-50% + 1px)) translateZ(32px) rotateX(8deg) scale(0.996); }
+}
+
+@keyframes taiji-living-core-awake {
+  0%, 100% { transform: translate(-50%, -50%) translateZ(34px) rotateX(11deg) scale(1.012); }
+  50% { transform: translate(-50%, calc(-50% - 3px)) translateZ(44px) rotateX(15deg) scale(1.04); }
+}
+
+@keyframes taiji-star-breathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.62; }
+  46% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.84; }
+}
+
+@keyframes taiji-soft-heartbeat {
+  0%, 100% { transform: scale(0.92); opacity: 0.18; }
+  48% { transform: scale(1.08); opacity: 0.34; }
+}
+
+@media (max-width: 430px) {
+  .home-core-panel .taiji-standalone-card {
+    min-height: min(19.75rem, calc(100vw + 0.25rem)) !important;
+  }
+
+  .home-core-panel .taiji-standalone-card .unified-taiji-shell {
+    min-height: min(19rem, calc(100vw - 0.35rem)) !important;
+  }
+
+  .taiji-open-stage .modal-taiji-button {
+    animation-duration: 8.8s !important;
+  }
+
+  .taiji-open-stage .modal-taiji-orbit-emblem {
+    animation-duration: 10.5s !important;
+  }
+
+  .taiji-open-stage .modal-taiji-3d-core {
+    animation-duration: 7.6s !important;
+  }
+}
+
+
+/* Runtime smoothness governor: temporarily reduce decorative work while the user scrolls or the phone is under load. */
+body.app-scrolling,
+body.app-touching,
+body.app-stress-mode {
+  scroll-behavior: auto !important;
+}
+
+body.app-scrolling .starfield,
+body.app-scrolling .starfield::before,
+body.app-scrolling .starfield::after,
+body.app-scrolling .constellation-ring,
+body.app-scrolling .shooting-stars-container,
+body.app-scrolling .animate-pulse,
+body.app-scrolling .animate-bounce,
+body.app-scrolling .animate-ping,
+body.app-scrolling .shimmer-btn::after,
+body.app-scrolling .home-feature-launch::before,
+body.app-scrolling .home-feature-launch > .absolute.inset-0,
+body.app-scrolling .fortune-card::before,
+body.app-scrolling .vip-gold-card::before,
+body.app-scrolling .home-line-share-card::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+
+body.app-scrolling .taiji-open-stage .modal-taiji-button,
+body.app-scrolling .taiji-open-stage .modal-taiji-orbit-emblem,
+body.app-scrolling .taiji-open-stage .modal-taiji-3d-core,
+body.app-scrolling .taiji-open-stage .taiji-light-orbit,
+body.app-scrolling .taiji-open-stage .taiji-light-orbit__head,
+body.app-scrolling .taiji-open-stage .taiji-gold-wave,
+body.app-scrolling .taiji-open-stage .modal-taiji-natural-bloom::after {
+  animation-play-state: paused !important;
+}
+
+body.app-scrolling .fortune-card,
+body.app-scrolling .vip-gold-card,
+body.app-scrolling .home-feature-launch,
+body.app-scrolling .number-fortune-card,
+body.app-touching .fortune-card,
+body.app-touching .vip-gold-card,
+body.app-touching .home-feature-launch,
+body.app-touching .number-fortune-card {
+  filter: none !important;
+  transform: translateZ(0) !important;
+  box-shadow: 0 8px 20px rgba(2, 6, 23, 0.18), inset 0 0 10px rgba(255, 255, 255, 0.018) !important;
+}
+
+body.app-stress-mode .starfield::after,
+body.app-stress-mode .constellation-ring-bottom,
+body.app-stress-mode .shooting-stars-container,
+body.app-stress-mode .taiji-celestial-mist,
+body.app-stress-mode .taiji-celestial-wisp,
+body.app-stress-mode .modal-evolution-rays .modal-energy-ray:nth-child(n+5),
+body.app-stress-mode .taiji-gold-waves .taiji-gold-wave:nth-child(n+2) {
+  display: none !important;
+}
+
+body.app-stress-mode .modal-taiji-natural-bloom,
+body.app-stress-mode .modal-taiji-ground-glow,
+body.app-stress-mode .unified-evolution-screen,
+body.app-stress-mode .unified-evolution-pulse,
+body.app-stress-mode .modal-evolution-flare,
+body.app-stress-mode .modal-evolution-scan,
+body.app-stress-mode .modal-evolution-breath {
+  filter: none !important;
+  opacity: 0.18 !important;
+}
+
+body.app-stress-mode .modal-taiji-button .taiji-light-orbit::before,
+body.app-stress-mode .modal-taiji-button .taiji-light-orbit__head {
+  opacity: 0.42 !important;
+  box-shadow: 0 0 8px currentColor !important;
+}
+
+body.app-stress-mode .taiji-open-stage .modal-taiji-button,
+body.app-stress-mode .taiji-open-stage .modal-taiji-orbit-emblem,
+body.app-stress-mode .taiji-open-stage .modal-taiji-3d-core,
+body.app-stress-mode .taiji-open-stage .taiji-light-orbit__head {
+  animation-duration: 12s !important;
+}
+
+body.app-stress-mode .fortune-card,
+body.app-stress-mode .vip-gold-card,
+body.app-stress-mode .home-feature-launch,
+body.app-stress-mode .number-fortune-card,
+body.app-stress-mode [data-visitor-counter] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 8px 18px rgba(2, 6, 23, 0.16), inset 0 0 8px rgba(255, 255, 255, 0.016) !important;
+}
+
+@media (max-width: 640px) {
+  body.app-scrolling .home-trust-card,
+  body.app-scrolling .home-feature-launch,
+  body.app-scrolling .fortune-card,
+  body.app-scrolling .number-fortune-card,
+  body.app-touching .home-trust-card,
+  body.app-touching .home-feature-launch,
+  body.app-touching .fortune-card,
+  body.app-touching .number-fortune-card {
+    transition-duration: 0ms !important;
+  }
+
+  body.app-scrolling .home-feature-launch p,
+  body.app-scrolling .home-feature-launch span,
+  body.app-scrolling .home-feature-launch h2,
+  body.app-scrolling .fortune-card p,
+  body.app-scrolling .fortune-card span,
+  body.app-scrolling .fortune-card h2,
+  body.app-scrolling .fortune-card h3 {
+    text-shadow: none !important;
+    filter: none !important;
+  }
+}
+
+/* Natural Taiji glow pass: remove striped rays and keep a soft living aura. */
+.taiji-open-stage .unified-taiji-shell {
+  --taiji-lucky-ray: transparent;
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-3,
+.taiji-open-stage .unified-taiji-shell--lucky-6,
+.taiji-open-stage .unified-taiji-shell--lucky-8,
+.taiji-open-stage .unified-taiji-shell--lucky-12,
+.taiji-open-stage .unified-taiji-shell--lucky-24 {
+  --taiji-lucky-opacity: 0.28;
+  --taiji-lucky-glow: rgba(125, 211, 252, 0.22);
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-3::before,
+.taiji-open-stage .unified-taiji-shell--lucky-6::before,
+.taiji-open-stage .unified-taiji-shell--lucky-8::before,
+.taiji-open-stage .unified-taiji-shell--lucky-12::before,
+.taiji-open-stage .unified-taiji-shell--lucky-24::before {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.12), transparent 18%),
+    radial-gradient(ellipse at 48% 46%, var(--taiji-lucky-glow), transparent 58%),
+    radial-gradient(ellipse at 58% 60%, rgba(253, 230, 138, 0.12), transparent 66%) !important;
+  filter: blur(12px) saturate(1.02) !important;
+  mix-blend-mode: screen;
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-3::after,
+.taiji-open-stage .unified-taiji-shell--lucky-6::after,
+.taiji-open-stage .unified-taiji-shell--lucky-8::after,
+.taiji-open-stage .unified-taiji-shell--lucky-12::after,
+.taiji-open-stage .unified-taiji-shell--lucky-24::after {
+  background:
+    radial-gradient(ellipse at 50% 52%, rgba(255, 255, 255, 0.08), transparent 26%),
+    radial-gradient(ellipse at 46% 50%, rgba(34, 211, 238, 0.13), transparent 62%),
+    radial-gradient(ellipse at 58% 58%, rgba(253, 230, 138, 0.1), transparent 70%) !important;
+  filter: blur(16px) saturate(0.98) !important;
+  mix-blend-mode: screen;
+}
+
+.taiji-open-stage .unified-taiji-shell--lucky-24::before {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.14), transparent 20%),
+    radial-gradient(ellipse at 48% 47%, rgba(255, 231, 138, 0.24), transparent 58%),
+    radial-gradient(ellipse at 56% 58%, rgba(125, 211, 252, 0.16), transparent 68%) !important;
+}
+
+.modal-taiji-button .modal-taiji-orbit-emblem::after {
+  background:
+    radial-gradient(ellipse at 42% 34%, rgba(255, 255, 255, 0.07), transparent 22%),
+    radial-gradient(ellipse at 58% 64%, rgba(34, 211, 238, 0.06), transparent 58%),
+    radial-gradient(circle, transparent 62%, rgba(255, 255, 255, 0.05) 74%, transparent 82%) !important;
+}
+
+.unified-taiji-shell:not([data-taiji-stage="idle"]) .taiji-light-orbit::before,
+.unified-taiji-shell:not([data-tap-level="0"]) .taiji-light-orbit::before,
+.modal-taiji-button .taiji-light-orbit::before {
+  opacity: 0.12 !important;
+  filter: blur(2px) !important;
+}
+
+.unified-taiji-shell:not([data-taiji-stage="idle"]) .taiji-gold-wave,
+.unified-taiji-shell:not([data-tap-level="0"]) .taiji-gold-wave,
+.modal-taiji-button .taiji-gold-wave {
+  border-color: rgba(253, 230, 138, 0.12) !important;
+  box-shadow: 0 0 18px rgba(253, 230, 138, 0.08) !important;
+  opacity: 0.18 !important;
+}
+
+.taiji-touch-ripple {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.1), transparent 24%),
+    radial-gradient(ellipse at 48% 50%, rgba(34, 211, 238, 0.14), transparent 62%),
+    radial-gradient(ellipse at 58% 58%, rgba(253, 230, 138, 0.12), transparent 72%) !important;
+  filter: blur(13px) saturate(0.98) !important;
+}
+
+@keyframes taiji-auspicious-rays {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.38);
+  }
+  24% {
+    opacity: var(--taiji-lucky-opacity);
+  }
+  72% {
+    opacity: calc(var(--taiji-lucky-opacity) * 0.42);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+}
+
+@keyframes taiji-auspicious-halo {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  30% {
+    opacity: calc(var(--taiji-lucky-opacity) * 0.72);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
+/* Taiji three-orb depth pass: make the three lights feel like soft 3D gems, not flat rays. */
+.modal-taiji-button .taiji-light-orbit__head {
+  --taiji-orb-core: rgba(255, 255, 255, 0.96);
+  --taiji-orb-mid: currentColor;
+  --taiji-orb-edge: rgba(255, 255, 255, 0.1);
+  --taiji-orb-glow: currentColor;
+  isolation: isolate;
+  overflow: visible;
+  background:
+    radial-gradient(circle at 33% 27%, var(--taiji-orb-core) 0 12%, rgba(255, 255, 255, 0.58) 13% 20%, transparent 21%),
+    radial-gradient(circle at 58% 62%, var(--taiji-orb-mid) 0 34%, rgba(255, 255, 255, 0.18) 52%, transparent 74%),
+    radial-gradient(circle at 42% 38%, rgba(255, 255, 255, 0.22), transparent 58%) !important;
+  box-shadow:
+    inset -3px -4px 7px rgba(0, 0, 0, 0.34),
+    inset 2px 2px 5px rgba(255, 255, 255, 0.42),
+    0 0 10px var(--taiji-orb-glow),
+    0 0 24px color-mix(in srgb, var(--taiji-orb-glow) 72%, transparent),
+    0 9px 18px rgba(0, 0, 0, 0.28) !important;
+  filter: saturate(1.08) contrast(1.04) !important;
+  transform: translate(-50%, -50%) translateZ(0) scale(1);
+}
+
+.modal-taiji-button .taiji-light-orbit__head::before,
+.modal-taiji-button .taiji-light-orbit__head::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.modal-taiji-button .taiji-light-orbit__head::before {
+  inset: 16% 18% auto auto;
+  width: 33%;
+  height: 33%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.28) 48%, transparent 72%);
+  filter: blur(0.2px);
+  opacity: 0.86;
+  z-index: 2;
+}
+
+.modal-taiji-button .taiji-light-orbit__head::after {
+  inset: -72%;
+  z-index: -1;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--taiji-orb-glow) 38%, transparent), transparent 58%),
+    radial-gradient(ellipse at 50% 60%, rgba(255, 255, 255, 0.08), transparent 66%);
+  filter: blur(7px);
+  opacity: 0.72;
+}
+
+.modal-taiji-button .taiji-light-orbit--cyan .taiji-light-orbit__head {
+  --taiji-orb-mid: #67e8f9;
+  --taiji-orb-glow: rgba(103, 232, 249, 0.88);
+}
+
+.modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head {
+  --taiji-orb-mid: #d8b4fe;
+  --taiji-orb-glow: rgba(216, 180, 254, 0.76);
+}
+
+.modal-taiji-button .taiji-light-orbit--gold .taiji-light-orbit__head {
+  --taiji-orb-mid: #fde68a;
+  --taiji-orb-glow: rgba(253, 230, 138, 0.9);
+}
+
+.taiji-open-stage .taiji-light-orbit__head {
+  animation: taiji-orbital-gem-breathe 4.4s ease-in-out infinite !important;
+}
+
+.taiji-open-stage .taiji-light-orbit--violet .taiji-light-orbit__head {
+  animation-delay: -1.45s !important;
+}
+
+.taiji-open-stage .taiji-light-orbit--gold .taiji-light-orbit__head {
+  animation-delay: -2.85s !important;
+}
+
+.modal-taiji-button .taiji-light-orbit::before {
+  opacity: 0.08 !important;
+  filter: blur(2.5px) saturate(0.9) !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit__head {
+  opacity: 0.78 !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--violet .taiji-light-orbit__head {
+  width: 17px !important;
+  height: 17px !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--gold .taiji-light-orbit__head {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+@keyframes taiji-orbital-gem-breathe {
+  0%, 100% {
+    opacity: 0.68;
+    transform: translate(-50%, -50%) translateZ(0) scale(0.94);
+  }
+  46% {
+    opacity: 0.92;
+    transform: translate(-50%, -50%) translateZ(0) scale(1.08);
+  }
+  70% {
+    opacity: 0.78;
+    transform: translate(-50%, -50%) translateZ(0) scale(1.01);
+  }
+}
+
+@media (max-width: 430px) {
+  .modal-taiji-button .taiji-light-orbit__head::after {
+    inset: -58%;
+    filter: blur(5px);
+    opacity: 0.62;
+  }
+
+  .modal-taiji-button .taiji-light-orbit::before {
+    opacity: 0.055 !important;
+  }
+}
+
+/* Taiji violet orbit restore: keep the purple 360-degree companion light visible and dimensional. */
+.modal-taiji-button .taiji-light-orbit--violet {
+  z-index: 5 !important;
+  opacity: 1 !important;
+  border-color: rgba(216, 180, 254, 0.16) !important;
+  box-shadow:
+    inset 0 0 10px rgba(167, 139, 250, 0.08),
+    0 0 18px rgba(167, 139, 250, 0.08) !important;
+}
+
+.modal-taiji-button .taiji-light-orbit--violet::before {
+  opacity: 0.18 !important;
+  background:
+    conic-gradient(
+      from 198deg,
+      transparent 0deg 178deg,
+      rgba(167, 139, 250, 0.03) 220deg,
+      rgba(216, 180, 254, 0.34) 302deg,
+      rgba(255, 255, 255, 0.16) 330deg,
+      transparent 360deg
+    ) !important;
+  filter: blur(1.6px) drop-shadow(0 0 10px rgba(167, 139, 250, 0.22)) !important;
+}
+
+.modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head {
+  --taiji-orb-mid: #d8b4fe;
+  --taiji-orb-glow: rgba(216, 180, 254, 0.92);
+  color: #d8b4fe !important;
+  width: 21px !important;
+  height: 21px !important;
+  opacity: 0.9 !important;
+  box-shadow:
+    inset -3px -4px 7px rgba(24, 15, 43, 0.4),
+    inset 2px 2px 6px rgba(255, 255, 255, 0.48),
+    0 0 11px rgba(216, 180, 254, 0.92),
+    0 0 28px rgba(167, 139, 250, 0.52),
+    0 0 44px rgba(109, 40, 217, 0.28),
+    0 10px 18px rgba(0, 0, 0, 0.3) !important;
+}
+
+.modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head::after {
+  inset: -88% !important;
+  background:
+    radial-gradient(circle, rgba(216, 180, 254, 0.34), transparent 48%),
+    radial-gradient(ellipse at 50% 60%, rgba(255, 255, 255, 0.1), transparent 66%) !important;
+  filter: blur(8px) !important;
+  opacity: 0.82 !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--violet {
+  inset: -4px 15px !important;
+  opacity: 1 !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--violet::before {
+  opacity: 0.14 !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--violet .taiji-light-orbit__head {
+  width: 20px !important;
+  height: 20px !important;
+  opacity: 0.88 !important;
+}
+
+body.app-stress-mode .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head,
+body.app-scrolling .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head {
+  opacity: 0.72 !important;
+  box-shadow:
+    inset -2px -3px 6px rgba(24, 15, 43, 0.34),
+    0 0 10px rgba(216, 180, 254, 0.62),
+    0 0 20px rgba(167, 139, 250, 0.28) !important;
+}
+
+@media (max-width: 430px) {
+  .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head {
+    width: 19px !important;
+    height: 19px !important;
+  }
+
+  .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head::after {
+    inset: -68% !important;
+    filter: blur(6px) !important;
+  }
+}
+
+/* Taiji natural click aura pass: replace ray bursts with soft volumetric bloom. */
+.modal-evolution-rays {
+  inset: -78px !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  filter: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+.modal-evolution-rays .modal-energy-ray {
+  display: none !important;
+}
+
+.modal-evolution-rays::before,
+.modal-evolution-rays::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+}
+
+.modal-evolution-rays::before {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.16), transparent 18%),
+    radial-gradient(ellipse at 48% 46%, rgba(125, 211, 252, 0.2), transparent 52%),
+    radial-gradient(ellipse at 60% 58%, rgba(253, 230, 138, 0.14), transparent 64%),
+    radial-gradient(ellipse at 40% 62%, rgba(216, 180, 254, 0.1), transparent 68%);
+  filter: blur(16px) saturate(1.04);
+  animation: taiji-natural-bloom-release 2.55s cubic-bezier(0.18, 0.68, 0.2, 1) both;
+}
+
+.modal-evolution-rays::after {
+  inset: 10%;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.1), transparent 24%),
+    radial-gradient(ellipse at 45% 52%, rgba(34, 211, 238, 0.16), transparent 62%),
+    radial-gradient(ellipse at 58% 56%, rgba(251, 191, 36, 0.12), transparent 70%);
+  filter: blur(22px) saturate(0.96);
+  animation: taiji-natural-inner-release 2.15s ease-out both;
+}
+
+.modal-taiji-button > div[class*="conic-gradient"] {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.1), transparent 24%),
+    radial-gradient(ellipse at 48% 46%, rgba(125, 211, 252, 0.13), transparent 58%),
+    radial-gradient(ellipse at 58% 58%, rgba(253, 230, 138, 0.12), transparent 70%) !important;
+  filter: blur(18px) saturate(0.98) !important;
+  opacity: 0.34 !important;
+  animation: taiji-natural-aura-drift 8.8s ease-in-out infinite !important;
+}
+
+@keyframes taiji-natural-bloom-release {
+  0% {
+    opacity: 0;
+    transform: scale(0.46);
+  }
+  28% {
+    opacity: 0.56;
+  }
+  68% {
+    opacity: 0.24;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes taiji-natural-inner-release {
+  0% {
+    opacity: 0;
+    transform: scale(0.52);
+  }
+  35% {
+    opacity: 0.44;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes taiji-natural-aura-drift {
+  0%, 100% {
+    opacity: 0.26;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.38;
+    transform: scale(1.04);
+  }
+}
+
+@media (max-width: 430px) {
+  .modal-evolution-rays {
+    inset: -62px !important;
+  }
+
+  .modal-evolution-rays::before {
+    filter: blur(13px) saturate(0.98);
+  }
+
+  .modal-evolution-rays::after {
+    filter: blur(17px) saturate(0.94);
+  }
+
+  .modal-taiji-button > div[class*="conic-gradient"] {
+    filter: blur(14px) saturate(0.95) !important;
+    opacity: 0.26 !important;
+  }
+}
+
+/* Taiji mobile violet companion fix: never hide the purple orbit point in LINE/mobile mode. */
+body.app-lite-effects .modal-taiji-button .taiji-light-orbit--violet,
+body.app-mobile-device .modal-taiji-button .taiji-light-orbit--violet,
+body.app-social-browser .modal-taiji-button .taiji-light-orbit--violet {
+  display: block !important;
+  visibility: visible !important;
+  z-index: 7 !important;
+  opacity: 1 !important;
+  border-color: rgba(216, 180, 254, 0.18) !important;
+  box-shadow:
+    inset 0 0 9px rgba(167, 139, 250, 0.1),
+    0 0 18px rgba(167, 139, 250, 0.1) !important;
+}
+
+body.app-lite-effects .modal-taiji-button .taiji-light-orbit--violet::before,
+body.app-mobile-device .modal-taiji-button .taiji-light-orbit--violet::before,
+body.app-social-browser .modal-taiji-button .taiji-light-orbit--violet::before {
+  display: block !important;
+  opacity: 0.2 !important;
+  background:
+    radial-gradient(ellipse at 50% 10%, rgba(216, 180, 254, 0.3), transparent 18%),
+    conic-gradient(from 205deg, transparent 0deg 185deg, rgba(167, 139, 250, 0.05) 226deg, rgba(216, 180, 254, 0.32) 310deg, rgba(255, 255, 255, 0.12) 334deg, transparent 360deg) !important;
+  filter: blur(1.8px) drop-shadow(0 0 9px rgba(167, 139, 250, 0.2)) !important;
+}
+
+body.app-lite-effects .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head,
+body.app-mobile-device .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head,
+body.app-social-browser .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head {
+  display: block !important;
+  visibility: visible !important;
+  width: 21px !important;
+  height: 21px !important;
+  opacity: 0.94 !important;
+  color: #d8b4fe !important;
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.98) 0 12%, rgba(255, 255, 255, 0.62) 13% 21%, transparent 22%),
+    radial-gradient(circle at 58% 62%, #d8b4fe 0 36%, rgba(216, 180, 254, 0.36) 54%, transparent 76%) !important;
+  box-shadow:
+    inset -3px -4px 7px rgba(24, 15, 43, 0.42),
+    inset 2px 2px 6px rgba(255, 255, 255, 0.5),
+    0 0 12px rgba(216, 180, 254, 0.92),
+    0 0 30px rgba(167, 139, 250, 0.56),
+    0 0 48px rgba(109, 40, 217, 0.3) !important;
+  animation: taiji-orbital-gem-breathe 4.2s ease-in-out infinite !important;
+}
+
+body.app-lite-effects .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head::before,
+body.app-lite-effects .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head::after,
+body.app-mobile-device .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head::before,
+body.app-mobile-device .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head::after,
+body.app-social-browser .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head::before,
+body.app-social-browser .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head::after {
+  display: block !important;
+  visibility: visible !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--violet {
+  animation: taiji-orbit-violet 9.4s linear infinite !important;
+}
+
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit--violet .taiji-light-orbit__head {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 0.94 !important;
+}
+
+@media (max-width: 430px) {
+  body.app-lite-effects .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head,
+  body.app-mobile-device .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head,
+  body.app-social-browser .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head {
+    width: 20px !important;
+    height: 20px !important;
+  }
+}
+
+/* Mobile scroll rescue: keep Taiji premium at rest, but unload heavy glow while the user scrolls. */
+body.app-scrolling .modal-taiji-button,
+body.app-touching .modal-taiji-button,
+body.app-scrolling .modal-taiji-orbit-emblem,
+body.app-touching .modal-taiji-orbit-emblem,
+body.app-scrolling .modal-taiji-3d-core,
+body.app-touching .modal-taiji-3d-core,
+body.app-scrolling .taiji-light-orbit,
+body.app-touching .taiji-light-orbit,
+body.app-scrolling .taiji-light-orbit__head,
+body.app-touching .taiji-light-orbit__head,
+body.app-scrolling .modal-evolution-orbit,
+body.app-touching .modal-evolution-orbit,
+body.app-scrolling .modal-evolution-rays,
+body.app-touching .modal-evolution-rays,
+body.app-scrolling .taiji-touch-ripple,
+body.app-touching .taiji-touch-ripple {
+  animation-play-state: paused !important;
+  transition-duration: 0ms !important;
+}
+
+body.app-scrolling .modal-taiji-natural-bloom,
+body.app-touching .modal-taiji-natural-bloom,
+body.app-scrolling .modal-taiji-ground-glow,
+body.app-touching .modal-taiji-ground-glow,
+body.app-scrolling .modal-evolution-rays::before,
+body.app-touching .modal-evolution-rays::before,
+body.app-scrolling .modal-evolution-rays::after,
+body.app-touching .modal-evolution-rays::after,
+body.app-scrolling .taiji-touch-ripple,
+body.app-touching .taiji-touch-ripple,
+body.app-scrolling .taiji-open-stage .unified-taiji-shell::before,
+body.app-touching .taiji-open-stage .unified-taiji-shell::before,
+body.app-scrolling .taiji-open-stage .unified-taiji-shell::after,
+body.app-touching .taiji-open-stage .unified-taiji-shell::after,
+body.app-scrolling .modal-taiji-button > div[class*="conic-gradient"],
+body.app-touching .modal-taiji-button > div[class*="conic-gradient"] {
+  opacity: 0 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  animation: none !important;
+}
+
+body.app-scrolling .modal-taiji-button .taiji-light-orbit::before,
+body.app-touching .modal-taiji-button .taiji-light-orbit::before,
+body.app-scrolling .modal-taiji-button .taiji-light-orbit__head::after,
+body.app-touching .modal-taiji-button .taiji-light-orbit__head::after {
+  opacity: 0.18 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+body.app-scrolling .modal-taiji-button .taiji-light-orbit__head,
+body.app-touching .modal-taiji-button .taiji-light-orbit__head {
+  filter: none !important;
+  box-shadow: 0 0 8px currentColor !important;
+  will-change: auto !important;
+}
+
+body.app-scrolling .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head,
+body.app-touching .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head,
+body.app-stress-mode .modal-taiji-button .taiji-light-orbit--violet .taiji-light-orbit__head {
+  display: block !important;
+  opacity: 0.68 !important;
+  box-shadow: 0 0 8px rgba(216, 180, 254, 0.62) !important;
+  animation-play-state: paused !important;
+}
+
+body.app-scrolling .modal-taiji-button .taiji-gold-wave,
+body.app-touching .modal-taiji-button .taiji-gold-wave,
+body.app-scrolling .modal-taiji-button .taiji-celestial-wisp,
+body.app-touching .modal-taiji-button .taiji-celestial-wisp,
+body.app-scrolling .modal-taiji-button .taiji-celestial-mist,
+body.app-touching .modal-taiji-button .taiji-celestial-mist {
+  opacity: 0 !important;
+  filter: none !important;
+  animation: none !important;
+}
+
+body.app-scrolling .home-trust-card,
+body.app-touching .home-trust-card,
+body.app-scrolling .home-feature-launch,
+body.app-touching .home-feature-launch,
+body.app-scrolling .fortune-card,
+body.app-touching .fortune-card,
+body.app-scrolling .vip-gold-card,
+body.app-touching .vip-gold-card,
+body.app-scrolling .number-fortune-card,
+body.app-touching .number-fortune-card,
+body.app-scrolling [data-visitor-counter],
+body.app-touching [data-visitor-counter] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  box-shadow: 0 8px 18px rgba(2, 6, 23, 0.16) !important;
+  transform: none !important;
+}
+
+body.app-scrolling .home-feature-launch::before,
+body.app-touching .home-feature-launch::before,
+body.app-scrolling .fortune-card::before,
+body.app-touching .fortune-card::before,
+body.app-scrolling .vip-gold-card::before,
+body.app-touching .vip-gold-card::before,
+body.app-scrolling .home-trust-card::before,
+body.app-touching .home-trust-card::before,
+body.app-scrolling .home-trust-card::after,
+body.app-touching .home-trust-card::after {
+  opacity: 0 !important;
+  animation: none !important;
+  filter: none !important;
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+  .modal-taiji-button,
+  .modal-taiji-orbit-emblem,
+  .modal-taiji-3d-core,
+  .taiji-light-orbit,
+  .taiji-light-orbit__head {
+    backface-visibility: hidden;
+    transform-style: flat !important;
+  }
+
+  .modal-evolution-rays::before {
+    filter: blur(9px) saturate(0.96) !important;
+  }
+
+  .modal-evolution-rays::after {
+    filter: blur(12px) saturate(0.92) !important;
+  }
+
+  .modal-taiji-button .taiji-light-orbit__head::after {
+    filter: blur(4px) !important;
+    opacity: 0.48 !important;
+  }
+}
+/* Music copy polish: mobile-first title rhythm for the AI song flow. */
+.home-music-title {
+  display: flex;
+  max-width: 100%;
+  flex-direction: column;
+  gap: 0.12rem;
+  font-size: 1.08rem;
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.home-music-title-line {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.home-music-title-line--soft {
+  color: rgba(221, 214, 254, 0.88);
+}
+
+.home-music-copy {
+  max-width: 34rem;
+  line-height: 1.55;
+}
+
+.home-music-cta {
+  margin-left: auto;
+  min-height: 2.65rem;
+  white-space: nowrap;
+}
+
+.music-landing-copy {
+  width: min(100%, 32rem);
+  margin-top: -0.1rem;
+  text-align: center;
+}
+
+.music-landing-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  background: rgba(109, 40, 217, 0.14);
+  padding: 0.38rem 0.78rem;
+  color: rgba(221, 214, 254, 0.92);
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.08em;
+}
+
+.music-landing-title {
+  margin-top: 0.68rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.18rem;
+  color: var(--text-main);
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size: 1.78rem;
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: 0;
+  text-wrap: balance;
+  text-shadow: 0 0 24px rgba(167, 139, 250, 0.18);
+}
+
+.music-landing-title-line {
+  display: block;
+  max-width: 100%;
+}
+
+.music-landing-title-line--accent {
+  color: rgb(221, 214, 254);
+}
+
+.music-landing-subcopy {
+  margin: 0.75rem auto 0;
+  max-width: 28rem;
+  color: var(--text-sub);
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.75;
+  letter-spacing: 0;
+}
+
+@media (min-width: 640px) {
+  .home-music-title {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    font-size: 1.5rem;
+    line-height: 1.18;
+  }
+
+  .music-landing-title {
+    font-size: 2.45rem;
+    line-height: 1.06;
+  }
+
+  .music-landing-subcopy {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-feature-violet {
+    align-items: stretch;
+  }
+
+  .home-music-cta {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+    padding-block: 0.78rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .music-landing-copy {
+    width: min(100%, 21rem);
+    margin-top: -0.35rem;
+  }
+
+  .music-landing-title {
+    margin-top: 0.58rem;
+    font-size: 1.56rem;
+    line-height: 1.1;
+  }
+
+  .music-landing-subcopy {
+    margin-top: 0.62rem;
+    font-size: 0.78rem;
+    line-height: 1.65;
+  }
+
+  .music-landing-eyebrow {
+    padding: 0.34rem 0.66rem;
+    font-size: 0.62rem;
+  }
+}
+.music-form-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  font-size: 1.42rem;
+  font-weight: 900;
+  line-height: 1.16;
+  letter-spacing: 0;
+}
+
+.music-form-title span {
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .music-form-title {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    font-size: 1.75rem;
+  }
+}

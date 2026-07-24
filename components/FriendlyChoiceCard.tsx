@@ -63,7 +63,7 @@ export default function FriendlyChoiceCard({
     >
       <span className="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-white/45 to-transparent" />
       <span className="relative z-10 flex items-start justify-between gap-3">
-        <span>
+        <span className="min-w-0">
           <span className="block text-base font-black">{title}</span>
           {description && <span className="mt-1.5 block text-xs leading-5 text-[color:var(--text-sub)]">{description}</span>}
         </span>

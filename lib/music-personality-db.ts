@@ -1,6 +1,6 @@
 /**
- * 天地人 AI 人格音樂系統 - 數據庫
- * 所有資料來源用固定參數表達，不直接產生歌曲
+ * ?剜?謓菟?AI ?剔捂赯?????蝯?- ?鞊???
+ * ??????謕?????蝞???塗?萄????皝??嚗??謆?
  */
 
 export interface MusicGenreProfile {
@@ -12,8 +12,8 @@ export interface MusicGenreProfile {
   instrumentTimbre: string;
 }
 
-// 年代音樂資料庫（年代 → 音樂風格參數）
-// 數據來源：全球百萬首暢銷曲 BPM、編曲分析統計（1950s-2020s）
+// ?葛隤??????冽??葛隤???????詨赯??塗??
+// ?鞊?????城???畸足?蟡??嚚???BPM?蹓賣????????殷??1950s-2020s??
 export const EraDatabase: Record<string, MusicGenreProfile> = {
   "1950s": {
     era: "1950s",
@@ -81,7 +81,7 @@ export const EraDatabase: Record<string, MusicGenreProfile> = {
   },
 };
 
-// 星座人格資料庫（星座 → 人格參數）
+// ?賹慫?剔捂赯菟????冽??賹慫 ???剔捂赯??塗??
 export const ZodiacPersonalityMap: Record<string, Record<string, number>> = {
   "Aries": { emotion: 70, logic: 65, social: 85, leadership: 90, security: 55, creativity: 75, risk: 85, attachment: 60 },
   "Taurus": { emotion: 60, logic: 75, social: 65, leadership: 60, security: 95, creativity: 70, risk: 40, attachment: 85 },
@@ -97,43 +97,43 @@ export const ZodiacPersonalityMap: Record<string, Record<string, number>> = {
   "Pisces": { emotion: 95, logic: 50, social: 70, leadership: 55, security: 65, creativity: 95, risk: 50, attachment: 85 },
 };
 
-// 生日人格資料庫（31 天完整覆蓋）
-// 數據模型：日期數字能量 × 全球心理統計傾向加權
+// ?賹??剔捂赯菟????冽?31 ?剜???皜????
+// ?鞊????垮謑?賹?殉????? ????對??舀０?????蹎?
 export const BirthdayPersonalityMap: Record<number, Partial<Record<string, number>>> = {
-  1:  { leadership: 6, creativity: 4, risk: 2 },          // 領頭者，獨創先行
-  2:  { attachment: 6, emotion: 5, social: 3 },            // 合作者，感情細膩
-  3:  { creativity: 7, social: 5, emotion: 3 },            // 表達者，創意外放
-  4:  { logic: 6, security: 5, leadership: 2 },            // 建構者，穩固踏實
-  5:  { risk: 7, social: 5, creativity: 4 },               // 冒險者，求新求變
-  6:  { attachment: 7, security: 5, emotion: 4 },          // 守護者，溫暖包容
-  7:  { logic: 7, creativity: 5, security: 3 },            // 探索者，理性深邃
-  8:  { leadership: 8, logic: 5, risk: 3 },                // 掌舵者，目標強烈
-  9:  { emotion: 7, creativity: 6, social: 4 },            // 理想者，人道關懷
-  10: { leadership: 6, creativity: 5, social: 4 },         // 整合者，自信引領
-  11: { emotion: 8, creativity: 7, attachment: 4 },        // 靈性者，直覺敏銳
-  12: { creativity: 6, social: 6, emotion: 4 },            // 表演者，魅力四射
-  13: { logic: 6, security: 6, leadership: 3 },            // 實踐者，專注落地
-  14: { risk: 6, creativity: 5, social: 4 },               // 探索者，不安於室
-  15: { leadership: 5, social: 5, attachment: 3 },         // 平衡者，人脈廣泛
-  16: { logic: 7, security: 5, creativity: 3 },            // 分析者，謹慎周全
-  17: { leadership: 7, logic: 5, risk: 4 },                // 策略者，意志堅定
-  18: { emotion: 6, creativity: 5, social: 4 },            // 影響者，直覺精準
-  19: { leadership: 7, risk: 5, creativity: 4 },           // 先鋒者，獨立果決
-  20: { attachment: 7, emotion: 6, social: 4 },            // 感受者，高度共情
-  21: { social: 7, creativity: 6, emotion: 4 },            // 傳播者，樂觀開朗
-  22: { logic: 7, leadership: 6, security: 4 },            // 建築師，宏觀藍圖
-  23: { risk: 6, creativity: 6, social: 5 },               // 自由者，多元嘗試
-  24: { attachment: 7, security: 6, emotion: 4 },          // 療癒者，責任感強
-  25: { logic: 6, creativity: 6, security: 4 },            // 直覺者，靈性敏感
-  26: { leadership: 6, logic: 5, attachment: 4 },          // 實現者，夢想務實
-  27: { creativity: 8, emotion: 6, logic: 4 },             // 藝術者，靈魂深厚
-  28: { leadership: 6, attachment: 5, emotion: 4 },        // 行動者，果敢溫情
-  29: { emotion: 8, creativity: 6, attachment: 5 },        // 敏感者，靈性豐沛
-  30: { social: 7, creativity: 6, leadership: 4 },         // 社交者，舞台天賦
-  31: { logic: 6, leadership: 6, security: 5 },            // 完成者，踏實收穫
+  1:  { leadership: 6, creativity: 4, risk: 2 },          // ?謢綜髡?????賂???
+  2:  { attachment: 6, emotion: 5, social: 3 },            // ???????賹?????
+  3:  { creativity: 7, social: 5, emotion: 3 },            // ?萄????????叟■??
+  4:  { logic: 6, security: 5, leadership: 2 },            // ?梁捂??????謆ａ?梁?
+  5:  { risk: 7, social: 5, creativity: 4 },               // ??玥?????謘?蹇?
+  6:  { attachment: 7, security: 5, emotion: 4 },          // ?堆?憸???????舀?
+  7:  { logic: 7, creativity: 5, security: 3 },            // ?嚗寞??????單???
+  8:  { leadership: 8, logic: 5, risk: 3 },                // ??踝??????????
+  9:  { emotion: 7, creativity: 6, social: 4 },            // ???????剔硃??謚恬
+  10: { leadership: 6, creativity: 5, social: 4 },         // ?皜??????舐???
+  11: { emotion: 8, creativity: 7, attachment: 4 },        // ???純???皜脫香??蛛?
+  12: { creativity: 6, social: 6, emotion: 4 },            // ?萄?????喉??謜?
+  13: { logic: 6, security: 6, leadership: 3 },            // ?正????????鞈ｆ秘
+  14: { risk: 6, creativity: 5, social: 4 },               // ?嚗寞???????瞉?
+  15: { leadership: 5, social: 5, attachment: 3 },         // ?儮????剔?????
+  16: { logic: 7, security: 5, creativity: 3 },            // ???????????賂
+  17: { leadership: 7, logic: 5, risk: 4 },                // ?▽??????????
+  18: { emotion: 6, creativity: 5, social: 4 },            // ?嗆╰貔????皜脫香??
+  19: { leadership: 7, risk: 5, creativity: 4 },           // ??????????謚急
+  20: { attachment: 7, emotion: 6, social: 4 },            // ?賹?????朱瞍???
+  21: { social: 7, creativity: 6, emotion: 4 },            // ??殉??????????
+  22: { logic: 7, leadership: 6, security: 4 },            // ?梁??????堊????
+  23: { risk: 6, creativity: 6, social: 5 },               // ??堊?????叟城??謅疵
+  24: { attachment: 7, security: 6, emotion: 4 },          // ?蹇????????賹
+  25: { logic: 6, creativity: 6, security: 4 },            // ?皜脫香?????????
+  26: { leadership: 6, logic: 5, attachment: 4 },          // ?﹝?????哨撓??謕?
+  27: { creativity: 8, emotion: 6, logic: 4 },             // ?豲??????????
+  28: { leadership: 6, attachment: 5, emotion: 4 },        // ?蛛?????謚恃???
+  29: { emotion: 8, creativity: 6, attachment: 5 },        // ????????????
+  30: { social: 7, creativity: 6, leadership: 4 },         // ?瑟?瞍????豯止?剜??
+  31: { logic: 6, leadership: 6, security: 5 },            // ?堆?????佇蟡??亙?
 };
 
-// 血型行為資料庫
+// ?肅????蝞??謕?
 export const BloodTypeMap: Record<string, Record<string, number>> = {
   "A": { logic: 80, security: 85, creativity: 65, risk: 40, social: 70, leadership: 55, attachment: 75, emotion: 60 },
   "B": { creativity: 85, risk: 80, social: 75, emotion: 70, logic: 60, leadership: 70, attachment: 55, security: 50 },
@@ -141,53 +141,53 @@ export const BloodTypeMap: Record<string, Record<string, number>> = {
   "O": { leadership: 85, social: 85, emotion: 75, risk: 75, logic: 65, creativity: 70, attachment: 70, security: 65 },
 };
 
-// 姓名語意資料庫（筆畫數 → 人格傾向）
-// 數據模型：漢字筆畫能量學 × 命理統計 × 語音心理學加權
+// ?軋??止等????冽?????????剔捂赯?????
+// ?鞊????垮?唳謅???剁???梢? ? ?鞈??舀０? ? ?止筐貔???株岳???
 export const NameSemanticMap: Record<number, Record<string, number>> = {
-  1:  { creativity: 10, leadership: 8, risk: 4 },          // 極簡力量，開創獨立
-  2:  { attachment: 8, social: 6, emotion: 4 },            // 陰陽平衡，合作感強
-  3:  { creativity: 8, social: 7, emotion: 5 },            // 表達天賦，樂觀外放
-  4:  { security: 8, logic: 6, leadership: 4 },            // 地基穩固，務實嚴謹
-  5:  { social: 8, leadership: 6, creativity: 4 },         // 五行均衡，適應力強
-  6:  { attachment: 9, security: 7, emotion: 5 },          // 責任守護，溫暖家庭
-  7:  { logic: 9, creativity: 7, security: 4 },            // 精神探索，神秘智慧
-  8:  { leadership: 9, logic: 6, risk: 5 },                // 財富磁場，志向宏遠
-  9:  { creativity: 9, emotion: 7, social: 5 },            // 理想完成，藝術感知
-  10: { logic: 7, security: 6, emotion: 5 },               // 圓滿歸零，再出發
-  11: { emotion: 9, creativity: 8, attachment: 5 },        // 靈性直覺，超然感知
-  12: { creativity: 7, social: 7, emotion: 5 },            // 魅力擔當，舞台天賦
-  13: { leadership: 8, logic: 6, security: 5 },            // 智勇雙全，果敢決策
-  14: { risk: 8, creativity: 6, social: 5 },               // 變化求新，不甘平凡
-  15: { social: 9, leadership: 7, attachment: 5 },         // 人望極高，福德廣布
-  16: { logic: 8, attachment: 7, security: 5 },            // 洞察人心，謀略深遠
-  17: { leadership: 9, logic: 7, risk: 5 },                // 剛毅進取，開拓先鋒
-  18: { logic: 8, leadership: 6, creativity: 5 },          // 分析深刻，影響力強
-  19: { risk: 8, leadership: 7, creativity: 5 },           // 開創孤高，自我突破
-  20: { emotion: 9, attachment: 8, social: 4 },            // 敏感豐沛，感受力深
-  21: { leadership: 8, creativity: 7, social: 6 },         // 首領天賦，魅力展現
-  22: { logic: 9, security: 7, leadership: 5 },            // 大師藍圖，系統建構
-  23: { creativity: 9, social: 7, risk: 5 },               // 太陽活力，光彩照人
-  24: { attachment: 9, security: 7, emotion: 5 },          // 積善成福，家庭守護
-  25: { logic: 8, creativity: 7, security: 5 },            // 內省智慧，靈性成長
-  26: { risk: 8, leadership: 6, creativity: 5 },           // 英雄本色，起伏傳奇
-  27: { creativity: 9, logic: 7, emotion: 5 },             // 藝術造詣，深思熟慮
-  28: { leadership: 7, risk: 7, attachment: 5 },           // 奮鬥磁場，逆境崛起
-  29: { emotion: 9, creativity: 8, attachment: 6 },        // 靈魂豐沛，敏銳感知
-  30: { social: 9, creativity: 7, leadership: 5 },         // 貴人緣強，社交核心
-  31: { leadership: 8, logic: 7, security: 6 },            // 穩健完成，實力累積
-  35: { logic: 8, security: 7, creativity: 5 },            // 溫和智慧，包容穩定
-  40: { security: 8, logic: 7, attachment: 5 },            // 深根穩固，耐力持久
-  45: { leadership: 8, social: 7, logic: 5 },              // 大成吉數，領袖氣象
-  50: { logic: 9, creativity: 7, security: 6 },            // 歸零再生，智慧通透
-  55: { leadership: 9, logic: 7, risk: 5 },                // 極致磁場，突破格局
-  60: { attachment: 8, security: 7, social: 5 },           // 圓融厚德，萬眾歸心
-  65: { social: 9, leadership: 7, attachment: 5 },         // 人和天助，德高望重
-  80: { logic: 9, security: 8, creativity: 5 },            // 無為而治，靜水流深
-  95: { emotion: 9, creativity: 8, attachment: 6 },        // 宇宙感知，靈性巔峰
-  100: { creativity: 10, emotion: 8, attachment: 7 },      // 百數圓滿，天人合一
+  1:  { creativity: 10, leadership: 8, risk: 4 },          // ????謜????????
+  2:  { attachment: 8, social: 6, emotion: 4 },            // ??走?儮????遴鬥???
+  3:  { creativity: 8, social: 7, emotion: 5 },            // ?萄??剜?萄????威?叟■??
+  4:  { security: 8, logic: 6, leadership: 4 },            // ??????謆Ｗ?????謇輸??
+  5:  { social: 8, leadership: 6, creativity: 4 },         // ?叟????穿??蹍?????
+  6:  { attachment: 9, security: 7, emotion: 5 },          // ????◢?瞉?謘潭??
+  7:  { logic: 9, creativity: 7, security: 4 },            // ????嚗寞???朵謒??
+  8:  { leadership: 9, logic: 6, risk: 5 },                // ???止撒赯剖????????
+  9:  { creativity: 9, emotion: 7, social: 5 },            // ????堆????蛔???
+  10: { logic: 7, security: 6, emotion: 5 },               // ??阡???謆????蝞赤
+  11: { emotion: 9, creativity: 8, attachment: 5 },        // ?????祉飭????賹?
+  12: { creativity: 7, social: 7, emotion: 5 },            // ?喉???????????
+  13: { leadership: 8, logic: 6, security: 5 },            // ?蝞??謕???嚗豢??
+  14: { risk: 8, creativity: 6, social: 5 },               // ?????謘????謢嗅???
+  15: { social: 9, leadership: 7, attachment: 5 },         // ?剔捂???????箇?隤冽?
+  16: { logic: 8, attachment: 7, security: 5 },            // ??竣??剔?????鈭斗???
+  17: { leadership: 9, logic: 7, risk: 5 },                // ?謜???????????
+  18: { logic: 8, leadership: 6, creativity: 5 },          // ????????箄?頦???
+  19: { risk: 8, leadership: 7, creativity: 5 },           // ???格????????
+  20: { emotion: 9, attachment: 8, social: 4 },            // ?????????謅???
+  21: { leadership: 8, creativity: 7, social: 6 },         // ????剜?萄????謜???
+  22: { logic: 9, security: 7, leadership: 5 },            // ?剜?????????
+  23: { creativity: 9, social: 7, risk: 5 },               // ?剛謒怎擗????嗆??梢?
+  24: { attachment: 9, security: 7, emotion: 5 },          // ????????舀????
+  25: { logic: 8, creativity: 7, security: 5 },            // ????蝞賂???????
+  26: { risk: 8, leadership: 6, creativity: 5 },           // ?璇??蟡?蝯脤?梱齒??
+  27: { creativity: 9, logic: 7, emotion: 5 },             // ?豲??蹎∪瓷?璆?豲???
+  28: { leadership: 7, risk: 7, attachment: 5 },           // ??瘣蹓魂僮??????蝯?
+  29: { emotion: 9, creativity: 8, attachment: 6 },        // ?????????????
+  30: { social: 9, creativity: 7, leadership: 5 },         // ?葛???亙??澆??剜?赯望?
+  31: { leadership: 8, logic: 7, security: 6 },            // ??蹍餅???蟡?謜???
+  35: { logic: 8, security: 7, creativity: 5 },            // ???蝞賂???啣祐撣?
+  40: { security: 8, logic: 7, attachment: 5 },            // ??赯脰??迫?????蹓?
+  45: { leadership: 8, social: 7, logic: 5 },              // ?剜???止???∵■?日??
+  50: { logic: 9, creativity: 7, security: 6 },            // ??謆????謒??謍朝?
+  55: { leadership: 9, logic: 7, risk: 5 },                // ???貉蹓魂僮???皝僱?
+  60: { attachment: 8, security: 7, social: 5 },           // ????謍啣????寥???
+  65: { social: 9, leadership: 7, attachment: 5 },         // ?剔???剜????箏?朵???
+  80: { logic: 9, security: 8, creativity: 5 },            // ??冪??餌孕???????
+  95: { emotion: 9, creativity: 8, attachment: 6 },        // ?堆??賹????????
+  100: { creativity: 10, emotion: 8, attachment: 7 },      // ??察??阡??鈭蝞??
 };
 
-// 性別聲音資料庫
+// ??對???止?????
 export const GenderVoiceMap: Record<string, Record<string, any>> = {
   "male": {
     vocalRange: "C2 - C4",
@@ -206,7 +206,7 @@ export const GenderVoiceMap: Record<string, Record<string, any>> = {
   },
 };
 
-// 聲音特徵資料庫（錄音分析結果 → 人格修正）
+// ??止??摮萄???冽????????荒?? ???剔捂赯菟?潸縣??
 export const VoiceCharacteristicMap: Record<string, Partial<Record<string, number>>> = {
   "high_energy": { emotion: 10, risk: 5, creativity: 5 },
   "soft_spoken": { security: 10, attachment: 5, emotion: -3 },
@@ -214,9 +214,14 @@ export const VoiceCharacteristicMap: Record<string, Partial<Record<string, numbe
   "emotional_tone": { emotion: 15, attachment: 10, creativity: 5 },
   "hesitant": { security: -10, leadership: -5, creativity: 2 },
   "confident": { leadership: 15, risk: 8, social: 5 },
+  "voice_recorded": { emotion: 4, creativity: 4, attachment: 3 },
+  "bright_voice": { social: 6, creativity: 4, leadership: 3 },
+  "deep_resonance": { security: 7, attachment: 4, logic: 3 },
+  "clear_projection": { leadership: 8, social: 5, security: 2 },
+  "inner_dialogue_voice": { emotion: 8, attachment: 7, creativity: 5 },
 };
 
-// 音樂參數模板
+// ?????塗?豰?
 export interface MusicParameters {
   bpm: number;
   key: string;
@@ -227,7 +232,7 @@ export interface MusicParameters {
   lyric_theme: string[];
 }
 
-// 將人格分數轉換為音樂參數的映射
+// ???瞉??鞎??謜冪?????塗?????
 export const PersonalityToMusicMapping = {
   emotion: {
     high: { mood: ["emotional", "expressive", "intimate"], vocal_style: "soulful, vulnerable" },

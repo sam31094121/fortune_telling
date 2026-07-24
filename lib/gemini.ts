@@ -365,6 +365,23 @@ export interface MusicReportInput {
     mandarin: { title: string; artist: string };
     taiwanese?: { title: string; artist: string };
   };
+  voiceProfile?: {
+    workflowStatus: string;
+    consentAccepted: boolean;
+    recorded: boolean;
+    localOnly: boolean;
+    selfDialogueConcept: string;
+    sample: null | {
+      durationSeconds: number;
+      qualityScore: number;
+      averageVolume: number;
+      dynamicRange: number;
+      brightness: number;
+      tempoPulse: number;
+      inferredCharacteristics: string[];
+      recordedAt: string;
+    };
+  };
 }
 
 export interface MusicReportOutput {
@@ -491,12 +508,18 @@ function buildMusicReportPrompt(input: MusicReportInput): string {
   const d = input.destinyContext;
   const p = input.psychologyContext;
   const languageGuidance = getSongLanguageGuidance(input.preferredSongLanguage);
+  const voiceProfileInstructionBlock = input.voiceProfile?.recorded
+    ? `Voice calibration: user confirmed own-voice consent. Use the local voice summary to shape vocal rhythm, emotional pressure, self-dialogue phrasing, and the feeling that multiple inner selves are singing one confession together. Summary: duration=${input.voiceProfile.sample?.durationSeconds}s, quality=${input.voiceProfile.sample?.qualityScore}, tempoPulse=${input.voiceProfile.sample?.tempoPulse}, traits=${input.voiceProfile.sample?.inferredCharacteristics.join(', ')}. Do not claim the raw voice file was uploaded; only a local summary is used.`
+    : input.voiceProfile?.consentAccepted
+      ? 'Voice consent is accepted, but recording calibration is not complete. Keep the song personal, but do not claim voice cloning.'
+      : 'No own-voice consent was enabled. Use personality data and manual voice traits only.';
   const languageInstructionBlock = `歌曲語言主軸：${languageGuidance.label}
 語言生成規則：${languageGuidance.prompt}
 語言比例建議：${languageGuidance.distribution}`;
 
   return `
 ${languageInstructionBlock}
+${voiceProfileInstructionBlock}
 
 你是「天地人 AI 人格音樂系統」的靈魂音樂顧問，同時精通命理學與深層心理學。
 根據以下三層數據——天地人命理架構、心理學原型、音樂矩陣——寫出一份深刻的人格音樂報告。
