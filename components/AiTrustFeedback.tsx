@@ -340,7 +340,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
           disabled={Boolean(submittingChoice) || feedbackLocked}
           className={`home-ai-feedback-action home-ai-feedback-action--like ${likeSelected ? 'home-ai-feedback-action--selected' : ''}`}
         >
-          <span aria-hidden="true">\u2713</span>
+          <span aria-hidden="true">{'\u{1F44D}'}</span>
           <span>{isSubmittingLike ? COPY.submitting : COPY.likeLabel}</span>
         </button>
 
@@ -350,7 +350,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
           disabled={Boolean(submittingChoice) || feedbackLocked}
           className={`home-ai-feedback-action home-ai-feedback-action--improve ${improveSelected ? 'home-ai-feedback-action--selected' : ''}`}
         >
-          <span aria-hidden="true">\u21ba</span>
+          <span aria-hidden="true">{'\u{1F44E}'}</span>
           <span>{isSubmittingImprove ? COPY.submitting : COPY.improveLabel}</span>
         </button>
       </div>
