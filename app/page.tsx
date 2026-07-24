@@ -1035,7 +1035,12 @@ export default function HomePage() {
   };
 
   const handleNumberFortune = async () => {
-    if (!fortuneNumber) return;
+    if (!fortuneNumber.trim()) {
+      setFortuneResult(null);
+      setFortuneError("\u26a0\ufe0f \u8acb\u5148\u8f38\u5165\u624b\u6a5f\u5f8c 4 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u624b\u6a5f\u865f\u78bc\u3002");
+      setFortuneStatus('error');
+      return;
+    }
     if (fortuneSubmittingRef.current) return;
 
     setFortuneStatus('validating');
@@ -1721,18 +1726,18 @@ export default function HomePage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-violet-500/30 bg-violet-950/40 text-violet-300 shadow-[0_0_15px_rgba(139,92,246,0.2)] animate-spin-slow">
                 <span className="text-2xl font-serif">♪</span>
               </div>
-              <div>
-                <span className="inline-block rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-violet-300 uppercase animate-pulse">
+              <div className="min-w-0 flex-1">
+                <span className="inline-block max-w-full rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-violet-300 uppercase animate-pulse">
                   AI · 人格聲波合成
                 </span>
-                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-violet-100 tracking-wide flex items-center gap-2">
-                  <span>AI 人格音樂</span>
+                <h2 className="mt-1.5 flex min-w-0 flex-col items-start gap-1 font-serif text-lg font-black leading-tight tracking-wide text-violet-100 sm:flex-row sm:items-center sm:gap-2 sm:text-2xl">
+                  <span className="min-w-0 break-words">{"AI\u751f\u6210\u4e00\u9996\u6b4c+\u81ea\u6211\u4eba\u683c\u5206\u88c2\u8ddf\u81ea\u6211\u5c0d\u8a71"}</span>
                   <span className="text-xs font-sans text-violet-300 font-normal opacity-85 hidden sm:inline">
                     // 命理頻率 · 音樂人格 · 主題曲生成
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  將生日、血型與人格矩陣轉譯成專屬音樂風格、旋律敘事與靈魂主題曲。
+                  {"\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002"}
                 </p>
               </div>
             </div>
@@ -2530,7 +2535,7 @@ export default function HomePage() {
       {/* 數字論吉凶 Modal 彈窗 */}
       {isFortuneModalOpen && (
         <div className="number-fortune-modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in font-sans">
-          <div className="number-fortune-panel relative w-full max-w-2xl rounded-3xl border border-cyan-500/30 bg-slate-900/95 p-6 sm:p-8 shadow-[0_0_50px_rgba(34,211,238,0.25)] max-h-[90vh] overflow-y-auto">
+          <div className="number-fortune-panel relative w-full max-w-2xl rounded-3xl border border-cyan-500/30 bg-slate-900/95 p-6 pt-16 sm:p-8 sm:pt-16 shadow-[0_0_50px_rgba(34,211,238,0.25)] max-h-[90vh] overflow-y-auto">
             
             {/* 關閉按鈕 */}
             <button
@@ -2543,9 +2548,24 @@ export default function HomePage() {
                 setModalEvolutionLabel('觸碰太極，觀察萬象演化');
                 setModalEvolutionDescription('');
               }}
-              className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm text-[color:var(--text-sub)] hover:border-white/20 hover:text-white transition"
+              className="number-fortune-close-button absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm text-[color:var(--text-sub)] hover:border-white/20 hover:text-white transition"
             >
               ✕
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsFortuneModalOpen(false);
+                setFortuneResult(null);
+                setFortuneNumber('');
+                setFortuneError('');
+                window.setTimeout(scrollToTop, 0);
+              }}
+              className="number-fortune-home-guide absolute top-4 left-4 inline-flex h-8 max-w-[calc(100%-4.5rem)] items-center justify-center gap-1.5 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 text-[11px] font-black leading-none tracking-[0.08em] text-cyan-100 transition hover:border-cyan-200/45 hover:bg-cyan-300/16 hover:text-white active:scale-[0.98]"
+              aria-label={"\u8fd4\u56de\u9996\u9801"}
+            >
+              <span aria-hidden="true">{"\u2302"}</span>
+              <span>{"\u8fd4\u56de\u9996\u9801"}</span>
             </button>
 
             {/* Modal 頂部立體優美太極圖案 (升級版) - 帶點擊爆發音效與大悲咒彩蛋功能 */}
@@ -2686,12 +2706,12 @@ export default function HomePage() {
                   setFortuneError('');
                 }}
                 placeholder="後 4 碼或完整 10 碼"
-                className="form-input flex-1 text-base glass-input glass-input-cyan neon-input-focus"
+                className={`form-input flex-1 text-base glass-input glass-input-cyan neon-input-focus ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
               />
               <button
                 type="button"
                 onClick={handleNumberFortune}
-                disabled={fortuneLoading || !fortuneNumber}
+                disabled={fortuneLoading}
                 className="vip-gold-btn px-8 py-3.5 text-sm font-semibold disabled:opacity-40"
               >
                 {fortuneLoading ? '分析中...' : '開始分析'}
@@ -2699,7 +2719,7 @@ export default function HomePage() {
             </div>
 
             {fortuneError && (
-              <p className="mt-3 rounded-xl border border-rose-400/25 bg-rose-950/20 px-4 py-3 text-xs leading-5 text-rose-100">
+              <p className="form-missing-alert">
                 {fortuneError}
               </p>
             )}

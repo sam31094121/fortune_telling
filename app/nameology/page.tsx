@@ -194,6 +194,11 @@ export default function NameologyPage() {
 
   const validationMessage = useMemo(() => buildValidationMessage(form, selectionConfirm), [form, selectionConfirm]);
   const canSubmit = validationMessage === '';
+  const showMissingFields = Boolean(error) && !result;
+  const showMissingName = showMissingFields && form.name.trim().length < 2;
+  const showMissingBirthDate = showMissingFields && !form.birthDate;
+  const showMissingBloodType = showMissingFields && !selectionConfirm.bloodType;
+  const showMissingGender = showMissingFields && !selectionConfirm.gender;
   const progressItems = [
     { label: '姓名', done: form.name.trim().length >= 2, value: form.name.trim().length > 0 ? `${form.name.trim().length}字` : '未填' },
     { label: '生日', done: Boolean(form.birthDate), value: form.birthDate ? '已推算' : '未填' },
@@ -230,10 +235,8 @@ export default function NameologyPage() {
   return (
     <main className="app-bg min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
-        <div className="mb-6 flex items-center gap-3 text-sm">
-          <Link href="/" className="text-[color:var(--text-muted)] transition hover:text-amber-200">首頁</Link>
-          <span className="text-[color:var(--text-muted)]">·</span>
-          <span className="text-amber-200">AI 姓名學</span>
+        <div className="mb-5 flex items-center text-sm">
+          <Link href="/" className="feature-home-link feature-home-link--amber">{"\u8fd4\u56de\u9996\u9801"}</Link>
         </div>
 
         <section id="nameology-input-form" className="fortune-card p-5 sm:p-8 scroll-mt-20">
@@ -272,10 +275,13 @@ export default function NameologyPage() {
                 }}
                 placeholder="請輸入完整姓名（至少 2 個字）"
                 maxLength={20}
-                className="form-input w-full rounded-lg border border-white/10 px-4 py-3 text-base"
+                className={`form-input w-full rounded-lg border border-white/10 px-4 py-3 text-base ${showMissingName ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
                 autoComplete="off"
               />
-              {form.name.trim().length > 0 && form.name.trim().length < 2 && (
+              {showMissingName && (
+                <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u586b\u5beb\u59d3\u540d\uff0c\u81f3\u5c11 2 \u500b\u5b57\u3002"}</p>
+              )}
+              {form.name.trim().length > 0 && form.name.trim().length < 2 && !showMissingName && (
                 <p className="mt-2 text-xs text-yellow-400">姓名至少需要 2 個字。</p>
               )}
             </div>
@@ -290,6 +296,9 @@ export default function NameologyPage() {
                 accent="amber"
                 label="出生日期（萬年曆）"
               />
+              {showMissingBirthDate && (
+                <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\u3002"}</p>
+              )}
               {form.birthDate && <p className="mt-2 text-xs text-green-400">✓ 西元 {form.birthDate}</p>}
             </div>
 
@@ -297,6 +306,9 @@ export default function NameologyPage() {
               <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
                 3. 血型 {selectionConfirm.bloodType && <span className="text-green-400">✓</span>}
               </label>
+              {showMissingBloodType && (
+                <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u9ede\u9078\u8840\u578b\uff0c\u9019\u6b04\u9084\u6c92\u6709\u9078\u3002"}</p>
+              )}
               <div className="grid gap-3 sm:grid-cols-2">
                 {BLOOD_TYPES.map((bloodType, index) => (
                   <FriendlyChoiceCard
@@ -309,6 +321,7 @@ export default function NameologyPage() {
                       setSelectionConfirm((prev) => ({ ...prev, bloodType: true }));
                     }}
                     tone={index % 2 === 0 ? 'violet' : 'cyan'}
+                    attention={showMissingBloodType}
                   />
                 ))}
               </div>
@@ -318,6 +331,9 @@ export default function NameologyPage() {
               <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
                 4. 性別 {selectionConfirm.gender && <span className="text-green-400">✓</span>}
               </label>
+              {showMissingGender && (
+                <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u9ede\u9078\u6027\u5225\uff0c\u9019\u6b04\u9084\u6c92\u6709\u78ba\u8a8d\u3002"}</p>
+              )}
               <div className="grid gap-3 sm:grid-cols-2">
                 <FriendlyChoiceCard
                   active={selectionConfirm.gender && form.gender === 'female'}
@@ -328,6 +344,7 @@ export default function NameologyPage() {
                     setSelectionConfirm((prev) => ({ ...prev, gender: true }));
                   }}
                   tone="pink"
+                  attention={showMissingGender}
                 />
                 <FriendlyChoiceCard
                   active={selectionConfirm.gender && form.gender === 'male'}
@@ -338,6 +355,7 @@ export default function NameologyPage() {
                     setSelectionConfirm((prev) => ({ ...prev, gender: true }));
                   }}
                   tone="cyan"
+                  attention={showMissingGender}
                 />
               </div>
             </div>

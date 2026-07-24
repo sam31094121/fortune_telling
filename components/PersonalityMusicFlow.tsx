@@ -130,7 +130,11 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     return null;
   }
 
-  const currentStepInvalid = Boolean(validateStep());
+  const showMissingBirthDate = Boolean(localError) && step === 0 && !form.birthDate;
+  const showMissingBloodType = Boolean(localError) && step === 1 && !form.bloodType;
+  const showMissingName = Boolean(localError) && step === 2 && form.name.trim().length < 2;
+  const showMissingGender = Boolean(localError) && step === 2 && !selectionConfirm.gender;
+  const showMissingShichen = Boolean(localError) && step === 3 && form.shichen === null;
 
   function handleNext() {
     const error = validateStep();
@@ -199,12 +203,18 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
             }}
             accent="violet"
           />
+          {showMissingBirthDate && (
+            <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\uff0c\u9019\u6b04\u662f\u751f\u6210\u7d50\u679c\u7684\u57fa\u790e\u3002"}</p>
+          )}
         </div>
       )}
 
       {step === 1 && (
         <div className="space-y-4">
           <p className="text-sm text-[color:var(--text-sub)]">選擇血型，AI 會補上你的表達節奏與互動風格。</p>
+          {showMissingBloodType && (
+            <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u9ede\u9078\u8840\u578b\uff0c\u9078\u4e00\u500b\u5c31\u53ef\u4ee5\u7e7c\u7e8c\u3002"}</p>
+          )}
           <div className="grid grid-cols-2 gap-3">
             {BLOOD_TYPES.map((bloodType, index) => (
               <FriendlyChoiceCard
@@ -217,6 +227,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                   setLocalError('');
                 }}
                 tone={index % 2 === 0 ? 'violet' : 'cyan'}
+                attention={showMissingBloodType}
               />
             ))}
           </div>
@@ -236,11 +247,17 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                 setForm((prev) => ({ ...prev, name: event.target.value }));
                 setLocalError('');
               }}
-              className="form-input w-full text-base neon-input-focus neon-card-hover glass-input glass-input-cyan"
+              className={`form-input w-full text-base neon-input-focus neon-card-hover glass-input glass-input-cyan ${showMissingName ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
             />
+            {showMissingName && (
+              <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u586b\u5beb\u59d3\u540d\uff0c\u81f3\u5c11 2 \u500b\u5b57\u3002"}</p>
+            )}
           </div>
           <div>
             <p className="mb-2 text-xs text-[color:var(--text-muted)]">性別只用來修飾呈現語氣，不會推翻前面結果。</p>
+            {showMissingGender && (
+              <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u9ede\u9078\u6027\u5225\uff0c\u9019\u6b04\u9084\u6c92\u6709\u78ba\u8a8d\u3002"}</p>
+            )}
             <div className="grid grid-cols-2 gap-3">
               {(['female', 'male'] as Gender[]).map((gender) => (
                 <FriendlyChoiceCard
@@ -255,6 +272,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                   }}
                   tone={gender === 'female' ? 'pink' : 'cyan'}
                   compact
+                  attention={showMissingGender}
                 />
               ))}
             </div>
@@ -283,7 +301,9 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
             className={`w-full rounded-2xl border px-5 py-4 text-left transition-all ${
               form.shichen === 'unknown'
                 ? 'border-emerald-400 bg-emerald-400/15'
-                : 'border-white/15 bg-white/5 hover:border-white/25'
+                : showMissingShichen
+                  ? 'border-rose-400/85 bg-rose-500/12 shadow-[0_0_22px_rgba(244,63,94,0.22)]'
+                  : 'border-white/15 bg-white/5 hover:border-white/25'
             }`}
           >
             <p className={`text-base font-bold ${form.shichen === 'unknown' ? 'text-emerald-300' : 'text-[color:var(--text-main)]'}`}>
@@ -318,7 +338,11 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                     setLocalError('');
                   }}
                   className={`rounded-2xl border px-3 py-3 text-left transition-all ${
-                    selected ? 'border-cyan-400 bg-cyan-400/15' : 'border-white/10 bg-white/5 hover:border-white/20'
+                    selected
+                      ? 'border-cyan-400 bg-cyan-400/15'
+                      : showMissingShichen
+                        ? 'border-rose-400/85 bg-rose-500/12 shadow-[0_0_18px_rgba(244,63,94,0.18)]'
+                        : 'border-white/10 bg-white/5 hover:border-white/20'
                   }`}
                 >
                   <div className="flex items-baseline justify-between gap-1">
@@ -461,7 +485,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         <button
           type="button"
           onClick={handleNext}
-          disabled={loading || currentStepInvalid}
+          disabled={loading}
           className="vip-gold-btn flex-1 py-4 text-sm disabled:cursor-not-allowed disabled:opacity-60 shimmer-btn"
         >
           {loading ? '正在整理主題曲報告…' : step === STEPS.length - 1 ? '生成主題曲預覽' : `下一步：${STEPS[step + 1]}`}

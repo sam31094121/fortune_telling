@@ -354,13 +354,19 @@ function ChoiceCard({
   description,
   onClick,
   tone,
+  attention,
 }: {
   active: boolean;
   title: string;
   description: string;
   onClick: () => void;
   tone: 'violet' | 'amber' | 'pink' | 'cyan';
+  attention?: boolean;
 }) {
+  const attentionClass = attention && !active
+    ? 'border-rose-400/85 bg-rose-500/12 text-rose-50 shadow-[0_0_24px_rgba(244,63,94,0.24)]'
+    : '';
+
   const tones = {
     violet: active
       ? 'border-violet-400 bg-violet-500/15 text-violet-100'
@@ -381,7 +387,7 @@ function ChoiceCard({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`w-full rounded-2xl border px-4 py-4 text-left transition-all hover:border-white/20 ${tones[tone]}`}
+      className={`w-full rounded-2xl border px-4 py-4 text-left transition-all hover:border-white/20 ${attentionClass || tones[tone]}`}
     >
       <div className="flex items-center justify-between gap-3">
         <p className="text-lg font-bold">{title}</p>
@@ -1827,6 +1833,12 @@ export default function InsightPage() {
     return null;
   };
 
+  const showMissingFields = Boolean(error) && !result;
+  const showMissingName = showMissingFields && input.name.trim().length < 2;
+  const showMissingBirthDate = showMissingFields && !input.birthDate;
+  const showMissingBloodType = showMissingFields && !selectionConfirm.bloodType;
+  const showMissingGender = showMissingFields && !selectionConfirm.gender;
+
   const handleSubmit = async () => {
     // 清除舊的錯誤信息
     setError('');
@@ -1916,10 +1928,10 @@ export default function InsightPage() {
         <FeatureVisitorCounter featureKey="personality" className="mb-4" />
         <Link
           href="/"
-          className="absolute right-4 top-4 inline-flex min-h-0 items-center rounded-full border border-cyan-300/20 bg-slate-950/55 px-3 py-1.5 text-[11px] font-semibold tracking-[0.18em] text-cyan-100/85 shadow-[0_0_18px_rgba(34,211,238,0.16)] backdrop-blur-xl transition hover:border-cyan-200/45 hover:bg-cyan-300/12 hover:text-cyan-50 animate-pulse sm:right-6 sm:top-6"
+          className="feature-home-link feature-home-link--cyan feature-home-link--floating"
           aria-label="返回首頁"
         >
-          {'\u2190 \u8fd4\u56de\u9996\u9801'}
+          {"\u8fd4\u56de\u9996\u9801"}
         </Link>
         {!result ? (
           <>
@@ -2021,10 +2033,13 @@ export default function InsightPage() {
                   }}
                   placeholder="請輸入姓名（至少 2 個字）"
                   maxLength={20}
-                  className="form-input w-full text-base border border-white/10 rounded-lg px-4 py-3"
+                  className={`form-input w-full text-base border border-white/10 rounded-lg px-4 py-3 ${showMissingName ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
                   autoComplete="off"
                 />
-                {input.name.trim().length > 0 && input.name.trim().length < 2 && (
+                {showMissingName && (
+                  <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u586b\u5beb\u59d3\u540d\uff0c\u81f3\u5c11 2 \u500b\u5b57\u3002"}</p>
+                )}
+                {input.name.trim().length > 0 && input.name.trim().length < 2 && !showMissingName && (
                   <p className="mt-2 text-xs text-yellow-400">⚠ 姓名至少需要 2 個字</p>
                 )}
               </div>
@@ -2039,6 +2054,9 @@ export default function InsightPage() {
                   accent="violet"
                   label="出生日期（萬年曆）"
                 />
+                {showMissingBirthDate && (
+                  <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\u3002"}</p>
+                )}
                 {input.birthDate && (
                   <p className="mt-2 text-xs text-green-400">✓ 西元 {input.birthDate}</p>
                 )}
@@ -2046,6 +2064,9 @@ export default function InsightPage() {
 
               <div>
                 <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">3. 血型</label>
+                {showMissingBloodType && (
+                  <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u9ede\u9078\u8840\u578b\uff0c\u9019\u6b04\u9084\u6c92\u6709\u9078\u3002"}</p>
+                )}
                 <div className="grid gap-3 sm:grid-cols-2">
                   {BLOOD_TYPES.map((bloodType, index) => (
                     <ChoiceCard
@@ -2058,6 +2079,7 @@ export default function InsightPage() {
                         setSelectionConfirm({ ...selectionConfirm, bloodType: true });
                       }}
                       tone={index % 2 === 0 ? 'violet' : 'cyan'}
+                      attention={showMissingBloodType}
                     />
                   ))}
                 </div>
@@ -2065,6 +2087,9 @@ export default function InsightPage() {
 
               <div>
                 <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">4. 性別</label>
+                {showMissingGender && (
+                  <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u9ede\u9078\u6027\u5225\uff0c\u9019\u6b04\u9084\u6c92\u6709\u78ba\u8a8d\u3002"}</p>
+                )}
                 <div className="grid gap-3 sm:grid-cols-2">
                   <ChoiceCard
                     active={selectionConfirm.gender && input.gender === 'female'}
@@ -2075,6 +2100,7 @@ export default function InsightPage() {
                       setSelectionConfirm({ ...selectionConfirm, gender: true });
                     }}
                     tone="pink"
+                    attention={showMissingGender}
                   />
                   <ChoiceCard
                     active={selectionConfirm.gender && input.gender === 'male'}
@@ -2085,6 +2111,7 @@ export default function InsightPage() {
                       setSelectionConfirm({ ...selectionConfirm, gender: true });
                     }}
                     tone="cyan"
+                    attention={showMissingGender}
                   />
                 </div>
               </div>
@@ -2187,9 +2214,9 @@ export default function InsightPage() {
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={handleSubmit}
-                  disabled={loading || validateForm() !== null}
+                  disabled={loading}
                   className={`flex-1 py-5 text-base font-semibold rounded-2xl transition-all ${
-                    loading || validateForm() !== null
+                    loading
                       ? 'vip-gold-btn opacity-50 cursor-not-allowed'
                       : 'vip-gold-btn hover:shadow-lg hover:shadow-amber-500/50'
                   }`}

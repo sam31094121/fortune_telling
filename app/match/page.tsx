@@ -159,12 +159,14 @@ function ElderChoiceCard({
   description,
   onClick,
   tone,
+  attention = false,
 }: {
   active: boolean;
   title: string;
   description: string;
   onClick: () => void;
   tone: 'violet' | 'amber' | 'pink' | 'cyan';
+  attention?: boolean;
 }) {
   const tones = {
     violet: active
@@ -181,12 +183,14 @@ function ElderChoiceCard({
       : 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
   };
 
+  const attentionClass = attention && !active ? 'border-rose-400/85 bg-rose-500/12 text-rose-50 shadow-[0_0_24px_rgba(244,63,94,0.24)]' : '';
+
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`w-full rounded-2xl border px-4 py-4 text-left transition-all hover:border-white/20 ${tones[tone]}`}
+      className={`w-full rounded-2xl border px-4 py-4 text-left transition-all hover:border-white/20 ${attentionClass || tones[tone]}`}
     >
       <div className="flex items-center justify-between gap-3">
         <p className="text-lg font-bold">{title}</p>
@@ -261,6 +265,7 @@ function PersonStep({
   onChange,
   selectionConfirm,
   onSelectionConfirm,
+  showValidation = false,
 }: {
   title: string;
   description: string;
@@ -269,7 +274,12 @@ function PersonStep({
   onChange: (value: PersonInput) => void;
   selectionConfirm: SelectionConfirm;
   onSelectionConfirm: (value: SelectionConfirm) => void;
+  showValidation?: boolean;
 }) {
+  const showMissingName = showValidation && value.name.trim().length < 2;
+  const showMissingBirthDate = showValidation && !value.birthDate;
+  const showMissingBloodType = showValidation && !selectionConfirm.bloodType;
+  const showMissingGender = showValidation && !selectionConfirm.gender;
   return (
     <div className="fortune-card p-6 sm:p-8">
       <p className={`inline-flex rounded-full border px-4 py-1 text-xs tracking-[0.3em] ${accent === 'violet' ? 'border-violet-400/25 bg-violet-950/20 text-violet-300' : 'border-amber-400/25 bg-amber-950/20 text-amber-300'}`}>
@@ -290,8 +300,11 @@ function PersonStep({
             value={value.name}
             onChange={(event) => onChange({ ...value, name: event.target.value })}
             placeholder="請輸入姓名，至少 2 個字"
-            className={`form-input w-full text-base neon-input-focus neon-card-hover glass-input ${accent === 'violet' ? 'glass-input-cyan' : ''}`}
+            className={`form-input w-full text-base neon-input-focus neon-card-hover glass-input ${accent === 'violet' ? 'glass-input-cyan' : ''} ${showMissingName ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
           />
+          {showMissingName && (
+            <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u586b\u5beb\u59d3\u540d\uff0c\u81f3\u5c11 2 \u500b\u5b57\u3002"}</p>
+          )}
         </div>
 
         <div>
@@ -305,6 +318,9 @@ function PersonStep({
             accent={accent}
             label="請選擇國曆或農曆"
           />
+          {showMissingBirthDate && (
+            <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\u3002"}</p>
+          )}
         </div>
 
         <div>
@@ -312,6 +328,9 @@ function PersonStep({
             3. 血型
             <OracleHint text="🧬 血型蘊含地脈遺傳之性格吸引力密碼，決定了雙人磁場的基礎吸引力與相處共鳴率。" />
           </label>
+          {showMissingBloodType && (
+            <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u9ede\u9078\u8840\u578b\uff0c\u9019\u6b04\u9084\u6c92\u6709\u9078\u3002"}</p>
+          )}
           <div className="grid gap-3 sm:grid-cols-2">
             {BLOOD_TYPES.map((bloodType, index) => (
               <ElderChoiceCard
@@ -324,6 +343,7 @@ function PersonStep({
                   onSelectionConfirm({ ...selectionConfirm, bloodType: true });
                 }}
                 tone={index % 2 === 0 ? accent : accent === 'violet' ? 'cyan' : 'pink'}
+                attention={showMissingBloodType}
               />
             ))}
           </div>
@@ -334,6 +354,9 @@ function PersonStep({
             4. 性別
             <OracleHint text="✦ 性別主要作為外在表徵與修辭調整的輔助變數，不影響底層天盤骨架的因果計算。" />
           </label>
+          {showMissingGender && (
+            <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u9ede\u9078\u6027\u5225\uff0c\u9019\u6b04\u9084\u6c92\u6709\u78ba\u8a8d\u3002"}</p>
+          )}
           <div className="grid gap-3 sm:grid-cols-2">
             <ElderChoiceCard
               active={selectionConfirm.gender && value.gender === 'female'}
@@ -344,6 +367,7 @@ function PersonStep({
                 onSelectionConfirm({ ...selectionConfirm, gender: true });
               }}
               tone="pink"
+              attention={showMissingGender}
             />
             <ElderChoiceCard
               active={selectionConfirm.gender && value.gender === 'male'}
@@ -354,6 +378,7 @@ function PersonStep({
                 onSelectionConfirm({ ...selectionConfirm, gender: true });
               }}
               tone="cyan"
+              attention={showMissingGender}
             />
           </div>
         </div>
@@ -515,17 +540,15 @@ export default function MatchPage() {
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
 
       <main className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
-        <FeatureVisitorCounter featureKey="matching" className="mb-6" />
-        <div className="mb-8 flex items-center gap-4">
-          <Link href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
-            ← 返回首頁
+        <div className="mb-6 flex items-start justify-between gap-3">
+          <FeatureVisitorCounter featureKey="matching" className="shrink-0" />
+          <Link
+            href="/"
+            className="feature-home-link feature-home-link--rose mt-1 shrink-0"
+            aria-label={"\u8fd4\u56de\u9996\u9801"}
+          >
+            {"\u8fd4\u56de\u9996\u9801"}
           </Link>
-          <span className="text-[color:var(--text-muted)]">·</span>
-          <Link href="/music" className="text-xs tracking-widest text-violet-300/70 transition hover:text-violet-300">
-            🎵 人格
-          </Link>
-          <span className="text-[color:var(--text-muted)]">·</span>
-          <span className="text-xs tracking-widest text-rose-300">💕 配對</span>
         </div>
 
         <section className="mb-10 flex justify-center">
@@ -590,6 +613,7 @@ export default function MatchPage() {
                 onChange={setPersonA}
                 selectionConfirm={personASelectionConfirm}
                 onSelectionConfirm={setPersonASelectionConfirm}
+                showValidation={Boolean(error) && step === 'personA'}
               />
             )}
 
@@ -602,6 +626,7 @@ export default function MatchPage() {
                 onChange={setPersonB}
                 selectionConfirm={personBSelectionConfirm}
                 onSelectionConfirm={setPersonBSelectionConfirm}
+                showValidation={Boolean(error) && step === 'personB'}
               />
             )}
 

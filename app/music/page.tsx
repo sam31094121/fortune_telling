@@ -4,7 +4,6 @@ import { useRef, useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import PersonalityMusicFlow, { type MusicFormData } from '@/components/PersonalityMusicFlow';
 import PersonalityMusicReport from '@/components/PersonalityMusicReport';
-import NextStepGuide from '@/components/NextStepGuide';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 
@@ -124,7 +123,7 @@ type PageState = 'landing' | 'form' | 'result';
 
 function LandingHero({ onStart }: { onStart: () => void }) {
   return (
-    <section className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-5 text-center sm:px-6">
+    <section className="music-landing-hero relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-5 text-center sm:px-6">
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -135,8 +134,8 @@ function LandingHero({ onStart }: { onStart: () => void }) {
         }}
       />
 
-      <div className="relative z-20 flex max-w-3xl flex-col items-center">
-        <TaijiStandaloneCard className="mb-8" />
+      <div className="music-landing-stack relative z-20 flex max-w-3xl flex-col items-center">
+        <TaijiStandaloneCard className="music-landing-taiji mb-5" />
 
         <div className="hidden mb-8 rounded-full border border-violet-400/35 bg-violet-500/10 px-5 py-1.5 text-xs font-semibold tracking-[0.35em] text-violet-200">
           AI 人格音樂
@@ -151,12 +150,12 @@ function LandingHero({ onStart }: { onStart: () => void }) {
           產出一份好懂的人格主題曲預覽。
         </p>
 
-        <div className="mt-10 flex flex-col items-center gap-4">
+        <div className="music-landing-actions mt-6 flex flex-col items-center gap-3">
           <button type="button" onClick={onStart} className="vip-gold-btn w-full max-w-[22rem] px-8 py-5 text-base shadow-[0_0_25px_rgba(201,162,74,0.3)] border border-amber-400/20 sm:w-auto sm:px-14 sm:text-lg sm:animate-bounce">
             👇 一鍵開啟 · 生成我的主題曲
           </button>
-          <Link href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
-            回到人格解碼首頁
+          <Link href="/" className="feature-home-link feature-home-link--violet">
+            {"\u8fd4\u56de\u9996\u9801"}
           </Link>
         </div>
 
@@ -313,36 +312,21 @@ export default function MusicSystemPage() {
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
       <div className="constellation-ring constellation-ring-top pointer-events-none z-0" />
       <div className="constellation-ring constellation-ring-bottom pointer-events-none z-0" />
-      <div className="relative z-30 mx-auto max-w-6xl px-4 pt-6">
-        <FeatureVisitorCounter featureKey="music" />
-      </div>
+      {pageState === 'form' && (
+        <div className="relative z-30 mx-auto max-w-6xl px-4 pt-5 sm:px-6 lg:px-8">
+          <div className="flex items-start justify-between gap-3">
+            <FeatureVisitorCounter featureKey="music" className="shrink-0" />
+            <Link href="/" className="feature-home-link feature-home-link--violet mt-1 shrink-0">
+              {"\u8fd4\u56de\u9996\u9801"}
+            </Link>
+          </div>
+        </div>
+      )}
 
       {pageState === 'landing' && <LandingHero onStart={handleStart} />}
 
       {pageState === 'form' && (
-        <main ref={formRef} className="relative z-10 mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-          <div className="mb-8 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={() => setPageState('landing')}
-                className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white"
-              >
-                ← 上一步
-              </button>
-              <span className="text-[color:var(--text-muted)]">·</span>
-              <Link href="/" className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white">
-                🏠 首頁
-              </Link>
-              <span className="text-[color:var(--text-muted)]">·</span>
-              <Link href="/insight" className="text-xs tracking-widest text-cyan-300/70 transition hover:text-cyan-300">
-                ✨ 深度洞察
-              </Link>
-            </div>
-            <div className="rounded-full border border-violet-400/30 px-4 py-1 text-xs font-semibold tracking-[0.3em] text-violet-200">
-              AI 人格音樂
-            </div>
-          </div>
+        <main ref={formRef} className="relative z-10 mx-auto max-w-6xl px-4 pb-10 pt-5 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8">
 
           <section className="grid gap-10 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)]">
             <div className="fortune-card p-6 sm:p-8">
@@ -437,18 +421,12 @@ export default function MusicSystemPage() {
               </g>
             </svg>
           </div>
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-violet-300">音樂人格結果</p>
+          <div className="mb-6 flex flex-col items-start gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="max-w-2xl text-xs font-semibold leading-6 tracking-[0.08em] text-violet-300 sm:text-sm">{"AI\u751f\u6210\u4e00\u9996\u6b4c \u81ea\u6211\u4eba\u683c\u5206\u88c2\u8ddf\u81ea\u6211\u5c0d\u8a71\u3002\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002"}</p>
               <h2 className="mt-1 font-serif text-3xl text-[color:var(--text-main)]">{submittedName} 的人格主題曲</h2>
             </div>
-            <button
-              type="button"
-              onClick={() => setPageState('landing')}
-              className="text-xs tracking-widest text-[color:var(--text-muted)] transition hover:text-white"
-            >
-              返回首頁
-            </button>
+            <Link href="/" className="feature-home-link feature-home-link--violet self-end shrink-0 sm:self-start">{"\u8fd4\u56de\u9996\u9801"}</Link>
           </div>
 
           <PersonalityMusicReport
@@ -465,10 +443,6 @@ export default function MusicSystemPage() {
             name={submittedName}
             onReset={handleReset}
           />
-
-          <div className="mt-8">
-            <NextStepGuide current="music" />
-          </div>
         </main>
       )}
     </div>

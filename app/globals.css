@@ -4993,3 +4993,248 @@ body.app-lite-effects .home-line-share-card::after {
     padding-inline: 0.35rem;
   }
 }
+/* Number fortune modal top controls: balanced mobile spacing. */
+.number-fortune-panel {
+  padding-top: 4.25rem !important;
+}
+
+.number-fortune-home-guide,
+.number-fortune-close-button {
+  top: 1rem !important;
+  z-index: 3;
+}
+
+.number-fortune-home-guide {
+  left: 1rem !important;
+  width: clamp(6.6rem, 34vw, 8.25rem);
+  height: 2rem;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.number-fortune-close-button {
+  right: 1rem !important;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+}
+
+.number-fortune-split-stack {
+  padding-top: 0.25rem;
+}
+
+@media (max-width: 430px) {
+  .number-fortune-panel {
+    padding-top: 4rem !important;
+  }
+
+  .number-fortune-home-guide,
+  .number-fortune-close-button {
+    top: 0.85rem !important;
+  }
+
+  .number-fortune-home-guide {
+    left: 0.85rem !important;
+    width: min(7.4rem, calc(100% - 4.7rem));
+    height: 2rem;
+    padding-inline: 0.65rem;
+    font-size: 0.68rem;
+  }
+
+  .number-fortune-close-button {
+    right: 0.85rem !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .number-fortune-home-guide {
+    width: min(6.75rem, calc(100% - 4.5rem));
+    gap: 0.25rem;
+    padding-inline: 0.5rem;
+    font-size: 0.64rem;
+  }
+}
+/* Shared return-home controls across feature pages. */
+.feature-home-link {
+  display: inline-flex;
+  min-height: 2rem;
+  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(2, 6, 23, 0.48);
+  padding: 0.48rem 0.78rem;
+  font-size: 0.7rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: rgba(245, 240, 225, 0.76);
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.18);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.feature-home-link:hover {
+  transform: translateY(-1px);
+  color: #fff;
+}
+
+.feature-home-link:active {
+  transform: scale(0.98);
+}
+
+.feature-home-link--amber {
+  border-color: rgba(251, 191, 36, 0.26);
+  background: rgba(251, 191, 36, 0.09);
+  color: #fde68a;
+}
+
+.feature-home-link--rose {
+  border-color: rgba(251, 113, 133, 0.28);
+  background: rgba(244, 63, 94, 0.09);
+  color: #fecdd3;
+}
+
+.feature-home-link--violet {
+  border-color: rgba(167, 139, 250, 0.28);
+  background: rgba(109, 40, 217, 0.12);
+  color: #ddd6fe;
+}
+
+.feature-home-link--cyan {
+  border-color: rgba(34, 211, 238, 0.28);
+  background: rgba(8, 145, 178, 0.12);
+  color: #cffafe;
+}
+
+.feature-home-link--floating {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  z-index: 5;
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.16), 0 10px 26px rgba(2, 6, 23, 0.24);
+}
+
+.feature-home-link--amber.feature-home-link--floating {
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.16), 0 10px 26px rgba(2, 6, 23, 0.24);
+}
+
+.feature-home-link--rose.feature-home-link--floating {
+  box-shadow: 0 0 18px rgba(244, 63, 94, 0.18), 0 10px 26px rgba(2, 6, 23, 0.24);
+}
+
+.feature-home-link--violet.feature-home-link--floating {
+  box-shadow: 0 0 18px rgba(167, 139, 250, 0.16), 0 10px 26px rgba(2, 6, 23, 0.24);
+}
+
+@media (max-width: 640px) {
+  .feature-home-link {
+    min-height: 2.15rem;
+    padding-inline: 0.72rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+  }
+
+  .feature-home-link--floating {
+    right: 0.85rem;
+    top: 0.85rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .feature-home-link {
+    padding-inline: 0.58rem;
+    font-size: 0.64rem;
+  }
+}
+
+/* Music landing Taiji: tighter first-screen proportion without clipping the light aura. */
+.music-landing-hero {
+  padding-top: clamp(0.75rem, 2.8svh, 1.75rem);
+  padding-bottom: clamp(0.9rem, 3svh, 1.9rem);
+}
+
+.music-landing-taiji.taiji-open-stage {
+  width: min(24.5rem, 96vw) !important;
+  min-height: clamp(18.75rem, 74vw, 22.75rem) !important;
+  margin-bottom: clamp(0.9rem, 2.5vw, 1.25rem) !important;
+  padding: 0.2rem !important;
+  overflow: visible !important;
+}
+
+.music-landing-taiji.taiji-open-stage .unified-taiji-shell {
+  min-height: clamp(18rem, 71vw, 21.85rem) !important;
+  padding: clamp(0.35rem, 1.8vw, 0.55rem) !important;
+  overflow: visible !important;
+}
+
+.music-landing-taiji.taiji-open-stage .modal-taiji-button {
+  width: clamp(13.1rem, 63vw, 15.15rem) !important;
+  height: clamp(13.1rem, 63vw, 15.15rem) !important;
+}
+
+.music-landing-taiji.taiji-open-stage .modal-taiji-3d-core {
+  width: clamp(6.25rem, 29vw, 7.3rem) !important;
+  height: clamp(6.25rem, 29vw, 7.3rem) !important;
+}
+
+.music-landing-actions {
+  margin-top: clamp(0.9rem, 2.8vw, 1.5rem) !important;
+}
+
+@media (max-width: 430px) {
+  .music-landing-hero {
+    padding-top: 0.65rem;
+    padding-bottom: 0.8rem;
+  }
+
+  .music-landing-taiji.taiji-open-stage {
+    width: min(22.75rem, 96vw) !important;
+    min-height: min(21.25rem, calc(82vw + 2.2rem)) !important;
+    margin-bottom: 0.85rem !important;
+  }
+
+  .music-landing-taiji.taiji-open-stage .unified-taiji-shell {
+    min-height: min(20.2rem, calc(78vw + 2rem)) !important;
+    padding: 0.35rem !important;
+  }
+
+  .music-landing-taiji.taiji-open-stage .modal-taiji-button {
+    width: min(14rem, 70vw) !important;
+    height: min(14rem, 70vw) !important;
+  }
+
+  .music-landing-actions {
+    margin-top: 0.85rem !important;
+    gap: 0.7rem !important;
+  }
+}
+
+/* Shared friendly required-field alert for mobile forms. */
+.form-missing-alert {
+  margin-top: 0.55rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(251, 113, 133, 0.42);
+  background: rgba(127, 29, 29, 0.24);
+  padding: 0.6rem 0.75rem;
+  color: #fecdd3;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.45;
+  text-align: left;
+  box-shadow: 0 0 22px rgba(244, 63, 94, 0.13);
+}
+
+@media (max-width: 430px) {
+  .form-missing-alert {
+    font-size: 0.76rem;
+    padding: 0.55rem 0.68rem;
+  }
+}
+

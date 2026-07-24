@@ -13,6 +13,7 @@ type FriendlyChoiceCardProps = {
   disabled?: boolean;
   compact?: boolean;
   trailing?: ReactNode;
+  attention?: boolean;
 };
 
 const TONES: Record<FriendlyChoiceTone, { active: string; idle: string }> = {
@@ -47,8 +48,10 @@ export default function FriendlyChoiceCard({
   disabled = false,
   compact = false,
   trailing,
+  attention = false,
 }: FriendlyChoiceCardProps) {
   const colors = TONES[tone];
+  const attentionClass = attention && !active ? 'border-rose-400/85 bg-rose-500/12 text-rose-50 shadow-[0_0_24px_rgba(244,63,94,0.24)]' : '';
 
   return (
     <button
@@ -56,7 +59,7 @@ export default function FriendlyChoiceCard({
       onClick={onClick}
       disabled={disabled}
       aria-pressed={active}
-      className={`group relative w-full overflow-hidden rounded-2xl border text-left transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 ${compact ? 'min-h-[78px] px-4 py-3' : 'min-h-[104px] px-4 py-4'} ${active ? colors.active : colors.idle}`}
+      className={`group relative w-full overflow-hidden rounded-2xl border text-left transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 ${compact ? 'min-h-[78px] px-4 py-3' : 'min-h-[104px] px-4 py-4'} ${attentionClass || (active ? colors.active : colors.idle)}`}
     >
       <span className="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-white/45 to-transparent" />
       <span className="relative z-10 flex items-start justify-between gap-3">
