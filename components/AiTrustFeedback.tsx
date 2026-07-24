@@ -21,18 +21,22 @@ const COPY = {
   improveStatLabel: '\u6539\u5584\u5efa\u8b70',
   likeUnit: '\u4eba',
   improveUnit: '\u5247',
-  submitting: '\u9001\u51fa\u4e2d',
-  selectedLike: '\u56de\u994b\u5df2\u5b8c\u6210',
-  selectedImprove: '\u56de\u994b\u5df2\u5b8c\u6210',
+  submitting: '\u540c\u6b65\u4e2d',
+  selectedLike: '\u5df2\u5b8c\u6210\u56de\u994b',
+  selectedImprove: '\u5df2\u5b8c\u6210\u56de\u994b',
   thankLikeTitle: '\u611f\u8b1d\u4f60\u7684\u8a8d\u540c',
   thankLikeBody: '\u4f60\u7684\u652f\u6301\u5df2\u7d2f\u8a08\u9032\u7cfb\u7d71\uff0c\u6211\u5011\u6703\u7e7c\u7e8c\u628a\u9ad4\u9a57\u505a\u5f97\u66f4\u7a69\u3001\u66f4\u6e96\u3002',
   thankImproveTitle: '\u8b1d\u8b1d\u4f60\u9858\u610f\u63d0\u9192\u6211\u5011',
   thankImproveBody: '\u4f60\u7684\u56de\u994b\u5df2\u9032\u5165\u6539\u5584\u6e05\u55ae\uff0c\u6211\u5011\u6703\u7528\u5b83\u6821\u6b63\u9ad4\u9a57\u8207\u8aaa\u660e\u3002',
   lockedTitle: '\u672c\u6b21\u56de\u994b\u5df2\u5b8c\u6210',
   lockedBody: '\u70ba\u4e86\u8b93\u6578\u64da\u66f4\u53ef\u4fe1\uff0c\u6bcf\u53f0\u624b\u6a5f\u50c5\u4fdd\u7559\u4e00\u6b21\u6b63\u5f0f\u56de\u994b\u3002',
-  errorTitle: '\u66ab\u6642\u7121\u6cd5\u9001\u51fa',
-  errorBody: '\u8acb\u7a0d\u5f8c\u518d\u8a66\u4e00\u6b21\uff0c\u9019\u6b21\u56de\u994b\u5c1a\u672a\u8a18\u9304\u6210\u6b63\u5f0f\u6578\u64da\u3002',
+  errorTitle: '\u56de\u994b\u5c1a\u672a\u540c\u6b65',
+  errorBody: '\u624b\u6a5f\u9023\u7dda\u53ef\u80fd\u4e0d\u7a69\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002\u70ba\u4e86\u7dad\u6301\u6578\u64da\u53ef\u4fe1\uff0c\u9019\u6b21\u4e0d\u6703\u91cd\u8907\u7d2f\u8a08\u3002',
   note: '\u4e00\u53f0\u624b\u6a5f\uff0c\u4e00\u6b21\u6e05\u695a\u56de\u994b',
+  lockedNote: '\u672c\u6a5f\u5df2\u5b8c\u6210\u6b63\u5f0f\u56de\u994b\uff0c\u5df2\u9396\u5b9a\u9632\u6b62\u91cd\u8907\u7d2f\u8a08',
+  lockedAction: '\u5df2\u9396\u5b9a',
+  likeDoneAction: '\u5df2\u8a8d\u540c',
+  improveDoneAction: '\u5df2\u6539\u5584',
 } as const;
 
 type FeedbackChoice = 'like' | 'improve';
@@ -240,7 +244,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
       const data = await response.json() as CounterResponse;
 
       if (!response.ok || !data?.ok) {
-        throw new Error(data?.message || COPY.errorBody);
+        throw new Error(COPY.errorBody);
       }
 
       const accepted = nextChoice === 'like'
@@ -294,6 +298,8 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   const isSubmittingLike = submittingChoice === 'like';
   const isSubmittingImprove = submittingChoice === 'improve';
   const feedbackLocked = Boolean(choice);
+  const likeButtonLabel = likeSelected ? COPY.likeDoneAction : feedbackLocked ? COPY.lockedAction : COPY.likeLabel;
+  const improveButtonLabel = improveSelected ? COPY.improveDoneAction : feedbackLocked ? COPY.lockedAction : COPY.improveLabel;
 
   return (
     <section className={`${className} home-ai-feedback-card`}>
@@ -341,7 +347,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
           className={`home-ai-feedback-action home-ai-feedback-action--like ${likeSelected ? 'home-ai-feedback-action--selected' : ''}`}
         >
           <span aria-hidden="true">{'\u{1F44D}'}</span>
-          <span>{isSubmittingLike ? COPY.submitting : COPY.likeLabel}</span>
+          <span>{isSubmittingLike ? COPY.submitting : likeButtonLabel}</span>
         </button>
 
         <button
@@ -351,11 +357,11 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
           className={`home-ai-feedback-action home-ai-feedback-action--improve ${improveSelected ? 'home-ai-feedback-action--selected' : ''}`}
         >
           <span aria-hidden="true">{'\u{1F44E}'}</span>
-          <span>{isSubmittingImprove ? COPY.submitting : COPY.improveLabel}</span>
+          <span>{isSubmittingImprove ? COPY.submitting : improveButtonLabel}</span>
         </button>
       </div>
 
-      <p className="home-ai-feedback-note mt-2 text-[9px] font-semibold leading-none text-[color:var(--text-sub)] opacity-75">{COPY.note}</p>
+      <p className="home-ai-feedback-note mt-2 text-[9px] font-semibold leading-none text-[color:var(--text-sub)] opacity-75">{feedbackLocked ? COPY.lockedNote : COPY.note}</p>
 
       {notice && (
         <div
