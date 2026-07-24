@@ -80,8 +80,13 @@ export default function AppStabilityGuard() {
     const handlePageShow = (event: PageTransitionEvent) => {
       if (event.persisted) {
         injectPerformanceCSS();
-        body.classList.remove('app-page-hidden');
       }
+      updatePerformanceMode();
+      updatePageVisibility();
+    };
+
+    const handleNetworkStateChange = () => {
+      schedulePerformanceModeUpdate();
     };
 
     const addMobileMediaListener = () => {
@@ -129,6 +134,8 @@ export default function AppStabilityGuard() {
     window.addEventListener('error', handleError);
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
     window.addEventListener('pageshow', handlePageShow);
+    window.addEventListener('online', handleNetworkStateChange);
+    window.addEventListener('offline', handleNetworkStateChange);
     window.addEventListener('resize', schedulePerformanceModeUpdate);
     document.addEventListener('visibilitychange', updatePageVisibility);
     addMobileMediaListener();
@@ -140,6 +147,8 @@ export default function AppStabilityGuard() {
       window.removeEventListener('error', handleError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
       window.removeEventListener('pageshow', handlePageShow);
+      window.removeEventListener('online', handleNetworkStateChange);
+      window.removeEventListener('offline', handleNetworkStateChange);
       window.removeEventListener('resize', schedulePerformanceModeUpdate);
       document.removeEventListener('visibilitychange', updatePageVisibility);
       removeMobileMediaListener();
