@@ -32,6 +32,7 @@ function getBirthEra(birthDate: string): string {
 const VALID_BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const VALID_GENDERS = ['male', 'female'] as const;
 const VALID_SONG_LANGUAGES = ['mandarin', 'english', 'taiwanese'] as const;
+const AI_VOICE_DIRECT_MIME = 'application/x-ai-voice-direct';
 
 // ?蹇???umber(0??1 ??啾???=?貔??unknown'/null=??貔?????????剝３???蹇?
 type ShichenChoice = number | 'unknown' | null;
@@ -76,26 +77,33 @@ function isStringArray(value: unknown, maxLength = 10, maxItemLength = 48): valu
   return Array.isArray(value) && value.length <= maxLength && value.every((item) => typeof item === 'string' && item.length <= maxItemLength);
 }
 
-function validateVoiceConsent(payload: unknown): string | null {
-  if (payload === undefined || payload === null) return '\u8acb\u5148\u5b8c\u6210\u672c\u4eba\u8072\u97f3\u6388\u6b0a\u8207\u9304\u97f3\u6458\u8981\u6821\u6e96\u3002';
-  if (typeof payload !== 'object') return '\u8072\u97f3\u6388\u6b0a\u8cc7\u6599\u683c\u5f0f\u7121\u6548\u3002';
-  const consent = payload as Partial<VoiceConsentPayload>;
+function isAiVoiceDirectSample(sample?: VoiceSampleSummary) {
+  return Boolean(sample?.mimeType === AI_VOICE_DIRECT_MIME || sample?.inferredCharacteristics?.includes('ai_voice_direct'));
+}
 
-  if (typeof consent.accepted !== 'boolean') return '\u8072\u97f3\u6388\u6b0a\u72c0\u614b\u683c\u5f0f\u7121\u6548\u3002';
-  if (!consent.accepted) return '\u8acb\u5148\u52fe\u9078\u672c\u4eba\u8072\u97f3\u6388\u6b0a\u3002';
-  if (consent.confirmedOwnVoice !== true || consent.allowSongGeneration !== true) {
-    return '\u8acb\u5148\u78ba\u8a8d\u9019\u662f\u672c\u4eba\u8072\u97f3\uff0c\u4e26\u540c\u610f\u7528\u65bc\u672c\u6b21 AI \u6b4c\u66f2\u751f\u6210\u3002';
+function validateVoiceConsent(payload: unknown): string | null {
+  if (payload === undefined || payload === null) return '\u8acb\u9078\u64c7\u9304\u97f3\u6216 AI \u8072\u97f3\u751f\u6210\u3002';
+  if (typeof payload !== 'object') return '\u8072\u97f3\u751f\u6210\u8cc7\u6599\u683c\u5f0f\u7121\u6548\u3002';
+  const consent = payload as Partial<VoiceConsentPayload>;
+  const aiVoiceDirect = isAiVoiceDirectSample(consent.sample);
+
+  if (typeof consent.accepted !== 'boolean') return '\u8072\u97f3\u751f\u6210\u72c0\u614b\u683c\u5f0f\u7121\u6548\u3002';
+  if (!consent.accepted) return '\u8acb\u9078\u64c7\u9304\u97f3\u6216 AI \u8072\u97f3\u751f\u6210\u3002';
+  if (consent.allowSongGeneration !== true) return '\u8acb\u5148\u5141\u8a31\u672c\u6b21 AI \u6b4c\u66f2\u751f\u6210\u3002';
+  if (!aiVoiceDirect && consent.confirmedOwnVoice !== true) {
+    return '\u8acb\u5148\u5b8c\u6210\u9304\u97f3\uff0c\u6216\u76f4\u63a5\u9078\u64c7 AI \u8072\u97f3\u751f\u6210\u3002';
   }
 
-  if (consent.version !== 'voice-song-consent-v1') return '\u8072\u97f3\u6388\u6b0a\u7248\u672c\u7121\u6548\uff0c\u8acb\u91cd\u65b0\u78ba\u8a8d\u6388\u6b0a\u3002';
-  if (!consent.sample) return '\u8acb\u5148\u5b8c\u6210\u9304\u97f3\u6458\u8981\u6821\u6e96\uff0c\u7cfb\u7d71\u624d\u80fd\u4f9d\u672c\u4eba\u8072\u97f3\u6458\u8981\u751f\u6210\u6b4c\u66f2\u3002';
+  if (consent.version !== 'voice-song-consent-v1') return '\u8072\u97f3\u751f\u6210\u8cc7\u6599\u9700\u8981\u91cd\u65b0\u78ba\u8a8d\u3002';
+  if (!consent.sample) return '\u8acb\u9078\u64c7\u9304\u97f3\u6216 AI \u8072\u97f3\u751f\u6210\u3002';
 
   const sample = consent.sample;
-  if (!Number.isFinite(sample.durationSeconds) || sample.durationSeconds < 1 || sample.durationSeconds > 60) {
-    return '\u9304\u97f3\u79d2\u6578\u683c\u5f0f\u7121\u6548\uff0c\u5efa\u8b70\u9304 4 \u5230 8 \u79d2\u3002';
+  const minDuration = aiVoiceDirect ? 0 : 1;
+  if (!Number.isFinite(sample.durationSeconds) || sample.durationSeconds < minDuration || sample.durationSeconds > 60) {
+    return aiVoiceDirect ? 'AI \u8072\u97f3\u8a2d\u5b9a\u683c\u5f0f\u7121\u6548\u3002' : '\u9304\u97f3\u79d2\u6578\u683c\u5f0f\u7121\u6548\uff0c\u5efa\u8b70\u9304 10 \u5230 20 \u79d2\u3002';
   }
   if (!Number.isFinite(sample.qualityScore) || sample.qualityScore < 0 || sample.qualityScore > 100) return '\u8072\u97f3\u6e05\u6670\u5ea6\u683c\u5f0f\u7121\u6548\u3002';
-  if (!isStringArray(sample.inferredCharacteristics, 12, 48)) return '\u9304\u97f3\u63a8\u8ad6\u7279\u5fb5\u683c\u5f0f\u7121\u6548\u3002';
+  if (!isStringArray(sample.inferredCharacteristics, 12, 48)) return '\u8072\u97f3\u8a2d\u5b9a\u683c\u5f0f\u7121\u6548\u3002';
   return null;
 }
 
@@ -104,11 +112,15 @@ function isVoicePermissionFallback(sample?: VoiceSampleSummary) {
 }
 
 function normalizeVoiceConsent(payload?: VoiceConsentPayload) {
-  const sample = payload?.accepted && payload.confirmedOwnVoice && payload.allowSongGeneration ? payload.sample : undefined;
+  const requestedSample = payload?.sample;
+  const aiVoiceDirect = Boolean(payload?.accepted && payload.allowSongGeneration && isAiVoiceDirectSample(requestedSample));
+  const ownVoiceAuthorized = Boolean(payload?.accepted && payload.confirmedOwnVoice && payload.allowSongGeneration);
+  const authorized = ownVoiceAuthorized || aiVoiceDirect;
+  const sample = authorized ? requestedSample : undefined;
   const inferredCharacteristics = sample?.inferredCharacteristics?.filter((item) => typeof item === 'string') ?? [];
-  const authorized = Boolean(payload?.accepted && payload.confirmedOwnVoice && payload.allowSongGeneration);
-  const permissionFallback = Boolean(authorized && sample && isVoicePermissionFallback(sample));
-  const recorded = Boolean(authorized && sample && !permissionFallback);
+  const permissionFallback = Boolean(ownVoiceAuthorized && sample && isVoicePermissionFallback(sample));
+  const recorded = Boolean(ownVoiceAuthorized && sample && !permissionFallback && !aiVoiceDirect);
+  const aiVoiceGender = inferredCharacteristics.includes('ai_voice_male') ? 'male' : inferredCharacteristics.includes('ai_voice_female') ? 'female' : null;
 
   return {
     authorized,
@@ -123,11 +135,13 @@ function normalizeVoiceConsent(payload?: VoiceConsentPayload) {
           Math.round(sample!.brightness * 1000),
           inferredCharacteristics.join('|'),
         ].join(':')
-      : authorized
-        ? 'voice-consent-only'
-        : 'voice-none',
+      : aiVoiceDirect
+        ? ['ai-voice-v1', aiVoiceGender ?? 'auto', inferredCharacteristics.join('|')].join(':')
+        : authorized
+          ? 'voice-consent-only'
+          : 'voice-none',
     profile: {
-      workflowStatus: recorded ? 'VOICE_SUMMARY_READY' : permissionFallback ? 'VOICE_PERMISSION_FALLBACK_READY' : authorized ? 'VOICE_RECORDING_REQUIRED' : 'VOICE_CONSENT_REQUIRED',
+      workflowStatus: recorded ? 'VOICE_SUMMARY_READY' : aiVoiceDirect ? 'AI_VOICE_READY' : permissionFallback ? 'VOICE_PERMISSION_FALLBACK_READY' : authorized ? 'VOICE_RECORDING_REQUIRED' : 'VOICE_CONSENT_REQUIRED',
       consentAccepted: authorized,
       recorded,
       localOnly: true,
@@ -144,10 +158,12 @@ function normalizeVoiceConsent(payload?: VoiceConsentPayload) {
           }
         : null,
       selfDialogueConcept: recorded
-        ? '\u5df2\u7528\u672c\u4eba\u6388\u6b0a\u8072\u97f3\u6458\u8981\u6821\u6e96\u6b4c\u66f2\u7684\u4eba\u8072\u7bc0\u594f\u3001\u60c5\u7dd2\u5f35\u529b\u8207\u81ea\u6211\u5c0d\u8a71\u5c64\u6b21\uff1b\u9019\u662f\u8072\u97f3\u6458\u8981\u904b\u7b97\uff0c\u4e0d\u662f\u8072\u97f3\u8907\u88fd\u6216\u8072\u7dda\u514b\u9686\u3002'
-        : authorized
-          ? '\u5df2\u53d6\u5f97\u672c\u4eba\u8072\u97f3\u6388\u6b0a\uff0c\u4f46\u5c1a\u672a\u5b8c\u6210\u9304\u97f3\u6821\u6e96\uff1b\u672c\u4eba\u8072\u97f3\u6b4c\u66f2\u5c1a\u4e0d\u6703\u751f\u6210\u3002'
-          : '\u5c1a\u672a\u555f\u7528\u672c\u4eba\u8072\u97f3\u6388\u6b0a\uff0c\u7cfb\u7d71\u4e0d\u6703\u7522\u751f\u672c\u4eba\u8072\u97f3\u6b4c\u66f2\u3002',
+        ? '\u5df2\u7528\u672c\u4eba\u6388\u6b0a\u9304\u97f3\u6458\u8981\u6821\u6e96\u6b4c\u66f2\u7684\u4eba\u8072\u7bc0\u594f\u3001\u60c5\u7dd2\u5f35\u529b\u8207\u81ea\u6211\u5c0d\u8a71\u5c64\u6b21\uff1b\u9019\u662f\u8072\u97f3\u6458\u8981\u904b\u7b97\uff0c\u4e0d\u662f\u8072\u97f3\u8907\u88fd\u6216\u8072\u7dda\u514b\u9686\u3002'
+        : aiVoiceDirect
+          ? '\u5df2\u6539\u7528 AI ' + (aiVoiceGender === 'male' ? '\u7537\u8072' : '\u5973\u8072') + '\u751f\u6210\uff0c\u4e0d\u9700\u8981\u9ea5\u514b\u98a8\uff0c\u4e5f\u4e0d\u6703\u8072\u7a31\u4f7f\u7528\u672c\u4eba\u9304\u97f3\u3002'
+          : authorized
+            ? '\u5df2\u53d6\u5f97\u6b4c\u66f2\u751f\u6210\u6388\u6b0a\uff0c\u4f46\u5c1a\u672a\u5b8c\u6210\u9304\u97f3\uff1b\u53ef\u6539\u7528 AI \u8072\u97f3\u7e7c\u7e8c\u751f\u6210\u3002'
+            : '\u5c1a\u672a\u9078\u64c7\u8072\u97f3\u751f\u6210\u65b9\u5f0f\u3002',
     },
   };
 }
@@ -466,6 +482,6 @@ export async function POST(request: Request) {
     return NextResponse.json(resultPayload);
   } catch (error) {
     console.error('[music-generate] request failed', requestId, error instanceof Error ? error.message : String(error));
-    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '\u97f3\u6a02\u751f\u6210\u66ab\u6642\u5fd9\u788c\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002', 503);
+    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '\u76ee\u524d\u66ab\u6642\u7121\u6cd5\u5b8c\u6210\u6b4c\u66f2\u751f\u6210\u3002\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002\u9020\u6210\u60a8\u7684\u4e0d\u4fbf\uff0c\u656c\u8acb\u898b\u8ad2\u3002', 503);
   }
 }

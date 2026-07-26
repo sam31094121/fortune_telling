@@ -140,6 +140,8 @@ interface ProductionPlan {
 
 type PageState = 'landing' | 'form' | 'result';
 
+const MUSIC_GENERATION_FRIENDLY_FAILURE = '\u76ee\u524d\u66ab\u6642\u7121\u6cd5\u5b8c\u6210\u6b4c\u66f2\u751f\u6210\u3002\n\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002\n\u9020\u6210\u60a8\u7684\u4e0d\u4fbf\uff0c\u656c\u8acb\u898b\u8ad2\u3002';
+
 function LandingHero({ onStart }: { onStart: () => void }) {
   const lastStartTouchRef = useRef(0);
 
@@ -202,10 +204,10 @@ function MusicAnalyticalConsole({
 
   const fullLogs = useMemo(() => [
     `\u8b80\u53d6\u4f7f\u7528\u8005\u8cc7\u6599\uff1a${name || '\u672a\u547d\u540d'}`,
-    '\u78ba\u8a8d\u672c\u4eba\u8072\u97f3\u6388\u6b0a\u8207\u8072\u97f3\u6458\u8981\u6821\u6e96...',
+    '\u78ba\u8a8d\u8072\u97f3\u751f\u6210\u65b9\u5f0f...',
     '\u5efa\u7acb\u4eba\u683c\u5206\u88c2\u8207\u81ea\u6211\u5c0d\u8a71\u7684\u6b4c\u66f2\u7d50\u69cb...',
     '\u628a\u60c5\u7dd2\u3001\u7bc0\u594f\u8207\u5167\u5fc3\u7368\u767d\u8f49\u6210\u65cb\u5f8b\u65b9\u5411...',
-    '\u6e96\u5099\u751f\u6210\u4e00\u9996\u7531\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u6b4c...',
+    '\u6b63\u5728\u751f\u6210\u60a8\u7684\u5c08\u5c6c\u6b4c\u66f2\uff0c\u8acb\u7a0d\u5019\u5e7e\u79d2\u9418...',
   ], [name]);
 
   useEffect(() => {
@@ -280,7 +282,7 @@ export default function MusicSystemPage() {
       const json = await response.json();
 
       if (!response.ok) {
-        setErrorMsg(json.error || '\u97f3\u6a02\u751f\u6210\u66ab\u6642\u6c92\u6709\u5b8c\u6210\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002');
+        setErrorMsg(json.error || MUSIC_GENERATION_FRIENDLY_FAILURE);
         return;
       }
 
@@ -289,9 +291,7 @@ export default function MusicSystemPage() {
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
     } catch (error) {
       console.error('[music] generate failed', error);
-      setErrorMsg(error instanceof DOMException && error.name === 'AbortError'
-        ? '\u5206\u6790\u7b49\u5019\u6642\u9593\u8f03\u4e45\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002'
-        : '\u76ee\u524d\u7121\u6cd5\u9023\u7dda\u5230\u97f3\u6a02\u4eba\u683c\u670d\u52d9\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002');
+      setErrorMsg(MUSIC_GENERATION_FRIENDLY_FAILURE);
     } finally {
       window.clearTimeout(timeout);
       setLoading(false);
@@ -413,11 +413,17 @@ export default function MusicSystemPage() {
             <section className="mb-6 rounded-[22px] border border-violet-300/20 bg-violet-950/20 p-4 shadow-[0_10px_28px_rgba(2,6,23,0.22)]">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-xs font-black tracking-[0.22em] text-violet-200">{"\u672c\u4eba\u8072\u97f3\u6458\u8981\u6821\u6e96"}</p>
-                  <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]">{result.voice_profile.selfDialogueConcept}</p>
+                  <p className="text-xs font-black tracking-[0.22em] text-violet-200">
+                    {result.voice_profile.recorded ? "\u{1F3B5} \u60a8\u7684\u5c08\u5c6c\u6b4c\u66f2\u5df2\u5b8c\u6210\uff01" : result.voice_profile.workflowStatus === 'AI_VOICE_READY' ? "\u{1F3B5} \u60a8\u7684\u5c08\u5c6c\u6b4c\u66f2\u5df2\u5b8c\u6210\uff01" : "\u672c\u4eba\u8072\u97f3\u6458\u8981\u6821\u6e96"}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]">
+                    {result.voice_profile.recorded
+                      ? "AI \u5df2\u5b8c\u6210\u60a8\u7684\u8072\u97f3\u5206\u6790\uff0c\u4e26\u5efa\u7acb\u5c08\u5c6c\u8072\u97f3\u6a21\u578b\u7528\u65bc\u6b4c\u66f2\u5275\u4f5c\u3002\u795d\u60a8\u8076\u807d\u6109\u5feb\uff01"
+                      : result.voice_profile.selfDialogueConcept}
+                  </p>
                 </div>
                 <span className="shrink-0 rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1.5 text-xs font-bold text-cyan-100">
-                  {result.voice_profile.recorded ? "\u5df2\u9304\u97f3\u6458\u8981\u6821\u6e96" : result.voice_profile.consentAccepted ? "\u5df2\u6388\u6b0a" : "\u672a\u555f\u7528"}
+                  {result.voice_profile.recorded ? "\u5df2\u9304\u97f3\u6458\u8981\u6821\u6e96" : result.voice_profile.workflowStatus === 'AI_VOICE_READY' ? 'AI \u8072\u97f3\u751f\u6210' : result.voice_profile.consentAccepted ? "\u5df2\u6388\u6b0a" : "\u672a\u555f\u7528"}
                 </span>
               </div>
               {result.voice_profile.sample && (

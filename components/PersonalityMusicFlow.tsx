@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import LunarBirthdayInput from './LunarBirthdayInput';
 import FriendlyChoiceCard from './FriendlyChoiceCard';
-import VoiceConsentRecorder, { type VoiceConsentState } from './VoiceConsentRecorder';
+import VoiceConsentRecorder, { type AiVoiceGender, type VoiceConsentState } from './VoiceConsentRecorder';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
 
@@ -42,15 +42,6 @@ const BLOOD_DESC: Record<BloodType, string> = {
   AB: '\u7406\u6027\u8207\u611f\u6027\u4e26\u5b58\uff0c\u9069\u5408\u505a\u51fa\u50cf\u96d9\u91cd\u4eba\u683c\u5c0d\u8a71\u7684\u6bb5\u843d\u3002',
   O: '\u80fd\u91cf\u76f4\u63a5\uff0c\u9069\u5408\u5f37\u5316\u526f\u6b4c\u5f35\u529b\u8207\u9762\u5c0d\u81ea\u5df1\u7684\u52c7\u6c23\u3002',
 };
-
-const VOICE_OPTIONS = [
-  { key: 'confident', label: '\u8072\u97f3\u6709\u81ea\u4fe1' },
-  { key: 'soft_spoken', label: '\u8aaa\u8a71\u504f\u6eab\u67d4' },
-  { key: 'emotional_tone', label: '\u60c5\u7dd2\u8d77\u4f0f\u660e\u986f' },
-  { key: 'rhythmic_speech', label: '\u8a9e\u6c23\u6709\u7bc0\u594f' },
-  { key: 'high_energy', label: '\u80fd\u91cf\u6bd4\u8f03\u9ad8' },
-  { key: 'hesitant', label: '\u5e36\u4e00\u9ede\u7336\u8c6b\u611f' },
-];
 
 const SONG_LANGUAGE_OPTIONS: Array<{ key: PreferredSongLanguage; label: string; hint: string; badge?: string }> = [
   {
@@ -125,7 +116,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
       if (form.shichen === null) return '\u8acb\u9078\u64c7\u51fa\u751f\u6642\u8fb0\uff1b\u82e5\u4e0d\u77e5\u9053\uff0c\u8acb\u9ede\u9078\u300c\u4e0d\u77e5\u9053\u6642\u8fb0\u300d\u3002';
     }
     if (targetStep === 1 && !form.voiceConsent.sample) {
-      return '\u8acb\u9078\u64c7\u4e00\u7a2e\u6821\u6e96\u65b9\u5f0f\uff1a\u53ef\u52fe\u9078\u6388\u6b0a\u5f8c\u9304\u97f3\uff0c\u82e5 LINE \u6216\u624b\u6a5f\u64cb\u4f4f\u9ea5\u514b\u98a8\uff0c\u8acb\u76f4\u63a5\u6309\u300c\u4e0d\u7528\u9ea5\u514b\u98a8\uff0c\u76f4\u63a5\u5b89\u5168\u6821\u6e96\u300d\u7e7c\u7e8c\u3002';
+      return '\u8acb\u9078\u64c7\u300c\u958b\u59cb\u9304\u97f3\u300d\u6216\u300c\u7acb\u5373\u751f\u6210\u300d\uff0c\u5169\u7a2e\u65b9\u5f0f\u90fd\u53ef\u4ee5\u5b8c\u6210\u6b4c\u66f2\u3002';
     }
     return null;
   }
@@ -153,13 +144,15 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     void onSubmit(form);
   }
 
-  function toggleVoice(key: string) {
-    setForm((prev) => ({
-      ...prev,
-      voiceCharacteristics: prev.voiceCharacteristics.includes(key)
-        ? prev.voiceCharacteristics.filter((item) => item !== key)
-        : [...prev.voiceCharacteristics, key],
-    }));
+  function submitWithVoice(voiceConsent: VoiceConsentState, aiVoiceGender?: AiVoiceGender) {
+    const nextForm = {
+      ...form,
+      voiceConsent,
+      vocalGenderPreference: aiVoiceGender ?? form.vocalGenderPreference,
+    };
+    setForm(nextForm);
+    setLocalError('');
+    void onSubmit(nextForm);
   }
 
   return (
@@ -310,36 +303,26 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
           <div className="music-flow-stage-card music-flow-stage-card--voice">
             <div className="music-flow-stage-heading">
               <p>{"\u7b2c\u4e8c\u6bb5"}</p>
-              <h3>{"\u8072\u97f3\u6216\u5b89\u5168\u6821\u6e96"}</h3>
-              <span>{"\u9ea5\u514b\u98a8\u53ef\u7528\u5c31\u9304\u97f3\uff0c\u88ab LINE \u64cb\u4f4f\u5c31\u76f4\u63a5\u5b89\u5168\u6821\u6e96"}</span>
+              <h3>{"AI \u97f3\u6a02\u751f\u6210"}</h3>
+              <span>{"\u9078\u64c7\u9304\u97f3\uff0c\u6216\u76f4\u63a5\u4f7f\u7528 AI \u8072\u97f3"}</span>
             </div>
-          <p className="text-sm leading-6 text-[color:var(--text-sub)]">{'\u9019\u662f\u8072\u97f3\u6458\u8981\u6821\u6e96\u7248\uff1a\u8acb\u5148\u6388\u6b0a\u4e26\u9304\u4e00\u6bb5\u8072\u97f3\uff0c\u7cfb\u7d71\u6703\u4f9d\u8072\u97f3\u6458\u8981\u8abf\u6574\u300c\u81ea\u6211\u5c0d\u8a71\u300d\u6b4c\u66f2\uff1b\u9019\u4e0d\u662f\u8072\u97f3\u8907\u88fd\u6216\u8072\u7dda\u514b\u9686\u3002'}</p>
+          <p className="text-sm leading-6 text-[color:var(--text-sub)]">{'\u9078\u64c7\u4e00\u7a2e\u65b9\u5f0f\u5373\u53ef\u958b\u59cb\u751f\u6210\u3002\u6709\u9ea5\u514b\u98a8\u5c31\u4f7f\u7528\u81ea\u5df1\u7684\u8072\u97f3\uff1b\u4e0d\u65b9\u4fbf\u9304\u97f3\u6642\uff0c\u76f4\u63a5\u9078 AI \u7537\u8072\u6216 AI \u5973\u8072\u3002'}</p>
           <VoiceConsentRecorder
             value={form.voiceConsent}
             disabled={loading}
             required
             showMissing={showMissingVoice}
+            aiVoiceGender={form.vocalGenderPreference}
+            onAiVoiceGenderChange={(gender) => {
+              setForm((prev) => ({ ...prev, vocalGenderPreference: gender }));
+              setLocalError('');
+            }}
+            onReadyToGenerate={submitWithVoice}
             onChange={(voiceConsent) => {
               setForm((prev) => ({ ...prev, voiceConsent }));
               setLocalError('');
             }}
           />
-
-          <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-3">
-            <p className="mb-2 text-xs font-semibold text-cyan-100">{'\u9304\u97f3\u5f8c\u53ef\u88dc\u5145\u7684\u8072\u97f3\u6a19\u7c64\uff08\u9078\u586b\uff09'}</p>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {VOICE_OPTIONS.map((option) => (
-                <button
-                  key={option.key}
-                  type="button"
-                  onClick={() => toggleVoice(option.key)}
-                  className={`rounded-[18px] border px-3 py-3 text-sm transition-all ${form.voiceCharacteristics.includes(option.key) ? 'border-cyan-300 bg-cyan-300/10 text-cyan-100' : 'border-white/10 bg-white/5 text-[color:var(--text-sub)]'}`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
           </div>
         </div>
       )}
@@ -428,7 +411,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
           </button>
         )}
         <button type="button" onClick={handleNext} disabled={loading} className="vip-gold-btn shimmer-btn flex-1 py-4 text-sm disabled:cursor-not-allowed disabled:opacity-60">
-          {loading ? 'AI \u6b63\u5728\u751f\u6210\u6b4c\u66f2...' : step === STEPS.length - 1 ? '\u751f\u6210\u500b\u4eba\u4eba\u683c\u5206\u88c2\u6b4c\u66f2' : step === 0 ? '\u4e0b\u4e00\u6b65\uff1a\u8072\u97f3\u6216\u5b89\u5168\u6821\u6e96' : '\u4e0b\u4e00\u6b65\uff1a\u751f\u6210\u6b4c\u66f2'}
+          {loading ? 'AI \u6b63\u5728\u751f\u6210\u6b4c\u66f2...' : step === STEPS.length - 1 ? '\u751f\u6210\u500b\u4eba\u4eba\u683c\u5206\u88c2\u6b4c\u66f2' : step === 0 ? '\u4e0b\u4e00\u6b65\uff1aAI \u97f3\u6a02\u751f\u6210' : '\u4e0b\u4e00\u6b65\uff1a\u751f\u6210\u6b4c\u66f2'}
         </button>
       </div>
     </div>
