@@ -72,7 +72,9 @@ export default function AppStabilityGuard() {
     };
 
     const markScrolling = () => {
-      body.classList.add('app-scrolling');
+      if (!body.classList.contains('app-scrolling')) {
+        body.classList.add('app-scrolling');
+      }
       if (scrollIdleTimerId !== undefined) window.clearTimeout(scrollIdleTimerId);
       scrollIdleTimerId = window.setTimeout(() => {
         body.classList.remove('app-scrolling');
@@ -80,7 +82,9 @@ export default function AppStabilityGuard() {
     };
 
     const markTouching = () => {
-      body.classList.add('app-touching');
+      if (!body.classList.contains('app-touching')) {
+        body.classList.add('app-touching');
+      }
       if (touchIdleTimerId !== undefined) window.clearTimeout(touchIdleTimerId);
       touchIdleTimerId = window.setTimeout(() => {
         body.classList.remove('app-touching');
@@ -88,6 +92,7 @@ export default function AppStabilityGuard() {
     };
 
     const markStressMode = () => {
+      if (body.classList.contains('app-stress-mode')) return;
       body.classList.add('app-stress-mode');
       if (stressTimerId !== undefined) window.clearTimeout(stressTimerId);
       stressTimerId = window.setTimeout(() => {

@@ -406,6 +406,204 @@
         padding-inline: 0.5rem;
       }
     }
+
+/* Mobile card smoothness sweep: keep all major cards lighter on phones and in in-app browsers. */
+body.app-mobile-device .home-feature-launch,
+body.app-mobile-device .home-trust-card,
+body.app-mobile-device .home-ai-feedback-card,
+body.app-mobile-device .home-line-share-card,
+body.app-mobile-device .home-command-panel,
+body.app-mobile-device .home-forecast-panel,
+body.app-mobile-device .home-core-panel,
+body.app-mobile-device .fortune-card,
+body.app-mobile-device .vip-gold-card,
+body.app-mobile-device .number-fortune-card,
+body.app-mobile-device .number-fortune-analysis-card,
+body.app-mobile-device .number-fortune-taiji-card,
+body.app-mobile-device .result-container,
+body.app-mobile-device .ziwei-palace-card,
+body.app-mobile-device .music-song-maker-card,
+body.app-mobile-device .music-primary-generate-panel,
+body.app-mobile-device .music-flow-stage-card,
+body.app-mobile-device .voice-song-consent-card,
+body.app-mobile-device .voice-recorder-console,
+body.app-mobile-device .taiji-standalone-card,
+body.app-social-browser .home-feature-launch,
+body.app-social-browser .home-trust-card,
+body.app-social-browser .home-ai-feedback-card,
+body.app-social-browser .home-line-share-card,
+body.app-social-browser .home-command-panel,
+body.app-social-browser .home-forecast-panel,
+body.app-social-browser .home-core-panel,
+body.app-social-browser .fortune-card,
+body.app-social-browser .vip-gold-card,
+body.app-social-browser .number-fortune-card,
+body.app-social-browser .number-fortune-analysis-card,
+body.app-social-browser .number-fortune-taiji-card,
+body.app-social-browser .result-container,
+body.app-social-browser .ziwei-palace-card,
+body.app-social-browser .music-song-maker-card,
+body.app-social-browser .music-primary-generate-panel,
+body.app-social-browser .music-flow-stage-card,
+body.app-social-browser .voice-song-consent-card,
+body.app-social-browser .voice-recorder-console,
+body.app-social-browser .taiji-standalone-card,
+body.app-lite-effects .home-feature-launch,
+body.app-lite-effects .home-trust-card,
+body.app-lite-effects .home-ai-feedback-card,
+body.app-lite-effects .home-line-share-card,
+body.app-lite-effects .home-command-panel,
+body.app-lite-effects .home-forecast-panel,
+body.app-lite-effects .home-core-panel,
+body.app-lite-effects .fortune-card,
+body.app-lite-effects .vip-gold-card,
+body.app-lite-effects .number-fortune-card,
+body.app-lite-effects .number-fortune-analysis-card,
+body.app-lite-effects .number-fortune-taiji-card,
+body.app-lite-effects .result-container,
+body.app-lite-effects .ziwei-palace-card,
+body.app-lite-effects .music-song-maker-card,
+body.app-lite-effects .music-primary-generate-panel,
+body.app-lite-effects .music-flow-stage-card,
+body.app-lite-effects .voice-song-consent-card,
+body.app-lite-effects .voice-recorder-console,
+body.app-lite-effects .taiji-standalone-card {
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  contain: layout paint style;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  box-shadow: 0 8px 22px rgba(2, 6, 23, 0.18), inset 0 0 10px rgba(255, 255, 255, 0.018) !important;
+}
+
+body.app-mobile-device .fortune-card,
+body.app-mobile-device .vip-gold-card,
+body.app-mobile-device .number-fortune-card,
+body.app-mobile-device .number-fortune-analysis-card,
+body.app-mobile-device .number-fortune-taiji-card,
+body.app-mobile-device .result-container,
+body.app-mobile-device .ziwei-palace-card,
+body.app-mobile-device .music-song-maker-card,
+body.app-mobile-device .music-primary-generate-panel,
+body.app-mobile-device .music-flow-stage-card,
+body.app-mobile-device .voice-song-consent-card,
+body.app-mobile-device .voice-recorder-console,
+body.app-social-browser .fortune-card,
+body.app-social-browser .vip-gold-card,
+body.app-social-browser .number-fortune-card,
+body.app-social-browser .number-fortune-analysis-card,
+body.app-social-browser .number-fortune-taiji-card,
+body.app-social-browser .result-container,
+body.app-social-browser .ziwei-palace-card,
+body.app-social-browser .music-song-maker-card,
+body.app-social-browser .music-primary-generate-panel,
+body.app-social-browser .music-flow-stage-card,
+body.app-social-browser .voice-song-consent-card,
+body.app-social-browser .voice-recorder-console {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 560px;
+}
+
+body.app-mobile-device .home-trust-card,
+body.app-mobile-device .home-ai-feedback-card,
+body.app-mobile-device .home-feature-launch,
+body.app-mobile-device .home-feature-direct-link,
+body.app-mobile-device [data-visitor-counter],
+body.app-mobile-device .home-ai-feedback-action,
+body.app-social-browser .home-trust-card,
+body.app-social-browser .home-ai-feedback-card,
+body.app-social-browser .home-feature-launch,
+body.app-social-browser .home-feature-direct-link,
+body.app-social-browser [data-visitor-counter],
+body.app-social-browser .home-ai-feedback-action {
+  content-visibility: visible !important;
+  pointer-events: auto !important;
+  touch-action: pan-y pinch-zoom;
+}
+
+body.app-mobile-device .home-feature-launch::before,
+body.app-mobile-device .home-feature-launch::after,
+body.app-mobile-device .fortune-card::before,
+body.app-mobile-device .fortune-card::after,
+body.app-mobile-device .vip-gold-card::before,
+body.app-mobile-device .vip-gold-card::after,
+body.app-mobile-device .home-line-share-card::before,
+body.app-mobile-device .home-line-share-card::after,
+body.app-mobile-device .music-song-maker-card::before,
+body.app-mobile-device .music-song-maker-card::after,
+body.app-mobile-device .music-flow-stage-card::before,
+body.app-mobile-device .voice-recorder-wave,
+body.app-social-browser .home-feature-launch::before,
+body.app-social-browser .home-feature-launch::after,
+body.app-social-browser .fortune-card::before,
+body.app-social-browser .fortune-card::after,
+body.app-social-browser .vip-gold-card::before,
+body.app-social-browser .vip-gold-card::after,
+body.app-social-browser .home-line-share-card::before,
+body.app-social-browser .home-line-share-card::after,
+body.app-social-browser .music-song-maker-card::before,
+body.app-social-browser .music-song-maker-card::after,
+body.app-social-browser .music-flow-stage-card::before,
+body.app-social-browser .voice-recorder-wave {
+  animation: none !important;
+  filter: none !important;
+  opacity: 0.16 !important;
+}
+
+body.app-scrolling .home-feature-launch,
+body.app-scrolling .home-trust-card,
+body.app-scrolling .home-ai-feedback-card,
+body.app-scrolling .home-line-share-card,
+body.app-scrolling .fortune-card,
+body.app-scrolling .number-fortune-card,
+body.app-scrolling .result-container,
+body.app-scrolling .music-flow-stage-card,
+body.app-scrolling .voice-song-consent-card,
+body.app-touching .home-feature-launch,
+body.app-touching .home-trust-card,
+body.app-touching .home-ai-feedback-card,
+body.app-touching .home-line-share-card,
+body.app-touching .fortune-card,
+body.app-touching .number-fortune-card,
+body.app-touching .result-container,
+body.app-touching .music-flow-stage-card,
+body.app-touching .voice-song-consent-card,
+body.app-stress-mode .home-feature-launch,
+body.app-stress-mode .home-trust-card,
+body.app-stress-mode .home-ai-feedback-card,
+body.app-stress-mode .home-line-share-card,
+body.app-stress-mode .fortune-card,
+body.app-stress-mode .number-fortune-card,
+body.app-stress-mode .result-container,
+body.app-stress-mode .music-flow-stage-card,
+body.app-stress-mode .voice-song-consent-card {
+  transform: none !important;
+  transition-duration: 80ms !important;
+  box-shadow: 0 6px 16px rgba(2, 6, 23, 0.14) !important;
+}
+
+@media (max-width: 640px), (pointer: coarse) {
+  .home-feature-launch,
+  .home-trust-card,
+  .home-ai-feedback-card,
+  .home-line-share-card,
+  .fortune-card,
+  .vip-gold-card,
+  .number-fortune-card,
+  .number-fortune-analysis-card,
+  .result-container,
+  .ziwei-palace-card,
+  .music-song-maker-card,
+  .music-primary-generate-panel,
+  .music-flow-stage-card,
+  .voice-song-consent-card,
+  .voice-recorder-console {
+    will-change: auto !important;
+    scroll-margin-top: 0.75rem;
+  }
+}
+
   `;
 
   document.head.appendChild(style);

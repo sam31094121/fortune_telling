@@ -7494,3 +7494,57 @@ body.app-scrolling .home-trust-strip > [data-visitor-counter="home"].home-trust-
     font-size: clamp(1.08rem, 6.4vw, 1.38rem) !important;
   }
 }
+
+
+/* Mobile card smoothness baseline: first-paint card stability on phones. */
+@media (max-width: 640px), (pointer: coarse) {
+  .home-feature-launch,
+  .home-trust-card,
+  .home-ai-feedback-card,
+  .home-line-share-card,
+  .fortune-card,
+  .vip-gold-card,
+  .number-fortune-card,
+  .number-fortune-analysis-card,
+  .number-fortune-taiji-card,
+  .result-container,
+  .ziwei-palace-card,
+  .music-song-maker-card,
+  .music-primary-generate-panel,
+  .music-flow-stage-card,
+  .voice-song-consent-card,
+  .voice-recorder-console,
+  .taiji-standalone-card {
+    max-width: 100%;
+    contain: layout paint style;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .fortune-card,
+  .vip-gold-card,
+  .number-fortune-card,
+  .number-fortune-analysis-card,
+  .number-fortune-taiji-card,
+  .result-container,
+  .ziwei-palace-card,
+  .music-song-maker-card,
+  .music-primary-generate-panel,
+  .music-flow-stage-card,
+  .voice-song-consent-card,
+  .voice-recorder-console {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 560px;
+  }
+
+  .home-trust-card,
+  .home-ai-feedback-card,
+  .home-feature-launch,
+  .home-feature-direct-link,
+  [data-visitor-counter],
+  .home-ai-feedback-action {
+    content-visibility: visible !important;
+    pointer-events: auto !important;
+  }
+}
