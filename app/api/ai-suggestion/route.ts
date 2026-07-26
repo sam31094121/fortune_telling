@@ -71,6 +71,31 @@ async function raiseSupabaseCountFloor(supabase: NonNullable<ReturnType<typeof g
   }
 }
 
+async function recordSupabaseDirectFallback(supabase: NonNullable<ReturnType<typeof getVisitorSupabaseClient>>) {
+  const { data, error } = await supabase
+    .from('suggestion_counter')
+    .select('total_count')
+    .eq('id', 'global')
+    .maybeSingle<SuggestionCounterRow>();
+
+  if (error) {
+    console.error('[ai-suggestion] direct fallback read failed', error.message);
+  }
+
+  const localCount = await readLocalCountFloor();
+  const remoteCount = normalizeCount(data?.total_count);
+  const totalCount = Math.max(localCount, remoteCount, AI_SUGGESTION_INITIAL_COUNT) + 1;
+  const { error: upsertError } = await supabase
+    .from('suggestion_counter')
+    .upsert({ id: 'global', total_count: totalCount, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+
+  if (upsertError) {
+    throw upsertError;
+  }
+
+  return totalCount;
+}
+
 export async function GET() {
   const supabase = getVisitorSupabaseClient();
 
@@ -173,10 +198,27 @@ export async function POST(request: Request) {
       );
     } catch (fallbackError) {
       console.error('[ai-suggestion] local fallback write failed', fallbackError);
-      return NextResponse.json(
-        { ok: false, message: '目前無法送出，請稍後再試。' },
-        { status: 503, headers: { 'Cache-Control': 'no-store' } },
-      );
+
+      try {
+        const totalCount = await recordSupabaseDirectFallback(supabase);
+
+        return NextResponse.json(
+          {
+            ok: true,
+            totalCount,
+            didSend: true,
+            alreadySent: false,
+            storage: 'supabase-direct-fallback',
+          },
+          { headers: { 'Cache-Control': 'no-store' } },
+        );
+      } catch (directFallbackError) {
+        console.error('[ai-suggestion] direct fallback failed', directFallbackError);
+        return NextResponse.json(
+          { ok: false, message: '目前無法送出，請稍後再試。' },
+          { status: 503, headers: { 'Cache-Control': 'no-store' } },
+        );
+      }
     }
   }
 

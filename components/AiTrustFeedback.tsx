@@ -10,6 +10,8 @@ const LEGACY_SUGGESTION_DEVICE_ID_KEY = 'taiji_ai_suggestion_device_id_v1';
 const LIKE_HIGHEST_COUNT_KEY = 'taiji_ai_like_highest_count_v1';
 const SUGGESTION_HIGHEST_COUNT_KEY = 'taiji_ai_suggestion_highest_count_v1';
 const NOTICE_DURATION_MS = 5200;
+const FEEDBACK_REQUEST_TIMEOUT_MS = 8500;
+const FEEDBACK_RETRY_DELAY_MS = 650;
 
 const COPY = {
   title: '\u0041\u0049 \u56de\u994b\u6821\u6e96',
@@ -138,6 +140,67 @@ function writeStoredHighestCount(key: string, count: number, initialCount: numbe
 
 function createFeedbackEventId() {
   return `event_${createDeviceId()}`;
+}
+
+function waitForFeedbackRetry() {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, FEEDBACK_RETRY_DELAY_MS);
+  });
+}
+
+async function postFeedbackEvent(endpoint: string, eventId: string): Promise<CounterResponse> {
+  const requestBody = JSON.stringify({ deviceId: eventId, eventId });
+  let lastError: unknown = null;
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    let timeoutId: number | undefined;
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+
+    try {
+      if (controller) {
+        timeoutId = window.setTimeout(() => controller.abort(), FEEDBACK_REQUEST_TIMEOUT_MS);
+      }
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: requestBody,
+        cache: 'no-store',
+        signal: controller?.signal,
+      });
+
+      const data = await response.json().catch(() => null) as CounterResponse | null;
+
+      if (response.ok && data?.ok) {
+        return data;
+      }
+
+      lastError = new Error(data?.message || COPY.errorBody);
+    } catch (error) {
+      lastError = error;
+    } finally {
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+      }
+    }
+
+    if (attempt === 0) {
+      await waitForFeedbackRetry();
+    }
+  }
+
+  if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+    try {
+      const beaconBody = new Blob([requestBody], { type: 'application/json' });
+      if (navigator.sendBeacon(endpoint, beaconBody)) {
+        return { ok: true };
+      }
+    } catch {
+      // Fall through to the friendly error only when all mobile-safe transports fail.
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error(COPY.errorBody);
 }
 
 export default function AiTrustFeedback({ className = '' }: { className?: string }) {
@@ -274,18 +337,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
 
     try {
       const eventId = createFeedbackEventId();
-      const response = await fetch(nextChoice === 'like' ? '/api/ai-like' : '/api/ai-suggestion', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deviceId: eventId, eventId }),
-        cache: 'no-store',
-        keepalive: true,
-      });
-      const data = await response.json() as CounterResponse;
-
-      if (!response.ok || !data?.ok) {
-        throw new Error(COPY.errorBody);
-      }
+      const data = await postFeedbackEvent(nextChoice === 'like' ? '/api/ai-like' : '/api/ai-suggestion', eventId);
 
       const accepted = nextChoice === 'like'
         ? data.didLike !== false && data.alreadyLiked !== true
