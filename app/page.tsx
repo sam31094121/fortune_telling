@@ -802,13 +802,25 @@ export default function HomePage() {
     return () => window.removeEventListener('popstate', syncFortuneModalWithUrl);
   }, []);
 
-  const handleLineShare = () => {
-    const origin =
-      typeof window !== 'undefined'
-        ? window.location.origin
-        : process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:8888';
+  const handleLineShare = async () => {
+    const shareUrl = 'https://heaven-earth-humanity-pair.vercel.app/';
+    const shareData = {
+      title: '☯ 太極命理 AI',
+      text: '用 AI 探索靈魂配對、人格能量與數字吉凶，看看天、地、人之間的共鳴。',
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (error) {
+        if ((error as Error).name === 'AbortError') return;
+      }
+    }
+
     window.open(
-      `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`${origin}/`)}`,
+      `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`,
       '_blank',
       'noopener,noreferrer',
     );
