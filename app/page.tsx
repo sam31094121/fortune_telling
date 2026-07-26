@@ -96,6 +96,8 @@ const EVOLUTION_CONFIG: Record<1 | 2 | 4 | 8, EvolutionConfig> = {
   },
 };
 
+const FORTUNE_MODAL_PATH = '/numerology';
+
 const BAGUA_SYMBOLS = [
   ['乾', '☰'],
   ['兌', '☱'],
@@ -772,6 +774,34 @@ export default function HomePage() {
   const fortuneSubmittingRef = useRef(false);
   const fortuneLoading = fortuneStatus === 'validating' || fortuneStatus === 'loading' || fortuneStatus === 'recovering';
 
+  const openFortuneModal = () => {
+    if (window.location.pathname !== FORTUNE_MODAL_PATH) {
+      window.history.pushState({ fortuneModal: true }, '', FORTUNE_MODAL_PATH);
+    }
+    setIsFortuneModalOpen(true);
+  };
+
+  const restoreHomeUrl = () => {
+    if (window.location.pathname !== FORTUNE_MODAL_PATH) return;
+
+    if (window.history.state?.fortuneModal) {
+      window.history.back();
+      return;
+    }
+
+    window.history.replaceState(null, '', '/');
+  };
+
+  useEffect(() => {
+    const syncFortuneModalWithUrl = () => {
+      setIsFortuneModalOpen(window.location.pathname === FORTUNE_MODAL_PATH);
+    };
+
+    syncFortuneModalWithUrl();
+    window.addEventListener('popstate', syncFortuneModalWithUrl);
+    return () => window.removeEventListener('popstate', syncFortuneModalWithUrl);
+  }, []);
+
   const handleLineShare = () => {
     const origin =
       typeof window !== 'undefined'
@@ -802,6 +832,7 @@ export default function HomePage() {
       setFortuneResult(null);
       setFortuneStatus('idle');
       setIsFortuneModalOpen(false);
+      restoreHomeUrl();
       setModalEvolutionStage('idle');
       setModalEvolutionLabel('觸碰太極，觀察萬象演化');
       setModalEvolutionDescription('');
@@ -1651,7 +1682,7 @@ export default function HomePage() {
               </button>
               <button
                 type="button"
-                onClick={() => setIsFortuneModalOpen(true)}
+                onClick={openFortuneModal}
                 className="home-secondary-cta inline-flex items-center justify-center gap-2 rounded-full border border-cyan-300/35 bg-cyan-400/10 px-8 py-3 text-sm font-black text-cyan-100 transition-all shadow-[0_0_24px_rgba(34,211,238,0.18)]"
               >
                 <span>立即解碼數字吉凶</span>
@@ -1796,7 +1827,7 @@ export default function HomePage() {
 
           <button
             type="button"
-            onClick={() => setIsFortuneModalOpen(true)}
+            onClick={openFortuneModal}
             className="home-feature-launch home-feature-cyan order-1 w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-all duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
@@ -1876,7 +1907,7 @@ export default function HomePage() {
                   <div className="hidden items-center gap-2.5 flex-wrap">
                     <button
                       type="button"
-                      onClick={() => setIsFortuneModalOpen(true)}
+                      onClick={openFortuneModal}
                       className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 px-5 py-3 text-xs font-bold tracking-widest text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.15)] hover:bg-cyan-500/20 transition-all duration-300 flex items-center gap-1.5 animate-pulse"
                     >
                       <span>☯️ 數字吉凶解碼</span>
@@ -2560,6 +2591,7 @@ export default function HomePage() {
                 setModalEvolutionStage('idle');
                 setModalEvolutionLabel('觸碰太極，觀察萬象演化');
                 setModalEvolutionDescription('');
+                restoreHomeUrl();
               }}
               className="number-fortune-close-button absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm text-[color:var(--text-sub)] hover:border-white/20 hover:text-white transition"
             >
@@ -2572,6 +2604,7 @@ export default function HomePage() {
                 setFortuneResult(null);
                 setFortuneNumber('');
                 setFortuneError('');
+                restoreHomeUrl();
                 window.setTimeout(scrollToTop, 0);
               }}
               className="number-fortune-home-guide absolute top-4 left-4 inline-flex h-8 max-w-[calc(100%-4.5rem)] items-center justify-center gap-1.5 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 text-[11px] font-black leading-none tracking-[0.08em] text-cyan-100 transition hover:border-cyan-200/45 hover:bg-cyan-300/16 hover:text-white active:scale-[0.98]"
@@ -2875,7 +2908,7 @@ export default function HomePage() {
           {/* 懸浮霓虹解碼球 (Floating Cybernetic Badge) */}
           <button
             type="button"
-            onClick={() => setIsFortuneModalOpen(true)}
+            onClick={openFortuneModal}
             className="fixed bottom-24 right-6 z-40 flex h-14 w-14 flex-col items-center justify-center rounded-full border border-cyan-500/40 bg-slate-950/90 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-300 hover:scale-110 hover:border-cyan-300 hover:text-cyan-200 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 animate-pulse cursor-pointer group"
             aria-label="數字吉凶"
           >
