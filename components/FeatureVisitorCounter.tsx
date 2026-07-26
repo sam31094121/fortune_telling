@@ -369,15 +369,15 @@ export default function FeatureVisitorCounter({
       ref={cardRef}
       data-visitor-counter={featureKey}
       className={`inline-flex w-fit flex-col border border-amber-300/30 bg-white/[0.08] text-[color:var(--text-main)] shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl ${compact ? 'items-center justify-center rounded-xl px-2.5 py-2 text-center' : 'rounded-2xl px-[18px] py-[14px]'} ${className}`}
-      aria-label="累計瀏覽人數"
+      aria-label="\u7d2f\u8a08\u700f\u89bd\u4eba\u6578"
     >
-      <div className={`${compact ? 'text-[9px] leading-tight sm:text-[10px]' : 'text-[13px]'} font-semibold text-[color:var(--text-main)] opacity-75`}>累計瀏覽人數</div>
-      <div className={`top-feedback-count ${compact ? 'mt-1 font-serif text-2xl leading-none' : 'mt-1 text-2xl'} font-black tracking-[0.04em] text-amber-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.28)]`} aria-live="polite">
-        {displayCount === null ? '同步中' : displayCount.toLocaleString('zh-TW')}
+      <div className={`${compact ? 'text-[9px] leading-tight sm:text-[10px]' : 'text-[13px]'} font-semibold text-[color:var(--text-main)] opacity-75`}>{'\u7d2f\u8a08\u700f\u89bd\u4eba\u6578'}</div>
+      <div className={`top-feedback-count visitor-counter-count ${compact ? 'mt-1 font-serif text-2xl leading-none' : 'mt-1 text-2xl'} font-black tracking-[0.04em] text-amber-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.28)]`} aria-live="polite">
+        {displayCount === null ? '\u8f09\u5165\u4e2d' : displayCount.toLocaleString('zh-TW')}
       </div>
       {compact && (
         <div className="mt-1 text-[9px] font-medium leading-tight text-[color:var(--text-sub)] sm:text-[10px]">
-          即時累積
+          {'\u5373\u6642\u7d2f\u7a4d'}
         </div>
       )}
     </aside>

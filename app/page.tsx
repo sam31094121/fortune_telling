@@ -1856,7 +1856,7 @@ export default function HomePage() {
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-100 tracking-wide flex items-center gap-2">
                   <span>數字論吉凶</span>
                   <span className="text-xs font-sans text-cyan-300 font-normal opacity-85 hidden sm:inline">
-                    // 手機後 4 碼 · 完整 10 碼固定分析
+                    // 後4碼+手機完整10碼拆解分析
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">

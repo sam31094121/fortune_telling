@@ -7344,3 +7344,63 @@ textarea,
     height: 17px !important;
   }
 }
+
+
+/* Keep visitor totals readable on small mobile screens. */
+[data-visitor-counter] {
+  overflow: visible !important;
+}
+
+[data-visitor-counter] .visitor-counter-count,
+[data-visitor-counter] .top-feedback-count {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100%;
+  min-width: 0;
+  min-height: 1.18em;
+  overflow: visible !important;
+  color: rgb(252 211 77) !important;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05 !important;
+  text-align: center;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.home-trust-card--visitor {
+  overflow: visible !important;
+}
+
+body.app-mobile-device [data-visitor-counter],
+body.app-social-browser [data-visitor-counter],
+body.app-lite-effects [data-visitor-counter] {
+  content-visibility: visible !important;
+  contain: layout paint;
+  overflow: visible !important;
+}
+
+@media (max-width: 430px) {
+  .home-trust-card--visitor {
+    min-height: 86px !important;
+  }
+
+  .home-trust-strip [data-visitor-counter] {
+    overflow: visible !important;
+    padding-block: 0.58rem !important;
+  }
+
+  .home-trust-card--visitor .visitor-counter-count,
+  .home-trust-card--visitor .top-feedback-count {
+    font-size: clamp(1.18rem, 7vw, 1.55rem) !important;
+    min-height: 1.22em;
+    line-height: 1.05 !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .home-trust-card--visitor .visitor-counter-count,
+  .home-trust-card--visitor .top-feedback-count {
+    font-size: clamp(1.05rem, 6.35vw, 1.38rem) !important;
+  }
+}
