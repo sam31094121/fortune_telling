@@ -1,10 +1,11 @@
 {
-  "totalCount": 171,
-  "highestCount": 171,
+  "totalCount": 172,
+  "highestCount": 172,
   "deviceIds": [
     "c13f310b-7d84-4a3b-b846-5e41699e244f",
     "195958e8-00c0-4d87-a48f-aa296fb60992",
-    "3ee7e5d6-baaa-4c16-b97e-c036e3a20b6f"
+    "3ee7e5d6-baaa-4c16-b97e-c036e3a20b6f",
+    "78052421-1a68-491d-86d3-c1fd4dcf0320"
   ],
   "logs": [
     {
@@ -21,6 +22,11 @@
       "deviceId": "3ee7e5d6-baaa-4c16-b97e-c036e3a20b6f",
       "ipHash": "47d4a928e4737456305e23ece2a75c6a634d089e40042b8d4e86b8a0a70bb35b",
       "sentAt": "2026-07-24T01:36:52.331Z"
+    },
+    {
+      "deviceId": "78052421-1a68-491d-86d3-c1fd4dcf0320",
+      "ipHash": "47d4a928e4737456305e23ece2a75c6a634d089e40042b8d4e86b8a0a70bb35b",
+      "sentAt": "2026-07-26T02:49:29.071Z"
     }
   ]
 }
