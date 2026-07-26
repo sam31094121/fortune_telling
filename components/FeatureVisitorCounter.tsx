@@ -21,7 +21,6 @@ const FRONTEND_MAX_INCREMENT_DELAY_MS = 24_000;
 const BACKEND_SYNC_INTERVAL_MS = 60_000;
 const MAX_VISIBLE_CATCH_UP_INCREMENT = 30;
 const VISITOR_FETCH_TIMEOUT_MS = 8_000;
-const PERMANENT_VISIT_ID_KEY_PREFIX = 'feature-visitor-permanent-id';
 
 type StoredCounter = {
   displayCount: number;
@@ -87,54 +86,14 @@ function createVisitId() {
   });
 }
 
-function readCookie(key: string) {
-  if (typeof document === 'undefined') return null;
+const pageLoadVisitIds = new Map<FeatureKey, string>();
 
-  const encodedKey = encodeURIComponent(key);
-  const cookie = document.cookie
-    .split('; ')
-    .find((item) => item.startsWith(`${encodedKey}=`));
-
-  if (!cookie) return null;
-
-  try {
-    return decodeURIComponent(cookie.slice(encodedKey.length + 1));
-  } catch {
-    return null;
-  }
-}
-
-function writeCookie(key: string, value: string) {
-  if (typeof document === 'undefined') return;
-
-  document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}; Max-Age=31536000; Path=/; SameSite=Lax`;
-}
-
-function getPermanentVisitId(featureKey: FeatureKey) {
-  if (typeof window === 'undefined') return createVisitId();
-
-  const key = `${PERMANENT_VISIT_ID_KEY_PREFIX}:${featureKey}:v1`;
-
-  try {
-    const storedVisitId = window.localStorage.getItem(key) || readCookie(key);
-    if (storedVisitId) {
-      writeCookie(key, storedVisitId);
-      return storedVisitId;
-    }
-  } catch {
-    const cookieVisitId = readCookie(key);
-    if (cookieVisitId) return cookieVisitId;
-  }
+function getPageLoadVisitId(featureKey: FeatureKey) {
+  const existing = pageLoadVisitIds.get(featureKey);
+  if (existing) return existing;
 
   const visitId = createVisitId();
-
-  try {
-    window.localStorage.setItem(key, visitId);
-  } catch {
-    // Storage can be unavailable in embedded mobile browsers; the cookie keeps the visit id stable.
-  }
-
-  writeCookie(key, visitId);
+  pageLoadVisitIds.set(featureKey, visitId);
   return visitId;
 }
 
@@ -156,7 +115,8 @@ function getCounterStartDelayMs(deferMs: number) {
   return Math.max(deferMs, isMobileOrSocialBrowser() ? 2500 : 0);
 }
 
-function getCounterSyncIntervalMs() {
+function getCounterSyncIntervalMs(permanent: boolean) {
+  if (permanent) return 30_000;
   return isMobileOrSocialBrowser() ? 180_000 : BACKEND_SYNC_INTERVAL_MS;
 }
 
@@ -320,10 +280,10 @@ export default function FeatureVisitorCounter({
     function startSync() {
       if (!mounted) return;
       void syncDisplayCount();
-      intervalId = window.setInterval(syncDisplayCount, getCounterSyncIntervalMs());
+      intervalId = window.setInterval(syncDisplayCount, getCounterSyncIntervalMs(permanent));
     }
 
-    const effectiveDeferMs = getCounterStartDelayMs(deferMs);
+    const effectiveDeferMs = permanent ? 0 : getCounterStartDelayMs(deferMs);
 
     if (effectiveDeferMs > 0) {
       startTimerId = window.setTimeout(startSync, effectiveDeferMs);
@@ -350,7 +310,7 @@ export default function FeatureVisitorCounter({
     async function recordFeatureVisit() {
       if (didRecord.current) return;
       didRecord.current = true;
-      visitId.current ??= permanent ? getPermanentVisitId(featureKey) : createVisitId();
+      visitId.current ??= permanent ? getPageLoadVisitId(featureKey) : createVisitId();
 
       try {
         const response = await fetchVisitorRecord('/api/visitor/record', {
@@ -371,7 +331,7 @@ export default function FeatureVisitorCounter({
       }
     }
 
-    const effectiveDeferMs = getCounterStartDelayMs(deferMs);
+    const effectiveDeferMs = permanent ? 0 : getCounterStartDelayMs(deferMs);
 
     if (!trackWhenVisible || typeof IntersectionObserver === 'undefined' || !cardRef.current) {
       if (effectiveDeferMs > 0) {

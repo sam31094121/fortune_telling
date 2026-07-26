@@ -7,7 +7,6 @@ const SUGGESTION_INITIAL_COUNT = 168;
 const DEVICE_ID_KEY = 'taiji_ai_feedback_device_id_v1';
 const LEGACY_LIKE_DEVICE_ID_KEY = 'taiji_ai_like_device_id_v1';
 const LEGACY_SUGGESTION_DEVICE_ID_KEY = 'taiji_ai_suggestion_device_id_v1';
-const CHOICE_KEY = 'taiji_ai_feedback_choice_v1';
 const LIKE_HIGHEST_COUNT_KEY = 'taiji_ai_like_highest_count_v1';
 const SUGGESTION_HIGHEST_COUNT_KEY = 'taiji_ai_suggestion_highest_count_v1';
 const NOTICE_DURATION_MS = 5200;
@@ -28,15 +27,11 @@ const COPY = {
   thankLikeBody: '\u60a8\u7684\u8a8d\u540c\u5df2\u6210\u529f\u9001\u51fa\u3002\u6211\u5011\u6703\u6301\u7e8c\u63d0\u4f9b\u66f4\u597d\u7684AI\u5206\u6790\u54c1\u8cea\u3002',
   thankImproveTitle: '\u611f\u8b1d\u60a8\u7684\u5bf6\u8cb4\u56de\u994b\uff01',
   thankImproveBody: '\u60a8\u7684\u5efa\u8b70\u5df2\u6210\u529f\u6536\u5230\u3002\u6211\u5011\u6703\u6301\u7e8c\u512a\u5316AI\u5206\u6790\u54c1\u8cea\u3002',
-  lockedTitle: '\u56de\u994b\u5df2\u7d0d\u5165\u7d71\u8a08',
-  lockedBody: '\u9019\u53f0\u624b\u6a5f\u7684\u6b63\u5f0f\u56de\u994b\u5df2\u7d93\u6536\u5230\u3002\u70ba\u4e86\u8b93\u7d71\u8a08\u66f4\u53ef\u4fe1\uff0c\u6211\u5011\u6703\u4fdd\u7559\u7b2c\u4e00\u6b21\u9078\u64c7\uff0c\u4e0d\u91cd\u8907\u7d2f\u8a08\u3002',
   errorTitle: '\u76ee\u524d\u7121\u6cd5\u9001\u51fa',
   errorBody: '\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002',
-  note: '\u9ede\u9078\u4e00\u9805\uff0c\u6211\u5011\u6703\u8a8d\u771f\u7d0d\u5165\u7d71\u8a08',
-  lockedNote: '\u8b1d\u8b1d\u4f60\uff0c\u9019\u4efd\u56de\u994b\u5df2\u5b89\u5fc3\u6536\u5230',
-  lockedAction: '\u5df2\u5b8c\u6210',
-  likeDoneAction: '\u5df2\u6536\u5230',
-  improveDoneAction: '\u5df2\u6536\u5230',
+  note: '\u6bcf\u6b21\u9ede\u9078\u90fd\u6703\u81ea\u52d5\u7d0d\u5165\u6c38\u4e45\u7d2f\u8a08',
+  likeDoneAction: '\u7e7c\u7e8c\u8a8d\u540c',
+  improveDoneAction: '\u7e7c\u7e8c\u56de\u994b',
 } as const;
 
 type FeedbackChoice = 'like' | 'improve';
@@ -141,9 +136,8 @@ function writeStoredHighestCount(key: string, count: number, initialCount: numbe
   writeStorage(key, String(normalizeTotalCount(count, initialCount)));
 }
 
-function readStoredChoice(): FeedbackChoice | null {
-  const choice = readStorage(CHOICE_KEY);
-  return choice === 'like' || choice === 'improve' ? choice : null;
+function createFeedbackEventId() {
+  return `event_${createDeviceId()}`;
 }
 
 export default function AiTrustFeedback({ className = '' }: { className?: string }) {
@@ -231,7 +225,6 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   }, []);
 
   useEffect(() => {
-    setChoice(readStoredChoice());
     commitLikeCount(readStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, LIKE_INITIAL_COUNT));
     commitImproveCount(readStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, SUGGESTION_INITIAL_COUNT));
 
@@ -276,15 +269,6 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   async function submitChoice(nextChoice: FeedbackChoice) {
     if (submittingChoice) return;
 
-    if (choice) {
-      showNotice({
-        title: COPY.lockedTitle,
-        body: COPY.lockedBody,
-        tone: choice === 'like' ? 'like' : 'improve',
-      });
-      return;
-    }
-
     setSubmittingChoice(nextChoice);
     setNotice(null);
 
@@ -292,7 +276,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
       const response = await fetch(nextChoice === 'like' ? '/api/ai-like' : '/api/ai-suggestion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deviceId: getDeviceId() }),
+        body: JSON.stringify({ deviceId: createFeedbackEventId() }),
       });
       const data = await response.json() as CounterResponse;
 
@@ -319,24 +303,17 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
       }
 
       setChoice(nextChoice);
-      writeStorage(CHOICE_KEY, nextChoice);
 
       if (accepted) {
         pulseAcceptedCount(nextChoice);
       }
 
       showNotice({
-        title: accepted
-          ? (nextChoice === 'like' ? COPY.thankLikeTitle : COPY.thankImproveTitle)
-          : COPY.lockedTitle,
-        body: accepted
-          ? (nextChoice === 'like' ? COPY.thankLikeBody : COPY.thankImproveBody)
-          : COPY.lockedBody,
+        title: nextChoice === 'like' ? COPY.thankLikeTitle : COPY.thankImproveTitle,
+        body: nextChoice === 'like' ? COPY.thankLikeBody : COPY.thankImproveBody,
         tone: nextChoice,
       });
     } catch (error) {
-      setChoice(null);
-      writeStorage(CHOICE_KEY, '');
       if (nextChoice === 'like') {
         commitLikeCount(readStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, LIKE_INITIAL_COUNT));
       } else {
@@ -356,9 +333,8 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   const improveSelected = choice === 'improve';
   const isSubmittingLike = submittingChoice === 'like';
   const isSubmittingImprove = submittingChoice === 'improve';
-  const feedbackLocked = Boolean(choice);
-  const likeButtonLabel = likeSelected ? COPY.likeDoneAction : feedbackLocked ? COPY.lockedAction : COPY.likeLabel;
-  const improveButtonLabel = improveSelected ? COPY.improveDoneAction : feedbackLocked ? COPY.lockedAction : COPY.improveLabel;
+  const likeButtonLabel = likeSelected ? COPY.likeDoneAction : COPY.likeLabel;
+  const improveButtonLabel = improveSelected ? COPY.improveDoneAction : COPY.improveLabel;
 
   return (
     <section className={`${className} home-ai-feedback-card`}>
@@ -420,7 +396,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         </button>
       </div>
 
-      <p className="home-ai-feedback-note mt-2 text-[9px] font-semibold leading-tight text-[color:var(--text-sub)] opacity-75">{feedbackLocked ? COPY.lockedNote : COPY.note}</p>
+      <p className="home-ai-feedback-note mt-2 text-[9px] font-semibold leading-tight text-[color:var(--text-sub)] opacity-75">{COPY.note}</p>
 
       {notice && (
         <div

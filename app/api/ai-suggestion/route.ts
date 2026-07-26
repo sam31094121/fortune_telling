@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
 
 import {
@@ -21,6 +21,10 @@ type SuggestionResultRow = {
 };
 
 const DEVICE_ID_PATTERN = /^[a-zA-Z0-9:_-]{16,128}$/;
+
+function createCounterEventId() {
+  return `event_${randomUUID()}`;
+}
 
 function getClientIp(request: Request) {
   return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
@@ -118,11 +122,12 @@ export async function POST(request: Request) {
   }
 
   const ipHash = hashIp(getClientIp(request));
+  const eventId = createCounterEventId();
   const supabase = getVisitorSupabaseClient();
 
   if (!supabase) {
     try {
-      const result = await recordLocalAiSuggestion(body.deviceId, ipHash);
+      const result = await recordLocalAiSuggestion(eventId, ipHash);
       return NextResponse.json(
         { ok: true, totalCount: result.totalCount, didSend: result.didSend, alreadySent: !result.didSend, storage: 'local' },
         { headers: { 'Cache-Control': 'no-store' } },
@@ -137,7 +142,7 @@ export async function POST(request: Request) {
   }
 
   const { data, error } = await supabase.rpc('record_ai_suggestion', {
-    requested_device_id: body.deviceId,
+    requested_device_id: eventId,
     requested_ip_hash: ipHash,
   });
 
@@ -154,7 +159,7 @@ export async function POST(request: Request) {
   const didSend = row.did_send === true;
   const remoteCount = normalizeCount(row.total_count);
   const localCount = didSend
-    ? (await recordLocalAiSuggestion(body.deviceId, ipHash)).totalCount
+    ? (await recordLocalAiSuggestion(eventId, ipHash)).totalCount
     : await readLocalCountFloor();
   const totalCount = Math.max(remoteCount, localCount);
 
