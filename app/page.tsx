@@ -692,36 +692,49 @@ function ShichenStep({
   );
 }
 
-function LineVipShareCard({ friendHref }: { friendHref: string }) {
+function LineVipShareCard({ friendHref, onShare }: { friendHref: string; onShare: () => void }) {
   return (
-    <section className="home-line-share-card mb-8 overflow-hidden rounded-[28px] border border-emerald-300/25 p-5 shadow-[0_18px_55px_rgba(16,185,129,0.16)] sm:p-6">
-      <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <p className="inline-flex items-center rounded-full border border-emerald-200/30 bg-emerald-300/10 px-3 py-1 text-[11px] font-black tracking-[0.2em] text-emerald-100">
-            LINE 好友支持
-          </p>
-          <h2 className="mt-4 font-serif text-2xl font-black leading-tight text-white sm:text-3xl">
-            加 LINE 好友，免費立即體驗 VIP
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-50/78">
-            加入官方 LINE 好友，取得配對、人格、數字吉凶與深度洞察的免費體驗入口。
-          </p>
-        </div>
-
-        <a
-          href={friendHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="home-line-share-button inline-flex shrink-0 items-center justify-center gap-3 rounded-full px-6 py-4 text-sm font-black tracking-[0.12em] text-slate-950 transition active:scale-[0.98] sm:min-w-[220px]"
-          aria-label="加入 LINE 官方帳號 @497lembe 領取免費 VIP 體驗"
+    <>
+      <div className="mb-3 flex justify-end">
+        <button
+          type="button"
+          onClick={onShare}
+          className="home-line-share-button inline-flex shrink-0 items-center justify-center rounded-full px-5 py-3 text-sm font-black tracking-[0.12em] text-slate-950 transition active:scale-[0.98]"
+          aria-label="使用 LINE 分享免費體驗給朋友"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-[11px] font-black text-emerald-300">
-            LINE
-          </span>
-          <span>加好友領體驗</span>
-        </a>
+          <span>分享給朋友</span>
+        </button>
       </div>
-    </section>
+
+      <section className="home-line-share-card mb-8 overflow-hidden rounded-[28px] border border-emerald-300/25 p-5 shadow-[0_18px_55px_rgba(16,185,129,0.16)] sm:p-6">
+        <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="inline-flex items-center rounded-full border border-emerald-200/30 bg-emerald-300/10 px-3 py-1 text-[11px] font-black tracking-[0.2em] text-emerald-100">
+              LINE 好友支持
+            </p>
+            <h2 className="mt-4 font-serif text-2xl font-black leading-tight text-white sm:text-3xl">
+              加 LINE 好友，免費立即體驗 VIP
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-50/78">
+              加入官方 LINE 好友，取得配對、人格、數字吉凶與深度洞察的免費體驗入口。
+            </p>
+          </div>
+
+          <a
+            href={friendHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="home-line-share-button inline-flex shrink-0 items-center justify-center gap-3 rounded-full px-6 py-4 text-sm font-black tracking-[0.12em] text-slate-950 transition active:scale-[0.98] sm:min-w-[220px]"
+            aria-label="加入 LINE 官方帳號 @497lembe 領取免費 VIP 體驗"
+          >
+            <span className="flex h-8 min-w-10 items-center justify-center whitespace-nowrap rounded-full bg-slate-950 px-2 text-[10px] font-black tracking-normal text-emerald-300">
+              LINE
+            </span>
+            <span>加好友領體驗</span>
+          </a>
+        </div>
+      </section>
+    </>
   );
 }
 
@@ -758,6 +771,18 @@ export default function HomePage() {
   const fortuneRequestRef = useRef<AbortController | null>(null);
   const fortuneSubmittingRef = useRef(false);
   const fortuneLoading = fortuneStatus === 'validating' || fortuneStatus === 'loading' || fortuneStatus === 'recovering';
+
+  const handleLineShare = () => {
+    const origin =
+      typeof window !== 'undefined'
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:8888';
+    window.open(
+      `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`${origin}/`)}`,
+      '_blank',
+      'noopener,noreferrer',
+    );
+  };
 
   // 系統自我修復 States & Handler
   const [showRepairToast, setShowRepairToast] = useState(false);
@@ -1669,7 +1694,7 @@ export default function HomePage() {
         </section>
 
         {/* 頂部科技耀眼功能入口 */}
-        <LineVipShareCard friendHref={lineFriendHref} />
+        <LineVipShareCard friendHref={lineFriendHref} onShare={handleLineShare} />
 
         <div className="mb-8 flex w-full flex-col gap-4">
           <Link
