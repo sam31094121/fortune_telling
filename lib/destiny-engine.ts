@@ -4,6 +4,7 @@
  */
 
 import type { PersonalityMatrix } from './personality-matrix-engine';
+import { solarToLunarParts } from './lunar-calendar';
 
 // ─── 天干 ────────────────────────────────────────────────────────────
 const HEAVENLY_STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'] as const;
@@ -250,8 +251,11 @@ export function computeDestinyProfile(birthDate: string): DestinyProfile {
   // 防禦性輸入解析
   const safeDate = (birthDate && typeof birthDate === 'string' && birthDate.includes('-')) ? birthDate : '1990-01-01';
   const parts = safeDate.split('-');
-  const year = parseInt(parts[0] || '1990', 10) || 1990;
-  const month = parseInt(parts[1] || '1', 10) || 1;
+  const solarYear = parseInt(parts[0] || '1990', 10) || 1990;
+  const solarMonth = parseInt(parts[1] || '1', 10) || 1;
+  const lunar = solarToLunarParts(safeDate);
+  const year = lunar?.gregorianYear ?? solarYear;
+  const month = lunar?.month ?? solarMonth;
 
   const heavenlyStem = getHeavenlyStem(year);
   const yearWuxing = getYearWuxing(year);
