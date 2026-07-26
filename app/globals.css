@@ -6764,10 +6764,11 @@ body.app-touching .home-trust-card::after {
 }
 
 @media (max-width: 640px) {
-  .home-feature-violet {
+  .home-feature-launch {
     align-items: stretch;
   }
 
+  .home-feature-cta,
   .home-music-cta {
     width: 100%;
     justify-content: center;

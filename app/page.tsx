@@ -1747,11 +1747,11 @@ export default function HomePage() {
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className="flex items-center gap-4.5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-rose-500/30 bg-rose-950/40 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.2)] animate-spin-slow">
+            <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-rose-500/30 bg-rose-950/40 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.2)] animate-spin-slow">
                 <span className="text-2xl font-serif">緣</span>
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-rose-500/10 border border-rose-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-rose-300 uppercase animate-pulse">
                   AI · 靈魂雙星配對
                 </span>
@@ -1767,7 +1767,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 px-5 py-3 text-xs font-bold text-rose-200 transition group-hover:bg-rose-500/25">
+            <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 px-5 py-3 text-xs font-bold text-rose-200 transition group-hover:bg-rose-500/25">
               <span>立即開啟配對</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
@@ -1798,7 +1798,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="home-music-cta flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-950/30 px-5 py-3 text-xs font-bold text-violet-200 transition group-hover:bg-violet-500/25">
+            <div className="home-feature-cta home-music-cta flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-950/30 px-5 py-3 text-xs font-bold text-violet-200 transition group-hover:bg-violet-500/25">
               <span>{"\u7acb\u5373\u751f\u6210\u6b4c\u66f2"}</span>
               <span className="transition-transform group-hover:translate-x-1.5">{"\u279c"}</span>
             </div>
@@ -1811,11 +1811,11 @@ export default function HomePage() {
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className="flex items-center gap-4.5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-950/40 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)] animate-spin-slow">
+            <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-950/40 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)] animate-spin-slow">
                 <span className="text-2xl font-serif">名</span>
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-300 uppercase animate-pulse">
                   AI · 姓名五格解析
                 </span>
@@ -1831,7 +1831,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/30 px-5 py-3 text-xs font-bold text-amber-200 transition group-hover:bg-amber-500/25">
+            <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/30 px-5 py-3 text-xs font-bold text-amber-200 transition group-hover:bg-amber-500/25">
               <span>立即開啟姓名學</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
@@ -1845,11 +1845,11 @@ export default function HomePage() {
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
             
-            <div className="flex items-center gap-4.5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.2)] animate-spin-slow">
+            <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.2)] animate-spin-slow">
                 <span className="font-serif text-2xl font-black leading-none tracking-[0.06em] text-rose-100 drop-shadow-[0_0_10px_rgba(244,63,94,0.65)]">凶</span>
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse">
                   NEW · 零開銷即時解碼
                 </span>
@@ -1865,7 +1865,7 @@ export default function HomePage() {
               </div>
             </div>
             
-            <div className="flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-200 transition group-hover:bg-cyan-500/25">
+            <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-200 transition group-hover:bg-cyan-500/25">
               <span>立即開啟解碼艙</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
@@ -1877,11 +1877,11 @@ export default function HomePage() {
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className="flex items-center gap-4.5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-950/40 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.2)] animate-spin-slow">
+            <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-950/40 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.2)] animate-spin-slow">
                 <span className="text-2xl font-serif">斗</span>
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-indigo-500/10 border border-indigo-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-indigo-300 uppercase animate-pulse">
                   AI · 紫微斗數命盤
                 </span>
@@ -1897,7 +1897,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-950/30 px-5 py-3 text-xs font-bold text-indigo-200 transition group-hover:bg-indigo-500/25">
+            <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-950/30 px-5 py-3 text-xs font-bold text-indigo-200 transition group-hover:bg-indigo-500/25">
               <span>立即開啟紫微</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
