@@ -85,12 +85,6 @@ const WUXING_HARMONY: Record<string, Record<string, number>> = {
   水: { 木: 70, 火: 30, 土: 40, 金: 50, 水: 100 },
 };
 
-function getChineseZodiac(birthDate: string): string {
-  const year = Number.parseInt(birthDate.slice(0, 4), 10);
-  const zodiacs = ['鼠', '牛', '虎', '兔', '龍', '蛇', '馬', '羊', '猴', '雞', '狗', '豬'];
-  return zodiacs[(year - 1900) % 12];
-}
-
 function getCharStrokes(char: string): number {
   const code = char.charCodeAt(0);
   // 用一個確定的雜湊對應出分佈均勻的 2 到 25 之間的數值作為中文字筆劃數
@@ -157,8 +151,8 @@ export function computeRelationshipMatrix(personA: PersonData, personB: PersonDa
   const destinyB = computeDestinyProfile(personB.birthDate);
   const wuxingAlignment = WUXING_HARMONY[destinyA.dominantWuxing]?.[destinyB.dominantWuxing] ?? 50;
 
-  const zodiacA = getChineseZodiac(personA.birthDate);
-  const zodiacB = getChineseZodiac(personB.birthDate);
+  const zodiacA = destinyA.chineseZodiac;
+  const zodiacB = destinyB.chineseZodiac;
   const zodiacHarmony = ZODIAC_HARMONY[zodiacA]?.[zodiacB] ?? 50;
 
   const genderDynamics = calculateGenderDynamics(personA.gender, personB.gender);

@@ -96,6 +96,8 @@ const EVOLUTION_CONFIG: Record<1 | 2 | 4 | 8, EvolutionConfig> = {
   },
 };
 
+const FORTUNE_MODAL_PATH = '/numerology';
+
 const BAGUA_SYMBOLS = [
   ['乾', '☰'],
   ['兌', '☱'],
@@ -692,36 +694,49 @@ function ShichenStep({
   );
 }
 
-function LineVipShareCard({ shareHref }: { shareHref: string }) {
+function LineVipShareCard({ friendHref, onShare }: { friendHref: string; onShare: () => void }) {
   return (
-    <section className="home-line-share-card mb-8 overflow-hidden rounded-[28px] border border-emerald-300/25 p-5 shadow-[0_18px_55px_rgba(16,185,129,0.16)] sm:p-6">
-      <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <p className="inline-flex items-center rounded-full border border-emerald-200/30 bg-emerald-300/10 px-3 py-1 text-[11px] font-black tracking-[0.2em] text-emerald-100">
-            LINE 分享支持
-          </p>
-          <h2 className="mt-4 font-serif text-2xl font-black leading-tight text-white sm:text-3xl">
-            分享給朋友，免費立即體驗 VIP
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-50/78">
-            把太極命理 AI 傳給朋友，一起開啟配對、人格、數字吉凶與深度洞察的免費體驗。
-          </p>
-        </div>
-
-        <a
-          href={shareHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="home-line-share-button inline-flex shrink-0 items-center justify-center gap-3 rounded-full px-6 py-4 text-sm font-black tracking-[0.12em] text-slate-950 transition active:scale-[0.98] sm:min-w-[220px]"
-          aria-label="使用 LINE 分享免費 VIP 體驗給朋友"
+    <>
+      <div className="mb-3 flex justify-end">
+        <button
+          type="button"
+          onClick={onShare}
+          className="home-line-share-button inline-flex shrink-0 items-center justify-center rounded-full px-5 py-3 text-sm font-black tracking-[0.12em] text-slate-950 transition active:scale-[0.98]"
+          aria-label="使用 LINE 分享免費體驗給朋友"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-[11px] font-black text-emerald-300">
-            LINE
-          </span>
-          <span>分享免費體驗</span>
-        </a>
+          <span>分享給朋友</span>
+        </button>
       </div>
-    </section>
+
+      <section className="home-line-share-card mb-8 overflow-hidden rounded-[28px] border border-emerald-300/25 p-5 shadow-[0_18px_55px_rgba(16,185,129,0.16)] sm:p-6">
+        <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="inline-flex items-center rounded-full border border-emerald-200/30 bg-emerald-300/10 px-3 py-1 text-[11px] font-black tracking-[0.2em] text-emerald-100">
+              LINE 好友支持
+            </p>
+            <h2 className="mt-4 font-serif text-2xl font-black leading-tight text-white sm:text-3xl">
+              加 LINE 好友，免費立即體驗 VIP
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-50/78">
+              加入官方 LINE 好友，取得配對、人格、數字吉凶與深度洞察的免費體驗入口。
+            </p>
+          </div>
+
+          <a
+            href={friendHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="home-line-share-button inline-flex shrink-0 items-center justify-center gap-3 rounded-full px-6 py-4 text-sm font-black tracking-[0.12em] text-slate-950 transition active:scale-[0.98] sm:min-w-[220px]"
+            aria-label="加入 LINE 官方帳號 @497lembe 領取免費 VIP 體驗"
+          >
+            <span className="flex h-8 min-w-10 items-center justify-center whitespace-nowrap rounded-full bg-slate-950 px-2 text-[10px] font-black tracking-normal text-emerald-300">
+              LINE
+            </span>
+            <span>加好友領體驗</span>
+          </a>
+        </div>
+      </section>
+    </>
   );
 }
 
@@ -739,9 +754,7 @@ export default function HomePage() {
   const [isDemoRunning, setIsDemoRunning] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
-  const [lineShareHref, setLineShareHref] = useState(
-    'https://social-plugins.line.me/lineit/share?url=http%3A%2F%2Flocalhost%3A8888%2F',
-  );
+  const lineFriendHref = 'https://line.me/R/ti/p/@497lembe';
   const mainRef = useRef<HTMLElement>(null);
   const repairTimerRef = useRef<number | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
@@ -761,13 +774,57 @@ export default function HomePage() {
   const fortuneSubmittingRef = useRef(false);
   const fortuneLoading = fortuneStatus === 'validating' || fortuneStatus === 'loading' || fortuneStatus === 'recovering';
 
+  const openFortuneModal = () => {
+    if (window.location.pathname !== FORTUNE_MODAL_PATH) {
+      window.history.pushState({ fortuneModal: true }, '', FORTUNE_MODAL_PATH);
+    }
+    setIsFortuneModalOpen(true);
+  };
+
+  const restoreHomeUrl = () => {
+    if (window.location.pathname !== FORTUNE_MODAL_PATH) return;
+
+    if (window.history.state?.fortuneModal) {
+      window.history.back();
+      return;
+    }
+
+    window.history.replaceState(null, '', '/');
+  };
+
   useEffect(() => {
-    const origin =
-      typeof window !== 'undefined'
-        ? window.location.origin
-        : process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:8888';
-    setLineShareHref(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`${origin}/`)}`);
+    const syncFortuneModalWithUrl = () => {
+      setIsFortuneModalOpen(window.location.pathname === FORTUNE_MODAL_PATH);
+    };
+
+    syncFortuneModalWithUrl();
+    window.addEventListener('popstate', syncFortuneModalWithUrl);
+    return () => window.removeEventListener('popstate', syncFortuneModalWithUrl);
   }, []);
+
+  const handleLineShare = async () => {
+    const shareUrl = 'https://heaven-earth-humanity-pair.vercel.app/';
+    const shareData = {
+      title: '☯ 太極命理 AI',
+      text: '用 AI 探索靈魂配對、人格能量與數字吉凶，看看天、地、人之間的共鳴。',
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (error) {
+        if ((error as Error).name === 'AbortError') return;
+      }
+    }
+
+    window.open(
+      `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`,
+      '_blank',
+      'noopener,noreferrer',
+    );
+  };
 
   // 系統自我修復 States & Handler
   const [showRepairToast, setShowRepairToast] = useState(false);
@@ -787,6 +844,7 @@ export default function HomePage() {
       setFortuneResult(null);
       setFortuneStatus('idle');
       setIsFortuneModalOpen(false);
+      restoreHomeUrl();
       setModalEvolutionStage('idle');
       setModalEvolutionLabel('觸碰太極，觀察萬象演化');
       setModalEvolutionDescription('');
@@ -1636,7 +1694,7 @@ export default function HomePage() {
               </button>
               <button
                 type="button"
-                onClick={() => setIsFortuneModalOpen(true)}
+                onClick={openFortuneModal}
                 className="home-secondary-cta inline-flex items-center justify-center gap-2 rounded-full border border-cyan-300/35 bg-cyan-400/10 px-8 py-3 text-sm font-black text-cyan-100 transition-all shadow-[0_0_24px_rgba(34,211,238,0.18)]"
               >
                 <span>立即解碼數字吉凶</span>
@@ -1679,7 +1737,7 @@ export default function HomePage() {
         </section>
 
         {/* 頂部科技耀眼功能入口 */}
-        <LineVipShareCard shareHref={lineShareHref} />
+        <LineVipShareCard friendHref={lineFriendHref} onShare={handleLineShare} />
 
         <div className="mb-8 flex w-full flex-col gap-4">
           <Link
@@ -1689,11 +1747,11 @@ export default function HomePage() {
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className="flex items-center gap-4.5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-rose-500/30 bg-rose-950/40 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.2)] animate-spin-slow">
+            <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-rose-500/30 bg-rose-950/40 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.2)] animate-spin-slow">
                 <span className="text-2xl font-serif">緣</span>
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-rose-500/10 border border-rose-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-rose-300 uppercase animate-pulse">
                   AI · 靈魂雙星配對
                 </span>
@@ -1709,7 +1767,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 px-5 py-3 text-xs font-bold text-rose-200 transition group-hover:bg-rose-500/25">
+            <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 px-5 py-3 text-xs font-bold text-rose-200 transition group-hover:bg-rose-500/25">
               <span>立即開啟配對</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
@@ -1740,7 +1798,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="home-music-cta flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-950/30 px-5 py-3 text-xs font-bold text-violet-200 transition group-hover:bg-violet-500/25">
+            <div className="home-feature-cta home-music-cta flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-950/30 px-5 py-3 text-xs font-bold text-violet-200 transition group-hover:bg-violet-500/25">
               <span>{"\u7acb\u5373\u751f\u6210\u6b4c\u66f2"}</span>
               <span className="transition-transform group-hover:translate-x-1.5">{"\u279c"}</span>
             </div>
@@ -1753,11 +1811,11 @@ export default function HomePage() {
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className="flex items-center gap-4.5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-950/40 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)] animate-spin-slow">
+            <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-950/40 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)] animate-spin-slow">
                 <span className="text-2xl font-serif">名</span>
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-300 uppercase animate-pulse">
                   AI · 姓名五格解析
                 </span>
@@ -1773,7 +1831,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/30 px-5 py-3 text-xs font-bold text-amber-200 transition group-hover:bg-amber-500/25">
+            <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/30 px-5 py-3 text-xs font-bold text-amber-200 transition group-hover:bg-amber-500/25">
               <span>立即開啟姓名學</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
@@ -1781,17 +1839,17 @@ export default function HomePage() {
 
           <button
             type="button"
-            onClick={() => setIsFortuneModalOpen(true)}
+            onClick={openFortuneModal}
             className="home-feature-launch home-feature-cyan order-1 w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-all duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
             
-            <div className="flex items-center gap-4.5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.2)] animate-spin-slow">
+            <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.2)] animate-spin-slow">
                 <span className="font-serif text-2xl font-black leading-none tracking-[0.06em] text-rose-100 drop-shadow-[0_0_10px_rgba(244,63,94,0.65)]">凶</span>
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse">
                   NEW · 零開銷即時解碼
                 </span>
@@ -1807,7 +1865,7 @@ export default function HomePage() {
               </div>
             </div>
             
-            <div className="flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-200 transition group-hover:bg-cyan-500/25">
+            <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-200 transition group-hover:bg-cyan-500/25">
               <span>立即開啟解碼艙</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
@@ -1819,11 +1877,11 @@ export default function HomePage() {
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className="flex items-center gap-4.5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-950/40 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.2)] animate-spin-slow">
+            <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-950/40 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.2)] animate-spin-slow">
                 <span className="text-2xl font-serif">斗</span>
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-indigo-500/10 border border-indigo-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-indigo-300 uppercase animate-pulse">
                   AI · 紫微斗數命盤
                 </span>
@@ -1839,7 +1897,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-950/30 px-5 py-3 text-xs font-bold text-indigo-200 transition group-hover:bg-indigo-500/25">
+            <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-950/30 px-5 py-3 text-xs font-bold text-indigo-200 transition group-hover:bg-indigo-500/25">
               <span>立即開啟紫微</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
@@ -1861,7 +1919,7 @@ export default function HomePage() {
                   <div className="hidden items-center gap-2.5 flex-wrap">
                     <button
                       type="button"
-                      onClick={() => setIsFortuneModalOpen(true)}
+                      onClick={openFortuneModal}
                       className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 px-5 py-3 text-xs font-bold tracking-widest text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.15)] hover:bg-cyan-500/20 transition-all duration-300 flex items-center gap-1.5 animate-pulse"
                     >
                       <span>☯️ 數字吉凶解碼</span>
@@ -2545,6 +2603,7 @@ export default function HomePage() {
                 setModalEvolutionStage('idle');
                 setModalEvolutionLabel('觸碰太極，觀察萬象演化');
                 setModalEvolutionDescription('');
+                restoreHomeUrl();
               }}
               className="number-fortune-close-button absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm text-[color:var(--text-sub)] hover:border-white/20 hover:text-white transition"
             >
@@ -2557,6 +2616,7 @@ export default function HomePage() {
                 setFortuneResult(null);
                 setFortuneNumber('');
                 setFortuneError('');
+                restoreHomeUrl();
                 window.setTimeout(scrollToTop, 0);
               }}
               className="number-fortune-home-guide absolute top-4 left-4 inline-flex h-8 max-w-[calc(100%-4.5rem)] items-center justify-center gap-1.5 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 text-[11px] font-black leading-none tracking-[0.08em] text-cyan-100 transition hover:border-cyan-200/45 hover:bg-cyan-300/16 hover:text-white active:scale-[0.98]"
@@ -2860,7 +2920,7 @@ export default function HomePage() {
           {/* 懸浮霓虹解碼球 (Floating Cybernetic Badge) */}
           <button
             type="button"
-            onClick={() => setIsFortuneModalOpen(true)}
+            onClick={openFortuneModal}
             className="fixed bottom-24 right-6 z-40 flex h-14 w-14 flex-col items-center justify-center rounded-full border border-cyan-500/40 bg-slate-950/90 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-300 hover:scale-110 hover:border-cyan-300 hover:text-cyan-200 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 animate-pulse cursor-pointer group"
             aria-label="數字吉凶"
           >
