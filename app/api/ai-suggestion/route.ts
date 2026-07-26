@@ -42,6 +42,16 @@ function normalizeCount(value: unknown) {
     ? count
     : AI_SUGGESTION_INITIAL_COUNT;
 }
+
+function resolveRequestEventId(body: { deviceId?: unknown; eventId?: unknown }) {
+  const candidate = typeof body.eventId === 'string'
+    ? body.eventId
+    : typeof body.deviceId === 'string'
+      ? body.deviceId
+      : '';
+
+  return DEVICE_ID_PATTERN.test(candidate) ? candidate : createCounterEventId();
+}
 async function readLocalCountFloor() {
   try {
     return await readLocalAiSuggestionCount();
@@ -109,7 +119,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  let body: { deviceId?: unknown };
+  let body: { deviceId?: unknown; eventId?: unknown };
 
   try {
     body = await request.json();
@@ -117,12 +127,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: '請重新整理後再試一次。' }, { status: 400 });
   }
 
-  if (typeof body.deviceId !== 'string' || !DEVICE_ID_PATTERN.test(body.deviceId)) {
-    return NextResponse.json({ ok: false, message: '裝置識別失效，請重新整理後再試一次。' }, { status: 400 });
-  }
-
+  const eventId = resolveRequestEventId(body);
   const ipHash = hashIp(getClientIp(request));
-  const eventId = createCounterEventId();
   const supabase = getVisitorSupabaseClient();
 
   if (!supabase) {
@@ -150,18 +156,44 @@ export async function POST(request: Request) {
 
   if (error || !row) {
     console.error('[ai-suggestion] record failed', error?.message ?? 'No counter row returned');
-    return NextResponse.json(
-      { ok: false, message: '暫時無法送出改善建議。' },
-      { status: 503, headers: { 'Cache-Control': 'no-store' } },
-    );
+
+    try {
+      const fallbackResult = await recordLocalAiSuggestion(eventId, ipHash);
+      await raiseSupabaseCountFloor(supabase, fallbackResult.totalCount);
+
+      return NextResponse.json(
+        {
+          ok: true,
+          totalCount: fallbackResult.totalCount,
+          didSend: fallbackResult.didSend,
+          alreadySent: !fallbackResult.didSend,
+          storage: 'local-fallback',
+        },
+        { headers: { 'Cache-Control': 'no-store' } },
+      );
+    } catch (fallbackError) {
+      console.error('[ai-suggestion] local fallback write failed', fallbackError);
+      return NextResponse.json(
+        { ok: false, message: '目前無法送出，請稍後再試。' },
+        { status: 503, headers: { 'Cache-Control': 'no-store' } },
+      );
+    }
   }
 
-  const didSend = row.did_send === true;
   const remoteCount = normalizeCount(row.total_count);
-  const localCount = didSend
-    ? (await recordLocalAiSuggestion(eventId, ipHash)).totalCount
-    : await readLocalCountFloor();
-  const totalCount = Math.max(remoteCount, localCount);
+  let localResult: Awaited<ReturnType<typeof recordLocalAiSuggestion>>;
+
+  try {
+    localResult = await recordLocalAiSuggestion(eventId, ipHash);
+  } catch (localError) {
+    console.error('[ai-suggestion] local floor write failed', localError);
+    localResult = {
+      totalCount: remoteCount,
+      didSend: row.did_send === true,
+    };
+  }
+
+  const totalCount = Math.max(remoteCount, localResult.totalCount);
 
   if (totalCount > remoteCount) {
     await raiseSupabaseCountFloor(supabase, totalCount);
@@ -171,8 +203,8 @@ export async function POST(request: Request) {
     {
       ok: true,
       totalCount,
-      didSend,
-      alreadySent: !didSend,
+      didSend: localResult.didSend,
+      alreadySent: !localResult.didSend,
       storage: 'supabase',
     },
     { headers: { 'Cache-Control': 'no-store' } },

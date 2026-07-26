@@ -273,10 +273,13 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
     setNotice(null);
 
     try {
+      const eventId = createFeedbackEventId();
       const response = await fetch(nextChoice === 'like' ? '/api/ai-like' : '/api/ai-suggestion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deviceId: createFeedbackEventId() }),
+        body: JSON.stringify({ deviceId: eventId, eventId }),
+        cache: 'no-store',
+        keepalive: true,
       });
       const data = await response.json() as CounterResponse;
 

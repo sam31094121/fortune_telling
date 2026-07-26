@@ -42,6 +42,16 @@ function normalizeCount(value: unknown) {
     ? count
     : AI_LIKE_INITIAL_COUNT;
 }
+
+function resolveRequestEventId(body: { deviceId?: unknown; eventId?: unknown }) {
+  const candidate = typeof body.eventId === 'string'
+    ? body.eventId
+    : typeof body.deviceId === 'string'
+      ? body.deviceId
+      : '';
+
+  return DEVICE_ID_PATTERN.test(candidate) ? candidate : createCounterEventId();
+}
 async function readLocalCountFloor() {
   try {
     return await readLocalAiLikeCount();
@@ -109,7 +119,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  let body: { deviceId?: unknown };
+  let body: { deviceId?: unknown; eventId?: unknown };
 
   try {
     body = await request.json();
@@ -117,12 +127,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: '請重新整理後再試一次。' }, { status: 400 });
   }
 
-  if (typeof body.deviceId !== 'string' || !DEVICE_ID_PATTERN.test(body.deviceId)) {
-    return NextResponse.json({ ok: false, message: '裝置識別失效，請重新整理後再試一次。' }, { status: 400 });
-  }
-
+  const eventId = resolveRequestEventId(body);
   const ipHash = hashIp(getClientIp(request));
-  const eventId = createCounterEventId();
   const supabase = getVisitorSupabaseClient();
 
   if (!supabase) {
@@ -150,18 +156,44 @@ export async function POST(request: Request) {
 
   if (error || !row) {
     console.error('[ai-like] record failed', error?.message ?? 'No counter row returned');
-    return NextResponse.json(
-      { ok: false, message: '暫時無法送出認同。' },
-      { status: 503, headers: { 'Cache-Control': 'no-store' } },
-    );
+
+    try {
+      const fallbackResult = await recordLocalAiLike(eventId, ipHash);
+      await raiseSupabaseCountFloor(supabase, fallbackResult.totalCount);
+
+      return NextResponse.json(
+        {
+          ok: true,
+          totalCount: fallbackResult.totalCount,
+          didLike: fallbackResult.didLike,
+          alreadyLiked: !fallbackResult.didLike,
+          storage: 'local-fallback',
+        },
+        { headers: { 'Cache-Control': 'no-store' } },
+      );
+    } catch (fallbackError) {
+      console.error('[ai-like] local fallback write failed', fallbackError);
+      return NextResponse.json(
+        { ok: false, message: '目前無法送出，請稍後再試。' },
+        { status: 503, headers: { 'Cache-Control': 'no-store' } },
+      );
+    }
   }
 
-  const didLike = row.did_like === true;
   const remoteCount = normalizeCount(row.total_count);
-  const localCount = didLike
-    ? (await recordLocalAiLike(eventId, ipHash)).totalCount
-    : await readLocalCountFloor();
-  const totalCount = Math.max(remoteCount, localCount);
+  let localResult: Awaited<ReturnType<typeof recordLocalAiLike>>;
+
+  try {
+    localResult = await recordLocalAiLike(eventId, ipHash);
+  } catch (localError) {
+    console.error('[ai-like] local floor write failed', localError);
+    localResult = {
+      totalCount: remoteCount,
+      didLike: row.did_like === true,
+    };
+  }
+
+  const totalCount = Math.max(remoteCount, localResult.totalCount);
 
   if (totalCount > remoteCount) {
     await raiseSupabaseCountFloor(supabase, totalCount);
@@ -171,8 +203,8 @@ export async function POST(request: Request) {
     {
       ok: true,
       totalCount,
-      didLike,
-      alreadyLiked: !didLike,
+      didLike: localResult.didLike,
+      alreadyLiked: !localResult.didLike,
       storage: 'supabase',
     },
     { headers: { 'Cache-Control': 'no-store' } },
