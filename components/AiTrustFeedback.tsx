@@ -12,6 +12,8 @@ const SUGGESTION_HIGHEST_COUNT_KEY = 'taiji_ai_suggestion_highest_count_v1';
 const NOTICE_DURATION_MS = 5200;
 const FEEDBACK_REQUEST_TIMEOUT_MS = 8500;
 const FEEDBACK_RETRY_DELAY_MS = 650;
+const PENDING_FEEDBACK_QUEUE_KEY = 'taiji_ai_feedback_pending_events_v2';
+const MAX_PENDING_FEEDBACK_EVENTS = 20;
 
 const COPY = {
   title: '\u0041\u0049 \u56de\u994b\u6821\u6e96',
@@ -46,6 +48,7 @@ type CounterResponse = {
   didSend?: boolean;
   alreadySent?: boolean;
   message?: string;
+  queued?: boolean;
 };
 
 type FeedbackNotice = {
@@ -53,6 +56,14 @@ type FeedbackNotice = {
   body: string;
   tone: 'like' | 'improve' | 'error';
 };
+
+type PendingFeedbackEvent = {
+  choice: FeedbackChoice;
+  eventId: string;
+  createdAt: number;
+};
+
+let memoryPendingFeedbackEvents: PendingFeedbackEvent[] = [];
 
 function createDeviceId() {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -142,13 +153,66 @@ function createFeedbackEventId() {
   return `event_${createDeviceId()}`;
 }
 
+function isPendingFeedbackEvent(value: unknown): value is PendingFeedbackEvent {
+  if (!value || typeof value !== 'object') return false;
+
+  const item = value as Partial<PendingFeedbackEvent>;
+  return (item.choice === 'like' || item.choice === 'improve') &&
+    typeof item.eventId === 'string' &&
+    typeof item.createdAt === 'number';
+}
+
+function readPendingFeedbackEvents() {
+  if (typeof window === 'undefined') return memoryPendingFeedbackEvents;
+
+  try {
+    const rawValue = window.localStorage.getItem(PENDING_FEEDBACK_QUEUE_KEY);
+    if (!rawValue) return memoryPendingFeedbackEvents;
+
+    const parsed = JSON.parse(rawValue) as unknown;
+    if (!Array.isArray(parsed)) return memoryPendingFeedbackEvents;
+
+    const events = parsed.filter(isPendingFeedbackEvent).slice(-MAX_PENDING_FEEDBACK_EVENTS);
+    memoryPendingFeedbackEvents = events;
+    return events;
+  } catch {
+    return memoryPendingFeedbackEvents;
+  }
+}
+
+function writePendingFeedbackEvents(events: PendingFeedbackEvent[]) {
+  const compactEvents = events.slice(-MAX_PENDING_FEEDBACK_EVENTS);
+  memoryPendingFeedbackEvents = compactEvents;
+
+  if (typeof window === 'undefined') return;
+
+  try {
+    window.localStorage.setItem(PENDING_FEEDBACK_QUEUE_KEY, JSON.stringify(compactEvents));
+  } catch {
+    // Some mobile in-app browsers block localStorage; keep the queue in memory for this session.
+  }
+}
+
+function queuePendingFeedbackEvent(choice: FeedbackChoice, eventId: string) {
+  const existingEvents = readPendingFeedbackEvents().filter((item) => item.eventId !== eventId);
+  writePendingFeedbackEvents([...existingEvents, { choice, eventId, createdAt: Date.now() }]);
+}
+
+function removePendingFeedbackEvent(eventId: string) {
+  writePendingFeedbackEvents(readPendingFeedbackEvents().filter((item) => item.eventId !== eventId));
+}
+
+function getFeedbackEndpoint(choice: FeedbackChoice) {
+  return choice === 'like' ? '/api/ai-like' : '/api/ai-suggestion';
+}
+
 function waitForFeedbackRetry() {
   return new Promise((resolve) => {
     window.setTimeout(resolve, FEEDBACK_RETRY_DELAY_MS);
   });
 }
 
-async function postFeedbackEvent(endpoint: string, eventId: string): Promise<CounterResponse> {
+async function postFeedbackEvent(endpoint: string, eventId: string, options: { allowBeacon?: boolean } = {}): Promise<CounterResponse> {
   const requestBody = JSON.stringify({ deviceId: eventId, eventId });
   let lastError: unknown = null;
 
@@ -189,11 +253,11 @@ async function postFeedbackEvent(endpoint: string, eventId: string): Promise<Cou
     }
   }
 
-  if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+  if (options.allowBeacon !== false && typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
     try {
       const beaconBody = new Blob([requestBody], { type: 'application/json' });
       if (navigator.sendBeacon(endpoint, beaconBody)) {
-        return { ok: true };
+        return { ok: true, queued: true };
       }
     } catch {
       // Fall through to the friendly error only when all mobile-safe transports fail.
@@ -329,15 +393,67 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
     };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    let flushing = false;
+
+    async function flushPendingFeedbackEvents() {
+      if (flushing || !active || typeof navigator !== 'undefined' && navigator.onLine === false) return;
+      flushing = true;
+
+      try {
+        const pendingEvents = readPendingFeedbackEvents();
+
+        for (const pendingEvent of pendingEvents) {
+          if (!active) return;
+
+          try {
+            const data = await postFeedbackEvent(getFeedbackEndpoint(pendingEvent.choice), pendingEvent.eventId, { allowBeacon: false });
+            removePendingFeedbackEvent(pendingEvent.eventId);
+
+            if (typeof data.totalCount === 'number') {
+              if (pendingEvent.choice === 'like') {
+                commitLikeCount(data.totalCount);
+              } else {
+                commitImproveCount(data.totalCount);
+              }
+            }
+          } catch {
+            break;
+          }
+        }
+      } finally {
+        flushing = false;
+      }
+    }
+
+    void flushPendingFeedbackEvents();
+    window.addEventListener('online', flushPendingFeedbackEvents);
+    window.addEventListener('focus', flushPendingFeedbackEvents);
+    document.addEventListener('visibilitychange', flushPendingFeedbackEvents);
+
+    return () => {
+      active = false;
+      window.removeEventListener('online', flushPendingFeedbackEvents);
+      window.removeEventListener('focus', flushPendingFeedbackEvents);
+      document.removeEventListener('visibilitychange', flushPendingFeedbackEvents);
+    };
+  }, [commitImproveCount, commitLikeCount]);
+
   async function submitChoice(nextChoice: FeedbackChoice) {
     if (submittingChoice) return;
 
     setSubmittingChoice(nextChoice);
     setNotice(null);
 
+    const eventId = createFeedbackEventId();
+
     try {
-      const eventId = createFeedbackEventId();
-      const data = await postFeedbackEvent(nextChoice === 'like' ? '/api/ai-like' : '/api/ai-suggestion', eventId);
+      const data = await postFeedbackEvent(getFeedbackEndpoint(nextChoice), eventId);
+
+      if (data.queued) {
+        queuePendingFeedbackEvent(nextChoice, eventId);
+      }
 
       const accepted = nextChoice === 'like'
         ? data.didLike !== false && data.alreadyLiked !== true
@@ -368,16 +484,21 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         body: nextChoice === 'like' ? COPY.thankLikeBody : COPY.thankImproveBody,
         tone: nextChoice,
       });
-    } catch (error) {
+    } catch {
+      queuePendingFeedbackEvent(nextChoice, eventId);
+
       if (nextChoice === 'like') {
-        commitLikeCount(readStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, LIKE_INITIAL_COUNT));
+        commitAcceptedLikeCount(null);
       } else {
-        commitImproveCount(readStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, SUGGESTION_INITIAL_COUNT));
+        commitAcceptedImproveCount(null);
       }
+
+      setChoice(nextChoice);
+      pulseAcceptedCount(nextChoice);
       showNotice({
-        title: COPY.errorTitle,
-        body: error instanceof Error ? error.message : COPY.errorBody,
-        tone: 'error',
+        title: nextChoice === 'like' ? COPY.thankLikeTitle : COPY.thankImproveTitle,
+        body: nextChoice === 'like' ? COPY.thankLikeBody : COPY.thankImproveBody,
+        tone: nextChoice,
       });
     } finally {
       setSubmittingChoice(null);

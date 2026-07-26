@@ -46,7 +46,36 @@ const nextConfig = {
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(self), geolocation=()' },
     ];
 
+    const noStorePageHeaders = [
+      ...securityHeaders,
+      { key: 'Cache-Control', value: 'no-store, max-age=0, must-revalidate' },
+    ];
+
     return [
+      {
+        source: '/',
+        headers: noStorePageHeaders,
+      },
+      {
+        source: '/insight',
+        headers: noStorePageHeaders,
+      },
+      {
+        source: '/match',
+        headers: noStorePageHeaders,
+      },
+      {
+        source: '/music',
+        headers: noStorePageHeaders,
+      },
+      {
+        source: '/nameology',
+        headers: noStorePageHeaders,
+      },
+      {
+        source: '/numerology',
+        headers: noStorePageHeaders,
+      },
       {
         source: '/:path*',
         headers: securityHeaders,
