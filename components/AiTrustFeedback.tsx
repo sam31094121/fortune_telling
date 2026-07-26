@@ -14,29 +14,29 @@ const NOTICE_DURATION_MS = 5200;
 
 const COPY = {
   title: '\u0041\u0049 \u56de\u994b\u6821\u6e96',
-  subtitle: '\u8a8d\u540c\u6216\u5efa\u8b70\uff0c\u64c7\u4e00\u9001\u51fa\u5373\u53ef',
+  subtitle: '\u8a8d\u540c\u6216\u4e0d\u8a8d\u540c\uff0c\u64c7\u4e00\u9001\u51fa\u5373\u53ef',
   likeLabel: '\u6211\u8a8d\u540c',
-  improveLabel: '\u5e0c\u671b\u6539\u5584',
+  improveLabel: '\u6211\u4e0d\u8a8d\u540c',
   likeStatLabel: '\u8a8d\u540c',
-  improveStatLabel: '\u6539\u5584\u5efa\u8b70',
+  improveStatLabel: '\u4e0d\u8a8d\u540c',
   likeUnit: '\u4eba',
-  improveUnit: '\u5247',
+  improveUnit: '\u4eba',
   submitting: '\u6b63\u5728\u9001\u51fa',
   selectedLike: '\u611f\u8b1d\u8a8d\u540c',
-  selectedImprove: '\u5df2\u7d0d\u5165\u6539\u5584',
-  thankLikeTitle: '\u5df2\u6536\u5230\u4f60\u7684\u8a8d\u540c',
-  thankLikeBody: '\u8b1d\u8b1d\u4f60\u7684\u652f\u6301\uff0c\u9019\u4efd\u56de\u994b\u5df2\u7d0d\u5165\u7d71\u8a08\u3002\u6211\u5011\u6703\u7e7c\u7e8c\u628a\u9ad4\u9a57\u505a\u5f97\u66f4\u7a69\u3001\u66f4\u6e05\u695a\u3002',
-  thankImproveTitle: '\u5df2\u6536\u5230\u4f60\u7684\u6539\u5584\u63d0\u9192',
-  thankImproveBody: '\u8b1d\u8b1d\u4f60\u9858\u610f\u8aaa\u51fa\u611f\u53d7\uff0c\u9019\u4efd\u5efa\u8b70\u5df2\u7d0d\u5165\u6539\u5584\u6e05\u55ae\uff0c\u6703\u6210\u70ba\u6211\u5011\u8abf\u6574\u9ad4\u9a57\u7684\u4f9d\u64da\u3002',
+  selectedImprove: '\u611f\u8b1d\u56de\u994b',
+  thankLikeTitle: '\u611f\u8b1d\u60a8\u7684\u652f\u6301\uff01',
+  thankLikeBody: '\u60a8\u7684\u8a8d\u540c\u5df2\u6210\u529f\u9001\u51fa\u3002\u6211\u5011\u6703\u6301\u7e8c\u63d0\u4f9b\u66f4\u597d\u7684AI\u5206\u6790\u54c1\u8cea\u3002',
+  thankImproveTitle: '\u611f\u8b1d\u60a8\u7684\u5bf6\u8cb4\u56de\u994b\uff01',
+  thankImproveBody: '\u60a8\u7684\u5efa\u8b70\u5df2\u6210\u529f\u6536\u5230\u3002\u6211\u5011\u6703\u6301\u7e8c\u512a\u5316AI\u5206\u6790\u54c1\u8cea\u3002',
   lockedTitle: '\u56de\u994b\u5df2\u7d0d\u5165\u7d71\u8a08',
   lockedBody: '\u9019\u53f0\u624b\u6a5f\u7684\u6b63\u5f0f\u56de\u994b\u5df2\u7d93\u6536\u5230\u3002\u70ba\u4e86\u8b93\u7d71\u8a08\u66f4\u53ef\u4fe1\uff0c\u6211\u5011\u6703\u4fdd\u7559\u7b2c\u4e00\u6b21\u9078\u64c7\uff0c\u4e0d\u91cd\u8907\u7d2f\u8a08\u3002',
-  errorTitle: '\u76ee\u524d\u9023\u7dda\u4e0d\u7a69',
-  errorBody: '\u9019\u6b21\u56de\u994b\u5c1a\u672a\u9001\u51fa\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002\u4f60\u4e0d\u6703\u88ab\u91cd\u8907\u8a08\u7b97\uff0c\u7d71\u8a08\u6703\u4fdd\u6301\u6e05\u695a\u3002',
+  errorTitle: '\u76ee\u524d\u7121\u6cd5\u9001\u51fa',
+  errorBody: '\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002',
   note: '\u9ede\u9078\u4e00\u9805\uff0c\u6211\u5011\u6703\u8a8d\u771f\u7d0d\u5165\u7d71\u8a08',
   lockedNote: '\u8b1d\u8b1d\u4f60\uff0c\u9019\u4efd\u56de\u994b\u5df2\u5b89\u5fc3\u6536\u5230',
   lockedAction: '\u5df2\u5b8c\u6210',
   likeDoneAction: '\u5df2\u6536\u5230',
-  improveDoneAction: '\u5df2\u7d0d\u5165',
+  improveDoneAction: '\u5df2\u6536\u5230',
 } as const;
 
 type FeedbackChoice = 'like' | 'improve';
@@ -65,20 +65,49 @@ function createDeviceId() {
   return `device_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 14)}`;
 }
 
-function readStorage(key: string) {
+function readCookie(key: string) {
+  if (typeof document === 'undefined') return null;
+
+  const encodedKey = encodeURIComponent(key);
+  const cookie = document.cookie
+    .split('; ')
+    .find((item) => item.startsWith(`${encodedKey}=`));
+
+  if (!cookie) return null;
+
   try {
-    return window.localStorage.getItem(key);
+    return decodeURIComponent(cookie.slice(encodedKey.length + 1));
   } catch {
     return null;
   }
 }
 
+function writeCookie(key: string, value: string) {
+  if (typeof document === 'undefined') return;
+
+  document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}; Max-Age=31536000; Path=/; SameSite=Lax`;
+}
+
+function readStorage(key: string) {
+  try {
+    return window.localStorage.getItem(key) || readCookie(key);
+  } catch {
+    return readCookie(key);
+  }
+}
+
 function writeStorage(key: string, value: string) {
   try {
-    window.localStorage.setItem(key, value);
+    if (value) {
+      window.localStorage.setItem(key, value);
+    } else {
+      window.localStorage.removeItem(key);
+    }
   } catch {
-    // LINE in-app browser private modes can block storage; API calls still work.
+    // LINE in-app browser private modes can block storage; cookies still provide a stable device id.
   }
+
+  writeCookie(key, value);
 }
 
 function getDeviceId() {

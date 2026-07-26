@@ -1643,7 +1643,7 @@ export default function HomePage() {
       <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
         <div className="home-trust-strip mb-5 grid grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] items-stretch gap-1.5 sm:gap-2">
           <AiTrustFeedback className="home-trust-card flex min-h-[108px] min-w-0 flex-col justify-center overflow-hidden rounded-xl border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.15),rgba(34,211,238,0.1)_38%,rgba(15,23,42,0.76)_64%,rgba(2,6,23,0.93)_100%)] px-3 py-2.5 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl" />
-          <FeatureVisitorCounter featureKey="home" className="home-trust-card home-trust-card--visitor h-full !w-full min-w-0" deferMs={1500} compact />
+          <FeatureVisitorCounter featureKey="home" className="home-trust-card home-trust-card--visitor h-full !w-full min-w-0" deferMs={1500} compact permanent />
         </div>
         <div className="hidden mb-8 items-center gap-4">
           <span className="text-xs tracking-widest text-rose-300">// AI 靈魂配對</span>

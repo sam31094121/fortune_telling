@@ -21,6 +21,7 @@ const FRONTEND_MAX_INCREMENT_DELAY_MS = 24_000;
 const BACKEND_SYNC_INTERVAL_MS = 60_000;
 const MAX_VISIBLE_CATCH_UP_INCREMENT = 30;
 const VISITOR_FETCH_TIMEOUT_MS = 8_000;
+const PERMANENT_VISIT_ID_KEY_PREFIX = 'feature-visitor-permanent-id';
 
 type StoredCounter = {
   displayCount: number;
@@ -86,6 +87,57 @@ function createVisitId() {
   });
 }
 
+function readCookie(key: string) {
+  if (typeof document === 'undefined') return null;
+
+  const encodedKey = encodeURIComponent(key);
+  const cookie = document.cookie
+    .split('; ')
+    .find((item) => item.startsWith(`${encodedKey}=`));
+
+  if (!cookie) return null;
+
+  try {
+    return decodeURIComponent(cookie.slice(encodedKey.length + 1));
+  } catch {
+    return null;
+  }
+}
+
+function writeCookie(key: string, value: string) {
+  if (typeof document === 'undefined') return;
+
+  document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}; Max-Age=31536000; Path=/; SameSite=Lax`;
+}
+
+function getPermanentVisitId(featureKey: FeatureKey) {
+  if (typeof window === 'undefined') return createVisitId();
+
+  const key = `${PERMANENT_VISIT_ID_KEY_PREFIX}:${featureKey}:v1`;
+
+  try {
+    const storedVisitId = window.localStorage.getItem(key) || readCookie(key);
+    if (storedVisitId) {
+      writeCookie(key, storedVisitId);
+      return storedVisitId;
+    }
+  } catch {
+    const cookieVisitId = readCookie(key);
+    if (cookieVisitId) return cookieVisitId;
+  }
+
+  const visitId = createVisitId();
+
+  try {
+    window.localStorage.setItem(key, visitId);
+  } catch {
+    // Storage can be unavailable in embedded mobile browsers; the cookie keeps the visit id stable.
+  }
+
+  writeCookie(key, visitId);
+  return visitId;
+}
+
 function isHiddenClassName(className: string) {
   return className.split(/\s+/).includes('hidden');
 }
@@ -146,12 +198,14 @@ export default function FeatureVisitorCounter({
   trackWhenVisible = false,
   deferMs = 0,
   compact = false,
+  permanent = false,
 }: {
   featureKey: FeatureKey;
   className?: string;
   trackWhenVisible?: boolean;
   deferMs?: number;
   compact?: boolean;
+  permanent?: boolean;
 }) {
   const [displayCount, setDisplayCount] = useState<number | null>(null);
   const cardRef = useRef<HTMLElement>(null);
@@ -168,23 +222,27 @@ export default function FeatureVisitorCounter({
         const safeRequestedCount = isSafeDisplayCount(requestedCount) ? requestedCount : currentBaseCount;
         const nextCount = Math.max(currentBaseCount, safeRequestedCount);
 
-        writeStoredDisplayCount(featureKey, nextCount);
+        if (!permanent) {
+          writeStoredDisplayCount(featureKey, nextCount);
+        }
         return nextCount;
       });
     },
-    [featureKey],
+    [featureKey, permanent],
   );
 
   useEffect(() => {
+    if (permanent) return;
+
     const storedDisplayCount = readStoredDisplayCount(featureKey);
 
     if (storedDisplayCount !== null) {
       commitDisplayCount(storedDisplayCount);
     }
-  }, [commitDisplayCount, featureKey]);
+  }, [commitDisplayCount, featureKey, permanent]);
 
   useEffect(() => {
-    if (hiddenCounter) return;
+    if (hiddenCounter || permanent) return;
 
     let lastTickAt = Date.now();
     let timeoutId: number | undefined;
@@ -230,7 +288,7 @@ export default function FeatureVisitorCounter({
       document.removeEventListener('visibilitychange', handlePageVisible);
       window.removeEventListener('focus', applyElapsedIncrement);
     };
-  }, [commitDisplayCount, hiddenCounter]);
+  }, [commitDisplayCount, hiddenCounter, permanent]);
 
   useEffect(() => {
     if (hiddenCounter) return;
@@ -244,7 +302,7 @@ export default function FeatureVisitorCounter({
       if (document.visibilityState !== 'visible') return;
 
       try {
-        const response = await fetchVisitorRecord(`/api/visitor/record?featureKey=${encodeURIComponent(featureKey)}`, {
+        const response = await fetchVisitorRecord(`/api/visitor/record?featureKey=${encodeURIComponent(featureKey)}${permanent ? '&permanent=1' : ''}`, {
           cache: 'no-store',
           signal: controller.signal,
         });
@@ -281,7 +339,7 @@ export default function FeatureVisitorCounter({
       if (intervalId !== undefined) window.clearInterval(intervalId);
       window.removeEventListener('focus', syncDisplayCount);
     };
-  }, [commitDisplayCount, deferMs, featureKey, hiddenCounter]);
+  }, [commitDisplayCount, deferMs, featureKey, hiddenCounter, permanent]);
 
   useEffect(() => {
     if (hiddenCounter) return;
@@ -292,7 +350,7 @@ export default function FeatureVisitorCounter({
     async function recordFeatureVisit() {
       if (didRecord.current) return;
       didRecord.current = true;
-      visitId.current ??= createVisitId();
+      visitId.current ??= permanent ? getPermanentVisitId(featureKey) : createVisitId();
 
       try {
         const response = await fetchVisitorRecord('/api/visitor/record', {
@@ -344,7 +402,7 @@ export default function FeatureVisitorCounter({
       if (startTimerId !== undefined) window.clearTimeout(startTimerId);
       controller.abort();
     };
-  }, [commitDisplayCount, deferMs, featureKey, hiddenCounter, trackWhenVisible]);
+  }, [commitDisplayCount, deferMs, featureKey, hiddenCounter, permanent, trackWhenVisible]);
 
   return (
     <aside

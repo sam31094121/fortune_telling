@@ -31,6 +31,7 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const featureKey = searchParams.get('featureKey');
+  const permanent = searchParams.get('permanent') === '1';
 
   if (!isFeatureKey(featureKey)) {
     return NextResponse.json({ ok: false, message: '缺少有效的功能代碼。' }, { status: 400 });
@@ -39,7 +40,10 @@ export async function GET(request: Request) {
   const supabase = getVisitorSupabaseClient();
   if (!supabase) {
     try {
-      const displayCount = Math.max(await readLocalVisitorCount(featureKey), VISITOR_MIN_DISPLAY_COUNT);
+      const displayCount = Math.max(
+        await readLocalVisitorCount(featureKey, { projectElapsed: !permanent }),
+        VISITOR_MIN_DISPLAY_COUNT,
+      );
       return NextResponse.json(
         { ok: true, featureKey, displayCount, storage: 'local' },
         { headers: { 'Cache-Control': 'no-store' } },
@@ -71,7 +75,7 @@ export async function GET(request: Request) {
   const seedCount = Number(data?.seed_count ?? VISITOR_SEED_COUNT);
   const updatedAtMs = data?.updated_at ? Date.parse(data.updated_at) : Date.now();
   const elapsedMs = Math.max(0, Date.now() - (Number.isNaN(updatedAtMs) ? Date.now() : updatedAtMs));
-  const elapsedDisplayCount = Math.floor(elapsedMs / DISPLAY_AUTO_INCREMENT_INTERVAL_MS);
+  const elapsedDisplayCount = permanent ? 0 : Math.floor(elapsedMs / DISPLAY_AUTO_INCREMENT_INTERVAL_MS);
   const displayCount = Math.max(seedCount + realCount + elapsedDisplayCount, VISITOR_MIN_DISPLAY_COUNT);
 
   if (!Number.isSafeInteger(displayCount)) {
@@ -107,7 +111,7 @@ export async function POST(request: Request) {
   const supabase = getVisitorSupabaseClient();
   if (!supabase) {
     try {
-      const displayCount = Math.max(await recordLocalVisitorVisit(body.featureKey), VISITOR_MIN_DISPLAY_COUNT);
+      const displayCount = Math.max(await recordLocalVisitorVisit(body.featureKey, visitId), VISITOR_MIN_DISPLAY_COUNT);
       return NextResponse.json(
         { ok: true, featureKey: body.featureKey, displayCount, storage: 'local' },
         { headers: { 'Cache-Control': 'no-store' } },
