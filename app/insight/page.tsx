@@ -443,7 +443,7 @@ function FiveElementPriorityCard({ result }: { result?: FiveElementIntegrationRe
         <div className="min-w-0">
           <p className="text-xs font-black uppercase tracking-[0.3em] text-rose-200">ELEMENT PRIORITY</p>
           <h2 className="mt-3 break-words font-serif text-4xl font-black leading-tight text-amber-100 sm:text-6xl">
-            {titlePrefix}<span className="text-rose-200 drop-shadow-[0_0_18px_rgba(251,113,133,0.55)]">{primary.zh}</span>{elementSuffix}
+            {titlePrefix}<span className="text-rose-200 drop-shadow-[0_0_18px_rgba(251,113,133,0.55)]">{primary.displayZh}</span>{elementSuffix}
           </h2>
           <p className="mt-4 max-w-3xl text-base font-black leading-8 text-amber-50 sm:text-lg">{result.summary}</p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -459,7 +459,7 @@ function FiveElementPriorityCard({ result }: { result?: FiveElementIntegrationRe
           <div className="flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-black text-rose-100">{urgentLabel}</p>
-              <p className="mt-1 font-serif text-5xl font-black leading-none text-rose-100">{primary.zh}</p>
+              <p className="mt-1 font-serif text-5xl font-black leading-none text-rose-100">{primary.displayZh}</p>
             </div>
             <div className="text-right">
               <p className="text-xs font-bold text-[color:var(--text-muted)]">{needLabel}</p>
@@ -476,15 +476,15 @@ function FiveElementPriorityCard({ result }: { result?: FiveElementIntegrationRe
       <div className="relative mt-5 grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-cyan-200/20 bg-white/[0.045] p-4">
           <p className="text-xs font-black text-cyan-100">{secondLabel}</p>
-          <p className="mt-1 text-2xl font-black text-cyan-50">{secondary.zh}{elementSuffix}</p>
+          <p className="mt-1 text-2xl font-black text-cyan-50">{secondary.displayZh}{elementSuffix}</p>
         </div>
         <div className="rounded-2xl border border-emerald-200/20 bg-white/[0.045] p-4">
           <p className="text-xs font-black text-emerald-100">{strongLabel}</p>
-          <p className="mt-1 text-2xl font-black text-emerald-50">{strong.zh}{elementSuffix}</p>
+          <p className="mt-1 text-2xl font-black text-emerald-50">{strong.displayZh}{elementSuffix}</p>
         </div>
         <div className="rounded-2xl border border-rose-200/20 bg-white/[0.045] p-4">
           <p className="text-xs font-black text-rose-100">{avoidLabel}</p>
-          <p className="mt-1 text-xl font-black text-rose-50">{avoid ? avoid.zh + elementSuffix : noAvoidText}</p>
+          <p className="mt-1 text-xl font-black text-rose-50">{avoid ? avoid.displayZh + elementSuffix : noAvoidText}</p>
         </div>
       </div>
 
@@ -530,7 +530,7 @@ function FiveElementPriorityCard({ result }: { result?: FiveElementIntegrationRe
               const definition = FIVE_ELEMENT_DEFINITIONS[element];
               return (
                 <div key={element} className="grid grid-cols-[3rem_1fr_3rem] items-center gap-2 text-xs font-bold text-[color:var(--text-sub)]">
-                  <span>{definition.zh}{elementSuffix}</span>
+                  <span>{definition.displayZh}{elementSuffix}</span>
                   <span className="h-2 overflow-hidden rounded-full bg-white/10"><span className="block h-full rounded-full bg-cyan-300" style={{ width: Math.max(6, score.need) + '%' }} /></span>
                   <span className="text-right text-cyan-100">{score.need}</span>
                 </div>

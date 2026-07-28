@@ -8,6 +8,7 @@ import {
 } from './five-element-positive-quotes';
 
 export type FiveElementKey = 'metal' | 'wood' | 'water' | 'fire' | 'earth';
+export type FiveElementDisplayName = '\u7a7a' | '\u98a8' | '\u6c34' | '\u706b' | '\u5730';
 export type FiveElementConfidence = 'low' | 'medium' | 'high';
 
 export type FiveElementScore = {
@@ -54,9 +55,10 @@ export type FiveElementIntegrationResult = ModuleFiveElementResult & {
   positiveQuote: FiveElementPositiveQuote;
 };
 
-export const FIVE_ELEMENT_DEFINITIONS: Record<FiveElementKey, { zh: NameologyElement; icon: string; keywords: string[]; direction: string; caution: string }> = {
+export const FIVE_ELEMENT_DEFINITIONS: Record<FiveElementKey, { zh: NameologyElement; displayZh: FiveElementDisplayName; icon: string; keywords: string[]; direction: string; caution: string }> = {
   metal: {
     zh: '\u91d1',
+    displayZh: '\u7a7a',
     icon: '\u25c6',
     keywords: ['\u539f\u5247', '\u6c7a\u65b7', '\u57f7\u884c', '\u754c\u7dda', '\u79e9\u5e8f', '\u5c08\u6ce8'],
     direction: '\u5efa\u7acb\u6e05\u695a\u6a19\u6e96\uff0c\u628a\u6c7a\u5b9a\u843d\u6210\u5177\u9ad4\u57f7\u884c\u3002',
@@ -64,6 +66,7 @@ export const FIVE_ELEMENT_DEFINITIONS: Record<FiveElementKey, { zh: NameologyEle
   },
   wood: {
     zh: '\u6728',
+    displayZh: '\u98a8',
     icon: '\u25b2',
     keywords: ['\u6210\u9577', '\u5b78\u7fd2', '\u898f\u5283', '\u5275\u9020', '\u767c\u5c55', '\u5ef6\u4f38'],
     direction: '\u628a\u60f3\u6cd5\u6574\u7406\u6210\u53ef\u6301\u7e8c\u7684\u6210\u9577\u8def\u7dda\u3002',
@@ -71,6 +74,7 @@ export const FIVE_ELEMENT_DEFINITIONS: Record<FiveElementKey, { zh: NameologyEle
   },
   water: {
     zh: '\u6c34',
+    displayZh: '\u6c34',
     icon: '\u2248',
     keywords: ['\u667a\u6167', '\u6d41\u52d5', '\u6e9d\u901a', '\u9069\u61c9', '\u6d1e\u5bdf', '\u5f48\u6027'],
     direction: '\u63d0\u5347\u89c0\u5bdf\u8207\u6e9d\u901a\u5f48\u6027\uff0c\u8b93\u5224\u65b7\u66f4\u9806\u66a2\u3002',
@@ -78,6 +82,7 @@ export const FIVE_ELEMENT_DEFINITIONS: Record<FiveElementKey, { zh: NameologyEle
   },
   fire: {
     zh: '\u706b',
+    displayZh: '\u706b',
     icon: '\u25cf',
     keywords: ['\u884c\u52d5', '\u71b1\u60c5', '\u8868\u9054', '\u81ea\u4fe1', '\u63a8\u9032', '\u80fd\u898b\u5ea6'],
     direction: '\u589e\u52a0\u8868\u9054\u3001\u884c\u52d5\u8207\u88ab\u770b\u898b\u7684\u52c7\u6c23\u3002',
@@ -85,6 +90,7 @@ export const FIVE_ELEMENT_DEFINITIONS: Record<FiveElementKey, { zh: NameologyEle
   },
   earth: {
     zh: '\u571f',
+    displayZh: '\u5730',
     icon: '\u25a0',
     keywords: ['\u7a69\u5b9a', '\u627f\u64d4', '\u4fe1\u4efb', '\u57fa\u790e', '\u6301\u7e8c', '\u843d\u5be6'],
     direction: '\u628a\u7bc0\u594f\u7a69\u4f4f\uff0c\u5efa\u7acb\u80fd\u88ab\u4fe1\u4efb\u7684\u57fa\u790e\u3002',
@@ -153,8 +159,12 @@ function addScore(scores: Record<FiveElementKey, number>, element: FiveElementKe
   scores[element] = (scores[element] ?? 0) + value;
 }
 
+export function getFiveElementShortName(element: FiveElementKey) {
+  return FIVE_ELEMENT_DEFINITIONS[element].displayZh;
+}
+
 export function getFiveElementName(element: FiveElementKey) {
-  return `${FIVE_ELEMENT_DEFINITIONS[element].zh}\u5143\u7d20`;
+  return `${getFiveElementShortName(element)}\u5143\u7d20`;
 }
 
 function getAnalysisId(analysis: NameologyAnalysis) {
@@ -286,9 +296,9 @@ export function buildNameologyFiveElementResult(analysis: NameologyAnalysis): Fi
   const primaryDefinition = FIVE_ELEMENT_DEFINITIONS[primaryElement];
   const conflict = avoidElement === primaryElement || elementScores[primaryElement].need - elementScores[secondaryElement].need <= 4;
   const reasons = [
-    `\u672c\u6b21\u5224\u5b9a\uff1a\u4f60\u7f3a${getFiveElementName(primaryElement)}\uff0c\u5c31\u5148\u88dc${primaryDefinition.zh}\u5143\u7d20\u3002\u88dc\u5f37\u9700\u6c42\u70ba ${elementScores[primaryElement].need} \u5206\u3002`,
+    `\u672c\u6b21\u5224\u5b9a\uff1a\u4f60\u7f3a${getFiveElementName(primaryElement)}\uff0c\u5c31\u5148\u88dc${getFiveElementShortName(primaryElement)}\u5143\u7d20\u3002\u88dc\u5f37\u9700\u6c42\u70ba ${elementScores[primaryElement].need} \u5206\u3002`,
     '\u7d50\u8ad6\u4e0d\u6a21\u7cca\uff1a\u4e94\u5143\u7d20\u624b\u93c8\u88dc\u5f37\u9806\u5e8f\u4ee5\u7b2c\u4e00\u7f3a\u53e3\u70ba\u4e3b\uff0c\u4e0d\u5148\u5206\u6563\u88dc\u5176\u4ed6\u5143\u7d20\u3002',
-    avoidElement ? `${getFiveElementName(avoidElement)}\u5df2\u7d93\u8f03\u5f37\uff0c\u672c\u6b21\u5148\u4e0d\u88dc\u5b83\u3002` : `${getFiveElementName(strongElement)}\u5df2\u7d93\u662f\u76ee\u524d\u8f03\u5f37\u652f\u6490\uff0c\u672c\u6b21\u5148\u5c08\u5fc3\u88dc${primaryDefinition.zh}\u5143\u7d20\u3002`,
+    avoidElement ? `${getFiveElementName(avoidElement)}\u5df2\u7d93\u8f03\u5f37\uff0c\u672c\u6b21\u5148\u4e0d\u88dc\u5b83\u3002` : `${getFiveElementName(strongElement)}\u5df2\u7d93\u662f\u76ee\u524d\u8f03\u5f37\u652f\u6490\uff0c\u672c\u6b21\u5148\u5c08\u5fc3\u88dc${getFiveElementShortName(primaryElement)}\u5143\u7d20\u3002`,
   ];
 
   return {
@@ -305,11 +315,11 @@ export function buildNameologyFiveElementResult(analysis: NameologyAnalysis): Fi
     moduleResults: [{ module: 'nameology', primaryElement, confidence }],
     evidence,
     ruleVersion: 'nameology_element_v1',
-    summary: `\u672c\u6b21\u5224\u5b9a\uff1a\u4f60\u7f3a${getFiveElementName(primaryElement)}\uff0c\u5c31\u5148\u88dc${primaryDefinition.zh}\u5143\u7d20\u3002\u624b\u93c8\u88dc\u5f37\u5148\u9078${primaryDefinition.zh}\u5143\u7d20\uff0c\u518d\u642d\u914d\u6301\u7e8c\u884c\u52d5\u3002`,
+    summary: `\u672c\u6b21\u5224\u5b9a\uff1a\u4f60\u7f3a${getFiveElementName(primaryElement)}\uff0c\u5c31\u5148\u88dc${getFiveElementShortName(primaryElement)}\u5143\u7d20\u3002\u624b\u93c8\u88dc\u5f37\u5148\u9078${getFiveElementShortName(primaryElement)}\u5143\u7d20\uff0c\u518d\u642d\u914d\u6301\u7e8c\u884c\u52d5\u3002`,
     keywords: primaryDefinition.keywords.slice(0, 3),
     reasons,
     recommendedActions: actionFor(primaryElement),
-    productEntryLabel: `\u9078\u64c7${primaryDefinition.zh}\u5143\u7d20\u80fd\u91cf\u624b\u93c8`,
+    productEntryLabel: `\u9078\u64c7${getFiveElementName(primaryElement)}\u80fd\u91cf\u624b\u93c8`,
     productRecommendation: getFiveElementProductRecommendation(primaryElement),
     positiveQuote: getFiveElementPositiveQuote(primaryElement),
   };
@@ -325,7 +335,7 @@ type InsightFiveElementInput = {
 
 function elementKeyFromText(value?: string | null): FiveElementKey | null {
   if (!value) return null;
-  return ELEMENT_KEYS.find((key) => value.includes(FIVE_ELEMENT_DEFINITIONS[key].zh)) ?? null;
+  return ELEMENT_KEYS.find((key) => value.includes(FIVE_ELEMENT_DEFINITIONS[key].zh) || value.includes(FIVE_ELEMENT_DEFINITIONS[key].displayZh)) ?? null;
 }
 
 function getInsightAnalysisId(input: InsightFiveElementInput) {
@@ -429,9 +439,9 @@ export function buildInsightFiveElementResult(input: InsightFiveElementInput): F
   const conflict = elementScores[primaryElement].need - elementScores[secondaryElement].need <= 5;
   const supportingModules = ['nameology', 'bazi', annualKey ? 'annual' : null, shichenKey ? 'shichen' : null].filter(Boolean) as string[];
   const reasons = [
-    '\u672c\u6b21\u5224\u5b9a\uff1a\u4f60\u7f3a' + getFiveElementName(primaryElement) + '\uff0c\u5c31\u5148\u88dc' + primaryDefinition.zh + '\u5143\u7d20\u3002\u88dc\u5f37\u9700\u6c42\u70ba ' + elementScores[primaryElement].need + ' \u5206\u3002',
-    '\u7b2c\u4e8c\u9806\u4f4d\u662f' + getFiveElementName(secondaryElement) + '\uff0c\u4f46\u672c\u6b21\u4e0d\u5206\u6563\uff0c\u5148\u88dc' + primaryDefinition.zh + '\u5143\u7d20\u3002',
-    avoidElement ? getFiveElementName(avoidElement) + '\u5df2\u7d93\u8f03\u5f37\uff0c\u672c\u6b21\u5148\u4e0d\u88dc\u5b83\u3002' : getFiveElementName(strongElement) + '\u5df2\u7d93\u662f\u8f03\u5f37\u652f\u6490\uff0c\u672c\u6b21\u5148\u5c08\u5fc3\u88dc' + primaryDefinition.zh + '\u5143\u7d20\u3002',
+    '\u672c\u6b21\u5224\u5b9a\uff1a\u4f60\u7f3a' + getFiveElementName(primaryElement) + '\uff0c\u5c31\u5148\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002\u88dc\u5f37\u9700\u6c42\u70ba ' + elementScores[primaryElement].need + ' \u5206\u3002',
+    '\u7b2c\u4e8c\u9806\u4f4d\u662f' + getFiveElementName(secondaryElement) + '\uff0c\u4f46\u672c\u6b21\u4e0d\u5206\u6563\uff0c\u5148\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002',
+    avoidElement ? getFiveElementName(avoidElement) + '\u5df2\u7d93\u8f03\u5f37\uff0c\u672c\u6b21\u5148\u4e0d\u88dc\u5b83\u3002' : getFiveElementName(strongElement) + '\u5df2\u7d93\u662f\u8f03\u5f37\u652f\u6490\uff0c\u672c\u6b21\u5148\u5c08\u5fc3\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002',
   ];
 
   return {
@@ -448,16 +458,29 @@ export function buildInsightFiveElementResult(input: InsightFiveElementInput): F
     moduleResults: [{ module: 'insight', primaryElement, confidence }, { module: 'nameology', primaryElement: nameResult.primaryElement, confidence: nameResult.confidence }],
     evidence,
     ruleVersion: 'insight_element_v1',
-    summary: '\u672c\u6b21\u5224\u5b9a\uff1a\u4f60\u7f3a' + getFiveElementName(primaryElement) + '\uff0c\u5c31\u5148\u88dc' + primaryDefinition.zh + '\u5143\u7d20\u3002\u624b\u93c8\u88dc\u5f37\u5148\u9078' + primaryDefinition.zh + '\u5143\u7d20\uff0c\u518d\u642d\u914d\u6301\u7e8c\u884c\u52d5\u3002',
+    summary: '\u672c\u6b21\u5224\u5b9a\uff1a\u4f60\u7f3a' + getFiveElementName(primaryElement) + '\uff0c\u5c31\u5148\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002\u624b\u93c8\u88dc\u5f37\u5148\u9078' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\uff0c\u518d\u642d\u914d\u6301\u7e8c\u884c\u52d5\u3002',
     keywords: primaryDefinition.keywords.slice(0, 4),
     reasons,
     recommendedActions: actionFor(primaryElement),
-    productEntryLabel: '\u9078\u64c7' + primaryDefinition.zh + '\u5143\u7d20\u80fd\u91cf\u624b\u93c8',
+    productEntryLabel: '\u9078\u64c7' + getFiveElementName(primaryElement) + '\u80fd\u91cf\u624b\u93c8',
     productRecommendation: getFiveElementProductRecommendation(primaryElement),
     positiveQuote: getFiveElementPositiveQuote(primaryElement),
   };
 }
 
+
+const NUMBER_DIGIT_TO_ELEMENT: Record<string, FiveElementKey> = {
+  '0': 'water',
+  '1': 'water',
+  '2': 'earth',
+  '3': 'wood',
+  '4': 'wood',
+  '5': 'earth',
+  '6': 'metal',
+  '7': 'metal',
+  '8': 'earth',
+  '9': 'fire',
+};
 
 const NUMBER_MATRIX_TO_ELEMENT: Record<FiveElementKey, Array<keyof NumberAnalysisResponse['matrix']>> = {
   metal: ['career', 'stability'],
@@ -466,6 +489,50 @@ const NUMBER_MATRIX_TO_ELEMENT: Record<FiveElementKey, Array<keyof NumberAnalysi
   fire: ['career', 'growth'],
   earth: ['family', 'stability', 'health'],
 };
+
+const NUMBER_ELEMENT_IMPROVEMENT: Record<FiveElementKey, string> = {
+  metal: '\u88dc\u7a7a\u5143\u7d20\u5148\u6539\u8b8a\u7684\u662f\u6c7a\u7b56\u3001\u7d00\u5f8b\u8207\u57f7\u884c\u6e05\u6670\u5ea6\u3002',
+  wood: '\u88dc\u98a8\u5143\u7d20\u5148\u6539\u8b8a\u7684\u662f\u6210\u9577\u52d5\u80fd\u3001\u898f\u5283\u611f\u8207\u6301\u7e8c\u63a8\u9032\u3002',
+  water: '\u88dc\u6c34\u5143\u7d20\u5148\u6539\u8b8a\u7684\u662f\u601d\u8003\u5f48\u6027\u3001\u6e9d\u901a\u7de9\u885d\u8207\u9069\u61c9\u529b\u3002',
+  fire: '\u88dc\u706b\u5143\u7d20\u5148\u6539\u8b8a\u7684\u662f\u884c\u52d5\u529b\u3001\u8868\u9054\u52c7\u6c23\u8207\u88ab\u770b\u898b\u7684\u80fd\u898b\u5ea6\u3002',
+  earth: '\u88dc\u5730\u5143\u7d20\u5148\u6539\u8b8a\u7684\u662f\u7a69\u5b9a\u611f\u3001\u627f\u64d4\u529b\u8207\u9577\u671f\u843d\u5be6\u7684\u7bc0\u594f\u3002',
+};
+
+function numberDigitElementStats(result: NumberAnalysisResponse) {
+  const counts = Object.fromEntries(ELEMENT_KEYS.map((key) => [key, 0])) as Record<FiveElementKey, number>;
+
+  Object.entries(result.evidence.digitFrequency).forEach(([digit, count]) => {
+    const element = NUMBER_DIGIT_TO_ELEMENT[digit];
+    if (!element) return;
+    counts[element] += Math.max(0, Number(count) || 0);
+  });
+
+  result.evidence.lastFour.split('').forEach((digit) => {
+    const element = NUMBER_DIGIT_TO_ELEMENT[digit];
+    if (!element) return;
+    counts[element] += 0.35;
+  });
+
+  const total = ELEMENT_KEYS.reduce((sum, key) => sum + counts[key], 0) || 1;
+  return { counts, total };
+}
+
+function numberMatrixStrength(result: NumberAnalysisResponse, element: FiveElementKey) {
+  const keys = NUMBER_MATRIX_TO_ELEMENT[element];
+  return keys.reduce((sum, key) => sum + result.matrix[key], 0) / keys.length;
+}
+
+function numberElementWeaknessReason(element: FiveElementKey) {
+  const reasons: Record<FiveElementKey, string> = {
+    metal: '\u7a7a\u5143\u7d20\u5c0d\u61c9\u6c7a\u7b56\u3001\u908a\u754c\u8207\u57f7\u884c\uff1b\u7576\u7a7a\u5143\u7d20\u4fe1\u865f\u504f\u5c11\u6642\uff0c\u5bb9\u6613\u6c7a\u65b7\u4e0d\u5920\u5feb\u6216\u57f7\u884c\u6a19\u6e96\u4e0d\u5920\u660e\u78ba\u3002',
+    wood: '\u98a8\u5143\u7d20\u5c0d\u61c9\u6210\u9577\u3001\u898f\u5283\u8207\u5275\u65b0\uff1b\u7576\u98a8\u5143\u7d20\u4fe1\u865f\u504f\u5c11\u6642\uff0c\u5bb9\u6613\u7f3a\u5c11\u6301\u7e8c\u5ef6\u5c55\u8207\u5411\u524d\u751f\u9577\u7684\u529b\u9053\u3002',
+    water: '\u6c34\u5143\u7d20\u5c0d\u61c9\u601d\u8003\u3001\u6e9d\u901a\u8207\u9069\u61c9\uff1b\u7576\u6c34\u5143\u7d20\u4fe1\u865f\u504f\u5c11\u6642\uff0c\u5bb9\u6613\u6e9d\u901a\u8f49\u5f4e\u4e0d\u5920\u9806\uff0c\u9047\u5230\u58d3\u529b\u6642\u601d\u8003\u5f48\u6027\u4e0d\u8db3\u3002',
+    fire: '\u706b\u5143\u7d20\u5c0d\u61c9\u884c\u52d5\u3001\u8868\u9054\u8207\u52c7\u6c23\uff1b\u7576\u706b\u5143\u7d20\u4fe1\u865f\u504f\u5c11\u6642\uff0c\u5bb9\u6613\u60f3\u5f97\u591a\u3001\u505a\u5f97\u6162\uff0c\u8868\u9054\u63a8\u9032\u611f\u4e0d\u5920\u3002',
+    earth: '\u5730\u5143\u7d20\u5c0d\u61c9\u7a69\u5b9a\u3001\u627f\u64d4\u8207\u9577\u671f\u843d\u5be6\uff1b\u7576\u5730\u5143\u7d20\u4fe1\u865f\u504f\u5c11\u6642\uff0c\u5bb9\u6613\u57fa\u790e\u611f\u4e0d\u7a69\uff0c\u627f\u8afe\u8207\u7bc0\u594f\u96e3\u4ee5\u6301\u7e8c\u3002',
+  };
+  return reasons[element];
+}
+
 
 function numberElementAnalysisId(result: NumberAnalysisResponse) {
   const raw = [result.valueMasked, result.finalScore, result.level, JSON.stringify(result.matrix)].join(':');
@@ -479,35 +546,46 @@ function numberElementAnalysisId(result: NumberAnalysisResponse) {
 
 export function buildNumberFiveElementResult(result: NumberAnalysisResponse): FiveElementIntegrationResult {
   const evidence: FiveElementEvidence[] = [];
-  const elementScores = Object.fromEntries(ELEMENT_KEYS.map((element) => {
-    const keys = NUMBER_MATRIX_TO_ELEMENT[element];
-    const strengthBase = keys.reduce((sum, key) => sum + result.matrix[key], 0) / keys.length;
-    let need = 100 - strengthBase;
-    if (element === 'metal') need += Math.max(0, result.matrix.pressure - 55) * 0.35;
-    if (element === 'water') need += Math.max(0, result.matrix.risk - 55) * 0.35;
-    if (element === 'fire') need += Math.max(0, 58 - result.matrix.career) * 0.45;
-    if (element === 'earth') need += Math.max(0, result.matrix.pressure - 55) * 0.28 + Math.max(0, result.matrix.risk - 55) * 0.22;
-    if (element === 'wood') need += Math.max(0, 58 - result.matrix.growth) * 0.45;
+  const digitStats = numberDigitElementStats(result);
+  const expectedShare = digitStats.total / ELEMENT_KEYS.length;
+
+  const rawScores = Object.fromEntries(ELEMENT_KEYS.map((element) => {
+    const digitCount = digitStats.counts[element];
+    const digitStrength = (digitCount / Math.max(1, expectedShare)) * 50;
+    const matrixStrength = numberMatrixStrength(result, element);
+    const strength = clampScore(digitStrength * 0.58 + matrixStrength * 0.42);
+    let need = 100 - strength;
+    const digitGap = Math.max(0, expectedShare - digitCount);
+    need += digitGap * 12;
+    if (element === 'metal') need += Math.max(0, result.matrix.pressure - 62) * 0.18;
+    if (element === 'water') need += Math.max(0, result.matrix.risk - 62) * 0.2;
+    if (element === 'fire') need += Math.max(0, 55 - result.matrix.career) * 0.24;
+    if (element === 'earth') need += Math.max(0, 55 - result.matrix.stability) * 0.2 + Math.max(0, result.matrix.pressure - 64) * 0.12;
+    if (element === 'wood') need += Math.max(0, 55 - result.matrix.growth) * 0.24;
     return [element, {
-      strength: clampScore(strengthBase),
+      strength,
       need: clampScore(need),
-      evidenceCount: 1,
+      evidenceCount: 2,
     }];
   })) as Record<FiveElementKey, FiveElementScore>;
 
-  const needRanking = [...ELEMENT_KEYS].sort((a, b) => elementScores[b].need - elementScores[a].need);
+  const elementScores = rawScores;
+  const needRanking = [...ELEMENT_KEYS].sort((a, b) => elementScores[b].need - elementScores[a].need || digitStats.counts[a] - digitStats.counts[b]);
   const strengthRanking = [...ELEMENT_KEYS].sort((a, b) => elementScores[b].strength - elementScores[a].strength);
   const primaryElement = needRanking[0];
   const secondaryElement = needRanking.find((key) => key !== primaryElement) ?? needRanking[1];
   const strongElement = strengthRanking[0];
   const avoidElement = elementScores[strongElement].need <= 32 ? strongElement : null;
   const primaryDefinition = FIVE_ELEMENT_DEFINITIONS[primaryElement];
-  const mappedLabels = NUMBER_MATRIX_TO_ELEMENT[primaryElement].map((key) => key).join('/');
+  const confidence: FiveElementConfidence = result.confidenceScore >= 82 ? 'high' : result.confidenceScore >= 65 ? 'medium' : 'low';
+  const digitCountText = digitStats.counts[primaryElement].toFixed(1).replace(/\.0$/, '');
+  const expectedText = expectedShare.toFixed(1).replace(/\.0$/, '');
+  const matrixText = numberMatrixStrength(result, primaryElement).toFixed(0);
 
   evidence.push({
     module: 'number',
-    title: '\u6578\u5b57\u8ad6\u5409\u5224\u5b9a' + getFiveElementName(primaryElement) + '\u662f\u7b2c\u4e00\u7f3a\u53e3',
-    detail: '\u4f9d\u64da\u6578\u5b57\u77e9\u9663 ' + mappedLabels + ' \u8207\u58d3\u529b/\u98a8\u96aa\u8a0a\u865f\u4ea4\u53c9\u5224\u5b9a\u3002',
+    title: '\u6578\u5b57\u7d71\u8a08\u5224\u5b9a' + getFiveElementName(primaryElement) + '\u662f\u7b2c\u4e00\u7f3a\u53e3',
+    detail: '\u672c\u865f\u78bc\u4e2d' + getFiveElementName(primaryElement) + '\u52a0\u6b0a\u51fa\u73fe ' + digitCountText + '\uff0c\u57fa\u6e96\u61c9\u7d04 ' + expectedText + '\uff1b\u5c0d\u61c9\u77e9\u9663\u5f37\u5ea6 ' + matrixText + '\u3002',
     element: primaryElement,
     impact: 'need',
   });
@@ -520,21 +598,23 @@ export function buildNumberFiveElementResult(result: NumberAnalysisResponse): Fi
     secondaryElement,
     strongElement,
     avoidElement,
-    confidence: result.confidenceScore >= 82 ? 'high' : result.confidenceScore >= 65 ? 'medium' : 'low',
+    confidence,
     conflict: elementScores[primaryElement].need - elementScores[secondaryElement].need <= 5,
     supportingModules: ['number'],
-    moduleResults: [{ module: 'number', primaryElement, confidence: result.confidenceScore >= 82 ? 'high' : result.confidenceScore >= 65 ? 'medium' : 'low' }],
+    moduleResults: [{ module: 'number', primaryElement, confidence }],
     evidence,
     ruleVersion: 'number_element_v1',
-    summary: '\u672c\u6b21\u6578\u5b57\u8ad6\u5409\u5224\u5b9a\uff1a\u4f60\u7f3a' + getFiveElementName(primaryElement) + '\uff0c\u5c31\u5148\u88dc' + primaryDefinition.zh + '\u5143\u7d20\u3002\u624b\u93c8\u88dc\u5f37\u5148\u9078' + primaryDefinition.zh + '\u5143\u7d20\uff0c\u4e0d\u5148\u5206\u6563\u88dc\u5176\u4ed6\u5143\u7d20\u3002',
+    summary: '\u672c\u6b21\u6578\u5b57\u7d71\u8a08\u5224\u5b9a\uff1a\u4f60\u7f3a' + getFiveElementName(primaryElement) + '\uff0c\u5c31\u5148\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002\u624b\u93c8\u88dc\u5f37\u5148\u9078' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\uff0c\u4e0d\u5148\u5206\u6563\u88dc\u5176\u4ed6\u5143\u7d20\u3002',
     keywords: primaryDefinition.keywords.slice(0, 4),
     reasons: [
-      '\u6578\u5b57\u77e9\u9663\u5df2\u6392\u5e8f\uff1a' + getFiveElementName(primaryElement) + '\u662f\u7b2c\u4e00\u88dc\u5f37\u9806\u4f4d\u3002',
-      '\u7b2c\u4e8c\u9806\u4f4d\u662f' + getFiveElementName(secondaryElement) + '\uff0c\u4f46\u672c\u6b21\u5148\u5c08\u5fc3\u88dc' + primaryDefinition.zh + '\u5143\u7d20\u3002',
-      avoidElement ? getFiveElementName(avoidElement) + '\u5df2\u7d93\u8f03\u5f37\uff0c\u672c\u6b21\u5148\u4e0d\u88dc\u5b83\u3002' : getFiveElementName(strongElement) + '\u662f\u76ee\u524d\u8f03\u5f37\u652f\u6490\uff0c\u4f46\u4e0d\u662f\u672c\u6b21\u624b\u93c8\u4e3b\u88dc\u5143\u7d20\u3002',
+      '\u6578\u5b57\u4e94\u5143\u7d20\u7d71\u8a08\uff1a' + getFiveElementName(primaryElement) + '\u51fa\u73fe ' + digitCountText + '\uff0c\u4f4e\u65bc\u672c\u7d44\u865f\u78bc\u7684\u5e73\u8861\u57fa\u6e96 ' + expectedText + '\u3002',
+      '\u6578\u5b57\u77e9\u9663\u5f37\u5ea6\uff1a' + getFiveElementName(primaryElement) + '\u5c0d\u61c9\u7684\u529f\u80fd\u5e73\u5747\u70ba ' + matrixText + '\uff0c\u88dc\u5b83\u6700\u80fd\u5c0d\u6e96\u672c\u6b21\u7f3a\u53e3\u3002',
+      numberElementWeaknessReason(primaryElement),
+      NUMBER_ELEMENT_IMPROVEMENT[primaryElement],
+      '\u7b2c\u4e8c\u9806\u4f4d\u662f' + getFiveElementName(secondaryElement) + '\uff0c\u4f46\u672c\u6b21\u5148\u5c08\u5fc3\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002',
     ],
     recommendedActions: actionFor(primaryElement),
-    productEntryLabel: '\u9078\u64c7' + primaryDefinition.zh + '\u5143\u7d20\u80fd\u91cf\u624b\u93c8',
+    productEntryLabel: '\u9078\u64c7' + getFiveElementName(primaryElement) + '\u80fd\u91cf\u624b\u93c8',
     productRecommendation: getFiveElementProductRecommendation(primaryElement),
     positiveQuote: getFiveElementPositiveQuote(primaryElement),
   };

@@ -76,7 +76,7 @@ function FiveElementReinforcementCard({ result }: { result: FiveElementIntegrati
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-200">FIVE ELEMENT</p>
-          <h2 className="mt-2 font-serif text-2xl font-black text-amber-100 sm:text-3xl">{title}{primary.zh}{elementSuffix}</h2>
+          <h2 className="mt-2 font-serif text-2xl font-black text-amber-100 sm:text-3xl">{title}{primary.displayZh}{elementSuffix}</h2>
         </div>
         <span className="rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs font-bold text-amber-100">
           {sourceLabel}
@@ -85,7 +85,7 @@ function FiveElementReinforcementCard({ result }: { result: FiveElementIntegrati
 
       <div className="mt-5 rounded-2xl border border-amber-200/25 bg-black/20 p-4 text-center">
         <p className="text-xs font-bold text-[color:var(--text-muted)]">{primaryLabel}</p>
-        <p className="mt-2 font-serif text-5xl font-black leading-none text-amber-200 sm:text-6xl">{primary.zh}</p>
+        <p className="mt-2 font-serif text-5xl font-black leading-none text-amber-200 sm:text-6xl">{primary.displayZh}</p>
         <p className="mt-3 text-sm font-bold leading-7 text-[color:var(--text-main)]">{result.summary}</p>
         <div className="mt-3 flex flex-wrap justify-center gap-2">
           {result.keywords.map((keyword) => (
@@ -99,17 +99,17 @@ function FiveElementReinforcementCard({ result }: { result: FiveElementIntegrati
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
           <p className="text-xs font-bold text-cyan-100">{secondaryLabel}</p>
-          <p className="mt-1 text-lg font-black text-cyan-50">{secondary.zh}{elementSuffix}</p>
+          <p className="mt-1 text-lg font-black text-cyan-50">{secondary.displayZh}{elementSuffix}</p>
           <p className="mt-1 text-xs leading-5 text-[color:var(--text-muted)]">{secondary.keywords.slice(0, 3).join('\u3001')}</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
           <p className="text-xs font-bold text-emerald-100">{strongLabel}</p>
-          <p className="mt-1 text-lg font-black text-emerald-50">{strong.zh}{elementSuffix}</p>
+          <p className="mt-1 text-lg font-black text-emerald-50">{strong.displayZh}{elementSuffix}</p>
           <p className="mt-1 text-xs leading-5 text-[color:var(--text-muted)]">{supportText}</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
           <p className="text-xs font-bold text-rose-100">{avoidLabel}</p>
-          <p className="mt-1 text-lg font-black text-rose-50">{avoid ? avoid.zh + elementSuffix : noElementText}</p>
+          <p className="mt-1 text-lg font-black text-rose-50">{avoid ? avoid.displayZh + elementSuffix : noElementText}</p>
           <p className="mt-1 text-xs leading-5 text-[color:var(--text-muted)]">{avoid ? avoid.caution : noAvoidText}</p>
         </div>
       </div>
@@ -146,7 +146,7 @@ function FiveElementReinforcementCard({ result }: { result: FiveElementIntegrati
               return (
                 <div key={element} className="rounded-xl border border-white/10 bg-black/15 p-3">
                   <div className="flex items-center justify-between gap-3 text-xs font-bold">
-                    <span className="text-[color:var(--text-main)]">{definition.zh}{elementSuffix}</span>
+                    <span className="text-[color:var(--text-main)]">{definition.displayZh}{elementSuffix}</span>
                     <span className="text-cyan-100">{needLabel} {score.need}</span>
                   </div>
                   <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
