@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import LunarBirthdayInput from './LunarBirthdayInput';
 import FriendlyChoiceCard from './FriendlyChoiceCard';
 import VoiceConsentRecorder, { type AiVoiceGender, type VoiceConsentState } from './VoiceConsentRecorder';
@@ -10,7 +10,10 @@ import { saveUserData, loadUserData } from '@/lib/storage';
 type BloodType = 'A' | 'B' | 'AB' | 'O';
 type Gender = 'male' | 'female';
 type PreferredSongLanguage = 'mandarin' | 'english' | 'taiwanese';
+type SongEnergyStyle = 'dance-pop' | 'emotional-pop' | 'club-edm';
 type SelectionConfirm = { gender: boolean };
+type MissingField = 'birthDate' | 'bloodType' | 'name' | 'gender' | 'shichen' | 'voice';
+type ValidationResult = { field: MissingField; message: string };
 
 export type ShichenChoice = number | 'unknown' | null;
 export type VocalGenderPreference = 'male' | 'female' | null;
@@ -24,6 +27,7 @@ export interface MusicFormData {
   voiceCharacteristics: string[];
   vocalGenderPreference: VocalGenderPreference;
   preferredSongLanguage: PreferredSongLanguage;
+  songEnergyStyle: SongEnergyStyle;
   voiceConsent: VoiceConsentState;
 }
 
@@ -34,7 +38,16 @@ interface PersonalityMusicFlowProps {
 
 const BLOOD_TYPES: BloodType[] = ['A', 'B', 'AB', 'O'];
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { gender: false };
-const STEPS = ['\u8cc7\u6599', '\u6821\u6e96', '\u751f\u6210'];
+const DATA_FIELD_ORDER: MissingField[] = ['voice', 'birthDate', 'bloodType', 'name', 'gender', 'shichen'];
+const LAST_DATA_FIELD = DATA_FIELD_ORDER[DATA_FIELD_ORDER.length - 1];
+const DATA_FIELD_LABELS: Record<MissingField, { label: string; hint: string }> = {
+  voice: { label: '\u9078\u8072\u97f3\u4f86\u6e90', hint: '\u5148\u6c7a\u5b9a\u8981\u9304\u81ea\u5df1\u7684\u8072\u97f3\uff0c\u6216\u76f4\u63a5\u7528 AI \u8072\u97f3\u3002' },
+  birthDate: { label: '\u586b\u5beb\u751f\u65e5', hint: '\u9019\u4e00\u6b65\u53ea\u586b\u751f\u65e5\uff0c\u5b8c\u6210\u5f8c\u518d\u9032\u5230\u4e0b\u4e00\u984c\u3002' },
+  bloodType: { label: '\u9ede\u9078\u8840\u578b', hint: '\u9019\u4e00\u6b65\u53ea\u9078\u8840\u578b\uff0c\u9078\u4e00\u500b\u5c31\u53ef\u4ee5\u7e7c\u7e8c\u3002' },
+  name: { label: '\u586b\u5beb\u59d3\u540d', hint: '\u8acb\u8f38\u5165\u59d3\u540d\uff0cAI \u6703\u7528\u4f86\u5efa\u7acb\u6b4c\u66f2\u4e3b\u89d2\u3002' },
+  gender: { label: '\u9ede\u9078\u6027\u5225', hint: '\u9019\u4e00\u6b65\u53ea\u78ba\u8a8d\u6027\u5225\uff0c\u7528\u4f86\u8abf\u6574\u6b4c\u66f2\u8a9e\u6c23\u3002' },
+  shichen: { label: '\u9078\u64c7\u51fa\u751f\u6642\u8fb0', hint: '\u77e5\u9053\u5c31\u9ede\u6642\u8fb0\uff0c\u4e0d\u77e5\u9053\u5c31\u9078\u7cfb\u7d71\u63a8\u4f30\u3002' },
+};
 
 const BLOOD_DESC: Record<BloodType, string> = {
   A: '\u7d30\u81a9\u7a69\u5b9a\uff0c\u9069\u5408\u6574\u7406\u65cb\u5f8b\u4e2d\u7684\u5b89\u5168\u611f\u8207\u60c5\u7dd2\u5c64\u6b21\u3002',
@@ -62,6 +75,25 @@ const SONG_LANGUAGE_OPTIONS: Array<{ key: PreferredSongLanguage; label: string; 
   },
 ];
 
+const SONG_ENERGY_OPTIONS: Array<{ key: SongEnergyStyle; label: string; hint: string; badge?: string }> = [
+  {
+    key: 'dance-pop',
+    label: '\u6d41\u884c\u821e\u66f2',
+    hint: 'Hook \u597d\u8a18\u3001\u7bc0\u594f\u660e\u78ba\uff0c\u9069\u5408\u624b\u6a5f\u77ed\u5f71\u97f3\u8207\u5927\u773e\u807d\u611f\u3002',
+    badge: '\u63a8\u85a6',
+  },
+  {
+    key: 'emotional-pop',
+    label: '\u60c5\u7dd2\u6d41\u884c',
+    hint: '\u65cb\u5f8b\u6e05\u695a\u3001\u6545\u4e8b\u611f\u5f37\uff0c\u9069\u5408\u5531\u51fa\u5167\u5fc3\u5c0d\u8a71\u8207\u6eab\u5ea6\u3002',
+  },
+  {
+    key: 'club-edm',
+    label: '\u6d3e\u5c0d\u96fb\u97f3',
+    hint: '\u9f13\u9ede\u66f4\u5f37\u3001Drop \u66f4\u660e\u986f\uff0c\u9069\u5408\u505a\u6210\u66f4\u6709\u821e\u611f\u7684\u6b4c\u3002',
+  },
+];
+
 export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityMusicFlowProps) {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<MusicFormData>({
@@ -73,6 +105,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     voiceCharacteristics: [],
     vocalGenderPreference: null,
     preferredSongLanguage: 'mandarin',
+    songEnergyStyle: 'dance-pop',
     voiceConsent: {
       accepted: false,
       version: 'voice-song-consent-v1',
@@ -82,6 +115,17 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   });
   const [selectionConfirm, setSelectionConfirm] = useState<SelectionConfirm>(EMPTY_SELECTION_CONFIRM);
   const [localError, setLocalError] = useState('');
+  const flowTopRef = useRef<HTMLDivElement>(null);
+  const fieldRefs = useRef<Record<MissingField, HTMLDivElement | null>>({
+    birthDate: null,
+    bloodType: null,
+    name: null,
+    gender: null,
+    shichen: null,
+    voice: null,
+  });
+  const [missingField, setMissingField] = useState<MissingField | null>(null);
+  const [activeDataField, setActiveDataField] = useState<MissingField>('voice');
 
   useEffect(() => {
     const saved = loadUserData();
@@ -106,37 +150,100 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     });
   }, [form.name, form.birthDate, form.bloodType, form.gender]);
 
-  function validateStep(targetStep = step): string | null {
-    if (targetStep === 0) {
-      if (!form.birthDate) return '\u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\uff0c\u9019\u662f\u751f\u6210\u7d50\u679c\u7684\u57fa\u790e\u3002';
-      if (!form.bloodType) return '\u8acb\u9ede\u9078\u8840\u578b\uff0c\u9078\u4e00\u500b\u5c31\u53ef\u4ee5\u7e7c\u7e8c\u3002';
-      if (form.name.trim().length < 2) return '\u8acb\u586b\u5beb\u59d3\u540d\uff0c\u81f3\u5c11 2 \u500b\u5b57\u3002';
-      if (form.name.trim().length > 20) return '\u59d3\u540d\u8acb\u63a7\u5236\u5728 20 \u500b\u5b57\u4ee5\u5167\u3002';
-      if (!selectionConfirm.gender) return '\u8acb\u9ede\u9078\u6027\u5225\uff0c\u9019\u6b04\u9084\u6c92\u6709\u78ba\u8a8d\u3002';
-      if (form.shichen === null) return '\u8acb\u9078\u64c7\u51fa\u751f\u6642\u8fb0\uff1b\u82e5\u4e0d\u77e5\u9053\uff0c\u8acb\u9ede\u9078\u300c\u4e0d\u77e5\u9053\u6642\u8fb0\u300d\u3002';
-    }
-    if (targetStep === 1 && !form.voiceConsent.sample) {
-      return '\u8acb\u9078\u64c7\u300c\u958b\u59cb\u9304\u97f3\u300d\u6216\u300c\u7acb\u5373\u751f\u6210\u300d\uff0c\u5169\u7a2e\u65b9\u5f0f\u90fd\u53ef\u4ee5\u5b8c\u6210\u6b4c\u66f2\u3002';
-    }
+  useEffect(() => {
+    if (step === 0) return;
+    const timer = window.setTimeout(() => {
+      flowTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 40);
+    return () => window.clearTimeout(timer);
+  }, [step]);
+
+  function scrollToField(field: MissingField) {
+    window.setTimeout(() => {
+      const fieldElement = fieldRefs.current[field];
+      const alertElement = fieldElement?.querySelector('.form-missing-alert');
+      const targetElement = alertElement ?? fieldElement;
+      if (!targetElement) return;
+      const rect = targetElement.getBoundingClientRect();
+      const desiredTop = alertElement ? window.innerHeight * 0.32 : 84;
+      const nextTop = Math.max(0, rect.top + window.scrollY - desiredTop);
+      window.scrollTo({ top: nextTop, behavior: 'auto' });
+    }, 80);
+  }
+
+  useEffect(() => {
+    if (!missingField || !localError) return;
+    const timer = window.setTimeout(() => {
+      scrollToField(missingField);
+    }, 140);
+    return () => window.clearTimeout(timer);
+  }, [localError, missingField]);
+
+  useEffect(() => {
+    if (step !== 0 || !form.voiceConsent.sample || activeDataField !== 'voice') return;
+    const timer = window.setTimeout(() => {
+      setActiveDataField('birthDate');
+      scrollToField('birthDate');
+    }, 120);
+    return () => window.clearTimeout(timer);
+  }, [activeDataField, form.voiceConsent.sample, step]);
+
+  function clearValidation() {
+    setLocalError('');
+    setMissingField(null);
+  }
+
+  function validateDataField(field: MissingField): ValidationResult | null {
+    if (field === 'voice' && !form.voiceConsent.sample) return { field: 'voice', message: '\u8acb\u5148\u9078\u64c7\u8072\u97f3\u4f86\u6e90\uff1a\u8981\u9304\u97f3\u8acb\u9ede\u300c\u958b\u59cb\u9304\u97f3\u300d\uff0c\u4e0d\u9304\u97f3\u53ef\u76f4\u63a5\u9078 AI \u8072\u97f3\u3002' };
+    if (field === 'birthDate' && !form.birthDate) return { field: 'birthDate', message: '\u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\uff0c\u7cfb\u7d71\u5df2\u5e36\u60a8\u56de\u5230\u9019\u4e00\u6b04\u3002' };
+    if (field === 'bloodType' && !form.bloodType) return { field: 'bloodType', message: '\u8acb\u9ede\u9078\u8840\u578b\uff0c\u7d05\u8272\u767c\u5149\u7684\u5361\u7247\u5c31\u662f\u9700\u8981\u5b8c\u6210\u7684\u5730\u65b9\u3002' };
+    if (field === 'name' && form.name.trim().length < 2) return { field: 'name', message: '\u8acb\u586b\u5beb\u59d3\u540d\uff0c\u81f3\u5c11 2 \u500b\u5b57\u3002' };
+    if (field === 'name' && form.name.trim().length > 20) return { field: 'name', message: '\u59d3\u540d\u8acb\u63a7\u5236\u5728 20 \u500b\u5b57\u4ee5\u5167\u3002' };
+    if (field === 'gender' && !selectionConfirm.gender) return { field: 'gender', message: '\u8acb\u9ede\u9078\u6027\u5225\uff0c\u9019\u6b04\u9084\u6c92\u6709\u78ba\u8a8d\u3002' };
+    if (field === 'shichen' && form.shichen === null) return { field: 'shichen', message: '\u8acb\u9078\u64c7\u51fa\u751f\u6642\u8fb0\uff1b\u82e5\u4e0d\u77e5\u9053\uff0c\u8acb\u9ede\u9078\u300c\u4e0d\u77e5\u9053\u6642\u8fb0\u300d\u3002' };
     return null;
   }
 
-  const showMissingBirthDate = Boolean(localError) && step === 0 && !form.birthDate;
-  const showMissingBloodType = Boolean(localError) && step === 0 && !form.bloodType;
-  const showMissingName = Boolean(localError) && step === 0 && form.name.trim().length < 2;
-  const showMissingGender = Boolean(localError) && step === 0 && !selectionConfirm.gender;
-  const showMissingShichen = Boolean(localError) && step === 0 && form.shichen === null;
-  const showMissingVoice = Boolean(localError) && step === 1 && !form.voiceConsent.sample;
+  function validateStep(targetStep = step): ValidationResult | null {
+    if (targetStep === 0) return validateDataField(activeDataField);
+    if (targetStep === 1 && !form.songEnergyStyle) return { field: 'voice', message: '\u8acb\u9078\u64c7\u6b4c\u66f2\u611f\u89ba\u3002' };
+    return null;
+  }
+
+  const showMissingBirthDate = missingField === 'birthDate' && step === 0 && !form.birthDate;
+  const showMissingBloodType = missingField === 'bloodType' && step === 0 && !form.bloodType;
+  const showMissingName = missingField === 'name' && step === 0 && (form.name.trim().length < 2 || form.name.trim().length > 20);
+  const showMissingGender = missingField === 'gender' && step === 0 && !selectionConfirm.gender;
+  const showMissingShichen = missingField === 'shichen' && step === 0 && form.shichen === null;
+  const showMissingVoice = missingField === 'voice' && step === 0 && activeDataField === 'voice' && !form.voiceConsent.sample;
+
+  function goToDataField(field: MissingField) {
+    setActiveDataField(field);
+    window.setTimeout(() => scrollToField(field), 30);
+  }
 
   function handleNext() {
     const error = validateStep();
     if (error) {
-      setLocalError(error);
+      setLocalError(error.message);
+      setMissingField(error.field);
+      scrollToField(error.field);
       return;
     }
 
-    setLocalError('');
-    if (step < STEPS.length - 1) {
+    clearValidation();
+    if (step === 0) {
+      const currentIndex = DATA_FIELD_ORDER.indexOf(activeDataField);
+      const nextField = DATA_FIELD_ORDER[currentIndex + 1];
+      if (nextField) {
+        goToDataField(nextField);
+        return;
+      }
+      setStep(1);
+      return;
+    }
+
+    if (step < 2) {
       setStep((current) => current + 1);
       return;
     }
@@ -151,46 +258,103 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
       vocalGenderPreference: aiVoiceGender ?? form.vocalGenderPreference,
     };
     setForm(nextForm);
-    setLocalError('');
+    clearValidation();
     void onSubmit(nextForm);
   }
 
+  const currentDataIndex = DATA_FIELD_ORDER.indexOf(activeDataField);
+  const currentDataMeta = DATA_FIELD_LABELS[activeDataField];
+  const canGoBack = step > 0 || (step === 0 && activeDataField !== 'voice');
+
+  function getPrimaryButtonLabel() {
+    if (loading) return 'AI \u6b63\u5728\u751f\u6210\u6b4c\u66f2...';
+    if (step === 0) {
+      if (activeDataField === 'voice') return '\u4e0b\u4e00\u6b65\uff1a\u586b\u5beb\u751f\u65e5';
+      if (activeDataField === 'birthDate') return '\u4e0b\u4e00\u6b65\uff1a\u9ede\u9078\u8840\u578b';
+      if (activeDataField === 'bloodType') return '\u4e0b\u4e00\u6b65\uff1a\u586b\u5beb\u59d3\u540d';
+      if (activeDataField === 'name') return '\u4e0b\u4e00\u6b65\uff1a\u9ede\u9078\u6027\u5225';
+      if (activeDataField === 'gender') return '\u4e0b\u4e00\u6b65\uff1a\u9078\u64c7\u6642\u8fb0';
+      return '\u4e0b\u4e00\u6b65\uff1a\u9078\u64c7\u6b4c\u66f2\u611f\u89ba';
+    }
+    if (step === 1) return '\u4e0b\u4e00\u6b65\uff1a\u78ba\u8a8d\u6b4c\u66f2\u8a9e\u8a00';
+    return '\u751f\u6210\u5c08\u5c6c\u6d41\u884c\u6b4c\u66f2';
+  }
+
+  function handleBack() {
+    clearValidation();
+    if (step === 0) {
+      const currentIndex = DATA_FIELD_ORDER.indexOf(activeDataField);
+      const previousField = DATA_FIELD_ORDER[currentIndex - 1];
+      if (previousField) goToDataField(previousField);
+      return;
+    }
+    if (step === 1) {
+      setStep(0);
+      window.setTimeout(() => goToDataField(LAST_DATA_FIELD), 30);
+      return;
+    }
+    setStep(1);
+  }
+
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap items-center gap-2.5 border-b border-white/5 pb-2">
-        {STEPS.map((label, index) => (
-          <div key={label} className="flex items-center gap-1.5">
-            <div className={`radar-node ${index < step ? 'bg-cyan-400 text-cyan-400' : index === step ? 'radar-node--active bg-rose-400 text-rose-400 shadow-[0_0_10px_#f43f5e]' : 'bg-white/20 text-white/20'}`} />
-            <span className={`text-xs font-bold ${index === step ? 'text-[color:var(--text-main)]' : 'text-[color:var(--text-muted)]'}`}>{label}</span>
-            {index < STEPS.length - 1 && <div className="h-px w-3 bg-white/10" />}
-          </div>
-        ))}
+    <div ref={flowTopRef} className="space-y-8">
+      {step === 0 && activeDataField === 'voice' && (
+        <div ref={(node) => { fieldRefs.current.voice = node; }} className={`music-required-field music-direct-recorder-dock music-direct-recorder-dock--first ${showMissingVoice ? 'music-required-field--missing' : ''}`} aria-label="\u76f4\u63a5\u9ea5\u514b\u98a8\u9304\u97f3\u7cfb\u7d71">
+          {form.voiceConsent.sample ? (
+            <div className="music-voice-selected-note">
+              <strong>{"\u8072\u97f3\u4f86\u6e90\u5df2\u5b8c\u6210"}</strong>
+              <span>{"\u5df2\u7d93\u8a18\u9304\u60a8\u9078\u64c7\u7684\u8072\u97f3\u65b9\u5f0f\u3002\u63a5\u4e0b\u4f86\u8acb\u4f9d\u7d05\u8272\u63d0\u793a\u6216\u4e0b\u65b9\u6b04\u4f4d\u5b8c\u6210\u8cc7\u6599\u3002"}</span>
+            </div>
+          ) : (
+            <>
+              <div className="music-direct-recorder-dock__title">
+                <strong>{"\u9ea5\u514b\u98a8\u9304\u97f3\u7cfb\u7d71"}</strong>
+                <span>{"\u5148\u9078\u4e00\u500b\u65b9\u5f0f\uff1a\u9304\u81ea\u5df1\u7684\u8072\u97f3\uff0c\u6216\u76f4\u63a5\u7528 AI \u8072\u97f3\u3002"}</span>
+              </div>
+              <VoiceConsentRecorder
+                value={form.voiceConsent}
+                disabled={loading}
+                required
+                showMissing={showMissingVoice}
+                aiVoiceGender={form.vocalGenderPreference}
+                onAiVoiceGenderChange={(gender) => {
+                  setForm((prev) => ({ ...prev, vocalGenderPreference: gender }));
+                  clearValidation();
+                }}
+                onChange={(voiceConsent) => {
+                  setForm((prev) => ({ ...prev, voiceConsent }));
+                  clearValidation();
+                  if (voiceConsent.sample) scrollToField('birthDate');
+                }}
+              />
+            </>
+          )}
+        </div>
+      )}
+
+      <div className="music-current-step-card" aria-live="polite">
+        <span>{step === 0 ? `\u7b2c ${currentDataIndex + 1} \u6b65 / ${DATA_FIELD_ORDER.length}` : step === 1 ? '\u7b2c 7 \u6b65 / 8' : '\u6700\u5f8c\u4e00\u6b65'}</span>
+        <strong>{step === 0 ? currentDataMeta.label : step === 1 ? '\u9078\u64c7\u6b4c\u66f2\u611f\u89ba' : '\u78ba\u8a8d\u6b4c\u66f2\u8a9e\u8a00'}</strong>
+        <p>{step === 0 ? currentDataMeta.hint : step === 1 ? '\u9019\u4e00\u9801\u53ea\u9078\u6b4c\u66f2\u98a8\u683c\uff0c\u5176\u4ed6\u5167\u5bb9\u5148\u96b1\u85cf\u3002' : '\u9078\u5b8c\u8a9e\u8a00\u5f8c\uff0c\u5c31\u53ef\u4ee5\u751f\u6210\u5c08\u5c6c\u6b4c\u66f2\u3002'}</p>
       </div>
 
-      {step === 0 && (
-        <div className="music-flow-stage-card music-flow-stage-card--data">
-          <div className="music-flow-stage-heading">
-            <p>{"\u7b2c\u4e00\u6bb5"}</p>
-            <h3>{"\u5148\u5b8c\u6210\u500b\u4eba\u8cc7\u6599"}</h3>
-            <span>{"\u751f\u65e5\u3001\u8840\u578b\u3001\u59d3\u540d\u3001\u6642\u8fb0\u4e00\u6b21\u6574\u7406\u597d"}</span>
-          </div>
-        <div className="space-y-4">
+      {step === 0 && activeDataField === 'birthDate' && (
+        <div ref={(node) => { fieldRefs.current.birthDate = node; }} className={`music-required-field music-flow-stage-card music-flow-stage-card--data space-y-4 ${showMissingBirthDate ? 'music-required-field--missing' : ''}`}>
           <p className="text-sm leading-6 text-[color:var(--text-sub)]">{'\u751f\u65e5\u6703\u4f5c\u70ba\u6b4c\u66f2\u4eba\u683c\u5e95\u8272\uff0c\u8acb\u7528\u624b\u6a5f\u5bb9\u6613\u8f38\u5165\u7684\u6c11\u570b\u5e74\u683c\u5f0f\u586b\u5beb\u3002'}</p>
           <LunarBirthdayInput
             value={form.birthDate}
             onChange={(solarDate) => {
               setForm((prev) => ({ ...prev, birthDate: solarDate }));
-              setLocalError('');
+              clearValidation();
             }}
             accent="violet"
           />
           {showMissingBirthDate && <p className="form-missing-alert">{'\u26a0\ufe0f \u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\uff0c\u9019\u6b04\u9084\u6c92\u6709\u586b\u5beb\u3002'}</p>}
         </div>
-        </div>
       )}
 
-      {step === 0 && (
-        <div className="space-y-4">
+      {step === 0 && activeDataField === 'bloodType' && (
+        <div ref={(node) => { fieldRefs.current.bloodType = node; }} className={`music-required-field space-y-4 ${showMissingBloodType ? 'music-required-field--missing' : ''}`}>
           <p className="text-sm leading-6 text-[color:var(--text-sub)]">{'\u8840\u578b\u6703\u5354\u52a9 AI \u6821\u6e96\u6b4c\u66f2\u7684\u60c5\u7dd2\u901f\u5ea6\u8207\u81ea\u6211\u5c0d\u8a71\u65b9\u5f0f\u3002'}</p>
           {showMissingBloodType && <p className="form-missing-alert">{'\u26a0\ufe0f \u8acb\u9ede\u9078\u8840\u578b\uff0c\u9078\u4e00\u500b\u5c31\u53ef\u4ee5\u7e7c\u7e8c\u3002'}</p>}
           <div className="grid grid-cols-2 gap-3">
@@ -202,7 +366,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                 description={BLOOD_DESC[bloodType]}
                 onClick={() => {
                   setForm((prev) => ({ ...prev, bloodType }));
-                  setLocalError('');
+                  clearValidation();
                 }}
                 tone={index % 2 === 0 ? 'violet' : 'cyan'}
                 attention={showMissingBloodType}
@@ -212,25 +376,25 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         </div>
       )}
 
-      {step === 0 && (
+      {step === 0 && (activeDataField === 'name' || activeDataField === 'gender') && (
         <div className="space-y-5">
-          <div>
+          <div ref={(node) => { fieldRefs.current.name = node; }} className={`music-required-field ${activeDataField === 'name' ? '' : 'hidden'} ${showMissingName ? 'music-required-field--missing' : ''}`}>
             <p className="mb-4 text-sm leading-6 text-[color:var(--text-sub)]">{'\u59d3\u540d\u6703\u7528\u4f86\u5efa\u7acb\u6b4c\u66f2\u4e3b\u89d2\uff0c\u8b93\u6b4c\u8a5e\u66f4\u50cf\u5728\u8ddf\u81ea\u5df1\u8aaa\u8a71\u3002'}</p>
             <input
               type="text"
               value={form.name}
               maxLength={20}
-              placeholder="\u8acb\u8f38\u5165\u59d3\u540d"
+              placeholder={'\u8acb\u8f38\u5165\u59d3\u540d'}
               onChange={(event) => {
                 setForm((prev) => ({ ...prev, name: event.target.value }));
-                setLocalError('');
+                clearValidation();
               }}
               className={`form-input w-full text-base neon-input-focus neon-card-hover glass-input glass-input-cyan ${showMissingName ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
             />
             {showMissingName && <p className="form-missing-alert">{'\u26a0\ufe0f \u8acb\u586b\u5beb\u59d3\u540d\uff0c\u81f3\u5c11 2 \u500b\u5b57\u3002'}</p>}
           </div>
 
-          <div>
+          <div ref={(node) => { fieldRefs.current.gender = node; }} className={`music-required-field ${activeDataField === 'gender' ? '' : 'hidden'} ${showMissingGender ? 'music-required-field--missing' : ''}`}>
             <p className="mb-2 text-xs text-[color:var(--text-muted)]">{'\u6027\u5225\u53ea\u7528\u4f86\u8abf\u6574\u8a9e\u6c23\u8207\u6577\u4e8b\u89d2\u5ea6\uff0c\u4e0d\u6703\u9650\u5236\u6b4c\u66f2\u98a8\u683c\u3002'}</p>
             {showMissingGender && <p className="form-missing-alert">{'\u26a0\ufe0f \u8acb\u9ede\u9078\u6027\u5225\uff0c\u9019\u6b04\u9084\u6c92\u6709\u78ba\u8a8d\u3002'}</p>}
             <div className="grid grid-cols-2 gap-3">
@@ -243,7 +407,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                   onClick={() => {
                     setForm((prev) => ({ ...prev, gender }));
                     setSelectionConfirm({ gender: true });
-                    setLocalError('');
+                    clearValidation();
                   }}
                   tone={gender === 'female' ? 'pink' : 'cyan'}
                   compact
@@ -255,14 +419,14 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         </div>
       )}
 
-      {step === 0 && (
-        <div className="space-y-5">
+      {step === 0 && activeDataField === 'shichen' && (
+        <div ref={(node) => { fieldRefs.current.shichen = node; }} className={`music-required-field space-y-5 ${showMissingShichen ? 'music-required-field--missing' : ''}`}>
           <p className="text-sm leading-6 text-[color:var(--text-sub)]">{'\u6642\u8fb0\u6703\u8b93\u6b4c\u66f2\u591a\u4e00\u5c64\u7bc0\u594f\u611f\u3002\u82e5\u4e0d\u78ba\u5b9a\uff0c\u76f4\u63a5\u9078\u4e0d\u77e5\u9053\uff0c\u7cfb\u7d71\u6703\u7528\u4fdd\u5b88\u65b9\u5f0f\u63a8\u4f30\u3002'}</p>
           <button
             type="button"
             onClick={() => {
               setForm((prev) => ({ ...prev, shichen: 'unknown' }));
-              setLocalError('');
+              clearValidation();
             }}
             className={`w-full rounded-2xl border px-5 py-4 text-left transition-all ${form.shichen === 'unknown' ? 'border-emerald-400 bg-emerald-400/15' : showMissingShichen ? 'border-rose-400/85 bg-rose-500/12 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : 'border-white/15 bg-white/5 hover:border-white/25'}`}
           >
@@ -284,7 +448,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                   type="button"
                   onClick={() => {
                     setForm((prev) => ({ ...prev, shichen: s.branchIndex }));
-                    setLocalError('');
+                    clearValidation();
                   }}
                   className={`rounded-2xl border px-3 py-3 text-left transition-all ${selected ? 'border-cyan-400 bg-cyan-400/15' : showMissingShichen ? 'border-rose-400/85 bg-rose-500/12 shadow-[0_0_18px_rgba(244,63,94,0.18)]' : 'border-white/10 bg-white/5 hover:border-white/20'}`}
                 >
@@ -302,27 +466,32 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         <div className="space-y-4">
           <div className="music-flow-stage-card music-flow-stage-card--voice">
             <div className="music-flow-stage-heading">
-              <p>{"\u7b2c\u4e8c\u6bb5"}</p>
-              <h3>{"AI \u97f3\u6a02\u751f\u6210"}</h3>
-              <span>{"\u9078\u64c7\u9304\u97f3\uff0c\u6216\u76f4\u63a5\u4f7f\u7528 AI \u8072\u97f3"}</span>
+              <p>{"\u7b2c\u4e03\u6b65"}</p>
+              <h3>{"\u9078\u64c7\u6b4c\u66f2\u611f\u89ba"}</h3>
+              <span>{"\u9019\u4e00\u6b65\u53ea\u9078\u66f2\u98a8\uff0c\u4e0d\u518d\u986f\u793a\u9304\u97f3\u5361\u7247\u6216\u5176\u4ed6\u8f38\u5165\u3002"}</span>
             </div>
-          <p className="text-sm leading-6 text-[color:var(--text-sub)]">{'\u9078\u64c7\u4e00\u7a2e\u65b9\u5f0f\u5373\u53ef\u958b\u59cb\u751f\u6210\u3002\u6709\u9ea5\u514b\u98a8\u5c31\u4f7f\u7528\u81ea\u5df1\u7684\u8072\u97f3\uff1b\u4e0d\u65b9\u4fbf\u9304\u97f3\u6642\uff0c\u76f4\u63a5\u9078 AI \u7537\u8072\u6216 AI \u5973\u8072\u3002'}</p>
-          <VoiceConsentRecorder
-            value={form.voiceConsent}
-            disabled={loading}
-            required
-            showMissing={showMissingVoice}
-            aiVoiceGender={form.vocalGenderPreference}
-            onAiVoiceGenderChange={(gender) => {
-              setForm((prev) => ({ ...prev, vocalGenderPreference: gender }));
-              setLocalError('');
-            }}
-            onReadyToGenerate={submitWithVoice}
-            onChange={(voiceConsent) => {
-              setForm((prev) => ({ ...prev, voiceConsent }));
-              setLocalError('');
-            }}
-          />
+            <div className="grid gap-2 sm:grid-cols-3">
+              {SONG_ENERGY_OPTIONS.map((option) => {
+                const selected = form.songEnergyStyle === option.key;
+                return (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => {
+                      setForm((prev) => ({ ...prev, songEnergyStyle: option.key }));
+                      clearValidation();
+                    }}
+                    className={`song-energy-choice ${selected ? 'song-energy-choice--selected' : ''}`}
+                  >
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="font-black">{option.label}</span>
+                      {option.badge && <span className="rounded-full border border-amber-200/35 px-2 py-0.5 text-[10px] text-amber-100">{option.badge}</span>}
+                    </span>
+                    <span className="mt-1.5 block text-[11px] leading-5 text-[color:var(--text-muted)]">{option.hint}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
@@ -331,39 +500,14 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         <div className="space-y-4">
           <div className="music-flow-stage-card music-flow-stage-card--generate">
             <div className="music-flow-stage-heading">
-              <p>{"\u7b2c\u4e09\u6bb5"}</p>
-              <h3>{"\u78ba\u8a8d\u6b4c\u66f2\u8a2d\u5b9a\u5f8c\u751f\u6210"}</h3>
-              <span>{"\u5f8c\u7aef\u8ca0\u8cac\u904b\u7b97\u751f\u6210\uff0c\u524d\u7aef\u53ea\u505a\u6e05\u695a\u7f8e\u89c0\u7684\u5f15\u5c0e"}</span>
+              <p>{"\u6700\u5f8c\u4e00\u6b65"}</p>
+              <h3>{"\u78ba\u8a8d\u6b4c\u66f2\u8a9e\u8a00"}</h3>
+              <span>{"\u9019\u4e00\u6b65\u53ea\u9078\u8a9e\u8a00\uff0c\u78ba\u8a8d\u5f8c\u5c31\u80fd\u751f\u6210\u6b4c\u66f2\u3002"}</span>
             </div>
-
-          <div className="border-t border-white/10 pt-4">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm font-semibold text-cyan-100">{'\u5e0c\u671b\u6b4c\u66f2\u7531\u8ab0\u4f86\u5531'}</p>
-              <p className="text-xs text-[color:var(--text-muted)]">{'\u53ef\u4e0d\u9078\uff0c\u7cfb\u7d71\u6703\u4f9d\u8072\u97f3\u6458\u8981\u5224\u65b7'}</p>
+            <div className="music-generate-ready-note">
+              <strong>{'\u5df2\u9032\u5165\u6700\u5f8c\u4e00\u6b65'}</strong>
+              <span>{'\u6309\u4e0b\u65b9\u300c\u751f\u6210\u5c08\u5c6c\u6d41\u884c\u6b4c\u66f2\u300d\u5f8c\uff0cAI \u6703\u81ea\u52d5\u5b8c\u6210\u6b4c\u8a5e\u3001\u66f2\u98a8\u8207\u88fd\u4f5c\u65b9\u5411\u3002'}</span>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              {([
-                { key: 'female', label: '\u5973\u8072\u7248\u672c', icon: '\u2640', tone: 'rose' },
-                { key: 'male', label: '\u7537\u8072\u7248\u672c', icon: '\u2642', tone: 'cyan' },
-              ] as const).map((option) => {
-                const selected = form.vocalGenderPreference === option.key;
-                return (
-                  <button
-                    key={option.key}
-                    type="button"
-                    onClick={() => setForm((prev) => ({ ...prev, vocalGenderPreference: selected ? null : option.key }))}
-                    className={`group relative overflow-hidden rounded-[18px] border px-4 py-3 text-left text-sm transition-all duration-500 ${selected ? option.tone === 'rose' ? 'border-rose-200/80 bg-rose-300/15 text-rose-100 shadow-[0_0_24px_rgba(244,63,94,0.25)]' : 'border-cyan-200/80 bg-cyan-300/15 text-cyan-100 shadow-[0_0_24px_rgba(34,211,238,0.25)]' : 'border-white/10 bg-white/5 text-[color:var(--text-sub)] hover:border-white/35 hover:bg-white/10'}`}
-                  >
-                    <span className="relative flex items-center gap-2.5">
-                      <span className="text-lg">{option.icon}</span>
-                      <span className="font-semibold">{option.label}</span>
-                      {selected && <span className="ml-auto text-xs text-white">{'\u5df2\u9078'}</span>}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           <div className="border-t border-white/10 pt-4">
             <div className="mb-3 space-y-1">
@@ -397,13 +541,10 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
       {localError && <div className="rounded-2xl border border-rose-400/20 bg-rose-950/20 p-3 text-sm text-rose-300">{localError}</div>}
 
       <div className="flex gap-3">
-        {step > 0 && (
+        {canGoBack && (
           <button
             type="button"
-            onClick={() => {
-              setStep((current) => current - 1);
-              setLocalError('');
-            }}
+            onClick={handleBack}
             disabled={loading}
             className="rounded-full border border-white/10 bg-slate-900/60 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] transition-all duration-300 hover:border-cyan-500/25 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
@@ -411,7 +552,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
           </button>
         )}
         <button type="button" onClick={handleNext} disabled={loading} className="vip-gold-btn shimmer-btn flex-1 py-4 text-sm disabled:cursor-not-allowed disabled:opacity-60">
-          {loading ? 'AI \u6b63\u5728\u751f\u6210\u6b4c\u66f2...' : step === STEPS.length - 1 ? '\u751f\u6210\u500b\u4eba\u4eba\u683c\u5206\u88c2\u6b4c\u66f2' : step === 0 ? '\u4e0b\u4e00\u6b65\uff1aAI \u97f3\u6a02\u751f\u6210' : '\u4e0b\u4e00\u6b65\uff1a\u751f\u6210\u6b4c\u66f2'}
+          {getPrimaryButtonLabel()}
         </button>
       </div>
     </div>

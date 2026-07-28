@@ -9,6 +9,7 @@ import {
   type NumberAnalysisResponse,
 } from '@/lib/number-core-engine';
 import { getVisitorSupabaseClient } from '@/lib/visitor-counter';
+import { buildNumberFiveElementResult } from '@/lib/five-element-engine';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -163,10 +164,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ ...result, requestId, code: 'ANALYSIS_REJECTED' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
   }
 
-  const response: NumberAnalysisResponse & { analysisId: string; requestId: string; mode: NumberAnalysisMode } = {
+  const fiveElement = buildNumberFiveElementResult(result);
+  const response: NumberAnalysisResponse & { analysisId: string; requestId: string; mode: NumberAnalysisMode; fiveElement: ReturnType<typeof buildNumberFiveElementResult> } = {
     ...result,
     analysisId,
     requestId,
+    fiveElement,
   };
 
   await persistAnalysisResult(response, rawValue, analysisHash, analysisId);

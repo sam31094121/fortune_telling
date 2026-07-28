@@ -29,7 +29,7 @@ function cleanIpCache() {
 
 function getCacheKey(body: InsightRequest): string {
   const shichenKey = typeof body.shichen === 'number' ? String(body.shichen) : 'auto';
-  return hashedCacheKey([body.name.trim(), body.birthDate, body.bloodType, body.gender, shichenKey]);
+  return hashedCacheKey([body.name.trim(), body.birthDate, body.bloodType, body.gender, shichenKey, 'insight-v2-five-element']);
 }
 
 function validateInsightRequest(body: unknown): string | null {

@@ -13,6 +13,7 @@ import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import { safeJsonFetch } from '@/lib/safe-fetch';
 import type { NumberAnalysisResponse } from '@/lib/number-core-engine';
+import { FIVE_ELEMENT_DEFINITIONS, type FiveElementIntegrationResult } from '@/lib/five-element-engine';
 
 interface PersonInput {
   name: string;
@@ -52,7 +53,7 @@ interface KarmaStory {
   iching_hexagram?: string;
 }
 
-type NumberAnalysisResult = NumberAnalysisResponse;
+type NumberAnalysisResult = NumberAnalysisResponse & { fiveElement?: FiveElementIntegrationResult };
 type SystemStatus = 'idle' | 'validating' | 'loading' | 'success' | 'recovering' | 'error';
 
 type EvolutionStage = 'idle' | 'taiji' | 'liangyi' | 'sixiang' | 'bagua';
@@ -2849,6 +2850,22 @@ export default function HomePage() {
                     10 級吉凶分級 · 規則版本 {fortuneResult.ruleVersion}
                   </p>
                 </div>
+
+                {fortuneResult.fiveElement && (
+                  <div className="rounded-2xl border border-rose-300/25 bg-rose-500/10 p-4 text-sm leading-7">
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-200">???????</p>
+                    <p className="mt-2 text-xl font-black text-amber-100">
+                      ???????{FIVE_ELEMENT_DEFINITIONS[fortuneResult.fiveElement.primaryElement].zh}??
+                    </p>
+                    <p className="mt-2 font-black text-rose-100">
+                      ???? {FIVE_ELEMENT_DEFINITIONS[fortuneResult.fiveElement.primaryElement].zh} ?????????????
+                    </p>
+                    <p className="mt-2 text-xs font-semibold text-[color:var(--text-sub)]">{fortuneResult.fiveElement.productRecommendation.braceletCore}</p>
+                    <button type="button" className="mt-3 w-full rounded-xl border border-amber-200/30 bg-amber-300/12 px-3 py-2 text-xs font-black text-amber-100">
+                      {fortuneResult.fiveElement.productRecommendation.ctaLabel}
+                    </button>
+                  </div>
+                )}
 
                 <div className="h-px bg-cyan-500/10" />
 

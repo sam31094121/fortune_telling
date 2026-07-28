@@ -186,12 +186,15 @@ export default function VoiceConsentRecorder({
   const recordingStartedAtRef = useRef<number>(0);
   const intervalRef = useRef<number | null>(null);
   const autoStopRef = useRef<number | null>(null);
+  const guideRef = useRef<HTMLDivElement | null>(null);
 
   const canRecord = typeof window !== 'undefined' && Boolean(navigator.mediaDevices?.getUserMedia) && typeof MediaRecorder !== 'undefined';
   const sample = value.sample;
   const aiVoiceSample = isAiVoiceSample(sample);
   const needsAttention = showMissing && !sample;
   const isSocialBrowser = detectSocialBrowser();
+  const showGuideSteps = showRecordingGuide || status === 'recording' || status === 'analyzing';
+  const showRecorderConsole = status !== 'idle' || Boolean(sample);
   const progressPercent = status === 'recording'
     ? clamp((elapsedSeconds / MAX_RECORDING_SECONDS) * 100, 8, 100)
     : sample
@@ -206,6 +209,18 @@ export default function VoiceConsentRecorder({
   useEffect(() => {
     if (aiVoiceGender) setSelectedAiGender(aiVoiceGender);
   }, [aiVoiceGender]);
+
+  useEffect(() => {
+    if (!showRecordingGuide) return;
+    const timer = window.setTimeout(() => {
+      const guide = guideRef.current;
+      if (!guide) return;
+      const rect = guide.getBoundingClientRect();
+      const top = Math.max(0, rect.top + window.scrollY - 96);
+      window.scrollTo({ top, behavior: 'auto' });
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [showRecordingGuide]);
 
   function clearRecordingTimers() {
     if (intervalRef.current !== null) {
@@ -388,90 +403,44 @@ export default function VoiceConsentRecorder({
       ? 'AI \u6b63\u5728\u5206\u6790\u60a8\u7684\u8072\u97f3\uff0c\u5373\u5c07\u958b\u59cb\u5275\u4f5c\u5c08\u5c6c\u6b4c\u66f2\u3002'
       : sample
         ? aiVoiceSample ? '\u4e0d\u7528\u9ea5\u514b\u98a8\uff0cAI \u6703\u76f4\u63a5\u7528\u9078\u5b9a\u8072\u7dda\u751f\u6210\u6b4c\u66f2\u3002' : 'AI \u6b63\u5728\u5206\u6790\u60a8\u7684\u8072\u97f3\uff0c\u5373\u5c07\u958b\u59cb\u5275\u4f5c\u5c08\u5c6c\u6b4c\u66f2\u3002'
-        : '\u4f7f\u7528\u81ea\u5df1\u7684\u8072\u97f3\uff0c\u6216\u76f4\u63a5\u7528 AI \u8072\u97f3\u751f\u6210\u3002';
+        : '\u8981\u7528\u81ea\u5df1\u7684\u8072\u97f3\uff0c\u5c31\u9ede\u4e0b\u65b9\u300c\u958b\u59cb\u9304\u97f3\u300d\u3002\u4e0d\u60f3\u9304\u97f3\uff0c\u76f4\u63a5\u9078 AI \u8072\u97f3\u3002';
 
   return (
     <section className={`voice-song-consent-card rounded-[22px] border p-4 text-left shadow-[0_10px_28px_rgba(2,6,23,0.22)] ${cardTone}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] font-black tracking-[0.18em] text-violet-200">{"AI \u97f3\u6a02\u751f\u6210"}</p>
-          <p className="mt-1 text-xs leading-5 text-[color:var(--text-muted)]">{"10 \u79d2\u5167\u9078\u597d\u65b9\u5f0f\uff0c\u5c31\u80fd\u958b\u59cb\u751f\u6210\u60a8\u7684\u5c08\u5c6c\u6b4c\u66f2\u3002"}</p>
+          <p className="text-[11px] font-black tracking-[0.18em] text-violet-200">{"\u5148\u9078\u8072\u97f3\u4f86\u6e90"}</p>
+          <p className="mt-1 text-xs leading-5 text-[color:var(--text-muted)]">{"\u624b\u6a5f\u5ba2\u6236\u8acb\u5148\u770b\u9019\u88e1\uff1a\u8981\u9304\u81ea\u5df1\u7684\u8072\u97f3\uff0c\u5c31\u9ede\u300c\u958b\u59cb\u9304\u97f3\u300d\u3002"}</p>
         </div>
         <span className="shrink-0 rounded-full border border-cyan-300/25 bg-cyan-300/10 px-2.5 py-1 text-[10px] font-bold text-cyan-100">
           {status === 'recording' ? '\u9304\u97f3\u4e2d' : status === 'analyzing' ? '\u8655\u7406\u4e2d' : sample ? '\u53ef\u751f\u6210' : '\u4e8c\u9078\u4e00'}
         </span>
       </div>
 
-      <div className={`voice-recorder-console mt-4 ${consoleTone}`} aria-live="polite">
-        <div className="voice-recorder-orb" aria-hidden="true"><span>{aiVoiceSample ? '\u2728' : '\u{1F3A4}'}</span></div>
-        <div className="voice-recorder-console__body">
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="voice-recorder-console__title">{consoleTitle}</p>
-              <p className="voice-recorder-console__hint">{consoleHint}</p>
-            </div>
-            <span className="voice-recorder-time">{status === 'recording' ? `${elapsedSeconds}s` : sample && !aiVoiceSample ? `${sample.durationSeconds}s` : `${MAX_RECORDING_SECONDS}s`}</span>
-          </div>
-          <div className="voice-recorder-wave" aria-hidden="true">
-            {waveBars.map((height, index) => (
-              <span key={index} className="voice-recorder-bar" style={{ '--bar-height': `${height}%`, '--bar-delay': `${index * 44}ms` } as CSSProperties} />
-            ))}
-          </div>
-          <div className="voice-recorder-progress" aria-hidden="true"><span style={{ width: `${progressPercent}%` }} /></div>
-        </div>
-      </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl border border-violet-300/25 bg-violet-300/10 p-3">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="text-sm font-black text-violet-100">{"\u{1F3A4} \u4f7f\u7528\u6211\u7684\u8072\u97f3"}</p>
-              <p className="mt-1 text-[11px] font-bold text-amber-100">{"\u63a8\u85a6"}</p>
-            </div>
-          </div>
-          <p className="mt-2 text-xs leading-5 text-[color:var(--text-sub)]">{"\u9304\u88fd 10 \u5230 20 \u79d2\u5373\u53ef\uff0cAI \u5c07\u4f9d\u60a8\u7684\u8072\u97f3\u6458\u8981\u751f\u6210\u5c08\u5c6c\u6b4c\u66f2\u3002"}</p>
+      {!sample && status !== 'analyzing' && (
+        <div className="voice-recorder-quick-actions" aria-label="\u9ea5\u514b\u98a8\u5feb\u901f\u64cd\u4f5c">
           <button
             type="button"
-            onClick={status === 'recording' ? stopRecording : requestRecordingGuide}
-            disabled={disabled || status === 'analyzing'}
-            className="mt-3 w-full rounded-2xl border border-violet-300/35 bg-violet-300/12 px-4 py-3 text-sm font-black text-violet-100 transition hover:border-violet-200/70 hover:bg-violet-300/18 disabled:cursor-not-allowed disabled:opacity-45"
+            onClick={status === 'recording' ? stopRecording : showRecordingGuide ? beginRecording : requestRecordingGuide}
+            disabled={disabled}
+            className="voice-recorder-quick-actions__record"
           >
-            {status === 'recording' ? '\u5b8c\u6210\u9304\u97f3' : status === 'analyzing' ? '\u6b63\u5728\u8655\u7406' : '\u958b\u59cb\u9304\u97f3'}
+            {status === 'recording' ? '\u5b8c\u6210\u9304\u97f3' : showRecordingGuide ? '\u6211\u6e96\u5099\u597d\u4e86\uff0c\u958b\u59cb\u9304\u97f3' : '\u{1F3A4} \u958b\u59cb\u9304\u97f3'}
           </button>
-        </div>
-
-        <div className="rounded-2xl border border-amber-200/35 bg-amber-300/12 p-3">
-          <p className="text-sm font-black text-amber-100">{"\u2728 \u4e0d\u9304\u97f3\uff0c\u76f4\u63a5\u751f\u6210"}</p>
-          <p className="mt-2 text-xs leading-5 text-[color:var(--text-sub)]">{"\u4e0d\u7528\u9ea5\u514b\u98a8\uff0c\u9078\u64c7 AI \u7537\u8072\u6216\u5973\u8072\u5f8c\u7acb\u5373\u751f\u6210\u6b4c\u66f2\u3002"}</p>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            {(['male', 'female'] as const).map((gender) => {
-              const selected = selectedAiGender === gender;
-              return (
-                <button
-                  key={gender}
-                  type="button"
-                  onClick={() => chooseAiGender(gender)}
-                  disabled={disabled || status === 'recording' || status === 'analyzing'}
-                  className={`rounded-xl border px-3 py-2 text-xs font-black transition ${selected ? 'border-cyan-200/70 bg-cyan-300/15 text-cyan-50' : 'border-white/10 bg-white/[0.04] text-[color:var(--text-sub)] hover:border-white/25'}`}
-                >
-                  {gender === 'male' ? '\u{1F468} \u7537\u8072' : '\u{1F469} \u5973\u8072'}
-                </button>
-              );
-            })}
-          </div>
           <button
             type="button"
             onClick={() => useAiVoice(selectedAiGender)}
-            disabled={disabled || status === 'recording' || status === 'analyzing'}
-            className="mt-3 w-full rounded-2xl border border-amber-200/45 bg-amber-300/16 px-4 py-3 text-sm font-black text-amber-100 transition hover:border-amber-200/80 hover:bg-amber-300/22 disabled:cursor-not-allowed disabled:opacity-45"
+            disabled={disabled || status === 'recording'}
+            className="voice-recorder-quick-actions__ai"
           >
-            {"\u7acb\u5373\u751f\u6210"}
+            {'\u2728 \u4e0d\u9304\u97f3\u7528 AI \u8072\u97f3'}
           </button>
         </div>
-      </div>
+      )}
 
       {showRecordingGuide && status !== 'recording' && status !== 'analyzing' && (
-        <div className="mt-3 rounded-2xl border border-violet-300/30 bg-violet-300/10 p-3">
+        <div ref={guideRef} className="voice-recording-guide-panel mt-3 rounded-2xl border border-violet-300/30 bg-violet-300/10 p-3">
           <p className="text-sm font-black text-violet-100">{"\u{1F3A4} \u9304\u97f3\u5c0f\u63d0\u9192"}</p>
           <p className="mt-2 text-xs leading-5 text-[color:var(--text-sub)]">
             {"\u70ba\u4e86\u8b93 AI \u66f4\u6e96\u78ba\u5b78\u7fd2\u60a8\u7684\u8072\u97f3\uff0c\u8acb\u4f7f\u7528\u81ea\u7136\u7684\u8a9e\u6c23\uff0c\u4f9d\u7167\u4e0b\u9762\u5167\u5bb9\u6717\u8b80\u5373\u53ef\u3002\u6574\u500b\u9304\u97f3\u7d04 15 \u5230 20 \u79d2\u3002"}
@@ -491,7 +460,7 @@ export default function VoiceConsentRecorder({
               disabled={disabled}
               className="rounded-xl border border-violet-300/40 bg-violet-300/14 px-3 py-2.5 text-xs font-black text-violet-100 transition hover:border-violet-200/70 disabled:cursor-not-allowed disabled:opacity-45"
             >
-              {"\u958b\u59cb\u6b63\u5f0f\u9304\u97f3"}
+              {"\u6211\u6e96\u5099\u597d\u4e86\uff0c\u958b\u59cb\u9304\u97f3"}
             </button>
             <button
               type="button"
@@ -504,6 +473,41 @@ export default function VoiceConsentRecorder({
           </div>
         </div>
       )}
+
+      {showGuideSteps && (
+        <div className="voice-guide-steps" aria-label="\u9304\u97f3\u5f15\u5c0e\u6b65\u9a5f">
+          <span>{'1 \u9ede\u958b\u59cb\u9304\u97f3'}</span>
+          <span>{'2 \u7167\u6587\u5b57\u5ff5 15 \u79d2'}</span>
+          <span>{'3 AI \u81ea\u52d5\u751f\u6210'}</span>
+        </div>
+      )}
+
+      {showRecorderConsole && (
+        <div className={`voice-recorder-console mt-4 ${consoleTone}`} aria-live="polite">
+          <div className="voice-recorder-orb" aria-hidden="true"><span>{aiVoiceSample ? '\u2728' : '\u{1F3A4}'}</span></div>
+          <div className="voice-recorder-console__body">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="voice-recorder-console__title">{consoleTitle}</p>
+                <p className="voice-recorder-console__hint">{consoleHint}</p>
+              </div>
+              <span className="voice-recorder-time">{status === 'recording' ? `${elapsedSeconds}s` : sample && !aiVoiceSample ? `${sample.durationSeconds}s` : `${MAX_RECORDING_SECONDS}s`}</span>
+            </div>
+            <div className="voice-recorder-wave" aria-hidden="true">
+              {waveBars.map((height, index) => (
+                <span key={index} className="voice-recorder-bar" style={{ '--bar-height': `${height}%`, '--bar-delay': `${index * 44}ms` } as CSSProperties} />
+              ))}
+            </div>
+            <div className="voice-recorder-progress" aria-hidden="true"><span style={{ width: `${progressPercent}%` }} /></div>
+          </div>
+        </div>
+      )}
+
+      {!sample && !showRecordingGuide && status === 'idle' && !issue && (
+        <p className="voice-recorder-simple-hint">{"\u9078\u4e0a\u65b9\u4e00\u9846\u6309\u9215\u5c31\u53ef\u4ee5\u7e7c\u7e8c\uff1a\u8981\u9304\u97f3\u6309\u300c\u958b\u59cb\u9304\u97f3\u300d\uff0c\u4e0d\u9304\u97f3\u6309\u300c\u4e0d\u9304\u97f3\u7528 AI \u8072\u97f3\u300d\u3002"}</p>
+      )}
+
+
 
       {issue && (
         <div className="mt-3 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-3">

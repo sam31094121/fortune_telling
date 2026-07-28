@@ -183,9 +183,19 @@ function LandingHero({ onStart }: { onStart: () => void }) {
           </p>
         </div>
 
+        <div className="music-mic-entry-guide" aria-label="\u9ea5\u514b\u98a8\u9304\u97f3\u5165\u53e3\u5f15\u5c0e">
+          <p>{"\u8981\u7528\u81ea\u5df1\u7684\u8072\u97f3\u751f\u6210\u6b4c\u66f2\uff1f"}</p>
+          <div>
+            <span>{"1 \u9ede\u4e0b\u65b9\u6309\u9215\u76f4\u63a5\u958b\u9304\u97f3"}</span>
+            <span>{"2 \u9ea5\u514b\u98a8\u7cfb\u7d71\u6703\u76f4\u63a5\u51fa\u73fe"}</span>
+            <span>{"3 \u9304 15 \u79d2\u6216\u6539\u7528 AI \u8072\u97f3"}</span>
+            <span>{"4 \u586b\u597d\u8cc7\u6599\u5f8c\u751f\u6210\u6b4c\u66f2"}</span>
+          </div>
+        </div>
+
         <div className="music-landing-actions mt-5 flex flex-col items-center gap-3">
           <button type="button" onPointerUp={handleStartPointerUp} onClick={handleStartClick} className="vip-gold-btn music-start-button w-full max-w-[22rem] px-8 py-4 text-base shadow-[0_0_25px_rgba(201,162,74,0.26)] border border-amber-400/20 sm:w-auto sm:px-14 sm:py-5 sm:text-lg sm:animate-bounce">
-            {"\u4e00\u9375\u958b\u555f \u00b7 \u751f\u6210\u6211\u7684\u4e3b\u984c\u66f2"}
+            {"\u76f4\u63a5\u958b\u555f\u9ea5\u514b\u98a8\u9304\u97f3\u7cfb\u7d71"}
           </button>
           <Link href="/" className="feature-home-link feature-home-link--violet">
             {"\u8fd4\u56de\u9996\u9801"}
@@ -275,6 +285,7 @@ export default function MusicSystemPage() {
             voiceCharacteristics: data.voiceCharacteristics,
             vocalGenderPreference: data.vocalGenderPreference,
             preferredSongLanguage: data.preferredSongLanguage,
+            songEnergyStyle: data.songEnergyStyle,
             voiceConsent: data.voiceConsent,
         }),
       });
@@ -331,7 +342,7 @@ export default function MusicSystemPage() {
       {pageState === 'form' && (
         <main ref={formRef} className="relative z-10 mx-auto max-w-6xl px-4 pb-10 pt-5 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8">
 
-          <section className="grid gap-10 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)]">
+          <section className="mx-auto max-w-3xl">
             <div className="fortune-card p-6 sm:p-8">
               <div className="mb-6">
                 <p className="text-xs uppercase tracking-[0.35em] text-violet-300">{"AI VOICE SONG"}</p>
@@ -354,11 +365,6 @@ export default function MusicSystemPage() {
                   {errorMsg}
                 </div>
               )}
-            </div>
-
-            <div className="flex flex-col items-center justify-center gap-6">
-              <TaijiStandaloneCard />
-              <div className="hidden w-full max-w-sm" />
             </div>
           </section>
         </main>

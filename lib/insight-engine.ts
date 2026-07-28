@@ -3,6 +3,7 @@ import { getBirthPersonalityScores, getBirthZodiac } from './birth-model-db';
 import { getBloodTypePersonalityScores } from './blood-model-db';
 import { getNamePersonalityScores } from './name-model-db';
 import { buildNameologyAnalysis, type NameologyAnalysis } from './nameology-engine';
+import { buildInsightFiveElementResult, type FiveElementIntegrationResult } from './five-element-engine';
 import { DIMENSION_META } from './personality';
 import { computeShichenProfile } from './shichen-engine';
 import {
@@ -70,6 +71,7 @@ interface InsightAnalysisResponse {
   ziweiSanFang: ZiweiSanFangAnalysis;
   annualFortune: AnnualFortuneAnalysis;
   nameology: NameologyAnalysis;
+  fiveElement: FiveElementIntegrationResult;
   meta?: {
     dayPillar: string;
     hourPillar: string;
@@ -424,6 +426,12 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
     ziweiSanFang,
     sourceSignals: statisticalAnalysis.map((item) => ({ dimension: item.dimension, score: item.score })),
   });
+  const fiveElement = buildInsightFiveElementResult({
+    nameology,
+    baziElementBalance: ziweiSanFang.bazi.elementBalance,
+    annualElement: annualFortune.yearElement,
+    shichenElement: shichen.wuxing,
+  });
 
   // 構建分析提示
   const analysisPrompt = `
@@ -455,6 +463,10 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 - 相生相剋: ${nameology.elementFlow.map((item) => `${item.from}->${item.to}/${item.relation}`).join('；')}
 
 【紫微命財官遷規則：本頁主軸，AI 不可改分數】
+- \u3010\u4e94\u5143\u7d20\u88dc\u5f37\u7d50\u8ad6\u3011: ${fiveElement.summary}
+- \u88dc\u5f37\u539f\u56e0: ${fiveElement.reasons.join('\uFF1B')}
+- \u7acb\u5373\u884c\u52d5: ${fiveElement.recommendedActions.join('\uFF1B')}
+
 - 四柱: ${ziweiSanFang.bazi.year} ${ziweiSanFang.bazi.month} ${ziweiSanFang.bazi.day} ${ziweiSanFang.bazi.hour}
 - 日主: ${ziweiSanFang.bazi.dayMaster}
 - 命、財帛、官祿、遷移宮: ${ziweiSanFang.timeConfidence === 'exact' ? ziweiSanFang.palaces.map((palace) => `${palace.name}(${palace.majorStars.join('、') || '無主星'})`).join('；') : '時辰未確認，不提供單一命宮或格局'}
@@ -556,6 +568,7 @@ ${JSON.stringify(statisticalAnalysis.map((item) => ({
     ziweiSanFang,
     annualFortune,
     nameology,
+    fiveElement,
     meta: {
       dayPillar: shichen.dayPillar,
       hourPillar: shichen.hourPillar.ganzhi,

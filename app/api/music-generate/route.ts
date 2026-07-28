@@ -32,12 +32,14 @@ function getBirthEra(birthDate: string): string {
 const VALID_BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const VALID_GENDERS = ['male', 'female'] as const;
 const VALID_SONG_LANGUAGES = ['mandarin', 'english', 'taiwanese'] as const;
+const VALID_SONG_ENERGY_STYLES = ['dance-pop', 'emotional-pop', 'club-edm'] as const;
 const AI_VOICE_DIRECT_MIME = 'application/x-ai-voice-direct';
 
 // ?蹇???umber(0??1 ??啾???=?貔??unknown'/null=??貔?????????剝３???蹇?
 type ShichenChoice = number | 'unknown' | null;
 type VocalGenderPreference = 'male' | 'female' | null;
 type PreferredSongLanguage = 'mandarin' | 'english' | 'taiwanese';
+type SongEnergyStyle = (typeof VALID_SONG_ENERGY_STYLES)[number];
 
 interface VoiceSampleSummary {
   durationSeconds: number;
@@ -70,6 +72,7 @@ interface MusicGenerateRequest {
   voiceCharacteristics?: string[];
   vocalGenderPreference?: VocalGenderPreference;
   preferredSongLanguage?: PreferredSongLanguage;
+  songEnergyStyle?: SongEnergyStyle;
   voiceConsent?: VoiceConsentPayload;
 }
 
@@ -109,6 +112,47 @@ function validateVoiceConsent(payload: unknown): string | null {
 
 function isVoicePermissionFallback(sample?: VoiceSampleSummary) {
   return Boolean(sample?.mimeType === 'application/x-voice-permission-fallback' || sample?.inferredCharacteristics?.includes('permission_fallback'));
+}
+
+function applySongEnergyStyle<T extends { bpm: number; genre: string; mood: string[]; instrument: string[]; lyric_theme: string[] }>(
+  parameters: T,
+  style: SongEnergyStyle = 'dance-pop',
+): T {
+  const profile = {
+    'dance-pop': {
+      bpmMin: 112,
+      bpmBoost: 8,
+      genre: 'modern_dance_pop',
+      mood: ['bright', 'catchy', 'streaming_friendly'],
+      instrument: ['punchy_kick', 'synth_bass', 'vocal_chops', 'hook_lead'],
+      lyric_theme: ['memorable_hook', 'short_form_chorus'],
+    },
+    'emotional-pop': {
+      bpmMin: 86,
+      bpmBoost: 0,
+      genre: 'emotional_pop',
+      mood: ['emotional', 'warm', 'cinematic'],
+      instrument: ['piano', 'warm_synth', 'soft_drums', 'ambient_pad'],
+      lyric_theme: ['inner_dialogue', 'healing_hook'],
+    },
+    'club-edm': {
+      bpmMin: 124,
+      bpmBoost: 14,
+      genre: 'club_edm_pop',
+      mood: ['high_energy', 'confident', 'festival_ready'],
+      instrument: ['four_on_floor_kick', 'sidechain_bass', 'riser_fx', 'drop_synth'],
+      lyric_theme: ['dance_drop', 'energy_release'],
+    },
+  }[style];
+
+  return {
+    ...parameters,
+    bpm: Math.max(profile.bpmMin, Math.min(180, parameters.bpm + profile.bpmBoost)),
+    genre: profile.genre,
+    mood: Array.from(new Set([...profile.mood, ...parameters.mood])).slice(0, 8),
+    instrument: Array.from(new Set([...profile.instrument, ...parameters.instrument])).slice(0, 8),
+    lyric_theme: Array.from(new Set([...profile.lyric_theme, ...parameters.lyric_theme])).slice(0, 8),
+  };
 }
 
 function normalizeVoiceConsent(payload?: VoiceConsentPayload) {
@@ -218,6 +262,13 @@ function validate(body: unknown): string | null {
     return '\u6b4c\u66f2\u8a9e\u8a00\u504f\u597d\u683c\u5f0f\u7121\u6548\u3002';
   }
 
+  if (
+    payload.songEnergyStyle !== undefined &&
+    !VALID_SONG_ENERGY_STYLES.includes(payload.songEnergyStyle as SongEnergyStyle)
+  ) {
+    return '\u6b4c\u66f2\u98a8\u683c\u504f\u597d\u683c\u5f0f\u7121\u6548\u3002';
+  }
+
   return null;
 }
 
@@ -287,6 +338,7 @@ export async function POST(request: Request) {
     mergedVoiceCharacteristicsForCache.join(','),
     body.vocalGenderPreference ?? 'auto',
     body.preferredSongLanguage ?? 'mandarin',
+    body.songEnergyStyle ?? 'dance-pop',
     voiceWorkflowForCache.cacheKey,
   ]);
 
@@ -305,6 +357,7 @@ export async function POST(request: Request) {
       voiceCharacteristics: manualVoiceCharacteristics = [],
       vocalGenderPreference = null,
       preferredSongLanguage = 'mandarin',
+      songEnergyStyle = 'dance-pop',
       voiceConsent,
     } = body;
     const trimmedName = name.trim();
@@ -342,10 +395,10 @@ export async function POST(request: Request) {
   const oceanBpmAdjust = getOceanBpmAdjust(ocean);
 
   const musicParameters = MusicParameterGenerator.generateMusicParameters(matrixInput, era);
-  const finalMusicParameters = {
+  const finalMusicParameters = applySongEnergyStyle({
     ...musicParameters,
     bpm: Math.max(60, Math.min(180, musicParameters.bpm + oceanBpmAdjust)),
-  };
+  }, songEnergyStyle);
 
   finalMusicParameters.mood = Array.from(
     new Set([

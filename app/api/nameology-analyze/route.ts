@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { buildNameologyAnalysis } from '@/lib/nameology-engine';
+import { buildNameologyFiveElementResult } from '@/lib/five-element-engine';
 import { getNamePersonalityScores } from '@/lib/name-model-db';
 import type { BloodType, Gender } from '@/lib/types';
 import { isValidBirthday } from '@/lib/validation';
@@ -35,7 +36,7 @@ function validateNameologyRequest(body: unknown): string | null {
 }
 
 function getCacheKey(body: NameologyRequest) {
-  return hashedCacheKey([body.name.trim(), body.birthDate, body.bloodType, body.gender, 'nameology-v1']);
+  return hashedCacheKey([body.name.trim(), body.birthDate, body.bloodType, body.gender, 'nameology-v2-five-element']);
 }
 
 export async function POST(request: Request) {
@@ -71,7 +72,8 @@ export async function POST(request: Request) {
       bloodType: normalized.bloodType,
       birthDate: normalized.birthDate,
     });
-    const result = { ok: true, mode: 'nameology', analysis, nameScores };
+    const fiveElement = buildNameologyFiveElementResult(analysis);
+    const result = { ok: true, mode: 'nameology', analysis, nameScores, fiveElement };
 
     analysisCache.set(cacheKey, { result, timestamp: Date.now() });
     if (analysisCache.size > 100) {

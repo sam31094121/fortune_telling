@@ -153,6 +153,9 @@ interface PersonalityMusicReportProps {
 }
 
 const GENRE_NAMES: Record<string, string> = {
+  modern_dance_pop: '\u73fe\u4ee3\u6d41\u884c\u821e\u66f2',
+  emotional_pop: '\u60c5\u7dd2\u6d41\u884c',
+  club_edm_pop: '\u6d3e\u5c0d\u96fb\u97f3',
   cinematic_pop: '電影流行',
   acoustic_pop: '木質流行',
   indie_folk: '獨立民謠',
@@ -166,6 +169,9 @@ const GENRE_NAMES: Record<string, string> = {
 };
 
 const GENRE_EMOJI: Record<string, string> = {
+  modern_dance_pop: '\u{1F3A7}',
+  emotional_pop: '\u2728',
+  club_edm_pop: '\u26a1',
   cinematic_pop: '🎬',
   acoustic_pop: '🪵',
   indie_folk: '🌾',
