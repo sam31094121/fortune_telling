@@ -436,10 +436,34 @@ async function requestNumberFortuneByJob(payload: string, signal: AbortSignal, o
   throw new Error('REQUEST_ABORTED');
 }
 
-function getNumberFortuneLoadingCopy(status: SystemStatus) {
-  if (status === 'validating') return { label: '\u6b63\u5728\u78ba\u8a8d\u8f38\u5165\u683c\u5f0f', detail: '\u7cfb\u7d71\u6b63\u5728\u6aa2\u67e5\u662f\u5f8c 4 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u624b\u6a5f\u865f\u78bc\u3002' };
-  if (status === 'recovering') return { label: '\u6b63\u5728\u5207\u63db\u5099\u63f4\u5206\u6790\u7ba1\u9053', detail: '\u4e3b\u7ba1\u9053\u525b\u525b\u6c92\u6709\u9023\u4e0a\uff0c\u5df2\u81ea\u52d5\u6539\u7528\u5099\u63f4 API \u91cd\u8a66\u3002' };
-  return { label: '\u6b63\u5728\u57f7\u884c\u771f\u5be6\u6578\u5b57\u904b\u7b97', detail: '\u5f8c\u7aef\u6b63\u5728\u8a08\u7b97\u6578\u5b57\u77e9\u9663\u3001\u5409\u51f6\u7b49\u7d1a\u8207\u4e94\u5143\u7d20\u88dc\u5f37\u3002' };
+function getNumberFortuneLoadingCopy(status: SystemStatus, job?: AnalysisJobPublic | null) {
+  const stage = job?.progressStage;
+  if (status === 'validating' || stage === 'VALIDATING_INPUT') {
+    return {
+      label: '\u7cfb\u7d71\u5df2\u6536\u5230\u8cc7\u6599',
+      detail: '\u6b63\u5728\u78ba\u8a8d\u4f60\u8f38\u5165\u7684\u662f\u5f8c 4 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u624b\u6a5f\u865f\u78bc\u3002',
+      activeStep: 0,
+    };
+  }
+  if (status === 'recovering') {
+    return {
+      label: '\u6b63\u5728\u81ea\u52d5\u91cd\u9023\u904b\u7b97\u7ba1\u9053',
+      detail: '\u7cfb\u7d71\u6703\u4fdd\u7559\u4f60\u7684\u8f38\u5165\uff0c\u6539\u7528\u5099\u63f4 API \u7e7c\u7e8c\u5b8c\u6210\u5206\u6790\u3002',
+      activeStep: 1,
+    };
+  }
+  if (stage === 'BUILDING_RESULT' || status === 'success') {
+    return {
+      label: '\u904b\u7b97\u5b8c\u6210\uff0c\u6b63\u5728\u6574\u7406\u7d50\u8ad6',
+      detail: '\u6b63\u5728\u628a\u5409\u51f6\u5206\u6578\u3001\u4e94\u5143\u7d20\u7f3a\u53e3\u8207\u624b\u93c8\u88dc\u5f37\u5efa\u8b70\u6574\u7406\u6210\u5bb9\u6613\u770b\u61c2\u7684\u7d50\u679c\u3002',
+      activeStep: 2,
+    };
+  }
+  return {
+    label: '\u6b63\u5728\u57f7\u884c\u771f\u5be6\u5f8c\u7aef\u904b\u7b97',
+    detail: job?.message || '\u5f8c\u7aef\u6b63\u5728\u8a08\u7b97\u6578\u5b57\u77e9\u9663\u3001\u5409\u51f6\u7b49\u7d1a\u8207\u4e94\u5143\u7d20\u88dc\u5f37\u65b9\u5411\u3002',
+    activeStep: 1,
+  };
 }
 
 function getNumberFortuneAura(level?: string) {
@@ -914,6 +938,7 @@ export default function HomePage() {
   const [fortuneResult, setFortuneResult] = useState<NumberAnalysisResult | null>(null);
   const [fortuneStatus, setFortuneStatus] = useState<SystemStatus>('idle');
   const [fortuneError, setFortuneError] = useState('');
+  const [fortuneJob, setFortuneJob] = useState<AnalysisJobPublic | null>(null);
   const [isFortuneModalOpen, setIsFortuneModalOpen] = useState(false);
   const [modalEvolutionStage, setModalEvolutionStage] = useState<EvolutionStage>('idle');
   const [modalEvolutionLabel, setModalEvolutionLabel] = useState('觸碰太極，觀察萬象演化');
@@ -1245,6 +1270,7 @@ export default function HomePage() {
 
     if (!cleanFortuneNumber) {
       setFortuneResult(null);
+      setFortuneJob(null);
       setFortuneError("\u26a0\ufe0f \u8acb\u5148\u8f38\u5165\u624b\u6a5f\u5f8c 4 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u624b\u6a5f\u865f\u78bc\u3002");
       setFortuneStatus('error');
       return;
@@ -1254,6 +1280,7 @@ export default function HomePage() {
     setFortuneStatus('validating');
     if (!/^\d+$/.test(cleanFortuneNumber) || ![4, 10].includes(cleanFortuneNumber.length)) {
       setFortuneResult(null);
+      setFortuneJob(null);
       setFortuneError('\u53ea\u80fd\u8f38\u5165\u5f8c 4 \u78bc\u6216\u5b8c\u6574\u624b\u6a5f\u865f\u78bc 10 \u78bc\uff0c\u4e0d\u8981\u52a0\u7a7a\u683c\u3001\u7b26\u865f\u6216\u82f1\u6587\u5b57\u6bcd\u3002');
       setFortuneStatus('error');
       return;
@@ -1265,6 +1292,7 @@ export default function HomePage() {
     fortuneRequestRef.current = requestController;
     setFortuneStatus('loading');
     setFortuneError('');
+    setFortuneJob(null);
     setFortuneResult(null);
     const payload = JSON.stringify({
       mode: cleanFortuneNumber.length === 10 ? 'phone10' : 'last4',
@@ -1275,11 +1303,13 @@ export default function HomePage() {
       let data: NumberAnalysisResult;
       try {
         data = await requestNumberFortuneByJob(payload, requestController.signal, (job) => {
+          setFortuneJob(job);
           setFortuneStatus(mapAnalysisJobStatus(job.status));
         });
       } catch (jobError) {
         if (requestController.signal.aborted) throw jobError;
         console.warn('[number-fortune] job api fallback to direct api', jobError);
+        setFortuneJob(null);
         setFortuneStatus('recovering');
         data = await requestNumberFortuneDirect(payload, requestController.signal);
       }
@@ -1297,6 +1327,7 @@ export default function HomePage() {
       }
       console.warn('[number-fortune] request recovered with friendly error', error);
       setFortuneResult(null);
+      setFortuneJob(null);
       setFortuneStatus('error');
       setFortuneError('\u6578\u5b57\u5206\u6790\u525b\u525b\u6c92\u6709\u9023\u4e0a\uff0c\u4f60\u7684\u8f38\u5165\u5df2\u4fdd\u7559\uff0c\u8acb\u518d\u6309\u4e00\u6b21\u958b\u59cb\u5206\u6790\u3002');
     } finally {
@@ -2942,22 +2973,40 @@ export default function HomePage() {
             )}
 
             {fortuneLoading && (() => {
-              const loadingCopy = getNumberFortuneLoadingCopy(fortuneStatus);
+              const loadingCopy = getNumberFortuneLoadingCopy(fortuneStatus, fortuneJob);
+              const steps = ['\u8cc7\u6599\u78ba\u8a8d', '\u5f8c\u7aef\u904b\u7b97', '\u6574\u7406\u7b54\u6848'];
               return (
-                <div className="result-container mt-6 rounded-2xl border border-cyan-500/25 bg-cyan-950/20 p-5 space-y-3 font-mono" role="status" aria-live="polite" aria-busy="true">
-                  <div className="flex items-start justify-between gap-3 text-xs text-cyan-300 font-bold">
-                    <span>{loadingCopy.label}</span>
-                    <span className="animate-pulse">LIVE</span>
+                <div className="number-computing-panel result-container mt-6 rounded-2xl border border-cyan-300/25 bg-slate-950/55 p-5 font-sans shadow-[0_0_28px_rgba(34,211,238,0.16)]" role="status" aria-live="polite" aria-busy="true">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300">{'AI \u771f\u5be6\u904b\u7b97\u4e2d'}</p>
+                      <h4 className="mt-2 text-lg font-black leading-tight text-cyan-50">{loadingCopy.label}</h4>
+                    </div>
+                    <span className="number-computing-live shrink-0 rounded-full border border-emerald-300/35 bg-emerald-300/10 px-2.5 py-1 text-[10px] font-black text-emerald-100">{'\u5373\u6642'}</span>
                   </div>
-                  <div className="w-full h-1.5 bg-cyan-950 rounded-full overflow-hidden border border-cyan-500/10">
-                    <div className="h-full w-1/2 rounded-full bg-gradient-to-r from-cyan-500 via-amber-400 to-cyan-500 animate-[grow-x_1.5s_infinite]" />
+
+                  <div className="number-computing-orbit my-4" aria-hidden="true">
+                    <span />
+                    <b />
                   </div>
-                  <p className="text-xs font-semibold leading-6 text-cyan-100/85">{loadingCopy.detail}</p>
-                  <div className="grid grid-cols-2 gap-2 text-[10px] text-cyan-400/70">
-                    <div>[STATUS] {fortuneStatus.toUpperCase()}</div>
-                    <div className="text-right">[PROGRESS] WAITING</div>
-                    <div>[METHOD] REAL API</div>
-                    <div className="text-right">[TARGET] {fortuneNumber}</div>
+
+                  <p className="text-sm font-semibold leading-7 text-cyan-100/88">{loadingCopy.detail}</p>
+
+                  <div className="mt-4 grid gap-2">
+                    {steps.map((stepLabel, index) => {
+                      const isDone = index < loadingCopy.activeStep;
+                      const isActive = index === loadingCopy.activeStep;
+                      return (
+                        <div key={stepLabel} className={`number-computing-step ${isDone ? 'number-computing-step--done' : ''} ${isActive ? 'number-computing-step--active' : ''}`}>
+                          <span className="number-computing-step__dot">{isDone ? '\u2713' : index + 1}</span>
+                          <span className="min-w-0">{stepLabel}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-4 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
+                    {'\u5206\u6790\u76ee\u6a19\uff1a'}<span className="font-mono text-cyan-100">{fortuneNumber}</span>{'\uff0c\u5b8c\u6210\u5f8c\u6703\u81ea\u52d5\u986f\u793a\u7d50\u679c\uff0c\u4e0d\u9700\u8981\u91cd\u65b0\u6574\u7406\u3002'}
                   </div>
                 </div>
               );
