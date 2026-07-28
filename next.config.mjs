@@ -31,12 +31,6 @@ const nextConfig = {
 
   // Keep Next.js defaults: HTML is revalidated while hashed static assets
   // remain immutable. A global one-hour cache made phones retain old UI.
-  async rewrites() {
-    return [
-      // Keep the number fortune experience as the home modal while giving it a shareable URL.
-      { source: '/numerology', destination: '/' },
-    ];
-  },
 
   async headers() {
     const securityHeaders = [

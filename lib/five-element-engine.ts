@@ -11,6 +11,37 @@ export type FiveElementKey = 'metal' | 'wood' | 'water' | 'fire' | 'earth';
 export type FiveElementDisplayName = '\u7a7a' | '\u98a8' | '\u6c34' | '\u706b' | '\u5730';
 export type FiveElementConfidence = 'low' | 'medium' | 'high';
 
+export type TraditionalFiveElementCode = 'METAL' | 'WOOD' | 'WATER' | 'FIRE' | 'EARTH';
+export type BrandFiveElementCode = 'SPACE' | 'WIND' | 'WATER' | 'FIRE' | 'EARTH';
+
+export type NormalizedFiveElementSignal = {
+  sourceElement: FiveElementKey;
+  traditionalElement: TraditionalFiveElementCode;
+  brandElement: BrandFiveElementCode;
+  displayName: FiveElementDisplayName;
+  sourceName: NameologyElement;
+  strength: number;
+  need: number;
+  evidenceCount: number;
+};
+
+export type FiveElementDecision = {
+  title: string;
+  conclusion: string;
+  primaryAction: string;
+  changeTarget: string;
+  why: string;
+  conflictNote: string | null;
+};
+
+export type FiveElementProductMatch = {
+  primaryProductId: string;
+  supportedElements: BrandFiveElementCode[];
+  balancedElements: BrandFiveElementCode[];
+  matchReason: string[];
+  matchConfidence: FiveElementConfidence;
+};
+
 export type FiveElementScore = {
   strength: number;
   need: number;
@@ -53,6 +84,15 @@ export type FiveElementIntegrationResult = ModuleFiveElementResult & {
   productEntryLabel: string;
   productRecommendation: FiveElementProductRecommendation;
   positiveQuote: FiveElementPositiveQuote;
+  traditionalElement: TraditionalFiveElementCode;
+  brandElement: BrandFiveElementCode;
+  secondaryBrandElement: BrandFiveElementCode;
+  strongBrandElement: BrandFiveElementCode;
+  avoidBrandElement: BrandFiveElementCode | null;
+  normalizedElements: Record<BrandFiveElementCode, NormalizedFiveElementSignal>;
+  decision: FiveElementDecision;
+  productMatch: FiveElementProductMatch;
+  enginePipeline: string[];
 };
 
 export const FIVE_ELEMENT_DEFINITIONS: Record<FiveElementKey, { zh: NameologyElement; displayZh: FiveElementDisplayName; icon: string; keywords: string[]; direction: string; caution: string }> = {
@@ -107,6 +147,28 @@ const ZH_TO_KEY: Record<NameologyElement, FiveElementKey> = {
 };
 
 const ELEMENT_KEYS = Object.keys(FIVE_ELEMENT_DEFINITIONS) as FiveElementKey[];
+
+const FIVE_ELEMENT_CODE_MAP: Record<FiveElementKey, { traditionalElement: TraditionalFiveElementCode; brandElement: BrandFiveElementCode; productId: string }> = {
+  metal: { traditionalElement: 'METAL', brandElement: 'SPACE', productId: 'bracelet_space_core' },
+  wood: { traditionalElement: 'WOOD', brandElement: 'WIND', productId: 'bracelet_wind_core' },
+  water: { traditionalElement: 'WATER', brandElement: 'WATER', productId: 'bracelet_water_core' },
+  fire: { traditionalElement: 'FIRE', brandElement: 'FIRE', productId: 'bracelet_fire_core' },
+  earth: { traditionalElement: 'EARTH', brandElement: 'EARTH', productId: 'bracelet_earth_core' },
+};
+
+const FIVE_ELEMENT_ENGINE_PIPELINE = [
+  'ModuleAnalysisAdapter',
+  'ElementNormalizationEngine',
+  'ElementRecommendationEngine',
+  'ElementConflictResolver',
+  'ProductMatchingEngine',
+  'VerifiedQuoteMatchingEngine',
+  'ElementResultPresenter',
+];
+
+function getElementChangeTarget(element: FiveElementKey) {
+  return NUMBER_ELEMENT_IMPROVEMENT[element] ?? FIVE_ELEMENT_DEFINITIONS[element].direction;
+}
 
 const TENDENCY_TO_ELEMENT: Partial<Record<NameologyTendencyKey, FiveElementKey>> = {
   authority: 'metal',
@@ -192,6 +254,94 @@ function actionFor(element: FiveElementKey) {
     earth: ['\u5148\u56fa\u5b9a\u7761\u7720\u3001\u6574\u7406\u684c\u9762\u6216\u5b8c\u6210\u4e00\u4ef6\u57fa\u790e\u4efb\u52d9\u3002', '\u628a\u627f\u8afe\u6e1b\u5c11\u5230\u53ef\u4ee5\u7a69\u5b9a\u505a\u5230\u7684\u7bc4\u570d\u3002', '\u5efa\u7acb\u4e00\u500b\u8b93\u81ea\u5df1\u5b89\u5fc3\u7684\u65e5\u5e38\u7bc0\u594f\u3002'],
   };
   return actions[element];
+}
+
+
+function buildNormalizedElements(elementScores: Record<FiveElementKey, FiveElementScore>) {
+  return Object.fromEntries(ELEMENT_KEYS.map((element) => {
+    const definition = FIVE_ELEMENT_DEFINITIONS[element];
+    const code = FIVE_ELEMENT_CODE_MAP[element];
+    const score = elementScores[element];
+    return [code.brandElement, {
+      sourceElement: element,
+      traditionalElement: code.traditionalElement,
+      brandElement: code.brandElement,
+      displayName: definition.displayZh,
+      sourceName: definition.zh,
+      strength: score.strength,
+      need: score.need,
+      evidenceCount: score.evidenceCount,
+    }];
+  })) as Record<BrandFiveElementCode, NormalizedFiveElementSignal>;
+}
+
+function buildElementDecision(result: Pick<FiveElementIntegrationResult, 'elementScores' | 'primaryElement' | 'secondaryElement' | 'strongElement' | 'avoidElement' | 'conflict'>): FiveElementDecision {
+  const primaryName = getFiveElementName(result.primaryElement);
+  const primaryShort = getFiveElementShortName(result.primaryElement);
+  const secondaryName = getFiveElementName(result.secondaryElement);
+  const strongName = getFiveElementName(result.strongElement);
+  const primaryNeed = result.elementScores[result.primaryElement].need;
+  const secondaryNeed = result.elementScores[result.secondaryElement].need;
+  const gap = Math.max(0, primaryNeed - secondaryNeed);
+  const conflictNote = result.conflict
+    ? '\u7b2c\u4e8c\u9806\u4f4d\u8207\u7b2c\u4e00\u9806\u4f4d\u63a5\u8fd1\uff0c\u7cfb\u7d71\u5df2\u555f\u7528\u885d\u7a81\u89e3\u6c7a\uff1a\u4ecd\u4ee5\u88dc\u5f37\u9700\u6c42\u6700\u9ad8\u7684' + primaryName + '\u4f5c\u70ba\u552f\u4e00\u4e3b\u88dc\uff0c\u4e0d\u628a\u7b2c\u4e8c\u9806\u4f4d\u5beb\u6210\u4e3b\u88dc\u3002'
+    : null;
+
+  return {
+    title: '\u672c\u6b21\u552f\u4e00\u4e3b\u88dc\uff1a' + primaryShort + '\u5143\u7d20',
+    conclusion: '\u5f8c\u7aef\u7d71\u4e00\u5224\u5b9a\uff1a\u4f60\u76ee\u524d\u6700\u7f3a' + primaryName + '\uff0c\u624b\u93c8\u5148\u88dc' + primaryShort + '\u5143\u7d20\u3002',
+    primaryAction: '\u5148\u9078' + primaryShort + '\u5143\u7d20\u624b\u93c8\uff0c\u4e0d\u5148\u5206\u6563\u88dc\u5176\u4ed6\u5143\u7d20\u3002',
+    changeTarget: getElementChangeTarget(result.primaryElement),
+    why: '\u56e0\u70ba' + primaryName + '\u88dc\u5f37\u9700\u6c42\u70ba ' + primaryNeed + ' \u5206\uff0c\u9ad8\u65bc\u7b2c\u4e8c\u9806\u4f4d' + secondaryName + ' ' + secondaryNeed + ' \u5206\uff1b\u76ee\u524d\u8f03\u5f37\u652f\u6490\u662f' + strongName + '\uff0c\u672c\u6b21\u5148\u4e0d\u628a\u5b83\u7576\u4e3b\u88dc\u3002\u5dee\u8ddd\uff1a' + gap + ' \u5206\u3002',
+    conflictNote,
+  };
+}
+
+function buildElementProductMatch(result: Pick<FiveElementIntegrationResult, 'primaryElement' | 'secondaryElement' | 'avoidElement' | 'confidence' | 'conflict'>): FiveElementProductMatch {
+  const primaryCode = FIVE_ELEMENT_CODE_MAP[result.primaryElement];
+  const secondaryCode = FIVE_ELEMENT_CODE_MAP[result.secondaryElement];
+  const avoidCode = result.avoidElement ? FIVE_ELEMENT_CODE_MAP[result.avoidElement] : null;
+  const primaryShort = getFiveElementShortName(result.primaryElement);
+  const secondaryShort = getFiveElementShortName(result.secondaryElement);
+
+  return {
+    primaryProductId: primaryCode.productId,
+    supportedElements: Array.from(new Set([primaryCode.brandElement, secondaryCode.brandElement])),
+    balancedElements: avoidCode ? [avoidCode.brandElement] : [],
+    matchReason: [
+      '\u4e3b\u88dc\u5143\u7d20\u9396\u5b9a' + primaryShort + '\u5143\u7d20\uff0c\u5546\u54c1\u63a8\u85a6\u5fc5\u9808\u5148\u5c0d\u6e96\u9019\u500b\u7f3a\u53e3\u3002',
+      '\u7b2c\u4e8c\u9806\u4f4d' + secondaryShort + '\u5143\u7d20\u53ea\u4f5c\u8f14\u52a9\u53c3\u8003\uff0c\u4e0d\u53d6\u4ee3\u4e3b\u88dc\u5224\u5b9a\u3002',
+      avoidCode ? '\u76ee\u524d\u8f03\u5f37\u5143\u7d20\u5148\u5217\u5165\u5e73\u8861\u89c0\u5bdf\uff0c\u4e0d\u4f5c\u70ba\u672c\u6b21\u4e3b\u63a8\u88dc\u5f37\u3002' : '\u76ee\u524d\u6c92\u6709\u9700\u8981\u907f\u958b\u7684\u904e\u5f37\u5143\u7d20\uff0c\u63a8\u85a6\u96c6\u4e2d\u5728\u7b2c\u4e00\u7f3a\u53e3\u3002',
+      result.conflict ? '\u591a\u6a21\u7d44\u8a0a\u865f\u63a5\u8fd1\u6642\u5df2\u5957\u7528\u885d\u7a81\u89e3\u6c7a\uff0c\u524d\u7aef\u53ea\u986f\u793a\u552f\u4e00\u4e3b\u88dc\u3002' : '\u5224\u5b9a\u8a0a\u865f\u7a69\u5b9a\uff0c\u524d\u7aef\u53ef\u76f4\u63a5\u6e05\u695a\u5448\u73fe\u3002',
+    ],
+    matchConfidence: result.confidence,
+  };
+}
+
+type FiveElementIntegrationBase = ModuleFiveElementResult & Omit<FiveElementIntegrationResult, keyof ModuleFiveElementResult | 'traditionalElement' | 'brandElement' | 'secondaryBrandElement' | 'strongBrandElement' | 'avoidBrandElement' | 'normalizedElements' | 'decision' | 'productMatch' | 'enginePipeline'>;
+
+function enrichFiveElementResult(result: FiveElementIntegrationBase): FiveElementIntegrationResult {
+  const primaryCode = FIVE_ELEMENT_CODE_MAP[result.primaryElement];
+  const secondaryCode = FIVE_ELEMENT_CODE_MAP[result.secondaryElement];
+  const strongCode = FIVE_ELEMENT_CODE_MAP[result.strongElement];
+  const avoidCode = result.avoidElement ? FIVE_ELEMENT_CODE_MAP[result.avoidElement] : null;
+  const decision = buildElementDecision(result);
+  const productMatch = buildElementProductMatch(result);
+  const conflictReason = decision.conflictNote ? [decision.conflictNote] : [];
+
+  return {
+    ...result,
+    traditionalElement: primaryCode.traditionalElement,
+    brandElement: primaryCode.brandElement,
+    secondaryBrandElement: secondaryCode.brandElement,
+    strongBrandElement: strongCode.brandElement,
+    avoidBrandElement: avoidCode?.brandElement ?? null,
+    normalizedElements: buildNormalizedElements(result.elementScores),
+    decision,
+    productMatch,
+    enginePipeline: FIVE_ELEMENT_ENGINE_PIPELINE,
+    reasons: [decision.conclusion, decision.primaryAction, decision.why, ...conflictReason, ...result.reasons],
+  };
 }
 
 export function buildNameologyFiveElementResult(analysis: NameologyAnalysis): FiveElementIntegrationResult {
@@ -301,7 +451,7 @@ export function buildNameologyFiveElementResult(analysis: NameologyAnalysis): Fi
     avoidElement ? `${getFiveElementName(avoidElement)}\u5df2\u7d93\u8f03\u5f37\uff0c\u672c\u6b21\u5148\u4e0d\u88dc\u5b83\u3002` : `${getFiveElementName(strongElement)}\u5df2\u7d93\u662f\u76ee\u524d\u8f03\u5f37\u652f\u6490\uff0c\u672c\u6b21\u5148\u5c08\u5fc3\u88dc${getFiveElementShortName(primaryElement)}\u5143\u7d20\u3002`,
   ];
 
-  return {
+  return enrichFiveElementResult({
     sourceModule: 'nameology',
     analysisId: getAnalysisId(analysis),
     elementScores,
@@ -322,7 +472,7 @@ export function buildNameologyFiveElementResult(analysis: NameologyAnalysis): Fi
     productEntryLabel: `\u9078\u64c7${getFiveElementName(primaryElement)}\u80fd\u91cf\u624b\u93c8`,
     productRecommendation: getFiveElementProductRecommendation(primaryElement),
     positiveQuote: getFiveElementPositiveQuote(primaryElement),
-  };
+  });
 }
 
 
@@ -444,7 +594,7 @@ export function buildInsightFiveElementResult(input: InsightFiveElementInput): F
     avoidElement ? getFiveElementName(avoidElement) + '\u5df2\u7d93\u8f03\u5f37\uff0c\u672c\u6b21\u5148\u4e0d\u88dc\u5b83\u3002' : getFiveElementName(strongElement) + '\u5df2\u7d93\u662f\u8f03\u5f37\u652f\u6490\uff0c\u672c\u6b21\u5148\u5c08\u5fc3\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002',
   ];
 
-  return {
+  return enrichFiveElementResult({
     sourceModule: 'insight',
     analysisId: getInsightAnalysisId(input),
     elementScores,
@@ -465,7 +615,7 @@ export function buildInsightFiveElementResult(input: InsightFiveElementInput): F
     productEntryLabel: '\u9078\u64c7' + getFiveElementName(primaryElement) + '\u80fd\u91cf\u624b\u93c8',
     productRecommendation: getFiveElementProductRecommendation(primaryElement),
     positiveQuote: getFiveElementPositiveQuote(primaryElement),
-  };
+  });
 }
 
 
@@ -590,7 +740,7 @@ export function buildNumberFiveElementResult(result: NumberAnalysisResponse): Fi
     impact: 'need',
   });
 
-  return {
+  return enrichFiveElementResult({
     sourceModule: 'number',
     analysisId: numberElementAnalysisId(result),
     elementScores,
@@ -617,5 +767,5 @@ export function buildNumberFiveElementResult(result: NumberAnalysisResponse): Fi
     productEntryLabel: '\u9078\u64c7' + getFiveElementName(primaryElement) + '\u80fd\u91cf\u624b\u93c8',
     productRecommendation: getFiveElementProductRecommendation(primaryElement),
     positiveQuote: getFiveElementPositiveQuote(primaryElement),
-  };
+  });
 }

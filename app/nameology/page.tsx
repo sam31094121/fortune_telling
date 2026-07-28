@@ -87,6 +87,14 @@ function FiveElementReinforcementCard({ result }: { result: FiveElementIntegrati
         <p className="text-xs font-bold text-[color:var(--text-muted)]">{primaryLabel}</p>
         <p className="mt-2 font-serif text-5xl font-black leading-none text-amber-200 sm:text-6xl">{primary.displayZh}</p>
         <p className="mt-3 text-sm font-bold leading-7 text-[color:var(--text-main)]">{result.summary}</p>
+        <div className="mt-4 rounded-2xl border border-rose-200/25 bg-rose-500/10 p-4 text-left">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-100">{result.decision.title}</p>
+          <p className="mt-2 text-base font-black leading-7 text-rose-50">{result.decision.conclusion}</p>
+          <p className="mt-2 text-sm font-bold leading-7 text-amber-100">{result.decision.changeTarget}</p>
+          {result.decision.conflictNote && (
+            <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{result.decision.conflictNote}</p>
+          )}
+        </div>
         <div className="mt-3 flex flex-wrap justify-center gap-2">
           {result.keywords.map((keyword) => (
             <span key={keyword} className="rounded-full border border-cyan-200/25 bg-cyan-300/10 px-3 py-1 text-xs font-bold text-cyan-100">
@@ -121,6 +129,11 @@ function FiveElementReinforcementCard({ result }: { result: FiveElementIntegrati
         <p className="mt-2 text-sm font-black leading-7 text-amber-100">{product.headline}</p>
         <p className="mt-3 rounded-xl border border-rose-200/25 bg-rose-500/10 px-3 py-2 text-sm font-black leading-7 text-rose-100">{product.braceletCore}</p>
         <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{product.description}</p>
+        <div className="mt-3 space-y-2">
+          {result.productMatch.matchReason.slice(0, 3).map((reason) => (
+            <p key={reason} className="rounded-xl border border-amber-200/15 bg-black/15 px-3 py-2 text-xs font-bold leading-6 text-amber-100">{reason}</p>
+          ))}
+        </div>
         <div className="mt-3 flex flex-wrap gap-2">
           {product.supportDirections.map((item) => (
             <span key={item} className="rounded-full border border-amber-200/25 bg-black/18 px-3 py-1 text-xs font-black text-amber-100">{item}</span>

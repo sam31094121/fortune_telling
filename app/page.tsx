@@ -54,6 +54,21 @@ interface KarmaStory {
 }
 
 type NumberAnalysisResult = NumberAnalysisResponse & { fiveElement?: FiveElementIntegrationResult };
+type AnalysisJobPublicStatus = 'IDLE' | 'VALIDATING' | 'QUEUED' | 'PROCESSING' | 'FINALIZING' | 'COMPLETED' | 'FAILED' | 'TIMEOUT' | 'CANCELLED';
+
+type AnalysisJobPublic = {
+  jobId: string;
+  status: AnalysisJobPublicStatus;
+  progressStage: string;
+  progressPercent: number | null;
+  message: string;
+  resultId: string | null;
+  errorCode?: string | null;
+  errorMessage?: string | null;
+};
+
+type AnalysisJobApiResponse = { ok: boolean; success?: boolean; data?: AnalysisJobPublic; message?: string; error?: string };
+type AnalysisResultApiResponse<T> = { ok: boolean; success?: boolean; data?: T; message?: string; error?: string };
 const NUMBER_FORTUNE_FIVE_ELEMENT_COPY = {
   cardTitle: '\u4e94\u5143\u7d20\u624b\u93c8\u88dc\u5f37',
   verdictPrefix: '\u672c\u6b21\u5224\u5b9a\u4f60\u7f3a\uff1a',
@@ -76,8 +91,6 @@ type EvolutionConfig = {
   description: string;
   durationMs: number;
 };
-
-const NUMBER_FORTUNE_MIN_LOADING_MS = 1400;
 
 const EVOLUTION_CONFIG: Record<1 | 2 | 4 | 8, EvolutionConfig> = {
   1: {
@@ -306,6 +319,127 @@ function NumberTicker({ value }: { value: number }) {
   }, [value]);
 
   return <>{count}</>;
+}
+
+function mapAnalysisJobStatus(status?: AnalysisJobPublicStatus): SystemStatus {
+  if (status === 'VALIDATING') return 'validating';
+  if (status === 'QUEUED' || status === 'PROCESSING' || status === 'FINALIZING') return 'loading';
+  if (status === 'FAILED' || status === 'TIMEOUT' || status === 'CANCELLED') return 'error';
+  if (status === 'COMPLETED') return 'success';
+  return 'loading';
+}
+
+function getAnalysisJobPollDelay(elapsedMs: number) {
+  if (elapsedMs < 15_000) return 1_000;
+  if (elapsedMs < 60_000) return 2_000;
+  return 5_000;
+}
+
+async function requestNumberFortuneDirect(payload: string, signal: AbortSignal) {
+  let result: Awaited<ReturnType<typeof safeJsonFetch<NumberAnalysisResult | { ok: false; message?: string }>>> | null = null;
+  let lastError: unknown = null;
+  const endpoints = ['/api/number-fortune', '/api/number/analyze'];
+
+  for (const endpoint of endpoints) {
+    try {
+      result = await safeJsonFetch<NumberAnalysisResult | { ok: false; message?: string }>(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload,
+        signal,
+        timeoutMs: endpoint === endpoints[0] ? 12_000 : 8_000,
+        retries: endpoint === endpoints[0] ? 1 : 0,
+      });
+      if (result.ok && result.data?.ok) return result.data as NumberAnalysisResult;
+      if (result.status >= 400 && result.status < 500) {
+        const message = result.data && 'message' in result.data && result.data.message
+          ? result.data.message
+          : '\u76ee\u524d\u7121\u6cd5\u5b8c\u6210\u6578\u5b57\u5206\u6790\uff0c\u8acb\u78ba\u8a8d\u8f38\u5165\u5f8c 4 \u78bc\u6216 10 \u78bc\u624b\u6a5f\u865f\u78bc\u5f8c\u518d\u8a66\u4e00\u6b21\u3002';
+        throw new Error(message);
+      }
+    } catch (error) {
+      lastError = error;
+      if (signal.aborted) throw error;
+    }
+  }
+
+  throw lastError ?? new Error('NUMBER_FORTUNE_REQUEST_FAILED');
+}
+
+async function requestNumberFortuneByJob(payload: string, signal: AbortSignal, onStatus: (job: AnalysisJobPublic) => void) {
+  const idempotencyKey = (() => {
+    try {
+      const parsed = JSON.parse(payload) as { value?: string; mode?: string };
+      return ['number', parsed.mode ?? '', parsed.value ?? '', Date.now()].join(':');
+    } catch {
+      return 'number:' + Date.now();
+    }
+  })();
+  const parsedPayload = JSON.parse(payload) as { value: string; mode: string };
+  const created = await safeJsonFetch<AnalysisJobApiResponse>('/api/analysis/jobs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      analysisType: 'number',
+      idempotencyKey,
+      sessionId: 'number-fortune-browser',
+      inputData: parsedPayload,
+    }),
+    signal,
+    timeoutMs: 10_000,
+    retries: 1,
+  });
+
+  if (!created.ok || !created.data?.ok || !created.data.data?.jobId) {
+    throw new Error(created.data?.message || created.data?.error || 'JOB_CREATE_FAILED');
+  }
+
+  const startedAt = performance.now();
+  let job = created.data.data;
+  onStatus(job);
+
+  while (!signal.aborted) {
+    if (job.status === 'COMPLETED' && job.resultId) {
+      let lastResultMessage = 'RESULT_NOT_READY';
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        const result = await safeJsonFetch<AnalysisResultApiResponse<NumberAnalysisResult>>('/api/analysis/results/' + job.resultId, {
+          signal,
+          timeoutMs: 10_000,
+          retries: 1,
+        });
+        if (result.ok && result.data?.ok && result.data.data) return result.data.data;
+        lastResultMessage = result.data?.message || result.data?.error || lastResultMessage;
+        if (signal.aborted || (result.status && result.status >= 500)) break;
+        await new Promise((resolve) => window.setTimeout(resolve, 300 * (attempt + 1)));
+      }
+      throw new Error(lastResultMessage);
+    }
+
+    if (job.status === 'FAILED' || job.status === 'TIMEOUT' || job.status === 'CANCELLED') {
+      throw new Error(job.errorMessage || job.message || '\u76ee\u524d\u66ab\u6642\u7121\u6cd5\u5b8c\u6210\u6578\u5b57\u5206\u6790\u3002');
+    }
+
+    const elapsed = performance.now() - startedAt;
+    if (elapsed > 60_000) throw new Error('NUMBER_JOB_TIMEOUT');
+    await new Promise((resolve) => window.setTimeout(resolve, getAnalysisJobPollDelay(elapsed)));
+
+    const next = await safeJsonFetch<AnalysisJobApiResponse>('/api/analysis/jobs/' + job.jobId, {
+      signal,
+      timeoutMs: 10_000,
+      retries: 1,
+    });
+    if (!next.ok || !next.data?.ok || !next.data.data) throw new Error(next.data?.message || next.data?.error || 'JOB_STATUS_FAILED');
+    job = next.data.data;
+    onStatus(job);
+  }
+
+  throw new Error('REQUEST_ABORTED');
+}
+
+function getNumberFortuneLoadingCopy(status: SystemStatus) {
+  if (status === 'validating') return { label: '\u6b63\u5728\u78ba\u8a8d\u8f38\u5165\u683c\u5f0f', detail: '\u7cfb\u7d71\u6b63\u5728\u6aa2\u67e5\u662f\u5f8c 4 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u624b\u6a5f\u865f\u78bc\u3002' };
+  if (status === 'recovering') return { label: '\u6b63\u5728\u5207\u63db\u5099\u63f4\u5206\u6790\u7ba1\u9053', detail: '\u4e3b\u7ba1\u9053\u525b\u525b\u6c92\u6709\u9023\u4e0a\uff0c\u5df2\u81ea\u52d5\u6539\u7528\u5099\u63f4 API \u91cd\u8a66\u3002' };
+  return { label: '\u6b63\u5728\u57f7\u884c\u771f\u5be6\u6578\u5b57\u904b\u7b97', detail: '\u5f8c\u7aef\u6b63\u5728\u8a08\u7b97\u6578\u5b57\u77e9\u9663\u3001\u5409\u51f6\u7b49\u7d1a\u8207\u4e94\u5143\u7d20\u88dc\u5f37\u3002' };
 }
 
 function getNumberFortuneAura(level?: string) {
@@ -1107,7 +1241,9 @@ export default function HomePage() {
   };
 
   const handleNumberFortune = async () => {
-    if (!fortuneNumber.trim()) {
+    const cleanFortuneNumber = fortuneNumber.trim();
+
+    if (!cleanFortuneNumber) {
       setFortuneResult(null);
       setFortuneError("\u26a0\ufe0f \u8acb\u5148\u8f38\u5165\u624b\u6a5f\u5f8c 4 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u624b\u6a5f\u865f\u78bc\u3002");
       setFortuneStatus('error');
@@ -1116,9 +1252,9 @@ export default function HomePage() {
     if (fortuneSubmittingRef.current) return;
 
     setFortuneStatus('validating');
-    if (!/^\d+$/.test(fortuneNumber) || ![4, 10].includes(fortuneNumber.length)) {
+    if (!/^\d+$/.test(cleanFortuneNumber) || ![4, 10].includes(cleanFortuneNumber.length)) {
       setFortuneResult(null);
-      setFortuneError('只能輸入後 4 碼或完整手機號碼 10 碼，且不可包含空格、符號或英文字母。');
+      setFortuneError('\u53ea\u80fd\u8f38\u5165\u5f8c 4 \u78bc\u6216\u5b8c\u6574\u624b\u6a5f\u865f\u78bc 10 \u78bc\uff0c\u4e0d\u8981\u52a0\u7a7a\u683c\u3001\u7b26\u865f\u6216\u82f1\u6587\u5b57\u6bcd\u3002');
       setFortuneStatus('error');
       return;
     }
@@ -1130,30 +1266,24 @@ export default function HomePage() {
     setFortuneStatus('loading');
     setFortuneError('');
     setFortuneResult(null);
-    const requestStartedAt = performance.now();
+    const payload = JSON.stringify({
+      mode: cleanFortuneNumber.length === 10 ? 'phone10' : 'last4',
+      value: cleanFortuneNumber,
+    });
 
     try {
-      const { ok, data } = await safeJsonFetch<NumberAnalysisResult | { ok: false; message?: string }>('/api/number-fortune', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mode: fortuneNumber.length === 10 ? 'phone10' : 'last4',
-          value: fortuneNumber,
-        }),
-        signal: requestController.signal,
-        timeoutMs: 12_000,
-        retries: 2,
-      });
-
-      if (!ok || !data?.ok) {
-        setFortuneResult(null);
-        setFortuneError(data && 'message' in data && data.message ? data.message : '系統正在重新同步，請稍候再試。');
-        setFortuneStatus('error');
-        return;
+      let data: NumberAnalysisResult;
+      try {
+        data = await requestNumberFortuneByJob(payload, requestController.signal, (job) => {
+          setFortuneStatus(mapAnalysisJobStatus(job.status));
+        });
+      } catch (jobError) {
+        if (requestController.signal.aborted) throw jobError;
+        console.warn('[number-fortune] job api fallback to direct api', jobError);
+        setFortuneStatus('recovering');
+        data = await requestNumberFortuneDirect(payload, requestController.signal);
       }
 
-      const remainingDelay = Math.max(0, NUMBER_FORTUNE_MIN_LOADING_MS - (performance.now() - requestStartedAt));
-      if (remainingDelay > 0) await new Promise((resolve) => window.setTimeout(resolve, remainingDelay));
       setFortuneResult(data);
       setFortuneError('');
       setFortuneStatus('success');
@@ -1165,10 +1295,10 @@ export default function HomePage() {
         setFortuneStatus('idle');
         return;
       }
-      console.warn('[number-fortune] request recovered with friendly error');
+      console.warn('[number-fortune] request recovered with friendly error', error);
       setFortuneResult(null);
       setFortuneStatus('error');
-      setFortuneError('系統正在重新同步，已保留你的輸入，請稍候再試。');
+      setFortuneError('\u6578\u5b57\u5206\u6790\u525b\u525b\u6c92\u6709\u9023\u4e0a\uff0c\u4f60\u7684\u8f38\u5165\u5df2\u4fdd\u7559\uff0c\u8acb\u518d\u6309\u4e00\u6b21\u958b\u59cb\u5206\u6790\u3002');
     } finally {
       fortuneSubmittingRef.current = false;
       if (fortuneRequestRef.current === requestController) {
@@ -2811,23 +2941,27 @@ export default function HomePage() {
               </p>
             )}
 
-            {fortuneLoading && (
-              <div className="result-container mt-6 rounded-2xl border border-cyan-500/25 bg-cyan-950/20 p-5 space-y-3 animate-pulse font-mono">
-                <div className="flex justify-between text-xs text-cyan-300 font-bold">
-                  <span>🛰️ 正在連結天宿數理中樞...</span>
-                  <span className="animate-bounce">80%</span>
+            {fortuneLoading && (() => {
+              const loadingCopy = getNumberFortuneLoadingCopy(fortuneStatus);
+              return (
+                <div className="result-container mt-6 rounded-2xl border border-cyan-500/25 bg-cyan-950/20 p-5 space-y-3 font-mono" role="status" aria-live="polite" aria-busy="true">
+                  <div className="flex items-start justify-between gap-3 text-xs text-cyan-300 font-bold">
+                    <span>{loadingCopy.label}</span>
+                    <span className="animate-pulse">LIVE</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-cyan-950 rounded-full overflow-hidden border border-cyan-500/10">
+                    <div className="h-full w-1/2 rounded-full bg-gradient-to-r from-cyan-500 via-amber-400 to-cyan-500 animate-[grow-x_1.5s_infinite]" />
+                  </div>
+                  <p className="text-xs font-semibold leading-6 text-cyan-100/85">{loadingCopy.detail}</p>
+                  <div className="grid grid-cols-2 gap-2 text-[10px] text-cyan-400/70">
+                    <div>[STATUS] {fortuneStatus.toUpperCase()}</div>
+                    <div className="text-right">[PROGRESS] WAITING</div>
+                    <div>[METHOD] REAL API</div>
+                    <div className="text-right">[TARGET] {fortuneNumber}</div>
+                  </div>
                 </div>
-                <div className="w-full h-1.5 bg-cyan-950 rounded-full overflow-hidden border border-cyan-500/10">
-                  <div className="h-full bg-gradient-to-r from-cyan-500 via-amber-400 to-cyan-500 w-4/5 animate-[grow-x_1.5s_infinite]" />
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-[10px] text-cyan-400/70">
-                  <div>[STATUS] RUNNING V4 CORE</div>
-                  <div className="text-right">[STABILITY] 100% OK</div>
-                  <div>[METHOD] BACKEND ANALYSIS</div>
-                  <div className="text-right">[TARGET] {fortuneNumber}</div>
-                </div>
-              </div>
-            )}
+              );
+            })()}
 
             {fortuneResult && !fortuneLoading && (
               <div className={`result-container fade-result mt-6 rounded-2xl border p-5 space-y-4 font-sans relative overflow-hidden ${fortuneAura.resultClass}`}>
@@ -2894,8 +3028,13 @@ export default function HomePage() {
                     <div className="mt-3 rounded-xl border border-emerald-200/15 bg-emerald-400/10 p-3">
                       <p className="text-xs font-black text-emerald-100">{NUMBER_FORTUNE_FIVE_ELEMENT_COPY.changeTitle}</p>
                       <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
-                        {NUMBER_FORTUNE_FIVE_ELEMENT_COPY.changeBody}
+                        {fortuneResult.fiveElement.decision.changeTarget}
                       </p>
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {fortuneResult.fiveElement.productMatch.matchReason.slice(0, 3).map((reason) => (
+                        <p key={reason} className="rounded-xl border border-amber-200/15 bg-black/15 px-3 py-2 text-xs font-bold leading-6 text-amber-100">{reason}</p>
+                      ))}
                     </div>
                     <p className="mt-3 text-xs font-semibold text-[color:var(--text-sub)]">{fortuneResult.fiveElement.productRecommendation.braceletCore}</p>
                     <button type="button" className="mt-3 w-full rounded-xl border border-amber-200/30 bg-amber-300/12 px-3 py-2 text-xs font-black text-amber-100">

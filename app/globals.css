@@ -8218,3 +8218,120 @@ body.app-scrolling .home-trust-strip > [data-visitor-counter="home"].home-trust-
     height: min(9.5rem, 56vw);
   }
 }
+
+
+/* Numerology screen recovery lock: keep the modal usable on phones. */
+.number-fortune-modal {
+  width: 100vw;
+  max-width: 100vw;
+  overflow: hidden !important;
+}
+
+.number-fortune-panel {
+  box-sizing: border-box;
+  max-width: min(42rem, calc(100vw - 1rem));
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.number-fortune-modal .number-fortune-split-stack {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  width: 100%;
+  min-width: 0;
+}
+
+.number-fortune-modal .number-fortune-card,
+.number-fortune-modal .number-fortune-card > *,
+.number-fortune-modal .result-container,
+.number-fortune-modal .result-container > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-wrap: anywhere;
+}
+
+.number-fortune-modal .number-fortune-card {
+  content-visibility: visible !important;
+  contain: layout paint !important;
+}
+
+.number-fortune-modal .number-fortune-analysis-card {
+  order: -1;
+  overflow: hidden !important;
+}
+
+.number-fortune-modal .number-fortune-analysis-card .grid,
+.number-fortune-modal .number-fortune-analysis-card .flex {
+  min-width: 0;
+}
+
+.number-fortune-modal .number-fortune-analysis-card .form-input,
+.number-fortune-modal .number-fortune-analysis-card .vip-gold-btn {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.number-fortune-modal .number-fortune-analysis-card .text-right {
+  text-align: left;
+}
+
+@media (max-width: 640px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .number-fortune-modal {
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding: max(0.5rem, env(safe-area-inset-top)) 0.5rem max(0.5rem, env(safe-area-inset-bottom)) !important;
+  }
+
+  .number-fortune-panel {
+    width: 100% !important;
+    max-height: calc(100dvh - 1rem) !important;
+    border-radius: 1.25rem !important;
+    padding: 3.65rem 0.75rem 0.9rem !important;
+  }
+
+  .number-fortune-modal .number-fortune-split-stack {
+    gap: 0.8rem !important;
+    padding-top: 0 !important;
+  }
+
+  .number-fortune-modal .number-fortune-analysis-card {
+    padding: 0.95rem !important;
+  }
+
+  .number-fortune-modal .number-fortune-taiji-card {
+    min-height: 11.5rem !important;
+    padding: 0.75rem !important;
+    overflow: hidden !important;
+  }
+
+  .number-fortune-modal .number-fortune-taiji-card .number-fortune-taiji-wrap {
+    min-height: 9.5rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  .number-fortune-modal .number-fortune-taiji-card .modal-taiji-button {
+    width: min(8.75rem, 48vw) !important;
+    height: min(8.75rem, 48vw) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+  }
+
+  .number-fortune-modal .result-container {
+    padding: 1rem !important;
+  }
+
+  .number-fortune-modal .result-container .grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .number-fortune-modal [class*="text-6xl"] {
+    font-size: 3rem !important;
+    line-height: 1 !important;
+  }
+}

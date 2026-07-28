@@ -464,8 +464,13 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 
 【紫微命財官遷規則：本頁主軸，AI 不可改分數】
 - \u3010\u4e94\u5143\u7d20\u88dc\u5f37\u7d50\u8ad6\u3011: ${fiveElement.summary}
+- \u3010\u552f\u4e00\u4e3b\u88dc\u5224\u5b9a\u3011: ${fiveElement.decision.conclusion}
+- \u3010\u624b\u93c8\u4e3b\u88dc\u65b9\u6848\u3011: ${fiveElement.productRecommendation.title}
+- \u3010\u88dc\u4e86\u5148\u6539\u8b8a\u4ec0\u9ebc\u3011: ${fiveElement.decision.changeTarget}
+- \u3010\u5546\u54c1\u914d\u5c0d\u539f\u56e0\u3011: ${fiveElement.productMatch.matchReason.join('\uFF1B')}
 - \u88dc\u5f37\u539f\u56e0: ${fiveElement.reasons.join('\uFF1B')}
 - \u7acb\u5373\u884c\u52d5: ${fiveElement.recommendedActions.join('\uFF1B')}
+- \u3010\u7981\u6b62\u77db\u76fe\u3011: AI \u4e0d\u5f97\u6539\u5beb\u4e3b\u88dc\u5143\u7d20\uff0c\u4e0d\u5f97\u628a\u7b2c\u4e8c\u9806\u4f4d\u6216\u8f03\u5f37\u5143\u7d20\u5beb\u6210\u672c\u6b21\u4e3b\u88dc\u3002
 
 - 四柱: ${ziweiSanFang.bazi.year} ${ziweiSanFang.bazi.month} ${ziweiSanFang.bazi.day} ${ziweiSanFang.bazi.hour}
 - 日主: ${ziweiSanFang.bazi.dayMaster}
