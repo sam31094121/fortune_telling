@@ -355,6 +355,13 @@ export default function UnifiedTaijiCore({
             </div>
             <div className="modal-taiji-core-depth" />
           </div>
+          {evolutionStage === 'liangyi' && (
+            <div className="taiji-liangyi-precision-split" aria-hidden="true">
+              <span className="taiji-liangyi-precision-split__half taiji-liangyi-precision-split__half--yang" />
+              <span className="taiji-liangyi-precision-split__half taiji-liangyi-precision-split__half--yin" />
+              <span className="taiji-liangyi-precision-split__seam" />
+            </div>
+          )}
         </div>
 
         {evolutionStage !== 'idle' && (
@@ -382,8 +389,8 @@ export default function UnifiedTaijiCore({
               <span />
             </div>
             <div className="modal-evolution-layer modal-liangyi-layer" aria-hidden="true">
-              <span className="modal-liangyi-node modal-liangyi-yang">陽</span>
-              <span className="modal-liangyi-node modal-liangyi-yin">陰</span>
+              <span className="modal-liangyi-node modal-liangyi-yang">{'\u967d'}</span>
+              <span className="modal-liangyi-node modal-liangyi-yin">{'\u9670'}</span>
             </div>
           </>
         )}
@@ -395,10 +402,10 @@ export default function UnifiedTaijiCore({
               <span />
             </div>
             <div className="modal-evolution-layer modal-sixiang-layer" aria-hidden="true">
-              <span className="modal-sixiang-node modal-sixiang-0">少陽</span>
-              <span className="modal-sixiang-node modal-sixiang-1">太陽</span>
-              <span className="modal-sixiang-node modal-sixiang-2">少陰</span>
-              <span className="modal-sixiang-node modal-sixiang-3">太陰</span>
+              <span className="modal-sixiang-node modal-sixiang-0">{'\u592a\u967d'}</span>
+              <span className="modal-sixiang-node modal-sixiang-1">{'\u5c11\u9670'}</span>
+              <span className="modal-sixiang-node modal-sixiang-2">{'\u592a\u9670'}</span>
+              <span className="modal-sixiang-node modal-sixiang-3">{'\u5c11\u967d'}</span>
             </div>
           </>
         )}
