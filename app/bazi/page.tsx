@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import AnalysisReadingFlow from '@/components/AnalysisReadingFlow';
+import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 
 type BaziGender = 'male' | 'female';
 type JobStatus = 'IDLE' | 'VALIDATING' | 'QUEUED' | 'PROCESSING' | 'FINALIZING' | 'COMPLETED' | 'FAILED' | 'TIMEOUT' | 'CANCELLED';
@@ -110,6 +112,7 @@ type BaziResult = {
     encouragement: string;
   };
   plainReading: string;
+  fiveElement?: FiveElementIntegrationResult;
 };
 
 type BaziForm = {
@@ -126,7 +129,7 @@ const ELEMENT_ORDER: TraditionalElement[] = ['金', '木', '水', '火', '土'];
 const INITIAL_FORM: BaziForm = {
   name: '',
   birthDate: '',
-  birthTime: '12:00',
+  birthTime: '',
   gender: 'female',
   country: '台灣',
   city: '台北',
@@ -258,7 +261,9 @@ function ResultPanel({ result, onReset }: { result: BaziResult; onReset: () => v
   const summary = result.aiReading.plainText || result.plainReading || 'AI 已依照八字排盤資料完成白話整理。';
 
   return (
-    <AnalysisReadingFlow
+    <section className="space-y-5">
+      <FiveElementPriorityCard result={result.fiveElement} />
+      <AnalysisReadingFlow
       moduleLabel="BAZI UX FLOW"
       headline={headline}
       summary={summary}
@@ -354,6 +359,7 @@ function ResultPanel({ result, onReset }: { result: BaziResult; onReset: () => v
         </div>
       )}
     />
+    </section>
   );
 }
 
@@ -363,7 +369,27 @@ export default function BaziPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<BaziResult | null>(null);
+  const [birthTimeMode, setBirthTimeMode] = useState<'unknown' | 'known' | null>(null);
   const step = activeStep(job);
+
+  const showMissingFields = Boolean(error) && !result;
+  const showMissingBirthDate = showMissingFields && !form.birthDate;
+  const showMissingBirthTime = showMissingFields && (birthTimeMode === null || (birthTimeMode === 'known' && !/^([01]\d|2[0-3]):[0-5]\d$/.test(form.birthTime)));
+  const showMissingLocation = showMissingFields && (!form.country.trim() || !form.city.trim());
+
+  const selectedBirthTimeLabel = birthTimeMode === 'unknown'
+    ? '不知道時辰，以午時暫排'
+    : birthTimeMode === 'known'
+      ? SHICHEN_OPTIONS.find((item) => item.value === form.birthTime)?.label ?? '等待選擇'
+      : '未選擇';
+
+  const completedItems = [
+    { label: '姓名', done: true, value: form.name.trim() || '可選填' },
+    { label: '生日', done: Boolean(form.birthDate), value: form.birthDate ? `已填 ${form.birthDate}` : '未填' },
+    { label: '性別', done: Boolean(form.gender), value: form.gender === 'female' ? '女性' : '男性' },
+    { label: '時辰', done: birthTimeMode === 'unknown' || (birthTimeMode === 'known' && Boolean(form.birthTime)), value: selectedBirthTimeLabel },
+    { label: '地點', done: Boolean(form.country.trim() && form.city.trim()), value: `${form.country || '國家'} / ${form.city || '城市'}` },
+  ];
 
   const submit = async () => {
     setError('');
@@ -371,25 +397,29 @@ export default function BaziPage() {
     setJob(null);
 
     if (form.name.trim().length > 20) {
-      setError('姓名可不填；若要填寫，請勿超過 20 個字。');
+      setError('姓名最多 20 個字，請縮短後再送出。');
       return;
     }
     if (!form.birthDate) {
-      setError('請先完成出生年月日。');
+      setError('請先完成出生日期，這是八字命盤的必要資料。');
       return;
     }
-    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(form.birthTime)) {
-      setError('請選擇出生時辰。');
+    if (birthTimeMode === null) {
+      setError('請先選擇「不知道出生時辰」或「我知道出生時辰」。');
+      return;
+    }
+    if (birthTimeMode === 'known' && !/^([01]\d|2[0-3]):[0-5]\d$/.test(form.birthTime)) {
+      setError('請先選擇出生時辰，或改選「不知道出生時辰」。');
       return;
     }
     if (!form.country.trim() || !form.city.trim()) {
-      setError('請填寫國家與城市，方便系統記錄時區來源。');
+      setError('請確認出生國家與城市，方便系統記錄時區來源。');
       return;
     }
 
     setLoading(true);
     try {
-      const analysis = await requestBaziAnalysis(form, setJob);
+      const analysis = await requestBaziAnalysis({ ...form, birthTime: birthTimeMode === 'unknown' ? '12:00' : form.birthTime }, setJob);
       setResult(analysis);
       markGrowthModuleCompleted('bazi');
     } catch (caught) {
@@ -401,131 +431,249 @@ export default function BaziPage() {
 
   return (
     <div className="app-bg min-h-screen overflow-hidden">
-      <main className="relative z-10 mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+      <main className="relative z-10 mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
         <Link href="/" className="feature-home-link feature-home-link--cyan feature-home-link--floating" aria-label="返回首頁">
           返回首頁
         </Link>
 
-        <section className="mb-5 rounded-3xl border border-emerald-300/25 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.18),rgba(34,211,238,0.1)_42%,rgba(15,23,42,0.78)_100%)] p-5 shadow-[0_0_36px_rgba(16,185,129,0.14)] sm:p-7">
-          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-emerald-200">BAZI MODULE - CORE ONLY</p>
-          <h1 className="mt-3 font-serif text-3xl font-black leading-tight text-emerald-50 sm:text-5xl">AI 八字命盤</h1>
-          <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
-            第二層只執行八字模組：後端獨立排出四柱、藏干、十神、旺衰、喜用忌神、大運與流年。本頁先做閱讀體驗優化，不改命理核心。
-          </p>
-        </section>
-
         {!result && (
-          <section className="fortune-card p-5 sm:p-7">
-            <div className="space-y-6">
-              <div>
-                <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">1. 姓名（可選）</label>
-                <input
-                  value={form.name}
-                  onChange={(event) => setForm({ ...form, name: event.target.value })}
-                  maxLength={20}
-                  placeholder="可不填；填寫後只作結果標示"
-                  className="form-input glass-input glass-input-cyan w-full text-base"
-                />
-              </div>
-
-              <div>
-                <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">2. 性別</label>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {(['female', 'male'] as const).map((gender) => (
-                    <button
-                      key={gender}
-                      type="button"
-                      onClick={() => setForm({ ...form, gender })}
-                      className={`rounded-2xl border px-5 py-4 text-left transition ${
-                        form.gender === gender
-                          ? 'border-emerald-200 bg-emerald-300/15 text-emerald-100 shadow-[0_0_24px_rgba(16,185,129,0.18)]'
-                          : 'border-white/10 bg-white/[0.05] text-[color:var(--text-sub)]'
-                      }`}
-                    >
-                      <span className="text-base font-black">{gender === 'female' ? '女性' : '男性'}</span>
-                    </button>
-                  ))}
+          <>
+            <section className="mb-5 rounded-3xl border border-emerald-300/25 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.18),rgba(34,211,238,0.1)_42%,rgba(15,23,42,0.78)_100%)] p-5 shadow-[0_0_36px_rgba(16,185,129,0.14)] sm:p-7">
+              <p className="text-[11px] font-black uppercase tracking-[0.28em] text-emerald-200">AI BAZI CHART</p>
+              <h1 className="mt-3 font-serif text-3xl font-black leading-tight text-emerald-50 sm:text-5xl">AI 八字命盤</h1>
+              <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
+                請依照下方步驟填寫出生資料。這裡只使用八字命盤的獨立運算，不會改成紫微斗數，也不會共用紫微結果。
+              </p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-black/15 px-4 py-3">
+                  <p className="text-xs font-black text-emerald-100">1. 填資料</p>
+                  <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]">姓名可選填，生日、性別、時辰、地點必填。</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/15 px-4 py-3">
+                  <p className="text-xs font-black text-cyan-100">2. 後端排盤</p>
+                  <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]">Bazi Engine 會計算四柱、天干地支與五行強弱。</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/15 px-4 py-3">
+                  <p className="text-xs font-black text-amber-100">3. AI 白話整理</p>
+                  <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]">AI 只整理後端結果，讓你更容易看懂。</p>
                 </div>
               </div>
+            </section>
 
-              <div>
-                <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">3. 出生年月日</label>
-                <LunarBirthdayInput
-                  value={form.birthDate}
-                  onChange={(birthDate) => setForm({ ...form, birthDate })}
-                  accent="cyan"
-                  label="出生日期（萬年曆）"
-                />
-              </div>
-
-              <div>
-                <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">4. 出生時辰</label>
-                <select
-                  value={form.birthTime}
-                  onChange={(event) => setForm({ ...form, birthTime: event.target.value })}
-                  className="form-input glass-input glass-input-cyan w-full text-base"
-                >
-                  {SHICHEN_OPTIONS.map((item) => (
-                    <option key={item.value} value={item.value}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">5. 國家</label>
-                  <input
-                    value={form.country}
-                    onChange={(event) => setForm({ ...form, country: event.target.value })}
-                    className="form-input glass-input glass-input-cyan w-full text-base"
-                  />
-                </div>
-                <div>
-                  <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">6. 城市</label>
-                  <input
-                    value={form.city}
-                    onChange={(event) => setForm({ ...form, city: event.target.value })}
-                    className="form-input glass-input glass-input-cyan w-full text-base"
-                  />
-                </div>
-              </div>
-
-              {error && <p className="form-missing-alert">{error}</p>}
-
-              <button type="button" onClick={submit} disabled={loading} className="vip-gold-btn w-full py-4 text-sm font-black disabled:opacity-50">
-                {loading ? '八字命盤運算中...' : '開始 AI 八字命盤分析'}
-              </button>
-            </div>
-
-            {loading && (
-              <div
-                className="number-computing-panel result-container mt-6 rounded-2xl border border-emerald-300/25 bg-slate-950/55 p-5 font-sans"
-                role="status"
-                aria-live="polite"
-                aria-busy="true"
-              >
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">BAZI ENGINE RUNNING</p>
-                <h2 className="mt-2 text-lg font-black text-emerald-50">{statusLabel(job)}</h2>
-                <div className="number-computing-orbit my-4" aria-hidden="true">
-                  <span />
-                  <b />
-                </div>
-                <div className="grid gap-2">
-                  {['資料驗證', '八字排盤', 'AI白話整理'].map((label, index) => (
-                    <div
-                      key={label}
-                      className={`number-computing-step ${index < step ? 'number-computing-step--done ' : ''}${index === step ? 'number-computing-step--active' : ''}`}
-                    >
-                      <span className="number-computing-step__dot">{index < step ? '✓' : index + 1}</span>
-                      <span>{label}</span>
+            <section id="bazi-input-form" className="fortune-card p-5 sm:p-7 scroll-mt-20">
+              <div className="mb-5 rounded-2xl border border-cyan-300/18 bg-cyan-300/8 p-4">
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-cyan-200">資料確認</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-5">
+                  {completedItems.map((item) => (
+                    <div key={item.label} className={`rounded-xl border px-3 py-2 ${item.done ? 'border-emerald-200/25 bg-emerald-300/10' : 'border-rose-300/35 bg-rose-500/10'}`}>
+                      <p className="text-[10px] font-black text-[color:var(--text-main)]">{item.done ? '完成' : '未填'} · {item.label}</p>
+                      <p className="mt-1 truncate text-[11px] font-semibold text-[color:var(--text-sub)]">{item.value}</p>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
-          </section>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">1. 姓名（可選填）</label>
+                  <input
+                    value={form.name}
+                    onChange={(event) => setForm({ ...form, name: event.target.value })}
+                    maxLength={20}
+                    disabled={loading}
+                    placeholder="可填寫姓名，也可以留空直接分析八字"
+                    className="form-input glass-input glass-input-cyan w-full text-base"
+                  />
+                  <p className="mt-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">姓名只用於結果稱呼，不會影響八字排盤。</p>
+                </div>
+
+                <div className={showMissingBirthDate ? 'rounded-2xl border border-rose-400/80 bg-rose-500/10 p-3 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}>
+                  <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">2. 出生日期（民國年）{form.birthDate && <span className="ml-2 text-green-400">完成</span>}</label>
+                  <LunarBirthdayInput
+                    value={form.birthDate}
+                    onChange={(birthDate) => setForm({ ...form, birthDate })}
+                    disabled={loading}
+                    accent="cyan"
+                    label="請像紫微斗數一樣輸入生日，系統會自動換算成西元日期。"
+                  />
+                  {showMissingBirthDate && <p className="form-missing-alert">請先完成出生日期，八字一定需要生日才能排盤。</p>}
+                  {form.birthDate && <p className="mt-2 text-xs text-green-400">已確認西元 {form.birthDate}</p>}
+                </div>
+
+                <div>
+                  <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">3. 性別</label>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {(['female', 'male'] as const).map((gender) => (
+                      <button
+                        key={gender}
+                        type="button"
+                        disabled={loading}
+                        onClick={() => setForm({ ...form, gender })}
+                        className={`group relative overflow-hidden rounded-2xl border px-5 py-4 text-left transition ${
+                          form.gender === gender
+                            ? 'border-emerald-200 bg-emerald-300/15 text-emerald-100 shadow-[0_0_24px_rgba(16,185,129,0.18)]'
+                            : 'border-white/10 bg-white/[0.05] text-[color:var(--text-sub)] hover:border-white/25'
+                        }`}
+                      >
+                        <span className="block text-base font-black">{gender === 'female' ? '女性' : '男性'}</span>
+                        <span className="mt-1 block text-xs font-semibold opacity-75">點一下完成選擇</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={showMissingBirthTime ? 'rounded-2xl border border-rose-400/80 bg-rose-500/10 p-3 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}>
+                  <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">
+                    4. 出生時辰
+                    {birthTimeMode !== null && <span className="ml-2 text-green-400">完成</span>}
+                  </label>
+                  <p className="mb-4 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
+                    請依照紫微斗數的方式選擇。若不知道實際出生時辰，系統會先用午時暫排，結果會標示為參考。
+                  </p>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => {
+                        setBirthTimeMode('unknown');
+                        setForm({ ...form, birthTime: '' });
+                      }}
+                      className={`group relative overflow-hidden rounded-2xl border px-5 py-5 text-left transition-all duration-300 ${
+                        birthTimeMode === 'unknown'
+                          ? 'border-amber-200/80 bg-amber-300/15 text-amber-100 shadow-[0_0_28px_rgba(251,191,36,0.22)]'
+                          : 'border-white/20 bg-white/[0.06] text-[color:var(--text-main)] hover:border-amber-200/70 hover:bg-amber-200/10'
+                      }`}
+                    >
+                      <span className="block text-base font-bold">不知道出生時辰</span>
+                      <span className="mt-1.5 block text-xs leading-5 text-[color:var(--text-sub)]">
+                        先用午時 12:00 暫排八字，適合暫時不知道出生時間的客戶。
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => {
+                        setBirthTimeMode('known');
+                        setForm({ ...form, birthTime: form.birthTime || '11:30' });
+                      }}
+                      className={`group relative overflow-hidden rounded-2xl border px-5 py-5 text-left transition-all duration-300 ${
+                        birthTimeMode === 'known'
+                          ? 'border-cyan-200/80 bg-cyan-300/15 text-cyan-100 shadow-[0_0_28px_rgba(34,211,238,0.22)]'
+                          : 'border-white/20 bg-white/[0.06] text-[color:var(--text-main)] hover:border-cyan-200/70 hover:bg-cyan-200/10'
+                      }`}
+                    >
+                      <span className="block text-base font-bold">我知道出生時辰</span>
+                      <span className="mt-1.5 block text-xs leading-5 text-[color:var(--text-sub)]">
+                        展開十二時辰，請選最接近的出生時間。
+                      </span>
+                    </button>
+                  </div>
+
+                  {birthTimeMode === 'known' && (
+                    <div className="mt-5 rounded-2xl border border-cyan-300/25 bg-cyan-950/20 p-4 shadow-[0_0_30px_rgba(34,211,238,0.12)]">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <span className="text-xs font-semibold tracking-wide text-cyan-100">請選擇你的出生時辰</span>
+                        <span className="text-[11px] text-cyan-200/70">十二時辰</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                        {SHICHEN_OPTIONS.map((item) => {
+                          const selected = form.birthTime === item.value;
+                          return (
+                            <button
+                              key={item.value}
+                              type="button"
+                              disabled={loading}
+                              onClick={() => setForm({ ...form, birthTime: item.value })}
+                              className={`rounded-xl border px-3 py-3 text-left transition-all ${
+                                selected ? 'border-cyan-200 bg-cyan-400/20 text-cyan-100 shadow-[0_0_18px_rgba(34,211,238,0.18)]' : 'border-white/10 bg-white/5 hover:border-cyan-300/50 hover:bg-cyan-400/10'
+                              }`}
+                            >
+                              <p className={`text-sm font-bold ${selected ? 'text-cyan-100' : 'text-[color:var(--text-main)]'}`}>{item.label}</p>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {showMissingBirthTime && <p className="form-missing-alert">請先選擇出生時辰方式。</p>}
+                </div>
+
+                <div className={showMissingLocation ? 'rounded-2xl border border-rose-400/80 bg-rose-500/10 p-3 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}>
+                  <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">5. 出生地點</label>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <input
+                      value={form.country}
+                      onChange={(event) => setForm({ ...form, country: event.target.value })}
+                      disabled={loading}
+                      placeholder="國家，例如：台灣"
+                      className="form-input glass-input glass-input-cyan w-full text-base"
+                    />
+                    <input
+                      value={form.city}
+                      onChange={(event) => setForm({ ...form, city: event.target.value })}
+                      disabled={loading}
+                      placeholder="城市，例如：台北"
+                      className="form-input glass-input glass-input-cyan w-full text-base"
+                    />
+                  </div>
+                  <p className="mt-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">預設為台灣台北，可依實際出生地修改。</p>
+                  {showMissingLocation && <p className="form-missing-alert">請確認出生國家與城市。</p>}
+                </div>
+
+                {error && <p className="form-missing-alert">{error}</p>}
+
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <button type="button" onClick={submit} disabled={loading} className="vip-gold-btn flex-1 py-4 text-sm font-black disabled:opacity-50">
+                    {loading ? 'AI 八字命盤運算中...' : '開始 AI 八字命盤分析'}
+                  </button>
+                  {(form.name || form.birthDate) && (
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => {
+                        setForm(INITIAL_FORM);
+                        setError('');
+                        setJob(null);
+                      }}
+                      className="rounded-full border border-white/10 bg-white/5 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-white/20 hover:text-white disabled:opacity-50"
+                    >
+                      重新填寫
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {loading && (
+                <div
+                  className="number-computing-panel result-container mt-6 rounded-2xl border border-emerald-300/25 bg-slate-950/55 p-5 font-sans"
+                  role="status"
+                  aria-live="polite"
+                  aria-busy="true"
+                >
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">BAZI ENGINE RUNNING</p>
+                  <h2 className="mt-2 text-lg font-black text-emerald-50">{statusLabel(job)}</h2>
+                  <div className="number-computing-orbit my-4" aria-hidden="true">
+                    <span />
+                    <b />
+                  </div>
+                  <div className="grid gap-2">
+                    {['確認出生資料', '排出四柱命盤', 'AI 白話整理'].map((label, index) => (
+                      <div
+                        key={label}
+                        className={`number-computing-step ${index < step ? 'number-computing-step--done ' : ''}${index === step ? 'number-computing-step--active' : ''}`}
+                      >
+                        <span className="number-computing-step__dot">{index < step ? '完成' : index + 1}</span>
+                        <span>{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+          </>
         )}
 
         {result && <ResultPanel result={result} onReset={() => setResult(null)} />}

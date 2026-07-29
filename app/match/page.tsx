@@ -5,8 +5,6 @@ import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import { saveUserData, loadUserData } from '@/lib/storage';
-import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
-import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 
 interface PersonInput {
@@ -414,6 +412,103 @@ function PersonStep({
   );
 }
 
+
+const MATCH_ELEMENT_LABEL: Record<MatchFiveElementKey, string> = {
+  earth: '\u5730\u5143\u7d20',
+  water: '\u6c34\u5143\u7d20',
+  fire: '\u706b\u5143\u7d20',
+  wind: '\u98a8\u5143\u7d20',
+  space: '\u7a7a\u5143\u7d20',
+};
+
+const MATCH_ELEMENT_ICON: Record<MatchFiveElementKey, string> = {
+  earth: '\u25cf',
+  water: '\u25c6',
+  fire: '\u25b2',
+  wind: '\u25ce',
+  space: '\u2605',
+};
+
+const MATCH_RELATION_LABEL: Record<MatchFiveElementResult['relationMode'], string> = {
+  generating: '\u76f8\u751f\u512a\u52e2',
+  conflicting: '\u76f8\u514b\u9700\u8981\u8abf\u548c',
+  balancing: '\u5e73\u8861\u88dc\u5f37',
+};
+
+function MatchNeedBars({ person }: { person: MatchFiveElementPersonResult }) {
+  const sortedNeeds = (Object.entries(person.needScores) as Array<[MatchFiveElementKey, number]>).sort(([, a], [, b]) => b - a);
+
+  return (
+    <div className="space-y-2">
+      {sortedNeeds.map(([element, score]) => (
+        <div key={element} className="grid grid-cols-[3.75rem_1fr_2.5rem] items-center gap-2 text-xs font-bold text-[color:var(--text-sub)]">
+          <span className="inline-flex items-center gap-1 text-amber-50">
+            <span aria-hidden="true">{MATCH_ELEMENT_ICON[element]}</span>
+            <span>{MATCH_ELEMENT_LABEL[element]}</span>
+          </span>
+          <span className="h-2 overflow-hidden rounded-full bg-white/10">
+            <span
+              className="block h-full rounded-full bg-gradient-to-r from-rose-400 via-amber-300 to-cyan-300"
+              style={{ width: `${Math.max(8, Math.min(100, score))}%` }}
+            />
+          </span>
+          <span className="text-right text-amber-100">{score}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MatchFiveElementPriorityCard({ result }: { result: MatchFiveElementResult }) {
+  return (
+    <section className="fortune-card relative overflow-hidden border-rose-300/35 bg-[linear-gradient(135deg,rgba(127,29,29,0.36),rgba(15,23,42,0.9)_42%,rgba(120,53,15,0.3))] p-5 shadow-[0_0_40px_rgba(251,113,133,0.16)] sm:p-8">
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-rose-400 via-amber-300 to-cyan-300" />
+      <p className="text-xs font-black uppercase tracking-[0.3em] text-rose-200">ELEMENT PRIORITY</p>
+      <h2 className="mt-3 font-serif text-3xl font-black leading-tight text-amber-100 sm:text-5xl">
+        {'\u9748\u9b42\u914d\u5c0d 5 \u5143\u7d20\u88dc\u5f37\uff1a'}
+        <span className="text-rose-200">{'\u5171\u540c\u5148\u88dc '}{MATCH_ELEMENT_LABEL[result.sharedElement]}</span>
+      </h2>
+      <p className="mt-4 text-base font-black leading-8 text-amber-50">{result.summary}</p>
+
+      <div className="mt-4 rounded-2xl border border-rose-200/25 bg-rose-500/10 p-4">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-100">{MATCH_RELATION_LABEL[result.relationMode]}</p>
+        <p className="mt-2 text-sm font-black leading-7 text-rose-50">{result.relationReason}</p>
+        <p className="mt-2 text-sm font-bold leading-7 text-amber-100">{result.sharedAction}</p>
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-2">
+        {[result.personA, result.personB].map((person) => (
+          <article key={person.name} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-black text-cyan-100">{person.name}</p>
+                <p className="mt-1 text-2xl font-black text-amber-100">{'\u5148\u88dc '}{MATCH_ELEMENT_LABEL[person.primaryElement]}</p>
+              </div>
+              <span className="shrink-0 rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-xs font-black text-amber-100">
+                {'\u7b2c\u4e8c '}{MATCH_ELEMENT_LABEL[person.secondaryElement]}
+              </span>
+            </div>
+            <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{person.reason}</p>
+            <p className="mt-2 text-xs font-bold leading-6 text-amber-100">{person.changeTarget}</p>
+            <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-3">
+              <MatchNeedBars person={person} />
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-amber-200/25 bg-amber-300/10 p-4">
+        <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-200">{'\u624b\u934a\u88dc\u5f37\u65b9\u5411'}</p>
+        <p className="mt-2 text-sm font-black leading-7 text-amber-100">{result.integratedAdvice}</p>
+        <div className="mt-3 space-y-2">
+          {result.inlineHighlights.slice(0, 4).map((item) => (
+            <p key={item} className="rounded-xl border border-amber-200/15 bg-black/15 px-3 py-2 text-xs font-bold leading-6 text-amber-100">{item}</p>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 export default function MatchPage() {
   const [step, setStep] = useState<StepKey>('personA');
   const [personA, setPersonA] = useState<PersonInput>({ ...EMPTY, gender: 'female' });
@@ -568,33 +663,15 @@ export default function MatchPage() {
       <div className="starfield pointer-events-none absolute inset-0 z-0" />
 
       <main className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
-        <div className="mb-6 flex items-start justify-between gap-3">
-          <FeatureVisitorCounter featureKey="matching" className="shrink-0" />
+        <div className="mb-4 flex justify-end sm:mb-5">
           <Link
             href="/"
-            className="feature-home-link feature-home-link--rose mt-1 shrink-0"
+            className="feature-home-link feature-home-link--rose shrink-0"
             aria-label={"\u8fd4\u56de\u9996\u9801"}
           >
             {"\u8fd4\u56de\u9996\u9801"}
           </Link>
         </div>
-
-        <section className="mb-10 flex justify-center">
-          <div className="hidden">
-            <div className="mb-4 inline-block rounded-full border border-rose-400/20 bg-rose-400/8 px-4 py-1 text-xs tracking-[0.35em] text-rose-300">
-              AI 緣分配對
-            </div>
-            <h1 className="mystic-title mb-4 font-serif text-4xl leading-tight sm:text-5xl">
-              輸入兩個人<br />看懂相處節奏
-            </h1>
-            <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
-              先填第一位，再填第二位，最後確認一次。AI 會整理共鳴、溝通、穩定與需要磨合的地方。
-            </p>
-          </div>
-          <div className="flex w-full justify-center">
-            <TaijiStandaloneCard />
-          </div>
-        </section>
 
         {!data && (
           <div className="space-y-6">
@@ -794,6 +871,8 @@ export default function MatchPage() {
                 </>
               )}
             </div>
+
+            {data.fiveElementMatch && <MatchFiveElementPriorityCard result={data.fiveElementMatch} />}
 
             <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="fortune-card p-6 sm:p-8">

@@ -1,5 +1,5 @@
 import { analyzeNumberCore, validateNumberCoreInput } from './number-core-engine';
-import { buildNumberFiveElementResult, buildNameologyFiveElementResult } from './five-element-engine';
+import { buildNumberFiveElementResult, buildNameologyFiveElementResult, buildBaziFiveElementResult, type FiveElementKey } from './five-element-engine';
 import { getNamePersonalityScores } from './name-model-db';
 import { buildNameologyAnalysis } from './nameology-engine';
 import { generateInsightAnalysis } from './insight-engine';
@@ -17,6 +17,27 @@ import {
 
 const VALID_BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const VALID_GENDERS = ['male', 'female'] as const;
+const TRADITIONAL_TO_FIVE_ELEMENT: Record<string, FiveElementKey> = {
+  '\u91d1': 'metal',
+  '\u6728': 'wood',
+  '\u6c34': 'water',
+  '\u706b': 'fire',
+  '\u571f': 'earth',
+};
+
+function traditionalToFiveElement(element: string): FiveElementKey {
+  return TRADITIONAL_TO_FIVE_ELEMENT[element] ?? 'earth';
+}
+
+function buildBaziElementEnergy(elementCounts: Record<string, number>) {
+  const keys: FiveElementKey[] = ['metal', 'wood', 'water', 'fire', 'earth'];
+  const raw = Object.fromEntries(keys.map((key) => [key, 0])) as Record<FiveElementKey, number>;
+  Object.entries(elementCounts).forEach(([traditional, count]) => {
+    raw[traditionalToFiveElement(traditional)] += Number(count) || 0;
+  });
+  const max = Math.max(...keys.map((key) => raw[key]), 1);
+  return Object.fromEntries(keys.map((key) => [key, Math.round((raw[key] / max) * 100)])) as Record<FiveElementKey, number>;
+}
 
 type NameologyJobInput = {
   name: string;
@@ -136,9 +157,16 @@ async function runBaziJob(job: AnalysisJob, inputData: unknown) {
 
   updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: null, message: ANALYSIS_MODULES.BAZI.loadingCopy.processing });
   const result = analyzeBazi(input);
+  const fiveElement = buildBaziFiveElementResult({
+    analysisId: ['bazi', input.birthDate, input.birthTime, input.gender].join(':'),
+    elementEnergy: buildBaziElementEnergy(result.elementCounts),
+    elementCounts: result.elementCounts,
+    dayMasterElement: traditionalToFiveElement(result.dayMaster.element),
+    shichenElement: traditionalToFiveElement(result.pillars.hour.branchElement),
+  });
 
   updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: ANALYSIS_MODULES.BAZI.loadingCopy.finalizing });
-  return { ...result, moduleId: job.moduleId };
+  return { ...result, moduleId: job.moduleId, fiveElement };
 }
 
 type AnalysisModuleRunner = (job: AnalysisJob, inputData: unknown) => Promise<unknown>;

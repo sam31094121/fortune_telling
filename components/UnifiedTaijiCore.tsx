@@ -14,41 +14,40 @@ type EvolutionConfig = {
 const EVOLUTION_CONFIG: Record<1 | 2 | 4 | 8, EvolutionConfig> = {
   1: {
     stage: 'taiji',
-    label: '太極',
-    description: '一點初開，能量歸中。',
+    label: '\u7b2c\u4e00\u5e55\uff5c\u4e3b\u89d2\u592a\u6975\u7526\u9192',
+    description: '\u9ec3\u91d1\u805a\u5149\u843d\u5728\u592a\u6975\u6838\u5fc3\uff0c\u9019\u662f\u6545\u4e8b\u958b\u5834\u3002',
     durationMs: 1200,
   },
   2: {
     stage: 'liangyi',
-    label: '兩儀',
-    description: '陰陽分化，黑白相生。',
+    label: '\u7b2c\u4e8c\u5e55\uff5c\u9670\u967d\u767b\u5834',
+    description: '\u7537\u4e3b\u89d2\u9ede\u64ca\u63a8\u52d5\u5287\u60c5\uff0c\u9670\u8207\u967d\u5206\u958b\u7ad9\u4f4d\u3002',
     durationMs: 1600,
   },
   4: {
     stage: 'sixiang',
-    label: '四象',
-    description: '四象定位，氣場展開。',
+    label: '\u7b2c\u4e09\u5e55\uff5c\u56db\u8c61\u5e03\u666f',
+    description: '\u5834\u666f\u958b\u59cb\u6709\u4e0a\u4e0b\u5de6\u53f3\uff0c\u70ba\u516b\u5366\u9053\u5177\u9810\u7559\u4f4d\u7f6e\u3002',
     durationMs: 2000,
   },
   8: {
     stage: 'bagua',
-    label: '八卦',
-    description: '八方成局，萬象流轉。',
+    label: '\u7b2c\u56db\u5e55\uff5c\u516b\u5366\u9053\u5177\u51fa\u5834',
+    description: '\u516b\u500b\u5366\u8c61\u5728\u5916\u5708\u6d6e\u51fa\uff0c\u6307\u51fa\u65b9\u4f4d\uff0c\u4e0d\u906e\u4f4f\u4e2d\u5fc3\u592a\u6975\u3002',
     durationMs: 2400,
   },
 };
 
 const BAGUA_SYMBOLS = [
-  ['乾', '☰'],
-  ['兌', '☱'],
-  ['離', '☲'],
-  ['震', '☳'],
-  ['巽', '☴'],
-  ['坎', '☵'],
-  ['艮', '☶'],
-  ['坤', '☷'],
+  ['\u4e7e', '\u2630'],
+  ['\u5157', '\u2631'],
+  ['\u96e2', '\u2632'],
+  ['\u9707', '\u2633'],
+  ['\u5dfd', '\u2634'],
+  ['\u574e', '\u2635'],
+  ['\u826e', '\u2636'],
+  ['\u5764', '\u2637'],
 ] as const;
-
 type UnifiedTaijiCoreProps = {
   active?: boolean;
   auraClass?: string;
@@ -66,7 +65,7 @@ export default function UnifiedTaijiCore({
 }: UnifiedTaijiCoreProps) {
   const [tapCount, setTapCount] = useState(0);
   const [evolutionStage, setEvolutionStage] = useState<EvolutionStage>('idle');
-  const [evolutionLabel, setEvolutionLabel] = useState('觸碰太極，觀察萬象演化');
+  const [evolutionLabel, setEvolutionLabel] = useState('AI \u5c0e\u6f14\u5f85\u547d\uff5c\u9ede\u64ca\u592a\u6975\u958b\u6f14');
   const [evolutionDescription, setEvolutionDescription] = useState('');
   const [mantraLevel, setMantraLevel] = useState<0 | 3 | 6 | 12 | 24>(0);
   const [touchPulse, setTouchPulse] = useState(0);
@@ -301,10 +300,10 @@ export default function UnifiedTaijiCore({
         type="button"
         onPointerUp={handlePointerUp}
         onClick={handleSafeClick}
-        aria-label="Taiji interaction"
+        aria-label="AI導演太極互動劇場"
         data-tap-count={tapCount}
         className={`modal-taiji-button taiji-evolution-stage stage-${evolutionStage} group ${auraClass}`}
-        title="觸碰太極，觀察一、二、四、八萬象演化；連點 3/6/12/24 觸發彩蛋"
+        title="點擊太極推進劇情：1 主角甦醒、2 陰陽登場、4 四象佈景、8 八卦道具出場"
       >
         {auraLabel && (
           <>
@@ -426,10 +425,10 @@ export default function UnifiedTaijiCore({
       </button>
 
       {showLabel && (
-        <p className="mt-8 min-h-[34px] text-center text-xs font-semibold tracking-[0.18em] text-cyan-100/85" aria-live="polite">
+        <p className="taiji-director-caption" aria-live="polite">
           {evolutionLabel}
           {evolutionDescription && (
-            <span className="mt-1 block text-[10px] tracking-[0.14em] text-amber-200/75">
+            <span className="taiji-director-caption__sub">
               {evolutionDescription}
             </span>
           )}

@@ -11,10 +11,11 @@ import { saveUserData, loadUserData } from '@/lib/storage';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
+import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import { safeJsonFetch } from '@/lib/safe-fetch';
 import type { NumberAnalysisResponse } from '@/lib/number-core-engine';
-import { FIVE_ELEMENT_DEFINITIONS, type FiveElementIntegrationResult } from '@/lib/five-element-engine';
+import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 
 interface PersonInput {
   name: string;
@@ -70,17 +71,6 @@ type AnalysisJobPublic = {
 
 type AnalysisJobApiResponse = { ok: boolean; success?: boolean; data?: AnalysisJobPublic; message?: string; error?: string };
 type AnalysisResultApiResponse<T> = { ok: boolean; success?: boolean; data?: T; message?: string; error?: string };
-const NUMBER_FORTUNE_FIVE_ELEMENT_COPY = {
-  cardTitle: '\u4e94\u5143\u7d20\u624b\u93c8\u88dc\u5f37',
-  verdictPrefix: '\u672c\u6b21\u5224\u5b9a\u4f60\u7f3a\uff1a',
-  elementSuffix: '\u5143\u7d20',
-  firstBraceletPrefix: '\u624b\u93c8\u5148\u88dc',
-  firstBraceletSuffix: '\u5143\u7d20\uff0c\u4e0d\u5148\u5206\u6563\u88dc\u5176\u4ed6\u5143\u7d20\u3002',
-  whyTitle: '\u70ba\u4ec0\u9ebc\u8981\u88dc\uff1f',
-  changeTitle: '\u88dc\u5f37\u5f8c\u6700\u5148\u6539\u8b8a',
-  changeBody: '\u5148\u8b93\u81ea\u5df1\u7684\u63d0\u9192\u3001\u9078\u64c7\u8207\u884c\u52d5\u7bc0\u594f\u958b\u59cb\u8abf\u6574\uff1b\u771f\u6b63\u7d50\u679c\u9084\u662f\u8981\u642d\u914d\u6301\u7e8c\u884c\u52d5\u3002',
-} as const;
-
 type SystemStatus = 'idle' | 'validating' | 'loading' | 'success' | 'recovering' | 'error';
 
 type EvolutionStage = 'idle' | 'taiji' | 'liangyi' | 'sixiang' | 'bagua';
@@ -92,7 +82,6 @@ type EvolutionConfig = {
   description: string;
   durationMs: number;
 };
-
 const EVOLUTION_CONFIG: Record<1 | 2 | 4 | 8, EvolutionConfig> = {
   1: {
     clickCount: 1,
@@ -1897,7 +1886,7 @@ export default function HomePage() {
           </div>
           <div className="home-core-panel relative flex w-full max-w-[360px] flex-col items-center justify-center">
             <div className="home-core-halo hidden" aria-hidden="true" />
-            <TaijiStandaloneCard />
+            <TaijiStandaloneCard className="home-taiji-cinema" showLabel />
             <div className="home-command-panel hidden mt-5 w-full">
               <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
                 <span className="text-[10px] font-black uppercase tracking-[0.28em] text-cyan-200">Command Sync</span>
@@ -3096,41 +3085,7 @@ export default function HomePage() {
                   </p>
                 </div>
 
-                {fortuneResult.fiveElement && (
-                  <div className="rounded-2xl border border-rose-300/25 bg-rose-500/10 p-4 text-sm leading-7">
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-200">{NUMBER_FORTUNE_FIVE_ELEMENT_COPY.cardTitle}</p>
-                    <p className="mt-2 text-xl font-black text-amber-100">
-                      {NUMBER_FORTUNE_FIVE_ELEMENT_COPY.verdictPrefix}{FIVE_ELEMENT_DEFINITIONS[fortuneResult.fiveElement.primaryElement].displayZh}{NUMBER_FORTUNE_FIVE_ELEMENT_COPY.elementSuffix}
-                    </p>
-                    <p className="mt-2 font-black text-rose-100">
-                      {NUMBER_FORTUNE_FIVE_ELEMENT_COPY.firstBraceletPrefix} {FIVE_ELEMENT_DEFINITIONS[fortuneResult.fiveElement.primaryElement].displayZh} {NUMBER_FORTUNE_FIVE_ELEMENT_COPY.firstBraceletSuffix}
-                    </p>
-                    <p className="mt-2 text-xs font-semibold text-[color:var(--text-sub)]">{fortuneResult.fiveElement.summary}</p>
-                    <div className="mt-3 rounded-xl border border-white/10 bg-black/15 p-3">
-                      <p className="text-xs font-black text-cyan-100">{NUMBER_FORTUNE_FIVE_ELEMENT_COPY.whyTitle}</p>
-                      <div className="mt-2 space-y-1.5">
-                        {fortuneResult.fiveElement.reasons.slice(0, 5).map((reason) => (
-                          <p key={reason} className="text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{reason}</p>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="mt-3 rounded-xl border border-emerald-200/15 bg-emerald-400/10 p-3">
-                      <p className="text-xs font-black text-emerald-100">{NUMBER_FORTUNE_FIVE_ELEMENT_COPY.changeTitle}</p>
-                      <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
-                        {fortuneResult.fiveElement.decision.changeTarget}
-                      </p>
-                    </div>
-                    <div className="mt-3 space-y-2">
-                      {fortuneResult.fiveElement.productMatch.matchReason.slice(0, 3).map((reason) => (
-                        <p key={reason} className="rounded-xl border border-amber-200/15 bg-black/15 px-3 py-2 text-xs font-bold leading-6 text-amber-100">{reason}</p>
-                      ))}
-                    </div>
-                    <p className="mt-3 text-xs font-semibold text-[color:var(--text-sub)]">{fortuneResult.fiveElement.productRecommendation.braceletCore}</p>
-                    <button type="button" className="mt-3 w-full rounded-xl border border-amber-200/30 bg-amber-300/12 px-3 py-2 text-xs font-black text-amber-100">
-                      {fortuneResult.fiveElement.productRecommendation.ctaLabel}
-                    </button>
-                  </div>
-                )}
+                <FiveElementPriorityCard result={fortuneResult.fiveElement} />
 
                 <div className="h-px bg-cyan-500/10" />
 

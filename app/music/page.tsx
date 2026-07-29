@@ -7,6 +7,8 @@ import PersonalityMusicReport from '@/components/PersonalityMusicReport';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
+import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 
 interface SongTrack {
   title: string;
@@ -60,6 +62,7 @@ interface MusicGenerateResponse {
   };
   production_plan?: ProductionPlan;
   voice_profile?: VoiceProfile;
+  fiveElement?: FiveElementIntegrationResult;
   fusion_song?: {
     fusion_title: string;
     fusion_concept: string;
@@ -452,6 +455,10 @@ export default function MusicSystemPage() {
               )}
             </section>
           )}
+
+          <div className="mb-6">
+            <FiveElementPriorityCard result={result.fiveElement} />
+          </div>
 
           <PersonalityMusicReport
             personalityMatrix={(result?.personality_matrix ?? {}) as any}

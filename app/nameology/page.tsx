@@ -6,7 +6,8 @@ import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
 import type { BloodType, Gender } from '@/lib/types';
 import type { NameologyAnalysis } from '@/lib/nameology-engine';
-import { FIVE_ELEMENT_DEFINITIONS, type FiveElementIntegrationResult, type FiveElementKey } from '@/lib/five-element-engine';
+import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
+import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 
 type NameologyResponse = {
@@ -44,164 +45,13 @@ const BLOOD_DESC: Record<Exclude<BloodType, ''>, string> = {
   O: '主動直接，行動力、號召力與外放感較強。',
 };
 
-function FiveElementReinforcementCard({ result }: { result: FiveElementIntegrationResult }) {
-  const primary = FIVE_ELEMENT_DEFINITIONS[result.primaryElement];
-  const secondary = FIVE_ELEMENT_DEFINITIONS[result.secondaryElement];
-  const strong = FIVE_ELEMENT_DEFINITIONS[result.strongElement];
-  const avoid = result.avoidElement ? FIVE_ELEMENT_DEFINITIONS[result.avoidElement] : null;
-  const scoreEntries = (Object.entries(result.elementScores) as Array<[FiveElementKey, FiveElementIntegrationResult['elementScores'][FiveElementKey]]>)
-    .sort(([, a], [, b]) => b.need - a.need);
-  const product = result.productRecommendation;
-  const quote = result.positiveQuote;
-  const title = '\u4f60\u76ee\u524d\u6700\u9700\u8981\u88dc\uff1a';
-  const sourceLabel = 'AI\u59d3\u540d\u5b78';
-  const primaryLabel = '\u672c\u6b21\u5fc5\u88dc';
-  const secondaryLabel = '\u7b2c\u4e8c\u9806\u4f4d\uff0c\u4e0d\u5148\u88dc';
-  const strongLabel = '\u76ee\u524d\u8f03\u5f37';
-  const avoidLabel = '\u672c\u6b21\u5148\u4e0d\u88dc';
-  const elementSuffix = '\u5143\u7d20';
-  const supportText = '\u9019\u500b\u5143\u7d20\u5df2\u7d93\u8f03\u5f37\uff0c\u672c\u6b21\u5148\u4e0d\u88dc\u3002';
-  const noElementText = '\u7121';
-  const noAvoidText = '\u6c92\u6709\u904e\u5f37\u5143\u7d20\uff1b\u672c\u6b21\u53ea\u9700\u5c08\u5fc3\u88dc\u7b2c\u4e00\u5143\u7d20';
-  const detailTitle = '\u67e5\u770b\u5206\u6790\u539f\u56e0';
-  const needLabel = '\u88dc\u5f37';
-  const strengthLabel = '\u5f37\u5ea6';
-  const evidenceLabel = '\u8b49\u64da';
-  const actionTitle = '\u53ef\u7acb\u5373\u63a1\u53d6\u7684\u884c\u52d5';
-  const disclaimer = '\u7d50\u8ad6\u660e\u78ba\uff0c\u4f46\u4e0d\u4fdd\u8b49\u6539\u904b\u6216\u7642\u6548\uff1b\u5546\u54c1\u8207\u65b9\u6848\u53ea\u4f5c\u70ba\u5f8c\u7e8c\u9078\u9805\uff0c\u4e0d\u53c3\u8207\u547d\u7406\u8a55\u5206\u3002';
-  const productLabel = '\u4e94\u5143\u7d20\u80fd\u91cf\u624b\u93c8\u88dc\u5f37\u65b9\u6848';
-  const quoteLabel = '\u6700\u5f8c\u7684\u6b63\u5411\u63d0\u9192';
-
-  return (
-    <section className="fortune-card overflow-hidden border-cyan-300/25 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.16),rgba(251,191,36,0.1)_42%,rgba(15,23,42,0.78)_100%)] p-5 sm:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-200">FIVE ELEMENT</p>
-          <h2 className="mt-2 font-serif text-2xl font-black text-amber-100 sm:text-3xl">{title}{primary.displayZh}{elementSuffix}</h2>
-        </div>
-        <span className="rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs font-bold text-amber-100">
-          {sourceLabel}
-        </span>
-      </div>
-
-      <div className="mt-5 rounded-2xl border border-amber-200/25 bg-black/20 p-4 text-center">
-        <p className="text-xs font-bold text-[color:var(--text-muted)]">{primaryLabel}</p>
-        <p className="mt-2 font-serif text-5xl font-black leading-none text-amber-200 sm:text-6xl">{primary.displayZh}</p>
-        <p className="mt-3 text-sm font-bold leading-7 text-[color:var(--text-main)]">{result.summary}</p>
-        <div className="mt-4 rounded-2xl border border-rose-200/25 bg-rose-500/10 p-4 text-left">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-100">{result.decision.title}</p>
-          <p className="mt-2 text-base font-black leading-7 text-rose-50">{result.decision.conclusion}</p>
-          <p className="mt-2 text-sm font-bold leading-7 text-amber-100">{result.decision.changeTarget}</p>
-          {result.decision.conflictNote && (
-            <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{result.decision.conflictNote}</p>
-          )}
-        </div>
-        <div className="mt-3 flex flex-wrap justify-center gap-2">
-          {result.keywords.map((keyword) => (
-            <span key={keyword} className="rounded-full border border-cyan-200/25 bg-cyan-300/10 px-3 py-1 text-xs font-bold text-cyan-100">
-              {keyword}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-          <p className="text-xs font-bold text-cyan-100">{secondaryLabel}</p>
-          <p className="mt-1 text-lg font-black text-cyan-50">{secondary.displayZh}{elementSuffix}</p>
-          <p className="mt-1 text-xs leading-5 text-[color:var(--text-muted)]">{secondary.keywords.slice(0, 3).join('\u3001')}</p>
-        </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-          <p className="text-xs font-bold text-emerald-100">{strongLabel}</p>
-          <p className="mt-1 text-lg font-black text-emerald-50">{strong.displayZh}{elementSuffix}</p>
-          <p className="mt-1 text-xs leading-5 text-[color:var(--text-muted)]">{supportText}</p>
-        </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-          <p className="text-xs font-bold text-rose-100">{avoidLabel}</p>
-          <p className="mt-1 text-lg font-black text-rose-50">{avoid ? avoid.displayZh + elementSuffix : noElementText}</p>
-          <p className="mt-1 text-xs leading-5 text-[color:var(--text-muted)]">{avoid ? avoid.caution : noAvoidText}</p>
-        </div>
-      </div>
-
-
-      <div className="mt-4 rounded-2xl border border-amber-200/25 bg-amber-300/10 p-4">
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-200">{productLabel}</p>
-        <h3 className="mt-2 text-2xl font-black text-amber-50">{product.title}</h3>
-        <p className="mt-2 text-sm font-black leading-7 text-amber-100">{product.headline}</p>
-        <p className="mt-3 rounded-xl border border-rose-200/25 bg-rose-500/10 px-3 py-2 text-sm font-black leading-7 text-rose-100">{product.braceletCore}</p>
-        <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{product.description}</p>
-        <div className="mt-3 space-y-2">
-          {result.productMatch.matchReason.slice(0, 3).map((reason) => (
-            <p key={reason} className="rounded-xl border border-amber-200/15 bg-black/15 px-3 py-2 text-xs font-bold leading-6 text-amber-100">{reason}</p>
-          ))}
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {product.supportDirections.map((item) => (
-            <span key={item} className="rounded-full border border-amber-200/25 bg-black/18 px-3 py-1 text-xs font-black text-amber-100">{item}</span>
-          ))}
-        </div>
-        <button type="button" className="mt-4 w-full rounded-2xl border border-amber-200/35 bg-amber-300/14 px-4 py-3 text-sm font-black text-amber-50 transition hover:border-amber-100/60">
-          {product.ctaLabel}
-        </button>
-        <p className="mt-3 text-[11px] font-semibold leading-5 text-[color:var(--text-muted)]">{product.disclaimer}</p>
-      </div>
-
-      <details className="mt-4 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-        <summary className="cursor-pointer text-sm font-black text-amber-100">{detailTitle}</summary>
-        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <div className="space-y-2">
-            {result.reasons.map((reason) => (
-              <p key={reason} className="rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{reason}</p>
-            ))}
-          </div>
-          <div className="space-y-2">
-            {scoreEntries.map(([element, score]) => {
-              const definition = FIVE_ELEMENT_DEFINITIONS[element];
-              return (
-                <div key={element} className="rounded-xl border border-white/10 bg-black/15 p-3">
-                  <div className="flex items-center justify-between gap-3 text-xs font-bold">
-                    <span className="text-[color:var(--text-main)]">{definition.displayZh}{elementSuffix}</span>
-                    <span className="text-cyan-100">{needLabel} {score.need}</span>
-                  </div>
-                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
-                    <span className="block h-full rounded-full bg-cyan-300" style={{ width: score.need + '%' }} />
-                  </div>
-                  <p className="mt-1 text-[11px] text-[color:var(--text-muted)]">{strengthLabel} {score.strength} / {evidenceLabel} {score.evidenceCount}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-        <div className="mt-4 space-y-2">
-          <p className="text-xs font-black text-cyan-100">{actionTitle}</p>
-          {result.recommendedActions.map((action) => (
-            <p key={action} className="text-sm leading-7 text-[color:var(--text-sub)]">{action}</p>
-          ))}
-        </div>
-      </details>
-
-      <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4">
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-100">{quoteLabel}</p>
-        <blockquote className="mt-3 text-lg font-black leading-8 text-cyan-50">\"{quote.quote}\"</blockquote>
-        <p className="mt-2 text-sm font-bold text-amber-100">{quote.author} ? {quote.role}</p>
-        <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{quote.elementFit}</p>
-        <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-muted)]">{quote.reminder}</p>
-        <a href={quote.sourceUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-[11px] font-bold text-cyan-200 underline-offset-4 hover:underline">
-          {quote.sourceName}
-        </a>
-      </div>
-      <p className="mt-3 text-[11px] leading-5 text-[color:var(--text-muted)]">{disclaimer}</p>
-    </section>
-  );
-}
-
 function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; fiveElement: FiveElementIntegrationResult }) {
   const topTendencies = analysis.temperamentProfile.topTendencies.slice(0, 4);
   const givenName = analysis.composition.givenName || analysis.name.slice(1);
 
   return (
     <section className="space-y-5">
-      <FiveElementReinforcementCard result={fiveElement} />
+      <FiveElementPriorityCard result={fiveElement} />
 
       <div className="fortune-card overflow-hidden border-amber-400/25 bg-slate-950/55 p-6 text-center sm:p-8">
         <p className="text-xs font-bold uppercase tracking-[0.32em] text-amber-300">AI 姓名學</p>

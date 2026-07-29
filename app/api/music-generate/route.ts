@@ -11,6 +11,7 @@ import { getZodiacEnglishName, getZodiacSign } from '@/lib/zodiac';
 import { isValidBirthday } from '@/lib/validation';
 import { computeShichenProfile } from '@/lib/shichen-engine';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
+import { buildMusicFiveElementResult } from '@/lib/five-element-engine';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -478,6 +479,18 @@ export async function POST(request: Request) {
     fusionSong,
   });
 
+  const fiveElement = buildMusicFiveElementResult({
+    analysisId: ['music', birthDate, bloodType, gender, shichen ?? 'unknown', songEnergyStyle].join(':'),
+    personalityMatrix: Object.fromEntries(Object.entries(personalityMatrix)) as Record<string, number>,
+    dominantWuxing: destinyProfile.dominantWuxing,
+    shichenElement: shichenProfile.wuxing,
+    bpm: finalMusicParameters.bpm,
+    genre: finalMusicParameters.genre,
+    mood: finalMusicParameters.mood,
+    lyricThemes: finalMusicParameters.lyric_theme,
+    vocalStyle: finalMusicParameters.vocal_style,
+  });
+
     const resultPayload = {
       personality_matrix: personalityMatrix,
       music_parameters: finalMusicParameters,
@@ -486,6 +499,7 @@ export async function POST(request: Request) {
       fusion_song: fusionSong,
       production_plan: productionPlan,
       voice_profile: voiceWorkflow.profile,
+      fiveElement,
       english_track: {
         title: englishTrack.title,
         artist: englishTrack.artist,

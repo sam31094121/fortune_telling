@@ -57,7 +57,7 @@ export type FiveElementEvidence = {
 };
 
 export type ModuleFiveElementResult = {
-  sourceModule: 'nameology' | 'insight' | 'number' | 'bazi';
+  sourceModule: 'nameology' | 'insight' | 'number' | 'bazi' | 'music';
   analysisId: string;
   elementScores: Record<FiveElementKey, FiveElementScore>;
   primaryElement: FiveElementKey;
@@ -66,14 +66,14 @@ export type ModuleFiveElementResult = {
   avoidElement: FiveElementKey | null;
   confidence: FiveElementConfidence;
   evidence: FiveElementEvidence[];
-  ruleVersion: 'nameology_element_v1' | 'insight_element_v1' | 'number_element_v1' | 'bazi_element_v1';
+  ruleVersion: 'nameology_element_v1' | 'insight_element_v1' | 'number_element_v1' | 'bazi_element_v1' | 'music_element_v1';
 };
 
 export type FiveElementIntegrationResult = ModuleFiveElementResult & {
   conflict: boolean;
   supportingModules: string[];
   moduleResults: Array<{
-    module: 'nameology' | 'insight' | 'bazi' | 'annual' | 'number';
+    module: 'nameology' | 'insight' | 'bazi' | 'annual' | 'number' | 'music';
     primaryElement: FiveElementKey;
     confidence: FiveElementConfidence;
   }>;
@@ -718,6 +718,133 @@ export function buildBaziFiveElementResult(input: BaziFiveElementInput): FiveEle
   });
 }
 
+export type MusicFiveElementInput = {
+  analysisId: string;
+  personalityMatrix: Record<string, number>;
+  dominantWuxing?: string | null;
+  shichenElement?: string | null;
+  bpm: number;
+  genre: string;
+  mood: string[];
+  lyricThemes: string[];
+  vocalStyle: string;
+};
+
+const MUSIC_MATRIX_TO_ELEMENT: Record<FiveElementKey, string[]> = {
+  metal: ['logic', 'discipline', 'execution', 'conscientiousness', 'precision', 'focus'],
+  wood: ['creativity', 'growth', 'openness', 'learning', 'innovation', 'adaptability'],
+  water: ['empathy', 'intuition', 'agreeableness', 'sensitivity', 'flow', 'healing'],
+  fire: ['action', 'visibility', 'extraversion', 'confidence', 'energy', 'ambition'],
+  earth: ['stability', 'security', 'resilience', 'balance', 'grounding', 'warmth'],
+};
+
+function averageMusicMatrix(matrix: Record<string, number>, keys: string[]) {
+  const values = keys
+    .map((key) => Number(matrix[key]))
+    .filter((value) => Number.isFinite(value));
+  if (!values.length) return 48;
+  return clampScore(values.reduce((sum, value) => sum + value, 0) / values.length);
+}
+
+function musicElementFromText(value?: string | null): FiveElementKey | null {
+  if (!value) return null;
+  const text = String(value).toLowerCase();
+  return ELEMENT_KEYS.find((key) => {
+    const definition = FIVE_ELEMENT_DEFINITIONS[key];
+    return text.includes(key) || value.includes(definition.zh) || value.includes(definition.displayZh);
+  }) ?? null;
+}
+
+export function buildMusicFiveElementResult(input: MusicFiveElementInput): FiveElementIntegrationResult {
+  const evidence: FiveElementEvidence[] = [];
+  const strength = Object.fromEntries(
+    ELEMENT_KEYS.map((key) => [key, averageMusicMatrix(input.personalityMatrix, MUSIC_MATRIX_TO_ELEMENT[key])]),
+  ) as Record<FiveElementKey, number>;
+
+  const dominantElement = musicElementFromText(input.dominantWuxing);
+  const shichenElement = musicElementFromText(input.shichenElement);
+  if (dominantElement) addScore(strength, dominantElement, 12);
+  if (shichenElement) addScore(strength, shichenElement, 6);
+
+  const musicText = [input.genre, input.vocalStyle, ...input.mood, ...input.lyricThemes].join(' ').toLowerCase();
+  if (input.bpm >= 124 || musicText.includes('edm') || musicText.includes('dance') || musicText.includes('club')) addScore(strength, 'fire', 8);
+  if (input.bpm <= 88 || musicText.includes('emotional') || musicText.includes('healing') || musicText.includes('cinematic')) addScore(strength, 'water', 6);
+  if (musicText.includes('piano') || musicText.includes('warm') || musicText.includes('ambient')) addScore(strength, 'earth', 5);
+  if (musicText.includes('hook') || musicText.includes('creative') || musicText.includes('short_form')) addScore(strength, 'wood', 5);
+  if (musicText.includes('precision') || musicText.includes('producer') || musicText.includes('arrangement')) addScore(strength, 'metal', 5);
+
+  const rawNeed = Object.fromEntries(ELEMENT_KEYS.map((key) => [key, 100 - strength[key]])) as Record<FiveElementKey, number>;
+  ELEMENT_KEYS.forEach((key) => {
+    const generatedBy = ELEMENT_KEYS.find((source) => GENERATES[source] === key);
+    if (generatedBy && strength[generatedBy] >= 72) rawNeed[key] -= 4;
+    const controllingElement = ELEMENT_KEYS.find((source) => CONTROLS[source] === key);
+    if (controllingElement && strength[controllingElement] >= 74) rawNeed[key] += 6;
+    if (strength[key] < 45) rawNeed[key] += 12;
+  });
+
+  const elementScores = Object.fromEntries(
+    ELEMENT_KEYS.map((key) => [key, {
+      strength: clampScore(strength[key]),
+      need: clampScore(rawNeed[key]),
+      evidenceCount: 2 + (dominantElement === key ? 1 : 0) + (shichenElement === key ? 1 : 0),
+    }]),
+  ) as Record<FiveElementKey, FiveElementScore>;
+
+  const needRanking = [...ELEMENT_KEYS].sort((a, b) => elementScores[b].need - elementScores[a].need || elementScores[a].strength - elementScores[b].strength);
+  const strengthRanking = [...ELEMENT_KEYS].sort((a, b) => elementScores[b].strength - elementScores[a].strength);
+  const primaryElement = needRanking[0];
+  const secondaryElement = needRanking.find((key) => key !== primaryElement) ?? needRanking[1];
+  const strongElement = strengthRanking[0];
+  const avoidElement = elementScores[strongElement].strength >= 82 && elementScores[strongElement].need <= 30 ? strongElement : null;
+  const primaryDefinition = FIVE_ELEMENT_DEFINITIONS[primaryElement];
+  const confidence: FiveElementConfidence = dominantElement || shichenElement ? 'high' : 'medium';
+
+  evidence.push({
+    module: 'music',
+    title: '\u97f3\u6a02\u4eba\u683c\u77e9\u9663\u5224\u5b9a' + getFiveElementName(primaryElement) + '\u662f\u7b2c\u4e00\u7f3a\u53e3',
+    detail: '\u7cfb\u7d71\u5df2\u628a\u4eba\u683c\u77e9\u9663\u3001\u751f\u65e5\u4e94\u884c\u3001\u6642\u8fb0\u8207\u6b4c\u66f2\u98a8\u683c\u4ea4\u53c9\u904b\u7b97\uff0c' + getFiveElementName(primaryElement) + '\u7684\u88dc\u5f37\u9700\u6c42\u6700\u9ad8\u3002',
+    element: primaryElement,
+    impact: 'need',
+  });
+
+  if (dominantElement) {
+    evidence.push({
+      module: 'music',
+      title: '\u751f\u65e5\u4e94\u884c\u7d0d\u5165\u97f3\u6a02\u88dc\u5f37\u6b0a\u91cd',
+      detail: '\u672c\u6b21\u751f\u65e5\u4e3b\u8abf\u70ba' + getFiveElementName(dominantElement) + '\uff0c\u5df2\u7d0d\u5165\u6b4c\u66f2\u6c23\u8cea\u8207\u88dc\u5f37\u5224\u5b9a\u3002',
+      element: dominantElement,
+      impact: 'balance',
+    });
+  }
+
+  return enrichFiveElementResult({
+    sourceModule: 'music',
+    analysisId: input.analysisId,
+    elementScores,
+    primaryElement,
+    secondaryElement,
+    strongElement,
+    avoidElement,
+    confidence,
+    conflict: elementScores[primaryElement].need - elementScores[secondaryElement].need <= 5,
+    supportingModules: ['music', 'personalityMatrix', 'songStyle'],
+    moduleResults: [{ module: 'music', primaryElement, confidence }],
+    evidence,
+    ruleVersion: 'music_element_v1',
+    summary: '\u672c\u6b21 AI \u97f3\u6a02\u7d71\u8a08\u5224\u5b9a\uff1a\u4f60\u7f3a' + getFiveElementName(primaryElement) + '\uff0c\u4e00\u5b9a\u8981\u5148\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002\u624b\u93c8\u88dc\u5f37\u5148\u9078' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\uff0c\u518d\u642d\u914d\u97f3\u6a02\u88e1\u7684\u60c5\u7dd2\u7df4\u7fd2\u8207\u884c\u52d5\u3002',
+    keywords: primaryDefinition.keywords.slice(0, 4),
+    reasons: [
+      '\u97f3\u6a02\u4eba\u683c\u77e9\u9663\u986f\u793a' + getFiveElementName(primaryElement) + '\u662f\u76ee\u524d\u7b2c\u4e00\u88dc\u5f37\u9806\u4f4d\u3002',
+      '\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u6703\u5148\u6539\u8b8a\uff1a' + getElementChangeTarget(primaryElement),
+      '\u7b2c\u4e8c\u9806\u4f4d\u662f' + getFiveElementName(secondaryElement) + '\uff0c\u4f46\u672c\u6b21\u4e0d\u5206\u6563\uff0c\u5148\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002',
+      avoidElement ? getFiveElementName(avoidElement) + '\u5df2\u7d93\u8f03\u5f37\uff0c\u672c\u6b21\u5148\u4e0d\u88dc\u5b83\u3002' : getFiveElementName(strongElement) + '\u662f\u76ee\u524d\u8f03\u5f37\u652f\u6490\uff0c\u672c\u6b21\u5148\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002',
+    ],
+    recommendedActions: actionFor(primaryElement),
+    productEntryLabel: '\u9078\u64c7' + getFiveElementName(primaryElement) + '\u80fd\u91cf\u624b\u93c8',
+    productRecommendation: getFiveElementProductRecommendation(primaryElement),
+    positiveQuote: getFiveElementPositiveQuote(primaryElement),
+  });
+}
 const NUMBER_DIGIT_TO_ELEMENT: Record<string, FiveElementKey> = {
   '0': 'water',
   '1': 'water',
