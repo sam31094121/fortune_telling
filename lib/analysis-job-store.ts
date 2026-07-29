@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
+import { getModuleByAnalysisType, moduleIdForAnalysisType, type AnalysisModuleId, type AnalysisType } from './analysis-module-router';
 
 export type AnalysisJobStatus = 'IDLE' | 'VALIDATING' | 'QUEUED' | 'PROCESSING' | 'FINALIZING' | 'COMPLETED' | 'FAILED' | 'TIMEOUT' | 'CANCELLED';
 
@@ -14,12 +15,11 @@ export type AnalysisProgressStage =
   | 'TIMEOUT'
   | 'CANCELLED';
 
-export type AnalysisType = 'number' | 'nameology' | 'insight' | 'match' | 'music' | 'element';
-
 export type AnalysisJob = {
   id: string;
   jobId: string;
   analysisType: AnalysisType;
+  moduleId: AnalysisModuleId;
   userId: string | null;
   sessionId: string | null;
   idempotencyKey: string;
@@ -94,17 +94,19 @@ export function createAnalysisJob(input: {
   }
 
   const createdAt = nowIso();
+  const module = getModuleByAnalysisType(input.analysisType);
   const job: AnalysisJob = {
     id: randomUUID(),
     jobId: 'job_' + randomUUID(),
     analysisType: input.analysisType,
+    moduleId: moduleIdForAnalysisType(input.analysisType),
     userId: input.userId ?? null,
     sessionId: input.sessionId ?? null,
     idempotencyKey,
     status: 'QUEUED',
     progressStage: 'WAITING_FOR_WORKER',
     progressPercent: null,
-    message: '\u5df2\u6536\u5230\u5206\u6790\u8acb\u6c42\uff0c\u6b63\u5728\u5b89\u6392\u771f\u5be6\u904b\u7b97\u3002',
+    message: module?.loadingCopy.queued ?? '\u5df2\u6536\u5230\u5206\u6790\u8acb\u6c42\uff0c\u6b63\u5728\u5b89\u6392\u771f\u5be6\u904b\u7b97\u3002',
     requestPayloadHash,
     resultId: null,
     errorCode: null,
@@ -188,6 +190,7 @@ export function publicAnalysisJob(job: AnalysisJob) {
   return {
     jobId: job.jobId,
     analysisType: job.analysisType,
+    moduleId: job.moduleId,
     status: job.status,
     progressStage: job.progressStage,
     progressPercent: job.progressPercent,

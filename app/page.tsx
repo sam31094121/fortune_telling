@@ -8,6 +8,7 @@ import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
+import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
@@ -1315,6 +1316,7 @@ export default function HomePage() {
       }
 
       setFortuneResult(data);
+      markGrowthModuleCompleted('number');
       setFortuneError('');
       setFortuneStatus('success');
       window.setTimeout(() => {
@@ -2083,6 +2085,38 @@ export default function HomePage() {
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-950/30 px-5 py-3 text-xs font-bold text-indigo-200 transition group-hover:bg-indigo-500/25">
               <span>立即開啟紫微</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
+            </div>
+          </Link>
+
+          <Link
+            href="/bazi"
+            className="home-feature-launch home-feature-emerald order-6 w-full relative group overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-emerald-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-500 hover:border-emerald-400 hover:shadow-[0_0_50px_rgba(16,185,129,0.26)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+
+            <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-950/40 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)] animate-spin-slow">
+                <span className="text-2xl font-serif">{'\u8fb0'}</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="inline-block rounded-full bg-emerald-500/10 border border-emerald-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-emerald-300 uppercase animate-pulse">
+                  {'AI · 八字命盤'}
+                </span>
+                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-emerald-100 tracking-wide flex items-center gap-2">
+                  <span>{'AI 八字命盤'}</span>
+                  <span className="text-xs font-sans text-emerald-300 font-normal opacity-85 hidden sm:inline">
+                    {'// \u516b\u5b57\u56db\u67f1 \u00b7 \u4e94\u5143\u7d20\u88dc\u5f37 \u00b7 \u76f8\u751f\u76f8\u524b'}
+                  </span>
+                </h2>
+                <p className="mt-1 text-xs text-[color:var(--text-sub)]">
+                  {'獨立八字排盤，整理四柱、藏干、十神、旺衰、大運與流年。'}
+                </p>
+              </div>
+            </div>
+
+            <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-950/30 px-5 py-3 text-xs font-bold text-emerald-200 transition group-hover:bg-emerald-500/25">
+              <span>{'立即開啟命盤'}</span>
+              <span className="transition-transform group-hover:translate-x-1.5">{'\u279c'}</span>
             </div>
           </Link>
         </div>

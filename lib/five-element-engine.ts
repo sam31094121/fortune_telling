@@ -57,7 +57,7 @@ export type FiveElementEvidence = {
 };
 
 export type ModuleFiveElementResult = {
-  sourceModule: 'nameology' | 'insight' | 'number';
+  sourceModule: 'nameology' | 'insight' | 'number' | 'bazi';
   analysisId: string;
   elementScores: Record<FiveElementKey, FiveElementScore>;
   primaryElement: FiveElementKey;
@@ -66,7 +66,7 @@ export type ModuleFiveElementResult = {
   avoidElement: FiveElementKey | null;
   confidence: FiveElementConfidence;
   evidence: FiveElementEvidence[];
-  ruleVersion: 'nameology_element_v1' | 'insight_element_v1' | 'number_element_v1';
+  ruleVersion: 'nameology_element_v1' | 'insight_element_v1' | 'number_element_v1' | 'bazi_element_v1';
 };
 
 export type FiveElementIntegrationResult = ModuleFiveElementResult & {
@@ -283,6 +283,9 @@ function buildElementDecision(result: Pick<FiveElementIntegrationResult, 'elemen
   const primaryNeed = result.elementScores[result.primaryElement].need;
   const secondaryNeed = result.elementScores[result.secondaryElement].need;
   const gap = Math.max(0, primaryNeed - secondaryNeed);
+  const whyText = gap === 0
+    ? '\u56e0\u70ba' + primaryName + '\u8207\u7b2c\u4e8c\u9806\u4f4d' + secondaryName + '\u88dc\u5f37\u9700\u6c42\u540c\u70ba ' + primaryNeed + ' \u5206\uff1b\u5f8c\u7aef\u4f9d\u4f86\u6e90\u6b0a\u91cd\u3001\u4e94\u884c\u751f\u524b\u8207\u4e3b\u88dc\u898f\u5247\uff0c\u4ecd\u5224\u5b9a' + primaryName + '\u662f\u552f\u4e00\u4e3b\u88dc\u3002\u76ee\u524d\u8f03\u5f37\u652f\u6490\u662f' + strongName + '\uff0c\u672c\u6b21\u5148\u4e0d\u628a\u5b83\u7576\u4e3b\u88dc\u3002\u5dee\u8ddd\uff1a0 \u5206\u3002'
+    : '\u56e0\u70ba' + primaryName + '\u88dc\u5f37\u9700\u6c42\u70ba ' + primaryNeed + ' \u5206\uff0c\u9ad8\u65bc\u7b2c\u4e8c\u9806\u4f4d' + secondaryName + ' ' + secondaryNeed + ' \u5206\uff1b\u76ee\u524d\u8f03\u5f37\u652f\u6490\u662f' + strongName + '\uff0c\u672c\u6b21\u5148\u4e0d\u628a\u5b83\u7576\u4e3b\u88dc\u3002\u5dee\u8ddd\uff1a' + gap + ' \u5206\u3002';
   const conflictNote = result.conflict
     ? '\u7b2c\u4e8c\u9806\u4f4d\u8207\u7b2c\u4e00\u9806\u4f4d\u63a5\u8fd1\uff0c\u7cfb\u7d71\u5df2\u555f\u7528\u885d\u7a81\u89e3\u6c7a\uff1a\u4ecd\u4ee5\u88dc\u5f37\u9700\u6c42\u6700\u9ad8\u7684' + primaryName + '\u4f5c\u70ba\u552f\u4e00\u4e3b\u88dc\uff0c\u4e0d\u628a\u7b2c\u4e8c\u9806\u4f4d\u5beb\u6210\u4e3b\u88dc\u3002'
     : null;
@@ -292,7 +295,7 @@ function buildElementDecision(result: Pick<FiveElementIntegrationResult, 'elemen
     conclusion: '\u5f8c\u7aef\u7d71\u4e00\u5224\u5b9a\uff1a\u4f60\u76ee\u524d\u6700\u7f3a' + primaryName + '\uff0c\u624b\u93c8\u5148\u88dc' + primaryShort + '\u5143\u7d20\u3002',
     primaryAction: '\u5148\u9078' + primaryShort + '\u5143\u7d20\u624b\u93c8\uff0c\u4e0d\u5148\u5206\u6563\u88dc\u5176\u4ed6\u5143\u7d20\u3002',
     changeTarget: getElementChangeTarget(result.primaryElement),
-    why: '\u56e0\u70ba' + primaryName + '\u88dc\u5f37\u9700\u6c42\u70ba ' + primaryNeed + ' \u5206\uff0c\u9ad8\u65bc\u7b2c\u4e8c\u9806\u4f4d' + secondaryName + ' ' + secondaryNeed + ' \u5206\uff1b\u76ee\u524d\u8f03\u5f37\u652f\u6490\u662f' + strongName + '\uff0c\u672c\u6b21\u5148\u4e0d\u628a\u5b83\u7576\u4e3b\u88dc\u3002\u5dee\u8ddd\uff1a' + gap + ' \u5206\u3002',
+    why: whyText,
     conflictNote,
   };
 }
@@ -618,6 +621,102 @@ export function buildInsightFiveElementResult(input: InsightFiveElementInput): F
   });
 }
 
+
+
+export type BaziFiveElementInput = {
+  analysisId: string;
+  elementEnergy: Record<FiveElementKey, number>;
+  elementCounts: Record<string, number>;
+  dayMasterElement: FiveElementKey;
+  shichenElement: FiveElementKey;
+};
+
+export function buildBaziFiveElementResult(input: BaziFiveElementInput): FiveElementIntegrationResult {
+  const evidence: FiveElementEvidence[] = [];
+  const rawNeed = Object.fromEntries(ELEMENT_KEYS.map((key) => [key, 100 - clampScore(input.elementEnergy[key])])) as Record<FiveElementKey, number>;
+
+  ELEMENT_KEYS.forEach((key) => {
+    const traditionalName = FIVE_ELEMENT_DEFINITIONS[key].zh;
+    const count = Number(input.elementCounts[traditionalName] ?? 0);
+    if (count <= 1) rawNeed[key] += 22;
+    if (key === input.dayMasterElement) rawNeed[key] -= 8;
+    if (key === input.shichenElement) rawNeed[key] -= 4;
+    const generatedBy = ELEMENT_KEYS.find((source) => GENERATES[source] === key);
+    if (generatedBy && input.elementEnergy[generatedBy] >= 70) rawNeed[key] -= 5;
+    const controllingElement = ELEMENT_KEYS.find((source) => CONTROLS[source] === key);
+    if (controllingElement && input.elementEnergy[controllingElement] >= 72) rawNeed[key] += 7;
+  });
+
+  const elementScores = Object.fromEntries(
+    ELEMENT_KEYS.map((key) => {
+      const traditionalName = FIVE_ELEMENT_DEFINITIONS[key].zh;
+      const count = Number(input.elementCounts[traditionalName] ?? 0);
+      return [key, {
+        strength: clampScore(input.elementEnergy[key]),
+        need: clampScore(rawNeed[key]),
+        evidenceCount: 1 + (count <= 1 ? 1 : 0) + (key === input.dayMasterElement ? 1 : 0),
+      }];
+    }),
+  ) as Record<FiveElementKey, FiveElementScore>;
+
+  const needRanking = [...ELEMENT_KEYS].sort((a, b) => elementScores[b].need - elementScores[a].need || elementScores[a].strength - elementScores[b].strength);
+  const strengthRanking = [...ELEMENT_KEYS].sort((a, b) => elementScores[b].strength - elementScores[a].strength);
+  const primaryElement = needRanking[0];
+  const secondaryElement = needRanking.find((key) => key !== primaryElement) ?? needRanking[1];
+  const strongElement = strengthRanking[0];
+  const avoidElement = elementScores[strongElement].strength >= 80 && elementScores[strongElement].need <= 28 ? strongElement : null;
+  const confidence: FiveElementConfidence = 'high';
+  const primaryDefinition = FIVE_ELEMENT_DEFINITIONS[primaryElement];
+  const primaryCount = Number(input.elementCounts[FIVE_ELEMENT_DEFINITIONS[primaryElement].zh] ?? 0);
+  const primaryEnergy = elementScores[primaryElement].strength;
+  const conflict = elementScores[primaryElement].need - elementScores[secondaryElement].need <= 5;
+
+  evidence.push({
+    module: 'bazi',
+    title: '\u516b\u5b57\u7d71\u8a08\u5224\u5b9a' + getFiveElementName(primaryElement) + '\u662f\u7b2c\u4e00\u7f3a\u53e3',
+    detail: '\u56db\u67f1\u4e2d' + getFiveElementName(primaryElement) + '\u51fa\u73fe ' + primaryCount + ' \u6b21\uff0c\u80fd\u91cf\u689d\u70ba ' + primaryEnergy + ' \u5206\uff0c\u672c\u6b21\u5fc5\u9808\u5148\u88dc\u3002',
+    element: primaryElement,
+    impact: 'need',
+  });
+
+  evidence.push({
+    module: 'bazi',
+    title: '\u65e5\u4e3b\u5f37\u5f31\u7d0d\u5165\u88dc\u5f37\u6b0a\u91cd',
+    detail: '\u65e5\u4e3b\u5143\u7d20\u70ba' + getFiveElementName(input.dayMasterElement) + '\uff0c\u7cfb\u7d71\u5df2\u8207\u56db\u67f1\u5f37\u5f31\u9032\u884c\u4ea4\u53c9\u7d71\u8a08\u3002',
+    element: input.dayMasterElement,
+    impact: 'balance',
+  });
+
+  const reasons = [
+    '\u672c\u6b21\u516b\u5b57\u7d71\u8a08\u5224\u5b9a\uff1a\u4f60\u7f3a' + getFiveElementName(primaryElement) + '\uff0c\u4e00\u5b9a\u8981\u5148\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002',
+    '\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u6703\u5148\u6539\u8b8a\uff1a' + getElementChangeTarget(primaryElement),
+    '\u7b2c\u4e8c\u9806\u4f4d\u662f' + getFiveElementName(secondaryElement) + '\uff0c\u4f46\u672c\u6b21\u7d50\u8ad6\u4e0d\u5206\u6563\uff0c\u552f\u4e00\u4e3b\u88dc\u662f' + getFiveElementName(primaryElement) + '\u3002',
+    avoidElement ? getFiveElementName(avoidElement) + '\u5df2\u7d93\u8f03\u5f37\uff0c\u672c\u6b21\u5148\u4e0d\u88dc\u5b83\u3002' : getFiveElementName(strongElement) + '\u662f\u76ee\u524d\u8f03\u5f37\u652f\u6490\uff0c\u672c\u6b21\u5148\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002',
+  ];
+
+  return enrichFiveElementResult({
+    sourceModule: 'bazi',
+    analysisId: input.analysisId,
+    elementScores,
+    primaryElement,
+    secondaryElement,
+    strongElement,
+    avoidElement,
+    confidence,
+    conflict,
+    supportingModules: ['bazi', 'dayMaster', 'fiveElementMatrix'],
+    moduleResults: [{ module: 'bazi', primaryElement, confidence }],
+    evidence,
+    ruleVersion: 'bazi_element_v1',
+    summary: '\u672c\u6b21\u5224\u5b9a\uff1a\u4f60\u7f3a' + getFiveElementName(primaryElement) + '\uff0c\u4e00\u5b9a\u8981\u5148\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002\u624b\u93c8\u88dc\u5f37\u5148\u9078' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\uff0c\u518d\u642d\u914d\u6301\u7e8c\u884c\u52d5\u3002',
+    keywords: primaryDefinition.keywords.slice(0, 4),
+    reasons,
+    recommendedActions: actionFor(primaryElement),
+    productEntryLabel: '\u9078\u64c7' + getFiveElementName(primaryElement) + '\u80fd\u91cf\u624b\u93c8',
+    productRecommendation: getFiveElementProductRecommendation(primaryElement),
+    positiveQuote: getFiveElementPositiveQuote(primaryElement),
+  });
+}
 
 const NUMBER_DIGIT_TO_ELEMENT: Record<string, FiveElementKey> = {
   '0': 'water',

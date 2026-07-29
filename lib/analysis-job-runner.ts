@@ -3,8 +3,10 @@ import { buildNumberFiveElementResult, buildNameologyFiveElementResult } from '.
 import { getNamePersonalityScores } from './name-model-db';
 import { buildNameologyAnalysis } from './nameology-engine';
 import { generateInsightAnalysis } from './insight-engine';
+import { analyzeBazi, type BaziAnalysisInput } from './bazi-engine';
 import { isValidBirthday } from './validation';
 import type { BloodType, Gender, InsightRequest } from './types';
+import { ANALYSIS_MODULES, moduleIdForAnalysisType, type AnalysisModuleId } from './analysis-module-router';
 import {
   completeAnalysisJob,
   failAnalysisJob,
@@ -60,6 +62,22 @@ function normalizeInsightInput(value: unknown): InsightRequest {
   };
 }
 
+function normalizeBaziInput(value: unknown): BaziAnalysisInput {
+  assertRecord(value);
+  const name = typeof value.name === 'string' ? value.name.trim() : '';
+  const birthDate = typeof value.birthDate === 'string' ? value.birthDate : '';
+  const birthTime = typeof value.birthTime === 'string' && value.birthTime.length > 0 ? value.birthTime : '12:00';
+  const gender = value.gender as BaziAnalysisInput['gender'];
+  const country = typeof value.country === 'string' && value.country.trim().length > 0 ? value.country.trim() : '台灣';
+  const city = typeof value.city === 'string' && value.city.trim().length > 0 ? value.city.trim() : '台北';
+
+  if (name.length > 20) throw new Error('姓名可不填；若要填寫，請勿超過 20 個字。');
+  if (!isValidBirthday(birthDate)) throw new Error('\u8acb\u63d0\u4f9b\u6709\u6548\u751f\u65e5\u3002');
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(birthTime)) throw new Error('\u8acb\u9078\u64c7\u6709\u6548\u51fa\u751f\u6642\u9593\u3002');
+  if (!VALID_GENDERS.includes(gender)) throw new Error('\u8acb\u9078\u64c7\u6709\u6548\u6027\u5225\u3002');
+  return { name, birthDate, birthTime, gender, country, city };
+}
+
 async function withJobTimeout<T>(task: Promise<T>, ms: number): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
@@ -75,55 +93,72 @@ async function withJobTimeout<T>(task: Promise<T>, ms: number): Promise<T> {
 }
 
 async function runNumberJob(job: AnalysisJob, inputData: unknown) {
-  updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: null, message: '\u6b63\u5728\u78ba\u8a8d\u6578\u5b57\u683c\u5f0f\u3002' });
+  updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: null, message: ANALYSIS_MODULES.NUMBER.loadingCopy.validating });
   assertRecord(inputData);
   const value = typeof inputData.value === 'string' ? inputData.value.trim() : '';
   const mode = validateNumberCoreInput(value);
   if (typeof mode !== 'string') throw new Error(mode.message);
 
-  updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: null, message: '\u6b63\u5728\u4f9d\u7167\u6578\u5b57\u898f\u5247\u771f\u5be6\u904b\u7b97\u3002' });
+  updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: null, message: ANALYSIS_MODULES.NUMBER.loadingCopy.processing });
   const result = analyzeNumberCore(value);
   if (!result.ok) throw new Error(result.message);
 
-  updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: '\u6b63\u5728\u6574\u7406\u4e94\u5143\u7d20\u88dc\u5f37\u7d50\u679c\u3002' });
-  return { ...result, mode, fiveElement: buildNumberFiveElementResult(result) };
+  updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: ANALYSIS_MODULES.NUMBER.loadingCopy.finalizing });
+  return { ...result, mode, moduleId: job.moduleId, fiveElement: buildNumberFiveElementResult(result) };
 }
 
 async function runNameologyJob(job: AnalysisJob, inputData: unknown) {
-  updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: null, message: '\u6b63\u5728\u78ba\u8a8d\u59d3\u540d\u5b78\u8cc7\u6599\u3002' });
+  updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: null, message: ANALYSIS_MODULES.NAMEOLOGY.loadingCopy.validating });
   const input = normalizeNameologyInput(inputData);
 
-  updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: null, message: '\u6b63\u5728\u904b\u7b97\u59d3\u540d\u7b46\u756b\u3001\u4e94\u683c\u8207\u6027\u60c5\u77e9\u9663\u3002' });
+  updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: null, message: ANALYSIS_MODULES.NAMEOLOGY.loadingCopy.processing });
   const nameScores = getNamePersonalityScores(input.name);
   const analysis = buildNameologyAnalysis(input.name, nameScores, input);
 
-  updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: '\u6b63\u5728\u6574\u7406\u4e94\u5143\u7d20\u624b\u93c8\u88dc\u5f37\u65b9\u6848\u3002' });
-  return { ok: true, mode: 'nameology', analysis, nameScores, fiveElement: buildNameologyFiveElementResult(analysis) };
+  updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: ANALYSIS_MODULES.NAMEOLOGY.loadingCopy.finalizing });
+  return { ok: true, mode: 'nameology', moduleId: job.moduleId, analysis, nameScores, fiveElement: buildNameologyFiveElementResult(analysis) };
 }
 
 async function runInsightJob(job: AnalysisJob, inputData: unknown) {
-  updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: null, message: '\u6b63\u5728\u78ba\u8a8d\u5929\u5730\u4eba\u5206\u6790\u8cc7\u6599\u3002' });
+  updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: null, message: ANALYSIS_MODULES.ZIWEI.loadingCopy.validating });
   const input = normalizeInsightInput(inputData);
 
-  updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'CROSS_ANALYSIS', progressPercent: null, message: '\u6b63\u5728\u4ea4\u53c9\u904b\u7b97\u59d3\u540d\u5b78\u3001\u7d2b\u5fae\u6597\u6578\u3001\u516b\u5b57\u8207\u4e94\u5143\u7d20\u3002' });
+  updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: null, message: ANALYSIS_MODULES.ZIWEI.loadingCopy.processing });
   const result = await withJobTimeout(generateInsightAnalysis(input), 60_000);
 
-  updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: '\u6b63\u5728\u6574\u7406\u5b8c\u6574\u7d50\u679c\u9801\u3002' });
-  return result;
+  updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: ANALYSIS_MODULES.ZIWEI.loadingCopy.finalizing });
+  return typeof result === 'object' && result !== null ? { ...result, mode: 'insight', moduleId: job.moduleId } : result;
 }
+
+async function runBaziJob(job: AnalysisJob, inputData: unknown) {
+  updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: null, message: ANALYSIS_MODULES.BAZI.loadingCopy.validating });
+  const input = normalizeBaziInput(inputData);
+
+  updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: null, message: ANALYSIS_MODULES.BAZI.loadingCopy.processing });
+  const result = analyzeBazi(input);
+
+  updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: ANALYSIS_MODULES.BAZI.loadingCopy.finalizing });
+  return { ...result, moduleId: job.moduleId };
+}
+
+type AnalysisModuleRunner = (job: AnalysisJob, inputData: unknown) => Promise<unknown>;
+
+const MODULE_RUNNERS: Record<AnalysisModuleId, AnalysisModuleRunner> = {
+  NUMBER: runNumberJob,
+  NAMEOLOGY: runNameologyJob,
+  ZIWEI: runInsightJob,
+  BAZI: runBaziJob,
+};
 
 export async function runAnalysisJob(jobId: string, inputData: unknown) {
   const job = getAnalysisJob(jobId);
   if (!job) return null;
 
   try {
-    let result: unknown;
-    if (job.analysisType === 'number') result = await runNumberJob(job, inputData);
-    else if (job.analysisType === 'nameology') result = await runNameologyJob(job, inputData);
-    else if (job.analysisType === 'insight') result = await runInsightJob(job, inputData);
-    else {
-      throw new Error('\u9019\u500b\u5206\u6790\u985e\u578b\u6b63\u5728\u63a5\u5165\u5171\u7528\u4efb\u52d9\u7cfb\u7d71\uff0c\u8acb\u5148\u4f7f\u7528\u539f\u672c\u529f\u80fd\u9001\u51fa\u3002');
-    }
+    const moduleId = (job as AnalysisJob & { moduleId?: AnalysisModuleId }).moduleId ?? moduleIdForAnalysisType(job.analysisType);
+    const runner = MODULE_RUNNERS[moduleId];
+    if (!runner) throw new Error('\u6b64\u5206\u6790\u6a21\u7d44\u5c1a\u672a\u8a3b\u518a\u5230 Module Router\u3002');
+    const result = await runner({ ...job, moduleId }, inputData);
     return completeAnalysisJob(job.jobId, result);
   } catch (error) {
     const message = error instanceof Error && error.message === 'TIMEOUT'

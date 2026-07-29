@@ -7,6 +7,7 @@ import NextStepGuide from '@/components/NextStepGuide';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
+import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 
 interface PersonInput {
   name: string;
@@ -40,10 +41,36 @@ interface PersonDisplay {
   bloodType: string;
 }
 
+
+type MatchFiveElementKey = 'earth' | 'water' | 'fire' | 'wind' | 'space';
+
+interface MatchFiveElementPersonResult {
+  name: string;
+  primaryElement: MatchFiveElementKey;
+  secondaryElement: MatchFiveElementKey;
+  elementScores: Record<MatchFiveElementKey, number>;
+  needScores: Record<MatchFiveElementKey, number>;
+  reason: string;
+  changeTarget: string;
+}
+
+interface MatchFiveElementResult {
+  engineVersion: 'match_five_element_v1';
+  summary: string;
+  relationMode: 'generating' | 'conflicting' | 'balancing';
+  sharedElement: MatchFiveElementKey;
+  sharedAction: string;
+  relationReason: string;
+  personA: MatchFiveElementPersonResult;
+  personB: MatchFiveElementPersonResult;
+  integratedAdvice: string;
+  inlineHighlights: string[];
+}
 interface MatchResponse {
   result: MatchResult;
   displayA: PersonDisplay;
   displayB: PersonDisplay;
+  fiveElementMatch?: MatchFiveElementResult;
 }
 
 type StepKey = 'personA' | 'personB' | 'review';
@@ -517,6 +544,7 @@ export default function MatchPage() {
       }
 
       setData(json);
+      markGrowthModuleCompleted('soul_match');
     } catch (error) {
       setError(error instanceof DOMException && error.name === 'AbortError'
         ? '配對分析等候時間過長，請稍後再試。'
@@ -758,6 +786,13 @@ export default function MatchPage() {
               <h2 className="mt-3 font-serif text-5xl text-[color:var(--text-main)]">{data.result.match_score}</h2>
               <p className="mt-2 text-sm text-[color:var(--text-sub)]">相處共鳴指數</p>
               <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">{data.result.summary}</p>
+              {data.fiveElementMatch && (
+                <>
+                  <p className="mx-auto mt-5 max-w-3xl text-[11px] font-black uppercase tracking-[0.2em] text-emerald-200">5 元素後端判定</p>
+                  <p className="mx-auto mt-2 max-w-3xl text-sm font-black leading-7 text-emerald-50">{data.fiveElementMatch.summary}</p>
+                  <p className="mx-auto mt-2 max-w-3xl text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{data.fiveElementMatch.relationReason}</p>
+                </>
+              )}
             </div>
 
             <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
@@ -779,6 +814,9 @@ export default function MatchPage() {
                     <p className="mt-2 leading-7 text-[color:var(--text-sub)]">
                       {data.displayA.zodiacZh} · {data.displayA.chineseZodiac} · {data.displayA.bloodType} 型
                     </p>
+                    {data.fiveElementMatch && (
+                      <p className="mt-2 text-xs font-semibold leading-6 text-emerald-100/90">{data.fiveElementMatch.personA.reason} {data.fiveElementMatch.personA.changeTarget}</p>
+                    )}
                   </div>
                   <div className="h-px bg-white/10" />
                   <div>
@@ -786,6 +824,9 @@ export default function MatchPage() {
                     <p className="mt-2 leading-7 text-[color:var(--text-sub)]">
                       {data.displayB.zodiacZh} · {data.displayB.chineseZodiac} · {data.displayB.bloodType} 型
                     </p>
+                    {data.fiveElementMatch && (
+                      <p className="mt-2 text-xs font-semibold leading-6 text-amber-100/90">{data.fiveElementMatch.personB.reason} {data.fiveElementMatch.personB.changeTarget}</p>
+                    )}
                   </div>
                 </div>
               </div>

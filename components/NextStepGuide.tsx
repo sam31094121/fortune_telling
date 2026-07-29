@@ -91,6 +91,15 @@ export default function NextStepGuide({ current }: { current: SystemKey }) {
           );
         })}
       </div>
+
+      <div className="mt-5 border-t border-white/10 pt-4 text-center">
+        <Link
+          href="/growth-center"
+          className="inline-flex items-center justify-center rounded-full border border-emerald-300/25 bg-emerald-300/10 px-5 py-3 text-xs font-black tracking-[0.16em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15"
+        >
+          查看本週成長指引
+        </Link>
+      </div>
     </div>
   );
 }

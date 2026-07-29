@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
 import { createRequestId, friendlyErrorResponse } from '@/lib/api-stability';
-import { createAnalysisJob, publicAnalysisJob, type AnalysisType } from '@/lib/analysis-job-store';
+import { createAnalysisJob, publicAnalysisJob } from '@/lib/analysis-job-store';
 import { runAnalysisJob } from '@/lib/analysis-job-runner';
+import { normalizeAnalysisType } from '@/lib/analysis-module-router';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const maxDuration = 60;
-
-const SUPPORTED_ANALYSIS_TYPES: AnalysisType[] = ['number', 'nameology', 'insight', 'match', 'music', 'element'];
 
 type CreateJobRequest = {
   analysisType?: unknown;
@@ -16,10 +15,6 @@ type CreateJobRequest = {
   userId?: unknown;
   inputData?: unknown;
 };
-
-function normalizeAnalysisType(value: unknown): AnalysisType | null {
-  return typeof value === 'string' && SUPPORTED_ANALYSIS_TYPES.includes(value as AnalysisType) ? value as AnalysisType : null;
-}
 
 export async function POST(request: Request) {
   const requestId = createRequestId();
@@ -33,7 +28,7 @@ export async function POST(request: Request) {
 
   const analysisType = normalizeAnalysisType(body.analysisType);
   if (!analysisType) {
-    return friendlyErrorResponse(requestId, 'INVALID_ANALYSIS_TYPE', '\u8acb\u63d0\u4f9b\u6709\u6548\u7684\u5206\u6790\u985e\u578b\u3002', 400);
+    return friendlyErrorResponse(requestId, 'INVALID_ANALYSIS_TYPE', '\u9019\u500b\u5206\u6790\u6a21\u7d44\u5c1a\u672a\u8a3b\u518a\u5230\u5171\u7528\u4efb\u52d9\u7cfb\u7d71\uff0c\u8acb\u78ba\u8a8d\u9996\u9801\u5361\u7247\u5165\u53e3\u3002', 400);
   }
 
   const job = createAnalysisJob({

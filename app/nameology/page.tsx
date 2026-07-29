@@ -7,6 +7,7 @@ import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
 import type { BloodType, Gender } from '@/lib/types';
 import type { NameologyAnalysis } from '@/lib/nameology-engine';
 import { FIVE_ELEMENT_DEFINITIONS, type FiveElementIntegrationResult, type FiveElementKey } from '@/lib/five-element-engine';
+import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 
 type NameologyResponse = {
   ok: boolean;
@@ -382,6 +383,7 @@ export default function NameologyPage() {
       if (!response.ok || !data?.analysis || !data?.fiveElement) throw new Error(data?.message || data?.error || '姓名學分析暫時無法完成。');
       setResult((data as NameologyResponse).analysis);
       setFiveElement((data as NameologyResponse).fiveElement);
+      markGrowthModuleCompleted('nameology');
       window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     } catch (err) {
       setError(err instanceof Error ? err.message : '姓名學分析暫時無法完成。');

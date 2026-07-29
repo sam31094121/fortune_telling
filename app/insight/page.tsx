@@ -5,6 +5,7 @@ import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import { saveUserData, loadUserData } from '@/lib/storage';
+import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
@@ -2052,6 +2053,7 @@ export default function InsightPage() {
 
         const json = (await response.json()) as InsightResult;
         setResult(json);
+        markGrowthModuleCompleted('ziwei');
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') {
           setError('分析超時（超過 45 秒），請稍後再試或稍候網路恢復後重試。');

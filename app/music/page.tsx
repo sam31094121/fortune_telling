@@ -6,6 +6,7 @@ import PersonalityMusicFlow, { type MusicFormData } from '@/components/Personali
 import PersonalityMusicReport from '@/components/PersonalityMusicReport';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
+import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 
 interface SongTrack {
   title: string;
@@ -298,6 +299,7 @@ export default function MusicSystemPage() {
       }
 
       setResult(json as MusicGenerateResponse);
+      markGrowthModuleCompleted('music');
       setPageState('result');
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
     } catch (error) {

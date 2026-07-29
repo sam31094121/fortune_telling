@@ -8,6 +8,7 @@ import { getZodiacEnglishName, getZodiacSign } from '@/lib/zodiac';
 import { isValidBirthday } from '@/lib/validation';
 import { computeRelationshipMatrix } from '@/lib/relationship-matrix-engine';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
+import { buildMatchFiveElementResult } from '@/lib/match-five-element-engine';
 
 export const dynamic = 'force-dynamic';
 
@@ -282,11 +283,14 @@ export async function POST(request: Request) {
       }
     );
 
+    const fiveElementMatch = buildMatchFiveElementResult(body.personA, body.personB, result);
+
     const responseData = {
       result: { ...result, summary: finalSummary, zones: enhanced.zones },
       displayA,
       displayB,
       karmaRelation,
+      fiveElementMatch,
     };
 
     responseCache.set(cacheKey, { result: responseData, expireTime: now + 300_000 });
