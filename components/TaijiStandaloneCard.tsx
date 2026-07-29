@@ -10,6 +10,11 @@ type TaijiStandaloneCardProps = {
 export default function TaijiStandaloneCard({ className = '', showLabel = false }: TaijiStandaloneCardProps) {
   return (
     <div className={`taiji-standalone-card taiji-open-stage ${className}`.trim()}>
+      <div className="taiji-stage-bagua-field" aria-hidden="true">
+        {Array.from({ length: 8 }, (_, index) => (
+          <span key={index} className={`taiji-stage-bagua-field__mark taiji-stage-bagua-field__mark--${index}`} />
+        ))}
+      </div>
       <UnifiedTaijiCore showLabel={showLabel} />
     </div>
   );

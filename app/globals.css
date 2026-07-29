@@ -9474,3 +9474,312 @@ body.app-scrolling .home-trust-strip > [data-visitor-counter="home"].home-trust-
     font-size: 0.36rem !important;
   }
 }
+/* Homepage Taiji center stage: hide text props and keep the symbol centered for mobile viewers. */
+.home-taiji-cinema.taiji-open-stage::before,
+.home-taiji-cinema .taiji-director-caption,
+.home-taiji-cinema .taiji-director-caption::before,
+.home-taiji-cinema .taiji-director-caption__sub,
+.home-taiji-cinema .unified-mantra-badge {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.home-core-panel .home-taiji-cinema.taiji-open-stage {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: clamp(16.75rem, 72vw, 20rem) !important;
+  padding: clamp(0.2rem, 1.2vw, 0.45rem) !important;
+}
+
+.home-core-panel .home-taiji-cinema .unified-taiji-shell {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: clamp(16.25rem, 68vw, 19.25rem) !important;
+  padding: 0 !important;
+}
+
+.home-core-panel .home-taiji-cinema .modal-taiji-button {
+  margin: 0 auto !important;
+  transform-origin: center center !important;
+}
+
+.home-core-panel .home-taiji-cinema .modal-evolution-layer,
+.home-core-panel .home-taiji-cinema .modal-taiji-orbit-emblem,
+.home-core-panel .home-taiji-cinema .modal-taiji-3d-core {
+  transform-origin: center center !important;
+}
+
+@media (max-width: 430px) {
+  .home-core-panel .home-taiji-cinema.taiji-open-stage {
+    width: min(100%, calc(100vw - 0.75rem)) !important;
+    min-height: min(19.75rem, calc(100vw - 0.05rem)) !important;
+    padding: 0 !important;
+  }
+
+  .home-core-panel .home-taiji-cinema .unified-taiji-shell {
+    min-height: min(19.25rem, calc(100vw - 0.55rem)) !important;
+    padding: 0 !important;
+  }
+
+  .home-core-panel .home-taiji-cinema .modal-taiji-button {
+    width: min(13.2rem, 65vw) !important;
+    height: min(13.2rem, 65vw) !important;
+  }
+}
+/* Homepage Taiji venue: a subtle true Bagua field that supports the 3D core without stealing focus. */
+.taiji-stage-bagua-field {
+  display: none;
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field {
+  --venue-bagua-radius: clamp(6.45rem, 28vw, 8.15rem);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  display: block;
+  width: clamp(15.5rem, 68vw, 19.25rem);
+  height: clamp(15.5rem, 68vw, 19.25rem);
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0.72;
+  transform: translate(-50%, -50%) rotateX(58deg) translateZ(-26px);
+  transform-style: preserve-3d;
+  filter: saturate(1.04) contrast(1.02);
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field::before,
+.home-taiji-cinema .taiji-stage-bagua-field::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field::before {
+  background:
+    radial-gradient(circle, transparent 0 34%, rgba(253, 230, 138, 0.07) 35% 36%, transparent 38% 48%, rgba(34, 211, 238, 0.055) 50% 51%, transparent 53%),
+    conic-gradient(from 22.5deg, rgba(253, 230, 138, 0.15) 0 2deg, transparent 2deg 43deg, rgba(34, 211, 238, 0.09) 43deg 45deg, transparent 45deg 88deg, rgba(253, 230, 138, 0.13) 88deg 90deg, transparent 90deg 360deg);
+  box-shadow:
+    inset 0 0 32px rgba(253, 230, 138, 0.08),
+    0 0 38px rgba(253, 230, 138, 0.08),
+    0 0 72px rgba(34, 211, 238, 0.045);
+  opacity: 0.7;
+  animation: taiji-venue-bagua-breath 7.6s ease-in-out infinite;
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field::after {
+  inset: 11%;
+  background:
+    radial-gradient(circle, transparent 0 52%, rgba(253, 230, 138, 0.08) 53% 54%, transparent 56%),
+    conic-gradient(from 0deg, transparent 0 40deg, rgba(253, 230, 138, 0.075) 42deg 47deg, transparent 50deg 85deg, rgba(34, 211, 238, 0.055) 87deg 92deg, transparent 94deg 360deg);
+  filter: blur(0.8px);
+  opacity: 0.5;
+  animation: taiji-venue-bagua-drift 18s linear infinite;
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field__mark {
+  --venue-angle: 0deg;
+  --venue-counter: 0deg;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: clamp(1.4rem, 5.4vw, 1.9rem);
+  height: clamp(1.4rem, 5.4vw, 1.9rem);
+  border-radius: 999px;
+  color: rgba(253, 230, 138, 0.32);
+  text-shadow:
+    0 0 8px rgba(253, 230, 138, 0.24),
+    0 0 18px rgba(34, 211, 238, 0.12);
+  opacity: 0.56;
+  transform: translate(-50%, -50%) rotate(var(--venue-angle)) translateY(calc(-1 * var(--venue-bagua-radius))) rotate(var(--venue-counter)) rotateX(-58deg);
+  animation: taiji-venue-mark-breath 6.4s ease-in-out infinite;
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field__mark::before {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size: clamp(1.02rem, 4.2vw, 1.42rem);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field__mark::after {
+  content: "";
+  position: absolute;
+  inset: 18%;
+  z-index: -1;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(253, 230, 138, 0.15), rgba(34, 211, 238, 0.04) 54%, transparent 72%);
+  filter: blur(5px);
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field__mark--0 { --venue-angle: 0deg; --venue-counter: 0deg; animation-delay: -0.1s; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--1 { --venue-angle: 45deg; --venue-counter: -45deg; animation-delay: -0.6s; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--2 { --venue-angle: 90deg; --venue-counter: -90deg; animation-delay: -1.1s; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--3 { --venue-angle: 135deg; --venue-counter: -135deg; animation-delay: -1.6s; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--4 { --venue-angle: 180deg; --venue-counter: -180deg; animation-delay: -2.1s; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--5 { --venue-angle: 225deg; --venue-counter: -225deg; animation-delay: -2.6s; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--6 { --venue-angle: 270deg; --venue-counter: -270deg; animation-delay: -3.1s; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--7 { --venue-angle: 315deg; --venue-counter: -315deg; animation-delay: -3.6s; }
+
+.home-taiji-cinema .taiji-stage-bagua-field__mark--0::before { content: "\2630"; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--1::before { content: "\2631"; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--2::before { content: "\2632"; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--3::before { content: "\2633"; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--4::before { content: "\2634"; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--5::before { content: "\2635"; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--6::before { content: "\2636"; }
+.home-taiji-cinema .taiji-stage-bagua-field__mark--7::before { content: "\2637"; }
+
+.home-taiji-cinema .unified-taiji-shell {
+  position: relative;
+  z-index: 2;
+}
+
+.home-taiji-cinema .modal-taiji-button {
+  z-index: 3;
+}
+
+@keyframes taiji-venue-bagua-breath {
+  0%, 100% { opacity: 0.48; filter: blur(0.2px) brightness(0.95); transform: scale(0.98); }
+  50% { opacity: 0.78; filter: blur(0.4px) brightness(1.08); transform: scale(1.015); }
+}
+
+@keyframes taiji-venue-bagua-drift {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(365deg); }
+}
+
+@keyframes taiji-venue-mark-breath {
+  0%, 100% { opacity: 0.34; filter: blur(0.35px) brightness(0.92); }
+  50% { opacity: 0.68; filter: blur(0) brightness(1.12); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .taiji-stage-bagua-field {
+    --venue-bagua-radius: min(5.72rem, 29vw);
+    width: min(14.6rem, 74vw);
+    height: min(14.6rem, 74vw);
+    opacity: 0.64;
+  }
+
+  .home-taiji-cinema .taiji-stage-bagua-field__mark {
+    width: 1.28rem;
+    height: 1.28rem;
+  }
+
+  .home-taiji-cinema .taiji-stage-bagua-field__mark::before {
+    font-size: 0.96rem;
+  }
+}
+/* Homepage Taiji Bagua mirror venue: real outer Bagua field, Taiji remains the center core. */
+.home-core-panel .home-taiji-cinema.taiji-open-stage {
+  perspective: 980px !important;
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field {
+  --venue-bagua-radius: clamp(6.2rem, 27vw, 7.6rem) !important;
+  width: clamp(15.4rem, 66vw, 18.4rem) !important;
+  height: clamp(15.4rem, 66vw, 18.4rem) !important;
+  border-radius: 24px !important;
+  opacity: 0.86 !important;
+  transform: translate(-50%, -50%) translateZ(-34px) rotateX(8deg) !important;
+  filter: saturate(1.08) contrast(1.08) drop-shadow(0 18px 32px rgba(0, 0, 0, 0.28)) !important;
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field::before {
+  inset: 4px !important;
+  border-radius: 24px !important;
+  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 28%, rgba(253, 230, 138, 0.1) 29% 31%, transparent 32% 43%, rgba(34, 211, 238, 0.07) 44% 45%, transparent 46%),
+    conic-gradient(from 22.5deg,
+      rgba(253, 230, 138, 0.18) 0deg 45deg,
+      rgba(34, 211, 238, 0.1) 45deg 90deg,
+      rgba(196, 181, 253, 0.12) 90deg 135deg,
+      rgba(134, 239, 172, 0.1) 135deg 180deg,
+      rgba(253, 164, 175, 0.11) 180deg 225deg,
+      rgba(253, 230, 138, 0.14) 225deg 270deg,
+      rgba(34, 211, 238, 0.1) 270deg 315deg,
+      rgba(196, 181, 253, 0.11) 315deg 360deg),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.11), rgba(2, 6, 23, 0.06) 42%, rgba(0, 0, 0, 0.18)) !important;
+  border: 1px solid rgba(253, 230, 138, 0.18);
+  box-shadow:
+    inset 8px 10px 18px rgba(255, 255, 255, 0.12),
+    inset -14px -18px 28px rgba(0, 0, 0, 0.32),
+    inset 0 0 34px rgba(253, 230, 138, 0.1),
+    0 0 26px rgba(253, 230, 138, 0.12),
+    0 0 58px rgba(34, 211, 238, 0.06) !important;
+  opacity: 0.9 !important;
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field::after {
+  inset: 15.5% !important;
+  border-radius: 999px !important;
+  background:
+    radial-gradient(circle, transparent 0 52%, rgba(255, 248, 214, 0.16) 53% 54%, transparent 55% 65%, rgba(34, 211, 238, 0.08) 66% 67%, transparent 69%),
+    conic-gradient(from 0deg, transparent 0 20deg, rgba(253, 230, 138, 0.12) 22deg 25deg, transparent 27deg 65deg, rgba(34, 211, 238, 0.08) 67deg 70deg, transparent 72deg 360deg) !important;
+  box-shadow:
+    inset 0 0 18px rgba(255, 248, 214, 0.1),
+    0 0 22px rgba(253, 230, 138, 0.12) !important;
+  opacity: 0.66 !important;
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field__mark {
+  width: clamp(1.58rem, 5.8vw, 2.05rem) !important;
+  height: clamp(1.58rem, 5.8vw, 2.05rem) !important;
+  color: rgba(255, 247, 214, 0.5) !important;
+  opacity: 0.74 !important;
+  text-shadow:
+    0 0 8px rgba(253, 230, 138, 0.35),
+    0 0 18px rgba(253, 230, 138, 0.14),
+    0 0 28px rgba(34, 211, 238, 0.08) !important;
+  transform: translate(-50%, -50%) rotate(var(--venue-angle)) translateY(calc(-1 * var(--venue-bagua-radius))) rotate(var(--venue-counter)) rotateX(-8deg) !important;
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field__mark::before {
+  font-size: clamp(1.08rem, 4.5vw, 1.55rem) !important;
+}
+
+.home-taiji-cinema .taiji-stage-bagua-field__mark::after {
+  inset: 8% !important;
+  background: radial-gradient(circle, rgba(253, 230, 138, 0.2), rgba(34, 211, 238, 0.055) 48%, transparent 70%) !important;
+  filter: blur(5px) !important;
+}
+
+.home-taiji-cinema .modal-taiji-button::after {
+  box-shadow:
+    0 0 24px rgba(253, 230, 138, 0.32),
+    0 0 54px rgba(251, 191, 36, 0.22),
+    0 0 88px rgba(34, 211, 238, 0.12) !important;
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .taiji-stage-bagua-field {
+    --venue-bagua-radius: min(5.34rem, 27.2vw) !important;
+    width: min(13.75rem, 72vw) !important;
+    height: min(13.75rem, 72vw) !important;
+    border-radius: 20px !important;
+    transform: translate(-50%, -50%) translateZ(-30px) rotateX(6deg) !important;
+  }
+
+  .home-taiji-cinema .taiji-stage-bagua-field::before {
+    border-radius: 20px !important;
+  }
+
+  .home-taiji-cinema .taiji-stage-bagua-field__mark {
+    width: 1.22rem !important;
+    height: 1.22rem !important;
+    transform: translate(-50%, -50%) rotate(var(--venue-angle)) translateY(calc(-1 * var(--venue-bagua-radius))) rotate(var(--venue-counter)) rotateX(-6deg) !important;
+  }
+
+  .home-taiji-cinema .taiji-stage-bagua-field__mark::before {
+    font-size: 0.9rem !important;
+  }
+}
