@@ -1825,11 +1825,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
-        <div className="home-trust-strip mb-5 grid grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] items-stretch gap-1.5 sm:gap-2">
-          <AiTrustFeedback className="home-trust-card flex min-h-[108px] min-w-0 flex-col justify-center overflow-hidden rounded-xl border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.15),rgba(34,211,238,0.1)_38%,rgba(15,23,42,0.76)_64%,rgba(2,6,23,0.93)_100%)] px-3 py-2.5 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl" />
-          <FeatureVisitorCounter featureKey="home" className="home-trust-card home-trust-card--visitor h-full !w-full min-w-0" deferMs={1500} compact permanent />
-        </div>
+      <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:pt-8 lg:pb-14">
         <div className="hidden mb-8 items-center gap-4">
           <span className="text-xs tracking-widest text-rose-300">// AI 靈魂配對</span>
           <span className="text-[color:var(--text-muted)]">·</span>
@@ -1842,7 +1838,7 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <section className="home-hero-stage home-hero-stage--taiji-only mb-8 flex justify-center sm:mb-10">
+        <section className="home-hero-stage home-hero-stage--taiji-only home-hero-stage--raised mb-6 flex justify-center sm:mb-8">
           <div className="hidden relative z-10">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-rose-400/25 bg-rose-400/10 px-4 py-1.5 text-xs font-bold tracking-[0.28em] text-rose-200 shadow-[0_0_24px_rgba(244,63,94,0.12)]">
               <span className="h-1.5 w-1.5 rounded-full bg-rose-300 shadow-[0_0_12px_rgba(253,164,175,0.9)]" />
@@ -1921,8 +1917,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 頂部科技耀眼功能入口 */}
-        <LineVipShareCard friendHref={lineFriendHref} onShare={handleLineShare} />
 
         <div className="mb-8 flex w-full flex-col gap-4">
           <Link
@@ -2781,7 +2775,19 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="mt-10 pb-2 text-center text-[10px] font-semibold tracking-[0.32em] text-[color:var(--text-muted)] opacity-45">
+        <section className="mt-10 pb-5 sm:mt-14 sm:pb-8" aria-label="Home trust counters">
+          <div className="mx-auto max-w-3xl">
+            <div className="home-trust-strip home-trust-strip--footer grid grid-cols-1 items-stretch gap-2 sm:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+              <AiTrustFeedback className="home-trust-card flex min-h-[108px] min-w-0 flex-col justify-center overflow-hidden rounded-xl border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.15),rgba(34,211,238,0.1)_38%,rgba(15,23,42,0.76)_64%,rgba(2,6,23,0.93)_100%)] px-3 py-2.5 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl" />
+              <FeatureVisitorCounter featureKey="home" className="home-trust-card home-trust-card--visitor h-full !w-full min-w-0" deferMs={1500} compact permanent />
+            </div>
+          </div>
+        </section>
+
+        {/* 底部 LINE 好友入口 */}
+        <LineVipShareCard friendHref={lineFriendHref} onShare={handleLineShare} />
+
+        <div className="pb-2 text-center text-[10px] font-semibold tracking-[0.32em] text-[color:var(--text-muted)] opacity-45">
           080
         </div>
       </main>

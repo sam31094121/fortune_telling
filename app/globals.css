@@ -8457,3 +8457,33 @@ body.app-scrolling .home-trust-strip > [data-visitor-counter="home"].home-trust-
     font-size: 0.74rem;
   }
 }
+
+/* Footer trust strip: keep the counters readable after moving them below all home content. */
+.home-trust-strip.home-trust-strip--footer {
+  grid-template-columns: minmax(0, 1.72fr) minmax(0, 1fr);
+}
+
+@media (max-width: 640px) {
+  .home-trust-strip.home-trust-strip--footer {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    margin-inline: 0;
+  }
+
+  .home-trust-strip.home-trust-strip--footer .home-trust-card {
+    min-height: 96px;
+  }
+}
+
+/* Home Taiji raised placement: tighter first-screen composition without touching behavior. */
+.home-hero-stage.home-hero-stage--taiji-only.home-hero-stage--raised {
+  margin-top: clamp(-0.9rem, -1.5vw, -0.35rem) !important;
+  margin-bottom: clamp(1.25rem, 3vw, 2rem) !important;
+}
+
+@media (max-width: 640px) {
+  .home-hero-stage.home-hero-stage--taiji-only.home-hero-stage--raised {
+    margin-top: -0.85rem !important;
+    margin-bottom: 1.2rem !important;
+  }
+}

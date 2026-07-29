@@ -21,7 +21,7 @@ function onlyDigits(value: string) {
 }
 
 function formatLunarDate(lunar: { rocYear: number; month: number; day: number; isLeapMonth?: boolean }) {
-  return `農曆 ${lunar.rocYear} 年${lunar.isLeapMonth ? '閏' : ''}${lunar.month} 月 ${lunar.day} 日`;
+  return `農曆 ${lunar.rocYear} 年 ${lunar.isLeapMonth ? '閏' : ''}${lunar.month} 月 ${lunar.day} 日`;
 }
 
 export default function LunarBirthdayInput({
@@ -29,7 +29,7 @@ export default function LunarBirthdayInput({
   onChange,
   disabled = false,
   accent = 'violet',
-  label = '請輸入生日資料',
+  label = '請輸入出生日期',
 }: LunarBirthdayInputProps) {
   const [mode, setMode] = useState<'solar' | 'lunar'>('solar');
   const [rocYear, setRocYear] = useState('');
@@ -66,9 +66,9 @@ export default function LunarBirthdayInput({
   }, [day, hasCompleteDate, isLeapMonth, mode, month, rocYear]);
 
   const statusMessage = useMemo(() => {
-    if (!hasCompleteDate) return '請輸入民國年、月、日，完成後系統會自動換算。';
-    if (!normalizedCalendar) return '日期格式還沒通過，請確認年月日是否正確。';
-    return `已確認：國曆 ${normalizedCalendar.solarDate}，${formatLunarDate(normalizedCalendar.lunar)}`;
+    if (!hasCompleteDate) return '請依序填寫民國年、月、日，系統會自動換算成西元日期。';
+    if (!normalizedCalendar) return '日期格式目前無法辨識，請確認年、月、日是否正確。';
+    return `已確認西元 ${normalizedCalendar.solarDate}，${formatLunarDate(normalizedCalendar.lunar)}`;
   }, [hasCompleteDate, normalizedCalendar]);
 
   const handleNumberInput = (setter: (next: string) => void) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -129,11 +129,11 @@ export default function LunarBirthdayInput({
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-xs font-semibold text-cyan-200">生日校準</p>
+          <p className="text-xs font-semibold text-cyan-200">生日資料</p>
           <p className="text-sm font-semibold text-[color:var(--text-sub)]">{label}</p>
         </div>
         <span className={`rounded-full border px-3 py-1 text-[11px] font-semibold ${accentClass}`}>
-          {mode === 'solar' ? '國曆' : '農曆'}
+          {mode === 'solar' ? '國曆輸入' : '農曆輸入'}
         </span>
       </div>
 
@@ -174,7 +174,7 @@ export default function LunarBirthdayInput({
       {mode === 'lunar' && (
         <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-[color:var(--text-sub)]">
           <input type="checkbox" checked={isLeapMonth} disabled={disabled} onChange={(event) => setIsLeapMonth(event.target.checked)} className="h-4 w-4 accent-violet-300" />
-          這一天是閏月
+          這個農曆月份是閏月
         </label>
       )}
 

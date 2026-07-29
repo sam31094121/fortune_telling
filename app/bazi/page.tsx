@@ -146,10 +146,9 @@ const SHICHEN_OPTIONS = [
   { label: '戌時 19:00-20:59', value: '19:30' },
   { label: '亥時 21:00-22:59', value: '21:30' },
 ];
-
 function statusLabel(job: AnalysisJob | null) {
-  if (!job) return '八字模組已接收資料，正在建立獨立運算任務。';
-  return job.message || '後端 Bazi Engine 正在獨立排盤。';
+  if (!job) return '八字命盤任務已建立，正在準備資料。';
+  return job.message || 'Bazi Engine 正在排出四柱、天干地支與五行強弱。';
 }
 
 function activeStep(job: AnalysisJob | null) {
