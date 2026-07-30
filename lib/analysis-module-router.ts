@@ -1,5 +1,5 @@
-export type AnalysisModuleId = 'NUMBER' | 'NAMEOLOGY' | 'ZIWEI' | 'BAZI';
-export type AnalysisType = 'number' | 'nameology' | 'insight' | 'bazi';
+export type AnalysisModuleId = 'NUMBER' | 'NAMEOLOGY' | 'ZIWEI' | 'BAZI' | 'ZODIAC';
+export type AnalysisType = 'number' | 'nameology' | 'insight' | 'bazi' | 'zodiac';
 
 export type AnalysisModuleDefinition = {
   moduleId: AnalysisModuleId;
@@ -61,6 +61,18 @@ export const ANALYSIS_MODULES: Record<AnalysisModuleId, AnalysisModuleDefinition
       validating: '\u6b63\u5728\u78ba\u8a8d\u51fa\u751f\u5e74\u6708\u65e5\u3001\u6642\u9593\u8207\u6027\u5225\u3002',
       processing: '\u6b63\u5728\u6392\u958b\u516b\u5b57\u56db\u67f1\u3001\u5929\u5e72\u5730\u652f\u8207\u65e5\u4e3b\u5f37\u5f31\u3002',
       finalizing: '正在整理八字命盤摘要與 AI 白話說明。',
+    },
+  },
+  ZODIAC: {
+    moduleId: 'ZODIAC',
+    analysisType: 'zodiac',
+    displayName: 'AI 西洋星座',
+    routePath: '/zodiac',
+    loadingCopy: {
+      queued: '西洋星座模組已接收，正在安排獨立運算。',
+      validating: '正在確認出生年月日。',
+      processing: '正在判定十二星座並整理人格特質。',
+      finalizing: '正在整理西洋星座獨立分析結果。',
     },
   },
 };

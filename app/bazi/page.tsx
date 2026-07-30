@@ -4,8 +4,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import AnalysisReadingFlow from '@/components/AnalysisReadingFlow';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
+import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 
 type BaziGender = 'male' | 'female';
@@ -396,6 +398,11 @@ export default function BaziPage() {
     setResult(null);
     setJob(null);
 
+    if (!getAnalysisIdentityTarget()) {
+      setError(getIdentityRequiredMessage());
+      return;
+    }
+
     if (form.name.trim().length > 20) {
       setError('姓名最多 20 個字，請縮短後再送出。');
       return;
@@ -438,6 +445,8 @@ export default function BaziPage() {
 
         {!result && (
           <>
+            <IdentitySplitSelector className="mb-5" />
+
             <section className="mb-5 rounded-3xl border border-emerald-300/25 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.18),rgba(34,211,238,0.1)_42%,rgba(15,23,42,0.78)_100%)] p-5 shadow-[0_0_36px_rgba(16,185,129,0.14)] sm:p-7">
               <p className="text-[11px] font-black uppercase tracking-[0.28em] text-emerald-200">AI BAZI CHART</p>
               <h1 className="mt-3 font-serif text-3xl font-black leading-tight text-emerald-50 sm:text-5xl">AI 八字命盤</h1>

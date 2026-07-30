@@ -1,12 +1,13 @@
 'use client';
 
 import type { GrowthElement, GrowthModuleId } from './growth-center-engine';
+import { isMemberGrowthTarget } from './identity-split-client';
 
 const MODULE_STORAGE_KEY = 'tdh_growth_completed_modules_v1';
 const PROFILE_STORAGE_KEY = 'tdh_growth_profile_id_v1';
 const ELEMENT_STORAGE_KEY = 'tdh_growth_elements_v1';
 
-const MODULES = new Set<GrowthModuleId>(['nameology', 'ziwei', 'number', 'soul_match', 'music', 'bazi']);
+const MODULES = new Set<GrowthModuleId>(['nameology', 'ziwei', 'number', 'soul_match', 'music', 'bazi', 'zodiac']);
 
 function readJson<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') return fallback;
@@ -46,15 +47,30 @@ export function getCompletedGrowthModules() {
 }
 
 export function markGrowthModuleCompleted(moduleId: GrowthModuleId, element?: GrowthElement | null) {
-  if (!MODULES.has(moduleId)) return;
+  if (!MODULES.has(moduleId)) return false;
+  if (!isMemberGrowthTarget()) {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('tdh-growth-progress-skipped', {
+        detail: { moduleId, reason: 'guest_analysis' },
+      }));
+    }
+    return false;
+  }
   const modules = getCompletedGrowthModules();
-  if (!modules.includes(moduleId)) modules.push(moduleId);
+  const wasCompleted = modules.includes(moduleId);
+  if (!wasCompleted) modules.push(moduleId);
   writeJson(MODULE_STORAGE_KEY, modules);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('tdh-growth-progress-updated', {
+      detail: { moduleId, completedModules: modules, completed: modules.length, newlyCompleted: !wasCompleted },
+    }));
+  }
   if (element) {
     const elements = readJson<Record<string, GrowthElement>>(ELEMENT_STORAGE_KEY, {});
     elements[moduleId] = element;
     writeJson(ELEMENT_STORAGE_KEY, elements);
   }
+  return true;
 }
 
 export function getGrowthElements() {

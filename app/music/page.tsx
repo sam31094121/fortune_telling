@@ -4,9 +4,11 @@ import { useRef, useState, useEffect, useMemo, type PointerEvent } from 'react';
 import Link from 'next/link';
 import PersonalityMusicFlow, { type MusicFormData } from '@/components/PersonalityMusicFlow';
 import PersonalityMusicReport from '@/components/PersonalityMusicReport';
+import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 
@@ -268,6 +270,11 @@ export default function MusicSystemPage() {
   }, [pageState, loading, errorMsg]);
 
   async function handleSubmit(data: MusicFormData) {
+    if (!getAnalysisIdentityTarget()) {
+      setErrorMsg(getIdentityRequiredMessage());
+      setPageState('form');
+      return;
+    }
     setErrorMsg('');
     setLoading(true);
     setSubmittedName(data.name.trim());
@@ -356,6 +363,8 @@ export default function MusicSystemPage() {
                   {"\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002"}
                 </p>
               </div>
+
+              <IdentitySplitSelector className="mb-6" />
 
               <PersonalityMusicFlow onSubmit={handleSubmit} loading={loading} />
 

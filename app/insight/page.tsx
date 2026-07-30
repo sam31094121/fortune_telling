@@ -4,8 +4,10 @@ import { useState, useEffect, useMemo, useRef, type Ref } from 'react';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
+import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
@@ -1775,6 +1777,7 @@ export default function InsightPage() {
 
   // 同步 input 的變更到 localStorage
   useEffect(() => {
+    if (getAnalysisIdentityTarget() !== 'self') return;
     if (input.name || input.birthDate) {
       saveUserData({
         name: input.name,
@@ -1845,6 +1848,10 @@ export default function InsightPage() {
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
+      return;
+    }
+    if (!getAnalysisIdentityTarget()) {
+      setError(getIdentityRequiredMessage());
       return;
     }
 
@@ -1975,6 +1982,7 @@ export default function InsightPage() {
             <div id="input-form" className="fortune-card p-6 sm:p-8 scroll-mt-20">
               {loading && <InsightAnalyticalConsole name={input.name} />}
               <div className={loading ? 'hidden' : 'space-y-8'}>
+                <IdentitySplitSelector />
                 {/* 狀態指示器 */}
               <div className="hidden rounded-lg border border-cyan-400/20 bg-cyan-400/5 p-4 sm:block">
                 <p className="text-xs text-[color:var(--text-muted)] mb-3">資料進度</p>

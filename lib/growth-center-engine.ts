@@ -1,7 +1,8 @@
 import { AI_INTEGRATION_MODULES, buildAiIntegrationLayer, parseAiIntegrationModules } from './ai-integration-layer';
-import type { AiCompanionStage, AiIntegrationElement, AiIntegrationModuleId } from './ai-integration-layer';
+import type { AiCompanionStage, AiIntegrationElement, AiIntegrationModuleId, AiIntegrationResult } from './ai-integration-layer';
 import { buildSystemStabilitySnapshot } from './platform-stability-layer';
 import { buildAiCopywritingStyleSnapshot } from './ai-copywriting-style-center';
+import { buildAiFollowUpSystem } from './ai-follow-up-system';
 
 export type GrowthModuleId = AiIntegrationModuleId;
 export type GrowthElement = AiIntegrationElement;
@@ -61,15 +62,56 @@ type LongTermCheckpoint = {
 
 type SystemStabilitySnapshot = ReturnType<typeof buildSystemStabilitySnapshot>;
 type AiCopywritingStyleSnapshot = ReturnType<typeof buildAiCopywritingStyleSnapshot>;
+type AiFollowUpSystemSnapshot = ReturnType<typeof buildAiFollowUpSystem>;
+type GrowthCenterCoreV2 = {
+  version: 'growth_center_core_v2';
+  positioning: {
+    title: string;
+    principle: string;
+    roleSplit: string;
+  };
+  firstScreen: {
+    title: string;
+    headline: string;
+    body: string;
+    primaryMetric: string;
+    status: string;
+  };
+  memberMemory: {
+    title: string;
+    completedText: string;
+    missingText: string;
+    currentFocus: string;
+    noReanalysisPolicy: string;
+  };
+  weeklyCompanion: {
+    reminder: string;
+    reinforcement: string;
+    energyColor: string;
+    task: string;
+    quote: string;
+  };
+  followUpPolicy: {
+    prompt: string;
+    ifContinued: string;
+    ifPaused: string;
+    boundary: string;
+  };
+  retentionLoop: {
+    title: string;
+    steps: string[];
+  };
+};
 
 export type GrowthCenterResult = {
   success: true;
   data: {
+    coreV2: GrowthCenterCoreV2;
     progress: {
       completedModules: GrowthModuleId[];
       missingModules: GrowthModuleId[];
       completed: number;
-      total: 6;
+      total: 7;
       unlockLevel: 'empty' | 'starter' | 'cross_module' | 'complete';
       message: string;
     };
@@ -117,6 +159,7 @@ export type GrowthCenterResult = {
       task: string;
       reason: string;
     };
+    followUp: AiFollowUpSystemSnapshot;
     weeklyEnergyColor: {
       weekKey: string;
       element: GrowthElement;
@@ -240,6 +283,80 @@ const SUCCESS_QUOTES: SuccessQuote[] = [
   { author: '約翰・亨尼西', role: 'Stanford 前校長', quote: 'There is a difference between success and impact.', fit: '提醒你長期價值不是只看成功，也要看留下的影響。', sourceName: 'Stanford Engineering', sourceUrl: 'https://engineering.stanford.edu/news/stanford-engineering-hero-morris-chang-honored-revolutionizing-chip-making' },
 ];
 
+
+const CORE_ELEMENT_LABEL: Record<GrowthElement, string> = {
+  EARTH: '地元素',
+  WATER: '水元素',
+  FIRE: '火元素',
+  WIND: '風元素',
+  SPACE: '空元素',
+};
+
+function buildCoreGrowthCenterV2(args: {
+  integration: AiIntegrationResult;
+  elementLabel: string;
+  colorName: string;
+  action: string;
+  oneLineReminder: string;
+  quote: SuccessQuote;
+}) : GrowthCenterCoreV2 {
+  const completed = args.integration.completed;
+  const total = args.integration.total;
+  const missingCount = Math.max(total - completed, 0);
+  const primaryLabel = CORE_ELEMENT_LABEL[args.integration.primaryElement] ?? args.elementLabel;
+  const status = completed >= total
+    ? '專屬成長中心已完整解鎖'
+    : completed === 0
+      ? '尚未建立本人分析資料'
+      : `已完成 ${completed}/${total}，還差 ${missingCount} 項探索`;
+
+  return {
+    version: 'growth_center_core_v2',
+    positioning: {
+      title: 'AI 個人成長中心',
+      principle: '分析一次，終身陪伴。',
+      roleSplit: '六張命理卡片負責分析；AI 個人成長中心只負責陪伴、提醒、追蹤與行動。',
+    },
+    firstScreen: {
+      title: '本週 AI 陪伴核心',
+      headline: completed === 0 ? '先完成第一項本人探索，AI 會開始建立你的成長檔案。' : `本週核心：持續補強 ${primaryLabel}。`,
+      body: completed === 0
+        ? '這裡不會重新算命。完成本人分析後，AI 會讀取已完成結果，整理成本週提醒、補強方向、能量色與一件行動任務。'
+        : `AI 已讀取你的本人分析紀錄，本週只提醒最重要的一件事：把 ${primaryLabel} 的補強落實成行動。`,
+      primaryMetric: `${completed}/${total}`,
+      status,
+    },
+    memberMemory: {
+      title: 'AI 記得你的成長檔案',
+      completedText: completed === 0 ? '目前尚未完成本人探索。' : `目前已完成 ${completed} 項本人探索。`,
+      missingText: missingCount === 0 ? '六項探索已完成，後續以陪伴與追蹤為主。' : `還有 ${missingCount} 項探索未完成。`,
+      currentFocus: completed === 0 ? '目前先建立第一份本人資料。' : `目前第一補強：${primaryLabel}。`,
+      noReanalysisPolicy: 'AI 個人成長中心只讀取既有本人分析，不重新排盤、不重新算命、不讀親朋好友資料。',
+    },
+    weeklyCompanion: {
+      reminder: args.oneLineReminder,
+      reinforcement: completed === 0 ? '本週第一補強：完成第一項本人探索。' : `本週第一補強：${primaryLabel}。`,
+      energyColor: `本週唯一能量色：${args.colorName}。`,
+      task: `本週唯一行動任務：${args.action}`,
+      quote: `${args.quote.author}：${args.quote.quote}`,
+    },
+    followUpPolicy: {
+      prompt: completed === 0 ? '本週開始建立自己的第一份分析了嗎？' : `本週 ${primaryLabel} 持續補強了嗎？`,
+      ifContinued: '如果有，AI 會給你下一步，讓本週行動更穩。',
+      ifPaused: '如果沒有，AI 只提醒你回到本週任務，不責備、不聊天。',
+      boundary: 'Follow-Up 只追蹤會員自己的補強、成長與行動，不問家庭、不問生活、不問收入、不重新分析。',
+    },
+    retentionLoop: {
+      title: '會員回訪習慣',
+      steps: [
+        '第一次：完成本人分析，建立專屬資料。',
+        '之後登入：第一眼看 AI 個人成長中心。',
+        '每週：只更新一個提醒、一個補強、一個能量色、一件任務、一句名言。',
+        '長期：AI 追蹤補強進度，讓會員每週回來看方向。',
+      ],
+    },
+  };
+}
 function pickBySeed<T>(items: T[], seed: string, salt: string) {
   let value = 0;
   const text = `${seed}:${salt}`;
@@ -315,10 +432,27 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
     primaryAction: action,
     evidence: integration.evidence,
   };
+  const followUp = buildAiFollowUpSystem({
+    weekKey: integration.weekKey,
+    primaryElement: integration.primaryElement,
+    elementLabel: themeData.label,
+    weeklyReminder: oneLineReminder,
+    weeklyAction: action,
+    completedModules: integration.completedModules,
+    nextWeeklyUpdateAt: integration.nextWeeklyUpdateAt,
+  });
 
   return {
     success: true,
     data: {
+      coreV2: buildCoreGrowthCenterV2({
+        integration,
+        elementLabel: themeData.label,
+        colorName: color.colorName,
+        action,
+        oneLineReminder,
+        quote,
+      }),
       progress: {
         completedModules: integration.completedModules,
         missingModules: integration.missingModules,
@@ -363,6 +497,7 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
         task: action,
         reason: `這週只做一件事：它對應${themeData.label}，能讓${themeData.theme}真正落到行動。`,
       },
+      followUp,
       weeklyEnergyColor: {
         weekKey: integration.weekKey,
         element: integration.primaryElement,

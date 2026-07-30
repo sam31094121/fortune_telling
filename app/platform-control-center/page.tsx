@@ -148,8 +148,8 @@ export default function PlatformControlCenterPage() {
               </div>
             </div>
             <div className="mt-3 grid gap-2">
-              {data.copywritingCenter.rules.slice(0, 3).map((rule) => (
-                <p key={rule.id} className="rounded-lg border border-white/10 bg-black/15 px-3 py-2 text-xs font-bold leading-5 text-cyan-50">{rule.title}：{rule.rule}</p>
+              {data.actionGuidance.requiredSteps.map((step) => (
+                <p key={step.id} className="rounded-lg border border-white/10 bg-black/15 px-3 py-2 text-xs font-bold leading-5 text-cyan-50">{step.title}：{step.outputRule}</p>
               ))}
             </div>
           </div>
@@ -161,6 +161,23 @@ export default function PlatformControlCenterPage() {
             <div className="mt-4 grid gap-2">
               {data.growthCenter.weeklyItems.map((item) => (
                 <p key={item} className="rounded-lg border border-white/10 bg-black/15 px-3 py-2 text-xs font-black text-emerald-50">{item}</p>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-sky-300/20 bg-sky-300/8 p-5">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-sky-200">AI Follow-Up System</p>
+            <h2 className="mt-2 text-2xl font-black text-sky-50">補強追蹤中心</h2>
+            <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{data.followUpSystem.highestPrinciple}</p>
+            <p className="mt-3 rounded-xl border border-sky-200/15 bg-black/15 px-3 py-2 text-xs font-bold leading-6 text-sky-50">{data.followUpSystem.boundary}</p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {data.followUpSystem.quickReplies.map((reply) => (
+                <p key={reply.id} className="rounded-lg border border-white/10 bg-black/15 px-3 py-2 text-center text-xs font-black text-sky-50">{reply.label}</p>
+              ))}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {data.followUpSystem.forbiddenTopics.slice(0, 4).map((topic) => (
+                <span key={topic} className="rounded-full border border-rose-200/20 bg-rose-300/10 px-2.5 py-1 text-[10px] font-black text-rose-100">禁：{topic}</span>
               ))}
             </div>
           </div>

@@ -1,4 +1,4 @@
-export type PlatformAnalysisModuleId = 'nameology' | 'ziwei' | 'number' | 'soul_match' | 'music' | 'bazi';
+export type PlatformAnalysisModuleId = 'nameology' | 'ziwei' | 'number' | 'soul_match' | 'music' | 'bazi' | 'zodiac';
 
 export type PlatformLayerId = 'analysis' | 'integration' | 'growth_center' | 'weekly_companion' | 'system_stability';
 
@@ -22,83 +22,94 @@ export type PlatformStabilityCheck = {
 };
 
 export const PLATFORM_MASTER_PLAN_VERSION = 'tiandiren_master_plan_v1';
-export const PLATFORM_CORE_PRINCIPLE = '分析一次，終身陪伴。';
+export const PLATFORM_CORE_PRINCIPLE = 'Analyze once, companion for life';
 
 export const PLATFORM_ANALYSIS_MODULES: PlatformAnalysisModule[] = [
   {
     id: 'nameology',
-    title: 'AI 姓名學',
-    shortTitle: '姓名學',
+    title: 'AI Nameology',
+    shortTitle: 'Nameology',
     href: '/nameology',
     apiHint: '/api/nameology-analyze',
     role: 'independent_analysis_source',
     canAnalyze: true,
     canFeedIntegrationLayer: true,
-    integrationRule: '只保存姓名學完成狀態與元素方向，不讓成長中心重新分析姓名。',
+    integrationRule: 'Save only completion state and element direction. Growth Center must not re-analyze names.',
   },
   {
     id: 'ziwei',
-    title: 'AI 紫微斗數',
-    shortTitle: '紫微',
+    title: 'AI Ziwei',
+    shortTitle: 'Ziwei',
     href: '/insight',
     apiHint: '/api/insight-analyze',
     role: 'independent_analysis_source',
     canAnalyze: true,
     canFeedIntegrationLayer: true,
-    integrationRule: '只保存紫微斗數完成狀態與元素方向，不讓成長中心重新排盤。',
+    integrationRule: 'Save only completion state and element direction. Growth Center must not re-run Ziwei.',
   },
   {
     id: 'number',
-    title: 'AI 數字論吉凶',
-    shortTitle: '數字',
+    title: 'AI Number Fortune',
+    shortTitle: 'Number',
     href: '/numerology',
     apiHint: '/api/number/analyze',
     role: 'independent_analysis_source',
     canAnalyze: true,
     canFeedIntegrationLayer: true,
-    integrationRule: '只保存數字論吉凶完成狀態與元素方向，不讓成長中心重新計算數字。',
+    integrationRule: 'Save only completion state and element direction. Growth Center must not re-calculate numbers.',
   },
   {
     id: 'soul_match',
-    title: 'AI 靈魂配對',
-    shortTitle: '配對',
+    title: 'AI Soul Match',
+    shortTitle: 'Match',
     href: '/match',
     apiHint: '/api/match-generate',
     role: 'independent_analysis_source',
     canAnalyze: true,
     canFeedIntegrationLayer: true,
-    integrationRule: '只保存靈魂配對完成狀態與元素方向，不讓成長中心重新分析雙人配對。',
+    integrationRule: 'Save only completion state and relationship direction. Growth Center must not re-analyze matching.',
   },
   {
     id: 'music',
-    title: 'AI 生成音樂',
-    shortTitle: '音樂',
+    title: 'AI Music',
+    shortTitle: 'Music',
     href: '/music',
     apiHint: '/api/music-generate',
     role: 'independent_analysis_source',
     canAnalyze: true,
     canFeedIntegrationLayer: true,
-    integrationRule: '只保存生命音樂完成狀態與元素方向，不讓成長中心重新生成歌曲。',
+    integrationRule: 'Save only completion state and rhythm direction. Growth Center must not regenerate music.',
   },
   {
     id: 'bazi',
-    title: 'AI 八字命盤',
-    shortTitle: '八字',
+    title: 'AI Bazi Chart',
+    shortTitle: 'Bazi',
     href: '/bazi',
     apiHint: '/api/analysis/jobs',
     role: 'independent_analysis_source',
     canAnalyze: true,
     canFeedIntegrationLayer: true,
-    integrationRule: '只保存八字命盤完成狀態與元素方向，不讓成長中心重新排八字。',
+    integrationRule: 'Save only completion state and chart direction. Growth Center must not re-run Bazi.',
+  },
+  {
+    id: 'zodiac',
+    title: 'AI Western Zodiac',
+    shortTitle: 'Zodiac',
+    href: '/zodiac',
+    apiHint: '/api/analysis/jobs',
+    role: 'independent_analysis_source',
+    canAnalyze: true,
+    canFeedIntegrationLayer: true,
+    integrationRule: 'Save only completion state, zodiac sign, and weekly reminder. Growth Center must not re-run zodiac analysis.',
   },
 ];
 
 export const PLATFORM_LAYER_RULES: Array<{ id: PlatformLayerId; title: string; rule: string }> = [
-  { id: 'analysis', title: '第一層：六張命理分析', rule: '六張卡片各自獨立分析、獨立保存、互不覆蓋。' },
-  { id: 'integration', title: '第二層：AI Integration Layer', rule: '只讀取已完成分析結果，不重新分析、不重新排盤。' },
-  { id: 'growth_center', title: '第三層：AI 個人成長中心', rule: '只整理成陪伴、提醒、鼓勵、成長，不重複命理內容。' },
-  { id: 'weekly_companion', title: '第四層：AI 每週陪伴', rule: '每週只給一件任務、一個能量色、一句提醒、一句名言。' },
-  { id: 'system_stability', title: '第五層：System Stability Layer', rule: '所有新增內容先通過不衝突、不打架、不重複、不覆蓋檢查。' },
+  { id: 'analysis', title: 'Layer 1: seven independent analysis cards', rule: 'Seven cards analyze and save independently without overwriting each other.' },
+  { id: 'integration', title: 'Layer 2: AI Integration Layer', rule: 'Read completed analysis results only. Do not re-analyze or re-calculate.' },
+  { id: 'growth_center', title: 'Layer 3: AI Growth Center', rule: 'Convert saved signals into companionship, reminders, encouragement, and action.' },
+  { id: 'weekly_companion', title: 'Layer 4: AI Weekly Companion', rule: 'Keep one task, one color, one reminder, and one quote per week.' },
+  { id: 'system_stability', title: 'Layer 5: System Stability Layer', rule: 'Every new module must pass no conflict, no duplicate, and no overwrite checks.' },
 ];
 
 export const PLATFORM_FORBIDDEN_ANALYSIS_CALLS = [
@@ -108,12 +119,13 @@ export const PLATFORM_FORBIDDEN_ANALYSIS_CALLS = [
   'number-core-engine',
   'match-generate',
   'music-generate',
+  'zodiac-engine',
 ] as const;
 
 export const PLATFORM_AI_CORE_POLICY = {
   id: 'single_ai_core_policy',
-  title: '同一個 AI Core',
-  rule: 'AI Core 統一負責整理、等待、錯誤處理與陪伴文字；六張卡片的命理運算保持各自獨立。',
+  title: 'Single AI Core',
+  rule: 'AI Core coordinates copy, loading, errors, and companionship text. The seven analysis cards keep their engines independent.',
 };
 
 export function getPlatformModuleIds() {
@@ -127,34 +139,34 @@ export function validatePlatformStability(completedModules: PlatformAnalysisModu
 
   return [
     {
-      id: 'six_modules_registered',
-      label: '六張卡片註冊完整',
-      ok: PLATFORM_ANALYSIS_MODULES.length === 6,
-      detail: `目前註冊 ${PLATFORM_ANALYSIS_MODULES.length} 張分析卡片。`,
+      id: 'seven_modules_registered',
+      label: 'Seven analysis cards registered',
+      ok: PLATFORM_ANALYSIS_MODULES.length === 7,
+      detail: 'Registered analysis cards: ' + PLATFORM_ANALYSIS_MODULES.length + '.',
     },
     {
       id: 'completed_modules_known',
-      label: '完成狀態只接受已知卡片',
+      label: 'Completed modules are known',
       ok: !hasUnknownModule,
-      detail: hasUnknownModule ? '偵測到未知卡片 ID，整合層會忽略它。' : '完成狀態都屬於六張卡片。',
+      detail: hasUnknownModule ? 'Unknown module ID detected. Integration Layer ignores it.' : 'Completed states belong to registered cards only.',
     },
     {
       id: 'integration_read_only',
-      label: 'Integration Layer 只讀取',
+      label: 'Integration Layer is read-only',
       ok: true,
-      detail: '成長中心只接收完成狀態與元素方向，不呼叫命理引擎。',
+      detail: 'Growth Center receives completion state and element direction only. It does not call analysis engines.',
     },
     {
       id: 'weekly_single_focus',
-      label: '每週只保留一個重點',
+      label: 'Weekly companion keeps one focus',
       ok: true,
-      detail: '每週只有一個補強元素、一個能量色、一件任務、一句名言。',
+      detail: 'Each week keeps one element, one color, one task, and one quote.',
     },
     {
       id: 'no_analysis_reentry',
-      label: '禁止回頭重新算命',
-      ok: PLATFORM_FORBIDDEN_ANALYSIS_CALLS.length === 6,
-      detail: `已列入 ${PLATFORM_FORBIDDEN_ANALYSIS_CALLS.length} 個禁止呼叫的命理分析入口。`,
+      label: 'Analysis re-entry is blocked',
+      ok: PLATFORM_FORBIDDEN_ANALYSIS_CALLS.length === 7,
+      detail: 'Forbidden analysis entry points: ' + PLATFORM_FORBIDDEN_ANALYSIS_CALLS.length + '.',
     },
   ];
 }

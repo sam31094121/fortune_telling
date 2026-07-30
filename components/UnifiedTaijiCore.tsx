@@ -90,12 +90,46 @@ export default function UnifiedTaijiCore({
     audioTimersRef.current.add(timer);
   };
 
+  const createAudioContext = () => {
+    if (typeof window === 'undefined') return null;
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return null;
+    const ctx = new AudioContextClass() as AudioContext;
+    if (ctx.state === 'suspended') {
+      void ctx.resume().catch(() => {});
+    }
+    return ctx;
+  };
+
+  const playTouchTone = (nextTapCount: number) => {
+    try {
+      const ctx = createAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const gainNode = ctx.createGain();
+      const osc = ctx.createOscillator();
+      const frequency = nextTapCount % 2 === 0 ? 432 : 288;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(frequency, now);
+      osc.frequency.exponentialRampToValueAtTime(frequency * 1.18, now + 0.16);
+      gainNode.gain.setValueAtTime(0.0001, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.16, now + 0.018);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.46);
+      closeAudioLater(ctx, 720);
+    } catch (error) {
+      console.warn('[UnifiedTaijiCore] touch tone skipped:', error);
+    }
+  };
+
   const playBowlSound = (level: 1 | 2 | 3 | 4) => {
     if (typeof window === 'undefined') return;
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContextClass) return;
-      const ctx = new AudioContextClass();
+      const ctx = createAudioContext();
+      if (!ctx) return;
       const gainNode = ctx.createGain();
       gainNode.gain.setValueAtTime(0, ctx.currentTime);
 
@@ -152,9 +186,8 @@ export default function UnifiedTaijiCore({
   const playEvolutionTone = (stage: EvolutionStage) => {
     if (typeof window === 'undefined' || stage === 'idle') return;
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContextClass) return;
-      const ctx = new AudioContextClass();
+      const ctx = createAudioContext();
+      if (!ctx) return;
       const gainNode = ctx.createGain();
       const filter = ctx.createBiquadFilter();
       const frequencies: Record<Exclude<EvolutionStage, 'idle'>, number[]> = {
@@ -219,6 +252,7 @@ export default function UnifiedTaijiCore({
   };
 
   const triggerTouchFeedback = (nextTapCount: number) => {
+    playTouchTone(nextTapCount);
     setTouchPulse((previous) => previous + 1);
 
     if (touchPulseTimerRef.current) clearTimeout(touchPulseTimerRef.current);
@@ -241,6 +275,7 @@ export default function UnifiedTaijiCore({
   const handleClick = () => {
     setTapCount((previous) => {
       if (limitToLiangyi && previous >= 2) {
+        triggerTouchFeedback(previous + 1);
         if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
         tapTimerRef.current = setTimeout(() => setTapCount(0), 8000);
         return previous;

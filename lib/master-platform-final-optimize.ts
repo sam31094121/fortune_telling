@@ -9,7 +9,7 @@ export const MASTER_PLATFORM_POSITIONING = {
 };
 
 export const MASTER_PLATFORM_SYSTEMS = [
-  { layer: 1, id: 'six_analysis_cards', title: '六張命理分析', rule: '完全獨立運算、獨立保存，不互相分析、不互相覆蓋、不互相呼叫。' },
+  { layer: 1, id: 'seven_analysis_cards', title: 'Seven independent analysis cards', rule: 'Each analysis module runs and saves independently without calling, overwriting, or duplicating another module.' },
   { layer: 2, id: 'growth_center', title: 'AI 個人成長中心', rule: '只做陪伴、提醒、鼓勵、成長，不重新算命。' },
   { layer: 3, id: 'integration_layer', title: 'AI Integration Layer', rule: '唯一工作是整理、整合、判斷；不得重新分析。' },
   { layer: 4, id: 'weekly_companion', title: 'AI 每週陪伴', rule: '每週只更新一次，每次只給會員最重要的一件事情。' },
