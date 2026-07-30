@@ -54,6 +54,7 @@ type UnifiedTaijiCoreProps = {
   auraBadgeClass?: string;
   auraLabel?: string;
   showLabel?: boolean;
+  limitToLiangyi?: boolean;
 };
 
 export default function UnifiedTaijiCore({
@@ -62,6 +63,7 @@ export default function UnifiedTaijiCore({
   auraBadgeClass = '',
   auraLabel = '',
   showLabel = false,
+  limitToLiangyi = false,
 }: UnifiedTaijiCoreProps) {
   const [tapCount, setTapCount] = useState(0);
   const [evolutionStage, setEvolutionStage] = useState<EvolutionStage>('idle');
@@ -238,19 +240,25 @@ export default function UnifiedTaijiCore({
 
   const handleClick = () => {
     setTapCount((previous) => {
+      if (limitToLiangyi && previous >= 2) {
+        if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+        tapTimerRef.current = setTimeout(() => setTapCount(0), 8000);
+        return previous;
+      }
+
       const next = previous + 1;
       triggerTouchFeedback(next);
 
       if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
       tapTimerRef.current = setTimeout(() => setTapCount(0), 8000);
 
-      if (next === 1 || next === 2 || next === 4 || next === 8) {
-        triggerEvolution(EVOLUTION_CONFIG[next]);
+      if (next === 1 || next === 2 || (!limitToLiangyi && (next === 4 || next === 8))) {
+        triggerEvolution(EVOLUTION_CONFIG[next as 1 | 2 | 4 | 8]);
       }
-      if (next === 3 || next === 6 || next === 12 || next === 24) {
+      if (!limitToLiangyi && (next === 3 || next === 6 || next === 12 || next === 24)) {
         triggerMantra(next);
       }
-      if (next >= 24) {
+      if (!limitToLiangyi && next >= 24) {
         if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
         return 0;
       }
@@ -357,9 +365,14 @@ export default function UnifiedTaijiCore({
           </div>
           {evolutionStage === 'liangyi' && (
             <div className="taiji-liangyi-precision-split" aria-hidden="true">
-              <span className="taiji-liangyi-precision-split__half taiji-liangyi-precision-split__half--yang" />
-              <span className="taiji-liangyi-precision-split__half taiji-liangyi-precision-split__half--yin" />
-              <span className="taiji-liangyi-precision-split__seam" />
+              <svg className="taiji-liangyi-precision-split__piece taiji-liangyi-precision-split__piece--yang" viewBox="0 0 100 100" role="presentation">
+                <path d="M50 0 A50 50 0 0 0 50 100 C75 100 75 50 50 50 C25 50 25 0 50 0 Z" />
+                <circle cx="50" cy="25" r="8.5" />
+              </svg>
+              <svg className="taiji-liangyi-precision-split__piece taiji-liangyi-precision-split__piece--yin" viewBox="0 0 100 100" role="presentation">
+                <path d="M50 0 A50 50 0 0 1 50 100 C25 100 25 50 50 50 C75 50 75 0 50 0 Z" />
+                <circle cx="50" cy="75" r="8.5" />
+              </svg>
             </div>
           )}
         </div>

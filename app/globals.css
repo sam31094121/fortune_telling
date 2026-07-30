@@ -11102,3 +11102,580 @@ body.app-touching .home-taiji-cinema * {
     min-height: min(2rem, 10vw) !important;
   }
 }
+/* Taiji Logo Animation V1: Taiji births Liangyi through the original S-curve, not a straight cut. */
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-liangyi-layer,
+.home-taiji-cinema .unified-taiji-shell--liangyi .unified-liangyi-split {
+  display: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-3d-core {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  animation: taiji-v1-whole-core-release 620ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split {
+  --split-core-size: clamp(6.1rem, 32vw, 7.15rem) !important;
+  --split-distance: clamp(1.42rem, 7vw, 2.08rem) !important;
+  display: block !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: var(--split-core-size) !important;
+  height: var(--split-core-size) !important;
+  transform: translate(-50%, -50%) translateZ(48px) !important;
+  transform-style: preserve-3d !important;
+  pointer-events: none !important;
+  z-index: 48 !important;
+  filter:
+    drop-shadow(0 14px 24px rgba(0, 0, 0, 0.28))
+    drop-shadow(0 0 18px rgba(253, 230, 138, 0.16)) !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__half,
+.home-taiji-cinema .taiji-liangyi-precision-split__seam {
+  display: none !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity, filter;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece path {
+  stroke: rgba(253, 230, 138, 0.28);
+  stroke-width: 0.85;
+  vector-effect: non-scaling-stroke;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece circle {
+  vector-effect: non-scaling-stroke;
+  stroke: rgba(253, 230, 138, 0.25);
+  stroke-width: 0.65;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-v1-white-fish-s-curve-release 640ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang path {
+  fill: #f8fafc;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.22));
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang circle {
+  fill: #020617;
+  filter: drop-shadow(0 0 8px rgba(2, 6, 23, 0.72));
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-v1-black-fish-s-curve-release 640ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin path {
+  fill: #020617;
+  filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.12));
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin circle {
+  fill: #f8fafc;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.34));
+}
+
+@keyframes taiji-v1-whole-core-release {
+  0% { opacity: 1; visibility: visible; filter: blur(0) brightness(1.05); }
+  44% { opacity: 0.38; visibility: visible; filter: blur(0.3px) brightness(1.12); }
+  100% { opacity: 0; visibility: hidden; filter: blur(0.7px) brightness(0.92); }
+}
+
+@keyframes taiji-v1-black-fish-s-curve-release {
+  0% { opacity: 0; transform: translateX(0) translateY(0) rotate(0deg) scale(0.995); filter: blur(0.6px) brightness(0.94); }
+  16% { opacity: 1; transform: translateX(0) translateY(0) rotate(0deg) scale(1); filter: blur(0) brightness(1.04); }
+  58% { opacity: 1; transform: translateX(calc(-1 * var(--split-distance) * 0.72)) translateY(0.06rem) rotate(-1.8deg) scale(1.018); filter: blur(0) brightness(1.08); }
+  100% { opacity: 1; transform: translateX(calc(-1 * var(--split-distance))) translateY(0.02rem) rotate(-0.8deg) scale(1); filter: blur(0) brightness(1); }
+}
+
+@keyframes taiji-v1-white-fish-s-curve-release {
+  0% { opacity: 0; transform: translateX(0) translateY(0) rotate(0deg) scale(0.995); filter: blur(0.6px) brightness(0.96); }
+  16% { opacity: 1; transform: translateX(0) translateY(0) rotate(0deg) scale(1); filter: blur(0) brightness(1.08); }
+  58% { opacity: 1; transform: translateX(calc(var(--split-distance) * 0.72)) translateY(-0.06rem) rotate(1.8deg) scale(1.018); filter: blur(0) brightness(1.14); }
+  100% { opacity: 1; transform: translateX(var(--split-distance)) translateY(-0.02rem) rotate(0.8deg) scale(1); filter: blur(0) brightness(1.06); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split {
+    --split-core-size: clamp(5.72rem, 35vw, 6.45rem) !important;
+    --split-distance: clamp(1.12rem, 7.6vw, 1.56rem) !important;
+  }
+}
+/* Taiji Logo Animation V1.1: the original S-curve separates itself into two non-overlapping Liangyi drops. */
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-3d-core {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  animation: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split {
+  --split-core-size: clamp(6.12rem, 32vw, 7.15rem) !important;
+  --split-distance: clamp(1.76rem, 8vw, 2.48rem) !important;
+  opacity: 1 !important;
+  filter:
+    drop-shadow(0 12px 22px rgba(0, 0, 0, 0.26))
+    drop-shadow(0 0 14px rgba(253, 230, 138, 0.12)) !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece {
+  opacity: 1 !important;
+  overflow: visible !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece path {
+  stroke: rgba(253, 230, 138, 0.2) !important;
+  stroke-width: 0.55 !important;
+  paint-order: fill stroke;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece circle {
+  stroke-width: 0.5 !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-v11-white-drop-follows-original-s 620ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-v11-black-drop-follows-original-s 620ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang path {
+  fill: #f8fafc;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin path {
+  fill: #020617;
+}
+
+@keyframes taiji-v11-white-drop-follows-original-s {
+  0% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+    filter: brightness(1.06) drop-shadow(0 0 7px rgba(255, 255, 255, 0.18));
+  }
+  38% {
+    opacity: 1;
+    transform: translateX(calc(var(--split-distance) * 0.44)) translateY(-0.035rem) rotate(0.45deg) scale(1.006);
+    filter: brightness(1.12) drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+  }
+  72% {
+    opacity: 1;
+    transform: translateX(calc(var(--split-distance) * 0.9)) translateY(-0.025rem) rotate(0.25deg) scale(1.002);
+    filter: brightness(1.1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.18));
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(var(--split-distance)) translateY(0) rotate(0deg) scale(1);
+    filter: brightness(1.08) drop-shadow(0 0 7px rgba(255, 255, 255, 0.16));
+  }
+}
+
+@keyframes taiji-v11-black-drop-follows-original-s {
+  0% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+    filter: brightness(0.98) drop-shadow(0 0 7px rgba(34, 211, 238, 0.1));
+  }
+  38% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance) * 0.44)) translateY(0.035rem) rotate(-0.45deg) scale(1.006);
+    filter: brightness(1.06) drop-shadow(0 0 8px rgba(34, 211, 238, 0.12));
+  }
+  72% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance) * 0.9)) translateY(0.025rem) rotate(-0.25deg) scale(1.002);
+    filter: brightness(1.03) drop-shadow(0 0 8px rgba(34, 211, 238, 0.1));
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance))) translateY(0) rotate(0deg) scale(1);
+    filter: brightness(1) drop-shadow(0 0 7px rgba(34, 211, 238, 0.08));
+  }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split {
+    --split-core-size: clamp(5.72rem, 35vw, 6.45rem) !important;
+    --split-distance: clamp(1.28rem, 8vw, 1.74rem) !important;
+  }
+}
+/* Taiji Logo Animation V1.2: Yin-Yang gate opens like a quiet doorway. */
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split {
+  --split-distance: clamp(1.92rem, 8.6vw, 2.68rem) !important;
+  perspective: 860px !important;
+  perspective-origin: 50% 50% !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  width: clamp(0.42rem, 2.4vw, 0.72rem);
+  height: 84%;
+  border-radius: 999px;
+  transform: translateX(-50%) scaleY(0.96);
+  background:
+    linear-gradient(180deg, transparent, rgba(255, 248, 214, 0.18) 24%, rgba(34, 211, 238, 0.08) 50%, rgba(255, 248, 214, 0.14) 76%, transparent),
+    radial-gradient(ellipse at 50% 50%, rgba(255, 248, 214, 0.16), transparent 68%);
+  box-shadow:
+    0 0 10px rgba(253, 230, 138, 0.16),
+    0 0 22px rgba(34, 211, 238, 0.08);
+  opacity: 0;
+  pointer-events: none;
+  animation: taiji-v12-doorway-breath 620ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang {
+  transform-origin: 50% 50% !important;
+  animation: taiji-v12-white-door-opens-from-s 660ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin {
+  transform-origin: 50% 50% !important;
+  animation: taiji-v12-black-door-opens-from-s 660ms ease-in-out both !important;
+}
+
+@keyframes taiji-v12-white-door-opens-from-s {
+  0% {
+    opacity: 1;
+    transform: translateX(0) translateZ(0) rotateY(0deg) rotateZ(0deg) scale(1);
+    filter: brightness(1.06) drop-shadow(0 0 7px rgba(255, 255, 255, 0.16));
+  }
+  34% {
+    opacity: 1;
+    transform: translateX(calc(var(--split-distance) * 0.34)) translateZ(0.22rem) rotateY(-9deg) rotateZ(0.28deg) scale(1.006);
+    filter: brightness(1.14) drop-shadow(0 0 9px rgba(255, 255, 255, 0.2));
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(calc(var(--split-distance) * 0.82)) translateZ(0.42rem) rotateY(-18deg) rotateZ(0.14deg) scale(1.002);
+    filter: brightness(1.12) drop-shadow(0 0 8px rgba(253, 230, 138, 0.16));
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(var(--split-distance)) translateZ(0.36rem) rotateY(-16deg) rotateZ(0deg) scale(1);
+    filter: brightness(1.08) drop-shadow(0 0 7px rgba(255, 255, 255, 0.14));
+  }
+}
+
+@keyframes taiji-v12-black-door-opens-from-s {
+  0% {
+    opacity: 1;
+    transform: translateX(0) translateZ(0) rotateY(0deg) rotateZ(0deg) scale(1);
+    filter: brightness(0.98) drop-shadow(0 0 7px rgba(34, 211, 238, 0.08));
+  }
+  34% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance) * 0.34)) translateZ(0.22rem) rotateY(9deg) rotateZ(-0.28deg) scale(1.006);
+    filter: brightness(1.06) drop-shadow(0 0 9px rgba(34, 211, 238, 0.12));
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance) * 0.82)) translateZ(0.42rem) rotateY(18deg) rotateZ(-0.14deg) scale(1.002);
+    filter: brightness(1.04) drop-shadow(0 0 8px rgba(34, 211, 238, 0.1));
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance))) translateZ(0.36rem) rotateY(16deg) rotateZ(0deg) scale(1);
+    filter: brightness(1) drop-shadow(0 0 7px rgba(34, 211, 238, 0.08));
+  }
+}
+
+@keyframes taiji-v12-doorway-breath {
+  0% { opacity: 0; transform: translateX(-50%) scaleX(0.25) scaleY(0.74); filter: blur(2px); }
+  42% { opacity: 0.54; transform: translateX(-50%) scaleX(0.72) scaleY(1.04); filter: blur(0.6px); }
+  100% { opacity: 0.34; transform: translateX(-50%) scaleX(1) scaleY(0.96); filter: blur(0.9px); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split {
+    --split-distance: clamp(1.44rem, 8.6vw, 1.92rem) !important;
+    perspective: 760px !important;
+  }
+}
+/* Taiji Logo Animation V1.3: second tap direction requested by owner, black moves right and white moves left. */
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-v13-white-door-opens-left-from-s 660ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-v13-black-door-opens-right-from-s 660ms ease-in-out both !important;
+}
+
+@keyframes taiji-v13-white-door-opens-left-from-s {
+  0% {
+    opacity: 1;
+    transform: translateX(0) translateZ(0) rotateY(0deg) rotateZ(0deg) scale(1);
+    filter: brightness(1.06) drop-shadow(0 0 7px rgba(255, 255, 255, 0.16));
+  }
+  34% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance) * 0.34)) translateZ(0.22rem) rotateY(9deg) rotateZ(-0.28deg) scale(1.006);
+    filter: brightness(1.14) drop-shadow(0 0 9px rgba(255, 255, 255, 0.2));
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance) * 0.82)) translateZ(0.42rem) rotateY(18deg) rotateZ(-0.14deg) scale(1.002);
+    filter: brightness(1.12) drop-shadow(0 0 8px rgba(253, 230, 138, 0.16));
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance))) translateZ(0.36rem) rotateY(16deg) rotateZ(0deg) scale(1);
+    filter: brightness(1.08) drop-shadow(0 0 7px rgba(255, 255, 255, 0.14));
+  }
+}
+
+@keyframes taiji-v13-black-door-opens-right-from-s {
+  0% {
+    opacity: 1;
+    transform: translateX(0) translateZ(0) rotateY(0deg) rotateZ(0deg) scale(1);
+    filter: brightness(0.98) drop-shadow(0 0 7px rgba(34, 211, 238, 0.08));
+  }
+  34% {
+    opacity: 1;
+    transform: translateX(calc(var(--split-distance) * 0.34)) translateZ(0.22rem) rotateY(-9deg) rotateZ(0.28deg) scale(1.006);
+    filter: brightness(1.06) drop-shadow(0 0 9px rgba(34, 211, 238, 0.12));
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(calc(var(--split-distance) * 0.82)) translateZ(0.42rem) rotateY(-18deg) rotateZ(0.14deg) scale(1.002);
+    filter: brightness(1.04) drop-shadow(0 0 8px rgba(34, 211, 238, 0.1));
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(var(--split-distance)) translateZ(0.36rem) rotateY(-16deg) rotateZ(0deg) scale(1);
+    filter: brightness(1) drop-shadow(0 0 7px rgba(34, 211, 238, 0.08));
+  }
+}
+/* Taiji Logo Animation V1.4: add calm water-energy depth through the opened Yin-Yang gate. */
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split {
+  --split-distance: clamp(2.02rem, 9vw, 2.82rem) !important;
+  perspective: 980px !important;
+  perspective-origin: 50% 50% !important;
+  filter:
+    drop-shadow(0 16px 26px rgba(0, 0, 0, 0.3))
+    drop-shadow(0 0 18px rgba(34, 211, 238, 0.12))
+    drop-shadow(0 0 16px rgba(253, 230, 138, 0.1)) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split::before,
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split::before {
+  width: clamp(1rem, 5.4vw, 1.46rem);
+  height: 92%;
+  border-radius: 999px;
+  transform: translate(-50%, -50%) translateZ(-10px) rotateX(6deg);
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(186, 230, 253, 0.2) 16%, rgba(34, 211, 238, 0.34) 44%, rgba(253, 230, 138, 0.16) 60%, rgba(186, 230, 253, 0.22) 82%, transparent 100%),
+    radial-gradient(ellipse at 50% 18%, rgba(255, 255, 255, 0.34), transparent 42%),
+    radial-gradient(ellipse at 50% 78%, rgba(34, 211, 238, 0.22), transparent 52%);
+  box-shadow:
+    0 0 12px rgba(186, 230, 253, 0.18),
+    0 0 28px rgba(34, 211, 238, 0.16),
+    inset 0 0 14px rgba(255, 255, 255, 0.16);
+  opacity: 0;
+  filter: blur(1.2px) saturate(1.08);
+  animation: taiji-v14-water-energy-enters 720ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split::after {
+  width: clamp(2.8rem, 14vw, 3.8rem);
+  height: clamp(2.8rem, 14vw, 3.8rem);
+  border-radius: 999px;
+  transform: translate(-50%, -50%) translateZ(-18px) rotateX(68deg) scale(0.74);
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(186, 230, 253, 0.24), rgba(34, 211, 238, 0.08) 38%, transparent 68%),
+    conic-gradient(from 180deg, transparent, rgba(253, 230, 138, 0.12), rgba(34, 211, 238, 0.12), transparent);
+  box-shadow:
+    0 0 18px rgba(34, 211, 238, 0.14),
+    0 0 36px rgba(253, 230, 138, 0.08);
+  opacity: 0;
+  filter: blur(0.8px) saturate(1.1);
+  animation: taiji-v14-water-ripple-floor 780ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece {
+  z-index: 3;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-v14-white-door-opens-left-with-depth 720ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-v14-black-door-opens-right-with-depth 720ms ease-in-out both !important;
+}
+
+@keyframes taiji-v14-white-door-opens-left-with-depth {
+  0% {
+    opacity: 1;
+    transform: translateX(0) translateZ(0) rotateY(0deg) rotateZ(0deg) scale(1);
+    filter: brightness(1.06) drop-shadow(0 0 7px rgba(255, 255, 255, 0.16));
+  }
+  30% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance) * 0.34)) translateY(-0.02rem) translateZ(0.24rem) rotateY(10deg) rotateZ(-0.18deg) scale(1.006);
+    filter: brightness(1.14) drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+  }
+  68% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance) * 0.84)) translateY(-0.015rem) translateZ(0.58rem) rotateY(22deg) rotateZ(-0.08deg) scale(1.002);
+    filter: brightness(1.12) drop-shadow(0 0 9px rgba(253, 230, 138, 0.16));
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance))) translateY(0) translateZ(0.5rem) rotateY(19deg) rotateZ(0deg) scale(1);
+    filter: brightness(1.08) drop-shadow(0 0 8px rgba(255, 255, 255, 0.14));
+  }
+}
+
+@keyframes taiji-v14-black-door-opens-right-with-depth {
+  0% {
+    opacity: 1;
+    transform: translateX(0) translateZ(0) rotateY(0deg) rotateZ(0deg) scale(1);
+    filter: brightness(0.98) drop-shadow(0 0 7px rgba(34, 211, 238, 0.08));
+  }
+  30% {
+    opacity: 1;
+    transform: translateX(calc(var(--split-distance) * 0.34)) translateY(0.02rem) translateZ(0.24rem) rotateY(-10deg) rotateZ(0.18deg) scale(1.006);
+    filter: brightness(1.06) drop-shadow(0 0 10px rgba(34, 211, 238, 0.12));
+  }
+  68% {
+    opacity: 1;
+    transform: translateX(calc(var(--split-distance) * 0.84)) translateY(0.015rem) translateZ(0.58rem) rotateY(-22deg) rotateZ(0.08deg) scale(1.002);
+    filter: brightness(1.04) drop-shadow(0 0 9px rgba(34, 211, 238, 0.12));
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(var(--split-distance)) translateY(0) translateZ(0.5rem) rotateY(-19deg) rotateZ(0deg) scale(1);
+    filter: brightness(1) drop-shadow(0 0 8px rgba(34, 211, 238, 0.1));
+  }
+}
+
+@keyframes taiji-v14-water-energy-enters {
+  0% { opacity: 0; transform: translate(-50%, -50%) translateZ(-10px) rotateX(6deg) scaleX(0.2) scaleY(0.5); filter: blur(2.2px) saturate(1); }
+  36% { opacity: 0.52; transform: translate(-50%, -50%) translateZ(-8px) rotateX(6deg) scaleX(0.72) scaleY(1.04); filter: blur(1px) saturate(1.16); }
+  72% { opacity: 0.42; transform: translate(-50%, -50%) translateZ(-10px) rotateX(6deg) scaleX(1.04) scaleY(0.98); filter: blur(1.15px) saturate(1.12); }
+  100% { opacity: 0.34; transform: translate(-50%, -50%) translateZ(-10px) rotateX(6deg) scaleX(0.92) scaleY(0.96); filter: blur(1.25px) saturate(1.08); }
+}
+
+@keyframes taiji-v14-water-ripple-floor {
+  0% { opacity: 0; transform: translate(-50%, -50%) translateZ(-18px) rotateX(68deg) scale(0.34); }
+  42% { opacity: 0.42; transform: translate(-50%, -50%) translateZ(-18px) rotateX(68deg) scale(0.92); }
+  100% { opacity: 0.24; transform: translate(-50%, -50%) translateZ(-18px) rotateX(68deg) scale(1.08); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split {
+    --split-distance: clamp(1.52rem, 9vw, 2.02rem) !important;
+    perspective: 820px !important;
+  }
+}
+/* Taiji Logo Animation V1.5: pure left-right sliding gate, no vertical drift or rotation. */
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split {
+  --split-distance: clamp(2.04rem, 9vw, 2.78rem) !important;
+  perspective: none !important;
+  perspective-origin: 50% 50% !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece {
+  transform-origin: 50% 50% !important;
+  transform-style: flat !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-v15-white-drop-slides-left-only 660ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-v15-black-drop-slides-right-only 660ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split::before {
+  width: clamp(0.72rem, 4.4vw, 1.12rem) !important;
+  height: 86% !important;
+  transform: translate(-50%, -50%) !important;
+  animation: taiji-v15-center-water-column 680ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split::after {
+  transform: translate(-50%, -50%) scale(1) !important;
+  animation: taiji-v15-center-water-ripple 720ms ease-in-out both !important;
+}
+
+@keyframes taiji-v15-white-drop-slides-left-only {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: brightness(1.06) drop-shadow(0 0 7px rgba(255, 255, 255, 0.16));
+  }
+  42% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance) * 0.58)) scale(1.002);
+    filter: brightness(1.12) drop-shadow(0 0 9px rgba(255, 255, 255, 0.18));
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(calc(-1 * var(--split-distance))) scale(1);
+    filter: brightness(1.08) drop-shadow(0 0 8px rgba(255, 255, 255, 0.14));
+  }
+}
+
+@keyframes taiji-v15-black-drop-slides-right-only {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: brightness(0.98) drop-shadow(0 0 7px rgba(34, 211, 238, 0.08));
+  }
+  42% {
+    opacity: 1;
+    transform: translateX(calc(var(--split-distance) * 0.58)) scale(1.002);
+    filter: brightness(1.05) drop-shadow(0 0 9px rgba(34, 211, 238, 0.12));
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(var(--split-distance)) scale(1);
+    filter: brightness(1) drop-shadow(0 0 8px rgba(34, 211, 238, 0.1));
+  }
+}
+
+@keyframes taiji-v15-center-water-column {
+  0% { opacity: 0; transform: translate(-50%, -50%) scaleX(0.18) scaleY(0.72); filter: blur(2px) saturate(1); }
+  42% { opacity: 0.5; transform: translate(-50%, -50%) scaleX(0.72) scaleY(1); filter: blur(0.9px) saturate(1.14); }
+  100% { opacity: 0.34; transform: translate(-50%, -50%) scaleX(0.9) scaleY(0.96); filter: blur(1.1px) saturate(1.08); }
+}
+
+@keyframes taiji-v15-center-water-ripple {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.42); }
+  42% { opacity: 0.32; transform: translate(-50%, -50%) scale(0.92); }
+  100% { opacity: 0.2; transform: translate(-50%, -50%) scale(1.04); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split {
+    --split-distance: clamp(1.54rem, 9vw, 2.02rem) !important;
+  }
+}
