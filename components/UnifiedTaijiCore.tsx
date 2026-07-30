@@ -21,7 +21,7 @@ const EVOLUTION_CONFIG: Record<1 | 2 | 4 | 8, EvolutionConfig> = {
   2: {
     stage: 'liangyi',
     label: '\u7b2c\u4e8c\u5e55\uff5c\u9670\u967d\u767b\u5834',
-    description: '\u592a\u6975\u6cbf\u539f\u672c S \u66f2\u7dda\u81ea\u7136\u6ed1\u958b\uff0c\u767d\u5f80\u5de6\uff0c\u9ed1\u5f80\u53f3\uff0c\u4e2d\u592e\u7559\u51fa\u5169\u5100\u7a7a\u9593\u3002',
+    description: '\u7537\u4e3b\u89d2\u9ede\u64ca\u63a8\u52d5\u5287\u60c5\uff0c\u9670\u8207\u967d\u5206\u958b\u7ad9\u4f4d\u3002',
     durationMs: 1600,
   },
   4: {
@@ -201,7 +201,7 @@ export default function UnifiedTaijiCore({
     if (evolutionTimerRef.current) clearTimeout(evolutionTimerRef.current);
     evolutionTimerRef.current = setTimeout(() => {
       setEvolutionStage('idle');
-      setEvolutionLabel('AI \u5c0e\u6f14\u5f85\u547d\uff5c\u9ede\u64ca\u592a\u6975\u958b\u6f14');
+      setEvolutionLabel('觸碰太極，觀察萬象演化');
       setEvolutionDescription('');
       evolutionTimerRef.current = null;
     }, config.durationMs + 1600);
@@ -311,11 +311,7 @@ export default function UnifiedTaijiCore({
         aria-label={'AI\u5c0e\u6f14\u592a\u6975\u4e92\u52d5\u5287\u5834'}
         data-tap-count={tapCount}
         className={`modal-taiji-button taiji-evolution-stage stage-${evolutionStage} group ${auraClass}`}
-        title={
-          limitToLiangyi
-            ? '\u9ede\u64ca\u592a\u6975\uff1a1 \u592a\u6975\u547c\u5438\u7526\u9192\u30012 \u6cbf S \u66f2\u7dda\u81ea\u7136\u751f\u5169\u5100'
-            : '\u9ede\u64ca\u592a\u6975\u63a8\u9032\u5287\u60c5\uff1a1 \u4e3b\u89d2\u7526\u9192\u30012 \u592a\u6975\u5206\u5169\u5100\u30014 \u5169\u5100\u5206\u56db\u8c61\u30018 \u56db\u8c61\u5c55\u516b\u5366'
-        }
+        title={'\u9ede\u64ca\u592a\u6975\u63a8\u9032\u5287\u60c5\uff1a1 \u4e3b\u89d2\u7526\u9192\u30012 \u592a\u6975\u5206\u5169\u5100\u30014 \u5169\u5100\u5206\u56db\u8c61\u30018 \u56db\u8c61\u5c55\u516b\u5366'}
       >
         {auraLabel && (
           <>

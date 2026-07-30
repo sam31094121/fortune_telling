@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState, useDeferredValue, useEffect, useRef } from 'react';
-import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { injectPerformanceCSS } from '@/lib/performance-css';
 import AiTrustFeedback from '@/components/AiTrustFeedback';
@@ -913,46 +912,51 @@ type VipGrowthUnlockCardProps = {
 };
 
 function VipGrowthUnlockCard({ completed, total, justUnlocked }: VipGrowthUnlockCardProps) {
-  const unlocked = completed >= total;
-  const remaining = Math.max(total - completed, 0);
-  const progressPercent = Math.min(100, Math.round((completed / total) * 100));
-  const statusText = unlocked
-    ? '恭喜，AI 已完成你的專屬成長檔案。'
-    : completed >= 3
-      ? `距離 AI 成長中心，還差 ${remaining} 項探索。`
-      : '完成更多探索後，AI 將為你建立專屬成長中心。';
-
-  const CardShell = ({ children }: { children: ReactNode }) => (
-    <section
-      className={`group relative overflow-hidden rounded-3xl border p-5 shadow-[0_18px_55px_rgba(0,0,0,0.18)] transition-all duration-500 sm:p-6 ${
-        unlocked
-          ? 'border-amber-200/45 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.22),rgba(16,185,129,0.1)_42%,rgba(15,23,42,0.86)_100%)] shadow-[0_0_45px_rgba(251,191,36,0.2)]'
-          : completed >= 3
-            ? 'border-cyan-300/30 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.13),rgba(15,23,42,0.88)_68%,rgba(2,6,23,0.96)_100%)]'
-            : 'border-white/10 bg-white/[0.045]'
-      }`}
-      aria-label="AI 個人成長中心 VIP 榮譽解鎖"
-    >
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent)] opacity-0 transition duration-700 group-hover:opacity-100" />
-      {unlocked && <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-amber-300/12 blur-3xl" />}
-      {children}
-    </section>
-  );
+  const safeTotal = Math.max(total, 1);
+  const safeCompleted = Math.min(Math.max(completed, 0), safeTotal);
+  const unlocked = safeCompleted >= safeTotal;
+  const remaining = Math.max(safeTotal - safeCompleted, 0);
+  const progressPercent = Math.min(100, Math.round((safeCompleted / safeTotal) * 100));
+  const headline = unlocked ? 'AI 已建立你的專屬成長中心。' : '完成更多探索，即可解鎖專屬 AI 成長中心。';
+  const progressText = unlocked
+    ? '探索完成：6 / 6'
+    : `探索進度：${safeCompleted} / ${safeTotal}`;
+  const remainingText = unlocked
+    ? '鎖頭已打開，立即進入。'
+    : safeCompleted >= 3
+      ? `目前已完成 ${safeCompleted} 項探索，距離解鎖還差 ${remaining} 項。`
+      : `目前已完成 ${safeCompleted} 項探索，完成更多探索後 AI 將開始建立你的專屬成長檔案。`;
 
   const content = (
-    <CardShell>
-      <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <section
+      className={`home-growth-entry group relative w-full overflow-hidden rounded-3xl border p-5 shadow-[0_18px_55px_rgba(0,0,0,0.2)] transition-all duration-500 sm:p-6 ${
+        unlocked
+          ? 'border-amber-200/50 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.24),rgba(16,185,129,0.12)_42%,rgba(15,23,42,0.88)_100%)] shadow-[0_0_45px_rgba(251,191,36,0.24)]'
+          : safeCompleted >= 3
+            ? 'border-cyan-300/35 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.14),rgba(15,23,42,0.9)_68%,rgba(2,6,23,0.96)_100%)]'
+            : 'border-white/12 bg-white/[0.055]'
+      }`}
+      aria-label="AI 個人成長中心入口"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent)] opacity-0 transition duration-700 group-hover:opacity-100" />
+      {unlocked && <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-amber-300/16 blur-3xl" />}
+      <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border text-2xl transition-all duration-700 ${unlocked ? 'border-amber-200/50 bg-amber-300/18 text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.28)] rotate-0' : 'border-white/10 bg-black/20 text-[color:var(--text-muted)]'}`}>
+            <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border text-2xl transition-all duration-700 ${
+              unlocked
+                ? 'border-amber-200/55 bg-amber-300/20 text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.32)]'
+                : 'border-white/12 bg-black/24 text-[color:var(--text-muted)]'
+            }`} aria-hidden="true">
               {unlocked ? '🔓' : '🔒'}
             </span>
             <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200/85">VIP Honor Unlock</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200/85">Growth Center</p>
               <h2 className="mt-1 font-serif text-2xl font-black leading-tight text-[color:var(--text-main)] sm:text-3xl">AI 個人成長中心</h2>
             </div>
           </div>
-          <p className="mt-4 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{statusText}</p>
+          <p className="mt-4 text-sm font-black leading-7 text-[color:var(--text-main)]">{headline}</p>
+          <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{remainingText}</p>
           {justUnlocked && (
             <p className="mt-3 rounded-xl border border-amber-200/25 bg-amber-300/12 px-4 py-3 text-sm font-black leading-7 text-amber-100 animate-pulse">
               恭喜，AI 已完成你的專屬成長檔案。
@@ -960,28 +964,34 @@ function VipGrowthUnlockCard({ completed, total, justUnlocked }: VipGrowthUnlock
           )}
         </div>
 
-        <div className="shrink-0 sm:min-w-[210px]">
-          <div className="rounded-2xl border border-white/10 bg-black/18 p-4">
-            <div className="flex items-end justify-between gap-3">
-              <p className="text-[10px] font-black tracking-[0.16em] text-[color:var(--text-muted)]">目前探索進度</p>
-              <p className="font-serif text-3xl font-black leading-none text-amber-100">{completed}<span className="text-base text-[color:var(--text-muted)]">/{total}</span></p>
-            </div>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
-              <span className={`block h-full rounded-full transition-all duration-700 ${unlocked ? 'bg-amber-300 shadow-[0_0_18px_rgba(251,191,36,0.45)]' : 'bg-cyan-300/80'}`} style={{ width: `${progressPercent}%` }} />
-            </div>
+        <div className="shrink-0 sm:min-w-[220px]">
+          <div className="flex items-end justify-between gap-3">
+            <p className="text-[10px] font-black tracking-[0.16em] text-[color:var(--text-muted)]">探索進度</p>
+            <p className="font-serif text-3xl font-black leading-none text-amber-100">{safeCompleted}<span className="text-base text-[color:var(--text-muted)]">/{safeTotal}</span></p>
           </div>
+          <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/10">
+            <span
+              className={`block h-full rounded-full transition-all duration-700 ${unlocked ? 'bg-amber-300 shadow-[0_0_18px_rgba(251,191,36,0.45)]' : 'bg-cyan-300/85'}`}
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+          <p className="mt-3 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{progressText}</p>
         </div>
       </div>
 
-      <div className="relative z-10 mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="relative z-10 mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs font-semibold leading-6 text-[color:var(--text-muted)]">
-          {unlocked ? '已解鎖每週陪伴、能量色、行動任務與補強追蹤。' : '完成六張探索後，這裡會正式亮起成為專屬陪伴中心。'}
+          {unlocked ? '每週提醒、補強元素、能量色與行動任務已開放。' : '首頁會固定顯示此入口，讓你清楚知道還差幾項即可解鎖。'}
         </p>
-        <span className={`inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-black transition ${unlocked ? 'border-amber-200/40 bg-amber-300 text-slate-950 shadow-[0_0_24px_rgba(251,191,36,0.22)]' : 'border-white/10 bg-white/5 text-[color:var(--text-muted)]'}`}>
-          {unlocked ? '進入 AI 成長中心' : completed >= 3 ? `還差 ${remaining} 項` : '尚未解鎖'}
+        <span className={`inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-black transition ${
+          unlocked
+            ? 'border-amber-200/40 bg-amber-300 text-slate-950 shadow-[0_0_24px_rgba(251,191,36,0.22)]'
+            : 'border-white/12 bg-white/6 text-[color:var(--text-muted)]'
+        }`}>
+          {unlocked ? '立即進入' : `還差 ${remaining} 項`}
         </span>
       </div>
-    </CardShell>
+    </section>
   );
 
   if (unlocked) {
