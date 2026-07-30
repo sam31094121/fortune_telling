@@ -11679,3 +11679,191 @@ body.app-touching .home-taiji-cinema * {
     --split-distance: clamp(1.54rem, 9vw, 2.02rem) !important;
   }
 }
+/* Taiji Logo Animation V1.6: use the original Taiji pieces as two sliding doors. */
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split {
+  display: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-3d-core {
+  --taiji-door-distance: clamp(2.04rem, 9vw, 2.78rem);
+  opacity: 1 !important;
+  visibility: visible !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.28)) !important;
+  animation: none !important;
+  transform: translate(-50%, -50%) translateZ(31px) rotateX(0deg) scale(1) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-core-glaze,
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-core-depth {
+  display: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-3d-core::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: clamp(0.72rem, 4.4vw, 1.12rem) !important;
+  height: 86% !important;
+  border-radius: 999px !important;
+  transform: translate(-50%, -50%) !important;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(186, 230, 253, 0.22) 18%, rgba(34, 211, 238, 0.32) 48%, rgba(253, 230, 138, 0.16) 62%, rgba(186, 230, 253, 0.2) 82%, transparent 100%),
+    radial-gradient(ellipse at 50% 22%, rgba(255, 255, 255, 0.32), transparent 46%);
+  box-shadow:
+    0 0 13px rgba(186, 230, 253, 0.18),
+    0 0 30px rgba(34, 211, 238, 0.15),
+    inset 0 0 14px rgba(255, 255, 255, 0.15) !important;
+  opacity: 0;
+  pointer-events: none !important;
+  z-index: 2 !important;
+  animation: taiji-v16-center-energy-after-slide 680ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-3d-core::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: clamp(2.8rem, 14vw, 3.8rem) !important;
+  height: clamp(2.8rem, 14vw, 3.8rem) !important;
+  border-radius: 999px !important;
+  transform: translate(-50%, -50%) scale(1) !important;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(186, 230, 253, 0.2), rgba(34, 211, 238, 0.08) 40%, transparent 68%),
+    conic-gradient(from 180deg, transparent, rgba(253, 230, 138, 0.1), rgba(34, 211, 238, 0.1), transparent);
+  box-shadow:
+    0 0 18px rgba(34, 211, 238, 0.12),
+    0 0 34px rgba(253, 230, 138, 0.08) !important;
+  opacity: 0;
+  pointer-events: none !important;
+  z-index: 1 !important;
+  animation: taiji-v16-center-ripple-after-slide 720ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-half {
+  display: block !important;
+  top: 0 !important;
+  width: 50% !important;
+  height: 100% !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  will-change: transform !important;
+  z-index: 4 !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-half--yang {
+  left: 0 !important;
+  right: auto !important;
+  border-radius: 999px 0 0 999px !important;
+  transform-origin: 100% 50% !important;
+  animation: taiji-v16-original-white-half-slides-left 660ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-half--yin {
+  left: auto !important;
+  right: 0 !important;
+  border-radius: 0 999px 999px 0 !important;
+  transform-origin: 0 50% !important;
+  animation: taiji-v16-original-black-half-slides-right 660ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-fish {
+  display: flex !important;
+  left: 50% !important;
+  width: 50% !important;
+  height: 50% !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  border-radius: 999px !important;
+  will-change: transform !important;
+  z-index: 5 !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-fish--yang {
+  top: 0 !important;
+  bottom: auto !important;
+  animation: taiji-v16-original-white-fish-slides-left 660ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-fish--yin {
+  top: auto !important;
+  bottom: 0 !important;
+  animation: taiji-v16-original-black-fish-slides-right 660ms ease-in-out both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-fish span {
+  display: block !important;
+  opacity: 1 !important;
+}
+
+@keyframes taiji-v16-original-white-half-slides-left {
+  0% { transform: translateX(0); }
+  42% { transform: translateX(calc(-1 * var(--taiji-door-distance) * 0.58)); }
+  100% { transform: translateX(calc(-1 * var(--taiji-door-distance))); }
+}
+
+@keyframes taiji-v16-original-black-half-slides-right {
+  0% { transform: translateX(0); }
+  42% { transform: translateX(calc(var(--taiji-door-distance) * 0.58)); }
+  100% { transform: translateX(var(--taiji-door-distance)); }
+}
+
+@keyframes taiji-v16-original-white-fish-slides-left {
+  0% { transform: translateX(-50%); }
+  42% { transform: translateX(calc(-50% - (var(--taiji-door-distance) * 0.58))); }
+  100% { transform: translateX(calc(-50% - var(--taiji-door-distance))); }
+}
+
+@keyframes taiji-v16-original-black-fish-slides-right {
+  0% { transform: translateX(-50%); }
+  42% { transform: translateX(calc(-50% + (var(--taiji-door-distance) * 0.58))); }
+  100% { transform: translateX(calc(-50% + var(--taiji-door-distance))); }
+}
+
+@keyframes taiji-v16-center-energy-after-slide {
+  0% { opacity: 0; transform: translate(-50%, -50%) scaleX(0.18) scaleY(0.72); filter: blur(2px) saturate(1); }
+  42% { opacity: 0.48; transform: translate(-50%, -50%) scaleX(0.72) scaleY(1); filter: blur(0.9px) saturate(1.14); }
+  100% { opacity: 0.32; transform: translate(-50%, -50%) scaleX(0.9) scaleY(0.96); filter: blur(1.1px) saturate(1.08); }
+}
+
+@keyframes taiji-v16-center-ripple-after-slide {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.42); }
+  42% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.92); }
+  100% { opacity: 0.18; transform: translate(-50%, -50%) scale(1.04); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-3d-core {
+    --taiji-door-distance: clamp(1.54rem, 9vw, 2.02rem);
+  }
+}
+/* Taiji Logo Animation V1.7: lock the original fish bodies to their matching sliding halves. */
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-half,
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-fish {
+  transition: transform 660ms ease-in-out !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-half--yang {
+  transform: translateX(calc(-1 * var(--taiji-door-distance))) !important;
+  animation: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-half--yin {
+  transform: translateX(var(--taiji-door-distance)) !important;
+  animation: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-fish--yang {
+  transform: translateX(calc(-50% - var(--taiji-door-distance))) !important;
+  animation: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-fish--yin {
+  transform: translateX(calc(-50% + var(--taiji-door-distance))) !important;
+  animation: none !important;
+}

@@ -1,0 +1,1 @@
+export { default, dynamic, revalidate } from '../platform-control-center/page';
