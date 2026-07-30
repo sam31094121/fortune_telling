@@ -300,10 +300,10 @@ export default function UnifiedTaijiCore({
         type="button"
         onPointerUp={handlePointerUp}
         onClick={handleSafeClick}
-        aria-label="AI導演太極互動劇場"
+        aria-label={'AI\u5c0e\u6f14\u592a\u6975\u4e92\u52d5\u5287\u5834'}
         data-tap-count={tapCount}
         className={`modal-taiji-button taiji-evolution-stage stage-${evolutionStage} group ${auraClass}`}
-        title="點擊太極推進劇情：1 主角甦醒、2 陰陽登場、4 四象佈景、8 八卦道具出場"
+        title={'\u9ede\u64ca\u592a\u6975\u63a8\u9032\u5287\u60c5\uff1a1 \u4e3b\u89d2\u7526\u9192\u30012 \u592a\u6975\u5206\u5169\u5100\u30014 \u5169\u5100\u5206\u56db\u8c61\u30018 \u56db\u8c61\u5c55\u516b\u5366'}
       >
         {auraLabel && (
           <>

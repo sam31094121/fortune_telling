@@ -10772,3 +10772,333 @@ body.app-scrolling .home-trust-strip > [data-visitor-counter="home"].home-trust-
     100% { opacity: 0.76; transform: translate(-50%, -50%) translateZ(-30px) rotateX(6deg) scale(1); }
   }
 }
+/* Mobile stability pass: keep the main Taiji story clear while reducing costly effects during touch and scroll. */
+.home-taiji-cinema,
+.home-taiji-cinema .unified-taiji-shell {
+  contain: layout style;
+}
+
+.home-taiji-cinema .modal-taiji-button,
+.home-taiji-cinema .modal-taiji-orbit-emblem,
+.home-taiji-cinema .modal-taiji-3d-core,
+.home-taiji-cinema .taiji-stage-bagua-field,
+.home-taiji-cinema .taiji-liangyi-precision-split,
+.home-taiji-cinema .modal-sixiang-node,
+.home-taiji-cinema .modal-bagua-node {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.home-taiji-cinema .modal-taiji-button,
+.home-taiji-cinema .taiji-stage-bagua-field,
+.home-taiji-cinema .taiji-liangyi-precision-split,
+.home-taiji-cinema .modal-sixiang-node,
+.home-taiji-cinema .modal-bagua-node {
+  will-change: transform, opacity;
+}
+
+body.app-mobile-device .home-taiji-cinema .taiji-stage-bagua-field,
+body.app-social-browser .home-taiji-cinema .taiji-stage-bagua-field {
+  filter: saturate(1.04) contrast(1.04) drop-shadow(0 10px 18px rgba(0, 0, 0, 0.22)) !important;
+}
+
+body.app-mobile-device .home-taiji-cinema .modal-sixiang-node,
+body.app-mobile-device .home-taiji-cinema .modal-bagua-node,
+body.app-social-browser .home-taiji-cinema .modal-sixiang-node,
+body.app-social-browser .home-taiji-cinema .modal-bagua-node {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 0 12px rgba(253, 230, 138, 0.22) !important;
+}
+
+body.app-scrolling .home-taiji-cinema .taiji-stage-bagua-field,
+body.app-scrolling .home-taiji-cinema .taiji-stage-bagua-field__mark,
+body.app-scrolling .home-taiji-cinema .taiji-light-orbit,
+body.app-scrolling .home-taiji-cinema .taiji-light-orbit__head,
+body.app-scrolling .home-taiji-cinema .taiji-gold-wave,
+body.app-scrolling .home-taiji-cinema .taiji-celestial-mist,
+body.app-scrolling .home-taiji-cinema .taiji-celestial-wisp,
+body.app-touching .home-taiji-cinema .taiji-stage-bagua-field,
+body.app-touching .home-taiji-cinema .taiji-stage-bagua-field__mark,
+body.app-touching .home-taiji-cinema .taiji-light-orbit,
+body.app-touching .home-taiji-cinema .taiji-light-orbit__head,
+body.app-touching .home-taiji-cinema .taiji-gold-wave,
+body.app-touching .home-taiji-cinema .taiji-celestial-mist,
+body.app-touching .home-taiji-cinema .taiji-celestial-wisp {
+  animation-play-state: paused !important;
+}
+
+body.app-scrolling .home-taiji-cinema .modal-evolution-flare,
+body.app-scrolling .home-taiji-cinema .modal-evolution-scan,
+body.app-scrolling .home-taiji-cinema .modal-evolution-orbit,
+body.app-scrolling .home-taiji-cinema .modal-evolution-rays,
+body.app-touching .home-taiji-cinema .modal-evolution-flare,
+body.app-touching .home-taiji-cinema .modal-evolution-scan,
+body.app-touching .home-taiji-cinema .modal-evolution-orbit,
+body.app-touching .home-taiji-cinema .modal-evolution-rays {
+  opacity: 0.22 !important;
+  filter: none !important;
+}
+
+body.app-scrolling .home-taiji-cinema *,
+body.app-touching .home-taiji-cinema * {
+  will-change: auto !important;
+}
+
+.home-trust-strip,
+.home-line-share-card,
+.fortune-card,
+.music-guide-card,
+[data-visitor-counter] {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 180px;
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .modal-taiji-button::before,
+  .home-taiji-cinema .modal-taiji-button::after,
+  .home-taiji-cinema .modal-taiji-natural-bloom,
+  .home-taiji-cinema .modal-taiji-ground-glow {
+    filter: blur(6px) saturate(1.02) !important;
+  }
+
+  .home-taiji-cinema .taiji-stage-bagua-field__mark::after,
+  .home-taiji-cinema .taiji-light-orbit__head::after {
+    filter: blur(4px) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-taiji-cinema *,
+  .home-taiji-cinema *::before,
+  .home-taiji-cinema *::after,
+  .home-trust-strip *,
+  .home-line-share-card * {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .home-taiji-cinema .taiji-stage-bagua-field,
+  .home-taiji-cinema .modal-taiji-button,
+  .home-taiji-cinema .modal-taiji-3d-core {
+    transform-style: flat !important;
+  }
+}
+/* Mobile Taiji theater script: clear 1 -> 2 -> 4 -> 8 storytelling for phone viewers. */
+.home-taiji-cinema {
+  --mobile-taiji-core: clamp(5.8rem, 33vw, 7.2rem);
+  --mobile-taiji-orbit: clamp(12.2rem, 70vw, 16.2rem);
+  --mobile-taiji-bagua-radius: clamp(4.95rem, 25.5vw, 6.15rem);
+  --mobile-taiji-sixiang-radius: clamp(3.65rem, 18vw, 4.85rem);
+  isolation: isolate;
+}
+
+.home-taiji-cinema .modal-taiji-button {
+  touch-action: manipulation;
+  transform-origin: 50% 50%;
+  overflow: visible !important;
+}
+
+.home-taiji-cinema .modal-taiji-orbit-emblem {
+  width: var(--mobile-taiji-orbit) !important;
+  height: var(--mobile-taiji-orbit) !important;
+  overflow: visible !important;
+}
+
+.home-taiji-cinema .modal-taiji-3d-core {
+  width: var(--mobile-taiji-core) !important;
+  height: var(--mobile-taiji-core) !important;
+  box-shadow:
+    inset 0 14px 20px rgba(255, 255, 255, 0.18),
+    inset 0 -18px 28px rgba(2, 6, 23, 0.28),
+    0 16px 34px rgba(0, 0, 0, 0.36),
+    0 0 30px rgba(253, 230, 138, 0.2) !important;
+}
+
+.home-taiji-cinema .taiji-orbit-layer {
+  opacity: 0.78;
+}
+
+.home-taiji-cinema .taiji-light-orbit__head {
+  width: clamp(0.52rem, 2.2vw, 0.72rem) !important;
+  height: clamp(0.52rem, 2.2vw, 0.72rem) !important;
+  box-shadow:
+    0 0 10px currentColor,
+    0 0 20px rgba(253, 230, 138, 0.18) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-3d-core {
+  opacity: 0.18 !important;
+  filter: blur(0.8px) saturate(0.8) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split {
+  --split-core-size: var(--mobile-taiji-core) !important;
+  --split-distance: clamp(0.96rem, 4.8vw, 1.34rem) !important;
+  opacity: 1 !important;
+  z-index: 10 !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__half--yang {
+  animation: taiji-mobile-yang-exact-split 1.95s cubic-bezier(.16, .88, .2, 1) both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__half--yin {
+  animation: taiji-mobile-yin-exact-split 1.95s cubic-bezier(.16, .88, .2, 1) both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__seam {
+  animation: taiji-mobile-split-center-light 1.95s ease-out both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-liangyi-node {
+  top: 50% !important;
+  width: clamp(2.25rem, 11vw, 2.85rem) !important;
+  height: clamp(2.25rem, 11vw, 2.85rem) !important;
+  font-size: clamp(0.92rem, 4.6vw, 1.18rem) !important;
+  opacity: 0.94 !important;
+  filter: drop-shadow(0 0 12px rgba(253, 230, 138, 0.24)) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-liangyi-yang {
+  left: calc(50% - clamp(3.9rem, 20vw, 5rem)) !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-liangyi-yin {
+  left: calc(50% + clamp(3.9rem, 20vw, 5rem)) !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--sixiang .modal-sixiang-layer,
+.home-taiji-cinema .unified-taiji-shell--bagua .modal-bagua-layer {
+  inset: 0 !important;
+  overflow: visible !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--sixiang .modal-sixiang-node {
+  --x: 0px;
+  --y: 0px;
+  min-width: clamp(2.75rem, 14vw, 3.35rem) !important;
+  height: clamp(1.72rem, 8.4vw, 2.08rem) !important;
+  padding: 0 0.34rem !important;
+  border-radius: 999px !important;
+  font-size: clamp(0.68rem, 3.1vw, 0.82rem) !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+  background: linear-gradient(180deg, rgba(255, 248, 214, 0.2), rgba(15, 23, 42, 0.78)) !important;
+  border-color: rgba(253, 230, 138, 0.34) !important;
+  animation: taiji-mobile-sixiang-seat 2.1s cubic-bezier(.16, .88, .2, 1) both, taiji-mobile-role-breathe 4.2s ease-in-out infinite 2s !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--sixiang .modal-sixiang-0 { --x: 0px !important; --y: calc(-1 * var(--mobile-taiji-sixiang-radius)) !important; }
+.home-taiji-cinema .unified-taiji-shell--sixiang .modal-sixiang-1 { --x: var(--mobile-taiji-sixiang-radius) !important; --y: 0px !important; }
+.home-taiji-cinema .unified-taiji-shell--sixiang .modal-sixiang-2 { --x: 0px !important; --y: var(--mobile-taiji-sixiang-radius) !important; }
+.home-taiji-cinema .unified-taiji-shell--sixiang .modal-sixiang-3 { --x: calc(-1 * var(--mobile-taiji-sixiang-radius)) !important; --y: 0px !important; }
+
+.home-taiji-cinema .unified-taiji-shell--bagua {
+  --bagua-radius: var(--mobile-taiji-bagua-radius) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--bagua .modal-bagua-node {
+  --bagua-radius: var(--mobile-taiji-bagua-radius) !important;
+  width: clamp(2.35rem, 10.8vw, 2.86rem) !important;
+  min-height: clamp(2.05rem, 9.8vw, 2.42rem) !important;
+  padding: 0.18rem 0.12rem !important;
+  border-radius: 0.82rem !important;
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.02rem !important;
+  background: linear-gradient(180deg, rgba(255, 248, 214, 0.2), rgba(15, 23, 42, 0.84)) !important;
+  border-color: rgba(253, 230, 138, 0.34) !important;
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.28),
+    0 0 14px rgba(253, 230, 138, 0.2) !important;
+  animation: taiji-mobile-bagua-seat 2.18s cubic-bezier(.16, .88, .2, 1) both, taiji-mobile-role-breathe 4.4s ease-in-out infinite 2.1s !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--bagua .modal-bagua-node b {
+  font-size: clamp(0.9rem, 4.2vw, 1.12rem) !important;
+  line-height: 1 !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--bagua .modal-bagua-node small {
+  display: block !important;
+  margin-top: 0.04rem !important;
+  font-size: clamp(0.46rem, 2.2vw, 0.58rem) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  opacity: 0.82 !important;
+  white-space: nowrap !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--bagua .unified-bagua-mandala {
+  inset: clamp(-2.1rem, -9vw, -1.2rem) !important;
+  opacity: 0.62 !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--bagua .taiji-stage-bagua-field__mark {
+  opacity: 0.78 !important;
+}
+
+@keyframes taiji-mobile-yang-exact-split {
+  0% { opacity: 0; transform: translate(-50%, -50%) translateX(0) rotateY(0deg) scale(0.74); filter: blur(2px) brightness(0.9); }
+  35% { opacity: 1; transform: translate(-50%, -50%) translateX(calc(-1 * var(--split-distance) * 0.62)) rotateY(-10deg) scale(1.06); filter: blur(0) brightness(1.16); }
+  100% { opacity: 1; transform: translate(-50%, -50%) translateX(calc(-1 * var(--split-distance))) rotateY(-5deg) scale(1); filter: blur(0) brightness(1.06); }
+}
+
+@keyframes taiji-mobile-yin-exact-split {
+  0% { opacity: 0; transform: translate(-50%, -50%) translateX(0) rotateY(0deg) scale(0.74); filter: blur(2px) brightness(0.88); }
+  35% { opacity: 1; transform: translate(-50%, -50%) translateX(calc(var(--split-distance) * 0.62)) rotateY(10deg) scale(1.06); filter: blur(0) brightness(1.14); }
+  100% { opacity: 1; transform: translate(-50%, -50%) translateX(var(--split-distance)) rotateY(5deg) scale(1); filter: blur(0) brightness(1.02); }
+}
+
+@keyframes taiji-mobile-split-center-light {
+  0% { opacity: 0; transform: scaleY(0.1); filter: blur(3px); }
+  42% { opacity: 0.92; transform: scaleY(1.08); filter: blur(0.5px); }
+  100% { opacity: 0.62; transform: scaleY(1); filter: blur(0.9px); }
+}
+
+@keyframes taiji-mobile-sixiang-seat {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.42); filter: blur(2px); }
+  44% { opacity: 1; transform: translate(calc(-50% + var(--x) * 0.72), calc(-50% + var(--y) * 0.72)) scale(1.08); filter: blur(0); }
+  100% { opacity: 0.92; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1); filter: blur(0); }
+}
+
+@keyframes taiji-mobile-bagua-seat {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-28px) rotate(var(--counter-angle)) scale(0.45); filter: blur(2px); }
+  48% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--bagua-radius) * 0.82)) rotate(var(--counter-angle)) scale(1.08); filter: blur(0); }
+  100% { opacity: 0.94; transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--bagua-radius))) rotate(var(--counter-angle)) scale(1); filter: blur(0); }
+}
+
+@keyframes taiji-mobile-role-breathe {
+  0%, 100% { filter: brightness(1) saturate(1.04); }
+  50% { filter: brightness(1.13) saturate(1.14); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema {
+    --mobile-taiji-core: clamp(5.55rem, 31.5vw, 6.35rem);
+    --mobile-taiji-orbit: min(15.2rem, 82vw);
+    --mobile-taiji-bagua-radius: min(4.86rem, 26.5vw);
+    --mobile-taiji-sixiang-radius: min(3.55rem, 19vw);
+  }
+
+  .home-taiji-cinema .taiji-orbit-layer {
+    opacity: 0.64;
+  }
+
+  .home-taiji-cinema .taiji-gold-wave,
+  .home-taiji-cinema .taiji-celestial-wisp {
+    opacity: 0.42 !important;
+  }
+
+  .home-taiji-cinema .unified-taiji-shell--bagua .modal-bagua-node {
+    width: min(2.22rem, 11vw) !important;
+    min-height: min(2rem, 10vw) !important;
+  }
+}
