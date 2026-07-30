@@ -1,6 +1,6 @@
 export const NUMBER_CORE_ENGINE_VERSION = 'V5.0.0';
 
-export type NumberAnalysisMode = 'last4' | 'six6' | 'phone10';
+export type NumberAnalysisMode = 'last4' | 'six6' | 'digit8' | 'phone10';
 
 export type NumberFortuneLevel =
   | '大吉'
@@ -147,6 +147,16 @@ const PHONE10_WEIGHTS = {
   combination: 15,
   repeatArrangement: 10,
   sumRoot: 10,
+} as const;
+
+const DIGIT8_WEIGHTS = {
+  fullDigit: 15,
+  front: 12,
+  middle: 18,
+  back: 25,
+  combination: 15,
+  repeatArrangement: 8,
+  sumRoot: 7,
 } as const;
 
 const EMPTY_MATRIX: NumberAnalysisMatrix = {
@@ -661,7 +671,7 @@ function scoreFromIndexes(indexes: NumberAnalysisIndexes) {
 }
 
 function confidenceFromEvidence(mode: NumberAnalysisMode, indexes: NumberAnalysisIndexes, evidence: NumberAnalysisEvidence) {
-  const inputCompleteness = mode === 'phone10' ? 100 : mode === 'six6' ? 88 : 80;
+  const inputCompleteness = mode === 'phone10' ? 100 : mode === 'digit8' ? 94 : mode === 'six6' ? 88 : 80;
   const ruleCoverage = clamp(60 + evidence.pairPatterns.length * 8 + evidence.triplePatterns.length * 3 + (evidence.mirrorPattern ? 5 : 0));
   const structureConsistency = Math.round((indexes.structure + indexes.balance + indexes.stability) / 3);
   const modelStability = 96;
@@ -685,6 +695,7 @@ function topDimensions(matrix: NumberAnalysisMatrix, keys: NumberMatrixKey[], co
 
 function maskNumberValue(value: string, mode: NumberAnalysisMode) {
   if (mode === 'phone10') return `${value.slice(0, 4)}***${value.slice(-3)}`;
+  if (mode === 'digit8') return `****${value.slice(-4)}`;
   return value;
 }
 
@@ -694,17 +705,21 @@ function buildText(value: string, mode: NumberAnalysisMode, score: number, level
   const directions = strengths.map((item) => item.label);
   const subject = mode === 'phone10'
     ? `十位數字 ${maskNumberValue(value, mode)}`
-    : mode === 'six6'
-      ? `六位數字 ${value}`
-      : `後四碼 ${value}`;
+    : mode === 'digit8'
+      ? `八位數字 ${maskNumberValue(value, mode)}`
+      : mode === 'six6'
+        ? `六位數字 ${value}`
+        : `後四碼 ${value}`;
   const rule = levelRuleFromScore(score);
   const keyStrength = strengths[0]?.label ?? '整體結構';
   const keyCaution = cautions[0]?.label ?? '節奏管理';
   const scorePrinciple = mode === 'phone10'
     ? '十碼模式加重後四碼與三段結構，並交叉檢查全碼統計、重複排列與數字根。'
-    : mode === 'six6'
-      ? '六碼模式採三段雙碼結構，並交叉檢查後四碼、整體組合、重複排列與數字根。'
-      : '後四碼模式以單碼、雙碼、三碼、整體組合、重複排列與數字根加權。';
+    : mode === 'digit8'
+      ? '八碼模式採前段雙碼結構加重後四碼，並交叉檢查全碼統計、整體組合、重複排列與數字根。'
+      : mode === 'six6'
+        ? '六碼模式採三段雙碼結構，並交叉檢查後四碼、整體組合、重複排列與數字根。'
+        : '後四碼模式以單碼、雙碼、三碼、整體組合、重複排列與數字根加權。';
   const levelExplanation = `${score} 分屬於「${level}」，代表目前數字結構的主軸是「${rule.headline}」${rule.principle}`;
 
   return {
@@ -736,13 +751,19 @@ function buildEvidence(value: string, mode: NumberAnalysisMode, pairPatterns: Nu
         middle: segmentSumRatio(value.slice(3, 6)),
         back: segmentSumRatio(lastFour),
       }
-    : mode === 'six6'
+    : mode === 'digit8'
       ? {
           front: segmentSumRatio(value.slice(0, 2)),
           middle: segmentSumRatio(value.slice(2, 4)),
-          back: segmentSumRatio(value.slice(4, 6)),
+          back: segmentSumRatio(lastFour),
         }
-      : undefined;
+      : mode === 'six6'
+        ? {
+            front: segmentSumRatio(value.slice(0, 2)),
+            middle: segmentSumRatio(value.slice(2, 4)),
+            back: segmentSumRatio(value.slice(4, 6)),
+          }
+        : undefined;
 
   return {
     digitFrequency: stats.digitFrequency,
@@ -783,8 +804,9 @@ export function validateNumberCoreInput(value: unknown): NumberAnalysisMode | Nu
   }
   if (value.length === 4) return 'last4';
   if (value.length === 6) return 'six6';
+  if (value.length === 8) return 'digit8';
   if (value.length === 10) return 'phone10';
-  return { ok: false, message: '長度僅允許 4 碼、6 碼或 10 碼阿拉伯數字。', ruleVersion: NUMBER_CORE_ENGINE_VERSION };
+  return { ok: false, message: '長度僅允許 4 碼、6 碼、8 碼或 10 碼阿拉伯數字。', ruleVersion: NUMBER_CORE_ENGINE_VERSION };
 }
 
 export function analyzeNumberCore(value: string): NumberAnalysisResponse | NumberAnalysisError {
@@ -821,6 +843,24 @@ export function analyzeNumberCore(value: string): NumberAnalysisResponse | Numbe
           { matrix: combinationMatrix(value, pairPatterns), weight: 12 },
           { matrix: repeatArrangementMatrix(value), weight: 4 },
           { matrix: sumRootMatrix(value), weight: 4 },
+        ])
+    : mode === 'digit8'
+      ? buildWeightedMatrix([
+          { matrix: singleDigitMatrix(value), weight: DIGIT8_WEIGHTS.fullDigit },
+          { matrix: segmentMatrix(value.slice(0, 2)), weight: DIGIT8_WEIGHTS.front },
+          { matrix: segmentMatrix(value.slice(2, 4)), weight: DIGIT8_WEIGHTS.middle },
+          { matrix: buildWeightedMatrix([
+            { matrix: singleDigitMatrix(back), weight: LAST4_WEIGHTS.singleDigit },
+            { matrix: pairMatrix(back, pairPatterns), weight: LAST4_WEIGHTS.pair },
+            { matrix: tripleMatrix(back), weight: LAST4_WEIGHTS.triple },
+            { matrix: wholeMatrix(back), weight: LAST4_WEIGHTS.whole },
+            { matrix: repeatMatrix(back), weight: LAST4_WEIGHTS.repeat },
+            { matrix: arrangementMatrix(back), weight: LAST4_WEIGHTS.arrangement },
+            { matrix: sumRootMatrix(back), weight: LAST4_WEIGHTS.sumRoot },
+          ]), weight: DIGIT8_WEIGHTS.back },
+          { matrix: combinationMatrix(value, pairPatterns), weight: DIGIT8_WEIGHTS.combination },
+          { matrix: repeatArrangementMatrix(value), weight: DIGIT8_WEIGHTS.repeatArrangement },
+          { matrix: sumRootMatrix(value), weight: DIGIT8_WEIGHTS.sumRoot },
         ])
     : buildWeightedMatrix([
         { matrix: singleDigitMatrix(value), weight: PHONE10_WEIGHTS.fullDigit },

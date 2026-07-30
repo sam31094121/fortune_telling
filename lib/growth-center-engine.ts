@@ -13,6 +13,7 @@ export type GrowthCenterInput = {
   completedModules?: GrowthModuleId[];
   primaryElement?: GrowthElement | null;
   secondaryElement?: GrowthElement | null;
+  elementScore?: Partial<Record<GrowthElement, number>> | null;
   avoidElement?: GrowthElement | null;
   analysisHash?: string | null;
   now?: Date;
@@ -48,7 +49,7 @@ type SuccessQuote = {
 };
 
 type CompanionLoopStep = {
-  step: 1 | 2 | 3 | 4 | 5;
+  step: number;
   label: string;
   title: string;
   body: string;
@@ -63,6 +64,7 @@ type LongTermCheckpoint = {
 type SystemStabilitySnapshot = ReturnType<typeof buildSystemStabilitySnapshot>;
 type AiCopywritingStyleSnapshot = ReturnType<typeof buildAiCopywritingStyleSnapshot>;
 type AiFollowUpSystemSnapshot = ReturnType<typeof buildAiFollowUpSystem>;
+
 type GrowthCenterCoreV2 = {
   version: 'growth_center_core_v2';
   positioning: {
@@ -173,6 +175,7 @@ export type GrowthCenterResult = {
     fiveElement: {
       primaryElement: GrowthElement;
       secondaryElement: GrowthElement;
+      elementScore: Record<GrowthElement, number>;
       avoidElement: GrowthElement | null;
       confidence: 'low' | 'medium' | 'high';
       summary: string;
@@ -203,94 +206,103 @@ export type GrowthCenterResult = {
 export const GROWTH_MODULES = AI_INTEGRATION_MODULES as ModuleMeta[];
 
 const ELEMENT_THEMES: Record<GrowthElement, ElementTheme> = {
-  EARTH: {
-    label: '地元素',
-    badge: '地',
-    theme: '穩定、累積、落地執行',
-    headline: '本週一定要把想法落到實際行動，先穩住節奏，再累積成果。',
-    reason: '地元素代表承接與穩定。當整合層判定地元素優先時，本週最重要的是把計畫變成可完成的小步驟。',
-    actionPool: ['本週完成一件拖延最久、但可以在三十分鐘內開始的事情。', '本週固定一個時間整理資料、帳務或工作清單。', '本週把一個目標拆成三個小步驟，先完成第一步。'],
-    colorPool: [
-      { colorName: '暖土黃色', hex: '#C89B3C', usage: ['衣服配件', '手機桌布', '工作筆記'] },
-      { colorName: '沉穩咖金', hex: '#8B6A2E', usage: ['手鍊搭配', '桌面背景', '隨身小物'] },
-    ],
-    monthlyFocusPool: ['把生活與工作重新整理成可長期維持的節奏。', '把重要目標落地成每週都能完成的一件事。'],
-  },
-  WATER: {
-    label: '水元素',
-    badge: '水',
-    theme: '情緒流動、溝通、柔軟適應',
-    headline: '本週一定要讓情緒與溝通順起來，先聽懂自己，再回應別人。',
-    reason: '水元素代表流動與理解。當整合層判定水元素優先時，本週最需要補強的是表達、傾聽與情緒調節。',
-    actionPool: ['本週主動和一位重要的人好好說一句真心話。', '本週每天留三分鐘寫下自己的情緒，不急著批判。', '本週遇到衝突時先停十秒，再用平穩語氣回應。'],
-    colorPool: [
-      { colorName: '深海藍', hex: '#1D4ED8', usage: ['手機桌布', '衣服配件', '聊天背景'] },
-      { colorName: '清澈青藍', hex: '#0891B2', usage: ['桌面背景', '手鍊搭配', '筆記標籤'] },
-    ],
-    monthlyFocusPool: ['把情緒、溝通與人際關係調回順流。', '用更柔軟的方式處理壓力與關係。'],
-  },
-  FIRE: {
-    label: '火元素',
-    badge: '火',
-    theme: '行動力、表達、突破',
-    headline: '本週一定要把能量點燃，先做出一個明確行動。',
-    reason: '火元素代表啟動與突破。當整合層判定火元素優先時，本週最重要的是不要停在想法，要讓行動被看見。',
-    actionPool: ['本週主動完成一件一直想做、卻沒有開始的事情。', '本週選一天提早十分鐘開始工作或學習，建立啟動感。', '本週公開表達一次自己的想法，讓機會看見你。'],
-    colorPool: [
-      { colorName: '深紅色', hex: '#B91C1C', usage: ['衣服配件', '手機桌布', '行動提醒'] },
-      { colorName: '琥珀橘', hex: '#F59E0B', usage: ['手鍊搭配', '筆記重點', '桌面背景'] },
-    ],
-    monthlyFocusPool: ['把想做的事真正啟動，讓行動連續發生。', '把表達力與決斷力拉回主場。'],
-  },
-  WIND: {
+  AIR: {
     label: '風元素',
     badge: '風',
-    theme: '學習、創意、彈性調整',
-    headline: '本週一定要打開新的理解，把卡住的事情換一個角度看。',
-    reason: '風元素代表思考與變通。當整合層判定風元素優先時，本週最需要補強的是學習、彈性與創意表達。',
-    actionPool: ['本週學一個小技巧，立刻用在正在處理的事情上。', '本週把一件卡住的事寫出三種替代做法。', '本週主動閱讀或觀看一份能提升自己的內容。'],
+    theme: '溝通、思路、彈性與表達',
+    headline: '本週第一補強是風元素：把想法說清楚，把方向整理出來。',
+    reason: '風元素代表理解、表達、連結與變通。補強風元素，重點是讓想法從混亂變清楚，讓溝通更有方向。',
+    actionPool: ['今天把一件重要想法寫成三句話。', '本週主動完成一次清楚溝通。', '把目前最卡的一件事拆成三個步驟。'],
     colorPool: [
-      { colorName: '森林綠', hex: '#15803D', usage: ['手機桌布', '衣服配件', '工作筆記'] },
-      { colorName: '清新薄荷', hex: '#10B981', usage: ['桌面背景', '手鍊搭配', '生活小物'] },
+      { colorName: '森林綠', hex: '#15803D', usage: ['衣服', '手機桌布', '工作背景'] },
+      { colorName: '清透綠', hex: '#10B981', usage: ['配件', '筆記封面', '社群背景'] },
     ],
-    monthlyFocusPool: ['讓學習、創意與彈性成為新的回訪動力。', '用新的角度重新整理卡住的事情。'],
+    monthlyFocusPool: ['本月重點是把想法整理成可執行的步驟。', '本月重點是提升表達與回應速度。'],
   },
   SPACE: {
     label: '空元素',
     badge: '空',
-    theme: '格局、專注、清空雜訊',
-    headline: '本週一定要把雜訊放下，留下真正重要的一件事。',
-    reason: '空元素代表格局與留白。當整合層判定空元素優先時，本週最需要補強的是專注、取捨與內在空間。',
-    actionPool: ['本週刪掉一件不必要的待辦，把時間留給真正重要的事。', '本週安排十五分鐘安靜時間，只整理腦中的優先順序。', '本週把手機通知整理一次，減少被打斷的次數。'],
+    theme: '格局、洞察、留白與整合',
+    headline: '本週第一補強是空元素：先看全局，再做決定。',
+    reason: '空元素代表洞察、整合、格局與取捨。補強空元素，重點是減少雜訊，抓住真正重要的核心。',
+    actionPool: ['今天刪掉一件不重要的待辦。', '本週保留一段安靜整理時間。', '做決定前先寫下最重要的一個標準。'],
     colorPool: [
-      { colorName: '星夜紫', hex: '#6D28D9', usage: ['手機桌布', '手鍊搭配', '冥想背景'] },
-      { colorName: '霧銀灰', hex: '#94A3B8', usage: ['桌面背景', '衣服配件', '工作空間'] },
+      { colorName: '星雲紫', hex: '#6D28D9', usage: ['手機桌布', '配件', '冥想背景'] },
+      { colorName: '銀灰色', hex: '#94A3B8', usage: ['衣服', '筆記', '工作區'] },
     ],
-    monthlyFocusPool: ['把注意力收回來，只留下真正重要的方向。', '透過留白與取捨，建立更清楚的生活秩序。'],
+    monthlyFocusPool: ['本月重點是建立更大的判斷視角。', '本月重點是把分散的事情收斂成一個方向。'],
+  },
+  WATER: {
+    label: '水元素',
+    badge: '水',
+    theme: '感受、流動、理解與修復',
+    headline: '本週第一補強是水元素：讓情緒流動，讓關係回到柔軟。',
+    reason: '水元素代表感受、傾聽、適應與修復。補強水元素，重點是降低僵硬反應，增加理解與調整能力。',
+    actionPool: ['今天先聽完一個人的想法再回應。', '本週主動修復一次誤會。', '把一個壓力點寫下來，找出能調整的地方。'],
+    colorPool: [
+      { colorName: '深海藍', hex: '#1D4ED8', usage: ['衣服', '手機桌布', '水杯'] },
+      { colorName: '湖水青', hex: '#0891B2', usage: ['配件', '筆記', '工作背景'] },
+    ],
+    monthlyFocusPool: ['本月重點是提升感受力與修復力。', '本月重點是讓關係與節奏變得更順。'],
+  },
+  FIRE: {
+    label: '火元素',
+    badge: '火',
+    theme: '行動、決斷、熱度與突破',
+    headline: '本週第一補強是火元素：先開始，執行力就會被帶起來。',
+    reason: '火元素代表行動力、決策速度、表達熱度與突破意願。補強火元素，重點是減少拖延，讓事情真正往前推進。',
+    actionPool: ['今天完成一件拖延最久的小事。', '本週主動做出一個明確決定。', '把想做的事情排進行事曆，今天先做第一步。'],
+    colorPool: [
+      { colorName: '深紅色', hex: '#B91C1C', usage: ['衣服', '手機桌布', '重點標籤'] },
+      { colorName: '琥珀橙', hex: '#F59E0B', usage: ['配件', '筆記標題', '工作背景'] },
+    ],
+    monthlyFocusPool: ['本月重點是把決定轉成行動。', '本月重點是提高完成速度與主動性。'],
+  },
+  EARTH: {
+    label: '地元素',
+    badge: '地',
+    theme: '穩定、承接、累積與落地',
+    headline: '本週第一補強是地元素：把節奏穩住，把承諾落地。',
+    reason: '地元素代表穩定、秩序、承接與持續累積。補強地元素，重點是把想法變成可重複的習慣與成果。',
+    actionPool: ['今天固定完成一件基礎任務。', '本週建立一個可持續的小習慣。', '把目前最重要的事情安排固定時間完成。'],
+    colorPool: [
+      { colorName: '土黃色', hex: '#C89B3C', usage: ['衣服', '配件', '工作背景'] },
+      { colorName: '沉穩棕', hex: '#8B6A2E', usage: ['桌布', '筆記封面', '生活用品'] },
+    ],
+    monthlyFocusPool: ['本月重點是穩定執行與持續累積。', '本月重點是建立能長期維持的生活節奏。'],
   },
 };
 
 const SUCCESS_QUOTES: SuccessQuote[] = [
-  { author: '史蒂夫・賈伯斯', role: 'Apple 共同創辦人', quote: 'Stay hungry. Stay foolish.', fit: '提醒你保持渴望，也保留探索未知的勇氣。', sourceName: 'Stanford News', sourceUrl: 'https://news.stanford.edu/stories/2005/06/youve-got-find-love-jobs-says' },
-  { author: '伊隆・馬斯克', role: 'Tesla / SpaceX CEO', quote: 'When something is important enough, you do it even if the odds are not in your favor.', fit: '提醒你真正重要的事情，值得用行動把它推進。', sourceName: 'Public interview quote', sourceUrl: 'https://www.spacex.com/' },
-  { author: '華倫・巴菲特', role: 'Berkshire Hathaway 董事長', quote: 'The best investment you can make is in yourself.', fit: '提醒你本週最值得投入的，仍然是自己的能力與狀態。', sourceName: 'CNBC', sourceUrl: 'https://www.cnbc.com/warren-buffett/' },
-  { author: '比爾・蓋茲', role: 'Microsoft 共同創辦人', quote: 'It is fine to celebrate success, but it is more important to heed the lessons of failure.', fit: '提醒你成功值得開心，但每次修正都會讓下一步更穩。', sourceName: 'Gates Notes', sourceUrl: 'https://www.gatesnotes.com/' },
-  { author: '黃仁勳', role: 'NVIDIA 創辦人暨 CEO', quote: 'Pain and suffering build character.', fit: '提醒你壓力不是停止的理由，它也能變成成長的力量。', sourceName: 'Stanford Engineering', sourceUrl: 'https://engineering.stanford.edu/' },
-  { author: '張忠謀', role: 'TSMC 創辦人', quote: 'Learning is local.', fit: '提醒你真正的學習來自持續留在現場累積。', sourceName: 'MIT News', sourceUrl: 'https://news.mit.edu/2023/morris-chang-describes-secrets-semiconductor-success-1025' },
-  { author: '馬雲', role: 'Alibaba 創辦人', quote: 'Never give up.', fit: '提醒你本週先守住一件事，不急著放棄。', sourceName: 'BrainyQuote', sourceUrl: 'https://www.brainyquote.com/quotes/jack_ma_678619' },
-  { author: '歐普拉・溫芙蕾', role: '媒體企業家', quote: 'The biggest adventure you can ever take is to live the life of your dreams.', fit: '提醒你長期陪伴的目的，是把夢想慢慢活出來。', sourceName: 'The Quotations Page', sourceUrl: 'https://www.quotationspage.com/quote/31137.html' },
-  { author: '孔子', role: '思想家', quote: '學而不思則罔，思而不學則殆。', fit: '提醒你學習與思考一定要一起前進。', sourceName: 'Stanford Engineering', sourceUrl: 'https://engineering.stanford.edu/news/stanford-engineering-hero-morris-chang-honored-revolutionizing-chip-making' },
-  { author: '約翰・亨尼西', role: 'Stanford 前校長', quote: 'There is a difference between success and impact.', fit: '提醒你長期價值不是只看成功，也要看留下的影響。', sourceName: 'Stanford Engineering', sourceUrl: 'https://engineering.stanford.edu/news/stanford-engineering-hero-morris-chang-honored-revolutionizing-chip-making' },
+  { author: 'Steve Jobs', role: 'Apple co-founder', quote: 'Stay hungry. Stay foolish.', fit: '這句話提醒你保持探索，讓下一步保持清楚與有力。', sourceName: 'Stanford News', sourceUrl: 'https://news.stanford.edu/stories/2005/06/youve-got-find-love-jobs-says' },
+  { author: 'Elon Musk', role: 'Tesla / SpaceX CEO', quote: 'When something is important enough, you do it even if the odds are not in your favor.', fit: '這句話適合提醒行動與突破。', sourceName: 'Public quote', sourceUrl: 'https://www.spacex.com/' },
+  { author: 'Warren Buffett', role: 'Berkshire Hathaway chairman', quote: 'The best investment you can make is in yourself.', fit: '這句話提醒你把成長放回自己身上。', sourceName: 'CNBC', sourceUrl: 'https://www.cnbc.com/warren-buffett/' },
+  { author: 'Bill Gates', role: 'Microsoft co-founder', quote: 'It is fine to celebrate success, but it is more important to heed the lessons of failure.', fit: '這句話提醒你從每一次調整中累積智慧。', sourceName: 'Gates Notes', sourceUrl: 'https://www.gatesnotes.com/' },
+  { author: 'Jensen Huang', role: 'NVIDIA founder and CEO', quote: 'Pain and suffering build character.', fit: '這句話提醒你把壓力轉成韌性。', sourceName: 'Stanford Engineering', sourceUrl: 'https://engineering.stanford.edu/' },
 ];
 
-
 const CORE_ELEMENT_LABEL: Record<GrowthElement, string> = {
-  EARTH: '地元素',
+  AIR: '風元素',
+  SPACE: '空元素',
   WATER: '水元素',
   FIRE: '火元素',
-  WIND: '風元素',
-  SPACE: '空元素',
+  EARTH: '地元素',
 };
+
+function pickBySeed<T>(items: T[], seed: string, salt: string) {
+  let value = 0;
+  const text = `${seed}:${salt}`;
+  for (let index = 0; index < text.length; index += 1) value = (value * 31 + text.charCodeAt(index)) >>> 0;
+  return items[value % items.length];
+}
+
+function buildProgressMessage(completed: number, total: number) {
+  const missing = Math.max(total - completed, 0);
+  if (completed === 0) return '目前尚未完成探索。先完成任一項分析，AI 就會開始建立你的成長檔案。';
+  if (completed < 3) return `目前已完成 ${completed}/${total}。先累積三項探索，AI 成長中心會開始給出更清楚的每週方向。`;
+  if (completed < total) return `目前已完成 ${completed}/${total}，距離完整解鎖還差 ${missing} 項。繼續完成探索，AI 陪伴會更精準。`;
+  return '七項探索已完成。AI 已建立你的專屬成長中心，接下來每週提供一個方向、一個行動與一份提醒。';
+}
 
 function buildCoreGrowthCenterV2(args: {
   integration: AiIntegrationResult;
@@ -299,85 +311,62 @@ function buildCoreGrowthCenterV2(args: {
   action: string;
   oneLineReminder: string;
   quote: SuccessQuote;
-}) : GrowthCenterCoreV2 {
+}): GrowthCenterCoreV2 {
   const completed = args.integration.completed;
   const total = args.integration.total;
-  const missingCount = Math.max(total - completed, 0);
-  const primaryLabel = CORE_ELEMENT_LABEL[args.integration.primaryElement] ?? args.elementLabel;
-  const status = completed >= total
-    ? '專屬成長中心已完整解鎖'
-    : completed === 0
-      ? '尚未建立本人分析資料'
-      : `已完成 ${completed}/${total}，還差 ${missingCount} 項探索`;
+  const missing = Math.max(total - completed, 0);
+  const focus = CORE_ELEMENT_LABEL[args.integration.primaryElement] ?? args.elementLabel;
 
   return {
     version: 'growth_center_core_v2',
     positioning: {
       title: 'AI 個人成長中心',
       principle: '分析一次，終身陪伴。',
-      roleSplit: '六張命理卡片負責分析；AI 個人成長中心只負責陪伴、提醒、追蹤與行動。',
+      roleSplit: '六張卡片負責分析；AI 成長中心只負責整理、提醒、陪伴與行動。',
     },
     firstScreen: {
-      title: '本週 AI 陪伴核心',
-      headline: completed === 0 ? '先完成第一項本人探索，AI 會開始建立你的成長檔案。' : `本週核心：持續補強 ${primaryLabel}。`,
+      title: '本週 AI 成長提醒',
+      headline: completed === 0 ? '先完成第一項探索，AI 會開始建立你的專屬成長檔案。' : `本週第一補強：${focus}`,
       body: completed === 0
-        ? '這裡不會重新算命。完成本人分析後，AI 會讀取已完成結果，整理成本週提醒、補強方向、能量色與一件行動任務。'
-        : `AI 已讀取你的本人分析紀錄，本週只提醒最重要的一件事：把 ${primaryLabel} 的補強落實成行動。`,
+        ? 'AI 成長中心不重新算命。它會讀取你已完成的分析，整理成每週最重要的一件事。'
+        : `AI 已讀取目前完成的分析，本週重點鎖定 ${focus}。今天先完成一個小行動，讓節奏開始改變。`,
       primaryMetric: `${completed}/${total}`,
-      status,
+      status: completed >= total ? '已完整解鎖' : completed === 0 ? '等待第一項探索' : `還差 ${missing} 項完整解鎖`,
     },
     memberMemory: {
-      title: 'AI 記得你的成長檔案',
-      completedText: completed === 0 ? '目前尚未完成本人探索。' : `目前已完成 ${completed} 項本人探索。`,
-      missingText: missingCount === 0 ? '六項探索已完成，後續以陪伴與追蹤為主。' : `還有 ${missingCount} 項探索未完成。`,
-      currentFocus: completed === 0 ? '目前先建立第一份本人資料。' : `目前第一補強：${primaryLabel}。`,
-      noReanalysisPolicy: 'AI 個人成長中心只讀取既有本人分析，不重新排盤、不重新算命、不讀親朋好友資料。',
+      title: '會員成長記憶',
+      completedText: completed === 0 ? '尚未完成探索。' : `已完成 ${completed} 項探索。`,
+      missingText: missing === 0 ? '所有探索已完成。' : `尚有 ${missing} 項探索可完成。`,
+      currentFocus: completed === 0 ? '目前先完成任一項分析。' : `目前核心補強：${focus}。`,
+      noReanalysisPolicy: 'AI 成長中心只讀取已完成結果，不重新分析、不覆蓋原本命理資料。',
     },
     weeklyCompanion: {
       reminder: args.oneLineReminder,
-      reinforcement: completed === 0 ? '本週第一補強：完成第一項本人探索。' : `本週第一補強：${primaryLabel}。`,
-      energyColor: `本週唯一能量色：${args.colorName}。`,
-      task: `本週唯一行動任務：${args.action}`,
-      quote: `${args.quote.author}：${args.quote.quote}`,
+      reinforcement: completed === 0 ? '本週先完成第一項探索。' : `本週持續補強：${focus}。`,
+      energyColor: `本週能量色：${args.colorName}。`,
+      task: `本週一件任務：${args.action}`,
+      quote: `${args.quote.author}: ${args.quote.quote}`,
     },
     followUpPolicy: {
-      prompt: completed === 0 ? '本週開始建立自己的第一份分析了嗎？' : `本週 ${primaryLabel} 持續補強了嗎？`,
-      ifContinued: '如果有，AI 會給你下一步，讓本週行動更穩。',
-      ifPaused: '如果沒有，AI 只提醒你回到本週任務，不責備、不聊天。',
-      boundary: 'Follow-Up 只追蹤會員自己的補強、成長與行動，不問家庭、不問生活、不問收入、不重新分析。',
+      prompt: completed === 0 ? '本週先開始第一項探索。' : `本週 ${focus} 有持續補強嗎？`,
+      ifContinued: '有持續，就把同一個行動固定成習慣。',
+      ifPaused: '沒有持續，今天重新開始也算前進。',
+      boundary: 'Follow-Up 只追蹤補強、行動與成長，不聊天、不偏題、不重新算命。',
     },
     retentionLoop: {
-      title: '會員回訪習慣',
-      steps: [
-        '第一次：完成本人分析，建立專屬資料。',
-        '之後登入：第一眼看 AI 個人成長中心。',
-        '每週：只更新一個提醒、一個補強、一個能量色、一件任務、一句名言。',
-        '長期：AI 追蹤補強進度，讓會員每週回來看方向。',
-      ],
+      title: '每週陪伴循環',
+      steps: ['完成分析', '整合結果', '每週提醒', '完成一件任務', '下週回來追蹤'],
     },
   };
-}
-function pickBySeed<T>(items: T[], seed: string, salt: string) {
-  let value = 0;
-  const text = `${seed}:${salt}`;
-  for (let index = 0; index < text.length; index += 1) value = (value * 31 + text.charCodeAt(index)) >>> 0;
-  return items[value % items.length];
-}
-
-function buildProgressMessage(completed: number) {
-  if (completed === 0) return '目前尚未讀到六張卡片的完成紀錄，成長中心會先用本週固定節奏陪伴你。完成任一張卡片後，內容會立刻更個人化。';
-  if (completed < 3) return `目前已讀取 ${completed} 張已完成卡片。整合層只做整理與陪伴，不會重新算命。`;
-  if (completed < 6) return `目前已讀取 ${completed} 張已完成卡片，已可形成跨模組的每週陪伴內容。`;
-  return '六張卡片都已完成，本週陪伴內容會以完整整合結果產生。';
 }
 
 function buildCompanionLoop(args: { reminder: string; elementLabel: string; colorName: string; task: string; quote: SuccessQuote }): CompanionLoopStep[] {
   return [
-    { step: 1, label: '第一眼', title: '本週提醒', body: args.reminder },
-    { step: 2, label: '第二眼', title: '本週第一補強', body: `本週唯一補強重點是${args.elementLabel}。` },
-    { step: 3, label: '第三眼', title: '本週能量色', body: `本週唯一能量色是${args.colorName}。` },
-    { step: 4, label: '第四眼', title: '本週一件任務', body: args.task },
-    { step: 5, label: '第五眼', title: '成功人士一句話', body: `${args.quote.author}：${args.quote.quote}` },
+    { step: 1, label: '提醒', title: '本週一句話', body: args.reminder },
+    { step: 2, label: '補強', title: '本週第一補強', body: `本週持續補強 ${args.elementLabel}。` },
+    { step: 3, label: '顏色', title: '本週能量色', body: `本週使用 ${args.colorName}。` },
+    { step: 4, label: '行動', title: '本週一件任務', body: args.task },
+    { step: 5, label: '鼓勵', title: '成功人士一句話', body: `${args.quote.author}: ${args.quote.quote}` },
   ];
 }
 
@@ -394,15 +383,15 @@ function buildLongTermEcosystem(args: {
     version: 'lifetime_companion_v1' as const,
     monthKey: args.monthKey,
     title: 'AI 長期陪伴生態系',
-    monthlyTheme: `${args.monthKey} 長期陪伴主題：持續補強${args.elementLabel}`,
+    monthlyTheme: `${args.monthKey} 月核心方向：${args.elementLabel}`,
     monthlyFocus: args.monthlyFocus,
-    promise: '本系統每週陪你完成一件小事，每月整理一個方向，長期累積成穩定的會員陪伴價值。',
-    rhythm: ['每週回來看提醒', '確認本週唯一任務', '按下完成本週陪伴', '下週回來看新的陪伴方向'],
+    promise: 'AI 不要求你重複算命，而是每週提醒你完成一件真正能推進自己的事。',
+    rhythm: ['每週提醒', '每週任務', '每週追蹤', '每月整理'],
     checkpoints: [
-      { week: 1 as const, title: '第一週：看見方向', action: `確認本月主軸是${args.elementLabel}。` },
-      { week: 2 as const, title: '第二週：完成小事', action: args.action },
-      { week: 3 as const, title: '第三週：穩住節奏', action: '回來檢查自己是否有持續前進。' },
-      { week: 4 as const, title: '第四週：整理收穫', action: '記下一件本月最有感的改變。' },
+      { week: 1 as const, title: '第一週：建立方向', action: `確認本月核心補強：${args.elementLabel}。` },
+      { week: 2 as const, title: '第二週：固定行動', action: args.action },
+      { week: 3 as const, title: '第三週：修正節奏', action: '檢查哪一件事卡住，今天重新推進一步。' },
+      { week: 4 as const, title: '第四週：整理成果', action: '寫下本月一個完成與一個調整。' },
     ],
     nextMonthlyUpdateAt: args.nextMonthlyUpdateAt,
     policy: `${args.ecosystemPolicy} 目前陪伴階段：${args.stage.label}。`,
@@ -423,8 +412,8 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
   const completed = integration.completed;
 
   const oneLineReminder = completed === 0
-    ? '本週先從一件小行動開始，讓平台陪你建立穩定回訪節奏。'
-    : `本週第一補強是${themeData.label}，請把${themeData.theme}落到一件可完成的行動。`;
+    ? '本週最重要：先完成第一項探索，讓 AI 建立你的成長起點。'
+    : `本週最重要：補強 ${themeData.label}，用一個小行動帶動 ${themeData.theme}。`;
 
   const weeklyReport = {
     weekKey: integration.weekKey,
@@ -432,6 +421,7 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
     primaryAction: action,
     evidence: integration.evidence,
   };
+
   const followUp = buildAiFollowUpSystem({
     weekKey: integration.weekKey,
     primaryElement: integration.primaryElement,
@@ -445,21 +435,14 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
   return {
     success: true,
     data: {
-      coreV2: buildCoreGrowthCenterV2({
-        integration,
-        elementLabel: themeData.label,
-        colorName: color.colorName,
-        action,
-        oneLineReminder,
-        quote,
-      }),
+      coreV2: buildCoreGrowthCenterV2({ integration, elementLabel: themeData.label, colorName: color.colorName, action, oneLineReminder, quote }),
       progress: {
         completedModules: integration.completedModules,
         missingModules: integration.missingModules,
         completed: integration.completed,
         total: integration.total,
         unlockLevel: integration.unlockLevel,
-        message: buildProgressMessage(completed),
+        message: buildProgressMessage(completed, integration.total),
       },
       companionJourney: {
         version: 'growth_companion_v4',
@@ -468,10 +451,10 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
         loop: buildCompanionLoop({ reminder: oneLineReminder, elementLabel: themeData.label, colorName: color.colorName, task: action, quote }),
         checkIn: {
           weekKey: integration.weekKey,
-          title: '完成本週陪伴',
-          prompt: '讀完本週提醒後，按下完成，系統會記住你本週已回來看過。',
-          buttonText: '我已完成本週陪伴',
-          completedText: '本週陪伴已完成，下週回來會看到新的提醒。',
+          title: '本週追蹤',
+          prompt: '完成本週任務後，回來點一下完成，AI 會保留你的成長節奏。',
+          buttonText: '完成本週追蹤',
+          completedText: '本週已完成追蹤。下週回來看新的提醒。',
           returnHint: integration.companionStage.returnReason,
         },
       },
@@ -493,9 +476,9 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
         action,
       },
       weeklyTask: {
-        title: '只做這一件',
+        title: '本週一件行動任務',
         task: action,
-        reason: `這週只做一件事：它對應${themeData.label}，能讓${themeData.theme}真正落到行動。`,
+        reason: `這件任務會直接帶動 ${themeData.label}，讓 ${themeData.theme} 開始變得更穩定。`,
       },
       followUp,
       weeklyEnergyColor: {
@@ -505,21 +488,22 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
         hex: color.hex,
         reason: themeData.reason,
         usage: color.usage,
-        message: `本週能量色是${color.colorName}。你可以用在${color.usage.slice(0, 2).join('、')}，提醒自己持續補強${themeData.label}。`,
+        message: `本週能量色是 ${color.colorName}。可用在 ${color.usage.slice(0, 2).join('、')}，提醒自己持續補強 ${themeData.label}。`,
       },
       weeklyInspiration: quote,
       fiveElement: {
         primaryElement: integration.primaryElement,
         secondaryElement: integration.secondaryElement,
+        elementScore: integration.elementScore,
         avoidElement: integration.avoidElement,
         confidence: integration.confidence,
         summary: completed === 0
-          ? '成長中心目前只看到空資料，因此先用本週固定節奏產生陪伴提醒。完成任一張卡片後，內容會立刻更個人化。'
-          : `依照 AI Integration Layer 讀取的已完成卡片狀態，本週第一補強是${themeData.label}，第二參考是${secondaryTheme.label}。本中心不重新算命，只把既有結果整理成每週可執行的提醒。`,
+          ? '尚未完成探索，AI 會在完成分析後建立唯一五元素核心。'
+          : `AI Integration Layer 判定本週第一補強為 ${themeData.label}，第二參考為 ${secondaryTheme.label}。成長中心只讀取結果，不重新分析。`,
       },
       nextStep: {
         moduleId: integration.nextModule?.id ?? null,
-        title: integration.nextModule ? `下一步可完成：${integration.nextModule.title}` : '六張卡片已完成，本週照著成長中心行動即可。',
+        title: integration.nextModule ? `下一步完成：${integration.nextModule.title}` : '探索已完成，現在進入每週陪伴循環。',
         href: integration.nextModule?.href ?? '/growth-center',
       },
       dataPolicy: `${integration.dataPolicy} ${integration.ecosystemPolicy}`,

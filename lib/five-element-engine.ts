@@ -1,5 +1,7 @@
 import type { NameologyAnalysis, NameologyElement, NameologyTendencyKey } from './nameology-engine';
 import type { NumberAnalysisResponse } from './number-core-engine';
+import type { ZodiacAnalysisResult, ZodiacElement } from './zodiac-engine';
+import type { BloodType } from './types';
 import {
   getFiveElementPositiveQuote,
   getFiveElementProductRecommendation,
@@ -12,7 +14,14 @@ export type FiveElementDisplayName = '\u7a7a' | '\u98a8' | '\u6c34' | '\u706b' |
 export type FiveElementConfidence = 'low' | 'medium' | 'high';
 
 export type TraditionalFiveElementCode = 'METAL' | 'WOOD' | 'WATER' | 'FIRE' | 'EARTH';
-export type BrandFiveElementCode = 'SPACE' | 'WIND' | 'WATER' | 'FIRE' | 'EARTH';
+export type BrandFiveElementCode = 'SPACE' | 'AIR' | 'WATER' | 'FIRE' | 'EARTH';
+export type AiCoreElementCode = BrandFiveElementCode;
+export type AiCoreElementScore = Record<AiCoreElementCode, number>;
+export type AiCoreElementModel = {
+  primaryElement: AiCoreElementCode;
+  secondaryElement: AiCoreElementCode;
+  elementScore: AiCoreElementScore;
+};
 
 export type NormalizedFiveElementSignal = {
   sourceElement: FiveElementKey;
@@ -57,7 +66,7 @@ export type FiveElementEvidence = {
 };
 
 export type ModuleFiveElementResult = {
-  sourceModule: 'nameology' | 'insight' | 'number' | 'bazi' | 'music';
+  sourceModule: 'nameology' | 'insight' | 'number' | 'bazi' | 'music' | 'zodiac';
   analysisId: string;
   elementScores: Record<FiveElementKey, FiveElementScore>;
   primaryElement: FiveElementKey;
@@ -66,14 +75,14 @@ export type ModuleFiveElementResult = {
   avoidElement: FiveElementKey | null;
   confidence: FiveElementConfidence;
   evidence: FiveElementEvidence[];
-  ruleVersion: 'nameology_element_v1' | 'insight_element_v1' | 'number_element_v1' | 'bazi_element_v1' | 'music_element_v1';
+  ruleVersion: 'nameology_element_v1' | 'insight_element_v1' | 'number_element_v1' | 'bazi_element_v1' | 'music_element_v1' | 'zodiac_element_v1';
 };
 
 export type FiveElementIntegrationResult = ModuleFiveElementResult & {
   conflict: boolean;
   supportingModules: string[];
   moduleResults: Array<{
-    module: 'nameology' | 'insight' | 'bazi' | 'annual' | 'number' | 'music';
+    module: 'nameology' | 'insight' | 'bazi' | 'annual' | 'number' | 'music' | 'zodiac';
     primaryElement: FiveElementKey;
     confidence: FiveElementConfidence;
   }>;
@@ -93,6 +102,8 @@ export type FiveElementIntegrationResult = ModuleFiveElementResult & {
   decision: FiveElementDecision;
   productMatch: FiveElementProductMatch;
   enginePipeline: string[];
+  aiElementModel: AiCoreElementModel;
+  elementScore: AiCoreElementScore;
 };
 
 export const FIVE_ELEMENT_DEFINITIONS: Record<FiveElementKey, { zh: NameologyElement; displayZh: FiveElementDisplayName; icon: string; keywords: string[]; direction: string; caution: string }> = {
@@ -147,10 +158,11 @@ const ZH_TO_KEY: Record<NameologyElement, FiveElementKey> = {
 };
 
 const ELEMENT_KEYS = Object.keys(FIVE_ELEMENT_DEFINITIONS) as FiveElementKey[];
+const AI_CORE_ELEMENT_ORDER: AiCoreElementCode[] = ['AIR', 'SPACE', 'WATER', 'FIRE', 'EARTH'];
 
 const FIVE_ELEMENT_CODE_MAP: Record<FiveElementKey, { traditionalElement: TraditionalFiveElementCode; brandElement: BrandFiveElementCode; productId: string }> = {
   metal: { traditionalElement: 'METAL', brandElement: 'SPACE', productId: 'bracelet_space_core' },
-  wood: { traditionalElement: 'WOOD', brandElement: 'WIND', productId: 'bracelet_wind_core' },
+  wood: { traditionalElement: 'WOOD', brandElement: 'AIR', productId: 'bracelet_air_core' },
   water: { traditionalElement: 'WATER', brandElement: 'WATER', productId: 'bracelet_water_core' },
   fire: { traditionalElement: 'FIRE', brandElement: 'FIRE', productId: 'bracelet_fire_core' },
   earth: { traditionalElement: 'EARTH', brandElement: 'EARTH', productId: 'bracelet_earth_core' },
@@ -257,6 +269,15 @@ function actionFor(element: FiveElementKey) {
 }
 
 
+function buildAiCoreElementScore(elementScores: Record<FiveElementKey, FiveElementScore>) {
+  const score = Object.fromEntries(AI_CORE_ELEMENT_ORDER.map((element) => [element, 0])) as AiCoreElementScore;
+  ELEMENT_KEYS.forEach((element) => {
+    const code = FIVE_ELEMENT_CODE_MAP[element].brandElement;
+    score[code] = elementScores[element]?.need ?? 0;
+  });
+  return score;
+}
+
 function buildNormalizedElements(elementScores: Record<FiveElementKey, FiveElementScore>) {
   return Object.fromEntries(ELEMENT_KEYS.map((element) => {
     const definition = FIVE_ELEMENT_DEFINITIONS[element];
@@ -321,7 +342,7 @@ function buildElementProductMatch(result: Pick<FiveElementIntegrationResult, 'pr
   };
 }
 
-type FiveElementIntegrationBase = ModuleFiveElementResult & Omit<FiveElementIntegrationResult, keyof ModuleFiveElementResult | 'traditionalElement' | 'brandElement' | 'secondaryBrandElement' | 'strongBrandElement' | 'avoidBrandElement' | 'normalizedElements' | 'decision' | 'productMatch' | 'enginePipeline'>;
+type FiveElementIntegrationBase = ModuleFiveElementResult & Omit<FiveElementIntegrationResult, keyof ModuleFiveElementResult | 'traditionalElement' | 'brandElement' | 'secondaryBrandElement' | 'strongBrandElement' | 'avoidBrandElement' | 'normalizedElements' | 'decision' | 'productMatch' | 'enginePipeline' | 'aiElementModel' | 'elementScore'>;
 
 function enrichFiveElementResult(result: FiveElementIntegrationBase): FiveElementIntegrationResult {
   const primaryCode = FIVE_ELEMENT_CODE_MAP[result.primaryElement];
@@ -331,6 +352,12 @@ function enrichFiveElementResult(result: FiveElementIntegrationBase): FiveElemen
   const decision = buildElementDecision(result);
   const productMatch = buildElementProductMatch(result);
   const conflictReason = decision.conflictNote ? [decision.conflictNote] : [];
+  const elementScore = buildAiCoreElementScore(result.elementScores);
+  const aiElementModel: AiCoreElementModel = {
+    primaryElement: primaryCode.brandElement,
+    secondaryElement: secondaryCode.brandElement,
+    elementScore,
+  };
 
   return {
     ...result,
@@ -343,6 +370,8 @@ function enrichFiveElementResult(result: FiveElementIntegrationBase): FiveElemen
     decision,
     productMatch,
     enginePipeline: FIVE_ELEMENT_ENGINE_PIPELINE,
+    aiElementModel,
+    elementScore,
     reasons: [decision.conclusion, decision.primaryAction, decision.why, ...conflictReason, ...result.reasons],
   };
 }
@@ -995,3 +1024,95 @@ export function buildNumberFiveElementResult(result: NumberAnalysisResponse): Fi
     positiveQuote: getFiveElementPositiveQuote(primaryElement),
   });
 }
+
+const ZODIAC_ELEMENT_TO_KEY: Record<ZodiacElement, FiveElementKey> = {
+  fire: 'fire',
+  earth: 'earth',
+  air: 'wood',
+  water: 'water',
+};
+
+const ZODIAC_BLOOD_TO_KEY: Record<Exclude<BloodType, ''>, FiveElementKey> = {
+  A: 'earth',
+  B: 'wood',
+  AB: 'metal',
+  O: 'fire',
+};
+
+function zodiacElementAnalysisId(result: ZodiacAnalysisResult, bloodType?: BloodType | null) {
+  const raw = [result.sign.key, result.risingSign?.key ?? 'none', result.moonSign?.key ?? 'none', bloodType || 'none'].join(':');
+  let hash = 2166136261;
+  for (let index = 0; index < raw.length; index += 1) {
+    hash ^= raw.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return 'zodiac_' + (hash >>> 0).toString(16);
+}
+
+/**
+ * Cross-analyzes sun/rising/moon sign (whichever the member has unlocked) plus
+ * blood type into the platform's shared five-element model. Western air maps to
+ * the wood key (displayed as \u98a8/AIR); blood type is the only signal that can
+ * reach the metal key (displayed as \u7a7a/SPACE), since no western sign maps there.
+ */
+export function buildZodiacFiveElementResult(result: ZodiacAnalysisResult, bloodType?: BloodType | null): FiveElementIntegrationResult {
+  const weighted: Array<{ key: FiveElementKey; weight: number; source: string }> = [];
+  weighted.push({ key: ZODIAC_ELEMENT_TO_KEY[result.sign.element], weight: 34, source: `\u592a\u967d\u661f\u5ea7 ${result.sign.name}` });
+  if (result.risingSign) weighted.push({ key: ZODIAC_ELEMENT_TO_KEY[result.risingSign.element], weight: 20, source: `\u4e0a\u5347\u661f\u5ea7 ${result.risingSign.name}` });
+  if (result.moonSign) weighted.push({ key: ZODIAC_ELEMENT_TO_KEY[result.moonSign.element], weight: 20, source: `\u6708\u4eae\u661f\u5ea7 ${result.moonSign.name}` });
+  const normalizedBloodType = bloodType ? bloodType : null;
+  if (normalizedBloodType) weighted.push({ key: ZODIAC_BLOOD_TO_KEY[normalizedBloodType], weight: 14, source: `\u8840\u578b ${normalizedBloodType} \u578b` });
+
+  const rawStrength = Object.fromEntries(ELEMENT_KEYS.map((element) => [element, 50])) as Record<FiveElementKey, number>;
+  for (const item of weighted) rawStrength[item.key] += item.weight;
+
+  const elementScores = Object.fromEntries(ELEMENT_KEYS.map((element) => {
+    const strength = clampScore(rawStrength[element]);
+    const need = clampScore(100 - strength);
+    return [element, { strength, need, evidenceCount: weighted.filter((item) => item.key === element).length }];
+  })) as Record<FiveElementKey, FiveElementScore>;
+
+  const needRanking = [...ELEMENT_KEYS].sort((a, b) => elementScores[b].need - elementScores[a].need);
+  const strengthRanking = [...ELEMENT_KEYS].sort((a, b) => elementScores[b].strength - elementScores[a].strength);
+  const primaryElement = needRanking[0];
+  const secondaryElement = needRanking.find((key) => key !== primaryElement) ?? needRanking[1];
+  const strongElement = strengthRanking[0];
+  const avoidElement = elementScores[strongElement].need <= 32 ? strongElement : null;
+  const primaryDefinition = FIVE_ELEMENT_DEFINITIONS[primaryElement];
+  const confidence: FiveElementConfidence = result.precision === 'FULL_CHART' ? 'high' : result.precision === 'DATE_TIME' ? 'medium' : 'low';
+  const sourceText = weighted.map((item) => item.source).join('\u3001');
+
+  return enrichFiveElementResult({
+    sourceModule: 'zodiac',
+    analysisId: zodiacElementAnalysisId(result, bloodType),
+    elementScores,
+    primaryElement,
+    secondaryElement,
+    strongElement,
+    avoidElement,
+    confidence,
+    conflict: elementScores[primaryElement].need - elementScores[secondaryElement].need <= 5,
+    supportingModules: ['zodiac'],
+    moduleResults: [{ module: 'zodiac', primaryElement, confidence }],
+    evidence: [{
+      module: 'zodiac',
+      title: getFiveElementName(primaryElement) + '\u662f\u672c\u6b21\u661f\u5ea7\u4ea4\u53c9\u5206\u6790\u5224\u5b9a\u7684\u7b2c\u4e00\u7f3a\u53e3',
+      detail: sourceText + '\uff0c\u4ea4\u53c9\u5224\u5b9a\u5f8c\u5c0d\u61c9' + getFiveElementName(primaryElement) + '\u8a0a\u865f\u504f\u5c11\u3002',
+      element: primaryElement,
+      impact: 'need',
+    }],
+    ruleVersion: 'zodiac_element_v1',
+    summary: '\u672c\u6b21\u661f\u5ea7\u4ea4\u53c9\u5206\u6790\u5224\u5b9a\uff1a\u4f60\u7f3a' + getFiveElementName(primaryElement) + '\uff0c\u5c31\u5148\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002\u624b\u93c8\u88dc\u5f37\u5148\u9078' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\uff0c\u4e0d\u5148\u5206\u6563\u88dc\u5176\u4ed6\u5143\u7d20\u3002',
+    keywords: primaryDefinition.keywords.slice(0, 4),
+    reasons: [
+      '\u661f\u5ea7\u4ea4\u53c9\u5206\u6790\u4f86\u6e90\uff1a' + sourceText + '\u3002',
+      getElementChangeTarget(primaryElement) + '\u9019\u662f\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u6700\u5148\u6539\u8b8a\u7684\u5730\u65b9\u3002',
+      '\u7b2c\u4e8c\u9806\u4f4d\u662f' + getFiveElementName(secondaryElement) + '\uff0c\u4f46\u672c\u6b21\u5148\u5c08\u5fc3\u88dc' + getFiveElementShortName(primaryElement) + '\u5143\u7d20\u3002',
+    ],
+    recommendedActions: actionFor(primaryElement),
+    productEntryLabel: '\u9078\u64c7' + getFiveElementName(primaryElement) + '\u80fd\u91cf\u624b\u93c8',
+    productRecommendation: getFiveElementProductRecommendation(primaryElement),
+    positiveQuote: getFiveElementPositiveQuote(primaryElement),
+  });
+}
+

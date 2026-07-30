@@ -309,7 +309,7 @@ export default function MusicSystemPage() {
       }
 
       setResult(json as MusicGenerateResponse);
-      markGrowthModuleCompleted('music');
+      markGrowthModuleCompleted('music', (json as MusicGenerateResponse).fiveElement?.brandElement);
       setPageState('result');
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
     } catch (error) {

@@ -1898,7 +1898,7 @@ export default function InsightPage() {
 
         const json = (await response.json()) as InsightResult;
         setResult(json);
-        markGrowthModuleCompleted('ziwei');
+        markGrowthModuleCompleted('ziwei', json.fiveElement?.brandElement);
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') {
           setError('分析超時（超過 45 秒），請稍後再試或稍候網路恢復後重試。');

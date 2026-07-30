@@ -2,7 +2,8 @@ import { createHash } from 'crypto';
 import { PLATFORM_FORBIDDEN_ANALYSIS_CALLS } from './platform-stability-layer';
 
 export type AiIntegrationModuleId = 'nameology' | 'ziwei' | 'number' | 'soul_match' | 'music' | 'bazi' | 'zodiac';
-export type AiIntegrationElement = 'EARTH' | 'WATER' | 'FIRE' | 'WIND' | 'SPACE';
+export type AiIntegrationElement = 'EARTH' | 'WATER' | 'FIRE' | 'AIR' | 'SPACE';
+export type AiIntegrationElementScore = Record<AiIntegrationElement, number>;
 export type AiCompanionStageId = 'empty' | 'starter' | 'cross_module' | 'complete';
 
 export type AiIntegrationInput = {
@@ -11,6 +12,7 @@ export type AiIntegrationInput = {
   completedModules?: AiIntegrationModuleId[];
   primaryElement?: AiIntegrationElement | null;
   secondaryElement?: AiIntegrationElement | null;
+  elementScore?: Partial<AiIntegrationElementScore> | null;
   avoidElement?: AiIntegrationElement | null;
   analysisHash?: string | null;
   now?: Date;
@@ -49,6 +51,7 @@ export type AiIntegrationResult = {
   companionStage: AiCompanionStage;
   primaryElement: AiIntegrationElement;
   secondaryElement: AiIntegrationElement;
+  elementScore: AiIntegrationElementScore;
   avoidElement: AiIntegrationElement | null;
   confidence: 'low' | 'medium' | 'high';
   evidence: string[];
@@ -68,7 +71,7 @@ export const AI_INTEGRATION_MODULES: AiIntegrationModuleMeta[] = [
     title: 'AI 姓名學',
     shortTitle: '姓名學',
     href: '/nameology',
-    defaultElement: 'WIND',
+    defaultElement: 'AIR',
     evidence: '姓名學已完成，整合層只讀取已保存的性格與表達方向作為陪伴參考。',
   },
   {
@@ -116,14 +119,14 @@ export const AI_INTEGRATION_MODULES: AiIntegrationModuleMeta[] = [
     title: 'AI 西洋星座',
     shortTitle: '星座',
     href: '/zodiac',
-    defaultElement: 'WIND',
+    defaultElement: 'AIR',
     evidence: 'AI 西洋星座已完成獨立分析，提供人格特質、優勢、忽略點與本週提醒作為成長中心補充來源。',
   },
 ];
 
 const MODULE_INDEX = new Map(AI_INTEGRATION_MODULES.map((item, index) => [item.id, index]));
 const MODULE_BY_ID = new Map(AI_INTEGRATION_MODULES.map((item) => [item.id, item]));
-const ELEMENT_ORDER: AiIntegrationElement[] = ['EARTH', 'WATER', 'FIRE', 'WIND', 'SPACE'];
+const ELEMENT_ORDER: AiIntegrationElement[] = ['EARTH', 'WATER', 'FIRE', 'AIR', 'SPACE'];
 
 function hashText(value: string) {
   return createHash('sha256').update(value).digest('hex');
@@ -193,7 +196,7 @@ function moduleElementScore(modules: AiIntegrationModuleId[]) {
   if (modules.includes('soul_match') && modules.includes('nameology')) score.WATER += 1;
   if (modules.includes('ziwei') && modules.includes('music')) score.SPACE += 1;
   if (modules.includes('bazi') && modules.includes('music')) score.EARTH += 1;
-  if (modules.includes('zodiac') && modules.includes('nameology')) score.WIND += 1;
+  if (modules.includes('zodiac') && modules.includes('nameology')) score.AIR += 1;
   return score;
 }
 
@@ -214,6 +217,31 @@ function inferSecondaryElement(primary: AiIntegrationElement, modules: AiIntegra
     .map((element) => ({ element, value: score[element], tie: Number.parseInt(hashText(`${seed}:secondary:${element}`).slice(0, 4), 16) }))
     .sort((a, b) => b.value - a.value || a.tie - b.tie);
   return sorted[0]?.element ?? pick(ELEMENT_ORDER.filter((element) => element !== primary), seed, 'secondary');
+}
+
+function clampElementScore(value: number) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function buildIntegrationElementScore(
+  modules: AiIntegrationModuleId[],
+  primary: AiIntegrationElement,
+  secondary: AiIntegrationElement,
+  explicit?: Partial<AiIntegrationElementScore> | null,
+): AiIntegrationElementScore {
+  const base = moduleElementScore(modules);
+  const max = Math.max(...ELEMENT_ORDER.map((element) => base[element]), 1);
+  const score = Object.fromEntries(ELEMENT_ORDER.map((element) => {
+    const explicitValue = explicit?.[element];
+    if (typeof explicitValue === 'number' && Number.isFinite(explicitValue)) {
+      return [element, clampElementScore(explicitValue)];
+    }
+    return [element, clampElementScore((base[element] / max) * 70 + 20)];
+  })) as AiIntegrationElementScore;
+
+  score[primary] = Math.max(score[primary], 91);
+  score[secondary] = Math.max(score[secondary], 76);
+  return score;
 }
 
 function getCompanionStage(completed: number): AiCompanionStage {
@@ -262,6 +290,7 @@ export function buildAiIntegrationLayer(input: AiIntegrationInput): AiIntegratio
   const monthlySeed = hashText([identity, monthKey, completedModules.join(','), analysisHash, 'ai_lifetime_companion_v1'].join('|'));
   const primaryElement = inferPrimaryElement(completedModules, personalizationSeed, input.primaryElement);
   const secondaryElement = inferSecondaryElement(primaryElement, completedModules, personalizationSeed, input.secondaryElement);
+  const elementScore = buildIntegrationElementScore(completedModules, primaryElement, secondaryElement, input.elementScore);
   const completed = completedModules.length;
   const nextModule = AI_INTEGRATION_MODULES.find((item) => !completedModules.includes(item.id)) ?? null;
   const companionStage = getCompanionStage(completed);
@@ -283,6 +312,7 @@ export function buildAiIntegrationLayer(input: AiIntegrationInput): AiIntegratio
     companionStage,
     primaryElement,
     secondaryElement,
+    elementScore,
     avoidElement: input.avoidElement ?? null,
     confidence: completed >= 3 ? 'high' : completed >= 1 ? 'medium' : 'low',
     evidence: completedModules.map((moduleId) => MODULE_BY_ID.get(moduleId)?.evidence ?? `${moduleId} 已完成。`),

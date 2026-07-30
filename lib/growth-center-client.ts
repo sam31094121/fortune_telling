@@ -8,6 +8,7 @@ const PROFILE_STORAGE_KEY = 'tdh_growth_profile_id_v1';
 const ELEMENT_STORAGE_KEY = 'tdh_growth_elements_v1';
 
 const MODULES = new Set<GrowthModuleId>(['nameology', 'ziwei', 'number', 'soul_match', 'music', 'bazi', 'zodiac']);
+const CORE_ELEMENT_MODULES = new Set<GrowthModuleId>(['nameology', 'ziwei', 'soul_match', 'music', 'bazi', 'zodiac']);
 
 function readJson<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') return fallback;
@@ -65,7 +66,7 @@ export function markGrowthModuleCompleted(moduleId: GrowthModuleId, element?: Gr
       detail: { moduleId, completedModules: modules, completed: modules.length, newlyCompleted: !wasCompleted },
     }));
   }
-  if (element) {
+  if (element && CORE_ELEMENT_MODULES.has(moduleId)) {
     const elements = readJson<Record<string, GrowthElement>>(ELEMENT_STORAGE_KEY, {});
     elements[moduleId] = element;
     writeJson(ELEMENT_STORAGE_KEY, elements);
@@ -74,7 +75,10 @@ export function markGrowthModuleCompleted(moduleId: GrowthModuleId, element?: Gr
 }
 
 export function getGrowthElements() {
-  return readJson<Record<string, GrowthElement>>(ELEMENT_STORAGE_KEY, {});
+  const raw = readJson<Record<string, GrowthElement>>(ELEMENT_STORAGE_KEY, {});
+  return Object.fromEntries(
+    Object.entries(raw).filter(([moduleId]) => CORE_ELEMENT_MODULES.has(moduleId as GrowthModuleId)),
+  ) as Record<string, GrowthElement>;
 }
 
 export function buildGrowthCenterQuery() {
@@ -88,3 +92,4 @@ export function buildGrowthCenterQuery() {
   params.set('analysisHash', modules.map((moduleId) => `${moduleId}:${elements[moduleId] ?? 'none'}`).join('|'));
   return params;
 }
+

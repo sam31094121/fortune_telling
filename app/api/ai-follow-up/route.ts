@@ -6,7 +6,7 @@ import type { AiFollowUpAnswer } from '@/lib/ai-follow-up-system';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const ELEMENTS = new Set(['EARTH', 'WATER', 'FIRE', 'WIND', 'SPACE']);
+const ELEMENTS = new Set(['EARTH', 'WATER', 'FIRE', 'AIR', 'SPACE']);
 const ANSWERS = new Set(['continued', 'paused']);
 
 function parseElement(value: string | null): GrowthElement | null {

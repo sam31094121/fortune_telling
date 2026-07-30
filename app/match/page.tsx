@@ -7,6 +7,7 @@ import NextStepGuide from '@/components/NextStepGuide';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import type { GrowthElement } from '@/lib/growth-center-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 
 interface PersonInput {
@@ -42,7 +43,7 @@ interface PersonDisplay {
 }
 
 
-type MatchFiveElementKey = 'earth' | 'water' | 'fire' | 'wind' | 'space';
+type MatchFiveElementKey = 'earth' | 'water' | 'fire' | 'air' | 'space';
 
 interface MatchFiveElementPersonResult {
   name: string;
@@ -419,7 +420,7 @@ const MATCH_ELEMENT_LABEL: Record<MatchFiveElementKey, string> = {
   earth: '\u5730\u5143\u7d20',
   water: '\u6c34\u5143\u7d20',
   fire: '\u706b\u5143\u7d20',
-  wind: '\u98a8\u5143\u7d20',
+  air: '\u98a8\u5143\u7d20',
   space: '\u7a7a\u5143\u7d20',
 };
 
@@ -427,7 +428,7 @@ const MATCH_ELEMENT_ICON: Record<MatchFiveElementKey, string> = {
   earth: '\u25cf',
   water: '\u25c6',
   fire: '\u25b2',
-  wind: '\u25ce',
+  air: '\u25ce',
   space: '\u2605',
 };
 
@@ -647,7 +648,7 @@ export default function MatchPage() {
       }
 
       setData(json);
-      markGrowthModuleCompleted('soul_match');
+      markGrowthModuleCompleted('soul_match', json.fiveElementMatch ? (json.fiveElementMatch.sharedElement.toUpperCase() as GrowthElement) : undefined);
     } catch (error) {
       setError(error instanceof DOMException && error.name === 'AbortError'
         ? '配對分析等候時間過長，請稍後再試。'

@@ -5,7 +5,7 @@ import { buildGrowthCenter, parseGrowthModules, type GrowthElement } from '@/lib
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const ELEMENTS = new Set(['EARTH', 'WATER', 'FIRE', 'WIND', 'SPACE']);
+const ELEMENTS = new Set(['EARTH', 'WATER', 'FIRE', 'AIR', 'SPACE']);
 
 function parseElement(value: string | null): GrowthElement | null {
   const normalized = value?.toUpperCase() ?? '';

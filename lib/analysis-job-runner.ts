@@ -1,5 +1,5 @@
-import { analyzeNumberCore, validateNumberCoreInput } from './number-core-engine';
-import { buildNumberFiveElementResult, buildNameologyFiveElementResult, buildBaziFiveElementResult, type FiveElementKey } from './five-element-engine';
+﻿import { analyzeNumberCore, validateNumberCoreInput } from './number-core-engine';
+import { buildNumberFiveElementResult, buildNameologyFiveElementResult, buildBaziFiveElementResult, buildZodiacFiveElementResult, type FiveElementKey } from './five-element-engine';
 import { getNamePersonalityScores } from './name-model-db';
 import { buildNameologyAnalysis } from './nameology-engine';
 import { generateInsightAnalysis } from './insight-engine';
@@ -93,10 +93,10 @@ function normalizeBaziInput(value: unknown): BaziAnalysisInput {
   const country = typeof value.country === 'string' && value.country.trim().length > 0 ? value.country.trim() : '台灣';
   const city = typeof value.city === 'string' && value.city.trim().length > 0 ? value.city.trim() : '台北';
 
-  if (name.length > 20) throw new Error('姓名可不填；若要填寫，請勿超過 20 個字。');
-  if (!isValidBirthday(birthDate)) throw new Error('\u8acb\u63d0\u4f9b\u6709\u6548\u751f\u65e5\u3002');
-  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(birthTime)) throw new Error('\u8acb\u9078\u64c7\u6709\u6548\u51fa\u751f\u6642\u9593\u3002');
-  if (!VALID_GENDERS.includes(gender)) throw new Error('\u8acb\u9078\u64c7\u6709\u6548\u6027\u5225\u3002');
+  if (name.length > 20) throw new Error('姓名請勿超過 20 個字。');
+  if (!isValidBirthday(birthDate)) throw new Error('請提供有效生日。');
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(birthTime)) throw new Error('請選擇有效出生時間。');
+  if (!VALID_GENDERS.includes(gender)) throw new Error('請選擇有效性別。');
   return { name, birthDate, birthTime, gender, country, city };
 }
 
@@ -173,16 +173,21 @@ async function runBaziJob(job: AnalysisJob, inputData: unknown) {
 async function runZodiacJob(job: AnalysisJob, inputData: unknown) {
   updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: null, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.validating });
   assertRecord(inputData);
+  const rawBloodType = typeof inputData.bloodType === 'string' ? inputData.bloodType : '';
+  const bloodType: BloodType = VALID_BLOOD_TYPES.includes(rawBloodType as Exclude<BloodType, ''>) ? (rawBloodType as Exclude<BloodType, ''>) : '';
   const input = {
     name: typeof inputData.name === 'string' ? inputData.name.trim() : '',
     birthDate: typeof inputData.birthDate === 'string' ? inputData.birthDate.trim() : '',
+    birthTime: typeof inputData.birthTime === 'string' && inputData.birthTime.trim().length > 0 ? inputData.birthTime.trim() : null,
+    birthCityId: typeof inputData.birthCityId === 'string' && inputData.birthCityId.trim().length > 0 ? inputData.birthCityId.trim() : null,
   };
 
   updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: null, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.processing });
   const result = analyzeZodiac(input);
+  const fiveElement = buildZodiacFiveElementResult(result, bloodType || null);
 
   updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.finalizing });
-  return { ...result, moduleId: job.moduleId };
+  return { ...result, moduleId: job.moduleId, fiveElement };
 }
 type AnalysisModuleRunner = (job: AnalysisJob, inputData: unknown) => Promise<unknown>;
 
@@ -213,3 +218,4 @@ export async function runAnalysisJob(jobId: string, inputData: unknown) {
     return failAnalysisJob(job.jobId, error instanceof Error && error.message === 'TIMEOUT' ? 'TIMEOUT' : 'ANALYSIS_FAILED', message, error instanceof Error && error.message === 'TIMEOUT' ? 'TIMEOUT' : 'FAILED');
   }
 }
+

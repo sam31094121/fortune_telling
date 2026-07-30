@@ -1,4 +1,4 @@
-import type { AiIntegrationElement, AiIntegrationModuleId } from './ai-integration-layer';
+﻿import type { AiIntegrationElement, AiIntegrationModuleId } from './ai-integration-layer';
 
 export const AI_FOLLOW_UP_SYSTEM_VERSION = 'ai_follow_up_system_v2';
 
@@ -47,45 +47,45 @@ export type AiFollowUpSystem = {
 };
 
 export const AI_FOLLOW_UP_FORBIDDEN_TOPICS = [
-  '家庭狀況',
-  '工作收入',
-  '孩子與伴侶',
-  '一般閒聊',
-  '八卦話題',
+  '家庭隱私',
+  '收入狀況',
+  '孩子與伴侶細節',
+  '生活八卦',
+  '健康診斷',
   '重新算命',
   '重新排盤',
-  '與補強行動無關的問題',
+  '與本週補強無關的聊天',
 ] as const;
 
 export function buildAiFollowUpSystem(input: AiFollowUpInput): AiFollowUpSystem {
   return {
     version: AI_FOLLOW_UP_SYSTEM_VERSION,
-    purpose: '追蹤會員自己的補強進度，提升長期陪伴與回訪率。',
-    highestPrinciple: 'AI 只陪會員完成補強、成長與行動，不聊天、不重新分析。',
-    sourcePolicy: '全部資料只讀取 AI Integration Layer 已整合的會員本人分析結果。',
-    scopePolicy: `本週只追蹤 ${input.elementLabel}、本週任務與會員自己的補強進度。`,
+    purpose: '追蹤會員本週補強進度，增加長期陪伴與回訪，不新增命理分析。',
+    highestPrinciple: 'AI 只追蹤補強、任務與行動，不聊天、不偏題、不重新分析。',
+    sourcePolicy: '所有追蹤內容只讀取 AI Integration Layer 已整理的結果。',
+    scopePolicy: `本週只圍繞 ${input.elementLabel}、本週任務與會員自己的補強進度。`,
     forbiddenTopics: [...AI_FOLLOW_UP_FORBIDDEN_TOPICS],
     weekKey: input.weekKey,
     primaryElement: input.primaryElement,
     elementLabel: input.elementLabel,
-    prompt: `本週 ${input.elementLabel} 持續補強了嗎？`,
+    prompt: `這一週，你有持續補強 ${input.elementLabel} 嗎？`,
     quickReplies: [
-      { id: 'continued', label: '有持續', meaning: '會員本週有依照補強方向行動。' },
+      { id: 'continued', label: '有持續', meaning: '會員本週有依照提醒完成補強行動。' },
       { id: 'paused', label: '還沒有', meaning: '會員本週尚未開始或中斷補強行動。' },
     ],
     replyWhenContinued: {
       title: '很好，請持續。',
-      message: `你已經開始補強 ${input.elementLabel}，這代表本週方向有被執行。`,
+      message: `你已經開始補強 ${input.elementLabel}，現在要把它固定成穩定節奏。`,
       nextStep: `下一步：把「${input.weeklyAction}」固定成今天的一個小動作。`,
-      improvement: '這會讓行動節奏更穩，執行力與自我提醒更清楚。',
+      improvement: '這會改善你的執行節奏、專注力與持續感。',
     },
     replyWhenPaused: {
       title: '今天開始也不晚。',
-      message: `目前仍建議持續補強 ${input.elementLabel}，先不用補很多，先完成一個動作。`,
+      message: `目前仍建議持續補強 ${input.elementLabel}，先不用想太多，今天先做第一步。`,
       nextStep: `今天先做：「${input.weeklyAction}」。`,
-      improvement: '這會讓拖延感降低，讓本週重新回到明確方向。',
+      improvement: '這會幫你重新找回方向，降低拖延，讓行動重新開始。',
     },
-    boundary: 'Follow-Up 只追蹤會員自己的補強、成長與行動，不詢問家庭、生活、工作，也不重新算命。',
+    boundary: 'Follow-Up 只處理會員自己的補強進度、本週任務與行動提醒；不詢問私人生活，不重新分析命理。',
     metrics: ['weekly_follow_up_viewed', 'weekly_follow_up_answered', 'weekly_task_continued', 'weekly_task_paused'],
   };
 }
@@ -95,8 +95,8 @@ export function buildAiFollowUpSystemSnapshot() {
     weekKey: 'sample-week',
     primaryElement: 'FIRE',
     elementLabel: '火元素',
-    weeklyReminder: '本週重點：先行動，再調整。',
-    weeklyAction: '今天完成一件拖延最久的小事。',
+    weeklyReminder: '本週重點是開始行動。',
+    weeklyAction: '完成一件拖延最久的小事。',
     completedModules: [],
     nextWeeklyUpdateAt: 'next-week',
   });

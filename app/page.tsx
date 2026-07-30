@@ -434,7 +434,7 @@ function getNumberFortuneLoadingCopy(status: SystemStatus, job?: AnalysisJobPubl
   if (status === 'validating' || stage === 'VALIDATING_INPUT') {
     return {
       label: '\u7cfb\u7d71\u5df2\u6536\u5230\u8cc7\u6599',
-      detail: '\u6b63\u5728\u78ba\u8a8d\u4f60\u8f38\u5165\u7684\u662f\u5f8c 4 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u624b\u6a5f\u865f\u78bc\u3002',
+      detail: '\u6b63\u5728\u78ba\u8a8d\u4f60\u8f38\u5165\u7684\u662f\u5f8c 4 \u78bc\u30016 \u78bc\u30018 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u624b\u6a5f\u865f\u78bc\u3002',
       activeStep: 0,
     };
   }
@@ -917,7 +917,7 @@ type HomeGrowthModuleGuide = {
 };
 
 const HOME_GROWTH_MODULE_GUIDES: HomeGrowthModuleGuide[] = [
-  { id: 'number', label: '數字論吉凶', helper: '完成手機後 4 碼、6 碼或完整 10 碼分析。', cta: '去完成數字論吉凶', action: 'number-modal' },
+  { id: 'number', label: '數字論吉凶', helper: '完成手機後 4 碼、6 碼、8 碼或完整 10 碼分析。', cta: '去完成數字論吉凶', action: 'number-modal' },
   { id: 'ziwei', label: 'AI 紫微斗數', helper: '完成紫微命盤探索。', cta: '去完成紫微斗數', href: '/insight' },
   { id: 'soul_match', label: 'AI 靈魂配對', helper: '完成雙人配對探索。', cta: '去完成靈魂配對', href: '/match' },
   { id: 'music', label: 'AI 生成歌曲', helper: '完成生命音樂生成。', cta: '去生成一首歌', href: '/music' },
@@ -1450,17 +1450,17 @@ export default function HomePage() {
     if (!cleanFortuneNumber) {
       setFortuneResult(null);
       setFortuneJob(null);
-      setFortuneError("\u26a0\ufe0f \u8acb\u5148\u8f38\u5165 4 \u78bc\u30016 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u963f\u62c9\u4f2f\u6578\u5b57\u3002");
+      setFortuneError("\u26a0\ufe0f \u8acb\u5148\u8f38\u5165 4 \u78bc\u30016 \u78bc\u30018 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u963f\u62c9\u4f2f\u6578\u5b57\u3002");
       setFortuneStatus('error');
       return;
     }
     if (fortuneSubmittingRef.current) return;
 
     setFortuneStatus('validating');
-    if (!/^\d+$/.test(cleanFortuneNumber) || ![4, 6, 10].includes(cleanFortuneNumber.length)) {
+    if (!/^\d+$/.test(cleanFortuneNumber) || ![4, 6, 8, 10].includes(cleanFortuneNumber.length)) {
       setFortuneResult(null);
       setFortuneJob(null);
-      setFortuneError('\u53ea\u80fd\u8f38\u5165 4 \u78bc\u30016 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u963f\u62c9\u4f2f\u6578\u5b57\uff0c\u4e0d\u8981\u52a0\u7a7a\u683c\u3001\u7b26\u865f\u6216\u82f1\u6587\u5b57\u6bcd\u3002');
+      setFortuneError('\u53ea\u80fd\u8f38\u5165 4 \u78bc\u30016 \u78bc\u30018 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u963f\u62c9\u4f2f\u6578\u5b57\uff0c\u4e0d\u8981\u52a0\u7a7a\u683c\u3001\u7b26\u865f\u6216\u82f1\u6587\u5b57\u6bcd\u3002');
       setFortuneStatus('error');
       return;
     }
@@ -1474,7 +1474,7 @@ export default function HomePage() {
     setFortuneJob(null);
     setFortuneResult(null);
     const payload = JSON.stringify({
-      mode: cleanFortuneNumber.length === 10 ? 'phone10' : cleanFortuneNumber.length === 6 ? 'six6' : 'last4',
+      mode: cleanFortuneNumber.length === 10 ? 'phone10' : cleanFortuneNumber.length === 8 ? 'digit8' : cleanFortuneNumber.length === 6 ? 'six6' : 'last4',
       value: cleanFortuneNumber,
     });
 
@@ -3196,7 +3196,7 @@ export default function HomePage() {
               <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">☯️ 數字結構統計分析</p>
               <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">數字能量傾向分析</h3>
               <p className="mt-2 text-xs leading-5 text-[color:var(--text-muted)]">
-                請輸入 4 碼、6 碼或完整手機號碼 10 碼阿拉伯數字，由後端固定規則版本產生一致結果。
+                請輸入 4 碼、6 碼、8 碼或完整手機號碼 10 碼阿拉伯數字，由後端固定規則版本產生一致結果。
               </p>
             </div>
 
@@ -3215,7 +3215,7 @@ export default function HomePage() {
                   setFortuneError('');
                 }}
                 onFocus={() => setFortuneError('')}
-                placeholder="4 碼 / 6 碼 / 完整 10 碼"
+                placeholder="4 碼 / 6 碼 / 8 碼 / 完整 10 碼"
                 className={`form-input flex-1 text-base glass-input glass-input-cyan neon-input-focus ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
               />
               <button
@@ -3301,7 +3301,7 @@ export default function HomePage() {
                     分析對象：<span className="text-base text-cyan-100 font-mono font-bold">{fortuneResult.value}</span>
                   </span>
                   <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-xs font-bold text-cyan-100">
-                    {fortuneResult.mode === 'phone10' ? '完整 10 碼' : fortuneResult.mode === 'six6' ? '6 碼' : '後 4 碼'}
+                    {fortuneResult.mode === 'phone10' ? '完整 10 碼' : fortuneResult.mode === 'digit8' ? '8 碼' : fortuneResult.mode === 'six6' ? '6 碼' : '後 4 碼'}
                   </span>
                 </div>
 

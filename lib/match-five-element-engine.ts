@@ -1,4 +1,4 @@
-export type MatchFiveElementKey = 'earth' | 'water' | 'fire' | 'wind' | 'space';
+export type MatchFiveElementKey = 'earth' | 'water' | 'fire' | 'air' | 'space';
 
 export type MatchFiveElementPersonResult = {
   name: string;
@@ -38,13 +38,13 @@ type MatchScoreInput = {
   conflict_risk: number;
 };
 
-const ELEMENTS: MatchFiveElementKey[] = ['earth', 'water', 'fire', 'wind', 'space'];
+const ELEMENTS: MatchFiveElementKey[] = ['earth', 'water', 'fire', 'air', 'space'];
 
 const ELEMENT_LABEL: Record<MatchFiveElementKey, string> = {
   earth: '\u5730\u5143\u7d20',
   water: '\u6c34\u5143\u7d20',
   fire: '\u706b\u5143\u7d20',
-  wind: '\u98a8\u5143\u7d20',
+  air: '\u98a8\u5143\u7d20',
   space: '\u7a7a\u5143\u7d20',
 };
 
@@ -52,29 +52,29 @@ const CHANGE_TARGET: Record<MatchFiveElementKey, string> = {
   earth: '\u95dc\u4fc2\u7684\u7a69\u5b9a\u611f\u3001\u627f\u8afe\u611f\u8207\u5b89\u5168\u611f',
   water: '\u6e9d\u901a\u67d4\u8edf\u5ea6\u3001\u60c5\u7dd2\u7406\u89e3\u8207\u63db\u4f4d\u601d\u8003',
   fire: '\u4e3b\u52d5\u8868\u9054\u3001\u71b1\u60c5\u4e92\u52d5\u8207\u95dc\u4fc2\u63a8\u9032\u529b',
-  wind: '\u5171\u540c\u6210\u9577\u3001\u751f\u6d3b\u7bc0\u594f\u8207\u672a\u4f86\u898f\u5283',
+  air: '\u5171\u540c\u6210\u9577\u3001\u751f\u6d3b\u7bc0\u594f\u8207\u672a\u4f86\u898f\u5283',
   space: '\u908a\u754c\u611f\u3001\u5c0a\u91cd\u611f\u8207\u6c7a\u7b56\u6e05\u6670\u5ea6',
 };
 
 const GENERATES: Record<MatchFiveElementKey, MatchFiveElementKey> = {
-  wind: 'fire',
+  air: 'fire',
   fire: 'earth',
   earth: 'space',
   space: 'water',
-  water: 'wind',
+  water: 'air',
 };
 
 const CONTROLS: Record<MatchFiveElementKey, MatchFiveElementKey> = {
-  wind: 'earth',
+  air: 'earth',
   earth: 'water',
   water: 'fire',
   fire: 'space',
-  space: 'wind',
+  space: 'air',
 };
 
 const BLOOD_ELEMENT: Record<MatchPersonInput['bloodType'], MatchFiveElementKey> = {
   A: 'earth',
-  B: 'wind',
+  B: 'air',
   AB: 'space',
   O: 'fire',
 };
@@ -111,7 +111,7 @@ function buildPersonResult(person: MatchPersonInput, scores: MatchScoreInput): M
     earth: 42,
     water: 42,
     fire: 42,
-    wind: 42,
+    air: 42,
     space: 42,
   };
 
@@ -125,7 +125,7 @@ function buildPersonResult(person: MatchPersonInput, scores: MatchScoreInput): M
   if (scores.stability < 68) add(elementScores, 'earth', -10);
   if (scores.resonance < 68) add(elementScores, 'fire', -8);
   if (scores.conflict_risk > 55) add(elementScores, 'space', -10);
-  if (scores.match_score < 70) add(elementScores, 'wind', -8);
+  if (scores.match_score < 70) add(elementScores, 'air', -8);
 
   const needScores = ELEMENTS.reduce((acc, element) => {
     acc[element] = clamp(100 - elementScores[element]);

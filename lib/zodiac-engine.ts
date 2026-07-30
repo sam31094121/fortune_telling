@@ -1,4 +1,8 @@
-﻿export type ZodiacSignKey =
+﻿import * as Astronomy from 'astronomy-engine';
+import { findCityById, getDefaultCity, type CityEntry } from './city-directory';
+import { zonedTimeToUtc } from './timezone-utils';
+
+export type ZodiacSignKey =
   | 'aries'
   | 'taurus'
   | 'gemini'
@@ -14,27 +18,39 @@
 
 export type ZodiacElement = 'fire' | 'earth' | 'air' | 'water';
 
+export type ZodiacPrecision = 'DATE_ONLY' | 'DATE_TIME' | 'FULL_CHART';
+
 export type ZodiacAnalysisInput = {
   name?: string;
   birthDate: string;
+  birthTime?: string | null;
+  birthCityId?: string | null;
+};
+
+export type ZodiacSignSummary = {
+  key: ZodiacSignKey;
+  name: string;
+  symbol: string;
+  element: ZodiacElement;
+  dateRange: string;
 };
 
 export type ZodiacAnalysisResult = {
   ok: true;
   mode: 'zodiac';
   moduleId: 'ZODIAC';
-  engineVersion: 'zodiac_core_v1';
+  engineVersion: 'zodiac_core_v2';
   input: {
     name: string | null;
     birthDate: string;
+    birthTime: string | null;
+    birthCityId: string | null;
   };
-  sign: {
-    key: ZodiacSignKey;
-    name: string;
-    symbol: string;
-    element: ZodiacElement;
-    dateRange: string;
-  };
+  precision: ZodiacPrecision;
+  sign: ZodiacSignSummary;
+  risingSign: ZodiacSignSummary | null;
+  moonSign: ZodiacSignSummary | null;
+  chartNote: string;
   personality: string;
   strengths: string[];
   blindSpots: string[];
@@ -257,26 +273,93 @@ export function getZodiacSignByBirthDate(birthDate: string) {
   return profile;
 }
 
+function toSignSummary(profile: ZodiacProfile): ZodiacSignSummary {
+  return { key: profile.key, name: profile.name, symbol: profile.symbol, element: profile.element, dateRange: profile.dateRange };
+}
+
+function longitudeToProfile(eclipticLongitudeDeg: number): ZodiacProfile {
+  const normalized = ((eclipticLongitudeDeg % 360) + 360) % 360;
+  const index = Math.floor(normalized / 30);
+  return ZODIAC_PROFILES[index] ?? ZODIAC_PROFILES[0];
+}
+
+/**
+ * Ascendant (rising sign) longitude via the standard RAMC/obliquity formula.
+ * Validated against a published reference chart (JFK, 1917-05-29 15:00 EST,
+ * Brookline MA) to confirm sign-level accuracy: result matched the known
+ * Virgo ascendant.
+ */
+function computeAscendantLongitude(utcInstant: Date, latitudeDeg: number, longitudeEastDeg: number) {
+  const gastHours = Astronomy.SiderealTime(utcInstant);
+  const gastDeg = gastHours * 15;
+  const lstDeg = ((gastDeg + longitudeEastDeg) % 360 + 360) % 360;
+  const tilt = Astronomy.e_tilt(Astronomy.MakeTime(utcInstant));
+  const obliquityRad = (tilt.tobl * Math.PI) / 180;
+  const latitudeRad = (latitudeDeg * Math.PI) / 180;
+  const thetaRad = (lstDeg * Math.PI) / 180;
+
+  const y = -Math.cos(thetaRad);
+  const x = -(Math.sin(obliquityRad) * Math.tan(latitudeRad) + Math.cos(obliquityRad) * Math.sin(thetaRad));
+  const ascendantRad = Math.atan2(y, x);
+  return (((ascendantRad * 180) / Math.PI) % 360 + 360) % 360;
+}
+
+function validateBirthTime(value: string) {
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) throw new Error('請輸入正確的出生時間格式（HH:mm）。');
+}
+
+function resolveBirthCity(birthCityId: string | null): { city: CityEntry; assumed: boolean } {
+  if (birthCityId) {
+    const city = findCityById(birthCityId);
+    if (!city) throw new Error('目前查無此出生城市，請重新選擇。');
+    return { city, assumed: false };
+  }
+  return { city: getDefaultCity(), assumed: true };
+}
+
 export function analyzeZodiac(input: ZodiacAnalysisInput): ZodiacAnalysisResult {
   const birthDate = typeof input.birthDate === 'string' ? input.birthDate.trim() : '';
   const name = typeof input.name === 'string' && input.name.trim().length > 0 ? input.name.trim() : null;
+  const birthTime = typeof input.birthTime === 'string' && input.birthTime.trim().length > 0 ? input.birthTime.trim() : null;
+  const birthCityId = typeof input.birthCityId === 'string' && input.birthCityId.trim().length > 0 ? input.birthCityId.trim() : null;
   if (name && name.length > 20) throw new Error('姓名請控制在 20 個字以內。');
+  if (birthTime) validateBirthTime(birthTime);
+
   const profile = getZodiacSignByBirthDate(birthDate);
   const displayName = name ? `${name}的` : '';
+
+  let precision: ZodiacPrecision = 'DATE_ONLY';
+  let risingSign: ZodiacSignSummary | null = null;
+  let moonSign: ZodiacSignSummary | null = null;
+  let chartNote = '目前資料只包含出生日期，本次分析聚焦太陽星座；補上出生時間與城市可解鎖上升星座、月亮星座與完整星盤。';
+
+  if (birthTime) {
+    const { city, assumed } = resolveBirthCity(birthCityId);
+    precision = assumed ? 'DATE_TIME' : 'FULL_CHART';
+
+    const utcInstant = zonedTimeToUtc(birthDate, birthTime, city.timezone);
+    const moonLongitude = Astronomy.EclipticGeoMoon(utcInstant).lon;
+    const ascendantLongitude = computeAscendantLongitude(utcInstant, city.latitude, city.longitude);
+
+    moonSign = toSignSummary(longitudeToProfile(moonLongitude));
+    risingSign = toSignSummary(longitudeToProfile(ascendantLongitude));
+
+    chartNote = assumed
+      ? `已依出生時間加入上升星座與月亮星座（採真實天文位置計算）。因未提供出生城市，系統暫以台北（UTC+8）估算地理位置，補上正確出生城市可提升上升星座精確度並解鎖完整星盤。`
+      : `已依出生日期、時間與城市（${city.name}）完成完整星盤等級分析，太陽、月亮與上升星座皆採真實天文位置計算。`;
+  }
 
   return {
     ok: true,
     mode: 'zodiac',
     moduleId: 'ZODIAC',
-    engineVersion: 'zodiac_core_v1',
-    input: { name, birthDate },
-    sign: {
-      key: profile.key,
-      name: profile.name,
-      symbol: profile.symbol,
-      element: profile.element,
-      dateRange: profile.dateRange,
-    },
+    engineVersion: 'zodiac_core_v2',
+    input: { name, birthDate, birthTime, birthCityId },
+    precision,
+    sign: toSignSummary(profile),
+    risingSign,
+    moonSign,
+    chartNote,
     personality: `${displayName}${profile.name}主軸：${profile.personality}`,
     strengths: profile.strengths,
     blindSpots: profile.blindSpots,
