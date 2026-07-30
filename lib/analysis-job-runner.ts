@@ -4,6 +4,7 @@ import { getNamePersonalityScores } from './name-model-db';
 import { buildNameologyAnalysis } from './nameology-engine';
 import { generateInsightAnalysis } from './insight-engine';
 import { analyzeBazi, type BaziAnalysisInput } from './bazi-engine';
+import { analyzeZodiac } from './zodiac-engine';
 import { isValidBirthday } from './validation';
 import type { BloodType, Gender, InsightRequest } from './types';
 import { ANALYSIS_MODULES, moduleIdForAnalysisType, type AnalysisModuleId } from './analysis-module-router';
@@ -169,6 +170,20 @@ async function runBaziJob(job: AnalysisJob, inputData: unknown) {
   return { ...result, moduleId: job.moduleId, fiveElement };
 }
 
+async function runZodiacJob(job: AnalysisJob, inputData: unknown) {
+  updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: null, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.validating });
+  assertRecord(inputData);
+  const input = {
+    name: typeof inputData.name === 'string' ? inputData.name.trim() : '',
+    birthDate: typeof inputData.birthDate === 'string' ? inputData.birthDate.trim() : '',
+  };
+
+  updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: null, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.processing });
+  const result = analyzeZodiac(input);
+
+  updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.finalizing });
+  return { ...result, moduleId: job.moduleId };
+}
 type AnalysisModuleRunner = (job: AnalysisJob, inputData: unknown) => Promise<unknown>;
 
 const MODULE_RUNNERS: Record<AnalysisModuleId, AnalysisModuleRunner> = {
@@ -176,6 +191,7 @@ const MODULE_RUNNERS: Record<AnalysisModuleId, AnalysisModuleRunner> = {
   NAMEOLOGY: runNameologyJob,
   ZIWEI: runInsightJob,
   BAZI: runBaziJob,
+  ZODIAC: runZodiacJob,
 };
 
 export async function runAnalysisJob(jobId: string, inputData: unknown) {

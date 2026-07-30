@@ -7,7 +7,7 @@ const MODULE_STORAGE_KEY = 'tdh_growth_completed_modules_v1';
 const PROFILE_STORAGE_KEY = 'tdh_growth_profile_id_v1';
 const ELEMENT_STORAGE_KEY = 'tdh_growth_elements_v1';
 
-const MODULES = new Set<GrowthModuleId>(['nameology', 'ziwei', 'number', 'soul_match', 'music', 'bazi']);
+const MODULES = new Set<GrowthModuleId>(['nameology', 'ziwei', 'number', 'soul_match', 'music', 'bazi', 'zodiac']);
 
 function readJson<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') return fallback;

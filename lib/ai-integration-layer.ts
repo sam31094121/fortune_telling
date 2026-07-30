@@ -1,7 +1,7 @@
 import { createHash } from 'crypto';
 import { PLATFORM_FORBIDDEN_ANALYSIS_CALLS } from './platform-stability-layer';
 
-export type AiIntegrationModuleId = 'nameology' | 'ziwei' | 'number' | 'soul_match' | 'music' | 'bazi';
+export type AiIntegrationModuleId = 'nameology' | 'ziwei' | 'number' | 'soul_match' | 'music' | 'bazi' | 'zodiac';
 export type AiIntegrationElement = 'EARTH' | 'WATER' | 'FIRE' | 'WIND' | 'SPACE';
 export type AiCompanionStageId = 'empty' | 'starter' | 'cross_module' | 'complete';
 
@@ -44,7 +44,7 @@ export type AiIntegrationResult = {
   completedModules: AiIntegrationModuleId[];
   missingModules: AiIntegrationModuleId[];
   completed: number;
-  total: 6;
+  total: 7;
   unlockLevel: AiCompanionStageId;
   companionStage: AiCompanionStage;
   primaryElement: AiIntegrationElement;
@@ -110,6 +110,14 @@ export const AI_INTEGRATION_MODULES: AiIntegrationModuleMeta[] = [
     href: '/bazi',
     defaultElement: 'EARTH',
     evidence: '八字命盤已完成，整合層只讀取已保存的命盤摘要與元素方向，不重新排盤。',
+  },
+  {
+    id: 'zodiac',
+    title: 'AI 西洋星座',
+    shortTitle: '星座',
+    href: '/zodiac',
+    defaultElement: 'WIND',
+    evidence: 'AI 西洋星座已完成獨立分析，提供人格特質、優勢、忽略點與本週提醒作為成長中心補充來源。',
   },
 ];
 
@@ -185,6 +193,7 @@ function moduleElementScore(modules: AiIntegrationModuleId[]) {
   if (modules.includes('soul_match') && modules.includes('nameology')) score.WATER += 1;
   if (modules.includes('ziwei') && modules.includes('music')) score.SPACE += 1;
   if (modules.includes('bazi') && modules.includes('music')) score.EARTH += 1;
+  if (modules.includes('zodiac') && modules.includes('nameology')) score.WIND += 1;
   return score;
 }
 
@@ -224,7 +233,7 @@ function getCompanionStage(completed: number): AiCompanionStage {
       returnReason: '每週回來完成一件小任務，逐步把陪伴內容變得更準。',
     };
   }
-  if (completed < 6) {
+  if (completed < 7) {
     return {
       id: 'cross_module',
       label: '跨卡陪伴中',
@@ -269,7 +278,7 @@ export function buildAiIntegrationLayer(input: AiIntegrationInput): AiIntegratio
     completedModules,
     missingModules,
     completed,
-    total: 6,
+    total: 7,
     unlockLevel: companionStage.id,
     companionStage,
     primaryElement,

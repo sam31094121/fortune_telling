@@ -123,7 +123,7 @@ const CONTROL_CENTER_SECTIONS: ControlCenterSection[] = [
 
 const FEATURE_SWITCHES: PlatformFeatureSwitch[] = [
   {
-    id: 'six_analysis_cards',
+    id: 'seven_analysis_cards',
     title: '六張命理卡片',
     mode: 'on',
     scope: '首頁與六個獨立分析入口',

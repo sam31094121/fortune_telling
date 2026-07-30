@@ -214,7 +214,7 @@ const EMPTY: PersonInput = { name: '', birthDate: '', bloodType: 'A', gender: 'f
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { bloodType: false, gender: false };
 const SHOW_HOME_EMBEDDED_MATCH = false;
 const SHOW_HOME_FLOATING_NUMBER_BUTTON = false;
-const GROWTH_VIP_TOTAL_MODULES = 6;
+const GROWTH_VIP_TOTAL_MODULES = 7;
 
 const BLOOD_DESC: Record<PersonInput['bloodType'], string> = {
   A: '細膩穩定，重視秩序與安全感。',
@@ -347,7 +347,7 @@ async function requestNumberFortuneDirect(payload: string, signal: AbortSignal) 
       if (result.status >= 400 && result.status < 500) {
         const message = result.data && 'message' in result.data && result.data.message
           ? result.data.message
-          : '\u76ee\u524d\u7121\u6cd5\u5b8c\u6210\u6578\u5b57\u5206\u6790\uff0c\u8acb\u78ba\u8a8d\u8f38\u5165\u5f8c 4 \u78bc\u6216 10 \u78bc\u624b\u6a5f\u865f\u78bc\u5f8c\u518d\u8a66\u4e00\u6b21\u3002';
+          : '\u76ee\u524d\u7121\u6cd5\u5b8c\u6210\u6578\u5b57\u5206\u6790\uff0c\u8acb\u78ba\u8a8d\u8f38\u5165 4 \u78bc\u30016 \u78bc\u6216 10 \u78bc\u963f\u62c9\u4f2f\u6578\u5b57\u5f8c\u518d\u8a66\u4e00\u6b21\u3002';
         throw new Error(message);
       }
     } catch (error) {
@@ -905,27 +905,72 @@ function LineVipShareCard({ friendHref, onShare }: { friendHref: string; onShare
   );
 }
 
-type VipGrowthUnlockCardProps = {
-  completed: number;
-  total: number;
-  justUnlocked: boolean;
+type HomeGrowthModuleId = 'number' | 'ziwei' | 'soul_match' | 'music' | 'nameology' | 'bazi' | 'zodiac';
+
+type HomeGrowthModuleGuide = {
+  id: HomeGrowthModuleId;
+  label: string;
+  helper: string;
+  cta: string;
+  href?: string;
+  action?: 'number-modal';
 };
 
-function VipGrowthUnlockCard({ completed, total, justUnlocked }: VipGrowthUnlockCardProps) {
+const HOME_GROWTH_MODULE_GUIDES: HomeGrowthModuleGuide[] = [
+  { id: 'number', label: '數字論吉凶', helper: '完成手機後 4 碼、6 碼或完整 10 碼分析。', cta: '去完成數字論吉凶', action: 'number-modal' },
+  { id: 'ziwei', label: 'AI 紫微斗數', helper: '完成紫微命盤探索。', cta: '去完成紫微斗數', href: '/insight' },
+  { id: 'soul_match', label: 'AI 靈魂配對', helper: '完成雙人配對探索。', cta: '去完成靈魂配對', href: '/match' },
+  { id: 'music', label: 'AI 生成歌曲', helper: '完成生命音樂生成。', cta: '去生成一首歌', href: '/music' },
+  { id: 'nameology', label: 'AI 姓名學', helper: '完成姓名學分析。', cta: '去完成姓名學', href: '/nameology' },
+  { id: 'bazi', label: 'AI 生辰八字', helper: '完成八字命盤分析。', cta: '去完成八字命盤', href: '/bazi' },
+  { id: 'zodiac', label: 'AI \u897f\u6d0b\u661f\u5ea7', helper: '\u5b8c\u6210\u897f\u6d0b\u661f\u5ea7\u4eba\u683c\u5206\u6790\u3002', cta: '\u53bb\u5b8c\u6210\u897f\u6d0b\u661f\u5ea7', href: '/zodiac' },
+];
+
+type VipGrowthUnlockCardProps = {
+  completed: number;
+  completedModules: string[];
+  total: number;
+  justUnlocked: boolean;
+  onOpenNumber: () => void;
+};
+
+function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked, onOpenNumber }: VipGrowthUnlockCardProps) {
+  const completedSet = new Set(completedModules);
+  const missingModules = HOME_GROWTH_MODULE_GUIDES.filter((module) => !completedSet.has(module.id));
+  const nextModule = missingModules[0];
   const safeTotal = Math.max(total, 1);
   const safeCompleted = Math.min(Math.max(completed, 0), safeTotal);
   const unlocked = safeCompleted >= safeTotal;
   const remaining = Math.max(safeTotal - safeCompleted, 0);
   const progressPercent = Math.min(100, Math.round((safeCompleted / safeTotal) * 100));
   const headline = unlocked ? 'AI 已建立你的專屬成長中心。' : '完成更多探索，即可解鎖專屬 AI 成長中心。';
-  const progressText = unlocked
-    ? '探索完成：6 / 6'
-    : `探索進度：${safeCompleted} / ${safeTotal}`;
+  const progressText = unlocked ? `\u63a2\u7d22\u5b8c\u6210\uff1a${safeTotal} / ${safeTotal}` : `\u63a2\u7d22\u9032\u5ea6\uff1a${safeCompleted} / ${safeTotal}`;
   const remainingText = unlocked
     ? '鎖頭已打開，立即進入。'
-    : safeCompleted >= 3
-      ? `目前已完成 ${safeCompleted} 項探索，距離解鎖還差 ${remaining} 項。`
-      : `目前已完成 ${safeCompleted} 項探索，完成更多探索後 AI 將開始建立你的專屬成長檔案。`;
+    : nextModule
+      ? `目前已完成 ${safeCompleted} 項探索，還差 ${remaining} 項。下一步先完成：${nextModule.label}。`
+      : `目前已完成 ${safeCompleted} 項探索，距離解鎖還差 ${remaining} 項。`;
+
+  const nextAction = !unlocked && nextModule
+    ? nextModule.action === 'number-modal'
+      ? (
+        <button
+          type="button"
+          onClick={onOpenNumber}
+          className="inline-flex items-center justify-center rounded-full border border-cyan-200/45 bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.22)] transition active:scale-[0.98]"
+        >
+          {nextModule.cta}
+        </button>
+      )
+      : (
+        <Link
+          href={nextModule.href ?? '/'}
+          className="inline-flex items-center justify-center rounded-full border border-cyan-200/45 bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.22)] transition active:scale-[0.98]"
+        >
+          {nextModule.cta}
+        </Link>
+      )
+    : null;
 
   const content = (
     <section
@@ -957,6 +1002,18 @@ function VipGrowthUnlockCard({ completed, total, justUnlocked }: VipGrowthUnlock
           </div>
           <p className="mt-4 text-sm font-black leading-7 text-[color:var(--text-main)]">{headline}</p>
           <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{remainingText}</p>
+          {!unlocked && missingModules.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2" aria-label="尚未完成探索">
+              {missingModules.map((module) => (
+                <span key={module.id} className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-black text-cyan-100">
+                  未完成：{module.label}
+                </span>
+              ))}
+            </div>
+          )}
+          {nextModule && !unlocked && (
+            <p className="mt-3 text-xs font-semibold leading-6 text-cyan-100/85">{nextModule.helper}</p>
+          )}
           {justUnlocked && (
             <p className="mt-3 rounded-xl border border-amber-200/25 bg-amber-300/12 px-4 py-3 text-sm font-black leading-7 text-amber-100 animate-pulse">
               恭喜，AI 已完成你的專屬成長檔案。
@@ -981,15 +1038,13 @@ function VipGrowthUnlockCard({ completed, total, justUnlocked }: VipGrowthUnlock
 
       <div className="relative z-10 mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs font-semibold leading-6 text-[color:var(--text-muted)]">
-          {unlocked ? '每週提醒、補強元素、能量色與行動任務已開放。' : '首頁會固定顯示此入口，讓你清楚知道還差幾項即可解鎖。'}
+          {unlocked ? '每週提醒、補強元素、能量色與行動任務已開放。' : '按下引導按鈕，直接前往下一張尚未完成的探索卡。'}
         </p>
-        <span className={`inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-black transition ${
-          unlocked
-            ? 'border-amber-200/40 bg-amber-300 text-slate-950 shadow-[0_0_24px_rgba(251,191,36,0.22)]'
-            : 'border-white/12 bg-white/6 text-[color:var(--text-muted)]'
-        }`}>
-          {unlocked ? '立即進入' : `還差 ${remaining} 項`}
-        </span>
+        {unlocked ? (
+          <span className="inline-flex items-center justify-center rounded-full border border-amber-200/40 bg-amber-300 px-5 py-3 text-sm font-black text-slate-950 shadow-[0_0_24px_rgba(251,191,36,0.22)] transition">
+            立即進入
+          </span>
+        ) : nextAction}
       </div>
     </section>
   );
@@ -1015,6 +1070,7 @@ export default function HomePage() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [growthCompletedCount, setGrowthCompletedCount] = useState(0);
+  const [growthCompletedModules, setGrowthCompletedModules] = useState<string[]>([]);
   const [growthJustUnlocked, setGrowthJustUnlocked] = useState(false);
   const previousGrowthCountRef = useRef(0);
   const lineFriendHref = 'https://line.me/R/ti/p/@497lembe';
@@ -1069,7 +1125,9 @@ export default function HomePage() {
 
   useEffect(() => {
     const syncGrowthProgress = () => {
-      const completed = getCompletedGrowthModules().length;
+      const completedModules = getCompletedGrowthModules();
+      const completed = completedModules.length;
+      setGrowthCompletedModules(completedModules);
       setGrowthCompletedCount(completed);
       if (previousGrowthCountRef.current < GROWTH_VIP_TOTAL_MODULES && completed >= GROWTH_VIP_TOTAL_MODULES) {
         setGrowthJustUnlocked(true);
@@ -1379,7 +1437,7 @@ export default function HomePage() {
   };
 
   const handleNumberFortune = async () => {
-    const cleanFortuneNumber = fortuneNumber.trim();
+    const cleanFortuneNumber = fortuneNumber.replace(/\D/g, '').slice(0, 10);
 
     if (!getAnalysisIdentityTarget()) {
       setFortuneResult(null);
@@ -1392,17 +1450,17 @@ export default function HomePage() {
     if (!cleanFortuneNumber) {
       setFortuneResult(null);
       setFortuneJob(null);
-      setFortuneError("\u26a0\ufe0f \u8acb\u5148\u8f38\u5165\u624b\u6a5f\u5f8c 4 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u624b\u6a5f\u865f\u78bc\u3002");
+      setFortuneError("\u26a0\ufe0f \u8acb\u5148\u8f38\u5165 4 \u78bc\u30016 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u963f\u62c9\u4f2f\u6578\u5b57\u3002");
       setFortuneStatus('error');
       return;
     }
     if (fortuneSubmittingRef.current) return;
 
     setFortuneStatus('validating');
-    if (!/^\d+$/.test(cleanFortuneNumber) || ![4, 10].includes(cleanFortuneNumber.length)) {
+    if (!/^\d+$/.test(cleanFortuneNumber) || ![4, 6, 10].includes(cleanFortuneNumber.length)) {
       setFortuneResult(null);
       setFortuneJob(null);
-      setFortuneError('\u53ea\u80fd\u8f38\u5165\u5f8c 4 \u78bc\u6216\u5b8c\u6574\u624b\u6a5f\u865f\u78bc 10 \u78bc\uff0c\u4e0d\u8981\u52a0\u7a7a\u683c\u3001\u7b26\u865f\u6216\u82f1\u6587\u5b57\u6bcd\u3002');
+      setFortuneError('\u53ea\u80fd\u8f38\u5165 4 \u78bc\u30016 \u78bc\u6216\u5b8c\u6574 10 \u78bc\u963f\u62c9\u4f2f\u6578\u5b57\uff0c\u4e0d\u8981\u52a0\u7a7a\u683c\u3001\u7b26\u865f\u6216\u82f1\u6587\u5b57\u6bcd\u3002');
       setFortuneStatus('error');
       return;
     }
@@ -1416,7 +1474,7 @@ export default function HomePage() {
     setFortuneJob(null);
     setFortuneResult(null);
     const payload = JSON.stringify({
-      mode: cleanFortuneNumber.length === 10 ? 'phone10' : 'last4',
+      mode: cleanFortuneNumber.length === 10 ? 'phone10' : cleanFortuneNumber.length === 6 ? 'six6' : 'last4',
       value: cleanFortuneNumber,
     });
 
@@ -2234,13 +2292,48 @@ export default function HomePage() {
               <span className="transition-transform group-hover:translate-x-1.5">{'\u279c'}</span>
             </div>
           </Link>
+
+          <Link
+            href="/zodiac"
+            className="home-feature-launch order-7 w-full relative group overflow-hidden rounded-3xl border border-fuchsia-500/30 bg-gradient-to-r from-slate-950 via-fuchsia-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(217,70,239,0.15)] transition-all duration-500 hover:border-fuchsia-300 hover:shadow-[0_0_50px_rgba(217,70,239,0.28)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(217,70,239,0.22),transparent_34%),radial-gradient(circle_at_78%_30%,rgba(34,211,238,0.16),transparent_28%)] pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-fuchsia-400/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+
+            <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-fuchsia-400/30 bg-fuchsia-950/40 text-fuchsia-200 shadow-[0_0_18px_rgba(217,70,239,0.22)]">
+                <span className="text-2xl font-serif">{'\u2726'}</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="inline-block rounded-full bg-fuchsia-500/10 border border-fuchsia-400/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-fuchsia-200 uppercase animate-pulse">
+                  {'AI \u00b7 \u661f\u7a7a\u4eba\u683c'}
+                </span>
+                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-fuchsia-100 tracking-wide flex items-center gap-2">
+                  <span>{'AI \u897f\u6d0b\u661f\u5ea7'}</span>
+                  <span className="text-xs font-sans text-fuchsia-200 font-normal opacity-85 hidden sm:inline">
+                    {'// \u51fa\u751f\u5e74\u6708\u65e5 \u00b7 \u5341\u4e8c\u661f\u5ea7 \u00b7 \u672c\u9031\u63d0\u9192'}
+                  </span>
+                </h2>
+                <p className="mt-1 text-xs text-[color:var(--text-sub)]">
+                  {'\u8f38\u5165\u51fa\u751f\u5e74\u6708\u65e5\uff0c\u7368\u7acb\u5224\u5b9a\u5341\u4e8c\u661f\u5ea7\uff0c\u6574\u7406\u4eba\u683c\u7279\u8cea\u3001\u512a\u52e2\u3001\u5ffd\u7565\u9ede\u8207\u672c\u9031\u63d0\u9192\u3002'}
+                </p>
+              </div>
+            </div>
+
+            <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-fuchsia-400/40 bg-fuchsia-950/30 px-5 py-3 text-xs font-bold text-fuchsia-100 transition group-hover:bg-fuchsia-500/20">
+              <span>{'\u958b\u59cb\u661f\u5ea7\u5206\u6790'}</span>
+              <span className="transition-transform group-hover:translate-x-1.5">{'\u279c'}</span>
+            </div>
+          </Link>
         </div>
 
 
         <VipGrowthUnlockCard
           completed={growthCompletedCount}
+          completedModules={growthCompletedModules}
           total={GROWTH_VIP_TOTAL_MODULES}
           justUnlocked={growthJustUnlocked}
+          onOpenNumber={openFortuneModal}
         />
         {SHOW_HOME_EMBEDDED_MATCH && !data && (
           <div className="space-y-6">
@@ -3103,7 +3196,7 @@ export default function HomePage() {
               <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">☯️ 數字結構統計分析</p>
               <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">數字能量傾向分析</h3>
               <p className="mt-2 text-xs leading-5 text-[color:var(--text-muted)]">
-                請輸入手機後 4 碼或完整手機號碼 10 碼，由後端固定規則版本產生一致結果。
+                請輸入 4 碼、6 碼或完整手機號碼 10 碼阿拉伯數字，由後端固定規則版本產生一致結果。
               </p>
             </div>
 
@@ -3118,11 +3211,11 @@ export default function HomePage() {
                 inputMode="numeric"
                 autoComplete="off"
                 onChange={(e) => {
-                  setFortuneNumber(e.target.value);
+                  setFortuneNumber(e.target.value.replace(/\D/g, '').slice(0, 10));
                   setFortuneError('');
                 }}
                 onFocus={() => setFortuneError('')}
-                placeholder="後 4 碼或完整 10 碼"
+                placeholder="4 碼 / 6 碼 / 完整 10 碼"
                 className={`form-input flex-1 text-base glass-input glass-input-cyan neon-input-focus ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
               />
               <button
@@ -3208,7 +3301,7 @@ export default function HomePage() {
                     分析對象：<span className="text-base text-cyan-100 font-mono font-bold">{fortuneResult.value}</span>
                   </span>
                   <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-xs font-bold text-cyan-100">
-                    {fortuneResult.mode === 'phone10' ? '完整 10 碼' : '後 4 碼'}
+                    {fortuneResult.mode === 'phone10' ? '完整 10 碼' : fortuneResult.mode === 'six6' ? '6 碼' : '後 4 碼'}
                   </span>
                 </div>
 

@@ -111,7 +111,7 @@ export type GrowthCenterResult = {
       completedModules: GrowthModuleId[];
       missingModules: GrowthModuleId[];
       completed: number;
-      total: 6;
+      total: 7;
       unlockLevel: 'empty' | 'starter' | 'cross_module' | 'complete';
       message: string;
     };

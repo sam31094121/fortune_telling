@@ -16,9 +16,10 @@ const MODULE_LABEL: Record<GrowthModuleId, string> = {
   soul_match: '配對',
   music: '音樂',
   bazi: '八字',
+  zodiac: '\u661f\u5ea7',
 };
 
-const MODULE_ORDER: GrowthModuleId[] = ['nameology', 'ziwei', 'number', 'soul_match', 'music', 'bazi'];
+const MODULE_ORDER: GrowthModuleId[] = ['nameology', 'ziwei', 'number', 'soul_match', 'music', 'bazi', 'zodiac'];
 
 const ELEMENT_LABEL: Record<GrowthElement, string> = {
   EARTH: '地元素',
