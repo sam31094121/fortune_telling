@@ -1,3 +1,5 @@
+import { buildAiActionGuidanceSnapshot } from './ai-action-guidance-center';
+
 export const AI_COPYWRITING_STYLE_CENTER_VERSION = 'ai_copywriting_style_center_v1';
 
 export type AiCopywritingTone = 'advisor' | 'clear' | 'direct' | 'actionable' | 'companion';
@@ -93,7 +95,7 @@ export function buildAiCopywritingInstruction(moduleName = '天地人和 AI 平�
     `AI 定位：${AI_COPYWRITING_POSITIONING.role}`,
     '語氣：清楚、直接、有力量、有方向、有行動。',
     `禁止模糊詞：${AI_COPYWRITING_FORBIDDEN_WORDS.join('、')}。`,
-    '每次輸出必須回答三件事：現在最重要是什麼、你應該做什麼、做了會產生什麼改變。',
+    '每次輸出必須回答四件事：目前判斷、現在最重要、下一步要做什麼、做了會改善哪一個方向。',
     '改變只能描述行為、習慣、思考、節奏、執行力、專注力、人際互動。',
     '不得保證發財、中獎、升官、疾病改善、桃花一定成功。',
   ].join('\n');
@@ -116,6 +118,7 @@ export function auditAiCopywriting(text: string): AiCopywritingAuditResult {
 }
 
 export function buildAiCopywritingStyleSnapshot() {
+  const actionGuidance = buildAiActionGuidanceSnapshot();
   return {
     version: AI_COPYWRITING_STYLE_CENTER_VERSION,
     positioning: AI_COPYWRITING_POSITIONING,
@@ -124,6 +127,7 @@ export function buildAiCopywritingStyleSnapshot() {
     replacements: AI_COPYWRITING_REPLACEMENTS,
     rules: AI_COPYWRITING_RULES,
     actionContract: AI_COPYWRITING_ACTION_CONTRACT,
+    actionGuidance,
     instruction: buildAiCopywritingInstruction(),
   };
 }

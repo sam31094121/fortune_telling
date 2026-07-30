@@ -6,6 +6,7 @@ import FriendlyChoiceCard from './FriendlyChoiceCard';
 import VoiceConsentRecorder, { type AiVoiceGender, type VoiceConsentState } from './VoiceConsentRecorder';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
+import { getAnalysisIdentityTarget } from '@/lib/identity-split-client';
 
 type BloodType = 'A' | 'B' | 'AB' | 'O';
 type Gender = 'male' | 'female';
@@ -141,6 +142,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   }, []);
 
   useEffect(() => {
+    if (getAnalysisIdentityTarget() !== 'self') return;
     if (!form.name && !form.birthDate && !form.bloodType) return;
     saveUserData({
       name: form.name,

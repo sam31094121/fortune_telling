@@ -4,11 +4,13 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
+import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import type { BloodType, Gender } from '@/lib/types';
 import type { NameologyAnalysis } from '@/lib/nameology-engine';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 
 type NameologyResponse = {
   ok: boolean;
@@ -218,6 +220,10 @@ export default function NameologyPage() {
       setError(validationMessage);
       return;
     }
+    if (!getAnalysisIdentityTarget()) {
+      setError(getIdentityRequiredMessage());
+      return;
+    }
     setIsLoading(true);
     setError('');
     setResult(null);
@@ -255,6 +261,8 @@ export default function NameologyPage() {
           <p className="mt-4 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
             這裡只解讀姓名學：姓氏固定為根，名字兩字為主要意境來源，再交叉生日、血型與性別，整理字義、拆字、筆畫五格與性情偏向。
           </p>
+
+          <IdentitySplitSelector className="mt-6" />
 
           <div className="mt-6 rounded-2xl border border-amber-300/15 bg-amber-950/10 p-4">
             <p className="mb-3 text-xs text-[color:var(--text-muted)]">資料進度</p>

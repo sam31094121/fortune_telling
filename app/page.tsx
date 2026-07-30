@@ -1,14 +1,17 @@
 'use client';
 
 import { useMemo, useState, useDeferredValue, useEffect, useRef } from 'react';
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { injectPerformanceCSS } from '@/lib/performance-css';
 import AiTrustFeedback from '@/components/AiTrustFeedback';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
+import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
-import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import { getCompletedGrowthModules, markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
@@ -212,6 +215,7 @@ const EMPTY: PersonInput = { name: '', birthDate: '', bloodType: 'A', gender: 'f
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { bloodType: false, gender: false };
 const SHOW_HOME_EMBEDDED_MATCH = false;
 const SHOW_HOME_FLOATING_NUMBER_BUTTON = false;
+const GROWTH_VIP_TOTAL_MODULES = 6;
 
 const BLOOD_DESC: Record<PersonInput['bloodType'], string> = {
   A: '細膩穩定，重視秩序與安全感。',
@@ -902,6 +906,90 @@ function LineVipShareCard({ friendHref, onShare }: { friendHref: string; onShare
   );
 }
 
+type VipGrowthUnlockCardProps = {
+  completed: number;
+  total: number;
+  justUnlocked: boolean;
+};
+
+function VipGrowthUnlockCard({ completed, total, justUnlocked }: VipGrowthUnlockCardProps) {
+  const unlocked = completed >= total;
+  const remaining = Math.max(total - completed, 0);
+  const progressPercent = Math.min(100, Math.round((completed / total) * 100));
+  const statusText = unlocked
+    ? '恭喜，AI 已完成你的專屬成長檔案。'
+    : completed >= 3
+      ? `距離 AI 成長中心，還差 ${remaining} 項探索。`
+      : '完成更多探索後，AI 將為你建立專屬成長中心。';
+
+  const CardShell = ({ children }: { children: ReactNode }) => (
+    <section
+      className={`group relative overflow-hidden rounded-3xl border p-5 shadow-[0_18px_55px_rgba(0,0,0,0.18)] transition-all duration-500 sm:p-6 ${
+        unlocked
+          ? 'border-amber-200/45 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.22),rgba(16,185,129,0.1)_42%,rgba(15,23,42,0.86)_100%)] shadow-[0_0_45px_rgba(251,191,36,0.2)]'
+          : completed >= 3
+            ? 'border-cyan-300/30 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.13),rgba(15,23,42,0.88)_68%,rgba(2,6,23,0.96)_100%)]'
+            : 'border-white/10 bg-white/[0.045]'
+      }`}
+      aria-label="AI 個人成長中心 VIP 榮譽解鎖"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent)] opacity-0 transition duration-700 group-hover:opacity-100" />
+      {unlocked && <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-amber-300/12 blur-3xl" />}
+      {children}
+    </section>
+  );
+
+  const content = (
+    <CardShell>
+      <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex items-center gap-3">
+            <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border text-2xl transition-all duration-700 ${unlocked ? 'border-amber-200/50 bg-amber-300/18 text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.28)] rotate-0' : 'border-white/10 bg-black/20 text-[color:var(--text-muted)]'}`}>
+              {unlocked ? '🔓' : '🔒'}
+            </span>
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200/85">VIP Honor Unlock</p>
+              <h2 className="mt-1 font-serif text-2xl font-black leading-tight text-[color:var(--text-main)] sm:text-3xl">AI 個人成長中心</h2>
+            </div>
+          </div>
+          <p className="mt-4 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{statusText}</p>
+          {justUnlocked && (
+            <p className="mt-3 rounded-xl border border-amber-200/25 bg-amber-300/12 px-4 py-3 text-sm font-black leading-7 text-amber-100 animate-pulse">
+              恭喜，AI 已完成你的專屬成長檔案。
+            </p>
+          )}
+        </div>
+
+        <div className="shrink-0 sm:min-w-[210px]">
+          <div className="rounded-2xl border border-white/10 bg-black/18 p-4">
+            <div className="flex items-end justify-between gap-3">
+              <p className="text-[10px] font-black tracking-[0.16em] text-[color:var(--text-muted)]">目前探索進度</p>
+              <p className="font-serif text-3xl font-black leading-none text-amber-100">{completed}<span className="text-base text-[color:var(--text-muted)]">/{total}</span></p>
+            </div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+              <span className={`block h-full rounded-full transition-all duration-700 ${unlocked ? 'bg-amber-300 shadow-[0_0_18px_rgba(251,191,36,0.45)]' : 'bg-cyan-300/80'}`} style={{ width: `${progressPercent}%` }} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-10 mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs font-semibold leading-6 text-[color:var(--text-muted)]">
+          {unlocked ? '已解鎖每週陪伴、能量色、行動任務與補強追蹤。' : '完成六張探索後，這裡會正式亮起成為專屬陪伴中心。'}
+        </p>
+        <span className={`inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-black transition ${unlocked ? 'border-amber-200/40 bg-amber-300 text-slate-950 shadow-[0_0_24px_rgba(251,191,36,0.22)]' : 'border-white/10 bg-white/5 text-[color:var(--text-muted)]'}`}>
+          {unlocked ? '進入 AI 成長中心' : completed >= 3 ? `還差 ${remaining} 項` : '尚未解鎖'}
+        </span>
+      </div>
+    </CardShell>
+  );
+
+  if (unlocked) {
+    return <Link href="/growth-center" className="block" aria-label="進入 AI 個人成長中心">{content}</Link>;
+  }
+
+  return content;
+}
 export default function HomePage() {
   const [step, setStep] = useState<StepKey>('personA-base');
   const [personA, setPersonA] = useState<PersonInput>({ ...EMPTY, gender: 'female' });
@@ -916,6 +1004,9 @@ export default function HomePage() {
   const [isDemoRunning, setIsDemoRunning] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
+  const [growthCompletedCount, setGrowthCompletedCount] = useState(0);
+  const [growthJustUnlocked, setGrowthJustUnlocked] = useState(false);
+  const previousGrowthCountRef = useRef(0);
   const lineFriendHref = 'https://line.me/R/ti/p/@497lembe';
   const mainRef = useRef<HTMLElement>(null);
   const repairTimerRef = useRef<number | null>(null);
@@ -965,6 +1056,28 @@ export default function HomePage() {
     return () => window.removeEventListener('popstate', syncFortuneModalWithUrl);
   }, []);
 
+
+  useEffect(() => {
+    const syncGrowthProgress = () => {
+      const completed = getCompletedGrowthModules().length;
+      setGrowthCompletedCount(completed);
+      if (previousGrowthCountRef.current < GROWTH_VIP_TOTAL_MODULES && completed >= GROWTH_VIP_TOTAL_MODULES) {
+        setGrowthJustUnlocked(true);
+        window.setTimeout(() => setGrowthJustUnlocked(false), 5000);
+      }
+      previousGrowthCountRef.current = completed;
+    };
+
+    syncGrowthProgress();
+    window.addEventListener('tdh-growth-progress-updated', syncGrowthProgress);
+    window.addEventListener('storage', syncGrowthProgress);
+    window.addEventListener('focus', syncGrowthProgress);
+    return () => {
+      window.removeEventListener('tdh-growth-progress-updated', syncGrowthProgress);
+      window.removeEventListener('storage', syncGrowthProgress);
+      window.removeEventListener('focus', syncGrowthProgress);
+    };
+  }, []);
   const handleLineShare = async () => {
     const shareUrl = 'https://heaven-earth-humanity-pair.vercel.app/';
     const shareData = {
@@ -1258,6 +1371,14 @@ export default function HomePage() {
   const handleNumberFortune = async () => {
     const cleanFortuneNumber = fortuneNumber.trim();
 
+    if (!getAnalysisIdentityTarget()) {
+      setFortuneResult(null);
+      setFortuneJob(null);
+      setFortuneError(getIdentityRequiredMessage());
+      setFortuneStatus('error');
+      return;
+    }
+
     if (!cleanFortuneNumber) {
       setFortuneResult(null);
       setFortuneJob(null);
@@ -1385,6 +1506,7 @@ export default function HomePage() {
 
   // 同步 personA 的變更到 localStorage
   useEffect(() => {
+    if (getAnalysisIdentityTarget() !== 'self') return;
     if (personA.name || personA.birthDate) {
       saveUserData({
         name: personA.name,
@@ -2104,6 +2226,12 @@ export default function HomePage() {
           </Link>
         </div>
 
+
+        <VipGrowthUnlockCard
+          completed={growthCompletedCount}
+          total={GROWTH_VIP_TOTAL_MODULES}
+          justUnlocked={growthJustUnlocked}
+        />
         {SHOW_HOME_EMBEDDED_MATCH && !data && (
           <div className="space-y-6">
             {loading ? (
@@ -2970,6 +3098,8 @@ export default function HomePage() {
             </div>
 
             <FeatureVisitorCounter featureKey="number" className="hidden" />
+
+            <IdentitySplitSelector className="mb-4" />
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <input

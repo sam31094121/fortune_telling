@@ -4,8 +4,10 @@ import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
+import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 
 interface PersonInput {
   name: string;
@@ -535,6 +537,7 @@ export default function MatchPage() {
 
   // 同步 personA 的變更到 localStorage
   useEffect(() => {
+    if (getAnalysisIdentityTarget() !== 'self') return;
     if (personA.name || personA.birthDate) {
       saveUserData({
         name: personA.name,
@@ -594,6 +597,11 @@ export default function MatchPage() {
   }
 
   async function handleSubmit() {
+    if (!getAnalysisIdentityTarget()) {
+      setError(getIdentityRequiredMessage());
+      return;
+    }
+
     if (!reviewReady) {
       setError(personAError || personBError || '請先把兩位資料填完整。');
       return;
@@ -675,6 +683,7 @@ export default function MatchPage() {
 
         {!data && (
           <div className="space-y-6">
+            <IdentitySplitSelector />
             <div className="fortune-card p-5 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>

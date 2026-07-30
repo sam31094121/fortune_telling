@@ -73,6 +73,7 @@ export default function GrowthCenterPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [checkHistory, setCheckHistory] = useState<CheckInHistory>({});
+  const [followUpAnswer, setFollowUpAnswer] = useState<'' | 'continued' | 'paused'>('');
 
   useEffect(() => {
     let cancelled = false;
@@ -85,7 +86,10 @@ export default function GrowthCenterPage() {
         const response = await fetch(`/api/growth-center?${params.toString()}`, { cache: 'no-store' });
         const json = await response.json() as ApiResult & { error?: string };
         if (!response.ok || !json.success) throw new Error(json.error || '目前暫時無法取得本週成長提醒。');
-        if (!cancelled) setData(json.data);
+        if (!cancelled) {
+          setData(json.data);
+          setFollowUpAnswer('');
+        }
       } catch (caught) {
         if (!cancelled) setError(caught instanceof Error ? caught.message : '目前暫時無法取得本週成長提醒。');
       } finally {
@@ -111,6 +115,12 @@ export default function GrowthCenterPage() {
   }, [data]);
 
   const checkedIn = Boolean(checkInKey && checkHistory[checkInKey]);
+
+  const followUpReply = data && followUpAnswer
+    ? followUpAnswer === 'continued'
+      ? data.followUp.replyWhenContinued
+      : data.followUp.replyWhenPaused
+    : null;
 
   const monthCheckInCount = useMemo(() => {
     if (!data) return 0;
@@ -165,6 +175,64 @@ export default function GrowthCenterPage() {
 
         {data && (
           <div className="space-y-4">
+            <section className="rounded-[28px] border border-amber-300/35 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.22),rgba(16,185,129,0.12)_42%,rgba(15,23,42,0.88)_100%)] p-5 shadow-[0_0_44px_rgba(251,191,36,0.16)] sm:p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">Growth Center Core V2</p>
+                  <h2 className="mt-3 font-serif text-3xl font-black leading-tight text-amber-50 sm:text-4xl">{data.coreV2.firstScreen.headline}</h2>
+                  <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{data.coreV2.firstScreen.body}</p>
+                </div>
+                <div className="shrink-0 rounded-2xl border border-amber-200/25 bg-black/20 px-4 py-3 text-center">
+                  <p className="text-[10px] font-black tracking-[0.18em] text-amber-100/75">本人探索</p>
+                  <p className="mt-1 font-serif text-4xl font-black leading-none text-amber-100">{data.coreV2.firstScreen.primaryMetric}</p>
+                  <p className="mt-2 text-[11px] font-bold leading-5 text-[color:var(--text-sub)]">{data.coreV2.firstScreen.status}</p>
+                </div>
+              </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-black/18 p-4">
+                  <p className="text-xs font-black text-emerald-200">{data.coreV2.positioning.title}</p>
+                  <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{data.coreV2.positioning.principle}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/18 p-4">
+                  <p className="text-xs font-black text-cyan-200">分工清楚</p>
+                  <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{data.coreV2.positioning.roleSplit}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/18 p-4">
+                  <p className="text-xs font-black text-violet-200">資料邊界</p>
+                  <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{data.coreV2.memberMemory.noReanalysisPolicy}</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-5">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-200">Member Memory</p>
+              <h2 className="mt-3 text-2xl font-black leading-8 text-emerald-50">{data.coreV2.memberMemory.title}</h2>
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-sm font-bold leading-7 text-[color:var(--text-sub)]">{data.coreV2.memberMemory.completedText}</p>
+                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-sm font-bold leading-7 text-[color:var(--text-sub)]">{data.coreV2.memberMemory.missingText}</p>
+                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-sm font-black leading-7 text-emerald-50">{data.coreV2.memberMemory.currentFocus}</p>
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-cyan-300/25 bg-cyan-300/8 p-5">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Weekly Companion</p>
+              <h2 className="mt-3 text-2xl font-black leading-8 text-cyan-50">本週只看最重要的一件事</h2>
+              <div className="mt-4 grid gap-3">
+                {[data.coreV2.weeklyCompanion.reminder, data.coreV2.weeklyCompanion.reinforcement, data.coreV2.weeklyCompanion.energyColor, data.coreV2.weeklyCompanion.task, data.coreV2.weeklyCompanion.quote].map((item) => (
+                  <p key={item} className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-sm font-bold leading-7 text-[color:var(--text-sub)]">{item}</p>
+                ))}
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-sky-300/25 bg-sky-300/8 p-5">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-sky-200">Follow-Up V2</p>
+              <h2 className="mt-3 text-2xl font-black leading-8 text-sky-50">{data.coreV2.followUpPolicy.prompt}</h2>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-sm font-bold leading-7 text-[color:var(--text-sub)]">{data.coreV2.followUpPolicy.ifContinued}</p>
+                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-sm font-bold leading-7 text-[color:var(--text-sub)]">{data.coreV2.followUpPolicy.ifPaused}</p>
+              </div>
+              <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-muted)]">{data.coreV2.followUpPolicy.boundary}</p>
+            </section>
             <section className="rounded-2xl border border-emerald-300/25 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.18),rgba(15,23,42,0.72)_56%,rgba(2,6,23,0.92)_100%)] p-5 shadow-[0_0_34px_rgba(16,185,129,0.12)]">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
@@ -297,6 +365,40 @@ export default function GrowthCenterPage() {
               <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{data.weeklyTask.reason}</p>
             </section>
 
+            <section className="rounded-2xl border border-sky-300/20 bg-sky-300/8 p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-sky-200">AI 補強追蹤</p>
+                  <h2 className="mt-3 text-2xl font-black leading-8 text-sky-50">{data.followUp.prompt}</h2>
+                </div>
+                <span className="shrink-0 rounded-full border border-sky-200/25 bg-sky-300/12 px-3 py-1 text-[10px] font-black text-sky-100">
+                  Follow-Up
+                </span>
+              </div>
+              <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{data.followUp.scopePolicy}</p>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {data.followUp.quickReplies.map((reply) => (
+                  <button
+                    key={reply.id}
+                    type="button"
+                    onClick={() => setFollowUpAnswer(reply.id)}
+                    className={`rounded-xl border px-4 py-3 text-sm font-black transition active:scale-[0.98] ${followUpAnswer === reply.id ? 'border-sky-200/45 bg-sky-300 text-slate-950 shadow-[0_0_22px_rgba(125,211,252,0.22)]' : 'border-white/10 bg-black/15 text-sky-50 hover:border-sky-200/30 hover:bg-sky-300/12'}`}
+                  >
+                    {reply.label}
+                  </button>
+                ))}
+              </div>
+              {followUpReply && (
+                <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4">
+                  <p className="text-base font-black text-sky-50">{followUpReply.title}</p>
+                  <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{followUpReply.message}</p>
+                  <p className="mt-3 rounded-lg border border-sky-200/15 bg-sky-300/8 px-3 py-2 text-xs font-black leading-6 text-sky-100">{followUpReply.nextStep}</p>
+                  <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-muted)]">{followUpReply.improvement}</p>
+                </div>
+              )}
+              <p className="mt-3 text-[11px] font-semibold leading-5 text-[color:var(--text-muted)]">{data.followUp.boundary}</p>
+            </section>
+
             <section className="rounded-2xl border border-violet-300/20 bg-violet-300/8 p-5">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-200">本週成功激勵</p>
               <blockquote className="mt-3 text-xl font-black leading-8 text-violet-50">
@@ -368,14 +470,22 @@ export default function GrowthCenterPage() {
               <div className="mt-4 rounded-xl border border-violet-300/20 bg-violet-300/8 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-200">AI Copywriting Style</p>
-                    <p className="mt-1 text-sm font-black leading-6 text-violet-50">{data.copywritingStyle.positioning.role}</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-200">AI Action Guidance</p>
+                    <p className="mt-1 text-sm font-black leading-6 text-violet-50">{data.copywritingStyle.actionGuidance.highestPrinciple}</p>
                   </div>
                   <span className="shrink-0 rounded-full border border-violet-200/25 bg-violet-300/12 px-3 py-1 text-[10px] font-black text-violet-100">
                     V1
                   </span>
                 </div>
-                <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-muted)]">每次陪伴都要給一個方向、一個行動、一份力量。</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {data.copywritingStyle.actionGuidance.requiredSteps.map((step) => (
+                    <div key={step.id} className="rounded-lg border border-white/10 bg-black/15 px-3 py-2">
+                      <p className="text-xs font-black text-violet-50">{step.title}</p>
+                      <p className="mt-1 text-[11px] font-semibold leading-5 text-[color:var(--text-muted)]">{step.outputRule}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-muted)]">每次陪伴都要給一個方向、一個行動、一份力量。</p>
               </div>
               <Link href={data.nextStep.href} className="mt-4 inline-flex w-full items-center justify-center rounded-full border border-violet-300/25 bg-violet-300/12 px-5 py-3 text-sm font-black text-violet-100 transition hover:border-violet-200/50 hover:bg-violet-300/18">
                 前往下一步

@@ -9,6 +9,8 @@ import {
 } from './platform-stability-layer';
 import { NUMBER_CORE_ENGINE_VERSION, analyzeNumberCore } from './number-core-engine';
 import { auditAiCopywriting, buildAiCopywritingStyleSnapshot } from './ai-copywriting-style-center';
+import { buildAiActionGuidanceSnapshot } from './ai-action-guidance-center';
+import { buildAiFollowUpSystemSnapshot } from './ai-follow-up-system';
 import { buildMasterPlatformFinalOptimizeSnapshot } from './master-platform-final-optimize';
 
 export const PLATFORM_CONTROL_CENTER_VERSION = 'platform_control_center_v1';
@@ -19,6 +21,7 @@ export type ControlCenterSectionId =
   | 'ai_center'
   | 'copywriting_center'
   | 'growth_center'
+  | 'follow_up_system'
   | 'feature_switch'
   | 'system_monitor';
 
@@ -83,13 +86,22 @@ const CONTROL_CENTER_SECTIONS: ControlCenterSection[] = [
     status: 'ready',
     owner: 'AI Copywriting Style Center',
     lockedRule: '所有 AI 文案必須清楚、直接、有方向、有行動，禁止模稜兩可。',
-  },  {
+  },
+  {
     id: 'growth_center',
     title: 'Growth Center',
     purpose: '統一管理每週提醒、每週任務、能量色、成功人士與更新週期。',
     status: 'ready',
     owner: 'AI Integration Layer',
     lockedRule: '成長中心只讀已完成分析結果，只做陪伴，不重新算命。',
+  },
+  {
+    id: 'follow_up_system',
+    title: 'AI Follow-Up System',
+    purpose: '統一管理會員補強追蹤，只追蹤補強、任務與行動，不提供一般聊天。',
+    status: 'ready',
+    owner: 'AI Integration Layer',
+    lockedRule: 'Follow-Up 只讀成長中心與整合層資料，不重新分析、不詢問私生活、不開放自由聊天。',
   },
   {
     id: 'feature_switch',
@@ -132,6 +144,13 @@ const FEATURE_SWITCHES: PlatformFeatureSwitch[] = [
     rule: '每週只給一個提醒、一個補強、一個能量色、一件任務、一句名言。',
   },
   {
+    id: 'ai_follow_up_system',
+    title: 'AI 補強追蹤系統',
+    mode: 'on',
+    scope: 'AI 個人成長中心',
+    rule: '只追蹤本週補強是否持續，不聊天、不偏題、不重新分析。',
+  },
+  {
     id: 'platform_control_center',
     title: 'Platform Control Center',
     mode: 'on',
@@ -153,13 +172,15 @@ const RULE_CENTER = [
   { id: 'single_source', title: '唯一資料來源', rule: '每位會員只有一份累積檔案，所有陪伴內容只讀取同一份保存結果。' },
   { id: 'single_ai_core', title: '唯一 AI Core', rule: PLATFORM_AI_CORE_POLICY.rule },
   { id: 'ai_copywriting_style', title: '唯一 AI 語言規範', rule: '所有 AI 文案共用 AI 文案統一優化中心，必須清楚、直接、有方向、有行動。' },
+  { id: 'ai_action_guidance', title: '唯一 AI 行動引導規範', rule: '每一次 AI 分析完成後，必須回答目前判斷、現在最重要、下一步、改善方向。' },
+  { id: 'ai_follow_up_system', title: '唯一 AI 補強追蹤規範', rule: 'Follow-Up 只能追蹤補強進度、行動任務與本週提醒，禁止一般聊天與私生活提問。' },
   { id: 'register_first', title: '先登記再加入', rule: '任何新增功能都必須先進入 Module Registry 與 Feature Switch。' },
 ];
 
 const GROWTH_CONTROL = {
   version: 'growth_control_v1',
   cadence: 'weekly',
-  weeklyItems: ['本週一句提醒', '本週第一補強元素', '本週唯一能量色', '本週一件行動任務', '本週一句成功人士公開名言'],
+  weeklyItems: ['本週一句提醒', '本週第一補強元素', '本週唯一能量色', '本週一件行動任務', 'AI 補強追蹤', '本週一句成功人士公開名言'],
   monthlyItems: ['本月陪伴主題', '本月四週節奏'],
   rule: 'Growth Center 只能由 AI Integration Layer 提供資料，不得直接重新呼叫六張命理分析。',
 };
@@ -227,6 +248,8 @@ export function buildPlatformControlCenter(now = new Date()) {
   const masterFinalOptimize = buildMasterPlatformFinalOptimizeSnapshot();
   const stability = buildSystemStabilitySnapshot();
   const copywritingCenter = buildAiCopywritingStyleSnapshot();
+  const actionGuidance = buildAiActionGuidanceSnapshot();
+  const followUpSystem = buildAiFollowUpSystemSnapshot();
   const copywritingAudit = auditAiCopywriting([
     copywritingCenter.positioning.role,
     copywritingCenter.positioning.coreValue,
@@ -242,6 +265,20 @@ export function buildPlatformControlCenter(now = new Date()) {
       status: copywritingAudit.ok ? 'ready' as const : 'review' as const,
       target: copywritingCenter.version,
       detail: copywritingAudit.ok ? 'AI 文案中心規則通過禁止詞稽核。' : `偵測到 ${copywritingAudit.violationCount} 個禁止詞，需要調整。`,
+    },
+    {
+      id: 'ai_action_guidance',
+      title: 'AI 行動引導規範',
+      status: actionGuidance.requiredSteps.length === 4 ? 'ready' as const : 'review' as const,
+      target: actionGuidance.version,
+      detail: actionGuidance.requiredSteps.length === 4 ? '已建立四步驟：目前判斷、現在最重要、下一步、改善方向。' : '行動引導步驟需要檢查。',
+    },
+    {
+      id: 'ai_follow_up_system',
+      title: 'AI 補強追蹤系統',
+      status: followUpSystem.quickReplies.length === 2 ? 'ready' as const : 'review' as const,
+      target: followUpSystem.version,
+      detail: followUpSystem.quickReplies.length === 2 ? '已建立有持續/還沒有兩種追蹤回覆，禁止自由聊天。' : '補強追蹤回覆需要檢查。',
     },
   ];
   const sections = CONTROL_CENTER_SECTIONS.map((section) => ({
@@ -277,6 +314,8 @@ export function buildPlatformControlCenter(now = new Date()) {
       aiCenter: AI_CENTER,
       copywritingCenter,
       copywritingAudit,
+      actionGuidance,
+      followUpSystem,
       growthCenter: GROWTH_CONTROL,
       featureSwitches: FEATURE_SWITCHES,
       systemMonitor,
