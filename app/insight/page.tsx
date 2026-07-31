@@ -1125,6 +1125,16 @@ type ZiweiPalaceStoryMaterial = {
   tone: string;
 };
 
+type ZiweiPalaceThreeLayerMaterial = {
+  layerOneTitle: string;
+  layerOneText: string;
+  layerTwoTitle: string;
+  layerTwoText: string;
+  layerThreeTitle: string;
+  layerThreeText: string;
+  actionPriorities: Array<{ title: string; text: string }>;
+};
+
 const ZIWEI_PALACE_FALLBACK: Record<ZiweiPalaceKey, { name: string; focus: string }> = {
   MING: { name: '命', focus: '人格底色、人生主軸、決策方式與自我承擔。' },
   XIONG_DI: { name: '兄弟', focus: '手足同輩、合作支援、資源分配與橫向連結。' },
@@ -1337,6 +1347,186 @@ const ZIWEI_PALACE_STORY: Record<string, ZiweiPalaceStoryMaterial> = {
   },
 };
 
+
+const ZIWEI_PALACE_THREE_LAYER_MATERIAL: Record<ZiweiPalaceKey, ZiweiPalaceThreeLayerMaterial> = {
+  MING: {
+    layerOneTitle: '命宮｜人格主軸定盤',
+    layerOneText: '命宮是十二宮的總樞紐，先判斷命主的氣質、決策模式、承擔方式與人生主線。此層只建立命盤結構，不直接給補強結論。',
+    layerTwoTitle: '命宮｜自我定位翻譯',
+    layerTwoText: '白話來看，命宮是在回答：你用什麼方式面對人生？你遇到壓力時先退、先衝、先觀察，還是先承擔？',
+    layerThreeTitle: '命宮｜主軸優先排序',
+    layerThreeText: '先穩住自我定位，再統整財帛、官祿、遷移三方訊號，把所有行動拉回同一條人生主線。',
+    actionPriorities: [
+      { title: '第一補強：定主軸', text: '列出今年三個核心目標，其他選擇都先回到這三個目標檢查。' },
+      { title: '第二補強：定角色', text: '確認自己目前最需要承擔的角色，不再同時扮演過多身份。' },
+      { title: '第三補強：定節奏', text: '建立每週檢查節奏，讓命宮主軸持續落地。' },
+    ],
+  },
+  XIONG_DI: {
+    layerOneTitle: '兄弟宮｜同輩支援盤',
+    layerOneText: '兄弟宮判斷手足、同輩、合作夥伴與橫向支援力，也看資源是否會在人情與分工之間消耗。',
+    layerTwoTitle: '兄弟宮｜合作關係翻譯',
+    layerTwoText: '白話來看，這一宮是在問：誰真的能幫你？誰只是消耗你的時間？合作關係能不能把責任說清楚？',
+    layerThreeTitle: '兄弟宮｜合作邊界排序',
+    layerThreeText: '先把合作規則建立起來，再確認支援名單，最後調整容易模糊的責任分工。',
+    actionPriorities: [
+      { title: '第一補強：寫清分工', text: '合作前先寫明責任、時間、交付內容與退出方式。' },
+      { title: '第二補強：篩選支援', text: '保留能互相補位的人，減少只談情分不談責任的合作。' },
+      { title: '第三補強：修正比較', text: '停止用比較消耗同輩關係，改用規則維持長期合作。' },
+    ],
+  },
+  FU_QI: {
+    layerOneTitle: '夫妻宮｜親密承諾盤',
+    layerOneText: '夫妻宮判斷親密關係、承諾模式、伴侶互動與投射課題，不只看婚姻，也看一對一的重要關係。',
+    layerTwoTitle: '夫妻宮｜情感模式翻譯',
+    layerTwoText: '白話來看，這一宮是在問：你在關係裡如何表達需要？如何面對不安？如何讓承諾變成可執行的生活節奏？',
+    layerThreeTitle: '夫妻宮｜關係修復排序',
+    layerThreeText: '先說清需求，再處理界線，最後把情感承諾轉成共同節奏。',
+    actionPriorities: [
+      { title: '第一補強：說清需求', text: '把期待改成具體句子，不用猜測與沉默測試對方。' },
+      { title: '第二補強：確認界線', text: '列出可接受與不可接受的互動方式，讓關係有邊界。' },
+      { title: '第三補強：建立共識', text: '固定討論金錢、時間、家庭與未來計畫。' },
+    ],
+  },
+  ZI_NV: {
+    layerOneTitle: '子女宮｜創造成果盤',
+    layerOneText: '子女宮判斷創造力、作品、學生、子女緣與成果延伸，看一件事是否能被培養、承接與長大。',
+    layerTwoTitle: '子女宮｜成果養成翻譯',
+    layerTwoText: '白話來看，這一宮是在問：你播下的種子有沒有被照顧？作品、孩子、計畫是否有穩定養成期？',
+    layerThreeTitle: '子女宮｜培育節奏排序',
+    layerThreeText: '先建立養成節奏，再安排檢查點，最後讓成果有機會被看見。',
+    actionPriorities: [
+      { title: '第一補強：固定週期', text: '把創作、教養或培育計畫拆成每週可執行的節點。' },
+      { title: '第二補強：建立回饋', text: '每個成果都安排一次檢查與修正，不只看完成。' },
+      { title: '第三補強：公開呈現', text: '讓作品或成果有穩定發表與被承接的場域。' },
+    ],
+  },
+  CAI_BO: {
+    layerOneTitle: '財帛宮｜資源轉換盤',
+    layerOneText: '財帛宮判斷收入來源、金錢觀、理財習慣、資源交換與現金流穩定度，不只看財運高低。',
+    layerTwoTitle: '財帛宮｜金錢模式翻譯',
+    layerTwoText: '白話來看，這一宮是在問：你的能力能不能轉成收入？錢是有規則地流動，還是被情緒與人情帶走？',
+    layerThreeTitle: '財帛宮｜現金流排序',
+    layerThreeText: '先穩現金流，再分類資源，最後放大能長期產生收入的能力。',
+    actionPriorities: [
+      { title: '第一補強：做現金流表', text: '先掌握固定收入、固定支出、彈性支出與風險支出。' },
+      { title: '第二補強：分層資源', text: '把錢分成生活、安全、成長、投資四層，不混用。' },
+      { title: '第三補強：能力變現', text: '找出最能創造收入的能力，設計穩定服務或產品。' },
+    ],
+  },
+  JI_E: {
+    layerOneTitle: '疾厄宮｜身心承載盤',
+    layerOneText: '疾厄宮判斷身體承受度、壓力出口、慢性消耗、修復能力與生活節奏，是命盤的能量警示系統。',
+    layerTwoTitle: '疾厄宮｜壓力訊號翻譯',
+    layerTwoText: '白話來看，這一宮是在問：你的身體是否已經替你說話？哪些壓力正在拖慢判斷力與行動力？',
+    layerThreeTitle: '疾厄宮｜修復優先排序',
+    layerThreeText: '先恢復睡眠與規律，再降低高壓消耗，最後重建長期續航。',
+    actionPriorities: [
+      { title: '第一補強：固定睡眠', text: '先穩定入睡、起床與用餐時間，讓身體恢復基本秩序。' },
+      { title: '第二補強：降低消耗', text: '砍掉最耗能的任務、人際或無效承諾。' },
+      { title: '第三補強：建立修復', text: '安排運動、伸展、檢查與休息，不把休息當成失敗。' },
+    ],
+  },
+  QIAN_YI: {
+    layerOneTitle: '遷移宮｜外部舞台盤',
+    layerOneText: '遷移宮判斷外地、移動、轉場、遠方資源、外部曝光與陌生環境中的發揮。',
+    layerTwoTitle: '遷移宮｜環境機會翻譯',
+    layerTwoText: '白話來看，這一宮是在問：你走出去之後會遇到什麼機會？環境是在放大你，還是在消耗你？',
+    layerThreeTitle: '遷移宮｜拓展路線排序',
+    layerThreeText: '先選對場域，再建立出行策略，最後把外部曝光轉成實際成果。',
+    actionPriorities: [
+      { title: '第一補強：選場域', text: '判斷哪個城市、平台、圈層或市場最能放大你的能力。' },
+      { title: '第二補強：定策略', text: '每次外出、合作或曝光前先設定目的、資源與回收方式。' },
+      { title: '第三補強：做沉澱', text: '把外部經驗整理成作品、人脈或下一步計畫。' },
+    ],
+  },
+  JIAO_YOU: {
+    layerOneTitle: '交友宮｜圈層人脈盤',
+    layerOneText: '交友宮判斷朋友、團隊、社群、合作對象與貴人品質，重點是圈層如何影響命主。',
+    layerTwoTitle: '交友宮｜人脈品質翻譯',
+    layerTwoText: '白話來看，這一宮是在問：誰能與你互相成就？哪一種圈層正在提供機會，哪一種圈層正在製造噪音？',
+    layerThreeTitle: '交友宮｜圈層篩選排序',
+    layerThreeText: '先刪除消耗圈，再留下高品質互助，最後建立能共同成長的社群節奏。',
+    actionPriorities: [
+      { title: '第一補強：分類人脈', text: '把人脈分成學習、合作、支持、消耗四類。' },
+      { title: '第二補強：減少噪音', text: '降低無效社交與模糊邀約，保留真正有目標的互動。' },
+      { title: '第三補強：建立互助', text: '固定與高品質夥伴交換資源、回饋與機會。' },
+    ],
+  },
+  GUAN_LU: {
+    layerOneTitle: '官祿宮｜事業成就盤',
+    layerOneText: '官祿宮判斷職涯定位、專業能力、名聲、責任承擔與社會角色，是建立成就的核心宮位。',
+    layerTwoTitle: '官祿宮｜職涯路線翻譯',
+    layerTwoText: '白話來看，這一宮是在問：你靠什麼被看見？你的專業能否形成職位、作品、收入與長期聲望？',
+    layerThreeTitle: '官祿宮｜成就路徑排序',
+    layerThreeText: '先定專業標籤，再建立作品證據，最後把責任轉成可被看見的成果。',
+    actionPriorities: [
+      { title: '第一補強：定專業標籤', text: '用一句話說清楚你能解決什麼問題。' },
+      { title: '第二補強：補作品證據', text: '整理案例、成果、證照、作品或服務流程。' },
+      { title: '第三補強：升級責任', text: '把責任變成職涯資產，不讓責任只變成壓力。' },
+    ],
+  },
+  TIAN_ZHAI: {
+    layerOneTitle: '田宅宮｜根基資產盤',
+    layerOneText: '田宅宮判斷家庭根基、居住環境、不動產、資產安全與內在安定，是生活底盤。',
+    layerTwoTitle: '田宅宮｜安全感翻譯',
+    layerTwoText: '白話來看，這一宮是在問：你的家是否支持你？居住、家庭與資產是否讓你安定，還是讓你分心？',
+    layerThreeTitle: '田宅宮｜根基整理排序',
+    layerThreeText: '先整理空間與家庭責任，再盤點資產，最後建立能支撐人生的生活底盤。',
+    actionPriorities: [
+      { title: '第一補強：整理空間', text: '先處理居住環境、工作角落與生活動線。' },
+      { title: '第二補強：釐清責任', text: '把家庭責任、金錢責任與情緒責任分開。' },
+      { title: '第三補強：盤點資產', text: '整理房產、儲蓄、保險與長期安全資源。' },
+    ],
+  },
+  FU_DE: {
+    layerOneTitle: '福德宮｜精神續航盤',
+    layerOneText: '福德宮判斷精神狀態、內在滿足、休養品質、信念系統與長期福分，是心的續航力。',
+    layerTwoTitle: '福德宮｜內在狀態翻譯',
+    layerTwoText: '白話來看，這一宮是在問：你快樂嗎？你的心有沒有地方可以休息？你的努力是否仍有意義感？',
+    layerThreeTitle: '福德宮｜精神修復排序',
+    layerThreeText: '先恢復安靜，再重建意義感，最後建立長期滋養自己的節奏。',
+    actionPriorities: [
+      { title: '第一補強：留白休息', text: '每天安排不被打擾的安靜時間。' },
+      { title: '第二補強：找回意義', text: '重新確認自己為何努力，哪些事值得長期投入。' },
+      { title: '第三補強：建立滋養', text: '安排閱讀、音樂、散步、修行或創作，讓精神能量回來。' },
+    ],
+  },
+  FU_MU: {
+    layerOneTitle: '父母宮｜傳承制度盤',
+    layerOneText: '父母宮判斷長輩、上級、制度、傳承資源、文件規範與權威關係，也看外部支持是否穩定。',
+    layerTwoTitle: '父母宮｜權威資源翻譯',
+    layerTwoText: '白話來看，這一宮是在問：你如何面對上級與制度？你能不能取得長輩、規範與資源系統的支持？',
+    layerThreeTitle: '父母宮｜制度支援排序',
+    layerThreeText: '先釐清規則，再修復溝通，最後把傳承資源轉成實際支持。',
+    actionPriorities: [
+      { title: '第一補強：讀懂規則', text: '把合約、流程、制度、長輩期待與上級要求整理清楚。' },
+      { title: '第二補強：修正溝通', text: '用事實與節點溝通，不用情緒對抗權威。' },
+      { title: '第三補強：承接資源', text: '把可用的人脈、文件、經驗與制度支援轉成自己的助力。' },
+    ],
+  },
+};
+
+function getZiweiPalaceThreeLayerMaterial(
+  key: string,
+  palaceName: string,
+  story: ZiweiPalaceStoryMaterial,
+): ZiweiPalaceThreeLayerMaterial {
+  return ZIWEI_PALACE_THREE_LAYER_MATERIAL[key as ZiweiPalaceKey] ?? {
+    layerOneTitle: palaceName + '｜專業命盤',
+    layerOneText: story.professionalMeaning,
+    layerTwoTitle: palaceName + '｜白話解讀',
+    layerTwoText: story.storyFocus,
+    layerThreeTitle: palaceName + '｜行動排序',
+    layerThreeText: story.action,
+    actionPriorities: [
+      { title: '第一補強：穩定主題', text: story.action },
+      { title: '第二補強：處理壓力', text: story.pressure },
+      { title: '第三補強：回到三方四正', text: story.sanFangRole },
+    ],
+  };
+}
+
 const ZIWEI_PALACE_ANNUAL_LENS: Record<string, { label: string; matrixKey: ZiweiAdviceMatrixKey; source: string }> = {
   MING: { label: '自我定位', matrixKey: 'confidence', source: '年度主軸回到命宮，需確認人生方向與行動承擔。' },
   XIONG_DI: { label: '同輩協作', matrixKey: 'communication', source: '年度訊號落在人際分工與同輩互助。' },
@@ -1443,7 +1633,7 @@ function ZiweiTwelvePalaceCards({
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-indigo-300">ZI WEI PALACES</p>
           <h3 className="mt-3 font-serif text-3xl text-indigo-100 sm:text-4xl">紫微十二宮位專業拆解</h3>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-[color:var(--text-sub)]">點選任一宮位，查看該宮的定位、故事、機會、壓力、行動，以及命宮、財帛、官祿、遷移的三方四正交叉分析。</p>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-[color:var(--text-sub)]">十二張宮位卡統一分成三層：第一層專業命盤、第二層 AI 白話解讀、第三層 AI 行動排序。點選任一宮位，查看該宮的完整專業素材與三方四正交叉分析。</p>
         </div>
       </div>
 
@@ -1460,13 +1650,20 @@ function ZiweiTwelvePalaceCards({
           const annualPalace = annualMap.get(palace.key as 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI');
           const annualSignal = getZiweiAnnualSignal(palace.key, annualPalace, annual);
           const active = selectedPalaceKey === palace.key;
+          const palaceName = normalizeZiweiPalaceName(palace.name);
+          const layerMaterial = getZiweiPalaceThreeLayerMaterial(palace.key, palaceName, story);
+          const layerPreview = [
+            { layer: '第一層', title: '專業素材', text: layerMaterial.layerOneText },
+            { layer: '第二層', title: '白話轉譯', text: layerMaterial.layerTwoText },
+            { layer: '第三層', title: '行動排序', text: layerMaterial.layerThreeText },
+          ];
 
           return (
             <button
               key={palace.key}
               type="button"
               onClick={() => setSelectedPalaceKey(active ? null : palace.key)}
-              className={`ziwei-palace-card group relative flex min-h-[158px] flex-col justify-between overflow-hidden rounded-[24px] border p-4 text-left shadow-[0_14px_34px_rgba(2,6,23,0.28)] backdrop-blur-md transition-[transform,box-shadow,border-color,background-color] duration-200 hover:-translate-y-1 hover:shadow-[0_20px_44px_rgba(2,6,23,0.36)] focus:outline-none focus:ring-2 focus:ring-indigo-200/70 ${story.tone} ${active ? '-translate-y-1 ring-2 ring-amber-100/60 shadow-[0_22px_52px_rgba(251,191,36,0.16),0_16px_40px_rgba(2,6,23,0.38)]' : ''}`}
+              className={`ziwei-palace-card group relative flex min-h-[300px] flex-col justify-between overflow-hidden rounded-[24px] border p-4 text-left shadow-[0_14px_34px_rgba(2,6,23,0.28)] backdrop-blur-md transition-[transform,box-shadow,border-color,background-color] duration-200 hover:-translate-y-1 hover:shadow-[0_20px_44px_rgba(2,6,23,0.36)] focus:outline-none focus:ring-2 focus:ring-indigo-200/70 ${story.tone} ${active ? '-translate-y-1 ring-2 ring-amber-100/60 shadow-[0_22px_52px_rgba(251,191,36,0.16),0_16px_40px_rgba(2,6,23,0.38)]' : ''}`}
               aria-expanded={active}
             >
               <span className="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-white/45 to-transparent" />
@@ -1477,13 +1674,24 @@ function ZiweiTwelvePalaceCards({
                 </span>
                 <span className="text-[11px] font-semibold tracking-[0.18em] opacity-60">{String(index + 1).padStart(2, '0')}</span>
               </div>
-              <h3 className="relative mt-4 font-serif text-[1.35rem] font-black leading-tight sm:text-2xl">{normalizeZiweiPalaceName(palace.name)}</h3>
+              <h3 className="relative mt-4 font-serif text-[1.35rem] font-black leading-tight sm:text-2xl">{palaceName}</h3>
               <p className="relative mt-2 min-h-[40px] text-xs leading-5 opacity-75">{story.subtitle}</p>
               {annualSignal.score !== null && (
                 <p className="relative mt-3 inline-flex rounded-full border border-white/15 bg-black/15 px-2.5 py-1 text-[11px] font-semibold opacity-90">
                   {annualSignal.label} · {annualSignal.score}
                 </p>
               )}
+              <div className="relative mt-4 space-y-2">
+                {layerPreview.map((item) => (
+                  <div key={item.layer} className="rounded-2xl border border-white/10 bg-black/16 px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-black tracking-[0.16em] opacity-70">{item.layer}</span>
+                      <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[10px] font-semibold opacity-80">{item.title}</span>
+                    </div>
+                    <p className="mt-1 line-clamp-2 text-[11px] leading-5 opacity-78">{item.text}</p>
+                  </div>
+                ))}
+              </div>
               <p className="relative mt-4 text-xs font-semibold opacity-90">{active ? '已展開分析 ↑' : '查看分析 →'}</p>
             </button>
           );
@@ -1504,7 +1712,7 @@ function ZiweiTwelvePalaceCards({
         />
       ) : (
         <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-sm leading-7 text-[color:var(--text-sub)]">
-          先點選一個宮位。系統會展開該宮的專業拆解，並把它放回命財官遷三方四正中交叉理解。
+          先點選一個宮位。每張宮位卡都已建立三層：第一層專業素材、第二層白話轉譯、第三層行動排序；展開後會把該宮放回命財官遷三方四正中交叉理解。
         </div>
       )}
     </section>
@@ -1534,6 +1742,7 @@ function ZiweiPalaceStoryPanel({
 }) {
   const palaceName = normalizeZiweiPalaceName(palace.name);
   const config = story ?? buildZiweiFallbackStory(palaceName);
+  const layerMaterial = getZiweiPalaceThreeLayerMaterial(palace.key, palaceName, config);
   const mainStars = palace.majorStars.length > 0 ? palace.majorStars.join('、') : '未定主星';
   const supportStars = palace.minorStars.slice(0, 5).join('、');
   const transformations = palace.transformations.join('、');
@@ -1560,35 +1769,23 @@ function ZiweiPalaceStoryPanel({
   ];
   const secondLayerCards = [
     {
-      label: '第二層定位',
-      text: 'AI 讀取第一層的宮位定位、主星訊號與年度分數後，判定' + palaceName + '目前最需要被一般使用者理解的是：' + config.story,
+      label: layerMaterial.layerTwoTitle,
+      text: layerMaterial.layerTwoText,
     },
     {
-      label: '白話翻譯',
+      label: '生活場景轉譯',
       text: '這一宮不是單點事件，而是「' + config.storyFocus + '」。使用者需要先理解它代表的生活場景，再看年度訊號如何落下。',
     },
     {
       label: '證據串接',
-      text: '解讀依據固定來自第一層：本宮定位、' + annualSignal.label + '、主星組合 ' + mainStars + '，以及三方四正的命宮、遷移宮、財帛宮、官祿宮。',
+      text: '解讀依據固定來自第一層：' + layerMaterial.layerOneTitle + '、' + annualSignal.label + '、主星組合 ' + mainStars + '，以及三方四正的命宮、遷移宮、財帛宮、官祿宮。',
     },
   ];
-  const thirdLayerPriorities = [
-    {
-      order: '第一補強',
-      title: '先穩住本宮主題',
-      text: primaryAction,
-    },
-    {
-      order: '第二補強',
-      title: '處理主要壓力源',
-      text: primaryPressure,
-    },
-    {
-      order: '第三補強',
-      title: '回到三方四正整合',
-      text: config.sanFangRole,
-    },
-  ];
+  const thirdLayerPriorities = layerMaterial.actionPriorities.map((item, index) => ({
+    order: ['第一補強', '第二補強', '第三補強'][index] ?? '後續補強',
+    title: item.title,
+    text: item.text,
+  }));
 
   return (
     <div ref={panelRef} className={"mt-6 scroll-mt-24 rounded-[24px] border p-5 sm:p-6 " + config.tone}>
@@ -1644,6 +1841,10 @@ function ZiweiPalaceStoryPanel({
 
       <div className="mt-5 rounded-2xl border border-white/10 bg-black/15 p-4">
         <p className="text-xs font-semibold tracking-[0.2em] opacity-70">第一層專業拆解</p>
+        <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3">
+          <p className="text-xs font-black text-cyan-100/80">{layerMaterial.layerOneTitle}</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{layerMaterial.layerOneText}</p>
+        </div>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {coreInsightCards.map((item) => (
             <div key={item.label} className="border-l border-cyan-200/20 pl-3">
@@ -1672,7 +1873,7 @@ function ZiweiPalaceStoryPanel({
       <div className="mt-4 rounded-2xl border border-amber-300/20 bg-amber-950/15 p-4">
         <p className="text-xs font-semibold tracking-[0.2em] text-amber-200">第三層 AI 行動排序</p>
         <p className="mt-3 rounded-xl border border-amber-200/20 bg-black/15 px-3 py-2 text-sm font-bold leading-7 text-amber-100">
-          AI 判定：{palaceName} 目前優先處理「{thirdLayerPriorities[0].title}」，完成後再處理「{thirdLayerPriorities[1].title}」，最後回到「{thirdLayerPriorities[2].title}」。
+          AI 判定：{palaceName} 目前優先執行「{layerMaterial.layerThreeTitle}」。第一步處理「{thirdLayerPriorities[0].title}」，完成後再處理「{thirdLayerPriorities[1].title}」，最後回到「{thirdLayerPriorities[2].title}」。
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {thirdLayerPriorities.map((item) => (
