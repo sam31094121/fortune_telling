@@ -12,14 +12,20 @@ type BloodType = 'A' | 'B' | 'AB' | 'O';
 type Gender = 'male' | 'female';
 type PreferredSongLanguage = 'mandarin' | 'english' | 'taiwanese';
 type SongEnergyStyle = 'dance-pop' | 'emotional-pop' | 'club-edm';
+type LifeSongGoal = 'dream' | 'work' | 'love' | 'family' | 'health' | 'wealth' | 'healing' | 'relax';
+type SongCreativeStyle = 'pop' | 'piano' | 'healing' | 'ancient' | 'rock' | 'electronic' | 'jazz' | 'cinematic';
 type SelectionConfirm = { gender: boolean };
-type MissingField = 'birthDate' | 'bloodType' | 'name' | 'gender' | 'shichen' | 'voice';
+type MissingField = 'goal' | 'style' | 'voice' | 'birthDate' | 'bloodType' | 'name' | 'gender' | 'shichen';
+type DataField = Exclude<MissingField, 'goal' | 'style'>;
 type ValidationResult = { field: MissingField; message: string };
 
 export type ShichenChoice = number | 'unknown' | null;
 export type VocalGenderPreference = 'male' | 'female' | null;
 
 export interface MusicFormData {
+  lifeGoal: LifeSongGoal | '';
+  lifeGoalNote: string;
+  songCreativeStyle: SongCreativeStyle | '';
   birthDate: string;
   bloodType: BloodType | '';
   name: string;
@@ -39,65 +45,59 @@ interface PersonalityMusicFlowProps {
 
 const BLOOD_TYPES: BloodType[] = ['A', 'B', 'AB', 'O'];
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { gender: false };
-const DATA_FIELD_ORDER: MissingField[] = ['voice', 'birthDate', 'bloodType', 'name', 'gender', 'shichen'];
+const DATA_FIELD_ORDER: DataField[] = ['voice', 'birthDate', 'bloodType', 'name', 'gender', 'shichen'];
 const LAST_DATA_FIELD = DATA_FIELD_ORDER[DATA_FIELD_ORDER.length - 1];
-const DATA_FIELD_LABELS: Record<MissingField, { label: string; hint: string }> = {
-  voice: { label: '\u9078\u8072\u97f3\u4f86\u6e90', hint: '\u5148\u6c7a\u5b9a\u8981\u9304\u81ea\u5df1\u7684\u8072\u97f3\uff0c\u6216\u76f4\u63a5\u7528 AI \u8072\u97f3\u3002' },
-  birthDate: { label: '\u586b\u5beb\u751f\u65e5', hint: '\u9019\u4e00\u6b65\u53ea\u586b\u751f\u65e5\uff0c\u5b8c\u6210\u5f8c\u518d\u9032\u5230\u4e0b\u4e00\u984c\u3002' },
-  bloodType: { label: '\u9ede\u9078\u8840\u578b', hint: '\u9019\u4e00\u6b65\u53ea\u9078\u8840\u578b\uff0c\u9078\u4e00\u500b\u5c31\u53ef\u4ee5\u7e7c\u7e8c\u3002' },
-  name: { label: '\u586b\u5beb\u59d3\u540d', hint: '\u8acb\u8f38\u5165\u59d3\u540d\uff0cAI \u6703\u7528\u4f86\u5efa\u7acb\u6b4c\u66f2\u4e3b\u89d2\u3002' },
-  gender: { label: '\u9ede\u9078\u6027\u5225', hint: '\u9019\u4e00\u6b65\u53ea\u78ba\u8a8d\u6027\u5225\uff0c\u7528\u4f86\u8abf\u6574\u6b4c\u66f2\u8a9e\u6c23\u3002' },
-  shichen: { label: '\u9078\u64c7\u51fa\u751f\u6642\u8fb0', hint: '\u77e5\u9053\u5c31\u9ede\u6642\u8fb0\uff0c\u4e0d\u77e5\u9053\u5c31\u9078\u7cfb\u7d71\u63a8\u4f30\u3002' },
+
+const DATA_FIELD_LABELS: Record<DataField, { label: string; hint: string }> = {
+  voice: { label: '選擇聲音來源', hint: '決定要錄自己的聲音，或直接使用 AI 聲音。聲音只用來校準歌曲語氣。' },
+  birthDate: { label: '填寫生日', hint: '生日會成為歌曲的命盤底色，AI 會讀取年代、生肖與五元素節奏。' },
+  bloodType: { label: '點選血型', hint: '血型會協助 AI 判定情緒速度、表達方式與副歌推進感。' },
+  name: { label: '填寫姓名', hint: '姓名會成為歌曲主角，讓歌詞更像在對這個人說話。' },
+  gender: { label: '點選性別', hint: '性別只用來調整語氣與敘事角度，不限制歌曲風格。' },
+  shichen: { label: '選擇出生時辰', hint: '時辰會補上節奏層；不知道也可以交給系統保守推估。' },
 };
 
+const GOAL_OPTIONS: Array<{ key: LifeSongGoal; label: string; hint: string; tone: 'violet' | 'amber' | 'cyan' | 'pink' }> = [
+  { key: 'dream', label: '夢想', hint: '把還沒完成的願望寫成一首推著你前進的歌。', tone: 'violet' },
+  { key: 'work', label: '工作', hint: '把壓力、方向與突破感轉成清楚有力量的節奏。', tone: 'cyan' },
+  { key: 'love', label: '愛情', hint: '讓歌曲承接關係中的渴望、理解與溫柔。', tone: 'pink' },
+  { key: 'family', label: '家庭', hint: '把牽掛、責任與守護感整理成穩定的旋律。', tone: 'amber' },
+  { key: 'health', label: '健康', hint: '讓音樂更重視安定、呼吸、復原與日常節奏。', tone: 'cyan' },
+  { key: 'wealth', label: '財富', hint: '把目標、行動與資源感轉成更聚焦的歌曲主題。', tone: 'amber' },
+  { key: 'healing', label: '療癒', hint: '把沒有說出口的疲憊變成被理解、被陪伴的歌。', tone: 'violet' },
+  { key: 'relax', label: '放鬆', hint: '讓歌曲降低負重，成為可以慢慢呼吸的陪伴。', tone: 'cyan' },
+];
+
+const STYLE_OPTIONS: Array<{ key: SongCreativeStyle; label: string; hint: string; energy: SongEnergyStyle; tone: 'violet' | 'amber' | 'cyan' | 'pink' }> = [
+  { key: 'pop', label: '流行', hint: '旋律清楚、Hook 好記，適合變成完整生命主題曲。', energy: 'dance-pop', tone: 'amber' },
+  { key: 'piano', label: '鋼琴', hint: '留白多、情緒細，適合自我對話與溫柔鼓勵。', energy: 'emotional-pop', tone: 'violet' },
+  { key: 'healing', label: '療癒', hint: '音色柔和，重視陪伴、安定與補強感。', energy: 'emotional-pop', tone: 'cyan' },
+  { key: 'ancient', label: '古風', hint: '用詩意、弦樂與東方意境承接命盤故事。', energy: 'emotional-pop', tone: 'amber' },
+  { key: 'rock', label: '搖滾', hint: '強化行動、突破與站起來的力量。', energy: 'club-edm', tone: 'pink' },
+  { key: 'electronic', label: '電子', hint: '節奏更現代，適合推動、覺醒與高能量畫面。', energy: 'club-edm', tone: 'cyan' },
+  { key: 'jazz', label: '爵士', hint: '保留成熟、轉折與內在層次，適合深夜感。', energy: 'emotional-pop', tone: 'violet' },
+  { key: 'cinematic', label: '電影配樂', hint: '世界觀更大，適合人生章節、使命與轉場。', energy: 'dance-pop', tone: 'amber' },
+];
+
 const BLOOD_DESC: Record<BloodType, string> = {
-  A: '\u7d30\u81a9\u7a69\u5b9a\uff0c\u9069\u5408\u6574\u7406\u65cb\u5f8b\u4e2d\u7684\u5b89\u5168\u611f\u8207\u60c5\u7dd2\u5c64\u6b21\u3002',
-  B: '\u76f4\u89ba\u9bae\u660e\uff0c\u9069\u5408\u653e\u5927\u6b4c\u66f2\u88e1\u81ea\u7531\u3001\u7bc0\u594f\u8207\u81ea\u6211\u8868\u9054\u3002',
-  AB: '\u7406\u6027\u8207\u611f\u6027\u4e26\u5b58\uff0c\u9069\u5408\u505a\u51fa\u50cf\u96d9\u91cd\u4eba\u683c\u5c0d\u8a71\u7684\u6bb5\u843d\u3002',
-  O: '\u80fd\u91cf\u76f4\u63a5\uff0c\u9069\u5408\u5f37\u5316\u526f\u6b4c\u5f35\u529b\u8207\u9762\u5c0d\u81ea\u5df1\u7684\u52c7\u6c23\u3002',
+  A: '細膩穩定，適合整理旋律中的安全感與情緒層次。',
+  B: '直覺鮮明，適合放大歌曲裡自由、節奏與自我表達。',
+  AB: '理性與感性並存，適合做出雙重自我對話的段落。',
+  O: '能量直接，適合強化副歌張力與面對自己的勇氣。',
 };
 
 const SONG_LANGUAGE_OPTIONS: Array<{ key: PreferredSongLanguage; label: string; hint: string; badge?: string }> = [
-  {
-    key: 'mandarin',
-    label: '\u4e2d\u6587\u6b4c\u66f2',
-    hint: '\u6700\u9069\u5408\u624b\u6a5f\u5ba2\u6236\u5feb\u901f\u7406\u89e3\u5167\u5fc3\u7368\u767d\uff0c\u60c5\u7dd2\u6703\u6bd4\u8f03\u76f4\u63a5\u3002',
-    badge: '\u63a8\u85a6',
-  },
-  {
-    key: 'english',
-    label: '\u82f1\u6587\u6b4c\u66f2',
-    hint: '\u9069\u5408\u505a\u51fa\u66f4\u5f37\u7684\u6bb5\u843d\u611f\u3001Hook \u8207\u570b\u969b\u6d41\u884c\u97f3\u6a02\u6c1b\u570d\u3002',
-  },
-  {
-    key: 'taiwanese',
-    label: '\u53f0\u8a9e\u6b4c\u66f2',
-    hint: '\u9069\u5408\u628a\u4eba\u751f\u611f\u3001\u571f\u5730\u611f\u8207\u771f\u5be6\u60c5\u7dd2\u5531\u5f97\u66f4\u539a\u3002',
-  },
-];
-
-const SONG_ENERGY_OPTIONS: Array<{ key: SongEnergyStyle; label: string; hint: string; badge?: string }> = [
-  {
-    key: 'dance-pop',
-    label: '\u6d41\u884c\u821e\u66f2',
-    hint: 'Hook \u597d\u8a18\u3001\u7bc0\u594f\u660e\u78ba\uff0c\u9069\u5408\u624b\u6a5f\u77ed\u5f71\u97f3\u8207\u5927\u773e\u807d\u611f\u3002',
-    badge: '\u63a8\u85a6',
-  },
-  {
-    key: 'emotional-pop',
-    label: '\u60c5\u7dd2\u6d41\u884c',
-    hint: '\u65cb\u5f8b\u6e05\u695a\u3001\u6545\u4e8b\u611f\u5f37\uff0c\u9069\u5408\u5531\u51fa\u5167\u5fc3\u5c0d\u8a71\u8207\u6eab\u5ea6\u3002',
-  },
-  {
-    key: 'club-edm',
-    label: '\u6d3e\u5c0d\u96fb\u97f3',
-    hint: '\u9f13\u9ede\u66f4\u5f37\u3001Drop \u66f4\u660e\u986f\uff0c\u9069\u5408\u505a\u6210\u66f4\u6709\u821e\u611f\u7684\u6b4c\u3002',
-  },
+  { key: 'mandarin', label: '中文歌曲', hint: '最直覺、最貼近日常，也最適合完整承接生命故事。', badge: '推薦' },
+  { key: 'english', label: '英文歌曲', hint: '段落感、Hook 與國際流行音樂氛圍更強。' },
+  { key: 'taiwanese', label: '台語歌曲', hint: '生活厚度、土地感與真實情緒更明顯。' },
 ];
 
 export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityMusicFlowProps) {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<MusicFormData>({
+    lifeGoal: '',
+    lifeGoalNote: '',
+    songCreativeStyle: '',
     birthDate: '',
     bloodType: '',
     name: '',
@@ -118,15 +118,17 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   const [localError, setLocalError] = useState('');
   const flowTopRef = useRef<HTMLDivElement>(null);
   const fieldRefs = useRef<Record<MissingField, HTMLDivElement | null>>({
+    goal: null,
+    style: null,
+    voice: null,
     birthDate: null,
     bloodType: null,
     name: null,
     gender: null,
     shichen: null,
-    voice: null,
   });
   const [missingField, setMissingField] = useState<MissingField | null>(null);
-  const [activeDataField, setActiveDataField] = useState<MissingField>('voice');
+  const [activeDataField, setActiveDataField] = useState<DataField>('voice');
 
   useEffect(() => {
     const saved = loadUserData();
@@ -160,6 +162,26 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     return () => window.clearTimeout(timer);
   }, [step]);
 
+  useEffect(() => {
+    if (!missingField || !localError) return;
+    const timer = window.setTimeout(() => scrollToField(missingField), 140);
+    return () => window.clearTimeout(timer);
+  }, [localError, missingField]);
+
+  useEffect(() => {
+    if (step !== 2 || !form.voiceConsent.sample || activeDataField !== 'voice') return;
+    const timer = window.setTimeout(() => {
+      setActiveDataField('birthDate');
+      scrollToField('birthDate');
+    }, 120);
+    return () => window.clearTimeout(timer);
+  }, [activeDataField, form.voiceConsent.sample, step]);
+
+  function clearValidation() {
+    setLocalError('');
+    setMissingField(null);
+  }
+
   function scrollToField(field: MissingField) {
     window.setTimeout(() => {
       const fieldElement = fieldRefs.current[field];
@@ -173,53 +195,25 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     }, 80);
   }
 
-  useEffect(() => {
-    if (!missingField || !localError) return;
-    const timer = window.setTimeout(() => {
-      scrollToField(missingField);
-    }, 140);
-    return () => window.clearTimeout(timer);
-  }, [localError, missingField]);
-
-  useEffect(() => {
-    if (step !== 0 || !form.voiceConsent.sample || activeDataField !== 'voice') return;
-    const timer = window.setTimeout(() => {
-      setActiveDataField('birthDate');
-      scrollToField('birthDate');
-    }, 120);
-    return () => window.clearTimeout(timer);
-  }, [activeDataField, form.voiceConsent.sample, step]);
-
-  function clearValidation() {
-    setLocalError('');
-    setMissingField(null);
-  }
-
-  function validateDataField(field: MissingField): ValidationResult | null {
-    if (field === 'voice' && !form.voiceConsent.sample) return { field: 'voice', message: '\u8acb\u5148\u9078\u64c7\u8072\u97f3\u4f86\u6e90\uff1a\u8981\u9304\u97f3\u8acb\u9ede\u300c\u958b\u59cb\u9304\u97f3\u300d\uff0c\u4e0d\u9304\u97f3\u53ef\u76f4\u63a5\u9078 AI \u8072\u97f3\u3002' };
-    if (field === 'birthDate' && !form.birthDate) return { field: 'birthDate', message: '\u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\uff0c\u7cfb\u7d71\u5df2\u5e36\u60a8\u56de\u5230\u9019\u4e00\u6b04\u3002' };
-    if (field === 'bloodType' && !form.bloodType) return { field: 'bloodType', message: '\u8acb\u9ede\u9078\u8840\u578b\uff0c\u7d05\u8272\u767c\u5149\u7684\u5361\u7247\u5c31\u662f\u9700\u8981\u5b8c\u6210\u7684\u5730\u65b9\u3002' };
-    if (field === 'name' && form.name.trim().length < 2) return { field: 'name', message: '\u8acb\u586b\u5beb\u59d3\u540d\uff0c\u81f3\u5c11 2 \u500b\u5b57\u3002' };
-    if (field === 'name' && form.name.trim().length > 20) return { field: 'name', message: '\u59d3\u540d\u8acb\u63a7\u5236\u5728 20 \u500b\u5b57\u4ee5\u5167\u3002' };
-    if (field === 'gender' && !selectionConfirm.gender) return { field: 'gender', message: '\u8acb\u9ede\u9078\u6027\u5225\uff0c\u9019\u6b04\u9084\u6c92\u6709\u78ba\u8a8d\u3002' };
-    if (field === 'shichen' && form.shichen === null) return { field: 'shichen', message: '\u8acb\u9078\u64c7\u51fa\u751f\u6642\u8fb0\uff1b\u82e5\u4e0d\u77e5\u9053\uff0c\u8acb\u9ede\u9078\u300c\u4e0d\u77e5\u9053\u6642\u8fb0\u300d\u3002' };
+  function validateDataField(field: DataField): ValidationResult | null {
+    if (field === 'voice' && !form.voiceConsent.sample) return { field: 'voice', message: '請先選擇聲音來源：要錄音請點「開始錄音」，不錄音可直接選 AI 聲音。' };
+    if (field === 'birthDate' && !form.birthDate) return { field: 'birthDate', message: '請先完成生日資料，AI 需要它來建立命理底色。' };
+    if (field === 'bloodType' && !form.bloodType) return { field: 'bloodType', message: '請點選血型，這會協助歌曲情緒與節奏校準。' };
+    if (field === 'name' && form.name.trim().length < 2) return { field: 'name', message: '請填寫姓名，至少 2 個字。' };
+    if (field === 'name' && form.name.trim().length > 20) return { field: 'name', message: '姓名請控制在 20 個字以內。' };
+    if (field === 'gender' && !selectionConfirm.gender) return { field: 'gender', message: '請點選性別，這欄還沒有確認。' };
+    if (field === 'shichen' && form.shichen === null) return { field: 'shichen', message: '請選擇出生時辰；若不知道，請點選「不知道時辰」。' };
     return null;
   }
 
   function validateStep(targetStep = step): ValidationResult | null {
-    if (targetStep === 0) return validateDataField(activeDataField);
-    if (targetStep === 1 && !form.songEnergyStyle) return { field: 'voice', message: '\u8acb\u9078\u64c7\u6b4c\u66f2\u611f\u89ba\u3002' };
+    if (targetStep === 0 && !form.lifeGoal) return { field: 'goal', message: '請先選擇這首生命歌曲最想陪你完成的方向。' };
+    if (targetStep === 1 && !form.songCreativeStyle) return { field: 'style', message: '請先選擇希望歌曲呈現的風格。' };
+    if (targetStep === 2) return validateDataField(activeDataField);
     return null;
   }
 
-  const showMissingBirthDate = missingField === 'birthDate' && step === 0 && !form.birthDate;
-  const showMissingBloodType = missingField === 'bloodType' && step === 0 && !form.bloodType;
-  const showMissingName = missingField === 'name' && step === 0 && (form.name.trim().length < 2 || form.name.trim().length > 20);
-  const showMissingGender = missingField === 'gender' && step === 0 && !selectionConfirm.gender;
-  const showMissingShichen = missingField === 'shichen' && step === 0 && form.shichen === null;
-  const showMissingVoice = missingField === 'voice' && step === 0 && activeDataField === 'voice' && !form.voiceConsent.sample;
-
-  function goToDataField(field: MissingField) {
+  function goToDataField(field: DataField) {
     setActiveDataField(field);
     window.setTimeout(() => scrollToField(field), 30);
   }
@@ -235,83 +229,181 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
 
     clearValidation();
     if (step === 0) {
+      setStep(1);
+      return;
+    }
+    if (step === 1) {
+      setStep(2);
+      return;
+    }
+    if (step === 2) {
       const currentIndex = DATA_FIELD_ORDER.indexOf(activeDataField);
       const nextField = DATA_FIELD_ORDER[currentIndex + 1];
       if (nextField) {
         goToDataField(nextField);
         return;
       }
-      setStep(1);
-      return;
-    }
-
-    if (step < 2) {
-      setStep((current) => current + 1);
+      setStep(3);
       return;
     }
 
     void onSubmit(form);
   }
 
-  function submitWithVoice(voiceConsent: VoiceConsentState, aiVoiceGender?: AiVoiceGender) {
-    const nextForm = {
-      ...form,
-      voiceConsent,
-      vocalGenderPreference: aiVoiceGender ?? form.vocalGenderPreference,
-    };
-    setForm(nextForm);
-    clearValidation();
-    void onSubmit(nextForm);
-  }
-
-  const currentDataIndex = DATA_FIELD_ORDER.indexOf(activeDataField);
-  const currentDataMeta = DATA_FIELD_LABELS[activeDataField];
-  const canGoBack = step > 0 || (step === 0 && activeDataField !== 'voice');
-
-  function getPrimaryButtonLabel() {
-    if (loading) return 'AI \u6b63\u5728\u751f\u6210\u6b4c\u66f2...';
-    if (step === 0) {
-      if (activeDataField === 'voice') return '\u4e0b\u4e00\u6b65\uff1a\u586b\u5beb\u751f\u65e5';
-      if (activeDataField === 'birthDate') return '\u4e0b\u4e00\u6b65\uff1a\u9ede\u9078\u8840\u578b';
-      if (activeDataField === 'bloodType') return '\u4e0b\u4e00\u6b65\uff1a\u586b\u5beb\u59d3\u540d';
-      if (activeDataField === 'name') return '\u4e0b\u4e00\u6b65\uff1a\u9ede\u9078\u6027\u5225';
-      if (activeDataField === 'gender') return '\u4e0b\u4e00\u6b65\uff1a\u9078\u64c7\u6642\u8fb0';
-      return '\u4e0b\u4e00\u6b65\uff1a\u9078\u64c7\u6b4c\u66f2\u611f\u89ba';
-    }
-    if (step === 1) return '\u4e0b\u4e00\u6b65\uff1a\u78ba\u8a8d\u6b4c\u66f2\u8a9e\u8a00';
-    return '\u751f\u6210\u5c08\u5c6c\u6d41\u884c\u6b4c\u66f2';
-  }
-
   function handleBack() {
     clearValidation();
-    if (step === 0) {
+    if (step === 0) return;
+    if (step === 2) {
       const currentIndex = DATA_FIELD_ORDER.indexOf(activeDataField);
       const previousField = DATA_FIELD_ORDER[currentIndex - 1];
-      if (previousField) goToDataField(previousField);
+      if (previousField) {
+        goToDataField(previousField);
+        return;
+      }
+      setStep(1);
       return;
     }
-    if (step === 1) {
-      setStep(0);
+    if (step === 3) {
+      setStep(2);
       window.setTimeout(() => goToDataField(LAST_DATA_FIELD), 30);
       return;
     }
-    setStep(1);
+    setStep(step - 1);
   }
+
+  const showMissingGoal = missingField === 'goal' && step === 0 && !form.lifeGoal;
+  const showMissingStyle = missingField === 'style' && step === 1 && !form.songCreativeStyle;
+  const showMissingBirthDate = missingField === 'birthDate' && step === 2 && !form.birthDate;
+  const showMissingBloodType = missingField === 'bloodType' && step === 2 && !form.bloodType;
+  const showMissingName = missingField === 'name' && step === 2 && (form.name.trim().length < 2 || form.name.trim().length > 20);
+  const showMissingGender = missingField === 'gender' && step === 2 && !selectionConfirm.gender;
+  const showMissingShichen = missingField === 'shichen' && step === 2 && form.shichen === null;
+  const showMissingVoice = missingField === 'voice' && step === 2 && activeDataField === 'voice' && !form.voiceConsent.sample;
+
+  const currentDataIndex = DATA_FIELD_ORDER.indexOf(activeDataField);
+  const currentDataMeta = DATA_FIELD_LABELS[activeDataField];
+  const canGoBack = step > 0 || (step === 2 && activeDataField !== 'voice');
+
+  function getPrimaryButtonLabel() {
+    if (loading) return 'AI 正在理解、分析並創作歌曲...';
+    if (step === 0) return '下一步：選擇歌曲風格';
+    if (step === 1) return '下一步：統整命理資料';
+    if (step === 2) {
+      if (activeDataField === 'voice') return '下一步：填寫生日';
+      if (activeDataField === 'birthDate') return '下一步：點選血型';
+      if (activeDataField === 'bloodType') return '下一步：填寫姓名';
+      if (activeDataField === 'name') return '下一步：點選性別';
+      if (activeDataField === 'gender') return '下一步：選擇時辰';
+      return '下一步：AI 統整確認';
+    }
+    return '生成 AI 專屬生命歌曲';
+  }
+
+  const stepLabel = step === 0
+    ? 'STEP 2 / 7'
+    : step === 1
+      ? 'STEP 3 / 7'
+      : step === 2
+        ? `STEP 4 / 7 · 資料 ${currentDataIndex + 1}/${DATA_FIELD_ORDER.length}`
+        : 'STEP 5-7 / 7';
+  const stepTitle = step === 0
+    ? '目前最想完成什麼？'
+    : step === 1
+      ? '希望歌曲成為什麼風格？'
+      : step === 2
+        ? currentDataMeta.label
+        : 'AI 統整後開始創作';
+  const stepHint = step === 0
+    ? '先讓 AI 理解這首歌的使命。歌曲不是娛樂，而是鼓勵、療癒、補強與陪伴。'
+    : step === 1
+      ? '選擇一種主要風格，AI 會再依命理、五元素與聲音資料微調。'
+      : step === 2
+        ? currentDataMeta.hint
+        : 'AI 將整合會員資料、命理資料、五元素與補強方向，建立歌曲世界觀、主題、情境、歌名、歌詞與製作計畫。';
 
   return (
     <div ref={flowTopRef} className="space-y-8">
-      {step === 0 && activeDataField === 'voice' && (
-        <div ref={(node) => { fieldRefs.current.voice = node; }} className={`music-required-field music-direct-recorder-dock music-direct-recorder-dock--first ${showMissingVoice ? 'music-required-field--missing' : ''}`} aria-label="\u76f4\u63a5\u9ea5\u514b\u98a8\u9304\u97f3\u7cfb\u7d71">
+      <div className="music-current-step-card" aria-live="polite">
+        <span>{stepLabel}</span>
+        <strong>{stepTitle}</strong>
+        <p>{stepHint}</p>
+      </div>
+
+      {step === 0 && (
+        <div ref={(node) => { fieldRefs.current.goal = node; }} className={`music-flow-stage-card music-flow-stage-card--voice space-y-5 ${showMissingGoal ? 'music-required-field--missing' : ''}`}>
+          <div className="music-flow-stage-heading">
+            <p>AI 理解</p>
+            <h3>請專注你現在最想完成的一件事</h3>
+            <span>選一個方向即可，也可以補一句自己的狀態，AI 會把它變成歌曲主題。</span>
+          </div>
+          {showMissingGoal && <p className="form-missing-alert">⚠️ 請先選擇一個歌曲方向。</p>}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {GOAL_OPTIONS.map((option) => (
+              <FriendlyChoiceCard
+                key={option.key}
+                active={form.lifeGoal === option.key}
+                title={option.label}
+                description={option.hint}
+                onClick={() => {
+                  setForm((prev) => ({ ...prev, lifeGoal: option.key }));
+                  clearValidation();
+                }}
+                tone={option.tone}
+                compact
+                attention={showMissingGoal}
+              />
+            ))}
+          </div>
+          <textarea
+            value={form.lifeGoalNote}
+            maxLength={120}
+            placeholder="可以補充一句，例如：我想重新找回工作信心。"
+            onChange={(event) => setForm((prev) => ({ ...prev, lifeGoalNote: event.target.value }))}
+            className="form-input min-h-[96px] w-full resize-none text-base neon-input-focus glass-input glass-input-cyan"
+          />
+        </div>
+      )}
+
+      {step === 1 && (
+        <div ref={(node) => { fieldRefs.current.style = node; }} className={`music-flow-stage-card music-flow-stage-card--generate space-y-5 ${showMissingStyle ? 'music-required-field--missing' : ''}`}>
+          <div className="music-flow-stage-heading">
+            <p>AI 分析</p>
+            <h3>選擇生命歌曲的主要風格</h3>
+            <span>AI 不會直接照抄風格，而是把風格當成創作方向，再整合命理與五元素。</span>
+          </div>
+          {showMissingStyle && <p className="form-missing-alert">⚠️ 請先選擇一種歌曲風格。</p>}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {STYLE_OPTIONS.map((option) => (
+              <FriendlyChoiceCard
+                key={option.key}
+                active={form.songCreativeStyle === option.key}
+                title={option.label}
+                description={option.hint}
+                onClick={() => {
+                  setForm((prev) => ({ ...prev, songCreativeStyle: option.key, songEnergyStyle: option.energy }));
+                  clearValidation();
+                }}
+                tone={option.tone}
+                compact
+                attention={showMissingStyle}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {step === 2 && activeDataField === 'voice' && (
+        <div ref={(node) => { fieldRefs.current.voice = node; }} className={`music-required-field music-direct-recorder-dock music-direct-recorder-dock--first ${showMissingVoice ? 'music-required-field--missing' : ''}`} aria-label="聲音來源選擇">
           {form.voiceConsent.sample ? (
             <div className="music-voice-selected-note">
-              <strong>{"\u8072\u97f3\u4f86\u6e90\u5df2\u5b8c\u6210"}</strong>
-              <span>{"\u5df2\u7d93\u8a18\u9304\u60a8\u9078\u64c7\u7684\u8072\u97f3\u65b9\u5f0f\u3002\u63a5\u4e0b\u4f86\u8acb\u4f9d\u7d05\u8272\u63d0\u793a\u6216\u4e0b\u65b9\u6b04\u4f4d\u5b8c\u6210\u8cc7\u6599\u3002"}</span>
+              <strong>聲音來源已完成</strong>
+              <span>AI 已記錄聲音方式，接下來會把它與命理資料一起統整。</span>
             </div>
           ) : (
             <>
               <div className="music-direct-recorder-dock__title">
-                <strong>{"\u9ea5\u514b\u98a8\u9304\u97f3\u7cfb\u7d71"}</strong>
-                <span>{"\u5148\u9078\u4e00\u500b\u65b9\u5f0f\uff1a\u9304\u81ea\u5df1\u7684\u8072\u97f3\uff0c\u6216\u76f4\u63a5\u7528 AI \u8072\u97f3\u3002"}</span>
+                <strong>聲音來源</strong>
+                <span>錄自己的聲音，或直接使用 AI 聲音。這一步是歌曲語氣校準，不是直接生成。</span>
               </div>
               <VoiceConsentRecorder
                 value={form.voiceConsent}
@@ -319,7 +411,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                 required
                 showMissing={showMissingVoice}
                 aiVoiceGender={form.vocalGenderPreference}
-                onAiVoiceGenderChange={(gender) => {
+                onAiVoiceGenderChange={(gender: AiVoiceGender) => {
                   setForm((prev) => ({ ...prev, vocalGenderPreference: gender }));
                   clearValidation();
                 }}
@@ -334,15 +426,9 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         </div>
       )}
 
-      <div className="music-current-step-card" aria-live="polite">
-        <span>{step === 0 ? `\u7b2c ${currentDataIndex + 1} \u6b65 / ${DATA_FIELD_ORDER.length}` : step === 1 ? '\u7b2c 7 \u6b65 / 8' : '\u6700\u5f8c\u4e00\u6b65'}</span>
-        <strong>{step === 0 ? currentDataMeta.label : step === 1 ? '\u9078\u64c7\u6b4c\u66f2\u611f\u89ba' : '\u78ba\u8a8d\u6b4c\u66f2\u8a9e\u8a00'}</strong>
-        <p>{step === 0 ? currentDataMeta.hint : step === 1 ? '\u9019\u4e00\u9801\u53ea\u9078\u6b4c\u66f2\u98a8\u683c\uff0c\u5176\u4ed6\u5167\u5bb9\u5148\u96b1\u85cf\u3002' : '\u9078\u5b8c\u8a9e\u8a00\u5f8c\uff0c\u5c31\u53ef\u4ee5\u751f\u6210\u5c08\u5c6c\u6b4c\u66f2\u3002'}</p>
-      </div>
-
-      {step === 0 && activeDataField === 'birthDate' && (
+      {step === 2 && activeDataField === 'birthDate' && (
         <div ref={(node) => { fieldRefs.current.birthDate = node; }} className={`music-required-field music-flow-stage-card music-flow-stage-card--data space-y-4 ${showMissingBirthDate ? 'music-required-field--missing' : ''}`}>
-          <p className="text-sm leading-6 text-[color:var(--text-sub)]">{'\u751f\u65e5\u6703\u4f5c\u70ba\u6b4c\u66f2\u4eba\u683c\u5e95\u8272\uff0c\u8acb\u7528\u624b\u6a5f\u5bb9\u6613\u8f38\u5165\u7684\u6c11\u570b\u5e74\u683c\u5f0f\u586b\u5beb\u3002'}</p>
+          <p className="text-sm leading-6 text-[color:var(--text-sub)]">生日會作為歌曲人格底色，請用手機容易輸入的民國年格式填寫。</p>
           <LunarBirthdayInput
             value={form.birthDate}
             onChange={(solarDate) => {
@@ -351,20 +437,20 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
             }}
             accent="violet"
           />
-          {showMissingBirthDate && <p className="form-missing-alert">{'\u26a0\ufe0f \u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\uff0c\u9019\u6b04\u9084\u6c92\u6709\u586b\u5beb\u3002'}</p>}
+          {showMissingBirthDate && <p className="form-missing-alert">⚠️ 請先完成生日資料。</p>}
         </div>
       )}
 
-      {step === 0 && activeDataField === 'bloodType' && (
+      {step === 2 && activeDataField === 'bloodType' && (
         <div ref={(node) => { fieldRefs.current.bloodType = node; }} className={`music-required-field space-y-4 ${showMissingBloodType ? 'music-required-field--missing' : ''}`}>
-          <p className="text-sm leading-6 text-[color:var(--text-sub)]">{'\u8840\u578b\u6703\u5354\u52a9 AI \u6821\u6e96\u6b4c\u66f2\u7684\u60c5\u7dd2\u901f\u5ea6\u8207\u81ea\u6211\u5c0d\u8a71\u65b9\u5f0f\u3002'}</p>
-          {showMissingBloodType && <p className="form-missing-alert">{'\u26a0\ufe0f \u8acb\u9ede\u9078\u8840\u578b\uff0c\u9078\u4e00\u500b\u5c31\u53ef\u4ee5\u7e7c\u7e8c\u3002'}</p>}
+          <p className="text-sm leading-6 text-[color:var(--text-sub)]">血型會協助 AI 校準歌曲的情緒速度與自我對話方式。</p>
+          {showMissingBloodType && <p className="form-missing-alert">⚠️ 請點選血型。</p>}
           <div className="grid grid-cols-2 gap-3">
             {BLOOD_TYPES.map((bloodType, index) => (
               <FriendlyChoiceCard
                 key={bloodType}
                 active={form.bloodType === bloodType}
-                title={`${bloodType} ${'\u578b'}`}
+                title={`${bloodType} 型`}
                 description={BLOOD_DESC[bloodType]}
                 onClick={() => {
                   setForm((prev) => ({ ...prev, bloodType }));
@@ -378,34 +464,34 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         </div>
       )}
 
-      {step === 0 && (activeDataField === 'name' || activeDataField === 'gender') && (
+      {step === 2 && (activeDataField === 'name' || activeDataField === 'gender') && (
         <div className="space-y-5">
           <div ref={(node) => { fieldRefs.current.name = node; }} className={`music-required-field ${activeDataField === 'name' ? '' : 'hidden'} ${showMissingName ? 'music-required-field--missing' : ''}`}>
-            <p className="mb-4 text-sm leading-6 text-[color:var(--text-sub)]">{'\u59d3\u540d\u6703\u7528\u4f86\u5efa\u7acb\u6b4c\u66f2\u4e3b\u89d2\uff0c\u8b93\u6b4c\u8a5e\u66f4\u50cf\u5728\u8ddf\u81ea\u5df1\u8aaa\u8a71\u3002'}</p>
+            <p className="mb-4 text-sm leading-6 text-[color:var(--text-sub)]">姓名會用來建立歌曲主角，讓歌詞更像在跟這個人說話。</p>
             <input
               type="text"
               value={form.name}
               maxLength={20}
-              placeholder={'\u8acb\u8f38\u5165\u59d3\u540d'}
+              placeholder="請輸入姓名"
               onChange={(event) => {
                 setForm((prev) => ({ ...prev, name: event.target.value }));
                 clearValidation();
               }}
               className={`form-input w-full text-base neon-input-focus neon-card-hover glass-input glass-input-cyan ${showMissingName ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
             />
-            {showMissingName && <p className="form-missing-alert">{'\u26a0\ufe0f \u8acb\u586b\u5beb\u59d3\u540d\uff0c\u81f3\u5c11 2 \u500b\u5b57\u3002'}</p>}
+            {showMissingName && <p className="form-missing-alert">⚠️ 請填寫姓名，至少 2 個字。</p>}
           </div>
 
           <div ref={(node) => { fieldRefs.current.gender = node; }} className={`music-required-field ${activeDataField === 'gender' ? '' : 'hidden'} ${showMissingGender ? 'music-required-field--missing' : ''}`}>
-            <p className="mb-2 text-xs text-[color:var(--text-muted)]">{'\u6027\u5225\u53ea\u7528\u4f86\u8abf\u6574\u8a9e\u6c23\u8207\u6577\u4e8b\u89d2\u5ea6\uff0c\u4e0d\u6703\u9650\u5236\u6b4c\u66f2\u98a8\u683c\u3002'}</p>
-            {showMissingGender && <p className="form-missing-alert">{'\u26a0\ufe0f \u8acb\u9ede\u9078\u6027\u5225\uff0c\u9019\u6b04\u9084\u6c92\u6709\u78ba\u8a8d\u3002'}</p>}
+            <p className="mb-2 text-xs text-[color:var(--text-muted)]">性別只用來調整語氣與敘事角度，不會限制歌曲風格。</p>
+            {showMissingGender && <p className="form-missing-alert">⚠️ 請點選性別。</p>}
             <div className="grid grid-cols-2 gap-3">
               {(['female', 'male'] as Gender[]).map((gender) => (
                 <FriendlyChoiceCard
                   key={gender}
                   active={selectionConfirm.gender && form.gender === gender}
-                  title={gender === 'female' ? '\u5973\u6027' : '\u7537\u6027'}
-                  description={gender === 'female' ? '\u504f\u5411\u7d30\u81a9\u3001\u611f\u53d7\u8207\u65cb\u5f8b\u5c64\u6b21\u3002' : '\u504f\u5411\u529b\u91cf\u3001\u7bc0\u594f\u8207\u5167\u5728\u63a8\u9032\u611f\u3002'}
+                  title={gender === 'female' ? '女性' : '男性'}
+                  description={gender === 'female' ? '偏向細膩、感受與旋律層次。' : '偏向力量、節奏與內在推進感。'}
                   onClick={() => {
                     setForm((prev) => ({ ...prev, gender }));
                     setSelectionConfirm({ gender: true });
@@ -421,9 +507,9 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         </div>
       )}
 
-      {step === 0 && activeDataField === 'shichen' && (
+      {step === 2 && activeDataField === 'shichen' && (
         <div ref={(node) => { fieldRefs.current.shichen = node; }} className={`music-required-field space-y-5 ${showMissingShichen ? 'music-required-field--missing' : ''}`}>
-          <p className="text-sm leading-6 text-[color:var(--text-sub)]">{'\u6642\u8fb0\u6703\u8b93\u6b4c\u66f2\u591a\u4e00\u5c64\u7bc0\u594f\u611f\u3002\u82e5\u4e0d\u78ba\u5b9a\uff0c\u76f4\u63a5\u9078\u4e0d\u77e5\u9053\uff0c\u7cfb\u7d71\u6703\u7528\u4fdd\u5b88\u65b9\u5f0f\u63a8\u4f30\u3002'}</p>
+          <p className="text-sm leading-6 text-[color:var(--text-sub)]">時辰會讓歌曲多一層節奏感。若不確定，直接選不知道，系統會用保守方式推估。</p>
           <button
             type="button"
             onClick={() => {
@@ -432,13 +518,13 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
             }}
             className={`w-full rounded-2xl border px-5 py-4 text-left transition-all ${form.shichen === 'unknown' ? 'border-emerald-400 bg-emerald-400/15' : showMissingShichen ? 'border-rose-400/85 bg-rose-500/12 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : 'border-white/15 bg-white/5 hover:border-white/25'}`}
           >
-            <p className={`text-base font-bold ${form.shichen === 'unknown' ? 'text-emerald-300' : 'text-[color:var(--text-main)]'}`}>{'\u4e0d\u77e5\u9053\u6642\u8fb0 / \u4ea4\u7d66\u7cfb\u7d71\u63a8\u4f30'}</p>
-            <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">{'\u9019\u662f\u6700\u53cb\u5584\u7684\u9078\u9805\uff0c\u4e0d\u6703\u5361\u4f4f\u6d41\u7a0b\uff0c\u4e5f\u4e0d\u6703\u8b93\u7d50\u679c\u904e\u5ea6\u6b66\u65b7\u3002'}</p>
+            <p className={`text-base font-bold ${form.shichen === 'unknown' ? 'text-emerald-300' : 'text-[color:var(--text-main)]'}`}>不知道時辰 / 交給系統推估</p>
+            <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">不會卡住流程，也不會讓結果過度武斷。</p>
           </button>
-          {showMissingShichen && <p className="form-missing-alert">{'\u26a0\ufe0f \u8acb\u9078\u64c7\u51fa\u751f\u6642\u8fb0\uff1b\u82e5\u4e0d\u77e5\u9053\uff0c\u8acb\u9ede\u9078\u300c\u4e0d\u77e5\u9053\u6642\u8fb0\u300d\u3002'}</p>}
+          {showMissingShichen && <p className="form-missing-alert">⚠️ 請選擇出生時辰；若不知道，請點選「不知道時辰」。</p>}
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-white/10" />
-            <span className="shrink-0 text-xs text-[color:var(--text-muted)]">{'\u77e5\u9053\u6642\u8fb0\u53ef\u76f4\u63a5\u9ede\u9078'}</span>
+            <span className="shrink-0 text-xs text-[color:var(--text-muted)]">知道時辰可直接點選</span>
             <div className="h-px flex-1 bg-white/10" />
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -464,78 +550,44 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         </div>
       )}
 
-      {step === 1 && (
-        <div className="space-y-4">
-          <div className="music-flow-stage-card music-flow-stage-card--voice">
-            <div className="music-flow-stage-heading">
-              <p>{"\u7b2c\u4e03\u6b65"}</p>
-              <h3>{"\u9078\u64c7\u6b4c\u66f2\u611f\u89ba"}</h3>
-              <span>{"\u9019\u4e00\u6b65\u53ea\u9078\u66f2\u98a8\uff0c\u4e0d\u518d\u986f\u793a\u9304\u97f3\u5361\u7247\u6216\u5176\u4ed6\u8f38\u5165\u3002"}</span>
-            </div>
-            <div className="grid gap-2 sm:grid-cols-3">
-              {SONG_ENERGY_OPTIONS.map((option) => {
-                const selected = form.songEnergyStyle === option.key;
-                return (
-                  <button
-                    key={option.key}
-                    type="button"
-                    onClick={() => {
-                      setForm((prev) => ({ ...prev, songEnergyStyle: option.key }));
-                      clearValidation();
-                    }}
-                    className={`song-energy-choice ${selected ? 'song-energy-choice--selected' : ''}`}
-                  >
-                    <span className="flex items-center justify-between gap-2">
-                      <span className="font-black">{option.label}</span>
-                      {option.badge && <span className="rounded-full border border-amber-200/35 px-2 py-0.5 text-[10px] text-amber-100">{option.badge}</span>}
-                    </span>
-                    <span className="mt-1.5 block text-[11px] leading-5 text-[color:var(--text-muted)]">{option.hint}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {step === 2 && (
+      {step === 3 && (
         <div className="space-y-4">
           <div className="music-flow-stage-card music-flow-stage-card--generate">
             <div className="music-flow-stage-heading">
-              <p>{"\u6700\u5f8c\u4e00\u6b65"}</p>
-              <h3>{"\u78ba\u8a8d\u6b4c\u66f2\u8a9e\u8a00"}</h3>
-              <span>{"\u9019\u4e00\u6b65\u53ea\u9078\u8a9e\u8a00\uff0c\u78ba\u8a8d\u5f8c\u5c31\u80fd\u751f\u6210\u6b4c\u66f2\u3002"}</span>
+              <p>AI 創作</p>
+              <h3>確認歌曲語言與 AI 統整內容</h3>
+              <span>確認後，AI 會先建立歌曲世界觀、主題與情境，再生成歌名、介紹、歌詞、曲風與製作計畫。</span>
             </div>
             <div className="music-generate-ready-note">
-              <strong>{'\u5df2\u9032\u5165\u6700\u5f8c\u4e00\u6b65'}</strong>
-              <span>{'\u6309\u4e0b\u65b9\u300c\u751f\u6210\u5c08\u5c6c\u6d41\u884c\u6b4c\u66f2\u300d\u5f8c\uff0cAI \u6703\u81ea\u52d5\u5b8c\u6210\u6b4c\u8a5e\u3001\u66f2\u98a8\u8207\u88fd\u4f5c\u65b9\u5411\u3002'}</span>
+              <strong>AI 將讀取並統整</strong>
+              <span>目標：{GOAL_OPTIONS.find((item) => item.key === form.lifeGoal)?.label}。風格：{STYLE_OPTIONS.find((item) => item.key === form.songCreativeStyle)?.label}。資料：會員/親友模式、生日、血型、姓名、性別、時辰、聲音來源、五元素與補強方向。</span>
             </div>
 
-          <div className="border-t border-white/10 pt-4">
-            <div className="mb-3 space-y-1">
-              <p className="text-sm font-semibold text-amber-100">{'\u6b4c\u66f2\u8a9e\u8a00'}</p>
-              <p className="text-xs leading-6 text-[color:var(--text-muted)]">{'\u4e2d\u6587\u6700\u76f4\u89ba\uff0c\u82f1\u6587\u504f\u6d41\u884c\u6bb5\u843d\uff0c\u53f0\u8a9e\u66f4\u6709\u751f\u6d3b\u539a\u5ea6\u3002'}</p>
+            <div className="border-t border-white/10 pt-4">
+              <div className="mb-3 space-y-1">
+                <p className="text-sm font-semibold text-amber-100">歌曲語言</p>
+                <p className="text-xs leading-6 text-[color:var(--text-muted)]">中文最直覺，英文偏流行段落，台語更有生活厚度。</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {SONG_LANGUAGE_OPTIONS.map((option) => {
+                  const selected = form.preferredSongLanguage === option.key;
+                  return (
+                    <button
+                      key={option.key}
+                      type="button"
+                      onClick={() => setForm((prev) => ({ ...prev, preferredSongLanguage: option.key }))}
+                      className={`rounded-[18px] border px-4 py-3 text-left transition-all ${selected ? 'border-amber-300/80 bg-amber-300/15 text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.18)]' : 'border-white/10 bg-white/5 text-[color:var(--text-sub)] hover:border-amber-200/35 hover:bg-white/10'}`}
+                    >
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="font-semibold">{option.label}</span>
+                        {option.badge && <span className="rounded-full border border-amber-200/30 px-2 py-0.5 text-[10px] text-amber-200">{option.badge}</span>}
+                      </span>
+                      <span className="mt-2 block text-xs leading-5 text-[color:var(--text-muted)]">{option.hint}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {SONG_LANGUAGE_OPTIONS.map((option) => {
-                const selected = form.preferredSongLanguage === option.key;
-                return (
-                  <button
-                    key={option.key}
-                    type="button"
-                    onClick={() => setForm((prev) => ({ ...prev, preferredSongLanguage: option.key }))}
-                    className={`rounded-[18px] border px-4 py-3 text-left transition-all ${selected ? 'border-amber-300/80 bg-amber-300/15 text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.18)]' : 'border-white/10 bg-white/5 text-[color:var(--text-sub)] hover:border-amber-200/35 hover:bg-white/10'}`}
-                  >
-                    <span className="flex items-center justify-between gap-2">
-                      <span className="font-semibold">{option.label}</span>
-                      {option.badge && <span className="rounded-full border border-amber-200/30 px-2 py-0.5 text-[10px] text-amber-200">{option.badge}</span>}
-                    </span>
-                    <span className="mt-2 block text-xs leading-5 text-[color:var(--text-muted)]">{option.hint}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
           </div>
         </div>
       )}
@@ -550,7 +602,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
             disabled={loading}
             className="rounded-full border border-white/10 bg-slate-900/60 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] transition-all duration-300 hover:border-cyan-500/25 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {'\u4e0a\u4e00\u6b65'}
+            上一步
           </button>
         )}
         <button type="button" onClick={handleNext} disabled={loading} className="vip-gold-btn shimmer-btn flex-1 py-4 text-sm disabled:cursor-not-allowed disabled:opacity-60">
