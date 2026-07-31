@@ -1,7 +1,8 @@
 ﻿'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
+import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 
 type Gender = 'male' | 'female';
@@ -71,22 +72,9 @@ const ELEMENT_LABEL: Record<AiElementModel['primaryElement'], string> = {
   EARTH: '地元素',
 };
 
-const TIME_OPTIONS = [
-  { label: '子時 23:00-00:59', value: '23:30' },
-  { label: '丑時 01:00-02:59', value: '01:30' },
-  { label: '寅時 03:00-04:59', value: '03:30' },
-  { label: '卯時 05:00-06:59', value: '05:30' },
-  { label: '辰時 07:00-08:59', value: '07:30' },
-  { label: '巳時 09:00-10:59', value: '09:30' },
-  { label: '午時 11:00-12:59', value: '11:30' },
-  { label: '未時 13:00-14:59', value: '13:30' },
-  { label: '申時 15:00-16:59', value: '15:30' },
-  { label: '酉時 17:00-18:59', value: '17:30' },
-  { label: '戌時 19:00-20:59', value: '19:30' },
-  { label: '亥時 21:00-22:59', value: '21:30' },
-];
+type BaziForm = BirthProfile & { name: string; gender: '' | Gender; birthDate: string; birthTime: string; country: string; city: string };
 
-const DEFAULT_FORM = {
+const DEFAULT_FORM: BaziForm = {
   name: '',
   gender: '' as '' | Gender,
   birthDate: '',
@@ -140,18 +128,7 @@ export default function BaziPage() {
   const [error, setError] = useState('');
   const [result, setResult] = useState<BaziResult | null>(null);
   const [missing, setMissing] = useState<string[]>([]);
-
-  const progressItems = useMemo(() => ([
-    { id: 'birthDate', label: '出生年月日', done: Boolean(form.birthDate) },
-    { id: 'birthTime', label: '出生時辰', done: Boolean(form.birthTime) },
-    { id: 'gender', label: '性別', done: Boolean(form.gender) },
-    { id: 'location', label: '國家城市', done: Boolean(form.country && form.city) },
-  ]), [form]);
-
-  function update<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
-    setForm((current) => ({ ...current, [key]: value }));
-  }
-
+  const resolvedBirthTime = form.timeUnknown ? '12:00' : form.birthTime;
   async function fetchResult(resultId: string) {
     const response = await fetch(`/api/analysis/results/${resultId}`, { cache: 'no-store' });
     const json = await response.json() as ResultResponse & { error?: string; message?: string };
@@ -172,19 +149,19 @@ export default function BaziPage() {
     throw new Error('八字運算時間較長，請稍後再試一次。');
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleSubmit() {
     const nextMissing = [
+      form.name.trim().length < 2 ? 'name' : '',
       !form.birthDate ? 'birthDate' : '',
-      !form.birthTime ? 'birthTime' : '',
       !form.gender ? 'gender' : '',
-      !form.country || !form.city ? 'location' : '',
+      !form.country || !form.city ? 'birthPlace' : '',
+      !form.timeUnknown && !form.birthHourBranch ? 'birthHourBranch' : '',
     ].filter(Boolean);
 
     setMissing(nextMissing);
     setError('');
     if (nextMissing.length > 0) {
-      setError('請先完成紅色提示的欄位，AI 才能開始八字命盤運算。');
+      setError('請依照紫微同樣的填寫順序完成紅色提示欄位，AI 才能開始八字命盤運算。');
       const first = document.querySelector(`[data-field="${nextMissing[0]}"]`);
       first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
@@ -196,12 +173,12 @@ export default function BaziPage() {
     try {
       const payload = {
         analysisType: 'bazi',
-        idempotencyKey: `bazi_${form.birthDate}_${form.birthTime}_${form.gender}_${Date.now()}`,
+        idempotencyKey: `bazi_${form.birthDate}_${resolvedBirthTime}_${form.gender}_${Date.now()}`,
         sessionId: createSessionId(),
         inputData: {
           name: form.name.trim(),
           birthDate: form.birthDate,
-          birthTime: form.birthTime,
+          birthTime: resolvedBirthTime,
           gender: form.gender,
           country: form.country.trim(),
           city: form.city.trim(),
@@ -243,81 +220,31 @@ export default function BaziPage() {
           </Link>
         </header>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <section className="rounded-[28px] border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.16),rgba(15,23,42,0.78)_58%,rgba(2,6,23,0.94)_100%)] p-5 shadow-[0_0_34px_rgba(251,191,36,0.12)]">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">資料填寫</p>
-            <h2 className="mt-3 text-2xl font-black leading-8 text-amber-50">依序完成欄位，AI 才會開始運算</h2>
-            <div className="mt-4 grid gap-2 sm:grid-cols-4">
-              {progressItems.map((item) => (
-                <div key={item.id} className={`rounded-xl border px-3 py-2 text-xs font-black ${item.done ? 'border-emerald-300/30 bg-emerald-300/10 text-emerald-100' : missing.includes(item.id) ? 'border-rose-300/50 bg-rose-500/15 text-rose-100 shadow-[0_0_18px_rgba(244,63,94,0.22)]' : 'border-white/10 bg-black/15 text-[color:var(--text-sub)]'}`}>
-                  {item.done ? '已完成' : '待填寫'} · {item.label}
-                </div>
-              ))}
-            </div>
-          </section>
+        <UnifiedBirthForm
+          value={form}
+          fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, birthPlace: true, calendarType: true }}
+          missing={missing}
+          isSubmitting={loading}
+          submitLabel="開始 AI 八字命盤分析"
+          loadingLabel="AI 八字命盤運算中..."
+          dateAccent="amber"
+          onChange={(profile) => {
+            setForm((current) => ({
+              ...current,
+              ...profile,
+              name: profile.name ?? '',
+              birthDate: profile.birthDate ?? '',
+              birthTime: profile.birthTime ?? '',
+              gender: (profile.gender ?? '') as '' | Gender,
+              country: profile.country ?? current.country,
+              city: profile.city ?? current.city,
+            }));
+          }}
+          onSubmit={() => { void handleSubmit(); }}
+        />
 
-          <section data-field="birthDate" className={`rounded-2xl border p-5 ${missing.includes('birthDate') ? 'border-rose-300/45 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.2)]' : 'border-white/10 bg-white/[0.04]'}`}>
-            <label className="block text-sm font-black text-[color:var(--text-main)]">1. 出生年月日</label>
-            <input
-              type="date"
-              value={form.birthDate}
-              onChange={(event) => update('birthDate', event.target.value)}
-              className="mt-3 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60"
-            />
-          </section>
-
-          <section data-field="birthTime" className={`rounded-2xl border p-5 ${missing.includes('birthTime') ? 'border-rose-300/45 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.2)]' : 'border-white/10 bg-white/[0.04]'}`}>
-            <label className="block text-sm font-black text-[color:var(--text-main)]">2. 出生時辰</label>
-            <select
-              value={form.birthTime}
-              onChange={(event) => update('birthTime', event.target.value)}
-              className="mt-3 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60"
-            >
-              <option value="">請選擇出生時辰</option>
-              {TIME_OPTIONS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
-            </select>
-          </section>
-
-          <section data-field="gender" className={`rounded-2xl border p-5 ${missing.includes('gender') ? 'border-rose-300/45 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.2)]' : 'border-white/10 bg-white/[0.04]'}`}>
-            <label className="block text-sm font-black text-[color:var(--text-main)]">3. 性別</label>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              {[
-                { label: '男性', value: 'male' as const },
-                { label: '女性', value: 'female' as const },
-              ].map((item) => (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => update('gender', item.value)}
-                  className={`rounded-2xl border px-4 py-4 text-sm font-black transition ${form.gender === item.value ? 'border-amber-200/55 bg-amber-300/16 text-amber-50' : 'border-white/10 bg-black/18 text-[color:var(--text-sub)]'}`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section data-field="location" className={`rounded-2xl border p-5 ${missing.includes('location') ? 'border-rose-300/45 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.2)]' : 'border-white/10 bg-white/[0.04]'}`}>
-            <label className="block text-sm font-black text-[color:var(--text-main)]">4. 出生地點</label>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <input value={form.country} onChange={(event) => update('country', event.target.value)} placeholder="國家，例如台灣" className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" />
-              <input value={form.city} onChange={(event) => update('city', event.target.value)} placeholder="城市，例如台北" className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" />
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-            <label className="block text-sm font-black text-[color:var(--text-main)]">姓名，可選</label>
-            <input value={form.name} onChange={(event) => update('name', event.target.value)} maxLength={20} placeholder="不填也可以分析八字" className="mt-3 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" />
-          </section>
-
-          {error && <p className="rounded-2xl border border-rose-300/35 bg-rose-500/12 px-4 py-3 text-sm font-black leading-6 text-rose-100">{error}</p>}
-          {message && <p className="rounded-2xl border border-cyan-300/25 bg-cyan-300/8 px-4 py-3 text-sm font-bold leading-6 text-cyan-100">{message}</p>}
-
-          <button type="submit" disabled={loading} className="inline-flex w-full items-center justify-center rounded-full border border-amber-300/35 bg-amber-300/14 px-6 py-4 text-sm font-black text-amber-50 transition hover:border-amber-200/60 hover:bg-amber-300/20 disabled:opacity-60">
-            {loading ? 'AI 八字命盤運算中...' : '開始 AI 八字命盤分析'}
-          </button>
-        </form>
-
+        {error && <p className="mt-4 rounded-2xl border border-rose-300/35 bg-rose-500/12 px-4 py-3 text-sm font-black leading-6 text-rose-100">{error}</p>}
+        {message && <p className="mt-4 rounded-2xl border border-cyan-300/25 bg-cyan-300/8 px-4 py-3 text-sm font-bold leading-6 text-cyan-100">{message}</p>}
         {result && (
           <div className="mt-5 space-y-4">
             <section className="rounded-[28px] border border-emerald-300/25 bg-emerald-300/8 p-5">

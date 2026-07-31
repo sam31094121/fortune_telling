@@ -1,0 +1,285 @@
+﻿'use client';
+
+import type { ReactNode } from 'react';
+import LunarBirthdayInput from '@/components/LunarBirthdayInput';
+import { SHICHEN_LIST } from '@/lib/shichen-engine';
+
+export type BirthGender = 'male' | 'female';
+export type BirthCalendarType = 'solar' | 'lunar';
+export type BirthHourBranch = 'zi' | 'chou' | 'yin' | 'mao' | 'chen' | 'si' | 'wu' | 'wei' | 'shen' | 'you' | 'xu' | 'hai' | 'unknown';
+
+export type BirthProfile = {
+  name?: string;
+  gender?: BirthGender | string;
+  birthDate?: string;
+  birthTime?: string;
+  birthHourBranch?: BirthHourBranch | string;
+  birthPlace?: string;
+  country?: string;
+  city?: string;
+  calendarType?: BirthCalendarType;
+  timeUnknown?: boolean;
+};
+
+export type UnifiedBirthFormFields = {
+  name?: boolean;
+  gender?: boolean;
+  birthDate?: boolean;
+  birthTime?: boolean;
+  birthHourBranch?: boolean;
+  birthPlace?: boolean;
+  calendarType?: boolean;
+};
+
+type UnifiedBirthFormProps = {
+  value: BirthProfile;
+  fields: UnifiedBirthFormFields;
+  missing?: string[];
+  disabled?: boolean;
+  submitLabel?: string;
+  loadingLabel?: string;
+  isSubmitting?: boolean;
+  dateAccent?: 'violet' | 'amber' | 'pink' | 'cyan';
+  onChange: (value: BirthProfile) => void;
+  onSubmit: (value: BirthProfile) => void;
+};
+
+const HOUR_BRANCH_ORDER: BirthHourBranch[] = ['zi', 'chou', 'yin', 'mao', 'chen', 'si', 'wu', 'wei', 'shen', 'you', 'xu', 'hai'];
+const HOUR_BRANCH_TIME: Record<Exclude<BirthHourBranch, 'unknown'>, string> = {
+  zi: '23:30',
+  chou: '01:30',
+  yin: '03:30',
+  mao: '05:30',
+  chen: '07:30',
+  si: '09:30',
+  wu: '11:30',
+  wei: '13:30',
+  shen: '15:30',
+  you: '17:30',
+  xu: '19:30',
+  hai: '21:30',
+};
+
+export function convertTimeToHourBranch(time?: string): BirthHourBranch | undefined {
+  if (!time) return undefined;
+  const hour = Number(time.split(':')[0]);
+  if (!Number.isInteger(hour) || hour < 0 || hour > 23) return undefined;
+  if (hour === 23 || hour === 0) return 'zi';
+  if (hour <= 2) return 'chou';
+  if (hour <= 4) return 'yin';
+  if (hour <= 6) return 'mao';
+  if (hour <= 8) return 'chen';
+  if (hour <= 10) return 'si';
+  if (hour <= 12) return 'wu';
+  if (hour <= 14) return 'wei';
+  if (hour <= 16) return 'shen';
+  if (hour <= 18) return 'you';
+  if (hour <= 20) return 'xu';
+  return 'hai';
+}
+
+export function hourBranchToBirthTime(branch?: string): string | undefined {
+  if (!branch || branch === 'unknown') return undefined;
+  return HOUR_BRANCH_TIME[branch as Exclude<BirthHourBranch, 'unknown'>];
+}
+
+function hasMissing(missing: string[] | undefined, key: string) {
+  return Boolean(missing?.includes(key));
+}
+
+function fieldFrameClass(missing: string[] | undefined, key: string) {
+  return `rounded-2xl border p-5 ${hasMissing(missing, key) ? 'border-rose-300/45 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.2)]' : 'border-white/10 bg-white/[0.04]'}`;
+}
+
+function ChoiceButton({ active, alert, children, onClick, tone = 'amber' }: { active: boolean; alert?: boolean; children: ReactNode; onClick: () => void; tone?: 'amber' | 'cyan' }) {
+  const activeClass = tone === 'cyan'
+    ? 'border-cyan-200/70 bg-cyan-300/16 text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,0.14)]'
+    : 'border-amber-200/70 bg-amber-300/16 text-amber-50 shadow-[0_0_22px_rgba(251,191,36,0.16)]';
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-2xl border px-5 py-5 text-left transition ${active ? activeClass : alert ? 'border-rose-300/55 bg-rose-500/10 text-rose-100' : `border-white/10 bg-black/18 text-[color:var(--text-sub)] ${tone === 'cyan' ? 'hover:border-cyan-200/35' : 'hover:border-amber-200/35'}`}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+export function HourBranchSelector({ value, unknown, missing, onChange }: { value?: string; unknown?: boolean; missing?: boolean; onChange: (branch: BirthHourBranch) => void }) {
+  const knownSelected = Boolean(value && value !== 'unknown' && !unknown);
+
+  return (
+    <div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <ChoiceButton active={Boolean(unknown || value === 'unknown')} alert={missing} onClick={() => onChange('unknown')}>
+          <span className="block text-base font-black">不知道出生時辰</span>
+          <span className="mt-1.5 block text-xs font-semibold leading-5">先以午時 12:00 暫排，日後可補真實時辰校正。</span>
+        </ChoiceButton>
+        <ChoiceButton active={knownSelected} alert={missing} tone="cyan" onClick={() => onChange((knownSelected ? value : 'wu') as BirthHourBranch)}>
+          <span className="block text-base font-black">我知道出生時辰</span>
+          <span className="mt-1.5 block text-xs font-semibold leading-5">使用紫微同款時辰卡點選，不需手打。</span>
+        </ChoiceButton>
+      </div>
+
+      {knownSelected && (
+        <div className="mt-5 rounded-2xl border border-cyan-300/25 bg-cyan-950/20 p-4 shadow-[0_0_30px_rgba(34,211,238,0.12)]">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <span className="text-xs font-semibold tracking-wide text-cyan-100">請選擇你的出生時辰</span>
+            <span className="text-[11px] text-cyan-200/70">標準十二時辰</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {SHICHEN_LIST.map((item, index) => {
+              const branch = HOUR_BRANCH_ORDER[index];
+              if (branch === 'unknown') return null;
+              const selected = value === branch;
+              return (
+                <button
+                  key={branch}
+                  type="button"
+                  onClick={() => onChange(branch)}
+                  className={`rounded-xl border px-3 py-3 text-left transition-all ${selected ? 'border-cyan-200 bg-cyan-400/20 text-cyan-100 shadow-[0_0_18px_rgba(255,255,255,0.18)]' : 'border-white/10 bg-white/5 hover:border-cyan-300/50 hover:bg-cyan-400/10'}`}
+                >
+                  <p className={`text-base font-bold ${selected ? 'text-cyan-100' : 'text-[color:var(--text-main)]'}`}>{item.label}</p>
+                  <p className="mt-0.5 text-xs font-semibold text-[color:var(--text-sub)]">{item.range}</p>
+                  <p className="mt-1 text-[11px] leading-4 text-[color:var(--text-muted)]">{item.imagery}</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function UnifiedBirthForm({
+  value,
+  fields,
+  missing = [],
+  disabled = false,
+  submitLabel = '開始分析',
+  loadingLabel = '運算中...',
+  isSubmitting = false,
+  dateAccent = 'amber',
+  onChange,
+  onSubmit,
+}: UnifiedBirthFormProps) {
+  const completed = [
+    fields.name ? { id: 'name', label: '姓名', done: (value.name ?? '').trim().length >= 2, text: (value.name ?? '').trim().length >= 2 ? '已確認' : '待填寫' } : null,
+    fields.birthDate ? { id: 'birthDate', label: '萬年曆生日', done: Boolean(value.birthDate), text: value.birthDate ? `西元 ${value.birthDate}` : '待換算' } : null,
+    fields.gender ? { id: 'gender', label: '性別', done: Boolean(value.gender), text: value.gender === 'male' ? '男性' : value.gender === 'female' ? '女性' : '待選擇' } : null,
+    fields.birthPlace ? { id: 'birthPlace', label: '出生地', done: Boolean(value.country && value.city), text: value.country && value.city ? `${value.country} ${value.city}` : '待填寫' } : null,
+    fields.birthHourBranch ? { id: 'birthHourBranch', label: '出生時辰', done: Boolean(value.timeUnknown || value.birthHourBranch), text: value.timeUnknown ? '不確定' : value.birthHourBranch ? '已確認' : '待選擇' } : null,
+  ].filter(Boolean) as Array<{ id: string; label: string; done: boolean; text: string }>;
+
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit(value);
+      }}
+      className="space-y-4"
+    >
+      <section className="rounded-[28px] border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.16),rgba(15,23,42,0.78)_58%,rgba(2,6,23,0.94)_100%)] p-5 shadow-[0_0_34px_rgba(251,191,36,0.12)]">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">資料填寫</p>
+        <h2 className="mt-3 text-2xl font-black leading-8 text-amber-50">依序完成欄位，AI 才會開始運算</h2>
+        <div className={`mt-4 grid gap-2 ${completed.length >= 5 ? 'sm:grid-cols-5' : 'sm:grid-cols-4'}`}>
+          {completed.map((item) => (
+            <div key={item.id} className={`rounded-xl border px-3 py-2 text-xs font-black ${item.done ? 'border-emerald-300/30 bg-emerald-300/10 text-emerald-100' : hasMissing(missing, item.id) ? 'border-rose-300/50 bg-rose-500/15 text-rose-100 shadow-[0_0_18px_rgba(244,63,94,0.22)]' : 'border-white/10 bg-black/15 text-[color:var(--text-sub)]'}`}>
+              <span>{item.done ? '已完成' : '待填寫'} · {item.label}</span>
+              <span className="mt-1 block text-[11px] font-bold opacity-75">{item.text}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {fields.name && (
+        <section data-field="name" className={fieldFrameClass(missing, 'name')}>
+          <label className="block text-sm font-black text-[color:var(--text-main)]">1. 姓名 {(value.name ?? '').trim().length >= 2 && <span className="ml-2 text-green-400">完成</span>}</label>
+          <input
+            value={value.name ?? ''}
+            onChange={(event) => onChange({ ...value, name: event.target.value })}
+            onBlur={(event) => onChange({ ...value, name: event.target.value.trim() })}
+            maxLength={20}
+            placeholder="請輸入姓名，至少 2 個字"
+            className={`mt-3 w-full rounded-2xl border bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60 ${hasMissing(missing, 'name') ? 'border-rose-300/70' : 'border-white/10'}`}
+            autoComplete="off"
+            disabled={disabled}
+          />
+          {hasMissing(missing, 'name') && <p className="form-missing-alert">請先填寫姓名，至少 2 個字。</p>}
+        </section>
+      )}
+
+      {fields.birthDate && (
+        <section data-field="birthDate" className={fieldFrameClass(missing, 'birthDate')}>
+          <label className="block text-sm font-black text-[color:var(--text-main)]">2. 出生日期（萬年曆）{value.birthDate && <span className="ml-2 text-green-400">完成</span>}</label>
+          <div className="mt-4">
+            <LunarBirthdayInput
+              value={value.birthDate ?? ''}
+              onChange={(birthDate) => onChange({ ...value, birthDate: birthDate.trim() })}
+              accent={dateAccent}
+              label="出生日期（萬年曆）"
+              disabled={disabled}
+            />
+          </div>
+          {hasMissing(missing, 'birthDate') && <p className="form-missing-alert">請先完成生日萬年曆推算。</p>}
+        </section>
+      )}
+
+      {fields.gender && (
+        <section data-field="gender" className={fieldFrameClass(missing, 'gender')}>
+          <label className="block text-sm font-black text-[color:var(--text-main)]">3. 性別 {value.gender && <span className="ml-2 text-green-400">完成</span>}</label>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {[
+              { label: '女性', value: 'female' as const, description: '以女性資料規則進行本卡片分析。' },
+              { label: '男性', value: 'male' as const, description: '以男性資料規則進行本卡片分析。' },
+            ].map((item) => (
+              <ChoiceButton key={item.value} active={value.gender === item.value} alert={hasMissing(missing, 'gender')} onClick={() => onChange({ ...value, gender: item.value })}>
+                <span className="block text-base font-black">{item.label}</span>
+                <span className="mt-1.5 block text-xs font-semibold leading-5">{item.description}</span>
+              </ChoiceButton>
+            ))}
+          </div>
+          {hasMissing(missing, 'gender') && <p className="form-missing-alert">請點選性別，這欄還沒有確認。</p>}
+        </section>
+      )}
+
+      {fields.birthPlace && (
+        <section data-field="birthPlace" className={fieldFrameClass(missing, 'birthPlace')}>
+          <label className="block text-sm font-black text-[color:var(--text-main)]">4. 出生地點 {value.country && value.city && <span className="ml-2 text-green-400">完成</span>}</label>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <input value={value.country ?? ''} onChange={(event) => onChange({ ...value, country: event.target.value, birthPlace: [event.target.value, value.city ?? ''].filter(Boolean).join(' ') })} placeholder="國家，例如台灣" className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" disabled={disabled} />
+            <input value={value.city ?? ''} onChange={(event) => onChange({ ...value, city: event.target.value, birthPlace: [value.country ?? '', event.target.value].filter(Boolean).join(' ') })} placeholder="城市，例如台北" className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" disabled={disabled} />
+          </div>
+          {hasMissing(missing, 'birthPlace') && <p className="form-missing-alert">請確認出生國家與城市。</p>}
+        </section>
+      )}
+
+      {fields.birthHourBranch && (
+        <section data-field="birthHourBranch" className={fieldFrameClass(missing, 'birthHourBranch')}>
+          <label className="block text-sm font-black text-[color:var(--text-main)]">5. 出生時辰 {(value.timeUnknown || value.birthHourBranch) && <span className="ml-2 text-green-400">完成</span>}</label>
+          <HourBranchSelector
+            value={value.birthHourBranch}
+            unknown={value.timeUnknown}
+            missing={hasMissing(missing, 'birthHourBranch')}
+            onChange={(birthHourBranch) => {
+              const isUnknown = birthHourBranch === 'unknown';
+              onChange({
+                ...value,
+                birthHourBranch,
+                timeUnknown: isUnknown,
+                birthTime: isUnknown ? '12:00' : hourBranchToBirthTime(birthHourBranch),
+              });
+            }}
+          />
+          {hasMissing(missing, 'birthHourBranch') && <p className="form-missing-alert">請先選擇出生時辰方式。</p>}
+        </section>
+      )}
+
+      <button type="submit" disabled={disabled || isSubmitting} className="inline-flex w-full items-center justify-center rounded-full border border-amber-300/35 bg-amber-300/14 px-6 py-4 text-sm font-black text-amber-50 transition hover:border-amber-200/60 hover:bg-amber-300/20 disabled:opacity-60">
+        {isSubmitting ? loadingLabel : submitLabel}
+      </button>
+    </form>
+  );
+}

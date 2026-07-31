@@ -69,10 +69,12 @@ export default function UnifiedTaijiCore({
   const [evolutionStage, setEvolutionStage] = useState<EvolutionStage>('idle');
   const [evolutionLabel, setEvolutionLabel] = useState('AI \u5c0e\u6f14\u5f85\u547d\uff5c\u9ede\u64ca\u592a\u6975\u958b\u6f14');
   const [evolutionDescription, setEvolutionDescription] = useState('');
+  const [liangyiReturning, setLiangyiReturning] = useState(false);
   const [mantraLevel, setMantraLevel] = useState<0 | 3 | 6 | 12 | 24>(0);
   const [touchPulse, setTouchPulse] = useState(0);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const evolutionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const liangyiReturnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mantraTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchPulseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTouchTriggerRef = useRef(0);
@@ -226,6 +228,8 @@ export default function UnifiedTaijiCore({
   };
 
   const triggerEvolution = (config: EvolutionConfig) => {
+    if (liangyiReturnTimerRef.current) clearTimeout(liangyiReturnTimerRef.current);
+    setLiangyiReturning(false);
     setEvolutionStage(config.stage);
     setEvolutionLabel(config.label);
     setEvolutionDescription(config.description);
@@ -233,6 +237,18 @@ export default function UnifiedTaijiCore({
 
     if (evolutionTimerRef.current) clearTimeout(evolutionTimerRef.current);
     evolutionTimerRef.current = setTimeout(() => {
+      if (limitToLiangyi && config.stage === 'liangyi') {
+        setLiangyiReturning(true);
+        setEvolutionStage('idle');
+        setEvolutionLabel('觸碰太極，觀察萬象演化');
+        setEvolutionDescription('');
+        evolutionTimerRef.current = null;
+        liangyiReturnTimerRef.current = setTimeout(() => {
+          setLiangyiReturning(false);
+          liangyiReturnTimerRef.current = null;
+        }, 720);
+        return;
+      }
       setEvolutionStage('idle');
       setEvolutionLabel('觸碰太極，觀察萬象演化');
       setEvolutionDescription('');
@@ -315,6 +331,7 @@ export default function UnifiedTaijiCore({
   useEffect(() => () => {
     if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
     if (evolutionTimerRef.current) clearTimeout(evolutionTimerRef.current);
+    if (liangyiReturnTimerRef.current) clearTimeout(liangyiReturnTimerRef.current);
     if (mantraTimerRef.current) clearTimeout(mantraTimerRef.current);
     if (touchPulseTimerRef.current) clearTimeout(touchPulseTimerRef.current);
     audioTimersRef.current.forEach((timer) => window.clearTimeout(timer));
@@ -336,9 +353,10 @@ export default function UnifiedTaijiCore({
               ? 3
               : 0;
   const luckyAuraClass = luckyAuraLevel > 0 ? `unified-taiji-shell--lucky-${luckyAuraLevel}` : '';
+  const liangyiReturnClass = liangyiReturning ? 'unified-taiji-shell--liangyi-return' : '';
 
   return (
-    <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} ${luckyAuraClass}`.trim()} data-taiji-stage={evolutionStage} data-tap-level={luckyAuraLevel}>
+    <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} ${luckyAuraClass} ${liangyiReturnClass}`.trim()} data-taiji-stage={evolutionStage} data-tap-level={luckyAuraLevel}>
       <button
         type="button"
         onPointerUp={handlePointerUp}
@@ -398,14 +416,14 @@ export default function UnifiedTaijiCore({
             </div>
             <div className="modal-taiji-core-depth" />
           </div>
-          {evolutionStage === 'liangyi' && (
-            <div className="taiji-liangyi-precision-split" aria-hidden="true">
+          {(evolutionStage === 'liangyi' || liangyiReturning) && (
+            <div className={`taiji-liangyi-precision-split ${liangyiReturning ? 'taiji-liangyi-precision-split--returning' : ''}`.trim()} aria-hidden="true">
               <svg className="taiji-liangyi-precision-split__piece taiji-liangyi-precision-split__piece--yang" viewBox="0 0 100 100" role="presentation">
-                <path d="M50 0 A50 50 0 0 0 50 100 C75 100 75 50 50 50 C25 50 25 0 50 0 Z" />
+                <path d="M50 0 A50 50 0 0 0 50 100 A25 25 0 0 0 50 50 A25 25 0 0 1 50 0 Z" />
                 <circle cx="50" cy="25" r="8.5" />
               </svg>
               <svg className="taiji-liangyi-precision-split__piece taiji-liangyi-precision-split__piece--yin" viewBox="0 0 100 100" role="presentation">
-                <path d="M50 0 A50 50 0 0 1 50 100 C25 100 25 50 50 50 C75 50 75 0 50 0 Z" />
+                <path d="M50 0 A50 50 0 0 1 50 100 A25 25 0 0 1 50 50 A25 25 0 0 0 50 0 Z" />
                 <circle cx="50" cy="75" r="8.5" />
               </svg>
             </div>

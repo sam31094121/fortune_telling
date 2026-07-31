@@ -12001,3 +12001,209 @@ body.app-touching .home-taiji-cinema * {
     --taiji-v2-split-distance: clamp(2.02rem, 12vw, 2.48rem) !important;
   }
 }
+
+/* Taiji Core Animation V2.1: homepage S-curve split and exact reverse return. */
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-3d-core,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .modal-taiji-3d-core {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  animation: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-half,
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-fish,
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-core-glaze,
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-core-depth,
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-3d-core::before,
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-3d-core::after,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .modal-taiji-half,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .modal-taiji-fish,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .modal-taiji-core-glaze,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .modal-taiji-core-depth,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .modal-taiji-3d-core::before,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .modal-taiji-3d-core::after,
+.home-taiji-cinema .unified-taiji-shell--liangyi .unified-liangyi-split,
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-liangyi-layer,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .unified-liangyi-split,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .modal-liangyi-layer {
+  display: none !important;
+  content: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+  --taiji-v21-split-size: clamp(6.08rem, 31vw, 7.08rem);
+  --taiji-v21-split-distance: clamp(2.46rem, 11.2vw, 3.18rem);
+  --taiji-v21-curve-lift: clamp(0.11rem, 0.46vw, 0.16rem);
+  display: block !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: var(--taiji-v21-split-size) !important;
+  height: var(--taiji-v21-split-size) !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 58 !important;
+  transform: translate(-50%, -50%) translateZ(44px) !important;
+  transform-style: preserve-3d !important;
+  filter:
+    drop-shadow(0 18px 28px rgba(0, 0, 0, 0.32))
+    drop-shadow(0 0 12px rgba(253, 230, 138, 0.1)) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split::before,
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split::after,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split::before,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split::after,
+.home-taiji-cinema .taiji-liangyi-precision-split__half,
+.home-taiji-cinema .taiji-liangyi-precision-split__seam {
+  display: none !important;
+  content: none !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform-box: view-box !important;
+  transform-origin: 50% 50% !important;
+  transform-style: preserve-3d !important;
+  will-change: transform, filter !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece path,
+.home-taiji-cinema .taiji-liangyi-precision-split__piece circle {
+  vector-effect: non-scaling-stroke !important;
+  paint-order: fill stroke !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece path {
+  stroke: rgba(253, 230, 138, 0.26) !important;
+  stroke-width: 0.58 !important;
+  stroke-linejoin: round !important;
+  stroke-linecap: round !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece circle {
+  stroke: rgba(253, 230, 138, 0.23) !important;
+  stroke-width: 0.5 !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-v21-yang-origin-s-curve-left 720ms cubic-bezier(.28, .72, .2, 1) both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang path {
+  fill: #f8fafc !important;
+  filter: drop-shadow(0 0 9px rgba(255, 255, 255, 0.16)) !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang circle {
+  fill: #020617 !important;
+  filter: drop-shadow(0 0 6px rgba(2, 6, 23, 0.7)) !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-v21-yin-origin-s-curve-right 720ms cubic-bezier(.28, .72, .2, 1) both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin path {
+  fill: #020617 !important;
+  filter: drop-shadow(0 0 9px rgba(34, 211, 238, 0.1)) !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin circle {
+  fill: #f8fafc !important;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.32)) !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-v21-yang-origin-s-curve-left 720ms cubic-bezier(.28, .72, .2, 1) reverse both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-v21-yin-origin-s-curve-right 720ms cubic-bezier(.28, .72, .2, 1) reverse both !important;
+}
+
+@keyframes taiji-v21-yang-origin-s-curve-left {
+  0% { transform: translate3d(0, 0, 0); }
+  32% { transform: translate3d(calc(-1 * var(--taiji-v21-split-distance) * 0.34), calc(-1 * var(--taiji-v21-curve-lift)), 0); }
+  68% { transform: translate3d(calc(-1 * var(--taiji-v21-split-distance) * 0.78), calc(var(--taiji-v21-curve-lift) * -0.42), 0); }
+  100% { transform: translate3d(calc(-1 * var(--taiji-v21-split-distance)), 0, 0); }
+}
+
+@keyframes taiji-v21-yin-origin-s-curve-right {
+  0% { transform: translate3d(0, 0, 0); }
+  32% { transform: translate3d(calc(var(--taiji-v21-split-distance) * 0.34), var(--taiji-v21-curve-lift), 0); }
+  68% { transform: translate3d(calc(var(--taiji-v21-split-distance) * 0.78), calc(var(--taiji-v21-curve-lift) * 0.42), 0); }
+  100% { transform: translate3d(var(--taiji-v21-split-distance), 0, 0); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+  .home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+    --taiji-v21-split-size: clamp(5.6rem, 35vw, 6.28rem) !important;
+    --taiji-v21-split-distance: clamp(1.82rem, 10.8vw, 2.24rem) !important;
+    --taiji-v21-curve-lift: clamp(0.08rem, 0.6vw, 0.12rem) !important;
+  }
+}
+
+/* Tarot MVP: single-card shuffle, scoped to the independent tarot page. */
+.tarot-shuffle-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 760px;
+}
+
+.tarot-shuffle-card {
+  position: absolute;
+  width: 5.4rem;
+  height: 8.2rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(253, 230, 138, 0.34);
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(14, 116, 144, 0.46), rgba(2, 6, 23, 0.96)),
+    radial-gradient(circle at 50% 34%, rgba(253, 230, 138, 0.32), transparent 28%);
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.25), 0 0 18px rgba(56, 189, 248, 0.12);
+  transform-origin: 50% 80%;
+  animation: tarot-single-card-shuffle 1.8s cubic-bezier(.24, .78, .22, 1) infinite;
+}
+
+.tarot-shuffle-card::after {
+  content: "";
+  position: absolute;
+  inset: 0.7rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(248, 250, 252, 0.2);
+}
+
+.tarot-shuffle-card--0 { animation-delay: 0ms; }
+.tarot-shuffle-card--1 { animation-delay: 90ms; }
+.tarot-shuffle-card--2 { animation-delay: 180ms; }
+.tarot-shuffle-card--3 { animation-delay: 270ms; }
+.tarot-shuffle-card--4 { animation-delay: 360ms; }
+.tarot-shuffle-card--5 { animation-delay: 450ms; }
+.tarot-shuffle-card--6 { animation-delay: 540ms; }
+
+@keyframes tarot-single-card-shuffle {
+  0% { opacity: 0.42; transform: translate3d(-3.4rem, 0.28rem, -24px) rotate(-14deg); }
+  36% { opacity: 1; transform: translate3d(0.4rem, -0.32rem, 18px) rotate(6deg); }
+  70% { opacity: 0.86; transform: translate3d(3rem, 0.18rem, -10px) rotate(12deg); }
+  100% { opacity: 0.42; transform: translate3d(-3.4rem, 0.28rem, -24px) rotate(-14deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tarot-shuffle-card {
+    animation-duration: 260ms;
+    animation-iteration-count: 1;
+  }
+}

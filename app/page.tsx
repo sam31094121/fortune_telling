@@ -14,6 +14,7 @@ import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/ide
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
+import TarotEntryCard from '@/features/tarot/components/TarotEntryCard';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import { safeJsonFetch } from '@/lib/safe-fetch';
 import type { NumberAnalysisResponse } from '@/lib/number-core-engine';
@@ -2325,6 +2326,8 @@ export default function HomePage() {
               <span className="transition-transform group-hover:translate-x-1.5">{'\u279c'}</span>
             </div>
           </Link>
+
+          <TarotEntryCard />
         </div>
 
 
