@@ -8,6 +8,7 @@ import {
   type FiveElementPositiveQuote,
   type FiveElementProductRecommendation,
 } from './five-element-positive-quotes';
+import { AI_CORE_JUDGEMENT_PRINCIPLE } from './ai-language-principle';
 
 export type FiveElementKey = 'metal' | 'wood' | 'water' | 'fire' | 'earth';
 export type FiveElementDisplayName = '\u7a7a' | '\u98a8' | '\u6c34' | '\u706b' | '\u5730';
@@ -41,6 +42,9 @@ export type FiveElementDecision = {
   changeTarget: string;
   why: string;
   conflictNote: string | null;
+  priorityOrder: FiveElementKey[];
+  priorityTemplate: string;
+  corePrinciple: string;
 };
 
 export type FiveElementProductMatch = {
@@ -296,28 +300,88 @@ function buildNormalizedElements(elementScores: Record<FiveElementKey, FiveEleme
   })) as Record<BrandFiveElementCode, NormalizedFiveElementSignal>;
 }
 
+const AI_JUDGEMENT_TONE_REPLACEMENTS: Array<[string, string]> = [
+  ['可能性', '潛力'],
+  ['建議可以', '請優先'],
+  ['比較像', '系統判定為'],
+  ['看起來', '系統判定'],
+  ['可能', '系統判定'],
+  ['也許', '目前重點'],
+  ['或許', '現在最重要'],
+  ['傾向', '判定方向'],
+  ['疑似', '系統判定'],
+  ['大概', '系統判定'],
+];
+
+function enforceAiJudgementTone(text: string) {
+  return AI_JUDGEMENT_TONE_REPLACEMENTS.reduce(
+    (output, [avoid, use]) => output.replaceAll(avoid, use),
+    text,
+  );
+}
+
+function buildElementPriorityOrder(result: Pick<FiveElementIntegrationResult, 'elementScores' | 'primaryElement' | 'secondaryElement'>) {
+  const scoreOrder = [...ELEMENT_KEYS].sort((a, b) => {
+    const needGap = result.elementScores[b].need - result.elementScores[a].need;
+    if (needGap !== 0) return needGap;
+    return result.elementScores[a].strength - result.elementScores[b].strength;
+  });
+  return Array.from(new Set([result.primaryElement, result.secondaryElement, ...scoreOrder]));
+}
+
+function buildElementPriorityTemplate(priorityOrder: FiveElementKey[]) {
+  const first = priorityOrder[0];
+  const second = priorityOrder[1] ?? first;
+  const third = priorityOrder[2] ?? second;
+  return [
+    'AI 判定：',
+    '目前最缺：',
+    `【${getFiveElementShortName(first)}】`,
+    '請優先補強：',
+    `【${getFiveElementShortName(first)}】`,
+    '完成後：',
+    '再補：',
+    `【${getFiveElementShortName(second)}】`,
+    '最後：',
+    `【${getFiveElementShortName(third)}】`,
+  ].join('\n');
+}
+
+function buildUnifiedFiveElementSummary(decision: FiveElementDecision) {
+  return enforceAiJudgementTone([
+    decision.conclusion,
+    decision.primaryAction,
+    AI_CORE_JUDGEMENT_PRINCIPLE,
+  ].join(' '));
+}
+
 function buildElementDecision(result: Pick<FiveElementIntegrationResult, 'elementScores' | 'primaryElement' | 'secondaryElement' | 'strongElement' | 'avoidElement' | 'conflict'>): FiveElementDecision {
+  const priorityOrder = buildElementPriorityOrder(result);
   const primaryName = getFiveElementName(result.primaryElement);
   const primaryShort = getFiveElementShortName(result.primaryElement);
-  const secondaryName = getFiveElementName(result.secondaryElement);
+  const secondaryName = getFiveElementName(priorityOrder[1] ?? result.secondaryElement);
+  const thirdName = getFiveElementName(priorityOrder[2] ?? result.strongElement);
   const strongName = getFiveElementName(result.strongElement);
   const primaryNeed = result.elementScores[result.primaryElement].need;
-  const secondaryNeed = result.elementScores[result.secondaryElement].need;
+  const secondaryNeed = result.elementScores[priorityOrder[1] ?? result.secondaryElement].need;
   const gap = Math.max(0, primaryNeed - secondaryNeed);
   const whyText = gap === 0
-    ? '\u56e0\u70ba' + primaryName + '\u8207\u7b2c\u4e8c\u9806\u4f4d' + secondaryName + '\u88dc\u5f37\u9700\u6c42\u540c\u70ba ' + primaryNeed + ' \u5206\uff1b\u5f8c\u7aef\u4f9d\u4f86\u6e90\u6b0a\u91cd\u3001\u4e94\u884c\u751f\u524b\u8207\u4e3b\u88dc\u898f\u5247\uff0c\u4ecd\u5224\u5b9a' + primaryName + '\u662f\u552f\u4e00\u4e3b\u88dc\u3002\u76ee\u524d\u8f03\u5f37\u652f\u6490\u662f' + strongName + '\uff0c\u672c\u6b21\u5148\u4e0d\u628a\u5b83\u7576\u4e3b\u88dc\u3002\u5dee\u8ddd\uff1a0 \u5206\u3002'
-    : '\u56e0\u70ba' + primaryName + '\u88dc\u5f37\u9700\u6c42\u70ba ' + primaryNeed + ' \u5206\uff0c\u9ad8\u65bc\u7b2c\u4e8c\u9806\u4f4d' + secondaryName + ' ' + secondaryNeed + ' \u5206\uff1b\u76ee\u524d\u8f03\u5f37\u652f\u6490\u662f' + strongName + '\uff0c\u672c\u6b21\u5148\u4e0d\u628a\u5b83\u7576\u4e3b\u88dc\u3002\u5dee\u8ddd\uff1a' + gap + ' \u5206\u3002';
+    ? '因為' + primaryName + '與第二補強' + secondaryName + '補強需求同為 ' + primaryNeed + ' 分；後端依來源權重、五行生剋與主補規則，仍判定' + primaryName + '是第一補強。目前支撐元素是' + strongName + '，本次不把它當成第一補強。差距：0 分。'
+    : '因為' + primaryName + '補強需求為 ' + primaryNeed + ' 分，高於第二補強' + secondaryName + ' ' + secondaryNeed + ' 分；目前支撐元素是' + strongName + '，本次不把它當成第一補強。差距：' + gap + ' 分。';
   const conflictNote = result.conflict
-    ? '\u7b2c\u4e8c\u9806\u4f4d\u8207\u7b2c\u4e00\u9806\u4f4d\u63a5\u8fd1\uff0c\u7cfb\u7d71\u5df2\u555f\u7528\u885d\u7a81\u89e3\u6c7a\uff1a\u4ecd\u4ee5\u88dc\u5f37\u9700\u6c42\u6700\u9ad8\u7684' + primaryName + '\u4f5c\u70ba\u552f\u4e00\u4e3b\u88dc\uff0c\u4e0d\u628a\u7b2c\u4e8c\u9806\u4f4d\u5beb\u6210\u4e3b\u88dc\u3002'
+    ? '第二補強與第一補強接近，系統已啟用衝突解決：仍以補強需求最高的' + primaryName + '作為第一補強，不把第二補強寫成第一補強。'
     : null;
 
   return {
-    title: '\u672c\u6b21\u552f\u4e00\u4e3b\u88dc\uff1a' + primaryShort + '\u5143\u7d20',
-    conclusion: '\u5f8c\u7aef\u7d71\u4e00\u5224\u5b9a\uff1a\u4f60\u76ee\u524d\u6700\u7f3a' + primaryName + '\uff0c\u624b\u93c8\u5148\u88dc' + primaryShort + '\u5143\u7d20\u3002',
-    primaryAction: '\u5148\u9078' + primaryShort + '\u5143\u7d20\u624b\u93c8\uff0c\u4e0d\u5148\u5206\u6563\u88dc\u5176\u4ed6\u5143\u7d20\u3002',
+    title: 'AI 判定：目前最缺【' + primaryShort + '】',
+    conclusion: 'AI 判定：目前最缺' + primaryName + '。請優先補強' + primaryName + '。',
+    primaryAction: '第一補強：' + primaryName + '。完成後再補：' + secondaryName + '。最後補：' + thirdName + '。',
     changeTarget: getElementChangeTarget(result.primaryElement),
-    why: whyText,
-    conflictNote,
+    why: enforceAiJudgementTone(whyText),
+    conflictNote: conflictNote ? enforceAiJudgementTone(conflictNote) : null,
+    priorityOrder,
+    priorityTemplate: buildElementPriorityTemplate(priorityOrder),
+    corePrinciple: AI_CORE_JUDGEMENT_PRINCIPLE,
   };
 }
 
@@ -361,6 +425,7 @@ function enrichFiveElementResult(result: FiveElementIntegrationBase): FiveElemen
 
   return {
     ...result,
+    summary: buildUnifiedFiveElementSummary(decision),
     traditionalElement: primaryCode.traditionalElement,
     brandElement: primaryCode.brandElement,
     secondaryBrandElement: secondaryCode.brandElement,
@@ -368,11 +433,15 @@ function enrichFiveElementResult(result: FiveElementIntegrationBase): FiveElemen
     avoidBrandElement: avoidCode?.brandElement ?? null,
     normalizedElements: buildNormalizedElements(result.elementScores),
     decision,
-    productMatch,
+    productMatch: {
+      ...productMatch,
+      matchReason: productMatch.matchReason.map(enforceAiJudgementTone),
+    },
     enginePipeline: FIVE_ELEMENT_ENGINE_PIPELINE,
     aiElementModel,
     elementScore,
-    reasons: [decision.conclusion, decision.primaryAction, decision.why, ...conflictReason, ...result.reasons],
+    reasons: [decision.priorityTemplate, decision.conclusion, decision.primaryAction, decision.why, ...conflictReason, ...result.reasons].map(enforceAiJudgementTone),
+    recommendedActions: result.recommendedActions.map(enforceAiJudgementTone),
   };
 }
 

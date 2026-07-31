@@ -354,7 +354,7 @@ export default function ZodiacPage() {
   };
 
   return (
-    <div className="app-bg min-h-screen overflow-hidden">
+    <div className="app-bg zodiac-page-shell min-h-screen overflow-x-hidden">
       <main className="relative z-10 mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
         <Link href="/" className="feature-home-link feature-home-link--cyan feature-home-link--floating" aria-label="返回首頁">返回首頁</Link>
 
@@ -362,7 +362,7 @@ export default function ZodiacPage() {
           <>
             <IdentitySplitSelector className="mb-5" />
 
-            <section className="mb-5 overflow-hidden rounded-3xl border border-fuchsia-300/25 bg-[radial-gradient(circle_at_top_left,rgba(217,70,239,0.2),rgba(34,211,238,0.09)_42%,rgba(15,23,42,0.82)_100%)] p-5 shadow-[0_0_40px_rgba(217,70,239,0.16)] sm:p-7">
+            <section className="zodiac-input-hero mb-5 overflow-hidden rounded-3xl border border-fuchsia-300/25 bg-[radial-gradient(circle_at_top_left,rgba(217,70,239,0.2),rgba(34,211,238,0.09)_42%,rgba(15,23,42,0.82)_100%)] p-5 shadow-[0_0_40px_rgba(217,70,239,0.16)] sm:p-7">
               <p className="text-[11px] font-black uppercase tracking-[0.28em] text-fuchsia-200">AI WESTERN ZODIAC</p>
               <h1 className="mt-3 font-serif text-3xl font-black leading-tight text-fuchsia-50 sm:text-5xl">AI 西洋星座分析</h1>
               <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">請依照下方欄位填寫出生資料。日期必填，時間與城市可選填；填得越完整，分析等級越深（太陽 → 上升＋月亮 → 完整星盤）。</p>
@@ -382,10 +382,10 @@ export default function ZodiacPage() {
               </div>
             </section>
 
-            <section className="fortune-card p-5 sm:p-7">
+            <section className="fortune-card zodiac-form-card p-5 sm:p-7">
               <div className="mb-5 rounded-2xl border border-fuchsia-300/18 bg-fuchsia-300/8 p-4">
                 <p className="text-xs font-black uppercase tracking-[0.24em] text-fuchsia-200">資料確認</p>
-                <div className="mt-3 grid gap-2 sm:grid-cols-5">
+                <div className="zodiac-progress-grid mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
                   {completedItems.map((item) => (
                     <div key={item.label} className={`rounded-xl border px-3 py-2 ${item.done ? 'border-emerald-200/25 bg-emerald-300/10' : 'border-rose-300/35 bg-rose-500/10'}`}>
                       <p className="text-[10px] font-black text-[color:var(--text-main)]">{item.done ? '完成' : '未填'} · {item.label}</p>
@@ -519,7 +519,7 @@ export default function ZodiacPage() {
 
                 <div>
                   <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">5. 血型（選填，用於五元素交叉分析）</label>
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {BLOOD_TYPES.map((bloodType) => (
                       <button
                         key={bloodType}

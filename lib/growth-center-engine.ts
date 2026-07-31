@@ -113,7 +113,7 @@ export type GrowthCenterResult = {
       completedModules: GrowthModuleId[];
       missingModules: GrowthModuleId[];
       completed: number;
-      total: 7;
+      total: number;
       unlockLevel: 'empty' | 'starter' | 'cross_module' | 'complete';
       message: string;
     };
@@ -301,7 +301,7 @@ function buildProgressMessage(completed: number, total: number) {
   if (completed === 0) return '目前尚未完成探索。先完成任一項分析，AI 就會開始建立你的成長檔案。';
   if (completed < 3) return `目前已完成 ${completed}/${total}。先累積三項探索，AI 成長中心會開始給出更清楚的每週方向。`;
   if (completed < total) return `目前已完成 ${completed}/${total}，距離完整解鎖還差 ${missing} 項。繼續完成探索，AI 陪伴會更精準。`;
-  return '七項探索已完成。AI 已建立你的專屬成長中心，接下來每週提供一個方向、一個行動與一份提醒。';
+  return '八項探索已完成。AI 已建立你的專屬成長中心，接下來每週提供一個方向、一個行動與一份提醒。';
 }
 
 function buildCoreGrowthCenterV2(args: {
@@ -322,7 +322,7 @@ function buildCoreGrowthCenterV2(args: {
     positioning: {
       title: 'AI 個人成長中心',
       principle: '分析一次，終身陪伴。',
-      roleSplit: '六張卡片負責分析；AI 成長中心只負責整理、提醒、陪伴與行動。',
+      roleSplit: '八張分析卡片負責分析；AI 成長中心只負責整理、提醒、陪伴與行動。',
     },
     firstScreen: {
       title: '本週 AI 成長提醒',

@@ -1,4 +1,7 @@
 import { buildAiActionGuidanceSnapshot } from './ai-action-guidance-center';
+import { AI_CORE_JUDGEMENT_PRINCIPLE } from './ai-language-principle';
+
+export { AI_CORE_JUDGEMENT_PRINCIPLE } from './ai-language-principle';
 
 export const AI_COPYWRITING_STYLE_CENTER_VERSION = 'ai_copywriting_style_center_v1';
 
@@ -25,7 +28,7 @@ export type AiCopywritingAuditResult = {
 export const AI_COPYWRITING_POSITIONING = {
   role: '一位有判斷力、有方向感、能陪伴使用者成長的 AI 顧問。',
   notRole: ['老師', '算命先生', '心靈雞湯'],
-  coreValue: '使用者離開平台時，不只知道答案，也知道下一步要做什麼。',
+  coreValue: AI_CORE_JUDGEMENT_PRINCIPLE,
 };
 
 export const AI_COPYWRITING_FORBIDDEN_WORDS = [
@@ -33,6 +36,11 @@ export const AI_COPYWRITING_FORBIDDEN_WORDS = [
   '也許',
   '或許',
   '大概',
+  '建議可以',
+  '傾向',
+  '比較像',
+  '疑似',
+  '看起來',
   '可以試試',
   '看情況',
   '如果有空',
@@ -44,6 +52,11 @@ export const AI_COPYWRITING_REPLACEMENTS: AiCopywritingReplacement[] = [
   { avoid: '也許', use: '目前重點', reason: '把模糊推測改成當下方向。' },
   { avoid: '或許', use: '現在最重要', reason: '讓使用者知道優先順序。' },
   { avoid: '大概', use: '本週重點', reason: '把籠統描述改成週期任務。' },
+  { avoid: '建議可以', use: '請優先', reason: '把軟性建議改成明確補強。' },
+  { avoid: '傾向', use: '判定方向', reason: '把推測語氣改成判定語氣。' },
+  { avoid: '比較像', use: '系統判定為', reason: '把相似描述改成明確分類。' },
+  { avoid: '疑似', use: '系統判定', reason: '移除不確定判斷。' },
+  { avoid: '看起來', use: '系統判定', reason: '移除觀感式描述。' },
   { avoid: '可以試試', use: '今天開始做', reason: '把建議改成行動。' },
   { avoid: '看情況', use: '先完成這一步', reason: '把等待改成可執行步驟。' },
   { avoid: '如果有空', use: '今天安排一段時間', reason: '把可做可不做改成具體安排。' },
@@ -93,8 +106,11 @@ export function buildAiCopywritingInstruction(moduleName = '天地人和 AI 平�
   return [
     `${moduleName} 必須使用天地人和 AI 專屬語言風格。`,
     `AI 定位：${AI_COPYWRITING_POSITIONING.role}`,
+    AI_CORE_JUDGEMENT_PRINCIPLE,
+    'AI 的工作是判定缺口，不是保證結果。',
     '語氣：清楚、直接、有力量、有方向、有行動。',
     `禁止模糊詞：${AI_COPYWRITING_FORBIDDEN_WORDS.join('、')}。`,
+    '五元素輸出必須使用：AI 判定 → 目前最缺 → 請優先補強 → 完成後再補 → 最後補。',
     '每次輸出必須回答四件事：目前判斷、現在最重要、下一步要做什麼、做了會改善哪一個方向。',
     '改變只能描述行為、習慣、思考、節奏、執行力、專注力、人際互動。',
     '不得保證發財、中獎、升官、疾病改善、桃花一定成功。',

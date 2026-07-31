@@ -1,16 +1,17 @@
 import {
   TAROT_INTEGRATION_STORAGE_KEY,
+  type TarotAiElement,
   type TarotCard,
   type TarotElementWeights,
   type TarotIntegrationSignal,
   type TarotReading,
 } from '@/features/tarot/types';
 import { cryptoRandomIndex } from '@/features/tarot/services/draw';
+import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import type { GrowthElement } from '@/lib/growth-center-engine';
 
 function createSignalId(): string {
-  if (typeof globalThis.crypto?.randomUUID === 'function') {
-    return globalThis.crypto.randomUUID();
-  }
+  if (typeof globalThis.crypto?.randomUUID === 'function') return globalThis.crypto.randomUUID();
   return `tarot_signal_${Date.now().toString(36)}_${cryptoRandomIndex(1_000_000).toString(36)}`;
 }
 
@@ -29,7 +30,13 @@ function orientationAdjustedWeights(weights: TarotElementWeights, orientation: T
   return adjusted;
 }
 
+function getPrimaryGrowthElement(weights: TarotElementWeights): GrowthElement {
+  return (Object.entries(weights) as Array<[TarotAiElement, number]>)
+    .sort((a, b) => b[1] - a[1])[0][0] as GrowthElement;
+}
+
 export function createTarotIntegrationSignal(reading: TarotReading, card: TarotCard): TarotIntegrationSignal {
+  const elementWeights = orientationAdjustedWeights(card.elementWeights, reading.orientation);
   return {
     id: createSignalId(),
     source: 'tarot',
@@ -39,7 +46,12 @@ export function createTarotIntegrationSignal(reading: TarotReading, card: TarotC
     categoryId: reading.category,
     question: reading.question,
     orientation: reading.orientation,
-    elementWeights: orientationAdjustedWeights(card.elementWeights, reading.orientation),
+    elementWeights,
+    personalityWeights: elementWeights,
+    eventWeights: elementWeights,
+    elementPriority: (Object.entries(elementWeights) as Array<[TarotAiElement, number]>)
+      .map(([element, weight]) => ({ element, label: element, weight }))
+      .sort((a, b) => b.weight - a.weight),
     symbolism: card.symbolism,
     canUpdateGrowthCenter: reading.scope === 'self',
     singleUseOnly: reading.scope === 'other',
@@ -61,5 +73,9 @@ export function recordTarotIntegrationSignal(signal: TarotIntegrationSignal): vo
     window.localStorage.setItem(TAROT_INTEGRATION_STORAGE_KEY, JSON.stringify([signal, ...current].slice(0, 30)));
   } catch {
     window.localStorage.setItem(TAROT_INTEGRATION_STORAGE_KEY, JSON.stringify([signal]));
+  }
+
+  if (signal.canUpdateGrowthCenter) {
+    markGrowthModuleCompleted('tarot', getPrimaryGrowthElement(signal.elementWeights));
   }
 }

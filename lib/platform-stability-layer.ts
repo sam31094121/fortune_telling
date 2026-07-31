@@ -1,4 +1,4 @@
-export type PlatformAnalysisModuleId = 'nameology' | 'ziwei' | 'number' | 'soul_match' | 'music' | 'bazi' | 'zodiac';
+export type PlatformAnalysisModuleId = 'nameology' | 'ziwei' | 'number' | 'soul_match' | 'music' | 'bazi' | 'zodiac' | 'tarot';
 
 export type PlatformLayerId = 'analysis' | 'integration' | 'growth_center' | 'weekly_companion' | 'system_stability';
 
@@ -102,10 +102,21 @@ export const PLATFORM_ANALYSIS_MODULES: PlatformAnalysisModule[] = [
     canFeedIntegrationLayer: true,
     integrationRule: 'Save only completion state, zodiac sign, and weekly reminder. Growth Center must not re-run zodiac analysis.',
   },
+  {
+    id: 'tarot',
+    title: 'AI Tarot Card',
+    shortTitle: 'Tarot',
+    href: '/tarot',
+    apiHint: '/api/tarot/reading',
+    role: 'independent_analysis_source',
+    canAnalyze: true,
+    canFeedIntegrationLayer: true,
+    integrationRule: 'Save only tarot completion state and element signal. Growth Center must not auto-draw cards or overwrite core member elements.',
+  },
 ];
 
 export const PLATFORM_LAYER_RULES: Array<{ id: PlatformLayerId; title: string; rule: string }> = [
-  { id: 'analysis', title: 'Layer 1: seven independent analysis cards', rule: 'Seven cards analyze and save independently without overwriting each other.' },
+  { id: 'analysis', title: 'Layer 1: eight independent analysis cards', rule: 'Eight cards analyze and save independently without overwriting each other.' },
   { id: 'integration', title: 'Layer 2: AI Integration Layer', rule: 'Read completed analysis results only. Do not re-analyze or re-calculate.' },
   { id: 'growth_center', title: 'Layer 3: AI Growth Center', rule: 'Convert saved signals into companionship, reminders, encouragement, and action.' },
   { id: 'weekly_companion', title: 'Layer 4: AI Weekly Companion', rule: 'Keep one task, one color, one reminder, and one quote per week.' },
@@ -120,12 +131,13 @@ export const PLATFORM_FORBIDDEN_ANALYSIS_CALLS = [
   'match-generate',
   'music-generate',
   'zodiac-engine',
+  'tarot-engine',
 ] as const;
 
 export const PLATFORM_AI_CORE_POLICY = {
   id: 'single_ai_core_policy',
   title: 'Single AI Core',
-  rule: 'AI Core coordinates copy, loading, errors, and companionship text. The seven analysis cards keep their engines independent.',
+  rule: 'AI Core coordinates copy, loading, errors, and companionship text. The eight analysis cards keep their engines independent.',
 };
 
 export function getPlatformModuleIds() {
@@ -139,9 +151,9 @@ export function validatePlatformStability(completedModules: PlatformAnalysisModu
 
   return [
     {
-      id: 'seven_modules_registered',
-      label: 'Seven analysis cards registered',
-      ok: PLATFORM_ANALYSIS_MODULES.length === 7,
+      id: 'eight_modules_registered',
+      label: 'Eight analysis cards registered',
+      ok: PLATFORM_ANALYSIS_MODULES.length === 8,
       detail: 'Registered analysis cards: ' + PLATFORM_ANALYSIS_MODULES.length + '.',
     },
     {
@@ -165,7 +177,7 @@ export function validatePlatformStability(completedModules: PlatformAnalysisModu
     {
       id: 'no_analysis_reentry',
       label: 'Analysis re-entry is blocked',
-      ok: PLATFORM_FORBIDDEN_ANALYSIS_CALLS.length === 7,
+      ok: PLATFORM_FORBIDDEN_ANALYSIS_CALLS.length === 8,
       detail: 'Forbidden analysis entry points: ' + PLATFORM_FORBIDDEN_ANALYSIS_CALLS.length + '.',
     },
   ];

@@ -215,7 +215,7 @@ const EMPTY: PersonInput = { name: '', birthDate: '', bloodType: 'A', gender: 'f
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { bloodType: false, gender: false };
 const SHOW_HOME_EMBEDDED_MATCH = false;
 const SHOW_HOME_FLOATING_NUMBER_BUTTON = false;
-const GROWTH_VIP_TOTAL_MODULES = 7;
+const GROWTH_VIP_TOTAL_MODULES = 8;
 
 const BLOOD_DESC: Record<PersonInput['bloodType'], string> = {
   A: '細膩穩定，重視秩序與安全感。',
@@ -906,7 +906,7 @@ function LineVipShareCard({ friendHref, onShare }: { friendHref: string; onShare
   );
 }
 
-type HomeGrowthModuleId = 'number' | 'ziwei' | 'soul_match' | 'music' | 'nameology' | 'bazi' | 'zodiac';
+type HomeGrowthModuleId = 'number' | 'ziwei' | 'soul_match' | 'music' | 'nameology' | 'bazi' | 'zodiac' | 'tarot';
 
 type HomeGrowthModuleGuide = {
   id: HomeGrowthModuleId;
@@ -925,6 +925,7 @@ const HOME_GROWTH_MODULE_GUIDES: HomeGrowthModuleGuide[] = [
   { id: 'nameology', label: 'AI 姓名學', helper: '完成姓名學分析。', cta: '去完成姓名學', href: '/nameology' },
   { id: 'bazi', label: 'AI 生辰八字', helper: '完成八字命盤分析。', cta: '去完成八字命盤', href: '/bazi' },
   { id: 'zodiac', label: 'AI \u897f\u6d0b\u661f\u5ea7', helper: '\u5b8c\u6210\u897f\u6d0b\u661f\u5ea7\u4eba\u683c\u5206\u6790\u3002', cta: '\u53bb\u5b8c\u6210\u897f\u6d0b\u661f\u5ea7', href: '/zodiac' },
+  { id: 'tarot', label: 'AI 塔羅牌', helper: '完成塔羅牌抽牌、正逆位與五元素判定。', cta: '去完成塔羅牌', href: '/tarot' },
 ];
 
 type VipGrowthUnlockCardProps = {

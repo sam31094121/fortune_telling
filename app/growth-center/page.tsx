@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -16,9 +16,10 @@ const MODULE_LABEL: Record<GrowthModuleId, string> = {
   music: 'AI 生命音樂',
   bazi: 'AI 八字命盤',
   zodiac: 'AI 西洋星座',
+  tarot: 'AI 塔羅牌',
 };
 
-const MODULE_ORDER: GrowthModuleId[] = ['nameology', 'ziwei', 'number', 'soul_match', 'music', 'bazi', 'zodiac'];
+const MODULE_ORDER: GrowthModuleId[] = ['nameology', 'ziwei', 'number', 'soul_match', 'music', 'bazi', 'zodiac', 'tarot'];
 
 const ELEMENT_LABEL: Record<GrowthElement, string> = {
   AIR: '風元素',
@@ -175,7 +176,7 @@ export default function GrowthCenterPage() {
         {error && (
           <section className="rounded-2xl border border-rose-300/25 bg-rose-500/10 p-5">
             <p className="text-sm font-black text-rose-100">{error}</p>
-            <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">請稍後重新進入，本頁不會影響六張分析卡片。</p>
+            <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">請稍後重新進入，本頁不會影響任何分析卡片。</p>
           </section>
         )}
 

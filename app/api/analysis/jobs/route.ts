@@ -22,7 +22,8 @@ export async function POST(request: Request) {
 
   try {
     body = await request.json() as CreateJobRequest;
-  } catch {
+  } catch (e) {
+    console.error('[Bazi API] Invalid JSON:', e);
     return friendlyErrorResponse(requestId, 'INVALID_JSON', '\u8acb\u63d0\u4f9b\u6709\u6548\u7684 JSON \u8acb\u6c42\u3002', 400);
   }
 

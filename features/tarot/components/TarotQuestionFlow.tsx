@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import TarotQuestionCategoryGrid from '@/features/tarot/components/TarotQuestionCategoryGrid';
 import TarotQuestionConfirmation from '@/features/tarot/components/TarotQuestionConfirmation';
 import TarotQuestionInputStep from '@/features/tarot/components/TarotQuestionInputStep';
@@ -13,10 +13,23 @@ type TarotQuestionFlowProps = {
   onReady: (context: TarotReadingContext) => void;
 };
 
+function buildReadyKey(state: TarotQuestionState) {
+  if (state.step !== 'ready_to_draw' || !state.categoryId || !state.finalQuestion) return '';
+  return `${state.categoryId}:${state.finalQuestion}`;
+}
+
 export default function TarotQuestionFlow({ initialState, onReady }: TarotQuestionFlowProps) {
   const [state, setState] = useState<TarotQuestionState>(initialState ?? initialTarotQuestionState);
+  const readyKeyRef = useRef('');
   const selectedCategory = tarotQuestionCategories.find((category) => category.id === state.categoryId);
   const activeQuestion = state.customQuestion.trim() || state.selectedSuggestedQuestion || '';
+
+  useEffect(() => {
+    const readyKey = buildReadyKey(state);
+    if (!readyKey || readyKeyRef.current === readyKey || !state.categoryId || !state.finalQuestion) return;
+    readyKeyRef.current = readyKey;
+    onReady({ categoryId: state.categoryId, question: state.finalQuestion, scope: 'self' });
+  }, [onReady, state]);
 
   if (state.step === 'category') {
     return (
@@ -55,21 +68,9 @@ export default function TarotQuestionFlow({ initialState, onReady }: TarotQuesti
         question={activeQuestion}
         error={state.error}
         onBack={() => setState((previous) => ({ ...previous, step: 'question', error: undefined }))}
-        onConfirm={() => {
-          setState((previous) => {
-            const confirmed = confirmTarotQuestion(previous);
-            if (confirmed.step === 'ready_to_draw' && confirmed.categoryId && confirmed.finalQuestion) {
-              onReady({ categoryId: confirmed.categoryId, question: confirmed.finalQuestion, scope: 'self' });
-            }
-            return confirmed;
-          });
-        }}
+        onConfirm={() => setState((previous) => confirmTarotQuestion(previous))}
       />
     );
-  }
-
-  if (state.step === 'ready_to_draw' && state.categoryId && state.finalQuestion) {
-    onReady({ categoryId: state.categoryId, question: state.finalQuestion, scope: 'self' });
   }
 
   return null;

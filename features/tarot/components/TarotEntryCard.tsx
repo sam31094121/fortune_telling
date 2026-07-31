@@ -1,37 +1,54 @@
-﻿import Link from 'next/link';
+import Link from 'next/link';
 
 export default function TarotEntryCard() {
   return (
     <Link
       href="/tarot"
-      className="home-feature-launch order-8 w-full relative group overflow-hidden rounded-3xl border border-sky-400/30 bg-gradient-to-r from-slate-950 via-sky-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(56,189,248,0.15)] transition-all duration-500 hover:border-sky-300 hover:shadow-[0_0_50px_rgba(56,189,248,0.28)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+      className="tarot-entry-card home-feature-launch order-8 w-full relative group overflow-hidden rounded-3xl border border-cyan-300/30 bg-gradient-to-r from-slate-950 via-indigo-950/25 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.16)] transition-all duration-500 hover:border-cyan-200/70 hover:shadow-[0_0_52px_rgba(34,211,238,0.28)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(125,211,252,0.2),transparent_34%),radial-gradient(circle_at_82%_28%,rgba(253,230,138,0.13),transparent_30%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-sky-300/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_22%,rgba(34,211,238,0.22),transparent_32%),radial-gradient(circle_at_84%_24%,rgba(251,191,36,0.16),transparent_28%),linear-gradient(115deg,transparent,rgba(255,255,255,0.08),transparent)] pointer-events-none" />
+      <div className="absolute inset-y-0 right-10 hidden w-40 rotate-6 grid-cols-3 gap-1 opacity-30 sm:grid" aria-hidden="true">
+        {Array.from({ length: 9 }).map((_, index) => (
+          <span key={index} className="h-16 rounded-[10px] border border-cyan-100/25 bg-slate-950/65 shadow-[inset_0_0_18px_rgba(34,211,238,0.18)]" />
+        ))}
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-      <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-        <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-sky-300/30 bg-sky-950/40 text-sky-100 shadow-[0_0_18px_rgba(56,189,248,0.22)]">
-          <span className="absolute h-7 w-5 rotate-[-8deg] rounded border border-amber-200/55 bg-slate-950/80" aria-hidden="true" />
-          <span className="relative font-serif text-xl font-black text-amber-100">T</span>
+      <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+        <div className="tarot-entry-emblem" aria-hidden="true">
+          <span className="tarot-entry-emblem__halo" />
+          <span className="tarot-entry-emblem__orbit tarot-entry-emblem__orbit--outer" />
+          <span className="tarot-entry-emblem__orbit tarot-entry-emblem__orbit--inner" />
+          <span className="tarot-entry-emblem__spark tarot-entry-emblem__spark--one">✦</span>
+          <span className="tarot-entry-emblem__spark tarot-entry-emblem__spark--two">◆</span>
+          <span className="tarot-entry-emblem__card tarot-entry-emblem__card--back">
+            <span className="tarot-entry-emblem__line" />
+            <span className="tarot-entry-emblem__moon">☾</span>
+          </span>
+          <span className="tarot-entry-emblem__card tarot-entry-emblem__card--front">
+            <span className="tarot-entry-emblem__line" />
+            <span className="tarot-entry-emblem__sun">☉</span>
+          </span>
+          <span className="tarot-entry-emblem__core">T</span>
         </div>
         <div className="min-w-0 flex-1">
-          <span className="inline-block rounded-full bg-sky-400/10 border border-sky-300/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-sky-100 uppercase animate-pulse">
-            SELF · 單張牌指引
+          <span className="inline-block rounded-full bg-cyan-300/10 border border-cyan-200/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-100 uppercase">
+            第九張卡片 · AI TAROT CARD
           </span>
-          <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-sky-50 tracking-wide flex items-center gap-2">
-            <span>塔羅指引</span>
-            <span className="text-xs font-sans text-sky-100 font-normal opacity-85 hidden sm:inline">
-              // 問題整理 · 牌面象徵 · 下一步方向
+          <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-50 tracking-wide flex items-center gap-2">
+            <span>塔羅牌</span>
+            <span className="text-xs font-sans text-cyan-100 font-normal opacity-85 hidden sm:inline">
+              // 78 張牌庫 · 真洗牌 · 親手抽牌
             </span>
           </h2>
           <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-            透過牌面象徵，整理當下問題與下一步方向。
+            使用者自己抽牌，AI 依牌陣、正逆位與五元素權重完成判定。
           </p>
         </div>
       </div>
 
-      <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-sky-300/40 bg-sky-950/30 px-5 py-3 text-xs font-bold text-sky-100 transition group-hover:bg-sky-400/20">
-        <span>開始塔羅指引</span>
+      <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-cyan-200/45 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-50 transition group-hover:bg-cyan-300/20">
+        <span>開始塔羅牌</span>
         <span className="transition-transform group-hover:translate-x-1.5">➜</span>
       </div>
     </Link>

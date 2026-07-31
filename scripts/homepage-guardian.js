@@ -16,7 +16,7 @@ const os = require('os');
 const path = require('path');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const PORT = Number(process.env.GUARDIAN_PORT || 8888);
+const PORT = Number(process.env.PORT || 8888);
 const HOST = '0.0.0.0';
 const CHECK_INTERVAL_MS = Number(process.env.GUARDIAN_INTERVAL_MS || 15000);
 const CHECK_TIMEOUT_MS = Number(process.env.GUARDIAN_TIMEOUT_MS || 5000);

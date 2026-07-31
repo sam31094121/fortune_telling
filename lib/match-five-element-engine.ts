@@ -1,3 +1,5 @@
+import { AI_CORE_JUDGEMENT_PRINCIPLE } from './ai-language-principle';
+
 export type MatchFiveElementKey = 'earth' | 'water' | 'fire' | 'air' | 'space';
 
 export type MatchFiveElementPersonResult = {
@@ -143,8 +145,8 @@ function buildPersonResult(person: MatchPersonInput, scores: MatchScoreInput): M
     secondaryElement,
     elementScores,
     needScores,
-    reason: `${name}\u76ee\u524d\u6700\u7f3a${ELEMENT_LABEL[primaryElement]}\uff0c\u7b2c\u4e8c\u9806\u4f4d\u662f${ELEMENT_LABEL[secondaryElement]}\u3002\u5224\u5b9a\u4f86\u6e90\u70ba\u751f\u65e5\u7d50\u69cb\u3001\u8840\u578b\u7bc0\u594f\u8207\u672c\u6b21\u914d\u5c0d\u5206\u6578\u4ea4\u53c9\u8a08\u7b97\u3002`,
-    changeTarget: `\u88dc${ELEMENT_LABEL[primaryElement]}\u6703\u5148\u6539\u8b8a${CHANGE_TARGET[primaryElement]}\u3002`,
+    reason: `AI 判定：${name}目前最缺${ELEMENT_LABEL[primaryElement]}。請優先補強${ELEMENT_LABEL[primaryElement]}。完成後再補${ELEMENT_LABEL[secondaryElement]}。判定來源為生日結構、血型節奏與本次配對分數交叉計算。`,
+    changeTarget: `補強${ELEMENT_LABEL[primaryElement]}，先校準${CHANGE_TARGET[primaryElement]}。`,
   };
 }
 
@@ -185,8 +187,8 @@ export function buildMatchFiveElementResult(
       ? '\u76ee\u524d\u6709\u76f8\u514b\u6469\u64e6\uff0c\u4e00\u5b9a\u8981\u5148\u505a\u8abf\u548c'
       : '\u76ee\u524d\u5c6c\u65bc\u9700\u8981\u5e73\u8861\u7684\u7d50\u69cb';
 
-  const sharedAction = `\u5169\u500b\u4eba\u5171\u540c\u5148\u88dc${ELEMENT_LABEL[sharedElement]}\uff0c\u6703\u512a\u5148\u6539\u8b8a${CHANGE_TARGET[sharedElement]}\u3002`;
-  const summary = `${personA.name}\u8981\u5148\u88dc${ELEMENT_LABEL[personA.primaryElement]}\uff0c${personB.name}\u8981\u5148\u88dc${ELEMENT_LABEL[personB.primaryElement]}\u3002${sharedAction}`;
+  const sharedAction = `AI 判定：兩人共同第一補強鎖定${ELEMENT_LABEL[sharedElement]}。請共同優先補強${ELEMENT_LABEL[sharedElement]}，先校準${CHANGE_TARGET[sharedElement]}。`;
+  const summary = `AI 判定：${personA.name}目前最缺${ELEMENT_LABEL[personA.primaryElement]}；${personB.name}目前最缺${ELEMENT_LABEL[personB.primaryElement]}。${sharedAction} ${AI_CORE_JUDGEMENT_PRINCIPLE}`;
 
   return {
     engineVersion: 'match_five_element_v1',
@@ -197,12 +199,12 @@ export function buildMatchFiveElementResult(
     relationReason: `${modeText}\uff1a${personA.name}\u7684\u4e3b\u7f3a\u70ba${ELEMENT_LABEL[personA.primaryElement]}\uff0c${personB.name}\u7684\u4e3b\u7f3a\u70ba${ELEMENT_LABEL[personB.primaryElement]}\u3002`,
     personA,
     personB,
-    integratedAdvice: `\u672c\u6b21\u9748\u9b42\u914d\u5c0d\u7684 5 \u5143\u7d20\u7d50\u8ad6\uff1a${summary}\u9019\u6703\u8b93\u95dc\u4fc2\u66f4\u5bb9\u6613\u5f9e\u76f8\u514b\u8f49\u6210\u76f8\u751f\u3002`,
+    integratedAdvice: `本次靈魂配對的 5 元素結論：${summary} 平台只判定補強方向，不保證關係結果；請把補強方向落到日常溝通與共同節奏。`,
     inlineHighlights: [
       personA.reason,
       personB.reason,
       sharedAction,
-      `${modeText}\uff0c\u6240\u4ee5\u88dc\u5f37\u4e0d\u662f\u53ea\u770b\u4e00\u500b\u4eba\uff0c\u800c\u662f\u5169\u500b\u4eba\u90fd\u8981\u88dc\u5230\u6b63\u78ba\u4f4d\u7f6e\u3002`,
+      `${modeText}，所以補強不是只看一個人；兩個人都要補到正確位置。`,
     ],
   };
 }

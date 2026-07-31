@@ -5,23 +5,24 @@ export default function FiveElementPriorityCard({ result }: { result?: FiveEleme
   const primary = FIVE_ELEMENT_DEFINITIONS[result.primaryElement];
   const secondary = FIVE_ELEMENT_DEFINITIONS[result.secondaryElement];
   const strong = FIVE_ELEMENT_DEFINITIONS[result.strongElement];
-  const avoid = result.avoidElement ? FIVE_ELEMENT_DEFINITIONS[result.avoidElement] : null;
   const primaryNeed = result.elementScores[result.primaryElement]?.need ?? 0;
   const product = result.productRecommendation;
   const quote = result.positiveQuote;
   const scoreEntries = (Object.entries(result.elementScores) as Array<[FiveElementKey, FiveElementIntegrationResult['elementScores'][FiveElementKey]]>)
     .sort(([, a], [, b]) => b.need - a.need);
-  const titlePrefix = '\u672c\u6b21\u5224\u5b9a\u4f60\u7f3a\uff1a';
+  const priorityOrder = result.decision.priorityOrder?.length ? result.decision.priorityOrder : scoreEntries.map(([element]) => element);
+  const thirdElement = priorityOrder.find((element) => element !== result.primaryElement && element !== result.secondaryElement) ?? result.strongElement;
+  const third = FIVE_ELEMENT_DEFINITIONS[thirdElement];
+  const titlePrefix = 'AI 判定｜目前最缺：';
   const elementSuffix = '\u5143\u7d20';
-  const urgentLabel = '\u672c\u6b21\u5fc5\u88dc';
+  const urgentLabel = '請優先補強';
   const needLabel = '\u88dc\u5f37\u9700\u6c42';
-  const secondLabel = '\u7b2c\u4e8c\u9806\u4f4d\uff0c\u4e0d\u5148\u88dc';
-  const strongLabel = '\u76ee\u524d\u8f03\u5f37';
-  const avoidLabel = '\u672c\u6b21\u5148\u4e0d\u88dc';
-  const actionLabel = '\u8acb\u5148\u505a\u9019\u4e09\u4ef6\u4e8b';
-  const evidenceLabel = '\u70ba\u4ec0\u9ebc\u9019\u6a23\u5224\u65b7';
-  const signalLabel = '\u4e94\u5143\u7d20\u7f3a\u53e3\u6392\u540d';
-  const noAvoidText = '\u6c92\u6709\u904e\u5f37\u5143\u7d20\uff1b\u672c\u6b21\u53ea\u9700\u5c08\u5fc3\u88dc\u7b2c\u4e00\u5143\u7d20';
+  const secondLabel = '完成後再補';
+  const thirdLabel = '最後補強';
+  const supportLabel = '目前支撐';
+  const actionLabel = '請先完成這三件事';
+  const evidenceLabel = 'AI 判定依據';
+  const signalLabel = '五元素缺口排名';
   const productLabel = '\u4e94\u5143\u7d20\u80fd\u91cf\u624b\u93c8\u88dc\u5f37\u65b9\u6848';
   const quoteLabel = '\u6700\u5f8c\u7684\u6b63\u5411\u63d0\u9192';
 
@@ -38,6 +39,7 @@ export default function FiveElementPriorityCard({ result }: { result?: FiveEleme
           <div className="mt-4 rounded-2xl border border-rose-200/25 bg-rose-500/10 p-4">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-100">{result.decision.title}</p>
             <p className="mt-2 text-base font-black leading-7 text-rose-50">{result.decision.conclusion}</p>
+            <pre className="mt-3 whitespace-pre-line rounded-xl border border-white/10 bg-black/18 px-3 py-2 font-sans text-sm font-black leading-7 text-amber-100">{result.decision.priorityTemplate}</pre>
             <p className="mt-2 text-sm font-bold leading-7 text-amber-100">{result.decision.changeTarget}</p>
             {result.decision.conflictNote && (
               <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{result.decision.conflictNote}</p>
@@ -76,12 +78,12 @@ export default function FiveElementPriorityCard({ result }: { result?: FiveEleme
           <p className="mt-1 text-2xl font-black text-cyan-50">{secondary.displayZh}{elementSuffix}</p>
         </div>
         <div className="rounded-2xl border border-emerald-200/20 bg-white/[0.045] p-4">
-          <p className="text-xs font-black text-emerald-100">{strongLabel}</p>
-          <p className="mt-1 text-2xl font-black text-emerald-50">{strong.displayZh}{elementSuffix}</p>
+          <p className="text-xs font-black text-emerald-100">{thirdLabel}</p>
+          <p className="mt-1 text-2xl font-black text-emerald-50">{third.displayZh}{elementSuffix}</p>
         </div>
         <div className="rounded-2xl border border-rose-200/20 bg-white/[0.045] p-4">
-          <p className="text-xs font-black text-rose-100">{avoidLabel}</p>
-          <p className="mt-1 text-xl font-black text-rose-50">{avoid ? avoid.displayZh + elementSuffix : noAvoidText}</p>
+          <p className="text-xs font-black text-rose-100">{supportLabel}</p>
+          <p className="mt-1 text-xl font-black text-rose-50">{strong.displayZh}{elementSuffix}</p>
         </div>
       </div>
 
@@ -145,7 +147,7 @@ export default function FiveElementPriorityCard({ result }: { result?: FiveEleme
       <div className="relative mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
         <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-100">{quoteLabel}</p>
         <blockquote className="mt-3 text-lg font-black leading-8 text-cyan-50">\"{quote.quote}\"</blockquote>
-        <p className="mt-2 text-sm font-bold text-amber-100">{quote.author} ? {quote.role}</p>
+        <p className="mt-2 text-sm font-bold text-amber-100">{quote.author} ｜ {quote.role}</p>
         <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{quote.elementFit}</p>
         <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-muted)]">{quote.reminder}</p>
         <a href={quote.sourceUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-[11px] font-bold text-cyan-200 underline-offset-4 hover:underline">

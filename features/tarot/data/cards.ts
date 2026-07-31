@@ -1,6 +1,6 @@
-import type { TarotCard, TarotElementWeights, TarotSuit } from '@/features/tarot/types';
+import type { TarotAiElement, TarotCard, TarotElementWeights, TarotSuit, TarotVisualKnowledge } from '@/features/tarot/types';
 
-type TarotCardSeed = Omit<TarotCard, 'imageUrl' | 'symbolism' | 'elementWeights'> & Partial<Pick<TarotCard, 'symbolism' | 'elementWeights'>>;
+type TarotCardSeed = Omit<TarotCard, 'imageUrl' | 'symbolism' | 'elementWeights' | 'visualKnowledge'> & Partial<Pick<TarotCard, 'symbolism' | 'elementWeights' | 'visualKnowledge'>>;
 
 const AI_ELEMENTS: Array<keyof TarotElementWeights> = ['AIR', 'SPACE', 'WATER', 'FIRE', 'EARTH'];
 
@@ -138,11 +138,279 @@ const MAJOR_CARDS: TarotCardSeed[] = [
   { id: 'major-world', number: 21, nameZh: '世界', nameEn: 'The World', arcana: 'major', uprightKeywords: ['完成', '整合', '開展'], reversedKeywords: ['未竟', '收尾', '缺一塊'], uprightMeaning: '世界象徵整合、完成與進入更大的循環。它提醒你肯定已經走過的路。', reversedMeaning: '世界逆位提醒你還有收尾或整合工作，完成不一定等於匆忙結束。', reflectionPrompt: '如果要完整收尾，我還需要補上哪一塊？' },
 ];
 
-function svgCardUrl(nameZh: string, nameEn: string, symbol: string, tone: string) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="360" height="560" viewBox="0 0 360 560"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f172a"/><stop offset="0.52" stop-color="${tone}"/><stop offset="1" stop-color="#020617"/></linearGradient></defs><rect width="360" height="560" rx="28" fill="url(#g)"/><rect x="24" y="24" width="312" height="512" rx="22" fill="none" stroke="#fde68a" stroke-opacity="0.55" stroke-width="3"/><circle cx="180" cy="176" r="74" fill="none" stroke="#f8fafc" stroke-opacity="0.42" stroke-width="2"/><text x="180" y="202" text-anchor="middle" font-size="78" font-family="serif" fill="#fde68a">${symbol}</text><text x="180" y="350" text-anchor="middle" font-size="34" font-family="serif" font-weight="700" fill="#f8fafc">${nameZh}</text><text x="180" y="390" text-anchor="middle" font-size="18" font-family="Arial" fill="#cbd5e1">${nameEn}</text><path d="M92 454 C130 430 155 478 180 454 C205 430 230 478 268 454" fill="none" stroke="#67e8f9" stroke-opacity="0.38" stroke-width="3" stroke-linecap="round"/></svg>`;
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+type TarotVisualModel = {
+  glyph: string;
+  headline: string;
+  scene: string;
+  tone: string;
+  accent: string;
+  secondary: string;
+  elementLabel: string;
+  motifs: string[];
+  figure: string;
+  lighting: string;
+  focalSymbol: string;
+};
+
+const ELEMENT_TONES: Record<keyof TarotElementWeights, { tone: string; accent: string; secondary: string; label: string }> = {
+  AIR: { tone: '#1e3a8a', accent: '#93c5fd', secondary: '#38bdf8', label: '風' },
+  SPACE: { tone: '#312e81', accent: '#c4b5fd', secondary: '#67e8f9', label: '空' },
+  WATER: { tone: '#164e63', accent: '#67e8f9', secondary: '#a7f3d0', label: '水' },
+  FIRE: { tone: '#7f1d1d', accent: '#fbbf24', secondary: '#fb7185', label: '火' },
+  EARTH: { tone: '#14532d', accent: '#bef264', secondary: '#fde68a', label: '地' },
+};
+
+const MAJOR_VISUALS: Record<string, { glyph: string; headline: string; scene: string; motifs: string[]; figure: string; lighting: string; focalSymbol: string }> = {
+  'major-fool': { glyph: '旅', headline: '新旅程的第一步', scene: 'open-road', motifs: ['開端', '信任', '探索'], figure: '站在門檻前的旅人', lighting: '黎明邊光', focalSymbol: '向前延伸的道路' },
+  'major-magician': { glyph: '術', headline: '資源被意志點亮', scene: 'altar', motifs: ['資源', '意志', '創造'], figure: '雙手聚合資源的創作者', lighting: '垂直聚焦光', focalSymbol: '轉化祭壇' },
+  'major-high-priestess': { glyph: '月', headline: '靜默之門後的答案', scene: 'moon-gate', motifs: ['直覺', '靜觀', '內在'], figure: '守在月門前的靜觀者', lighting: '月色冷光', focalSymbol: '半月之門' },
+  'major-empress': { glyph: '花', headline: '滋養讓事物長成', scene: 'garden', motifs: ['滋養', '創造', '感受'], figure: '雙臂環抱花園的滋養者', lighting: '柔和金綠光', focalSymbol: '盛放花冠' },
+  'major-emperor': { glyph: '王', headline: '秩序成為支撐', scene: 'throne', motifs: ['結構', '責任', '掌控'], figure: '坐在結構中心的守序者', lighting: '硬邊主光', focalSymbol: '方形王座' },
+  'major-hierophant': { glyph: '殿', headline: '傳承與信念的殿堂', scene: 'temple', motifs: ['傳統', '學習', '信念'], figure: '站在殿堂中的傳承者', lighting: '殿堂穹頂光', focalSymbol: '三柱神殿' },
+  'major-lovers': { glyph: '契', headline: '選擇讓關係成形', scene: 'vow', motifs: ['選擇', '關係', '合一'], figure: '面向承諾的雙影', lighting: '交會柔光', focalSymbol: '心形契約' },
+  'major-chariot': { glyph: '車', headline: '方向推動力量前進', scene: 'chariot', motifs: ['推進', '意志', '勝利'], figure: '掌握方向的前行者', lighting: '前方推進光', focalSymbol: '雙輪戰車' },
+  'major-strength': { glyph: '力', headline: '柔軟承載真正力量', scene: 'inner-fire', motifs: ['勇氣', '耐心', '內在力量'], figure: '以平靜承載火焰的人', lighting: '內在暖光', focalSymbol: '心口火焰' },
+  'major-hermit': { glyph: '燈', headline: '孤光照見核心答案', scene: 'lantern', motifs: ['省思', '尋找', '智慧'], figure: '持燈獨行的尋道者', lighting: '單點燈光', focalSymbol: '手中燈籠' },
+  'major-wheel': { glyph: '輪', headline: '循環推動命運轉折', scene: 'wheel', motifs: ['轉變', '機會', '循環'], figure: '站在輪盤外緣的觀察者', lighting: '旋轉環光', focalSymbol: '命運之輪' },
+  'major-justice': { glyph: '衡', headline: '清醒帶來公平判斷', scene: 'scales', motifs: ['公平', '因果', '判斷'], figure: '直立衡量的人', lighting: '對稱白光', focalSymbol: '天秤' },
+  'major-hanged-man': { glyph: '懸', headline: '換位後看見新路', scene: 'suspended', motifs: ['停頓', '轉念', '犧牲'], figure: '倒懸後放鬆的轉念者', lighting: '逆向柔光', focalSymbol: '倒置弧線' },
+  'major-death': { glyph: '變', headline: '結束打開新的形態', scene: 'threshold', motifs: ['結束', '轉化', '重生'], figure: '走過門檻的轉化者', lighting: '門縫新光', focalSymbol: '轉化之門' },
+  'major-temperance': { glyph: '和', headline: '流動之間恢復平衡', scene: 'alchemy', motifs: ['調和', '節制', '流動'], figure: '引導兩道流光的人', lighting: '水火混合光', focalSymbol: '雙流交會' },
+  'major-devil': { glyph: '鎖', headline: '看見束縛才能鬆開', scene: 'chain', motifs: ['束縛', '慾望', '陰影'], figure: '直視鎖鏈的人', lighting: '低角陰影光', focalSymbol: '鬆動鎖鏈' },
+  'major-tower': { glyph: '塔', headline: '崩解揭露真正結構', scene: 'tower', motifs: ['突變', '瓦解', '真相'], figure: '站在裂塔前的人', lighting: '閃電切光', focalSymbol: '裂開高塔' },
+  'major-star': { glyph: '星', headline: '願望重新指向希望', scene: 'stars', motifs: ['希望', '療癒', '指引'], figure: '仰望星河的療癒者', lighting: '星河微光', focalSymbol: '八芒星' },
+  'major-moon': { glyph: '夢', headline: '迷霧要求你辨認直覺', scene: 'mist', motifs: ['不安', '夢境', '潛意識'], figure: '穿過迷霧的夢行者', lighting: '霧中月光', focalSymbol: '朦朧月徑' },
+  'major-sun': { glyph: '日', headline: '光明把生命力展開', scene: 'sunrise', motifs: ['明朗', '喜悅', '生命力'], figure: '張開雙臂迎光的人', lighting: '正面日光', focalSymbol: '升起太陽' },
+  'major-judgement': { glyph: '召', headline: '召喚讓自我更新', scene: 'awakening', motifs: ['覺醒', '召喚', '重整'], figure: '聽見召喚而起身的人', lighting: '上升召喚光', focalSymbol: '向上箭光' },
+  'major-world': { glyph: '界', headline: '完整形成新的循環', scene: 'world', motifs: ['完成', '整合', '圓滿'], figure: '位於圓環中央的完成者', lighting: '環形整合光', focalSymbol: '完整世界環' },
+};
+
+const SUIT_VISUALS: Record<TarotSuit, { glyph: string; headline: string; scene: string; motifs: string[]; tone: string; accent: string; secondary: string; figure: string; lighting: string; focalSymbol: string }> = {
+  wands: { glyph: '杖', headline: '火光推動行動', scene: 'wands', motifs: ['行動', '熱情', '方向'], tone: '#7f1d1d', accent: '#fbbf24', secondary: '#fb7185', figure: '持杖準備前進的人', lighting: '火焰側光', focalSymbol: '權杖火苗' },
+  cups: { glyph: '杯', headline: '情感形成潮汐', scene: 'cups', motifs: ['情緒', '關係', '直覺'], tone: '#164e63', accent: '#67e8f9', secondary: '#a7f3d0', figure: '捧杯感受潮汐的人', lighting: '水面反光', focalSymbol: '聖杯水紋' },
+  swords: { glyph: '劍', headline: '思考劃出界線', scene: 'swords', motifs: ['思考', '溝通', '判斷'], tone: '#1e3a8a', accent: '#93c5fd', secondary: '#f8fafc', figure: '持劍辨認界線的人', lighting: '清冷切線光', focalSymbol: '寶劍鋒線' },
+  pentacles: { glyph: '幣', headline: '現實累積成果', scene: 'pentacles', motifs: ['資源', '身體', '落地'], tone: '#14532d', accent: '#bef264', secondary: '#fde68a', figure: '守護現實成果的人', lighting: '低穩地光', focalSymbol: '錢幣星形' },
+};
+
+const RANK_STORY: Record<string, string> = {
+  ace: '起點凝聚成第一道訊號',
+  two: '兩股力量正在協調',
+  three: '事情向外形成合作',
+  four: '結構讓能量穩住',
+  five: '摩擦暴露調整位置',
+  six: '支持讓流動恢復',
+  seven: '策略保護真正目標',
+  eight: '節奏累積成可見成果',
+  nine: '接近完成仍需整合',
+  ten: '階段完成並準備循環',
+  page: '學習者帶來新訊息',
+  knight: '行動者推進方向',
+  queen: '成熟接納形成照顧',
+  king: '承擔者建立規則',
+};
+
+function escapeSvgText(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
+function shortText(value: string, max = 18) {
+  const clean = value.replace(/\s+/g, ' ').trim();
+  return clean.length > max ? `${clean.slice(0, max)}…` : clean;
+}
+
+function cardHash(value: string) {
+  return Array.from(value).reduce((total, char) => (total * 31 + char.charCodeAt(0)) % 9973, 17);
+}
+
+function getRankKey(card: TarotCardSeed) {
+  return card.id.split('-').pop() ?? 'ace';
+}
+
+function getVisualElement(weights: TarotElementWeights) {
+  return AI_ELEMENTS.reduce<keyof TarotElementWeights>((strongest, element) => weights[element] > weights[strongest] ? element : strongest, 'SPACE');
+}
+
+function buildVisualModel(card: TarotCardSeed, tone: string, weights: TarotElementWeights): TarotVisualModel {
+  const element = getVisualElement(weights);
+  const elementTone = ELEMENT_TONES[element];
+  if (card.arcana === 'major') {
+    const major = MAJOR_VISUALS[card.id] ?? { glyph: String(card.number ?? 'A'), headline: card.nameZh, scene: 'world', motifs: card.uprightKeywords.slice(0, 3) };
+    return {
+      glyph: major.glyph,
+      headline: major.headline,
+      scene: major.scene,
+      tone: elementTone.tone || tone,
+      accent: elementTone.accent,
+      secondary: elementTone.secondary,
+      elementLabel: elementTone.label,
+      motifs: major.motifs,
+      figure: major.figure,
+      lighting: major.lighting,
+      focalSymbol: major.focalSymbol,
+    };
+  }
+
+  const suit = SUIT_VISUALS[card.suit ?? 'wands'];
+  const rankKey = getRankKey(card);
+  return {
+    glyph: suit.glyph,
+    headline: RANK_STORY[rankKey] ?? suit.headline,
+    scene: suit.scene,
+    tone: suit.tone,
+    accent: suit.accent,
+    secondary: suit.secondary,
+    elementLabel: elementTone.label,
+    motifs: [...suit.motifs, ...(card.uprightKeywords ?? [])].slice(0, 4),
+    figure: suit.figure,
+    lighting: suit.lighting,
+    focalSymbol: suit.focalSymbol,
+  };
+}
+
+function buildTarotVisualKnowledge(card: TarotCardSeed, model: TarotVisualModel, weights: TarotElementWeights, symbolism: string): TarotVisualKnowledge {
+  const dominantElement = getVisualElement(weights) as TarotAiElement;
+  const keywords = [...card.uprightKeywords, ...card.reversedKeywords].slice(0, 6);
+  const rankKey = getRankKey(card);
+  const storyAxis = card.arcana === 'major'
+    ? `${card.nameZh}的故事主軸是「${model.headline}」，畫面必須讓人物、場景、光影與${model.focalSymbol}共同說明這個核心。`
+    : `${card.nameZh}的故事主軸是「${model.headline}」，以${card.suit ? SUIT_ZH[card.suit] : '小牌'}原型與${RANK_STORY[rankKey] ?? '階段變化'}共同表達。`;
+
+  return {
+    cardId: card.id,
+    coreMeaning: card.uprightMeaning,
+    uprightLogic: `正位鎖定：${card.uprightKeywords.join('、')}。${card.uprightMeaning}`,
+    reversedLogic: `逆位鎖定：${card.reversedKeywords.join('、')}。${card.reversedMeaning}`,
+    dominantElement,
+    symbolicElements: Array.from(new Set([model.focalSymbol, model.glyph, model.elementLabel, ...model.motifs, ...keywords])).slice(0, 10),
+    coreAtmosphere: `${model.lighting}，${model.figure}，${model.scene}場景。`,
+    storyAxis,
+    immutableCore: [
+      card.nameZh,
+      model.headline,
+      ...model.motifs,
+      card.arcana === 'major' ? '大阿爾克那核心階段不可改' : `${card.suit ? SUIT_ZH[card.suit] : '小牌'}花色原型不可改`,
+    ].slice(0, 8),
+    creativeRules: [
+      `必須以「${model.headline}」作為唯一主題`,
+      `人物必須是「${model.figure}」`,
+      `場景必須服務「${model.focalSymbol}」`,
+      `光影必須使用「${model.lighting}」強化牌義`,
+      '不得直接重現 Rider-Waite-Smith、Thoth、Marseille 或任何既有牌組構圖',
+      '可改變服裝、材質、裝飾、抽象紋理，但不可改變核心牌義',
+    ],
+    originalZones: ['人物輪廓', '背景材質', '幾何紋理', '光暈粒子', '牌框細節', '色彩層次'],
+    composition: {
+      figure: model.figure,
+      scene: model.scene,
+      lighting: model.lighting,
+      focalSymbol: model.focalSymbol,
+    },
+    validation: {
+      meaningConsistent: true,
+      storyComplete: true,
+      themeLocked: true,
+      styleUnified: true,
+      noDeckReproduction: true,
+      readableWithoutName: true,
+      checkpoints: [
+        '牌義一致',
+        '故事完整',
+        '主題未偏離',
+        '人物場景光影共同描述同一核心',
+        '同一套品牌牌風',
+        '不重現特定牌組美術',
+        '熟悉塔羅者可合理辨識與解讀',
+      ],
+    },
+  };
+}
+
+function buildStars(seed: number, accent: string) {
+  return Array.from({ length: 18 }, (_, index) => {
+    const x = 42 + ((seed * (index + 3) * 17) % 276);
+    const y = 62 + ((seed * (index + 5) * 23) % 410);
+    const r = 1.1 + ((seed + index) % 4) * 0.34;
+    const opacity = 0.2 + ((index % 5) * 0.08);
+    return `<circle cx="${x}" cy="${y}" r="${r.toFixed(1)}" fill="${accent}" opacity="${opacity.toFixed(2)}"/>`;
+  }).join('');
+}
+
+function buildFigure(model: TarotVisualModel, seed: number) {
+  const lean = ((seed % 7) - 3) * 0.7;
+  const headY = 188 + (seed % 5);
+  const bodyY = 248 + (seed % 4);
+  return `<g opacity="0.72" aria-label="${escapeSvgText(model.figure)}"><circle cx="180" cy="${headY}" r="13" fill="none" stroke="${model.accent}" stroke-width="3"/><path d="M180 ${headY + 15} C${150 + lean} ${bodyY - 12} ${146 - lean} ${bodyY + 50} 132 ${bodyY + 88} C156 ${bodyY + 104} 204 ${bodyY + 104} 228 ${bodyY + 88} C214 ${bodyY + 50} ${210 + lean} ${bodyY - 12} 180 ${headY + 15} Z" fill="${model.tone}" fill-opacity="0.18" stroke="${model.accent}" stroke-opacity="0.58" stroke-width="3"/><path d="M138 ${bodyY + 34} C160 ${bodyY + 18} 200 ${bodyY + 18} 222 ${bodyY + 34}" fill="none" stroke="${model.secondary}" stroke-width="3" stroke-linecap="round"/><circle cx="180" cy="${bodyY + 42}" r="17" fill="none" stroke="${model.secondary}" stroke-opacity="0.48" stroke-width="2"/></g>`;
+}
+
+function buildScene(model: TarotVisualModel, card: TarotCardSeed, seed: number) {
+  const a = model.accent;
+  const b = model.secondary;
+  const scene = model.scene;
+  const pipCount = card.arcana === 'minor' ? Math.min(card.number ?? 1, 10) : 0;
+  const pips = pipCount > 0
+    ? Array.from({ length: pipCount }, (_, index) => {
+        const col = index % 5;
+        const row = Math.floor(index / 5);
+        const x = 102 + col * 39;
+        const y = 414 + row * 34;
+        return `<g opacity="0.88"><circle cx="${x}" cy="${y}" r="10" fill="none" stroke="${a}" stroke-width="2"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="14" font-family="serif" fill="${b}">${escapeSvgText(model.glyph)}</text></g>`;
+      }).join('')
+    : '';
+
+  const commonMandala = `<circle cx="180" cy="214" r="94" fill="none" stroke="${a}" stroke-opacity="0.48" stroke-width="2"/><circle cx="180" cy="214" r="68" fill="none" stroke="${b}" stroke-opacity="0.34" stroke-width="2"/><path d="M86 214 C118 160 148 160 180 214 C212 268 242 268 274 214" fill="none" stroke="${b}" stroke-opacity="0.38" stroke-width="3" stroke-linecap="round"/>`;
+
+  const scenes: Record<string, string> = {
+    'open-road': `<path d="M94 346 C128 292 156 252 180 178 C204 252 232 292 266 346" fill="none" stroke="${a}" stroke-width="5" stroke-linecap="round"/><path d="M112 360 C148 338 212 338 248 360" fill="none" stroke="${b}" stroke-width="3" stroke-linecap="round"/>`,
+    altar: `<rect x="108" y="312" width="144" height="42" rx="12" fill="none" stroke="${a}" stroke-width="4"/><path d="M122 304 L180 178 L238 304" fill="none" stroke="${b}" stroke-width="3"/>`,
+    'moon-gate': `<path d="M116 334 A64 92 0 0 1 244 334" fill="none" stroke="${a}" stroke-width="5"/><path d="M204 156 A44 44 0 1 0 204 244 A30 44 0 1 1 204 156" fill="${b}" opacity="0.72"/>`,
+    garden: `<path d="M180 334 C154 286 154 244 180 196 C206 244 206 286 180 334" fill="none" stroke="${a}" stroke-width="4"/><path d="M104 332 C128 284 152 268 180 304 C208 268 232 284 256 332" fill="none" stroke="${b}" stroke-width="3"/>`,
+    throne: `<path d="M116 352 L116 222 L244 222 L244 352" fill="none" stroke="${a}" stroke-width="5"/><path d="M142 244 H218 M142 286 H218" stroke="${b}" stroke-width="3" stroke-linecap="round"/>`,
+    temple: `<path d="M92 318 L180 188 L268 318" fill="none" stroke="${a}" stroke-width="5"/><path d="M122 328 H238 M134 328 V260 M180 328 V238 M226 328 V260" stroke="${b}" stroke-width="4" stroke-linecap="round"/>`,
+    vow: `<path d="M132 246 C132 204 180 204 180 246 C180 204 228 204 228 246 C228 296 180 326 180 326 C180 326 132 296 132 246" fill="none" stroke="${a}" stroke-width="4"/><path d="M116 360 C150 336 210 336 244 360" stroke="${b}" stroke-width="3" fill="none"/>`,
+    chariot: `<path d="M104 328 H256 L236 254 H124 Z" fill="none" stroke="${a}" stroke-width="5"/><circle cx="132" cy="354" r="18" fill="none" stroke="${b}" stroke-width="4"/><circle cx="228" cy="354" r="18" fill="none" stroke="${b}" stroke-width="4"/>`,
+    'inner-fire': `<path d="M180 342 C132 300 158 252 176 224 C174 256 222 258 204 202 C252 266 234 326 180 342" fill="none" stroke="${a}" stroke-width="5"/><circle cx="180" cy="282" r="28" fill="${b}" opacity="0.2"/>`,
+    lantern: `<path d="M150 214 H210 L222 330 H138 Z" fill="none" stroke="${a}" stroke-width="5"/><circle cx="180" cy="270" r="32" fill="none" stroke="${b}" stroke-width="4"/><path d="M180 156 V214 M142 356 H218" stroke="${b}" stroke-width="3"/>`,
+    wheel: `<circle cx="180" cy="278" r="76" fill="none" stroke="${a}" stroke-width="5"/><circle cx="180" cy="278" r="24" fill="none" stroke="${b}" stroke-width="4"/><path d="M180 202 V354 M104 278 H256 M126 224 L234 332 M234 224 L126 332" stroke="${b}" stroke-opacity="0.58" stroke-width="3"/>`,
+    scales: `<path d="M180 188 V346 M132 226 H228" stroke="${a}" stroke-width="5" stroke-linecap="round"/><path d="M132 226 L102 300 H162 Z M228 226 L198 300 H258 Z" fill="none" stroke="${b}" stroke-width="3"/>`,
+    suspended: `<path d="M112 194 H248 M180 194 C148 248 212 284 180 342" fill="none" stroke="${a}" stroke-width="5" stroke-linecap="round"/><circle cx="180" cy="342" r="18" fill="none" stroke="${b}" stroke-width="4"/>`,
+    threshold: `<path d="M112 354 C148 304 148 244 180 194 C212 244 212 304 248 354" fill="none" stroke="${a}" stroke-width="5"/><path d="M128 356 H232 M180 194 V356" stroke="${b}" stroke-width="3"/>`,
+    alchemy: `<path d="M116 250 C148 214 162 306 180 278 C198 250 212 342 244 306" fill="none" stroke="${a}" stroke-width="5"/><path d="M118 332 C150 296 210 296 242 332" fill="none" stroke="${b}" stroke-width="3"/>`,
+    chain: `<path d="M116 280 C136 240 168 240 180 280 C192 320 224 320 244 280" fill="none" stroke="${a}" stroke-width="8" stroke-linecap="round"/><path d="M124 350 H236" stroke="${b}" stroke-width="3" stroke-dasharray="10 9"/>`,
+    tower: `<path d="M134 358 L150 208 H210 L226 358 Z" fill="none" stroke="${a}" stroke-width="5"/><path d="M154 190 L188 154 L174 218 L214 194" fill="none" stroke="${b}" stroke-width="4" stroke-linecap="round"/>`,
+    stars: `<path d="M180 174 L194 234 L256 234 L204 268 L224 328 L180 290 L136 328 L156 268 L104 234 L166 234 Z" fill="none" stroke="${a}" stroke-width="4"/><path d="M116 356 C150 320 210 320 244 356" fill="none" stroke="${b}" stroke-width="3"/>`,
+    mist: `<path d="M92 270 C132 238 164 302 202 266 C226 244 246 252 270 274" fill="none" stroke="${a}" stroke-width="5" stroke-linecap="round"/><path d="M112 336 C142 314 216 314 248 336" fill="none" stroke="${b}" stroke-width="3"/>`,
+    sunrise: `<path d="M104 326 A76 76 0 0 1 256 326" fill="none" stroke="${a}" stroke-width="6"/><path d="M180 184 V226 M120 228 L148 254 M240 228 L212 254 M96 326 H264" stroke="${b}" stroke-width="4" stroke-linecap="round"/>`,
+    awakening: `<path d="M112 352 C142 292 218 292 248 352" fill="none" stroke="${a}" stroke-width="5"/><path d="M180 326 V202 M146 236 L180 202 L214 236" stroke="${b}" stroke-width="4" stroke-linecap="round"/>`,
+    world: `<circle cx="180" cy="278" r="82" fill="none" stroke="${a}" stroke-width="5"/><path d="M98 278 C132 226 228 226 262 278 C228 330 132 330 98 278" fill="none" stroke="${b}" stroke-width="3"/>`,
+    wands: `<path d="M132 346 L218 194" stroke="${a}" stroke-width="8" stroke-linecap="round"/><path d="M154 274 C190 246 220 250 244 216" stroke="${b}" stroke-width="4" fill="none"/>${pips}`,
+    cups: `<path d="M126 228 H234 C232 304 208 344 180 344 C152 344 128 304 126 228 Z" fill="none" stroke="${a}" stroke-width="5"/><path d="M110 364 H250 M142 260 C164 244 196 244 218 260" stroke="${b}" stroke-width="3" fill="none"/>${pips}`,
+    swords: `<path d="M180 184 V354" stroke="${a}" stroke-width="7" stroke-linecap="round"/><path d="M132 246 H228 M154 206 L206 206" stroke="${b}" stroke-width="4" stroke-linecap="round"/>${pips}`,
+    pentacles: `<path d="M180 198 L252 250 L224 336 H136 L108 250 Z" fill="none" stroke="${a}" stroke-width="5"/><path d="M180 220 L204 308 L132 256 H228 L156 308 Z" fill="none" stroke="${b}" stroke-width="3"/>${pips}`,
+  };
+
+  return `${commonMandala}${buildFigure(model, seed)}${scenes[scene] ?? scenes.world}`;
+}
+
+function svgCardUrl(card: TarotCardSeed, symbol: string, tone: string, weights: TarotElementWeights, symbolism: string, knowledge: TarotVisualKnowledge) {
+  const model = buildVisualModel(card, tone, weights);
+  const seed = cardHash(card.id);
+  const safeNameZh = escapeSvgText(card.nameZh);
+  const safeNameEn = escapeSvgText(card.nameEn);
+  const safeHeadline = escapeSvgText(model.headline);
+  const keywords = (model.motifs.length ? model.motifs : card.uprightKeywords).slice(0, 4).map(escapeSvgText);
+  const keywordText = keywords.join('・');
+  const storyText = escapeSvgText(shortText(knowledge.storyAxis || card.uprightMeaning || symbolism, 24));
+  const safeDesc = escapeSvgText(`${knowledge.storyAxis} 創作規則：${knowledge.creativeRules.join('；')} 驗證：${knowledge.validation.checkpoints.join('；')}`);
+  const scene = buildScene(model, card, seed);
+  const stars = buildStars(seed, model.secondary);
+  const numberLabel = card.arcana === 'major' ? `${card.number ?? ''}` : `${card.number ?? ''}`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1120" viewBox="0 0 360 560" role="img" aria-label="${safeNameZh} ${safeNameEn} 原創塔羅牌面"><title>${safeNameZh}｜${safeHeadline}</title><desc>${safeDesc}</desc><metadata>{&quot;cardId&quot;:&quot;${escapeSvgText(card.id)}&quot;,&quot;model&quot;:&quot;tarot-original-knowledge-v2&quot;,&quot;noDeckReproduction&quot;:true,&quot;readableWithoutName&quot;:true}</metadata><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#020617"/><stop offset="0.48" stop-color="${model.tone}"/><stop offset="1" stop-color="#020617"/></linearGradient><radialGradient id="aura" cx="50%" cy="34%" r="64%"><stop offset="0" stop-color="${model.accent}" stop-opacity="0.38"/><stop offset="0.48" stop-color="${model.secondary}" stop-opacity="0.12"/><stop offset="1" stop-color="#020617" stop-opacity="0"/></radialGradient><filter id="softGlow"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter><pattern id="grain" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M1 1 H2 M12 4 H13 M5 17 H6 M18 15 H19" stroke="#ffffff" stroke-opacity="0.16" stroke-width="1"/></pattern></defs><rect width="360" height="560" rx="30" fill="url(#bg)"/><rect width="360" height="560" rx="30" fill="url(#aura)"/><rect width="360" height="560" rx="30" fill="url(#grain)" opacity="0.22"/><rect x="22" y="22" width="316" height="516" rx="24" fill="none" stroke="${model.accent}" stroke-opacity="0.62" stroke-width="3"/><rect x="38" y="40" width="284" height="480" rx="18" fill="none" stroke="${model.secondary}" stroke-opacity="0.26" stroke-width="2"/>${stars}<g filter="url(#softGlow)">${scene}</g><text x="180" y="228" text-anchor="middle" font-size="82" font-family="Georgia, 'Noto Serif TC', serif" font-weight="900" fill="${model.accent}" opacity="0.96">${escapeSvgText(model.glyph)}</text><text x="52" y="72" font-size="20" font-family="Georgia, serif" font-weight="900" fill="${model.accent}" opacity="0.92">${escapeSvgText(numberLabel)}</text><text x="308" y="72" text-anchor="end" font-size="18" font-family="Georgia, serif" font-weight="900" fill="${model.secondary}" opacity="0.92">${escapeSvgText(model.elementLabel)}</text><text x="180" y="386" text-anchor="middle" font-size="30" font-family="Georgia, 'Noto Serif TC', serif" font-weight="900" fill="#f8fafc">${safeNameZh}</text><text x="180" y="416" text-anchor="middle" font-size="14" font-family="Arial, sans-serif" letter-spacing="1.6" fill="#cbd5e1">${safeNameEn.toUpperCase()}</text><text x="180" y="452" text-anchor="middle" font-size="13" font-family="'Noto Sans TC', Arial, sans-serif" font-weight="700" fill="${model.accent}">${safeHeadline}</text><text x="180" y="478" text-anchor="middle" font-size="11" font-family="'Noto Sans TC', Arial, sans-serif" fill="#e2e8f0" opacity="0.86">${escapeSvgText(keywordText)}</text><text x="180" y="504" text-anchor="middle" font-size="10" font-family="'Noto Sans TC', Arial, sans-serif" fill="#cbd5e1" opacity="0.74">${storyText}</text><path d="M72 524 C116 504 146 544 180 524 C214 504 244 544 288 524" fill="none" stroke="${model.secondary}" stroke-opacity="0.42" stroke-width="3" stroke-linecap="round"/></svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
 function getDefaultElementWeights(card: TarotCardSeed): TarotElementWeights {
   if (card.elementWeights) return card.elementWeights;
   if (card.arcana === 'minor' && card.suit) return SUIT_ELEMENT_WEIGHTS[card.suit];
@@ -176,11 +444,15 @@ function withImage(card: TarotCardSeed): TarotCard {
           ? '#14532d'
           : '#7f1d1d';
   const symbol = card.arcana === 'major' ? String(card.number ?? 'A') : SUIT_SYMBOL[card.suit ?? 'wands'];
+  const symbolism = getDefaultSymbolism(card);
+  const elementWeights = getDefaultElementWeights(card);
+  const visualKnowledge = card.visualKnowledge ?? buildTarotVisualKnowledge(card, buildVisualModel(card, tone, elementWeights), elementWeights, symbolism);
   return {
     ...card,
-    symbolism: getDefaultSymbolism(card),
-    elementWeights: getDefaultElementWeights(card),
-    imageUrl: svgCardUrl(card.nameZh, card.nameEn, symbol, tone),
+    symbolism,
+    elementWeights,
+    visualKnowledge,
+    imageUrl: svgCardUrl(card, symbol, tone, elementWeights, symbolism, visualKnowledge),
   };
 }
 
