@@ -96,11 +96,103 @@ export type NameologyCrossCheck = {
   corrections: string[];
 };
 
+export type NameologyProfessionalCharacter = {
+  char: string;
+  position: number;
+  role: string;
+  strokeCount: number;
+  element: NameologyElement;
+  yinYang: '\u967d' | '\u9670';
+  radical: string;
+  radicalImagery: string;
+  parts: string[];
+  structure: string;
+  glyphMeaning: string;
+  namingIntent: string;
+  storyLine: string;
+  professionalInterpretation: string;
+  temperamentSignals: string[];
+  evolutionMaterial: string[];
+};
+
+export type NameologyProfessionalLayer = {
+  layer: 'professional_nameology_decomposition';
+  generatedFrom: 'normalized_name_input';
+  recalculationAllowed: false;
+  input: {
+    name: string;
+    surname: string;
+    givenName: string;
+  };
+  nameStructure: {
+    surname: string;
+    givenName: string;
+    totalCharacters: number;
+    surnameCharacterCount: number;
+    givenNameCharacterCount: number;
+    compositionSummary: string;
+  };
+  characterDecomposition: NameologyProfessionalCharacter[];
+  radicalNarrative: string;
+  nameStory: string;
+  professionalSummary: string;
+  elementStory: string;
+  readingBoundaries: string[];
+  aiEvolutionMaterial: {
+    fixedFacts: string[];
+    interpretationRules: string[];
+    prohibitedMoves: string[];
+  };
+};
+
+export type NameologyInterpretationPoint = {
+  title: string;
+  reading: string;
+  sourceEvidence: string[];
+};
+
+export type NameologyAiInterpretationLayer = {
+  layer: 'ai_nameology_interpretation';
+  sourceLayer: 'professional_nameology_decomposition';
+  recalculationAllowed: false;
+  focusElements: NameologyElement[];
+  primarySignals: string[];
+  userReadableSummary: string;
+  personalityStory: string;
+  relationshipStyle: string;
+  actionStyle: string;
+  hiddenTension: string;
+  evidenceChain: string[];
+  interpretationPoints: NameologyInterpretationPoint[];
+};
+
+export type NameologyReinforcementPriority = {
+  order: 1 | 2 | 3;
+  label: string;
+  element: NameologyElement;
+  direction: string;
+  reason: string;
+  action: string;
+};
+
+export type NameologyReinforcementLayer = {
+  layer: 'ai_nameology_reinforcement';
+  sourceLayer: 'ai_nameology_interpretation';
+  recalculationAllowed: false;
+  clearStatement: string;
+  priorities: NameologyReinforcementPriority[];
+  executionPrinciple: string;
+  boundaries: string[];
+};
+
 export type NameologyAnalysis = {
   name: string;
   composition: NameologyNameComposition;
   crossCheck: NameologyCrossCheck;
   characters: NameologyCharAnalysis[];
+  professionalLayer: NameologyProfessionalLayer;
+  aiInterpretationLayer: NameologyAiInterpretationLayer;
+  reinforcementLayer: NameologyReinforcementLayer;
   grids: NameologyGridItem[];
   elementFlow: {
     from: string;
@@ -504,6 +596,259 @@ function levelFromScore(score: number) {
   return '姓名拉扯較強';
 }
 
+const RADICAL_IMAGERY: Record<string, string> = {
+  '\u65e5': '\u5149\u660e\u3001\u8fa8\u8b58\u3001\u516c\u958b\u8868\u9054\uff0c\u8c61\u5fb5\u7167\u4eae\u8207\u88ab\u770b\u898b\u3002',
+  '\u6708': '\u611f\u53d7\u3001\u7bc0\u594f\u3001\u6ecb\u990a\uff0c\u8c61\u5fb5\u5167\u5728\u5b89\u5b9a\u8207\u60c5\u7dd2\u6eab\u5ea6\u3002',
+  '\u6c35': '\u6d41\u52d5\u3001\u667a\u6167\u3001\u6e9d\u901a\uff0c\u8c61\u5fb5\u9069\u61c9\u8207\u7406\u89e3\u3002',
+  '\u6c34': '\u6d41\u52d5\u3001\u667a\u6167\u3001\u6e9d\u901a\uff0c\u8c61\u5fb5\u9069\u61c9\u8207\u7406\u89e3\u3002',
+  '\u6728': '\u751f\u9577\u3001\u5ef6\u4f38\u3001\u898f\u5283\uff0c\u8c61\u5fb5\u5b78\u7fd2\u8207\u5411\u4e0a\u767c\u5c55\u3002',
+  '\u5fc3': '\u60c5\u611f\u3001\u4fe1\u5ff5\u3001\u5167\u5728\u611f\u53d7\uff0c\u8c61\u5fb5\u771f\u5fc3\u8207\u627f\u8afe\u3002',
+  '\u5fc4': '\u60c5\u611f\u3001\u4fe1\u5ff5\u3001\u5167\u5728\u611f\u53d7\uff0c\u8c61\u5fb5\u771f\u5fc3\u8207\u627f\u8afe\u3002',
+  '\u53e3': '\u8868\u9054\u3001\u627f\u8afe\u3001\u6e9d\u901a\uff0c\u8c61\u5fb5\u8072\u97f3\u8207\u4eba\u969b\u4e92\u52d5\u3002',
+  '\u5973': '\u67d4\u6027\u3001\u95dc\u4fc2\u3001\u627f\u63a5\uff0c\u8c61\u5fb5\u89aa\u548c\u8207\u7167\u9867\u3002',
+  '\u5b80': '\u5b89\u5b9a\u3001\u4fdd\u8b77\u3001\u5bb6\u5b85\uff0c\u8c61\u5fb5\u6b78\u5c6c\u8207\u8cc7\u6e90\u4fdd\u5b58\u3002',
+  '\u738b': '\u50f9\u503c\u3001\u54c1\u683c\u3001\u5149\u6fa4\uff0c\u8c61\u5fb5\u54c1\u8cea\u8207\u4fe1\u4efb\u3002',
+  '\u7389': '\u50f9\u503c\u3001\u54c1\u683c\u3001\u5149\u6fa4\uff0c\u8c61\u5fb5\u54c1\u8cea\u8207\u4fe1\u4efb\u3002',
+  '\u5927': '\u683c\u5c40\u3001\u627f\u64d4\u3001\u958b\u5f35\uff0c\u8c61\u5fb5\u9858\u666f\u8207\u4e3b\u52d5\u64d4\u8cac\u3002',
+  '\u5c0f': '\u7d30\u7bc0\u3001\u6536\u6582\u3001\u654f\u92b3\uff0c\u8c61\u5fb5\u89c0\u5bdf\u8207\u7cbe\u6e96\u3002',
+  '\u4eba': '\u95dc\u4fc2\u3001\u89d2\u8272\u3001\u884c\u52d5\uff0c\u8c61\u5fb5\u4eba\u7fa4\u4e2d\u7684\u5b9a\u4f4d\u3002',
+  '\u4ebb': '\u95dc\u4fc2\u3001\u89d2\u8272\u3001\u884c\u52d5\uff0c\u8c61\u5fb5\u4eba\u7fa4\u4e2d\u7684\u5b9a\u4f4d\u3002',
+  '\u91d1': '\u898f\u7bc4\u3001\u6c7a\u65b7\u3001\u50f9\u503c\uff0c\u8c61\u5fb5\u754c\u7dda\u8207\u53d6\u6368\u3002',
+  '\u706b': '\u71b1\u5ea6\u3001\u884c\u52d5\u3001\u80fd\u898b\u5ea6\uff0c\u8c61\u5fb5\u63a8\u9032\u8207\u751f\u547d\u529b\u3002',
+  '\u571f': '\u7a69\u5b9a\u3001\u627f\u8f09\u3001\u57fa\u790e\uff0c\u8c61\u5fb5\u4fe1\u4efb\u8207\u7d2f\u7a4d\u3002',
+};
+
+const ELEMENT_IMAGERY: Record<NameologyElement, string> = {
+  '\u6728': '\u6728\u6c23\u4e3b\u751f\u9577\u8207\u5ef6\u4f38\uff0c\u91cd\u9ede\u5728\u5b78\u7fd2\u3001\u4eba\u8108\u8207\u898f\u5283\u3002',
+  '\u706b': '\u706b\u6c23\u4e3b\u7167\u660e\u8207\u884c\u52d5\uff0c\u91cd\u9ede\u5728\u8868\u9054\u3001\u71b1\u60c5\u8207\u88ab\u770b\u898b\u3002',
+  '\u571f': '\u571f\u6c23\u4e3b\u627f\u8f09\u8207\u7d2f\u7a4d\uff0c\u91cd\u9ede\u5728\u7a69\u5b9a\u3001\u4fe1\u4efb\u8207\u8cc7\u6e90\u3002',
+  '\u91d1': '\u91d1\u6c23\u4e3b\u5224\u65b7\u8207\u898f\u7bc4\uff0c\u91cd\u9ede\u5728\u54c1\u8cea\u3001\u754c\u7dda\u8207\u7d00\u5f8b\u3002',
+  '\u6c34': '\u6c34\u6c23\u4e3b\u6d1e\u5bdf\u8207\u6d41\u52d5\uff0c\u91cd\u9ede\u5728\u667a\u6167\u3001\u5f48\u6027\u8207\u6df1\u5c64\u7406\u89e3\u3002',
+};
+
+function radicalImagery(radical: string, element: NameologyElement) {
+  const direct = RADICAL_IMAGERY[radical];
+  if (direct) return direct;
+  const matchedKey = Object.keys(RADICAL_IMAGERY).find((key) => radical.includes(key));
+  return matchedKey ? RADICAL_IMAGERY[matchedKey] : ELEMENT_IMAGERY[element];
+}
+
+function buildCharacterStory(item: NameologyCharAnalysis) {
+  const parts = item.glyph.parts.length > 1 ? item.glyph.parts.join('\u3001') : item.char;
+  const firstTrait = item.traits[0] ?? ELEMENT_THEME[item.element].strength;
+  return '\u300c' + item.char + '\u300d\u4ee5\u300c' + parts + '\u300d\u6210\u5f62\uff0c\u90e8\u9996\u300c' + item.glyph.radical + '\u300d\u5e36\u51fa' + radicalImagery(item.glyph.radical, item.element) + '\u6b64\u5b57\u5728\u59d3\u540d\u4e2d\u7ad9\u5728\u300c' + item.role + '\u300d\u4f4d\u7f6e\uff0c\u5f62\u6210' + item.element + item.yinYang + '\u7684\u6c23\u8cea\uff0c\u4e3b\u8ef8\u662f' + firstTrait + '\u3002';
+}
+
+function buildNameologyProfessionalLayer(
+  name: string,
+  characters: NameologyCharAnalysis[],
+  composition: NameologyNameComposition,
+  elementFlow: NameologyAnalysis['elementFlow'],
+): NameologyProfessionalLayer {
+  const surnameChars = characters.slice(0, 1);
+  const givenChars = characters.slice(1);
+  const characterDecomposition = characters.map((item) => {
+    const tendencySignals = item.tendencies.slice(0, 3).map((tendency) => tendency.label + '\uff1a' + tendency.meaning);
+    const storyLine = buildCharacterStory(item);
+    return {
+      char: item.char,
+      position: item.position,
+      role: item.role,
+      strokeCount: item.strokeCount,
+      element: item.element,
+      yinYang: item.yinYang,
+      radical: item.glyph.radical,
+      radicalImagery: radicalImagery(item.glyph.radical, item.element),
+      parts: item.glyph.parts,
+      structure: item.glyph.structure,
+      glyphMeaning: item.glyph.meaning,
+      namingIntent: item.glyph.namingIntent,
+      storyLine,
+      professionalInterpretation: '\u6b64\u5b57\u4ee5' + item.strokeCount + '\u756b\u5b9a\u4e94\u884c\u70ba' + item.element + '\uff0c' + item.yinYang + '\u6027\u5448\u73fe' + (item.yinYang === '\u967d' ? '\u5916\u653e\u3001\u63a8\u9032\u3001\u4e3b\u52d5\u6210\u5f62' : '\u5167\u6582\u3001\u84c4\u7a4d\u3001\u7a69\u5b9a\u6210\u5f62') + '\uff1b\u653e\u5728' + item.role + '\uff0c\u4e3b\u8981\u5f71\u97ff' + (item.role.includes('\u59d3') ? '\u5bb6\u65cf\u627f\u63a5\u8207\u5916\u5728\u8b58\u5225' : '\u500b\u4eba\u6027\u683c\u3001\u884c\u52d5\u65b9\u5f0f\u8207\u4eba\u751f\u6558\u4e8b') + '\u3002',
+      temperamentSignals: tendencySignals,
+      evolutionMaterial: [
+        '\u56fa\u5b9a\u5b57\u5f62\uff1a' + item.glyph.structure,
+        '\u56fa\u5b9a\u90e8\u9996\uff1a' + item.glyph.radical,
+        '\u56fa\u5b9a\u4e94\u884c\uff1a' + item.element,
+        '\u4e3b\u8981\u610f\u5883\uff1a' + item.imagery,
+      ],
+    };
+  });
+  const givenStory = givenChars.length > 0
+    ? givenChars.map((item) => '\u300c' + item.char + '\u300d' + item.glyph.namingIntent).join(' ')
+    : '\u540d\u5b57\u90e8\u5206\u672a\u62c6\u51fa\u7368\u7acb\u7528\u5b57\uff0c\u7cfb\u7d71\u5148\u4ee5\u59d3\u6c0f\u8207\u7e3d\u683c\u5efa\u7acb\u57fa\u790e\u5224\u8b80\u3002';
+  const flowStory = elementFlow.length > 0
+    ? elementFlow.map((item) => item.note).join(' ')
+    : '\u59d3\u540d\u5b57\u6578\u8f03\u5c11\uff0c\u4e94\u884c\u6d41\u52d5\u4ee5\u55ae\u5b57\u4e3b\u6c23\u70ba\u6838\u5fc3\u3002';
+  const fixedFacts = characterDecomposition.flatMap((item) => [
+    item.char + '\uff1a' + item.strokeCount + '\u756b',
+    item.char + '\uff1a\u90e8\u9996' + item.radical,
+    item.char + '\uff1a\u4e94\u884c' + item.element + item.yinYang,
+  ]);
+
+  return {
+    layer: 'professional_nameology_decomposition',
+    generatedFrom: 'normalized_name_input',
+    recalculationAllowed: false,
+    input: {
+      name,
+      surname: composition.surname,
+      givenName: composition.givenName,
+    },
+    nameStructure: {
+      surname: composition.surname,
+      givenName: composition.givenName,
+      totalCharacters: characters.length,
+      surnameCharacterCount: surnameChars.length,
+      givenNameCharacterCount: givenChars.length,
+      compositionSummary: composition.surnameSummary + ' ' + composition.givenNameSummary,
+    },
+    characterDecomposition,
+    radicalNarrative: characterDecomposition.map((item) => '\u300c' + item.char + '\u300d\u53d6' + item.radical + '\u610f\u8c61\uff1a' + item.radicalImagery).join(' '),
+    nameStory: '\u59d3\u540d\u6545\u4e8b\u4ee5\u300c' + (composition.surname || name.slice(0, 1)) + '\u300d\u70ba\u6839\uff0c\u627f\u63a5\u5bb6\u65cf\u8207\u5916\u5728\u8b58\u5225\uff1b\u540d\u5b57\u300c' + (composition.givenName || name.slice(1)) + '\u300d\u8ca0\u8cac\u958b\u5c55\u500b\u4eba\u4e3b\u8ef8\u3002' + givenStory,
+    professionalSummary: '\u7b2c\u4e00\u5c64\u5224\u5b9a\u300c' + name + '\u300d\u7684\u53ef\u7528\u7d20\u6750\uff1a\u5b57\u5f62\u4ee5' + characters.map((item) => item.glyph.structure).join('\u3001') + '\u70ba\u9aa8\u67b6\uff0c\u90e8\u9996\u4ee5' + characters.map((item) => item.glyph.radical).join('\u3001') + '\u70ba\u610f\u5883\u5165\u53e3\uff0c\u4e94\u884c\u6d41\u52d5\u5f62\u6210\u5f8c\u7e8c AI \u89e3\u8b80\u7684\u56fa\u5b9a\u57fa\u790e\u3002',
+    elementStory: flowStory,
+    readingBoundaries: [
+      '\u7b2c\u4e00\u5c64\u53ea\u5efa\u7acb\u59d3\u540d\u62c6\u89e3\u3001\u90e8\u9996\u610f\u5883\u3001\u7b46\u756b\u4e94\u884c\u8207\u540d\u5b57\u6545\u4e8b\u3002',
+      '\u7b2c\u4e8c\u5c64 AI \u89e3\u8b80\u53ea\u80fd\u8b80\u53d6\u7b2c\u4e00\u5c64\u8cc7\u6599\uff0c\u4e0d\u5f97\u91cd\u65b0\u62c6\u5b57\u6216\u91cd\u7b97\u547d\u76e4\u3002',
+      '\u7b2c\u4e09\u5c64\u88dc\u5f37\u53ea\u80fd\u8b80\u53d6\u7b2c\u4e8c\u5c64\u5206\u6790\u7d50\u679c\uff0c\u4e0d\u5f97\u53cd\u5411\u6539\u5beb\u7b2c\u4e00\u5c64\u56fa\u5b9a\u8cc7\u6599\u3002',
+    ],
+    aiEvolutionMaterial: {
+      fixedFacts,
+      interpretationRules: [
+        '\u5148\u8b80\u59d3\u6c0f\u6839\u57fa\uff0c\u518d\u8b80\u540d\u5b57\u4e3b\u8ef8\uff0c\u6700\u5f8c\u8b80\u5168\u540d\u6d41\u52d5\u3002',
+        '\u90e8\u9996\u610f\u5883\u4f5c\u70ba\u6545\u4e8b\u5165\u53e3\uff0c\u7b46\u756b\u4e94\u884c\u4f5c\u70ba\u7d50\u69cb\u5224\u5b9a\uff0c\u6027\u60c5\u77e9\u9663\u4f5c\u70ba\u8a9e\u6c23\u6821\u6b63\u3002',
+        '\u5df2\u77e5\u5b57\u8868\u512a\u5148\u4f7f\u7528\u56fa\u5b9a\u8cc7\u6599\uff1b\u672a\u77e5\u5b57\u53ea\u80fd\u6a19\u793a\u70ba\u7d50\u69cb\u4f30\u7b97\uff0c\u4e0d\u5f97\u5047\u88dd\u6709\u5b8c\u6574\u5b57\u6e90\u3002',
+      ],
+      prohibitedMoves: [
+        '\u4e0d\u5f97\u628a\u7b2c\u4e00\u5c64\u5beb\u6210\u4e94\u5143\u7d20\u88dc\u5f37\u5efa\u8b70\u3002',
+        '\u4e0d\u5f97\u8986\u84cb\u4f7f\u7528\u8005\u59d3\u540d\u539f\u5b57\u3002',
+        '\u4e0d\u5f97\u6539\u52d5\u5176\u4ed6\u5361\u7247\u6216\u8de8\u6a21\u7d44\u91cd\u65b0\u8a08\u7b97\u3002',
+      ],
+    },
+  };
+}
+
+
+const NAMEOLOGY_ELEMENT_ORDER: NameologyElement[] = ['\u706b', '\u6c34', '\u6728', '\u91d1', '\u571f'];
+
+const NAMEOLOGY_REINFORCEMENT_ACTION: Record<NameologyElement, { direction: string; reason: string; action: string }> = {
+  '\u6728': {
+    direction: '\u88dc\u5f37\u5b78\u7fd2\u3001\u4eba\u8108\u8207\u6210\u9577\u8ef8\u7dda',
+    reason: '\u59d3\u540d\u89e3\u8b80\u986f\u793a\u6210\u9577\u8207\u5ef6\u4f38\u662f\u9700\u8981\u88ab\u4e3b\u52d5\u5e36\u8d77\u7684\u65b9\u5411\u3002',
+    action: '\u5148\u56fa\u5b9a\u4e00\u500b\u5b78\u7fd2\u4e3b\u984c\uff0c\u518d\u5efa\u7acb\u4e00\u500b\u53ef\u9023\u7e8c\u4ea4\u6d41\u7684\u4eba\u8108\u5834\u57df\u3002',
+  },
+  '\u706b': {
+    direction: '\u88dc\u5f37\u8868\u9054\u3001\u884c\u52d5\u8207\u80fd\u898b\u5ea6',
+    reason: '\u59d3\u540d\u89e3\u8b80\u986f\u793a\u8a72\u628a\u5167\u5728\u610f\u5716\u8f49\u6210\u53ef\u88ab\u770b\u898b\u7684\u884c\u52d5\u3002',
+    action: '\u6bcf\u5929\u5b8c\u6210\u4e00\u500b\u5c0f\u578b\u5c0d\u5916\u8868\u9054\uff1a\u8aaa\u51fa\u7acb\u5834\u3001\u767c\u5e03\u6210\u679c\u6216\u4e3b\u52d5\u63a8\u9032\u4e00\u4ef6\u4e8b\u3002',
+  },
+  '\u571f': {
+    direction: '\u88dc\u5f37\u7a69\u5b9a\u3001\u627f\u64d4\u8207\u8cc7\u6e90\u7d2f\u7a4d',
+    reason: '\u59d3\u540d\u89e3\u8b80\u986f\u793a\u57fa\u790e\u76e4\u9700\u8981\u66f4\u7a69\uff0c\u624d\u80fd\u627f\u63a5\u5f8c\u7e8c\u767c\u5c55\u3002',
+    action: '\u5148\u6574\u7406\u751f\u6d3b\u7bc0\u594f\u3001\u8ca1\u52d9\u8207\u8cac\u4efb\u6e05\u55ae\uff0c\u7528\u56fa\u5b9a\u7bc0\u9ede\u5efa\u7acb\u53ef\u4fe1\u4efb\u7684\u7d2f\u7a4d\u611f\u3002',
+  },
+  '\u91d1': {
+    direction: '\u88dc\u5f37\u5224\u65b7\u3001\u754c\u7dda\u8207\u898f\u5247',
+    reason: '\u59d3\u540d\u89e3\u8b80\u986f\u793a\u9700\u8981\u7528\u66f4\u6e05\u695a\u7684\u6a19\u6e96\u4f86\u5b9a\u4f4d\u81ea\u5df1\u3002',
+    action: '\u5c07\u76ee\u524d\u6700\u91cd\u8981\u7684\u4e8b\u5217\u51fa\u6a19\u6e96\u3001\u53d6\u6368\u8207\u5e95\u7dda\uff0c\u5148\u5b8c\u6210\u4e00\u6b21\u6e05\u695a\u6c7a\u7b56\u3002',
+  },
+  '\u6c34': {
+    direction: '\u88dc\u5f37\u6d1e\u5bdf\u3001\u60c5\u7dd2\u6574\u7406\u8207\u6d41\u52d5\u6027',
+    reason: '\u59d3\u540d\u89e3\u8b80\u986f\u793a\u9700\u8981\u5148\u7406\u6e05\u5167\u5728\u611f\u53d7\uff0c\u518d\u9032\u5165\u884c\u52d5\u3002',
+    action: '\u6bcf\u5929\u7559\u4e0b\u4e00\u6bb5\u5b89\u975c\u6642\u9593\uff0c\u5beb\u4e0b\u771f\u6b63\u5728\u610f\u7684\u554f\u984c\uff0c\u518d\u9078\u64c7\u4e00\u500b\u6700\u5c0f\u53ef\u884c\u52d5\u3002',
+  },
+};
+
+function completeNameologyElementOrder(sourceElements: NameologyElement[]) {
+  const seen = new Set<NameologyElement>();
+  const result: NameologyElement[] = [];
+  [...sourceElements, ...NAMEOLOGY_ELEMENT_ORDER].forEach((element) => {
+    if (!seen.has(element)) {
+      seen.add(element);
+      result.push(element);
+    }
+  });
+  return result.slice(0, 3);
+}
+
+function buildNameologyAiInterpretationLayer(
+  professionalLayer: NameologyProfessionalLayer,
+  temperamentProfile: NameologyAnalysis['temperamentProfile'],
+  crossCheck: NameologyCrossCheck,
+  grids: NameologyGridItem[],
+  elementFlow: NameologyAnalysis['elementFlow'],
+): NameologyAiInterpretationLayer {
+  const name = professionalLayer.input.name;
+  const givenName = professionalLayer.input.givenName || name.slice(1);
+  const givenElements = professionalLayer.characterDecomposition.slice(1).map((item) => item.element);
+  const allElements = professionalLayer.characterDecomposition.map((item) => item.element);
+  const gridElements = grids.map((item) => item.element);
+  const focusElements = completeNameologyElementOrder([...givenElements, ...allElements, ...gridElements]);
+  const firstChar = professionalLayer.characterDecomposition[0];
+  const mainChar = professionalLayer.characterDecomposition[1] ?? firstChar;
+  const topTendencies = temperamentProfile.topTendencies.slice(0, 3);
+  const primarySignals = [professionalLayer.professionalSummary, professionalLayer.elementStory, temperamentProfile.clearDirection, crossCheck.summary].filter(Boolean);
+
+  return {
+    layer: 'ai_nameology_interpretation',
+    sourceLayer: 'professional_nameology_decomposition',
+    recalculationAllowed: false,
+    focusElements,
+    primarySignals,
+    userReadableSummary: 'AI \u8b80\u53d6\u7b2c\u4e00\u5c64\u59d3\u540d\u62c6\u89e3\u5f8c\u5224\u5b9a\uff1a\u300c' + name + '\u300d\u7684\u540d\u5b57\u4e3b\u8ef8\u662f\u7531\u300c' + givenName + '\u300d\u5c55\u958b\uff0c\u6838\u5fc3\u8868\u73fe\u5728' + topTendencies.map((item) => item.label).join('\u3001') + '\u3002',
+    personalityStory: '\u59d3\u6c0f\u63d0\u4f9b\u6839\u57fa\uff0c\u540d\u5b57\u8ca0\u8cac\u958b\u5c55\u500b\u4eba\u6545\u4e8b\u3002AI \u5224\u5b9a\u6b64\u59d3\u540d\u7684\u6027\u683c\u6545\u4e8b\u662f\uff1a\u5148\u5efa\u7acb\u8b58\u5225\u611f\uff0c\u518d\u628a\u81ea\u5df1\u7684\u7279\u8cea\u8f49\u6210\u53ef\u88ab\u770b\u898b\u7684\u884c\u52d5\u3002',
+    relationshipStyle: '\u95dc\u4fc2\u98a8\u683c\u7531\u300c' + (mainChar?.radicalImagery ?? professionalLayer.radicalNarrative) + '\u300d\u5e36\u51fa\uff0cAI \u5224\u5b9a\u6b64\u4eba\u5728\u4eba\u969b\u4e2d\u9700\u8981\u628a\u611f\u53d7\u3001\u7acb\u5834\u8207\u754c\u7dda\u8aaa\u6e05\u695a\u3002',
+    actionStyle: '\u884c\u52d5\u98a8\u683c\u4ee5' + focusElements[0] + '\u70ba\u7b2c\u4e00\u8ef8\u7dda\uff0cAI \u5224\u5b9a\u8a72\u5148\u88dc\u8d77\u9019\u500b\u8ef8\u7dda\uff0c\u518d\u9032\u5165\u7b2c\u4e8c\u3001\u7b2c\u4e09\u8ef8\u7dda\u3002',
+    hiddenTension: elementFlow.some((item) => item.relation === '\u76f8\u524b')
+      ? 'AI \u5224\u5b9a\u59d3\u540d\u5167\u6709\u76f8\u524b\u62c9\u626f\uff0c\u9019\u662f\u9700\u8981\u628a\u58d3\u529b\u8f49\u6210\u7d00\u5f8b\u8207\u754c\u7dda\u7684\u8a0a\u865f\u3002'
+      : 'AI \u5224\u5b9a\u59d3\u540d\u6d41\u52d5\u9806\u66a2\uff0c\u91cd\u9ede\u662f\u4e0d\u8981\u8b93\u512a\u52e2\u505c\u7559\u5728\u60f3\u6cd5\uff0c\u800c\u8981\u843d\u5230\u53ef\u57f7\u884c\u884c\u52d5\u3002',
+    evidenceChain: [professionalLayer.nameStory, professionalLayer.radicalNarrative, professionalLayer.elementStory, temperamentProfile.summary, crossCheck.summary].filter(Boolean),
+    interpretationPoints: [
+      {
+        title: '\u6027\u683c\u4e3b\u8ef8',
+        reading: '\u6838\u5fc3\u6027\u60c5\u843d\u5728' + topTendencies.map((item) => item.label).join('\u3001') + '\uff0c\u9069\u5408\u628a\u5929\u8ce6\u8f49\u6210\u7a69\u5b9a\u884c\u70ba\u3002',
+        sourceEvidence: topTendencies.map((item) => item.meaning),
+      },
+      {
+        title: '\u5b57\u7fa9\u6545\u4e8b',
+        reading: professionalLayer.nameStory,
+        sourceEvidence: professionalLayer.characterDecomposition.map((item) => item.storyLine),
+      },
+      {
+        title: '\u4e94\u884c\u6d41\u52d5',
+        reading: professionalLayer.elementStory,
+        sourceEvidence: elementFlow.map((item) => item.note),
+      },
+    ],
+  };
+}
+
+function buildNameologyReinforcementLayer(aiInterpretationLayer: NameologyAiInterpretationLayer): NameologyReinforcementLayer {
+  const priorityElements = completeNameologyElementOrder(aiInterpretationLayer.focusElements);
+  const labels = ['\u7b2c\u4e00\u88dc\u5f37', '\u7b2c\u4e8c\u88dc\u5f37', '\u7b2c\u4e09\u88dc\u5f37'] as const;
+  const priorities = priorityElements.map((element, index) => {
+    const action = NAMEOLOGY_REINFORCEMENT_ACTION[element];
+    return { order: (index + 1) as 1 | 2 | 3, label: labels[index], element, direction: action.direction, reason: action.reason, action: action.action };
+  });
+  const [first, second, third] = priorities;
+
+  return {
+    layer: 'ai_nameology_reinforcement',
+    sourceLayer: 'ai_nameology_interpretation',
+    recalculationAllowed: false,
+    clearStatement: 'AI \u5224\u5b9a\uff1a\u59d3\u540d\u5b78\u7b2c\u4e00\u88dc\u5f37\u70ba\u3010' + first.element + '\u3011\u3002\u5b8c\u6210\u5f8c\uff0c\u4f9d\u5e8f\u88dc\u3010' + second.element + '\u3011\uff0c\u6700\u5f8c\u88dc\u3010' + third.element + '\u3011\u3002',
+    priorities,
+    executionPrinciple: 'AI \u4e0d\u9810\u6e2c\u547d\u904b\uff1bAI \u5224\u5b9a\u76ee\u524d\u6700\u9700\u8981\u88dc\u5f37\u7684\u65b9\u5411\u3002\u4f7f\u7528\u8005\u4f9d\u5e8f\u57f7\u884c\uff0c\u6210\u679c\u7531\u4f7f\u7528\u8005\u81ea\u5df1\u5275\u9020\u3002',
+    boundaries: [
+      '\u7b2c\u4e09\u5c64\u53ea\u8b80\u53d6\u7b2c\u4e8c\u5c64 AI \u89e3\u8b80\uff0c\u4e0d\u91cd\u65b0\u62c6\u5b57\u3002',
+      '\u88dc\u5f37\u662f\u660e\u78ba\u65b9\u5411\uff0c\u4e0d\u662f\u5c0d\u4eba\u751f\u7d50\u679c\u505a\u4fdd\u8b49\u3002',
+      '\u9019\u4efd\u88dc\u5f37\u53ea\u5c6c\u65bc\u59d3\u540d\u5b78\u6a21\u7d44\uff0c\u4e0d\u6539\u52d5\u5176\u4ed6\u5361\u7247\u3002',
+    ],
+  };
+}
+
+
 export function buildNameologyAnalysis(name: string, nameScores: DimensionScores, context?: { gender?: Gender; bloodType?: Exclude<BloodType, ''>; birthDate?: string }): NameologyAnalysis {
   const cleanName = name.trim();
   const sourceChars = Array.from(cleanName).slice(0, 8);
@@ -552,6 +897,8 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
     });
   }
 
+  const professionalLayer = buildNameologyProfessionalLayer(cleanName, characters, composition, elementFlow);
+
   const relationScore = elementFlow.reduce((sum, item) => sum + (item.relation === '相生' ? 8 : item.relation === '比和' ? 4 : -6), 62);
   const topScores = Object.entries(nameScores).sort((a, b) => b[1] - a[1]).slice(0, 3);
   const averageTop = topScores.reduce((sum, [, value]) => sum + value, 0) / Math.max(1, topScores.length);
@@ -561,12 +908,17 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
   const dominantTheme = ELEMENT_THEME[dominantElement];
   const mainChars = characters.slice(0, 3).map((item) => `「${item.char}」${item.element}${item.yinYang}`).join('、');
   const topTemperaments = temperamentProfile.topTendencies.slice(0, 3).map((item) => item.label).join('、');
+  const aiInterpretationLayer = buildNameologyAiInterpretationLayer(professionalLayer, temperamentProfile, crossCheck, grids, elementFlow);
+  const reinforcementLayer = buildNameologyReinforcementLayer(aiInterpretationLayer);
 
   return {
     name: cleanName,
     composition,
     crossCheck,
     characters,
+    professionalLayer,
+    aiInterpretationLayer,
+    reinforcementLayer,
     grids,
     elementFlow,
     temperamentProfile,

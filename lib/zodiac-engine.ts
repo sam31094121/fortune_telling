@@ -35,21 +35,137 @@ export type ZodiacSignSummary = {
   dateRange: string;
 };
 
+export type ZodiacModality = 'cardinal' | 'fixed' | 'mutable';
+
+export type ZodiacPolarity = 'yang' | 'yin';
+
+export type ZodiacPointRole = 'sun' | 'moon' | 'rising';
+
+type NormalizedZodiacInput = {
+  name: string | null;
+  birthDate: string;
+  birthTime: string | null;
+  birthCityId: string | null;
+};
+
+export type ZodiacProfessionalPoint = {
+  role: ZodiacPointRole;
+  roleLabel: string;
+  sign: ZodiacSignSummary;
+  element: ZodiacElement;
+  modality: ZodiacModality;
+  polarity: ZodiacPolarity;
+  ruler: string;
+  houseTheme: string;
+  longitudeDeg: number | null;
+  calculationSource: 'date_range' | 'astronomy_engine' | 'not_available';
+  available: boolean;
+  professionalMeaning: string;
+};
+
+export type ZodiacProfessionalChart = {
+  layer: 'professional_zodiac_chart';
+  generatedFrom: 'normalized_birth_input';
+  recalculationAllowed: false;
+  input: NormalizedZodiacInput;
+  precision: ZodiacPrecision;
+  precisionScore: number;
+  dataQuality: {
+    birthDate: 'provided';
+    birthTime: 'provided' | 'missing';
+    birthCity: 'provided' | 'assumed' | 'missing';
+    note: string;
+  };
+  points: {
+    sun: ZodiacProfessionalPoint;
+    moon: ZodiacProfessionalPoint | null;
+    rising: ZodiacProfessionalPoint | null;
+  };
+  dominantSignature: {
+    element: ZodiacElement;
+    modality: ZodiacModality;
+    polarity: ZodiacPolarity;
+    score: number;
+    basis: string[];
+  };
+  elementDistribution: Record<ZodiacElement, number>;
+  modalityDistribution: Record<ZodiacModality, number>;
+  polarityDistribution: Record<ZodiacPolarity, number>;
+  professionalKeywords: string[];
+  readingBoundaries: string[];
+  integrationWeights: Record<'AIR' | 'FIRE' | 'WATER' | 'EARTH', number>;
+};
+
+export type ZodiacDeepPointReading = {
+  role: ZodiacPointRole;
+  roleLabel: string;
+  sourceSign: ZodiacSignSummary;
+  title: string;
+  interpretation: string;
+  integrationFocus: string;
+  evidence: string[];
+};
+
+export type ZodiacDeepAnalysis = {
+  layer: 'ai_zodiac_deep_analysis';
+  sourceLayer: 'professional_zodiac_chart';
+  recalculationAllowed: false;
+  professionalInputDigest: string[];
+  coreNarrative: string;
+  pointReadings: ZodiacDeepPointReading[];
+  dominantInterpretation: string;
+  tensionPatterns: string[];
+  growthOpportunities: string[];
+  userFriendlySummary: string;
+  aiPromptMaterial: {
+    fixedFacts: string[];
+    interpretationRules: string[];
+    prohibitedMoves: string[];
+  };
+};
+
+export type ZodiacBrandElementCode = 'AIR' | 'SPACE' | 'WATER' | 'FIRE' | 'EARTH';
+
+export type ZodiacReinforcementPriority = {
+  rank: 1 | 2 | 3;
+  element: ZodiacBrandElementCode;
+  elementLabel: string;
+  needScore: number;
+  reason: string;
+  actions: string[];
+  sourceEvidence: string[];
+};
+
+export type ZodiacReinforcementPlan = {
+  layer: 'ai_zodiac_reinforcement_plan';
+  sourceLayer: 'ai_zodiac_deep_analysis';
+  recalculationAllowed: false;
+  principle: string;
+  priorities: [ZodiacReinforcementPriority, ZodiacReinforcementPriority, ZodiacReinforcementPriority];
+  executionOrder: string[];
+  integrationLayerPayload: {
+    moduleId: 'ZODIAC';
+    sourceEngineVersion: 'zodiac_core_v4';
+    elementNeedScore: Record<ZodiacBrandElementCode, number>;
+    firstPriority: ZodiacBrandElementCode;
+    evidence: string[];
+    writePolicy: 'self_can_update_growth_center_other_single_reading_only';
+  };
+};
+
 export type ZodiacAnalysisResult = {
   ok: true;
   mode: 'zodiac';
   moduleId: 'ZODIAC';
-  engineVersion: 'zodiac_core_v2';
-  input: {
-    name: string | null;
-    birthDate: string;
-    birthTime: string | null;
-    birthCityId: string | null;
-  };
+  engineVersion: 'zodiac_core_v4';
+  input: NormalizedZodiacInput;
   precision: ZodiacPrecision;
   sign: ZodiacSignSummary;
   risingSign: ZodiacSignSummary | null;
   moonSign: ZodiacSignSummary | null;
+  professionalChart: ZodiacProfessionalChart;
+  deepAnalysis: ZodiacDeepAnalysis;
+  reinforcementPlan: ZodiacReinforcementPlan;
   chartNote: string;
   personality: string;
   strengths: string[];
@@ -72,6 +188,29 @@ type ZodiacProfile = {
   blindSpots: string[];
   currentAdvice: string;
   weeklyReminder: string;
+};
+
+type ZodiacMeta = {
+  modality: ZodiacModality;
+  polarity: ZodiacPolarity;
+  ruler: string;
+  houseTheme: string;
+  keywords: string[];
+};
+
+const ZODIAC_META: Record<ZodiacSignKey, ZodiacMeta> = {
+  aries: { modality: 'cardinal', polarity: 'yang', ruler: '\u706b\u661f', houseTheme: '\u81ea\u6211\u3001\u555f\u52d5\u3001\u52c7\u6c23', keywords: ['\u555f\u52d5', '\u884c\u52d5', '\u7af6\u722d'] },
+  taurus: { modality: 'fixed', polarity: 'yin', ruler: '\u91d1\u661f', houseTheme: '\u8cc7\u6e90\u3001\u7a69\u5b9a\u3001\u50f9\u503c', keywords: ['\u7a69\u5b9a', '\u7d2f\u7a4d', '\u611f\u5b98'] },
+  gemini: { modality: 'mutable', polarity: 'yang', ruler: '\u6c34\u661f', houseTheme: '\u5b78\u7fd2\u3001\u6e9d\u901a\u3001\u8a0a\u606f', keywords: ['\u5b78\u7fd2', '\u9023\u7d50', '\u8868\u9054'] },
+  cancer: { modality: 'cardinal', polarity: 'yin', ruler: '\u6708\u4eae', houseTheme: '\u5bb6\u5ead\u3001\u5b89\u5168\u611f\u3001\u7167\u9867', keywords: ['\u5b89\u5b9a', '\u7167\u9867', '\u611f\u53d7'] },
+  leo: { modality: 'fixed', polarity: 'yang', ruler: '\u592a\u967d', houseTheme: '\u5275\u9020\u3001\u8868\u73fe\u3001\u821e\u53f0', keywords: ['\u8868\u73fe', '\u9818\u5c0e', '\u71b1\u60c5'] },
+  virgo: { modality: 'mutable', polarity: 'yin', ruler: '\u6c34\u661f', houseTheme: '\u79e9\u5e8f\u3001\u5206\u6790\u3001\u6539\u5584', keywords: ['\u5206\u6790', '\u6574\u7406', '\u7cbe\u6e96'] },
+  libra: { modality: 'cardinal', polarity: 'yang', ruler: '\u91d1\u661f', houseTheme: '\u95dc\u4fc2\u3001\u5e73\u8861\u3001\u5354\u8abf', keywords: ['\u5354\u8abf', '\u5be9\u7f8e', '\u6c7a\u7b56'] },
+  scorpio: { modality: 'fixed', polarity: 'yin', ruler: '\u51a5\u738b\u661f', houseTheme: '\u6df1\u5ea6\u3001\u8f49\u5316\u3001\u6d1e\u5bdf', keywords: ['\u6d1e\u5bdf', '\u5c08\u6ce8', '\u8f49\u5316'] },
+  sagittarius: { modality: 'mutable', polarity: 'yang', ruler: '\u6728\u661f', houseTheme: '\u9060\u65b9\u3001\u4fe1\u5ff5\u3001\u63a2\u7d22', keywords: ['\u63a2\u7d22', '\u8996\u91ce', '\u81ea\u7531'] },
+  capricorn: { modality: 'cardinal', polarity: 'yin', ruler: '\u571f\u661f', houseTheme: '\u8cac\u4efb\u3001\u76ee\u6a19\u3001\u7d50\u69cb', keywords: ['\u8cac\u4efb', '\u7d50\u69cb', '\u9577\u671f'] },
+  aquarius: { modality: 'fixed', polarity: 'yang', ruler: '\u5929\u738b\u661f', houseTheme: '\u7fa4\u9ad4\u3001\u5275\u65b0\u3001\u7cfb\u7d71', keywords: ['\u5275\u65b0', '\u7368\u7acb', '\u7cfb\u7d71'] },
+  pisces: { modality: 'mutable', polarity: 'yin', ruler: '\u6d77\u738b\u661f', houseTheme: '\u60f3\u50cf\u3001\u5171\u611f\u3001\u9748\u611f', keywords: ['\u5171\u611f', '\u60f3\u50cf', '\u7642\u7652'] },
 };
 
 const ZODIAC_PROFILES: ZodiacProfile[] = [
@@ -317,54 +456,395 @@ function resolveBirthCity(birthCityId: string | null): { city: CityEntry; assume
   return { city: getDefaultCity(), assumed: true };
 }
 
+const ZODIAC_ELEMENTS: ZodiacElement[] = ['fire', 'earth', 'air', 'water'];
+const ZODIAC_MODALITIES: ZodiacModality[] = ['cardinal', 'fixed', 'mutable'];
+const ZODIAC_POLARITIES: ZodiacPolarity[] = ['yang', 'yin'];
+
+function buildDistribution<T extends string>(keys: readonly T[]): Record<T, number> {
+  return keys.reduce((acc, key) => ({ ...acc, [key]: 0 }), {} as Record<T, number>);
+}
+
+function addDistribution<T extends string>(target: Record<T, number>, key: T, weight: number) {
+  target[key] = Math.round((target[key] + weight) * 100) / 100;
+}
+
+function topDistributionKey<T extends string>(target: Record<T, number>, keys: readonly T[]): T {
+  return keys.reduce((winner, key) => (target[key] > target[winner] ? key : winner), keys[0]);
+}
+
+function buildProfessionalPoint(
+  role: ZodiacPointRole,
+  roleLabel: string,
+  profile: ZodiacProfile,
+  longitudeDeg: number | null,
+  calculationSource: ZodiacProfessionalPoint['calculationSource'],
+): ZodiacProfessionalPoint {
+  const meta = ZODIAC_META[profile.key];
+  const meaningByRole: Record<ZodiacPointRole, string> = {
+    sun: '\u592a\u967d\u661f\u5ea7\u5b9a\u7fa9\u5916\u5728\u4eba\u683c\u4e3b\u8ef8\u3001\u610f\u5fd7\u65b9\u5411\u8207\u4e3b\u8981\u751f\u547d\u8868\u9054\u3002',
+    moon: '\u6708\u4eae\u661f\u5ea7\u5b9a\u7fa9\u60c5\u7dd2\u53cd\u61c9\u3001\u5b89\u5168\u611f\u9700\u6c42\u8207\u79c1\u9818\u57df\u7684\u5167\u5728\u7bc0\u594f\u3002',
+    rising: '\u4e0a\u5347\u661f\u5ea7\u5b9a\u7fa9\u7b2c\u4e00\u5370\u8c61\u3001\u884c\u52d5\u5165\u53e3\u8207\u4eba\u751f\u4e8b\u4ef6\u7684\u5916\u5728\u958b\u5834\u65b9\u5f0f\u3002',
+  };
+
+  return {
+    role,
+    roleLabel,
+    sign: toSignSummary(profile),
+    element: profile.element,
+    modality: meta.modality,
+    polarity: meta.polarity,
+    ruler: meta.ruler,
+    houseTheme: meta.houseTheme,
+    longitudeDeg: longitudeDeg === null ? null : Math.round(longitudeDeg * 100) / 100,
+    calculationSource,
+    available: calculationSource !== 'not_available',
+    professionalMeaning: meaningByRole[role],
+  };
+}
+
+function buildZodiacProfessionalChart(args: {
+  input: NormalizedZodiacInput;
+  precision: ZodiacPrecision;
+  sunProfile: ZodiacProfile;
+  moonProfile: ZodiacProfile | null;
+  risingProfile: ZodiacProfile | null;
+  moonLongitude: number | null;
+  ascendantLongitude: number | null;
+  cityAssumed: boolean;
+}): ZodiacProfessionalChart {
+  const sun = buildProfessionalPoint('sun', '\u592a\u967d', args.sunProfile, null, 'date_range');
+  const moon = args.moonProfile ? buildProfessionalPoint('moon', '\u6708\u4eae', args.moonProfile, args.moonLongitude, 'astronomy_engine') : null;
+  const rising = args.risingProfile ? buildProfessionalPoint('rising', '\u4e0a\u5347', args.risingProfile, args.ascendantLongitude, 'astronomy_engine') : null;
+  const points = [sun, moon, rising].filter((point): point is ZodiacProfessionalPoint => Boolean(point));
+
+  const elementDistribution = buildDistribution(ZODIAC_ELEMENTS);
+  const modalityDistribution = buildDistribution(ZODIAC_MODALITIES);
+  const polarityDistribution = buildDistribution(ZODIAC_POLARITIES);
+  const weights: Record<ZodiacPointRole, number> = { sun: 1, moon: 0.85, rising: 0.9 };
+
+  points.forEach((point) => {
+    const weight = weights[point.role];
+    addDistribution(elementDistribution, point.element, weight);
+    addDistribution(modalityDistribution, point.modality, weight);
+    addDistribution(polarityDistribution, point.polarity, weight);
+  });
+
+  const dominantElement = topDistributionKey(elementDistribution, ZODIAC_ELEMENTS);
+  const dominantModality = topDistributionKey(modalityDistribution, ZODIAC_MODALITIES);
+  const dominantPolarity = topDistributionKey(polarityDistribution, ZODIAC_POLARITIES);
+  const dominantScore = Math.round((elementDistribution[dominantElement] + modalityDistribution[dominantModality] + polarityDistribution[dominantPolarity]) * 10) / 10;
+  const keywords = Array.from(new Set(points.flatMap((point) => ZODIAC_META[point.sign.key].keywords)));
+  const totalElementWeight = ZODIAC_ELEMENTS.reduce((sum, element) => sum + elementDistribution[element], 0) || 1;
+
+  return {
+    layer: 'professional_zodiac_chart',
+    generatedFrom: 'normalized_birth_input',
+    recalculationAllowed: false,
+    input: args.input,
+    precision: args.precision,
+    precisionScore: args.precision === 'FULL_CHART' ? 100 : args.precision === 'DATE_TIME' ? 74 : 46,
+    dataQuality: {
+      birthDate: 'provided',
+      birthTime: args.input.birthTime ? 'provided' : 'missing',
+      birthCity: args.input.birthTime ? (args.cityAssumed ? 'assumed' : 'provided') : 'missing',
+      note: args.input.birthTime
+        ? args.cityAssumed
+          ? '\u5df2\u63d0\u4f9b\u51fa\u751f\u6642\u9593\uff0c\u4f46\u51fa\u751f\u57ce\u5e02\u672a\u63d0\u4f9b\uff1b\u4e0a\u5347\u661f\u5ea7\u4ee5\u53f0\u5317\u4f5c\u70ba\u4f30\u7b97\u57fa\u6e96\u3002'
+          : '\u51fa\u751f\u65e5\u671f\u3001\u6642\u9593\u8207\u57ce\u5e02\u5b8c\u6574\uff0c\u5df2\u5efa\u7acb\u5b8c\u6574\u661f\u76e4\u7b2c\u4e00\u5c64\u8cc7\u6599\u3002'
+        : '\u76ee\u524d\u53ea\u63d0\u4f9b\u51fa\u751f\u65e5\u671f\uff0c\u7b2c\u4e00\u5c64\u5148\u5efa\u7acb\u592a\u967d\u661f\u5ea7\u5c08\u696d\u76e4\uff1b\u88dc\u4e0a\u6642\u9593\u8207\u57ce\u5e02\u5f8c\u53ef\u52a0\u5165\u6708\u4eae\u8207\u4e0a\u5347\u3002',
+    },
+    points: { sun, moon, rising },
+    dominantSignature: {
+      element: dominantElement,
+      modality: dominantModality,
+      polarity: dominantPolarity,
+      score: dominantScore,
+      basis: points.map((point) => point.roleLabel + point.sign.name),
+    },
+    elementDistribution,
+    modalityDistribution,
+    polarityDistribution,
+    professionalKeywords: keywords,
+    readingBoundaries: [
+      '\u7b2c\u4e00\u5c64\u53ea\u5efa\u7acb\u5c08\u696d\u661f\u5ea7\u76e4\u8cc7\u6599\uff0c\u4e0d\u8f38\u51fa AI \u88dc\u5f37\u5efa\u8b70\u3002',
+      '\u7b2c\u4e8c\u5c64 AI \u89e3\u8b80\u5fc5\u9808\u8b80\u53d6\u672c\u5c64\u8cc7\u6599\uff0c\u4e0d\u5f97\u91cd\u65b0\u8a08\u7b97\u661f\u5ea7\u76e4\u3002',
+      '\u7b2c\u4e09\u5c64\u4e94\u5143\u7d20\u88dc\u5f37\u5fc5\u9808\u8b80\u53d6\u7b2c\u4e8c\u5c64\u7d50\u8ad6\uff0c\u4e0d\u5f97\u9006\u5411\u6539\u5beb\u672c\u5c64\u547d\u76e4\u3002',
+    ],
+    integrationWeights: {
+      AIR: Math.round((elementDistribution.air / totalElementWeight) * 100),
+      FIRE: Math.round((elementDistribution.fire / totalElementWeight) * 100),
+      WATER: Math.round((elementDistribution.water / totalElementWeight) * 100),
+      EARTH: Math.round((elementDistribution.earth / totalElementWeight) * 100),
+    },
+  };
+}
+
+const ZODIAC_ELEMENT_LABEL: Record<ZodiacElement, string> = {
+  fire: '\u706b\u8c61',
+  earth: '\u571f\u8c61',
+  air: '\u98a8\u8c61',
+  water: '\u6c34\u8c61',
+};
+
+const ZODIAC_MODALITY_LABEL: Record<ZodiacModality, string> = {
+  cardinal: '\u958b\u5275',
+  fixed: '\u56fa\u5b9a',
+  mutable: '\u8b8a\u52d5',
+};
+
+const ZODIAC_POLARITY_LABEL: Record<ZodiacPolarity, string> = {
+  yang: '\u967d\u6027',
+  yin: '\u9670\u6027',
+};
+
+const ZODIAC_ELEMENT_FOCUS: Record<ZodiacElement, string> = {
+  fire: '\u884c\u52d5\u3001\u71b1\u60c5\u3001\u4e3b\u5c0e\u529b',
+  earth: '\u7a69\u5b9a\u3001\u627f\u64d4\u3001\u843d\u5be6\u529b',
+  air: '\u601d\u8003\u3001\u6e9d\u901a\u3001\u9023\u7d50\u529b',
+  water: '\u611f\u53d7\u3001\u76f4\u89ba\u3001\u5171\u611f\u529b',
+};
+
+const ZODIAC_MODALITY_FOCUS: Record<ZodiacModality, string> = {
+  cardinal: '\u555f\u52d5\u4e8b\u4ef6\u8207\u958b\u5275\u65b9\u5411',
+  fixed: '\u7dad\u6301\u6210\u679c\u8207\u7a69\u5b9a\u6838\u5fc3',
+  mutable: '\u8abf\u6574\u7b56\u7565\u8207\u8f49\u63db\u7bc0\u594f',
+};
+
+const ZODIAC_POLARITY_FOCUS: Record<ZodiacPolarity, string> = {
+  yang: '\u5916\u653e\u63a8\u9032\u8207\u4e3b\u52d5\u8868\u9054',
+  yin: '\u5167\u5728\u6c89\u6fb1\u8207\u63a5\u6536\u6574\u5408',
+};
+
+const BRAND_ELEMENT_LABEL: Record<ZodiacBrandElementCode, string> = {
+  AIR: '\u98a8',
+  SPACE: '\u7a7a',
+  WATER: '\u6c34',
+  FIRE: '\u706b',
+  EARTH: '\u5730',
+};
+
+const BRAND_ELEMENT_ACTIONS: Record<ZodiacBrandElementCode, string[]> = {
+  AIR: [
+    '\u628a\u76ee\u6a19\u5beb\u6210 3 \u6b65\u8def\u7dda\uff0c\u4eca\u5929\u5148\u5b8c\u6210\u7b2c 1 \u6b65\u3002',
+    '\u4e3b\u52d5\u9023\u7d50\u4e00\u4f4d\u80fd\u5e36\u4f86\u65b0\u89c0\u9ede\u7684\u4eba\u3002',
+    '\u6bcf\u5929\u56fa\u5b9a 15 \u5206\u9418\u5b78\u4e00\u500b\u65b0\u89c0\u5ff5\u3002',
+  ],
+  SPACE: [
+    '\u5beb\u4e0b\u4e00\u689d\u6e05\u695a\u754c\u7dda\uff0c\u4eca\u5929\u5c31\u57f7\u884c\u3002',
+    '\u5c07\u624b\u4e0a\u4efb\u52d9\u522a\u5230 3 \u4ef6\uff0c\u5148\u5c08\u5fc3\u5b8c\u6210\u4e3b\u9805\u3002',
+    '\u7528\u4e00\u53e5\u8a71\u5b9a\u7fa9\u81ea\u5df1\u73fe\u5728\u7684\u512a\u5148\u7d1a\u3002',
+  ],
+  WATER: [
+    '\u5148\u8a18\u9304\u611f\u53d7\uff0c\u518d\u56de\u61c9\u4e8b\u4ef6\uff0c\u4e0d\u8b93\u60c5\u7dd2\u88ab\u5ffd\u7565\u3002',
+    '\u4eca\u5929\u505a 10 \u5206\u9418\u975c\u5fc3\u6574\u7406\u3002',
+    '\u5728\u91cd\u8981\u5c0d\u8a71\u524d\uff0c\u5148\u807d\u5b8c\u5c0d\u65b9\u771f\u6b63\u9700\u6c42\u3002',
+  ],
+  FIRE: [
+    '\u4eca\u5929\u5b8c\u6210\u4e00\u500b\u80fd\u88ab\u770b\u898b\u7684\u884c\u52d5\u3002',
+    '\u628a\u771f\u6b63\u60f3\u8aaa\u7684\u8a71\u7528\u4e00\u6bb5\u6e05\u695a\u6587\u5b57\u8aaa\u51fa\u4f86\u3002',
+    '\u7d66\u76ee\u6a19\u4e00\u500b\u660e\u78ba\u622a\u6b62\u6642\u9593\u3002',
+  ],
+  EARTH: [
+    '\u56fa\u5b9a\u7761\u7720\u3001\u98f2\u98df\u6216\u5de5\u4f5c\u7bc0\u594f\uff0c\u5148\u628a\u57fa\u790e\u7a69\u4f4f\u3002',
+    '\u6574\u7406\u4e00\u500b\u4f60\u6bcf\u5929\u6703\u4f7f\u7528\u7684\u7a7a\u9593\u3002',
+    '\u628a\u627f\u8afe\u6e1b\u5230\u53ef\u4ee5\u6301\u7e8c\u5b8c\u6210\u7684\u7bc4\u570d\u3002',
+  ],
+};
+
+function sourcePoints(chart: ZodiacProfessionalChart) {
+  return [chart.points.sun, chart.points.moon, chart.points.rising].filter((point): point is ZodiacProfessionalPoint => Boolean(point));
+}
+
+function pointEvidence(point: ZodiacProfessionalPoint) {
+  return [
+    point.roleLabel + point.sign.name,
+    ZODIAC_ELEMENT_LABEL[point.element] + ' / ' + ZODIAC_MODALITY_LABEL[point.modality] + ' / ' + ZODIAC_POLARITY_LABEL[point.polarity],
+    '\u5b88\u8b77\u661f\uff1a' + point.ruler,
+  ];
+}
+
+function buildZodiacDeepAnalysis(chart: ZodiacProfessionalChart): ZodiacDeepAnalysis {
+  const points = sourcePoints(chart);
+  const pointReadings = points.map((point): ZodiacDeepPointReading => ({
+    role: point.role,
+    roleLabel: point.roleLabel,
+    sourceSign: point.sign,
+    title: point.roleLabel + point.sign.name + '\u5c08\u696d\u89e3\u8b80',
+    interpretation: point.roleLabel + point.sign.name + '\u5e36\u51fa' + ZODIAC_ELEMENT_FOCUS[point.element] + '\uff0c\u8868\u9054\u65b9\u5f0f\u662f' + ZODIAC_MODALITY_FOCUS[point.modality] + '\uff0c\u80fd\u91cf\u6d41\u5411\u662f' + ZODIAC_POLARITY_FOCUS[point.polarity] + '\u3002',
+    integrationFocus: '\u5f8c\u7e8c AI \u89e3\u8b80\u8981\u4ee5' + point.roleLabel + '\u7684' + point.houseTheme + '\u4f5c\u70ba\u4e3b\u8981\u8a9e\u5883\uff0c\u4e0d\u53ef\u91cd\u65b0\u8a08\u7b97\u661f\u76e4\u3002',
+    evidence: pointEvidence(point),
+  }));
+
+  const dominant = chart.dominantSignature;
+  const elementLabel = ZODIAC_ELEMENT_LABEL[dominant.element];
+  const modalityLabel = ZODIAC_MODALITY_LABEL[dominant.modality];
+  const polarityLabel = ZODIAC_POLARITY_LABEL[dominant.polarity];
+  const weakElements = ZODIAC_ELEMENTS.filter((element) => chart.elementDistribution[element] <= 0.15).map((element) => ZODIAC_ELEMENT_LABEL[element]);
+  const tensionPatterns = [
+    weakElements.length ? '\u76e4\u9762\u4e2d' + weakElements.join('\u3001') + '\u8a0a\u865f\u4e0d\u8db3\uff0c\u7b2c\u4e09\u5c64\u88dc\u5f37\u5fc5\u9808\u512a\u5148\u7d0d\u5165\u3002' : '\u56db\u5143\u7d20\u8a0a\u865f\u5206\u4f48\u6c92\u6709\u660e\u986f\u7f3a\u4f4d\uff0c\u7b2c\u4e09\u5c64\u6539\u4ee5\u5f31\u52e2\u6392\u5e8f\u88dc\u5f37\u3002',
+    chart.points.moon && chart.points.rising ? '\u592a\u967d\u3001\u6708\u4eae\u3001\u4e0a\u5347\u4e09\u9ede\u8cc7\u6599\u5df2\u6210\u7acb\uff0c\u7b2c\u4e8c\u5c64\u53ef\u505a\u4eba\u683c\u3001\u60c5\u7dd2\u3001\u5916\u5728\u884c\u52d5\u7684\u4ea4\u53c9\u89e3\u8b80\u3002' : '\u51fa\u751f\u6642\u9593\u6216\u57ce\u5e02\u672a\u5b8c\u6574\uff0c\u7b2c\u4e8c\u5c64\u4ee5\u592a\u967d\u661f\u5ea7\u70ba\u4e3b\uff0c\u4e0d\u64f4\u5f35\u6210\u5b8c\u6574\u661f\u76e4\u7d50\u8ad6\u3002',
+    '\u4e3b\u5c0e\u7d50\u69cb\u70ba' + elementLabel + '\u3001' + modalityLabel + '\u3001' + polarityLabel + '\uff0cAI \u8a9e\u6c23\u61c9\u76f4\u63a5\u3001\u6709\u65b9\u5411\uff0c\u4e0d\u4f7f\u7528\u6a21\u7cca\u8a5e\u3002',
+  ];
+
+  return {
+    layer: 'ai_zodiac_deep_analysis',
+    sourceLayer: 'professional_zodiac_chart',
+    recalculationAllowed: false,
+    professionalInputDigest: [
+      '\u7cbe\u6e96\u5ea6\uff1a' + chart.precision + ' / ' + chart.precisionScore + '%',
+      '\u4e3b\u5c0e\u7d50\u69cb\uff1a' + dominant.basis.join('\u3001'),
+      '\u4e3b\u5c0e\u80fd\u91cf\uff1a' + elementLabel + '\u3001' + modalityLabel + '\u3001' + polarityLabel,
+    ],
+    coreNarrative: '\u7b2c\u4e8c\u5c64 AI \u89e3\u8b80\uff1a' + dominant.basis.join('\u3001') + '\u5f62\u6210\u7684\u4e3b\u8ef8\u662f' + elementLabel + '\u7684' + ZODIAC_ELEMENT_FOCUS[dominant.element] + '\uff0c\u900f\u904e' + modalityLabel + '\u7bc0\u594f\u9032\u884c\u8868\u9054\u3002',
+    pointReadings,
+    dominantInterpretation: '\u4e3b\u5c0e\u7d50\u69cb\u5224\u5b9a\u70ba\uff1a' + elementLabel + '\u3001' + modalityLabel + '\u3001' + polarityLabel + '\u3002\u9019\u662f\u7b2c\u4e8c\u5c64\u89e3\u8b80\u7684\u4e3b\u5e79\uff0c\u4e0d\u518d\u56de\u982d\u91cd\u7b97\u661f\u5ea7\u3002',
+    tensionPatterns,
+    growthOpportunities: [
+      '\u628a' + ZODIAC_ELEMENT_FOCUS[dominant.element] + '\u8f49\u6210\u6bcf\u5929\u53ef\u57f7\u884c\u7684\u4e00\u500b\u884c\u52d5\u3002',
+      '\u7528' + ZODIAC_MODALITY_FOCUS[dominant.modality] + '\u4f86\u6574\u7406\u73fe\u5728\u7684\u4eba\u751f\u4efb\u52d9\u3002',
+      '\u4fdd\u7559' + ZODIAC_POLARITY_FOCUS[dominant.polarity] + '\u7684\u512a\u52e2\uff0c\u518d\u7531\u7b2c\u4e09\u5c64\u88dc\u4e0a\u7f3a\u53e3\u3002',
+    ],
+    userFriendlySummary: '\u4f60\u7684\u897f\u6d0b\u661f\u5ea7\u89e3\u8b80\u4e3b\u8ef8\u5df2\u5efa\u7acb\uff1a' + elementLabel + '\u662f\u76ee\u524d\u6700\u660e\u986f\u7684\u8868\u9054\u65b9\u5f0f\uff0c\u7b2c\u4e09\u5c64\u6703\u4f9d\u64da\u7f3a\u53e3\u6392\u51fa\u88dc\u5f37\u9806\u5e8f\u3002',
+    aiPromptMaterial: {
+      fixedFacts: points.flatMap((point) => pointEvidence(point)),
+      interpretationRules: [
+        '\u53ea\u8b80\u53d6 professionalChart\uff0c\u4e0d\u91cd\u65b0\u8a08\u7b97\u661f\u5ea7\u3002',
+        '\u5148\u89e3\u91cb\u592a\u967d\u3001\u6708\u4eae\u3001\u4e0a\u5347\u7684\u5206\u5de5\uff0c\u518d\u505a\u7d9c\u5408\u3002',
+        '\u8a9e\u6c23\u5fc5\u9808\u660e\u78ba\u5224\u5b9a\uff0c\u4e0d\u4f7f\u7528\u6a21\u7cca\u8a5e\u3002',
+      ],
+      prohibitedMoves: [
+        '\u4e0d\u76f4\u63a5\u4fee\u6539\u6703\u54e1\u4e94\u5143\u7d20\u6838\u5fc3\u3002',
+        '\u4e0d\u5c07\u897f\u6d0b\u661f\u5ea7\u8207\u5176\u4ed6\u6a21\u7d44\u6df7\u7b97\u3002',
+        '\u4e0d\u4fdd\u8b49\u4eba\u751f\u7d50\u679c\uff0c\u53ea\u5224\u5b9a\u88dc\u5f37\u65b9\u5411\u3002',
+      ],
+    },
+  };
+}
+
+function zodiacBrandStrength(chart: ZodiacProfessionalChart): Record<ZodiacBrandElementCode, number> {
+  const maxModality = Math.max(...ZODIAC_MODALITIES.map((key) => chart.modalityDistribution[key]), 1);
+  const spaceStrength = Math.round(((chart.modalityDistribution.fixed + chart.polarityDistribution.yin) / (maxModality + 1)) * 50);
+  return {
+    AIR: chart.integrationWeights.AIR,
+    SPACE: Math.max(0, Math.min(100, spaceStrength)),
+    WATER: chart.integrationWeights.WATER,
+    FIRE: chart.integrationWeights.FIRE,
+    EARTH: chart.integrationWeights.EARTH,
+  };
+}
+
+function buildZodiacReinforcementPlan(chart: ZodiacProfessionalChart, deepAnalysis: ZodiacDeepAnalysis): ZodiacReinforcementPlan {
+  const strength = zodiacBrandStrength(chart);
+  const needScore = (Object.keys(strength) as ZodiacBrandElementCode[]).reduce((acc, element) => ({ ...acc, [element]: Math.max(0, Math.min(100, 100 - strength[element])) }), {} as Record<ZodiacBrandElementCode, number>);
+  const ranking = (Object.keys(needScore) as ZodiacBrandElementCode[]).sort((a, b) => needScore[b] - needScore[a] || a.localeCompare(b)).slice(0, 3) as [ZodiacBrandElementCode, ZodiacBrandElementCode, ZodiacBrandElementCode];
+  const priorities = ranking.map((element, index) => ({
+    rank: (index + 1) as 1 | 2 | 3,
+    element,
+    elementLabel: BRAND_ELEMENT_LABEL[element] + '\u5143\u7d20',
+    needScore: needScore[element],
+    reason: 'AI \u5224\u5b9a\uff1a\u897f\u6d0b\u661f\u5ea7\u76e4\u4e2d\u3010' + BRAND_ELEMENT_LABEL[element] + '\u3011\u7684\u88dc\u5f37\u9700\u6c42\u70ba ' + needScore[element] + '\uff0c\u672c\u5c64\u6392\u70ba\u7b2c ' + (index + 1) + ' \u88dc\u5f37\u3002',
+    actions: BRAND_ELEMENT_ACTIONS[element],
+    sourceEvidence: [
+      deepAnalysis.dominantInterpretation,
+      '\u4e94\u5143\u7d20\u6b0a\u91cd\u4f86\u81ea\u7b2c\u4e00\u5c64 professionalChart\uff0c\u7b2c\u4e09\u5c64\u4e0d\u91cd\u7b97\u661f\u5ea7\u3002',
+    ],
+  })) as [ZodiacReinforcementPriority, ZodiacReinforcementPriority, ZodiacReinforcementPriority];
+
+  return {
+    layer: 'ai_zodiac_reinforcement_plan',
+    sourceLayer: 'ai_zodiac_deep_analysis',
+    recalculationAllowed: false,
+    principle: 'AI \u4e0d\u9810\u6e2c\u547d\u904b\uff1bAI \u5224\u5b9a\u4f60\u76ee\u524d\u6700\u9700\u8981\u88dc\u5f37\u7684\u65b9\u5411\u3002',
+    priorities,
+    executionOrder: [
+      '\u7b2c\u4e00\u88dc\u5f37\uff1a' + priorities[0].elementLabel,
+      '\u7b2c\u4e8c\u88dc\u5f37\uff1a' + priorities[1].elementLabel,
+      '\u7b2c\u4e09\u88dc\u5f37\uff1a' + priorities[2].elementLabel,
+    ],
+    integrationLayerPayload: {
+      moduleId: 'ZODIAC',
+      sourceEngineVersion: 'zodiac_core_v4',
+      elementNeedScore: needScore,
+      firstPriority: priorities[0].element,
+      evidence: [deepAnalysis.userFriendlySummary, ...priorities[0].sourceEvidence],
+      writePolicy: 'self_can_update_growth_center_other_single_reading_only',
+    },
+  };
+}
+
 export function analyzeZodiac(input: ZodiacAnalysisInput): ZodiacAnalysisResult {
   const birthDate = typeof input.birthDate === 'string' ? input.birthDate.trim() : '';
   const name = typeof input.name === 'string' && input.name.trim().length > 0 ? input.name.trim() : null;
   const birthTime = typeof input.birthTime === 'string' && input.birthTime.trim().length > 0 ? input.birthTime.trim() : null;
   const birthCityId = typeof input.birthCityId === 'string' && input.birthCityId.trim().length > 0 ? input.birthCityId.trim() : null;
-  if (name && name.length > 20) throw new Error('姓名請控制在 20 個字以內。');
+  if (name && name.length > 20) throw new Error('\u59d3\u540d\u8acb\u63a7\u5236\u5728 20 \u500b\u5b57\u4ee5\u5167\u3002');
   if (birthTime) validateBirthTime(birthTime);
 
   const profile = getZodiacSignByBirthDate(birthDate);
-  const displayName = name ? `${name}的` : '';
+  const displayName = name ? name + '\u7684' : '';
+  const normalizedInput: NormalizedZodiacInput = { name, birthDate, birthTime, birthCityId };
 
   let precision: ZodiacPrecision = 'DATE_ONLY';
   let risingSign: ZodiacSignSummary | null = null;
   let moonSign: ZodiacSignSummary | null = null;
-  let chartNote = '目前資料只包含出生日期，本次分析聚焦太陽星座；補上出生時間與城市可解鎖上升星座、月亮星座與完整星盤。';
+  let risingProfile: ZodiacProfile | null = null;
+  let moonProfile: ZodiacProfile | null = null;
+  let moonLongitude: number | null = null;
+  let ascendantLongitude: number | null = null;
+  let cityAssumed = false;
+  let chartNote = '\u76ee\u524d\u8cc7\u6599\u53ea\u5305\u542b\u51fa\u751f\u65e5\u671f\uff0c\u672c\u6b21\u5206\u6790\u805a\u7126\u592a\u967d\u661f\u5ea7\uff1b\u88dc\u4e0a\u51fa\u751f\u6642\u9593\u8207\u57ce\u5e02\u53ef\u89e3\u9396\u4e0a\u5347\u661f\u5ea7\u3001\u6708\u4eae\u661f\u5ea7\u8207\u5b8c\u6574\u661f\u76e4\u3002';
 
   if (birthTime) {
     const { city, assumed } = resolveBirthCity(birthCityId);
+    cityAssumed = assumed;
     precision = assumed ? 'DATE_TIME' : 'FULL_CHART';
 
     const utcInstant = zonedTimeToUtc(birthDate, birthTime, city.timezone);
-    const moonLongitude = Astronomy.EclipticGeoMoon(utcInstant).lon;
-    const ascendantLongitude = computeAscendantLongitude(utcInstant, city.latitude, city.longitude);
+    moonLongitude = Astronomy.EclipticGeoMoon(utcInstant).lon;
+    ascendantLongitude = computeAscendantLongitude(utcInstant, city.latitude, city.longitude);
 
-    moonSign = toSignSummary(longitudeToProfile(moonLongitude));
-    risingSign = toSignSummary(longitudeToProfile(ascendantLongitude));
+    moonProfile = longitudeToProfile(moonLongitude);
+    risingProfile = longitudeToProfile(ascendantLongitude);
+    moonSign = toSignSummary(moonProfile);
+    risingSign = toSignSummary(risingProfile);
 
     chartNote = assumed
-      ? `已依出生時間加入上升星座與月亮星座（採真實天文位置計算）。因未提供出生城市，系統暫以台北（UTC+8）估算地理位置，補上正確出生城市可提升上升星座精確度並解鎖完整星盤。`
-      : `已依出生日期、時間與城市（${city.name}）完成完整星盤等級分析，太陽、月亮與上升星座皆採真實天文位置計算。`;
+      ? '\u5df2\u4f9d\u51fa\u751f\u6642\u9593\u52a0\u5165\u4e0a\u5347\u661f\u5ea7\u8207\u6708\u4eae\u661f\u5ea7\uff08\u63a1\u771f\u5be6\u5929\u6587\u4f4d\u7f6e\u8a08\u7b97\uff09\u3002\u56e0\u672a\u63d0\u4f9b\u51fa\u751f\u57ce\u5e02\uff0c\u7cfb\u7d71\u66ab\u4ee5\u53f0\u5317\uff08UTC+8\uff09\u4f30\u7b97\u5730\u7406\u4f4d\u7f6e\uff0c\u88dc\u4e0a\u6b63\u78ba\u51fa\u751f\u57ce\u5e02\u53ef\u63d0\u5347\u4e0a\u5347\u661f\u5ea7\u7cbe\u78ba\u5ea6\u4e26\u89e3\u9396\u5b8c\u6574\u661f\u76e4\u3002'
+      : '\u5df2\u4f9d\u51fa\u751f\u65e5\u671f\u3001\u6642\u9593\u8207\u57ce\u5e02\uff08' + city.name + '\uff09\u5b8c\u6210\u5b8c\u6574\u661f\u76e4\u7b49\u7d1a\u5206\u6790\uff0c\u592a\u967d\u3001\u6708\u4eae\u8207\u4e0a\u5347\u661f\u5ea7\u7686\u63a1\u771f\u5be6\u5929\u6587\u4f4d\u7f6e\u8a08\u7b97\u3002';
   }
+
+  const professionalChart = buildZodiacProfessionalChart({
+    input: normalizedInput,
+    precision,
+    sunProfile: profile,
+    moonProfile,
+    risingProfile,
+    moonLongitude,
+    ascendantLongitude,
+    cityAssumed,
+  });
+  const deepAnalysis = buildZodiacDeepAnalysis(professionalChart);
+  const reinforcementPlan = buildZodiacReinforcementPlan(professionalChart, deepAnalysis);
 
   return {
     ok: true,
     mode: 'zodiac',
     moduleId: 'ZODIAC',
-    engineVersion: 'zodiac_core_v2',
-    input: { name, birthDate, birthTime, birthCityId },
+    engineVersion: 'zodiac_core_v4',
+    input: normalizedInput,
     precision,
     sign: toSignSummary(profile),
     risingSign,
     moonSign,
+    professionalChart,
+    deepAnalysis,
+    reinforcementPlan,
     chartNote,
-    personality: `${displayName}${profile.name}主軸：${profile.personality}`,
+    personality: displayName + profile.name + '\u4e3b\u8ef8\uff1a' + profile.personality,
     strengths: profile.strengths,
     blindSpots: profile.blindSpots,
     currentAdvice: profile.currentAdvice,
     weeklyReminder: profile.weeklyReminder,
-    integrationSummary: `西洋星座已完成獨立分析，Integration Layer 只讀取本結果作為會員成長資料補充，不重新分析其他命理模組。`,
+    integrationSummary: '\u897f\u6d0b\u661f\u5ea7\u5df2\u5b8c\u6210\u7368\u7acb\u5206\u6790\uff0cIntegration Layer \u53ea\u8b80\u53d6\u672c\u7d50\u679c\u4f5c\u70ba\u6703\u54e1\u6210\u9577\u8cc7\u6599\u88dc\u5145\uff0c\u4e0d\u91cd\u65b0\u5206\u6790\u5176\u4ed6\u547d\u7406\u6a21\u7d44\u3002',
   };
 }

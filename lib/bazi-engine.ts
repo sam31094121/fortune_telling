@@ -55,10 +55,89 @@ export type BaziAnalysisInput = {
 
 export type BaziHiddenStem = { stem: Stem; element: TraditionalElement; tenGod: string };
 export type BaziPillar = { label: string; stem: Stem; branch: Branch; stemElement: TraditionalElement; branchElement: TraditionalElement; stemTenGod: string; hiddenStems: BaziHiddenStem[] };
-export type BaziLuckCycle = { ageRange: string; pillar: string; focus: string; element: TraditionalElement };
-export type BaziAnnualFortune = { year: number; pillar: string; focus: string; element: TraditionalElement };
+export type BaziLuckCycle = { ageRange: string; pillar: string; focus: string; element: TraditionalElement; startAge?: number; endAge?: number; startYear?: number; endYear?: number; tenGod?: string; direction?: 'forward' | 'backward' };
+export type BaziAnnualFortune = { year: number; pillar: string; focus: string; element: TraditionalElement; tenGod?: string };
 export type BaziPillars = Record<PillarKey, BaziPillar>;
 export type BaziInputSnapshot = Required<Pick<BaziAnalysisInput, 'birthDate' | 'birthTime' | 'gender' | 'country' | 'city'>> & { name: string | null };
+
+type HiddenStemRole = 'main' | 'middle' | 'residual';
+type StrengthFactorStatus = 'support' | 'pressure' | 'neutral';
+type PatternStability = 'stable' | 'mixed' | 'unstable';
+
+export type BaziCalendarProfile = {
+  solarDate: string;
+  birthTime: string;
+  calendarType: 'solar';
+  lunarConverted: false;
+  trueSolarTimeApplied: false;
+  shichen: { branchIndex: number; label: string; range: string; branch: string };
+  note: string;
+};
+
+export type BaziPillarDetail = {
+  key: PillarKey;
+  label: string;
+  ganzhi: string;
+  stem: Stem;
+  branch: Branch;
+  stemElement: TraditionalElement;
+  branchElement: TraditionalElement;
+  stemYinYang: YinYang;
+  branchMainElement: TraditionalElement;
+  stemTenGod: string;
+  branchMainTenGod: string;
+  hiddenStemLabels: string[];
+};
+
+export type BaziHiddenStemLayer = {
+  role: HiddenStemRole;
+  roleLabel: string;
+  stem: Stem;
+  element: TraditionalElement;
+  tenGod: string;
+  weight: number;
+};
+
+export type BaziTenGodDistribution = {
+  counts: Record<string, number>;
+  ranked: Array<{ tenGod: string; score: number; level: 'strong' | 'medium' | 'light' }>;
+  dominant: string[];
+  missing: string[];
+};
+
+export type BaziElementStatistics = {
+  stems: Record<TraditionalElement, number>;
+  branches: Record<TraditionalElement, number>;
+  hiddenStems: Record<TraditionalElement, number>;
+  total: Record<TraditionalElement, number>;
+  percentages: Record<TraditionalElement, number>;
+};
+
+export type BaziStrengthFactor = {
+  id: string;
+  label: string;
+  status: StrengthFactorStatus;
+  score: number;
+  detail: string;
+};
+
+export type BaziStructurePattern = {
+  primaryPattern: string;
+  supportingPattern: string;
+  stability: PatternStability;
+  mixed: boolean;
+  brokenBy: string[];
+  specialNotes: string[];
+};
+
+export type BaziGodSet = {
+  joyGod: TraditionalElement;
+  usefulGod: TraditionalElement;
+  avoidGod: TraditionalElement;
+  neutralGod: TraditionalElement;
+  enemyGod: TraditionalElement;
+  reason: string;
+};
 
 export type BaziProfessionalChart = {
   layer: 'professional_chart';
@@ -66,15 +145,22 @@ export type BaziProfessionalChart = {
   recalculationAllowed: false;
   input: BaziInputSnapshot;
   timezone: { country: string; city: string; note: string };
+  calendar: BaziCalendarProfile;
   pillars: BaziPillars;
+  pillarDetails: Record<PillarKey, BaziPillarDetail>;
   hiddenStems: Record<PillarKey, BaziHiddenStem[]>;
+  hiddenStemStructure: Record<PillarKey, BaziHiddenStemLayer[]>;
   tenGods: Record<PillarKey, { stem: string; branchMain: string; hidden: string[] }>;
+  tenGodDistribution: BaziTenGodDistribution;
   dayMaster: { stem: Stem; element: TraditionalElement; strength: number; level: string };
   elementCounts: Record<TraditionalElement, number>;
+  elementStatistics: BaziElementStatistics;
   strengthAnalysis: { monthSeason: string; supportScore: number; pressureScore: number; verdict: string; explanation: string };
-  gods: { joyGod: TraditionalElement; usefulGod: TraditionalElement; avoidGod: TraditionalElement; reason: string };
+  strengthFactors: BaziStrengthFactor[];
+  gods: BaziGodSet;
   luckCycles: BaziLuckCycle[];
   annualFortunes: BaziAnnualFortune[];
+  structurePattern: BaziStructurePattern;
   structureFocus: string;
   detail: BaziDetail;
 };
@@ -87,6 +173,8 @@ export type BaziElementPriority = {
   count: number;
   needScore: number;
   source: 'professional_chart';
+  judgementLevel: 'primary' | 'secondary' | 'supporting';
+  professionalBasis: string[];
   reason: string;
 };
 
@@ -99,7 +187,16 @@ export type BaziDeepAnalysis = {
   plainText: string;
   chartSummary: string;
   keyFindings: string[];
-  userReadableSections: Array<{ title: string; content: string }>;
+  userReadableSections: Array<{ title: string; content: string; basis?: string }>;
+  professionalSignals: {
+    dayMaster: string;
+    structure: string;
+    tenGodFocus: string[];
+    strengthFocus: string;
+    elementFocus: string;
+    timingFocus: string;
+  };
+  logicTrace: Array<{ step: string; source: 'professional_chart'; output: string }>;
   elementPriority: BaziElementPriority[];
 };
 
@@ -112,6 +209,9 @@ export type BaziReinforcementItem = {
   judgement: string;
   action: string;
   suggestion: string;
+  basis: string[];
+  intensity: 'core' | 'important' | 'follow_up';
+  sequenceNote: string;
 };
 
 export type BaziReinforcementPlan = {
@@ -120,6 +220,8 @@ export type BaziReinforcementPlan = {
   sourceChecksum: string;
   recalculationAllowed: false;
   principle: string;
+  basisSummary: string;
+  elementSequenceExplanation: string;
   first: BaziReinforcementItem;
   second: BaziReinforcementItem;
   third: BaziReinforcementItem;
@@ -196,8 +298,18 @@ function hashText(text: string) {
   }
   return (hash >>> 0).toString(16);
 }
-function chartChecksum(chart: Pick<BaziProfessionalChart, 'input' | 'pillars' | 'elementCounts' | 'dayMaster' | 'gods'>) {
-  return hashText(JSON.stringify({ input: chart.input, pillars: chart.pillars, elementCounts: chart.elementCounts, dayMaster: chart.dayMaster, gods: chart.gods }));
+function chartChecksum(chart: Pick<BaziProfessionalChart, 'input' | 'pillars' | 'pillarDetails' | 'elementCounts' | 'elementStatistics' | 'tenGodDistribution' | 'dayMaster' | 'gods' | 'structurePattern'>) {
+  return hashText(JSON.stringify({
+    input: chart.input,
+    pillars: chart.pillars,
+    pillarDetails: chart.pillarDetails,
+    elementCounts: chart.elementCounts,
+    elementStatistics: chart.elementStatistics,
+    tenGodDistribution: chart.tenGodDistribution,
+    dayMaster: chart.dayMaster,
+    gods: chart.gods,
+    structurePattern: chart.structurePattern,
+  }));
 }
 function analysisChecksum(analysis: Pick<BaziDeepAnalysis, 'summary' | 'plainText' | 'elementPriority'>) {
   return hashText(JSON.stringify({ summary: analysis.summary, plainText: analysis.plainText, elementPriority: analysis.elementPriority }));
@@ -249,32 +361,211 @@ function buildStrengthAnalysis(monthBranch: Branch, counts: Record<TraditionalEl
   return { monthSeason: monthSeason + '\u6c23\u7576\u4ee4', supportScore, pressureScore, verdict, explanation: '\u6708\u4ee4\u4e3b\u6c23\u70ba' + monthSeason + '\uff0c\u5f8c\u7aef\u4f9d\u540c\u6c23\u3001\u751f\u6276\u8207\u5236\u5316\u58d3\u529b\u7d71\u8a08\uff0c\u5224\u5b9a\u65e5\u4e3b\u70ba' + verdict + '\u3002' };
 }
 
-function chooseGods(counts: Record<TraditionalElement, number>, strength: string, dayElement: TraditionalElement) {
-  const low = [...ELEMENTS].sort((a, b) => counts[a] - counts[b])[0];
-  const high = [...ELEMENTS].sort((a, b) => counts[b] - counts[a])[0];
-  const useful = strength === '\u504f\u5f31' ? (ELEMENTS.find((element) => GENERATES[element] === dayElement) ?? dayElement) : low;
-  return { joyGod: low, usefulGod: useful, avoidGod: high, reason: '\u516b\u5b57\u5f15\u64ce\u4f9d\u56db\u67f1\u3001\u85cf\u5e72\u3001\u5341\u795e\u8207\u65e5\u4e3b\u65fa\u8870\u5224\u65b7\uff1a\u559c\u795e\u70ba' + low + '\uff0c\u7528\u795e\u70ba' + useful + '\uff0c\u5fcc\u795e\u70ba' + high + '\u3002' };
+function emptyElementRecord(): Record<TraditionalElement, number> {
+  return { '金': 0, '木': 0, '水': 0, '火': 0, '土': 0 };
 }
 
-function buildLuckCycles(dayIndex: number, gender: BaziGender, yearStem: Stem) {
+function roundElementRecord(record: Record<TraditionalElement, number>) {
+  return Object.fromEntries(Object.entries(record).map(([key, value]) => [key, Number(value.toFixed(2))])) as Record<TraditionalElement, number>;
+}
+
+function buildCalendarProfile(input: BaziAnalysisInput, shichenIndex: number): BaziCalendarProfile {
+  const shichen = getShichenInfo(shichenIndex);
+  return {
+    solarDate: input.birthDate,
+    birthTime: input.birthTime,
+    calendarType: 'solar',
+    lunarConverted: false,
+    trueSolarTimeApplied: false,
+    shichen: { branchIndex: shichenIndex, label: shichen.label, range: shichen.range, branch: EARTHLY_BRANCHES[shichenIndex] },
+    note: '第一層命盤以使用者輸入的陽曆日期與當地時間排盤；目前不在此層套入 AI 解讀，也不反向修改輸入資料。',
+  };
+}
+
+function buildPillarDetails(pillars: BaziPillars) {
+  return Object.fromEntries(PILLAR_KEYS.map((key) => {
+    const item = pillars[key];
+    const mainHidden = item.hiddenStems[0];
+    const detail: BaziPillarDetail = {
+      key,
+      label: item.label,
+      ganzhi: item.stem + item.branch,
+      stem: item.stem,
+      branch: item.branch,
+      stemElement: item.stemElement,
+      branchElement: item.branchElement,
+      stemYinYang: STEM_YINYANG[item.stem],
+      branchMainElement: mainHidden?.element ?? item.branchElement,
+      stemTenGod: item.stemTenGod,
+      branchMainTenGod: mainHidden?.tenGod ?? '平衡',
+      hiddenStemLabels: item.hiddenStems.map((hidden) => hidden.stem + hidden.element + hidden.tenGod),
+    };
+    return [key, detail];
+  })) as Record<PillarKey, BaziPillarDetail>;
+}
+
+function buildHiddenStemStructure(pillars: BaziPillars) {
+  const roles: HiddenStemRole[] = ['main', 'middle', 'residual'];
+  const roleLabels: Record<HiddenStemRole, string> = { main: '主氣', middle: '中氣', residual: '餘氣' };
+  const weights = [0.6, 0.35, 0.2];
+  return Object.fromEntries(PILLAR_KEYS.map((key) => [key, pillars[key].hiddenStems.map((hidden, index) => {
+    const role = roles[index] ?? 'residual';
+    return { role, roleLabel: roleLabels[role], stem: hidden.stem, element: hidden.element, tenGod: hidden.tenGod, weight: weights[index] ?? 0.2 };
+  })])) as Record<PillarKey, BaziHiddenStemLayer[]>;
+}
+
+function buildTenGodDistribution(pillars: BaziPillars): BaziTenGodDistribution {
+  const allTenGods = ['比肩', '劫財', '食神', '傷官', '偏財', '正財', '七殺', '正官', '偏印', '正印'];
+  const counts: Record<string, number> = Object.fromEntries(allTenGods.map((name) => [name, 0]));
+  Object.values(pillars).forEach((item) => {
+    counts[item.stemTenGod] = (counts[item.stemTenGod] ?? 0) + 1.2;
+    item.hiddenStems.forEach((hidden, index) => {
+      counts[hidden.tenGod] = (counts[hidden.tenGod] ?? 0) + (index === 0 ? 0.8 : 0.4);
+    });
+  });
+  const normalized = Object.fromEntries(Object.entries(counts).map(([key, value]) => [key, Number(value.toFixed(2))]));
+  const ranked = Object.entries(normalized)
+    .filter(([, score]) => score > 0)
+    .sort((a, b) => b[1] - a[1])
+    .map(([tenGod, score]) => ({ tenGod, score, level: score >= 2 ? 'strong' as const : score >= 1 ? 'medium' as const : 'light' as const }));
+  return {
+    counts: normalized,
+    ranked,
+    dominant: ranked.filter((item) => item.level === 'strong').map((item) => item.tenGod),
+    missing: allTenGods.filter((name) => (normalized[name] ?? 0) === 0),
+  };
+}
+
+function buildElementStatistics(pillars: BaziPillars): BaziElementStatistics {
+  const stems = emptyElementRecord();
+  const branches = emptyElementRecord();
+  const hiddenStems = emptyElementRecord();
+  Object.values(pillars).forEach((item) => {
+    stems[item.stemElement] += 1;
+    branches[item.branchElement] += 1;
+    item.hiddenStems.forEach((hidden, index) => { hiddenStems[hidden.element] += index === 0 ? 0.6 : 0.35; });
+  });
+  const total = emptyElementRecord();
+  ELEMENTS.forEach((element) => { total[element] = stems[element] + branches[element] + hiddenStems[element]; });
+  const totalScore = ELEMENTS.reduce((sum, element) => sum + total[element], 0) || 1;
+  const percentages = emptyElementRecord();
+  ELEMENTS.forEach((element) => { percentages[element] = Number(((total[element] / totalScore) * 100).toFixed(1)); });
+  return { stems: roundElementRecord(stems), branches: roundElementRecord(branches), hiddenStems: roundElementRecord(hiddenStems), total: roundElementRecord(total), percentages };
+}
+
+function buildStrengthFactors(pillars: BaziPillars, counts: Record<TraditionalElement, number>, strength: BaziProfessionalChart['strengthAnalysis']): BaziStrengthFactor[] {
+  const dayElement = pillars.day.stemElement;
+  const source = ELEMENTS.find((element) => GENERATES[element] === dayElement) ?? dayElement;
+  const wealth = CONTROLS[dayElement];
+  const officer = ELEMENTS.find((element) => CONTROLS[element] === dayElement) ?? dayElement;
+  const rootCount = Object.values(pillars).filter((item) => item.hiddenStems.some((hidden) => hidden.element === dayElement)).length;
+  const sameStemCount = Object.values(pillars).filter((item) => item.stemElement === dayElement).length;
+  return [
+    {
+      id: 'month_command',
+      label: '得令（月令）',
+      status: pillars.month.branchElement === dayElement ? 'support' : pillars.month.branchElement === officer ? 'pressure' : 'neutral',
+      score: pillars.month.branchElement === dayElement ? 28 : pillars.month.branchElement === source ? 18 : pillars.month.branchElement === officer ? -18 : 4,
+      detail: '月支主氣為' + pillars.month.branchElement + '，用來判定日主是否得令。',
+    },
+    {
+      id: 'root',
+      label: '有根（地支藏干）',
+      status: rootCount >= 2 ? 'support' : rootCount === 0 ? 'pressure' : 'neutral',
+      score: rootCount * 10,
+      detail: '四支藏干中有 ' + rootCount + ' 處含日主同氣，代表根氣深淺。',
+    },
+    {
+      id: 'peer_stems',
+      label: '天干幫扶',
+      status: sameStemCount >= 2 ? 'support' : sameStemCount === 0 ? 'pressure' : 'neutral',
+      score: sameStemCount * 8,
+      detail: '四柱天干同五行出現 ' + sameStemCount + ' 次，作為比劫幫身訊號。',
+    },
+    {
+      id: 'seal_support',
+      label: '印星生扶',
+      status: counts[source] >= 2 ? 'support' : counts[source] <= 0.7 ? 'pressure' : 'neutral',
+      score: Math.round(counts[source] * 9),
+      detail: source + '生扶日主' + dayElement + '，統計分數為 ' + counts[source] + '。',
+    },
+    {
+      id: 'output_wealth_officer',
+      label: '食傷財官消耗',
+      status: strength.pressureScore > strength.supportScore ? 'pressure' : 'neutral',
+      score: -Math.round((counts[GENERATES[dayElement]] + counts[wealth] + counts[officer]) * 5),
+      detail: '食傷、財星、官殺會消耗或制約日主，合併作為壓力訊號。',
+    },
+  ];
+}
+
+function buildStructurePattern(pillars: BaziPillars, distribution: BaziTenGodDistribution, strength: BaziProfessionalChart['strengthAnalysis']): BaziStructurePattern {
+  const top = distribution.ranked[0]?.tenGod ?? '平衡';
+  const monthMain = pillars.month.hiddenStems[0]?.tenGod ?? pillars.month.stemTenGod;
+  const mixed = distribution.dominant.length >= 3;
+  const brokenBy = distribution.ranked.filter((item) => item.score >= 1.6 && item.tenGod !== top).map((item) => item.tenGod);
+  return {
+    primaryPattern: monthMain + '格',
+    supportingPattern: top + '主導',
+    stability: mixed ? 'mixed' : strength.verdict === '中和' ? 'stable' : 'unstable',
+    mixed,
+    brokenBy,
+    specialNotes: [
+      '第一層僅建立格局資料，不輸出吉凶斷語。',
+      '月令取' + monthMain + '作格局核心，十神分布以' + top + '為主要訊號。',
+    ],
+  };
+}
+
+function chooseGods(counts: Record<TraditionalElement, number>, strength: string, dayElement: TraditionalElement): BaziGodSet {
+  const lowToHigh = [...ELEMENTS].sort((a, b) => counts[a] - counts[b]);
+  const highToLow = [...ELEMENTS].sort((a, b) => counts[b] - counts[a]);
+  const low = lowToHigh[0];
+  const high = highToLow[0];
+  const useful = strength === '偏弱' ? (ELEMENTS.find((element) => GENERATES[element] === dayElement) ?? dayElement) : low;
+  const neutral = lowToHigh.find((element) => element !== useful && element !== low && element !== high) ?? dayElement;
+  const enemy = ELEMENTS.find((element) => CONTROLS[element] === useful) ?? high;
+  return {
+    joyGod: low,
+    usefulGod: useful,
+    avoidGod: high,
+    neutralGod: neutral,
+    enemyGod: enemy,
+    reason: '八字引擎依四柱、藏干、十神與日主旺衰判斷：用神為' + useful + '，喜神為' + low + '，忌神為' + high + '，仇神為' + enemy + '，閒神為' + neutral + '。',
+  };
+}
+
+function buildLuckCycles(dayIndex: number, gender: BaziGender, yearStem: Stem, birthYear: number, dayStem: Stem) {
   const forward = (gender === 'male' && STEM_YINYANG[yearStem] === 'yang') || (gender === 'female' && STEM_YINYANG[yearStem] === 'yin');
   return Array.from({ length: 8 }, (_, index) => {
     const item = ganzhiFromIndex(mod(dayIndex + (forward ? index + 1 : -index - 1), 60));
     const startAge = 8 + index * 10;
-    return { ageRange: startAge + '-' + (startAge + 9) + '\u6b72', pillar: item.stem + item.branch, element: STEM_ELEMENT[item.stem], focus: '\u5927\u904b\u5148\u4f5c\u7bc0\u594f\u53c3\u8003\uff0c\u4e0d\u9032\u5165\u7b2c\u4e8c\u5c64\u91cd\u7b97\u3002' };
+    const endAge = startAge + 9;
+    return {
+      ageRange: startAge + '-' + endAge + '歲',
+      startAge,
+      endAge,
+      startYear: birthYear + startAge,
+      endYear: birthYear + endAge,
+      pillar: item.stem + item.branch,
+      element: STEM_ELEMENT[item.stem],
+      tenGod: getTenGod(dayStem, item.stem),
+      direction: forward ? 'forward' as const : 'backward' as const,
+      focus: '大運只作第一層節奏資料，後續層級只能讀取，不得重新起運或重算命盤。',
+    };
   });
 }
 
-function buildAnnualFortunes(currentYear: number) {
+function buildAnnualFortunes(currentYear: number, dayStem: Stem) {
   return Array.from({ length: 5 }, (_, index) => {
     const year = currentYear + index;
     const item = ganzhiFromIndex(year - 4);
-    return { year, pillar: item.stem + item.branch, element: STEM_ELEMENT[item.stem], focus: '\u6d41\u5e74\u4fdd\u7559\u6b72\u6b21\u8207\u4e94\u884c\u8a0a\u865f\uff0c\u4f9b\u7b2c\u4e8c\u5c64\u8b80\u53d6\u3002' };
+    return { year, pillar: item.stem + item.branch, element: STEM_ELEMENT[item.stem], tenGod: getTenGod(dayStem, item.stem), focus: '流年保留歲次、天干十神與五行訊號，供第二層讀取。' };
   });
 }
 
 function buildProfessionalChart(input: BaziAnalysisInput): BaziProfessionalChart {
-  if (!input.birthDate || !input.birthTime || !input.gender) throw new Error('birthDate\u3001birthTime\u3001gender \u70ba\u5fc5\u586b\u6b04\u4f4d');
+  if (!input.birthDate || !input.birthTime || !input.gender) throw new Error('birthDate、birthTime、gender 為必填欄位');
 
   const { year, month, day } = parseDate(input.birthDate);
   const hour = parseHour(input.birthTime);
@@ -289,26 +580,33 @@ function buildProfessionalChart(input: BaziAnalysisInput): BaziProfessionalChart
     return hourPillar.stemIndex;
   })();
   const pillars: BaziPillars = {
-    year: pillar('\u5e74\u67f1', yearIndex, dayGanzhi.stem),
-    month: pillar('\u6708\u67f1', monthIndex, dayGanzhi.stem),
-    day: pillar('\u65e5\u67f1', dayIndex, dayGanzhi.stem),
-    hour: pillar('\u6642\u67f1', hourIndex, dayGanzhi.stem),
+    year: pillar('年柱', yearIndex, dayGanzhi.stem),
+    month: pillar('月柱', monthIndex, dayGanzhi.stem),
+    day: pillar('日柱', dayIndex, dayGanzhi.stem),
+    hour: pillar('時柱', hourIndex, dayGanzhi.stem),
   };
   const elementCounts = countElements(pillars);
   const strengthAnalysis = buildStrengthAnalysis(pillars.month.branch, elementCounts, pillars.day.stemElement);
   const gods = chooseGods(elementCounts, strengthAnalysis.verdict, pillars.day.stemElement);
   const hiddenStems = Object.fromEntries(PILLAR_KEYS.map((key) => [key, pillars[key].hiddenStems])) as BaziProfessionalChart['hiddenStems'];
-  const tenGods = Object.fromEntries(PILLAR_KEYS.map((key) => [key, { stem: pillars[key].stemTenGod, branchMain: pillars[key].hiddenStems[0]?.tenGod ?? '\u5e73\u8861', hidden: pillars[key].hiddenStems.map((item) => item.tenGod) }])) as BaziProfessionalChart['tenGods'];
+  const hiddenStemStructure = buildHiddenStemStructure(pillars);
+  const tenGods = Object.fromEntries(PILLAR_KEYS.map((key) => [key, { stem: pillars[key].stemTenGod, branchMain: pillars[key].hiddenStems[0]?.tenGod ?? '平衡', hidden: pillars[key].hiddenStems.map((item) => item.tenGod) }])) as BaziProfessionalChart['tenGods'];
+  const pillarDetails = buildPillarDetails(pillars);
+  const tenGodDistribution = buildTenGodDistribution(pillars);
+  const elementStatistics = buildElementStatistics(pillars);
+  const strengthFactors = buildStrengthFactors(pillars, elementCounts, strengthAnalysis);
+  const structurePattern = buildStructurePattern(pillars, tenGodDistribution, strengthAnalysis);
   const shichen = getShichenInfo(shichenIndex);
+  const calendar = buildCalendarProfile(input, shichenIndex);
   const inputSnapshot: BaziInputSnapshot = {
     name: input.name?.trim() || null,
     birthDate: input.birthDate,
     birthTime: input.birthTime,
     gender: input.gender,
-    country: input.country?.trim() || '\u53f0\u7063',
-    city: input.city?.trim() || '\u53f0\u5317',
+    country: input.country?.trim() || '台灣',
+    city: input.city?.trim() || '台北',
   };
-  const timezone = { country: inputSnapshot.country, city: inputSnapshot.city, note: '\u7b2c\u4e00\u5c64\u53ea\u8a18\u9304\u570b\u5bb6\u8207\u57ce\u5e02\u4f5c\u70ba\u6642\u5340\u4f86\u6e90\uff0c\u672c\u6b21\u4ee5\u4f7f\u7528\u8005\u8f38\u5165\u7684\u7576\u5730\u6642\u9593\u6392\u76e4\u3002' };
+  const timezone = { country: inputSnapshot.country, city: inputSnapshot.city, note: '第一層只記錄國家與城市作為時區來源，本次以使用者輸入的當地時間排盤。' };
   const detail = computeDetail(pillars, hiddenStems, tenGods);
 
   return {
@@ -317,38 +615,57 @@ function buildProfessionalChart(input: BaziAnalysisInput): BaziProfessionalChart
     recalculationAllowed: false,
     input: inputSnapshot,
     timezone,
+    calendar,
     pillars,
+    pillarDetails,
     hiddenStems,
+    hiddenStemStructure,
     tenGods,
+    tenGodDistribution,
     dayMaster: { stem: pillars.day.stem, element: pillars.day.stemElement, strength: Math.max(0, strengthAnalysis.supportScore - strengthAnalysis.pressureScore), level: strengthAnalysis.verdict },
     elementCounts,
+    elementStatistics,
     strengthAnalysis,
+    strengthFactors,
     gods,
-    luckCycles: buildLuckCycles(dayIndex, input.gender, pillars.year.stem),
-    annualFortunes: buildAnnualFortunes(new Date().getFullYear()),
-    structureFocus: '\u56db\u67f1\u5df2\u5b8c\u6210\uff1a' + pillars.year.stem + pillars.year.branch + '\u3001' + pillars.month.stem + pillars.month.branch + '\u3001' + pillars.day.stem + pillars.day.branch + '\u3001' + pillars.hour.stem + pillars.hour.branch + '\uff1b\u6642\u8fb0\u70ba' + shichen.label + '\u3002',
+    luckCycles: buildLuckCycles(dayIndex, input.gender, pillars.year.stem, year, pillars.day.stem),
+    annualFortunes: buildAnnualFortunes(new Date().getFullYear(), pillars.day.stem),
+    structurePattern,
+    structureFocus: '四柱已完成：' + pillars.year.stem + pillars.year.branch + '、' + pillars.month.stem + pillars.month.branch + '、' + pillars.day.stem + pillars.day.branch + '、' + pillars.hour.stem + pillars.hour.branch + '；時辰為' + shichen.label + '。',
     detail,
   };
 }
 
 function buildElementPriority(chart: BaziProfessionalChart): BaziElementPriority[] {
-  const maxCount = Math.max(...ELEMENTS.map((element) => chart.elementCounts[element]), 1);
-  const lowToHigh = [...ELEMENTS].sort((a, b) => chart.elementCounts[a] - chart.elementCounts[b]);
-  const ordered = Array.from(new Set([chart.gods.usefulGod, chart.gods.joyGod, ...lowToHigh]));
+  const percentages = chart.elementStatistics.percentages;
+  const maxPercent = Math.max(...ELEMENTS.map((element) => percentages[element]), 1);
+  const lowToHigh = [...ELEMENTS].sort((a, b) => percentages[a] - percentages[b]);
+  const ordered = Array.from(new Set([chart.gods.usefulGod, chart.gods.joyGod, chart.gods.neutralGod, ...lowToHigh]));
   return ordered.map((element, index) => {
     const display = ELEMENT_DISPLAY[element];
     const count = chart.elementCounts[element];
+    const percent = percentages[element] ?? 0;
+    const godBonus = element === chart.gods.usefulGod ? 28 : element === chart.gods.joyGod ? 18 : element === chart.gods.neutralGod ? 8 : 0;
+    const avoidPenalty = element === chart.gods.avoidGod ? 14 : element === chart.gods.enemyGod ? 8 : 0;
+    const rootNeed = chart.strengthAnalysis.verdict === '偏弱' && (element === chart.gods.usefulGod || element === chart.dayMaster.element) ? 12 : 0;
+    const needScore = clampScore(100 - (percent / maxPercent) * 54 + godBonus + rootNeed - avoidPenalty);
+    const judgementLevel = index === 0 ? 'primary' : index === 1 ? 'secondary' : 'supporting';
+    const professionalBasis = [
+      '第一層五行比例：' + element + '佔 ' + percent + '%，原始權重 ' + count + '。',
+      element === chart.gods.usefulGod ? '第一層喜用忌判定：此元素為用神。' : element === chart.gods.joyGod ? '第一層喜用忌判定：此元素為喜神。' : element === chart.gods.neutralGod ? '第一層喜用忌判定：此元素為閒神，可作後續穩定。' : '第一層五行排序列入後續補強觀察。',
+      '第一層日主旺衰：' + chart.dayMaster.stem + chart.dayMaster.element + '為' + chart.dayMaster.level + '。',
+    ];
     return {
       rank: (index + 1) as BaziElementPriority['rank'],
       element,
       brandElement: display.brandElement,
       displayName: display.displayName,
       count,
-      needScore: clampScore(100 - (count / maxCount) * 100 + (element === chart.gods.usefulGod ? 16 : 0)),
+      needScore,
       source: 'professional_chart',
-      reason: element === chart.gods.usefulGod
-        ? '\u7b2c\u4e00\u5c64\u547d\u76e4\u5df2\u5217\u70ba\u7528\u795e\uff0c\u7b2c\u4e8c\u5c64\u76f4\u63a5\u8b80\u53d6\u5f8c\u5217\u5165\u6700\u512a\u5148\u65b9\u5411\u3002'
-        : '\u7b2c\u4e00\u5c64\u56db\u67f1\u7d71\u8a08' + element + '\u51fa\u73fe ' + count + ' \u6b21\uff0c\u7b2c\u4e8c\u5c64\u76f4\u63a5\u8b80\u53d6\u5f8c\u5217\u5165\u88dc\u5f37\u9806\u4f4d\u3002',
+      judgementLevel,
+      professionalBasis,
+      reason: '第二層讀取第一層命盤後判定：' + display.displayName + '補強分數為 ' + needScore + '，依五行比例、喜用忌與日主旺衰排序。',
     };
   }) as BaziElementPriority[];
 }
@@ -357,15 +674,41 @@ function buildDeepAnalysis(chart: BaziProfessionalChart): BaziDeepAnalysis {
   const checksum = chartChecksum(chart);
   const elementPriority = buildElementPriority(chart);
   const dayPillar = chart.pillars.day.stem + chart.pillars.day.branch;
-  const summary = '\u7b2c\u4e8c\u5c64 AI \u89e3\u8b80\uff1a\u76f4\u63a5\u8b80\u53d6\u7b2c\u4e00\u5c64\u547d\u76e4\u3002\u672c\u547d\u65e5\u4e3b\u70ba' + chart.dayMaster.stem + chart.dayMaster.element + '\uff0c\u65fa\u8870\u5224\u5b9a\u70ba' + chart.dayMaster.level + '\u3002';
-  const chartSummary = '\u547d\u76e4\u91cd\u9ede\uff1a' + dayPillar + '\u65e5\u4e3b\u3001' + chart.strengthAnalysis.verdict + '\u3001\u7528\u795e' + chart.gods.usefulGod + '\u3001\u559c\u795e' + chart.gods.joyGod + '\u3002';
-  const keyFindings = [
-    chart.structureFocus,
-    chart.strengthAnalysis.explanation,
-    chart.gods.reason,
-    '\u5143\u7d20\u8b80\u53d6\u9806\u4f4d\uff1a' + elementPriority.slice(0, 3).map((item) => item.displayName).join('\u3001') + '\u3002',
+  const topTenGods = chart.tenGodDistribution.ranked.slice(0, 3).map((item) => item.tenGod);
+  const pressureFactors = chart.strengthFactors.filter((item) => item.status === 'pressure').map((item) => item.label);
+  const supportFactors = chart.strengthFactors.filter((item) => item.status === 'support').map((item) => item.label);
+  const firstElement = elementPriority[0];
+  const secondElement = elementPriority[1] ?? firstElement;
+  const thirdElement = elementPriority[2] ?? secondElement;
+  const timingFocus = chart.luckCycles[0]
+    ? chart.luckCycles[0].ageRange + '大運為' + chart.luckCycles[0].pillar + '，十神訊號為' + (chart.luckCycles[0].tenGod ?? '未標示') + '。'
+    : '第一層未產生大運資料。';
+  const professionalSignals = {
+    dayMaster: chart.dayMaster.stem + chart.dayMaster.element + '日主，旺衰判定為' + chart.dayMaster.level,
+    structure: chart.structurePattern.primaryPattern + '，輔助訊號為' + chart.structurePattern.supportingPattern,
+    tenGodFocus: topTenGods,
+    strengthFocus: '扶助因子：' + (supportFactors.join('、') || '無明顯扶助') + '；壓力因子：' + (pressureFactors.join('、') || '無明顯壓力') + '。',
+    elementFocus: '補強排序：' + [firstElement.displayName, secondElement.displayName, thirdElement.displayName].join(' → '),
+    timingFocus,
+  };
+  const chartSummary = '命盤重點：' + dayPillar + '日主、' + chart.strengthAnalysis.verdict + '、' + chart.structurePattern.primaryPattern + '、用神' + chart.gods.usefulGod + '、喜神' + chart.gods.joyGod + '。';
+  const summary = '第二層 AI 解讀：直接讀取第一層專業命盤，不重新排盤。本命' + professionalSignals.dayMaster + '，目前優先讀取' + firstElement.displayName + '作第一補強方向。';
+  const userReadableSections = [
+    { title: '命盤核心', basis: '來源：第一層四柱、日主、格局。', content: chartSummary + '此段只把命盤主軸轉成一般使用者能理解的語言。' },
+    { title: '格局與十神', basis: '來源：第一層格局與十神分布。', content: '第一層判定格局為' + professionalSignals.structure + '；十神主訊號為' + (topTenGods.join('、') || '分布平均') + '。這代表第二層解讀會以格局主軸與十神比例作為分析骨架。' },
+    { title: '日主強弱', basis: '來源：第一層日主強弱規則。', content: chart.strengthAnalysis.explanation + professionalSignals.strengthFocus },
+    { title: '五行補強排序', basis: '來源：第一層五行分層統計、喜用忌神。', content: '第二層判定補強順序為' + [firstElement.displayName, secondElement.displayName, thirdElement.displayName].join('、') + '。此排序交給第三層制定行動，不在第二層直接給補強方案。' },
+    { title: '大運流年讀取', basis: '來源：第一層大運與流年資料。', content: timingFocus + '流年資料僅作節奏參考，第二層不重算歲運。' },
   ];
-  const plainText = [summary, chart.strengthAnalysis.explanation, chart.gods.reason, '\u9019\u4e00\u5c64\u53ea\u628a\u5c08\u696d\u547d\u76e4\u8f49\u6210\u4e00\u822c\u7528\u6236\u770b\u5f97\u61c2\u7684\u6587\u5b57\uff0c\u4e0d\u91cd\u65b0\u6392\u76e4\u3002'].join(' ');
+  const keyFindings = [chart.structureFocus, professionalSignals.structure, professionalSignals.strengthFocus, chart.gods.reason, professionalSignals.elementFocus];
+  const logicTrace = [
+    { step: '讀取第一層四柱', source: 'professional_chart' as const, output: chart.structureFocus },
+    { step: '讀取格局與十神', source: 'professional_chart' as const, output: professionalSignals.structure + '；十神：' + (topTenGods.join('、') || '分布平均') },
+    { step: '讀取日主強弱', source: 'professional_chart' as const, output: professionalSignals.dayMaster + '；' + professionalSignals.strengthFocus },
+    { step: '讀取五行統計', source: 'professional_chart' as const, output: professionalSignals.elementFocus },
+    { step: '交給第三層', source: 'professional_chart' as const, output: '第二層只完成白話分析與排序依據，不輸出行動方案。' },
+  ];
+  const plainText = [summary, userReadableSections.map((section) => section.content).join(' '), '這一層只讀取第一層專業命盤並轉譯，不重新排盤、不重新起運、不直接制定補強方案。'].join(' ');
 
   return {
     layer: 'ai_deep_analysis',
@@ -376,41 +719,47 @@ function buildDeepAnalysis(chart: BaziProfessionalChart): BaziDeepAnalysis {
     plainText,
     chartSummary,
     keyFindings,
-    userReadableSections: [
-      { title: '\u547d\u76e4\u6838\u5fc3', content: chartSummary },
-      { title: '\u65e5\u4e3b\u65fa\u8870', content: chart.strengthAnalysis.explanation },
-      { title: '\u559c\u7528\u5fcc\u795e', content: chart.gods.reason },
-    ],
+    userReadableSections,
+    professionalSignals,
+    logicTrace,
     elementPriority,
   };
 }
 
-function buildReinforcementItem(priority: BaziElementPriority, rank: 1 | 2 | 3): BaziReinforcementItem {
+function buildReinforcementItem(priority: BaziElementPriority, rank: 1 | 2 | 3, analysis: BaziDeepAnalysis): BaziReinforcementItem {
   const display = ELEMENT_DISPLAY[priority.element];
-  const rankLabel = rank === 1 ? '\u7b2c\u4e00\u88dc\u5f37' : rank === 2 ? '\u7b2c\u4e8c\u88dc\u5f37' : '\u7b2c\u4e09\u88dc\u5f37';
+  const rankLabel = rank === 1 ? '第一補強' : rank === 2 ? '第二補強' : '第三補強';
+  const intensity = rank === 1 ? 'core' : rank === 2 ? 'important' : 'follow_up';
+  const sequenceNote = rank === 1 ? '先處理核心缺口，完成後才進入第二補強。' : rank === 2 ? '承接第一補強後，建立第二層穩定度。' : '最後補上第三順位，避免整體能量失衡。';
+  const basis = [...priority.professionalBasis, '第二層專業訊號：' + analysis.professionalSignals.dayMaster + '。', '第二層排序依據：' + analysis.professionalSignals.elementFocus + '。'];
   return {
     rank,
     element: priority.element,
     brandElement: priority.brandElement,
     displayName: priority.displayName,
-    title: rankLabel + '\uff1a' + priority.displayName,
-    judgement: 'AI \u5224\u5b9a\uff1a\u76ee\u524d' + rankLabel + '\u70ba' + priority.displayName + '\u3002',
-    action: '\u8acb\u88dc\u5f37\uff1a' + priority.displayName + '\u3002',
-    suggestion: '\u884c\u52d5\u65b9\u5411\uff1a\u5148\u5c0d\u6e96' + display.actionName + '\u5143\u7d20\u5c0d\u61c9\u7684\u7bc0\u594f\u3001\u7a7a\u9593\u8207\u65e5\u5e38\u9078\u64c7\uff0c\u5b8c\u6210\u5f8c\u518d\u9032\u5165\u4e0b\u4e00\u9806\u4f4d\u3002',
+    title: rankLabel + '：' + priority.displayName,
+    judgement: 'AI 判定：目前' + rankLabel + '為' + priority.displayName + '，補強分數 ' + priority.needScore + '。',
+    action: '請補強：' + priority.displayName + '。',
+    suggestion: '行動方向：先對準' + display.actionName + '元素對應的節奏、空間與日常選擇。' + sequenceNote,
+    basis,
+    intensity,
+    sequenceNote,
   };
 }
 
 function buildReinforcementPlan(analysis: BaziDeepAnalysis): BaziReinforcementPlan {
   const checksum = analysisChecksum(analysis);
-  const first = buildReinforcementItem(analysis.elementPriority[0], 1);
-  const second = buildReinforcementItem(analysis.elementPriority[1] ?? analysis.elementPriority[0], 2);
-  const third = buildReinforcementItem(analysis.elementPriority[2] ?? analysis.elementPriority[1] ?? analysis.elementPriority[0], 3);
+  const first = buildReinforcementItem(analysis.elementPriority[0], 1, analysis);
+  const second = buildReinforcementItem(analysis.elementPriority[1] ?? analysis.elementPriority[0], 2, analysis);
+  const third = buildReinforcementItem(analysis.elementPriority[2] ?? analysis.elementPriority[1] ?? analysis.elementPriority[0], 3, analysis);
   return {
     layer: 'ai_reinforcement_plan',
     sourceLayer: 'ai_deep_analysis',
     sourceChecksum: checksum,
     recalculationAllowed: false,
-    principle: 'AI \u4e0d\u9810\u6e2c\u4f60\u7684\u547d\u904b\uff1bAI \u5224\u5b9a\u4f60\u76ee\u524d\u6700\u9700\u8981\u88dc\u5f37\u7684\u65b9\u5411\u3002',
+    principle: 'AI 不預測你的命運；AI 判定你目前最需要補強的方向。',
+    basisSummary: '第三層只讀取第二層輸出的補強排序與專業訊號：' + analysis.professionalSignals.elementFocus + '。',
+    elementSequenceExplanation: '補強順序固定為：' + [first.displayName, second.displayName, third.displayName].join(' → ') + '。先補第一順位，再補第二順位，最後補第三順位。',
     first,
     second,
     third,

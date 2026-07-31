@@ -12,7 +12,7 @@ import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
-import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
+import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
 type NameologyResponse = {
   ok: boolean;
@@ -42,6 +42,119 @@ const initialForm: FormState = {
 };
 
 const initialSelectionConfirm: SelectionConfirm = { bloodType: false, gender: false };
+const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-three-layer-v3';
+
+function isCurrentNameologyResult(value?: NameologyDailyResult | null) {
+  return Boolean(value?.analysis?.professionalLayer?.characterDecomposition?.length && value.analysis.aiInterpretationLayer?.interpretationPoints?.length && value.analysis.reinforcementLayer?.priorities?.length && value.fiveElement);
+}
+
+function isCurrentNameologyRecord(record?: DailyAnalysisRecord<NameologyDailyResult> | null) {
+  return Boolean(record?.meta?.schemaVersion === NAMEOLOGY_DAILY_SCHEMA_VERSION && isCurrentNameologyResult(record.result));
+}
+
+function ProfessionalNameologyLayer({ analysis }: { analysis: NameologyAnalysis }) {
+  const layer = analysis.professionalLayer;
+  if (!layer?.characterDecomposition?.length) return null;
+
+  const infoItems = [
+    { label: '\u59d3\u6c0f', value: layer.nameStructure.surname || '-' },
+    { label: '\u540d\u5b57', value: layer.nameStructure.givenName || '-' },
+    { label: '\u7e3d\u5b57\u6578', value: String(layer.nameStructure.totalCharacters) + '\u5b57' },
+  ];
+
+  return (
+    <section className="fortune-card overflow-hidden border-cyan-300/20 bg-slate-950/60 p-5 sm:p-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-[0.28em] text-cyan-300">PROFESSIONAL LAYER</p>
+          <h2 className="mt-3 break-words font-serif text-3xl font-black text-cyan-100 sm:text-4xl">
+            {'\u7b2c\u4e00\u5c64\uff5c\u5c08\u696d\u59d3\u540d\u62c6\u89e3'}
+          </h2>
+          <p className="mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
+            {'\u6b64\u5c64\u53ea\u5efa\u7acb\u59d3\u540d\u62c6\u89e3\u3001\u90e8\u9996\u610f\u5883\u3001\u5b57\u7fa9\u89e3\u8aaa\u8207\u540d\u5b57\u6545\u4e8b\uff0c\u4e0d\u505a\u4e94\u5143\u7d20\u88dc\u5f37\u5efa\u8b70\u3002'}
+          </p>
+        </div>
+        <div className="grid shrink-0 grid-cols-3 gap-2 lg:w-[280px]">
+          {infoItems.map((item) => (
+            <div key={item.label} className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-center">
+              <p className="text-[11px] text-[color:var(--text-muted)]">{item.label}</p>
+              <p className="mt-1 break-words text-sm font-black text-cyan-100">{item.value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        {layer.characterDecomposition.map((item) => (
+          <article key={String(item.position) + '-' + item.char} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.045] p-4 shadow-[0_18px_50px_rgba(8,13,30,0.26)]">
+            <div className="flex items-start gap-4">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-amber-300/25 bg-amber-950/25 font-serif text-4xl font-black text-amber-100">
+                {item.char}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap gap-2">
+                  <span className="rounded-full border border-cyan-300/20 bg-cyan-950/20 px-3 py-1 text-xs text-cyan-100">{item.role}</span>
+                  <span className="rounded-full border border-amber-300/20 bg-amber-950/20 px-3 py-1 text-xs text-amber-100">{item.strokeCount}{'\u756b'} {'\u00b7'} {item.element}{item.yinYang}</span>
+                  <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-[color:var(--text-sub)]">{'\u90e8\u9996'} {item.radical}</span>
+                </div>
+                <p className="mt-3 break-words text-sm leading-7 text-[color:var(--text-main)]">{item.storyLine}</p>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/10 bg-black/15 p-3">
+                <p className="text-[11px] font-bold text-cyan-200">{'\u90e8\u9996\u610f\u5883'}</p>
+                <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{item.radicalImagery}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-black/15 p-3">
+                <p className="text-[11px] font-bold text-violet-200">{'\u62c6\u5b57\u8207\u7d50\u69cb'}</p>
+                <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{item.parts.join('\u3001')} {'\u00b7'} {item.structure}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-black/15 p-3 sm:col-span-2">
+                <p className="text-[11px] font-bold text-amber-200">{'\u5b57\u7fa9\u89e3\u8aaa'}</p>
+                <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{item.glyphMeaning}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-black/15 p-3 sm:col-span-2">
+                <p className="text-[11px] font-bold text-emerald-200">{'\u547d\u540d\u610f\u5716'}</p>
+                <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{item.namingIntent}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-black/15 p-3 sm:col-span-2">
+                <p className="text-[11px] font-bold text-rose-200">{'\u5f8c\u7e8c\u6f14\u5316\u7d20\u6750'}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {item.evolutionMaterial.slice(0, 4).map((material) => (
+                    <span key={material} className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] text-[color:var(--text-sub)]">{material}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-5 grid gap-3 lg:grid-cols-3">
+        <div className="rounded-2xl border border-cyan-300/15 bg-cyan-950/15 p-4">
+          <p className="text-xs font-bold text-cyan-200">{'\u90e8\u9996\u4e3b\u8ef8'}</p>
+          <p className="mt-2 break-words text-sm leading-7 text-[color:var(--text-sub)]">{layer.radicalNarrative}</p>
+        </div>
+        <div className="rounded-2xl border border-amber-300/15 bg-amber-950/15 p-4">
+          <p className="text-xs font-bold text-amber-200">{'\u540d\u5b57\u6545\u4e8b'}</p>
+          <p className="mt-2 break-words text-sm leading-7 text-[color:var(--text-sub)]">{layer.nameStory}</p>
+        </div>
+        <div className="rounded-2xl border border-violet-300/15 bg-violet-950/15 p-4">
+          <p className="text-xs font-bold text-violet-200">{'\u5c08\u696d\u6458\u8981'}</p>
+          <p className="mt-2 break-words text-sm leading-7 text-[color:var(--text-sub)]">{layer.professionalSummary}</p>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4">
+        <p className="text-xs font-bold text-[color:var(--text-main)]">{'\u5c64\u7d1a\u908a\u754c'}</p>
+        <ul className="mt-2 space-y-2 text-sm leading-7 text-[color:var(--text-sub)]">
+          {layer.readingBoundaries.map((item) => <li key={item}>{'\u00b7'} {item}</li>)}
+        </ul>
+      </div>
+    </section>
+  );
+}
 
 const BLOOD_DESC: Record<Exclude<BloodType, ''>, string> = {
   A: '細膩穩定，重視秩序、承諾與安全感。',
@@ -50,12 +163,93 @@ const BLOOD_DESC: Record<Exclude<BloodType, ''>, string> = {
   O: '主動直接，行動力、號召力與外放感較強。',
 };
 
+
+function NameologyAiFlowLayers({ analysis }: { analysis: NameologyAnalysis }) {
+  const layer2 = analysis.aiInterpretationLayer;
+  const layer3 = analysis.reinforcementLayer;
+  if (!layer2?.interpretationPoints?.length || !layer3?.priorities?.length) return null;
+
+  return (
+    <section className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
+      <div className="fortune-card border-violet-300/20 bg-slate-950/55 p-5 sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.28em] text-violet-300">AI INTERPRETATION</p>
+        <h2 className="mt-3 break-words font-serif text-3xl font-black text-violet-100 sm:text-4xl">
+          {'\u7b2c\u4e8c\u5c64\uff5cAI \u6df1\u5ea6\u89e3\u8b80'}
+        </h2>
+        <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">{layer2.userReadableSummary}</p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {layer2.focusElements.map((element, index) => (
+            <span key={String(index) + element} className="rounded-full border border-violet-300/20 bg-violet-950/25 px-3 py-1 text-xs font-bold text-violet-100">
+              {'\u89e3\u8b80\u8ef8'} {index + 1} {'\u00b7'} {element}
+            </span>
+          ))}
+        </div>
+        <div className="mt-5 grid gap-3">
+          {layer2.interpretationPoints.map((point) => (
+            <article key={point.title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <p className="text-xs font-bold text-violet-200">{point.title}</p>
+              <p className="mt-2 break-words text-sm leading-7 text-[color:var(--text-main)]">{point.reading}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {point.sourceEvidence.slice(0, 3).map((evidence) => (
+                  <span key={evidence} className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-[11px] text-[color:var(--text-sub)]">{evidence}</span>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+            <p className="text-xs font-bold text-cyan-200">{'\u6027\u683c\u6545\u4e8b'}</p>
+            <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{layer2.personalityStory}</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+            <p className="text-xs font-bold text-amber-200">{'\u95dc\u4fc2\u98a8\u683c'}</p>
+            <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{layer2.relationshipStyle}</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+            <p className="text-xs font-bold text-rose-200">{'\u96b1\u6027\u62c9\u626f'}</p>
+            <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{layer2.hiddenTension}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="fortune-card border-amber-300/25 bg-amber-950/10 p-5 sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.28em] text-amber-300">AI REINFORCEMENT</p>
+        <h2 className="mt-3 break-words font-serif text-3xl font-black text-amber-100 sm:text-4xl">
+          {'\u7b2c\u4e09\u5c64\uff5cAI \u88dc\u5f37\u65b9\u6848'}
+        </h2>
+        <p className="mt-3 rounded-2xl border border-amber-300/20 bg-amber-950/20 p-4 text-sm font-bold leading-8 text-amber-100">
+          {layer3.clearStatement}
+        </p>
+        <div className="mt-5 space-y-3">
+          {layer3.priorities.map((item) => (
+            <article key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-black text-[color:var(--text-main)]">{item.label}</p>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-amber-300/25 bg-amber-950/30 text-lg font-black text-amber-100">{item.element}</span>
+              </div>
+              <p className="mt-3 text-sm font-bold leading-7 text-amber-100">{item.direction}</p>
+              <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{item.reason}</p>
+              <p className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-xs leading-6 text-[color:var(--text-main)]">{item.action}</p>
+            </article>
+          ))}
+        </div>
+        <p className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4 text-xs leading-6 text-[color:var(--text-sub)]">
+          {layer3.executionPrinciple}
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; fiveElement: FiveElementIntegrationResult }) {
   const topTendencies = analysis.temperamentProfile.topTendencies.slice(0, 4);
   const givenName = analysis.composition.givenName || analysis.name.slice(1);
 
   return (
     <section className="space-y-5">
+      <ProfessionalNameologyLayer analysis={analysis} />
+      <NameologyAiFlowLayers analysis={analysis} />
       <FiveElementPriorityCard result={fiveElement} />
 
       <div className="fortune-card overflow-hidden border-amber-400/25 bg-slate-950/55 p-6 text-center sm:p-8">
@@ -208,6 +402,11 @@ export default function NameologyPage() {
   useEffect(() => {
     const record = readDailyAnalysis<NameologyDailyResult>('nameology');
     if (!record) return;
+    if (!isCurrentNameologyRecord(record)) {
+      clearDailyAnalysis('nameology');
+      setDailyRecord(null);
+      return;
+    }
     setDailyRecord(record);
     setResult(record.result.analysis);
     setFiveElement(record.result.fiveElement);
@@ -230,11 +429,15 @@ export default function NameologyPage() {
   async function handleSubmit() {
     const existing = readDailyAnalysis<NameologyDailyResult>('nameology');
     if (existing) {
-      setDailyRecord(existing);
-      setResult(existing.result.analysis);
-      setFiveElement(existing.result.fiveElement);
-      window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
-      return;
+      if (isCurrentNameologyRecord(existing)) {
+        setDailyRecord(existing);
+        setResult(existing.result.analysis);
+        setFiveElement(existing.result.fiveElement);
+        window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+        return;
+      }
+      clearDailyAnalysis('nameology');
+      setDailyRecord(null);
     }
 
     if (!canSubmit || isLoading) {
@@ -258,12 +461,14 @@ export default function NameologyPage() {
       });
       const data = await response.json();
       if (!response.ok || !data?.analysis || !data?.fiveElement) throw new Error(data?.message || data?.error || '姓名學分析暫時無法完成。');
-      setResult((data as NameologyResponse).analysis);
-      setFiveElement((data as NameologyResponse).fiveElement);
-      setDailyRecord(saveDailyAnalysis<NameologyDailyResult>('nameology', {
+      const nextResult = {
         analysis: (data as NameologyResponse).analysis,
         fiveElement: (data as NameologyResponse).fiveElement,
-      }));
+      };
+      if (!isCurrentNameologyResult(nextResult)) throw new Error('\u59d3\u540d\u5b78\u4e09\u5c64\u5206\u6790\u8cc7\u6599\u672a\u5b8c\u6574\uff0c\u8acb\u91cd\u65b0\u5206\u6790\u3002');
+      setResult((data as NameologyResponse).analysis);
+      setFiveElement((data as NameologyResponse).fiveElement);
+      setDailyRecord(saveDailyAnalysis<NameologyDailyResult>('nameology', nextResult, { schemaVersion: NAMEOLOGY_DAILY_SCHEMA_VERSION }));
       markGrowthModuleCompleted('nameology', (data as NameologyResponse).fiveElement.brandElement);
       window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     } catch (err) {

@@ -14,7 +14,7 @@ import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import type { BloodType } from '@/lib/types';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
-import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
+import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
 type JobStatus = 'IDLE' | 'VALIDATING' | 'QUEUED' | 'PROCESSING' | 'FINALIZING' | 'COMPLETED' | 'FAILED' | 'TIMEOUT' | 'CANCELLED';
 
@@ -85,6 +85,116 @@ type ZodiacSignSummary = {
 
 type ZodiacPrecision = 'DATE_ONLY' | 'DATE_TIME' | 'FULL_CHART';
 
+type ZodiacElement = ZodiacSignSummary['element'];
+type ZodiacModality = 'cardinal' | 'fixed' | 'mutable';
+type ZodiacPolarity = 'yang' | 'yin';
+type ZodiacPointRole = 'sun' | 'moon' | 'rising';
+
+type ZodiacProfessionalPoint = {
+  role: ZodiacPointRole;
+  roleLabel: string;
+  sign: ZodiacSignSummary;
+  element: ZodiacElement;
+  modality: ZodiacModality;
+  polarity: ZodiacPolarity;
+  ruler: string;
+  houseTheme: string;
+  longitudeDeg: number | null;
+  calculationSource: 'date_range' | 'astronomy_engine' | 'not_available';
+  available: boolean;
+  professionalMeaning: string;
+};
+
+type ZodiacProfessionalChart = {
+  layer: 'professional_zodiac_chart';
+  generatedFrom: 'normalized_birth_input';
+  recalculationAllowed: false;
+  input: { name: string | null; birthDate: string; birthTime: string | null; birthCityId: string | null };
+  precision: ZodiacPrecision;
+  precisionScore: number;
+  dataQuality: {
+    birthDate: 'provided';
+    birthTime: 'provided' | 'missing';
+    birthCity: 'provided' | 'assumed' | 'missing';
+    note: string;
+  };
+  points: {
+    sun: ZodiacProfessionalPoint;
+    moon: ZodiacProfessionalPoint | null;
+    rising: ZodiacProfessionalPoint | null;
+  };
+  dominantSignature: {
+    element: ZodiacElement;
+    modality: ZodiacModality;
+    polarity: ZodiacPolarity;
+    score: number;
+    basis: string[];
+  };
+  elementDistribution: Record<ZodiacElement, number>;
+  modalityDistribution: Record<ZodiacModality, number>;
+  polarityDistribution: Record<ZodiacPolarity, number>;
+  professionalKeywords: string[];
+  readingBoundaries: string[];
+  integrationWeights: Record<'AIR' | 'FIRE' | 'WATER' | 'EARTH', number>;
+};
+
+type ZodiacDeepPointReading = {
+  role: ZodiacPointRole;
+  roleLabel: string;
+  sourceSign: ZodiacSignSummary;
+  title: string;
+  interpretation: string;
+  integrationFocus: string;
+  evidence: string[];
+};
+
+type ZodiacDeepAnalysis = {
+  layer: 'ai_zodiac_deep_analysis';
+  sourceLayer: 'professional_zodiac_chart';
+  recalculationAllowed: false;
+  professionalInputDigest: string[];
+  coreNarrative: string;
+  pointReadings: ZodiacDeepPointReading[];
+  dominantInterpretation: string;
+  tensionPatterns: string[];
+  growthOpportunities: string[];
+  userFriendlySummary: string;
+  aiPromptMaterial: {
+    fixedFacts: string[];
+    interpretationRules: string[];
+    prohibitedMoves: string[];
+  };
+};
+
+type ZodiacBrandElementCode = 'AIR' | 'SPACE' | 'WATER' | 'FIRE' | 'EARTH';
+
+type ZodiacReinforcementPriority = {
+  rank: 1 | 2 | 3;
+  element: ZodiacBrandElementCode;
+  elementLabel: string;
+  needScore: number;
+  reason: string;
+  actions: string[];
+  sourceEvidence: string[];
+};
+
+type ZodiacReinforcementPlan = {
+  layer: 'ai_zodiac_reinforcement_plan';
+  sourceLayer: 'ai_zodiac_deep_analysis';
+  recalculationAllowed: false;
+  principle: string;
+  priorities: [ZodiacReinforcementPriority, ZodiacReinforcementPriority, ZodiacReinforcementPriority];
+  executionOrder: string[];
+  integrationLayerPayload: {
+    moduleId: 'ZODIAC';
+    sourceEngineVersion: string;
+    elementNeedScore: Record<ZodiacBrandElementCode, number>;
+    firstPriority: ZodiacBrandElementCode;
+    evidence: string[];
+    writePolicy: string;
+  };
+};
+
 type ZodiacResult = {
   ok: true;
   mode: 'zodiac';
@@ -95,6 +205,9 @@ type ZodiacResult = {
   sign: ZodiacSignSummary;
   risingSign: ZodiacSignSummary | null;
   moonSign: ZodiacSignSummary | null;
+  professionalChart?: ZodiacProfessionalChart;
+  deepAnalysis?: ZodiacDeepAnalysis;
+  reinforcementPlan?: ZodiacReinforcementPlan;
   chartNote: string;
   personality: string;
   strengths: string[];
@@ -127,7 +240,36 @@ const PRECISION_LABEL: Record<ZodiacPrecision, string> = {
   DATE_TIME: 'Level 2 · 上升＋月亮星座',
   FULL_CHART: 'Level 3 · 完整星盤',
 };
+const MODALITY_LABEL: Record<ZodiacModality, string> = {
+  cardinal: '\u958b\u5275',
+  fixed: '\u56fa\u5b9a',
+  mutable: '\u8b8a\u52d5',
+};
+
+const POLARITY_LABEL: Record<ZodiacPolarity, string> = {
+  yang: '\u967d\u6027',
+  yin: '\u9670\u6027',
+};
+
+const DATA_QUALITY_LABEL: Record<'provided' | 'missing' | 'assumed', string> = {
+  provided: '\u5df2\u63d0\u4f9b',
+  missing: '\u672a\u63d0\u4f9b',
+  assumed: '\u4f30\u7b97',
+};
+
 const BLOOD_TYPES: Array<Exclude<BloodType, ''>> = ['A', 'B', 'AB', 'O'];
+
+function isCurrentZodiacResult(value: ZodiacResult | null | undefined): value is ZodiacResult {
+  return Boolean(
+    value?.professionalChart?.points?.sun &&
+    value.professionalChart.dominantSignature &&
+    value.professionalChart.elementDistribution &&
+    value.professionalChart.modalityDistribution &&
+    value.professionalChart.polarityDistribution &&
+    value.deepAnalysis?.pointReadings?.length &&
+    value.reinforcementPlan?.priorities?.length === 3,
+  );
+}
 
 function activeStep(job: AnalysisJob | null) {
   if (!job || job.status === 'QUEUED' || job.status === 'VALIDATING') return 0;
@@ -270,6 +412,220 @@ function SignBadge({ label, sign }: { label: string; sign: ZodiacSignSummary }) 
   );
 }
 
+function InfoItem({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3">
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--text-muted)]">{label}</p>
+      <p className="mt-1 break-words text-sm font-black text-[color:var(--text-main)]">{value}</p>
+    </div>
+  );
+}
+
+function DistributionLine({ label, value, accent }: { label: string; value: number; accent: string }) {
+  const width = Math.max(4, Math.min(100, Math.round(value * 34)));
+  return (
+    <div className="min-w-0 rounded-xl border border-white/10 bg-black/15 px-3 py-2">
+      <div className="flex items-center justify-between gap-3 text-xs font-black">
+        <span className="text-[color:var(--text-main)]">{label}</span>
+        <span className="text-[color:var(--text-muted)]">{value}</span>
+      </div>
+      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+        <div className={'h-full rounded-full ' + accent} style={{ width: width + '%' }} />
+      </div>
+    </div>
+  );
+}
+
+function ProfessionalPointCard({ point }: { point: ZodiacProfessionalPoint }) {
+  return (
+    <article className="min-w-0 rounded-2xl border border-fuchsia-300/20 bg-fuchsia-300/[0.07] p-4 shadow-[0_0_22px_rgba(217,70,239,0.08)]">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-fuchsia-200">{point.roleLabel}</p>
+          <h3 className="mt-1 break-words text-xl font-black text-[color:var(--text-main)]">{point.sign.symbol} {point.sign.name}</h3>
+        </div>
+        <span className="shrink-0 rounded-full border border-cyan-200/25 bg-cyan-300/10 px-3 py-1 text-[11px] font-black text-cyan-100">{ELEMENT_LABEL[point.element]}</span>
+      </div>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <InfoItem label="MODE" value={MODALITY_LABEL[point.modality]} />
+        <InfoItem label="POLARITY" value={POLARITY_LABEL[point.polarity]} />
+        <InfoItem label="RULER" value={point.ruler} />
+        <InfoItem label="LONGITUDE" value={point.longitudeDeg === null ? '\u65e5\u671f\u5340\u9593' : point.longitudeDeg + '\u00b0'} />
+      </div>
+      <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{point.professionalMeaning}</p>
+      <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-muted)]">{point.houseTheme}</p>
+    </article>
+  );
+}
+
+function ProfessionalZodiacLayer({ result }: { result: ZodiacResult }) {
+  const chart = result.professionalChart;
+  if (!chart) return null;
+
+  const points = [chart.points.sun, chart.points.moon, chart.points.rising].filter((point): point is ZodiacProfessionalPoint => Boolean(point));
+  const elementItems = Object.entries(chart.elementDistribution) as Array<[ZodiacElement, number]>;
+  const modalityItems = Object.entries(chart.modalityDistribution) as Array<[ZodiacModality, number]>;
+  const polarityItems = Object.entries(chart.polarityDistribution) as Array<[ZodiacPolarity, number]>;
+
+  return (
+    <section className="fortune-card overflow-hidden border-fuchsia-300/24 bg-[radial-gradient(circle_at_top_left,rgba(217,70,239,0.16),rgba(34,211,238,0.07)_42%,rgba(15,23,42,0.72)_100%)] p-5 sm:p-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-fuchsia-200">PROFESSIONAL ZODIAC CHART</p>
+          <h2 className="mt-3 break-words font-serif text-2xl font-black leading-tight text-fuchsia-50 sm:text-3xl">第一層｜專業西洋星座盤</h2>
+          <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">此層只建立星座盤資料，不做 AI 解讀，不做補強建議。後續第二層、第三層只能讀取這份已成立的盤面資料。</p>
+        </div>
+        <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4 lg:w-[460px]">
+          <InfoItem label="LEVEL" value={PRECISION_LABEL[chart.precision]} />
+          <InfoItem label="SCORE" value={chart.precisionScore + '%'} />
+          <InfoItem label="TIME" value={DATA_QUALITY_LABEL[chart.dataQuality.birthTime]} />
+          <InfoItem label="CITY" value={DATA_QUALITY_LABEL[chart.dataQuality.birthCity]} />
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 lg:grid-cols-3">
+        {points.map((point) => (
+          <ProfessionalPointCard key={point.role} point={point} />
+        ))}
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1.2fr]">
+        <div className="rounded-2xl border border-amber-200/20 bg-amber-300/[0.08] p-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-200">DOMINANT SIGNATURE</p>
+          <h3 className="mt-2 text-xl font-black text-amber-50">{ELEMENT_LABEL[chart.dominantSignature.element]} {'\u00b7'} {MODALITY_LABEL[chart.dominantSignature.modality]} {'\u00b7'} {POLARITY_LABEL[chart.dominantSignature.polarity]}</h3>
+          <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">主軸依據：{chart.dominantSignature.basis.join('、')}。結構分數：{chart.dominantSignature.score}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {chart.professionalKeywords.map((keyword) => (
+              <span key={keyword} className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-black text-[color:var(--text-main)]">{keyword}</span>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="space-y-2">
+            <p className="text-xs font-black text-cyan-100">元素分佈</p>
+            {elementItems.map(([key, value]) => <DistributionLine key={key} label={ELEMENT_LABEL[key]} value={value} accent="bg-cyan-300" />)}
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs font-black text-fuchsia-100">模式分佈</p>
+            {modalityItems.map(([key, value]) => <DistributionLine key={key} label={MODALITY_LABEL[key]} value={value} accent="bg-fuchsia-300" />)}
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs font-black text-amber-100">陰陽分佈</p>
+            {polarityItems.map(([key, value]) => <DistributionLine key={key} label={POLARITY_LABEL[key]} value={value} accent="bg-amber-300" />)}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-white/10 bg-black/15 p-4">
+        <p className="text-xs font-black text-[color:var(--text-main)]">層級邊界</p>
+        <div className="mt-2 grid gap-2 lg:grid-cols-3">
+          {chart.readingBoundaries.map((item) => (
+            <p key={item} className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{item}</p>
+          ))}
+        </div>
+        <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-muted)]">{chart.dataQuality.note}</p>
+      </div>
+    </section>
+  );
+}
+
+function DeepZodiacAnalysisLayer({ result }: { result: ZodiacResult }) {
+  const analysis = result.deepAnalysis;
+  if (!analysis) return null;
+
+  return (
+    <section className="fortune-card border-cyan-300/20 bg-cyan-300/[0.06] p-5 sm:p-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">AI DEEP READING LAYER</p>
+          <h2 className="mt-3 break-words font-serif text-2xl font-black leading-tight text-cyan-50 sm:text-3xl">{'\u7b2c\u4e8c\u5c64\uff5cAI \u6df1\u5ea6\u89e3\u8b80'}</h2>
+          <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{analysis.coreNarrative}</p>
+        </div>
+        <div className="min-w-0 rounded-2xl border border-cyan-200/20 bg-black/15 p-4 lg:w-[360px]">
+          <p className="text-xs font-black text-cyan-100">{'\u8b80\u53d6\u898f\u5247'}</p>
+          <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{'\u7b2c\u4e8c\u5c64\u53ea\u8b80\u7b2c\u4e00\u5c64\u5c08\u696d\u661f\u5ea7\u76e4\uff0c\u4e0d\u91cd\u65b0\u8a08\u7b97\u661f\u5ea7\uff0c\u4e0d\u6539\u5beb\u547d\u76e4\u3002'}</p>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 lg:grid-cols-3">
+        {analysis.pointReadings.map((item) => (
+          <article key={item.role} className="min-w-0 rounded-2xl border border-cyan-200/16 bg-white/[0.04] p-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-200">{item.roleLabel}</p>
+            <h3 className="mt-2 break-words text-lg font-black text-[color:var(--text-main)]">{item.title}</h3>
+            <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{item.interpretation}</p>
+            <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-muted)]">{item.integrationFocus}</p>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-5 grid gap-3 lg:grid-cols-2">
+        <div className="rounded-2xl border border-amber-200/18 bg-amber-300/[0.06] p-4">
+          <p className="text-xs font-black text-amber-100">{'\u4ea4\u53c9\u5224\u8b80'}</p>
+          <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{analysis.dominantInterpretation}</p>
+          <div className="mt-3 space-y-2">
+            {analysis.tensionPatterns.map((item) => (
+              <p key={item} className="rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{item}</p>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-2xl border border-emerald-200/18 bg-emerald-300/[0.06] p-4">
+          <p className="text-xs font-black text-emerald-100">{'\u9032\u5316\u7d20\u6750'}</p>
+          <div className="mt-3 space-y-2">
+            {analysis.growthOpportunities.map((item) => (
+              <p key={item} className="rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{item}</p>
+            ))}
+          </div>
+          <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{analysis.userFriendlySummary}</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ZodiacReinforcementPlanLayer({ result }: { result: ZodiacResult }) {
+  const plan = result.reinforcementPlan;
+  if (!plan) return null;
+
+  return (
+    <section className="fortune-card border-amber-300/24 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.15),rgba(217,70,239,0.07)_44%,rgba(15,23,42,0.74)_100%)] p-5 sm:p-6">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">AI REINFORCEMENT LAYER</p>
+          <h2 className="mt-3 break-words font-serif text-2xl font-black leading-tight text-amber-50 sm:text-3xl">{'\u7b2c\u4e09\u5c64\uff5cAI \u88dc\u5f37\u65b9\u6848'}</h2>
+          <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{plan.principle}</p>
+        </div>
+        <div className="rounded-2xl border border-amber-200/20 bg-black/15 p-4 text-sm font-black text-amber-50 lg:w-[340px]">
+          {plan.executionOrder.map((item) => <p key={item} className="leading-7">{item}</p>)}
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 lg:grid-cols-3">
+        {plan.priorities.map((item) => (
+          <article key={item.element} className="min-w-0 rounded-2xl border border-amber-200/18 bg-white/[0.04] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200">PRIORITY {item.rank}</p>
+              <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-xs font-black text-amber-100">{item.needScore}</span>
+            </div>
+            <h3 className="mt-3 text-xl font-black text-[color:var(--text-main)]">{item.elementLabel}</h3>
+            <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{item.reason}</p>
+            <div className="mt-3 space-y-2">
+              {item.actions.map((action) => (
+                <p key={action} className="rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{action}</p>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-white/10 bg-black/15 p-4">
+        <p className="text-xs font-black text-[color:var(--text-main)]">Integration Layer Payload</p>
+        <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{'\u7b2c\u4e00\u88dc\u5f37\uff1a'}{plan.integrationLayerPayload.firstPriority}{'\u3002SELF \u53ef\u4ea4\u7d66 AI \u6210\u9577\u4e2d\u5fc3\u66f4\u65b0\uff1bOTHER \u50c5\u4f5c\u672c\u6b21\u55ae\u6b21\u5206\u6790\u3002'}</p>
+      </div>
+    </section>
+  );
+}
+
 function ResultPanel({ result, onReset }: { result: ZodiacResult; onReset: () => void }) {
   const extraSigns = [
     result.risingSign ? { label: '上升星座', sign: result.risingSign } : null,
@@ -278,6 +634,9 @@ function ResultPanel({ result, onReset }: { result: ZodiacResult; onReset: () =>
 
   return (
     <section className="space-y-5">
+      <ProfessionalZodiacLayer result={result} />
+      <DeepZodiacAnalysisLayer result={result} />
+      <ZodiacReinforcementPlanLayer result={result} />
       <AnalysisReadingFlow
         moduleLabel="AI ZODIAC"
         headline={`本次星座：${result.sign.symbol} ${result.sign.name}`}
@@ -379,6 +738,13 @@ export default function ZodiacPage() {
   useEffect(() => {
     const record = readDailyAnalysis<ZodiacResult>('zodiac');
     if (!record) return;
+    if (!isCurrentZodiacResult(record.result)) {
+      clearDailyAnalysis('zodiac');
+      setDailyRecord(null);
+      setResult(null);
+      setError('\u897f\u6d0b\u661f\u5ea7\u7b2c\u4e00\u5c64\u5df2\u5347\u7d1a\uff0c\u8acb\u91cd\u65b0\u5efa\u7acb\u65b0\u7248\u5c08\u696d\u661f\u5ea7\u76e4\u3002');
+      return;
+    }
     setDailyRecord(record);
     setResult(record.result);
   }, []);
@@ -412,11 +778,15 @@ export default function ZodiacPage() {
 
   const submit = async () => {
     const existing = readDailyAnalysis<ZodiacResult>('zodiac');
-    if (existing) {
+    if (existing && isCurrentZodiacResult(existing.result)) {
       setDailyRecord(existing);
       setResult(existing.result);
       progressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
+    }
+    if (existing) {
+      clearDailyAnalysis('zodiac');
+      setDailyRecord(null);
     }
 
     setError('');

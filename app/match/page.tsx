@@ -10,7 +10,7 @@ import { saveUserData, loadUserData } from '@/lib/storage';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import type { GrowthElement } from '@/lib/growth-center-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
-import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
+import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
 interface PersonInput {
   name: string;
@@ -88,12 +88,27 @@ type SelectionConfirm = { bloodType: boolean; gender: boolean };
 const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const EMPTY: PersonInput = { name: '', birthDate: '', bloodType: 'A', gender: 'female' };
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { bloodType: false, gender: false };
+const MATCH_DAILY_SCHEMA_VERSION = 'soul-match-reset-v1';
+const MATCH_DEMO_NAMES = new Set(['\u738b\u5c0f\u660e', '\u9673\u5c0f\u7f8e']);
+
+function isDemoMatchName(name?: string | null) {
+  return MATCH_DEMO_NAMES.has(name?.trim() ?? '');
+}
+
+function isDemoMatchDailyResult(value?: MatchDailyResult | null) {
+  const names = [value?.personA?.name, value?.personB?.name].map((name) => name?.trim() ?? '');
+  return names.length === 2 && names.every((name) => MATCH_DEMO_NAMES.has(name));
+}
+
+function isCurrentMatchDailyRecord(record?: DailyAnalysisRecord<MatchDailyResult> | null) {
+  return Boolean(record?.meta?.schemaVersion === MATCH_DAILY_SCHEMA_VERSION && record.result?.data?.result?.summary);
+}
 
 const BLOOD_DESC: Record<PersonInput['bloodType'], string> = {
   A: '細膩穩定，重視秩序與安全感。',
-  B: '自主鮮明，節奏感強，較有個人風格。',
-  AB: '理性感性並存，觀察力與距離感並行。',
-  O: '主動直接，行動力高，帶動感明顯。',
+  B: '自由直覺，重視感受與關係中的空間。',
+  AB: '理性與感性交織，關係節奏需要彈性。',
+  O: '直接熱情，在關係裡會主動承擔與推進。',
 };
 
 const STEP_ORDER: StepKey[] = ['personA', 'personB', 'review'];
@@ -534,7 +549,7 @@ export default function MatchPage() {
   // 載入 localStorage 預填到 personA
   useEffect(() => {
     const saved = loadUserData();
-    if (saved) {
+    if (saved && !isDemoMatchName(saved.name)) {
       setPersonA((prev) => ({
         ...prev,
         name: saved.name || prev.name,
@@ -548,6 +563,7 @@ export default function MatchPage() {
   // 同步 personA 的變更到 localStorage
   useEffect(() => {
     if (getAnalysisIdentityTarget() !== 'self') return;
+    if (isDemoMatchName(personA.name)) return;
     if (personA.name || personA.birthDate) {
       saveUserData({
         name: personA.name,
@@ -579,9 +595,13 @@ export default function MatchPage() {
 
   useEffect(() => {
     const record = readDailyAnalysis<MatchDailyResult>('match');
-    if (record) {
-      restoreDailyRecord(record);
+    if (!record) return;
+    if (isDemoMatchDailyResult(record.result) || !isCurrentMatchDailyRecord(record)) {
+      clearDailyAnalysis('match');
+      setDailyRecord(null);
+      return;
     }
+    restoreDailyRecord(record);
   }, []);
 
   const reviewCards = useMemo(
@@ -629,8 +649,12 @@ export default function MatchPage() {
   async function handleSubmit() {
     const existingDaily = readDailyAnalysis<MatchDailyResult>('match');
     if (existingDaily) {
-      restoreDailyRecord(existingDaily);
-      return;
+      if (!isDemoMatchDailyResult(existingDaily.result) && isCurrentMatchDailyRecord(existingDaily)) {
+        restoreDailyRecord(existingDaily);
+        return;
+      }
+      clearDailyAnalysis('match');
+      setDailyRecord(null);
     }
 
     if (!getAnalysisIdentityTarget()) {
@@ -682,8 +706,14 @@ export default function MatchPage() {
         return;
       }
 
+      const nextDailyResult: MatchDailyResult = { data: json, personA, personB };
       setData(json);
-      setDailyRecord(saveDailyAnalysis<MatchDailyResult>('match', { data: json, personA, personB }));
+      if (isDemoMatchDailyResult(nextDailyResult)) {
+        clearDailyAnalysis('match');
+        setDailyRecord(null);
+      } else {
+        setDailyRecord(saveDailyAnalysis<MatchDailyResult>('match', nextDailyResult, { schemaVersion: MATCH_DAILY_SCHEMA_VERSION }));
+      }
       markGrowthModuleCompleted('soul_match', json.fiveElementMatch ? (json.fiveElementMatch.sharedElement.toUpperCase() as GrowthElement) : undefined);
     } catch (error) {
       setError(error instanceof DOMException && error.name === 'AbortError'
@@ -698,13 +728,20 @@ export default function MatchPage() {
   function resetAll() {
     const existingDaily = readDailyAnalysis<MatchDailyResult>('match');
     if (existingDaily) {
-      restoreDailyRecord(existingDaily);
-      return;
+      if (!isDemoMatchDailyResult(existingDaily.result) && isCurrentMatchDailyRecord(existingDaily)) {
+        restoreDailyRecord(existingDaily);
+        return;
+      }
+      clearDailyAnalysis('match');
+      setDailyRecord(null);
     }
 
     setData(null);
     setError('');
+    setLoading(false);
     setStep('personA');
+    setPersonA({ ...EMPTY, gender: 'female' });
+    setPersonB({ ...EMPTY, gender: 'male' });
     setPersonASelectionConfirm(EMPTY_SELECTION_CONFIRM);
     setPersonBSelectionConfirm(EMPTY_SELECTION_CONFIRM);
   }

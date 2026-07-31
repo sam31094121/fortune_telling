@@ -1102,27 +1102,42 @@ const ZIWEI_TWELVE_PALACE_ORDER = [
 
 const ZIWEI_SAN_FANG_FOUR_ZHENG_ORDER = ['MING', 'QIAN_YI', 'CAI_BO', 'GUAN_LU'] as const;
 
-const ZIWEI_SAN_FANG_LABELS: Record<ZiweiSanFangKey, { label: string; role: string }> = {
-  MING: { label: '命宮', role: '本宮' },
-  QIAN_YI: { label: '遷移宮', role: '對宮' },
-  CAI_BO: { label: '財帛宮', role: '三方' },
-  GUAN_LU: { label: '官祿宮', role: '三方' },
+const ZIWEI_SAN_FANG_LABELS: Record<string, { label: string; role: string }> = {
+  MING: { label: '命宮', role: '本命核心' },
+  QIAN_YI: { label: '遷移宮', role: '外界舞台' },
+  CAI_BO: { label: '財帛宮', role: '資源流動' },
+  GUAN_LU: { label: '官祿宮', role: '事業成就' },
 };
 
+type ZiweiPalaceStoryMaterial = {
+  subtitle: string;
+  icon: string;
+  story: string;
+  opportunity: string;
+  pressure: string;
+  action: string;
+  likely: string;
+  repair: string;
+  encouragement: string;
+  professionalMeaning: string;
+  sanFangRole: string;
+  storyFocus: string;
+  tone: string;
+};
 
 const ZIWEI_PALACE_FALLBACK: Record<ZiweiPalaceKey, { name: string; focus: string }> = {
-  MING: { name: '命', focus: '自我定位、性格主軸與人生方向。' },
-  XIONG_DI: { name: '兄弟', focus: '手足、同輩、密友與合作支援。' },
-  FU_QI: { name: '夫妻', focus: '伴侶關係、親密互動與承諾模式。' },
-  ZI_NV: { name: '子女', focus: '子女、創造力、教養與傳承。' },
-  CAI_BO: { name: '財帛', focus: '財務節奏、收入模式與資源管理。' },
-  JI_E: { name: '疾厄', focus: '身心狀態、壓力反應與健康習慣。' },
-  QIAN_YI: { name: '遷移', focus: '外出發展、移動機會與環境適應。' },
-  JIAO_YOU: { name: '交友', focus: '朋友圈、人脈互動與外部助力。' },
-  GUAN_LU: { name: '官祿', focus: '事業定位、工作表現與責任舞台。' },
-  TIAN_ZHAI: { name: '田宅', focus: '家庭根基、居住空間與資產配置。' },
-  FU_DE: { name: '福德', focus: '內在安定、福分累積與精神能量。' },
-  FU_MU: { name: '父母', focus: '長輩緣分、資源傳承與支持系統。' },
+  MING: { name: '命', focus: '人格底色、人生主軸、決策方式與自我承擔。' },
+  XIONG_DI: { name: '兄弟', focus: '手足同輩、合作支援、資源分配與橫向連結。' },
+  FU_QI: { name: '夫妻', focus: '親密關係、伴侶互動、承諾模式與情感磨合。' },
+  ZI_NV: { name: '子女', focus: '創造力、作品延伸、教養照顧與後續成果。' },
+  CAI_BO: { name: '財帛', focus: '收入方式、金錢觀、資源轉換與財務節奏。' },
+  JI_E: { name: '疾厄', focus: '身心壓力、健康警訊、能量消耗與修復能力。' },
+  QIAN_YI: { name: '遷移', focus: '外部機會、遠方舞台、出行變動與環境適應。' },
+  JIAO_YOU: { name: '交友', focus: '人脈圈層、合作對象、社群影響與貴人品質。' },
+  GUAN_LU: { name: '官祿', focus: '職涯方向、專業定位、責任承擔與成就路徑。' },
+  TIAN_ZHAI: { name: '田宅', focus: '家庭根基、居住環境、資產安全與內在安定。' },
+  FU_DE: { name: '福德', focus: '精神狀態、內在滿足、休養品質與長期福分。' },
+  FU_MU: { name: '父母', focus: '長輩關係、上級緣分、傳承支持與制度資源。' },
 };
 
 function createZiweiFallbackPalace(key: ZiweiPalaceKey): ZiweiFullPalace {
@@ -1138,176 +1153,203 @@ function createZiweiFallbackPalace(key: ZiweiPalaceKey): ZiweiFullPalace {
     transformations: [],
   };
 }
-const ZIWEI_PALACE_STORY: Record<string, {
-  subtitle: string;
-  icon: string;
-  story: string;
-  opportunity: string;
-  pressure: string;
-  action: string;
-  likely: string;
-  repair: string;
-  encouragement: string;
-  tone: string;
-}> = {
+
+const ZIWEI_PALACE_STORY: Record<string, ZiweiPalaceStoryMaterial> = {
   MING: {
-    subtitle: '性格、天賦與人生核心',
-    icon: '✦',
-    story: '命宮只看你本人：你的性格底色、天賦反應、做決定的方式，以及今年如何把自己站穩。',
-    opportunity: '今年適合把自我定位講清楚，讓別人知道你的能力與界線。',
-    pressure: '較容易出現想證明自己、急著承擔過多角色的情況。',
-    action: '先定一個年度主軸，其他事情都回到這個主軸判斷。',
-    likely: '容易在自我定位、方向選擇、個人信心上被提醒。',
-    repair: '把目標縮小成每週可完成的行動，先穩住節奏再放大格局。',
-    encouragement: '你的格局不是靠一次表現證明，而是靠穩定選擇慢慢成形。',
+    subtitle: '人格主軸、命盤總開關與今生行動方式。',
+    icon: '命',
+    professionalMeaning: '命宮是十二宮的核心，代表一個人的氣質、判斷習慣、人生主軸與承擔方式。命宮強，容易主動定義人生；命宮受壓，則需要先穩住自我節奏。',
+    sanFangRole: '命宮連動財帛、官祿、遷移，構成命財官遷三方四正，是判定人生格局的第一層骨架。',
+    storyFocus: '像一座主殿，所有宮位的訊號都會回到這裡定錨。',
+    story: '命宮描述你如何站上人生舞台：你用什麼方式做決定、遇到壓力如何反應、又會把資源投入到哪一種人生路線。',
+    opportunity: '今年適合先確立主軸，把分散的能量收回到最重要的目標。',
+    pressure: '若外界聲音太多，容易失去自己的判斷節奏。',
+    action: '先定三個核心目標，再讓工作、關係、財務都回到同一個主軸。',
+    likely: '容易出現重新定位、重新選擇方向、重新承擔角色的事件。',
+    repair: '補強方式是減少反覆猶豫，把每日行動對齊主目標。',
+    encouragement: '命宮不是限制，而是你人生能量的起點。',
     tone: 'border-cyan-400/30 bg-cyan-950/15 text-cyan-100',
   },
   XIONG_DI: {
-    subtitle: '手足、朋友與同輩互動',
-    icon: '◇',
-    story: '兄弟宮只看兄弟姊妹、同輩、密友與近距離朋友，重點是支援、比較、合作與界線。',
-    opportunity: '今年同輩或密友可能帶來消息、介紹、幫忙或情緒支撐。',
-    pressure: '較容易因人情、比較心、界線不清，把別人的壓力扛到自己身上。',
-    action: '合作前先講清楚責任，幫忙可以，但不要無條件消耗自己。',
-    likely: '容易發生同輩互動變多、朋友求助、兄弟姊妹議題被看見。',
-    repair: '把關係分成可深交、可合作、需保持距離三類，避免混在一起。',
-    encouragement: '真正的好朋友會讓你變穩，不會讓你一直失衡。',
+    subtitle: '同輩支援、合作默契與資源分配。',
+    icon: '兄',
+    professionalMeaning: '兄弟宮看的是同輩、手足、合作夥伴與橫向支援力，也反映資源在熟人圈中的流動方式。',
+    sanFangRole: '此宮輔助判斷命宮能否取得同輩支援，並觀察合作中的互信與邊界。',
+    storyFocus: '像左右護法，支援也可能成為牽制。',
+    story: '兄弟宮說明你在同輩關係中如何取得協助，也指出哪些合作需要先談清楚責任與分工。',
+    opportunity: '適合建立穩定合作名單，讓支援變成可運作的結構。',
+    pressure: '界線不清時，容易因人情、比較或責任模糊而消耗。',
+    action: '把合作內容、時間、權責寫清楚，再進入共同執行。',
+    likely: '同事、朋友、手足之間會出現需要協調資源的情境。',
+    repair: '不以情緒談分工，以規則談承諾。',
+    encouragement: '好的同盟會讓你走得更穩。',
     tone: 'border-sky-400/30 bg-sky-950/15 text-sky-100',
   },
   FU_QI: {
-    subtitle: '感情、伴侶與相處模式',
-    icon: '♡',
-    story: '夫妻宮只看伴侶、親密關係、長期相處與彼此期待，不把事業或財務混成感情結論。',
-    opportunity: '今年適合把關係需求說明白，讓互相理解變成穩定力量。',
-    pressure: '較容易因猜測、沉默、期待落差，讓小事變成情緒累積。',
-    action: '用具體句子表達需求，不用試探代替溝通。',
-    likely: '容易出現感情定位、伴侶相處、承諾感與安全感的課題。',
-    repair: '把「你應該懂我」改成「我真正需要的是什麼」，關係會更清楚。',
-    encouragement: '好的關係不是沒有摩擦，而是兩個人願意一起修正相處方式。',
+    subtitle: '親密關係、承諾方式與情感磨合。',
+    icon: '侶',
+    professionalMeaning: '夫妻宮不只看婚姻，也看親密關係中的信任、對等、投射與承諾模式。',
+    sanFangRole: '夫妻宮會呼應命宮的自我需求，也牽動財務、安全感與共同生活節奏。',
+    storyFocus: '像一面鏡子，照出你在關係裡真正需要學會的互動方式。',
+    story: '夫妻宮描述你如何愛人、如何被理解，也指出感情裡最容易重複出現的功課。',
+    opportunity: '適合把關係中的期待說清楚，讓承諾變得可被落實。',
+    pressure: '若只靠猜測或忍耐，容易累積誤會。',
+    action: '把需求、界線、未來節奏拆成具體對話。',
+    likely: '感情、合作伴侶或重要對象會要求你更清楚表態。',
+    repair: '不要用沉默測試對方，用清楚表達修復關係。',
+    encouragement: '能被說清楚的關係，才有真正穩定的可能。',
     tone: 'border-rose-400/30 bg-rose-950/15 text-rose-100',
   },
   ZI_NV: {
-    subtitle: '子女、創造與成果延續',
-    icon: '✣',
-    story: '子女宮只看子女、晚輩、部屬、創作、作品與成果延續，是你投入心血後長出來的東西。',
-    opportunity: '今年適合培養作品、教學、陪伴、內容輸出或長期計畫。',
-    pressure: '較容易因急著看到成果，忽略培養期需要時間。',
-    action: '把成果拆成小階段，先養成固定輸出，再談爆發。',
-    likely: '容易發生子女晚輩互動、作品卡關、創造力需要被安排的情況。',
-    repair: '不要一直更換方向，先讓一個作品或計畫完整長出來。',
-    encouragement: '你的成果會慢慢替你說話，穩定投入比急著證明更有力量。',
+    subtitle: '創造、作品、子女緣與成果延伸。',
+    icon: '子',
+    professionalMeaning: '子女宮代表下一代、作品、學生、創造力與一件事延伸出去後的成果。',
+    sanFangRole: '此宮用來觀察命主的輸出能力，以及成果能否被承接、傳遞與放大。',
+    storyFocus: '像種子，顯示你播下什麼，也顯示結果如何長成。',
+    story: '子女宮提醒你，真正的成果不是一時完成，而是能不能被照顧、修正、傳承。',
+    opportunity: '適合整理作品、培養下一步成果，或建立長期輸出的節奏。',
+    pressure: '急著看結果時，容易忽略養成期。',
+    action: '把創作、教養或培育計畫拆成固定週期。',
+    likely: '作品發表、教學、子女議題或成果驗收會變得明顯。',
+    repair: '先照顧節奏，再追求速度。',
+    encouragement: '你正在養成的東西，會回頭成為你的力量。',
     tone: 'border-pink-400/30 bg-pink-950/15 text-pink-100',
   },
   CAI_BO: {
-    subtitle: '收入、金錢與資源運用',
-    icon: '◎',
-    story: '財帛宮只看錢財：收入方式、支出習慣、金錢態度、資源配置與今年財務壓力。',
-    opportunity: '今年適合整理收入來源、降低浪費、把資源放到能累積價值的地方。',
-    pressure: '較容易出現臨時支出、人情消費、投資衝動或現金流卡住。',
-    action: '先做預算、記帳與保留安全金，再評估擴張或投入。',
-    likely: '容易發生收入調整、支出變多、資源重新分配、錢要花在刀口上的情況。',
-    repair: '把每筆錢分成必要、投資自己、可延後三類，先止漏再開源。',
-    encouragement: '財帛宮要你學會掌握資源，不是害怕花錢，而是讓錢流向更值得的地方。',
+    subtitle: '收入能力、金錢觀與資源轉換。',
+    icon: '財',
+    professionalMeaning: '財帛宮看收入來源、理財習慣、金錢壓力與資源轉換能力，不等同單純的財運好壞。',
+    sanFangRole: '財帛宮是命財官遷的資源軸，會檢查命主能否把能力轉為收入。',
+    storyFocus: '像一條河，流速、流向與蓄水能力同樣重要。',
+    story: '財帛宮說明你如何創造收入，也指出資源容易在哪裡流失。',
+    opportunity: '適合重新設計收入結構，把專長轉成可持續的資源。',
+    pressure: '花費、投資或人情支出若沒有規則，容易削弱安全感。',
+    action: '建立固定預算、現金流表與高低風險資源分層。',
+    likely: '收入模式、支出配置或資源分配會成為今年重點。',
+    repair: '先穩定現金流，再追求放大。',
+    encouragement: '財帛宮的重點是會不會管理能量，而不是只看數字。',
     tone: 'border-emerald-400/30 bg-emerald-950/15 text-emerald-100',
   },
   JI_E: {
-    subtitle: '身心負荷與生活節奏',
-    icon: '✧',
-    story: '疾厄宮只看身心負荷、壓力反應、作息節奏與生活管理；此處不做疾病診斷。',
-    opportunity: '今年只要節奏穩，體力、專注力與恢復力都能成為助力。',
-    pressure: '較容易因睡眠不足、壓力累積、過度操勞而降低效率。',
-    action: '先固定睡眠、飲食、休息與運動節奏，再處理高壓任務。',
-    likely: '容易發生疲勞感增加、生活節奏被打亂、壓力需要出口的情況。',
-    repair: '用規律取代硬撐，把休息排進行程，不要等到耗盡才停。',
-    encouragement: '照顧身體不是退後，是讓你走得更長、更穩。',
+    subtitle: '身心壓力、健康警訊與修復力。',
+    icon: '疾',
+    professionalMeaning: '疾厄宮觀察身體承受度、壓力出口、慢性消耗與修復能力，是命盤裡的能量警示系統。',
+    sanFangRole: '疾厄宮會反映命主是否能長期承擔命宮目標，若此宮失衡，其他宮位也會被拖慢。',
+    storyFocus: '像儀表板，提醒你哪裡過熱、哪裡需要降載。',
+    story: '疾厄宮不是恐嚇，而是提醒你身體與情緒正在用自己的方式說話。',
+    opportunity: '適合建立作息、運動、休息與壓力管理規則。',
+    pressure: '長期硬撐會讓判斷力與行動力同時下降。',
+    action: '先固定睡眠、飲食、運動，再處理高壓任務。',
+    likely: '疲勞、壓力、健康檢查或生活節奏調整會成為提醒。',
+    repair: '把休息列入計畫，不把休息當成失敗。',
+    encouragement: '能量恢復後，命盤其他優勢才會真正啟動。',
     tone: 'border-lime-400/30 bg-lime-950/15 text-lime-100',
   },
   QIAN_YI: {
-    subtitle: '外出發展與外在形象',
-    icon: '↗',
-    story: '遷移宮只看外出、外地、外界舞台、社會形象與別人看到的你。',
-    opportunity: '今年適合曝光、拓展場域、接觸新環境、讓外界看見你的價值。',
-    pressure: '較容易因外部變化、人際場合或新環境節奏，讓自己被拉著走。',
-    action: '主動出去，但每次合作與曝光都要有明確目的。',
-    likely: '容易發生出差、移動、換環境、新客戶、外部邀約或形象被檢視。',
-    repair: '先準備好自我介紹、作品與界線，出門才不會被場面牽著跑。',
-    encouragement: '你的舞台不只在熟悉的地方，走出去會看見新的可能。',
+    subtitle: '外部舞台、遠方機會與環境適應。',
+    icon: '遷',
+    professionalMeaning: '遷移宮看外地、旅行、移動、外部曝光與環境變動，也看你在陌生場域中的發揮。',
+    sanFangRole: '遷移宮是命宮的對宮，代表外界如何回應你，也代表你離開熟悉環境後的真正表現。',
+    storyFocus: '像遠方的門，打開後會看見新的舞台。',
+    story: '遷移宮說明你在外界能不能被看見，也提醒你環境選擇會影響命運路線。',
+    opportunity: '適合拓展市場、學習新場域、接觸外部資源。',
+    pressure: '陌生環境帶來機會，也會放大準備不足。',
+    action: '出門前先定目標、資源、風險與回收方式。',
+    likely: '外出、轉換環境、遠距合作或外部曝光增加。',
+    repair: '先建立適應策略，再擴大行動半徑。',
+    encouragement: '當你走出去，命盤會得到新的回應。',
     tone: 'border-orange-400/30 bg-orange-950/15 text-orange-100',
   },
   JIAO_YOU: {
-    subtitle: '人脈、合作與團隊關係',
-    icon: '✺',
-    story: '交友宮只看朋友、人脈、合作夥伴、客戶、團隊與部屬，不直接斷言誰是好壞。',
-    opportunity: '今年適合篩選合作圈，讓對的人帶來資源、客源或實際支援。',
-    pressure: '較容易遇到溝通成本高、責任不清或消耗型合作。',
-    action: '合作前確認目標、分工、期限與利益分配。',
-    likely: '容易發生客戶關係、團隊協調、朋友介紹、合作邀約增多。',
-    repair: '不要只看熱情，要看對方是否守信用、能不能一起完成事。',
-    encouragement: '圈子對了，你的努力會被放大；圈子不對，越努力越耗力。',
+    subtitle: '人脈品質、合作圈層與貴人辨識。',
+    icon: '友',
+    professionalMeaning: '交友宮看朋友、團隊、社群、人脈與合作對象的品質，重點是圈層會如何影響命主。',
+    sanFangRole: '此宮用來判斷外部人際是否能支援官祿與財帛，或反而形成消耗。',
+    storyFocus: '像一張網，好的網托住你，混亂的網纏住你。',
+    story: '交友宮提醒你，人脈不是越多越好，而是要能承接共同目標。',
+    opportunity: '適合篩選合作圈，保留真正能互相成就的人。',
+    pressure: '錯誤圈層會帶來訊息噪音與責任消耗。',
+    action: '把人脈分為學習、合作、支持、消耗四類。',
+    likely: '團隊、人脈、社群或合作邀約會需要重新排序。',
+    repair: '減少無效社交，增加高品質互助。',
+    encouragement: '選對圈層，就是選對運勢的放大器。',
     tone: 'border-teal-400/30 bg-teal-950/15 text-teal-100',
   },
   GUAN_LU: {
-    subtitle: '工作、事業與職涯方向',
-    icon: '▣',
-    story: '官祿宮只看事業：工作方式、職涯定位、責任角色、專業成果與今年事業改進方向。',
-    opportunity: '今年適合把專業變成可被看見的成果，讓職場信任感提升。',
-    pressure: '較容易出現任務變多、責任加重、流程不清或角色需要升級。',
-    action: '把今年工作目標拆成可驗收節點，先完成最能代表專業的一項成果。',
-    likely: '容易發生工作調整、職位責任變化、專案壓力、需要證明能力的情況。',
-    repair: '先整理流程與優先順序，不要用忙碌取代成果。',
-    encouragement: '你的事業格局要靠作品和信用撐起來，一步一步會越站越穩。',
+    subtitle: '職涯定位、事業責任與成就路徑。',
+    icon: '官',
+    professionalMeaning: '官祿宮代表事業、專業、名聲、責任與社會角色，是看一個人如何建立成就的核心宮位。',
+    sanFangRole: '官祿宮在命財官遷中負責把命宮能力落成職涯成果，並與財帛宮形成能力與收入的對照。',
+    storyFocus: '像一座工作台，把天賦打磨成可被看見的作品。',
+    story: '官祿宮說明你適合如何工作、如何承擔責任，以及如何建立專業聲望。',
+    opportunity: '適合定義專業標籤，讓外界知道你能解決什麼問題。',
+    pressure: '責任過重或方向不清，會讓努力分散。',
+    action: '把職涯目標拆成職位、能力、作品、收入四條線。',
+    likely: '工作任務、職涯定位、升遷轉職或專業曝光會成為重點。',
+    repair: '先確立定位，再追求更大的責任。',
+    encouragement: '你的成就不是靠硬撐，而是靠清楚的專業結構。',
     tone: 'border-amber-400/30 bg-amber-950/15 text-amber-100',
   },
   TIAN_ZHAI: {
-    subtitle: '家庭、居住與資產基礎',
-    icon: '⌂',
-    story: '田宅宮只看家庭、居住環境、房產、內部資源與安全感，不提供投資保證。',
-    opportunity: '今年適合整理住家、家庭秩序、資產基礎與長期安全感。',
-    pressure: '較容易因家中雜務、居住安排、資產壓力或家人意見而分心。',
-    action: '先處理看得見的空間，再整理家庭共識與資源規劃。',
-    likely: '容易發生搬動整理、家庭討論、居住品質、資產配置需要重看。',
-    repair: '把家變成補充能量的地方，不要讓環境一直消耗你。',
-    encouragement: '根基穩，外面的路才走得遠；整理田宅就是整理你的底氣。',
+    subtitle: '家庭根基、居住安全與資產承接。',
+    icon: '宅',
+    professionalMeaning: '田宅宮看家宅、房產、居住品質、內在安全感與長期資產的承接能力。',
+    sanFangRole: '田宅宮會支撐財帛與福德，代表一個人能否把資源沉澱成穩定基礎。',
+    storyFocus: '像地基，地基穩，外面的變動就不容易動搖你。',
+    story: '田宅宮說明你的安定感來源，也指出家庭、空間、資產如何影響長期運勢。',
+    opportunity: '適合整理居住環境、規劃資產、建立穩定生活節奏。',
+    pressure: '家庭責任或空間混亂會消耗精神。',
+    action: '先處理居住秩序與資產清單，再談擴張。',
+    likely: '搬遷、修繕、家庭議題或資產配置會浮上檯面。',
+    repair: '把空間整理成能恢復能量的地方。',
+    encouragement: '安定不是停滯，而是讓你能走更遠的基地。',
     tone: 'border-yellow-400/30 bg-yellow-950/15 text-yellow-100',
   },
   FU_DE: {
-    subtitle: '內心、興趣與精神狀態',
-    icon: '◐',
-    story: '福德宮只看內心世界、精神狀態、興趣慾望、休息方式與享受生活的能力。',
-    opportunity: '今年適合修復心氣、培養興趣、找回讓自己安定的生活節奏。',
-    pressure: '較容易外表正常、內心消耗，或因想太多而睡不穩、心不定。',
-    action: '每天安排一段不被打擾的安靜時間，讓心慢慢回來。',
-    likely: '容易發生內心疲倦、興趣轉換、想休息卻放不下責任的狀況。',
-    repair: '把休息當成能量管理，不要把安靜時間視為浪費。',
-    encouragement: '心穩，運就不容易散；你越能安住，越能看清真正想要的路。',
+    subtitle: '精神福分、休養品質與內在滿足。',
+    icon: '福',
+    professionalMeaning: '福德宮看精神世界、休息能力、興趣品味、內在滿足與長期福分。',
+    sanFangRole: '福德宮影響命主的續航力，若福德不足，外在成就容易變成空轉與消耗。',
+    storyFocus: '像內在花園，決定你能不能在忙碌中仍保持生命感。',
+    story: '福德宮提醒你，真正的福氣不是只有得到，而是能不能安住、享受與恢復。',
+    opportunity: '適合重新安排休息、興趣、精神滋養與自我照顧。',
+    pressure: '若長期忽略內在需求，會讓外在成功失去重量。',
+    action: '每週固定安排非功利的修復時間。',
+    likely: '睡眠、情緒、興趣、心靈狀態會成為今年的隱性主題。',
+    repair: '減少過度刺激，增加能讓心沉下來的習慣。',
+    encouragement: '福德宮穩，人生不只前進，也能真正感到值得。',
     tone: 'border-violet-400/30 bg-violet-950/15 text-violet-100',
   },
   FU_MU: {
-    subtitle: '父母、長輩與支持系統',
-    icon: '△',
-    story: '父母宮只看父母、長輩、上級、制度、教育資源與支持系統。',
-    opportunity: '今年適合請益、學習、修正舊觀念，讓長輩或制度資源成為助力。',
-    pressure: '較容易被期待、規範、權威意見影響，或與長輩觀念不同。',
-    action: '尊重經驗，但最後仍要把選擇放回自己的人生節奏。',
-    likely: '容易發生長輩溝通、上級要求、制度流程、學習證照或資源申請。',
-    repair: '把對立變成請益，把壓力轉成規劃，不要用硬碰硬消耗自己。',
-    encouragement: '你可以承接好的經驗，也可以走出自己的新路。',
+    subtitle: '長輩上級、傳承支持與制度資源。',
+    icon: '親',
+    professionalMeaning: '父母宮看父母、長輩、上級、制度、文書與被支持或被要求的方式。',
+    sanFangRole: '父母宮能補充命主與權威、規則、傳承之間的互動，影響學習與職場資源。',
+    storyFocus: '像一條傳承線，裡面有支持，也有需要重新理解的期待。',
+    story: '父母宮說明你如何面對權威，也指出哪些資源可以透過長輩、上級或制度取得。',
+    opportunity: '適合整理文書、尋求指導、修復與長輩或上級的溝通。',
+    pressure: '過度迎合期待，容易讓自己的方向被稀釋。',
+    action: '把尊重與自我主張分開處理，建立成熟溝通。',
+    likely: '長輩、上級、證照、制度、合約或學習資源會出現關鍵訊號。',
+    repair: '用清楚文件與穩定態度取代情緒防衛。',
+    encouragement: '你可以承接好的資源，也可以重新定義自己的路。',
     tone: 'border-indigo-400/30 bg-indigo-950/15 text-indigo-100',
   },
 };
+
 const ZIWEI_PALACE_ANNUAL_LENS: Record<string, { label: string; matrixKey: ZiweiAdviceMatrixKey; source: string }> = {
-  MING: { label: '自我定位', matrixKey: 'confidence', source: '今年整體信心與自我穩定度' },
-  XIONG_DI: { label: '同輩互動', matrixKey: 'communication', source: '今年溝通、人際協調與同輩支援' },
-  FU_QI: { label: '關係覺察', matrixKey: 'relationshipAwareness', source: '今年感情互動與關係覺察' },
-  ZI_NV: { label: '成果延續', matrixKey: 'learningGrowth', source: '今年成長、創造與成果延續' },
-  CAI_BO: { label: '財務紀律', matrixKey: 'financialDiscipline', source: '今年財務紀律與資源配置' },
-  JI_E: { label: '壓力管理', matrixKey: 'stressManagement', source: '今年壓力管理與身心節奏' },
-  QIAN_YI: { label: '外部適應', matrixKey: 'adaptability', source: '今年外部機會與環境適應' },
-  JIAO_YOU: { label: '合作溝通', matrixKey: 'communication', source: '今年合作、人脈與團隊溝通' },
-  GUAN_LU: { label: '執行落地', matrixKey: 'execution', source: '今年事業執行與責任落地' },
-  TIAN_ZHAI: { label: '根基耐心', matrixKey: 'patience', source: '今年家庭根基、穩定度與耐心' },
-  FU_DE: { label: '心氣修復', matrixKey: 'stressManagement', source: '今年內在修復與精神能量' },
-  FU_MU: { label: '支持系統', matrixKey: 'learningGrowth', source: '今年長輩支持、學習與經驗吸收' },
+  MING: { label: '自我定位', matrixKey: 'confidence', source: '年度主軸回到命宮，需確認人生方向與行動承擔。' },
+  XIONG_DI: { label: '同輩協作', matrixKey: 'communication', source: '年度訊號落在人際分工與同輩互助。' },
+  FU_QI: { label: '關係磨合', matrixKey: 'relationshipAwareness', source: '年度重點牽動親密關係、承諾與互動模式。' },
+  ZI_NV: { label: '成果養成', matrixKey: 'learningGrowth', source: '年度提醒把創造力與成果延伸穩定養成。' },
+  CAI_BO: { label: '財務節奏', matrixKey: 'financialDiscipline', source: '年度重點落在收入、支出與資源配置。' },
+  JI_E: { label: '身心修復', matrixKey: 'stressManagement', source: '年度提醒先穩住健康、壓力與日常節奏。' },
+  QIAN_YI: { label: '外部機會', matrixKey: 'adaptability', source: '年度訊號指向移動、外界舞台與環境適應。' },
+  JIAO_YOU: { label: '人脈品質', matrixKey: 'communication', source: '年度重點在圈層、合作對象與社群影響。' },
+  GUAN_LU: { label: '事業落點', matrixKey: 'execution', source: '年度訊號要求職涯定位與專業輸出更具體。' },
+  TIAN_ZHAI: { label: '安定根基', matrixKey: 'patience', source: '年度重點落在家庭、居住與長期資產安全。' },
+  FU_DE: { label: '精神續航', matrixKey: 'stressManagement', source: '年度提醒重建休養、興趣與內在滋養。' },
+  FU_MU: { label: '傳承資源', matrixKey: 'learningGrowth', source: '年度重點牽動長輩、制度、學習與文件資源。' },
 };
 
 function getZiweiAnnualSignal(
@@ -1320,7 +1362,7 @@ function getZiweiAnnualSignal(
   return {
     score: annualPalace?.score ?? matrixScore ?? annual?.overallScore ?? null,
     label: annualPalace?.trend ?? lens?.label ?? annual?.level ?? '年度訊號',
-    focus: annualPalace?.focus ?? lens?.source ?? annual?.annualTheme ?? '今年整體運勢訊號',
+    focus: annualPalace?.focus ?? lens?.source ?? annual?.annualTheme ?? '年度主軸與十二宮位交叉觀察。',
     advice: annualPalace?.advice ?? annual?.motivation.actionAdvice,
     encouragement: annualPalace?.encouragement ?? annual?.motivation.coreEncouragement,
     action: annualPalace?.action ?? annual?.motivation.growthReminder,
@@ -1330,9 +1372,31 @@ function getZiweiAnnualSignal(
     scoreSource: annualPalace ? '宮位年度分數' : lens ? '年度矩陣分數' : '整體年度分數',
   };
 }
+
 function normalizeZiweiPalaceName(name: string) {
-  const normalized = name === '奴僕宮' || name === '奴僕' ? '交友宮' : name;
-  return normalized.endsWith('宮') ? normalized : `${normalized}宮`;
+  const fallback = Object.values(ZIWEI_PALACE_FALLBACK).find((item) => item.name === name || item.name + '宮' === name);
+  if (fallback) return fallback.name + '宮';
+  const trimmed = (name || '').trim();
+  if (!trimmed) return '宮位';
+  return trimmed.endsWith('宮') ? trimmed : trimmed + '宮';
+}
+
+function buildZiweiFallbackStory(palaceName: string): ZiweiPalaceStoryMaterial {
+  return {
+    subtitle: palaceName + '主題分析',
+    icon: palaceName.slice(0, 1) || '宮',
+    professionalMeaning: palaceName + '用來觀察此宮位對人生主題的影響。',
+    sanFangRole: '此宮位需與命宮、財帛宮、官祿宮、遷移宮共同交叉判讀。',
+    storyFocus: '此宮位是命盤故事中的一個專門場景。',
+    story: palaceName + '呈現此人生領域的主要節奏、資源與壓力。',
+    opportunity: '先找出此宮位目前最有利的可用資源。',
+    pressure: '需要留意此領域是否出現過度消耗或責任不清。',
+    action: '把此宮位主題拆成可執行的小步驟。',
+    likely: '近期容易在此宮位主題上出現需要處理的變化。',
+    repair: '以穩定節奏與清楚邊界修復此領域。',
+    encouragement: '此宮位不是限制，而是可被整理與運用的訊號。',
+    tone: 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
+  };
 }
 
 function ZiweiTwelvePalaceCards({
@@ -1367,23 +1431,19 @@ function ZiweiTwelvePalaceCards({
   return (
     <section className="fortune-card p-5 sm:p-8">
       <div className="rounded-[28px] border border-amber-300/35 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),rgba(15,23,42,0.56)_42%,rgba(2,6,23,0.82)_100%)] p-5 text-center shadow-[0_0_46px_rgba(251,191,36,0.14)] sm:p-7">
-        <p className="text-xs font-semibold uppercase tracking-[0.32em] text-amber-200/85">主要格局</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.32em] text-amber-200/85">PROFESSIONAL ZI WEI CHART</p>
         <h2 className="mx-auto mt-3 max-w-4xl break-words font-serif text-5xl font-black leading-tight text-amber-100 drop-shadow-[0_0_20px_rgba(251,191,36,0.35)] sm:text-7xl">
           {analysis.pattern.name}
         </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-amber-50/78">
-          你是有格局的人。先看格局定錨，再從十二宮位找到今年最適合發力的位置。
-        </p>
+        <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-amber-50/78">第一層只負責建立紫微斗數命盤結構：十二宮位、主星訊號、年度宮位分數與三方四正，不在此層直接輸出補強結論。</p>
         <p className="mt-3 text-xs text-amber-100/60">分析年份：{annual?.year ?? new Date().getFullYear()}</p>
       </div>
 
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-indigo-300">ZI WEI PALACES</p>
-          <h3 className="mt-3 font-serif text-3xl text-indigo-100 sm:text-4xl">選擇想了解的宮位</h3>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-[color:var(--text-sub)]">
-            點選宮位，查看專屬分析。
-          </p>
+          <h3 className="mt-3 font-serif text-3xl text-indigo-100 sm:text-4xl">紫微十二宮位專業拆解</h3>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-[color:var(--text-sub)]">點選任一宮位，查看該宮的定位、故事、機會、壓力、行動，以及命宮、財帛、官祿、遷移的三方四正交叉分析。</p>
         </div>
       </div>
 
@@ -1396,18 +1456,7 @@ function ZiweiTwelvePalaceCards({
 
       <div className="ziwei-palace-grid mt-6 grid grid-cols-2 gap-3.5 max-[340px]:grid-cols-1 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
         {sortedPalaces.map((palace, index) => {
-          const story = ZIWEI_PALACE_STORY[palace.key] ?? {
-            subtitle: `${normalizeZiweiPalaceName(palace.name)}主題`,
-            icon: '✦',
-            story: `${normalizeZiweiPalaceName(palace.name)}只看這一宮代表的生活主題，今年先看它帶來的具體提醒。`,
-            opportunity: '適合把重點整理清楚，找到可執行方向。',
-            pressure: '訊號不足時，先以保守判讀為主。',
-            action: '把重點化成一個可執行的小步驟。',
-            likely: '容易在這個宮位主題上出現需要處理的變化。',
-            repair: '先把問題分清楚，再用小步驟補強。',
-            encouragement: '看清楚這一宮的提醒，就能把壓力轉成可行動的方向。',
-            tone: 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
-          };
+          const story = ZIWEI_PALACE_STORY[palace.key] ?? buildZiweiFallbackStory(normalizeZiweiPalaceName(palace.name));
           const annualPalace = annualMap.get(palace.key as 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI');
           const annualSignal = getZiweiAnnualSignal(palace.key, annualPalace, annual);
           const active = selectedPalaceKey === palace.key;
@@ -1455,7 +1504,7 @@ function ZiweiTwelvePalaceCards({
         />
       ) : (
         <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-sm leading-7 text-[color:var(--text-sub)]">
-          先點一張宮位卡片，系統會只展開該宮位的故事分析，畫面保持乾淨不擁擠。
+          先點選一個宮位。系統會展開該宮的專業拆解，並把它放回命財官遷三方四正中交叉理解。
         </div>
       )}
     </section>
@@ -1478,172 +1527,208 @@ function ZiweiPalaceStoryPanel({
   annualPalace?: ZiweiAnnualPalace;
   annual?: ZiweiAnnualFortune;
   precisionAnalysis?: ZiweiPrecisionAnalysis;
-  story?: (typeof ZIWEI_PALACE_STORY)[string];
+  story?: ZiweiPalaceStoryMaterial;
   year: number;
   patternName: string;
   sanFangPalaces: ZiweiFullPalace[];
 }) {
-  const config = story ?? {
-    subtitle: `${normalizeZiweiPalaceName(palace.name)}主題`,
-    icon: '✦',
-    story: `${normalizeZiweiPalaceName(palace.name)}只看這一宮代表的生活主題，今年先看它帶來的具體提醒。`,
-    opportunity: '適合把重點整理清楚，找到可執行方向。',
-    pressure: '訊號不足時，先以保守判讀為主。',
-    action: '把重點化成一個可執行的小步驟。',
-    likely: '容易在這個宮位主題上出現需要處理的變化。',
-    repair: '先把問題分清楚，再用小步驟補強。',
-    encouragement: '看清楚這一宮的提醒，就能把壓力轉成可行動的方向。',
-    tone: 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
-  };
-  const mainStars = palace.majorStars.length > 0 ? palace.majorStars.join('、') : '無主星坐守';
+  const palaceName = normalizeZiweiPalaceName(palace.name);
+  const config = story ?? buildZiweiFallbackStory(palaceName);
+  const mainStars = palace.majorStars.length > 0 ? palace.majorStars.join('、') : '未定主星';
   const supportStars = palace.minorStars.slice(0, 5).join('、');
   const transformations = palace.transformations.join('、');
   const annualSignal = getZiweiAnnualSignal(palace.key, annualPalace, annual);
   const firstEvent = precisionAnalysis?.likelyEvents[0];
-  const primaryOpportunity = precisionAnalysis?.primaryOpportunity.description ?? annualPalace?.focus;
-  const primaryPressure = precisionAnalysis?.primaryRisk.description ?? annualPalace?.tensions[0];
-  const primaryAction = precisionAnalysis?.actionPlan.doFirst[0] ?? annualPalace?.action;
-  const primaryAdvice = precisionAnalysis?.directConclusion ?? annualPalace?.advice;
-  const primaryEncouragement = annualPalace?.encouragement;
-  const likelyText = firstEvent?.likelyScenario;
-  const repairText = precisionAnalysis?.actionPlan.doFirst.slice(0, 2).join('；');
+  const primaryOpportunity = precisionAnalysis?.primaryOpportunity.description ?? annualSignal.focus ?? config.opportunity;
+  const primaryPressure = precisionAnalysis?.primaryRisk.description ?? annualSignal.tensions[0] ?? config.pressure;
+  const primaryAction = precisionAnalysis?.actionPlan.doFirst[0] ?? annualSignal.action ?? config.action;
+  const primaryAdvice = precisionAnalysis?.directConclusion ?? annualSignal.advice ?? config.story;
+  const primaryEncouragement = annualSignal.encouragement ?? config.encouragement;
+  const likelyText = firstEvent?.likelyScenario ?? config.likely;
+  const repairText = precisionAnalysis?.actionPlan.doFirst.slice(0, 2).join('；') || config.repair;
   const evidenceItems = precisionAnalysis?.evidenceSummary ?? [];
+
   const coreInsightCards = [
-    { label: '機會', text: primaryOpportunity },
-    { label: '壓力', text: primaryPressure },
-    { label: '建議', text: primaryAction },
-  ].filter((item): item is { label: string; text: string } => Boolean(item.text?.trim()));
+    { label: '專業定位', text: config.professionalMeaning },
+    { label: '機會訊號', text: primaryOpportunity },
+    { label: '壓力訊號', text: primaryPressure },
+  ];
   const situationalCards = [
-    { label: '較容易發生', text: likelyText },
-    { label: '補足方式', text: repairText },
-    { label: '鼓勵', text: primaryEncouragement },
-  ].filter((item): item is { label: string; text: string } => Boolean(item.text?.trim()));
-  const hasConclusion = Boolean(primaryAdvice?.trim() || precisionAnalysis?.palaceDefinition?.trim() || primaryEncouragement?.trim());
+    { label: '故事主軸', text: config.storyFocus },
+    { label: '可能事件', text: likelyText },
+    { label: '修復方式', text: repairText },
+  ];
+  const secondLayerCards = [
+    {
+      label: '第二層定位',
+      text: 'AI 讀取第一層的宮位定位、主星訊號與年度分數後，判定' + palaceName + '目前最需要被一般使用者理解的是：' + config.story,
+    },
+    {
+      label: '白話翻譯',
+      text: '這一宮不是單點事件，而是「' + config.storyFocus + '」。使用者需要先理解它代表的生活場景，再看年度訊號如何落下。',
+    },
+    {
+      label: '證據串接',
+      text: '解讀依據固定來自第一層：本宮定位、' + annualSignal.label + '、主星組合 ' + mainStars + '，以及三方四正的命宮、遷移宮、財帛宮、官祿宮。',
+    },
+  ];
+  const thirdLayerPriorities = [
+    {
+      order: '第一補強',
+      title: '先穩住本宮主題',
+      text: primaryAction,
+    },
+    {
+      order: '第二補強',
+      title: '處理主要壓力源',
+      text: primaryPressure,
+    },
+    {
+      order: '第三補強',
+      title: '回到三方四正整合',
+      text: config.sanFangRole,
+    },
+  ];
 
   return (
-    <div ref={panelRef} className={`mt-6 scroll-mt-24 rounded-[24px] border p-5 sm:p-6 ${config.tone}`}>
+    <div ref={panelRef} className={"mt-6 scroll-mt-24 rounded-[24px] border p-5 sm:p-6 " + config.tone}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs font-semibold tracking-[0.24em] opacity-70">{year} 年專屬分析</p>
-          <h3 className="mt-2 font-serif text-3xl font-black leading-tight">{normalizeZiweiPalaceName(palace.name)}</h3>
+          <p className="text-xs font-semibold tracking-[0.24em] opacity-70">{year} 年度宮位拆解</p>
+          <h3 className="mt-2 font-serif text-3xl font-black leading-tight">{palaceName}</h3>
           <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{config.subtitle}</p>
         </div>
         <div className="rounded-2xl border border-white/15 bg-black/15 px-4 py-3 text-left sm:text-right">
-          <p className="text-xs opacity-70">格局</p>
+          <p className="text-xs opacity-70">命盤格局</p>
           <p className="mt-1 text-sm font-bold">{patternName}</p>
           {annualSignal.score !== null && <p className="mt-2 text-xs opacity-80">{annualSignal.scoreSource} {annualSignal.score}</p>}
         </div>
       </div>
 
-      {palace.key === 'MING' && (
-        <div className="mt-5 rounded-2xl border border-cyan-300/20 bg-cyan-950/20 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-[11px] font-semibold tracking-[0.24em] text-cyan-200/75">三方四正</p>
-              <h4 className="mt-1 font-serif text-xl font-black leading-tight text-cyan-50 sm:text-2xl">
-                命宮 × 遷移宮 × 財帛宮 × 官祿宮
-              </h4>
-            </div>
-            <p className="text-xs leading-5 text-cyan-100/70">年度統計已灌入</p>
+      <div className="mt-5 rounded-2xl border border-cyan-300/20 bg-cyan-950/20 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[11px] font-semibold tracking-[0.24em] text-cyan-200/75">三方四正交叉分析</p>
+            <h4 className="mt-1 font-serif text-xl font-black leading-tight text-cyan-50 sm:text-2xl">
+              命宮 × 遷移宮 × 財帛宮 × 官祿宮
+            </h4>
           </div>
+          <p className="text-xs leading-5 text-cyan-100/70">{config.sanFangRole}</p>
+        </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-            {sanFangPalaces.map((item) => {
-              const key = item.key as ZiweiSanFangKey;
-              const label = ZIWEI_SAN_FANG_LABELS[key];
-              const itemAnnual = annual?.sanFangFourZheng.find((annualItem) => annualItem.palaceKey === key);
-              const stars = item.majorStars.length > 0 ? item.majorStars.join('、') : '無主星坐守';
+        <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+          {sanFangPalaces.map((item) => {
+            const key = item.key as ZiweiSanFangKey;
+            const label = ZIWEI_SAN_FANG_LABELS[key] ?? { label: normalizeZiweiPalaceName(item.name), role: '參照宮位' };
+            const itemAnnual = annual?.sanFangFourZheng.find((annualItem) => annualItem.palaceKey === key);
+            const stars = item.majorStars.length > 0 ? item.majorStars.join('、') : '未定主星';
 
-              return (
-                <div
-                  key={key}
-                  className="min-h-[116px] rounded-[18px] border border-white/10 bg-black/18 px-3 py-3"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-[10px] font-semibold tracking-[0.18em] text-cyan-100/60">{label.role}</p>
-                    {itemAnnual && <span className="rounded-full bg-white/[0.08] px-2 py-0.5 text-[10px] font-semibold text-cyan-100/80">{itemAnnual.score}分</span>}
-                  </div>
-                  <p className="mt-2 font-serif text-lg font-black leading-none text-cyan-50">{label.label}</p>
-                  <p className="mt-2 line-clamp-2 text-[11px] font-semibold leading-5 text-[color:var(--text-main)]">{stars}</p>
-                  <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-[color:var(--text-sub)]">{itemAnnual?.focus ?? item.focus}</p>
+            return (
+              <div key={key} className="min-h-[116px] rounded-[18px] border border-white/10 bg-black/18 px-3 py-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-semibold tracking-[0.18em] text-cyan-100/60">{label.role}</p>
+                  {itemAnnual && <span className="rounded-full bg-white/[0.08] px-2 py-0.5 text-[10px] font-semibold text-cyan-100/80">{itemAnnual.score} 分</span>}
                 </div>
-              );
-            })}
-          </div>
-
-          <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-xs leading-6 text-[color:var(--text-sub)]">
-            三方四正以命宮看自我，遷移宮看外界回應，財帛宮看資源流動，官祿宮看事業責任；四宮一起交叉，才形成今年「{patternName}」的判讀核心。
-          </p>
-        </div>
-      )}
-
-      {coreInsightCards.length > 0 && (
-        <div className="mt-5 rounded-2xl border border-white/10 bg-black/15 p-4">
-          <p className="text-xs font-semibold tracking-[0.2em] opacity-70">年度重點</p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            {coreInsightCards.map((item) => (
-              <div key={item.label} className="border-l border-cyan-200/20 pl-3">
-                <p className="text-xs font-semibold text-cyan-100/70">{item.label}</p>
-                <p className="mt-1.5 text-sm leading-6 text-[color:var(--text-main)]">{item.text}</p>
+                <p className="mt-2 font-serif text-lg font-black leading-none text-cyan-50">{label.label}</p>
+                <p className="mt-2 line-clamp-2 text-[11px] font-semibold leading-5 text-[color:var(--text-main)]">{stars}</p>
+                <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-[color:var(--text-sub)]">{itemAnnual?.focus ?? item.focus}</p>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
-      )}
 
-      {situationalCards.length > 0 && (
-        <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
-          <p className="text-xs font-semibold tracking-[0.2em] opacity-70">事件推論</p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            {situationalCards.map((item) => (
-              <div key={item.label} className="border-l border-white/10 pl-3">
-                <p className="text-xs font-semibold opacity-70">{item.label}</p>
-                <p className="mt-1.5 text-sm leading-6 text-[color:var(--text-main)]">{item.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+        <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-xs leading-6 text-[color:var(--text-sub)]">
+          三方四正用來看命主如何把人格主軸、外部舞台、財務資源與職涯成就串成同一條路線。此處只做命盤結構拆解，不在此層直接給補強結論。
+        </p>
+      </div>
 
-      {hasConclusion && (
-        <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
-          <p className="text-xs font-semibold tracking-[0.2em] opacity-70">一句話結論</p>
-          {primaryAdvice && (
-            <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
-              {primaryAdvice}
-            </p>
-          )}
-          {precisionAnalysis?.palaceDefinition && (
-            <p className="mt-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs leading-6 text-[color:var(--text-main)]">
-              本宮分析：{precisionAnalysis.palaceDefinition}
-            </p>
-          )}
-          {primaryEncouragement && (
-            <p className="mt-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs leading-6 text-[color:var(--text-main)]">
-              鼓勵：{primaryEncouragement}
-            </p>
-          )}
+      <div className="mt-5 rounded-2xl border border-white/10 bg-black/15 p-4">
+        <p className="text-xs font-semibold tracking-[0.2em] opacity-70">第一層專業拆解</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {coreInsightCards.map((item) => (
+            <div key={item.label} className="border-l border-cyan-200/20 pl-3">
+              <p className="text-xs font-semibold text-cyan-100/70">{item.label}</p>
+              <p className="mt-1.5 text-sm leading-6 text-[color:var(--text-main)]">{item.text}</p>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-violet-300/20 bg-violet-950/15 p-4">
+        <p className="text-xs font-semibold tracking-[0.2em] text-violet-200">第二層 AI 白話解讀</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {secondLayerCards.map((item) => (
+            <div key={item.label} className="border-l border-violet-200/20 pl-3">
+              <p className="text-xs font-semibold text-violet-100/75">{item.label}</p>
+              <p className="mt-1.5 text-sm leading-6 text-[color:var(--text-main)]">{item.text}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs leading-6 text-[color:var(--text-sub)]">
+          第二層只負責把第一層專業命盤翻譯成使用者看得懂的關係與事件語言，不重新排盤、不更改宮位、不直接做補強結論。
+        </p>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-amber-300/20 bg-amber-950/15 p-4">
+        <p className="text-xs font-semibold tracking-[0.2em] text-amber-200">第三層 AI 行動排序</p>
+        <p className="mt-3 rounded-xl border border-amber-200/20 bg-black/15 px-3 py-2 text-sm font-bold leading-7 text-amber-100">
+          AI 判定：{palaceName} 目前優先處理「{thirdLayerPriorities[0].title}」，完成後再處理「{thirdLayerPriorities[1].title}」，最後回到「{thirdLayerPriorities[2].title}」。
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {thirdLayerPriorities.map((item) => (
+            <div key={item.order} className="rounded-2xl border border-white/10 bg-black/15 p-4">
+              <p className="text-xs font-semibold text-amber-100/75">{item.order}</p>
+              <p className="mt-2 text-sm font-black text-amber-100">{item.title}</p>
+              <p className="mt-2 text-xs leading-6 text-[color:var(--text-main)]">{item.text}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs leading-6 text-[color:var(--text-sub)]">
+          第三層只讀取第二層解讀結果與第一層命盤證據，輸出清楚的先後順序；它不重新分析命盤，也不保證結果。
+        </p>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+        <p className="text-xs font-semibold tracking-[0.2em] opacity-70">故事與事件推演</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {situationalCards.map((item) => (
+            <div key={item.label} className="border-l border-white/10 pl-3">
+              <p className="text-xs font-semibold opacity-70">{item.label}</p>
+              <p className="mt-1.5 text-sm leading-6 text-[color:var(--text-main)]">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+        <p className="text-xs font-semibold tracking-[0.2em] opacity-70">本宮結論</p>
+        <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">{primaryAdvice}</p>
+        <p className="mt-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs leading-6 text-[color:var(--text-main)]">
+          行動重點：{primaryAction}
+        </p>
+        <p className="mt-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs leading-6 text-[color:var(--text-main)]">
+          鼓勵語：{primaryEncouragement}
+        </p>
+      </div>
 
       {precisionAnalysis && (
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
-            <p className="text-xs font-semibold opacity-70">優先做</p>
+            <p className="text-xs font-semibold opacity-70">先做</p>
             <ul className="mt-2 space-y-2 text-xs leading-6 text-[color:var(--text-main)]">
-              {precisionAnalysis.actionPlan.doFirst.slice(0, 3).map((item) => <li key={item}>→ {item}</li>)}
+              {precisionAnalysis.actionPlan.doFirst.slice(0, 3).map((item) => <li key={item}>・{item}</li>)}
             </ul>
           </div>
           <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
-            <p className="text-xs font-semibold opacity-70">先不要做</p>
+            <p className="text-xs font-semibold opacity-70">避免</p>
             <ul className="mt-2 space-y-2 text-xs leading-6 text-[color:var(--text-main)]">
-              {precisionAnalysis.actionPlan.avoid.slice(0, 3).map((item) => <li key={item}>→ {item}</li>)}
+              {precisionAnalysis.actionPlan.avoid.slice(0, 3).map((item) => <li key={item}>・{item}</li>)}
             </ul>
           </div>
           <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
-            <p className="text-xs font-semibold opacity-70">持續觀察</p>
+            <p className="text-xs font-semibold opacity-70">觀察</p>
             <ul className="mt-2 space-y-2 text-xs leading-6 text-[color:var(--text-main)]">
-              {precisionAnalysis.actionPlan.observe.slice(0, 3).map((item) => <li key={item}>→ {item}</li>)}
+              {precisionAnalysis.actionPlan.observe.slice(0, 3).map((item) => <li key={item}>・{item}</li>)}
             </ul>
           </div>
         </div>
@@ -1651,7 +1736,7 @@ function ZiweiPalaceStoryPanel({
 
       {annual && (
         <div className="mt-4 rounded-2xl border border-white/10 bg-black/15 p-4">
-          <p className="text-xs font-semibold tracking-[0.2em] opacity-70">今年統計灌入</p>
+          <p className="text-xs font-semibold tracking-[0.2em] opacity-70">年度訊號納入</p>
           <p className="mt-3 text-sm leading-7 text-[color:var(--text-sub)]">
             {annual.year} {annual.ganzhi}年整體為「{annual.level}」，綜合分數 {annual.overallScore}。此宮位採用「{annualSignal.label}」作為年度切入點，把原本年度運勢統計轉成這一宮的實用提醒。
           </p>
@@ -1668,20 +1753,21 @@ function ZiweiPalaceStoryPanel({
       )}
 
       <details className="mt-4 rounded-2xl border border-white/10 bg-black/15 p-4 text-sm">
-        <summary className="cursor-pointer font-semibold text-[color:var(--text-main)]">分析依據</summary>
+        <summary className="cursor-pointer font-semibold text-[color:var(--text-main)]">命盤依據</summary>
         <div className="mt-3 grid gap-2 text-xs leading-6 text-[color:var(--text-sub)] sm:grid-cols-2">
           <p>宮位座標：{palace.palaceStem}{palace.branch}</p>
-          <p>本宮主星：{mainStars}</p>
-          {supportStars && <p>輔助星曜：{supportStars}</p>}
+          <p>主星組合：{mainStars}</p>
+          {supportStars && <p>輔星訊號：{supportStars}</p>}
           {transformations && <p>四化訊號：{transformations}</p>}
           {evidenceItems.slice(0, 4).map((item) => (
-            <p key={`${item.sourceType}-${item.sourceName}`}>{item.sourceName}：{item.explanation}</p>
+            <p key={item.sourceType + "-" + item.sourceName}>{item.sourceName}：{item.explanation}</p>
           ))}
         </div>
       </details>
     </div>
   );
 }
+
 function InsightAnalyticalConsole({
   name,
 }: {
@@ -2344,9 +2430,9 @@ export default function InsightPage() {
               </div>
             </div>
 
-            <FiveElementPriorityCard result={result?.fiveElement} />
-
             <ZiweiTwelvePalaceCards analysis={result?.ziweiSanFang} annual={result?.annualFortune} />
+
+            <FiveElementPriorityCard result={result?.fiveElement} />
 
             {/* 三方四正摘要、今年運勢、補充建議與姓名學資料保留於 API 回傳；手機主畫面只保留主格局與十二宮。 */}
 

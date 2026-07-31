@@ -36,7 +36,7 @@ function validateNameologyRequest(body: unknown): string | null {
 }
 
 function getCacheKey(body: NameologyRequest) {
-  return hashedCacheKey([body.name.trim(), body.birthDate, body.bloodType, body.gender, 'nameology-v2-five-element']);
+  return hashedCacheKey([body.name.trim(), body.birthDate, body.bloodType, body.gender, 'nameology-v4-three-layer']);
 }
 
 export async function POST(request: Request) {

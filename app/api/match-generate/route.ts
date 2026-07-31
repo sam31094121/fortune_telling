@@ -9,6 +9,7 @@ import { isValidBirthday } from '@/lib/validation';
 import { computeRelationshipMatrix } from '@/lib/relationship-matrix-engine';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
 import { buildMatchFiveElementResult } from '@/lib/match-five-element-engine';
+import { buildSoulMatchAiInterpretationLayer, buildSoulMatchProfessionalLayer, buildSoulMatchReinforcementLayer } from '@/lib/match-professional-layer';
 
 export const dynamic = 'force-dynamic';
 
@@ -251,6 +252,7 @@ export async function POST(request: Request) {
     body.personB.birthDate,
     body.personB.bloodType,
     body.personB.gender,
+    'soul-match-three-layer-v2',
   ]);
   const cached = responseCache.get(cacheKey);
   if (cached && now < cached.expireTime) {
@@ -283,12 +285,27 @@ export async function POST(request: Request) {
       }
     );
 
+    const finalResult = { ...result, summary: finalSummary, zones: enhanced.zones };
     const fiveElementMatch = buildMatchFiveElementResult(body.personA, body.personB, result);
-
-    const responseData = {
-      result: { ...result, summary: finalSummary, zones: enhanced.zones },
+    const professionalLayer = buildSoulMatchProfessionalLayer({
+      personA: body.personA,
+      personB: body.personB,
       displayA,
       displayB,
+      matrixA: profileA.matrix,
+      matrixB: profileB.matrix,
+      result: finalResult,
+    });
+    const aiInterpretationLayer = buildSoulMatchAiInterpretationLayer(professionalLayer);
+    const reinforcementLayer = buildSoulMatchReinforcementLayer(aiInterpretationLayer);
+
+    const responseData = {
+      result: finalResult,
+      displayA,
+      displayB,
+      professionalLayer,
+      aiInterpretationLayer,
+      reinforcementLayer,
       karmaRelation,
       fiveElementMatch,
     };
