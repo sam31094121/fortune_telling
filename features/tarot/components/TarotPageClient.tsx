@@ -1,98 +1,65 @@
 'use client';
 
-import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import TarotCardSelection from '@/features/tarot/components/TarotCardSelection';
-import TarotReadingResult from '@/features/tarot/components/TarotReadingResult';
-import TarotShuffleAnimation from '@/features/tarot/components/TarotShuffleAnimation';
-import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
+import TarotDeckAdminReview from '@/features/tarot/components/TarotDeckAdminReview';
+import TarotOriginalFortuneTeller from '@/features/tarot/components/TarotOriginalFortuneTeller';
 import { TAROT_CARDS } from '@/features/tarot/data/cards';
 import { requestTarotShuffle } from '@/features/tarot/services/api';
-import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
-import type { TarotCard, TarotDeckCard, TarotFlowStep, TarotReadingScope, TarotSpreadType } from '@/features/tarot/types';
+import type { TarotDeckCard, TarotReadingScope, TarotSpreadType } from '@/features/tarot/types';
 
-type DrawOnlyStep = Extract<TarotFlowStep, 'ready_to_draw' | 'shuffling' | 'selecting_card' | 'result'>;
-type TarotDailyResult = { selectedDeckCards: TarotDeckCard[]; deckSize: number; sessionId: string; question: string };
+type TarotPageStep = 'ready_to_draw' | 'theater';
 
 const DRAW_SCOPE: TarotReadingScope = 'self';
 const DRAW_SPREAD: TarotSpreadType = 'three_card';
-const DRAW_COUNT = 3;
-const SHUFFLE_DISPLAY_MS = 5000;
 const TAROT_QUESTION_EXAMPLES = [
   '這段關係接下來該怎麼面對？',
   '我現在的工作方向需要看見什麼？',
   '這個決定目前最重要的提醒是什麼？',
 ] as const;
 
-function buildPreviewCardStyle(index: number): CSSProperties {
-  const offset = index - 7.5;
-  return {
-    ['--preview-x' as string]: `${offset * 0.34}rem`,
-    ['--preview-y' as string]: `${offset * -0.05}rem`,
-    ['--preview-rot' as string]: `${offset * 1.8}deg`,
-  };
-}
-
 export default function TarotPageClient() {
-  const [step, setStep] = useState<DrawOnlyStep>('ready_to_draw');
+  const [step, setStep] = useState<TarotPageStep>('ready_to_draw');
   const [deck, setDeck] = useState<TarotDeckCard[]>([]);
   const [selectedDeckCards, setSelectedDeckCards] = useState<TarotDeckCard[]>([]);
-  const [sessionId, setSessionId] = useState('');
-  const [deckSize, setDeckSize] = useState(78);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
   const [tarotQuestion, setTarotQuestion] = useState('');
-  const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<TarotDailyResult> | null>(null);
-  const shuffleTimerRef = useRef<number | null>(null);
+  const [activeQuestion, setActiveQuestion] = useState('');
+  const [adminMode, setAdminMode] = useState(false);
 
   const cardsById = useMemo(() => new Map(TAROT_CARDS.map((card) => [card.id, card] as const)), []);
 
-  const revealedCards = useMemo(
-    () => selectedDeckCards.map((deckCard) => cardsById.get(deckCard.cardId)).filter((card): card is TarotCard => Boolean(card)),
-    [cardsById, selectedDeckCards],
-  );
-
   useEffect(() => {
-    const record = readDailyAnalysis<TarotDailyResult>('tarot');
-    if (record) {
-      setDailyRecord(record);
-      setSelectedDeckCards(record.result.selectedDeckCards);
-      setDeckSize(record.result.deckSize);
-      setSessionId(record.result.sessionId);
-      setTarotQuestion(record.result.question);
-      setStep('result');
+    try {
+      window.localStorage.removeItem('tdh:daily-analysis:tarot:v1');
+    } catch {
+      // Tarot no longer uses the daily lock.
     }
-    return () => {
-      if (shuffleTimerRef.current) window.clearTimeout(shuffleTimerRef.current);
-    };
+  }, []);
+
+  const openAdminReview = useCallback(() => {
+    setAdminMode(true);
+    setError('');
+    setDeck([]);
+    setSelectedDeckCards([]);
+    setActiveQuestion('');
+    setStep('ready_to_draw');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const beginShuffle = useCallback(async () => {
     if (isGenerating) return;
 
-    const existing = readDailyAnalysis<TarotDailyResult>('tarot');
-    if (existing) {
-      setDailyRecord(existing);
-      setSelectedDeckCards(existing.result.selectedDeckCards);
-      setDeckSize(existing.result.deckSize);
-      setSessionId(existing.result.sessionId);
-      setTarotQuestion(existing.result.question);
-      setStep('result');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
     const question = tarotQuestion.trim();
     if (question.length < 4) {
-      setError('請先寫下你現在最想了解的一件事，至少 4 個字。');
+      setError('請輸入至少 4 個字，讓塔羅知道你想問的方向。');
       return;
     }
 
-    if (shuffleTimerRef.current) window.clearTimeout(shuffleTimerRef.current);
     setError('');
     setSelectedDeckCards([]);
     setIsGenerating(true);
-    setStep('shuffling');
 
     try {
       const shuffle = await requestTarotShuffle({
@@ -102,40 +69,28 @@ export default function TarotPageClient() {
         spreadType: DRAW_SPREAD,
       });
 
-      setDeck(shuffle.visibleDeck);
-      setDeckSize(shuffle.deckSize);
-      setSessionId(shuffle.sessionId);
-
-      shuffleTimerRef.current = window.setTimeout(() => {
-        setIsGenerating(false);
-        setStep('selecting_card');
-      }, SHUFFLE_DISPLAY_MS);
+      setDeck(shuffle.shuffleSequence.map((deckCard) => ({
+        deckKey: deckCard.deckKey,
+        cardId: deckCard.cardId,
+        orientation: 'upright',
+        order: deckCard.shuffleOrder,
+      })));
+      setActiveQuestion(question);
+      setStep('theater');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (caught) {
+      setError(caught instanceof Error ? caught.message : '塔羅洗牌暫時失敗，請再試一次。');
+    } finally {
       setIsGenerating(false);
-      setStep('ready_to_draw');
-      setError(caught instanceof Error ? caught.message : '洗牌流程暫時無法啟動，請重新嘗試。');
     }
   }, [isGenerating, tarotQuestion]);
 
-  const handleCardsSelected = useCallback((deckCards: TarotDeckCard[]) => {
-    setSelectedDeckCards(deckCards);
-    const record = saveDailyAnalysis<TarotDailyResult>('tarot', {
-      selectedDeckCards: deckCards,
-      deckSize,
-      sessionId,
-      question: tarotQuestion.trim(),
-    });
-    setDailyRecord(record);
-    setStep('result');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [deckSize, sessionId, tarotQuestion]);
-
   const resetExperience = useCallback(() => {
-    if (shuffleTimerRef.current) window.clearTimeout(shuffleTimerRef.current);
+    setAdminMode(false);
     setStep('ready_to_draw');
     setDeck([]);
     setSelectedDeckCards([]);
-    setSessionId('');
+    setActiveQuestion('');
     setError('');
     setTarotQuestion('');
     setIsGenerating(false);
@@ -153,34 +108,35 @@ export default function TarotPageClient() {
           </span>
         </div>
 
-        {step === 'ready_to_draw' && (
+        {adminMode && <TarotDeckAdminReview cards={TAROT_CARDS} onClose={resetExperience} />}
+
+        {!adminMode && step === 'ready_to_draw' && (
           <section className="fortune-card tarot-experience-hero border-cyan-200/25 p-5 sm:p-7">
             <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
               <div>
                 <p className="text-[11px] font-black uppercase tracking-[0.28em] text-cyan-200">AI TAROT DRAW EXPERIENCE</p>
-                <h1 className="mt-4 font-serif text-4xl font-black leading-tight text-cyan-50 sm:text-5xl">塔羅抽牌體驗系統 1.0</h1>
+                <h1 className="mt-4 font-serif text-4xl font-black leading-tight text-cyan-50 sm:text-5xl">塔羅三張牌占卜</h1>
                 <p className="mt-4 max-w-2xl text-base font-semibold leading-8 text-[color:var(--text-sub)]">
-                  本階段只完成洗牌、展開、親手選牌與翻牌展示。系統不進行 AI 解讀、不輸出補強、不寫入成長中心。
+                  輸入你現在想問的事情，系統會洗出 78 張牌，再用三張牌呈現過去、現在與未來的提醒。
                 </p>
                 <div className="mt-6 grid gap-3 sm:grid-cols-3">
                   <div className="tarot-experience-stat">
                     <span>78</span>
-                    <p>完整牌庫洗牌</p>
+                    <p>完整牌組</p>
                   </div>
                   <div className="tarot-experience-stat">
                     <span>12</span>
-                    <p>牌背展開挑選</p>
+                    <p>塔羅音效</p>
                   </div>
                   <div className="tarot-experience-stat">
                     <span>3</span>
-                    <p>依序翻開牌面</p>
+                    <p>三張牌陣</p>
                   </div>
                 </div>
 
-                <DailyAnalysisNotice record={dailyRecord} className="mt-6" />
                 <form className="tarot-question-entry mt-4" onSubmit={(event) => { event.preventDefault(); void beginShuffle(); }}>
                   <label htmlFor="tarot-question-entry" className="block text-sm font-black text-cyan-50">
-                    請專注你現在最想了解的一件事。
+                    想問什麼事情？
                   </label>
                   <textarea
                     id="tarot-question-entry"
@@ -217,18 +173,31 @@ export default function TarotPageClient() {
                       {error}
                     </p>
                   )}
-                  <button
-                    type="submit"
-                    disabled={isGenerating || tarotQuestion.trim().length < 4}
-                    className="mt-5 inline-flex w-full items-center justify-center rounded-full border border-cyan-200/35 bg-cyan-300/15 px-7 py-3 text-sm font-black text-cyan-50 shadow-[0_0_34px_rgba(34,211,238,0.18)] transition hover:border-cyan-100/60 hover:bg-cyan-300/20 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-                  >
-                    {getDailyAnalysisButtonLabel(dailyRecord)}
-                  </button>
+                  <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <button
+                      type="submit"
+                      disabled={isGenerating || tarotQuestion.trim().length < 4}
+                      className="inline-flex w-full items-center justify-center rounded-full border border-cyan-200/35 bg-cyan-300/15 px-7 py-3 text-sm font-black text-cyan-50 shadow-[0_0_34px_rgba(34,211,238,0.18)] transition hover:border-cyan-100/60 hover:bg-cyan-300/20 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                    >
+                      {isGenerating ? '正在洗牌...' : '開始算命'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={openAdminReview}
+                      className="inline-flex w-full items-center justify-center rounded-full border border-amber-200/35 bg-amber-300/12 px-7 py-3 text-sm font-black text-amber-50 transition hover:border-amber-100/60 hover:bg-amber-300/20 sm:w-auto"
+                    >
+                      我要驗牌
+                    </button>
+                  </div>
                 </form>
               </div>
               <div className="tarot-experience-deck-preview" aria-hidden="true">
                 {Array.from({ length: 16 }, (_, index) => (
-                  <span key={index} style={buildPreviewCardStyle(index)} />
+                  <span key={index} style={{
+                    ['--preview-x' as string]: `${(index - 7.5) * 0.34}rem`,
+                    ['--preview-y' as string]: `${(index - 7.5) * -0.05}rem`,
+                    ['--preview-rot' as string]: `${(index - 7.5) * 1.8}deg`,
+                  }} />
                 ))}
                 <strong>T</strong>
               </div>
@@ -236,28 +205,13 @@ export default function TarotPageClient() {
           </section>
         )}
 
-        {step === 'shuffling' && <TarotShuffleAnimation spreadType={DRAW_SPREAD} requiredDrawCount={DRAW_COUNT} deckSize={deckSize} />}
-
-        {step === 'selecting_card' && (
-          <TarotCardSelection
+        {!adminMode && step === 'theater' && (
+          <TarotOriginalFortuneTeller
             deck={deck}
             cardsById={cardsById}
-            spreadType={DRAW_SPREAD}
-            requiredDrawCount={DRAW_COUNT}
-            isGenerating={isGenerating}
-            onSelect={handleCardsSelected}
-            onShuffleAgain={beginShuffle}
-          />
-        )}
-
-        {step === 'result' && (
-          <TarotReadingResult
-            cards={revealedCards}
-            selectedDeckCards={selectedDeckCards}
-            deckSize={deckSize}
-            sessionId={sessionId}
-            error={error}
+            question={activeQuestion}
             onReset={resetExperience}
+            onComplete={setSelectedDeckCards}
           />
         )}
       </div>
