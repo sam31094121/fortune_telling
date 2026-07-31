@@ -518,11 +518,9 @@ function buildMusicReportPrompt(input: MusicReportInput): string {
   const d = input.destinyContext;
   const p = input.psychologyContext;
   const languageGuidance = getSongLanguageGuidance(input.preferredSongLanguage);
-  const voiceProfileInstructionBlock = input.voiceProfile?.recorded
-    ? `Voice calibration: user confirmed own-voice consent. Use the local voice summary to shape vocal rhythm, emotional pressure, self-dialogue phrasing, and the feeling that multiple inner selves are singing one confession together. Summary: duration=${input.voiceProfile.sample?.durationSeconds}s, quality=${input.voiceProfile.sample?.qualityScore}, tempoPulse=${input.voiceProfile.sample?.tempoPulse}, traits=${input.voiceProfile.sample?.inferredCharacteristics.join(', ')}. Do not claim the raw voice file was uploaded; only a local summary is used.`
-    : input.voiceProfile?.consentAccepted
-      ? 'Voice consent is accepted, but recording calibration is not complete. Keep the song personal, but do not claim voice cloning.'
-      : 'No own-voice consent was enabled. Use personality data and manual voice traits only.';
+  const voiceProfileInstructionBlock = input.voiceProfile?.workflowStatus === 'AI_VOICE_READY'
+    ? `AI vocal generation: do not ask the user to record. Automatically choose a suitable AI singing voice from the personality matrix, life-song goal, five-element priority, style, and language. Voice traits=${input.voiceProfile.sample?.inferredCharacteristics.join(', ') || 'ai_voice_auto'}. The song should feel personal without claiming to use the user's recorded voice.`
+    : 'AI vocal generation: automatically choose a suitable singing voice from personality data, life-song goal, five-element priority, style, and language. Do not request microphone recording.';
   const languageInstructionBlock = `歌曲語言主軸：${languageGuidance.label}
 語言生成規則：${languageGuidance.prompt}
 語言比例建議：${languageGuidance.distribution}`;

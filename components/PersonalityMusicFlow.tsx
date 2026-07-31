@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import LunarBirthdayInput from './LunarBirthdayInput';
 import FriendlyChoiceCard from './FriendlyChoiceCard';
-import type { VoiceConsentState } from './VoiceConsentRecorder';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { getAnalysisIdentityTarget } from '@/lib/identity-split-client';
@@ -21,6 +20,28 @@ type ValidationResult = { field: MissingField; message: string };
 
 export type ShichenChoice = number | 'unknown' | null;
 export type VocalGenderPreference = 'male' | 'female' | null;
+
+interface VoiceSampleSummary {
+  durationSeconds: number;
+  averageVolume: number;
+  dynamicRange: number;
+  brightness: number;
+  tempoPulse: number;
+  qualityScore: number;
+  inferredCharacteristics: string[];
+  recordedAt: string;
+  mimeType: string;
+  localOnly: true;
+}
+
+interface VoiceConsentState {
+  accepted: boolean;
+  version: string;
+  confirmedOwnVoice: boolean;
+  allowSongGeneration: boolean;
+  recordedAt?: string;
+  sample?: VoiceSampleSummary;
+}
 
 export interface MusicFormData {
   lifeGoal: LifeSongGoal | '';
@@ -181,14 +202,6 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     return () => window.clearTimeout(timer);
   }, [localError, missingField]);
 
-  useEffect(() => {
-    if (step !== 2 || !form.voiceConsent.sample || activeDataField !== 'voice') return;
-    const timer = window.setTimeout(() => {
-      setActiveDataField('birthDate');
-      scrollToField('birthDate');
-    }, 120);
-    return () => window.clearTimeout(timer);
-  }, [activeDataField, form.voiceConsent.sample, step]);
 
   function clearValidation() {
     setLocalError('');

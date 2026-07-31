@@ -355,7 +355,7 @@ export default function MusicSystemPage() {
 
       setResult(json as MusicGenerateResponse);
       setDailyRecord(saveDailyAnalysis<MusicDailyResult>('music', { result: json as MusicGenerateResponse, submittedName: data.name.trim() }));
-      markGrowthModuleCompleted('music', (json as MusicGenerateResponse).fiveElement?.brandElement);
+      if (targetMode === 'self') markGrowthModuleCompleted('music', (json as MusicGenerateResponse).fiveElement?.brandElement);
       setPageState('result');
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
     } catch (error) {
@@ -488,7 +488,7 @@ export default function MusicSystemPage() {
           </div>
           <div className="mb-6 flex flex-col items-start gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
-              <p className="max-w-2xl text-xs font-semibold leading-6 tracking-[0.08em] text-violet-300 sm:text-sm">{"AI \u5c08\u5c6c\u751f\u547d\u6b4c\u66f2\uff1aAI \u5148\u7406\u89e3\u4f60\u7684\u76ee\u6a19\uff0c\u518d\u6574\u5408\u547d\u7406\u3001\u4e94\u5143\u7d20\u8207\u8072\u97f3\u8cc7\u6599\u9032\u884c\u5275\u4f5c\u3002"}</p>
+              <p className="max-w-2xl text-xs font-semibold leading-6 tracking-[0.08em] text-violet-300 sm:text-sm">{"AI 專屬生命歌曲：AI 先理解你的目標，再整合命理、五元素、補強方向與 AI 自動聲線進行創作。"}</p>
               <h2 className="mt-1 font-serif text-3xl text-[color:var(--text-main)]">
                 {submittedName}{"\u7684 AI \u5c08\u5c6c\u751f\u547d\u6b4c\u66f2"}
               </h2>
@@ -501,30 +501,28 @@ export default function MusicSystemPage() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-xs font-black tracking-[0.22em] text-violet-200">
-                    {result.voice_profile.recorded ? "\u{1F3B5} \u60a8\u7684\u5c08\u5c6c\u6b4c\u66f2\u5df2\u5b8c\u6210\uff01" : result.voice_profile.workflowStatus === 'AI_VOICE_READY' ? "\u{1F3B5} \u60a8\u7684\u5c08\u5c6c\u6b4c\u66f2\u5df2\u5b8c\u6210\uff01" : "\u672c\u4eba\u8072\u97f3\u6458\u8981\u6821\u6e96"}
+                    {"🎵 AI 已自動生成專屬生命歌曲"}
                   </p>
                   <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]">
-                    {result.voice_profile.recorded
-                      ? "AI \u5df2\u5b8c\u6210\u60a8\u7684\u8072\u97f3\u5206\u6790\uff0c\u4e26\u5efa\u7acb\u5c08\u5c6c\u8072\u97f3\u6a21\u578b\u7528\u65bc\u6b4c\u66f2\u5275\u4f5c\u3002\u795d\u60a8\u8076\u807d\u6109\u5feb\uff01"
-                      : result.voice_profile.selfDialogueConcept}
+                    {"AI 已自動建立演唱聲線並完成歌曲創作，不需要錄音或麥克風權限。"}
                   </p>
                 </div>
                 <span className="shrink-0 rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1.5 text-xs font-bold text-cyan-100">
-                  {result.voice_profile.recorded ? "\u5df2\u9304\u97f3\u6458\u8981\u6821\u6e96" : result.voice_profile.workflowStatus === 'AI_VOICE_READY' ? 'AI \u8072\u97f3\u751f\u6210' : result.voice_profile.consentAccepted ? "\u5df2\u6388\u6b0a" : "\u672a\u555f\u7528"}
+                  {"AI 自動聲線"}
                 </span>
               </div>
               {result.voice_profile.sample && (
                 <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                   <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-2 py-3">
-                    <p className="text-[10px] text-[color:var(--text-muted)]">{"\u9304\u97f3\u79d2\u6578"}</p>
-                    <p className="mt-1 text-sm font-black text-violet-100">{result.voice_profile.sample.durationSeconds}s</p>
+                    <p className="text-[10px] text-[color:var(--text-muted)]">{"AI 聲線"}</p>
+                    <p className="mt-1 text-sm font-black text-violet-100">自動</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-2 py-3">
-                    <p className="text-[10px] text-[color:var(--text-muted)]">{"\u8072\u97f3\u6e05\u6670\u5ea6"}</p>
+                    <p className="text-[10px] text-[color:var(--text-muted)]">{"生成品質"}</p>
                     <p className="mt-1 text-sm font-black text-cyan-100">{result.voice_profile.sample.qualityScore}</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-2 py-3">
-                    <p className="text-[10px] text-[color:var(--text-muted)]">{"\u5c0d\u8a71\u7bc0\u594f"}</p>
+                    <p className="text-[10px] text-[color:var(--text-muted)]">{"節奏感"}</p>
                     <p className="mt-1 text-sm font-black text-amber-100">{Math.round(result.voice_profile.sample.tempoPulse * 100)}</p>
                   </div>
                 </div>

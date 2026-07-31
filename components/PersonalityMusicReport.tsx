@@ -1010,6 +1010,9 @@ function IntegratedSongMaker({
   const [lyriaLoading, setLyriaLoading] = useState(false);
   const audioUrlRef = useRef('');
   const lyriaAudioUrlRef = useRef('');
+  const playableAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [sharedSong, setSharedSong] = useState(false);
+  const [favoriteSaved, setFavoriteSaved] = useState(false);
   const [servicePackageText, setServicePackageText] = useState('');
   const [copiedServicePackage, setCopiedServicePackage] = useState(false);
   const [elevenLabsShellText, setElevenLabsShellText] = useState('');
@@ -1020,6 +1023,12 @@ function IntegratedSongMaker({
     if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
     if (lyriaAudioUrlRef.current) URL.revokeObjectURL(lyriaAudioUrlRef.current);
   }, []);
+
+  useEffect(() => {
+    if (!fusionSong || !productionPlan || audioUrl) return;
+    const timer = window.setTimeout(() => handleGeneratePlayableDemo(true), 120);
+    return () => window.clearTimeout(timer);
+  }, [fusionSong, productionPlan, audioUrl]);
 
   if (!fusionSong || !productionPlan) return null;
 
@@ -1047,7 +1056,7 @@ function IntegratedSongMaker({
     '點一下聽音樂預覽',
   ];
 
-  function handleGeneratePlayableDemo() {
+  function handleGeneratePlayableDemo(tryPlay = false) {
     if (!fusionSong) return;
 
     setAudioReady(false);
@@ -1058,6 +1067,7 @@ function IntegratedSongMaker({
     audioUrlRef.current = url;
     setAudioUrl(url);
     setAudioReady(true);
+    if (tryPlay) window.setTimeout(() => { void playableAudioRef.current?.play().catch(() => undefined); }, 80);
   }
 
   async function handleGenerateLyriaMp3() {
@@ -1183,6 +1193,35 @@ function IntegratedSongMaker({
     }
   }
 
+  async function handleShareSong() {
+    if (!fusionSong) return;
+    const shareText = `我剛完成 AI 專屬生命歌曲《${fusionSong.fusion_title}》：${fusionSong.fusion_concept}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: fusionSong.fusion_title, text: shareText });
+      } else {
+        await navigator.clipboard.writeText(shareText);
+      }
+      setSharedSong(true);
+    } catch {
+      setSharedSong(false);
+    }
+  }
+
+  function handleSaveFavorite() {
+    if (!fusionSong) return;
+    try {
+      const key = 'tdh_music_favorites_v1';
+      const raw = window.localStorage.getItem(key);
+      const current = raw ? JSON.parse(raw) as unknown[] : [];
+      const next = [{ title: fusionSong.fusion_title, concept: fusionSong.fusion_concept, savedAt: new Date().toISOString() }, ...current].slice(0, 20);
+      window.localStorage.setItem(key, JSON.stringify(next));
+      setFavoriteSaved(true);
+    } catch {
+      setFavoriteSaved(false);
+    }
+  }
+
   return (
     <div className="fortune-card music-song-maker-card overflow-hidden border-amber-300/20 px-6 py-8 sm:px-8">
       <div className="text-center">
@@ -1190,7 +1229,7 @@ function IntegratedSongMaker({
           <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-200">金鑰匙功能</p>
           <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">正式生成專屬 30 秒 MP3</h3>
           <p className="mt-3 text-sm leading-7 text-[color:var(--text-sub)]">
-            資料已整理完成，請直接按下方主按鈕生成歌曲。畫面已簡化，只保留客戶最需要的生成與播放功能。
+            AI 已自動整理資料並生成可播放歌曲；下方可直接播放、重新生成、下載、分享或收藏。
           </p>
         </div>
         <p className="hidden text-xs uppercase tracking-[0.4em] text-amber-300/70">
@@ -1234,7 +1273,7 @@ function IntegratedSongMaker({
           <div className="music-primary-generate-panel rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
             <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">專屬音樂預覽</p>
             <p className="text-sm leading-8 text-[color:var(--text-sub)]">
-              戴上耳機，先聽見根據你資料整理出的主題旋律。Lyria MP3 會依照這次的人格資料重新生成，不是共用 Demo。
+              戴上耳機，直接聽 AI 依照本次資料自動生成的生命歌曲。Lyria MP3 可再重新生成正式版本。
             </p>
             <div className="mt-4 rounded-[20px] border border-emerald-300/20 bg-emerald-950/10 p-4">
               <p className="text-xs uppercase tracking-[0.25em] text-emerald-200/80">Lyria 正式 AI 生成</p>
@@ -1285,25 +1324,31 @@ function IntegratedSongMaker({
                 </details>
               )}
             </div>
-            <div className="hidden mt-4 rounded-[20px] border border-amber-300/15 bg-amber-950/10 p-4">
+            <div className="mt-4 rounded-[20px] border border-amber-300/15 bg-amber-950/10 p-4">
               <p className="text-xs uppercase tracking-[0.25em] text-amber-300/70">工程級本地 WAV 預覽</p>
               <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
-                這段是瀏覽器本地合成的旋律草稿，用來快速聽編曲骨架；上方 Lyria MP3 才是正式 AI 生成歌曲。
+                這段會在結果頁自動生成，讓使用者不需要錄音、不需要麥克風，也能立即播放生命歌曲預覽。
               </p>
             <button
               type="button"
-              onClick={handleGeneratePlayableDemo}
+              onClick={() => handleGeneratePlayableDemo(true)}
               className="vip-gold-btn mt-4 w-full px-4 py-3 text-sm"
             >
               {audioReady ? '重新產生音樂預覽' : '產生音樂預覽'}
             </button>
             {audioUrl && (
               <div className="mt-4 space-y-3">
-                <audio controls src={audioUrl} className="w-full">
+                <audio ref={playableAudioRef} controls src={audioUrl} className="w-full">
                   <track kind="captions" />
                 </audio>
+                <div className="grid gap-2 sm:grid-cols-4">
+                  <button type="button" onClick={() => handleGeneratePlayableDemo(true)} className="rounded-full border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-xs font-bold tracking-[0.14em] text-amber-100 transition hover:border-amber-200/50 hover:bg-amber-300/15">重新生成</button>
+                  <a href={audioUrl} download={`${fusionSong.fusion_title || 'AI生命歌曲預覽'}.wav`} className="rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-3 text-center text-xs font-bold tracking-[0.14em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15">下載</a>
+                  <button type="button" onClick={handleShareSong} className="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-4 py-3 text-xs font-bold tracking-[0.14em] text-cyan-100 transition hover:border-cyan-200/50 hover:bg-cyan-300/15">{sharedSong ? '已分享' : '分享'}</button>
+                  <button type="button" onClick={handleSaveFavorite} className="rounded-full border border-violet-300/25 bg-violet-300/10 px-4 py-3 text-xs font-bold tracking-[0.14em] text-violet-100 transition hover:border-violet-200/50 hover:bg-violet-300/15">{favoriteSaved ? '已收藏' : '收藏'}</button>
+                </div>
                 <p className="text-xs leading-6 text-amber-100/75">
-                  這是一段專屬音樂預覽；正式歌曲與人聲版本可於下一階段升級。
+                  這是一段 AI 自動生成的專屬生命歌曲預覽；正式 MP3 可使用上方 Lyria 重新生成。
                 </p>
               </div>
             )}
@@ -1379,7 +1424,7 @@ function IntegratedSongMaker({
                 </div>
                 <button
                   type="button"
-                  onClick={handleGeneratePlayableDemo}
+                  onClick={() => handleGeneratePlayableDemo(true)}
                   className="vip-gold-btn mt-4 w-full px-4 py-3 text-xs"
                 >
                   {audioReady ? '重新生成工程級舞曲 WAV 預覽' : '產生工程級舞曲 WAV 預覽音檔'}
