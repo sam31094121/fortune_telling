@@ -1,6 +1,4 @@
 import { randomInt, randomUUID } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
 import { TAROT_CARDS } from '@/features/tarot/data/cards';
 import { generateTarotInterpretation } from '@/features/tarot/services/interpretation';
 import {
@@ -51,9 +49,6 @@ const TAROT_DRAW_RHYTHM: TarotDrawRhythm = {
   revealFlipMs: 720,
   resultSettleMs: 520,
 };
-
-const STATS_FILE = path.join(process.cwd(), 'data', 'tarot-system-stats.json');
-const SESSIONS_FILE = path.join(process.cwd(), 'data', 'tarot-active-sessions.json');
 
 const CATEGORY_VALUES = Object.keys(TAROT_CATEGORY_LABELS) as TarotQuestionCategoryId[];
 const SCOPE_VALUES: TarotReadingScope[] = ['self', 'other'];
@@ -226,57 +221,25 @@ export type TarotStatsSnapshot = {
 
 type MutableStats = TarotStatsSnapshot;
 
-const tarotSessions = new Map<string, TarotSession>();
-
-async function readSessionStore(): Promise<Record<string, TarotSession>> {
-  try {
-    const raw = await readFile(SESSIONS_FILE, 'utf8');
-    const parsed = JSON.parse(raw) as unknown;
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
-    return parsed as Record<string, TarotSession>;
-  } catch {
-    return {};
-  }
-}
-
-async function writeSessionStore(sessions: Record<string, TarotSession>): Promise<void> {
-  await mkdir(path.dirname(SESSIONS_FILE), { recursive: true });
-  await writeFile(SESSIONS_FILE, JSON.stringify(sessions, null, 2), 'utf8');
-}
+const tarotRuntimeStore = ((globalThis as typeof globalThis & { __tarotRuntimeStore?: { sessions: Map<string, TarotSession> } }).__tarotRuntimeStore ??= {
+  sessions: new Map<string, TarotSession>(),
+});
+const tarotSessions = tarotRuntimeStore.sessions;
 
 async function cleanupPersistedSessions(): Promise<void> {
-  const sessions = await readSessionStore();
-  const now = Date.now();
-  let changed = false;
-  for (const [sessionId, session] of Object.entries(sessions)) {
-    if (!session || session.expiresAt <= now) {
-      delete sessions[sessionId];
-      changed = true;
-    }
-  }
-  if (changed) await writeSessionStore(sessions);
+  cleanupSessions();
 }
 
 async function persistSession(session: TarotSession): Promise<void> {
-  const sessions = await readSessionStore();
-  sessions[session.id] = session;
-  await writeSessionStore(sessions);
+  tarotSessions.set(session.id, session);
 }
 
 async function getStoredSession(sessionId: string): Promise<TarotSession | undefined> {
-  const memorySession = tarotSessions.get(sessionId);
-  if (memorySession) return memorySession;
-  const sessions = await readSessionStore();
-  return sessions[sessionId];
+  return tarotSessions.get(sessionId);
 }
 
 async function deleteStoredSession(sessionId: string): Promise<void> {
   tarotSessions.delete(sessionId);
-  const sessions = await readSessionStore();
-  if (sessions[sessionId]) {
-    delete sessions[sessionId];
-    await writeSessionStore(sessions);
-  }
 }
 
 function deckIntegrity() {
@@ -465,37 +428,21 @@ function emptyStats(): MutableStats {
   };
 }
 
+const tarotStatsStore = (globalThis as typeof globalThis & { __tarotStatsStore?: MutableStats }).__tarotStatsStore ??= emptyStats();
+
 async function readStats(): Promise<MutableStats> {
-  try {
-    const raw = await readFile(STATS_FILE, 'utf8');
-    const parsed = JSON.parse(raw) as Partial<MutableStats>;
-    return {
-      ...emptyStats(),
-      ...parsed,
-      engineVersion: TAROT_ENGINE_VERSION,
-      title: TAROT_PUBLIC_TITLE,
-      deckSize: TAROT_CARDS.length,
-      deckIntegrity: deckIntegrity(),
-      readiness: buildTarotReadiness(),
-      totals: {
-        ...emptyStats().totals,
-        ...(parsed.totals ?? {}),
-      },
-      orientation: {
-        upright: parsed.orientation?.upright ?? 0,
-        reversed: parsed.orientation?.reversed ?? 0,
-      },
-      categoryCounts: parsed.categoryCounts ?? {},
-      cardCounts: parsed.cardCounts ?? {},
-    };
-  } catch {
-    return emptyStats();
-  }
+  return {
+    ...tarotStatsStore,
+    engineVersion: TAROT_ENGINE_VERSION,
+    title: TAROT_PUBLIC_TITLE,
+    deckSize: TAROT_CARDS.length,
+    deckIntegrity: deckIntegrity(),
+    readiness: buildTarotReadiness(),
+  };
 }
 
 async function writeStats(stats: MutableStats): Promise<void> {
-  await mkdir(path.dirname(STATS_FILE), { recursive: true });
-  await writeFile(STATS_FILE, JSON.stringify(stats, null, 2), 'utf8');
+  (globalThis as typeof globalThis & { __tarotStatsStore?: MutableStats }).__tarotStatsStore = stats;
 }
 
 async function updateStats(mutator: (stats: MutableStats) => void): Promise<TarotStatsSnapshot> {

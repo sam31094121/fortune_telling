@@ -71,6 +71,22 @@ const nextConfig = {
         headers: noStorePageHeaders,
       },
       {
+        source: '/bazi',
+        headers: noStorePageHeaders,
+      },
+      {
+        source: '/zodiac',
+        headers: noStorePageHeaders,
+      },
+      {
+        source: '/tarot',
+        headers: noStorePageHeaders,
+      },
+      {
+        source: '/growth-center',
+        headers: noStorePageHeaders,
+      },
+      {
         source: '/:path*',
         headers: securityHeaders,
       },

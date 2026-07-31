@@ -11,7 +11,9 @@
     "start": "next start -H 0.0.0.0 -p 8888",
     "start:mobile": "next start -H 0.0.0.0 -p 8888",
     "lint": "next lint",
-    "share": "node scripts/share-tunnel.js"
+    "share": "node scripts/share-tunnel.js",
+    "share:lan": "node scripts/share-tunnel.js --lan-only",
+    "auto-qa": "node scripts/auto-qa.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",
