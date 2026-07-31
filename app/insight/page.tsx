@@ -4,12 +4,14 @@ import { useState, useEffect, useMemo, useRef, type Ref } from 'react';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
+import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
+import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 
@@ -1760,6 +1762,14 @@ export default function InsightPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<InsightResult | null>(null);
+  const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<InsightResult> | null>(null);
+
+  useEffect(() => {
+    const record = readDailyAnalysis<InsightResult>('ziwei');
+    if (!record) return;
+    setDailyRecord(record);
+    setResult(record.result);
+  }, []);
 
   // 載入 localStorage 預填
   useEffect(() => {
@@ -1841,7 +1851,13 @@ export default function InsightPage() {
   const showMissingGender = showMissingFields && !selectionConfirm.gender;
 
   const handleSubmit = async () => {
-    // 清除舊的錯誤信息
+    const existing = readDailyAnalysis<InsightResult>('ziwei');
+    if (existing) {
+      setDailyRecord(existing);
+      setResult(existing.result);
+      mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
     setError('');
 
     // 執行驗證
@@ -1898,6 +1914,7 @@ export default function InsightPage() {
 
         const json = (await response.json()) as InsightResult;
         setResult(json);
+        setDailyRecord(saveDailyAnalysis<InsightResult>('ziwei', json));
         markGrowthModuleCompleted('ziwei', json.fiveElement?.brandElement);
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') {
@@ -1979,6 +1996,7 @@ export default function InsightPage() {
 
             </section>
 
+            <DailyAnalysisNotice record={dailyRecord} className="mb-5" />
             <div id="input-form" className="fortune-card p-6 sm:p-8 scroll-mt-20">
               {loading && <InsightAnalyticalConsole name={input.name} />}
               <div className={loading ? 'hidden' : 'space-y-8'}>
@@ -2334,10 +2352,19 @@ export default function InsightPage() {
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
-                onClick={() => setResult(null)}
+                onClick={() => {
+                  const existing = readDailyAnalysis<InsightResult>('ziwei');
+                  if (existing) {
+                    setDailyRecord(existing);
+                    setResult(existing.result);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                  }
+                  setResult(null);
+                }}
                 className="vip-gold-btn flex-1 py-4 text-sm"
               >
-                重新分析
+                {dailyRecord ? getDailyAnalysisButtonLabel(dailyRecord) : '重新分析'}
               </button>
               <button
                 onClick={() => window.print()}

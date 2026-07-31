@@ -83,7 +83,7 @@
     "blockedReasons": []
   },
   "totals": {
-    "shuffles": 20,
+    "shuffles": 26,
     "readings": 9,
     "selfReadings": 8,
     "otherReadings": 1
@@ -122,5 +122,5 @@
     "minor-cups-ace": 1,
     "minor-wands-seven": 1
   },
-  "lastUpdatedAt": "2026-07-31T10:20:40.608Z"
+  "lastUpdatedAt": "2026-07-31T10:41:33.723Z"
 }

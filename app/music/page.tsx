@@ -10,6 +10,8 @@ import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
+import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
+import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 
 interface SongTrack {
@@ -145,10 +147,11 @@ interface ProductionPlan {
 }
 
 type PageState = 'landing' | 'form' | 'result';
+type MusicDailyResult = { result: MusicGenerateResponse; submittedName: string };
 
 const MUSIC_GENERATION_FRIENDLY_FAILURE = '\u76ee\u524d\u66ab\u6642\u7121\u6cd5\u5b8c\u6210\u6b4c\u66f2\u751f\u6210\u3002\n\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002\n\u9020\u6210\u60a8\u7684\u4e0d\u4fbf\uff0c\u656c\u8acb\u898b\u8ad2\u3002';
 
-function LandingHero({ onStart }: { onStart: () => void }) {
+function LandingHero({ onStart, dailyRecord }: { onStart: () => void; dailyRecord: DailyAnalysisRecord<MusicDailyResult> | null }) {
   const lastStartTouchRef = useRef(0);
 
   const handleStartPointerUp = (event: PointerEvent<HTMLButtonElement>) => {
@@ -177,6 +180,8 @@ function LandingHero({ onStart }: { onStart: () => void }) {
       <div className="music-landing-stack relative z-20 flex max-w-3xl flex-col items-center">
         <TaijiStandaloneCard className="music-landing-taiji mb-4" />
 
+        <DailyAnalysisNotice record={dailyRecord} className="mb-5 w-full max-w-2xl text-left" />
+
         <div className="music-landing-copy">
           <span className="music-landing-eyebrow">{"AI \u8072\u97f3\u6b4c\u66f2"}</span>
           <h1 className="music-landing-title">
@@ -201,7 +206,7 @@ function LandingHero({ onStart }: { onStart: () => void }) {
 
         <div className="music-landing-actions mt-5 flex flex-col items-center gap-3">
           <button type="button" onPointerUp={handleStartPointerUp} onClick={handleStartClick} className="vip-gold-btn music-start-button w-full max-w-[22rem] px-8 py-4 text-base shadow-[0_0_25px_rgba(201,162,74,0.26)] border border-amber-400/20 sm:w-auto sm:px-14 sm:py-5 sm:text-lg sm:animate-bounce">
-            {"\u76f4\u63a5\u958b\u555f\u9ea5\u514b\u98a8\u9304\u97f3\u7cfb\u7d71"}
+            {dailyRecord ? getDailyAnalysisButtonLabel(dailyRecord) : "\u76f4\u63a5\u958b\u555f\u9ea5\u514b\u98a8\u9304\u97f3\u7cfb\u7d71"}
           </button>
           <Link href="/" className="feature-home-link feature-home-link--violet">
             {"\u8fd4\u56de\u9996\u9801"}
@@ -260,8 +265,18 @@ export default function MusicSystemPage() {
   const [result, setResult] = useState<MusicGenerateResponse | null>(null);
   const [submittedName, setSubmittedName] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<MusicDailyResult> | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const record = readDailyAnalysis<MusicDailyResult>('music');
+    if (!record) return;
+    setDailyRecord(record);
+    setResult(record.result.result);
+    setSubmittedName(record.result.submittedName);
+    setPageState('result');
+  }, []);
 
   useEffect(() => {
     if (pageState === 'result' || loading || errorMsg) {
@@ -270,6 +285,16 @@ export default function MusicSystemPage() {
   }, [pageState, loading, errorMsg]);
 
   async function handleSubmit(data: MusicFormData) {
+    const existing = readDailyAnalysis<MusicDailyResult>('music');
+    if (existing) {
+      setDailyRecord(existing);
+      setResult(existing.result.result);
+      setSubmittedName(existing.result.submittedName);
+      setPageState('result');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     if (!getAnalysisIdentityTarget()) {
       setErrorMsg(getIdentityRequiredMessage());
       setPageState('form');
@@ -309,6 +334,7 @@ export default function MusicSystemPage() {
       }
 
       setResult(json as MusicGenerateResponse);
+      setDailyRecord(saveDailyAnalysis<MusicDailyResult>('music', { result: json as MusicGenerateResponse, submittedName: data.name.trim() }));
       markGrowthModuleCompleted('music', (json as MusicGenerateResponse).fiveElement?.brandElement);
       setPageState('result');
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
@@ -322,6 +348,15 @@ export default function MusicSystemPage() {
   }
 
   function handleStart() {
+    const existing = readDailyAnalysis<MusicDailyResult>('music');
+    if (existing) {
+      setDailyRecord(existing);
+      setResult(existing.result.result);
+      setSubmittedName(existing.result.submittedName);
+      setPageState('result');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     setPageState('form');
     setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   }
@@ -349,7 +384,7 @@ export default function MusicSystemPage() {
         </div>
       )}
 
-      {pageState === 'landing' && <LandingHero onStart={handleStart} />}
+      {pageState === 'landing' && <LandingHero onStart={handleStart} dailyRecord={dailyRecord} />}
 
       {pageState === 'form' && (
         <main ref={formRef} className="relative z-10 mx-auto max-w-6xl px-4 pb-10 pt-5 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8">
@@ -363,6 +398,8 @@ export default function MusicSystemPage() {
                   {"\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002"}
                 </p>
               </div>
+
+              <DailyAnalysisNotice record={dailyRecord} className="mb-6" />
 
               <IdentitySplitSelector className="mb-6" />
 

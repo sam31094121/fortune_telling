@@ -14,11 +14,13 @@ import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/ide
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
+import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import TarotEntryCard from '@/features/tarot/components/TarotEntryCard';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import { safeJsonFetch } from '@/lib/safe-fetch';
 import type { NumberAnalysisResponse } from '@/lib/number-core-engine';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
+import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
 interface PersonInput {
   name: string;
@@ -59,6 +61,18 @@ interface KarmaStory {
 }
 
 type NumberAnalysisResult = NumberAnalysisResponse & { fiveElement?: FiveElementIntegrationResult };
+
+type MatchDailyResult = {
+  data: MatchResponse;
+  personA: PersonInput;
+  personB: PersonInput;
+  isUnlocked: boolean;
+};
+
+type NumberDailyResult = {
+  result: NumberAnalysisResult;
+  value: string;
+};
 type AnalysisJobPublicStatus = 'IDLE' | 'VALIDATING' | 'QUEUED' | 'PROCESSING' | 'FINALIZING' | 'COMPLETED' | 'FAILED' | 'TIMEOUT' | 'CANCELLED';
 
 type AnalysisJobPublic = {
@@ -1066,6 +1080,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [data, setData] = useState<MatchResponse | null>(null);
+  const [matchDailyRecord, setMatchDailyRecord] = useState<DailyAnalysisRecord<MatchDailyResult> | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
   const [isDemoRunning, setIsDemoRunning] = useState(false);
@@ -1085,6 +1100,7 @@ export default function HomePage() {
   // 數字論吉凶 state 與處理函數
   const [fortuneNumber, setFortuneNumber] = useState('');
   const [fortuneResult, setFortuneResult] = useState<NumberAnalysisResult | null>(null);
+  const [numberDailyRecord, setNumberDailyRecord] = useState<DailyAnalysisRecord<NumberDailyResult> | null>(null);
   const [fortuneStatus, setFortuneStatus] = useState<SystemStatus>('idle');
   const [fortuneError, setFortuneError] = useState('');
   const [fortuneJob, setFortuneJob] = useState<AnalysisJobPublic | null>(null);
@@ -1095,6 +1111,32 @@ export default function HomePage() {
   const fortuneRequestRef = useRef<AbortController | null>(null);
   const fortuneSubmittingRef = useRef(false);
   const fortuneLoading = fortuneStatus === 'validating' || fortuneStatus === 'loading' || fortuneStatus === 'recovering';
+
+  const restoreMatchDailyRecord = (record: DailyAnalysisRecord<MatchDailyResult>) => {
+    setMatchDailyRecord(record);
+    setPersonA(record.result.personA);
+    setPersonB(record.result.personB);
+    setData(record.result.data);
+    setIsUnlocked(record.result.isUnlocked);
+    setStep('review');
+    setError('');
+    setLoading(false);
+    window.setTimeout(() => {
+      document.getElementById(record.result.isUnlocked ? 'vip-result-anchor' : 'match-result-anchor')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }, 80);
+  };
+
+  const restoreNumberDailyRecord = (record: DailyAnalysisRecord<NumberDailyResult>) => {
+    setNumberDailyRecord(record);
+    setFortuneNumber(record.result.value);
+    setFortuneResult(record.result.result);
+    setFortuneStatus('success');
+    setFortuneError('');
+    setFortuneJob(null);
+    window.setTimeout(() => {
+      document.querySelector('.number-fortune-analysis-card')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }, 80);
+  };
 
   const openFortuneModal = () => {
     if (window.location.pathname !== FORTUNE_MODAL_PATH) {
@@ -1124,6 +1166,18 @@ export default function HomePage() {
     return () => window.removeEventListener('popstate', syncFortuneModalWithUrl);
   }, []);
 
+
+  useEffect(() => {
+    const matchRecord = readDailyAnalysis<MatchDailyResult>('match');
+    if (matchRecord) {
+      restoreMatchDailyRecord(matchRecord);
+    }
+
+    const numberRecord = readDailyAnalysis<NumberDailyResult>('number');
+    if (numberRecord) {
+      restoreNumberDailyRecord(numberRecord);
+    }
+  }, []);
 
   useEffect(() => {
     const syncGrowthProgress = () => {
@@ -1439,6 +1493,12 @@ export default function HomePage() {
   };
 
   const handleNumberFortune = async () => {
+    const existingDaily = readDailyAnalysis<NumberDailyResult>('number');
+    if (existingDaily) {
+      restoreNumberDailyRecord(existingDaily);
+      return;
+    }
+
     const cleanFortuneNumber = fortuneNumber.replace(/\D/g, '').slice(0, 10);
 
     if (!getAnalysisIdentityTarget()) {
@@ -1496,6 +1556,7 @@ export default function HomePage() {
       }
 
       setFortuneResult(data);
+      setNumberDailyRecord(saveDailyAnalysis<NumberDailyResult>('number', { result: data, value: cleanFortuneNumber }));
       markGrowthModuleCompleted('number');
       setFortuneError('');
       setFortuneStatus('success');
@@ -1883,6 +1944,12 @@ export default function HomePage() {
   }
 
   async function handleSubmit() {
+    const existingDaily = readDailyAnalysis<MatchDailyResult>('match');
+    if (existingDaily) {
+      restoreMatchDailyRecord(existingDaily);
+      return;
+    }
+
     if (!reviewReady) {
       setError(personAError || personBError || '請先把兩位資料填完整。');
       return;
@@ -1928,6 +1995,7 @@ export default function HomePage() {
       }
 
       setData(json);
+      setMatchDailyRecord(saveDailyAnalysis<MatchDailyResult>('match', { data: json, personA, personB, isUnlocked: true }));
       if (!isUnlocked) {
         handleUnlockVIP();
       }
@@ -1953,7 +2021,9 @@ export default function HomePage() {
         if (karmaResponse.ok) {
           const karmaData = (await karmaResponse.json()) as { karma_story?: KarmaStory };
           if (karmaData.karma_story) {
-            setData((prev) => (prev ? { ...prev, karma_story: karmaData.karma_story } : null));
+            const enriched = { ...json, karma_story: karmaData.karma_story };
+            setData(enriched);
+            setMatchDailyRecord(saveDailyAnalysis<MatchDailyResult>('match', { data: enriched, personA, personB, isUnlocked: true }));
           }
         }
       } catch (karmaErr) {
@@ -1971,6 +2041,12 @@ export default function HomePage() {
   }
 
   function resetAll() {
+    const existingDaily = readDailyAnalysis<MatchDailyResult>('match');
+    if (existingDaily) {
+      restoreMatchDailyRecord(existingDaily);
+      return;
+    }
+
     setData(null);
     setError('');
     setStep('personA-base');
@@ -2391,6 +2467,8 @@ export default function HomePage() {
                     {isDemoRunning ? '🔮 天宿配對演示自動運行中…' : '🔮 一鍵自動天盤對齊演練'}
                   </button>
                 </div>
+                <DailyAnalysisNotice record={matchDailyRecord} className="mb-5" />
+
                 <div className="fortune-card p-5 sm:p-6">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -2584,7 +2662,7 @@ export default function HomePage() {
                       disabled={!reviewReady || loading}
                       className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-40"
                     >
-                      {loading ? '正在整理配對結果…' : '查看配對結果'}
+                      {loading ? '正在整理配對結果…' : getDailyAnalysisButtonLabel(matchDailyRecord)}
                     </button>
                   )}
                 </div>
@@ -3207,6 +3285,7 @@ export default function HomePage() {
             <FeatureVisitorCounter featureKey="number" className="hidden" />
 
             <IdentitySplitSelector className="mb-4" />
+            <DailyAnalysisNotice record={numberDailyRecord} className="mb-4" />
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <input
@@ -3228,7 +3307,7 @@ export default function HomePage() {
                 disabled={fortuneLoading}
                 className="vip-gold-btn px-8 py-3.5 text-sm font-semibold disabled:opacity-40"
               >
-                {fortuneLoading ? '分析中...' : '開始分析'}
+                {fortuneLoading ? '分析中...' : getDailyAnalysisButtonLabel(numberDailyRecord)}
               </button>
             </div>
 

@@ -5,10 +5,12 @@ import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
+import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import type { GrowthElement } from '@/lib/growth-center-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
+import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
 interface PersonInput {
   name: string;
@@ -73,6 +75,12 @@ interface MatchResponse {
   displayB: PersonDisplay;
   fiveElementMatch?: MatchFiveElementResult;
 }
+
+type MatchDailyResult = {
+  data: MatchResponse;
+  personA: PersonInput;
+  personB: PersonInput;
+};
 
 type StepKey = 'personA' | 'personB' | 'review';
 type SelectionConfirm = { bloodType: boolean; gender: boolean };
@@ -521,6 +529,7 @@ export default function MatchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [data, setData] = useState<MatchResponse | null>(null);
+  const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<MatchDailyResult> | null>(null);
 
   // 載入 localStorage 預填到 personA
   useEffect(() => {
@@ -554,6 +563,26 @@ export default function MatchPage() {
   const personBError = getPersonError('第二位', personB, personBSelectionConfirm);
 
   const reviewReady = !personAError && !personBError;
+
+  function restoreDailyRecord(record: DailyAnalysisRecord<MatchDailyResult>) {
+    setDailyRecord(record);
+    setPersonA(record.result.personA);
+    setPersonB(record.result.personB);
+    setData(record.result.data);
+    setStep('review');
+    setError('');
+    setLoading(false);
+    window.setTimeout(() => {
+      document.getElementById('match-result-anchor')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }, 80);
+  }
+
+  useEffect(() => {
+    const record = readDailyAnalysis<MatchDailyResult>('match');
+    if (record) {
+      restoreDailyRecord(record);
+    }
+  }, []);
 
   const reviewCards = useMemo(
     () => [
@@ -598,6 +627,12 @@ export default function MatchPage() {
   }
 
   async function handleSubmit() {
+    const existingDaily = readDailyAnalysis<MatchDailyResult>('match');
+    if (existingDaily) {
+      restoreDailyRecord(existingDaily);
+      return;
+    }
+
     if (!getAnalysisIdentityTarget()) {
       setError(getIdentityRequiredMessage());
       return;
@@ -648,6 +683,7 @@ export default function MatchPage() {
       }
 
       setData(json);
+      setDailyRecord(saveDailyAnalysis<MatchDailyResult>('match', { data: json, personA, personB }));
       markGrowthModuleCompleted('soul_match', json.fiveElementMatch ? (json.fiveElementMatch.sharedElement.toUpperCase() as GrowthElement) : undefined);
     } catch (error) {
       setError(error instanceof DOMException && error.name === 'AbortError'
@@ -660,6 +696,12 @@ export default function MatchPage() {
   }
 
   function resetAll() {
+    const existingDaily = readDailyAnalysis<MatchDailyResult>('match');
+    if (existingDaily) {
+      restoreDailyRecord(existingDaily);
+      return;
+    }
+
     setData(null);
     setError('');
     setStep('personA');
@@ -685,6 +727,7 @@ export default function MatchPage() {
         {!data && (
           <div className="space-y-6">
             <IdentitySplitSelector />
+            <DailyAnalysisNotice record={dailyRecord} className="mt-4" />
             <div className="fortune-card p-5 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -819,7 +862,7 @@ export default function MatchPage() {
                   disabled={!reviewReady || loading}
                   className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-40 shimmer-btn"
                 >
-                  {loading ? '正在整理配對結果…' : '查看配對結果'}
+                  {loading ? '正在整理配對結果…' : getDailyAnalysisButtonLabel(dailyRecord)}
                 </button>
               )}
             </div>

@@ -13,6 +13,8 @@ import { searchCities, findCityById, type CityEntry } from '@/lib/city-directory
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import type { BloodType } from '@/lib/types';
+import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
+import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
 type JobStatus = 'IDLE' | 'VALIDATING' | 'QUEUED' | 'PROCESSING' | 'FINALIZING' | 'COMPLETED' | 'FAILED' | 'TIMEOUT' | 'CANCELLED';
 
@@ -255,7 +257,7 @@ function ResultPanel({ result, onReset }: { result: ZodiacResult; onReset: () =>
         ]}
         actions={(
           <div className="flex flex-col gap-3 sm:flex-row">
-            <button type="button" onClick={onReset} className="vip-gold-btn flex-1 py-4 text-sm">重新分析</button>
+            <button type="button" onClick={onReset} className="vip-gold-btn flex-1 py-4 text-sm">查看今日分析</button>
             <Link href="/" className="rounded-full border border-white/10 bg-white/5 px-6 py-4 text-center text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-white/20 hover:text-white">回首頁</Link>
           </div>
         )}
@@ -278,7 +280,15 @@ export default function ZodiacPage() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showMissingFields, setShowMissingFields] = useState(false);
+  const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<ZodiacResult> | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const record = readDailyAnalysis<ZodiacResult>('zodiac');
+    if (!record) return;
+    setDailyRecord(record);
+    setResult(record.result);
+  }, []);
 
   useEffect(() => {
     if (submitting || result) {
@@ -304,6 +314,14 @@ export default function ZodiacPage() {
   ];
 
   const submit = async () => {
+    const existing = readDailyAnalysis<ZodiacResult>('zodiac');
+    if (existing) {
+      setDailyRecord(existing);
+      setResult(existing.result);
+      progressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
     setError('');
     setResult(null);
     setJob(null);
@@ -329,6 +347,7 @@ export default function ZodiacPage() {
     try {
       const data = await requestZodiacAnalysis({ name: form.name, birthDate: form.birthDate, birthTime, birthCityId, bloodType: form.bloodType }, setJob);
       setResult(data);
+      setDailyRecord(saveDailyAnalysis<ZodiacResult>('zodiac', data));
       markGrowthModuleCompleted('zodiac', data.fiveElement?.brandElement);
       saveBirthProfile({
         birthDate: form.birthDate,
@@ -361,6 +380,8 @@ export default function ZodiacPage() {
         {!result && (
           <>
             <IdentitySplitSelector className="mb-5" />
+
+            <DailyAnalysisNotice record={dailyRecord} className="mb-5" />
 
             <section className="zodiac-input-hero mb-5 overflow-hidden rounded-3xl border border-fuchsia-300/25 bg-[radial-gradient(circle_at_top_left,rgba(217,70,239,0.2),rgba(34,211,238,0.09)_42%,rgba(15,23,42,0.82)_100%)] p-5 shadow-[0_0_40px_rgba(217,70,239,0.16)] sm:p-7">
               <p className="text-[11px] font-black uppercase tracking-[0.28em] text-fuchsia-200">AI WESTERN ZODIAC</p>
@@ -540,7 +561,7 @@ export default function ZodiacPage() {
 
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <button type="button" onClick={submit} disabled={submitting} className="vip-gold-btn flex-1 py-4 text-sm font-black disabled:opacity-50">
-                    {submitting ? 'AI 正在分析星座' : '開始 AI 西洋星座分析'}
+                    {submitting ? 'AI 正在分析星座' : dailyRecord ? getDailyAnalysisButtonLabel(dailyRecord) : '開始 AI 西洋星座分析'}
                   </button>
                   {(form.name || form.birthDate) && (
                     <button

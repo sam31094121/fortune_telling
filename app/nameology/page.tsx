@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
@@ -11,6 +11,8 @@ import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
+import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
+import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
 type NameologyResponse = {
   ok: boolean;
@@ -27,6 +29,7 @@ type FormState = {
 };
 
 type SelectionConfirm = { bloodType: boolean; gender: boolean };
+type NameologyDailyResult = { analysis: NameologyAnalysis; fiveElement: FiveElementIntegrationResult };
 
 
 const BLOOD_TYPES: Array<Exclude<BloodType, ''>> = ['A', 'B', 'AB', 'O'];
@@ -200,6 +203,15 @@ export default function NameologyPage() {
   const [fiveElement, setFiveElement] = useState<FiveElementIntegrationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<NameologyDailyResult> | null>(null);
+
+  useEffect(() => {
+    const record = readDailyAnalysis<NameologyDailyResult>('nameology');
+    if (!record) return;
+    setDailyRecord(record);
+    setResult(record.result.analysis);
+    setFiveElement(record.result.fiveElement);
+  }, []);
 
   const validationMessage = useMemo(() => buildValidationMessage(form, selectionConfirm), [form, selectionConfirm]);
   const canSubmit = validationMessage === '';
@@ -216,6 +228,15 @@ export default function NameologyPage() {
   ];
 
   async function handleSubmit() {
+    const existing = readDailyAnalysis<NameologyDailyResult>('nameology');
+    if (existing) {
+      setDailyRecord(existing);
+      setResult(existing.result.analysis);
+      setFiveElement(existing.result.fiveElement);
+      window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+      return;
+    }
+
     if (!canSubmit || isLoading) {
       setError(validationMessage);
       return;
@@ -239,6 +260,10 @@ export default function NameologyPage() {
       if (!response.ok || !data?.analysis || !data?.fiveElement) throw new Error(data?.message || data?.error || '姓名學分析暫時無法完成。');
       setResult((data as NameologyResponse).analysis);
       setFiveElement((data as NameologyResponse).fiveElement);
+      setDailyRecord(saveDailyAnalysis<NameologyDailyResult>('nameology', {
+        analysis: (data as NameologyResponse).analysis,
+        fiveElement: (data as NameologyResponse).fiveElement,
+      }));
       markGrowthModuleCompleted('nameology', (data as NameologyResponse).fiveElement.brandElement);
       window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     } catch (err) {
@@ -255,6 +280,7 @@ export default function NameologyPage() {
           <Link href="/" className="feature-home-link feature-home-link--amber">{"\u8fd4\u56de\u9996\u9801"}</Link>
         </div>
 
+        <DailyAnalysisNotice record={dailyRecord} className="mb-5" />
         <section id="nameology-input-form" className="fortune-card p-5 sm:p-8 scroll-mt-20">
           <p className="text-xs font-bold uppercase tracking-[0.35em] text-amber-300">NAMEOLOGY</p>
           <h1 className="mt-4 font-serif text-4xl font-black text-amber-100 sm:text-6xl">AI 姓名學</h1>
@@ -390,7 +416,7 @@ export default function NameologyPage() {
               disabled={isLoading}
               className="vip-gold-btn w-full py-4 text-sm disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isLoading ? '姓名學分析中...' : canSubmit ? '開始姓名學分析' : '請先完成上方資料'}
+              {isLoading ? '姓名學分析中...' : dailyRecord ? getDailyAnalysisButtonLabel(dailyRecord) : canSubmit ? '開始姓名學分析' : '請先完成上方資料'}
             </button>
           </div>
         </section>

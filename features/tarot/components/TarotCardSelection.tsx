@@ -21,14 +21,26 @@ type TarotCardSelectionProps = {
 function buildFanStyle(index: number, count: number): CSSProperties {
   const midpoint = (count - 1) / 2;
   const offset = index - midpoint;
-  const edgeLift = Math.abs(offset);
+  const arc = Math.pow(Math.abs(offset), 1.42);
+  const breath = index % 2 === 0 ? -0.08 : 0.08;
+  const x = offset * 2.86;
+  const mobileX = offset * 1.42;
+  const y = 1.72 + arc * 0.16 + breath;
+  const rotate = offset * 3.55;
   return {
-    ['--tarot-fan-x' as string]: `${offset * 2.12}rem`,
-    ['--tarot-fan-x-mobile' as string]: `${offset * 1.35}rem`,
-    ['--tarot-fan-y' as string]: `${1.35 + edgeLift * 0.22 + (index % 2) * 0.12}rem`,
-    ['--tarot-fan-rotate' as string]: `${offset * 4.4}deg`,
+    ['--tarot-fan-x' as string]: `${x}rem`,
+    ['--tarot-fan-x-mobile' as string]: `${mobileX}rem`,
+    ['--tarot-fan-y' as string]: `${y}rem`,
+    ['--tarot-fan-rotate' as string]: `${rotate}deg`,
+    ['--tarot-fan-intro-x' as string]: `${x * 0.35}rem`,
+    ['--tarot-fan-intro-y' as string]: `${y - 1.15}rem`,
+    ['--tarot-fan-intro-rotate' as string]: `${rotate * 0.38}deg`,
+    ['--tarot-fan-settle-x' as string]: `${x * 1.02}rem`,
+    ['--tarot-fan-settle-y' as string]: `${y + 0.1}rem`,
+    ['--tarot-fan-settle-rotate' as string]: `${rotate * 1.04}deg`,
     ['--tarot-fan-z' as string]: index + 1,
-    animationDelay: `${index * 44}ms`,
+    ['--tarot-fan-depth' as string]: `${Math.max(0, 7 - Math.abs(offset)) * 0.08}rem`,
+    animationDelay: `${180 + index * 54}ms`,
   };
 }
 

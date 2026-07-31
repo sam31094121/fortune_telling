@@ -5,16 +5,24 @@ import Link from 'next/link';
 import TarotCardSelection from '@/features/tarot/components/TarotCardSelection';
 import TarotReadingResult from '@/features/tarot/components/TarotReadingResult';
 import TarotShuffleAnimation from '@/features/tarot/components/TarotShuffleAnimation';
+import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import { TAROT_CARDS } from '@/features/tarot/data/cards';
 import { requestTarotShuffle } from '@/features/tarot/services/api';
+import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 import type { TarotCard, TarotDeckCard, TarotFlowStep, TarotReadingScope, TarotSpreadType } from '@/features/tarot/types';
 
 type DrawOnlyStep = Extract<TarotFlowStep, 'ready_to_draw' | 'shuffling' | 'selecting_card' | 'result'>;
+type TarotDailyResult = { selectedDeckCards: TarotDeckCard[]; deckSize: number; sessionId: string; question: string };
 
 const DRAW_SCOPE: TarotReadingScope = 'self';
 const DRAW_SPREAD: TarotSpreadType = 'three_card';
 const DRAW_COUNT = 3;
-const SHUFFLE_DISPLAY_MS = 3600;
+const SHUFFLE_DISPLAY_MS = 5000;
+const TAROT_QUESTION_EXAMPLES = [
+  '這段關係接下來該怎麼面對？',
+  '我現在的工作方向需要看見什麼？',
+  '這個決定目前最重要的提醒是什麼？',
+] as const;
 
 function buildPreviewCardStyle(index: number): CSSProperties {
   const offset = index - 7.5;
@@ -33,6 +41,8 @@ export default function TarotPageClient() {
   const [deckSize, setDeckSize] = useState(78);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
+  const [tarotQuestion, setTarotQuestion] = useState('');
+  const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<TarotDailyResult> | null>(null);
   const shuffleTimerRef = useRef<number | null>(null);
 
   const cardsById = useMemo(() => new Map(TAROT_CARDS.map((card) => [card.id, card] as const)), []);
@@ -43,6 +53,15 @@ export default function TarotPageClient() {
   );
 
   useEffect(() => {
+    const record = readDailyAnalysis<TarotDailyResult>('tarot');
+    if (record) {
+      setDailyRecord(record);
+      setSelectedDeckCards(record.result.selectedDeckCards);
+      setDeckSize(record.result.deckSize);
+      setSessionId(record.result.sessionId);
+      setTarotQuestion(record.result.question);
+      setStep('result');
+    }
     return () => {
       if (shuffleTimerRef.current) window.clearTimeout(shuffleTimerRef.current);
     };
@@ -50,6 +69,24 @@ export default function TarotPageClient() {
 
   const beginShuffle = useCallback(async () => {
     if (isGenerating) return;
+
+    const existing = readDailyAnalysis<TarotDailyResult>('tarot');
+    if (existing) {
+      setDailyRecord(existing);
+      setSelectedDeckCards(existing.result.selectedDeckCards);
+      setDeckSize(existing.result.deckSize);
+      setSessionId(existing.result.sessionId);
+      setTarotQuestion(existing.result.question);
+      setStep('result');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    const question = tarotQuestion.trim();
+    if (question.length < 4) {
+      setError('請先寫下你現在最想了解的一件事，至少 4 個字。');
+      return;
+    }
 
     if (shuffleTimerRef.current) window.clearTimeout(shuffleTimerRef.current);
     setError('');
@@ -60,7 +97,7 @@ export default function TarotPageClient() {
     try {
       const shuffle = await requestTarotShuffle({
         categoryId: 'custom',
-        question: 'AI 塔羅抽牌體驗系統 1.0',
+        question,
         scope: DRAW_SCOPE,
         spreadType: DRAW_SPREAD,
       });
@@ -78,13 +115,20 @@ export default function TarotPageClient() {
       setStep('ready_to_draw');
       setError(caught instanceof Error ? caught.message : '洗牌流程暫時無法啟動，請重新嘗試。');
     }
-  }, [isGenerating]);
+  }, [isGenerating, tarotQuestion]);
 
   const handleCardsSelected = useCallback((deckCards: TarotDeckCard[]) => {
     setSelectedDeckCards(deckCards);
+    const record = saveDailyAnalysis<TarotDailyResult>('tarot', {
+      selectedDeckCards: deckCards,
+      deckSize,
+      sessionId,
+      question: tarotQuestion.trim(),
+    });
+    setDailyRecord(record);
     setStep('result');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  }, [deckSize, sessionId, tarotQuestion]);
 
   const resetExperience = useCallback(() => {
     if (shuffleTimerRef.current) window.clearTimeout(shuffleTimerRef.current);
@@ -93,6 +137,7 @@ export default function TarotPageClient() {
     setSelectedDeckCards([]);
     setSessionId('');
     setError('');
+    setTarotQuestion('');
     setIsGenerating(false);
   }, []);
 
@@ -131,19 +176,55 @@ export default function TarotPageClient() {
                     <p>依序翻開牌面</p>
                   </div>
                 </div>
-                {error && (
-                  <p className="mt-5 rounded-2xl border border-rose-300/30 bg-rose-950/25 px-4 py-3 text-sm font-bold leading-7 text-rose-100">
-                    {error}
-                  </p>
-                )}
-                <button
-                  type="button"
-                  onClick={beginShuffle}
-                  disabled={isGenerating}
-                  className="mt-7 inline-flex items-center justify-center rounded-full border border-cyan-200/35 bg-cyan-300/15 px-7 py-3 text-sm font-black text-cyan-50 shadow-[0_0_34px_rgba(34,211,238,0.18)] transition hover:border-cyan-100/60 hover:bg-cyan-300/20 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  開始 78 張洗牌
-                </button>
+
+                <DailyAnalysisNotice record={dailyRecord} className="mt-6" />
+                <form className="tarot-question-entry mt-4" onSubmit={(event) => { event.preventDefault(); void beginShuffle(); }}>
+                  <label htmlFor="tarot-question-entry" className="block text-sm font-black text-cyan-50">
+                    請專注你現在最想了解的一件事。
+                  </label>
+                  <textarea
+                    id="tarot-question-entry"
+                    value={tarotQuestion}
+                    onChange={(event) => {
+                      setTarotQuestion(event.target.value);
+                      if (error) setError('');
+                    }}
+                    maxLength={160}
+                    rows={4}
+                    placeholder="例如：我現在面對這件事，最需要看見什麼？"
+                    className="tarot-question-entry__textarea"
+                  />
+                  <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-wrap gap-2" aria-label="塔羅問題範例">
+                      {TAROT_QUESTION_EXAMPLES.map((example) => (
+                        <button
+                          key={example}
+                          type="button"
+                          onClick={() => {
+                            setTarotQuestion(example);
+                            setError('');
+                          }}
+                          className="tarot-question-entry__example"
+                        >
+                          {example}
+                        </button>
+                      ))}
+                    </div>
+                    <span className="shrink-0 text-xs font-bold text-[color:var(--text-muted)]">{tarotQuestion.trim().length}/160</span>
+                  </div>
+                  {error && (
+                    <p className="mt-4 rounded-2xl border border-rose-300/30 bg-rose-950/25 px-4 py-3 text-sm font-bold leading-7 text-rose-100">
+                      {error}
+                    </p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={isGenerating || tarotQuestion.trim().length < 4}
+                    className="mt-5 inline-flex w-full items-center justify-center rounded-full border border-cyan-200/35 bg-cyan-300/15 px-7 py-3 text-sm font-black text-cyan-50 shadow-[0_0_34px_rgba(34,211,238,0.18)] transition hover:border-cyan-100/60 hover:bg-cyan-300/20 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                  >
+                    {getDailyAnalysisButtonLabel(dailyRecord)}
+                  </button>
+                </form>
               </div>
               <div className="tarot-experience-deck-preview" aria-hidden="true">
                 {Array.from({ length: 16 }, (_, index) => (

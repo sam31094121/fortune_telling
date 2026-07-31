@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
+import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
 type Gender = 'male' | 'female';
 type PillarKey = 'year' | 'month' | 'day' | 'hour';
@@ -168,9 +170,25 @@ export default function BaziPage() {
   const [error, setError] = useState('');
   const [result, setResult] = useState<BaziResult | null>(null);
   const [missing, setMissing] = useState<string[]>([]);
+  const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<BaziResult> | null>(null);
   const resolvedBirthTime = form.timeUnknown ? '12:00' : form.birthTime;
 
+  useEffect(() => {
+    const record = readDailyAnalysis<BaziResult>('bazi');
+    if (!record) return;
+    setDailyRecord(record);
+    setResult(record.result);
+  }, []);
+
   async function handleSubmit() {
+    const existing = readDailyAnalysis<BaziResult>('bazi');
+    if (existing) {
+      setDailyRecord(existing);
+      setResult(existing.result);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     const nextMissing = [
       form.name.trim().length < 2 ? 'name' : '',
       !form.birthDate ? 'birthDate' : '',
@@ -213,6 +231,7 @@ export default function BaziPage() {
       const json = await response.json() as ResultResponse;
       if (!response.ok || !json.success || !json.data) throw new Error(json.message || json.error || '目前無法完成八字命盤。');
       setResult(json.data);
+      setDailyRecord(saveDailyAnalysis<BaziResult>('bazi', json.data));
       setMessage('三層資料流已完成：專業命盤 → AI 解讀 → AI 補強。');
       markGrowthModuleCompleted('bazi', json.data.aiReinforcementPlan.first.brandElement);
     } catch (caught) {
@@ -238,12 +257,13 @@ export default function BaziPage() {
           </Link>
         </header>
 
+        <DailyAnalysisNotice record={dailyRecord} className="mb-5" />
         <UnifiedBirthForm
           value={form}
           fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, birthPlace: true, calendarType: true }}
           missing={missing}
           isSubmitting={loading}
-          submitLabel="開始建立八字命盤"
+          submitLabel={getDailyAnalysisButtonLabel(dailyRecord)}
           loadingLabel="八字三層資料流運算中..."
           dateAccent="amber"
           onChange={(profile) => {
