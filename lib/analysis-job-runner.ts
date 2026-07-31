@@ -1,4 +1,4 @@
-﻿import { analyzeNumberCore, validateNumberCoreInput } from './number-core-engine';
+import { analyzeNumberCore, validateNumberCoreInput } from './number-core-engine';
 import { buildNumberFiveElementResult, buildNameologyFiveElementResult, buildBaziFiveElementResult, buildZodiacFiveElementResult, type FiveElementKey } from './five-element-engine';
 import { getNamePersonalityScores } from './name-model-db';
 import { buildNameologyAnalysis } from './nameology-engine';
@@ -170,9 +170,34 @@ async function runBaziJob(job: AnalysisJob, inputData: unknown) {
   return { ...result, moduleId: job.moduleId, fiveElement };
 }
 
+function logZodiacJob(jobId: string, step: string, detail?: Record<string, unknown>) {
+  console.info('[ZODIAC]' + '[' + step + ']', { jobId, ...(detail ?? {}) });
+}
+
+function buildZodiacDebugPrompt(input: { name: string; birthDate: string; birthTime: string | null; birthCityId: string | null }, bloodType: BloodType, analysisTarget: unknown) {
+  const target = analysisTarget === 'self' ? 'SELF' : analysisTarget === 'guest' ? 'OTHER' : 'UNKNOWN';
+  return [
+    'AI 西洋星座分析 Prompt',
+    `分析模式：${target}`,
+    `出生日期：${input.birthDate}`,
+    `出生時間：${input.birthTime ?? '未提供'}`,
+    `出生城市：${input.birthCityId ?? '未提供'}`,
+    `血型：${bloodType || '未提供'}`,
+    '任務：判定太陽星座；若有出生時間則加入月亮與上升星座；最後交由五元素與 Integration Layer 整合。',
+  ].join('\n');
+}
+
 async function runZodiacJob(job: AnalysisJob, inputData: unknown) {
-  updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: null, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.validating });
+  logZodiacJob(job.jobId, 'START', { moduleId: job.moduleId, analysisType: job.analysisType });
+  updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: 12, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.validating });
   assertRecord(inputData);
+  logZodiacJob(job.jobId, 'RECEIVED', {
+    hasBirthDate: typeof inputData.birthDate === 'string' && inputData.birthDate.trim().length > 0,
+    hasBirthTime: typeof inputData.birthTime === 'string' && inputData.birthTime.trim().length > 0,
+    hasBloodType: typeof inputData.bloodType === 'string' && inputData.bloodType.trim().length > 0,
+    analysisTarget: inputData.analysisTarget === 'self' ? 'SELF' : inputData.analysisTarget === 'guest' ? 'OTHER' : 'UNKNOWN',
+  });
+
   const rawBloodType = typeof inputData.bloodType === 'string' ? inputData.bloodType : '';
   const bloodType: BloodType = VALID_BLOOD_TYPES.includes(rawBloodType as Exclude<BloodType, ''>) ? (rawBloodType as Exclude<BloodType, ''>) : '';
   const input = {
@@ -182,12 +207,24 @@ async function runZodiacJob(job: AnalysisJob, inputData: unknown) {
     birthCityId: typeof inputData.birthCityId === 'string' && inputData.birthCityId.trim().length > 0 ? inputData.birthCityId.trim() : null,
   };
 
-  updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: null, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.processing });
-  const result = analyzeZodiac(input);
-  const fiveElement = buildZodiacFiveElementResult(result, bloodType || null);
+  if (!isValidBirthday(input.birthDate)) throw new Error('請提供有效生日。');
+  logZodiacJob(job.jobId, 'BLOOD_TYPE', { bloodType: bloodType || 'NONE' });
+  const aiPrompt = buildZodiacDebugPrompt(input, bloodType, inputData.analysisTarget);
+  if (!aiPrompt.trim()) throw new Error('西洋星座 AI Prompt 建立失敗。');
+  logZodiacJob(job.jobId, 'PROMPT_READY', { promptLength: aiPrompt.length });
 
-  updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.finalizing });
-  return { ...result, moduleId: job.moduleId, fiveElement };
+  updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: 45, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.processing });
+  logZodiacJob(job.jobId, 'ENGINE_START', { birthDate: input.birthDate, hasBirthTime: Boolean(input.birthTime), birthCityId: input.birthCityId });
+  const result = analyzeZodiac(input);
+  logZodiacJob(job.jobId, 'SIGN_DONE', { sign: result.sign.name, precision: result.precision });
+
+  updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: 78, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.finalizing });
+  const fiveElement = buildZodiacFiveElementResult(result, bloodType || null);
+  logZodiacJob(job.jobId, 'FIVE_ELEMENT_DONE', { primaryElement: fiveElement.primaryElement, brandElement: fiveElement.brandElement, confidence: fiveElement.confidence });
+
+  const output = { ...result, moduleId: job.moduleId, fiveElement };
+  logZodiacJob(job.jobId, 'DONE', { mode: output.mode, target: inputData.analysisTarget === 'self' ? 'SELF' : inputData.analysisTarget === 'guest' ? 'OTHER' : 'UNKNOWN' });
+  return output;
 }
 type AnalysisModuleRunner = (job: AnalysisJob, inputData: unknown) => Promise<unknown>;
 

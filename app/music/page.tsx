@@ -7,7 +7,7 @@ import PersonalityMusicReport from '@/components/PersonalityMusicReport';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
-import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import { getCompletedGrowthModules, getGrowthElements, markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
@@ -39,6 +39,16 @@ interface VoiceProfile {
 }
 
 interface MusicGenerateResponse {
+  life_song_context?: {
+    targetMode: 'self' | 'guest' | null;
+    goal: string;
+    goalNote: string;
+    creativeStyle: string;
+    growthSummary: string;
+    worldView: string;
+    theme: string;
+    scene: string;
+  };
   personality_matrix: Record<string, number>;
   music_parameters: {
     bpm: number;
@@ -183,30 +193,30 @@ function LandingHero({ onStart, dailyRecord }: { onStart: () => void; dailyRecor
         <DailyAnalysisNotice record={dailyRecord} className="mb-5 w-full max-w-2xl text-left" />
 
         <div className="music-landing-copy">
-          <span className="music-landing-eyebrow">{"AI \u8072\u97f3\u6b4c\u66f2"}</span>
+          <span className="music-landing-eyebrow">{"AI LIFE SONG"}</span>
           <h1 className="music-landing-title">
-            <span className="music-landing-title-line">{"AI\u751f\u6210\u4e00\u9996\u6b4c"}</span>
-            <span className="music-landing-title-line music-landing-title-line--accent">{"\u81ea\u6211\u4eba\u683c\u5206\u88c2"}</span>
-            <span className="music-landing-title-line">{"\u8ddf\u4f60\u81ea\u6211\u5c0d\u8a71"}</span>
+            <span className="music-landing-title-line">{"AI \u5c08\u5c6c"}</span>
+            <span className="music-landing-title-line music-landing-title-line--accent">{"\u751f\u547d\u6b4c\u66f2"}</span>
+            <span className="music-landing-title-line">{"\u70ba\u4f60\u7684\u73fe\u5728\u800c\u5275\u4f5c"}</span>
           </h1>
           <p className="music-landing-subcopy">
-            {"\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002"}
+            {"AI \u5148\u7406\u89e3\u4f60\u73fe\u5728\u6700\u60f3\u5b8c\u6210\u7684\u4e8b\uff0c\u518d\u6574\u5408\u547d\u7406\u3001\u4e94\u5143\u7d20\u8207\u88dc\u5f37\u65b9\u5411\uff0c\u5275\u4f5c\u4e00\u9996\u771f\u6b63\u5c6c\u65bc\u4f60\u7684\u751f\u547d\u6b4c\u66f2\u3002"}
           </p>
         </div>
 
         <div className="music-mic-entry-guide" aria-label="\u9ea5\u514b\u98a8\u9304\u97f3\u5165\u53e3\u5f15\u5c0e">
-          <p>{"\u8981\u7528\u81ea\u5df1\u7684\u8072\u97f3\u751f\u6210\u6b4c\u66f2\uff1f"}</p>
+          <p>{"\u5b8c\u6574 AI \u751f\u547d\u6b4c\u66f2\u6d41\u7a0b"}</p>
           <div>
-            <span>{"1 \u9ede\u4e0b\u65b9\u6309\u9215\u76f4\u63a5\u958b\u9304\u97f3"}</span>
-            <span>{"2 \u9ea5\u514b\u98a8\u7cfb\u7d71\u6703\u76f4\u63a5\u51fa\u73fe"}</span>
-            <span>{"3 \u9304 15 \u79d2\u6216\u6539\u7528 AI \u8072\u97f3"}</span>
-            <span>{"4 \u586b\u597d\u8cc7\u6599\u5f8c\u751f\u6210\u6b4c\u66f2"}</span>
+            <span>{"1 \u9078\u64c7\u73fe\u5728\u6700\u60f3\u5b8c\u6210\u7684\u4e8b"}</span>
+            <span>{"2 \u9078\u64c7\u751f\u547d\u6b4c\u66f2\u98a8\u683c"}</span>
+            <span>{"3 AI \u7d71\u6574\u547d\u7406\u3001\u8072\u97f3\u8207\u4e94\u5143\u7d20"}</span>
+            <span>{"4 \u7522\u751f\u6b4c\u540d\u3001\u6b4c\u8a5e\u8207\u5b8c\u6574\u6b4c\u66f2"}</span>
           </div>
         </div>
 
         <div className="music-landing-actions mt-5 flex flex-col items-center gap-3">
           <button type="button" onPointerUp={handleStartPointerUp} onClick={handleStartClick} className="vip-gold-btn music-start-button w-full max-w-[22rem] px-8 py-4 text-base shadow-[0_0_25px_rgba(201,162,74,0.26)] border border-amber-400/20 sm:w-auto sm:px-14 sm:py-5 sm:text-lg sm:animate-bounce">
-            {dailyRecord ? getDailyAnalysisButtonLabel(dailyRecord) : "\u76f4\u63a5\u958b\u555f\u9ea5\u514b\u98a8\u9304\u97f3\u7cfb\u7d71"}
+            {dailyRecord ? getDailyAnalysisButtonLabel(dailyRecord) : "\u958b\u59cb\u5275\u4f5c\u751f\u547d\u6b4c\u66f2"}
           </button>
           <Link href="/" className="feature-home-link feature-home-link--violet">
             {"\u8fd4\u56de\u9996\u9801"}
@@ -308,11 +318,21 @@ export default function MusicSystemPage() {
     const timeout = window.setTimeout(() => controller.abort(), 45_000);
 
     try {
+      const targetMode = getAnalysisIdentityTarget();
+      const growthContext = targetMode === 'self'
+        ? { completedModules: getCompletedGrowthModules(), elements: getGrowthElements() }
+        : null;
+
       const response = await fetch('/api/music-generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
+          lifeGoal: data.lifeGoal,
+          lifeGoalNote: data.lifeGoalNote.trim(),
+          songCreativeStyle: data.songCreativeStyle,
+          analysisTarget: targetMode,
+          growthContext,
           birthDate: data.birthDate,
           bloodType: data.bloodType,
           name: data.name.trim(),
@@ -362,6 +382,16 @@ export default function MusicSystemPage() {
   }
 
   function handleReset() {
+    const existing = readDailyAnalysis<MusicDailyResult>('music');
+    if (existing) {
+      setDailyRecord(existing);
+      setResult(existing.result.result);
+      setSubmittedName(existing.result.submittedName);
+      setPageState('result');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     setResult(null);
     setErrorMsg('');
     setPageState('form');
@@ -393,9 +423,9 @@ export default function MusicSystemPage() {
             <div className="fortune-card p-6 sm:p-8">
               <div className="mb-6">
                 <p className="text-xs uppercase tracking-[0.35em] text-violet-300">{"AI VOICE SONG"}</p>
-                <h2 className="music-form-title mt-2 font-serif text-[color:var(--text-main)]"><span>{"AI\u751f\u6210\u4e00\u9996\u6b4c"}</span><span>{"\u81ea\u6211\u4eba\u683c\u5206\u88c2"}</span><span>{"\u8ddf\u4f60\u81ea\u6211\u5c0d\u8a71"}</span></h2>
+                <h2 className="music-form-title mt-2 font-serif text-[color:var(--text-main)]"><span>{"AI \u5c08\u5c6c"}</span><span>{"\u751f\u547d\u6b4c\u66f2"}</span><span>{"\u70ba\u4f60\u7684\u73fe\u5728\u800c\u5275\u4f5c"}</span></h2>
                 <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
-                  {"\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002"}
+                  {"AI \u5148\u7406\u89e3\u4f60\u73fe\u5728\u6700\u60f3\u5b8c\u6210\u7684\u4e8b\uff0c\u518d\u6574\u5408\u547d\u7406\u3001\u4e94\u5143\u7d20\u8207\u88dc\u5f37\u65b9\u5411\uff0c\u5275\u4f5c\u4e00\u9996\u771f\u6b63\u5c6c\u65bc\u4f60\u7684\u751f\u547d\u6b4c\u66f2\u3002"}
                 </p>
               </div>
 
@@ -458,9 +488,9 @@ export default function MusicSystemPage() {
           </div>
           <div className="mb-6 flex flex-col items-start gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
-              <p className="max-w-2xl text-xs font-semibold leading-6 tracking-[0.08em] text-violet-300 sm:text-sm">{"AI\u751f\u6210\u4e00\u9996\u6b4c \u81ea\u6211\u4eba\u683c\u5206\u88c2\u8ddf\u81ea\u6211\u5c0d\u8a71\u3002\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002"}</p>
+              <p className="max-w-2xl text-xs font-semibold leading-6 tracking-[0.08em] text-violet-300 sm:text-sm">{"AI \u5c08\u5c6c\u751f\u547d\u6b4c\u66f2\uff1aAI \u5148\u7406\u89e3\u4f60\u7684\u76ee\u6a19\uff0c\u518d\u6574\u5408\u547d\u7406\u3001\u4e94\u5143\u7d20\u8207\u8072\u97f3\u8cc7\u6599\u9032\u884c\u5275\u4f5c\u3002"}</p>
               <h2 className="mt-1 font-serif text-3xl text-[color:var(--text-main)]">
-                {submittedName}{"\u7684\u4eba\u683c\u4e3b\u984c\u66f2"}
+                {submittedName}{"\u7684 AI \u5c08\u5c6c\u751f\u547d\u6b4c\u66f2"}
               </h2>
             </div>
             <Link href="/" className="feature-home-link feature-home-link--violet self-end shrink-0 sm:self-start">{"\u8fd4\u56de\u9996\u9801"}</Link>
@@ -518,6 +548,7 @@ export default function MusicSystemPage() {
             productionPlan={result?.production_plan}
             fusionSong={result?.fusion_song}
             voiceProfile={result?.voice_profile}
+            lifeSongContext={result?.life_song_context}
             name={submittedName}
             onReset={handleReset}
           />

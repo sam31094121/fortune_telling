@@ -365,6 +365,16 @@ export interface MusicReportInput {
     mandarin: { title: string; artist: string };
     taiwanese?: { title: string; artist: string };
   };
+  lifeSongContext?: {
+    targetMode: 'self' | 'guest' | null;
+    goal: string;
+    goalNote: string;
+    creativeStyle: string;
+    growthSummary: string;
+    worldView: string;
+    theme: string;
+    scene: string;
+  };
   voiceProfile?: {
     workflowStatus: string;
     consentAccepted: boolean;
@@ -516,22 +526,36 @@ function buildMusicReportPrompt(input: MusicReportInput): string {
   const languageInstructionBlock = `歌曲語言主軸：${languageGuidance.label}
 語言生成規則：${languageGuidance.prompt}
 語言比例建議：${languageGuidance.distribution}`;
+  const lifeSong = input.lifeSongContext;
+  const lifeSongInstructionBlock = lifeSong
+    ? `生命歌曲目標：${lifeSong.goal}
+使用者補充：${lifeSong.goalNote || '未補充'}
+創作風格：${lifeSong.creativeStyle}
+成長中心整合：${lifeSong.growthSummary}
+歌曲世界觀：${lifeSong.worldView}
+歌曲主題：${lifeSong.theme}
+歌曲情境：${lifeSong.scene}`
+    : '生命歌曲目標：療癒與陪伴';
 
   return `
 ${languageInstructionBlock}
 ${voiceProfileInstructionBlock}
+${lifeSongInstructionBlock}
 
 你是「天地人 AI 人格音樂系統」的靈魂音樂顧問，同時精通命理學與深層心理學。
-根據以下三層數據——天地人命理架構、心理學原型、音樂矩陣——寫出一份深刻的人格音樂報告。
+根據以下四層數據——使用者當前目標、天地人命理架構、心理學原型、音樂矩陣——寫出一份深刻的人格音樂報告。
 
 系統鐵律：
-1. 命理、心理學、音樂三個視角必須互相呼應，不可矛盾。
+1. 生命目標、命理、心理學、音樂四個視角必須互相呼應，不可矛盾。
 2. 語氣如命理詩人：有深度、有詩意、有人性溫度，不浮誇不說教。
 3. 五行、生肖、榮格原型等概念要自然融入敘事，不要硬塞術語。
 4. 陰影面（Shadow）要輕描淡寫地提及，不是批評，而是提醒。
 5. 結語必須自然帶到「心存善念，命運才能更順」的智慧。
 6. 【歌曲與原唱歌手一致性】：在分析與解釋提及的參考錨點歌曲時，其原唱歌手名字必須與系統提供的一模一樣，絕對禁止張冠李戴（例如《Yesterday》原唱是 The Beatles，不能寫成貓王或其他歌手；《月亮代表我的心》原唱是鄧麗君，不能寫成王菲或周杰倫等；《吻別》原唱是張學友，不能寫成周杰倫）。所有歌曲與歌手必須 100% 正確匹配，絕不能產生任何人為矛盾。
 7. 【大數據歌手年代一致性】：在 'famous_singers_mandarin'、'famous_singers_english' 與 'famous_singers_taiwanese' 推薦的歌手，其發跡、巔峰或代表作品之年代，**必須 100% 與使用者的音樂年代（${input.era}）完全相同！** 絕對不准在舊年代的大數據指標中推薦新年代的歌手，反之亦然。這是一致性鐵律，絕不准產生任何年代與歌手矛盾！
+
+━━━ 生命歌曲創作任務 ━━━
+${lifeSongInstructionBlock}
 
 ━━━ 人物命格 ━━━
 姓名：${input.name}
@@ -746,12 +770,21 @@ function buildSongDraftsPrompt(input: MusicReportInput): string {
   const languageInstructionBlock = `歌曲語言主軸：${languageGuidance.label}
 語言生成規則：${languageGuidance.prompt}
 語言比例建議：${languageGuidance.distribution}`;
+  const lifeSong = input.lifeSongContext;
+  const lifeSongInstructionBlock = lifeSong
+    ? `生命歌曲目標：${lifeSong.goal}
+使用者補充：${lifeSong.goalNote || '未補充'}
+創作風格：${lifeSong.creativeStyle}
+歌曲世界觀：${lifeSong.worldView}
+歌曲主題：${lifeSong.theme}
+歌曲情境：${lifeSong.scene}`
+    : '生命歌曲目標：療癒與陪伴';
 
   return `
 ${languageInstructionBlock}
 
 你是「天地人歌曲矩陣」的第一階段素材層生成器。
-請根據使用者的生日、血型、姓名、命理資料與音樂參數，先產生三個素材層：天層、地層、人層。
+請根據使用者的生命歌曲目標、生日、血型、姓名、命理資料與音樂參數，先產生三個素材層：天層、地層、人層。
 ★ 重要：每次生成必須是完全新的創意表達，不要重複之前任何的組合或歌詞。確保這首歌獨一無二地反映此人的特質。
 
 ${TIANDIREN_SONG_MATRIX_RULES}
@@ -764,6 +797,9 @@ ${TIANDIREN_SONG_MATRIX_RULES}
 5. 天層不能寫完整歌詞；地層不能推翻天層曲風；人層不能亂改編曲。
 6. 文字要短、清楚、可進入同一個歌曲矩陣，避免太長。
 7. 每次生成都要展現新的創意視角——用不同的比喻、不同的情緒切入點、不同的故事角度。
+
+━━━ 生命歌曲創作任務 ━━━
+${lifeSongInstructionBlock}
 
 ━━━ 使用者資料 ━━━
 姓名：${input.name}
@@ -889,6 +925,7 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
   const mood = input.musicParameters.mood.slice(0, 4).join('、') || '溫暖、真摯、有畫面';
   const instruments = input.musicParameters.instrument.slice(0, 5).join('、') || '鋼琴、鼓、合成器、弦樂、吉他';
   const themes = input.musicParameters.lyric_theme.slice(0, 4).join('、') || '自我覺醒、命運、希望、連結';
+  const lifeSong = input.lifeSongContext;
   const leadVocal = describeVocalBlend(input);
   const languageGuidance = getSongLanguageGuidance(input.preferredSongLanguage);
   const heavenLayerTitle = input.songDrafts.english.title;
@@ -913,11 +950,11 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
 
   return {
     producer_summary:
-      `AI 製作總監會把《${heavenLayerTitle}》《${earthLayerTitle}》《${humanLayerTitle}》視為天地人三個素材層，不視為三首歌，最後只整理成《${input.fusionSong.fusion_title}》這一首天地人人格歌曲。`,
+      `AI 製作總監先讀取「${lifeSong?.goal ?? '療癒'}」這個當前生命目標，再把《${heavenLayerTitle}》《${earthLayerTitle}》《${humanLayerTitle}》視為天地人三個素材層，不視為三首歌，最後只整理成《${input.fusionSong.fusion_title}》這一首 AI 專屬生命歌曲。`,
     fusion_strategy:
-      `天層負責英文音樂格局、主旋律方向與空間感；地層負責國語唱腔、節奏身體與副歌情緒；人層負責台語故事核心句與情感落點。融合時不三首硬拼，而是以「${themes}」作為共同主軸。`,
+      `天層負責英文音樂格局、主旋律方向與空間感；地層負責國語唱腔、節奏身體與副歌情緒；人層負責台語故事核心句與情感落點。融合時不三首硬拼，而是以「${lifeSong?.theme ?? themes}」作為共同主軸。`,
     final_song_brief:
-      `${input.musicParameters.genre} · ${input.musicParameters.bpm} BPM · ${input.musicParameters.key}，情緒走向為${mood}，人格高點集中在 ${topKeys.join(' / ')}。`,
+      `${input.musicParameters.genre} · ${input.musicParameters.bpm} BPM · ${input.musicParameters.key}，情緒走向為${mood}，創作風格鎖定${lifeSong?.creativeStyle ?? '流行'}，人格高點集中在 ${topKeys.join(' / ')}。`,
     arrangement_plan: [
       `天層前奏：${instruments.split('、')[0] ?? '鋼琴'}先建立英文音樂格局、年代感與空間感，決定歌曲靈魂。`,
       '地層主歌：國語唱腔進場，節奏、鼓點、和聲與編曲厚度承接天層曲風，不推翻原本方向。',
@@ -949,7 +986,7 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
     emotional_arc:
       '0-35% 天層建立音樂靈魂，35-70% 地層建立歌曲身體，70-100% 人層放入故事落點後由融合引擎收束成一首歌。',
     generation_prompt:
-      `Create one original Tiandiren personality song, not three separate songs. Primary song language: ${languageGuidance.label}. ${languageGuidance.prompt} Suggested language balance: ${languageGuidance.distribution}. ${input.musicParameters.genre}, ${input.musicParameters.bpm} BPM, ${input.musicParameters.key}. Mood: ${mood}. Instruments: ${instruments}. Vocal: ${leadVocal}. Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Taiwanese lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: ${themes}. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.`,
+      `${lifeSong ? `Life song mission: ${lifeSong.theme}. Worldview: ${lifeSong.worldView}. Scene: ${lifeSong.scene}. Growth center: ${lifeSong.growthSummary}. ` : ''}Create one original Tiandiren life song, not three separate songs. Primary song language: ${languageGuidance.label}. ${languageGuidance.prompt} Suggested language balance: ${languageGuidance.distribution}. ${input.musicParameters.genre}, ${input.musicParameters.bpm} BPM, ${input.musicParameters.key}. Mood: ${mood}. Instruments: ${instruments}. Vocal: ${leadVocal}. Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Taiwanese lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: ${themes}. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.`,
     next_step_note:
       '下一步才接音樂/人聲生成服務；目前這一層先把製作、編曲、主唱分配與生成提示整理好，避免一次做太重造成當機。',
   };

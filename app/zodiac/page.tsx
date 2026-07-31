@@ -26,6 +26,7 @@ type AnalysisJob = {
   progressPercent: number | null;
   message: string;
   resultId: string | null;
+  errorCode?: string | null;
   errorMessage?: string | null;
 };
 
@@ -36,6 +37,43 @@ type ApiResponse<T> = {
   message?: string;
   error?: string;
 };
+
+type ZodiacTraceStepId = 'received' | 'sign' | 'blood' | 'prompt' | 'ai' | 'element' | 'write' | 'done';
+type ZodiacTraceStatus = 'pending' | 'running' | 'done' | 'error';
+
+type ZodiacTraceStep = {
+  id: ZodiacTraceStepId;
+  label: string;
+  status: ZodiacTraceStatus;
+  detail?: string;
+};
+
+const ZODIAC_ANALYSIS_TIMEOUT_MS = 15_000;
+const ZODIAC_TRACE_TEMPLATE: ZodiacTraceStep[] = [
+  { id: 'received', label: '收到資料', status: 'pending' },
+  { id: 'sign', label: '判定星座', status: 'pending' },
+  { id: 'blood', label: '判定血型', status: 'pending' },
+  { id: 'prompt', label: '建立 Prompt', status: 'pending' },
+  { id: 'ai', label: 'AI 分析', status: 'pending' },
+  { id: 'element', label: '五元素整合', status: 'pending' },
+  { id: 'write', label: '資料寫入分流', status: 'pending' },
+  { id: 'done', label: '建立報告', status: 'pending' },
+];
+
+function createTraceSteps(): ZodiacTraceStep[] {
+  return ZODIAC_TRACE_TEMPLATE.map((step) => ({ ...step }));
+}
+
+function updateTraceStep(
+  onTrace: (stepId: ZodiacTraceStepId, status: ZodiacTraceStatus, detail?: string) => void,
+  stepId: ZodiacTraceStepId,
+  status: ZodiacTraceStatus,
+  detail?: string,
+) {
+  onTrace(stepId, status, detail);
+  const prefix = status === 'error' ? '[ZODIAC][ERROR]' : '[ZODIAC]';
+  console.info(prefix, stepId, detail ?? status);
+}
 
 type ZodiacSignSummary = {
   key: string;
@@ -98,76 +136,130 @@ function activeStep(job: AnalysisJob | null) {
   return 0;
 }
 
-async function safeJson<T>(url: string, init?: RequestInit): Promise<{ status: number; body: T }> {
-  const response = await fetch(url, init);
-  const body = (await response.json()) as T;
-  return { status: response.status, body };
+async function safeJson<T>(url: string, init?: RequestInit, timeoutMs = ZODIAC_ANALYSIS_TIMEOUT_MS): Promise<{ status: number; body: T }> {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { ...init, signal: controller.signal });
+    const body = (await response.json()) as T;
+    return { status: response.status, body };
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error('分析暫時失敗：系統超過 15 秒沒有完成回應，請重新嘗試。');
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timer);
+  }
 }
 
 async function requestZodiacAnalysis(
-  input: { name: string; birthDate: string; birthTime: string | null; birthCityId: string | null; bloodType: BloodType },
+  input: { name: string; birthDate: string; birthTime: string | null; birthCityId: string | null; bloodType: BloodType; analysisTarget: 'self' | 'guest' },
   onJob: (job: AnalysisJob) => void,
+  onTrace: (stepId: ZodiacTraceStepId, status: ZodiacTraceStatus, detail?: string) => void,
 ) {
+  const started = Date.now();
+  const remaining = () => Math.max(1, ZODIAC_ANALYSIS_TIMEOUT_MS - (Date.now() - started));
+  const requestBody = {
+    analysisType: 'zodiac',
+    idempotencyKey: ['zodiac-v3', input.birthDate, input.birthTime ?? 'none', input.birthCityId ?? 'none', input.bloodType || 'none', input.analysisTarget, Date.now()].join(':'),
+    sessionId: 'zodiac-browser',
+    inputData: input,
+  };
+
+  updateTraceStep(onTrace, 'received', 'running', `送出 ${input.analysisTarget === 'self' ? 'SELF' : 'OTHER'} 分析資料`);
+  console.info('[ZODIAC][REQUEST_BODY]', { ...requestBody, inputData: { ...input, nameLength: input.name.trim().length, name: undefined } });
   const created = await safeJson<ApiResponse<AnalysisJob>>('/api/analysis/jobs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      analysisType: 'zodiac',
-      idempotencyKey: ['zodiac-v2', input.birthDate, input.birthTime ?? 'none', input.birthCityId ?? 'none', input.bloodType || 'none', Date.now()].join(':'),
-      sessionId: 'zodiac-browser',
-      inputData: input,
-    }),
-  });
+    body: JSON.stringify(requestBody),
+  }, remaining());
+  console.info('[ZODIAC][HTTP]', 'POST /api/analysis/jobs', created.status, created.body);
 
   if (!created.body.ok || !created.body.data?.jobId) {
+    updateTraceStep(onTrace, 'received', 'error', created.body.message || created.body.error || '建立任務失敗');
     throw new Error(created.body.message || created.body.error || '目前無法建立西洋星座分析任務。');
   }
 
   let job = created.body.data;
   onJob(job);
-  const started = Date.now();
+  updateTraceStep(onTrace, 'received', 'done', `HTTP ${created.status} / ${job.jobId}`);
+  updateTraceStep(onTrace, 'sign', job.status === 'PROCESSING' || job.status === 'FINALIZING' || job.status === 'COMPLETED' ? 'done' : 'running', job.progressStage);
 
-  while (Date.now() - started < 45_000) {
+  while (Date.now() - started < ZODIAC_ANALYSIS_TIMEOUT_MS) {
     if (job.status === 'COMPLETED' && job.resultId) {
-      const result = await safeJson<ApiResponse<ZodiacResult>>('/api/analysis/results/' + job.resultId);
-      if (result.body.ok && result.body.data) return result.body.data;
+      updateTraceStep(onTrace, 'ai', 'done', '後端分析已完成');
+      const result = await safeJson<ApiResponse<ZodiacResult>>('/api/analysis/results/' + job.resultId, undefined, remaining());
+      console.info('[ZODIAC][HTTP]', 'GET /api/analysis/results', result.status, { ok: result.body.ok, resultId: job.resultId });
+      if (result.body.ok && result.body.data) {
+        updateTraceStep(onTrace, 'element', result.body.data.fiveElement ? 'done' : 'error', result.body.data.fiveElement ? '五元素已建立' : '缺少五元素結果');
+        updateTraceStep(onTrace, 'done', 'done', '結果頁資料已取得');
+        return result.body.data;
+      }
+      updateTraceStep(onTrace, 'done', 'error', result.body.message || result.body.error || '結果讀取失敗');
       throw new Error(result.body.message || result.body.error || '西洋星座結果尚未完成。');
     }
 
     if (job.status === 'FAILED' || job.status === 'TIMEOUT' || job.status === 'CANCELLED') {
+      updateTraceStep(onTrace, 'ai', 'error', job.errorMessage || job.message || '後端分析失敗');
       throw new Error(job.errorMessage || job.message || '目前無法完成西洋星座分析。');
     }
 
     await new Promise((resolve) => window.setTimeout(resolve, 650));
-    const next = await safeJson<ApiResponse<AnalysisJob>>('/api/analysis/jobs/' + job.jobId);
+    const next = await safeJson<ApiResponse<AnalysisJob>>('/api/analysis/jobs/' + job.jobId, undefined, remaining());
+    console.info('[ZODIAC][HTTP]', 'GET /api/analysis/jobs', next.status, next.body.data ? { status: next.body.data.status, stage: next.body.data.progressStage, errorCode: next.body.data.errorCode } : next.body);
     if (!next.body.ok || !next.body.data) {
+      updateTraceStep(onTrace, 'ai', 'error', next.body.message || next.body.error || '任務狀態讀取失敗');
       throw new Error(next.body.message || next.body.error || '目前無法讀取西洋星座運算狀態。');
     }
     job = next.body.data;
     onJob(job);
+    if (job.progressStage === 'VALIDATING_INPUT') updateTraceStep(onTrace, 'received', 'done', '後端已收到資料');
+    if (job.progressStage === 'RUNNING_ENGINE') {
+      updateTraceStep(onTrace, 'sign', 'done', '星座 Engine 已開始');
+      updateTraceStep(onTrace, 'blood', 'done', input.bloodType || '未提供血型');
+      updateTraceStep(onTrace, 'prompt', 'done', '本次分析 Prompt 已建立');
+      updateTraceStep(onTrace, 'ai', 'running', '正在建立星座分析');
+    }
+    if (job.progressStage === 'BUILDING_RESULT') updateTraceStep(onTrace, 'element', 'running', '正在建立五元素與報告');
   }
 
-  throw new Error('西洋星座分析超過系統保護時間，請稍後再試。');
+  updateTraceStep(onTrace, 'ai', 'error', '15 秒 timeout');
+  throw new Error('分析暫時失敗：系統超過 15 秒沒有完成回應，請重新嘗試。');
 }
 
-function LoadingPanel({ job }: { job: AnalysisJob | null }) {
-  const steps = ['確認出生資料', '判定星座與星盤', '整理 AI 建議'];
-  const current = activeStep(job);
+function LoadingPanel({ job, traceSteps }: { job: AnalysisJob | null; traceSteps: ZodiacTraceStep[] }) {
+  const statusClass: Record<ZodiacTraceStatus, string> = {
+    pending: 'border-white/10 bg-white/[0.04] text-[color:var(--text-muted)]',
+    running: 'border-cyan-200/45 bg-cyan-300/12 text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,0.14)]',
+    done: 'border-emerald-200/40 bg-emerald-300/12 text-emerald-50',
+    error: 'border-rose-300/55 bg-rose-500/12 text-rose-50',
+  };
+  const statusMark: Record<ZodiacTraceStatus, string> = { pending: '○', running: '●', done: '✓', error: '!' };
+
   return (
     <section className="fortune-card border-cyan-300/25 bg-cyan-300/[0.06] p-5" role="status" aria-live="polite" aria-busy="true">
-      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">AI ZODIAC RUNNING</p>
-      <h2 className="mt-3 text-xl font-black text-cyan-50">{job?.message || '西洋星座模組正在獨立運算。'}</h2>
-      <div className="mt-4 grid gap-2">
-        {steps.map((step, index) => (
-          <div key={step} className={`rounded-2xl border px-4 py-3 text-sm font-black ${index <= current ? 'border-cyan-200/40 bg-cyan-300/12 text-cyan-50' : 'border-white/10 bg-white/[0.04] text-[color:var(--text-muted)]'}`}>
-            {index + 1}. {step}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">AI ZODIAC DEBUG TRACE</p>
+          <h2 className="mt-3 text-xl font-black text-cyan-50">{job?.message || '西洋星座分析流程已啟動。'}</h2>
+        </div>
+        <p className="text-xs font-semibold text-[color:var(--text-sub)]">15 秒保護 / {job?.progressStage || 'READY'}</p>
+      </div>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        {traceSteps.map((step, index) => (
+          <div key={step.id} className={`rounded-2xl border px-4 py-3 text-sm font-black ${statusClass[step.status]}`}>
+            <div className="flex items-center justify-between gap-3">
+              <span>{index + 1}. {step.label}</span>
+              <span className="text-xs">{statusMark[step.status]}</span>
+            </div>
+            {step.detail && <p className="mt-1 text-xs font-semibold leading-5 opacity-80">{step.detail}</p>}
           </div>
         ))}
       </div>
     </section>
   );
 }
-
 function SignBadge({ label, sign }: { label: string; sign: ZodiacSignSummary }) {
   return (
     <div className="rounded-2xl border border-fuchsia-300/20 bg-fuchsia-300/8 px-4 py-3">
@@ -276,6 +368,7 @@ export default function ZodiacPage() {
   const [birthTimeMode, setBirthTimeMode] = useState<BirthTimeMode>(null);
   const [citySearch, setCitySearch] = useState('');
   const [job, setJob] = useState<AnalysisJob | null>(null);
+  const [traceSteps, setTraceSteps] = useState<ZodiacTraceStep[]>(createTraceSteps);
   const [result, setResult] = useState<ZodiacResult | null>(null);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -295,6 +388,10 @@ export default function ZodiacPage() {
       progressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [submitting, result]);
+
+  const updateTrace = (stepId: ZodiacTraceStepId, status: ZodiacTraceStatus, detail?: string) => {
+    setTraceSteps((current) => current.map((step) => step.id === stepId ? { ...step, status, detail } : step));
+  };
 
   const missingIdentity = Boolean(error) && !getAnalysisIdentityTarget();
   const cityResults = useMemo(() => searchCities(citySearch), [citySearch]);
@@ -325,9 +422,11 @@ export default function ZodiacPage() {
     setError('');
     setResult(null);
     setJob(null);
+    setTraceSteps(createTraceSteps());
     setShowMissingFields(true);
 
-    if (!getAnalysisIdentityTarget()) {
+    const analysisTarget = getAnalysisIdentityTarget();
+    if (!analysisTarget) {
       setError(getIdentityRequiredMessage());
       return;
     }
@@ -345,17 +444,24 @@ export default function ZodiacPage() {
 
     setSubmitting(true);
     try {
-      const data = await requestZodiacAnalysis({ name: form.name, birthDate: form.birthDate, birthTime, birthCityId, bloodType: form.bloodType }, setJob);
+      const data = await requestZodiacAnalysis({ name: form.name, birthDate: form.birthDate, birthTime, birthCityId, bloodType: form.bloodType, analysisTarget }, setJob, updateTrace);
       setResult(data);
       setDailyRecord(saveDailyAnalysis<ZodiacResult>('zodiac', data));
-      markGrowthModuleCompleted('zodiac', data.fiveElement?.brandElement);
-      saveBirthProfile({
-        birthDate: form.birthDate,
-        birthTime,
-        birthCityId,
-        birthTimezone: birthCityId ? findCityById(birthCityId)?.timezone ?? null : null,
-      });
+      if (analysisTarget === 'self') {
+        markGrowthModuleCompleted('zodiac', data.fiveElement?.brandElement);
+        saveBirthProfile({
+          birthDate: form.birthDate,
+          birthTime,
+          birthCityId,
+          birthTimezone: birthCityId ? findCityById(birthCityId)?.timezone ?? null : null,
+        });
+        updateTrace('write', 'done', 'SELF：已寫入會員、AI 成長中心與 Integration Layer。');
+      } else {
+        updateTrace('write', 'done', 'OTHER：只保留本次單次分析，不寫入會員資料。');
+      }
     } catch (caught) {
+      console.error('[ZODIAC][ERROR]', caught);
+      updateTrace('done', 'error', caught instanceof Error ? caught.message : '分析失敗');
       setError(caught instanceof Error ? caught.message : '目前無法完成西洋星座分析。');
     } finally {
       setSubmitting(false);
@@ -368,6 +474,7 @@ export default function ZodiacPage() {
     setCitySearch('');
     setResult(null);
     setJob(null);
+    setTraceSteps(createTraceSteps());
     setError('');
     setShowMissingFields(false);
   };
@@ -580,7 +687,7 @@ export default function ZodiacPage() {
         )}
 
         <div ref={progressRef} className="scroll-mt-6">
-          {submitting && <div className="mt-5"><LoadingPanel job={job} /></div>}
+          {submitting && <div className="mt-5"><LoadingPanel job={job} traceSteps={traceSteps} /></div>}
           {result && !submitting && <ResultPanel result={result} onReset={resetForm} />}
         </div>
       </main>

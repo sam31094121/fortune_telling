@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import LunarBirthdayInput from './LunarBirthdayInput';
 import FriendlyChoiceCard from './FriendlyChoiceCard';
-import VoiceConsentRecorder, { type AiVoiceGender, type VoiceConsentState } from './VoiceConsentRecorder';
+import type { VoiceConsentState } from './VoiceConsentRecorder';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { getAnalysisIdentityTarget } from '@/lib/identity-split-client';
@@ -45,11 +45,11 @@ interface PersonalityMusicFlowProps {
 
 const BLOOD_TYPES: BloodType[] = ['A', 'B', 'AB', 'O'];
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { gender: false };
-const DATA_FIELD_ORDER: DataField[] = ['voice', 'birthDate', 'bloodType', 'name', 'gender', 'shichen'];
+const DATA_FIELD_ORDER: DataField[] = ['birthDate', 'bloodType', 'name', 'gender', 'shichen'];
 const LAST_DATA_FIELD = DATA_FIELD_ORDER[DATA_FIELD_ORDER.length - 1];
 
 const DATA_FIELD_LABELS: Record<DataField, { label: string; hint: string }> = {
-  voice: { label: '選擇聲音來源', hint: '決定要錄自己的聲音，或直接使用 AI 聲音。聲音只用來校準歌曲語氣。' },
+  voice: { label: 'AI 自動聲音', hint: 'AI 會自動選擇合適聲線，不需要錄音、不需要麥克風權限。' },
   birthDate: { label: '填寫生日', hint: '生日會成為歌曲的命盤底色，AI 會讀取年代、生肖與五元素節奏。' },
   bloodType: { label: '點選血型', hint: '血型會協助 AI 判定情緒速度、表達方式與副歌推進感。' },
   name: { label: '填寫姓名', hint: '姓名會成為歌曲主角，讓歌詞更像在對這個人說話。' },
@@ -108,10 +108,23 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     preferredSongLanguage: 'mandarin',
     songEnergyStyle: 'dance-pop',
     voiceConsent: {
-      accepted: false,
+      accepted: true,
       version: 'voice-song-consent-v1',
       confirmedOwnVoice: false,
-      allowSongGeneration: false,
+      allowSongGeneration: true,
+      recordedAt: new Date().toISOString(),
+      sample: {
+        durationSeconds: 0,
+        averageVolume: 0.06,
+        dynamicRange: 0.08,
+        brightness: 0.5,
+        tempoPulse: 0.56,
+        qualityScore: 100,
+        inferredCharacteristics: ['ai_voice_direct', 'ai_voice_auto', 'life_song_vocal'],
+        recordedAt: new Date().toISOString(),
+        mimeType: 'application/x-ai-voice-direct',
+        localOnly: true,
+      },
     },
   });
   const [selectionConfirm, setSelectionConfirm] = useState<SelectionConfirm>(EMPTY_SELECTION_CONFIRM);
@@ -128,7 +141,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     shichen: null,
   });
   const [missingField, setMissingField] = useState<MissingField | null>(null);
-  const [activeDataField, setActiveDataField] = useState<DataField>('voice');
+  const [activeDataField, setActiveDataField] = useState<DataField>('birthDate');
 
   useEffect(() => {
     const saved = loadUserData();
@@ -196,7 +209,6 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   }
 
   function validateDataField(field: DataField): ValidationResult | null {
-    if (field === 'voice' && !form.voiceConsent.sample) return { field: 'voice', message: '請先選擇聲音來源：要錄音請點「開始錄音」，不錄音可直接選 AI 聲音。' };
     if (field === 'birthDate' && !form.birthDate) return { field: 'birthDate', message: '請先完成生日資料，AI 需要它來建立命理底色。' };
     if (field === 'bloodType' && !form.bloodType) return { field: 'bloodType', message: '請點選血型，這會協助歌曲情緒與節奏校準。' };
     if (field === 'name' && form.name.trim().length < 2) return { field: 'name', message: '請填寫姓名，至少 2 個字。' };
@@ -278,18 +290,16 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   const showMissingName = missingField === 'name' && step === 2 && (form.name.trim().length < 2 || form.name.trim().length > 20);
   const showMissingGender = missingField === 'gender' && step === 2 && !selectionConfirm.gender;
   const showMissingShichen = missingField === 'shichen' && step === 2 && form.shichen === null;
-  const showMissingVoice = missingField === 'voice' && step === 2 && activeDataField === 'voice' && !form.voiceConsent.sample;
 
   const currentDataIndex = DATA_FIELD_ORDER.indexOf(activeDataField);
   const currentDataMeta = DATA_FIELD_LABELS[activeDataField];
-  const canGoBack = step > 0 || (step === 2 && activeDataField !== 'voice');
+  const canGoBack = step > 0 || (step === 2 && activeDataField !== 'birthDate');
 
   function getPrimaryButtonLabel() {
     if (loading) return 'AI 正在理解、分析並創作歌曲...';
     if (step === 0) return '下一步：選擇歌曲風格';
     if (step === 1) return '下一步：統整命理資料';
     if (step === 2) {
-      if (activeDataField === 'voice') return '下一步：填寫生日';
       if (activeDataField === 'birthDate') return '下一步：點選血型';
       if (activeDataField === 'bloodType') return '下一步：填寫姓名';
       if (activeDataField === 'name') return '下一步：點選性別';
@@ -316,7 +326,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   const stepHint = step === 0
     ? '先讓 AI 理解這首歌的使命。歌曲不是娛樂，而是鼓勵、療癒、補強與陪伴。'
     : step === 1
-      ? '選擇一種主要風格，AI 會再依命理、五元素與聲音資料微調。'
+      ? '選擇一種主要風格，AI 會再依命理、五元素與補強方向微調。'
       : step === 2
         ? currentDataMeta.hint
         : 'AI 將整合會員資料、命理資料、五元素與補強方向，建立歌曲世界觀、主題、情境、歌名、歌詞與製作計畫。';
@@ -389,40 +399,6 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
               />
             ))}
           </div>
-        </div>
-      )}
-
-      {step === 2 && activeDataField === 'voice' && (
-        <div ref={(node) => { fieldRefs.current.voice = node; }} className={`music-required-field music-direct-recorder-dock music-direct-recorder-dock--first ${showMissingVoice ? 'music-required-field--missing' : ''}`} aria-label="聲音來源選擇">
-          {form.voiceConsent.sample ? (
-            <div className="music-voice-selected-note">
-              <strong>聲音來源已完成</strong>
-              <span>AI 已記錄聲音方式，接下來會把它與命理資料一起統整。</span>
-            </div>
-          ) : (
-            <>
-              <div className="music-direct-recorder-dock__title">
-                <strong>聲音來源</strong>
-                <span>錄自己的聲音，或直接使用 AI 聲音。這一步是歌曲語氣校準，不是直接生成。</span>
-              </div>
-              <VoiceConsentRecorder
-                value={form.voiceConsent}
-                disabled={loading}
-                required
-                showMissing={showMissingVoice}
-                aiVoiceGender={form.vocalGenderPreference}
-                onAiVoiceGenderChange={(gender: AiVoiceGender) => {
-                  setForm((prev) => ({ ...prev, vocalGenderPreference: gender }));
-                  clearValidation();
-                }}
-                onChange={(voiceConsent) => {
-                  setForm((prev) => ({ ...prev, voiceConsent }));
-                  clearValidation();
-                  if (voiceConsent.sample) scrollToField('birthDate');
-                }}
-              />
-            </>
-          )}
         </div>
       )}
 
@@ -560,7 +536,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
             </div>
             <div className="music-generate-ready-note">
               <strong>AI 將讀取並統整</strong>
-              <span>目標：{GOAL_OPTIONS.find((item) => item.key === form.lifeGoal)?.label}。風格：{STYLE_OPTIONS.find((item) => item.key === form.songCreativeStyle)?.label}。資料：會員/親友模式、生日、血型、姓名、性別、時辰、聲音來源、五元素與補強方向。</span>
+              <span>目標：{GOAL_OPTIONS.find((item) => item.key === form.lifeGoal)?.label}。風格：{STYLE_OPTIONS.find((item) => item.key === form.songCreativeStyle)?.label}。資料：會員/親友模式、生日、血型、姓名、性別、時辰、AI 自動聲音、五元素與補強方向。</span>
             </div>
 
             <div className="border-t border-white/10 pt-4">

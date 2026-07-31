@@ -136,6 +136,17 @@ interface VoiceProfile {
   };
 }
 
+interface LifeSongContext {
+  targetMode: 'self' | 'guest' | null;
+  goal: string;
+  goalNote: string;
+  creativeStyle: string;
+  growthSummary: string;
+  worldView: string;
+  theme: string;
+  scene: string;
+}
+
 interface PersonalityMusicReportProps {
   personalityMatrix: PersonalityMatrix;
   musicParameters: MusicParameters;
@@ -148,6 +159,7 @@ interface PersonalityMusicReportProps {
   productionPlan?: ProductionPlan;
   fusionSong?: FusionSong;
   voiceProfile?: VoiceProfile;
+  lifeSongContext?: LifeSongContext;
   name: string;
   onReset: () => void;
 }
@@ -1509,6 +1521,7 @@ export default function PersonalityMusicReport({
   productionPlan,
   fusionSong,
   voiceProfile,
+  lifeSongContext,
   name,
   onReset,
 }: PersonalityMusicReportProps) {
@@ -1551,6 +1564,24 @@ export default function PersonalityMusicReport({
             {simplifyClientText(musicReport.lyric_opening)}
           </p>
           <p className="mt-5 text-sm leading-9 text-[color:var(--text-sub)]">{simplifyClientText(musicReport.music_narrative)}</p>
+
+          {lifeSongContext && (
+            <div className="mt-6 rounded-[22px] border border-amber-300/20 bg-amber-300/[0.07] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-200">AI 生命歌曲任務</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+                  <p className="text-[11px] font-bold text-[color:var(--text-muted)]">目前目標</p>
+                  <p className="mt-1 text-sm font-black text-amber-100">{lifeSongContext.goal}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+                  <p className="text-[11px] font-bold text-[color:var(--text-muted)]">創作風格</p>
+                  <p className="mt-1 text-sm font-black text-cyan-100">{lifeSongContext.creativeStyle}</p>
+                </div>
+              </div>
+              <p className="mt-4 text-sm leading-7 text-[color:var(--text-sub)]">{lifeSongContext.worldView}</p>
+              <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">{lifeSongContext.growthSummary}</p>
+            </div>
+          )}
 
           {/* 📊 大數據統計學知名男女歌手指標面板 */}
           {showAdvancedDetails && (musicReport.famous_singers_mandarin || musicReport.famous_singers_english || musicReport.famous_singers_taiwanese) && (

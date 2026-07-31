@@ -34,6 +34,8 @@ const VALID_BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const VALID_GENDERS = ['male', 'female'] as const;
 const VALID_SONG_LANGUAGES = ['mandarin', 'english', 'taiwanese'] as const;
 const VALID_SONG_ENERGY_STYLES = ['dance-pop', 'emotional-pop', 'club-edm'] as const;
+const VALID_LIFE_SONG_GOALS = ['dream', 'work', 'love', 'family', 'health', 'wealth', 'healing', 'relax'] as const;
+const VALID_SONG_CREATIVE_STYLES = ['pop', 'piano', 'healing', 'ancient', 'rock', 'electronic', 'jazz', 'cinematic'] as const;
 const AI_VOICE_DIRECT_MIME = 'application/x-ai-voice-direct';
 
 // ?蹇???umber(0??1 ??啾???=?貔??unknown'/null=??貔?????????剝３???蹇?
@@ -41,6 +43,10 @@ type ShichenChoice = number | 'unknown' | null;
 type VocalGenderPreference = 'male' | 'female' | null;
 type PreferredSongLanguage = 'mandarin' | 'english' | 'taiwanese';
 type SongEnergyStyle = (typeof VALID_SONG_ENERGY_STYLES)[number];
+type LifeSongGoal = (typeof VALID_LIFE_SONG_GOALS)[number];
+type SongCreativeStyle = (typeof VALID_SONG_CREATIVE_STYLES)[number];
+type AnalysisTargetMode = 'self' | 'guest' | null;
+type GrowthContextPayload = { completedModules?: string[]; elements?: Record<string, string> } | null;
 
 interface VoiceSampleSummary {
   durationSeconds: number;
@@ -65,7 +71,13 @@ interface VoiceConsentPayload {
 }
 
 interface MusicGenerateRequest {
+  lifeGoal?: LifeSongGoal;
+  lifeGoalNote?: string;
+  songCreativeStyle?: SongCreativeStyle;
+  analysisTarget?: AnalysisTargetMode;
+  growthContext?: GrowthContextPayload;
   birthDate: string;
+
   bloodType: 'A' | 'B' | 'AB' | 'O';
   name: string;
   gender: 'male' | 'female';
@@ -77,6 +89,59 @@ interface MusicGenerateRequest {
   voiceConsent?: VoiceConsentPayload;
 }
 
+interface LifeSongContext {
+  targetMode: 'self' | 'guest' | null;
+  goal: string;
+  goalNote: string;
+  creativeStyle: string;
+  growthSummary: string;
+  worldView: string;
+  theme: string;
+  scene: string;
+}
+
+const LIFE_SONG_GOAL_LABELS: Record<LifeSongGoal, string> = {
+  dream: '夢想',
+  work: '工作',
+  love: '愛情',
+  family: '家庭',
+  health: '健康',
+  wealth: '財富',
+  healing: '療癒',
+  relax: '放鬆',
+};
+
+const SONG_CREATIVE_STYLE_LABELS: Record<SongCreativeStyle, string> = {
+  pop: '流行',
+  piano: '鋼琴',
+  healing: '療癒',
+  ancient: '古風',
+  rock: '搖滾',
+  electronic: '電子',
+  jazz: '爵士',
+  cinematic: '電影配樂',
+};
+
+function normalizeLifeSongContext(input: { lifeGoal?: LifeSongGoal; lifeGoalNote?: string; songCreativeStyle?: SongCreativeStyle; analysisTarget?: AnalysisTargetMode; growthContext?: GrowthContextPayload }): LifeSongContext {
+  const goal = input.lifeGoal ? LIFE_SONG_GOAL_LABELS[input.lifeGoal] : '療癒';
+  const creativeStyle = input.songCreativeStyle ? SONG_CREATIVE_STYLE_LABELS[input.songCreativeStyle] : '流行';
+  const targetMode = input.analysisTarget === 'self' ? 'self' : input.analysisTarget === 'guest' ? 'guest' : null;
+  const goalNote = typeof input.lifeGoalNote === 'string' ? input.lifeGoalNote.trim().slice(0, 120) : '';
+  const completedModules = targetMode === 'self' && Array.isArray(input.growthContext?.completedModules) ? input.growthContext.completedModules.filter((item): item is string => typeof item === 'string').slice(0, 8) : [];
+  const elements = targetMode === 'self' && input.growthContext?.elements && typeof input.growthContext.elements === 'object' ? Object.entries(input.growthContext.elements).filter(([, value]) => typeof value === 'string').map(([module, element]) => `${module}:${element}`).slice(0, 8) : [];
+  const growthSummary = targetMode === 'self' ? `成長中心已完成 ${completedModules.length} 個模組；元素紀錄 ${elements.join('、') || '尚未累積'}。` : '親朋好友模式：只做本次歌曲分析，不讀取會員長期成長資料。';
+  return {
+    targetMode,
+    goal,
+    goalNote,
+    creativeStyle,
+    growthSummary,
+    worldView: `以「${goal}」作為生命章節，把命理底色、五元素補強與${creativeStyle}聲景整合成一個專屬歌曲世界。`,
+    theme: goalNote ? `${goal}：${goalNote}` : `${goal}補強與自我陪伴`,
+    scene: `使用者站在目前人生階段的轉折點，AI 以${creativeStyle}方式陪他把方向唱清楚。`,
+  };
+}
+
 function isStringArray(value: unknown, maxLength = 10, maxItemLength = 48): value is string[] {
   return Array.isArray(value) && value.length <= maxLength && value.every((item) => typeof item === 'string' && item.length <= maxItemLength);
 }
@@ -86,29 +151,46 @@ function isAiVoiceDirectSample(sample?: VoiceSampleSummary) {
 }
 
 function validateVoiceConsent(payload: unknown): string | null {
-  if (payload === undefined || payload === null) return '\u8acb\u9078\u64c7\u9304\u97f3\u6216 AI \u8072\u97f3\u751f\u6210\u3002';
-  if (typeof payload !== 'object') return '\u8072\u97f3\u751f\u6210\u8cc7\u6599\u683c\u5f0f\u7121\u6548\u3002';
+  if (payload === undefined || payload === null) return null;
+  if (typeof payload !== 'object') return 'AI 聲音生成資料格式無效。';
   const consent = payload as Partial<VoiceConsentPayload>;
-  const aiVoiceDirect = isAiVoiceDirectSample(consent.sample);
-
-  if (typeof consent.accepted !== 'boolean') return '\u8072\u97f3\u751f\u6210\u72c0\u614b\u683c\u5f0f\u7121\u6548\u3002';
-  if (!consent.accepted) return '\u8acb\u9078\u64c7\u9304\u97f3\u6216 AI \u8072\u97f3\u751f\u6210\u3002';
-  if (consent.allowSongGeneration !== true) return '\u8acb\u5148\u5141\u8a31\u672c\u6b21 AI \u6b4c\u66f2\u751f\u6210\u3002';
-  if (!aiVoiceDirect && consent.confirmedOwnVoice !== true) {
-    return '\u8acb\u5148\u5b8c\u6210\u9304\u97f3\uff0c\u6216\u76f4\u63a5\u9078\u64c7 AI \u8072\u97f3\u751f\u6210\u3002';
-  }
-
-  if (consent.version !== 'voice-song-consent-v1') return '\u8072\u97f3\u751f\u6210\u8cc7\u6599\u9700\u8981\u91cd\u65b0\u78ba\u8a8d\u3002';
-  if (!consent.sample) return '\u8acb\u9078\u64c7\u9304\u97f3\u6216 AI \u8072\u97f3\u751f\u6210\u3002';
+  if (!consent.sample) return null;
 
   const sample = consent.sample;
-  const minDuration = aiVoiceDirect ? 0 : 1;
-  if (!Number.isFinite(sample.durationSeconds) || sample.durationSeconds < minDuration || sample.durationSeconds > 60) {
-    return aiVoiceDirect ? 'AI \u8072\u97f3\u8a2d\u5b9a\u683c\u5f0f\u7121\u6548\u3002' : '\u9304\u97f3\u79d2\u6578\u683c\u5f0f\u7121\u6548\uff0c\u5efa\u8b70\u9304 10 \u5230 20 \u79d2\u3002';
+  const aiVoiceDirect = isAiVoiceDirectSample(sample);
+  if (!aiVoiceDirect && consent.confirmedOwnVoice === true) {
+    return '本版本已取消使用者錄音，請改用 AI 自動聲音生成。';
   }
-  if (!Number.isFinite(sample.qualityScore) || sample.qualityScore < 0 || sample.qualityScore > 100) return '\u8072\u97f3\u6e05\u6670\u5ea6\u683c\u5f0f\u7121\u6548\u3002';
-  if (!isStringArray(sample.inferredCharacteristics, 12, 48)) return '\u8072\u97f3\u8a2d\u5b9a\u683c\u5f0f\u7121\u6548\u3002';
+  if (!Number.isFinite(sample.durationSeconds) || sample.durationSeconds < 0 || sample.durationSeconds > 60) {
+    return 'AI 聲音設定格式無效。';
+  }
+  if (!Number.isFinite(sample.qualityScore) || sample.qualityScore < 0 || sample.qualityScore > 100) return 'AI 聲音清晰度格式無效。';
+  if (!isStringArray(sample.inferredCharacteristics, 12, 48)) return 'AI 聲音設定格式無效。';
+
   return null;
+}
+
+function buildDefaultAiVoiceConsent(): VoiceConsentPayload {
+  const recordedAt = new Date().toISOString();
+  return {
+    accepted: true,
+    version: 'voice-song-consent-v1',
+    confirmedOwnVoice: false,
+    allowSongGeneration: true,
+    recordedAt,
+    sample: {
+      durationSeconds: 0,
+      averageVolume: 0.06,
+      dynamicRange: 0.08,
+      brightness: 0.5,
+      tempoPulse: 0.56,
+      qualityScore: 100,
+      inferredCharacteristics: ['ai_voice_direct', 'ai_voice_auto', 'life_song_vocal'],
+      recordedAt,
+      mimeType: AI_VOICE_DIRECT_MIME,
+      localOnly: true,
+    },
+  };
 }
 
 function isVoicePermissionFallback(sample?: VoiceSampleSummary) {
@@ -157,58 +239,38 @@ function applySongEnergyStyle<T extends { bpm: number; genre: string; mood: stri
 }
 
 function normalizeVoiceConsent(payload?: VoiceConsentPayload) {
-  const requestedSample = payload?.sample;
-  const aiVoiceDirect = Boolean(payload?.accepted && payload.allowSongGeneration && isAiVoiceDirectSample(requestedSample));
-  const ownVoiceAuthorized = Boolean(payload?.accepted && payload.confirmedOwnVoice && payload.allowSongGeneration);
-  const authorized = ownVoiceAuthorized || aiVoiceDirect;
-  const sample = authorized ? requestedSample : undefined;
-  const inferredCharacteristics = sample?.inferredCharacteristics?.filter((item) => typeof item === 'string') ?? [];
-  const permissionFallback = Boolean(ownVoiceAuthorized && sample && isVoicePermissionFallback(sample));
-  const recorded = Boolean(ownVoiceAuthorized && sample && !permissionFallback && !aiVoiceDirect);
+  const effectivePayload = payload?.accepted && payload.allowSongGeneration && isAiVoiceDirectSample(payload.sample)
+    ? payload
+    : buildDefaultAiVoiceConsent();
+  const sample = effectivePayload.sample!;
+  const inferredCharacteristics = Array.from(new Set([
+    ...(sample.inferredCharacteristics?.filter((item) => typeof item === 'string') ?? []),
+    'ai_voice_direct',
+    'ai_voice_auto',
+  ])).slice(0, 12);
   const aiVoiceGender = inferredCharacteristics.includes('ai_voice_male') ? 'male' : inferredCharacteristics.includes('ai_voice_female') ? 'female' : null;
 
   return {
-    authorized,
-    recorded,
+    authorized: true,
+    recorded: false,
     inferredCharacteristics,
-    cacheKey: recorded
-      ? [
-          'voice-v1',
-          Math.round(sample!.durationSeconds),
-          Math.round(sample!.qualityScore),
-          Math.round(sample!.averageVolume * 1000),
-          Math.round(sample!.brightness * 1000),
-          inferredCharacteristics.join('|'),
-        ].join(':')
-      : aiVoiceDirect
-        ? ['ai-voice-v1', aiVoiceGender ?? 'auto', inferredCharacteristics.join('|')].join(':')
-        : authorized
-          ? 'voice-consent-only'
-          : 'voice-none',
+    cacheKey: ['ai-voice-v2', aiVoiceGender ?? 'auto', inferredCharacteristics.join('|')].join(':'),
     profile: {
-      workflowStatus: recorded ? 'VOICE_SUMMARY_READY' : aiVoiceDirect ? 'AI_VOICE_READY' : permissionFallback ? 'VOICE_PERMISSION_FALLBACK_READY' : authorized ? 'VOICE_RECORDING_REQUIRED' : 'VOICE_CONSENT_REQUIRED',
-      consentAccepted: authorized,
-      recorded,
+      workflowStatus: 'AI_VOICE_READY',
+      consentAccepted: true,
+      recorded: false,
       localOnly: true,
-      sample: sample
-        ? {
-            durationSeconds: sample.durationSeconds,
-            qualityScore: sample.qualityScore,
-            averageVolume: sample.averageVolume,
-            dynamicRange: sample.dynamicRange,
-            brightness: sample.brightness,
-            tempoPulse: sample.tempoPulse,
-            inferredCharacteristics,
-            recordedAt: sample.recordedAt,
-          }
-        : null,
-      selfDialogueConcept: recorded
-        ? '\u5df2\u7528\u672c\u4eba\u6388\u6b0a\u9304\u97f3\u6458\u8981\u6821\u6e96\u6b4c\u66f2\u7684\u4eba\u8072\u7bc0\u594f\u3001\u60c5\u7dd2\u5f35\u529b\u8207\u81ea\u6211\u5c0d\u8a71\u5c64\u6b21\uff1b\u9019\u662f\u8072\u97f3\u6458\u8981\u904b\u7b97\uff0c\u4e0d\u662f\u8072\u97f3\u8907\u88fd\u6216\u8072\u7dda\u514b\u9686\u3002'
-        : aiVoiceDirect
-          ? '\u5df2\u6539\u7528 AI ' + (aiVoiceGender === 'male' ? '\u7537\u8072' : '\u5973\u8072') + '\u751f\u6210\uff0c\u4e0d\u9700\u8981\u9ea5\u514b\u98a8\uff0c\u4e5f\u4e0d\u6703\u8072\u7a31\u4f7f\u7528\u672c\u4eba\u9304\u97f3\u3002'
-          : authorized
-            ? '\u5df2\u53d6\u5f97\u6b4c\u66f2\u751f\u6210\u6388\u6b0a\uff0c\u4f46\u5c1a\u672a\u5b8c\u6210\u9304\u97f3\uff1b\u53ef\u6539\u7528 AI \u8072\u97f3\u7e7c\u7e8c\u751f\u6210\u3002'
-            : '\u5c1a\u672a\u9078\u64c7\u8072\u97f3\u751f\u6210\u65b9\u5f0f\u3002',
+      sample: {
+        durationSeconds: sample.durationSeconds,
+        qualityScore: sample.qualityScore,
+        averageVolume: sample.averageVolume,
+        dynamicRange: sample.dynamicRange,
+        brightness: sample.brightness,
+        tempoPulse: sample.tempoPulse,
+        inferredCharacteristics,
+        recordedAt: sample.recordedAt,
+      },
+      selfDialogueConcept: 'AI 已自動建立演唱聲線，不需要使用者錄音、不需要麥克風權限；歌曲會依命理資料、五元素與本次目標自動生成歌詞、曲風、節奏與 AI 演唱。',
     },
   };
 }
@@ -244,6 +306,22 @@ function validate(body: unknown): string | null {
     return '\u8072\u97f3\u7279\u5fb5\u8cc7\u6599\u683c\u5f0f\u7121\u6548\u3002';
   }
 
+
+  if (payload.lifeGoal !== undefined && !VALID_LIFE_SONG_GOALS.includes(payload.lifeGoal as LifeSongGoal)) {
+    return '生命歌曲目標格式無效。';
+  }
+
+  if (payload.lifeGoalNote !== undefined && (typeof payload.lifeGoalNote !== 'string' || payload.lifeGoalNote.length > 120)) {
+    return '生命歌曲補充內容不可超過 120 字。';
+  }
+
+  if (payload.songCreativeStyle !== undefined && !VALID_SONG_CREATIVE_STYLES.includes(payload.songCreativeStyle as SongCreativeStyle)) {
+    return '生命歌曲風格格式無效。';
+  }
+
+  if (payload.analysisTarget !== undefined && payload.analysisTarget !== null && payload.analysisTarget !== 'self' && payload.analysisTarget !== 'guest') {
+    return '分析對象格式無效。';
+  }
   const voiceConsentError = validateVoiceConsent(payload.voiceConsent);
   if (voiceConsentError) return voiceConsentError;
 
@@ -340,6 +418,10 @@ export async function POST(request: Request) {
     body.vocalGenderPreference ?? 'auto',
     body.preferredSongLanguage ?? 'mandarin',
     body.songEnergyStyle ?? 'dance-pop',
+    body.lifeGoal ?? 'healing',
+    body.lifeGoalNote ?? '',
+    body.songCreativeStyle ?? 'pop',
+    body.analysisTarget ?? 'guest',
     voiceWorkflowForCache.cacheKey,
   ]);
 
@@ -359,10 +441,23 @@ export async function POST(request: Request) {
       vocalGenderPreference = null,
       preferredSongLanguage = 'mandarin',
       songEnergyStyle = 'dance-pop',
+      lifeGoal = 'healing',
+      lifeGoalNote = '',
+      songCreativeStyle = 'pop',
+      analysisTarget = null,
+      growthContext = null,
       voiceConsent,
     } = body;
     const trimmedName = name.trim();
     const voiceWorkflow = normalizeVoiceConsent(voiceConsent);
+    const lifeSongContext = normalizeLifeSongContext({
+      lifeGoal,
+      lifeGoalNote,
+      songCreativeStyle,
+      analysisTarget,
+      growthContext,
+    });
+
     const finalVoiceCharacteristics = Array.from(new Set([
       ...manualVoiceCharacteristics,
       ...voiceWorkflow.inferredCharacteristics,
@@ -416,6 +511,17 @@ export async function POST(request: Request) {
       ...archetype.lyricThemes.slice(0, 2),
     ]),
   ).slice(0, 8);
+  finalMusicParameters.mood = Array.from(new Set([
+    ...finalMusicParameters.mood,
+    lifeSongContext.goal,
+    lifeSongContext.creativeStyle,
+  ])).slice(0, 8);
+
+  finalMusicParameters.lyric_theme = Array.from(new Set([
+    ...finalMusicParameters.lyric_theme,
+    lifeSongContext.goal,
+    lifeSongContext.theme,
+  ])).slice(0, 8);
   const englishTrack = selectEnglishSong(era, personalityMatrix);
   const mandarinTrack = selectMandarinSongs(era, personalityMatrix, 1)[0];
   const taiwaneseTrack = selectTaiwaneseSong(era, personalityMatrix);
@@ -452,6 +558,7 @@ export async function POST(request: Request) {
     },
     selectedSongs: selectedSongsForAi,
     voiceProfile: voiceWorkflow.profile,
+    lifeSongContext,
   };
   const [musicReport, songDrafts] = await Promise.all([
     generateMusicReport(musicAiInput),
@@ -480,7 +587,7 @@ export async function POST(request: Request) {
   });
 
   const fiveElement = buildMusicFiveElementResult({
-    analysisId: ['music', birthDate, bloodType, gender, shichen ?? 'unknown', songEnergyStyle].join(':'),
+    analysisId: ['music', birthDate, bloodType, gender, shichen ?? 'unknown', songEnergyStyle, lifeGoal, songCreativeStyle].join(':'),
     personalityMatrix: Object.fromEntries(Object.entries(personalityMatrix)) as Record<string, number>,
     dominantWuxing: destinyProfile.dominantWuxing,
     shichenElement: shichenProfile.wuxing,
@@ -492,6 +599,7 @@ export async function POST(request: Request) {
   });
 
     const resultPayload = {
+      life_song_context: lifeSongContext,
       personality_matrix: personalityMatrix,
       music_parameters: finalMusicParameters,
       music_report: musicReport,
