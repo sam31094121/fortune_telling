@@ -1,4 +1,48 @@
-﻿import type { TarotCard, TarotSuit } from '@/features/tarot/types';
+import type { TarotCard, TarotElementWeights, TarotSuit } from '@/features/tarot/types';
+
+type TarotCardSeed = Omit<TarotCard, 'imageUrl' | 'symbolism' | 'elementWeights'> & Partial<Pick<TarotCard, 'symbolism' | 'elementWeights'>>;
+
+const AI_ELEMENTS: Array<keyof TarotElementWeights> = ['AIR', 'SPACE', 'WATER', 'FIRE', 'EARTH'];
+
+const AI_ELEMENT_LABELS: Record<keyof TarotElementWeights, string> = {
+  AIR: '風',
+  SPACE: '空',
+  WATER: '水',
+  FIRE: '火',
+  EARTH: '地',
+};
+
+const MAJOR_ELEMENT_WEIGHTS: TarotElementWeights[] = [
+  { AIR: 22, SPACE: 30, WATER: 18, FIRE: 18, EARTH: 12 },
+  { AIR: 18, SPACE: 24, WATER: 10, FIRE: 34, EARTH: 14 },
+  { AIR: 14, SPACE: 34, WATER: 34, FIRE: 6, EARTH: 12 },
+  { AIR: 10, SPACE: 16, WATER: 28, FIRE: 14, EARTH: 32 },
+  { AIR: 16, SPACE: 16, WATER: 8, FIRE: 22, EARTH: 38 },
+  { AIR: 20, SPACE: 30, WATER: 14, FIRE: 10, EARTH: 26 },
+  { AIR: 20, SPACE: 16, WATER: 34, FIRE: 18, EARTH: 12 },
+  { AIR: 18, SPACE: 12, WATER: 8, FIRE: 42, EARTH: 20 },
+  { AIR: 12, SPACE: 18, WATER: 22, FIRE: 34, EARTH: 14 },
+  { AIR: 26, SPACE: 34, WATER: 16, FIRE: 6, EARTH: 18 },
+  { AIR: 20, SPACE: 36, WATER: 14, FIRE: 16, EARTH: 14 },
+  { AIR: 34, SPACE: 18, WATER: 10, FIRE: 10, EARTH: 28 },
+  { AIR: 16, SPACE: 38, WATER: 24, FIRE: 6, EARTH: 16 },
+  { AIR: 8, SPACE: 30, WATER: 30, FIRE: 10, EARTH: 22 },
+  { AIR: 12, SPACE: 26, WATER: 24, FIRE: 18, EARTH: 20 },
+  { AIR: 18, SPACE: 18, WATER: 12, FIRE: 32, EARTH: 20 },
+  { AIR: 20, SPACE: 22, WATER: 10, FIRE: 30, EARTH: 18 },
+  { AIR: 18, SPACE: 34, WATER: 26, FIRE: 12, EARTH: 10 },
+  { AIR: 14, SPACE: 30, WATER: 38, FIRE: 6, EARTH: 12 },
+  { AIR: 18, SPACE: 14, WATER: 12, FIRE: 42, EARTH: 14 },
+  { AIR: 22, SPACE: 34, WATER: 18, FIRE: 10, EARTH: 16 },
+  { AIR: 18, SPACE: 32, WATER: 18, FIRE: 14, EARTH: 18 },
+];
+
+const SUIT_ELEMENT_WEIGHTS: Record<TarotSuit, TarotElementWeights> = {
+  wands: { AIR: 18, SPACE: 10, WATER: 8, FIRE: 44, EARTH: 20 },
+  cups: { AIR: 10, SPACE: 18, WATER: 46, FIRE: 8, EARTH: 18 },
+  swords: { AIR: 46, SPACE: 18, WATER: 8, FIRE: 18, EARTH: 10 },
+  pentacles: { AIR: 10, SPACE: 10, WATER: 16, FIRE: 16, EARTH: 48 },
+};
 
 const SUIT_ZH: Record<TarotSuit, string> = {
   wands: '權杖',
@@ -69,7 +113,7 @@ const RANKS = [
   { key: 'king', zh: '國王', en: 'King', n: 14, upright: '主導與承擔是焦點，適合用穩定的規則推動局面。', reversed: '控制感可能過強或責任分配不清，需要調整權責邊界。', keywords: ['主導', '承擔'] },
 ] as const;
 
-const MAJOR_CARDS: Array<Omit<TarotCard, 'imageUrl'>> = [
+const MAJOR_CARDS: TarotCardSeed[] = [
   { id: 'major-fool', number: 0, nameZh: '愚者', nameEn: 'The Fool', arcana: 'major', uprightKeywords: ['開始', '信任', '探索'], reversedKeywords: ['魯莽', '遲疑', '準備不足'], uprightMeaning: '愚者象徵新旅程、開放與願意嘗試。它提醒你可以保留好奇，但也要看見腳下的路。', reversedMeaning: '愚者逆位提醒你，現在可能在衝動與退縮之間擺盪。先補足資訊，再決定是否出發。', reflectionPrompt: '如果把結果壓力放小一點，我願意先嘗試哪一步？' },
   { id: 'major-magician', number: 1, nameZh: '魔術師', nameEn: 'The Magician', arcana: 'major', uprightKeywords: ['資源', '意志', '創造'], reversedKeywords: ['分心', '操控', '未整合'], uprightMeaning: '魔術師象徵把手上的資源轉化成行動。它提醒你，工具已在身邊，關鍵是清楚使用。', reversedMeaning: '魔術師逆位提醒你資源可能分散，或表達與真實意圖不一致。先整合再行動。', reflectionPrompt: '我現在手上有哪些資源其實已經足夠支撐第一步？' },
   { id: 'major-high-priestess', number: 2, nameZh: '女祭司', nameEn: 'The High Priestess', arcana: 'major', uprightKeywords: ['直覺', '靜觀', '內在'], reversedKeywords: ['遮蔽', '不信任', '訊息不足'], uprightMeaning: '女祭司象徵安靜觀察與內在智慧。它提醒你，有些答案需要先被聽見，而不是被催促。', reversedMeaning: '女祭司逆位提醒你可能忽略了直覺，或被未說出口的資訊影響判斷。', reflectionPrompt: '我心裡一直知道、但還沒有承認的是什麼？' },
@@ -99,7 +143,29 @@ function svgCardUrl(nameZh: string, nameEn: string, symbol: string, tone: string
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-function withImage(card: Omit<TarotCard, 'imageUrl'>): TarotCard {
+function getDefaultElementWeights(card: TarotCardSeed): TarotElementWeights {
+  if (card.elementWeights) return card.elementWeights;
+  if (card.arcana === 'minor' && card.suit) return SUIT_ELEMENT_WEIGHTS[card.suit];
+  return MAJOR_ELEMENT_WEIGHTS[(card.number ?? 0) % MAJOR_ELEMENT_WEIGHTS.length];
+}
+
+function getDominantElement(weights: TarotElementWeights): keyof TarotElementWeights {
+  return AI_ELEMENTS.reduce<keyof TarotElementWeights>((strongest, element) => weights[element] > weights[strongest] ? element : strongest, 'SPACE');
+}
+
+function getDefaultSymbolism(card: TarotCardSeed): string {
+  if (card.symbolism) return card.symbolism;
+  const weights = getDefaultElementWeights(card);
+  const dominant = getDominantElement(weights);
+  const dominantLabel = AI_ELEMENT_LABELS[dominant];
+  if (card.arcana === 'major') {
+    return `${card.nameZh}屬於大阿爾克那，象徵人生階段、意識轉折與核心課題；本牌提供以${dominantLabel}元素為主的五元素權重，交由 Integration Layer 統一整合。`;
+  }
+  const suitName = card.suit ? SUIT_ZH[card.suit] : '小阿爾克那';
+  return `${card.nameZh}以${suitName}原型呈現日常事件、行動節奏與可調整的現實線索；本牌提供以${dominantLabel}元素為主的五元素權重，交由 Integration Layer 統一整合。`;
+}
+
+function withImage(card: TarotCardSeed): TarotCard {
   const tone = card.arcana === 'major'
     ? '#312e81'
     : card.suit === 'cups'
@@ -110,7 +176,12 @@ function withImage(card: Omit<TarotCard, 'imageUrl'>): TarotCard {
           ? '#14532d'
           : '#7f1d1d';
   const symbol = card.arcana === 'major' ? String(card.number ?? 'A') : SUIT_SYMBOL[card.suit ?? 'wands'];
-  return { ...card, imageUrl: svgCardUrl(card.nameZh, card.nameEn, symbol, tone) };
+  return {
+    ...card,
+    symbolism: getDefaultSymbolism(card),
+    elementWeights: getDefaultElementWeights(card),
+    imageUrl: svgCardUrl(card.nameZh, card.nameEn, symbol, tone),
+  };
 }
 
 function createMinorCards(): TarotCard[] {

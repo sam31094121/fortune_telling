@@ -1,0 +1,27 @@
+{
+  "engineVersion": "tarot-system-v1.0.0",
+  "deckSize": 78,
+  "deckIntegrity": {
+    "total": 78,
+    "major": 22,
+    "minor": 56,
+    "complete": true
+  },
+  "totals": {
+    "shuffles": 1,
+    "readings": 1,
+    "selfReadings": 1,
+    "otherReadings": 0
+  },
+  "orientation": {
+    "upright": 0,
+    "reversed": 1
+  },
+  "categoryCounts": {
+    "growth": 1
+  },
+  "cardCounts": {
+    "minor-pentacles-page": 1
+  },
+  "lastUpdatedAt": "2026-07-31T06:04:12.911Z"
+}

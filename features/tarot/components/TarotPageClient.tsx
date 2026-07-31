@@ -1,42 +1,32 @@
-﻿'use client';
+'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import TarotCardSelection from '@/features/tarot/components/TarotCardSelection';
 import TarotDrawEntry from '@/features/tarot/components/TarotDrawEntry';
 import TarotQuestionFlow from '@/features/tarot/components/TarotQuestionFlow';
 import TarotShuffleAnimation from '@/features/tarot/components/TarotShuffleAnimation';
 import TarotReadingResult from '@/features/tarot/components/TarotReadingResult';
 import TarotReadingHistory from '@/features/tarot/components/TarotReadingHistory';
+import TarotSystemStats from '@/features/tarot/components/TarotSystemStats';
 import { TAROT_CARDS } from '@/features/tarot/data/cards';
 import { useTarotHistory } from '@/features/tarot/hooks/useTarotHistory';
-import { createTarotReadingId, drawTarotCard } from '@/features/tarot/services/draw';
-import { generateTarotInterpretation } from '@/features/tarot/services/interpretation';
+import { recordTarotIntegrationSignal } from '@/features/tarot/services/integration';
+import { requestTarotInterpretation, requestTarotReading, requestTarotShuffle, requestTarotStats, type TarotStatsSnapshot } from '@/features/tarot/services/api';
 import {
   TAROT_FIXED_DISCLAIMER,
   type TarotCard,
+  type TarotDeckCard,
   type TarotFlowStep,
   type TarotInterpretationOutput,
   type TarotReading,
   type TarotReadingContext,
+  type TarotReadingScope,
 } from '@/features/tarot/types';
 
 function getCardByReading(reading: TarotReading | undefined, cardsById: Map<string, TarotCard>) {
   if (!reading) return null;
   return cardsById.get(reading.cardId) ?? null;
-}
-
-function createInterpretation(reading: TarotReading, card: TarotCard): TarotInterpretationOutput {
-  const keywords = reading.orientation === 'upright' ? card.uprightKeywords : card.reversedKeywords;
-  const baseMeaning = reading.orientation === 'upright' ? card.uprightMeaning : card.reversedMeaning;
-  return generateTarotInterpretation({
-    category: reading.category,
-    question: reading.question,
-    cardName: card.nameZh,
-    orientation: reading.orientation,
-    keywords,
-    baseMeaning,
-    reflectionPrompt: card.reflectionPrompt,
-  });
 }
 
 function fallbackInterpretation(card: TarotCard): TarotInterpretationOutput {
@@ -52,10 +42,16 @@ function fallbackInterpretation(card: TarotCard): TarotInterpretationOutput {
 export default function TarotPageClient() {
   const [step, setStep] = useState<TarotFlowStep>('question');
   const [readingContext, setReadingContext] = useState<TarotReadingContext | null>(null);
+  const [readingScope, setReadingScope] = useState<TarotReadingScope>('self');
+  const [deck, setDeck] = useState<TarotDeckCard[]>([]);
+  const [sessionId, setSessionId] = useState('');
   const [reading, setReading] = useState<TarotReading | undefined>();
   const [interpretation, setInterpretation] = useState<TarotInterpretationOutput | null>(null);
+  const [systemStats, setSystemStats] = useState<TarotStatsSnapshot | null>(null);
+  const [statsError, setStatsError] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
+  const [integrationMessage, setIntegrationMessage] = useState('');
   const shuffleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { history, historyError, addReading, deleteReading, clearHistory } = useTarotHistory();
 
@@ -63,58 +59,114 @@ export default function TarotPageClient() {
     if (shuffleTimerRef.current) clearTimeout(shuffleTimerRef.current);
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    requestTarotStats()
+      .then((stats) => {
+        if (!active) return;
+        setSystemStats(stats);
+        setStatsError('');
+      })
+      .catch((caught) => {
+        if (!active) return;
+        setStatsError(caught instanceof Error ? caught.message : '塔羅統計讀取失敗。');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const cardsById = useMemo(() => new Map(TAROT_CARDS.map((card) => [card.id, card])), []);
   const currentCard = getCardByReading(reading, cardsById);
 
   function handleQuestionReady(context: TarotReadingContext) {
     setReadingContext(context);
+    setReadingScope(context.scope);
+    setDeck([]);
+    setSessionId('');
     setReading(undefined);
     setInterpretation(null);
+    setIntegrationMessage('');
     setError('');
     setStep('ready_to_draw');
   }
 
-  function handleStartDraw() {
+  async function handleStartDraw() {
     if (isGenerating || !readingContext) return;
     setError('');
+    setIntegrationMessage('');
     setIsGenerating(true);
     try {
-      const result = drawTarotCard(TAROT_CARDS);
-      const nextReading: TarotReading = {
-        id: createTarotReadingId(),
-        category: readingContext.categoryId,
+      const shuffle = await requestTarotShuffle({
+        categoryId: readingContext.categoryId,
         question: readingContext.question,
-        cardId: result.card.id,
-        orientation: result.orientation,
-        createdAt: new Date().toISOString(),
-      };
-      setReading(nextReading);
-      setInterpretation(createInterpretation(nextReading, result.card));
-      addReading(nextReading);
+        scope: readingScope,
+      });
+      setSessionId(shuffle.sessionId);
+      setDeck(shuffle.visibleDeck);
+      setReading(undefined);
+      setInterpretation(null);
+      setSystemStats((previous) => previous ? {
+        ...previous,
+        deckIntegrity: shuffle.deckIntegrity,
+        deckSize: shuffle.deckSize,
+        totals: { ...previous.totals, shuffles: previous.totals.shuffles + 1 },
+      } : previous);
       setStep('shuffling');
       if (shuffleTimerRef.current) clearTimeout(shuffleTimerRef.current);
       shuffleTimerRef.current = setTimeout(() => {
-        setStep('result');
+        setStep('selecting_card');
         setIsGenerating(false);
         shuffleTimerRef.current = null;
-      }, 1800);
+      }, 1500);
     } catch (caught) {
       setIsGenerating(false);
-      setError(caught instanceof Error ? caught.message : '塔羅牌資料載入失敗，請稍後再試。');
+      setError(caught instanceof Error ? caught.message : '塔羅洗牌後端暫時無法回應。');
     }
   }
 
-  function handleRegenerateInterpretation() {
+  const handleDeckCardSelect = useCallback(async (deckCard: TarotDeckCard) => {
+    if (!sessionId) {
+      setError('洗牌場次不存在，請重新洗牌。');
+      return;
+    }
+    setIsGenerating(true);
+    try {
+      const result = await requestTarotReading({ sessionId, deckKey: deckCard.deckKey });
+      recordTarotIntegrationSignal(result.integrationSignal);
+      setReading(result.reading);
+      setInterpretation(result.interpretation);
+      setSystemStats(result.stats);
+      addReading(result.reading);
+      setIntegrationMessage(result.reading.scope === 'self'
+        ? '本次塔羅已由後端送出 Integration Layer 訊號，可供個人成長中心後續整合使用；未直接修改會員核心五元素。'
+        : '本次塔羅以親友單次分析保存，不會更新會員核心資料。');
+      setError('');
+      setStep('result');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : '後端選牌解讀失敗，請重新洗牌。');
+      setStep('selecting_card');
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [addReading, sessionId]);
+
+  async function handleRegenerateInterpretation() {
     if (!reading || !currentCard) {
       setError('找不到本次牌面資料，請重新抽牌。');
       return;
     }
+    setIsGenerating(true);
     try {
-      setInterpretation(createInterpretation(reading, currentCard));
+      const result = await requestTarotInterpretation({ reading });
+      setInterpretation(result.interpretation);
       setError('');
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : '解讀生成失敗，請稍後再試。');
+      setError(caught instanceof Error ? caught.message : '後端重新解讀失敗，請稍後再試。');
       setInterpretation(fallbackInterpretation(currentCard));
+    } finally {
+      setIsGenerating(false);
     }
   }
 
@@ -122,26 +174,46 @@ export default function TarotPageClient() {
     if (shuffleTimerRef.current) clearTimeout(shuffleTimerRef.current);
     setStep('question');
     setReadingContext(null);
+    setReadingScope('self');
+    setDeck([]);
+    setSessionId('');
     setReading(undefined);
     setInterpretation(null);
     setIsGenerating(false);
+    setIntegrationMessage('');
     setError('');
   }
 
-  function handleViewHistory(item: TarotReading) {
+  async function handleViewHistory(item: TarotReading) {
     const card = cardsById.get(item.cardId);
     if (!card) {
       setError('這筆紀錄的牌面資料已不存在，請刪除後重新抽牌。');
       return;
     }
     if (shuffleTimerRef.current) clearTimeout(shuffleTimerRef.current);
-    setReadingContext({ categoryId: item.category, question: item.question });
-    setReading(item);
-    setInterpretation(createInterpretation(item, card));
-    setIsGenerating(false);
-    setError('');
-    setStep('result');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsGenerating(true);
+    try {
+      const result = await requestTarotInterpretation({ reading: item });
+      setReadingContext({ categoryId: item.category, question: item.question, scope: item.scope });
+      setReadingScope(item.scope);
+      setDeck([]);
+      setSessionId('');
+      setReading(result.reading);
+      setInterpretation(result.interpretation);
+      setIntegrationMessage(item.scope === 'self'
+        ? '這筆歷史紀錄由後端重新解讀，屬於自我分析；不代表曾直接覆蓋會員核心五元素。'
+        : '這筆歷史紀錄由後端重新解讀，屬於親友單次分析，不會更新會員核心資料。');
+      setError('');
+      setStep('result');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : '後端讀取歷史解讀失敗，暫時顯示備用資料。');
+      setReading(item);
+      setInterpretation(fallbackInterpretation(card));
+      setStep('result');
+    } finally {
+      setIsGenerating(false);
+    }
   }
 
   return (
@@ -152,7 +224,7 @@ export default function TarotPageClient() {
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-sky-200">TAROT GUIDE</p>
             <h1 className="mt-2 font-serif text-4xl font-black leading-tight text-[color:var(--text-main)] sm:text-5xl">塔羅指引</h1>
             <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
-              先選擇問題方向，再確認本次問題；塔羅會以固定的分類與問題進入單張牌流程。
+              先默念問題，再由後端塔羅系統洗出牌序；使用者親手從牌背中選牌，AI 只負責解讀與送交 Integration Layer。
             </p>
           </div>
           <Link href="/" className="shrink-0 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-[color:var(--text-sub)] transition hover:border-white/25 hover:text-white">
@@ -168,7 +240,9 @@ export default function TarotPageClient() {
               <TarotDrawEntry
                 categoryId={readingContext.categoryId}
                 question={readingContext.question}
+                scope={readingScope}
                 isGenerating={isGenerating}
+                onScopeChange={setReadingScope}
                 onBack={handleResetQuestion}
                 onStartDraw={handleStartDraw}
               />
@@ -176,29 +250,47 @@ export default function TarotPageClient() {
 
             {step === 'shuffling' && <TarotShuffleAnimation />}
 
+            {step === 'selecting_card' && (
+              <TarotCardSelection
+                deck={deck}
+                cardsById={cardsById}
+                onSelect={handleDeckCardSelect}
+                onShuffleAgain={handleStartDraw}
+              />
+            )}
+
             {step === 'result' && currentCard && interpretation && reading && (
               <TarotReadingResult
                 category={reading.category}
                 question={reading.question}
                 card={currentCard}
                 orientation={reading.orientation}
+                scope={reading.scope}
                 interpretation={interpretation}
+                integrationMessage={integrationMessage}
                 error={error}
                 onRegenerate={handleRegenerateInterpretation}
                 onReset={handleResetQuestion}
               />
             )}
+
+            {error && step !== 'result' && (
+              <p className="rounded-2xl border border-rose-300/25 bg-rose-950/25 p-4 text-sm font-semibold leading-7 text-rose-100">{error}</p>
+            )}
           </div>
 
-          <TarotReadingHistory
-            history={history}
-            cardsById={cardsById}
-            selectedId={reading?.id}
-            error={historyError}
-            onView={handleViewHistory}
-            onDelete={deleteReading}
-            onClear={clearHistory}
-          />
+          <div className="space-y-5">
+            <TarotReadingHistory
+              history={history}
+              cardsById={cardsById}
+              selectedId={reading?.id}
+              error={historyError}
+              onView={handleViewHistory}
+              onDelete={deleteReading}
+              onClear={clearHistory}
+            />
+            <TarotSystemStats stats={systemStats} error={statsError} />
+          </div>
         </div>
       </main>
     </div>

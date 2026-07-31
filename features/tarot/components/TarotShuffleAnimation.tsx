@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 export default function TarotShuffleAnimation() {
   return (
@@ -11,7 +11,7 @@ export default function TarotShuffleAnimation() {
         ))}
       </div>
       <p className="mt-5 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
-        系統正在固定本次單張牌結果，畫面重新渲染不會自行換牌。
+        系統正在整理 78 張牌的牌序與正逆位。下一步會顯示牌背，由你親手選牌，AI 不會代替你抽牌。
       </p>
     </section>
   );

@@ -3,26 +3,41 @@
 import TarotCardReveal from '@/features/tarot/components/TarotCardReveal';
 import {
   TAROT_CATEGORY_LABELS,
+  type TarotAiElement,
   type TarotCard,
   type TarotInterpretationOutput,
   type TarotOrientation,
   type TarotQuestionCategoryId,
+  type TarotReadingScope,
 } from '@/features/tarot/types';
+
+const ELEMENT_LABELS: Record<TarotAiElement, string> = {
+  AIR: '風',
+  SPACE: '空',
+  WATER: '水',
+  FIRE: '火',
+  EARTH: '地',
+};
 
 type TarotReadingResultProps = {
   category: TarotQuestionCategoryId;
   question: string;
   card: TarotCard;
   orientation: TarotOrientation;
+  scope: TarotReadingScope;
   interpretation: TarotInterpretationOutput;
+  integrationMessage?: string;
   error?: string;
   onRegenerate: () => void;
   onReset: () => void;
 };
 
-export default function TarotReadingResult({ category, question, card, orientation, interpretation, error, onRegenerate, onReset }: TarotReadingResultProps) {
+export default function TarotReadingResult({ category, question, card, orientation, scope, interpretation, integrationMessage, error, onRegenerate, onReset }: TarotReadingResultProps) {
   const keywords = orientation === 'upright' ? card.uprightKeywords : card.reversedKeywords;
   const baseMeaning = orientation === 'upright' ? card.uprightMeaning : card.reversedMeaning;
+  const elementEntries = (Object.entries(card.elementWeights) as Array<[TarotAiElement, number]>).sort((a, b) => b[1] - a[1]);
+  const primaryElement = elementEntries[0];
+  const primaryElementLabel = primaryElement ? ELEMENT_LABELS[primaryElement[0]] : '火';
 
   return (
     <section className="space-y-5">
@@ -42,6 +57,9 @@ export default function TarotReadingResult({ category, question, card, orientati
               </span>
               <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-black text-[color:var(--text-sub)]">
                 {card.arcana === 'major' ? '大阿爾克那' : '小阿爾克那'}
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-black text-[color:var(--text-sub)]">
+                {scope === 'self' ? '分析自己' : '分析親友'}
               </span>
             </div>
             <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -65,6 +83,12 @@ export default function TarotReadingResult({ category, question, card, orientati
         </div>
       )}
 
+      {integrationMessage && (
+        <div className="rounded-2xl border border-emerald-300/25 bg-emerald-300/[0.08] p-4 text-sm font-semibold leading-7 text-emerald-50">
+          {integrationMessage}
+        </div>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-2">
         <article className="fortune-card p-5 sm:p-6">
           <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-200">牌面訊息</p>
@@ -78,14 +102,26 @@ export default function TarotReadingResult({ category, question, card, orientati
           <p className="mt-4 text-sm font-semibold leading-8 text-[color:var(--text-sub)]">{interpretation.questionConnection}</p>
         </article>
         <article className="fortune-card p-5 sm:p-6">
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-violet-200">可以先思考</p>
-          <h2 className="mt-3 font-serif text-2xl font-black text-violet-50">反思問題</h2>
-          <p className="mt-4 text-sm font-semibold leading-8 text-[color:var(--text-main)]">{interpretation.reflectionQuestion}</p>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-violet-200">AI ELEMENT DECISION</p>
+          <h2 className="mt-3 font-serif text-2xl font-black text-violet-50">五元素判定</h2>
+          <p className="mt-4 rounded-2xl border border-violet-200/20 bg-violet-300/10 p-4 text-sm font-black leading-8 text-violet-50">AI 已判定：本次第一補強鎖定{primaryElementLabel}元素，先補{primaryElementLabel}，不分散補其他元素。</p><p className="mt-4 text-sm font-semibold leading-8 text-[color:var(--text-sub)]">{card.symbolism}</p>
+          <div className="mt-4 space-y-3">
+            {elementEntries.map(([element, weight]) => (
+              <div key={element} className="grid grid-cols-[2.5rem_1fr_3rem] items-center gap-3 text-xs font-black text-[color:var(--text-sub)]">
+                <span>{ELEMENT_LABELS[element]}</span>
+                <span className="h-2 overflow-hidden rounded-full bg-white/10">
+                  <span className="block h-full rounded-full bg-cyan-200/70" style={{ width: `${Math.max(0, Math.min(100, weight))}%` }} />
+                </span>
+                <span className="text-right">{weight}</span>
+              </div>
+            ))}
+          </div>
         </article>
         <article className="fortune-card p-5 sm:p-6">
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-200">下一步建議</p>
-          <h2 className="mt-3 font-serif text-2xl font-black text-emerald-50">低風險行動</h2>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-200">ACTION ORDER</p>
+          <h2 className="mt-3 font-serif text-2xl font-black text-emerald-50">立即執行</h2>
           <p className="mt-4 text-sm font-semibold leading-8 text-[color:var(--text-main)]">{interpretation.actionSuggestion}</p>
+          <p className="mt-4 rounded-2xl border border-violet-200/15 bg-violet-300/8 p-4 text-sm font-semibold leading-8 text-[color:var(--text-main)]">{interpretation.reflectionQuestion}</p>
         </article>
       </div>
 

@@ -1,4 +1,4 @@
-﻿export type TarotQuestionCategoryId =
+export type TarotQuestionCategoryId =
   | 'love'
   | 'career'
   | 'finance'
@@ -29,9 +29,12 @@ export type TarotQuestionState = {
   error?: string;
 };
 
+export type TarotReadingScope = 'self' | 'other';
+
 export type TarotReadingContext = {
   categoryId: TarotQuestionCategoryId;
   question: string;
+  scope: TarotReadingScope;
 };
 
 export type TarotDirection = 'proceed' | 'prepare' | 'pause' | 'reconsider';
@@ -45,9 +48,11 @@ export type TarotGuidanceResult = {
 };
 
 export type TarotOrientation = 'upright' | 'reversed';
-export type TarotFlowStep = 'question' | 'ready_to_draw' | 'shuffling' | 'result';
+export type TarotFlowStep = 'question' | 'ready_to_draw' | 'shuffling' | 'selecting_card' | 'result';
 export type TarotArcana = 'major' | 'minor';
 export type TarotSuit = 'wands' | 'cups' | 'swords' | 'pentacles';
+export type TarotAiElement = 'AIR' | 'SPACE' | 'WATER' | 'FIRE' | 'EARTH';
+export type TarotElementWeights = Record<TarotAiElement, number>;
 
 export type TarotCard = {
   id: string;
@@ -62,6 +67,15 @@ export type TarotCard = {
   uprightMeaning: string;
   reversedMeaning: string;
   reflectionPrompt: string;
+  symbolism: string;
+  elementWeights: TarotElementWeights;
+};
+
+export type TarotDeckCard = {
+  deckKey: string;
+  cardId: string;
+  orientation: TarotOrientation;
+  order: number;
 };
 
 export type TarotReading = {
@@ -70,6 +84,24 @@ export type TarotReading = {
   question: string;
   cardId: string;
   orientation: TarotOrientation;
+  scope: TarotReadingScope;
+  integrationSignalId?: string;
+  createdAt: string;
+};
+
+export type TarotIntegrationSignal = {
+  id: string;
+  source: 'tarot';
+  readingId: string;
+  scope: TarotReadingScope;
+  cardId: string;
+  categoryId: TarotQuestionCategoryId;
+  question: string;
+  orientation: TarotOrientation;
+  elementWeights: TarotElementWeights;
+  symbolism: string;
+  canUpdateGrowthCenter: boolean;
+  singleUseOnly: boolean;
   createdAt: string;
 };
 
@@ -81,6 +113,8 @@ export type TarotInterpretationInput = {
   keywords: string[];
   baseMeaning: string;
   reflectionPrompt: string;
+  symbolism: string;
+  elementWeights: TarotElementWeights;
 };
 
 export type TarotInterpretationOutput = {
@@ -101,6 +135,15 @@ export type TarotState = {
 };
 
 export const TAROT_HISTORY_STORAGE_KEY = 'tarot_reading_history_v1';
+export const TAROT_INTEGRATION_STORAGE_KEY = 'tarot_integration_events_v1';
+
+export const EMPTY_TAROT_ELEMENT_WEIGHTS: TarotElementWeights = {
+  AIR: 0,
+  SPACE: 0,
+  WATER: 0,
+  FIRE: 0,
+  EARTH: 0,
+};
 
 export const TAROT_CATEGORY_LABELS: Record<TarotQuestionCategoryId, string> = {
   love: '感情與關係',
@@ -118,4 +161,4 @@ export const TAROT_CATEGORY_LABELS: Record<TarotQuestionCategoryId, string> = {
   custom: '我有自己的問題',
 };
 
-export const TAROT_FIXED_DISCLAIMER = '塔羅內容用於自我探索與思考整理，不代表確定的未來或專業意見。';
+export const TAROT_FIXED_DISCLAIMER = '本次五元素補強結論已由系統鎖定；塔羅內容用於自我整理與行動提醒，重大決策請同步採用現實資料與專業意見。';

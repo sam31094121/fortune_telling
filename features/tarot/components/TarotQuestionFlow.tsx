@@ -59,7 +59,7 @@ export default function TarotQuestionFlow({ initialState, onReady }: TarotQuesti
           setState((previous) => {
             const confirmed = confirmTarotQuestion(previous);
             if (confirmed.step === 'ready_to_draw' && confirmed.categoryId && confirmed.finalQuestion) {
-              onReady({ categoryId: confirmed.categoryId, question: confirmed.finalQuestion });
+              onReady({ categoryId: confirmed.categoryId, question: confirmed.finalQuestion, scope: 'self' });
             }
             return confirmed;
           });
@@ -69,7 +69,7 @@ export default function TarotQuestionFlow({ initialState, onReady }: TarotQuesti
   }
 
   if (state.step === 'ready_to_draw' && state.categoryId && state.finalQuestion) {
-    onReady({ categoryId: state.categoryId, question: state.finalQuestion });
+    onReady({ categoryId: state.categoryId, question: state.finalQuestion, scope: 'self' });
   }
 
   return null;

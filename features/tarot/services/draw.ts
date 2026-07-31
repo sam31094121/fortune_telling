@@ -1,4 +1,4 @@
-﻿import type { TarotCard, TarotOrientation } from '@/features/tarot/types';
+import type { TarotCard, TarotDeckCard, TarotOrientation } from '@/features/tarot/types';
 
 export function cryptoRandomIndex(max: number): number {
   if (!Number.isInteger(max) || max <= 0) {
@@ -11,17 +11,44 @@ export function cryptoRandomIndex(max: number): number {
   return values[0] % max;
 }
 
-export function drawTarotCard(cards: TarotCard[]): { card: TarotCard; orientation: TarotOrientation } {
+function getRandomOrientation(): TarotOrientation {
+  return cryptoRandomIndex(2) === 0 ? 'upright' : 'reversed';
+}
+
+export function prepareTarotDeck(cards: TarotCard[]): TarotDeckCard[] {
   if (!cards.length) {
     throw new Error('Tarot card data is empty.');
   }
 
-  const cardIndex = cryptoRandomIndex(cards.length);
-  const orientation: TarotOrientation = cryptoRandomIndex(2) === 0 ? 'upright' : 'reversed';
+  const deck = cards.map((card, index) => ({
+    deckKey: `${card.id}_${index}_${cryptoRandomIndex(1_000_000).toString(36)}`,
+    cardId: card.id,
+    orientation: getRandomOrientation(),
+    order: index,
+  }));
+
+  for (let index = deck.length - 1; index > 0; index -= 1) {
+    const targetIndex = cryptoRandomIndex(index + 1);
+    [deck[index], deck[targetIndex]] = [deck[targetIndex], deck[index]];
+  }
+
+  return deck.map((item, order) => ({ ...item, order }));
+}
+
+export function selectTarotCard(cards: TarotCard[], deck: TarotDeckCard[], deckKey: string): { card: TarotCard; orientation: TarotOrientation } {
+  const deckCard = deck.find((item) => item.deckKey === deckKey);
+  if (!deckCard) {
+    throw new Error('找不到你選擇的牌背，請重新洗牌。');
+  }
+
+  const card = cards.find((item) => item.id === deckCard.cardId);
+  if (!card) {
+    throw new Error('這張牌的資料不存在，請重新洗牌。');
+  }
 
   return {
-    card: cards[cardIndex],
-    orientation,
+    card,
+    orientation: deckCard.orientation,
   };
 }
 
