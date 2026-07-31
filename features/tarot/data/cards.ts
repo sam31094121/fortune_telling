@@ -58,11 +58,47 @@ const SUIT_EN: Record<TarotSuit, string> = {
   pentacles: 'Pentacles',
 };
 
-const SUIT_SYMBOL: Record<TarotSuit, string> = {
-  wands: 'W',
-  cups: 'C',
-  swords: 'S',
-  pentacles: 'P',
+const TAROT_OPEN_SOURCE_ASSET_BASE = '/tarot/freecodecamp-js-fortune-teller/assets/img/cards';
+const MAJOR_ASSET_NAMES: Record<string, string> = {
+  'major-fool': 'fool',
+  'major-magician': 'magician',
+  'major-high-priestess': 'high-priestess',
+  'major-empress': 'empress',
+  'major-emperor': 'emperor',
+  'major-hierophant': 'hierophant',
+  'major-lovers': 'lovers',
+  'major-chariot': 'chariot',
+  'major-strength': 'strength',
+  'major-hermit': 'hermit',
+  'major-wheel': 'wheel-of-fortune',
+  'major-justice': 'justice',
+  'major-hanged-man': 'hanged-man',
+  'major-death': 'death',
+  'major-temperance': 'temperance',
+  'major-devil': 'devil',
+  'major-tower': 'tower',
+  'major-star': 'star',
+  'major-moon': 'moon',
+  'major-sun': 'sun',
+  'major-judgement': 'judgement',
+  'major-world': 'world',
+};
+
+const MINOR_RANK_ASSET_NAMES: Record<string, string> = {
+  ace: '1',
+  two: '2',
+  three: '3',
+  four: '4',
+  five: '5',
+  six: '6',
+  seven: '7',
+  eight: '8',
+  nine: '9',
+  ten: '10',
+  page: 'page',
+  knight: 'knight',
+  queen: 'queen',
+  king: 'king',
 };
 
 const SUIT_THEMES: Record<TarotSuit, { upright: string; reversed: string; reflection: string; keywords: string[]; reversedKeywords: string[] }> = {
@@ -209,23 +245,6 @@ const RANK_STORY: Record<string, string> = {
   king: '承擔者建立規則',
 };
 
-function escapeSvgText(value: string) {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function shortText(value: string, max = 18) {
-  const clean = value.replace(/\s+/g, ' ').trim();
-  return clean.length > max ? `${clean.slice(0, max)}…` : clean;
-}
-
-function cardHash(value: string) {
-  return Array.from(value).reduce((total, char) => (total * 31 + char.charCodeAt(0)) % 9973, 17);
-}
-
 function getRankKey(card: TarotCardSeed) {
   return card.id.split('-').pop() ?? 'ace';
 }
@@ -329,88 +348,6 @@ function buildTarotVisualKnowledge(card: TarotCardSeed, model: TarotVisualModel,
   };
 }
 
-function buildStars(seed: number, accent: string) {
-  return Array.from({ length: 18 }, (_, index) => {
-    const x = 42 + ((seed * (index + 3) * 17) % 276);
-    const y = 62 + ((seed * (index + 5) * 23) % 410);
-    const r = 1.1 + ((seed + index) % 4) * 0.34;
-    const opacity = 0.2 + ((index % 5) * 0.08);
-    return `<circle cx="${x}" cy="${y}" r="${r.toFixed(1)}" fill="${accent}" opacity="${opacity.toFixed(2)}"/>`;
-  }).join('');
-}
-
-function buildFigure(model: TarotVisualModel, seed: number) {
-  const lean = ((seed % 7) - 3) * 0.7;
-  const headY = 188 + (seed % 5);
-  const bodyY = 248 + (seed % 4);
-  return `<g opacity="0.72" aria-label="${escapeSvgText(model.figure)}"><circle cx="180" cy="${headY}" r="13" fill="none" stroke="${model.accent}" stroke-width="3"/><path d="M180 ${headY + 15} C${150 + lean} ${bodyY - 12} ${146 - lean} ${bodyY + 50} 132 ${bodyY + 88} C156 ${bodyY + 104} 204 ${bodyY + 104} 228 ${bodyY + 88} C214 ${bodyY + 50} ${210 + lean} ${bodyY - 12} 180 ${headY + 15} Z" fill="${model.tone}" fill-opacity="0.18" stroke="${model.accent}" stroke-opacity="0.58" stroke-width="3"/><path d="M138 ${bodyY + 34} C160 ${bodyY + 18} 200 ${bodyY + 18} 222 ${bodyY + 34}" fill="none" stroke="${model.secondary}" stroke-width="3" stroke-linecap="round"/><circle cx="180" cy="${bodyY + 42}" r="17" fill="none" stroke="${model.secondary}" stroke-opacity="0.48" stroke-width="2"/></g>`;
-}
-
-function buildScene(model: TarotVisualModel, card: TarotCardSeed, seed: number) {
-  const a = model.accent;
-  const b = model.secondary;
-  const scene = model.scene;
-  const pipCount = card.arcana === 'minor' ? Math.min(card.number ?? 1, 10) : 0;
-  const pips = pipCount > 0
-    ? Array.from({ length: pipCount }, (_, index) => {
-        const col = index % 5;
-        const row = Math.floor(index / 5);
-        const x = 102 + col * 39;
-        const y = 414 + row * 34;
-        return `<g opacity="0.88"><circle cx="${x}" cy="${y}" r="10" fill="none" stroke="${a}" stroke-width="2"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="14" font-family="serif" fill="${b}">${escapeSvgText(model.glyph)}</text></g>`;
-      }).join('')
-    : '';
-
-  const commonMandala = `<circle cx="180" cy="214" r="94" fill="none" stroke="${a}" stroke-opacity="0.48" stroke-width="2"/><circle cx="180" cy="214" r="68" fill="none" stroke="${b}" stroke-opacity="0.34" stroke-width="2"/><path d="M86 214 C118 160 148 160 180 214 C212 268 242 268 274 214" fill="none" stroke="${b}" stroke-opacity="0.38" stroke-width="3" stroke-linecap="round"/>`;
-
-  const scenes: Record<string, string> = {
-    'open-road': `<path d="M94 346 C128 292 156 252 180 178 C204 252 232 292 266 346" fill="none" stroke="${a}" stroke-width="5" stroke-linecap="round"/><path d="M112 360 C148 338 212 338 248 360" fill="none" stroke="${b}" stroke-width="3" stroke-linecap="round"/>`,
-    altar: `<rect x="108" y="312" width="144" height="42" rx="12" fill="none" stroke="${a}" stroke-width="4"/><path d="M122 304 L180 178 L238 304" fill="none" stroke="${b}" stroke-width="3"/>`,
-    'moon-gate': `<path d="M116 334 A64 92 0 0 1 244 334" fill="none" stroke="${a}" stroke-width="5"/><path d="M204 156 A44 44 0 1 0 204 244 A30 44 0 1 1 204 156" fill="${b}" opacity="0.72"/>`,
-    garden: `<path d="M180 334 C154 286 154 244 180 196 C206 244 206 286 180 334" fill="none" stroke="${a}" stroke-width="4"/><path d="M104 332 C128 284 152 268 180 304 C208 268 232 284 256 332" fill="none" stroke="${b}" stroke-width="3"/>`,
-    throne: `<path d="M116 352 L116 222 L244 222 L244 352" fill="none" stroke="${a}" stroke-width="5"/><path d="M142 244 H218 M142 286 H218" stroke="${b}" stroke-width="3" stroke-linecap="round"/>`,
-    temple: `<path d="M92 318 L180 188 L268 318" fill="none" stroke="${a}" stroke-width="5"/><path d="M122 328 H238 M134 328 V260 M180 328 V238 M226 328 V260" stroke="${b}" stroke-width="4" stroke-linecap="round"/>`,
-    vow: `<path d="M132 246 C132 204 180 204 180 246 C180 204 228 204 228 246 C228 296 180 326 180 326 C180 326 132 296 132 246" fill="none" stroke="${a}" stroke-width="4"/><path d="M116 360 C150 336 210 336 244 360" stroke="${b}" stroke-width="3" fill="none"/>`,
-    chariot: `<path d="M104 328 H256 L236 254 H124 Z" fill="none" stroke="${a}" stroke-width="5"/><circle cx="132" cy="354" r="18" fill="none" stroke="${b}" stroke-width="4"/><circle cx="228" cy="354" r="18" fill="none" stroke="${b}" stroke-width="4"/>`,
-    'inner-fire': `<path d="M180 342 C132 300 158 252 176 224 C174 256 222 258 204 202 C252 266 234 326 180 342" fill="none" stroke="${a}" stroke-width="5"/><circle cx="180" cy="282" r="28" fill="${b}" opacity="0.2"/>`,
-    lantern: `<path d="M150 214 H210 L222 330 H138 Z" fill="none" stroke="${a}" stroke-width="5"/><circle cx="180" cy="270" r="32" fill="none" stroke="${b}" stroke-width="4"/><path d="M180 156 V214 M142 356 H218" stroke="${b}" stroke-width="3"/>`,
-    wheel: `<circle cx="180" cy="278" r="76" fill="none" stroke="${a}" stroke-width="5"/><circle cx="180" cy="278" r="24" fill="none" stroke="${b}" stroke-width="4"/><path d="M180 202 V354 M104 278 H256 M126 224 L234 332 M234 224 L126 332" stroke="${b}" stroke-opacity="0.58" stroke-width="3"/>`,
-    scales: `<path d="M180 188 V346 M132 226 H228" stroke="${a}" stroke-width="5" stroke-linecap="round"/><path d="M132 226 L102 300 H162 Z M228 226 L198 300 H258 Z" fill="none" stroke="${b}" stroke-width="3"/>`,
-    suspended: `<path d="M112 194 H248 M180 194 C148 248 212 284 180 342" fill="none" stroke="${a}" stroke-width="5" stroke-linecap="round"/><circle cx="180" cy="342" r="18" fill="none" stroke="${b}" stroke-width="4"/>`,
-    threshold: `<path d="M112 354 C148 304 148 244 180 194 C212 244 212 304 248 354" fill="none" stroke="${a}" stroke-width="5"/><path d="M128 356 H232 M180 194 V356" stroke="${b}" stroke-width="3"/>`,
-    alchemy: `<path d="M116 250 C148 214 162 306 180 278 C198 250 212 342 244 306" fill="none" stroke="${a}" stroke-width="5"/><path d="M118 332 C150 296 210 296 242 332" fill="none" stroke="${b}" stroke-width="3"/>`,
-    chain: `<path d="M116 280 C136 240 168 240 180 280 C192 320 224 320 244 280" fill="none" stroke="${a}" stroke-width="8" stroke-linecap="round"/><path d="M124 350 H236" stroke="${b}" stroke-width="3" stroke-dasharray="10 9"/>`,
-    tower: `<path d="M134 358 L150 208 H210 L226 358 Z" fill="none" stroke="${a}" stroke-width="5"/><path d="M154 190 L188 154 L174 218 L214 194" fill="none" stroke="${b}" stroke-width="4" stroke-linecap="round"/>`,
-    stars: `<path d="M180 174 L194 234 L256 234 L204 268 L224 328 L180 290 L136 328 L156 268 L104 234 L166 234 Z" fill="none" stroke="${a}" stroke-width="4"/><path d="M116 356 C150 320 210 320 244 356" fill="none" stroke="${b}" stroke-width="3"/>`,
-    mist: `<path d="M92 270 C132 238 164 302 202 266 C226 244 246 252 270 274" fill="none" stroke="${a}" stroke-width="5" stroke-linecap="round"/><path d="M112 336 C142 314 216 314 248 336" fill="none" stroke="${b}" stroke-width="3"/>`,
-    sunrise: `<path d="M104 326 A76 76 0 0 1 256 326" fill="none" stroke="${a}" stroke-width="6"/><path d="M180 184 V226 M120 228 L148 254 M240 228 L212 254 M96 326 H264" stroke="${b}" stroke-width="4" stroke-linecap="round"/>`,
-    awakening: `<path d="M112 352 C142 292 218 292 248 352" fill="none" stroke="${a}" stroke-width="5"/><path d="M180 326 V202 M146 236 L180 202 L214 236" stroke="${b}" stroke-width="4" stroke-linecap="round"/>`,
-    world: `<circle cx="180" cy="278" r="82" fill="none" stroke="${a}" stroke-width="5"/><path d="M98 278 C132 226 228 226 262 278 C228 330 132 330 98 278" fill="none" stroke="${b}" stroke-width="3"/>`,
-    wands: `<path d="M132 346 L218 194" stroke="${a}" stroke-width="8" stroke-linecap="round"/><path d="M154 274 C190 246 220 250 244 216" stroke="${b}" stroke-width="4" fill="none"/>${pips}`,
-    cups: `<path d="M126 228 H234 C232 304 208 344 180 344 C152 344 128 304 126 228 Z" fill="none" stroke="${a}" stroke-width="5"/><path d="M110 364 H250 M142 260 C164 244 196 244 218 260" stroke="${b}" stroke-width="3" fill="none"/>${pips}`,
-    swords: `<path d="M180 184 V354" stroke="${a}" stroke-width="7" stroke-linecap="round"/><path d="M132 246 H228 M154 206 L206 206" stroke="${b}" stroke-width="4" stroke-linecap="round"/>${pips}`,
-    pentacles: `<path d="M180 198 L252 250 L224 336 H136 L108 250 Z" fill="none" stroke="${a}" stroke-width="5"/><path d="M180 220 L204 308 L132 256 H228 L156 308 Z" fill="none" stroke="${b}" stroke-width="3"/>${pips}`,
-  };
-
-  return `${commonMandala}${buildFigure(model, seed)}${scenes[scene] ?? scenes.world}`;
-}
-
-function svgCardUrl(card: TarotCardSeed, symbol: string, tone: string, weights: TarotElementWeights, symbolism: string, knowledge: TarotVisualKnowledge) {
-  const model = buildVisualModel(card, tone, weights);
-  const seed = cardHash(card.id);
-  const safeNameZh = escapeSvgText(card.nameZh);
-  const safeNameEn = escapeSvgText(card.nameEn);
-  const safeHeadline = escapeSvgText(model.headline);
-  const keywords = (model.motifs.length ? model.motifs : card.uprightKeywords).slice(0, 4).map(escapeSvgText);
-  const keywordText = keywords.join('・');
-  const storyText = escapeSvgText(shortText(knowledge.storyAxis || card.uprightMeaning || symbolism, 24));
-  const safeDesc = escapeSvgText(`${knowledge.storyAxis} 創作規則：${knowledge.creativeRules.join('；')} 驗證：${knowledge.validation.checkpoints.join('；')}`);
-  const scene = buildScene(model, card, seed);
-  const stars = buildStars(seed, model.secondary);
-  const numberLabel = card.arcana === 'major' ? `${card.number ?? ''}` : `${card.number ?? ''}`;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1120" viewBox="0 0 360 560" role="img" aria-label="${safeNameZh} ${safeNameEn} 原創塔羅牌面"><title>${safeNameZh}｜${safeHeadline}</title><desc>${safeDesc}</desc><metadata>{&quot;cardId&quot;:&quot;${escapeSvgText(card.id)}&quot;,&quot;model&quot;:&quot;tarot-original-knowledge-v2&quot;,&quot;noDeckReproduction&quot;:true,&quot;readableWithoutName&quot;:true}</metadata><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#020617"/><stop offset="0.48" stop-color="${model.tone}"/><stop offset="1" stop-color="#020617"/></linearGradient><radialGradient id="aura" cx="50%" cy="34%" r="64%"><stop offset="0" stop-color="${model.accent}" stop-opacity="0.38"/><stop offset="0.48" stop-color="${model.secondary}" stop-opacity="0.12"/><stop offset="1" stop-color="#020617" stop-opacity="0"/></radialGradient><filter id="softGlow"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter><pattern id="grain" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M1 1 H2 M12 4 H13 M5 17 H6 M18 15 H19" stroke="#ffffff" stroke-opacity="0.16" stroke-width="1"/></pattern></defs><rect width="360" height="560" rx="30" fill="url(#bg)"/><rect width="360" height="560" rx="30" fill="url(#aura)"/><rect width="360" height="560" rx="30" fill="url(#grain)" opacity="0.22"/><rect x="22" y="22" width="316" height="516" rx="24" fill="none" stroke="${model.accent}" stroke-opacity="0.62" stroke-width="3"/><rect x="38" y="40" width="284" height="480" rx="18" fill="none" stroke="${model.secondary}" stroke-opacity="0.26" stroke-width="2"/>${stars}<g filter="url(#softGlow)">${scene}</g><text x="180" y="228" text-anchor="middle" font-size="82" font-family="Georgia, 'Noto Serif TC', serif" font-weight="900" fill="${model.accent}" opacity="0.96">${escapeSvgText(model.glyph)}</text><text x="52" y="72" font-size="20" font-family="Georgia, serif" font-weight="900" fill="${model.accent}" opacity="0.92">${escapeSvgText(numberLabel)}</text><text x="308" y="72" text-anchor="end" font-size="18" font-family="Georgia, serif" font-weight="900" fill="${model.secondary}" opacity="0.92">${escapeSvgText(model.elementLabel)}</text><text x="180" y="386" text-anchor="middle" font-size="30" font-family="Georgia, 'Noto Serif TC', serif" font-weight="900" fill="#f8fafc">${safeNameZh}</text><text x="180" y="416" text-anchor="middle" font-size="14" font-family="Arial, sans-serif" letter-spacing="1.6" fill="#cbd5e1">${safeNameEn.toUpperCase()}</text><text x="180" y="452" text-anchor="middle" font-size="13" font-family="'Noto Sans TC', Arial, sans-serif" font-weight="700" fill="${model.accent}">${safeHeadline}</text><text x="180" y="478" text-anchor="middle" font-size="11" font-family="'Noto Sans TC', Arial, sans-serif" fill="#e2e8f0" opacity="0.86">${escapeSvgText(keywordText)}</text><text x="180" y="504" text-anchor="middle" font-size="10" font-family="'Noto Sans TC', Arial, sans-serif" fill="#cbd5e1" opacity="0.74">${storyText}</text><path d="M72 524 C116 504 146 544 180 524 C214 504 244 544 288 524" fill="none" stroke="${model.secondary}" stroke-opacity="0.42" stroke-width="3" stroke-linecap="round"/></svg>`;
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-}
 function getDefaultElementWeights(card: TarotCardSeed): TarotElementWeights {
   if (card.elementWeights) return card.elementWeights;
   if (card.arcana === 'minor' && card.suit) return SUIT_ELEMENT_WEIGHTS[card.suit];
@@ -433,6 +370,16 @@ function getDefaultSymbolism(card: TarotCardSeed): string {
   return `${card.nameZh}以${suitName}原型呈現日常事件、行動節奏與可調整的現實線索；本牌提供以${dominantLabel}元素為主的五元素權重，交由 Integration Layer 統一整合。`;
 }
 
+function openSourceCardImageUrl(card: TarotCardSeed): string {
+  if (card.arcana === 'major') {
+    return `${TAROT_OPEN_SOURCE_ASSET_BASE}/major/${MAJOR_ASSET_NAMES[card.id] ?? card.id.replace('major-', '')}.png`;
+  }
+
+  const suit = card.suit ?? 'wands';
+  const rank = MINOR_RANK_ASSET_NAMES[getRankKey(card)] ?? '1';
+  return `${TAROT_OPEN_SOURCE_ASSET_BASE}/minor/${suit}/${rank}.png`;
+}
+
 function withImage(card: TarotCardSeed): TarotCard {
   const tone = card.arcana === 'major'
     ? '#312e81'
@@ -443,7 +390,6 @@ function withImage(card: TarotCardSeed): TarotCard {
         : card.suit === 'pentacles'
           ? '#14532d'
           : '#7f1d1d';
-  const symbol = card.arcana === 'major' ? String(card.number ?? 'A') : SUIT_SYMBOL[card.suit ?? 'wands'];
   const symbolism = getDefaultSymbolism(card);
   const elementWeights = getDefaultElementWeights(card);
   const visualKnowledge = card.visualKnowledge ?? buildTarotVisualKnowledge(card, buildVisualModel(card, tone, elementWeights), elementWeights, symbolism);
@@ -452,7 +398,7 @@ function withImage(card: TarotCardSeed): TarotCard {
     symbolism,
     elementWeights,
     visualKnowledge,
-    imageUrl: svgCardUrl(card, symbol, tone, elementWeights, symbolism, visualKnowledge),
+    imageUrl: openSourceCardImageUrl(card),
   };
 }
 

@@ -33,11 +33,11 @@ export const TAROT_ENGINE_VERSION = 'tarot-system-v1.2.0';
 export const TAROT_PUBLIC_TITLE = '塔羅牌';
 const SESSION_TTL_MS = 20 * 60 * 1000;
 const VISIBLE_DECK_COUNT = 12;
-const TAROT_DECK_STYLE_ID = 'tdh-unified-symbolic-tarot-svg-v1';
+const TAROT_DECK_STYLE_ID = 'freecodecamp-fortune-teller-assets-v1';
 const TAROT_CARD_BACK_RESOURCE: TarotCardBackResource = {
   styleId: TAROT_DECK_STYLE_ID,
-  imageAlt: '天地人和 AI 塔羅牌背',
-  imageUrl: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="360" height="560" viewBox="0 0 360 560"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#020617"/><stop offset="0.52" stop-color="#1e1b4b"/><stop offset="1" stop-color="#083344"/></linearGradient><radialGradient id="glow" cx="50%" cy="38%" r="52%"><stop offset="0" stop-color="#67e8f9" stop-opacity="0.34"/><stop offset="1" stop-color="#020617" stop-opacity="0"/></radialGradient></defs><rect width="360" height="560" rx="30" fill="url(#bg)"/><rect x="24" y="24" width="312" height="512" rx="24" fill="none" stroke="#fde68a" stroke-opacity="0.58" stroke-width="3"/><rect x="44" y="44" width="272" height="472" rx="18" fill="none" stroke="#67e8f9" stroke-opacity="0.22" stroke-width="2"/><circle cx="180" cy="204" r="82" fill="url(#glow)" stroke="#fde68a" stroke-opacity="0.32" stroke-width="2"/><text x="180" y="232" text-anchor="middle" font-family="Georgia,serif" font-size="88" font-weight="900" fill="#fde68a">T</text><path d="M88 382 C128 350 154 414 180 382 C206 350 232 414 272 382" fill="none" stroke="#67e8f9" stroke-opacity="0.42" stroke-width="4" stroke-linecap="round"/><path d="M110 430 H250" stroke="#fde68a" stroke-opacity="0.34" stroke-width="3" stroke-linecap="round"/></svg>')}`,
+  imageAlt: 'Rider-Waite Smith CC0 塔羅牌背',
+  imageUrl: '/tarot/freecodecamp-js-fortune-teller/assets/img/cards/card-back_275x480.png',
 };
 const TAROT_DRAW_RHYTHM: TarotDrawRhythm = {
   shuffleMs: 3600,
@@ -382,11 +382,11 @@ function createRevealSequence(drawResults: TarotDrawResultItem[]): TarotRevealSe
 function buildTarotReadiness(): TarotSystemReadiness {
   const integrity = deckIntegrity();
   const uniqueIds = new Set(TAROT_CARDS.map((card) => card.id));
-  const unifiedArt = TAROT_CARDS.every((card) => card.imageUrl.startsWith('data:image/svg+xml'));
+  const unifiedArt = TAROT_CARDS.every((card) => card.imageUrl.startsWith('/tarot/freecodecamp-js-fortune-teller/assets/img/cards/') && card.imageUrl.endsWith('.png'));
   const checklist = [
     { id: 'deck_78', title: '78 張完整牌庫', complete: integrity.complete && uniqueIds.size === 78, detail: `${integrity.total} 張；大阿爾克那 ${integrity.major}；小阿爾克那 ${integrity.minor}` },
     { id: 'card_meaning', title: '每張牌含正位／逆位／象徵／關鍵字', complete: cardDataComplete(), detail: '每張牌均具備牌義、正逆位解釋、象徵與五元素權重。' },
-    { id: 'unified_art', title: '同一套牌面風格', complete: unifiedArt, detail: '牌面由平台同一套 SVG 牌面規格產生，不混用外部畫風。' },
+    { id: 'unified_art', title: '同一套牌面風格', complete: unifiedArt, detail: '牌面統一使用 Rider-Waite Smith CC0 PNG 素材。' },
     { id: 'shuffle', title: 'Fisher-Yates 真洗牌', complete: true, detail: '後端使用 crypto randomInt 搭配 Fisher-Yates，每次重新排列 78 張。' },
     { id: 'user_draw', title: '使用者親手抽牌', complete: true, detail: '後端只提供牌背牌序與 session，AI 不代替使用者選牌。' },
     { id: 'orientation', title: '正逆位同步判定', complete: true, detail: '每張牌入牌堆時即以後端亂數決定正位或逆位。' },
