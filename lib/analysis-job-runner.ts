@@ -7,6 +7,7 @@ import { analyzeBazi, type BaziAnalysisInput } from './bazi-engine';
 import { analyzeZodiac } from './zodiac-engine';
 import { isValidBirthday } from './validation';
 import type { BloodType, Gender, InsightRequest } from './types';
+import { TAROT_CARDS } from '../features/tarot/data/cards';
 import { ANALYSIS_MODULES, moduleIdForAnalysisType, type AnalysisModuleId } from './analysis-module-router';
 import {
   completeAnalysisJob,
@@ -152,6 +153,32 @@ async function runInsightJob(job: AnalysisJob, inputData: unknown) {
   return typeof result === 'object' && result !== null ? { ...result, mode: 'insight', moduleId: job.moduleId } : result;
 }
 
+function hashStringToInt(input: string): number {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+}
+
+function pickBaziDailyTarotCard(result: ReturnType<typeof analyzeBazi>) {
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const structure = result.aiDeepAnalysis.professionalSignals.structure;
+  const seed = [result.dayMaster.stem, result.dayMaster.element, structure, todayKey].join('|');
+  const card = TAROT_CARDS[hashStringToInt(seed) % TAROT_CARDS.length];
+  return {
+    dateKey: todayKey,
+    cardId: card.id,
+    nameZh: card.nameZh,
+    nameEn: card.nameEn,
+    imageUrl: card.imageUrl,
+    uprightMeaning: card.uprightMeaning,
+    uprightKeywords: card.uprightKeywords,
+    reflectionPrompt: card.reflectionPrompt,
+    bridge: `今日運勢卡依你的${result.dayMaster.element}日主（${result.dayMaster.stem}）與「${structure}」命盤格局判定，每日固定一張，24 小時後才會依當日日期重新判定。`,
+  };
+}
+
 async function runBaziJob(job: AnalysisJob, inputData: unknown) {
   updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: null, message: ANALYSIS_MODULES.BAZI.loadingCopy.validating });
   const input = normalizeBaziInput(inputData);
@@ -167,7 +194,8 @@ async function runBaziJob(job: AnalysisJob, inputData: unknown) {
   });
 
   updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: ANALYSIS_MODULES.BAZI.loadingCopy.finalizing });
-  return { ...result, moduleId: job.moduleId, fiveElement };
+  const dailyTarot = pickBaziDailyTarotCard(result);
+  return { ...result, moduleId: job.moduleId, fiveElement, dailyTarot };
 }
 
 function logZodiacJob(jobId: string, step: string, detail?: Record<string, unknown>) {

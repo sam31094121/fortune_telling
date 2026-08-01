@@ -14,6 +14,7 @@ import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 import type { FiveElementIntegrationResult, FiveElementKey } from '@/lib/five-element-engine';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
+import { TAROT_CARDS } from '@/features/tarot/data/cards';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
 type ShichenChoice = number | 'unknown' | 'known' | null;
@@ -1102,6 +1103,8 @@ const ZIWEI_TWELVE_PALACE_ORDER = [
 
 const ZIWEI_SAN_FANG_FOUR_ZHENG_ORDER = ['MING', 'QIAN_YI', 'CAI_BO', 'GUAN_LU'] as const;
 
+const ZIWEI_ROMAN_NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'] as const;
+
 const ZIWEI_PROFESSIONAL_MAJOR_STARS = [
   { name: '紫微', element: '土', role: '帝座主星，主統御、格局、責任與資源整合。', keywords: ['主導', '格局', '承擔'] },
   { name: '天機', element: '木', role: '智謀變動之星，主思考、策劃、調整與機巧。', keywords: ['策略', '變通', '學習'] },
@@ -1291,6 +1294,28 @@ const ZIWEI_PALACE_FALLBACK: Record<ZiweiPalaceKey, { name: string; focus: strin
   FU_DE: { name: '福德', focus: '精神狀態、內在滿足、休養品質與長期福分。' },
   FU_MU: { name: '父母', focus: '長輩關係、上級緣分、傳承支持與制度資源。' },
 };
+
+const ZIWEI_PALACE_TAROT_CARD_ID: Record<ZiweiPalaceKey, string> = {
+  MING: 'major-magician',
+  XIONG_DI: 'minor-cups-six',
+  FU_QI: 'major-lovers',
+  ZI_NV: 'minor-cups-three',
+  CAI_BO: 'minor-pentacles-ace',
+  JI_E: 'major-strength',
+  QIAN_YI: 'major-fool',
+  JIAO_YOU: 'minor-wands-three',
+  GUAN_LU: 'major-emperor',
+  TIAN_ZHAI: 'minor-pentacles-four',
+  FU_DE: 'major-star',
+  FU_MU: 'major-hierophant',
+};
+
+const TAROT_CARD_BY_ID = new Map(TAROT_CARDS.map((card) => [card.id, card]));
+
+function getZiweiPalaceTarotCard(key: string) {
+  const cardId = ZIWEI_PALACE_TAROT_CARD_ID[key as ZiweiPalaceKey];
+  return (cardId && TAROT_CARD_BY_ID.get(cardId)) || TAROT_CARDS[0];
+}
 
 function createZiweiFallbackPalace(key: ZiweiPalaceKey): ZiweiFullPalace {
   const fallback = ZIWEI_PALACE_FALLBACK[key];
@@ -1912,7 +1937,16 @@ function ZiweiTwelvePalaceCards({
 }) {
   const [selectedPalaceKey, setSelectedPalaceKey] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'general' | 'teacher'>('general');
+  const [flippedTarotKeys, setFlippedTarotKeys] = useState<Set<string>>(new Set());
   const storyPanelRef = useRef<HTMLDivElement>(null);
+
+  function handleTarotCardClick(key: string) {
+    if (!flippedTarotKeys.has(key)) {
+      setFlippedTarotKeys((prev) => new Set(prev).add(key));
+      return;
+    }
+    setSelectedPalaceKey((current) => (current === key ? null : key));
+  }
 
   useEffect(() => {
     if (!selectedPalaceKey) return;
@@ -1982,31 +2016,33 @@ function ZiweiTwelvePalaceCards({
       </div>
 
       {viewMode === 'teacher' && (
-        <ZiweiProfessionalTeacherMode palaces={sortedPalaces} analysis={analysis} annual={annual} />
-      )}
-      <div className="mt-5 rounded-[24px] border border-amber-200/25 bg-[radial-gradient(circle_at_12%_0%,rgba(251,191,36,0.14),transparent_34%),linear-gradient(135deg,rgba(15,23,42,0.72),rgba(2,6,23,0.86))] p-4 shadow-[0_0_34px_rgba(251,191,36,0.10)]">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">FIRST LAYER STAR MATERIAL</p>
-            <h4 className="mt-2 font-serif text-2xl font-black text-amber-50">十四主星專業底盤</h4>
-          </div>
-          <p className="max-w-2xl text-xs font-bold leading-6 text-amber-50/70">
-            第一層先排紫微斗數命盤：十四主星歸位、輔佐星承接、宮干地支與三方四正。此層只建立命盤資料，不做補強結論。
-          </p>
-        </div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          {ZIWEI_FOURTEEN_MAJOR_STAR_MATERIAL.map((star) => (
-            <div key={star.name} className="rounded-2xl border border-white/10 bg-black/18 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-              <div className="flex items-center justify-between gap-2">
-                <p className="font-serif text-lg font-black text-amber-50">{star.name}</p>
-                <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2 py-0.5 text-[10px] font-black text-cyan-100">{star.element}</span>
+        <>
+          <ZiweiProfessionalTeacherMode palaces={sortedPalaces} analysis={analysis} annual={annual} />
+          <div className="mt-5 rounded-[24px] border border-amber-200/25 bg-[radial-gradient(circle_at_12%_0%,rgba(251,191,36,0.14),transparent_34%),linear-gradient(135deg,rgba(15,23,42,0.72),rgba(2,6,23,0.86))] p-4 shadow-[0_0_34px_rgba(251,191,36,0.10)]">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">FIRST LAYER STAR MATERIAL</p>
+                <h4 className="mt-2 font-serif text-2xl font-black text-amber-50">十四主星專業底盤</h4>
               </div>
-              <p className="mt-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{star.role}</p>
-              <p className="mt-2 text-[10px] font-bold leading-5 text-amber-100/72">{star.keywords.join(' / ')}</p>
+              <p className="max-w-2xl text-xs font-bold leading-6 text-amber-50/70">
+                第一層先排紫微斗數命盤：十四主星歸位、輔佐星承接、宮干地支與三方四正。此層只建立命盤資料，不做補強結論。
+              </p>
             </div>
-          ))}
-        </div>
-      </div>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {ZIWEI_FOURTEEN_MAJOR_STAR_MATERIAL.map((star) => (
+                <div key={star.name} className="rounded-2xl border border-white/10 bg-black/18 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-serif text-lg font-black text-amber-50">{star.name}</p>
+                    <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2 py-0.5 text-[10px] font-black text-cyan-100">{star.element}</span>
+                  </div>
+                  <p className="mt-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{star.role}</p>
+                  <p className="mt-2 text-[10px] font-bold leading-5 text-amber-100/72">{star.keywords.join(' / ')}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
       <div className="ziwei-palace-grid mt-6 grid grid-cols-2 gap-3.5 max-[340px]:grid-cols-1 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
         {sortedPalaces.map((palace, index) => {
           const story = ZIWEI_PALACE_STORY[palace.key] ?? buildZiweiFallbackStory(normalizeZiweiPalaceName(palace.name));
@@ -2014,12 +2050,67 @@ function ZiweiTwelvePalaceCards({
           const annualSignal = getZiweiAnnualSignal(palace.key, annualPalace, annual);
           const active = selectedPalaceKey === palace.key;
           const palaceName = normalizeZiweiPalaceName(palace.name);
+          const primaryStar = getZiweiMajorStarMaterials(palace.majorStars.slice(0, 1))[0];
           const layerMaterial = getZiweiPalaceThreeLayerMaterial(palace.key, palaceName, story);
           const layerPreview = [
             { layer: '第一層', title: '專業素材', text: layerMaterial.layerOneText },
             { layer: '第二層', title: '白話轉譯', text: layerMaterial.layerTwoText },
             { layer: '第三層', title: '行動排序', text: layerMaterial.layerThreeText },
           ];
+
+          if (viewMode === 'general') {
+            const tarotCard = getZiweiPalaceTarotCard(palace.key);
+            const flipped = flippedTarotKeys.has(palace.key);
+            return (
+              <div key={palace.key} className="relative aspect-[3/5] [perspective:1400px]">
+                <button
+                  type="button"
+                  onClick={() => handleTarotCardClick(palace.key)}
+                  aria-expanded={active}
+                  aria-label={`${palaceName}｜${flipped ? (active ? '收合解讀' : '查看解讀') : '翻牌查看'}`}
+                  className={`relative block h-full w-full text-center transition-transform duration-700 [transform-style:preserve-3d] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/70 ${flipped ? '[transform:rotateY(180deg)]' : 'hover:-translate-y-1.5'} ${active ? '-translate-y-1.5' : ''}`}
+                >
+                  {/* card back */}
+                  <span className={`group absolute inset-0 flex flex-col overflow-hidden rounded-[16px] border-2 p-2.5 shadow-[0_14px_34px_rgba(2,6,23,0.34)] [backface-visibility:hidden] ${story.tone}`}>
+                    <span className="pointer-events-none absolute inset-[6px] rounded-[10px] border border-white/25" />
+                    <span className="pointer-events-none absolute inset-[6px] rounded-[10px] [background:repeating-linear-gradient(45deg,rgba(255,255,255,0.05)_0,rgba(255,255,255,0.05)_2px,transparent_2px,transparent_10px)]" />
+                    <span className="pointer-events-none absolute left-2 top-2 text-[10px] opacity-50">✦</span>
+                    <span className="pointer-events-none absolute right-2 top-2 text-[10px] opacity-50">✦</span>
+                    <span className="pointer-events-none absolute bottom-2 left-2 text-[10px] opacity-50">✦</span>
+                    <span className="pointer-events-none absolute bottom-2 right-2 text-[10px] opacity-50">✦</span>
+
+                    <span className="relative pt-2 text-[10px] font-black tracking-[0.2em] opacity-70">{ZIWEI_ROMAN_NUMERALS[index] ?? index + 1}</span>
+                    <span className="relative mt-1 font-serif text-sm font-black leading-tight">{palaceName}</span>
+                    <span className="relative mt-1 flex flex-1 flex-col items-center justify-center gap-1">
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-white/25 bg-black/20 text-xl shadow-[inset_0_0_16px_rgba(255,255,255,0.12)]">
+                        {story.icon}
+                      </span>
+                      <span className="font-serif text-base font-black leading-tight text-amber-100">☯</span>
+                    </span>
+                    <span className="relative border-t border-white/15 pt-1.5 text-[10px] font-semibold leading-4 opacity-80">輕觸翻牌 ✦</span>
+                  </span>
+
+                  {/* card front: real tarot artwork */}
+                  <span className="absolute inset-0 flex flex-col overflow-hidden rounded-[16px] border-2 border-amber-200/50 bg-black [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                    <img
+                      src={tarotCard.imageUrl}
+                      alt={tarotCard.nameZh}
+                      loading="lazy"
+                      className="h-[62%] w-full object-cover object-top"
+                    />
+                    <span className="flex flex-1 flex-col items-center justify-center gap-0.5 bg-gradient-to-b from-black/85 to-black/95 px-1.5 py-1">
+                      <span className="text-[9px] font-black leading-tight tracking-[0.14em] text-amber-200/85">{palaceName} · {primaryStar.name}</span>
+                      <span className="font-serif text-sm font-black leading-tight text-amber-50">{tarotCard.nameZh}</span>
+                      {annualSignal.score !== null && (
+                        <span className="mt-0.5 inline-flex rounded-full border border-white/20 bg-white/[0.06] px-2 py-0.5 text-[9px] font-semibold text-amber-50/90">{annualSignal.score}</span>
+                      )}
+                      <span className="mt-0.5 text-[9px] font-semibold text-cyan-100/80">{active ? '已展開解讀 ↑' : '查看解讀 →'}</span>
+                    </span>
+                  </span>
+                </button>
+              </div>
+            );
+          }
 
           return (
             <button
@@ -2062,24 +2153,98 @@ function ZiweiTwelvePalaceCards({
       </div>
 
       {selectedPalace ? (
-        <ZiweiPalaceStoryPanel
-          panelRef={storyPanelRef}
-          palace={selectedPalace}
-          annualPalace={annualMap.get(selectedPalace.key as 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI')}
-          annual={annual}
-          precisionAnalysis={precisionMap.get(selectedPalace.key)}
-          story={ZIWEI_PALACE_STORY[selectedPalace.key]}
-          year={annual?.year ?? new Date().getFullYear()}
-          patternName={analysis.pattern.name}
-          sanFangPalaces={sanFangPalaces}
-          fiveElement={fiveElement}
-        />
+        viewMode === 'general' ? (
+          <ZiweiPalaceMemberPanel
+            panelRef={storyPanelRef}
+            palace={selectedPalace}
+            annualPalace={annualMap.get(selectedPalace.key as 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI')}
+            annual={annual}
+            precisionAnalysis={precisionMap.get(selectedPalace.key)}
+            story={ZIWEI_PALACE_STORY[selectedPalace.key]}
+          />
+        ) : (
+          <ZiweiPalaceStoryPanel
+            panelRef={storyPanelRef}
+            palace={selectedPalace}
+            annualPalace={annualMap.get(selectedPalace.key as 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI')}
+            annual={annual}
+            precisionAnalysis={precisionMap.get(selectedPalace.key)}
+            story={ZIWEI_PALACE_STORY[selectedPalace.key]}
+            year={annual?.year ?? new Date().getFullYear()}
+            patternName={analysis.pattern.name}
+            sanFangPalaces={sanFangPalaces}
+            fiveElement={fiveElement}
+          />
+        )
       ) : (
         <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-sm leading-7 text-[color:var(--text-sub)]">
           先點選一個宮位。每張宮位卡都已建立三層：第一層專業素材、第二層白話轉譯、第三層行動排序；展開後會把該宮放回命財官遷三方四正中交叉理解。
         </div>
       )}
     </section>
+  );
+}
+
+function ZiweiPalaceMemberPanel({
+  panelRef,
+  palace,
+  annualPalace,
+  annual,
+  precisionAnalysis,
+  story,
+}: {
+  panelRef: Ref<HTMLDivElement>;
+  palace: ZiweiFullPalace;
+  annualPalace?: ZiweiAnnualPalace;
+  annual?: ZiweiAnnualFortune;
+  precisionAnalysis?: ZiweiPrecisionAnalysis;
+  story?: ZiweiPalaceStoryMaterial;
+}) {
+  const palaceName = normalizeZiweiPalaceName(palace.name);
+  const config = story ?? buildZiweiFallbackStory(palaceName);
+  const primaryStar = getZiweiMajorStarMaterials(palace.majorStars.slice(0, 1))[0];
+  const annualSignal = getZiweiAnnualSignal(palace.key, annualPalace, annual);
+  const reminder = precisionAnalysis?.primaryRisk.description ?? annualSignal.tensions[0] ?? config.pressure;
+  const action = precisionAnalysis?.actionPlan.doFirst[0] ?? annualSignal.action ?? config.action;
+  const tarotCard = getZiweiPalaceTarotCard(palace.key);
+
+  return (
+    <div ref={panelRef} className={'mt-6 scroll-mt-24 rounded-[24px] border p-5 sm:p-6 ' + config.tone}>
+      <div className="flex items-center gap-4">
+        <img
+          src={tarotCard.imageUrl}
+          alt={tarotCard.nameZh}
+          loading="lazy"
+          className="h-20 w-14 shrink-0 rounded-lg border border-white/20 object-cover shadow-[0_8px_18px_rgba(2,6,23,0.4)]"
+        />
+        <div>
+          <p className="text-xs font-semibold tracking-[0.24em] opacity-70">【{palaceName}】· {tarotCard.nameZh}</p>
+          <h3 className="mt-1 font-serif text-3xl font-black leading-tight text-amber-100">{primaryStar.name}</h3>
+        </div>
+        {annualSignal.score !== null && (
+          <span className="ml-auto rounded-full border border-white/15 bg-black/15 px-3 py-1 text-xs font-semibold opacity-90">
+            {annualSignal.label} · {annualSignal.score}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-5 space-y-3">
+        <div className="rounded-2xl border border-white/10 bg-black/16 p-4">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">① 這顆主星代表什麼</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{primaryStar.role}</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-black/16 p-4">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">② 目前最重要提醒</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{reminder}</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-black/16 p-4">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-200">③ 現在應該怎麼做</p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{action}</p>
+        </div>
+      </div>
+
+      <p className="mt-4 text-xs leading-6 opacity-60">想看完整命盤、全部星曜、輔星與四化，可切換到上方「老師模式」。</p>
+    </div>
   );
 }
 

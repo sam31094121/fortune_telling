@@ -6,11 +6,13 @@ type DailyAnalysisNoticeProps = {
   record?: DailyAnalysisRecord | null;
   className?: string;
   moduleName?: string;
+  onViewResult?: () => void;
 };
 
-export default function DailyAnalysisNotice({ record, className = '', moduleName = '這張卡片' }: DailyAnalysisNoticeProps) {
+export default function DailyAnalysisNotice({ record, className = '', moduleName = '這張卡片', onViewResult }: DailyAnalysisNoticeProps) {
   const remainingText = formatDailyAnalysisRemaining(record?.expiresAt);
   const statusClass = record ? 'daily-analysis-notice--used' : 'daily-analysis-notice--ready';
+  const canJump = Boolean(record && onViewResult);
 
   return (
     <section className={`daily-analysis-notice ${statusClass} ${className}`.trim()}>
@@ -21,22 +23,32 @@ export default function DailyAnalysisNotice({ record, className = '', moduleName
             {record ? `${moduleName}今日免費正式分析已完成` : `${moduleName}每日一次完整免費分析`}
           </h4>
         </div>
-        <span
-          className={`rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.12em] ${
-            record
-              ? 'border-cyan-200/30 bg-cyan-300/10 text-cyan-100'
-              : 'border-amber-200/35 bg-amber-300/12 text-amber-100'
-          }`}
-        >
-          {record ? '查看今日分析' : '每日一次'}
-        </span>
+        {canJump ? (
+          <button
+            type="button"
+            onClick={onViewResult}
+            className="rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1 text-[10px] font-black tracking-[0.12em] text-cyan-100 transition hover:border-cyan-100/60 hover:bg-cyan-300/20"
+          >
+            直接跳到今日分析 ↓
+          </button>
+        ) : (
+          <span
+            className={`rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.12em] ${
+              record
+                ? 'border-cyan-200/30 bg-cyan-300/10 text-cyan-100'
+                : 'border-amber-200/35 bg-amber-300/12 text-amber-100'
+            }`}
+          >
+            {record ? '查看今日分析' : '每日一次'}
+          </span>
+        )}
       </div>
 
       <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{DAILY_ANALYSIS_NOTICE}</p>
 
       {record && (
         <div className="mt-3 grid gap-3 rounded-2xl border border-white/10 bg-black/18 p-4 text-sm font-bold leading-7 text-cyan-50/82">
-          <p>這不是錯誤。{moduleName}今天的完整免費正式分析已經完成。</p>
+          <p>這不是錯誤。{moduleName}今天的完整免費正式分析已經完成。你不需要重新輸入資料，結果已經在這個頁面下方，可以直接跳過去看。</p>
           <p>
             你現在可以無限次查看今日分析；若要建立新的{moduleName}分析，開放時間為{' '}
             <span className="font-black text-amber-100">{remainingText}</span>。
@@ -44,6 +56,15 @@ export default function DailyAnalysisNotice({ record, className = '', moduleName
           <p className="rounded-2xl border border-rose-200/30 bg-rose-500/12 px-3 py-2 text-rose-100">
             如果你剛剛重新輸入資料，系統不會重新建立新分析，會直接帶你查看今日已完成的結果。
           </p>
+          {canJump && (
+            <button
+              type="button"
+              onClick={onViewResult}
+              className="justify-self-start rounded-full border border-cyan-200/40 bg-cyan-300/12 px-4 py-2 text-xs font-black text-cyan-100 transition hover:border-cyan-100/70 hover:bg-cyan-300/22"
+            >
+              直接跳到今日分析結果 ↓
+            </button>
+          )}
         </div>
       )}
     </section>

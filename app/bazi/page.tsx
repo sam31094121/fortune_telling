@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
@@ -152,6 +152,17 @@ type BaziResult = {
     pipeline: string[];
     rules: Record<string, boolean>;
   };
+  dailyTarot?: {
+    dateKey: string;
+    cardId: string;
+    nameZh: string;
+    nameEn: string;
+    imageUrl: string;
+    uprightMeaning: string;
+    uprightKeywords: string[];
+    reflectionPrompt: string;
+    bridge: string;
+  };
 };
 
 type BaziForm = BirthProfile & { name: string; gender: '' | Gender; birthDate: string; birthTime: string; country: string; city: string };
@@ -227,6 +238,78 @@ function InfoItem({ label, value }: { label: string; value: string | number }) {
   );
 }
 
+function BaziDailyTarotCard({ tarot }: { tarot: NonNullable<BaziResult['dailyTarot']> }) {
+  const [flipped, setFlipped] = useState(false);
+
+  return (
+    <section className="rounded-[28px] border border-violet-300/25 bg-black/18 p-5">
+      <LayerBadge label="Daily Tarot · One Draw Per Day" />
+      <h2 className="mt-3 text-2xl font-black leading-8 text-violet-50">今日運勢塔羅牌</h2>
+      <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">依你的八字命盤判定，78 張塔羅牌中固定抽出一張作為今日運勢；同一天內固定不變，{tarot.dateKey} 後才會重新判定。</p>
+
+      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
+        <div className="mx-auto w-40 shrink-0 sm:mx-0 [perspective:1400px]">
+          <button
+            type="button"
+            onClick={() => setFlipped(true)}
+            aria-label={flipped ? tarot.nameZh : '翻牌查看今日運勢'}
+            className={`relative block aspect-[3/5] w-full text-center transition-transform duration-700 [transform-style:preserve-3d] ${flipped ? '[transform:rotateY(180deg)] cursor-default' : 'hover:-translate-y-1'}`}
+          >
+            <span className="absolute inset-0 flex flex-col overflow-hidden rounded-[16px] border-2 border-violet-300/30 bg-gradient-to-br from-violet-950 via-slate-950 to-black p-2.5 shadow-[0_14px_34px_rgba(2,6,23,0.34)] [backface-visibility:hidden]">
+              <span className="pointer-events-none absolute inset-[6px] rounded-[10px] border border-white/25" />
+              <span className="pointer-events-none absolute inset-[6px] rounded-[10px] [background:repeating-linear-gradient(45deg,rgba(255,255,255,0.05)_0,rgba(255,255,255,0.05)_2px,transparent_2px,transparent_10px)]" />
+              <span className="pointer-events-none absolute left-2 top-2 text-[10px] opacity-50">✦</span>
+              <span className="pointer-events-none absolute right-2 top-2 text-[10px] opacity-50">✦</span>
+              <span className="pointer-events-none absolute bottom-2 left-2 text-[10px] opacity-50">✦</span>
+              <span className="pointer-events-none absolute bottom-2 right-2 text-[10px] opacity-50">✦</span>
+              <span className="relative flex flex-1 flex-col items-center justify-center gap-1">
+                <span className="grid h-11 w-11 place-items-center rounded-full border border-white/25 bg-black/20 text-xl shadow-[inset_0_0_16px_rgba(255,255,255,0.12)]">辰</span>
+                <span className="font-serif text-base font-black text-amber-100">☯</span>
+              </span>
+              <span className="relative border-t border-white/15 pt-1.5 text-[10px] font-semibold leading-4 opacity-80">輕觸翻牌 ✦</span>
+            </span>
+            <span className="absolute inset-0 flex flex-col overflow-hidden rounded-[16px] border-2 border-amber-200/50 bg-black [backface-visibility:hidden] [transform:rotateY(180deg)]">
+              <img src={tarot.imageUrl} alt={tarot.nameZh} loading="lazy" className="h-[62%] w-full object-cover object-top" />
+              <span className="flex flex-1 flex-col items-center justify-center gap-0.5 bg-gradient-to-b from-black/85 to-black/95 px-1.5 py-1">
+                <span className="text-[9px] font-black leading-tight tracking-[0.14em] text-amber-200/85">{tarot.nameEn}</span>
+                <span className="font-serif text-sm font-black leading-tight text-amber-50">{tarot.nameZh}</span>
+              </span>
+            </span>
+          </button>
+        </div>
+
+        <div className="min-w-0 flex-1 space-y-3">
+          {flipped ? (
+            <>
+              <div className="rounded-2xl border border-white/10 bg-black/16 p-4">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-200">牌義</p>
+                <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{tarot.uprightMeaning}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {tarot.uprightKeywords.map((keyword) => (
+                    <span key={keyword} className="rounded-full border border-violet-300/25 bg-violet-300/10 px-2.5 py-1 text-[11px] font-semibold text-violet-100">{keyword}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-black/16 p-4">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">與命盤的關聯</p>
+                <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{tarot.bridge}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-black/16 p-4">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">今日自問</p>
+                <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{tarot.reflectionPrompt}</p>
+              </div>
+            </>
+          ) : (
+            <div className="flex h-full items-center rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-6 text-sm leading-7 text-[color:var(--text-sub)]">
+              點選左側牌卡，翻開你今天的運勢塔羅牌。
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ReinforcementCard({ item }: { item: BaziReinforcementItem }) {
   return (
     <article className="min-w-0 rounded-2xl border border-violet-300/25 bg-violet-300/8 p-4">
@@ -254,6 +337,13 @@ export default function BaziPage() {
   const [missing, setMissing] = useState<string[]>([]);
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<BaziResult> | null>(null);
   const resolvedBirthTime = form.timeUnknown ? '12:00' : form.birthTime;
+  const resultSectionRef = useRef<HTMLDivElement>(null);
+
+  function scrollToResult() {
+    window.setTimeout(() => {
+      resultSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  }
 
   useEffect(() => {
     const record = readDailyAnalysis<BaziResult>('bazi');
@@ -280,7 +370,7 @@ export default function BaziPage() {
       } else {
         setDailyRecord(existing);
         setResult(existing.result);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToResult();
         return;
       }
     }
@@ -349,7 +439,7 @@ export default function BaziPage() {
           </Link>
         </header>
 
-        <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 八字命盤" />
+        <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 八字命盤" onViewResult={result ? scrollToResult : undefined} />
         <UnifiedBirthForm
           value={form}
           fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, birthPlace: true, calendarType: true }}
@@ -377,7 +467,8 @@ export default function BaziPage() {
         {message && <p className="mt-4 rounded-2xl border border-cyan-300/25 bg-cyan-300/8 px-4 py-3 text-sm font-bold leading-6 text-cyan-100">{message}</p>}
 
         {result && (
-          <div className="mt-5 space-y-4">
+          <div ref={resultSectionRef} className="mt-5 scroll-mt-20 space-y-4">
+            {result.dailyTarot && <BaziDailyTarotCard tarot={result.dailyTarot} />}
             <section className="rounded-[28px] border border-amber-300/25 bg-black/18 p-5">
               <LayerBadge label="Layer 1 · Professional Chart" />
               <h2 className="mt-3 text-2xl font-black leading-8 text-amber-50">第一層｜專業八字命盤</h2>
