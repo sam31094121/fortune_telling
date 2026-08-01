@@ -1335,6 +1335,11 @@ export default function HomePage() {
   const fortuneRequestRef = useRef<AbortController | null>(null);
   const fortuneSubmittingRef = useRef(false);
   const fortuneLoading = fortuneStatus === 'validating' || fortuneStatus === 'loading' || fortuneStatus === 'recovering';
+  const fortuneNumberDigitClass = fortuneNumber.length >= 9
+    ? 'text-[3.4rem] sm:text-[4.7rem]'
+    : fortuneNumber.length >= 7
+      ? 'text-[3.9rem] sm:text-[5.35rem]'
+      : 'text-[4.75rem] sm:text-[6.25rem]';
 
   const restoreMatchDailyRecord = (record: DailyAnalysisRecord<MatchDailyResult>) => {
     setMatchDailyRecord(record);
@@ -2342,7 +2347,7 @@ export default function HomePage() {
             </div>
 
             <div className="mt-8">
-              <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="flex flex-col gap-4">
               <button
                 type="button"
                 onClick={() => {
@@ -2855,7 +2860,7 @@ export default function HomePage() {
                   </div>
                 )}
 
-                <div className="flex flex-col gap-3 sm:flex-row">
+                <div className="flex flex-col gap-4">
                   {step !== 'personA-base' && (
                     <button
                       type="button"
@@ -3525,11 +3530,16 @@ export default function HomePage() {
                 </span>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <div className="relative min-w-0 flex-1">
-                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black tracking-[0.18em] text-cyan-200/70">
-                    CODE
-                  </span>
+              <div className="flex flex-col gap-4">
+                <div className="relative min-w-0 rounded-[26px] border border-cyan-100/28 bg-slate-950/42 p-2.5 shadow-[0_0_24px_rgba(34,211,238,0.12),inset_0_0_26px_rgba(34,211,238,0.07)]">
+                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2 px-2">
+                    <span className="text-[11px] font-black tracking-[0.16em] text-cyan-100/75">
+                      只輸入阿拉伯數字 0-9
+                    </span>
+                    <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-2.5 py-1 text-[10px] font-black text-amber-100/85">
+                      {fortuneNumber.length}/10
+                    </span>
+                  </div>
                   <input
                     type="text"
                     value={fortuneNumber}
@@ -3540,16 +3550,19 @@ export default function HomePage() {
                       setFortuneError('');
                     }}
                     onFocus={() => setFortuneError('')}
-                    placeholder="請輸入 4 / 6 / 8 / 10 碼數字"
+                    placeholder="輸入數字"
                     aria-label="數字論吉凶輸入框"
-                    className={`form-input w-full border-cyan-200/50 bg-slate-950/70 py-4 pl-16 pr-4 font-mono text-2xl font-black tracking-[0.22em] text-cyan-50 placeholder:text-cyan-100/34 shadow-[0_0_28px_rgba(34,211,238,0.16),inset_0_0_18px_rgba(34,211,238,0.055)] glass-input glass-input-cyan neon-input-focus ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_24px_rgba(244,63,94,0.3)]' : ''}`}
+                    className={`form-input min-h-[148px] w-full rounded-[28px] border-cyan-100/80 bg-slate-950/90 px-1.5 py-7 text-center font-mono ${fortuneNumberDigitClass} font-black leading-none tracking-normal text-cyan-50 placeholder:text-cyan-100/34 shadow-[0_0_58px_rgba(34,211,238,0.38),inset_0_0_40px_rgba(34,211,238,0.12)] glass-input glass-input-cyan neon-input-focus sm:min-h-[168px] ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_30px_rgba(244,63,94,0.38)]' : ''}`}
                   />
+                  <p className="mt-2 px-2 text-center text-[11px] font-bold leading-5 text-cyan-100/62">
+                    可輸入 4、6、8 或完整 10 碼；系統會自動過濾空格與符號。
+                  </p>
                 </div>
                 <button
                   type="button"
                   onClick={handleNumberFortune}
                   disabled={fortuneLoading}
-                  className="vip-gold-btn min-h-[58px] px-8 py-3.5 text-sm font-black tracking-[0.08em] disabled:opacity-40"
+                  className="vip-gold-btn min-h-[60px] w-full px-8 py-3.5 text-sm font-black tracking-[0.08em] disabled:opacity-40 sm:self-end sm:w-auto"
                 >
                   {fortuneLoading ? '分析中...' : getDailyAnalysisButtonLabel(numberDailyRecord)}
                 </button>
