@@ -1,0 +1,45 @@
+.svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+  transform-origin: center;
+  animation: taijiCoreBreathing 4200ms ease-in-out infinite;
+}
+
+.svg.active {
+  animation-duration: 2200ms;
+}
+
+@keyframes taijiCoreBreathing {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.035);
+  }
+}
+
+.outerRing {
+  fill: none;
+  stroke: rgba(230, 236, 248, 0.78);
+  stroke-width: 1.8;
+  opacity: 0.85;
+}
+
+.fish {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+/* Homepage Taiji safety: the core SVG must remain a perfect circle. */
+.svg {
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  contain: paint;
+}
+
+.fish,
+.outerRing {
+  vector-effect: non-scaling-stroke;
+}

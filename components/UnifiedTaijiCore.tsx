@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
+import TaijiCoreVisual from '@/components/taiji/TaijiCoreVisual';
 
 type EvolutionStage = 'idle' | 'taiji' | 'liangyi' | 'sixiang' | 'bagua';
 
@@ -40,7 +41,7 @@ const EVOLUTION_CONFIG: Record<1 | 2 | 4 | 8, EvolutionConfig> = {
 
 const BAGUA_SYMBOLS = [
   ['\u4e7e', '\u2630'],
-  ['\u5157', '\u2631'],
+  ['\u514c', '\u2631'],
   ['\u96e2', '\u2632'],
   ['\u9707', '\u2633'],
   ['\u5dfd', '\u2634'],
@@ -55,6 +56,7 @@ type UnifiedTaijiCoreProps = {
   auraLabel?: string;
   showLabel?: boolean;
   limitToLiangyi?: boolean;
+  holdEvolutionStages?: boolean;
 };
 
 export default function UnifiedTaijiCore({
@@ -64,20 +66,25 @@ export default function UnifiedTaijiCore({
   auraLabel = '',
   showLabel = false,
   limitToLiangyi = false,
+  holdEvolutionStages = false,
 }: UnifiedTaijiCoreProps) {
   const [tapCount, setTapCount] = useState(0);
   const [evolutionStage, setEvolutionStage] = useState<EvolutionStage>('idle');
   const [evolutionLabel, setEvolutionLabel] = useState('AI \u5c0e\u6f14\u5f85\u547d\uff5c\u9ede\u64ca\u592a\u6975\u958b\u6f14');
   const [evolutionDescription, setEvolutionDescription] = useState('');
   const [liangyiReturning, setLiangyiReturning] = useState(false);
+  const [liangyiSettled, setLiangyiSettled] = useState(false);
+  const [liangyiSpinLevel, setLiangyiSpinLevel] = useState<0 | 1 | 2 | 3 | 4 | 5>(0);
   const [mantraLevel, setMantraLevel] = useState<0 | 3 | 6 | 12 | 24>(0);
   const [touchPulse, setTouchPulse] = useState(0);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const evolutionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const liangyiReturnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const liangyiSettleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mantraTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchPulseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTouchTriggerRef = useRef(0);
+  const liangyiSpinClickLockRef = useRef(0);
   const audioContextsRef = useRef<Set<AudioContext>>(new Set());
   const audioTimersRef = useRef<Set<number>>(new Set());
 
@@ -229,26 +236,38 @@ export default function UnifiedTaijiCore({
 
   const triggerEvolution = (config: EvolutionConfig) => {
     if (liangyiReturnTimerRef.current) clearTimeout(liangyiReturnTimerRef.current);
+    if (liangyiSettleTimerRef.current) clearTimeout(liangyiSettleTimerRef.current);
     setLiangyiReturning(false);
+    setLiangyiSettled(false);
+    setLiangyiSpinLevel(config.stage === 'liangyi' ? 1 : 0);
     setEvolutionStage(config.stage);
     setEvolutionLabel(config.label);
     setEvolutionDescription(config.description);
     playEvolutionTone(config.stage);
 
+    if (config.stage === 'liangyi') {
+      liangyiSettleTimerRef.current = setTimeout(() => {
+        setLiangyiSettled(true);
+        liangyiSettleTimerRef.current = null;
+      }, 1720);
+    }
+
     if (evolutionTimerRef.current) clearTimeout(evolutionTimerRef.current);
     evolutionTimerRef.current = setTimeout(() => {
-      if (limitToLiangyi && config.stage === 'liangyi') {
-        setLiangyiReturning(true);
-        setEvolutionStage('idle');
-        setEvolutionLabel('觸碰太極，觀察萬象演化');
+      if (holdEvolutionStages) {
+        if (config.stage === 'liangyi') setLiangyiSettled(true);
         setEvolutionDescription('');
         evolutionTimerRef.current = null;
-        liangyiReturnTimerRef.current = setTimeout(() => {
-          setLiangyiReturning(false);
-          liangyiReturnTimerRef.current = null;
-        }, 720);
         return;
       }
+      if (limitToLiangyi && config.stage === 'liangyi') {
+        setLiangyiSettled(true);
+        setEvolutionDescription('');
+        evolutionTimerRef.current = null;
+        return;
+      }
+      if (liangyiSettleTimerRef.current) clearTimeout(liangyiSettleTimerRef.current);
+      setLiangyiSettled(false);
       setEvolutionStage('idle');
       setEvolutionLabel('觸碰太極，觀察萬象演化');
       setEvolutionDescription('');
@@ -292,6 +311,14 @@ export default function UnifiedTaijiCore({
     setTapCount((previous) => {
       if (limitToLiangyi && previous >= 2) {
         triggerTouchFeedback(previous + 1);
+        setEvolutionStage('liangyi');
+        setLiangyiReturning(false);
+        setLiangyiSettled(true);
+        const now = Date.now();
+        if (now - liangyiSpinClickLockRef.current > 320) {
+          liangyiSpinClickLockRef.current = now;
+          setLiangyiSpinLevel((level) => Math.min(5, Math.max(1, level) + 1) as 1 | 2 | 3 | 4 | 5);
+        }
         if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
         tapTimerRef.current = setTimeout(() => setTapCount(0), 8000);
         return previous;
@@ -332,6 +359,7 @@ export default function UnifiedTaijiCore({
     if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
     if (evolutionTimerRef.current) clearTimeout(evolutionTimerRef.current);
     if (liangyiReturnTimerRef.current) clearTimeout(liangyiReturnTimerRef.current);
+    if (liangyiSettleTimerRef.current) clearTimeout(liangyiSettleTimerRef.current);
     if (mantraTimerRef.current) clearTimeout(mantraTimerRef.current);
     if (touchPulseTimerRef.current) clearTimeout(touchPulseTimerRef.current);
     audioTimersRef.current.forEach((timer) => window.clearTimeout(timer));
@@ -354,9 +382,11 @@ export default function UnifiedTaijiCore({
               : 0;
   const luckyAuraClass = luckyAuraLevel > 0 ? `unified-taiji-shell--lucky-${luckyAuraLevel}` : '';
   const liangyiReturnClass = liangyiReturning ? 'unified-taiji-shell--liangyi-return' : '';
+  const liangyiSettledClass = liangyiSettled ? 'unified-taiji-shell--liangyi-settled' : '';
+  const liangyiSpinClass = liangyiSpinLevel > 0 ? `unified-taiji-shell--liangyi-spin-${liangyiSpinLevel}` : '';
 
   return (
-    <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} ${luckyAuraClass} ${liangyiReturnClass}`.trim()} data-taiji-stage={evolutionStage} data-tap-level={luckyAuraLevel}>
+    <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} ${luckyAuraClass} ${liangyiReturnClass} ${liangyiSettledClass} ${liangyiSpinClass}`.trim()} data-taiji-stage={evolutionStage} data-tap-level={luckyAuraLevel}>
       <button
         type="button"
         onPointerUp={handlePointerUp}
@@ -406,14 +436,7 @@ export default function UnifiedTaijiCore({
           </div>
           <div className={`modal-taiji-3d-core ${active || tapCount > 0 ? 'modal-taiji-3d-core--active' : ''}`}>
             <div className="modal-taiji-core-glaze" />
-            <div className="modal-taiji-half modal-taiji-half--yang" />
-            <div className="modal-taiji-half modal-taiji-half--yin" />
-            <div className="modal-taiji-fish modal-taiji-fish--yang">
-              <span />
-            </div>
-            <div className="modal-taiji-fish modal-taiji-fish--yin">
-              <span />
-            </div>
+            <TaijiCoreVisual active={active || tapCount > 0} />
             <div className="modal-taiji-core-depth" />
           </div>
           {(evolutionStage === 'liangyi' || liangyiReturning) && (

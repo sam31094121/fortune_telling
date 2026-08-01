@@ -14783,3 +14783,765 @@ body.app-touching .home-taiji-cinema * {
   display: block !important;
   content: "" !important;
 }
+/* Taiji first-layer S-curve split V4: two original S fish separate first, then breathe in slow rotation. */
+.home-taiji-cinema .unified-taiji-shell--taiji .modal-taiji-3d-core {
+  animation: taiji-first-layer-core-awaken 1.8s cubic-bezier(.25, .78, .18, 1) both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-3d-core,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .modal-taiji-3d-core {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+  --taiji-first-layer-size: clamp(6.08rem, 31vw, 7.08rem);
+  --taiji-first-layer-distance: clamp(1.42rem, 6.2vw, 1.92rem);
+  --taiji-first-layer-lift: clamp(0.18rem, 0.8vw, 0.28rem);
+  --taiji-first-layer-tilt: clamp(15deg, 4.2vw, 22deg);
+  display: block !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: var(--taiji-first-layer-size) !important;
+  height: var(--taiji-first-layer-size) !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: none !important;
+  z-index: 72 !important;
+  transform: translate(-50%, -50%) translateZ(calc(var(--taiji-layer-core-z, 56px) + 18px)) !important;
+  transform-style: preserve-3d !important;
+  filter:
+    drop-shadow(0 22px 28px rgba(0, 0, 0, 0.34))
+    drop-shadow(0 0 18px rgba(253, 230, 138, 0.16))
+    drop-shadow(0 0 24px rgba(34, 211, 238, 0.1)) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split::before,
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split::after,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split::before,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split::after,
+.home-taiji-cinema .taiji-liangyi-precision-split__half,
+.home-taiji-cinema .taiji-liangyi-precision-split__seam {
+  display: none !important;
+  content: none !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateZ(0);
+  transform-box: view-box !important;
+  transform-origin: 50% 50% !important;
+  transform-style: preserve-3d !important;
+  will-change: translate, rotate, filter !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece path,
+.home-taiji-cinema .taiji-liangyi-precision-split__piece circle {
+  vector-effect: non-scaling-stroke !important;
+  paint-order: fill stroke !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece path {
+  stroke-width: 0.68 !important;
+  stroke-linejoin: round !important;
+  stroke-linecap: round !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece circle {
+  stroke-width: 0.56 !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang {
+  animation:
+    taiji-first-layer-yang-separate 1.72s cubic-bezier(.22, .78, .18, 1) both,
+    taiji-first-layer-yang-slow-rotate 9.6s ease-in-out 1.72s infinite !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang path {
+  fill: #fbfdff !important;
+  stroke: rgba(253, 230, 138, 0.34) !important;
+  filter: drop-shadow(0 0 11px rgba(255, 255, 255, 0.18)) !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang circle {
+  fill: #020617 !important;
+  stroke: rgba(34, 211, 238, 0.2) !important;
+  filter: drop-shadow(0 0 8px rgba(2, 6, 23, 0.78)) !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin {
+  animation:
+    taiji-first-layer-yin-separate 1.72s cubic-bezier(.22, .78, .18, 1) both,
+    taiji-first-layer-yin-slow-rotate 9.6s ease-in-out 1.72s infinite !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin path {
+  fill: #020617 !important;
+  stroke: rgba(103, 232, 249, 0.34) !important;
+  filter: drop-shadow(0 0 11px rgba(34, 211, 238, 0.16)) !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin circle {
+  fill: #f8fafc !important;
+  stroke: rgba(253, 230, 138, 0.28) !important;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.34)) !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-first-layer-yang-separate 1.16s cubic-bezier(.32, .74, .2, 1) reverse both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-first-layer-yin-separate 1.16s cubic-bezier(.32, .74, .2, 1) reverse both !important;
+}
+
+@keyframes taiji-first-layer-core-awaken {
+  0% { transform: translateZ(var(--taiji-layer-core-z, 56px)) rotateZ(0deg) scale(0.98); filter: saturate(1); }
+  58% { transform: translateZ(calc(var(--taiji-layer-core-z, 56px) + 8px)) rotateZ(18deg) scale(1.025); filter: saturate(1.18); }
+  100% { transform: translateZ(var(--taiji-layer-core-z, 56px)) rotateZ(0deg) scale(1); filter: saturate(1.08); }
+}
+
+@keyframes taiji-first-layer-yang-separate {
+  0% { translate: 0 0; rotate: 0deg; filter: brightness(1); }
+  34% { translate: calc(-0.42 * var(--taiji-first-layer-distance)) calc(-1 * var(--taiji-first-layer-lift)); rotate: calc(-0.38 * var(--taiji-first-layer-tilt)); filter: brightness(1.08); }
+  72% { translate: calc(-0.9 * var(--taiji-first-layer-distance)) calc(-0.38 * var(--taiji-first-layer-lift)); rotate: calc(-0.78 * var(--taiji-first-layer-tilt)); filter: brightness(1.04); }
+  100% { translate: calc(-1 * var(--taiji-first-layer-distance)) 0; rotate: calc(-1 * var(--taiji-first-layer-tilt)); filter: brightness(1.02); }
+}
+
+@keyframes taiji-first-layer-yin-separate {
+  0% { translate: 0 0; rotate: 0deg; filter: brightness(1); }
+  34% { translate: calc(0.42 * var(--taiji-first-layer-distance)) var(--taiji-first-layer-lift); rotate: calc(0.38 * var(--taiji-first-layer-tilt)); filter: brightness(1.08); }
+  72% { translate: calc(0.9 * var(--taiji-first-layer-distance)) calc(0.38 * var(--taiji-first-layer-lift)); rotate: calc(0.78 * var(--taiji-first-layer-tilt)); filter: brightness(1.04); }
+  100% { translate: var(--taiji-first-layer-distance) 0; rotate: var(--taiji-first-layer-tilt); filter: brightness(1.02); }
+}
+
+@keyframes taiji-first-layer-yang-slow-rotate {
+  0%, 100% { translate: calc(-1 * var(--taiji-first-layer-distance)) 0; rotate: calc(-1 * var(--taiji-first-layer-tilt)); filter: brightness(1.02); }
+  50% { translate: calc(-1.12 * var(--taiji-first-layer-distance)) calc(-0.32 * var(--taiji-first-layer-lift)); rotate: calc(-1 * var(--taiji-first-layer-tilt) - 12deg); filter: brightness(1.12); }
+}
+
+@keyframes taiji-first-layer-yin-slow-rotate {
+  0%, 100% { translate: var(--taiji-first-layer-distance) 0; rotate: var(--taiji-first-layer-tilt); filter: brightness(1.02); }
+  50% { translate: calc(1.12 * var(--taiji-first-layer-distance)) calc(0.32 * var(--taiji-first-layer-lift)); rotate: calc(var(--taiji-first-layer-tilt) + 12deg); filter: brightness(1.12); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+  .home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+    --taiji-first-layer-size: clamp(5.55rem, 35vw, 6.2rem) !important;
+    --taiji-first-layer-distance: clamp(1.06rem, 6.6vw, 1.34rem) !important;
+    --taiji-first-layer-lift: clamp(0.12rem, 0.8vw, 0.18rem) !important;
+    --taiji-first-layer-tilt: clamp(12deg, 4vw, 17deg) !important;
+  }
+}
+/* Taiji first-layer S-curve split V4.1: explicit transform rotation after the split settles. */
+.home-taiji-cinema .unified-taiji-shell--liangyi:not(.unified-taiji-shell--liangyi-settled) .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-first-layer-yang-separate-transform 1.72s cubic-bezier(.22, .78, .18, 1) both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi:not(.unified-taiji-shell--liangyi-settled) .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-first-layer-yin-separate-transform 1.72s cubic-bezier(.22, .78, .18, 1) both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi.unified-taiji-shell--liangyi-settled .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-first-layer-yang-settled-rotation 8.8s ease-in-out infinite !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi.unified-taiji-shell--liangyi-settled .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-first-layer-yin-settled-rotation 8.8s ease-in-out infinite !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split__piece--yang,
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-first-layer-yang-separate-transform 1.16s cubic-bezier(.32, .74, .2, 1) reverse both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split__piece--yin,
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-first-layer-yin-separate-transform 1.16s cubic-bezier(.32, .74, .2, 1) reverse both !important;
+}
+
+@keyframes taiji-first-layer-yang-separate-transform {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg) translateZ(0); }
+  34% { transform: translate3d(calc(-0.42 * var(--taiji-first-layer-distance)), calc(-1 * var(--taiji-first-layer-lift)), 0) rotate(calc(-0.38 * var(--taiji-first-layer-tilt))) translateZ(8px); }
+  72% { transform: translate3d(calc(-0.9 * var(--taiji-first-layer-distance)), calc(-0.38 * var(--taiji-first-layer-lift)), 0) rotate(calc(-0.78 * var(--taiji-first-layer-tilt))) translateZ(12px); }
+  100% { transform: translate3d(calc(-1 * var(--taiji-first-layer-distance)), 0, 0) rotate(calc(-1 * var(--taiji-first-layer-tilt))) translateZ(10px); }
+}
+
+@keyframes taiji-first-layer-yin-separate-transform {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg) translateZ(0); }
+  34% { transform: translate3d(calc(0.42 * var(--taiji-first-layer-distance)), var(--taiji-first-layer-lift), 0) rotate(calc(0.38 * var(--taiji-first-layer-tilt))) translateZ(8px); }
+  72% { transform: translate3d(calc(0.9 * var(--taiji-first-layer-distance)), calc(0.38 * var(--taiji-first-layer-lift)), 0) rotate(calc(0.78 * var(--taiji-first-layer-tilt))) translateZ(12px); }
+  100% { transform: translate3d(var(--taiji-first-layer-distance), 0, 0) rotate(var(--taiji-first-layer-tilt)) translateZ(10px); }
+}
+
+@keyframes taiji-first-layer-yang-settled-rotation {
+  0%, 100% { transform: translate3d(calc(-1 * var(--taiji-first-layer-distance)), 0, 0) rotate(calc(-1 * var(--taiji-first-layer-tilt))) translateZ(10px); }
+  50% { transform: translate3d(calc(-1.12 * var(--taiji-first-layer-distance)), calc(-0.32 * var(--taiji-first-layer-lift)), 0) rotate(calc(-1 * var(--taiji-first-layer-tilt) - 13deg)) translateZ(18px); }
+}
+
+@keyframes taiji-first-layer-yin-settled-rotation {
+  0%, 100% { transform: translate3d(var(--taiji-first-layer-distance), 0, 0) rotate(var(--taiji-first-layer-tilt)) translateZ(10px); }
+  50% { transform: translate3d(calc(1.12 * var(--taiji-first-layer-distance)), calc(0.32 * var(--taiji-first-layer-lift)), 0) rotate(calc(var(--taiji-first-layer-tilt) + 13deg)) translateZ(18px); }
+}
+/* Taiji first-layer S-curve split V4.2: transform-safe distances without multiplication in keyframes. */
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+  --taiji-first-layer-step-a: clamp(0.58rem, 2.6vw, 0.82rem);
+  --taiji-first-layer-step-b: clamp(1.22rem, 5.4vw, 1.68rem);
+  --taiji-first-layer-step-c: clamp(1.42rem, 6.2vw, 1.92rem);
+  --taiji-first-layer-step-d: clamp(1.58rem, 6.8vw, 2.12rem);
+  --taiji-first-layer-lift-half: clamp(0.07rem, 0.32vw, 0.11rem);
+  --taiji-first-layer-yang-tilt-a: -7deg;
+  --taiji-first-layer-yang-tilt-b: -14deg;
+  --taiji-first-layer-yang-tilt-c: -19deg;
+  --taiji-first-layer-yang-tilt-d: -32deg;
+  --taiji-first-layer-yin-tilt-a: 7deg;
+  --taiji-first-layer-yin-tilt-b: 14deg;
+  --taiji-first-layer-yin-tilt-c: 19deg;
+  --taiji-first-layer-yin-tilt-d: 32deg;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi:not(.unified-taiji-shell--liangyi-settled) .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-first-layer-yang-separate-safe 1.72s cubic-bezier(.22, .78, .18, 1) both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi:not(.unified-taiji-shell--liangyi-settled) .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-first-layer-yin-separate-safe 1.72s cubic-bezier(.22, .78, .18, 1) both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi.unified-taiji-shell--liangyi-settled .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-first-layer-yang-settled-safe 8.8s ease-in-out infinite !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi.unified-taiji-shell--liangyi-settled .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-first-layer-yin-settled-safe 8.8s ease-in-out infinite !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split__piece--yang,
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-first-layer-yang-separate-safe 1.16s cubic-bezier(.32, .74, .2, 1) reverse both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split__piece--yin,
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-first-layer-yin-separate-safe 1.16s cubic-bezier(.32, .74, .2, 1) reverse both !important;
+}
+
+@keyframes taiji-first-layer-yang-separate-safe {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg) translateZ(0); }
+  34% { transform: translate3d(calc(0px - var(--taiji-first-layer-step-a)), calc(0px - var(--taiji-first-layer-lift)), 0) rotate(var(--taiji-first-layer-yang-tilt-a)) translateZ(8px); }
+  72% { transform: translate3d(calc(0px - var(--taiji-first-layer-step-b)), calc(0px - var(--taiji-first-layer-lift-half)), 0) rotate(var(--taiji-first-layer-yang-tilt-b)) translateZ(12px); }
+  100% { transform: translate3d(calc(0px - var(--taiji-first-layer-step-c)), 0, 0) rotate(var(--taiji-first-layer-yang-tilt-c)) translateZ(10px); }
+}
+
+@keyframes taiji-first-layer-yin-separate-safe {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg) translateZ(0); }
+  34% { transform: translate3d(var(--taiji-first-layer-step-a), var(--taiji-first-layer-lift), 0) rotate(var(--taiji-first-layer-yin-tilt-a)) translateZ(8px); }
+  72% { transform: translate3d(var(--taiji-first-layer-step-b), var(--taiji-first-layer-lift-half), 0) rotate(var(--taiji-first-layer-yin-tilt-b)) translateZ(12px); }
+  100% { transform: translate3d(var(--taiji-first-layer-step-c), 0, 0) rotate(var(--taiji-first-layer-yin-tilt-c)) translateZ(10px); }
+}
+
+@keyframes taiji-first-layer-yang-settled-safe {
+  0%, 100% { transform: translate3d(calc(0px - var(--taiji-first-layer-step-c)), 0, 0) rotate(var(--taiji-first-layer-yang-tilt-c)) translateZ(10px); }
+  50% { transform: translate3d(calc(0px - var(--taiji-first-layer-step-d)), calc(0px - var(--taiji-first-layer-lift-half)), 0) rotate(var(--taiji-first-layer-yang-tilt-d)) translateZ(18px); }
+}
+
+@keyframes taiji-first-layer-yin-settled-safe {
+  0%, 100% { transform: translate3d(var(--taiji-first-layer-step-c), 0, 0) rotate(var(--taiji-first-layer-yin-tilt-c)) translateZ(10px); }
+  50% { transform: translate3d(var(--taiji-first-layer-step-d), var(--taiji-first-layer-lift-half), 0) rotate(var(--taiji-first-layer-yin-tilt-d)) translateZ(18px); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+  .home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+    --taiji-first-layer-step-a: clamp(0.44rem, 2.8vw, 0.58rem) !important;
+    --taiji-first-layer-step-b: clamp(0.88rem, 5.4vw, 1.14rem) !important;
+    --taiji-first-layer-step-c: clamp(1.06rem, 6.6vw, 1.34rem) !important;
+    --taiji-first-layer-step-d: clamp(1.16rem, 7.1vw, 1.48rem) !important;
+    --taiji-first-layer-yang-tilt-a: -5deg !important;
+    --taiji-first-layer-yang-tilt-b: -10deg !important;
+    --taiji-first-layer-yang-tilt-c: -15deg !important;
+    --taiji-first-layer-yang-tilt-d: -25deg !important;
+    --taiji-first-layer-yin-tilt-a: 5deg !important;
+    --taiji-first-layer-yin-tilt-b: 10deg !important;
+    --taiji-first-layer-yin-tilt-c: 15deg !important;
+    --taiji-first-layer-yin-tilt-d: 25deg !important;
+  }
+}
+/* Taiji first-layer core V5: separated S-shapes, clockwise acceleration, no collision. */
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+  --taiji-first-layer-step-a: clamp(0.86rem, 3.2vw, 1.08rem) !important;
+  --taiji-first-layer-step-b: clamp(1.72rem, 6.2vw, 2.08rem) !important;
+  --taiji-first-layer-step-c: clamp(2.34rem, 8.4vw, 2.86rem) !important;
+  --taiji-first-layer-step-d: clamp(2.52rem, 9.1vw, 3.08rem) !important;
+  --taiji-first-layer-lift: clamp(0.18rem, 0.8vw, 0.28rem) !important;
+  --taiji-first-layer-lift-half: clamp(0.06rem, 0.3vw, 0.1rem) !important;
+  --taiji-first-layer-cw-a: 8deg !important;
+  --taiji-first-layer-cw-b: 17deg !important;
+  --taiji-first-layer-cw-c: 28deg !important;
+  --taiji-first-layer-cw-d: 46deg !important;
+  --taiji-first-layer-spin-duration: 11.8s;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-1 .taiji-liangyi-precision-split { --taiji-first-layer-spin-duration: 11.8s; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-2 .taiji-liangyi-precision-split { --taiji-first-layer-spin-duration: 9.2s; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-3 .taiji-liangyi-precision-split { --taiji-first-layer-spin-duration: 7.2s; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-4 .taiji-liangyi-precision-split { --taiji-first-layer-spin-duration: 5.4s; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-5 .taiji-liangyi-precision-split { --taiji-first-layer-spin-duration: 4.1s; }
+
+.home-taiji-cinema .unified-taiji-shell--liangyi:not(.unified-taiji-shell--liangyi-settled) .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-first-layer-yang-cw-separate 1.72s cubic-bezier(.22, .78, .18, 1) both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi:not(.unified-taiji-shell--liangyi-settled) .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-first-layer-yin-cw-separate 1.72s cubic-bezier(.22, .78, .18, 1) both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi.unified-taiji-shell--liangyi-settled .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-first-layer-yang-cw-spin var(--taiji-first-layer-spin-duration) linear infinite !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi.unified-taiji-shell--liangyi-settled .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-first-layer-yin-cw-spin var(--taiji-first-layer-spin-duration) linear infinite !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split__piece--yang,
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-first-layer-yang-cw-separate 1.16s cubic-bezier(.32, .74, .2, 1) reverse both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split__piece--yin,
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-first-layer-yin-cw-separate 1.16s cubic-bezier(.32, .74, .2, 1) reverse both !important;
+}
+
+@keyframes taiji-first-layer-yang-cw-separate {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg) translateZ(0); }
+  35% { transform: translate3d(calc(0px - var(--taiji-first-layer-step-a)), calc(0px - var(--taiji-first-layer-lift)), 0) rotate(var(--taiji-first-layer-cw-a)) translateZ(8px); }
+  74% { transform: translate3d(calc(0px - var(--taiji-first-layer-step-b)), calc(0px - var(--taiji-first-layer-lift-half)), 0) rotate(var(--taiji-first-layer-cw-b)) translateZ(12px); }
+  100% { transform: translate3d(calc(0px - var(--taiji-first-layer-step-c)), 0, 0) rotate(var(--taiji-first-layer-cw-c)) translateZ(10px); }
+}
+
+@keyframes taiji-first-layer-yin-cw-separate {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg) translateZ(0); }
+  35% { transform: translate3d(var(--taiji-first-layer-step-a), var(--taiji-first-layer-lift), 0) rotate(var(--taiji-first-layer-cw-a)) translateZ(8px); }
+  74% { transform: translate3d(var(--taiji-first-layer-step-b), var(--taiji-first-layer-lift-half), 0) rotate(var(--taiji-first-layer-cw-b)) translateZ(12px); }
+  100% { transform: translate3d(var(--taiji-first-layer-step-c), 0, 0) rotate(var(--taiji-first-layer-cw-c)) translateZ(10px); }
+}
+
+@keyframes taiji-first-layer-yang-cw-spin {
+  from { transform: translate3d(calc(0px - var(--taiji-first-layer-step-c)), 0, 0) rotate(var(--taiji-first-layer-cw-c)) translateZ(10px); }
+  to { transform: translate3d(calc(0px - var(--taiji-first-layer-step-c)), 0, 0) rotate(calc(var(--taiji-first-layer-cw-c) + 360deg)) translateZ(10px); }
+}
+
+@keyframes taiji-first-layer-yin-cw-spin {
+  from { transform: translate3d(var(--taiji-first-layer-step-c), 0, 0) rotate(var(--taiji-first-layer-cw-c)) translateZ(10px); }
+  to { transform: translate3d(var(--taiji-first-layer-step-c), 0, 0) rotate(calc(var(--taiji-first-layer-cw-c) + 360deg)) translateZ(10px); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+  .home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+    --taiji-first-layer-step-a: clamp(0.58rem, 3.4vw, 0.72rem) !important;
+    --taiji-first-layer-step-b: clamp(1.12rem, 6.5vw, 1.38rem) !important;
+    --taiji-first-layer-step-c: clamp(1.46rem, 8.3vw, 1.72rem) !important;
+    --taiji-first-layer-step-d: clamp(1.58rem, 9vw, 1.88rem) !important;
+    --taiji-first-layer-cw-a: 6deg !important;
+    --taiji-first-layer-cw-b: 13deg !important;
+    --taiji-first-layer-cw-c: 22deg !important;
+    --taiji-first-layer-cw-d: 38deg !important;
+  }
+}
+/* Taiji evolution link V6: connect existing Taiji -> Liangyi -> Sixiang -> Bagua materials on the homepage card only. */
+.home-taiji-cinema .unified-taiji-shell--taiji .modal-taiji-3d-core,
+.home-taiji-cinema .unified-taiji-shell--sixiang .modal-taiji-3d-core,
+.home-taiji-cinema .unified-taiji-shell--bagua .modal-taiji-3d-core {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--taiji .modal-taiji-3d-core {
+  animation: taiji-linked-origin-breathe 3.8s ease-in-out infinite !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--sixiang .modal-taiji-3d-core {
+  opacity: 0.78 !important;
+  filter: saturate(1.08) brightness(1.04) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--bagua .modal-taiji-3d-core {
+  opacity: 0.58 !important;
+  filter: saturate(1.05) brightness(0.98) blur(0.15px) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--sixiang .unified-evolution-screen,
+.home-taiji-cinema .unified-taiji-shell--bagua .unified-evolution-screen {
+  opacity: 0.62 !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 248, 214, 0.18), transparent 26%),
+    conic-gradient(from 0deg, rgba(253, 230, 138, 0.18), rgba(34, 211, 238, 0.12), rgba(139, 92, 246, 0.12), rgba(253, 230, 138, 0.18)) !important;
+  -webkit-mask: radial-gradient(circle, transparent 0 34%, #000 44%, transparent 76%) !important;
+  mask: radial-gradient(circle, transparent 0 34%, #000 44%, transparent 76%) !important;
+  animation: taiji-linked-field-turn 16s linear infinite !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-liangyi-layer,
+.home-taiji-cinema .unified-taiji-shell--sixiang .modal-sixiang-layer,
+.home-taiji-cinema .unified-taiji-shell--bagua .modal-bagua-layer {
+  z-index: 76 !important;
+  pointer-events: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-liangyi-node,
+.home-taiji-cinema .unified-taiji-shell--sixiang .modal-sixiang-node,
+.home-taiji-cinema .unified-taiji-shell--bagua .modal-bagua-node {
+  backdrop-filter: blur(12px) saturate(1.16) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(1.16) !important;
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.32),
+    0 0 18px rgba(253, 230, 138, 0.18),
+    inset 0 0 16px rgba(255, 255, 255, 0.06) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .unified-liangyi-split,
+.home-taiji-cinema .unified-taiji-shell--sixiang .unified-sixiang-cross,
+.home-taiji-cinema .unified-taiji-shell--bagua .unified-bagua-mandala {
+  z-index: 64 !important;
+  pointer-events: none !important;
+  filter: drop-shadow(0 0 12px rgba(253, 230, 138, 0.18)) drop-shadow(0 0 18px rgba(34, 211, 238, 0.12)) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--sixiang .unified-sixiang-cross {
+  opacity: 0.82 !important;
+  animation: taiji-linked-sixiang-cross 2.1s cubic-bezier(.16, .88, .2, 1) both, taiji-linked-field-turn 22s linear infinite 2.1s !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--bagua .unified-bagua-mandala {
+  opacity: 0.82 !important;
+  animation: taiji-linked-bagua-rise 2.35s cubic-bezier(.16, .88, .2, 1) both, taiji-linked-field-turn 28s linear infinite 2.35s !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--bagua .taiji-stage-bagua-field {
+  opacity: 1 !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--bagua .taiji-stage-bagua-field__mark {
+  opacity: 0.84 !important;
+  filter: drop-shadow(0 0 12px rgba(253, 230, 138, 0.2)) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--sixiang .modal-sixiang-node,
+.home-taiji-cinema .unified-taiji-shell--bagua .modal-bagua-node {
+  transform-style: preserve-3d !important;
+}
+
+@keyframes taiji-linked-origin-breathe {
+  0%, 100% { transform: translateZ(var(--taiji-layer-core-z, 56px)) rotateZ(0deg) scale(1); filter: saturate(1.05); }
+  50% { transform: translateZ(calc(var(--taiji-layer-core-z, 56px) + 10px)) rotateZ(18deg) scale(1.035); filter: saturate(1.18) brightness(1.08); }
+}
+
+@keyframes taiji-linked-field-turn {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes taiji-linked-sixiang-cross {
+  0% { opacity: 0; transform: scale(0.36) rotate(-28deg); filter: blur(2px); }
+  62% { opacity: 0.98; transform: scale(1.08) rotate(6deg); filter: blur(0); }
+  100% { opacity: 0.82; transform: scale(1) rotate(0deg); filter: blur(0.2px); }
+}
+
+@keyframes taiji-linked-bagua-rise {
+  0% { opacity: 0; transform: scale(0.42) rotate(-32deg); filter: blur(2.4px); }
+  60% { opacity: 0.96; transform: scale(1.08) rotate(8deg); filter: blur(0); }
+  100% { opacity: 0.82; transform: scale(1) rotate(0deg); filter: blur(0.15px); }
+}
+/* Taiji core orbit V7: one static center, one collision-free 365deg path for yin and yang. */
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-3d-core,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .modal-taiji-3d-core {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-liangyi-layer,
+.home-taiji-cinema .unified-taiji-shell--liangyi .unified-liangyi-split {
+  display: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+  --taiji-core-orbit-size: clamp(5.65rem, 25vw, 6.55rem);
+  --taiji-core-orbit-radius: clamp(4.55rem, 16vw, 5.45rem);
+  --taiji-core-orbit-lift: clamp(0.46rem, 1.8vw, 0.68rem);
+  --taiji-core-orbit-duration: 15.5s;
+  width: var(--taiji-core-orbit-size) !important;
+  height: var(--taiji-core-orbit-size) !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) translateZ(calc(var(--taiji-layer-core-z, 56px) + 20px)) !important;
+  transform-style: preserve-3d !important;
+  perspective: 720px !important;
+  z-index: 82 !important;
+  overflow: visible !important;
+  filter:
+    drop-shadow(0 18px 28px rgba(0, 0, 0, 0.34))
+    drop-shadow(0 0 20px rgba(253, 230, 138, 0.16)) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-1 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 15.5s; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-2 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 12.4s; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-3 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 9.8s; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-4 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 7.4s; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-5 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 5.8s; }
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece {
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform-origin: 50% 50% !important;
+  transform-box: fill-box !important;
+  transform-style: preserve-3d !important;
+  will-change: transform !important;
+  pointer-events: none !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi:not(.unified-taiji-shell--liangyi-settled) .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-core-yang-enter-orbit 1.72s cubic-bezier(.22, .78, .18, 1) both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi:not(.unified-taiji-shell--liangyi-settled) .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-core-yin-enter-orbit 1.72s cubic-bezier(.22, .78, .18, 1) both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi.unified-taiji-shell--liangyi-settled .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-core-yang-365-orbit var(--taiji-core-orbit-duration) linear infinite !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi.unified-taiji-shell--liangyi-settled .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-core-yin-365-orbit var(--taiji-core-orbit-duration) linear infinite !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split__piece--yang,
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-core-yang-enter-orbit 1.16s cubic-bezier(.32, .74, .2, 1) reverse both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split__piece--yin,
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-core-yin-enter-orbit 1.16s cubic-bezier(.32, .74, .2, 1) reverse both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .modal-taiji-orbit-emblem {
+  transform: translateZ(var(--taiji-layer-orbit-z, 38px)) !important;
+}
+
+@keyframes taiji-core-yang-enter-orbit {
+  0% { transform: rotateZ(0deg) translate3d(0, 0, 0) rotateY(0deg) rotateZ(0deg); }
+  42% { transform: rotateZ(0deg) translate3d(calc(0px - var(--taiji-core-orbit-radius) * 0.58), calc(0px - var(--taiji-core-orbit-lift) * 0.55), 14px) rotateY(-16deg) rotateZ(18deg); }
+  100% { transform: rotateZ(0deg) translate3d(calc(0px - var(--taiji-core-orbit-radius)), 0, 18px) rotateY(-10deg) rotateZ(28deg); }
+}
+
+@keyframes taiji-core-yin-enter-orbit {
+  0% { transform: rotateZ(0deg) translate3d(0, 0, 0) rotateY(0deg) rotateZ(0deg); }
+  42% { transform: rotateZ(180deg) translate3d(calc(0px - var(--taiji-core-orbit-radius) * 0.58), calc(0px - var(--taiji-core-orbit-lift) * 0.55), 14px) rotateY(-16deg) rotateZ(18deg); }
+  100% { transform: rotateZ(180deg) translate3d(calc(0px - var(--taiji-core-orbit-radius)), 0, 18px) rotateY(-10deg) rotateZ(28deg); }
+}
+
+@keyframes taiji-core-yang-365-orbit {
+  from { transform: rotateZ(0deg) translate3d(calc(0px - var(--taiji-core-orbit-radius)), 0, 18px) rotateY(-10deg) rotateZ(28deg); }
+  to { transform: rotateZ(360deg) translate3d(calc(0px - var(--taiji-core-orbit-radius)), 0, 18px) rotateY(-10deg) rotateZ(388deg); }
+}
+
+@keyframes taiji-core-yin-365-orbit {
+  from { transform: rotateZ(180deg) translate3d(calc(0px - var(--taiji-core-orbit-radius)), 0, 18px) rotateY(-10deg) rotateZ(28deg); }
+  to { transform: rotateZ(540deg) translate3d(calc(0px - var(--taiji-core-orbit-radius)), 0, 18px) rotateY(-10deg) rotateZ(388deg); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+  .home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+    --taiji-core-orbit-size: clamp(4.65rem, 25vw, 5.35rem) !important;
+    --taiji-core-orbit-radius: clamp(3.35rem, 17vw, 4.02rem) !important;
+    --taiji-core-orbit-lift: clamp(0.28rem, 1.6vw, 0.44rem) !important;
+  }
+}
+/* Taiji core orbit V8: strict no-overlap first layer. Smaller fish, wider locked opposite orbit. */
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+  --taiji-core-orbit-size: clamp(3.15rem, 13.5vw, 3.85rem) !important;
+  --taiji-core-orbit-radius: clamp(6.35rem, 20vw, 7.4rem) !important;
+  --taiji-core-orbit-lift: 0rem !important;
+  --taiji-core-orbit-duration: 17s;
+  width: var(--taiji-core-orbit-size) !important;
+  height: var(--taiji-core-orbit-size) !important;
+  transform: translate(-50%, -50%) translateZ(calc(var(--taiji-layer-core-z, 56px) + 28px)) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-1 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 17s !important; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-2 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 14s !important; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-3 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 11.2s !important; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-4 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 8.6s !important; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-5 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 6.8s !important; }
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split__piece {
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0.98 !important;
+  filter: drop-shadow(0 0 10px rgba(253, 230, 138, 0.18)) !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi:not(.unified-taiji-shell--liangyi-settled) .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-core-yang-enter-wide-orbit 1.72s cubic-bezier(.22, .78, .18, 1) both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi:not(.unified-taiji-shell--liangyi-settled) .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-core-yin-enter-wide-orbit 1.72s cubic-bezier(.22, .78, .18, 1) both !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi.unified-taiji-shell--liangyi-settled .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-core-yang-wide-365-orbit var(--taiji-core-orbit-duration) linear infinite !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi.unified-taiji-shell--liangyi-settled .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-core-yin-wide-365-orbit var(--taiji-core-orbit-duration) linear infinite !important;
+}
+
+@keyframes taiji-core-yang-enter-wide-orbit {
+  0% { transform: translate3d(0, 0, 0) rotateZ(0deg) translateZ(0); }
+  48% { transform: translate3d(calc(0px - var(--taiji-core-orbit-radius) * 0.58), 0, 20px) rotateZ(16deg); }
+  100% { transform: translate3d(calc(0px - var(--taiji-core-orbit-radius)), 0, 24px) rotateZ(24deg); }
+}
+
+@keyframes taiji-core-yin-enter-wide-orbit {
+  0% { transform: translate3d(0, 0, 0) rotateZ(0deg) translateZ(0); }
+  48% { transform: translate3d(calc(var(--taiji-core-orbit-radius) * 0.58), 0, 20px) rotateZ(196deg); }
+  100% { transform: translate3d(var(--taiji-core-orbit-radius), 0, 24px) rotateZ(204deg); }
+}
+
+@keyframes taiji-core-yang-wide-365-orbit {
+  from { transform: rotateZ(0deg) translate3d(calc(0px - var(--taiji-core-orbit-radius)), 0, 24px) rotateZ(24deg); }
+  to { transform: rotateZ(360deg) translate3d(calc(0px - var(--taiji-core-orbit-radius)), 0, 24px) rotateZ(384deg); }
+}
+
+@keyframes taiji-core-yin-wide-365-orbit {
+  from { transform: rotateZ(180deg) translate3d(calc(0px - var(--taiji-core-orbit-radius)), 0, 24px) rotateZ(24deg); }
+  to { transform: rotateZ(540deg) translate3d(calc(0px - var(--taiji-core-orbit-radius)), 0, 24px) rotateZ(384deg); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+  .home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+    --taiji-core-orbit-size: clamp(2.45rem, 13vw, 2.9rem) !important;
+    --taiji-core-orbit-radius: clamp(4.55rem, 23vw, 5.1rem) !important;
+  }
+}
+/* Taiji homepage V9: mobile-first round core, clean stage connection, strict no deformation. */
+.home-taiji-cinema .modal-taiji-3d-core {
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 999px !important;
+  overflow: visible !important;
+  transform-origin: 50% 50% !important;
+}
+
+.home-taiji-cinema .modal-taiji-3d-core > svg {
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: contain !important;
+  display: block !important;
+  overflow: visible !important;
+  transform-origin: 50% 50% !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+  --taiji-core-orbit-size: clamp(2.85rem, 12.5vw, 3.55rem) !important;
+  --taiji-core-orbit-radius: clamp(6.75rem, 21vw, 7.85rem) !important;
+  --taiji-core-orbit-duration: 17.5s !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-1 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 17.5s !important; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-2 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 14.2s !important; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-3 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 11.4s !important; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-4 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 8.8s !important; }
+.home-taiji-cinema .unified-taiji-shell--liangyi-spin-5 .taiji-liangyi-precision-split { --taiji-core-orbit-duration: 7s !important; }
+
+.home-taiji-cinema .unified-taiji-shell--sixiang .modal-sixiang-node,
+.home-taiji-cinema .unified-taiji-shell--bagua .modal-bagua-node {
+  aspect-ratio: 1 / 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell--bagua .modal-bagua-node small {
+  font-family: inherit !important;
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema.taiji-open-stage {
+    min-height: min(21.5rem, 92vw) !important;
+  }
+
+  .home-taiji-cinema .modal-taiji-button {
+    width: min(18.2rem, 88vw) !important;
+    height: min(18.2rem, 88vw) !important;
+  }
+
+  .home-taiji-cinema .modal-taiji-orbit-emblem {
+    width: min(16.7rem, 82vw) !important;
+    height: min(16.7rem, 82vw) !important;
+  }
+
+  .home-taiji-cinema .modal-taiji-3d-core {
+    width: min(6.1rem, 30vw) !important;
+    height: min(6.1rem, 30vw) !important;
+  }
+
+  .home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+  .home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+    --taiji-core-orbit-size: clamp(2.05rem, 10.5vw, 2.5rem) !important;
+    --taiji-core-orbit-radius: clamp(5.1rem, 25vw, 5.8rem) !important;
+  }
+
+  .home-taiji-cinema .unified-taiji-shell--sixiang .modal-sixiang-node {
+    width: clamp(2.15rem, 10.2vw, 2.55rem) !important;
+    height: clamp(2.15rem, 10.2vw, 2.55rem) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    font-size: clamp(0.54rem, 2.7vw, 0.7rem) !important;
+  }
+
+  .home-taiji-cinema .unified-taiji-shell--bagua .modal-bagua-node {
+    width: clamp(2.08rem, 9.8vw, 2.45rem) !important;
+    height: clamp(2.08rem, 9.8vw, 2.45rem) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+
+  .home-taiji-cinema .unified-taiji-shell--bagua .modal-bagua-node b {
+    font-size: clamp(0.82rem, 3.9vw, 1rem) !important;
+  }
+
+  .home-taiji-cinema .unified-taiji-shell--bagua .modal-bagua-node small {
+    font-size: clamp(0.42rem, 2vw, 0.52rem) !important;
+  }
+}
