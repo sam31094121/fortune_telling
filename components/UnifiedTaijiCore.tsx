@@ -3,53 +3,16 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import TaijiCoreVisual from '@/components/taiji/TaijiCoreVisual';
 import { decideTaijiEntryStage } from '@/lib/taiji-adaptive-stage';
+import {
+  TAIJI_CORE_CONFIG,
+  buildTaijiCoreSnapshot,
+  getTaijiCoreConfigForTap,
+  getTaijiLuckyAuraLevel,
+  type TaijiCoreConfig,
+  type TaijiVisualStage,
+} from '@/lib/taiji-core-engine';
 
-type EvolutionStage = 'idle' | 'taiji' | 'liangyi' | 'sixiang' | 'bagua';
-
-type EvolutionConfig = {
-  stage: EvolutionStage;
-  label: string;
-  description: string;
-  durationMs: number;
-};
-
-const EVOLUTION_CONFIG: Record<1 | 2 | 4 | 8, EvolutionConfig> = {
-  1: {
-    stage: 'taiji',
-    label: '\u7b2c\u4e00\u5e55\uff5c\u4e3b\u89d2\u592a\u6975\u7526\u9192',
-    description: '\u9ec3\u91d1\u805a\u5149\u843d\u5728\u592a\u6975\u6838\u5fc3\uff0c\u9019\u662f\u6545\u4e8b\u958b\u5834\u3002',
-    durationMs: 1200,
-  },
-  2: {
-    stage: 'liangyi',
-    label: '\u7b2c\u4e8c\u5e55\uff5c\u9670\u967d\u767b\u5834',
-    description: '\u7537\u4e3b\u89d2\u9ede\u64ca\u63a8\u52d5\u5287\u60c5\uff0c\u9670\u8207\u967d\u5206\u958b\u7ad9\u4f4d\u3002',
-    durationMs: 1600,
-  },
-  4: {
-    stage: 'sixiang',
-    label: '\u7b2c\u4e09\u5e55\uff5c\u56db\u8c61\u5e03\u666f',
-    description: '\u5834\u666f\u958b\u59cb\u6709\u4e0a\u4e0b\u5de6\u53f3\uff0c\u70ba\u516b\u5366\u9053\u5177\u9810\u7559\u4f4d\u7f6e\u3002',
-    durationMs: 2000,
-  },
-  8: {
-    stage: 'bagua',
-    label: '\u7b2c\u56db\u5e55\uff5c\u516b\u5366\u9053\u5177\u51fa\u5834',
-    description: '\u516b\u500b\u5366\u8c61\u5728\u5916\u5708\u6d6e\u51fa\uff0c\u6307\u51fa\u65b9\u4f4d\uff0c\u4e0d\u906e\u4f4f\u4e2d\u5fc3\u592a\u6975\u3002',
-    durationMs: 2400,
-  },
-};
-
-const BAGUA_SYMBOLS = [
-  ['\u4e7e', '\u2630'],
-  ['\u514c', '\u2631'],
-  ['\u96e2', '\u2632'],
-  ['\u9707', '\u2633'],
-  ['\u5dfd', '\u2634'],
-  ['\u574e', '\u2635'],
-  ['\u826e', '\u2636'],
-  ['\u5764', '\u2637'],
-] as const;
+type EvolutionStage = TaijiVisualStage;
 type UnifiedTaijiCoreProps = {
   active?: boolean;
   auraClass?: string;
@@ -83,6 +46,7 @@ export default function UnifiedTaijiCore({
   const [highlightElement, setHighlightElement] = useState<'EARTH' | 'WATER' | 'FIRE' | 'AIR' | 'SPACE' | null>(null);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const evolutionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const recenterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const liangyiReturnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const liangyiSettleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mantraTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -97,9 +61,9 @@ export default function UnifiedTaijiCore({
     const decision = decideTaijiEntryStage();
     setHighlightElement(decision.highlightElement);
     if (decision.stage === 'idle') return;
-    const stageConfig = Object.values(EVOLUTION_CONFIG).find((config) => config.stage === decision.stage);
+    const stageConfig = Object.values(TAIJI_CORE_CONFIG).find((config) => config.stage === decision.stage);
     setEvolutionStage(decision.stage as EvolutionStage);
-    setEvolutionLabel(stageConfig?.label ?? 'AI 今日已為你演化太極');
+    setEvolutionLabel(stageConfig?.label ?? 'AI 太極已依你的進度演化');
     setEvolutionDescription(decision.reason);
     if (decision.stage === 'liangyi') setLiangyiSettled(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -251,7 +215,7 @@ export default function UnifiedTaijiCore({
     }
   };
 
-  const triggerEvolution = (config: EvolutionConfig) => {
+  const enterEvolutionStage = (config: TaijiCoreConfig) => {
     if (liangyiReturnTimerRef.current) clearTimeout(liangyiReturnTimerRef.current);
     if (liangyiSettleTimerRef.current) clearTimeout(liangyiSettleTimerRef.current);
     setLiangyiReturning(false);
@@ -290,6 +254,31 @@ export default function UnifiedTaijiCore({
       setEvolutionDescription('');
       evolutionTimerRef.current = null;
     }, config.durationMs + 1600);
+  };
+
+  const triggerEvolution = (config: TaijiCoreConfig) => {
+    if (recenterTimerRef.current) clearTimeout(recenterTimerRef.current);
+    if (evolutionTimerRef.current) clearTimeout(evolutionTimerRef.current);
+    if (liangyiReturnTimerRef.current) clearTimeout(liangyiReturnTimerRef.current);
+    if (liangyiSettleTimerRef.current) clearTimeout(liangyiSettleTimerRef.current);
+
+    setLiangyiReturning(false);
+    setLiangyiSettled(false);
+    setLiangyiSpinLevel(0);
+
+    if (config.stage === 'taiji') {
+      enterEvolutionStage(config);
+      return;
+    }
+
+    setEvolutionStage('taiji');
+    setEvolutionLabel(config.label);
+    setEvolutionDescription('太極核心先回到中心，再進入下一層變化。');
+
+    recenterTimerRef.current = setTimeout(() => {
+      recenterTimerRef.current = null;
+      enterEvolutionStage(config);
+    }, 260);
   };
 
   const triggerMantra = (level: 3 | 6 | 12 | 24) => {
@@ -348,7 +337,8 @@ export default function UnifiedTaijiCore({
       tapTimerRef.current = setTimeout(() => setTapCount(0), 8000);
 
       if (next === 1 || next === 2 || (!limitToLiangyi && (next === 4 || next === 8))) {
-        triggerEvolution(EVOLUTION_CONFIG[next as 1 | 2 | 4 | 8]);
+        const stageConfig = getTaijiCoreConfigForTap(next, limitToLiangyi);
+        if (stageConfig) triggerEvolution(stageConfig);
       }
       if (!limitToLiangyi && (next === 3 || next === 6 || next === 12 || next === 24)) {
         triggerMantra(next);
@@ -375,6 +365,7 @@ export default function UnifiedTaijiCore({
   useEffect(() => () => {
     if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
     if (evolutionTimerRef.current) clearTimeout(evolutionTimerRef.current);
+    if (recenterTimerRef.current) clearTimeout(recenterTimerRef.current);
     if (liangyiReturnTimerRef.current) clearTimeout(liangyiReturnTimerRef.current);
     if (liangyiSettleTimerRef.current) clearTimeout(liangyiSettleTimerRef.current);
     if (mantraTimerRef.current) clearTimeout(mantraTimerRef.current);
@@ -385,25 +376,24 @@ export default function UnifiedTaijiCore({
     audioContextsRef.current.clear();
   }, []);
 
-  const luckyAuraLevel =
-    mantraLevel === 24 || tapCount >= 24
-      ? 24
-      : mantraLevel === 12 || tapCount >= 12
-        ? 12
-        : evolutionStage === 'bagua' || tapCount >= 8
-          ? 8
-          : mantraLevel === 6 || tapCount >= 6
-            ? 6
-            : mantraLevel === 3 || tapCount >= 3
-              ? 3
-              : 0;
+  const luckyAuraLevel = getTaijiLuckyAuraLevel({ mantraLevel, tapCount, stage: evolutionStage });
+  const coreSnapshot = buildTaijiCoreSnapshot(evolutionStage);
   const luckyAuraClass = luckyAuraLevel > 0 ? `unified-taiji-shell--lucky-${luckyAuraLevel}` : '';
   const liangyiReturnClass = liangyiReturning ? 'unified-taiji-shell--liangyi-return' : '';
   const liangyiSettledClass = liangyiSettled ? 'unified-taiji-shell--liangyi-settled' : '';
   const liangyiSpinClass = liangyiSpinLevel > 0 ? `unified-taiji-shell--liangyi-spin-${liangyiSpinLevel}` : '';
+  const taijiLayer = evolutionStage === 'bagua'
+    ? '3-outer-field'
+    : evolutionStage === 'sixiang'
+      ? '3-outer-field'
+      : evolutionStage === 'liangyi'
+        ? '1-core-split'
+        : evolutionStage === 'taiji'
+          ? '1-core'
+          : '0-idle';
 
   return (
-    <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} ${luckyAuraClass} ${liangyiReturnClass} ${liangyiSettledClass} ${liangyiSpinClass}`.trim()} data-taiji-stage={evolutionStage} data-tap-level={luckyAuraLevel}>
+    <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} ${luckyAuraClass} ${liangyiReturnClass} ${liangyiSettledClass} ${liangyiSpinClass}`.trim()} data-taiji-engine={coreSnapshot.engine} data-taiji-version={coreSnapshot.version} data-taiji-store={coreSnapshot.store} data-taiji-event={coreSnapshot.event} data-taiji-stage={evolutionStage} data-taiji-layer={taijiLayer} data-tap-level={luckyAuraLevel}>
       <button
         type="button"
         onPointerUp={handlePointerUp}
@@ -470,7 +460,7 @@ export default function UnifiedTaijiCore({
           )}
         </div>
 
-        {evolutionStage !== 'idle' && (
+        {evolutionStage !== 'idle' && evolutionStage !== 'taiji' && (
           <>
             <div className="unified-evolution-screen" aria-hidden="true" />
             <div className="unified-evolution-pulse" aria-hidden="true" />
@@ -489,49 +479,25 @@ export default function UnifiedTaijiCore({
         {evolutionStage === 'taiji' && <div className="modal-evolution-breath" />}
 
         {evolutionStage === 'liangyi' && (
-          <>
-            <div className="unified-liangyi-split" aria-hidden="true">
-              <span />
-              <span />
-            </div>
-            <div className="modal-evolution-layer modal-liangyi-layer" aria-hidden="true">
-              <span className="modal-liangyi-node modal-liangyi-yang">{'\u967d'}</span>
-              <span className="modal-liangyi-node modal-liangyi-yin">{'\u9670'}</span>
-            </div>
-          </>
+          <div className="unified-liangyi-split" aria-hidden="true">
+            <span />
+            <span />
+          </div>
         )}
 
         {evolutionStage === 'sixiang' && (
-          <>
-            <div className="unified-sixiang-cross" aria-hidden="true">
-              <span />
-              <span />
-            </div>
-            <div className="modal-evolution-layer modal-sixiang-layer" aria-hidden="true">
-              <span className="modal-sixiang-node modal-sixiang-0">{'\u592a\u967d'}</span>
-              <span className="modal-sixiang-node modal-sixiang-1">{'\u5c11\u9670'}</span>
-              <span className="modal-sixiang-node modal-sixiang-2">{'\u592a\u9670'}</span>
-              <span className="modal-sixiang-node modal-sixiang-3">{'\u5c11\u967d'}</span>
-            </div>
-          </>
+          <div className="unified-sixiang-cross" aria-hidden="true">
+            <span />
+            <span />
+          </div>
         )}
 
         {evolutionStage === 'bagua' && (
-          <>
-            <div className="unified-bagua-mandala" aria-hidden="true">
-              {Array.from({ length: 8 }, (_, index) => (
-                <span key={index} className={`unified-bagua-line unified-bagua-line-${index}`} />
-              ))}
-            </div>
-            <div className="modal-evolution-layer modal-bagua-layer" aria-hidden="true">
-              {BAGUA_SYMBOLS.map(([name, symbol], index) => (
-                <span key={name} className={`modal-bagua-node modal-bagua-${index}`}>
-                  <b>{symbol}</b>
-                  <small>{name}</small>
-                </span>
-              ))}
-            </div>
-          </>
+          <div className="unified-bagua-mandala" aria-hidden="true">
+            {Array.from({ length: 8 }, (_, index) => (
+              <span key={index} className={`unified-bagua-line unified-bagua-line-${index}`} />
+            ))}
+          </div>
         )}
         {touchPulse > 0 && <span key={touchPulse} className="taiji-touch-ripple" aria-hidden="true" />}
         <div className="modal-taiji-ground-glow" aria-hidden="true" />
@@ -551,7 +517,7 @@ export default function UnifiedTaijiCore({
       {mantraLevel > 0 && (
         <div className={`unified-mantra-badge unified-mantra-badge--${mantraLevel} pointer-events-none animate-fade-in`} aria-hidden="true" style={{ display: 'none' }}>
           <span className="unified-mantra-title">
-            {mantraLevel === 3 ? '三響開光' : mantraLevel === 6 ? '六合共鳴' : mantraLevel === 12 ? '十二宮輪' : '二十四天門'}
+            {mantraLevel === 3 ? '銝??' : mantraLevel === 6 ? '?剖??梢陷' : mantraLevel === 12 ? '??摰株憚' : '鈭??予?'}
           </span>
           <span className="unified-mantra-subtitle">
             TAIJI TAP {mantraLevel}
