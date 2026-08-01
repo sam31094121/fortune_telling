@@ -12,7 +12,7 @@ import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/ide
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
-import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
+import type { FiveElementIntegrationResult, FiveElementKey } from '@/lib/five-element-engine';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
@@ -1102,6 +1102,60 @@ const ZIWEI_TWELVE_PALACE_ORDER = [
 
 const ZIWEI_SAN_FANG_FOUR_ZHENG_ORDER = ['MING', 'QIAN_YI', 'CAI_BO', 'GUAN_LU'] as const;
 
+const ZIWEI_PROFESSIONAL_MAJOR_STARS = [
+  { name: '紫微', element: '土', role: '帝座主星，主統御、格局、責任與資源整合。', keywords: ['主導', '格局', '承擔'] },
+  { name: '天機', element: '木', role: '智謀變動之星，主思考、策劃、調整與機巧。', keywords: ['策略', '變通', '學習'] },
+  { name: '太陽', element: '火', role: '光明外放之星，主名聲、行動、照顧與公眾能量。', keywords: ['外放', '名望', '行動'] },
+  { name: '武曲', element: '金', role: '財帛執行之星，主紀律、財務、決斷與實務能力。', keywords: ['財務', '紀律', '執行'] },
+  { name: '天同', element: '水', role: '福氣調和之星，主柔和、享受、情緒修復與人情。', keywords: ['福氣', '緩和', '修復'] },
+  { name: '廉貞', element: '火', role: '規範與慾望之星，主界線、魅力、制度與轉折。', keywords: ['界線', '魅力', '轉折'] },
+  { name: '天府', element: '土', role: '府庫守成之星，主穩定、資源、管理與承接。', keywords: ['庫藏', '管理', '穩定'] },
+  { name: '太陰', element: '水', role: '月象收斂之星，主內在、財庫、感受與照護。', keywords: ['內在', '財庫', '細膩'] },
+  { name: '貪狼', element: '木', role: '欲望開創之星，主社交、才藝、機會與探索。', keywords: ['欲望', '才藝', '社交'] },
+  { name: '巨門', element: '水', role: '口舌洞察之星，主辨析、溝通、疑問與真相。', keywords: ['辨析', '溝通', '真相'] },
+  { name: '天相', element: '水', role: '輔佐印綬之星，主協調、制度、服務與形象。', keywords: ['協調', '制度', '服務'] },
+  { name: '天梁', element: '土', role: '蔭護原則之星，主長輩、保護、規矩與化解。', keywords: ['保護', '原則', '化解'] },
+  { name: '七殺', element: '金', role: '將星突破之星，主決戰、承壓、改革與獨立。', keywords: ['突破', '承壓', '改革'] },
+  { name: '破軍', element: '水', role: '破舊立新之星，主變革、重組、冒險與翻盤。', keywords: ['重組', '冒險', '翻盤'] },
+] as const;
+
+const ZIWEI_PROFESSIONAL_SUPPORT_STARS = [
+  { name: '左輔', group: '輔曜', role: '外來助力、團隊支援、貴人扶持。' },
+  { name: '右弼', group: '輔曜', role: '內在協調、旁人補位、人脈支援。' },
+  { name: '文昌', group: '文曜', role: '文書、考試、表達、制度化能力。' },
+  { name: '文曲', group: '文曜', role: '才華、審美、溝通、感性表達。' },
+  { name: '天魁', group: '貴人', role: '上位貴人、提拔、關鍵機會。' },
+  { name: '天鉞', group: '貴人', role: '暗中助力、轉介、危中得助。' },
+  { name: '祿存', group: '財祿', role: '固定資源、累積財庫、可守之祿。' },
+  { name: '擎羊', group: '煞曜', role: '直接衝擊、競爭、傷口與突破壓力。' },
+  { name: '陀羅', group: '煞曜', role: '拖延纏繞、阻力、慢性壓力。' },
+  { name: '火星', group: '火煞', role: '急發事件、爆發力、短促壓力。' },
+  { name: '鈴星', group: '火煞', role: '暗伏焦躁、突發聲響、內部張力。' },
+  { name: '地空', group: '空劫', role: '空轉、抽離、想像與落差。' },
+  { name: '地劫', group: '空劫', role: '耗損、失落、資源被切分。' },
+  { name: '天馬', group: '動星', role: '移動、奔波、跨域、遠行變動。' },
+] as const;
+
+const ZIWEI_PROFESSIONAL_TRANSFORMATIONS = [
+  { name: '化祿', role: '資源流入、緣分增加、可用條件變多。' },
+  { name: '化權', role: '責任放大、主導權提升、需要承擔決策。' },
+  { name: '化科', role: '名聲、證照、保護力與可被看見的成果。' },
+  { name: '化忌', role: '卡點、執著、壓力源與必須修正的漏洞。' },
+] as const;
+const ZIWEI_PROFESSIONAL_PALACE_LABELS: Record<string, string> = {
+  MING: '命宮',
+  XIONG_DI: '兄弟宮',
+  FU_QI: '夫妻宮',
+  ZI_NV: '子女宮',
+  CAI_BO: '財帛宮',
+  JI_E: '疾厄宮',
+  QIAN_YI: '遷移宮',
+  JIAO_YOU: '奴僕宮',
+  GUAN_LU: '官祿宮',
+  TIAN_ZHAI: '田宅宮',
+  FU_DE: '福德宮',
+  FU_MU: '父母宮',
+};
 const ZIWEI_SAN_FANG_LABELS: Record<string, { label: string; role: string }> = {
   MING: { label: '命宮', role: '本命核心' },
   QIAN_YI: { label: '遷移宮', role: '外界舞台' },
@@ -1109,6 +1163,94 @@ const ZIWEI_SAN_FANG_LABELS: Record<string, { label: string; role: string }> = {
   GUAN_LU: { label: '官祿宮', role: '事業成就' },
 };
 
+const ZIWEI_FOURTEEN_MAJOR_STAR_MATERIAL = [
+  { name: '紫微', element: '土', role: '帝座主星，主統御、承擔、整合全局。', keywords: ['領導', '核心', '責任'] },
+  { name: '天機', element: '木', role: '智星，主思考、變化、策略與機動。', keywords: ['策略', '變通', '學習'] },
+  { name: '太陽', element: '火', role: '陽曜，主外放、照亮、名聲與行動。', keywords: ['表達', '推進', '公眾'] },
+  { name: '武曲', element: '金', role: '財星與執行星，主紀律、資源、決斷。', keywords: ['財務', '執行', '標準'] },
+  { name: '天同', element: '水', role: '福星，主柔和、修復、享受與人情。', keywords: ['福氣', '療癒', '親和'] },
+  { name: '廉貞', element: '火', role: '次桃花與規範星，主界線、慾望、制度與轉化。', keywords: ['界線', '轉化', '規範'] },
+  { name: '天府', element: '土', role: '庫星，主承載、管理、資源保存與穩定。', keywords: ['資源', '穩定', '管理'] },
+  { name: '太陰', element: '水', role: '陰曜，主內在、情感、累積、財庫與照顧。', keywords: ['感受', '累積', '照顧'] },
+  { name: '貪狼', element: '木', role: '慾望與才藝星，主社交、吸引、創造與開拓。', keywords: ['魅力', '創造', '開拓'] },
+  { name: '巨門', element: '水', role: '暗曜與口舌星，主辨析、表達、質疑與真相。', keywords: ['辨析', '溝通', '真相'] },
+  { name: '天相', element: '水', role: '印星，主協調、制度、輔佐與公共形象。', keywords: ['協調', '制度', '輔佐'] },
+  { name: '天梁', element: '土', role: '蔭星，主庇護、原則、長輩與危機解厄。', keywords: ['庇護', '原則', '解厄'] },
+  { name: '七殺', element: '金', role: '將星，主突破、決斷、壓力與戰場能力。', keywords: ['突破', '決斷', '開局'] },
+  { name: '破軍', element: '水', role: '耗星，主破舊立新、重組、冒險與改革。', keywords: ['重組', '改革', '破局'] },
+] as const;
+
+const ZIWEI_ELEMENT_LABELS: Record<string, string> = {
+  metal: '空',
+  wood: '風',
+  water: '水',
+  fire: '火',
+  earth: '地',
+};
+
+const ZIWEI_PALACE_PRO_BLUEPRINT: Record<string, { axis: string; layerOne: string; layerTwo: string; layerThree: string }> = {
+  MING: { axis: '命宮是整張盤的核心主位，先定人格骨架、判斷方式與人生主軸。', layerOne: '先看命宮主星坐守，再看輔佐星是否扶正、放大或牽制本宮氣質。', layerTwo: '第二層把命宮轉成使用者能理解的性格故事、決策習慣與當前生命主題。', layerThree: '第三層依命宮訊號接 Integration Layer，明確排列五元素補強順序。' },
+  XIONG_DI: { axis: '兄弟宮判斷同輩、手足、合作節奏與橫向支援。', layerOne: '先看本宮主星，再看輔佐星是否形成互助、競爭或距離。', layerTwo: '第二層轉成同輩關係、團隊默契與合作邊界。', layerThree: '第三層判定人際互動中最需要補強的元素。' },
+  FU_QI: { axis: '夫妻宮判斷親密關係、伴侶模式與長期承諾。', layerOne: '先看主星的情感表達方式，再看輔佐星是否增加穩定、吸引或摩擦。', layerTwo: '第二層轉成關係故事、互動節奏與修復方式。', layerThree: '第三層判定關係中最需要補強的元素。' },
+  ZI_NV: { axis: '子女宮判斷創造力、傳承、教養、作品與延伸成果。', layerOne: '先看主星帶出的創造模式，再看輔佐星是否提升承接與表達。', layerTwo: '第二層轉成創造、學習、陪伴與成果孵化故事。', layerThree: '第三層判定創造與延伸領域的補強元素。' },
+  CAI_BO: { axis: '財帛宮判斷收入模式、金錢流向與資源控管。', layerOne: '先看主星如何取得財源，再看輔佐星是否利於守財、開源或風險控管。', layerTwo: '第二層轉成財務習慣、資源配置與現金流故事。', layerThree: '第三層判定財務領域最需要補強的元素。' },
+  JI_E: { axis: '疾厄宮判斷壓力出口、身心節奏與修復能力。', layerOne: '先看主星形成的壓力型態，再看輔佐星是否提供修復或加重耗損。', layerTwo: '第二層轉成身心警訊、休息節奏與壓力來源。', layerThree: '第三層判定身心修復最需要補強的元素。' },
+  QIAN_YI: { axis: '遷移宮判斷外部環境、移動、曝光與對宮回饋。', layerOne: '先看外部場域的主星，再看輔佐星是否推動移動、曝光或外緣機會。', layerTwo: '第二層轉成外界舞台、人際入口與環境適應故事。', layerThree: '第三層判定外部發展最需要補強的元素。' },
+  JIAO_YOU: { axis: '交友宮判斷朋友圈、社群、客戶與合作網絡。', layerOne: '先看主星的社交模式，再看輔佐星是否帶來貴人、雜訊或界線課題。', layerTwo: '第二層轉成朋友圈品質、合作選擇與互利模式。', layerThree: '第三層判定社群合作最需要補強的元素。' },
+  GUAN_LU: { axis: '官祿宮判斷職涯定位、事業格局與工作責任。', layerOne: '先看主星的職能傾向，再看輔佐星是否強化管理、專業或突破。', layerTwo: '第二層轉成職涯故事、工作方法與責任承接。', layerThree: '第三層判定事業領域最需要補強的元素。' },
+  TIAN_ZHAI: { axis: '田宅宮判斷家庭根基、不動產、空間與安全感。', layerOne: '先看主星的安定模式，再看輔佐星是否利於累積、搬遷或整理。', layerTwo: '第二層轉成家庭、空間、資產與內在安全感故事。', layerThree: '第三層判定根基穩定最需要補強的元素。' },
+  FU_DE: { axis: '福德宮判斷精神能量、享受能力、內在富足與福報。', layerOne: '先看主星的精神底色，再看輔佐星是否提升休養、信念或消耗。', layerTwo: '第二層轉成內在狀態、精神補給與長期幸福感。', layerThree: '第三層判定精神能量最需要補強的元素。' },
+  FU_MU: { axis: '父母宮判斷長輩、制度、背景支援與權威關係。', layerOne: '先看主星與權威互動方式，再看輔佐星是否帶來保護、規範或壓力。', layerTwo: '第二層轉成原生支援、制度資源與上層關係故事。', layerThree: '第三層判定背景支援最需要補強的元素。' },
+};
+
+function getZiweiMajorStarMaterials(stars: string[]) {
+  if (stars.length === 0) {
+    return [{ name: '無十四主星坐守', element: '借三方', role: '本宮不硬斷，第一層改以對宮、三方四正、輔佐星與年度訊號加權判定。', keywords: ['借星', '對宮', '三方四正'] }];
+  }
+  return stars.map((star) => ZIWEI_FOURTEEN_MAJOR_STAR_MATERIAL.find((item) => item.name === star) ?? {
+    name: star,
+    element: '待校正',
+    role: `${star} 已歸位本宮，第一層保留為命盤證據，第二層再轉成白話解讀。`,
+    keywords: ['命盤證據', '本宮訊號'],
+  });
+}
+
+function getZiweiSupportStarText(stars: string[]) {
+  if (stars.length === 0) return '輔佐星未集中顯示，本宮以十四主星、對宮與三方四正作為主要判斷。';
+  return `輔佐星歸位：${stars.slice(0, 8).join('、')}。第一層只作命盤證據，判定其扶助、放大、牽制或修正十四主星的表現。`;
+}
+
+function getZiweiAiElementPriorities(fiveElement?: FiveElementIntegrationResult) {
+  const fallbackOrder = [fiveElement?.primaryElement, fiveElement?.secondaryElement, fiveElement?.strongElement]
+    .filter((key): key is FiveElementKey => Boolean(key));
+  const rawOrder: FiveElementKey[] = fiveElement?.decision?.priorityOrder?.length
+    ? fiveElement.decision.priorityOrder
+    : fallbackOrder;
+  const order = [...new Set(rawOrder)].slice(0, 3);
+  if (order.length === 0) return [
+    { label: '第一補強', element: '待 Integration Layer 判定', detail: '第三層保留五元素交接位置，等待平台五元素引擎輸出。' },
+    { label: '第二補強', element: '待 Integration Layer 判定', detail: '不得在紫微卡片內自行重算五元素。' },
+    { label: '第三補強', element: '待 Integration Layer 判定', detail: '必須由平台統一五元素結果排序。' },
+  ];
+  return order.map((key, index) => {
+    const element = ZIWEI_ELEMENT_LABELS[key] ?? key;
+    const need = fiveElement?.elementScores?.[key]?.need;
+    return {
+      label: ['第一補強', '第二補強', '第三補強'][index] ?? '後續補強',
+      element: `${element}元素`,
+      detail: `AI 判定：目前${index === 0 ? '最需要' : '依序需要'}補強 ${element}元素${typeof need === 'number' ? `，補強需求 ${need} 分` : ''}。`,
+    };
+  });
+}
+
+function getZiweiPalaceBlueprint(key: string, palaceName: string) {
+  return ZIWEI_PALACE_PRO_BLUEPRINT[key] ?? {
+    axis: `${palaceName}判斷此人生領域的主題、資源、壓力與可執行方向。`,
+    layerOne: '第一層先建立本宮主星、輔佐星、宮干地支與三方四正命盤證據。',
+    layerTwo: '第二層只讀第一層，把專業命盤轉成一般使用者能理解的故事。',
+    layerThree: '第三層只讀第二層與 Integration Layer，輸出五元素補強排序。',
+  };
+}
 type ZiweiPalaceStoryMaterial = {
   subtitle: string;
   icon: string;
@@ -1589,14 +1731,187 @@ function buildZiweiFallbackStory(palaceName: string): ZiweiPalaceStoryMaterial {
   };
 }
 
-function ZiweiTwelvePalaceCards({
+function getZiweiProfessionalPalaceName(palace: ZiweiFullPalace) {
+  return ZIWEI_PROFESSIONAL_PALACE_LABELS[palace.key] ?? palace.name;
+}
+
+function getZiweiProfessionalMajorStar(name: string) {
+  return ZIWEI_PROFESSIONAL_MAJOR_STARS.find((star) => star.name === name) ?? null;
+}
+
+function getZiweiProfessionalSupportStar(name: string) {
+  return ZIWEI_PROFESSIONAL_SUPPORT_STARS.find((star) => star.name === name) ?? {
+    name,
+    group: '輔星',
+    role: `${name} 已列入本宮輔佐星證據，老師模式保留原始排盤訊號。`,
+  };
+}
+
+function getZiweiProfessionalTransformationLabel(value: string) {
+  const map: Record<string, string> = { 祿: '化祿', 權: '化權', 科: '化科', 忌: '化忌' };
+  return value.startsWith('化') ? value : map[value] ?? value;
+}
+
+function getZiweiProfessionalTransformationRole(value: string) {
+  const label = getZiweiProfessionalTransformationLabel(value);
+  return ZIWEI_PROFESSIONAL_TRANSFORMATIONS.find((item) => item.name === label)?.role ?? '四化訊號已落入本宮，依正式排盤保留為後續解讀證據。';
+}
+
+function ZiweiProfessionalTeacherMode({
+  palaces,
   analysis,
   annual,
 }: {
+  palaces: ZiweiFullPalace[];
+  analysis: NonNullable<InsightResult['ziweiSanFang']>;
+  annual?: ZiweiAnnualFortune;
+}) {
+  const majorStarNames = new Set<string>(ZIWEI_PROFESSIONAL_MAJOR_STARS.map((star) => star.name));
+  const placedMajorStars = [...new Set(palaces.flatMap((palace) => palace.majorStars).filter((star) => majorStarNames.has(star)))];
+  const missingMajorStars = ZIWEI_PROFESSIONAL_MAJOR_STARS.map((star) => star.name).filter((star) => !placedMajorStars.includes(star));
+  const supportStars = [...new Set(palaces.flatMap((palace) => palace.minorStars))];
+  const transformations = palaces.flatMap((palace) =>
+    palace.transformations.map((item) => ({
+      palace: getZiweiProfessionalPalaceName(palace),
+      label: getZiweiProfessionalTransformationLabel(item),
+      role: getZiweiProfessionalTransformationRole(item),
+    })),
+  );
+  const supportPreviewNames = [
+    ...ZIWEI_PROFESSIONAL_SUPPORT_STARS.map((star) => star.name),
+    ...supportStars.filter((star) => !ZIWEI_PROFESSIONAL_SUPPORT_STARS.some((item) => item.name === star)),
+  ];
+  const supportPreview = supportPreviewNames.map(getZiweiProfessionalSupportStar);
+  const completedPalaces = palaces.filter((palace) => palace.key && ZIWEI_PROFESSIONAL_PALACE_LABELS[palace.key]).length;
+
+  return (
+    <div className="mt-5 rounded-[26px] border border-amber-200/25 bg-[radial-gradient(circle_at_8%_0%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(135deg,rgba(15,23,42,0.78),rgba(2,6,23,0.9))] p-4 shadow-[0_0_40px_rgba(251,191,36,0.12)] sm:p-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">TEACHER MODE V2</p>
+          <h4 className="mt-2 font-serif text-2xl font-black text-amber-50 sm:text-3xl">老師模式｜完整命盤檢核</h4>
+          <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-amber-50/76">
+            第一層先呈現專業命盤：十二宮、十四主星、輔星、生年四化與宮干地支。AI 只讀取此命盤，不自行亂排、不跳過排盤。
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-center text-xs sm:grid-cols-4 lg:min-w-[420px]">
+          {[
+            { label: '十二宮', value: `${completedPalaces}/12` },
+            { label: '十四主星', value: `${placedMajorStars.length}/14` },
+            { label: '輔星訊號', value: supportStars.length || ZIWEI_PROFESSIONAL_SUPPORT_STARS.length },
+            { label: '四化落點', value: transformations.length },
+          ].map((item) => (
+            <div key={item.label} className="rounded-2xl border border-white/10 bg-black/20 px-3 py-3">
+              <p className="font-mono text-2xl font-black text-cyan-100">{item.value}</p>
+              <p className="mt-1 font-black tracking-[0.16em] text-amber-100/72">{item.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="rounded-[22px] border border-white/10 bg-black/18 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h5 className="font-serif text-xl font-black text-cyan-50">十四主星歸位表</h5>
+            {missingMajorStars.length > 0 && (
+              <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-[11px] font-black text-amber-100">
+                未坐守主星：{missingMajorStars.join('、')}
+              </span>
+            )}
+          </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {ZIWEI_PROFESSIONAL_MAJOR_STARS.map((star) => {
+              const locatedPalaces = palaces.filter((palace) => palace.majorStars.includes(star.name)).map(getZiweiProfessionalPalaceName);
+              return (
+                <div key={star.name} className="rounded-2xl border border-white/10 bg-white/[0.045] p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-serif text-lg font-black text-amber-50">{star.name}</p>
+                    <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2 py-0.5 text-[10px] font-black text-cyan-100">{star.element}</span>
+                  </div>
+                  <p className="mt-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{star.role}</p>
+                  <p className="mt-2 text-[11px] font-black text-amber-100/80">{locatedPalaces.length ? locatedPalaces.join('、') : '未坐守，需借對宮與三方四正參照'}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="rounded-[22px] border border-white/10 bg-black/18 p-4">
+          <h5 className="font-serif text-xl font-black text-cyan-50">輔星與四化專業素材</h5>
+          <div className="mt-3 grid gap-2">
+            {supportPreview.map((star) => (
+              <div key={star.name} className="rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-black text-cyan-50">{star.name}</p>
+                  <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-2 py-0.5 text-[10px] font-black text-amber-100">{star.group}</span>
+                </div>
+                <p className="mt-1 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{star.role}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 grid gap-2">
+            {ZIWEI_PROFESSIONAL_TRANSFORMATIONS.map((item) => (
+              <div key={item.name} className="rounded-2xl border border-amber-200/15 bg-amber-300/8 px-3 py-2 text-xs leading-5 text-amber-50/82">
+                <span className="font-black text-amber-100">{item.name}</span>：{item.role}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-[22px] border border-cyan-200/18 bg-cyan-300/8 p-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">FULL PALACE TABLE</p>
+            <h5 className="mt-1 font-serif text-xl font-black text-cyan-50">十二宮完整排盤</h5>
+          </div>
+          <p className="text-xs font-bold leading-6 text-cyan-100/72">排盤版本：{analysis.methodVersion}｜流年：{annual?.year ?? new Date().getFullYear()}</p>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {palaces.map((palace) => {
+            const palaceName = getZiweiProfessionalPalaceName(palace);
+            const majorStars = palace.majorStars.length ? palace.majorStars.join('、') : '無十四主星坐守';
+            const minorStars = palace.minorStars.length ? palace.minorStars.slice(0, 10).join('、') : '本宮輔星未集中';
+            const palaceTransformations = palace.transformations.length
+              ? palace.transformations.map(getZiweiProfessionalTransformationLabel).join('、')
+              : '本宮無生年四化落點';
+            return (
+              <article key={palace.key} className="rounded-[20px] border border-white/10 bg-slate-950/42 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                <div className="flex items-center justify-between gap-2">
+                  <h6 className="font-serif text-xl font-black text-cyan-50">{palaceName}</h6>
+                  <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[10px] font-black text-cyan-100">
+                    {palace.palaceStem || '宮干'}{palace.branch || '地支'}
+                  </span>
+                </div>
+                <div className="mt-3 grid gap-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">
+                  <p><span className="font-black text-amber-100">主星：</span>{majorStars}</p>
+                  <p><span className="font-black text-amber-100">輔星：</span>{minorStars}</p>
+                  <p><span className="font-black text-amber-100">四化：</span>{palaceTransformations}</p>
+                  <p><span className="font-black text-amber-100">老師註記：</span>{palace.majorStars.length ? '本宮可直讀主星，再看三方四正交互作用。' : '本宮無主星坐守，必須借對宮與三方四正，不可單宮硬斷。'}</p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 text-xs font-bold leading-6 text-[color:var(--text-sub)]">
+        飛星交接欄位已建立：目前以前端收到的正式排盤四化訊號為準；資料不足時不由 AI 補星、不自行亂推飛化。紫微只提供權重與證據，最後五元素仍交由 Integration Layer 統一判定。
+      </div>
+    </div>
+  );
+}
+function ZiweiTwelvePalaceCards({
+  analysis,
+  annual,
+  fiveElement,
+}: {
   analysis?: InsightResult['ziweiSanFang'];
   annual?: InsightResult['annualFortune'];
+  fiveElement?: InsightResult['fiveElement'];
 }) {
   const [selectedPalaceKey, setSelectedPalaceKey] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'general' | 'teacher'>('general');
   const storyPanelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -1637,6 +1952,28 @@ function ZiweiTwelvePalaceCards({
         </div>
       </div>
 
+      <div className="mt-5 flex flex-col gap-3 rounded-[22px] border border-white/10 bg-white/[0.045] p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">PROFESSIONAL MODE</p>
+          <p className="mt-1 text-sm font-semibold leading-6 text-[color:var(--text-sub)]">一般模式給使用者看重點；老師模式展開完整命盤、主星、輔星與四化檢核。</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 rounded-2xl border border-cyan-200/15 bg-slate-950/45 p-1 text-sm font-black">
+          <button
+            type="button"
+            onClick={() => setViewMode('general')}
+            className={`rounded-xl px-4 py-2 transition ${viewMode === 'general' ? 'bg-cyan-300/18 text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,0.14)]' : 'text-cyan-100/58 hover:text-cyan-50'}`}
+          >
+            一般模式
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('teacher')}
+            className={`rounded-xl px-4 py-2 transition ${viewMode === 'teacher' ? 'bg-amber-300/18 text-amber-50 shadow-[0_0_18px_rgba(251,191,36,0.14)]' : 'text-amber-100/58 hover:text-amber-50'}`}
+          >
+            老師模式
+          </button>
+        </div>
+      </div>
       <div className="mt-5 flex flex-wrap gap-2 text-xs">
         <span className="rounded-full border border-cyan-300/20 bg-cyan-950/20 px-3 py-1 text-cyan-100">
           {analysis.timeConfidence === 'exact' ? '已依真實時辰排盤' : '暫定時辰排盤，可再校正'}
@@ -1644,6 +1981,32 @@ function ZiweiTwelvePalaceCards({
 
       </div>
 
+      {viewMode === 'teacher' && (
+        <ZiweiProfessionalTeacherMode palaces={sortedPalaces} analysis={analysis} annual={annual} />
+      )}
+      <div className="mt-5 rounded-[24px] border border-amber-200/25 bg-[radial-gradient(circle_at_12%_0%,rgba(251,191,36,0.14),transparent_34%),linear-gradient(135deg,rgba(15,23,42,0.72),rgba(2,6,23,0.86))] p-4 shadow-[0_0_34px_rgba(251,191,36,0.10)]">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">FIRST LAYER STAR MATERIAL</p>
+            <h4 className="mt-2 font-serif text-2xl font-black text-amber-50">十四主星專業底盤</h4>
+          </div>
+          <p className="max-w-2xl text-xs font-bold leading-6 text-amber-50/70">
+            第一層先排紫微斗數命盤：十四主星歸位、輔佐星承接、宮干地支與三方四正。此層只建立命盤資料，不做補強結論。
+          </p>
+        </div>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {ZIWEI_FOURTEEN_MAJOR_STAR_MATERIAL.map((star) => (
+            <div key={star.name} className="rounded-2xl border border-white/10 bg-black/18 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-serif text-lg font-black text-amber-50">{star.name}</p>
+                <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2 py-0.5 text-[10px] font-black text-cyan-100">{star.element}</span>
+              </div>
+              <p className="mt-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{star.role}</p>
+              <p className="mt-2 text-[10px] font-bold leading-5 text-amber-100/72">{star.keywords.join(' / ')}</p>
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="ziwei-palace-grid mt-6 grid grid-cols-2 gap-3.5 max-[340px]:grid-cols-1 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
         {sortedPalaces.map((palace, index) => {
           const story = ZIWEI_PALACE_STORY[palace.key] ?? buildZiweiFallbackStory(normalizeZiweiPalaceName(palace.name));
@@ -1709,6 +2072,7 @@ function ZiweiTwelvePalaceCards({
           year={annual?.year ?? new Date().getFullYear()}
           patternName={analysis.pattern.name}
           sanFangPalaces={sanFangPalaces}
+          fiveElement={fiveElement}
         />
       ) : (
         <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-sm leading-7 text-[color:var(--text-sub)]">
@@ -1729,6 +2093,7 @@ function ZiweiPalaceStoryPanel({
   year,
   patternName,
   sanFangPalaces,
+  fiveElement,
 }: {
   panelRef: Ref<HTMLDivElement>;
   palace: ZiweiFullPalace;
@@ -1739,6 +2104,7 @@ function ZiweiPalaceStoryPanel({
   year: number;
   patternName: string;
   sanFangPalaces: ZiweiFullPalace[];
+  fiveElement?: InsightResult['fiveElement'];
 }) {
   const palaceName = normalizeZiweiPalaceName(palace.name);
   const config = story ?? buildZiweiFallbackStory(palaceName);
@@ -1756,6 +2122,10 @@ function ZiweiPalaceStoryPanel({
   const likelyText = firstEvent?.likelyScenario ?? config.likely;
   const repairText = precisionAnalysis?.actionPlan.doFirst.slice(0, 2).join('；') || config.repair;
   const evidenceItems = precisionAnalysis?.evidenceSummary ?? [];
+  const majorStarMaterials = getZiweiMajorStarMaterials(palace.majorStars);
+  const supportStarProfessionalText = getZiweiSupportStarText(palace.minorStars);
+  const elementPriorities = getZiweiAiElementPriorities(fiveElement);
+  const palaceBlueprint = getZiweiPalaceBlueprint(palace.key, palaceName);
 
   const coreInsightCards = [
     { label: '專業定位', text: config.professionalMeaning },
@@ -1802,6 +2172,60 @@ function ZiweiPalaceStoryPanel({
         </div>
       </div>
 
+      <div className="mt-5 rounded-2xl border border-amber-200/25 bg-[radial-gradient(circle_at_0%_0%,rgba(251,191,36,0.14),transparent_34%),linear-gradient(135deg,rgba(15,23,42,0.68),rgba(2,6,23,0.84))] p-4 shadow-[0_0_28px_rgba(251,191,36,0.10)] sm:p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">PALACE THREE LAYER MATERIAL</p>
+            <h4 className="mt-1 font-serif text-2xl font-black text-amber-50">{palaceName}三層專業素材</h4>
+          </div>
+          <p className="max-w-2xl text-xs font-bold leading-6 text-amber-50/70">{palaceBlueprint.axis}</p>
+        </div>
+
+        <div className="mt-4 grid gap-3 lg:grid-cols-3">
+          <article className="rounded-2xl border border-cyan-200/18 bg-cyan-950/18 p-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-200">Layer 1</p>
+            <h5 className="mt-2 text-base font-black text-cyan-50">專業命盤底盤</h5>
+            <p className="mt-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{palaceBlueprint.layerOne}</p>
+            <div className="mt-3 grid gap-2">
+              {majorStarMaterials.map((star) => (
+                <div key={star.name} className="rounded-xl border border-white/10 bg-black/18 px-3 py-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-black text-cyan-50">{star.name}</p>
+                    <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-2 py-0.5 text-[10px] font-black text-amber-100">{star.element}</span>
+                  </div>
+                  <p className="mt-1 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{star.role}</p>
+                  <p className="mt-1 text-[10px] font-bold text-cyan-100/72">{star.keywords.join(' / ')}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold leading-6 text-cyan-50/82">{supportStarProfessionalText}</p>
+          </article>
+
+          <article className="rounded-2xl border border-violet-200/18 bg-violet-950/18 p-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-200">Layer 2</p>
+            <h5 className="mt-2 text-base font-black text-violet-50">AI 白話故事解讀</h5>
+            <p className="mt-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{palaceBlueprint.layerTwo}</p>
+            <p className="mt-3 rounded-xl border border-white/10 bg-black/18 px-3 py-2 text-xs font-bold leading-6 text-violet-50/84">
+              第二層只讀第一層：{palaceName}主星「{mainStars}」、輔佐星「{supportStars || '未集中顯示'}」、三方四正與年度訊號，轉成使用者看得懂的故事，不重新排盤。
+            </p>
+          </article>
+
+          <article className="rounded-2xl border border-amber-200/20 bg-amber-950/18 p-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200">Layer 3</p>
+            <h5 className="mt-2 text-base font-black text-amber-50">AI 五元素補強排序</h5>
+            <p className="mt-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{palaceBlueprint.layerThree}</p>
+            <div className="mt-3 grid gap-2">
+              {elementPriorities.map((item) => (
+                <div key={item.label} className="rounded-xl border border-white/10 bg-black/18 px-3 py-2">
+                  <p className="text-[10px] font-black tracking-[0.16em] text-amber-100/72">{item.label}</p>
+                  <p className="mt-1 text-lg font-black text-amber-50">{item.element}</p>
+                  <p className="mt-1 text-xs font-bold leading-5 text-[color:var(--text-sub)]">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          </article>
+        </div>
+      </div>
       <div className="mt-5 rounded-2xl border border-cyan-300/20 bg-cyan-950/20 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -2283,7 +2707,7 @@ export default function InsightPage() {
 
             </section>
 
-            <DailyAnalysisNotice record={dailyRecord} className="mb-5" />
+            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 紫微斗數" />
             <div id="input-form" className="fortune-card p-6 sm:p-8 scroll-mt-20">
               {loading && <InsightAnalyticalConsole name={input.name} />}
               <div className={loading ? 'hidden' : 'space-y-8'}>
@@ -2606,6 +3030,7 @@ export default function InsightPage() {
               </svg>
             </div>
             <div className="space-y-6">
+            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 紫微斗數" />
             <div className="fortune-card relative hidden overflow-hidden border-amber-400/25 bg-slate-950/55 p-6 sm:p-8">
               <div className="pointer-events-none absolute inset-4 border border-cyan-400/10" />
               <div className="relative flex flex-col gap-5 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
@@ -2631,7 +3056,7 @@ export default function InsightPage() {
               </div>
             </div>
 
-            <ZiweiTwelvePalaceCards analysis={result?.ziweiSanFang} annual={result?.annualFortune} />
+            <ZiweiTwelvePalaceCards analysis={result?.ziweiSanFang} annual={result?.annualFortune} fiveElement={result?.fiveElement} />
 
             <FiveElementPriorityCard result={result?.fiveElement} />
 

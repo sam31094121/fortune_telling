@@ -17,7 +17,8 @@ export type DailyAnalysisRecord<T = unknown> = {
 };
 
 export const DAILY_ANALYSIS_TTL_MS = 24 * 60 * 60 * 1000;
-export const DAILY_ANALYSIS_NOTICE = '免費正式體驗：每個分析功能每日提供一次完整免費分析。請先整理好您最想了解的問題，再開始本次正式分析。完成後可以隨時查看今日分析，24 小時後可以再次開始。';
+export const DAILY_ANALYSIS_NOTICE =
+  '免費正式體驗：每個分析功能每日提供一次完整免費分析。請先整理好您最想了解的問題，再開始本次正式分析。完成後可以隨時查看今日分析，24 小時後可以再次開始。';
 
 function storageKey(moduleKey: DailyAnalysisModuleKey) {
   return `tdh:daily-analysis:${moduleKey}:v1`;

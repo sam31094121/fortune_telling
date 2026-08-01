@@ -294,7 +294,7 @@ function LandingHero({ onStart, dailyRecord }: { onStart: () => void; dailyRecor
       <div className="music-landing-stack relative z-20 flex max-w-3xl flex-col items-center">
         <TaijiStandaloneCard className="music-landing-taiji mb-4" />
 
-        <DailyAnalysisNotice record={dailyRecord} className="mb-5 w-full max-w-2xl text-left" />
+        <DailyAnalysisNotice record={dailyRecord} className="mb-5 w-full max-w-2xl text-left" moduleName="AI 生成一首歌" />
 
         <div className="music-landing-copy">
           <span className="music-landing-eyebrow">{"AI LIFE SONG"}</span>
@@ -537,7 +537,7 @@ export default function MusicSystemPage() {
 
                 <MusicLifeSongThreeLayerCard mode="form" />
 
-              <DailyAnalysisNotice record={dailyRecord} className="mb-6" />
+              <DailyAnalysisNotice record={dailyRecord} className="mb-6" moduleName="AI 生成一首歌" />
 
               <IdentitySplitSelector className="mb-6" />
 
@@ -561,6 +561,7 @@ export default function MusicSystemPage() {
 
       {pageState === 'result' && result && (
         <main className="relative z-10 mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14 overflow-hidden">
+          <DailyAnalysisNotice record={dailyRecord} className="mb-6" moduleName="AI 生成一首歌" />
           <div className="absolute right-0 top-0 opacity-[0.06] pointer-events-none translate-x-12 -translate-y-12">
             <svg
               className="w-80 h-80 text-violet-400"

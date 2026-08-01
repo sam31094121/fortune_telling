@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const result = await createTarotShuffle(body);
     return NextResponse.json(result, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
-    const message = error instanceof Error ? error.message : '塔羅洗牌系統暫時無法運算，請稍後再試。';
+    const message = error instanceof Error ? error.message : '塔羅洗牌暫時失敗，請重新嘗試。';
     return NextResponse.json({ ok: false, code: 'TAROT_SHUFFLE_FAILED', message }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
   }
 }

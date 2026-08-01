@@ -12155,6 +12155,45 @@ body.app-touching .home-taiji-cinema * {
   }
 }
 
+/* Taiji Core Animation V3: single source of truth. Liangyi unwinds by rotating each fish
+   around the taiji's own center, not by sliding two halves apart. The two pieces stay
+   close and overlapping through the whole motion so it reads as one totem evolving,
+   never as a cut circle being pulled open. This supersedes the translateX-based split
+   distance driving V1 through V2.1 above for the homepage hero core only. */
+.home-taiji-cinema .unified-taiji-shell--liangyi .taiji-liangyi-precision-split,
+.home-taiji-cinema .unified-taiji-shell--liangyi-return .taiji-liangyi-precision-split {
+  --taiji-v3-rotate: clamp(30deg, 6.5vw, 38deg);
+  --taiji-v3-lift: clamp(0.6rem, 2.2vw, 0.85rem);
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-v3-yang-unwind 780ms cubic-bezier(.32, .74, .18, 1) both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-v3-yin-unwind 780ms cubic-bezier(.32, .74, .18, 1) both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yang {
+  animation: taiji-v3-yang-unwind 780ms cubic-bezier(.32, .74, .18, 1) reverse both !important;
+}
+
+.home-taiji-cinema .taiji-liangyi-precision-split--returning .taiji-liangyi-precision-split__piece--yin {
+  animation: taiji-v3-yin-unwind 780ms cubic-bezier(.32, .74, .18, 1) reverse both !important;
+}
+
+@keyframes taiji-v3-yang-unwind {
+  0%   { transform: rotate(0deg) translate3d(0, 0, 0) scale(1); }
+  45%  { transform: rotate(calc(-1 * var(--taiji-v3-rotate) * 0.7)) translate3d(calc(-1 * var(--taiji-v3-lift)), calc(-1 * var(--taiji-v3-lift)), 0) scale(1.015); }
+  100% { transform: rotate(calc(-1 * var(--taiji-v3-rotate))) translate3d(calc(-1 * var(--taiji-v3-lift) * 1.4), calc(-1 * var(--taiji-v3-lift)), 0) scale(1); }
+}
+
+@keyframes taiji-v3-yin-unwind {
+  0%   { transform: rotate(0deg) translate3d(0, 0, 0) scale(1); }
+  45%  { transform: rotate(calc(var(--taiji-v3-rotate) * 0.7)) translate3d(var(--taiji-v3-lift), var(--taiji-v3-lift), 0) scale(1.015); }
+  100% { transform: rotate(var(--taiji-v3-rotate)) translate3d(calc(var(--taiji-v3-lift) * 1.4), var(--taiji-v3-lift), 0) scale(1); }
+}
+
 /* Tarot MVP: single-card shuffle, scoped to the independent tarot page. */
 .tarot-shuffle-stage {
   position: relative;

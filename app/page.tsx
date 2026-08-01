@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useMemo, useState, useDeferredValue, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -1335,11 +1335,14 @@ export default function HomePage() {
   const fortuneRequestRef = useRef<AbortController | null>(null);
   const fortuneSubmittingRef = useRef(false);
   const fortuneLoading = fortuneStatus === 'validating' || fortuneStatus === 'loading' || fortuneStatus === 'recovering';
-  const fortuneNumberDigitClass = fortuneNumber.length >= 9
-    ? 'text-[3.4rem] sm:text-[4.7rem]'
-    : fortuneNumber.length >= 7
-      ? 'text-[3.9rem] sm:text-[5.35rem]'
-      : 'text-[4.75rem] sm:text-[6.25rem]';
+  const fortuneNumberDigitStyle = {
+    fontSize: fortuneNumber.length >= 9
+      ? 'clamp(2.75rem, 12.4vw, 4.75rem)'
+      : fortuneNumber.length >= 7
+        ? 'clamp(3.6rem, 15.5vw, 5.8rem)'
+        : 'clamp(5.4rem, 24vw, 7.25rem)',
+  } as const;
+  const numberInputNeedsAttention = fortuneNumber.length === 0;
 
   const restoreMatchDailyRecord = (record: DailyAnalysisRecord<MatchDailyResult>) => {
     setMatchDailyRecord(record);
@@ -1363,7 +1366,7 @@ export default function HomePage() {
     setFortuneError('');
     setFortuneJob(null);
     window.setTimeout(() => {
-      document.querySelector('.number-fortune-analysis-card')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      document.querySelector('.daily-analysis-notice--used, .number-fortune-analysis-card')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }, 80);
   };
 
@@ -1790,7 +1793,7 @@ export default function HomePage() {
       setFortuneError('');
       setFortuneStatus('success');
       window.setTimeout(() => {
-        document.querySelector('.number-fortune-analysis-card')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        document.querySelector('.daily-analysis-notice--used, .number-fortune-analysis-card')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
       }, 80);
     } catch (error) {
       if (requestController.signal.aborted) {
@@ -2696,7 +2699,7 @@ export default function HomePage() {
                     {isDemoRunning ? '🔮 天宿配對演示自動運行中…' : '🔮 一鍵自動天盤對齊演練'}
                   </button>
                 </div>
-                <DailyAnalysisNotice record={matchDailyRecord} className="mb-5" />
+                <DailyAnalysisNotice record={matchDailyRecord} className="mb-5" moduleName="AI 靈魂配對" />
 
                 <div className="fortune-card p-5 sm:p-6">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -3516,25 +3519,27 @@ export default function HomePage() {
             <FeatureVisitorCounter featureKey="number" className="hidden" />
 
             <IdentitySplitSelector className="mb-4" />
-            <DailyAnalysisNotice record={numberDailyRecord} className="mb-4" />
+            <DailyAnalysisNotice record={numberDailyRecord} className="mb-4" moduleName="AI 數字論吉凶" />
 
-            <div className="relative overflow-hidden rounded-[28px] border border-cyan-200/35 bg-[radial-gradient(circle_at_18%_0%,rgba(251,191,36,0.18),transparent_34%),linear-gradient(135deg,rgba(8,13,28,0.92),rgba(14,116,144,0.16),rgba(2,6,23,0.96))] p-4 shadow-[0_0_34px_rgba(34,211,238,0.18),inset_0_0_24px_rgba(255,255,255,0.045)]">
-              <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/70 to-transparent" />
+            <div className={`relative overflow-hidden rounded-[28px] border bg-[radial-gradient(circle_at_16%_0%,rgba(251,191,36,0.24),transparent_34%),radial-gradient(circle_at_92%_14%,rgba(244,63,94,0.16),transparent_30%),linear-gradient(135deg,rgba(8,13,28,0.96),rgba(14,116,144,0.2),rgba(2,6,23,0.98))] p-4 shadow-[0_0_44px_rgba(34,211,238,0.22),0_0_70px_rgba(251,191,36,0.08),inset_0_0_30px_rgba(255,255,255,0.055)] ${numberInputNeedsAttention ? 'border-rose-300/75 shadow-[0_0_42px_rgba(244,63,94,0.32),inset_0_0_26px_rgba(244,63,94,0.08)]' : 'border-cyan-200/35'}`}>
+              <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/80 to-transparent" />
+              <div className="pointer-events-none absolute inset-x-10 bottom-0 h-px bg-gradient-to-r from-transparent via-amber-200/45 to-transparent" />
+              <div className={`pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full border ${numberInputNeedsAttention ? 'border-rose-300/28 shadow-[0_0_44px_rgba(244,63,94,0.28)]' : 'border-cyan-200/18 shadow-[0_0_36px_rgba(34,211,238,0.18)]'}`} />
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-200">NUMBER INPUT GATE</p>
-                  <h4 className="mt-1 font-serif text-xl font-black leading-tight text-cyan-50">數字能量碼輸入框架</h4>
+                  <p className={`text-[10px] font-black uppercase tracking-[0.24em] ${numberInputNeedsAttention ? 'text-rose-200 animate-pulse' : 'text-amber-200'}`}>NUMBER INPUT GATE</p>
+                  <h4 className="mt-1 font-serif text-2xl font-black leading-tight text-cyan-50 drop-shadow-[0_0_16px_rgba(34,211,238,0.24)]">數字能量碼輸入框架</h4>
                 </div>
-                <span className="rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1 text-[10px] font-black tracking-[0.12em] text-cyan-100">
+                <span className={`rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.12em] ${numberInputNeedsAttention ? 'border-rose-200/70 bg-rose-500/18 text-rose-100 animate-pulse' : 'border-cyan-200/30 bg-cyan-300/10 text-cyan-100'}`}>
                   4 / 6 / 8 / 10 碼
                 </span>
               </div>
 
               <div className="flex flex-col gap-4">
-                <div className="relative min-w-0 rounded-[26px] border border-cyan-100/28 bg-slate-950/42 p-2.5 shadow-[0_0_24px_rgba(34,211,238,0.12),inset_0_0_26px_rgba(34,211,238,0.07)]">
+                <div className={`relative min-w-0 rounded-[28px] border bg-slate-950/52 p-3 shadow-[0_0_32px_rgba(34,211,238,0.18),inset_0_0_30px_rgba(34,211,238,0.09)] ${numberInputNeedsAttention ? 'border-rose-300/70 shadow-[0_0_34px_rgba(244,63,94,0.26),inset_0_0_26px_rgba(244,63,94,0.08)]' : 'border-cyan-100/28'}`}>
                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2 px-2">
-                    <span className="text-[11px] font-black tracking-[0.16em] text-cyan-100/75">
-                      只輸入阿拉伯數字 0-9
+                    <span className={`text-[11px] font-black tracking-[0.16em] ${numberInputNeedsAttention ? 'text-rose-100 animate-pulse' : 'text-cyan-100/75'}`}>
+                      {numberInputNeedsAttention ? '請填寫阿拉伯數字 0-9' : '只輸入阿拉伯數字 0-9'}
                     </span>
                     <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-2.5 py-1 text-[10px] font-black text-amber-100/85">
                       {fortuneNumber.length}/10
@@ -3550,9 +3555,10 @@ export default function HomePage() {
                       setFortuneError('');
                     }}
                     onFocus={() => setFortuneError('')}
-                    placeholder="輸入數字"
+                    placeholder={numberInputNeedsAttention ? '請填阿拉伯數字' : '輸入數字'}
                     aria-label="數字論吉凶輸入框"
-                    className={`form-input min-h-[148px] w-full rounded-[28px] border-cyan-100/80 bg-slate-950/90 px-1.5 py-7 text-center font-mono ${fortuneNumberDigitClass} font-black leading-none tracking-normal text-cyan-50 placeholder:text-cyan-100/34 shadow-[0_0_58px_rgba(34,211,238,0.38),inset_0_0_40px_rgba(34,211,238,0.12)] glass-input glass-input-cyan neon-input-focus sm:min-h-[168px] ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_30px_rgba(244,63,94,0.38)]' : ''}`}
+                    style={fortuneNumberDigitStyle}
+                    className={`form-input min-h-[166px] w-full rounded-[30px] bg-slate-950/92 px-1.5 py-8 text-center font-mono font-black leading-none tracking-normal text-cyan-50 shadow-[0_0_70px_rgba(34,211,238,0.44),0_0_34px_rgba(251,191,36,0.08),inset_0_0_48px_rgba(34,211,238,0.14)] glass-input glass-input-cyan neon-input-focus sm:min-h-[186px] ${numberInputNeedsAttention ? 'border-rose-300/85 placeholder:text-rose-100/72 shadow-[0_0_64px_rgba(244,63,94,0.42),inset_0_0_42px_rgba(244,63,94,0.12)] animate-pulse' : 'border-cyan-100/80 placeholder:text-cyan-100/34'} ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_30px_rgba(244,63,94,0.38)]' : ''}`}
                   />
                   <p className="mt-2 px-2 text-center text-[11px] font-bold leading-5 text-cyan-100/62">
                     可輸入 4、6、8 或完整 10 碼；系統會自動過濾空格與符號。
@@ -3562,7 +3568,7 @@ export default function HomePage() {
                   type="button"
                   onClick={handleNumberFortune}
                   disabled={fortuneLoading}
-                  className="vip-gold-btn min-h-[60px] w-full px-8 py-3.5 text-sm font-black tracking-[0.08em] disabled:opacity-40 sm:self-end sm:w-auto"
+                  className="vip-gold-btn min-h-[66px] w-full px-10 py-4 text-base font-black tracking-[0.12em] shadow-[0_0_34px_rgba(251,191,36,0.26)] disabled:opacity-40 sm:self-end sm:w-auto"
                 >
                   {fortuneLoading ? '分析中...' : getDailyAnalysisButtonLabel(numberDailyRecord)}
                 </button>

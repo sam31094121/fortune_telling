@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const result = createTarotInterpretation(body);
     return NextResponse.json(result, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
-    const message = error instanceof Error ? error.message : '塔羅解讀後端暫時無法重新運算。';
+    const message = error instanceof Error ? error.message : '塔羅解讀暫時失敗，請重新嘗試。';
     return NextResponse.json({ ok: false, code: 'TAROT_INTERPRET_FAILED', message }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
   }
 }

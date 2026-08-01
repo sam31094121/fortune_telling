@@ -764,7 +764,7 @@ export default function MatchPage() {
         {!data && (
           <div className="space-y-6">
             <IdentitySplitSelector />
-            <DailyAnalysisNotice record={dailyRecord} className="mt-4" />
+            <DailyAnalysisNotice record={dailyRecord} className="mt-4" moduleName="AI 靈魂配對" />
             <div className="fortune-card p-5 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -908,6 +908,7 @@ export default function MatchPage() {
 
         {data && (
           <div className="space-y-6">
+            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 靈魂配對" />
             {(() => {
               const guidance = buildMatchGuidance(data);
               return (

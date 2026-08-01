@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import { runAnalysisJobClient } from '@/lib/analysis-job-client';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
@@ -153,7 +154,6 @@ type BaziResult = {
   };
 };
 
-type ResultResponse = { success: boolean; ok?: boolean; data?: BaziResult; error?: string; message?: string };
 type BaziForm = BirthProfile & { name: string; gender: '' | Gender; birthDate: string; birthTime: string; country: string; city: string };
 
 const DEFAULT_FORM: BaziForm = {
@@ -304,9 +304,9 @@ export default function BaziPage() {
 
     setLoading(true);
     setResult(null);
-    setMessage('第一層正在建立專業八字命盤。');
+    setMessage('已交給太極 AI Core 排程，第一層正在建立專業八字命盤。');
     try {
-      const payload = {
+      const data = await runAnalysisJobClient<BaziResult>({
         analysisType: 'bazi',
         idempotencyKey: `bazi_${form.birthDate}_${resolvedBirthTime}_${form.gender}_${Date.now()}`,
         sessionId: createSessionId(),
@@ -318,18 +318,14 @@ export default function BaziPage() {
           country: form.country.trim(),
           city: form.city.trim(),
         },
-      };
-      const response = await fetch('/api/bazi', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        onJob: (job) => {
+          if (job.message) setMessage(job.message);
+        },
       });
-      const json = await response.json() as ResultResponse;
-      if (!response.ok || !json.success || !json.data) throw new Error(json.message || json.error || '目前無法完成八字命盤。');
-      setResult(json.data);
-      setDailyRecord(saveDailyAnalysis<BaziResult>('bazi', json.data));
+      setResult(data);
+      setDailyRecord(saveDailyAnalysis<BaziResult>('bazi', data));
       setMessage('三層資料流已完成：專業命盤 → AI 解讀 → AI 補強。');
-      markGrowthModuleCompleted('bazi', json.data.aiReinforcementPlan.first.brandElement);
+      markGrowthModuleCompleted('bazi', data.aiReinforcementPlan.first.brandElement);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : '目前無法完成八字命盤。');
     } finally {
@@ -353,7 +349,7 @@ export default function BaziPage() {
           </Link>
         </header>
 
-        <DailyAnalysisNotice record={dailyRecord} className="mb-5" />
+        <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 八字命盤" />
         <UnifiedBirthForm
           value={form}
           fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, birthPlace: true, calendarType: true }}

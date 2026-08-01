@@ -5,17 +5,46 @@ import { DAILY_ANALYSIS_NOTICE, formatDailyAnalysisRemaining, type DailyAnalysis
 type DailyAnalysisNoticeProps = {
   record?: DailyAnalysisRecord | null;
   className?: string;
+  moduleName?: string;
 };
 
-export default function DailyAnalysisNotice({ record, className = '' }: DailyAnalysisNoticeProps) {
+export default function DailyAnalysisNotice({ record, className = '', moduleName = '這張卡片' }: DailyAnalysisNoticeProps) {
+  const remainingText = formatDailyAnalysisRemaining(record?.expiresAt);
+  const statusClass = record ? 'daily-analysis-notice--used' : 'daily-analysis-notice--ready';
+
   return (
-    <section className={`daily-analysis-notice ${className}`.trim()}>
-      <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">FREE DAILY ANALYSIS</p>
-      <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{DAILY_ANALYSIS_NOTICE}</p>
+    <section className={`daily-analysis-notice ${statusClass} ${className}`.trim()}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">FREE DAILY ANALYSIS</p>
+          <h4 className="mt-2 font-serif text-xl font-black leading-tight text-cyan-50">
+            {record ? `${moduleName}今日免費正式分析已完成` : `${moduleName}每日一次完整免費分析`}
+          </h4>
+        </div>
+        <span
+          className={`rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.12em] ${
+            record
+              ? 'border-cyan-200/30 bg-cyan-300/10 text-cyan-100'
+              : 'border-amber-200/35 bg-amber-300/12 text-amber-100'
+          }`}
+        >
+          {record ? '查看今日分析' : '每日一次'}
+        </span>
+      </div>
+
+      <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{DAILY_ANALYSIS_NOTICE}</p>
+
       {record && (
-        <p className="mt-3 rounded-2xl border border-cyan-200/20 bg-cyan-300/10 px-4 py-3 text-sm font-black leading-6 text-cyan-100">
-          今日正式分析已完成。你可以無限次查看今日分析，{formatDailyAnalysisRemaining(record.expiresAt)}可以再次開始。
-        </p>
+        <div className="mt-3 grid gap-3 rounded-2xl border border-white/10 bg-black/18 p-4 text-sm font-bold leading-7 text-cyan-50/82">
+          <p>這不是錯誤。{moduleName}今天的完整免費正式分析已經完成。</p>
+          <p>
+            你現在可以無限次查看今日分析；若要建立新的{moduleName}分析，開放時間為{' '}
+            <span className="font-black text-amber-100">{remainingText}</span>。
+          </p>
+          <p className="rounded-2xl border border-rose-200/30 bg-rose-500/12 px-3 py-2 text-rose-100">
+            如果你剛剛重新輸入資料，系統不會重新建立新分析，會直接帶你查看今日已完成的結果。
+          </p>
+        </div>
       )}
     </section>
   );

@@ -858,7 +858,7 @@ export default function ZodiacPage() {
           <>
             <IdentitySplitSelector className="mb-5" />
 
-            <DailyAnalysisNotice record={dailyRecord} className="mb-5" />
+            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 西洋星座" />
 
             <section className="zodiac-input-hero mb-5 overflow-hidden rounded-3xl border border-fuchsia-300/25 bg-[radial-gradient(circle_at_top_left,rgba(217,70,239,0.2),rgba(34,211,238,0.09)_42%,rgba(15,23,42,0.82)_100%)] p-5 shadow-[0_0_40px_rgba(217,70,239,0.16)] sm:p-7">
               <p className="text-[11px] font-black uppercase tracking-[0.28em] text-fuchsia-200">AI WESTERN ZODIAC</p>
@@ -1058,7 +1058,12 @@ export default function ZodiacPage() {
 
         <div ref={progressRef} className="scroll-mt-6">
           {submitting && <div className="mt-5"><LoadingPanel job={job} traceSteps={traceSteps} /></div>}
-          {result && !submitting && <ResultPanel result={result} onReset={resetForm} />}
+          {result && !submitting && (
+            <>
+              <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 西洋星座" />
+              <ResultPanel result={result} onReset={resetForm} />
+            </>
+          )}
         </div>
       </main>
     </div>
