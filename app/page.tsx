@@ -2304,9 +2304,9 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div className="home-core-panel relative flex w-full max-w-[360px] flex-col items-center justify-center">
+          <div className="home-core-panel relative flex w-full max-w-[520px] flex-col items-center justify-center">
             <div className="home-core-halo hidden" aria-hidden="true" />
-            <TaijiStandaloneCard className="home-taiji-cinema" limitToLiangyi />
+            <TaijiStandaloneCard className="home-taiji-cinema" limitToLiangyi showThreeLayerMaterial />
             <div className="home-command-panel hidden mt-5 w-full">
               <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
                 <span className="text-[10px] font-black uppercase tracking-[0.28em] text-cyan-200">Command Sync</span>

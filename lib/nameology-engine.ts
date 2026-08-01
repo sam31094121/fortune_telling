@@ -1,4 +1,5 @@
 import type { BloodType, DimensionScores, Gender } from './types';
+import { getNameologyRadicalProfile, resolveNameologyRadicalProfile } from './nameology-radical-dictionary';
 
 export type NameologyElement = '木' | '火' | '土' | '金' | '水';
 export type NameologyRelation = '相生' | '相剋' | '比和';
@@ -370,6 +371,17 @@ function roleForIndex(index: number, total: number) {
 }
 
 function fallbackGlyph(char: string, element: NameologyElement): CharGlyphProfile {
+  const radicalProfile = resolveNameologyRadicalProfile(char, element);
+  if (radicalProfile) {
+    return {
+      radical: radicalProfile.radical,
+      parts: radicalProfile.partsHint,
+      structure: radicalProfile.structureHint,
+      meaning: radicalProfile.imagery,
+      namingIntent: radicalProfile.namingIntent,
+    };
+  }
+
   return {
     radical: element,
     parts: [char],
@@ -382,13 +394,17 @@ function fallbackGlyph(char: string, element: NameologyElement): CharGlyphProfil
 function fallbackProfile(char: string): CharProfile {
   const strokes = estimateStroke(char);
   const element = elementFromNumber(strokes);
+  const radicalProfile = resolveNameologyRadicalProfile(char, element);
   return {
     strokes,
     element,
-    imagery: `「${char}」字目前未在固定字義表中，系統先依字形複雜度與筆畫尾數做結構判讀。`,
-    traits: [ELEMENT_THEME[element].strength, strokes % 2 === 0 ? '偏向穩定收斂' : '偏向主動開展'],
-    caution: ELEMENT_THEME[element].caution,
+    imagery: radicalProfile
+      ? `「${char}」字未在固定筆畫字義表中，但已命中姓名學部首字典：${radicalProfile.imagery}`
+      : `「${char}」字目前未在固定字義表中，系統先依字形複雜度與筆畫尾數做結構判讀。`,
+    traits: radicalProfile?.traits ?? [ELEMENT_THEME[element].strength, strokes % 2 === 0 ? '偏向穩定收斂' : '偏向主動開展'],
+    caution: radicalProfile?.caution ?? ELEMENT_THEME[element].caution,
     glyph: fallbackGlyph(char, element),
+    tendencies: radicalProfile?.tendencyBoosts,
   };
 }
 
@@ -627,6 +643,9 @@ const ELEMENT_IMAGERY: Record<NameologyElement, string> = {
 };
 
 function radicalImagery(radical: string, element: NameologyElement) {
+  const dictionaryProfile = getNameologyRadicalProfile(radical);
+  if (dictionaryProfile) return dictionaryProfile.imagery;
+
   const direct = RADICAL_IMAGERY[radical];
   if (direct) return direct;
   const matchedKey = Object.keys(RADICAL_IMAGERY).find((key) => radical.includes(key));
