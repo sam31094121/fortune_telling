@@ -2699,7 +2699,7 @@ export default function HomePage() {
                     {isDemoRunning ? '🔮 天宿配對演示自動運行中…' : '🔮 一鍵自動天盤對齊演練'}
                   </button>
                 </div>
-                <DailyAnalysisNotice record={matchDailyRecord} className="mb-5" moduleName="AI 靈魂配對" />
+                <DailyAnalysisNotice record={matchDailyRecord} className="mb-5" moduleName="AI 靈魂配對" onViewResult={matchDailyRecord ? () => restoreMatchDailyRecord(matchDailyRecord) : undefined} />
 
                 <div className="fortune-card p-5 sm:p-6">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -3519,7 +3519,7 @@ export default function HomePage() {
             <FeatureVisitorCounter featureKey="number" className="hidden" />
 
             <IdentitySplitSelector className="mb-4" />
-            <DailyAnalysisNotice record={numberDailyRecord} className="mb-4" moduleName="AI 數字論吉凶" />
+            <DailyAnalysisNotice record={numberDailyRecord} className="mb-4" moduleName="AI 數字論吉凶" onViewResult={numberDailyRecord ? () => restoreNumberDailyRecord(numberDailyRecord) : undefined} />
 
             <div className={`relative overflow-hidden rounded-[28px] border bg-[radial-gradient(circle_at_16%_0%,rgba(251,191,36,0.24),transparent_34%),radial-gradient(circle_at_92%_14%,rgba(244,63,94,0.16),transparent_30%),linear-gradient(135deg,rgba(8,13,28,0.96),rgba(14,116,144,0.2),rgba(2,6,23,0.98))] p-4 shadow-[0_0_44px_rgba(34,211,238,0.22),0_0_70px_rgba(251,191,36,0.08),inset_0_0_30px_rgba(255,255,255,0.055)] ${numberInputNeedsAttention ? 'border-rose-300/75 shadow-[0_0_42px_rgba(244,63,94,0.32),inset_0_0_26px_rgba(244,63,94,0.08)]' : 'border-cyan-200/35'}`}>
               <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/80 to-transparent" />

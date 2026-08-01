@@ -2616,6 +2616,15 @@ function InsightAnalyticalConsole({
 export default function InsightPage() {
   const mainRef = useRef<HTMLElement>(null);
 
+  function jumpToTodayResult() {
+    const existing = readDailyAnalysis<InsightResult>('ziwei');
+    if (existing) {
+      setDailyRecord(existing);
+      setResult(existing.result);
+    }
+    window.setTimeout(() => mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  }
+
   // 檢測 Fast Refresh 或 Chunk 載入錯誤，自動維修重新載入，防禦白屏
   useEffect(() => {
     const handleChunkError = (e: ErrorEvent) => {
@@ -2872,7 +2881,7 @@ export default function InsightPage() {
 
             </section>
 
-            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 紫微斗數" />
+            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 紫微斗數" onViewResult={dailyRecord ? jumpToTodayResult : undefined} />
             <div id="input-form" className="fortune-card p-6 sm:p-8 scroll-mt-20">
               {loading && <InsightAnalyticalConsole name={input.name} />}
               <div className={loading ? 'hidden' : 'space-y-8'}>
@@ -3195,7 +3204,7 @@ export default function InsightPage() {
               </svg>
             </div>
             <div className="space-y-6">
-            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 紫微斗數" />
+            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 紫微斗數" onViewResult={jumpToTodayResult} />
             <div className="fortune-card relative hidden overflow-hidden border-amber-400/25 bg-slate-950/55 p-6 sm:p-8">
               <div className="pointer-events-none absolute inset-4 border border-cyan-400/10" />
               <div className="relative flex flex-col gap-5 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
@@ -3232,9 +3241,7 @@ export default function InsightPage() {
                 onClick={() => {
                   const existing = readDailyAnalysis<InsightResult>('ziwei');
                   if (existing) {
-                    setDailyRecord(existing);
-                    setResult(existing.result);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    jumpToTodayResult();
                     return;
                   }
                   setResult(null);

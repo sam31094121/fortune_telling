@@ -485,7 +485,7 @@ export default function NameologyPage() {
           <Link href="/" className="feature-home-link feature-home-link--amber">{"\u8fd4\u56de\u9996\u9801"}</Link>
         </div>
 
-        <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 姓名學" />
+        <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 姓名學" onViewResult={dailyRecord ? () => void handleSubmit() : undefined} />
         <section id="nameology-input-form" className="fortune-card p-5 sm:p-8 scroll-mt-20">
           <p className="text-xs font-bold uppercase tracking-[0.35em] text-amber-300">NAMEOLOGY</p>
           <h1 className="mt-4 font-serif text-4xl font-black text-amber-100 sm:text-6xl">AI 姓名學</h1>

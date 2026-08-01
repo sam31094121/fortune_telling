@@ -537,7 +537,7 @@ export default function MusicSystemPage() {
 
                 <MusicLifeSongThreeLayerCard mode="form" />
 
-              <DailyAnalysisNotice record={dailyRecord} className="mb-6" moduleName="AI 生成一首歌" />
+              <DailyAnalysisNotice record={dailyRecord} className="mb-6" moduleName="AI 生成一首歌" onViewResult={dailyRecord ? handleStart : undefined} />
 
               <IdentitySplitSelector className="mb-6" />
 

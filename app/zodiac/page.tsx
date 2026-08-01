@@ -755,6 +755,15 @@ export default function ZodiacPage() {
     }
   }, [submitting, result]);
 
+  function jumpToTodayZodiacResult() {
+    const existing = readDailyAnalysis<ZodiacResult>('zodiac');
+    if (existing && isCurrentZodiacResult(existing.result)) {
+      setDailyRecord(existing);
+      setResult(existing.result);
+    }
+    window.setTimeout(() => progressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  }
+
   const updateTrace = (stepId: ZodiacTraceStepId, status: ZodiacTraceStatus, detail?: string) => {
     setTraceSteps((current) => current.map((step) => step.id === stepId ? { ...step, status, detail } : step));
   };
@@ -858,7 +867,7 @@ export default function ZodiacPage() {
           <>
             <IdentitySplitSelector className="mb-5" />
 
-            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 西洋星座" />
+            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 西洋星座" onViewResult={dailyRecord ? jumpToTodayZodiacResult : undefined} />
 
             <section className="zodiac-input-hero mb-5 overflow-hidden rounded-3xl border border-fuchsia-300/25 bg-[radial-gradient(circle_at_top_left,rgba(217,70,239,0.2),rgba(34,211,238,0.09)_42%,rgba(15,23,42,0.82)_100%)] p-5 shadow-[0_0_40px_rgba(217,70,239,0.16)] sm:p-7">
               <p className="text-[11px] font-black uppercase tracking-[0.28em] text-fuchsia-200">AI WESTERN ZODIAC</p>
@@ -1060,7 +1069,7 @@ export default function ZodiacPage() {
           {submitting && <div className="mt-5"><LoadingPanel job={job} traceSteps={traceSteps} /></div>}
           {result && !submitting && (
             <>
-              <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 西洋星座" />
+              <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 西洋星座" onViewResult={dailyRecord ? jumpToTodayZodiacResult : undefined} />
               <ResultPanel result={result} onReset={resetForm} />
             </>
           )}
