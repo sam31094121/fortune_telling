@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMemo, useState, useDeferredValue, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -528,6 +528,93 @@ function getNumberFortuneAura(level?: string) {
   } as const;
 }
 
+function getNumberFortuneGradePresentation(result: NumberAnalysisResult) {
+  const level = result.level;
+  const score = result.finalScore;
+
+  if (level === '大吉' || score >= 90) {
+    return {
+      title: '大吉登峰，吉勢主場',
+      subtitle: '後端判定：數字結構進入強支撐區，優先承接順勢推進。',
+      badge: 'AI 後端判定｜最高吉勢',
+      frameClass: 'border-amber-200/60 bg-[radial-gradient(circle_at_50%_0%,rgba(251,191,36,0.32),transparent_42%),linear-gradient(135deg,rgba(69,42,8,0.68),rgba(8,13,28,0.96))] shadow-[0_0_42px_rgba(251,191,36,0.28),inset_0_0_28px_rgba(253,230,138,0.09)]',
+      badgeClass: 'border-amber-200/55 bg-amber-300/18 text-amber-100',
+      titleClass: 'text-amber-100 drop-shadow-[0_0_18px_rgba(251,191,36,0.46)]',
+      scoreClass: 'text-amber-100',
+    } as const;
+  }
+
+  if (level === '吉' || level === '次吉' || score >= 76) {
+    return {
+      title: '吉勢成局，順勢可攻',
+      subtitle: '後端判定：數字能量具備明確支撐，行動方向可以更果斷。',
+      badge: 'AI 後端判定｜強吉等級',
+      frameClass: 'border-emerald-200/45 bg-[radial-gradient(circle_at_50%_0%,rgba(52,211,153,0.26),transparent_44%),linear-gradient(135deg,rgba(6,78,59,0.45),rgba(8,13,28,0.96))] shadow-[0_0_34px_rgba(16,185,129,0.22),inset_0_0_24px_rgba(52,211,153,0.07)]',
+      badgeClass: 'border-emerald-200/45 bg-emerald-300/14 text-emerald-100',
+      titleClass: 'text-emerald-100 drop-shadow-[0_0_14px_rgba(52,211,153,0.34)]',
+      scoreClass: 'text-emerald-100',
+    } as const;
+  }
+
+  if (level === '吉中帶凶' || level === '中平' || level === '凶中帶吉' || score >= 46) {
+    return {
+      title: '吉凶交戰，轉勢在手',
+      subtitle: '後端判定：數字結構同時有推力與阻力，關鍵在先分清順逆。',
+      badge: 'AI 後端判定｜轉化等級',
+      frameClass: 'border-cyan-200/42 bg-[radial-gradient(circle_at_50%_0%,rgba(34,211,238,0.24),transparent_44%),linear-gradient(135deg,rgba(14,116,144,0.36),rgba(8,13,28,0.96))] shadow-[0_0_30px_rgba(34,211,238,0.18),inset_0_0_22px_rgba(34,211,238,0.06)]',
+      badgeClass: 'border-cyan-200/42 bg-cyan-300/12 text-cyan-100',
+      titleClass: 'text-cyan-100 drop-shadow-[0_0_14px_rgba(34,211,238,0.32)]',
+      scoreClass: 'text-cyan-100',
+    } as const;
+  }
+
+  return {
+    title: '凶勢已現，先穩後破',
+    subtitle: '後端判定：數字風險訊號偏強，當前第一任務是降風險、穩節奏。',
+    badge: 'AI 後端判定｜警戒等級',
+    frameClass: 'border-rose-200/48 bg-[radial-gradient(circle_at_50%_0%,rgba(251,113,133,0.28),transparent_42%),linear-gradient(135deg,rgba(76,5,25,0.52),rgba(8,13,28,0.96))] shadow-[0_0_34px_rgba(244,63,94,0.22),inset_0_0_24px_rgba(251,113,133,0.07)]',
+    badgeClass: 'border-rose-200/48 bg-rose-300/14 text-rose-100',
+    titleClass: 'text-rose-100 drop-shadow-[0_0_14px_rgba(251,113,133,0.34)]',
+    scoreClass: 'text-rose-100',
+  } as const;
+}
+
+function NumberFortuneGradeBanner({ result }: { result: NumberAnalysisResult }) {
+  const grade = getNumberFortuneGradePresentation(result);
+
+  return (
+    <div className={`relative overflow-hidden rounded-[28px] border p-5 text-center ${grade.frameClass}`}>
+      <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/55 to-transparent" />
+      <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full border border-white/10 opacity-40" />
+      <div className="pointer-events-none absolute -left-10 bottom-0 h-28 w-28 rounded-full border border-white/10 opacity-25" />
+
+      <div className="relative z-10 flex flex-col items-center gap-3">
+        <span className={`rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.2em] ${grade.badgeClass}`}>
+          {grade.badge}
+        </span>
+        <h4 className={`font-serif text-3xl font-black leading-tight sm:text-4xl ${grade.titleClass}`}>
+          {grade.title}
+        </h4>
+        <p className="max-w-xl text-xs font-bold leading-6 text-cyan-50/76">
+          {grade.subtitle}
+        </p>
+
+        <div className="mt-1 flex w-full flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-4 sm:flex-row sm:gap-6">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-white/45">Final Score</p>
+            <p className={`mt-1 font-mono text-6xl font-black leading-none ${grade.scoreClass}`}>{result.finalScore}</p>
+          </div>
+          <div className="hidden h-14 w-px bg-white/10 sm:block" />
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-white/45">Fortune Level</p>
+            <p className="mt-2 text-2xl font-black text-amber-100">{result.level}</p>
+            <p className="mt-1 text-[10px] font-bold text-white/45">10 級吉凶分級 · 規則版本 {result.ruleVersion}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 type NumberFortuneLayerMaterial = {
   layer: string;
   title: string;
@@ -628,32 +715,17 @@ function NumberFortuneThreeLayerCard({
         </span>
       </div>
 
-      <div className="mt-4 grid gap-3">
+      <div
+        className="mt-4 flex h-10 items-center justify-center gap-3 rounded-2xl border border-cyan-300/10 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.14),transparent_56%),rgba(15,23,42,0.28)] shadow-[inset_0_0_22px_rgba(34,211,238,0.055)]"
+        aria-hidden="true"
+        data-number-layer-count={NUMBER_FORTUNE_THREE_LAYER_MATERIAL.length}
+      >
         {NUMBER_FORTUNE_THREE_LAYER_MATERIAL.map((item, index) => (
-          <article key={item.layer} className="rounded-2xl border border-white/10 bg-white/[0.045] p-3">
-            <div className="flex items-center gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-amber-200/35 bg-amber-300/12 text-xs font-black text-amber-100">
-                {index + 1}
-              </span>
-              <div className="min-w-0">
-                <p className="text-[10px] font-black tracking-[0.18em] text-amber-200">{item.layer}</p>
-                <h5 className="text-sm font-black text-cyan-50">{item.title}</h5>
-              </div>
-            </div>
-            <div className="mt-3 grid gap-2 text-xs leading-6 text-[color:var(--text-sub)]">
-              <p><span className="font-black text-cyan-200">專業素材：</span>{item.professionalMaterial}</p>
-              <p><span className="font-black text-cyan-200">承接輸入：</span>{item.aiInput}</p>
-              <p><span className="font-black text-cyan-200">輸出結果：</span>{item.aiOutput}</p>
-              <p><span className="font-black text-cyan-200">交接規則：</span>{item.handoff}</p>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {item.checkpoints.map((checkpoint) => (
-                <span key={checkpoint} className="rounded-full border border-cyan-300/15 bg-cyan-300/8 px-2.5 py-1 text-[10px] font-bold text-cyan-100/80">
-                  {checkpoint}
-                </span>
-              ))}
-            </div>
-          </article>
+          <span
+            key={item.layer}
+            className="h-1.5 w-8 rounded-full border border-cyan-200/20 bg-cyan-200/25 shadow-[0_0_14px_rgba(34,211,238,0.18)]"
+            style={{ opacity: 0.34 + index * 0.16 }}
+          />
         ))}
       </div>
 
@@ -2304,7 +2376,7 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div className="home-core-panel relative flex w-full max-w-[520px] flex-col items-center justify-center">
+          <div className="home-core-panel relative flex w-full max-w-[360px] flex-col items-center justify-center">
             <div className="home-core-halo hidden" aria-hidden="true" />
             <TaijiStandaloneCard className="home-taiji-cinema" limitToLiangyi showThreeLayerMaterial />
             <div className="home-command-panel hidden mt-5 w-full">
@@ -3441,28 +3513,47 @@ export default function HomePage() {
             <IdentitySplitSelector className="mb-4" />
             <DailyAnalysisNotice record={numberDailyRecord} className="mb-4" />
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <input
-                type="text"
-                value={fortuneNumber}
-                inputMode="numeric"
-                autoComplete="off"
-                onChange={(e) => {
-                  setFortuneNumber(e.target.value.replace(/\D/g, '').slice(0, 10));
-                  setFortuneError('');
-                }}
-                onFocus={() => setFortuneError('')}
-                placeholder="4 碼 / 6 碼 / 8 碼 / 完整 10 碼"
-                className={`form-input flex-1 text-base glass-input glass-input-cyan neon-input-focus ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
-              />
-              <button
-                type="button"
-                onClick={handleNumberFortune}
-                disabled={fortuneLoading}
-                className="vip-gold-btn px-8 py-3.5 text-sm font-semibold disabled:opacity-40"
-              >
-                {fortuneLoading ? '分析中...' : getDailyAnalysisButtonLabel(numberDailyRecord)}
-              </button>
+            <div className="relative overflow-hidden rounded-[28px] border border-cyan-200/35 bg-[radial-gradient(circle_at_18%_0%,rgba(251,191,36,0.18),transparent_34%),linear-gradient(135deg,rgba(8,13,28,0.92),rgba(14,116,144,0.16),rgba(2,6,23,0.96))] p-4 shadow-[0_0_34px_rgba(34,211,238,0.18),inset_0_0_24px_rgba(255,255,255,0.045)]">
+              <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/70 to-transparent" />
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-200">NUMBER INPUT GATE</p>
+                  <h4 className="mt-1 font-serif text-xl font-black leading-tight text-cyan-50">數字能量碼輸入框架</h4>
+                </div>
+                <span className="rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1 text-[10px] font-black tracking-[0.12em] text-cyan-100">
+                  4 / 6 / 8 / 10 碼
+                </span>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <div className="relative min-w-0 flex-1">
+                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black tracking-[0.18em] text-cyan-200/70">
+                    CODE
+                  </span>
+                  <input
+                    type="text"
+                    value={fortuneNumber}
+                    inputMode="numeric"
+                    autoComplete="off"
+                    onChange={(e) => {
+                      setFortuneNumber(e.target.value.replace(/\D/g, '').slice(0, 10));
+                      setFortuneError('');
+                    }}
+                    onFocus={() => setFortuneError('')}
+                    placeholder="請輸入 4 / 6 / 8 / 10 碼數字"
+                    aria-label="數字論吉凶輸入框"
+                    className={`form-input w-full border-cyan-200/50 bg-slate-950/70 py-4 pl-16 pr-4 font-mono text-2xl font-black tracking-[0.22em] text-cyan-50 placeholder:text-cyan-100/34 shadow-[0_0_28px_rgba(34,211,238,0.16),inset_0_0_18px_rgba(34,211,238,0.055)] glass-input glass-input-cyan neon-input-focus ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_24px_rgba(244,63,94,0.3)]' : ''}`}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleNumberFortune}
+                  disabled={fortuneLoading}
+                  className="vip-gold-btn min-h-[58px] px-8 py-3.5 text-sm font-black tracking-[0.08em] disabled:opacity-40"
+                >
+                  {fortuneLoading ? '分析中...' : getDailyAnalysisButtonLabel(numberDailyRecord)}
+                </button>
+              </div>
             </div>
 
             {fortuneError && (
@@ -3545,16 +3636,7 @@ export default function HomePage() {
 
                 <div className="h-px bg-cyan-500/10" />
 
-                <div className="rounded-2xl border border-cyan-300/15 bg-slate-950/35 p-5 text-center">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-300">要害分數</p>
-                  <p className="mt-3 font-mono text-6xl font-black leading-none text-cyan-100">
-                    {fortuneResult.finalScore}
-                  </p>
-                  <p className="mt-3 text-2xl font-black text-amber-100">{fortuneResult.level}</p>
-                  <p className="mt-2 text-[10px] text-[color:var(--text-muted)]">
-                    10 級吉凶分級 · 規則版本 {fortuneResult.ruleVersion}
-                  </p>
-                </div>
+                <NumberFortuneGradeBanner result={fortuneResult} />
 
                 <FiveElementPriorityCard result={fortuneResult.fiveElement} />
 
