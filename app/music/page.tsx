@@ -161,6 +161,110 @@ type MusicDailyResult = { result: MusicGenerateResponse; submittedName: string }
 
 const MUSIC_GENERATION_FRIENDLY_FAILURE = '\u76ee\u524d\u66ab\u6642\u7121\u6cd5\u5b8c\u6210\u6b4c\u66f2\u751f\u6210\u3002\n\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002\n\u9020\u6210\u60a8\u7684\u4e0d\u4fbf\uff0c\u656c\u8acb\u898b\u8ad2\u3002';
 
+
+type MusicLifeSongLayerMaterial = {
+  layer: string;
+  title: string;
+  heading: string;
+  body: string;
+  professionalMaterial: string;
+  aiInput: string;
+  aiOutput: string;
+  handoff: string;
+  checkpoints: string[];
+};
+
+const MUSIC_LIFE_SONG_THREE_LAYER_MATERIAL: MusicLifeSongLayerMaterial[] = [
+  {
+    layer: '第一層',
+    title: '專業素材',
+    heading: 'AI 生命歌曲資料底盤',
+    body: 'AI 先建立歌曲素材庫，不急著生成歌曲。此層把使用者目標、姓名、生日、血型、性別、時辰、五元素與補強方向轉成歌曲可使用的專業素材。',
+    professionalMaterial: '建立歌曲主角、人生命題、情緒底色、五元素缺口、補強方向、聲線傾向、語言選擇與曲風基準。',
+    aiInput: '讀取：分析自己/親友、本次目標、生命資料、歌曲風格、語言、五元素與補強方向。',
+    aiOutput: '輸出：歌曲素材表、主角設定、情緒速度、核心補強方向與不可偏離的創作邊界。',
+    handoff: '交給第二層時，只交付整理後的素材，不直接產生歌詞或旋律。',
+    checkpoints: ['資料完整', '主角明確', '五元素補強方向明確', '歌曲用途明確'],
+  },
+  {
+    layer: '第二層',
+    title: 'AI 理解',
+    heading: '歌曲世界觀與主題轉譯',
+    body: '第二層只讀第一層素材，把專業資料翻譯成一般使用者聽得懂的歌曲世界觀。它要先理解這首歌為什麼存在，再決定故事、意境與情緒弧線。',
+    professionalMaterial: '建立歌曲使命、故事主軸、情緒弧線、陪伴語氣、主題句、畫面感與副歌核心訊息。',
+    aiInput: '讀取：第一層的歌曲素材表、主角設定、五元素補強方向與曲風基準。',
+    aiOutput: '輸出：世界觀、歌曲主題、核心場景、情緒轉折、主歌/副歌敘事方向。',
+    handoff: '交給第三層時，只交付可創作的歌曲藍圖，不重新讀原始命理資料。',
+    checkpoints: ['世界觀成立', '主題不偏離', '情緒弧線清楚', '副歌核心明確'],
+  },
+  {
+    layer: '第三層',
+    title: 'AI 創作',
+    heading: '歌名、歌詞、編曲與聲線生成',
+    body: '第三層只讀第二層歌曲藍圖，依序完成歌名、歌曲介紹、歌詞、曲風、節奏、聲線與完整歌曲輸出。此層不要求使用者錄音，也不因麥克風權限中斷。',
+    professionalMaterial: '完成歌曲命名、段落結構、主歌副歌、Hook、BPM、調性、樂器、AI 聲線、播放與收藏資料。',
+    aiInput: '讀取：第二層的世界觀、主題句、情緒弧線、故事場景與創作邊界。',
+    aiOutput: '輸出：完整生命歌曲、歌詞、製作計畫、AI 聲線、播放展示與成長中心紀錄。',
+    handoff: '完成後交給結果頁與 Integration Layer；自己模式可寫入成長中心，親友模式只做單次分析。',
+    checkpoints: ['歌名完成', '歌詞完整', '曲風參數完整', 'AI 聲線完成'],
+  },
+];
+
+function MusicLifeSongThreeLayerCard({ context, mode = 'landing' }: { context?: MusicGenerateResponse['life_song_context'] | null; mode?: 'landing' | 'form' | 'result' }) {
+  const isResult = mode === 'result' && context;
+  const title = isResult ? 'AI 生命歌曲三層生成紀錄' : 'AI 生成一首歌｜三層專業流程';
+  const subtitle = isResult ? '本次歌曲已依照三層流程完成：第一層建素材，第二層做 AI 理解，第三層進入 AI 創作。' : '這張卡不是直接輸入後生成，而是先建素材、再理解、最後創作，讓歌曲成為專屬陪伴。';
+  const cardClassName = ['rounded-[26px] border border-violet-300/20 bg-[linear-gradient(135deg,rgba(76,29,149,0.26),rgba(15,23,42,0.78)_45%,rgba(2,6,23,0.82))] p-4 text-left shadow-[0_18px_44px_rgba(2,6,23,0.28)]', mode === 'landing' ? 'mt-5 w-full max-w-3xl' : 'mt-5'].join(' ');
+
+  return (
+    <section className={cardClassName}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-violet-200/80">AI LIFE SONG SYSTEM</p>
+          <h2 className="mt-2 font-serif text-2xl font-black leading-tight text-violet-50 sm:text-3xl">{title}</h2>
+        </div>
+        <span className="w-fit rounded-full border border-amber-200/25 bg-amber-200/10 px-3 py-1 text-[11px] font-bold text-amber-100">三層已建立</span>
+      </div>
+      <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--text-sub)]">{subtitle}</p>
+
+      {isResult && (
+        <div className="mt-4 rounded-2xl border border-white/10 bg-black/18 px-3 py-3 text-xs leading-6 text-violet-100/86">
+          <p><b className="text-amber-100">歌曲目標：</b>{context.goal || '本次生命歌曲目標'}</p>
+          <p><b className="text-amber-100">歌曲世界觀：</b>{context.worldView || 'AI 已建立歌曲世界觀'}</p>
+          <p><b className="text-amber-100">核心主題：</b>{context.theme || 'AI 已完成主題轉譯'}</p>
+        </div>
+      )}
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-3">
+        {MUSIC_LIFE_SONG_THREE_LAYER_MATERIAL.map((item) => (
+          <div key={item.layer} className="flex min-h-[360px] flex-col rounded-[22px] border border-white/10 bg-black/20 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-black tracking-[0.18em] text-violet-100/72">{item.layer}</span>
+              <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[10px] font-semibold text-amber-100/90">{item.title}</span>
+            </div>
+            <h3 className="mt-3 text-sm font-black leading-6 text-violet-50">{item.heading}</h3>
+            <p className="mt-2 text-xs leading-6 text-[color:var(--text-main)]">{item.body}</p>
+
+            <div className="mt-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.035] px-3 py-3 text-[11px] leading-5 text-[color:var(--text-sub)]">
+              <p><b className="text-violet-100">專業素材：</b>{item.professionalMaterial}</p>
+              <p><b className="text-cyan-100">承接輸入：</b>{item.aiInput}</p>
+              <p><b className="text-amber-100">輸出結果：</b>{item.aiOutput}</p>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-1.5">
+              {item.checkpoints.map((checkpoint) => (
+                <span key={checkpoint} className="rounded-full border border-white/10 bg-black/16 px-2 py-1 text-[10px] font-semibold text-violet-100/78">{checkpoint}</span>
+              ))}
+            </div>
+
+            <p className="mt-auto border-t border-white/10 pt-3 text-[11px] leading-5 text-[color:var(--text-muted)]">{item.handoff}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function LandingHero({ onStart, dailyRecord }: { onStart: () => void; dailyRecord: DailyAnalysisRecord<MusicDailyResult> | null }) {
   const lastStartTouchRef = useRef(0);
 
@@ -203,6 +307,8 @@ function LandingHero({ onStart, dailyRecord }: { onStart: () => void; dailyRecor
             {"AI \u5148\u7406\u89e3\u4f60\u73fe\u5728\u6700\u60f3\u5b8c\u6210\u7684\u4e8b\uff0c\u518d\u6574\u5408\u547d\u7406\u3001\u4e94\u5143\u7d20\u8207\u88dc\u5f37\u65b9\u5411\uff0c\u5275\u4f5c\u4e00\u9996\u771f\u6b63\u5c6c\u65bc\u4f60\u7684\u751f\u547d\u6b4c\u66f2\u3002"}
           </p>
         </div>
+
+        <MusicLifeSongThreeLayerCard mode="landing" />
 
         <div className="music-mic-entry-guide" aria-label="\u9ea5\u514b\u98a8\u9304\u97f3\u5165\u53e3\u5f15\u5c0e">
           <p>{"\u5b8c\u6574 AI \u751f\u547d\u6b4c\u66f2\u6d41\u7a0b"}</p>
@@ -429,6 +535,8 @@ export default function MusicSystemPage() {
                 </p>
               </div>
 
+                <MusicLifeSongThreeLayerCard mode="form" />
+
               <DailyAnalysisNotice record={dailyRecord} className="mb-6" />
 
               <IdentitySplitSelector className="mb-6" />
@@ -529,8 +637,9 @@ export default function MusicSystemPage() {
               )}
             </section>
           )}
+          <MusicLifeSongThreeLayerCard mode="result" context={result.life_song_context} />
 
-          <div className="mb-6">
+          <div className="mb-6 mt-6">
             <FiveElementPriorityCard result={result.fiveElement} />
           </div>
 

@@ -528,6 +528,158 @@ function getNumberFortuneAura(level?: string) {
   } as const;
 }
 
+type NumberFortuneLayerMaterial = {
+  layer: string;
+  title: string;
+  professionalMaterial: string;
+  aiInput: string;
+  aiOutput: string;
+  handoff: string;
+  checkpoints: string[];
+};
+
+const NUMBER_FORTUNE_DIMENSION_LABELS = {
+  wealth: '財富資源',
+  career: '事業推進',
+  love: '感情互動',
+  family: '家庭承載',
+  social: '人際連結',
+  health: '身心節奏',
+  growth: '成長突破',
+  risk: '風險訊號',
+  pressure: '壓力密度',
+  stability: '穩定基礎',
+} as const;
+
+const NUMBER_FORTUNE_THREE_LAYER_MATERIAL: NumberFortuneLayerMaterial[] = [
+  {
+    layer: '第一層',
+    title: '專業數字結構底盤',
+    professionalMaterial:
+      '建立數字本體資料：輸入位數、總和、根數、頭尾碼、後四碼、奇偶比例、高低位比例、連號、鏡像、重複、相鄰組合與三連結構。',
+    aiInput:
+      '只讀取使用者輸入與 Number Core Engine 的 evidence / indexes / matrix 原始資料。',
+    aiOutput:
+      '輸出可稽核的數字命盤底稿，不做 AI 解讀，不直接給補強建議。',
+    handoff:
+      '交給第二層時，只交付已完成的數字結構、吉凶分級、分數矩陣與證據清單。',
+    checkpoints: ['位數模式正確', '重複與連號可追溯', '吉凶分級有規則版本', '不得跳過後端運算'],
+  },
+  {
+    layer: '第二層',
+    title: 'AI 白話解讀轉譯',
+    professionalMaterial:
+      '把第一層的財富、事業、感情、家庭、人際、健康、成長、風險、壓力、穩定十項矩陣轉成一般使用者看得懂的語義。',
+    aiInput:
+      '第二層只讀第一層，不重新計算數字，不改動原始分數。',
+    aiOutput:
+      '輸出數字故事、優勢區、警訊區、當前節奏與可執行提醒。',
+    handoff:
+      '交給第三層時，只交付已完成的解讀摘要、優勢、注意事項與方向語句。',
+    checkpoints: ['解讀必須對應矩陣', '不可模糊跳結論', '優勢與風險分開呈現', '不得重算第一層'],
+  },
+  {
+    layer: '第三層',
+    title: 'AI 補強排序方案',
+    professionalMaterial:
+      '依第二層解讀與五元素 Integration Layer 結果，明確排列第一補強、第二補強、第三補強，形成可執行方向。',
+    aiInput:
+      '第三層只讀第二層與五元素整合結果，不回頭改命盤、不重新分析數字。',
+    aiOutput:
+      '輸出明確判定：目前最需要補強的方向、後續排序與行動建議。',
+    handoff:
+      'SELF 可交給 AI 個人成長中心留存；OTHER 僅保留單次分析，不寫入會員核心資料。',
+    checkpoints: ['第一補強明確', '第二第三依序排列', '不保證人生結果', '自己與親友資料分流'],
+  },
+];
+
+function NumberFortuneThreeLayerCard({
+  result,
+  mode = 'input',
+}: {
+  result?: NumberAnalysisResult | null;
+  mode?: 'input' | 'result';
+}) {
+  const matrixEntries = Object.entries(result?.matrix ?? {}) as Array<[keyof typeof NUMBER_FORTUNE_DIMENSION_LABELS, number]>;
+  const strongestDimensions = [...matrixEntries].sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const watchDimensions = [...matrixEntries].sort((a, b) => a[1] - b[1]).slice(0, 3);
+  const evidence = result?.evidence;
+  const activeValue = result?.valueMasked || result?.value || '等待輸入';
+  const layerCaption = mode === 'result'
+    ? '已承接後端結果，展示數字論吉凶三層如何串接。'
+    : '輸入前先建立規則感：數字論吉凶會分三層單向流動。';
+  const cardClassName = [
+    'rounded-[26px] border border-amber-200/20',
+    'bg-[radial-gradient(circle_at_18%_12%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(135deg,rgba(15,23,42,0.86),rgba(8,13,28,0.96))]',
+    'p-4 shadow-[0_0_28px_rgba(251,191,36,0.12)]',
+    mode === 'result' ? 'relative z-10' : 'mb-4',
+  ].join(' ');
+
+  return (
+    <div className={cardClassName}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-200">AI 數字論吉凶｜三層專業流程</p>
+          <h4 className="mt-2 font-serif text-xl font-black leading-tight text-cyan-50">數字結構 → AI 解讀 → 補強排序</h4>
+          <p className="mt-2 text-xs font-semibold leading-6 text-cyan-100/72">{layerCaption}</p>
+        </div>
+        <span className="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-[10px] font-black text-cyan-100">
+          單向三層
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        {NUMBER_FORTUNE_THREE_LAYER_MATERIAL.map((item, index) => (
+          <article key={item.layer} className="rounded-2xl border border-white/10 bg-white/[0.045] p-3">
+            <div className="flex items-center gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-amber-200/35 bg-amber-300/12 text-xs font-black text-amber-100">
+                {index + 1}
+              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] font-black tracking-[0.18em] text-amber-200">{item.layer}</p>
+                <h5 className="text-sm font-black text-cyan-50">{item.title}</h5>
+              </div>
+            </div>
+            <div className="mt-3 grid gap-2 text-xs leading-6 text-[color:var(--text-sub)]">
+              <p><span className="font-black text-cyan-200">專業素材：</span>{item.professionalMaterial}</p>
+              <p><span className="font-black text-cyan-200">承接輸入：</span>{item.aiInput}</p>
+              <p><span className="font-black text-cyan-200">輸出結果：</span>{item.aiOutput}</p>
+              <p><span className="font-black text-cyan-200">交接規則：</span>{item.handoff}</p>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {item.checkpoints.map((checkpoint) => (
+                <span key={checkpoint} className="rounded-full border border-cyan-300/15 bg-cyan-300/8 px-2.5 py-1 text-[10px] font-bold text-cyan-100/80">
+                  {checkpoint}
+                </span>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {result && (
+        <div className="mt-4 grid gap-3 rounded-2xl border border-cyan-300/15 bg-slate-950/45 p-3 text-xs leading-6 text-cyan-100/82 sm:grid-cols-2">
+          <div>
+            <p className="font-black text-amber-200">第一層即時資料</p>
+            <p>分析數字：<span className="font-mono text-cyan-50">{activeValue}</span></p>
+            <p>吉凶等級：<span className="font-black text-amber-100">{result.level}</span></p>
+            <p>總分：<span className="font-mono text-cyan-50">{result.finalScore}</span>｜規則版本 {result.ruleVersion}</p>
+            {evidence && (
+              <p>根數 {evidence.rootNumber}｜總和 {evidence.digitSum}｜重複 {evidence.repeatPatterns.length}｜連號 {evidence.sequencePatterns.length}</p>
+            )}
+          </div>
+          <div>
+            <p className="font-black text-amber-200">第二、第三層接續</p>
+            <p>優勢區：{strongestDimensions.map(([key, value]) => `${NUMBER_FORTUNE_DIMENSION_LABELS[key]} ${value}`).join('、') || '等待矩陣'}</p>
+            <p>補強觀察：{watchDimensions.map(([key, value]) => `${NUMBER_FORTUNE_DIMENSION_LABELS[key]} ${value}`).join('、') || '等待矩陣'}</p>
+            <p>五元素：由 Integration Layer 統一判定，數字卡片只交付權重與證據。</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ScoreRow({ label, score, tone }: { label: string; score: number; tone: 'violet' | 'amber' | 'cyan' | 'pink' }) {
   const [width, setWidth] = useState(0);
 
@@ -3282,6 +3434,8 @@ export default function HomePage() {
               </p>
             </div>
 
+            <NumberFortuneThreeLayerCard mode="input" />
+
             <FeatureVisitorCounter featureKey="number" className="hidden" />
 
             <IdentitySplitSelector className="mb-4" />
@@ -3359,6 +3513,7 @@ export default function HomePage() {
 
             {fortuneResult && !fortuneLoading && (
               <div className={`result-container fade-result mt-6 rounded-2xl border p-5 space-y-4 font-sans relative overflow-hidden ${fortuneAura.resultClass}`}>
+                <NumberFortuneThreeLayerCard mode="result" result={fortuneResult} />
                 {fortuneAura.stage > 0 && (
                   <>
                     <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.16),transparent_38%),linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent)] mix-blend-screen" />
