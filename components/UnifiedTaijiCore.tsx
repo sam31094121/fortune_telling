@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import TaijiCoreVisual from '@/components/taiji/TaijiCoreVisual';
+import { decideTaijiEntryStage } from '@/lib/taiji-adaptive-stage';
 
 type EvolutionStage = 'idle' | 'taiji' | 'liangyi' | 'sixiang' | 'bagua';
 
@@ -57,6 +58,7 @@ type UnifiedTaijiCoreProps = {
   showLabel?: boolean;
   limitToLiangyi?: boolean;
   holdEvolutionStages?: boolean;
+  adaptiveEntry?: boolean;
 };
 
 export default function UnifiedTaijiCore({
@@ -67,6 +69,7 @@ export default function UnifiedTaijiCore({
   showLabel = false,
   limitToLiangyi = false,
   holdEvolutionStages = false,
+  adaptiveEntry = false,
 }: UnifiedTaijiCoreProps) {
   const [tapCount, setTapCount] = useState(0);
   const [evolutionStage, setEvolutionStage] = useState<EvolutionStage>('idle');
@@ -77,6 +80,7 @@ export default function UnifiedTaijiCore({
   const [liangyiSpinLevel, setLiangyiSpinLevel] = useState<0 | 1 | 2 | 3 | 4 | 5>(0);
   const [mantraLevel, setMantraLevel] = useState<0 | 3 | 6 | 12 | 24>(0);
   const [touchPulse, setTouchPulse] = useState(0);
+  const [highlightElement, setHighlightElement] = useState<'EARTH' | 'WATER' | 'FIRE' | 'AIR' | 'SPACE' | null>(null);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const evolutionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const liangyiReturnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -87,6 +91,19 @@ export default function UnifiedTaijiCore({
   const liangyiSpinClickLockRef = useRef(0);
   const audioContextsRef = useRef<Set<AudioContext>>(new Set());
   const audioTimersRef = useRef<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (!adaptiveEntry) return;
+    const decision = decideTaijiEntryStage();
+    setHighlightElement(decision.highlightElement);
+    if (decision.stage === 'idle') return;
+    const stageConfig = Object.values(EVOLUTION_CONFIG).find((config) => config.stage === decision.stage);
+    setEvolutionStage(decision.stage as EvolutionStage);
+    setEvolutionLabel(stageConfig?.label ?? 'AI 今日已為你演化太極');
+    setEvolutionDescription(decision.reason);
+    if (decision.stage === 'liangyi') setLiangyiSettled(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adaptiveEntry]);
 
   const closeAudioLater = (ctx: AudioContext, ms: number) => {
     if (typeof window === 'undefined') return;
@@ -436,7 +453,7 @@ export default function UnifiedTaijiCore({
           </div>
           <div className={`modal-taiji-3d-core ${active || tapCount > 0 ? 'modal-taiji-3d-core--active' : ''}`}>
             <div className="modal-taiji-core-glaze" />
-            <TaijiCoreVisual active={active || tapCount > 0} />
+            <TaijiCoreVisual active={active || tapCount > 0} stage={evolutionStage} highlightElement={highlightElement} />
             <div className="modal-taiji-core-depth" />
           </div>
           {(evolutionStage === 'liangyi' || liangyiReturning) && (

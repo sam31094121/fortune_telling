@@ -43,3 +43,114 @@
 .outerRing {
   vector-effect: non-scaling-stroke;
 }
+
+/* 兩儀：陰陽沿同一圓心水平對稱分裂，比例固定、不旋轉、不變形 */
+.yinFish {
+  transition: transform 900ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.yangFish {
+  transition: transform 900ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.svg.split .yinFish {
+  transform: translateX(-34px);
+}
+
+.svg.split .yangFish {
+  transform: translateX(34px);
+}
+
+/* 四象：由兩儀中心對稱長出，四個象限同步淡入，不影響陰陽路徑 */
+.fourSymbols {
+  opacity: 0;
+  transition: opacity 500ms ease;
+  pointer-events: none;
+}
+
+.fourSymbolsVisible {
+  opacity: 1;
+}
+
+.fourSymbolItem {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0.6);
+  transition: opacity 420ms ease, transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fourSymbolsVisible .fourSymbolItem {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.symbolCircle {
+  fill: rgba(15, 20, 32, 0.72);
+  stroke: rgba(230, 236, 248, 0.55);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.symbolText {
+  font-size: 13px;
+  font-weight: 700;
+  fill: #f5f1ff;
+}
+
+/* 八卦：依角度公式（angle - 90 起算）順時針展開，半徑固定、比例一致 */
+.baguaGroup {
+  opacity: 0;
+  transition: opacity 500ms ease;
+  pointer-events: none;
+}
+
+.baguaGroupVisible {
+  opacity: 1;
+}
+
+.baguaItem {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 380ms ease, transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.baguaGroupVisible .baguaItem {
+  opacity: 1;
+}
+
+.baguaCircle {
+  fill: rgba(15, 20, 32, 0.78);
+  stroke: rgba(251, 191, 36, 0.45);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.baguaSymbol {
+  font-size: 17px;
+  font-weight: 700;
+  fill: #fde9b0;
+}
+
+.baguaName {
+  font-size: 11px;
+  font-weight: 600;
+  fill: rgba(230, 236, 248, 0.75);
+}
+
+.baguaItemHighlight .baguaCircle {
+  stroke: rgba(251, 113, 133, 0.85);
+  stroke-width: 2.2;
+  animation: taijiBaguaPulse 1600ms ease-in-out infinite;
+}
+
+@keyframes taijiBaguaPulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 2px rgba(251, 113, 133, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(251, 113, 133, 0.9));
+  }
+}

@@ -8,6 +8,7 @@ type TaijiStandaloneCardProps = {
   limitToLiangyi?: boolean;
   showThreeLayerMaterial?: boolean;
   holdEvolutionStages?: boolean;
+  adaptiveEntry?: boolean;
 };
 
 type TaijiMaterialLayer = {
@@ -44,6 +45,7 @@ export default function TaijiStandaloneCard({
   limitToLiangyi = false,
   showThreeLayerMaterial = false,
   holdEvolutionStages = false,
+  adaptiveEntry = false,
 }: TaijiStandaloneCardProps) {
   const cardClassName = ['taiji-standalone-card taiji-open-stage', className].filter(Boolean).join(' ');
   const materialSignature = showThreeLayerMaterial ? buildTaijiMaterialSignature() : undefined;
@@ -59,7 +61,7 @@ export default function TaijiStandaloneCard({
           <span key={index} className={`taiji-stage-bagua-field__mark taiji-stage-bagua-field__mark--${index}`} />
         ))}
       </div>
-      <UnifiedTaijiCore showLabel={showLabel} limitToLiangyi={limitToLiangyi} holdEvolutionStages={holdEvolutionStages} />
+      <UnifiedTaijiCore showLabel={showLabel} limitToLiangyi={limitToLiangyi} holdEvolutionStages={holdEvolutionStages} adaptiveEntry={adaptiveEntry} />
     </div>
   );
 }
