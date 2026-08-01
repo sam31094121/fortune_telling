@@ -6,7 +6,7 @@ import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import type { BloodType, Gender } from '@/lib/types';
-import type { NameologyAnalysis } from '@/lib/nameology-engine';
+import type { NameologyAnalysis, NameologyProfessionalCharacter } from '@/lib/nameology-engine';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
@@ -50,6 +50,43 @@ function isCurrentNameologyResult(value?: NameologyDailyResult | null) {
 
 function isCurrentNameologyRecord(record?: DailyAnalysisRecord<NameologyDailyResult> | null) {
   return Boolean(record?.meta?.schemaVersion === NAMEOLOGY_DAILY_SCHEMA_VERSION && isCurrentNameologyResult(record.result));
+}
+
+const RADICAL_ELEMENT_STYLE: Record<'木' | '火' | '土' | '金' | '水', { ring: string; bg: string; text: string; glow: string }> = {
+  木: { ring: 'border-emerald-300/50', bg: 'bg-emerald-950/40', text: 'text-emerald-100', glow: 'shadow-[0_0_24px_rgba(52,211,153,0.22)]' },
+  火: { ring: 'border-rose-300/50', bg: 'bg-rose-950/40', text: 'text-rose-100', glow: 'shadow-[0_0_24px_rgba(251,113,133,0.22)]' },
+  土: { ring: 'border-amber-300/50', bg: 'bg-amber-950/40', text: 'text-amber-100', glow: 'shadow-[0_0_24px_rgba(251,191,36,0.22)]' },
+  金: { ring: 'border-zinc-200/50', bg: 'bg-zinc-800/50', text: 'text-zinc-100', glow: 'shadow-[0_0_24px_rgba(228,228,231,0.18)]' },
+  水: { ring: 'border-cyan-300/50', bg: 'bg-cyan-950/40', text: 'text-cyan-100', glow: 'shadow-[0_0_24px_rgba(103,232,249,0.22)]' },
+};
+
+function RadicalPictureStory({ item }: { item: NameologyProfessionalCharacter }) {
+  const style = RADICAL_ELEMENT_STYLE[item.element];
+  const steps = [
+    { label: '① 部首長什麼樣子', text: `由「${item.parts.join('、') || item.radical}」組成，結構是${item.structure}。` },
+    { label: '② 部首的意象', text: item.radicalImagery },
+    { label: '③ 取名的心意', text: item.namingIntent },
+    { label: '④ 這個字的故事', text: item.storyLine },
+  ];
+
+  return (
+    <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+      <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50">看圖說故事 · 部首「{item.radical}」</p>
+      <div className="mt-3 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+        <div className={`grid h-20 w-20 shrink-0 place-items-center rounded-full border-2 ${style.ring} ${style.bg} ${style.glow}`}>
+          <span className={`font-serif text-4xl font-black ${style.text}`}>{item.radical}</span>
+        </div>
+        <div className="min-w-0 flex-1 space-y-2.5">
+          {steps.map((step) => (
+            <div key={step.label} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+              <p className="text-[10px] font-black tracking-[0.14em] text-white/50">{step.label}</p>
+              <p className="mt-1 break-words text-xs leading-6 text-[color:var(--text-main)]">{step.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function ProfessionalNameologyLayer({ analysis }: { analysis: NameologyAnalysis }) {
@@ -97,34 +134,18 @@ function ProfessionalNameologyLayer({ analysis }: { analysis: NameologyAnalysis 
                   <span className="rounded-full border border-amber-300/20 bg-amber-950/20 px-3 py-1 text-xs text-amber-100">{item.strokeCount}{'\u756b'} {'\u00b7'} {item.element}{item.yinYang}</span>
                   <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-[color:var(--text-sub)]">{'\u90e8\u9996'} {item.radical}</span>
                 </div>
-                <p className="mt-3 break-words text-sm leading-7 text-[color:var(--text-main)]">{item.storyLine}</p>
+                <p className="mt-3 break-words text-sm leading-7 text-[color:var(--text-main)]">{item.glyphMeaning}</p>
               </div>
             </div>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-white/10 bg-black/15 p-3">
-                <p className="text-[11px] font-bold text-cyan-200">{'\u90e8\u9996\u610f\u5883'}</p>
-                <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{item.radicalImagery}</p>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-black/15 p-3">
-                <p className="text-[11px] font-bold text-violet-200">{'\u62c6\u5b57\u8207\u7d50\u69cb'}</p>
-                <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{item.parts.join('\u3001')} {'\u00b7'} {item.structure}</p>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-black/15 p-3 sm:col-span-2">
-                <p className="text-[11px] font-bold text-amber-200">{'\u5b57\u7fa9\u89e3\u8aaa'}</p>
-                <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{item.glyphMeaning}</p>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-black/15 p-3 sm:col-span-2">
-                <p className="text-[11px] font-bold text-emerald-200">{'\u547d\u540d\u610f\u5716'}</p>
-                <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{item.namingIntent}</p>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-black/15 p-3 sm:col-span-2">
-                <p className="text-[11px] font-bold text-rose-200">{'\u5f8c\u7e8c\u6f14\u5316\u7d20\u6750'}</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {item.evolutionMaterial.slice(0, 4).map((material) => (
-                    <span key={material} className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] text-[color:var(--text-sub)]">{material}</span>
-                  ))}
-                </div>
+            <RadicalPictureStory item={item} />
+
+            <div className="mt-4 rounded-xl border border-white/10 bg-black/15 p-3">
+              <p className="text-[11px] font-bold text-rose-200">{'\u5f8c\u7e8c\u6f14\u5316\u7d20\u6750'}</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {item.evolutionMaterial.slice(0, 4).map((material) => (
+                  <span key={material} className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] text-[color:var(--text-sub)]">{material}</span>
+                ))}
               </div>
             </div>
           </article>

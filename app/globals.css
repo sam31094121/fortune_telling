@@ -14553,3 +14553,233 @@ body.app-touching .home-taiji-cinema * {
     max-width: 112px;
   }
 }
+/* Taiji three-depth sculpture: layer 1 core, layer 2 five orbiting planets, layer 3 luminous space. */
+.home-taiji-cinema.taiji-open-stage {
+  --taiji-layer-core-z: 74px;
+  --taiji-layer-orbit-z: 38px;
+  --taiji-layer-space-z: -18px;
+  perspective: 980px !important;
+  transform-style: preserve-3d !important;
+}
+
+.home-taiji-cinema.taiji-open-stage::before {
+  content: "" !important;
+  width: min(20rem, 82vw) !important;
+  height: min(20rem, 82vw) !important;
+  top: 50% !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  padding: 0 !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(253, 230, 138, 0.2), rgba(34, 211, 238, 0.08) 34%, rgba(139, 92, 246, 0.08) 54%, transparent 72%) !important;
+  box-shadow:
+    0 0 42px rgba(253, 230, 138, 0.16),
+    0 0 88px rgba(34, 211, 238, 0.12),
+    inset 0 0 56px rgba(255, 255, 255, 0.05) !important;
+  color: transparent !important;
+  filter: blur(0.4px) saturate(1.12) !important;
+  transform: translate(-50%, -50%) translateZ(var(--taiji-layer-space-z)) rotateX(62deg) scale(1.06) !important;
+  animation: taiji-third-space-field 9.5s ease-in-out infinite !important;
+}
+
+.home-taiji-cinema.taiji-open-stage::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: min(18rem, 76vw);
+  height: min(18rem, 76vw);
+  border-radius: 999px;
+  pointer-events: none;
+  background:
+    conic-gradient(from 24deg, transparent 0deg, rgba(103, 232, 249, 0.18) 46deg, transparent 94deg, rgba(253, 230, 138, 0.2) 162deg, transparent 224deg, rgba(251, 113, 133, 0.16) 292deg, transparent 360deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 54%, #000 61%, transparent 75%);
+  mask: radial-gradient(circle, transparent 0 54%, #000 61%, transparent 75%);
+  opacity: 0.72;
+  filter: blur(1.2px) saturate(1.18);
+  transform: translate(-50%, -50%) translateZ(calc(var(--taiji-layer-space-z) + 8px)) rotateX(64deg);
+  animation: taiji-third-space-ring 18s linear infinite;
+}
+
+.home-taiji-cinema .unified-taiji-shell {
+  transform-style: preserve-3d !important;
+  perspective: 900px !important;
+}
+
+.home-taiji-cinema .modal-taiji-button {
+  transform-style: preserve-3d !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 26px 58px rgba(0, 0, 0, 0.38),
+    0 0 42px rgba(34, 211, 238, 0.1) !important;
+}
+
+.home-taiji-cinema .modal-taiji-natural-bloom {
+  z-index: 0 !important;
+  opacity: 0.55 !important;
+  background:
+    radial-gradient(circle at 50% 47%, rgba(255, 248, 214, 0.24), transparent 28%),
+    radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.16), rgba(139, 92, 246, 0.1) 44%, transparent 72%) !important;
+  filter: blur(16px) saturate(1.12) !important;
+  transform: translateZ(var(--taiji-layer-space-z)) scale(1.2) !important;
+  animation: taiji-third-inner-aura 7.2s ease-in-out infinite !important;
+}
+
+.home-taiji-cinema .modal-taiji-ground-glow {
+  z-index: 0 !important;
+  opacity: 0.58 !important;
+  filter: blur(22px) saturate(1.16) !important;
+  transform: translateZ(calc(var(--taiji-layer-space-z) - 8px)) rotateX(68deg) scale(1.22) !important;
+}
+
+.home-taiji-cinema .modal-taiji-orbit-emblem {
+  transform: translateZ(var(--taiji-layer-orbit-z)) rotateX(0deg) !important;
+  transform-style: preserve-3d !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(2, 6, 23, 0.18), transparent 36%),
+    radial-gradient(circle at 50% 50%, rgba(253, 230, 138, 0.06), transparent 66%) !important;
+}
+
+.home-taiji-cinema .taiji-orbit-layer {
+  transform: translateZ(var(--taiji-layer-orbit-z)) rotateX(58deg) !important;
+  transform-style: preserve-3d !important;
+  opacity: 0.96 !important;
+}
+
+.home-taiji-cinema .taiji-light-orbit {
+  border-radius: 999px !important;
+  transform-origin: 50% 50% !important;
+  filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.04)) !important;
+}
+
+.home-taiji-cinema .taiji-light-orbit__head {
+  border: 1px solid rgba(255, 255, 255, 0.36) !important;
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255,255,255,0.98) 0 9%, rgba(255,255,255,0.44) 10% 20%, transparent 30%),
+    radial-gradient(circle at 50% 54%, var(--taiji-element-core, currentColor) 0 34%, var(--taiji-element-mid, currentColor) 52%, rgba(2, 6, 23, 0.92) 78%) !important;
+  box-shadow:
+    inset 3px 4px 5px rgba(255, 255, 255, 0.2),
+    inset -4px -5px 8px rgba(0, 0, 0, 0.44),
+    0 0 10px var(--taiji-element-core, currentColor),
+    0 0 24px var(--taiji-element-mid, currentColor),
+    0 0 44px var(--taiji-element-glow, currentColor) !important;
+}
+
+.home-taiji-cinema .taiji-light-orbit--cyan {
+  inset: clamp(0.6rem, 4vw, 1.2rem) clamp(0.02rem, 1vw, 0.35rem) !important;
+  animation: taiji-layer2-planet-water 18s linear infinite !important;
+}
+
+.home-taiji-cinema .taiji-light-orbit--violet {
+  inset: clamp(-0.2rem, -1vw, 0rem) clamp(1rem, 5vw, 1.75rem) !important;
+  animation: taiji-layer2-planet-space 22s linear infinite reverse !important;
+}
+
+.home-taiji-cinema .taiji-light-orbit--gold {
+  inset: clamp(-0.55rem, -2vw, -0.1rem) clamp(1.85rem, 8vw, 3rem) !important;
+  animation: taiji-layer2-planet-earth 26s linear infinite !important;
+}
+
+.home-taiji-cinema .taiji-light-orbit--emerald {
+  inset: clamp(0.35rem, 3vw, 0.9rem) clamp(0.32rem, 2vw, 0.9rem) !important;
+  animation: taiji-layer2-planet-wind 20s linear infinite reverse !important;
+}
+
+.home-taiji-cinema .taiji-light-orbit--rose {
+  inset: clamp(-0.75rem, -3vw, -0.25rem) clamp(2.85rem, 11vw, 4.5rem) !important;
+  animation: taiji-layer2-planet-fire 24s linear infinite !important;
+}
+
+.home-taiji-cinema .modal-taiji-3d-core {
+  z-index: 28 !important;
+  transform: translateZ(var(--taiji-layer-core-z)) !important;
+  transform-style: preserve-3d !important;
+  outline: 1px solid rgba(253, 230, 138, 0.22) !important;
+  outline-offset: 3px !important;
+  box-shadow:
+    inset 12px 16px 24px rgba(255, 255, 255, 0.18),
+    inset -16px -22px 30px rgba(0, 0, 0, 0.58),
+    0 20px 36px rgba(0, 0, 0, 0.38),
+    0 0 26px rgba(253, 230, 138, 0.24),
+    0 0 54px rgba(34, 211, 238, 0.13) !important;
+}
+
+.home-taiji-cinema .modal-taiji-core-glaze,
+.home-taiji-cinema .modal-taiji-half,
+.home-taiji-cinema .modal-taiji-fish,
+.home-taiji-cinema .modal-taiji-core-depth {
+  transform-style: preserve-3d !important;
+}
+
+.home-taiji-cinema .modal-taiji-core-depth {
+  filter: drop-shadow(0 7px 13px rgba(0, 0, 0, 0.35)) !important;
+}
+
+@keyframes taiji-third-space-field {
+  0%, 100% { opacity: 0.54; transform: translate(-50%, -50%) translateZ(var(--taiji-layer-space-z)) rotateX(62deg) scale(1.02); }
+  50% { opacity: 0.86; transform: translate(-50%, -50%) translateZ(var(--taiji-layer-space-z)) rotateX(62deg) scale(1.12); }
+}
+
+@keyframes taiji-third-space-ring {
+  from { transform: translate(-50%, -50%) translateZ(calc(var(--taiji-layer-space-z) + 8px)) rotateX(64deg) rotateZ(0deg); }
+  to { transform: translate(-50%, -50%) translateZ(calc(var(--taiji-layer-space-z) + 8px)) rotateX(64deg) rotateZ(365deg); }
+}
+
+@keyframes taiji-third-inner-aura {
+  0%, 100% { opacity: 0.4; transform: translateZ(var(--taiji-layer-space-z)) scale(1.14); }
+  50% { opacity: 0.72; transform: translateZ(var(--taiji-layer-space-z)) scale(1.28); }
+}
+
+@keyframes taiji-layer2-planet-water {
+  from { transform: rotateX(58deg) rotateY(-18deg) rotateZ(0deg) translateZ(24px); }
+  to { transform: rotateX(58deg) rotateY(-18deg) rotateZ(365deg) translateZ(24px); }
+}
+
+@keyframes taiji-layer2-planet-space {
+  from { transform: rotateX(50deg) rotateY(28deg) rotateZ(72deg) translateZ(34px); }
+  to { transform: rotateX(50deg) rotateY(28deg) rotateZ(437deg) translateZ(34px); }
+}
+
+@keyframes taiji-layer2-planet-earth {
+  from { transform: rotateX(66deg) rotateY(8deg) rotateZ(144deg) translateZ(16px); }
+  to { transform: rotateX(66deg) rotateY(8deg) rotateZ(509deg) translateZ(16px); }
+}
+
+@keyframes taiji-layer2-planet-wind {
+  from { transform: rotateX(54deg) rotateY(-32deg) rotateZ(216deg) translateZ(42px); }
+  to { transform: rotateX(54deg) rotateY(-32deg) rotateZ(581deg) translateZ(42px); }
+}
+
+@keyframes taiji-layer2-planet-fire {
+  from { transform: rotateX(46deg) rotateY(34deg) rotateZ(288deg) translateZ(30px); }
+  to { transform: rotateX(46deg) rotateY(34deg) rotateZ(653deg) translateZ(30px); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema.taiji-open-stage {
+    --taiji-layer-core-z: 46px;
+    --taiji-layer-orbit-z: 26px;
+    --taiji-layer-space-z: -12px;
+  }
+
+  .home-taiji-cinema.taiji-open-stage::before {
+    width: min(16.5rem, 86vw) !important;
+    height: min(16.5rem, 86vw) !important;
+  }
+
+  .home-taiji-cinema.taiji-open-stage::after {
+    width: min(15.5rem, 80vw);
+    height: min(15.5rem, 80vw);
+  }
+
+  .home-taiji-cinema .taiji-light-orbit__head {
+    width: 12px !important;
+    height: 12px !important;
+  }
+}
+/* Taiji third space ring visibility lock. */
+.home-taiji-cinema.taiji-open-stage::after {
+  display: block !important;
+  content: "" !important;
+}
