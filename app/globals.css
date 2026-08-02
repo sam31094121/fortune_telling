@@ -5580,6 +5580,14 @@ body.app-lite-effects .home-line-share-card::after {
   filter: none !important;
 }
 
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .modal-taiji-orbit-emblem::after,
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit::before,
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-gold-wave,
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-celestial-mist,
+.unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-celestial-wisp {
+  animation-play-state: paused !important;
+}
+
 .unified-taiji-shell[data-taiji-stage="idle"][data-tap-level="0"] .taiji-light-orbit {
   border-color: transparent !important;
   box-shadow: none !important;
@@ -12870,103 +12878,419 @@ body.app-touching .home-taiji-cinema * {
 }
 
 .tarot-question-entry {
-  max-width: 42rem;
-  border-radius: 1.25rem;
-  border: 1px solid rgba(125, 211, 252, 0.16);
+  max-width: 44rem;
+  border-radius: 1.55rem;
+  border: 1px solid rgba(125, 211, 252, 0.28);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025)),
-    rgba(2, 6, 23, 0.22);
-  padding: 1rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 18px 36px rgba(0, 0, 0, 0.16);
+    radial-gradient(circle at 12% 0%, rgba(251, 191, 36, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 18%, rgba(34, 211, 238, 0.16), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(15, 23, 42, 0.36)),
+    rgba(2, 6, 23, 0.42);
+  padding: 1.05rem;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 22px 46px rgba(0, 0, 0, 0.22),
+    0 0 34px rgba(34, 211, 238, 0.08);
+}
+
+.tarot-question-entry__steps {
+  display: grid;
+  gap: 0.72rem;
+  margin-bottom: 1rem;
+}
+
+.tarot-question-entry__step {
+  display: flex;
+  gap: 0.72rem;
+  align-items: flex-start;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(2, 6, 23, 0.38);
+  padding: 0.76rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
+}
+
+.tarot-question-entry__step-number {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(253, 230, 138, 0.38);
+  background: rgba(253, 230, 138, 0.12);
+  color: rgb(254, 243, 199);
+  font-size: 0.82rem;
+  font-weight: 950;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.13);
+}
+
+.tarot-question-entry__step strong {
+  display: block;
+  color: rgb(240, 249, 255);
+  font-size: 0.9rem;
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.tarot-question-entry__step p {
+  margin-top: 0.24rem;
+  color: rgba(203, 213, 225, 0.82);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.55;
+}
+
+.tarot-question-entry__label-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tarot-question-entry__label-row label {
+  color: rgb(236, 254, 255);
+  font-size: 0.96rem;
+  font-weight: 950;
+  line-height: 1.45;
+}
+
+.tarot-question-entry__label-row span {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.22);
+  background: rgba(34, 211, 238, 0.09);
+  padding: 0.28rem 0.58rem;
+  color: rgba(207, 250, 254, 0.82);
+  font-size: 0.74rem;
+  font-weight: 950;
 }
 
 .tarot-question-entry__textarea {
   margin-top: 0.85rem;
-  min-height: 7.4rem;
+  min-height: 7.8rem;
   width: 100%;
   resize: vertical;
-  border-radius: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(2, 6, 23, 0.5);
+  border-radius: 1.1rem;
+  border: 1px solid rgba(125, 211, 252, 0.22);
+  background: rgba(2, 6, 23, 0.62);
   padding: 1rem;
   color: rgb(240, 249, 255);
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 1.04rem;
+  font-weight: 800;
   line-height: 1.75;
   outline: none;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 0 22px rgba(34, 211, 238, 0.05);
   transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
 }
 
 .tarot-question-entry__textarea::placeholder {
-  color: rgba(203, 213, 225, 0.58);
+  color: rgba(203, 213, 225, 0.62);
 }
 
 .tarot-question-entry__textarea:focus {
-  border-color: rgba(125, 211, 252, 0.45);
-  background: rgba(2, 6, 23, 0.66);
-  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-color: rgba(125, 211, 252, 0.56);
+  background: rgba(2, 6, 23, 0.72);
+  box-shadow:
+    0 0 0 3px rgba(34, 211, 238, 0.12),
+    0 0 30px rgba(34, 211, 238, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.tarot-question-entry__field-hint {
+  margin-top: 0.62rem;
+  color: rgba(254, 226, 226, 0.88);
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1.55;
+}
+
+.tarot-question-entry__field-hint--ready {
+  color: rgba(165, 243, 252, 0.94);
+}
+
+.tarot-question-entry__examples {
+  margin-top: 0.9rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(253, 230, 138, 0.14);
+  background: rgba(253, 230, 138, 0.055);
+  padding: 0.78rem;
+}
+
+.tarot-question-entry__example-head {
+  margin-bottom: 0.62rem;
+  color: rgb(254, 243, 199);
+  font-size: 0.78rem;
+  font-weight: 950;
+  line-height: 1.45;
 }
 
 .tarot-question-entry__example {
+  display: inline-flex;
   max-width: 100%;
+  align-items: center;
+  gap: 0.5rem;
   border-radius: 999px;
-  border: 1px solid rgba(253, 230, 138, 0.18);
-  background: rgba(253, 230, 138, 0.08);
-  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(253, 230, 138, 0.24);
+  background: rgba(2, 6, 23, 0.38);
+  padding: 0.58rem 0.8rem;
   color: rgb(254, 243, 199);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 900;
-  line-height: 1.3;
+  line-height: 1.35;
   text-align: left;
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.tarot-question-entry__example-badge {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.16);
+  padding: 0.24rem 0.48rem;
+  color: rgb(254, 240, 138);
+  font-size: 0.68rem;
+  font-weight: 950;
 }
 
 .tarot-question-entry__example:hover,
 .tarot-question-entry__example:focus-visible {
-  border-color: rgba(253, 230, 138, 0.38);
+  border-color: rgba(253, 230, 138, 0.5);
   background: rgba(253, 230, 138, 0.13);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.13);
   outline: none;
   transform: translateY(-1px);
 }
+
+.tarot-question-entry__submit {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.36);
+  padding: 0.86rem 1.75rem;
+  color: rgb(236, 254, 255);
+  font-size: 0.9rem;
+  font-weight: 950;
+  line-height: 1.2;
+  box-shadow: 0 0 34px rgba(34, 211, 238, 0.18);
+  transition: transform 180ms ease, opacity 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.tarot-question-entry__submit--ready {
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.46), rgba(251, 191, 36, 0.18));
+}
+
+.tarot-question-entry__submit--locked {
+  background: rgba(15, 23, 42, 0.62);
+  color: rgba(203, 213, 225, 0.7);
+}
+
+.tarot-question-entry__submit:hover:not(:disabled),
+.tarot-question-entry__submit:focus-visible:not(:disabled) {
+  border-color: rgba(165, 243, 252, 0.7);
+  box-shadow: 0 0 42px rgba(34, 211, 238, 0.24);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.tarot-question-entry__submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.64;
+}
+
+@media (min-width: 640px) {
+  .tarot-question-entry__steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .tarot-question-entry__submit {
+    width: auto;
+  }
+}
 .tarot-experience-deck-preview {
   position: relative;
-  min-height: 18rem;
+  min-height: 22rem;
   display: grid;
   place-items: center;
-  perspective: 900px;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+  isolation: isolate;
+}
+
+.tarot-experience-deck-preview::before {
+  content: "";
+  position: absolute;
+  width: min(23rem, 88vw);
+  height: min(23rem, 88vw);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(253, 230, 138, 0.16), transparent 34%),
+    radial-gradient(circle at 50% 52%, rgba(34, 211, 238, 0.2), transparent 58%),
+    conic-gradient(from 18deg, transparent, rgba(253, 230, 138, 0.18), transparent 32%, rgba(139, 92, 246, 0.16), transparent 68%);
+  filter: blur(0.3px);
+  opacity: 0.92;
+  animation: tarotPreviewFieldOrbit 20s linear infinite;
+}
+
+.tarot-experience-deck-preview::after {
+  content: "";
+  position: absolute;
+  bottom: 1.95rem;
+  width: min(19rem, 78vw);
+  height: 3.35rem;
+  border-radius: 999px;
+  background:
+    radial-gradient(ellipse at center, rgba(0, 0, 0, 0.74), transparent 68%),
+    radial-gradient(ellipse at center, rgba(34, 211, 238, 0.1), transparent 74%);
+  filter: blur(13px);
+  opacity: 0.9;
+  transform: rotateX(74deg) translateZ(-68px);
 }
 
 .tarot-experience-deck-preview span {
   position: absolute;
-  width: 6.2rem;
+  width: 7rem;
   aspect-ratio: 9 / 14;
-  border-radius: 0.95rem;
-  border: 1px solid rgba(253, 230, 138, 0.34);
+  border-radius: 1.05rem;
+  border: 1px solid rgba(253, 230, 138, 0.58);
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.12), transparent 34%),
-    radial-gradient(circle at 50% 35%, rgba(34, 211, 238, 0.22), transparent 34%),
-    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(39, 39, 86, 0.95));
+    linear-gradient(115deg, rgba(255, 255, 255, 0.28) 0 9%, transparent 28% 70%, rgba(34, 211, 238, 0.1) 100%),
+    radial-gradient(circle at 50% 22%, rgba(255, 255, 255, 0.18), transparent 22%),
+    radial-gradient(circle at 50% 34%, rgba(34, 211, 238, 0.28), transparent 30%),
+    radial-gradient(circle at 50% 66%, rgba(236, 72, 153, 0.16), transparent 34%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.032) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(135deg, rgba(253, 230, 138, 0.105) 0 1px, transparent 1px 9px),
+    linear-gradient(180deg, rgba(16, 22, 45, 0.99), rgba(28, 25, 72, 0.98) 54%, rgba(3, 7, 18, 0.99));
+  background-blend-mode: screen, screen, normal, normal, overlay, normal, normal;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 18px 34px rgba(0, 0, 0, 0.28);
-  transform: translateX(var(--preview-x)) translateY(var(--preview-y)) rotate(var(--preview-rot));
+    inset 0 0 0 1px rgba(255, 255, 255, 0.09),
+    inset 0 0 0 0.42rem rgba(2, 6, 23, 0.18),
+    inset 0 10px 20px rgba(255, 255, 255, 0.06),
+    inset 0 -14px 20px rgba(2, 6, 23, 0.58),
+    0 var(--preview-ridge) 0 rgba(231, 196, 125, 0.36),
+    0 calc(var(--preview-ridge) + 0.14rem) 0 rgba(12, 10, 24, 0.9),
+    0 22px 42px rgba(0, 0, 0, 0.42),
+    0 0 26px rgba(34, 211, 238, 0.1);
+  filter: saturate(var(--preview-warmth)) contrast(1.08);
+  transform:
+    translateX(var(--preview-x))
+    translateY(var(--preview-y))
+    translateZ(var(--preview-depth))
+    rotateZ(var(--preview-rot))
+    rotateX(13deg)
+    rotateY(-8deg);
+  transform-style: preserve-3d;
+  animation: tarotPreviewCardSettle 1.25s cubic-bezier(.16, .84, .2, 1) both;
+  animation-delay: var(--preview-delay);
+  will-change: transform, filter, opacity;
+}
+
+.tarot-experience-deck-preview span::before {
+  content: "";
+  position: absolute;
+  inset: 0.44rem;
+  border-radius: 0.72rem;
+  border: 1px solid rgba(253, 230, 138, 0.52);
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 1.05rem, rgba(253, 230, 138, 0.28) 1.1rem 1.16rem, transparent 1.22rem),
+    radial-gradient(circle at 50% 50%, transparent 0 1.7rem, rgba(34, 211, 238, 0.17) 1.75rem 1.8rem, transparent 1.86rem),
+    linear-gradient(90deg, transparent 45%, rgba(253, 230, 138, 0.26) 49%, transparent 53%),
+    linear-gradient(0deg, transparent 45%, rgba(253, 230, 138, 0.22) 49%, transparent 53%),
+    linear-gradient(45deg, transparent 46%, rgba(34, 211, 238, 0.14) 49%, transparent 52%),
+    linear-gradient(-45deg, transparent 46%, rgba(236, 72, 153, 0.13) 49%, transparent 52%);
+  box-shadow:
+    inset 0 0 18px rgba(253, 230, 138, 0.1),
+    0 0 14px rgba(253, 230, 138, 0.08);
+}
+
+.tarot-experience-deck-preview span::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(108deg, rgba(255, 255, 255, 0.32), transparent 18%, transparent 68%, rgba(34, 211, 238, 0.14)),
+    radial-gradient(circle at 36% 18%, rgba(255, 255, 255, 0.16), transparent 21%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 3px);
+  opacity: 0.76;
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
 
 .tarot-experience-deck-preview strong {
   position: relative;
-  z-index: 20;
+  z-index: 30;
   display: grid;
   place-items: center;
-  width: 4rem;
-  height: 4rem;
+  width: 4.95rem;
+  height: 4.95rem;
   border-radius: 999px;
-  border: 1px solid rgba(253, 230, 138, 0.42);
-  background: rgba(2, 6, 23, 0.78);
+  border: 1px solid rgba(253, 230, 138, 0.72);
+  background:
+    radial-gradient(circle at 38% 24%, rgba(255, 255, 255, 0.24), transparent 25%),
+    radial-gradient(circle at 50% 62%, rgba(34, 211, 238, 0.22), transparent 54%),
+    linear-gradient(145deg, rgba(2, 6, 23, 0.95), rgba(30, 27, 75, 0.94));
   color: rgb(254, 243, 199);
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 2rem;
-  box-shadow: 0 0 34px rgba(34, 211, 238, 0.22), inset 0 0 18px rgba(253, 230, 138, 0.12);
+  font-size: 2.46rem;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.24),
+    0 0 18px rgba(253, 230, 138, 0.62),
+    0 0 34px rgba(34, 211, 238, 0.32);
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.4),
+    0 0 42px rgba(34, 211, 238, 0.25),
+    0 0 18px rgba(253, 230, 138, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -14px 20px rgba(2, 6, 23, 0.6);
+  transform: translateZ(96px) rotateX(10deg);
+}
+
+@keyframes tarotPreviewFieldOrbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes tarotPreviewCardSettle {
+  0% {
+    opacity: 0;
+    filter: blur(5px) saturate(0.76) contrast(0.92);
+    transform:
+      translateX(calc(var(--preview-x) * 0.22))
+      translateY(calc(var(--preview-y) - 2.6rem))
+      translateZ(-110px)
+      rotateZ(calc(var(--preview-rot) * 0.35))
+      rotateX(48deg)
+      rotateY(-22deg)
+      scale(0.82);
+  }
+  72% {
+    opacity: 1;
+    filter: blur(0) saturate(calc(var(--preview-warmth) + 0.08)) contrast(1.1);
+    transform:
+      translateX(calc(var(--preview-x) * 1.03))
+      translateY(calc(var(--preview-y) - 0.08rem))
+      translateZ(calc(var(--preview-depth) + 8px))
+      rotateZ(calc(var(--preview-rot) * 1.02))
+      rotateX(11deg)
+      rotateY(-7deg)
+      scale(1.012);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0) saturate(var(--preview-warmth)) contrast(1.08);
+    transform:
+      translateX(var(--preview-x))
+      translateY(var(--preview-y))
+      translateZ(var(--preview-depth))
+      rotateZ(var(--preview-rot))
+      rotateX(13deg)
+      rotateY(-8deg)
+      scale(1);
+  }
 }
 
 .tarot-ritual-shuffle__stage {
@@ -13421,11 +13745,17 @@ body.app-touching .home-taiji-cinema * {
 }
 @media (max-width: 720px) {
   .tarot-experience-deck-preview {
-    min-height: 13rem;
+    min-height: 15.5rem;
   }
 
   .tarot-experience-deck-preview span {
-    width: 4.6rem;
+    width: 5.05rem;
+  }
+
+  .tarot-experience-deck-preview strong {
+    width: 4.1rem;
+    height: 4.1rem;
+    font-size: 2.08rem;
   }
 
   .tarot-question-entry {
@@ -16179,4 +16509,770 @@ body.app-touching .home-taiji-cinema * {
   display: none !important;
   opacity: 0 !important;
   animation: none !important;
+}
+/* Taiji homepage V19: formal three-layer contract. */
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .modal-taiji-3d-core,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .modal-taiji-3d-core,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .modal-taiji-3d-core {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  transform: translate3d(-50%, -50%, 56px) !important;
+  transform-origin: 50% 50% !important;
+}
+
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .modal-taiji-3d-core {
+  opacity: 1 !important;
+  visibility: visible !important;
+  animation: taiji-v17-core-settle-breathe 4.6s cubic-bezier(.34, .02, .24, 1) infinite !important;
+}
+
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .modal-taiji-3d-core {
+  opacity: 0.86 !important;
+  visibility: visible !important;
+  animation: taiji-v19-core-anchor-breathe 5.6s ease-in-out infinite !important;
+  filter: saturate(1.04) brightness(1.02) drop-shadow(0 0 14px rgba(253, 230, 138, 0.16)) !important;
+}
+
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-liangyi-precision-split,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-liangyi-precision-split__piece,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .unified-liangyi-split,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .unified-evolution-screen,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .unified-evolution-pulse,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .modal-evolution-flare,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .modal-evolution-scan,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .modal-evolution-orbit,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .modal-evolution-rays {
+  display: none !important;
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-orbit-layer,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit__head {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-gold-waves,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-celestial-mist {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit {
+  animation-timing-function: linear !important;
+  will-change: transform !important;
+}
+
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit--cyan { animation-duration: 18s !important; }
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit--violet { animation-duration: 22s !important; }
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit--gold { animation-duration: 26s !important; }
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit--emerald { animation-duration: 30s !important; }
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit--rose { animation-duration: 34s !important; }
+
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .modal-evolution-flare,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .modal-evolution-scan,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .modal-evolution-rays,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .unified-evolution-screen,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .unified-evolution-pulse {
+  display: block !important;
+}
+
+@keyframes taiji-v19-core-anchor-breathe {
+  0%, 100% { transform: translate3d(-50%, -50%, 56px) scale(0.98); }
+  50% { transform: translate3d(-50%, -50%, 56px) scale(1.01); }
+}
+/* Taiji homepage V20: first layer has zero star particles. */
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-orbit-layer,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .modal-taiji-orbit-layer,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-light-orbit,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-light-orbit::before,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-light-orbit::after,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-light-orbit__head,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-gold-waves,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-gold-wave,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-celestial-mist,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-celestial-wisp {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+/* Numerology homepage danger emblem: premium warning seal. */
+.number-fortune-danger-emblem {
+  position: relative;
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 1.05rem;
+  border: 1px solid rgba(251, 113, 133, 0.55);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(251, 113, 133, 0.34), transparent 43%),
+    radial-gradient(circle at 42% 72%, rgba(34, 211, 238, 0.16), transparent 42%),
+    linear-gradient(145deg, rgba(8, 13, 28, 0.96), rgba(88, 16, 42, 0.78) 52%, rgba(8, 47, 73, 0.76));
+  box-shadow:
+    0 0 26px rgba(244, 63, 94, 0.36),
+    0 0 16px rgba(34, 211, 238, 0.16),
+    inset 0 0 22px rgba(244, 63, 94, 0.14),
+    inset 0 0 10px rgba(251, 191, 36, 0.08);
+  transform: translateZ(0);
+}
+
+.number-fortune-danger-emblem::before {
+  content: "";
+  position: absolute;
+  inset: -34%;
+  z-index: 0;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(244, 63, 94, 0.9) 56deg,
+    rgba(251, 191, 36, 0.72) 92deg,
+    transparent 128deg,
+    rgba(34, 211, 238, 0.48) 210deg,
+    transparent 286deg,
+    rgba(244, 63, 94, 0.84) 360deg
+  );
+  opacity: 0.88;
+  animation: numberDangerOrbit 7s linear infinite;
+}
+
+.number-fortune-danger-emblem::after {
+  content: "";
+  position: absolute;
+  inset: 0.28rem;
+  z-index: 1;
+  border-radius: 0.78rem;
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(63, 7, 29, 0.82)),
+    radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.24), transparent 68%);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.46);
+}
+
+.number-fortune-danger-emblem__halo {
+  position: absolute;
+  inset: -0.45rem;
+  z-index: 0;
+  border-radius: 1.45rem;
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.38), transparent 62%);
+  opacity: 0.7;
+  animation: numberDangerHalo 3.8s ease-in-out infinite;
+}
+
+.number-fortune-danger-emblem__ring {
+  position: absolute;
+  inset: 0.42rem;
+  z-index: 2;
+  border-radius: 0.68rem;
+  border: 1px solid rgba(253, 186, 116, 0.48);
+  box-shadow:
+    0 0 11px rgba(251, 191, 36, 0.2),
+    inset 0 0 12px rgba(251, 113, 133, 0.18);
+}
+
+.number-fortune-danger-emblem__slash {
+  position: absolute;
+  z-index: 3;
+  width: 72%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(251, 113, 133, 0.96), rgba(34, 211, 238, 0.58), transparent);
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.55);
+  opacity: 0.82;
+  transform: rotate(-36deg);
+}
+
+.number-fortune-danger-emblem__glyph {
+  position: relative;
+  z-index: 4;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size: 1.72rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #ffe4e6;
+  letter-spacing: 0.03em;
+  text-shadow:
+    0 0 8px rgba(244, 63, 94, 0.95),
+    0 0 18px rgba(251, 191, 36, 0.34),
+    0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+@keyframes numberDangerOrbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes numberDangerHalo {
+  0%, 100% { opacity: 0.48; transform: scale(0.94); }
+  50% { opacity: 0.82; transform: scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .number-fortune-danger-emblem::before,
+  .number-fortune-danger-emblem__halo {
+    animation: none;
+  }
+}
+
+/* Ziwei homepage emblem: compact 3D Dou seal. */
+.ziwei-dou-3d-emblem {
+  position: relative;
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 1.05rem;
+  border: 1px solid rgba(165, 180, 252, 0.58);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(224, 231, 255, 0.26), transparent 28%),
+    radial-gradient(circle at 70% 78%, rgba(34, 211, 238, 0.18), transparent 38%),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(49, 46, 129, 0.9) 48%, rgba(17, 24, 39, 0.94));
+  box-shadow:
+    0 12px 22px rgba(15, 23, 42, 0.42),
+    0 0 28px rgba(99, 102, 241, 0.34),
+    0 0 14px rgba(34, 211, 238, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -10px 18px rgba(30, 27, 75, 0.7);
+  transform: perspective(420px) rotateX(10deg) rotateY(-12deg) translateZ(0);
+  transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease;
+}
+
+.home-feature-indigo:hover .ziwei-dou-3d-emblem {
+  border-color: rgba(199, 210, 254, 0.82);
+  box-shadow:
+    0 16px 28px rgba(15, 23, 42, 0.44),
+    0 0 34px rgba(129, 140, 248, 0.45),
+    0 0 18px rgba(34, 211, 238, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -10px 18px rgba(30, 27, 75, 0.66);
+  transform: perspective(420px) rotateX(6deg) rotateY(-8deg) translateY(-1px) translateZ(0);
+}
+
+.ziwei-dou-3d-emblem::before {
+  content: "";
+  position: absolute;
+  inset: -38%;
+  z-index: 0;
+  background: conic-gradient(
+    from 28deg,
+    transparent 0deg,
+    rgba(129, 140, 248, 0.72) 64deg,
+    rgba(34, 211, 238, 0.48) 120deg,
+    transparent 178deg,
+    rgba(236, 72, 153, 0.34) 260deg,
+    transparent 360deg
+  );
+  opacity: 0.74;
+  animation: ziweiDouOrbit 8.5s linear infinite;
+}
+
+.ziwei-dou-3d-emblem::after {
+  content: "";
+  position: absolute;
+  inset: 0.28rem;
+  z-index: 1;
+  border-radius: 0.78rem;
+  background:
+    linear-gradient(145deg, rgba(224, 231, 255, 0.11), transparent 34%),
+    radial-gradient(circle at 52% 52%, rgba(67, 56, 202, 0.62), rgba(15, 23, 42, 0.88) 68%);
+  box-shadow:
+    inset 0 0 14px rgba(0, 0, 0, 0.44),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.ziwei-dou-3d-emblem__aura {
+  position: absolute;
+  inset: -0.5rem;
+  z-index: 0;
+  border-radius: 1.45rem;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.34), transparent 64%);
+  opacity: 0.72;
+  animation: ziweiDouAura 4.2s ease-in-out infinite;
+}
+
+.ziwei-dou-3d-emblem__bevel {
+  position: absolute;
+  inset: 0.48rem;
+  z-index: 2;
+  border-radius: 0.62rem;
+  border: 1px solid rgba(224, 231, 255, 0.46);
+  box-shadow:
+    0 0 12px rgba(129, 140, 248, 0.24),
+    inset 0 0 12px rgba(34, 211, 238, 0.1);
+}
+
+.ziwei-dou-3d-emblem__star {
+  position: absolute;
+  z-index: 3;
+  width: 0.34rem;
+  height: 0.34rem;
+  border-radius: 999px;
+  background: rgba(224, 231, 255, 0.95);
+  box-shadow: 0 0 9px rgba(165, 180, 252, 0.8);
+}
+
+.ziwei-dou-3d-emblem__star--one {
+  top: 0.56rem;
+  right: 0.72rem;
+}
+
+.ziwei-dou-3d-emblem__star--two {
+  bottom: 0.68rem;
+  left: 0.72rem;
+  width: 0.24rem;
+  height: 0.24rem;
+  opacity: 0.78;
+}
+
+.ziwei-dou-3d-emblem__glyph {
+  position: relative;
+  z-index: 4;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size: 1.72rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #eef2ff;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.24),
+    0 4px 8px rgba(15, 23, 42, 0.78),
+    0 0 15px rgba(129, 140, 248, 0.84),
+    0 0 22px rgba(34, 211, 238, 0.24);
+  transform: translateZ(18px);
+}
+
+@keyframes ziweiDouOrbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ziweiDouAura {
+  0%, 100% { opacity: 0.52; transform: scale(0.95); }
+  50% { opacity: 0.86; transform: scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ziwei-dou-3d-emblem::before,
+  .ziwei-dou-3d-emblem__aura {
+    animation: none;
+  }
+}
+/* Homepage feature emblems: compact 3D seals. */
+.home-oracle-3d-emblem {
+  --emblem-main: 129, 140, 248;
+  --emblem-hot: 34, 211, 238;
+  --emblem-deep: 49, 46, 129;
+  position: relative;
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 1.05rem;
+  border: 1px solid rgba(var(--emblem-main), 0.58);
+  background:
+    radial-gradient(circle at 35% 24%, rgba(255, 255, 255, 0.22), transparent 27%),
+    radial-gradient(circle at 72% 78%, rgba(var(--emblem-hot), 0.18), transparent 40%),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(var(--emblem-deep), 0.86) 50%, rgba(8, 13, 28, 0.94));
+  box-shadow:
+    0 12px 22px rgba(15, 23, 42, 0.42),
+    0 0 28px rgba(var(--emblem-main), 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -10px 18px rgba(2, 6, 23, 0.58);
+  transform: perspective(420px) rotateX(10deg) rotateY(-12deg) translateZ(0);
+  transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease;
+}
+
+.home-feature-launch:hover .home-oracle-3d-emblem {
+  border-color: rgba(var(--emblem-main), 0.82);
+  box-shadow:
+    0 16px 28px rgba(15, 23, 42, 0.44),
+    0 0 36px rgba(var(--emblem-main), 0.44),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -10px 18px rgba(2, 6, 23, 0.54);
+  transform: perspective(420px) rotateX(6deg) rotateY(-8deg) translateY(-1px) translateZ(0);
+}
+
+.home-oracle-3d-emblem--rose {
+  --emblem-main: 244, 63, 94;
+  --emblem-hot: 251, 191, 36;
+  --emblem-deep: 88, 16, 42;
+}
+
+.home-oracle-3d-emblem--violet {
+  --emblem-main: 139, 92, 246;
+  --emblem-hot: 236, 72, 153;
+  --emblem-deep: 76, 29, 149;
+}
+
+.home-oracle-3d-emblem--amber {
+  --emblem-main: 245, 158, 11;
+  --emblem-hot: 34, 211, 238;
+  --emblem-deep: 120, 53, 15;
+}
+
+.home-oracle-3d-emblem--emerald {
+  --emblem-main: 16, 185, 129;
+  --emblem-hot: 34, 211, 238;
+  --emblem-deep: 6, 78, 59;
+}
+
+.home-oracle-3d-emblem--fuchsia {
+  --emblem-main: 217, 70, 239;
+  --emblem-hot: 34, 211, 238;
+  --emblem-deep: 112, 26, 117;
+}
+
+.home-oracle-3d-emblem::before {
+  content: "";
+  position: absolute;
+  inset: -38%;
+  z-index: 0;
+  background: conic-gradient(
+    from 20deg,
+    transparent 0deg,
+    rgba(var(--emblem-main), 0.72) 68deg,
+    rgba(var(--emblem-hot), 0.42) 122deg,
+    transparent 180deg,
+    rgba(255, 255, 255, 0.18) 248deg,
+    transparent 360deg
+  );
+  opacity: 0.78;
+  animation: homeOracleEmblemOrbit 8.8s linear infinite;
+}
+
+.home-oracle-3d-emblem::after {
+  content: "";
+  position: absolute;
+  inset: 0.28rem;
+  z-index: 1;
+  border-radius: 0.78rem;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 52% 52%, rgba(var(--emblem-main), 0.42), rgba(15, 23, 42, 0.88) 70%);
+  box-shadow:
+    inset 0 0 14px rgba(0, 0, 0, 0.44),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.home-oracle-3d-emblem__aura {
+  position: absolute;
+  inset: -0.5rem;
+  z-index: 0;
+  border-radius: 1.45rem;
+  background: radial-gradient(circle, rgba(var(--emblem-main), 0.34), transparent 64%);
+  opacity: 0.72;
+  animation: homeOracleEmblemAura 4.2s ease-in-out infinite;
+}
+
+.home-oracle-3d-emblem__bevel {
+  position: absolute;
+  inset: 0.48rem;
+  z-index: 2;
+  border-radius: 0.62rem;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  box-shadow:
+    0 0 12px rgba(var(--emblem-main), 0.24),
+    inset 0 0 12px rgba(var(--emblem-hot), 0.1);
+}
+
+.home-oracle-3d-emblem__spark {
+  position: absolute;
+  z-index: 3;
+  width: 0.32rem;
+  height: 0.32rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 9px rgba(var(--emblem-main), 0.8);
+}
+
+.home-oracle-3d-emblem__spark--one {
+  top: 0.56rem;
+  right: 0.72rem;
+}
+
+.home-oracle-3d-emblem__spark--two {
+  bottom: 0.68rem;
+  left: 0.72rem;
+  width: 0.23rem;
+  height: 0.23rem;
+  opacity: 0.78;
+}
+
+.home-oracle-3d-emblem__glyph {
+  position: relative;
+  z-index: 4;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size: 1.68rem;
+  font-weight: 900;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.94);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.24),
+    0 4px 8px rgba(15, 23, 42, 0.78),
+    0 0 15px rgba(var(--emblem-main), 0.84),
+    0 0 22px rgba(var(--emblem-hot), 0.22);
+  transform: translateZ(18px);
+}
+
+@keyframes homeOracleEmblemOrbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes homeOracleEmblemAura {
+  0%, 100% { opacity: 0.52; transform: scale(0.95); }
+  50% { opacity: 0.86; transform: scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-oracle-3d-emblem::before,
+  .home-oracle-3d-emblem__aura {
+    animation: none;
+  }
+}
+
+/* Growth center lock: larger premium 3D seal. */
+.growth-lock-3d-emblem {
+  --lock-main: 148, 163, 184;
+  --lock-glow: 34, 211, 238;
+  --lock-deep: 15, 23, 42;
+  position: relative;
+  display: grid;
+  width: 3.75rem;
+  height: 3.75rem;
+  flex-shrink: 0;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(var(--lock-main), 0.52);
+  background:
+    radial-gradient(circle at 32% 20%, rgba(255, 255, 255, 0.24), transparent 26%),
+    radial-gradient(circle at 78% 82%, rgba(var(--lock-glow), 0.2), transparent 42%),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(var(--lock-deep), 0.88) 48%, rgba(2, 6, 23, 0.96));
+  box-shadow:
+    0 16px 30px rgba(2, 6, 23, 0.52),
+    0 0 34px rgba(var(--lock-glow), 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -14px 20px rgba(2, 6, 23, 0.62);
+  transform: perspective(520px) rotateX(10deg) rotateY(-13deg) translateZ(0);
+  transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease, filter 300ms ease;
+}
+
+.home-growth-entry:hover .growth-lock-3d-emblem {
+  transform: perspective(520px) rotateX(6deg) rotateY(-8deg) translateY(-2px) translateZ(0);
+  filter: saturate(1.08) brightness(1.05);
+}
+
+.growth-lock-3d-emblem--locked {
+  --lock-main: 148, 163, 184;
+  --lock-glow: 34, 211, 238;
+  --lock-deep: 30, 41, 59;
+  color: #cbd5e1;
+}
+
+.growth-lock-3d-emblem--unlocked {
+  --lock-main: 251, 191, 36;
+  --lock-glow: 245, 158, 11;
+  --lock-deep: 92, 52, 12;
+  color: #fef3c7;
+  border-color: rgba(253, 230, 138, 0.72);
+  box-shadow:
+    0 18px 34px rgba(2, 6, 23, 0.46),
+    0 0 42px rgba(251, 191, 36, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -14px 20px rgba(92, 52, 12, 0.52);
+}
+
+.growth-lock-3d-emblem::before {
+  content: "";
+  position: absolute;
+  inset: -36%;
+  z-index: 0;
+  background: conic-gradient(
+    from 18deg,
+    transparent 0deg,
+    rgba(var(--lock-main), 0.78) 72deg,
+    rgba(var(--lock-glow), 0.5) 132deg,
+    transparent 188deg,
+    rgba(255, 255, 255, 0.2) 252deg,
+    transparent 360deg
+  );
+  opacity: 0.8;
+  animation: growthLockOrbit 8s linear infinite;
+}
+
+.growth-lock-3d-emblem::after {
+  content: "";
+  position: absolute;
+  inset: 0.32rem;
+  z-index: 1;
+  border-radius: 0.95rem;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.14), transparent 36%),
+    radial-gradient(circle at 52% 54%, rgba(var(--lock-main), 0.22), rgba(15, 23, 42, 0.9) 72%);
+  box-shadow:
+    inset 0 0 18px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.growth-lock-3d-emblem__aura {
+  position: absolute;
+  inset: -0.62rem;
+  z-index: 0;
+  border-radius: 1.7rem;
+  background: radial-gradient(circle, rgba(var(--lock-main), 0.32), transparent 66%);
+  opacity: 0.68;
+  animation: growthLockAura 4s ease-in-out infinite;
+}
+
+.growth-lock-3d-emblem__bevel {
+  position: absolute;
+  inset: 0.56rem;
+  z-index: 2;
+  border-radius: 0.78rem;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  box-shadow:
+    0 0 14px rgba(var(--lock-main), 0.22),
+    inset 0 0 12px rgba(var(--lock-glow), 0.1);
+}
+
+.growth-lock-3d-emblem__shine {
+  position: absolute;
+  left: 0.8rem;
+  top: 0.64rem;
+  z-index: 3;
+  width: 1.55rem;
+  height: 0.24rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.62), transparent);
+  opacity: 0.82;
+  transform: rotate(-24deg);
+}
+
+.growth-lock-3d-emblem__glyph {
+  position: relative;
+  z-index: 4;
+  font-size: 2rem;
+  line-height: 1;
+  filter: drop-shadow(0 6px 8px rgba(2, 6, 23, 0.72));
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28),
+    0 0 18px rgba(var(--lock-main), 0.58),
+    0 0 26px rgba(var(--lock-glow), 0.22);
+  transform: translateZ(22px) scale(1.04);
+}
+
+@keyframes growthLockOrbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes growthLockAura {
+  0%, 100% { opacity: 0.5; transform: scale(0.94); }
+  50% { opacity: 0.84; transform: scale(1.07); }
+}
+
+@media (max-width: 420px) {
+  .growth-lock-3d-emblem {
+    width: 3.45rem;
+    height: 3.45rem;
+    border-radius: 1.15rem;
+  }
+
+  .growth-lock-3d-emblem__glyph {
+    font-size: 1.84rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .growth-lock-3d-emblem::before,
+  .growth-lock-3d-emblem__aura {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Taiji three-layer final authority (V21): 第一層太極核心永遠在最上層、
+   永遠 100% 不透明、永遠不被任何光暈／濾鏡蓋住。放在檔案最後以取得最高
+   cascade 優先權，覆蓋前面所有版本殘留的 opacity / filter / z-index 設定。
+   ========================================================================== */
+.modal-taiji-3d-core,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .modal-taiji-3d-core,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .modal-taiji-3d-core,
+.home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .modal-taiji-3d-core {
+  z-index: 500 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+.modal-taiji-3d-core svg,
+.modal-taiji-3d-core .TaijiCoreVisual_fish__klg2L {
+  opacity: 1 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+/* 光暈／掃描層一律壓在核心後面，且中心區域挖空，絕不可疊到黑白魚身上 */
+.unified-evolution-screen,
+.unified-evolution-pulse,
+.modal-evolution-flare,
+.modal-evolution-scan {
+  z-index: 4 !important;
+  -webkit-mask-image: radial-gradient(circle, transparent 0 42%, #000 56%) !important;
+  mask-image: radial-gradient(circle, transparent 0 42%, #000 56%) !important;
+}
+
+/* 鎖死：禁止太極消失。不管加了什麼 class、什麼裝置模式、什麼動畫狀態，
+   從卡片到核心 SVG 這條路徑上的每一層都強制可見，任何規則都不得再關掉它。 */
+.taiji-standalone-card,
+.unified-taiji-shell,
+.modal-taiji-button,
+.modal-taiji-orbit-emblem,
+.modal-taiji-3d-core,
+.modal-taiji-3d-core svg {
+  display: revert !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.taiji-standalone-card {
+  display: flex !important;
+}
+
+.unified-taiji-shell,
+.modal-taiji-orbit-emblem {
+  display: flex !important;
+}
+
+.modal-taiji-button {
+  display: flex !important;
+}
+
+body.app-page-hidden .taiji-standalone-card,
+body.app-page-hidden .unified-taiji-shell,
+body.app-page-hidden .modal-taiji-button,
+body.app-page-hidden .modal-taiji-3d-core,
+body.app-reduced-motion .taiji-standalone-card,
+body.app-reduced-motion .unified-taiji-shell,
+body.app-reduced-motion .modal-taiji-button,
+body.app-reduced-motion .modal-taiji-3d-core {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }

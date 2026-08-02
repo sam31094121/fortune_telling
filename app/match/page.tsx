@@ -6,6 +6,7 @@ import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
+import { enforceAiCopywritingTone, uniqueAiCopywritingLines } from '@/lib/ai-copywriting-style-center';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import type { GrowthElement } from '@/lib/growth-center-engine';
@@ -486,36 +487,52 @@ function MatchNeedBars({ person }: { person: MatchFiveElementPersonResult }) {
 }
 
 function MatchFiveElementPriorityCard({ result }: { result: MatchFiveElementResult }) {
+  const highlights = uniqueAiCopywritingLines(result.inlineHighlights, 4);
+  const people = [result.personA, result.personB];
+  const sharedElement = MATCH_ELEMENT_LABEL[result.sharedElement];
+
   return (
     <section className="fortune-card relative overflow-hidden border-rose-300/35 bg-[linear-gradient(135deg,rgba(127,29,29,0.36),rgba(15,23,42,0.9)_42%,rgba(120,53,15,0.3))] p-5 shadow-[0_0_40px_rgba(251,113,133,0.16)] sm:p-8">
       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-rose-400 via-amber-300 to-cyan-300" />
       <p className="text-xs font-black uppercase tracking-[0.3em] text-rose-200">ELEMENT PRIORITY</p>
-      <h2 className="mt-3 font-serif text-3xl font-black leading-tight text-amber-100 sm:text-5xl">
-        {'\u9748\u9b42\u914d\u5c0d 5 \u5143\u7d20\u88dc\u5f37\uff1a'}
-        <span className="text-rose-200">{'\u5171\u540c\u5148\u88dc '}{MATCH_ELEMENT_LABEL[result.sharedElement]}</span>
+      <h2 className="mt-3 font-serif text-4xl font-black leading-tight text-amber-100 sm:text-6xl">
+        AI 判定：靈魂配對共同第一補強
+        <span className="block text-rose-200 drop-shadow-[0_0_18px_rgba(251,113,133,0.55)]">{sharedElement}</span>
       </h2>
-      <p className="mt-4 text-base font-black leading-8 text-amber-50">{result.summary}</p>
+      <p className="mt-4 text-lg font-black leading-9 text-amber-50">{enforceAiCopywritingTone(result.summary)}</p>
 
-      <div className="mt-4 rounded-2xl border border-rose-200/25 bg-rose-500/10 p-4">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-100">{MATCH_RELATION_LABEL[result.relationMode]}</p>
-        <p className="mt-2 text-sm font-black leading-7 text-rose-50">{result.relationReason}</p>
-        <p className="mt-2 text-sm font-bold leading-7 text-amber-100">{result.sharedAction}</p>
+      <div className="mt-5 grid gap-3 lg:grid-cols-3">
+        <article className="rounded-2xl border border-rose-200/25 bg-rose-500/10 p-4">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-100">第一層</p>
+          <h3 className="mt-1 text-xl font-black text-rose-50">關係核心判定</h3>
+          <p className="mt-2 text-sm font-black leading-7 text-rose-50">{enforceAiCopywritingTone(result.relationReason)}</p>
+        </article>
+        <article className="rounded-2xl border border-cyan-200/20 bg-cyan-300/10 p-4">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-100">第二層</p>
+          <h3 className="mt-1 text-xl font-black text-cyan-50">共同補強排序</h3>
+          <p className="mt-2 text-sm font-black leading-7 text-cyan-50">{enforceAiCopywritingTone(result.sharedAction)}</p>
+        </article>
+        <article className="rounded-2xl border border-amber-200/25 bg-amber-300/10 p-4">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">第三層</p>
+          <h3 className="mt-1 text-xl font-black text-amber-50">行動落地</h3>
+          <p className="mt-2 text-sm font-black leading-7 text-amber-100">{enforceAiCopywritingTone(result.integratedAdvice)}</p>
+        </article>
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        {[result.personA, result.personB].map((person) => (
+        {people.map((person) => (
           <article key={person.name} className="rounded-2xl border border-white/10 bg-black/20 p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-black text-cyan-100">{person.name}</p>
-                <p className="mt-1 text-2xl font-black text-amber-100">{'\u5148\u88dc '}{MATCH_ELEMENT_LABEL[person.primaryElement]}</p>
+                <p className="mt-1 text-2xl font-black text-amber-100">第一補強：{MATCH_ELEMENT_LABEL[person.primaryElement]}</p>
               </div>
               <span className="shrink-0 rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-xs font-black text-amber-100">
-                {'\u7b2c\u4e8c '}{MATCH_ELEMENT_LABEL[person.secondaryElement]}
+                第二補強：{MATCH_ELEMENT_LABEL[person.secondaryElement]}
               </span>
             </div>
-            <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{person.reason}</p>
-            <p className="mt-2 text-xs font-bold leading-6 text-amber-100">{person.changeTarget}</p>
+            <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{enforceAiCopywritingTone(person.reason)}</p>
+            <p className="mt-2 text-xs font-bold leading-6 text-amber-100">{enforceAiCopywritingTone(person.changeTarget)}</p>
             <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-3">
               <MatchNeedBars person={person} />
             </div>
@@ -524,10 +541,9 @@ function MatchFiveElementPriorityCard({ result }: { result: MatchFiveElementResu
       </div>
 
       <div className="mt-5 rounded-2xl border border-amber-200/25 bg-amber-300/10 p-4">
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-200">{'\u624b\u934a\u88dc\u5f37\u65b9\u5411'}</p>
-        <p className="mt-2 text-sm font-black leading-7 text-amber-100">{result.integratedAdvice}</p>
+        <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-200">補強重點（已去重）</p>
         <div className="mt-3 space-y-2">
-          {result.inlineHighlights.slice(0, 4).map((item) => (
+          {highlights.map((item) => (
             <p key={item} className="rounded-xl border border-amber-200/15 bg-black/15 px-3 py-2 text-xs font-bold leading-6 text-amber-100">{item}</p>
           ))}
         </div>

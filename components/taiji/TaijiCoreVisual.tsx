@@ -51,41 +51,55 @@ export default function TaijiCoreVisual({ active = false, stage = 'idle', highli
       viewBox="-190 -190 380 380"
       role="img"
       aria-label="太極"
+      shapeRendering="geometricPrecision"
+      textRendering="optimizeLegibility"
     >
       <defs>
-        <filter id="taijiCoreGlow" x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation="4" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-        <radialGradient id="taijiLightGradient" cx="35%" cy="30%" r="75%">
-          <stop offset="0%" stopColor="#fffdf5" />
-          <stop offset="100%" stopColor="#f3d98a" />
+        {/* 珍珠玉質感：多層漸層堆疊出高光、中間色、邊緣收暗，取代單調的兩色平塗 */}
+        <radialGradient id="taijiLightGradient" cx="32%" cy="26%" r="82%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="28%" stopColor="#fffaf0" />
+          <stop offset="62%" stopColor="#f6dd97" />
+          <stop offset="100%" stopColor="#d9b56a" />
         </radialGradient>
-        <radialGradient id="taijiDarkGradient" cx="35%" cy="30%" r="80%">
-          <stop offset="0%" stopColor="#2a2140" />
-          <stop offset="100%" stopColor="#05040a" />
+        <radialGradient id="taijiDarkGradient" cx="32%" cy="26%" r="86%">
+          <stop offset="0%" stopColor="#4d4270" />
+          <stop offset="30%" stopColor="#241c3a" />
+          <stop offset="68%" stopColor="#120d1e" />
+          <stop offset="100%" stopColor="#020103" />
+        </radialGradient>
+        <radialGradient id="taijiRingGradient" cx="50%" cy="50%" r="50%">
+          <stop offset="88%" stopColor="rgba(230, 236, 248, 0)" />
+          <stop offset="97%" stopColor="rgba(230, 236, 248, 0.9)" />
+          <stop offset="100%" stopColor="rgba(230, 236, 248, 0.35)" />
         </radialGradient>
       </defs>
 
       <circle className={styles.outerRing} cx="0" cy="0" r="121" />
 
-      <g className={`${styles.fish} ${styles.yinFish}`} filter="url(#taijiCoreGlow)">
-        <path
-          d="M 0 -120 A 120 120 0 0 0 0 120 A 60 60 0 0 0 0 0 A 60 60 0 0 1 0 -120 Z"
-          fill="url(#taijiDarkGradient)"
-        />
-        <circle cx="0" cy="-60" r="17" fill="#f5f7fb" />
-      </g>
+      {/* 兩魚固定間距、同一剛體繞圓心 0,0 順時針公轉，相對角度恆定，物理上不可能重疊碰撞 */}
+      <g className={styles.fishOrbit}>
+        <g className={`${styles.fish} ${styles.yinFish}`}>
+          <path
+            d="M 0 -120 A 120 120 0 0 0 0 120 A 60 60 0 0 0 0 0 A 60 60 0 0 1 0 -120 Z"
+            fill="url(#taijiDarkGradient)"
+            stroke="rgba(230, 236, 248, 0.55)"
+            strokeWidth="3"
+            vectorEffect="non-scaling-stroke"
+          />
+          <circle cx="0" cy="-60" r="17" fill="#f5f7fb" />
+        </g>
 
-      <g className={`${styles.fish} ${styles.yangFish}`} filter="url(#taijiCoreGlow)">
-        <path
-          d="M 0 -120 A 60 60 0 0 0 0 0 A 60 60 0 0 1 0 120 A 120 120 0 0 0 0 -120 Z"
-          fill="url(#taijiLightGradient)"
-        />
-        <circle cx="0" cy="60" r="17" fill="#11151d" />
+        <g className={`${styles.fish} ${styles.yangFish}`}>
+          <path
+            d="M 0 -120 A 60 60 0 0 0 0 0 A 60 60 0 0 1 0 120 A 120 120 0 0 0 0 -120 Z"
+            fill="url(#taijiLightGradient)"
+            stroke="rgba(17, 21, 29, 0.5)"
+            strokeWidth="3"
+            vectorEffect="non-scaling-stroke"
+          />
+          <circle cx="0" cy="60" r="17" fill="#11151d" />
+        </g>
       </g>
 
       <g className={`${styles.fourSymbols} ${showFourSymbols ? styles.fourSymbolsVisible : ''}`}>

@@ -1,4 +1,15 @@
-﻿export type TaijiCoreStage = 'idle' | 'chaos' | 'taiji' | 'liangyi' | 'sixiang' | 'bagua' | 'five_elements' | 'tiandiren' | 'ai_core' | 'integration_layer';
+﻿/**
+ * 太極核心憲章（不可違反）：
+ * 1. 太極為首頁唯一核心，不得消失、不得被取代、不得離開畫面中心。
+ * 2. 所有元素只能由太極自然演化，禁止突然出現或切換。
+ * 3. 所有功能必須由太極核心引擎（本檔案）控制。
+ * 4. 禁止多套狀態系統並存。
+ * 5. 禁止重複動畫與重複元件。
+ * 6. 新增功能不得修改核心，只能掛載擴充（extend，not modify）。
+ * 7. 手機優先，需維持 60 FPS 與 GPU 加速（只用 transform/opacity，避免逐幀重排）。
+ * 8. 任何與以上規則衝突的舊實作，一律停用重構，不得保留並存。
+ */
+export type TaijiCoreStage = 'idle' | 'chaos' | 'taiji' | 'liangyi' | 'sixiang' | 'bagua' | 'five_elements' | 'tiandiren' | 'ai_core' | 'integration_layer';
 export type TaijiVisualStage = Extract<TaijiCoreStage, 'idle' | 'taiji' | 'liangyi' | 'sixiang' | 'bagua'>;
 export type TaijiCoreEvent =
   | 'ENTER_CHAOS'

@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import { DIMENSION_META } from '@/lib/personality';
 import type { AnalysisResult, PreviewAnalysisResult } from '@/lib/types';
 import ProgressBar from './ProgressBar';
@@ -35,18 +36,18 @@ export default function ResultDisplay({
   const isUnlocked = vipResult !== null;
   const score = Math.round(isUnlocked ? vipResult.resonance_score : previewResult.preview_score);
   const dimensions = isUnlocked ? vipResult.final_scores : previewResult.preview_scores;
-  const summary = isUnlocked ? vipResult.final_summary : previewResult.preview_summary;
+  const summary = enforceAiCopywritingTone(isUnlocked ? vipResult.final_summary : previewResult.preview_summary);
   const guidanceBlocks = isUnlocked
     ? [
-        { title: '性格底色', body: vipResult.skeleton_summary, tone: 'sky' },
-        { title: '日常行為傾向', body: vipResult.behavior_summary, tone: 'earth' },
-        { title: '個人特質', body: vipResult.individuality_summary, tone: 'human' },
-        { title: '善念提醒', body: vipResult.wisdom_perspective, tone: 'earth' },
+        { title: '性格底色', body: enforceAiCopywritingTone(vipResult.skeleton_summary), tone: 'sky' },
+        { title: '日常行為傾向', body: enforceAiCopywritingTone(vipResult.behavior_summary), tone: 'earth' },
+        { title: '個人特質', body: enforceAiCopywritingTone(vipResult.individuality_summary), tone: 'human' },
+        { title: '善念提醒', body: enforceAiCopywritingTone(vipResult.wisdom_perspective), tone: 'earth' },
       ]
     : [
-        { title: '性格底色', body: previewResult.skeleton_summary, tone: 'sky' },
-        { title: '日常行為傾向', body: previewResult.behavior_summary, tone: 'earth' },
-        { title: 'AI 整理重點', body: previewResult.preview_summary, tone: 'human' },
+        { title: '性格底色', body: enforceAiCopywritingTone(previewResult.skeleton_summary), tone: 'sky' },
+        { title: '日常行為傾向', body: enforceAiCopywritingTone(previewResult.behavior_summary), tone: 'earth' },
+        { title: 'AI 整理重點', body: enforceAiCopywritingTone(previewResult.preview_summary), tone: 'human' },
       ];
 
   const unlockProgress = useMemo(() => (isUnlocked ? 100 : 70), [isUnlocked]);
@@ -231,25 +232,25 @@ export default function ResultDisplay({
             <div className="rounded-[22px] border border-amber-400/20 bg-black/15 p-5">
               <p className="text-xs uppercase tracking-[0.3em] text-amber-200">財富動機</p>
               <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">
-                {vipResult!.wealth_motivation_summary}
+                {enforceAiCopywritingTone(vipResult!.wealth_motivation_summary)}
               </p>
             </div>
             <div className="rounded-[22px] border border-amber-400/20 bg-black/15 p-5">
               <p className="text-xs uppercase tracking-[0.3em] text-amber-200">感情模式</p>
               <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">
-                {vipResult!.love_pattern_summary}
+                {enforceAiCopywritingTone(vipResult!.love_pattern_summary)}
               </p>
             </div>
             <div className="rounded-[22px] border border-amber-400/20 bg-black/15 p-5">
               <p className="text-xs uppercase tracking-[0.3em] text-amber-200">潛意識盲點</p>
               <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">
-                {vipResult!.blind_spot_summary}
+                {enforceAiCopywritingTone(vipResult!.blind_spot_summary)}
               </p>
             </div>
             <div className="rounded-[22px] border border-amber-400/20 bg-black/15 p-5">
               <p className="text-xs uppercase tracking-[0.3em] text-amber-200">人生優勢</p>
               <p className="mt-3 text-sm leading-8 text-[color:var(--text-main)]">
-                {vipResult!.life_advantage_summary}
+                {enforceAiCopywritingTone(vipResult!.life_advantage_summary)}
               </p>
             </div>
           </div>

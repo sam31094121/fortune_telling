@@ -637,6 +637,19 @@ function ResultPanel({ result, onReset }: { result: ZodiacResult; onReset: () =>
       <ProfessionalZodiacLayer result={result} />
       <DeepZodiacAnalysisLayer result={result} />
       <ZodiacReinforcementPlanLayer result={result} />
+      {/* 優勢卡片依需求提到最上面，排在分析完成標題卡之前 */}
+      <article className="fortune-card overflow-hidden p-5 sm:p-7 border-cyan-300/25 bg-cyan-500/8 shadow-[0_0_30px_rgba(34,211,238,0.12)]">
+        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-200">第二眼</p>
+        <h3 className="mt-2 text-xl font-black leading-tight text-[color:var(--text-main)]">優勢</h3>
+        <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">這些能力是本次星座分析最明確的支持點。</p>
+        <div className="mt-4">
+          <div className="grid gap-2 sm:grid-cols-3">
+            {result.strengths.map((item) => (
+              <div key={item} className="rounded-2xl border border-cyan-300/20 bg-cyan-300/8 px-4 py-3 text-sm font-black text-cyan-50">{item}</div>
+            ))}
+          </div>
+        </div>
+      </article>
       <AnalysisReadingFlow
         moduleLabel="AI ZODIAC"
         headline={`本次星座：${result.sign.symbol} ${result.sign.name}`}
@@ -662,20 +675,6 @@ function ResultPanel({ result, onReset }: { result: ZodiacResult; onReset: () =>
             title: '人格特質',
             description: result.personality,
             tone: 'violet',
-          },
-          {
-            id: 'strengths',
-            eyebrow: '第二眼',
-            title: '優勢',
-            description: '這些能力是本次星座分析最明確的支持點。',
-            tone: 'cyan',
-            children: (
-              <div className="grid gap-2 sm:grid-cols-3">
-                {result.strengths.map((item) => (
-                  <div key={item} className="rounded-2xl border border-cyan-300/20 bg-cyan-300/8 px-4 py-3 text-sm font-black text-cyan-50">{item}</div>
-                ))}
-              </div>
-            ),
           },
           {
             id: 'blind-spots',

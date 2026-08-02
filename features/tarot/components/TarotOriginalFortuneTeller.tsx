@@ -1,12 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { TarotCard, TarotDeckCard } from '@/features/tarot/types';
+import type { TarotCard, TarotDeckCard, TarotReadingScope } from '@/features/tarot/types';
+import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 
 type TarotOriginalFortuneTellerProps = {
   deck: TarotDeckCard[];
   cardsById: Map<string, TarotCard>;
   question: string;
+  scope?: TarotReadingScope;
   onReset: () => void;
   onComplete?: (deckCards: TarotDeckCard[]) => void;
 };
@@ -75,6 +77,7 @@ export default function TarotOriginalFortuneTeller({
   deck,
   cardsById,
   question,
+  scope = 'self',
   onReset,
   onComplete,
 }: TarotOriginalFortuneTellerProps) {
@@ -106,6 +109,7 @@ export default function TarotOriginalFortuneTeller({
     return new Map(drawnCards.map((drawnCard) => [drawnCard.position, drawnCard] as const));
   }, [drawnCards]);
   const hasRevealedCards = revealed.size > 0;
+  const scopeLabel = scope === 'self' ? '我自己｜保留成長累積' : '親朋好友｜單次抽牌';
 
   useEffect(() => {
     setDeckDealt(true);
@@ -256,7 +260,8 @@ export default function TarotOriginalFortuneTeller({
       <div className="tarot-original-status">
         <p>THREE CARD DRAW</p>
         <h1>塔羅三張牌</h1>
-        <span>{question}</span>
+        <span>{enforceAiCopywritingTone(question)}</span>
+        <strong className="mt-2 inline-flex rounded-full border border-amber-200/30 bg-amber-300/12 px-3 py-1 text-xs font-black text-amber-100">{scopeLabel}</strong>
       </div>
 
       <section className={`cards ${deckDealt ? 'cards--dealt' : ''}`} data-shuffle={shuffleTick}>
@@ -321,7 +326,7 @@ export default function TarotOriginalFortuneTeller({
                 <article key={position.id} className="reveal__meaning-card">
                   <p className="reveal__meaning-position">{position.label}</p>
                   <h2>{drawnCard.card.nameZh}</h2>
-                  <p>{drawnCard.card.uprightMeaning}</p>
+                  <p>{enforceAiCopywritingTone(drawnCard.card.uprightMeaning)}</p>
                   <div className="reveal__keywords">
                     {drawnCard.card.uprightKeywords.slice(0, 4).map((keyword) => (
                       <span key={keyword}>{keyword}</span>

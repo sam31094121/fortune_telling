@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { runAnalysisJobClient } from '@/lib/analysis-job-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
@@ -375,6 +377,12 @@ export default function BaziPage() {
       }
     }
 
+    const targetMode = getAnalysisIdentityTarget();
+    if (!targetMode) {
+      setError(getIdentityRequiredMessage());
+      return;
+    }
+
     const nextMissing = [
       form.name.trim().length < 2 ? 'name' : '',
       !form.birthDate ? 'birthDate' : '',
@@ -415,7 +423,7 @@ export default function BaziPage() {
       setResult(data);
       setDailyRecord(saveDailyAnalysis<BaziResult>('bazi', data));
       setMessage('三層資料流已完成：專業命盤 → AI 解讀 → AI 補強。');
-      markGrowthModuleCompleted('bazi', data.aiReinforcementPlan.first.brandElement);
+      if (targetMode === 'self') markGrowthModuleCompleted('bazi', data.aiReinforcementPlan.first.brandElement);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : '目前無法完成八字命盤。');
     } finally {
@@ -440,6 +448,10 @@ export default function BaziPage() {
         </header>
 
         <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 八字命盤" onViewResult={result ? scrollToResult : undefined} />
+        <IdentitySplitSelector className="mb-5" />
+        <div className="mb-5 rounded-2xl border border-amber-200/20 bg-amber-300/10 px-4 py-3 text-sm font-black leading-7 text-amber-100">
+          AI 判定：八字命盤已接入資料分流。選「我自己」會累積到個人成長中心；選「親朋好友」只完成本次單次命盤，不寫入會員成長資料。
+        </div>
         <UnifiedBirthForm
           value={form}
           fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, birthPlace: true, calendarType: true }}

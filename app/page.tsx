@@ -14,6 +14,7 @@ import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/ide
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
+import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import TarotEntryCard from '@/features/tarot/components/TarotEntryCard';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
@@ -1228,12 +1229,11 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
       <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border text-2xl transition-all duration-700 ${
-              unlocked
-                ? 'border-amber-200/55 bg-amber-300/20 text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.32)]'
-                : 'border-white/12 bg-black/24 text-[color:var(--text-muted)]'
-            }`} aria-hidden="true">
-              {unlocked ? '🔓' : '🔒'}
+            <span className={`growth-lock-3d-emblem ${unlocked ? 'growth-lock-3d-emblem--unlocked' : 'growth-lock-3d-emblem--locked'}`} aria-hidden="true">
+              <span className="growth-lock-3d-emblem__aura" />
+              <span className="growth-lock-3d-emblem__bevel" />
+              <span className="growth-lock-3d-emblem__shine" />
+              <span className="growth-lock-3d-emblem__glyph">{unlocked ? '\uD83D\uDD13' : '\uD83D\uDD12'}</span>
             </span>
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200/85">Growth Center</p>
@@ -2416,8 +2416,12 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-rose-500/30 bg-rose-950/40 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.2)] animate-spin-slow">
-                <span className="text-2xl font-serif">緣</span>
+              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--rose" aria-hidden="true">
+                <span className="home-oracle-3d-emblem__aura" />
+                <span className="home-oracle-3d-emblem__bevel" />
+                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
+                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
+                <span className="home-oracle-3d-emblem__glyph">緣</span>
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-rose-500/10 border border-rose-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-rose-300 uppercase animate-pulse">
@@ -2448,8 +2452,12 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-violet-500/30 bg-violet-950/40 text-violet-300 shadow-[0_0_15px_rgba(139,92,246,0.2)] animate-spin-slow">
-                <span className="text-2xl font-serif">{"\u6b4c"}</span>
+              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--violet" aria-hidden="true">
+                <span className="home-oracle-3d-emblem__aura" />
+                <span className="home-oracle-3d-emblem__bevel" />
+                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
+                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
+                <span className="home-oracle-3d-emblem__glyph">歌</span>
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-flex max-w-full rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-1 text-[10px] font-bold leading-none tracking-[0.12em] text-violet-300 uppercase animate-pulse">
@@ -2480,8 +2488,12 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-950/40 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)] animate-spin-slow">
-                <span className="text-2xl font-serif">名</span>
+              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--amber" aria-hidden="true">
+                <span className="home-oracle-3d-emblem__aura" />
+                <span className="home-oracle-3d-emblem__bevel" />
+                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
+                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
+                <span className="home-oracle-3d-emblem__glyph">名</span>
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-300 uppercase animate-pulse">
@@ -2514,8 +2526,11 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
             
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.2)] animate-spin-slow">
-                <span className="font-serif text-2xl font-black leading-none tracking-[0.06em] text-rose-100 drop-shadow-[0_0_10px_rgba(244,63,94,0.65)]">凶</span>
+              <div className="number-fortune-danger-emblem" aria-hidden="true">
+                <span className="number-fortune-danger-emblem__halo" />
+                <span className="number-fortune-danger-emblem__ring" />
+                <span className="number-fortune-danger-emblem__slash" />
+                <span className="number-fortune-danger-emblem__glyph">凶</span>
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse">
@@ -2546,8 +2561,12 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-950/40 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.2)] animate-spin-slow">
-                <span className="text-2xl font-serif">斗</span>
+              <div className="ziwei-dou-3d-emblem" aria-hidden="true">
+                <span className="ziwei-dou-3d-emblem__aura" />
+                <span className="ziwei-dou-3d-emblem__bevel" />
+                <span className="ziwei-dou-3d-emblem__star ziwei-dou-3d-emblem__star--one" />
+                <span className="ziwei-dou-3d-emblem__star ziwei-dou-3d-emblem__star--two" />
+                <span className="ziwei-dou-3d-emblem__glyph">斗</span>
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-indigo-500/10 border border-indigo-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-indigo-300 uppercase animate-pulse">
@@ -2578,8 +2597,12 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-950/40 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)] animate-spin-slow">
-                <span className="text-2xl font-serif">{'\u8fb0'}</span>
+              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--emerald" aria-hidden="true">
+                <span className="home-oracle-3d-emblem__aura" />
+                <span className="home-oracle-3d-emblem__bevel" />
+                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
+                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
+                <span className="home-oracle-3d-emblem__glyph">辰</span>
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-emerald-500/10 border border-emerald-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-emerald-300 uppercase animate-pulse">
@@ -2611,8 +2634,12 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-fuchsia-400/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-fuchsia-400/30 bg-fuchsia-950/40 text-fuchsia-200 shadow-[0_0_18px_rgba(217,70,239,0.22)]">
-                <span className="text-2xl font-serif">{'\u2726'}</span>
+              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--fuchsia" aria-hidden="true">
+                <span className="home-oracle-3d-emblem__aura" />
+                <span className="home-oracle-3d-emblem__bevel" />
+                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
+                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
+                <span className="home-oracle-3d-emblem__glyph">星</span>
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-fuchsia-500/10 border border-fuchsia-400/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-fuchsia-200 uppercase animate-pulse">
@@ -2913,7 +2940,7 @@ export default function HomePage() {
                 <NumberTicker value={data.result.match_score} />
               </h2>
               <p className="mt-2 text-sm text-[color:var(--text-sub)]">相處共鳴指數</p>
-              <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">{data.result.summary}</p>
+              <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">{enforceAiCopywritingTone(data.result.summary)}</p>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
@@ -3206,7 +3233,7 @@ export default function HomePage() {
 
                 <div className="fortune-card vip-gold-card p-6 sm:p-8">
                   <p className="text-xs uppercase tracking-[0.35em] text-cyan-300 font-semibold">今生建議</p>
-                  <p className="mt-4 whitespace-pre-wrap text-sm leading-8 text-[color:var(--text-sub)]">{data?.karma_story?.today_advice ?? '今生修行大數據建議運算中...'}</p>
+                  <p className="mt-4 whitespace-pre-wrap text-sm leading-8 text-[color:var(--text-sub)]">{enforceAiCopywritingTone(data?.karma_story?.today_advice ?? '今生修行大數據判定中...')}</p>
                 </div>
 
                 <div className="fortune-card vip-gold-card p-6 sm:p-8 border-emerald-400/30">
@@ -3663,8 +3690,8 @@ export default function HomePage() {
 
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-7">
                   <p className="font-semibold text-cyan-300">分析解說・建議鼓勵</p>
-                  <p className="mt-2 text-[color:var(--text-sub)]">{fortuneResult.summary}</p>
-                  <p className="mt-3 text-xs leading-6 text-[color:var(--text-muted)]">{fortuneResult.advice}</p>
+                  <p className="mt-2 text-[color:var(--text-sub)]">{enforceAiCopywritingTone(fortuneResult.summary)}</p>
+                  <p className="mt-3 text-xs leading-6 text-[color:var(--text-muted)]">{enforceAiCopywritingTone(fortuneResult.advice)}</p>
                 </div>
               </div>
             )}

@@ -19,8 +19,8 @@ export default function DailyAnalysisNotice({ record, className = '', moduleName
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">FREE DAILY ANALYSIS</p>
-          <h4 className="mt-2 font-serif text-xl font-black leading-tight text-cyan-50">
-            {record ? `${moduleName}今日免費正式分析已完成` : `${moduleName}每日一次完整免費分析`}
+          <h4 className="mt-2 font-serif text-2xl font-black leading-tight text-cyan-50 sm:text-3xl">
+            {record ? `AI 判定：${moduleName}今日正式分析已完成` : `AI 判定：${moduleName}今日可開始正式分析`}
           </h4>
         </div>
         {canJump ? (
@@ -44,17 +44,17 @@ export default function DailyAnalysisNotice({ record, className = '', moduleName
         )}
       </div>
 
-      <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{DAILY_ANALYSIS_NOTICE}</p>
+      <p className="mt-3 text-base font-black leading-8 text-[color:var(--text-sub)]">{DAILY_ANALYSIS_NOTICE}</p>
 
       {record && (
         <div className="mt-3 grid gap-3 rounded-2xl border border-white/10 bg-black/18 p-4 text-sm font-bold leading-7 text-cyan-50/82">
-          <p>這不是錯誤。{moduleName}今天的完整免費正式分析已經完成。你不需要重新輸入資料，結果已經在這個頁面下方，可以直接跳過去看。</p>
+          <p>AI 判定：這不是錯誤。{moduleName}今天的完整免費正式分析已完成。系統已鎖定今日結果，請直接查看今日分析。</p>
           <p>
-            你現在可以無限次查看今日分析；若要建立新的{moduleName}分析，開放時間為{' '}
+            你現在可以無限次查看今日分析。新的{moduleName}正式分析開放時間為{' '}
             <span className="font-black text-amber-100">{remainingText}</span>。
           </p>
           <p className="rounded-2xl border border-rose-200/30 bg-rose-500/12 px-3 py-2 text-rose-100">
-            如果你剛剛重新輸入資料，系統不會重新建立新分析，會直接帶你查看今日已完成的結果。
+            若你已重新輸入資料，系統仍會保留今日正式結果，並直接帶你查看今日已完成分析。
           </p>
           {canJump && (
             <button

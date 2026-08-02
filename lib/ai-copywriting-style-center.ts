@@ -133,6 +133,48 @@ export function auditAiCopywriting(text: string): AiCopywritingAuditResult {
   };
 }
 
+export function enforceAiCopywritingTone(text?: string | null) {
+  let output = String(text ?? '').trim();
+  if (!output) return output;
+
+  const specialReplacements: Array<[string, string]> = [
+    ['可能性', '潛力'],
+    ['不是沒有可能', '仍有可修正空間'],
+    ['可能需要', '必須先'],
+    ['可能產生', '會形成'],
+    ['可能不一致', '目前不一致'],
+    ['可能失衡', '目前失衡'],
+  ];
+
+  for (const [avoid, use] of specialReplacements) {
+    output = output.split(avoid).join(use);
+  }
+
+  for (const replacement of AI_COPYWRITING_REPLACEMENTS) {
+    output = output.split(replacement.avoid).join(replacement.use);
+  }
+
+  return output
+    .replace(/\s+/g, ' ')
+    .replace(/建議：/g, '請優先：')
+    .replace(/提醒你/g, 'AI 判定')
+    .trim();
+}
+
+export function uniqueAiCopywritingLines(items: Array<string | null | undefined>, limit?: number) {
+  const seen = new Set<string>();
+  const output: string[] = [];
+
+  for (const item of items) {
+    const clean = enforceAiCopywritingTone(item);
+    if (!clean || seen.has(clean)) continue;
+    seen.add(clean);
+    output.push(clean);
+    if (limit && output.length >= limit) break;
+  }
+
+  return output;
+}
 export function buildAiCopywritingStyleSnapshot() {
   const actionGuidance = buildAiActionGuidanceSnapshot();
   return {

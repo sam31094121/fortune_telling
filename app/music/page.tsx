@@ -180,7 +180,7 @@ const MUSIC_LIFE_SONG_THREE_LAYER_MATERIAL: MusicLifeSongLayerMaterial[] = [
     title: '專業素材',
     heading: 'AI 生命歌曲資料底盤',
     body: 'AI 先建立歌曲素材庫，不急著生成歌曲。此層把使用者目標、姓名、生日、血型、性別、時辰、五元素與補強方向轉成歌曲可使用的專業素材。',
-    professionalMaterial: '建立歌曲主角、人生命題、情緒底色、五元素缺口、補強方向、聲線傾向、語言選擇與曲風基準。',
+    professionalMaterial: '建立歌曲主角、人生命題、情緒底色、五元素缺口、補強方向、聲線判定方向、語言選擇與曲風基準。',
     aiInput: '讀取：分析自己/親友、本次目標、生命資料、歌曲風格、語言、五元素與補強方向。',
     aiOutput: '輸出：歌曲素材表、主角設定、情緒速度、核心補強方向與不可偏離的創作邊界。',
     handoff: '交給第二層時，只交付整理後的素材，不直接產生歌詞或旋律。',
@@ -295,6 +295,10 @@ function LandingHero({ onStart, dailyRecord }: { onStart: () => void; dailyRecor
         <TaijiStandaloneCard className="music-landing-taiji mb-4" />
 
         <DailyAnalysisNotice record={dailyRecord} className="mb-5 w-full max-w-2xl text-left" moduleName="AI 生成一首歌" />
+        <IdentitySplitSelector className="mb-5 w-full max-w-2xl text-left" />
+        <div className="mb-5 w-full max-w-2xl rounded-2xl border border-amber-200/20 bg-amber-300/10 px-4 py-3 text-left text-sm font-black leading-7 text-amber-100">
+          AI 判定：生命歌曲已接入資料分流。選「我自己」會累積到個人成長中心；選「親朋好友」只完成本次單次歌曲，不寫入會員成長資料。
+        </div>
 
         <div className="music-landing-copy">
           <span className="music-landing-eyebrow">{"AI LIFE SONG"}</span>

@@ -383,17 +383,17 @@ export default function UnifiedTaijiCore({
   const liangyiSettledClass = liangyiSettled ? 'unified-taiji-shell--liangyi-settled' : '';
   const liangyiSpinClass = liangyiSpinLevel > 0 ? `unified-taiji-shell--liangyi-spin-${liangyiSpinLevel}` : '';
   const taijiLayer = evolutionStage === 'bagua'
-    ? '3-outer-field'
+    ? '3-space-glow'
     : evolutionStage === 'sixiang'
-      ? '3-outer-field'
+      ? '3-space-glow'
       : evolutionStage === 'liangyi'
-        ? '1-core-split'
+        ? '2-five-star-orbit'
         : evolutionStage === 'taiji'
-          ? '1-core'
+          ? '1-taiji-core'
           : '0-idle';
 
   return (
-    <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} ${luckyAuraClass} ${liangyiReturnClass} ${liangyiSettledClass} ${liangyiSpinClass}`.trim()} data-taiji-engine={coreSnapshot.engine} data-taiji-version={coreSnapshot.version} data-taiji-store={coreSnapshot.store} data-taiji-event={coreSnapshot.event} data-taiji-stage={evolutionStage} data-taiji-layer={taijiLayer} data-tap-level={luckyAuraLevel}>
+    <div className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} ${luckyAuraClass} ${liangyiReturnClass} ${liangyiSettledClass} ${liangyiSpinClass}`.trim()} data-taiji-engine={coreSnapshot.engine} data-taiji-version={coreSnapshot.version} data-taiji-store={coreSnapshot.store} data-taiji-event={coreSnapshot.event} data-taiji-stage={evolutionStage} data-taiji-layer={taijiLayer} data-taiji-layer-one="taiji-core" data-taiji-layer-two="five-star-365-orbit" data-taiji-layer-three="space-glow-field" data-tap-level={luckyAuraLevel}>
       <button
         type="button"
         onPointerUp={handlePointerUp}
@@ -412,8 +412,11 @@ export default function UnifiedTaijiCore({
             </span>
           </>
         )}
+        {/* 第三層｜光芒空間：太極周圍釋放出的芒光場（呼吸光暈 + 地面輝光） */}
         <div className="modal-taiji-natural-bloom" aria-hidden="true" />
+
         <div className="modal-taiji-orbit-emblem" aria-hidden="true">
+          {/* 第二層｜五星 365° 立體環繞：五條光軌行星持續公轉 */}
           <div className="taiji-orbit-layer modal-taiji-orbit-layer">
             <div className="taiji-light-orbit taiji-light-orbit--cyan">
               <span className="taiji-light-orbit__head" />
@@ -441,26 +444,17 @@ export default function UnifiedTaijiCore({
               <span className="taiji-celestial-wisp taiji-celestial-wisp--three" />
             </div>
           </div>
+
+          {/* 第一層｜太極核心：點擊 1 甦醒／2 分兩儀／4 分四象／8 展八卦，陰陽魚分開繞行已內建在 TaijiCoreVisual */}
           <div className={`modal-taiji-3d-core ${active || tapCount > 0 ? 'modal-taiji-3d-core--active' : ''}`}>
             <div className="modal-taiji-core-glaze" />
             <TaijiCoreVisual active={active || tapCount > 0} stage={evolutionStage} highlightElement={highlightElement} />
             <div className="modal-taiji-core-depth" />
           </div>
-          {(evolutionStage === 'liangyi' || liangyiReturning) && (
-            <div className={`taiji-liangyi-precision-split ${liangyiReturning ? 'taiji-liangyi-precision-split--returning' : ''}`.trim()} aria-hidden="true">
-              <svg className="taiji-liangyi-precision-split__piece taiji-liangyi-precision-split__piece--yang" viewBox="0 0 100 100" role="presentation">
-                <path d="M50 0 A50 50 0 0 0 50 100 A25 25 0 0 0 50 50 A25 25 0 0 1 50 0 Z" />
-                <circle cx="50" cy="25" r="8.5" />
-              </svg>
-              <svg className="taiji-liangyi-precision-split__piece taiji-liangyi-precision-split__piece--yin" viewBox="0 0 100 100" role="presentation">
-                <path d="M50 0 A50 50 0 0 1 50 100 A25 25 0 0 1 50 50 A25 25 0 0 0 50 0 Z" />
-                <circle cx="50" cy="75" r="8.5" />
-              </svg>
-            </div>
-          )}
         </div>
 
-        {evolutionStage !== 'idle' && evolutionStage !== 'taiji' && (
+        {/* 第三層｜光芒空間：以下皆為各階段觸發的芒光釋放效果 */}
+        {(evolutionStage === 'sixiang' || evolutionStage === 'bagua') && (
           <>
             <div className="unified-evolution-screen" aria-hidden="true" />
             <div className="unified-evolution-pulse" aria-hidden="true" />
