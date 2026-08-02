@@ -5,6 +5,7 @@ import { generateGenderAdjustments, getGenderCorrectionExplanation } from './gen
 import { computeMusicProfile } from './music-engine';
 import { getNameDescription, getNamePersonalityScores } from './name-model-db';
 import { enrichAnalysis, enrichPreview } from './personality-engine';
+import { buildAiCopywritingInstruction, enforceAiCopywritingTone } from './ai-copywriting-style-center';
 import {
   aggregatePersonalityScore,
   fusePersonalityV5,
@@ -75,6 +76,12 @@ function cleanAiText(value: unknown) {
     .trim();
 }
 
+function applyCopywritingTone<T extends Record<string, string>>(payload: T): T {
+  return Object.fromEntries(
+    Object.entries(payload).map(([key, value]) => [key, enforceAiCopywritingTone(value)]),
+  ) as T;
+}
+
 function normalizeStructuredFields<T extends object>(payload: T): T {
   return Object.fromEntries(
     Object.entries(payload).map(([key, value]) => [key, typeof value === 'string' ? cleanAiText(value) : value]),
@@ -117,13 +124,15 @@ function buildAnalysisPrompt(
   const genderLabel = person.gender === 'male' ? '男性' : '女性';
 
   return `
-你是「天地人 AI 人格解碼系統」的高級分析顧問，請只負責寫出穩定、彼此一致、不可互相否定的繁體中文摘要。
+你是「天地人 AI 人格解碼系統」的高級分析顧問，請只負責寫出肯定、明確、彼此一致、不可互相否定的繁體中文摘要。
+
+${buildAiCopywritingInstruction('天地人 AI 人格解碼系統')}
 
 鐵律：
 1. 生日是人格骨架，血型只能補充生日，姓名只能深化天地，性別只能修飾外在呈現。
 2. 任何後面的分析都不得推翻前面的分析。
 3. 用詞只能使用「補充、深化、校正、細化、調和」，不可使用「相反、推翻、其實不是、完全改變」。
-4. 語氣要高級、穩定、命理顧問感，不可浮誇、不可搞笑。
+4. 語氣要肯定、直接、有力量，全部使用「AI 判定」「AI 分析」開頭的斷言句，不可浮誇、不可搞笑、不可模糊。
 5. 最後結語必須帶到「以善為本、多行善能讓命運更順」的價值，但不要說教。
 
 人物資料：
@@ -166,11 +175,13 @@ function buildPreviewPrompt(
   return `
 你是「天地人 AI 人格解碼系統」的免費天地預分析顧問。
 
+${buildAiCopywritingInstruction('天地人 AI 人格解碼系統')}
+
 規則：
 1. 只能描述生日骨架與血型補充。
 2. 不可假裝已經分析姓名或最終命運。
 3. 血型只能補充，不能推翻生日。
-4. 語氣要穩定、神秘、高級，不可浮誇。
+4. 語氣要肯定、直接、有力量，全部使用「AI 判定」「AI 分析」開頭的斷言句，不可浮誇、不可模糊。
 
 人物資料：
 - 生日：${birthday}
@@ -256,7 +267,7 @@ export async function analyzeDestiny(person: PersonInput): Promise<AnalysisResul
       buildAnalysisPrompt(person, birthScores, bloodScores, nameScores, finalScores, bloodAdjustments, nameAdjustments),
       RESPONSE_SCHEMA,
     );
-    aiData = normalizeStructuredFields(safeJsonParse(text));
+    aiData = applyCopywritingTone(normalizeStructuredFields(safeJsonParse(text)));
   } catch (error) {
     console.error('[gemini] analysis failed, fallback to local summaries', error);
     aiData = {
@@ -1176,7 +1187,7 @@ export async function analyzePreview(input: {
       buildPreviewPrompt(input.birthday, input.bloodType, birthScores, bloodScores, previewScores, bloodAdjustments),
       PREVIEW_RESPONSE_SCHEMA,
     );
-    aiData = normalizeStructuredFields(safeJsonParse(text));
+    aiData = applyCopywritingTone(normalizeStructuredFields(safeJsonParse(text)));
   } catch (error) {
     console.error('[gemini] preview failed, fallback to local summaries', error);
     aiData = {

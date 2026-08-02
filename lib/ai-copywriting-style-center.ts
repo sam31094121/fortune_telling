@@ -3,7 +3,7 @@ import { AI_CORE_JUDGEMENT_PRINCIPLE } from './ai-language-principle';
 
 export { AI_CORE_JUDGEMENT_PRINCIPLE } from './ai-language-principle';
 
-export const AI_COPYWRITING_STYLE_CENTER_VERSION = 'ai_copywriting_style_center_v1';
+export const AI_COPYWRITING_STYLE_CENTER_VERSION = 'ai_copywriting_style_center_v2';
 
 export type AiCopywritingTone = 'advisor' | 'clear' | 'direct' | 'actionable' | 'companion';
 
@@ -25,6 +25,28 @@ export type AiCopywritingAuditResult = {
   violations: Array<{ word: string; count: number }>;
 };
 
+export type AiBackendFrontendCopyInput = {
+  moduleName: string;
+  conclusion: string;
+  confidenceScore?: number;
+  evidence?: Array<string | null | undefined>;
+  action?: string;
+  caution?: string;
+};
+
+export type AiBackendFrontendCopyBlock = {
+  eyebrow: string;
+  headline: string;
+  confidenceBadge: string;
+  confidenceText: string;
+  evidenceTitle: string;
+  evidenceItems: string[];
+  actionTitle: string;
+  actionText: string;
+  safetyText: string;
+  frontendTone: 'high-confidence' | 'clear-confidence' | 'limited-data';
+};
+
 export const AI_COPYWRITING_POSITIONING = {
   role: '一位有判斷力、有方向感、能陪伴使用者成長的 AI 顧問。',
   notRole: ['老師', '算命先生', '心靈雞湯'],
@@ -36,7 +58,10 @@ export const AI_COPYWRITING_FORBIDDEN_WORDS = [
   '也許',
   '或許',
   '大概',
+  '應該',
   '建議可以',
+  '建議你',
+  '試試看',
   '傾向',
   '比較像',
   '疑似',
@@ -52,7 +77,10 @@ export const AI_COPYWRITING_REPLACEMENTS: AiCopywritingReplacement[] = [
   { avoid: '也許', use: '目前重點', reason: '把模糊推測改成當下方向。' },
   { avoid: '或許', use: '現在最重要', reason: '讓使用者知道優先順序。' },
   { avoid: '大概', use: '本週重點', reason: '把籠統描述改成週期任務。' },
+  { avoid: '應該', use: '必須', reason: '把柔性期待改成明確要求。' },
   { avoid: '建議可以', use: '請優先', reason: '把軟性建議改成明確補強。' },
+  { avoid: '建議你', use: 'AI 判定你', reason: '把個人意見語氣改成系統判定語氣。' },
+  { avoid: '試試看', use: '立即開始做', reason: '把不確定的嘗試改成明確行動。' },
   { avoid: '傾向', use: '判定方向', reason: '把推測語氣改成判定語氣。' },
   { avoid: '比較像', use: '系統判定為', reason: '把相似描述改成明確分類。' },
   { avoid: '疑似', use: '系統判定', reason: '移除不確定判斷。' },
@@ -102,15 +130,27 @@ export const AI_COPYWRITING_ACTION_CONTRACT = {
   change: '做了會產生什麼行為與節奏改變',
 };
 
+export const AI_BACKEND_FRONTEND_COPY_CONTRACT = {
+  purpose: '後端輸出標準化，前端直接美化呈現。',
+  voice: '快、狠、準、肯定、有感。',
+  headlineRule: '標題直接給結論，不繞路，不重複，不使用模糊詞。',
+  confidenceRule: '信心值代表資料完整度與模型一致性，不代表命運保證。',
+  structure: ['AI 判定標題', '信心值標示', '資料依據', '立即行動', '不保證結果聲明'],
+  frontendFields: ['eyebrow', 'headline', 'confidenceBadge', 'confidenceText', 'evidenceItems', 'actionText', 'safetyText', 'frontendTone'],
+} as const;
+
 export function buildAiCopywritingInstruction(moduleName = '天地人和 AI 平台') {
   return [
     `${moduleName} 必須使用天地人和 AI 專屬語言風格。`,
     `AI 定位：${AI_COPYWRITING_POSITIONING.role}`,
     AI_CORE_JUDGEMENT_PRINCIPLE,
     'AI 的工作是判定缺口，不是保證結果。',
-    '語氣：清楚、直接、有力量、有方向、有行動。',
+    '結論可以強烈，但必須根據資料完整度與模型一致性給出信心值。信心值不是命運保證。',
+    '語氣：清楚、直接、有力量、有方向、有行動，全部使用肯定句、明確句、行動句。',
+    '句式公式：先講破壞力判斷（點出現在最卡住的核心問題），再給出精準建設方向，語氣要快、狠、準、肯定、有感。',
+    '全部使用「AI 判定」「AI 分析」「AI 確認」開頭，行動指令用「AI 建議立即執行」，不得使用模糊建議語氣。',
     `禁止模糊詞：${AI_COPYWRITING_FORBIDDEN_WORDS.join('、')}。`,
-    '五元素輸出必須使用：AI 判定 → 目前最缺 → 請優先補強 → 完成後再補 → 最後補。',
+    '五元素輸出必須使用：AI 判定 → 目前最缺 → 請立即補強 → 完成後再補 → 最後補。',
     '每次輸出必須回答四件事：目前判斷、現在最重要、下一步要做什麼、做了會改善哪一個方向。',
     '改變只能描述行為、習慣、思考、節奏、執行力、專注力、人際互動。',
     '不得保證發財、中獎、升官、疾病改善、桃花一定成功。',
@@ -175,6 +215,53 @@ export function uniqueAiCopywritingLines(items: Array<string | null | undefined>
 
   return output;
 }
+function normalizeAiConfidenceScore(score?: number) {
+  if (typeof score !== 'number' || !Number.isFinite(score)) return 72;
+  return Math.min(99, Math.max(1, Math.round(score)));
+}
+
+function getAiFrontendTone(score: number): AiBackendFrontendCopyBlock['frontendTone'] {
+  if (score >= 88) return 'high-confidence';
+  if (score >= 65) return 'clear-confidence';
+  return 'limited-data';
+}
+
+function getAiConfidenceBadge(score: number) {
+  if (score >= 92) return `AI 高信心判定｜${score}%`;
+  if (score >= 80) return `AI 明確判定｜${score}%`;
+  if (score >= 65) return `AI 可執行判定｜${score}%`;
+  return `AI 資料待補判定｜${score}%`;
+}
+
+export function buildBackendFrontendCopyBlock(input: AiBackendFrontendCopyInput): AiBackendFrontendCopyBlock {
+  const confidenceScore = normalizeAiConfidenceScore(input.confidenceScore);
+  const evidenceItems = uniqueAiCopywritingLines(input.evidence ?? [], 4);
+  const moduleName = enforceAiCopywritingTone(input.moduleName) || '天地人和 AI';
+  const conclusion = enforceAiCopywritingTone(input.conclusion) || 'AI 判定：目前最需要先建立清楚方向。';
+  const actionText = enforceAiCopywritingTone(input.action) || 'AI 建議立即執行：先完成第一個可驗證行動，再回來更新結果。';
+  const confidenceBadge = getAiConfidenceBadge(confidenceScore);
+
+  return {
+    eyebrow: `${moduleName}｜AI 判定輸出`,
+    headline: conclusion.startsWith('AI ') ? conclusion : `AI 判定：${conclusion}`,
+    confidenceBadge,
+    confidenceText: `信心值 ${confidenceScore}% 代表資料完整度與模型一致性；這是判定強度，不是命運保證。`,
+    evidenceTitle: '判定依據',
+    evidenceItems: evidenceItems.length > 0 ? evidenceItems : ['AI 判定依據：目前資料已足夠形成第一方向。'],
+    actionTitle: '立即行動',
+    actionText,
+    safetyText: enforceAiCopywritingTone(input.caution) || 'AI 不預測你的命運；AI 判定你目前最需要補強的方向。成果由使用者的行動創造。',
+    frontendTone: getAiFrontendTone(confidenceScore),
+  };
+}
+
+export const AI_BACKEND_FRONTEND_COPY_SAMPLE = buildBackendFrontendCopyBlock({
+  moduleName: 'AI 五元素',
+  conclusion: '目前最缺火元素。第一補強鎖定火元素。',
+  confidenceScore: 91,
+  evidence: ['五元素權重差距明確', '第一補強與第二補強差距已達可判定區間', '多模組交叉方向一致'],
+  action: 'AI 建議立即執行：今天先補火元素，完成後再補風元素，最後回到地元素穩定。',
+});
 export function buildAiCopywritingStyleSnapshot() {
   const actionGuidance = buildAiActionGuidanceSnapshot();
   return {
@@ -185,6 +272,8 @@ export function buildAiCopywritingStyleSnapshot() {
     replacements: AI_COPYWRITING_REPLACEMENTS,
     rules: AI_COPYWRITING_RULES,
     actionContract: AI_COPYWRITING_ACTION_CONTRACT,
+    backendFrontendCopyContract: AI_BACKEND_FRONTEND_COPY_CONTRACT,
+    backendFrontendCopySample: AI_BACKEND_FRONTEND_COPY_SAMPLE,
     actionGuidance,
     instruction: buildAiCopywritingInstruction(),
   };

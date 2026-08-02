@@ -8,6 +8,7 @@ import { getZodiacEnglishName, getZodiacSign } from '@/lib/zodiac';
 import { isValidBirthday } from '@/lib/validation';
 import { computeRelationshipMatrix } from '@/lib/relationship-matrix-engine';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
+import { buildAiCopywritingInstruction, enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import { buildMatchFiveElementResult } from '@/lib/match-five-element-engine';
 import { buildSoulMatchAiInterpretationLayer, buildSoulMatchProfessionalLayer, buildSoulMatchReinforcementLayer } from '@/lib/match-professional-layer';
 
@@ -117,6 +118,8 @@ async function enhanceMatchResultWithAI(
 你是「天地人配對系統」的玄學合盤大師。
 請根據以下雙方的基本資料與大數據配對指數，將原始配對結果（摘要與四個關係象限文字）改寫成極具個性化、起伏分明、字字扎心、絕不重複的繁體中文大師合盤結論。
 
+${buildAiCopywritingInstruction('天地人配對系統')}
+
 合盤對象：
 - 第一位：姓名 ${displayA.name}，生肖 ${displayA.chineseZodiac}，星座 ${displayA.zodiacZh}，五行 ${displayA.wuxing}，血型 ${displayA.bloodType}
 - 第二位：姓名 ${displayB.name}，生肖 ${displayB.chineseZodiac}，星座 ${displayB.zodiacZh}，五行 ${displayB.wuxing}，血型 ${displayB.bloodType}
@@ -182,12 +185,12 @@ async function enhanceMatchResultWithAI(
     };
 
     return {
-      summary: parsed.summary || result.summary,
+      summary: enforceAiCopywritingTone(parsed.summary || result.summary),
       zones: {
-        resonance: (parsed.resonance?.length ? parsed.resonance : result.zones.resonance).slice(0, 3),
-        complement: (parsed.complement?.length ? parsed.complement : result.zones.complement).slice(0, 3),
-        grinding: (parsed.grinding?.length ? parsed.grinding : result.zones.grinding).slice(0, 3),
-        conflict: (parsed.conflict?.length ? parsed.conflict : result.zones.conflict).slice(0, 3),
+        resonance: (parsed.resonance?.length ? parsed.resonance : result.zones.resonance).slice(0, 3).map(enforceAiCopywritingTone),
+        complement: (parsed.complement?.length ? parsed.complement : result.zones.complement).slice(0, 3).map(enforceAiCopywritingTone),
+        grinding: (parsed.grinding?.length ? parsed.grinding : result.zones.grinding).slice(0, 3).map(enforceAiCopywritingTone),
+        conflict: (parsed.conflict?.length ? parsed.conflict : result.zones.conflict).slice(0, 3).map(enforceAiCopywritingTone),
       }
     };
   } catch (error) {
