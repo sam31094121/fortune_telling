@@ -169,6 +169,12 @@ async function writeReport(report) {
 }
 
 async function getPortPids() {
+  const parsePids = (output) => output
+    .split(/\r?\n/)
+    .filter((line) => line.includes(`:${PORT}`) && /LISTENING/i.test(line))
+    .map((line) => Number(line.trim().split(/\s+/).at(-1)))
+    .filter((pid) => Number.isInteger(pid) && pid > 0 && pid !== process.pid);
+
   if (process.platform === 'win32') {
     try {
       const { stdout } = await execFileAsync('powershell.exe', [
@@ -177,10 +183,18 @@ async function getPortPids() {
         `Get-NetTCPConnection -LocalPort ${PORT} -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique`,
       ], { cwd: PROJECT_ROOT, windowsHide: true });
 
-      return stdout
+      const pids = stdout
         .split(/\r?\n/)
         .map((line) => Number(line.trim()))
         .filter((pid) => Number.isInteger(pid) && pid > 0 && pid !== process.pid);
+      if (pids.length > 0) return [...new Set(pids)];
+    } catch {
+      // Fall through to netstat. Some Windows shells block Get-NetTCPConnection.
+    }
+
+    try {
+      const { stdout } = await execFileAsync('netstat', ['-ano'], { cwd: PROJECT_ROOT, windowsHide: true });
+      return [...new Set(parsePids(stdout))];
     } catch {
       return [];
     }
@@ -196,7 +210,6 @@ async function getPortPids() {
     return [];
   }
 }
-
 async function stopPortProcesses() {
   const pids = await getPortPids();
   if (pids.length === 0) {
@@ -215,22 +228,23 @@ async function stopPortProcesses() {
 }
 
 async function clearNextCache() {
-  const nextCache = path.resolve(PROJECT_ROOT, '.next', 'cache');
+  const nextCache = path.resolve(PROJECT_ROOT, '.next');
   const projectRootWithSep = `${path.resolve(PROJECT_ROOT)}${path.sep}`;
 
   if (!nextCache.startsWith(projectRootWithSep)) {
-    throw new Error(`refusing to clear cache outside project root: ${nextCache}`);
+    throw new Error(`refusing to clear Next.js artifacts outside project root: ${nextCache}`);
   }
 
   if (existsSync(nextCache)) {
     await rm(nextCache, { recursive: true, force: true });
-    await log('Cleared .next/cache.', 'REPAIR');
+    await log('Cleared .next build artifacts.', 'REPAIR');
   }
 }
 
 function startDevServer() {
-  const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  const child = spawn(npmCommand, ['run', 'dev'], {
+  const command = process.platform === 'win32' ? 'cmd.exe' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm.cmd', 'run', 'dev'] : ['run', 'dev'];
+  const child = spawn(command, commandArgs, {
     cwd: PROJECT_ROOT,
     detached: true,
     windowsHide: true,
@@ -239,12 +253,21 @@ function startDevServer() {
   child.unref();
   return child.pid;
 }
-
 async function waitForHealthyHome() {
   const deadline = Date.now() + STARTUP_TIMEOUT_MS;
   while (Date.now() < deadline) {
     const home = await checkRoute(HEALTH_ROUTES[0]);
     if (home.status === 'PASSED') return true;
+    await sleep(2500);
+  }
+  return false;
+}
+
+async function waitForAllRoutesHealthy() {
+  const deadline = Date.now() + STARTUP_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    const report = await scanScreenHealth();
+    if (report.ok) return true;
     await sleep(2500);
   }
   return false;
