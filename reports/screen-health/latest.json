@@ -1,0 +1,152 @@
+{
+  "ok": true,
+  "version": "screen-health-monitor-v1",
+  "baseUrl": "http://localhost:8888",
+  "port": 8888,
+  "startedAt": "2026-08-02T14:05:03.446Z",
+  "completedAt": "2026-08-02T14:05:07.962Z",
+  "mode": "ONCE",
+  "autoRepair": false,
+  "summary": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0,
+    "screenStatus": "HEALTHY"
+  },
+  "failedRoutes": [],
+  "routes": [
+    {
+      "id": "HOME",
+      "module": "home",
+      "title": "首頁太極核心",
+      "path": "/",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 314,
+      "htmlLength": 63211,
+      "error": null,
+      "issue": null
+    },
+    {
+      "id": "READY",
+      "module": "ready",
+      "title": "Next.js Ready",
+      "path": "/internal/health/ready",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 377,
+      "htmlLength": 95,
+      "error": null,
+      "issue": null
+    },
+    {
+      "id": "CARD_01",
+      "module": "nameology",
+      "title": "AI 姓名學",
+      "path": "/nameology",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 199,
+      "htmlLength": 29856,
+      "error": null,
+      "issue": null
+    },
+    {
+      "id": "CARD_02",
+      "module": "ziwei",
+      "title": "紫微斗數",
+      "path": "/insight",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 118,
+      "htmlLength": 30536,
+      "error": null,
+      "issue": null
+    },
+    {
+      "id": "CARD_03",
+      "module": "numerology",
+      "title": "數字論吉凶",
+      "path": "/numerology",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 511,
+      "htmlLength": 64417,
+      "error": null,
+      "issue": null
+    },
+    {
+      "id": "CARD_04",
+      "module": "soul_match",
+      "title": "靈魂配對",
+      "path": "/match",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 459,
+      "htmlLength": 28907,
+      "error": null,
+      "issue": null
+    },
+    {
+      "id": "CARD_05",
+      "module": "music",
+      "title": "AI 專屬生命歌曲",
+      "path": "/music",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 567,
+      "htmlLength": 43907,
+      "error": null,
+      "issue": null
+    },
+    {
+      "id": "CARD_06",
+      "module": "bazi",
+      "title": "AI 八字命盤",
+      "path": "/bazi",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 537,
+      "htmlLength": 28221,
+      "error": null,
+      "issue": null
+    },
+    {
+      "id": "CARD_07",
+      "module": "zodiac",
+      "title": "AI 西洋星座",
+      "path": "/zodiac",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 448,
+      "htmlLength": 27903,
+      "error": null,
+      "issue": null
+    },
+    {
+      "id": "CARD_08",
+      "module": "tarot",
+      "title": "AI 塔羅牌",
+      "path": "/tarot",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 444,
+      "htmlLength": 27709,
+      "error": null,
+      "issue": null
+    },
+    {
+      "id": "CARD_09",
+      "module": "growth_center",
+      "title": "AI 個人成長中心",
+      "path": "/growth-center",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 531,
+      "htmlLength": 19315,
+      "error": null,
+      "issue": null
+    }
+  ],
+  "recoveryStatus": "NOT_NEEDED"
+}
