@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createRequestId, friendlyErrorResponse } from '@/lib/api-stability';
-import { createAnalysisJob, publicAnalysisJob } from '@/lib/analysis-job-store';
+import { createAnalysisJob, getAnalysisJob, getAnalysisResult, publicAnalysisJob } from '@/lib/analysis-job-store';
 import { runAnalysisJob } from '@/lib/analysis-job-runner';
 import { normalizeAnalysisType } from '@/lib/analysis-module-router';
 
@@ -62,12 +62,21 @@ export async function POST(request: Request) {
     console.info('[ZODIAC][JOB]', { requestId, jobId: job.jobId, status: job.status, stage: job.progressStage, moduleId: job.moduleId });
   }
 
+  const shouldRunInline = analysisType === 'bazi' || analysisType === 'zodiac';
+
   if (job.status === 'QUEUED') {
-    void runAnalysisJob(job.jobId, body.inputData ?? {});
+    if (shouldRunInline) {
+      await runAnalysisJob(job.jobId, body.inputData ?? {});
+    } else {
+      void runAnalysisJob(job.jobId, body.inputData ?? {});
+    }
   }
 
+  const latestJob = getAnalysisJob(job.jobId) ?? job;
+  const result = latestJob.resultId ? getAnalysisResult(latestJob.resultId)?.result : undefined;
+
   return NextResponse.json(
-    { ok: true, requestId, success: true, data: publicAnalysisJob(job) },
-    { status: 202, headers: { 'Cache-Control': 'no-store' } },
+    { ok: true, requestId, success: true, data: publicAnalysisJob(latestJob), result },
+    { status: shouldRunInline ? 200 : 202, headers: { 'Cache-Control': 'no-store' } },
   );
 }

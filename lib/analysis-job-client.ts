@@ -14,7 +14,7 @@ export type AnalysisJobPublic = {
   errorMessage?: string | null;
 };
 
-type ApiResponse<T> = { ok: boolean; success?: boolean; data?: T; message?: string; error?: string; code?: string };
+type ApiResponse<T> = { ok: boolean; success?: boolean; data?: T; result?: unknown; message?: string; error?: string; code?: string };
 
 async function safeJson<T>(url: string, init: RequestInit | undefined, timeoutMs: number): Promise<{ status: number; body: T }> {
   const controller = new AbortController();
@@ -25,7 +25,7 @@ async function safeJson<T>(url: string, init: RequestInit | undefined, timeoutMs
     return { status: response.status, body };
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new Error('分析暫時失敗：系統超過時間限制沒有完成回應，請重新嘗試。');
+      throw new Error('\u5206\u6790\u66ab\u6642\u5931\u6557\uff1a\u7cfb\u7d71\u8d85\u904e\u6642\u9593\u9650\u5236\u6c92\u6709\u5b8c\u6210\u56de\u61c9\uff0c\u8acb\u91cd\u65b0\u5617\u8a66\u3002');
     }
     throw error;
   } finally {
@@ -34,9 +34,7 @@ async function safeJson<T>(url: string, init: RequestInit | undefined, timeoutMs
 }
 
 /**
- * Shared entry point for the 太極 AI Core job pipeline (create job → poll status → fetch result).
- * Any feature page that wants to route through the shared analysis-job-runner/module-router
- * instead of calling its own bespoke API route should go through this helper.
+ * Shared entry point for the Taiji AI Core job pipeline.
  */
 export async function runAnalysisJobClient<TResult>(options: {
   analysisType: string;
@@ -55,7 +53,7 @@ export async function runAnalysisJobClient<TResult>(options: {
   const remaining = () => Math.max(1, timeoutMs - (Date.now() - started));
   let recoveryAttempts = 0;
 
-  async function createJob(attempt: number) {
+  async function createJob(attempt: number): Promise<{ job: AnalysisJobPublic; result?: TResult }> {
     const created = await safeJson<ApiResponse<AnalysisJobPublic>>('/api/analysis/jobs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -68,10 +66,10 @@ export async function runAnalysisJobClient<TResult>(options: {
     }, remaining());
 
     if (!created.body.ok || !created.body.data?.jobId) {
-      throw new Error(created.body.message || created.body.error || '目前無法建立分析任務，請稍後再試。');
+      throw new Error(created.body.message || created.body.error || '\u76ee\u524d\u7121\u6cd5\u5efa\u7acb\u5206\u6790\u4efb\u52d9\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002');
     }
 
-    return created.body.data;
+    return { job: created.body.data, result: created.body.result as TResult | undefined };
   }
 
   function canRecover(response: { status: number; body: ApiResponse<unknown> }) {
@@ -82,7 +80,9 @@ export async function runAnalysisJobClient<TResult>(options: {
     );
   }
 
-  let job = await createJob(recoveryAttempts);
+  let createdJob = await createJob(recoveryAttempts);
+  if (createdJob.result !== undefined) return createdJob.result;
+  let job = createdJob.job;
   options.onJob?.(job);
 
   while (Date.now() - started < timeoutMs) {
@@ -91,14 +91,16 @@ export async function runAnalysisJobClient<TResult>(options: {
       if (result.body.ok && result.body.data) return result.body.data;
       if (canRecover(result)) {
         recoveryAttempts += 1;
-        job = await createJob(recoveryAttempts);
+        createdJob = await createJob(recoveryAttempts);
+        if (createdJob.result !== undefined) return createdJob.result;
+        job = createdJob.job;
         options.onJob?.(job);
         continue;
       }
-      throw new Error(result.body.message || result.body.error || '分析結果尚未完成，請稍後再試。');
+      throw new Error(result.body.message || result.body.error || '\u5206\u6790\u7d50\u679c\u5c1a\u672a\u5b8c\u6210\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002');
     }
     if (job.status === 'FAILED' || job.status === 'TIMEOUT' || job.status === 'CANCELLED') {
-      throw new Error(job.errorMessage || job.message || '目前無法完成分析。');
+      throw new Error(job.errorMessage || job.message || '\u76ee\u524d\u7121\u6cd5\u5b8c\u6210\u5206\u6790\u3002');
     }
 
     await new Promise((resolve) => window.setTimeout(resolve, pollIntervalMs));
@@ -106,15 +108,17 @@ export async function runAnalysisJobClient<TResult>(options: {
     if (!next.body.ok || !next.body.data) {
       if (canRecover(next)) {
         recoveryAttempts += 1;
-        job = await createJob(recoveryAttempts);
+        createdJob = await createJob(recoveryAttempts);
+        if (createdJob.result !== undefined) return createdJob.result;
+        job = createdJob.job;
         options.onJob?.(job);
         continue;
       }
-      throw new Error(next.body.message || next.body.error || '目前無法讀取分析狀態。');
+      throw new Error(next.body.message || next.body.error || '\u76ee\u524d\u7121\u6cd5\u8b80\u53d6\u5206\u6790\u72c0\u614b\u3002');
     }
     job = next.body.data;
     options.onJob?.(job);
   }
 
-  throw new Error('分析暫時失敗：系統超過時間限制沒有完成回應，請重新嘗試。');
+  throw new Error('\u5206\u6790\u66ab\u6642\u5931\u6557\uff1a\u7cfb\u7d71\u8d85\u904e\u6642\u9593\u9650\u5236\u6c92\u6709\u5b8c\u6210\u56de\u61c9\uff0c\u8acb\u91cd\u65b0\u5617\u8a66\u3002');
 }

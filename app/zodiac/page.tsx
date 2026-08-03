@@ -37,6 +37,7 @@ type ApiResponse<T> = {
   message?: string;
   error?: string;
   code?: string;
+  result?: unknown;
 };
 
 type ZodiacTraceStepId = 'received' | 'sign' | 'blood' | 'prompt' | 'ai' | 'element' | 'write' | 'done';
@@ -332,11 +333,15 @@ async function requestZodiacAnalysis(
       throw new Error(created.body.message || created.body.error || '目前無法建立西洋星座分析任務。');
     }
 
+    if (created.body.result) {
+      return { job: created.body.data, result: created.body.result as ZodiacResult };
+    }
+
     const nextJob = created.body.data;
     onJob(nextJob);
     updateTraceStep(onTrace, 'received', 'done', `HTTP ${created.status} / ${nextJob.jobId}`);
     updateTraceStep(onTrace, 'sign', nextJob.status === 'PROCESSING' || nextJob.status === 'FINALIZING' || nextJob.status === 'COMPLETED' ? 'done' : 'running', nextJob.progressStage);
-    return nextJob;
+    return { job: nextJob };
   }
 
   function canRecover(response: { status: number; body: ApiResponse<unknown> }) {
@@ -347,7 +352,9 @@ async function requestZodiacAnalysis(
     );
   }
 
-  let job = await createJob(recoveryAttempts);
+  let createdJob = await createJob(recoveryAttempts);
+  if (createdJob.result) return createdJob.result;
+  let job = createdJob.job;
 
   while (Date.now() - started < ZODIAC_ANALYSIS_TIMEOUT_MS) {
     if (job.status === 'COMPLETED' && job.resultId) {
@@ -361,7 +368,9 @@ async function requestZodiacAnalysis(
       }
       if (canRecover(result)) {
         recoveryAttempts += 1;
-        job = await createJob(recoveryAttempts);
+        createdJob = await createJob(recoveryAttempts);
+        if (createdJob.result) return createdJob.result;
+        job = createdJob.job;
         continue;
       }
       updateTraceStep(onTrace, 'done', 'error', result.body.message || result.body.error || '結果讀取失敗。');
@@ -379,7 +388,9 @@ async function requestZodiacAnalysis(
     if (!next.body.ok || !next.body.data) {
       if (canRecover(next)) {
         recoveryAttempts += 1;
-        job = await createJob(recoveryAttempts);
+        createdJob = await createJob(recoveryAttempts);
+        if (createdJob.result) return createdJob.result;
+        job = createdJob.job;
         continue;
       }
       updateTraceStep(onTrace, 'ai', 'error', next.body.message || next.body.error || '任務狀態讀取失敗。');
