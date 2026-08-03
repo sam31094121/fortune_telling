@@ -203,12 +203,16 @@ function isCurrentBaziResult(value: BaziResult | null | undefined): value is Baz
 }
 
 function createSessionId() {
-  if (typeof window === 'undefined') return 'server';
-  const key = 'tdh_bazi_session_v3';
-  const existing = window.sessionStorage.getItem(key);
-  if (existing) return existing;
   const next = `bazi_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
-  window.sessionStorage.setItem(key, next);
+  if (typeof window === 'undefined') return next;
+  const key = 'tdh_bazi_session_v3';
+  try {
+    const existing = window.sessionStorage.getItem(key);
+    if (existing) return existing;
+    window.sessionStorage.setItem(key, next);
+  } catch {
+    // LINE WebView/private browsers can block sessionStorage; keep analysis usable with a fresh id.
+  }
   return next;
 }
 
