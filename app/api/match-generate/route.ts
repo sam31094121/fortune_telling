@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 import { computeCompatibility, type PersonProfile, type PersonalityMatrixCompat } from '@/lib/compatibility-engine';
 import { isConsistentAiSummary, stabilizeMatchResult } from '@/lib/match-stability';
 import { PersonalityMatrixEngine } from '@/lib/personality-matrix-engine';
@@ -32,6 +32,52 @@ interface PersonDisplay {
   chineseZodiac: string;
   wuxing: string;
   bloodType: string;
+}
+type MatchEnhancementPayload = {
+  summary: string;
+  resonance: string[];
+  complement: string[];
+  grinding: string[];
+  conflict: string[];
+};
+
+const MATCH_ENHANCEMENT_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    summary: { type: Type.STRING },
+    resonance: { type: Type.ARRAY, items: { type: Type.STRING } },
+    complement: { type: Type.ARRAY, items: { type: Type.STRING } },
+    grinding: { type: Type.ARRAY, items: { type: Type.STRING } },
+    conflict: { type: Type.ARRAY, items: { type: Type.STRING } },
+  },
+  required: ['summary', 'resonance', 'complement', 'grinding', 'conflict'],
+};
+
+function extractJsonObjectText(text: string) {
+  const trimmed = text.trim();
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i)?.[1]?.trim();
+  if (fenced) return fenced;
+
+  const start = trimmed.indexOf('{');
+  const end = trimmed.lastIndexOf('}');
+  if (start >= 0 && end > start) return trimmed.slice(start, end + 1);
+  return trimmed;
+}
+
+function coerceStringArray(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+}
+
+function parseMatchEnhancement(text: string): MatchEnhancementPayload {
+  const payload = JSON.parse(extractJsonObjectText(text)) as Partial<MatchEnhancementPayload>;
+  return {
+    summary: typeof payload.summary === 'string' ? payload.summary : '',
+    resonance: coerceStringArray(payload.resonance),
+    complement: coerceStringArray(payload.complement),
+    grinding: coerceStringArray(payload.grinding),
+    conflict: coerceStringArray(payload.conflict),
+  };
 }
 
 function validate(body: unknown): string | null {
@@ -164,8 +210,10 @@ ${buildAiCopywritingInstruction('天地人配對系統')}
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         config: {
           responseMimeType: 'application/json',
+          responseSchema: MATCH_ENHANCEMENT_SCHEMA,
           maxOutputTokens: 1500,
-          temperature: 0.35
+          temperature: 0.25,
+          thinkingConfig: { thinkingBudget: 0 }
         },
       }),
       new Promise<never>((_, reject) => {
@@ -176,13 +224,7 @@ ${buildAiCopywritingInstruction('天地人配對系統')}
     const text = response.text?.trim();
     if (!text) throw new Error('Empty response');
 
-    const parsed = JSON.parse(text) as {
-      summary: string;
-      resonance: string[];
-      complement: string[];
-      grinding: string[];
-      conflict: string[];
-    };
+    const parsed = parseMatchEnhancement(text);
 
     return {
       summary: enforceAiCopywritingTone(parsed.summary || result.summary),
@@ -194,7 +236,7 @@ ${buildAiCopywritingInstruction('天地人配對系統')}
       }
     };
   } catch (error) {
-    console.warn('[enhanceMatchResultWithAI] Fallback to static templates due to:', error);
+    console.info('[enhanceMatchResultWithAI] AI enhancement unavailable; using deterministic templates.', error instanceof Error ? error.message : String(error));
     return { summary: result.summary, zones: result.zones };
   }
 }

@@ -28,10 +28,20 @@ export default function VisualGravityCore() {
   const [showMegaMantra, setShowMegaMantra] = useState(false);
   const [showGreatMantra, setShowGreatMantra] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const effectTimeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const explosionActiveRef = useRef(false);
   const explosionLevelRef = useRef(1); // 1=正常爆發, 2=終極白金, 3=萬丈佛光, 4=萬佛朝宗終極大悲咒
 
   const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const scheduleEffectTimeout = (callback: () => void, delay: number) => {
+    const timeout = setTimeout(() => {
+      effectTimeoutsRef.current.delete(timeout);
+      callback();
+    }, delay);
+    effectTimeoutsRef.current.add(timeout);
+    return timeout;
+  };
 
   const getAudioContext = (): AudioContext | null => {
     if (typeof window === 'undefined') return null;
@@ -200,11 +210,11 @@ export default function VisualGravityCore() {
         explosionActiveRef.current = true;
         playBowlSound();
         
-        setTimeout(() => {
+        scheduleEffectTimeout(() => {
           explosionActiveRef.current = false;
         }, 2000);
 
-        setTimeout(() => {
+        scheduleEffectTimeout(() => {
           setShowMantra(false);
         }, 5200);
       } else if (next === 6) {
@@ -214,11 +224,11 @@ export default function VisualGravityCore() {
         explosionActiveRef.current = true;
         playSuperBowlSound();
 
-        setTimeout(() => {
+        scheduleEffectTimeout(() => {
           explosionActiveRef.current = false;
         }, 3000);
 
-        setTimeout(() => {
+        scheduleEffectTimeout(() => {
           setShowSuperMantra(false);
         }, 6500);
       } else if (next === 12) {
@@ -229,11 +239,11 @@ export default function VisualGravityCore() {
         explosionActiveRef.current = true;
         playMegaBowlSound();
 
-        setTimeout(() => {
+        scheduleEffectTimeout(() => {
           explosionActiveRef.current = false;
         }, 4000);
 
-        setTimeout(() => {
+        scheduleEffectTimeout(() => {
           setShowMegaMantra(false);
         }, 8000);
       } else if (next === 24) {
@@ -247,11 +257,11 @@ export default function VisualGravityCore() {
         explosionActiveRef.current = true;
         playGreatCompassionSound();
 
-        setTimeout(() => {
+        scheduleEffectTimeout(() => {
           explosionActiveRef.current = false;
         }, 5500);
 
-        setTimeout(() => {
+        scheduleEffectTimeout(() => {
           setShowGreatMantra(false);
         }, 11000);
       }
@@ -370,7 +380,18 @@ export default function VisualGravityCore() {
         const isLowPowerDevice = window.matchMedia('(max-width: 768px)').matches
           || navigator.hardwareConcurrency <= 4
           || (navigator as Navigator & { deviceMemory?: number }).deviceMemory === 2;
-        const pixelRatio = Math.min(devicePixelRatio, isLowPowerDevice ? 1.25 : TABLET_VISUAL_PROFILE.pixelRatioCap);
+        const visualProfile = isLowPowerDevice
+          ? {
+              ...TABLET_VISUAL_PROFILE,
+              pixelRatioCap: 1.15,
+              sphereSegments: 72,
+              waveCounts: [3, 2, 1] as const,
+              particleCount: 320,
+              fiberCount: 140,
+              particleSize: 0.018,
+            }
+          : TABLET_VISUAL_PROFILE;
+        const pixelRatio = Math.min(devicePixelRatio, visualProfile.pixelRatioCap);
         const renderer = new THREE.WebGLRenderer({
           antialias: true,  // 始終啟用抗鋸齒但优化方式
           powerPreference: 'high-performance',
@@ -604,7 +625,7 @@ export default function VisualGravityCore() {
 
         // ✨ 增強能量波 - 更多波紋效果、更密集的能量環繞
         const waveTex = buildRingTex(170, 195, 255);
-        const WAVE_N = TABLET_VISUAL_PROFILE.waveCounts[0];
+        const WAVE_N = visualProfile.waveCounts[0];
         const waves: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE_N; i++) {
           const m = new THREE.Mesh(
@@ -622,7 +643,7 @@ export default function VisualGravityCore() {
 
         // ✨ 垂直平面波 - 更多層次的 3D 球形感
         const waveTex2 = buildRingTex(180, 160, 255);
-        const WAVE2_N = TABLET_VISUAL_PROFILE.waveCounts[1];
+        const WAVE2_N = visualProfile.waveCounts[1];
         const waves2: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE2_N; i++) {
           const m = new THREE.Mesh(
@@ -641,7 +662,7 @@ export default function VisualGravityCore() {
 
         // ✨ 新增：對角線能量波 - 更豐富的層次感
         const waveTex3 = buildRingTex(160, 180, 240);
-        const WAVE3_N = TABLET_VISUAL_PROFILE.waveCounts[2];
+        const WAVE3_N = visualProfile.waveCounts[2];
         const waves3: { mesh: Mesh; phase: number }[] = [];
         for (let i = 0; i < WAVE3_N; i++) {
           const m = new THREE.Mesh(
@@ -747,9 +768,7 @@ export default function VisualGravityCore() {
 
 
         // ✨ 優化粒子特效 - 平衡視覺效果和性能
-        const pN = isLowPowerDevice
-          ? Math.round(TABLET_VISUAL_PROFILE.particleCount * 0.4)
-          : TABLET_VISUAL_PROFILE.particleCount;
+        const pN = visualProfile.particleCount;
         const pArr = new Float32Array(pN * 3);
         const pColors = new Float32Array(pN * 3);  // 新增：顏色變化
         for (let i = 0; i < pN; i++) {
@@ -776,7 +795,7 @@ export default function VisualGravityCore() {
         pGeo.setAttribute("position", new THREE.BufferAttribute(pArr, 3));
         pGeo.setAttribute("color", new THREE.BufferAttribute(pColors, 3));
         const pMat = new THREE.PointsMaterial({
-          size: TABLET_VISUAL_PROFILE.particleSize,
+          size: visualProfile.particleSize,
           transparent: true, opacity: 0.85,
           blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
           vertexColors: true,  // 啟用頂點顏色
@@ -785,9 +804,7 @@ export default function VisualGravityCore() {
         scene.add(particles);
 
         // ✨ 增強能量塵埃 - 更多粒子、更動態的吸收/釋放
-        const fN = isLowPowerDevice
-          ? Math.round(TABLET_VISUAL_PROFILE.fiberCount * 0.4)
-          : TABLET_VISUAL_PROFILE.fiberCount;
+        const fN = visualProfile.fiberCount;
         const fPos = new Float32Array(fN * 3);
         const fPhase = new Float32Array(fN);
         const fColor = new Float32Array(fN * 3);  // 新增：顏色
@@ -1035,6 +1052,9 @@ export default function VisualGravityCore() {
     return () => {
       cancelled = true;
       cancelAnimationFrame(animId);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      effectTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout));
+      effectTimeoutsRef.current.clear();
       if (resizeFn) window.removeEventListener("resize", resizeFn);
       if (visibilityHandler) document.removeEventListener('visibilitychange', visibilityHandler);
       window.removeEventListener('reset-audio-context', handleResetAudio);
@@ -1053,6 +1073,16 @@ export default function VisualGravityCore() {
   const rippleRef = useRef<any | null>(null);
   const animFrameIdRef = useRef<number>(0);
   const isCompactPointer = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
+  const isVisualLoadReduced = () => {
+    if (typeof document === 'undefined') return false;
+    const body = document.body;
+    return body.classList.contains('app-lite-effects')
+      || body.classList.contains('app-low-power-device')
+      || body.classList.contains('app-social-browser')
+      || body.classList.contains('app-stress-mode')
+      || body.classList.contains('app-scrolling')
+      || body.classList.contains('app-touching');
+  };
 
   // 渲染與更新粒子與漣漪
   const updateAndDraw = () => {
@@ -1152,7 +1182,7 @@ export default function VisualGravityCore() {
       { fill: "rgba(236, 72, 153, ALPHA)", glow: "#ec4899" },  // 玫瑰粉
     ];
 
-    const burstParticleCount = isCompactPointer() ? 22 : 55;
+    const burstParticleCount = isVisualLoadReduced() ? 10 : isCompactPointer() ? 18 : 55;
     const newParticles = [];
     for (let i = 0; i < burstParticleCount; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -1173,8 +1203,9 @@ export default function VisualGravityCore() {
     }
 
     particlesRef.current.push(...newParticles);
-    if (particlesRef.current.length > 140) {
-      particlesRef.current.splice(0, particlesRef.current.length - 140);
+    const maxParticles = isVisualLoadReduced() ? 48 : 140;
+    if (particlesRef.current.length > maxParticles) {
+      particlesRef.current.splice(0, particlesRef.current.length - maxParticles);
     }
 
     if (animFrameIdRef.current === 0) {
@@ -1195,7 +1226,7 @@ export default function VisualGravityCore() {
   useEffect(() => {
     // 1. 手機打開 Ready 800ms 後，自動首發大爆發一次芒光仙氣
     const autoBurstTimeout = setTimeout(() => {
-      if (document.hidden) return;
+      if (document.hidden || document.body.classList.contains('app-stress-mode') || document.body.classList.contains('app-touching')) return;
       const canvas = interactionCanvasRef.current;
       if (canvas) {
         const rect = canvas.getBoundingClientRect();
@@ -1207,7 +1238,7 @@ export default function VisualGravityCore() {
 
     // 2. 每隔 5 秒，太極自動進行一次輕量級的金色氣波呼吸
     const breathInterval = setInterval(() => {
-      if (document.hidden) return;
+      if (document.hidden || document.body.classList.contains('app-stress-mode') || document.body.classList.contains('app-touching')) return;
       const canvas = interactionCanvasRef.current;
       if (canvas) {
         const rect = canvas.getBoundingClientRect();
@@ -1237,7 +1268,7 @@ export default function VisualGravityCore() {
           { fill: "rgba(34, 211, 238, ALPHA)", glow: "#22d3ee" }, // 青色
         ];
 
-        const breathParticleCount = isCompactPointer() ? 7 : 18;
+        const breathParticleCount = isVisualLoadReduced() ? 3 : isCompactPointer() ? 6 : 18;
         const breathParticles = [];
         for (let i = 0; i < breathParticleCount; i++) {
           const angle = Math.random() * Math.PI * 2;
@@ -1258,15 +1289,16 @@ export default function VisualGravityCore() {
         }
 
         particlesRef.current.push(...breathParticles);
-        if (particlesRef.current.length > 140) {
-          particlesRef.current.splice(0, particlesRef.current.length - 140);
+        const maxParticles = isVisualLoadReduced() ? 48 : 140;
+        if (particlesRef.current.length > maxParticles) {
+          particlesRef.current.splice(0, particlesRef.current.length - maxParticles);
         }
 
         if (animFrameIdRef.current === 0) {
           animFrameIdRef.current = requestAnimationFrame(updateAndDraw);
         }
       }
-    }, 5000);
+    }, isVisualLoadReduced() ? 9000 : 5000);
 
     return () => {
       clearTimeout(autoBurstTimeout);

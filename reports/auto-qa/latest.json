@@ -1,10 +1,10 @@
 {
   "ok": true,
   "version": "tiandiren-auto-qa-v1.2",
-  "baseUrl": "http://localhost:8888",
-  "stopOnFail": false,
-  "startedAt": "2026-08-02T14:20:45.676Z",
-  "completedAt": "2026-08-02T14:21:40.865Z",
+  "baseUrl": "http://localhost:8891",
+  "stopOnFail": true,
+  "startedAt": "2026-08-03T06:26:19.469Z",
+  "completedAt": "2026-08-03T06:26:34.967Z",
   "summary": {
     "modules": 9,
     "modes": [
@@ -17,7 +17,7 @@
   },
   "homepage": {
     "status": 200,
-    "durationMs": 127,
+    "durationMs": 34,
     "checkedEntrances": [
       {
         "id": "nameology",
@@ -68,22 +68,22 @@
           "step": "enter module page",
           "status": "passed",
           "api": "/nameology",
-          "durationMs": 67,
+          "durationMs": 5,
           "detail": {
             "status": 200,
-            "durationMs": 67,
-            "length": 29856
+            "durationMs": 5,
+            "length": 22348
           }
         },
         {
           "step": "SELF: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/analysis/jobs",
-          "durationMs": 1499,
+          "durationMs": 7,
           "detail": {
             "status": "COMPLETED",
-            "jobId": "job_21bd5138-27bb-40bd-b832-279d803674ea",
-            "resultId": "result_99c1d81d-a731-4fbb-b440-937d76e7e270",
+            "jobId": "job_56803213-4eed-4f9a-b775-2bd5fdb14f40",
+            "resultId": "result_6b603868-3412-48c0-8770-ddcd08af9a5e",
             "progressStage": "DONE",
             "moduleId": "NAMEOLOGY",
             "mode": "nameology",
@@ -94,11 +94,11 @@
           "step": "OTHER: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/analysis/jobs",
-          "durationMs": 46,
+          "durationMs": 4,
           "detail": {
             "status": "COMPLETED",
-            "jobId": "job_8f40647b-6e75-4b73-8f30-3adaec9776b9",
-            "resultId": "result_f6670306-11de-418e-93df-af642cecb6fe",
+            "jobId": "job_f7be8c6e-6993-4157-944f-2fa363ee0993",
+            "resultId": "result_68da327d-0ad6-49f2-bace-f89590524e90",
             "progressStage": "DONE",
             "moduleId": "NAMEOLOGY",
             "mode": "nameology",
@@ -109,11 +109,11 @@
           "step": "return home after module flow",
           "status": "passed",
           "api": "/",
-          "durationMs": 138,
+          "durationMs": 3,
           "detail": {
             "status": 200,
-            "durationMs": 138,
-            "length": 63210
+            "durationMs": 3,
+            "length": 56401
           }
         }
       ]
@@ -128,22 +128,22 @@
           "step": "enter module page",
           "status": "passed",
           "api": "/insight",
-          "durationMs": 87,
+          "durationMs": 3,
           "detail": {
             "status": 200,
-            "durationMs": 87,
-            "length": 30535
+            "durationMs": 3,
+            "length": 23297
           }
         },
         {
           "step": "SELF: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/analysis/jobs",
-          "durationMs": 7095,
+          "durationMs": 8417,
           "detail": {
             "status": "COMPLETED",
-            "jobId": "job_3b0ee494-7d1e-486d-9137-85bbe0ae1ec3",
-            "resultId": "result_36f0753e-212b-4bfc-b095-0d5f6ba2fed0",
+            "jobId": "job_e3e665e7-b7c7-46f1-aafe-ae4cdb47e0ef",
+            "resultId": "result_f3ed5ac1-e467-4e8c-9c15-693cfd3c4e75",
             "progressStage": "DONE",
             "moduleId": "ZIWEI",
             "mode": "insight",
@@ -154,11 +154,11 @@
           "step": "OTHER: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/analysis/jobs",
-          "durationMs": 7141,
+          "durationMs": 6873,
           "detail": {
             "status": "COMPLETED",
-            "jobId": "job_2482b28d-2ea6-4bd9-9e7e-08d86a6990d4",
-            "resultId": "result_3602af88-5101-4bfe-9855-faaac5bb846e",
+            "jobId": "job_b4ad192d-6d54-4a96-8dc3-0b36a1e4fd12",
+            "resultId": "result_d5e3d06c-95a9-4625-b24a-2f6855e71f4d",
             "progressStage": "DONE",
             "moduleId": "ZIWEI",
             "mode": "insight",
@@ -169,11 +169,11 @@
           "step": "return home after module flow",
           "status": "passed",
           "api": "/",
-          "durationMs": 68,
+          "durationMs": 3,
           "detail": {
             "status": 200,
-            "durationMs": 68,
-            "length": 63211
+            "durationMs": 3,
+            "length": 56401
           }
         }
       ]
@@ -188,22 +188,22 @@
           "step": "enter module page",
           "status": "passed",
           "api": "/numerology",
-          "durationMs": 89,
+          "durationMs": 3,
           "detail": {
             "status": 200,
-            "durationMs": 89,
-            "length": 64417
+            "durationMs": 3,
+            "length": 56903
           }
         },
         {
           "step": "SELF: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/analysis/jobs",
-          "durationMs": 30,
+          "durationMs": 3,
           "detail": {
             "status": "COMPLETED",
-            "jobId": "job_fa62567d-ac75-44e8-8bed-4527526b38d5",
-            "resultId": "result_b5fa17e7-fd00-4d56-af34-fd5b2d053d9b",
+            "jobId": "job_fcf83f11-e218-49c0-adfe-51b7bd3c16d1",
+            "resultId": "result_eb712381-c53e-4e3b-9f24-c01621b1db89",
             "progressStage": "DONE",
             "moduleId": "NUMBER",
             "mode": "phone10",
@@ -214,11 +214,11 @@
           "step": "OTHER: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/analysis/jobs",
-          "durationMs": 30,
+          "durationMs": 3,
           "detail": {
             "status": "COMPLETED",
-            "jobId": "job_7f02cef4-0f23-4f35-81eb-70b9da698587",
-            "resultId": "result_27418951-2dc3-44d8-af4e-1aa67ff6d544",
+            "jobId": "job_f513d023-cdbe-43bb-a0ad-771863d98c45",
+            "resultId": "result_b30b990b-5134-42be-a078-19b5b76bd85c",
             "progressStage": "DONE",
             "moduleId": "NUMBER",
             "mode": "digit8",
@@ -229,11 +229,11 @@
           "step": "return home after module flow",
           "status": "passed",
           "api": "/",
-          "durationMs": 76,
+          "durationMs": 4,
           "detail": {
             "status": 200,
-            "durationMs": 76,
-            "length": 63211
+            "durationMs": 4,
+            "length": 56401
           }
         }
       ]
@@ -248,18 +248,18 @@
           "step": "enter module page",
           "status": "passed",
           "api": "/match",
-          "durationMs": 59,
+          "durationMs": 2,
           "detail": {
             "status": 200,
-            "durationMs": 59,
-            "length": 28907
+            "durationMs": 2,
+            "length": 21286
           }
         },
         {
           "step": "SELF: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/match-generate",
-          "durationMs": 7870,
+          "durationMs": 3,
           "detail": {
             "hasFiveElement": true,
             "matchScore": 90
@@ -269,7 +269,7 @@
           "step": "OTHER: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/match-generate",
-          "durationMs": 6914,
+          "durationMs": 2,
           "detail": {
             "hasFiveElement": true,
             "matchScore": 90
@@ -279,11 +279,11 @@
           "step": "return home after module flow",
           "status": "passed",
           "api": "/",
-          "durationMs": 118,
+          "durationMs": 4,
           "detail": {
             "status": 200,
-            "durationMs": 118,
-            "length": 63210
+            "durationMs": 4,
+            "length": 56401
           }
         }
       ]
@@ -298,18 +298,18 @@
           "step": "enter module page",
           "status": "passed",
           "api": "/music",
-          "durationMs": 65,
+          "durationMs": 5,
           "detail": {
             "status": 200,
-            "durationMs": 65,
-            "length": 43907
+            "durationMs": 5,
+            "length": 36245
           }
         },
         {
           "step": "SELF: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/music-generate",
-          "durationMs": 9205,
+          "durationMs": 2,
           "detail": {
             "hasFiveElement": true,
             "voiceWorkflowStatus": "AI_VOICE_READY"
@@ -319,7 +319,7 @@
           "step": "OTHER: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/music-generate",
-          "durationMs": 7398,
+          "durationMs": 3,
           "detail": {
             "hasFiveElement": true,
             "voiceWorkflowStatus": "AI_VOICE_READY"
@@ -329,11 +329,11 @@
           "step": "return home after module flow",
           "status": "passed",
           "api": "/",
-          "durationMs": 198,
+          "durationMs": 3,
           "detail": {
             "status": 200,
-            "durationMs": 198,
-            "length": 63211
+            "durationMs": 3,
+            "length": 56401
           }
         }
       ]
@@ -348,22 +348,22 @@
           "step": "enter module page",
           "status": "passed",
           "api": "/bazi",
-          "durationMs": 378,
+          "durationMs": 2,
           "detail": {
             "status": 200,
-            "durationMs": 378,
-            "length": 28221
+            "durationMs": 2,
+            "length": 20604
           }
         },
         {
           "step": "SELF: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/analysis/jobs",
-          "durationMs": 335,
+          "durationMs": 4,
           "detail": {
             "status": "COMPLETED",
-            "jobId": "job_0a2983c3-2e19-4380-b609-dc6a28481f08",
-            "resultId": "result_1d706ff5-68f2-40f3-8de7-f4141403d34d",
+            "jobId": "job_c1336474-fd23-429a-bcf0-af059691e96f",
+            "resultId": "result_198f9453-79c2-46ad-8c41-ad811b0cc595",
             "progressStage": "DONE",
             "moduleId": "BAZI",
             "mode": "bazi",
@@ -374,11 +374,11 @@
           "step": "OTHER: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/analysis/jobs",
-          "durationMs": 38,
+          "durationMs": 5,
           "detail": {
             "status": "COMPLETED",
-            "jobId": "job_f6bbe0e3-09bf-4631-82c2-da171763afa2",
-            "resultId": "result_eb6ed3be-e8e6-4de4-80d5-59b5b953828f",
+            "jobId": "job_cf47b9df-07c3-46fa-843f-3d3c35c38ed2",
+            "resultId": "result_f41d8a2b-732d-4787-89ff-11c51fac11b9",
             "progressStage": "DONE",
             "moduleId": "BAZI",
             "mode": "bazi",
@@ -389,11 +389,11 @@
           "step": "return home after module flow",
           "status": "passed",
           "api": "/",
-          "durationMs": 165,
+          "durationMs": 2,
           "detail": {
             "status": 200,
-            "durationMs": 165,
-            "length": 63210
+            "durationMs": 2,
+            "length": 56401
           }
         }
       ]
@@ -408,22 +408,22 @@
           "step": "enter module page",
           "status": "passed",
           "api": "/zodiac",
-          "durationMs": 557,
+          "durationMs": 2,
           "detail": {
             "status": 200,
-            "durationMs": 557,
-            "length": 27902
+            "durationMs": 2,
+            "length": 20270
           }
         },
         {
           "step": "SELF: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/analysis/jobs",
-          "durationMs": 45,
+          "durationMs": 3,
           "detail": {
             "status": "COMPLETED",
-            "jobId": "job_aa5c0c7d-54bd-46e5-b906-26b15d96738c",
-            "resultId": "result_4abfcd98-538e-4ccc-ae3a-7426677f92c8",
+            "jobId": "job_4be96862-2ab2-443a-8883-09550df90551",
+            "resultId": "result_a5c74110-d7fb-4c0e-a827-51f73b534097",
             "progressStage": "DONE",
             "moduleId": "ZODIAC",
             "mode": "zodiac",
@@ -434,11 +434,11 @@
           "step": "OTHER: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/analysis/jobs",
-          "durationMs": 28,
+          "durationMs": 4,
           "detail": {
             "status": "COMPLETED",
-            "jobId": "job_867776cc-fced-4eca-b385-489da1a2152c",
-            "resultId": "result_10934fa1-b5d9-4d00-97db-629abb61f65f",
+            "jobId": "job_e668c591-34dd-4c26-ba0d-fef6d8418131",
+            "resultId": "result_52aa884c-66af-4867-8dd2-db8640e41a53",
             "progressStage": "DONE",
             "moduleId": "ZODIAC",
             "mode": "zodiac",
@@ -449,11 +449,11 @@
           "step": "return home after module flow",
           "status": "passed",
           "api": "/",
-          "durationMs": 125,
+          "durationMs": 3,
           "detail": {
             "status": 200,
-            "durationMs": 125,
-            "length": 63211
+            "durationMs": 3,
+            "length": 56401
           }
         }
       ]
@@ -468,27 +468,27 @@
           "step": "enter module page",
           "status": "passed",
           "api": "/tarot",
-          "durationMs": 326,
+          "durationMs": 2,
           "detail": {
             "status": 200,
-            "durationMs": 326,
-            "length": 27708
+            "durationMs": 2,
+            "length": 19785
           }
         },
         {
           "step": "SELF: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/tarot/reading",
-          "durationMs": 1605,
+          "durationMs": 10,
           "detail": {
             "hasFiveElement": false,
             "tarotScope": "self",
             "tarotWritePolicy": "growth_center_update",
             "deckSize": 78,
             "selectedDeckKeys": [
-              "minor-wands-six_27_9f92b2d1-0162-42c0-b381-c4bbe5f8c6da",
-              "minor-pentacles-king_77_248e4437-a176-4094-9750-77e3b493873f",
-              "major-death_13_4428be15-cb8b-479b-8439-9cd4f02f6f9b"
+              "minor-wands-queen_34_2ff20c1e-d405-49de-a763-77aa2f4f08e0",
+              "minor-wands-nine_30_ff066cc9-6503-42d4-8411-f9cc8b837f75",
+              "major-world_21_d4cd3aa6-dd5e-4369-add4-f7ed91234300"
             ]
           }
         },
@@ -496,16 +496,16 @@
           "step": "OTHER: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/tarot/reading",
-          "durationMs": 78,
+          "durationMs": 8,
           "detail": {
             "hasFiveElement": false,
             "tarotScope": "other",
             "tarotWritePolicy": "single_use_only",
             "deckSize": 78,
             "selectedDeckKeys": [
-              "minor-pentacles-queen_76_d17cafb2-78cd-4b2b-8932-53514eeb6391",
-              "major-moon_18_9de00205-6312-4150-9b5c-52222a387705",
-              "minor-wands-ace_22_0addcfbe-abb0-4fab-ad89-84452578f36e"
+              "minor-wands-four_25_7092019a-1031-48e5-b5f7-0566f801cda2",
+              "minor-wands-eight_29_0c7e3452-49f1-4e2a-afa5-cab689ee0e2a",
+              "minor-cups-queen_48_8b633e57-1769-4ce9-8a5e-a07bd4d99f6f"
             ]
           }
         },
@@ -513,11 +513,11 @@
           "step": "return home after module flow",
           "status": "passed",
           "api": "/",
-          "durationMs": 202,
+          "durationMs": 2,
           "detail": {
             "status": 200,
-            "durationMs": 202,
-            "length": 63211
+            "durationMs": 2,
+            "length": 56401
           }
         }
       ]
@@ -532,18 +532,18 @@
           "step": "enter module page",
           "status": "passed",
           "api": "/growth-center",
-          "durationMs": 337,
+          "durationMs": 4,
           "detail": {
             "status": 200,
-            "durationMs": 337,
-            "length": 19316
+            "durationMs": 4,
+            "length": 11394
           }
         },
         {
           "step": "SELF: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/growth-center",
-          "durationMs": 357,
+          "durationMs": 2,
           "detail": {
             "moduleId": "GROWTH_CENTER",
             "mode": "growth_center",
@@ -554,7 +554,7 @@
           "step": "OTHER: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/growth-center",
-          "durationMs": 17,
+          "durationMs": 3,
           "detail": {
             "moduleId": "GROWTH_CENTER",
             "mode": "growth_center",
@@ -565,11 +565,11 @@
           "step": "return home after module flow",
           "status": "passed",
           "api": "/",
-          "durationMs": 207,
+          "durationMs": 3,
           "detail": {
             "status": 200,
-            "durationMs": 207,
-            "length": 63211
+            "durationMs": 3,
+            "length": 56401
           }
         }
       ]
