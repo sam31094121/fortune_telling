@@ -2552,7 +2552,7 @@ export default function HomePage() {
                 <span className="number-fortune-danger-emblem__halo" />
                 <span className="number-fortune-danger-emblem__ring" />
                 <span className="number-fortune-danger-emblem__slash" />
-                <span className="number-fortune-danger-emblem__glyph">凶</span>
+                <span className="number-fortune-danger-emblem__glyph">吉</span>
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse">

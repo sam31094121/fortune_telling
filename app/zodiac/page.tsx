@@ -36,6 +36,7 @@ type ApiResponse<T> = {
   data?: T;
   message?: string;
   error?: string;
+  code?: string;
 };
 
 type ZodiacTraceStepId = 'received' | 'sign' | 'blood' | 'prompt' | 'ai' | 'element' | 'write' | 'done';
@@ -48,7 +49,7 @@ type ZodiacTraceStep = {
   detail?: string;
 };
 
-const ZODIAC_ANALYSIS_TIMEOUT_MS = 15_000;
+const ZODIAC_ANALYSIS_TIMEOUT_MS = 45_000;
 const ZODIAC_TRACE_TEMPLATE: ZodiacTraceStep[] = [
   { id: 'received', label: '收到資料', status: 'pending' },
   { id: 'sign', label: '判定星座', status: 'pending' },
@@ -301,49 +302,74 @@ async function requestZodiacAnalysis(
   onTrace: (stepId: ZodiacTraceStepId, status: ZodiacTraceStatus, detail?: string) => void,
 ) {
   const started = Date.now();
+  const maxRecoveryAttempts = 2;
+  let recoveryAttempts = 0;
   const remaining = () => Math.max(1, ZODIAC_ANALYSIS_TIMEOUT_MS - (Date.now() - started));
-  const requestBody = {
-    analysisType: 'zodiac',
-    idempotencyKey: ['zodiac-v3', input.birthDate, input.birthTime ?? 'none', input.birthCityId ?? 'none', input.bloodType || 'none', input.analysisTarget, Date.now()].join(':'),
-    sessionId: 'zodiac-browser',
-    inputData: input,
-  };
 
-  updateTraceStep(onTrace, 'received', 'running', `送出 ${input.analysisTarget === 'self' ? 'SELF' : 'OTHER'} 分析資料`);
-  console.info('[ZODIAC][REQUEST_BODY]', { ...requestBody, inputData: { ...input, nameLength: input.name.trim().length, name: undefined } });
-  const created = await safeJson<ApiResponse<AnalysisJob>>('/api/analysis/jobs', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(requestBody),
-  }, remaining());
-  console.info('[ZODIAC][HTTP]', 'POST /api/analysis/jobs', created.status, created.body);
-
-  if (!created.body.ok || !created.body.data?.jobId) {
-    updateTraceStep(onTrace, 'received', 'error', created.body.message || created.body.error || '建立任務失敗');
-    throw new Error(created.body.message || created.body.error || '目前無法建立西洋星座分析任務。');
+  function buildRequestBody(attempt: number) {
+    return {
+      analysisType: 'zodiac',
+      idempotencyKey: ['zodiac-v3', input.birthDate, input.birthTime ?? 'none', input.birthCityId ?? 'none', input.bloodType || 'none', input.analysisTarget, Date.now(), attempt].join(':'),
+      sessionId: 'zodiac-browser',
+      inputData: input,
+    };
   }
 
-  let job = created.body.data;
-  onJob(job);
-  updateTraceStep(onTrace, 'received', 'done', `HTTP ${created.status} / ${job.jobId}`);
-  updateTraceStep(onTrace, 'sign', job.status === 'PROCESSING' || job.status === 'FINALIZING' || job.status === 'COMPLETED' ? 'done' : 'running', job.progressStage);
+  async function createJob(attempt: number) {
+    const requestBody = buildRequestBody(attempt);
+    updateTraceStep(onTrace, 'received', 'running', attempt > 0 ? '分拆任務中斷，已用同一份資料自動重新送出。' : `收到 ${input.analysisTarget === 'self' ? 'SELF' : 'OTHER'} 分析資料。`);
+    console.info('[ZODIAC][REQUEST_BODY]', { ...requestBody, inputData: { ...input, nameLength: input.name.trim().length, name: undefined } });
+
+    const created = await safeJson<ApiResponse<AnalysisJob>>('/api/analysis/jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody),
+    }, remaining());
+    console.info('[ZODIAC][HTTP]', 'POST /api/analysis/jobs', created.status, created.body);
+
+    if (!created.body.ok || !created.body.data?.jobId) {
+      updateTraceStep(onTrace, 'received', 'error', created.body.message || created.body.error || '無法建立分析任務。');
+      throw new Error(created.body.message || created.body.error || '目前無法建立西洋星座分析任務。');
+    }
+
+    const nextJob = created.body.data;
+    onJob(nextJob);
+    updateTraceStep(onTrace, 'received', 'done', `HTTP ${created.status} / ${nextJob.jobId}`);
+    updateTraceStep(onTrace, 'sign', nextJob.status === 'PROCESSING' || nextJob.status === 'FINALIZING' || nextJob.status === 'COMPLETED' ? 'done' : 'running', nextJob.progressStage);
+    return nextJob;
+  }
+
+  function canRecover(response: { status: number; body: ApiResponse<unknown> }) {
+    return (
+      recoveryAttempts < maxRecoveryAttempts &&
+      response.status === 404 &&
+      (response.body.code === 'JOB_NOT_FOUND' || response.body.code === 'RESULT_NOT_FOUND')
+    );
+  }
+
+  let job = await createJob(recoveryAttempts);
 
   while (Date.now() - started < ZODIAC_ANALYSIS_TIMEOUT_MS) {
     if (job.status === 'COMPLETED' && job.resultId) {
-      updateTraceStep(onTrace, 'ai', 'done', '後端分析已完成');
+      updateTraceStep(onTrace, 'ai', 'done', 'AI 分析已完成。');
       const result = await safeJson<ApiResponse<ZodiacResult>>('/api/analysis/results/' + job.resultId, undefined, remaining());
       console.info('[ZODIAC][HTTP]', 'GET /api/analysis/results', result.status, { ok: result.body.ok, resultId: job.resultId });
       if (result.body.ok && result.body.data) {
-        updateTraceStep(onTrace, 'element', result.body.data.fiveElement ? 'done' : 'error', result.body.data.fiveElement ? '五元素已建立' : '缺少五元素結果');
-        updateTraceStep(onTrace, 'done', 'done', '結果頁資料已取得');
+        updateTraceStep(onTrace, 'element', result.body.data.fiveElement ? 'done' : 'error', result.body.data.fiveElement ? '五元素整合完成。' : '五元素資料缺失。');
+        updateTraceStep(onTrace, 'done', 'done', '結果已準備完成。');
         return result.body.data;
       }
-      updateTraceStep(onTrace, 'done', 'error', result.body.message || result.body.error || '結果讀取失敗');
-      throw new Error(result.body.message || result.body.error || '西洋星座結果尚未完成。');
+      if (canRecover(result)) {
+        recoveryAttempts += 1;
+        job = await createJob(recoveryAttempts);
+        continue;
+      }
+      updateTraceStep(onTrace, 'done', 'error', result.body.message || result.body.error || '結果讀取失敗。');
+      throw new Error(result.body.message || result.body.error || '目前無法讀取西洋星座分析結果。');
     }
 
     if (job.status === 'FAILED' || job.status === 'TIMEOUT' || job.status === 'CANCELLED') {
-      updateTraceStep(onTrace, 'ai', 'error', job.errorMessage || job.message || '後端分析失敗');
+      updateTraceStep(onTrace, 'ai', 'error', job.errorMessage || job.message || 'AI 分析中斷。');
       throw new Error(job.errorMessage || job.message || '目前無法完成西洋星座分析。');
     }
 
@@ -351,25 +377,29 @@ async function requestZodiacAnalysis(
     const next = await safeJson<ApiResponse<AnalysisJob>>('/api/analysis/jobs/' + job.jobId, undefined, remaining());
     console.info('[ZODIAC][HTTP]', 'GET /api/analysis/jobs', next.status, next.body.data ? { status: next.body.data.status, stage: next.body.data.progressStage, errorCode: next.body.data.errorCode } : next.body);
     if (!next.body.ok || !next.body.data) {
-      updateTraceStep(onTrace, 'ai', 'error', next.body.message || next.body.error || '任務狀態讀取失敗');
-      throw new Error(next.body.message || next.body.error || '目前無法讀取西洋星座運算狀態。');
+      if (canRecover(next)) {
+        recoveryAttempts += 1;
+        job = await createJob(recoveryAttempts);
+        continue;
+      }
+      updateTraceStep(onTrace, 'ai', 'error', next.body.message || next.body.error || '任務狀態讀取失敗。');
+      throw new Error(next.body.message || next.body.error || '目前無法讀取西洋星座分析狀態。');
     }
     job = next.body.data;
     onJob(job);
-    if (job.progressStage === 'VALIDATING_INPUT') updateTraceStep(onTrace, 'received', 'done', '後端已收到資料');
+    if (job.progressStage === 'VALIDATING_INPUT') updateTraceStep(onTrace, 'received', 'done', '資料格式已確認。');
     if (job.progressStage === 'RUNNING_ENGINE') {
-      updateTraceStep(onTrace, 'sign', 'done', '星座 Engine 已開始');
-      updateTraceStep(onTrace, 'blood', 'done', input.bloodType || '未提供血型');
-      updateTraceStep(onTrace, 'prompt', 'done', '本次分析 Prompt 已建立');
-      updateTraceStep(onTrace, 'ai', 'running', '正在建立星座分析');
+      updateTraceStep(onTrace, 'sign', 'done', 'Zodiac Engine 已啟動。');
+      updateTraceStep(onTrace, 'blood', 'done', input.bloodType || '未填血型。');
+      updateTraceStep(onTrace, 'prompt', 'done', 'AI Prompt 已建立。');
+      updateTraceStep(onTrace, 'ai', 'running', '正在生成西洋星座分析。');
     }
-    if (job.progressStage === 'BUILDING_RESULT') updateTraceStep(onTrace, 'element', 'running', '正在建立五元素與報告');
+    if (job.progressStage === 'BUILDING_RESULT') updateTraceStep(onTrace, 'element', 'running', '正在整合五元素資料。');
   }
 
-  updateTraceStep(onTrace, 'ai', 'error', '15 秒 timeout');
-  throw new Error('分析暫時失敗：系統超過 15 秒沒有完成回應，請重新嘗試。');
+  updateTraceStep(onTrace, 'ai', 'error', '45 秒 timeout');
+  throw new Error('分析暫時失敗：系統超過時間限制沒有完成回應，請重新嘗試。');
 }
-
 function LoadingPanel({ job, traceSteps }: { job: AnalysisJob | null; traceSteps: ZodiacTraceStep[] }) {
   const statusClass: Record<ZodiacTraceStatus, string> = {
     pending: 'border-white/10 bg-white/[0.04] text-[color:var(--text-muted)]',
@@ -386,7 +416,7 @@ function LoadingPanel({ job, traceSteps }: { job: AnalysisJob | null; traceSteps
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">AI ZODIAC DEBUG TRACE</p>
           <h2 className="mt-3 text-xl font-black text-cyan-50">{job?.message || '西洋星座分析流程已啟動。'}</h2>
         </div>
-        <p className="text-xs font-semibold text-[color:var(--text-sub)]">15 秒保護 / {job?.progressStage || 'READY'}</p>
+        <p className="text-xs font-semibold text-[color:var(--text-sub)]">45 秒保護 / {job?.progressStage || 'READY'}</p>
       </div>
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
         {traceSteps.map((step, index) => (

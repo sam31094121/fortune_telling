@@ -16696,16 +16696,19 @@ body.app-touching .home-taiji-cinema * {
 .number-fortune-danger-emblem__glyph {
   position: relative;
   z-index: 4;
-  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  font-size: 1.72rem;
+  font-family: "Noto Serif TC", "Songti TC", "PMingLiU", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size: 1.78rem;
   font-weight: 900;
   line-height: 1;
-  color: #ffe4e6;
+  background: linear-gradient(180deg, #fff7dd 0%, #ffd684 45%, #f6b93b 75%, #fff1c2 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   letter-spacing: 0.03em;
-  text-shadow:
-    0 0 8px rgba(244, 63, 94, 0.95),
-    0 0 18px rgba(251, 191, 36, 0.34),
-    0 1px 0 rgba(255, 255, 255, 0.18);
+  filter:
+    drop-shadow(0 0 8px rgba(251, 191, 36, 0.85))
+    drop-shadow(0 0 18px rgba(244, 63, 94, 0.3))
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.25));
 }
 
 @keyframes numberDangerOrbit {

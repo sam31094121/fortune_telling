@@ -361,6 +361,14 @@ export default function BaziPage() {
     setResult(record.result);
   }, []);
 
+  useEffect(() => {
+    if (!result || loading) return;
+    const timer = window.setTimeout(() => {
+      resultSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 180);
+    return () => window.clearTimeout(timer);
+  }, [result, loading]);
+
   async function handleSubmit() {
     const existing = readDailyAnalysis<BaziResult>('bazi');
     if (existing) {
@@ -406,6 +414,8 @@ export default function BaziPage() {
     try {
       const data = await runAnalysisJobClient<BaziResult>({
         analysisType: 'bazi',
+        timeoutMs: 45_000,
+        maxRecoveryAttempts: 2,
         idempotencyKey: `bazi_${form.birthDate}_${resolvedBirthTime}_${form.gender}_${Date.now()}`,
         sessionId: createSessionId(),
         inputData: {
@@ -423,6 +433,7 @@ export default function BaziPage() {
       setResult(data);
       setDailyRecord(saveDailyAnalysis<BaziResult>('bazi', data));
       setMessage('三層資料流已完成：專業命盤 → AI 解讀 → AI 補強。');
+      scrollToResult();
       if (targetMode === 'self') markGrowthModuleCompleted('bazi', data.aiReinforcementPlan.first.brandElement);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : '目前無法完成八字命盤。');
