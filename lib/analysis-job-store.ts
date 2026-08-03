@@ -187,6 +187,13 @@ export function getAnalysisResult(resultId: string) {
 }
 
 export function publicAnalysisJob(job: AnalysisJob) {
+  // Vercel serverless functions do not share memory across instances. The POST that
+  // creates+runs a job and a later GET for its status/result can land on different
+  // instances, so a follow-up lookup by id can spuriously come back empty even though
+  // the job genuinely completed. To avoid depending on that lookup ever succeeding,
+  // embed the actual result payload here (when available) so callers that already
+  // have this response never need a second round trip to read it back.
+  const inlineResult = job.status === 'COMPLETED' && job.resultId ? getAnalysisResult(job.resultId) : null;
   return {
     jobId: job.jobId,
     analysisType: job.analysisType,
@@ -196,6 +203,7 @@ export function publicAnalysisJob(job: AnalysisJob) {
     progressPercent: job.progressPercent,
     message: job.message,
     resultId: job.resultId,
+    result: inlineResult ? inlineResult.result : undefined,
     errorCode: job.errorCode,
     errorMessage: job.errorMessage,
     createdAt: job.createdAt,

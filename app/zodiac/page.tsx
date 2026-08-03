@@ -37,6 +37,7 @@ type ApiResponse<T> = {
   message?: string;
   error?: string;
   code?: string;
+  result?: unknown;
 };
 
 type ZodiacTraceStepId = 'received' | 'sign' | 'blood' | 'prompt' | 'ai' | 'element' | 'write' | 'done';
@@ -347,7 +348,9 @@ async function requestZodiacAnalysis(
     );
   }
 
-  let job = await createJob(recoveryAttempts);
+  let createdJob = await createJob(recoveryAttempts);
+  if (createdJob.result) return createdJob.result;
+  let job = createdJob.job;
 
   while (Date.now() - started < ZODIAC_ANALYSIS_TIMEOUT_MS) {
     if (job.status === 'COMPLETED' && job.resultId) {

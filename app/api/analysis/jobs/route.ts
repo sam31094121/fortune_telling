@@ -62,12 +62,24 @@ export async function POST(request: Request) {
     console.info('[ZODIAC][JOB]', { requestId, jobId: job.jobId, status: job.status, stage: job.progressStage, moduleId: job.moduleId });
   }
 
+  // Serverless instances don't share memory: a "fire and forget" background run here is
+  // not guaranteed to execute (or to still be visible) by the time a later request polls
+  // for it on a different instance. Run the job to completion in this same invocation so
+  // the response below can carry the final status (and result, via publicAnalysisJob)
+  // without depending on any other instance ever seeing this job again.
+  let finalJob = job;
   if (job.status === 'QUEUED') {
-    void runAnalysisJob(job.jobId, body.inputData ?? {});
+    const completed = await runAnalysisJob(job.jobId, body.inputData ?? {});
+    if (completed) finalJob = completed;
   }
 
+  if (analysisType === 'zodiac') {
+    console.info('[ZODIAC][JOB_DONE]', { requestId, jobId: finalJob.jobId, status: finalJob.status });
+  }
+
+  const publicJob = publicAnalysisJob(finalJob);
   return NextResponse.json(
-    { ok: true, requestId, success: true, data: publicAnalysisJob(job) },
+    { ok: true, requestId, success: true, data: publicJob, result: publicJob.result },
     { status: 202, headers: { 'Cache-Control': 'no-store' } },
   );
 }
