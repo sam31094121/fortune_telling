@@ -335,6 +335,7 @@ function ReinforcementCard({ item }: { item: BaziReinforcementItem }) {
 }
 
 export default function BaziPage() {
+  const submitLockRef = useRef(false);
   const [form, setForm] = useState(DEFAULT_FORM);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
