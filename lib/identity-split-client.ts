@@ -6,8 +6,8 @@ export const IDENTITY_TARGET_STORAGE_KEY = 'tdh_analysis_identity_target_v1';
 export const IDENTITY_TARGET_UPDATED_EVENT = 'tdh-identity-target-updated';
 
 export const IDENTITY_TARGET_LABEL: Record<AnalysisIdentityTarget, string> = {
-  self: '我自己',
-  guest: '親朋好友',
+  self: '\u6211\u81ea\u5df1',
+  guest: '\u89aa\u670b\u597d\u53cb',
 };
 
 let memoryIdentityTarget: AnalysisIdentityTarget | null = null;
@@ -46,5 +46,5 @@ export function isMemberGrowthTarget() {
 }
 
 export function getIdentityRequiredMessage() {
-  return '請先選擇本次分析對象：我自己或親朋好友。';
+  return '\u8acb\u5148\u9078\u64c7\u672c\u6b21\u5206\u6790\u5c0d\u8c61\uff1a\u6211\u81ea\u5df1\u6216\u89aa\u670b\u597d\u53cb\u3002';
 }
