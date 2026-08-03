@@ -763,6 +763,7 @@ export default function ZodiacPage() {
   const [showMissingFields, setShowMissingFields] = useState(false);
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<ZodiacResult> | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
+  const submitLockRef = useRef(false);
 
   useEffect(() => {
     const record = readDailyAnalysis<ZodiacResult>('zodiac');
@@ -815,64 +816,73 @@ export default function ZodiacPage() {
   ];
 
   const submit = async () => {
-    const existing = readDailyAnalysis<ZodiacResult>('zodiac');
-    if (existing && isCurrentZodiacResult(existing.result)) {
-      setDailyRecord(existing);
-      setResult(existing.result);
-      progressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-    if (existing) {
-      clearDailyAnalysis('zodiac');
-      setDailyRecord(null);
-    }
-
-    setError('');
-    setResult(null);
-    setJob(null);
-    setTraceSteps(createTraceSteps());
-    setShowMissingFields(true);
-
-    const analysisTarget = getAnalysisIdentityTarget();
-    if (!analysisTarget) {
-      setError(getIdentityRequiredMessage());
-      return;
-    }
-    if (form.name.trim().length > 20) {
-      setError('姓名請控制在 20 個字以內。');
-      return;
-    }
-    if (!form.birthDate) {
-      setError('請先輸入出生年月日，系統才能判定十二星座。');
-      return;
-    }
-
-    const birthTime = hasBirthTime ? form.birthTime : null;
-    const birthCityId = birthTime ? form.birthCityId : null;
-
-    setSubmitting(true);
+    // 手機（尤其 LINE 內建瀏覽器）點擊到 setSubmitting(true) 生效前有極短暫的視窗，
+    // 若使用者因畫面沒有立即反應而重複點擊，會同時建立兩個任務並互相覆寫訊息。
+    // 這裡用同步的 ref 鎖擋住同一次點擊的重複觸發，不依賴會延後生效的 React state。
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
     try {
-      const data = await requestZodiacAnalysis({ name: form.name, birthDate: form.birthDate, birthTime, birthCityId, bloodType: form.bloodType, analysisTarget }, setJob, updateTrace);
-      setResult(data);
-      setDailyRecord(saveDailyAnalysis<ZodiacResult>('zodiac', data));
-      if (analysisTarget === 'self') {
-        markGrowthModuleCompleted('zodiac', data.fiveElement?.brandElement);
-        saveBirthProfile({
-          birthDate: form.birthDate,
-          birthTime,
-          birthCityId,
-          birthTimezone: birthCityId ? findCityById(birthCityId)?.timezone ?? null : null,
-        });
-        updateTrace('write', 'done', 'SELF：已寫入會員、AI 成長中心與 Integration Layer。');
-      } else {
-        updateTrace('write', 'done', 'OTHER：只保留本次單次分析，不寫入會員資料。');
+      const existing = readDailyAnalysis<ZodiacResult>('zodiac');
+      if (existing && isCurrentZodiacResult(existing.result)) {
+        setDailyRecord(existing);
+        setResult(existing.result);
+        progressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
       }
-    } catch (caught) {
-      console.error('[ZODIAC][ERROR]', caught);
-      updateTrace('done', 'error', caught instanceof Error ? caught.message : '分析失敗');
-      setError(caught instanceof Error ? caught.message : '目前無法完成西洋星座分析。');
+      if (existing) {
+        clearDailyAnalysis('zodiac');
+        setDailyRecord(null);
+      }
+
+      setError('');
+      setResult(null);
+      setJob(null);
+      setTraceSteps(createTraceSteps());
+      setShowMissingFields(true);
+
+      const analysisTarget = getAnalysisIdentityTarget();
+      if (!analysisTarget) {
+        setError(getIdentityRequiredMessage());
+        return;
+      }
+      if (form.name.trim().length > 20) {
+        setError('姓名請控制在 20 個字以內。');
+        return;
+      }
+      if (!form.birthDate) {
+        setError('請先輸入出生年月日，系統才能判定十二星座。');
+        return;
+      }
+
+      const birthTime = hasBirthTime ? form.birthTime : null;
+      const birthCityId = birthTime ? form.birthCityId : null;
+
+      setSubmitting(true);
+      try {
+        const data = await requestZodiacAnalysis({ name: form.name, birthDate: form.birthDate, birthTime, birthCityId, bloodType: form.bloodType, analysisTarget }, setJob, updateTrace);
+        setResult(data);
+        setDailyRecord(saveDailyAnalysis<ZodiacResult>('zodiac', data));
+        if (analysisTarget === 'self') {
+          markGrowthModuleCompleted('zodiac', data.fiveElement?.brandElement);
+          saveBirthProfile({
+            birthDate: form.birthDate,
+            birthTime,
+            birthCityId,
+            birthTimezone: birthCityId ? findCityById(birthCityId)?.timezone ?? null : null,
+          });
+          updateTrace('write', 'done', 'SELF：已寫入會員、AI 成長中心與 Integration Layer。');
+        } else {
+          updateTrace('write', 'done', 'OTHER：只保留本次單次分析，不寫入會員資料。');
+        }
+      } catch (caught) {
+        console.error('[ZODIAC][ERROR]', caught);
+        updateTrace('done', 'error', caught instanceof Error ? caught.message : '分析失敗');
+        setError(caught instanceof Error ? caught.message : '目前無法完成西洋星座分析。');
+      } finally {
+        setSubmitting(false);
+      }
     } finally {
-      setSubmitting(false);
+      submitLockRef.current = false;
     }
   };
 

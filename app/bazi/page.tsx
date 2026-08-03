@@ -375,75 +375,84 @@ export default function BaziPage() {
   }, [result, loading]);
 
   async function handleSubmit() {
-    const existing = readDailyAnalysis<BaziResult>('bazi');
-    if (existing) {
-      if (!isCurrentBaziResult(existing.result)) {
-        clearDailyAnalysis('bazi');
-        setDailyRecord(null);
-        setResult(null);
-        setMessage('??????????????????????');
-      } else {
-        setDailyRecord(existing);
-        setResult(existing.result);
-        scrollToResult();
+    // 手機（尤其 LINE 內建瀏覽器）點擊到 setLoading(true) 生效前有極短暫的視窗，
+    // 若使用者因畫面沒有立即反應而重複點擊，會同時建立兩個任務並互相覆寫訊息。
+    // 這裡用同步的 ref 鎖擋住同一次點擊的重複觸發，不依賴會延後生效的 React state。
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
+    try {
+      const existing = readDailyAnalysis<BaziResult>('bazi');
+      if (existing) {
+        if (!isCurrentBaziResult(existing.result)) {
+          clearDailyAnalysis('bazi');
+          setDailyRecord(null);
+          setResult(null);
+          setMessage('??????????????????????');
+        } else {
+          setDailyRecord(existing);
+          setResult(existing.result);
+          scrollToResult();
+          return;
+        }
+      }
+
+      const targetMode = getAnalysisIdentityTarget();
+      if (!targetMode) {
+        setError(getIdentityRequiredMessage());
         return;
       }
-    }
 
-    const targetMode = getAnalysisIdentityTarget();
-    if (!targetMode) {
-      setError(getIdentityRequiredMessage());
-      return;
-    }
+      const nextMissing = [
+        form.name.trim().length < 2 ? 'name' : '',
+        !form.birthDate ? 'birthDate' : '',
+        !form.gender ? 'gender' : '',
+        !form.country || !form.city ? 'birthPlace' : '',
+        !form.timeUnknown && !form.birthHourBranch ? 'birthHourBranch' : '',
+      ].filter(Boolean);
 
-    const nextMissing = [
-      form.name.trim().length < 2 ? 'name' : '',
-      !form.birthDate ? 'birthDate' : '',
-      !form.gender ? 'gender' : '',
-      !form.country || !form.city ? 'birthPlace' : '',
-      !form.timeUnknown && !form.birthHourBranch ? 'birthHourBranch' : '',
-    ].filter(Boolean);
+      setMissing(nextMissing);
+      setError('');
+      if (nextMissing.length > 0) {
+        setError('請先把八字命盤需要的生成資料填完整，系統才會進入第一層專業命盤。');
+        const first = document.querySelector(`[data-field="${nextMissing[0]}"]`);
+        first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
 
-    setMissing(nextMissing);
-    setError('');
-    if (nextMissing.length > 0) {
-      setError('請先把八字命盤需要的生成資料填完整，系統才會進入第一層專業命盤。');
-      const first = document.querySelector(`[data-field="${nextMissing[0]}"]`);
-      first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-
-    setLoading(true);
-    setResult(null);
-    setMessage('已交給太極 AI Core 排程，第一層正在建立專業八字命盤。');
-    try {
-      const data = await runAnalysisJobClient<BaziResult>({
-        analysisType: 'bazi',
-        timeoutMs: 45_000,
-        maxRecoveryAttempts: 2,
-        idempotencyKey: `bazi_${form.birthDate}_${resolvedBirthTime}_${form.gender}_${Date.now()}`,
-        sessionId: createSessionId(),
-        inputData: {
-          name: form.name.trim(),
-          birthDate: form.birthDate,
-          birthTime: resolvedBirthTime || '12:00',
-          gender: form.gender,
-          country: form.country.trim(),
-          city: form.city.trim(),
-        },
-        onJob: (job) => {
-          if (job.message) setMessage(job.message);
-        },
-      });
-      setResult(data);
-      setDailyRecord(saveDailyAnalysis<BaziResult>('bazi', data));
-      setMessage('三層資料流已完成：專業命盤 → AI 解讀 → AI 補強。');
-      scrollToResult();
-      if (targetMode === 'self') markGrowthModuleCompleted('bazi', data.aiReinforcementPlan.first.brandElement);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : '目前無法完成八字命盤。');
+      setLoading(true);
+      setResult(null);
+      setMessage('已交給太極 AI Core 排程，第一層正在建立專業八字命盤。');
+      try {
+        const data = await runAnalysisJobClient<BaziResult>({
+          analysisType: 'bazi',
+          timeoutMs: 45_000,
+          maxRecoveryAttempts: 2,
+          idempotencyKey: `bazi_${form.birthDate}_${resolvedBirthTime}_${form.gender}_${Date.now()}`,
+          sessionId: createSessionId(),
+          inputData: {
+            name: form.name.trim(),
+            birthDate: form.birthDate,
+            birthTime: resolvedBirthTime || '12:00',
+            gender: form.gender,
+            country: form.country.trim(),
+            city: form.city.trim(),
+          },
+          onJob: (job) => {
+            if (job.message) setMessage(job.message);
+          },
+        });
+        setResult(data);
+        setDailyRecord(saveDailyAnalysis<BaziResult>('bazi', data));
+        setMessage('三層資料流已完成：專業命盤 → AI 解讀 → AI 補強。');
+        scrollToResult();
+        if (targetMode === 'self') markGrowthModuleCompleted('bazi', data.aiReinforcementPlan.first.brandElement);
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : '目前無法完成八字命盤。');
+      } finally {
+        setLoading(false);
+      }
     } finally {
-      setLoading(false);
+      submitLockRef.current = false;
     }
   }
 
