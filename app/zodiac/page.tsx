@@ -26,6 +26,7 @@ type AnalysisJob = {
   progressPercent: number | null;
   message: string;
   resultId: string | null;
+  result?: unknown;
   errorCode?: string | null;
   errorMessage?: string | null;
 };
@@ -316,7 +317,7 @@ async function requestZodiacAnalysis(
     };
   }
 
-  async function createJob(attempt: number) {
+  async function createJob(attempt: number): Promise<{ job: AnalysisJob; result?: ZodiacResult }> {
     const requestBody = buildRequestBody(attempt);
     updateTraceStep(onTrace, 'received', 'running', attempt > 0 ? '分拆任務中斷，已用同一份資料自動重新送出。' : `收到 ${input.analysisTarget === 'self' ? 'SELF' : 'OTHER'} 分析資料。`);
     console.info('[ZODIAC][REQUEST_BODY]', { ...requestBody, inputData: { ...input, nameLength: input.name.trim().length, name: undefined } });
@@ -337,7 +338,20 @@ async function requestZodiacAnalysis(
     onJob(nextJob);
     updateTraceStep(onTrace, 'received', 'done', `HTTP ${created.status} / ${nextJob.jobId}`);
     updateTraceStep(onTrace, 'sign', nextJob.status === 'PROCESSING' || nextJob.status === 'FINALIZING' || nextJob.status === 'COMPLETED' ? 'done' : 'running', nextJob.progressStage);
-    return nextJob;
+
+    // Vercel serverless instances don't share memory: by the time a later poll runs on a
+    // different instance, this job may look like it never existed (JOB_NOT_FOUND), even
+    // though it genuinely completed. The API now runs the job to completion inside the
+    // same request and embeds the result inline — use it directly and skip any further
+    // cross-instance lookups whenever it's already present.
+    if (nextJob.status === 'COMPLETED' && created.body.result) {
+      updateTraceStep(onTrace, 'ai', 'done', 'AI 分析已完成。');
+      const inlineResult = created.body.result as ZodiacResult;
+      updateTraceStep(onTrace, 'element', inlineResult.fiveElement ? 'done' : 'error', inlineResult.fiveElement ? '五元素整合完成。' : '五元素資料缺失。');
+      updateTraceStep(onTrace, 'done', 'done', '結果已準備完成。');
+      return { job: nextJob, result: inlineResult };
+    }
+    return { job: nextJob };
   }
 
   function canRecover(response: { status: number; body: ApiResponse<unknown> }) {
@@ -364,7 +378,9 @@ async function requestZodiacAnalysis(
       }
       if (canRecover(result)) {
         recoveryAttempts += 1;
-        job = await createJob(recoveryAttempts);
+        createdJob = await createJob(recoveryAttempts);
+        if (createdJob.result) return createdJob.result;
+        job = createdJob.job;
         continue;
       }
       updateTraceStep(onTrace, 'done', 'error', result.body.message || result.body.error || '結果讀取失敗。');
@@ -382,7 +398,9 @@ async function requestZodiacAnalysis(
     if (!next.body.ok || !next.body.data) {
       if (canRecover(next)) {
         recoveryAttempts += 1;
-        job = await createJob(recoveryAttempts);
+        createdJob = await createJob(recoveryAttempts);
+        if (createdJob.result) return createdJob.result;
+        job = createdJob.job;
         continue;
       }
       updateTraceStep(onTrace, 'ai', 'error', next.body.message || next.body.error || '任務狀態讀取失敗。');
