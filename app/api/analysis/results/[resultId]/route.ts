@@ -13,7 +13,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const stored = getAnalysisResult(resultId);
 
   if (!stored) {
-    return friendlyErrorResponse(requestId, 'RESULT_NOT_FOUND', '\u5206\u6790\u7d50\u679c\u5df2\u904e\u671f\u6216\u4e0d\u5b58\u5728\uff0c\u8acb\u91cd\u65b0\u9001\u51fa\u3002', 404);
+    return friendlyErrorResponse(requestId, 'RESULT_NOT_FOUND', '分析結果狀態已重整，系統會自動用同一份資料接續分析。', 404);
   }
 
   const job = getAnalysisJob(stored.jobId);

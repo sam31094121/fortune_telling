@@ -10,22 +10,30 @@ export const IDENTITY_TARGET_LABEL: Record<AnalysisIdentityTarget, string> = {
   guest: '\u89aa\u670b\u597d\u53cb',
 };
 
+let memoryIdentityTarget: AnalysisIdentityTarget | null = null;
+
+function normalizeIdentityTarget(value: unknown): AnalysisIdentityTarget | null {
+  return value === 'self' || value === 'guest' ? value : null;
+}
+
 export function getAnalysisIdentityTarget(): AnalysisIdentityTarget | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined') return memoryIdentityTarget;
   try {
-    const value = window.localStorage.getItem(IDENTITY_TARGET_STORAGE_KEY);
-    return value === 'self' || value === 'guest' ? value : null;
+    const value = normalizeIdentityTarget(window.localStorage.getItem(IDENTITY_TARGET_STORAGE_KEY));
+    if (value) memoryIdentityTarget = value;
+    return value ?? memoryIdentityTarget;
   } catch {
-    return null;
+    return memoryIdentityTarget;
   }
 }
 
 export function setAnalysisIdentityTarget(target: AnalysisIdentityTarget) {
+  memoryIdentityTarget = target;
   if (typeof window === 'undefined') return;
   try {
     window.localStorage.setItem(IDENTITY_TARGET_STORAGE_KEY, target);
   } catch {
-    // Some in-app browsers restrict localStorage. The current page state still works.
+    // LINE and other in-app browsers may block storage; keep this page session alive in memory.
   }
 
   window.dispatchEvent(new CustomEvent(IDENTITY_TARGET_UPDATED_EVENT, {

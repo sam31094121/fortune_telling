@@ -203,12 +203,16 @@ function isCurrentBaziResult(value: BaziResult | null | undefined): value is Baz
 }
 
 function createSessionId() {
-  if (typeof window === 'undefined') return 'server';
-  const key = 'tdh_bazi_session_v3';
-  const existing = window.sessionStorage.getItem(key);
-  if (existing) return existing;
   const next = `bazi_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
-  window.sessionStorage.setItem(key, next);
+  if (typeof window === 'undefined') return next;
+  const key = 'tdh_bazi_session_v3';
+  try {
+    const existing = window.sessionStorage.getItem(key);
+    if (existing) return existing;
+    window.sessionStorage.setItem(key, next);
+  } catch {
+    // LINE WebView/private browsers can block sessionStorage; keep analysis usable with a fresh id.
+  }
   return next;
 }
 
@@ -361,6 +365,14 @@ export default function BaziPage() {
     setResult(record.result);
   }, []);
 
+  useEffect(() => {
+    if (!result || loading) return;
+    const timer = window.setTimeout(() => {
+      resultSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 180);
+    return () => window.clearTimeout(timer);
+  }, [result, loading]);
+
   async function handleSubmit() {
     const existing = readDailyAnalysis<BaziResult>('bazi');
     if (existing) {
@@ -406,6 +418,8 @@ export default function BaziPage() {
     try {
       const data = await runAnalysisJobClient<BaziResult>({
         analysisType: 'bazi',
+        timeoutMs: 45_000,
+        maxRecoveryAttempts: 2,
         idempotencyKey: `bazi_${form.birthDate}_${resolvedBirthTime}_${form.gender}_${Date.now()}`,
         sessionId: createSessionId(),
         inputData: {
@@ -423,6 +437,7 @@ export default function BaziPage() {
       setResult(data);
       setDailyRecord(saveDailyAnalysis<BaziResult>('bazi', data));
       setMessage('三層資料流已完成：專業命盤 → AI 解讀 → AI 補強。');
+      scrollToResult();
       if (targetMode === 'self') markGrowthModuleCompleted('bazi', data.aiReinforcementPlan.first.brandElement);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : '目前無法完成八字命盤。');

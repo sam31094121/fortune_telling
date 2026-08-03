@@ -14,7 +14,7 @@ export type AnalysisJobPublic = {
   errorMessage?: string | null;
 };
 
-type ApiResponse<T> = { ok: boolean; success?: boolean; data?: T; message?: string; error?: string };
+type ApiResponse<T> = { ok: boolean; success?: boolean; data?: T; message?: string; error?: string; code?: string };
 
 async function safeJson<T>(url: string, init: RequestInit | undefined, timeoutMs: number): Promise<{ status: number; body: T }> {
   const controller = new AbortController();
@@ -45,35 +45,56 @@ export async function runAnalysisJobClient<TResult>(options: {
   idempotencyKey: string;
   timeoutMs?: number;
   pollIntervalMs?: number;
+  maxRecoveryAttempts?: number;
   onJob?: (job: AnalysisJobPublic) => void;
 }): Promise<TResult> {
-  const timeoutMs = options.timeoutMs ?? 20_000;
+  const timeoutMs = options.timeoutMs ?? 45_000;
   const pollIntervalMs = options.pollIntervalMs ?? 650;
+  const maxRecoveryAttempts = options.maxRecoveryAttempts ?? 2;
   const started = Date.now();
   const remaining = () => Math.max(1, timeoutMs - (Date.now() - started));
+  let recoveryAttempts = 0;
 
-  const created = await safeJson<ApiResponse<AnalysisJobPublic>>('/api/analysis/jobs', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      analysisType: options.analysisType,
-      idempotencyKey: options.idempotencyKey,
-      sessionId: options.sessionId,
-      inputData: options.inputData,
-    }),
-  }, remaining());
+  async function createJob(attempt: number) {
+    const created = await safeJson<ApiResponse<AnalysisJobPublic>>('/api/analysis/jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        analysisType: options.analysisType,
+        idempotencyKey: attempt === 0 ? options.idempotencyKey : `${options.idempotencyKey}:recovery:${attempt}`,
+        sessionId: options.sessionId,
+        inputData: options.inputData,
+      }),
+    }, remaining());
 
-  if (!created.body.ok || !created.body.data?.jobId) {
-    throw new Error(created.body.message || created.body.error || '目前無法建立分析任務，請稍後再試。');
+    if (!created.body.ok || !created.body.data?.jobId) {
+      throw new Error(created.body.message || created.body.error || '目前無法建立分析任務，請稍後再試。');
+    }
+
+    return created.body.data;
   }
 
-  let job = created.body.data;
+  function canRecover(response: { status: number; body: ApiResponse<unknown> }) {
+    return (
+      recoveryAttempts < maxRecoveryAttempts &&
+      response.status === 404 &&
+      (response.body.code === 'JOB_NOT_FOUND' || response.body.code === 'RESULT_NOT_FOUND')
+    );
+  }
+
+  let job = await createJob(recoveryAttempts);
   options.onJob?.(job);
 
   while (Date.now() - started < timeoutMs) {
     if (job.status === 'COMPLETED' && job.resultId) {
       const result = await safeJson<ApiResponse<TResult>>('/api/analysis/results/' + job.resultId, undefined, remaining());
       if (result.body.ok && result.body.data) return result.body.data;
+      if (canRecover(result)) {
+        recoveryAttempts += 1;
+        job = await createJob(recoveryAttempts);
+        options.onJob?.(job);
+        continue;
+      }
       throw new Error(result.body.message || result.body.error || '分析結果尚未完成，請稍後再試。');
     }
     if (job.status === 'FAILED' || job.status === 'TIMEOUT' || job.status === 'CANCELLED') {
@@ -83,6 +104,12 @@ export async function runAnalysisJobClient<TResult>(options: {
     await new Promise((resolve) => window.setTimeout(resolve, pollIntervalMs));
     const next = await safeJson<ApiResponse<AnalysisJobPublic>>('/api/analysis/jobs/' + job.jobId, undefined, remaining());
     if (!next.body.ok || !next.body.data) {
+      if (canRecover(next)) {
+        recoveryAttempts += 1;
+        job = await createJob(recoveryAttempts);
+        options.onJob?.(job);
+        continue;
+      }
       throw new Error(next.body.message || next.body.error || '目前無法讀取分析狀態。');
     }
     job = next.body.data;
