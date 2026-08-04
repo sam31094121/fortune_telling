@@ -1,7 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { TarotCard, TarotDeckCard, TarotReadingScope } from '@/features/tarot/types';
+import Link from 'next/link';
+import type { TarotCard, TarotDeckCard, TarotReading, TarotReadingCard, TarotReadingScope } from '@/features/tarot/types';
+import { createTarotIntegrationSignal, recordTarotIntegrationSignal } from '@/features/tarot/services/integration';
 import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 
 type TarotOriginalFortuneTellerProps = {
@@ -42,6 +44,17 @@ const POSITIONS: Array<{ id: DrawnPosition; label: string }> = [
   { id: 'present', label: '現在' },
   { id: 'future', label: '未來' },
 ];
+
+const POSITION_KEY: Record<DrawnPosition, TarotReadingCard['positionKey']> = {
+  past: 'situation',
+  present: 'core',
+  future: 'action',
+};
+
+function createClientReadingId() {
+  if (typeof globalThis.crypto?.randomUUID === 'function') return globalThis.crypto.randomUUID();
+  return `tarot_client_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+}
 
 const CHIME_SELECTOR: Record<DrawnPosition, string> = {
   past: '.cards__chime1-sfx',
@@ -99,6 +112,8 @@ export default function TarotOriginalFortuneTeller({
   const [drawAnimationReady, setDrawAnimationReady] = useState(false);
   const [readReady, setReadReady] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [growthSyncState, setGrowthSyncState] = useState<'idle' | 'saved' | 'single_use'>('idle');
+  const growthSyncedReadingRef = useRef<string | null>(null);
 
   const orderedDeck = useMemo(
     () => deck.map((deckCard) => ({ ...deckCard, orientation: 'upright' as const })),
@@ -180,8 +195,40 @@ export default function TarotOriginalFortuneTeller({
       setFinished(true);
       playAudio(rootRef.current, '.reveal__piano-sfx', { loop: true, volume: 0.34 });
       onComplete?.(drawnCards.map((drawnCard) => drawnCard.deckCard));
+
+      const completingCard = drawnByPosition.get('future') ?? drawnCards[drawnCards.length - 1];
+      if (completingCard && growthSyncedReadingRef.current !== completingCard.deckCard.deckKey) {
+        growthSyncedReadingRef.current = completingCard.deckCard.deckKey;
+        if (scope === 'self') {
+          const now = new Date().toISOString();
+          const cards: TarotReadingCard[] = drawnCards.map((drawnCard, index) => ({
+            position: index,
+            positionKey: POSITION_KEY[drawnCard.position],
+            positionLabel: POSITIONS.find((item) => item.id === drawnCard.position)?.label ?? drawnCard.position,
+            cardId: drawnCard.card.id,
+            orientation: drawnCard.deckCard.orientation,
+            deckOrder: drawnCard.deckCard.order,
+          }));
+          const reading: TarotReading = {
+            id: createClientReadingId(),
+            category: 'custom',
+            question,
+            cardId: completingCard.card.id,
+            orientation: completingCard.deckCard.orientation,
+            scope,
+            spreadType: 'three_card',
+            cards,
+            createdAt: now,
+          };
+          const signal = createTarotIntegrationSignal(reading, completingCard.card);
+          recordTarotIntegrationSignal(signal);
+          setGrowthSyncState('saved');
+        } else {
+          setGrowthSyncState('single_use');
+        }
+      }
     }
-  }, [drawnCards, onComplete]);
+  }, [drawnByPosition, drawnCards, onComplete, question, scope]);
 
   const handleDraw = useCallback(() => {
     if (orderedDeck.length < 3) return;
@@ -210,6 +257,8 @@ export default function TarotOriginalFortuneTeller({
     setDrawAnimationReady(false);
     setReadReady(false);
     setFinished(false);
+    setGrowthSyncState('idle');
+    growthSyncedReadingRef.current = null;
     playAudio(rootRef.current, '.cards__slide-sfx');
 
     const fadeTimer = window.setTimeout(() => setCardsFaded(true), 1000);
@@ -336,6 +385,24 @@ export default function TarotOriginalFortuneTeller({
               );
             })}
           </div>
+
+          {finished && (
+            <div className="tarot-growth-complete" data-tarot-growth-state={growthSyncState} role="status" aria-live="polite">
+              <p className="tarot-growth-complete__eyebrow">TASK COMPLETE</p>
+              <h2>{growthSyncState === 'saved' ? '塔羅牌任務已完成，AI 個人成長中心已更新。' : '塔羅牌單次任務已完成。'}</h2>
+              <p>
+                {growthSyncState === 'saved'
+                  ? '本次三張牌、正位與五元素訊號已寫入成長中心。回到首頁後會顯示 8/8，並可開啟 AI 個人成長中心。'
+                  : '這次是親朋好友模式，只保留本次抽牌結果，不寫入你的會員成長中心。'}
+              </p>
+              {growthSyncState === 'saved' && (
+                <div className="tarot-growth-complete__actions">
+                  <Link href="/" className="tarot-growth-complete__primary">回首頁查看 8/8</Link>
+                  <Link href="/growth-center" className="tarot-growth-complete__secondary">開啟 AI 個人成長中心</Link>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="reveal__actions">
             {!finished && readReady && (

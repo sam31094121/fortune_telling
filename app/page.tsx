@@ -1154,17 +1154,18 @@ type HomeGrowthModuleGuide = {
   cta: string;
   href?: string;
   action?: 'number-modal';
+  sticky: string;
 };
 
 const HOME_GROWTH_MODULE_GUIDES: HomeGrowthModuleGuide[] = [
-  { id: 'number', label: '數字論吉凶', helper: '完成手機後 4 碼、6 碼、8 碼或完整 10 碼分析。', cta: '去完成數字論吉凶', action: 'number-modal' },
-  { id: 'ziwei', label: 'AI 紫微斗數', helper: '完成紫微命盤探索。', cta: '去完成紫微斗數', href: '/insight' },
-  { id: 'soul_match', label: 'AI 靈魂配對', helper: '完成雙人配對探索。', cta: '去完成靈魂配對', href: '/match' },
-  { id: 'music', label: 'AI 生成歌曲', helper: '完成生命音樂生成。', cta: '去生成一首歌', href: '/music' },
-  { id: 'nameology', label: 'AI 姓名學', helper: '完成姓名學分析。', cta: '去完成姓名學', href: '/nameology' },
-  { id: 'bazi', label: 'AI 生辰八字', helper: '完成八字命盤分析。', cta: '去完成八字命盤', href: '/bazi' },
-  { id: 'zodiac', label: 'AI \u897f\u6d0b\u661f\u5ea7', helper: '\u5b8c\u6210\u897f\u6d0b\u661f\u5ea7\u4eba\u683c\u5206\u6790\u3002', cta: '\u53bb\u5b8c\u6210\u897f\u6d0b\u661f\u5ea7', href: '/zodiac' },
-  { id: 'tarot', label: 'AI 塔羅牌', helper: '完成塔羅牌抽牌、正逆位與五元素判定。', cta: '去完成塔羅牌', href: '/tarot' },
+  { id: 'number', label: '數字論吉凶', helper: '完成手機後 4 碼、6 碼、8 碼或完整 10 碼分析。', cta: '去完成數字論吉凶', action: 'number-modal', sticky: '用手機號碼建立第一個行動訊號。' },
+  { id: 'ziwei', label: 'AI 紫微斗數', helper: '完成紫微命盤探索。', cta: '去完成紫微斗數', href: '/insight', sticky: '把長期方向接進成長中心。' },
+  { id: 'soul_match', label: 'AI 靈魂配對', helper: '完成雙人配對探索。', cta: '去完成靈魂配對', href: '/match', sticky: '讓關係互動留下可追蹤提醒。' },
+  { id: 'music', label: 'AI 生成歌曲', helper: '完成生命音樂生成。', cta: '去生成一首歌', href: '/music', sticky: '把個人節奏變成可回聽記憶。' },
+  { id: 'nameology', label: 'AI 姓名學', helper: '完成姓名學分析。', cta: '去完成姓名學', href: '/nameology', sticky: '補上姓名能量與性格支點。' },
+  { id: 'bazi', label: 'AI 生辰八字', helper: '完成八字命盤分析。', cta: '去完成八字命盤', href: '/bazi', sticky: '讓出生結構接入元素補強。' },
+  { id: 'zodiac', label: 'AI \u897f\u6d0b\u661f\u5ea7', helper: '\u5b8c\u6210\u897f\u6d0b\u661f\u5ea7\u4eba\u683c\u5206\u6790\u3002', cta: '\u53bb\u5b8c\u6210\u897f\u6d0b\u661f\u5ea7', href: '/zodiac', sticky: '加入星座人格與每週提醒。' },
+  { id: 'tarot', label: 'AI 塔羅牌', helper: '完成塔羅牌抽牌、正逆位與五元素判定。', cta: '去完成塔羅牌', href: '/tarot', sticky: '用當下提問補齊最後一段訊號。' },
 ];
 
 type VipGrowthUnlockCardProps = {
@@ -1192,6 +1193,52 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
       ? `目前已完成 ${safeCompleted} 項探索，還差 ${remaining} 項。下一步先完成：${nextModule.label}。`
       : `目前已完成 ${safeCompleted} 項探索，距離解鎖還差 ${remaining} 項。`;
 
+  const renderModuleRoute = (module: HomeGrowthModuleGuide, index: number) => {
+    const done = completedSet.has(module.id);
+    const isNext = !unlocked && nextModule?.id === module.id;
+    const state = done ? 'done' : isNext ? 'next' : 'pending';
+    const statusText = done ? '已完成' : isNext ? '下一步' : '待探索';
+    const commonClassName = `growth-module-route growth-module-route--${state}`;
+    const inner = (
+      <>
+        <span className="growth-module-route__index">{String(index + 1).padStart(2, '0')}</span>
+        <span className="growth-module-route__body">
+          <span className="growth-module-route__label">{module.label}</span>
+          <span className="growth-module-route__helper">{done ? '已寫入成長進度。' : module.sticky}</span>
+        </span>
+        <span className="growth-module-route__status">{statusText}</span>
+      </>
+    );
+
+    if (module.action === 'number-modal') {
+      return (
+        <button
+          key={module.id}
+          type="button"
+          onClick={onOpenNumber}
+          className={commonClassName}
+          data-growth-module={module.id}
+          data-growth-state={state}
+          aria-label={`${module.label}：${statusText}`}
+        >
+          {inner}
+        </button>
+      );
+    }
+
+    return (
+      <Link
+        key={module.id}
+        href={module.href ?? '/'}
+        className={commonClassName}
+        data-growth-module={module.id}
+        data-growth-state={state}
+        aria-label={`${module.label}：${statusText}`}
+      >
+        {inner}
+      </Link>
+    );
+  };
   const nextAction = !unlocked && nextModule
     ? nextModule.action === 'number-modal'
       ? (
@@ -1254,6 +1301,9 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
           {nextModule && !unlocked && (
             <p className="mt-3 text-xs font-semibold leading-6 text-cyan-100/85">{nextModule.helper}</p>
           )}
+          <div className="growth-module-route-grid" aria-label="八張探索卡片連結">
+            {HOME_GROWTH_MODULE_GUIDES.map(renderModuleRoute)}
+          </div>
           {justUnlocked && (
             <p className="mt-3 rounded-xl border border-amber-200/25 bg-amber-300/12 px-4 py-3 text-sm font-black leading-7 text-amber-100 animate-pulse">
               恭喜，AI 已完成你的專屬成長檔案。
@@ -1281,17 +1331,16 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
           {unlocked ? '每週提醒、補強元素、能量色與行動任務已開放。' : '按下引導按鈕，直接前往下一張尚未完成的探索卡。'}
         </p>
         {unlocked ? (
-          <span className="inline-flex items-center justify-center rounded-full border border-amber-200/40 bg-amber-300 px-5 py-3 text-sm font-black text-slate-950 shadow-[0_0_24px_rgba(251,191,36,0.22)] transition">
-            立即進入
-          </span>
+          <Link
+            href="/growth-center"
+            className="inline-flex items-center justify-center rounded-full border border-amber-200/40 bg-amber-300 px-5 py-3 text-sm font-black text-slate-950 shadow-[0_0_24px_rgba(251,191,36,0.22)] transition active:scale-[0.98]"
+          >
+            開啟 AI 個人成長中心
+          </Link>
         ) : nextAction}
       </div>
     </section>
   );
-
-  if (unlocked) {
-    return <Link href="/growth-center" className="block" aria-label="進入 AI 個人成長中心">{content}</Link>;
-  }
 
   return content;
 }
