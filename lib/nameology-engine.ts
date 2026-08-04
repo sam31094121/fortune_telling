@@ -1,5 +1,5 @@
 import type { BloodType, DimensionScores, Gender } from './types';
-import { getNameologyRadicalProfile, resolveNameologyRadicalProfile } from './nameology-radical-dictionary';
+import { getNameologyRadicalProfile } from './nameology-radical-dictionary';
 
 export type NameologyElement = '木' | '火' | '土' | '金' | '水';
 export type NameologyRelation = '相生' | '相剋' | '比和';
@@ -86,7 +86,7 @@ export type NameologyCharAnalysis = {
   position: number;
   role: string;
   strokeCount: number;
-  strokeSource: 'dictionary_file' | 'fixed_table' | 'radical_dictionary' | 'structural_estimate';
+  strokeSource: 'dictionary_file' | 'fixed_table' | 'structural_estimate';
   element: NameologyElement;
   yinYang: '陽' | '陰';
   imagery: string;
@@ -410,18 +410,7 @@ function roleForIndex(index: number, total: number) {
   return '名字延伸';
 }
 
-function fallbackGlyph(char: string, element: NameologyElement): CharGlyphProfile {
-  const radicalProfile = resolveNameologyRadicalProfile(char, element);
-  if (radicalProfile) {
-    return {
-      radical: radicalProfile.radical,
-      parts: radicalProfile.partsHint,
-      structure: radicalProfile.structureHint,
-      meaning: radicalProfile.imagery,
-      namingIntent: radicalProfile.namingIntent,
-    };
-  }
-
+function pendingTaiwanDictionaryGlyph(char: string): CharGlyphProfile {
   return {
     radical: '待補臺灣部首',
     parts: [char],
@@ -431,20 +420,20 @@ function fallbackGlyph(char: string, element: NameologyElement): CharGlyphProfil
   };
 }
 
+function fallbackGlyph(char: string, _element: NameologyElement): CharGlyphProfile {
+  return pendingTaiwanDictionaryGlyph(char);
+}
+
 function fallbackProfile(char: string): CharProfile {
   const strokes = estimateStroke(char);
   const element = elementFromNumber(strokes);
-  const radicalProfile = resolveNameologyRadicalProfile(char, element);
   return {
     strokes,
     element,
-    imagery: radicalProfile
-      ? `「${char}」字未在固定筆畫字義表中，但已命中姓名學部首字典：${radicalProfile.imagery}`
-      : `「${char}」字尚未命中臺灣繁體姓名字典，系統只做保守估算並列入待補，不宣告正式部首。`,
-    traits: radicalProfile?.traits ?? [ELEMENT_THEME[element].strength, strokes % 2 === 0 ? '偏向穩定收斂' : '偏向主動開展'],
-    caution: radicalProfile?.caution ?? ELEMENT_THEME[element].caution,
-    glyph: fallbackGlyph(char, element),
-    tendencies: radicalProfile?.tendencyBoosts,
+    imagery: `「${char}」字尚未命中臺灣繁體姓名字典，系統只做保守估算並列入待補，不宣告正式部首。`,
+    traits: [ELEMENT_THEME[element].strength, strokes % 2 === 0 ? '偏向穩定收斂' : '偏向主動開展'],
+    caution: ELEMENT_THEME[element].caution,
+    glyph: pendingTaiwanDictionaryGlyph(char),
   };
 }
 
@@ -480,7 +469,7 @@ function dictionaryEntryToProfile(entry: NameologyDictionaryCharacterEntry): Cha
 function buildNameologyDictionaryStatus(characters: NameologyCharAnalysis[], snapshot: NameologyDictionarySnapshot | undefined): NameologyAnalysis['dictionaryStatus'] {
   const totalCharacters = Math.max(1, characters.length);
   const exactMatches = characters.filter((item) => item.strokeSource === 'dictionary_file').length;
-  const radicalMatches = characters.filter((item) => item.strokeSource === 'radical_dictionary').length;
+  const radicalMatches = 0;
   const estimatedCharacterList = characters.filter((item) => item.strokeSource !== 'dictionary_file').map((item) => item.char);
   const estimatedCharacters = estimatedCharacterList.length;
   const confidence = Math.min(100, Math.round((exactMatches / totalCharacters) * 100));
@@ -979,17 +968,17 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
     const dictionaryEntry = findNameologyDictionaryEntry(dictionarySnapshot, char);
     const fixed = dictionaryEntry ? undefined : CHAR_PROFILE_MAP[char];
     const profile = dictionaryEntry ? dictionaryEntryToProfile(dictionaryEntry) : fixed ?? fallbackProfile(char);
-    const glyph = profile.glyph ?? fallbackGlyph(char, profile.element);
-    const radicalOnly = !dictionaryEntry && !fixed && Boolean(resolveNameologyRadicalProfile(char, profile.element));
+    const verifiedGlyph = profile.glyph ?? fallbackGlyph(char, profile.element);
+    const glyph = dictionaryEntry ? verifiedGlyph : pendingTaiwanDictionaryGlyph(char);
     return {
       char,
       position: index + 1,
       role: roleForIndex(index, sourceChars.length),
       strokeCount: profile.strokes,
-      strokeSource: dictionaryEntry ? 'dictionary_file' as const : fixed ? 'fixed_table' as const : radicalOnly ? 'radical_dictionary' as const : 'structural_estimate' as const,
+      strokeSource: dictionaryEntry ? 'dictionary_file' as const : fixed ? 'fixed_table' as const : 'structural_estimate' as const,
       element: profile.element,
       yinYang: profile.strokes % 2 === 1 ? '陽' as const : '陰' as const,
-      imagery: profile.imagery,
+      imagery: dictionaryEntry ? profile.imagery : `「${char}」尚未命中臺灣繁體姓名字典；姓名性情可先保留模型估算，但部首、拆字與字源故事全部列入待補。`,
       traits: profile.traits,
       caution: profile.caution,
       glyph,

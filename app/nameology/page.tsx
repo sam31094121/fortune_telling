@@ -399,9 +399,9 @@ function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; f
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-serif text-4xl font-black text-amber-100">{item.char}</p>
-                  <p className="mt-1 text-xs text-[color:var(--text-muted)]">{item.role} · {item.strokeCount}畫 · {item.element}{item.yinYang}</p>
+                  <p className="mt-1 text-xs text-[color:var(--text-muted)]">{item.role} · {item.strokeSource === 'dictionary_file' ? <>{item.strokeCount}畫 · {item.element}{item.yinYang}</> : <>{item.strokeCount}畫估算 · 待補臺灣字典</>}</p>
                 </div>
-                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-[color:var(--text-sub)]">部首 {item.glyph.radical}</span>
+                <span className={`rounded-full border px-3 py-1 text-xs ${item.strokeSource === 'dictionary_file' ? 'border-white/10 bg-black/20 text-[color:var(--text-sub)]' : 'border-rose-300/25 bg-rose-950/20 text-rose-100'}`}>{item.strokeSource === 'dictionary_file' ? <>部首 {item.glyph.radical}</> : '待補臺灣部首'}</span>
               </div>
               <p className="mt-4 text-sm leading-7 text-[color:var(--text-main)]">{item.glyph.meaning}</p>
               <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">取名意圖：{item.glyph.namingIntent}</p>
