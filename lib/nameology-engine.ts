@@ -4,6 +4,31 @@ import { getNameologyRadicalProfile, resolveNameologyRadicalProfile } from './na
 export type NameologyElement = '木' | '火' | '土' | '金' | '水';
 export type NameologyRelation = '相生' | '相剋' | '比和';
 
+
+export type NameologyDictionaryCharacterEntry = {
+  character: string;
+  normalizedCharacter: string;
+  radical: string;
+  totalStrokeCount: number;
+  element: NameologyElement;
+  meanings: string[];
+  nameUsageNotes: string[];
+  positiveSignals: string[];
+  attentionSignals: string[];
+  pronunciation?: string[];
+  structureHint?: string;
+  partsHint?: string[];
+  tendencyBoosts?: Partial<Record<NameologyTendencyKey, number>>;
+  sourceId: string;
+  sourceVersion: string;
+};
+
+export type NameologyDictionarySnapshot = {
+  version: string;
+  updatedAt: string;
+  entries: Record<string, NameologyDictionaryCharacterEntry>;
+  variants: Record<string, string>;
+};
 export type NameologyTendencyKey =
   | 'authority'
   | 'gentleness'
@@ -61,7 +86,7 @@ export type NameologyCharAnalysis = {
   position: number;
   role: string;
   strokeCount: number;
-  strokeSource: 'fixed_table' | 'structural_estimate';
+  strokeSource: 'dictionary_file' | 'fixed_table' | 'radical_dictionary' | 'structural_estimate';
   element: NameologyElement;
   yinYang: '陽' | '陰';
   imagery: string;
@@ -188,6 +213,18 @@ export type NameologyReinforcementLayer = {
 
 export type NameologyAnalysis = {
   name: string;
+  dictionaryStatus: {
+    source: 'local_dictionary';
+    version: string;
+    updatedAt: string;
+    totalCharacters: number;
+    exactMatches: number;
+    radicalMatches: number;
+    estimatedCharacters: number;
+    confidence: number;
+    matchedCharacters: string[];
+    estimatedCharacterList: string[];
+  };
   composition: NameologyNameComposition;
   crossCheck: NameologyCrossCheck;
   characters: NameologyCharAnalysis[];
@@ -215,7 +252,7 @@ export type NameologyAnalysis = {
   score: number;
   level: string;
   summary: string;
-  ruleVersion: 'Nameology Core V1.2.0';
+  ruleVersion: 'Nameology Core V1.3.0';
 };
 
 const TENDENCY_META: Record<NameologyTendencyKey, { label: string; tone: string; meaning: string }> = {
@@ -405,6 +442,57 @@ function fallbackProfile(char: string): CharProfile {
     caution: radicalProfile?.caution ?? ELEMENT_THEME[element].caution,
     glyph: fallbackGlyph(char, element),
     tendencies: radicalProfile?.tendencyBoosts,
+  };
+}
+
+
+function findNameologyDictionaryEntry(snapshot: NameologyDictionarySnapshot | undefined, char: string) {
+  if (!snapshot) return undefined;
+  const normalized = snapshot.variants[char] ?? char;
+  return snapshot.entries[normalized] ?? snapshot.entries[char];
+}
+
+function dictionaryEntryToProfile(entry: NameologyDictionaryCharacterEntry): CharProfile {
+  const radicalProfile = getNameologyRadicalProfile(entry.radical);
+  const meaning = entry.meanings[0] ?? radicalProfile?.imagery ?? `${entry.character}字以字典資料建立姓名訊號。`;
+  const namingIntent = entry.nameUsageNotes[0] ?? radicalProfile?.namingIntent ?? `取名使用「${entry.character}」，系統以字典筆畫與部首意象做保守判讀。`;
+
+  return {
+    strokes: entry.totalStrokeCount,
+    element: entry.element,
+    imagery: meaning,
+    traits: entry.positiveSignals.length > 0 ? entry.positiveSignals : (radicalProfile?.traits ?? [ELEMENT_THEME[entry.element].strength]),
+    caution: entry.attentionSignals[0] ?? radicalProfile?.caution ?? ELEMENT_THEME[entry.element].caution,
+    glyph: {
+      radical: entry.radical,
+      parts: entry.partsHint ?? radicalProfile?.partsHint ?? [entry.radical, entry.character],
+      structure: entry.structureHint ?? radicalProfile?.structureHint ?? `${entry.radical}部取象`,
+      meaning,
+      namingIntent,
+    },
+    tendencies: entry.tendencyBoosts ?? radicalProfile?.tendencyBoosts,
+  };
+}
+
+function buildNameologyDictionaryStatus(characters: NameologyCharAnalysis[], snapshot: NameologyDictionarySnapshot | undefined): NameologyAnalysis['dictionaryStatus'] {
+  const totalCharacters = Math.max(1, characters.length);
+  const exactMatches = characters.filter((item) => item.strokeSource === 'dictionary_file').length;
+  const radicalMatches = characters.filter((item) => item.strokeSource === 'radical_dictionary').length;
+  const estimatedCharacterList = characters.filter((item) => item.strokeSource === 'structural_estimate').map((item) => item.char);
+  const estimatedCharacters = estimatedCharacterList.length;
+  const confidence = Math.min(100, Math.round(((exactMatches * 1 + radicalMatches * 0.72 + (totalCharacters - exactMatches - radicalMatches - estimatedCharacters) * 0.58) / totalCharacters) * 100));
+
+  return {
+    source: 'local_dictionary',
+    version: snapshot?.version ?? 'embedded-fallback',
+    updatedAt: snapshot?.updatedAt ?? 'not-loaded',
+    totalCharacters,
+    exactMatches,
+    radicalMatches,
+    estimatedCharacters,
+    confidence,
+    matchedCharacters: characters.filter((item) => item.strokeSource === 'dictionary_file').map((item) => item.char),
+    estimatedCharacterList,
   };
 }
 
@@ -868,19 +956,22 @@ function buildNameologyReinforcementLayer(aiInterpretationLayer: NameologyAiInte
 }
 
 
-export function buildNameologyAnalysis(name: string, nameScores: DimensionScores, context?: { gender?: Gender; bloodType?: Exclude<BloodType, ''>; birthDate?: string }): NameologyAnalysis {
+export function buildNameologyAnalysis(name: string, nameScores: DimensionScores, context?: { gender?: Gender; bloodType?: Exclude<BloodType, ''>; birthDate?: string; dictionarySnapshot?: NameologyDictionarySnapshot }): NameologyAnalysis {
   const cleanName = name.trim();
   const sourceChars = Array.from(cleanName).slice(0, 8);
+  const dictionarySnapshot = context?.dictionarySnapshot;
   const characters = sourceChars.map((char, index) => {
-    const fixed = CHAR_PROFILE_MAP[char];
-    const profile = fixed ?? fallbackProfile(char);
+    const dictionaryEntry = findNameologyDictionaryEntry(dictionarySnapshot, char);
+    const fixed = dictionaryEntry ? undefined : CHAR_PROFILE_MAP[char];
+    const profile = dictionaryEntry ? dictionaryEntryToProfile(dictionaryEntry) : fixed ?? fallbackProfile(char);
     const glyph = profile.glyph ?? fallbackGlyph(char, profile.element);
+    const radicalOnly = !dictionaryEntry && !fixed && Boolean(resolveNameologyRadicalProfile(char, profile.element));
     return {
       char,
       position: index + 1,
       role: roleForIndex(index, sourceChars.length),
       strokeCount: profile.strokes,
-      strokeSource: fixed ? 'fixed_table' as const : 'structural_estimate' as const,
+      strokeSource: dictionaryEntry ? 'dictionary_file' as const : fixed ? 'fixed_table' as const : radicalOnly ? 'radical_dictionary' as const : 'structural_estimate' as const,
       element: profile.element,
       yinYang: profile.strokes % 2 === 1 ? '陽' as const : '陰' as const,
       imagery: profile.imagery,
@@ -891,6 +982,7 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
     };
   });
 
+  const dictionaryStatus = buildNameologyDictionaryStatus(characters, dictionarySnapshot);
   const grids = buildFiveGrids(characters);
   const temperamentProfile = buildTemperamentProfile(characters, grids);
   const composition = buildNameComposition(characters, temperamentProfile);
@@ -932,6 +1024,7 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
 
   return {
     name: cleanName,
+    dictionaryStatus,
     composition,
     crossCheck,
     characters,
@@ -963,6 +1056,6 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
     score,
     level: levelFromScore(score),
     summary: `姓名「${cleanName}」的主要訊號是${dominantElement}氣，24性情矩陣顯示偏向${topTemperaments}；${composition.givenNameSummary}${crossCheck.summary} 字義、字形與筆畫組合顯示：你的形象不適合模糊，越能把作為、說話方式與目標放在同一條線上，越容易讓人信任。`,
-    ruleVersion: 'Nameology Core V1.2.0',
+    ruleVersion: 'Nameology Core V1.3.0',
   };
 }

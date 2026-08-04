@@ -42,7 +42,7 @@ const initialForm: FormState = {
 };
 
 const initialSelectionConfirm: SelectionConfirm = { bloodType: false, gender: false };
-const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-three-layer-v3';
+const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-dictionary-v1';
 
 function isCurrentNameologyResult(value?: NameologyDailyResult | null) {
   return Boolean(value?.analysis?.professionalLayer?.characterDecomposition?.length && value.analysis.aiInterpretationLayer?.interpretationPoints?.length && value.analysis.reinforcementLayer?.priorities?.length && value.fiveElement);
@@ -263,15 +263,84 @@ function NameologyAiFlowLayers({ analysis }: { analysis: NameologyAnalysis }) {
   );
 }
 
+
+function NameologyCustomerSummary({ analysis }: { analysis: NameologyAnalysis }) {
+  const firstPriority = analysis.reinforcementLayer?.priorities?.[0];
+  const secondPriority = analysis.reinforcementLayer?.priorities?.[1];
+  const topTendencies = analysis.temperamentProfile.topTendencies.slice(0, 3);
+  const dictionaryStatus = analysis.dictionaryStatus;
+  const dictionaryTone = dictionaryStatus.confidence >= 86 ? '字典命中穩定' : dictionaryStatus.confidence >= 70 ? '字典已命中主要用字' : '部分用字採保守估算';
+
+  return (
+    <section className="fortune-card overflow-hidden border-amber-300/30 bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.20),rgba(15,23,42,0.86)_58%,rgba(2,6,23,0.96)_100%)] p-5 sm:p-7">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-amber-200">NAME DICTIONARY V1</p>
+          <h2 className="mt-3 break-words font-serif text-3xl font-black leading-tight text-amber-100 sm:text-5xl">
+            {analysis.name} 的姓名支點
+          </h2>
+          <p className="mt-4 text-sm font-semibold leading-8 text-[color:var(--text-sub)]">
+            AI 已先讀取姓名字典，再整合生日、血型與性別。客戶第一眼只看結論：你的姓名如何被記住、今天先補哪一個方向、下一步怎麼做。
+          </p>
+        </div>
+        <div className="grid shrink-0 grid-cols-2 gap-3 lg:w-[260px]">
+          <div className="rounded-2xl border border-amber-200/25 bg-amber-950/30 p-4 text-center">
+            <p className="text-[11px] font-bold text-amber-100/75">姓名分數</p>
+            <p className="mt-1 text-4xl font-black text-amber-100">{analysis.score}</p>
+          </div>
+          <div className="rounded-2xl border border-cyan-200/20 bg-cyan-950/25 p-4 text-center">
+            <p className="text-[11px] font-bold text-cyan-100/75">字典信心</p>
+            <p className="mt-1 text-4xl font-black text-cyan-100">{dictionaryStatus.confidence}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+          <p className="text-xs font-black text-amber-100">第一補強</p>
+          <p className="mt-2 text-2xl font-black text-[color:var(--text-main)]">{firstPriority?.element ?? '-'}</p>
+          <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">{firstPriority?.direction ?? '先完成姓名學資料，系統會自動產生補強方向。'}</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+          <p className="text-xs font-black text-cyan-100">性格主軸</p>
+          <p className="mt-2 text-sm font-bold leading-7 text-[color:var(--text-main)]">{topTendencies.map((item) => item.label).join('、')}</p>
+          <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">{analysis.crossCheck.alignmentLabel}</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+          <p className="text-xs font-black text-emerald-100">字典狀態</p>
+          <p className="mt-2 text-sm font-bold leading-7 text-[color:var(--text-main)]">{dictionaryTone}</p>
+          <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">
+            命中 {dictionaryStatus.exactMatches}/{dictionaryStatus.totalCharacters} 字，估算 {dictionaryStatus.estimatedCharacters} 字。
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-amber-200/20 bg-amber-950/20 p-4">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">今天只做一件事</p>
+        <p className="mt-3 text-sm font-black leading-8 text-amber-50">{firstPriority?.action ?? analysis.recommendations[0]}</p>
+        {secondPriority && <p className="mt-2 text-xs leading-6 text-amber-100/75">完成後再補：{secondPriority.element}，不要一次塞太多任務。</p>}
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-bold text-[color:var(--text-muted)]">
+        <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1">字典版本：{dictionaryStatus.version}</span>
+        <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1">規則：{analysis.ruleVersion}</span>
+        {dictionaryStatus.estimatedCharacterList.length > 0 && (
+          <span className="rounded-full border border-rose-200/20 bg-rose-950/20 px-3 py-1 text-rose-100">待補字：{dictionaryStatus.estimatedCharacterList.join('、')}</span>
+        )}
+      </div>
+    </section>
+  );
+}
 function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; fiveElement: FiveElementIntegrationResult }) {
   const topTendencies = analysis.temperamentProfile.topTendencies.slice(0, 4);
   const givenName = analysis.composition.givenName || analysis.name.slice(1);
 
   return (
     <section className="space-y-5">
-      <ProfessionalNameologyLayer analysis={analysis} />
-      <NameologyAiFlowLayers analysis={analysis} />
+      <NameologyCustomerSummary analysis={analysis} />
       <FiveElementPriorityCard result={fiveElement} />
+      <NameologyAiFlowLayers analysis={analysis} />
+      <ProfessionalNameologyLayer analysis={analysis} />
 
       <div className="fortune-card overflow-hidden border-amber-400/25 bg-slate-950/55 p-6 text-center sm:p-8">
         <p className="text-xs font-bold uppercase tracking-[0.32em] text-amber-300">AI 姓名學</p>
@@ -411,6 +480,39 @@ function buildValidationMessage(form: FormState, selectionConfirm: SelectionConf
   return '';
 }
 
+function toSolarDateFromRocParts(rocYearValue: string | undefined, monthValue: string | undefined, dayValue: string | undefined) {
+  const rocYear = Number.parseInt((rocYearValue ?? '').replace(/\D/g, ''), 10);
+  const month = Number.parseInt((monthValue ?? '').replace(/\D/g, ''), 10);
+  const day = Number.parseInt((dayValue ?? '').replace(/\D/g, ''), 10);
+  if (!Number.isFinite(rocYear) || !Number.isFinite(month) || !Number.isFinite(day)) return '';
+  if (rocYear <= 0 || month < 1 || month > 12 || day < 1 || day > 31) return '';
+  const year = rocYear + 1911;
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return '';
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+function readNameologyFormSnapshot(form: FormState, selectionConfirm: SelectionConfirm) {
+  if (typeof document === 'undefined') return { form, selectionConfirm };
+  const root = document.getElementById('nameology-input-form');
+  if (!root) return { form, selectionConfirm };
+  const inputs = Array.from(root.querySelectorAll('input'));
+  const domName = (inputs[0]?.value ?? '').trim();
+  const domBirthDate = toSolarDateFromRocParts(inputs[1]?.value, inputs[2]?.value, inputs[3]?.value);
+  const nextForm: FormState = {
+    ...form,
+    name: domName || form.name,
+    birthDate: form.birthDate || domBirthDate,
+  };
+  return {
+    form: nextForm,
+    selectionConfirm: {
+      bloodType: selectionConfirm.bloodType || Boolean(nextForm.bloodType),
+      gender: selectionConfirm.gender || Boolean(nextForm.gender),
+    },
+  };
+}
+
 export default function NameologyPage() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [selectionConfirm, setSelectionConfirm] = useState<SelectionConfirm>(initialSelectionConfirm);
@@ -461,14 +563,22 @@ export default function NameologyPage() {
       setDailyRecord(null);
     }
 
-    if (!canSubmit || isLoading) {
-      setError(validationMessage);
+    if (isLoading) return;
+
+    const snapshot = readNameologyFormSnapshot(form, selectionConfirm);
+    const submitValidationMessage = buildValidationMessage(snapshot.form, snapshot.selectionConfirm);
+    if (submitValidationMessage) {
+      setForm(snapshot.form);
+      setSelectionConfirm(snapshot.selectionConfirm);
+      setError(submitValidationMessage);
       return;
     }
     if (!getAnalysisIdentityTarget()) {
       setError(getIdentityRequiredMessage());
       return;
     }
+    setForm(snapshot.form);
+    setSelectionConfirm(snapshot.selectionConfirm);
     setIsLoading(true);
     setError('');
     setResult(null);
@@ -478,7 +588,7 @@ export default function NameologyPage() {
       const response = await fetch('/api/nameology-analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(snapshot.form),
       });
       const data = await response.json();
       if (!response.ok || !data?.analysis || !data?.fiveElement) throw new Error(data?.message || data?.error || '姓名學分析暫時無法完成。');

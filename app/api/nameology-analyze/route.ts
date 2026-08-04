@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { buildNameologyAnalysis } from '@/lib/nameology-engine';
 import { buildNameologyFiveElementResult } from '@/lib/five-element-engine';
 import { getNamePersonalityScores } from '@/lib/name-model-db';
+import { loadLocalNameologyDictionary } from '@/lib/nameology-dictionary-loader';
 import type { BloodType, Gender } from '@/lib/types';
 import { isValidBirthday } from '@/lib/validation';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
@@ -35,8 +36,8 @@ function validateNameologyRequest(body: unknown): string | null {
   return null;
 }
 
-function getCacheKey(body: NameologyRequest) {
-  return hashedCacheKey([body.name.trim(), body.birthDate, body.bloodType, body.gender, 'nameology-v4-three-layer']);
+function getCacheKey(body: NameologyRequest, dictionaryVersion: string) {
+  return hashedCacheKey([body.name.trim(), body.birthDate, body.bloodType, body.gender, dictionaryVersion, 'nameology-v5-dictionary-layer']);
 }
 
 export async function POST(request: Request) {
@@ -59,7 +60,8 @@ export async function POST(request: Request) {
     gender: body.gender,
   };
 
-  const cacheKey = getCacheKey(normalized);
+  const dictionarySnapshot = await loadLocalNameologyDictionary();
+  const cacheKey = getCacheKey(normalized, dictionarySnapshot.version);
   const cached = analysisCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION_MS) {
     return NextResponse.json(cached.result, { status: 200, headers: { 'X-Cache': 'HIT' } });
@@ -71,6 +73,7 @@ export async function POST(request: Request) {
       gender: normalized.gender,
       bloodType: normalized.bloodType,
       birthDate: normalized.birthDate,
+      dictionarySnapshot,
     });
     const fiveElement = buildNameologyFiveElementResult(analysis);
     const result = { ok: true, mode: 'nameology', analysis, nameScores, fiveElement };

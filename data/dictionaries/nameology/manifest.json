@@ -1,0 +1,12 @@
+{
+  "version": "nameology_dictionary_v1.0.0",
+  "updatedAt": "2026-08-04T00:00:00+08:00",
+  "files": {
+    "characters": "characters.json",
+    "variants": "variants.json"
+  },
+  "checksum": {
+    "characters": "local-v1",
+    "variants": "local-v1"
+  }
+}

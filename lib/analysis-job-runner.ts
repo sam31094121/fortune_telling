@@ -2,6 +2,7 @@ import { analyzeNumberCore, validateNumberCoreInput } from './number-core-engine
 import { buildNumberFiveElementResult, buildNameologyFiveElementResult, buildBaziFiveElementResult, buildZodiacFiveElementResult, type FiveElementKey } from './five-element-engine';
 import { getNamePersonalityScores } from './name-model-db';
 import { buildNameologyAnalysis } from './nameology-engine';
+import { loadLocalNameologyDictionary } from './nameology-dictionary-loader';
 import { generateInsightAnalysis } from './insight-engine';
 import { analyzeBazi, type BaziAnalysisInput } from './bazi-engine';
 import { analyzeZodiac } from './zodiac-engine';
@@ -136,7 +137,8 @@ async function runNameologyJob(job: AnalysisJob, inputData: unknown) {
 
   updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: null, message: ANALYSIS_MODULES.NAMEOLOGY.loadingCopy.processing });
   const nameScores = getNamePersonalityScores(input.name);
-  const analysis = buildNameologyAnalysis(input.name, nameScores, input);
+  const dictionarySnapshot = await loadLocalNameologyDictionary();
+  const analysis = buildNameologyAnalysis(input.name, nameScores, { ...input, dictionarySnapshot });
 
   updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: ANALYSIS_MODULES.NAMEOLOGY.loadingCopy.finalizing });
   return { ok: true, mode: 'nameology', moduleId: job.moduleId, analysis, nameScores, fiveElement: buildNameologyFiveElementResult(analysis) };
