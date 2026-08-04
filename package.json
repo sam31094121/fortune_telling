@@ -15,7 +15,8 @@
     "share:lan": "node scripts/share-tunnel.js --lan-only",
     "auto-qa": "node scripts/auto-qa.mjs",
     "screen:health": "node scripts/screen-health-monitor.mjs",
-    "screen:watch": "node scripts/screen-health-monitor.mjs --watch"
+    "screen:watch": "node scripts/screen-health-monitor.mjs --watch",
+    "platform:v6:audit": "node scripts/platform-core-v6-audit.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",
