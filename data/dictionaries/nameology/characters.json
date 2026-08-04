@@ -367,6 +367,117 @@
     "sourceUrl": "https://dict.variants.moe.edu.tw/dictView.jsp?ID=21639&la=1"
   },
   {
+    "character": "曾",
+    "normalizedCharacter": "曾",
+    "radical": "曰",
+    "totalStrokeCount": 12,
+    "element": "土",
+    "meanings": [
+      "曾歸曰部，有語詞舒展、承接、層次與家族記憶之象。"
+    ],
+    "nameUsageNotes": [
+      "臺灣教育部異體字字典正字資料為「曾 曰-08-12」，姓名中宜解讀為曰部的表述、承接與層次延展。"
+    ],
+    "positiveSignals": [
+      "有承接力",
+      "重視脈絡",
+      "能累積層次"
+    ],
+    "attentionSignals": [
+      "不要讓過去經驗限制新的選擇。"
+    ],
+    "pronunciation": [
+      "zeng"
+    ],
+    "structureHint": "曰部，上八下曰",
+    "partsHint": [
+      "八",
+      "曰"
+    ],
+    "tendencyBoosts": {
+      "stability": 14,
+      "communication": 10,
+      "resilience": 10
+    },
+    "sourceId": "taiwan-moe-standard-radical-v3",
+    "sourceVersion": "1.0.3",
+    "sourceUrl": "https://dict.variants.moe.edu.tw/dictView.jsp?ID=20325&la=1"
+  },
+  {
+    "character": "鈺",
+    "normalizedCharacter": "鈺",
+    "radical": "金",
+    "totalStrokeCount": 13,
+    "element": "金",
+    "meanings": [
+      "鈺歸金部，有堅金、珍寶、價值與品質之象。"
+    ],
+    "nameUsageNotes": [
+      "臺灣教育部異體字字典正字資料為「鈺 金-05-13」，姓名中宜解讀為金部的珍貴、品質、信任與價值感。"
+    ],
+    "positiveSignals": [
+      "重視品質",
+      "有價值感",
+      "能建立信任"
+    ],
+    "attentionSignals": [
+      "標準高時要避免過度緊繃。"
+    ],
+    "pronunciation": [
+      "yu"
+    ],
+    "structureHint": "金部，金玉成鈺",
+    "partsHint": [
+      "金",
+      "玉"
+    ],
+    "tendencyBoosts": {
+      "resource": 16,
+      "discipline": 12,
+      "visibility": 10
+    },
+    "sourceId": "taiwan-moe-standard-radical-v3",
+    "sourceVersion": "1.0.3",
+    "sourceUrl": "https://dict.variants.moe.edu.tw/dictView.jsp?ID=73726&la=0"
+  },
+  {
+    "character": "勝",
+    "normalizedCharacter": "勝",
+    "radical": "力",
+    "totalStrokeCount": 12,
+    "element": "火",
+    "meanings": [
+      "勝歸力部，有承受、勝任、克服與取得優勢之象。"
+    ],
+    "nameUsageNotes": [
+      "臺灣教育部異體字字典正字資料為「勝 力-10-12」，姓名中宜解讀為力部的承擔、勝任、行動與克服能力。"
+    ],
+    "positiveSignals": [
+      "能承擔",
+      "有行動力",
+      "願意克服挑戰"
+    ],
+    "attentionSignals": [
+      "追求勝出時，也要保留休息與合作空間。"
+    ],
+    "pronunciation": [
+      "sheng"
+    ],
+    "structureHint": "力部，右下作力",
+    "partsHint": [
+      "朕",
+      "力"
+    ],
+    "tendencyBoosts": {
+      "action": 18,
+      "leadership": 12,
+      "resilience": 12
+    },
+    "sourceId": "taiwan-moe-standard-radical-v3",
+    "sourceVersion": "1.0.3",
+    "sourceUrl": "https://dict.variants.moe.edu.tw/dictView.jsp?ID=4320"
+  },
+  {
     "character": "君",
     "normalizedCharacter": "君",
     "radical": "口",

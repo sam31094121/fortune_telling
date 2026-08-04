@@ -1,5 +1,5 @@
 {
-  "version": "nameology_dictionary_zh_tw_moe_v1.0.2",
+  "version": "nameology_dictionary_zh_tw_moe_v1.0.3",
   "locale": "zh-TW",
   "standard": "Taiwan MOE standard radical and stroke layout; dictionary hits are the only source allowed to emit formal radicals",
   "updatedAt": "2026-08-05T00:00:00+08:00",
@@ -8,7 +8,7 @@
     "variants": "variants.json"
   },
   "sources": {
-    "characters": "taiwan-moe-standard-radical-v2",
+    "characters": "taiwan-moe-standard-radical-v3",
     "variants": "local-v1"
   }
 }

@@ -42,7 +42,7 @@ const initialForm: FormState = {
 };
 
 const initialSelectionConfirm: SelectionConfirm = { bloodType: false, gender: false };
-const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-dictionary-zh-tw-v1.0.1';
+const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-dictionary-zh-tw-v1.0.3';
 
 function isCurrentNameologyResult(value?: NameologyDailyResult | null) {
   return Boolean(value?.analysis?.professionalLayer?.characterDecomposition?.length && value.analysis.aiInterpretationLayer?.interpretationPoints?.length && value.analysis.reinforcementLayer?.priorities?.length && value.fiveElement);
