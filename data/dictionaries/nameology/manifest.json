@@ -1,14 +1,35 @@
 {
-  "version": "nameology_dictionary_zh_tw_moe_v1.0.3",
+  "version": "nameology_dictionary_zh_tw_authority_v2.0.0",
   "locale": "zh-TW",
-  "standard": "Taiwan MOE standard radical and stroke layout; dictionary hits are the only source allowed to emit formal radicals",
+  "standard": "Dual-authority Taiwan dictionary contract: CNS11643 Full Character Database owns radicals, total strokes, components and stroke order; MOE Mandarin Dictionary public data owns definitions and example words. Existing hand-curated local entries (25 characters) are preserved as-is and take priority; all other characters are sourced directly from CNS11643 official open data.",
   "updatedAt": "2026-08-05T00:00:00+08:00",
   "files": {
     "characters": "characters.json",
     "variants": "variants.json"
   },
   "sources": {
-    "characters": "taiwan-moe-standard-radical-v3",
+    "characters": "cns11643_opendata_bulk_import_plus_curated_seed_v1",
     "variants": "local-v1"
+  },
+  "authoritySources": {
+    "cns11643": {
+      "name": "CNS11643 全字庫（開放資料）",
+      "role": "radical_total_strokes_bopomofo",
+      "importStatus": "bulk_imported_27478_characters",
+      "license": "政府資料開放授權條款第1版",
+      "downloadedFrom": "https://www.cns11643.gov.tw/opendata/Properties.zip, https://www.cns11643.gov.tw/opendata/MapingTables.zip",
+      "note": "radical + totalStrokeCount + bopomofo imported directly from official CNS_radical.txt / CNS_stroke.txt / CNS_phonetic.txt, cross-referenced by Unicode via Unicode/CNS2UNICODE_Unicode BMP.txt. components and strokeOrder not yet imported (CNS_component*.txt / CNS_strokes_sequence.txt not yet processed)."
+    },
+    "moeDictionary": {
+      "name": "教育部國語辭典公眾授權資料",
+      "role": "definitions_example_words",
+      "importStatus": "schema_ready_pending_bulk_import",
+      "note": "meanings/nameUsageNotes are empty arrays for the 27,478 newly-imported characters; not fabricated placeholder text. Falls back to the 19-radical curated imagery table (lib/nameology-radical-dictionary.ts) or a neutral generic line at render time."
+    },
+    "moeVariants": {
+      "name": "教育部異體字字典既有校對連結",
+      "role": "legacy_radical_cross_check_for_current_seed_entries",
+      "importStatus": "current_seed_reference"
+    }
   }
 }
