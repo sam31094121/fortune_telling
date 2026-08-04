@@ -42,7 +42,7 @@ const initialForm: FormState = {
 };
 
 const initialSelectionConfirm: SelectionConfirm = { bloodType: false, gender: false };
-const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-dictionary-v1';
+const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-dictionary-zh-tw-v1.0.1';
 
 function isCurrentNameologyResult(value?: NameologyDailyResult | null) {
   return Boolean(value?.analysis?.professionalLayer?.characterDecomposition?.length && value.analysis.aiInterpretationLayer?.interpretationPoints?.length && value.analysis.reinforcementLayer?.priorities?.length && value.fiveElement);
@@ -61,6 +61,16 @@ const RADICAL_ELEMENT_STYLE: Record<'木' | '火' | '土' | '金' | '水', { rin
 };
 
 function RadicalPictureStory({ item }: { item: NameologyProfessionalCharacter }) {
+  if (!item.taiwanDictionaryMatched) {
+    return (
+      <div className="mt-5 rounded-2xl border border-rose-300/20 bg-rose-950/20 p-4">
+        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-rose-100">臺灣字典待補</p>
+        <p className="mt-2 text-sm font-bold leading-7 text-rose-50">{item.char} 尚未命中臺灣繁體姓名字典，系統不猜部首。</p>
+        <p className="mt-2 text-xs leading-6 text-rose-100/80">目前只保留筆畫估算與待補提示；補入官方部首、部首外筆畫、總筆畫後，才會開啟部首故事。</p>
+      </div>
+    );
+  }
+
   const style = RADICAL_ELEMENT_STYLE[item.element];
   const steps = [
     { label: '① 部首長什麼樣子', text: `由「${item.parts.join('、') || item.radical}」組成，結構是${item.structure}。` },
@@ -131,10 +141,11 @@ function ProfessionalNameologyLayer({ analysis }: { analysis: NameologyAnalysis 
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap gap-2">
                   <span className="rounded-full border border-cyan-300/20 bg-cyan-950/20 px-3 py-1 text-xs text-cyan-100">{item.role}</span>
-                  <span className="rounded-full border border-amber-300/20 bg-amber-950/20 px-3 py-1 text-xs text-amber-100">{item.strokeCount}{'\u756b'} {'\u00b7'} {item.element}{item.yinYang}</span>
-                  <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-[color:var(--text-sub)]">{'\u90e8\u9996'} {item.radical}</span>
+                  <span className="rounded-full border border-amber-300/20 bg-amber-950/20 px-3 py-1 text-xs text-amber-100">{item.taiwanDictionaryMatched ? <>{item.strokeCount}{'\u756b'} {'\u00b7'} {item.element}{item.yinYang}</> : <>{item.strokeCount}{'\u756b'}估算</>}</span>
+                  <span className={`rounded-full border px-3 py-1 text-xs ${item.taiwanDictionaryMatched ? 'border-white/10 bg-black/20 text-[color:var(--text-sub)]' : 'border-rose-300/25 bg-rose-950/20 text-rose-100'}`}>{item.taiwanDictionaryMatched ? <>{'\u90e8\u9996'} {item.radical}</> : '待補臺灣部首'}</span>
                 </div>
                 <p className="mt-3 break-words text-sm leading-7 text-[color:var(--text-main)]">{item.glyphMeaning}</p>
+                {!item.taiwanDictionaryMatched && <p className="mt-2 rounded-xl border border-rose-300/20 bg-rose-950/20 px-3 py-2 text-xs font-bold leading-6 text-rose-100">此字未命中臺灣字典，不宣告正式部首。</p>}
               </div>
             </div>
 
@@ -269,7 +280,7 @@ function NameologyCustomerSummary({ analysis }: { analysis: NameologyAnalysis })
   const secondPriority = analysis.reinforcementLayer?.priorities?.[1];
   const topTendencies = analysis.temperamentProfile.topTendencies.slice(0, 3);
   const dictionaryStatus = analysis.dictionaryStatus;
-  const dictionaryTone = dictionaryStatus.confidence >= 86 ? '字典命中穩定' : dictionaryStatus.confidence >= 70 ? '字典已命中主要用字' : '部分用字採保守估算';
+  const dictionaryTone = dictionaryStatus.estimatedCharacters === 0 ? '臺灣字典全數命中' : `待補 ${dictionaryStatus.estimatedCharacters} 字：不猜部首`;
 
   return (
     <section className="fortune-card overflow-hidden border-amber-300/30 bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.20),rgba(15,23,42,0.86)_58%,rgba(2,6,23,0.96)_100%)] p-5 sm:p-7">
@@ -280,7 +291,7 @@ function NameologyCustomerSummary({ analysis }: { analysis: NameologyAnalysis })
             {analysis.name} 的姓名支點
           </h2>
           <p className="mt-4 text-sm font-semibold leading-8 text-[color:var(--text-sub)]">
-            AI 已先讀取姓名字典，再整合生日、血型與性別。客戶第一眼只看結論：你的姓名如何被記住、今天先補哪一個方向、下一步怎麼做。
+            AI 已先讀取臺灣繁體姓名字典，先確認每個字的部首與總筆畫，再整合生日、血型與性別。客戶第一眼只看結論：姓名如何被記住、今天先補哪一個方向、下一步怎麼做。
           </p>
         </div>
         <div className="grid shrink-0 grid-cols-2 gap-3 lg:w-[260px]">
@@ -312,6 +323,19 @@ function NameologyCustomerSummary({ analysis }: { analysis: NameologyAnalysis })
           <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">
             命中 {dictionaryStatus.exactMatches}/{dictionaryStatus.totalCharacters} 字，估算 {dictionaryStatus.estimatedCharacters} 字。
           </p>
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-cyan-200/20 bg-cyan-950/20 p-4">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100">臺灣字典部首</p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          {analysis.characters.map((item) => (
+            <div key={`${item.char}-${item.position}`} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+              <p className="text-lg font-black text-[color:var(--text-main)]">{item.char}</p>
+              <p className="mt-1 text-xs font-bold leading-5 text-cyan-100">{item.strokeSource === 'dictionary_file' ? <>部首：{item.glyph.radical} · 總筆畫：{item.strokeCount}</> : <>部首：待補臺灣部首 · 筆畫暫估：{item.strokeCount}</>}</p>
+              <p className="text-[11px] font-semibold leading-5 text-[color:var(--text-muted)]">{item.strokeSource === 'dictionary_file' ? `${item.element}${item.yinYang} · 臺灣字典命中` : '待補臺灣字典 · 不猜部首'}</p>
+            </div>
+          ))}
         </div>
       </div>
 

@@ -129,6 +129,9 @@ export type NameologyProfessionalCharacter = {
   strokeCount: number;
   element: NameologyElement;
   yinYang: '\u967d' | '\u9670';
+  strokeSource: NameologyCharAnalysis['strokeSource'];
+  taiwanDictionaryMatched: boolean;
+  radicalVerificationLabel: string;
   radical: string;
   radicalImagery: string;
   parts: string[];
@@ -420,11 +423,11 @@ function fallbackGlyph(char: string, element: NameologyElement): CharGlyphProfil
   }
 
   return {
-    radical: element,
+    radical: '待補臺灣部首',
     parts: [char],
-    structure: '字形結構判讀',
-    meaning: `「${char}」目前未建立完整測字拆解，先依字形複雜度、筆畫尾數與五行${element}氣判讀。`,
-    namingIntent: `取名使用「${char}」，系統先視為一個帶有${ELEMENT_THEME[element].strength}的姓名訊號；後續可補入正式字源與部首資料。`,
+    structure: '待補臺灣字典',
+    meaning: `「${char}」尚未命中臺灣繁體姓名字典，系統不猜部首，只保留字形與筆畫估算供後續補字典。`,
+    namingIntent: `取名使用「${char}」時，必須先補入臺灣標準部首、部首外筆畫與總筆畫後，才宣告正式拆字。`,
   };
 }
 
@@ -437,7 +440,7 @@ function fallbackProfile(char: string): CharProfile {
     element,
     imagery: radicalProfile
       ? `「${char}」字未在固定筆畫字義表中，但已命中姓名學部首字典：${radicalProfile.imagery}`
-      : `「${char}」字目前未在固定字義表中，系統先依字形複雜度與筆畫尾數做結構判讀。`,
+      : `「${char}」字尚未命中臺灣繁體姓名字典，系統只做保守估算並列入待補，不宣告正式部首。`,
     traits: radicalProfile?.traits ?? [ELEMENT_THEME[element].strength, strokes % 2 === 0 ? '偏向穩定收斂' : '偏向主動開展'],
     caution: radicalProfile?.caution ?? ELEMENT_THEME[element].caution,
     glyph: fallbackGlyph(char, element),
@@ -478,9 +481,9 @@ function buildNameologyDictionaryStatus(characters: NameologyCharAnalysis[], sna
   const totalCharacters = Math.max(1, characters.length);
   const exactMatches = characters.filter((item) => item.strokeSource === 'dictionary_file').length;
   const radicalMatches = characters.filter((item) => item.strokeSource === 'radical_dictionary').length;
-  const estimatedCharacterList = characters.filter((item) => item.strokeSource === 'structural_estimate').map((item) => item.char);
+  const estimatedCharacterList = characters.filter((item) => item.strokeSource !== 'dictionary_file').map((item) => item.char);
   const estimatedCharacters = estimatedCharacterList.length;
-  const confidence = Math.min(100, Math.round(((exactMatches * 1 + radicalMatches * 0.72 + (totalCharacters - exactMatches - radicalMatches - estimatedCharacters) * 0.58) / totalCharacters) * 100));
+  const confidence = Math.min(100, Math.round((exactMatches / totalCharacters) * 100));
 
   return {
     source: 'local_dictionary',
@@ -731,6 +734,7 @@ const ELEMENT_IMAGERY: Record<NameologyElement, string> = {
 };
 
 function radicalImagery(radical: string, element: NameologyElement) {
+  if (radical.includes('待補')) return '此字尚未命中臺灣繁體部首字典，系統暫不宣告正式部首，避免把估算誤當精準結果。';
   const dictionaryProfile = getNameologyRadicalProfile(radical);
   if (dictionaryProfile) return dictionaryProfile.imagery;
 
@@ -741,9 +745,10 @@ function radicalImagery(radical: string, element: NameologyElement) {
 }
 
 function buildCharacterStory(item: NameologyCharAnalysis) {
-  const parts = item.glyph.parts.length > 1 ? item.glyph.parts.join('\u3001') : item.char;
+  const parts = item.glyph.parts.length > 1 ? item.glyph.parts.join('、') : item.char;
   const firstTrait = item.traits[0] ?? ELEMENT_THEME[item.element].strength;
-  return '\u300c' + item.char + '\u300d\u4ee5\u300c' + parts + '\u300d\u6210\u5f62\uff0c\u90e8\u9996\u300c' + item.glyph.radical + '\u300d\u5e36\u51fa' + radicalImagery(item.glyph.radical, item.element) + '\u6b64\u5b57\u5728\u59d3\u540d\u4e2d\u7ad9\u5728\u300c' + item.role + '\u300d\u4f4d\u7f6e\uff0c\u5f62\u6210' + item.element + item.yinYang + '\u7684\u6c23\u8cea\uff0c\u4e3b\u8ef8\u662f' + firstTrait + '\u3002';
+  if (item.glyph.radical.includes('待補')) return '「' + item.char + '」尚未命中臺灣繁體部首字典，系統不猜部首；目前只保留「' + parts + '」字形與' + item.strokeCount + '畫估算，等待補入官方部首後再宣告正式拆字。';
+  return '「' + item.char + '」以「' + parts + '」成形，部首「' + item.glyph.radical + '」帶出' + radicalImagery(item.glyph.radical, item.element) + '此字在姓名中站在「' + item.role + '」位置，形成' + item.element + item.yinYang + '的氣質，主軸是' + firstTrait + '。';
 }
 
 function buildNameologyProfessionalLayer(
@@ -764,6 +769,9 @@ function buildNameologyProfessionalLayer(
       strokeCount: item.strokeCount,
       element: item.element,
       yinYang: item.yinYang,
+      strokeSource: item.strokeSource,
+      taiwanDictionaryMatched: item.strokeSource === 'dictionary_file',
+      radicalVerificationLabel: item.strokeSource === 'dictionary_file' ? '臺灣字典命中' : '待補臺灣字典，不猜部首',
       radical: item.glyph.radical,
       radicalImagery: radicalImagery(item.glyph.radical, item.element),
       parts: item.glyph.parts,
@@ -771,14 +779,21 @@ function buildNameologyProfessionalLayer(
       glyphMeaning: item.glyph.meaning,
       namingIntent: item.glyph.namingIntent,
       storyLine,
-      professionalInterpretation: '\u6b64\u5b57\u4ee5' + item.strokeCount + '\u756b\u5b9a\u4e94\u884c\u70ba' + item.element + '\uff0c' + item.yinYang + '\u6027\u5448\u73fe' + (item.yinYang === '\u967d' ? '\u5916\u653e\u3001\u63a8\u9032\u3001\u4e3b\u52d5\u6210\u5f62' : '\u5167\u6582\u3001\u84c4\u7a4d\u3001\u7a69\u5b9a\u6210\u5f62') + '\uff1b\u653e\u5728' + item.role + '\uff0c\u4e3b\u8981\u5f71\u97ff' + (item.role.includes('\u59d3') ? '\u5bb6\u65cf\u627f\u63a5\u8207\u5916\u5728\u8b58\u5225' : '\u500b\u4eba\u6027\u683c\u3001\u884c\u52d5\u65b9\u5f0f\u8207\u4eba\u751f\u6558\u4e8b') + '\u3002',
+      professionalInterpretation: item.strokeSource === 'dictionary_file' ? '此字以' + item.strokeCount + '畫定五行為' + item.element + '，' + item.yinYang + '性呈現' + (item.yinYang === '陽' ? '外放、推進、主動成形' : '內斂、蓄積、穩定成形') + '；放在' + item.role + '，主要影響' + (item.role.includes('姓') ? '家族承接與外在識別' : '個人性格、行動方式與人生敘事') + '。' : '此字尚未命中臺灣繁體姓名字典，目前只保留筆畫估算，不宣告正式部首、正式字義或正式取名意象。',
       temperamentSignals: tendencySignals,
-      evolutionMaterial: [
-        '\u56fa\u5b9a\u5b57\u5f62\uff1a' + item.glyph.structure,
-        '\u56fa\u5b9a\u90e8\u9996\uff1a' + item.glyph.radical,
-        '\u56fa\u5b9a\u4e94\u884c\uff1a' + item.element,
-        '\u4e3b\u8981\u610f\u5883\uff1a' + item.imagery,
-      ],
+      evolutionMaterial: item.strokeSource === 'dictionary_file'
+        ? [
+            '固定字形：' + item.glyph.structure,
+            '固定部首：' + item.glyph.radical,
+            '固定五行：' + item.element,
+            '主要意境：' + item.imagery,
+          ]
+        : [
+            '臺灣字典待補：' + item.char,
+            '正式部首：不猜測',
+            '正式字義：待補官方資料',
+            '目前只保留筆畫估算：' + item.strokeCount + '畫',
+          ],
     };
   });
   const givenStory = givenChars.length > 0
@@ -811,9 +826,9 @@ function buildNameologyProfessionalLayer(
       compositionSummary: composition.surnameSummary + ' ' + composition.givenNameSummary,
     },
     characterDecomposition,
-    radicalNarrative: characterDecomposition.map((item) => '\u300c' + item.char + '\u300d\u53d6' + item.radical + '\u610f\u8c61\uff1a' + item.radicalImagery).join(' '),
+    radicalNarrative: characterDecomposition.map((item) => item.taiwanDictionaryMatched ? '「' + item.char + '」取' + item.radical + '意象：' + item.radicalImagery : '「' + item.char + '」待補臺灣字典：不猜部首。').join(' '),
     nameStory: '\u59d3\u540d\u6545\u4e8b\u4ee5\u300c' + (composition.surname || name.slice(0, 1)) + '\u300d\u70ba\u6839\uff0c\u627f\u63a5\u5bb6\u65cf\u8207\u5916\u5728\u8b58\u5225\uff1b\u540d\u5b57\u300c' + (composition.givenName || name.slice(1)) + '\u300d\u8ca0\u8cac\u958b\u5c55\u500b\u4eba\u4e3b\u8ef8\u3002' + givenStory,
-    professionalSummary: '\u7b2c\u4e00\u5c64\u5224\u5b9a\u300c' + name + '\u300d\u7684\u53ef\u7528\u7d20\u6750\uff1a\u5b57\u5f62\u4ee5' + characters.map((item) => item.glyph.structure).join('\u3001') + '\u70ba\u9aa8\u67b6\uff0c\u90e8\u9996\u4ee5' + characters.map((item) => item.glyph.radical).join('\u3001') + '\u70ba\u610f\u5883\u5165\u53e3\uff0c\u4e94\u884c\u6d41\u52d5\u5f62\u6210\u5f8c\u7e8c AI \u89e3\u8b80\u7684\u56fa\u5b9a\u57fa\u790e\u3002',
+    professionalSummary: characters.every((item) => item.strokeSource === 'dictionary_file') ? '第一層判定「' + name + '」的可用素材：字形以' + characters.map((item) => item.glyph.structure).join('、') + '為骨架，部首以' + characters.map((item) => item.glyph.radical).join('、') + '為意境入口，五行流動形成後續 AI 解讀的固定基礎。' : '第一層判定「' + name + '」時發現未命中臺灣字典的字；系統先鎖定已命中字，未命中字列入待補，不做部首故事延伸。',
     elementStory: flowStory,
     readingBoundaries: [
       '\u7b2c\u4e00\u5c64\u53ea\u5efa\u7acb\u59d3\u540d\u62c6\u89e3\u3001\u90e8\u9996\u610f\u5883\u3001\u7b46\u756b\u4e94\u884c\u8207\u540d\u5b57\u6545\u4e8b\u3002',
@@ -1044,7 +1059,7 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
       totalGrid ? `${totalGrid.label}${totalGrid.value}畫代表長期方向適合累積${ELEMENT_THEME[totalGrid.element].strength}。` : '總體方向以穩定發展為主。',
     ],
     cautions: [
-      characters.find((item) => item.strokeSource === 'structural_estimate') ? '部分字尚未納入固定筆畫表，已用結構估算，後續可補正式康熙筆畫。' : '姓名字義與筆畫皆可由固定表重算。',
+      characters.find((item) => item.strokeSource !== 'dictionary_file') ? '部分字尚未命中臺灣繁體姓名字典，系統已列為待補，不宣告正式部首。' : '姓名字義、部首與筆畫皆由臺灣繁體姓名字典命中。',
       ...elementFlow.filter((item) => item.relation === '相剋').slice(0, 2).map((item) => item.note),
       dominantTheme.caution,
     ].slice(0, 4),

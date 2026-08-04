@@ -1,4 +1,4 @@
-﻿import type { NameologyElement, NameologyTendencyKey } from './nameology-engine';
+import type { NameologyElement, NameologyTendencyKey } from './nameology-engine';
 
 export const NAMEOLOGY_RADICAL_DICTIONARY_VERSION = 'nameology_radical_dictionary_v1.0.0' as const;
 
@@ -17,6 +17,19 @@ export type NameologyRadicalProfile = {
 };
 
 const NAMEOLOGY_RADICAL_DICTIONARY: NameologyRadicalProfile[] = [
+  {
+    radical: '人',
+    aliases: ['亻'],
+    element: '土',
+    imagery: '人部主關係、信任、承擔、互助與人格站位，姓名中代表做人方式與被他人信任的形象。',
+    namingIntent: '取人部入名，多半希望此人重情義、可信任，能在人際關係中站得穩、說到做到。',
+    structureHint: '人形立身',
+    partsHint: ['人', '關係'],
+    traits: ['可信任', '重情義', '有承擔感'],
+    caution: '太在意他人期待時容易過度承接，需要清楚界線。',
+    tendencyBoosts: { relationship: 16, service: 12, stability: 10 },
+    sampleChars: ['仁', '佩', '信', '佳', '俊', '倫', '傑', '偉', '儀', '佑', '侑', '伶'],
+  },
   {
     radical: '日',
     element: '火',
