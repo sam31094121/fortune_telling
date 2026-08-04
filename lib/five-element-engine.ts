@@ -164,7 +164,9 @@ const ZH_TO_KEY: Record<NameologyElement, FiveElementKey> = {
 const ELEMENT_KEYS = Object.keys(FIVE_ELEMENT_DEFINITIONS) as FiveElementKey[];
 const AI_CORE_ELEMENT_ORDER: AiCoreElementCode[] = ['AIR', 'SPACE', 'WATER', 'FIRE', 'EARTH'];
 
-const FIVE_ELEMENT_CODE_MAP: Record<FiveElementKey, { traditionalElement: TraditionalFiveElementCode; brandElement: BrandFiveElementCode; productId: string }> = {
+// Exported: the canonical traditional<->brand element mapping, so other
+// modules can convert between the two systems instead of re-declaring it.
+export const FIVE_ELEMENT_CODE_MAP: Record<FiveElementKey, { traditionalElement: TraditionalFiveElementCode; brandElement: BrandFiveElementCode; productId: string }> = {
   metal: { traditionalElement: 'METAL', brandElement: 'SPACE', productId: 'bracelet_space_core' },
   wood: { traditionalElement: 'WOOD', brandElement: 'AIR', productId: 'bracelet_air_core' },
   water: { traditionalElement: 'WATER', brandElement: 'WATER', productId: 'bracelet_water_core' },
@@ -213,7 +215,10 @@ const TENDENCY_TO_ELEMENT: Partial<Record<NameologyTendencyKey, FiveElementKey>>
   feminine: 'water',
 };
 
-const GENERATES: Record<FiveElementKey, FiveElementKey> = {
+// Exported so other modules that need the canonical 相生/相剋 cycle (e.g. the
+// match/soul-pairing five-element engine) derive it from here instead of
+// hand-maintaining a second copy that could silently drift out of sync.
+export const GENERATES: Record<FiveElementKey, FiveElementKey> = {
   wood: 'fire',
   fire: 'earth',
   earth: 'metal',
@@ -221,7 +226,7 @@ const GENERATES: Record<FiveElementKey, FiveElementKey> = {
   water: 'wood',
 };
 
-const CONTROLS: Record<FiveElementKey, FiveElementKey> = {
+export const CONTROLS: Record<FiveElementKey, FiveElementKey> = {
   wood: 'earth',
   earth: 'water',
   water: 'fire',

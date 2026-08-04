@@ -1,6 +1,51 @@
 import { AI_CORE_JUDGEMENT_PRINCIPLE } from './ai-language-principle';
+import {
+  GENERATES as SHARED_GENERATES,
+  CONTROLS as SHARED_CONTROLS,
+  FIVE_ELEMENT_CODE_MAP,
+  getFiveElementName,
+  type BrandFiveElementCode,
+} from './five-element-engine';
 
 export type MatchFiveElementKey = 'earth' | 'water' | 'fire' | 'air' | 'space';
+
+// Match's public API has always used lowercase keys (earth/water/fire/air/space)
+// throughout app/match/page.tsx and the /api/match-generate response, so that
+// external shape is kept unchanged. Internally, everything about *which*
+// element generates/controls which, and what each is called, is derived from
+// the shared lib/five-element-engine.ts (the same source bazi/zodiac/nameology/
+// number use) instead of a second hand-maintained copy of the 相生相剋 cycle --
+// previously this file duplicated that table independently, which is exactly
+// the kind of drift risk (one gets updated, the other doesn't) that produces
+// customer-visible contradictions between cards.
+const MATCH_TO_BRAND: Record<MatchFiveElementKey, BrandFiveElementCode> = {
+  earth: 'EARTH',
+  water: 'WATER',
+  fire: 'FIRE',
+  air: 'AIR',
+  space: 'SPACE',
+};
+
+const BRAND_TO_MATCH: Record<BrandFiveElementCode, MatchFiveElementKey> = {
+  EARTH: 'earth',
+  WATER: 'water',
+  FIRE: 'fire',
+  AIR: 'air',
+  SPACE: 'space',
+};
+
+function deriveMatchTable(
+  sharedTable: typeof SHARED_GENERATES,
+): Record<MatchFiveElementKey, MatchFiveElementKey> {
+  const result = {} as Record<MatchFiveElementKey, MatchFiveElementKey>;
+  for (const [traditionalKey, info] of Object.entries(FIVE_ELEMENT_CODE_MAP)) {
+    const fromMatchKey = BRAND_TO_MATCH[info.brandElement];
+    const toTraditional = sharedTable[traditionalKey as keyof typeof sharedTable];
+    const toMatchKey = BRAND_TO_MATCH[FIVE_ELEMENT_CODE_MAP[toTraditional].brandElement];
+    result[fromMatchKey] = toMatchKey;
+  }
+  return result;
+}
 
 export type MatchFiveElementPersonResult = {
   name: string;
@@ -42,13 +87,16 @@ type MatchScoreInput = {
 
 const ELEMENTS: MatchFiveElementKey[] = ['earth', 'water', 'fire', 'air', 'space'];
 
-const ELEMENT_LABEL: Record<MatchFiveElementKey, string> = {
-  earth: '\u5730\u5143\u7d20',
-  water: '\u6c34\u5143\u7d20',
-  fire: '\u706b\u5143\u7d20',
-  air: '\u98a8\u5143\u7d20',
-  space: '\u7a7a\u5143\u7d20',
-};
+// Derived from the shared engine's getFiveElementName(), not hand-copied text --
+// verified to produce byte-identical labels to the previous hard-coded map.
+const ELEMENT_LABEL: Record<MatchFiveElementKey, string> = Object.fromEntries(
+  ELEMENTS.map((key) => {
+    const traditionalKey = (Object.entries(FIVE_ELEMENT_CODE_MAP).find(
+      ([, info]) => info.brandElement === MATCH_TO_BRAND[key],
+    ) as [keyof typeof FIVE_ELEMENT_CODE_MAP, unknown])[0];
+    return [key, getFiveElementName(traditionalKey)];
+  }),
+) as Record<MatchFiveElementKey, string>;
 
 const CHANGE_TARGET: Record<MatchFiveElementKey, string> = {
   earth: '\u95dc\u4fc2\u7684\u7a69\u5b9a\u611f\u3001\u627f\u8afe\u611f\u8207\u5b89\u5168\u611f',
@@ -58,21 +106,9 @@ const CHANGE_TARGET: Record<MatchFiveElementKey, string> = {
   space: '\u908a\u754c\u611f\u3001\u5c0a\u91cd\u611f\u8207\u6c7a\u7b56\u6e05\u6670\u5ea6',
 };
 
-const GENERATES: Record<MatchFiveElementKey, MatchFiveElementKey> = {
-  air: 'fire',
-  fire: 'earth',
-  earth: 'space',
-  space: 'water',
-  water: 'air',
-};
+const GENERATES: Record<MatchFiveElementKey, MatchFiveElementKey> = deriveMatchTable(SHARED_GENERATES);
 
-const CONTROLS: Record<MatchFiveElementKey, MatchFiveElementKey> = {
-  air: 'earth',
-  earth: 'water',
-  water: 'fire',
-  fire: 'space',
-  space: 'air',
-};
+const CONTROLS: Record<MatchFiveElementKey, MatchFiveElementKey> = deriveMatchTable(SHARED_CONTROLS);
 
 const BLOOD_ELEMENT: Record<MatchPersonInput['bloodType'], MatchFiveElementKey> = {
   A: 'earth',
