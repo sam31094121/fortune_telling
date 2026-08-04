@@ -42,7 +42,7 @@ const initialForm: FormState = {
 };
 
 const initialSelectionConfirm: SelectionConfirm = { bloodType: false, gender: false };
-const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-dictionary-zh-tw-v1.0.3';
+const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-dictionary-zh-tw-v1.0.5';
 
 function isCurrentNameologyResult(value?: NameologyDailyResult | null) {
   return Boolean(value?.analysis?.professionalLayer?.characterDecomposition?.length && value.analysis.aiInterpretationLayer?.interpretationPoints?.length && value.analysis.reinforcementLayer?.priorities?.length && value.fiveElement);
@@ -50,6 +50,24 @@ function isCurrentNameologyResult(value?: NameologyDailyResult | null) {
 
 function isCurrentNameologyRecord(record?: DailyAnalysisRecord<NameologyDailyResult> | null) {
   return Boolean(record?.meta?.schemaVersion === NAMEOLOGY_DAILY_SCHEMA_VERSION && isCurrentNameologyResult(record.result));
+}
+
+type NameologyCharacterResult = NameologyAnalysis['characters'][number];
+
+function isNonTaiwanScriptNameologyChar(item: NameologyCharacterResult) {
+  return item.dictionaryGateStatus === 'non_taiwan_script';
+}
+
+function nameologyRadicalLine(item: NameologyCharacterResult) {
+  if (item.strokeSource === 'dictionary_file') return <>部首：{item.glyph.radical} · 總筆畫：{item.strokeCount}</>;
+  if (isNonTaiwanScriptNameologyChar(item)) return <>不適用臺灣字典部首</>;
+  return <>部首：待補臺灣部首 · 筆畫暫估：{item.strokeCount}</>;
+}
+
+function nameologyRadicalStatusLine(item: NameologyCharacterResult) {
+  if (item.strokeSource === 'dictionary_file') return `${item.element}${item.yinYang} · 臺灣字典命中 · 後端意境分析`;
+  if (isNonTaiwanScriptNameologyChar(item)) return '非臺灣漢字姓名用字 · 不拆部首';
+  return '待補臺灣字典 · 不猜部首';
 }
 
 const RADICAL_ELEMENT_STYLE: Record<'木' | '火' | '土' | '金' | '水', { ring: string; bg: string; text: string; glow: string }> = {
@@ -66,7 +84,7 @@ function RadicalPictureStory({ item }: { item: NameologyProfessionalCharacter })
       <div className="mt-5 rounded-2xl border border-rose-300/20 bg-rose-950/20 p-4">
         <p className="text-[11px] font-black uppercase tracking-[0.2em] text-rose-100">臺灣字典待補</p>
         <p className="mt-2 text-sm font-bold leading-7 text-rose-50">{item.char} 尚未命中臺灣繁體姓名字典，系統不猜部首。</p>
-        <p className="mt-2 text-xs leading-6 text-rose-100/80">目前只保留筆畫估算與待補提示；補入官方部首、部首外筆畫、總筆畫後，才會開啟部首故事。</p>
+        <p className="mt-2 text-xs leading-6 text-rose-100/80">目前只保留筆畫估算與待補提示；補入官方部首、部首外筆畫、總筆畫後，後端才會產生部首意境並傳給前端。</p>
       </div>
     );
   }
@@ -171,6 +189,12 @@ function ProfessionalNameologyLayer({ analysis }: { analysis: NameologyAnalysis 
         <div className="rounded-2xl border border-amber-300/15 bg-amber-950/15 p-4">
           <p className="text-xs font-bold text-amber-200">{'\u540d\u5b57\u6545\u4e8b'}</p>
           <p className="mt-2 break-words text-sm leading-7 text-[color:var(--text-sub)]">{layer.nameStory}</p>
+          <div className="mt-4 rounded-2xl border border-amber-300/20 bg-amber-950/20 p-4">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">NAMING STORY</p>
+            <h3 className="mt-2 font-serif text-2xl font-black text-amber-100">{layer.namingStory.title}</h3>
+            <p className="mt-3 break-words text-sm font-semibold leading-7 text-amber-50">{layer.namingStory.wholeNameIntent}</p>
+            <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{layer.namingStory.givenNameIntent}</p>
+          </div>
         </div>
         <div className="rounded-2xl border border-violet-300/15 bg-violet-950/15 p-4">
           <p className="text-xs font-bold text-violet-200">{'\u5c08\u696d\u6458\u8981'}</p>
@@ -195,6 +219,62 @@ const BLOOD_DESC: Record<Exclude<BloodType, ''>, string> = {
   O: '主動直接，行動力、號召力與外放感較強。',
 };
 
+
+
+function NameologyThreeLayerSystem({ analysis }: { analysis: NameologyAnalysis }) {
+  const presentation = analysis.threeLayerPresentation;
+  if (!presentation?.cards?.length) return null;
+
+  const toneByLayer: Record<string, { border: string; bg: string; text: string; badge: string }> = {
+    taiwan_dictionary_radical: { border: 'border-cyan-300/25', bg: 'bg-cyan-950/20', text: 'text-cyan-100', badge: 'bg-cyan-300 text-slate-950' },
+    ai_interpretation: { border: 'border-violet-300/25', bg: 'bg-violet-950/20', text: 'text-violet-100', badge: 'bg-violet-300 text-slate-950' },
+    action_reinforcement: { border: 'border-amber-300/25', bg: 'bg-amber-950/20', text: 'text-amber-100', badge: 'bg-amber-300 text-slate-950' },
+  };
+
+  return (
+    <section className="fortune-card overflow-hidden border-white/10 bg-slate-950/60 p-5 sm:p-6">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-300">THREE LAYER SYSTEM</p>
+          <h2 className="mt-3 break-words font-serif text-3xl font-black text-cyan-100 sm:text-4xl">{presentation.title}</h2>
+          <p className="mt-3 max-w-4xl text-sm font-semibold leading-8 text-[color:var(--text-sub)]">{presentation.summary}</p>
+        </div>
+        <div className="shrink-0 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-xs font-bold leading-6 text-[color:var(--text-sub)]">後端統一運算 · 前端分層呈現</div>
+      </div>
+
+      <div className="mt-5 grid gap-3 lg:grid-cols-3">
+        {presentation.cards.map((card) => {
+          const tone = toneByLayer[card.layerKey] ?? toneByLayer.taiwan_dictionary_radical;
+          return (
+            <article key={card.layerKey} className={`min-w-0 rounded-2xl border ${tone.border} ${tone.bg} p-4`}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className={`text-[11px] font-black uppercase tracking-[0.2em] ${tone.text}`}>{card.eyebrow}</p>
+                  <h3 className="mt-2 break-words font-serif text-2xl font-black text-[color:var(--text-main)]">{card.title}</h3>
+                </div>
+                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-black ${tone.badge}`}>{card.order}</span>
+              </div>
+              <p className={`mt-3 inline-flex rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-black ${tone.text}`}>{card.status}</p>
+              <p className="mt-4 break-words text-sm font-black leading-7 text-[color:var(--text-main)]">{card.primary}</p>
+              {card.layerKey === 'taiwan_dictionary_radical' && (
+                <div className="mt-3 rounded-xl border border-amber-200/20 bg-amber-950/20 px-3 py-2">
+                  <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">取名說故事</p>
+                  <p className="mt-1 line-clamp-5 break-words text-xs font-semibold leading-6 text-amber-50">{card.detail}</p>
+                </div>
+              )}
+              {card.layerKey !== 'taiwan_dictionary_radical' && <p className="mt-3 line-clamp-4 break-words text-xs leading-6 text-[color:var(--text-sub)]">{card.detail}</p>}
+              <div className="mt-4 space-y-2">
+                {card.bullets.slice(0, 3).map((item) => (
+                  <p key={item} className="rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs font-semibold leading-6 text-[color:var(--text-main)]">{item}</p>
+                ))}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
 
 function NameologyAiFlowLayers({ analysis }: { analysis: NameologyAnalysis }) {
   const layer2 = analysis.aiInterpretationLayer;
@@ -280,7 +360,11 @@ function NameologyCustomerSummary({ analysis }: { analysis: NameologyAnalysis })
   const secondPriority = analysis.reinforcementLayer?.priorities?.[1];
   const topTendencies = analysis.temperamentProfile.topTendencies.slice(0, 3);
   const dictionaryStatus = analysis.dictionaryStatus;
-  const dictionaryTone = dictionaryStatus.estimatedCharacters === 0 ? '臺灣字典全數命中' : `待補 ${dictionaryStatus.estimatedCharacters} 字：不猜部首`;
+  const dictionaryTone = dictionaryStatus.estimatedCharacters > 0
+    ? `待補 ${dictionaryStatus.estimatedCharacters} 字：不猜部首`
+    : dictionaryStatus.exactMatches > 0
+      ? '臺灣字典全數命中'
+      : '未檢出需要臺灣部首的漢字';
 
   return (
     <section className="fortune-card overflow-hidden border-amber-300/30 bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.20),rgba(15,23,42,0.86)_58%,rgba(2,6,23,0.96)_100%)] p-5 sm:p-7">
@@ -332,8 +416,8 @@ function NameologyCustomerSummary({ analysis }: { analysis: NameologyAnalysis })
           {analysis.characters.map((item) => (
             <div key={`${item.char}-${item.position}`} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
               <p className="text-lg font-black text-[color:var(--text-main)]">{item.char}</p>
-              <p className="mt-1 text-xs font-bold leading-5 text-cyan-100">{item.strokeSource === 'dictionary_file' ? <>部首：{item.glyph.radical} · 總筆畫：{item.strokeCount}</> : <>部首：待補臺灣部首 · 筆畫暫估：{item.strokeCount}</>}</p>
-              <p className="text-[11px] font-semibold leading-5 text-[color:var(--text-muted)]">{item.strokeSource === 'dictionary_file' ? `${item.element}${item.yinYang} · 臺灣字典命中` : '待補臺灣字典 · 不猜部首'}</p>
+              <p className="mt-1 text-xs font-bold leading-5 text-cyan-100">{nameologyRadicalLine(item)}</p>
+              <p className="text-[11px] font-semibold leading-5 text-[color:var(--text-muted)]">{nameologyRadicalStatusLine(item)}</p>
             </div>
           ))}
         </div>
@@ -362,9 +446,10 @@ function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; f
   return (
     <section className="space-y-5">
       <NameologyCustomerSummary analysis={analysis} />
-      <FiveElementPriorityCard result={fiveElement} />
-      <NameologyAiFlowLayers analysis={analysis} />
+      <NameologyThreeLayerSystem analysis={analysis} />
       <ProfessionalNameologyLayer analysis={analysis} />
+      <NameologyAiFlowLayers analysis={analysis} />
+      <FiveElementPriorityCard result={fiveElement} />
 
       <div className="fortune-card overflow-hidden border-amber-400/25 bg-slate-950/55 p-6 text-center sm:p-8">
         <p className="text-xs font-bold uppercase tracking-[0.32em] text-amber-300">AI 姓名學</p>

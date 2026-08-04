@@ -87,6 +87,7 @@ export type NameologyCharAnalysis = {
   role: string;
   strokeCount: number;
   strokeSource: 'dictionary_file' | 'fixed_table' | 'structural_estimate';
+  dictionaryGateStatus: 'taiwan_dictionary_matched' | 'taiwan_dictionary_required' | 'non_taiwan_script';
   element: NameologyElement;
   yinYang: '陽' | '陰';
   imagery: string;
@@ -130,6 +131,7 @@ export type NameologyProfessionalCharacter = {
   element: NameologyElement;
   yinYang: '\u967d' | '\u9670';
   strokeSource: NameologyCharAnalysis['strokeSource'];
+  dictionaryGateStatus: NameologyCharAnalysis['dictionaryGateStatus'];
   taiwanDictionaryMatched: boolean;
   radicalVerificationLabel: string;
   radical: string;
@@ -142,6 +144,15 @@ export type NameologyProfessionalCharacter = {
   professionalInterpretation: string;
   temperamentSignals: string[];
   evolutionMaterial: string[];
+};
+
+export type NameologyNamingStory = {
+  title: string;
+  familyRoot: string;
+  givenNameIntent: string;
+  wholeNameIntent: string;
+  storyLine: string;
+  keywords: string[];
 };
 
 export type NameologyProfessionalLayer = {
@@ -164,6 +175,7 @@ export type NameologyProfessionalLayer = {
   characterDecomposition: NameologyProfessionalCharacter[];
   radicalNarrative: string;
   nameStory: string;
+  namingStory: NameologyNamingStory;
   professionalSummary: string;
   elementStory: string;
   readingBoundaries: string[];
@@ -214,6 +226,24 @@ export type NameologyReinforcementLayer = {
   boundaries: string[];
 };
 
+export type NameologyThreeLayerCard = {
+  order: 1 | 2 | 3;
+  layerKey: 'taiwan_dictionary_radical' | 'ai_interpretation' | 'action_reinforcement';
+  eyebrow: string;
+  title: string;
+  status: string;
+  primary: string;
+  detail: string;
+  bullets: string[];
+};
+
+export type NameologyThreeLayerPresentation = {
+  layer: 'nameology_three_layer_presentation';
+  title: string;
+  summary: string;
+  cards: NameologyThreeLayerCard[];
+};
+
 export type NameologyAnalysis = {
   name: string;
   dictionaryStatus: {
@@ -227,6 +257,8 @@ export type NameologyAnalysis = {
     confidence: number;
     matchedCharacters: string[];
     estimatedCharacterList: string[];
+    nonTaiwanScriptCharacters: number;
+    nonTaiwanScriptCharacterList: string[];
   };
   composition: NameologyNameComposition;
   crossCheck: NameologyCrossCheck;
@@ -234,6 +266,7 @@ export type NameologyAnalysis = {
   professionalLayer: NameologyProfessionalLayer;
   aiInterpretationLayer: NameologyAiInterpretationLayer;
   reinforcementLayer: NameologyReinforcementLayer;
+  threeLayerPresentation: NameologyThreeLayerPresentation;
   grids: NameologyGridItem[];
   elementFlow: {
     from: string;
@@ -402,6 +435,22 @@ function estimateStroke(char: string): number {
   return 5 + (stableHash(char) % 14);
 }
 
+const HAN_SCRIPT_PATTERN = /\p{Script=Han}/u;
+
+function requiresTaiwanDictionaryRadical(char: string): boolean {
+  return HAN_SCRIPT_PATTERN.test(char);
+}
+
+function nonTaiwanScriptGlyph(char: string): CharGlyphProfile {
+  return {
+    radical: '\u4e0d\u9069\u7528\u81fa\u7063\u90e8\u9996',
+    parts: [char],
+    structure: '\u975e\u81fa\u7063\u6f22\u5b57\u59d3\u540d\u7528\u5b57',
+    meaning: `\u300c${char}\u300d\u4e0d\u5c6c\u65bc\u9700\u8981\u62c6\u89e3\u81fa\u7063\u5b57\u5178\u90e8\u9996\u7684\u6f22\u5b57\u7528\u5b57\uff0c\u7cfb\u7d71\u4e0d\u5c0d\u5b83\u5ba3\u544a\u81fa\u7063\u6b63\u5f0f\u90e8\u9996\u3002`,
+    namingIntent: '\u6b64\u5b57\u4fdd\u7559\u539f\u59cb\u8f38\u5165\u8a0a\u865f\uff0c\u4e0d\u9032\u5165\u81fa\u7063\u5b57\u5178\u90e8\u9996\u610f\u5883\u5206\u6790\u3002',
+  };
+}
+
 function roleForIndex(index: number, total: number) {
   if (index === 0) return '姓氏根基';
   if (total === 2) return '名字主氣';
@@ -416,7 +465,7 @@ function pendingTaiwanDictionaryGlyph(char: string): CharGlyphProfile {
     parts: [char],
     structure: '待補臺灣字典',
     meaning: `「${char}」尚未命中臺灣繁體姓名字典，系統不猜部首，只保留字形與筆畫估算供後續補字典。`,
-    namingIntent: `取名使用「${char}」時，必須先補入臺灣標準部首、部首外筆畫與總筆畫後，才宣告正式拆字。`,
+    namingIntent: `取名使用「${char}」時，必須先補入臺灣標準部首、部首外筆畫與總筆畫；補入後，後端才可依正式部首產生意境分析並傳給前端。`,
   };
 }
 
@@ -467,11 +516,13 @@ function dictionaryEntryToProfile(entry: NameologyDictionaryCharacterEntry): Cha
 }
 
 function buildNameologyDictionaryStatus(characters: NameologyCharAnalysis[], snapshot: NameologyDictionarySnapshot | undefined): NameologyAnalysis['dictionaryStatus'] {
-  const totalCharacters = Math.max(1, characters.length);
-  const exactMatches = characters.filter((item) => item.strokeSource === 'dictionary_file').length;
+  const taiwanRequiredCharacters = characters.filter((item) => item.dictionaryGateStatus !== 'non_taiwan_script');
+  const totalCharacters = Math.max(1, taiwanRequiredCharacters.length);
+  const exactMatches = taiwanRequiredCharacters.filter((item) => item.strokeSource === 'dictionary_file').length;
   const radicalMatches = 0;
-  const estimatedCharacterList = characters.filter((item) => item.strokeSource !== 'dictionary_file').map((item) => item.char);
+  const estimatedCharacterList = taiwanRequiredCharacters.filter((item) => item.strokeSource !== 'dictionary_file').map((item) => item.char);
   const estimatedCharacters = estimatedCharacterList.length;
+  const nonTaiwanScriptCharacterList = characters.filter((item) => item.dictionaryGateStatus === 'non_taiwan_script').map((item) => item.char);
   const confidence = Math.min(100, Math.round((exactMatches / totalCharacters) * 100));
 
   return {
@@ -483,8 +534,10 @@ function buildNameologyDictionaryStatus(characters: NameologyCharAnalysis[], sna
     radicalMatches,
     estimatedCharacters,
     confidence,
-    matchedCharacters: characters.filter((item) => item.strokeSource === 'dictionary_file').map((item) => item.char),
+    matchedCharacters: taiwanRequiredCharacters.filter((item) => item.strokeSource === 'dictionary_file').map((item) => item.char),
     estimatedCharacterList,
+    nonTaiwanScriptCharacters: nonTaiwanScriptCharacterList.length,
+    nonTaiwanScriptCharacterList,
   };
 }
 
@@ -736,8 +789,38 @@ function radicalImagery(radical: string, element: NameologyElement) {
 function buildCharacterStory(item: NameologyCharAnalysis) {
   const parts = item.glyph.parts.length > 1 ? item.glyph.parts.join('、') : item.char;
   const firstTrait = item.traits[0] ?? ELEMENT_THEME[item.element].strength;
-  if (item.glyph.radical.includes('待補')) return '「' + item.char + '」尚未命中臺灣繁體部首字典，系統不猜部首；目前只保留「' + parts + '」字形與' + item.strokeCount + '畫估算，等待補入官方部首後再宣告正式拆字。';
+  if (item.glyph.radical.includes('待補')) return '「' + item.char + '」尚未命中臺灣繁體部首字典，系統不猜部首；目前只保留「' + parts + '」字形與' + item.strokeCount + '畫估算，等待補入官方部首後，再由後端產生正式部首意境。';
   return '「' + item.char + '」以「' + parts + '」成形，部首「' + item.glyph.radical + '」帶出' + radicalImagery(item.glyph.radical, item.element) + '此字在姓名中站在「' + item.role + '」位置，形成' + item.element + item.yinYang + '的氣質，主軸是' + firstTrait + '。';
+}
+
+function buildNameologyNamingStory(
+  name: string,
+  surnameChars: NameologyCharAnalysis[],
+  givenChars: NameologyCharAnalysis[],
+  composition: NameologyNameComposition,
+): NameologyNamingStory {
+  const surname = surnameChars[0];
+  const givenName = composition.givenName || givenChars.map((item) => item.char).join('');
+  const intentChars = givenChars.length > 0 ? givenChars : surnameChars;
+  const keywords = Array.from(new Set(intentChars.flatMap((item) => item.traits).slice(0, 5)));
+  const characterIntent = intentChars.map((item) => '「' + item.char + '」' + item.glyph.namingIntent).join(' ');
+  const radicalIntent = intentChars.map((item) => '「' + item.char + '」以' + item.glyph.radical + '部帶出' + radicalImagery(item.glyph.radical, item.element)).join(' ');
+  const familyRoot = surname
+    ? '姓氏「' + surname.char + '」是家族根基，代表孩子承接家庭脈絡與外在識別；它先定住根，不搶走名字本身的主意境。'
+    : '姓氏資料不足，系統先以全名建立根基。';
+  const givenNameIntent = givenChars.length > 0
+    ? '名字「' + givenName + '」是取名者真正放進去的祝福與期待：' + characterIntent
+    : '名字主體不足，系統無法完整推演取名者放入的主意境。';
+  const wholeNameIntent = '整個名字「' + name + '」想表達的是：讓這個人帶著' + (keywords.join('、') || '清楚的個人特質') + '，在家庭根基上長出自己的行動方向。';
+
+  return {
+    title: '當初取名的意境',
+    familyRoot,
+    givenNameIntent,
+    wholeNameIntent,
+    storyLine: familyRoot + ' ' + givenNameIntent + ' ' + radicalIntent + ' ' + wholeNameIntent,
+    keywords,
+  };
 }
 
 function buildNameologyProfessionalLayer(
@@ -759,8 +842,9 @@ function buildNameologyProfessionalLayer(
       element: item.element,
       yinYang: item.yinYang,
       strokeSource: item.strokeSource,
+      dictionaryGateStatus: item.dictionaryGateStatus,
       taiwanDictionaryMatched: item.strokeSource === 'dictionary_file',
-      radicalVerificationLabel: item.strokeSource === 'dictionary_file' ? '臺灣字典命中' : '待補臺灣字典，不猜部首',
+      radicalVerificationLabel: item.strokeSource === 'dictionary_file' ? '臺灣字典命中，後端意境分析' : '待補臺灣字典，不猜部首',
       radical: item.glyph.radical,
       radicalImagery: radicalImagery(item.glyph.radical, item.element),
       parts: item.glyph.parts,
@@ -791,6 +875,7 @@ function buildNameologyProfessionalLayer(
   const flowStory = elementFlow.length > 0
     ? elementFlow.map((item) => item.note).join(' ')
     : '\u59d3\u540d\u5b57\u6578\u8f03\u5c11\uff0c\u4e94\u884c\u6d41\u52d5\u4ee5\u55ae\u5b57\u4e3b\u6c23\u70ba\u6838\u5fc3\u3002';
+  const namingStory = buildNameologyNamingStory(name, surnameChars, givenChars, composition);
   const fixedFacts = characterDecomposition.flatMap((item) => [
     item.char + '\uff1a' + item.strokeCount + '\u756b',
     item.char + '\uff1a\u90e8\u9996' + item.radical,
@@ -817,7 +902,8 @@ function buildNameologyProfessionalLayer(
     characterDecomposition,
     radicalNarrative: characterDecomposition.map((item) => item.taiwanDictionaryMatched ? '「' + item.char + '」取' + item.radical + '意象：' + item.radicalImagery : '「' + item.char + '」待補臺灣字典：不猜部首。').join(' '),
     nameStory: '\u59d3\u540d\u6545\u4e8b\u4ee5\u300c' + (composition.surname || name.slice(0, 1)) + '\u300d\u70ba\u6839\uff0c\u627f\u63a5\u5bb6\u65cf\u8207\u5916\u5728\u8b58\u5225\uff1b\u540d\u5b57\u300c' + (composition.givenName || name.slice(1)) + '\u300d\u8ca0\u8cac\u958b\u5c55\u500b\u4eba\u4e3b\u8ef8\u3002' + givenStory,
-    professionalSummary: characters.every((item) => item.strokeSource === 'dictionary_file') ? '第一層判定「' + name + '」的可用素材：字形以' + characters.map((item) => item.glyph.structure).join('、') + '為骨架，部首以' + characters.map((item) => item.glyph.radical).join('、') + '為意境入口，五行流動形成後續 AI 解讀的固定基礎。' : '第一層判定「' + name + '」時發現未命中臺灣字典的字；系統先鎖定已命中字，未命中字列入待補，不做部首故事延伸。',
+    namingStory,
+    professionalSummary: characters.every((item) => item.strokeSource === 'dictionary_file') ? '第一層判定「' + name + '」的可用素材：字形以' + characters.map((item) => item.glyph.structure).join('、') + '為骨架，正式部首以臺灣字典的「' + characters.map((item) => item.glyph.radical).join('、') + '」為固定來源；後端再依正式部首拆解意境，形成後續 AI 解讀的固定基礎。' : '第一層判定「' + name + '」時發現未命中臺灣字典的漢字；系統先鎖定已命中字，未命中字列入待補，等補入正式部首後再由後端產生部首意境。',
     elementStory: flowStory,
     readingBoundaries: [
       '\u7b2c\u4e00\u5c64\u53ea\u5efa\u7acb\u59d3\u540d\u62c6\u89e3\u3001\u90e8\u9996\u610f\u5883\u3001\u7b46\u756b\u4e94\u884c\u8207\u540d\u5b57\u6545\u4e8b\u3002',
@@ -828,12 +914,14 @@ function buildNameologyProfessionalLayer(
       fixedFacts,
       interpretationRules: [
         '\u5148\u8b80\u59d3\u6c0f\u6839\u57fa\uff0c\u518d\u8b80\u540d\u5b57\u4e3b\u8ef8\uff0c\u6700\u5f8c\u8b80\u5168\u540d\u6d41\u52d5\u3002',
-        '\u90e8\u9996\u610f\u5883\u4f5c\u70ba\u6545\u4e8b\u5165\u53e3\uff0c\u7b46\u756b\u4e94\u884c\u4f5c\u70ba\u7d50\u69cb\u5224\u5b9a\uff0c\u6027\u60c5\u77e9\u9663\u4f5c\u70ba\u8a9e\u6c23\u6821\u6b63\u3002',
+        '\u81fa\u7063\u5b57\u5178\u8ca0\u8cac\u56fa\u5b9a\u90e8\u9996\u3001\u90e8\u9996\u5916\u7b46\u756b\u8207\u7e3d\u7b46\u756b\uff1b\u5f8c\u7aef AI/\u898f\u5247\u8ca0\u8cac\u4f9d\u6b63\u5f0f\u90e8\u9996\u62c6\u89e3\u610f\u5883\uff0c\u518d\u50b3\u9001\u7d66\u524d\u7aef\u986f\u793a\u3002',
+        '\u90e8\u9996\u610f\u5883\u4f5c\u70ba\u6545\u4e8b\u5165\u53e3\uff0c\u7b46\u756b\u4e94\u884c\u4f5c\u70ba\u7d50\u69cb\u5224\u5b9a\uff0c\u6027\u60c5\u77e9\u9663\u4f5c\u70ba\u8a9e\u6c23\u6821\u6b63\uff1b\u610f\u5883\u5206\u6790\u4e0d\u5f97\u53cd\u5411\u6539\u5beb\u81fa\u7063\u5b57\u5178\u90e8\u9996\u3002',
         '\u5df2\u77e5\u5b57\u8868\u512a\u5148\u4f7f\u7528\u56fa\u5b9a\u8cc7\u6599\uff1b\u672a\u77e5\u5b57\u53ea\u80fd\u6a19\u793a\u70ba\u7d50\u69cb\u4f30\u7b97\uff0c\u4e0d\u5f97\u5047\u88dd\u6709\u5b8c\u6574\u5b57\u6e90\u3002',
       ],
       prohibitedMoves: [
         '\u4e0d\u5f97\u628a\u7b2c\u4e00\u5c64\u5beb\u6210\u4e94\u5143\u7d20\u88dc\u5f37\u5efa\u8b70\u3002',
         '\u4e0d\u5f97\u8986\u84cb\u4f7f\u7528\u8005\u59d3\u540d\u539f\u5b57\u3002',
+        '\u4e0d\u5f97\u7528 AI \u610f\u5883\u3001\u5b57\u5f62\u806f\u60f3\u6216\u4e94\u884c\u63a8\u8ad6\u53cd\u63a8\u6b63\u5f0f\u90e8\u9996\uff1b\u6b63\u5f0f\u90e8\u9996\u53ea\u80fd\u4f86\u81ea\u81fa\u7063\u5b57\u5178\u3002',
         '\u4e0d\u5f97\u6539\u52d5\u5176\u4ed6\u5361\u7247\u6216\u8de8\u6a21\u7d44\u91cd\u65b0\u8a08\u7b97\u3002',
       ],
     },
@@ -922,14 +1010,78 @@ function buildNameologyAiInterpretationLayer(
         sourceEvidence: topTendencies.map((item) => item.meaning),
       },
       {
-        title: '\u5b57\u7fa9\u6545\u4e8b',
-        reading: professionalLayer.nameStory,
+        title: '取名意境故事',
+        reading: professionalLayer.namingStory.storyLine,
         sourceEvidence: professionalLayer.characterDecomposition.map((item) => item.storyLine),
       },
       {
         title: '\u4e94\u884c\u6d41\u52d5',
         reading: professionalLayer.elementStory,
         sourceEvidence: elementFlow.map((item) => item.note),
+      },
+    ],
+  };
+}
+
+function buildNameologyThreeLayerPresentation(
+  professionalLayer: NameologyProfessionalLayer,
+  aiInterpretationLayer: NameologyAiInterpretationLayer,
+  reinforcementLayer: NameologyReinforcementLayer,
+  dictionaryStatus: NameologyAnalysis['dictionaryStatus'],
+): NameologyThreeLayerPresentation {
+  const radicalList = professionalLayer.characterDecomposition.map((item) => item.char + '=' + item.radical).join('、');
+  const namingStory = professionalLayer.namingStory;
+  const missingList = dictionaryStatus.estimatedCharacterList.join('、');
+  const firstPriority = reinforcementLayer.priorities[0];
+  const secondPriority = reinforcementLayer.priorities[1];
+  const thirdPriority = reinforcementLayer.priorities[2];
+
+  return {
+    layer: 'nameology_three_layer_presentation',
+    title: '姓名學三層架構',
+    summary: '第一層先用臺灣字典固定部首與筆畫，並說清楚當初取名想表達的意境；第二層由後端 AI 讀取故事與性格主軸；第三層整理成今天可執行的補強方向。',
+    cards: [
+      {
+        order: 1,
+        layerKey: 'taiwan_dictionary_radical',
+        eyebrow: 'LAYER 01',
+        title: '取名意境與臺灣字典',
+        status: dictionaryStatus.estimatedCharacters === 0 ? '臺灣字典全數命中' : '待補臺灣字典：' + missingList,
+        primary: '正式部首：' + radicalList,
+        detail: namingStory.storyLine,
+        bullets: [
+          namingStory.familyRoot,
+          namingStory.givenNameIntent,
+          '命中 ' + dictionaryStatus.exactMatches + '/' + dictionaryStatus.totalCharacters + ' 字，估算 ' + dictionaryStatus.estimatedCharacters + ' 字。',
+        ],
+      },
+      {
+        order: 2,
+        layerKey: 'ai_interpretation',
+        eyebrow: 'LAYER 02',
+        title: 'AI 姓名解讀',
+        status: '讀取第一層，不重新拆字',
+        primary: aiInterpretationLayer.userReadableSummary,
+        detail: namingStory.wholeNameIntent + ' ' + aiInterpretationLayer.personalityStory,
+        bullets: [
+          '性格主軸：' + (aiInterpretationLayer.interpretationPoints[0]?.reading ?? '已由姓名素材整理。'),
+          '關係風格：' + aiInterpretationLayer.relationshipStyle,
+          '行動風格：' + aiInterpretationLayer.actionStyle,
+        ],
+      },
+      {
+        order: 3,
+        layerKey: 'action_reinforcement',
+        eyebrow: 'LAYER 03',
+        title: '行動補強與回訪理由',
+        status: '輸出下一步',
+        primary: reinforcementLayer.clearStatement,
+        detail: reinforcementLayer.executionPrinciple,
+        bullets: [
+          firstPriority ? firstPriority.label + '：' + firstPriority.action : '先完成第一個補強行動。',
+          secondPriority ? secondPriority.label + '：' + secondPriority.direction : '完成後再進第二補強。',
+          thirdPriority ? thirdPriority.label + '：' + thirdPriority.direction : '最後補第三方向。',
+        ],
       },
     ],
   };
@@ -966,16 +1118,18 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
   const dictionarySnapshot = context?.dictionarySnapshot;
   const characters = sourceChars.map((char, index) => {
     const dictionaryEntry = findNameologyDictionaryEntry(dictionarySnapshot, char);
+    const dictionaryRequired = requiresTaiwanDictionaryRadical(char);
     const fixed = dictionaryEntry ? undefined : CHAR_PROFILE_MAP[char];
     const profile = dictionaryEntry ? dictionaryEntryToProfile(dictionaryEntry) : fixed ?? fallbackProfile(char);
     const verifiedGlyph = profile.glyph ?? fallbackGlyph(char, profile.element);
-    const glyph = dictionaryEntry ? verifiedGlyph : pendingTaiwanDictionaryGlyph(char);
+    const glyph = dictionaryEntry ? verifiedGlyph : dictionaryRequired ? pendingTaiwanDictionaryGlyph(char) : nonTaiwanScriptGlyph(char);
     return {
       char,
       position: index + 1,
       role: roleForIndex(index, sourceChars.length),
       strokeCount: profile.strokes,
       strokeSource: dictionaryEntry ? 'dictionary_file' as const : fixed ? 'fixed_table' as const : 'structural_estimate' as const,
+      dictionaryGateStatus: dictionaryEntry ? 'taiwan_dictionary_matched' as const : dictionaryRequired ? 'taiwan_dictionary_required' as const : 'non_taiwan_script' as const,
       element: profile.element,
       yinYang: profile.strokes % 2 === 1 ? '陽' as const : '陰' as const,
       imagery: dictionaryEntry ? profile.imagery : `「${char}」尚未命中臺灣繁體姓名字典；姓名性情可先保留模型估算，但部首、拆字與字源故事全部列入待補。`,
@@ -1025,6 +1179,7 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
   const topTemperaments = temperamentProfile.topTendencies.slice(0, 3).map((item) => item.label).join('、');
   const aiInterpretationLayer = buildNameologyAiInterpretationLayer(professionalLayer, temperamentProfile, crossCheck, grids, elementFlow);
   const reinforcementLayer = buildNameologyReinforcementLayer(aiInterpretationLayer);
+  const threeLayerPresentation = buildNameologyThreeLayerPresentation(professionalLayer, aiInterpretationLayer, reinforcementLayer, dictionaryStatus);
 
   return {
     name: cleanName,
@@ -1035,6 +1190,7 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
     professionalLayer,
     aiInterpretationLayer,
     reinforcementLayer,
+    threeLayerPresentation,
     grids,
     elementFlow,
     temperamentProfile,
