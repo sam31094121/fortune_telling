@@ -18158,6 +18158,71 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
     inset 12px 14px 18px rgba(255, 255, 255, 0.22),
     inset -16px -20px 30px rgba(0, 0, 0, 0.66),
     inset 0 0 12px rgba(253, 230, 138, 0.14),
-    0 12px 22px rgba(0, 0, 0, 0.42) !important;
-  filter: drop-shadow(0 0 20px rgba(253, 230, 138, 0.3)) !important;
+    0 12px 22px rgba(0, 0, 0, 0.42),
+    inset 0 0 2px rgba(255, 255, 255, 0.32) !important;
+  filter:
+    drop-shadow(0 0 7px rgba(255, 246, 224, 0.6))
+    drop-shadow(0 0 26px rgba(253, 230, 138, 0.4)) !important;
+}
+
+/* ============================================================
+   Taiji homepage: strengthen glow quality on layers 2 & 3 per request
+   ("光芒視覺感官要出來，質感還不夠"). The structural cleanup in the two
+   fixes above removed the redundant/muddy stacking; this pass adds
+   quality back the right way -- layered near+far glow (a tight bright
+   inner glow plus a soft wide bloom reads as a real light source,
+   where a single flat blur reads weak) instead of just cranking one
+   number up. Kept to the existing warm-gold + cyan-accent palette
+   (matching the yin-yang's own gradient) rather than reintroducing
+   the multi-hue rainbow that caused the original muddiness.
+   ============================================================ */
+
+/* Layer 2: crisp bright rim-light on the glass shell edge, to sell the "glass" material. */
+.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema .modal-taiji-orbit-emblem {
+  box-shadow:
+    inset 14px 16px 24px rgba(255, 255, 255, 0.16),
+    inset -18px -24px 38px rgba(0, 0, 0, 0.72),
+    inset 0 0 22px rgba(253, 230, 138, 0.1),
+    0 18px 34px rgba(0, 0, 0, 0.38),
+    inset 0 0 3px rgba(255, 255, 255, 0.22),
+    0 0 46px rgba(253, 230, 138, 0.16) !important;
+}
+
+/* Layer 3: the orbit ring track and its moving head were both nearly invisible (~0.12 alpha) --
+   too faint to read as an "energy trail". Brought the track up to a legible soft cyan line and
+   gave the head a two-stage glow (tight core + soft halo) instead of a single flat shadow. */
+.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema .taiji-light-orbit--cyan {
+  box-shadow:
+    inset 0 0 8px rgba(103, 232, 249, 0.28),
+    0 0 14px rgba(103, 232, 249, 0.24) !important;
+}
+
+.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema .taiji-light-orbit--gold {
+  box-shadow:
+    inset 0 0 8px rgba(253, 230, 138, 0.28),
+    0 0 14px rgba(253, 230, 138, 0.24) !important;
+}
+
+.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema .taiji-light-orbit__head {
+  box-shadow:
+    inset 2px 3px 4px rgba(255, 255, 255, 0.32),
+    inset -3px -4px 6px rgba(0, 0, 0, 0.4),
+    0 0 6px currentColor,
+    0 0 18px currentColor !important;
+}
+
+/* The gold "sun flare" waves and celestial mist wisps were faint enough to be essentially
+   invisible (0.18 / 0.34 opacity) -- strengthened without adding new colors or new elements. */
+.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema .taiji-gold-wave {
+  opacity: 0.34 !important;
+  box-shadow:
+    0 0 8px rgba(253, 230, 138, 0.18),
+    0 0 22px rgba(253, 230, 138, 0.12) !important;
+}
+
+.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema.home-taiji-cinema .taiji-celestial-wisp {
+  opacity: 0.48 !important;
+  box-shadow:
+    0 0 12px rgba(255, 255, 255, 0.22),
+    0 0 30px rgba(34, 211, 238, 0.14) !important;
 }
