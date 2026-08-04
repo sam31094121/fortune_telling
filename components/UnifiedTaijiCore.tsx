@@ -68,6 +68,7 @@ export default function UnifiedTaijiCore({
   const liangyiSettleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mantraTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchPulseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingEvolutionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTouchTriggerRef = useRef(0);
   const cinemaLockedRef = useRef(false);
   const liangyiSpinClickLockRef = useRef(0);
@@ -518,20 +519,37 @@ export default function UnifiedTaijiCore({
       }
 
       const next = !limitToLiangyi && previous >= TAIJI_CINEMA_SEGMENT_COUNT ? 1 : previous + 1;
+
+      // Every physical tap gets its own immediate sound/haptic (the 24-step Hz
+      // sequence is per-tap, not per-committed-segment), but the actual 3-layer
+      // evolution playback is deliberately NOT triggered here. Triggering it on
+      // every click meant the button locked for a full 6s segment after the very
+      // first tap -- the user could never click again fast enough to reach tap 2+,
+      // so they'd only ever see segment 1. Instead: keep counting taps silently,
+      // and only commit to playing the resulting segment once clicking pauses for
+      // 2s. That gives the full cinema animation room to actually play out instead
+      // of being interrupted, and lets someone reach e.g. tap 24 by tapping
+      // quickly 24 times before pausing, rather than one tap = one full playback.
       triggerTouchFeedback(next);
 
       if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
 
-      const cinemaConfig = getTaijiCinemaSegmentForTap(next);
-      triggerCinemaSegment(cinemaConfig);
-
-      if (!limitToLiangyi && (next === 3 || next === 6 || next === 12 || next === 24)) {
-        triggerMantra(next);
-      }
       if (limitToLiangyi) {
         const stageConfig = getTaijiCoreConfigForTap(next, limitToLiangyi);
         if (stageConfig) triggerEvolution(stageConfig);
+        return next;
       }
+
+      if (pendingEvolutionTimerRef.current) clearTimeout(pendingEvolutionTimerRef.current);
+      pendingEvolutionTimerRef.current = setTimeout(() => {
+        pendingEvolutionTimerRef.current = null;
+        const cinemaConfig = getTaijiCinemaSegmentForTap(next);
+        triggerCinemaSegment(cinemaConfig);
+        if (next === 3 || next === 6 || next === 12 || next === 24) {
+          triggerMantra(next);
+        }
+      }, 2000);
+
       return next;
     });
   };
@@ -556,6 +574,7 @@ export default function UnifiedTaijiCore({
     if (liangyiSettleTimerRef.current) clearTimeout(liangyiSettleTimerRef.current);
     if (mantraTimerRef.current) clearTimeout(mantraTimerRef.current);
     if (touchPulseTimerRef.current) clearTimeout(touchPulseTimerRef.current);
+    if (pendingEvolutionTimerRef.current) clearTimeout(pendingEvolutionTimerRef.current);
     audioTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     audioContextsRef.current.forEach((context) => void context.close().catch(() => {}));
     audioTimersRef.current.clear();
