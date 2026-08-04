@@ -1,35 +1,44 @@
 {
-  "version": "nameology_dictionary_zh_tw_authority_v2.0.0",
+  "version": "nameology_dictionary_zh_tw_authority_v2.1.0",
   "locale": "zh-TW",
   "standard": "Dual-authority Taiwan dictionary contract: CNS11643 Full Character Database owns radicals, total strokes, components and stroke order; MOE Mandarin Dictionary public data owns definitions and example words. Existing hand-curated local entries (25 characters) are preserved as-is and take priority; all other characters are sourced directly from CNS11643 official open data.",
-  "updatedAt": "2026-08-05T00:00:00+08:00",
+  "updatedAt": "2026-08-05T03:30:00+08:00",
   "files": {
     "characters": "characters.json",
     "variants": "variants.json"
   },
   "sources": {
-    "characters": "cns11643_opendata_bulk_import_plus_curated_seed_v1",
+    "characters": "cns11643_opendata_bulk_import_plus_curated_seed_v2_cns_code_mapped",
     "variants": "local-v1"
   },
   "authoritySources": {
     "cns11643": {
       "name": "CNS11643 全字庫（開放資料）",
-      "role": "radical_total_strokes_bopomofo",
-      "importStatus": "bulk_imported_27478_characters",
+      "role": "radical_total_strokes_components_stroke_order_cns_code",
+      "importStatus": "bulk_imported_and_code_mapped_27503_characters",
       "license": "政府資料開放授權條款第1版",
       "downloadedFrom": "https://www.cns11643.gov.tw/opendata/Properties.zip, https://www.cns11643.gov.tw/opendata/MapingTables.zip",
-      "note": "radical + totalStrokeCount + bopomofo imported directly from official CNS_radical.txt / CNS_stroke.txt / CNS_phonetic.txt, cross-referenced by Unicode via Unicode/CNS2UNICODE_Unicode BMP.txt. components and strokeOrder not yet imported (CNS_component*.txt / CNS_strokes_sequence.txt not yet processed)."
+      "note": "CNS code mapped from official MapingTables/Unicode/CNS2UNICODE files; radical, totalStrokeCount, bopomofo, component codes and stroke sequence read from official Properties files. Curated seed entries retain human-readable nameology meanings while carrying CNS code provenance."
     },
     "moeDictionary": {
       "name": "教育部國語辭典公眾授權資料",
       "role": "definitions_example_words",
-      "importStatus": "schema_ready_pending_bulk_import",
-      "note": "meanings/nameUsageNotes are empty arrays for the 27,478 newly-imported characters; not fabricated placeholder text. Falls back to the 19-radical curated imagery table (lib/nameology-radical-dictionary.ts) or a neutral generic line at render time."
+      "importStatus": "bulk_imported_11032_of_27478_characters",
+      "license": "CC-BY-ND-TW-3.0 (教育部重編國語辭典修訂本 text); format conversion CC0",
+      "downloadedFrom": "https://github.com/g0v/moedict-data (dict-revised.json.xz, community JSON conversion of the MOE dictionary)",
+      "note": "meanings and exampleWords populated from real MOE single-character dictionary entries (161,194 total MOE entries, 11,327 single-character). 16,446 CNS-imported characters have no standalone MOE entry (rare/variant characters) and remain with empty meanings -- not fabricated placeholder text; falls back to the 19-radical curated imagery table (lib/nameology-radical-dictionary.ts) or a neutral generic line at render time. The 25 hand-curated entries keep their original naming-philosophy meanings/nameUsageNotes untouched; only gained real exampleWords/bopomofo where previously missing."
     },
     "moeVariants": {
       "name": "教育部異體字字典既有校對連結",
       "role": "legacy_radical_cross_check_for_current_seed_entries",
       "importStatus": "current_seed_reference"
     }
+  },
+  "quality": {
+    "cnsMappedCharacters": 27503,
+    "curatedSeedMappedCharacters": 25,
+    "cnsImportedMappedCharacters": 27478,
+    "mismatchCount": 0,
+    "mismatches": []
   }
 }
