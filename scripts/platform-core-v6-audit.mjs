@@ -30,15 +30,15 @@ const CARD_STATES = [
 ];
 
 const CARD_QUEUE = [
-  { id: 'CARD_01', module: 'nameology', title: 'AI 姓名學', route: '/nameology', page: 'app/nameology/page.tsx' },
-  { id: 'CARD_02', module: 'ziwei', title: 'AI 紫微斗數', route: '/insight', page: 'app/insight/page.tsx' },
-  { id: 'CARD_03', module: 'numerology', title: '數字論吉凶', route: '/numerology', page: 'app/numerology/page.tsx' },
-  { id: 'CARD_04', module: 'soul_match', title: 'AI 靈魂配對', route: '/match', page: 'app/match/page.tsx' },
-  { id: 'CARD_05', module: 'music', title: 'AI 生成歌曲', route: '/music', page: 'app/music/page.tsx' },
-  { id: 'CARD_06', module: 'bazi', title: '八字命盤', route: '/bazi', page: 'app/bazi/page.tsx' },
-  { id: 'CARD_07', module: 'zodiac', title: '西洋星座', route: '/zodiac', page: 'app/zodiac/page.tsx' },
-  { id: 'CARD_08', module: 'tarot', title: 'AI 塔羅牌', route: '/tarot', page: 'app/tarot/page.tsx' },
-  { id: 'CARD_09', module: 'growth_center', title: 'AI 個人成長中心', route: '/growth-center', page: 'app/growth-center/page.tsx' },
+  { id: 'CARD_01', module: 'nameology', title: 'AI \u59d3\u540d\u5b78', route: '/nameology', page: 'app/nameology/page.tsx' },
+  { id: 'CARD_02', module: 'ziwei', title: 'AI \u7d2b\u5fae\u6597\u6578', route: '/insight', page: 'app/insight/page.tsx' },
+  { id: 'CARD_03', module: 'numerology', title: '\u6578\u5b57\u8ad6\u5409\u51f6', route: '/numerology', page: 'app/numerology/page.tsx' },
+  { id: 'CARD_04', module: 'soul_match', title: 'AI \u9748\u9b42\u914d\u5c0d', route: '/match', page: 'app/match/page.tsx' },
+  { id: 'CARD_05', module: 'music', title: 'AI \u751f\u6210\u6b4c\u66f2', route: '/music', page: 'app/music/page.tsx' },
+  { id: 'CARD_06', module: 'bazi', title: '\u516b\u5b57\u547d\u76e4', route: '/bazi', page: 'app/bazi/page.tsx' },
+  { id: 'CARD_07', module: 'zodiac', title: '\u897f\u6d0b\u661f\u5ea7', route: '/zodiac', page: 'app/zodiac/page.tsx' },
+  { id: 'CARD_08', module: 'tarot', title: 'AI \u5854\u7f85\u724c', route: '/tarot', page: 'app/tarot/page.tsx' },
+  { id: 'CARD_09', module: 'growth_center', title: 'AI \u500b\u4eba\u6210\u9577\u4e2d\u5fc3', route: '/growth-center', page: 'app/growth-center/page.tsx' },
 ];
 
 const CORE_CONTRACTS = [
@@ -82,7 +82,7 @@ async function gitStatus() {
     const { stdout } = await execFileAsync('git', ['status', '--short'], { cwd: ROOT, windowsHide: true });
     return stdout.split(String.fromCharCode(10)).map((line) => line.trim()).filter(Boolean);
   } catch (error) {
-    return ['GIT_STATUS_UNAVAILABLE: ' + error.message];
+    return { unavailable: true, reason: error.message, dirtyFiles: [] };
   }
 }
 
@@ -175,6 +175,7 @@ function blockers(report) {
   if (!report.evidence.autoQa.ok) items.push('Full nine-card Auto QA evidence is missing or failing.');
   if (!report.evidence.screenHealth.ok) items.push('Screen health evidence is missing or failing.');
   if (report.evidence.mobileE2E.status !== 'COMPLETED') items.push('Real mobile E2E evidence is not attached to this audit.');
+  if (report.git.unavailable) items.push('Git status could not be read by the audit script; run git status separately before claiming completion.');
   if (report.git.dirtyFiles.length > 0) items.push('Working tree has uncommitted or untracked changes; fresh regression evidence must be produced after these changes.');
   return items;
 }
@@ -208,7 +209,8 @@ async function main() {
   const cards = evaluateCards();
   const packageScripts = evaluatePackageScripts(pkg);
   const evidence = await evaluateExistingEvidence();
-  const dirtyFiles = await gitStatus();
+  const git = await gitStatus();
+  const dirtyFiles = Array.isArray(git) ? git : git.dirtyFiles;
 
   const report = {
     version: 'platform-core-v6-audit-v1',
@@ -220,6 +222,8 @@ async function main() {
     evidence,
     git: {
       dirtyFiles,
+      unavailable: !Array.isArray(git) && git.unavailable === true,
+      unavailableReason: !Array.isArray(git) ? git.reason : null,
     },
     finalStatus: null,
     blockers: [],

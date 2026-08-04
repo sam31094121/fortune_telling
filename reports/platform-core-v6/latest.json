@@ -1,6 +1,6 @@
 {
   "version": "platform-core-v6-audit-v1",
-  "generatedAt": "2026-08-04T19:31:54.698Z",
+  "generatedAt": "2026-08-04T19:32:58.248Z",
   "rule": "No COMPLETED_AND_VERIFIED without project code, fresh build, full tests, mobile evidence, and clean post-test state.",
   "coreContracts": [
     {
@@ -542,14 +542,14 @@
     }
   },
   "git": {
-    "dirtyFiles": [
-      "GIT_STATUS_UNAVAILABLE: spawn EPERM"
-    ]
+    "dirtyFiles": [],
+    "unavailable": true,
+    "unavailableReason": "spawn EPERM"
   },
   "finalStatus": "NOT_COMPLETED",
   "blockers": [
     "Real mobile E2E evidence is not attached to this audit.",
-    "Working tree has uncommitted or untracked changes; fresh regression evidence must be produced after these changes."
+    "Git status could not be read by the audit script; run git status separately before claiming completion."
   ],
   "nextActions": [
     "Run npm run build after every Platform Core or card change.",
