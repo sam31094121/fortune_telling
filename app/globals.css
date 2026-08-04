@@ -18504,3 +18504,127 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
     transform: none;
   }
 }
+/* Growth Center retention upgrade: preference memory and hidden backend detail drawers. */
+.growth-preference-chip {
+  display: grid;
+  gap: 0.18rem;
+  min-height: 4.1rem;
+  width: 100%;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(216, 180, 254, 0.22);
+  background:
+    linear-gradient(135deg, rgba(88, 28, 135, 0.26), rgba(15, 23, 42, 0.62)),
+    radial-gradient(circle at 12% 8%, rgba(217, 70, 239, 0.16), transparent 42%);
+  padding: 0.72rem 0.85rem;
+  color: var(--text-main);
+  text-align: left;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.growth-preference-chip span {
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.growth-preference-chip small {
+  color: rgba(226, 232, 240, 0.72);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.growth-preference-chip:hover,
+.growth-preference-chip:focus-visible,
+.growth-preference-chip--selected {
+  border-color: rgba(244, 114, 182, 0.58);
+  background:
+    linear-gradient(135deg, rgba(131, 24, 67, 0.42), rgba(49, 46, 129, 0.48)),
+    radial-gradient(circle at 12% 8%, rgba(244, 114, 182, 0.24), transparent 46%);
+  box-shadow: 0 0 22px rgba(217, 70, 239, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.growth-preference-chip--selected::after {
+  content: "已記住";
+  justify-self: start;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 207, 232, 0.44);
+  background: rgba(244, 114, 182, 0.16);
+  padding: 0.18rem 0.52rem;
+  color: #fce7f3;
+  font-size: 0.65rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.growth-detail-drawer {
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(2, 6, 23, 0.22);
+  padding: 0.72rem 0.85rem;
+  color: rgba(226, 232, 240, 0.76);
+}
+
+.growth-detail-drawer > summary {
+  cursor: pointer;
+  color: rgba(165, 243, 252, 0.9);
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1.5;
+  list-style-position: inside;
+}
+
+.growth-detail-drawer p,
+.growth-detail-drawer a {
+  margin-top: 0.55rem;
+  color: rgba(203, 213, 225, 0.82);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+.growth-detail-drawer a {
+  display: inline-flex;
+  color: #67e8f9;
+  text-decoration: underline;
+  text-underline-offset: 0.18rem;
+}
+
+.growth-detail-drawer--major {
+  padding: 0.9rem;
+  border-color: rgba(103, 232, 249, 0.2);
+  background: rgba(8, 47, 73, 0.16);
+}
+
+.growth-detail-drawer--major > summary {
+  color: #cffafe;
+  font-size: 0.92rem;
+}
+
+.growth-detail-drawer--footer {
+  display: inline-block;
+  max-width: 100%;
+  text-align: left;
+}
+
+.growth-engagement-panel {
+  scroll-margin-top: 1rem;
+}
+
+@media (max-width: 520px) {
+  .growth-preference-chip {
+    min-height: 3.9rem;
+    border-radius: 0.82rem;
+  }
+
+  .growth-detail-drawer {
+    border-radius: 0.82rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .growth-preference-chip {
+    transition: none;
+  }
+}
