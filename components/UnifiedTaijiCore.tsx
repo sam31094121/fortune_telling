@@ -264,7 +264,9 @@ export default function UnifiedTaijiCore({
   const playBowlSound = (level: 1 | 2 | 3 | 4) => {
     if (typeof window === 'undefined') return;
     try {
-      const ctx = createAudioContext();
+      // Same reasoning as playTouchTone: this is a milestone moment (tap 3/6/12/24),
+      // not a visual effect, so it shouldn't be silently dropped by the low-power gate.
+      const ctx = createAudioContext(false);
       if (!ctx) return;
       const gainNode = ctx.createGain();
       gainNode.gain.setValueAtTime(0, ctx.currentTime);
@@ -322,7 +324,10 @@ export default function UnifiedTaijiCore({
   const playEvolutionTone = (stage: EvolutionStage) => {
     if (typeof window === 'undefined' || stage === 'idle') return;
     try {
-      const ctx = createAudioContext();
+      // Same reasoning as playTouchTone: this is the stage-transition chime, the
+      // main audio confirmation that a committed evolution actually happened --
+      // it shouldn't be silently dropped by the low-power gate either.
+      const ctx = createAudioContext(false);
       if (!ctx) return;
       const gainNode = ctx.createGain();
       const filter = ctx.createBiquadFilter();
