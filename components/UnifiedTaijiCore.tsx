@@ -129,26 +129,47 @@ export default function UnifiedTaijiCore({
       if (!ctx) return;
       const now = ctx.currentTime;
       const { frequency, pulseHz } = getTaijiTapTone(nextTapCount);
-      const duration = 0.62;
+      const duration = 0.72;
 
-      // Loud, immediate "wake-up hit": gain is pushed to the ceiling and everything
-      // routes through a limiter so it can go loud without ugly digital clipping.
-      // The Hz sequence itself (pitch, isochronic pulse) is untouched -- only
-      // volume/attack changed, per explicit request: keep the frequency character
-      // light, but make the hit strong enough to actually be felt.
+      // Real acoustic resonance comes from multiple related frequencies reinforcing
+      // each other, not from turning up a single thin sine wave -- a lone sine,
+      // however loud, still reads as weak/hollow. This tap tone is built as three
+      // layers around the same designed Hz (see TAIJI_TAP_FREQUENCIES_HZ, still
+      // completely unchanged): a sub-octave layer for felt physical weight, the
+      // fundamental itself, and a bright upper-octave layer for attack/cut-through.
+      // A short soft-saturation stage adds analog-style harmonic density (this is
+      // what actually reads as "powerful" to the ear), and a true peak-safety
+      // limiter (gentle ratio, high threshold -- NOT the heavy compressor from the
+      // previous pass, which was silently squashing the loud signal back down)
+      // keeps it from clipping into harsh digital noise.
+      const masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(1, now);
+
+      const saturation = ctx.createWaveShaper();
+      const curveSamples = 256;
+      const curve = new Float32Array(curveSamples);
+      for (let i = 0; i < curveSamples; i += 1) {
+        const x = (i / (curveSamples - 1)) * 2 - 1;
+        curve[i] = Math.tanh(x * 1.8);
+      }
+      saturation.curve = curve;
+      saturation.oversample = '4x';
+
       const limiter = ctx.createDynamicsCompressor();
-      limiter.threshold.setValueAtTime(-6, now);
-      limiter.knee.setValueAtTime(2, now);
-      limiter.ratio.setValueAtTime(14, now);
+      limiter.threshold.setValueAtTime(-1, now);
+      limiter.knee.setValueAtTime(1, now);
+      limiter.ratio.setValueAtTime(3, now);
       limiter.attack.setValueAtTime(0.001, now);
-      limiter.release.setValueAtTime(0.15, now);
+      limiter.release.setValueAtTime(0.12, now);
+
+      masterGain.connect(saturation);
+      saturation.connect(limiter);
       limiter.connect(ctx.destination);
 
-      // Percussive transient: a very short filtered noise burst at the instant of
-      // contact. A pure sine fading in, however loud, still reads as "soft" --
-      // this sharp attack-only click is what makes a tone register as an
-      // immediate strike instead of a swell.
-      const noiseBuffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.05), ctx.sampleRate);
+      // Percussive transient: a short filtered noise burst at the instant of
+      // contact. A tone fading in, however loud, still reads as "soft" -- this
+      // sharp attack-only click is what makes it register as an immediate strike.
+      const noiseBuffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.06), ctx.sampleRate);
       const noiseData = noiseBuffer.getChannelData(0);
       for (let i = 0; i < noiseData.length; i += 1) {
         noiseData[i] = (Math.random() * 2 - 1) * (1 - i / noiseData.length);
@@ -160,45 +181,80 @@ export default function UnifiedTaijiCore({
       noiseFilter.frequency.setValueAtTime(Math.max(600, frequency * 2), now);
       noiseFilter.Q.setValueAtTime(1.1, now);
       const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.9, now);
-      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+      noiseGain.gain.setValueAtTime(1.1, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
       noiseSource.connect(noiseFilter);
       noiseFilter.connect(noiseGain);
-      noiseGain.connect(limiter);
+      noiseGain.connect(masterGain);
       noiseSource.start(now);
-      noiseSource.stop(now + 0.06);
+      noiseSource.stop(now + 0.07);
 
-      // Carrier tone: this tap's step in the 24-step Solfeggio-anchored ascending
-      // sequence (see TAIJI_TAP_FREQUENCIES_HZ). Kept a pure sine -- the pitch
-      // stays clean even though the overall hit is loud.
-      const gainNode = ctx.createGain();
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(frequency, now);
-      osc.frequency.exponentialRampToValueAtTime(frequency * 1.06, now + 0.16);
-      gainNode.gain.setValueAtTime(0.0001, now);
-      gainNode.gain.exponentialRampToValueAtTime(0.95, now + 0.006);
-      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      // Fundamental: this tap's step in the 24-step Solfeggio-anchored ascending
+      // sequence -- the pitch the isochronic pulse rides on, exactly as designed.
+      const fundamentalGain = ctx.createGain();
+      const fundamental = ctx.createOscillator();
+      fundamental.type = 'sine';
+      fundamental.frequency.setValueAtTime(frequency, now);
+      fundamental.frequency.exponentialRampToValueAtTime(frequency * 1.04, now + 0.16);
+      fundamentalGain.gain.setValueAtTime(0.0001, now);
+      fundamentalGain.gain.exponentialRampToValueAtTime(1, now + 0.005);
+      fundamentalGain.gain.exponentialRampToValueAtTime(0.4, now + 0.09);
+      fundamentalGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
-      // Isochronic pulse: amplitude-modulate the carrier at a brainwave-range rate
-      // (theta -> alpha -> low-beta across the 24 taps, see TAIJI_TAP_PULSE_HZ).
-      // This is what actually gives a tone "brainwave entrainment" character --
-      // a single static tone alone doesn't.
+      // Sub-octave layer: an octave below the fundamental. This is where felt
+      // physical "weight" comes from -- low frequencies carry perceived power
+      // that a mid/high sine alone can't. Slower decay so it rings out longer,
+      // like the body of a struck bowl.
+      const subGain = ctx.createGain();
+      const sub = ctx.createOscillator();
+      sub.type = 'sine';
+      sub.frequency.setValueAtTime(frequency / 2, now);
+      subGain.gain.setValueAtTime(0.0001, now);
+      subGain.gain.exponentialRampToValueAtTime(0.85, now + 0.01);
+      subGain.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.12);
+
+      // Bright upper-octave layer: a triangle wave (has natural odd-harmonic bite,
+      // unlike a pure sine) an octave above the fundamental, only present for the
+      // first ~150ms. This gives the strike its "edge" / cut-through-noise
+      // character, then gets out of the way so the fundamental + sub ring out
+      // cleanly -- exactly how a real bell/gong strike behaves.
+      const brightGain = ctx.createGain();
+      const bright = ctx.createOscillator();
+      bright.type = 'triangle';
+      bright.frequency.setValueAtTime(frequency * 2, now);
+      brightGain.gain.setValueAtTime(0.0001, now);
+      brightGain.gain.exponentialRampToValueAtTime(0.55, now + 0.004);
+      brightGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+
+      // Isochronic pulse: amplitude-modulate the fundamental at a brainwave-range
+      // rate (theta -> alpha -> low-beta across the 24 taps, see
+      // TAIJI_TAP_PULSE_HZ). This is what actually gives the tone a "brainwave
+      // entrainment" character -- a single static tone alone doesn't.
       const pulseOsc = ctx.createOscillator();
       const pulseDepth = ctx.createGain();
       pulseOsc.type = 'sine';
       pulseOsc.frequency.setValueAtTime(pulseHz, now);
-      pulseDepth.gain.setValueAtTime(0.055, now);
+      pulseDepth.gain.setValueAtTime(0.08, now);
       pulseOsc.connect(pulseDepth);
-      pulseDepth.connect(gainNode.gain);
+      pulseDepth.connect(fundamentalGain.gain);
 
-      osc.connect(gainNode);
-      gainNode.connect(limiter);
-      osc.start(now);
-      osc.stop(now + duration + 0.05);
+      fundamental.connect(fundamentalGain);
+      sub.connect(subGain);
+      bright.connect(brightGain);
+      fundamentalGain.connect(masterGain);
+      subGain.connect(masterGain);
+      brightGain.connect(masterGain);
+
+      const stopAt = now + duration + 0.15;
+      fundamental.start(now);
+      fundamental.stop(stopAt);
+      sub.start(now);
+      sub.stop(stopAt);
+      bright.start(now);
+      bright.stop(now + 0.16);
       pulseOsc.start(now);
-      pulseOsc.stop(now + duration + 0.05);
-      closeAudioLater(ctx, Math.ceil((duration + 0.3) * 1000));
+      pulseOsc.stop(stopAt);
+      closeAudioLater(ctx, Math.ceil((duration + 0.4) * 1000));
     } catch (error) {
       console.warn('[UnifiedTaijiCore] touch tone skipped:', error);
     }
