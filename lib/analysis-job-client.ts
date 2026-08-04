@@ -10,6 +10,7 @@ export type AnalysisJobPublic = {
   progressPercent: number | null;
   message: string;
   resultId: string | null;
+  result?: unknown;
   errorCode?: string | null;
   errorMessage?: string | null;
 };

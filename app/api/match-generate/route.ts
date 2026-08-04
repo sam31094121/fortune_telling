@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 import { computeCompatibility, type PersonProfile, type PersonalityMatrixCompat } from '@/lib/compatibility-engine';
 import { isConsistentAiSummary, stabilizeMatchResult } from '@/lib/match-stability';
 import { PersonalityMatrixEngine } from '@/lib/personality-matrix-engine';
@@ -8,6 +8,7 @@ import { getZodiacEnglishName, getZodiacSign } from '@/lib/zodiac';
 import { isValidBirthday } from '@/lib/validation';
 import { computeRelationshipMatrix } from '@/lib/relationship-matrix-engine';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
+import { buildAiCopywritingInstruction, enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import { buildMatchFiveElementResult } from '@/lib/match-five-element-engine';
 import { buildSoulMatchAiInterpretationLayer, buildSoulMatchProfessionalLayer, buildSoulMatchReinforcementLayer } from '@/lib/match-professional-layer';
 
@@ -31,6 +32,52 @@ interface PersonDisplay {
   chineseZodiac: string;
   wuxing: string;
   bloodType: string;
+}
+type MatchEnhancementPayload = {
+  summary: string;
+  resonance: string[];
+  complement: string[];
+  grinding: string[];
+  conflict: string[];
+};
+
+const MATCH_ENHANCEMENT_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    summary: { type: Type.STRING },
+    resonance: { type: Type.ARRAY, items: { type: Type.STRING } },
+    complement: { type: Type.ARRAY, items: { type: Type.STRING } },
+    grinding: { type: Type.ARRAY, items: { type: Type.STRING } },
+    conflict: { type: Type.ARRAY, items: { type: Type.STRING } },
+  },
+  required: ['summary', 'resonance', 'complement', 'grinding', 'conflict'],
+};
+
+function extractJsonObjectText(text: string) {
+  const trimmed = text.trim();
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i)?.[1]?.trim();
+  if (fenced) return fenced;
+
+  const start = trimmed.indexOf('{');
+  const end = trimmed.lastIndexOf('}');
+  if (start >= 0 && end > start) return trimmed.slice(start, end + 1);
+  return trimmed;
+}
+
+function coerceStringArray(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+}
+
+function parseMatchEnhancement(text: string): MatchEnhancementPayload {
+  const payload = JSON.parse(extractJsonObjectText(text)) as Partial<MatchEnhancementPayload>;
+  return {
+    summary: typeof payload.summary === 'string' ? payload.summary : '',
+    resonance: coerceStringArray(payload.resonance),
+    complement: coerceStringArray(payload.complement),
+    grinding: coerceStringArray(payload.grinding),
+    conflict: coerceStringArray(payload.conflict),
+  };
 }
 
 function validate(body: unknown): string | null {
@@ -117,6 +164,8 @@ async function enhanceMatchResultWithAI(
 你是「天地人配對系統」的玄學合盤大師。
 請根據以下雙方的基本資料與大數據配對指數，將原始配對結果（摘要與四個關係象限文字）改寫成極具個性化、起伏分明、字字扎心、絕不重複的繁體中文大師合盤結論。
 
+${buildAiCopywritingInstruction('天地人配對系統')}
+
 合盤對象：
 - 第一位：姓名 ${displayA.name}，生肖 ${displayA.chineseZodiac}，星座 ${displayA.zodiacZh}，五行 ${displayA.wuxing}，血型 ${displayA.bloodType}
 - 第二位：姓名 ${displayB.name}，生肖 ${displayB.chineseZodiac}，星座 ${displayB.zodiacZh}，五行 ${displayB.wuxing}，血型 ${displayB.bloodType}
@@ -161,8 +210,10 @@ async function enhanceMatchResultWithAI(
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         config: {
           responseMimeType: 'application/json',
+          responseSchema: MATCH_ENHANCEMENT_SCHEMA,
           maxOutputTokens: 1500,
-          temperature: 0.35
+          temperature: 0.25,
+          thinkingConfig: { thinkingBudget: 0 }
         },
       }),
       new Promise<never>((_, reject) => {
@@ -173,25 +224,19 @@ async function enhanceMatchResultWithAI(
     const text = response.text?.trim();
     if (!text) throw new Error('Empty response');
 
-    const parsed = JSON.parse(text) as {
-      summary: string;
-      resonance: string[];
-      complement: string[];
-      grinding: string[];
-      conflict: string[];
-    };
+    const parsed = parseMatchEnhancement(text);
 
     return {
-      summary: parsed.summary || result.summary,
+      summary: enforceAiCopywritingTone(parsed.summary || result.summary),
       zones: {
-        resonance: (parsed.resonance?.length ? parsed.resonance : result.zones.resonance).slice(0, 3),
-        complement: (parsed.complement?.length ? parsed.complement : result.zones.complement).slice(0, 3),
-        grinding: (parsed.grinding?.length ? parsed.grinding : result.zones.grinding).slice(0, 3),
-        conflict: (parsed.conflict?.length ? parsed.conflict : result.zones.conflict).slice(0, 3),
+        resonance: (parsed.resonance?.length ? parsed.resonance : result.zones.resonance).slice(0, 3).map(enforceAiCopywritingTone),
+        complement: (parsed.complement?.length ? parsed.complement : result.zones.complement).slice(0, 3).map(enforceAiCopywritingTone),
+        grinding: (parsed.grinding?.length ? parsed.grinding : result.zones.grinding).slice(0, 3).map(enforceAiCopywritingTone),
+        conflict: (parsed.conflict?.length ? parsed.conflict : result.zones.conflict).slice(0, 3).map(enforceAiCopywritingTone),
       }
     };
   } catch (error) {
-    console.warn('[enhanceMatchResultWithAI] Fallback to static templates due to:', error);
+    console.info('[enhanceMatchResultWithAI] AI enhancement unavailable; using deterministic templates.', error instanceof Error ? error.message : String(error));
     return { summary: result.summary, zones: result.zones };
   }
 }

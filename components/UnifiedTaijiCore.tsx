@@ -80,8 +80,19 @@ export default function UnifiedTaijiCore({
     audioTimersRef.current.add(timer);
   };
 
+  const isTaijiLiteFeedbackDevice = () => {
+    if (typeof document === 'undefined') return false;
+    const body = document.body;
+    return body.classList.contains('app-lite-effects')
+      || body.classList.contains('app-low-power-device')
+      || body.classList.contains('app-social-browser')
+      || body.classList.contains('app-reduced-motion')
+      || body.classList.contains('app-touching')
+      || body.classList.contains('app-stress-mode');
+  };
+
   const createAudioContext = () => {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === 'undefined' || isTaijiLiteFeedbackDevice()) return null;
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContextClass) return null;
     const ctx = new AudioContextClass() as AudioContext;
@@ -302,7 +313,7 @@ export default function UnifiedTaijiCore({
       touchPulseTimerRef.current = null;
     }, 620);
 
-    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+    if (!isTaijiLiteFeedbackDevice() && typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
       if (nextTapCount === 24) {
         navigator.vibrate([18, 36, 28]);
       } else if (nextTapCount === 12 || nextTapCount === 6 || nextTapCount === 3) {

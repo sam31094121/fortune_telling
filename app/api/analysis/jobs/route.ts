@@ -62,7 +62,14 @@ export async function POST(request: Request) {
     console.info('[ZODIAC][JOB]', { requestId, jobId: job.jobId, status: job.status, stage: job.progressStage, moduleId: job.moduleId });
   }
 
-  const shouldRunInline = analysisType === 'bazi' || analysisType === 'zodiac';
+  // number/nameology are the same class of fast, pure-synchronous engine as bazi/zodiac and go
+  // through this same endpoint (see app/page.tsx and app/nameology/page.tsx) — they need the
+  // same inline-execution fix so a later poll never depends on a different serverless instance
+  // having seen this job. 'insight' is excluded: no page currently posts that type to this
+  // endpoint (app/insight/page.tsx calls /api/insight-analyze directly), and its engine can call
+  // a real external AI model, so it's left on the fire-and-forget path rather than risking an
+  // unverified change to a call path nothing exercises.
+  const shouldRunInline = analysisType === 'bazi' || analysisType === 'zodiac' || analysisType === 'number' || analysisType === 'nameology';
 
   if (job.status === 'QUEUED') {
     if (shouldRunInline) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
@@ -561,6 +561,7 @@ export default function MatchPage() {
   const [error, setError] = useState('');
   const [data, setData] = useState<MatchResponse | null>(null);
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<MatchDailyResult> | null>(null);
+  const submitLockRef = useRef(false);
 
   // 載入 localStorage 預填到 personA
   useEffect(() => {
@@ -663,81 +664,89 @@ export default function MatchPage() {
   }
 
   async function handleSubmit() {
-    const existingDaily = readDailyAnalysis<MatchDailyResult>('match');
-    if (existingDaily) {
-      if (!isDemoMatchDailyResult(existingDaily.result) && isCurrentMatchDailyRecord(existingDaily)) {
-        restoreDailyRecord(existingDaily);
-        return;
-      }
-      clearDailyAnalysis('match');
-      setDailyRecord(null);
-    }
-
-    if (!getAnalysisIdentityTarget()) {
-      setError(getIdentityRequiredMessage());
-      return;
-    }
-
-    if (!reviewReady) {
-      setError(personAError || personBError || '請先把兩位資料填完整。');
-      return;
-    }
-
-    setError('');
-    setData(null);
-    setLoading(true);
-
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 20_000);
-
-    // 帶重試機制的 fetch
-    async function fetchWithRetry(maxRetries = 2) {
-      for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        try {
-          const response = await fetch('/api/match-generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            signal: controller.signal,
-            body: JSON.stringify({ personA, personB }),
-          });
-          return response;
-        } catch (error) {
-          if (attempt === maxRetries) throw error;
-          // 等待後重試，時間遞增
-          await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
-        }
-      }
-    }
-
+    // 手機上點擊到 setLoading(true) 生效前有極短暫的視窗，快速重複點擊會同時
+    // 建立兩個請求。用同步的 ref 鎖擋住同一次點擊的重複觸發（跟八字/西洋星座同一類修復）。
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
     try {
-      const response = await fetchWithRetry();
-      if (!response) {
-        throw new Error('未收到伺服器回應');
-      }
-
-      const json = (await response.json()) as MatchResponse & { error?: string };
-
-      if (!response.ok) {
-        setError(json.error ?? '配對分析失敗，請稍後再試。');
-        return;
-      }
-
-      const nextDailyResult: MatchDailyResult = { data: json, personA, personB };
-      setData(json);
-      if (isDemoMatchDailyResult(nextDailyResult)) {
+      const existingDaily = readDailyAnalysis<MatchDailyResult>('match');
+      if (existingDaily) {
+        if (!isDemoMatchDailyResult(existingDaily.result) && isCurrentMatchDailyRecord(existingDaily)) {
+          restoreDailyRecord(existingDaily);
+          return;
+        }
         clearDailyAnalysis('match');
         setDailyRecord(null);
-      } else {
-        setDailyRecord(saveDailyAnalysis<MatchDailyResult>('match', nextDailyResult, { schemaVersion: MATCH_DAILY_SCHEMA_VERSION }));
       }
-      markGrowthModuleCompleted('soul_match', json.fiveElementMatch ? (json.fiveElementMatch.sharedElement.toUpperCase() as GrowthElement) : undefined);
-    } catch (error) {
-      setError(error instanceof DOMException && error.name === 'AbortError'
-        ? '配對分析等候時間過長，請稍後再試。'
-        : '目前無法連線到配對服務，請稍後再試。');
+
+      if (!getAnalysisIdentityTarget()) {
+        setError(getIdentityRequiredMessage());
+        return;
+      }
+
+      if (!reviewReady) {
+        setError(personAError || personBError || '請先把兩位資料填完整。');
+        return;
+      }
+
+      setError('');
+      setData(null);
+      setLoading(true);
+
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 20_000);
+
+      // 帶重試機制的 fetch
+      async function fetchWithRetry(maxRetries = 2) {
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+          try {
+            const response = await fetch('/api/match-generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: controller.signal,
+              body: JSON.stringify({ personA, personB }),
+            });
+            return response;
+          } catch (error) {
+            if (attempt === maxRetries) throw error;
+            // 等待後重試，時間遞增
+            await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+          }
+        }
+      }
+
+      try {
+        const response = await fetchWithRetry();
+        if (!response) {
+          throw new Error('未收到伺服器回應');
+        }
+
+        const json = (await response.json()) as MatchResponse & { error?: string };
+
+        if (!response.ok) {
+          setError(json.error ?? '配對分析失敗，請稍後再試。');
+          return;
+        }
+
+        const nextDailyResult: MatchDailyResult = { data: json, personA, personB };
+        setData(json);
+        if (isDemoMatchDailyResult(nextDailyResult)) {
+          clearDailyAnalysis('match');
+          setDailyRecord(null);
+        } else {
+          setDailyRecord(saveDailyAnalysis<MatchDailyResult>('match', nextDailyResult, { schemaVersion: MATCH_DAILY_SCHEMA_VERSION }));
+        }
+        markGrowthModuleCompleted('soul_match', json.fiveElementMatch ? (json.fiveElementMatch.sharedElement.toUpperCase() as GrowthElement) : undefined);
+      } catch (error) {
+        setError(error instanceof DOMException && error.name === 'AbortError'
+          ? '配對分析等候時間過長，請稍後再試。'
+          : '目前無法連線到配對服務，請稍後再試。');
+      } finally {
+        window.clearTimeout(timeout);
+        setLoading(false);
+      }
     } finally {
-      window.clearTimeout(timeout);
-      setLoading(false);
+      submitLockRef.current = false;
     }
   }
 

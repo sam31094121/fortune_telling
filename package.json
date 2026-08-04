@@ -13,7 +13,9 @@
     "lint": "next lint",
     "share": "node scripts/share-tunnel.js",
     "share:lan": "node scripts/share-tunnel.js --lan-only",
-    "auto-qa": "node scripts/auto-qa.mjs"
+    "auto-qa": "node scripts/auto-qa.mjs",
+    "screen:health": "node scripts/screen-health-monitor.mjs",
+    "screen:watch": "node scripts/screen-health-monitor.mjs --watch"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

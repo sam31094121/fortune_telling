@@ -1494,12 +1494,32 @@ export default function HomePage() {
   const [showModalMegaMantra, setShowModalMegaMantra] = useState(false);
   const [showModalGreatMantra, setShowModalGreatMantra] = useState(false);
   const modalTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const modalOverlayTimersRef = useRef<Set<number>>(new Set());
   const modalEvolutionTimerRef = useRef<number | null>(null);
   const modalAudioContextsRef = useRef<Set<AudioContext>>(new Set());
   const modalAudioTimersRef = useRef<Set<number>>(new Set());
 
+  const scheduleModalOverlayTimeout = (callback: () => void, delay: number) => {
+    const timer = window.setTimeout(() => {
+      modalOverlayTimersRef.current.delete(timer);
+      callback();
+    }, delay);
+    modalOverlayTimersRef.current.add(timer);
+    return timer;
+  };
+
+  const isModalTaijiAudioReduced = () => {
+    if (typeof document === 'undefined') return false;
+    const body = document.body;
+    return body.classList.contains('app-lite-effects')
+      || body.classList.contains('app-low-power-device')
+      || body.classList.contains('app-social-browser')
+      || body.classList.contains('app-stress-mode')
+      || body.classList.contains('app-touching');
+  };
+
   const playModalBowlSound = (type: number) => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || isModalTaijiAudioReduced()) return;
     try {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioContextClass) return;
@@ -1567,7 +1587,7 @@ export default function HomePage() {
   };
 
   const playEvolutionTone = (stage: EvolutionStage) => {
-    if (typeof window === 'undefined' || stage === 'idle') return;
+    if (typeof window === 'undefined' || stage === 'idle' || isModalTaijiAudioReduced()) return;
 
     try {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
@@ -1676,6 +1696,8 @@ export default function HomePage() {
   useEffect(() => () => {
     if (modalTimerRef.current) clearTimeout(modalTimerRef.current);
     if (modalEvolutionTimerRef.current) window.clearTimeout(modalEvolutionTimerRef.current);
+    modalOverlayTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    modalOverlayTimersRef.current.clear();
     modalAudioTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     modalAudioContextsRef.current.forEach((context) => void context.close().catch(() => {}));
     modalAudioTimersRef.current.clear();
@@ -1698,18 +1720,18 @@ export default function HomePage() {
       if (next === 3) {
         setShowModalMantra(true);
         playModalBowlSound(1);
-        setTimeout(() => setShowModalMantra(false), 5200);
+        scheduleModalOverlayTimeout(() => setShowModalMantra(false), 5200);
       } else if (next === 6) {
         setShowModalMantra(false);
         setShowModalSuperMantra(true);
         playModalBowlSound(2);
-        setTimeout(() => setShowModalSuperMantra(false), 6500);
+        scheduleModalOverlayTimeout(() => setShowModalSuperMantra(false), 6500);
       } else if (next === 12) {
         setShowModalMantra(false);
         setShowModalSuperMantra(false);
         setShowModalMegaMantra(true);
         playModalBowlSound(3);
-        setTimeout(() => setShowModalMegaMantra(false), 8000);
+        scheduleModalOverlayTimeout(() => setShowModalMegaMantra(false), 8000);
       } else if (next === 24) {
         if (modalTimerRef.current) clearTimeout(modalTimerRef.current);
         setModalTapCount(0);
@@ -1718,7 +1740,7 @@ export default function HomePage() {
         setShowModalMegaMantra(false);
         setShowModalGreatMantra(true);
         playModalBowlSound(4);
-        setTimeout(() => setShowModalGreatMantra(false), 11000);
+        scheduleModalOverlayTimeout(() => setShowModalGreatMantra(false), 11000);
       }
       return next;
     });
@@ -2530,7 +2552,7 @@ export default function HomePage() {
                 <span className="number-fortune-danger-emblem__halo" />
                 <span className="number-fortune-danger-emblem__ring" />
                 <span className="number-fortune-danger-emblem__slash" />
-                <span className="number-fortune-danger-emblem__glyph">凶</span>
+                <span className="number-fortune-danger-emblem__glyph">吉</span>
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse">

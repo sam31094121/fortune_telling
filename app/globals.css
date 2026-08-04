@@ -7611,7 +7611,7 @@ textarea,
 }
 
 .number-fortune-panel,
-.max-h-[90vh].overflow-y-auto {
+.max-h-\[90vh\].overflow-y-auto {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: auto;
   touch-action: pan-y pinch-zoom !important;
@@ -16696,16 +16696,19 @@ body.app-touching .home-taiji-cinema * {
 .number-fortune-danger-emblem__glyph {
   position: relative;
   z-index: 4;
-  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  font-size: 1.72rem;
+  font-family: "Noto Serif TC", "Songti TC", "PMingLiU", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size: 1.78rem;
   font-weight: 900;
   line-height: 1;
-  color: #ffe4e6;
+  background: linear-gradient(180deg, #fff7dd 0%, #ffd684 45%, #f6b93b 75%, #fff1c2 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   letter-spacing: 0.03em;
-  text-shadow:
-    0 0 8px rgba(244, 63, 94, 0.95),
-    0 0 18px rgba(251, 191, 36, 0.34),
-    0 1px 0 rgba(255, 255, 255, 0.18);
+  filter:
+    drop-shadow(0 0 8px rgba(251, 191, 36, 0.85))
+    drop-shadow(0 0 18px rgba(244, 63, 94, 0.3))
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.25));
 }
 
 @keyframes numberDangerOrbit {
@@ -17275,4 +17278,165 @@ body.app-reduced-motion .modal-taiji-3d-core {
   display: flex !important;
   opacity: 1 !important;
   visibility: visible !important;
+}
+/* ==========================================================================
+   Taiji mobile stability authority (V22): keep three layers, reduce mobile jank.
+   Layer 1 = Taiji core, Layer 2 = five-star 365 orbit, Layer 3 = space glow.
+   ========================================================================== */
+.home-taiji-cinema,
+.home-taiji-cinema .unified-taiji-shell,
+.home-taiji-cinema .modal-taiji-button,
+.home-taiji-cinema .modal-taiji-orbit-emblem,
+.home-taiji-cinema .modal-taiji-3d-core {
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  transform-style: preserve-3d !important;
+}
+
+.home-taiji-cinema .unified-taiji-shell,
+.home-taiji-cinema .modal-taiji-button {
+  isolation: isolate !important;
+  contain: layout paint style !important;
+  touch-action: manipulation !important;
+}
+
+.home-taiji-cinema .modal-taiji-3d-core,
+.home-taiji-cinema .modal-taiji-3d-core svg,
+.home-taiji-cinema .taiji-light-orbit {
+  transform: translateZ(0);
+  will-change: transform !important;
+}
+
+body.app-page-hidden .home-taiji-cinema *,
+body.app-reduced-motion .home-taiji-cinema *,
+body.app-stress-mode .home-taiji-cinema .taiji-light-orbit,
+body.app-stress-mode .home-taiji-cinema .taiji-light-orbit__head,
+body.app-stress-mode .home-taiji-cinema .modal-evolution-flare,
+body.app-stress-mode .home-taiji-cinema .modal-evolution-scan,
+body.app-stress-mode .home-taiji-cinema .modal-evolution-rays,
+body.app-stress-mode .home-taiji-cinema .unified-evolution-screen,
+body.app-stress-mode .home-taiji-cinema .unified-evolution-pulse,
+body.app-touching .home-taiji-cinema .taiji-light-orbit,
+body.app-touching .home-taiji-cinema .taiji-light-orbit__head,
+body.app-touching .home-taiji-cinema .modal-evolution-flare,
+body.app-touching .home-taiji-cinema .modal-evolution-scan,
+body.app-touching .home-taiji-cinema .modal-evolution-rays,
+body.app-touching .home-taiji-cinema .unified-evolution-screen,
+body.app-touching .home-taiji-cinema .unified-evolution-pulse {
+  animation-play-state: paused !important;
+  transition-duration: 0ms !important;
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+  .home-taiji-cinema .modal-taiji-natural-bloom,
+  .home-taiji-cinema .modal-taiji-ground-glow,
+  .home-taiji-cinema .modal-taiji-orbit-emblem::before,
+  .home-taiji-cinema .modal-taiji-orbit-emblem::after,
+  .home-taiji-cinema .unified-evolution-screen,
+  .home-taiji-cinema .unified-evolution-pulse,
+  .home-taiji-cinema .modal-evolution-flare,
+  .home-taiji-cinema .modal-evolution-scan,
+  .home-taiji-cinema .modal-evolution-rays,
+  .home-taiji-cinema .modal-evolution-orbit,
+  .home-taiji-cinema .taiji-celestial-wisp,
+  .home-taiji-cinema .taiji-light-orbit::before {
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    mix-blend-mode: normal !important;
+  }
+
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .modal-taiji-3d-core {
+    animation: taiji-v22-mobile-core-breathe 5.8s ease-in-out infinite !important;
+    transform: translate3d(-50%, -50%, 56px) scale(1) !important;
+  }
+
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .modal-taiji-natural-bloom {
+    opacity: 0.22 !important;
+    animation: taiji-v22-mobile-soft-glow 6.8s ease-in-out infinite !important;
+  }
+
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .modal-taiji-ground-glow,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .modal-evolution-breath {
+    opacity: 0.18 !important;
+    animation: none !important;
+  }
+
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-orbit-layer,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-light-orbit,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-light-orbit__head,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-gold-waves,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .taiji-celestial-mist,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .unified-evolution-screen,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .unified-evolution-pulse,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .modal-evolution-flare,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .modal-evolution-scan,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="1-taiji-core"] .modal-evolution-rays {
+    display: none !important;
+    opacity: 0 !important;
+    animation: none !important;
+  }
+
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit {
+    border-color: rgba(148, 230, 255, 0.26) !important;
+    box-shadow: none !important;
+    animation-timing-function: linear !important;
+  }
+
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit::before {
+    display: none !important;
+  }
+
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit__head {
+    width: 14px !important;
+    height: 14px !important;
+    box-shadow: 0 0 8px currentColor, 0 0 14px rgba(255, 255, 255, 0.18) !important;
+  }
+
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit--gold .taiji-light-orbit__head {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit--cyan { animation-duration: 28s !important; }
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit--violet { animation-duration: 32s !important; }
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit--gold { animation-duration: 36s !important; }
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit--emerald { animation-duration: 40s !important; }
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-light-orbit--rose { animation-duration: 44s !important; }
+
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-gold-waves,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .taiji-celestial-mist,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .modal-evolution-flare,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .modal-evolution-scan,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="2-five-star-orbit"] .modal-evolution-rays {
+    display: none !important;
+    opacity: 0 !important;
+    animation: none !important;
+  }
+
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .modal-evolution-scan,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .modal-evolution-rays,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .taiji-celestial-mist,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .taiji-gold-waves {
+    display: none !important;
+    opacity: 0 !important;
+    animation: none !important;
+  }
+
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .unified-evolution-screen,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .unified-evolution-pulse,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .modal-evolution-flare,
+  .home-taiji-cinema.taiji-open-stage .unified-taiji-shell[data-taiji-layer="3-space-glow"] .modal-evolution-orbit {
+    opacity: 0.24 !important;
+  }
+}
+
+@keyframes taiji-v22-mobile-core-breathe {
+  0%, 100% { transform: translate3d(-50%, -50%, 56px) scale(1); }
+  50% { transform: translate3d(-50%, -50%, 56px) scale(1.012); }
+}
+
+@keyframes taiji-v22-mobile-soft-glow {
+  0%, 100% { opacity: 0.16; transform: translate3d(-50%, -50%, 0) scale(0.86); }
+  50% { opacity: 0.24; transform: translate3d(-50%, -50%, 0) scale(0.92); }
 }

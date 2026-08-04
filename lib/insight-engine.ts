@@ -13,6 +13,7 @@ import {
   type InsightRequest,
 } from './types';
 import { solarToLunarParts } from './lunar-calendar';
+import { buildAiCopywritingInstruction, enforceAiCopywritingTone } from './ai-copywriting-style-center';
 import { calculateZiweiSanFang, type ZiweiSanFangAnalysis } from './ziwei-sanfang-engine';
 import { calculateAnnualFortune, type AnnualFortuneAnalysis } from './annual-fortune-engine';
 
@@ -507,6 +508,8 @@ ${JSON.stringify(statisticalAnalysis.map((item) => ({
 2. 個性化建議（3-5項）。
 3. 完整分析摘要。
 
+${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
+
 分析要求：
 - 紫微斗數是主軸，姓名學只作輔助人格參考；你只能引用上方已給定的宮位、四柱、三方四正與今年流年資料，不可自行推導、補充或改寫星曜。
 - 今年流年運勢、今年命盤三方四正年度分數與年度建議已由後端固定產生；你只能呼應今年，不可自行改分數、改宮位，也不可把今年運勢寫成終身本命。
@@ -560,11 +563,14 @@ ${JSON.stringify(statisticalAnalysis.map((item) => ({
       duplicatePolicy: '保留原始加權結果；相同分數不做人為拆分。',
     },
     accuracyBreakdown,
-    psychologyInsights: withUniqueConfidence(aiAnalysis.psychology_insights, statisticalAnalysis),
+    psychologyInsights: withUniqueConfidence(
+      aiAnalysis.psychology_insights.map((item) => ({ ...item, description: enforceAiCopywritingTone(item.description) })),
+      statisticalAnalysis,
+    ),
     statisticalAnalysis,
     bigDataInsights,
-    personalizedRecommendations: aiAnalysis.recommendations,
-    summary: aiAnalysis.summary,
+    personalizedRecommendations: aiAnalysis.recommendations.map((item) => enforceAiCopywritingTone(item)),
+    summary: enforceAiCopywritingTone(aiAnalysis.summary),
     ziweiPalaces: (ziweiSanFang.timeConfidence === 'exact' ? ziweiSanFang.palaces : []).map((palace) => ({
       palaceName: palace.name,
       starName: palace.majorStars.join('、') || '無十四主星坐守',

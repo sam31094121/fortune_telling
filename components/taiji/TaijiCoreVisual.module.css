@@ -1,87 +1,270 @@
-/* 第一層太極核心固定不動、不縮放呼吸，位置與大小穩定；動態只交給內部的兩魚公轉與第二層環繞 */
 .svg {
   width: 100%;
   height: 100%;
   display: block;
   overflow: visible;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  contain: paint;
   transform-origin: center;
 }
 
-.outerRing {
-  fill: none;
-  stroke: url(#taijiRingGradient);
-  stroke-width: 2.2;
-  opacity: 0.9;
-}
-
-.fish {
+.auraRings,
+.elementOrbit,
+.fishOrbit,
+.fish,
+.fourSymbolItem,
+.baguaItem {
   transform-box: fill-box;
   transform-origin: center;
 }
 
-/* 萬法歸宗：太極本體預設維持完整、靜止、不轉，只有進入兩儀以後的變化階段才開始公轉 */
-.fishOrbit {
-  transform-box: view-box;
-  transform-origin: 0px 0px;
+.auraRings {
+  opacity: 0.64;
+  pointer-events: none;
 }
 
-/* 剛體公轉：兩魚維持固定夾角一起繞圓心轉，角度差恆定即保證永不重疊、不碰撞 */
+.outerHalo,
+.middleHalo,
+.innerOrbit,
+.outerRing {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.outerHalo {
+  stroke: rgba(34, 211, 238, 0.16);
+  stroke-width: 1;
+  stroke-dasharray: 2 12;
+}
+
+.middleHalo {
+  stroke: rgba(253, 230, 138, 0.2);
+  stroke-width: 1.2;
+  stroke-dasharray: 36 18;
+}
+
+.innerOrbit {
+  stroke: rgba(255, 255, 255, 0.22);
+  stroke-width: 1;
+}
+
+.outerRing {
+  stroke: url(#tdhTaijiRingGradient);
+  stroke-width: 3;
+  opacity: 0.98;
+}
+
+.elementOrbit {
+  opacity: 0;
+  transition: opacity 520ms ease;
+  pointer-events: none;
+}
+
+.elementOrbitVisible {
+  opacity: 1;
+}
+
+.elementGem {
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 440ms ease, transform 520ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.elementOrbitVisible .elementGem {
+  opacity: 0.92;
+  transform: scale(1);
+}
+
+.elementGem circle:first-child {
+  fill: currentColor;
+  opacity: 0.28;
+  stroke: rgba(255, 255, 255, 0.48);
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+}
+
+.elementGemCore {
+  fill: #fff;
+  opacity: 0.86;
+}
+
+.elementGemHighlight {
+  opacity: 1;
+  filter: drop-shadow(0 0 7px currentColor);
+}
+
+.gemSpace { color: #d8b4fe; }
+.gemFire { color: #fb7185; }
+.gemAir { color: #67e8f9; }
+.gemWater { color: #60a5fa; }
+.gemEarth { color: #facc15; }
+
+
+/* Three-layer proportion contract: core, five-star orbit, outer field never fight. */
+.stageIdle .auraRings,
+.stageTaiji .auraRings {
+  opacity: 0.38;
+}
+
+.stageIdle .elementOrbit,
+.stageTaiji .elementOrbit,
+.stageLiangyi .fourSymbols,
+.stageLiangyi .baguaGroup,
+.stageSixiang .baguaGroup {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stageTaiji .fishOrbit,
+.stageIdle .fishOrbit {
+  animation: none;
+}
+
+.stageLiangyi .auraRings {
+  opacity: 0.46;
+}
+
+.stageLiangyi .elementOrbitVisible .elementGem {
+  opacity: 0.96;
+  transform: scale(1);
+}
+
+.stageSixiang .auraRings {
+  opacity: 0.58;
+}
+
+.stageSixiang .elementOrbitVisible .elementGem {
+  opacity: 0.62;
+  transform: scale(0.84);
+}
+
+.stageSixiang .fourSymbolsVisible .fourSymbolItem {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.stageSixiang .fish {
+  opacity: 0.88;
+}
+
+.stageBagua .auraRings {
+  opacity: 0.74;
+}
+
+.stageBagua .elementOrbitVisible .elementGem {
+  opacity: 0.46;
+  transform: scale(0.72);
+}
+
+.stageBagua .fourSymbolsVisible .fourSymbolItem {
+  opacity: 0.72;
+  transform: scale(0.82);
+}
+
+.stageBagua .baguaGroupVisible .baguaItem {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.stageBagua .fish {
+  opacity: 0.82;
+}
+.fishOrbit {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
 .svg.split .fishOrbit {
-  animation: taijiFishOrbit 9s linear infinite;
+  animation: taijiFishOrbit 11s linear infinite;
   will-change: transform;
 }
 
 .svg.active.split .fishOrbit {
-  animation-duration: 5.5s;
+  animation-duration: 6.8s;
 }
 
-@keyframes taijiFishOrbit {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.fish {
+  transition: transform 980ms cubic-bezier(0.22, 0.82, 0.24, 1), opacity 420ms ease;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .fishOrbit {
-    animation: none;
-  }
-}
-/* Homepage Taiji safety: the core SVG must remain a perfect circle. */
-.svg {
-  aspect-ratio: 1 / 1;
-  object-fit: contain;
-  contain: paint;
-}
-
-.fish,
-.outerRing {
+.fishBody,
+.fishEdgeDark,
+.fishEdgeLight,
+.surfaceShade {
   vector-effect: non-scaling-stroke;
 }
 
-/* 太極本體：預設維持完整一顆、陰陽緊密相合，清清楚楚，不分裂、不縮放 */
+.fishEdgeDark,
+.fishEdgeLight {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.fishEdgeDark {
+  stroke: rgba(230, 236, 248, 0.42);
+}
+
+.fishEdgeLight {
+  stroke: rgba(43, 28, 10, 0.4);
+}
+
 .yinFish {
-  transition: transform 900ms cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateX(0) scale(1);
 }
 
 .yangFish {
-  transition: transform 900ms cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateX(0) scale(1);
 }
 
-/* 兩儀：太極生兩儀之後，陰陽才分開、縮小，並在第二層公轉展開 */
 .svg.split .yinFish {
-  transform: translateX(-62px) scale(0.42);
+  transform: translateX(-66px) translateY(-1px) scale(0.44);
 }
 
 .svg.split .yangFish {
-  transform: translateX(62px) scale(0.42);
+  transform: translateX(66px) translateY(1px) scale(0.44);
 }
 
-/* 四象：由兩儀中心對稱長出，四個象限同步淡入，不影響陰陽路徑 */
+.pearlRing {
+  fill: none;
+  stroke: rgba(253, 230, 138, 0.48);
+  stroke-width: 1.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.pearlLight,
+.pearlDark {
+  stroke: rgba(255, 255, 255, 0.36);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.pearlGlint,
+.pearlGlintMuted {
+  fill: rgba(255, 255, 255, 0.78);
+}
+
+.pearlGlintMuted {
+  opacity: 0.34;
+}
+
+.surfaceShade {
+  opacity: 0.72;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.seamLight {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.2);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
 .fourSymbols {
   opacity: 0;
   transition: opacity 500ms ease;
@@ -94,10 +277,8 @@
 
 .fourSymbolItem {
   opacity: 0;
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: scale(0.6);
-  transition: opacity 420ms ease, transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: scale(0.62);
+  transition: opacity 420ms ease, transform 460ms cubic-bezier(0.34, 1.32, 0.64, 1);
 }
 
 .fourSymbolsVisible .fourSymbolItem {
@@ -106,22 +287,21 @@
 }
 
 .symbolCircle {
-  fill: rgba(15, 20, 32, 0.72);
-  stroke: rgba(230, 236, 248, 0.55);
+  fill: rgba(5, 10, 22, 0.72);
+  stroke: rgba(103, 232, 249, 0.36);
   stroke-width: 1.2;
   vector-effect: non-scaling-stroke;
 }
 
-.symbolText {
-  font-size: 13px;
-  font-weight: 700;
-  fill: #f5f1ff;
+.fourSymbolMark rect,
+.trigramLines rect {
+  fill: rgba(253, 230, 138, 0.9);
+  filter: none;
 }
 
-/* 八卦：依角度公式（angle - 90 起算）順時針展開，半徑固定、比例一致 */
 .baguaGroup {
   opacity: 0;
-  transition: opacity 500ms ease;
+  transition: opacity 520ms ease;
   pointer-events: none;
 }
 
@@ -131,46 +311,57 @@
 
 .baguaItem {
   opacity: 0;
-  transform-box: fill-box;
-  transform-origin: center;
-  transition: opacity 380ms ease, transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: scale(0.68);
+  transition: opacity 420ms ease, transform 460ms cubic-bezier(0.2, 0.9, 0.25, 1);
 }
 
 .baguaGroupVisible .baguaItem {
   opacity: 1;
+  transform: scale(1);
 }
 
 .baguaCircle {
-  fill: rgba(15, 20, 32, 0.78);
-  stroke: rgba(251, 191, 36, 0.45);
-  stroke-width: 1.4;
+  fill: rgba(3, 7, 18, 0.72);
+  stroke: rgba(253, 230, 138, 0.42);
+  stroke-width: 1.1;
   vector-effect: non-scaling-stroke;
 }
 
-.baguaSymbol {
-  font-size: 17px;
-  font-weight: 700;
-  fill: #fde9b0;
-}
-
-.baguaName {
-  font-size: 11px;
-  font-weight: 600;
-  fill: rgba(230, 236, 248, 0.75);
-}
-
 .baguaItemHighlight .baguaCircle {
-  stroke: rgba(251, 113, 133, 0.85);
-  stroke-width: 2.2;
-  animation: taijiBaguaPulse 1600ms ease-in-out infinite;
+  stroke: rgba(251, 113, 133, 0.82);
+  stroke-width: 1.8;
+  animation: taijiBaguaPulse 1800ms ease-in-out infinite;
+}
+
+@keyframes taijiFishOrbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes taijiBaguaPulse {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 2px rgba(251, 113, 133, 0.5));
+  0%, 100% { opacity: 0.72; }
+  50% { opacity: 1; }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+  .svg.split .fishOrbit {
+    animation-duration: 16s;
   }
-  50% {
-    filter: drop-shadow(0 0 8px rgba(251, 113, 133, 0.9));
+
+  .elementGemHighlight,
+  .baguaItemHighlight .baguaCircle {
+    filter: none;
+  }
+
+  .surfaceShade {
+    opacity: 0.5;
+    mix-blend-mode: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fishOrbit,
+  .baguaItemHighlight .baguaCircle {
+    animation: none;
   }
 }

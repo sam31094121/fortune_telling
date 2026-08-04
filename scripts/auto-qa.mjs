@@ -385,6 +385,33 @@ async function checkTarot(mode) {
   };
 }
 
+async function checkGrowthCenter(mode) {
+  const params = mode === 'self'
+    ? 'completedModules=nameology,bazi,zodiac,tarot&primaryElement=FIRE&secondaryElement=AIR&avoidElement=WATER&anonymousProfileId=autoqa-growth-self'
+    : 'completedModules=tarot&primaryElement=WATER&secondaryElement=EARTH&avoidElement=FIRE&anonymousProfileId=autoqa-growth-other';
+  const response = await getPage(`/api/growth-center?${params}`);
+  validateOkResult(response.data, 'growth center');
+  const data = response.data?.data;
+  assert(data && typeof data === 'object', 'growth center data is missing', response.data);
+  assert(data.fiveElement, 'growth center fiveElement output is missing', data);
+  assert(data.copywritingStyle?.version, 'growth center copywriting style snapshot is missing', data.copywritingStyle);
+  assert(data.integrationLayer, 'growth center Integration Layer handoff is missing', data);
+  assert(data.dataPolicy, 'growth center data policy is missing', data);
+  assert(data.coreV2 || data.progress || data.weeklyReport, 'growth center core/progress output is missing', data);
+
+  return {
+    durationMs: response.durationMs,
+    result: {
+      moduleId: 'GROWTH_CENTER',
+      mode: 'growth_center',
+      fiveElement: data.fiveElement,
+      copywritingStyleVersion: data.copywritingStyle.version,
+      hasIntegrationLayer: Boolean(data.integrationLayer),
+      hasDataPolicy: Boolean(data.dataPolicy),
+      generationVersion: data.generationVersion,
+    },
+  };
+}
 const MODULES = [
   { id: 'nameology', title: 'AI Nameology', href: '/nameology', api: '/api/analysis/jobs', homeMarkers: ['/nameology', '姓名學'], check: checkNameology },
   { id: 'ziwei', title: 'AI Ziwei', href: '/insight', api: '/api/analysis/jobs', homeMarkers: ['/insight', '紫微'], check: checkZiwei },
@@ -393,7 +420,8 @@ const MODULES = [
   { id: 'music', title: 'AI Life Song', href: '/music', api: '/api/music-generate', homeMarkers: ['/music', '生命歌曲', '生成一首歌'], check: checkMusic },
   { id: 'bazi', title: 'AI Bazi Chart', href: '/bazi', api: '/api/analysis/jobs', homeMarkers: ['/bazi', '八字'], check: checkBazi },
   { id: 'zodiac', title: 'AI Western Zodiac', href: '/zodiac', api: '/api/analysis/jobs', homeMarkers: ['/zodiac', '西洋星座'], check: checkZodiac },
-  { id: 'tarot', title: 'AI Tarot', href: '/tarot', api: '/api/tarot/reading', homeMarkers: ['/tarot', '塔羅'], check: checkTarot },
+  { id: 'tarot', title: 'AI Tarot', href: '/tarot', api: '/api/tarot/reading', homeMarkers: ['/tarot', 'AI 塔羅牌'], check: checkTarot },
+  { id: 'growth_center', title: 'AI Growth Center', href: '/growth-center', api: '/api/growth-center', homeMarkers: ['/growth-center', 'AI 個人成長中心'], check: checkGrowthCenter },
 ];
 
 function selectedModules() {
@@ -485,7 +513,7 @@ async function run() {
   const runtimeSnapshots = await snapshotRuntimeFiles();
   const report = {
     ok: false,
-    version: 'tiandiren-auto-qa-v1.1',
+    version: 'tiandiren-auto-qa-v1.2',
     baseUrl: BASE_URL,
     stopOnFail: STOP_ON_FAIL,
     startedAt: nowIso(),
@@ -508,7 +536,7 @@ async function run() {
 
   try {
     report.homepage = await checkHomepage(modules);
-    console.log(`[Auto QA] PASS Home / eight module entry markers (${report.homepage.durationMs}ms)`);
+    console.log(`[Auto QA] PASS Home / ${modules.length} module entry markers (${report.homepage.durationMs}ms)`);
 
     for (const module of modules) {
       const moduleReport = {
