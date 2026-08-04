@@ -1155,17 +1155,18 @@ type HomeGrowthModuleGuide = {
   href?: string;
   action?: 'number-modal';
   sticky: string;
+  reward: string;
 };
 
 const HOME_GROWTH_MODULE_GUIDES: HomeGrowthModuleGuide[] = [
-  { id: 'number', label: '數字論吉凶', helper: '完成手機後 4 碼、6 碼、8 碼或完整 10 碼分析。', cta: '去完成數字論吉凶', action: 'number-modal', sticky: '用手機號碼建立第一個行動訊號。' },
-  { id: 'ziwei', label: 'AI 紫微斗數', helper: '完成紫微命盤探索。', cta: '去完成紫微斗數', href: '/insight', sticky: '把長期方向接進成長中心。' },
-  { id: 'soul_match', label: 'AI 靈魂配對', helper: '完成雙人配對探索。', cta: '去完成靈魂配對', href: '/match', sticky: '讓關係互動留下可追蹤提醒。' },
-  { id: 'music', label: 'AI 生成歌曲', helper: '完成生命音樂生成。', cta: '去生成一首歌', href: '/music', sticky: '把個人節奏變成可回聽記憶。' },
-  { id: 'nameology', label: 'AI 姓名學', helper: '完成姓名學分析。', cta: '去完成姓名學', href: '/nameology', sticky: '補上姓名能量與性格支點。' },
-  { id: 'bazi', label: 'AI 生辰八字', helper: '完成八字命盤分析。', cta: '去完成八字命盤', href: '/bazi', sticky: '讓出生結構接入元素補強。' },
-  { id: 'zodiac', label: 'AI \u897f\u6d0b\u661f\u5ea7', helper: '\u5b8c\u6210\u897f\u6d0b\u661f\u5ea7\u4eba\u683c\u5206\u6790\u3002', cta: '\u53bb\u5b8c\u6210\u897f\u6d0b\u661f\u5ea7', href: '/zodiac', sticky: '加入星座人格與每週提醒。' },
-  { id: 'tarot', label: 'AI 塔羅牌', helper: '完成塔羅牌抽牌、正逆位與五元素判定。', cta: '去完成塔羅牌', href: '/tarot', sticky: '用當下提問補齊最後一段訊號。' },
+  { id: 'number', label: '數字論吉凶', helper: '完成手機後 4 碼、6 碼、8 碼或完整 10 碼分析。', cta: '去完成數字論吉凶', action: 'number-modal', sticky: '用手機號碼建立第一個行動訊號。', reward: '完成後，首頁會記住你的第一個數字訊號。' },
+  { id: 'ziwei', label: 'AI 紫微斗數', helper: '完成紫微命盤探索。', cta: '去完成紫微斗數', href: '/insight', sticky: '把長期方向接進成長中心。', reward: '完成後，成長中心會知道你的長期方向。' },
+  { id: 'soul_match', label: 'AI 靈魂配對', helper: '完成雙人配對探索。', cta: '去完成靈魂配對', href: '/match', sticky: '讓關係互動留下可追蹤提醒。', reward: '完成後，關係提醒會變得更貼近你。' },
+  { id: 'music', label: 'AI 生成歌曲', helper: '完成生命音樂生成。', cta: '去生成一首歌', href: '/music', sticky: '把個人節奏變成可回聽記憶。', reward: '完成後，你會多一個可以回來聽的記憶點。' },
+  { id: 'nameology', label: 'AI 姓名學', helper: '完成姓名學分析。', cta: '去完成姓名學', href: '/nameology', sticky: '補上姓名能量與性格支點。', reward: '完成後，AI 會記住你的姓名支點。' },
+  { id: 'bazi', label: 'AI 生辰八字', helper: '完成八字命盤分析。', cta: '去完成八字命盤', href: '/bazi', sticky: '讓出生結構接入元素補強。', reward: '完成後，本週補強會更準。' },
+  { id: 'zodiac', label: 'AI 西洋星座', helper: '完成西洋星座人格分析。', cta: '去完成西洋星座', href: '/zodiac', sticky: '加入星座人格與每週提醒。', reward: '完成後，每週提醒會更像你的語氣。' },
+  { id: 'tarot', label: 'AI 塔羅牌', helper: '完成塔羅牌抽牌、正逆位與五元素判定。', cta: '去完成塔羅牌', href: '/tarot', sticky: '用當下提問補齊最後一段訊號。', reward: '完成後，8/8 就能打開 AI 個人成長中心。' },
 ];
 
 type VipGrowthUnlockCardProps = {
@@ -1185,12 +1186,12 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
   const unlocked = safeCompleted >= safeTotal;
   const remaining = Math.max(safeTotal - safeCompleted, 0);
   const progressPercent = Math.min(100, Math.round((safeCompleted / safeTotal) * 100));
-  const headline = unlocked ? 'AI 已建立你的專屬成長中心。' : '完成更多探索，即可解鎖專屬 AI 成長中心。';
+  const headline = unlocked ? '我已記住你的 8 張探索，成長中心已開啟。' : '我會記住你的命理進度，每次回來只給你一個清楚下一步。';
   const progressText = unlocked ? `\u63a2\u7d22\u5b8c\u6210\uff1a${safeTotal} / ${safeTotal}` : `\u63a2\u7d22\u9032\u5ea6\uff1a${safeCompleted} / ${safeTotal}`;
   const remainingText = unlocked
     ? '鎖頭已打開，立即進入。'
     : nextModule
-      ? `目前已完成 ${safeCompleted} 項探索，還差 ${remaining} 項。下一步先完成：${nextModule.label}。`
+      ? `我記得你已完成 ${safeCompleted} / ${safeTotal}。今天只要先完成：${nextModule.label}。`
       : `目前已完成 ${safeCompleted} 項探索，距離解鎖還差 ${remaining} 項。`;
 
   const renderModuleRoute = (module: HomeGrowthModuleGuide, index: number) => {
@@ -1328,7 +1329,7 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
 
       <div className="relative z-10 mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs font-semibold leading-6 text-[color:var(--text-muted)]">
-          {unlocked ? '每週提醒、補強元素、能量色與行動任務已開放。' : '按下引導按鈕，直接前往下一張尚未完成的探索卡。'}
+          {unlocked ? '每週提醒、補強元素、能量色與行動任務已開放。' : '不是很多功能一起丟給你，而是先完成這一張，讓進度被記住。'}
         </p>
         {unlocked ? (
           <Link
@@ -1344,6 +1345,60 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
 
   return content;
 }
+
+type HomeStickyJourneyPanelProps = {
+  completed: number;
+  completedModules: string[];
+  total: number;
+  onOpenNumber: () => void;
+};
+
+function HomeStickyJourneyPanel({ completed, completedModules, total, onOpenNumber }: HomeStickyJourneyPanelProps) {
+  const completedSet = new Set(completedModules);
+  const safeTotal = Math.max(total, 1);
+  const safeCompleted = Math.min(Math.max(completed, 0), safeTotal);
+  const unlocked = safeCompleted >= safeTotal;
+  const nextModule = HOME_GROWTH_MODULE_GUIDES.find((module) => !completedSet.has(module.id));
+  const progressPercent = Math.min(100, Math.round((safeCompleted / safeTotal) * 100));
+  const ctaClassName = 'home-sticky-journey__cta';
+
+  const nextAction = unlocked ? (
+    <Link href="/growth-center" className={ctaClassName}>開啟 AI 個人成長中心</Link>
+  ) : nextModule?.action === 'number-modal' ? (
+    <button type="button" onClick={onOpenNumber} className={ctaClassName}>{nextModule.cta}</button>
+  ) : nextModule ? (
+    <Link href={nextModule.href ?? '/'} className={ctaClassName}>{nextModule.cta}</Link>
+  ) : null;
+
+  return (
+    <section className="home-sticky-journey" aria-label="今日清楚下一步">
+      <div className="home-sticky-journey__topline">你的命理進度已被記住</div>
+      <div className="home-sticky-journey__grid">
+        <div className="home-sticky-journey__main">
+          <p className="home-sticky-journey__kicker">今天只給你一個下一步</p>
+          <h1>{unlocked ? '8 張探索已完成，現在打開你的成長中心。' : `我記得你已完成 ${safeCompleted} / ${safeTotal}。`}</h1>
+          <p>{unlocked ? '你不用重找結果，成長中心會整理本週一個行動、偏好提醒與回訪記憶。' : nextModule ? `今天先完成「${nextModule.label}」。${nextModule.reward}` : '今天先完成一張卡，首頁會記住你的進度。'}</p>
+          <div className="home-sticky-journey__actions">
+            {nextAction}
+            <a href="#home-eight-card-route" className="home-sticky-journey__secondary">查看 8 張探索</a>
+          </div>
+        </div>
+        <div className="home-sticky-journey__progress" aria-label={`探索進度 ${safeCompleted} / ${safeTotal}`}>
+          <span>探索進度</span>
+          <strong>{safeCompleted}<small>/{safeTotal}</small></strong>
+          <div><i style={{ width: `${progressPercent}%` }} /></div>
+          <p>{unlocked ? '已完整解鎖' : nextModule ? `下一張：${nextModule.label}` : '繼續累積中'}</p>
+        </div>
+      </div>
+      <div className="home-sticky-journey__promise" aria-label="回訪理由">
+        <span>我會記住你完成過什麼</span>
+        <span>每次回來只推一個下一步</span>
+        <span>完成後接到成長中心</span>
+      </div>
+    </section>
+  );
+}
+
 export default function HomePage() {
   const [step, setStep] = useState<StepKey>('personA-base');
   const [personA, setPersonA] = useState<PersonInput>({ ...EMPTY, gender: 'female' });
@@ -2398,6 +2453,12 @@ export default function HomePage() {
           </Link>
         </div>
 
+        <HomeStickyJourneyPanel
+          completed={growthCompletedCount}
+          completedModules={growthCompletedModules}
+          total={GROWTH_VIP_TOTAL_MODULES}
+          onOpenNumber={openFortuneModal}
+        />
         <section className="home-hero-stage home-hero-stage--taiji-only home-hero-stage--raised mb-6 flex justify-center sm:mb-8">
           <div className="hidden relative z-10">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-rose-400/25 bg-rose-400/10 px-4 py-1.5 text-xs font-bold tracking-[0.28em] text-rose-200 shadow-[0_0_24px_rgba(244,63,94,0.12)]">
@@ -2478,7 +2539,12 @@ export default function HomePage() {
         </section>
 
 
-        <div className="mb-8 flex w-full flex-col gap-4">
+        <section id="home-eight-card-route" className="home-eight-card-route mb-8 scroll-mt-6">
+          <div className="home-eight-card-route__header">
+            <p>其他探索素材</p>
+            <h2>想多看，再選一張；不想想，就照上面下一步走。</h2>
+          </div>
+          <div className="flex w-full flex-col gap-4">
           <Link
             href="/match"
             className="home-feature-launch home-feature-rose order-3 w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-all duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
@@ -2735,7 +2801,8 @@ export default function HomePage() {
           </Link>
 
           <TarotEntryCard />
-        </div>
+          </div>
+        </section>
 
 
         <VipGrowthUnlockCard
