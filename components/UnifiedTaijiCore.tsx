@@ -131,15 +131,53 @@ export default function UnifiedTaijiCore({
       const { frequency, pulseHz } = getTaijiTapTone(nextTapCount);
       const duration = 0.62;
 
+      // Loud, immediate "wake-up hit": gain is pushed to the ceiling and everything
+      // routes through a limiter so it can go loud without ugly digital clipping.
+      // The Hz sequence itself (pitch, isochronic pulse) is untouched -- only
+      // volume/attack changed, per explicit request: keep the frequency character
+      // light, but make the hit strong enough to actually be felt.
+      const limiter = ctx.createDynamicsCompressor();
+      limiter.threshold.setValueAtTime(-6, now);
+      limiter.knee.setValueAtTime(2, now);
+      limiter.ratio.setValueAtTime(14, now);
+      limiter.attack.setValueAtTime(0.001, now);
+      limiter.release.setValueAtTime(0.15, now);
+      limiter.connect(ctx.destination);
+
+      // Percussive transient: a very short filtered noise burst at the instant of
+      // contact. A pure sine fading in, however loud, still reads as "soft" --
+      // this sharp attack-only click is what makes a tone register as an
+      // immediate strike instead of a swell.
+      const noiseBuffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.05), ctx.sampleRate);
+      const noiseData = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < noiseData.length; i += 1) {
+        noiseData[i] = (Math.random() * 2 - 1) * (1 - i / noiseData.length);
+      }
+      const noiseSource = ctx.createBufferSource();
+      noiseSource.buffer = noiseBuffer;
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.setValueAtTime(Math.max(600, frequency * 2), now);
+      noiseFilter.Q.setValueAtTime(1.1, now);
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.9, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+      noiseSource.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(limiter);
+      noiseSource.start(now);
+      noiseSource.stop(now + 0.06);
+
       // Carrier tone: this tap's step in the 24-step Solfeggio-anchored ascending
-      // sequence (see TAIJI_TAP_FREQUENCIES_HZ). Sine wave stays clean/uncluttered.
+      // sequence (see TAIJI_TAP_FREQUENCIES_HZ). Kept a pure sine -- the pitch
+      // stays clean even though the overall hit is loud.
       const gainNode = ctx.createGain();
       const osc = ctx.createOscillator();
       osc.type = 'sine';
       osc.frequency.setValueAtTime(frequency, now);
       osc.frequency.exponentialRampToValueAtTime(frequency * 1.06, now + 0.16);
       gainNode.gain.setValueAtTime(0.0001, now);
-      gainNode.gain.exponentialRampToValueAtTime(0.15, now + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.95, now + 0.006);
       gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
       // Isochronic pulse: amplitude-modulate the carrier at a brainwave-range rate
@@ -155,7 +193,7 @@ export default function UnifiedTaijiCore({
       pulseDepth.connect(gainNode.gain);
 
       osc.connect(gainNode);
-      gainNode.connect(ctx.destination);
+      gainNode.connect(limiter);
       osc.start(now);
       osc.stop(now + duration + 0.05);
       pulseOsc.start(now);
