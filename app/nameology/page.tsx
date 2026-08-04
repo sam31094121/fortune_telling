@@ -42,7 +42,7 @@ const initialForm: FormState = {
 };
 
 const initialSelectionConfirm: SelectionConfirm = { bloodType: false, gender: false };
-const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-dictionary-zh-tw-v1.0.5';
+const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-dictionary-zh-tw-v1.0.8';
 
 function isCurrentNameologyResult(value?: NameologyDailyResult | null) {
   return Boolean(value?.analysis?.professionalLayer?.characterDecomposition?.length && value.analysis.aiInterpretationLayer?.interpretationPoints?.length && value.analysis.reinforcementLayer?.priorities?.length && value.fiveElement);
@@ -163,6 +163,7 @@ function ProfessionalNameologyLayer({ analysis }: { analysis: NameologyAnalysis 
                   <span className={`rounded-full border px-3 py-1 text-xs ${item.taiwanDictionaryMatched ? 'border-white/10 bg-black/20 text-[color:var(--text-sub)]' : 'border-rose-300/25 bg-rose-950/20 text-rose-100'}`}>{item.taiwanDictionaryMatched ? <>{'\u90e8\u9996'} {item.radical}</> : '待補臺灣部首'}</span>
                 </div>
                 <p className="mt-3 break-words text-sm leading-7 text-[color:var(--text-main)]">{item.glyphMeaning}</p>
+                {item.sourceSummary && <p className="mt-2 rounded-xl border border-cyan-300/15 bg-cyan-950/15 px-3 py-2 text-[11px] font-bold leading-6 text-cyan-100/85">{item.sourceSummary}</p>}
                 {!item.taiwanDictionaryMatched && <p className="mt-2 rounded-xl border border-rose-300/20 bg-rose-950/20 px-3 py-2 text-xs font-bold leading-6 text-rose-100">此字未命中臺灣字典，不宣告正式部首。</p>}
               </div>
             </div>

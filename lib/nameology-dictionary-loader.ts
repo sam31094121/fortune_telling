@@ -9,6 +9,7 @@ type NameologyDictionaryManifest = {
     characters: string;
     variants: string;
   };
+  authoritySources?: Record<string, { name: string; role: string; importStatus: string }>;
 };
 
 let cache: NameologyDictionarySnapshot | null = null;
@@ -35,6 +36,7 @@ export async function loadLocalNameologyDictionary(basePath = path.join(process.
   cache = {
     version: manifest.version,
     updatedAt: manifest.updatedAt,
+    authoritySources: manifest.authoritySources,
     entries,
     variants,
   };

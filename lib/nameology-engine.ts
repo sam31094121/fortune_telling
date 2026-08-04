@@ -5,10 +5,26 @@ export type NameologyElement = '木' | '火' | '土' | '金' | '水';
 export type NameologyRelation = '相生' | '相剋' | '比和';
 
 
+export type NameologyDictionarySourceRef = {
+  role: string;
+  status: string;
+  sourceUrl?: string | null;
+  cnsCode?: string | null;
+};
+
+export type NameologyDictionaryAuthoritySources = {
+  cns11643?: NameologyDictionarySourceRef;
+  moeDictionary?: NameologyDictionarySourceRef;
+  moeVariants?: NameologyDictionarySourceRef;
+};
+
 export type NameologyDictionaryCharacterEntry = {
   character: string;
   normalizedCharacter: string;
+  unicodeCodepoint?: string;
   radical: string;
+  radicalStrokeCount?: number | null;
+  nonRadicalStrokeCount?: number | null;
   totalStrokeCount: number;
   element: NameologyElement;
   meanings: string[];
@@ -16,16 +32,30 @@ export type NameologyDictionaryCharacterEntry = {
   positiveSignals: string[];
   attentionSignals: string[];
   pronunciation?: string[];
+  bopomofo?: string[];
+  definitions?: string[];
+  exampleWords?: string[];
   structureHint?: string;
   partsHint?: string[];
+  components?: string[];
+  strokeOrder?: string[];
   tendencyBoosts?: Partial<Record<NameologyTendencyKey, number>>;
   sourceId: string;
   sourceVersion: string;
+  sourceUrl?: string;
+  cnsCode?: string | null;
+  cnsRadicalNumber?: string | null;
+  cnsRadical?: string | null;
+  cnsComponentCodes?: string[];
+  cnsStrokeSequence?: string | null;
+  cnsMappingSource?: string;
+  dictionarySources?: NameologyDictionaryAuthoritySources;
 };
 
 export type NameologyDictionarySnapshot = {
   version: string;
   updatedAt: string;
+  authoritySources?: Record<string, { name: string; role: string; importStatus: string }>;
   entries: Record<string, NameologyDictionaryCharacterEntry>;
   variants: Record<string, string>;
 };
@@ -61,6 +91,7 @@ type CharGlyphProfile = {
   structure: string;
   meaning: string;
   namingIntent: string;
+  sourceSummary?: string;
 };
 
 type CharProfile = {
@@ -144,6 +175,7 @@ export type NameologyProfessionalCharacter = {
   professionalInterpretation: string;
   temperamentSignals: string[];
   evolutionMaterial: string[];
+  sourceSummary?: string;
 };
 
 export type NameologyNamingStory = {
@@ -259,6 +291,11 @@ export type NameologyAnalysis = {
     estimatedCharacterList: string[];
     nonTaiwanScriptCharacters: number;
     nonTaiwanScriptCharacterList: string[];
+    authoritySourcePolicy: {
+      characterStructure: string;
+      pronunciationAndDefinitions: string;
+      currentImportStatus: string;
+    };
   };
   composition: NameologyNameComposition;
   crossCheck: NameologyCrossCheck;
@@ -493,10 +530,48 @@ function findNameologyDictionaryEntry(snapshot: NameologyDictionarySnapshot | un
   return snapshot.entries[normalized] ?? snapshot.entries[char];
 }
 
+function normalizeNameologySourceStatus(entry: NameologyDictionaryCharacterEntry, sourceKey: keyof NameologyDictionaryAuthoritySources) {
+  const explicit = entry.dictionarySources?.[sourceKey]?.status;
+  if (sourceKey === 'cns11643' && entry.cnsCode && entry.sourceId !== 'cns11643_official') return 'linked';
+  if (sourceKey === 'cns11643' && entry.sourceId === 'cns11643_official') return 'official_bulk_imported';
+  if (sourceKey === 'cns11643' && explicit === 'pending_import' && entry.sourceId.startsWith('taiwan-moe-standard-radical')) return 'moe_variant_seed_pending_cns_code';
+  if (sourceKey === 'moeDictionary' && entry.sourceId === 'cns11643_official' && entry.meanings.length === 0) return 'moe_definition_pending';
+  return explicit ?? 'source_mapping_pending';
+}
+
+function formatNameologySourceStatus(sourceKey: keyof NameologyDictionaryAuthoritySources, status: string) {
+  if (sourceKey === 'cns11643') {
+    if (status === 'official_bulk_imported') return '已由 CNS11643 全字庫匯入字形資料';
+    if (status === 'moe_variant_seed_pending_cns_code') return '教育部異體字字典校對，待補 CNS 字碼';
+    if (status === 'linked') return '已連結 CNS11643 全字庫';
+    if (status === 'pending_import') return '待補 CNS11643 字碼';
+  }
+
+  if (sourceKey === 'moeDictionary') {
+    if (status === 'mapped_from_existing_nameology_entry') return '沿用姓名學人工校對釋義';
+    if (status === 'moe_definition_pending') return '待接教育部國語辭典釋義';
+    if (status === 'linked') return '已連結教育部國語辭典';
+    if (status === 'pending_import') return '待接教育部國語辭典';
+  }
+
+  if (status === 'legacy_local_entry') return '本地校對資料';
+  if (status === 'current_seed_reference') return '目前種子校對來源';
+  return '來源映射待補';
+}
+
+function buildNameologySourceSummary(entry: NameologyDictionaryCharacterEntry) {
+  const cnsStatus = normalizeNameologySourceStatus(entry, 'cns11643');
+  const moeStatus = normalizeNameologySourceStatus(entry, 'moeDictionary');
+  const cnsCodeLabel = entry.cnsCode ? '（字碼 ' + entry.cnsCode + '）' : '';
+  return '字形來源：' + formatNameologySourceStatus('cns11643', cnsStatus) + cnsCodeLabel + '；字義來源：' + formatNameologySourceStatus('moeDictionary', moeStatus);
+}
+
 function dictionaryEntryToProfile(entry: NameologyDictionaryCharacterEntry): CharProfile {
   const radicalProfile = getNameologyRadicalProfile(entry.radical);
-  const meaning = entry.meanings[0] ?? radicalProfile?.imagery ?? `${entry.character}字以字典資料建立姓名訊號。`;
+  const meaning = entry.definitions?.[0] ?? entry.meanings[0] ?? radicalProfile?.imagery ?? `${entry.character}字以字典資料建立姓名訊號。`;
   const namingIntent = entry.nameUsageNotes[0] ?? radicalProfile?.namingIntent ?? `取名使用「${entry.character}」，系統以字典筆畫與部首意象做保守判讀。`;
+  const components = entry.components && entry.components.length > 0 ? entry.components : (entry.partsHint ?? radicalProfile?.partsHint ?? [entry.radical, entry.character]);
+  const sourceSummary = buildNameologySourceSummary(entry);
 
   return {
     strokes: entry.totalStrokeCount,
@@ -506,10 +581,11 @@ function dictionaryEntryToProfile(entry: NameologyDictionaryCharacterEntry): Cha
     caution: entry.attentionSignals[0] ?? radicalProfile?.caution ?? ELEMENT_THEME[entry.element].caution,
     glyph: {
       radical: entry.radical,
-      parts: entry.partsHint ?? radicalProfile?.partsHint ?? [entry.radical, entry.character],
-      structure: entry.structureHint ?? radicalProfile?.structureHint ?? `${entry.radical}部取象`,
+      parts: components,
+      structure: entry.structureHint ?? radicalProfile?.structureHint ?? (components.length > 1 ? '部件：' + components.join('、') : `${entry.radical}部取象`),
       meaning,
       namingIntent,
+      sourceSummary,
     },
     tendencies: entry.tendencyBoosts ?? radicalProfile?.tendencyBoosts,
   };
@@ -519,11 +595,13 @@ function buildNameologyDictionaryStatus(characters: NameologyCharAnalysis[], sna
   const taiwanRequiredCharacters = characters.filter((item) => item.dictionaryGateStatus !== 'non_taiwan_script');
   const totalCharacters = Math.max(1, taiwanRequiredCharacters.length);
   const exactMatches = taiwanRequiredCharacters.filter((item) => item.strokeSource === 'dictionary_file').length;
-  const radicalMatches = 0;
+  const radicalMatches = exactMatches;
   const estimatedCharacterList = taiwanRequiredCharacters.filter((item) => item.strokeSource !== 'dictionary_file').map((item) => item.char);
   const estimatedCharacters = estimatedCharacterList.length;
   const nonTaiwanScriptCharacterList = characters.filter((item) => item.dictionaryGateStatus === 'non_taiwan_script').map((item) => item.char);
   const confidence = Math.min(100, Math.round((exactMatches / totalCharacters) * 100));
+  const cnsImportStatus = snapshot?.authoritySources?.cns11643?.importStatus ?? 'local_seed_dictionary';
+  const moeImportStatus = snapshot?.authoritySources?.moeDictionary?.importStatus ?? 'local_seed_dictionary';
 
   return {
     source: 'local_dictionary',
@@ -538,6 +616,11 @@ function buildNameologyDictionaryStatus(characters: NameologyCharAnalysis[], sna
     estimatedCharacterList,
     nonTaiwanScriptCharacters: nonTaiwanScriptCharacterList.length,
     nonTaiwanScriptCharacterList,
+    authoritySourcePolicy: {
+      characterStructure: 'CNS11643 全字庫負責部首、總筆畫、部件與筆順。',
+      pronunciationAndDefinitions: '教育部國語辭典公眾授權資料負責注音、釋義與例詞。',
+      currentImportStatus: 'CNS11643：' + cnsImportStatus + '；教育部國語辭典：' + moeImportStatus,
+    },
   };
 }
 
@@ -867,6 +950,7 @@ function buildNameologyProfessionalLayer(
             '正式字義：待補官方資料',
             '目前只保留筆畫估算：' + item.strokeCount + '畫',
           ],
+      sourceSummary: item.glyph.sourceSummary,
     };
   });
   const givenStory = givenChars.length > 0
@@ -1035,11 +1119,12 @@ function buildNameologyThreeLayerPresentation(
   const firstPriority = reinforcementLayer.priorities[0];
   const secondPriority = reinforcementLayer.priorities[1];
   const thirdPriority = reinforcementLayer.priorities[2];
+  const authorityPolicy = dictionaryStatus.authoritySourcePolicy;
 
   return {
     layer: 'nameology_three_layer_presentation',
     title: '姓名學三層架構',
-    summary: '第一層先用臺灣字典固定部首與筆畫，並說清楚當初取名想表達的意境；第二層由後端 AI 讀取故事與性格主軸；第三層整理成今天可執行的補強方向。',
+    summary: '第一層先用臺灣字典固定部首、筆畫與取名意境；第二層由後端 AI 只讀第一層資料做故事解讀；第三層整理成今天可執行、值得回來追蹤的補強方向。',
     cards: [
       {
         order: 1,
@@ -1048,8 +1133,9 @@ function buildNameologyThreeLayerPresentation(
         title: '取名意境與臺灣字典',
         status: dictionaryStatus.estimatedCharacters === 0 ? '臺灣字典全數命中' : '待補臺灣字典：' + missingList,
         primary: '正式部首：' + radicalList,
-        detail: namingStory.storyLine,
+        detail: '資料來源規則：CNS11643 全字庫固定部首、總筆畫、部件與筆順；教育部國語辭典公眾授權資料固定注音、釋義與例詞。' + namingStory.storyLine,
         bullets: [
+          authorityPolicy.characterStructure + authorityPolicy.pronunciationAndDefinitions,
           namingStory.familyRoot,
           namingStory.givenNameIntent,
           '命中 ' + dictionaryStatus.exactMatches + '/' + dictionaryStatus.totalCharacters + ' 字，估算 ' + dictionaryStatus.estimatedCharacters + ' 字。',
