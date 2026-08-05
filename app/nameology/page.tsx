@@ -53,7 +53,31 @@ function isCurrentNameologyRecord(record?: DailyAnalysisRecord<NameologyDailyRes
 }
 
 type NameologyCharacterResult = NameologyAnalysis['characters'][number];
+type NameologyEssenceSignal = NameologyAnalysis['standardOutput']['layer2']['mergedSignals'][number];
 
+const NAMEOLOGY_ESSENCE_DIMENSION_LABEL: Record<NameologyEssenceSignal['dimension'], string> = {
+  ACTION: '行動推進',
+  STABILITY: '穩定累積',
+  COMMUNICATION: '表達溝通',
+  RELATIONSHIP: '人際信任',
+  DECISION: '判斷選擇',
+  CREATIVITY: '創意生成',
+  DISCIPLINE: '規則紀律',
+  EMOTION: '情緒感受',
+  LEADERSHIP: '領導承擔',
+};
+
+const NAMEOLOGY_ESSENCE_DIMENSION_HINT: Record<NameologyEssenceSignal['dimension'], string> = {
+  ACTION: '把想法變成看得見的進度。',
+  STABILITY: '先穩住節奏，再累積長期信任。',
+  COMMUNICATION: '把意思說清楚，讓人願意跟上。',
+  RELATIONSHIP: '用互動、理解與回應建立連結。',
+  DECISION: '把猶豫收斂成可以執行的選擇。',
+  CREATIVITY: '把靈感整理成作品或新的可能。',
+  DISCIPLINE: '用規則與持續性保護成果。',
+  EMOTION: '先理解感受，再讓判斷回到清楚。',
+  LEADERSHIP: '主動承擔方向，讓事情有主心骨。',
+};
 function isNonTaiwanScriptNameologyChar(item: NameologyCharacterResult) {
   return item.dictionaryGateStatus === 'non_taiwan_script';
 }
@@ -612,19 +636,40 @@ function NameologyTarotBridgeCard({ analysis }: { analysis: NameologyAnalysis })
 
 function NameologyEssenceDetails({ analysis }: { analysis: NameologyAnalysis }) {
   const layer2 = analysis.standardOutput.layer2;
+  const visibleSignals = layer2.mergedSignals.slice(0, 3);
+
   return (
     <details className="fortune-card overflow-hidden border-violet-300/20 bg-slate-950/55 p-5 sm:p-6">
-      <summary className="flex min-h-[52px] cursor-pointer items-center justify-between gap-3 text-base font-black leading-7 text-violet-100"><span>展開 AI 精華分析</span><span className="text-xs font-bold text-violet-100/65">3 個重點</span></summary>
-      <div className="mt-4 space-y-3">
-        <p className="rounded-2xl border border-violet-200/15 bg-violet-950/15 p-4 text-sm font-bold leading-8 text-violet-50">{layer2.summary}</p>
-        {layer2.mergedSignals.slice(0, 3).map((item) => (
-          <article key={item.dimension} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-            <p className="text-xs font-black text-[color:var(--text-muted)]">{item.dimension}</p>
-            <p className="mt-2 text-sm font-black leading-7 text-[color:var(--text-main)]">{item.coreJudgment}</p>
-            <p className="mt-1 text-xs leading-6 text-[color:var(--text-sub)]">{item.reason}</p>
-            <p className="mt-2 rounded-xl border border-white/10 bg-black/20 p-3 text-xs font-semibold leading-6 text-violet-100">{item.action}</p>
-          </article>
-        ))}
+      <summary className="flex min-h-[52px] cursor-pointer items-center justify-between gap-3 text-base font-black leading-7 text-violet-100">
+        <span>一般模式 · AI 精華分析</span>
+        <span className="shrink-0 text-xs font-bold text-violet-100/65">3 個重點</span>
+      </summary>
+      <div className="mt-4 space-y-4">
+        <div className="rounded-2xl border border-violet-200/15 bg-violet-950/15 p-4">
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-violet-200/80">Simple View</p>
+          <p className="mt-2 text-sm font-black leading-7 text-violet-50">AI 已把重複語意整理乾淨，只保留最需要先理解的三件事。</p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {visibleSignals.map((item, index) => {
+            const label = NAMEOLOGY_ESSENCE_DIMENSION_LABEL[item.dimension];
+            const hint = NAMEOLOGY_ESSENCE_DIMENSION_HINT[item.dimension];
+
+            return (
+              <article key={item.dimension} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-[0_14px_36px_rgba(8,13,30,0.22)]">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="rounded-full border border-violet-200/15 bg-violet-300/10 px-3 py-1 text-[11px] font-black text-violet-100">第 {index + 1} 重點</span>
+                  <span className="shrink-0 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[11px] font-bold text-[color:var(--text-sub)]">{label}</span>
+                </div>
+                <p className="mt-3 break-words text-base font-black leading-7 text-[color:var(--text-main)]">{item.coreJudgment}</p>
+                <p className="mt-2 break-words text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{hint}</p>
+                <div className="mt-3 rounded-xl border border-violet-200/15 bg-black/20 p-3">
+                  <p className="text-[11px] font-black text-violet-200/80">今天可以怎麼做</p>
+                  <p className="mt-1 break-words text-xs font-semibold leading-6 text-violet-50">{item.action}</p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </div>
     </details>
   );
@@ -642,7 +687,7 @@ function NameologyProfessionalStructureDetails({ analysis }: { analysis: Nameolo
 
   return (
     <details id="nameology-professional-structure" className="fortune-card scroll-mt-24 overflow-hidden border-cyan-300/20 bg-slate-950/55 p-5 sm:p-6">
-      <summary className="flex min-h-[52px] cursor-pointer items-center justify-between gap-3 text-base font-black leading-7 text-cyan-100"><span>展開完整拆字與部首故事</span><span className="text-xs font-bold text-cyan-100/65">部首 / 筆畫 / 意境</span></summary>
+      <summary className="flex min-h-[52px] cursor-pointer items-center justify-between gap-3 text-base font-black leading-7 text-cyan-100"><span>老師模式</span><span className="text-xs font-bold text-cyan-100/65">部首 / 筆畫 / 意境</span></summary>
       <div className="mt-4 space-y-5">
         <div className="grid gap-3 sm:grid-cols-3">
           {layer3.characters.map((item) => (

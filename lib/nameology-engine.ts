@@ -1421,6 +1421,17 @@ function classifyNameologyDimension(key: NameologyTendencyKey): NameologySemanti
   return 'LEADERSHIP';
 }
 
+const NAMEOLOGY_SEMANTIC_ACTION_BY_DIMENSION: Record<NameologySemanticDimension, string> = {
+  ACTION: '今天只選一件事往前推進，先完成最小可交付結果。',
+  STABILITY: '先整理生活節奏、財務與責任清單，用固定節點建立可信任的累積感。',
+  COMMUNICATION: '今天把一個想法說清楚：寫成三句話、說給一個人聽，或發布一個清楚訊息。',
+  RELATIONSHIP: '先主動連結一位重要的人，用一句真誠回應建立信任。',
+  DECISION: '把正在猶豫的事列成兩個選項，今天先做一個可逆的小決定。',
+  CREATIVITY: '保留一段不被打斷的時間，把靈感做成一個看得見的小作品。',
+  DISCIPLINE: '建立一條簡單規則，今天先照規則完成一次，不追求完美。',
+  EMOTION: '先照顧情緒與身體狀態，寫下真正感受，再決定下一步。',
+  LEADERSHIP: '選一個你能負責的方向，清楚說出目標、界線與下一步。',
+};
 function buildNameSemanticDeduplicator(input: {
   temperamentProfile: NameologyAnalysis['temperamentProfile'];
   aiInterpretationLayer: NameologyAiInterpretationLayer;
@@ -1442,7 +1453,7 @@ function buildNameSemanticDeduplicator(input: {
       dimension,
       coreJudgment: tendency.label,
       reason: tendency.meaning,
-      action: priority?.action ?? '今天先完成一個已開始但尚未結束的任務。',
+      action: NAMEOLOGY_SEMANTIC_ACTION_BY_DIMENSION[dimension] ?? priority?.action ?? '今天先完成一個已開始但尚未結束的任務。',
       evidenceCount: 1,
     });
   });
