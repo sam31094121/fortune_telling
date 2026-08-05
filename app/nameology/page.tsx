@@ -642,6 +642,7 @@ export default function NameologyPage() {
   // 把「已經是真的」的結果依序顯示出來，不是用固定計時器假裝正在通過。
   const [ritualRevealCount, setRitualRevealCount] = useState(0);
   const ritualTimerRef = useRef<number | null>(null);
+  const submitLockRef = useRef(false);
 
   function clearRitualTimer() {
     if (ritualTimerRef.current) {
@@ -694,6 +695,16 @@ export default function NameologyPage() {
   ];
 
   async function handleSubmit() {
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
+    try {
+      await handleSubmitInner();
+    } finally {
+      submitLockRef.current = false;
+    }
+  }
+
+  async function handleSubmitInner() {
     const existing = readDailyAnalysis<NameologyDailyResult>('nameology');
     if (existing) {
       if (isCurrentNameologyRecord(existing)) {
