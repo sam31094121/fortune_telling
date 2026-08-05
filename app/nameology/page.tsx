@@ -591,13 +591,15 @@ function NameologyTarotBridgeCard({ analysis }: { analysis: NameologyAnalysis })
             aria-label={revealed ? '重新蓋上姓名塔羅象徵牌' : '翻開姓名塔羅象徵牌'}
             aria-pressed={revealed}
             onClick={() => setRevealed((current) => !current)}
-            className="group relative block w-full overflow-hidden rounded-2xl border border-violet-200/25 bg-black/30 shadow-[0_22px_60px_rgba(88,28,135,0.34)] transition active:scale-[0.98]"
+            className="group block w-full overflow-hidden rounded-2xl border border-violet-200/25 bg-black/30 shadow-[0_22px_60px_rgba(88,28,135,0.34)] transition hover:border-violet-100/45 active:scale-[0.98]"
           >
             <img src={revealed ? bridge.imageUrl : cardBackUrl} alt={revealed ? `${bridge.cardName} ${bridge.cardNameEn} 塔羅象徵牌` : '蓋牌中的姓名塔羅象徵牌'} loading="lazy" className="aspect-[275/480] w-full object-cover transition duration-500 group-active:scale-[0.985]" />
-            <span className="absolute inset-x-3 bottom-3 rounded-full border border-white/20 bg-black/60 px-3 py-2 text-center text-xs font-black text-violet-50 backdrop-blur">
-              {revealed ? '已翻開 · 點一下蓋回' : '點一下翻開'}
-            </span>
           </button>
+          {!revealed && (
+            <p className="mt-3 rounded-full border border-violet-200/20 bg-violet-950/35 px-3 py-2 text-center text-xs font-black leading-5 text-violet-50">
+              點一下翻開
+            </p>
+          )}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-black uppercase tracking-[0.22em] text-violet-200">NAMEOLOGY × TAROT</p>
