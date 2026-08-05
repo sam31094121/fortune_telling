@@ -3536,126 +3536,6 @@ export default function HomePage() {
 
             {/* Modal 頂部立體優美太極圖案 (升級版) - 帶點擊爆發音效與大悲咒彩蛋功能 */}
             <div className="number-fortune-split-stack">
-              <section className="number-fortune-card number-fortune-taiji-card" aria-label="Tai Chi interaction">
-            <div className="number-fortune-taiji-wrap mb-8 flex flex-col items-center justify-center">
-              <button
-                type="button"
-                onClick={handleModalTaiChiClick}
-                className={`modal-taiji-button taiji-evolution-stage stage-${modalEvolutionStage} group ${fortuneAura.taijiClass}`}
-                title="觸碰太極，觀察一二四八萬象演化；連點 3/6/12/24 保留天宿彩蛋"
-              >
-                {fortuneAura.stage > 0 && (
-                  <>
-                    <div className="pointer-events-none absolute -inset-14 rounded-full border border-current opacity-20 blur-[5px] animate-[pulse_3.2s_ease-in-out_infinite]" />
-                    <div className="pointer-events-none absolute -inset-24 rounded-full bg-[conic-gradient(from_0deg,transparent,rgba(255,255,255,0.14),transparent,rgba(251,191,36,0.16),transparent)] opacity-45 blur-[3px] animate-[spin_22s_linear_infinite]" />
-                    <span className={`pointer-events-none absolute -bottom-9 rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.2em] backdrop-blur-md ${fortuneAura.badgeClass}`}>
-                      {fortuneAura.label}
-                    </span>
-                  </>
-                )}
-                <div className="modal-taiji-natural-bloom" aria-hidden="true" />
-                <div className="modal-taiji-orbit-emblem" aria-hidden="true">
-                  <div className="taiji-orbit-layer modal-taiji-orbit-layer">
-                    <div className="taiji-light-orbit taiji-light-orbit--cyan">
-                      <span className="taiji-light-orbit__head" />
-                    </div>
-                    <div className="taiji-light-orbit taiji-light-orbit--violet">
-                      <span className="taiji-light-orbit__head" />
-                    </div>
-                    <div className="taiji-light-orbit taiji-light-orbit--gold">
-                      <span className="taiji-light-orbit__head" />
-                    </div>
-                    <div className="taiji-light-orbit taiji-light-orbit--emerald">
-                      <span className="taiji-light-orbit__head" />
-                    </div>
-                    <div className="taiji-light-orbit taiji-light-orbit--rose">
-                      <span className="taiji-light-orbit__head" />
-                    </div>
-                    <div className="taiji-gold-waves">
-                      <span className="taiji-gold-wave" />
-                      <span className="taiji-gold-wave" />
-                      <span className="taiji-gold-wave" />
-                    </div>
-                    <div className="taiji-celestial-mist">
-                      <span className="taiji-celestial-wisp taiji-celestial-wisp--one" />
-                      <span className="taiji-celestial-wisp taiji-celestial-wisp--two" />
-                      <span className="taiji-celestial-wisp taiji-celestial-wisp--three" />
-                    </div>
-                  </div>
-                  <div className={`modal-taiji-3d-core ${
-                    fortuneLoading || modalTapCount > 0 ? 'modal-taiji-3d-core--active' : ''
-                  }`}>
-                    <div className="modal-taiji-core-glaze" />
-                    <div className="modal-taiji-half modal-taiji-half--yang" />
-                    <div className="modal-taiji-half modal-taiji-half--yin" />
-                    <div className="modal-taiji-fish modal-taiji-fish--yang">
-                      <span />
-                    </div>
-                    <div className="modal-taiji-fish modal-taiji-fish--yin">
-                      <span />
-                    </div>
-                    <div className="modal-taiji-core-depth" />
-                  </div>
-                </div>
-
-                {modalEvolutionStage !== 'idle' && (
-                  <>
-                    <div className="modal-evolution-flare" aria-hidden="true" />
-                    <div className="modal-evolution-scan" aria-hidden="true" />
-                    <div className="modal-evolution-orbit modal-evolution-orbit-a" aria-hidden="true" />
-                    <div className="modal-evolution-orbit modal-evolution-orbit-b" aria-hidden="true" />
-                    <div className="modal-evolution-rays" aria-hidden="true">
-                      {Array.from({ length: 16 }, (_, index) => (
-                        <span key={index} className={`modal-energy-ray modal-energy-ray-${index}`} />
-                      ))}
-                    </div>
-                  </>
-                )}
-
-                {modalEvolutionStage === 'taiji' && (
-                  <div className="modal-evolution-breath" />
-                )}
-
-                {modalEvolutionStage === 'liangyi' && (
-                  <div className="modal-evolution-layer modal-liangyi-layer" aria-hidden="true">
-                    <span className="modal-liangyi-node modal-liangyi-yang">陽</span>
-                    <span className="modal-liangyi-node modal-liangyi-yin">陰</span>
-                  </div>
-                )}
-
-                {modalEvolutionStage === 'sixiang' && (
-                  <div className="modal-evolution-layer modal-sixiang-layer" aria-hidden="true">
-                    <span className="modal-sixiang-node modal-sixiang-0">老陽</span>
-                    <span className="modal-sixiang-node modal-sixiang-1">少陰</span>
-                    <span className="modal-sixiang-node modal-sixiang-2">少陽</span>
-                    <span className="modal-sixiang-node modal-sixiang-3">老陰</span>
-                  </div>
-                )}
-
-                {modalEvolutionStage === 'bagua' && (
-                  <div className="modal-evolution-layer modal-bagua-layer" aria-hidden="true">
-                    {BAGUA_SYMBOLS.map(([name, symbol], index) => (
-                      <span key={name} className={`modal-bagua-node modal-bagua-${index}`}>
-                        <b>{symbol}</b>
-                        <small>{name}</small>
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <div className="modal-taiji-ground-glow" aria-hidden="true" />
-              </button>
-              <p className="mt-8 min-h-[34px] text-center text-xs font-semibold tracking-[0.18em] text-cyan-100/85" aria-live="polite">
-                {modalEvolutionLabel}
-                {modalEvolutionDescription && (
-                  <span className="mt-1 block text-[10px] tracking-[0.14em] text-amber-200/75">
-                    {modalEvolutionDescription}
-                  </span>
-                )}
-              </p>
-            </div>
-
-              </section>
-
               <section className="number-fortune-card number-fortune-analysis-card" aria-label="Number fortune analysis">
             <div className="number-fortune-intro mb-6">
               <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">AI 數字吉凶</p>
@@ -3819,6 +3699,126 @@ export default function HomePage() {
                 </div>
               </div>
             )}
+
+              </section>
+
+              <section className="number-fortune-card number-fortune-taiji-card" aria-label="Tai Chi interaction">
+            <div className="number-fortune-taiji-wrap mb-8 flex flex-col items-center justify-center">
+              <button
+                type="button"
+                onClick={handleModalTaiChiClick}
+                className={`modal-taiji-button taiji-evolution-stage stage-${modalEvolutionStage} group ${fortuneAura.taijiClass}`}
+                title="觸碰太極，觀察一二四八萬象演化；連點 3/6/12/24 保留天宿彩蛋"
+              >
+                {fortuneAura.stage > 0 && (
+                  <>
+                    <div className="pointer-events-none absolute -inset-14 rounded-full border border-current opacity-20 blur-[5px] animate-[pulse_3.2s_ease-in-out_infinite]" />
+                    <div className="pointer-events-none absolute -inset-24 rounded-full bg-[conic-gradient(from_0deg,transparent,rgba(255,255,255,0.14),transparent,rgba(251,191,36,0.16),transparent)] opacity-45 blur-[3px] animate-[spin_22s_linear_infinite]" />
+                    <span className={`pointer-events-none absolute -bottom-9 rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.2em] backdrop-blur-md ${fortuneAura.badgeClass}`}>
+                      {fortuneAura.label}
+                    </span>
+                  </>
+                )}
+                <div className="modal-taiji-natural-bloom" aria-hidden="true" />
+                <div className="modal-taiji-orbit-emblem" aria-hidden="true">
+                  <div className="taiji-orbit-layer modal-taiji-orbit-layer">
+                    <div className="taiji-light-orbit taiji-light-orbit--cyan">
+                      <span className="taiji-light-orbit__head" />
+                    </div>
+                    <div className="taiji-light-orbit taiji-light-orbit--violet">
+                      <span className="taiji-light-orbit__head" />
+                    </div>
+                    <div className="taiji-light-orbit taiji-light-orbit--gold">
+                      <span className="taiji-light-orbit__head" />
+                    </div>
+                    <div className="taiji-light-orbit taiji-light-orbit--emerald">
+                      <span className="taiji-light-orbit__head" />
+                    </div>
+                    <div className="taiji-light-orbit taiji-light-orbit--rose">
+                      <span className="taiji-light-orbit__head" />
+                    </div>
+                    <div className="taiji-gold-waves">
+                      <span className="taiji-gold-wave" />
+                      <span className="taiji-gold-wave" />
+                      <span className="taiji-gold-wave" />
+                    </div>
+                    <div className="taiji-celestial-mist">
+                      <span className="taiji-celestial-wisp taiji-celestial-wisp--one" />
+                      <span className="taiji-celestial-wisp taiji-celestial-wisp--two" />
+                      <span className="taiji-celestial-wisp taiji-celestial-wisp--three" />
+                    </div>
+                  </div>
+                  <div className={`modal-taiji-3d-core ${
+                    fortuneLoading || modalTapCount > 0 ? 'modal-taiji-3d-core--active' : ''
+                  }`}>
+                    <div className="modal-taiji-core-glaze" />
+                    <div className="modal-taiji-half modal-taiji-half--yang" />
+                    <div className="modal-taiji-half modal-taiji-half--yin" />
+                    <div className="modal-taiji-fish modal-taiji-fish--yang">
+                      <span />
+                    </div>
+                    <div className="modal-taiji-fish modal-taiji-fish--yin">
+                      <span />
+                    </div>
+                    <div className="modal-taiji-core-depth" />
+                  </div>
+                </div>
+
+                {modalEvolutionStage !== 'idle' && (
+                  <>
+                    <div className="modal-evolution-flare" aria-hidden="true" />
+                    <div className="modal-evolution-scan" aria-hidden="true" />
+                    <div className="modal-evolution-orbit modal-evolution-orbit-a" aria-hidden="true" />
+                    <div className="modal-evolution-orbit modal-evolution-orbit-b" aria-hidden="true" />
+                    <div className="modal-evolution-rays" aria-hidden="true">
+                      {Array.from({ length: 16 }, (_, index) => (
+                        <span key={index} className={`modal-energy-ray modal-energy-ray-${index}`} />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {modalEvolutionStage === 'taiji' && (
+                  <div className="modal-evolution-breath" />
+                )}
+
+                {modalEvolutionStage === 'liangyi' && (
+                  <div className="modal-evolution-layer modal-liangyi-layer" aria-hidden="true">
+                    <span className="modal-liangyi-node modal-liangyi-yang">陽</span>
+                    <span className="modal-liangyi-node modal-liangyi-yin">陰</span>
+                  </div>
+                )}
+
+                {modalEvolutionStage === 'sixiang' && (
+                  <div className="modal-evolution-layer modal-sixiang-layer" aria-hidden="true">
+                    <span className="modal-sixiang-node modal-sixiang-0">老陽</span>
+                    <span className="modal-sixiang-node modal-sixiang-1">少陰</span>
+                    <span className="modal-sixiang-node modal-sixiang-2">少陽</span>
+                    <span className="modal-sixiang-node modal-sixiang-3">老陰</span>
+                  </div>
+                )}
+
+                {modalEvolutionStage === 'bagua' && (
+                  <div className="modal-evolution-layer modal-bagua-layer" aria-hidden="true">
+                    {BAGUA_SYMBOLS.map(([name, symbol], index) => (
+                      <span key={name} className={`modal-bagua-node modal-bagua-${index}`}>
+                        <b>{symbol}</b>
+                        <small>{name}</small>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="modal-taiji-ground-glow" aria-hidden="true" />
+              </button>
+              <p className="mt-8 min-h-[34px] text-center text-xs font-semibold tracking-[0.18em] text-cyan-100/85" aria-live="polite">
+                {modalEvolutionLabel}
+                {modalEvolutionDescription && (
+                  <span className="mt-1 block text-[10px] tracking-[0.14em] text-amber-200/75">
+                    {modalEvolutionDescription}
+                  </span>
+                )}
+              </p>
+            </div>
 
               </section>
             </div>

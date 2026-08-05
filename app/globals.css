@@ -8228,6 +8228,37 @@ body.app-scrolling .home-trust-strip > [data-visitor-counter="home"].home-trust-
 }
 
 
+/* Number fortune customer-first mobile upgrade. */
+@media (max-width: 640px) {
+  .number-fortune-analysis-card .number-fortune-intro {
+    margin-bottom: 0.75rem !important;
+  }
+
+  .number-fortune-analysis-card .number-fortune-intro h3 {
+    font-size: 1.35rem !important;
+    line-height: 1.18 !important;
+  }
+
+  .number-fortune-analysis-card .number-fortune-intro p {
+    line-height: 1.55 !important;
+  }
+
+  .number-fortune-analysis-card .form-input {
+    min-height: 124px !important;
+    border-radius: 1.35rem !important;
+    padding-block: 1.25rem !important;
+  }
+
+  .number-fortune-analysis-card .vip-gold-btn {
+    min-height: 54px !important;
+    border-radius: 999px !important;
+    letter-spacing: 0.06em !important;
+  }
+
+  .number-fortune-analysis-card [data-number-layer-count] {
+    height: 2rem !important;
+  }
+}
 /* Numerology screen recovery lock: keep the modal usable on phones. */
 .number-fortune-modal {
   width: 100vw;
