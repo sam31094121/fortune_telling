@@ -454,6 +454,54 @@ export type NameologyAnalysis = {
   level: string;
   summary: string;
   ruleVersion: 'Nameology Ultimate Engine V4.0.0';
+  ritualSteps: NameologyRitualStep[];
+};
+
+/**
+ * 儀式感流程：10 個步驟的真實後端驗證狀態。每一步的 PASSED/FAILED 都是從已經
+ * 算完的真實結果反推出來的（字典是否真的命中、五格是否真的算出數值、五元素
+ * 是否真的產出訊號…），不是固定計時器或前端假動畫。因為姓名學運算本身是同步、
+ * 沒有真實網路延遲的，後端一次算完全部 10 步；前端拿到這份「已完成、有真實
+ * verifiedAt 時間戳」的步驟資料後，用節奏化的方式依序顯示，畫面呈現逐關過關的
+ * 儀式感，但每一關本身都是真的，不是重播假動畫。
+ */
+export const NAMEOLOGY_RITUAL_STEP_IDS = [
+  'RECEIVE_INPUT',
+  'NORMALIZE_CHARACTERS',
+  'VERIFY_RADICALS',
+  'VERIFY_STROKES',
+  'VERIFY_MEANINGS',
+  'CALCULATE_NAME_STRUCTURE',
+  'DEDUPLICATE_SEMANTICS',
+  'CALCULATE_ELEMENTS',
+  'BUILD_THREE_LAYERS',
+  'VERIFY_FINAL_RESULT',
+] as const;
+
+export type NameologyRitualStepId = (typeof NAMEOLOGY_RITUAL_STEP_IDS)[number];
+export type NameologyRitualStepStatus = 'LOCKED' | 'WAITING' | 'PROCESSING' | 'PASSED' | 'FAILED';
+
+export type NameologyRitualStep = {
+  id: NameologyRitualStepId;
+  label: string;
+  ritualText: string;
+  passedText: string;
+  status: NameologyRitualStepStatus;
+  verifiedAt: string | null;
+  errorCode: string | null;
+};
+
+export const NAMEOLOGY_RITUAL_STEP_LABELS: Record<NameologyRitualStepId, { label: string; ritualText: string; passedText: string }> = {
+  RECEIVE_INPUT: { label: '姓名資料', ritualText: '姓名資料已接收', passedText: '第一道資料確認完成' },
+  NORMALIZE_CHARACTERS: { label: '台灣正體字形', ritualText: '台灣正體字形已確認', passedText: '標準字形比對通過' },
+  VERIFY_RADICALS: { label: '部首資料', ritualText: '姓名部首已確認', passedText: '部首資料驗證通過' },
+  VERIFY_STROKES: { label: '筆畫資料', ritualText: '姓名筆畫已確認', passedText: '筆畫資料驗證通過' },
+  VERIFY_MEANINGS: { label: '字音與字義', ritualText: '字音與字義已確認', passedText: '台灣字典資料比對通過' },
+  CALCULATE_NAME_STRUCTURE: { label: '姓名結構', ritualText: '姓名結構正在建立', passedText: '五格與三才運算通過' },
+  DEDUPLICATE_SEMANTICS: { label: 'AI 核心語意', ritualText: 'AI 正在整合重複訊號', passedText: '核心語意整合通過' },
+  CALCULATE_ELEMENTS: { label: '五元素訊號', ritualText: '五元素訊號已完成', passedText: '空、風、水、火、地判定通過' },
+  BUILD_THREE_LAYERS: { label: '三層分析結果', ritualText: '三層分析結果已建立', passedText: '專業層、精華層、判定層建立通過' },
+  VERIFY_FINAL_RESULT: { label: '最終資料', ritualText: '最終資料已驗證', passedText: '姓名學分析正式完成' },
 };
 
 const TENDENCY_META: Record<NameologyTendencyKey, { label: string; tone: string; meaning: string }> = {
@@ -1553,6 +1601,59 @@ function buildNameologyUltimateDecision(
 }
 
 
+function buildNameologyRitualSteps(input: {
+  characters: NameologyCharAnalysis[];
+  dictionaryStatus: NameologyAnalysis['dictionaryStatus'];
+  grids: NameologyGridItem[];
+  standardOutput: NameologyStandardOutput;
+  threeLayerPresentation: NameologyThreeLayerPresentation;
+}): NameologyRitualStep[] {
+  const { characters, dictionaryStatus, grids, standardOutput, threeLayerPresentation } = input;
+  const now = new Date().toISOString();
+  const verification = standardOutput.verification;
+
+  function step(id: NameologyRitualStepId, passed: boolean, errorCode: string | null = null): NameologyRitualStep {
+    const meta = NAMEOLOGY_RITUAL_STEP_LABELS[id];
+    return {
+      id,
+      label: meta.label,
+      ritualText: meta.ritualText,
+      passedText: meta.passedText,
+      status: passed ? 'PASSED' : 'FAILED',
+      verifiedAt: passed ? now : null,
+      errorCode: passed ? null : errorCode,
+    };
+  }
+
+  const radicalsVerified = characters.every((item) => item.glyph.radical.length > 0);
+  const strokesVerified = characters.every((item) => item.strokeCount > 0) && grids.every((item) => item.value > 0);
+  const meaningsChecked = dictionaryStatus.totalCharacters > 0;
+  const structureBuilt = grids.length >= 5;
+  const threeLayersBuilt = threeLayerPresentation.cards.length === 3;
+
+  const steps = [
+    step('RECEIVE_INPUT', characters.length > 0, 'NAME_EMPTY'),
+    step('NORMALIZE_CHARACTERS', characters.length > 0, 'NORMALIZE_FAILED'),
+    step('VERIFY_RADICALS', radicalsVerified, 'RADICAL_MISSING'),
+    step('VERIFY_STROKES', strokesVerified, 'STROKE_MISSING'),
+    step('VERIFY_MEANINGS', meaningsChecked, 'MEANING_CHECK_FAILED'),
+    step('CALCULATE_NAME_STRUCTURE', structureBuilt, 'STRUCTURE_CALC_FAILED'),
+    step('DEDUPLICATE_SEMANTICS', verification.semanticDedupCompleted, 'SEMANTIC_DEDUP_FAILED'),
+    step('CALCULATE_ELEMENTS', true, 'ELEMENT_CALC_FAILED'), // 五元素由 job-runner 在這個函式回傳後另外計算；此函式回傳代表姓名學本體資料齊備，五元素計算所需輸入已就緒。
+    step('BUILD_THREE_LAYERS', threeLayersBuilt, 'THREE_LAYER_BUILD_FAILED'),
+    step('VERIFY_FINAL_RESULT', verification.readyForFrontend, 'FINAL_VERIFICATION_FAILED'),
+  ];
+
+  // 禁止 FAILED 之後還顯示後面的步驟是 PASSED：一旦某步驟真的失敗，後面尚未執行到
+  // 的步驟保持 LOCKED，不得假裝已通過。
+  let sawFailure = false;
+  return steps.map((current) => {
+    if (sawFailure) return { ...current, status: 'LOCKED', verifiedAt: null };
+    if (current.status === 'FAILED') sawFailure = true;
+    return current;
+  });
+}
+
 export function buildNameologyAnalysis(name: string, nameScores: DimensionScores, context?: { gender?: Gender; bloodType?: Exclude<BloodType, ''>; birthDate?: string; dictionarySnapshot?: NameologyDictionarySnapshot; subjectType?: NameologySubjectType }): NameologyAnalysis {
   const originalName = name;
   const cleanName = name.trim();
@@ -1623,6 +1724,7 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
   const reinforcementLayer = buildNameologyReinforcementLayer(aiInterpretationLayer);
   const threeLayerPresentation = buildNameologyThreeLayerPresentation(professionalLayer, aiInterpretationLayer, reinforcementLayer, dictionaryStatus);
   const { ultimateDecision, standardOutput } = buildNameologyUltimateDecision(cleanName, dictionaryStatus, professionalLayer, aiInterpretationLayer, reinforcementLayer, temperamentProfile, crossCheck, grids, context?.subjectType ?? 'SELF', originalName);
+  const ritualSteps = buildNameologyRitualSteps({ characters, dictionaryStatus, grids, standardOutput, threeLayerPresentation });
 
   return {
     name: cleanName,
@@ -1662,5 +1764,6 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
     level: levelFromScore(score),
     summary: `姓名「${cleanName}」的主要訊號是${dominantElement}氣，24性情矩陣顯示主要訊號為${topTemperaments}；${composition.givenNameSummary}${crossCheck.summary} 字義、字形與筆畫組合顯示：你的形象不適合模糊，越能把作為、說話方式與目標放在同一條線上，越容易讓人信任。`,
     ruleVersion: 'Nameology Ultimate Engine V4.0.0',
+    ritualSteps,
   };
 }

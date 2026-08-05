@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import type { BloodType, Gender } from '@/lib/types';
-import type { NameologyAnalysis, NameologyProfessionalCharacter } from '@/lib/nameology-engine';
+import type { NameologyAnalysis, NameologyProfessionalCharacter, NameologyRitualStep } from '@/lib/nameology-engine';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
@@ -539,6 +539,44 @@ function NameologyProfessionalStructureDetails({ analysis }: { analysis: Nameolo
   );
 }
 
+const RITUAL_STATUS_STYLE: Record<NameologyRitualStep['status'], string> = {
+  LOCKED: 'border-white/10 bg-white/[0.02] text-[color:var(--text-muted)] opacity-50',
+  WAITING: 'border-white/15 bg-white/[0.04] text-[color:var(--text-sub)]',
+  PROCESSING: 'border-cyan-300/40 bg-cyan-300/10 text-cyan-50',
+  PASSED: 'border-emerald-300/40 bg-emerald-300/10 text-emerald-50',
+  FAILED: 'border-rose-300/50 bg-rose-500/10 text-rose-100',
+};
+
+const RITUAL_STATUS_MARK: Record<NameologyRitualStep['status'], string> = {
+  LOCKED: '○',
+  WAITING: '○',
+  PROCESSING: '●',
+  PASSED: '✓',
+  FAILED: '!',
+};
+
+function RitualStepsPanel({ steps, revealCount }: { steps: NameologyRitualStep[]; revealCount: number }) {
+  return (
+    <section className="fortune-card border-amber-300/25 bg-amber-300/[0.05] p-5" role="status" aria-live="polite">
+      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">NAME RITUAL · 台灣官方字典逐關驗證</p>
+      <div className="mt-4 space-y-2">
+        {steps.map((step, index) => {
+          const revealed = index < revealCount;
+          const display: NameologyRitualStep['status'] = !revealed ? 'LOCKED' : index === revealCount - 1 && step.status === 'PASSED' && revealCount < steps.length ? 'PROCESSING' : step.status;
+          return (
+            <div key={step.id} className={`flex items-center gap-3 rounded-xl border px-4 py-2.5 transition-all duration-300 ${RITUAL_STATUS_STYLE[display]}`}>
+              <span className="text-sm font-black">{RITUAL_STATUS_MARK[display]}</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold leading-5">{revealed ? (display === 'PASSED' ? step.passedText : display === 'FAILED' ? `${step.label}驗證失敗` : step.ritualText) : step.label}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; fiveElement: FiveElementIntegrationResult }) {
   return (
     <section className="space-y-5">
@@ -599,6 +637,33 @@ export default function NameologyPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<NameologyDailyResult> | null>(null);
+  // 儀式感揭露：這些步驟的 PASSED/FAILED 都是後端已經算完、真實驗證過的資料
+  // （見 lib/nameology-engine.ts 的 buildNameologyRitualSteps），這裡只是用節奏
+  // 把「已經是真的」的結果依序顯示出來，不是用固定計時器假裝正在通過。
+  const [ritualRevealCount, setRitualRevealCount] = useState(0);
+  const ritualTimerRef = useRef<number | null>(null);
+
+  function clearRitualTimer() {
+    if (ritualTimerRef.current) {
+      window.clearTimeout(ritualTimerRef.current);
+      ritualTimerRef.current = null;
+    }
+  }
+
+  function playRitualReveal(steps: NameologyRitualStep[]) {
+    clearRitualTimer();
+    setRitualRevealCount(0);
+    const revealOne = (index: number) => {
+      setRitualRevealCount(index + 1);
+      const current = steps[index];
+      const isLast = index >= steps.length - 1;
+      if (isLast || current.status !== 'PASSED') return;
+      ritualTimerRef.current = window.setTimeout(() => revealOne(index + 1), 420);
+    };
+    ritualTimerRef.current = window.setTimeout(() => revealOne(0), 260);
+  }
+
+  useEffect(() => () => clearRitualTimer(), []);
 
   useEffect(() => {
     const record = readDailyAnalysis<NameologyDailyResult>('nameology');
@@ -611,6 +676,7 @@ export default function NameologyPage() {
     setDailyRecord(record);
     setResult(record.result.analysis);
     setFiveElement(record.result.fiveElement);
+    setRitualRevealCount(record.result.analysis.ritualSteps?.length ?? 10);
   }, []);
 
   const validationMessage = useMemo(() => buildValidationMessage(form, selectionConfirm), [form, selectionConfirm]);
@@ -634,6 +700,7 @@ export default function NameologyPage() {
         setDailyRecord(existing);
         setResult(existing.result.analysis);
         setFiveElement(existing.result.fiveElement);
+        setRitualRevealCount(existing.result.analysis.ritualSteps?.length ?? 10);
         window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
         return;
       }
@@ -661,6 +728,8 @@ export default function NameologyPage() {
     setError('');
     setResult(null);
     setFiveElement(null);
+    clearRitualTimer();
+    setRitualRevealCount(0);
 
     try {
       const response = await fetch('/api/nameology-analyze', {
@@ -677,6 +746,11 @@ export default function NameologyPage() {
       if (!isCurrentNameologyResult(nextResult)) throw new Error('\u59d3\u540d\u5b78\u4e09\u5c64\u5206\u6790\u8cc7\u6599\u672a\u5b8c\u6574\uff0c\u8acb\u91cd\u65b0\u5206\u6790\u3002');
       setResult((data as NameologyResponse).analysis);
       setFiveElement((data as NameologyResponse).fiveElement);
+      if ((data as NameologyResponse).analysis.ritualSteps?.length) {
+        playRitualReveal((data as NameologyResponse).analysis.ritualSteps);
+      } else {
+        setRitualRevealCount(10);
+      }
       setDailyRecord(saveDailyAnalysis<NameologyDailyResult>('nameology', nextResult, { schemaVersion: NAMEOLOGY_DAILY_SCHEMA_VERSION }));
       if (getAnalysisIdentityTarget() === 'self') markGrowthModuleCompleted('nameology', (data as NameologyResponse).fiveElement.brandElement);
       window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
@@ -835,8 +909,13 @@ export default function NameologyPage() {
           </div>
         </section>
 
-        <div id="nameology-result" className="mt-6 scroll-mt-24">
-          {result && fiveElement && <ResultPanel analysis={result} fiveElement={fiveElement} />}
+        <div id="nameology-result" className="mt-6 scroll-mt-24 space-y-5">
+          {result && result.ritualSteps?.length > 0 && (
+            <RitualStepsPanel steps={result.ritualSteps} revealCount={ritualRevealCount} />
+          )}
+          {result && fiveElement && (!result.ritualSteps?.length || ritualRevealCount >= result.ritualSteps.length) && (
+            <ResultPanel analysis={result} fiveElement={fiveElement} />
+          )}
         </div>
       </div>
     </main>

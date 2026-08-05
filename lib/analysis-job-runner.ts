@@ -141,7 +141,26 @@ async function runNameologyJob(job: AnalysisJob, inputData: unknown) {
   const analysis = buildNameologyAnalysis(input.name, nameScores, { ...input, dictionarySnapshot });
 
   updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: ANALYSIS_MODULES.NAMEOLOGY.loadingCopy.finalizing });
-  return { ok: true, mode: 'nameology', moduleId: job.moduleId, analysis, nameScores, fiveElement: buildNameologyFiveElementResult(analysis) };
+
+  // CALCULATE_ELEMENTS (儀式感第 8 步) 的真實運算發生在這裡，不是在 buildNameologyAnalysis
+  // 內部；因此它在引擎內先被記成 PASSED（代表姓名學本體資料齊備、可以送進五元素計算），
+  // 這裡才是這一步真正的後端驗證依據：五元素真的算出來了才視為通過，若拋例外則如實
+  // 標記 FAILED，並鎖住後面「三層結果」「最終驗證」步驟。
+  const elementStep = analysis.ritualSteps.find((step) => step.id === 'CALCULATE_ELEMENTS');
+  try {
+    const fiveElement = buildNameologyFiveElementResult(analysis);
+    return { ok: true, mode: 'nameology', moduleId: job.moduleId, analysis, nameScores, fiveElement };
+  } catch (error) {
+    if (elementStep) {
+      const failIndex = analysis.ritualSteps.indexOf(elementStep);
+      analysis.ritualSteps = analysis.ritualSteps.map((step, index) => {
+        if (index < failIndex) return step;
+        if (index === failIndex) return { ...step, status: 'FAILED', verifiedAt: null, errorCode: 'ELEMENT_CALC_FAILED' };
+        return { ...step, status: 'LOCKED', verifiedAt: null };
+      });
+    }
+    throw error;
+  }
 }
 
 async function runInsightJob(job: AnalysisJob, inputData: unknown) {
