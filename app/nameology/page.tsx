@@ -77,7 +77,50 @@ const RADICAL_ELEMENT_STYLE: Record<'木' | '火' | '土' | '金' | '水', { rin
   金: { ring: 'border-zinc-200/50', bg: 'bg-zinc-800/50', text: 'text-zinc-100', glow: 'shadow-[0_0_24px_rgba(228,228,231,0.18)]' },
   水: { ring: 'border-cyan-300/50', bg: 'bg-cyan-950/40', text: 'text-cyan-100', glow: 'shadow-[0_0_24px_rgba(103,232,249,0.22)]' },
 };
+type NameologyBridgeElement = NameologyAnalysis['standardOutput']['integrationSignals']['firstSupportElement'];
 
+const NAMEOLOGY_TAROT_BRIDGE: Record<NameologyBridgeElement, { label: string; cardName: string; cardNameEn: string; imageUrl: string; meaning: string; action: string }> = {
+  AIR: {
+    label: '風元素 · 資源轉化',
+    cardName: '魔術師',
+    cardNameEn: 'The Magician',
+    imageUrl: '/tarot/freecodecamp-js-fortune-teller/assets/img/cards/major/magician.png',
+    meaning: '姓名訊號正在提醒你把手上的資源整理成可執行的一步。',
+    action: '下一步塔羅可問：我目前最該先整合哪一項資源？',
+  },
+  SPACE: {
+    label: '空元素 · 內在答案',
+    cardName: '女祭司',
+    cardNameEn: 'The High Priestess',
+    imageUrl: '/tarot/freecodecamp-js-fortune-teller/assets/img/cards/major/high-priestess.png',
+    meaning: '姓名訊號正在提醒你先聽見內在答案，再決定要不要行動。',
+    action: '下一步塔羅可問：我還沒承認的真正答案是什麼？',
+  },
+  WATER: {
+    label: '水元素 · 修復與流動',
+    cardName: '星星',
+    cardNameEn: 'The Star',
+    imageUrl: '/tarot/freecodecamp-js-fortune-teller/assets/img/cards/major/star.png',
+    meaning: '姓名訊號正在提醒你用修復、流動與長期希望重新校準狀態。',
+    action: '下一步塔羅可問：我現在最需要如何恢復力量？',
+  },
+  FIRE: {
+    label: '火元素 · 方向推進',
+    cardName: '戰車',
+    cardNameEn: 'The Chariot',
+    imageUrl: '/tarot/freecodecamp-js-fortune-teller/assets/img/cards/major/chariot.png',
+    meaning: '姓名訊號正在提醒你把能量集中到清楚方向，不再分散衝刺。',
+    action: '下一步塔羅可問：我該如何把行動集中到正確方向？',
+  },
+  EARTH: {
+    label: '地元素 · 結構承擔',
+    cardName: '皇帝',
+    cardNameEn: 'The Emperor',
+    imageUrl: '/tarot/freecodecamp-js-fortune-teller/assets/img/cards/major/emperor.png',
+    meaning: '姓名訊號正在提醒你建立穩定規則，讓承擔變成可長久的結構。',
+    action: '下一步塔羅可問：我需要建立哪一條界線或規則？',
+  },
+};
 function RadicalPictureStory({ item }: { item: NameologyProfessionalCharacter }) {
   if (!item.taiwanDictionaryMatched) {
     return (
@@ -476,14 +519,105 @@ function NameologyUltimateDecisionPanel({ analysis }: { analysis: NameologyAnaly
   );
 }
 
+function NameologyCharacterDeckPreview({ analysis }: { analysis: NameologyAnalysis }) {
+  const characters = analysis.standardOutput.layer3.characters.slice(0, 4);
+  const matchedCount = characters.filter((item) => item.dictionaryMatched).length;
+
+  return (
+    <section className="fortune-card overflow-hidden border-cyan-300/25 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.12),rgba(15,23,42,0.86)_54%,rgba(2,6,23,0.96)_100%)] p-5 sm:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">NAME CARDS</p>
+          <h2 className="mt-2 font-serif text-2xl font-black leading-tight text-cyan-50 sm:text-3xl">姓名拆字卡已生成</h2>
+          <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{characters.length} 張字卡 · {matchedCount} 字台灣字典命中</p>
+        </div>
+        <a href="#nameology-professional-structure" className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-cyan-200/30 bg-cyan-300/15 px-4 text-sm font-black text-cyan-50 transition active:scale-[0.98]">
+          看完整部首故事
+        </a>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        {characters.map((item) => (
+          <article key={item.role + item.char} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.045] p-4 shadow-[0_18px_45px_rgba(2,6,23,0.24)]">
+            <div className="flex items-start justify-between gap-3">
+              <p className="font-serif text-5xl font-black leading-none text-amber-100">{item.char}</p>
+              <span className="shrink-0 rounded-full border border-cyan-200/20 bg-cyan-950/25 px-3 py-1 text-xs font-black text-cyan-100">{item.role}</span>
+            </div>
+            <p className="mt-4 text-sm font-black text-cyan-100">部首 {item.radical} · {item.strokes}畫</p>
+            <p className="mt-2 line-clamp-3 break-words text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{item.primaryMeaning}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+function NameologyTarotBridgeCard({ analysis }: { analysis: NameologyAnalysis }) {
+  const [revealed, setRevealed] = useState(false);
+  const supportElement = analysis.standardOutput.integrationSignals.firstSupportElement;
+  const bridge = NAMEOLOGY_TAROT_BRIDGE[supportElement];
+  const firstDirection = analysis.standardOutput.layer1.firstDirection.replace(/^第一調整方向：/, '');
+  const cardBackUrl = '/tarot/freecodecamp-js-fortune-teller/assets/img/cards/card-back_275x480.png';
+
+  return (
+    <section className="fortune-card overflow-hidden border-violet-300/25 bg-[radial-gradient(circle_at_top_right,rgba(168,85,247,0.16),rgba(34,211,238,0.08)_42%,rgba(15,23,42,0.88)_100%)] p-5 sm:p-6">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+        <div className="mx-auto w-[138px] shrink-0 sm:mx-0 sm:w-[156px]">
+          <button
+            type="button"
+            aria-label={revealed ? '重新蓋上姓名塔羅象徵牌' : '翻開姓名塔羅象徵牌'}
+            aria-pressed={revealed}
+            onClick={() => setRevealed((current) => !current)}
+            className="group relative block w-full overflow-hidden rounded-2xl border border-violet-200/25 bg-black/30 shadow-[0_22px_60px_rgba(88,28,135,0.34)] transition active:scale-[0.98]"
+          >
+            <img src={revealed ? bridge.imageUrl : cardBackUrl} alt={revealed ? `${bridge.cardName} ${bridge.cardNameEn} 塔羅象徵牌` : '蓋牌中的姓名塔羅象徵牌'} loading="lazy" className="aspect-[275/480] w-full object-cover transition duration-500 group-active:scale-[0.985]" />
+            <span className="absolute inset-x-3 bottom-3 rounded-full border border-white/20 bg-black/60 px-3 py-2 text-center text-xs font-black text-violet-50 backdrop-blur">
+              {revealed ? '已翻開 · 點一下蓋回' : '點一下翻開'}
+            </span>
+          </button>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-violet-200">NAMEOLOGY × TAROT</p>
+          <h2 className="mt-2 font-serif text-2xl font-black leading-tight text-violet-50 sm:text-3xl">姓名塔羅象徵已蓋牌</h2>
+          <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">依姓名學五元素第一補強方向，先蓋牌連接 78 張塔羅素材中的象徵牌。客戶親手翻開後才顯示牌名與下一步；正式塔羅仍由塔羅牌卡獨立完成。</p>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <p className="text-xs font-black text-cyan-100">姓名學方向</p>
+              <p className="mt-2 break-words text-sm font-bold leading-7 text-[color:var(--text-main)]">{firstDirection}</p>
+            </article>
+            <article className="rounded-2xl border border-violet-200/15 bg-violet-950/15 p-4">
+              <p className="text-xs font-black text-violet-100">塔羅象徵 · {revealed ? bridge.label : '等待翻牌'}</p>
+              <p className="mt-2 text-base font-black text-violet-50">{revealed ? `${bridge.cardName}｜${bridge.cardNameEn}` : '牌面已蓋起'}</p>
+              <p className="mt-2 break-words text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{revealed ? bridge.meaning : '請先點左側牌背，翻開姓名學對應的塔羅象徵。'}</p>
+            </article>
+          </div>
+
+          <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="min-w-0 break-words text-xs font-bold leading-6 text-violet-100">{revealed ? bridge.action : '翻開後，系統會顯示一個可帶入正式塔羅的下一步問題。'}</p>
+            {revealed ? (
+              <Link href="/tarot" className="inline-flex min-h-[48px] shrink-0 items-center justify-center rounded-full border border-violet-200/35 bg-violet-300/20 px-4 text-sm font-black text-violet-50 transition active:scale-[0.98]">
+                進入正式塔羅
+              </Link>
+            ) : (
+              <button type="button" onClick={() => setRevealed(true)} className="inline-flex min-h-[48px] shrink-0 items-center justify-center rounded-full border border-violet-200/35 bg-violet-300/20 px-4 text-sm font-black text-violet-50 transition active:scale-[0.98]">
+                翻開象徵牌
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function NameologyEssenceDetails({ analysis }: { analysis: NameologyAnalysis }) {
   const layer2 = analysis.standardOutput.layer2;
   return (
     <details className="fortune-card overflow-hidden border-violet-300/20 bg-slate-950/55 p-5 sm:p-6">
-      <summary className="cursor-pointer text-base font-black leading-7 text-violet-100">展開 AI 精華分析</summary>
+      <summary className="flex min-h-[52px] cursor-pointer items-center justify-between gap-3 text-base font-black leading-7 text-violet-100"><span>展開 AI 精華分析</span><span className="text-xs font-bold text-violet-100/65">3 個重點</span></summary>
       <div className="mt-4 space-y-3">
         <p className="rounded-2xl border border-violet-200/15 bg-violet-950/15 p-4 text-sm font-bold leading-8 text-violet-50">{layer2.summary}</p>
-        {layer2.mergedSignals.map((item) => (
+        {layer2.mergedSignals.slice(0, 3).map((item) => (
           <article key={item.dimension} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
             <p className="text-xs font-black text-[color:var(--text-muted)]">{item.dimension}</p>
             <p className="mt-2 text-sm font-black leading-7 text-[color:var(--text-main)]">{item.coreJudgment}</p>
@@ -507,8 +641,8 @@ function NameologyProfessionalStructureDetails({ analysis }: { analysis: Nameolo
   ];
 
   return (
-    <details className="fortune-card overflow-hidden border-cyan-300/20 bg-slate-950/55 p-5 sm:p-6">
-      <summary className="cursor-pointer text-base font-black leading-7 text-cyan-100">展開專業姓名結構</summary>
+    <details id="nameology-professional-structure" className="fortune-card scroll-mt-24 overflow-hidden border-cyan-300/20 bg-slate-950/55 p-5 sm:p-6">
+      <summary className="flex min-h-[52px] cursor-pointer items-center justify-between gap-3 text-base font-black leading-7 text-cyan-100"><span>展開完整拆字與部首故事</span><span className="text-xs font-bold text-cyan-100/65">部首 / 筆畫 / 意境</span></summary>
       <div className="mt-4 space-y-5">
         <div className="grid gap-3 sm:grid-cols-3">
           {layer3.characters.map((item) => (
@@ -581,6 +715,8 @@ function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; f
   return (
     <section className="space-y-5">
       <NameologyUltimateDecisionPanel analysis={analysis} />
+      <NameologyCharacterDeckPreview analysis={analysis} />
+      <NameologyTarotBridgeCard analysis={analysis} />
       <FiveElementPriorityCard result={fiveElement} />
       <NameologyEssenceDetails analysis={analysis} />
       <NameologyProfessionalStructureDetails analysis={analysis} />
@@ -641,6 +777,7 @@ export default function NameologyPage() {
   // （見 lib/nameology-engine.ts 的 buildNameologyRitualSteps），這裡只是用節奏
   // 把「已經是真的」的結果依序顯示出來，不是用固定計時器假裝正在通過。
   const [ritualRevealCount, setRitualRevealCount] = useState(0);
+  const [ritualCollapsed, setRitualCollapsed] = useState(false);
   const ritualTimerRef = useRef<number | null>(null);
   const submitLockRef = useRef(false);
 
@@ -651,14 +788,28 @@ export default function NameologyPage() {
     }
   }
 
+  function showRitualCompleteImmediately(steps?: NameologyRitualStep[]) {
+    clearRitualTimer();
+    setRitualRevealCount(steps?.length ?? 10);
+    setRitualCollapsed(true);
+  }
+
   function playRitualReveal(steps: NameologyRitualStep[]) {
     clearRitualTimer();
+    setRitualCollapsed(false);
     setRitualRevealCount(0);
     const revealOne = (index: number) => {
       setRitualRevealCount(index + 1);
       const current = steps[index];
       const isLast = index >= steps.length - 1;
-      if (isLast || current.status !== 'PASSED') return;
+      if (current.status !== 'PASSED') return;
+      if (isLast) {
+        ritualTimerRef.current = window.setTimeout(() => {
+          setRitualCollapsed(true);
+          window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 520);
+        }, 900);
+        return;
+      }
       ritualTimerRef.current = window.setTimeout(() => revealOne(index + 1), 420);
     };
     ritualTimerRef.current = window.setTimeout(() => revealOne(0), 260);
@@ -677,7 +828,7 @@ export default function NameologyPage() {
     setDailyRecord(record);
     setResult(record.result.analysis);
     setFiveElement(record.result.fiveElement);
-    setRitualRevealCount(record.result.analysis.ritualSteps?.length ?? 10);
+    showRitualCompleteImmediately(record.result.analysis.ritualSteps);
   }, []);
 
   const validationMessage = useMemo(() => buildValidationMessage(form, selectionConfirm), [form, selectionConfirm]);
@@ -711,7 +862,7 @@ export default function NameologyPage() {
         setDailyRecord(existing);
         setResult(existing.result.analysis);
         setFiveElement(existing.result.fiveElement);
-        setRitualRevealCount(existing.result.analysis.ritualSteps?.length ?? 10);
+        showRitualCompleteImmediately(existing.result.analysis.ritualSteps);
         window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
         return;
       }
@@ -741,6 +892,7 @@ export default function NameologyPage() {
     setFiveElement(null);
     clearRitualTimer();
     setRitualRevealCount(0);
+    setRitualCollapsed(false);
 
     try {
       const response = await fetch('/api/nameology-analyze', {
@@ -760,7 +912,7 @@ export default function NameologyPage() {
       if ((data as NameologyResponse).analysis.ritualSteps?.length) {
         playRitualReveal((data as NameologyResponse).analysis.ritualSteps);
       } else {
-        setRitualRevealCount(10);
+        showRitualCompleteImmediately((data as NameologyResponse).analysis.ritualSteps);
       }
       setDailyRecord(saveDailyAnalysis<NameologyDailyResult>('nameology', nextResult, { schemaVersion: NAMEOLOGY_DAILY_SCHEMA_VERSION }));
       if (getAnalysisIdentityTarget() === 'self') markGrowthModuleCompleted('nameology', (data as NameologyResponse).fiveElement.brandElement);
@@ -774,7 +926,7 @@ export default function NameologyPage() {
 
   return (
     <main className="app-bg min-h-screen px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-4xl">
         <div className="mb-5 flex items-center text-sm">
           <Link href="/" className="feature-home-link feature-home-link--amber">{"\u8fd4\u56de\u9996\u9801"}</Link>
         </div>
@@ -783,9 +935,14 @@ export default function NameologyPage() {
         <section id="nameology-input-form" className="fortune-card p-5 sm:p-8 scroll-mt-20">
           <p className="text-xs font-bold uppercase tracking-[0.35em] text-amber-300">NAMEOLOGY</p>
           <h1 className="mt-4 font-serif text-4xl font-black text-amber-100 sm:text-6xl">AI 姓名學</h1>
-          <p className="mt-4 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
-            這裡只解讀姓名學：姓氏固定為根，名字兩字為主要意境來源，再交叉生日、血型與性別，整理字義、拆字、筆畫五格與性情訊號。
+          <p className="mt-4 max-w-2xl text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
+            輸入姓名與基本資料後，系統先固定台灣字典部首與筆畫，再生成姓名拆字卡與今日行動判定。
           </p>
+          <div className="mt-4 flex flex-wrap gap-2" aria-label="姓名學輸出重點">
+            {['台灣字典', '拆字卡', 'AI 判定'].map((item) => (
+              <span key={item} className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-xs font-black text-amber-100">{item}</span>
+            ))}
+          </div>
 
           <IdentitySplitSelector className="mt-6" />
 
@@ -920,12 +1077,21 @@ export default function NameologyPage() {
           </div>
         </section>
 
-        <div id="nameology-result" className="mt-6 scroll-mt-24 space-y-5">
+        <div id="nameology-result" className="mt-6 scroll-mt-24">
           {result && result.ritualSteps?.length > 0 && (
-            <RitualStepsPanel steps={result.ritualSteps} revealCount={ritualRevealCount} />
+            <div
+              className="grid overflow-hidden transition-[grid-template-rows] duration-500 ease-out"
+              style={{ gridTemplateRows: ritualCollapsed ? '0fr' : '1fr' }}
+            >
+              <div className="min-h-0 pb-5">
+                <RitualStepsPanel steps={result.ritualSteps} revealCount={ritualRevealCount} />
+              </div>
+            </div>
           )}
-          {result && fiveElement && (!result.ritualSteps?.length || ritualRevealCount >= result.ritualSteps.length) && (
-            <ResultPanel analysis={result} fiveElement={fiveElement} />
+          {result && fiveElement && (!result.ritualSteps?.length || ritualCollapsed) && (
+            <div className="space-y-5 animate-fade-in">
+              <ResultPanel analysis={result} fiveElement={fiveElement} />
+            </div>
           )}
         </div>
       </div>

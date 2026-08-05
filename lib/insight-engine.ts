@@ -20,7 +20,140 @@ import { calculateAnnualFortune, type AnnualFortuneAnalysis } from './annual-for
 const MODEL_NAME = 'gemini-2.5-flash';
 const GEMINI_TIMEOUT_MS = 20000;
 
-interface InsightAnalysisResponse {
+export const INSIGHT_RITUAL_STEP_IDS = [
+  'TIME_RESOLVED',
+  'CHART_BUILT',
+  'TRANSFORMATION_MAPPED',
+  'PATTERN_IDENTIFIED',
+  'CROSS_CHECKED',
+  'TWELVE_PALACE_ANALYZED',
+  'STATISTICAL_MATCHED',
+  'ACCURACY_SCORED',
+  'ANNUAL_FORTUNE_CALCULATED',
+  'FIVE_ELEMENT_INTEGRATED',
+  'AI_INSIGHT_GENERATED',
+  'FINAL_RESULT_VERIFIED',
+] as const;
+
+export type InsightRitualStepId = (typeof INSIGHT_RITUAL_STEP_IDS)[number];
+export type InsightRitualStepStatus = 'LOCKED' | 'WAITING' | 'PROCESSING' | 'PASSED' | 'FAILED';
+
+export interface InsightRitualStep {
+  id: InsightRitualStepId;
+  label: string;
+  ritualText: string;
+  passedText: string;
+  status: InsightRitualStepStatus;
+  verifiedAt: string | null;
+  errorCode: string | null;
+}
+
+const INSIGHT_RITUAL_STEP_LABELS: Record<InsightRitualStepId, { label: string; ritualText: string; passedText: string }> = {
+  TIME_RESOLVED: {
+    label: '時辰定位',
+    ritualText: '正在校正出生時辰與八字四柱...',
+    passedText: '出生時辰與八字四柱定位完成',
+  },
+  CHART_BUILT: {
+    label: '命盤排定',
+    ritualText: '正在排定紫微十二宮與主星...',
+    passedText: '紫微命盤十二宮與主星排定完成',
+  },
+  TRANSFORMATION_MAPPED: {
+    label: '四化飛星',
+    ritualText: '正在判定四化飛星軌跡...',
+    passedText: '四化飛星判定完成',
+  },
+  PATTERN_IDENTIFIED: {
+    label: '命格辨識',
+    ritualText: '正在辨識命盤核心格局...',
+    passedText: '命盤核心格局辨識完成',
+  },
+  CROSS_CHECKED: {
+    label: '三方四正',
+    ritualText: '正在進行命財官遷交叉驗證...',
+    passedText: '命財官遷三方四正交叉驗證通過',
+  },
+  TWELVE_PALACE_ANALYZED: {
+    label: '十二宮解析',
+    ritualText: '正在逐宮解析十二宮位細節...',
+    passedText: '十二宮位精密解析完成',
+  },
+  STATISTICAL_MATCHED: {
+    label: '模型比對',
+    ritualText: '正在比對規則模型統計訊號...',
+    passedText: '規則模型統計訊號比對完成',
+  },
+  ACCURACY_SCORED: {
+    label: '準確度評估',
+    ritualText: '正在評估本次判定準確度...',
+    passedText: '本次判定準確度評估完成',
+  },
+  ANNUAL_FORTUNE_CALCULATED: {
+    label: '流年運算',
+    ritualText: '正在運算今年流年三方四正...',
+    passedText: '今年流年運勢運算完成',
+  },
+  FIVE_ELEMENT_INTEGRATED: {
+    label: '五行整合',
+    ritualText: '正在整合命盤與流年五行判定...',
+    passedText: '五行整合判定完成',
+  },
+  AI_INSIGHT_GENERATED: {
+    label: 'AI 深度解讀',
+    ritualText: '正在生成 AI 深度洞察文字...',
+    passedText: 'AI 深度洞察生成完成',
+  },
+  FINAL_RESULT_VERIFIED: {
+    label: '結果驗證',
+    ritualText: '正在驗證最終命盤結果完整性...',
+    passedText: '紫微斗數分析正式完成',
+  },
+};
+
+function buildInsightRitualSteps(input: {
+  shichen: ReturnType<typeof computeShichenProfile>;
+  ziweiSanFang: ZiweiSanFangAnalysis;
+  statisticalAnalysis: InsightAnalysisResponse['statisticalAnalysis'];
+  dataSourceCount: number;
+  accuracyBreakdown: InsightAnalysisResponse['accuracyBreakdown'];
+  accuracyScore: number;
+  annualFortune: AnnualFortuneAnalysis;
+  fiveElement: FiveElementIntegrationResult;
+  aiAnalysis: { psychology_insights: Array<{ title: string; description: string; confidence: number }>; recommendations: string[]; summary: string };
+}): InsightRitualStep[] {
+  const checks: Record<InsightRitualStepId, boolean> = {
+    TIME_RESOLVED: Boolean(input.shichen.dayPillar) && Boolean(input.shichen.hourPillar?.ganzhi),
+    CHART_BUILT: Array.isArray(input.ziweiSanFang.allPalaces) && input.ziweiSanFang.allPalaces.length > 0,
+    TRANSFORMATION_MAPPED: Array.isArray(input.ziweiSanFang.allPalaces) && input.ziweiSanFang.allPalaces.some((palace) => Array.isArray(palace.majorStars) && palace.majorStars.length > 0),
+    PATTERN_IDENTIFIED: Boolean(input.ziweiSanFang.pattern?.name) && Array.isArray(input.ziweiSanFang.pattern?.stars),
+    CROSS_CHECKED: Array.isArray(input.ziweiSanFang.crossChecks) && input.ziweiSanFang.crossChecks.length > 0,
+    TWELVE_PALACE_ANALYZED: Array.isArray(input.ziweiSanFang.palaceAnalyses) && input.ziweiSanFang.palaceAnalyses.length === 12,
+    STATISTICAL_MATCHED: Array.isArray(input.statisticalAnalysis) && input.statisticalAnalysis.length > 0 && Number.isFinite(input.dataSourceCount),
+    ACCURACY_SCORED: Array.isArray(input.accuracyBreakdown) && input.accuracyBreakdown.length > 0 && Number.isFinite(input.accuracyScore) && input.accuracyScore >= 0 && input.accuracyScore <= 100,
+    ANNUAL_FORTUNE_CALCULATED: Boolean(input.annualFortune) && Number.isFinite(input.annualFortune.overallScore),
+    FIVE_ELEMENT_INTEGRATED: Boolean(input.fiveElement?.decision?.conclusion),
+    AI_INSIGHT_GENERATED: input.aiAnalysis.psychology_insights.length > 0 && input.aiAnalysis.recommendations.length > 0 && Boolean(input.aiAnalysis.summary),
+    FINAL_RESULT_VERIFIED: false,
+  };
+  checks.FINAL_RESULT_VERIFIED = INSIGHT_RITUAL_STEP_IDS.slice(0, -1).every((id) => checks[id]);
+
+  const now = new Date().toISOString();
+  let failedAt = -1;
+  return INSIGHT_RITUAL_STEP_IDS.map((id, index) => {
+    const meta = INSIGHT_RITUAL_STEP_LABELS[id];
+    if (failedAt >= 0) {
+      return { id, label: meta.label, ritualText: meta.ritualText, passedText: meta.passedText, status: 'LOCKED' as const, verifiedAt: null, errorCode: null };
+    }
+    if (!checks[id]) {
+      failedAt = index;
+      return { id, label: meta.label, ritualText: meta.ritualText, passedText: meta.passedText, status: 'FAILED' as const, verifiedAt: null, errorCode: `${id}_NOT_READY` };
+    }
+    return { id, label: meta.label, ritualText: meta.ritualText, passedText: meta.passedText, status: 'PASSED' as const, verifiedAt: now, errorCode: null };
+  });
+}
+
+export interface InsightAnalysisResponse {
   accuracyScore: number;
   dataSourceCount: number;
   scoreMethodology: {
@@ -73,6 +206,7 @@ interface InsightAnalysisResponse {
   annualFortune: AnnualFortuneAnalysis;
   nameology: NameologyAnalysis;
   fiveElement: FiveElementIntegrationResult;
+  ritualSteps: InsightRitualStep[];
   meta?: {
     dayPillar: string;
     hourPillar: string;
@@ -553,7 +687,20 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
     summary: string;
   }>(textStr);
 
+  const ritualSteps = buildInsightRitualSteps({
+    shichen,
+    ziweiSanFang,
+    statisticalAnalysis,
+    dataSourceCount,
+    accuracyBreakdown,
+    accuracyScore,
+    annualFortune,
+    fiveElement,
+    aiAnalysis,
+  });
+
   return {
+    ritualSteps,
     accuracyScore,
     dataSourceCount,
     scoreMethodology: {

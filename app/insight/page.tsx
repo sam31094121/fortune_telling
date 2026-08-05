@@ -13,6 +13,7 @@ import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 import type { FiveElementIntegrationResult, FiveElementKey } from '@/lib/five-element-engine';
+import type { InsightRitualStep } from '@/lib/insight-engine';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { TAROT_CARDS } from '@/features/tarot/data/cards';
 
@@ -344,6 +345,7 @@ interface InsightResult {
     birthDate?: string;
     shichen?: number | 'unknown' | null;
   };
+  ritualSteps?: InsightRitualStep[];
 }
 
 const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
@@ -2613,6 +2615,91 @@ function InsightAnalyticalConsole({
   );
 }
 
+const ZIWEI_RITUAL_MARK: Record<InsightRitualStep['status'], string> = {
+  LOCKED: '',
+  WAITING: '',
+  PROCESSING: '',
+  PASSED: '✓',
+  FAILED: '!',
+};
+
+function ZiweiRitualStepsPanel({
+  steps,
+  revealCount,
+  collapsing,
+}: {
+  steps: InsightRitualStep[];
+  revealCount: number;
+  collapsing: boolean;
+}) {
+  const total = steps.length;
+  const activeIndex = Math.min(revealCount - 1, total - 1);
+
+  return (
+    <section
+      role="status"
+      aria-live="polite"
+      className={`fortune-card relative overflow-hidden border-cyan-300/25 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.14),rgba(15,23,42,0.92)_60%,rgba(2,6,23,0.98)_100%)] p-5 sm:p-7 transition-all duration-500 ease-out ${collapsing ? 'pointer-events-none -translate-y-3 opacity-0' : 'translate-y-0 opacity-100'}`}
+    >
+      <div className="pointer-events-none absolute inset-0 opacity-40" style={{ background: 'linear-gradient(180deg, transparent 0%, rgba(34,211,238,0.06) 50%, transparent 100%)' }} />
+      <div className="relative flex items-center justify-between gap-3">
+        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-cyan-200">ZIWEI RITUAL · 命盤逐宮驗證</p>
+        <p className="text-[11px] font-bold text-cyan-100/70">{Math.min(revealCount, total)}/{total}</p>
+      </div>
+      <div className="relative mt-2 h-1 w-full overflow-hidden rounded-full bg-white/5">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-cyan-200 to-amber-200 shadow-[0_0_12px_rgba(34,211,238,0.55)] transition-all duration-500 ease-out"
+          style={{ width: `${(Math.min(revealCount, total) / total) * 100}%` }}
+        />
+      </div>
+
+      <div className="relative mt-5 space-y-1.5">
+        {steps.map((step, index) => {
+          const revealed = index < revealCount;
+          const isActive = revealed && index === activeIndex && step.status === 'PASSED' && revealCount < total;
+          const display: InsightRitualStep['status'] = !revealed ? 'LOCKED' : isActive ? 'PROCESSING' : step.status;
+          const toneClass =
+            display === 'PASSED'
+              ? 'border-cyan-300/35 bg-cyan-300/[0.06] text-cyan-50'
+              : display === 'FAILED'
+                ? 'border-rose-300/50 bg-rose-500/10 text-rose-100'
+                : display === 'PROCESSING'
+                  ? 'border-amber-300/40 bg-amber-300/[0.08] text-amber-50'
+                  : 'border-white/5 bg-white/[0.015] text-white/30';
+          return (
+            <div
+              key={step.id}
+              className={`flex items-center gap-3 rounded-xl border px-4 py-2 transition-all duration-500 ease-out ${toneClass}`}
+              style={{
+                transitionProperty: 'opacity, transform, background-color, border-color',
+                opacity: revealed ? 1 : 0.45,
+                transform: revealed ? 'translateX(0)' : 'translateX(-6px)',
+              }}
+            >
+              <span
+                className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border text-[11px] font-black ${
+                  display === 'PASSED'
+                    ? 'border-cyan-300/60 bg-cyan-300/20 text-cyan-100'
+                    : display === 'FAILED'
+                      ? 'border-rose-300/60 bg-rose-500/20 text-rose-100'
+                      : display === 'PROCESSING'
+                        ? 'border-amber-300/60 bg-amber-300/20 text-amber-100'
+                        : 'border-white/10 bg-white/[0.03] text-white/20'
+                }`}
+              >
+                {display === 'PROCESSING' ? <span className="block h-1.5 w-1.5 animate-ping rounded-full bg-amber-300" /> : ZIWEI_RITUAL_MARK[display] || '○'}
+              </span>
+              <p className="min-w-0 flex-1 truncate text-xs font-bold leading-5">
+                {revealed ? (display === 'PASSED' ? step.passedText : display === 'FAILED' ? `${step.label}驗證失敗` : step.ritualText) : step.label}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export default function InsightPage() {
   const mainRef = useRef<HTMLElement>(null);
 
@@ -2621,6 +2708,7 @@ export default function InsightPage() {
     if (existing) {
       setDailyRecord(existing);
       setResult(existing.result);
+      showRitualCompleteImmediately(existing.result.ritualSteps);
     }
     window.setTimeout(() => mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
   }
@@ -2648,12 +2736,53 @@ export default function InsightPage() {
   const [error, setError] = useState('');
   const [result, setResult] = useState<InsightResult | null>(null);
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<InsightResult> | null>(null);
+  const [ritualRevealCount, setRitualRevealCount] = useState(0);
+  const [ritualCollapsed, setRitualCollapsed] = useState(false);
+  const ritualTimerRef = useRef<number | null>(null);
+  const submitLockRef = useRef(false);
+
+  function clearRitualTimer() {
+    if (ritualTimerRef.current) {
+      window.clearTimeout(ritualTimerRef.current);
+      ritualTimerRef.current = null;
+    }
+  }
+
+  function showRitualCompleteImmediately(steps?: InsightRitualStep[]) {
+    clearRitualTimer();
+    setRitualRevealCount(steps?.length ?? 0);
+    setRitualCollapsed(true);
+  }
+
+  function playRitualReveal(steps: InsightRitualStep[]) {
+    clearRitualTimer();
+    setRitualCollapsed(false);
+    setRitualRevealCount(0);
+    const revealOne = (index: number) => {
+      setRitualRevealCount(index + 1);
+      const current = steps[index];
+      const isLast = index >= steps.length - 1;
+      if (current.status !== 'PASSED') return;
+      if (isLast) {
+        ritualTimerRef.current = window.setTimeout(() => {
+          setRitualCollapsed(true);
+          window.setTimeout(() => mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 520);
+        }, 900);
+        return;
+      }
+      ritualTimerRef.current = window.setTimeout(() => revealOne(index + 1), 340);
+    };
+    ritualTimerRef.current = window.setTimeout(() => revealOne(0), 220);
+  }
+
+  useEffect(() => () => clearRitualTimer(), []);
 
   useEffect(() => {
     const record = readDailyAnalysis<InsightResult>('ziwei');
     if (!record) return;
     setDailyRecord(record);
     setResult(record.result);
+    showRitualCompleteImmediately(record.result.ritualSteps);
   }, []);
 
   // 載入 localStorage 預填
@@ -2736,10 +2865,21 @@ export default function InsightPage() {
   const showMissingGender = showMissingFields && !selectionConfirm.gender;
 
   const handleSubmit = async () => {
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
+    try {
+      await handleSubmitInner();
+    } finally {
+      submitLockRef.current = false;
+    }
+  };
+
+  const handleSubmitInner = async () => {
     const existing = readDailyAnalysis<InsightResult>('ziwei');
     if (existing) {
       setDailyRecord(existing);
       setResult(existing.result);
+      showRitualCompleteImmediately(existing.result.ritualSteps);
       mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
@@ -2757,6 +2897,9 @@ export default function InsightPage() {
     }
 
     setLoading(true);
+    clearRitualTimer();
+    setRitualRevealCount(0);
+    setRitualCollapsed(false);
 
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 45000); // 45 秒超時
@@ -2801,6 +2944,11 @@ export default function InsightPage() {
         setResult(json);
         setDailyRecord(saveDailyAnalysis<InsightResult>('ziwei', json));
         markGrowthModuleCompleted('ziwei', json.fiveElement?.brandElement);
+        if (json.ritualSteps?.length) {
+          playRitualReveal(json.ritualSteps);
+        } else {
+          showRitualCompleteImmediately(json.ritualSteps);
+        }
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') {
           setError('分析超時（超過 45 秒），請稍後再試或稍候網路恢復後重試。');
@@ -3203,7 +3351,17 @@ export default function InsightPage() {
                 </g>
               </svg>
             </div>
-            <div className="space-y-6">
+            {result?.ritualSteps?.length ? (
+              <div
+                className="grid overflow-hidden transition-[grid-template-rows] duration-500 ease-out"
+                style={{ gridTemplateRows: ritualCollapsed ? '0fr' : '1fr' }}
+              >
+                <div className="min-h-0 pb-5">
+                  <ZiweiRitualStepsPanel steps={result.ritualSteps} revealCount={ritualRevealCount} collapsing={ritualCollapsed} />
+                </div>
+              </div>
+            ) : null}
+            <div className={`space-y-6 transition-opacity duration-500 ${!result?.ritualSteps?.length || ritualCollapsed ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
             <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 紫微斗數" onViewResult={jumpToTodayResult} />
             <div className="fortune-card relative hidden overflow-hidden border-amber-400/25 bg-slate-950/55 p-6 sm:p-8">
               <div className="pointer-events-none absolute inset-4 border border-cyan-400/10" />
