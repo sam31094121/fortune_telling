@@ -33,22 +33,22 @@ export default function TarotEntryCard() {
         </div>
         <div className="min-w-0 flex-1">
           <span className="inline-block rounded-full bg-cyan-300/10 border border-cyan-200/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-100 uppercase">
-            第九張卡片 · AI TAROT CARD
+            CARD 09 · AI 塔羅牌
           </span>
           <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-50 tracking-wide flex items-center gap-2">
-            <span>塔羅牌</span>
+            <span>AI 塔羅牌</span>
             <span className="text-xs font-sans text-cyan-100 font-normal opacity-85 hidden sm:inline">
               // 78 張牌庫 · 真洗牌 · 親手抽牌
             </span>
           </h2>
           <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-            使用者自己抽牌，AI 依牌陣、正逆位與五元素權重完成判定。
+            親手抽牌，AI 依牌陣、正逆位與五元素給出一句判定。
           </p>
         </div>
       </div>
 
       <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-cyan-200/45 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-50 transition group-hover:bg-cyan-300/20">
-        <span>開始塔羅牌</span>
+        <span>立即開始</span>
         <span className="transition-transform group-hover:translate-x-1.5">➜</span>
       </div>
     </Link>

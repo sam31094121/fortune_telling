@@ -536,7 +536,7 @@ function getNumberFortuneGradePresentation(result: NumberAnalysisResult) {
   if (level === '大吉' || score >= 90) {
     return {
       title: '大吉登峰，吉勢主場',
-      subtitle: '後端判定：數字結構進入強支撐區，優先承接順勢推進。',
+      subtitle: '數字結構進入強支撐區，優先承接順勢推進。',
       badge: 'AI 後端判定｜最高吉勢',
       frameClass: 'border-amber-200/60 bg-[radial-gradient(circle_at_50%_0%,rgba(251,191,36,0.32),transparent_42%),linear-gradient(135deg,rgba(69,42,8,0.68),rgba(8,13,28,0.96))] shadow-[0_0_42px_rgba(251,191,36,0.28),inset_0_0_28px_rgba(253,230,138,0.09)]',
       badgeClass: 'border-amber-200/55 bg-amber-300/18 text-amber-100',
@@ -548,7 +548,7 @@ function getNumberFortuneGradePresentation(result: NumberAnalysisResult) {
   if (level === '吉' || level === '次吉' || score >= 76) {
     return {
       title: '吉勢成局，順勢可攻',
-      subtitle: '後端判定：數字能量具備明確支撐，行動方向可以更果斷。',
+      subtitle: '數字能量具備明確支撐，行動方向可以更果斷。',
       badge: 'AI 後端判定｜強吉等級',
       frameClass: 'border-emerald-200/45 bg-[radial-gradient(circle_at_50%_0%,rgba(52,211,153,0.26),transparent_44%),linear-gradient(135deg,rgba(6,78,59,0.45),rgba(8,13,28,0.96))] shadow-[0_0_34px_rgba(16,185,129,0.22),inset_0_0_24px_rgba(52,211,153,0.07)]',
       badgeClass: 'border-emerald-200/45 bg-emerald-300/14 text-emerald-100',
@@ -560,7 +560,7 @@ function getNumberFortuneGradePresentation(result: NumberAnalysisResult) {
   if (level === '吉中帶凶' || level === '中平' || level === '凶中帶吉' || score >= 46) {
     return {
       title: '吉凶交戰，轉勢在手',
-      subtitle: '後端判定：數字結構同時有推力與阻力，關鍵在先分清順逆。',
+      subtitle: '數字結構同時有推力與阻力，關鍵在先分清順逆。',
       badge: 'AI 後端判定｜轉化等級',
       frameClass: 'border-cyan-200/42 bg-[radial-gradient(circle_at_50%_0%,rgba(34,211,238,0.24),transparent_44%),linear-gradient(135deg,rgba(14,116,144,0.36),rgba(8,13,28,0.96))] shadow-[0_0_30px_rgba(34,211,238,0.18),inset_0_0_22px_rgba(34,211,238,0.06)]',
       badgeClass: 'border-cyan-200/42 bg-cyan-300/12 text-cyan-100',
@@ -571,7 +571,7 @@ function getNumberFortuneGradePresentation(result: NumberAnalysisResult) {
 
   return {
     title: '凶勢已現，先穩後破',
-    subtitle: '後端判定：數字風險訊號偏強，當前第一任務是降風險、穩節奏。',
+    subtitle: '數字風險訊號偏強，當前第一任務是降風險、穩節奏。',
     badge: 'AI 後端判定｜警戒等級',
     frameClass: 'border-rose-200/48 bg-[radial-gradient(circle_at_50%_0%,rgba(251,113,133,0.28),transparent_42%),linear-gradient(135deg,rgba(76,5,25,0.52),rgba(8,13,28,0.96))] shadow-[0_0_34px_rgba(244,63,94,0.22),inset_0_0_24px_rgba(251,113,133,0.07)]',
     badgeClass: 'border-rose-200/48 bg-rose-300/14 text-rose-100',
@@ -694,21 +694,21 @@ function NumberFortuneThreeLayerCard({
   const evidence = result?.evidence;
   const activeValue = result?.valueMasked || result?.value || '等待輸入';
   const layerCaption = mode === 'result'
-    ? '已承接後端結果，展示數字論吉凶三層如何串接。'
-    : '輸入前先建立規則感：數字論吉凶會分三層單向流動。';
+    ? '後端已完成運算，保留重點給客戶看。'
+    : '專業流程已收合，輸入後會自動判定。';
   const cardClassName = [
     'rounded-[26px] border border-amber-200/20',
     'bg-[radial-gradient(circle_at_18%_12%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(135deg,rgba(15,23,42,0.86),rgba(8,13,28,0.96))]',
     'p-4 shadow-[0_0_28px_rgba(251,191,36,0.12)]',
-    mode === 'result' ? 'relative z-10' : 'mb-4',
+    mode === 'result' ? 'relative z-10' : 'mt-4 mb-4',
   ].join(' ');
 
   return (
     <div className={cardClassName}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-200">AI 數字論吉凶｜三層專業流程</p>
-          <h4 className="mt-2 font-serif text-xl font-black leading-tight text-cyan-50">數字結構 → AI 解讀 → 補強排序</h4>
+          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-200">專業模式</p>
+          <h4 className="mt-2 font-serif text-xl font-black leading-tight text-cyan-50">數字規則 → AI 判定 → 今日行動</h4>
           <p className="mt-2 text-xs font-semibold leading-6 text-cyan-100/72">{layerCaption}</p>
         </div>
         <span className="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-[10px] font-black text-cyan-100">
@@ -1159,7 +1159,7 @@ type HomeGrowthModuleGuide = {
 };
 
 const HOME_GROWTH_MODULE_GUIDES: HomeGrowthModuleGuide[] = [
-  { id: 'number', label: '數字論吉凶', helper: '完成手機後 4 碼、6 碼、8 碼或完整 10 碼分析。', cta: '去完成數字論吉凶', action: 'number-modal', sticky: '用手機號碼建立第一個行動訊號。', reward: '完成後，首頁會記住你的第一個數字訊號。' },
+  { id: 'number', label: '數字論吉凶', helper: '完成一組數字，取得今日吉凶判定。', cta: '立即開始', action: 'number-modal', sticky: '用一組數字建立今日行動訊號。', reward: '完成後，首頁會記住你的數字提醒。' },
   { id: 'ziwei', label: 'AI 紫微斗數', helper: '完成紫微命盤探索。', cta: '去完成紫微斗數', href: '/insight', sticky: '把長期方向接進成長中心。', reward: '完成後，成長中心會知道你的長期方向。' },
   { id: 'soul_match', label: 'AI 靈魂配對', helper: '完成雙人配對探索。', cta: '去完成靈魂配對', href: '/match', sticky: '讓關係互動留下可追蹤提醒。', reward: '完成後，關係提醒會變得更貼近你。' },
   { id: 'music', label: 'AI 生成歌曲', helper: '完成生命音樂生成。', cta: '去生成一首歌', href: '/music', sticky: '把個人節奏變成可回聽記憶。', reward: '完成後，你會多一個可以回來聽的記憶點。' },
@@ -1359,7 +1359,6 @@ function HomeStickyJourneyPanel({ completed, completedModules, total, onOpenNumb
   const safeCompleted = Math.min(Math.max(completed, 0), safeTotal);
   const unlocked = safeCompleted >= safeTotal;
   const nextModule = HOME_GROWTH_MODULE_GUIDES.find((module) => !completedSet.has(module.id));
-  const progressPercent = Math.min(100, Math.round((safeCompleted / safeTotal) * 100));
   const ctaClassName = 'home-sticky-journey__cta';
 
   const nextAction = unlocked ? (
@@ -1372,28 +1371,15 @@ function HomeStickyJourneyPanel({ completed, completedModules, total, onOpenNumb
 
   return (
     <section className="home-sticky-journey" aria-label="今日清楚下一步">
-      <div className="home-sticky-journey__topline">你的命理進度已被記住</div>
-      <div className="home-sticky-journey__grid">
-        <div className="home-sticky-journey__main">
-          <p className="home-sticky-journey__kicker">今天只給你一個下一步</p>
-          <h1>{unlocked ? '8 張探索已完成，現在打開你的成長中心。' : `我記得你已完成 ${safeCompleted} / ${safeTotal}。`}</h1>
-          <p>{unlocked ? '你不用重找結果，成長中心會整理本週一個行動、偏好提醒與回訪記憶。' : nextModule ? `今天先完成「${nextModule.label}」。${nextModule.reward}` : '今天先完成一張卡，首頁會記住你的進度。'}</p>
-          <div className="home-sticky-journey__actions">
-            {nextAction}
-            <a href="#home-eight-card-route" className="home-sticky-journey__secondary">查看 8 張探索</a>
-          </div>
-        </div>
-        <div className="home-sticky-journey__progress" aria-label={`探索進度 ${safeCompleted} / ${safeTotal}`}>
-          <span>探索進度</span>
-          <strong>{safeCompleted}<small>/{safeTotal}</small></strong>
-          <div><i style={{ width: `${progressPercent}%` }} /></div>
-          <p>{unlocked ? '已完整解鎖' : nextModule ? `下一張：${nextModule.label}` : '繼續累積中'}</p>
-        </div>
-      </div>
-      <div className="home-sticky-journey__promise" aria-label="回訪理由">
-        <span>我會記住你完成過什麼</span>
-        <span>每次回來只推一個下一步</span>
-        <span>完成後接到成長中心</span>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm font-bold leading-6 text-[color:var(--text-main)]">
+          {unlocked
+            ? '8/8 已完成，成長中心已開放。'
+            : nextModule
+              ? `已完成 ${safeCompleted}/${safeTotal}，下一步：${nextModule.label}。`
+              : `已完成 ${safeCompleted}/${safeTotal}。`}
+        </p>
+        <div className="sm:w-64 sm:shrink-0">{nextAction}</div>
       </div>
     </section>
   );
@@ -2671,22 +2657,22 @@ export default function HomePage() {
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse">
-                  NEW · 零開銷即時解碼
+                  CARD 01 · 數字吉凶速測
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-100 tracking-wide flex items-center gap-2">
                   <span>數字論吉凶</span>
                   <span className="text-xs font-sans text-cyan-300 font-normal opacity-85 hidden sm:inline">
-                    // 後4碼+手機完整10碼拆解分析
+                    // 4 / 6 / 8 / 10 碼 · 即時判定
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  融合八十一數理靈動數與易經梅花拆分起卦，不需填寫隱私生日，即刻測試數字能量。
+                  輸入 4、6、8 或 10 碼，AI 立即整理吉凶傾向與今日行動。
                 </p>
               </div>
             </div>
             
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-200 transition group-hover:bg-cyan-500/25">
-              <span>立即開啟解碼艙</span>
+              <span>立即開始</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </button>
@@ -3672,14 +3658,12 @@ export default function HomePage() {
 
               <section className="number-fortune-card number-fortune-analysis-card" aria-label="Number fortune analysis">
             <div className="number-fortune-intro mb-6">
-              <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">☯️ 數字結構統計分析</p>
-              <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">數字能量傾向分析</h3>
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">AI 數字吉凶</p>
+              <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">輸入數字，立即判定</h3>
               <p className="mt-2 text-xs leading-5 text-[color:var(--text-muted)]">
-                請輸入 4 碼、6 碼、8 碼或完整手機號碼 10 碼阿拉伯數字，由後端固定規則版本產生一致結果。
+                輸入 4、6、8 或 10 碼，系統會自動過濾符號，只保留數字。
               </p>
             </div>
-
-            <NumberFortuneThreeLayerCard mode="input" />
 
             <FeatureVisitorCounter featureKey="number" className="hidden" />
 
@@ -3692,8 +3676,8 @@ export default function HomePage() {
               <div className={`pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full border ${numberInputNeedsAttention ? 'border-rose-300/28 shadow-[0_0_44px_rgba(244,63,94,0.28)]' : 'border-cyan-200/18 shadow-[0_0_36px_rgba(34,211,238,0.18)]'}`} />
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <p className={`text-[10px] font-black uppercase tracking-[0.24em] ${numberInputNeedsAttention ? 'text-rose-200 animate-pulse' : 'text-amber-200'}`}>NUMBER INPUT GATE</p>
-                  <h4 className="mt-1 font-serif text-2xl font-black leading-tight text-cyan-50 drop-shadow-[0_0_16px_rgba(34,211,238,0.24)]">數字能量碼輸入框架</h4>
+                  <p className={`text-[10px] font-black uppercase tracking-[0.24em] ${numberInputNeedsAttention ? 'text-rose-200 animate-pulse' : 'text-amber-200'}`}>NUMBER</p>
+                  <h4 className="mt-1 font-serif text-2xl font-black leading-tight text-cyan-50 drop-shadow-[0_0_16px_rgba(34,211,238,0.24)]">輸入數字</h4>
                 </div>
                 <span className={`rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.12em] ${numberInputNeedsAttention ? 'border-rose-200/70 bg-rose-500/18 text-rose-100 animate-pulse' : 'border-cyan-200/30 bg-cyan-300/10 text-cyan-100'}`}>
                   4 / 6 / 8 / 10 碼
@@ -3726,7 +3710,7 @@ export default function HomePage() {
                     className={`form-input min-h-[166px] w-full rounded-[30px] bg-slate-950/92 px-1.5 py-8 text-center font-mono font-black leading-none tracking-normal text-cyan-50 shadow-[0_0_70px_rgba(34,211,238,0.44),0_0_34px_rgba(251,191,36,0.08),inset_0_0_48px_rgba(34,211,238,0.14)] glass-input glass-input-cyan neon-input-focus sm:min-h-[186px] ${numberInputNeedsAttention ? 'border-rose-300/85 placeholder:text-rose-100/72 shadow-[0_0_64px_rgba(244,63,94,0.42),inset_0_0_42px_rgba(244,63,94,0.12)] animate-pulse' : 'border-cyan-100/80 placeholder:text-cyan-100/34'} ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_30px_rgba(244,63,94,0.38)]' : ''}`}
                   />
                   <p className="mt-2 px-2 text-center text-[11px] font-bold leading-5 text-cyan-100/62">
-                    可輸入 4、6、8 或完整 10 碼；系統會自動過濾空格與符號。
+                    可輸入手機後 4 碼，也可輸入完整 10 碼。
                   </p>
                 </div>
                 <button
@@ -3740,6 +3724,8 @@ export default function HomePage() {
               </div>
             </div>
 
+
+            <NumberFortuneThreeLayerCard mode="input" />
             {fortuneError && (
               <p className="form-missing-alert">
                 {fortuneError}
