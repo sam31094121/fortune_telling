@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { buildNameologyAnalysis } from '@/lib/nameology-engine';
+import { buildNameologyAnalysis, type NameologySubjectType } from '@/lib/nameology-engine';
 import { buildNameologyFiveElementResult } from '@/lib/five-element-engine';
 import { getNamePersonalityScores } from '@/lib/name-model-db';
 import { loadLocalNameologyDictionary } from '@/lib/nameology-dictionary-loader';
@@ -12,12 +12,21 @@ export const maxDuration = 20;
 
 const VALID_BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const VALID_GENDERS = ['male', 'female'] as const;
+const SIMPLIFIED_NAME_CHARS = new Set(Array.from(
+  '张刘陈黄杨赵吴郑马冯许谢韩罗邓叶钟卢苏赖谭萧蓝吕' +
+  '学胜钰龙华国凤丽宝凯伟强艳红颖语悦宁静乐爱诗书诚义轩远铭锋钧铎业东炜维' +
+  '广庆梦艺荣辉贤礼达发兴泽洁润汉涛滨钱银铁钢锦锐镇颜龄权观运进选连过还'
+));
 
+function hasSimplifiedNameCharacter(name: string) {
+  return Array.from(name).some((char) => SIMPLIFIED_NAME_CHARS.has(char));
+}
 type NameologyRequest = {
   name: string;
   birthDate: string;
   bloodType: Exclude<BloodType, ''>;
   gender: Gender;
+  analysisTarget?: 'self' | 'guest';
 };
 
 const analysisCache = new Map<string, { result: unknown; timestamp: number }>();
@@ -36,8 +45,12 @@ function validateNameologyRequest(body: unknown): string | null {
   return null;
 }
 
+function subjectTypeFromTarget(target: NameologyRequest['analysisTarget']): NameologySubjectType {
+  return target === 'guest' ? 'OTHER' : 'SELF';
+}
+
 function getCacheKey(body: NameologyRequest, dictionaryVersion: string) {
-  return hashedCacheKey([body.name.trim(), body.birthDate, body.bloodType, body.gender, dictionaryVersion, 'nameology-v10-cns-code-mapped']);
+  return hashedCacheKey([body.name.trim(), body.birthDate, body.bloodType, body.gender, subjectTypeFromTarget(body.analysisTarget), dictionaryVersion, 'nameology-ultimate-v4-cns-moe-dedup']);
 }
 
 export async function POST(request: Request) {
@@ -58,7 +71,12 @@ export async function POST(request: Request) {
     birthDate: body.birthDate,
     bloodType: body.bloodType,
     gender: body.gender,
+    analysisTarget: body.analysisTarget === 'guest' ? 'guest' : 'self',
   };
+
+  if (hasSimplifiedNameCharacter(normalized.name)) {
+    return friendlyErrorResponse(requestId, 'NON_TRADITIONAL_NAME_INPUT', '目前無法完成可靠的姓名分析，請稍後重新嘗試。', 422);
+  }
 
   const dictionarySnapshot = await loadLocalNameologyDictionary();
   const cacheKey = getCacheKey(normalized, dictionarySnapshot.version);
@@ -74,9 +92,14 @@ export async function POST(request: Request) {
       bloodType: normalized.bloodType,
       birthDate: normalized.birthDate,
       dictionarySnapshot,
+      subjectType: subjectTypeFromTarget(normalized.analysisTarget),
     });
+    if (!analysis.standardOutput.verification.readyForFrontend) {
+      console.warn('[nameology-analyze] blocked unreliable result', requestId, analysis.standardOutput.verification);
+      return friendlyErrorResponse(requestId, 'NAME_RULES_NOT_READY', '目前無法完成可靠的姓名分析，請稍後重新嘗試。', 422);
+    }
     const fiveElement = buildNameologyFiveElementResult(analysis);
-    const result = { ok: true, mode: 'nameology', analysis, nameScores, fiveElement };
+    const result = { ok: true, mode: 'nameology', analysis, nameScores, fiveElement, standardOutput: analysis.standardOutput, verification: analysis.standardOutput.verification };
 
     analysisCache.set(cacheKey, { result, timestamp: Date.now() });
     if (analysisCache.size > 100) {

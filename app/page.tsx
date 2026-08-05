@@ -2634,22 +2634,22 @@ export default function HomePage() {
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-300 uppercase animate-pulse">
-                  AI · 姓名五格解析
+                  AI · 姓名決策系統
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-amber-100 tracking-wide flex items-center gap-2">
                   <span>AI 姓名學</span>
                   <span className="text-xs font-sans text-amber-300 font-normal opacity-85 hidden sm:inline">
-                    // 姓名五格 · 人格特質 · 能量建議
+                    // 臺灣字典 · 取名意境 · AI 判定
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  以姓名結構為核心，整理人格特質、行動優勢與適合補強的方向。
+                  以臺灣字典固定部首、筆畫與取名意境，最後只留下今天最需要改變的一個方向。
                 </p>
               </div>
             </div>
 
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/30 px-5 py-3 text-xs font-bold text-amber-200 transition group-hover:bg-amber-500/25">
-              <span>立即開啟姓名學</span>
+              <span>開啟姓名決策</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>

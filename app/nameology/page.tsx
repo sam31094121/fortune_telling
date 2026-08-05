@@ -42,10 +42,10 @@ const initialForm: FormState = {
 };
 
 const initialSelectionConfirm: SelectionConfirm = { bloodType: false, gender: false };
-const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-dictionary-zh-tw-v1.0.8';
+const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-ultimate-engine-v4.0.0';
 
 function isCurrentNameologyResult(value?: NameologyDailyResult | null) {
-  return Boolean(value?.analysis?.professionalLayer?.characterDecomposition?.length && value.analysis.aiInterpretationLayer?.interpretationPoints?.length && value.analysis.reinforcementLayer?.priorities?.length && value.fiveElement);
+  return Boolean(value?.analysis?.standardOutput?.moduleVersion === '4.0.0' && value.analysis.standardOutput.verification?.readyForFrontend && value.fiveElement);
 }
 
 function isCurrentNameologyRecord(record?: DailyAnalysisRecord<NameologyDailyResult> | null) {
@@ -440,144 +440,112 @@ function NameologyCustomerSummary({ analysis }: { analysis: NameologyAnalysis })
     </section>
   );
 }
-function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; fiveElement: FiveElementIntegrationResult }) {
-  const topTendencies = analysis.temperamentProfile.topTendencies.slice(0, 4);
-  const givenName = analysis.composition.givenName || analysis.name.slice(1);
+function NameologyUltimateDecisionPanel({ analysis }: { analysis: NameologyAnalysis }) {
+  const output = analysis.standardOutput;
+  const layer1 = output.layer1;
 
   return (
-    <section className="space-y-5">
-      <NameologyCustomerSummary analysis={analysis} />
-      <NameologyThreeLayerSystem analysis={analysis} />
-      <ProfessionalNameologyLayer analysis={analysis} />
-      <NameologyAiFlowLayers analysis={analysis} />
-      <FiveElementPriorityCard result={fiveElement} />
-
-      <div className="fortune-card overflow-hidden border-amber-400/25 bg-slate-950/55 p-6 text-center sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.32em] text-amber-300">AI 姓名學</p>
-        <h1 className="mt-4 break-words font-serif text-5xl font-black text-amber-100 sm:text-7xl">
-          {analysis.name}
-        </h1>
-        <p className="mt-4 text-sm leading-8 text-[color:var(--text-sub)]">
-          姓氏為根，名字「{givenName}」為主要意境來源；系統以字義、拆字、筆畫五格、五行相生相剋與 24 性情矩陣交叉解讀。
-        </p>
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-amber-300/20 bg-amber-950/20 p-4">
-            <p className="text-xs text-amber-100/70">姓名學分數</p>
-            <p className="mt-1 text-3xl font-black text-amber-100">{analysis.score}</p>
-          </div>
-          <div className="rounded-2xl border border-cyan-300/20 bg-cyan-950/20 p-4">
-            <p className="text-xs text-cyan-100/70">結果定位</p>
-            <p className="mt-1 text-lg font-black text-cyan-100">{analysis.level}</p>
-          </div>
-          <div className="rounded-2xl border border-rose-300/20 bg-rose-950/20 p-4">
-            <p className="text-xs text-rose-100/70">交叉校正</p>
-            <p className="mt-1 text-lg font-black text-rose-100">{analysis.crossCheck.alignmentLabel}</p>
-          </div>
-        </div>
+    <section className="fortune-card overflow-hidden border-amber-300/35 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),rgba(15,23,42,0.90)_58%,rgba(2,6,23,0.98)_100%)] p-5 sm:p-7">
+      <div className="min-w-0">
+        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">AI NAME JUDGEMENT</p>
+        <h2 className="mt-3 break-words font-serif text-4xl font-black leading-tight text-amber-100 sm:text-5xl">{output.name.normalized}</h2>
+        <p className="mt-3 text-sm font-bold leading-7 text-cyan-100">台灣正體字典資料已確認</p>
+        <p className="text-sm font-bold leading-7 text-cyan-100">後端姓名結構運算已完成</p>
       </div>
 
-      <div className="fortune-card p-5 sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.28em] text-cyan-300">NAME MEANING</p>
-        <h2 className="mt-3 font-serif text-3xl text-cyan-100">每個字的意境拆解</h2>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          {analysis.characters.map((item) => (
-            <article key={`${item.position}-${item.char}`} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-serif text-4xl font-black text-amber-100">{item.char}</p>
-                  <p className="mt-1 text-xs text-[color:var(--text-muted)]">{item.role} · {item.strokeSource === 'dictionary_file' ? <>{item.strokeCount}畫 · {item.element}{item.yinYang}</> : <>{item.strokeCount}畫估算 · 待補臺灣字典</>}</p>
-                </div>
-                <span className={`rounded-full border px-3 py-1 text-xs ${item.strokeSource === 'dictionary_file' ? 'border-white/10 bg-black/20 text-[color:var(--text-sub)]' : 'border-rose-300/25 bg-rose-950/20 text-rose-100'}`}>{item.strokeSource === 'dictionary_file' ? <>部首 {item.glyph.radical}</> : '待補臺灣部首'}</span>
-              </div>
-              <p className="mt-4 text-sm leading-7 text-[color:var(--text-main)]">{item.glyph.meaning}</p>
-              <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">取名意圖：{item.glyph.namingIntent}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {item.tendencies.slice(0, 3).map((tendency) => (
-                  <span key={tendency.key} className="rounded-full border border-amber-300/15 bg-amber-950/20 px-2.5 py-1 text-[11px] text-amber-100">
-                    {tendency.label}
-                  </span>
-                ))}
-              </div>
+      <div className="mt-5 rounded-2xl border border-amber-200/25 bg-black/25 p-4">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">AI 最終判定</p>
+        <p className="mt-3 break-words text-base font-black leading-8 text-amber-50">AI 判定：{layer1.coreJudgment}</p>
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        <article className="min-w-0 rounded-2xl border border-rose-200/15 bg-rose-950/15 p-4">
+          <p className="text-xs font-black text-rose-100">目前必須停止</p>
+          <p className="mt-2 break-words text-base font-bold leading-7 text-rose-50">{layer1.coreObstacle.replace(/^目前必須停止：/, '')}</p>
+        </article>
+        <article className="min-w-0 rounded-2xl border border-cyan-200/15 bg-cyan-950/15 p-4">
+          <p className="text-xs font-black text-cyan-100">第一調整方向</p>
+          <p className="mt-2 break-words text-base font-bold leading-7 text-cyan-50">{layer1.firstDirection.replace(/^第一調整方向：/, '')}</p>
+        </article>
+        <article className="min-w-0 rounded-2xl border border-amber-200/20 bg-amber-950/20 p-4">
+          <p className="text-xs font-black text-amber-100">立即行動</p>
+          <p className="mt-2 break-words text-base font-black leading-7 text-amber-50">{layer1.immediateAction.replace(/^立即行動：/, '')}</p>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function NameologyEssenceDetails({ analysis }: { analysis: NameologyAnalysis }) {
+  const layer2 = analysis.standardOutput.layer2;
+  return (
+    <details className="fortune-card overflow-hidden border-violet-300/20 bg-slate-950/55 p-5 sm:p-6">
+      <summary className="cursor-pointer text-base font-black leading-7 text-violet-100">展開 AI 精華分析</summary>
+      <div className="mt-4 space-y-3">
+        <p className="rounded-2xl border border-violet-200/15 bg-violet-950/15 p-4 text-sm font-bold leading-8 text-violet-50">{layer2.summary}</p>
+        {layer2.mergedSignals.map((item) => (
+          <article key={item.dimension} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <p className="text-xs font-black text-[color:var(--text-muted)]">{item.dimension}</p>
+            <p className="mt-2 text-sm font-black leading-7 text-[color:var(--text-main)]">{item.coreJudgment}</p>
+            <p className="mt-1 text-xs leading-6 text-[color:var(--text-sub)]">{item.reason}</p>
+            <p className="mt-2 rounded-xl border border-white/10 bg-black/20 p-3 text-xs font-semibold leading-6 text-violet-100">{item.action}</p>
+          </article>
+        ))}
+      </div>
+    </details>
+  );
+}
+
+function NameologyProfessionalStructureDetails({ analysis }: { analysis: NameologyAnalysis }) {
+  const layer3 = analysis.standardOutput.layer3;
+  const grids = [
+    { label: '天格', value: layer3.fiveGrids.heaven },
+    { label: '人格', value: layer3.fiveGrids.person },
+    { label: '地格', value: layer3.fiveGrids.earth },
+    { label: '外格', value: layer3.fiveGrids.outer },
+    { label: '總格', value: layer3.fiveGrids.total },
+  ];
+
+  return (
+    <details className="fortune-card overflow-hidden border-cyan-300/20 bg-slate-950/55 p-5 sm:p-6">
+      <summary className="cursor-pointer text-base font-black leading-7 text-cyan-100">展開專業姓名結構</summary>
+      <div className="mt-4 space-y-5">
+        <div className="grid gap-3 sm:grid-cols-3">
+          {layer3.characters.map((item) => (
+            <article key={item.role + item.char} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <p className="font-serif text-4xl font-black text-amber-100">{item.char}</p>
+              <p className="mt-2 text-sm font-black text-cyan-100">部首：{item.radical} · {item.strokes}畫</p>
+              <p className="mt-1 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">注音：{item.pronunciation.join('、') || '字典未提供單字注音'}</p>
+              <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-main)]">{item.primaryMeaning}</p>
             </article>
           ))}
         </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          {grids.map((item) => (
+            <div key={item.label} className="rounded-2xl border border-white/10 bg-black/20 p-4 text-center">
+              <p className="text-xs text-[color:var(--text-muted)]">{item.label}</p>
+              <p className="mt-1 text-2xl font-black text-cyan-100">{item.value}</p>
+            </div>
+          ))}
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+          <p className="text-xs font-black text-cyan-100">三才配置</p>
+          <p className="mt-2 text-sm font-bold leading-7 text-[color:var(--text-main)]">{layer3.threeTalents.summary}</p>
+          <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">資料來源版本已由後端確認，姓名學規則引擎已完成驗證。</p>
+        </div>
+        <ProfessionalNameologyLayer analysis={analysis} />
       </div>
+    </details>
+  );
+}
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <section className="fortune-card p-5 sm:p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-violet-300">24 MATRIX</p>
-          <h2 className="mt-3 font-serif text-3xl text-violet-100">性情偏向</h2>
-          <p className="mt-3 text-sm leading-7 text-[color:var(--text-sub)]">{analysis.temperamentProfile.clearDirection}</p>
-          <div className="mt-5 space-y-3">
-            {topTendencies.map((item) => (
-              <div key={item.key} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-bold text-[color:var(--text-main)]">{item.label}</p>
-                  <p className="text-sm font-black text-violet-100">{item.score}</p>
-                </div>
-                <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">{item.meaning}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="fortune-card p-5 sm:p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-emerald-300">FIVE GRIDS</p>
-          <h2 className="mt-3 font-serif text-3xl text-emerald-100">筆畫五格</h2>
-          <div className="mt-5 grid grid-cols-2 gap-3">
-            {analysis.grids.map((item) => (
-              <div key={item.key} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                <p className="text-xs text-[color:var(--text-muted)]">{item.label}</p>
-                <p className="mt-1 text-2xl font-black text-emerald-100">{item.value}畫</p>
-                <p className="mt-1 text-xs text-[color:var(--text-sub)]">{item.element} · {item.meaning}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      <section className="fortune-card p-5 sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.28em] text-amber-300">DIRECT READING</p>
-        <h2 className="mt-3 font-serif text-3xl text-amber-100">姓名綜合解讀</h2>
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-            <p className="text-xs font-bold text-cyan-200">人格主軸</p>
-            <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{analysis.corePersonality}</p>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-            <p className="text-xs font-bold text-rose-200">形象偏好</p>
-            <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{analysis.imageAndPreference}</p>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-            <p className="text-xs font-bold text-emerald-200">交叉校正</p>
-            <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{analysis.crossCheck.summary}</p>
-          </div>
-        </div>
-        <p className="mt-5 rounded-2xl border border-amber-300/15 bg-amber-950/15 p-4 text-sm leading-8 text-[color:var(--text-main)]">
-          {analysis.summary}
-        </p>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-3">
-        <div className="fortune-card p-5">
-          <p className="text-xs font-bold text-cyan-200">主要優勢</p>
-          <ul className="mt-3 space-y-2 text-sm leading-7 text-[color:var(--text-sub)]">
-            {analysis.strengths.slice(0, 4).map((item) => <li key={item}>· {item}</li>)}
-          </ul>
-        </div>
-        <div className="fortune-card p-5">
-          <p className="text-xs font-bold text-rose-200">需要留意</p>
-          <ul className="mt-3 space-y-2 text-sm leading-7 text-[color:var(--text-sub)]">
-            {analysis.cautions.slice(0, 4).map((item) => <li key={item}>· {item}</li>)}
-          </ul>
-        </div>
-        <div className="fortune-card p-5">
-          <p className="text-xs font-bold text-amber-200">行動建議</p>
-          <ul className="mt-3 space-y-2 text-sm leading-7 text-[color:var(--text-sub)]">
-            {analysis.recommendations.slice(0, 4).map((item) => <li key={item}>· {item}</li>)}
-          </ul>
-        </div>
-      </section>
+function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; fiveElement: FiveElementIntegrationResult }) {
+  return (
+    <section className="space-y-5">
+      <NameologyUltimateDecisionPanel analysis={analysis} />
+      <FiveElementPriorityCard result={fiveElement} />
+      <NameologyEssenceDetails analysis={analysis} />
+      <NameologyProfessionalStructureDetails analysis={analysis} />
     </section>
   );
 }
@@ -698,10 +666,10 @@ export default function NameologyPage() {
       const response = await fetch('/api/nameology-analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(snapshot.form),
+        body: JSON.stringify({ ...snapshot.form, analysisTarget: getAnalysisIdentityTarget() }),
       });
       const data = await response.json();
-      if (!response.ok || !data?.analysis || !data?.fiveElement) throw new Error(data?.message || data?.error || '姓名學分析暫時無法完成。');
+      if (!response.ok || !data?.analysis || !data?.fiveElement || !data?.verification?.readyForFrontend) throw new Error(data?.message || data?.error || '目前無法完成可靠的姓名分析，請稍後重新嘗試。');
       const nextResult = {
         analysis: (data as NameologyResponse).analysis,
         fiveElement: (data as NameologyResponse).fiveElement,
@@ -710,10 +678,10 @@ export default function NameologyPage() {
       setResult((data as NameologyResponse).analysis);
       setFiveElement((data as NameologyResponse).fiveElement);
       setDailyRecord(saveDailyAnalysis<NameologyDailyResult>('nameology', nextResult, { schemaVersion: NAMEOLOGY_DAILY_SCHEMA_VERSION }));
-      markGrowthModuleCompleted('nameology', (data as NameologyResponse).fiveElement.brandElement);
+      if (getAnalysisIdentityTarget() === 'self') markGrowthModuleCompleted('nameology', (data as NameologyResponse).fiveElement.brandElement);
       window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '姓名學分析暫時無法完成。');
+      setError(err instanceof Error ? err.message : '目前無法完成可靠的姓名分析，請稍後重新嘗試。');
     } finally {
       setIsLoading(false);
     }
@@ -731,7 +699,7 @@ export default function NameologyPage() {
           <p className="text-xs font-bold uppercase tracking-[0.35em] text-amber-300">NAMEOLOGY</p>
           <h1 className="mt-4 font-serif text-4xl font-black text-amber-100 sm:text-6xl">AI 姓名學</h1>
           <p className="mt-4 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
-            這裡只解讀姓名學：姓氏固定為根，名字兩字為主要意境來源，再交叉生日、血型與性別，整理字義、拆字、筆畫五格與性情偏向。
+            這裡只解讀姓名學：姓氏固定為根，名字兩字為主要意境來源，再交叉生日、血型與性別，整理字義、拆字、筆畫五格與性情訊號。
           </p>
 
           <IdentitySplitSelector className="mt-6" />

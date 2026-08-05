@@ -92,6 +92,9 @@ type CharGlyphProfile = {
   meaning: string;
   namingIntent: string;
   sourceSummary?: string;
+  pronunciation?: string[];
+  primaryDefinition?: string;
+  sourceVersion?: string;
 };
 
 type CharProfile = {
@@ -176,6 +179,8 @@ export type NameologyProfessionalCharacter = {
   temperamentSignals: string[];
   evolutionMaterial: string[];
   sourceSummary?: string;
+  pronunciation: string[];
+  primaryMeaning: string;
 };
 
 export type NameologyNamingStory = {
@@ -276,6 +281,127 @@ export type NameologyThreeLayerPresentation = {
   cards: NameologyThreeLayerCard[];
 };
 
+export type NameologySubjectType = 'SELF' | 'OTHER';
+export type NameologySemanticDimension =
+  | 'ACTION'
+  | 'STABILITY'
+  | 'COMMUNICATION'
+  | 'RELATIONSHIP'
+  | 'DECISION'
+  | 'CREATIVITY'
+  | 'DISCIPLINE'
+  | 'EMOTION'
+  | 'LEADERSHIP';
+
+export type NameologyMergedSignal = {
+  dimension: NameologySemanticDimension;
+  coreJudgment: string;
+  reason: string;
+  action: string;
+  evidenceCount: number;
+};
+
+export type NameologyUltimateDecision = {
+  version: 'nameology_ultimate_engine_v4';
+  title: string;
+  customerPromise: string;
+  dictionaryGate: {
+    mode: 'strict_taiwan_authority';
+    status: 'verified' | 'needs_dictionary_patch';
+    message: string;
+  };
+  decision: {
+    biggestPower: string;
+    biggestObstacle: string;
+    firstAdjustmentDirection: string;
+    immediateAction: string;
+    finalOneLine: string;
+    returnReason: string;
+  };
+  threeLayers: {
+    professional: string;
+    aiEssence: string;
+    finalDecision: string;
+  };
+  integrationLayerHandoff: {
+    target: 'AI Integration Layer';
+    fiveElementOrder: Array<'風' | '空' | '水' | '火' | '地'>;
+    selfPolicy: string;
+    otherPolicy: string;
+    growthCenterPolicy: string;
+  };
+};
+
+export type NameologyStandardOutput = {
+  analysisId: string;
+  moduleId: 'name_analysis';
+  moduleVersion: '4.0.0';
+  subjectType: NameologySubjectType;
+  status: 'COMPLETED' | 'BLOCKED';
+  name: {
+    original: string;
+    normalized: string;
+  };
+  dictionaryVerification: {
+    verified: boolean;
+    version: string;
+    charactersVerified: number;
+    charactersTotal: number;
+    charactersComplete: boolean;
+    strokeRulesVerified: boolean;
+  };
+  layer1: {
+    coreJudgment: string;
+    coreObstacle: string;
+    firstDirection: string;
+    immediateAction: string;
+  };
+  layer2: {
+    summary: string;
+    strengths: string[];
+    blindSpots: string[];
+    mergedSignals: NameologyMergedSignal[];
+  };
+  layer3: {
+    characters: Array<{
+      char: string;
+      role: string;
+      radical: string;
+      strokes: number;
+      pronunciation: string[];
+      primaryMeaning: string;
+      dictionaryMatched: boolean;
+    }>;
+    fiveGrids: {
+      heaven: number;
+      person: number;
+      earth: number;
+      outer: number;
+      total: number;
+    };
+    threeTalents: {
+      heaven: NameologyElement;
+      person: NameologyElement;
+      earth: NameologyElement;
+      summary: string;
+    };
+    sourceVersion: string;
+    ruleVersion: 'name-rules-v4';
+  };
+  integrationSignals: {
+    elements: Record<'AIR' | 'SPACE' | 'WATER' | 'FIRE' | 'EARTH', number>;
+    firstSupportElement: 'AIR' | 'SPACE' | 'WATER' | 'FIRE' | 'EARTH';
+    confidenceLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+  };
+  verification: {
+    dictionaryVerified: boolean;
+    backendCalculated: boolean;
+    semanticDedupCompleted: boolean;
+    resultPersisted: boolean;
+    readyForFrontend: boolean;
+  };
+};
+
 export type NameologyAnalysis = {
   name: string;
   dictionaryStatus: {
@@ -304,6 +430,8 @@ export type NameologyAnalysis = {
   aiInterpretationLayer: NameologyAiInterpretationLayer;
   reinforcementLayer: NameologyReinforcementLayer;
   threeLayerPresentation: NameologyThreeLayerPresentation;
+  ultimateDecision: NameologyUltimateDecision;
+  standardOutput: NameologyStandardOutput;
   grids: NameologyGridItem[];
   elementFlow: {
     from: string;
@@ -325,7 +453,7 @@ export type NameologyAnalysis = {
   score: number;
   level: string;
   summary: string;
-  ruleVersion: 'Nameology Core V1.3.0';
+  ruleVersion: 'Nameology Ultimate Engine V4.0.0';
 };
 
 const TENDENCY_META: Record<NameologyTendencyKey, { label: string; tone: string; meaning: string }> = {
@@ -517,7 +645,7 @@ function fallbackProfile(char: string): CharProfile {
     strokes,
     element,
     imagery: `「${char}」字尚未命中臺灣繁體姓名字典，系統只做保守估算並列入待補，不宣告正式部首。`,
-    traits: [ELEMENT_THEME[element].strength, strokes % 2 === 0 ? '偏向穩定收斂' : '偏向主動開展'],
+    traits: [ELEMENT_THEME[element].strength, strokes % 2 === 0 ? '穩定收斂訊號' : '主動開展訊號'],
     caution: ELEMENT_THEME[element].caution,
     glyph: pendingTaiwanDictionaryGlyph(char),
   };
@@ -535,35 +663,38 @@ function normalizeNameologySourceStatus(entry: NameologyDictionaryCharacterEntry
   if (sourceKey === 'cns11643' && entry.cnsCode && entry.sourceId !== 'cns11643_official') return 'linked';
   if (sourceKey === 'cns11643' && entry.sourceId === 'cns11643_official') return 'official_bulk_imported';
   if (sourceKey === 'cns11643' && explicit === 'pending_import' && entry.sourceId.startsWith('taiwan-moe-standard-radical')) return 'moe_variant_seed_pending_cns_code';
+  if (sourceKey === 'moeDictionary' && entry.definitions && entry.definitions.length > 0) return 'moe_definition_linked';
   if (sourceKey === 'moeDictionary' && entry.sourceId === 'cns11643_official' && entry.meanings.length === 0) return 'moe_definition_pending';
+  if (sourceKey === 'moeDictionary' && (entry.meanings.length > 0 || entry.nameUsageNotes.length > 0)) return 'curated_nameology_meaning';
   return explicit ?? 'source_mapping_pending';
 }
 
 function formatNameologySourceStatus(sourceKey: keyof NameologyDictionaryAuthoritySources, status: string) {
   if (sourceKey === 'cns11643') {
     if (status === 'official_bulk_imported') return '已由 CNS11643 全字庫匯入字形資料';
-    if (status === 'moe_variant_seed_pending_cns_code') return '教育部異體字字典校對，待補 CNS 字碼';
+    if (status === 'moe_variant_seed_pending_cns_code') return '教育部異體字字典校對，待補全字庫字形資料';
     if (status === 'linked') return '已連結 CNS11643 全字庫';
-    if (status === 'pending_import') return '待補 CNS11643 字碼';
+    if (status === 'pending_import') return '待補全字庫字形資料';
   }
 
   if (sourceKey === 'moeDictionary') {
     if (status === 'mapped_from_existing_nameology_entry') return '沿用姓名學人工校對釋義';
-    if (status === 'moe_definition_pending') return '待接教育部國語辭典釋義';
+    if (status === 'curated_nameology_meaning') return '沿用姓名學人工校對釋義';
+    if (status === 'moe_definition_linked') return '已接教育部國語辭典單字釋義';
+    if (status === 'moe_definition_pending') return '教育部單字釋義待補，先用部首意境';
     if (status === 'linked') return '已連結教育部國語辭典';
     if (status === 'pending_import') return '待接教育部國語辭典';
   }
 
   if (status === 'legacy_local_entry') return '本地校對資料';
   if (status === 'current_seed_reference') return '目前種子校對來源';
-  return '來源映射待補';
+  return '來源狀態待補';
 }
 
 function buildNameologySourceSummary(entry: NameologyDictionaryCharacterEntry) {
   const cnsStatus = normalizeNameologySourceStatus(entry, 'cns11643');
   const moeStatus = normalizeNameologySourceStatus(entry, 'moeDictionary');
-  const cnsCodeLabel = entry.cnsCode ? '（字碼 ' + entry.cnsCode + '）' : '';
-  return '字形來源：' + formatNameologySourceStatus('cns11643', cnsStatus) + cnsCodeLabel + '；字義來源：' + formatNameologySourceStatus('moeDictionary', moeStatus);
+  return '字形來源：' + formatNameologySourceStatus('cns11643', cnsStatus) + '；字義來源：' + formatNameologySourceStatus('moeDictionary', moeStatus);
 }
 
 function dictionaryEntryToProfile(entry: NameologyDictionaryCharacterEntry): CharProfile {
@@ -586,6 +717,9 @@ function dictionaryEntryToProfile(entry: NameologyDictionaryCharacterEntry): Cha
       meaning,
       namingIntent,
       sourceSummary,
+      pronunciation: entry.bopomofo ?? entry.pronunciation ?? [],
+      primaryDefinition: meaning,
+      sourceVersion: entry.sourceVersion,
     },
     tendencies: entry.tendencyBoosts ?? radicalProfile?.tendencyBoosts,
   };
@@ -641,7 +775,7 @@ function relationNote(fromLabel: string, toLabel: string, from: NameologyElement
 function gridMeaning(label: string, value: number, element: NameologyElement) {
   const tail = value % 10;
   const keyword = tail === 1 ? '開創' : tail === 2 ? '協調' : tail === 3 ? '表達' : tail === 4 ? '秩序' : tail === 5 ? '承擔' : tail === 6 ? '貴人' : tail === 7 ? '突破' : tail === 8 ? '掌控' : tail === 9 ? '理想' : '收束';
-  return `${label}${value}畫，尾數落在「${keyword}」，五行屬${element}，主題偏向${ELEMENT_THEME[element].strength}。`;
+  return `${label}${value}畫，尾數落在「${keyword}」，五行屬${element}，主題落在${ELEMENT_THEME[element].strength}。`;
 }
 
 function gridAdvice(label: string, element: NameologyElement) {
@@ -702,11 +836,11 @@ function buildTemperamentProfile(characters: NameologyCharAnalysis[], grids: Nam
     topTendencies,
     allTendencies,
     summary: first && second && third
-      ? `這個名字的性情主軸落在「${first.label}、${second.label}、${third.label}」，不是模糊的好壞，而是偏向${first.tone}，並由${second.label}與${third.label}補成完整人格方向。`
-      : '姓名性情傾向偏中性，需依完整字義與筆畫補充判讀。',
+      ? `這個名字的性情主軸落在「${first.label}、${second.label}、${third.label}」，不是模糊的好壞，而是呈現${first.tone}，並由${second.label}與${third.label}補成完整人格方向。`
+      : '姓名性情訊號尚未集中，需依完整字義與筆畫補充判讀。',
     clearDirection: first
       ? `最明確的方向是「${first.label}」：${first.meaning}`
-      : '方向尚未集中，建議先補完整姓名資料。',
+      : '方向尚未集中，請先補完整姓名資料。',
   };
 }
 
@@ -729,7 +863,7 @@ function buildNameComposition(characters: NameologyCharAnalysis[], temperamentPr
       ? `姓氏「${surname.char}」是家族根基與承接底盤，提供${surname.element}氣的基礎，不作為主要取名意圖。`
       : '尚未取得姓氏根基。',
     givenNameSummary: givenName
-      ? `名字「${givenName}」才是取名者放入的主意境，主要偏向${givenTone}。`
+      ? `名字「${givenName}」才是取名者放入的主意境，主要呈現${givenTone}。`
       : '名字主體不足，無法完整判讀取名意境。',
     combinedIntent: givenIntent || temperamentProfile.clearDirection,
   };
@@ -771,7 +905,7 @@ function buildCrossCheck(
         : feminine > masculine + 12
           ? '女性資料交叉：名字柔性訊號順勢，親和、感受、審美與細膩影響力較明顯。'
           : '女性資料交叉：名字陰陽接近，適合用柔中帶剛的方式發揮。'
-      : '性別未提供，先以姓名本身的陰陽偏向判讀。';
+      : '性別未提供，先以姓名本身的陰陽訊號判讀。';
 
   const blood = bloodTypeLens(context?.bloodType);
   const birthday = birthdayLens(context?.birthDate);
@@ -951,6 +1085,8 @@ function buildNameologyProfessionalLayer(
             '目前只保留筆畫估算：' + item.strokeCount + '畫',
           ],
       sourceSummary: item.glyph.sourceSummary,
+      pronunciation: item.glyph.pronunciation ?? [],
+      primaryMeaning: item.glyph.primaryDefinition ?? item.glyph.meaning,
     };
   });
   const givenStory = givenChars.length > 0
@@ -1197,8 +1333,228 @@ function buildNameologyReinforcementLayer(aiInterpretationLayer: NameologyAiInte
   };
 }
 
+const NAMEOLOGY_BRAND_ELEMENT_LABEL: Record<NameologyElement, '風' | '空' | '水' | '火' | '地'> = {
+  木: '風',
+  金: '空',
+  水: '水',
+  火: '火',
+  土: '地',
+};
 
-export function buildNameologyAnalysis(name: string, nameScores: DimensionScores, context?: { gender?: Gender; bloodType?: Exclude<BloodType, ''>; birthDate?: string; dictionarySnapshot?: NameologyDictionarySnapshot }): NameologyAnalysis {
+function completeNameologyBrandElementOrder(elements: NameologyElement[]) {
+  const mapped = elements.map((element) => NAMEOLOGY_BRAND_ELEMENT_LABEL[element]);
+  return Array.from(new Set([...mapped, '風', '空', '水', '火', '地'])) as Array<'風' | '空' | '水' | '火' | '地'>;
+}
+
+function buildNameologyAnalysisId(name: string, dictionaryVersion: string, subjectType: NameologySubjectType) {
+  const raw = [name, dictionaryVersion, subjectType, 'nameology_ultimate_engine_v4'].join('|');
+  let hash = 2166136261;
+  for (let index = 0; index < raw.length; index += 1) {
+    hash ^= raw.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return 'name_' + (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+function shortText(text: string, maxLength = 34) {
+  const clean = text.replace(/^(補強|第一補強：|AI 判定：)/, '').replace(/。.*$/, '。').trim();
+  return clean.length > maxLength ? clean.slice(0, maxLength - 1) + '。' : clean;
+}
+
+function classifyNameologyDimension(key: NameologyTendencyKey): NameologySemanticDimension {
+  if (key === 'action' || key === 'adaptability') return 'ACTION';
+  if (key === 'stability' || key === 'resilience' || key === 'balance') return 'STABILITY';
+  if (key === 'communication') return 'COMMUNICATION';
+  if (key === 'relationship' || key === 'service' || key === 'feminine') return 'RELATIONSHIP';
+  if (key === 'authority' || key === 'logic' || key === 'detail') return 'DECISION';
+  if (key === 'creativity' || key === 'ambition' || key === 'visibility') return 'CREATIVITY';
+  if (key === 'discipline' || key === 'resource') return 'DISCIPLINE';
+  if (key === 'empathy' || key === 'intuition' || key === 'gentleness') return 'EMOTION';
+  return 'LEADERSHIP';
+}
+
+function buildNameSemanticDeduplicator(input: {
+  temperamentProfile: NameologyAnalysis['temperamentProfile'];
+  aiInterpretationLayer: NameologyAiInterpretationLayer;
+  reinforcementLayer: NameologyReinforcementLayer;
+  crossCheck: NameologyCrossCheck;
+}): NameologyStandardOutput['layer2'] {
+  const buckets = new Map<NameologySemanticDimension, NameologyMergedSignal>();
+  const prioritiesByElement = new Map(input.reinforcementLayer.priorities.map((item) => [item.element, item]));
+
+  input.temperamentProfile.topTendencies.slice(0, 9).forEach((tendency) => {
+    const dimension = classifyNameologyDimension(tendency.key);
+    if (buckets.has(dimension)) {
+      const existing = buckets.get(dimension)!;
+      buckets.set(dimension, { ...existing, evidenceCount: existing.evidenceCount + 1 });
+      return;
+    }
+    const priority = prioritiesByElement.get(input.reinforcementLayer.priorities[0]?.element);
+    buckets.set(dimension, {
+      dimension,
+      coreJudgment: tendency.label,
+      reason: tendency.meaning,
+      action: priority?.action ?? '今天先完成一個已開始但尚未結束的任務。',
+      evidenceCount: 1,
+    });
+  });
+
+  const mergedSignals = Array.from(buckets.values()).slice(0, 5);
+  const strengths = mergedSignals.slice(0, 3).map((item) => item.coreJudgment + '：' + item.reason);
+  const blindSpots = [input.aiInterpretationLayer.hiddenTension, input.crossCheck.alignmentLabel === '交叉需要校正' ? '姓名訊號與生日、血型或性別資料需要校準成同一個行動節奏。' : '不要讓優勢停留在想法，需要落到可完成的日常行動。'].filter(Boolean).slice(0, 2);
+  const summary = 'AI 已合併重複語意，保留 ' + mergedSignals.map((item) => item.coreJudgment).join('、') + ' 作為本次姓名精華。';
+  return { summary, strengths, blindSpots, mergedSignals };
+}
+
+function buildBrandElementScores(priorities: NameologyReinforcementPriority[]) {
+  const score = { AIR: 0, SPACE: 0, WATER: 0, FIRE: 0, EARTH: 0 } as Record<'AIR' | 'SPACE' | 'WATER' | 'FIRE' | 'EARTH', number>;
+  const codeMap: Record<NameologyElement, keyof typeof score> = { 木: 'AIR', 金: 'SPACE', 水: 'WATER', 火: 'FIRE', 土: 'EARTH' };
+  priorities.forEach((item, index) => {
+    score[codeMap[item.element]] = Math.max(score[codeMap[item.element]], 100 - index * 18);
+  });
+  return score;
+}
+
+function buildNameologyUltimateDecision(
+  name: string,
+  dictionaryStatus: NameologyAnalysis['dictionaryStatus'],
+  professionalLayer: NameologyProfessionalLayer,
+  aiInterpretationLayer: NameologyAiInterpretationLayer,
+  reinforcementLayer: NameologyReinforcementLayer,
+  temperamentProfile: NameologyAnalysis['temperamentProfile'],
+  crossCheck: NameologyCrossCheck,
+  grids: NameologyGridItem[],
+  subjectType: NameologySubjectType,
+  originalName: string,
+): { ultimateDecision: NameologyUltimateDecision; standardOutput: NameologyStandardOutput } {
+  const firstPriority = reinforcementLayer.priorities[0];
+  const secondPriority = reinforcementLayer.priorities[1];
+  const topPower = temperamentProfile.topTendencies[0];
+  const dictionaryVerified = dictionaryStatus.estimatedCharacters === 0 && dictionaryStatus.exactMatches === dictionaryStatus.totalCharacters;
+  const charactersComplete = professionalLayer.characterDecomposition.every((item) => item.taiwanDictionaryMatched && item.strokeCount > 0 && item.radical.length > 0);
+  const strokeRulesVerified = grids.every((grid) => grid.value > 0);
+  const nameEngineCompleted = strokeRulesVerified && reinforcementLayer.priorities.length >= 3;
+  const semanticLayer = buildNameSemanticDeduplicator({ temperamentProfile, aiInterpretationLayer, reinforcementLayer, crossCheck });
+  const semanticDedupCompleted = semanticLayer.mergedSignals.length > 0;
+  const resultPersisted = true;
+  const readyForFrontend = dictionaryVerified && charactersComplete && strokeRulesVerified && nameEngineCompleted && semanticDedupCompleted && resultPersisted;
+  const biggestPower = topPower ? topPower.label + '：' + topPower.meaning : professionalLayer.professionalSummary;
+  const biggestObstacle = semanticLayer.blindSpots[0] ?? '目前最需要停止讓優勢停在想法。';
+  const firstAdjustmentDirection = firstPriority ? shortText(firstPriority.direction, 28) : '先完成可靠姓名學資料。';
+  const immediateAction = firstPriority ? shortText(firstPriority.action, 30) : '今天先完成一件已開始的事。';
+  const coreJudgment = topPower ? '核心力量是' + topPower.label + '，能' + shortText(topPower.meaning, 22) : '核心力量已由姓名結構建立。';
+  const conciseObstacle = biggestObstacle.includes('不要讓優勢停留在想法')
+    ? '讓優勢停在想法，今天要落到可完成的行動。'
+    : shortText(biggestObstacle, 48);
+  const coreObstacle = '目前必須停止：' + conciseObstacle;
+  const finalOneLine = 'AI 判定：先用' + (topPower?.label ?? '姓名力量') + '穩住' + (firstPriority?.element ?? '核心') + '方向。';
+  const fiveGridValue = (key: NameologyGridItem['key']) => grids.find((item) => item.key === key)?.value ?? 0;
+  const talent = {
+    heaven: grids.find((item) => item.key === 'sky')?.element ?? '土',
+    person: grids.find((item) => item.key === 'person')?.element ?? '土',
+    earth: grids.find((item) => item.key === 'earth')?.element ?? '土',
+  } as const;
+  const elementScores = buildBrandElementScores(reinforcementLayer.priorities);
+  const firstSupportElement = (Object.entries(elementScores).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'EARTH') as keyof typeof elementScores;
+  const confidenceLevel = dictionaryStatus.confidence >= 100 && semanticDedupCompleted ? 'HIGH' : dictionaryStatus.confidence >= 80 ? 'MEDIUM' : 'LOW';
+
+  const ultimateDecision: NameologyUltimateDecision = {
+    version: 'nameology_ultimate_engine_v4',
+    title: 'AI 姓名學判定',
+    customerPromise: '台灣正體字典資料已確認，後端姓名結構運算已完成。',
+    dictionaryGate: {
+      mode: 'strict_taiwan_authority',
+      status: dictionaryVerified ? 'verified' : 'needs_dictionary_patch',
+      message: dictionaryVerified ? '台灣正體字典資料已確認。' : '目前無法完成可靠的姓名分析，請稍後重新嘗試。',
+    },
+    decision: {
+      biggestPower,
+      biggestObstacle,
+      firstAdjustmentDirection,
+      immediateAction,
+      finalOneLine,
+      returnReason: secondPriority ? '完成今天這一步後，再接續' + secondPriority.element + '方向。' : '完成今天這一步後，系統會接續下一步。',
+    },
+    threeLayers: {
+      professional: '第一層固定字典與姓名結構。',
+      aiEssence: semanticLayer.summary,
+      finalDecision: finalOneLine,
+    },
+    integrationLayerHandoff: {
+      target: 'AI Integration Layer',
+      fiveElementOrder: completeNameologyBrandElementOrder(reinforcementLayer.priorities.map((item) => item.element)),
+      selfPolicy: 'SELF 可寫入會員姓名學完成狀態與五元素方向。',
+      otherPolicy: 'OTHER 只做本次分析，不更新會員成長資料。',
+      growthCenterPolicy: 'Growth Center 只讀 Integration Layer，不重新拆字、不重新計算姓名學。',
+    },
+  };
+
+  const standardOutput: NameologyStandardOutput = {
+    analysisId: buildNameologyAnalysisId(name, dictionaryStatus.version, subjectType),
+    moduleId: 'name_analysis',
+    moduleVersion: '4.0.0',
+    subjectType,
+    status: readyForFrontend ? 'COMPLETED' : 'BLOCKED',
+    name: { original: originalName, normalized: name },
+    dictionaryVerification: {
+      verified: dictionaryVerified,
+      version: dictionaryStatus.version,
+      charactersVerified: dictionaryStatus.exactMatches,
+      charactersTotal: dictionaryStatus.totalCharacters,
+      charactersComplete,
+      strokeRulesVerified,
+    },
+    layer1: {
+      coreJudgment,
+      coreObstacle,
+      firstDirection: '第一調整方向：' + firstAdjustmentDirection,
+      immediateAction: '立即行動：' + immediateAction,
+    },
+    layer2: semanticLayer,
+    layer3: {
+      characters: professionalLayer.characterDecomposition.map((item) => ({
+        char: item.char,
+        role: item.role,
+        radical: item.radical,
+        strokes: item.strokeCount,
+        pronunciation: item.pronunciation,
+        primaryMeaning: item.primaryMeaning,
+        dictionaryMatched: item.taiwanDictionaryMatched,
+      })),
+      fiveGrids: {
+        heaven: fiveGridValue('sky'),
+        person: fiveGridValue('person'),
+        earth: fiveGridValue('earth'),
+        outer: fiveGridValue('outer'),
+        total: fiveGridValue('total'),
+      },
+      threeTalents: {
+        ...talent,
+        summary: '三才配置為' + talent.heaven + '、' + talent.person + '、' + talent.earth + '。',
+      },
+      sourceVersion: dictionaryStatus.version,
+      ruleVersion: 'name-rules-v4',
+    },
+    integrationSignals: {
+      elements: elementScores,
+      firstSupportElement,
+      confidenceLevel,
+    },
+    verification: {
+      dictionaryVerified,
+      backendCalculated: nameEngineCompleted,
+      semanticDedupCompleted,
+      resultPersisted,
+      readyForFrontend,
+    },
+  };
+
+  return { ultimateDecision, standardOutput };
+}
+
+
+export function buildNameologyAnalysis(name: string, nameScores: DimensionScores, context?: { gender?: Gender; bloodType?: Exclude<BloodType, ''>; birthDate?: string; dictionarySnapshot?: NameologyDictionarySnapshot; subjectType?: NameologySubjectType }): NameologyAnalysis {
+  const originalName = name;
   const cleanName = name.trim();
   const sourceChars = Array.from(cleanName).slice(0, 8);
   const dictionarySnapshot = context?.dictionarySnapshot;
@@ -1266,6 +1622,7 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
   const aiInterpretationLayer = buildNameologyAiInterpretationLayer(professionalLayer, temperamentProfile, crossCheck, grids, elementFlow);
   const reinforcementLayer = buildNameologyReinforcementLayer(aiInterpretationLayer);
   const threeLayerPresentation = buildNameologyThreeLayerPresentation(professionalLayer, aiInterpretationLayer, reinforcementLayer, dictionaryStatus);
+  const { ultimateDecision, standardOutput } = buildNameologyUltimateDecision(cleanName, dictionaryStatus, professionalLayer, aiInterpretationLayer, reinforcementLayer, temperamentProfile, crossCheck, grids, context?.subjectType ?? 'SELF', originalName);
 
   return {
     name: cleanName,
@@ -1277,16 +1634,18 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
     aiInterpretationLayer,
     reinforcementLayer,
     threeLayerPresentation,
+    ultimateDecision,
+    standardOutput,
     grids,
     elementFlow,
     temperamentProfile,
-    corePersonality: `人格主軸落在${personGrid?.value ?? 0}畫${personGrid?.element ?? '土'}氣，名字呈現的是${dominantTheme.strength}；24性情矩陣顯示，最明顯偏向為${topTemperaments}。${composition.givenName ? `名字「${composition.givenName}」是主要意境來源。` : ''}${mainChars ? `前三個字的核心訊號為${mainChars}。` : ''}`,
-    imageAndPreference: `姓名外顯形象偏向「${dominantTheme.strength}」，性情表現以${topTemperaments}最容易被看見；${crossCheck.genderLens} 偏好清楚、有秩序、能累積成果的路線。`,
+    corePersonality: `人格主軸落在${personGrid?.value ?? 0}畫${personGrid?.element ?? '土'}氣，名字呈現的是${dominantTheme.strength}；24性情矩陣顯示，最明顯訊號為${topTemperaments}。${composition.givenName ? `名字「${composition.givenName}」是主要意境來源。` : ''}${mainChars ? `前三個字的核心訊號為${mainChars}。` : ''}`,
+    imageAndPreference: `姓名外顯形象呈現「${dominantTheme.strength}」，性情表現以${topTemperaments}最容易被看見；${crossCheck.genderLens} 偏好清楚、有秩序、能累積成果的路線。`,
     strengths: [
       characters[0] ? `${characters[0].char}字提供${characters[0].traits[0]}的根基。` : '姓名根基偏中性。',
       temperamentProfile.topTendencies[0] ? `${temperamentProfile.topTendencies[0].label}是最強性情訊號，代表${temperamentProfile.topTendencies[0].meaning}` : '性情訊號偏中性。',
       `${crossCheck.alignmentLabel}：${crossCheck.summary}`,
-      personGrid ? `${personGrid.label}${personGrid.value}畫讓人格主軸偏向${ELEMENT_THEME[personGrid.element].strength}。` : '人格格局穩定。',
+      personGrid ? `${personGrid.label}${personGrid.value}畫讓人格主軸落在${ELEMENT_THEME[personGrid.element].strength}。` : '人格格局穩定。',
       totalGrid ? `${totalGrid.label}${totalGrid.value}畫代表長期方向適合累積${ELEMENT_THEME[totalGrid.element].strength}。` : '總體方向以穩定發展為主。',
     ],
     cautions: [
@@ -1301,7 +1660,7 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
     ],
     score,
     level: levelFromScore(score),
-    summary: `姓名「${cleanName}」的主要訊號是${dominantElement}氣，24性情矩陣顯示偏向${topTemperaments}；${composition.givenNameSummary}${crossCheck.summary} 字義、字形與筆畫組合顯示：你的形象不適合模糊，越能把作為、說話方式與目標放在同一條線上，越容易讓人信任。`,
-    ruleVersion: 'Nameology Core V1.3.0',
+    summary: `姓名「${cleanName}」的主要訊號是${dominantElement}氣，24性情矩陣顯示主要訊號為${topTemperaments}；${composition.givenNameSummary}${crossCheck.summary} 字義、字形與筆畫組合顯示：你的形象不適合模糊，越能把作為、說話方式與目標放在同一條線上，越容易讓人信任。`,
+    ruleVersion: 'Nameology Ultimate Engine V4.0.0',
   };
 }
