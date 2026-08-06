@@ -1,24 +1,67 @@
 {
-  "ok": true,
+  "ok": false,
   "version": "tiandiren-auto-qa-v1.2",
-  "baseUrl": "http://127.0.0.1:8888",
+  "baseUrl": "https://heaven-earth-humanity-pair.vercel.app",
   "stopOnFail": false,
-  "startedAt": "2026-08-03T07:06:16.203Z",
-  "completedAt": "2026-08-03T07:06:16.288Z",
+  "startedAt": "2026-08-06T15:12:58.683Z",
+  "completedAt": "2026-08-06T15:13:03.202Z",
   "summary": {
-    "modules": 2,
+    "modules": 9,
     "modes": [
       "self",
       "other"
     ],
-    "passed": 2,
-    "failed": 0,
-    "stoppedAt": null
+    "passed": 0,
+    "failed": 1,
+    "stoppedAt": {
+      "moduleId": "nameology",
+      "moduleTitle": "AI Nameology",
+      "step": "SELF: submit data, API, backend, result, integration",
+      "api": "/api/analysis/jobs",
+      "error": "AI Nameology / SELF: submit data, API, backend, result, integration: HTTP 404 Not Found",
+      "detail": {
+        "route": "/api/analysis/jobs/job_3bc0c3d9-d8cc-4f7c-9377-af1f7b7dd7ae",
+        "status": 404,
+        "body": {
+          "ok": false,
+          "requestId": "af3e8f14-f95b-440e-a973-c1558901d37e",
+          "code": "JOB_NOT_FOUND",
+          "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+          "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+        }
+      },
+      "logs": [
+        {
+          "file": "C:\\Users\\DRAGON\\Desktop\\命理\\next-8888.out.log",
+          "tail": "Y] {\n  jobId: 'job_e29dd425-5dc7-4656-9baf-9d6988607df2',\n  promptLength: 125\n}\n[ZODIAC][ENGINE_START] {\n  jobId: 'job_e29dd425-5dc7-4656-9baf-9d6988607df2',\n  birthDate: '1990-05-20',\n  hasBirthTime: false,\n  birthCityId: null\n}\n[ZODIAC][SIGN_DONE] {\n  jobId: 'job_e29dd425-5dc7-4656-9baf-9d6988607df2',\n  sign: '金牛座',\n  precision: 'DATE_ONLY'\n}\n[ZODIAC][FIVE_ELEMENT_DONE] {\n  jobId: 'job_e29dd425-5dc7-4656-9baf-9d6988607df2',\n  primaryElement: 'metal',\n  brandElement: 'SPACE',\n  confidence: 'low'\n}\n[ZODIAC][DONE] {\n  jobId: 'job_e29dd425-5dc7-4656-9baf-9d6988607df2',\n  mode: 'zodiac',\n  target: 'SELF'\n}\n[ZODIAC][START] {\n  requestId: '5717816d-102c-49b1-a29d-07d39c6b967b',\n  body: {\n    validShape: true,\n    nameLength: 12,\n    birthDate: '1990-05-20',\n    birthTime: '09:30',\n    birthCityId: 'taipei',\n    bloodType: 'A',\n    analysisTarget: 'self'\n  }\n}\n[ZODIAC][JOB] {\n  requestId: '5717816d-102c-49b1-a29d-07d39c6b967b',\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  status: 'QUEUED',\n  stage: 'WAITING_FOR_WORKER',\n  moduleId: 'ZODIAC'\n}\n[ZODIAC][START] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  moduleId: 'ZODIAC',\n  analysisType: 'zodiac'\n}\n[ZODIAC][RECEIVED] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  hasBirthDate: true,\n  hasBirthTime: true,\n  hasBloodType: true,\n  analysisTarget: 'SELF'\n}\n[ZODIAC][BLOOD_TYPE] { jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89', bloodType: 'A' }\n[ZODIAC][PROMPT_READY] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  promptLength: 128\n}\n[ZODIAC][ENGINE_START] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  birthDate: '1990-05-20',\n  hasBirthTime: true,\n  birthCityId: 'taipei'\n}\n[ZODIAC][SIGN_DONE] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  sign: '金牛座',\n  precision: 'FULL_CHART'\n}\n[ZODIAC][FIVE_ELEMENT_DONE] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  primaryElement: 'metal',\n  brandElement: 'SPACE',\n  confidence: 'high'\n}\n[ZODIAC][DONE] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  mode: 'zodiac',\n  target: 'SELF'\n}\n[ZODIAC][START] {\n  requestId: '13cd4f0a-18a1-4061-8327-6e0a266f4334',\n  body: {\n    validShape: true,\n    nameLength: 13,\n    birthDate: '1988-11-08',\n    birthTime: '18:20',\n    birthCityId: null,\n    bloodType: 'O',\n    analysisTarget: 'guest'\n  }\n}\n[ZODIAC][JOB] {\n  requestId: '13cd4f0a-18a1-4061-8327-6e0a266f4334',\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  status: 'QUEUED',\n  stage: 'WAITING_FOR_WORKER',\n  moduleId: 'ZODIAC'\n}\n[ZODIAC][START] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  moduleId: 'ZODIAC',\n  analysisType: 'zodiac'\n}\n[ZODIAC][RECEIVED] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  hasBirthDate: true,\n  hasBirthTime: true,\n  hasBloodType: true,\n  analysisTarget: 'OTHER'\n}\n[ZODIAC][BLOOD_TYPE] { jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d', bloodType: 'O' }\n[ZODIAC][PROMPT_READY] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  promptLength: 126\n}\n[ZODIAC][ENGINE_START] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  birthDate: '1988-11-08',\n  hasBirthTime: true,\n  birthCityId: null\n}\n[ZODIAC][SIGN_DONE] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  sign: '天蠍座',\n  precision: 'DATE_TIME'\n}\n[ZODIAC][FIVE_ELEMENT_DONE] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  primaryElement: 'metal',\n  brandElement: 'SPACE',\n  confidence: 'medium'\n}\n[ZODIAC][DONE] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  mode: 'zodiac',\n  target: 'OTHER'\n}\n[ZODIAC][START] {\n  requestId: '54f24957-c335-4b14-8f1a-0b917fa200bd',\n  body: {\n    validShape: true,\n    nameLength: 6,\n    birthDate: '1990-05-20',\n    birthTime: null,\n    birthCityId: null,\n    bloodType: '',\n    analysisTarget: 'self'\n  }\n}\n[ZODIAC][JOB] {\n  requestId: '54f24957-c335-4b14-8f1a-0b917fa200bd',\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  status: 'QUEUED',\n  stage: 'WAITING_FOR_WORKER',\n  moduleId: 'ZODIAC'\n}\n[ZODIAC][START] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  moduleId: 'ZODIAC',\n  analysisType: 'zodiac'\n}\n[ZODIAC][RECEIVED] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  hasBirthDate: true,\n  hasBirthTime: false,\n  hasBloodType: false,\n  analysisTarget: 'SELF'\n}\n[ZODIAC][BLOOD_TYPE] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  bloodType: 'NONE'\n}\n[ZODIAC][PROMPT_READY] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  promptLength: 125\n}\n[ZODIAC][ENGINE_START] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  birthDate: '1990-05-20',\n  hasBirthTime: false,\n  birthCityId: null\n}\n[ZODIAC][SIGN_DONE] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  sign: '金牛座',\n  precision: 'DATE_ONLY'\n}\n[ZODIAC][FIVE_ELEMENT_DONE] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  primaryElement: 'metal',\n  brandElement: 'SPACE',\n  confidence: 'low'\n}\n[ZODIAC][DONE] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  mode: 'zodiac',\n  target: 'SELF'\n}\n"
+        }
+      ]
+    }
   },
   "homepage": {
     "status": 200,
-    "durationMs": 24,
+    "durationMs": 480,
     "checkedEntrances": [
+      {
+        "id": "nameology",
+        "href": "/nameology"
+      },
+      {
+        "id": "ziwei",
+        "href": "/insight"
+      },
+      {
+        "id": "number",
+        "href": "/numerology"
+      },
+      {
+        "id": "soul_match",
+        "href": "/match"
+      },
+      {
+        "id": "music",
+        "href": "/music"
+      },
       {
         "id": "bazi",
         "href": "/bazi"
@@ -26,127 +69,58 @@
       {
         "id": "zodiac",
         "href": "/zodiac"
+      },
+      {
+        "id": "tarot",
+        "href": "/tarot"
+      },
+      {
+        "id": "growth_center",
+        "href": "/growth-center"
       }
     ]
   },
   "modules": [
     {
-      "id": "bazi",
-      "title": "AI Bazi Chart",
-      "href": "/bazi",
+      "id": "nameology",
+      "title": "AI Nameology",
+      "href": "/nameology",
       "api": "/api/analysis/jobs",
       "checks": [
         {
           "step": "enter module page",
           "status": "passed",
-          "api": "/bazi",
-          "durationMs": 4,
+          "api": "/nameology",
+          "durationMs": 626,
           "detail": {
             "status": 200,
-            "durationMs": 4,
-            "length": 20604
+            "durationMs": 626,
+            "length": 23924
           }
         },
         {
           "step": "SELF: submit data, API, backend, result, integration",
-          "status": "passed",
+          "status": "failed",
           "api": "/api/analysis/jobs",
-          "durationMs": 6,
+          "durationMs": 3394,
+          "error": "HTTP 404 Not Found",
           "detail": {
-            "status": "COMPLETED",
-            "jobId": "job_75bc3d62-c360-4ed9-8043-7dc0957213e6",
-            "resultId": "result_38224f58-18ec-47b6-ab55-06b9d6699846",
-            "progressStage": "DONE",
-            "moduleId": "BAZI",
-            "mode": "bazi",
-            "hasFiveElement": true
-          }
-        },
-        {
-          "step": "OTHER: submit data, API, backend, result, integration",
-          "status": "passed",
-          "api": "/api/analysis/jobs",
-          "durationMs": 4,
-          "detail": {
-            "status": "COMPLETED",
-            "jobId": "job_af6eaa3a-ec80-4685-ba44-08444add4b86",
-            "resultId": "result_ebeddb67-cfd6-483d-95dd-ddec62e40461",
-            "progressStage": "DONE",
-            "moduleId": "BAZI",
-            "mode": "bazi",
-            "hasFiveElement": true
-          }
-        },
-        {
-          "step": "return home after module flow",
-          "status": "passed",
-          "api": "/",
-          "durationMs": 4,
-          "detail": {
-            "status": 200,
-            "durationMs": 4,
-            "length": 56401
-          }
-        }
-      ]
-    },
-    {
-      "id": "zodiac",
-      "title": "AI Western Zodiac",
-      "href": "/zodiac",
-      "api": "/api/analysis/jobs",
-      "checks": [
-        {
-          "step": "enter module page",
-          "status": "passed",
-          "api": "/zodiac",
-          "durationMs": 3,
-          "detail": {
-            "status": 200,
-            "durationMs": 3,
-            "length": 20270
-          }
-        },
-        {
-          "step": "SELF: submit data, API, backend, result, integration",
-          "status": "passed",
-          "api": "/api/analysis/jobs",
-          "durationMs": 5,
-          "detail": {
-            "status": "COMPLETED",
-            "jobId": "job_c0ad56c9-330c-4251-93ba-b4045981ac89",
-            "resultId": "result_42858ad6-de71-4f8f-a044-d786f0691a95",
-            "progressStage": "DONE",
-            "moduleId": "ZODIAC",
-            "mode": "zodiac",
-            "hasFiveElement": true
-          }
-        },
-        {
-          "step": "OTHER: submit data, API, backend, result, integration",
-          "status": "passed",
-          "api": "/api/analysis/jobs",
-          "durationMs": 3,
-          "detail": {
-            "status": "COMPLETED",
-            "jobId": "job_9da3d376-1684-402c-b379-5ffffa5d413d",
-            "resultId": "result_3907b536-da0c-4f78-a48f-cab3c43f5f52",
-            "progressStage": "DONE",
-            "moduleId": "ZODIAC",
-            "mode": "zodiac",
-            "hasFiveElement": true
-          }
-        },
-        {
-          "step": "return home after module flow",
-          "status": "passed",
-          "api": "/",
-          "durationMs": 4,
-          "detail": {
-            "status": 200,
-            "durationMs": 4,
-            "length": 56401
-          }
+            "route": "/api/analysis/jobs/job_3bc0c3d9-d8cc-4f7c-9377-af1f7b7dd7ae",
+            "status": 404,
+            "body": {
+              "ok": false,
+              "requestId": "af3e8f14-f95b-440e-a973-c1558901d37e",
+              "code": "JOB_NOT_FOUND",
+              "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+              "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+            }
+          },
+          "logs": [
+            {
+              "file": "C:\\Users\\DRAGON\\Desktop\\命理\\next-8888.out.log",
+              "tail": "Y] {\n  jobId: 'job_e29dd425-5dc7-4656-9baf-9d6988607df2',\n  promptLength: 125\n}\n[ZODIAC][ENGINE_START] {\n  jobId: 'job_e29dd425-5dc7-4656-9baf-9d6988607df2',\n  birthDate: '1990-05-20',\n  hasBirthTime: false,\n  birthCityId: null\n}\n[ZODIAC][SIGN_DONE] {\n  jobId: 'job_e29dd425-5dc7-4656-9baf-9d6988607df2',\n  sign: '金牛座',\n  precision: 'DATE_ONLY'\n}\n[ZODIAC][FIVE_ELEMENT_DONE] {\n  jobId: 'job_e29dd425-5dc7-4656-9baf-9d6988607df2',\n  primaryElement: 'metal',\n  brandElement: 'SPACE',\n  confidence: 'low'\n}\n[ZODIAC][DONE] {\n  jobId: 'job_e29dd425-5dc7-4656-9baf-9d6988607df2',\n  mode: 'zodiac',\n  target: 'SELF'\n}\n[ZODIAC][START] {\n  requestId: '5717816d-102c-49b1-a29d-07d39c6b967b',\n  body: {\n    validShape: true,\n    nameLength: 12,\n    birthDate: '1990-05-20',\n    birthTime: '09:30',\n    birthCityId: 'taipei',\n    bloodType: 'A',\n    analysisTarget: 'self'\n  }\n}\n[ZODIAC][JOB] {\n  requestId: '5717816d-102c-49b1-a29d-07d39c6b967b',\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  status: 'QUEUED',\n  stage: 'WAITING_FOR_WORKER',\n  moduleId: 'ZODIAC'\n}\n[ZODIAC][START] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  moduleId: 'ZODIAC',\n  analysisType: 'zodiac'\n}\n[ZODIAC][RECEIVED] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  hasBirthDate: true,\n  hasBirthTime: true,\n  hasBloodType: true,\n  analysisTarget: 'SELF'\n}\n[ZODIAC][BLOOD_TYPE] { jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89', bloodType: 'A' }\n[ZODIAC][PROMPT_READY] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  promptLength: 128\n}\n[ZODIAC][ENGINE_START] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  birthDate: '1990-05-20',\n  hasBirthTime: true,\n  birthCityId: 'taipei'\n}\n[ZODIAC][SIGN_DONE] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  sign: '金牛座',\n  precision: 'FULL_CHART'\n}\n[ZODIAC][FIVE_ELEMENT_DONE] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  primaryElement: 'metal',\n  brandElement: 'SPACE',\n  confidence: 'high'\n}\n[ZODIAC][DONE] {\n  jobId: 'job_c0ad56c9-330c-4251-93ba-b4045981ac89',\n  mode: 'zodiac',\n  target: 'SELF'\n}\n[ZODIAC][START] {\n  requestId: '13cd4f0a-18a1-4061-8327-6e0a266f4334',\n  body: {\n    validShape: true,\n    nameLength: 13,\n    birthDate: '1988-11-08',\n    birthTime: '18:20',\n    birthCityId: null,\n    bloodType: 'O',\n    analysisTarget: 'guest'\n  }\n}\n[ZODIAC][JOB] {\n  requestId: '13cd4f0a-18a1-4061-8327-6e0a266f4334',\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  status: 'QUEUED',\n  stage: 'WAITING_FOR_WORKER',\n  moduleId: 'ZODIAC'\n}\n[ZODIAC][START] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  moduleId: 'ZODIAC',\n  analysisType: 'zodiac'\n}\n[ZODIAC][RECEIVED] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  hasBirthDate: true,\n  hasBirthTime: true,\n  hasBloodType: true,\n  analysisTarget: 'OTHER'\n}\n[ZODIAC][BLOOD_TYPE] { jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d', bloodType: 'O' }\n[ZODIAC][PROMPT_READY] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  promptLength: 126\n}\n[ZODIAC][ENGINE_START] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  birthDate: '1988-11-08',\n  hasBirthTime: true,\n  birthCityId: null\n}\n[ZODIAC][SIGN_DONE] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  sign: '天蠍座',\n  precision: 'DATE_TIME'\n}\n[ZODIAC][FIVE_ELEMENT_DONE] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  primaryElement: 'metal',\n  brandElement: 'SPACE',\n  confidence: 'medium'\n}\n[ZODIAC][DONE] {\n  jobId: 'job_9da3d376-1684-402c-b379-5ffffa5d413d',\n  mode: 'zodiac',\n  target: 'OTHER'\n}\n[ZODIAC][START] {\n  requestId: '54f24957-c335-4b14-8f1a-0b917fa200bd',\n  body: {\n    validShape: true,\n    nameLength: 6,\n    birthDate: '1990-05-20',\n    birthTime: null,\n    birthCityId: null,\n    bloodType: '',\n    analysisTarget: 'self'\n  }\n}\n[ZODIAC][JOB] {\n  requestId: '54f24957-c335-4b14-8f1a-0b917fa200bd',\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  status: 'QUEUED',\n  stage: 'WAITING_FOR_WORKER',\n  moduleId: 'ZODIAC'\n}\n[ZODIAC][START] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  moduleId: 'ZODIAC',\n  analysisType: 'zodiac'\n}\n[ZODIAC][RECEIVED] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  hasBirthDate: true,\n  hasBirthTime: false,\n  hasBloodType: false,\n  analysisTarget: 'SELF'\n}\n[ZODIAC][BLOOD_TYPE] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  bloodType: 'NONE'\n}\n[ZODIAC][PROMPT_READY] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  promptLength: 125\n}\n[ZODIAC][ENGINE_START] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  birthDate: '1990-05-20',\n  hasBirthTime: false,\n  birthCityId: null\n}\n[ZODIAC][SIGN_DONE] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  sign: '金牛座',\n  precision: 'DATE_ONLY'\n}\n[ZODIAC][FIVE_ELEMENT_DONE] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  primaryElement: 'metal',\n  brandElement: 'SPACE',\n  confidence: 'low'\n}\n[ZODIAC][DONE] {\n  jobId: 'job_9a047224-3d6f-43df-8bf9-e8d224a46415',\n  mode: 'zodiac',\n  target: 'SELF'\n}\n"
+            }
+          ]
         }
       ]
     }

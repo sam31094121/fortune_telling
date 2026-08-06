@@ -1,28 +1,6 @@
 import type { Metadata, Viewport } from 'next';
-import { Noto_Sans_TC, Noto_Serif_TC, Outfit } from 'next/font/google';
 import AppStabilityGuard from '@/components/AppStabilityGuard';
 import './globals.css';
-
-const sans = Noto_Sans_TC({
-  variable: '--font-sans',
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
-  display: 'swap',
-});
-
-const serif = Noto_Serif_TC({
-  variable: '--font-serif',
-  subsets: ['latin'],
-  weight: ['500', '700'],
-  display: 'swap',
-});
-
-const outfit = Outfit({
-  variable: '--font-outfit',
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
-  display: 'swap',
-});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
   ? process.env.NEXT_PUBLIC_SITE_URL
@@ -76,7 +54,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-Hant">
-      <body className={`${sans.variable} ${serif.variable} ${outfit.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <AppStabilityGuard />
         {children}
       </body>

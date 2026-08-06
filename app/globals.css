@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 :root {
+  --font-sans: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Songti TC", "PMingLiU", "MingLiU", Georgia, Cambria, "Times New Roman", serif;
+  --font-outfit: "Segoe UI", "Microsoft JhengHei", "PingFang TC", Arial, sans-serif;
   --sky-deep: #070b1f;
   --sky-purple: #1e124c;
   --sky-violet: #4f35da;
@@ -5290,6 +5293,9 @@ body.app-lite-effects .home-line-share-card::after {
 
 /* Taiji premium material pass: less artificial glow, stronger depth, smoother mobile rendering. */
 :root {
+  --font-sans: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Songti TC", "PMingLiU", "MingLiU", Georgia, Cambria, "Times New Roman", serif;
+  --font-outfit: "Segoe UI", "Microsoft JhengHei", "PingFang TC", Arial, sans-serif;
   --taiji-premium-shadow: rgba(0, 0, 0, 0.56);
   --taiji-premium-cyan: rgba(103, 232, 249, 0.16);
   --taiji-premium-gold: rgba(253, 230, 138, 0.13);
@@ -13190,13 +13196,14 @@ body.app-touching .home-taiji-cinema * {
 .tarot-question-entry__submit {
   display: inline-flex;
   width: 100%;
+  min-height: 48px;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
   border: 1px solid rgba(125, 211, 252, 0.36);
   padding: 0.86rem 1.75rem;
   color: rgb(236, 254, 255);
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 950;
   line-height: 1.2;
   box-shadow: 0 0 34px rgba(34, 211, 238, 0.18);
@@ -14061,7 +14068,7 @@ body.app-touching .home-taiji-cinema * {
 .tarot-original-shell .reveal__button,
 .tarot-original-shell .reveal__restart {
   min-width: 108px;
-  min-height: 42px;
+  min-height: 48px;
   padding: 0 18px;
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
@@ -14243,9 +14250,9 @@ body.app-touching .home-taiji-cinema * {
   .tarot-original-shell .reveal__button,
   .tarot-original-shell .reveal__restart {
     min-width: 88px;
-    min-height: 40px;
+    min-height: 48px;
     padding: 0 12px;
-    font-size: 0.88rem;
+    font-size: 1rem;
   }
 
   .tarot-original-shell .reveal__title {
@@ -14760,7 +14767,7 @@ body.app-touching .home-taiji-cinema * {
 
 .tarot-original-shell .reveal__meaning-card p {
   margin: 0;
-  font-size: 0.76rem;
+  font-size: 1rem;
   font-weight: 700;
   line-height: 1.65;
 }
@@ -18550,7 +18557,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 .tarot-growth-complete p:not(.tarot-growth-complete__eyebrow) {
   margin-top: 0.45rem;
   color: rgba(254, 243, 199, 0.86);
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 700;
   line-height: 1.75;
 }
@@ -18565,12 +18572,12 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 .tarot-growth-complete__primary,
 .tarot-growth-complete__secondary {
   display: inline-flex;
-  min-height: 2.8rem;
+  min-height: 3rem;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
   padding: 0.7rem 1rem;
-  font-size: 0.88rem;
+  font-size: 1rem;
   font-weight: 900;
   line-height: 1.2;
   text-align: center;

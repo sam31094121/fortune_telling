@@ -1,0 +1,1814 @@
+{
+  "cardId": "CARD_03",
+  "cardName": "數字論吉凶",
+  "moduleId": "number",
+  "route": "/numerology",
+  "dimensions": [
+    {
+      "dimension": "FUNCTIONALITY",
+      "score": 20,
+      "maxScore": 20,
+      "status": "PASSED",
+      "evidenceIds": [
+        "ROUTE_OK",
+        "API_SELF_OTHER_OK"
+      ]
+    },
+    {
+      "dimension": "ACCURACY",
+      "score": 16,
+      "maxScore": 20,
+      "status": "PASSED",
+      "evidenceIds": [
+        "BACKEND_RESULT_SHAPE_OK"
+      ]
+    },
+    {
+      "dimension": "MOBILE_UX",
+      "score": 5,
+      "maxScore": 15,
+      "status": "NOT_TESTED",
+      "evidenceIds": [
+        "ROUTE_HTML_REACHABLE_ONLY"
+      ]
+    },
+    {
+      "dimension": "STABILITY",
+      "score": 8,
+      "maxScore": 15,
+      "status": "FAILED",
+      "evidenceIds": [
+        "SCREEN_HEALTH_ROUTE",
+        "API_RESPONDED"
+      ]
+    },
+    {
+      "dimension": "CONTENT_QUALITY",
+      "score": 8,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "PAGE_RENDERED_CONTENT_PRESENT"
+      ]
+    },
+    {
+      "dimension": "PERFORMANCE",
+      "score": 10,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "MAX_DURATION_303MS"
+      ]
+    },
+    {
+      "dimension": "TRACEABILITY",
+      "score": 8,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "REQUEST_ID_332f841e-ed50-4419-9db8-19b9197d718c",
+        "REQUEST_ID_8dc4b5e8-a997-4ec7-a23c-6493652bbba7"
+      ]
+    }
+  ],
+  "issues": [
+    {
+      "id": "CARD_03-INTEGRATION-Analysis_Task_polling-1786029302786",
+      "cardId": "CARD_03",
+      "severity": "CRITICAL",
+      "layer": "INTEGRATION",
+      "step": "Analysis Task polling",
+      "actualProblem": "Analysis job polling returned missing or invalid job after create.",
+      "rootCause": "Serverless in-memory job state is not durable across requests; this can show JOB_NOT_FOUND to users.",
+      "filePaths": [],
+      "repairAction": "定位對應 API / 共用任務 / 前端流程並修復後重測。",
+      "verificationAction": "重新執行 scripts/all-card-quality-audit.mjs 與相關卡片手動流程。",
+      "evidence": {
+        "selfPoll": {
+          "ok": false,
+          "status": 404,
+          "route": "/api/analysis/jobs/job_25b71a08-c4a8-4fbc-8899-ce42df69bcec",
+          "durationMs": 270,
+          "data": {
+            "ok": false,
+            "requestId": "2129bc91-e39b-4e44-b12b-ed3b9b53d018",
+            "code": "JOB_NOT_FOUND",
+            "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+            "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+          }
+        },
+        "otherPoll": {
+          "ok": false,
+          "status": 404,
+          "route": "/api/analysis/jobs/job_e95fb99c-88f5-4e7e-82e1-b37be685badb",
+          "durationMs": 270,
+          "data": {
+            "ok": false,
+            "requestId": "794a1e45-bce1-475b-b624-ee22a00cc184",
+            "code": "JOB_NOT_FOUND",
+            "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+            "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+          }
+        }
+      }
+    },
+    {
+      "id": "CARD_03-MOBILE-LINE-NOT-TESTED",
+      "cardId": "CARD_03",
+      "severity": "MAJOR",
+      "layer": "INTERACTION",
+      "step": "mobile LINE visual verification",
+      "actualProblem": "This audit did not include real LINE/iPhone/Android tap-and-screenshot evidence.",
+      "rootCause": "Current evidence is route/API/HTTP. Mobile visual evidence must be captured separately.",
+      "filePaths": [],
+      "repairAction": "Use controlled mobile browser or real device LINE flow and attach screenshot evidence.",
+      "verificationAction": "Record device, browser, viewport, screenshot path, startedAt/completedAt."
+    }
+  ],
+  "mandatoryChecks": {
+    "fullFlowPassed": false,
+    "backendVerified": true,
+    "mobilePassed": false,
+    "linePassed": false,
+    "noCriticalIssues": false,
+    "regressionPassed": true
+  },
+  "evidence": {
+    "baseUrl": "https://heaven-earth-humanity-pair.vercel.app",
+    "route": {
+      "ok": true,
+      "status": 200,
+      "durationMs": 61,
+      "length": 1000,
+      "error": null
+    },
+    "self": {
+      "create": {
+        "ok": true,
+        "status": 200,
+        "route": "/api/analysis/jobs",
+        "durationMs": 296,
+        "data": {
+          "ok": true,
+          "requestId": "332f841e-ed50-4419-9db8-19b9197d718c",
+          "success": true,
+          "data": {
+            "jobId": "job_25b71a08-c4a8-4fbc-8899-ce42df69bcec",
+            "analysisType": "number",
+            "moduleId": "NUMBER",
+            "status": "COMPLETED",
+            "progressStage": "DONE",
+            "progressPercent": 100,
+            "message": "分析完成，結果已準備好。",
+            "resultId": "result_48a3883a-41d7-4b03-b301-b0127cbd86d5",
+            "result": {
+              "ok": true,
+              "engine": "Number Core Engine",
+              "engineVersion": "V5.0.0",
+              "mode": "phone10",
+              "value": "0912***678",
+              "valueMasked": "0912***678",
+              "score": 79,
+              "finalScore": 79,
+              "level": "次吉",
+              "fortuneLevel": "次吉",
+              "confidenceScore": 94,
+              "indexes": {
+                "structure": 93,
+                "balance": 94,
+                "pattern": 84,
+                "stability": 71,
+                "trend": 53
+              },
+              "matrix": {
+                "wealth": 56,
+                "career": 58,
+                "love": 54,
+                "family": 55,
+                "social": 56,
+                "health": 55,
+                "growth": 61,
+                "risk": 50,
+                "pressure": 51,
+                "stability": 55
+              },
+              "evidence": {
+                "digitFrequency": {
+                  "0": 1,
+                  "1": 1,
+                  "2": 1,
+                  "3": 1,
+                  "4": 1,
+                  "5": 1,
+                  "6": 1,
+                  "7": 1,
+                  "8": 1,
+                  "9": 1
+                },
+                "repeatPatterns": [],
+                "sequencePatterns": [
+                  {
+                    "value": "123",
+                    "direction": "ascending",
+                    "start": 2,
+                    "length": 3
+                  },
+                  {
+                    "value": "234",
+                    "direction": "ascending",
+                    "start": 3,
+                    "length": 3
+                  },
+                  {
+                    "value": "345",
+                    "direction": "ascending",
+                    "start": 4,
+                    "length": 3
+                  },
+                  {
+                    "value": "456",
+                    "direction": "ascending",
+                    "start": 5,
+                    "length": 3
+                  },
+                  {
+                    "value": "567",
+                    "direction": "ascending",
+                    "start": 6,
+                    "length": 3
+                  },
+                  {
+                    "value": "678",
+                    "direction": "ascending",
+                    "start": 7,
+                    "length": 3
+                  }
+                ],
+                "mirrorPatterns": [],
+                "mirrorPattern": false,
+                "adjacentPairs": [
+                  "09",
+                  "91",
+                  "12",
+                  "23",
+                  "34",
+                  "45",
+                  "56",
+                  "67",
+                  "78"
+                ],
+                "pairPatterns": [
+                  {
+                    "pattern": "34",
+                    "affectedDimension": "pressure",
+                    "weight": 22,
+                    "sourceType": "traditional_rule",
+                    "note": "三四交界偏波動，需避免高估進度。"
+                  }
+                ],
+                "triplePatterns": [
+                  "091",
+                  "912",
+                  "123",
+                  "234",
+                  "345",
+                  "456",
+                  "567",
+                  "678"
+                ],
+                "rootNumber": 9,
+                "digitSum": 45,
+                "oddRatio": 0.5,
+                "evenRatio": 0.5,
+                "highDigitRatio": 0.5,
+                "lowDigitRatio": 0.5,
+                "headDigit": "0",
+                "tailDigit": "8",
+                "lastFour": "5678",
+                "maxRepeatLength": 0,
+                "concentration": 0.1,
+                "structureBalance": 1,
+                "arrangementDirection": "ascending",
+                "combinationDirection": "forward",
+                "segmentRatios": {
+                  "front": 0.22,
+                  "middle": 0.2,
+                  "back": 0.58
+                },
+                "tenDigitSegments": {
+                  "front": "091",
+                  "middle": "234",
+                  "back": "5678"
+                }
+              },
+              "summary": "十位數字 0912***678 的要害分數為 79 分，級別為「次吉」。分析解說：79 分屬於「次吉」，代表目前數字結構的主軸是「根基穩固，偶有波折。」主體分數具支撐力，但仍有小型阻力，需要用紀律補強。",
+              "strengths": [
+                "學習成長 61",
+                "事業推進 58"
+              ],
+              "cautions": [
+                "壓力管理 51"
+              ],
+              "suitableDirections": [
+                "學習成長",
+                "事業推進"
+              ],
+              "advice": "計分原則：十碼模式加重後四碼與三段結構，並交叉檢查全碼統計、重複排列與數字根。系統會把結構、平衡、組合、穩定、趨勢五項合成一個總分，因此前端只呈現一個要害分數。本次最值得把握的是學習成長，最需要留意的是壓力管理。建議：宜先穩根基，再逐步放大成果。鼓勵：次吉不是差，而是提醒你已經有底氣；只要不要貪快，這組數字適合靠穩定行動慢慢轉強。此結果屬數字結構傾向分析，作為調整方向參考。",
+              "interpretation": {
+                "summary": "十位數字 0912***678 的要害分數為 79 分，級別為「次吉」。分析解說：79 分屬於「次吉」，代表目前數字結構的主軸是「根基穩固，偶有波折。」主體分數具支撐力，但仍有小型阻力，需要用紀律補強。",
+                "strengths": [
+                  "學習成長 61",
+                  "事業推進 58"
+                ],
+                "warnings": [
+                  "壓力管理 51"
+                ],
+                "directions": [
+                  "學習成長",
+                  "事業推進"
+                ],
+                "advice": "計分原則：十碼模式加重後四碼與三段結構，並交叉檢查全碼統計、重複排列與數字根。系統會把結構、平衡、組合、穩定、趨勢五項合成一個總分，因此前端只呈現一個要害分數。本次最值得把握的是學習成長，最需要留意的是壓力管理。建議：宜先穩根基，再逐步放大成果。鼓勵：次吉不是差，而是提醒你已經有底氣；只要不要貪快，這組數字適合靠穩定行動慢慢轉強。此結果屬數字結構傾向分析，作為調整方向參考。"
+              },
+              "ruleVersion": "V5.0.0",
+              "moduleId": "NUMBER",
+              "fiveElement": {
+                "sourceModule": "number",
+                "analysisId": "number_ca47b8ca",
+                "elementScores": {
+                  "metal": {
+                    "strength": 58,
+                    "need": 42,
+                    "evidenceCount": 2
+                  },
+                  "wood": {
+                    "strength": 50,
+                    "need": 53,
+                    "evidenceCount": 2
+                  },
+                  "water": {
+                    "strength": 49,
+                    "need": 54,
+                    "evidenceCount": 2
+                  },
+                  "fire": {
+                    "strength": 38,
+                    "need": 77,
+                    "evidenceCount": 2
+                  },
+                  "earth": {
+                    "strength": 70,
+                    "need": 30,
+                    "evidenceCount": 2
+                  }
+                },
+                "primaryElement": "fire",
+                "secondaryElement": "water",
+                "strongElement": "earth",
+                "avoidElement": "earth",
+                "confidence": "high",
+                "conflict": false,
+                "supportingModules": [
+                  "number"
+                ],
+                "moduleResults": [
+                  {
+                    "module": "number",
+                    "primaryElement": "fire",
+                    "confidence": "high"
+                  }
+                ],
+                "evidence": [
+                  {
+                    "module": "number",
+                    "title": "數字統計判定火元素是第一缺口",
+                    "detail": "本號碼中火元素加權出現 1，基準應約 2.3；對應矩陣強度 60。",
+                    "element": "fire",
+                    "impact": "need"
+                  }
+                ],
+                "ruleVersion": "number_element_v1",
+                "summary": "AI 判定：目前最缺火元素。請優先補強火元素。 第一補強：火元素。完成後再補：水元素。最後補：風元素。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+                "keywords": [
+                  "行動",
+                  "熱情",
+                  "表達",
+                  "自信"
+                ],
+                "reasons": [
+                  "AI 判定：\n目前最缺：\n【火】\n請優先補強：\n【火】\n完成後：\n再補：\n【水】\n最後：\n【風】",
+                  "AI 判定：目前最缺火元素。請優先補強火元素。",
+                  "第一補強：火元素。完成後再補：水元素。最後補：風元素。",
+                  "因為火元素補強需求為 77 分，高於第二補強水元素 54 分；目前支撐元素是地元素，本次不把它當成第一補強。差距：23 分。",
+                  "數字五元素統計：火元素出現 1，低於本組號碼的平衡基準 2.3。",
+                  "數字矩陣強度：火元素對應的功能平均為 60，補它最能對準本次缺口。",
+                  "火元素對應行動、表達與勇氣；當火元素信號偏少時，容易想得多、做得慢，表達推進感不夠。",
+                  "補火元素先改變的是行動力、表達勇氣與被看見的能見度。",
+                  "第二順位是水元素，但本次先專心補火元素。"
+                ],
+                "recommendedActions": [
+                  "今天完成一個能被看見的小行動。",
+                  "練習把真正想說的話說清楚。",
+                  "為目標安排一個明確公開的推進點。"
+                ],
+                "productEntryLabel": "選擇火元素能量手鏈",
+                "productRecommendation": {
+                  "title": "火元素能量手鏈補強方案",
+                  "headline": "優先補強行動、表達與勇氣。",
+                  "description": "本次系統判定：你缺火元素，就先補火。火元素能量手鏈放在補強核心，幫助自己把話說出來，把步伐跨出去，讓能見度回到自己身上。",
+                  "supportDirections": [
+                    "行動",
+                    "勇氣",
+                    "表達",
+                    "推進"
+                  ],
+                  "disclaimer": "這是五元素能量手鏈補強與正向提醒，不代表保證成功或改運。真正結果仍需要持續行動。",
+                  "ctaLabel": "選擇火元素能量手鏈",
+                  "braceletCore": "本次結論不模糊：系統判定缺火元素，手鏈補強就先選火元素。"
+                },
+                "positiveQuote": {
+                  "author": "伊隆・馬斯克",
+                  "role": "Tesla and SpaceX CEO",
+                  "quote": "When something is important enough, you do it even if the odds are not in your favor.",
+                  "sourceName": "60 Minutes / CBS News",
+                  "sourceUrl": "https://www.cbsnews.com/news/elon-musk-the-2012-60-minutes-interview/",
+                  "elementFit": "火元素對應行動、勇氣與突破，適合用來鼓勵跨出第一步。",
+                  "reminder": "真正重要的事，先用一個小行動啟動它。"
+                },
+                "traditionalElement": "FIRE",
+                "brandElement": "FIRE",
+                "secondaryBrandElement": "WATER",
+                "strongBrandElement": "EARTH",
+                "avoidBrandElement": "EARTH",
+                "normalizedElements": {
+                  "SPACE": {
+                    "sourceElement": "metal",
+                    "traditionalElement": "METAL",
+                    "brandElement": "SPACE",
+                    "displayName": "空",
+                    "sourceName": "金",
+                    "strength": 58,
+                    "need": 42,
+                    "evidenceCount": 2
+                  },
+                  "AIR": {
+                    "sourceElement": "wood",
+                    "traditionalElement": "WOOD",
+                    "brandElement": "AIR",
+                    "displayName": "風",
+                    "sourceName": "木",
+                    "strength": 50,
+                    "need": 53,
+                    "evidenceCount": 2
+                  },
+                  "WATER": {
+                    "sourceElement": "water",
+                    "traditionalElement": "WATER",
+                    "brandElement": "WATER",
+                    "displayName": "水",
+                    "sourceName": "水",
+                    "strength": 49,
+                    "need": 54,
+                    "evidenceCount": 2
+                  },
+                  "FIRE": {
+                    "sourceElement": "fire",
+                    "traditionalElement": "FIRE",
+                    "brandElement": "FIRE",
+                    "displayName": "火",
+                    "sourceName": "火",
+                    "strength": 38,
+                    "need": 77,
+                    "evidenceCount": 2
+                  },
+                  "EARTH": {
+                    "sourceElement": "earth",
+                    "traditionalElement": "EARTH",
+                    "brandElement": "EARTH",
+                    "displayName": "地",
+                    "sourceName": "土",
+                    "strength": 70,
+                    "need": 30,
+                    "evidenceCount": 2
+                  }
+                },
+                "decision": {
+                  "title": "AI 判定：目前最缺【火】",
+                  "conclusion": "AI 判定：目前最缺火元素。請優先補強火元素。",
+                  "primaryAction": "第一補強：火元素。完成後再補：水元素。最後補：風元素。",
+                  "changeTarget": "補火元素先改變的是行動力、表達勇氣與被看見的能見度。",
+                  "why": "因為火元素補強需求為 77 分，高於第二補強水元素 54 分；目前支撐元素是地元素，本次不把它當成第一補強。差距：23 分。",
+                  "conflictNote": null,
+                  "priorityOrder": [
+                    "fire",
+                    "water",
+                    "wood",
+                    "metal",
+                    "earth"
+                  ],
+                  "priorityTemplate": "AI 判定：\n目前最缺：\n【火】\n請優先補強：\n【火】\n完成後：\n再補：\n【水】\n最後：\n【風】",
+                  "corePrinciple": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。"
+                },
+                "productMatch": {
+                  "primaryProductId": "bracelet_fire_core",
+                  "supportedElements": [
+                    "FIRE",
+                    "WATER"
+                  ],
+                  "balancedElements": [
+                    "EARTH"
+                  ],
+                  "matchReason": [
+                    "主補元素鎖定火元素，商品推薦必須先對準這個缺口。",
+                    "第二順位水元素只作輔助參考，不取代主補判定。",
+                    "目前較強元素先列入平衡觀察，不作為本次主推補強。",
+                    "判定訊號穩定，前端可直接清楚呈現。"
+                  ],
+                  "matchConfidence": "high"
+                },
+                "enginePipeline": [
+                  "ModuleAnalysisAdapter",
+                  "ElementNormalizationEngine",
+                  "ElementRecommendationEngine",
+                  "ElementConflictResolver",
+                  "ProductMatchingEngine",
+                  "VerifiedQuoteMatchingEngine",
+                  "ElementResultPresenter"
+                ],
+                "aiElementModel": {
+                  "primaryElement": "FIRE",
+                  "secondaryElement": "WATER",
+                  "elementScore": {
+                    "AIR": 53,
+                    "SPACE": 42,
+                    "WATER": 54,
+                    "FIRE": 77,
+                    "EARTH": 30
+                  }
+                },
+                "elementScore": {
+                  "AIR": 53,
+                  "SPACE": 42,
+                  "WATER": 54,
+                  "FIRE": 77,
+                  "EARTH": 30
+                }
+              }
+            },
+            "errorCode": null,
+            "errorMessage": null,
+            "createdAt": "2026-08-06T15:15:03.582Z",
+            "startedAt": "2026-08-06T15:15:03.582Z",
+            "completedAt": "2026-08-06T15:15:03.589Z",
+            "updatedAt": "2026-08-06T15:15:03.589Z",
+            "expiresAt": "2026-08-06T15:45:03.589Z"
+          },
+          "result": {
+            "ok": true,
+            "engine": "Number Core Engine",
+            "engineVersion": "V5.0.0",
+            "mode": "phone10",
+            "value": "0912***678",
+            "valueMasked": "0912***678",
+            "score": 79,
+            "finalScore": 79,
+            "level": "次吉",
+            "fortuneLevel": "次吉",
+            "confidenceScore": 94,
+            "indexes": {
+              "structure": 93,
+              "balance": 94,
+              "pattern": 84,
+              "stability": 71,
+              "trend": 53
+            },
+            "matrix": {
+              "wealth": 56,
+              "career": 58,
+              "love": 54,
+              "family": 55,
+              "social": 56,
+              "health": 55,
+              "growth": 61,
+              "risk": 50,
+              "pressure": 51,
+              "stability": 55
+            },
+            "evidence": {
+              "digitFrequency": {
+                "0": 1,
+                "1": 1,
+                "2": 1,
+                "3": 1,
+                "4": 1,
+                "5": 1,
+                "6": 1,
+                "7": 1,
+                "8": 1,
+                "9": 1
+              },
+              "repeatPatterns": [],
+              "sequencePatterns": [
+                {
+                  "value": "123",
+                  "direction": "ascending",
+                  "start": 2,
+                  "length": 3
+                },
+                {
+                  "value": "234",
+                  "direction": "ascending",
+                  "start": 3,
+                  "length": 3
+                },
+                {
+                  "value": "345",
+                  "direction": "ascending",
+                  "start": 4,
+                  "length": 3
+                },
+                {
+                  "value": "456",
+                  "direction": "ascending",
+                  "start": 5,
+                  "length": 3
+                },
+                {
+                  "value": "567",
+                  "direction": "ascending",
+                  "start": 6,
+                  "length": 3
+                },
+                {
+                  "value": "678",
+                  "direction": "ascending",
+                  "start": 7,
+                  "length": 3
+                }
+              ],
+              "mirrorPatterns": [],
+              "mirrorPattern": false,
+              "adjacentPairs": [
+                "09",
+                "91",
+                "12",
+                "23",
+                "34",
+                "45",
+                "56",
+                "67",
+                "78"
+              ],
+              "pairPatterns": [
+                {
+                  "pattern": "34",
+                  "affectedDimension": "pressure",
+                  "weight": 22,
+                  "sourceType": "traditional_rule",
+                  "note": "三四交界偏波動，需避免高估進度。"
+                }
+              ],
+              "triplePatterns": [
+                "091",
+                "912",
+                "123",
+                "234",
+                "345",
+                "456",
+                "567",
+                "678"
+              ],
+              "rootNumber": 9,
+              "digitSum": 45,
+              "oddRatio": 0.5,
+              "evenRatio": 0.5,
+              "highDigitRatio": 0.5,
+              "lowDigitRatio": 0.5,
+              "headDigit": "0",
+              "tailDigit": "8",
+              "lastFour": "5678",
+              "maxRepeatLength": 0,
+              "concentration": 0.1,
+              "structureBalance": 1,
+              "arrangementDirection": "ascending",
+              "combinationDirection": "forward",
+              "segmentRatios": {
+                "front": 0.22,
+                "middle": 0.2,
+                "back": 0.58
+              },
+              "tenDigitSegments": {
+                "front": "091",
+                "middle": "234",
+                "back": "5678"
+              }
+            },
+            "summary": "十位數字 0912***678 的要害分數為 79 分，級別為「次吉」。分析解說：79 分屬於「次吉」，代表目前數字結構的主軸是「根基穩固，偶有波折。」主體分數具支撐力，但仍有小型阻力，需要用紀律補強。",
+            "strengths": [
+              "學習成長 61",
+              "事業推進 58"
+            ],
+            "cautions": [
+              "壓力管理 51"
+            ],
+            "suitableDirections": [
+              "學習成長",
+              "事業推進"
+            ],
+            "advice": "計分原則：十碼模式加重後四碼與三段結構，並交叉檢查全碼統計、重複排列與數字根。系統會把結構、平衡、組合、穩定、趨勢五項合成一個總分，因此前端只呈現一個要害分數。本次最值得把握的是學習成長，最需要留意的是壓力管理。建議：宜先穩根基，再逐步放大成果。鼓勵：次吉不是差，而是提醒你已經有底氣；只要不要貪快，這組數字適合靠穩定行動慢慢轉強。此結果屬數字結構傾向分析，作為調整方向參考。",
+            "interpretation": {
+              "summary": "十位數字 0912***678 的要害分數為 79 分，級別為「次吉」。分析解說：79 分屬於「次吉」，代表目前數字結構的主軸是「根基穩固，偶有波折。」主體分數具支撐力，但仍有小型阻力，需要用紀律補強。",
+              "strengths": [
+                "學習成長 61",
+                "事業推進 58"
+              ],
+              "warnings": [
+                "壓力管理 51"
+              ],
+              "directions": [
+                "學習成長",
+                "事業推進"
+              ],
+              "advice": "計分原則：十碼模式加重後四碼與三段結構，並交叉檢查全碼統計、重複排列與數字根。系統會把結構、平衡、組合、穩定、趨勢五項合成一個總分，因此前端只呈現一個要害分數。本次最值得把握的是學習成長，最需要留意的是壓力管理。建議：宜先穩根基，再逐步放大成果。鼓勵：次吉不是差，而是提醒你已經有底氣；只要不要貪快，這組數字適合靠穩定行動慢慢轉強。此結果屬數字結構傾向分析，作為調整方向參考。"
+            },
+            "ruleVersion": "V5.0.0",
+            "moduleId": "NUMBER",
+            "fiveElement": {
+              "sourceModule": "number",
+              "analysisId": "number_ca47b8ca",
+              "elementScores": {
+                "metal": {
+                  "strength": 58,
+                  "need": 42,
+                  "evidenceCount": 2
+                },
+                "wood": {
+                  "strength": 50,
+                  "need": 53,
+                  "evidenceCount": 2
+                },
+                "water": {
+                  "strength": 49,
+                  "need": 54,
+                  "evidenceCount": 2
+                },
+                "fire": {
+                  "strength": 38,
+                  "need": 77,
+                  "evidenceCount": 2
+                },
+                "earth": {
+                  "strength": 70,
+                  "need": 30,
+                  "evidenceCount": 2
+                }
+              },
+              "primaryElement": "fire",
+              "secondaryElement": "water",
+              "strongElement": "earth",
+              "avoidElement": "earth",
+              "confidence": "high",
+              "conflict": false,
+              "supportingModules": [
+                "number"
+              ],
+              "moduleResults": [
+                {
+                  "module": "number",
+                  "primaryElement": "fire",
+                  "confidence": "high"
+                }
+              ],
+              "evidence": [
+                {
+                  "module": "number",
+                  "title": "數字統計判定火元素是第一缺口",
+                  "detail": "本號碼中火元素加權出現 1，基準應約 2.3；對應矩陣強度 60。",
+                  "element": "fire",
+                  "impact": "need"
+                }
+              ],
+              "ruleVersion": "number_element_v1",
+              "summary": "AI 判定：目前最缺火元素。請優先補強火元素。 第一補強：火元素。完成後再補：水元素。最後補：風元素。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+              "keywords": [
+                "行動",
+                "熱情",
+                "表達",
+                "自信"
+              ],
+              "reasons": [
+                "AI 判定：\n目前最缺：\n【火】\n請優先補強：\n【火】\n完成後：\n再補：\n【水】\n最後：\n【風】",
+                "AI 判定：目前最缺火元素。請優先補強火元素。",
+                "第一補強：火元素。完成後再補：水元素。最後補：風元素。",
+                "因為火元素補強需求為 77 分，高於第二補強水元素 54 分；目前支撐元素是地元素，本次不把它當成第一補強。差距：23 分。",
+                "數字五元素統計：火元素出現 1，低於本組號碼的平衡基準 2.3。",
+                "數字矩陣強度：火元素對應的功能平均為 60，補它最能對準本次缺口。",
+                "火元素對應行動、表達與勇氣；當火元素信號偏少時，容易想得多、做得慢，表達推進感不夠。",
+                "補火元素先改變的是行動力、表達勇氣與被看見的能見度。",
+                "第二順位是水元素，但本次先專心補火元素。"
+              ],
+              "recommendedActions": [
+                "今天完成一個能被看見的小行動。",
+                "練習把真正想說的話說清楚。",
+                "為目標安排一個明確公開的推進點。"
+              ],
+              "productEntryLabel": "選擇火元素能量手鏈",
+              "productRecommendation": {
+                "title": "火元素能量手鏈補強方案",
+                "headline": "優先補強行動、表達與勇氣。",
+                "description": "本次系統判定：你缺火元素，就先補火。火元素能量手鏈放在補強核心，幫助自己把話說出來，把步伐跨出去，讓能見度回到自己身上。",
+                "supportDirections": [
+                  "行動",
+                  "勇氣",
+                  "表達",
+                  "推進"
+                ],
+                "disclaimer": "這是五元素能量手鏈補強與正向提醒，不代表保證成功或改運。真正結果仍需要持續行動。",
+                "ctaLabel": "選擇火元素能量手鏈",
+                "braceletCore": "本次結論不模糊：系統判定缺火元素，手鏈補強就先選火元素。"
+              },
+              "positiveQuote": {
+                "author": "伊隆・馬斯克",
+                "role": "Tesla and SpaceX CEO",
+                "quote": "When something is important enough, you do it even if the odds are not in your favor.",
+                "sourceName": "60 Minutes / CBS News",
+                "sourceUrl": "https://www.cbsnews.com/news/elon-musk-the-2012-60-minutes-interview/",
+                "elementFit": "火元素對應行動、勇氣與突破，適合用來鼓勵跨出第一步。",
+                "reminder": "真正重要的事，先用一個小行動啟動它。"
+              },
+              "traditionalElement": "FIRE",
+              "brandElement": "FIRE",
+              "secondaryBrandElement": "WATER",
+              "strongBrandElement": "EARTH",
+              "avoidBrandElement": "EARTH",
+              "normalizedElements": {
+                "SPACE": {
+                  "sourceElement": "metal",
+                  "traditionalElement": "METAL",
+                  "brandElement": "SPACE",
+                  "displayName": "空",
+                  "sourceName": "金",
+                  "strength": 58,
+                  "need": 42,
+                  "evidenceCount": 2
+                },
+                "AIR": {
+                  "sourceElement": "wood",
+                  "traditionalElement": "WOOD",
+                  "brandElement": "AIR",
+                  "displayName": "風",
+                  "sourceName": "木",
+                  "strength": 50,
+                  "need": 53,
+                  "evidenceCount": 2
+                },
+                "WATER": {
+                  "sourceElement": "water",
+                  "traditionalElement": "WATER",
+                  "brandElement": "WATER",
+                  "displayName": "水",
+                  "sourceName": "水",
+                  "strength": 49,
+                  "need": 54,
+                  "evidenceCount": 2
+                },
+                "FIRE": {
+                  "sourceElement": "fire",
+                  "traditionalElement": "FIRE",
+                  "brandElement": "FIRE",
+                  "displayName": "火",
+                  "sourceName": "火",
+                  "strength": 38,
+                  "need": 77,
+                  "evidenceCount": 2
+                },
+                "EARTH": {
+                  "sourceElement": "earth",
+                  "traditionalElement": "EARTH",
+                  "brandElement": "EARTH",
+                  "displayName": "地",
+                  "sourceName": "土",
+                  "strength": 70,
+                  "need": 30,
+                  "evidenceCount": 2
+                }
+              },
+              "decision": {
+                "title": "AI 判定：目前最缺【火】",
+                "conclusion": "AI 判定：目前最缺火元素。請優先補強火元素。",
+                "primaryAction": "第一補強：火元素。完成後再補：水元素。最後補：風元素。",
+                "changeTarget": "補火元素先改變的是行動力、表達勇氣與被看見的能見度。",
+                "why": "因為火元素補強需求為 77 分，高於第二補強水元素 54 分；目前支撐元素是地元素，本次不把它當成第一補強。差距：23 分。",
+                "conflictNote": null,
+                "priorityOrder": [
+                  "fire",
+                  "water",
+                  "wood",
+                  "metal",
+                  "earth"
+                ],
+                "priorityTemplate": "AI 判定：\n目前最缺：\n【火】\n請優先補強：\n【火】\n完成後：\n再補：\n【水】\n最後：\n【風】",
+                "corePrinciple": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。"
+              },
+              "productMatch": {
+                "primaryProductId": "bracelet_fire_core",
+                "supportedElements": [
+                  "FIRE",
+                  "WATER"
+                ],
+                "balancedElements": [
+                  "EARTH"
+                ],
+                "matchReason": [
+                  "主補元素鎖定火元素，商品推薦必須先對準這個缺口。",
+                  "第二順位水元素只作輔助參考，不取代主補判定。",
+                  "目前較強元素先列入平衡觀察，不作為本次主推補強。",
+                  "判定訊號穩定，前端可直接清楚呈現。"
+                ],
+                "matchConfidence": "high"
+              },
+              "enginePipeline": [
+                "ModuleAnalysisAdapter",
+                "ElementNormalizationEngine",
+                "ElementRecommendationEngine",
+                "ElementConflictResolver",
+                "ProductMatchingEngine",
+                "VerifiedQuoteMatchingEngine",
+                "ElementResultPresenter"
+              ],
+              "aiElementModel": {
+                "primaryElement": "FIRE",
+                "secondaryElement": "WATER",
+                "elementScore": {
+                  "AIR": 53,
+                  "SPACE": 42,
+                  "WATER": 54,
+                  "FIRE": 77,
+                  "EARTH": 30
+                }
+              },
+              "elementScore": {
+                "AIR": 53,
+                "SPACE": 42,
+                "WATER": 54,
+                "FIRE": 77,
+                "EARTH": 30
+              }
+            }
+          }
+        }
+      },
+      "poll": {
+        "ok": false,
+        "status": 404,
+        "route": "/api/analysis/jobs/job_25b71a08-c4a8-4fbc-8899-ce42df69bcec",
+        "durationMs": 270,
+        "data": {
+          "ok": false,
+          "requestId": "2129bc91-e39b-4e44-b12b-ed3b9b53d018",
+          "code": "JOB_NOT_FOUND",
+          "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+          "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+        }
+      },
+      "ok": true,
+      "pollOk": false,
+      "jobId": "job_25b71a08-c4a8-4fbc-8899-ce42df69bcec",
+      "resultId": "result_48a3883a-41d7-4b03-b301-b0127cbd86d5",
+      "status": "COMPLETED",
+      "requestId": "332f841e-ed50-4419-9db8-19b9197d718c"
+    },
+    "other": {
+      "create": {
+        "ok": true,
+        "status": 200,
+        "route": "/api/analysis/jobs",
+        "durationMs": 303,
+        "data": {
+          "ok": true,
+          "requestId": "8dc4b5e8-a997-4ec7-a23c-6493652bbba7",
+          "success": true,
+          "data": {
+            "jobId": "job_e95fb99c-88f5-4e7e-82e1-b37be685badb",
+            "analysisType": "number",
+            "moduleId": "NUMBER",
+            "status": "COMPLETED",
+            "progressStage": "DONE",
+            "progressPercent": 100,
+            "message": "分析完成，結果已準備好。",
+            "resultId": "result_d429b024-67e3-41d6-a0bb-c996d75cae46",
+            "result": {
+              "ok": true,
+              "engine": "Number Core Engine",
+              "engineVersion": "V5.0.0",
+              "mode": "digit8",
+              "value": "****9999",
+              "valueMasked": "****9999",
+              "score": 69,
+              "finalScore": 69,
+              "level": "吉中帶凶",
+              "fortuneLevel": "吉中帶凶",
+              "confidenceScore": 89,
+              "indexes": {
+                "structure": 81,
+                "balance": 58,
+                "pattern": 89,
+                "stability": 62,
+                "trend": 55
+              },
+              "matrix": {
+                "wealth": 66,
+                "career": 62,
+                "love": 55,
+                "family": 57,
+                "social": 57,
+                "health": 56,
+                "growth": 65,
+                "risk": 49,
+                "pressure": 52,
+                "stability": 56
+              },
+              "evidence": {
+                "digitFrequency": {
+                  "0": 0,
+                  "1": 1,
+                  "2": 0,
+                  "3": 0,
+                  "4": 0,
+                  "5": 0,
+                  "6": 1,
+                  "7": 0,
+                  "8": 2,
+                  "9": 4
+                },
+                "repeatPatterns": [
+                  {
+                    "digit": "8",
+                    "count": 2,
+                    "positions": [
+                      2,
+                      3
+                    ]
+                  },
+                  {
+                    "digit": "9",
+                    "count": 4,
+                    "positions": [
+                      4,
+                      5,
+                      6,
+                      7
+                    ]
+                  }
+                ],
+                "sequencePatterns": [],
+                "mirrorPatterns": [
+                  "9999",
+                  "999"
+                ],
+                "mirrorPattern": true,
+                "adjacentPairs": [
+                  "16",
+                  "68",
+                  "88",
+                  "89",
+                  "99",
+                  "99",
+                  "99"
+                ],
+                "pairPatterns": [
+                  {
+                    "pattern": "16",
+                    "affectedDimension": "wealth",
+                    "weight": 28,
+                    "sourceType": "traditional_rule",
+                    "note": "一六組合偏向資源、貴人與穩定承載。"
+                  },
+                  {
+                    "pattern": "68",
+                    "affectedDimension": "wealth",
+                    "weight": 32,
+                    "sourceType": "traditional_rule",
+                    "note": "六八偏向財務與穩定兼具。"
+                  },
+                  {
+                    "pattern": "88",
+                    "affectedDimension": "wealth",
+                    "weight": 34,
+                    "sourceType": "traditional_rule",
+                    "note": "八八能量集中，利財務動能但壓力同步提高。"
+                  }
+                ],
+                "triplePatterns": [
+                  "168",
+                  "688",
+                  "889",
+                  "899",
+                  "999",
+                  "999"
+                ],
+                "rootNumber": 5,
+                "digitSum": 59,
+                "oddRatio": 0.63,
+                "evenRatio": 0.38,
+                "highDigitRatio": 0.88,
+                "lowDigitRatio": 0.13,
+                "headDigit": "1",
+                "tailDigit": "9",
+                "lastFour": "9999",
+                "maxRepeatLength": 4,
+                "concentration": 0.5,
+                "structureBalance": 0.5,
+                "arrangementDirection": "ascending",
+                "combinationDirection": "mirrored",
+                "segmentRatios": {
+                  "front": 0.12,
+                  "middle": 0.27,
+                  "back": 0.61
+                }
+              },
+              "summary": "八位數字 ****9999 的要害分數為 69 分，級別為「吉中帶凶」。分析解說：69 分屬於「吉中帶凶」，代表目前數字結構的主軸是「表面順勢，內有壓力。」正向條件存在，但風險或壓力訊號同步抬頭，容易先順後緊。",
+              "strengths": [
+                "財務資源 66",
+                "學習成長 65"
+              ],
+              "cautions": [
+                "壓力管理 52"
+              ],
+              "suitableDirections": [
+                "財務資源",
+                "學習成長"
+              ],
+              "advice": "計分原則：八碼模式採前段雙碼結構加重後四碼，並交叉檢查全碼統計、整體組合、重複排列與數字根。系統會把結構、平衡、組合、穩定、趨勢五項合成一個總分，因此前端只呈現一個要害分數。本次最值得把握的是財務資源，最需要留意的是壓力管理。建議：宜先做風險控管，再談擴張與速度。鼓勵：這不是叫你退縮，而是提醒你先把風險看清楚；能穩住的人，後面反而更容易走長遠。此結果屬數字結構傾向分析，作為調整方向參考。",
+              "interpretation": {
+                "summary": "八位數字 ****9999 的要害分數為 69 分，級別為「吉中帶凶」。分析解說：69 分屬於「吉中帶凶」，代表目前數字結構的主軸是「表面順勢，內有壓力。」正向條件存在，但風險或壓力訊號同步抬頭，容易先順後緊。",
+                "strengths": [
+                  "財務資源 66",
+                  "學習成長 65"
+                ],
+                "warnings": [
+                  "壓力管理 52"
+                ],
+                "directions": [
+                  "財務資源",
+                  "學習成長"
+                ],
+                "advice": "計分原則：八碼模式採前段雙碼結構加重後四碼，並交叉檢查全碼統計、整體組合、重複排列與數字根。系統會把結構、平衡、組合、穩定、趨勢五項合成一個總分，因此前端只呈現一個要害分數。本次最值得把握的是財務資源，最需要留意的是壓力管理。建議：宜先做風險控管，再談擴張與速度。鼓勵：這不是叫你退縮，而是提醒你先把風險看清楚；能穩住的人，後面反而更容易走長遠。此結果屬數字結構傾向分析，作為調整方向參考。"
+              },
+              "ruleVersion": "V5.0.0",
+              "moduleId": "NUMBER",
+              "fiveElement": {
+                "sourceModule": "number",
+                "analysisId": "number_743b6953",
+                "elementScores": {
+                  "metal": {
+                    "strength": 40,
+                    "need": 71,
+                    "evidenceCount": 2
+                  },
+                  "wood": {
+                    "strength": 26,
+                    "need": 97,
+                    "evidenceCount": 2
+                  },
+                  "water": {
+                    "strength": 39,
+                    "need": 72,
+                    "evidenceCount": 2
+                  },
+                  "fire": {
+                    "strength": 100,
+                    "need": 0,
+                    "evidenceCount": 2
+                  },
+                  "earth": {
+                    "strength": 55,
+                    "need": 45,
+                    "evidenceCount": 2
+                  }
+                },
+                "primaryElement": "wood",
+                "secondaryElement": "water",
+                "strongElement": "fire",
+                "avoidElement": "fire",
+                "confidence": "high",
+                "conflict": false,
+                "supportingModules": [
+                  "number"
+                ],
+                "moduleResults": [
+                  {
+                    "module": "number",
+                    "primaryElement": "wood",
+                    "confidence": "high"
+                  }
+                ],
+                "evidence": [
+                  {
+                    "module": "number",
+                    "title": "數字統計判定風元素是第一缺口",
+                    "detail": "本號碼中風元素加權出現 0，基準應約 1.9；對應矩陣強度 61。",
+                    "element": "wood",
+                    "impact": "need"
+                  }
+                ],
+                "ruleVersion": "number_element_v1",
+                "summary": "AI 判定：目前最缺風元素。請優先補強風元素。 第一補強：風元素。完成後再補：水元素。最後補：空元素。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+                "keywords": [
+                  "成長",
+                  "學習",
+                  "規劃",
+                  "創造"
+                ],
+                "reasons": [
+                  "AI 判定：\n目前最缺：\n【風】\n請優先補強：\n【風】\n完成後：\n再補：\n【水】\n最後：\n【空】",
+                  "AI 判定：目前最缺風元素。請優先補強風元素。",
+                  "第一補強：風元素。完成後再補：水元素。最後補：空元素。",
+                  "因為風元素補強需求為 97 分，高於第二補強水元素 72 分；目前支撐元素是火元素，本次不把它當成第一補強。差距：25 分。",
+                  "數字五元素統計：風元素出現 0，低於本組號碼的平衡基準 1.9。",
+                  "數字矩陣強度：風元素對應的功能平均為 61，補它最能對準本次缺口。",
+                  "風元素對應成長、規劃與創新；當風元素信號偏少時，容易缺少持續延展與向前生長的力道。",
+                  "補風元素先改變的是成長動能、規劃感與持續推進。",
+                  "第二順位是水元素，但本次先專心補風元素。"
+                ],
+                "recommendedActions": [
+                  "安排一個可持續 7 天的小學習計畫。",
+                  "把新想法整理成一張簡單路線圖。",
+                  "主動連結一位能一起成長的人。"
+                ],
+                "productEntryLabel": "選擇風元素能量手鏈",
+                "productRecommendation": {
+                  "title": "風元素能量手鏈補強方案",
+                  "headline": "優先補強成長、延展與持續推進。",
+                  "description": "本次系統判定：你缺風元素，就先補風。風元素能量手鏈放在補強核心，幫助自己把想法變成路線，一步一步持續往前。",
+                  "supportDirections": [
+                    "成長",
+                    "學習",
+                    "規劃",
+                    "創新"
+                  ],
+                  "disclaimer": "這是五元素能量手鏈補強與正向提醒，不代表保證成功或改運。真正結果仍需要持續行動。",
+                  "ctaLabel": "選擇風元素能量手鏈",
+                  "braceletCore": "本次結論不模糊：系統判定缺風元素，手鏈補強就先選風元素。"
+                },
+                "positiveQuote": {
+                  "author": "黃仁勳",
+                  "role": "NVIDIA Founder and CEO",
+                  "quote": "Everybody ought to get involved.",
+                  "sourceName": "NVIDIA Blog",
+                  "sourceUrl": "https://blogs.nvidia.com/blog/jensen-huang-world-economic-forum-2024/",
+                  "elementFit": "風元素重視成長、參與與持續流動，適合用來鼓勵開始學習、加入行動。",
+                  "reminder": "不用等到完全準備好，先參與，才會開始成長。"
+                },
+                "traditionalElement": "WOOD",
+                "brandElement": "AIR",
+                "secondaryBrandElement": "WATER",
+                "strongBrandElement": "FIRE",
+                "avoidBrandElement": "FIRE",
+                "normalizedElements": {
+                  "SPACE": {
+                    "sourceElement": "metal",
+                    "traditionalElement": "METAL",
+                    "brandElement": "SPACE",
+                    "displayName": "空",
+                    "sourceName": "金",
+                    "strength": 40,
+                    "need": 71,
+                    "evidenceCount": 2
+                  },
+                  "AIR": {
+                    "sourceElement": "wood",
+                    "traditionalElement": "WOOD",
+                    "brandElement": "AIR",
+                    "displayName": "風",
+                    "sourceName": "木",
+                    "strength": 26,
+                    "need": 97,
+                    "evidenceCount": 2
+                  },
+                  "WATER": {
+                    "sourceElement": "water",
+                    "traditionalElement": "WATER",
+                    "brandElement": "WATER",
+                    "displayName": "水",
+                    "sourceName": "水",
+                    "strength": 39,
+                    "need": 72,
+                    "evidenceCount": 2
+                  },
+                  "FIRE": {
+                    "sourceElement": "fire",
+                    "traditionalElement": "FIRE",
+                    "brandElement": "FIRE",
+                    "displayName": "火",
+                    "sourceName": "火",
+                    "strength": 100,
+                    "need": 0,
+                    "evidenceCount": 2
+                  },
+                  "EARTH": {
+                    "sourceElement": "earth",
+                    "traditionalElement": "EARTH",
+                    "brandElement": "EARTH",
+                    "displayName": "地",
+                    "sourceName": "土",
+                    "strength": 55,
+                    "need": 45,
+                    "evidenceCount": 2
+                  }
+                },
+                "decision": {
+                  "title": "AI 判定：目前最缺【風】",
+                  "conclusion": "AI 判定：目前最缺風元素。請優先補強風元素。",
+                  "primaryAction": "第一補強：風元素。完成後再補：水元素。最後補：空元素。",
+                  "changeTarget": "補風元素先改變的是成長動能、規劃感與持續推進。",
+                  "why": "因為風元素補強需求為 97 分，高於第二補強水元素 72 分；目前支撐元素是火元素，本次不把它當成第一補強。差距：25 分。",
+                  "conflictNote": null,
+                  "priorityOrder": [
+                    "wood",
+                    "water",
+                    "metal",
+                    "earth",
+                    "fire"
+                  ],
+                  "priorityTemplate": "AI 判定：\n目前最缺：\n【風】\n請優先補強：\n【風】\n完成後：\n再補：\n【水】\n最後：\n【空】",
+                  "corePrinciple": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。"
+                },
+                "productMatch": {
+                  "primaryProductId": "bracelet_air_core",
+                  "supportedElements": [
+                    "AIR",
+                    "WATER"
+                  ],
+                  "balancedElements": [
+                    "FIRE"
+                  ],
+                  "matchReason": [
+                    "主補元素鎖定風元素，商品推薦必須先對準這個缺口。",
+                    "第二順位水元素只作輔助參考，不取代主補判定。",
+                    "目前較強元素先列入平衡觀察，不作為本次主推補強。",
+                    "判定訊號穩定，前端可直接清楚呈現。"
+                  ],
+                  "matchConfidence": "high"
+                },
+                "enginePipeline": [
+                  "ModuleAnalysisAdapter",
+                  "ElementNormalizationEngine",
+                  "ElementRecommendationEngine",
+                  "ElementConflictResolver",
+                  "ProductMatchingEngine",
+                  "VerifiedQuoteMatchingEngine",
+                  "ElementResultPresenter"
+                ],
+                "aiElementModel": {
+                  "primaryElement": "AIR",
+                  "secondaryElement": "WATER",
+                  "elementScore": {
+                    "AIR": 97,
+                    "SPACE": 71,
+                    "WATER": 72,
+                    "FIRE": 0,
+                    "EARTH": 45
+                  }
+                },
+                "elementScore": {
+                  "AIR": 97,
+                  "SPACE": 71,
+                  "WATER": 72,
+                  "FIRE": 0,
+                  "EARTH": 45
+                }
+              }
+            },
+            "errorCode": null,
+            "errorMessage": null,
+            "createdAt": "2026-08-06T15:15:04.150Z",
+            "startedAt": "2026-08-06T15:15:04.150Z",
+            "completedAt": "2026-08-06T15:15:04.153Z",
+            "updatedAt": "2026-08-06T15:15:04.153Z",
+            "expiresAt": "2026-08-06T15:45:04.153Z"
+          },
+          "result": {
+            "ok": true,
+            "engine": "Number Core Engine",
+            "engineVersion": "V5.0.0",
+            "mode": "digit8",
+            "value": "****9999",
+            "valueMasked": "****9999",
+            "score": 69,
+            "finalScore": 69,
+            "level": "吉中帶凶",
+            "fortuneLevel": "吉中帶凶",
+            "confidenceScore": 89,
+            "indexes": {
+              "structure": 81,
+              "balance": 58,
+              "pattern": 89,
+              "stability": 62,
+              "trend": 55
+            },
+            "matrix": {
+              "wealth": 66,
+              "career": 62,
+              "love": 55,
+              "family": 57,
+              "social": 57,
+              "health": 56,
+              "growth": 65,
+              "risk": 49,
+              "pressure": 52,
+              "stability": 56
+            },
+            "evidence": {
+              "digitFrequency": {
+                "0": 0,
+                "1": 1,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0,
+                "6": 1,
+                "7": 0,
+                "8": 2,
+                "9": 4
+              },
+              "repeatPatterns": [
+                {
+                  "digit": "8",
+                  "count": 2,
+                  "positions": [
+                    2,
+                    3
+                  ]
+                },
+                {
+                  "digit": "9",
+                  "count": 4,
+                  "positions": [
+                    4,
+                    5,
+                    6,
+                    7
+                  ]
+                }
+              ],
+              "sequencePatterns": [],
+              "mirrorPatterns": [
+                "9999",
+                "999"
+              ],
+              "mirrorPattern": true,
+              "adjacentPairs": [
+                "16",
+                "68",
+                "88",
+                "89",
+                "99",
+                "99",
+                "99"
+              ],
+              "pairPatterns": [
+                {
+                  "pattern": "16",
+                  "affectedDimension": "wealth",
+                  "weight": 28,
+                  "sourceType": "traditional_rule",
+                  "note": "一六組合偏向資源、貴人與穩定承載。"
+                },
+                {
+                  "pattern": "68",
+                  "affectedDimension": "wealth",
+                  "weight": 32,
+                  "sourceType": "traditional_rule",
+                  "note": "六八偏向財務與穩定兼具。"
+                },
+                {
+                  "pattern": "88",
+                  "affectedDimension": "wealth",
+                  "weight": 34,
+                  "sourceType": "traditional_rule",
+                  "note": "八八能量集中，利財務動能但壓力同步提高。"
+                }
+              ],
+              "triplePatterns": [
+                "168",
+                "688",
+                "889",
+                "899",
+                "999",
+                "999"
+              ],
+              "rootNumber": 5,
+              "digitSum": 59,
+              "oddRatio": 0.63,
+              "evenRatio": 0.38,
+              "highDigitRatio": 0.88,
+              "lowDigitRatio": 0.13,
+              "headDigit": "1",
+              "tailDigit": "9",
+              "lastFour": "9999",
+              "maxRepeatLength": 4,
+              "concentration": 0.5,
+              "structureBalance": 0.5,
+              "arrangementDirection": "ascending",
+              "combinationDirection": "mirrored",
+              "segmentRatios": {
+                "front": 0.12,
+                "middle": 0.27,
+                "back": 0.61
+              }
+            },
+            "summary": "八位數字 ****9999 的要害分數為 69 分，級別為「吉中帶凶」。分析解說：69 分屬於「吉中帶凶」，代表目前數字結構的主軸是「表面順勢，內有壓力。」正向條件存在，但風險或壓力訊號同步抬頭，容易先順後緊。",
+            "strengths": [
+              "財務資源 66",
+              "學習成長 65"
+            ],
+            "cautions": [
+              "壓力管理 52"
+            ],
+            "suitableDirections": [
+              "財務資源",
+              "學習成長"
+            ],
+            "advice": "計分原則：八碼模式採前段雙碼結構加重後四碼，並交叉檢查全碼統計、整體組合、重複排列與數字根。系統會把結構、平衡、組合、穩定、趨勢五項合成一個總分，因此前端只呈現一個要害分數。本次最值得把握的是財務資源，最需要留意的是壓力管理。建議：宜先做風險控管，再談擴張與速度。鼓勵：這不是叫你退縮，而是提醒你先把風險看清楚；能穩住的人，後面反而更容易走長遠。此結果屬數字結構傾向分析，作為調整方向參考。",
+            "interpretation": {
+              "summary": "八位數字 ****9999 的要害分數為 69 分，級別為「吉中帶凶」。分析解說：69 分屬於「吉中帶凶」，代表目前數字結構的主軸是「表面順勢，內有壓力。」正向條件存在，但風險或壓力訊號同步抬頭，容易先順後緊。",
+              "strengths": [
+                "財務資源 66",
+                "學習成長 65"
+              ],
+              "warnings": [
+                "壓力管理 52"
+              ],
+              "directions": [
+                "財務資源",
+                "學習成長"
+              ],
+              "advice": "計分原則：八碼模式採前段雙碼結構加重後四碼，並交叉檢查全碼統計、整體組合、重複排列與數字根。系統會把結構、平衡、組合、穩定、趨勢五項合成一個總分，因此前端只呈現一個要害分數。本次最值得把握的是財務資源，最需要留意的是壓力管理。建議：宜先做風險控管，再談擴張與速度。鼓勵：這不是叫你退縮，而是提醒你先把風險看清楚；能穩住的人，後面反而更容易走長遠。此結果屬數字結構傾向分析，作為調整方向參考。"
+            },
+            "ruleVersion": "V5.0.0",
+            "moduleId": "NUMBER",
+            "fiveElement": {
+              "sourceModule": "number",
+              "analysisId": "number_743b6953",
+              "elementScores": {
+                "metal": {
+                  "strength": 40,
+                  "need": 71,
+                  "evidenceCount": 2
+                },
+                "wood": {
+                  "strength": 26,
+                  "need": 97,
+                  "evidenceCount": 2
+                },
+                "water": {
+                  "strength": 39,
+                  "need": 72,
+                  "evidenceCount": 2
+                },
+                "fire": {
+                  "strength": 100,
+                  "need": 0,
+                  "evidenceCount": 2
+                },
+                "earth": {
+                  "strength": 55,
+                  "need": 45,
+                  "evidenceCount": 2
+                }
+              },
+              "primaryElement": "wood",
+              "secondaryElement": "water",
+              "strongElement": "fire",
+              "avoidElement": "fire",
+              "confidence": "high",
+              "conflict": false,
+              "supportingModules": [
+                "number"
+              ],
+              "moduleResults": [
+                {
+                  "module": "number",
+                  "primaryElement": "wood",
+                  "confidence": "high"
+                }
+              ],
+              "evidence": [
+                {
+                  "module": "number",
+                  "title": "數字統計判定風元素是第一缺口",
+                  "detail": "本號碼中風元素加權出現 0，基準應約 1.9；對應矩陣強度 61。",
+                  "element": "wood",
+                  "impact": "need"
+                }
+              ],
+              "ruleVersion": "number_element_v1",
+              "summary": "AI 判定：目前最缺風元素。請優先補強風元素。 第一補強：風元素。完成後再補：水元素。最後補：空元素。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+              "keywords": [
+                "成長",
+                "學習",
+                "規劃",
+                "創造"
+              ],
+              "reasons": [
+                "AI 判定：\n目前最缺：\n【風】\n請優先補強：\n【風】\n完成後：\n再補：\n【水】\n最後：\n【空】",
+                "AI 判定：目前最缺風元素。請優先補強風元素。",
+                "第一補強：風元素。完成後再補：水元素。最後補：空元素。",
+                "因為風元素補強需求為 97 分，高於第二補強水元素 72 分；目前支撐元素是火元素，本次不把它當成第一補強。差距：25 分。",
+                "數字五元素統計：風元素出現 0，低於本組號碼的平衡基準 1.9。",
+                "數字矩陣強度：風元素對應的功能平均為 61，補它最能對準本次缺口。",
+                "風元素對應成長、規劃與創新；當風元素信號偏少時，容易缺少持續延展與向前生長的力道。",
+                "補風元素先改變的是成長動能、規劃感與持續推進。",
+                "第二順位是水元素，但本次先專心補風元素。"
+              ],
+              "recommendedActions": [
+                "安排一個可持續 7 天的小學習計畫。",
+                "把新想法整理成一張簡單路線圖。",
+                "主動連結一位能一起成長的人。"
+              ],
+              "productEntryLabel": "選擇風元素能量手鏈",
+              "productRecommendation": {
+                "title": "風元素能量手鏈補強方案",
+                "headline": "優先補強成長、延展與持續推進。",
+                "description": "本次系統判定：你缺風元素，就先補風。風元素能量手鏈放在補強核心，幫助自己把想法變成路線，一步一步持續往前。",
+                "supportDirections": [
+                  "成長",
+                  "學習",
+                  "規劃",
+                  "創新"
+                ],
+                "disclaimer": "這是五元素能量手鏈補強與正向提醒，不代表保證成功或改運。真正結果仍需要持續行動。",
+                "ctaLabel": "選擇風元素能量手鏈",
+                "braceletCore": "本次結論不模糊：系統判定缺風元素，手鏈補強就先選風元素。"
+              },
+              "positiveQuote": {
+                "author": "黃仁勳",
+                "role": "NVIDIA Founder and CEO",
+                "quote": "Everybody ought to get involved.",
+                "sourceName": "NVIDIA Blog",
+                "sourceUrl": "https://blogs.nvidia.com/blog/jensen-huang-world-economic-forum-2024/",
+                "elementFit": "風元素重視成長、參與與持續流動，適合用來鼓勵開始學習、加入行動。",
+                "reminder": "不用等到完全準備好，先參與，才會開始成長。"
+              },
+              "traditionalElement": "WOOD",
+              "brandElement": "AIR",
+              "secondaryBrandElement": "WATER",
+              "strongBrandElement": "FIRE",
+              "avoidBrandElement": "FIRE",
+              "normalizedElements": {
+                "SPACE": {
+                  "sourceElement": "metal",
+                  "traditionalElement": "METAL",
+                  "brandElement": "SPACE",
+                  "displayName": "空",
+                  "sourceName": "金",
+                  "strength": 40,
+                  "need": 71,
+                  "evidenceCount": 2
+                },
+                "AIR": {
+                  "sourceElement": "wood",
+                  "traditionalElement": "WOOD",
+                  "brandElement": "AIR",
+                  "displayName": "風",
+                  "sourceName": "木",
+                  "strength": 26,
+                  "need": 97,
+                  "evidenceCount": 2
+                },
+                "WATER": {
+                  "sourceElement": "water",
+                  "traditionalElement": "WATER",
+                  "brandElement": "WATER",
+                  "displayName": "水",
+                  "sourceName": "水",
+                  "strength": 39,
+                  "need": 72,
+                  "evidenceCount": 2
+                },
+                "FIRE": {
+                  "sourceElement": "fire",
+                  "traditionalElement": "FIRE",
+                  "brandElement": "FIRE",
+                  "displayName": "火",
+                  "sourceName": "火",
+                  "strength": 100,
+                  "need": 0,
+                  "evidenceCount": 2
+                },
+                "EARTH": {
+                  "sourceElement": "earth",
+                  "traditionalElement": "EARTH",
+                  "brandElement": "EARTH",
+                  "displayName": "地",
+                  "sourceName": "土",
+                  "strength": 55,
+                  "need": 45,
+                  "evidenceCount": 2
+                }
+              },
+              "decision": {
+                "title": "AI 判定：目前最缺【風】",
+                "conclusion": "AI 判定：目前最缺風元素。請優先補強風元素。",
+                "primaryAction": "第一補強：風元素。完成後再補：水元素。最後補：空元素。",
+                "changeTarget": "補風元素先改變的是成長動能、規劃感與持續推進。",
+                "why": "因為風元素補強需求為 97 分，高於第二補強水元素 72 分；目前支撐元素是火元素，本次不把它當成第一補強。差距：25 分。",
+                "conflictNote": null,
+                "priorityOrder": [
+                  "wood",
+                  "water",
+                  "metal",
+                  "earth",
+                  "fire"
+                ],
+                "priorityTemplate": "AI 判定：\n目前最缺：\n【風】\n請優先補強：\n【風】\n完成後：\n再補：\n【水】\n最後：\n【空】",
+                "corePrinciple": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。"
+              },
+              "productMatch": {
+                "primaryProductId": "bracelet_air_core",
+                "supportedElements": [
+                  "AIR",
+                  "WATER"
+                ],
+                "balancedElements": [
+                  "FIRE"
+                ],
+                "matchReason": [
+                  "主補元素鎖定風元素，商品推薦必須先對準這個缺口。",
+                  "第二順位水元素只作輔助參考，不取代主補判定。",
+                  "目前較強元素先列入平衡觀察，不作為本次主推補強。",
+                  "判定訊號穩定，前端可直接清楚呈現。"
+                ],
+                "matchConfidence": "high"
+              },
+              "enginePipeline": [
+                "ModuleAnalysisAdapter",
+                "ElementNormalizationEngine",
+                "ElementRecommendationEngine",
+                "ElementConflictResolver",
+                "ProductMatchingEngine",
+                "VerifiedQuoteMatchingEngine",
+                "ElementResultPresenter"
+              ],
+              "aiElementModel": {
+                "primaryElement": "AIR",
+                "secondaryElement": "WATER",
+                "elementScore": {
+                  "AIR": 97,
+                  "SPACE": 71,
+                  "WATER": 72,
+                  "FIRE": 0,
+                  "EARTH": 45
+                }
+              },
+              "elementScore": {
+                "AIR": 97,
+                "SPACE": 71,
+                "WATER": 72,
+                "FIRE": 0,
+                "EARTH": 45
+              }
+            }
+          }
+        }
+      },
+      "poll": {
+        "ok": false,
+        "status": 404,
+        "route": "/api/analysis/jobs/job_e95fb99c-88f5-4e7e-82e1-b37be685badb",
+        "durationMs": 270,
+        "data": {
+          "ok": false,
+          "requestId": "794a1e45-bce1-475b-b624-ee22a00cc184",
+          "code": "JOB_NOT_FOUND",
+          "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+          "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+        }
+      },
+      "ok": true,
+      "pollOk": false,
+      "jobId": "job_e95fb99c-88f5-4e7e-82e1-b37be685badb",
+      "resultId": "result_d429b024-67e3-41d6-a0bb-c996d75cae46",
+      "status": "COMPLETED",
+      "requestId": "8dc4b5e8-a997-4ec7-a23c-6493652bbba7"
+    },
+    "screenHealth": {
+      "id": "CARD_03",
+      "module": "numerology",
+      "title": "數字論吉凶",
+      "path": "/numerology",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 622,
+      "htmlLength": 65634,
+      "error": null,
+      "issue": null
+    },
+    "startedAt": "2026-08-06T15:15:01.586Z",
+    "completedAt": "2026-08-06T15:15:02.786Z"
+  },
+  "totalScore": 75,
+  "tier": "UNRATED",
+  "allowNextCard": false,
+  "generatedAt": "2026-08-06T15:15:02.786Z"
+}

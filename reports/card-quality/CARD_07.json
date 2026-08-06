@@ -1,0 +1,2588 @@
+{
+  "cardId": "CARD_07",
+  "cardName": "AI 西洋星座",
+  "moduleId": "zodiac",
+  "route": "/zodiac",
+  "dimensions": [
+    {
+      "dimension": "FUNCTIONALITY",
+      "score": 20,
+      "maxScore": 20,
+      "status": "PASSED",
+      "evidenceIds": [
+        "ROUTE_OK",
+        "API_SELF_OTHER_OK"
+      ]
+    },
+    {
+      "dimension": "ACCURACY",
+      "score": 16,
+      "maxScore": 20,
+      "status": "PASSED",
+      "evidenceIds": [
+        "BACKEND_RESULT_SHAPE_OK"
+      ]
+    },
+    {
+      "dimension": "MOBILE_UX",
+      "score": 5,
+      "maxScore": 15,
+      "status": "NOT_TESTED",
+      "evidenceIds": [
+        "ROUTE_HTML_REACHABLE_ONLY"
+      ]
+    },
+    {
+      "dimension": "STABILITY",
+      "score": 8,
+      "maxScore": 15,
+      "status": "FAILED",
+      "evidenceIds": [
+        "SCREEN_HEALTH_ROUTE",
+        "API_RESPONDED"
+      ]
+    },
+    {
+      "dimension": "CONTENT_QUALITY",
+      "score": 8,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "PAGE_RENDERED_CONTENT_PRESENT"
+      ]
+    },
+    {
+      "dimension": "PERFORMANCE",
+      "score": 10,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "MAX_DURATION_307MS"
+      ]
+    },
+    {
+      "dimension": "TRACEABILITY",
+      "score": 8,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "REQUEST_ID_f7114106-a989-43da-bbc6-bfa4eac184b9",
+        "REQUEST_ID_0b08edbb-92bf-4b9c-9afb-f816ca263db7"
+      ]
+    }
+  ],
+  "issues": [
+    {
+      "id": "CARD_07-INTEGRATION-Analysis_Task_polling-1786029327315",
+      "cardId": "CARD_07",
+      "severity": "CRITICAL",
+      "layer": "INTEGRATION",
+      "step": "Analysis Task polling",
+      "actualProblem": "Analysis job polling returned missing or invalid job after create.",
+      "rootCause": "Serverless in-memory job state is not durable across requests; this can show JOB_NOT_FOUND to users.",
+      "filePaths": [],
+      "repairAction": "定位對應 API / 共用任務 / 前端流程並修復後重測。",
+      "verificationAction": "重新執行 scripts/all-card-quality-audit.mjs 與相關卡片手動流程。",
+      "evidence": {
+        "selfPoll": {
+          "ok": false,
+          "status": 404,
+          "route": "/api/analysis/jobs/job_ba728ac2-3d03-49ee-8e8b-333c358c3a45",
+          "durationMs": 279,
+          "data": {
+            "ok": false,
+            "requestId": "0f1fd1b1-0877-4bc3-b712-8be9526b58ee",
+            "code": "JOB_NOT_FOUND",
+            "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+            "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+          }
+        },
+        "otherPoll": {
+          "ok": false,
+          "status": 404,
+          "route": "/api/analysis/jobs/job_5af457b8-60d1-47e3-9d67-9c970dce67cc",
+          "durationMs": 279,
+          "data": {
+            "ok": false,
+            "requestId": "88b0da9d-1d91-4b8a-a568-99296bd78b13",
+            "code": "JOB_NOT_FOUND",
+            "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+            "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+          }
+        }
+      }
+    },
+    {
+      "id": "CARD_07-MOBILE-LINE-NOT-TESTED",
+      "cardId": "CARD_07",
+      "severity": "MAJOR",
+      "layer": "INTERACTION",
+      "step": "mobile LINE visual verification",
+      "actualProblem": "This audit did not include real LINE/iPhone/Android tap-and-screenshot evidence.",
+      "rootCause": "Current evidence is route/API/HTTP. Mobile visual evidence must be captured separately.",
+      "filePaths": [],
+      "repairAction": "Use controlled mobile browser or real device LINE flow and attach screenshot evidence.",
+      "verificationAction": "Record device, browser, viewport, screenshot path, startedAt/completedAt."
+    }
+  ],
+  "mandatoryChecks": {
+    "fullFlowPassed": false,
+    "backendVerified": true,
+    "mobilePassed": false,
+    "linePassed": false,
+    "noCriticalIssues": false,
+    "regressionPassed": true
+  },
+  "evidence": {
+    "baseUrl": "https://heaven-earth-humanity-pair.vercel.app",
+    "route": {
+      "ok": true,
+      "status": 200,
+      "durationMs": 56,
+      "length": 1000,
+      "error": null
+    },
+    "self": {
+      "create": {
+        "ok": true,
+        "status": 200,
+        "route": "/api/analysis/jobs",
+        "durationMs": 307,
+        "data": {
+          "ok": true,
+          "requestId": "f7114106-a989-43da-bbc6-bfa4eac184b9",
+          "success": true,
+          "data": {
+            "jobId": "job_ba728ac2-3d03-49ee-8e8b-333c358c3a45",
+            "analysisType": "zodiac",
+            "moduleId": "ZODIAC",
+            "status": "COMPLETED",
+            "progressStage": "DONE",
+            "progressPercent": 100,
+            "message": "分析完成，結果已準備好。",
+            "resultId": "result_8ac3b7f5-669f-44e9-94bf-b262057d98c3",
+            "result": {
+              "ok": true,
+              "mode": "zodiac",
+              "moduleId": "ZODIAC",
+              "engineVersion": "zodiac_core_v4",
+              "input": {
+                "name": "ZodiacQASelf",
+                "birthDate": "1990-05-20",
+                "birthTime": "09:30",
+                "birthCityId": "taipei"
+              },
+              "precision": "FULL_CHART",
+              "sign": {
+                "key": "taurus",
+                "name": "金牛座",
+                "symbol": "♉",
+                "element": "earth",
+                "dateRange": "04/20 - 05/20"
+              },
+              "risingSign": {
+                "key": "sagittarius",
+                "name": "射手座",
+                "symbol": "♐",
+                "element": "fire",
+                "dateRange": "11/22 - 12/21"
+              },
+              "moonSign": {
+                "key": "pisces",
+                "name": "雙魚座",
+                "symbol": "♓",
+                "element": "water",
+                "dateRange": "02/19 - 03/20"
+              },
+              "professionalChart": {
+                "layer": "professional_zodiac_chart",
+                "generatedFrom": "normalized_birth_input",
+                "recalculationAllowed": false,
+                "input": {
+                  "name": "ZodiacQASelf",
+                  "birthDate": "1990-05-20",
+                  "birthTime": "09:30",
+                  "birthCityId": "taipei"
+                },
+                "precision": "FULL_CHART",
+                "precisionScore": 100,
+                "dataQuality": {
+                  "birthDate": "provided",
+                  "birthTime": "provided",
+                  "birthCity": "provided",
+                  "note": "出生日期、時間與城市完整，已建立完整星盤第一層資料。"
+                },
+                "points": {
+                  "sun": {
+                    "role": "sun",
+                    "roleLabel": "太陽",
+                    "sign": {
+                      "key": "taurus",
+                      "name": "金牛座",
+                      "symbol": "♉",
+                      "element": "earth",
+                      "dateRange": "04/20 - 05/20"
+                    },
+                    "element": "earth",
+                    "modality": "fixed",
+                    "polarity": "yin",
+                    "ruler": "金星",
+                    "houseTheme": "資源、穩定、價值",
+                    "longitudeDeg": null,
+                    "calculationSource": "date_range",
+                    "available": true,
+                    "professionalMeaning": "太陽星座定義外在人格主軸、意志方向與主要生命表達。"
+                  },
+                  "moon": {
+                    "role": "moon",
+                    "roleLabel": "月亮",
+                    "sign": {
+                      "key": "pisces",
+                      "name": "雙魚座",
+                      "symbol": "♓",
+                      "element": "water",
+                      "dateRange": "02/19 - 03/20"
+                    },
+                    "element": "water",
+                    "modality": "mutable",
+                    "polarity": "yin",
+                    "ruler": "海王星",
+                    "houseTheme": "想像、共感、靈感",
+                    "longitudeDeg": 357.04,
+                    "calculationSource": "astronomy_engine",
+                    "available": true,
+                    "professionalMeaning": "月亮星座定義情緒反應、安全感需求與私領域的內在節奏。"
+                  },
+                  "rising": {
+                    "role": "rising",
+                    "roleLabel": "上升",
+                    "sign": {
+                      "key": "sagittarius",
+                      "name": "射手座",
+                      "symbol": "♐",
+                      "element": "fire",
+                      "dateRange": "11/22 - 12/21"
+                    },
+                    "element": "fire",
+                    "modality": "mutable",
+                    "polarity": "yang",
+                    "ruler": "木星",
+                    "houseTheme": "遠方、信念、探索",
+                    "longitudeDeg": 240.69,
+                    "calculationSource": "astronomy_engine",
+                    "available": true,
+                    "professionalMeaning": "上升星座定義第一印象、行動入口與人生事件的外在開場方式。"
+                  }
+                },
+                "dominantSignature": {
+                  "element": "earth",
+                  "modality": "mutable",
+                  "polarity": "yin",
+                  "score": 4.6,
+                  "basis": [
+                    "太陽金牛座",
+                    "月亮雙魚座",
+                    "上升射手座"
+                  ]
+                },
+                "elementDistribution": {
+                  "fire": 0.9,
+                  "earth": 1,
+                  "air": 0,
+                  "water": 0.85
+                },
+                "modalityDistribution": {
+                  "cardinal": 0,
+                  "fixed": 1,
+                  "mutable": 1.75
+                },
+                "polarityDistribution": {
+                  "yang": 0.9,
+                  "yin": 1.85
+                },
+                "professionalKeywords": [
+                  "穩定",
+                  "累積",
+                  "感官",
+                  "共感",
+                  "想像",
+                  "療癒",
+                  "探索",
+                  "視野",
+                  "自由"
+                ],
+                "readingBoundaries": [
+                  "第一層只建立專業星座盤資料，不輸出 AI 補強建議。",
+                  "第二層 AI 解讀必須讀取本層資料，不得重新計算星座盤。",
+                  "第三層五元素補強必須讀取第二層結論，不得逆向改寫本層命盤。"
+                ],
+                "integrationWeights": {
+                  "AIR": 0,
+                  "FIRE": 33,
+                  "WATER": 31,
+                  "EARTH": 36
+                }
+              },
+              "deepAnalysis": {
+                "layer": "ai_zodiac_deep_analysis",
+                "sourceLayer": "professional_zodiac_chart",
+                "recalculationAllowed": false,
+                "professionalInputDigest": [
+                  "精準度：FULL_CHART / 100%",
+                  "主導結構：太陽金牛座、月亮雙魚座、上升射手座",
+                  "主導能量：土象、變動、陰性"
+                ],
+                "coreNarrative": "第二層 AI 解讀：太陽金牛座、月亮雙魚座、上升射手座形成的主軸是土象的穩定、承擔、落實力，透過變動節奏進行表達。",
+                "pointReadings": [
+                  {
+                    "role": "sun",
+                    "roleLabel": "太陽",
+                    "sourceSign": {
+                      "key": "taurus",
+                      "name": "金牛座",
+                      "symbol": "♉",
+                      "element": "earth",
+                      "dateRange": "04/20 - 05/20"
+                    },
+                    "title": "太陽金牛座專業解讀",
+                    "interpretation": "太陽金牛座帶出穩定、承擔、落實力，表達方式是維持成果與穩定核心，能量流向是內在沉澱與接收整合。",
+                    "integrationFocus": "後續 AI 解讀要以太陽的資源、穩定、價值作為主要語境，不可重新計算星盤。",
+                    "evidence": [
+                      "太陽金牛座",
+                      "土象 / 固定 / 陰性",
+                      "守護星：金星"
+                    ]
+                  },
+                  {
+                    "role": "moon",
+                    "roleLabel": "月亮",
+                    "sourceSign": {
+                      "key": "pisces",
+                      "name": "雙魚座",
+                      "symbol": "♓",
+                      "element": "water",
+                      "dateRange": "02/19 - 03/20"
+                    },
+                    "title": "月亮雙魚座專業解讀",
+                    "interpretation": "月亮雙魚座帶出感受、直覺、共感力，表達方式是調整策略與轉換節奏，能量流向是內在沉澱與接收整合。",
+                    "integrationFocus": "後續 AI 解讀要以月亮的想像、共感、靈感作為主要語境，不可重新計算星盤。",
+                    "evidence": [
+                      "月亮雙魚座",
+                      "水象 / 變動 / 陰性",
+                      "守護星：海王星"
+                    ]
+                  },
+                  {
+                    "role": "rising",
+                    "roleLabel": "上升",
+                    "sourceSign": {
+                      "key": "sagittarius",
+                      "name": "射手座",
+                      "symbol": "♐",
+                      "element": "fire",
+                      "dateRange": "11/22 - 12/21"
+                    },
+                    "title": "上升射手座專業解讀",
+                    "interpretation": "上升射手座帶出行動、熱情、主導力，表達方式是調整策略與轉換節奏，能量流向是外放推進與主動表達。",
+                    "integrationFocus": "後續 AI 解讀要以上升的遠方、信念、探索作為主要語境，不可重新計算星盤。",
+                    "evidence": [
+                      "上升射手座",
+                      "火象 / 變動 / 陽性",
+                      "守護星：木星"
+                    ]
+                  }
+                ],
+                "dominantInterpretation": "主導結構判定為：土象、變動、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                "tensionPatterns": [
+                  "盤面中風象訊號不足，第三層補強必須優先納入。",
+                  "太陽、月亮、上升三點資料已成立，第二層可做人格、情緒、外在行動的交叉解讀。",
+                  "主導結構為土象、變動、陰性，AI 語氣應直接、有方向，不使用模糊詞。"
+                ],
+                "growthOpportunities": [
+                  "把穩定、承擔、落實力轉成每天可執行的一個行動。",
+                  "用調整策略與轉換節奏來整理現在的人生任務。",
+                  "保留內在沉澱與接收整合的優勢，再由第三層補上缺口。"
+                ],
+                "userFriendlySummary": "你的西洋星座解讀主軸已建立：土象是目前最明顯的表達方式，第三層會依據缺口排出補強順序。",
+                "aiPromptMaterial": {
+                  "fixedFacts": [
+                    "太陽金牛座",
+                    "土象 / 固定 / 陰性",
+                    "守護星：金星",
+                    "月亮雙魚座",
+                    "水象 / 變動 / 陰性",
+                    "守護星：海王星",
+                    "上升射手座",
+                    "火象 / 變動 / 陽性",
+                    "守護星：木星"
+                  ],
+                  "interpretationRules": [
+                    "只讀取 professionalChart，不重新計算星座。",
+                    "先解釋太陽、月亮、上升的分工，再做綜合。",
+                    "語氣必須明確判定，不使用模糊詞。"
+                  ],
+                  "prohibitedMoves": [
+                    "不直接修改會員五元素核心。",
+                    "不將西洋星座與其他模組混算。",
+                    "不保證人生結果，只判定補強方向。"
+                  ]
+                }
+              },
+              "reinforcementPlan": {
+                "layer": "ai_zodiac_reinforcement_plan",
+                "sourceLayer": "ai_zodiac_deep_analysis",
+                "recalculationAllowed": false,
+                "principle": "AI 不預測命運；AI 判定你目前最需要補強的方向。",
+                "priorities": [
+                  {
+                    "rank": 1,
+                    "element": "AIR",
+                    "elementLabel": "風元素",
+                    "needScore": 100,
+                    "reason": "AI 判定：西洋星座盤中【風】的補強需求為 100，本層排為第 1 補強。",
+                    "actions": [
+                      "把目標寫成 3 步路線，今天先完成第 1 步。",
+                      "主動連結一位能帶來新觀點的人。",
+                      "每天固定 15 分鐘學一個新觀念。"
+                    ],
+                    "sourceEvidence": [
+                      "主導結構判定為：土象、變動、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                      "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                    ]
+                  },
+                  {
+                    "rank": 2,
+                    "element": "WATER",
+                    "elementLabel": "水元素",
+                    "needScore": 69,
+                    "reason": "AI 判定：西洋星座盤中【水】的補強需求為 69，本層排為第 2 補強。",
+                    "actions": [
+                      "先記錄感受，再回應事件，不讓情緒被忽略。",
+                      "今天做 10 分鐘靜心整理。",
+                      "在重要對話前，先聽完對方真正需求。"
+                    ],
+                    "sourceEvidence": [
+                      "主導結構判定為：土象、變動、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                      "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                    ]
+                  },
+                  {
+                    "rank": 3,
+                    "element": "FIRE",
+                    "elementLabel": "火元素",
+                    "needScore": 67,
+                    "reason": "AI 判定：西洋星座盤中【火】的補強需求為 67，本層排為第 3 補強。",
+                    "actions": [
+                      "今天完成一個能被看見的行動。",
+                      "把真正想說的話用一段清楚文字說出來。",
+                      "給目標一個明確截止時間。"
+                    ],
+                    "sourceEvidence": [
+                      "主導結構判定為：土象、變動、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                      "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                    ]
+                  }
+                ],
+                "executionOrder": [
+                  "第一補強：風元素",
+                  "第二補強：水元素",
+                  "第三補強：火元素"
+                ],
+                "integrationLayerPayload": {
+                  "moduleId": "ZODIAC",
+                  "sourceEngineVersion": "zodiac_core_v4",
+                  "elementNeedScore": {
+                    "AIR": 100,
+                    "SPACE": 48,
+                    "WATER": 69,
+                    "FIRE": 67,
+                    "EARTH": 64
+                  },
+                  "firstPriority": "AIR",
+                  "evidence": [
+                    "你的西洋星座解讀主軸已建立：土象是目前最明顯的表達方式，第三層會依據缺口排出補強順序。",
+                    "主導結構判定為：土象、變動、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                    "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                  ],
+                  "writePolicy": "self_can_update_growth_center_other_single_reading_only"
+                }
+              },
+              "chartNote": "已依出生日期、時間與城市（台北）完成完整星盤等級分析，太陽、月亮與上升星座皆採真實天文位置計算。",
+              "personality": "ZodiacQASelf的金牛座主軸：重視穩定與實際成果，適合用長期累積建立信任感。",
+              "strengths": [
+                "耐力穩",
+                "重視品質",
+                "財務與資源感強"
+              ],
+              "blindSpots": [
+                "變動時反應較慢",
+                "容易固守熟悉方式",
+                "不喜歡被催促"
+              ],
+              "currentAdvice": "現在最重要是保留穩定節奏，同時每週加入一個小改變。",
+              "weeklyReminder": "本週重點：穩中求進。整理一項資源，讓下一步更容易開始。",
+              "integrationSummary": "西洋星座已完成獨立分析，Integration Layer 只讀取本結果作為會員成長資料補充，不重新分析其他命理模組。",
+              "fiveElement": {
+                "sourceModule": "zodiac",
+                "analysisId": "zodiac_ad7b5cad",
+                "elementScores": {
+                  "metal": {
+                    "strength": 50,
+                    "need": 50,
+                    "evidenceCount": 0
+                  },
+                  "wood": {
+                    "strength": 50,
+                    "need": 50,
+                    "evidenceCount": 0
+                  },
+                  "water": {
+                    "strength": 70,
+                    "need": 30,
+                    "evidenceCount": 1
+                  },
+                  "fire": {
+                    "strength": 70,
+                    "need": 30,
+                    "evidenceCount": 1
+                  },
+                  "earth": {
+                    "strength": 98,
+                    "need": 2,
+                    "evidenceCount": 2
+                  }
+                },
+                "primaryElement": "metal",
+                "secondaryElement": "wood",
+                "strongElement": "earth",
+                "avoidElement": "earth",
+                "confidence": "high",
+                "conflict": true,
+                "supportingModules": [
+                  "zodiac"
+                ],
+                "moduleResults": [
+                  {
+                    "module": "zodiac",
+                    "primaryElement": "metal",
+                    "confidence": "high"
+                  }
+                ],
+                "evidence": [
+                  {
+                    "module": "zodiac",
+                    "title": "空元素是本次星座交叉分析判定的第一缺口",
+                    "detail": "太陽星座 金牛座、上升星座 射手座、月亮星座 雙魚座、血型 A 型，交叉判定後對應空元素訊號偏少。",
+                    "element": "metal",
+                    "impact": "need"
+                  }
+                ],
+                "ruleVersion": "zodiac_element_v1",
+                "summary": "AI 判定：目前最缺空元素。請優先補強空元素。 第一補強：空元素。完成後再補：風元素。最後補：水元素。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+                "keywords": [
+                  "原則",
+                  "決斷",
+                  "執行",
+                  "界線"
+                ],
+                "reasons": [
+                  "AI 判定：\n目前最缺：\n【空】\n請優先補強：\n【空】\n完成後：\n再補：\n【風】\n最後：\n【水】",
+                  "AI 判定：目前最缺空元素。請優先補強空元素。",
+                  "第一補強：空元素。完成後再補：風元素。最後補：水元素。",
+                  "因為空元素與第二補強風元素補強需求同為 50 分；後端依來源權重、五行生剋與主補規則，仍判定空元素是第一補強。目前支撐元素是地元素，本次不把它當成第一補強。差距：0 分。",
+                  "第二補強與第一補強接近，系統已啟用衝突解決：仍以補強需求最高的空元素作為第一補強，不把第二補強寫成第一補強。",
+                  "星座交叉分析來源：太陽星座 金牛座、上升星座 射手座、月亮星座 雙魚座、血型 A 型。",
+                  "補空元素先改變的是決策、紀律與執行清晰度。這是補空元素最先改變的地方。",
+                  "第二順位是風元素，但本次先專心補空元素。"
+                ],
+                "recommendedActions": [
+                  "今天先寫下 3 條清楚界線。",
+                  "把一件拖延的決定切成可執行步驟。",
+                  "用更精準的文字表達自己的標準。"
+                ],
+                "productEntryLabel": "選擇空元素能量手鏈",
+                "productRecommendation": {
+                  "title": "空元素能量手鏈補強方案",
+                  "headline": "優先補強清晰度、判斷與執行標準。",
+                  "description": "本次系統判定：你缺空元素，就先補空。空元素能量手鏈放在補強核心，用來提醒自己把標準說清楚，把決定落地執行。",
+                  "supportDirections": [
+                    "紀律",
+                    "決斷",
+                    "邊界",
+                    "執行"
+                  ],
+                  "disclaimer": "這是五元素能量手鏈補強與正向提醒，不代表保證成功或改運。真正結果仍需要持續行動。",
+                  "ctaLabel": "選擇空元素能量手鏈",
+                  "braceletCore": "本次結論不模糊：系統判定缺空元素，手鏈補強就先選空元素。"
+                },
+                "positiveQuote": {
+                  "author": "華倫・巴菲特",
+                  "role": "Berkshire Hathaway Chairman and CEO",
+                  "quote": "The best investment is in your own abilities.",
+                  "sourceName": "CNBC",
+                  "sourceUrl": "https://www.cnbc.com/2018/05/01/warren-buffett-says-this-is-the-best-investment-you-can-make.html",
+                  "elementFit": "空元素重視清晰、紀律與能力打磨，適合用來提醒自我投資與決策清楚。",
+                  "reminder": "最穩的補強，是把自己的能力一次一次磨利。"
+                },
+                "traditionalElement": "METAL",
+                "brandElement": "SPACE",
+                "secondaryBrandElement": "AIR",
+                "strongBrandElement": "EARTH",
+                "avoidBrandElement": "EARTH",
+                "normalizedElements": {
+                  "SPACE": {
+                    "sourceElement": "metal",
+                    "traditionalElement": "METAL",
+                    "brandElement": "SPACE",
+                    "displayName": "空",
+                    "sourceName": "金",
+                    "strength": 50,
+                    "need": 50,
+                    "evidenceCount": 0
+                  },
+                  "AIR": {
+                    "sourceElement": "wood",
+                    "traditionalElement": "WOOD",
+                    "brandElement": "AIR",
+                    "displayName": "風",
+                    "sourceName": "木",
+                    "strength": 50,
+                    "need": 50,
+                    "evidenceCount": 0
+                  },
+                  "WATER": {
+                    "sourceElement": "water",
+                    "traditionalElement": "WATER",
+                    "brandElement": "WATER",
+                    "displayName": "水",
+                    "sourceName": "水",
+                    "strength": 70,
+                    "need": 30,
+                    "evidenceCount": 1
+                  },
+                  "FIRE": {
+                    "sourceElement": "fire",
+                    "traditionalElement": "FIRE",
+                    "brandElement": "FIRE",
+                    "displayName": "火",
+                    "sourceName": "火",
+                    "strength": 70,
+                    "need": 30,
+                    "evidenceCount": 1
+                  },
+                  "EARTH": {
+                    "sourceElement": "earth",
+                    "traditionalElement": "EARTH",
+                    "brandElement": "EARTH",
+                    "displayName": "地",
+                    "sourceName": "土",
+                    "strength": 98,
+                    "need": 2,
+                    "evidenceCount": 2
+                  }
+                },
+                "decision": {
+                  "title": "AI 判定：目前最缺【空】",
+                  "conclusion": "AI 判定：目前最缺空元素。請優先補強空元素。",
+                  "primaryAction": "第一補強：空元素。完成後再補：風元素。最後補：水元素。",
+                  "changeTarget": "補空元素先改變的是決策、紀律與執行清晰度。",
+                  "why": "因為空元素與第二補強風元素補強需求同為 50 分；後端依來源權重、五行生剋與主補規則，仍判定空元素是第一補強。目前支撐元素是地元素，本次不把它當成第一補強。差距：0 分。",
+                  "conflictNote": "第二補強與第一補強接近，系統已啟用衝突解決：仍以補強需求最高的空元素作為第一補強，不把第二補強寫成第一補強。",
+                  "priorityOrder": [
+                    "metal",
+                    "wood",
+                    "water",
+                    "fire",
+                    "earth"
+                  ],
+                  "priorityTemplate": "AI 判定：\n目前最缺：\n【空】\n請優先補強：\n【空】\n完成後：\n再補：\n【風】\n最後：\n【水】",
+                  "corePrinciple": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。"
+                },
+                "productMatch": {
+                  "primaryProductId": "bracelet_space_core",
+                  "supportedElements": [
+                    "SPACE",
+                    "AIR"
+                  ],
+                  "balancedElements": [
+                    "EARTH"
+                  ],
+                  "matchReason": [
+                    "主補元素鎖定空元素，商品推薦必須先對準這個缺口。",
+                    "第二順位風元素只作輔助參考，不取代主補判定。",
+                    "目前較強元素先列入平衡觀察，不作為本次主推補強。",
+                    "多模組訊號接近時已套用衝突解決，前端只顯示唯一主補。"
+                  ],
+                  "matchConfidence": "high"
+                },
+                "enginePipeline": [
+                  "ModuleAnalysisAdapter",
+                  "ElementNormalizationEngine",
+                  "ElementRecommendationEngine",
+                  "ElementConflictResolver",
+                  "ProductMatchingEngine",
+                  "VerifiedQuoteMatchingEngine",
+                  "ElementResultPresenter"
+                ],
+                "aiElementModel": {
+                  "primaryElement": "SPACE",
+                  "secondaryElement": "AIR",
+                  "elementScore": {
+                    "AIR": 50,
+                    "SPACE": 50,
+                    "WATER": 30,
+                    "FIRE": 30,
+                    "EARTH": 2
+                  }
+                },
+                "elementScore": {
+                  "AIR": 50,
+                  "SPACE": 50,
+                  "WATER": 30,
+                  "FIRE": 30,
+                  "EARTH": 2
+                }
+              }
+            },
+            "errorCode": null,
+            "errorMessage": null,
+            "createdAt": "2026-08-06T15:15:28.090Z",
+            "startedAt": "2026-08-06T15:15:28.091Z",
+            "completedAt": "2026-08-06T15:15:28.124Z",
+            "updatedAt": "2026-08-06T15:15:28.124Z",
+            "expiresAt": "2026-08-06T15:45:28.124Z"
+          },
+          "result": {
+            "ok": true,
+            "mode": "zodiac",
+            "moduleId": "ZODIAC",
+            "engineVersion": "zodiac_core_v4",
+            "input": {
+              "name": "ZodiacQASelf",
+              "birthDate": "1990-05-20",
+              "birthTime": "09:30",
+              "birthCityId": "taipei"
+            },
+            "precision": "FULL_CHART",
+            "sign": {
+              "key": "taurus",
+              "name": "金牛座",
+              "symbol": "♉",
+              "element": "earth",
+              "dateRange": "04/20 - 05/20"
+            },
+            "risingSign": {
+              "key": "sagittarius",
+              "name": "射手座",
+              "symbol": "♐",
+              "element": "fire",
+              "dateRange": "11/22 - 12/21"
+            },
+            "moonSign": {
+              "key": "pisces",
+              "name": "雙魚座",
+              "symbol": "♓",
+              "element": "water",
+              "dateRange": "02/19 - 03/20"
+            },
+            "professionalChart": {
+              "layer": "professional_zodiac_chart",
+              "generatedFrom": "normalized_birth_input",
+              "recalculationAllowed": false,
+              "input": {
+                "name": "ZodiacQASelf",
+                "birthDate": "1990-05-20",
+                "birthTime": "09:30",
+                "birthCityId": "taipei"
+              },
+              "precision": "FULL_CHART",
+              "precisionScore": 100,
+              "dataQuality": {
+                "birthDate": "provided",
+                "birthTime": "provided",
+                "birthCity": "provided",
+                "note": "出生日期、時間與城市完整，已建立完整星盤第一層資料。"
+              },
+              "points": {
+                "sun": {
+                  "role": "sun",
+                  "roleLabel": "太陽",
+                  "sign": {
+                    "key": "taurus",
+                    "name": "金牛座",
+                    "symbol": "♉",
+                    "element": "earth",
+                    "dateRange": "04/20 - 05/20"
+                  },
+                  "element": "earth",
+                  "modality": "fixed",
+                  "polarity": "yin",
+                  "ruler": "金星",
+                  "houseTheme": "資源、穩定、價值",
+                  "longitudeDeg": null,
+                  "calculationSource": "date_range",
+                  "available": true,
+                  "professionalMeaning": "太陽星座定義外在人格主軸、意志方向與主要生命表達。"
+                },
+                "moon": {
+                  "role": "moon",
+                  "roleLabel": "月亮",
+                  "sign": {
+                    "key": "pisces",
+                    "name": "雙魚座",
+                    "symbol": "♓",
+                    "element": "water",
+                    "dateRange": "02/19 - 03/20"
+                  },
+                  "element": "water",
+                  "modality": "mutable",
+                  "polarity": "yin",
+                  "ruler": "海王星",
+                  "houseTheme": "想像、共感、靈感",
+                  "longitudeDeg": 357.04,
+                  "calculationSource": "astronomy_engine",
+                  "available": true,
+                  "professionalMeaning": "月亮星座定義情緒反應、安全感需求與私領域的內在節奏。"
+                },
+                "rising": {
+                  "role": "rising",
+                  "roleLabel": "上升",
+                  "sign": {
+                    "key": "sagittarius",
+                    "name": "射手座",
+                    "symbol": "♐",
+                    "element": "fire",
+                    "dateRange": "11/22 - 12/21"
+                  },
+                  "element": "fire",
+                  "modality": "mutable",
+                  "polarity": "yang",
+                  "ruler": "木星",
+                  "houseTheme": "遠方、信念、探索",
+                  "longitudeDeg": 240.69,
+                  "calculationSource": "astronomy_engine",
+                  "available": true,
+                  "professionalMeaning": "上升星座定義第一印象、行動入口與人生事件的外在開場方式。"
+                }
+              },
+              "dominantSignature": {
+                "element": "earth",
+                "modality": "mutable",
+                "polarity": "yin",
+                "score": 4.6,
+                "basis": [
+                  "太陽金牛座",
+                  "月亮雙魚座",
+                  "上升射手座"
+                ]
+              },
+              "elementDistribution": {
+                "fire": 0.9,
+                "earth": 1,
+                "air": 0,
+                "water": 0.85
+              },
+              "modalityDistribution": {
+                "cardinal": 0,
+                "fixed": 1,
+                "mutable": 1.75
+              },
+              "polarityDistribution": {
+                "yang": 0.9,
+                "yin": 1.85
+              },
+              "professionalKeywords": [
+                "穩定",
+                "累積",
+                "感官",
+                "共感",
+                "想像",
+                "療癒",
+                "探索",
+                "視野",
+                "自由"
+              ],
+              "readingBoundaries": [
+                "第一層只建立專業星座盤資料，不輸出 AI 補強建議。",
+                "第二層 AI 解讀必須讀取本層資料，不得重新計算星座盤。",
+                "第三層五元素補強必須讀取第二層結論，不得逆向改寫本層命盤。"
+              ],
+              "integrationWeights": {
+                "AIR": 0,
+                "FIRE": 33,
+                "WATER": 31,
+                "EARTH": 36
+              }
+            },
+            "deepAnalysis": {
+              "layer": "ai_zodiac_deep_analysis",
+              "sourceLayer": "professional_zodiac_chart",
+              "recalculationAllowed": false,
+              "professionalInputDigest": [
+                "精準度：FULL_CHART / 100%",
+                "主導結構：太陽金牛座、月亮雙魚座、上升射手座",
+                "主導能量：土象、變動、陰性"
+              ],
+              "coreNarrative": "第二層 AI 解讀：太陽金牛座、月亮雙魚座、上升射手座形成的主軸是土象的穩定、承擔、落實力，透過變動節奏進行表達。",
+              "pointReadings": [
+                {
+                  "role": "sun",
+                  "roleLabel": "太陽",
+                  "sourceSign": {
+                    "key": "taurus",
+                    "name": "金牛座",
+                    "symbol": "♉",
+                    "element": "earth",
+                    "dateRange": "04/20 - 05/20"
+                  },
+                  "title": "太陽金牛座專業解讀",
+                  "interpretation": "太陽金牛座帶出穩定、承擔、落實力，表達方式是維持成果與穩定核心，能量流向是內在沉澱與接收整合。",
+                  "integrationFocus": "後續 AI 解讀要以太陽的資源、穩定、價值作為主要語境，不可重新計算星盤。",
+                  "evidence": [
+                    "太陽金牛座",
+                    "土象 / 固定 / 陰性",
+                    "守護星：金星"
+                  ]
+                },
+                {
+                  "role": "moon",
+                  "roleLabel": "月亮",
+                  "sourceSign": {
+                    "key": "pisces",
+                    "name": "雙魚座",
+                    "symbol": "♓",
+                    "element": "water",
+                    "dateRange": "02/19 - 03/20"
+                  },
+                  "title": "月亮雙魚座專業解讀",
+                  "interpretation": "月亮雙魚座帶出感受、直覺、共感力，表達方式是調整策略與轉換節奏，能量流向是內在沉澱與接收整合。",
+                  "integrationFocus": "後續 AI 解讀要以月亮的想像、共感、靈感作為主要語境，不可重新計算星盤。",
+                  "evidence": [
+                    "月亮雙魚座",
+                    "水象 / 變動 / 陰性",
+                    "守護星：海王星"
+                  ]
+                },
+                {
+                  "role": "rising",
+                  "roleLabel": "上升",
+                  "sourceSign": {
+                    "key": "sagittarius",
+                    "name": "射手座",
+                    "symbol": "♐",
+                    "element": "fire",
+                    "dateRange": "11/22 - 12/21"
+                  },
+                  "title": "上升射手座專業解讀",
+                  "interpretation": "上升射手座帶出行動、熱情、主導力，表達方式是調整策略與轉換節奏，能量流向是外放推進與主動表達。",
+                  "integrationFocus": "後續 AI 解讀要以上升的遠方、信念、探索作為主要語境，不可重新計算星盤。",
+                  "evidence": [
+                    "上升射手座",
+                    "火象 / 變動 / 陽性",
+                    "守護星：木星"
+                  ]
+                }
+              ],
+              "dominantInterpretation": "主導結構判定為：土象、變動、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+              "tensionPatterns": [
+                "盤面中風象訊號不足，第三層補強必須優先納入。",
+                "太陽、月亮、上升三點資料已成立，第二層可做人格、情緒、外在行動的交叉解讀。",
+                "主導結構為土象、變動、陰性，AI 語氣應直接、有方向，不使用模糊詞。"
+              ],
+              "growthOpportunities": [
+                "把穩定、承擔、落實力轉成每天可執行的一個行動。",
+                "用調整策略與轉換節奏來整理現在的人生任務。",
+                "保留內在沉澱與接收整合的優勢，再由第三層補上缺口。"
+              ],
+              "userFriendlySummary": "你的西洋星座解讀主軸已建立：土象是目前最明顯的表達方式，第三層會依據缺口排出補強順序。",
+              "aiPromptMaterial": {
+                "fixedFacts": [
+                  "太陽金牛座",
+                  "土象 / 固定 / 陰性",
+                  "守護星：金星",
+                  "月亮雙魚座",
+                  "水象 / 變動 / 陰性",
+                  "守護星：海王星",
+                  "上升射手座",
+                  "火象 / 變動 / 陽性",
+                  "守護星：木星"
+                ],
+                "interpretationRules": [
+                  "只讀取 professionalChart，不重新計算星座。",
+                  "先解釋太陽、月亮、上升的分工，再做綜合。",
+                  "語氣必須明確判定，不使用模糊詞。"
+                ],
+                "prohibitedMoves": [
+                  "不直接修改會員五元素核心。",
+                  "不將西洋星座與其他模組混算。",
+                  "不保證人生結果，只判定補強方向。"
+                ]
+              }
+            },
+            "reinforcementPlan": {
+              "layer": "ai_zodiac_reinforcement_plan",
+              "sourceLayer": "ai_zodiac_deep_analysis",
+              "recalculationAllowed": false,
+              "principle": "AI 不預測命運；AI 判定你目前最需要補強的方向。",
+              "priorities": [
+                {
+                  "rank": 1,
+                  "element": "AIR",
+                  "elementLabel": "風元素",
+                  "needScore": 100,
+                  "reason": "AI 判定：西洋星座盤中【風】的補強需求為 100，本層排為第 1 補強。",
+                  "actions": [
+                    "把目標寫成 3 步路線，今天先完成第 1 步。",
+                    "主動連結一位能帶來新觀點的人。",
+                    "每天固定 15 分鐘學一個新觀念。"
+                  ],
+                  "sourceEvidence": [
+                    "主導結構判定為：土象、變動、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                    "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                  ]
+                },
+                {
+                  "rank": 2,
+                  "element": "WATER",
+                  "elementLabel": "水元素",
+                  "needScore": 69,
+                  "reason": "AI 判定：西洋星座盤中【水】的補強需求為 69，本層排為第 2 補強。",
+                  "actions": [
+                    "先記錄感受，再回應事件，不讓情緒被忽略。",
+                    "今天做 10 分鐘靜心整理。",
+                    "在重要對話前，先聽完對方真正需求。"
+                  ],
+                  "sourceEvidence": [
+                    "主導結構判定為：土象、變動、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                    "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                  ]
+                },
+                {
+                  "rank": 3,
+                  "element": "FIRE",
+                  "elementLabel": "火元素",
+                  "needScore": 67,
+                  "reason": "AI 判定：西洋星座盤中【火】的補強需求為 67，本層排為第 3 補強。",
+                  "actions": [
+                    "今天完成一個能被看見的行動。",
+                    "把真正想說的話用一段清楚文字說出來。",
+                    "給目標一個明確截止時間。"
+                  ],
+                  "sourceEvidence": [
+                    "主導結構判定為：土象、變動、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                    "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                  ]
+                }
+              ],
+              "executionOrder": [
+                "第一補強：風元素",
+                "第二補強：水元素",
+                "第三補強：火元素"
+              ],
+              "integrationLayerPayload": {
+                "moduleId": "ZODIAC",
+                "sourceEngineVersion": "zodiac_core_v4",
+                "elementNeedScore": {
+                  "AIR": 100,
+                  "SPACE": 48,
+                  "WATER": 69,
+                  "FIRE": 67,
+                  "EARTH": 64
+                },
+                "firstPriority": "AIR",
+                "evidence": [
+                  "你的西洋星座解讀主軸已建立：土象是目前最明顯的表達方式，第三層會依據缺口排出補強順序。",
+                  "主導結構判定為：土象、變動、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                  "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                ],
+                "writePolicy": "self_can_update_growth_center_other_single_reading_only"
+              }
+            },
+            "chartNote": "已依出生日期、時間與城市（台北）完成完整星盤等級分析，太陽、月亮與上升星座皆採真實天文位置計算。",
+            "personality": "ZodiacQASelf的金牛座主軸：重視穩定與實際成果，適合用長期累積建立信任感。",
+            "strengths": [
+              "耐力穩",
+              "重視品質",
+              "財務與資源感強"
+            ],
+            "blindSpots": [
+              "變動時反應較慢",
+              "容易固守熟悉方式",
+              "不喜歡被催促"
+            ],
+            "currentAdvice": "現在最重要是保留穩定節奏，同時每週加入一個小改變。",
+            "weeklyReminder": "本週重點：穩中求進。整理一項資源，讓下一步更容易開始。",
+            "integrationSummary": "西洋星座已完成獨立分析，Integration Layer 只讀取本結果作為會員成長資料補充，不重新分析其他命理模組。",
+            "fiveElement": {
+              "sourceModule": "zodiac",
+              "analysisId": "zodiac_ad7b5cad",
+              "elementScores": {
+                "metal": {
+                  "strength": 50,
+                  "need": 50,
+                  "evidenceCount": 0
+                },
+                "wood": {
+                  "strength": 50,
+                  "need": 50,
+                  "evidenceCount": 0
+                },
+                "water": {
+                  "strength": 70,
+                  "need": 30,
+                  "evidenceCount": 1
+                },
+                "fire": {
+                  "strength": 70,
+                  "need": 30,
+                  "evidenceCount": 1
+                },
+                "earth": {
+                  "strength": 98,
+                  "need": 2,
+                  "evidenceCount": 2
+                }
+              },
+              "primaryElement": "metal",
+              "secondaryElement": "wood",
+              "strongElement": "earth",
+              "avoidElement": "earth",
+              "confidence": "high",
+              "conflict": true,
+              "supportingModules": [
+                "zodiac"
+              ],
+              "moduleResults": [
+                {
+                  "module": "zodiac",
+                  "primaryElement": "metal",
+                  "confidence": "high"
+                }
+              ],
+              "evidence": [
+                {
+                  "module": "zodiac",
+                  "title": "空元素是本次星座交叉分析判定的第一缺口",
+                  "detail": "太陽星座 金牛座、上升星座 射手座、月亮星座 雙魚座、血型 A 型，交叉判定後對應空元素訊號偏少。",
+                  "element": "metal",
+                  "impact": "need"
+                }
+              ],
+              "ruleVersion": "zodiac_element_v1",
+              "summary": "AI 判定：目前最缺空元素。請優先補強空元素。 第一補強：空元素。完成後再補：風元素。最後補：水元素。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+              "keywords": [
+                "原則",
+                "決斷",
+                "執行",
+                "界線"
+              ],
+              "reasons": [
+                "AI 判定：\n目前最缺：\n【空】\n請優先補強：\n【空】\n完成後：\n再補：\n【風】\n最後：\n【水】",
+                "AI 判定：目前最缺空元素。請優先補強空元素。",
+                "第一補強：空元素。完成後再補：風元素。最後補：水元素。",
+                "因為空元素與第二補強風元素補強需求同為 50 分；後端依來源權重、五行生剋與主補規則，仍判定空元素是第一補強。目前支撐元素是地元素，本次不把它當成第一補強。差距：0 分。",
+                "第二補強與第一補強接近，系統已啟用衝突解決：仍以補強需求最高的空元素作為第一補強，不把第二補強寫成第一補強。",
+                "星座交叉分析來源：太陽星座 金牛座、上升星座 射手座、月亮星座 雙魚座、血型 A 型。",
+                "補空元素先改變的是決策、紀律與執行清晰度。這是補空元素最先改變的地方。",
+                "第二順位是風元素，但本次先專心補空元素。"
+              ],
+              "recommendedActions": [
+                "今天先寫下 3 條清楚界線。",
+                "把一件拖延的決定切成可執行步驟。",
+                "用更精準的文字表達自己的標準。"
+              ],
+              "productEntryLabel": "選擇空元素能量手鏈",
+              "productRecommendation": {
+                "title": "空元素能量手鏈補強方案",
+                "headline": "優先補強清晰度、判斷與執行標準。",
+                "description": "本次系統判定：你缺空元素，就先補空。空元素能量手鏈放在補強核心，用來提醒自己把標準說清楚，把決定落地執行。",
+                "supportDirections": [
+                  "紀律",
+                  "決斷",
+                  "邊界",
+                  "執行"
+                ],
+                "disclaimer": "這是五元素能量手鏈補強與正向提醒，不代表保證成功或改運。真正結果仍需要持續行動。",
+                "ctaLabel": "選擇空元素能量手鏈",
+                "braceletCore": "本次結論不模糊：系統判定缺空元素，手鏈補強就先選空元素。"
+              },
+              "positiveQuote": {
+                "author": "華倫・巴菲特",
+                "role": "Berkshire Hathaway Chairman and CEO",
+                "quote": "The best investment is in your own abilities.",
+                "sourceName": "CNBC",
+                "sourceUrl": "https://www.cnbc.com/2018/05/01/warren-buffett-says-this-is-the-best-investment-you-can-make.html",
+                "elementFit": "空元素重視清晰、紀律與能力打磨，適合用來提醒自我投資與決策清楚。",
+                "reminder": "最穩的補強，是把自己的能力一次一次磨利。"
+              },
+              "traditionalElement": "METAL",
+              "brandElement": "SPACE",
+              "secondaryBrandElement": "AIR",
+              "strongBrandElement": "EARTH",
+              "avoidBrandElement": "EARTH",
+              "normalizedElements": {
+                "SPACE": {
+                  "sourceElement": "metal",
+                  "traditionalElement": "METAL",
+                  "brandElement": "SPACE",
+                  "displayName": "空",
+                  "sourceName": "金",
+                  "strength": 50,
+                  "need": 50,
+                  "evidenceCount": 0
+                },
+                "AIR": {
+                  "sourceElement": "wood",
+                  "traditionalElement": "WOOD",
+                  "brandElement": "AIR",
+                  "displayName": "風",
+                  "sourceName": "木",
+                  "strength": 50,
+                  "need": 50,
+                  "evidenceCount": 0
+                },
+                "WATER": {
+                  "sourceElement": "water",
+                  "traditionalElement": "WATER",
+                  "brandElement": "WATER",
+                  "displayName": "水",
+                  "sourceName": "水",
+                  "strength": 70,
+                  "need": 30,
+                  "evidenceCount": 1
+                },
+                "FIRE": {
+                  "sourceElement": "fire",
+                  "traditionalElement": "FIRE",
+                  "brandElement": "FIRE",
+                  "displayName": "火",
+                  "sourceName": "火",
+                  "strength": 70,
+                  "need": 30,
+                  "evidenceCount": 1
+                },
+                "EARTH": {
+                  "sourceElement": "earth",
+                  "traditionalElement": "EARTH",
+                  "brandElement": "EARTH",
+                  "displayName": "地",
+                  "sourceName": "土",
+                  "strength": 98,
+                  "need": 2,
+                  "evidenceCount": 2
+                }
+              },
+              "decision": {
+                "title": "AI 判定：目前最缺【空】",
+                "conclusion": "AI 判定：目前最缺空元素。請優先補強空元素。",
+                "primaryAction": "第一補強：空元素。完成後再補：風元素。最後補：水元素。",
+                "changeTarget": "補空元素先改變的是決策、紀律與執行清晰度。",
+                "why": "因為空元素與第二補強風元素補強需求同為 50 分；後端依來源權重、五行生剋與主補規則，仍判定空元素是第一補強。目前支撐元素是地元素，本次不把它當成第一補強。差距：0 分。",
+                "conflictNote": "第二補強與第一補強接近，系統已啟用衝突解決：仍以補強需求最高的空元素作為第一補強，不把第二補強寫成第一補強。",
+                "priorityOrder": [
+                  "metal",
+                  "wood",
+                  "water",
+                  "fire",
+                  "earth"
+                ],
+                "priorityTemplate": "AI 判定：\n目前最缺：\n【空】\n請優先補強：\n【空】\n完成後：\n再補：\n【風】\n最後：\n【水】",
+                "corePrinciple": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。"
+              },
+              "productMatch": {
+                "primaryProductId": "bracelet_space_core",
+                "supportedElements": [
+                  "SPACE",
+                  "AIR"
+                ],
+                "balancedElements": [
+                  "EARTH"
+                ],
+                "matchReason": [
+                  "主補元素鎖定空元素，商品推薦必須先對準這個缺口。",
+                  "第二順位風元素只作輔助參考，不取代主補判定。",
+                  "目前較強元素先列入平衡觀察，不作為本次主推補強。",
+                  "多模組訊號接近時已套用衝突解決，前端只顯示唯一主補。"
+                ],
+                "matchConfidence": "high"
+              },
+              "enginePipeline": [
+                "ModuleAnalysisAdapter",
+                "ElementNormalizationEngine",
+                "ElementRecommendationEngine",
+                "ElementConflictResolver",
+                "ProductMatchingEngine",
+                "VerifiedQuoteMatchingEngine",
+                "ElementResultPresenter"
+              ],
+              "aiElementModel": {
+                "primaryElement": "SPACE",
+                "secondaryElement": "AIR",
+                "elementScore": {
+                  "AIR": 50,
+                  "SPACE": 50,
+                  "WATER": 30,
+                  "FIRE": 30,
+                  "EARTH": 2
+                }
+              },
+              "elementScore": {
+                "AIR": 50,
+                "SPACE": 50,
+                "WATER": 30,
+                "FIRE": 30,
+                "EARTH": 2
+              }
+            }
+          }
+        }
+      },
+      "poll": {
+        "ok": false,
+        "status": 404,
+        "route": "/api/analysis/jobs/job_ba728ac2-3d03-49ee-8e8b-333c358c3a45",
+        "durationMs": 279,
+        "data": {
+          "ok": false,
+          "requestId": "0f1fd1b1-0877-4bc3-b712-8be9526b58ee",
+          "code": "JOB_NOT_FOUND",
+          "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+          "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+        }
+      },
+      "ok": true,
+      "pollOk": false,
+      "jobId": "job_ba728ac2-3d03-49ee-8e8b-333c358c3a45",
+      "resultId": "result_8ac3b7f5-669f-44e9-94bf-b262057d98c3",
+      "status": "COMPLETED",
+      "requestId": "f7114106-a989-43da-bbc6-bfa4eac184b9"
+    },
+    "other": {
+      "create": {
+        "ok": true,
+        "status": 200,
+        "route": "/api/analysis/jobs",
+        "durationMs": 280,
+        "data": {
+          "ok": true,
+          "requestId": "0b08edbb-92bf-4b9c-9afb-f816ca263db7",
+          "success": true,
+          "data": {
+            "jobId": "job_5af457b8-60d1-47e3-9d67-9c970dce67cc",
+            "analysisType": "zodiac",
+            "moduleId": "ZODIAC",
+            "status": "COMPLETED",
+            "progressStage": "DONE",
+            "progressPercent": 100,
+            "message": "分析完成，結果已準備好。",
+            "resultId": "result_c9a62ebc-2956-43c5-8112-284a0eae22a9",
+            "result": {
+              "ok": true,
+              "mode": "zodiac",
+              "moduleId": "ZODIAC",
+              "engineVersion": "zodiac_core_v4",
+              "input": {
+                "name": "ZodiacQAOther",
+                "birthDate": "1988-11-08",
+                "birthTime": "18:20",
+                "birthCityId": null
+              },
+              "precision": "DATE_TIME",
+              "sign": {
+                "key": "scorpio",
+                "name": "天蠍座",
+                "symbol": "♏",
+                "element": "water",
+                "dateRange": "10/23 - 11/21"
+              },
+              "risingSign": {
+                "key": "capricorn",
+                "name": "摩羯座",
+                "symbol": "♑",
+                "element": "earth",
+                "dateRange": "12/22 - 01/19"
+              },
+              "moonSign": {
+                "key": "scorpio",
+                "name": "天蠍座",
+                "symbol": "♏",
+                "element": "water",
+                "dateRange": "10/23 - 11/21"
+              },
+              "professionalChart": {
+                "layer": "professional_zodiac_chart",
+                "generatedFrom": "normalized_birth_input",
+                "recalculationAllowed": false,
+                "input": {
+                  "name": "ZodiacQAOther",
+                  "birthDate": "1988-11-08",
+                  "birthTime": "18:20",
+                  "birthCityId": null
+                },
+                "precision": "DATE_TIME",
+                "precisionScore": 74,
+                "dataQuality": {
+                  "birthDate": "provided",
+                  "birthTime": "provided",
+                  "birthCity": "assumed",
+                  "note": "已提供出生時間，但出生城市未提供；上升星座以台北作為估算基準。"
+                },
+                "points": {
+                  "sun": {
+                    "role": "sun",
+                    "roleLabel": "太陽",
+                    "sign": {
+                      "key": "scorpio",
+                      "name": "天蠍座",
+                      "symbol": "♏",
+                      "element": "water",
+                      "dateRange": "10/23 - 11/21"
+                    },
+                    "element": "water",
+                    "modality": "fixed",
+                    "polarity": "yin",
+                    "ruler": "冥王星",
+                    "houseTheme": "深度、轉化、洞察",
+                    "longitudeDeg": null,
+                    "calculationSource": "date_range",
+                    "available": true,
+                    "professionalMeaning": "太陽星座定義外在人格主軸、意志方向與主要生命表達。"
+                  },
+                  "moon": {
+                    "role": "moon",
+                    "roleLabel": "月亮",
+                    "sign": {
+                      "key": "scorpio",
+                      "name": "天蠍座",
+                      "symbol": "♏",
+                      "element": "water",
+                      "dateRange": "10/23 - 11/21"
+                    },
+                    "element": "water",
+                    "modality": "fixed",
+                    "polarity": "yin",
+                    "ruler": "冥王星",
+                    "houseTheme": "深度、轉化、洞察",
+                    "longitudeDeg": 212.86,
+                    "calculationSource": "astronomy_engine",
+                    "available": true,
+                    "professionalMeaning": "月亮星座定義情緒反應、安全感需求與私領域的內在節奏。"
+                  },
+                  "rising": {
+                    "role": "rising",
+                    "roleLabel": "上升",
+                    "sign": {
+                      "key": "capricorn",
+                      "name": "摩羯座",
+                      "symbol": "♑",
+                      "element": "earth",
+                      "dateRange": "12/22 - 01/19"
+                    },
+                    "element": "earth",
+                    "modality": "cardinal",
+                    "polarity": "yin",
+                    "ruler": "土星",
+                    "houseTheme": "責任、目標、結構",
+                    "longitudeDeg": 293.2,
+                    "calculationSource": "astronomy_engine",
+                    "available": true,
+                    "professionalMeaning": "上升星座定義第一印象、行動入口與人生事件的外在開場方式。"
+                  }
+                },
+                "dominantSignature": {
+                  "element": "water",
+                  "modality": "fixed",
+                  "polarity": "yin",
+                  "score": 6.5,
+                  "basis": [
+                    "太陽天蠍座",
+                    "月亮天蠍座",
+                    "上升摩羯座"
+                  ]
+                },
+                "elementDistribution": {
+                  "fire": 0,
+                  "earth": 0.9,
+                  "air": 0,
+                  "water": 1.85
+                },
+                "modalityDistribution": {
+                  "cardinal": 0.9,
+                  "fixed": 1.85,
+                  "mutable": 0
+                },
+                "polarityDistribution": {
+                  "yang": 0,
+                  "yin": 2.75
+                },
+                "professionalKeywords": [
+                  "洞察",
+                  "專注",
+                  "轉化",
+                  "責任",
+                  "結構",
+                  "長期"
+                ],
+                "readingBoundaries": [
+                  "第一層只建立專業星座盤資料，不輸出 AI 補強建議。",
+                  "第二層 AI 解讀必須讀取本層資料，不得重新計算星座盤。",
+                  "第三層五元素補強必須讀取第二層結論，不得逆向改寫本層命盤。"
+                ],
+                "integrationWeights": {
+                  "AIR": 0,
+                  "FIRE": 0,
+                  "WATER": 67,
+                  "EARTH": 33
+                }
+              },
+              "deepAnalysis": {
+                "layer": "ai_zodiac_deep_analysis",
+                "sourceLayer": "professional_zodiac_chart",
+                "recalculationAllowed": false,
+                "professionalInputDigest": [
+                  "精準度：DATE_TIME / 74%",
+                  "主導結構：太陽天蠍座、月亮天蠍座、上升摩羯座",
+                  "主導能量：水象、固定、陰性"
+                ],
+                "coreNarrative": "第二層 AI 解讀：太陽天蠍座、月亮天蠍座、上升摩羯座形成的主軸是水象的感受、直覺、共感力，透過固定節奏進行表達。",
+                "pointReadings": [
+                  {
+                    "role": "sun",
+                    "roleLabel": "太陽",
+                    "sourceSign": {
+                      "key": "scorpio",
+                      "name": "天蠍座",
+                      "symbol": "♏",
+                      "element": "water",
+                      "dateRange": "10/23 - 11/21"
+                    },
+                    "title": "太陽天蠍座專業解讀",
+                    "interpretation": "太陽天蠍座帶出感受、直覺、共感力，表達方式是維持成果與穩定核心，能量流向是內在沉澱與接收整合。",
+                    "integrationFocus": "後續 AI 解讀要以太陽的深度、轉化、洞察作為主要語境，不可重新計算星盤。",
+                    "evidence": [
+                      "太陽天蠍座",
+                      "水象 / 固定 / 陰性",
+                      "守護星：冥王星"
+                    ]
+                  },
+                  {
+                    "role": "moon",
+                    "roleLabel": "月亮",
+                    "sourceSign": {
+                      "key": "scorpio",
+                      "name": "天蠍座",
+                      "symbol": "♏",
+                      "element": "water",
+                      "dateRange": "10/23 - 11/21"
+                    },
+                    "title": "月亮天蠍座專業解讀",
+                    "interpretation": "月亮天蠍座帶出感受、直覺、共感力，表達方式是維持成果與穩定核心，能量流向是內在沉澱與接收整合。",
+                    "integrationFocus": "後續 AI 解讀要以月亮的深度、轉化、洞察作為主要語境，不可重新計算星盤。",
+                    "evidence": [
+                      "月亮天蠍座",
+                      "水象 / 固定 / 陰性",
+                      "守護星：冥王星"
+                    ]
+                  },
+                  {
+                    "role": "rising",
+                    "roleLabel": "上升",
+                    "sourceSign": {
+                      "key": "capricorn",
+                      "name": "摩羯座",
+                      "symbol": "♑",
+                      "element": "earth",
+                      "dateRange": "12/22 - 01/19"
+                    },
+                    "title": "上升摩羯座專業解讀",
+                    "interpretation": "上升摩羯座帶出穩定、承擔、落實力，表達方式是啟動事件與開創方向，能量流向是內在沉澱與接收整合。",
+                    "integrationFocus": "後續 AI 解讀要以上升的責任、目標、結構作為主要語境，不可重新計算星盤。",
+                    "evidence": [
+                      "上升摩羯座",
+                      "土象 / 開創 / 陰性",
+                      "守護星：土星"
+                    ]
+                  }
+                ],
+                "dominantInterpretation": "主導結構判定為：水象、固定、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                "tensionPatterns": [
+                  "盤面中火象、風象訊號不足，第三層補強必須優先納入。",
+                  "太陽、月亮、上升三點資料已成立，第二層可做人格、情緒、外在行動的交叉解讀。",
+                  "主導結構為水象、固定、陰性，AI 語氣應直接、有方向，不使用模糊詞。"
+                ],
+                "growthOpportunities": [
+                  "把感受、直覺、共感力轉成每天可執行的一個行動。",
+                  "用維持成果與穩定核心來整理現在的人生任務。",
+                  "保留內在沉澱與接收整合的優勢，再由第三層補上缺口。"
+                ],
+                "userFriendlySummary": "你的西洋星座解讀主軸已建立：水象是目前最明顯的表達方式，第三層會依據缺口排出補強順序。",
+                "aiPromptMaterial": {
+                  "fixedFacts": [
+                    "太陽天蠍座",
+                    "水象 / 固定 / 陰性",
+                    "守護星：冥王星",
+                    "月亮天蠍座",
+                    "水象 / 固定 / 陰性",
+                    "守護星：冥王星",
+                    "上升摩羯座",
+                    "土象 / 開創 / 陰性",
+                    "守護星：土星"
+                  ],
+                  "interpretationRules": [
+                    "只讀取 professionalChart，不重新計算星座。",
+                    "先解釋太陽、月亮、上升的分工，再做綜合。",
+                    "語氣必須明確判定，不使用模糊詞。"
+                  ],
+                  "prohibitedMoves": [
+                    "不直接修改會員五元素核心。",
+                    "不將西洋星座與其他模組混算。",
+                    "不保證人生結果，只判定補強方向。"
+                  ]
+                }
+              },
+              "reinforcementPlan": {
+                "layer": "ai_zodiac_reinforcement_plan",
+                "sourceLayer": "ai_zodiac_deep_analysis",
+                "recalculationAllowed": false,
+                "principle": "AI 不預測命運；AI 判定你目前最需要補強的方向。",
+                "priorities": [
+                  {
+                    "rank": 1,
+                    "element": "AIR",
+                    "elementLabel": "風元素",
+                    "needScore": 100,
+                    "reason": "AI 判定：西洋星座盤中【風】的補強需求為 100，本層排為第 1 補強。",
+                    "actions": [
+                      "把目標寫成 3 步路線，今天先完成第 1 步。",
+                      "主動連結一位能帶來新觀點的人。",
+                      "每天固定 15 分鐘學一個新觀念。"
+                    ],
+                    "sourceEvidence": [
+                      "主導結構判定為：水象、固定、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                      "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                    ]
+                  },
+                  {
+                    "rank": 2,
+                    "element": "FIRE",
+                    "elementLabel": "火元素",
+                    "needScore": 100,
+                    "reason": "AI 判定：西洋星座盤中【火】的補強需求為 100，本層排為第 2 補強。",
+                    "actions": [
+                      "今天完成一個能被看見的行動。",
+                      "把真正想說的話用一段清楚文字說出來。",
+                      "給目標一個明確截止時間。"
+                    ],
+                    "sourceEvidence": [
+                      "主導結構判定為：水象、固定、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                      "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                    ]
+                  },
+                  {
+                    "rank": 3,
+                    "element": "EARTH",
+                    "elementLabel": "地元素",
+                    "needScore": 67,
+                    "reason": "AI 判定：西洋星座盤中【地】的補強需求為 67，本層排為第 3 補強。",
+                    "actions": [
+                      "固定睡眠、飲食或工作節奏，先把基礎穩住。",
+                      "整理一個你每天會使用的空間。",
+                      "把承諾減到可以持續完成的範圍。"
+                    ],
+                    "sourceEvidence": [
+                      "主導結構判定為：水象、固定、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                      "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                    ]
+                  }
+                ],
+                "executionOrder": [
+                  "第一補強：風元素",
+                  "第二補強：火元素",
+                  "第三補強：地元素"
+                ],
+                "integrationLayerPayload": {
+                  "moduleId": "ZODIAC",
+                  "sourceEngineVersion": "zodiac_core_v4",
+                  "elementNeedScore": {
+                    "AIR": 100,
+                    "SPACE": 19,
+                    "WATER": 33,
+                    "FIRE": 100,
+                    "EARTH": 67
+                  },
+                  "firstPriority": "AIR",
+                  "evidence": [
+                    "你的西洋星座解讀主軸已建立：水象是目前最明顯的表達方式，第三層會依據缺口排出補強順序。",
+                    "主導結構判定為：水象、固定、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                    "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                  ],
+                  "writePolicy": "self_can_update_growth_center_other_single_reading_only"
+                }
+              },
+              "chartNote": "已依出生時間加入上升星座與月亮星座（採真實天文位置計算）。因未提供出生城市，系統暫以台北（UTC+8）估算地理位置，補上正確出生城市可提升上升星座精確度並解鎖完整星盤。",
+              "personality": "ZodiacQAOther的天蠍座主軸：洞察深，專注強，適合處理需要耐心與穿透力的問題。",
+              "strengths": [
+                "洞察力強",
+                "意志集中",
+                "能看見問題核心"
+              ],
+              "blindSpots": [
+                "防備心較高",
+                "不容易放下控制",
+                "情緒累積較深"
+              ],
+              "currentAdvice": "現在最重要是把深度洞察轉成可溝通的行動語言。",
+              "weeklyReminder": "本週重點：說清楚。把一個真正在意的點用平穩方式表達。",
+              "integrationSummary": "西洋星座已完成獨立分析，Integration Layer 只讀取本結果作為會員成長資料補充，不重新分析其他命理模組。",
+              "fiveElement": {
+                "sourceModule": "zodiac",
+                "analysisId": "zodiac_dd9200a3",
+                "elementScores": {
+                  "metal": {
+                    "strength": 50,
+                    "need": 50,
+                    "evidenceCount": 0
+                  },
+                  "wood": {
+                    "strength": 50,
+                    "need": 50,
+                    "evidenceCount": 0
+                  },
+                  "water": {
+                    "strength": 100,
+                    "need": 0,
+                    "evidenceCount": 2
+                  },
+                  "fire": {
+                    "strength": 64,
+                    "need": 36,
+                    "evidenceCount": 1
+                  },
+                  "earth": {
+                    "strength": 70,
+                    "need": 30,
+                    "evidenceCount": 1
+                  }
+                },
+                "primaryElement": "metal",
+                "secondaryElement": "wood",
+                "strongElement": "water",
+                "avoidElement": "water",
+                "confidence": "medium",
+                "conflict": true,
+                "supportingModules": [
+                  "zodiac"
+                ],
+                "moduleResults": [
+                  {
+                    "module": "zodiac",
+                    "primaryElement": "metal",
+                    "confidence": "medium"
+                  }
+                ],
+                "evidence": [
+                  {
+                    "module": "zodiac",
+                    "title": "空元素是本次星座交叉分析判定的第一缺口",
+                    "detail": "太陽星座 天蠍座、上升星座 摩羯座、月亮星座 天蠍座、血型 O 型，交叉判定後對應空元素訊號偏少。",
+                    "element": "metal",
+                    "impact": "need"
+                  }
+                ],
+                "ruleVersion": "zodiac_element_v1",
+                "summary": "AI 判定：目前最缺空元素。請優先補強空元素。 第一補強：空元素。完成後再補：風元素。最後補：火元素。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+                "keywords": [
+                  "原則",
+                  "決斷",
+                  "執行",
+                  "界線"
+                ],
+                "reasons": [
+                  "AI 判定：\n目前最缺：\n【空】\n請優先補強：\n【空】\n完成後：\n再補：\n【風】\n最後：\n【火】",
+                  "AI 判定：目前最缺空元素。請優先補強空元素。",
+                  "第一補強：空元素。完成後再補：風元素。最後補：火元素。",
+                  "因為空元素與第二補強風元素補強需求同為 50 分；後端依來源權重、五行生剋與主補規則，仍判定空元素是第一補強。目前支撐元素是水元素，本次不把它當成第一補強。差距：0 分。",
+                  "第二補強與第一補強接近，系統已啟用衝突解決：仍以補強需求最高的空元素作為第一補強，不把第二補強寫成第一補強。",
+                  "星座交叉分析來源：太陽星座 天蠍座、上升星座 摩羯座、月亮星座 天蠍座、血型 O 型。",
+                  "補空元素先改變的是決策、紀律與執行清晰度。這是補空元素最先改變的地方。",
+                  "第二順位是風元素，但本次先專心補空元素。"
+                ],
+                "recommendedActions": [
+                  "今天先寫下 3 條清楚界線。",
+                  "把一件拖延的決定切成可執行步驟。",
+                  "用更精準的文字表達自己的標準。"
+                ],
+                "productEntryLabel": "選擇空元素能量手鏈",
+                "productRecommendation": {
+                  "title": "空元素能量手鏈補強方案",
+                  "headline": "優先補強清晰度、判斷與執行標準。",
+                  "description": "本次系統判定：你缺空元素，就先補空。空元素能量手鏈放在補強核心，用來提醒自己把標準說清楚，把決定落地執行。",
+                  "supportDirections": [
+                    "紀律",
+                    "決斷",
+                    "邊界",
+                    "執行"
+                  ],
+                  "disclaimer": "這是五元素能量手鏈補強與正向提醒，不代表保證成功或改運。真正結果仍需要持續行動。",
+                  "ctaLabel": "選擇空元素能量手鏈",
+                  "braceletCore": "本次結論不模糊：系統判定缺空元素，手鏈補強就先選空元素。"
+                },
+                "positiveQuote": {
+                  "author": "華倫・巴菲特",
+                  "role": "Berkshire Hathaway Chairman and CEO",
+                  "quote": "The best investment is in your own abilities.",
+                  "sourceName": "CNBC",
+                  "sourceUrl": "https://www.cnbc.com/2018/05/01/warren-buffett-says-this-is-the-best-investment-you-can-make.html",
+                  "elementFit": "空元素重視清晰、紀律與能力打磨，適合用來提醒自我投資與決策清楚。",
+                  "reminder": "最穩的補強，是把自己的能力一次一次磨利。"
+                },
+                "traditionalElement": "METAL",
+                "brandElement": "SPACE",
+                "secondaryBrandElement": "AIR",
+                "strongBrandElement": "WATER",
+                "avoidBrandElement": "WATER",
+                "normalizedElements": {
+                  "SPACE": {
+                    "sourceElement": "metal",
+                    "traditionalElement": "METAL",
+                    "brandElement": "SPACE",
+                    "displayName": "空",
+                    "sourceName": "金",
+                    "strength": 50,
+                    "need": 50,
+                    "evidenceCount": 0
+                  },
+                  "AIR": {
+                    "sourceElement": "wood",
+                    "traditionalElement": "WOOD",
+                    "brandElement": "AIR",
+                    "displayName": "風",
+                    "sourceName": "木",
+                    "strength": 50,
+                    "need": 50,
+                    "evidenceCount": 0
+                  },
+                  "WATER": {
+                    "sourceElement": "water",
+                    "traditionalElement": "WATER",
+                    "brandElement": "WATER",
+                    "displayName": "水",
+                    "sourceName": "水",
+                    "strength": 100,
+                    "need": 0,
+                    "evidenceCount": 2
+                  },
+                  "FIRE": {
+                    "sourceElement": "fire",
+                    "traditionalElement": "FIRE",
+                    "brandElement": "FIRE",
+                    "displayName": "火",
+                    "sourceName": "火",
+                    "strength": 64,
+                    "need": 36,
+                    "evidenceCount": 1
+                  },
+                  "EARTH": {
+                    "sourceElement": "earth",
+                    "traditionalElement": "EARTH",
+                    "brandElement": "EARTH",
+                    "displayName": "地",
+                    "sourceName": "土",
+                    "strength": 70,
+                    "need": 30,
+                    "evidenceCount": 1
+                  }
+                },
+                "decision": {
+                  "title": "AI 判定：目前最缺【空】",
+                  "conclusion": "AI 判定：目前最缺空元素。請優先補強空元素。",
+                  "primaryAction": "第一補強：空元素。完成後再補：風元素。最後補：火元素。",
+                  "changeTarget": "補空元素先改變的是決策、紀律與執行清晰度。",
+                  "why": "因為空元素與第二補強風元素補強需求同為 50 分；後端依來源權重、五行生剋與主補規則，仍判定空元素是第一補強。目前支撐元素是水元素，本次不把它當成第一補強。差距：0 分。",
+                  "conflictNote": "第二補強與第一補強接近，系統已啟用衝突解決：仍以補強需求最高的空元素作為第一補強，不把第二補強寫成第一補強。",
+                  "priorityOrder": [
+                    "metal",
+                    "wood",
+                    "fire",
+                    "earth",
+                    "water"
+                  ],
+                  "priorityTemplate": "AI 判定：\n目前最缺：\n【空】\n請優先補強：\n【空】\n完成後：\n再補：\n【風】\n最後：\n【火】",
+                  "corePrinciple": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。"
+                },
+                "productMatch": {
+                  "primaryProductId": "bracelet_space_core",
+                  "supportedElements": [
+                    "SPACE",
+                    "AIR"
+                  ],
+                  "balancedElements": [
+                    "WATER"
+                  ],
+                  "matchReason": [
+                    "主補元素鎖定空元素，商品推薦必須先對準這個缺口。",
+                    "第二順位風元素只作輔助參考，不取代主補判定。",
+                    "目前較強元素先列入平衡觀察，不作為本次主推補強。",
+                    "多模組訊號接近時已套用衝突解決，前端只顯示唯一主補。"
+                  ],
+                  "matchConfidence": "medium"
+                },
+                "enginePipeline": [
+                  "ModuleAnalysisAdapter",
+                  "ElementNormalizationEngine",
+                  "ElementRecommendationEngine",
+                  "ElementConflictResolver",
+                  "ProductMatchingEngine",
+                  "VerifiedQuoteMatchingEngine",
+                  "ElementResultPresenter"
+                ],
+                "aiElementModel": {
+                  "primaryElement": "SPACE",
+                  "secondaryElement": "AIR",
+                  "elementScore": {
+                    "AIR": 50,
+                    "SPACE": 50,
+                    "WATER": 0,
+                    "FIRE": 36,
+                    "EARTH": 30
+                  }
+                },
+                "elementScore": {
+                  "AIR": 50,
+                  "SPACE": 50,
+                  "WATER": 0,
+                  "FIRE": 36,
+                  "EARTH": 30
+                }
+              }
+            },
+            "errorCode": null,
+            "errorMessage": null,
+            "createdAt": "2026-08-06T15:15:28.673Z",
+            "startedAt": "2026-08-06T15:15:28.674Z",
+            "completedAt": "2026-08-06T15:15:28.678Z",
+            "updatedAt": "2026-08-06T15:15:28.678Z",
+            "expiresAt": "2026-08-06T15:45:28.678Z"
+          },
+          "result": {
+            "ok": true,
+            "mode": "zodiac",
+            "moduleId": "ZODIAC",
+            "engineVersion": "zodiac_core_v4",
+            "input": {
+              "name": "ZodiacQAOther",
+              "birthDate": "1988-11-08",
+              "birthTime": "18:20",
+              "birthCityId": null
+            },
+            "precision": "DATE_TIME",
+            "sign": {
+              "key": "scorpio",
+              "name": "天蠍座",
+              "symbol": "♏",
+              "element": "water",
+              "dateRange": "10/23 - 11/21"
+            },
+            "risingSign": {
+              "key": "capricorn",
+              "name": "摩羯座",
+              "symbol": "♑",
+              "element": "earth",
+              "dateRange": "12/22 - 01/19"
+            },
+            "moonSign": {
+              "key": "scorpio",
+              "name": "天蠍座",
+              "symbol": "♏",
+              "element": "water",
+              "dateRange": "10/23 - 11/21"
+            },
+            "professionalChart": {
+              "layer": "professional_zodiac_chart",
+              "generatedFrom": "normalized_birth_input",
+              "recalculationAllowed": false,
+              "input": {
+                "name": "ZodiacQAOther",
+                "birthDate": "1988-11-08",
+                "birthTime": "18:20",
+                "birthCityId": null
+              },
+              "precision": "DATE_TIME",
+              "precisionScore": 74,
+              "dataQuality": {
+                "birthDate": "provided",
+                "birthTime": "provided",
+                "birthCity": "assumed",
+                "note": "已提供出生時間，但出生城市未提供；上升星座以台北作為估算基準。"
+              },
+              "points": {
+                "sun": {
+                  "role": "sun",
+                  "roleLabel": "太陽",
+                  "sign": {
+                    "key": "scorpio",
+                    "name": "天蠍座",
+                    "symbol": "♏",
+                    "element": "water",
+                    "dateRange": "10/23 - 11/21"
+                  },
+                  "element": "water",
+                  "modality": "fixed",
+                  "polarity": "yin",
+                  "ruler": "冥王星",
+                  "houseTheme": "深度、轉化、洞察",
+                  "longitudeDeg": null,
+                  "calculationSource": "date_range",
+                  "available": true,
+                  "professionalMeaning": "太陽星座定義外在人格主軸、意志方向與主要生命表達。"
+                },
+                "moon": {
+                  "role": "moon",
+                  "roleLabel": "月亮",
+                  "sign": {
+                    "key": "scorpio",
+                    "name": "天蠍座",
+                    "symbol": "♏",
+                    "element": "water",
+                    "dateRange": "10/23 - 11/21"
+                  },
+                  "element": "water",
+                  "modality": "fixed",
+                  "polarity": "yin",
+                  "ruler": "冥王星",
+                  "houseTheme": "深度、轉化、洞察",
+                  "longitudeDeg": 212.86,
+                  "calculationSource": "astronomy_engine",
+                  "available": true,
+                  "professionalMeaning": "月亮星座定義情緒反應、安全感需求與私領域的內在節奏。"
+                },
+                "rising": {
+                  "role": "rising",
+                  "roleLabel": "上升",
+                  "sign": {
+                    "key": "capricorn",
+                    "name": "摩羯座",
+                    "symbol": "♑",
+                    "element": "earth",
+                    "dateRange": "12/22 - 01/19"
+                  },
+                  "element": "earth",
+                  "modality": "cardinal",
+                  "polarity": "yin",
+                  "ruler": "土星",
+                  "houseTheme": "責任、目標、結構",
+                  "longitudeDeg": 293.2,
+                  "calculationSource": "astronomy_engine",
+                  "available": true,
+                  "professionalMeaning": "上升星座定義第一印象、行動入口與人生事件的外在開場方式。"
+                }
+              },
+              "dominantSignature": {
+                "element": "water",
+                "modality": "fixed",
+                "polarity": "yin",
+                "score": 6.5,
+                "basis": [
+                  "太陽天蠍座",
+                  "月亮天蠍座",
+                  "上升摩羯座"
+                ]
+              },
+              "elementDistribution": {
+                "fire": 0,
+                "earth": 0.9,
+                "air": 0,
+                "water": 1.85
+              },
+              "modalityDistribution": {
+                "cardinal": 0.9,
+                "fixed": 1.85,
+                "mutable": 0
+              },
+              "polarityDistribution": {
+                "yang": 0,
+                "yin": 2.75
+              },
+              "professionalKeywords": [
+                "洞察",
+                "專注",
+                "轉化",
+                "責任",
+                "結構",
+                "長期"
+              ],
+              "readingBoundaries": [
+                "第一層只建立專業星座盤資料，不輸出 AI 補強建議。",
+                "第二層 AI 解讀必須讀取本層資料，不得重新計算星座盤。",
+                "第三層五元素補強必須讀取第二層結論，不得逆向改寫本層命盤。"
+              ],
+              "integrationWeights": {
+                "AIR": 0,
+                "FIRE": 0,
+                "WATER": 67,
+                "EARTH": 33
+              }
+            },
+            "deepAnalysis": {
+              "layer": "ai_zodiac_deep_analysis",
+              "sourceLayer": "professional_zodiac_chart",
+              "recalculationAllowed": false,
+              "professionalInputDigest": [
+                "精準度：DATE_TIME / 74%",
+                "主導結構：太陽天蠍座、月亮天蠍座、上升摩羯座",
+                "主導能量：水象、固定、陰性"
+              ],
+              "coreNarrative": "第二層 AI 解讀：太陽天蠍座、月亮天蠍座、上升摩羯座形成的主軸是水象的感受、直覺、共感力，透過固定節奏進行表達。",
+              "pointReadings": [
+                {
+                  "role": "sun",
+                  "roleLabel": "太陽",
+                  "sourceSign": {
+                    "key": "scorpio",
+                    "name": "天蠍座",
+                    "symbol": "♏",
+                    "element": "water",
+                    "dateRange": "10/23 - 11/21"
+                  },
+                  "title": "太陽天蠍座專業解讀",
+                  "interpretation": "太陽天蠍座帶出感受、直覺、共感力，表達方式是維持成果與穩定核心，能量流向是內在沉澱與接收整合。",
+                  "integrationFocus": "後續 AI 解讀要以太陽的深度、轉化、洞察作為主要語境，不可重新計算星盤。",
+                  "evidence": [
+                    "太陽天蠍座",
+                    "水象 / 固定 / 陰性",
+                    "守護星：冥王星"
+                  ]
+                },
+                {
+                  "role": "moon",
+                  "roleLabel": "月亮",
+                  "sourceSign": {
+                    "key": "scorpio",
+                    "name": "天蠍座",
+                    "symbol": "♏",
+                    "element": "water",
+                    "dateRange": "10/23 - 11/21"
+                  },
+                  "title": "月亮天蠍座專業解讀",
+                  "interpretation": "月亮天蠍座帶出感受、直覺、共感力，表達方式是維持成果與穩定核心，能量流向是內在沉澱與接收整合。",
+                  "integrationFocus": "後續 AI 解讀要以月亮的深度、轉化、洞察作為主要語境，不可重新計算星盤。",
+                  "evidence": [
+                    "月亮天蠍座",
+                    "水象 / 固定 / 陰性",
+                    "守護星：冥王星"
+                  ]
+                },
+                {
+                  "role": "rising",
+                  "roleLabel": "上升",
+                  "sourceSign": {
+                    "key": "capricorn",
+                    "name": "摩羯座",
+                    "symbol": "♑",
+                    "element": "earth",
+                    "dateRange": "12/22 - 01/19"
+                  },
+                  "title": "上升摩羯座專業解讀",
+                  "interpretation": "上升摩羯座帶出穩定、承擔、落實力，表達方式是啟動事件與開創方向，能量流向是內在沉澱與接收整合。",
+                  "integrationFocus": "後續 AI 解讀要以上升的責任、目標、結構作為主要語境，不可重新計算星盤。",
+                  "evidence": [
+                    "上升摩羯座",
+                    "土象 / 開創 / 陰性",
+                    "守護星：土星"
+                  ]
+                }
+              ],
+              "dominantInterpretation": "主導結構判定為：水象、固定、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+              "tensionPatterns": [
+                "盤面中火象、風象訊號不足，第三層補強必須優先納入。",
+                "太陽、月亮、上升三點資料已成立，第二層可做人格、情緒、外在行動的交叉解讀。",
+                "主導結構為水象、固定、陰性，AI 語氣應直接、有方向，不使用模糊詞。"
+              ],
+              "growthOpportunities": [
+                "把感受、直覺、共感力轉成每天可執行的一個行動。",
+                "用維持成果與穩定核心來整理現在的人生任務。",
+                "保留內在沉澱與接收整合的優勢，再由第三層補上缺口。"
+              ],
+              "userFriendlySummary": "你的西洋星座解讀主軸已建立：水象是目前最明顯的表達方式，第三層會依據缺口排出補強順序。",
+              "aiPromptMaterial": {
+                "fixedFacts": [
+                  "太陽天蠍座",
+                  "水象 / 固定 / 陰性",
+                  "守護星：冥王星",
+                  "月亮天蠍座",
+                  "水象 / 固定 / 陰性",
+                  "守護星：冥王星",
+                  "上升摩羯座",
+                  "土象 / 開創 / 陰性",
+                  "守護星：土星"
+                ],
+                "interpretationRules": [
+                  "只讀取 professionalChart，不重新計算星座。",
+                  "先解釋太陽、月亮、上升的分工，再做綜合。",
+                  "語氣必須明確判定，不使用模糊詞。"
+                ],
+                "prohibitedMoves": [
+                  "不直接修改會員五元素核心。",
+                  "不將西洋星座與其他模組混算。",
+                  "不保證人生結果，只判定補強方向。"
+                ]
+              }
+            },
+            "reinforcementPlan": {
+              "layer": "ai_zodiac_reinforcement_plan",
+              "sourceLayer": "ai_zodiac_deep_analysis",
+              "recalculationAllowed": false,
+              "principle": "AI 不預測命運；AI 判定你目前最需要補強的方向。",
+              "priorities": [
+                {
+                  "rank": 1,
+                  "element": "AIR",
+                  "elementLabel": "風元素",
+                  "needScore": 100,
+                  "reason": "AI 判定：西洋星座盤中【風】的補強需求為 100，本層排為第 1 補強。",
+                  "actions": [
+                    "把目標寫成 3 步路線，今天先完成第 1 步。",
+                    "主動連結一位能帶來新觀點的人。",
+                    "每天固定 15 分鐘學一個新觀念。"
+                  ],
+                  "sourceEvidence": [
+                    "主導結構判定為：水象、固定、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                    "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                  ]
+                },
+                {
+                  "rank": 2,
+                  "element": "FIRE",
+                  "elementLabel": "火元素",
+                  "needScore": 100,
+                  "reason": "AI 判定：西洋星座盤中【火】的補強需求為 100，本層排為第 2 補強。",
+                  "actions": [
+                    "今天完成一個能被看見的行動。",
+                    "把真正想說的話用一段清楚文字說出來。",
+                    "給目標一個明確截止時間。"
+                  ],
+                  "sourceEvidence": [
+                    "主導結構判定為：水象、固定、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                    "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                  ]
+                },
+                {
+                  "rank": 3,
+                  "element": "EARTH",
+                  "elementLabel": "地元素",
+                  "needScore": 67,
+                  "reason": "AI 判定：西洋星座盤中【地】的補強需求為 67，本層排為第 3 補強。",
+                  "actions": [
+                    "固定睡眠、飲食或工作節奏，先把基礎穩住。",
+                    "整理一個你每天會使用的空間。",
+                    "把承諾減到可以持續完成的範圍。"
+                  ],
+                  "sourceEvidence": [
+                    "主導結構判定為：水象、固定、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                    "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                  ]
+                }
+              ],
+              "executionOrder": [
+                "第一補強：風元素",
+                "第二補強：火元素",
+                "第三補強：地元素"
+              ],
+              "integrationLayerPayload": {
+                "moduleId": "ZODIAC",
+                "sourceEngineVersion": "zodiac_core_v4",
+                "elementNeedScore": {
+                  "AIR": 100,
+                  "SPACE": 19,
+                  "WATER": 33,
+                  "FIRE": 100,
+                  "EARTH": 67
+                },
+                "firstPriority": "AIR",
+                "evidence": [
+                  "你的西洋星座解讀主軸已建立：水象是目前最明顯的表達方式，第三層會依據缺口排出補強順序。",
+                  "主導結構判定為：水象、固定、陰性。這是第二層解讀的主幹，不再回頭重算星座。",
+                  "五元素權重來自第一層 professionalChart，第三層不重算星座。"
+                ],
+                "writePolicy": "self_can_update_growth_center_other_single_reading_only"
+              }
+            },
+            "chartNote": "已依出生時間加入上升星座與月亮星座（採真實天文位置計算）。因未提供出生城市，系統暫以台北（UTC+8）估算地理位置，補上正確出生城市可提升上升星座精確度並解鎖完整星盤。",
+            "personality": "ZodiacQAOther的天蠍座主軸：洞察深，專注強，適合處理需要耐心與穿透力的問題。",
+            "strengths": [
+              "洞察力強",
+              "意志集中",
+              "能看見問題核心"
+            ],
+            "blindSpots": [
+              "防備心較高",
+              "不容易放下控制",
+              "情緒累積較深"
+            ],
+            "currentAdvice": "現在最重要是把深度洞察轉成可溝通的行動語言。",
+            "weeklyReminder": "本週重點：說清楚。把一個真正在意的點用平穩方式表達。",
+            "integrationSummary": "西洋星座已完成獨立分析，Integration Layer 只讀取本結果作為會員成長資料補充，不重新分析其他命理模組。",
+            "fiveElement": {
+              "sourceModule": "zodiac",
+              "analysisId": "zodiac_dd9200a3",
+              "elementScores": {
+                "metal": {
+                  "strength": 50,
+                  "need": 50,
+                  "evidenceCount": 0
+                },
+                "wood": {
+                  "strength": 50,
+                  "need": 50,
+                  "evidenceCount": 0
+                },
+                "water": {
+                  "strength": 100,
+                  "need": 0,
+                  "evidenceCount": 2
+                },
+                "fire": {
+                  "strength": 64,
+                  "need": 36,
+                  "evidenceCount": 1
+                },
+                "earth": {
+                  "strength": 70,
+                  "need": 30,
+                  "evidenceCount": 1
+                }
+              },
+              "primaryElement": "metal",
+              "secondaryElement": "wood",
+              "strongElement": "water",
+              "avoidElement": "water",
+              "confidence": "medium",
+              "conflict": true,
+              "supportingModules": [
+                "zodiac"
+              ],
+              "moduleResults": [
+                {
+                  "module": "zodiac",
+                  "primaryElement": "metal",
+                  "confidence": "medium"
+                }
+              ],
+              "evidence": [
+                {
+                  "module": "zodiac",
+                  "title": "空元素是本次星座交叉分析判定的第一缺口",
+                  "detail": "太陽星座 天蠍座、上升星座 摩羯座、月亮星座 天蠍座、血型 O 型，交叉判定後對應空元素訊號偏少。",
+                  "element": "metal",
+                  "impact": "need"
+                }
+              ],
+              "ruleVersion": "zodiac_element_v1",
+              "summary": "AI 判定：目前最缺空元素。請優先補強空元素。 第一補強：空元素。完成後再補：風元素。最後補：火元素。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+              "keywords": [
+                "原則",
+                "決斷",
+                "執行",
+                "界線"
+              ],
+              "reasons": [
+                "AI 判定：\n目前最缺：\n【空】\n請優先補強：\n【空】\n完成後：\n再補：\n【風】\n最後：\n【火】",
+                "AI 判定：目前最缺空元素。請優先補強空元素。",
+                "第一補強：空元素。完成後再補：風元素。最後補：火元素。",
+                "因為空元素與第二補強風元素補強需求同為 50 分；後端依來源權重、五行生剋與主補規則，仍判定空元素是第一補強。目前支撐元素是水元素，本次不把它當成第一補強。差距：0 分。",
+                "第二補強與第一補強接近，系統已啟用衝突解決：仍以補強需求最高的空元素作為第一補強，不把第二補強寫成第一補強。",
+                "星座交叉分析來源：太陽星座 天蠍座、上升星座 摩羯座、月亮星座 天蠍座、血型 O 型。",
+                "補空元素先改變的是決策、紀律與執行清晰度。這是補空元素最先改變的地方。",
+                "第二順位是風元素，但本次先專心補空元素。"
+              ],
+              "recommendedActions": [
+                "今天先寫下 3 條清楚界線。",
+                "把一件拖延的決定切成可執行步驟。",
+                "用更精準的文字表達自己的標準。"
+              ],
+              "productEntryLabel": "選擇空元素能量手鏈",
+              "productRecommendation": {
+                "title": "空元素能量手鏈補強方案",
+                "headline": "優先補強清晰度、判斷與執行標準。",
+                "description": "本次系統判定：你缺空元素，就先補空。空元素能量手鏈放在補強核心，用來提醒自己把標準說清楚，把決定落地執行。",
+                "supportDirections": [
+                  "紀律",
+                  "決斷",
+                  "邊界",
+                  "執行"
+                ],
+                "disclaimer": "這是五元素能量手鏈補強與正向提醒，不代表保證成功或改運。真正結果仍需要持續行動。",
+                "ctaLabel": "選擇空元素能量手鏈",
+                "braceletCore": "本次結論不模糊：系統判定缺空元素，手鏈補強就先選空元素。"
+              },
+              "positiveQuote": {
+                "author": "華倫・巴菲特",
+                "role": "Berkshire Hathaway Chairman and CEO",
+                "quote": "The best investment is in your own abilities.",
+                "sourceName": "CNBC",
+                "sourceUrl": "https://www.cnbc.com/2018/05/01/warren-buffett-says-this-is-the-best-investment-you-can-make.html",
+                "elementFit": "空元素重視清晰、紀律與能力打磨，適合用來提醒自我投資與決策清楚。",
+                "reminder": "最穩的補強，是把自己的能力一次一次磨利。"
+              },
+              "traditionalElement": "METAL",
+              "brandElement": "SPACE",
+              "secondaryBrandElement": "AIR",
+              "strongBrandElement": "WATER",
+              "avoidBrandElement": "WATER",
+              "normalizedElements": {
+                "SPACE": {
+                  "sourceElement": "metal",
+                  "traditionalElement": "METAL",
+                  "brandElement": "SPACE",
+                  "displayName": "空",
+                  "sourceName": "金",
+                  "strength": 50,
+                  "need": 50,
+                  "evidenceCount": 0
+                },
+                "AIR": {
+                  "sourceElement": "wood",
+                  "traditionalElement": "WOOD",
+                  "brandElement": "AIR",
+                  "displayName": "風",
+                  "sourceName": "木",
+                  "strength": 50,
+                  "need": 50,
+                  "evidenceCount": 0
+                },
+                "WATER": {
+                  "sourceElement": "water",
+                  "traditionalElement": "WATER",
+                  "brandElement": "WATER",
+                  "displayName": "水",
+                  "sourceName": "水",
+                  "strength": 100,
+                  "need": 0,
+                  "evidenceCount": 2
+                },
+                "FIRE": {
+                  "sourceElement": "fire",
+                  "traditionalElement": "FIRE",
+                  "brandElement": "FIRE",
+                  "displayName": "火",
+                  "sourceName": "火",
+                  "strength": 64,
+                  "need": 36,
+                  "evidenceCount": 1
+                },
+                "EARTH": {
+                  "sourceElement": "earth",
+                  "traditionalElement": "EARTH",
+                  "brandElement": "EARTH",
+                  "displayName": "地",
+                  "sourceName": "土",
+                  "strength": 70,
+                  "need": 30,
+                  "evidenceCount": 1
+                }
+              },
+              "decision": {
+                "title": "AI 判定：目前最缺【空】",
+                "conclusion": "AI 判定：目前最缺空元素。請優先補強空元素。",
+                "primaryAction": "第一補強：空元素。完成後再補：風元素。最後補：火元素。",
+                "changeTarget": "補空元素先改變的是決策、紀律與執行清晰度。",
+                "why": "因為空元素與第二補強風元素補強需求同為 50 分；後端依來源權重、五行生剋與主補規則，仍判定空元素是第一補強。目前支撐元素是水元素，本次不把它當成第一補強。差距：0 分。",
+                "conflictNote": "第二補強與第一補強接近，系統已啟用衝突解決：仍以補強需求最高的空元素作為第一補強，不把第二補強寫成第一補強。",
+                "priorityOrder": [
+                  "metal",
+                  "wood",
+                  "fire",
+                  "earth",
+                  "water"
+                ],
+                "priorityTemplate": "AI 判定：\n目前最缺：\n【空】\n請優先補強：\n【空】\n完成後：\n再補：\n【風】\n最後：\n【火】",
+                "corePrinciple": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。"
+              },
+              "productMatch": {
+                "primaryProductId": "bracelet_space_core",
+                "supportedElements": [
+                  "SPACE",
+                  "AIR"
+                ],
+                "balancedElements": [
+                  "WATER"
+                ],
+                "matchReason": [
+                  "主補元素鎖定空元素，商品推薦必須先對準這個缺口。",
+                  "第二順位風元素只作輔助參考，不取代主補判定。",
+                  "目前較強元素先列入平衡觀察，不作為本次主推補強。",
+                  "多模組訊號接近時已套用衝突解決，前端只顯示唯一主補。"
+                ],
+                "matchConfidence": "medium"
+              },
+              "enginePipeline": [
+                "ModuleAnalysisAdapter",
+                "ElementNormalizationEngine",
+                "ElementRecommendationEngine",
+                "ElementConflictResolver",
+                "ProductMatchingEngine",
+                "VerifiedQuoteMatchingEngine",
+                "ElementResultPresenter"
+              ],
+              "aiElementModel": {
+                "primaryElement": "SPACE",
+                "secondaryElement": "AIR",
+                "elementScore": {
+                  "AIR": 50,
+                  "SPACE": 50,
+                  "WATER": 0,
+                  "FIRE": 36,
+                  "EARTH": 30
+                }
+              },
+              "elementScore": {
+                "AIR": 50,
+                "SPACE": 50,
+                "WATER": 0,
+                "FIRE": 36,
+                "EARTH": 30
+              }
+            }
+          }
+        }
+      },
+      "poll": {
+        "ok": false,
+        "status": 404,
+        "route": "/api/analysis/jobs/job_5af457b8-60d1-47e3-9d67-9c970dce67cc",
+        "durationMs": 279,
+        "data": {
+          "ok": false,
+          "requestId": "88b0da9d-1d91-4b8a-a568-99296bd78b13",
+          "code": "JOB_NOT_FOUND",
+          "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+          "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+        }
+      },
+      "ok": true,
+      "pollOk": false,
+      "jobId": "job_5af457b8-60d1-47e3-9d67-9c970dce67cc",
+      "resultId": "result_c9a62ebc-2956-43c5-8112-284a0eae22a9",
+      "status": "COMPLETED",
+      "requestId": "0b08edbb-92bf-4b9c-9afb-f816ca263db7"
+    },
+    "screenHealth": {
+      "id": "CARD_07",
+      "module": "zodiac",
+      "title": "AI 西洋星座",
+      "path": "/zodiac",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 607,
+      "htmlLength": 21407,
+      "error": null,
+      "issue": null
+    },
+    "startedAt": "2026-08-06T15:15:26.114Z",
+    "completedAt": "2026-08-06T15:15:27.315Z"
+  },
+  "totalScore": 75,
+  "tier": "UNRATED",
+  "allowNextCard": false,
+  "generatedAt": "2026-08-06T15:15:27.315Z"
+}

@@ -1,0 +1,52 @@
+{
+  "cardId": "CARD_08",
+  "cardName": "AI 塔羅牌 /tarot",
+  "dimensions": [
+    { "dimension": "FUNCTIONALITY", "score": 20, "maxScore": 20, "status": "PASSED", "evidenceIds": ["full-flow-self-scope-run", "full-flow-other-scope-run", "error-retry-run"] },
+    { "dimension": "ACCURACY", "score": 18, "maxScore": 20, "status": "PASSED", "evidenceIds": ["net:/api/tarot/reading 200 real-cross-card-interpretation", "localStorage tdh_growth_elements_v1 matches AI element decision"] },
+    { "dimension": "MOBILE_UX", "score": 10, "maxScore": 15, "status": "PASSED", "evidenceIds": ["viewport-320-no-hscroll", "viewport-375-no-hscroll", "buttons-48px-verified-6-fixed"] },
+    { "dimension": "STABILITY", "score": 13, "maxScore": 15, "status": "PASSED", "evidenceIds": ["net-log-no-duplicate-reading-calls", "error-state-then-successful-retry"] },
+    { "dimension": "CONTENT_QUALITY", "score": 9, "maxScore": 10, "status": "PASSED", "evidenceIds": ["three-layer-structure-verified", "position-label-nuance-documented"] },
+    { "dimension": "PERFORMANCE", "score": 3, "maxScore": 10, "status": "NOT_TESTED", "evidenceIds": [] },
+    { "dimension": "TRACEABILITY", "score": 9, "maxScore": 10, "status": "PASSED", "evidenceIds": ["sessionId+readingId+engineVersion present in API responses"] }
+  ],
+  "issues": [
+    {
+      "id": "ISSUE-CARD08-001",
+      "cardId": "CARD_08",
+      "severity": "MINOR",
+      "layer": "FRONTEND",
+      "step": "查看完整專業資料（AI 牌陣交叉判定）",
+      "actualProblem": "AI 引擎輸出的牌位標籤（現況／阻礙／行動）與劇場翻牌畫面標籤（過去／現在／未來）不同框架同時呈現。",
+      "rootCause": "後端 SPREAD_POSITIONS 固定使用 situation/challenge/action 語意，前端劇場一直使用 past/present/future 語意，兩者從未對齊過。",
+      "filePaths": ["lib/tarot-engine.ts", "features/tarot/components/TarotOriginalFortuneTeller.tsx"],
+      "repairAction": "已用明確子標題「AI 牌陣交叉判定」區隔兩種框架，避免誤讀為標籤錯誤；若要徹底統一需與共用 tarot-engine 核心協調（非本卡片單方可決定）。",
+      "verificationAction": "使用者測試：確認多數受測者不會將兩組標籤誤認為衝突。"
+    },
+    {
+      "id": "ISSUE-CARD08-002",
+      "cardId": "CARD_08",
+      "severity": "INFO",
+      "layer": "PERFORMANCE",
+      "step": "全流程",
+      "actualProblem": "尚未執行正式 FPS / 主執行緒佔用 / 記憶體量測，78 張牌洗牌動畫效能未量化。",
+      "rootCause": "測試環境僅有 Chromium-based 模擬瀏覽器，無效能剖析工具串接。",
+      "filePaths": [],
+      "repairAction": "待具備 Lighthouse/Chrome DevTools Performance 或真機工具時補測。",
+      "verificationAction": "使用 Performance 面板記錄一次完整洗牌+翻牌互動並附上報告。"
+    }
+  ],
+  "totalScore": 82,
+  "tier": "STANDARD",
+  "mandatoryChecks": {
+    "fullFlowPassed": true,
+    "backendVerified": true,
+    "mobilePassed": true,
+    "linePassed": false,
+    "noCriticalIssues": true,
+    "regressionPassed": true
+  },
+  "allowNextCard": false,
+  "generatedAt": "2026-08-06T06:10:00.000Z",
+  "notTestedDisclosure": "本次測試環境為瀏覽器行動裝置模擬（無實體手機、無法開啟真正 LINE App）。linePassed 及 PERFORMANCE 維度因此如實標記為未通過門檻／NOT_TESTED，未做任何美化。CARD_09 於本卡片變更共用 globals.css 後已重新回歸測試，regressionPassed=true。"
+}

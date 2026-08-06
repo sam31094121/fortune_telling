@@ -1,0 +1,370 @@
+{
+  "cardId": "CARD_02",
+  "cardName": "AI 紫微斗數",
+  "moduleId": "ziwei",
+  "route": "/insight",
+  "dimensions": [
+    {
+      "dimension": "FUNCTIONALITY",
+      "score": 10,
+      "maxScore": 20,
+      "status": "FAILED",
+      "evidenceIds": [
+        "ROUTE_OK"
+      ]
+    },
+    {
+      "dimension": "ACCURACY",
+      "score": 0,
+      "maxScore": 20,
+      "status": "FAILED",
+      "evidenceIds": []
+    },
+    {
+      "dimension": "MOBILE_UX",
+      "score": 5,
+      "maxScore": 15,
+      "status": "NOT_TESTED",
+      "evidenceIds": [
+        "ROUTE_HTML_REACHABLE_ONLY"
+      ]
+    },
+    {
+      "dimension": "STABILITY",
+      "score": 0,
+      "maxScore": 15,
+      "status": "FAILED",
+      "evidenceIds": [
+        "SCREEN_HEALTH_ROUTE"
+      ]
+    },
+    {
+      "dimension": "CONTENT_QUALITY",
+      "score": 4,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "PAGE_RENDERED_CONTENT_PRESENT"
+      ]
+    },
+    {
+      "dimension": "PERFORMANCE",
+      "score": 10,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "MAX_DURATION_333MS"
+      ]
+    },
+    {
+      "dimension": "TRACEABILITY",
+      "score": 8,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "REQUEST_ID_e37b33d4-0034-4c2d-be4f-ff9c27d3b4bb",
+        "REQUEST_ID_f265a733-347d-41dd-9d62-80211de66538"
+      ]
+    }
+  ],
+  "issues": [
+    {
+      "id": "CARD_02-API-SELF/OTHER_API-1786029301584",
+      "cardId": "CARD_02",
+      "severity": "CRITICAL",
+      "layer": "API",
+      "step": "SELF/OTHER API",
+      "actualProblem": "SELF or OTHER backend flow failed.",
+      "rootCause": "API did not return complete usable result.",
+      "filePaths": [],
+      "repairAction": "定位對應 API / 共用任務 / 前端流程並修復後重測。",
+      "verificationAction": "重新執行 scripts/all-card-quality-audit.mjs 與相關卡片手動流程。",
+      "evidence": {
+        "self": {
+          "create": {
+            "ok": true,
+            "status": 202,
+            "route": "/api/analysis/jobs",
+            "durationMs": 333,
+            "data": {
+              "ok": true,
+              "requestId": "e37b33d4-0034-4c2d-be4f-ff9c27d3b4bb",
+              "success": true,
+              "data": {
+                "jobId": "job_81ca7135-a2ab-4c5f-9aaa-a54d10cc9a0b",
+                "analysisType": "insight",
+                "moduleId": "ZIWEI",
+                "status": "PROCESSING",
+                "progressStage": "RUNNING_ENGINE",
+                "progressPercent": null,
+                "message": "正在依紫微模組運算命盤、三方四正與今年運勢。",
+                "resultId": null,
+                "errorCode": null,
+                "errorMessage": null,
+                "createdAt": "2026-08-06T15:15:02.239Z",
+                "startedAt": "2026-08-06T15:15:02.240Z",
+                "completedAt": null,
+                "updatedAt": "2026-08-06T15:15:02.240Z",
+                "expiresAt": "2026-08-06T15:45:02.239Z"
+              }
+            }
+          },
+          "poll": {
+            "ok": false,
+            "status": 404,
+            "route": "/api/analysis/jobs/job_81ca7135-a2ab-4c5f-9aaa-a54d10cc9a0b",
+            "durationMs": 391,
+            "data": {
+              "ok": false,
+              "requestId": "ae90b631-88b2-428e-ba1e-3763419d526b",
+              "code": "JOB_NOT_FOUND",
+              "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+              "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+            }
+          },
+          "ok": false,
+          "pollOk": false,
+          "jobId": "job_81ca7135-a2ab-4c5f-9aaa-a54d10cc9a0b",
+          "resultId": null,
+          "status": "PROCESSING",
+          "requestId": "e37b33d4-0034-4c2d-be4f-ff9c27d3b4bb"
+        },
+        "other": {
+          "create": {
+            "ok": true,
+            "status": 202,
+            "route": "/api/analysis/jobs",
+            "durationMs": 284,
+            "data": {
+              "ok": true,
+              "requestId": "f265a733-347d-41dd-9d62-80211de66538",
+              "success": true,
+              "data": {
+                "jobId": "job_a9bdb566-918b-45f1-b9c9-b1c62b64c683",
+                "analysisType": "insight",
+                "moduleId": "ZIWEI",
+                "status": "PROCESSING",
+                "progressStage": "RUNNING_ENGINE",
+                "progressPercent": null,
+                "message": "正在依紫微模組運算命盤、三方四正與今年運勢。",
+                "resultId": null,
+                "errorCode": null,
+                "errorMessage": null,
+                "createdAt": "2026-08-06T15:15:02.952Z",
+                "startedAt": "2026-08-06T15:15:02.952Z",
+                "completedAt": null,
+                "updatedAt": "2026-08-06T15:15:02.952Z",
+                "expiresAt": "2026-08-06T15:45:02.952Z"
+              }
+            }
+          },
+          "poll": {
+            "ok": false,
+            "status": 404,
+            "route": "/api/analysis/jobs/job_a9bdb566-918b-45f1-b9c9-b1c62b64c683",
+            "durationMs": 273,
+            "data": {
+              "ok": false,
+              "requestId": "85b8c6b0-09a2-4c5d-8222-e138f7499952",
+              "code": "JOB_NOT_FOUND",
+              "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+              "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+            }
+          },
+          "ok": false,
+          "pollOk": false,
+          "jobId": "job_a9bdb566-918b-45f1-b9c9-b1c62b64c683",
+          "resultId": null,
+          "status": "PROCESSING",
+          "requestId": "f265a733-347d-41dd-9d62-80211de66538"
+        }
+      }
+    },
+    {
+      "id": "CARD_02-INTEGRATION-Analysis_Task_polling-1786029301584",
+      "cardId": "CARD_02",
+      "severity": "CRITICAL",
+      "layer": "INTEGRATION",
+      "step": "Analysis Task polling",
+      "actualProblem": "Analysis job polling returned missing or invalid job after create.",
+      "rootCause": "Serverless in-memory job state is not durable across requests; this can show JOB_NOT_FOUND to users.",
+      "filePaths": [],
+      "repairAction": "定位對應 API / 共用任務 / 前端流程並修復後重測。",
+      "verificationAction": "重新執行 scripts/all-card-quality-audit.mjs 與相關卡片手動流程。",
+      "evidence": {
+        "selfPoll": {
+          "ok": false,
+          "status": 404,
+          "route": "/api/analysis/jobs/job_81ca7135-a2ab-4c5f-9aaa-a54d10cc9a0b",
+          "durationMs": 391,
+          "data": {
+            "ok": false,
+            "requestId": "ae90b631-88b2-428e-ba1e-3763419d526b",
+            "code": "JOB_NOT_FOUND",
+            "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+            "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+          }
+        },
+        "otherPoll": {
+          "ok": false,
+          "status": 404,
+          "route": "/api/analysis/jobs/job_a9bdb566-918b-45f1-b9c9-b1c62b64c683",
+          "durationMs": 273,
+          "data": {
+            "ok": false,
+            "requestId": "85b8c6b0-09a2-4c5d-8222-e138f7499952",
+            "code": "JOB_NOT_FOUND",
+            "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+            "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+          }
+        }
+      }
+    },
+    {
+      "id": "CARD_02-MOBILE-LINE-NOT-TESTED",
+      "cardId": "CARD_02",
+      "severity": "MAJOR",
+      "layer": "INTERACTION",
+      "step": "mobile LINE visual verification",
+      "actualProblem": "This audit did not include real LINE/iPhone/Android tap-and-screenshot evidence.",
+      "rootCause": "Current evidence is route/API/HTTP. Mobile visual evidence must be captured separately.",
+      "filePaths": [],
+      "repairAction": "Use controlled mobile browser or real device LINE flow and attach screenshot evidence.",
+      "verificationAction": "Record device, browser, viewport, screenshot path, startedAt/completedAt."
+    }
+  ],
+  "mandatoryChecks": {
+    "fullFlowPassed": false,
+    "backendVerified": false,
+    "mobilePassed": false,
+    "linePassed": false,
+    "noCriticalIssues": false,
+    "regressionPassed": false
+  },
+  "evidence": {
+    "baseUrl": "https://heaven-earth-humanity-pair.vercel.app",
+    "route": {
+      "ok": true,
+      "status": 200,
+      "durationMs": 51,
+      "length": 1000,
+      "error": null
+    },
+    "self": {
+      "create": {
+        "ok": true,
+        "status": 202,
+        "route": "/api/analysis/jobs",
+        "durationMs": 333,
+        "data": {
+          "ok": true,
+          "requestId": "e37b33d4-0034-4c2d-be4f-ff9c27d3b4bb",
+          "success": true,
+          "data": {
+            "jobId": "job_81ca7135-a2ab-4c5f-9aaa-a54d10cc9a0b",
+            "analysisType": "insight",
+            "moduleId": "ZIWEI",
+            "status": "PROCESSING",
+            "progressStage": "RUNNING_ENGINE",
+            "progressPercent": null,
+            "message": "正在依紫微模組運算命盤、三方四正與今年運勢。",
+            "resultId": null,
+            "errorCode": null,
+            "errorMessage": null,
+            "createdAt": "2026-08-06T15:15:02.239Z",
+            "startedAt": "2026-08-06T15:15:02.240Z",
+            "completedAt": null,
+            "updatedAt": "2026-08-06T15:15:02.240Z",
+            "expiresAt": "2026-08-06T15:45:02.239Z"
+          }
+        }
+      },
+      "poll": {
+        "ok": false,
+        "status": 404,
+        "route": "/api/analysis/jobs/job_81ca7135-a2ab-4c5f-9aaa-a54d10cc9a0b",
+        "durationMs": 391,
+        "data": {
+          "ok": false,
+          "requestId": "ae90b631-88b2-428e-ba1e-3763419d526b",
+          "code": "JOB_NOT_FOUND",
+          "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+          "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+        }
+      },
+      "ok": false,
+      "pollOk": false,
+      "jobId": "job_81ca7135-a2ab-4c5f-9aaa-a54d10cc9a0b",
+      "resultId": null,
+      "status": "PROCESSING",
+      "requestId": "e37b33d4-0034-4c2d-be4f-ff9c27d3b4bb"
+    },
+    "other": {
+      "create": {
+        "ok": true,
+        "status": 202,
+        "route": "/api/analysis/jobs",
+        "durationMs": 284,
+        "data": {
+          "ok": true,
+          "requestId": "f265a733-347d-41dd-9d62-80211de66538",
+          "success": true,
+          "data": {
+            "jobId": "job_a9bdb566-918b-45f1-b9c9-b1c62b64c683",
+            "analysisType": "insight",
+            "moduleId": "ZIWEI",
+            "status": "PROCESSING",
+            "progressStage": "RUNNING_ENGINE",
+            "progressPercent": null,
+            "message": "正在依紫微模組運算命盤、三方四正與今年運勢。",
+            "resultId": null,
+            "errorCode": null,
+            "errorMessage": null,
+            "createdAt": "2026-08-06T15:15:02.952Z",
+            "startedAt": "2026-08-06T15:15:02.952Z",
+            "completedAt": null,
+            "updatedAt": "2026-08-06T15:15:02.952Z",
+            "expiresAt": "2026-08-06T15:45:02.952Z"
+          }
+        }
+      },
+      "poll": {
+        "ok": false,
+        "status": 404,
+        "route": "/api/analysis/jobs/job_a9bdb566-918b-45f1-b9c9-b1c62b64c683",
+        "durationMs": 273,
+        "data": {
+          "ok": false,
+          "requestId": "85b8c6b0-09a2-4c5d-8222-e138f7499952",
+          "code": "JOB_NOT_FOUND",
+          "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
+          "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
+        }
+      },
+      "ok": false,
+      "pollOk": false,
+      "jobId": "job_a9bdb566-918b-45f1-b9c9-b1c62b64c683",
+      "resultId": null,
+      "status": "PROCESSING",
+      "requestId": "f265a733-347d-41dd-9d62-80211de66538"
+    },
+    "screenHealth": {
+      "id": "CARD_02",
+      "module": "ziwei",
+      "title": "紫微斗數",
+      "path": "/insight",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 578,
+      "htmlLength": 24434,
+      "error": null,
+      "issue": null
+    },
+    "startedAt": "2026-08-06T15:15:00.251Z",
+    "completedAt": "2026-08-06T15:15:01.584Z"
+  },
+  "totalScore": 37,
+  "tier": "UNRATED",
+  "allowNextCard": false,
+  "generatedAt": "2026-08-06T15:15:01.584Z"
+}

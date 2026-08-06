@@ -1,0 +1,1135 @@
+{
+  "cardId": "CARD_05",
+  "cardName": "AI 生成歌曲",
+  "moduleId": "music",
+  "route": "/music",
+  "dimensions": [
+    {
+      "dimension": "FUNCTIONALITY",
+      "score": 20,
+      "maxScore": 20,
+      "status": "PASSED",
+      "evidenceIds": [
+        "ROUTE_OK",
+        "API_SELF_OTHER_OK"
+      ]
+    },
+    {
+      "dimension": "ACCURACY",
+      "score": 16,
+      "maxScore": 20,
+      "status": "PASSED",
+      "evidenceIds": [
+        "BACKEND_RESULT_SHAPE_OK"
+      ]
+    },
+    {
+      "dimension": "MOBILE_UX",
+      "score": 5,
+      "maxScore": 15,
+      "status": "NOT_TESTED",
+      "evidenceIds": [
+        "ROUTE_HTML_REACHABLE_ONLY"
+      ]
+    },
+    {
+      "dimension": "STABILITY",
+      "score": 15,
+      "maxScore": 15,
+      "status": "PASSED",
+      "evidenceIds": [
+        "SCREEN_HEALTH_ROUTE",
+        "API_RESPONDED",
+        "NO_JOB_POLLING_GAP"
+      ]
+    },
+    {
+      "dimension": "CONTENT_QUALITY",
+      "score": 8,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "PAGE_RENDERED_CONTENT_PRESENT"
+      ]
+    },
+    {
+      "dimension": "PERFORMANCE",
+      "score": 4,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "MAX_DURATION_7900MS"
+      ]
+    },
+    {
+      "dimension": "TRACEABILITY",
+      "score": 2,
+      "maxScore": 10,
+      "status": "FAILED",
+      "evidenceIds": []
+    }
+  ],
+  "issues": [
+    {
+      "id": "CARD_05-MOBILE-LINE-NOT-TESTED",
+      "cardId": "CARD_05",
+      "severity": "MAJOR",
+      "layer": "INTERACTION",
+      "step": "mobile LINE visual verification",
+      "actualProblem": "This audit did not include real LINE/iPhone/Android tap-and-screenshot evidence.",
+      "rootCause": "Current evidence is route/API/HTTP. Mobile visual evidence must be captured separately.",
+      "filePaths": [],
+      "repairAction": "Use controlled mobile browser or real device LINE flow and attach screenshot evidence.",
+      "verificationAction": "Record device, browser, viewport, screenshot path, startedAt/completedAt."
+    }
+  ],
+  "mandatoryChecks": {
+    "fullFlowPassed": true,
+    "backendVerified": true,
+    "mobilePassed": false,
+    "linePassed": false,
+    "noCriticalIssues": true,
+    "regressionPassed": true
+  },
+  "evidence": {
+    "baseUrl": "https://heaven-earth-humanity-pair.vercel.app",
+    "route": {
+      "ok": true,
+      "status": 200,
+      "durationMs": 54,
+      "length": 1000,
+      "error": null
+    },
+    "self": {
+      "ok": true,
+      "response": {
+        "ok": true,
+        "status": 200,
+        "route": "/api/music-generate",
+        "durationMs": 7900,
+        "data": {
+          "life_song_context": {
+            "targetMode": "self",
+            "goal": "療癒",
+            "goalNote": "Quality self flow",
+            "creativeStyle": "流行",
+            "growthSummary": "成長中心已完成 2 個模組；元素紀錄 nameology:AIR、zodiac:SPACE。",
+            "worldView": "以「療癒」作為生命章節，把命理底色、五元素補強與流行聲景整合成一個專屬歌曲世界。",
+            "theme": "療癒：Quality self flow",
+            "scene": "使用者站在目前人生階段的轉折點，AI 以流行方式陪他把方向唱清楚。"
+          },
+          "personality_matrix": {
+            "emotion": 80,
+            "logic": 77,
+            "social": 77,
+            "leadership": 64,
+            "security": 87,
+            "creativity": 73,
+            "risk": 49,
+            "attachment": 85
+          },
+          "music_parameters": {
+            "bpm": 131,
+            "key": "E minor",
+            "genre": "modern_dance_pop",
+            "mood": [
+              "bright",
+              "catchy",
+              "streaming_friendly",
+              "emotional",
+              "warm",
+              "clear",
+              "precise",
+              "nurturing"
+            ],
+            "vocal_style": "soulful, intimate, expressive, ethereal, clear",
+            "instrument": [
+              "punchy_kick",
+              "synth_bass",
+              "vocal_chops",
+              "hook_lead",
+              "piano",
+              "drum",
+              "strings",
+              "guitar"
+            ],
+            "lyric_theme": [
+              "memorable_hook",
+              "short_form_chorus",
+              "self-awareness",
+              "inner_world",
+              "roots",
+              "belonging",
+              "memory",
+              "love"
+            ]
+          },
+          "music_report": {
+            "music_narrative": "你的音樂靈魂，如庚金般清亮，馬的奔放賦予旋律自由。金牛的沉穩與A型血的細膩，讓你的音樂既有精準的節奏感，又蘊含深沉的情感。AIR的流動與SPACE的廣闊，使你的樂章充滿探索與療癒的能量。在追求完美的同時，也別忘了給自己留白，讓心靈的流動引領你走向更寬廣的境地。",
+            "song_title_suggestion": "金馬流光：心之所向",
+            "lyric_opening": "金光劃破迷霧，指引方向， 風動心弦，自由奔放。",
+            "music_message": "這首歌是為你而生，願它能成為你人生轉折點的溫暖陪伴。它提醒你，內在的力量與流動的生命力，是你最珍貴的寶藏。放鬆去感受，去體驗，你會發現，療癒的旅程，其實就是一場與自我深度連結的舞蹈。",
+            "wisdom_note": "心存善念，如清風拂過，能滌淨塵埃，讓生命之路更加順遂。每一次的選擇，都種下未來的因果，願你以愛為引，收穫豐盛的善緣。",
+            "english_song_reason": "Coldplay的《Yellow》以其廣闊的音景和真摯情感，完美契合天層格局，展現療癒的宏大與溫暖。",
+            "mandarin_song_reason": "周杰倫的《七里香》旋律優美，情感細膩，能作為地層情緒與唱腔的錨點，展現流行中的溫柔力量。",
+            "taiwanese_song_reason": "江蕙的《甲你攬牢牢》情感真摯，故事感強烈，能作為人層故事與情感的錨點，觸動內心深處的共鳴。",
+            "famous_singers_mandarin": "周杰倫 / 蔡依林",
+            "famous_singers_english": "Coldplay / Adele",
+            "famous_singers_taiwanese": "伍佰 / 江蕙"
+          },
+          "song_drafts": {
+            "english": {
+              "language_label": "天層 English 音樂藍圖",
+              "title": "Golden Flow",
+              "concept": "以金牛座的穩定與金屬的精準，勾勒出2000年代舞曲流行的核心旋律與音色，奠定歌曲明亮、抓耳的基調。",
+              "lyrics": [
+                "Oh-oh-oh, feel the flow",
+                "Yeah-yeah-yeah, let it glow",
+                "Golden light, shining bright",
+                "Every beat, feels so right",
+                "In the rhythm, lose control",
+                "Find your peace, find your soul",
+                "Quality self, let it bloom",
+                "Chase away the inner gloom"
+              ],
+              "style": "2000s modern dance pop，BPM 131，E minor，以清脆的合成器主旋律與punchy kick鼓點，營造明亮、流暢的空間感。",
+              "vocal_direction": "空靈且帶有穿透力的Hook音節，作為記憶點。"
+            },
+            "mandarin": {
+              "language_label": "地層 國語唱腔",
+              "title": "心流指引",
+              "concept": "承接天層的舞曲基底，發展出國語流行唱腔的副歌情緒與和聲，強調自我覺察與療癒的溫暖力量。",
+              "lyrics": [
+                "心打開，讓愛流動",
+                "每個呼吸，都變得輕鬆",
+                "不再迷惘，方向很清楚",
+                "跟著感覺，找到歸屬",
+                "Quality self，是我的禮物",
+                "擁抱自己，不再卻步",
+                "這份溫柔，是我的全部",
+                "療癒旅程，不再孤獨"
+              ],
+              "style": "流行舞曲節奏，鼓點清晰有力，加入溫暖的鋼琴和弦與弦樂鋪陳，營造出情感豐富且具穿透力的編曲厚度。",
+              "vocal_direction": "Soulful且富有情感的國語唱腔，副歌情緒飽滿，帶有溫暖的療癒感。"
+            },
+            "taiwanese": {
+              "language_label": "人層 台語故事",
+              "title": "真我佇這",
+              "concept": "以「MusicQASelf」的姓名氣質，結合台語的溫柔語感，描繪個人在轉折點上尋找內在平靜與歸屬感的故事，作為情感落點。",
+              "lyrics": [
+                "MusicQASelf，真我佇這",
+                "人生路，行到這",
+                "心內話，慢慢講出聲",
+                "毋免驚，有我陪你行",
+                "Quality self，是我的名",
+                "愛自己，毋免等別人疼",
+                "這條歌，唱乎你聽",
+                "願你平安，心頭定"
+              ],
+              "style": "在流行舞曲的基底上，加入輕柔的吉他點綴，營造出親密、溫暖的氛圍，讓台語歌詞的情感更為突出。",
+              "vocal_direction": "親密且帶有敘事感的台語唱腔，情感真摯，語氣溫柔，作為歌曲的情感落點。"
+            }
+          },
+          "fusion_song": {
+            "fusion_title": "心流金光",
+            "fusion_concept": "以2000年代舞曲的明亮節奏為骨架，國語流行唱腔溫暖敘事自我覺察，台語核心句點綴情感，融合成一首關於內在平靜與歸屬感的療癒歌曲。",
+            "fusion_lyrics": [
+              "[主歌]",
+              "城市喧囂，腳步匆忙",
+              "誰能聽見，心底的聲響",
+              "Oh-oh-oh, feel the flow",
+              "尋找一個，能安放的港",
+              "[副歌]",
+              "心打開，讓愛流動",
+              "每個呼吸，都變得輕鬆",
+              "不再迷惘，方向很清楚",
+              "跟著感覺，找到歸屬",
+              "Quality self，是我的禮物",
+              "擁抱自己，不再卻步",
+              "這份溫柔，是我的全部",
+              "療癒旅程，不再孤獨",
+              "[橋段]",
+              "Yeah-yeah-yeah, let it glow",
+              "MusicQASelf，真我佇這",
+              "愛自己，毋免等別人疼",
+              "[副歌]",
+              "心打開，讓愛流動",
+              "每個呼吸，都變得輕鬆"
+            ],
+            "fusion_style": "天層以2000年代舞曲的明亮旋律為靈魂，地層用國語流行唱腔與溫暖和聲構築歌曲身體，人層則以台語核心句點綴，描繪尋找內在平靜的故事，打造一首充滿希望的現代舞曲。"
+          },
+          "production_plan": {
+            "producer_summary": "AI 製作總監先讀取「療癒」這個當前生命目標，再把《Golden Flow》《心流指引》《真我佇這》視為天地人三個素材層，不視為三首歌，最後只整理成《心流金光》這一首 AI 專屬生命歌曲。",
+            "fusion_strategy": "天層負責英文音樂格局、主旋律方向與空間感；地層負責國語唱腔、節奏身體與副歌情緒；人層負責台語故事核心句與情感落點。融合時不三首硬拼，而是以「療癒：Quality self flow」作為共同主軸。",
+            "final_song_brief": "modern_dance_pop · 131 BPM · E minor，情緒走向為bright、catchy、streaming_friendly、emotional，創作風格鎖定流行，人格高點集中在 security / attachment / emotion。",
+            "arrangement_plan": [
+              "天層前奏：punchy_kick先建立英文音樂格局、年代感與空間感，決定歌曲靈魂。",
+              "地層主歌：國語唱腔進場，節奏、鼓點、和聲與編曲厚度承接天層曲風，不推翻原本方向。",
+              "地層副歌：把旋律與鼓組推高，建立最容易記住的流行 Hook 與副歌情緒。",
+              "人層橋段：只加入台語姓名故事與核心句，讓情感落地，但不改變編曲骨架。",
+              "融合收尾：由歌曲融合引擎統一收束成一首歌，保留一句人格記憶點。"
+            ],
+            "vocal_cast": [
+              "天層聲音：空靈且帶有穿透力的Hook音節，作為記憶點。",
+              "地層主唱：Soulful且富有情感的國語唱腔，副歌情緒飽滿，帶有溫暖的療癒感。",
+              "人層故事聲：親密且帶有敘事感的台語唱腔，情感真摯，語氣溫柔，作為歌曲的情感落點。"
+            ],
+            "lead_vocal_choice": "主唱性別由系統依人格與曲風自動配置；深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。",
+            "language_distribution": "國語主唱 70% · 英文 Hook 15% · 台語情感落點 15%。天地人人格權重仍保留，但最終歌曲以「國語生成」為主要聽感。",
+            "hook_design": "副歌核心 Hook 以《心流金光》為主題：天層給音樂記憶點，地層給國語副歌情緒，人層給一句台語人格落點。",
+            "popular_music_dna": [
+              "8 秒內先出現一個可記住的旋律、音色或短句 Hook，讓聽眾一開始就抓到歌曲身份。",
+              "主歌保留空間與故事感，副歌再把鼓組、和聲與旋律高度一起拉開，形成明顯爆發。",
+              "核心 Hook 重複 2 到 3 次，但每次換一點語言、和聲或樂器，熟悉但不單調。",
+              "歌詞短句優先，避免把太多文字塞進旋律，讓人可以跟著哼、跟著記。",
+              "橋段降低編曲密度，讓人層台語核心句或低聲線把情緒落地，再回到最後副歌。",
+              "結尾保留一句最核心的人格句子，像標誌一樣留在聽眾腦中。"
+            ],
+            "global_trend_blend": [
+              "Global Pop：使用乾淨直接的主旋律、短句 Hook、清楚副歌，讓歌曲第一聽就能抓住重點。",
+              "K-Pop / Cross-genre：段落轉換要有驚喜，副歌前可用短暫停頓、上升音效或和聲堆疊製造期待。",
+              "Latin / Reggaeton / Trap Latino：鼓組加入穩定擺動感與切分節奏，讓地層節奏身體更有律動。",
+              "Electronic / Synth Pop：用合成器、空氣墊、低頻脈衝與簡單音色標誌，讓歌曲有現代串流質感。",
+              "R&B / Emotional Pop：主歌保留人聲呼吸與親密感，副歌再加寬和聲，避免整首都太滿。",
+              "Short-form friendly：保留一段 12-18 秒可剪成短影音的核心副歌片段，但不能犧牲完整歌曲情緒。"
+            ],
+            "trend_arrangement_recipe": "以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層台語故事只負責情感落點；三者進同一個歌曲矩陣，不各自生成三套結果。",
+            "rhythm_strategy": "主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。",
+            "trend_safety_note": "只使用全球流行音樂的通用結構與聽感邏輯，不模仿特定歌手、特定歌曲、特定旋律或受版權保護的編曲細節。",
+            "hit_formula": "天層英文音樂前奏 8 拍 → 地層國語主歌 16 拍 → 地層副歌情緒拉升 → 人層台語核心句落點 → 融合引擎統一輸出最終副歌與一句記憶收尾。",
+            "hook_repeat_strategy": "核心 Hook 出現三次：第一次由天層建立旋律記憶，第二次由地層推高副歌情緒，第三次由人層核心句完成情感落點。",
+            "emotional_arc": "0-35% 天層建立音樂靈魂，35-70% 地層建立歌曲身體，70-100% 人層放入故事落點後由融合引擎收束成一首歌。",
+            "generation_prompt": "Life song mission: 療癒：Quality self flow. Worldview: 以「療癒」作為生命章節，把命理底色、五元素補強與流行聲景整合成一個專屬歌曲世界。. Scene: 使用者站在目前人生階段的轉折點，AI 以流行方式陪他把方向唱清楚。. Growth center: 成長中心已完成 2 個模組；元素紀錄 nameology:AIR、zodiac:SPACE。. Create one original Tiandiren life song, not three separate songs. Primary song language: 國語生成. 本次請以國語為主要可唱語言與副歌核心。英文只作短 Hook、音色記憶點或少量點綴；台語只作情感落點。國語是本系統主打強項，請讓歌曲最終聽感以國語流行歌為主。 Suggested language balance: 國語主唱 70% · 英文 Hook 15% · 台語情感落點 15%. modern_dance_pop, 131 BPM, E minor. Mood: bright、catchy、streaming_friendly、emotional. Instruments: punchy_kick、synth_bass、vocal_chops、hook_lead、piano. Vocal: 主唱性別由系統依人格與曲風自動配置；深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。. Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Taiwanese lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: memorable_hook、short_form_chorus、self-awareness、inner_world. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.",
+            "next_step_note": "下一步才接音樂/人聲生成服務；目前這一層先把製作、編曲、主唱分配與生成提示整理好，避免一次做太重造成當機。"
+          },
+          "voice_profile": {
+            "workflowStatus": "AI_VOICE_READY",
+            "consentAccepted": true,
+            "recorded": false,
+            "localOnly": true,
+            "sample": {
+              "durationSeconds": 0,
+              "qualityScore": 100,
+              "averageVolume": 0.06,
+              "dynamicRange": 0.08,
+              "brightness": 0.5,
+              "tempoPulse": 0.56,
+              "inferredCharacteristics": [
+                "ai_voice_direct",
+                "ai_voice_auto",
+                "life_song_vocal"
+              ],
+              "recordedAt": "2026-08-06T15:15:12.353Z"
+            },
+            "selfDialogueConcept": "AI 已自動建立演唱聲線，不需要使用者錄音、不需要麥克風權限；歌曲會依命理資料、五元素與本次目標自動生成歌詞、曲風、節奏與 AI 演唱。"
+          },
+          "fiveElement": {
+            "sourceModule": "music",
+            "analysisId": "music:1990-05-20:A:female:4:dance-pop:healing:pop",
+            "elementScores": {
+              "metal": {
+                "strength": 89,
+                "need": 7,
+                "evidenceCount": 3
+              },
+              "wood": {
+                "strength": 78,
+                "need": 28,
+                "evidenceCount": 2
+              },
+              "water": {
+                "strength": 54,
+                "need": 48,
+                "evidenceCount": 2
+              },
+              "fire": {
+                "strength": 56,
+                "need": 40,
+                "evidenceCount": 2
+              },
+              "earth": {
+                "strength": 98,
+                "need": 8,
+                "evidenceCount": 3
+              }
+            },
+            "primaryElement": "water",
+            "secondaryElement": "fire",
+            "strongElement": "earth",
+            "avoidElement": "earth",
+            "confidence": "high",
+            "conflict": false,
+            "supportingModules": [
+              "music",
+              "personalityMatrix",
+              "songStyle"
+            ],
+            "moduleResults": [
+              {
+                "module": "music",
+                "primaryElement": "water",
+                "confidence": "high"
+              }
+            ],
+            "evidence": [
+              {
+                "module": "music",
+                "title": "音樂人格矩陣判定水元素是第一缺口",
+                "detail": "系統已把人格矩陣、生日五行、時辰與歌曲風格交叉運算，水元素的補強需求最高。",
+                "element": "water",
+                "impact": "need"
+              },
+              {
+                "module": "music",
+                "title": "生日五行納入音樂補強權重",
+                "detail": "本次生日主調為空元素，已納入歌曲氣質與補強判定。",
+                "element": "metal",
+                "impact": "balance"
+              }
+            ],
+            "ruleVersion": "music_element_v1",
+            "summary": "AI 判定：目前最缺水元素。請優先補強水元素。 第一補強：水元素。完成後再補：火元素。最後補：風元素。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+            "keywords": [
+              "智慧",
+              "流動",
+              "溝通",
+              "適應"
+            ],
+            "reasons": [
+              "AI 判定：\n目前最缺：\n【水】\n請優先補強：\n【水】\n完成後：\n再補：\n【火】\n最後：\n【風】",
+              "AI 判定：目前最缺水元素。請優先補強水元素。",
+              "第一補強：水元素。完成後再補：火元素。最後補：風元素。",
+              "因為水元素補強需求為 48 分，高於第二補強火元素 40 分；目前支撐元素是地元素，本次不把它當成第一補強。差距：8 分。",
+              "音樂人格矩陣顯示水元素是目前第一補強順位。",
+              "補水元素會先改變：補水元素先改變的是思考彈性、溝通緩衝與適應力。",
+              "第二順位是火元素，但本次不分散，先補水元素。",
+              "地元素已經較強，本次先不補它。"
+            ],
+            "recommendedActions": [
+              "先聽完對方意思，再整理自己的回應。",
+              "把卡住的問題換一種問法。",
+              "留 10 分鐘安靜整理直覺與資訊。"
+            ],
+            "productEntryLabel": "選擇水元素能量手鏈",
+            "productRecommendation": {
+              "title": "水元素能量手鏈補強方案",
+              "headline": "優先補強思考、適應與溝通彈性。",
+              "description": "本次系統判定：你缺水元素，就先補水。水元素能量手鏈放在補強核心，幫助自己先觀察、再判斷，讓溝通與轉彎更順。",
+              "supportDirections": [
+                "智慧",
+                "適應",
+                "溝通",
+                "觀察"
+              ],
+              "disclaimer": "這是五元素能量手鏈補強與正向提醒，不代表保證成功或改運。真正結果仍需要持續行動。",
+              "ctaLabel": "選擇水元素能量手鏈",
+              "braceletCore": "本次結論不模糊：系統判定缺水元素，手鏈補強就先選水元素。"
+            },
+            "positiveQuote": {
+              "author": "比爾・蓋茲",
+              "role": "Microsoft Co-founder",
+              "quote": "Success is a lousy teacher. It seduces smart people into thinking they can't lose.",
+              "sourceName": "The Road Ahead",
+              "sourceUrl": "https://archive.org/details/roadahead0000gate",
+              "elementFit": "水元素重視思考、警覺與適應，適合用來提醒持續學習。",
+              "reminder": "順的時候更要保持清醒，用學習讓判斷更有彈性。"
+            },
+            "traditionalElement": "WATER",
+            "brandElement": "WATER",
+            "secondaryBrandElement": "FIRE",
+            "strongBrandElement": "EARTH",
+            "avoidBrandElement": "EARTH",
+            "normalizedElements": {
+              "SPACE": {
+                "sourceElement": "metal",
+                "traditionalElement": "METAL",
+                "brandElement": "SPACE",
+                "displayName": "空",
+                "sourceName": "金",
+                "strength": 89,
+                "need": 7,
+                "evidenceCount": 3
+              },
+              "AIR": {
+                "sourceElement": "wood",
+                "traditionalElement": "WOOD",
+                "brandElement": "AIR",
+                "displayName": "風",
+                "sourceName": "木",
+                "strength": 78,
+                "need": 28,
+                "evidenceCount": 2
+              },
+              "WATER": {
+                "sourceElement": "water",
+                "traditionalElement": "WATER",
+                "brandElement": "WATER",
+                "displayName": "水",
+                "sourceName": "水",
+                "strength": 54,
+                "need": 48,
+                "evidenceCount": 2
+              },
+              "FIRE": {
+                "sourceElement": "fire",
+                "traditionalElement": "FIRE",
+                "brandElement": "FIRE",
+                "displayName": "火",
+                "sourceName": "火",
+                "strength": 56,
+                "need": 40,
+                "evidenceCount": 2
+              },
+              "EARTH": {
+                "sourceElement": "earth",
+                "traditionalElement": "EARTH",
+                "brandElement": "EARTH",
+                "displayName": "地",
+                "sourceName": "土",
+                "strength": 98,
+                "need": 8,
+                "evidenceCount": 3
+              }
+            },
+            "decision": {
+              "title": "AI 判定：目前最缺【水】",
+              "conclusion": "AI 判定：目前最缺水元素。請優先補強水元素。",
+              "primaryAction": "第一補強：水元素。完成後再補：火元素。最後補：風元素。",
+              "changeTarget": "補水元素先改變的是思考彈性、溝通緩衝與適應力。",
+              "why": "因為水元素補強需求為 48 分，高於第二補強火元素 40 分；目前支撐元素是地元素，本次不把它當成第一補強。差距：8 分。",
+              "conflictNote": null,
+              "priorityOrder": [
+                "water",
+                "fire",
+                "wood",
+                "earth",
+                "metal"
+              ],
+              "priorityTemplate": "AI 判定：\n目前最缺：\n【水】\n請優先補強：\n【水】\n完成後：\n再補：\n【火】\n最後：\n【風】",
+              "corePrinciple": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。"
+            },
+            "productMatch": {
+              "primaryProductId": "bracelet_water_core",
+              "supportedElements": [
+                "WATER",
+                "FIRE"
+              ],
+              "balancedElements": [
+                "EARTH"
+              ],
+              "matchReason": [
+                "主補元素鎖定水元素，商品推薦必須先對準這個缺口。",
+                "第二順位火元素只作輔助參考，不取代主補判定。",
+                "目前較強元素先列入平衡觀察，不作為本次主推補強。",
+                "判定訊號穩定，前端可直接清楚呈現。"
+              ],
+              "matchConfidence": "high"
+            },
+            "enginePipeline": [
+              "ModuleAnalysisAdapter",
+              "ElementNormalizationEngine",
+              "ElementRecommendationEngine",
+              "ElementConflictResolver",
+              "ProductMatchingEngine",
+              "VerifiedQuoteMatchingEngine",
+              "ElementResultPresenter"
+            ],
+            "aiElementModel": {
+              "primaryElement": "WATER",
+              "secondaryElement": "FIRE",
+              "elementScore": {
+                "AIR": 28,
+                "SPACE": 7,
+                "WATER": 48,
+                "FIRE": 40,
+                "EARTH": 8
+              }
+            },
+            "elementScore": {
+              "AIR": 28,
+              "SPACE": 7,
+              "WATER": 48,
+              "FIRE": 40,
+              "EARTH": 8
+            }
+          },
+          "english_track": {
+            "title": "Yellow",
+            "artist": "Coldplay",
+            "videoId": "yKNxeF4Kxyc"
+          },
+          "mandarin_track": {
+            "title": "七里香",
+            "artist": "周杰倫",
+            "videoId": "Bbp9ZaJD_eA"
+          },
+          "taiwanese_track": {
+            "title": "甲你攬牢牢",
+            "artist": "江蕙",
+            "videoId": "s8MKF5o6lco"
+          },
+          "meta": {
+            "eraDisplayName": "千禧年代",
+            "zodiac": "金牛座",
+            "era": "2000s",
+            "wuxing": "金",
+            "wuxingColor": "#e2e8f0",
+            "chineseZodiac": "馬",
+            "heavenlyStem": "庚",
+            "archetype": "照顧者",
+            "archetypeSymbol": "🌿",
+            "archetypeEn": "The Caregiver",
+            "archetypeDescription": "以同理心守護他人，溫柔是最強大的力量",
+            "archetypeMusicPersona": "音樂如擁抱般溫暖，有強烈的療癒與撫慰感",
+            "archetypeShadow": "過度犧牲自我，難以拒絕，燃燒殆盡",
+            "archetypeCoreWound": "害怕自私，害怕讓人失望",
+            "archetypeCoreGift": "能在他人最脆弱的時刻給予最溫柔的接納",
+            "archetypeLifeLesson": "照顧自己，才能持續照顧他人",
+            "archetypeShadowIntegration": "說「不」也是一種愛，你的需求同樣值得被看見",
+            "archetypeSecondary": "戀人",
+            "archetypeSecondarySymbol": "💜",
+            "ocean": {
+              "openness": 63,
+              "conscientiousness": 82,
+              "extraversion": 71,
+              "agreeableness": 83,
+              "neuroticism": 47
+            },
+            "shichen": {
+              "isKnown": true,
+              "label": "辰時",
+              "range": "07:00-08:59",
+              "branch": "辰",
+              "wuxing": "土",
+              "dayPillar": "乙酉",
+              "hourPillar": "庚辰",
+              "friendlyNote": "已採用 辰時（07:00-08:59），讓時辰節奏自然併入人格與音樂分析。"
+            }
+          }
+        }
+      },
+      "requestId": null
+    },
+    "other": {
+      "ok": true,
+      "response": {
+        "ok": true,
+        "status": 200,
+        "route": "/api/music-generate",
+        "durationMs": 6614,
+        "data": {
+          "life_song_context": {
+            "targetMode": "guest",
+            "goal": "夢想",
+            "goalNote": "Quality other flow",
+            "creativeStyle": "電影配樂",
+            "growthSummary": "親朋好友模式：只做本次歌曲分析，不讀取會員長期成長資料。",
+            "worldView": "以「夢想」作為生命章節，把命理底色、五元素補強與電影配樂聲景整合成一個專屬歌曲世界。",
+            "theme": "夢想：Quality other flow",
+            "scene": "使用者站在目前人生階段的轉折點，AI 以電影配樂方式陪他把方向唱清楚。"
+          },
+          "personality_matrix": {
+            "emotion": 74,
+            "logic": 84,
+            "social": 73,
+            "leadership": 88,
+            "security": 80,
+            "creativity": 75,
+            "risk": 81,
+            "attachment": 77
+          },
+          "music_parameters": {
+            "bpm": 152,
+            "key": "E minor",
+            "genre": "modern_dance_pop",
+            "mood": [
+              "bright",
+              "catchy",
+              "streaming_friendly",
+              "emotional",
+              "warm",
+              "confident",
+              "clear",
+              "grounded"
+            ],
+            "vocal_style": "soulful, intimate, expressive, deep, grounded",
+            "instrument": [
+              "punchy_kick",
+              "synth_bass",
+              "vocal_chops",
+              "hook_lead",
+              "piano",
+              "drum",
+              "strings",
+              "guitar"
+            ],
+            "lyric_theme": [
+              "memorable_hook",
+              "short_form_chorus",
+              "vision",
+              "growth",
+              "roots",
+              "belonging",
+              "reason",
+              "truth"
+            ]
+          },
+          "music_report": {
+            "music_narrative": "你生於戊土之年，肖龍，命格如大地般厚實，承載力豐沛，兼具龍的磅礴氣勢與天蠍的深邃洞察。音樂靈魂流淌著電影配樂的史詩感，既能沉穩包容，亦能展現領導魅力。你對夢想的追逐，如同土生萬物，需要穩固的根基與源源不絕的創造力。偶有過於執著的陰影，但那正是你轉化為力量的契機，引領你走向更廣闊的未來。",
+            "song_title_suggestion": "築夢之土：龍騰序章",
+            "lyric_opening": "大地深處蘊藏著光，龍魂覺醒劃破迷茫。",
+            "music_message": "這首歌是為你而生，願它成為你追逐夢想的序曲。在人生的轉折點，願你聽見內心的聲音，堅定步伐。你的夢想如種子，需要耐心灌溉，終將破土而出，綻放屬於你的獨特光芒。",
+            "wisdom_note": "心存善念，如土滋養萬物，所行之路自會開闊。每一次的付出與堅持，都是為未來鋪墊，命運終將回報以豐盛。",
+            "english_song_reason": "《Bad Romance》的宏大格局與戲劇張力，能完美錨定你龍的氣勢與電影配樂的史詩感，展現夢想的無限可能。",
+            "mandarin_song_reason": "《親愛的那不是愛情》的細膩情感與流行唱腔，能作為你情感表達的基石，讓夢想的溫度與真實感深入人心。",
+            "taiwanese_song_reason": "《落雨聲》的深沉故事性與情感穿透力，能為你的夢想注入人性的溫暖與連結，讓追夢之路更具共鳴。",
+            "famous_singers_mandarin": "周杰倫 / 蔡依林",
+            "famous_singers_english": "Eminem / Lady Gaga",
+            "famous_singers_taiwanese": "伍佰 / 江蕙"
+          },
+          "song_drafts": {
+            "english": {
+              "language_label": "天層 English 音樂藍圖",
+              "title": "Dream Weaver's Overture",
+              "concept": "定義歌曲的宏大電影配樂感與現代舞曲流行基底，確立主旋律的記憶點與整體情緒色彩。",
+              "lyrics": [
+                "Oh-oh-oh, the flow",
+                "Quality, other flow",
+                "Feel the rhythm, let it grow",
+                "Oh-oh-oh, where do we go?",
+                "Future's calling, let it show",
+                "Yeah-eh-eh, the dream we sow"
+              ],
+              "style": "BPM 152，E minor，融合2000年代舞曲的能量與史詩感弦樂，帶有明亮、自信且溫暖的氛圍。",
+              "vocal_direction": "高亢且具穿透力的Hook，帶有電子處理的音色記憶點。"
+            },
+            "mandarin": {
+              "language_label": "地層 國語唱腔",
+              "title": "夢想啟程曲",
+              "concept": "承載天層的音樂骨架，以國語流行唱腔展現沉穩包容的土屬特質，並透過副歌堆疊出情感厚度。",
+              "lyrics": [
+                "站在人生的轉折點",
+                "心底的聲音多麼清晰",
+                "Quality other flow",
+                "夢想的藍圖在眼前",
+                "每一步都堅定不移",
+                "勇敢去闖，不留遺憾",
+                "這就是我的Quality other flow"
+              ],
+              "style": "現代舞曲流行基底，加入厚實的鼓點與和聲，編曲層次豐富，副歌情緒飽滿，展現大地般的承載力。",
+              "vocal_direction": "深情而富有力量的流行唱腔，副歌部分情感爆發，具穿透力與感染力。"
+            },
+            "taiwanese": {
+              "language_label": "人層 台語故事",
+              "title": "逐夢的腳步",
+              "concept": "以台語作為情感的最終落點，透過姓名「MusicQAOther」的意象，講述個人在追尋夢想路上的堅定與自我對話。",
+              "lyrics": [
+                "MusicQAOther，我的名",
+                "一步一腳印，毋驚風雨淋",
+                "Quality other flow，心內有數",
+                "夢想的路途，我會行予完",
+                "天光抑是暗，攏是我的伴",
+                "這條路，我會繼續行"
+              ],
+              "style": "在現代舞曲流行基底上，融入溫暖的鋼琴與弦樂，營造出電影配樂般的敘事感，情感真摯。",
+              "vocal_direction": "溫柔而堅定的台語唱腔，情感真摯，帶有故事性，在歌曲尾聲作為情感的沉澱。"
+            }
+          },
+          "fusion_song": {
+            "fusion_title": "夢想引路者",
+            "fusion_concept": "以電影配樂的宏大格局為基底，國語流行唱腔承載沉穩情緒，台語核心句點綴追夢的堅定，融合成一首激勵人心的現代舞曲。",
+            "fusion_lyrics": [
+              "[主歌]",
+              "站在人生的轉折點",
+              "心底的聲音多麼清晰",
+              "Oh-oh-oh, the flow",
+              "夢想的藍圖在眼前",
+              "每一步都堅定不移",
+              "[副歌]",
+              "勇敢去闖，不留遺憾",
+              "這就是我的Quality other flow",
+              "MusicQAOther，我的名",
+              "一步一腳印，毋驚風雨淋",
+              "Quality, other flow",
+              "[橋段]",
+              "天光抑是暗，攏是我的伴",
+              "Future's calling, let it show",
+              "[副歌]",
+              "勇敢去闖，不留遺憾",
+              "這就是我的Quality other flow",
+              "夢想的路途，我會行予完"
+            ],
+            "fusion_style": "天層以現代舞曲的電影配樂感奠定宏大基調，地層用國語流行唱腔展現沉穩與情感堆疊，人層則以台語核心句點亮逐夢的堅定，共同編織出自信溫暖的歌曲。"
+          },
+          "production_plan": {
+            "producer_summary": "AI 製作總監先讀取「夢想」這個當前生命目標，再把《Dream Weaver's Overture》《夢想啟程曲》《逐夢的腳步》視為天地人三個素材層，不視為三首歌，最後只整理成《夢想引路者》這一首 AI 專屬生命歌曲。",
+            "fusion_strategy": "天層負責英文音樂格局、主旋律方向與空間感；地層負責國語唱腔、節奏身體與副歌情緒；人層負責台語故事核心句與情感落點。融合時不三首硬拼，而是以「夢想：Quality other flow」作為共同主軸。",
+            "final_song_brief": "modern_dance_pop · 152 BPM · E minor，情緒走向為bright、catchy、streaming_friendly、emotional，創作風格鎖定電影配樂，人格高點集中在 leadership / logic / risk。",
+            "arrangement_plan": [
+              "天層前奏：punchy_kick先建立英文音樂格局、年代感與空間感，決定歌曲靈魂。",
+              "地層主歌：國語唱腔進場，節奏、鼓點、和聲與編曲厚度承接天層曲風，不推翻原本方向。",
+              "地層副歌：把旋律與鼓組推高，建立最容易記住的流行 Hook 與副歌情緒。",
+              "人層橋段：只加入台語姓名故事與核心句，讓情感落地，但不改變編曲骨架。",
+              "融合收尾：由歌曲融合引擎統一收束成一首歌，保留一句人格記憶點。"
+            ],
+            "vocal_cast": [
+              "天層聲音：高亢且具穿透力的Hook，帶有電子處理的音色記憶點。",
+              "地層主唱：深情而富有力量的流行唱腔，副歌部分情感爆發，具穿透力與感染力。",
+              "人層故事聲：溫柔而堅定的台語唱腔，情感真摯，帶有故事性，在歌曲尾聲作為情感的沉澱。"
+            ],
+            "lead_vocal_choice": "主唱性別由系統依人格與曲風自動配置；深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。",
+            "language_distribution": "國語主唱 70% · 英文 Hook 15% · 台語情感落點 15%。天地人人格權重仍保留，但最終歌曲以「國語生成」為主要聽感。",
+            "hook_design": "副歌核心 Hook 以《夢想引路者》為主題：天層給音樂記憶點，地層給國語副歌情緒，人層給一句台語人格落點。",
+            "popular_music_dna": [
+              "8 秒內先出現一個可記住的旋律、音色或短句 Hook，讓聽眾一開始就抓到歌曲身份。",
+              "主歌保留空間與故事感，副歌再把鼓組、和聲與旋律高度一起拉開，形成明顯爆發。",
+              "核心 Hook 重複 2 到 3 次，但每次換一點語言、和聲或樂器，熟悉但不單調。",
+              "歌詞短句優先，避免把太多文字塞進旋律，讓人可以跟著哼、跟著記。",
+              "橋段降低編曲密度，讓人層台語核心句或低聲線把情緒落地，再回到最後副歌。",
+              "結尾保留一句最核心的人格句子，像標誌一樣留在聽眾腦中。"
+            ],
+            "global_trend_blend": [
+              "Global Pop：使用乾淨直接的主旋律、短句 Hook、清楚副歌，讓歌曲第一聽就能抓住重點。",
+              "K-Pop / Cross-genre：段落轉換要有驚喜，副歌前可用短暫停頓、上升音效或和聲堆疊製造期待。",
+              "Latin / Reggaeton / Trap Latino：鼓組加入穩定擺動感與切分節奏，讓地層節奏身體更有律動。",
+              "Electronic / Synth Pop：用合成器、空氣墊、低頻脈衝與簡單音色標誌，讓歌曲有現代串流質感。",
+              "R&B / Emotional Pop：主歌保留人聲呼吸與親密感，副歌再加寬和聲，避免整首都太滿。",
+              "Short-form friendly：保留一段 12-18 秒可剪成短影音的核心副歌片段，但不能犧牲完整歌曲情緒。"
+            ],
+            "trend_arrangement_recipe": "以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層台語故事只負責情感落點；三者進同一個歌曲矩陣，不各自生成三套結果。",
+            "rhythm_strategy": "主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。",
+            "trend_safety_note": "只使用全球流行音樂的通用結構與聽感邏輯，不模仿特定歌手、特定歌曲、特定旋律或受版權保護的編曲細節。",
+            "hit_formula": "天層英文音樂前奏 8 拍 → 地層國語主歌 16 拍 → 地層副歌情緒拉升 → 人層台語核心句落點 → 融合引擎統一輸出最終副歌與一句記憶收尾。",
+            "hook_repeat_strategy": "核心 Hook 出現三次：第一次由天層建立旋律記憶，第二次由地層推高副歌情緒，第三次由人層核心句完成情感落點。",
+            "emotional_arc": "0-35% 天層建立音樂靈魂，35-70% 地層建立歌曲身體，70-100% 人層放入故事落點後由融合引擎收束成一首歌。",
+            "generation_prompt": "Life song mission: 夢想：Quality other flow. Worldview: 以「夢想」作為生命章節，把命理底色、五元素補強與電影配樂聲景整合成一個專屬歌曲世界。. Scene: 使用者站在目前人生階段的轉折點，AI 以電影配樂方式陪他把方向唱清楚。. Growth center: 親朋好友模式：只做本次歌曲分析，不讀取會員長期成長資料。. Create one original Tiandiren life song, not three separate songs. Primary song language: 國語生成. 本次請以國語為主要可唱語言與副歌核心。英文只作短 Hook、音色記憶點或少量點綴；台語只作情感落點。國語是本系統主打強項，請讓歌曲最終聽感以國語流行歌為主。 Suggested language balance: 國語主唱 70% · 英文 Hook 15% · 台語情感落點 15%. modern_dance_pop, 152 BPM, E minor. Mood: bright、catchy、streaming_friendly、emotional. Instruments: punchy_kick、synth_bass、vocal_chops、hook_lead、piano. Vocal: 主唱性別由系統依人格與曲風自動配置；深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。. Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Taiwanese lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: memorable_hook、short_form_chorus、vision、growth. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.",
+            "next_step_note": "下一步才接音樂/人聲生成服務；目前這一層先把製作、編曲、主唱分配與生成提示整理好，避免一次做太重造成當機。"
+          },
+          "voice_profile": {
+            "workflowStatus": "AI_VOICE_READY",
+            "consentAccepted": true,
+            "recorded": false,
+            "localOnly": true,
+            "sample": {
+              "durationSeconds": 0,
+              "qualityScore": 100,
+              "averageVolume": 0.06,
+              "dynamicRange": 0.08,
+              "brightness": 0.5,
+              "tempoPulse": 0.56,
+              "inferredCharacteristics": [
+                "ai_voice_direct",
+                "ai_voice_auto",
+                "life_song_vocal"
+              ],
+              "recordedAt": "2026-08-06T15:15:20.193Z"
+            },
+            "selfDialogueConcept": "AI 已自動建立演唱聲線，不需要使用者錄音、不需要麥克風權限；歌曲會依命理資料、五元素與本次目標自動生成歌詞、曲風、節奏與 AI 演唱。"
+          },
+          "fiveElement": {
+            "sourceModule": "music",
+            "analysisId": "music:1988-11-08:O:male:9:dance-pop:dream:cinematic",
+            "elementScores": {
+              "metal": {
+                "strength": 90,
+                "need": 6,
+                "evidenceCount": 3
+              },
+              "wood": {
+                "strength": 80,
+                "need": 26,
+                "evidenceCount": 2
+              },
+              "water": {
+                "strength": 54,
+                "need": 48,
+                "evidenceCount": 2
+              },
+              "fire": {
+                "strength": 56,
+                "need": 40,
+                "evidenceCount": 2
+              },
+              "earth": {
+                "strength": 97,
+                "need": 9,
+                "evidenceCount": 3
+              }
+            },
+            "primaryElement": "water",
+            "secondaryElement": "fire",
+            "strongElement": "earth",
+            "avoidElement": "earth",
+            "confidence": "high",
+            "conflict": false,
+            "supportingModules": [
+              "music",
+              "personalityMatrix",
+              "songStyle"
+            ],
+            "moduleResults": [
+              {
+                "module": "music",
+                "primaryElement": "water",
+                "confidence": "high"
+              }
+            ],
+            "evidence": [
+              {
+                "module": "music",
+                "title": "音樂人格矩陣判定水元素是第一缺口",
+                "detail": "系統已把人格矩陣、生日五行、時辰與歌曲風格交叉運算，水元素的補強需求最高。",
+                "element": "water",
+                "impact": "need"
+              },
+              {
+                "module": "music",
+                "title": "生日五行納入音樂補強權重",
+                "detail": "本次生日主調為地元素，已納入歌曲氣質與補強判定。",
+                "element": "earth",
+                "impact": "balance"
+              }
+            ],
+            "ruleVersion": "music_element_v1",
+            "summary": "AI 判定：目前最缺水元素。請優先補強水元素。 第一補強：水元素。完成後再補：火元素。最後補：風元素。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+            "keywords": [
+              "智慧",
+              "流動",
+              "溝通",
+              "適應"
+            ],
+            "reasons": [
+              "AI 判定：\n目前最缺：\n【水】\n請優先補強：\n【水】\n完成後：\n再補：\n【火】\n最後：\n【風】",
+              "AI 判定：目前最缺水元素。請優先補強水元素。",
+              "第一補強：水元素。完成後再補：火元素。最後補：風元素。",
+              "因為水元素補強需求為 48 分，高於第二補強火元素 40 分；目前支撐元素是地元素，本次不把它當成第一補強。差距：8 分。",
+              "音樂人格矩陣顯示水元素是目前第一補強順位。",
+              "補水元素會先改變：補水元素先改變的是思考彈性、溝通緩衝與適應力。",
+              "第二順位是火元素，但本次不分散，先補水元素。",
+              "地元素已經較強，本次先不補它。"
+            ],
+            "recommendedActions": [
+              "先聽完對方意思，再整理自己的回應。",
+              "把卡住的問題換一種問法。",
+              "留 10 分鐘安靜整理直覺與資訊。"
+            ],
+            "productEntryLabel": "選擇水元素能量手鏈",
+            "productRecommendation": {
+              "title": "水元素能量手鏈補強方案",
+              "headline": "優先補強思考、適應與溝通彈性。",
+              "description": "本次系統判定：你缺水元素，就先補水。水元素能量手鏈放在補強核心，幫助自己先觀察、再判斷，讓溝通與轉彎更順。",
+              "supportDirections": [
+                "智慧",
+                "適應",
+                "溝通",
+                "觀察"
+              ],
+              "disclaimer": "這是五元素能量手鏈補強與正向提醒，不代表保證成功或改運。真正結果仍需要持續行動。",
+              "ctaLabel": "選擇水元素能量手鏈",
+              "braceletCore": "本次結論不模糊：系統判定缺水元素，手鏈補強就先選水元素。"
+            },
+            "positiveQuote": {
+              "author": "比爾・蓋茲",
+              "role": "Microsoft Co-founder",
+              "quote": "Success is a lousy teacher. It seduces smart people into thinking they can't lose.",
+              "sourceName": "The Road Ahead",
+              "sourceUrl": "https://archive.org/details/roadahead0000gate",
+              "elementFit": "水元素重視思考、警覺與適應，適合用來提醒持續學習。",
+              "reminder": "順的時候更要保持清醒，用學習讓判斷更有彈性。"
+            },
+            "traditionalElement": "WATER",
+            "brandElement": "WATER",
+            "secondaryBrandElement": "FIRE",
+            "strongBrandElement": "EARTH",
+            "avoidBrandElement": "EARTH",
+            "normalizedElements": {
+              "SPACE": {
+                "sourceElement": "metal",
+                "traditionalElement": "METAL",
+                "brandElement": "SPACE",
+                "displayName": "空",
+                "sourceName": "金",
+                "strength": 90,
+                "need": 6,
+                "evidenceCount": 3
+              },
+              "AIR": {
+                "sourceElement": "wood",
+                "traditionalElement": "WOOD",
+                "brandElement": "AIR",
+                "displayName": "風",
+                "sourceName": "木",
+                "strength": 80,
+                "need": 26,
+                "evidenceCount": 2
+              },
+              "WATER": {
+                "sourceElement": "water",
+                "traditionalElement": "WATER",
+                "brandElement": "WATER",
+                "displayName": "水",
+                "sourceName": "水",
+                "strength": 54,
+                "need": 48,
+                "evidenceCount": 2
+              },
+              "FIRE": {
+                "sourceElement": "fire",
+                "traditionalElement": "FIRE",
+                "brandElement": "FIRE",
+                "displayName": "火",
+                "sourceName": "火",
+                "strength": 56,
+                "need": 40,
+                "evidenceCount": 2
+              },
+              "EARTH": {
+                "sourceElement": "earth",
+                "traditionalElement": "EARTH",
+                "brandElement": "EARTH",
+                "displayName": "地",
+                "sourceName": "土",
+                "strength": 97,
+                "need": 9,
+                "evidenceCount": 3
+              }
+            },
+            "decision": {
+              "title": "AI 判定：目前最缺【水】",
+              "conclusion": "AI 判定：目前最缺水元素。請優先補強水元素。",
+              "primaryAction": "第一補強：水元素。完成後再補：火元素。最後補：風元素。",
+              "changeTarget": "補水元素先改變的是思考彈性、溝通緩衝與適應力。",
+              "why": "因為水元素補強需求為 48 分，高於第二補強火元素 40 分；目前支撐元素是地元素，本次不把它當成第一補強。差距：8 分。",
+              "conflictNote": null,
+              "priorityOrder": [
+                "water",
+                "fire",
+                "wood",
+                "earth",
+                "metal"
+              ],
+              "priorityTemplate": "AI 判定：\n目前最缺：\n【水】\n請優先補強：\n【水】\n完成後：\n再補：\n【火】\n最後：\n【風】",
+              "corePrinciple": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。"
+            },
+            "productMatch": {
+              "primaryProductId": "bracelet_water_core",
+              "supportedElements": [
+                "WATER",
+                "FIRE"
+              ],
+              "balancedElements": [
+                "EARTH"
+              ],
+              "matchReason": [
+                "主補元素鎖定水元素，商品推薦必須先對準這個缺口。",
+                "第二順位火元素只作輔助參考，不取代主補判定。",
+                "目前較強元素先列入平衡觀察，不作為本次主推補強。",
+                "判定訊號穩定，前端可直接清楚呈現。"
+              ],
+              "matchConfidence": "high"
+            },
+            "enginePipeline": [
+              "ModuleAnalysisAdapter",
+              "ElementNormalizationEngine",
+              "ElementRecommendationEngine",
+              "ElementConflictResolver",
+              "ProductMatchingEngine",
+              "VerifiedQuoteMatchingEngine",
+              "ElementResultPresenter"
+            ],
+            "aiElementModel": {
+              "primaryElement": "WATER",
+              "secondaryElement": "FIRE",
+              "elementScore": {
+                "AIR": 26,
+                "SPACE": 6,
+                "WATER": 48,
+                "FIRE": 40,
+                "EARTH": 9
+              }
+            },
+            "elementScore": {
+              "AIR": 26,
+              "SPACE": 6,
+              "WATER": 48,
+              "FIRE": 40,
+              "EARTH": 9
+            }
+          },
+          "english_track": {
+            "title": "Bad Romance",
+            "artist": "Lady Gaga",
+            "videoId": "qrO4YZeyl0I"
+          },
+          "mandarin_track": {
+            "title": "親愛的那不是愛情",
+            "artist": "張惠妹",
+            "videoId": "HwF1i_6Iwp8"
+          },
+          "taiwanese_track": {
+            "title": "落雨聲",
+            "artist": "江蕙",
+            "videoId": "a53LYWWuAWU"
+          },
+          "meta": {
+            "eraDisplayName": "千禧年代",
+            "zodiac": "天蠍座",
+            "era": "2000s",
+            "wuxing": "土",
+            "wuxingColor": "#ca8a04",
+            "chineseZodiac": "龍",
+            "heavenlyStem": "戊",
+            "archetype": "英雄",
+            "archetypeSymbol": "⚔️",
+            "archetypeEn": "The Hero",
+            "archetypeDescription": "勇於面對挑戰，突破自我極限，保護身邊珍視之人",
+            "archetypeMusicPersona": "音樂充滿力量感與前進性，旋律在高潮處迸發",
+            "archetypeShadow": "過度自我要求，難以承認脆弱",
+            "archetypeCoreWound": "害怕懦弱，害怕讓人失望",
+            "archetypeCoreGift": "在最黑暗的時刻仍能點燃前行的光",
+            "archetypeLifeLesson": "學會在脆弱中找到真正的勇氣",
+            "archetypeShadowIntegration": "允許自己有時候不需要是英雄，休息也是一種力量",
+            "archetypeSecondary": "統治者",
+            "archetypeSecondarySymbol": "👑",
+            "ocean": {
+              "openness": 77,
+              "conscientiousness": 82,
+              "extraversion": 80,
+              "agreeableness": 76,
+              "neuroticism": 47
+            },
+            "shichen": {
+              "isKnown": true,
+              "label": "酉時",
+              "range": "17:00-18:59",
+              "branch": "酉",
+              "wuxing": "金",
+              "dayPillar": "丁卯",
+              "hourPillar": "己酉",
+              "friendlyNote": "已採用 酉時（17:00-18:59），讓時辰節奏自然併入人格與音樂分析。"
+            }
+          }
+        }
+      },
+      "requestId": null
+    },
+    "screenHealth": {
+      "id": "CARD_05",
+      "module": "music",
+      "title": "AI 專屬生命歌曲",
+      "path": "/music",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 602,
+      "htmlLength": 40982,
+      "error": null,
+      "issue": null
+    },
+    "startedAt": "2026-08-06T15:15:10.319Z",
+    "completedAt": "2026-08-06T15:15:24.888Z"
+  },
+  "totalScore": 70,
+  "tier": "STANDARD",
+  "allowNextCard": false,
+  "generatedAt": "2026-08-06T15:15:24.888Z"
+}

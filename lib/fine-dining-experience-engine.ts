@@ -61,43 +61,43 @@ export const FINE_DINING_MODULE_LABEL: Record<FineDiningExperienceModule, string
 export const FINE_DINING_STAGES: FineDiningExperienceStage[] = [
   {
     id: 'STAGE_01_WELCOME',
-    label: '資料安全接收',
-    detail: '你的資料已安全接收。',
+    label: '開始服務',
+    detail: '確認本次要完成的單一任務。',
   },
   {
     id: 'STAGE_02_ORDER',
-    label: '需求確認',
-    detail: '本次分析目標已確認。',
+    label: '資料確認',
+    detail: '檢查格式、身份與必要資料。',
   },
   {
     id: 'STAGE_03_PREPARE',
-    label: '專業資料比對',
-    detail: '專業資料來源已完成比對。',
+    label: '準備分析',
+    detail: '建立任務並整理後端運算素材。',
   },
   {
     id: 'STAGE_04_COOK',
-    label: '核心分析建立',
-    detail: '核心分析正在建立。',
+    label: 'AI 分析中',
+    detail: '後端開始運算，不讓使用者面對空白等待。',
   },
   {
     id: 'STAGE_05_QUALITY_CHECK',
-    label: '完整性確認',
-    detail: '結果完整性正在確認。',
+    label: '品質確認',
+    detail: '確認結果完整、去重且可在手機閱讀。',
   },
   {
     id: 'STAGE_06_SERVE',
-    label: 'AI 精華整理',
-    detail: 'AI 精華內容已完成整理。',
+    label: '結果準備完成',
+    detail: '前端只顯示真正重要的結果。',
   },
   {
     id: 'STAGE_07_CHEF_SUMMARY',
-    label: '唯一核心判定',
-    detail: 'AI 已整理唯一核心判定。',
+    label: 'AI 最終判定',
+    detail: '整合成一句最核心的今日方向。',
   },
   {
     id: 'STAGE_08_FOLLOW_UP',
-    label: '後續陪伴同步',
-    detail: '你的專屬分析已準備完成。',
+    label: '後續提醒',
+    detail: '更新成長中心與下一步行動。',
   },
 ];
 

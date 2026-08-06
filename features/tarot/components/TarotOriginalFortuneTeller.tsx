@@ -73,6 +73,13 @@ function stopAllAudio(root: HTMLElement | null) {
   });
 }
 
+const SAFE_READING_FALLBACK = '系統暫時無法完成整合，請稍後重試；不會影響已經翻開的牌面。';
+
+function toSafeReadingErrorMessage(caught: unknown): string {
+  const message = caught instanceof Error ? caught.message : '';
+  return message && /[一-鿿]/.test(message) ? message : SAFE_READING_FALLBACK;
+}
+
 function uniqueRandomIndices(max: number) {
   const chosen = new Set<number>();
   while (chosen.size < 3) chosen.add(Math.floor(Math.random() * max));
@@ -210,7 +217,7 @@ export default function TarotOriginalFortuneTeller({
         }).catch((caught) => {
           growthSyncedReadingRef.current = null;
           setAiReadingState('error');
-          setAiReadingError(caught instanceof Error ? caught.message : '這一道確認尚未通過，系統已停止後續分析。');
+          setAiReadingError(toSafeReadingErrorMessage(caught));
         });
       }
     }
@@ -441,7 +448,7 @@ export default function TarotOriginalFortuneTeller({
             </div>
           )}
 
-          {finished && aiReadingState !== 'idle' && (
+          {finished && aiReadingState === 'ready' && (
             <div className="tarot-growth-complete" data-tarot-growth-state={growthSyncState} role="status" aria-live="polite">
               <p className="tarot-growth-complete__eyebrow">TASK COMPLETE</p>
               <h2>{growthSyncState === 'saved' ? '塔羅牌任務已完成，AI 個人成長中心已更新。' : '塔羅牌單次任務已完成。'}</h2>
