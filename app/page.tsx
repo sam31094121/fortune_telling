@@ -3705,61 +3705,71 @@ export default function HomePage() {
                 </div>
               );
             })()}
-            {fortuneResult && !fortuneLoading && (
-              <div className={`result-container fade-result mt-6 rounded-2xl border p-4 space-y-3 font-sans relative overflow-hidden sm:p-5 ${fortuneAura.resultClass}`}>
-                <FineDiningServiceProgress
-                  module="number"
-                  state="completed"
-                  liveMessage="最終完成：你的專屬分析已準備完成。"
-                />
-                <NumberFortuneThreeLayerCard mode="result" result={fortuneResult} />
-                {fortuneAura.stage > 0 && (
-                  <>
-                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.16),transparent_38%),linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent)] mix-blend-screen" />
-                    <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full border border-current opacity-20 animate-[spin_16s_linear_infinite]" />
-                    <div className="relative z-10 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className={`rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.22em] ${fortuneAura.badgeClass}`}>
-                          彩蛋解鎖 · {fortuneAura.label}
-                        </span>
-                        <span className="text-[10px] font-mono tracking-[0.18em] text-white/55">
-                          TAIJI AURA {fortuneAura.stage}
-                        </span>
+            {fortuneResult && !fortuneLoading && (() => {
+              const qualityGate = getNumberQualityGateResult(fortuneResult);
+              if (!qualityGate.readyForFrontend) {
+                return (
+                  <p className="form-missing-alert">
+                    {getFriendlyQualityGateError(qualityGate)}
+                  </p>
+                );
+              }
+
+              return (
+                <div className={`result-container fade-result mt-6 rounded-2xl border p-4 space-y-3 font-sans relative overflow-hidden sm:p-5 ${fortuneAura.resultClass}`}>
+                  <FineDiningServiceProgress
+                    module="number"
+                    state="completed"
+                    liveMessage="最終完成：你的專屬分析已準備完成。"
+                  />
+                  <NumberFortuneThreeLayerCard mode="result" result={fortuneResult} />
+                  {fortuneAura.stage > 0 && (
+                    <>
+                      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.16),transparent_38%),linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent)] mix-blend-screen" />
+                      <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full border border-current opacity-20 animate-[spin_16s_linear_infinite]" />
+                      <div className="relative z-10 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className={`rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.22em] ${fortuneAura.badgeClass}`}>
+                            彩蛋解鎖 · {fortuneAura.label}
+                          </span>
+                          <span className="text-[10px] font-mono tracking-[0.18em] text-white/55">
+                            TAIJI AURA {fortuneAura.stage}
+                          </span>
+                        </div>
+                        <p className={`mt-2 text-xs font-semibold leading-5 ${fortuneAura.textClass}`}>
+                          {fortuneAura.blessing}
+                        </p>
                       </div>
-                      <p className={`mt-2 text-xs font-semibold leading-5 ${fortuneAura.textClass}`}>
-                        {fortuneAura.blessing}
-                      </p>
-                    </div>
-                  </>
-                )}
-                <FeatureVisitorCounter featureKey="iching" className="hidden" />
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <span className="text-sm font-semibold text-cyan-200">
-                    分析對象：<span className="text-base text-cyan-100 font-mono font-bold">{fortuneResult.value}</span>
-                  </span>
-                  <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-xs font-bold text-cyan-100">
-                    {fortuneResult.mode === 'phone10' ? '完整 10 碼' : fortuneResult.mode === 'digit8' ? '8 碼' : fortuneResult.mode === 'six6' ? '6 碼' : '後 4 碼'}
-                  </span>
-                </div>
-
-                <details className="relative z-10 overflow-hidden rounded-2xl border border-cyan-200/15 bg-slate-950/45 p-4">
-                  <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm font-black leading-7 text-cyan-100">
-                    <span>查看完整分析</span>
-                    <span className="text-[11px] text-cyan-100/60">專業資料</span>
-                  </summary>
-                  <div className="mt-4 space-y-4">
-                    <NumberFortuneGradeBanner result={fortuneResult} />
-                    <FiveElementPriorityCard result={fortuneResult.fiveElement} />
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-7">
-                      <p className="font-semibold text-cyan-300">分析解說・建議鼓勵</p>
-                      <p className="mt-2 text-[color:var(--text-sub)]">{enforceAiCopywritingTone(fortuneResult.summary)}</p>
-                      <p className="mt-3 text-xs leading-6 text-[color:var(--text-muted)]">{enforceAiCopywritingTone(fortuneResult.advice)}</p>
-                    </div>
+                    </>
+                  )}
+                  <FeatureVisitorCounter featureKey="iching" className="hidden" />
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <span className="text-sm font-semibold text-cyan-200">
+                      分析對象：<span className="text-base text-cyan-100 font-mono font-bold">{fortuneResult.value}</span>
+                    </span>
+                    <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-xs font-bold text-cyan-100">
+                      {fortuneResult.mode === 'phone10' ? '完整 10 碼' : fortuneResult.mode === 'digit8' ? '8 碼' : fortuneResult.mode === 'six6' ? '6 碼' : '後 4 碼'}
+                    </span>
                   </div>
-                </details>
-              </div>
-            )}
 
+                  <details className="relative z-10 overflow-hidden rounded-2xl border border-cyan-200/15 bg-slate-950/45 p-4">
+                    <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm font-black leading-7 text-cyan-100">
+                      <span>查看完整分析</span>
+                      <span className="text-[11px] text-cyan-100/60">專業資料</span>
+                    </summary>
+                    <div className="mt-4 space-y-4">
+                      <NumberFortuneGradeBanner result={fortuneResult} />
+                      <FiveElementPriorityCard result={fortuneResult.fiveElement} />
+                      <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-7">
+                        <p className="font-semibold text-cyan-300">分析解說・建議鼓勵</p>
+                        <p className="mt-2 text-[color:var(--text-sub)]">{enforceAiCopywritingTone(fortuneResult.summary)}</p>
+                        <p className="mt-3 text-xs leading-6 text-[color:var(--text-muted)]">{enforceAiCopywritingTone(fortuneResult.advice)}</p>
+                      </div>
+                    </div>
+                  </details>
+                </div>
+              );
+            })()}
               </section>
 
               <section className="number-fortune-card number-fortune-taiji-card" aria-label="Tai Chi interaction">

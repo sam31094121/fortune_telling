@@ -2,8 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import type { TarotCard, TarotDeckCard, TarotReading, TarotReadingCard, TarotReadingScope } from '@/features/tarot/types';
-import { createTarotIntegrationSignal, recordTarotIntegrationSignal } from '@/features/tarot/services/integration';
+import type { TarotCard, TarotDeckCard, TarotReadingScope } from '@/features/tarot/types';
+import { TAROT_VISIBLE_DECK_COUNT } from '@/features/tarot/types';
+import type { TarotReadingApiResponse } from '@/features/tarot/services/api';
+import { requestTarotReading } from '@/features/tarot/services/api';
+import { recordTarotIntegrationSignal } from '@/features/tarot/services/integration';
 import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 
 type TarotOriginalFortuneTellerProps = {
@@ -11,6 +14,7 @@ type TarotOriginalFortuneTellerProps = {
   cardsById: Map<string, TarotCard>;
   question: string;
   scope?: TarotReadingScope;
+  sessionId: string;
   onReset: () => void;
   onComplete?: (deckCards: TarotDeckCard[]) => void;
 };
@@ -44,17 +48,6 @@ const POSITIONS: Array<{ id: DrawnPosition; label: string }> = [
   { id: 'present', label: '現在' },
   { id: 'future', label: '未來' },
 ];
-
-const POSITION_KEY: Record<DrawnPosition, TarotReadingCard['positionKey']> = {
-  past: 'situation',
-  present: 'core',
-  future: 'action',
-};
-
-function createClientReadingId() {
-  if (typeof globalThis.crypto?.randomUUID === 'function') return globalThis.crypto.randomUUID();
-  return `tarot_client_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
-}
 
 const CHIME_SELECTOR: Record<DrawnPosition, string> = {
   past: '.cards__chime1-sfx',
@@ -91,6 +84,7 @@ export default function TarotOriginalFortuneTeller({
   cardsById,
   question,
   scope = 'self',
+  sessionId,
   onReset,
   onComplete,
 }: TarotOriginalFortuneTellerProps) {
@@ -113,6 +107,9 @@ export default function TarotOriginalFortuneTeller({
   const [readReady, setReadReady] = useState(false);
   const [finished, setFinished] = useState(false);
   const [growthSyncState, setGrowthSyncState] = useState<'idle' | 'saved' | 'single_use'>('idle');
+  const [aiReadingState, setAiReadingState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [aiReading, setAiReading] = useState<TarotReadingApiResponse | null>(null);
+  const [aiReadingError, setAiReadingError] = useState('');
   const growthSyncedReadingRef = useRef<string | null>(null);
 
   const orderedDeck = useMemo(
@@ -197,43 +194,54 @@ export default function TarotOriginalFortuneTeller({
       onComplete?.(drawnCards.map((drawnCard) => drawnCard.deckCard));
 
       const completingCard = drawnByPosition.get('future') ?? drawnCards[drawnCards.length - 1];
-      if (completingCard && growthSyncedReadingRef.current !== completingCard.deckCard.deckKey) {
-        growthSyncedReadingRef.current = completingCard.deckCard.deckKey;
-        if (scope === 'self') {
-          const now = new Date().toISOString();
-          const cards: TarotReadingCard[] = drawnCards.map((drawnCard, index) => ({
-            position: index,
-            positionKey: POSITION_KEY[drawnCard.position],
-            positionLabel: POSITIONS.find((item) => item.id === drawnCard.position)?.label ?? drawnCard.position,
-            cardId: drawnCard.card.id,
-            orientation: drawnCard.deckCard.orientation,
-            deckOrder: drawnCard.deckCard.order,
-          }));
-          const reading: TarotReading = {
-            id: createClientReadingId(),
-            category: 'custom',
-            question,
-            cardId: completingCard.card.id,
-            orientation: completingCard.deckCard.orientation,
-            scope,
-            spreadType: 'three_card',
-            cards,
-            createdAt: now,
-          };
-          const signal = createTarotIntegrationSignal(reading, completingCard.card);
-          recordTarotIntegrationSignal(signal);
-          setGrowthSyncState('saved');
-        } else {
-          setGrowthSyncState('single_use');
-        }
+      const readingKey = completingCard?.deckCard.deckKey ?? null;
+      if (readingKey && growthSyncedReadingRef.current !== readingKey && drawnCards.length === 3) {
+        growthSyncedReadingRef.current = readingKey;
+        setAiReadingState('loading');
+        setAiReadingError('');
+        void requestTarotReading({
+          sessionId,
+          deckKeys: drawnCards.map((drawnCard) => drawnCard.deckCard.deckKey),
+        }).then((result) => {
+          setAiReading(result);
+          setAiReadingState('ready');
+          recordTarotIntegrationSignal(result.integrationSignal);
+          setGrowthSyncState(result.integrationSignal.canUpdateGrowthCenter ? 'saved' : 'single_use');
+        }).catch((caught) => {
+          growthSyncedReadingRef.current = null;
+          setAiReadingState('error');
+          setAiReadingError(caught instanceof Error ? caught.message : '這一道確認尚未通過，系統已停止後續分析。');
+        });
       }
     }
-  }, [drawnByPosition, drawnCards, onComplete, question, scope]);
+  }, [drawnByPosition, drawnCards, onComplete, sessionId]);
+
+  const retryAiReading = useCallback(() => {
+    const completingCard = drawnByPosition.get('future') ?? drawnCards[drawnCards.length - 1];
+    const readingKey = completingCard?.deckCard.deckKey ?? null;
+    if (!readingKey || drawnCards.length !== 3) return;
+    growthSyncedReadingRef.current = readingKey;
+    setAiReadingState('loading');
+    setAiReadingError('');
+    void requestTarotReading({
+      sessionId,
+      deckKeys: drawnCards.map((drawnCard) => drawnCard.deckCard.deckKey),
+    }).then((result) => {
+      setAiReading(result);
+      setAiReadingState('ready');
+      recordTarotIntegrationSignal(result.integrationSignal);
+      setGrowthSyncState(result.integrationSignal.canUpdateGrowthCenter ? 'saved' : 'single_use');
+    }).catch((caught) => {
+      growthSyncedReadingRef.current = null;
+      setAiReadingState('error');
+      setAiReadingError(caught instanceof Error ? caught.message : '這一道確認尚未通過，系統已停止後續分析。');
+    });
+  }, [drawnByPosition, drawnCards, sessionId]);
 
   const handleDraw = useCallback(() => {
     if (orderedDeck.length < 3) return;
 
-    const [pastIndex, presentIndex, futureIndex] = uniqueRandomIndices(orderedDeck.length);
+    const [pastIndex, presentIndex, futureIndex] = uniqueRandomIndices(Math.min(orderedDeck.length, TAROT_VISIBLE_DECK_COUNT));
     const selected: DrawnCard[] = [];
     [
       { position: 'past' as const, deckCard: orderedDeck[pastIndex] },
@@ -258,6 +266,9 @@ export default function TarotOriginalFortuneTeller({
     setReadReady(false);
     setFinished(false);
     setGrowthSyncState('idle');
+    setAiReadingState('idle');
+    setAiReading(null);
+    setAiReadingError('');
     growthSyncedReadingRef.current = null;
     playAudio(rootRef.current, '.cards__slide-sfx');
 
