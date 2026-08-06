@@ -16,6 +16,7 @@ import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
+import MichelinRitualProgress from '@/components/MichelinRitualProgress';
 import TarotEntryCard from '@/features/tarot/components/TarotEntryCard';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import { safeJsonFetch } from '@/lib/safe-fetch';
@@ -475,6 +476,14 @@ function getNumberFortuneLoadingCopy(status: SystemStatus, job?: AnalysisJobPubl
   };
 }
 
+function getNumberMichelinState(status: SystemStatus, job?: AnalysisJobPublic | null) {
+  if (status === 'error') return 'error';
+  if (status === 'success' || job?.status === 'COMPLETED') return 'completed';
+  if (job?.status === 'FINALIZING' || job?.progressStage === 'BUILDING_RESULT' || status === 'recovering') return 'integrating';
+  if (job?.status === 'QUEUED' || job?.status === 'PROCESSING' || status === 'loading') return 'processing';
+  if (status === 'validating' || job?.status === 'VALIDATING') return 'validating';
+  return 'idle';
+}
 function getNumberFortuneAura(level?: string) {
   if (level === '大吉' || level === '吉' || level === '次吉') {
     return {
@@ -681,6 +690,12 @@ const NUMBER_FORTUNE_THREE_LAYER_MATERIAL: NumberFortuneLayerMaterial[] = [
   },
 ];
 
+function getNumberFortuneCustomerAction(result: NumberAnalysisResult) {
+  if (result.level.includes('凶')) return '先降風險，今天不做衝動決策。';
+  if (result.level.includes('平')) return '先穩住節奏，完成一件小事。';
+  return '把握順勢，今天完成一個行動。';
+}
+
 function NumberFortuneThreeLayerCard({
   result,
   mode = 'input',
@@ -693,9 +708,10 @@ function NumberFortuneThreeLayerCard({
   const watchDimensions = [...matrixEntries].sort((a, b) => a[1] - b[1]).slice(0, 3);
   const evidence = result?.evidence;
   const activeValue = result?.valueMasked || result?.value || '等待輸入';
+  const grade = result ? getNumberFortuneGradePresentation(result) : null;
   const layerCaption = mode === 'result'
-    ? '後端已完成運算，保留重點給客戶看。'
-    : '專業流程已收合，輸入後會自動判定。';
+    ? '第一眼只保留結論，完整資料收合。'
+    : '輸入數字後，後端會整理成三層結果。';
   const cardClassName = [
     'rounded-[26px] border border-amber-200/20',
     'bg-[radial-gradient(circle_at_18%_12%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(135deg,rgba(15,23,42,0.86),rgba(8,13,28,0.96))]',
@@ -707,12 +723,12 @@ function NumberFortuneThreeLayerCard({
     <div className={cardClassName}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-200">專業模式</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-200">AI 三層判定</p>
           <h4 className="mt-2 font-serif text-xl font-black leading-tight text-cyan-50">數字規則 → AI 判定 → 今日行動</h4>
           <p className="mt-2 text-xs font-semibold leading-6 text-cyan-100/72">{layerCaption}</p>
         </div>
         <span className="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-[10px] font-black text-cyan-100">
-          單向三層
+          手機優先
         </span>
       </div>
 
@@ -730,29 +746,60 @@ function NumberFortuneThreeLayerCard({
         ))}
       </div>
 
-      {result && (
-        <div className="mt-4 grid gap-3 rounded-2xl border border-cyan-300/15 bg-slate-950/45 p-3 text-xs leading-6 text-cyan-100/82 sm:grid-cols-2">
-          <div>
-            <p className="font-black text-amber-200">第一層即時資料</p>
-            <p>分析數字：<span className="font-mono text-cyan-50">{activeValue}</span></p>
-            <p>吉凶等級：<span className="font-black text-amber-100">{result.level}</span></p>
-            <p>總分：<span className="font-mono text-cyan-50">{result.finalScore}</span>｜規則版本 {result.ruleVersion}</p>
-            {evidence && (
-              <p>根數 {evidence.rootNumber}｜總和 {evidence.digitSum}｜重複 {evidence.repeatPatterns.length}｜連號 {evidence.sequencePatterns.length}</p>
-            )}
-          </div>
-          <div>
-            <p className="font-black text-amber-200">第二、第三層接續</p>
-            <p>優勢區：{strongestDimensions.map(([key, value]) => `${NUMBER_FORTUNE_DIMENSION_LABELS[key]} ${value}`).join('、') || '等待矩陣'}</p>
-            <p>補強觀察：{watchDimensions.map(([key, value]) => `${NUMBER_FORTUNE_DIMENSION_LABELS[key]} ${value}`).join('、') || '等待矩陣'}</p>
-            <p>五元素：由 Integration Layer 統一判定，數字卡片只交付權重與證據。</p>
-          </div>
+      {result && grade && (
+        <div className="mt-4 space-y-3">
+          <section className="rounded-[24px] border border-emerald-200/25 bg-emerald-300/10 p-4 shadow-[0_0_24px_rgba(16,185,129,0.12)]">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">第一層｜AI 最終判定</p>
+            <h5 className={`mt-2 font-serif text-2xl font-black leading-tight ${grade.titleClass}`}>{grade.title}</h5>
+            <p className="mt-2 text-sm font-bold leading-7 text-cyan-50/85">{grade.subtitle}</p>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[11px] font-black">
+              <span className="rounded-2xl border border-white/10 bg-black/20 px-2 py-2 text-cyan-100">{activeValue}</span>
+              <span className="rounded-2xl border border-white/10 bg-black/20 px-2 py-2 text-amber-100">{result.level}</span>
+              <span className="rounded-2xl border border-white/10 bg-black/20 px-2 py-2 text-cyan-100">{result.finalScore} 分</span>
+            </div>
+            <p className="mt-3 rounded-2xl border border-amber-200/20 bg-amber-300/10 p-3 text-sm font-black leading-7 text-amber-100">
+              立即行動：{getNumberFortuneCustomerAction(result)}
+            </p>
+          </section>
+
+          <details className="overflow-hidden rounded-2xl border border-cyan-200/15 bg-slate-950/45 p-4">
+            <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm font-black leading-7 text-cyan-100">
+              <span>第二層｜查看 AI 精華</span>
+              <span className="text-[11px] text-cyan-100/60">3 個重點</span>
+            </summary>
+            <div className="mt-3 grid gap-2 text-xs font-semibold leading-6 text-cyan-50/82">
+              {(result.strengths?.slice(0, 2) ?? []).map((item) => (
+                <p key={item} className="rounded-xl border border-white/10 bg-white/[0.04] p-3">優勢：{item}</p>
+              ))}
+              <p className="rounded-xl border border-white/10 bg-white/[0.04] p-3">提醒：{result.cautions?.[0] || '今天以穩定節奏為先。'}</p>
+            </div>
+          </details>
+
+          <details className="overflow-hidden rounded-2xl border border-white/10 bg-black/20 p-4">
+            <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm font-black leading-7 text-amber-100">
+              <span>第三層｜老師模式</span>
+              <span className="text-[11px] text-amber-100/60">展開完整資料</span>
+            </summary>
+            <div className="mt-3 grid gap-3 text-xs leading-6 text-cyan-100/82 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <p className="font-black text-amber-200">數字證據</p>
+                <p>規則版本：{result.ruleVersion}</p>
+                {evidence && (
+                  <p>根數 {evidence.rootNumber}｜總和 {evidence.digitSum}｜重複 {evidence.repeatPatterns.length}｜連號 {evidence.sequencePatterns.length}</p>
+                )}
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <p className="font-black text-amber-200">矩陣摘要</p>
+                <p>優勢：{strongestDimensions.map(([key, value]) => `${NUMBER_FORTUNE_DIMENSION_LABELS[key]} ${value}`).join('、') || '等待矩陣'}</p>
+                <p>補強：{watchDimensions.map(([key, value]) => `${NUMBER_FORTUNE_DIMENSION_LABELS[key]} ${value}`).join('、') || '等待矩陣'}</p>
+              </div>
+            </div>
+          </details>
         </div>
       )}
     </div>
   );
 }
-
 function ScoreRow({ label, score, tone }: { label: string; score: number; tone: 'violet' | 'amber' | 'cyan' | 'pink' }) {
   const [width, setWidth] = useState(0);
 
@@ -1837,21 +1884,22 @@ export default function HomePage() {
   };
 
   const handleNumberFortune = async () => {
-    const existingDaily = readDailyAnalysis<NumberDailyResult>('number');
-    if (existingDaily) {
-      restoreNumberDailyRecord(existingDaily);
-      return;
-    }
-
-    const cleanFortuneNumber = fortuneNumber.replace(/\D/g, '').slice(0, 10);
-
-    if (!getAnalysisIdentityTarget()) {
+    const identityTarget = getAnalysisIdentityTarget();
+    if (!identityTarget) {
       setFortuneResult(null);
       setFortuneJob(null);
       setFortuneError(getIdentityRequiredMessage());
       setFortuneStatus('error');
       return;
     }
+
+    const existingDaily = identityTarget === 'self' ? readDailyAnalysis<NumberDailyResult>('number') : null;
+    if (existingDaily) {
+      restoreNumberDailyRecord(existingDaily);
+      return;
+    }
+
+    const cleanFortuneNumber = fortuneNumber.replace(/\D/g, '').slice(0, 10);
 
     if (!cleanFortuneNumber) {
       setFortuneResult(null);
@@ -1882,6 +1930,7 @@ export default function HomePage() {
     const payload = JSON.stringify({
       mode: cleanFortuneNumber.length === 10 ? 'phone10' : cleanFortuneNumber.length === 8 ? 'digit8' : cleanFortuneNumber.length === 6 ? 'six6' : 'last4',
       value: cleanFortuneNumber,
+      analysisTarget: identityTarget,
     });
 
     try {
@@ -1900,8 +1949,12 @@ export default function HomePage() {
       }
 
       setFortuneResult(data);
-      setNumberDailyRecord(saveDailyAnalysis<NumberDailyResult>('number', { result: data, value: cleanFortuneNumber }));
-      markGrowthModuleCompleted('number');
+      if (identityTarget === 'self') {
+        setNumberDailyRecord(saveDailyAnalysis<NumberDailyResult>('number', { result: data, value: cleanFortuneNumber }));
+        markGrowthModuleCompleted('number');
+      } else {
+        setNumberDailyRecord(null);
+      }
       setFortuneError('');
       setFortuneStatus('success');
       window.setTimeout(() => {
@@ -3614,46 +3667,21 @@ export default function HomePage() {
 
             {fortuneLoading && (() => {
               const loadingCopy = getNumberFortuneLoadingCopy(fortuneStatus, fortuneJob);
-              const steps = ['\u8cc7\u6599\u78ba\u8a8d', '\u5f8c\u7aef\u904b\u7b97', '\u6574\u7406\u7b54\u6848'];
               return (
-                <div className="number-computing-panel result-container mt-6 rounded-2xl border border-cyan-300/25 bg-slate-950/55 p-5 font-sans shadow-[0_0_28px_rgba(34,211,238,0.16)]" role="status" aria-live="polite" aria-busy="true">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300">{'AI \u771f\u5be6\u904b\u7b97\u4e2d'}</p>
-                      <h4 className="mt-2 text-lg font-black leading-tight text-cyan-50">{loadingCopy.label}</h4>
-                    </div>
-                    <span className="number-computing-live shrink-0 rounded-full border border-emerald-300/35 bg-emerald-300/10 px-2.5 py-1 text-[10px] font-black text-emerald-100">{'\u5373\u6642'}</span>
-                  </div>
-
-                  <div className="number-computing-orbit my-4" aria-hidden="true">
-                    <span />
-                    <b />
-                  </div>
-
-                  <p className="text-sm font-semibold leading-7 text-cyan-100/88">{loadingCopy.detail}</p>
-
-                  <div className="mt-4 grid gap-2">
-                    {steps.map((stepLabel, index) => {
-                      const isDone = index < loadingCopy.activeStep;
-                      const isActive = index === loadingCopy.activeStep;
-                      return (
-                        <div key={stepLabel} className={`number-computing-step ${isDone ? 'number-computing-step--done' : ''} ${isActive ? 'number-computing-step--active' : ''}`}>
-                          <span className="number-computing-step__dot">{isDone ? '\u2713' : index + 1}</span>
-                          <span className="min-w-0">{stepLabel}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="mt-4 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
-                    {'\u5206\u6790\u76ee\u6a19\uff1a'}<span className="font-mono text-cyan-100">{fortuneNumber}</span>{'\uff0c\u5b8c\u6210\u5f8c\u6703\u81ea\u52d5\u986f\u793a\u7d50\u679c\uff0c\u4e0d\u9700\u8981\u91cd\u65b0\u6574\u7406\u3002'}
+                <div className="number-computing-panel result-container mt-6 font-sans" role="status" aria-live="polite" aria-busy="true">
+                  <MichelinRitualProgress
+                    module="number"
+                    state={getNumberMichelinState(fortuneStatus, fortuneJob)}
+                    liveMessage={loadingCopy.detail}
+                  />
+                  <div className="mt-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
+                    {'分析目標：'}<span className="font-mono text-cyan-100">{fortuneNumber}</span>{'，AI 主廚會一道一道完成，最後送上專屬結果。'}
                   </div>
                 </div>
               );
             })()}
-
             {fortuneResult && !fortuneLoading && (
-              <div className={`result-container fade-result mt-6 rounded-2xl border p-5 space-y-4 font-sans relative overflow-hidden ${fortuneAura.resultClass}`}>
+              <div className={`result-container fade-result mt-6 rounded-2xl border p-4 space-y-3 font-sans relative overflow-hidden sm:p-5 ${fortuneAura.resultClass}`}>
                 <NumberFortuneThreeLayerCard mode="result" result={fortuneResult} />
                 {fortuneAura.stage > 0 && (
                   <>
@@ -3684,19 +3712,21 @@ export default function HomePage() {
                   </span>
                 </div>
 
-                <div className="h-px bg-cyan-500/10" />
-
-                <NumberFortuneGradeBanner result={fortuneResult} />
-
-                <FiveElementPriorityCard result={fortuneResult.fiveElement} />
-
-                <div className="h-px bg-cyan-500/10" />
-
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-7">
-                  <p className="font-semibold text-cyan-300">分析解說・建議鼓勵</p>
-                  <p className="mt-2 text-[color:var(--text-sub)]">{enforceAiCopywritingTone(fortuneResult.summary)}</p>
-                  <p className="mt-3 text-xs leading-6 text-[color:var(--text-muted)]">{enforceAiCopywritingTone(fortuneResult.advice)}</p>
-                </div>
+                <details className="relative z-10 overflow-hidden rounded-2xl border border-cyan-200/15 bg-slate-950/45 p-4">
+                  <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm font-black leading-7 text-cyan-100">
+                    <span>查看完整分析</span>
+                    <span className="text-[11px] text-cyan-100/60">專業資料</span>
+                  </summary>
+                  <div className="mt-4 space-y-4">
+                    <NumberFortuneGradeBanner result={fortuneResult} />
+                    <FiveElementPriorityCard result={fortuneResult.fiveElement} />
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-7">
+                      <p className="font-semibold text-cyan-300">分析解說・建議鼓勵</p>
+                      <p className="mt-2 text-[color:var(--text-sub)]">{enforceAiCopywritingTone(fortuneResult.summary)}</p>
+                      <p className="mt-3 text-xs leading-6 text-[color:var(--text-muted)]">{enforceAiCopywritingTone(fortuneResult.advice)}</p>
+                    </div>
+                  </div>
+                </details>
               </div>
             )}
 

@@ -96,6 +96,7 @@ export default function GrowthCenterPage() {
   const [checkHistory, setCheckHistory] = useState<CheckInHistory>({});
   const [preferences, setPreferences] = useState<GrowthPreferenceId[]>([]);
   const [followUpAnswer, setFollowUpAnswer] = useState<'' | 'continued' | 'paused'>('');
+  const [retryToken, setRetryToken] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -125,7 +126,11 @@ export default function GrowthCenterPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [retryToken]);
+
+  function handleRetry() {
+    setRetryToken((token) => token + 1);
+  }
 
   const progressPercent = useMemo(() => {
     if (!data) return 0;
@@ -176,9 +181,9 @@ export default function GrowthCenterPage() {
           <div className="min-w-0">
             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-200">Growth Center</p>
             <h1 className="mt-2 font-serif text-3xl font-black leading-tight text-[color:var(--text-main)] sm:text-5xl">AI 個人成長中心</h1>
-            <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-[color:var(--text-sub)]">分析一次，終身陪伴。先給你今天最該做的一件事，其餘細節收起來。</p>
+            <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-[color:var(--text-sub)]">分析一次，終身陪伴。先給你今天最該做的一件事，其餘細節收起來。</p>
           </div>
-          <Link href="/" className="shrink-0 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-[color:var(--text-sub)] transition hover:border-white/25 hover:text-white">返回首頁</Link>
+          <Link href="/" className="flex min-h-[48px] shrink-0 items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-[color:var(--text-sub)] transition hover:border-white/25 hover:text-white">返回首頁</Link>
         </header>
 
         {loading && (
@@ -191,8 +196,9 @@ export default function GrowthCenterPage() {
 
         {error && (
           <section className="rounded-2xl border border-rose-300/25 bg-rose-500/10 p-5">
-            <p className="text-sm font-black text-rose-100">{error}</p>
-            <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">請稍後重新進入，本頁不會影響任何分析卡片。</p>
+            <p className="text-base font-black text-rose-100">{error}</p>
+            <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">本頁不會影響任何分析卡片，可以直接重試。</p>
+            <button type="button" onClick={handleRetry} className="mt-4 inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-rose-200/40 bg-rose-300/15 px-5 text-sm font-black text-rose-50 transition active:scale-[0.98] sm:w-auto">重新載入</button>
           </section>
         )}
 
@@ -203,7 +209,7 @@ export default function GrowthCenterPage() {
                 <div className="min-w-0">
                   <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">本週核心</p>
                   <h2 className="mt-3 font-serif text-3xl font-black leading-tight text-amber-50 sm:text-4xl">{data.coreV2.firstScreen.headline}</h2>
-                  <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{data.coreV2.firstScreen.body}</p>
+                  <p className="mt-3 text-base font-semibold leading-7 text-[color:var(--text-sub)]">{data.coreV2.firstScreen.body}</p>
                 </div>
                 <div className="shrink-0 rounded-2xl border border-amber-200/25 bg-black/20 px-4 py-3 text-center">
                   <p className="text-[10px] font-black tracking-[0.18em] text-amber-100/75">探索進度</p>
@@ -218,9 +224,9 @@ export default function GrowthCenterPage() {
               <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">今天只做一件事</p>
               <h2 className="mt-3 text-2xl font-black leading-8 text-cyan-50">{data.weeklyTask.title}</h2>
               <p className="mt-3 rounded-2xl border border-cyan-200/20 bg-black/20 px-4 py-4 text-base font-black leading-8 text-cyan-50">{data.weeklyTask.task}</p>
-              <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{data.weeklyTask.reason}</p>
+              <p className="mt-3 text-base font-semibold leading-7 text-[color:var(--text-sub)]">{data.weeklyTask.reason}</p>
               <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
-                <button type="button" onClick={handleCheckIn} disabled={checkedIn} className="inline-flex w-full items-center justify-center rounded-full border border-cyan-200/40 bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 shadow-[0_0_22px_rgba(34,211,238,0.18)] transition active:scale-[0.98] disabled:bg-emerald-300 disabled:text-emerald-950 sm:w-auto">
+                <button type="button" onClick={handleCheckIn} disabled={checkedIn} className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-cyan-200/40 bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 shadow-[0_0_22px_rgba(34,211,238,0.18)] transition active:scale-[0.98] disabled:bg-emerald-300 disabled:text-emerald-950 sm:w-auto">
                   {checkedIn ? '本週任務已收到' : '我今天會做這一件事'}
                 </button>
                 <span className="text-xs font-bold leading-6 text-[color:var(--text-muted)]">本月回來 {monthCheckInCount} 次，累計 {lifetimeCheckInCount} 次。</span>
@@ -230,7 +236,7 @@ export default function GrowthCenterPage() {
             <section className="growth-preference-panel rounded-2xl border border-fuchsia-300/25 bg-fuchsia-300/8 p-5">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-fuchsia-200">我喜歡怎麼被陪伴</p>
               <h2 className="mt-3 text-2xl font-black leading-8 text-fuchsia-50">選你的偏好，AI 下次用你喜歡的方式提醒你。</h2>
-              <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{selectedPreferenceText}</p>
+              <p className="mt-2 text-base font-semibold leading-7 text-[color:var(--text-sub)]">{selectedPreferenceText}</p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2" aria-label="成長中心喜好設定">
                 {GROWTH_PREFERENCES.map((item) => {
                   const selected = preferences.includes(item.id);
@@ -248,9 +254,9 @@ export default function GrowthCenterPage() {
               <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-200">會員成長記憶</p>
               <h2 className="mt-3 text-2xl font-black leading-8 text-emerald-50">{data.coreV2.memberMemory.title}</h2>
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-sm font-bold leading-7 text-[color:var(--text-sub)]">{data.coreV2.memberMemory.completedText}</p>
-                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-sm font-bold leading-7 text-[color:var(--text-sub)]">{data.coreV2.memberMemory.missingText}</p>
-                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-sm font-black leading-7 text-emerald-50">{data.coreV2.memberMemory.currentFocus}</p>
+                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-base font-bold leading-7 text-[color:var(--text-sub)]">{data.coreV2.memberMemory.completedText}</p>
+                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-base font-bold leading-7 text-[color:var(--text-sub)]">{data.coreV2.memberMemory.missingText}</p>
+                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-base font-black leading-7 text-emerald-50">{data.coreV2.memberMemory.currentFocus}</p>
               </div>
               <details className="growth-detail-drawer mt-3"><summary>資料使用說明</summary><p>{data.coreV2.memberMemory.noReanalysisPolicy}</p></details>
             </section>
@@ -264,7 +270,7 @@ export default function GrowthCenterPage() {
                   <p className="mt-1 text-xs font-bold text-[color:var(--text-sub)]">對應：{ELEMENT_LABEL[data.weeklyEnergyColor.element]}</p>
                 </div>
               </div>
-              <p className="mt-4 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{data.weeklyEnergyColor.message}</p>
+              <p className="mt-4 text-base font-semibold leading-7 text-[color:var(--text-sub)]">{data.weeklyEnergyColor.message}</p>
             </section>
 
             <section className="rounded-2xl border border-sky-300/25 bg-sky-300/8 p-5">
@@ -272,7 +278,7 @@ export default function GrowthCenterPage() {
               <h2 className="mt-3 text-2xl font-black leading-8 text-sky-50">{data.followUp.prompt}</h2>
               <div className="mt-4 grid grid-cols-2 gap-2">
                 {data.followUp.quickReplies.map((reply) => (
-                  <button key={reply.id} type="button" onClick={() => setFollowUpAnswer(reply.id)} className={`rounded-xl border px-4 py-3 text-sm font-black transition ${followUpAnswer === reply.id ? 'border-sky-200 bg-sky-300/20 text-sky-50' : 'border-white/10 bg-black/15 text-[color:var(--text-sub)]'}`}>
+                  <button key={reply.id} type="button" onClick={() => setFollowUpAnswer(reply.id)} className={`min-h-[48px] rounded-xl border px-4 py-3 text-sm font-black transition ${followUpAnswer === reply.id ? 'border-sky-200 bg-sky-300/20 text-sky-50' : 'border-white/10 bg-black/15 text-[color:var(--text-sub)]'}`}>
                     {reply.label}
                   </button>
                 ))}
@@ -280,7 +286,7 @@ export default function GrowthCenterPage() {
               {followUpReply && (
                 <div className="mt-4 rounded-xl border border-sky-200/20 bg-black/20 p-4">
                   <p className="text-sm font-black text-sky-100">{followUpReply.title}</p>
-                  <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{followUpReply.message}</p>
+                  <p className="mt-2 text-base font-semibold leading-7 text-[color:var(--text-sub)]">{followUpReply.message}</p>
                   <p className="mt-3 rounded-lg border border-sky-200/15 bg-sky-300/8 px-3 py-2 text-xs font-black leading-6 text-sky-100">{followUpReply.nextStep}</p>
                 </div>
               )}
@@ -306,7 +312,7 @@ export default function GrowthCenterPage() {
                   </div>
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-amber-200/25 bg-amber-300/12 text-xl font-black text-amber-100">{ELEMENT_BADGE[data.weeklyReinforcement.element]}</span>
                 </div>
-                <p className="mt-4 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{data.fiveElement.summary}</p>
+                <p className="mt-4 text-base font-semibold leading-7 text-[color:var(--text-sub)]">{data.fiveElement.summary}</p>
                 <div className="mt-4 space-y-3">
                   {ELEMENT_ORDER.map((element) => (
                     <div key={element}>
@@ -322,7 +328,7 @@ export default function GrowthCenterPage() {
                   {data.companionJourney.loop.map((item) => (
                     <div key={item.step} className="rounded-xl border border-white/10 bg-black/15 p-4">
                       <p className="text-[11px] font-black text-cyan-100">{item.step}. {item.title}</p>
-                      <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{item.body}</p>
+                      <p className="mt-2 text-base font-semibold leading-7 text-[color:var(--text-sub)]">{item.body}</p>
                     </div>
                   ))}
                 </div>
@@ -333,7 +339,7 @@ export default function GrowthCenterPage() {
               <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-200">下一步</p>
               <p className="mt-3 text-base font-black leading-7 text-[color:var(--text-main)]">{data.nextStep.title}</p>
               <details className="growth-detail-drawer mt-2"><summary>資料使用說明</summary><p>{data.dataPolicy}</p></details>
-              <Link href={data.nextStep.href} className="mt-4 inline-flex w-full items-center justify-center rounded-full border border-violet-300/25 bg-violet-300/12 px-5 py-3 text-sm font-black text-violet-100 transition hover:border-violet-200/50 hover:bg-violet-300/18">前往下一步</Link>
+              <Link href={data.nextStep.href} className="mt-4 inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-violet-300/25 bg-violet-300/12 px-5 py-3 text-sm font-black text-violet-100 transition hover:border-violet-200/50 hover:bg-violet-300/18">前往下一步</Link>
             </section>
 
             <footer className="pb-4 text-center text-[11px] font-semibold leading-6 text-[color:var(--text-muted)]">
