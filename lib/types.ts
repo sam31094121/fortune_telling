@@ -1,4 +1,4 @@
-export type BloodType = '' | 'A' | 'B' | 'AB' | 'O';
+﻿export type BloodType = '' | 'A' | 'B' | 'AB' | 'O';
 export type Gender = 'male' | 'female';
 
 export interface Step1_BirthdayInput {
@@ -30,6 +30,8 @@ export interface InsightRequest {
   shichen?: number | 'unknown' | null;
   // Optional true-solar-time correction. The UI only sends this when the user provides it.
   longitude?: number | null;
+  timezone?: string | null;
+  timeCorrectionMode?: 'STANDARD_TIME' | 'TRUE_SOLAR_TIME';
 }
 
 export interface PreviewRequest {
@@ -179,3 +181,4 @@ export interface AIPersonalityMusicReport {
   };
   ai_note: string;
 }
+

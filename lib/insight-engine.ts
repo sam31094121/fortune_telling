@@ -214,6 +214,7 @@ export interface InsightAnalysisResponse {
     shichenLabel: string;
     birthDate?: string;
     shichen?: number | 'unknown' | null;
+    timeCorrectionMode: 'STANDARD_TIME' | 'TRUE_SOLAR_TIME';
   };
 }
 
@@ -734,6 +735,7 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
       shichenLabel: shichen.shichen.label,
       birthDate: request.birthDate,
       shichen: request.shichen,
+      timeCorrectionMode: typeof request.longitude === 'number' ? 'TRUE_SOLAR_TIME' : 'STANDARD_TIME',
     },
   };
 }

@@ -11,6 +11,7 @@ import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
+import { searchCities, findCityById, type CityEntry } from '@/lib/city-directory';
 import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 import type { FiveElementIntegrationResult, FiveElementKey } from '@/lib/five-element-engine';
 import type { InsightRitualStep } from '@/lib/insight-engine';
@@ -27,6 +28,7 @@ interface InsightData {
   bloodType: 'A' | 'B' | 'AB' | 'O';
   gender: 'male' | 'female';
   shichen: ShichenChoice;
+  birthCityId: string | null;
 }
 
 interface InsightResult {
@@ -344,6 +346,7 @@ interface InsightResult {
     shichenLabel: string;
     birthDate?: string;
     shichen?: number | 'unknown' | null;
+    timeCorrectionMode?: 'STANDARD_TIME' | 'TRUE_SOLAR_TIME';
   };
   ritualSteps?: InsightRitualStep[];
 }
@@ -1932,10 +1935,12 @@ function ZiweiTwelvePalaceCards({
   analysis,
   annual,
   fiveElement,
+  meta,
 }: {
   analysis?: InsightResult['ziweiSanFang'];
   annual?: InsightResult['annualFortune'];
   fiveElement?: InsightResult['fiveElement'];
+  meta?: InsightResult['meta'];
 }) {
   const [selectedPalaceKey, setSelectedPalaceKey] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'general' | 'teacher'>('general');
@@ -1959,6 +1964,33 @@ function ZiweiTwelvePalaceCards({
   }, [selectedPalaceKey]);
 
   if (!analysis) return null;
+
+  if (analysis.timeConfidence !== 'exact') {
+    return (
+      <section className="fortune-card p-5 sm:p-8">
+        <p className="text-xs uppercase tracking-[0.35em] text-amber-300">紫微斗數核心三方四正</p>
+        <h2 className="mt-3 font-serif text-3xl text-amber-100">生日趨勢參考，不等同完整紫微命盤</h2>
+        <p className="mt-4 max-w-3xl border-l-2 border-amber-400 px-4 text-sm leading-7 text-amber-100/85">
+          命宮、財帛宮、官祿宮與遷移宮會隨時辰改變。為了避免把預設時辰誤當成你的命盤，系統在沒有真實出生時辰時，不會顯示單一宮位、主星、四化、三方四正或今年流年宮位結論。
+        </p>
+        <div className="mt-6 grid gap-3 border-y border-white/10 py-4 sm:grid-cols-3">
+          <div>
+            <p className="text-xs text-[color:var(--text-muted)]">目前可確定</p>
+            <p className="mt-1 text-sm font-semibold text-cyan-100">出生日期與年、月、日三柱</p>
+          </div>
+          <div>
+            <p className="text-xs text-[color:var(--text-muted)]">仍待確認</p>
+            <p className="mt-1 text-sm font-semibold text-amber-100">出生時辰與時柱</p>
+          </div>
+          <div>
+            <p className="text-xs text-[color:var(--text-muted)]">可再提高精度</p>
+            <p className="mt-1 text-sm font-semibold text-emerald-100">出生地經度的真太陽時校正</p>
+          </div>
+        </div>
+        <p className="mt-4 text-xs leading-6 text-[color:var(--text-muted)]">回到上方選擇「我知道出生時辰」並填入真實時間，即可取得正式紫微命盤。</p>
+      </section>
+    );
+  }
 
   const palaceSource: ZiweiFullPalace[] = analysis.allPalaces?.length ? analysis.allPalaces : analysis.palaces;
   const palaceMap = new Map<string, ZiweiFullPalace>();
@@ -2014,7 +2046,9 @@ function ZiweiTwelvePalaceCards({
         <span className="rounded-full border border-cyan-300/20 bg-cyan-950/20 px-3 py-1 text-cyan-100">
           {analysis.timeConfidence === 'exact' ? '已依真實時辰排盤' : '暫定時辰排盤，可再校正'}
         </span>
-
+        <span className="rounded-full border border-emerald-300/20 bg-emerald-950/20 px-3 py-1 text-emerald-100">
+          {meta?.timeCorrectionMode === 'TRUE_SOLAR_TIME' ? '已套用真太陽時校正' : '標準時排盤（未選出生地，未做真太陽時校正）'}
+        </span>
       </div>
 
       {viewMode === 'teacher' && (
@@ -2730,7 +2764,11 @@ export default function InsightPage() {
     bloodType: 'A',
     gender: 'female',
     shichen: null,
+    birthCityId: null,
   });
+  const [citySearch, setCitySearch] = useState('');
+  const cityResults = useMemo(() => searchCities(citySearch), [citySearch]);
+  const selectedCity: CityEntry | null = input.birthCityId ? findCityById(input.birthCityId) : null;
   const [selectionConfirm, setSelectionConfirm] = useState<SelectionConfirm>(EMPTY_SELECTION_CONFIRM);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -2923,6 +2961,9 @@ export default function InsightPage() {
             bloodType: input.bloodType,
             gender: input.gender,
             shichen: typeof input.shichen === 'number' ? input.shichen : 'unknown',
+            longitude: selectedCity?.longitude ?? null,
+            timezone: selectedCity?.timezone ?? null,
+            timeCorrectionMode: selectedCity ? 'TRUE_SOLAR_TIME' : 'STANDARD_TIME',
           }),
         });
 
@@ -3258,7 +3299,44 @@ export default function InsightPage() {
                 )}
               </div>
 
-
+              <div className={typeof input.shichen !== 'number' ? 'opacity-50' : ''}>
+                <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">6. 出生地（選填，可提升真太陽時校正精準度）</label>
+                {typeof input.shichen !== 'number' ? (
+                  <p className="text-xs font-semibold leading-6 text-[color:var(--text-sub)]">請先選擇真實出生時辰，才能進一步選擇出生地（提升真太陽時校正精準度）。</p>
+                ) : selectedCity ? (
+                  <div className="flex items-center justify-between rounded-2xl border border-cyan-300/30 bg-cyan-300/10 px-4 py-3">
+                    <span className="text-sm font-black text-[color:var(--text-main)]">已選擇：{selectedCity.name}（{selectedCity.country}）</span>
+                    <button type="button" onClick={() => setInput({ ...input, birthCityId: null })} disabled={loading} className="text-xs font-black text-cyan-200 underline">重新選擇</button>
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      value={citySearch}
+                      onChange={(event) => setCitySearch(event.target.value)}
+                      disabled={loading}
+                      placeholder="輸入城市名稱，例如：台北、香港、東京、洛杉磯、倫敦"
+                      className="form-input glass-input glass-input-cyan w-full text-base"
+                    />
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      {cityResults.map((city) => (
+                        <button
+                          key={city.id}
+                          type="button"
+                          onClick={() => setInput({ ...input, birthCityId: city.id })}
+                          disabled={loading}
+                          className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-left text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-cyan-200/35 hover:bg-cyan-300/8 hover:text-[color:var(--text-main)]"
+                        >
+                          {city.name}<span className="ml-1 text-xs text-[color:var(--text-muted)]">（{city.country}）</span>
+                        </button>
+                      ))}
+                      {cityResults.length === 0 && (
+                        <p className="text-xs font-semibold text-[color:var(--text-muted)]">查無符合的城市，可略過此欄位，系統會以標準時排盤（不做真太陽時校正）。</p>
+                      )}
+                    </div>
+                  </>
+                )}
+                <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">未選擇出生地時，系統以標準時（STANDARD_TIME）排盤，不做真太陽時校正；結果會明確標示採用哪一種校正方式。</p>
+              </div>
 
               {error && (
                 <div className="rounded-2xl border-l-4 border-l-rose-400 border border-rose-400/20 bg-rose-950/30 p-4 text-sm text-rose-300 animate-pulse">
@@ -3291,7 +3369,8 @@ export default function InsightPage() {
                 {(input.name || input.birthDate) && (
                   <button
                     onClick={() => {
-                      setInput({ name: '', birthDate: '', bloodType: 'A', gender: 'female', shichen: null });
+                      setInput({ name: '', birthDate: '', bloodType: 'A', gender: 'female', shichen: null, birthCityId: null });
+                      setCitySearch('');
                       setSelectionConfirm(EMPTY_SELECTION_CONFIRM);
                       setError('');
                     }}
@@ -3388,7 +3467,7 @@ export default function InsightPage() {
               </div>
             </div>
 
-            <ZiweiTwelvePalaceCards analysis={result?.ziweiSanFang} annual={result?.annualFortune} fiveElement={result?.fiveElement} />
+            <ZiweiTwelvePalaceCards analysis={result?.ziweiSanFang} annual={result?.annualFortune} fiveElement={result?.fiveElement} meta={result?.meta} />
 
             <FiveElementPriorityCard result={result?.fiveElement} />
 

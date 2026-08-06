@@ -378,7 +378,7 @@ function buildPalaceFortune(
     }
     return count;
   }, 0);
-  const seed = stableHash(`${input.request.name}|${input.request.birthDate}|${input.request.bloodType}|${palace.key}|${input.targetYear ?? ''}`);
+  const seed = stableHash(`${input.request.name}|${input.request.birthDate}|${palace.key}|${input.targetYear ?? ''}`);
   const signal = input.sourceSignals[seed % Math.max(1, input.sourceSignals.length)]?.score ?? 62;
   const personalOffset = (seed % 13) - 6;
   const score = clampScore(
