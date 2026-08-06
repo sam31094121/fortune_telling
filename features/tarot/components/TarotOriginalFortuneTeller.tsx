@@ -397,7 +397,51 @@ export default function TarotOriginalFortuneTeller({
             })}
           </div>
 
-          {finished && (
+          {finished && aiReadingState === 'loading' && (
+            <div className="rounded-2xl border border-amber-200/25 bg-amber-300/8 p-5" role="status" aria-live="polite">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">第四道確認</p>
+              <p className="mt-3 text-base font-black leading-7 text-amber-50">結果完整性正在確認：AI 正在交叉整合三張牌的訊號。</p>
+            </div>
+          )}
+
+          {finished && aiReadingState === 'error' && (
+            <div className="rounded-2xl border border-rose-300/25 bg-rose-500/10 p-5">
+              <p className="text-base font-black text-rose-100">這一道確認尚未通過，系統已停止後續分析。</p>
+              <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{aiReadingError}</p>
+              <button type="button" onClick={retryAiReading} className="mt-4 inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-rose-200/40 bg-rose-300/15 px-5 text-sm font-black text-rose-50 transition active:scale-[0.98] sm:w-auto">安全重試</button>
+            </div>
+          )}
+
+          {finished && aiReadingState === 'ready' && aiReading && (
+            <div className="space-y-3">
+              <div className="rounded-[28px] border border-amber-300/35 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.22),rgba(16,185,129,0.12)_42%,rgba(15,23,42,0.88)_100%)] p-5 shadow-[0_0_44px_rgba(251,191,36,0.16)]">
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">AI 最終判定</p>
+                <p className="mt-3 text-base font-semibold leading-8 text-amber-50">{aiReading.interpretation.summary}</p>
+                <p className="mt-4 rounded-2xl border border-amber-200/20 bg-black/20 px-4 py-4 text-base font-black leading-7 text-amber-50">立即行動：{aiReading.interpretation.actionSuggestion}</p>
+              </div>
+
+              <details className="growth-detail-drawer growth-detail-drawer--major">
+                <summary>查看 AI 精華分析</summary>
+                <div className="mt-3 space-y-3">
+                  <p className="text-base font-semibold leading-7 text-[color:var(--text-sub)]">{aiReading.interpretation.questionConnection}</p>
+                  <p className="text-base font-semibold leading-7 text-[color:var(--text-sub)]">{aiReading.interpretation.elementDecision}</p>
+                  <p className="text-base font-semibold leading-7 text-[color:var(--text-sub)]">{aiReading.interpretation.reflectionQuestion}</p>
+                </div>
+              </details>
+
+              <details className="growth-detail-drawer">
+                <summary>查看完整專業資料（AI 牌陣交叉判定）</summary>
+                <div className="mt-3 space-y-2">
+                  <p>{aiReading.interpretation.spreadSummary}</p>
+                  <p>{aiReading.interpretation.integrationSummary}</p>
+                  {aiReading.interpretation.analysisMatrix?.map((line) => <p key={line}>{line}</p>)}
+                  <p className="pt-2 text-[0.7rem] opacity-75">{aiReading.interpretation.disclaimer}</p>
+                </div>
+              </details>
+            </div>
+          )}
+
+          {finished && aiReadingState !== 'idle' && (
             <div className="tarot-growth-complete" data-tarot-growth-state={growthSyncState} role="status" aria-live="polite">
               <p className="tarot-growth-complete__eyebrow">TASK COMPLETE</p>
               <h2>{growthSyncState === 'saved' ? '塔羅牌任務已完成，AI 個人成長中心已更新。' : '塔羅牌單次任務已完成。'}</h2>
