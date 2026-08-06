@@ -18,6 +18,7 @@ type TarotDailyResult = {
   question: string;
   deck: TarotDeckCard[];
   scope?: TarotReadingScope;
+  sessionId?: string;
 };
 
 const DRAW_SPREAD: TarotSpreadType = 'three_card';
@@ -55,6 +56,7 @@ export default function TarotPageClient() {
   const [tarotQuestion, setTarotQuestion] = useState('');
   const [activeQuestion, setActiveQuestion] = useState('');
   const [activeScope, setActiveScope] = useState<TarotReadingScope>('self');
+  const [activeSessionId, setActiveSessionId] = useState('');
   const [adminMode, setAdminMode] = useState(false);
 
   const cardsById = useMemo(() => new Map(TAROT_CARDS.map((card) => [card.id, card] as const)), []);
@@ -74,6 +76,7 @@ export default function TarotPageClient() {
     setSelectedDeckCards([]);
     setActiveQuestion(record.result.question);
     setActiveScope(record.result.scope ?? 'self');
+    setActiveSessionId(record.result.sessionId ?? '');
     setTarotQuestion(record.result.question);
     setError('');
     setAdminMode(false);
@@ -95,6 +98,7 @@ export default function TarotPageClient() {
     setSelectedDeckCards([]);
     setActiveQuestion('');
     setActiveScope('self');
+    setActiveSessionId('');
     setStep('ready_to_draw');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
@@ -143,8 +147,9 @@ export default function TarotPageClient() {
       setDeck(nextDeck);
       setActiveQuestion(question);
       setActiveScope(scope);
+      setActiveSessionId(shuffle.sessionId);
       setStep('theater');
-      const nextRecord = saveDailyAnalysis<TarotDailyResult>('tarot', { question, deck: nextDeck, scope });
+      const nextRecord = saveDailyAnalysis<TarotDailyResult>('tarot', { question, deck: nextDeck, scope, sessionId: shuffle.sessionId });
       if (nextRecord) setDailyRecord(nextRecord);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (caught) {
@@ -161,6 +166,7 @@ export default function TarotPageClient() {
     setSelectedDeckCards([]);
     setActiveQuestion('');
     setActiveScope('self');
+    setActiveSessionId('');
     setError('');
     setTarotQuestion('');
     setIsGenerating(false);
@@ -317,6 +323,7 @@ export default function TarotPageClient() {
             cardsById={cardsById}
             question={activeQuestion}
             scope={activeScope}
+            sessionId={activeSessionId}
             onReset={resetExperience}
             onComplete={setSelectedDeckCards}
           />

@@ -3,6 +3,7 @@ import { TAROT_CARDS } from '@/features/tarot/data/cards';
 import { generateTarotInterpretation } from '@/features/tarot/services/interpretation';
 import {
   TAROT_CATEGORY_LABELS,
+  TAROT_VISIBLE_DECK_COUNT,
   type TarotAiElement,
   type TarotCard,
   type TarotCardBackResource,
@@ -32,7 +33,7 @@ import {
 export const TAROT_ENGINE_VERSION = 'tarot-system-v1.2.0';
 export const TAROT_PUBLIC_TITLE = '塔羅牌';
 const SESSION_TTL_MS = 20 * 60 * 1000;
-const VISIBLE_DECK_COUNT = 12;
+const VISIBLE_DECK_COUNT = TAROT_VISIBLE_DECK_COUNT;
 const TAROT_DECK_STYLE_ID = 'freecodecamp-fortune-teller-assets-v1';
 const TAROT_CARD_BACK_RESOURCE: TarotCardBackResource = {
   styleId: TAROT_DECK_STYLE_ID,

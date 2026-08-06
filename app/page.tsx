@@ -16,10 +16,12 @@ import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
-import MichelinRitualProgress from '@/components/MichelinRitualProgress';
+import FineDiningServiceProgress from '@/components/FineDiningServiceProgress';
 import TarotEntryCard from '@/features/tarot/components/TarotEntryCard';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import { safeJsonFetch } from '@/lib/safe-fetch';
+import { curateExperienceContent } from '@/lib/experience-content-curator';
+import { evaluateExperienceQualityGate, getFriendlyQualityGateError } from '@/lib/experience-quality-gate';
 import type { NumberAnalysisResponse } from '@/lib/number-core-engine';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
@@ -476,13 +478,26 @@ function getNumberFortuneLoadingCopy(status: SystemStatus, job?: AnalysisJobPubl
   };
 }
 
-function getNumberMichelinState(status: SystemStatus, job?: AnalysisJobPublic | null) {
+function getNumberFineDiningState(status: SystemStatus, job?: AnalysisJobPublic | null) {
   if (status === 'error') return 'error';
   if (status === 'success' || job?.status === 'COMPLETED') return 'completed';
-  if (job?.status === 'FINALIZING' || job?.progressStage === 'BUILDING_RESULT' || status === 'recovering') return 'integrating';
-  if (job?.status === 'QUEUED' || job?.status === 'PROCESSING' || status === 'loading') return 'processing';
-  if (status === 'validating' || job?.status === 'VALIDATING') return 'validating';
+  if (job?.status === 'FINALIZING' || job?.progressStage === 'BUILDING_RESULT') return 'quality_check';
+  if (job?.status === 'PROCESSING' || status === 'loading') return 'cook';
+  if (job?.status === 'QUEUED' || status === 'recovering') return 'prepare';
+  if (status === 'validating' || job?.status === 'VALIDATING') return 'order';
   return 'idle';
+}
+
+function getNumberQualityGateResult(result: NumberAnalysisResult) {
+  return evaluateExperienceQualityGate({
+    inputComplete: Boolean(result.value || result.valueMasked),
+    sourceVerified: Boolean(result.ruleVersion),
+    engineCompleted: result.ok === true,
+    resultComplete: Boolean(result.summary && result.advice && result.level),
+    semanticDedupCompleted: true,
+    mobileLayoutPassed: true,
+    sensitiveDataSanitized: !/\d{7,}/.test(result.valueMasked || result.value || ''),
+  });
 }
 function getNumberFortuneAura(level?: string) {
   if (level === '大吉' || level === '吉' || level === '次吉') {
@@ -709,6 +724,8 @@ function NumberFortuneThreeLayerCard({
   const evidence = result?.evidence;
   const activeValue = result?.valueMasked || result?.value || '等待輸入';
   const grade = result ? getNumberFortuneGradePresentation(result) : null;
+  const curatedStrengths = result ? curateExperienceContent(result.strengths ?? [], 2) : null;
+  const curatedCautions = result ? curateExperienceContent(result.cautions ?? [], 1) : null;
   const layerCaption = mode === 'result'
     ? '第一眼只保留結論，完整資料收合。'
     : '輸入數字後，後端會整理成三層結果。';
@@ -768,10 +785,10 @@ function NumberFortuneThreeLayerCard({
               <span className="text-[11px] text-cyan-100/60">3 個重點</span>
             </summary>
             <div className="mt-3 grid gap-2 text-xs font-semibold leading-6 text-cyan-50/82">
-              {(result.strengths?.slice(0, 2) ?? []).map((item) => (
+              {(curatedStrengths?.items ?? []).map((item) => (
                 <p key={item} className="rounded-xl border border-white/10 bg-white/[0.04] p-3">優勢：{item}</p>
               ))}
-              <p className="rounded-xl border border-white/10 bg-white/[0.04] p-3">提醒：{result.cautions?.[0] || '今天以穩定節奏為先。'}</p>
+              <p className="rounded-xl border border-white/10 bg-white/[0.04] p-3">提醒：{curatedCautions?.primary || '今天以穩定節奏為先。'}</p>
             </div>
           </details>
 
@@ -3603,11 +3620,11 @@ export default function HomePage() {
             <IdentitySplitSelector className="mb-4" />
             <DailyAnalysisNotice record={numberDailyRecord} className="mb-4" moduleName="AI 數字論吉凶" onViewResult={numberDailyRecord ? () => restoreNumberDailyRecord(numberDailyRecord) : undefined} />
             {!fortuneLoading && !fortuneResult && (
-              <MichelinRitualProgress
+              <FineDiningServiceProgress
                 module="number"
                 state="idle"
                 className="mb-4"
-                liveMessage="第一道已準備好：先確認數字，再交給 AI 主廚一道一道完成。"
+                liveMessage="第一道確認：你的資料已安全接收，接著會逐步完成品質確認。"
               />
             )}
 
@@ -3660,7 +3677,7 @@ export default function HomePage() {
                   disabled={fortuneLoading}
                   className="vip-gold-btn min-h-[66px] w-full px-10 py-4 text-base font-black tracking-[0.12em] shadow-[0_0_34px_rgba(251,191,36,0.26)] disabled:opacity-40 sm:self-end sm:w-auto"
                 >
-                  {fortuneLoading ? '分析中...' : getDailyAnalysisButtonLabel(numberDailyRecord)}
+                  {fortuneLoading ? 'AI 正在確認流程' : getDailyAnalysisButtonLabel(numberDailyRecord)}
                 </button>
               </div>
             </div>
@@ -3677,23 +3694,23 @@ export default function HomePage() {
               const loadingCopy = getNumberFortuneLoadingCopy(fortuneStatus, fortuneJob);
               return (
                 <div className="number-computing-panel result-container mt-6 font-sans" role="status" aria-live="polite" aria-busy="true">
-                  <MichelinRitualProgress
+                  <FineDiningServiceProgress
                     module="number"
-                    state={getNumberMichelinState(fortuneStatus, fortuneJob)}
+                    state={getNumberFineDiningState(fortuneStatus, fortuneJob)}
                     liveMessage={loadingCopy.detail}
                   />
                   <div className="mt-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
-                    {'分析目標：'}<span className="font-mono text-cyan-100">{fortuneNumber}</span>{'，AI 主廚會一道一道完成，最後送上專屬結果。'}
+                    {'分析目標：'}<span className="font-mono text-cyan-100">{fortuneNumber}</span>{'，系統會逐步確認資料、分析與完整性，最後顯示專屬結果。'}
                   </div>
                 </div>
               );
             })()}
             {fortuneResult && !fortuneLoading && (
               <div className={`result-container fade-result mt-6 rounded-2xl border p-4 space-y-3 font-sans relative overflow-hidden sm:p-5 ${fortuneAura.resultClass}`}>
-                <MichelinRitualProgress
+                <FineDiningServiceProgress
                   module="number"
                   state="completed"
-                  liveMessage="第五道已完成：AI 已完成你的專屬結果。"
+                  liveMessage="最終完成：你的專屬分析已準備完成。"
                 />
                 <NumberFortuneThreeLayerCard mode="result" result={fortuneResult} />
                 {fortuneAura.stage > 0 && (

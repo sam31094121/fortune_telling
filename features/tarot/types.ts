@@ -1,3 +1,5 @@
+export const TAROT_VISIBLE_DECK_COUNT = 12;
+
 export type TarotQuestionCategoryId =
   | 'love'
   | 'career'
