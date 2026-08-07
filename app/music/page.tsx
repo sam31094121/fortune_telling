@@ -341,37 +341,18 @@ function MusicAnalyticalConsole({
 }: {
   name: string;
 }) {
-  const [logs, setLogs] = useState<string[]>([]);
-
-  const fullLogs = useMemo(() => [
+  const logs = useMemo(() => [
     `\u8b80\u53d6\u4f7f\u7528\u8005\u8cc7\u6599\uff1a${name || '\u672a\u547d\u540d'}`,
-    '\u78ba\u8a8d\u8072\u97f3\u751f\u6210\u65b9\u5f0f...',
-    '\u5efa\u7acb\u4eba\u683c\u5206\u88c2\u8207\u81ea\u6211\u5c0d\u8a71\u7684\u6b4c\u66f2\u7d50\u69cb...',
-    '\u628a\u60c5\u7dd2\u3001\u7bc0\u594f\u8207\u5167\u5fc3\u7368\u767d\u8f49\u6210\u65cb\u5f8b\u65b9\u5411...',
-    '\u6b63\u5728\u751f\u6210\u60a8\u7684\u5c08\u5c6c\u6b4c\u66f2\uff0c\u8acb\u7a0d\u5019\u5e7e\u79d2\u9418...',
+    'AI \u6b63\u5728\u6574\u5408\u547d\u7406\u3001\u4e94\u5143\u7d20\u8207\u88dc\u5f37\u65b9\u5411\uff0c\u751f\u6210\u60a8\u7684\u5c08\u5c6c\u6b4c\u66f2\uff0c\u8acb\u7a0d\u5019...',
   ], [name]);
-
-  useEffect(() => {
-    setLogs([]);
-    let currentIndex = 0;
-    const interval = setInterval(() => {
-      if (currentIndex < fullLogs.length) {
-        setLogs((prev) => [...prev, fullLogs[currentIndex]]);
-        currentIndex++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 450);
-    return () => clearInterval(interval);
-  }, [fullLogs]);
 
   return (
     <div className="fortune-card border border-violet-500/20 bg-slate-950/80 p-6 font-mono shadow-[0_0_30px_rgba(139,92,246,0.08)] sm:p-8">
-      <p className="text-xs uppercase tracking-[0.22em] text-violet-300">{"AI \u8072\u97f3\u4eba\u683c\u751f\u6210\u4e2d"}</p>
+      <p className="text-xs uppercase tracking-[0.22em] text-violet-300">{"AI \u6b63\u5728\u751f\u6210\u60a8\u7684\u5c08\u5c6c\u6b4c\u66f2"}</p>
       <div className="mt-6 min-h-[150px] space-y-3.5 text-xs leading-7 text-violet-100 sm:text-sm">
         {logs.map((log, index) => (
           <div key={`${log}-${index}`} className="flex items-start gap-2">
-            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-300 shadow-[0_0_12px_rgba(167,139,250,0.8)]" />
+            <span className="mt-2 h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-violet-300 shadow-[0_0_12px_rgba(167,139,250,0.8)]" />
             <span>{log}</span>
           </div>
         ))}
@@ -533,13 +514,7 @@ export default function MusicSystemPage() {
             <div className="fortune-card p-6 sm:p-8">
               <div className="mb-6">
                 <p className="text-xs uppercase tracking-[0.35em] text-violet-300">{"AI VOICE SONG"}</p>
-                <h2 className="music-form-title mt-2 font-serif text-[color:var(--text-main)]"><span>{"AI \u5c08\u5c6c"}</span><span>{"\u751f\u547d\u6b4c\u66f2"}</span><span>{"\u70ba\u4f60\u7684\u73fe\u5728\u800c\u5275\u4f5c"}</span></h2>
-                <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
-                  {"AI \u5148\u7406\u89e3\u4f60\u73fe\u5728\u6700\u60f3\u5b8c\u6210\u7684\u4e8b\uff0c\u518d\u6574\u5408\u547d\u7406\u3001\u4e94\u5143\u7d20\u8207\u88dc\u5f37\u65b9\u5411\uff0c\u5275\u4f5c\u4e00\u9996\u771f\u6b63\u5c6c\u65bc\u4f60\u7684\u751f\u547d\u6b4c\u66f2\u3002"}
-                </p>
               </div>
-
-                <MusicLifeSongThreeLayerCard mode="form" />
 
               <DailyAnalysisNotice record={dailyRecord} className="mb-6" moduleName="AI 生成一首歌" onViewResult={dailyRecord ? handleStart : undefined} />
 
