@@ -1,0 +1,71 @@
+{
+    "mode":  "Dual Engineer Safe Parallel Mode V1",
+    "status":  "ACTIVE_NOT_READY_TO_MERGE",
+    "updatedAt":  "2026-08-07T13:19:30.8950188+08:00",
+    "currentBranch":  "feature/engineer-a",
+    "engineerRole":  {
+                         "currentAgent":  "ENGINEER_A",
+                         "owns":  [
+                                      "FRONTEND",
+                                      "UX",
+                                      "LINE WebView",
+                                      "Route",
+                                      "Click Event",
+                                      "Loading feedback",
+                                      "mobile navigation recovery"
+                                  ],
+                         "doesNotOwn":  [
+                                            "Backend Engine",
+                                            "Database Schema",
+                                            "Integration Core",
+                                            "API contracts",
+                                            "Analysis Task Core"
+                                        ]
+                     },
+    "protectedSharedFiles":  [
+                                 "types.ts",
+                                 "schema.ts",
+                                 "shared API contracts",
+                                 "Platform Core",
+                                 "Analysis Task Core",
+                                 "Integration Layer contracts",
+                                 "database migrations"
+                             ],
+    "agreed":  [
+                   "CARD CLICK / ROUTE / PAGE MOUNT must be fixed before Ziwei analysis work.",
+                   "Frontend entry may mark pending route; chunk recovery may redirect to the intended target after navigation failure.",
+                   "Decorative layers must not intercept mobile click or touch events."
+               ],
+    "conflicts":  [
+
+                  ],
+    "uniqueFindingsA":  [
+                            "Local /insight route mounts successfully; risk is centered on homepage entry, WebView navigation failure, and pointer-events.",
+                            "app/page.tsx, app/globals.css, and lib/chunk-recovery.ts are ENGINEER_A frontend entry and recovery scope."
+                        ],
+    "uniqueFindingsB":  [
+
+                        ],
+    "finalDecision":  [
+                          "Do not declare READY_TO_MERGE until ENGINEER_B backend/API verification is available.",
+                          "Current state may be declared ENGINEER_A_FRONTEND_ENTRY_HEALTHY after build and localhost route checks pass."
+                      ],
+    "ownerMap":  {
+                     "app/page.tsx":  "ENGINEER_A",
+                     "app/globals.css":  "ENGINEER_A",
+                     "lib/chunk-recovery.ts":  "ENGINEER_A with shared recovery caution",
+                     "app/insight/page.tsx":  "ENGINEER_A existing Ziwei UX work; do not overwrite without review",
+                     "api/*":  "ENGINEER_B",
+                     "database/*":  "ENGINEER_B",
+                     "schema/contracts":  "CHANGE_REQUEST_REQUIRED"
+                 },
+    "mergeGate":  {
+                      "readyToMerge":  false,
+                      "requiredBeforeMerge":  [
+                                                  "ENGINEER_B backend/API report",
+                                                  "TypeScript/build pass after both branches integrated",
+                                                  "mobile route click regression",
+                                                  "no conflict markers"
+                                              ]
+                  }
+}

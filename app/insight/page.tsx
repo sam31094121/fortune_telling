@@ -1325,6 +1325,164 @@ function getZiweiPalaceTarotCard(key: string) {
   return (cardId && TAROT_CARD_BY_ID.get(cardId)) || TAROT_CARDS[0];
 }
 
+// 八卦爻象：陣列由下往上，true 為陽爻
+const ZIWEI_TRIGRAM_LINES: Record<string, [boolean, boolean, boolean]> = {
+  乾: [true, true, true],
+  兌: [true, true, false],
+  離: [true, false, true],
+  震: [true, false, false],
+  巽: [false, true, true],
+  坎: [false, true, false],
+  艮: [false, false, true],
+  坤: [false, false, false],
+};
+
+type ZiweiStarHexagram = {
+  name: string;
+  glyph: string;
+  upper: keyof typeof ZIWEI_TRIGRAM_LINES;
+  lower: keyof typeof ZIWEI_TRIGRAM_LINES;
+  gua: string;
+  image: string;
+  plain: string;
+  ming: string;
+  action: string;
+};
+
+// 命宮主星對應本卦：卦辭與大象辭取自《易經》原文，白話與命宮對應為本系統解讀
+const ZIWEI_STAR_HEXAGRAM: Record<string, ZiweiStarHexagram> = {
+  紫微: {
+    name: '乾為天', glyph: '䷀', upper: '乾', lower: '乾',
+    gua: '乾，元亨利貞。',
+    image: '天行健，君子以自強不息。',
+    plain: '六爻全陽，是純粹的主動。位置在高處，靠的不是命令別人，是自己先不停下來。',
+    ming: '命宮坐紫微，你天生被放在需要決定的位置上。別人等你定調，你就不能只跟著風向走。',
+    action: '這週先定一個只有你能拍板的決定，然後親自做完第一步。',
+  },
+  天機: {
+    name: '巽為風', glyph: '䷸', upper: '巽', lower: '巽',
+    gua: '巽，小亨，利有攸往，利見大人。',
+    image: '隨風，巽；君子以申命行事。',
+    plain: '風不硬撞，它是滲進去的。好的安排要一層一層說，不是一次喊完就期待別人懂。',
+    ming: '命宮坐天機，你的優勢在想得快、轉得快，弱點是想法散在半空中沒有落地。',
+    action: '把腦中最好的那個念頭，今天寫成三個步驟，交給一個人一起執行。',
+  },
+  太陽: {
+    name: '火天大有', glyph: '䷍', upper: '離', lower: '乾',
+    gua: '大有，元亨。',
+    image: '火在天上，大有；君子以遏惡揚善，順天休命。',
+    plain: '火在天上，光照得很遠，但也照得很累。大有的重點不是擁有多少，是把光照在對的地方。',
+    ming: '命宮坐太陽，你習慣照顧別人、扛在前面，往往忘了自己也需要被照。',
+    action: '列出這個月你在照顧的人事，刪掉一項不該由你扛的。',
+  },
+  武曲: {
+    name: '澤天夬', glyph: '䷪', upper: '兌', lower: '乾',
+    gua: '夬，揚于王庭，孚號有厲。',
+    image: '澤上于天，夬；君子以施祿及下，居德則忌。',
+    plain: '夬就是「決」。水積到天上，遲早要下來——與其等它潰堤，不如自己選時間放。',
+    ming: '命宮坐武曲，你有把資源變成結果的執行力，卡住的地方通常不是能力，是遲遲沒有斷。',
+    action: '挑出拖最久的那一件，今天給它一個結論：做、或不做。',
+  },
+  天同: {
+    name: '地澤臨', glyph: '䷒', upper: '坤', lower: '兌',
+    gua: '臨，元亨利貞，至于八月有凶。',
+    image: '澤上有地，臨；君子以教思无窮，容保民无疆。',
+    plain: '臨是往下靠近。好日子是用來養人的，不是用來鬆懈的——福氣有期限，卦裡寫得很直白。',
+    ming: '命宮坐天同，你能讓人放鬆、把氣氛變好，但太舒服時容易停在原地。',
+    action: '趁狀態好的時候，先把一件之後會麻煩的事處理掉。',
+  },
+  廉貞: {
+    name: '火雷噬嗑', glyph: '䷔', upper: '離', lower: '震',
+    gua: '噬嗑，亨，利用獄。',
+    image: '雷電，噬嗑；先王以明罰勑法。',
+    plain: '嘴裡有東西卡著，要咬開才通。噬嗑講的是排除障礙，前提是規矩先立清楚。',
+    ming: '命宮坐廉貞，你有魅力也有稜角，界線清楚時是助力，模糊時就變成糾纏。',
+    action: '把一段讓你消耗的關係或合作，把規則講明白一次。',
+  },
+  天府: {
+    name: '山天大畜', glyph: '䷙', upper: '艮', lower: '乾',
+    gua: '大畜，利貞，不家食吉，利涉大川。',
+    image: '天在山中，大畜；君子以多識前言往行，以畜其德。',
+    plain: '把天收進山裡，是先蓄積再出手。大畜不是保守，是準備好了才過大河。',
+    ming: '命宮坐天府，你擅長守成與管理，風險是存得太久、遲遲不動用。',
+    action: '盤點手上已經足夠的資源，動用其中一項去換一次成長。',
+  },
+  太陰: {
+    name: '坤為地', glyph: '䷁', upper: '坤', lower: '坤',
+    gua: '坤，元亨，利牝馬之貞。',
+    image: '地勢坤，君子以厚德載物。',
+    plain: '六爻全陰，是純粹的承接。地不跟天爭高，它的力量在能載得住。',
+    ming: '命宮坐太陰，你的細膩與收斂是真本事，但長期只接不放，會把自己耗空。',
+    action: '這週替自己安排一次真正的休息，並開口請人幫一件事。',
+  },
+  貪狼: {
+    name: '澤雷隨', glyph: '䷐', upper: '兌', lower: '震',
+    gua: '隨，元亨利貞，无咎。',
+    image: '澤中有雷，隨；君子以嚮晦入宴息。',
+    plain: '隨是跟隨。跟對方向叫順勢，跟錯方向叫被拖著走，差別只在你有沒有先挑。',
+    ming: '命宮坐貪狼，你機會多、才藝廣，難處是每個都想要，最後每個都淺。',
+    action: '從手上的機會挑一個主線，其餘先標記為「明年再說」。',
+  },
+  巨門: {
+    name: '天水訟', glyph: '䷅', upper: '乾', lower: '坎',
+    gua: '訟，有孚窒惕，中吉終凶。',
+    image: '天與水違行，訟；君子以作事謀始。',
+    plain: '天往上、水往下，方向相反就會爭。訟卦的解法不在事後辯贏，在開頭就談清楚。',
+    ming: '命宮坐巨門，你看得出別人沒看見的問題，但話出口的時機決定它是洞察還是衝突。',
+    action: '新的合作，先把權責與期限寫成文字再開始。',
+  },
+  天相: {
+    name: '風澤中孚', glyph: '䷼', upper: '巽', lower: '兌',
+    gua: '中孚，豚魚吉，利涉大川，利貞。',
+    image: '澤上有風，中孚；君子以議獄緩死。',
+    plain: '中孚是心裡有信。誠意連豚魚都能感應，靠的不是手腕，是別人真的相信你。',
+    ming: '命宮坐天相，你是居中協調的角色，做得好是橋樑，做得差是兩邊都不討好。',
+    action: '在你居中的那件事上，先對一方說出你真正的判斷。',
+  },
+  天梁: {
+    name: '地水師', glyph: '䷆', upper: '坤', lower: '坎',
+    gua: '師，貞，丈人吉，无咎。',
+    image: '地中有水，師；君子以容民畜眾。',
+    plain: '水藏在地底成軍。師卦講帶人，關鍵是「丈人吉」——扛責任的人要能服眾。',
+    ming: '命宮坐天梁，你是那個被找去解決事情的人，但別把所有人的事都變成自己的事。',
+    action: '把一件你正在代勞的事，教會另一個人做。',
+  },
+  七殺: {
+    name: '雷天大壯', glyph: '䷡', upper: '震', lower: '乾',
+    gua: '大壯，利貞。',
+    image: '雷在天上，大壯；君子以非禮弗履。',
+    plain: '雷響在天上，力量正盛。大壯唯一的提醒是「非禮弗履」——越有力，界線越要守。',
+    ming: '命宮坐七殺，你敢衝、能開局，代價是容易一路推到底、傷到自己人。',
+    action: '在最想加速的那件事上，先設一條你不會越過的線。',
+  },
+  破軍: {
+    name: '澤火革', glyph: '䷰', upper: '兌', lower: '離',
+    gua: '革，己日乃孚，元亨利貞，悔亡。',
+    image: '澤中有火，革；君子以治歷明時。',
+    plain: '水火相剋才叫革。舊的確實要換，但卦辭寫「己日乃孚」——時間點對了，改變才被信任。',
+    ming: '命宮坐破軍，你不怕拆掉重來，難的是拆完之後把新的秩序建起來。',
+    action: '為正在進行的改變排一張時間表，寫清楚何時完成。',
+  },
+};
+
+const ZIWEI_MING_HEXAGRAM_FALLBACK: ZiweiStarHexagram = {
+  name: '山水蒙', glyph: '䷃', upper: '艮', lower: '坎',
+  gua: '蒙，亨。匪我求童蒙，童蒙求我。',
+  image: '山下出泉，蒙；君子以果行育德。',
+  plain: '山下剛冒出的泉水還很混，蒙不是笨，是還沒被引導。卦辭說得清楚：要問的人自己來問。',
+  ming: '命宮無十四主星坐守，本宮不硬斷，改看對宮與三方四正——現在方向未定，屬正常階段。',
+  action: '先找一位真的走過這條路的人請教，把問題問完整。',
+};
+
+function getZiweiMingHexagram(starName: string): ZiweiStarHexagram {
+  return ZIWEI_STAR_HEXAGRAM[starName] ?? ZIWEI_MING_HEXAGRAM_FALLBACK;
+}
+
+// 由下往上六爻：下卦三爻在前，上卦三爻在後
+function getZiweiHexagramLines(hexagram: ZiweiStarHexagram) {
+  return [...ZIWEI_TRIGRAM_LINES[hexagram.lower], ...ZIWEI_TRIGRAM_LINES[hexagram.upper]];
+}
+
 function createZiweiFallbackPalace(key: ZiweiPalaceKey): ZiweiFullPalace {
   const fallback = ZIWEI_PALACE_FALLBACK[key];
   return {
@@ -2147,6 +2305,21 @@ function ZiweiTwelvePalaceCards({
             { layer: '第三層', title: '行動排序', text: layerMaterial.layerThreeText },
           ];
 
+          if (viewMode === 'general' && palace.key === 'MING') {
+            return (
+              <div key={palace.key} className="col-span-2 sm:col-span-3 xl:col-span-4 max-[340px]:col-span-1">
+                <ZiweiMingGongCard
+                  palace={palace}
+                  story={story}
+                  annualSignal={annualSignal}
+                  patternName={analysis.pattern.name}
+                  active={active}
+                  onOpen={() => setSelectedPalaceKey(active ? null : palace.key)}
+                />
+              </div>
+            );
+          }
+
           if (viewMode === 'general') {
             const tarotCard = getZiweiPalaceTarotCard(palace.key);
             const flipped = flippedTarotKeys.has(palace.key);
@@ -2271,6 +2444,152 @@ function ZiweiTwelvePalaceCards({
         </div>
       )}
     </section>
+  );
+}
+
+function ZiweiHexagramLines({ hexagram }: { hexagram: ZiweiStarHexagram }) {
+  const lines = getZiweiHexagramLines(hexagram);
+  const labels = ['初爻', '二爻', '三爻', '四爻', '五爻', '上爻'];
+  return (
+    <div
+      className="flex flex-col-reverse gap-1.5"
+      role="img"
+      aria-label={`${hexagram.name}卦象，下卦${hexagram.lower}、上卦${hexagram.upper}`}
+    >
+      {lines.map((yang, i) => (
+        <div key={labels[i]} className="flex items-center gap-1" aria-hidden="true">
+          {yang ? (
+            <span className="h-[7px] w-[62px] rounded-sm bg-amber-200/85" />
+          ) : (
+            <>
+              <span className="h-[7px] w-[26px] rounded-sm bg-amber-200/85" />
+              <span className="h-[7px] w-[26px] rounded-sm bg-amber-200/85" />
+            </>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ZiweiMingGongCard({
+  palace,
+  story,
+  annualSignal,
+  patternName,
+  active,
+  onOpen,
+}: {
+  palace: ZiweiFullPalace;
+  story: ZiweiPalaceStoryMaterial;
+  annualSignal: ReturnType<typeof getZiweiAnnualSignal>;
+  patternName: string;
+  active: boolean;
+  onOpen: () => void;
+}) {
+  const palaceName = normalizeZiweiPalaceName(palace.name) || '命宮';
+  const primaryStar = getZiweiMajorStarMaterials(palace.majorStars.slice(0, 1))[0];
+  const tarotCard = getZiweiPalaceTarotCard(palace.key);
+  const hexagram = getZiweiMingHexagram(primaryStar.name);
+  const composition = tarotCard.visualKnowledge?.composition;
+  const motifs = tarotCard.visualKnowledge?.symbolicElements?.slice(0, 3) ?? [];
+  const starName = primaryStar.name || '主星未定';
+  const imageStory = [
+    composition?.figure ? '畫面主角：' + composition.figure : '畫面主角：一個正在啟動能力的人',
+    composition?.focalSymbol ? '核心符號：' + composition.focalSymbol : '核心符號：手上的工具與眼前的選擇',
+    motifs.length ? '關鍵線索：' + motifs.join('、') : '關鍵線索：姿態、光線、方向與手上的工具',
+  ];
+  const mingJudgment = hexagram.ming && !hexagram.ming.includes('?') ? hexagram.ming : '命宮是你面對人生的第一個姿態：你怎麼決定、怎麼承擔、怎麼把能力放到世界面前。這張牌提醒你，先把手上的工具整理好，方向就會慢慢清楚。';
+  const mingAction = hexagram.action && !hexagram.action.includes('?') ? hexagram.action : '今天先做一件能代表自己的事：把一個想法說清楚、寫下來，或往前推進一步。';
+
+  return (
+    <article className="relative overflow-hidden rounded-[24px] border-2 border-cyan-300/28 bg-[radial-gradient(circle_at_10%_0%,rgba(34,211,238,0.14),transparent_34%),linear-gradient(135deg,rgba(8,47,73,0.48),rgba(15,23,42,0.82)_58%,rgba(2,6,23,0.95))] p-4 text-cyan-50 shadow-[0_18px_46px_rgba(2,6,23,0.34)] sm:p-6">
+      <span className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-amber-200/45 to-transparent" />
+
+      <header className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">MING PALACE STORY</p>
+          <h3 className="mt-2 break-words font-serif text-2xl font-black leading-tight text-amber-100 sm:text-4xl">命宮：看圖說故事，看字說易經</h3>
+          <p className="mt-2 text-sm font-semibold leading-7 text-cyan-100/82">{palaceName} × {starName} · {patternName}</p>
+        </div>
+        {annualSignal.score !== null && (
+          <span className="shrink-0 rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-[11px] font-black text-amber-100">
+            {annualSignal.label} · {annualSignal.score}
+          </span>
+        )}
+      </header>
+
+      <div className="relative mt-5 grid gap-4 lg:grid-cols-[minmax(170px,230px)_minmax(0,1fr)]">
+        <figure className="m-0">
+          <div className="overflow-hidden rounded-[18px] border-2 border-amber-200/40 bg-black shadow-[0_14px_34px_rgba(2,6,23,0.42)]">
+            <img
+              src={tarotCard.imageUrl}
+              alt={'命宮看圖說故事：' + tarotCard.nameZh}
+              loading="lazy"
+              className="aspect-[3/5] w-full object-cover object-top"
+            />
+          </div>
+          <figcaption className="mt-2 text-center text-[11px] font-bold leading-5 text-cyan-100/75">
+            {tarotCard.nameZh} · {tarotCard.nameEn}
+          </figcaption>
+        </figure>
+
+        <div className="min-w-0 space-y-3">
+          <section className="rounded-2xl border border-cyan-200/16 bg-black/22 p-4">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">看圖說故事</p>
+            <h4 className="mt-2 font-serif text-xl font-black text-cyan-50">這張圖在說：你如何把自己帶上人生舞台</h4>
+            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+              {imageStory.map((item) => (
+                <p key={item} className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{item}</p>
+              ))}
+            </div>
+            <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-main)]">
+              {tarotCard.uprightMeaning}
+            </p>
+            <p className="mt-2 text-xs font-semibold leading-6 text-cyan-100/62">
+              先看畫面，再談命盤：人物站在哪裡、手裡拿什麼、光從哪裡來，說的都是你現在如何使用自己的能力。
+            </p>
+          </section>
+
+          <section className="rounded-2xl border border-amber-200/22 bg-amber-300/[0.07] p-4">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">看字說易經</p>
+            <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start">
+              <div className="flex shrink-0 items-center gap-3">
+                <ZiweiHexagramLines hexagram={hexagram} />
+                <div>
+                  <p className="font-serif text-3xl font-black leading-none text-amber-100">{hexagram.name || '命宮本卦'}</p>
+                  <p className="mt-1.5 text-[11px] font-bold text-amber-100/70">{hexagram.lower}下 · {hexagram.upper}上</p>
+                </div>
+              </div>
+              <div className="min-w-0 flex-1 space-y-2">
+                <p className="m-0 font-serif text-base font-black leading-8 text-amber-50">{hexagram.gua}</p>
+                <p className="m-0 text-sm font-semibold leading-7 text-amber-100/85">{hexagram.image}</p>
+                <p className="m-0 border-t border-white/10 pt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
+                  {hexagram.plain}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-emerald-200/18 bg-emerald-300/[0.055] p-4">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-emerald-200">命宮落點</p>
+            <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-main)]">{mingJudgment}</p>
+            <p className="mt-3 rounded-xl border border-emerald-200/20 bg-black/18 px-3 py-2 text-sm font-black leading-7 text-emerald-50">
+              今日一件事：{mingAction}
+            </p>
+          </section>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-expanded={active}
+        className="relative mt-5 w-full rounded-2xl border border-amber-200/30 bg-amber-300/12 px-4 py-3 text-sm font-black text-amber-50 transition hover:border-amber-100/55 hover:bg-amber-300/18 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/70"
+      >
+        {active ? '收合命宮完整解讀' : '展開命宮完整解讀'}
+      </button>
+    </article>
   );
 }
 

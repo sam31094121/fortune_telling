@@ -18,7 +18,7 @@ import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import FineDiningServiceProgress from '@/components/FineDiningServiceProgress';
 import TarotEntryCard from '@/features/tarot/components/TarotEntryCard';
-import { recoverFromChunkError } from '@/lib/chunk-recovery';
+import { markPendingRoute, recoverFromChunkError } from '@/lib/chunk-recovery';
 import { safeJsonFetch } from '@/lib/safe-fetch';
 import { curateExperienceContent } from '@/lib/experience-content-curator';
 import { evaluateExperienceQualityGate, getFriendlyQualityGateError } from '@/lib/experience-quality-gate';
@@ -1468,6 +1468,9 @@ export default function HomePage() {
   const [growthCompletedModules, setGrowthCompletedModules] = useState<string[]>([]);
   const [growthJustUnlocked, setGrowthJustUnlocked] = useState(false);
   const previousGrowthCountRef = useRef(0);
+  const [ziweiOpening, setZiweiOpening] = useState(false);
+  const ziweiNavLockRef = useRef(false);
+  const ziweiWatchdogRef = useRef<number | null>(null);
   const lineFriendHref = 'https://line.me/R/ti/p/@497lembe';
   const mainRef = useRef<HTMLElement>(null);
   const repairTimerRef = useRef<number | null>(null);
@@ -2106,6 +2109,46 @@ export default function HomePage() {
       setShowScrollDown(false);
     }
   }, [isUnlocked, !!data]);
+
+  // 紫微入口：只負責「點擊回饋 → 防重複 → 確實導航」，不建立任何分析任務。
+  const ZIWEI_ROUTE = '/insight';
+
+  const resetZiweiNavLock = () => {
+    if (ziweiWatchdogRef.current !== null) {
+      window.clearTimeout(ziweiWatchdogRef.current);
+      ziweiWatchdogRef.current = null;
+    }
+    ziweiNavLockRef.current = false;
+    setZiweiOpening(false);
+  };
+
+  const handleZiweiOpen = () => {
+    if (ziweiNavLockRef.current) return;
+    ziweiNavLockRef.current = true;
+    setZiweiOpening(true);
+    markPendingRoute(ZIWEI_ROUTE);
+
+    // 看門狗：LINE WebView 或弱網下 client-side 導航可能中途斷掉。
+    // 導航成功時首頁會 unmount，effect cleanup 會清掉這個 timer；
+    // 只有真的卡住才會走到整頁載入。門檻放寬到 6 秒，避免把「慢但會成功」的導航打斷重來。
+    if (ziweiWatchdogRef.current !== null) window.clearTimeout(ziweiWatchdogRef.current);
+    ziweiWatchdogRef.current = window.setTimeout(() => {
+      ziweiWatchdogRef.current = null;
+      if (window.location.pathname !== ZIWEI_ROUTE) {
+        window.location.assign(ZIWEI_ROUTE);
+      }
+    }, 6000);
+  };
+
+  useEffect(() => {
+    // 返回首頁（含 BFCache 還原）後解除鎖定，讓使用者可以再次進入。
+    const handleRestore = () => resetZiweiNavLock();
+    window.addEventListener('pageshow', handleRestore);
+    return () => {
+      window.removeEventListener('pageshow', handleRestore);
+      if (ziweiWatchdogRef.current !== null) window.clearTimeout(ziweiWatchdogRef.current);
+    };
+  }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2747,19 +2790,24 @@ export default function HomePage() {
             </div>
           </button>
           <Link
-            href="/insight"
-            className="home-feature-launch home-feature-indigo order-2 w-full relative group overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-all duration-500 hover:border-indigo-400 hover:shadow-[0_0_50px_rgba(99,102,241,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            href={ZIWEI_ROUTE}
+            prefetch
+            data-module="ziwei"
+            data-navigation-target={ZIWEI_ROUTE}
+            onClick={handleZiweiOpen}
+            className="home-feature-launch home-feature-indigo order-2 w-full relative group overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-all duration-500 hover:border-indigo-400 hover:shadow-[0_0_50px_rgba(99,102,241,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap [touch-action:manipulation]"
+            aria-label="開啟 AI 紫微斗數"
+            aria-busy={ziweiOpening}
           >
-            {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="ziwei-dou-3d-emblem" aria-hidden="true">
+              <div className="ziwei-dou-3d-emblem pointer-events-none" aria-hidden="true">
                 <span className="ziwei-dou-3d-emblem__aura" />
                 <span className="ziwei-dou-3d-emblem__bevel" />
                 <span className="ziwei-dou-3d-emblem__star ziwei-dou-3d-emblem__star--one" />
                 <span className="ziwei-dou-3d-emblem__star ziwei-dou-3d-emblem__star--two" />
-                <span className="ziwei-dou-3d-emblem__glyph">斗</span>
+                <span className="ziwei-dou-3d-emblem__glyph">紫</span>
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-indigo-500/10 border border-indigo-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-indigo-300 uppercase animate-pulse">
@@ -2768,18 +2816,18 @@ export default function HomePage() {
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-indigo-100 tracking-wide flex items-center gap-2">
                   <span>AI 紫微斗數</span>
                   <span className="text-xs font-sans text-indigo-300 font-normal opacity-85 hidden sm:inline">
-                    // 命盤格局 · 三方四正 · 今年運勢
+                    // 命宮主軸 · 三方四正 · 年度方向
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  依出生資料整理紫微命盤方向，聚焦今年運勢、三方四正與行動建議。
+                  依出生資料整理命宮主軸，先看懂長期方向，再交給 AI 做精華判定。
                 </p>
               </div>
             </div>
 
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-950/30 px-5 py-3 text-xs font-bold text-indigo-200 transition group-hover:bg-indigo-500/25">
-              <span>立即開啟紫微</span>
-              <span className="transition-transform group-hover:translate-x-1.5">➜</span>
+              <span>{ziweiOpening ? '正在開啟紫微…' : '立即開啟紫微'}</span>
+              <span className={`transition-transform ${ziweiOpening ? 'animate-pulse' : 'group-hover:translate-x-1.5'}`}>→</span>
             </div>
           </Link>
 

@@ -18991,3 +18991,18 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
     grid-template-columns: minmax(220px, 0.58fr) minmax(170px, 0.42fr);
   }
 }
+/* Ziwei homepage entry: keep mobile WebView taps on the route button. */
+/* 需要 !important：前面 `a, button { touch-action: pan-y pinch-zoom !important }` 會蓋掉這裡，
+   而 pan-y pinch-zoom 會讓 WebView 等待 double-tap，導致點擊延遲。 */
+.home-feature-launch[data-module="ziwei"] {
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  pointer-events: auto !important;
+}
+
+.home-feature-launch[data-module="ziwei"] > .absolute,
+.home-feature-launch[data-module="ziwei"] .ziwei-dou-3d-emblem,
+.home-feature-launch[data-module="ziwei"] .ziwei-dou-3d-emblem * {
+  pointer-events: none !important;
+}
