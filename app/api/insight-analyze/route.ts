@@ -28,8 +28,21 @@ function cleanIpCache() {
 }
 
 function getCacheKey(body: InsightRequest): string {
-  const shichenKey = typeof body.shichen === 'number' ? String(body.shichen) : 'auto';
-  return hashedCacheKey([body.name.trim(), body.birthDate, body.bloodType, body.gender, shichenKey, 'insight-v2-five-element']);
+  const shichenKey = typeof body.shichen === 'number' ? String(body.shichen) : body.shichen ?? 'auto';
+  const longitudeKey = typeof body.longitude === 'number' ? body.longitude.toFixed(4) : 'no-longitude';
+  const timezoneKey = body.timezone ?? 'Asia/Taipei';
+  const correctionKey = body.timeCorrectionMode ?? 'STANDARD_TIME';
+  return hashedCacheKey([
+    body.name.trim(),
+    body.birthDate,
+    body.bloodType,
+    body.gender,
+    shichenKey,
+    longitudeKey,
+    timezoneKey,
+    correctionKey,
+    'insight-v3-ziwei-presentation',
+  ]);
 }
 
 function validateInsightRequest(body: unknown): string | null {

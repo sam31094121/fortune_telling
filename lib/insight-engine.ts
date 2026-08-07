@@ -16,6 +16,11 @@ import { solarToLunarParts } from './lunar-calendar';
 import { buildAiCopywritingInstruction, enforceAiCopywritingTone } from './ai-copywriting-style-center';
 import { calculateZiweiSanFang, type ZiweiSanFangAnalysis } from './ziwei-sanfang-engine';
 import { calculateAnnualFortune, type AnnualFortuneAnalysis } from './annual-fortune-engine';
+import {
+  buildZiweiPresentationBundle,
+  resolveZiweiAnalysisId,
+  type ZiweiPresentationBundle,
+} from './ziwei-presentation-service';
 
 const MODEL_NAME = 'gemini-2.5-flash';
 const GEMINI_TIMEOUT_MS = 20000;
@@ -50,22 +55,22 @@ export interface InsightRitualStep {
 
 const INSIGHT_RITUAL_STEP_LABELS: Record<InsightRitualStepId, { label: string; ritualText: string; passedText: string }> = {
   TIME_RESOLVED: {
-    label: '時辰定位',
-    ritualText: '正在校正出生時辰與八字四柱...',
+    label: '出生時間定位',
+    ritualText: '正在校準出生時辰與八字四柱...',
     passedText: '出生時辰與八字四柱定位完成',
   },
   CHART_BUILT: {
-    label: '命盤排定',
-    ritualText: '正在排定紫微十二宮與主星...',
+    label: '十二宮排盤',
+    ritualText: '正在建立紫微十二宮與主星結構...',
     passedText: '紫微命盤十二宮與主星排定完成',
   },
   TRANSFORMATION_MAPPED: {
     label: '四化飛星',
-    ritualText: '正在判定四化飛星軌跡...',
+    ritualText: '正在判讀四化飛星訊號...',
     passedText: '四化飛星判定完成',
   },
   PATTERN_IDENTIFIED: {
-    label: '命格辨識',
+    label: '格局辨識',
     ritualText: '正在辨識命盤核心格局...',
     passedText: '命盤核心格局辨識完成',
   },
@@ -76,37 +81,37 @@ const INSIGHT_RITUAL_STEP_LABELS: Record<InsightRitualStepId, { label: string; r
   },
   TWELVE_PALACE_ANALYZED: {
     label: '十二宮解析',
-    ritualText: '正在逐宮解析十二宮位細節...',
+    ritualText: '正在整理十二宮位精密解析...',
     passedText: '十二宮位精密解析完成',
   },
   STATISTICAL_MATCHED: {
-    label: '模型比對',
-    ritualText: '正在比對規則模型統計訊號...',
+    label: '統計訊號',
+    ritualText: '正在比對規則模型與統計訊號...',
     passedText: '規則模型統計訊號比對完成',
   },
   ACCURACY_SCORED: {
     label: '準確度評估',
-    ritualText: '正在評估本次判定準確度...',
+    ritualText: '正在計算本次判定準確度...',
     passedText: '本次判定準確度評估完成',
   },
   ANNUAL_FORTUNE_CALCULATED: {
-    label: '流年運算',
-    ritualText: '正在運算今年流年三方四正...',
+    label: '流年運勢',
+    ritualText: '正在整合今年流年運勢...',
     passedText: '今年流年運勢運算完成',
   },
   FIVE_ELEMENT_INTEGRATED: {
-    label: '五行整合',
-    ritualText: '正在整合命盤與流年五行判定...',
-    passedText: '五行整合判定完成',
+    label: '五元素整合',
+    ritualText: '正在將紫微、八字與五元素整合...',
+    passedText: '五元素整合判定完成',
   },
   AI_INSIGHT_GENERATED: {
-    label: 'AI 深度解讀',
-    ritualText: '正在生成 AI 深度洞察文字...',
+    label: 'AI 深度洞察',
+    ritualText: '正在產生 AI 深度洞察...',
     passedText: 'AI 深度洞察生成完成',
   },
   FINAL_RESULT_VERIFIED: {
-    label: '結果驗證',
-    ritualText: '正在驗證最終命盤結果完整性...',
+    label: '最終結果',
+    ritualText: '正在完成最終結果驗證...',
     passedText: '紫微斗數分析正式完成',
   },
 };
@@ -154,6 +159,8 @@ function buildInsightRitualSteps(input: {
 }
 
 export interface InsightAnalysisResponse {
+  analysisId: string;
+  presentation: ZiweiPresentationBundle;
   accuracyScore: number;
   dataSourceCount: number;
   scoreMethodology: {
@@ -699,8 +706,35 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
     fiveElement,
     aiAnalysis,
   });
+  const meta: NonNullable<InsightAnalysisResponse['meta']> = {
+    dayPillar: shichen.dayPillar,
+    hourPillar: shichen.hourPillar.ganzhi,
+    wuxing: shichen.wuxing,
+    shichenLabel: shichen.shichen.label,
+    birthDate: request.birthDate,
+    shichen: request.shichen,
+    timeCorrectionMode: typeof request.longitude === 'number' ? 'TRUE_SOLAR_TIME' : 'STANDARD_TIME',
+  };
+  const summary = enforceAiCopywritingTone(aiAnalysis.summary);
+  const analysisId = resolveZiweiAnalysisId({
+    summary,
+    ziweiSanFang,
+    annualFortune,
+    fiveElement,
+    meta,
+  });
+  const presentation = buildZiweiPresentationBundle({
+    analysisId,
+    summary,
+    ziweiSanFang,
+    annualFortune,
+    fiveElement,
+    meta,
+  });
 
   return {
+    analysisId,
+    presentation,
     ritualSteps,
     accuracyScore,
     dataSourceCount,
@@ -718,7 +752,7 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
     statisticalAnalysis,
     bigDataInsights,
     personalizedRecommendations: aiAnalysis.recommendations.map((item) => enforceAiCopywritingTone(item)),
-    summary: enforceAiCopywritingTone(aiAnalysis.summary),
+    summary,
     ziweiPalaces: (ziweiSanFang.timeConfidence === 'exact' ? ziweiSanFang.palaces : []).map((palace) => ({
       palaceName: palace.name,
       starName: palace.majorStars.join('、') || '無十四主星坐守',
@@ -728,14 +762,6 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
     annualFortune,
     nameology,
     fiveElement,
-    meta: {
-      dayPillar: shichen.dayPillar,
-      hourPillar: shichen.hourPillar.ganzhi,
-      wuxing: shichen.wuxing,
-      shichenLabel: shichen.shichen.label,
-      birthDate: request.birthDate,
-      shichen: request.shichen,
-      timeCorrectionMode: typeof request.longitude === 'number' ? 'TRUE_SOLAR_TIME' : 'STANDARD_TIME',
-    },
+    meta,
   };
 }

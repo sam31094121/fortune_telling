@@ -15,6 +15,7 @@ import { searchCities, findCityById, type CityEntry } from '@/lib/city-directory
 import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 import type { FiveElementIntegrationResult, FiveElementKey } from '@/lib/five-element-engine';
 import type { InsightRitualStep } from '@/lib/insight-engine';
+import type { ZiweiPresentationBundle } from '@/lib/ziwei-presentation-service';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { TAROT_CARDS } from '@/features/tarot/data/cards';
 
@@ -32,6 +33,8 @@ interface InsightData {
 }
 
 interface InsightResult {
+  analysisId?: string;
+  presentation?: ZiweiPresentationBundle;
   accuracyScore: number;
   dataSourceCount: number;
   scoreMethodology?: {
@@ -1936,11 +1939,15 @@ function ZiweiTwelvePalaceCards({
   annual,
   fiveElement,
   meta,
+  analysisId,
+  presentation,
 }: {
   analysis?: InsightResult['ziweiSanFang'];
   annual?: InsightResult['annualFortune'];
   fiveElement?: InsightResult['fiveElement'];
   meta?: InsightResult['meta'];
+  analysisId?: string;
+  presentation?: InsightResult['presentation'];
 }) {
   const [selectedPalaceKey, setSelectedPalaceKey] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'general' | 'teacher'>('general');
@@ -2000,30 +2007,76 @@ function ZiweiTwelvePalaceCards({
   const sortedPalaces = ZIWEI_TWELVE_PALACE_ORDER.map((key) => palaceMap.get(key) ?? createZiweiFallbackPalace(key));
   const sanFangPalaces = ZIWEI_SAN_FANG_FOUR_ZHENG_ORDER.map((key) => palaceMap.get(key) ?? createZiweiFallbackPalace(key));
   const selectedPalace = sortedPalaces.find((palace) => palace.key === selectedPalaceKey) ?? null;
+  const memberSummary = presentation?.memberSummary ?? {
+    title: '紫微核心判定',
+    coreJudgment: '先看清方向，再調整步伐。',
+    coreReason: analysis.summary || analysis.pattern.description || '系統已完成命盤、三方四正與流年交叉整理。',
+    immediateAction: annual?.recommendations?.[0] || fiveElement?.decision?.changeTarget || '今天先完成一件最重要的事。',
+    canonicalMeaning: analysis.pattern.name,
+  };
+  const memberDetail = presentation?.memberDetail;
+  const displayAnalysisId = presentation?.analysisId ?? analysisId;
 
   return (
-    <section className="fortune-card p-5 sm:p-8">
-      <div className="rounded-[28px] border border-amber-300/35 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),rgba(15,23,42,0.56)_42%,rgba(2,6,23,0.82)_100%)] p-5 text-center shadow-[0_0_46px_rgba(251,191,36,0.14)] sm:p-7">
-        <p className="text-xs font-semibold uppercase tracking-[0.32em] text-amber-200/85">PROFESSIONAL ZI WEI CHART</p>
-        <h2 className="mx-auto mt-3 max-w-4xl break-words font-serif text-5xl font-black leading-tight text-amber-100 drop-shadow-[0_0_20px_rgba(251,191,36,0.35)] sm:text-7xl">
-          {analysis.pattern.name}
-        </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-amber-50/78">第一層只負責建立紫微斗數命盤結構：十二宮位、主星訊號、年度宮位分數與三方四正，不在此層直接輸出補強結論。</p>
-        <p className="mt-3 text-xs text-amber-100/60">分析年份：{annual?.year ?? new Date().getFullYear()}</p>
+    <section className="fortune-card p-4 sm:p-7">
+      <div className="rounded-[24px] border border-cyan-300/25 bg-[linear-gradient(135deg,rgba(8,47,73,0.62),rgba(15,23,42,0.82)_54%,rgba(2,6,23,0.92))] p-4 shadow-[0_18px_46px_rgba(8,13,30,0.28)] sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">AI CORE JUDGMENT</p>
+            <h2 className="mt-2 break-words font-serif text-2xl font-black leading-tight text-cyan-50 sm:text-4xl">{memberSummary.coreJudgment}</h2>
+          </div>
+          {displayAnalysisId && (
+            <span className="shrink-0 rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[10px] font-black tracking-[0.14em] text-cyan-100">
+              {displayAnalysisId}
+            </span>
+          )}
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-3">
+            <p className="text-[10px] font-black tracking-[0.18em] text-white/45">判定</p>
+            <p className="mt-1 text-sm font-black leading-6 text-amber-100">{memberSummary.title}</p>
+            <p className="mt-1 text-xs font-semibold leading-5 text-cyan-100/75">{memberSummary.canonicalMeaning}</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-3">
+            <p className="text-[10px] font-black tracking-[0.18em] text-white/45">原因</p>
+            <p className="mt-1 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{memberSummary.coreReason}</p>
+          </div>
+          <div className="rounded-2xl border border-amber-200/20 bg-amber-300/10 p-3">
+            <p className="text-[10px] font-black tracking-[0.18em] text-amber-100/65">立即行動</p>
+            <p className="mt-1 text-sm font-black leading-6 text-amber-50">{memberSummary.immediateAction}</p>
+          </div>
+        </div>
+        {memberDetail && (
+          <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
+            <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-emerald-100">{memberDetail.coreTheme}</span>
+            {memberDetail.evidence.slice(0, 2).map((item) => (
+              <span key={item} className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-cyan-100">{item}</span>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mt-5 rounded-[24px] border border-amber-300/25 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.14),rgba(15,23,42,0.62)_46%,rgba(2,6,23,0.9)_100%)] p-4 text-center shadow-[0_0_34px_rgba(251,191,36,0.12)] sm:p-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-200/85">PROFESSIONAL ZI WEI CHART</p>
+        <h2 className="mx-auto mt-3 max-w-4xl break-words font-serif text-3xl font-black leading-tight text-amber-100 drop-shadow-[0_0_18px_rgba(251,191,36,0.28)] sm:text-5xl">
+          {analysis.pattern.name}
+        </h2>
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-amber-50/78">老師模式保留完整十二宮、三方四正、流年與五元素證據；會員第一眼只先看最重要的方向。</p>
+        <p className="mt-3 text-xs text-amber-100/60">流年年份：{annual?.year ?? new Date().getFullYear()}</p>
+      </div>
+
+      <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-indigo-300">ZI WEI PALACES</p>
-          <h3 className="mt-3 font-serif text-3xl text-indigo-100 sm:text-4xl">紫微十二宮位專業拆解</h3>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-[color:var(--text-sub)]">十二張宮位卡統一分成三層：第一層專業命盤、第二層 AI 白話解讀、第三層 AI 行動排序。點選任一宮位，查看該宮的完整專業素材與三方四正交叉分析。</p>
+          <h3 className="mt-2 font-serif text-2xl font-black text-indigo-100 sm:text-3xl">十二宮互動牌陣</h3>
+          <p className="mt-2 max-w-2xl text-sm leading-7 text-[color:var(--text-sub)]">一般模式用牌面引導客戶理解每個宮位；老師模式再展開完整星曜與專業證據。</p>
         </div>
       </div>
 
       <div className="mt-5 flex flex-col gap-3 rounded-[22px] border border-white/10 bg-white/[0.045] p-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">PROFESSIONAL MODE</p>
-          <p className="mt-1 text-sm font-semibold leading-6 text-[color:var(--text-sub)]">一般模式給使用者看重點；老師模式展開完整命盤、主星、輔星與四化檢核。</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">VIEW MODE</p>
+          <p className="mt-1 text-sm font-semibold leading-6 text-[color:var(--text-sub)]">先給客戶看得懂的結論，需要時再切到老師模式看完整命盤。</p>
         </div>
         <div className="grid grid-cols-2 gap-2 rounded-2xl border border-cyan-200/15 bg-slate-950/45 p-1 text-sm font-black">
           <button
@@ -2044,10 +2097,10 @@ function ZiweiTwelvePalaceCards({
       </div>
       <div className="mt-5 flex flex-wrap gap-2 text-xs">
         <span className="rounded-full border border-cyan-300/20 bg-cyan-950/20 px-3 py-1 text-cyan-100">
-          {analysis.timeConfidence === 'exact' ? '已依真實時辰排盤' : '暫定時辰排盤，可再校正'}
+          {analysis.timeConfidence === 'exact' ? '已確認出生時辰' : '出生時辰為估算'}
         </span>
         <span className="rounded-full border border-emerald-300/20 bg-emerald-950/20 px-3 py-1 text-emerald-100">
-          {meta?.timeCorrectionMode === 'TRUE_SOLAR_TIME' ? '已套用真太陽時校正' : '標準時排盤（未選出生地，未做真太陽時校正）'}
+          {meta?.timeCorrectionMode === 'TRUE_SOLAR_TIME' ? '已套用真太陽時校正' : '使用標準時間排盤'}
         </span>
       </div>
 
@@ -2653,9 +2706,80 @@ const ZIWEI_RITUAL_MARK: Record<InsightRitualStep['status'], string> = {
   LOCKED: '',
   WAITING: '',
   PROCESSING: '',
-  PASSED: '✓',
+  PASSED: 'PASS',
   FAILED: '!',
 };
+
+const ZIWEI_RITUAL_COPY: Record<InsightRitualStep['id'], { label: string; ritualText: string; passedText: string }> = {
+  TIME_RESOLVED: {
+    label: '出生時間定位',
+    ritualText: '正在校準出生時辰與八字四柱...',
+    passedText: '出生時辰與八字四柱定位完成',
+  },
+  CHART_BUILT: {
+    label: '十二宮排盤',
+    ritualText: '正在建立紫微十二宮與主星結構...',
+    passedText: '紫微命盤十二宮與主星排定完成',
+  },
+  TRANSFORMATION_MAPPED: {
+    label: '四化飛星',
+    ritualText: '正在判讀四化飛星訊號...',
+    passedText: '四化飛星判定完成',
+  },
+  PATTERN_IDENTIFIED: {
+    label: '格局辨識',
+    ritualText: '正在辨識命盤核心格局...',
+    passedText: '命盤核心格局辨識完成',
+  },
+  CROSS_CHECKED: {
+    label: '三方四正',
+    ritualText: '正在進行命財官遷交叉驗證...',
+    passedText: '命財官遷三方四正交叉驗證通過',
+  },
+  TWELVE_PALACE_ANALYZED: {
+    label: '十二宮解析',
+    ritualText: '正在整理十二宮位精密解析...',
+    passedText: '十二宮位精密解析完成',
+  },
+  STATISTICAL_MATCHED: {
+    label: '統計訊號',
+    ritualText: '正在比對規則模型與統計訊號...',
+    passedText: '規則模型統計訊號比對完成',
+  },
+  ACCURACY_SCORED: {
+    label: '準確度評估',
+    ritualText: '正在計算本次判定準確度...',
+    passedText: '本次判定準確度評估完成',
+  },
+  ANNUAL_FORTUNE_CALCULATED: {
+    label: '流年運勢',
+    ritualText: '正在整合今年流年運勢...',
+    passedText: '今年流年運勢運算完成',
+  },
+  FIVE_ELEMENT_INTEGRATED: {
+    label: '五元素整合',
+    ritualText: '正在將紫微、八字與五元素整合...',
+    passedText: '五元素整合判定完成',
+  },
+  AI_INSIGHT_GENERATED: {
+    label: 'AI 深度洞察',
+    ritualText: '正在產生 AI 深度洞察...',
+    passedText: 'AI 深度洞察生成完成',
+  },
+  FINAL_RESULT_VERIFIED: {
+    label: '最終結果',
+    ritualText: '正在完成最終結果驗證...',
+    passedText: '紫微斗數分析正式完成',
+  },
+};
+
+function getZiweiRitualCopy(step: InsightRitualStep) {
+  return ZIWEI_RITUAL_COPY[step.id] ?? {
+    label: step.label,
+    ritualText: step.ritualText,
+    passedText: step.passedText,
+  };
+}
 
 function ZiweiRitualStepsPanel({
   steps,
@@ -2700,6 +2824,7 @@ function ZiweiRitualStepsPanel({
                 : display === 'PROCESSING'
                   ? 'border-amber-300/40 bg-amber-300/[0.08] text-amber-50'
                   : 'border-white/5 bg-white/[0.015] text-white/30';
+          const ritualCopy = getZiweiRitualCopy(step);
           return (
             <div
               key={step.id}
@@ -2724,7 +2849,7 @@ function ZiweiRitualStepsPanel({
                 {display === 'PROCESSING' ? <span className="block h-1.5 w-1.5 animate-ping rounded-full bg-amber-300" /> : ZIWEI_RITUAL_MARK[display] || '○'}
               </span>
               <p className="min-w-0 flex-1 truncate text-xs font-bold leading-5">
-                {revealed ? (display === 'PASSED' ? step.passedText : display === 'FAILED' ? `${step.label}驗證失敗` : step.ritualText) : step.label}
+                {revealed ? (display === 'PASSED' ? ritualCopy.passedText : display === 'FAILED' ? `${ritualCopy.label}驗證失敗` : ritualCopy.ritualText) : ritualCopy.label}
               </p>
             </div>
           );
@@ -3467,7 +3592,14 @@ export default function InsightPage() {
               </div>
             </div>
 
-            <ZiweiTwelvePalaceCards analysis={result?.ziweiSanFang} annual={result?.annualFortune} fiveElement={result?.fiveElement} meta={result?.meta} />
+            <ZiweiTwelvePalaceCards
+              analysis={result?.ziweiSanFang}
+              annual={result?.annualFortune}
+              fiveElement={result?.fiveElement}
+              meta={result?.meta}
+              analysisId={result?.analysisId}
+              presentation={result?.presentation}
+            />
 
             <FiveElementPriorityCard result={result?.fiveElement} />
 
