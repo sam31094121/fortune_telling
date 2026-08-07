@@ -1,4 +1,4 @@
-﻿import { calculateHourByIndex, calculateTrueSolarTime, ziwei } from '@ziweijs/core';
+import { calculateHourByIndex, calculateTrueSolarTime, ziwei } from '@ziweijs/core';
 import { LunarHour } from 'tyme4ts';
 import { getShichenInfo, shichenFromClockHour } from './shichen-engine';
 
@@ -28,6 +28,9 @@ export interface ZiweiPalaceEvidence {
   palaceStem: string;
   majorStars: string[];
   minorStars: string[];
+  auspiciousStars: string[];
+  maleficStars: string[];
+  neutralStars: string[];
   transformations: string[];
 }
 
@@ -39,6 +42,9 @@ export interface ZiweiFullPalaceEvidence {
   palaceStem: string;
   majorStars: string[];
   minorStars: string[];
+  auspiciousStars: string[];
+  maleficStars: string[];
+  neutralStars: string[];
   transformations: string[];
 }
 
@@ -141,11 +147,35 @@ export interface ZiweiSanFangAnalysis {
   };
   palaces: ZiweiPalaceEvidence[];
   allPalaces: ZiweiFullPalaceEvidence[];
+  bodyPalace: ZiweiFullPalaceEvidence | null;
+  bodyPalaceStatus: 'provided' | 'not_available_from_core';
   palaceAnalyses: ZiweiPrecisionPalaceAnalysis[];
   crossChecks: ZiweiCrossCheck[];
   pattern: ZiweiPattern;
   patternMetrics: ZiweiPatternMetrics;
   ruleCount: number;
+}
+
+const ZIWEI_AUSPICIOUS_STAR_NAMES = new Set([
+  '左輔', '右弼', '文昌', '文曲', '天魁', '天鉞', '祿存', '天馬', '恩光', '天貴', '台輔', '封誥', '龍池', '鳳閣', '紅鸞', '天喜', '三台', '八座',
+]);
+
+const ZIWEI_MALEFIC_STAR_NAMES = new Set([
+  '擎羊', '陀羅', '火星', '鈴星', '地空', '地劫', '天空', '天刑', '天姚', '陰煞', '劫煞', '災煞', '大耗', '小耗', '白虎', '喪門', '吊客', '官符',
+]);
+
+function classifyZiweiSupportStars(stars: string[]) {
+  const auspiciousStars: string[] = [];
+  const maleficStars: string[] = [];
+  const neutralStars: string[] = [];
+
+  stars.forEach((star) => {
+    if (ZIWEI_AUSPICIOUS_STAR_NAMES.has(star)) auspiciousStars.push(star);
+    else if (ZIWEI_MALEFIC_STAR_NAMES.has(star)) maleficStars.push(star);
+    else neutralStars.push(star);
+  });
+
+  return { auspiciousStars, maleficStars, neutralStars };
 }
 
 const STEM_ELEMENT: Record<string, string> = {
@@ -806,6 +836,9 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
       .map((star) => transformationLabel(star.YT))
       .filter((value): value is string => Boolean(value));
 
+    const minorStars = palace.minorStars.map((star) => star.name);
+    const classifiedStars = classifyZiweiSupportStars(minorStars);
+
     return {
       key: palace.key,
       name: palace.name,
@@ -813,7 +846,8 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
       branch: palace.branch,
       palaceStem: palace.stem,
       majorStars: palace.majorStars.map((star) => star.name),
-      minorStars: palace.minorStars.map((star) => star.name),
+      minorStars,
+      ...classifiedStars,
       transformations,
     };
   });
@@ -825,6 +859,9 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
       .map((star) => transformationLabel(star.YT))
       .filter((value): value is string => Boolean(value));
 
+    const minorStars = palace.minorStars.map((star) => star.name);
+    const classifiedStars = classifyZiweiSupportStars(minorStars);
+
     return {
       key: config.key,
       name: config.name,
@@ -832,7 +869,8 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
       branch: palace.branch,
       palaceStem: palace.stem,
       majorStars: palace.majorStars.map((star) => star.name),
-      minorStars: palace.minorStars.map((star) => star.name),
+      minorStars,
+      ...classifiedStars,
       transformations,
     };
   });
@@ -869,6 +907,8 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
     },
     palaces: visiblePalaces,
     allPalaces,
+    bodyPalace: null,
+    bodyPalaceStatus: 'not_available_from_core',
     palaceAnalyses,
     crossChecks,
     pattern,
