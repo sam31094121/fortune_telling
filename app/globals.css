@@ -19693,32 +19693,79 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   }
 }
 
-/* Taiji three-act clean V5: core, five stars, space. No stacked visual noise. */
+/* Taiji three-act clean V5: independent tech card, core first, planets support, space frames. */
 .home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] {
-  width: min(29rem, 100%) !important;
-  min-height: clamp(21rem, 56vw, 28rem) !important;
+  position: relative;
+  overflow: hidden;
+  width: min(30rem, 100%) !important;
+  min-height: clamp(22rem, 58vw, 29rem) !important;
+  padding: clamp(0.72rem, 2vw, 1rem);
+  border: 1px solid rgba(103, 232, 249, 0.22);
+  border-radius: 30px;
   isolation: isolate;
+  backdrop-filter: blur(18px) saturate(1.12);
   background:
-    radial-gradient(circle at 50% 34%, rgba(255, 252, 225, 0.22), transparent 33%),
-    radial-gradient(circle at 50% 68%, rgba(187, 247, 208, 0.14), transparent 44%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(15, 23, 42, 0.08)) !important;
+    radial-gradient(circle at 50% 38%, rgba(255, 247, 205, 0.2), transparent 36%),
+    radial-gradient(circle at 50% 78%, rgba(34, 211, 238, 0.12), transparent 48%),
+    radial-gradient(circle at 18% 12%, rgba(167, 243, 208, 0.12), transparent 34%),
+    linear-gradient(145deg, rgba(8, 13, 30, 0.78), rgba(2, 6, 23, 0.58) 58%, rgba(15, 23, 42, 0.72)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(103, 232, 249, 0.1),
+    0 22px 70px rgba(2, 6, 23, 0.48),
+    0 0 44px rgba(103, 232, 249, 0.12),
+    0 0 34px rgba(255, 247, 205, 0.08);
 }
 
 .home-taiji-cinema[data-taiji-performance="three-act-clean-v5"]::before,
 .home-taiji-cinema[data-taiji-performance="three-act-clean-v5"]::after {
-  content: none !important;
-  display: none !important;
+  content: "" !important;
+  position: absolute;
+  display: block !important;
+  pointer-events: none;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"]::before {
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 22%, transparent 76%, rgba(103, 232, 249, 0.12)),
+    linear-gradient(90deg, transparent 0 48%, rgba(103, 232, 249, 0.12) 50%, transparent 52%),
+    repeating-linear-gradient(0deg, rgba(103, 232, 249, 0.035) 0 1px, transparent 1px 18px),
+    repeating-linear-gradient(90deg, rgba(255, 247, 205, 0.025) 0 1px, transparent 1px 22px);
+  opacity: 0.48;
+  mask-image: radial-gradient(circle at 50% 46%, transparent 0 34%, black 66%);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"]::after {
+  inset: auto 7% 5%;
+  z-index: 0;
+  height: 28%;
+  border-radius: 999px;
+  background:
+    radial-gradient(ellipse at 50% 8%, rgba(255, 247, 205, 0.24), transparent 42%),
+    linear-gradient(90deg, transparent, rgba(103, 232, 249, 0.18), rgba(255, 247, 205, 0.12), transparent);
+  filter: blur(1.4px);
+  opacity: 0.56;
+  transform: perspective(520px) rotateX(68deg);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] > * {
+  position: relative;
+  z-index: 1;
 }
 
 .home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-kindness-screen {
-  inset: -5% !important;
-  border-radius: 999px !important;
-  opacity: 1 !important;
+  z-index: 0;
+  inset: 5% !important;
+  border-radius: 26px !important;
+  opacity: 0.92 !important;
   mix-blend-mode: screen;
   background:
-    radial-gradient(circle at 50% 42%, rgba(255, 252, 225, 0.36), transparent 31%),
-    radial-gradient(circle at 50% 61%, rgba(187, 247, 208, 0.2), transparent 47%),
-    radial-gradient(ellipse at 50% 80%, rgba(186, 230, 253, 0.12), transparent 58%) !important;
+    radial-gradient(circle at 50% 42%, rgba(255, 252, 225, 0.28), transparent 30%),
+    radial-gradient(circle at 50% 63%, rgba(187, 247, 208, 0.14), transparent 44%),
+    radial-gradient(ellipse at 50% 82%, rgba(186, 230, 253, 0.16), transparent 60%) !important;
   transform: none !important;
 }
 
@@ -19763,6 +19810,8 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 }
 
 .home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .unified-taiji-shell {
+  position: relative;
+  z-index: 2;
   min-height: clamp(19rem, 58vw, 25rem) !important;
   padding: 0 !important;
 }
@@ -19771,7 +19820,14 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   display: grid !important;
   place-items: center !important;
   min-height: clamp(18rem, 55vw, 24rem) !important;
-  background: transparent !important;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.055), transparent 44%),
+    radial-gradient(ellipse at 50% 88%, rgba(34, 211, 238, 0.075), transparent 56%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(2, 6, 23, 0.14)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(103, 232, 249, 0.08),
+    inset 0 20px 54px rgba(255, 255, 255, 0.035);
 }
 
 .home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .modal-taiji-button {
@@ -19786,14 +19842,17 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
     inset 10px 12px 20px rgba(255, 255, 255, 0.12),
     inset -12px -16px 26px rgba(0, 0, 0, 0.38),
     0 14px 24px rgba(0, 0, 0, 0.14),
-    0 0 56px rgba(255, 247, 205, 0.36) !important;
+    0 0 56px rgba(255, 247, 205, 0.36),
+    0 0 0 9px rgba(103, 232, 249, 0.035) !important;
 }
 
 .home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-clean-three-act-button {
   overflow: hidden !important;
   isolation: isolate;
   border-radius: 999px !important;
+  perspective: 920px;
   transform: translateZ(0);
+  transform-style: preserve-3d;
 }
 
 .taiji-clean-act {
@@ -19804,24 +19863,55 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 }
 
 .taiji-clean-act--core {
-  z-index: 1;
+  z-index: 2;
   background:
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 238, 0.5) 0 8%, rgba(255, 247, 205, 0.2) 20%, transparent 38%),
-    radial-gradient(circle at 50% 50%, transparent 0 33%, rgba(255, 247, 205, 0.24) 34% 35%, transparent 43%);
-  filter: blur(0.8px);
-  opacity: 0.72;
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 238, 0.72) 0 11%, rgba(255, 247, 205, 0.34) 24%, transparent 42%),
+    radial-gradient(circle at 50% 50%, transparent 0 38%, rgba(255, 247, 205, 0.42) 39% 40%, transparent 49%);
+  filter: blur(0.55px);
+  opacity: 0.96;
   animation: taiji-clean-core-breath 8.8s ease-in-out infinite;
 }
 
 .taiji-clean-act--stars {
-  z-index: 4;
-  inset: 3%;
+  z-index: 3;
+  inset: 4%;
   background:
-    radial-gradient(circle at 50% 50%, transparent 0 47%, rgba(255, 247, 205, 0.22) 48%, transparent 51%),
-    radial-gradient(circle at 50% 50%, rgba(255, 252, 225, 0.06), transparent 58%);
-  opacity: 0.98;
+    radial-gradient(circle at 50% 50%, transparent 0 42%, rgba(255, 247, 205, 0.08) 43%, transparent 46%),
+    radial-gradient(circle at 50% 50%, transparent 0 56%, rgba(255, 247, 205, 0.16) 57%, transparent 60%);
+  opacity: 0.7;
   perspective: 760px;
   transform-style: preserve-3d;
+}
+
+.taiji-clean-act--stars::before,
+.taiji-clean-act--stars::after {
+  content: "";
+  position: absolute;
+  inset: 10%;
+  border-radius: 999px;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.taiji-clean-act--stars::before {
+  background:
+    conic-gradient(from 14deg, transparent 0 8%, rgba(255, 247, 205, 0.12) 9%, transparent 14%, rgba(187, 247, 208, 0.1) 23%, transparent 30%, rgba(186, 230, 253, 0.1) 43%, transparent 50%, rgba(221, 214, 254, 0.1) 63%, transparent 71%, rgba(253, 186, 116, 0.1) 83%, transparent 93%),
+    radial-gradient(circle at 50% 50%, transparent 0 36%, rgba(255, 247, 205, 0.1) 37% 38%, transparent 42%);
+  filter: blur(0.35px);
+  opacity: 0.46;
+  transform: rotateX(61deg) translateZ(4px);
+  animation: taiji-five-element-energy-return 8.6s ease-in-out infinite;
+}
+
+.taiji-clean-act--stars::after {
+  inset: 28%;
+  border: 1px solid rgba(255, 247, 205, 0.28);
+  box-shadow:
+    0 0 16px rgba(255, 247, 205, 0.16),
+    inset 0 0 18px rgba(255, 247, 205, 0.12);
+  opacity: 0.5;
+  transform: translateZ(14px);
+  animation: taiji-core-magnet-ring 6.8s ease-in-out infinite;
 }
 
 .taiji-clean-five-element-orbit {
@@ -19829,7 +19919,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   inset: 1%;
   border-radius: inherit;
   transform-style: preserve-3d;
-  animation: taiji-clean-five-stars-3d 14s linear infinite;
+  animation: taiji-clean-five-stars-3d 16s linear infinite;
 }
 
 .taiji-clean-five-element-orbit::before,
@@ -19842,22 +19932,22 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 }
 
 .taiji-clean-five-element-orbit::before {
-  border: 1px solid rgba(255, 247, 205, 0.34);
+  border: 1px solid rgba(255, 247, 205, 0.18);
   box-shadow:
-    inset 0 0 20px rgba(255, 247, 205, 0.14),
-    0 0 24px rgba(255, 247, 205, 0.18);
+    inset 0 0 16px rgba(255, 247, 205, 0.08),
+    0 0 18px rgba(255, 247, 205, 0.1);
   transform: rotateX(64deg) rotateZ(-12deg);
 }
 
 .taiji-clean-five-element-orbit::after {
   inset: 17%;
-  border: 1px solid rgba(186, 230, 253, 0.14);
+  border: 1px solid rgba(186, 230, 253, 0.08);
   transform: rotateX(68deg) rotateZ(28deg);
   filter: blur(0.2px);
 }
 
 .taiji-clean-five-element-planet {
-  --planet-size: clamp(1.12rem, 2.3vw, 1.46rem);
+  --planet-size: clamp(0.72rem, 1.58vw, 0.96rem);
   --planet-color: rgba(255, 247, 205, 0.94);
   --planet-shadow: rgba(255, 247, 205, 0.32);
   position: absolute;
@@ -19869,9 +19959,9 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   border-radius: 999px;
   transform:
     rotate(var(--planet-angle))
-    translateX(clamp(5.65rem, 18vw, 7rem))
+    translateX(clamp(6.45rem, 19.8vw, 7.75rem))
     rotate(calc(-1 * var(--planet-angle)))
-    translateZ(34px);
+    translateZ(2px);
   transform-style: preserve-3d;
   will-change: transform;
 }
@@ -19890,9 +19980,10 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   box-shadow:
     inset 4px 5px 7px rgba(255, 255, 255, 0.46),
     inset -5px -7px 10px rgba(0, 0, 0, 0.44),
-    0 0 20px var(--planet-shadow),
-    0 10px 18px rgba(0, 0, 0, 0.36);
-  transform: translateZ(30px);
+    0 0 12px var(--planet-shadow),
+    0 8px 14px rgba(0, 0, 0, 0.28);
+  opacity: 0.74;
+  transform: translateZ(6px);
   transform-style: preserve-3d;
 }
 
@@ -19913,13 +20004,13 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   inset: -52%;
   border-radius: inherit;
   background: radial-gradient(circle, var(--planet-shadow), transparent 64%);
-  opacity: 0.42;
+  opacity: 0.28;
   filter: blur(2px);
   z-index: -1;
 }
 
 .taiji-clean-five-element-planet--space {
-  --planet-size: clamp(1.32rem, 2.55vw, 1.6rem);
+  --planet-size: clamp(0.82rem, 1.75vw, 1.08rem);
   --planet-color: rgba(221, 214, 254, 0.96);
   --planet-shadow: rgba(221, 214, 254, 0.38);
 }
@@ -19946,15 +20037,16 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 
 .taiji-clean-act--space {
   z-index: 0;
-  inset: 49% 0% 2%;
+  inset: 43% -3% 0%;
   border-radius: 999px;
   background:
-    repeating-radial-gradient(ellipse at 50% 6%, rgba(255, 247, 205, 0.14) 0 1px, transparent 2px 17px),
-    linear-gradient(90deg, transparent, rgba(255, 252, 225, 0.28), rgba(187, 247, 208, 0.14), transparent),
-    radial-gradient(ellipse at 50% 8%, rgba(255, 252, 225, 0.24), transparent 64%);
-  filter: blur(1.1px);
-  opacity: 0.86;
-  transform: perspective(520px) rotateX(68deg) scaleX(0.92);
+    repeating-radial-gradient(ellipse at 50% 6%, rgba(255, 247, 205, 0.18) 0 1px, transparent 2px 16px),
+    linear-gradient(90deg, transparent, rgba(255, 252, 225, 0.34), rgba(187, 247, 208, 0.16), transparent),
+    radial-gradient(ellipse at 50% 8%, rgba(255, 252, 225, 0.34), transparent 66%),
+    radial-gradient(ellipse at 50% 64%, rgba(2, 6, 23, 0.54), transparent 70%);
+  filter: blur(0.9px);
+  opacity: 0.58;
+  transform: perspective(620px) rotateX(72deg) scaleX(0.98) translateZ(-112px);
   animation: taiji-clean-space-path 10s ease-in-out infinite;
 }
 
@@ -19968,34 +20060,67 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 }
 
 .taiji-clean-act--space::before {
-  border-top: 1px solid rgba(255, 247, 205, 0.26);
+  border-top: 1px solid rgba(255, 247, 205, 0.24);
   box-shadow:
-    0 -12px 26px rgba(255, 247, 205, 0.1),
-    inset 0 18px 34px rgba(186, 230, 253, 0.08);
+    0 -12px 28px rgba(255, 247, 205, 0.1),
+    inset 0 18px 34px rgba(186, 230, 253, 0.07);
 }
 
 .taiji-clean-act--space::after {
-  inset: 26% 18% 12%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
-  filter: blur(3px);
-  opacity: 0.58;
+  inset: 20% 10% 2%;
+  background:
+    radial-gradient(ellipse at 50% 10%, rgba(255, 247, 205, 0.28), transparent 38%),
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  filter: blur(3.5px);
+  opacity: 0.44;
 }
 
 .taiji-clean-core-shell {
   position: absolute;
-  z-index: 5;
-  inset: 29%;
+  z-index: 9;
+  inset: 20%;
   display: grid;
   place-items: center;
   border-radius: 999px;
   background:
-    radial-gradient(circle at 42% 35%, rgba(255, 255, 255, 0.28), transparent 38%),
-    radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.34), rgba(2, 6, 23, 0.58));
+    radial-gradient(circle at 36% 26%, rgba(255, 255, 255, 0.36), transparent 32%),
+    radial-gradient(circle at 50% 50%, rgba(255, 247, 205, 0.12), transparent 48%),
+    radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.24), rgba(2, 6, 23, 0.66));
   box-shadow:
-    inset 9px 11px 17px rgba(255, 255, 255, 0.18),
-    inset -11px -13px 22px rgba(0, 0, 0, 0.46),
-    0 0 24px rgba(255, 247, 205, 0.32),
-    0 12px 28px rgba(0, 0, 0, 0.26);
+    inset 12px 14px 20px rgba(255, 255, 255, 0.28),
+    inset -14px -17px 26px rgba(0, 0, 0, 0.56),
+    0 0 44px rgba(255, 247, 205, 0.62),
+    0 0 20px rgba(103, 232, 249, 0.16),
+    0 20px 36px rgba(0, 0, 0, 0.42),
+    0 38px 58px rgba(2, 6, 23, 0.52);
+  transform: translateZ(146px) scale(1.16);
+  transform-style: preserve-3d;
+}
+
+.taiji-clean-core-shell::before,
+.taiji-clean-core-shell::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.taiji-clean-core-shell::before {
+  inset: -30%;
+  background: radial-gradient(circle, rgba(255, 247, 205, 0.42), transparent 68%);
+  filter: blur(6px);
+  opacity: 0.94;
+  transform: translateZ(-22px);
+}
+
+.taiji-clean-core-shell::after {
+  inset: -4%;
+  border: 1px solid rgba(255, 247, 205, 0.54);
+  box-shadow:
+    inset 0 0 20px rgba(255, 247, 205, 0.22),
+    0 0 26px rgba(255, 247, 205, 0.32);
+  opacity: 0.96;
+  transform: translateZ(22px);
 }
 
 .taiji-clean-core-shell .taiji-core-symbol-overlay {
@@ -20045,9 +20170,10 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 }
 
 .home-core-panel:has(.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"]) {
-  max-width: min(29rem, 100%) !important;
-  min-height: clamp(21rem, 54vw, 28rem) !important;
+  max-width: min(30rem, 100%) !important;
+  min-height: clamp(22rem, 56vw, 29rem) !important;
   padding-block: clamp(0.75rem, 2vw, 1.35rem) !important;
+  perspective: 1100px;
 }
 
 @keyframes taiji-clean-core-breath {
@@ -20067,17 +20193,30 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 }
 
 @keyframes taiji-clean-space-path {
-  0%, 100% { opacity: 0.34; transform: perspective(420px) rotateX(66deg) scaleX(0.72) translateY(5px); }
-  50% { opacity: 0.64; transform: perspective(420px) rotateX(66deg) scaleX(0.92) translateY(0); }
+  0%, 100% { opacity: 0.58; transform: perspective(620px) rotateX(70deg) scaleX(0.92) translateY(8px) translateZ(-82px); }
+  50% { opacity: 0.94; transform: perspective(620px) rotateX(70deg) scaleX(1.08) translateY(0) translateZ(-64px); }
+}
+
+@keyframes taiji-five-element-energy-return {
+  0%, 100% { opacity: 0.48; transform: rotateX(58deg) translateZ(18px) scale(0.96); }
+  50% { opacity: 0.9; transform: rotateX(58deg) translateZ(42px) scale(1.04); }
+}
+
+@keyframes taiji-core-magnet-ring {
+  0%, 100% { opacity: 0.42; transform: translateZ(36px) scale(0.9); }
+  50% { opacity: 0.86; transform: translateZ(66px) scale(1.04); }
 }
 
 @media (max-width: 430px) {
   .home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] {
-    min-height: min(22rem, 86vw) !important;
+    width: min(22rem, 100%) !important;
+    min-height: min(23rem, 92vw) !important;
+    padding: 0.7rem;
+    border-radius: 26px;
   }
 
   .home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .unified-taiji-shell {
-    min-height: min(20.5rem, 84vw) !important;
+    min-height: min(21rem, 86vw) !important;
   }
 
   .home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .modal-taiji-button {
@@ -20089,9 +20228,9 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
     --planet-size: clamp(1rem, 4vw, 1.22rem);
     transform:
       rotate(var(--planet-angle))
-      translateX(min(5.05rem, 25vw))
+      translateX(min(5.35rem, 26vw))
       rotate(calc(-1 * var(--planet-angle)))
-      translateZ(28px);
+      translateZ(42px);
   }
 
   .taiji-clean-five-element-planet__sphere {
@@ -20099,10 +20238,655 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   }
 
   .taiji-clean-core-shell {
-    inset: 30%;
+    inset: 27%;
   }
 
   .home-core-panel:has(.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"]) {
     min-height: min(22rem, 88vw) !important;
+  }
+}
+
+.home-core-panel .home-taiji-cinema.taiji-open-stage[data-taiji-performance="three-act-clean-v5"] {
+  border-color: rgba(103, 232, 249, 0.24) !important;
+  transform: translateZ(0);
+  transform-style: preserve-3d;
+}
+
+.home-core-panel .home-taiji-cinema.taiji-open-stage[data-taiji-performance="three-act-clean-v5"]::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  top: auto !important;
+  border: 0 !important;
+  border-radius: inherit !important;
+  padding: 0 !important;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 22%, transparent 76%, rgba(103, 232, 249, 0.14)),
+    linear-gradient(90deg, transparent 0 48%, rgba(103, 232, 249, 0.12) 50%, transparent 52%),
+    repeating-linear-gradient(0deg, rgba(103, 232, 249, 0.035) 0 1px, transparent 1px 18px),
+    repeating-linear-gradient(90deg, rgba(255, 247, 205, 0.025) 0 1px, transparent 1px 22px) !important;
+  box-shadow: inset 0 0 0 1px rgba(103, 232, 249, 0.12) !important;
+  filter: none !important;
+  opacity: 0.5 !important;
+  visibility: visible !important;
+  transform: none !important;
+  animation: none !important;
+  mask-image: radial-gradient(circle at 50% 46%, transparent 0 34%, black 66%);
+}
+
+.home-core-panel .home-taiji-cinema.taiji-open-stage[data-taiji-performance="three-act-clean-v5"]::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: auto 7% 5% !important;
+  z-index: 0 !important;
+  display: block !important;
+  width: auto !important;
+  height: 28% !important;
+  border-radius: 999px !important;
+  background:
+    radial-gradient(ellipse at 50% 8%, rgba(255, 247, 205, 0.24), transparent 42%),
+    linear-gradient(90deg, transparent, rgba(103, 232, 249, 0.18), rgba(255, 247, 205, 0.12), transparent) !important;
+  filter: blur(1.4px) !important;
+  opacity: 0.56 !important;
+  visibility: visible !important;
+  transform: perspective(520px) rotateX(68deg) !important;
+  animation: none !important;
+}
+
+/* Taiji three-act depth V6: crisp 3D hierarchy. */
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] {
+  position: relative;
+  overflow: visible;
+  width: min(31rem, 100%) !important;
+  min-height: clamp(23rem, 59vw, 30rem) !important;
+  padding: clamp(0.75rem, 2vw, 1.05rem) !important;
+  border: 1px solid rgba(103, 232, 249, 0.34) !important;
+  border-radius: 30px !important;
+  isolation: isolate;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+  backdrop-filter: blur(12px) saturate(1.18);
+  background:
+    linear-gradient(145deg, rgba(5, 10, 24, 0.9), rgba(12, 18, 34, 0.72) 48%, rgba(3, 8, 18, 0.94)),
+    radial-gradient(circle at 50% 36%, rgba(255, 247, 205, 0.12), transparent 34%),
+    radial-gradient(circle at 50% 78%, rgba(34, 211, 238, 0.16), transparent 48%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 0 0 1px rgba(255, 247, 205, 0.06),
+    0 24px 74px rgba(2, 6, 23, 0.56),
+    0 0 0 1px rgba(103, 232, 249, 0.05),
+    0 0 52px rgba(34, 211, 238, 0.16) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"]::before,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"]::after {
+  content: "" !important;
+  position: absolute !important;
+  display: block !important;
+  pointer-events: none;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"]::before {
+  inset: 0 !important;
+  z-index: 0 !important;
+  border-radius: inherit !important;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 18%, transparent 78%, rgba(103, 232, 249, 0.18)),
+    linear-gradient(90deg, transparent 0 47%, rgba(103, 232, 249, 0.16) 50%, transparent 53%),
+    repeating-linear-gradient(0deg, rgba(103, 232, 249, 0.055) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(90deg, rgba(255, 247, 205, 0.04) 0 1px, transparent 1px 24px) !important;
+  opacity: 0.62 !important;
+  mask-image: radial-gradient(circle at 50% 45%, transparent 0 30%, black 62%);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"]::after {
+  inset: auto 6% 5% !important;
+  z-index: 0 !important;
+  height: 31% !important;
+  border-radius: 999px !important;
+  background:
+    repeating-radial-gradient(ellipse at 50% 4%, rgba(103, 232, 249, 0.2) 0 1px, transparent 1px 14px),
+    linear-gradient(90deg, transparent, rgba(103, 232, 249, 0.24), rgba(255, 247, 205, 0.16), transparent) !important;
+  filter: none !important;
+  opacity: 0.74 !important;
+  transform: perspective(620px) rotateX(70deg) translateZ(-120px) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] > * {
+  position: relative;
+  z-index: 1;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-kindness-screen {
+  inset: 6% !important;
+  z-index: 0;
+  border-radius: 24px !important;
+  opacity: 0.95 !important;
+  mix-blend-mode: normal !important;
+  background:
+    linear-gradient(180deg, rgba(103, 232, 249, 0.08), transparent 34%),
+    radial-gradient(circle at 50% 40%, rgba(255, 247, 205, 0.18), transparent 30%),
+    linear-gradient(180deg, transparent 0 56%, rgba(34, 211, 238, 0.12) 76%, rgba(2, 6, 23, 0.16) 100%) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-kindness-screen__act-core {
+  opacity: 0.74;
+  filter: none;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 247, 205, 0.34) 0 10%, transparent 29%),
+    radial-gradient(circle at 50% 42%, transparent 0 34%, rgba(255, 247, 205, 0.22) 35% 36%, transparent 43%);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-kindness-screen__act-stars {
+  inset: 17%;
+  opacity: 0.9;
+  filter: none;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 247, 205, 0.62) 0 2px, transparent 4px),
+    radial-gradient(circle at 95% 36%, rgba(253, 186, 116, 0.5) 0 2px, transparent 5px),
+    radial-gradient(circle at 78% 98%, rgba(103, 232, 249, 0.5) 0 2px, transparent 5px),
+    radial-gradient(circle at 22% 98%, rgba(187, 247, 208, 0.46) 0 2px, transparent 5px),
+    radial-gradient(circle at 5% 36%, rgba(221, 214, 254, 0.5) 0 2px, transparent 5px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-kindness-screen__act-space {
+  inset: 58% 4% 7%;
+  border-radius: 999px;
+  opacity: 0.72;
+  filter: none;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 13px, rgba(103, 232, 249, 0.16) 14px 15px),
+    repeating-radial-gradient(ellipse at 50% 0%, rgba(255, 247, 205, 0.18) 0 1px, transparent 1px 18px),
+    linear-gradient(90deg, transparent, rgba(103, 232, 249, 0.18), rgba(255, 247, 205, 0.12), transparent);
+  transform: perspective(560px) rotateX(68deg) scaleX(1.06) translateZ(-90px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .unified-taiji-shell {
+  position: relative;
+  z-index: 2;
+  min-height: clamp(20rem, 58vw, 26rem) !important;
+  padding: 0 !important;
+  perspective: 1300px;
+  transform-style: preserve-3d;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .unified-taiji-shell--three-act-clean {
+  display: grid !important;
+  place-items: center !important;
+  min-height: clamp(19rem, 55vw, 25rem) !important;
+  border-radius: 25px;
+  transform-style: preserve-3d;
+  background:
+    radial-gradient(circle at 50% 37%, rgba(255, 247, 205, 0.08), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(2, 6, 23, 0.2)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(103, 232, 249, 0.12),
+    inset 0 -32px 60px rgba(2, 6, 23, 0.28),
+    0 18px 38px rgba(2, 6, 23, 0.28);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .unified-taiji-shell--three-act-clean::before,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .unified-taiji-shell--three-act-clean::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .unified-taiji-shell--three-act-clean::before {
+  inset: 56% 6% 7%;
+  left: auto !important;
+  top: auto !important;
+  z-index: 2;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 18px, rgba(103, 232, 249, 0.18) 19px 20px),
+    repeating-radial-gradient(ellipse at 50% 0%, rgba(103, 232, 249, 0.34) 0 1px, transparent 1px 13px),
+    radial-gradient(ellipse at 50% 5%, rgba(255, 247, 205, 0.22), transparent 50%);
+  opacity: 0.78 !important;
+  filter: none !important;
+  transform: perspective(720px) rotateX(70deg) translateZ(-190px) scaleX(1.18) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .unified-taiji-shell--three-act-clean::after {
+  inset: 18% 10% 18%;
+  left: auto !important;
+  top: auto !important;
+  z-index: 9;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 4%, rgba(255, 247, 205, 0.9) 0 5px, rgba(255, 247, 205, 0.26) 6px 14px, transparent 18px),
+    radial-gradient(circle at 96% 38%, rgba(253, 186, 116, 0.92) 0 6px, rgba(253, 186, 116, 0.22) 7px 17px, transparent 22px),
+    radial-gradient(circle at 78% 98%, rgba(103, 232, 249, 0.92) 0 6px, rgba(103, 232, 249, 0.22) 7px 17px, transparent 22px),
+    radial-gradient(circle at 22% 98%, rgba(187, 247, 208, 0.9) 0 6px, rgba(187, 247, 208, 0.22) 7px 17px, transparent 22px),
+    radial-gradient(circle at 4% 38%, rgba(221, 214, 254, 0.92) 0 6px, rgba(221, 214, 254, 0.22) 7px 17px, transparent 22px);
+  opacity: 0.9 !important;
+  filter: none !important;
+  transform: translateZ(88px) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .modal-taiji-button {
+  overflow: visible !important;
+  width: min(17.6rem, 72vw) !important;
+  height: min(17.6rem, 72vw) !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  perspective: 1180px !important;
+  transform-style: preserve-3d !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-three-act-button {
+  isolation: isolate;
+  border-radius: 999px !important;
+  transform: rotateX(0deg) translateZ(0);
+  transform-style: preserve-3d;
+}
+
+.taiji-depth-fixed-orbs {
+  display: none;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-depth-fixed-orbs {
+  position: absolute;
+  inset: 16% 9% 17%;
+  z-index: 11;
+  display: block;
+  pointer-events: none;
+  transform: translateZ(116px);
+  transform-style: preserve-3d;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-depth-fixed-orb {
+  --orb-color: rgba(255, 247, 205, 0.96);
+  --orb-glow: rgba(255, 247, 205, 0.44);
+  position: absolute;
+  width: clamp(1.05rem, 2.15vw, 1.35rem);
+  height: clamp(1.05rem, 2.15vw, 1.35rem);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.98) 0 14%, transparent 27%),
+    radial-gradient(circle at 70% 78%, rgba(0, 0, 0, 0.38), transparent 48%),
+    radial-gradient(circle, var(--orb-color) 0 46%, rgba(15, 23, 42, 0.38) 80%);
+  box-shadow:
+    inset 4px 5px 7px rgba(255, 255, 255, 0.5),
+    inset -6px -7px 10px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 0 22px var(--orb-glow),
+    0 14px 18px rgba(2, 6, 23, 0.58);
+  opacity: 0.98;
+  transform-style: preserve-3d;
+  animation: taiji-depth-fixed-orb-breathe 4.8s ease-in-out infinite;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-depth-fixed-orb::after {
+  content: "";
+  position: absolute;
+  inset: -70%;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(circle, var(--orb-glow), transparent 62%);
+  opacity: 0.72;
+  filter: blur(2.4px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-depth-fixed-orb--space {
+  left: 50%;
+  top: -2%;
+  --orb-color: rgba(221, 214, 254, 0.98);
+  --orb-glow: rgba(221, 214, 254, 0.48);
+  transform: translate(-50%, 0) translateZ(28px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-depth-fixed-orb--fire {
+  right: -1%;
+  top: 36%;
+  --orb-color: rgba(253, 186, 116, 0.98);
+  --orb-glow: rgba(251, 146, 60, 0.5);
+  transform: translate(0, -50%) translateZ(18px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-depth-fixed-orb--air {
+  right: 19%;
+  bottom: -2%;
+  --orb-color: rgba(186, 230, 253, 0.98);
+  --orb-glow: rgba(125, 211, 252, 0.5);
+  transform: translate(0, 0) translateZ(22px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-depth-fixed-orb--water {
+  left: 19%;
+  bottom: -2%;
+  --orb-color: rgba(103, 232, 249, 0.98);
+  --orb-glow: rgba(34, 211, 238, 0.52);
+  transform: translate(0, 0) translateZ(22px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-depth-fixed-orb--earth {
+  left: -1%;
+  top: 36%;
+  --orb-color: rgba(187, 247, 208, 0.98);
+  --orb-glow: rgba(74, 222, 128, 0.48);
+  transform: translate(0, -50%) translateZ(18px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-act--space {
+  z-index: 1;
+  inset: 52% -25% -16%;
+  border-radius: 999px;
+  opacity: 0.96;
+  filter: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(103, 232, 249, 0.24), rgba(255, 247, 205, 0.16), transparent),
+    repeating-radial-gradient(ellipse at 50% 0%, rgba(103, 232, 249, 0.42) 0 1px, transparent 1px 12px),
+    repeating-linear-gradient(90deg, transparent 0 16px, rgba(103, 232, 249, 0.28) 17px 18px),
+    radial-gradient(ellipse at 50% 6%, rgba(255, 247, 205, 0.24), transparent 46%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.02), rgba(2, 6, 23, 0.5));
+  box-shadow:
+    inset 0 10px 22px rgba(255, 255, 255, 0.08),
+    0 -8px 28px rgba(103, 232, 249, 0.16);
+  transform: perspective(860px) rotateX(70deg) translateY(3.1rem) translateZ(-210px) scaleX(1.46);
+  animation: taiji-depth-space-platform 8.4s ease-in-out infinite;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-act--space::before {
+  inset: 9% 7% 26%;
+  border-top: 2px solid rgba(255, 247, 205, 0.5);
+  border-bottom: 1px solid rgba(103, 232, 249, 0.38);
+  box-shadow:
+    0 -10px 20px rgba(255, 247, 205, 0.14),
+    inset 0 16px 24px rgba(34, 211, 238, 0.14);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-act--space::after {
+  inset: 19% 12% 10%;
+  opacity: 0.84;
+  filter: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.34), transparent),
+    radial-gradient(ellipse at 50% 8%, rgba(255, 247, 205, 0.22), transparent 44%);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-act--stars {
+  z-index: 10;
+  inset: -11%;
+  opacity: 1;
+  perspective: 960px;
+  background:
+    radial-gradient(circle at 50% 3%, rgba(255, 247, 205, 0.96) 0 8px, rgba(255, 247, 205, 0.22) 9px 21px, transparent 26px),
+    radial-gradient(circle at 96% 38%, rgba(253, 186, 116, 0.96) 0 8px, rgba(253, 186, 116, 0.22) 9px 21px, transparent 26px),
+    radial-gradient(circle at 78% 98%, rgba(103, 232, 249, 0.96) 0 8px, rgba(103, 232, 249, 0.22) 9px 21px, transparent 26px),
+    radial-gradient(circle at 22% 98%, rgba(187, 247, 208, 0.96) 0 8px, rgba(187, 247, 208, 0.22) 9px 21px, transparent 26px),
+    radial-gradient(circle at 4% 38%, rgba(221, 214, 254, 0.96) 0 8px, rgba(221, 214, 254, 0.22) 9px 21px, transparent 26px),
+    radial-gradient(circle at 50% 50%, transparent 0 48%, rgba(103, 232, 249, 0.18) 49% 50%, transparent 51%),
+    radial-gradient(circle at 50% 50%, transparent 0 62%, rgba(255, 247, 205, 0.2) 63% 64%, transparent 65%);
+  transform: translateZ(34px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-act--stars::before {
+  inset: 8%;
+  opacity: 0.76;
+  filter: none;
+  background:
+    conic-gradient(from 0deg, rgba(103, 232, 249, 0.34), transparent 9%, rgba(255, 247, 205, 0.24) 18%, transparent 29%, rgba(253, 186, 116, 0.22) 40%, transparent 52%, rgba(187, 247, 208, 0.22) 64%, transparent 76%, rgba(221, 214, 254, 0.24) 88%, rgba(103, 232, 249, 0.34)),
+    radial-gradient(circle at 50% 50%, transparent 0 39%, rgba(255, 247, 205, 0.18) 40% 41%, transparent 45%);
+  transform: rotateX(62deg) translateZ(40px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-act--stars::after {
+  inset: 28%;
+  opacity: 0.82;
+  border: 1px solid rgba(255, 247, 205, 0.5);
+  box-shadow:
+    0 0 18px rgba(255, 247, 205, 0.22),
+    0 0 34px rgba(103, 232, 249, 0.12),
+    inset 0 0 16px rgba(255, 247, 205, 0.2);
+  transform: translateZ(66px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-five-element-orbit {
+  inset: 0;
+  animation: taiji-depth-five-orbit 14s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-five-element-orbit::before {
+  inset: 10%;
+  border: 1px solid rgba(103, 232, 249, 0.32);
+  box-shadow:
+    inset 0 0 18px rgba(103, 232, 249, 0.12),
+    0 0 20px rgba(103, 232, 249, 0.16);
+  transform: rotateX(66deg) translateZ(26px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-five-element-orbit::after {
+  inset: 20%;
+  border: 1px solid rgba(255, 247, 205, 0.3);
+  filter: none;
+  transform: rotateX(58deg) translateZ(58px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-five-element-planet {
+  --planet-size: clamp(1.18rem, 2.35vw, 1.48rem);
+  transform:
+    rotate(var(--planet-angle))
+    translateX(clamp(8.05rem, 23.1vw, 9.6rem))
+    rotate(calc(-1 * var(--planet-angle)))
+    translateZ(112px);
+  z-index: 2;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-five-element-planet__sphere {
+  opacity: 1;
+  border-color: rgba(255, 255, 255, 0.48);
+  filter: saturate(1.16) contrast(1.08);
+  box-shadow:
+    inset 4px 5px 7px rgba(255, 255, 255, 0.58),
+    inset -6px -8px 10px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.22),
+    0 0 22px var(--planet-shadow),
+    0 14px 20px rgba(2, 6, 23, 0.64);
+  transform: translateZ(34px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-five-element-planet__sphere::after {
+  inset: -70%;
+  opacity: 0.72;
+  filter: blur(2.4px);
+  background: radial-gradient(circle, var(--planet-shadow), transparent 62%);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-act--core {
+  z-index: 7;
+  opacity: 1;
+  filter: none;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 238, 0.72) 0 13%, rgba(255, 247, 205, 0.28) 25%, transparent 41%),
+    radial-gradient(circle at 50% 50%, transparent 0 35%, rgba(255, 247, 205, 0.72) 36% 38%, transparent 46%),
+    radial-gradient(circle at 50% 50%, transparent 0 49%, rgba(103, 232, 249, 0.26) 50% 51%, transparent 54%);
+  transform: translateZ(126px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell {
+  z-index: 14;
+  inset: 21%;
+  background:
+    radial-gradient(circle at 33% 23%, rgba(255, 255, 255, 0.74), transparent 25%),
+    radial-gradient(circle at 50% 50%, rgba(255, 247, 205, 0.28), transparent 45%),
+    linear-gradient(145deg, rgba(255, 255, 238, 0.22), rgba(15, 23, 42, 0.32) 52%, rgba(2, 6, 23, 0.84));
+  box-shadow:
+    inset 13px 15px 19px rgba(255, 255, 255, 0.42),
+    inset -17px -21px 30px rgba(0, 0, 0, 0.66),
+    0 0 0 3px rgba(255, 247, 205, 0.54),
+    0 0 34px rgba(255, 247, 205, 0.72),
+    0 0 22px rgba(103, 232, 249, 0.24),
+    0 26px 38px rgba(2, 6, 23, 0.62),
+    0 48px 68px rgba(2, 6, 23, 0.72);
+  transform: translateZ(230px) scale(1.12);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell::before {
+  inset: -28%;
+  opacity: 1;
+  filter: none;
+  background:
+    radial-gradient(circle, rgba(255, 247, 205, 0.48), transparent 60%),
+    radial-gradient(circle, transparent 0 62%, rgba(103, 232, 249, 0.28) 63% 65%, transparent 69%);
+  transform: translateZ(-40px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell::after {
+  inset: -6%;
+  opacity: 1;
+  border: 2px solid rgba(255, 247, 205, 0.82);
+  box-shadow:
+    inset 0 0 20px rgba(255, 247, 205, 0.36),
+    0 0 28px rgba(255, 247, 205, 0.42),
+    0 0 14px rgba(255, 255, 255, 0.18);
+  transform: translateZ(44px);
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell .taiji-core-symbol-overlay {
+  opacity: 1;
+  filter: saturate(1.08) contrast(1.2) brightness(1.22) drop-shadow(0 0 14px rgba(255, 247, 205, 0.36));
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .modal-taiji-orbit-emblem {
+  filter: saturate(0.95) contrast(1.04) brightness(1.1) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-stage-bagua-field,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-kindness-aura,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-light-orbit,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-cinema-star-field,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-gold-waves,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-celestial-mist,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-second-space-plane,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-cinema-space-field,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .modal-evolution-flare,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .modal-evolution-scan,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .modal-evolution-rays,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .modal-evolution-orbit,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .unified-evolution-screen,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .unified-evolution-pulse,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .unified-bagua-mandala,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-premium-energy-grid,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-premium-segment-ticks,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-premium-orbital-rim {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.home-hero-stage--taiji-only:has(.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"]) {
+  min-height: clamp(23rem, 60vh, 31rem) !important;
+}
+
+.home-core-panel:has(.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"]) {
+  max-width: min(31rem, 100%) !important;
+  min-height: clamp(23rem, 57vw, 30rem) !important;
+  padding-block: clamp(0.75rem, 2vw, 1.35rem) !important;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+}
+
+.home-core-panel .home-taiji-cinema.taiji-open-stage[data-taiji-performance="three-act-depth-v6"]::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  top: auto !important;
+  border-radius: inherit !important;
+  opacity: 0.62 !important;
+  visibility: visible !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+.home-core-panel .home-taiji-cinema.taiji-open-stage[data-taiji-performance="three-act-depth-v6"]::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: auto 6% 5% !important;
+  z-index: 0 !important;
+  display: block !important;
+  width: auto !important;
+  height: 31% !important;
+  opacity: 0.74 !important;
+  visibility: visible !important;
+  transform: perspective(620px) rotateX(70deg) translateZ(-120px) !important;
+  animation: none !important;
+}
+
+@keyframes taiji-depth-five-orbit {
+  0% { transform: rotateZ(0deg) rotateX(0deg) translateZ(46px); }
+  50% { transform: rotateZ(180deg) rotateX(5deg) translateZ(76px); }
+  100% { transform: rotateZ(360deg) rotateX(0deg) translateZ(46px); }
+}
+
+@keyframes taiji-depth-space-platform {
+  0%, 100% {
+    opacity: 0.82;
+    transform: perspective(860px) rotateX(70deg) translateY(3.25rem) translateZ(-225px) scaleX(1.36);
+  }
+  50% {
+    opacity: 1;
+    transform: perspective(860px) rotateX(70deg) translateY(2.8rem) translateZ(-185px) scaleX(1.52);
+  }
+}
+
+@keyframes taiji-depth-fixed-orb-breathe {
+  0%, 100% { opacity: 0.82; filter: saturate(1.02) brightness(0.96); }
+  50% { opacity: 1; filter: saturate(1.2) brightness(1.12); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] {
+    width: min(22.5rem, 100%) !important;
+    min-height: min(23.5rem, 94vw) !important;
+    padding: 0.72rem !important;
+    border-radius: 26px !important;
+  }
+
+  .home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .unified-taiji-shell {
+    min-height: min(21.5rem, 88vw) !important;
+  }
+
+  .home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .modal-taiji-button {
+    width: min(15.8rem, 74vw) !important;
+    height: min(15.8rem, 74vw) !important;
+  }
+
+  .home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-five-element-planet {
+    --planet-size: clamp(1rem, 4.2vw, 1.22rem);
+    transform:
+      rotate(var(--planet-angle))
+      translateX(min(6.15rem, 29vw))
+      rotate(calc(-1 * var(--planet-angle)))
+      translateZ(92px);
+  }
+
+  .home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell {
+    inset: 17%;
+    transform: translateZ(190px) scale(1.16);
+  }
+
+  .home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-depth-fixed-orbs {
+    inset: 15% 7% 16%;
+  }
+
+  .home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-depth-fixed-orb {
+    width: clamp(1rem, 4.4vw, 1.24rem);
+    height: clamp(1rem, 4.4vw, 1.24rem);
   }
 }

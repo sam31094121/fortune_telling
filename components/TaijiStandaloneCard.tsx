@@ -55,8 +55,8 @@ export default function TaijiStandaloneCard({
       className={cardClassName}
       data-taiji-material-layers={showThreeLayerMaterial ? TAIJI_THREE_LAYER_MATERIAL.length : undefined}
       data-taiji-material-signature={materialSignature}
-      data-taiji-kindness="three-act-clean-v5"
-      data-taiji-performance="three-act-clean-v5"
+      data-taiji-kindness="three-act-depth-v6"
+      data-taiji-performance="three-act-depth-v6"
     >
       <div className="taiji-kindness-screen" aria-hidden="true">
         <span className="taiji-kindness-screen__act taiji-kindness-screen__act-core" />

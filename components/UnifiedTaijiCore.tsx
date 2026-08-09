@@ -80,6 +80,7 @@ export default function UnifiedTaijiCore({
   const mantraTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchPulseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingEvolutionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const continuationCueTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTouchTriggerRef = useRef(0);
   const cinemaLockedRef = useRef(false);
   const liangyiSpinClickLockRef = useRef(0);
@@ -138,6 +139,7 @@ export default function UnifiedTaijiCore({
       if (!ctx) return;
       const now = ctx.currentTime;
       const { frequency, pulseHz } = getTaijiTapTone(nextTapCount);
+      const { frequency: nextFrequency } = getTaijiTapTone(nextTapCount + 1);
       const elementIndex = (Math.max(1, nextTapCount) - 1) % 5;
       const cycleIndex = Math.floor((Math.max(1, nextTapCount) - 1) / 5);
       const fifthFrequency = frequency * 1.498;
@@ -214,6 +216,7 @@ export default function UnifiedTaijiCore({
       createVoice(fifthFrequency, 0.18, duration * 0.72, elementIndex === 1 ? 'triangle' : 'sine', 0.026);
       createVoice(octaveFrequency, 0.1, 0.42, 'triangle', 0.012);
       createVoice(frequency / 2, 0.22, duration + 0.25, 'sine', 0.018);
+      createVoice(nextFrequency, 0.075, 0.48, 'sine', Math.min(0.62, duration * 0.58));
 
       const pulseOsc = ctx.createOscillator();
       const pulseDepth = ctx.createGain();
@@ -229,6 +232,43 @@ export default function UnifiedTaijiCore({
       closeAudioLater(ctx, Math.ceil((duration + 0.58) * 1000));
     } catch (error) {
       console.warn('[UnifiedTaijiCore] touch tone skipped:', error);
+    }
+  };
+
+  const playContinuationCue = (nextTapCount: number) => {
+    try {
+      const ctx = createAudioContext(false);
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const { frequency } = getTaijiTapTone(nextTapCount);
+      const masterGain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(2400, now);
+      masterGain.gain.setValueAtTime(0, now);
+      masterGain.gain.linearRampToValueAtTime(0.16, now + 0.06);
+      masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
+
+      [frequency, frequency * 1.5].forEach((voiceFrequency, index) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = index === 0 ? 'sine' : 'triangle';
+        osc.frequency.setValueAtTime(voiceFrequency * 0.996, now + index * 0.08);
+        osc.frequency.exponentialRampToValueAtTime(voiceFrequency, now + 0.28 + index * 0.08);
+        gain.gain.setValueAtTime(0, now + index * 0.08);
+        gain.gain.linearRampToValueAtTime(index === 0 ? 0.62 : 0.26, now + 0.13 + index * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.86);
+        osc.connect(gain);
+        gain.connect(filter);
+        osc.start(now + index * 0.08);
+        osc.stop(now + 0.96);
+      });
+
+      filter.connect(masterGain);
+      masterGain.connect(ctx.destination);
+      closeAudioLater(ctx, 1200);
+    } catch (error) {
+      console.warn('[UnifiedTaijiCore] continuation cue skipped:', error);
     }
   };
 
@@ -387,6 +427,7 @@ export default function UnifiedTaijiCore({
     if (recenterTimerRef.current) clearTimeout(recenterTimerRef.current);
     if (evolutionTimerRef.current) clearTimeout(evolutionTimerRef.current);
     if (cinemaTimerRef.current) clearTimeout(cinemaTimerRef.current);
+    if (continuationCueTimerRef.current) clearTimeout(continuationCueTimerRef.current);
     if (liangyiReturnTimerRef.current) clearTimeout(liangyiReturnTimerRef.current);
     if (liangyiSettleTimerRef.current) clearTimeout(liangyiSettleTimerRef.current);
 
@@ -442,6 +483,11 @@ export default function UnifiedTaijiCore({
       resetCinemaAfterPlayback(shouldReturnToIdle, shouldReturnToIdle);
       cinemaTimerRef.current = null;
     }, TAIJI_CINEMA_SEGMENT_DURATION_MS);
+
+    continuationCueTimerRef.current = setTimeout(() => {
+      playContinuationCue(segment.tap + 1);
+      continuationCueTimerRef.current = null;
+    }, Math.max(900, TAIJI_CINEMA_SEGMENT_DURATION_MS - 820));
   };
 
   const triggerMantra = (level: 3 | 6 | 12 | 24) => {
@@ -560,6 +606,7 @@ export default function UnifiedTaijiCore({
     if (mantraTimerRef.current) clearTimeout(mantraTimerRef.current);
     if (touchPulseTimerRef.current) clearTimeout(touchPulseTimerRef.current);
     if (pendingEvolutionTimerRef.current) clearTimeout(pendingEvolutionTimerRef.current);
+    if (continuationCueTimerRef.current) clearTimeout(continuationCueTimerRef.current);
     audioTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     audioContextsRef.current.forEach((context) => void context.close().catch(() => {}));
     audioTimersRef.current.clear();
@@ -612,6 +659,15 @@ export default function UnifiedTaijiCore({
         data-cinema-duration-ms={TAIJI_CINEMA_SEGMENT_DURATION_MS}
         data-tap-level={luckyAuraLevel}
       >
+        <span className="taiji-depth-fixed-orbs" aria-hidden="true">
+          {CLEAN_FIVE_ELEMENT_PLANETS.map((planet, index) => (
+            <span
+              key={`depth-${planet.key}`}
+              className={`taiji-depth-fixed-orb taiji-depth-fixed-orb--${planet.className}`}
+              style={{ '--orb-index': index } as CSSProperties}
+            />
+          ))}
+        </span>
         <button
           type="button"
           onPointerUp={handlePointerUp}
