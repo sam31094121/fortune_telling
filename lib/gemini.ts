@@ -313,18 +313,18 @@ type PreferredSongLanguage = 'mandarin' | 'english' | 'taiwanese';
 const SONG_LANGUAGE_GUIDANCE: Record<PreferredSongLanguage, { label: string; prompt: string; distribution: string }> = {
   mandarin: {
     label: '國語生成',
-    prompt: '本次請以國語為主要可唱語言與副歌核心。英文只作短 Hook、音色記憶點或少量點綴；台語只作情感落點。國語是本系統主打強項，請讓歌曲最終聽感以國語流行歌為主。',
-    distribution: '國語主唱 70% · 英文 Hook 15% · 台語情感落點 15%',
+    prompt: '本次請以國語為主要可唱語言與副歌核心。英文只作短 Hook、音色記憶點或少量點綴；人層以國語故事核心句作情感落點。國語是本系統主打強項，請讓歌曲最終聽感以國語流行歌為主。',
+    distribution: '國語主唱 85% · 英文 Hook 15%',
   },
   english: {
     label: '英文生成',
-    prompt: '本次請以英文為主要可唱語言與 Hook 核心。國語只作情緒輔助與少量關鍵句；台語只作故事落點。請保留天地人人格融合，但最終聽感以英文流行歌為主。',
-    distribution: '英文主唱 70% · 國語情緒句 20% · 台語情感落點 10%',
+    prompt: '本次請以英文為主要可唱語言與 Hook 核心。國語作情緒輔助、關鍵句與人層故事落點。請保留天地人人格融合，但最終聽感以英文流行歌為主。',
+    distribution: '英文主唱 70% · 國語情緒與故事落點 30%',
   },
   taiwanese: {
-    label: '台語生成',
-    prompt: '本次請以台語為主要可唱語言與故事核心。國語只作副歌銜接與情緒輔助；英文只作短 Hook 或音色點綴。請保留天地人人格融合，但最終聽感以台語故事歌為主。',
-    distribution: '台語主唱 70% · 國語情緒句 20% · 英文 Hook 10%',
+    label: '國語生成',
+    prompt: '本次請以國語為主要可唱語言與故事核心。人層以國語故事核心句作情感落點；英文只作短 Hook 或音色點綴。請保留天地人人格融合，但最終聽感以國語故事歌為主。',
+    distribution: '國語主唱 85% · 英文 Hook 15%',
   },
 };
 
@@ -339,6 +339,7 @@ export interface MusicReportInput {
   bloodType: 'A' | 'B' | 'AB' | 'O';
   gender: 'male' | 'female';
   vocalGenderPreference?: 'male' | 'female' | null;
+  magneticVoice?: boolean;
   preferredSongLanguage?: PreferredSongLanguage;
   era: string;
   personalityMatrix: Record<string, number>;
@@ -370,7 +371,7 @@ export interface MusicReportInput {
     archetypeSecondary: string;
     oceanHighlight: string;
   };
-  // 已由大數據選歌引擎挑出的主題曲（英文 / 國語 / 台語），請 AI 說明為何對應此人
+  // 已由大數據選歌引擎挑出的主題曲（英文 / 國語 / 國語），請 AI 說明為何對應此人
   selectedSongs?: {
     english: { title: string; artist: string };
     mandarin: { title: string; artist: string };
@@ -452,7 +453,7 @@ function createLocalMusicReport(input: MusicReportInput): MusicReportOutput {
       : '',
     famous_singers_mandarin: eraData.mandarin,
     famous_singers_english: eraData.english,
-    famous_singers_taiwanese: eraData.taiwanese,
+    famous_singers_taiwanese: eraData.mandarin,
   };
 }
 
@@ -489,7 +490,7 @@ const MUSIC_REPORT_SCHEMA = {
     },
     taiwanese_song_reason: {
       type: Type.STRING,
-      description: '說明為何這首台語參考音樂適合作為人層故事與情感錨點，70字內，繁體中文。',
+      description: '說明為何這首國語參考音樂適合作為人層故事與情感錨點，70字內，繁體中文。',
     },
     famous_singers_mandarin: {
       type: Type.STRING,
@@ -501,7 +502,7 @@ const MUSIC_REPORT_SCHEMA = {
     },
     famous_singers_taiwanese: {
       type: Type.STRING,
-      description: '大數據統計學男女歌手：同風格、同年代台語知名度最高、家喻戶曉的台灣男女歌手代表，格式為："男歌手名 / 女歌手名"。',
+      description: '大數據統計學男女歌手：同風格、同年代國語知名度最高、家喻戶曉的台灣男女歌手代表，格式為："男歌手名 / 女歌手名"。',
     },
   },
   required: [
@@ -521,11 +522,13 @@ const MUSIC_REPORT_SCHEMA = {
 
 function buildMusicReportPrompt(input: MusicReportInput): string {
   const genderLabel = input.gender === 'male' ? '男性' : '女性';
-  const vocalPreferenceLabel = input.vocalGenderPreference === 'male'
-    ? '偏好男聲主唱'
-    : input.vocalGenderPreference === 'female'
-      ? '偏好女聲主唱'
-      : '未指定，請依人格音樂與曲風自動配置主唱聲線';
+  const vocalPreferenceLabel = input.magneticVoice
+    ? buildMagneticVoiceDirectiveZh(input.vocalGenderPreference)
+    : input.vocalGenderPreference === 'male'
+      ? '偏好男聲主唱'
+      : input.vocalGenderPreference === 'female'
+        ? '偏好女聲主唱'
+        : '未指定，請依人格音樂與曲風自動配置主唱聲線';
   const d = input.destinyContext;
   const p = input.psychologyContext;
   const languageGuidance = getSongLanguageGuidance(input.preferredSongLanguage);
@@ -603,7 +606,7 @@ BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
 ━━━ 大數據選歌引擎已挑出的三個參考錨點 ━━━
 天層英文音樂錨點：《${input.selectedSongs?.english.title ?? '—'}》— ${input.selectedSongs?.english.artist ?? '—'}
 地層國語情緒錨點：《${input.selectedSongs?.mandarin.title ?? '—'}》— ${input.selectedSongs?.mandarin.artist ?? '—'}
-人層台語故事錨點：《${input.selectedSongs?.taiwanese?.title ?? '—'}》— ${input.selectedSongs?.taiwanese?.artist ?? '—'}
+人層國語故事錨點：《${input.selectedSongs?.taiwanese?.title ?? '—'}》— ${input.selectedSongs?.taiwanese?.artist ?? '—'}
 （這三個只是資料庫參考錨點，不是要生成三首歌；請勿更換歌曲，只需說明為何契合各素材層。）
 
 請輸出 JSON，欄位為：
@@ -614,10 +617,10 @@ BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
 - wisdom_note：以善念、因果、命運為核心的結語，80字內
 - english_song_reason：為何上方英文錨點適合作為天層音樂格局，70字內
 - mandarin_song_reason：為何上方國語錨點適合作為地層情緒與唱腔，70字內
-- taiwanese_song_reason：為何上方台語錨點適合作為人層故事與情感，70字內
+- taiwanese_song_reason：為何上方國語錨點適合作為人層故事與情感，70字內
 - famous_singers_mandarin：大數據同年代、同風格(如Pop/R&B/Rock等)之華語流行乐坛知名度最高、最具代表性的男女歌手代表，例如："周杰倫 / 蔡依林" 或 "張學友 / 王菲"
 - famous_singers_english：大數據同年代、同風格英文最知名、最具代表性的全球男女歌手/樂團代表，例如："Michael Jackson / Taylor Swift"
-- famous_singers_taiwanese：大數據同年代、同風格之台語最知名、家喻戶曉的台灣男女歌手代表，例如："洪榮宏 / 江蕙"
+- famous_singers_taiwanese：大數據同年代、同風格之國語最知名、家喻戶曉的台灣男女歌手代表，例如："洪榮宏 / 江蕙"
 `.trim();
 }
 
@@ -645,10 +648,10 @@ export async function generateMusicReport(input: MusicReportInput): Promise<Musi
 
 const TIANDIREN_SONG_MATRIX_RULES = `
 天地人歌曲矩陣鐵律：
-- 最終只能生成一首「天地人人格歌曲」，不是英文歌 + 國語歌 + 台語歌硬湊。
+- 最終只能生成一首「天地人人格歌曲」，不是英文歌 + 國語歌 + 國語歌硬湊。
 - 天 35%（出生日期）：只決定英文音樂感、主旋律方向、年代感、BPM、情緒色彩、空間感；天不能寫歌詞。
 - 地 35%（血型）：只決定國語流行唱腔、節奏、鼓點、和聲、編曲厚度、副歌情緒；地不能推翻天的曲風。
-- 人 30%（姓名 + 性別 + 名字性格男/女/中性）：只決定台語歌詞語感、姓名氣質、個人故事、歌詞核心句、記憶點、情感落點；人不能亂改編曲。
+- 人 30%（姓名 + 性別 + 名字性格男/女/中性）：只決定國語歌詞語感、姓名氣質、個人故事、歌詞核心句、記憶點、情感落點；人不能亂改編曲。
 - 天只決定音樂靈魂，地只決定音樂身體，人只決定音樂故事。
 - 三者不能互相推翻，所有結果都必須進入同一個歌曲矩陣。
 - AI 不能各自生成三套最終歌曲；english / mandarin / taiwanese 欄位只是素材層，不是三首正式歌。
@@ -675,7 +678,7 @@ const SONG_DRAFT_SCHEMA_ITEM = {
   properties: {
     language_label: {
       type: Type.STRING,
-      description: '素材層標籤，例如 天層 English 音樂藍圖、地層國語唱腔、人格台語故事。',
+      description: '素材層標籤，例如 天層 English 音樂藍圖、地層國語唱腔、人格國語故事。',
     },
     title: {
       type: Type.STRING,
@@ -688,7 +691,7 @@ const SONG_DRAFT_SCHEMA_ITEM = {
     lyrics: {
       type: Type.ARRAY,
       items: { type: Type.STRING },
-      description: '素材文字，每個元素一行，6-10 行。天層不可寫完整歌詞，只能給旋律/音色/Hook 音節；地層給國語唱腔與情緒句；人層給台語歌詞核心句。',
+      description: '素材文字，每個元素一行，6-10 行。天層不可寫完整歌詞，只能給旋律/音色/Hook 音節；地層給國語唱腔與情緒句；人層給國語歌詞核心句。',
     },
     style: {
       type: Type.STRING,
@@ -750,9 +753,9 @@ function createLocalSongDrafts(input: MusicReportInput): OriginalSongDraftsOutpu
       vocal_direction: '國語主唱承接歌曲身體與副歌情緒，但不可改變天層曲風。',
     },
     taiwanese: {
-      language_label: '人層台語故事',
+      language_label: '人層國語故事',
       title: '心內彼句話',
-      concept: `人層由${input.name}與性別氣質決定台語歌詞語感、個人故事、記憶點與情感落點。`,
+      concept: `人層由${input.name}與性別氣質決定國語歌詞語感、個人故事、記憶點與情感落點。`,
       lyrics: [
         '[人層核心句]',
         '風若吹過阮的名 心內有光袂孤單',
@@ -762,18 +765,20 @@ function createLocalSongDrafts(input: MusicReportInput): OriginalSongDraftsOutpu
         '命運的路 慢慢行嘛會到岸',
       ],
       style: baseStyle,
-      vocal_direction: '台語只負責人格故事與情感落點，不亂改旋律與編曲。',
+      vocal_direction: '國語只負責人格故事與情感落點，不亂改旋律與編曲。',
     },
   };
 }
 
 function buildSongDraftsPrompt(input: MusicReportInput): string {
   const genderLabel = input.gender === 'male' ? '男性' : '女性';
-  const vocalPreferenceLabel = input.vocalGenderPreference === 'male'
-    ? '偏好男聲主唱'
-    : input.vocalGenderPreference === 'female'
-      ? '偏好女聲主唱'
-      : '未指定，請依人格音樂與曲風自動配置主唱聲線';
+  const vocalPreferenceLabel = input.magneticVoice
+    ? buildMagneticVoiceDirectiveZh(input.vocalGenderPreference)
+    : input.vocalGenderPreference === 'male'
+      ? '偏好男聲主唱'
+      : input.vocalGenderPreference === 'female'
+        ? '偏好女聲主唱'
+        : '未指定，請依人格音樂與曲風自動配置主唱聲線';
   const d = input.destinyContext;
   const languageGuidance = getSongLanguageGuidance(input.preferredSongLanguage);
   const languageInstructionBlock = `歌曲語言主軸：${languageGuidance.label}
@@ -836,18 +841,18 @@ BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
 ━━━ 參考曲（只作情緒錨點，不可模仿）━━━
 英文參考：《${input.selectedSongs?.english.title ?? '—'}》— ${input.selectedSongs?.english.artist ?? '—'}
 國語參考：《${input.selectedSongs?.mandarin.title ?? '—'}》— ${input.selectedSongs?.mandarin.artist ?? '—'}
-台語參考：《${input.selectedSongs?.taiwanese?.title ?? '—'}》— ${input.selectedSongs?.taiwanese?.artist ?? '—'}
+國語參考：《${input.selectedSongs?.taiwanese?.title ?? '—'}》— ${input.selectedSongs?.taiwanese?.artist ?? '—'}
 
 請輸出 JSON：
 - english：天層素材（英文音樂格局、主旋律方向、年代感、BPM、情緒色彩、空間感；不可寫完整歌詞）
 - mandarin：地層素材（國語唱腔、節奏、鼓點、和聲、編曲厚度、副歌情緒；不可推翻天層曲風）
-- taiwanese：人層素材（台語歌詞語感、姓名氣質、個人故事、核心句、記憶點、情感落點；不可亂改編曲）
+- taiwanese：人層素材（國語歌詞語感、姓名氣質、個人故事、核心句、記憶點、情感落點；不可亂改編曲）
 
 每個素材層包含：
 - language_label
 - title
 - concept
-- lyrics：6-10 行素材文字；天層不可寫完整歌詞，地層給唱腔/節奏句，人層給台語故事核心句
+- lyrics：6-10 行素材文字；天層不可寫完整歌詞，地層給唱腔/節奏句，人層給國語故事核心句
 - style
 - vocal_direction
 `.trim();
@@ -911,6 +916,21 @@ function pickTopMatrixKeys(matrix: Record<string, number>) {
     .map(([key]) => key);
 }
 
+// 「全世界最有磁性的聲音」聲線指令：男/女可選，導向深情、催淚、起雞皮疙瘩的主唱
+function magneticVoiceGenderZh(pref?: 'male' | 'female' | null) {
+  return pref === 'male' ? '男聲' : pref === 'female' ? '女聲' : '主唱';
+}
+
+function buildMagneticVoiceDirectiveZh(pref?: 'male' | 'female' | null): string {
+  const g = magneticVoiceGenderZh(pref);
+  return `【全世界最有磁性的聲音 · ${g}】極致深情、溫暖又穿透的${g}，帶氣息與胸腔共鳴的低音磁性，親密到像貼耳吟唱；情緒層層堆疊，副歌讓人起雞皮疙瘩、甚至落淚；咬字真摯，尾音帶一點顫抖與哽咽，像只對你一個人訴說。`;
+}
+
+function buildMagneticVoiceDirectiveEn(pref?: 'male' | 'female' | null): string {
+  const g = pref === 'male' ? 'male ' : pref === 'female' ? 'female ' : '';
+  return `The world's most magnetic ${g}lead vocal: deeply emotional, warm yet penetrating, intimate close-mic breathy tone with rich chest resonance, subtle vibrato and a tear-inducing catch in the voice that builds goosebumps into the chorus; sincere and cinematic, crafted to move listeners to tears.`;
+}
+
 function describeVocalBlend(input: AiProductionPlanInput) {
   const emotion = input.personalityMatrix.emotion ?? 50;
   const creativity = input.personalityMatrix.creativity ?? 50;
@@ -921,11 +941,14 @@ function describeVocalBlend(input: AiProductionPlanInput) {
     : input.vocalGenderPreference === 'female'
       ? '女聲主唱'
       : '主唱性別由系統依人格與曲風自動配置';
+  if (input.magneticVoice) {
+    return `${buildMagneticVoiceDirectiveZh(input.vocalGenderPreference)} 全程以此聲線為主唱核心，副歌再加寬和聲把情緒推到最高點。`;
+  }
   const blend = emotion >= 75 || attachment >= 75
     ? '深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。'
     : creativity >= 75
       ? '帶空氣感與穿透力的創作型主唱，橋段加入低聲呢喃與電子和聲。'
-      : '溫暖穩定的主唱，地層國語承接歌曲身體，天層英文提供空間 Hook，人層台語完成情感落點。';
+      : '溫暖穩定的主唱，地層國語承接歌曲身體，天層英文提供空間 Hook，人層國語完成情感落點。';
   return `${vocalPreference}；${blend}`;
 }
 
@@ -945,7 +968,7 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
     '主歌保留空間與故事感，副歌再把鼓組、和聲與旋律高度一起拉開，形成明顯爆發。',
     '核心 Hook 重複 2 到 3 次，但每次換一點語言、和聲或樂器，熟悉但不單調。',
     '歌詞短句優先，避免把太多文字塞進旋律，讓人可以跟著哼、跟著記。',
-    '橋段降低編曲密度，讓人層台語核心句或低聲線把情緒落地，再回到最後副歌。',
+    '橋段降低編曲密度，讓人層國語核心句或低聲線把情緒落地，再回到最後副歌。',
     '結尾保留一句最核心的人格句子，像標誌一樣留在聽眾腦中。',
   ];
   const globalTrendBlend = [
@@ -961,14 +984,14 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
     producer_summary:
       `AI 製作總監先讀取「${lifeSong?.goal ?? '療癒'}」這個當前生命目標，再把《${heavenLayerTitle}》《${earthLayerTitle}》《${humanLayerTitle}》視為天地人三個素材層，不視為三首歌，最後只整理成《${input.fusionSong.fusion_title}》這一首 AI 專屬生命歌曲。`,
     fusion_strategy:
-      `天層負責英文音樂格局、主旋律方向與空間感；地層負責國語唱腔、節奏身體與副歌情緒；人層負責台語故事核心句與情感落點。融合時不三首硬拼，而是以「${lifeSong?.theme ?? themes}」作為共同主軸。`,
+      `天層負責英文音樂格局、主旋律方向與空間感；地層負責國語唱腔、節奏身體與副歌情緒；人層負責國語故事核心句與情感落點。融合時不三首硬拼，而是以「${lifeSong?.theme ?? themes}」作為共同主軸。`,
     final_song_brief:
       `${input.musicParameters.genre} · ${input.musicParameters.bpm} BPM · ${input.musicParameters.key}，情緒走向為${mood}，創作風格鎖定${lifeSong?.creativeStyle ?? '流行'}，人格高點集中在 ${topKeys.join(' / ')}。`,
     arrangement_plan: [
       `天層前奏：${instruments.split('、')[0] ?? '鋼琴'}先建立英文音樂格局、年代感與空間感，決定歌曲靈魂。`,
       '地層主歌：國語唱腔進場，節奏、鼓點、和聲與編曲厚度承接天層曲風，不推翻原本方向。',
       '地層副歌：把旋律與鼓組推高，建立最容易記住的流行 Hook 與副歌情緒。',
-      '人層橋段：只加入台語姓名故事與核心句，讓情感落地，但不改變編曲骨架。',
+      '人層橋段：只加入國語姓名故事與核心句，讓情感落地，但不改變編曲骨架。',
       '融合收尾：由歌曲融合引擎統一收束成一首歌，保留一句人格記憶點。',
     ],
     vocal_cast: [
@@ -979,23 +1002,23 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
     lead_vocal_choice: leadVocal,
     language_distribution: `${languageGuidance.distribution}。天地人人格權重仍保留，但最終歌曲以「${languageGuidance.label}」為主要聽感。`,
     hook_design:
-      `副歌核心 Hook 以《${input.fusionSong.fusion_title}》為主題：天層給音樂記憶點，地層給國語副歌情緒，人層給一句台語人格落點。`,
+      `副歌核心 Hook 以《${input.fusionSong.fusion_title}》為主題：天層給音樂記憶點，地層給國語副歌情緒，人層給一句國語人格落點。`,
     popular_music_dna: popularMusicDna,
     global_trend_blend: globalTrendBlend,
     trend_arrangement_recipe:
-      '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層台語故事只負責情感落點；三者進同一個歌曲矩陣，不各自生成三套結果。',
+      '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層國語故事只負責情感落點；三者進同一個歌曲矩陣，不各自生成三套結果。',
     rhythm_strategy:
       '主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。',
     trend_safety_note:
       '只使用全球流行音樂的通用結構與聽感邏輯，不模仿特定歌手、特定歌曲、特定旋律或受版權保護的編曲細節。',
     hit_formula:
-      '天層英文音樂前奏 8 拍 → 地層國語主歌 16 拍 → 地層副歌情緒拉升 → 人層台語核心句落點 → 融合引擎統一輸出最終副歌與一句記憶收尾。',
+      '天層英文音樂前奏 8 拍 → 地層國語主歌 16 拍 → 地層副歌情緒拉升 → 人層國語核心句落點 → 融合引擎統一輸出最終副歌與一句記憶收尾。',
     hook_repeat_strategy:
       '核心 Hook 出現三次：第一次由天層建立旋律記憶，第二次由地層推高副歌情緒，第三次由人層核心句完成情感落點。',
     emotional_arc:
       '0-35% 天層建立音樂靈魂，35-70% 地層建立歌曲身體，70-100% 人層放入故事落點後由融合引擎收束成一首歌。',
     generation_prompt:
-      `${lifeSong ? `Life song mission: ${lifeSong.theme}. Worldview: ${lifeSong.worldView}. Scene: ${lifeSong.scene}. Growth center: ${lifeSong.growthSummary}. ` : ''}Create one original Tiandiren life song, not three separate songs. Primary song language: ${languageGuidance.label}. ${languageGuidance.prompt} Suggested language balance: ${languageGuidance.distribution}. ${input.musicParameters.genre}, ${input.musicParameters.bpm} BPM, ${input.musicParameters.key}. Mood: ${mood}. Instruments: ${instruments}. Vocal: ${leadVocal}. Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Taiwanese lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: ${themes}. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.`,
+      `${lifeSong ? `Life song mission: ${lifeSong.theme}. Worldview: ${lifeSong.worldView}. Scene: ${lifeSong.scene}. Growth center: ${lifeSong.growthSummary}. ` : ''}Create one original Tiandiren life song, not three separate songs. Primary song language: ${languageGuidance.label}. ${languageGuidance.prompt} Suggested language balance: ${languageGuidance.distribution}. ${input.musicParameters.genre}, ${input.musicParameters.bpm} BPM, ${input.musicParameters.key}. Mood: ${mood}. Instruments: ${instruments}. Vocal: ${leadVocal}.${input.magneticVoice ? ` ${buildMagneticVoiceDirectiveEn(input.vocalGenderPreference)}` : ''} Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Mandarin story lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: ${themes}. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.`,
     next_step_note:
       '下一步才接音樂/人聲生成服務；目前這一層先把製作、編曲、主唱分配與生成提示整理好，避免一次做太重造成當機。',
   };
@@ -1017,6 +1040,7 @@ export interface FusionSongInput {
   bpm?: number;
   mood?: string[];
   vocalGenderPreference?: 'male' | 'female' | null;
+  magneticVoice?: boolean;
   preferredSongLanguage?: PreferredSongLanguage;
 }
 
@@ -1036,13 +1060,13 @@ const FUSION_SONG_SCHEMA = {
     },
     fusion_concept: {
       type: Type.STRING,
-      description: '一句話說明這首歌如何用英文音樂格局、國語情緒、台語故事融合成一首歌，60 字內，繁體中文。',
+      description: '一句話說明這首歌如何用英文音樂格局、國語情緒、國語故事融合成一首歌，60 字內，繁體中文。',
     },
     fusion_lyrics: {
       type: Type.ARRAY,
       items: { type: Type.STRING },
       description:
-        '原創歌詞，以字串陣列回傳，「每個元素為一行」。段落標記（如 [主歌]、[副歌]、[橋段]）各自獨立成一個元素。以國語為主要可唱敘事，人層台語只放核心句與情感落點，天層英文只可作短 Hook 或音色記憶點。共 12-18 個元素，每行精煉。',
+        '原創歌詞，以字串陣列回傳，「每個元素為一行」。段落標記（如 [主歌]、[副歌]、[橋段]）各自獨立成一個元素。以國語為主要可唱敘事，人層國語只放核心句與情感落點，天層英文只可作短 Hook 或音色記憶點。共 12-18 個元素，每行精煉。',
     },
     fusion_style: {
       type: Type.STRING,
@@ -1068,14 +1092,14 @@ function createLocalFusionSong(input: FusionSongInput): FusionSongOutput {
       '咱的人生 家己行 嘛要勇敢行',
       '唱出命運的光',
     ],
-    fusion_style: '天層以英文音樂格局建立空間與旋律，地層以國語流行唱腔推動副歌，人層以台語核心句完成故事落點。',
+    fusion_style: '天層以英文音樂格局建立空間與旋律，地層以國語流行唱腔推動副歌，人層以國語核心句完成故事落點。',
   };
 }
 
 function buildFusionSongPrompt(input: FusionSongInput): string {
   const tw = input.taiwaneseSong
-    ? `台語素材：《${input.taiwaneseSong.title}》— ${input.taiwaneseSong.artist}`
-    : '台語素材：（無，可省略台語段落或少量點綴）';
+    ? `國語素材：《${input.taiwaneseSong.title}》— ${input.taiwaneseSong.artist}`
+    : '國語素材：（無，可省略國語段落或少量點綴）';
   const languageGuidance = getSongLanguageGuidance(input.preferredSongLanguage);
   const languageInstructionBlock = `歌曲語言主軸：${languageGuidance.label}
 語言生成規則：${languageGuidance.prompt}
@@ -1113,7 +1137,7 @@ ${TIANDIREN_SONG_MATRIX_RULES}
 1. 這是「一首歌」，不是三首拼貼；要融合貫通、自然流暢，副歌要有記憶點。
 2. 天層只給英文音樂格局、旋律方向、年代感與空間，不可寫完整歌詞。
 3. 地層只給國語唱腔、節奏、鼓點、和聲、編曲厚度與副歌情緒，不可推翻天層曲風。
-4. 人層只給台語歌詞語感、姓名故事、核心句、記憶點與情感落點，不可亂改編曲。
+4. 人層只給國語歌詞語感、姓名故事、核心句、記憶點與情感落點，不可亂改編曲。
 5. 歌詞要呼應此人的人格特質，溫暖、有畫面、不浮誇。
 6. 優先融合「AI 已生成的天地人素材層」，參考曲只作年代/情緒輔助，不可搶主導。
 7. 每次融合都要展現新的創意組合——用不同的和聲安排、不同的節奏組織、不同的故事線索。
@@ -1130,12 +1154,12 @@ ${JSON.stringify(input.personalityMatrix, null, 2)}
 
 ━━━ 音樂參數參考 ━━━
 曲風：${input.genre ?? '抒情流行'} · BPM：${input.bpm ?? 90} · 氛圍：${(input.mood ?? []).join(', ') || '溫暖、真摯'}
-主唱聲線：${input.vocalGenderPreference === 'male' ? '男聲' : input.vocalGenderPreference === 'female' ? '女聲' : '未指定，依歌曲人格自動配置'}
+主唱聲線：${input.magneticVoice ? buildMagneticVoiceDirectiveZh(input.vocalGenderPreference) : input.vocalGenderPreference === 'male' ? '男聲' : input.vocalGenderPreference === 'female' ? '女聲' : '未指定，依歌曲人格自動配置'}
 
 請輸出 JSON，欄位為：
 - fusion_title：原創歌名（繁中，4-12 字）
 - fusion_concept：一句話說明天地人如何融合成一首歌（60 字內）
-- fusion_lyrics：一首天地人人格歌曲的原創歌詞，「字串陣列」每元素一行（[主歌]/[副歌] 各自一行，12-18 行；國語為主線，英文只能短 Hook，台語作核心落點）
+- fusion_lyrics：一首天地人人格歌曲的原創歌詞，「字串陣列」每元素一行（[主歌]/[副歌] 各自一行，12-18 行；國語為主線，英文只能短 Hook，國語作核心落點）
 - fusion_style：天地人歌曲矩陣的融合曲風設定（80 字內）
 `.trim();
 }

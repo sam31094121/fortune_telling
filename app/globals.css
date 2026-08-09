@@ -20717,7 +20717,8 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 
 .home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell {
   z-index: 14;
-  inset: 21%;
+  inset: 18%;
+  overflow: visible;
   background:
     radial-gradient(circle at 33% 23%, rgba(255, 255, 255, 0.74), transparent 25%),
     radial-gradient(circle at 50% 50%, rgba(255, 247, 205, 0.28), transparent 45%),
@@ -20729,34 +20730,77 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
     0 0 34px rgba(255, 247, 205, 0.72),
     0 0 22px rgba(103, 232, 249, 0.24),
     0 26px 38px rgba(2, 6, 23, 0.62),
+    0 14px 0 rgba(7, 10, 24, 0.92),
+    0 20px 0 rgba(2, 6, 23, 0.72),
     0 48px 68px rgba(2, 6, 23, 0.72);
-  transform: translateZ(230px) scale(1.12);
+  transform: rotateX(7deg) translateZ(244px) scale(1.16);
 }
 
 .home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell::before {
-  inset: -28%;
+  inset: -10%;
   opacity: 1;
   filter: none;
   background:
-    radial-gradient(circle, rgba(255, 247, 205, 0.48), transparent 60%),
-    radial-gradient(circle, transparent 0 62%, rgba(103, 232, 249, 0.28) 63% 65%, transparent 69%);
-  transform: translateZ(-40px);
+    radial-gradient(ellipse at 50% 96%, rgba(2, 6, 23, 0.98) 0 23%, transparent 45%),
+    radial-gradient(circle, transparent 0 72%, rgba(7, 10, 24, 0.92) 73% 80%, transparent 81%),
+    radial-gradient(circle, transparent 0 60%, rgba(103, 232, 249, 0.22) 61% 63%, transparent 66%),
+    radial-gradient(circle, rgba(255, 247, 205, 0.22), transparent 68%);
+  transform: translateY(13px) translateZ(-48px) scaleY(0.98);
 }
 
 .home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell::after {
-  inset: -6%;
-  opacity: 1;
-  border: 2px solid rgba(255, 247, 205, 0.82);
+  inset: -5%;
+  z-index: 2;
+  opacity: 0.52;
+  border: 2px solid rgba(255, 247, 205, 0.88);
+  background:
+    radial-gradient(circle at 28% 18%, rgba(255, 255, 255, 0.26), transparent 16%),
+    radial-gradient(circle at 54% 38%, transparent 0 42%, rgba(255, 247, 205, 0.16) 43% 44%, transparent 48%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 38%, rgba(2, 6, 23, 0.1) 75%, transparent);
   box-shadow:
-    inset 0 0 20px rgba(255, 247, 205, 0.36),
-    0 0 28px rgba(255, 247, 205, 0.42),
-    0 0 14px rgba(255, 255, 255, 0.18);
-  transform: translateZ(44px);
+    inset 0 0 18px rgba(255, 247, 205, 0.26),
+    inset 0 -15px 18px rgba(2, 6, 23, 0.22),
+    0 0 24px rgba(255, 247, 205, 0.28),
+    0 0 16px rgba(255, 255, 255, 0.2);
+  transform: translateZ(42px);
 }
 
 .home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell .taiji-core-symbol-overlay {
-  opacity: 1;
-  filter: saturate(1.08) contrast(1.2) brightness(1.22) drop-shadow(0 0 14px rgba(255, 247, 205, 0.36));
+  position: relative;
+  z-index: 5;
+  opacity: 1 !important;
+  transform: translateZ(64px) scale(1.08) !important;
+  transform-origin: center;
+  filter:
+    saturate(1.22)
+    contrast(1.55)
+    brightness(1.22)
+    drop-shadow(0 4px 0 rgba(255, 247, 205, 0.3))
+    drop-shadow(0 18px 20px rgba(2, 6, 23, 0.76))
+    drop-shadow(0 0 10px rgba(255, 247, 205, 0.28)) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell .taiji-core-symbol-overlay g[class*="auraRings"],
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell .taiji-core-symbol-overlay g[class*="elementOrbit"],
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell .taiji-core-symbol-overlay g[class*="fourSymbols"],
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell .taiji-core-symbol-overlay g[class*="baguaGroup"] {
+  opacity: 0.08 !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell .taiji-core-symbol-overlay path[class*="fishBody"] {
+  stroke-width: 2.2px;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell .taiji-core-symbol-overlay path[class*="fishEdgeDark"],
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell .taiji-core-symbol-overlay path[class*="fishEdgeLight"],
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell .taiji-core-symbol-overlay path[class*="seamLight"] {
+  stroke-width: 4px !important;
+  opacity: 0.96 !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell .taiji-core-symbol-overlay path,
+.home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .taiji-clean-core-shell .taiji-core-symbol-overlay circle {
+  vector-effect: non-scaling-stroke;
 }
 
 .home-taiji-cinema[data-taiji-performance="three-act-depth-v6"] .modal-taiji-orbit-emblem {

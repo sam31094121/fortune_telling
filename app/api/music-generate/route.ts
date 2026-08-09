@@ -6,7 +6,6 @@ import { computeDestinyProfile } from '@/lib/destiny-engine';
 import { computeOcean, identifyArchetypes, getOceanBpmAdjust } from '@/lib/psychology-engine';
 import { selectMandarinSongs, getEraDisplayName } from '@/lib/mandarin-songs-db';
 import { selectEnglishSong } from '@/lib/english-songs-db';
-import { selectTaiwaneseSong } from '@/lib/taiwanese-songs-db';
 import { getZodiacEnglishName, getZodiacSign } from '@/lib/zodiac';
 import { isValidBirthday } from '@/lib/validation';
 import { computeShichenProfile } from '@/lib/shichen-engine';
@@ -84,6 +83,7 @@ interface MusicGenerateRequest {
   shichen?: ShichenChoice;
   voiceCharacteristics?: string[];
   vocalGenderPreference?: VocalGenderPreference;
+  magneticVoice?: boolean;
   preferredSongLanguage?: PreferredSongLanguage;
   songEnergyStyle?: SongEnergyStyle;
   voiceConsent?: VoiceConsentPayload;
@@ -372,6 +372,30 @@ function cleanCaches() {
   }
 }
 
+function countCjk(input: string) {
+  return (input.match(/[\u4e00-\u9fff]/g) ?? []).length;
+}
+
+function repairMojibakeText(input: string) {
+  if (!/[ÃÂâéèäåæçï¼ã]/.test(input)) return input;
+  try {
+    const bytes = Uint8Array.from(Array.from(input, (char) => char.charCodeAt(0) & 0xff));
+    const repaired = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+    return countCjk(repaired) > countCjk(input) ? repaired : input;
+  } catch {
+    return input;
+  }
+}
+
+function repairMojibakeDeep<T>(value: T): T {
+  if (typeof value === 'string') return repairMojibakeText(value) as T;
+  if (Array.isArray(value)) return value.map((item) => repairMojibakeDeep(item)) as T;
+  if (!value || typeof value !== 'object') return value;
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).map(([key, entry]) => [key, repairMojibakeDeep(entry)]),
+  ) as T;
+}
+
 export async function POST(request: Request) {
   const requestId = createRequestId();
   const now = Date.now();
@@ -439,6 +463,7 @@ export async function POST(request: Request) {
       shichen = null,
       voiceCharacteristics: manualVoiceCharacteristics = [],
       vocalGenderPreference = null,
+      magneticVoice = false,
       preferredSongLanguage = 'mandarin',
       songEnergyStyle = 'dance-pop',
       lifeGoal = 'healing',
@@ -523,8 +548,10 @@ export async function POST(request: Request) {
     lifeSongContext.theme,
   ])).slice(0, 8);
   const englishTrack = selectEnglishSong(era, personalityMatrix);
-  const mandarinTrack = selectMandarinSongs(era, personalityMatrix, 1)[0];
-  const taiwaneseTrack = selectTaiwaneseSong(era, personalityMatrix);
+  // 地層＝國語主歌，人層＝國語故事歌（取第二首國語歌，避免與主歌重複）；台語已移除
+  const mandarinTracks = selectMandarinSongs(era, personalityMatrix, 2);
+  const mandarinTrack = mandarinTracks[0];
+  const humanTrack = mandarinTracks[1] ?? mandarinTracks[0];
   const eraDisplayName = getEraDisplayName(era);
 
   const selectedSongsForAi = {
@@ -532,8 +559,9 @@ export async function POST(request: Request) {
     mandarin: mandarinTrack
       ? { title: mandarinTrack.title, artist: mandarinTrack.artist }
       : { title: 'N/A', artist: 'N/A' },
-    taiwanese: taiwaneseTrack
-      ? { title: taiwaneseTrack.title, artist: taiwaneseTrack.artist }
+    // 人層情感落點歌：改用國語歌（原為台語）
+    taiwanese: humanTrack
+      ? { title: humanTrack.title, artist: humanTrack.artist }
       : undefined,
   };
 
@@ -544,6 +572,7 @@ export async function POST(request: Request) {
     bloodType,
     gender,
     vocalGenderPreference,
+    magneticVoice,
     preferredSongLanguage,
     era,
     personalityMatrix: Object.fromEntries(Object.entries(personalityMatrix)) as Record<string, number>,
@@ -577,6 +606,7 @@ export async function POST(request: Request) {
     bpm: finalMusicParameters.bpm,
     mood: finalMusicParameters.mood,
     vocalGenderPreference,
+    magneticVoice,
     preferredSongLanguage,
   });
 
@@ -616,8 +646,8 @@ export async function POST(request: Request) {
       mandarin_track: mandarinTrack
         ? { title: mandarinTrack.title, artist: mandarinTrack.artist, videoId: mandarinTrack.videoId }
         : null,
-      taiwanese_track: taiwaneseTrack
-        ? { title: taiwaneseTrack.title, artist: taiwaneseTrack.artist, videoId: taiwaneseTrack.videoId }
+      taiwanese_track: humanTrack
+        ? { title: humanTrack.title, artist: humanTrack.artist, videoId: humanTrack.videoId }
         : null,
       meta: {
         eraDisplayName,
@@ -653,8 +683,9 @@ export async function POST(request: Request) {
       },
     };
 
-    responseCache.set(cacheKey, { result: resultPayload, expireTime: now + 300_000 });
-    return NextResponse.json(resultPayload);
+    const repairedResultPayload = repairMojibakeDeep(resultPayload);
+    responseCache.set(cacheKey, { result: repairedResultPayload, expireTime: now + 300_000 });
+    return NextResponse.json(repairedResultPayload);
   } catch (error) {
     console.error('[music-generate] request failed', requestId, error instanceof Error ? error.message : String(error));
     return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '\u76ee\u524d\u66ab\u6642\u7121\u6cd5\u5b8c\u6210\u6b4c\u66f2\u751f\u6210\u3002\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002\u9020\u6210\u60a8\u7684\u4e0d\u4fbf\uff0c\u656c\u8acb\u898b\u8ad2\u3002', 503);

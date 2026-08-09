@@ -835,7 +835,7 @@ const DEFAULT_POPULAR_MUSIC_DNA = [
   '主歌保留空間，副歌明顯拉高旋律、鼓組與和聲。',
   '核心 Hook 重複 2 到 3 次，每次用語言或和聲做小變化。',
   '歌詞短句優先，讓人容易跟唱與記住。',
-  '橋段降低密度，讓人層台語核心句完成情緒落點後再回副歌。',
+  '橋段降低密度，讓人層國語核心句完成情緒落點後再回副歌。',
   '結尾保留一句核心句子，形成專屬記憶點。',
 ];
 
@@ -861,13 +861,13 @@ function createRealAiServicePackage(
     ? productionPlan.global_trend_blend
     : DEFAULT_GLOBAL_TREND_BLEND;
   const trendArrangementRecipe = productionPlan.trend_arrangement_recipe ??
-    '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層台語故事只負責情感落點；三者進同一個歌曲矩陣。';
+    '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層國語故事只負責情感落點；三者進同一個歌曲矩陣。';
   const rhythmStrategy = productionPlan.rhythm_strategy ??
     '主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。';
   const trendSafetyNote = productionPlan.trend_safety_note ??
     '只使用全球流行音樂的通用結構與聽感邏輯，不模仿特定歌手、特定歌曲、特定旋律或受版權保護的編曲細節。';
   const hitFormula = productionPlan.hit_formula ??
-    '天層英文音樂前奏 → 地層國語主歌與副歌情緒 → 人層台語核心句落點 → 融合引擎輸出一首歌。';
+    '天層英文音樂前奏 → 地層國語主歌與副歌情緒 → 人層國語核心句落點 → 融合引擎輸出一首歌。';
   const hookRepeatStrategy = productionPlan.hook_repeat_strategy ??
     '核心 Hook 重複三次：天層建立旋律記憶，地層推高副歌情緒，人層完成情感落點。';
   const emotionalArc = productionPlan.emotional_arc ??
@@ -908,7 +908,7 @@ function createRealAiServicePackage(
       'Heaven intro: English music identity, airy motif, era feeling, space',
       'Earth verse: Mandarin vocal phrasing, rhythm, drums, harmony, arrangement body',
       'Earth chorus: chorus emotion and pop hook lift without overriding Heaven style',
-      'Human bridge: Taiwanese core lyric phrase and personal story landing',
+      'Human bridge: Mandarin core lyric phrase and personal story landing',
       'Fusion final chorus: one unified Tiandiren personality song',
       'Outro: keep one personal signature phrase',
     ],
@@ -916,7 +916,7 @@ function createRealAiServicePackage(
       `Arrange a complete original song titled "${fusionSong.fusion_title}". ` +
       `Style: ${musicParameters.genre}, ${musicParameters.bpm} BPM, ${musicParameters.key}. ` +
       `Mood: ${musicParameters.mood.join(', ')}. Instruments: ${musicParameters.instrument.join(', ')}. ` +
-      `The arrangement must follow one Tiandiren song matrix: Heaven 35% = English music identity, melody direction, era feeling, BPM, emotional color, and space; Earth 35% = Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Human 30% = Taiwanese lyric feeling, personal story, name temperament, core phrase, memory point, and emotional landing. ` +
+      `The arrangement must follow one Tiandiren song matrix: Heaven 35% = English music identity, melody direction, era feeling, BPM, emotional color, and space; Earth 35% = Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Human 30% = Mandarin story lyric feeling, personal story, name temperament, core phrase, memory point, and emotional landing. ` +
       `Global trend blend: ${globalTrendBlend.join(' ')} ` +
       `Trend arrangement recipe: ${trendArrangementRecipe} Rhythm strategy: ${rhythmStrategy} ` +
       `Apply popular music DNA: ${popularMusicDna.join(' ')} ` +
@@ -925,7 +925,7 @@ function createRealAiServicePackage(
     vocal_prompt:
       `${productionPlan.lead_vocal_choice} ` +
       `Lead vocal should sound emotional, intimate, natural, and singable. ` +
-      `Heaven provides the music soul, Earth provides the song body and Mandarin vocal emotion, Human provides the Taiwanese story landing. ` +
+      `Heaven provides the music soul, Earth provides the song body and Mandarin vocal emotion, Human provides the Mandarin story landing. ` +
       `Hook repeat strategy: ${hookRepeatStrategy} ` +
       `Avoid robotic delivery; use subtle breath, phrasing, and human-like dynamic changes.`,
     lyrics: cleanLyrics,
@@ -1039,11 +1039,11 @@ function IntegratedSongMaker({
     ? productionPlan.global_trend_blend
     : DEFAULT_GLOBAL_TREND_BLEND;
   const trendArrangementRecipe = productionPlan.trend_arrangement_recipe ??
-    '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層台語故事只負責情感落點；三者進同一個歌曲矩陣。';
+    '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層國語故事只負責情感落點；三者進同一個歌曲矩陣。';
   const rhythmStrategy = productionPlan.rhythm_strategy ??
     '主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。';
   const hitFormula = productionPlan.hit_formula ??
-    '天層英文音樂前奏 → 地層國語主歌與副歌情緒 → 人層台語核心句落點 → 融合引擎輸出一首歌。';
+    '天層英文音樂前奏 → 地層國語主歌與副歌情緒 → 人層國語核心句落點 → 融合引擎輸出一首歌。';
   const hookRepeatStrategy = productionPlan.hook_repeat_strategy ??
     '核心 Hook 重複三次：天層建立旋律記憶，地層推高副歌情緒，人層完成情感落點。';
   const emotionalArc = productionPlan.emotional_arc ??
@@ -1412,7 +1412,7 @@ function IntegratedSongMaker({
               <div className="rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
                 <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">英文＋國語工程級舞曲 WAV 預覽</p>
                 <p className="text-xs leading-7 text-[color:var(--text-muted)]">
-                  這版禁止聲樂與主唱導唱，只做「工程師專用純音樂舞曲 Demo」：台語先不進 WAV 主線，先把英文 Hook、國語主旋律、四拍 Kick、Pre-drop 與 Dance Drop 做成可直接開工的全球舞曲骨架。
+                  這版禁止聲樂與主唱導唱，只做「工程師專用純音樂舞曲 Demo」：國語先不進 WAV 主線，先把英文 Hook、國語主旋律、四拍 Kick、Pre-drop 與 Dance Drop 做成可直接開工的全球舞曲骨架。
                 </p>
                 <div className="mt-3 grid gap-2 text-xs leading-6 text-[color:var(--text-sub)] sm:grid-cols-2">
                   <p className="rounded-xl border border-violet-300/15 bg-violet-950/15 px-3 py-2">0–8 拍：Cold Hook，英文高音記憶點直接開場</p>
@@ -1667,7 +1667,7 @@ export default function PersonalityMusicReport({
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4 relative overflow-hidden">
                     <span className="absolute top-1 right-2 text-[8px] text-cyan-400/40 font-mono">TAIWANESE</span>
                     <p className="text-[10px] font-mono text-[color:var(--text-muted)] tracking-wider">
-                      [人層] 台語大數據指標
+                      [人層] 國語大數據指標
                     </p>
                     <p className="mt-2 text-sm font-bold text-[color:var(--text-main)]">
                       {musicReport.famous_singers_taiwanese}
@@ -1782,7 +1782,7 @@ export default function PersonalityMusicReport({
               <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
                 <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">Hit Formula</p>
                 <p className="text-sm leading-7 text-[color:var(--text-main)]">
-                  {productionPlan.hit_formula ?? '天層英文音樂前奏 → 地層國語主歌與副歌情緒 → 人層台語核心句落點 → 融合引擎輸出一首歌。'}
+                  {productionPlan.hit_formula ?? '天層英文音樂前奏 → 地層國語主歌與副歌情緒 → 人層國語核心句落點 → 融合引擎輸出一首歌。'}
                 </p>
               </div>
               <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
@@ -1791,7 +1791,7 @@ export default function PersonalityMusicReport({
                   {productionPlan.emotional_arc ?? '先由天層建立音樂靈魂，再由地層建立歌曲身體，最後由人層放入故事落點並收束。'}
                 </p>
                 <p className="mt-3 text-xs leading-7 text-[color:var(--text-muted)]">
-                  {productionPlan.hook_repeat_strategy ?? '核心 Hook 重複三次：國語建立主題，English 增加記憶點，台語完成情緒落地。'}
+                  {productionPlan.hook_repeat_strategy ?? '核心 Hook 重複三次：國語建立主題，English 增加記憶點，國語完成情緒落地。'}
                 </p>
               </div>
             </div>
@@ -1808,7 +1808,7 @@ export default function PersonalityMusicReport({
             </div>
             <div className="mt-4 grid gap-3 lg:grid-cols-2">
               <p className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-xs leading-7 text-fuchsia-50/80">
-                {productionPlan.trend_arrangement_recipe ?? '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層台語故事只負責情感落點；三者進同一個歌曲矩陣。'}
+                {productionPlan.trend_arrangement_recipe ?? '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層國語故事只負責情感落點；三者進同一個歌曲矩陣。'}
               </p>
               <p className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-xs leading-7 text-fuchsia-50/80">
                 {productionPlan.rhythm_strategy ?? '主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。'}
@@ -1854,8 +1854,8 @@ export default function PersonalityMusicReport({
               天宿共鳴記憶年代：【{meta.eraDisplayName ?? meta.era}】歌曲引力場
             </p>
             <p className="mt-2 text-xs text-[color:var(--text-sub)] leading-6">
-              根據大數據統計，靈魂感官在黃金年華（17歲聽覺定型期）最易被當時的「英文、國語、台語」流行聲軌深度烙印。
-              系統結合了你出生年份之年代背景，與你的人格特質（五行喜忌與心理特徵）進行大數據交叉比對，精確為你挑選出以下三首專屬的年代之音。
+              根據大數據統計，靈魂感官在黃金年華（17歲聽覺定型期）最易被當時的「英文、國語」流行聲軌深度烙印。
+              系統結合了你出生年份之年代背景，與你的人格特質（五行喜忌與心理特徵）進行大數據交叉比對，精確為你挑選出專屬的年代之音。
             </p>
             <div className="mt-4 flex items-center gap-3">
               <div className="flex-1 h-1.5 bg-slate-900 rounded-full overflow-hidden">
@@ -1888,7 +1888,7 @@ export default function PersonalityMusicReport({
         )}
         {taiwaneseTrack && (
           <MusicPlayer
-            label={`人層台語故事錨點 · ${meta.eraDisplayName ?? meta.era}`}
+            label={`人層國語故事錨點 · ${meta.eraDisplayName ?? meta.era}`}
             flag="🌾"
             track={taiwaneseTrack}
             reason={musicReport.taiwanese_song_reason}
