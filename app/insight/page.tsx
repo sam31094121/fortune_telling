@@ -17,6 +17,8 @@ import type { FiveElementIntegrationResult, FiveElementKey } from '@/lib/five-el
 import type { InsightRitualStep } from '@/lib/insight-engine';
 import type { ZiweiDestinyCard as ZiweiDestinyCardModel } from '@/lib/ziwei-destiny-card';
 import type { ZiweiPresentationBundle } from '@/lib/ziwei-presentation-service';
+import { TAROT_CARDS } from '@/features/tarot/data/cards';
+import type { TarotAiElement, TarotCard } from '@/features/tarot/types';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
@@ -2195,6 +2197,200 @@ function buildZiweiTransformationEffects(structure: ZiweiThreeHarmonyStructure) 
   );
 }
 
+type ZiweiTeacherTarotSlot = {
+  slotKey: 'MING' | 'QIAN_YI' | 'GUAN_LU' | 'CAI_BO';
+  slotTitle: string;
+  palaceName: string;
+  role: string;
+  starBasis: string;
+  cardId: string;
+  cardName: string;
+  cardNameEn: string;
+  imageUrl: string;
+  reason: string;
+  chainText: string;
+};
+
+const ZIWEI_TAROT_CARD_ZH: Record<string, string> = {
+  'major-fool': '\u611a\u8005',
+  'major-magician': '\u9b54\u8853\u5e2b',
+  'major-high-priestess': '\u5973\u796d\u53f8',
+  'major-empress': '\u5973\u7687',
+  'major-emperor': '\u7687\u5e1d',
+  'major-hierophant': '\u6559\u7687',
+  'major-lovers': '\u6200\u4eba',
+  'major-chariot': '\u6230\u8eca',
+  'major-strength': '\u529b\u91cf',
+  'major-hermit': '\u96b1\u8005',
+  'major-wheel': '\u547d\u904b\u4e4b\u8f2a',
+  'major-justice': '\u6b63\u7fa9',
+  'major-hanged-man': '\u5012\u540a\u4eba',
+  'major-death': '\u6b7b\u795e',
+  'major-temperance': '\u7bc0\u5236',
+  'major-devil': '\u60e1\u9b54',
+  'major-tower': '\u9ad8\u5854',
+  'major-star': '\u661f\u661f',
+  'major-moon': '\u6708\u4eae',
+  'major-sun': '\u592a\u967d',
+  'major-judgement': '\u5be9\u5224',
+  'major-world': '\u4e16\u754c',
+  'minor-pentacles-ace': '\u9322\u5e63\u4e00',
+  'minor-pentacles-three': '\u9322\u5e63\u4e09',
+  'minor-pentacles-four': '\u9322\u5e63\u56db',
+  'minor-pentacles-six': '\u9322\u5e63\u516d',
+  'minor-pentacles-eight': '\u9322\u5e63\u516b',
+  'minor-pentacles-ten': '\u9322\u5e63\u5341',
+  'minor-pentacles-king': '\u9322\u5e63\u570b\u738b',
+  'minor-swords-ace': '\u5bf6\u528d\u4e00',
+  'minor-swords-queen': '\u5bf6\u528d\u7687\u540e',
+  'minor-wands-six': '\u6b0a\u6756\u516d',
+  'minor-wands-king': '\u6b0a\u6756\u570b\u738b',
+  'minor-cups-queen': '\u8056\u676f\u7687\u540e',
+};
+
+const ZIWEI_STAR_TAROT_CANDIDATES: Record<string, string[]> = {
+  '\u7d2b\u5fae': ['major-emperor', 'major-world', 'major-justice'],
+  '\u5929\u6a5f': ['major-magician', 'major-wheel', 'minor-swords-ace'],
+  '\u592a\u967d': ['major-sun', 'major-chariot', 'minor-wands-six'],
+  '\u6b66\u66f2': ['major-justice', 'minor-pentacles-king', 'minor-pentacles-four'],
+  '\u5929\u540c': ['major-temperance', 'minor-cups-queen', 'major-star'],
+  '\u5ec9\u8c9e': ['major-devil', 'major-justice', 'major-lovers'],
+  '\u5929\u5e9c': ['major-empress', 'major-emperor', 'minor-pentacles-ten'],
+  '\u592a\u9670': ['major-high-priestess', 'major-moon', 'minor-cups-queen'],
+  '\u8caa\u72fc': ['major-devil', 'major-magician', 'major-fool'],
+  '\u5de8\u9580': ['major-hermit', 'minor-swords-queen', 'major-moon'],
+  '\u5929\u76f8': ['major-justice', 'major-hierophant', 'major-temperance'],
+  '\u5929\u6881': ['major-hierophant', 'major-hermit', 'major-star'],
+  '\u4e03\u6bba': ['major-chariot', 'major-tower', 'minor-wands-king'],
+  '\u7834\u8ecd': ['major-tower', 'major-death', 'major-fool'],
+};
+
+const ZIWEI_PALACE_TAROT_CANDIDATES: Record<ZiweiTeacherTarotSlot['slotKey'], string[]> = {
+  MING: ['major-emperor', 'major-magician', 'major-strength', 'major-wheel'],
+  QIAN_YI: ['major-chariot', 'major-world', 'major-fool', 'major-wheel'],
+  GUAN_LU: ['major-emperor', 'major-hierophant', 'minor-pentacles-three', 'minor-pentacles-eight'],
+  CAI_BO: ['minor-pentacles-king', 'minor-pentacles-ace', 'minor-pentacles-ten', 'minor-pentacles-six'],
+};
+
+function findTarotCard(cardId: string): TarotCard | null {
+  return TAROT_CARDS.find((card) => card.id === cardId) ?? null;
+}
+
+function getZiweiStarTarotCandidates(stars: string[]) {
+  return stars.flatMap((star) => {
+    const normalized = Object.keys(ZIWEI_STAR_TAROT_CANDIDATES).find((key) => star.includes(key) || key.includes(star));
+    return normalized ? ZIWEI_STAR_TAROT_CANDIDATES[normalized] : [];
+  });
+}
+
+function pickZiweiTarotCard(candidateIds: string[], used: Set<string>) {
+  const candidates = [...candidateIds, 'major-wheel', 'major-world'];
+  const id = candidates.find((candidate) => findTarotCard(candidate) && !used.has(candidate))
+    ?? candidates.find((candidate) => findTarotCard(candidate))
+    ?? 'major-wheel';
+  used.add(id);
+  return findTarotCard(id) ?? TAROT_CARDS[0];
+}
+
+// 命工卡專用：依命宮主星候選 + 命盤五行比例，從 78 張塔羅挑出最符合的一張（結果固定、可回溯）
+type DestinyTarotMatch = {
+  card: TarotCard;
+  cardNameZh: string;
+  reason: string;
+};
+
+function pickDestinyTarotCard(
+  heroStarNames: string[],
+  elementSignals: string[],
+): DestinyTarotMatch {
+  const starCandidateIds = getZiweiStarTarotCandidates(heroStarNames);
+  const candidateIds = (starCandidateIds.length ? starCandidateIds : ['major-wheel', 'major-world'])
+    .filter((id, index, arr) => arr.indexOf(id) === index);
+
+  const signals = elementSignals.filter((signal): signal is TarotAiElement =>
+    signal === 'AIR' || signal === 'SPACE' || signal === 'WATER' || signal === 'FIRE' || signal === 'EARTH');
+
+  // 星座比例原則：候選牌中，取五行權重與命盤訊號最貼合的那張
+  let best: TarotCard | null = null;
+  let bestScore = -1;
+  candidateIds.forEach((id) => {
+    const candidate = findTarotCard(id);
+    if (!candidate) return;
+    const score = signals.length
+      ? signals.reduce((sum, signal) => sum + (candidate.elementWeights[signal] ?? 0), 0)
+      : 0;
+    if (score > bestScore) {
+      bestScore = score;
+      best = candidate;
+    }
+  });
+
+  const card = best ?? findTarotCard(candidateIds[0]) ?? TAROT_CARDS[0];
+  const cardNameZh = ZIWEI_TAROT_CARD_ZH[card.id] ?? card.nameZh;
+  const starText = heroStarNames.filter(Boolean).join('、') || '命宮主星';
+  const elementText = signals.map((signal) => ZIWEI_DESTINY_ELEMENT_LABELS[signal] ?? signal).join('、');
+  const reason = elementText
+    ? `命宮主星「${starText}」對應星象，以五行比例（${elementText}）在候選塔羅中比對最貼近的一張。`
+    : `命宮主星「${starText}」對應星象，依十四主星原則對到這張塔羅。`;
+
+  return { card, cardNameZh, reason };
+}
+
+function buildZiweiTeacherTarotBridge(structure: ZiweiThreeHarmonyStructure): ZiweiTeacherTarotSlot[] {
+  const used = new Set<string>();
+  const slots = [
+    {
+      slotKey: 'MING' as const,
+      slotTitle: '\u7b2c\u4e00\u5f35\uff1a\u547d\u5bae\u5854\u7f85\u724c',
+      role: '\u5148\u5b9a\u547d\u4e3b\u6838\u5fc3\uff1a\u9019\u500b\u4eba\u7528\u4ec0\u9ebc\u65b9\u5f0f\u9762\u5c0d\u4eba\u751f\u3002',
+      chainText: '\u547d\u5bae\u662f\u4e3b\u8ef8\uff0c\u5f8c\u9762\u4e09\u5f35\u724c\u90fd\u8981\u56de\u4f86\u652f\u6490\u9019\u500b\u4e3b\u661f\u6027\u683c\u3002',
+      palace: structure.origin,
+    },
+    {
+      slotKey: 'QIAN_YI' as const,
+      slotTitle: '\u7b2c\u4e8c\u5f35\uff1a\u9077\u79fb\u5bae\u5854\u7f85\u724c',
+      role: '\u518d\u770b\u5916\u754c\u821e\u53f0\uff1a\u5916\u754c\u5982\u4f55\u56de\u61c9\u547d\u4e3b\u3002',
+      chainText: '\u9077\u79fb\u5bae\u662f\u5c0d\u5bae\uff0c\u5b83\u4e0d\u6539\u8b8a\u547d\u5bae\uff0c\u800c\u662f\u544a\u8a34\u8001\u5e2b\u5ba2\u6236\u51fa\u53bb\u5f8c\u6703\u9047\u5230\u4ec0\u9ebc\u5834\u57df\u3002',
+      palace: structure.opposite,
+    },
+    {
+      slotKey: 'GUAN_LU' as const,
+      slotTitle: '\u7b2c\u4e09\u5f35\uff1a\u5b98\u797f\u5bae\u5854\u7f85\u724c',
+      role: '\u7b2c\u4e09\u770b\u4e8b\u696d\u8def\u7dda\uff1a\u80fd\u529b\u5982\u4f55\u843d\u6210\u8cac\u4efb\u8207\u6210\u5c31\u3002',
+      chainText: '\u5b98\u797f\u5bae\u628a\u547d\u5bae\u7684\u6027\u683c\u8f49\u6210\u5de5\u4f5c\u65b9\u6cd5\uff0c\u662f\u300c\u6211\u80fd\u505a\u4ec0\u9ebc\u300d\u7684\u7b54\u6848\u3002',
+      palace: structure.harmonyB,
+    },
+    {
+      slotKey: 'CAI_BO' as const,
+      slotTitle: '\u7b2c\u56db\u5f35\uff1a\u8ca1\u5e1b\u5bae\u5854\u7f85\u724c',
+      role: '\u6700\u5f8c\u770b\u8cc7\u6e90\u8f49\u5316\uff1a\u80fd\u529b\u80fd\u4e0d\u80fd\u8b8a\u6210\u6536\u5165\u8207\u7a69\u5b9a\u7d2f\u7a4d\u3002',
+      chainText: '\u8ca1\u5e1b\u5bae\u662f\u843d\u5730\u9ede\uff0c\u5b83\u628a\u547d\u5bae\u3001\u9077\u79fb\u3001\u5b98\u797f\u4e32\u6210\u53ef\u7528\u8cc7\u6e90\u3002',
+      palace: structure.harmonyA,
+    },
+  ];
+
+  return slots.map((slot) => {
+    const starCandidates = getZiweiStarTarotCandidates(slot.palace.majorStars);
+    const card = pickZiweiTarotCard([...starCandidates, ...ZIWEI_PALACE_TAROT_CANDIDATES[slot.slotKey]], used);
+    const starBasis = slot.palace.majorStars.join('\u3001') || '\u7121\u4e3b\u661f\uff0c\u501f\u4e09\u65b9\u56db\u6b63';
+    const palaceName = normalizeZiweiPalaceName(slot.palace.name);
+    const cardName = ZIWEI_TAROT_CARD_ZH[card.id] ?? card.nameZh;
+    return {
+      slotKey: slot.slotKey,
+      slotTitle: slot.slotTitle,
+      palaceName,
+      role: slot.role,
+      starBasis,
+      cardId: card.id,
+      cardName,
+      cardNameEn: card.nameEn,
+      imageUrl: card.imageUrl,
+      reason: `${palaceName}\u4ee5\u300c${starBasis}\u300d\u70ba\u4e3b\u8ef8\uff0c\u5f9e 78 \u5f35\u724c\u4e2d\u9078\u300c${cardName}\u300d\u4f5c\u70ba\u5716\u50cf\u8f14\u52a9\u3002`,
+      chainText: slot.chainText,
+    };
+  });
+}
+
 function buildZiweiSupportStarLines(structure: ZiweiThreeHarmonyStructure): string[] {
   const zones = (['origin', 'harmonyA', 'harmonyB', 'opposite'] as const).map((zoneKey) => ({ zoneKey, palace: structure[zoneKey] }));
   const lines = zones.flatMap(({ zoneKey, palace }) =>
@@ -2225,6 +2421,7 @@ function buildZiweiTeacherSynthesis(
   const transformationEffects = buildZiweiTransformationEffects(structure);
   const supportStarLines = buildZiweiSupportStarLines(structure);
   const annualSignal = getZiweiAnnualSignal(originKey, annualPalace, annual);
+  const tarotBridge = buildZiweiTeacherTarotBridge(structure);
 
   const taboo = transformationEffects.find((item) => item.raw.includes('忌'));
   const positive = transformationEffects.filter((item) => item.raw.includes('祿') || item.raw.includes('權') || item.raw.includes('科'));
@@ -2249,6 +2446,7 @@ function buildZiweiTeacherSynthesis(
     harmonyTexts,
     transformationEffects,
     supportStarLines,
+    tarotBridge,
     crossCheck,
     annualSignal,
     corePattern: `${originName}三方四正：${harmonyTexts.map((item) => item.palaceName).join('、')}`,
@@ -2260,6 +2458,61 @@ function buildZiweiTeacherSynthesis(
 }
 
 type ZiweiTeacherSynthesis = ReturnType<typeof buildZiweiTeacherSynthesis>;
+
+function ZiweiTeacherTarotBridgePanel({ cards }: { cards: ZiweiTeacherTarotSlot[] }) {
+  if (!cards.length) return null;
+
+  return (
+    <section className="mt-4 rounded-2xl border border-amber-300/25 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.13),rgba(15,23,42,0.86)_58%,rgba(2,6,23,0.96)_100%)] p-4 sm:p-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">TEACHER TAROT BRIDGE</p>
+          <h4 className="mt-2 font-serif text-xl font-black leading-tight text-amber-50">
+            {'\u8001\u5e2b\u5c08\u7528\uff5c\u4e09\u65b9\u56db\u6b63 4 \u5f35\u5854\u7f85\u5716\u50cf\u6a4b\u63a5'}
+          </h4>
+        </div>
+        <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-[11px] font-black text-amber-100">
+          {'78 \u5f35\u73fe\u6210\u724c\u5eab'}
+        </span>
+      </div>
+      <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
+        {'\u5854\u7f85\u53ea\u662f\u5716\u50cf\u8a9e\u8a00\uff0c\u4e0d\u53d6\u4ee3\u7d2b\u5fae\u6392\u76e4\u3002\u9078\u724c\u9806\u5e8f\u56fa\u5b9a\u70ba\uff1a\u547d\u5bae \u2192 \u9077\u79fb\u5bae \u2192 \u5b98\u797f\u5bae \u2192 \u8ca1\u5e1b\u5bae\uff0c\u7b2c\u4e00\u512a\u5148\u770b\u5404\u5bae\u4e3b\u661f\u3002'}
+      </p>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {cards.map((item, index) => (
+          <article key={item.slotKey} className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] shadow-[0_18px_42px_rgba(2,6,23,0.26)]">
+            <div className="relative bg-black/25">
+              <img
+                src={item.imageUrl}
+                alt={`${item.slotTitle} ${item.cardName}`}
+                loading="lazy"
+                className="mx-auto aspect-[275/480] w-full max-w-[180px] object-cover object-top sm:max-w-none"
+              />
+              <span className="absolute left-3 top-3 rounded-full border border-amber-200/30 bg-black/55 px-2.5 py-1 text-[10px] font-black text-amber-100">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+            </div>
+            <div className="p-4">
+              <p className="text-[11px] font-black leading-5 text-amber-200">{item.slotTitle}</p>
+              <h5 className="mt-2 break-words font-serif text-xl font-black leading-tight text-amber-50">{item.cardName}</h5>
+              <p className="mt-1 text-xs font-bold text-cyan-100/75">{item.cardNameEn}</p>
+              <p className="mt-3 rounded-xl border border-white/10 bg-black/18 px-3 py-2 text-xs font-black leading-5 text-[color:var(--text-main)]">
+                {item.palaceName} · {item.starBasis}
+              </p>
+              <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{item.role}</p>
+              <p className="mt-2 text-xs font-semibold leading-6 text-amber-100/85">{item.chainText}</p>
+              <details className="mt-3 rounded-xl border border-white/10 bg-black/18 p-3">
+                <summary className="cursor-pointer text-xs font-black text-cyan-100">{'\u9078\u724c\u4f9d\u64da'}</summary>
+                <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{item.reason}</p>
+              </details>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 function ZiweiTeacherSynthesisPanel({ synthesis }: { synthesis: ZiweiTeacherSynthesis }) {
   return (
@@ -2275,6 +2528,8 @@ function ZiweiTeacherSynthesisPanel({ synthesis }: { synthesis: ZiweiTeacherSynt
           </span>
         ))}
       </div>
+
+      <ZiweiTeacherTarotBridgePanel cards={synthesis.tarotBridge} />
 
       <details className="mt-4 rounded-xl border border-white/10 bg-black/18 p-3">
         <summary className="flex min-h-[48px] cursor-pointer items-center text-sm font-black text-purple-100">本宮與主星</summary>
@@ -2375,6 +2630,7 @@ function ZiweiDestinyCardView({
   const title = card.cardType === 'DESTINY_CARD' ? '命工卡' : '生日主題卡';
   const archetypeLabel = ZIWEI_DESTINY_ARCHETYPE_LABELS[card.visualTheme.archetype] ?? '命盤象徵';
   const elementLabels = card.visualTheme.elementSignals.map((item) => ZIWEI_DESTINY_ELEMENT_LABELS[item] ?? item);
+  const destinyTarot = pickDestinyTarotCard(card.heroStars.map((star) => star.name), card.visualTheme.elementSignals);
 
   const isTimeExact = analysis?.timeConfidence === 'exact';
   const teacherPalaceSource: ZiweiFullPalace[] = analysis?.allPalaces?.length ? analysis.allPalaces : analysis?.palaces ?? [];
@@ -2405,12 +2661,16 @@ function ZiweiDestinyCardView({
           aria-pressed={flipped}
           className="group mx-auto block w-full max-w-[360px] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/80"
         >
-          <div className="relative aspect-[2/3] overflow-hidden rounded-[28px] border border-amber-200/35 bg-[radial-gradient(circle_at_50%_18%,rgba(251,191,36,0.24),transparent_28%),linear-gradient(160deg,rgba(15,23,42,0.82),rgba(2,6,23,0.98))] p-5 shadow-[0_26px_70px_rgba(0,0,0,0.42)] transition duration-500 group-active:scale-[0.99]">
-            <div className="pointer-events-none absolute inset-4 rounded-[22px] border border-white/10" />
-            <div className="pointer-events-none absolute inset-x-8 top-8 h-px bg-gradient-to-r from-transparent via-amber-200/70 to-transparent" />
-            <div className="relative flex h-full flex-col">
-              {!flipped ? (
-                <>
+          <div className="[perspective:1400px]">
+            <div
+              className="relative aspect-[2/3] w-full transition-transform duration-700 ease-out [transform-style:preserve-3d] group-active:scale-[0.99]"
+              style={{ transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
+            >
+              {/* 正面：命工卡 */}
+              <div className="absolute inset-0 overflow-hidden rounded-[28px] border border-amber-200/35 bg-[radial-gradient(circle_at_50%_18%,rgba(251,191,36,0.24),transparent_28%),linear-gradient(160deg,rgba(15,23,42,0.82),rgba(2,6,23,0.98))] p-5 shadow-[0_26px_70px_rgba(0,0,0,0.42)] [backface-visibility:hidden]">
+                <div className="pointer-events-none absolute inset-4 rounded-[22px] border border-white/10" />
+                <div className="pointer-events-none absolute inset-x-8 top-8 h-px bg-gradient-to-r from-transparent via-amber-200/70 to-transparent" />
+                <div className="relative flex h-full flex-col">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-[10px] font-black tracking-[0.22em] text-amber-100/70">{card.palace.name}</p>
@@ -2435,32 +2695,37 @@ function ZiweiDestinyCardView({
                         <span key={item} className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[10px] font-black text-white/70">{item}</span>
                       ))}
                     </div>
-                    <p className="text-center text-[11px] font-bold leading-5 text-amber-100/70">點一下，看我的命工解析</p>
+                    <p className="text-center text-[11px] font-bold leading-5 text-amber-100/70">點一下，翻出你的命宮塔羅牌</p>
                   </div>
-                </>
-              ) : (
-                <div className="flex h-full flex-col justify-between gap-4">
-                  <div>
-                    <p className="text-[10px] font-black tracking-[0.22em] text-cyan-100/70">AI 命工解析</p>
-                    <h3 className="mt-2 font-serif text-2xl font-black leading-tight text-amber-50">{card.customerCopy.coreTheme}</h3>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                      <p className="text-[10px] font-black tracking-[0.18em] text-emerald-100/70">核心力量</p>
-                      <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-main)]">{card.customerCopy.power}</p>
-                    </div>
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                      <p className="text-[10px] font-black tracking-[0.18em] text-rose-100/70">目前課題</p>
-                      <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-main)]">{card.customerCopy.challenge}</p>
-                    </div>
-                    <div className="rounded-2xl border border-amber-200/20 bg-amber-300/10 p-3">
-                      <p className="text-[10px] font-black tracking-[0.18em] text-amber-100/75">立即行動</p>
-                      <p className="mt-1 text-sm font-black leading-6 text-amber-50">{card.customerCopy.action}</p>
-                    </div>
-                  </div>
-                  <p className="text-center text-[11px] font-bold leading-5 text-cyan-100/70">再次點擊，回到命工卡正面</p>
                 </div>
-              )}
+              </div>
+
+              {/* 背面：命宮塔羅牌 */}
+              <div
+                className="absolute inset-0 overflow-hidden rounded-[28px] border border-amber-200/45 bg-[radial-gradient(circle_at_50%_12%,rgba(251,191,36,0.18),transparent_30%),linear-gradient(160deg,rgba(15,23,42,0.92),rgba(2,6,23,0.99))] p-4 shadow-[0_26px_70px_rgba(0,0,0,0.5)] [backface-visibility:hidden]"
+                style={{ transform: 'rotateY(180deg)' }}
+              >
+                <div className="relative flex h-full flex-col">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-[10px] font-black tracking-[0.22em] text-amber-100/80">命宮塔羅 · {card.palace.name}</p>
+                    <span className="rounded-full border border-amber-200/30 bg-amber-300/10 px-2 py-0.5 text-[9px] font-black text-amber-100">78 張現成牌庫</span>
+                  </div>
+                  <div className="mt-3 flex-1 overflow-hidden rounded-2xl border border-white/12 bg-black/30">
+                    <img
+                      src={destinyTarot.card.imageUrl}
+                      alt={`命宮塔羅 ${destinyTarot.cardNameZh}`}
+                      loading="lazy"
+                      className="mx-auto h-full w-full object-contain object-center"
+                    />
+                  </div>
+                  <div className="mt-3 text-center">
+                    <h3 className="break-words font-serif text-2xl font-black leading-tight text-amber-50">{destinyTarot.cardNameZh}</h3>
+                    <p className="mt-0.5 text-[11px] font-bold text-cyan-100/75">{destinyTarot.card.nameEn}</p>
+                  </div>
+                  <p className="mt-2 rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-semibold leading-5 text-[color:var(--text-sub)]">{destinyTarot.reason}</p>
+                  <p className="mt-2 text-center text-[11px] font-bold leading-5 text-cyan-100/70">再次點擊，回到命工卡正面</p>
+                </div>
+              </div>
             </div>
           </div>
         </button>
@@ -2481,6 +2746,20 @@ function ZiweiDestinyCardView({
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
                 <p className="text-[10px] font-black text-white/45">視覺氣質</p>
                 <p className="mt-1 text-sm font-black text-emerald-50">{card.visualTheme.keywords.slice(0, 3).join('、')}</p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                <p className="text-[10px] font-black tracking-[0.18em] text-emerald-100/70">核心力量</p>
+                <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-main)]">{card.customerCopy.power}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                <p className="text-[10px] font-black tracking-[0.18em] text-rose-100/70">目前課題</p>
+                <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-main)]">{card.customerCopy.challenge}</p>
+              </div>
+              <div className="rounded-2xl border border-amber-200/20 bg-amber-300/10 p-3">
+                <p className="text-[10px] font-black tracking-[0.18em] text-amber-100/75">立即行動</p>
+                <p className="mt-1 text-sm font-black leading-6 text-amber-50">{card.customerCopy.action}</p>
               </div>
             </div>
           </article>
