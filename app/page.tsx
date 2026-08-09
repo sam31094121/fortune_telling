@@ -157,7 +157,7 @@ const HOME_COMMAND_STATUS = [
   ['靈魂配對', '雙人命盤待命'],
   ['人格聲波', '赫茲矩陣在線'],
   ['深度洞察', '紫微星曜同步'],
-  ['數字吉凶', '太極八卦已啟封'],
+  ['數字好壞', '太極八卦已啟封'],
 ] as const;
 
 interface PersonDisplay {
@@ -1187,7 +1187,7 @@ function LineVipShareCard({ friendHref, onShare }: { friendHref: string; onShare
               加 LINE 好友，免費立即體驗 VIP
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-50/78">
-              加入官方 LINE 好友，取得配對、人格、數字吉凶與深度洞察的免費體驗入口。
+              加入官方 LINE 好友，取得配對、人格、數字好壞與深度洞察的免費體驗入口。
             </p>
           </div>
 
@@ -1223,7 +1223,7 @@ type HomeGrowthModuleGuide = {
 };
 
 const HOME_GROWTH_MODULE_GUIDES: HomeGrowthModuleGuide[] = [
-  { id: 'number', label: '數字論吉凶', helper: '完成一組數字，取得今日吉凶判定。', cta: '立即開始', action: 'number-modal', sticky: '用一組數字建立今日行動訊號。', reward: '完成後，首頁會記住你的數字提醒。' },
+  { id: 'number', label: '數字論好壞', helper: '完成一組數字，取得今日好壞判定。', cta: '立即開始', href: '/numerology', sticky: '用一組數字建立今日行動訊號。', reward: '完成後，首頁會記住你的數字提醒。' },
   { id: 'ziwei', label: 'AI 紫微斗數', helper: '完成紫微命盤探索。', cta: '去完成紫微斗數', href: '/insight', sticky: '把長期方向接進成長中心。', reward: '完成後，成長中心會知道你的長期方向。' },
   { id: 'soul_match', label: 'AI 靈魂配對', helper: '完成雙人配對探索。', cta: '去完成靈魂配對', href: '/match', sticky: '讓關係互動留下可追蹤提醒。', reward: '完成後，關係提醒會變得更貼近你。' },
   { id: 'music', label: 'AI 生成歌曲', helper: '完成生命音樂生成。', cta: '去生成一首歌', href: '/music', sticky: '把個人節奏變成可回聽記憶。', reward: '完成後，你會多一個可以回來聽的記憶點。' },
@@ -1595,7 +1595,7 @@ export default function HomePage() {
     const shareUrl = 'https://heaven-earth-humanity-pair.vercel.app/';
     const shareData = {
       title: '☯ 太極命理 AI',
-      text: '用 AI 探索靈魂配對、人格能量與數字吉凶，看看天、地、人之間的共鳴。',
+      text: '用 AI 探索靈魂配對、人格能量與數字好壞，看看天、地、人之間的共鳴。',
       url: shareUrl,
     };
 
@@ -2568,7 +2568,7 @@ export default function HomePage() {
               天宿命理<br />AI 能量解碼艙
             </h1>
             <p className="hidden max-w-2xl text-sm leading-7 text-[color:var(--text-sub)] sm:text-base">
-              靈魂配對、人格聲波、深度洞察與數字吉凶集中啟動，讓每一次進站都像打開一座會呼吸的命理主控台。
+              靈魂配對、人格聲波、深度洞察與數字好壞集中啟動，讓每一次進站都像打開一座會呼吸的命理主控台。
             </p>
 
             <div className="hidden home-signal-grid mt-6 grid gap-3 sm:grid-cols-3">
@@ -2593,14 +2593,14 @@ export default function HomePage() {
                 <span>一鍵開啟生辰軌道</span>
                 <span className="transition-transform group-hover:translate-x-1">➜</span>
               </button>
-              <button
-                type="button"
-                onClick={openFortuneModal}
+              <Link
+                href="/numerology"
+                prefetch
                 className="home-secondary-cta inline-flex items-center justify-center gap-2 rounded-full border border-cyan-300/35 bg-cyan-400/10 px-8 py-3 text-sm font-black text-cyan-100 transition-all shadow-[0_0_24px_rgba(34,211,238,0.18)]"
               >
-                <span>立即解碼數字吉凶</span>
+                <span>立即解碼數字好壞</span>
                 <span>☯</span>
-              </button>
+              </Link>
               </div>
 
               {/* 動態天宿氣場預言面板 */}
@@ -2646,7 +2646,7 @@ export default function HomePage() {
           <div className="flex w-full flex-col gap-4">
           <Link
             href="/match"
-            className="home-feature-launch home-feature-rose order-3 w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-all duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-rose order-4 w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-all duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -2683,7 +2683,7 @@ export default function HomePage() {
 
           <Link
             href="/music"
-            className="home-feature-launch home-feature-violet order-4 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-4 flex-wrap sm:p-6 sm:gap-6"
+            className="home-feature-launch home-feature-violet order-5 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-4 flex-wrap sm:p-6 sm:gap-6"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
@@ -2718,7 +2718,7 @@ export default function HomePage() {
 
           <Link
             href="/nameology"
-            className="home-feature-launch home-feature-amber order-5 w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-amber order-6 w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -2753,27 +2753,27 @@ export default function HomePage() {
             </div>
           </Link>
 
-          <button
-            type="button"
-            onClick={openFortuneModal}
-            className="home-feature-launch home-feature-cyan order-1 w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-all duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+          <Link
+            href="/numerology"
+            prefetch
+            className="home-feature-launch home-feature-cyan order-2 w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-all duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
             
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="number-fortune-danger-emblem" aria-hidden="true">
-                <span className="number-fortune-danger-emblem__halo" />
-                <span className="number-fortune-danger-emblem__ring" />
-                <span className="number-fortune-danger-emblem__slash" />
-                <span className="number-fortune-danger-emblem__glyph">吉</span>
+              <div className="number-fortune-auspicious-emblem" aria-hidden="true">
+                <span className="number-fortune-auspicious-emblem__halo" />
+                <span className="number-fortune-auspicious-emblem__ring" />
+                <span className="number-fortune-auspicious-emblem__shine" />
+                <span className="number-fortune-auspicious-emblem__glyph">吉</span>
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse">
-                  CARD 01 · 數字吉凶速測
+                  CARD 01 · 數字好壞速測
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-100 tracking-wide flex items-center gap-2">
-                  <span>數字論吉凶</span>
+                  <span>數字論好壞</span>
                   <span className="text-xs font-sans text-cyan-300 font-normal opacity-85 hidden sm:inline">
                     // 4 / 6 / 8 / 10 碼 · 即時判定
                   </span>
@@ -2788,14 +2788,14 @@ export default function HomePage() {
               <span>立即開始</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
-          </button>
+          </Link>
           <Link
             href={ZIWEI_ROUTE}
             prefetch
             data-module="ziwei"
             data-navigation-target={ZIWEI_ROUTE}
             onClick={handleZiweiOpen}
-            className="home-feature-launch home-feature-indigo order-2 w-full relative group overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-all duration-500 hover:border-indigo-400 hover:shadow-[0_0_50px_rgba(99,102,241,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap [touch-action:manipulation]"
+            className="home-feature-launch home-feature-indigo order-3 w-full relative group overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-all duration-500 hover:border-indigo-400 hover:shadow-[0_0_50px_rgba(99,102,241,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap [touch-action:manipulation]"
             aria-label="開啟 AI 紫微斗數"
             aria-busy={ziweiOpening}
           >
@@ -2833,7 +2833,7 @@ export default function HomePage() {
 
           <Link
             href="/bazi"
-            className="home-feature-launch home-feature-emerald order-6 w-full relative group overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-emerald-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-500 hover:border-emerald-400 hover:shadow-[0_0_50px_rgba(16,185,129,0.26)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-emerald order-7 w-full relative group overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-emerald-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-500 hover:border-emerald-400 hover:shadow-[0_0_50px_rgba(16,185,129,0.26)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
@@ -2869,7 +2869,7 @@ export default function HomePage() {
 
           <Link
             href="/zodiac"
-            className="home-feature-launch order-7 w-full relative group overflow-hidden rounded-3xl border border-fuchsia-500/30 bg-gradient-to-r from-slate-950 via-fuchsia-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(217,70,239,0.15)] transition-all duration-500 hover:border-fuchsia-300 hover:shadow-[0_0_50px_rgba(217,70,239,0.28)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch order-8 w-full relative group overflow-hidden rounded-3xl border border-fuchsia-500/30 bg-gradient-to-r from-slate-950 via-fuchsia-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(217,70,239,0.15)] transition-all duration-500 hover:border-fuchsia-300 hover:shadow-[0_0_50px_rgba(217,70,239,0.28)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(217,70,239,0.22),transparent_34%),radial-gradient(circle_at_78%_30%,rgba(34,211,238,0.16),transparent_28%)] pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-fuchsia-400/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -2934,7 +2934,7 @@ export default function HomePage() {
                       onClick={openFortuneModal}
                       className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 px-5 py-3 text-xs font-bold tracking-widest text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.15)] hover:bg-cyan-500/20 transition-all duration-300 flex items-center gap-1.5 animate-pulse"
                     >
-                      <span>☯️ 數字吉凶解碼</span>
+                      <span>☯️ 數字好壞解碼</span>
                     </button>
 
                     <button
@@ -3656,7 +3656,7 @@ export default function HomePage() {
             <div className="number-fortune-split-stack">
               <section className="number-fortune-card number-fortune-analysis-card" aria-label="Number fortune analysis">
             <div className="number-fortune-intro mb-6">
-              <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">AI 數字吉凶</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">AI 數字好壞</p>
               <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">輸入數字，立即判定</h3>
               <p className="mt-2 text-xs leading-5 text-[color:var(--text-muted)]">
                 輸入 4、6、8 或 10 碼，系統會自動過濾符號，只保留數字。
@@ -3666,7 +3666,7 @@ export default function HomePage() {
             <FeatureVisitorCounter featureKey="number" className="hidden" />
 
             <IdentitySplitSelector className="mb-4" />
-            <DailyAnalysisNotice record={numberDailyRecord} className="mb-4" moduleName="AI 數字論吉凶" onViewResult={numberDailyRecord ? () => restoreNumberDailyRecord(numberDailyRecord) : undefined} />
+            <DailyAnalysisNotice record={numberDailyRecord} className="mb-4" moduleName="AI 數字論好壞" onViewResult={numberDailyRecord ? () => restoreNumberDailyRecord(numberDailyRecord) : undefined} />
             {!fortuneLoading && !fortuneResult && (
               <FineDiningServiceProgress
                 module="number"
@@ -3711,7 +3711,7 @@ export default function HomePage() {
                     }}
                     onFocus={() => setFortuneError('')}
                     placeholder={numberInputNeedsAttention ? '請填阿拉伯數字' : '輸入數字'}
-                    aria-label="數字論吉凶輸入框"
+                    aria-label="數字論好壞輸入框"
                     style={fortuneNumberDigitStyle}
                     className={`form-input min-h-[166px] w-full rounded-[30px] bg-slate-950/92 px-1.5 py-8 text-center font-mono font-black leading-none tracking-normal text-cyan-50 shadow-[0_0_70px_rgba(34,211,238,0.44),0_0_34px_rgba(251,191,36,0.08),inset_0_0_48px_rgba(34,211,238,0.14)] glass-input glass-input-cyan neon-input-focus sm:min-h-[186px] ${numberInputNeedsAttention ? 'border-rose-300/85 placeholder:text-rose-100/72 shadow-[0_0_64px_rgba(244,63,94,0.42),inset_0_0_42px_rgba(244,63,94,0.12)] animate-pulse' : 'border-cyan-100/80 placeholder:text-cyan-100/34'} ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_30px_rgba(244,63,94,0.38)]' : ''}`}
                   />
@@ -4000,7 +4000,7 @@ export default function HomePage() {
             type="button"
             onClick={openFortuneModal}
             className="fixed bottom-24 right-6 z-40 flex h-14 w-14 flex-col items-center justify-center rounded-full border border-cyan-500/40 bg-slate-950/90 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-300 hover:scale-110 hover:border-cyan-300 hover:text-cyan-200 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 animate-pulse cursor-pointer group"
-            aria-label="數字吉凶"
+            aria-label="數字好壞"
           >
             <span className="text-xl group-hover:rotate-180 transition-transform duration-500">☯️</span>
             <span className="text-[9px] font-bold tracking-tighter mt-0.5 scale-90">數理</span>

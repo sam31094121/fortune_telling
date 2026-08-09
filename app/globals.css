@@ -16735,8 +16735,8 @@ body.app-touching .home-taiji-cinema * {
   animation: none !important;
 }
 
-/* Numerology homepage danger emblem: premium warning seal. */
-.number-fortune-danger-emblem {
+/* Numerology homepage emblem: auspicious fortune seal. */
+.number-fortune-auspicious-emblem {
   position: relative;
   display: grid;
   width: 3rem;
@@ -16746,20 +16746,20 @@ body.app-touching .home-taiji-cinema * {
   overflow: hidden;
   isolation: isolate;
   border-radius: 1.05rem;
-  border: 1px solid rgba(251, 113, 133, 0.55);
+  border: 1px solid rgba(252, 211, 77, 0.68);
   background:
-    radial-gradient(circle at 50% 38%, rgba(251, 113, 133, 0.34), transparent 43%),
-    radial-gradient(circle at 42% 72%, rgba(34, 211, 238, 0.16), transparent 42%),
-    linear-gradient(145deg, rgba(8, 13, 28, 0.96), rgba(88, 16, 42, 0.78) 52%, rgba(8, 47, 73, 0.76));
+    radial-gradient(circle at 46% 30%, rgba(255, 247, 205, 0.44), transparent 32%),
+    radial-gradient(circle at 64% 76%, rgba(45, 212, 191, 0.2), transparent 40%),
+    linear-gradient(145deg, rgba(120, 53, 15, 0.96), rgba(180, 83, 9, 0.8) 47%, rgba(8, 47, 73, 0.78));
   box-shadow:
-    0 0 26px rgba(244, 63, 94, 0.36),
-    0 0 16px rgba(34, 211, 238, 0.16),
-    inset 0 0 22px rgba(244, 63, 94, 0.14),
-    inset 0 0 10px rgba(251, 191, 36, 0.08);
+    0 0 28px rgba(251, 191, 36, 0.38),
+    0 0 16px rgba(45, 212, 191, 0.16),
+    inset 0 0 22px rgba(255, 247, 205, 0.14),
+    inset 0 0 12px rgba(251, 191, 36, 0.18);
   transform: translateZ(0);
 }
 
-.number-fortune-danger-emblem::before {
+.number-fortune-auspicious-emblem::before {
   content: "";
   position: absolute;
   inset: -34%;
@@ -16767,63 +16767,66 @@ body.app-touching .home-taiji-cinema * {
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
-    rgba(244, 63, 94, 0.9) 56deg,
-    rgba(251, 191, 36, 0.72) 92deg,
+    rgba(255, 247, 205, 0.86) 42deg,
+    rgba(251, 191, 36, 0.9) 94deg,
     transparent 128deg,
-    rgba(34, 211, 238, 0.48) 210deg,
+    rgba(45, 212, 191, 0.52) 210deg,
     transparent 286deg,
-    rgba(244, 63, 94, 0.84) 360deg
+    rgba(252, 211, 77, 0.9) 360deg
   );
-  opacity: 0.88;
-  animation: numberDangerOrbit 7s linear infinite;
+  opacity: 0.92;
+  animation: numberFortuneAuspiciousOrbit 8s linear infinite;
 }
 
-.number-fortune-danger-emblem::after {
+.number-fortune-auspicious-emblem::after {
   content: "";
   position: absolute;
   inset: 0.28rem;
   z-index: 1;
   border-radius: 0.78rem;
   background:
-    linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(63, 7, 29, 0.82)),
-    radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.24), transparent 68%);
-  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.46);
+    radial-gradient(circle at 50% 36%, rgba(255, 247, 205, 0.26), transparent 42%),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.82), rgba(120, 53, 15, 0.78));
+  box-shadow:
+    inset 0 0 16px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 247, 205, 0.18);
 }
 
-.number-fortune-danger-emblem__halo {
+.number-fortune-auspicious-emblem__halo {
   position: absolute;
   inset: -0.45rem;
   z-index: 0;
   border-radius: 1.45rem;
-  background: radial-gradient(circle, rgba(244, 63, 94, 0.38), transparent 62%);
-  opacity: 0.7;
-  animation: numberDangerHalo 3.8s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.46), transparent 64%);
+  opacity: 0.76;
+  animation: numberFortuneAuspiciousHalo 3.8s ease-in-out infinite;
 }
 
-.number-fortune-danger-emblem__ring {
+.number-fortune-auspicious-emblem__ring {
   position: absolute;
   inset: 0.42rem;
   z-index: 2;
   border-radius: 0.68rem;
-  border: 1px solid rgba(253, 186, 116, 0.48);
+  border: 1px solid rgba(255, 247, 205, 0.62);
   box-shadow:
-    0 0 11px rgba(251, 191, 36, 0.2),
-    inset 0 0 12px rgba(251, 113, 133, 0.18);
+    0 0 14px rgba(251, 191, 36, 0.32),
+    inset 0 0 12px rgba(255, 247, 205, 0.18);
 }
 
-.number-fortune-danger-emblem__slash {
+.number-fortune-auspicious-emblem__shine {
   position: absolute;
   z-index: 3;
-  width: 72%;
-  height: 2px;
+  width: 86%;
+  height: 42%;
   border-radius: 999px;
-  background: linear-gradient(90deg, transparent, rgba(251, 113, 133, 0.96), rgba(34, 211, 238, 0.58), transparent);
-  box-shadow: 0 0 12px rgba(244, 63, 94, 0.55);
-  opacity: 0.82;
-  transform: rotate(-36deg);
+  background: linear-gradient(120deg, transparent 10%, rgba(255, 247, 205, 0.44) 46%, transparent 72%);
+  filter: blur(0.2px);
+  opacity: 0.76;
+  transform: translateY(-0.62rem) rotate(-18deg);
+  animation: numberFortuneAuspiciousShine 3.6s ease-in-out infinite;
 }
 
-.number-fortune-danger-emblem__glyph {
+.number-fortune-auspicious-emblem__glyph {
   position: relative;
   z-index: 4;
   font-family: "Noto Serif TC", "Songti TC", "PMingLiU", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
@@ -16837,22 +16840,28 @@ body.app-touching .home-taiji-cinema * {
   letter-spacing: 0.03em;
   filter:
     drop-shadow(0 0 8px rgba(251, 191, 36, 0.85))
-    drop-shadow(0 0 18px rgba(244, 63, 94, 0.3))
+    drop-shadow(0 0 18px rgba(45, 212, 191, 0.22))
     drop-shadow(0 1px 0 rgba(255, 255, 255, 0.25));
 }
 
-@keyframes numberDangerOrbit {
+@keyframes numberFortuneAuspiciousOrbit {
   to { transform: rotate(360deg); }
 }
 
-@keyframes numberDangerHalo {
+@keyframes numberFortuneAuspiciousHalo {
   0%, 100% { opacity: 0.48; transform: scale(0.94); }
   50% { opacity: 0.82; transform: scale(1.05); }
 }
 
+@keyframes numberFortuneAuspiciousShine {
+  0%, 100% { opacity: 0.42; transform: translateY(-0.64rem) translateX(-0.14rem) rotate(-18deg); }
+  50% { opacity: 0.88; transform: translateY(-0.58rem) translateX(0.18rem) rotate(-18deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .number-fortune-danger-emblem::before,
-  .number-fortune-danger-emblem__halo {
+  .number-fortune-auspicious-emblem::before,
+  .number-fortune-auspicious-emblem__halo,
+  .number-fortune-auspicious-emblem__shine {
     animation: none;
   }
 }
@@ -19005,4 +19014,179 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 .home-feature-launch[data-module="ziwei"] .ziwei-dou-3d-emblem,
 .home-feature-launch[data-module="ziwei"] .ziwei-dou-3d-emblem * {
   pointer-events: none !important;
+}
+
+/* Taiji kindness upgrade: positive, clear, non-overlapping homepage card. */
+.taiji-kindness-aura,
+.taiji-kindness-aura__beam,
+.taiji-kindness-words,
+.taiji-kindness-signature {
+  pointer-events: none;
+}
+
+.taiji-kindness-aura {
+  position: absolute;
+  inset: -8%;
+  z-index: 1;
+  border-radius: 999px;
+  opacity: 0.64;
+  filter: saturate(1.06);
+  mix-blend-mode: screen;
+}
+
+.taiji-kindness-aura__beam {
+  --kindness-angle: 0deg;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1px;
+  height: 48%;
+  border-radius: 999px;
+  background: linear-gradient(to top, transparent, rgba(255, 247, 205, 0.34), rgba(167, 243, 208, 0.16), transparent);
+  transform: translate(-50%, -100%) rotate(var(--kindness-angle));
+  transform-origin: 50% 100%;
+}
+
+.taiji-kindness-aura__beam-0 { --kindness-angle: 0deg; }
+.taiji-kindness-aura__beam-1 { --kindness-angle: 45deg; }
+.taiji-kindness-aura__beam-2 { --kindness-angle: 90deg; }
+.taiji-kindness-aura__beam-3 { --kindness-angle: 135deg; }
+.taiji-kindness-aura__beam-4 { --kindness-angle: 180deg; }
+.taiji-kindness-aura__beam-5 { --kindness-angle: 225deg; }
+.taiji-kindness-aura__beam-6 { --kindness-angle: 270deg; }
+.taiji-kindness-aura__beam-7 { --kindness-angle: 315deg; }
+
+.taiji-kindness-words {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(0.72rem, 3vw, 1.05rem);
+  z-index: 42;
+  display: flex;
+  gap: 0.32rem;
+  transform: translateX(-50%);
+}
+
+.taiji-kindness-words span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.8rem;
+  border: 1px solid rgba(255, 247, 205, 0.3);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.52);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 14px rgba(253, 230, 138, 0.12);
+  color: rgba(255, 247, 205, 0.94);
+  padding: 0.18rem 0.45rem;
+  font-size: clamp(0.54rem, 2vw, 0.66rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.58);
+  white-space: nowrap;
+}
+
+.taiji-kindness-signature {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(0.2rem, 1.2vw, 0.45rem);
+  z-index: 58;
+  display: grid;
+  width: min(18.5rem, calc(100vw - 1.5rem));
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 247, 205, 0.24);
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.62), rgba(20, 83, 45, 0.22)),
+    radial-gradient(circle at 18% 0%, rgba(253, 230, 138, 0.14), transparent 46%);
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  padding: 0.5rem 0.72rem;
+  text-align: center;
+  backdrop-filter: blur(12px) saturate(1.08);
+  -webkit-backdrop-filter: blur(12px) saturate(1.08);
+}
+
+.taiji-kindness-signature span {
+  color: rgba(255, 247, 205, 0.98);
+  font-family: "Noto Serif TC", "Songti TC", "PMingLiU", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size: clamp(0.78rem, 2.8vw, 0.95rem);
+  font-weight: 900;
+  line-height: 1.25;
+  letter-spacing: 0.08em;
+}
+
+.taiji-kindness-signature small {
+  margin-top: 0.22rem;
+  color: rgba(186, 230, 253, 0.86);
+  font-size: clamp(0.54rem, 2vw, 0.64rem);
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+}
+
+.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .modal-taiji-button {
+  background:
+    radial-gradient(circle at 32% 22%, rgba(255, 247, 205, 0.2), transparent 30%),
+    radial-gradient(circle at 68% 76%, rgba(167, 243, 208, 0.13), transparent 42%),
+    linear-gradient(145deg, rgba(3, 7, 18, 0.96), rgba(17, 24, 39, 0.86));
+  border-color: rgba(255, 247, 205, 0.42) !important;
+  box-shadow:
+    inset 16px 18px 28px rgba(255, 255, 255, 0.1),
+    inset -18px -24px 36px rgba(0, 0, 0, 0.62),
+    0 18px 34px rgba(0, 0, 0, 0.3),
+    0 0 38px rgba(253, 230, 138, 0.14),
+    0 0 26px rgba(167, 243, 208, 0.08) !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .modal-taiji-orbit-emblem {
+  filter: saturate(0.98) contrast(1.04) brightness(1.04) !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .modal-evolution-rays,
+.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .modal-evolution-scan,
+.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .modal-evolution-flare {
+  opacity: 0.42 !important;
+  filter: blur(0.35px) saturate(0.96) !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .taiji-cinema-star-0 { color: #e9d5ff !important; }
+.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .taiji-cinema-star-1 { color: #fda4af !important; }
+.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .taiji-cinema-star-2 { color: #bae6fd !important; }
+.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .taiji-cinema-star-3 { color: #a7f3d0 !important; }
+.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .taiji-cinema-star-4 { color: #fde68a !important; }
+
+.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .taiji-cinema-star::after {
+  background: rgba(15, 23, 42, 0.72) !important;
+  border-color: rgba(255, 247, 205, 0.28) !important;
+  color: rgba(255, 247, 205, 0.96) !important;
+}
+
+@media (max-width: 430px) {
+  .taiji-kindness-words {
+    bottom: 0.6rem;
+    gap: 0.22rem;
+  }
+
+  .taiji-kindness-words span {
+    min-width: 3.05rem;
+    padding: 0.14rem 0.28rem;
+    font-size: 0.48rem;
+    letter-spacing: 0.02em;
+  }
+
+  .taiji-kindness-signature {
+    bottom: 0.12rem;
+    width: min(17rem, calc(100vw - 1.25rem));
+    padding: 0.38rem 0.52rem;
+  }
+
+  .taiji-kindness-signature span {
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+  }
+
+  .taiji-kindness-signature small {
+    margin-top: 0.14rem;
+    font-size: 0.48rem;
+    letter-spacing: 0.02em;
+  }
 }

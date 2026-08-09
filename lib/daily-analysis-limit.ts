@@ -16,12 +16,13 @@ export type DailyAnalysisRecord<T = unknown> = {
   meta?: Record<string, unknown>;
 };
 
-// 開發期間暫停「每日一次 / 24 小時」限制，改回 true 即可恢復。使用者要求：等指令再開啟。
+// Keep the limit switch off while the product is being verified on mobile.
+// The storage helpers remain ready for a future production limit.
 export const DAILY_ANALYSIS_LIMIT_ENABLED = false;
 
 export const DAILY_ANALYSIS_TTL_MS = 24 * 60 * 60 * 1000;
 export const DAILY_ANALYSIS_NOTICE =
-  '免費正式體驗：每個分析功能每日提供一次完整免費分析。請先整理好您最想了解的問題，再開始本次正式分析。完成後可以隨時查看今日分析，24 小時後可以再次開始。';
+  '每日可完成一次正式分析。先填資料，AI 會逐步整理結果；完成後可回到成長中心查看下一步。';
 
 function storageKey(moduleKey: DailyAnalysisModuleKey) {
   return `tdh:daily-analysis:${moduleKey}:v1`;
@@ -32,12 +33,12 @@ function nowMs() {
 }
 
 export function formatDailyAnalysisRemaining(expiresAt?: number) {
-  if (!expiresAt) return '24 小時後';
+  if (!expiresAt) return '24 小時';
   const remaining = Math.max(0, expiresAt - nowMs());
   const hours = Math.floor(remaining / (60 * 60 * 1000));
   const minutes = Math.ceil((remaining % (60 * 60 * 1000)) / (60 * 1000));
-  if (hours <= 0) return `${Math.max(1, minutes)} 分鐘後`;
-  return `${hours} 小時 ${Math.max(0, minutes)} 分鐘後`;
+  if (hours <= 0) return `${Math.max(1, minutes)} 分鐘`;
+  return `${hours} 小時 ${Math.max(0, minutes)} 分鐘`;
 }
 
 export function readDailyAnalysis<T = unknown>(moduleKey: DailyAnalysisModuleKey): DailyAnalysisRecord<T> | null {
@@ -90,5 +91,5 @@ export function clearDailyAnalysis(moduleKey: DailyAnalysisModuleKey) {
 }
 
 export function getDailyAnalysisButtonLabel(record: DailyAnalysisRecord | null) {
-  return record ? '查看今日分析' : '立即開始';
+  return record ? '查看今日結果' : '立即開始';
 }

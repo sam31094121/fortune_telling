@@ -55,6 +55,7 @@ export default function TaijiStandaloneCard({
       className={cardClassName}
       data-taiji-material-layers={showThreeLayerMaterial ? TAIJI_THREE_LAYER_MATERIAL.length : undefined}
       data-taiji-material-signature={materialSignature}
+      data-taiji-kindness="happy-harmony-clear-kind"
     >
       <div className="taiji-stage-bagua-field" aria-hidden="true">
         {Array.from({ length: 8 }, (_, index) => (
@@ -62,6 +63,10 @@ export default function TaijiStandaloneCard({
         ))}
       </div>
       <UnifiedTaijiCore showLabel={showLabel} limitToLiangyi={limitToLiangyi} holdEvolutionStages={holdEvolutionStages} adaptiveEntry={adaptiveEntry} />
+      <div className="taiji-kindness-signature" aria-label="太極正能量：心存善念，順天而行">
+        <span>心存善念，順天而行</span>
+        <small>開心 · 協和 · 認知 · 善良 · 天真</small>
+      </div>
     </div>
   );
 }

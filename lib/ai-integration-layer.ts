@@ -84,11 +84,11 @@ export const AI_INTEGRATION_MODULES: AiIntegrationModuleMeta[] = [
   },
   {
     id: 'number',
-    title: 'AI 數字論吉凶',
+    title: 'AI 數字論好壞',
     shortTitle: '數字',
     href: '/numerology',
     defaultElement: 'FIRE',
-    evidence: '數字論吉凶已提供行動節奏、數字磁場與決策推進訊號。',
+    evidence: '數字論好壞已提供行動節奏、數字磁場與決策推進訊號。',
   },
   {
     id: 'soul_match',

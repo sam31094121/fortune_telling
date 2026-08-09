@@ -20,10 +20,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: '☯ 太極命理 AI｜天地人智慧分析系統',
-  description: 'AI 紫微斗數、八字、數字論吉凶、天地人智慧分析，一站式命理智慧平台。',
+  description: 'AI 紫微斗數、八字、數字論好壞、天地人智慧分析，一站式命理智慧平台。',
   openGraph: {
     title: '☯ 太極命理 AI｜智慧命理分析平台',
-    description: '輸入出生資料，立即體驗 AI 紫微斗數、八字、數字論吉凶與天地人智慧分析。',
+    description: '輸入出生資料，立即體驗 AI 紫微斗數、八字、數字論好壞與天地人智慧分析。',
     url: siteUrl,
     siteName: '太極命理 AI',
     images: [
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: '☯ 太極命理 AI',
-    description: 'AI 紫微斗數｜八字｜數字論吉凶｜天地人智慧分析',
+    description: 'AI 紫微斗數｜八字｜數字論好壞｜天地人智慧分析',
     images: [shareImage],
   },
 };

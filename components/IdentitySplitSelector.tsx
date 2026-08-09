@@ -47,21 +47,44 @@ export default function IdentitySplitSelector({ className = '' }: Props) {
     return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, handleUpdate);
   }, []);
 
+  const selectedOption = OPTIONS.find((option) => option.target === selected);
+
   return (
-    <section className={`rounded-3xl border border-cyan-300/20 bg-cyan-300/[0.06] p-4 shadow-[0_14px_42px_rgba(34,211,238,0.08)] ${className}`}>
+    <section className={`rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.05] p-3 shadow-[0_10px_30px_rgba(34,211,238,0.07)] sm:p-4 ${className}`}>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">IDENTITY SPLIT</p>
-          <h2 className="mt-2 font-serif text-2xl font-black leading-tight text-cyan-50">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-200">IDENTITY</p>
+          <h2 className="mt-1 font-serif text-lg font-black leading-tight text-cyan-50 sm:text-xl">
             {'\u8acb\u554f\u672c\u6b21\u5206\u6790\u5c0d\u8c61'}
           </h2>
         </div>
         <p className="text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
-          {'\u5148\u9078\u64c7\u5c0d\u8c61\uff0c\u8cc7\u6599\u5c31\u4e0d\u6703\u6df7\u5728\u4e00\u8d77\u3002'}
+          {'\u9078\u6211\u81ea\u5df1\u6703\u5beb\u5165\u6210\u9577\u4e2d\u5fc3\uff1b\u89aa\u53cb\u53ea\u505a\u672c\u6b21\u5206\u6790\u3002'}
         </p>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      {selectedOption && (
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-200/25 bg-amber-300/10 px-3 py-2">
+          <div className="min-w-0">
+            <p className="text-sm font-black text-amber-50">{IDENTITY_TARGET_LABEL[selectedOption.target]} · 已選擇</p>
+            <p className="mt-0.5 text-xs font-semibold leading-5 text-amber-100/75">{selectedOption.description}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const nextTarget = selectedOption.target === 'self' ? 'guest' : 'self';
+              setAnalysisIdentityTarget(nextTarget);
+              setSelected(nextTarget);
+            }}
+            className="shrink-0 rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1.5 text-[11px] font-black text-cyan-100"
+          >
+            切換對象
+          </button>
+        </div>
+      )}
+
+      {!selectedOption && (
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
         {OPTIONS.map((option) => {
           const active = selected === option.target;
           return (
@@ -73,7 +96,7 @@ export default function IdentitySplitSelector({ className = '' }: Props) {
                 setAnalysisIdentityTarget(option.target);
                 setSelected(option.target);
               }}
-              className={`rounded-2xl border px-4 py-4 text-left transition-all active:scale-[0.99] ${
+              className={`rounded-2xl border px-4 py-3 text-left transition-all active:scale-[0.99] ${
                 active
                   ? 'border-amber-300/70 bg-amber-300/14 shadow-[0_0_28px_rgba(251,191,36,0.16)]'
                   : 'border-white/10 bg-white/[0.04] hover:border-cyan-200/35 hover:bg-white/[0.07]'
@@ -94,6 +117,7 @@ export default function IdentitySplitSelector({ className = '' }: Props) {
           );
         })}
       </div>
+      )}
     </section>
   );
 }

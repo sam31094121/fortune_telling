@@ -47,7 +47,7 @@ export type FineDiningStageView = FineDiningExperienceStage & {
 export const FINE_DINING_EXPERIENCE_VERSION = 'fine_dining_experience_v2';
 
 export const FINE_DINING_MODULE_LABEL: Record<FineDiningExperienceModule, string> = {
-  number: '數字論吉凶',
+  number: '數字論好壞',
   nameology: 'AI 姓名學',
   ziwei: 'AI 紫微斗數',
   bazi: 'AI 八字命盤',

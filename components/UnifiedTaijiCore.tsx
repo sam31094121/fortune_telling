@@ -37,6 +37,8 @@ type TaijiCinemaStyle = CSSProperties & {
 };
 
 const FIVE_STAR_KEYS = ['space', 'fire', 'air', 'water', 'earth'] as const;
+const TAIJI_KINDNESS_LABEL = '心存善念｜順天而行';
+const TAIJI_KINDNESS_DESCRIPTION = '開心、協和、認知、善良又天真，讓太極從清明中心向外展開。';
 
 export default function UnifiedTaijiCore({
   active = false,
@@ -50,8 +52,8 @@ export default function UnifiedTaijiCore({
 }: UnifiedTaijiCoreProps) {
   const [tapCount, setTapCount] = useState(0);
   const [evolutionStage, setEvolutionStage] = useState<EvolutionStage>('idle');
-  const [evolutionLabel, setEvolutionLabel] = useState('AI 導演待命｜點擊太極開演');
-  const [evolutionDescription, setEvolutionDescription] = useState('');
+  const [evolutionLabel, setEvolutionLabel] = useState(TAIJI_KINDNESS_LABEL);
+  const [evolutionDescription, setEvolutionDescription] = useState(TAIJI_KINDNESS_DESCRIPTION);
   const [cinemaSegment, setCinemaSegment] = useState<TaijiCinemaSegment | null>(null);
   const [cinemaLocked, setCinemaLocked] = useState(false);
   const [liangyiReturning, setLiangyiReturning] = useState(false);
@@ -82,7 +84,7 @@ export default function UnifiedTaijiCore({
     if (decision.stage === 'idle') return;
     const stageConfig = Object.values(TAIJI_CORE_CONFIG).find((config) => config.stage === decision.stage);
     setEvolutionStage(decision.stage as EvolutionStage);
-    setEvolutionLabel(stageConfig?.label ?? 'AI 導演已接管太極核心');
+    setEvolutionLabel(stageConfig?.label ?? TAIJI_KINDNESS_LABEL);
     setEvolutionDescription(decision.reason);
     if (decision.stage === 'liangyi') setLiangyiSettled(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -379,7 +381,7 @@ export default function UnifiedTaijiCore({
     setLiangyiSettled(false);
     setLiangyiSpinLevel(0);
     setEvolutionStage('idle');
-    setEvolutionLabel('AI 導演待命｜點擊太極開演');
+    setEvolutionLabel(TAIJI_KINDNESS_LABEL);
     setEvolutionDescription('');
     setCinemaSegment(null);
     setCinemaLocked(false);
@@ -433,7 +435,7 @@ export default function UnifiedTaijiCore({
 
     setEvolutionStage('taiji');
     setEvolutionLabel(config.label);
-    setEvolutionDescription('太極核心先歸中，再自然展開下一層。');
+    setEvolutionDescription('太極核心先歸中，以善念自然展開下一層。');
 
     recenterTimerRef.current = setTimeout(() => {
       recenterTimerRef.current = null;
@@ -622,6 +624,9 @@ export default function UnifiedTaijiCore({
       data-taiji-layer-two="five-star-365-orbit"
       data-taiji-layer-three="space-glow-field"
       data-taiji-material="wikimedia-commons-esoteric-taijitu-public-domain"
+      data-taiji-blessing="kind-harmony"
+      data-taiji-intent="kindness-clear-mind-follow-nature"
+      data-taiji-blessing-copy={TAIJI_KINDNESS_DESCRIPTION}
       data-cinema-playing={cinemaSegment ? 'true' : 'false'}
       data-cinema-locked={cinemaLocked ? 'true' : 'false'}
       data-cinema-segment={cinemaSegment?.tap ?? 0}
@@ -633,14 +638,14 @@ export default function UnifiedTaijiCore({
         type="button"
         onPointerUp={handlePointerUp}
         onClick={handleSafeClick}
-        aria-label="AI導演太極互動劇場"
+        aria-label="太極正能量互動：心存善念，順天而行"
         aria-busy={cinemaLocked}
         disabled={cinemaLocked}
         data-tap-count={tapCount}
         data-cinema-segment={cinemaSegment?.tap ?? 0}
         data-cinema-locked={cinemaLocked ? 'true' : 'false'}
         className={`modal-taiji-button taiji-evolution-stage stage-${evolutionStage} group ${auraClass}`}
-        title="點擊太極推進 24 段影片；每段 6 秒，太極分兩儀、兩儀分四象、四象分八卦。"
+        title="點一下，讓太極展開開心、協和、清明與善意的光。"
       >
         {auraLabel && (
           <>
@@ -652,6 +657,11 @@ export default function UnifiedTaijiCore({
           </>
         )}
         <div className="modal-taiji-natural-bloom" aria-hidden="true" />
+        <div className="taiji-kindness-aura" aria-hidden="true">
+          {Array.from({ length: 8 }, (_, index) => (
+            <span key={index} className={`taiji-kindness-aura__beam taiji-kindness-aura__beam-${index}`} />
+          ))}
+        </div>
         <div className="taiji-cinema-space-field" aria-hidden="true" />
 
         <div className="modal-taiji-orbit-emblem" aria-hidden="true">
@@ -756,6 +766,10 @@ export default function UnifiedTaijiCore({
           </div>
         )}
         {touchPulse > 0 && <span key={touchPulse} className="taiji-touch-ripple" aria-hidden="true" />}
+        <div className="taiji-kindness-words" aria-hidden="true">
+          <span>心存善念</span>
+          <span>順天而行</span>
+        </div>
         <div className="modal-taiji-ground-glow" aria-hidden="true" />
       </button>
 
