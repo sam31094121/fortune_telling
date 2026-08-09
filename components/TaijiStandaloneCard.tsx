@@ -55,18 +55,21 @@ export default function TaijiStandaloneCard({
       className={cardClassName}
       data-taiji-material-layers={showThreeLayerMaterial ? TAIJI_THREE_LAYER_MATERIAL.length : undefined}
       data-taiji-material-signature={materialSignature}
-      data-taiji-kindness="happy-harmony-clear-kind"
+      data-taiji-kindness="three-act-clean-v5"
+      data-taiji-performance="three-act-clean-v5"
     >
-      <div className="taiji-stage-bagua-field" aria-hidden="true">
-        {Array.from({ length: 8 }, (_, index) => (
-          <span key={index} className={`taiji-stage-bagua-field__mark taiji-stage-bagua-field__mark--${index}`} />
-        ))}
+      <div className="taiji-kindness-screen" aria-hidden="true">
+        <span className="taiji-kindness-screen__act taiji-kindness-screen__act-core" />
+        <span className="taiji-kindness-screen__act taiji-kindness-screen__act-stars" />
+        <span className="taiji-kindness-screen__act taiji-kindness-screen__act-space" />
       </div>
-      <UnifiedTaijiCore showLabel={showLabel} limitToLiangyi={limitToLiangyi} holdEvolutionStages={holdEvolutionStages} adaptiveEntry={adaptiveEntry} />
-      <div className="taiji-kindness-signature" aria-label="太極正能量：心存善念，順天而行">
-        <span>心存善念，順天而行</span>
-        <small>開心 · 協和 · 認知 · 善良 · 天真</small>
-      </div>
+      <UnifiedTaijiCore
+        showLabel={showLabel}
+        limitToLiangyi={limitToLiangyi}
+        holdEvolutionStages={holdEvolutionStages}
+        adaptiveEntry={adaptiveEntry}
+        cleanThreeAct
+      />
     </div>
   );
 }

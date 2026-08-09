@@ -19123,43 +19123,6 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   letter-spacing: 0.08em;
 }
 
-.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .modal-taiji-button {
-  background:
-    radial-gradient(circle at 32% 22%, rgba(255, 247, 205, 0.2), transparent 30%),
-    radial-gradient(circle at 68% 76%, rgba(167, 243, 208, 0.13), transparent 42%),
-    linear-gradient(145deg, rgba(3, 7, 18, 0.96), rgba(17, 24, 39, 0.86));
-  border-color: rgba(255, 247, 205, 0.42) !important;
-  box-shadow:
-    inset 16px 18px 28px rgba(255, 255, 255, 0.1),
-    inset -18px -24px 36px rgba(0, 0, 0, 0.62),
-    0 18px 34px rgba(0, 0, 0, 0.3),
-    0 0 38px rgba(253, 230, 138, 0.14),
-    0 0 26px rgba(167, 243, 208, 0.08) !important;
-}
-
-.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .modal-taiji-orbit-emblem {
-  filter: saturate(0.98) contrast(1.04) brightness(1.04) !important;
-}
-
-.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .modal-evolution-rays,
-.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .modal-evolution-scan,
-.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .modal-evolution-flare {
-  opacity: 0.42 !important;
-  filter: blur(0.35px) saturate(0.96) !important;
-}
-
-.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .taiji-cinema-star-0 { color: #e9d5ff !important; }
-.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .taiji-cinema-star-1 { color: #fda4af !important; }
-.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .taiji-cinema-star-2 { color: #bae6fd !important; }
-.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .taiji-cinema-star-3 { color: #a7f3d0 !important; }
-.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .taiji-cinema-star-4 { color: #fde68a !important; }
-
-.home-taiji-cinema[data-taiji-kindness="happy-harmony-clear-kind"] .taiji-cinema-star::after {
-  background: rgba(15, 23, 42, 0.72) !important;
-  border-color: rgba(255, 247, 205, 0.28) !important;
-  color: rgba(255, 247, 205, 0.96) !important;
-}
-
 @media (max-width: 430px) {
   .taiji-kindness-words {
     bottom: 0.6rem;
@@ -19188,5 +19151,958 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
     margin-top: 0.14rem;
     font-size: 0.48rem;
     letter-spacing: 0.02em;
+  }
+}
+
+/* Taiji cinematic kindness V3: the message is the light, not visible text. */
+.taiji-kindness-screen,
+.taiji-kindness-screen span {
+  pointer-events: none;
+}
+
+.taiji-kindness-screen {
+  position: absolute;
+  inset: -16%;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 38% 62% 48% 52% / 44% 44% 56% 56%;
+  opacity: 0.96;
+  mix-blend-mode: screen;
+  transform: translateZ(-48px);
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(255, 252, 225, 0.42), transparent 31%),
+    radial-gradient(ellipse at 41% 30%, rgba(186, 230, 253, 0.1), transparent 32%),
+    radial-gradient(ellipse at 64% 69%, rgba(167, 243, 208, 0.24), transparent 38%),
+    radial-gradient(ellipse at 35% 68%, rgba(253, 186, 116, 0.12), transparent 33%),
+    linear-gradient(180deg, rgba(253, 230, 138, 0.1), rgba(14, 165, 233, 0.025));
+}
+
+.taiji-kindness-screen__dawn,
+.taiji-kindness-screen__warmth,
+.taiji-kindness-screen__clarity,
+.taiji-kindness-screen__horizon,
+.taiji-kindness-screen__path,
+.taiji-kindness-screen__veil {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.taiji-kindness-screen__dawn {
+  background:
+    radial-gradient(ellipse at 50% 43%, rgba(255, 252, 225, 0.58) 0 9%, rgba(255, 236, 179, 0.24) 26%, transparent 58%),
+    conic-gradient(from 220deg, transparent 0 12%, rgba(186, 230, 253, 0.08), transparent 29%, rgba(253, 230, 138, 0.26), transparent 56%, rgba(167, 243, 208, 0.18), transparent 78%);
+  filter: blur(6px);
+  opacity: 0.92;
+  animation: taiji-cinematic-dawn 11.8s ease-in-out infinite;
+}
+
+.taiji-kindness-screen__warmth {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(255, 247, 205, 0.52) 0 8%, rgba(255, 247, 205, 0.22) 18%, transparent 54%),
+    conic-gradient(from 12deg, transparent, rgba(255, 247, 205, 0.24), transparent 24%, rgba(167, 243, 208, 0.16), transparent 48%, rgba(254, 205, 211, 0.08), transparent 76%);
+  filter: blur(1.2px);
+  animation: taiji-cinematic-warmth 9.8s ease-in-out infinite;
+}
+
+.taiji-kindness-screen__clarity {
+  inset: 12%;
+  border: 1px solid rgba(255, 247, 205, 0.16);
+  box-shadow:
+    inset 0 0 30px rgba(255, 247, 205, 0.1),
+    0 0 24px rgba(167, 243, 208, 0.08);
+  opacity: 0.7;
+  animation: taiji-cinematic-clarity 9.6s ease-in-out infinite;
+}
+
+.taiji-kindness-screen__horizon {
+  inset: 24% 7%;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 247, 205, 0.26), rgba(186, 230, 253, 0.16), transparent),
+    linear-gradient(0deg, transparent 47%, rgba(255, 247, 205, 0.16) 50%, transparent 53%);
+  opacity: 0.66;
+  transform: rotateX(60deg) scaleX(1.02);
+  animation: taiji-cinematic-horizon 10.4s ease-in-out infinite;
+}
+
+.taiji-kindness-screen__path {
+  inset: 56% 15% -5%;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 252, 225, 0.26), rgba(167, 243, 208, 0.12), transparent),
+    radial-gradient(ellipse at 50% 0%, rgba(255, 252, 225, 0.22), transparent 62%);
+  filter: blur(2px);
+  transform: perspective(360px) rotateX(66deg) scaleX(0.8);
+  opacity: 0.74;
+  animation: taiji-cinematic-path 8.6s ease-in-out infinite;
+}
+
+.taiji-kindness-screen__veil {
+  background:
+    repeating-linear-gradient(100deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 18px),
+    linear-gradient(145deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+  opacity: 0.3;
+  mix-blend-mode: screen;
+  animation: taiji-cinematic-veil 14s linear infinite;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] {
+  background: transparent !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"]::before {
+  content: none !important;
+  display: none !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"]::after {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 38% 62% 48% 52% / 44% 44% 56% 56%;
+  background:
+    radial-gradient(ellipse at 50% 39%, rgba(255, 250, 220, 0.5), transparent 31%),
+    radial-gradient(ellipse at 43% 67%, rgba(167, 243, 208, 0.22), transparent 34%),
+    radial-gradient(ellipse at 66% 63%, rgba(186, 230, 253, 0.12), transparent 34%),
+    radial-gradient(ellipse at 55% 78%, rgba(253, 186, 116, 0.13), transparent 30%);
+  filter: blur(18px);
+  opacity: 0.78;
+  mix-blend-mode: screen;
+  animation: taiji-cinematic-dawn 11.2s ease-in-out infinite;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-kindness-signature,
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-kindness-words,
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-director-caption,
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .unified-mantra-badge {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .unified-taiji-shell {
+  min-height: clamp(20rem, 68vw, 24rem) !important;
+  padding: 0 !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-stage-bagua-field {
+  opacity: 0.055 !important;
+  filter: saturate(0.42) contrast(0.86) brightness(1.16) blur(0.25px) !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-stage-bagua-field::before,
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-stage-bagua-field::after {
+  opacity: 0.04 !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-stage-bagua-field__mark {
+  opacity: 0.1 !important;
+  filter: none !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .modal-taiji-button {
+  width: min(15.4rem, 66vw) !important;
+  height: min(15.4rem, 66vw) !important;
+  border-color: rgba(255, 250, 220, 0.34) !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 252, 225, 0.34), transparent 46%),
+    radial-gradient(circle at 42% 28%, rgba(255, 255, 255, 0.22), transparent 28%),
+    radial-gradient(circle at 64% 68%, rgba(167, 243, 208, 0.2), transparent 35%),
+    radial-gradient(circle at 28% 70%, rgba(253, 186, 116, 0.1), transparent 34%),
+    linear-gradient(145deg, rgba(12, 17, 27, 0.58), rgba(17, 24, 39, 0.5)) !important;
+  box-shadow:
+    inset 12px 16px 24px rgba(255, 255, 255, 0.14),
+    inset -14px -20px 32px rgba(0, 0, 0, 0.42),
+    0 18px 34px rgba(0, 0, 0, 0.18),
+    0 0 44px rgba(255, 247, 205, 0.32),
+    0 0 110px rgba(167, 243, 208, 0.14) !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .modal-taiji-natural-bloom,
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .modal-taiji-ground-glow {
+  opacity: 0.18 !important;
+  filter: none !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .modal-taiji-orbit-emblem {
+  box-shadow:
+    inset 12px 14px 24px rgba(255, 255, 255, 0.16),
+    inset -16px -20px 30px rgba(0, 0, 0, 0.46),
+    0 12px 26px rgba(0, 0, 0, 0.18),
+    0 0 34px rgba(255, 247, 205, 0.12) !important;
+  filter: saturate(0.78) contrast(0.94) brightness(1.2) !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .modal-taiji-3d-core {
+  box-shadow:
+    inset 10px 12px 18px rgba(255, 255, 255, 0.36),
+    inset -13px -16px 26px rgba(0, 0, 0, 0.46),
+    inset 0 0 0 1px rgba(255, 247, 205, 0.42),
+    0 10px 20px rgba(0, 0, 0, 0.24),
+    0 0 30px rgba(255, 247, 205, 0.42),
+    0 0 56px rgba(186, 230, 253, 0.16) !important;
+  filter: drop-shadow(0 0 24px rgba(255, 247, 205, 0.45)) brightness(1.14) saturate(0.96) !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-kindness-aura {
+  inset: -18%;
+  opacity: 0.74 !important;
+  mix-blend-mode: screen;
+  animation: taiji-cinematic-aura 8.8s ease-in-out infinite;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-kindness-aura::before,
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-kindness-aura::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-kindness-aura::before {
+  inset: 15%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 247, 205, 0.3) 0 8%, rgba(255, 247, 205, 0.12) 22%, transparent 56%),
+    conic-gradient(from 0deg, rgba(255, 247, 205, 0.12), transparent 16%, rgba(167, 243, 208, 0.11), transparent 36%, rgba(186, 230, 253, 0.1), transparent 58%, rgba(255, 247, 205, 0.1), transparent);
+  filter: blur(0.6px);
+  animation: taiji-cinematic-soft-ray 9.2s ease-in-out infinite;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-kindness-aura::after {
+  inset: 5%;
+  border: 1px solid rgba(255, 247, 205, 0.13);
+  box-shadow:
+    inset 0 0 38px rgba(255, 247, 205, 0.08),
+    0 0 30px rgba(186, 230, 253, 0.06);
+  opacity: 0.58;
+  animation: taiji-cinematic-ring 10.2s ease-in-out infinite;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-kindness-aura__beam {
+  width: 1px;
+  height: 54%;
+  opacity: 0.48;
+  background: linear-gradient(to top, transparent, rgba(255, 247, 205, 0.42), rgba(167, 243, 208, 0.12), transparent);
+  animation: taiji-cinematic-beam 8.8s ease-in-out infinite;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-light-orbit {
+  opacity: 0.08 !important;
+  box-shadow: none !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-light-orbit__head {
+  opacity: 0.12 !important;
+  box-shadow: none !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-cinema-star::after {
+  content: "" !important;
+  display: none !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-cinema-star {
+  box-shadow:
+    inset 0 4px 7px rgba(255,255,255,0.42),
+    inset 0 -7px 10px rgba(0,0,0,0.32),
+    0 0 10px currentColor !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-cinema-space-field,
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .modal-evolution-flare,
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .modal-evolution-scan,
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .modal-evolution-rays,
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .unified-evolution-screen,
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .unified-evolution-pulse {
+  opacity: 0.12 !important;
+  filter: none !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-premium-energy-grid {
+  opacity: 0.12 !important;
+}
+
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-premium-segment-ticks,
+.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-premium-orbital-rim {
+  opacity: 0.22 !important;
+}
+
+.taiji-kindness-screen__mercy,
+.taiji-kindness-screen__innocence {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.taiji-kindness-screen__mercy {
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(255, 255, 238, 0.56) 0 8%, rgba(255, 247, 205, 0.28) 21%, transparent 58%),
+    conic-gradient(from 92deg, transparent 0 8%, rgba(253, 230, 138, 0.22), transparent 24%, rgba(167, 243, 208, 0.2), transparent 42%, rgba(254, 205, 211, 0.12), transparent 63%, rgba(255, 255, 238, 0.18), transparent 82%);
+  filter: blur(8px);
+  opacity: 0.84;
+  mix-blend-mode: screen;
+  animation: taiji-kindness-mercy 12.4s ease-in-out infinite;
+}
+
+.taiji-kindness-screen__innocence {
+  inset: 6%;
+  background:
+    radial-gradient(circle at 38% 28%, rgba(255, 255, 255, 0.18) 0 2px, transparent 3px 100%),
+    radial-gradient(circle at 67% 34%, rgba(255, 247, 205, 0.14) 0 1px, transparent 3px 100%),
+    radial-gradient(circle at 60% 72%, rgba(167, 243, 208, 0.12) 0 2px, transparent 4px 100%),
+    radial-gradient(circle at 32% 66%, rgba(186, 230, 253, 0.1) 0 1px, transparent 3px 100%);
+  filter: blur(0.2px);
+  opacity: 0.72;
+  animation: taiji-kindness-innocence 9.6s ease-in-out infinite;
+}
+
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] {
+  width: min(34rem, 100%) !important;
+  min-height: clamp(24rem, 62vw, 35rem) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"]::after {
+  inset: -30% !important;
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(255, 255, 238, 0.5), transparent 27%),
+    radial-gradient(ellipse at 50% 62%, rgba(255, 236, 179, 0.26), transparent 35%),
+    radial-gradient(ellipse at 36% 66%, rgba(167, 243, 208, 0.22), transparent 32%),
+    radial-gradient(ellipse at 68% 62%, rgba(186, 230, 253, 0.12), transparent 31%),
+    radial-gradient(ellipse at 52% 80%, rgba(254, 205, 211, 0.12), transparent 28%) !important;
+  opacity: 0.72 !important;
+  filter: blur(24px) saturate(1.06) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .taiji-kindness-screen {
+  inset: -19% !important;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(255, 255, 238, 0.58), transparent 26%),
+    radial-gradient(ellipse at 44% 68%, rgba(167, 243, 208, 0.22), transparent 34%),
+    radial-gradient(ellipse at 66% 66%, rgba(253, 230, 138, 0.28), transparent 35%),
+    radial-gradient(ellipse at 32% 34%, rgba(186, 230, 253, 0.12), transparent 31%),
+    linear-gradient(180deg, rgba(255, 250, 220, 0.12), rgba(167, 243, 208, 0.035)) !important;
+  opacity: 0.94 !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .unified-taiji-shell {
+  min-height: clamp(23rem, 70vw, 31rem) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .modal-taiji-button {
+  width: min(16.8rem, 70vw) !important;
+  height: min(16.8rem, 70vw) !important;
+  border-color: rgba(255, 255, 238, 0.44) !important;
+  background:
+    radial-gradient(circle at 50% 49%, rgba(255, 255, 238, 0.46), transparent 43%),
+    radial-gradient(circle at 39% 25%, rgba(255, 255, 255, 0.28), transparent 25%),
+    radial-gradient(circle at 65% 70%, rgba(167, 243, 208, 0.24), transparent 34%),
+    radial-gradient(circle at 31% 73%, rgba(253, 186, 116, 0.14), transparent 32%),
+    linear-gradient(145deg, rgba(16, 20, 29, 0.48), rgba(22, 28, 38, 0.4)) !important;
+  box-shadow:
+    inset 14px 18px 28px rgba(255, 255, 255, 0.18),
+    inset -14px -20px 30px rgba(0, 0, 0, 0.32),
+    0 16px 28px rgba(0, 0, 0, 0.14),
+    0 0 56px rgba(255, 247, 205, 0.4),
+    0 0 130px rgba(167, 243, 208, 0.18) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .modal-taiji-orbit-emblem {
+  filter: saturate(0.72) contrast(0.88) brightness(1.28) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .modal-taiji-3d-core {
+  filter: drop-shadow(0 0 30px rgba(255, 247, 205, 0.56)) brightness(1.2) saturate(0.92) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .taiji-stage-bagua-field,
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .unified-bagua-mandala,
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .modal-evolution-rays,
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .modal-evolution-orbit {
+  opacity: 0.07 !important;
+  filter: blur(0.4px) saturate(0.42) brightness(1.2) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .taiji-light-orbit,
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .taiji-cinema-star-field {
+  opacity: 0.06 !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .taiji-premium-energy-grid,
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .taiji-premium-segment-ticks,
+.home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .taiji-premium-orbital-rim {
+  opacity: 0.12 !important;
+}
+
+.home-hero-stage--taiji-only:has(.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"]) {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(25rem, 64vh, 34rem);
+  align-items: center;
+  overflow: visible;
+}
+
+.home-hero-stage--taiji-only:has(.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"])::before,
+.home-hero-stage--taiji-only:has(.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"])::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.home-hero-stage--taiji-only:has(.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"])::before {
+  inset: -5.5rem -14vw -7rem;
+  background:
+    radial-gradient(ellipse at 50% 34%, rgba(255, 252, 225, 0.18), transparent 32%),
+    radial-gradient(ellipse at 34% 62%, rgba(167, 243, 208, 0.09), transparent 30%),
+    radial-gradient(ellipse at 68% 60%, rgba(186, 230, 253, 0.1), transparent 34%),
+    linear-gradient(180deg, rgba(255, 250, 220, 0.035), transparent 78%);
+  filter: blur(0.2px);
+}
+
+.home-hero-stage--taiji-only:has(.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"])::after {
+  left: 50%;
+  top: 54%;
+  width: min(54rem, 116vw);
+  height: min(14rem, 34vw);
+  transform: translate(-50%, -50%) perspective(540px) rotateX(64deg);
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 252, 225, 0.2), rgba(167, 243, 208, 0.08), transparent),
+    radial-gradient(ellipse at 50% 50%, rgba(255, 252, 225, 0.18), transparent 68%);
+  opacity: 0.74;
+  filter: blur(2px);
+  animation: taiji-cinematic-horizon 11s ease-in-out infinite;
+}
+
+.home-core-panel:has(.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"]) {
+  max-width: min(31rem, 100%) !important;
+  min-height: clamp(24rem, 58vw, 32rem);
+  padding-block: clamp(1rem, 3vw, 2rem);
+}
+
+.home-sticky-journey:has(+ .home-hero-stage--taiji-only .home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"]) {
+  border-color: rgba(255, 247, 205, 0.22) !important;
+  background:
+    linear-gradient(120deg, rgba(10, 18, 32, 0.76), rgba(23, 35, 42, 0.48)),
+    radial-gradient(circle at 84% 50%, rgba(255, 247, 205, 0.16), transparent 32%) !important;
+  box-shadow:
+    0 18px 44px rgba(2, 6, 23, 0.18),
+    0 0 34px rgba(255, 247, 205, 0.08) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+@keyframes taiji-cinematic-warmth {
+  0%, 100% { opacity: 0.55; transform: scale(0.92) rotate(0deg); }
+  50% { opacity: 0.9; transform: scale(1.04) rotate(4deg); }
+}
+
+@keyframes taiji-cinematic-dawn {
+  0%, 100% { opacity: 0.52; transform: scale(0.94) rotate(-2deg); }
+  48% { opacity: 0.92; transform: scale(1.08) rotate(3deg); }
+}
+
+@keyframes taiji-kindness-mercy {
+  0%, 100% { opacity: 0.42; transform: scale(0.86) rotate(-5deg); }
+  42% { opacity: 0.88; transform: scale(1.1) rotate(4deg); }
+  68% { opacity: 0.66; transform: scale(1.02) rotate(1deg); }
+}
+
+@keyframes taiji-kindness-innocence {
+  0%, 100% { opacity: 0.36; transform: scale(0.96) translateY(5px); }
+  48% { opacity: 0.78; transform: scale(1.04) translateY(-4px); }
+}
+
+@keyframes taiji-cinematic-clarity {
+  0%, 100% { opacity: 0.42; transform: scale(0.94); }
+  52% { opacity: 0.72; transform: scale(1.04); }
+}
+
+@keyframes taiji-cinematic-horizon {
+  0%, 100% { opacity: 0.28; transform: rotateX(58deg) scaleX(0.88) translateY(4px); }
+  48% { opacity: 0.58; transform: rotateX(58deg) scaleX(1.02) translateY(0); }
+}
+
+@keyframes taiji-cinematic-aura {
+  0%, 100% { opacity: 0.46; transform: scale(0.92) rotate(0deg); }
+  50% { opacity: 0.78; transform: scale(1.05) rotate(5deg); }
+}
+
+@keyframes taiji-cinematic-soft-ray {
+  0%, 100% { opacity: 0.52; transform: scale(0.9) rotate(0deg); }
+  50% { opacity: 0.88; transform: scale(1.08) rotate(8deg); }
+}
+
+@keyframes taiji-cinematic-ring {
+  0%, 100% { opacity: 0.24; transform: scale(0.9); }
+  50% { opacity: 0.58; transform: scale(1.08); }
+}
+
+@keyframes taiji-cinematic-beam {
+  0%, 100% { opacity: 0.18; transform: translate(-50%, -100%) rotate(var(--kindness-angle)) scaleY(0.78); }
+  50% { opacity: 0.56; transform: translate(-50%, -100%) rotate(var(--kindness-angle)) scaleY(1.12); }
+}
+
+@keyframes taiji-cinematic-path {
+  0%, 100% { opacity: 0.36; transform: perspective(360px) rotateX(66deg) scaleX(0.72) translateY(5px); }
+  50% { opacity: 0.78; transform: perspective(360px) rotateX(66deg) scaleX(0.95) translateY(0); }
+}
+
+@keyframes taiji-cinematic-veil {
+  0% { transform: translateX(-2%) rotate(0deg); }
+  100% { transform: translateX(2%) rotate(1deg); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .unified-taiji-shell {
+    min-height: min(21.25rem, calc(100vw + 2.1rem)) !important;
+  }
+
+  .home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .modal-taiji-button {
+    width: min(13.75rem, 68vw) !important;
+    height: min(13.75rem, 68vw) !important;
+  }
+
+  .home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"] .taiji-kindness-screen {
+    inset: -17%;
+  }
+
+  .home-hero-stage--taiji-only:has(.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"]) {
+    min-height: min(29rem, 88vh);
+    margin-bottom: 1.5rem;
+  }
+
+  .home-core-panel:has(.home-taiji-cinema[data-taiji-kindness="cinematic-kindness-v3"]) {
+    min-height: min(25rem, 92vw);
+    padding-block: 0.6rem;
+  }
+
+  .home-taiji-cinema[data-taiji-performance="kindness-light-v4"] {
+    min-height: min(26rem, 96vw) !important;
+  }
+
+  .home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .unified-taiji-shell {
+    min-height: min(23.5rem, 94vw) !important;
+  }
+
+  .home-taiji-cinema[data-taiji-performance="kindness-light-v4"] .modal-taiji-button {
+    width: min(14.6rem, 72vw) !important;
+    height: min(14.6rem, 72vw) !important;
+  }
+}
+
+/* Taiji three-act clean V5: core, five stars, space. No stacked visual noise. */
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] {
+  width: min(29rem, 100%) !important;
+  min-height: clamp(21rem, 56vw, 28rem) !important;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(255, 252, 225, 0.22), transparent 33%),
+    radial-gradient(circle at 50% 68%, rgba(187, 247, 208, 0.14), transparent 44%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(15, 23, 42, 0.08)) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"]::before,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"]::after {
+  content: none !important;
+  display: none !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-kindness-screen {
+  inset: -5% !important;
+  border-radius: 999px !important;
+  opacity: 1 !important;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 252, 225, 0.36), transparent 31%),
+    radial-gradient(circle at 50% 61%, rgba(187, 247, 208, 0.2), transparent 47%),
+    radial-gradient(ellipse at 50% 80%, rgba(186, 230, 253, 0.12), transparent 58%) !important;
+  transform: none !important;
+}
+
+.taiji-kindness-screen__act {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.taiji-kindness-screen__act-core {
+  background:
+    radial-gradient(circle at 50% 44%, rgba(255, 255, 238, 0.5) 0 8%, rgba(255, 247, 205, 0.24) 22%, transparent 46%),
+    radial-gradient(circle at 50% 44%, transparent 0 42%, rgba(255, 247, 205, 0.18) 43% 44%, transparent 49%);
+  filter: blur(1.5px);
+  opacity: 0.94;
+  animation: taiji-clean-core-breath 8.8s ease-in-out infinite;
+}
+
+.taiji-kindness-screen__act-stars {
+  inset: 13%;
+  background:
+    radial-gradient(circle at 50% 8%, rgba(255, 247, 205, 0.42) 0 2px, transparent 4px),
+    radial-gradient(circle at 88% 38%, rgba(167, 243, 208, 0.28) 0 2px, transparent 4px),
+    radial-gradient(circle at 74% 86%, rgba(186, 230, 253, 0.24) 0 2px, transparent 4px),
+    radial-gradient(circle at 26% 86%, rgba(254, 205, 211, 0.22) 0 2px, transparent 4px),
+    radial-gradient(circle at 12% 38%, rgba(253, 230, 138, 0.28) 0 2px, transparent 4px);
+  opacity: 0.78;
+  animation: taiji-clean-five-stars 18s linear infinite;
+}
+
+.taiji-kindness-screen__act-space {
+  inset: 52% 7% 4%;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 252, 225, 0.22), rgba(167, 243, 208, 0.08), transparent),
+    radial-gradient(ellipse at 50% 0%, rgba(255, 252, 225, 0.14), transparent 62%);
+  filter: blur(2px);
+  opacity: 0.7;
+  transform: perspective(420px) rotateX(66deg) scaleX(0.82);
+  animation: taiji-clean-space-path 10s ease-in-out infinite;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .unified-taiji-shell {
+  min-height: clamp(19rem, 58vw, 25rem) !important;
+  padding: 0 !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .unified-taiji-shell--three-act-clean {
+  display: grid !important;
+  place-items: center !important;
+  min-height: clamp(18rem, 55vw, 24rem) !important;
+  background: transparent !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .modal-taiji-button {
+  width: min(17.2rem, 72vw) !important;
+  height: min(17.2rem, 72vw) !important;
+  border-color: rgba(255, 247, 205, 0.3) !important;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(255, 255, 238, 0.4), transparent 42%),
+    radial-gradient(circle at 62% 68%, rgba(187, 247, 208, 0.16), transparent 35%),
+    linear-gradient(145deg, rgba(255, 252, 225, 0.08), rgba(15, 23, 42, 0.38)) !important;
+  box-shadow:
+    inset 10px 12px 20px rgba(255, 255, 255, 0.12),
+    inset -12px -16px 26px rgba(0, 0, 0, 0.38),
+    0 14px 24px rgba(0, 0, 0, 0.14),
+    0 0 56px rgba(255, 247, 205, 0.36) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-clean-three-act-button {
+  overflow: hidden !important;
+  isolation: isolate;
+  border-radius: 999px !important;
+  transform: translateZ(0);
+}
+
+.taiji-clean-act {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.taiji-clean-act--core {
+  z-index: 1;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 238, 0.5) 0 8%, rgba(255, 247, 205, 0.2) 20%, transparent 38%),
+    radial-gradient(circle at 50% 50%, transparent 0 33%, rgba(255, 247, 205, 0.24) 34% 35%, transparent 43%);
+  filter: blur(0.8px);
+  opacity: 0.72;
+  animation: taiji-clean-core-breath 8.8s ease-in-out infinite;
+}
+
+.taiji-clean-act--stars {
+  z-index: 4;
+  inset: 3%;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 47%, rgba(255, 247, 205, 0.22) 48%, transparent 51%),
+    radial-gradient(circle at 50% 50%, rgba(255, 252, 225, 0.06), transparent 58%);
+  opacity: 0.98;
+  perspective: 760px;
+  transform-style: preserve-3d;
+}
+
+.taiji-clean-five-element-orbit {
+  position: absolute;
+  inset: 1%;
+  border-radius: inherit;
+  transform-style: preserve-3d;
+  animation: taiji-clean-five-stars-3d 14s linear infinite;
+}
+
+.taiji-clean-five-element-orbit::before,
+.taiji-clean-five-element-orbit::after {
+  content: "";
+  position: absolute;
+  inset: 8%;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.taiji-clean-five-element-orbit::before {
+  border: 1px solid rgba(255, 247, 205, 0.34);
+  box-shadow:
+    inset 0 0 20px rgba(255, 247, 205, 0.14),
+    0 0 24px rgba(255, 247, 205, 0.18);
+  transform: rotateX(64deg) rotateZ(-12deg);
+}
+
+.taiji-clean-five-element-orbit::after {
+  inset: 17%;
+  border: 1px solid rgba(186, 230, 253, 0.14);
+  transform: rotateX(68deg) rotateZ(28deg);
+  filter: blur(0.2px);
+}
+
+.taiji-clean-five-element-planet {
+  --planet-size: clamp(1.12rem, 2.3vw, 1.46rem);
+  --planet-color: rgba(255, 247, 205, 0.94);
+  --planet-shadow: rgba(255, 247, 205, 0.32);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--planet-size);
+  height: var(--planet-size);
+  margin: calc(var(--planet-size) / -2);
+  border-radius: 999px;
+  transform:
+    rotate(var(--planet-angle))
+    translateX(clamp(5.65rem, 18vw, 7rem))
+    rotate(calc(-1 * var(--planet-angle)))
+    translateZ(34px);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.taiji-clean-five-element-planet__sphere {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.98) 0 13%, transparent 25%),
+    radial-gradient(circle at 68% 76%, rgba(0, 0, 0, 0.34), transparent 46%),
+    radial-gradient(circle at 50% 50%, var(--planet-color) 0 43%, rgba(15, 23, 42, 0.24) 78%, rgba(2, 6, 23, 0.5) 100%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.5), var(--planet-color) 45%, rgba(15, 23, 42, 0.44));
+  box-shadow:
+    inset 4px 5px 7px rgba(255, 255, 255, 0.46),
+    inset -5px -7px 10px rgba(0, 0, 0, 0.44),
+    0 0 20px var(--planet-shadow),
+    0 10px 18px rgba(0, 0, 0, 0.36);
+  transform: translateZ(30px);
+  transform-style: preserve-3d;
+}
+
+.taiji-clean-five-element-planet__sphere::before {
+  content: "";
+  position: absolute;
+  inset: 14% 18% auto auto;
+  width: 26%;
+  height: 26%;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.72);
+  filter: blur(0.5px);
+}
+
+.taiji-clean-five-element-planet__sphere::after {
+  content: "";
+  position: absolute;
+  inset: -52%;
+  border-radius: inherit;
+  background: radial-gradient(circle, var(--planet-shadow), transparent 64%);
+  opacity: 0.42;
+  filter: blur(2px);
+  z-index: -1;
+}
+
+.taiji-clean-five-element-planet--space {
+  --planet-size: clamp(1.32rem, 2.55vw, 1.6rem);
+  --planet-color: rgba(221, 214, 254, 0.96);
+  --planet-shadow: rgba(221, 214, 254, 0.38);
+}
+
+.taiji-clean-five-element-planet--fire {
+  --planet-color: rgba(253, 186, 116, 0.98);
+  --planet-shadow: rgba(251, 146, 60, 0.4);
+}
+
+.taiji-clean-five-element-planet--air {
+  --planet-color: rgba(186, 230, 253, 0.98);
+  --planet-shadow: rgba(125, 211, 252, 0.36);
+}
+
+.taiji-clean-five-element-planet--water {
+  --planet-color: rgba(103, 232, 249, 0.96);
+  --planet-shadow: rgba(34, 211, 238, 0.38);
+}
+
+.taiji-clean-five-element-planet--earth {
+  --planet-color: rgba(187, 247, 208, 0.96);
+  --planet-shadow: rgba(74, 222, 128, 0.34);
+}
+
+.taiji-clean-act--space {
+  z-index: 0;
+  inset: 49% 0% 2%;
+  border-radius: 999px;
+  background:
+    repeating-radial-gradient(ellipse at 50% 6%, rgba(255, 247, 205, 0.14) 0 1px, transparent 2px 17px),
+    linear-gradient(90deg, transparent, rgba(255, 252, 225, 0.28), rgba(187, 247, 208, 0.14), transparent),
+    radial-gradient(ellipse at 50% 8%, rgba(255, 252, 225, 0.24), transparent 64%);
+  filter: blur(1.1px);
+  opacity: 0.86;
+  transform: perspective(520px) rotateX(68deg) scaleX(0.92);
+  animation: taiji-clean-space-path 10s ease-in-out infinite;
+}
+
+.taiji-clean-act--space::before,
+.taiji-clean-act--space::after {
+  content: "";
+  position: absolute;
+  inset: 12% 5%;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.taiji-clean-act--space::before {
+  border-top: 1px solid rgba(255, 247, 205, 0.26);
+  box-shadow:
+    0 -12px 26px rgba(255, 247, 205, 0.1),
+    inset 0 18px 34px rgba(186, 230, 253, 0.08);
+}
+
+.taiji-clean-act--space::after {
+  inset: 26% 18% 12%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  filter: blur(3px);
+  opacity: 0.58;
+}
+
+.taiji-clean-core-shell {
+  position: absolute;
+  z-index: 5;
+  inset: 29%;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 42% 35%, rgba(255, 255, 255, 0.28), transparent 38%),
+    radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.34), rgba(2, 6, 23, 0.58));
+  box-shadow:
+    inset 9px 11px 17px rgba(255, 255, 255, 0.18),
+    inset -11px -13px 22px rgba(0, 0, 0, 0.46),
+    0 0 24px rgba(255, 247, 205, 0.32),
+    0 12px 28px rgba(0, 0, 0, 0.26);
+}
+
+.taiji-clean-core-shell .taiji-core-symbol-overlay {
+  width: 100%;
+  height: 100%;
+  opacity: 0.9;
+  filter: saturate(0.86) brightness(1.12) drop-shadow(0 0 12px rgba(255, 247, 205, 0.26));
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .modal-taiji-orbit-emblem {
+  filter: saturate(0.72) contrast(0.92) brightness(1.14) !important;
+  box-shadow:
+    inset 10px 12px 22px rgba(255, 255, 255, 0.12),
+    inset -14px -18px 28px rgba(0, 0, 0, 0.42),
+    0 10px 20px rgba(0, 0, 0, 0.14) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .modal-taiji-3d-core {
+  filter: drop-shadow(0 0 18px rgba(255, 247, 205, 0.36)) brightness(1.12) saturate(0.9) !important;
+}
+
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-stage-bagua-field,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-kindness-aura,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-light-orbit,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-cinema-star-field,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-gold-waves,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-celestial-mist,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-second-space-plane,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-cinema-space-field,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .modal-evolution-flare,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .modal-evolution-scan,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .modal-evolution-rays,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .modal-evolution-orbit,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .unified-evolution-screen,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .unified-evolution-pulse,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .unified-bagua-mandala,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-premium-energy-grid,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-premium-segment-ticks,
+.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .taiji-premium-orbital-rim {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.home-hero-stage--taiji-only:has(.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"]) {
+  min-height: clamp(22rem, 58vh, 30rem) !important;
+}
+
+.home-core-panel:has(.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"]) {
+  max-width: min(29rem, 100%) !important;
+  min-height: clamp(21rem, 54vw, 28rem) !important;
+  padding-block: clamp(0.75rem, 2vw, 1.35rem) !important;
+}
+
+@keyframes taiji-clean-core-breath {
+  0%, 100% { opacity: 0.58; transform: scale(0.94); }
+  50% { opacity: 0.92; transform: scale(1.04); }
+}
+
+@keyframes taiji-clean-five-stars {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes taiji-clean-five-stars-3d {
+  0% { transform: rotateZ(0deg) translateZ(22px); }
+  50% { transform: rotateZ(180deg) translateZ(34px); }
+  100% { transform: rotateZ(360deg) translateZ(22px); }
+}
+
+@keyframes taiji-clean-space-path {
+  0%, 100% { opacity: 0.34; transform: perspective(420px) rotateX(66deg) scaleX(0.72) translateY(5px); }
+  50% { opacity: 0.64; transform: perspective(420px) rotateX(66deg) scaleX(0.92) translateY(0); }
+}
+
+@media (max-width: 430px) {
+  .home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] {
+    min-height: min(22rem, 86vw) !important;
+  }
+
+  .home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .unified-taiji-shell {
+    min-height: min(20.5rem, 84vw) !important;
+  }
+
+  .home-taiji-cinema[data-taiji-performance="three-act-clean-v5"] .modal-taiji-button {
+    width: min(15.2rem, 74vw) !important;
+    height: min(15.2rem, 74vw) !important;
+  }
+
+  .taiji-clean-five-element-planet {
+    --planet-size: clamp(1rem, 4vw, 1.22rem);
+    transform:
+      rotate(var(--planet-angle))
+      translateX(min(5.05rem, 25vw))
+      rotate(calc(-1 * var(--planet-angle)))
+      translateZ(28px);
+  }
+
+  .taiji-clean-five-element-planet__sphere {
+    transform: translateZ(24px);
+  }
+
+  .taiji-clean-core-shell {
+    inset: 30%;
+  }
+
+  .home-core-panel:has(.home-taiji-cinema[data-taiji-performance="three-act-clean-v5"]) {
+    min-height: min(22rem, 88vw) !important;
   }
 }

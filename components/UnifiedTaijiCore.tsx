@@ -27,6 +27,7 @@ type UnifiedTaijiCoreProps = {
   limitToLiangyi?: boolean;
   holdEvolutionStages?: boolean;
   adaptiveEntry?: boolean;
+  cleanThreeAct?: boolean;
 };
 
 type TaijiCinemaStyle = CSSProperties & {
@@ -37,8 +38,15 @@ type TaijiCinemaStyle = CSSProperties & {
 };
 
 const FIVE_STAR_KEYS = ['space', 'fire', 'air', 'water', 'earth'] as const;
-const TAIJI_KINDNESS_LABEL = '心存善念｜順天而行';
-const TAIJI_KINDNESS_DESCRIPTION = '開心、協和、認知、善良又天真，讓太極從清明中心向外展開。';
+const CLEAN_FIVE_ELEMENT_PLANETS = [
+  { key: 'space', className: 'space' },
+  { key: 'fire', className: 'fire' },
+  { key: 'air', className: 'air' },
+  { key: 'water', className: 'water' },
+  { key: 'earth', className: 'earth' },
+] as const;
+const TAIJI_KINDNESS_LABEL = '太極互動';
+const TAIJI_KINDNESS_DESCRIPTION = '';
 
 export default function UnifiedTaijiCore({
   active = false,
@@ -49,6 +57,7 @@ export default function UnifiedTaijiCore({
   limitToLiangyi = false,
   holdEvolutionStages = false,
   adaptiveEntry = false,
+  cleanThreeAct = false,
 }: UnifiedTaijiCoreProps) {
   const [tapCount, setTapCount] = useState(0);
   const [evolutionStage, setEvolutionStage] = useState<EvolutionStage>('idle');
@@ -125,139 +134,99 @@ export default function UnifiedTaijiCore({
 
   const playTouchTone = (nextTapCount: number) => {
     try {
-      // Every tap must produce its Hz tone -- audio playback itself is cheap (no
-      // rendering/GPU cost), unlike the visual lite-effects this gate was built for,
-      // so this specific tone bypasses the low-power/reduced-motion skip.
       const ctx = createAudioContext(false);
       if (!ctx) return;
       const now = ctx.currentTime;
       const { frequency, pulseHz } = getTaijiTapTone(nextTapCount);
-      const duration = 0.72;
+      const elementIndex = (Math.max(1, nextTapCount) - 1) % 5;
+      const cycleIndex = Math.floor((Math.max(1, nextTapCount) - 1) / 5);
+      const fifthFrequency = frequency * 1.498;
+      const octaveFrequency = frequency * 2;
+      const duration = 1.05 + Math.min(0.28, cycleIndex * 0.045);
 
-      // Real acoustic resonance comes from multiple related frequencies reinforcing
-      // each other, not from turning up a single thin sine wave -- a lone sine,
-      // however loud, still reads as weak/hollow. This tap tone is built as three
-      // layers around the same designed Hz (see TAIJI_TAP_FREQUENCIES_HZ, still
-      // completely unchanged): a sub-octave layer for felt physical weight, the
-      // fundamental itself, and a bright upper-octave layer for attack/cut-through.
-      // A short soft-saturation stage adds analog-style harmonic density (this is
-      // what actually reads as "powerful" to the ear), and a true peak-safety
-      // limiter (gentle ratio, high threshold -- NOT the heavy compressor from the
-      // previous pass, which was silently squashing the loud signal back down)
-      // keeps it from clipping into harsh digital noise.
       const masterGain = ctx.createGain();
-      masterGain.gain.setValueAtTime(1, now);
+      masterGain.gain.setValueAtTime(0.78, now);
 
       const saturation = ctx.createWaveShaper();
       const curveSamples = 256;
       const curve = new Float32Array(curveSamples);
       for (let i = 0; i < curveSamples; i += 1) {
         const x = (i / (curveSamples - 1)) * 2 - 1;
-        curve[i] = Math.tanh(x * 1.8);
+        curve[i] = Math.tanh(x * 1.16);
       }
       saturation.curve = curve;
       saturation.oversample = '4x';
 
       const limiter = ctx.createDynamicsCompressor();
-      limiter.threshold.setValueAtTime(-1, now);
-      limiter.knee.setValueAtTime(1, now);
-      limiter.ratio.setValueAtTime(3, now);
-      limiter.attack.setValueAtTime(0.001, now);
-      limiter.release.setValueAtTime(0.12, now);
+      limiter.threshold.setValueAtTime(-4, now);
+      limiter.knee.setValueAtTime(8, now);
+      limiter.ratio.setValueAtTime(2.2, now);
+      limiter.attack.setValueAtTime(0.006, now);
+      limiter.release.setValueAtTime(0.22, now);
+
+      const warmthFilter = ctx.createBiquadFilter();
+      warmthFilter.type = 'lowpass';
+      warmthFilter.frequency.setValueAtTime(2200 + cycleIndex * 110, now);
+      warmthFilter.Q.setValueAtTime(0.78, now);
 
       masterGain.connect(saturation);
-      saturation.connect(limiter);
+      saturation.connect(warmthFilter);
+      warmthFilter.connect(limiter);
       limiter.connect(ctx.destination);
 
-      // Percussive transient: a short filtered noise burst at the instant of
-      // contact. A tone fading in, however loud, still reads as "soft" -- this
-      // sharp attack-only click is what makes it register as an immediate strike.
-      const noiseBuffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.06), ctx.sampleRate);
+      const noiseBuffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.035), ctx.sampleRate);
       const noiseData = noiseBuffer.getChannelData(0);
       for (let i = 0; i < noiseData.length; i += 1) {
-        noiseData[i] = (Math.random() * 2 - 1) * (1 - i / noiseData.length);
+        noiseData[i] = (Math.random() * 2 - 1) * ((1 - i / noiseData.length) ** 2);
       }
       const noiseSource = ctx.createBufferSource();
       noiseSource.buffer = noiseBuffer;
       const noiseFilter = ctx.createBiquadFilter();
       noiseFilter.type = 'bandpass';
-      noiseFilter.frequency.setValueAtTime(Math.max(600, frequency * 2), now);
-      noiseFilter.Q.setValueAtTime(1.1, now);
+      noiseFilter.frequency.setValueAtTime(Math.max(520, frequency * (1.8 + elementIndex * 0.08)), now);
+      noiseFilter.Q.setValueAtTime(0.86, now);
       const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(1.1, now);
-      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+      noiseGain.gain.setValueAtTime(0.18, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
       noiseSource.connect(noiseFilter);
       noiseFilter.connect(noiseGain);
       noiseGain.connect(masterGain);
       noiseSource.start(now);
-      noiseSource.stop(now + 0.07);
+      noiseSource.stop(now + 0.055);
 
-      // Fundamental: this tap's step in the 24-step Solfeggio-anchored ascending
-      // sequence -- the pitch the isochronic pulse rides on, exactly as designed.
-      const fundamentalGain = ctx.createGain();
-      const fundamental = ctx.createOscillator();
-      fundamental.type = 'sine';
-      fundamental.frequency.setValueAtTime(frequency, now);
-      fundamental.frequency.exponentialRampToValueAtTime(frequency * 1.04, now + 0.16);
-      fundamentalGain.gain.setValueAtTime(0.0001, now);
-      fundamentalGain.gain.exponentialRampToValueAtTime(1, now + 0.005);
-      fundamentalGain.gain.exponentialRampToValueAtTime(0.4, now + 0.09);
-      fundamentalGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      const createVoice = (voiceFrequency: number, gainPeak: number, decay: number, type: OscillatorType, delay = 0) => {
+        const gain = ctx.createGain();
+        const osc = ctx.createOscillator();
+        osc.type = type;
+        osc.frequency.setValueAtTime(voiceFrequency * 0.992, now + delay);
+        osc.frequency.exponentialRampToValueAtTime(voiceFrequency, now + delay + 0.18);
+        gain.gain.setValueAtTime(0.0001, now + delay);
+        gain.gain.exponentialRampToValueAtTime(gainPeak, now + delay + 0.028);
+        gain.gain.exponentialRampToValueAtTime(gainPeak * 0.42, now + delay + 0.18);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + decay);
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(now + delay);
+        osc.stop(now + delay + decay + 0.08);
+      };
 
-      // Sub-octave layer: an octave below the fundamental. This is where felt
-      // physical "weight" comes from -- low frequencies carry perceived power
-      // that a mid/high sine alone can't. Slower decay so it rings out longer,
-      // like the body of a struck bowl.
-      const subGain = ctx.createGain();
-      const sub = ctx.createOscillator();
-      sub.type = 'sine';
-      sub.frequency.setValueAtTime(frequency / 2, now);
-      subGain.gain.setValueAtTime(0.0001, now);
-      subGain.gain.exponentialRampToValueAtTime(0.85, now + 0.01);
-      subGain.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.12);
+      createVoice(frequency, 0.42, duration, 'sine');
+      createVoice(fifthFrequency, 0.18, duration * 0.72, elementIndex === 1 ? 'triangle' : 'sine', 0.026);
+      createVoice(octaveFrequency, 0.1, 0.42, 'triangle', 0.012);
+      createVoice(frequency / 2, 0.22, duration + 0.25, 'sine', 0.018);
 
-      // Bright upper-octave layer: a triangle wave (has natural odd-harmonic bite,
-      // unlike a pure sine) an octave above the fundamental, only present for the
-      // first ~150ms. This gives the strike its "edge" / cut-through-noise
-      // character, then gets out of the way so the fundamental + sub ring out
-      // cleanly -- exactly how a real bell/gong strike behaves.
-      const brightGain = ctx.createGain();
-      const bright = ctx.createOscillator();
-      bright.type = 'triangle';
-      bright.frequency.setValueAtTime(frequency * 2, now);
-      brightGain.gain.setValueAtTime(0.0001, now);
-      brightGain.gain.exponentialRampToValueAtTime(0.55, now + 0.004);
-      brightGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
-
-      // Isochronic pulse: amplitude-modulate the fundamental at a brainwave-range
-      // rate (theta -> alpha -> low-beta across the 24 taps, see
-      // TAIJI_TAP_PULSE_HZ). This is what actually gives the tone a "brainwave
-      // entrainment" character -- a single static tone alone doesn't.
       const pulseOsc = ctx.createOscillator();
       const pulseDepth = ctx.createGain();
       pulseOsc.type = 'sine';
       pulseOsc.frequency.setValueAtTime(pulseHz, now);
-      pulseDepth.gain.setValueAtTime(0.08, now);
+      pulseDepth.gain.setValueAtTime(0.026 + elementIndex * 0.004, now);
       pulseOsc.connect(pulseDepth);
-      pulseDepth.connect(fundamentalGain.gain);
+      pulseDepth.connect(masterGain.gain);
 
-      fundamental.connect(fundamentalGain);
-      sub.connect(subGain);
-      bright.connect(brightGain);
-      fundamentalGain.connect(masterGain);
-      subGain.connect(masterGain);
-      brightGain.connect(masterGain);
-
-      const stopAt = now + duration + 0.15;
-      fundamental.start(now);
-      fundamental.stop(stopAt);
-      sub.start(now);
-      sub.stop(stopAt);
-      bright.start(now);
-      bright.stop(now + 0.16);
+      const stopAt = now + duration + 0.28;
       pulseOsc.start(now);
       pulseOsc.stop(stopAt);
-      closeAudioLater(ctx, Math.ceil((duration + 0.4) * 1000));
+      closeAudioLater(ctx, Math.ceil((duration + 0.58) * 1000));
     } catch (error) {
       console.warn('[UnifiedTaijiCore] touch tone skipped:', error);
     }
@@ -435,7 +404,7 @@ export default function UnifiedTaijiCore({
 
     setEvolutionStage('taiji');
     setEvolutionLabel(config.label);
-    setEvolutionDescription('太極核心先歸中，以善念自然展開下一層。');
+    setEvolutionDescription('');
 
     recenterTimerRef.current = setTimeout(() => {
       recenterTimerRef.current = null;
@@ -547,6 +516,15 @@ export default function UnifiedTaijiCore({
         return next;
       }
 
+      if (cleanThreeAct) {
+        const cinemaConfig = getTaijiCinemaSegmentForTap(next);
+        triggerCinemaSegment(cinemaConfig);
+        if (next === 3 || next === 6 || next === 12 || next === 24) {
+          triggerMantra(next);
+        }
+        return next;
+      }
+
       if (pendingEvolutionTimerRef.current) clearTimeout(pendingEvolutionTimerRef.current);
       pendingEvolutionTimerRef.current = setTimeout(() => {
         pendingEvolutionTimerRef.current = null;
@@ -610,6 +588,78 @@ export default function UnifiedTaijiCore({
     '--taiji-segment-glow': `${cinemaSegment?.glow ?? 0.72}`,
   };
 
+  if (cleanThreeAct) {
+    return (
+      <div
+        className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} unified-taiji-shell--three-act-clean ${luckyAuraClass}`.trim()}
+        style={cinemaStyle}
+        data-taiji-engine={coreSnapshot.engine}
+        data-taiji-version={coreSnapshot.version}
+        data-taiji-store={coreSnapshot.store}
+        data-taiji-event={coreSnapshot.event}
+        data-taiji-stage={evolutionStage}
+        data-taiji-layer={taijiLayer}
+        data-taiji-layer-one="taiji-core"
+        data-taiji-layer-two="five-star-365-orbit"
+        data-taiji-layer-three="space-glow-field"
+        data-taiji-material="wikimedia-commons-esoteric-taijitu-public-domain"
+        data-taiji-blessing="kind-harmony"
+        data-taiji-intent="kindness-clear-mind-follow-nature"
+        data-cinema-playing={cinemaSegment ? 'true' : 'false'}
+        data-cinema-locked={cinemaLocked ? 'true' : 'false'}
+        data-cinema-segment={cinemaSegment?.tap ?? 0}
+        data-cinema-phase={cinemaSegment?.phase ?? 'idle'}
+        data-cinema-duration-ms={TAIJI_CINEMA_SEGMENT_DURATION_MS}
+        data-tap-level={luckyAuraLevel}
+      >
+        <button
+          type="button"
+          onPointerUp={handlePointerUp}
+          onClick={handleSafeClick}
+          aria-label="Taiji interaction"
+          aria-busy={cinemaLocked}
+          disabled={cinemaLocked}
+          data-tap-count={tapCount}
+          data-cinema-segment={cinemaSegment?.tap ?? 0}
+          data-cinema-locked={cinemaLocked ? 'true' : 'false'}
+          className={`modal-taiji-button taiji-evolution-stage taiji-clean-three-act-button stage-${evolutionStage}`}
+        >
+          <span className="taiji-clean-act taiji-clean-act--core" aria-hidden="true" />
+          <span className="taiji-clean-act taiji-clean-act--stars" aria-hidden="true">
+            <span className="taiji-clean-five-element-orbit">
+              {CLEAN_FIVE_ELEMENT_PLANETS.map((planet, index) => (
+                <span
+                  key={planet.key}
+                  className={`taiji-clean-five-element-planet taiji-clean-five-element-planet--${planet.className}`}
+                  data-element={planet.key}
+                  style={{ '--planet-angle': `${index * 72}deg` } as CSSProperties}
+                >
+                  <span className="taiji-clean-five-element-planet__sphere" />
+                </span>
+              ))}
+            </span>
+          </span>
+          <span className="taiji-clean-act taiji-clean-act--space" aria-hidden="true" />
+          <span className="taiji-clean-core-shell" aria-hidden="true">
+            <TaijiCoreVisual
+              active={active || tapCount > 0}
+              stage="taiji"
+              highlightElement={null}
+              className="taiji-core-symbol-overlay"
+            />
+          </span>
+          {touchPulse > 0 && <span key={touchPulse} className="taiji-touch-ripple" aria-hidden="true" />}
+        </button>
+        {showLabel && (
+          <p className="taiji-director-caption" aria-live="polite">
+            {evolutionLabel}
+            {evolutionDescription && <span className="taiji-director-caption__sub">{evolutionDescription}</span>}
+          </p>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div
       className={`unified-taiji-shell unified-taiji-shell--${evolutionStage} ${luckyAuraClass} ${liangyiReturnClass} ${liangyiSettledClass} ${liangyiSpinClass}`.trim()}
@@ -626,7 +676,6 @@ export default function UnifiedTaijiCore({
       data-taiji-material="wikimedia-commons-esoteric-taijitu-public-domain"
       data-taiji-blessing="kind-harmony"
       data-taiji-intent="kindness-clear-mind-follow-nature"
-      data-taiji-blessing-copy={TAIJI_KINDNESS_DESCRIPTION}
       data-cinema-playing={cinemaSegment ? 'true' : 'false'}
       data-cinema-locked={cinemaLocked ? 'true' : 'false'}
       data-cinema-segment={cinemaSegment?.tap ?? 0}
@@ -638,14 +687,13 @@ export default function UnifiedTaijiCore({
         type="button"
         onPointerUp={handlePointerUp}
         onClick={handleSafeClick}
-        aria-label="太極正能量互動：心存善念，順天而行"
+        aria-label="太極互動畫面"
         aria-busy={cinemaLocked}
         disabled={cinemaLocked}
         data-tap-count={tapCount}
         data-cinema-segment={cinemaSegment?.tap ?? 0}
         data-cinema-locked={cinemaLocked ? 'true' : 'false'}
         className={`modal-taiji-button taiji-evolution-stage stage-${evolutionStage} group ${auraClass}`}
-        title="點一下，讓太極展開開心、協和、清明與善意的光。"
       >
         {auraLabel && (
           <>
@@ -766,10 +814,6 @@ export default function UnifiedTaijiCore({
           </div>
         )}
         {touchPulse > 0 && <span key={touchPulse} className="taiji-touch-ripple" aria-hidden="true" />}
-        <div className="taiji-kindness-words" aria-hidden="true">
-          <span>心存善念</span>
-          <span>順天而行</span>
-        </div>
         <div className="modal-taiji-ground-glow" aria-hidden="true" />
       </button>
 
