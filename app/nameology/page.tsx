@@ -758,6 +758,40 @@ function RitualStepsPanel({ steps, revealCount }: { steps: NameologyRitualStep[]
   );
 }
 
+function NameologyBackendVerificationDetails({ analysis, revealCount }: { analysis: NameologyAnalysis; revealCount: number }) {
+  const dict = analysis.dictionaryStatus;
+  const verification = analysis.standardOutput.verification;
+  const checks = [
+    { label: '\u81fa\u7063\u5b57\u5178', value: `${dict.exactMatches}/${dict.totalCharacters}`, passed: verification.dictionaryVerified },
+    { label: '\u90e8\u9996', value: `${dict.radicalMatches}/${dict.totalCharacters}`, passed: verification.dictionaryVerified },
+    { label: '\u7b46\u756b', value: verification.backendCalculated ? 'PASS' : 'WAIT', passed: verification.backendCalculated },
+    { label: 'AI \u53bb\u91cd', value: verification.semanticDedupCompleted ? 'PASS' : 'WAIT', passed: verification.semanticDedupCompleted },
+    { label: '\u524d\u7aef\u53ef\u986f\u793a', value: verification.readyForFrontend ? 'PASS' : 'WAIT', passed: verification.readyForFrontend },
+  ];
+
+  return (
+    <details className="fortune-card mt-5 overflow-hidden border-emerald-300/20 bg-emerald-950/10 p-4 sm:p-5">
+      <summary className="flex min-h-[48px] cursor-pointer items-center justify-between gap-3 text-sm font-black leading-6 text-emerald-100">
+        <span>{'\u5f8c\u7aef\u9a57\u8b49 PASS'}</span>
+        <span className="shrink-0 text-xs font-bold text-emerald-100/70">{'\u5b57\u5178 / \u90e8\u9996 / \u7b46\u756b / AI'}</span>
+      </summary>
+      <div className="mt-4 grid gap-2 sm:grid-cols-5">
+        {checks.map((item) => (
+          <div key={item.label} className={`rounded-xl border px-3 py-2 ${item.passed ? 'border-emerald-300/30 bg-emerald-300/10 text-emerald-50' : 'border-amber-300/30 bg-amber-300/10 text-amber-50'}`}>
+            <p className="text-[11px] font-black leading-5">{item.label}</p>
+            <p className="mt-1 text-sm font-black leading-5">{item.value}</p>
+          </div>
+        ))}
+      </div>
+      {analysis.ritualSteps?.length > 0 && (
+        <div className="mt-4">
+          <RitualStepsPanel steps={analysis.ritualSteps} revealCount={revealCount} />
+        </div>
+      )}
+    </details>
+  );
+}
+
 function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; fiveElement: FiveElementIntegrationResult }) {
   return (
     <section className="space-y-5">
@@ -1125,21 +1159,12 @@ export default function NameologyPage() {
         </section>
 
         <div id="nameology-result" className="mt-6 scroll-mt-24">
-          {result && result.ritualSteps?.length > 0 && (
-            <div
-              className="grid overflow-hidden transition-[grid-template-rows] duration-500 ease-out"
-              style={{ gridTemplateRows: ritualCollapsed ? '0fr' : '1fr' }}
-            >
-              <div className="min-h-0 pb-5">
-                <RitualStepsPanel steps={result.ritualSteps} revealCount={ritualRevealCount} />
-              </div>
-            </div>
-          )}
-          {result && fiveElement && (!result.ritualSteps?.length || ritualCollapsed) && (
+          {result && fiveElement && (
             <div className="space-y-5 animate-fade-in">
               <ResultPanel analysis={result} fiveElement={fiveElement} />
             </div>
           )}
+          {result && <NameologyBackendVerificationDetails analysis={result} revealCount={ritualRevealCount} />}
         </div>
       </div>
     </main>

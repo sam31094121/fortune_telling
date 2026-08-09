@@ -16,6 +16,7 @@ import { solarToLunarParts } from './lunar-calendar';
 import { buildAiCopywritingInstruction, enforceAiCopywritingTone } from './ai-copywriting-style-center';
 import { calculateZiweiSanFang, type ZiweiSanFangAnalysis } from './ziwei-sanfang-engine';
 import { calculateAnnualFortune, type AnnualFortuneAnalysis } from './annual-fortune-engine';
+import { buildZiweiDestinyCard, type ZiweiDestinyCard } from './ziwei-destiny-card';
 import {
   buildZiweiPresentationBundle,
   resolveZiweiAnalysisId,
@@ -211,6 +212,7 @@ export interface InsightAnalysisResponse {
   }[];
   ziweiSanFang: ZiweiSanFangAnalysis;
   annualFortune: AnnualFortuneAnalysis;
+  destinyCard: ZiweiDestinyCard | null;
   nameology: NameologyAnalysis;
   fiveElement: FiveElementIntegrationResult;
   ritualSteps: InsightRitualStep[];
@@ -731,6 +733,12 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
     fiveElement,
     meta,
   });
+  const destinyCard = buildZiweiDestinyCard({
+    analysisId,
+    subjectName: request.name,
+    chart: ziweiSanFang,
+    fiveElement,
+  });
 
   return {
     analysisId,
@@ -760,6 +768,7 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
     })),
     ziweiSanFang,
     annualFortune,
+    destinyCard,
     nameology,
     fiveElement,
     meta,

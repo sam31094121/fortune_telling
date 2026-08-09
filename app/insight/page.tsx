@@ -15,9 +15,9 @@ import { searchCities, findCityById, type CityEntry } from '@/lib/city-directory
 import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 import type { FiveElementIntegrationResult, FiveElementKey } from '@/lib/five-element-engine';
 import type { InsightRitualStep } from '@/lib/insight-engine';
+import type { ZiweiDestinyCard as ZiweiDestinyCardModel } from '@/lib/ziwei-destiny-card';
 import type { ZiweiPresentationBundle } from '@/lib/ziwei-presentation-service';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
-import { TAROT_CARDS } from '@/features/tarot/data/cards';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
 type ShichenChoice = number | 'unknown' | 'known' | null;
@@ -216,6 +216,7 @@ interface InsightResult {
     };
     ruleCount: number;
   };
+  destinyCard?: ZiweiDestinyCardModel | null;
   annualFortune?: {
     year: number;
     ganzhi: string;
@@ -1323,25 +1324,6 @@ const ZIWEI_PALACE_FALLBACK: Record<ZiweiPalaceKey, { name: string; focus: strin
   FU_MU: { name: '父母', focus: '長輩關係、上級緣分、傳承支持與制度資源。' },
 };
 
-function hashZiweiTarotSeed(seed: string): number {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  }
-  return hash;
-}
-
-/**
- * 命盤十二宮各自坐守的十四主星因人而異，塔羅卡面必須跟著實際主星走，
- * 而不是綁死在宮位代號上——否則每個人的「命宮」永遠顯示同一張牌。
- * 依主星名稱（無主星時退回宮位代號）雜湊到 78 張牌庫，讓分配隨命盤本體變化。
- */
-function getZiweiPalaceTarotCard(palace: { key: string; majorStars: string[] }) {
-  const primaryStar = palace.majorStars[0];
-  const seed = primaryStar && primaryStar !== '無十四主星坐守' ? `star:${primaryStar}` : `palace:${palace.key}`;
-  const index = hashZiweiTarotSeed(seed) % TAROT_CARDS.length;
-  return TAROT_CARDS[index];
-}
 
 // 八卦爻象：陣列由下往上，true 為陽爻
 const ZIWEI_TRIGRAM_LINES: Record<string, [boolean, boolean, boolean]> = {
@@ -2110,6 +2092,427 @@ function ZiweiProfessionalTeacherMode({
     </div>
   );
 }
+const ZIWEI_DESTINY_ELEMENT_LABELS: Record<string, string> = {
+  SPACE: '空',
+  AIR: '風',
+  WATER: '水',
+  FIRE: '火',
+  EARTH: '地',
+};
+
+const ZIWEI_DESTINY_ARCHETYPE_LABELS: Record<string, string> = {
+  SOVEREIGN_CENTER: '中心光源',
+  BREAKER_COMMANDER: '破局刀鋒',
+  STRATEGIST: '星軌棋盤',
+  INNER_MOON: '月輪水面',
+  RESOURCE_EXECUTOR: '金屬財庫',
+  PROTECTOR: '守護屋梁',
+  CREATOR: '創造舞台',
+  CONNECTOR: '橋樑圓桌',
+  TRANSFORMER: '重組浪潮',
+  OBSERVER: '洞察之門',
+  BUILDER: '城池根基',
+  GUIDE: '引路光線',
+  UNKNOWN: '待明星象',
+};
+
+type ZiweiCrossCheckItem = NonNullable<InsightResult['ziweiSanFang']>['crossChecks'][number];
+
+type ZiweiThreeHarmonyStructure = {
+  origin: ZiweiFullPalace;
+  harmonyA: ZiweiFullPalace;
+  harmonyB: ZiweiFullPalace;
+  opposite: ZiweiFullPalace;
+};
+
+const ZIWEI_HARMONY_ZONE_LABEL = { origin: '本宮', harmonyA: '三合宮位', harmonyB: '三合宮位', opposite: '對宮' } as const;
+
+/**
+ * 三方四正幾何：以 ZIWEI_TWELVE_PALACE_ORDER 的環狀位置推算，
+ * 三合＝本宮 ±4 位，對宮＝本宮 +6 位（例：命宮 0 → 財帛 4／官祿 8／遷移 6，與既有命財官遷排列一致）。
+ */
+function getZiweiThreeHarmonyStructure(originKey: string, palaceMap: Map<string, ZiweiFullPalace>): ZiweiThreeHarmonyStructure {
+  const originIndex = Math.max(0, ZIWEI_TWELVE_PALACE_ORDER.indexOf(originKey as ZiweiPalaceKey));
+  const resolve = (offset: number) => {
+    const key = ZIWEI_TWELVE_PALACE_ORDER[(originIndex + offset) % 12];
+    return palaceMap.get(key) ?? createZiweiFallbackPalace(key);
+  };
+  return {
+    origin: palaceMap.get(originKey) ?? createZiweiFallbackPalace(originKey as ZiweiPalaceKey),
+    harmonyA: resolve(4),
+    harmonyB: resolve(8),
+    opposite: resolve(6),
+  };
+}
+
+function buildZiweiStarCombinationText(palace: ZiweiFullPalace): string {
+  const palaceName = normalizeZiweiPalaceName(palace.name);
+  if (!palace.majorStars.length) {
+    return `${palaceName}未見十四主星坐守，本宮不硬斷單星，改以三方四正與四化訊號合看。`;
+  }
+  const materials = palace.majorStars.map((star) => ({ star, material: ZIWEI_FOURTEEN_MAJOR_STAR_MATERIAL.find((item) => item.name === star) }));
+  if (materials.length === 1) {
+    const { star, material } = materials[0];
+    return material ? `${palaceName}由${star}單星坐守：${material.role}` : `${palaceName}由${star}坐守，星曜字典待補角色說明。`;
+  }
+  const parts = materials.map(({ star, material }) => (material ? `${star}（${material.role}）` : `${star}（字典待補）`));
+  return `${palaceName}由${palace.majorStars.join('、')}同宮，需合看非單論：${parts.join('；')}。同宮不是相加，而是互相牽動，判讀要看兩星如何互相強化、制衡或轉化對方力量。`;
+}
+
+function buildZiweiHarmonyTexts(structure: ZiweiThreeHarmonyStructure) {
+  return (['origin', 'harmonyA', 'harmonyB', 'opposite'] as const).map((zoneKey) => {
+    const palace = structure[zoneKey];
+    const palaceName = normalizeZiweiPalaceName(palace.name);
+    return {
+      zoneKey,
+      zoneLabel: ZIWEI_HARMONY_ZONE_LABEL[zoneKey],
+      palaceName,
+      stars: palace.majorStars.length ? palace.majorStars.join('、') : '無主星，借對宮判讀',
+      text: buildZiweiStarCombinationText(palace),
+    };
+  });
+}
+
+function normalizeZiweiTransformationMeta(raw: string) {
+  const bare = raw.replace('化', '');
+  return ZIWEI_PROFESSIONAL_TRANSFORMATIONS.find((item) => item.name === `化${bare}`) ?? null;
+}
+
+function buildZiweiTransformationEffects(structure: ZiweiThreeHarmonyStructure) {
+  const zones = (['origin', 'harmonyA', 'harmonyB', 'opposite'] as const).map((zoneKey) => ({ zoneKey, palace: structure[zoneKey] }));
+  return zones.flatMap(({ zoneKey, palace }) =>
+    palace.transformations.map((raw) => {
+      const meta = normalizeZiweiTransformationMeta(raw);
+      const palaceName = normalizeZiweiPalaceName(palace.name);
+      const zoneLabel = ZIWEI_HARMONY_ZONE_LABEL[zoneKey];
+      return {
+        raw,
+        palaceName,
+        zoneLabel,
+        text: meta ? `${zoneLabel}．${palaceName}見${meta.name}：${meta.role}` : `${zoneLabel}．${palaceName}見化${raw}，字典待補說明。`,
+      };
+    }),
+  );
+}
+
+function buildZiweiSupportStarLines(structure: ZiweiThreeHarmonyStructure): string[] {
+  const zones = (['origin', 'harmonyA', 'harmonyB', 'opposite'] as const).map((zoneKey) => ({ zoneKey, palace: structure[zoneKey] }));
+  const lines = zones.flatMap(({ zoneKey, palace }) =>
+    palace.minorStars.map((star) => {
+      const meta = ZIWEI_PROFESSIONAL_SUPPORT_STARS.find((item) => item.name === star);
+      const palaceName = normalizeZiweiPalaceName(palace.name);
+      const zoneLabel = ZIWEI_HARMONY_ZONE_LABEL[zoneKey];
+      return meta ? `${zoneLabel}${palaceName}：${star}（${meta.group}．${meta.role}）` : `${zoneLabel}${palaceName}：${star}`;
+    }),
+  );
+  return lines.length ? lines.slice(0, 8) : ['本宮與三方四正輔星未集中顯示，判讀以主星與四化為主，不補星。'];
+}
+
+/**
+ * 老師專業解析合成器：本宮→主星組合→三方四正→四化→輔煞→老師合盤總結。
+ * 只讀後端已回傳的命盤資料（allPalaces / crossChecks / annualPalace），不生成命盤沒有的星曜或宮位。
+ */
+function buildZiweiTeacherSynthesis(
+  originKey: string,
+  palaceMap: Map<string, ZiweiFullPalace>,
+  annualPalace: ZiweiAnnualPalace | undefined,
+  crossCheck: ZiweiCrossCheckItem | null,
+  annual: ZiweiAnnualFortune | undefined,
+) {
+  const structure = getZiweiThreeHarmonyStructure(originKey, palaceMap);
+  const originName = normalizeZiweiPalaceName(structure.origin.name);
+  const harmonyTexts = buildZiweiHarmonyTexts(structure);
+  const transformationEffects = buildZiweiTransformationEffects(structure);
+  const supportStarLines = buildZiweiSupportStarLines(structure);
+  const annualSignal = getZiweiAnnualSignal(originKey, annualPalace, annual);
+
+  const taboo = transformationEffects.find((item) => item.raw.includes('忌'));
+  const positive = transformationEffects.filter((item) => item.raw.includes('祿') || item.raw.includes('權') || item.raw.includes('科'));
+
+  const strength = positive.length
+    ? `三方四正內見 ${positive.length} 處祿權科：${positive.map((item) => `${item.zoneLabel}${item.palaceName}`).join('、')}，屬於可用資源與擴張力道。`
+    : '三方四正未見祿權科進駐，力量以主星本質與輔星為主，擴張力道較保守。';
+
+  const structuralRisk = taboo
+    ? `${taboo.zoneLabel}${taboo.palaceName}見化忌，是這一圈最需要留意的卡點：${taboo.text}`
+    : '三方四正未見化忌，暫無明顯卡點訊號，仍以主星特質與輔星組合為觀察重點。';
+
+  const currentTheme = annualPalace
+    ? `年度訊號落在${originName}：${annualPalace.focus ?? '流年主題與本宮呼應'}${typeof annualPalace.score === 'number' ? `（年度分數 ${annualPalace.score}）` : ''}。`
+    : `本次未提供${originName}的流年比對資料，先以命盤結構為主，不另行推測流年。`;
+
+  const teacherAdvice = [buildZiweiStarCombinationText(structure.origin), strength, structuralRisk].join(' ');
+
+  return {
+    originName,
+    structure,
+    harmonyTexts,
+    transformationEffects,
+    supportStarLines,
+    crossCheck,
+    annualSignal,
+    corePattern: `${originName}三方四正：${harmonyTexts.map((item) => item.palaceName).join('、')}`,
+    strength,
+    structuralRisk,
+    currentTheme,
+    teacherAdvice,
+  };
+}
+
+type ZiweiTeacherSynthesis = ReturnType<typeof buildZiweiTeacherSynthesis>;
+
+function ZiweiTeacherSynthesisPanel({ synthesis }: { synthesis: ZiweiTeacherSynthesis }) {
+  return (
+    <div className="mt-4 rounded-2xl border border-purple-300/25 bg-[linear-gradient(160deg,rgba(88,28,135,0.28),rgba(15,23,42,0.9)_60%,rgba(2,6,23,0.96))] p-4 sm:p-5">
+      <p className="text-[11px] font-black uppercase tracking-[0.22em] text-purple-200">老師專業解析 · 第二層</p>
+      <h4 className="mt-2 font-serif text-xl font-black leading-tight text-purple-50">{synthesis.corePattern}</h4>
+      <p className="mt-3 text-base font-semibold leading-7 text-[color:var(--text-main)]">{synthesis.teacherAdvice}</p>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {synthesis.harmonyTexts.map((item) => (
+          <span key={item.zoneKey} className="rounded-full border border-purple-200/25 bg-purple-300/10 px-3 py-1.5 text-xs font-bold text-purple-100">
+            {item.zoneLabel}．{item.palaceName}：{item.stars}
+          </span>
+        ))}
+      </div>
+
+      <details className="mt-4 rounded-xl border border-white/10 bg-black/18 p-3">
+        <summary className="flex min-h-[48px] cursor-pointer items-center text-sm font-black text-purple-100">本宮與主星</summary>
+        <p className="mt-2 text-base font-semibold leading-7 text-[color:var(--text-main)]">{buildZiweiStarCombinationText(synthesis.structure.origin)}</p>
+        <details className="mt-2 rounded-lg border border-white/10 bg-white/[0.03] p-2.5">
+          <summary className="cursor-pointer text-xs font-bold text-purple-200/80">為什麼？</summary>
+          <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
+            後端命盤資料：{synthesis.originName}主星＝{synthesis.structure.origin.majorStars.join('、') || '無'}；宮干 {synthesis.structure.origin.palaceStem || '未提供'}／地支 {synthesis.structure.origin.branch || '未提供'}。
+          </p>
+        </details>
+      </details>
+
+      <details className="mt-3 rounded-xl border border-white/10 bg-black/18 p-3">
+        <summary className="flex min-h-[48px] cursor-pointer items-center text-sm font-black text-purple-100">三方四正</summary>
+        <div className="mt-2 grid gap-2">
+          {synthesis.harmonyTexts.map((item) => (
+            <p key={item.zoneKey} className="text-base font-semibold leading-7 text-[color:var(--text-main)]">
+              <span className="text-purple-200/80">{item.zoneLabel}．{item.palaceName}：</span>{item.text}
+            </p>
+          ))}
+        </div>
+        {synthesis.crossCheck && (
+          <details className="mt-2 rounded-lg border border-white/10 bg-white/[0.03] p-2.5">
+            <summary className="cursor-pointer text-xs font-bold text-purple-200/80">為什麼？</summary>
+            <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
+              後端交叉驗證（{synthesis.crossCheck.ruleId}）：{synthesis.crossCheck.title}．{synthesis.crossCheck.detail}
+            </p>
+          </details>
+        )}
+      </details>
+
+      <details className="mt-3 rounded-xl border border-white/10 bg-black/18 p-3">
+        <summary className="flex min-h-[48px] cursor-pointer items-center text-sm font-black text-purple-100">四化與輔星</summary>
+        <div className="mt-2 grid gap-1.5">
+          {synthesis.transformationEffects.length ? (
+            synthesis.transformationEffects.map((item, index) => (
+              <p key={`${item.palaceName}-${item.raw}-${index}`} className="text-base font-semibold leading-7 text-[color:var(--text-main)]">{item.text}</p>
+            ))
+          ) : (
+            <p className="text-base font-semibold leading-7 text-[color:var(--text-sub)]">三方四正本次未見四化訊號，不由 AI 補作四化判斷。</p>
+          )}
+        </div>
+        <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-purple-200/70">輔星煞星</p>
+        <div className="mt-1.5 grid gap-1">
+          {synthesis.supportStarLines.map((line, index) => (
+            <p key={index} className="text-sm font-semibold leading-6 text-[color:var(--text-sub)]">{line}</p>
+          ))}
+        </div>
+      </details>
+
+      <details className="mt-3 rounded-xl border border-white/10 bg-black/18 p-3">
+        <summary className="flex min-h-[48px] cursor-pointer items-center text-sm font-black text-purple-100">大限／流年</summary>
+        <div className="mt-2 grid gap-2.5">
+          <p className="text-base font-semibold leading-7 text-[color:var(--text-main)]">
+            <span className="font-black text-purple-200">大限：</span>後端目前尚未提供大限（十年運）排盤資料，不由前端推測，先以流年為準。
+          </p>
+          <p className="text-base font-semibold leading-7 text-[color:var(--text-main)]">
+            <span className="font-black text-cyan-200">今年流年重點：</span>{synthesis.annualSignal.focus}
+            {typeof synthesis.annualSignal.score === 'number' ? `（${synthesis.annualSignal.scoreSource} ${synthesis.annualSignal.score}）` : ''}
+          </p>
+          <p className="text-base font-semibold leading-7 text-[color:var(--text-main)]">
+            <span className="font-black text-rose-200">目前最需要注意：</span>{synthesis.annualSignal.tensions[0] ?? synthesis.annualSignal.advice ?? '本次未提供特別警示訊號。'}
+          </p>
+        </div>
+      </details>
+
+      <details className="mt-3 rounded-xl border border-purple-200/20 bg-purple-300/[0.06] p-3">
+        <summary className="flex min-h-[48px] cursor-pointer items-center text-sm font-black text-purple-100">老師完整判讀</summary>
+        <div className="mt-2 grid gap-2.5">
+          <p className="text-base font-semibold leading-7 text-[color:var(--text-main)]"><span className="font-black text-purple-200">格局：</span>{synthesis.corePattern}</p>
+          <p className="text-base font-semibold leading-7 text-[color:var(--text-main)]"><span className="font-black text-emerald-200">優勢：</span>{synthesis.strength}</p>
+          <p className="text-base font-semibold leading-7 text-[color:var(--text-main)]"><span className="font-black text-rose-200">結構風險：</span>{synthesis.structuralRisk}</p>
+          <p className="text-base font-semibold leading-7 text-[color:var(--text-main)]"><span className="font-black text-cyan-200">當前主題：</span>{synthesis.currentTheme}</p>
+        </div>
+      </details>
+
+      <p className="mt-4 text-[11px] font-semibold leading-5 text-white/40">老師判讀建立在後端正式命盤資料上；沒有命盤證據，不生成老師結論。</p>
+    </div>
+  );
+}
+
+function ZiweiDestinyCardView({
+  card,
+  subjectName,
+  analysis,
+  annual,
+}: {
+  card?: ZiweiDestinyCardModel | null;
+  subjectName?: string;
+  analysis?: InsightResult['ziweiSanFang'];
+  annual?: InsightResult['annualFortune'];
+}) {
+  const [flipped, setFlipped] = useState(false);
+  const [teacherOpen, setTeacherOpen] = useState(false);
+  if (!card) return null;
+
+  const isReady = card.verification.readyForFrontend;
+  const title = card.cardType === 'DESTINY_CARD' ? '命工卡' : '生日主題卡';
+  const archetypeLabel = ZIWEI_DESTINY_ARCHETYPE_LABELS[card.visualTheme.archetype] ?? '命盤象徵';
+  const elementLabels = card.visualTheme.elementSignals.map((item) => ZIWEI_DESTINY_ELEMENT_LABELS[item] ?? item);
+
+  const isTimeExact = analysis?.timeConfidence === 'exact';
+  const teacherPalaceSource: ZiweiFullPalace[] = analysis?.allPalaces?.length ? analysis.allPalaces : analysis?.palaces ?? [];
+  const teacherPalaceMap = new Map<string, ZiweiFullPalace>(teacherPalaceSource.map((palace) => [palace.key, palace]));
+  const teacherAnnualPalace = annual?.sanFangFourZheng?.find((item) => item.palaceKey === 'MING');
+  const teacherCrossCheck = analysis?.crossChecks?.find((item) => item.palaceKey === 'MING') ?? null;
+  const teacherSynthesis = isTimeExact && teacherPalaceMap.size ? buildZiweiTeacherSynthesis('MING', teacherPalaceMap, teacherAnnualPalace, teacherCrossCheck, annual) : null;
+
+  return (
+    <section className="fortune-card overflow-hidden p-4 sm:p-7" aria-label="紫微命工卡">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">ZIWEI DESTINY CARD</p>
+          <h2 className="mt-2 font-serif text-2xl font-black leading-tight text-amber-50 sm:text-3xl">{title}</h2>
+          <p className="mt-2 max-w-2xl text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
+            紫微負責算，命工卡負責讓客戶看懂；星曜、宮位、四化與三方四正皆可回溯到正式命盤。
+          </p>
+        </div>
+        <span className={`rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.14em] ${isReady ? 'border-emerald-200/30 bg-emerald-300/10 text-emerald-100' : 'border-amber-200/35 bg-amber-300/10 text-amber-100'}`}>
+          {isReady ? 'VERIFIED' : 'REFERENCE'}
+        </span>
+      </div>
+
+      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,380px)_1fr] lg:items-start">
+        <button
+          type="button"
+          onClick={() => setFlipped((value) => !value)}
+          aria-pressed={flipped}
+          className="group mx-auto block w-full max-w-[360px] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/80"
+        >
+          <div className="relative aspect-[2/3] overflow-hidden rounded-[28px] border border-amber-200/35 bg-[radial-gradient(circle_at_50%_18%,rgba(251,191,36,0.24),transparent_28%),linear-gradient(160deg,rgba(15,23,42,0.82),rgba(2,6,23,0.98))] p-5 shadow-[0_26px_70px_rgba(0,0,0,0.42)] transition duration-500 group-active:scale-[0.99]">
+            <div className="pointer-events-none absolute inset-4 rounded-[22px] border border-white/10" />
+            <div className="pointer-events-none absolute inset-x-8 top-8 h-px bg-gradient-to-r from-transparent via-amber-200/70 to-transparent" />
+            <div className="relative flex h-full flex-col">
+              {!flipped ? (
+                <>
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] font-black tracking-[0.22em] text-amber-100/70">{card.palace.name}</p>
+                      <p className="mt-1 text-xs font-bold text-cyan-100/70">{subjectName || '你的紫微命盤'}</p>
+                    </div>
+                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-amber-200/35 bg-amber-200/10 font-serif text-xl font-black text-amber-100">{card.palace.symbol}</span>
+                  </div>
+
+                  <div className="my-auto text-center">
+                    <div className="relative mx-auto grid h-36 w-36 place-items-center rounded-full border border-cyan-200/20 bg-cyan-300/[0.06] shadow-[0_0_42px_rgba(34,211,238,0.14)]">
+                      <div className="absolute inset-5 rounded-full border border-amber-200/25" />
+                      <div className="absolute inset-9 rounded-full border border-white/10" />
+                      <span className="font-serif text-4xl font-black text-amber-100">{card.heroStars[0]?.name?.slice(0, 1) ?? '命'}</span>
+                    </div>
+                    <h3 className="mt-6 break-words font-serif text-3xl font-black leading-tight text-amber-50">{card.title}</h3>
+                    <p className="mt-3 text-base font-black leading-7 text-cyan-50">{card.subtitle}</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {[archetypeLabel, ...elementLabels].slice(0, 4).map((item) => (
+                        <span key={item} className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[10px] font-black text-white/70">{item}</span>
+                      ))}
+                    </div>
+                    <p className="text-center text-[11px] font-bold leading-5 text-amber-100/70">點一下，看我的命工解析</p>
+                  </div>
+                </>
+              ) : (
+                <div className="flex h-full flex-col justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-black tracking-[0.22em] text-cyan-100/70">AI 命工解析</p>
+                    <h3 className="mt-2 font-serif text-2xl font-black leading-tight text-amber-50">{card.customerCopy.coreTheme}</h3>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                      <p className="text-[10px] font-black tracking-[0.18em] text-emerald-100/70">核心力量</p>
+                      <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-main)]">{card.customerCopy.power}</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                      <p className="text-[10px] font-black tracking-[0.18em] text-rose-100/70">目前課題</p>
+                      <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-main)]">{card.customerCopy.challenge}</p>
+                    </div>
+                    <div className="rounded-2xl border border-amber-200/20 bg-amber-300/10 p-3">
+                      <p className="text-[10px] font-black tracking-[0.18em] text-amber-100/75">立即行動</p>
+                      <p className="mt-1 text-sm font-black leading-6 text-amber-50">{card.customerCopy.action}</p>
+                    </div>
+                  </div>
+                  <p className="text-center text-[11px] font-bold leading-5 text-cyan-100/70">再次點擊，回到命工卡正面</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </button>
+
+        <div className="space-y-4">
+          <article className="rounded-[24px] border border-cyan-300/18 bg-cyan-950/18 p-4 sm:p-5">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">看圖說義</p>
+            <p className="mt-3 text-sm font-bold leading-7 text-[color:var(--text-main)]">{card.customerCopy.direction}</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                <p className="text-[10px] font-black text-white/45">主角</p>
+                <p className="mt-1 text-sm font-black text-amber-50">{card.heroStars.map((star) => star.name).join(' × ') || '主星待確認'}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                <p className="text-[10px] font-black text-white/45">支援符號</p>
+                <p className="mt-1 text-sm font-black text-cyan-50">{card.supportingSymbols.slice(0, 4).join('、') || '回看命盤依據'}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                <p className="text-[10px] font-black text-white/45">視覺氣質</p>
+                <p className="mt-1 text-sm font-black text-emerald-50">{card.visualTheme.keywords.slice(0, 3).join('、')}</p>
+              </div>
+            </div>
+          </article>
+
+          <details className="rounded-[24px] border border-white/10 bg-black/18 p-4">
+            <summary className="cursor-pointer text-sm font-black text-cyan-100">查看命盤依據</summary>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <p className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs font-semibold leading-6 text-[color:var(--text-main)]">主宮位：{card.evidence.palace}</p>
+              <p className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs font-semibold leading-6 text-[color:var(--text-main)]">星曜：{card.evidence.stars.join('、') || '無星曜資料'}</p>
+              <p className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs font-semibold leading-6 text-[color:var(--text-main)]">四化：{card.evidence.transformations.join('、') || '無四化'}</p>
+              <p className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs font-semibold leading-6 text-[color:var(--text-main)]">三方四正：{card.evidence.threeHarmony.slice(0, 4).join('；')}</p>
+            </div>
+          </details>
+
+          {teacherSynthesis && (
+            <button
+              type="button"
+              onClick={() => setTeacherOpen((value) => !value)}
+              aria-expanded={teacherOpen}
+              className="flex min-h-[48px] w-full items-center justify-between rounded-2xl border border-purple-200/25 bg-purple-300/10 px-4 py-3 text-left transition hover:border-purple-200/45 hover:bg-purple-300/15"
+            >
+              <span className="text-sm font-black text-purple-100">老師怎麼看？</span>
+              <span className="text-xs font-bold text-purple-200/80">{teacherOpen ? '收起' : '展開第二層解析'}</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {teacherOpen && teacherSynthesis && <ZiweiTeacherSynthesisPanel synthesis={teacherSynthesis} />}
+    </section>
+  );
+}
 function ZiweiTwelvePalaceCards({
   analysis,
   annual,
@@ -2142,14 +2545,11 @@ function ZiweiTwelvePalaceCards({
   const palaceMap = new Map<string, ZiweiFullPalace>();
   palaceSource.forEach((palace) => palaceMap.set(palace.key, palace));
   const sortedPalaces = ZIWEI_TWELVE_PALACE_ORDER.map((key) => palaceMap.get(key) ?? createZiweiFallbackPalace(key));
-  const sanFangPalaces = ZIWEI_SAN_FANG_FOUR_ZHENG_ORDER.map((key) => palaceMap.get(key) ?? createZiweiFallbackPalace(key));
-  const annualMap = new Map<string, ZiweiAnnualPalace>((annual?.sanFangFourZheng ?? []).map((item) => [item.palaceKey, item]));
   const displayAnalysisId = presentation?.analysisId ?? analysisId ?? 'ZIWEI-CORE';
   const bodyPalace = (analysis as InsightResult['ziweiSanFang'] & { bodyPalace?: ZiweiFullPalace | null }).bodyPalace ?? null;
   const mingPalace = palaceMap.get('MING') ?? sortedPalaces[0];
   const mingStars = mingPalace.majorStars.length ? mingPalace.majorStars : analysis.pattern.stars;
   const primaryStarName = mingStars[0] ?? '紫微';
-  const focusTarot = getZiweiPalaceTarotCard(mingPalace);
   const coreTitle = presentation?.memberSummary?.title ?? analysis.pattern.name;
   const coreReason = presentation?.memberSummary?.coreReason ?? analysis.pattern.description;
   const coreAction = presentation?.memberSummary?.immediateAction ?? annual?.recommendations?.[0] ?? fiveElement?.decision?.changeTarget ?? '先選一件最重要的事，今天完成第一步。';
@@ -2181,14 +2581,6 @@ function ZiweiTwelvePalaceCards({
     { name: '破軍', image: '像浪打碎舊船，重建新的航線。', word: '破是打破，軍是行動，代表改革與重組。', intent: '允許自己換方法，但不要把全部歸零。' },
   ];
   const primaryStory = starStories.find((star) => primaryStarName.includes(star.name) || star.name.includes(primaryStarName)) ?? starStories[0];
-  const sanFangCards = sanFangPalaces.map((palace, index) => {
-    const label = ZIWEI_SAN_FANG_LABELS[palace.key] ?? { label: normalizeZiweiPalaceName(palace.name), role: '核心參照' };
-    const annualPalace = annualMap.get(palace.key);
-    const tarotCard = getZiweiPalaceTarotCard(palace);
-    const stars = palace.majorStars.length ? palace.majorStars.join('、') : '無主星，借對宮與三方判讀';
-    const method = index === 0 ? '主軸' : index === 1 ? '對宮' : index === 2 ? '資源' : '成就';
-    return { palace, label, annualPalace, tarotCard, stars, method };
-  });
 
   const trustCards = [
     { label: '命宮', value: `${normalizeZiweiPalaceName(mingPalace.name)} · ${formatStars(mingStars, '主星待確認')}`, detail: `宮干 ${mingPalace.palaceStem}／地支 ${mingPalace.branch}` },
@@ -2198,7 +2590,7 @@ function ZiweiTwelvePalaceCards({
     { label: '吉星', value: allAuspiciousStars.length ? formatStars(allAuspiciousStars) : '本次未見吉星', detail: '依後端固定星曜字典分類，前端只讀結果。' },
     { label: '煞星', value: allMaleficStars.length ? formatStars(allMaleficStars) : '本次未見煞星', detail: allNeutralStars.length ? `未分類星曜：${formatStars(allNeutralStars)}` : '核心排盤未提供煞星時，不由 AI 補星。' },
     { label: '四化', value: allTransformations.length ? `${allTransformations.length} 筆四化訊號` : '目前未見四化訊號', detail: allTransformations.slice(0, 3).join('、') || '依後端排盤結果如實顯示。' },
-    { label: '三方四正', value: '命、遷、財、官', detail: '用 4 張宮位卡呈現，不用塔羅取代命盤。' },
+    { label: '三方四正', value: '命、遷、財、官', detail: '用 4 張宮位卡呈現，所有訊號回到正式紫微命盤。' },
   ];
 
   return (
@@ -2209,7 +2601,7 @@ function ZiweiTwelvePalaceCards({
             <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">ZIWEI CHART TRUST</p>
             <h2 className="mt-2 break-words font-serif text-2xl font-black leading-tight text-cyan-50 sm:text-4xl">完整命盤先確認</h2>
             <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-cyan-100/82">
-              閱讀順序：先看命宮與完整十二宮，再看星曜排列，接著看 AI 解讀；塔羅只做圖像輔助，不取代命盤。
+              閱讀順序：先看命工卡，再看命宮與完整十二宮，接著看 AI 解讀；視覺只負責說明，不取代命盤。
             </p>
           </div>
           <span className="shrink-0 rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[10px] font-black tracking-[0.14em] text-cyan-100">{displayAnalysisId}</span>
@@ -2239,35 +2631,15 @@ function ZiweiTwelvePalaceCards({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-        <article className="rounded-[24px] border border-cyan-300/20 bg-cyan-950/20 p-4 shadow-[0_0_30px_rgba(34,211,238,0.08)] sm:p-5">
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">看字說意境</p>
-          <h3 className="mt-3 font-serif text-2xl font-black text-cyan-50">{primaryStory.name} 的字義核心</h3>
-          <div className="mt-3 grid gap-3">
-            <p className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold leading-7 text-[color:var(--text-main)]">{primaryStory.word}</p>
-            <p className="rounded-2xl border border-emerald-200/18 bg-emerald-300/[0.07] px-4 py-3 text-sm font-black leading-7 text-emerald-50">{primaryStory.intent}</p>
-            <p className="rounded-2xl border border-white/10 bg-black/16 px-4 py-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">小星、煞星、吉星與四化是證據層，完整資料放在老師模式展開；第一屏只留下能建立信任的骨架。</p>
-          </div>
-        </article>
-
-        <article className="rounded-[24px] border border-amber-300/25 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.14),rgba(15,23,42,0.68)_48%,rgba(2,6,23,0.92)_100%)] p-4 shadow-[0_0_34px_rgba(251,191,36,0.12)] sm:p-5">
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">塔羅圖像輔助</p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-[132px_1fr] sm:items-start">
-            <img src={focusTarot.imageUrl} alt={focusTarot.nameZh} loading="lazy" className="mx-auto aspect-[3/5] w-full max-w-[150px] rounded-2xl border border-amber-200/35 object-cover object-top shadow-[0_16px_32px_rgba(2,6,23,0.42)]" />
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-amber-100/70">{focusTarot.nameZh} · {focusTarot.nameEn}</p>
-              <h3 className="mt-2 font-serif text-xl font-black leading-tight text-amber-50">{primaryStory.name}：{primaryStory.image}</h3>
-              <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-main)]">{focusTarot.uprightMeaning}</p>
-              <p className="mt-3 rounded-xl border border-white/10 bg-black/18 px-3 py-2 text-xs font-bold leading-6 text-amber-100">這張圖只幫助理解主星狀態；正式判讀仍以命宮、十二宮、星曜、四化與三方四正為準。</p>
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <ZiweiFourPalaceLifeCycle
-        cardsByKey={new Map(sanFangCards.map((item) => [item.palace.key, item]))}
-        patternName={analysis.pattern.name}
-      />
+      <article className="mt-5 rounded-[24px] border border-cyan-300/20 bg-cyan-950/20 p-4 shadow-[0_0_30px_rgba(34,211,238,0.08)] sm:p-5">
+        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">看字說意境</p>
+        <h3 className="mt-3 font-serif text-2xl font-black text-cyan-50">{primaryStory.name} 的字義核心</h3>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <p className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold leading-7 text-[color:var(--text-main)]">{primaryStory.word}</p>
+          <p className="rounded-2xl border border-emerald-200/18 bg-emerald-300/[0.07] px-4 py-3 text-sm font-black leading-7 text-emerald-50">{primaryStory.intent}</p>
+          <p className="rounded-2xl border border-white/10 bg-black/16 px-4 py-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">小星、煞星、吉星與四化是證據層，完整資料放在老師模式展開；第一屏由命工卡負責建立信任。</p>
+        </div>
+      </article>
 
       <details className="mt-5 rounded-2xl border border-white/10 bg-black/18 p-4">
         <summary className="cursor-pointer text-sm font-black text-cyan-100">老師模式：完整十二宮、星曜與四化</summary>
@@ -2302,308 +2674,6 @@ function ZiweiTwelvePalaceCards({
         </div>
       </details>
     </section>
-  );
-}
-
-type ZiweiSanFangCardData = {
-  palace: ZiweiFullPalace;
-  label: { label: string; role: string };
-  annualPalace?: ZiweiAnnualPalace;
-  tarotCard: typeof TAROT_CARDS[number];
-  stars: string;
-  method: string;
-};
-
-const ZIWEI_LIFE_CYCLE_ORDER = ['MING', 'QIAN_YI', 'GUAN_LU', 'CAI_BO'] as const;
-
-const ZIWEI_LIFE_CYCLE_TRANSITION: Record<string, string> = {
-  MING: '命宮定了方向，接下來看這股力量會被帶到哪裡——進入遷移宮。',
-  QIAN_YI: '外面的機會確認了，力量該落地了——回到官祿宮，看事業怎麼接住它。',
-  GUAN_LU: '事業有了位置，資源自然要對齊——進入財帛宮，看怎麼把它變現。',
-  CAI_BO: '資源到位後，一切又回到起點——命宮會用這份成果，重新定義下一步。',
-};
-
-/**
- * 命財官遷不是四份獨立分析，而是同一張命盤的一段生命循環：
- * 命宮定方向 → 遷移宮看世界回應 → 官祿宮落地成事業 → 財帛宮變成資源 → 回到命宮。
- * 一次只顯示一張，逐步「看圖說故事、故事說意境、回到分析」，再帶入下一宮。
- */
-function ZiweiFourPalaceLifeCycle({
-  cardsByKey,
-  patternName,
-}: {
-  cardsByKey: Map<string, ZiweiSanFangCardData>;
-  patternName: string;
-}) {
-  const [stepIndex, setStepIndex] = useState(0);
-  const stepKey = ZIWEI_LIFE_CYCLE_ORDER[stepIndex];
-  const item = cardsByKey.get(stepKey);
-  if (!item) return null;
-
-  const palaceName = normalizeZiweiPalaceName(item.palace.name) || item.label.label;
-  const story = ZIWEI_PALACE_STORY[stepKey] ?? buildZiweiFallbackStory(palaceName);
-  const material = getZiweiPalaceThreeLayerMaterial(stepKey, palaceName, story);
-  const minorStars = item.palace.minorStars.length ? item.palace.minorStars.slice(0, 6).join('、') : '本宮輔星未集中，力量集中在主星本身。';
-
-  return (
-    <section className="mt-5 rounded-[26px] border border-cyan-300/25 bg-[linear-gradient(160deg,rgba(8,47,73,0.5),rgba(15,23,42,0.9)_60%,rgba(2,6,23,0.96))] p-4 shadow-[0_0_40px_rgba(34,211,238,0.1)] sm:p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">LIFE CYCLE STORY · {patternName}</p>
-          <h3 className="mt-2 font-serif text-2xl font-black text-cyan-50 sm:text-3xl">生命循環：命 → 遷 → 官 → 財</h3>
-          <p className="mt-2 max-w-2xl text-xs font-semibold leading-6 text-[color:var(--text-sub)]">四張卡不是四份分析，而是同一個命盤走一圈：先定自己（命宮），再看世界怎麼回應（遷移宮），落地成事業（官祿宮），最後變成資源（財帛宮），再回到命宮。</p>
-        </div>
-        <div className="flex shrink-0 items-center gap-1.5" aria-label={`第 ${stepIndex + 1} 步，共 4 步`}>
-          {ZIWEI_LIFE_CYCLE_ORDER.map((key, index) => (
-            <span key={key} className={`h-2 w-2 rounded-full ${index === stepIndex ? 'bg-cyan-300' : 'bg-white/15'}`} />
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-5 grid gap-4 lg:grid-cols-[190px_1fr] lg:items-start">
-        <div className="mx-auto w-full max-w-[200px]">
-          <img src={item.tarotCard.imageUrl} alt={item.tarotCard.nameZh} loading="lazy" className="aspect-[3/5] w-full rounded-2xl border border-amber-200/35 object-cover object-top shadow-[0_16px_34px_rgba(2,6,23,0.42)]" />
-          <p className="mt-2 text-center text-[11px] font-bold text-amber-100/75">{item.tarotCard.nameZh} · {item.tarotCard.nameEn}</p>
-        </div>
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-cyan-200/25 bg-cyan-300/10 px-2.5 py-1 text-[10px] font-black text-cyan-100">STEP {stepIndex + 1} / 4</span>
-            <span className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[10px] font-black text-white/70">{item.method}</span>
-            {item.annualPalace && <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-2.5 py-1 text-[10px] font-black text-amber-100">年度 {item.annualPalace.score}</span>}
-          </div>
-          <h4 className="mt-2 font-serif text-2xl font-black leading-tight text-amber-50 sm:text-3xl">{palaceName} · {item.stars}</h4>
-
-          <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-cyan-200/80">看圖說故事</p>
-          <p className="mt-1 text-base font-semibold leading-7 text-[color:var(--text-main)]">{story.story}</p>
-
-          <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-cyan-200/80">故事說意境</p>
-          <p className="mt-1 text-base font-semibold leading-7 text-[color:var(--text-sub)]">{material.layerTwoText}</p>
-
-          <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-amber-200/80">回到分析</p>
-          <p className="mt-1 rounded-xl border border-amber-200/20 bg-amber-300/8 px-3 py-2 text-base font-black leading-7 text-amber-50">{material.layerThreeText}</p>
-
-          <p className="mt-3 text-xs font-semibold leading-5 text-[color:var(--text-muted)]">小星輔佐：{minorStars}</p>
-
-          <button
-            type="button"
-            onClick={() => setStepIndex((current) => (current + 1) % ZIWEI_LIFE_CYCLE_ORDER.length)}
-            className="mt-4 flex min-h-[56px] w-full flex-col items-start gap-1 rounded-2xl border border-cyan-200/30 bg-cyan-300/10 px-4 py-3 text-left transition hover:border-cyan-200/55 hover:bg-cyan-300/16"
-          >
-            <span className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-200/80">{stepIndex === ZIWEI_LIFE_CYCLE_ORDER.length - 1 ? '循環回到命宮' : '帶入下一宮'}</span>
-            <span className="text-sm font-black text-cyan-50">{ZIWEI_LIFE_CYCLE_TRANSITION[stepKey]}</span>
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ZiweiHexagramLines({ hexagram }: { hexagram: ZiweiStarHexagram }) {
-  const lines = getZiweiHexagramLines(hexagram);
-  const labels = ['初爻', '二爻', '三爻', '四爻', '五爻', '上爻'];
-  return (
-    <div
-      className="flex flex-col-reverse gap-1.5"
-      role="img"
-      aria-label={`${hexagram.name}卦象，下卦${hexagram.lower}、上卦${hexagram.upper}`}
-    >
-      {lines.map((yang, i) => (
-        <div key={labels[i]} className="flex items-center gap-1" aria-hidden="true">
-          {yang ? (
-            <span className="h-[7px] w-[62px] rounded-sm bg-amber-200/85" />
-          ) : (
-            <>
-              <span className="h-[7px] w-[26px] rounded-sm bg-amber-200/85" />
-              <span className="h-[7px] w-[26px] rounded-sm bg-amber-200/85" />
-            </>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ZiweiMingGongCard({
-  palace,
-  story,
-  annualSignal,
-  patternName,
-  active,
-  onOpen,
-}: {
-  palace: ZiweiFullPalace;
-  story: ZiweiPalaceStoryMaterial;
-  annualSignal: ReturnType<typeof getZiweiAnnualSignal>;
-  patternName: string;
-  active: boolean;
-  onOpen: () => void;
-}) {
-  const palaceName = normalizeZiweiPalaceName(palace.name) || '命宮';
-  const primaryStar = getZiweiMajorStarMaterials(palace.majorStars.slice(0, 1))[0];
-  const tarotCard = getZiweiPalaceTarotCard(palace);
-  const hexagram = getZiweiMingHexagram(primaryStar.name);
-  const composition = tarotCard.visualKnowledge?.composition;
-  const motifs = tarotCard.visualKnowledge?.symbolicElements?.slice(0, 3) ?? [];
-  const starName = primaryStar.name || '主星未定';
-  const imageStory = [
-    composition?.figure ? '畫面主角：' + composition.figure : '畫面主角：一個正在啟動能力的人',
-    composition?.focalSymbol ? '核心符號：' + composition.focalSymbol : '核心符號：手上的工具與眼前的選擇',
-    motifs.length ? '關鍵線索：' + motifs.join('、') : '關鍵線索：姿態、光線、方向與手上的工具',
-  ];
-  const mingJudgment = hexagram.ming && !hexagram.ming.includes('?') ? hexagram.ming : '命宮是你面對人生的第一個姿態：你怎麼決定、怎麼承擔、怎麼把能力放到世界面前。這張牌提醒你，先把手上的工具整理好，方向就會慢慢清楚。';
-  const mingAction = hexagram.action && !hexagram.action.includes('?') ? hexagram.action : '今天先做一件能代表自己的事：把一個想法說清楚、寫下來，或往前推進一步。';
-
-  return (
-    <article className="relative overflow-hidden rounded-[24px] border-2 border-cyan-300/28 bg-[radial-gradient(circle_at_10%_0%,rgba(34,211,238,0.14),transparent_34%),linear-gradient(135deg,rgba(8,47,73,0.48),rgba(15,23,42,0.82)_58%,rgba(2,6,23,0.95))] p-4 text-cyan-50 shadow-[0_18px_46px_rgba(2,6,23,0.34)] sm:p-6">
-      <span className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-amber-200/45 to-transparent" />
-
-      <header className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">MING PALACE STORY</p>
-          <h3 className="mt-2 break-words font-serif text-2xl font-black leading-tight text-amber-100 sm:text-4xl">命宮：看圖說故事，看字說易經</h3>
-          <p className="mt-2 text-sm font-semibold leading-7 text-cyan-100/82">{palaceName} × {starName} · {patternName}</p>
-        </div>
-        {annualSignal.score !== null && (
-          <span className="shrink-0 rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-[11px] font-black text-amber-100">
-            {annualSignal.label} · {annualSignal.score}
-          </span>
-        )}
-      </header>
-
-      <div className="relative mt-5 grid gap-4 lg:grid-cols-[minmax(170px,230px)_minmax(0,1fr)]">
-        <figure className="m-0">
-          <div className="overflow-hidden rounded-[18px] border-2 border-amber-200/40 bg-black shadow-[0_14px_34px_rgba(2,6,23,0.42)]">
-            <img
-              src={tarotCard.imageUrl}
-              alt={'命宮看圖說故事：' + tarotCard.nameZh}
-              loading="lazy"
-              className="aspect-[3/5] w-full object-cover object-top"
-            />
-          </div>
-          <figcaption className="mt-2 text-center text-[11px] font-bold leading-5 text-cyan-100/75">
-            {tarotCard.nameZh} · {tarotCard.nameEn}
-          </figcaption>
-        </figure>
-
-        <div className="min-w-0 space-y-3">
-          <section className="rounded-2xl border border-cyan-200/16 bg-black/22 p-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">看圖說故事</p>
-            <h4 className="mt-2 font-serif text-xl font-black text-cyan-50">這張圖在說：你如何把自己帶上人生舞台</h4>
-            <div className="mt-3 grid gap-2 sm:grid-cols-3">
-              {imageStory.map((item) => (
-                <p key={item} className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{item}</p>
-              ))}
-            </div>
-            <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-main)]">
-              {tarotCard.uprightMeaning}
-            </p>
-            <p className="mt-2 text-xs font-semibold leading-6 text-cyan-100/62">
-              先看畫面，再談命盤：人物站在哪裡、手裡拿什麼、光從哪裡來，說的都是你現在如何使用自己的能力。
-            </p>
-          </section>
-
-          <section className="rounded-2xl border border-amber-200/22 bg-amber-300/[0.07] p-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">看字說易經</p>
-            <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start">
-              <div className="flex shrink-0 items-center gap-3">
-                <ZiweiHexagramLines hexagram={hexagram} />
-                <div>
-                  <p className="font-serif text-3xl font-black leading-none text-amber-100">{hexagram.name || '命宮本卦'}</p>
-                  <p className="mt-1.5 text-[11px] font-bold text-amber-100/70">{hexagram.lower}下 · {hexagram.upper}上</p>
-                </div>
-              </div>
-              <div className="min-w-0 flex-1 space-y-2">
-                <p className="m-0 font-serif text-base font-black leading-8 text-amber-50">{hexagram.gua}</p>
-                <p className="m-0 text-sm font-semibold leading-7 text-amber-100/85">{hexagram.image}</p>
-                <p className="m-0 border-t border-white/10 pt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
-                  {hexagram.plain}
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-emerald-200/18 bg-emerald-300/[0.055] p-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-emerald-200">命宮落點</p>
-            <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-main)]">{mingJudgment}</p>
-            <p className="mt-3 rounded-xl border border-emerald-200/20 bg-black/18 px-3 py-2 text-sm font-black leading-7 text-emerald-50">
-              今日一件事：{mingAction}
-            </p>
-          </section>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        onClick={onOpen}
-        aria-expanded={active}
-        className="relative mt-5 w-full rounded-2xl border border-amber-200/30 bg-amber-300/12 px-4 py-3 text-sm font-black text-amber-50 transition hover:border-amber-100/55 hover:bg-amber-300/18 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/70"
-      >
-        {active ? '收合命宮完整解讀' : '展開命宮完整解讀'}
-      </button>
-    </article>
-  );
-}
-
-function ZiweiPalaceMemberPanel({
-  panelRef,
-  palace,
-  annualPalace,
-  annual,
-  precisionAnalysis,
-  story,
-}: {
-  panelRef: Ref<HTMLDivElement>;
-  palace: ZiweiFullPalace;
-  annualPalace?: ZiweiAnnualPalace;
-  annual?: ZiweiAnnualFortune;
-  precisionAnalysis?: ZiweiPrecisionAnalysis;
-  story?: ZiweiPalaceStoryMaterial;
-}) {
-  const palaceName = normalizeZiweiPalaceName(palace.name);
-  const config = story ?? buildZiweiFallbackStory(palaceName);
-  const primaryStar = getZiweiMajorStarMaterials(palace.majorStars.slice(0, 1))[0];
-  const annualSignal = getZiweiAnnualSignal(palace.key, annualPalace, annual);
-  const reminder = precisionAnalysis?.primaryRisk.description ?? annualSignal.tensions[0] ?? config.pressure;
-  const action = precisionAnalysis?.actionPlan.doFirst[0] ?? annualSignal.action ?? config.action;
-  const tarotCard = getZiweiPalaceTarotCard(palace);
-
-  return (
-    <div ref={panelRef} className={'mt-6 scroll-mt-24 rounded-[24px] border p-5 sm:p-6 ' + config.tone}>
-      <div className="flex items-center gap-4">
-        <img
-          src={tarotCard.imageUrl}
-          alt={tarotCard.nameZh}
-          loading="lazy"
-          className="h-20 w-14 shrink-0 rounded-lg border border-white/20 object-cover shadow-[0_8px_18px_rgba(2,6,23,0.4)]"
-        />
-        <div>
-          <p className="text-xs font-semibold tracking-[0.24em] opacity-70">【{palaceName}】· {tarotCard.nameZh}</p>
-          <h3 className="mt-1 font-serif text-3xl font-black leading-tight text-amber-100">{primaryStar.name}</h3>
-        </div>
-        {annualSignal.score !== null && (
-          <span className="ml-auto rounded-full border border-white/15 bg-black/15 px-3 py-1 text-xs font-semibold opacity-90">
-            {annualSignal.label} · {annualSignal.score}
-          </span>
-        )}
-      </div>
-
-      <div className="mt-5 space-y-3">
-        <div className="rounded-2xl border border-white/10 bg-black/16 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">① 這顆主星代表什麼</p>
-          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{primaryStar.role}</p>
-        </div>
-        <div className="rounded-2xl border border-white/10 bg-black/16 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">② 目前最重要提醒</p>
-          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{reminder}</p>
-        </div>
-        <div className="rounded-2xl border border-white/10 bg-black/16 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-200">③ 現在應該怎麼做</p>
-          <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{action}</p>
-        </div>
-      </div>
-
-      <p className="mt-4 text-xs leading-6 opacity-60">想看完整命盤、全部星曜、輔星與四化，可切換到上方「老師模式」。</p>
-    </div>
   );
 }
 
@@ -3861,6 +3931,8 @@ export default function InsightPage() {
                 </div>
               </div>
             </div>
+
+            <ZiweiDestinyCardView card={result?.destinyCard} subjectName={input.name} analysis={result?.ziweiSanFang} annual={result?.annualFortune} />
 
             <ZiweiTwelvePalaceCards
               analysis={result?.ziweiSanFang}
