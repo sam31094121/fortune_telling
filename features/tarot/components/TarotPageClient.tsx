@@ -315,7 +315,7 @@ export default function TarotPageClient() {
                       onClick={openAdminReview}
                       className="inline-flex min-h-[58px] w-full items-center justify-center gap-2 rounded-full border border-amber-200/45 bg-amber-300/15 px-8 py-3.5 text-base font-black text-amber-50 shadow-[0_0_26px_rgba(251,191,36,0.16)] transition hover:border-amber-100/70 hover:bg-amber-300/25 hover:shadow-[0_0_38px_rgba(251,191,36,0.26)] active:scale-[0.98] sm:w-auto"
                     >
-                      <span aria-hidden="true">\ud83d\udd0d</span>
+                      <span aria-hidden="true">🔍</span>
                       查看 78 張牌庫
                     </button>
                   </div>
