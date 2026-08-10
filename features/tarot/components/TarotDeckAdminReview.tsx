@@ -55,8 +55,10 @@ export default function TarotDeckAdminReview({ cards, onClose }: TarotDeckAdminR
         <button
           type="button"
           onClick={onClose}
-          className="shrink-0 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-xs font-black text-[color:var(--text-sub)] transition hover:border-white/20 hover:text-white"
+          className="tarot-back-to-draw shrink-0"
+          aria-label="\u56de\u5230\u62bd\u724c\u9801\u9762"
         >
+          <span aria-hidden="true">\u2b05\ufe0f</span>
           回到抽牌
         </button>
       </div>
@@ -148,6 +150,20 @@ export default function TarotDeckAdminReview({ cards, onClose }: TarotDeckAdminR
           </div>
         </div>
       )}
+
+      {/* \u5e95\u90e8\u56de\u7a0b\u5f15\u5c0e\uff1a\u6ed1\u5b8c 78 \u5f35\u4e5f\u627e\u5f97\u5230\u56de\u53bb\u7684\u8def */}
+      <div className="mt-6 flex flex-col items-center gap-2">
+        <p className="text-sm font-bold text-cyan-100/80">\u770b\u5b8c\u724c\u5eab\u4e86\u55ce\uff1f\u9ede\u4e0b\u65b9\u56de\u53bb\u7e7c\u7e8c\u62bd\u724c</p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="tarot-back-to-draw w-full sm:w-auto"
+          aria-label="\u56de\u5230\u62bd\u724c\u9801\u9762"
+        >
+          <span aria-hidden="true">\u2b05\ufe0f</span>
+          回到抽牌
+        </button>
+      </div>
     </section>
   );
 }
