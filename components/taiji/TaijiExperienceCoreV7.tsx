@@ -218,7 +218,7 @@ export default function TaijiExperienceCoreV7({ state, onStart }: TaijiExperienc
     setWebglOk(detectWebGL());
   }, []);
 
-  const useWebGL3D = quality === 'HIGH' && webglOk;
+  const useWebGL3D = quality !== 'LOW' && webglOk;
 
   // 3D 指標視差：滑鼠/觸控靠近時太極自然朝向使用者傾斜，離開緩慢回正
   useEffect(() => {

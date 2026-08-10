@@ -2677,11 +2677,7 @@ export default function HomePage() {
           </div>
           <div className="home-core-panel relative flex w-full max-w-[430px] flex-col items-center justify-center">
             <div className="home-core-halo hidden" aria-hidden="true" />
-            {USE_TAIJI_EXPERIENCE_CORE_V7 ? (
-              <TaijiExperienceCoreV7 state={homeTaijiState} onStart={enterHomeTaiji} />
-            ) : (
-              <TaijiStandaloneCard />
-            )}
+            {/* 太極圖卡片已依指示整張移除（2026-08-10）；其餘一切不動 */}
             <div className="home-command-panel hidden mt-5 w-full">
               <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
                 <span className="text-[10px] font-black uppercase tracking-[0.28em] text-cyan-200">Command Sync</span>

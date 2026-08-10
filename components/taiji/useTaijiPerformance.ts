@@ -31,7 +31,7 @@ export function useTaijiPerformance() {
           if (samplesRef.current.length > 60) samplesRef.current.shift();
 
           const average = samplesRef.current.reduce((sum, value) => sum + value, 0) / samplesRef.current.length;
-          if (average < 30) setQuality('LOW');
+          if (average < 30) setQuality((current) => (current === 'LOW' ? current : 'MEDIUM'));
           else if (average < 45) setQuality((current) => (current === 'LOW' ? current : 'MEDIUM'));
         }
       }
@@ -68,4 +68,3 @@ export function useTaijiPerformance() {
 
   return quality;
 }
-

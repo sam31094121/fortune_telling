@@ -3,8 +3,8 @@
   "version": "screen-health-monitor-v1",
   "baseUrl": "http://localhost:8888",
   "port": 8888,
-  "startedAt": "2026-08-10T10:41:20.282Z",
-  "completedAt": "2026-08-10T10:41:20.324Z",
+  "startedAt": "2026-08-10T10:46:00.865Z",
+  "completedAt": "2026-08-10T10:46:00.908Z",
   "mode": "ONCE",
   "autoRepair": true,
   "summary": {
@@ -89,7 +89,7 @@
       "path": "/",
       "status": "FAILED",
       "httpStatus": 0,
-      "durationMs": 26,
+      "durationMs": 27,
       "htmlLength": 0,
       "error": "fetch failed",
       "issue": "fetch failed"
@@ -101,7 +101,7 @@
       "path": "/internal/health/ready",
       "status": "FAILED",
       "httpStatus": 0,
-      "durationMs": 1,
+      "durationMs": 2,
       "htmlLength": 0,
       "error": "fetch failed",
       "issue": "fetch failed"
@@ -161,7 +161,7 @@
       "path": "/music",
       "status": "FAILED",
       "httpStatus": 0,
-      "durationMs": 0,
+      "durationMs": 1,
       "htmlLength": 0,
       "error": "fetch failed",
       "issue": "fetch failed"
@@ -185,7 +185,7 @@
       "path": "/zodiac",
       "status": "FAILED",
       "httpStatus": 0,
-      "durationMs": 2,
+      "durationMs": 1,
       "htmlLength": 0,
       "error": "fetch failed",
       "issue": "fetch failed"
@@ -197,7 +197,7 @@
       "path": "/tarot",
       "status": "FAILED",
       "httpStatus": 0,
-      "durationMs": 2,
+      "durationMs": 1,
       "htmlLength": 0,
       "error": "fetch failed",
       "issue": "fetch failed"
@@ -209,7 +209,7 @@
       "path": "/growth-center",
       "status": "FAILED",
       "httpStatus": 0,
-      "durationMs": 1,
+      "durationMs": 0,
       "htmlLength": 0,
       "error": "fetch failed",
       "issue": "fetch failed"
