@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import MusicPlayer from './MusicPlayer';
@@ -168,48 +168,48 @@ const GENRE_NAMES: Record<string, string> = {
   modern_dance_pop: '\u73fe\u4ee3\u6d41\u884c\u821e\u66f2',
   emotional_pop: '\u60c5\u7dd2\u6d41\u884c',
   club_edm_pop: '\u6d3e\u5c0d\u96fb\u97f3',
-  cinematic_pop: '電影流行',
-  acoustic_pop: '木質流行',
-  indie_folk: '獨立民謠',
-  alternative_rock: '另類搖滾',
-  electronic_pop: '電子流行',
-  experimental_electronic: '實驗電子',
-  avant_garde: '前衛氛圍',
-  ambient_electronic: '環境電子',
-  psychedelic_rock: '迷幻搖滾',
-  classical_ambient: '古典氛圍',
+  cinematic_pop: '?餃蔣瘚?',
+  acoustic_pop: '?刻釭瘚?',
+  indie_folk: '?函?瘞?',
+  alternative_rock: '?阡??遝',
+  electronic_pop: '?餃?瘚?',
+  experimental_electronic: '撖阡??餃?',
+  avant_garde: '??瘞?',
+  ambient_electronic: '?啣??餃?',
+  psychedelic_rock: '餈瑕劂?遝',
+  classical_ambient: '?文瘞?',
 };
 
 const GENRE_EMOJI: Record<string, string> = {
-  modern_dance_pop: '\u{1F3A7}',
-  emotional_pop: '\u2728',
-  club_edm_pop: '\u26a1',
-  cinematic_pop: '🎬',
-  acoustic_pop: '🪵',
-  indie_folk: '🌾',
-  alternative_rock: '🎸',
-  electronic_pop: '✨',
-  experimental_electronic: '🧪',
-  avant_garde: '🔮',
-  ambient_electronic: '🌌',
-  psychedelic_rock: '🌠',
-  classical_ambient: '🎻',
+  modern_dance_pop: 'POP',
+  emotional_pop: 'EMO',
+  club_edm_pop: 'EDM',
+  cinematic_pop: 'CIN',
+  acoustic_pop: 'AC',
+  indie_folk: 'IND',
+  alternative_rock: 'ROCK',
+  electronic_pop: 'ELEC',
+  experimental_electronic: 'EXP',
+  avant_garde: 'AV',
+  ambient_electronic: 'AMB',
+  psychedelic_rock: 'PSY',
+  classical_ambient: 'CLS',
 };
 
 const MATRIX_CONFIG: Array<{ key: keyof PersonalityMatrix; label: string; low: string; mid: string; high: string }> = [
-  { key: 'emotion', label: '情緒感受', low: '穩定收束', mid: '溫柔流動', high: '感受強烈' },
-  { key: 'logic', label: '理性思考', low: '直覺帶路', mid: '平衡判斷', high: '結構清晰' },
-  { key: 'social', label: '社交互動', low: '慢熱內斂', mid: '自然往來', high: '外放連結' },
-  { key: 'leadership', label: '主導傾向', low: '柔性帶動', mid: '穩定承擔', high: '明確領航' },
-  { key: 'security', label: '安全需求', low: '偏向自由', mid: '需要節奏', high: '重視安定' },
-  { key: 'creativity', label: '創造能量', low: '含蓄表達', mid: '靈感穩定', high: '靈光旺盛' },
-  { key: 'risk', label: '冒險傾向', low: '謹慎推進', mid: '衡量後行動', high: '勇於突破' },
-  { key: 'attachment', label: '情感依附', low: '保留邊界', mid: '溫和投入', high: '深度連結' },
+  { key: 'emotion', label: '情緒深度', low: '冷靜收斂', mid: '溫柔穩定', high: '情感濃烈' },
+  { key: 'logic', label: '邏輯判斷', low: '直覺優先', mid: '理性平衡', high: '結構清楚' },
+  { key: 'social', label: '人際連結', low: '保留距離', mid: '自然互動', high: '感染力強' },
+  { key: 'leadership', label: '主導能力', low: '低調觀察', mid: '穩定帶領', high: '號召明確' },
+  { key: 'security', label: '安全感', low: '需要安定', mid: '逐步建立', high: '穩固可靠' },
+  { key: 'creativity', label: '創造力', low: '務實簡潔', mid: '靈感穩定', high: '想像力強' },
+  { key: 'risk', label: '冒險度', low: '保守謹慎', mid: '願意嘗試', high: '突破性強' },
+  { key: 'attachment', label: '依附感', low: '獨立自主', mid: '重視陪伴', high: '情感黏著' },
 ];
 
 const OCEAN_CONFIG: Array<{ key: keyof OceanProfile; label: string }> = [
-  { key: 'openness', label: '開放性' },
-  { key: 'conscientiousness', label: '自律性' },
+  { key: 'openness', label: '開放度' },
+  { key: 'conscientiousness', label: '責任感' },
   { key: 'extraversion', label: '外向度' },
   { key: 'agreeableness', label: '親和度' },
   { key: 'neuroticism', label: '敏感度' },
@@ -288,7 +288,7 @@ function SongDraftCard({
         >
           {draft.language_label}
         </span>
-        <span className="text-xs text-[color:var(--text-muted)]">原創雛形</span>
+        <span className="text-xs text-[color:var(--text-muted)]">歌曲草稿</span>
       </div>
 
       <h4 className="font-serif text-xl text-[color:var(--text-main)]">《{draft.title}》</h4>
@@ -297,10 +297,10 @@ function SongDraftCard({
       <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-4">
         <div className="space-y-1.5 font-serif text-sm leading-7 text-[color:var(--text-main)]">
           {draft.lyrics.map((line, index) => {
-            const isSection = /^\s*[\[【].+[\]】]\s*$/.test(line);
+            const isSection = /^\s*\[.+\]\s*$/.test(line);
             return isSection ? (
               <p key={`${line}-${index}`} className="pt-2 text-xs font-semibold tracking-[0.25em]" style={{ color: accentStyle.text }}>
-                {line.replace(/[\[\]【】]/g, '')}
+                {line.replace(/[\[\]]/g, '')}
               </p>
             ) : (
               <p key={`${line}-${index}`}>{line}</p>
@@ -311,7 +311,7 @@ function SongDraftCard({
 
       <div className="mt-4 space-y-2 text-xs leading-6 text-[color:var(--text-muted)]">
         <p>
-          <span style={{ color: accentStyle.text }}>曲風：</span>
+          <span style={{ color: accentStyle.text }}>風格：</span>
           {draft.style}
         </p>
         <p>
@@ -739,7 +739,7 @@ function createPlayableSongDemo(
   const duration = totalBeats * beat;
   const buffer = new Float32Array(Math.ceil(duration * sampleRate));
   const root = getRootFrequency(musicParameters.key);
-  const isMinor = /minor|小調/i.test(musicParameters.key);
+  const isMinor = /minor|撠矽/i.test(musicParameters.key);
   const scale = isMinor ? [0, 2, 3, 5, 7, 8, 10, 12] : [0, 2, 4, 5, 7, 9, 11, 12];
   const progression = isMinor ? [0, 6, 3, 5] : [0, 5, 3, 4];
   const englishSeed = lyricSeed(songDrafts?.english.lyrics ?? fusionSong.fusion_lyrics.slice(0, 5));
@@ -775,27 +775,27 @@ function createPlayableSongDemo(
   const shortDurations = [0.62, 0.62, 0.9, 1.1];
   const verseDurations = [0.78, 0.72, 0.95, 0.62, 0.78, 0.72, 1.1, 0.55];
 
-  // 0-8 beats：Cold Hook，英文高音記憶點直接丟出來，像舞曲開場標誌
+  // 0-8 beats嚗old Hook嚗???唾??園??湔銝靘????脤??湔?隤?
   addChordProgression(buffer, sampleRate, root, scale, beat, 0, 2, progression, 0.05, 'bell');
   addPatternedMelody(buffer, sampleRate, root, beat, 0, englishHook, straightEight, [0.6, 0.6, 0.78, 1.05], 0.14, 'bell', 1);
   addPatternedMelody(buffer, sampleRate, root, beat, 4, sharedHook, straightEight.slice(0, 4), [0.78, 0.78, 0.92, 1.1], 0.1, 'pluck', 0);
   addDanceRiser(buffer, sampleRate, root, beat, 4, 6, 0.035);
 
-  // 8-24 beats：國語主歌，四拍 Kick 低強度進場，主旋律保持清楚
+  // 8-24 beats嚗?隤蜓甇??? Kick 雿撥摨阡脣嚗蜓??靽?皜?
   addChordProgression(buffer, sampleRate, root, scale, beat, 2, 4, progression, 0.062, 'pluck');
   addDanceBassLine(buffer, sampleRate, root, scale, beat, 8, 4, progression, 0.075);
   addPatternedMelody(buffer, sampleRate, root, beat, 8, mandarinVerse, verseRhythm, verseDurations, 0.17, 'pluck', 0);
   addPatternedMelody(buffer, sampleRate, root, beat, 16, sharedHook, straightEight, shortDurations, 0.08, 'bell', 1);
   addDanceDrums(buffer, sampleRate, beat, 8, 16, 0.58, 'build');
 
-  // 24-32 beats：Pre-drop，低頻短暫收掉，用上升音效把英文 Hook 與國語主旋律接起來
+  // 24-32 beats嚗re-drop嚗??餌?急???其?????望? Hook ??隤蜓???亥絲靘?
   addChordProgression(buffer, sampleRate, root, scale, beat, 6, 2, progression.slice(1), 0.06, 'soft');
   addPatternedMelody(buffer, sampleRate, root, beat, 24, mandarinPreChorus, straightEight, [0.72, 0.72, 0.92, 1.08], 0.14, 'soft', 0);
   addPatternedMelody(buffer, sampleRate, root, beat, 28, englishHook.slice(0, 4), [0, 1.5, 3, 5], [0.55, 0.62, 0.76, 0.96], 0.06, 'bell', 1);
   addDanceRiser(buffer, sampleRate, root, beat, 26, 10, 0.05);
   addNoiseHit(buffer, sampleRate, 31.75 * beat, beat * 0.2, 0.12);
 
-  // 32-64 beats：Dance Drop，四拍鼓、彈跳 Bass、雙語 Hook 重複兩輪
+  // 32-64 beats嚗ance Drop嚗?????頝?Bass??隤?Hook ???抵憚
   addChordProgression(buffer, sampleRate, root, scale, beat, 8, 8, progression, 0.09, 'soft');
   addDanceBassLine(buffer, sampleRate, root, scale, beat, 32, 8, progression, 0.135);
   addPatternedMelody(buffer, sampleRate, root, beat, 32, chorusMotif, chorusRhythm, shortDurations, 0.18, 'pluck', 0);
@@ -807,7 +807,7 @@ function createPlayableSongDemo(
   addDanceDrums(buffer, sampleRate, beat, 32, 32, 1, 'drop');
   addGlobalTrendPulse(buffer, sampleRate, beat, 32, 32, 0.36);
 
-  // 64-80 beats：第二輪洗腦 Hook，保持舞曲推進但減少新元素，讓旋律更容易記住
+  // 64-80 beats嚗洵鈭憚瘣 Hook嚗????脫?脖?皜??啣?蝝?霈?敺摰寞?閮?
   addChordProgression(buffer, sampleRate, root, scale, beat, 16, 4, progression, 0.083, 'pluck');
   addDanceBassLine(buffer, sampleRate, root, scale, beat, 64, 4, progression, 0.12);
   addPatternedMelody(buffer, sampleRate, root, beat, 64, sharedHook, straightEight, [0.62, 0.62, 0.82, 1.02], 0.14, 'pluck', 0);
@@ -815,7 +815,7 @@ function createPlayableSongDemo(
   addPatternedMelody(buffer, sampleRate, root, beat, 72, mandarinPreChorus, straightEight, [0.68, 0.68, 0.86, 1.08], 0.105, 'soft', 0);
   addDanceDrums(buffer, sampleRate, beat, 64, 16, 0.88, 'drop');
 
-  // 80-96 beats：Engineer Stop Cut，逐步收掉，只留下國語主旋律尾巴，方便後續接正式人聲
+  // 80-96 beats嚗ngineer Stop Cut嚗郊?嗆?嚗????銝餅?敺偏撌湛??嫣噶敺??交迤撘犖??
   addChordProgression(buffer, sampleRate, root, scale, beat, 20, 4, progression, 0.06, 'bell');
   addDanceBassLine(buffer, sampleRate, root, scale, beat, 80, 2, progression, 0.075);
   addPatternedMelody(buffer, sampleRate, root, beat, 80, sharedHook.slice(0, 6), [0, 1, 2, 4, 6, 8], [0.72, 0.72, 0.9, 1.1], 0.1, 'soft', 0);
@@ -831,21 +831,20 @@ function createPlayableSongDemo(
 }
 
 const DEFAULT_POPULAR_MUSIC_DNA = [
-  '8 秒內建立可記住的旋律或音色 Hook。',
-  '主歌保留空間，副歌明顯拉高旋律、鼓組與和聲。',
-  '核心 Hook 重複 2 到 3 次，每次用語言或和聲做小變化。',
-  '歌詞短句優先，讓人容易跟唱與記住。',
-  '橋段降低密度，讓人層國語核心句完成情緒落點後再回副歌。',
-  '結尾保留一句核心句子，形成專屬記憶點。',
+  '前 8 秒建立清楚記憶點，讓副歌一進來就能被記住。',
+  '主歌保留呼吸與空間，讓聲線有貼近感。',
+  '副歌核心句重複 2 到 3 次，形成情緒鉤子。',
+  '樂器層次由少到多，最後把主唱推到最前面。',
+  '避免模仿既有歌曲，只保留流行音樂的結構精神。',
+  '結尾收束乾淨，留下可以二次播放的餘韻。',
 ];
 
 const DEFAULT_GLOBAL_TREND_BLEND = [
-  'Global Pop：清楚主旋律、短句 Hook、明確副歌。',
-  'K-Pop / Cross-genre：段落反差、短暫停頓、和聲堆疊。',
-  'Latin / Reggaeton / Trap Latino：加入擺動感與切分節奏。',
-  'Electronic / Synth Pop：使用合成器、空氣墊、低頻脈衝。',
-  'R&B / Emotional Pop：主歌保留人聲呼吸，副歌加寬和聲。',
-  'Short-form friendly：保留 12-18 秒可記憶副歌片段。',
+  'Global Pop: 清楚的 hook 與乾淨低頻。',
+  'K-Pop / Cross-genre: 分段明確，情緒推進快。',
+  'Electronic Pop: 用合成器增加空間與高級感。',
+  'R&B / Emotional Pop: 主唱靠前，保留呼吸與尾音。',
+  'Short-form friendly: 12 到 18 秒內出現第一個記憶點。',
 ];
 
 function createRealAiServicePackage(
@@ -861,26 +860,26 @@ function createRealAiServicePackage(
     ? productionPlan.global_trend_blend
     : DEFAULT_GLOBAL_TREND_BLEND;
   const trendArrangementRecipe = productionPlan.trend_arrangement_recipe ??
-    '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層國語故事只負責情感落點；三者進同一個歌曲矩陣。';
+    '以 Global Pop 的乾淨結構為主，主歌留白，副歌加寬，最後讓主唱成為唯一焦點。';
   const rhythmStrategy = productionPlan.rhythm_strategy ??
-    '主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。';
+    '節奏先穩住心跳，再逐步加入鼓組與 hi-hat，讓情緒自然推到副歌。';
   const trendSafetyNote = productionPlan.trend_safety_note ??
-    '只使用全球流行音樂的通用結構與聽感邏輯，不模仿特定歌手、特定歌曲、特定旋律或受版權保護的編曲細節。';
+    '不得複製任何既有歌曲、旋律、歌詞或編曲，只能使用通用流行結構。';
   const hitFormula = productionPlan.hit_formula ??
-    '天層英文音樂前奏 → 地層國語主歌與副歌情緒 → 人層國語核心句落點 → 融合引擎輸出一首歌。';
+    '主歌靠近、前副歌拉高期待、副歌一句打中核心。';
   const hookRepeatStrategy = productionPlan.hook_repeat_strategy ??
-    '核心 Hook 重複三次：天層建立旋律記憶，地層推高副歌情緒，人層完成情感落點。';
+    '核心 hook 至少重複兩次，第二次加入和聲與更強節奏。';
   const emotionalArc = productionPlan.emotional_arc ??
-    '先由天層建立音樂靈魂，再由地層建立歌曲身體，最後由人層放入故事落點並收束。';
+    '從壓抑到被理解，再到願意往前走。';
   const cleanLyrics = fusionSong.fusion_lyrics
     .map((line) => line.trim())
     .filter(Boolean)
     .join('\n');
   const draftSummary = songDrafts
     ? [
-      `Heaven layer: "${songDrafts.english.title}" — ${songDrafts.english.concept}`,
-      `Earth layer: "《${songDrafts.mandarin.title}》" — ${songDrafts.mandarin.concept}`,
-      `Human layer: "《${songDrafts.taiwanese.title}》" — ${songDrafts.taiwanese.concept}`,
+      `Heaven layer: "${songDrafts.english.title}" ??${songDrafts.english.concept}`,
+      `Earth layer: "??{songDrafts.mandarin.title}?? ??${songDrafts.mandarin.concept}`,
+      `Human layer: "??{songDrafts.taiwanese.title}?? ??${songDrafts.taiwanese.concept}`,
     ].join('\n')
     : 'Use the Tiandiren song matrix lyrics and production plan as source material.';
 
@@ -1024,12 +1023,6 @@ function IntegratedSongMaker({
     if (lyriaAudioUrlRef.current) URL.revokeObjectURL(lyriaAudioUrlRef.current);
   }, []);
 
-  useEffect(() => {
-    if (!fusionSong || !productionPlan || audioUrl) return;
-    const timer = window.setTimeout(() => handleGeneratePlayableDemo(true), 120);
-    return () => window.clearTimeout(timer);
-  }, [fusionSong, productionPlan, audioUrl]);
-
   if (!fusionSong || !productionPlan) return null;
 
   const popularMusicDna = productionPlan.popular_music_dna?.length
@@ -1039,21 +1032,21 @@ function IntegratedSongMaker({
     ? productionPlan.global_trend_blend
     : DEFAULT_GLOBAL_TREND_BLEND;
   const trendArrangementRecipe = productionPlan.trend_arrangement_recipe ??
-    '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層國語故事只負責情感落點；三者進同一個歌曲矩陣。';
+    '以 Global Pop 的乾淨結構為主，主歌留白，副歌加寬，最後讓主唱成為唯一焦點。';
   const rhythmStrategy = productionPlan.rhythm_strategy ??
-    '主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。';
+    '節奏先穩住心跳，再逐步加入鼓組與 hi-hat，讓情緒自然推到副歌。';
   const hitFormula = productionPlan.hit_formula ??
-    '天層英文音樂前奏 → 地層國語主歌與副歌情緒 → 人層國語核心句落點 → 融合引擎輸出一首歌。';
+    '主歌靠近、前副歌拉高期待、副歌一句打中核心。';
   const hookRepeatStrategy = productionPlan.hook_repeat_strategy ??
-    '核心 Hook 重複三次：天層建立旋律記憶，地層推高副歌情緒，人層完成情感落點。';
+    '核心 hook 至少重複兩次，第二次加入和聲與更強節奏。';
   const emotionalArc = productionPlan.emotional_arc ??
-    '先由天層建立音樂靈魂，再由地層建立歌曲身體，最後由人層放入故事落點並收束。';
+    '從壓抑到被理解，再到願意往前走。';
 
   const readySteps = [
-    '依照你的資料生成',
-    '英文 Hook 建立記憶點',
-    '國語旋律唱出故事',
-    '點一下聽音樂預覽',
+    '讀取生命歌曲資料',
+    '建立主唱 hook',
+    '整理歌曲情緒',
+    '完成正式生成',
   ];
 
   function handleGeneratePlayableDemo(tryPlay = false) {
@@ -1102,7 +1095,7 @@ function IntegratedSongMaker({
         setLyriaError([
           data.error || 'Lyria 30 秒 MP3 生成失敗，請稍後再試。',
           data.googleStatus ? `狀態：${data.googleStatus}` : '',
-          data.detail ? `原因：${data.detail}` : '',
+          data.detail ? `細節：${data.detail}` : '',
         ].filter(Boolean).join('\n'));
         setLyriaPromptPreview(data.promptPreview || '');
         return;
@@ -1113,7 +1106,7 @@ function IntegratedSongMaker({
       const url = URL.createObjectURL(blob);
       lyriaAudioUrlRef.current = url;
       setLyriaAudioUrl(url);
-      setLyriaFilename(data.filename || `天宿人格主題曲-${name || fusionSong.fusion_title}.mp3`);
+      setLyriaFilename(data.filename || `AI生命歌曲-${name || fusionSong.fusion_title}.mp3`);
       setLyriaPromptPreview(data.promptPreview || '');
       setLyriaLyricsText(data.lyricsText || '');
     } catch {
@@ -1169,13 +1162,13 @@ function IntegratedSongMaker({
         promptCharacters: data.prepared_request_preview?.prompt_characters ?? 0,
         sectionCount: data.local_composition_plan_preview?.sections?.length ?? 0,
         targetDurationSeconds: Math.round((data.local_composition_plan_preview?.target_duration_ms ?? 0) / 1000),
-        nextAction: data.next_action ?? '等待下一步設定。',
+        nextAction: data.next_action ?? '下一步：連接正式聲音生成服務',
       });
       setElevenLabsShellText(JSON.stringify(data, null, 2));
     } catch {
       setElevenLabsShellSummary(null);
       setElevenLabsShellText(JSON.stringify({
-        error: 'ElevenLabs 串接外殼檢查失敗，請稍後再試。',
+        error: 'ElevenLabs 聲音服務暫時無法建立，請稍後再試。',
       }, null, 2));
     } finally {
       setElevenLabsShellLoading(false);
@@ -1195,7 +1188,7 @@ function IntegratedSongMaker({
 
   async function handleShareSong() {
     if (!fusionSong) return;
-    const shareText = `我剛完成 AI 專屬生命歌曲《${fusionSong.fusion_title}》：${fusionSong.fusion_concept}`;
+    const shareText = `這是我的 AI 生命歌曲《${fusionSong.fusion_title}》：${fusionSong.fusion_concept}`;
     try {
       if (navigator.share) {
         await navigator.share({ title: fusionSong.fusion_title, text: shareText });
@@ -1226,20 +1219,20 @@ function IntegratedSongMaker({
     <div className="fortune-card music-song-maker-card overflow-hidden border-amber-300/20 px-6 py-8 sm:px-8">
       <div className="text-center">
         <div className="mx-auto mb-5 max-w-2xl rounded-[22px] border border-amber-300/25 bg-amber-300/10 px-5 py-4 shadow-[0_0_34px_rgba(251,191,36,0.12)]">
-          <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-200">金鑰匙功能</p>
-          <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">正式生成專屬 30 秒 MP3</h3>
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-200">MAGNETIC VOICE</p>
+          <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">磁性聲音正式生成</h3>
           <p className="mt-3 text-sm leading-7 text-[color:var(--text-sub)]">
-            AI 已自動整理資料並生成可播放歌曲；下方可直接播放、重新生成、下載、分享或收藏。
+            只保留正式 MP3 生成，不再顯示工程預覽。讓聲線、呼吸與情緒記憶點成為主角。
           </p>
         </div>
         <p className="hidden text-xs uppercase tracking-[0.4em] text-amber-300/70">
           Your Personal Theme Song
         </p>
         <h3 className="hidden mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-          你的專屬人格主題曲預覽
+          雿?撠惇鈭箸銝駁??脤?閬?
         </h3>
         <p className="hidden mx-auto mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
-          這首歌依你的生日、血型與姓名整理出旋律方向。點一下，先聽見屬於你的音樂預覽。
+          ??甇?雿??????憪??渡??箸?敺??銝銝??閬惇?潔??璅?閬賬?
         </p>
       </div>
 
@@ -1259,116 +1252,69 @@ function IntegratedSongMaker({
         onClick={onStart}
         className="hidden vip-gold-btn mt-6 w-full py-4 text-sm sm:text-base"
       >
-        {started ? '音樂預覽已開啟' : '產生我的音樂預覽'}
+        {started ? '歌曲資料已準備' : '開始生成歌曲'}
       </button>
 
       {true && (
         <div className="mt-6 space-y-4">
           <div className="rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
-            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">最終歌曲核心</p>
+            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">AI SONG BLUEPRINT</p>
             <h4 className="font-serif text-2xl text-[color:var(--text-main)]">《{fusionSong.fusion_title}》</h4>
             <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">{fusionSong.fusion_concept}</p>
           </div>
 
-          <div className="music-primary-generate-panel rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
-            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">專屬音樂預覽</p>
-            <p className="text-sm leading-8 text-[color:var(--text-sub)]">
-              戴上耳機，直接聽 AI 依照本次資料自動生成的生命歌曲。Lyria MP3 可再重新生成正式版本。
+          <div className="music-primary-generate-panel rounded-[22px] border border-emerald-300/20 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.14),rgba(15,23,42,0.68)_58%,rgba(2,6,23,0.9)_100%)] p-5 shadow-[0_18px_48px_rgba(2,6,23,0.28)]">
+            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-emerald-200/80">MAGNETIC VOICE</p>
+            <h4 className="font-serif text-2xl font-black leading-tight text-emerald-50">磁性聲音正式生成</h4>
+            <p className="mt-3 text-sm font-semibold leading-8 text-[color:var(--text-sub)]">
+              低質感本地預覽已移除。這裡只保留正式 MP3 生成，讓聲線、呼吸、情緒與副歌記憶點成為主角。
             </p>
-            <div className="mt-4 rounded-[20px] border border-emerald-300/20 bg-emerald-950/10 p-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-emerald-200/80">Lyria 正式 AI 生成</p>
-              <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
-                產生一首新的 30 秒 MP3，會使用 {name || '這位使用者'} 的天地人歌曲矩陣、歌詞、BPM、Key 與編曲方向。
-              </p>
-              <button
-                type="button"
-                onClick={handleGenerateLyriaMp3}
-                disabled={lyriaLoading}
-                className="music-primary-generate-button mt-4 w-full rounded-full border border-emerald-300/25 bg-emerald-400/10 px-4 py-4 text-sm font-black tracking-[0.18em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15 disabled:cursor-wait disabled:opacity-60"
-              >
-                {lyriaLoading ? 'Lyria 正在生成 30 秒 MP3…' : lyriaAudioUrl ? '重新生成專屬 30 秒 MP3' : '生成專屬 30 秒 MP3'}
-              </button>
-              {lyriaError && (
-                <div className="mt-3 whitespace-pre-wrap rounded-2xl border border-rose-400/20 bg-rose-950/20 p-3 text-xs leading-6 text-rose-200">
-                  {lyriaError}
-                </div>
-              )}
-              {lyriaAudioUrl && (
-                <div className="mt-4 space-y-3">
-                  <audio controls src={lyriaAudioUrl} className="w-full">
-                    <track kind="captions" />
-                  </audio>
-                  <a
-                    href={lyriaAudioUrl}
-                    download={lyriaFilename || '天宿人格主題曲.mp3'}
-                    className="inline-flex w-full items-center justify-center rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-3 text-xs font-bold tracking-[0.18em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15"
-                  >
-                    下載 MP3
-                  </a>
-                  <p className="text-xs leading-6 text-emerald-100/75">
-                    這是 Lyria 依照本次人格音樂資料生成的 30 秒 MP3，檔案只保存在此瀏覽器記憶體中。
-                  </p>
-                </div>
-              )}
-              {lyriaPromptPreview && (
-                <details className="hidden mt-3 rounded-2xl border border-white/10 bg-black/20 p-3">
-                  <summary className="cursor-pointer text-xs font-semibold tracking-[0.18em] text-[color:var(--text-muted)] transition hover:text-white">
-                    查看本次送入 Lyria 的個人化 Prompt
-                  </summary>
-                  {lyriaLyricsText && (
-                    <p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-emerald-100/75">{lyriaLyricsText}</p>
-                  )}
-                  <pre className="mt-3 max-h-[260px] overflow-auto whitespace-pre-wrap rounded-2xl border border-white/10 bg-black/30 p-3 font-mono text-[11px] leading-6 text-emerald-50/80">
-                    {lyriaPromptPreview}
-                  </pre>
-                </details>
-              )}
-            </div>
-            <div className="mt-4 rounded-[20px] border border-amber-300/15 bg-amber-950/10 p-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-amber-300/70">工程級本地 WAV 預覽</p>
-              <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
-                這段會在結果頁自動生成，讓使用者不需要錄音、不需要麥克風，也能立即播放生命歌曲預覽。
-              </p>
             <button
               type="button"
-              onClick={() => handleGeneratePlayableDemo(true)}
-              className="vip-gold-btn mt-4 w-full px-4 py-3 text-sm"
+              onClick={handleGenerateLyriaMp3}
+              disabled={lyriaLoading}
+              className="music-primary-generate-button mt-4 w-full rounded-full border border-emerald-300/25 bg-emerald-400/10 px-4 py-4 text-sm font-black tracking-[0.18em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15 disabled:cursor-wait disabled:opacity-60"
             >
-              {audioReady ? '重新產生音樂預覽' : '產生音樂預覽'}
+              {lyriaLoading ? '正在生成磁性聲音 MP3...' : lyriaAudioUrl ? '重新生成磁性聲音 MP3' : '生成磁性聲音 MP3'}
             </button>
-            {audioUrl && (
+            {lyriaError && (
+              <div className="mt-3 whitespace-pre-wrap rounded-2xl border border-rose-400/20 bg-rose-950/20 p-3 text-xs leading-6 text-rose-200">
+                {lyriaError}
+              </div>
+            )}
+            {lyriaAudioUrl && (
               <div className="mt-4 space-y-3">
-                <audio ref={playableAudioRef} controls src={audioUrl} className="w-full">
+                <audio controls src={lyriaAudioUrl} className="w-full">
                   <track kind="captions" />
                 </audio>
-                <div className="grid gap-2 sm:grid-cols-4">
-                  <button type="button" onClick={() => handleGeneratePlayableDemo(true)} className="rounded-full border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-xs font-bold tracking-[0.14em] text-amber-100 transition hover:border-amber-200/50 hover:bg-amber-300/15">重新生成</button>
-                  <a href={audioUrl} download={`${fusionSong.fusion_title || 'AI生命歌曲預覽'}.wav`} className="rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-3 text-center text-xs font-bold tracking-[0.14em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15">下載</a>
-                  <button type="button" onClick={handleShareSong} className="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-4 py-3 text-xs font-bold tracking-[0.14em] text-cyan-100 transition hover:border-cyan-200/50 hover:bg-cyan-300/15">{sharedSong ? '已分享' : '分享'}</button>
-                  <button type="button" onClick={handleSaveFavorite} className="rounded-full border border-violet-300/25 bg-violet-300/10 px-4 py-3 text-xs font-bold tracking-[0.14em] text-violet-100 transition hover:border-violet-200/50 hover:bg-violet-300/15">{favoriteSaved ? '已收藏' : '收藏'}</button>
-                </div>
-                <p className="text-xs leading-6 text-amber-100/75">
-                  這是一段 AI 自動生成的專屬生命歌曲預覽；正式 MP3 可使用上方 Lyria 重新生成。
+                <a
+                  href={lyriaAudioUrl}
+                  download={lyriaFilename || `${fusionSong.fusion_title || 'AI生命歌曲'}.mp3`}
+                  className="inline-flex w-full items-center justify-center rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-3 text-xs font-bold tracking-[0.18em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15"
+                >
+                  下載 MP3
+                </a>
+                <p className="text-xs leading-6 text-emerald-100/75">
+                  這是依照本次生命歌曲資料生成的正式 MP3，檔案只保存在此瀏覽器記憶體中。
                 </p>
               </div>
             )}
-            </div>
           </div>
 
           <details className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
             <summary className="cursor-pointer text-xs font-semibold tracking-[0.22em] text-[color:var(--text-muted)] transition hover:text-white">
-              進階製作資料
+              展開歌曲資料
             </summary>
             <div className="mt-4">
           <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
             <div className="rounded-[22px] border border-white/10 bg-white/5 p-5">
-              <p className="mb-3 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">會唱歌詞包</p>
+              <p className="mb-3 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">完整歌詞</p>
               <div className="space-y-1.5 font-serif text-sm leading-8 text-[color:var(--text-main)]">
                 {fusionSong.fusion_lyrics.map((line, index) => {
-                  const isSection = /^\s*[\[【].+[\]】]\s*$/.test(line);
+                  const isSection = /^\s*\[.+\]\s*$/.test(line);
                   return isSection ? (
                     <p key={`${line}-${index}`} className="pt-2 text-xs font-semibold tracking-[0.28em] text-amber-300/70">
-                      {line.replace(/[\[\]【】]/g, '')}
+                      {line.replace(/[\[\]]/g, '')}
                     </p>
                   ) : (
                     <p key={`${line}-${index}`}>{line}</p>
@@ -1379,12 +1325,12 @@ function IntegratedSongMaker({
 
             <div className="space-y-4">
               <div className="rounded-[22px] border border-cyan-300/15 bg-cyan-950/10 p-5">
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-cyan-300/70">AI 主唱安排</p>
+                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-cyan-300/70">AI 主唱選擇</p>
                 <p className="text-sm leading-8 text-[color:var(--text-main)]">{productionPlan.lead_vocal_choice}</p>
               </div>
 
               <div className="rounded-[22px] border border-white/10 bg-white/5 p-5">
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">整合製作方向</p>
+                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">歌曲融合策略</p>
                 <p className="text-sm leading-8 text-[color:var(--text-main)]">{productionPlan.fusion_strategy}</p>
                 <p className="mt-3 text-xs leading-7 text-[color:var(--text-muted)]">{productionPlan.language_distribution}</p>
               </div>
@@ -1400,7 +1346,7 @@ function IntegratedSongMaker({
               </div>
 
               <div className="rounded-[22px] border border-fuchsia-300/15 bg-fuchsia-950/10 p-5">
-              <p className="mb-2 text-xs uppercase tracking-[0.25em] text-fuchsia-200/70">全球趨勢天地人編曲</p>
+                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-fuchsia-200/70">全球趨勢編曲</p>
                 <div className="space-y-2 text-xs leading-6 text-[color:var(--text-sub)]">
                   {globalTrendBlend.slice(0, 4).map((item) => (
                     <p key={item} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">{item}</p>
@@ -1409,62 +1355,30 @@ function IntegratedSongMaker({
                 <p className="mt-3 text-xs leading-7 text-fuchsia-100/75">{trendArrangementRecipe}</p>
               </div>
 
-              <div className="rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">英文＋國語工程級舞曲 WAV 預覽</p>
-                <p className="text-xs leading-7 text-[color:var(--text-muted)]">
-                  這版禁止聲樂與主唱導唱，只做「工程師專用純音樂舞曲 Demo」：國語先不進 WAV 主線，先把英文 Hook、國語主旋律、四拍 Kick、Pre-drop 與 Dance Drop 做成可直接開工的全球舞曲骨架。
-                </p>
-                <div className="mt-3 grid gap-2 text-xs leading-6 text-[color:var(--text-sub)] sm:grid-cols-2">
-                  <p className="rounded-xl border border-violet-300/15 bg-violet-950/15 px-3 py-2">0–8 拍：Cold Hook，英文高音記憶點直接開場</p>
-                  <p className="rounded-xl border border-amber-300/15 bg-amber-950/10 px-3 py-2">8–24 拍：國語主旋律＋低強度四拍 Kick 進場</p>
-                  <p className="rounded-xl border border-cyan-300/15 bg-cyan-950/10 px-3 py-2">24–32 拍：Pre-drop 收低頻，上升音效銜接雙語 Hook</p>
-                  <p className="rounded-xl border border-orange-300/15 bg-orange-950/10 px-3 py-2">32–64 拍：Dance Drop，彈跳 Bass＋雙語副歌重複兩輪</p>
-                  <p className="rounded-xl border border-fuchsia-300/15 bg-fuchsia-950/10 px-3 py-2">64–80 拍：第二輪洗腦 Hook，保留舞曲推進</p>
-                  <p className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">80–96 拍：Engineer Stop Cut，方便後續接正式人聲</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleGeneratePlayableDemo(true)}
-                  className="vip-gold-btn mt-4 w-full px-4 py-3 text-xs"
-                >
-                  {audioReady ? '重新生成工程級舞曲 WAV 預覽' : '產生工程級舞曲 WAV 預覽音檔'}
-                </button>
-                {audioUrl && (
-                  <div className="mt-4 space-y-3">
-                    <audio controls src={audioUrl} className="w-full">
-                      <track kind="captions" />
-                    </audio>
-                    <p className="text-xs leading-6 text-amber-100/75">
-                      已生成一段依照 {Math.round(clampNumber(Math.max(musicParameters.bpm, 124), 122, 128))} BPM / {musicParameters.key} 製作的英文＋國語工程級舞曲編曲草稿；目前禁止聲樂，正式唱歌留到音樂/人聲生成服務處理。
-                    </p>
-                  </div>
-                )}
-              </div>
-
               <div className="rounded-[22px] border border-violet-300/15 bg-violet-950/15 p-5">
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-violet-200/70">可送音樂生成服務的指令</p>
+                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-violet-200/70">下一階段音樂生成指令</p>
                 <p className="font-mono text-xs leading-7 text-violet-50/85">{productionPlan.generation_prompt}</p>
               </div>
 
               <div className="rounded-[22px] border border-emerald-300/15 bg-emerald-950/10 p-5">
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-emerald-200/70">真正 AI 編曲 / 人聲服務</p>
+                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-emerald-200/70">正式 AI 服務 / 聲音生成</p>
                 <p className="text-xs leading-7 text-[color:var(--text-muted)]">
-                  這裡先產生「服務請求包」：包含編曲 prompt、人聲 prompt、歌詞、BPM、Key、天地人權重與禁止模仿規則。等你決定服務商與 API key，再把這包資料送出去產正式音檔。
+                  這裡只保留正式服務需要的歌曲 prompt、聲線設定、BPM、Key 與情緒指令。工程預覽已移除，前端不再顯示低質感 WAV。
                 </p>
                 <div className="mt-3 rounded-xl border border-emerald-300/10 bg-black/20 px-3 py-2 text-xs leading-6 text-emerald-100/80">
-                  狀態：等待外部音樂/人聲生成服務串接，不會在未設定 API 前亂送出。
+                  下一步：串接正式音樂／聲音生成服務，並由後端保存正式 MP3。
                 </div>
                 <div className="mt-3 space-y-2 rounded-xl border border-emerald-300/10 bg-black/20 px-3 py-3 text-xs leading-6 text-emerald-50/75">
                   <p>Hit Formula：{hitFormula}</p>
                   <p>情緒曲線：{emotionalArc}</p>
-                  <p>全球律動：{rhythmStrategy}</p>
+                  <p>節奏策略：{rhythmStrategy}</p>
                 </div>
                 <button
                   type="button"
                   onClick={handleCreateServicePackage}
                   className="mt-4 w-full rounded-full border border-emerald-300/25 bg-emerald-400/10 px-4 py-3 text-xs font-semibold tracking-[0.15em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15"
                 >
-                  產生真正 AI 編曲/人聲服務請求包
+                  產生正式 AI 服務資料
                 </button>
                 <button
                   type="button"
@@ -1472,10 +1386,10 @@ function IntegratedSongMaker({
                   disabled={elevenLabsShellLoading}
                   className="mt-3 w-full rounded-full border border-cyan-300/25 bg-cyan-400/10 px-4 py-3 text-xs font-semibold tracking-[0.15em] text-cyan-100 transition hover:border-cyan-200/50 hover:bg-cyan-300/15 disabled:cursor-wait disabled:opacity-60"
                 >
-                  {elevenLabsShellLoading ? '檢查 ElevenLabs 外殼中…' : '檢查 ElevenLabs Music API 串接外殼'}
+                  {elevenLabsShellLoading ? '正在檢查 ElevenLabs 服務...' : '檢查 ElevenLabs Music API 服務'}
                 </button>
                 <p className="mt-3 text-xs leading-6 text-[color:var(--text-muted)]">
-                  這一步只檢查後端外殼與 API key 狀態，不會把資料送到 ElevenLabs，也不會產正式音檔。
+                  這裡只做服務狀態檢查，不會在前端暴露 API key；正式生成仍由後端處理。
                 </p>
               </div>
             </div>
@@ -1485,7 +1399,7 @@ function IntegratedSongMaker({
             <div className="rounded-[22px] border border-cyan-300/15 bg-cyan-950/10 p-5">
               <p className="text-xs uppercase tracking-[0.25em] text-cyan-200/70">ElevenLabs Shell Check</p>
               <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">
-                外殼檢查結果：目前仍是 dry-run，不會呼叫外部音樂生成服務。
+                服務檢查結果會顯示 dry-run、安全狀態與下一步，前端只保留正式聲音生成流程。
               </p>
               {elevenLabsShellSummary && (
                 <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -1496,13 +1410,13 @@ function IntegratedSongMaker({
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
                     <p className="text-[10px] uppercase tracking-[0.22em] text-cyan-200/60">Safety</p>
                     <p className="mt-2 text-xs leading-6 text-cyan-50/90">
-                      {elevenLabsShellSummary.dryRun && !elevenLabsShellSummary.externalRequestSent ? 'Dry-run，未送外部' : '需確認狀態'}
+                      {elevenLabsShellSummary.dryRun && !elevenLabsShellSummary.externalRequestSent ? 'Dry-run，未送出外部請求' : '正式服務已啟用'}
                     </p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
                     <p className="text-[10px] uppercase tracking-[0.22em] text-cyan-200/60">Plan</p>
                     <p className="mt-2 text-xs leading-6 text-cyan-50/90">
-                      {elevenLabsShellSummary.sectionCount} 段 · 約 {elevenLabsShellSummary.targetDurationSeconds} 秒
+                      {elevenLabsShellSummary.sectionCount} 段，約 {elevenLabsShellSummary.targetDurationSeconds} 秒
                     </p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
@@ -1526,7 +1440,7 @@ function IntegratedSongMaker({
                 <div>
                   <p className="text-xs uppercase tracking-[0.25em] text-emerald-200/70">Service Payload</p>
                   <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">
-                    這份資料就是下一步要送進真正 AI 編曲/人聲服務的核心。
+                    這份資料提供給下一階段正式 AI 音樂／聲音生成服務使用。
                   </p>
                 </div>
                 <button
@@ -1534,7 +1448,7 @@ function IntegratedSongMaker({
                   onClick={handleCopyServicePackage}
                   className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-[color:var(--text-sub)] transition hover:border-white/20 hover:text-white"
                 >
-                  {copiedServicePackage ? '已複製' : '複製請求包'}
+                  {copiedServicePackage ? '已複製' : '複製資料'}
                 </button>
               </div>
               <pre className="max-h-[360px] overflow-auto whitespace-pre-wrap rounded-2xl border border-white/10 bg-black/35 p-4 font-mono text-[11px] leading-6 text-emerald-50/80">
@@ -1546,7 +1460,7 @@ function IntegratedSongMaker({
           </details>
 
           <p className="text-center text-xs leading-6 text-[color:var(--text-muted)]">
-            免費預覽版已完成；如果想升級正式歌曲與人聲版本，可以進入下一階段製作。
+            正式生成以磁性聲線為主角；多餘工程預覽與低質感按鈕已移除。
           </p>
         </div>
       )}
@@ -1570,13 +1484,13 @@ export default function PersonalityMusicReport({
   name,
   onReset,
 }: PersonalityMusicReportProps) {
-  // 同一時間只允許一首歌在播，避免多個播放器同時出聲互相衝突
+  // ?????芸?閮曹?擐??冽嚗????曉???箄鈭銵?
   const [openPlayer, setOpenPlayer] = useState<'english' | 'mandarin' | 'taiwanese' | null>(null);
   const [songMakerStarted, setSongMakerStarted] = useState(false);
   const [showAdvancedDetails] = useState(false);
 
   const genreName = GENRE_NAMES[musicParameters.genre] || musicParameters.genre;
-  const genreEmoji = GENRE_EMOJI[musicParameters.genre] || '🎼';
+  const genreEmoji = GENRE_EMOJI[musicParameters.genre] || 'MUSIC';
 
   const metaChips = [
     meta.zodiac && { label: meta.zodiac, color: 'rgba(167,139,250,0.22)', text: '#ddd6fe' },
@@ -1601,9 +1515,9 @@ export default function PersonalityMusicReport({
         </div>
 
         <div className="px-6 py-8 sm:px-8">
-          <p className="text-xs uppercase tracking-[0.4em] text-violet-300/70">人格主題曲完成</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-violet-300/70">人格主題曲</p>
           <h2 className="mt-3 font-serif leading-tight text-[color:var(--text-main)]" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.6rem)' }}>
-            《{simplifyClientText(musicReport.song_title_suggestion, '專屬人格主題曲')}》
+            《{simplifyClientText(musicReport.song_title_suggestion, '生命主題曲')}》
           </h2>
           <p className="mt-3 font-serif text-base italic leading-8 sm:text-lg" style={{ color: meta.wuxingColor ?? 'var(--earth-gold)' }}>
             {simplifyClientText(musicReport.lyric_opening)}
@@ -1612,10 +1526,10 @@ export default function PersonalityMusicReport({
 
           {lifeSongContext && (
             <div className="mt-6 rounded-[22px] border border-amber-300/20 bg-amber-300/[0.07] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-200">AI 生命歌曲任務</p>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-200">AI 生命歌曲定位</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
-                  <p className="text-[11px] font-bold text-[color:var(--text-muted)]">目前目標</p>
+                  <p className="text-[11px] font-bold text-[color:var(--text-muted)]">創作目標</p>
                   <p className="mt-1 text-sm font-black text-amber-100">{lifeSongContext.goal}</p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
@@ -1628,24 +1542,24 @@ export default function PersonalityMusicReport({
             </div>
           )}
 
-          {/* 📊 大數據統計學知名男女歌手指標面板 */}
+          {/* ?? 憭扳?絞閮飛?亙??瑕戊甇????Ｘ */}
           {showAdvancedDetails && (musicReport.famous_singers_mandarin || musicReport.famous_singers_english || musicReport.famous_singers_taiwanese) && (
             <div className="mt-6 border-t border-white/10 pt-6">
               <p className="text-xs uppercase tracking-[0.3em] text-violet-300/70 mb-4">
-                📊 全球流行大數據 · 代表男女歌手統計學對標
+                ?? ?函?瘚?憭扳??繚 隞?”?瑕戊甇?蝯梯?摮詨?璅?
               </p>
               <div className="grid gap-4 sm:grid-cols-3">
                 {musicReport.famous_singers_english && (
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4 relative overflow-hidden">
                     <span className="absolute top-1 right-2 text-[8px] text-violet-400/40 font-mono">GLOBAL</span>
                     <p className="text-[10px] font-mono text-[color:var(--text-muted)] tracking-wider">
-                      [天層] 英語大數據指標
+                      [憭拙惜] ?梯?憭扳??璅?
                     </p>
                     <p className="mt-2 text-sm font-bold text-[color:var(--text-main)]">
                       {musicReport.famous_singers_english}
                     </p>
                     <p className="mt-1 text-[9px] text-[color:var(--text-sub)]">
-                      全球流行統計學標竿
+                      ?函?瘚?蝯梯?摮豢?蝡?
                     </p>
                   </div>
                 )}
@@ -1653,13 +1567,13 @@ export default function PersonalityMusicReport({
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4 relative overflow-hidden">
                     <span className="absolute top-1 right-2 text-[8px] text-amber-400/40 font-mono">MANDARIN</span>
                     <p className="text-[10px] font-mono text-[color:var(--text-muted)] tracking-wider">
-                      [地層] 國語大數據指標
+                      [?啣惜] ??憭扳??璅?
                     </p>
                     <p className="mt-2 text-sm font-bold text-[color:var(--text-main)]">
                       {musicReport.famous_singers_mandarin}
                     </p>
                     <p className="mt-1 text-[9px] text-[color:var(--text-sub)]">
-                      華語流行統計學標竿
+                      ?航?瘚?蝯梯?摮豢?蝡?
                     </p>
                   </div>
                 )}
@@ -1667,19 +1581,19 @@ export default function PersonalityMusicReport({
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4 relative overflow-hidden">
                     <span className="absolute top-1 right-2 text-[8px] text-cyan-400/40 font-mono">TAIWANESE</span>
                     <p className="text-[10px] font-mono text-[color:var(--text-muted)] tracking-wider">
-                      [人層] 國語大數據指標
+                      [鈭箏惜] ??憭扳??璅?
                     </p>
                     <p className="mt-2 text-sm font-bold text-[color:var(--text-main)]">
                       {musicReport.famous_singers_taiwanese}
                     </p>
                     <p className="mt-1 text-[9px] text-[color:var(--text-sub)]">
-                      本土民謠統計學標竿
+                      ?砍?瘞?蝯梯?摮豢?蝡?
                     </p>
                   </div>
                 )}
               </div>
               <p className="mt-3 text-[10px] text-[color:var(--text-muted)] italic leading-relaxed">
-                * 備註：大數據歌手對標是基於您的人格音樂屬性與時代旋律特徵，結合全球流行大數據知名度常態分佈計算所得的最具代表性男女歌手模型，供您作為風格認知的參考指標。
+                * ?酉嚗之?豢?甇?撠??臬?潭?犖?潮璅惇?扯??誨???孵噩嚗????銵之?豢??亙?摨血虜??雿?蝞?敺???瑚誨銵冽抒憟單??芋??靘雿憸冽隤????璅?
               </p>
             </div>
           )}
@@ -1691,13 +1605,13 @@ export default function PersonalityMusicReport({
         <div className="fortune-card px-6 py-8 sm:px-8">
           <div className="mb-6 text-center">
             <p className="text-xs uppercase tracking-[0.4em] text-cyan-300/70">
-              天地人歌曲矩陣 · 第一階段
+              憭拙鈭箸??脩??繚 蝚砌??挾
             </p>
             <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-              由生日、血型、姓名生成三個素材層
+              ?梁??乓??????????惜
             </h3>
             <p className="mx-auto mt-3 max-w-2xl text-xs leading-7 text-[color:var(--text-sub)]">
-              這裡先不產生音檔，也不是生成三首歌；系統只建立天層、地層、人層三個素材層，最後由歌曲融合引擎輸出一首專屬天地人人格歌曲。
+              ?ㄐ???Ｙ??單?嚗?銝??銝?甇?蝟餌絞?芸遣蝡予撅扎撅扎犖撅支????惜嚗?敺甇??撘?頛詨銝擐?撅砍予?唬犖鈭箸甇??
             </p>
           </div>
 
@@ -1713,10 +1627,10 @@ export default function PersonalityMusicReport({
         <div className="vip-gold-card rounded-[24px] px-6 py-8 sm:px-8">
           <div className="mb-6 text-center">
             <p className="text-xs uppercase tracking-[0.4em] text-amber-300/70">
-              AI 製作總監 · 自動優化分配
+              AI 鋆賭?蝮賜 繚 ?芸??芸???
             </p>
             <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-              把天地人素材層製作成一首人格主題曲
+              ?予?唬犖蝝?撅方ˊ雿?銝擐犖?潔蜓憿
             </h3>
             <p className="mx-auto mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
               {productionPlan.producer_summary}
@@ -1731,7 +1645,7 @@ export default function PersonalityMusicReport({
             </div>
 
             <div className="rounded-[20px] border border-cyan-300/15 bg-black/20 p-5">
-              <p className="mb-2 text-xs uppercase tracking-[0.25em] text-cyan-300/70">主唱分配</p>
+              <p className="mb-2 text-xs uppercase tracking-[0.25em] text-cyan-300/70">主唱配置</p>
               <div className="space-y-2 text-sm leading-7 text-[color:var(--text-main)]">
                 {productionPlan.vocal_cast.map((item) => (
                   <p key={item}>{item}</p>
@@ -1743,7 +1657,7 @@ export default function PersonalityMusicReport({
 
           <div className="mt-4 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
-              <p className="mb-3 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">編曲製作流程</p>
+              <p className="mb-3 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">生成流程</p>
               <ol className="space-y-2 text-sm leading-7 text-[color:var(--text-main)]">
                 {productionPlan.arrangement_plan.map((item, index) => (
                   <li key={item} className="flex gap-3">
@@ -1756,7 +1670,7 @@ export default function PersonalityMusicReport({
 
             <div className="space-y-4">
               <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">天地人權重</p>
+                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">語言分配</p>
                 <p className="text-sm leading-7 text-[color:var(--text-main)]">{productionPlan.language_distribution}</p>
               </div>
               <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
@@ -1782,23 +1696,23 @@ export default function PersonalityMusicReport({
               <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
                 <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">Hit Formula</p>
                 <p className="text-sm leading-7 text-[color:var(--text-main)]">
-                  {productionPlan.hit_formula ?? '天層英文音樂前奏 → 地層國語主歌與副歌情緒 → 人層國語核心句落點 → 融合引擎輸出一首歌。'}
+                  {productionPlan.hit_formula ?? '主歌靠近、前副歌拉高期待、副歌一句打中核心。'}
                 </p>
               </div>
               <div className="rounded-[20px] border border-white/10 bg-white/5 p-5">
                 <p className="mb-2 text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">情緒曲線 / Hook 重複</p>
                 <p className="text-sm leading-7 text-[color:var(--text-main)]">
-                  {productionPlan.emotional_arc ?? '先由天層建立音樂靈魂，再由地層建立歌曲身體，最後由人層放入故事落點並收束。'}
+                  {productionPlan.emotional_arc ?? '先建立親密感，再推向副歌，最後留下情緒落點。'}
                 </p>
                 <p className="mt-3 text-xs leading-7 text-[color:var(--text-muted)]">
-                  {productionPlan.hook_repeat_strategy ?? '核心 Hook 重複三次：國語建立主題，English 增加記憶點，國語完成情緒落地。'}
+                  {productionPlan.hook_repeat_strategy ?? '核心 hook 重複兩次，第二次加入和聲與更強節奏。'}
                 </p>
               </div>
             </div>
           </div>
 
           <div className="mt-4 rounded-[20px] border border-fuchsia-300/15 bg-fuchsia-950/10 p-5">
-            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-fuchsia-200/70">全球趨勢天地人編曲</p>
+            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-fuchsia-200/70">全球趨勢編曲</p>
             <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
               {(productionPlan.global_trend_blend?.length ? productionPlan.global_trend_blend : DEFAULT_GLOBAL_TREND_BLEND).map((item) => (
                 <p key={item} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs leading-6 text-[color:var(--text-sub)]">
@@ -1808,14 +1722,14 @@ export default function PersonalityMusicReport({
             </div>
             <div className="mt-4 grid gap-3 lg:grid-cols-2">
               <p className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-xs leading-7 text-fuchsia-50/80">
-                {productionPlan.trend_arrangement_recipe ?? '以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層國語故事只負責情感落點；三者進同一個歌曲矩陣。'}
+                {productionPlan.trend_arrangement_recipe ?? '以 Global Pop 的乾淨結構為主，主歌留白，副歌加寬，最後讓主唱成為唯一焦點。'}
               </p>
               <p className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-xs leading-7 text-fuchsia-50/80">
-                {productionPlan.rhythm_strategy ?? '主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。'}
+                {productionPlan.rhythm_strategy ?? '節奏先穩住心跳，再逐步加入鼓組與 hi-hat，讓情緒自然推到副歌。'}
               </p>
             </div>
             <p className="mt-3 text-xs leading-6 text-[color:var(--text-muted)]">
-              {productionPlan.trend_safety_note ?? '只使用全球流行音樂的通用結構與聽感邏輯，不模仿特定歌手、特定歌曲、特定旋律或受版權保護的編曲細節。'}
+              {productionPlan.trend_safety_note ?? '不得複製任何既有歌曲、旋律、歌詞或編曲，只使用通用流行結構。'}
             </p>
           </div>
 
@@ -1848,27 +1762,26 @@ export default function PersonalityMusicReport({
       <div className="space-y-4">
         <div className="fortune-card p-6 sm:p-8 border-violet-500/30 bg-gradient-to-r from-violet-950/15 via-slate-900/40 to-violet-950/15 relative overflow-hidden">
           <div className="absolute top-2 right-3 text-[8px] text-violet-400/40 font-mono tracking-widest">[DATA_STATISTICS_AI_MATCH]</div>
-          <p className="text-xs uppercase tracking-[0.35em] text-violet-300 font-semibold mb-4">📊 靈魂年代大數據音樂頻率契合度</p>
+          <p className="text-xs uppercase tracking-[0.35em] text-violet-300 font-semibold mb-4">AI 音樂頻率契合度</p>
           <div className="rounded-2xl bg-slate-950/50 border border-violet-500/10 px-5 py-4">
             <p className="text-sm font-semibold text-violet-200">
-              天宿共鳴記憶年代：【{meta.eraDisplayName ?? meta.era}】歌曲引力場
+              天地人共鳴年代：{meta.eraDisplayName ?? meta.era}
             </p>
             <p className="mt-2 text-xs text-[color:var(--text-sub)] leading-6">
-              根據大數據統計，靈魂感官在黃金年華（17歲聽覺定型期）最易被當時的「英文、國語」流行聲軌深度烙印。
-              系統結合了你出生年份之年代背景，與你的人格特質（五行喜忌與心理特徵）進行大數據交叉比對，精確為你挑選出專屬的年代之音。
+              系統依照出生年代、人格特質與五行喜忌，整理適合的歌曲頻率與聲線方向。
             </p>
             <div className="mt-4 flex items-center gap-3">
               <div className="flex-1 h-1.5 bg-slate-900 rounded-full overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full animate-pulse" style={{ width: '99.8%' }}></div>
               </div>
-              <span className="text-[10px] font-mono text-violet-300">AI 匹配度: 99.8%</span>
+              <span className="text-[10px] font-mono text-violet-300">AI 匹配度 99.8%</span>
             </div>
           </div>
         </div>
 
         <MusicPlayer
           label={`天層英文音樂錨點 · ${meta.eraDisplayName ?? meta.era}`}
-          flag="🌍"
+          flag="GLOBAL"
           track={englishTrack}
           reason={musicReport.english_song_reason}
           affinityScore={Math.round((personalityMatrix.creativity + personalityMatrix.emotion) / 2)}
@@ -1878,7 +1791,7 @@ export default function PersonalityMusicReport({
         {mandarinTrack && (
           <MusicPlayer
             label={`地層國語情緒錨點 · ${meta.eraDisplayName ?? meta.era}`}
-            flag="🀄"
+            flag="MAND"
             track={mandarinTrack}
             reason={musicReport.mandarin_song_reason}
             affinityScore={Math.round((personalityMatrix.attachment + personalityMatrix.emotion) / 2)}
@@ -1888,8 +1801,8 @@ export default function PersonalityMusicReport({
         )}
         {taiwaneseTrack && (
           <MusicPlayer
-            label={`人層國語故事錨點 · ${meta.eraDisplayName ?? meta.era}`}
-            flag="🌾"
+            label={`人層故事錨點 · ${meta.eraDisplayName ?? meta.era}`}
+            flag="STORY"
             track={taiwaneseTrack}
             reason={musicReport.taiwanese_song_reason}
             affinityScore={Math.round((personalityMatrix.attachment + personalityMatrix.security) / 2)}
@@ -1903,7 +1816,7 @@ export default function PersonalityMusicReport({
         <div className="vip-gold-card rounded-[24px] px-6 py-8 sm:px-8">
           <div className="mb-5 text-center">
             <p className="text-xs uppercase tracking-[0.4em] text-amber-300/70">
-              ✦ AI 天地人人格原創主題曲 ✦
+              AI 天地人人格原創主題曲
             </p>
             <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
               《{fusionSong.fusion_title}》
@@ -1917,10 +1830,10 @@ export default function PersonalityMusicReport({
             <p className="mb-3 text-xs uppercase tracking-[0.25em] text-amber-300/60">天地人融合歌詞</p>
             <div className="space-y-1.5 font-serif text-sm leading-8 text-[color:var(--text-main)]">
               {fusionSong.fusion_lyrics.map((line, i) => {
-                const isSection = /^\s*[\[【].+[\]】]\s*$/.test(line);
+                const isSection = /^\s*\[.+\]\s*$/.test(line);
                 return isSection ? (
                   <p key={i} className="pt-2 text-xs font-semibold tracking-[0.3em] text-amber-300/70">
-                    {line.replace(/[\[\]【】]/g, '')}
+                    {line.replace(/[\[\]]/g, '')}
                   </p>
                 ) : (
                   <p key={i}>{line}</p>
@@ -1935,7 +1848,7 @@ export default function PersonalityMusicReport({
           </div>
 
           <p className="mt-4 text-center text-xs leading-6 text-[color:var(--text-muted)]">
-            目前為 AI 文字創作版（歌詞＋曲風）。下一階段可接音樂生成服務，把它變成真正能播放的原創歌曲。
+            目前只保留正式磁性聲音生成入口，讓聲線與情緒記憶點成為主角。
           </p>
         </div>
       )}
@@ -1957,7 +1870,7 @@ export default function PersonalityMusicReport({
               <div key={key} className="space-y-2">
                 <div className="flex items-baseline justify-between gap-3">
                   <span className="text-xs tracking-widest text-[color:var(--text-muted)]">{label}</span>
-                  <span className="text-xs font-semibold text-[color:var(--text-sub)]">{word} · {score}</span>
+                  <span className="text-xs font-semibold text-[color:var(--text-sub)]">{word} 繚 {score}</span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-white/8">
                   <div className="h-full rounded-full" style={{ width: `${score}%`, background: barColor }} />
@@ -2045,7 +1958,7 @@ export default function PersonalityMusicReport({
             {simplifyClientText(musicReport.wisdom_note)}
           </p>
           <p className="mx-auto mt-4 max-w-2xl text-xs leading-7 text-[color:var(--text-sub)]">
-            {name} 的人格主題曲預覽已完成。這段旋律是一個方向與提醒；真正讓生活變順的，仍然是以善為本、持續行動。
+            {name} 的生命歌曲已整理完成。正式生成會以磁性聲線、情緒記憶點與清楚副歌為核心。
           </p>
         </div>
 

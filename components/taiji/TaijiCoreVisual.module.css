@@ -145,7 +145,7 @@
 }
 
 .stageSixiang .fish {
-  opacity: 0.88;
+  opacity: 1;
 }
 
 .stageBagua .auraRings {
@@ -168,20 +168,15 @@
 }
 
 .stageBagua .fish {
-  opacity: 0.82;
+  opacity: 1;
 }
 .fishOrbit {
   transform-box: view-box;
   transform-origin: 0 0;
 }
 
-.svg.split .fishOrbit {
-  animation: taijiFishOrbit 11s linear infinite;
+.svg.active .fishOrbit {
   will-change: transform;
-}
-
-.svg.active.split .fishOrbit {
-  animation-duration: 6.8s;
 }
 
 .fish {
@@ -190,8 +185,7 @@
 
 .fishBody,
 .fishEdgeDark,
-.fishEdgeLight,
-.surfaceShade {
+.fishEdgeLight {
   vector-effect: non-scaling-stroke;
 }
 
@@ -219,50 +213,53 @@
   transform: translateX(0) scale(1);
 }
 
-.svg.split .yinFish {
-  transform: translateX(-66px) translateY(-1px) scale(0.44);
+.yinFish .fishBody {
+  fill: #050505 !important;
 }
 
-.svg.split .yangFish {
-  transform: translateX(66px) translateY(1px) scale(0.44);
+.yangFish .fishBody {
+  fill: #ffffff !important;
 }
 
-.pearlRing {
-  fill: none;
-  stroke: rgba(253, 230, 138, 0.48);
-  stroke-width: 1.8;
-  vector-effect: non-scaling-stroke;
-}
-
-.pearlLight,
-.pearlDark {
-  stroke: rgba(255, 255, 255, 0.36);
+.taijiDotLight,
+.taijiDotDark,
+.eyeGlintOnLightDot,
+.eyeGlintOnDarkDot {
   stroke-width: 1.2;
   vector-effect: non-scaling-stroke;
+  filter: none;
 }
 
-.pearlGlint,
-.pearlGlintMuted {
-  fill: rgba(255, 255, 255, 0.78);
+/* 白眼（黑魚中的白點）：深色描邊 + 落影，做出立體珠眼的浮起感 */
+.taijiDotLight {
+  display: inline !important;
+  opacity: 1 !important;
+  fill: #ffffff !important;
+  stroke: rgba(2, 6, 23, 0.7);
+  filter: drop-shadow(0 2px 3px rgba(2, 6, 23, 0.55));
 }
 
-.pearlGlintMuted {
-  opacity: 0.34;
+/* 黑眼（白魚中的黑點）：淺色描邊 + 落影，亮面上輪廓清楚且有立體感 */
+.taijiDotDark {
+  display: inline !important;
+  opacity: 1 !important;
+  fill: #000000 !important;
+  stroke: rgba(255, 255, 255, 0.7);
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
 }
 
-.surfaceShade {
-  opacity: 0.72;
+.eyeGlintOnLightDot,
+.eyeGlintOnDarkDot {
+  display: inline !important;
+  opacity: 1 !important;
+  fill: rgba(255, 255, 255, 0.86);
+  stroke: rgba(255, 255, 255, 0.22);
   pointer-events: none;
-  mix-blend-mode: screen;
 }
 
-.seamLight {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.2);
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-  pointer-events: none;
+.eyeGlintOnDarkDot {
+  fill: rgba(255, 255, 255, 0.72);
+  stroke: rgba(255, 255, 255, 0.18);
 }
 
 .fourSymbols {
@@ -344,17 +341,13 @@
 }
 
 @media (max-width: 768px), (pointer: coarse) {
-  .svg.split .fishOrbit {
-    animation-duration: 16s;
-  }
-
   .elementGemHighlight,
   .baguaItemHighlight .baguaCircle {
     filter: none;
   }
 
   .surfaceShade {
-    opacity: 0.5;
+    opacity: 0.12;
     mix-blend-mode: normal;
   }
 }

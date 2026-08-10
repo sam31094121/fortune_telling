@@ -6,6 +6,7 @@ import FriendlyChoiceCard from './FriendlyChoiceCard';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { getAnalysisIdentityTarget } from '@/lib/identity-split-client';
+import { MAGNETIC_VOICE_ARCHETYPES, DEFAULT_MAGNETIC_VOICE_TYPE, type MagneticVoiceType } from '@/lib/magnetic-voice';
 
 type BloodType = 'A' | 'B' | 'AB' | 'O';
 type Gender = 'male' | 'female';
@@ -55,6 +56,7 @@ export interface MusicFormData {
   voiceCharacteristics: string[];
   vocalGenderPreference: VocalGenderPreference;
   magneticVoice: boolean;
+  magneticVoiceType: MagneticVoiceType;
   preferredSongLanguage: PreferredSongLanguage;
   songEnergyStyle: SongEnergyStyle;
   voiceConsent: VoiceConsentState;
@@ -202,6 +204,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
     voiceCharacteristics: [],
     vocalGenderPreference: null,
     magneticVoice: false,
+    magneticVoiceType: 'chest',
     preferredSongLanguage: 'mandarin',
     songEnergyStyle: 'dance-pop',
     voiceConsent: buildVoiceConsent([]),
@@ -302,13 +305,34 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   }
 
   function selectVoice(option: (typeof EMOTIONAL_VOICE_OPTIONS)[number]) {
-    setForm((prev) => ({
-      ...prev,
-      vocalGenderPreference: option.key,
-      magneticVoice: true,
-      voiceCharacteristics: ['ai_voice_direct', 'ai_voice_auto', 'life_song_vocal', ...option.characteristics],
-      voiceConsent: buildVoiceConsent(option.characteristics),
-    }));
+    setForm((prev) => {
+      const archetype = MAGNETIC_VOICE_ARCHETYPES.find((item) => item.key === prev.magneticVoiceType) ?? MAGNETIC_VOICE_ARCHETYPES[0];
+      const chars = archetype.characteristics(option.key);
+      return {
+        ...prev,
+        vocalGenderPreference: option.key,
+        magneticVoice: true,
+        voiceCharacteristics: ['ai_voice_direct', 'ai_voice_auto', 'life_song_vocal', ...chars],
+        voiceConsent: buildVoiceConsent(chars),
+      };
+    });
+    clearValidation();
+  }
+
+  function selectMagneticVoiceType(type: MagneticVoiceType) {
+    setForm((prev) => {
+      const archetype = MAGNETIC_VOICE_ARCHETYPES.find((item) => item.key === type) ?? MAGNETIC_VOICE_ARCHETYPES[0];
+      if (!prev.vocalGenderPreference) {
+        return { ...prev, magneticVoiceType: type };
+      }
+      const chars = archetype.characteristics(prev.vocalGenderPreference);
+      return {
+        ...prev,
+        magneticVoiceType: type,
+        voiceCharacteristics: ['ai_voice_direct', 'ai_voice_auto', 'life_song_vocal', ...chars],
+        voiceConsent: buildVoiceConsent(chars),
+      };
+    });
     clearValidation();
   }
 
@@ -504,9 +528,37 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
           <div className="music-flow-stage-heading">
             <p>第三道</p>
             <h3>選擇會打動人的主唱</h3>
-            <span>先試聽一句情緒定位，再選男聲或女聲。正式生成時，後端會收到聲線偏好與情緒標籤。</span>
+            <span>先選一種「全世界最有磁性、聽了會噴淚」的聲線類型，再選男聲或女聲。聲音與歌詞會綁在一起生成。</span>
           </div>
+
+          <div className="space-y-3">
+            <p className="text-sm font-black text-amber-100">磁性聲線類型（每種都能配男聲／女聲）</p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {MAGNETIC_VOICE_ARCHETYPES.map((archetype) => {
+                const active = form.magneticVoiceType === archetype.key;
+                return (
+                  <button
+                    key={archetype.key}
+                    type="button"
+                    onClick={() => selectMagneticVoiceType(archetype.key)}
+                    aria-pressed={active}
+                    className={`rounded-[20px] border p-4 text-left transition-all ${active ? 'border-amber-300/75 bg-amber-300/12 shadow-[0_0_26px_rgba(251,191,36,0.18)]' : 'border-white/10 bg-white/[0.04] hover:border-amber-200/35 hover:bg-white/[0.07]'}`}
+                  >
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">{archetype.badge}</span>
+                      <span className={`text-[10px] font-black ${active ? 'text-amber-200' : 'text-white/40'}`}>{active ? '已選' : '選擇'}</span>
+                    </span>
+                    <span className="mt-1.5 block text-lg font-black leading-tight text-[color:var(--text-main)]">{archetype.label}</span>
+                    <span className="mt-2 block text-xs font-semibold leading-6 text-violet-50">{archetype.headline}</span>
+                    <span className="mt-1 block text-[11px] font-semibold leading-5 text-[color:var(--text-sub)]">{archetype.hint}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {showMissingVoice && <p className="form-missing-alert">請先選擇一種主唱聲線。</p>}
+          <p className="text-sm font-black text-amber-100">選擇主唱性別</p>
           <div className="grid gap-4 sm:grid-cols-2">
             {EMOTIONAL_VOICE_OPTIONS.map((option) => {
               const active = form.vocalGenderPreference === option.key;

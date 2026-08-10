@@ -7,6 +7,12 @@ import { getNameDescription, getNamePersonalityScores } from './name-model-db';
 import { enrichAnalysis, enrichPreview } from './personality-engine';
 import { buildAiCopywritingInstruction, enforceAiCopywritingTone } from './ai-copywriting-style-center';
 import {
+  buildMagneticVoiceDirectiveZh,
+  buildMagneticVoiceDirectiveEn,
+  getMagneticLyricRuleZh,
+  type MagneticVoiceType,
+} from './magnetic-voice';
+import {
   aggregatePersonalityScore,
   fusePersonalityV5,
   fusePreviewPersonalityV5,
@@ -340,6 +346,7 @@ export interface MusicReportInput {
   gender: 'male' | 'female';
   vocalGenderPreference?: 'male' | 'female' | null;
   magneticVoice?: boolean;
+  magneticVoiceType?: MagneticVoiceType;
   preferredSongLanguage?: PreferredSongLanguage;
   era: string;
   personalityMatrix: Record<string, number>;
@@ -523,7 +530,7 @@ const MUSIC_REPORT_SCHEMA = {
 function buildMusicReportPrompt(input: MusicReportInput): string {
   const genderLabel = input.gender === 'male' ? '男性' : '女性';
   const vocalPreferenceLabel = input.magneticVoice
-    ? buildMagneticVoiceDirectiveZh(input.vocalGenderPreference)
+    ? buildMagneticVoiceDirectiveZh(input.magneticVoiceType, input.vocalGenderPreference)
     : input.vocalGenderPreference === 'male'
       ? '偏好男聲主唱'
       : input.vocalGenderPreference === 'female'
@@ -574,6 +581,7 @@ ${lifeSongInstructionBlock}
 生日：${input.birthDate}（${input.zodiac}）
 血型：${input.bloodType} 型 · 性別：${genderLabel}
 主唱聲線偏好：${vocalPreferenceLabel}
+${input.magneticVoice ? `磁性聲線歌詞規則（人層歌詞需與此聲線綁定，一起催淚）：${getMagneticLyricRuleZh(input.magneticVoiceType)}` : ''}
 音樂年代：${input.era}
 
 ━━━ 命理層（天）━━━
@@ -773,7 +781,7 @@ function createLocalSongDrafts(input: MusicReportInput): OriginalSongDraftsOutpu
 function buildSongDraftsPrompt(input: MusicReportInput): string {
   const genderLabel = input.gender === 'male' ? '男性' : '女性';
   const vocalPreferenceLabel = input.magneticVoice
-    ? buildMagneticVoiceDirectiveZh(input.vocalGenderPreference)
+    ? buildMagneticVoiceDirectiveZh(input.magneticVoiceType, input.vocalGenderPreference)
     : input.vocalGenderPreference === 'male'
       ? '偏好男聲主唱'
       : input.vocalGenderPreference === 'female'
@@ -820,6 +828,7 @@ ${lifeSongInstructionBlock}
 生日：${input.birthDate}（${input.zodiac}）
 血型：${input.bloodType} 型 · 性別：${genderLabel}
 主唱聲線偏好：${vocalPreferenceLabel}
+${input.magneticVoice ? `磁性聲線歌詞規則（人層歌詞需與此聲線綁定，一起催淚）：${getMagneticLyricRuleZh(input.magneticVoiceType)}` : ''}
 音樂年代：${input.era}
 
 ━━━ 命理資料 ━━━
@@ -916,21 +925,6 @@ function pickTopMatrixKeys(matrix: Record<string, number>) {
     .map(([key]) => key);
 }
 
-// 「全世界最有磁性的聲音」聲線指令：男/女可選，導向深情、催淚、起雞皮疙瘩的主唱
-function magneticVoiceGenderZh(pref?: 'male' | 'female' | null) {
-  return pref === 'male' ? '男聲' : pref === 'female' ? '女聲' : '主唱';
-}
-
-function buildMagneticVoiceDirectiveZh(pref?: 'male' | 'female' | null): string {
-  const g = magneticVoiceGenderZh(pref);
-  return `【全世界最有磁性的聲音 · ${g}】極致深情、溫暖又穿透的${g}，帶氣息與胸腔共鳴的低音磁性，親密到像貼耳吟唱；情緒層層堆疊，副歌讓人起雞皮疙瘩、甚至落淚；咬字真摯，尾音帶一點顫抖與哽咽，像只對你一個人訴說。`;
-}
-
-function buildMagneticVoiceDirectiveEn(pref?: 'male' | 'female' | null): string {
-  const g = pref === 'male' ? 'male ' : pref === 'female' ? 'female ' : '';
-  return `The world's most magnetic ${g}lead vocal: deeply emotional, warm yet penetrating, intimate close-mic breathy tone with rich chest resonance, subtle vibrato and a tear-inducing catch in the voice that builds goosebumps into the chorus; sincere and cinematic, crafted to move listeners to tears.`;
-}
-
 function describeVocalBlend(input: AiProductionPlanInput) {
   const emotion = input.personalityMatrix.emotion ?? 50;
   const creativity = input.personalityMatrix.creativity ?? 50;
@@ -942,7 +936,7 @@ function describeVocalBlend(input: AiProductionPlanInput) {
       ? '女聲主唱'
       : '主唱性別由系統依人格與曲風自動配置';
   if (input.magneticVoice) {
-    return `${buildMagneticVoiceDirectiveZh(input.vocalGenderPreference)} 全程以此聲線為主唱核心，副歌再加寬和聲把情緒推到最高點。`;
+    return `${buildMagneticVoiceDirectiveZh(input.magneticVoiceType, input.vocalGenderPreference)} 全程以此聲線為主唱核心，副歌再加寬和聲把情緒推到最高點。`;
   }
   const blend = emotion >= 75 || attachment >= 75
     ? '深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。'
@@ -1018,7 +1012,7 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
     emotional_arc:
       '0-35% 天層建立音樂靈魂，35-70% 地層建立歌曲身體，70-100% 人層放入故事落點後由融合引擎收束成一首歌。',
     generation_prompt:
-      `${lifeSong ? `Life song mission: ${lifeSong.theme}. Worldview: ${lifeSong.worldView}. Scene: ${lifeSong.scene}. Growth center: ${lifeSong.growthSummary}. ` : ''}Create one original Tiandiren life song, not three separate songs. Primary song language: ${languageGuidance.label}. ${languageGuidance.prompt} Suggested language balance: ${languageGuidance.distribution}. ${input.musicParameters.genre}, ${input.musicParameters.bpm} BPM, ${input.musicParameters.key}. Mood: ${mood}. Instruments: ${instruments}. Vocal: ${leadVocal}.${input.magneticVoice ? ` ${buildMagneticVoiceDirectiveEn(input.vocalGenderPreference)}` : ''} Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Mandarin story lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: ${themes}. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.`,
+      `${lifeSong ? `Life song mission: ${lifeSong.theme}. Worldview: ${lifeSong.worldView}. Scene: ${lifeSong.scene}. Growth center: ${lifeSong.growthSummary}. ` : ''}Create one original Tiandiren life song, not three separate songs. Primary song language: ${languageGuidance.label}. ${languageGuidance.prompt} Suggested language balance: ${languageGuidance.distribution}. ${input.musicParameters.genre}, ${input.musicParameters.bpm} BPM, ${input.musicParameters.key}. Mood: ${mood}. Instruments: ${instruments}. Vocal: ${leadVocal}.${input.magneticVoice ? ` ${buildMagneticVoiceDirectiveEn(input.magneticVoiceType, input.vocalGenderPreference)}` : ''} Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Mandarin story lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: ${themes}. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.`,
     next_step_note:
       '下一步才接音樂/人聲生成服務；目前這一層先把製作、編曲、主唱分配與生成提示整理好，避免一次做太重造成當機。',
   };
@@ -1041,6 +1035,7 @@ export interface FusionSongInput {
   mood?: string[];
   vocalGenderPreference?: 'male' | 'female' | null;
   magneticVoice?: boolean;
+  magneticVoiceType?: MagneticVoiceType;
   preferredSongLanguage?: PreferredSongLanguage;
 }
 
@@ -1154,8 +1149,8 @@ ${JSON.stringify(input.personalityMatrix, null, 2)}
 
 ━━━ 音樂參數參考 ━━━
 曲風：${input.genre ?? '抒情流行'} · BPM：${input.bpm ?? 90} · 氛圍：${(input.mood ?? []).join(', ') || '溫暖、真摯'}
-主唱聲線：${input.magneticVoice ? buildMagneticVoiceDirectiveZh(input.vocalGenderPreference) : input.vocalGenderPreference === 'male' ? '男聲' : input.vocalGenderPreference === 'female' ? '女聲' : '未指定，依歌曲人格自動配置'}
-
+主唱聲線：${input.magneticVoice ? buildMagneticVoiceDirectiveZh(input.magneticVoiceType, input.vocalGenderPreference) : input.vocalGenderPreference === 'male' ? '男聲' : input.vocalGenderPreference === 'female' ? '女聲' : '未指定，依歌曲人格自動配置'}
+${input.magneticVoice ? `磁性聲線歌詞規則（聲音與歌詞綁定，一起催淚）：${getMagneticLyricRuleZh(input.magneticVoiceType)}` : ''}
 請輸出 JSON，欄位為：
 - fusion_title：原創歌名（繁中，4-12 字）
 - fusion_concept：一句話說明天地人如何融合成一首歌（60 字內）

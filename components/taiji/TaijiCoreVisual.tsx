@@ -100,7 +100,7 @@ export default function TaijiCoreVisual({ active = false, stage = 'idle', highli
 
   return (
     <svg
-      className={`${styles.svg} ${stageClass} ${active ? styles.active : ''} ${splitApart ? styles.split : ''} ${className}`.trim()}
+      className={`${styles.svg} ${stageClass} ${active ? styles.active : ''} ${className}`.trim()}
       viewBox="-190 -190 380 380"
       role="img"
       aria-label="Taiji core emblem"
@@ -109,25 +109,11 @@ export default function TaijiCoreVisual({ active = false, stage = 'idle', highli
       <defs>
         <radialGradient id="tdhTaijiLightGradient" cx="30%" cy="22%" r="88%">
           <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="24%" stopColor="#fff8dc" />
-          <stop offset="58%" stopColor="#f5d98b" />
-          <stop offset="100%" stopColor="#bf8f3d" />
+          <stop offset="100%" stopColor="#f8fafc" />
         </radialGradient>
         <radialGradient id="tdhTaijiDarkGradient" cx="34%" cy="24%" r="90%">
-          <stop offset="0%" stopColor="#5b4f86" />
-          <stop offset="34%" stopColor="#241b3f" />
-          <stop offset="70%" stopColor="#0d0a18" />
-          <stop offset="100%" stopColor="#010102" />
-        </radialGradient>
-        <radialGradient id="tdhTaijiPearlLight" cx="36%" cy="28%" r="78%">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="64%" stopColor="#f7ecd4" />
-          <stop offset="100%" stopColor="#d1a75f" />
-        </radialGradient>
-        <radialGradient id="tdhTaijiPearlDark" cx="36%" cy="28%" r="78%">
-          <stop offset="0%" stopColor="#45405f" />
-          <stop offset="62%" stopColor="#12101d" />
-          <stop offset="100%" stopColor="#030204" />
+          <stop offset="0%" stopColor="#111827" />
+          <stop offset="100%" stopColor="#020204" />
         </radialGradient>
         <radialGradient id="tdhTaijiSurfaceGlow" cx="34%" cy="24%" r="78%">
           <stop offset="0%" stopColor="rgba(255,255,255,0.32)" />
@@ -175,37 +161,33 @@ export default function TaijiCoreVisual({ active = false, stage = 'idle', highli
         <g className={`${styles.fish} ${styles.yinFish}`}>
           <path
             className={styles.fishBody}
-            d="M 0 -120 A 120 120 0 0 0 0 120 A 60 60 0 0 0 0 0 A 60 60 0 0 1 0 -120 Z"
-            fill="url(#tdhTaijiDarkGradient)"
+            d="M 0 -120 A 120 120 0 0 1 0 120 A 60 60 0 0 1 0 0 A 60 60 0 0 0 0 -120 Z"
+            fill="#050505"
           />
           <path
             className={styles.fishEdgeDark}
-            d="M 0 -120 A 120 120 0 0 0 0 120 A 60 60 0 0 0 0 0 A 60 60 0 0 1 0 -120 Z"
+            d="M 0 -120 A 120 120 0 0 1 0 120 A 60 60 0 0 1 0 0 A 60 60 0 0 0 0 -120 Z"
           />
-          <circle className={styles.pearlRing} cx="0" cy="-60" r="22" />
-          <circle className={styles.pearlLight} cx="0" cy="-60" r="16" fill="url(#tdhTaijiPearlLight)" />
-          <circle className={styles.pearlGlint} cx="-5" cy="-66" r="3.2" />
         </g>
 
         <g className={`${styles.fish} ${styles.yangFish}`}>
           <path
             className={styles.fishBody}
-            d="M 0 -120 A 60 60 0 0 0 0 0 A 60 60 0 0 1 0 120 A 120 120 0 0 0 0 -120 Z"
-            fill="url(#tdhTaijiLightGradient)"
+            d="M 0 -120 A 120 120 0 0 0 0 120 A 60 60 0 0 0 0 0 A 60 60 0 0 1 0 -120 Z"
+            fill="#ffffff"
           />
           <path
             className={styles.fishEdgeLight}
-            d="M 0 -120 A 60 60 0 0 0 0 0 A 60 60 0 0 1 0 120 A 120 120 0 0 0 0 -120 Z"
+            d="M 0 -120 A 120 120 0 0 0 0 120 A 60 60 0 0 0 0 0 A 60 60 0 0 1 0 -120 Z"
           />
-          <circle className={styles.pearlRing} cx="0" cy="60" r="22" />
-          <circle className={styles.pearlDark} cx="0" cy="60" r="16" fill="url(#tdhTaijiPearlDark)" />
-          <circle className={styles.pearlGlintMuted} cx="-5" cy="54" r="3" />
         </g>
+        <circle className={styles.taijiDotLight} cx="0" cy="-60" r="15" />
+        <circle className={styles.taijiDotDark} cx="0" cy="60" r="15" />
+        <circle className={styles.eyeGlintOnLightDot} cx="-5" cy="-66" r="3.2" />
+        <circle className={styles.eyeGlintOnDarkDot} cx="-5" cy="54" r="3.2" />
       </g>
 
-      <circle className={styles.surfaceShade} cx="0" cy="0" r="120" fill="url(#tdhTaijiSurfaceGlow)" />
-      <path className={styles.seamLight} d="M 0 -120 A 60 60 0 0 0 0 0 A 60 60 0 0 1 0 120" />
-
+      {/* 陰陽兩眼永久保留在核心中；外層演化只能襯托，不能遮蔽。 */}
       <g className={`${styles.fourSymbols} ${showFourSymbols ? styles.fourSymbolsVisible : ''}`} aria-hidden="true">
         {FOUR_SYMBOLS.map((item, index) => (
           <g

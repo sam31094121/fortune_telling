@@ -13,6 +13,7 @@ import { getCompletedGrowthModules, markGrowthModuleCompleted } from '@/lib/grow
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
+import TaijiCore from '@/components/taiji/TaijiCore';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
@@ -2617,7 +2618,7 @@ export default function HomePage() {
           </div>
           <div className="home-core-panel relative flex w-full max-w-[360px] flex-col items-center justify-center">
             <div className="home-core-halo hidden" aria-hidden="true" />
-            <TaijiStandaloneCard className="home-taiji-cinema" showThreeLayerMaterial holdEvolutionStages adaptiveEntry />
+            <TaijiCore />
             <div className="home-command-panel hidden mt-5 w-full">
               <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
                 <span className="text-[10px] font-black uppercase tracking-[0.28em] text-cyan-200">Command Sync</span>

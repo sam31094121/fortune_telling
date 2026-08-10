@@ -11,6 +11,7 @@ import { isValidBirthday } from '@/lib/validation';
 import { computeShichenProfile } from '@/lib/shichen-engine';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
 import { buildMusicFiveElementResult } from '@/lib/five-element-engine';
+import type { MagneticVoiceType } from '@/lib/magnetic-voice';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -84,6 +85,7 @@ interface MusicGenerateRequest {
   voiceCharacteristics?: string[];
   vocalGenderPreference?: VocalGenderPreference;
   magneticVoice?: boolean;
+  magneticVoiceType?: MagneticVoiceType;
   preferredSongLanguage?: PreferredSongLanguage;
   songEnergyStyle?: SongEnergyStyle;
   voiceConsent?: VoiceConsentPayload;
@@ -464,6 +466,7 @@ export async function POST(request: Request) {
       voiceCharacteristics: manualVoiceCharacteristics = [],
       vocalGenderPreference = null,
       magneticVoice = false,
+      magneticVoiceType,
       preferredSongLanguage = 'mandarin',
       songEnergyStyle = 'dance-pop',
       lifeGoal = 'healing',
@@ -573,6 +576,7 @@ export async function POST(request: Request) {
     gender,
     vocalGenderPreference,
     magneticVoice,
+    magneticVoiceType,
     preferredSongLanguage,
     era,
     personalityMatrix: Object.fromEntries(Object.entries(personalityMatrix)) as Record<string, number>,
@@ -607,6 +611,7 @@ export async function POST(request: Request) {
     mood: finalMusicParameters.mood,
     vocalGenderPreference,
     magneticVoice,
+    magneticVoiceType,
     preferredSongLanguage,
   });
 

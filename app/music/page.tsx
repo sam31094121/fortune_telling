@@ -368,6 +368,7 @@ export default function MusicSystemPage() {
           voiceCharacteristics: data.voiceCharacteristics,
           vocalGenderPreference: data.vocalGenderPreference,
           magneticVoice: data.magneticVoice,
+          magneticVoiceType: data.magneticVoiceType,
           preferredSongLanguage: data.preferredSongLanguage,
           songEnergyStyle: data.songEnergyStyle,
           voiceConsent: data.voiceConsent,
