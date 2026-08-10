@@ -1,2 +1,20 @@
 �䤣�� C:\Users\DRAGON\Desktop\�R�z\.git\HEAD.lock
 �䤣�� C:\Users\DRAGON\Desktop\�R�z\.git\index.lock
+warning: in the working copy of 'components/taiji/TaijiWebGL3D.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'data/ai-like-counter.backup.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'data/ai-like-counter.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'data/ai-suggestion-counter.backup.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'data/ai-suggestion-counter.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'reports/screen-health/latest.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'components/taiji/TaijiTopShell3D.tsx', LF will be replaced by CRLF the next time Git touches it
+🔍 檢查提交內容...
+⚠️  警告：您正在修改關鍵文件 'app/page.tsx'
+請確保您明白這可能影響系統穩定性
+✅ 提交檢查完成
+[main 3bdc9a7] Top shell card: full three-layer 3D taichi system (taichi-liangyi-sixiang-bagua + five element planets + space energy field)
+ 5 files changed, 208 insertions(+), 151 deletions(-)
+ create mode 100644 components/taiji/TaijiTopShell3D.tsx
+To https://github.com/sam31094121/fortune_telling.git
+   8caa4de..3bdc9a7  main -> main
+3bdc9a7 Top shell card: full three-layer 3D taichi system (taichi-liangyi-sixiang-bagua + five element planets + space energy field)
+BAT_DONE 

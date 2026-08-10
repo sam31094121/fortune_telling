@@ -33,7 +33,7 @@ export default function TaijiTopShell3D() {
 
   return (
     <div className="relative h-[168px] w-full overflow-hidden rounded-[28px] sm:h-[196px]">
-      <TaijiWebGL3D className="absolute inset-0" />
+      <TaijiWebGL3D className="absolute inset-0" variant="banner" />
     </div>
   );
 }

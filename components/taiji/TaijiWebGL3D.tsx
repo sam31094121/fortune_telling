@@ -93,7 +93,13 @@ function createTaiChiGlowMaterial(THREE: any) {
   });
 }
 
-export default function TaijiWebGL3D({ className }: { className?: string }) {
+export default function TaijiWebGL3D({
+  className,
+  variant = 'full',
+}: {
+  className?: string;
+  variant?: 'full' | 'banner';
+}) {
   const hostRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -109,10 +115,21 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
 
       const width = host.clientWidth || 320;
       const height = host.clientHeight || 320;
+      const isBanner = variant === 'banner';
 
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 120);
-      camera.position.set(0, 5.4, 15.6);
+      const bannerFrustum = 9.6;
+      const camera = isBanner
+        ? new THREE.OrthographicCamera(
+          (-bannerFrustum * (width / height)) / 2,
+          (bannerFrustum * (width / height)) / 2,
+          bannerFrustum / 2,
+          -bannerFrustum / 2,
+          0.1,
+          120,
+        )
+        : new THREE.PerspectiveCamera(42, width / height, 0.1, 120);
+      camera.position.set(0, isBanner ? 5.8 : 5.4, isBanner ? 20 : 15.6);
       camera.lookAt(0, 0, 0);
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -122,6 +139,7 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
       renderer.toneMappingExposure = 1.1;
       renderer.setClearColor(0x000000, 0);
       host.appendChild(renderer.domElement);
+      renderer.domElement.dataset.taijiScene = 'mounting';
       renderer.domElement.style.width = '100%';
       renderer.domElement.style.height = '100%';
       renderer.domElement.style.display = 'block';
@@ -129,6 +147,10 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
 
       // 世界根群組：自動旋轉＋拖曳旋轉都作用在這裡（三層一起轉，空間一體感）
       const world = new THREE.Group();
+      if (isBanner) {
+        world.scale.setScalar(0.72);
+        world.position.y = 0;
+      }
       scene.add(world);
 
       // ===== 燈光 =====
@@ -258,51 +280,190 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
       // ==================== 第二層：五顆立體行星（空風水火地） ====================
       // 五元數行星（半徑外推，讓出第一層八卦環 2.85 的空間）
       const planetsConfig = [
-        { name: '空', color: 0x9b59ff, radius: 3.8, speed: 0.16, tilt: 0.18, size: 0.27 },
-        { name: '風', color: 0x00e5ff, radius: 4.7, speed: 0.24, tilt: -0.13, size: 0.24 },
-        { name: '水', color: 0x2980ff, radius: 5.7, speed: 0.14, tilt: 0.22, size: 0.28 },
-        { name: '火', color: 0xff4500, radius: 6.8, speed: 0.2, tilt: -0.15, size: 0.26 },
-        { name: '地', color: 0x2ecc71, radius: 8.0, speed: 0.11, tilt: 0.08, size: 0.3 },
+        {
+          name: '空', behavior: 'void', color: 0x9b59ff, emissive: 0x7b2cff,
+          radius: 3.8, speed: 0.13, tilt: 0.12, size: 0.32, spinSpeed: 0.16,
+          atmosphereScale: 2.1, atmosphereOpacity: 0.1, particleCount: 110,
+          particleSize: 0.036, roughness: 0.08, metalness: 0.05, opacity: 0.35,
+          orbitOpacity: 0.055, bloom: 0.65,
+        },
+        {
+          name: '風', behavior: 'wind', color: 0x00e5ff, emissive: 0x00f5d4,
+          radius: 4.7, speed: 0.28, tilt: -0.18, size: 0.25, spinSpeed: 2.4,
+          atmosphereScale: 1.95, atmosphereOpacity: 0.16, particleCount: 300,
+          particleSize: 0.044, roughness: 0.18, metalness: 0.15, opacity: 0.85,
+          orbitOpacity: 0.095, bloom: 0.9,
+        },
+        {
+          name: '水', behavior: 'water', color: 0x2980ff, emissive: 0x00bbf9,
+          radius: 5.7, speed: 0.15, tilt: 0.2, size: 0.29, spinSpeed: 0.72,
+          atmosphereScale: 1.55, atmosphereOpacity: 0.13, particleCount: 280,
+          particleSize: 0.04, roughness: 0.04, metalness: 0.05, opacity: 0.82,
+          orbitOpacity: 0.075, bloom: 0.55,
+        },
+        {
+          name: '火', behavior: 'fire', color: 0xff4d19, emissive: 0xff006e,
+          radius: 6.8, speed: 0.22, tilt: -0.14, size: 0.27, spinSpeed: 2.85,
+          atmosphereScale: 2.25, atmosphereOpacity: 0.28, particleCount: 380,
+          particleSize: 0.068, roughness: 0.4, metalness: 0.1, opacity: 1,
+          orbitOpacity: 0.12, bloom: 2.8,
+        },
+        {
+          name: '地', behavior: 'earth', color: 0x5ad16f, emissive: 0x2ecc71,
+          radius: 8.0, speed: 0.09, tilt: 0.06, size: 0.34, spinSpeed: 0.12,
+          atmosphereScale: 1.34, atmosphereOpacity: 0.09, particleCount: 42,
+          particleSize: 0.038, roughness: 0.88, metalness: 0.22, opacity: 1,
+          orbitOpacity: 0.045, bloom: 0.32,
+        },
       ];
       const planets: any[] = [];
       planetsConfig.forEach((cfg, i) => {
         const group = new THREE.Group();
-        // 行星本體（立體球）
+        const behavior = cfg.behavior;
+
+        // 行星本體：每顆星以不同材質密度呈現「物理狀態」
+        const planetMaterial = behavior === 'water'
+          ? new THREE.MeshPhysicalMaterial({
+            color: cfg.color,
+            emissive: cfg.emissive,
+            emissiveIntensity: cfg.bloom * 0.55,
+            metalness: cfg.metalness,
+            roughness: cfg.roughness,
+            transparent: true,
+            opacity: cfg.opacity,
+            transmission: 0.18,
+            thickness: 0.45,
+            clearcoat: 0.9,
+            clearcoatRoughness: 0.08,
+          })
+          : new THREE.MeshStandardMaterial({
+            color: cfg.color,
+            emissive: cfg.emissive,
+            emissiveIntensity: cfg.bloom,
+            metalness: cfg.metalness,
+            roughness: cfg.roughness,
+            transparent: cfg.opacity < 1,
+            opacity: cfg.opacity,
+          });
         const body = new THREE.Mesh(
-          new THREE.SphereGeometry(cfg.size, 32, 32),
-          new THREE.MeshStandardMaterial({
-            color: cfg.color, emissive: cfg.color, emissiveIntensity: 1.1,
-            metalness: 0.4, roughness: 0.35,
-          }),
+          behavior === 'earth'
+            ? new THREE.DodecahedronGeometry(cfg.size, 2)
+            : new THREE.SphereGeometry(cfg.size, 36, 36),
+          planetMaterial,
         );
         group.add(body);
-        // 行星大氣光暈
+
+        // 行星大氣厚度：空最薄、風厚、火最亮、地厚重但低亮度
         const atmosphere = new THREE.Mesh(
-          new THREE.SphereGeometry(cfg.size * 1.35, 24, 24),
+          new THREE.SphereGeometry(cfg.size * cfg.atmosphereScale, 28, 28),
           new THREE.MeshBasicMaterial({
-            color: cfg.color, transparent: true, opacity: 0.18,
-            blending: THREE.AdditiveBlending, side: THREE.BackSide,
+            color: cfg.emissive,
+            transparent: true,
+            opacity: cfg.atmosphereOpacity,
+            blending: THREE.AdditiveBlending,
+            side: THREE.BackSide,
+            depthWrite: false,
           }),
         );
         group.add(atmosphere);
 
-        // ===== 五行專屬粒子系統 =====
-        // 空：稀疏緩慢漂浮忽明忽滅｜風：快速旋流｜水：波浪液態｜火：向上竄升閃爍｜地：厚重緩慢環繞
-        const BEHAVIORS: Record<string, string> = { 空: 'void', 風: 'wind', 水: 'water', 火: 'fire', 地: 'earth' };
-        const PARTICLE_COUNTS: Record<string, number> = { void: 180, wind: 280, water: 320, fire: 350, earth: 220 };
-        const behavior = BEHAVIORS[cfg.name] ?? 'void';
-        const count = PARTICLE_COUNTS[behavior];
+        const physicalRings: any[] = [];
+        if (behavior === 'void') {
+          const voidShell = new THREE.Mesh(
+            new THREE.SphereGeometry(cfg.size * 2.7, 24, 24),
+            new THREE.MeshBasicMaterial({
+              color: cfg.emissive, transparent: true, opacity: 0.035,
+              blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false,
+            }),
+          );
+          group.add(voidShell);
+          physicalRings.push(voidShell);
+        }
+        if (behavior === 'wind') {
+          for (let r = 0; r < 2; r++) {
+            const windRing = new THREE.Mesh(
+              new THREE.TorusGeometry(cfg.size * (1.55 + r * 0.38), 0.009, 8, 72),
+              new THREE.MeshBasicMaterial({
+                color: cfg.emissive, transparent: true, opacity: 0.28,
+                blending: THREE.AdditiveBlending, depthWrite: false,
+              }),
+            );
+            windRing.rotation.x = Math.PI / 2 + r * 0.65;
+            windRing.rotation.y = r * 0.4;
+            group.add(windRing);
+            physicalRings.push(windRing);
+          }
+        }
+        if (behavior === 'water') {
+          const waterRing = new THREE.Mesh(
+            new THREE.TorusGeometry(cfg.size * 1.45, 0.012, 10, 90),
+            new THREE.MeshBasicMaterial({
+              color: 0x8eefff, transparent: true, opacity: 0.18,
+              blending: THREE.AdditiveBlending, depthWrite: false,
+            }),
+          );
+          waterRing.rotation.x = Math.PI / 2;
+          group.add(waterRing);
+          physicalRings.push(waterRing);
+        }
+        if (behavior === 'fire') {
+          const fireLight = new THREE.PointLight(cfg.emissive, 0.8, 3.2);
+          group.add(fireLight);
+        }
+        if (behavior === 'earth') {
+          const rockColor = new THREE.Color(0xb5d09a);
+          for (let rock = 0; rock < 7; rock++) {
+            const angle = (rock / 7) * Math.PI * 2;
+            const pebble = new THREE.Mesh(
+              new THREE.SphereGeometry(cfg.size * (0.045 + Math.random() * 0.035), 8, 8),
+              new THREE.MeshStandardMaterial({
+                color: rockColor, roughness: 0.95, metalness: 0.05,
+              }),
+            );
+            pebble.position.set(
+              Math.cos(angle) * cfg.size * 0.82,
+              (Math.random() - 0.5) * cfg.size * 0.9,
+              Math.sin(angle) * cfg.size * 0.82,
+            );
+            group.add(pebble);
+          }
+        }
+
+        // 五大專屬粒子：空漂、風旋、水落、火升、地凝
+        const count = cfg.particleCount;
         const pPositions = new Float32Array(count * 3);
         const pColors = new Float32Array(count * 3);
         const velocities: Array<{ vx: number; vy: number; vz: number; life: number; maxLife: number; offset: number }> = [];
         const baseColor = new THREE.Color(cfg.color);
         const spawn = (idx: number) => {
-          const r = cfg.size * (1.6 + Math.random() * 2.8);
           const theta = Math.random() * Math.PI * 2;
           const phi = Math.acos(2 * Math.random() - 1);
-          pPositions[idx * 3] = r * Math.sin(phi) * Math.cos(theta);
-          pPositions[idx * 3 + 1] = behavior === 'fire' ? -cfg.size * (0.6 + Math.random()) : r * Math.sin(phi) * Math.sin(theta);
-          pPositions[idx * 3 + 2] = r * Math.cos(phi);
+          if (behavior === 'wind') {
+            const r = cfg.size * (1.8 + Math.random() * 2.2);
+            pPositions[idx * 3] = Math.cos(theta) * r;
+            pPositions[idx * 3 + 1] = (Math.random() - 0.5) * cfg.size * 1.1;
+            pPositions[idx * 3 + 2] = Math.sin(theta) * r;
+          } else if (behavior === 'water') {
+            const r = cfg.size * (1.1 + Math.random() * 2.0);
+            pPositions[idx * 3] = Math.cos(theta) * r;
+            pPositions[idx * 3 + 1] = cfg.size * (1.4 - Math.random() * 2.8);
+            pPositions[idx * 3 + 2] = Math.sin(theta) * r;
+          } else if (behavior === 'fire') {
+            const r = cfg.size * Math.random() * 1.35;
+            pPositions[idx * 3] = Math.cos(theta) * r;
+            pPositions[idx * 3 + 1] = -cfg.size * (0.65 + Math.random() * 1.1);
+            pPositions[idx * 3 + 2] = Math.sin(theta) * r;
+          } else if (behavior === 'earth') {
+            const r = cfg.size * (1.0 + Math.random() * 0.9);
+            pPositions[idx * 3] = Math.cos(theta) * r;
+            pPositions[idx * 3 + 1] = (Math.random() - 0.5) * cfg.size * 0.42;
+            pPositions[idx * 3 + 2] = Math.sin(theta) * r;
+          } else {
+            const r = cfg.size * (2.4 + Math.random() * 4.2);
+            pPositions[idx * 3] = r * Math.sin(phi) * Math.cos(theta);
+            pPositions[idx * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+            pPositions[idx * 3 + 2] = r * Math.cos(phi);
+          }
         };
         for (let p = 0; p < count; p++) {
           spawn(p);
@@ -310,20 +471,20 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
           let vx = 0; let vy = 0; let vz = 0; let life = 1;
           switch (behavior) {
             case 'void':
-              vx = (Math.random() - 0.5) * 0.008; vy = (Math.random() - 0.5) * 0.008; vz = (Math.random() - 0.5) * 0.008;
-              life = 0.4 + Math.random() * 0.6; break;
+              vx = (Math.random() - 0.5) * 0.003; vy = (Math.random() - 0.5) * 0.003; vz = (Math.random() - 0.5) * 0.003;
+              life = 1.2 + Math.random() * 1.2; break;
             case 'wind':
-              vx = (Math.random() - 0.5) * 0.04; vy = (Math.random() - 0.5) * 0.02; vz = (Math.random() - 0.5) * 0.04;
-              life = 0.6 + Math.random() * 0.4; break;
+              vx = (Math.random() - 0.5) * 0.055; vy = (Math.random() - 0.5) * 0.028; vz = (Math.random() - 0.5) * 0.055;
+              life = 0.55 + Math.random() * 0.55; break;
             case 'water':
-              vx = (Math.random() - 0.5) * 0.015; vy = Math.sin(p) * 0.01; vz = (Math.random() - 0.5) * 0.015;
-              life = 0.7 + Math.random() * 0.3; break;
+              vx = (Math.random() - 0.5) * 0.01; vy = -0.008 - Math.random() * 0.012; vz = (Math.random() - 0.5) * 0.01;
+              life = 0.85 + Math.random() * 0.45; break;
             case 'fire':
-              vx = (Math.random() - 0.5) * 0.02; vy = 0.015 + Math.random() * 0.025; vz = (Math.random() - 0.5) * 0.02;
-              life = 0.5 + Math.random() * 0.5; break;
+              vx = (Math.random() - 0.5) * 0.026; vy = 0.028 + Math.random() * 0.04; vz = (Math.random() - 0.5) * 0.026;
+              life = 0.35 + Math.random() * 0.42; break;
             case 'earth':
-              vx = (Math.random() - 0.5) * 0.01; vy = (Math.random() - 0.5) * 0.006; vz = (Math.random() - 0.5) * 0.01;
-              life = 0.8 + Math.random() * 0.2; break;
+              vx = (Math.random() - 0.5) * 0.003; vy = (Math.random() - 0.5) * 0.002; vz = (Math.random() - 0.5) * 0.003;
+              life = 1.8 + Math.random() * 0.8; break;
           }
           velocities.push({ vx, vy, vz, life, maxLife: life, offset: Math.random() * Math.PI * 2 });
         }
@@ -331,7 +492,7 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
         pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
         pGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
         const elementParticles = new THREE.Points(pGeo, new THREE.PointsMaterial({
-          size: behavior === 'fire' ? 0.065 : 0.045,
+          size: cfg.particleSize,
           vertexColors: true, transparent: true, opacity: 0.85,
           blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
         }));
@@ -340,9 +501,12 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
         // 初始角度平均分布（禁止重疊）
         const startAngle = (i / 5) * Math.PI * 2;
         group.userData = {
-          angle: startAngle, radius: cfg.radius, speed: cfg.speed,
-          tilt: cfg.tilt, name: cfg.name,
+          angle: startAngle, currAngle: startAngle, radius: cfg.radius, speed: cfg.speed,
+          speedFactor: 1, // 互動：1=正常 0=暫停 2.5=加速
+          tilt: cfg.tilt, name: cfg.name, bodyMesh: body,
           behavior, elementParticles, velocities, pPositions, spawn, size: cfg.size,
+          atmosphereMesh: atmosphere, physicalRings, spinSpeed: cfg.spinSpeed,
+          bloom: cfg.bloom, baseAtmosphereOpacity: cfg.atmosphereOpacity,
         };
         group.position.set(
           Math.cos(startAngle) * cfg.radius,
@@ -355,7 +519,7 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
         const orbit = new THREE.Mesh(
           new THREE.TorusGeometry(cfg.radius, 0.012, 8, 120),
           new THREE.MeshBasicMaterial({
-            color: cfg.color, transparent: true, opacity: 0.09,
+            color: cfg.color, transparent: true, opacity: cfg.orbitOpacity,
             blending: THREE.AdditiveBlending,
           }),
         );
@@ -412,30 +576,110 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
       let dragging = false;
       let lastX = 0; let lastY = 0;
       let velX = 0; let velY = 0;
-      const onDown = (e: PointerEvent) => { dragging = true; lastX = e.clientX; lastY = e.clientY; };
-      const onMove = (e: PointerEvent) => {
-        if (!dragging) return;
-        velY = (e.clientX - lastX) * 0.005;
-        velX = (e.clientY - lastY) * 0.003;
-        lastX = e.clientX; lastY = e.clientY;
-        world.rotation.y += velY;
-        world.rotation.x = Math.max(-0.7, Math.min(0.7, world.rotation.x + velX));
+      let downX = 0; let downY = 0; // 區分點擊 vs 拖曳
+      let autoRotate = true; // 鍵盤 R 切換
+
+      // ===== 互動加強：Raycaster 懸停/點擊 =====
+      const raycaster = new THREE.Raycaster();
+      const pointerNdc = new THREE.Vector2();
+      const pickables: any[] = [taiChiSphere, ...planets.map((g) => g.userData.bodyMesh)];
+      const nameOf = (mesh: any) => (mesh === taiChiSphere ? '太極' : planets.find((g) => g.userData.bodyMesh === mesh)?.userData.name ?? '');
+
+      // 名稱提示（DOM tooltip）
+      const tooltip = document.createElement('div');
+      tooltip.style.cssText = 'position:absolute;padding:3px 10px;border-radius:999px;background:rgba(2,8,20,0.82);border:1px solid rgba(0,229,255,0.45);color:#bfefff;font-size:12px;font-weight:700;letter-spacing:2px;pointer-events:none;opacity:0;transition:opacity 160ms ease;white-space:nowrap;z-index:5;';
+      host.style.position = host.style.position || 'relative';
+      host.appendChild(tooltip);
+      cleanupFns.push(() => tooltip.remove());
+
+      const speedLabel = (factor: number) => (factor === 0 ? '（暫停）' : factor > 1 ? '（加速）' : '');
+      const pickAt = (clientX: number, clientY: number) => {
+        const rect = renderer.domElement.getBoundingClientRect();
+        pointerNdc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        pointerNdc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(pointerNdc, camera);
+        const hits = raycaster.intersectObjects(pickables, false);
+        return hits.length ? hits[0].object : null;
       };
-      const onUp = () => { dragging = false; };
+
+      const onDown = (e: PointerEvent) => {
+        dragging = true; lastX = e.clientX; lastY = e.clientY;
+        downX = e.clientX; downY = e.clientY;
+      };
+      const onMove = (e: PointerEvent) => {
+        if (dragging) {
+          velY = (e.clientX - lastX) * 0.005;
+          velX = (e.clientY - lastY) * 0.003;
+          lastX = e.clientX; lastY = e.clientY;
+          world.rotation.y += velY;
+          world.rotation.x = Math.max(-0.7, Math.min(0.7, world.rotation.x + velX));
+          return;
+        }
+        // 懸停顯示名稱
+        const hit = pickAt(e.clientX, e.clientY);
+        if (hit) {
+          const group = planets.find((g) => g.userData.bodyMesh === hit);
+          tooltip.textContent = nameOf(hit) + (group ? speedLabel(group.userData.speedFactor) : autoRotate ? '' : '（已停轉）');
+          const rect = host.getBoundingClientRect();
+          tooltip.style.left = `${e.clientX - rect.left + 14}px`;
+          tooltip.style.top = `${e.clientY - rect.top - 10}px`;
+          tooltip.style.opacity = '1';
+          renderer.domElement.style.cursor = 'pointer';
+        } else {
+          tooltip.style.opacity = '0';
+          renderer.domElement.style.cursor = 'grab';
+        }
+      };
+      const onUp = (e: PointerEvent) => {
+        const wasDrag = Math.hypot(e.clientX - downX, e.clientY - downY) > 6;
+        dragging = false;
+        if (wasDrag) return;
+        // 點擊：行星＝暫停→加速→正常循環；太極＝切換自動旋轉
+        const hit = pickAt(e.clientX, e.clientY);
+        if (!hit) return;
+        if (hit === taiChiSphere) {
+          autoRotate = !autoRotate;
+          tooltip.textContent = `太極${autoRotate ? '' : '（已停轉）'}`;
+          tooltip.style.opacity = '1';
+          return;
+        }
+        const group = planets.find((g) => g.userData.bodyMesh === hit);
+        if (group) {
+          const u = group.userData;
+          u.speedFactor = u.speedFactor === 1 ? 0 : u.speedFactor === 0 ? 2.5 : 1;
+          tooltip.textContent = u.name + speedLabel(u.speedFactor);
+          tooltip.style.opacity = '1';
+        }
+      };
       renderer.domElement.addEventListener('pointerdown', onDown);
       window.addEventListener('pointermove', onMove);
       window.addEventListener('pointerup', onUp);
+      // 鍵盤：R 切換自動旋轉（聚焦卡片時）
+      host.tabIndex = 0;
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === 'r' || e.key === 'R') autoRotate = !autoRotate;
+      };
+      host.addEventListener('keydown', onKey);
       cleanupFns.push(() => {
         renderer.domElement.removeEventListener('pointerdown', onDown);
         window.removeEventListener('pointermove', onMove);
         window.removeEventListener('pointerup', onUp);
+        host.removeEventListener('keydown', onKey);
       });
 
       // ===== Resize =====
       const resize = () => {
         const w = host.clientWidth || width;
         const h = host.clientHeight || height;
-        camera.aspect = w / h;
+        if (isBanner) {
+          const aspect = w / h;
+          camera.left = (-bannerFrustum * aspect) / 2;
+          camera.right = (bannerFrustum * aspect) / 2;
+          camera.top = bannerFrustum / 2;
+          camera.bottom = -bannerFrustum / 2;
+        } else {
+          camera.aspect = w / h;
+        }
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
       };
@@ -445,11 +689,14 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
 
       // ===== 主迴圈（唯一 RAF；hidden 暫停） =====
       const clock = new THREE.Clock();
+      let elapsed = 0;
       const tick = () => {
-        const t = clock.getElapsedTime();
+        const dt = Math.min(clock.getDelta(), 0.05);
+        elapsed += dt;
+        const t = elapsed;
 
         if (!dragging) {
-          world.rotation.y += 0.0028; // 自動旋轉（整個三層空間）
+          if (autoRotate) world.rotation.y += 0.0028; // 自動旋轉（R 鍵/點太極可切換）
           velX *= 0.94; velY *= 0.94;
           world.rotation.y += velY;
           world.rotation.x = Math.max(-0.7, Math.min(0.7, world.rotation.x + velX));
@@ -478,18 +725,48 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
         // 第二層：五行星獨立軌道 365° 公轉（禁碰撞、禁重疊）
         planets.forEach((group) => {
           const u = group.userData;
-          const a = u.angle + t * u.speed;
+          u.currAngle += u.speed * u.speedFactor * dt; // 增量推進：支援暫停/加速不跳位
+          const a = u.currAngle;
           group.position.x = Math.cos(a) * u.radius;
           group.position.z = Math.sin(a) * u.radius;
           group.position.y = Math.sin(a * 1.3) * u.tilt * 2.2;
-          group.rotation.y = t * u.speed * 2.4;
+          group.rotation.y = t * u.spinSpeed;
+          group.rotation.x = Math.sin(t * (0.22 + u.speed)) * Math.abs(u.tilt) * 0.55;
+
+          const breath = 1 + Math.sin(t * (u.behavior === 'fire' ? 5.6 : u.behavior === 'void' ? 0.7 : 1.4) + u.angle) * (
+            u.behavior === 'void' ? 0.08 : u.behavior === 'water' ? 0.055 : u.behavior === 'fire' ? 0.075 : 0.025
+          );
+          if (u.behavior === 'water') {
+            u.bodyMesh.scale.set(1 + Math.sin(t * 1.7 + u.angle) * 0.045, 1 - Math.sin(t * 1.7 + u.angle) * 0.035, 1);
+          } else {
+            u.bodyMesh.scale.setScalar(breath);
+          }
+          // 元素材質動態：火＝高溫脈動自發光；空＝極透明緩慢呼吸
+          if (u.behavior === 'fire') {
+            (u.bodyMesh.material as any).emissiveIntensity = 2.4 + Math.sin(t * 5.2 + u.angle) * 0.7;
+          } else if (u.behavior === 'void') {
+            (u.bodyMesh.material as any).opacity = 0.24 + Math.abs(Math.sin(t * 0.7 + u.angle)) * 0.2;
+          }
+          if (u.atmosphereMesh) {
+            const atmospherePulse = u.baseAtmosphereOpacity * (1 + Math.sin(t * (u.behavior === 'fire' ? 6.2 : 1.6) + u.angle) * 0.34);
+            (u.atmosphereMesh.material as any).opacity = Math.max(0.02, atmospherePulse);
+            u.atmosphereMesh.scale.setScalar(1 + Math.sin(t * 0.9 + u.angle) * (u.behavior === 'void' ? 0.1 : 0.045));
+          }
+          u.physicalRings?.forEach((ring: any, ringIndex: number) => {
+            ring.rotation.z += (u.behavior === 'wind' ? 0.035 : u.behavior === 'water' ? 0.012 : 0.004) * (ringIndex + 1);
+            if (ring.material) {
+              (ring.material as any).opacity = u.behavior === 'void'
+                ? 0.025 + Math.abs(Math.sin(t * 0.8 + u.angle)) * 0.04
+                : 0.12 + Math.abs(Math.sin(t * 1.4 + ringIndex)) * 0.14;
+            }
+          });
 
           // ===== 五行專屬粒子行為（每元素獨立物理） =====
           if (u.elementParticles) {
             const pos: Float32Array = u.pPositions;
             const vels = u.velocities;
             const dt = 1 / 60;
-            const maxR = u.size * 4.6;
+            const maxR = u.behavior === 'void' ? u.size * 7.0 : u.behavior === 'wind' ? u.size * 5.4 : u.size * 4.4;
             for (let p = 0; p < vels.length; p++) {
               const v = vels[p];
               let px = pos[p * 3]; let py = pos[p * 3 + 1]; let pz = pos[p * 3 + 2];
@@ -501,16 +778,16 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
                 }
                 case 'wind': {
                   // 快速旋轉流動（繞行星切線旋流＋拖尾感）
-                  const swirl = 0.045;
+                  const swirl = 0.078;
                   const nx = px * Math.cos(swirl) - pz * Math.sin(swirl);
                   const nz = px * Math.sin(swirl) + pz * Math.cos(swirl);
-                  px = nx + v.vx * 0.4; pz = nz + v.vz * 0.4; py += v.vy * 0.5;
+                  px = nx + v.vx * 0.45; pz = nz + v.vz * 0.45; py += v.vy * 0.55 + Math.sin(t * 4 + v.offset) * 0.004;
                   break;
                 }
                 case 'water': {
-                  // 波浪起伏液態流動
+                  // 向下流動＋表面張力式環流
                   px += v.vx; pz += v.vz;
-                  py += Math.sin(t * 2.2 + v.offset) * 0.012;
+                  py += v.vy + Math.sin(t * 2.2 + v.offset) * 0.01;
                   break;
                 }
                 case 'fire': {
@@ -520,17 +797,22 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
                 }
                 case 'earth': {
                   // 厚重緩慢環繞穩重落地
-                  const slow = 0.008;
+                  const slow = 0.0035;
                   const ex = px * Math.cos(slow) - pz * Math.sin(slow);
                   const ez = px * Math.sin(slow) + pz * Math.cos(slow);
-                  px = ex; pz = ez; py += v.vy * 0.4;
+                  px = ex + v.vx * 0.2; pz = ez + v.vz * 0.2; py += v.vy * 0.2;
                   py *= 0.995; // 往赤道沉降
                   break;
                 }
               }
-              v.life -= dt * 0.25;
+              v.life -= dt * (u.behavior === 'fire' ? 0.55 : u.behavior === 'earth' ? 0.12 : 0.25);
               const dist = Math.sqrt(px * px + py * py + pz * pz);
-              if (v.life <= 0 || dist > maxR || (u.behavior === 'fire' && py > u.size * 3.4)) {
+              if (
+                v.life <= 0
+                || dist > maxR
+                || (u.behavior === 'fire' && py > u.size * 3.4)
+                || (u.behavior === 'water' && py < -u.size * 2.6)
+              ) {
                 u.spawn(p);
                 v.life = v.maxLife;
               } else {
@@ -540,9 +822,11 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
             u.elementParticles.geometry.attributes.position.needsUpdate = true;
             // 忽明忽滅／閃爍：空最強、火次之、其餘微幅
             const mat = u.elementParticles.material as any;
-            if (u.behavior === 'void') mat.opacity = 0.35 + Math.abs(Math.sin(t * 1.1)) * 0.55;
-            else if (u.behavior === 'fire') mat.opacity = 0.7 + Math.abs(Math.sin(t * 6.5)) * 0.3;
-            else mat.opacity = 0.8 + Math.sin(t * 2 + u.angle) * 0.1;
+            if (u.behavior === 'void') mat.opacity = 0.22 + Math.abs(Math.sin(t * 0.9)) * 0.42;
+            else if (u.behavior === 'wind') mat.opacity = 0.62 + Math.abs(Math.sin(t * 3.4 + u.angle)) * 0.2;
+            else if (u.behavior === 'water') mat.opacity = 0.48 + Math.abs(Math.sin(t * 1.7 + u.angle)) * 0.18;
+            else if (u.behavior === 'fire') mat.opacity = 0.72 + Math.abs(Math.sin(t * 7.2)) * 0.28;
+            else mat.opacity = 0.28 + Math.abs(Math.sin(t * 0.75 + u.angle)) * 0.18;
           }
         });
 
@@ -561,6 +845,7 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
         raf = requestAnimationFrame(tick);
       };
       raf = requestAnimationFrame(tick);
+      renderer.domElement.dataset.taijiScene = 'ready';
 
       const onVisibility = () => {
         if (document.hidden) {
@@ -584,8 +869,9 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
         renderer.dispose();
         renderer.domElement.remove();
       });
-    }).catch(() => {
-      /* CDN 載入失敗：外層 SVG 版本仍在（漸進增強） */
+    }).catch((error) => {
+      hostRef.current?.setAttribute('data-taiji-webgl-error', error instanceof Error ? error.message : String(error));
+      /* CDN 載入失敗或 WebGL 初始化失敗：外層 SVG 版本仍在（漸進增強） */
     });
 
     return () => {
@@ -593,7 +879,7 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
       cleanupFns.forEach((fn) => { try { fn(); } catch { /* noop */ } });
       cleanupFns = [];
     };
-  }, []);
+  }, [variant]);
 
   return <div ref={hostRef} className={className} aria-hidden="true" />;
 }
