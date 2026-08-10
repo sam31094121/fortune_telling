@@ -1,16 +1,19 @@
 .shell {
-  --taiji-size: min(78vw, 320px);
+  --taiji-size: min(57vw, 250px);
   --node-angle: 0deg;
   --node-radius: 47%;
   --node-counter-angle: 0deg;
   --planet-color: #e7edf7;
-  --planet-x: 0px;
-  --planet-y: 0px;
-  --inner-planet-x: 0px;
-  --inner-planet-y: 0px;
+  --planet-glow: #94a3b8;
+  --planet-size: 18px;
+  --orbit-radius: calc(var(--taiji-size) * 0.44);
+  --orbit-tilt: 58deg;
+  --orbit-counter-tilt: -58deg;
+  --orbit-duration: 28s;
+  --orbit-delay: 0s;
   position: relative;
   display: grid;
-  width: min(100%, 390px);
+  width: min(100%, 430px);
   min-height: min(94vh, 610px);
   place-items: center;
   gap: 14px;
@@ -49,7 +52,7 @@
 .coreStage {
   position: relative;
   display: grid;
-  width: min(100%, calc(var(--taiji-size) + 58px));
+  width: min(100%, calc(var(--taiji-size) + 180px));
   aspect-ratio: 1;
   place-items: center;
   perspective: 1050px;
@@ -188,9 +191,12 @@
 }
 
 .outerRing {
-  fill: rgba(248, 250, 252, 0.04);
-  stroke: rgba(248, 250, 252, 0.7);
+  fill: rgba(34, 211, 238, 0.08);
+  stroke: rgba(142, 240, 255, 0.9);
   stroke-width: 1.8;
+  filter:
+    drop-shadow(0 0 8px rgba(34, 211, 238, 0.58))
+    drop-shadow(0 0 18px rgba(255, 42, 138, 0.2));
 }
 
 .fish {
@@ -204,27 +210,36 @@
 
 .yinFish {
   fill: url(#v7Yin);
+  filter:
+    drop-shadow(0 0 11px rgba(0, 229, 255, 0.42))
+    drop-shadow(-5px 0 18px rgba(0, 229, 255, 0.18));
 }
 
 .yangFish {
   fill: url(#v7Yang);
+  filter:
+    drop-shadow(0 0 11px rgba(255, 42, 138, 0.34))
+    drop-shadow(5px 0 18px rgba(255, 42, 138, 0.16));
 }
 
 .lightEye {
   fill: #f8fafc;
   stroke: rgba(2, 6, 23, 0.68);
   stroke-width: 1.6;
+  filter: drop-shadow(0 0 9px rgba(255, 42, 138, 0.68));
 }
 
 .darkEye {
   fill: #020617;
   stroke: rgba(255, 255, 255, 0.68);
   stroke-width: 1.6;
+  filter: drop-shadow(0 0 9px rgba(0, 229, 255, 0.68));
 }
 
 .surfaceLight {
   fill: rgba(255, 255, 255, 0.16);
   mix-blend-mode: screen;
+  animation: taijiSurfacePulse 4.8s ease-in-out infinite;
 }
 
 .twoForces,
@@ -236,90 +251,109 @@
   pointer-events: none;
 }
 
-.planetSystem,
-.innerPlanetLayer,
-.outerPlanetLayer {
+.planetSystem {
   position: absolute;
   inset: 0;
-  pointer-events: none;
-}
-
-.planetSystem {
   z-index: 30;
-  transform: translateZ(132px);
+  pointer-events: none;
+  opacity: 1;
+  transform: translateZ(124px);
   transform-style: preserve-3d;
 }
 
-.innerPlanet,
-.outerPlanet {
+.planetOrbit {
   position: absolute;
   left: 50%;
   top: 50%;
-  z-index: 31;
-  display: grid;
-  place-items: center;
+  width: calc(var(--orbit-radius) * 2);
+  aspect-ratio: 1;
   border-radius: 999px;
-  transform: translate(-50%, -50%);
-}
-
-.innerPlanet {
-  width: 18px;
-  height: 18px;
-  border: 1px solid color-mix(in srgb, var(--planet-color), white 22%);
-  background: rgba(2, 6, 23, 0.72);
-  box-shadow:
-    0 0 0 4px color-mix(in srgb, var(--planet-color), transparent 86%),
-    0 0 14px color-mix(in srgb, var(--planet-color), transparent 46%);
-  opacity: 0.92;
   transform:
-    translate(calc(-50% + var(--inner-planet-x)), calc(-50% + var(--inner-planet-y)))
-    translateZ(94px);
+    translate(-50%, -50%)
+    rotateX(var(--orbit-tilt))
+    rotateZ(0deg);
+  transform-style: preserve-3d;
 }
 
-.innerPlanet i {
-  width: 6px;
-  height: 6px;
+.orbitLine {
+  position: absolute;
+  inset: 0;
+  border: 1px solid color-mix(in srgb, var(--planet-color), transparent 58%);
   border-radius: inherit;
-  background: var(--planet-color);
-  box-shadow: 0 0 10px var(--planet-color);
+  background:
+    conic-gradient(from 90deg, transparent, color-mix(in srgb, var(--planet-color), transparent 72%) 18%, transparent 38%, color-mix(in srgb, var(--planet-color), transparent 82%) 64%, transparent);
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--planet-glow), transparent 78%),
+    inset 0 0 16px color-mix(in srgb, var(--planet-glow), transparent 86%);
+  opacity: 0.72;
+}
+
+.orbitRunner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  animation: planetOrbit360 var(--orbit-duration) linear infinite;
+  animation-delay: var(--orbit-delay);
 }
 
 .outerPlanet {
-  width: 66px;
-  min-height: 42px;
-  border: 1px solid color-mix(in srgb, var(--planet-color), transparent 56%);
-  background:
-    linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(2, 6, 23, 0.62)),
-    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--planet-color), transparent 70%), transparent 64%);
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 31;
+  display: grid;
+  width: calc(var(--planet-size) + 18px);
+  min-height: calc(var(--planet-size) + 18px);
+  place-items: center;
+  border-radius: 999px;
   color: #f8fafc;
-  opacity: 0.76;
-  padding: 6px 7px;
-  box-shadow:
-    0 12px 22px rgba(0, 0, 0, 0.36),
-    0 0 18px color-mix(in srgb, var(--planet-color), transparent 68%),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  opacity: 0.94;
   transform:
-    translate(calc(-50% + var(--planet-x)), calc(-50% + var(--planet-y)))
-    translateZ(128px)
-    scale(0.9);
-  transition: opacity 360ms ease, transform 560ms cubic-bezier(0.18, 0.72, 0.2, 1);
+    translateX(var(--orbit-radius))
+    translate(-50%, -50%)
+    rotateX(var(--orbit-counter-tilt))
+    translateZ(36px);
+  transform-style: preserve-3d;
+}
+
+.outerPlanet i {
+  display: block;
+  width: var(--planet-size);
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--planet-color), white 22%);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.9), transparent 16%),
+    radial-gradient(circle at 42% 38%, color-mix(in srgb, var(--planet-color), white 10%), color-mix(in srgb, var(--planet-glow), black 4%) 62%, rgba(2, 6, 23, 0.92));
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--planet-color), transparent 88%),
+    0 0 16px color-mix(in srgb, var(--planet-glow), transparent 38%),
+    inset -4px -5px 8px rgba(0, 0, 0, 0.38),
+    inset 3px 3px 7px rgba(255, 255, 255, 0.34);
 }
 
 .outerPlanet b,
 .outerPlanet small {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   line-height: 1;
+  text-shadow: 0 1px 8px rgba(2, 6, 23, 0.82);
 }
 
 .outerPlanet b {
-  color: color-mix(in srgb, var(--planet-color), white 24%);
-  font-size: 0.72rem;
+  top: 50%;
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 0.68rem;
   font-weight: 950;
+  transform: translate(-50%, -50%);
 }
 
 .outerPlanet small {
-  color: rgba(226, 232, 240, 0.78);
-  font-size: 0.56rem;
-  font-weight: 800;
+  display: none;
 }
 
 .forceNode,
@@ -511,14 +545,10 @@
 
 .shell[data-focus-open='true'] .outerPlanet {
   opacity: 1;
-  transform:
-    translate(calc(-50% + var(--planet-x)), calc(-50% + var(--planet-y)))
-    translateZ(128px)
-    scale(1);
 }
 
-.shell[data-eight-open='true'] .outerPlanet {
-  opacity: 0.36;
+.shell[data-eight-open='true'] .planetOrbit {
+  opacity: 0.42;
 }
 
 .shell[data-four-open='true'] .fourNodes span {
@@ -587,6 +617,10 @@
   filter: none;
 }
 
+.shell[data-quality='LOW'] .orbitRunner {
+  animation-duration: var(--orbit-duration);
+}
+
 @keyframes taijiRotate {
   from {
     rotate: 0deg;
@@ -607,6 +641,16 @@
   }
 }
 
+@keyframes planetOrbit360 {
+  from {
+    transform: rotateZ(0deg);
+  }
+
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+
 @keyframes taijiBreathe {
   0%,
   100% {
@@ -617,6 +661,19 @@
   50% {
     scale: 1;
     opacity: 1;
+  }
+}
+
+@keyframes taijiSurfacePulse {
+  0%,
+  100% {
+    opacity: 0.58;
+    transform: scale(0.98);
+  }
+
+  50% {
+    opacity: 0.88;
+    transform: scale(1.04);
   }
 }
 
@@ -647,17 +704,16 @@
   }
 
   .outerPlanet {
-    width: 50px;
+    width: 38px;
     min-height: 34px;
-    padding: 4px;
   }
 
   .outerPlanet b {
-    font-size: 0.6rem;
+    font-size: 0.58rem;
   }
 
   .outerPlanet small {
-    font-size: 0.48rem;
+    display: none;
   }
 
   .baguaNode {
@@ -679,12 +735,21 @@
     animation: none;
   }
 
+  .surfaceLight {
+    animation: none;
+  }
+
   .fish,
   .forceNode,
   .outerPlanet,
+  .orbitRunner,
   .fourNodes span,
   .baguaNode {
     transition-duration: 1ms;
+  }
+
+  .orbitRunner {
+    animation: none;
   }
 
   .coreStage::before {
@@ -792,10 +857,20 @@
 .webgl3d canvas {
   width: 100% !important;
   height: 100% !important;
+  filter:
+    saturate(1.24)
+    contrast(1.08)
+    drop-shadow(0 0 18px rgba(0, 229, 255, 0.34))
+    drop-shadow(0 0 24px rgba(255, 42, 138, 0.2));
 }
 
 /* WebGL 啟用時：SVG 退為隱形佔位（保留無障礙結構與點擊區） */
 .taijiSvg[data-webgl-active='true'] {
   opacity: 0;
   animation: none;
+}
+
+/* WebGL 五行星啟用時，DOM 行星層退場（避免雙重行星） */
+.planetSystem[data-webgl-hidden='true'] {
+  display: none;
 }

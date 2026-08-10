@@ -1,152 +1,219 @@
 {
-  "ok": true,
+  "ok": false,
   "version": "screen-health-monitor-v1",
   "baseUrl": "http://localhost:8888",
   "port": 8888,
-  "startedAt": "2026-08-10T10:12:46.130Z",
-  "completedAt": "2026-08-10T10:12:46.760Z",
+  "startedAt": "2026-08-10T10:41:20.282Z",
+  "completedAt": "2026-08-10T10:41:20.324Z",
   "mode": "ONCE",
   "autoRepair": true,
   "summary": {
     "total": 11,
-    "passed": 11,
-    "failed": 0,
-    "screenStatus": "HEALTHY"
+    "passed": 0,
+    "failed": 11,
+    "screenStatus": "UNHEALTHY"
   },
-  "failedRoutes": [],
+  "failedRoutes": [
+    {
+      "id": "HOME",
+      "title": "首頁太極核心",
+      "path": "/",
+      "issue": "fetch failed"
+    },
+    {
+      "id": "READY",
+      "title": "Next.js Ready",
+      "path": "/internal/health/ready",
+      "issue": "fetch failed"
+    },
+    {
+      "id": "CARD_01",
+      "title": "AI 姓名學",
+      "path": "/nameology",
+      "issue": "fetch failed"
+    },
+    {
+      "id": "CARD_02",
+      "title": "紫微斗數",
+      "path": "/insight",
+      "issue": "fetch failed"
+    },
+    {
+      "id": "CARD_03",
+      "title": "數字論吉凶",
+      "path": "/numerology",
+      "issue": "fetch failed"
+    },
+    {
+      "id": "CARD_04",
+      "title": "靈魂配對",
+      "path": "/match",
+      "issue": "fetch failed"
+    },
+    {
+      "id": "CARD_05",
+      "title": "AI 專屬生命歌曲",
+      "path": "/music",
+      "issue": "fetch failed"
+    },
+    {
+      "id": "CARD_06",
+      "title": "AI 八字命盤",
+      "path": "/bazi",
+      "issue": "fetch failed"
+    },
+    {
+      "id": "CARD_07",
+      "title": "AI 西洋星座",
+      "path": "/zodiac",
+      "issue": "fetch failed"
+    },
+    {
+      "id": "CARD_08",
+      "title": "AI 塔羅牌",
+      "path": "/tarot",
+      "issue": "fetch failed"
+    },
+    {
+      "id": "CARD_09",
+      "title": "AI 個人成長中心",
+      "path": "/growth-center",
+      "issue": "fetch failed"
+    }
+  ],
   "routes": [
     {
       "id": "HOME",
       "module": "home",
       "title": "首頁太極核心",
       "path": "/",
-      "status": "PASSED",
-      "httpStatus": 200,
-      "durationMs": 114,
-      "htmlLength": 61007,
-      "error": null,
-      "issue": null
+      "status": "FAILED",
+      "httpStatus": 0,
+      "durationMs": 26,
+      "htmlLength": 0,
+      "error": "fetch failed",
+      "issue": "fetch failed"
     },
     {
       "id": "READY",
       "module": "ready",
       "title": "Next.js Ready",
       "path": "/internal/health/ready",
-      "status": "PASSED",
-      "httpStatus": 200,
-      "durationMs": 18,
-      "htmlLength": 95,
-      "error": null,
-      "issue": null
+      "status": "FAILED",
+      "httpStatus": 0,
+      "durationMs": 1,
+      "htmlLength": 0,
+      "error": "fetch failed",
+      "issue": "fetch failed"
     },
     {
       "id": "CARD_01",
       "module": "nameology",
       "title": "AI 姓名學",
       "path": "/nameology",
-      "status": "PASSED",
-      "httpStatus": 200,
-      "durationMs": 58,
-      "htmlLength": 30131,
-      "error": null,
-      "issue": null
+      "status": "FAILED",
+      "httpStatus": 0,
+      "durationMs": 1,
+      "htmlLength": 0,
+      "error": "fetch failed",
+      "issue": "fetch failed"
     },
     {
       "id": "CARD_02",
       "module": "ziwei",
       "title": "紫微斗數",
       "path": "/insight",
-      "status": "PASSED",
-      "httpStatus": 200,
-      "durationMs": 52,
-      "htmlLength": 30759,
-      "error": null,
-      "issue": null
+      "status": "FAILED",
+      "httpStatus": 0,
+      "durationMs": 1,
+      "htmlLength": 0,
+      "error": "fetch failed",
+      "issue": "fetch failed"
     },
     {
       "id": "CARD_03",
       "module": "numerology",
       "title": "數字論吉凶",
       "path": "/numerology",
-      "status": "PASSED",
-      "httpStatus": 200,
-      "durationMs": 50,
-      "htmlLength": 24654,
-      "error": null,
-      "issue": null
+      "status": "FAILED",
+      "httpStatus": 0,
+      "durationMs": 1,
+      "htmlLength": 0,
+      "error": "fetch failed",
+      "issue": "fetch failed"
     },
     {
       "id": "CARD_04",
       "module": "soul_match",
       "title": "靈魂配對",
       "path": "/match",
-      "status": "PASSED",
-      "httpStatus": 200,
-      "durationMs": 53,
-      "htmlLength": 28743,
-      "error": null,
-      "issue": null
+      "status": "FAILED",
+      "httpStatus": 0,
+      "durationMs": 1,
+      "htmlLength": 0,
+      "error": "fetch failed",
+      "issue": "fetch failed"
     },
     {
       "id": "CARD_05",
       "module": "music",
       "title": "AI 專屬生命歌曲",
       "path": "/music",
-      "status": "PASSED",
-      "httpStatus": 200,
-      "durationMs": 55,
-      "htmlLength": 38981,
-      "error": null,
-      "issue": null
+      "status": "FAILED",
+      "httpStatus": 0,
+      "durationMs": 0,
+      "htmlLength": 0,
+      "error": "fetch failed",
+      "issue": "fetch failed"
     },
     {
       "id": "CARD_06",
       "module": "bazi",
       "title": "AI 八字命盤",
       "path": "/bazi",
-      "status": "PASSED",
-      "httpStatus": 200,
-      "durationMs": 55,
-      "htmlLength": 28058,
-      "error": null,
-      "issue": null
+      "status": "FAILED",
+      "httpStatus": 0,
+      "durationMs": 1,
+      "htmlLength": 0,
+      "error": "fetch failed",
+      "issue": "fetch failed"
     },
     {
       "id": "CARD_07",
       "module": "zodiac",
       "title": "AI 西洋星座",
       "path": "/zodiac",
-      "status": "PASSED",
-      "httpStatus": 200,
-      "durationMs": 57,
-      "htmlLength": 27739,
-      "error": null,
-      "issue": null
+      "status": "FAILED",
+      "httpStatus": 0,
+      "durationMs": 2,
+      "htmlLength": 0,
+      "error": "fetch failed",
+      "issue": "fetch failed"
     },
     {
       "id": "CARD_08",
       "module": "tarot",
       "title": "AI 塔羅牌",
       "path": "/tarot",
-      "status": "PASSED",
-      "httpStatus": 200,
-      "durationMs": 54,
-      "htmlLength": 27589,
-      "error": null,
-      "issue": null
+      "status": "FAILED",
+      "httpStatus": 0,
+      "durationMs": 2,
+      "htmlLength": 0,
+      "error": "fetch failed",
+      "issue": "fetch failed"
     },
     {
       "id": "CARD_09",
       "module": "growth_center",
       "title": "AI 個人成長中心",
       "path": "/growth-center",
-      "status": "PASSED",
-      "httpStatus": 200,
-      "durationMs": 51,
-      "htmlLength": 19236,
-      "error": null,
-      "issue": null
+      "status": "FAILED",
+      "httpStatus": 0,
+      "durationMs": 1,
+      "htmlLength": 0,
+      "error": "fetch failed",
+      "issue": "fetch failed"
     }
   ],
-  "recoveryStatus": "NOT_NEEDED"
+  "recoveryStatus": "REPAIRING"
 }

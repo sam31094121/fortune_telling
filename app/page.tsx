@@ -2675,7 +2675,7 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div className="home-core-panel relative flex w-full max-w-[360px] flex-col items-center justify-center">
+          <div className="home-core-panel relative flex w-full max-w-[430px] flex-col items-center justify-center">
             <div className="home-core-halo hidden" aria-hidden="true" />
             {USE_TAIJI_EXPERIENCE_CORE_V7 ? (
               <TaijiExperienceCoreV7 state={homeTaijiState} onStart={enterHomeTaiji} />

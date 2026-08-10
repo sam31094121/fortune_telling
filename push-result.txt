@@ -1,17 +1,1 @@
-§ä¤£¨ì C:\Users\DRAGON\Desktop\©R²z\.git\HEAD.lock
 §ä¤£¨ì C:\Users\DRAGON\Desktop\©R²z\.git\index.lock
-warning: in the working copy of 'components/taiji/TaijiExperienceCoreV7.module.css', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'components/taiji/TaijiExperienceCoreV7.tsx', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'data/ai-like-counter.backup.json', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'data/ai-like-counter.json', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'data/ai-suggestion-counter.backup.json', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'data/ai-suggestion-counter.json', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'reports/screen-health/latest.json', LF will be replaced by CRLF the next time Git touches it
-ðŸ” æª¢æŸ¥æäº¤å…§å®¹...
-âœ… æäº¤æª¢æŸ¥å®Œæˆ
-[main 4c0d2b0] TaijiV7 3D: natural sway keyframes + pointer parallax tilt + tech color totem (ice-platinum x deep-space-blue, cyan tech rim)
- 5 files changed, 279 insertions(+), 63 deletions(-)
-To https://github.com/sam31094121/fortune_telling.git
-   952db41..4c0d2b0  main -> main
-4c0d2b0 TaijiV7 3D: natural sway keyframes + pointer parallax tilt + tech color totem (ice-platinum x deep-space-blue, cyan tech rim)
-BAT_DONE 

@@ -76,59 +76,69 @@ const TWO_FORCES = [
 
 const TECH_PLANETS = [
   {
-    key: 'jupiter',
-    planet: '木星',
-    element: '木',
-    signal: '生長',
-    color: '#45e6b5',
-    x: '0px',
-    y: 'calc(var(--taiji-size) * -0.24)',
-    innerX: '0px',
-    innerY: 'calc(var(--taiji-size) * -0.11)',
+    key: 'void',
+    planet: '空',
+    signal: '感知',
+    color: '#9b5de5',
+    glow: '#7b2cbf',
+    radius: 'calc(var(--taiji-size) * 0.52)',
+    tilt: '62deg',
+    counterTilt: '-62deg',
+    duration: '18s',
+    delay: '-1s',
+    size: '18px',
   },
   {
-    key: 'mars',
-    planet: '火星',
-    element: '火',
+    key: 'wind',
+    planet: '風',
+    signal: '流速',
+    color: '#00f5d4',
+    glow: '#00c4a7',
+    radius: 'calc(var(--taiji-size) * 0.58)',
+    tilt: '54deg',
+    counterTilt: '-54deg',
+    duration: '23s',
+    delay: '-7s',
+    size: '16px',
+  },
+  {
+    key: 'water',
+    planet: '水',
+    signal: '記憶',
+    color: '#00bbf9',
+    glow: '#0077b6',
+    radius: 'calc(var(--taiji-size) * 0.64)',
+    tilt: '68deg',
+    counterTilt: '-68deg',
+    duration: '29s',
+    delay: '-13s',
+    size: '19px',
+  },
+  {
+    key: 'fire',
+    planet: '火',
     signal: '啟動',
-    color: '#ff6b5f',
-    x: 'calc(var(--taiji-size) * 0.39)',
-    y: 'calc(var(--taiji-size) * -0.12)',
-    innerX: 'calc(var(--taiji-size) * 0.19)',
-    innerY: 'calc(var(--taiji-size) * -0.06)',
+    color: '#ff6b35',
+    glow: '#ff006e',
+    radius: 'calc(var(--taiji-size) * 0.70)',
+    tilt: '50deg',
+    counterTilt: '-50deg',
+    duration: '35s',
+    delay: '-19s',
+    size: '17px',
   },
   {
-    key: 'saturn',
-    planet: '土星',
-    element: '土',
+    key: 'earth',
+    planet: '地',
     signal: '穩定',
-    color: '#e8c36a',
-    x: 'calc(var(--taiji-size) * 0.24)',
-    y: 'calc(var(--taiji-size) * 0.34)',
-    innerX: 'calc(var(--taiji-size) * 0.12)',
-    innerY: 'calc(var(--taiji-size) * 0.17)',
-  },
-  {
-    key: 'venus',
-    planet: '金星',
-    element: '金',
-    signal: '校準',
-    color: '#e7edf7',
-    x: 'calc(var(--taiji-size) * -0.24)',
-    y: 'calc(var(--taiji-size) * 0.34)',
-    innerX: 'calc(var(--taiji-size) * -0.12)',
-    innerY: 'calc(var(--taiji-size) * 0.17)',
-  },
-  {
-    key: 'mercury',
-    planet: '水星',
-    element: '水',
-    signal: '流動',
-    color: '#61b8ff',
-    x: 'calc(var(--taiji-size) * -0.39)',
-    y: 'calc(var(--taiji-size) * -0.12)',
-    innerX: 'calc(var(--taiji-size) * -0.19)',
-    innerY: 'calc(var(--taiji-size) * -0.06)',
+    color: '#fee440',
+    glow: '#f4a261',
+    radius: 'calc(var(--taiji-size) * 0.76)',
+    tilt: '58deg',
+    counterTilt: '-58deg',
+    duration: '42s',
+    delay: '-27s',
+    size: '20px',
   },
 ] as const;
 
@@ -181,13 +191,16 @@ function polarStyle(index: number, total: number, radius: string) {
   } as CSSProperties;
 }
 
-function planetCoordinateStyle(item: (typeof TECH_PLANETS)[number]) {
+function planetOrbitStyle(item: (typeof TECH_PLANETS)[number]) {
   return {
     '--planet-color': item.color,
-    '--planet-x': item.x,
-    '--planet-y': item.y,
-    '--inner-planet-x': item.innerX,
-    '--inner-planet-y': item.innerY,
+    '--planet-glow': item.glow,
+    '--orbit-radius': item.radius,
+    '--orbit-tilt': item.tilt,
+    '--orbit-counter-tilt': item.counterTilt,
+    '--orbit-duration': item.duration,
+    '--orbit-delay': item.delay,
+    '--planet-size': item.size,
   } as CSSProperties;
 }
 
@@ -282,30 +295,20 @@ export default function TaijiExperienceCoreV7({ state, onStart }: TaijiExperienc
         <span className={styles.mainLight} aria-hidden="true" />
         <span className={styles.groundShadow} aria-hidden="true" />
 
-        <div className={styles.planetSystem} aria-hidden="true">
-          <div className={styles.innerPlanetLayer}>
-            {TECH_PLANETS.map((item) => (
-              <span
-                key={`${item.key}-inner`}
-                className={styles.innerPlanet}
-                style={planetCoordinateStyle(item)}
-              >
-                <i />
+        {/* WebGL 啟用時由 Three.js 呈現五行星，隱藏 DOM 版避免雙重行星 */}
+        <div className={styles.planetSystem} data-webgl-hidden={useWebGL3D} aria-hidden="true">
+          {TECH_PLANETS.map((item) => (
+            <span key={item.key} className={styles.planetOrbit} style={planetOrbitStyle(item)}>
+              <span className={styles.orbitLine} />
+              <span className={styles.orbitRunner}>
+                <span className={styles.outerPlanet}>
+                  <i />
+                  <b>{item.planet}</b>
+                  <small>{item.signal}</small>
+                </span>
               </span>
-            ))}
-          </div>
-          <div className={styles.outerPlanetLayer}>
-            {TECH_PLANETS.map((item) => (
-              <span
-                key={item.key}
-                className={styles.outerPlanet}
-                style={planetCoordinateStyle(item)}
-              >
-                <b>{item.planet}</b>
-                <small>{item.element} · {item.signal}</small>
-              </span>
-            ))}
-          </div>
+            </span>
+          ))}
         </div>
 
         <div className={styles.twoForces} aria-hidden="true">
