@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTaijiPerformance, type TaijiQuality } from './useTaijiPerformance';
 import styles from './TaijiExperienceCoreV7.module.css';
 
@@ -62,11 +62,61 @@ const TWO_FORCES = [
 ] as const;
 
 const TECH_PLANETS = [
-  { key: 'jupiter', planet: '木星', element: '木', signal: '生長', color: '#45e6b5' },
-  { key: 'mars', planet: '火星', element: '火', signal: '啟動', color: '#ff6b5f' },
-  { key: 'saturn', planet: '土星', element: '土', signal: '穩定', color: '#e8c36a' },
-  { key: 'venus', planet: '金星', element: '金', signal: '校準', color: '#e7edf7' },
-  { key: 'mercury', planet: '水星', element: '水', signal: '流動', color: '#61b8ff' },
+  {
+    key: 'jupiter',
+    planet: '木星',
+    element: '木',
+    signal: '生長',
+    color: '#45e6b5',
+    x: '0px',
+    y: 'calc(var(--taiji-size) * -0.39)',
+    innerX: '0px',
+    innerY: 'calc(var(--taiji-size) * -0.19)',
+  },
+  {
+    key: 'mars',
+    planet: '火星',
+    element: '火',
+    signal: '啟動',
+    color: '#ff6b5f',
+    x: 'calc(var(--taiji-size) * 0.39)',
+    y: 'calc(var(--taiji-size) * -0.12)',
+    innerX: 'calc(var(--taiji-size) * 0.19)',
+    innerY: 'calc(var(--taiji-size) * -0.06)',
+  },
+  {
+    key: 'saturn',
+    planet: '土星',
+    element: '土',
+    signal: '穩定',
+    color: '#e8c36a',
+    x: 'calc(var(--taiji-size) * 0.24)',
+    y: 'calc(var(--taiji-size) * 0.34)',
+    innerX: 'calc(var(--taiji-size) * 0.12)',
+    innerY: 'calc(var(--taiji-size) * 0.17)',
+  },
+  {
+    key: 'venus',
+    planet: '金星',
+    element: '金',
+    signal: '校準',
+    color: '#e7edf7',
+    x: 'calc(var(--taiji-size) * -0.24)',
+    y: 'calc(var(--taiji-size) * 0.34)',
+    innerX: 'calc(var(--taiji-size) * -0.12)',
+    innerY: 'calc(var(--taiji-size) * 0.17)',
+  },
+  {
+    key: 'mercury',
+    planet: '水星',
+    element: '水',
+    signal: '流動',
+    color: '#61b8ff',
+    x: 'calc(var(--taiji-size) * -0.39)',
+    y: 'calc(var(--taiji-size) * -0.12)',
+    innerX: 'calc(var(--taiji-size) * -0.19)',
+    innerY: 'calc(var(--taiji-size) * -0.06)',
+  },
 ] as const;
 
 const FOUR_SYMBOLS = [
@@ -125,13 +175,60 @@ function planetStyle(index: number, total: number, radius: string, color: string
   } as CSSProperties;
 }
 
+function planetCoordinateStyle(item: (typeof TECH_PLANETS)[number]) {
+  return {
+    '--planet-color': item.color,
+    '--planet-x': item.x,
+    '--planet-y': item.y,
+    '--inner-planet-x': item.innerX,
+    '--inner-planet-y': item.innerY,
+  } as CSSProperties;
+}
+
+/** 指標視差上限（度）：小幅度才自然，過大會暈 */
+const TILT_MAX_DEG = 6;
+
 export default function TaijiExperienceCoreV7({ state, onStart }: TaijiExperienceCoreV7Props) {
   const quality = useTaijiPerformance();
   const [tap, setTap] = useState(0);
+  const stageRef = useRef<HTMLDivElement>(null);
+
+  // 3D 指標視差：滑鼠/觸控靠近時太極自然朝向使用者傾斜，離開緩慢回正
+  useEffect(() => {
+    const node = stageRef.current;
+    if (!node || typeof window === 'undefined') return;
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+
+    const setTilt = (x: number, y: number) => {
+      node.style.setProperty('--tilt-x', `${x.toFixed(2)}deg`);
+      node.style.setProperty('--tilt-y', `${y.toFixed(2)}deg`);
+    };
+
+    const onMove = (event: PointerEvent) => {
+      if (reduced?.matches) return;
+      const rect = node.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const ratioX = (event.clientX - rect.left) / rect.width - 0.5;
+      const ratioY = (event.clientY - rect.top) / rect.height - 0.5;
+      setTilt(ratioX * TILT_MAX_DEG * 2, ratioY * -TILT_MAX_DEG * 2);
+    };
+
+    const onReset = () => setTilt(0, 0);
+
+    node.addEventListener('pointermove', onMove, { passive: true });
+    node.addEventListener('pointerleave', onReset, { passive: true });
+    node.addEventListener('pointercancel', onReset, { passive: true });
+
+    return () => {
+      node.removeEventListener('pointermove', onMove);
+      node.removeEventListener('pointerleave', onReset);
+      node.removeEventListener('pointercancel', onReset);
+    };
+  }, []);
   const expansionState = stageFromTap(tap);
   const interactiveState = state.state === 'IDLE' ? expansionState : state.state;
   const displayState = mergeQualityState(interactiveState, quality);
-  const isFocusOpen = expansionState !== 'IDLE';
+  const isFocusOpen = expansionState !== 'IDLE' || displayState === 'ANALYZING' || displayState === 'RESULT_READY';
   const isEightOpen = expansionState === 'EXPAND_EIGHT';
   const isFourOpen = isEightOpen || expansionState === 'EXPAND_FOUR';
   const isTwoOpen = isFourOpen || expansionState === 'EXPAND_TWO';
@@ -167,28 +264,28 @@ export default function TaijiExperienceCoreV7({ state, onStart }: TaijiExperienc
       aria-label="天地人和核心"
     >
       <p className={styles.brand}>天地人和 AI</p>
-      <div className={styles.coreStage}>
+      <div ref={stageRef} className={styles.coreStage}>
         <span className={styles.mainLight} aria-hidden="true" />
         <span className={styles.groundShadow} aria-hidden="true" />
 
         <div className={styles.planetSystem} aria-hidden="true">
           <div className={styles.innerPlanetLayer}>
-            {TECH_PLANETS.map((item, index) => (
+            {TECH_PLANETS.map((item) => (
               <span
                 key={`${item.key}-inner`}
                 className={styles.innerPlanet}
-                style={planetStyle(index, TECH_PLANETS.length, 'calc(var(--taiji-size) * 0.295)', item.color)}
+                style={planetCoordinateStyle(item)}
               >
                 <i />
               </span>
             ))}
           </div>
           <div className={styles.outerPlanetLayer}>
-            {TECH_PLANETS.map((item, index) => (
+            {TECH_PLANETS.map((item) => (
               <span
                 key={item.key}
                 className={styles.outerPlanet}
-                style={planetStyle(index, TECH_PLANETS.length, 'calc(var(--taiji-size) * 0.47)', item.color)}
+                style={planetCoordinateStyle(item)}
               >
                 <b>{item.planet}</b>
                 <small>{item.element} · {item.signal}</small>
@@ -226,18 +323,29 @@ export default function TaijiExperienceCoreV7({ state, onStart }: TaijiExperienc
         <button type="button" className={styles.taijiButton} onClick={handleCoreClick} aria-label="展開太極核心">
           <svg viewBox="0 0 200 200" className={styles.taijiSvg} aria-hidden="true">
             <defs>
+              {/* 科技色系：陽＝冰鉑白（帶青色科技光感） */}
               <radialGradient id="v7Yang" cx="28%" cy="18%" r="90%">
                 <stop offset="0%" stopColor="#ffffff" />
-                <stop offset="58%" stopColor="#f7f7f2" />
-                <stop offset="100%" stopColor="#c8d0d8" />
+                <stop offset="46%" stopColor="#eef5fb" />
+                <stop offset="82%" stopColor="#d3e2f0" />
+                <stop offset="100%" stopColor="#a9c3da" />
               </radialGradient>
+              {/* 科技色系：陰＝深空藍黑（科技深度） */}
               <radialGradient id="v7Yin" cx="35%" cy="22%" r="90%">
-                <stop offset="0%" stopColor="#1d2430" />
-                <stop offset="62%" stopColor="#05070a" />
-                <stop offset="100%" stopColor="#000000" />
+                <stop offset="0%" stopColor="#274059" />
+                <stop offset="46%" stopColor="#0c1626" />
+                <stop offset="82%" stopColor="#040a14" />
+                <stop offset="100%" stopColor="#010307" />
               </radialGradient>
+              {/* 科技環：青→電藍髮絲光 */}
+              <linearGradient id="v7TechRim" x1="8%" y1="0%" x2="92%" y2="100%">
+                <stop offset="0%" stopColor="#8ef0ff" />
+                <stop offset="45%" stopColor="#3f9edd" />
+                <stop offset="100%" stopColor="#1c4a74" />
+              </linearGradient>
             </defs>
             <circle cx="100" cy="100" r="96" className={styles.outerRing} />
+            <circle cx="100" cy="100" r="96.6" fill="none" stroke="url(#v7TechRim)" strokeWidth="1.4" opacity="0.85" />
             <path
               className={`${styles.fish} ${styles.yinFish}`}
               d="M100 4 A96 96 0 0 1 100 196 A48 48 0 0 1 100 100 A48 48 0 0 0 100 4"

@@ -1,1 +1,2 @@
+找不到 C:\Users\DRAGON\Desktop\命理\.git\HEAD.lock
 找不到 C:\Users\DRAGON\Desktop\命理\.git\index.lock

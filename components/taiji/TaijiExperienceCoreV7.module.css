@@ -45,10 +45,10 @@
 .coreStage {
   position: relative;
   display: grid;
-  width: min(100%, calc(var(--taiji-size) + 44px));
+  width: min(100%, calc(var(--taiji-size) + 58px));
   aspect-ratio: 1;
   place-items: center;
-  perspective: 900px;
+  perspective: 1050px;
   transform-style: preserve-3d;
 }
 
@@ -61,24 +61,29 @@
   border-radius: 999px;
   content: '';
   pointer-events: none;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) rotateX(64deg) translateZ(-34px);
+  transform-style: preserve-3d;
 }
 
 .coreStage::before {
   z-index: 1;
-  border: 1px solid rgba(125, 211, 252, 0.2);
+  border: 1px solid rgba(125, 211, 252, 0.34);
   background:
-    conic-gradient(from 12deg, rgba(34, 211, 238, 0.26), transparent 18%, rgba(255, 255, 255, 0.14) 35%, transparent 52%, rgba(232, 195, 106, 0.16) 74%, transparent 88%),
-    radial-gradient(circle, transparent 62%, rgba(15, 23, 42, 0.34) 63%, transparent 66%);
-  opacity: 0.7;
+    conic-gradient(from 12deg, rgba(34, 211, 238, 0.5), transparent 18%, rgba(255, 255, 255, 0.24) 35%, transparent 52%, rgba(232, 195, 106, 0.28) 74%, transparent 88%),
+    radial-gradient(circle, transparent 57%, rgba(14, 165, 233, 0.28) 58%, transparent 61%, transparent 70%, rgba(15, 23, 42, 0.36) 71%, transparent 74%);
+  opacity: 0.86;
   animation: techSweep 18s linear infinite;
+  box-shadow:
+    0 0 28px rgba(34, 211, 238, 0.18),
+    inset 0 0 22px rgba(226, 232, 240, 0.12);
 }
 
 .coreStage::after {
   z-index: 2;
-  width: calc(var(--taiji-size) * 0.76);
-  border: 1px dashed rgba(226, 232, 240, 0.22);
-  opacity: 0.45;
+  width: calc(var(--taiji-size) * 1.18);
+  border: 1px dashed rgba(226, 232, 240, 0.3);
+  opacity: 0.62;
+  box-shadow: 0 0 24px rgba(96, 165, 250, 0.12);
 }
 
 .mainLight,
@@ -98,12 +103,12 @@
 
 .groundShadow {
   left: 50%;
-  bottom: 9%;
-  width: 62%;
-  height: 12%;
-  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.42), transparent 70%);
-  transform: translateX(-50%) rotateX(72deg);
-  opacity: 0.58;
+  bottom: 5%;
+  width: 76%;
+  height: 18%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.58), rgba(15, 23, 42, 0.26) 48%, transparent 74%);
+  transform: translateX(-50%) rotateX(72deg) translateZ(-72px);
+  opacity: 0.72;
 }
 
 .taijiButton {
@@ -120,7 +125,41 @@
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  transform: translateZ(36px);
+  transform: translateZ(58px);
+  transform-style: preserve-3d;
+}
+
+.taijiButton::before,
+.taijiButton::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  content: '';
+  pointer-events: none;
+}
+
+.taijiButton::before {
+  z-index: -1;
+  background:
+    conic-gradient(from 168deg, rgba(142, 240, 255, 0.42), rgba(2, 6, 23, 0.84), rgba(232, 195, 106, 0.24), rgba(2, 6, 23, 0.9), rgba(142, 240, 255, 0.42)),
+    radial-gradient(circle at 34% 18%, rgba(255, 255, 255, 0.22), transparent 36%),
+    linear-gradient(145deg, rgba(148, 163, 184, 0.26), rgba(2, 6, 23, 0.86));
+  box-shadow:
+    0 34px 42px rgba(0, 0, 0, 0.5),
+    0 0 32px rgba(34, 211, 238, 0.2),
+    inset -16px -20px 28px rgba(0, 0, 0, 0.42),
+    inset 16px 14px 28px rgba(255, 255, 255, 0.14);
+  transform: translateZ(-34px) scale(1.035);
+}
+
+.taijiButton::after {
+  z-index: 2;
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.18) 20%, transparent 38%),
+    radial-gradient(circle at 74% 72%, rgba(34, 211, 238, 0.16), transparent 30%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.16), transparent 48%, rgba(0, 0, 0, 0.18));
+  mix-blend-mode: screen;
+  transform: translateZ(24px) scale(0.98);
 }
 
 .taijiButton:focus-visible {
@@ -129,14 +168,17 @@
 }
 
 .taijiSvg {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   display: block;
   overflow: visible;
   filter:
-    drop-shadow(0 22px 28px rgba(0, 0, 0, 0.42))
-    drop-shadow(0 0 20px rgba(226, 232, 240, 0.16));
+    drop-shadow(0 24px 26px rgba(0, 0, 0, 0.36))
+    drop-shadow(0 0 28px rgba(34, 211, 238, 0.22));
   transform-origin: center;
+  transform: translateZ(18px);
   animation: taijiRotate 42s linear infinite, taijiBreathe 7s ease-in-out infinite;
   will-change: transform;
 }
@@ -200,6 +242,7 @@
 
 .planetSystem {
   z-index: 7;
+  transform-style: preserve-3d;
 }
 
 .innerPlanet,
@@ -218,14 +261,20 @@
 }
 
 .innerPlanet {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border: 1px solid color-mix(in srgb, var(--planet-color), white 22%);
   background: rgba(2, 6, 23, 0.72);
   box-shadow:
     0 0 0 4px color-mix(in srgb, var(--planet-color), transparent 86%),
     0 0 14px color-mix(in srgb, var(--planet-color), transparent 46%);
   opacity: 0.92;
+  transform:
+    rotate(var(--node-angle))
+    translateY(calc(var(--node-radius) * -1))
+    rotate(var(--node-counter-angle))
+    translate(-50%, -50%)
+    translateZ(94px);
 }
 
 .innerPlanet i {
@@ -237,20 +286,25 @@
 }
 
 .outerPlanet {
-  width: 58px;
-  min-height: 38px;
+  width: 66px;
+  min-height: 42px;
   border: 1px solid color-mix(in srgb, var(--planet-color), transparent 56%);
   background:
     linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(2, 6, 23, 0.62)),
     radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--planet-color), transparent 70%), transparent 64%);
   color: #f8fafc;
   opacity: 0;
-  padding: 5px 6px;
+  padding: 6px 7px;
+  box-shadow:
+    0 12px 22px rgba(0, 0, 0, 0.36),
+    0 0 18px color-mix(in srgb, var(--planet-color), transparent 68%),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transform:
     rotate(var(--node-angle))
     translateY(calc(var(--node-radius) * -1))
     rotate(var(--node-counter-angle))
     translate(-50%, -50%)
+    translateZ(86px)
     scale(0.78);
   transition: opacity 360ms ease, transform 560ms cubic-bezier(0.18, 0.72, 0.2, 1);
 }
@@ -262,13 +316,13 @@
 
 .outerPlanet b {
   color: color-mix(in srgb, var(--planet-color), white 24%);
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 950;
 }
 
 .outerPlanet small {
   color: rgba(226, 232, 240, 0.78);
-  font-size: 0.54rem;
+  font-size: 0.56rem;
   font-weight: 800;
 }
 
@@ -466,6 +520,7 @@
     translateY(calc(var(--node-radius) * -1))
     rotate(var(--node-counter-angle))
     translate(-50%, -50%)
+    translateZ(86px)
     scale(1);
 }
 
@@ -679,4 +734,56 @@
   color: rgba(238, 228, 202, 0.98) !important;
   text-shadow: 0 0 12px rgba(238, 228, 202, 0.45);
   font-weight: 900;
+}
+
+/* ===== V7 3D 立體 · 自然形成變化 ===== */
+/* 三層 3D 組合：shell 提供景深 → coreStage 承接指標視差 → taijiButton 自主自然搖曳 */
+.shell {
+  perspective: 1200px;
+}
+
+.coreStage {
+  transform: rotateY(var(--tilt-x, 0deg)) rotateX(var(--tilt-y, 0deg));
+  transition: transform 420ms cubic-bezier(0.22, 0.82, 0.24, 1);
+  will-change: transform;
+}
+
+/* 自然搖曳：非機械式——四段不對稱的緩慢 3D 擺動，像懸浮實體隨氣流自然變化 */
+.taijiButton {
+  transform-style: preserve-3d;
+  animation: taijiSway3d 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes taijiSway3d {
+  0%, 100% { transform: rotateX(8deg) rotateY(-8deg) translateZ(28px); }
+  23% { transform: rotateX(-6deg) rotateY(7deg) translateZ(44px); }
+  47% { transform: rotateX(7deg) rotateY(9deg) translateZ(32px); }
+  71% { transform: rotateX(-8deg) rotateY(-6deg) translateZ(42px); }
+}
+
+/* MEDIUM：擺幅減半節奏放慢 */
+.shell[data-quality='MEDIUM'] .taijiButton {
+  animation-duration: 24s;
+}
+
+/* LOW：關 3D 擺動與視差（功能不變） */
+.shell[data-quality='LOW'] .taijiButton {
+  animation: none;
+}
+
+.shell[data-quality='LOW'] .coreStage {
+  transform: none;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .taijiButton {
+    animation: none;
+  }
+
+  .coreStage {
+    transform: none;
+    transition: none;
+  }
 }
