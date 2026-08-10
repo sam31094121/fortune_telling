@@ -1,0 +1,485 @@
+.shell {
+  --taiji-size: min(78vw, 320px);
+  --node-angle: 0deg;
+  --node-radius: 47%;
+  --node-counter-angle: 0deg;
+  position: relative;
+  display: grid;
+  width: min(100%, 390px);
+  min-height: min(94vh, 610px);
+  place-items: center;
+  gap: 14px;
+  padding: clamp(18px, 5vw, 28px) clamp(12px, 4vw, 22px);
+  color: #f8fafc;
+  text-align: center;
+  isolation: isolate;
+  contain: layout paint;
+}
+
+.shell::before {
+  position: absolute;
+  inset: 5% 1% 6%;
+  z-index: -2;
+  border-radius: 32px;
+  content: '';
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.1), transparent 18%),
+    radial-gradient(ellipse at 50% 52%, rgba(148, 163, 184, 0.16), transparent 54%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.18), rgba(2, 6, 23, 0.04));
+}
+
+.brand {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.92);
+  font-size: clamp(1.22rem, 6.1vw, 1.7rem);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.12;
+}
+
+.coreStage {
+  position: relative;
+  display: grid;
+  width: min(100%, calc(var(--taiji-size) + 44px));
+  aspect-ratio: 1;
+  place-items: center;
+  perspective: 900px;
+  transform-style: preserve-3d;
+}
+
+.mainLight,
+.groundShadow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 999px;
+}
+
+.mainLight {
+  inset: 3% 6% auto auto;
+  width: 34%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.56), rgba(226, 232, 240, 0.16) 42%, transparent 72%);
+  opacity: 0.72;
+}
+
+.groundShadow {
+  left: 50%;
+  bottom: 9%;
+  width: 62%;
+  height: 12%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.42), transparent 70%);
+  transform: translateX(-50%) rotateX(72deg);
+  opacity: 0.58;
+}
+
+.taijiButton {
+  position: relative;
+  z-index: 6;
+  display: grid;
+  width: var(--taiji-size);
+  aspect-ratio: 1;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transform: translateZ(36px);
+}
+
+.taijiButton:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.84);
+  outline-offset: 8px;
+}
+
+.taijiSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+  filter:
+    drop-shadow(0 22px 28px rgba(0, 0, 0, 0.42))
+    drop-shadow(0 0 20px rgba(226, 232, 240, 0.16));
+  transform-origin: center;
+  animation: taijiRotate 42s linear infinite, taijiBreathe 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+.outerRing {
+  fill: rgba(248, 250, 252, 0.04);
+  stroke: rgba(248, 250, 252, 0.7);
+  stroke-width: 1.8;
+}
+
+.fish {
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 440ms ease, transform 720ms cubic-bezier(0.18, 0.72, 0.2, 1);
+}
+
+.yinFish {
+  fill: url(#v7Yin);
+}
+
+.yangFish {
+  fill: url(#v7Yang);
+}
+
+.lightEye {
+  fill: #f8fafc;
+  stroke: rgba(2, 6, 23, 0.68);
+  stroke-width: 1.6;
+}
+
+.darkEye {
+  fill: #020617;
+  stroke: rgba(255, 255, 255, 0.68);
+  stroke-width: 1.6;
+}
+
+.surfaceLight {
+  fill: rgba(255, 255, 255, 0.16);
+  mix-blend-mode: screen;
+}
+
+.twoForces,
+.fourNodes,
+.baguaNodes {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.forceNode,
+.fourNodes span,
+.baguaNode {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.88);
+  transition: opacity 360ms ease, transform 520ms cubic-bezier(0.18, 0.72, 0.2, 1);
+}
+
+.forceNode {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(248, 250, 252, 0.28);
+  background: rgba(15, 23, 42, 0.58);
+  color: #f8fafc;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.forceYin {
+  margin-left: calc(var(--taiji-size) * -0.42);
+}
+
+.forceYang {
+  margin-left: calc(var(--taiji-size) * 0.42);
+}
+
+.fourNodes span {
+  width: 58px;
+  min-height: 26px;
+  padding: 0 7px;
+  border: 1px solid rgba(226, 232, 240, 0.22);
+  background: rgba(248, 250, 252, 0.78);
+  color: #0f172a;
+  font-size: 0.68rem;
+  font-weight: 900;
+  transform:
+    rotate(var(--node-angle))
+    translateY(calc(var(--node-radius) * -1))
+    rotate(var(--node-counter-angle))
+    translate(-50%, -50%)
+    scale(0.9);
+}
+
+.baguaNodes {
+  z-index: 8;
+}
+
+.baguaNode {
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(226, 232, 240, 0.2);
+  background: rgba(2, 6, 23, 0.66);
+  color: #f8fafc;
+  text-decoration: none;
+  pointer-events: auto;
+  transform:
+    rotate(var(--node-angle))
+    translateY(calc(var(--node-radius) * -1))
+    rotate(var(--node-counter-angle))
+    translate(-50%, -50%)
+    scale(0.82);
+}
+
+.baguaNode b {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.baguaNode span,
+.baguaNode small {
+  line-height: 1;
+}
+
+.baguaNode span {
+  font-size: 0.64rem;
+  font-weight: 900;
+}
+
+.baguaNode small {
+  color: rgba(203, 213, 225, 0.74);
+  font-size: 0.55rem;
+  font-weight: 700;
+}
+
+.status {
+  display: grid;
+  gap: 6px;
+  max-width: 320px;
+}
+
+.status p,
+.status strong,
+.status span {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.status p {
+  color: rgba(248, 250, 252, 0.95);
+  font-size: clamp(1rem, 4.5vw, 1.18rem);
+  font-weight: 900;
+}
+
+.status strong,
+.status span {
+  color: rgba(203, 213, 225, 0.88);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.analysisRail {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: min(100%, 300px);
+  gap: 8px;
+}
+
+.analysisRail span {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid rgba(34, 197, 94, 0.24);
+  border-radius: 999px;
+  background: rgba(22, 101, 52, 0.14);
+  padding: 7px 10px;
+  color: rgba(220, 252, 231, 0.96);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.analysisRail b {
+  color: #bbf7d0;
+}
+
+.actions {
+  display: flex;
+  width: min(100%, 320px);
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  min-height: 44px;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0 18px;
+  font-size: 0.86rem;
+  font-weight: 950;
+  letter-spacing: 0;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.primaryAction {
+  border: 1px solid rgba(248, 250, 252, 0.62);
+  background: rgba(248, 250, 252, 0.92);
+  color: #020617;
+}
+
+.primaryAction b {
+  margin-left: 8px;
+}
+
+.secondaryAction {
+  border: 1px solid rgba(226, 232, 240, 0.18);
+  background: rgba(15, 23, 42, 0.54);
+  color: #f8fafc;
+}
+
+.shell[data-two-open='true'] .forceNode {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.shell[data-four-open='true'] .fourNodes span {
+  opacity: 1;
+  transform:
+    rotate(var(--node-angle))
+    translateY(calc(var(--node-radius) * -1))
+    rotate(var(--node-counter-angle))
+    translate(-50%, -50%)
+    scale(1);
+}
+
+.shell[data-eight-open='true'] .baguaNode {
+  opacity: 1;
+  transform:
+    rotate(var(--node-angle))
+    translateY(calc(var(--node-radius) * -1))
+    rotate(var(--node-counter-angle))
+    translate(-50%, -50%)
+    scale(1);
+}
+
+.shell[data-state='EXPAND_TWO'] .yinFish {
+  transform: translateX(-7px) rotate(-2deg);
+}
+
+.shell[data-state='EXPAND_TWO'] .yangFish {
+  transform: translateX(7px) rotate(2deg);
+}
+
+.shell[data-state='EXPAND_FOUR'] .yinFish,
+.shell[data-state='EXPAND_EIGHT'] .yinFish {
+  transform: translateX(-11px) rotate(-4deg) scale(0.985);
+}
+
+.shell[data-state='EXPAND_FOUR'] .yangFish,
+.shell[data-state='EXPAND_EIGHT'] .yangFish {
+  transform: translateX(11px) rotate(4deg) scale(0.985);
+}
+
+.shell[data-state='RESULT_READY'] .taijiSvg {
+  filter:
+    drop-shadow(0 22px 28px rgba(0, 0, 0, 0.42))
+    drop-shadow(0 0 34px rgba(255, 255, 255, 0.26));
+}
+
+.shell[data-quality='MEDIUM'] .mainLight,
+.shell[data-quality='MEDIUM'] .groundShadow {
+  opacity: 0.42;
+}
+
+.shell[data-quality='LOW'] {
+  min-height: min(92vh, 560px);
+}
+
+.shell[data-quality='LOW'] .mainLight,
+.shell[data-quality='LOW'] .groundShadow,
+.shell[data-quality='LOW']::before {
+  display: none;
+}
+
+.shell[data-quality='LOW'] .taijiSvg {
+  animation: taijiBreathe 8s ease-in-out infinite;
+  filter: none;
+}
+
+@keyframes taijiRotate {
+  from {
+    rotate: 0deg;
+  }
+
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes taijiBreathe {
+  0%,
+  100% {
+    scale: 0.986;
+    opacity: 0.94;
+  }
+
+  50% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .shell {
+    width: min(100%, 430px);
+    min-height: 620px;
+  }
+}
+
+@media (max-width: 360px) {
+  .shell {
+    --taiji-size: min(76vw, 288px);
+    gap: 11px;
+    padding-inline: 8px;
+  }
+
+  .forceNode {
+    width: 38px;
+    height: 38px;
+    font-size: 0.78rem;
+  }
+
+  .fourNodes span {
+    width: 50px;
+    min-height: 24px;
+    font-size: 0.6rem;
+  }
+
+  .baguaNode {
+    width: 42px;
+    height: 42px;
+  }
+
+  .baguaNode small {
+    display: none;
+  }
+
+  .actions {
+    width: min(100%, 292px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .taijiSvg {
+    animation: none;
+  }
+
+  .fish,
+  .forceNode,
+  .fourNodes span,
+  .baguaNode {
+    transition-duration: 1ms;
+  }
+}
+

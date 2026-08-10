@@ -13,7 +13,7 @@ import { getCompletedGrowthModules, markGrowthModuleCompleted } from '@/lib/grow
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
-import TaijiCore from '@/components/taiji/TaijiCore';
+import TaijiExperienceCoreV7, { type TaijiCoreState } from '@/components/taiji/TaijiExperienceCoreV7';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
@@ -235,6 +235,7 @@ const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { bloodType: false, gender: fa
 const SHOW_HOME_EMBEDDED_MATCH = false;
 const SHOW_HOME_FLOATING_NUMBER_BUTTON = false;
 const GROWTH_VIP_TOTAL_MODULES = 8;
+const USE_TAIJI_EXPERIENCE_CORE_V7 = process.env.NEXT_PUBLIC_TAIJI_EXPERIENCE_CORE_V7 !== '0';
 
 const BLOOD_DESC: Record<PersonInput['bloodType'], string> = {
   A: '細膩穩定，重視秩序與安全感。',
@@ -1233,6 +1234,32 @@ const HOME_GROWTH_MODULE_GUIDES: HomeGrowthModuleGuide[] = [
   { id: 'zodiac', label: 'AI 西洋星座', helper: '完成西洋星座人格分析。', cta: '去完成西洋星座', href: '/zodiac', sticky: '加入星座人格與每週提醒。', reward: '完成後，每週提醒會更像你的語氣。' },
   { id: 'tarot', label: 'AI 塔羅牌', helper: '完成塔羅牌抽牌、正逆位與五元素判定。', cta: '去完成塔羅牌', href: '/tarot', sticky: '用當下提問補齊最後一段訊號。', reward: '完成後，8/8 就能打開 AI 個人成長中心。' },
 ];
+
+function buildHomeTaijiState(completed: number, completedModules: string[], total: number): TaijiCoreState {
+  const completedSet = new Set(completedModules);
+  const safeTotal = Math.max(1, total);
+  const safeCompleted = Math.min(Math.max(completed, 0), safeTotal);
+  const nextGuide = HOME_GROWTH_MODULE_GUIDES.find((module) => !completedSet.has(module.id));
+
+  return {
+    state: safeCompleted >= safeTotal ? 'RESULT_READY' : 'IDLE',
+    progress: {
+      completed: safeCompleted,
+      total: safeTotal,
+    },
+    nextModule: nextGuide
+      ? {
+          id: nextGuide.id,
+          label: nextGuide.label,
+          href: nextGuide.href ?? '/',
+        }
+      : {
+          id: 'growth_center',
+          label: 'AI 個人成長中心',
+          href: '/growth-center',
+        },
+  };
+}
 
 type VipGrowthUnlockCardProps = {
   completed: number;
@@ -2513,6 +2540,11 @@ export default function HomePage() {
   }
 
   const fortuneAura = getNumberFortuneAura(fortuneResult?.level);
+  const homeTaijiState = buildHomeTaijiState(growthCompletedCount, growthCompletedModules, GROWTH_VIP_TOTAL_MODULES);
+  const enterHomeTaiji = () => {
+    const target = document.getElementById('home-eight-card-route');
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <div className="app-bg min-h-screen overflow-hidden">
@@ -2618,7 +2650,11 @@ export default function HomePage() {
           </div>
           <div className="home-core-panel relative flex w-full max-w-[360px] flex-col items-center justify-center">
             <div className="home-core-halo hidden" aria-hidden="true" />
-            <TaijiCore />
+            {USE_TAIJI_EXPERIENCE_CORE_V7 ? (
+              <TaijiExperienceCoreV7 state={homeTaijiState} onStart={enterHomeTaiji} />
+            ) : (
+              <TaijiStandaloneCard />
+            )}
             <div className="home-command-panel hidden mt-5 w-full">
               <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
                 <span className="text-[10px] font-black uppercase tracking-[0.28em] text-cyan-200">Command Sync</span>
