@@ -13196,22 +13196,31 @@ body.app-touching .home-taiji-cinema * {
 .tarot-question-entry__submit {
   display: inline-flex;
   width: 100%;
-  min-height: 48px;
+  min-height: 62px;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   border-radius: 999px;
   border: 1px solid rgba(125, 211, 252, 0.36);
-  padding: 0.86rem 1.75rem;
+  padding: 1.05rem 2.2rem;
   color: rgb(236, 254, 255);
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 950;
   line-height: 1.2;
+  letter-spacing: 0.04em;
   box-shadow: 0 0 34px rgba(34, 211, 238, 0.18);
   transition: transform 180ms ease, opacity 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
 }
 
 .tarot-question-entry__submit--ready {
-  background: linear-gradient(135deg, rgba(8, 145, 178, 0.46), rgba(251, 191, 36, 0.18));
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.52), rgba(251, 191, 36, 0.24));
+  border-color: rgba(165, 243, 252, 0.55);
+  animation: tarot-submit-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes tarot-submit-breathe {
+  0%, 100% { box-shadow: 0 0 30px rgba(34, 211, 238, 0.2); }
+  50% { box-shadow: 0 0 52px rgba(34, 211, 238, 0.42), 0 0 26px rgba(251, 191, 36, 0.2); }
 }
 
 .tarot-question-entry__submit--locked {
@@ -13281,7 +13290,7 @@ body.app-touching .home-taiji-cinema * {
   transform: rotateX(74deg) translateZ(-68px);
 }
 
-.tarot-experience-deck-preview span {
+.tarot-experience-deck-preview__card {
   position: absolute;
   width: 7rem;
   aspect-ratio: 9 / 14;
@@ -13317,9 +13326,63 @@ body.app-touching .home-taiji-cinema * {
   animation: tarotPreviewCardSettle 1.25s cubic-bezier(.16, .84, .2, 1) both;
   animation-delay: var(--preview-delay);
   will-change: transform, filter, opacity;
+  overflow: hidden;
 }
 
-.tarot-experience-deck-preview span::before {
+.tarot-experience-deck-preview__card img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+  opacity: 0.72;
+  filter: saturate(0.94) contrast(1.04) brightness(0.92);
+  mix-blend-mode: screen;
+}
+
+.tarot-experience-deck-preview__card em {
+  position: absolute;
+  right: 0.52rem;
+  bottom: 0.58rem;
+  left: 0.52rem;
+  z-index: 2;
+  display: block;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(2, 6, 23, 0.76);
+  color: rgba(254, 243, 199, 0.94);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.48rem;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  padding: 0.2rem 0.32rem;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.86);
+  white-space: nowrap;
+}
+
+.tarot-experience-deck-preview__card[data-arcana="major"] {
+  border-color: rgba(253, 230, 138, 0.78);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    inset 0 0 0 0.42rem rgba(2, 6, 23, 0.16),
+    inset 0 10px 20px rgba(255, 255, 255, 0.08),
+    inset 0 -14px 20px rgba(2, 6, 23, 0.56),
+    0 var(--preview-ridge) 0 rgba(231, 196, 125, 0.44),
+    0 calc(var(--preview-ridge) + 0.14rem) 0 rgba(12, 10, 24, 0.9),
+    0 22px 42px rgba(0, 0, 0, 0.42),
+    0 0 30px rgba(253, 230, 138, 0.16);
+}
+
+.tarot-experience-deck-preview__card[data-arcana="minor"] {
+  border-color: rgba(34, 211, 238, 0.62);
+}
+
+.tarot-experience-deck-preview__card::before {
   content: "";
   position: absolute;
   inset: 0.44rem;
@@ -13335,9 +13398,10 @@ body.app-touching .home-taiji-cinema * {
   box-shadow:
     inset 0 0 18px rgba(253, 230, 138, 0.1),
     0 0 14px rgba(253, 230, 138, 0.08);
+  pointer-events: none;
 }
 
-.tarot-experience-deck-preview span::after {
+.tarot-experience-deck-preview__card::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -13378,6 +13442,57 @@ body.app-touching .home-taiji-cinema * {
     inset 0 1px 0 rgba(255, 255, 255, 0.24),
     inset 0 -14px 20px rgba(2, 6, 23, 0.6);
   transform: translateZ(96px) rotateX(10deg);
+}
+
+.tarot-experience-deck-preview strong b,
+.tarot-experience-deck-preview strong small {
+  display: block;
+}
+
+.tarot-experience-deck-preview strong b {
+  font-size: 2.34rem;
+  line-height: 0.86;
+}
+
+.tarot-experience-deck-preview strong small {
+  margin-top: 0.28rem;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.56rem;
+  font-weight: 950;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.tarot-experience-deck-preview__status {
+  position: absolute;
+  right: 0;
+  bottom: 1.4rem;
+  left: 0;
+  z-index: 35;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.44rem;
+  transform: translateZ(112px);
+}
+
+.tarot-experience-deck-preview__status i {
+  border: 1px solid rgba(253, 230, 138, 0.4);
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(253, 230, 138, 0.17), rgba(34, 211, 238, 0.13)),
+    rgba(2, 6, 23, 0.82);
+  box-shadow:
+    0 0 22px rgba(34, 211, 238, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  color: rgb(254, 243, 199);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  padding: 0.5rem 0.64rem;
+  text-transform: uppercase;
 }
 
 @keyframes tarotPreviewFieldOrbit {
@@ -13875,17 +13990,38 @@ body.app-touching .home-taiji-cinema * {
 }
 @media (max-width: 720px) {
   .tarot-experience-deck-preview {
-    min-height: 15.5rem;
+    min-height: 18.25rem;
   }
 
-  .tarot-experience-deck-preview span {
-    width: 5.05rem;
+  .tarot-experience-deck-preview__card {
+    width: 5.85rem;
   }
 
   .tarot-experience-deck-preview strong {
-    width: 4.1rem;
-    height: 4.1rem;
-    font-size: 2.08rem;
+    width: 4.8rem;
+    height: 4.8rem;
+  }
+
+  .tarot-experience-deck-preview strong b {
+    font-size: 2.18rem;
+  }
+
+  .tarot-experience-deck-preview strong small {
+    font-size: 0.52rem;
+  }
+
+  .tarot-experience-deck-preview__card em {
+    font-size: 0.42rem;
+  }
+
+  .tarot-experience-deck-preview__status {
+    bottom: 1rem;
+    gap: 0.35rem;
+  }
+
+  .tarot-experience-deck-preview__status i {
+    font-size: 0.64rem;
+    padding: 0.44rem 0.5rem;
   }
 
   .tarot-question-entry {

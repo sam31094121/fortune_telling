@@ -200,6 +200,14 @@ function LandingHero({ onStart, dailyRecord }: { onStart: () => void; dailyRecor
         <DailyAnalysisNotice record={dailyRecord} className="mb-5 w-full max-w-2xl text-left" moduleName="AI 生命歌曲" />
         <IdentitySplitSelector className="mb-5 w-full max-w-2xl text-left" />
 
+        <MegaInputGuide
+          title="先看懂，再開始生成歌曲"
+          steps={['按開始後會一步一步選', '先選人生主題與音樂風格', '再補姓名、生日、血型、性別']}
+          example="我想把撐了很久的自己唱出來。"
+          tone="violet"
+          className="mb-5 w-full max-w-2xl text-left"
+        />
+
         <div className="music-landing-copy">
           <span className="music-landing-eyebrow">AI EMOTIONAL VOICE SONG</span>
           <h1 className="music-landing-title">

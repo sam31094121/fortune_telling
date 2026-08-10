@@ -23,6 +23,15 @@ type TarotDailyResult = {
 };
 
 const DRAW_SPREAD: TarotSpreadType = 'three_card';
+const TAROT_PREVIEW_CARD_INDICES = [0, 1, 2, 3, 4, 5, 6, 7, 22, 23, 36, 37, 50, 51, 64, 65];
+const TAROT_PREVIEW_CARDS = TAROT_PREVIEW_CARD_INDICES
+  .map((index) => TAROT_CARDS[index])
+  .filter((card): card is (typeof TAROT_CARDS)[number] => Boolean(card));
+const TAROT_DECK_INTEGRITY = {
+  total: TAROT_CARDS.length,
+  major: TAROT_CARDS.filter((card) => card.arcana === 'major').length,
+  minor: TAROT_CARDS.filter((card) => card.arcana === 'minor').length,
+};
 const TAROT_QUESTION_EXAMPLES = [
   { label: '範例 1', text: '我現在最需要看清楚的是什麼？' },
   { label: '範例 2', text: '這段關係目前真正的課題是什麼？' },
@@ -286,30 +295,41 @@ export default function TarotPageClient() {
                       {error}
                     </p>
                   )}
-                  <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  {/* 友善引導：告訴客戶下一步該做什麼 */}
+                  <p className="mt-5 text-center text-sm font-bold leading-7 text-cyan-100/85 sm:text-left">
+                    {questionReady || dailyRecord
+                      ? '\u2728 \u554f\u984c\u6e96\u5099\u597d\u4e86\uff0c\u9ede\u4e0b\u65b9\u958b\u59cb\u6d17\u724c\u2014\u2014\u724c\u6703\u7b49\u4f60\u9078\u5b83'
+                      : '\ud83d\udc46 \u5148\u5728\u4e0a\u65b9\u5beb\u4e0b\u4f60\u6700\u60f3\u554f\u7684\u4e00\u4ef6\u4e8b\uff0c\u6309\u9215\u5c31\u6703\u4eae\u8d77\u4f86'}
+                  </p>
+                  <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
                     <button
                       type="submit"
                       disabled={isGenerating || (!dailyRecord && !questionReady)}
                       className={`tarot-question-entry__submit ${questionReady || dailyRecord ? 'tarot-question-entry__submit--ready' : 'tarot-question-entry__submit--locked'}`}
                     >
+                      <span aria-hidden="true">{questionReady || dailyRecord ? '\ud83c\udccf' : '\u270d\ufe0f'}</span>
                       {submitLabel}
                     </button>
                     <button
                       type="button"
                       onClick={openAdminReview}
-                      className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-amber-200/35 bg-amber-300/12 px-7 py-3 text-sm font-black text-amber-50 transition hover:border-amber-100/60 hover:bg-amber-300/20 sm:w-auto"
+                      className="inline-flex min-h-[58px] w-full items-center justify-center gap-2 rounded-full border border-amber-200/45 bg-amber-300/15 px-8 py-3.5 text-base font-black text-amber-50 shadow-[0_0_26px_rgba(251,191,36,0.16)] transition hover:border-amber-100/70 hover:bg-amber-300/25 hover:shadow-[0_0_38px_rgba(251,191,36,0.26)] active:scale-[0.98] sm:w-auto"
                     >
+                      <span aria-hidden="true">\ud83d\udd0d</span>
                       查看 78 張牌庫
                     </button>
                   </div>
                 </form>
               </div>
-              <div className="tarot-experience-deck-preview" aria-hidden="true">
-                {Array.from({ length: 16 }, (_, index) => {
+              <div
+                className="tarot-experience-deck-preview"
+                aria-label={`完整 78 張塔羅牌預覽，大阿爾克那 ${TAROT_DECK_INTEGRITY.major} 張，小阿爾克那 ${TAROT_DECK_INTEGRITY.minor} 張`}
+              >
+                {TAROT_PREVIEW_CARDS.map((card, index) => {
                   const offset = index - 7.5;
                   const arc = Math.abs(offset);
                   return (
-                    <span key={index} style={{
+                    <span key={card.id} className="tarot-experience-deck-preview__card" data-arcana={card.arcana} style={{
                       ['--preview-x' as string]: `${offset * 0.43}rem`,
                       ['--preview-y' as string]: `${arc * 0.052 - 0.26}rem`,
                       ['--preview-rot' as string]: `${offset * 2.05}deg`,
@@ -318,10 +338,21 @@ export default function TarotPageClient() {
                       ['--preview-ridge' as string]: `${0.12 + index * 0.006}rem`,
                       ['--preview-warmth' as string]: `${0.55 + index * 0.018}`,
                       zIndex: index + 1,
-                    }} />
+                    }}>
+                      <img src={card.imageUrl} alt="" loading="lazy" aria-hidden="true" />
+                      <em>{card.nameEn}</em>
+                    </span>
                   );
                 })}
-                <strong>T</strong>
+                <strong>
+                  <b>{TAROT_DECK_INTEGRITY.total}</b>
+                  <small>Cards</small>
+                </strong>
+                <div className="tarot-experience-deck-preview__status" aria-hidden="true">
+                  <i>Major {TAROT_DECK_INTEGRITY.major}</i>
+                  <i>Minor {TAROT_DECK_INTEGRITY.minor}</i>
+                  <i>Draw 3</i>
+                </div>
               </div>
             </div>
           </section>
