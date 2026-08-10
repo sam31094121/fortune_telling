@@ -13,6 +13,7 @@
  */
 
 import { useEffect, useRef } from 'react';
+import { Taiji24SoundEngine } from '@/lib/taiji24-sound-engine';
 
 const THREE_CDN = 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
 
@@ -60,32 +61,68 @@ function createTaiChiGlowMaterial(THREE: any) {
       varying vec2 vUv;
       varying vec3 vViewPosition;
 
+      // ===== 阿基米德螺線太極（李仕澂模型）=====
+      // 分界線 rho = R * theta / PI（theta 0~PI）+ 180 度對稱螺線
+      // 黑白分明主體 + 魚眼呼吸 + 螺線流轉 + 邊界能量釋放
+      const float PI = 3.14159265;
+      const float SPHERE_R = 2.3;
+
       void main() {
-        float x = vLocalPosition.x;
-        float y = vLocalPosition.y;
-        float sCurve = x + sin(y * 3.1415926) * 0.48;
-        float taiChi = smoothstep(-0.1, 0.1, sCurve);
+        // 螺線流轉：整個圖騰隨時間旋轉
+        float rotA = time * 0.32;
+        float cs = cos(rotA);
+        float sn = sin(rotA);
+        vec2 q = vec2(
+          vLocalPosition.x * cs - vLocalPosition.y * sn,
+          vLocalPosition.x * sn + vLocalPosition.y * cs
+        ) / SPHERE_R;
 
-        vec3 yinBody = mix(baseColor, yinColor, 0.2);
-        vec3 yangBody = mix(vec3(0.92, 0.96, 1.0), yangColor, 0.18);
-        vec3 color = mix(yinBody, yangBody, taiChi);
+        float rho = length(q);
+        float theta = atan(q.y, q.x);
+        if (theta < 0.0) theta += 2.0 * PI;
+        float t = theta / PI; // 0 ~ 2
 
-        float topEye = length(vec2(x, y - 0.48));
-        float bottomEye = length(vec2(x, y + 0.48));
-        color = mix(yangColor * 1.15, color, smoothstep(0.12, 0.18, topEye));
-        color = mix(yinColor * 1.15, color, smoothstep(0.12, 0.18, bottomEye));
+        // 螺線展開係數微調：陰陽比例緩慢消長（陽極生陰、陰極生陽）
+        float bCoef = 0.94 + 0.06 * sin(time * 0.55);
+        float boundary = (t < 1.0 ? t : t - 1.0) * bCoef;
+        float side = t < 1.0 ? 1.0 : -1.0;
+        float d = (rho - boundary) * side;
+        float white = smoothstep(-0.03, 0.03, d);
 
+        // 黑白分明主體
+        vec3 whiteBody = vec3(0.97, 0.975, 1.0);
+        vec3 blackBody = vec3(0.015, 0.02, 0.05);
+        vec3 color = mix(blackBody, whiteBody, white);
+
+        // 魚眼（呼吸）：黑魚含白眼、白魚含黑眼，隨圖騰同步旋轉
+        float eyeR = 0.085 + 0.03 * sin(time * 1.6);
+        vec2 eyeBlackFish = 0.42 * vec2(cos(0.62 * PI), sin(0.62 * PI));
+        vec2 eyeWhiteFish = -eyeBlackFish;
+        float dEyeInBlack = length(q - eyeBlackFish);
+        float dEyeInWhite = length(q - eyeWhiteFish);
+        color = mix(whiteBody, color, smoothstep(eyeR * 0.82, eyeR, dEyeInBlack));
+        color = mix(blackBody, color, smoothstep(eyeR * 0.82, eyeR, dEyeInWhite));
+
+        // 螺線分界能量光：沿 S 形分界釋放青紅能量
+        float boundaryGlow = smoothstep(0.055, 0.0, abs(rho - boundary)) * step(rho, 1.0);
+        vec3 glowColor = mix(yinColor, yangColor, 0.5 + 0.5 * sin(time * 1.2));
+        color += glowColor * boundaryGlow * 0.85;
+
+        // 能量脈衝環：由核心向外釋放
+        float ripple = sin(rho * 12.0 - time * 3.2) * 0.5 + 0.5;
+        float rippleMask = smoothstep(1.0, 0.25, rho) * 0.12;
+        color += mix(yinColor, yangColor, white) * ripple * rippleMask;
+
+        // Fresnel 邊緣能量场：滿滿能量從球缘噴發
         vec3 viewDir = normalize(vViewPosition);
-        float fresnel = pow(1.0 - max(dot(viewDir, normalize(vNormal)), 0.0), 2.55);
-        vec3 edgeColor = mix(yinColor, yangColor, taiChi) * fresnel * 2.35;
+        float fresnel = pow(1.0 - max(dot(viewDir, normalize(vNormal)), 0.0), 2.3);
+        vec3 edgeColor = mix(yinColor, yangColor, white) * fresnel * 2.9;
 
-        float pulse = 0.78 + 0.22 * sin(time * 2.2);
-        float circuitX = smoothstep(0.965, 1.0, fract(vUv.x * 22.0 + time * 0.08));
-        float circuitY = smoothstep(0.968, 1.0, fract(vUv.y * 18.0 - time * 0.06));
-        float circuit = clamp(circuitX + circuitY, 0.0, 1.0) * 0.34;
-        float corePulse = smoothstep(0.36, 0.0, length(vLocalPosition.xy)) * (0.25 + 0.2 * sin(time * 3.1));
+        // 核心脈動
+        float corePulse = smoothstep(0.2, 0.0, rho) * (0.3 + 0.25 * sin(time * 3.1));
+        vec3 emissive = glowColor * corePulse;
 
-        vec3 emissive = mix(yinColor, yangColor, taiChi) * (0.22 + circuit + corePulse);
+        float pulse = 0.9 + 0.1 * sin(time * 2.2);
         vec3 finalColor = color * pulse + edgeColor + emissive;
         gl_FragColor = vec4(finalColor, 1.0);
       }
@@ -169,30 +206,30 @@ export default function TaijiWebGL3D({
       world.add(taiChiGroup);
 
       const taiChiSphere = new THREE.Mesh(
-        new THREE.SphereGeometry(1.85, 64, 64),
+        new THREE.SphereGeometry(2.3, 64, 64),
         createTaiChiGlowMaterial(THREE),
       );
       taiChiGroup.add(taiChiSphere);
 
       // 太極雙色外層光暈膜：青色陰光 + 洋紅陽光
       const taiChiYinAura = new THREE.Mesh(
-        new THREE.SphereGeometry(2.1, 32, 32),
+        new THREE.SphereGeometry(2.62, 32, 32),
         new THREE.MeshBasicMaterial({
-          color: 0x00e5ff, transparent: true, opacity: 0.09,
+          color: 0x00e5ff, transparent: true, opacity: 0.14,
           blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false,
         }),
       );
       taiChiGroup.add(taiChiYinAura);
       const taiChiYangAura = new THREE.Mesh(
-        new THREE.SphereGeometry(2.34, 32, 32),
+        new THREE.SphereGeometry(2.92, 32, 32),
         new THREE.MeshBasicMaterial({
-          color: 0xff2a8a, transparent: true, opacity: 0.055,
+          color: 0xff2a8a, transparent: true, opacity: 0.09,
           blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false,
         }),
       );
       taiChiGroup.add(taiChiYangAura);
       const corePulse = new THREE.Mesh(
-        new THREE.SphereGeometry(0.41, 24, 24),
+        new THREE.SphereGeometry(0.5, 24, 24),
         new THREE.MeshBasicMaterial({
           color: 0xffffff, transparent: true, opacity: 0.28,
           blending: THREE.AdditiveBlending, depthWrite: false,
@@ -200,7 +237,7 @@ export default function TaijiWebGL3D({
       );
       taiChiGroup.add(corePulse);
       const coreBeam = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.03, 0.03, 4.1, 18),
+        new THREE.CylinderGeometry(0.034, 0.034, 5.0, 18),
         new THREE.MeshBasicMaterial({
           color: 0x9eefff, transparent: true, opacity: 0.42,
           blending: THREE.AdditiveBlending, depthWrite: false,
@@ -211,7 +248,7 @@ export default function TaijiWebGL3D({
       // --- 兩儀（陰陽雙極光環，互相垂直） ---
       const liangYi = new THREE.Group();
       taiChiGroup.add(liangYi);
-      const yiGeo = new THREE.TorusGeometry(2.45, 0.03, 12, 80);
+      const yiGeo = new THREE.TorusGeometry(2.95, 0.032, 12, 80);
       const yinRing = new THREE.Mesh(yiGeo, new THREE.MeshBasicMaterial({
         color: 0x00e5ff, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending,
       }));
@@ -231,14 +268,14 @@ export default function TaijiWebGL3D({
       for (let s = 0; s < 4; s++) {
         const angle = (s / 4) * Math.PI * 2;
         const point = new THREE.Mesh(
-          new THREE.SphereGeometry(0.13, 16, 16),
+          new THREE.SphereGeometry(0.15, 16, 16),
           new THREE.MeshBasicMaterial({ color: siXiangColors[s], transparent: true, opacity: 0.9 }),
         );
-        point.position.set(Math.cos(angle) * 2.95, 0, Math.sin(angle) * 2.95);
+        point.position.set(Math.cos(angle) * 3.35, 0, Math.sin(angle) * 3.35);
         siXiang.add(point);
         const lineGeo = new THREE.BufferGeometry().setFromPoints([
           new THREE.Vector3(0, 0, 0),
-          new THREE.Vector3(Math.cos(angle) * 2.95, 0, Math.sin(angle) * 2.95),
+          new THREE.Vector3(Math.cos(angle) * 3.35, 0, Math.sin(angle) * 3.35),
         ]);
         const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({
           color: siXiangColors[s], transparent: true, opacity: 0.25,
@@ -252,7 +289,7 @@ export default function TaijiWebGL3D({
       const baGuaColors = [0xffdd44, 0xff8844, 0xff4455, 0x44ff88, 0x44ffcc, 0x4488ff, 0x8844ff, 0xaaaaaa];
       for (let b = 0; b < 8; b++) {
         const angle = (b / 8) * Math.PI * 2 - Math.PI / 2;
-        const r = 3.55;
+        const r = 3.95;
         const pillar = new THREE.Mesh(
           new THREE.CylinderGeometry(0.045, 0.045, 0.65, 8),
           new THREE.MeshBasicMaterial({
@@ -269,7 +306,7 @@ export default function TaijiWebGL3D({
         baGua.add(tip);
       }
       const baGuaRing = new THREE.Mesh(
-        new THREE.TorusGeometry(3.55, 0.02, 8, 100),
+        new THREE.TorusGeometry(3.95, 0.022, 8, 100),
         new THREE.MeshBasicMaterial({
           color: 0xffffff, transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending,
         }),
@@ -577,7 +614,9 @@ export default function TaijiWebGL3D({
       let lastX = 0; let lastY = 0;
       let velX = 0; let velY = 0;
       let downX = 0; let downY = 0; // 區分點擊 vs 拖曳
-      let autoRotate = true; // 鍵盤 R 切換
+      let autoRotate = true;
+      const taiji24 = new Taiji24SoundEngine();
+      let soundBurstUntil = -1; // 24 \u97fb\u9ede\u64ca\u8996\u89ba\u80fd\u91cf\u7206\u767c\u622a\u6b62\u6642\u9593 // 鍵盤 R 切換
 
       // ===== 互動加強：Raycaster 懸停/點擊 =====
       const raycaster = new THREE.Raycaster();
@@ -638,9 +677,19 @@ export default function TaijiWebGL3D({
         const hit = pickAt(e.clientX, e.clientY);
         if (!hit) return;
         if (hit === taiChiSphere) {
-          autoRotate = !autoRotate;
-          tooltip.textContent = `太極${autoRotate ? '' : '（已停轉）'}`;
-          tooltip.style.opacity = '1';
+          // 太極中央 24 韻：每點一次推進 1/24，第 24 韻觸發彩蛋
+          void taiji24.click().then((st) => {
+            if (st.completed) {
+              tooltip.textContent = '\u2728 24 \u97fb\u5713\u6eff\uff5c\u5f69\u86cb\u89e3\u9396';
+              soundBurstUntil = elapsed + 2.6; // 視覺能量爆發
+            } else if (st.step > 0) {
+              tooltip.textContent = `\u592a\u6975 \u7b2c ${st.step}/24 \u97fb`;
+              soundBurstUntil = elapsed + 0.5;
+            } else {
+              tooltip.textContent = '\u592a\u6975';
+            }
+            tooltip.style.opacity = '1';
+          });
           return;
         }
         const group = planets.find((g) => g.userData.bodyMesh === hit);
@@ -717,7 +766,13 @@ export default function TaijiWebGL3D({
         taiChiYangAura.scale.setScalar(yangPulse);
         (taiChiYinAura.material as any).opacity = 0.07 + Math.sin(t * 2.0) * 0.035;
         (taiChiYangAura.material as any).opacity = 0.04 + Math.sin(t * 1.7 + 0.6) * 0.025;
-        const corePulseScale = 1 + Math.sin(t * 2.9) * 0.22;
+        // 24 韻點擊能量爆發：光暈短暫增亮、核心脈衝放大
+        const burstBoost = soundBurstUntil > t ? Math.min(1, (soundBurstUntil - t) / 0.5) : 0;
+        if (burstBoost > 0) {
+          (taiChiYinAura.material as any).opacity = Math.min(0.32, 0.14 + burstBoost * 0.2);
+          (taiChiYangAura.material as any).opacity = Math.min(0.26, 0.09 + burstBoost * 0.17);
+        }
+        const corePulseScale = (1 + Math.sin(t * 2.9) * 0.22) * (1 + burstBoost * 0.9);
         corePulse.scale.setScalar(corePulseScale);
         (corePulse.material as any).opacity = 0.18 + Math.sin(t * 2.6) * 0.1;
         (coreBeam.material as any).opacity = 0.34 + Math.sin(t * 3.1) * 0.14;
