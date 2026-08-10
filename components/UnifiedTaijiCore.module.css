@@ -458,6 +458,20 @@
     border-radius: 20px;
   }
 
+  .sunField {
+    inset: -16% 2% auto auto;
+    width: 48%;
+  }
+
+  .depthOne {
+    inset: 10% 8% 13%;
+  }
+
+  .depthTwo {
+    inset: 58% 4% 3%;
+    transform: rotateX(72deg) translateZ(-170px) scaleX(1.08);
+  }
+
   .taijiButton {
     width: clamp(8.25rem, 44vw, 10rem);
     height: clamp(8.25rem, 44vw, 10rem);
@@ -483,6 +497,16 @@
   .scene {
     width: min(20rem, 100%);
     min-height: min(20rem, calc(100vw - 1.25rem));
+  }
+
+  .sunField {
+    inset: -13% 3% auto auto;
+    width: 44%;
+  }
+
+  .depthTwo {
+    inset-inline: 7%;
+    transform: rotateX(72deg) translateZ(-150px) scaleX(1);
   }
 
   .taijiButton {

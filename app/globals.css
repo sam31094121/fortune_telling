@@ -18980,6 +18980,43 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 }
 
 @media (max-width: 639px) {
+  .app-bg,
+  .app-bg main,
+  .app-bg section,
+  .app-bg article,
+  .app-bg form,
+  .home-feature-launch,
+  .home-growth-entry,
+  .growth-module-route,
+  .music-song-maker-card,
+  .music-primary-generate-panel,
+  .music-flow-stage-card,
+  .tarot-original-shell,
+  .tarot-table-card {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .app-bg main {
+    overflow-x: clip;
+  }
+
+  .app-bg input,
+  .app-bg textarea,
+  .app-bg select,
+  .app-bg button,
+  .app-bg a {
+    max-width: 100%;
+  }
+
+  .app-bg img,
+  .app-bg video,
+  .app-bg canvas,
+  .app-bg svg {
+    max-width: 100%;
+  }
+
   .home-sticky-journey {
     width: 100%;
     max-width: 100%;
