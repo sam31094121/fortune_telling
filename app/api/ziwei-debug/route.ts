@@ -1,23 +1,23 @@
 import { NextResponse } from 'next/server';
 import {
-  generateZiweiChart,
-  getLifePalace,
-  validateMajorStars,
-  validateTwelvePalaces,
+  createZiweiCore,
   hourToTimeIndex,
+  normalizeZiweiGender,
   MAJOR_STARS,
-  type ZiweiGender,
-} from '@/lib/ziwei/chartEngine';
+} from '@/lib/ziwei/engine';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * 紫微斗數排盤 Debug 模式
+ * 第一層｜紫微斗數排盤 Debug 模式（只讀唯一排盤入口 createZiweiCore）
  *
- * 用法：/api/ziwei-debug?debugZiwei=1&date=1974-6-28&hour=3&gender=male
+ * 用法：
+ *   /api/ziwei-debug?debugZiwei=1&date=1979-9-2&hour=3&gender=female
+ *   /api/ziwei-debug?debugZiwei=1&date=1979-9-2&timeIndex=2&gender=女
+ *   /api/ziwei-debug?debugZiwei=1&calendar=lunar&date=1979-7-11&timeIndex=2&gender=女
  *
  * 只輸出排盤驗證資訊，不觸碰塔羅牌、AI 文案、卡片 UI 與客戶流程。
- * 只有四項全 PASS 才會回報 ZIWEI_CHART_CERTIFIED=true。
+ * 只有全部 PASS 才回報 ZIWEI_CHART_CERTIFIED=true。
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -27,71 +27,87 @@ export async function GET(request: Request) {
   }
 
   const date = url.searchParams.get('date') ?? '';
-  const hour = Number(url.searchParams.get('hour') ?? '');
-  const genderParam = url.searchParams.get('gender') ?? 'male';
-  const gender: ZiweiGender = genderParam === 'female' || genderParam === '女' ? 'female' : 'male';
+  const calendarParam = url.searchParams.get('calendarType') ?? url.searchParams.get('calendar');
+  const calendarType = calendarParam === 'lunar' ? 'lunar' as const : 'solar' as const;
+  const leapParam = url.searchParams.get('isLeapMonth') ?? url.searchParams.get('leap');
+  const isLeapMonth = leapParam === '1' || leapParam === 'true';
+  const gender = normalizeZiweiGender((url.searchParams.get('gender') ?? 'male') as '男' | '女' | 'male' | 'female');
 
-  if (!/^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test(date) || !Number.isFinite(hour) || hour < 0 || hour > 23) {
+  const timeIndexParam = url.searchParams.get('timeIndex');
+  const hourParam = url.searchParams.get('hour');
+  let timeIndex: number;
+  if (timeIndexParam !== null) {
+    timeIndex = Number(timeIndexParam);
+  } else if (hourParam !== null) {
+    timeIndex = hourToTimeIndex(Number(hourParam));
+  } else {
+    timeIndex = NaN;
+  }
+
+  if (!/^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test(date) || !Number.isInteger(timeIndex) || timeIndex < 0 || timeIndex > 12) {
     return NextResponse.json(
-      { error: 'date=YYYY-M-D 與 hour=0~23 為必填', example: '/api/ziwei-debug?debugZiwei=1&date=1974-6-28&hour=3&gender=male' },
+      {
+        error: 'date=YYYY-M-D 與 timeIndex=0~12（或 hour=0~23）為必填',
+        example: '/api/ziwei-debug?debugZiwei=1&date=1979-9-2&timeIndex=2&gender=female',
+      },
       { status: 400 },
     );
   }
 
   try {
-    const chart = generateZiweiChart({ birthDate: date, birthHour: hour, gender });
-    const lifePalace = getLifePalace(chart);
-    const twelve = validateTwelvePalaces(chart);
-    const majors = validateMajorStars(chart);
+    const core = createZiweiCore({ calendarType, date, gender, timeIndex, isLeapMonth });
 
     const starPositions = MAJOR_STARS.map((star) => {
-      const hit = majors.positions.find((item) => item.star === star);
-      return { star, palace: hit ? hit.palace : '（未定位）', branch: hit?.branch ?? '' };
+      const hit = core.majorStarPositions.find((item) => item.star === star);
+      return `${star} → ${hit ? hit.palace : '（未定位）'}`;
     });
 
     const sanFangPassed =
-      chart.sanFangSiZheng.target.key === 'MING' &&
-      chart.sanFangSiZheng.opposite.key === 'QIAN_YI' &&
-      chart.sanFangSiZheng.wealth.key === 'CAI_BO' &&
-      chart.sanFangSiZheng.career.key === 'GUAN_LU';
+      core.sanFangSiZheng.target.key === 'MING' &&
+      core.sanFangSiZheng.opposite.key === 'QIAN_YI' &&
+      core.sanFangSiZheng.wealth.key === 'CAI_BO' &&
+      core.sanFangSiZheng.career.key === 'GUAN_LU';
 
     const checks = {
-      命宮: lifePalace.key === 'MING' ? 'PASS' : 'FAIL',
-      十二宮: twelve.passed ? 'PASS' : 'FAIL',
-      十四主星: majors.passed ? 'PASS' : 'FAIL',
+      命宮: core.validation.lifePalaceFound ? 'PASS' : 'FAIL',
+      十二宮: core.validation.palaceCount && core.validation.missingPalaces.length === 0 ? 'PASS' : 'FAIL',
+      十四主星: core.validation.majorStarsComplete && core.validation.noMajorStarDuplicate ? 'PASS' : 'FAIL',
       三方四正: sanFangPassed ? 'PASS' : 'FAIL',
     };
 
-    const certified = Object.values(checks).every((value) => value === 'PASS');
+    const certified = core.validation.passed && sanFangPassed;
 
     return NextResponse.json({
       標題: '【紫微斗數排盤驗證】',
+      曆法: calendarType === 'lunar' ? '農曆' : '國曆',
       出生日期: date,
-      時辰: `${String(hour).padStart(2, '0')} 時（timeIndex=${hourToTimeIndex(hour)}）`,
-      性別: gender === 'male' ? '男' : '女',
-      排盤引擎: `${chart.engine} (${chart.engineVersion})`,
-      命宮: `${lifePalace.name}／${lifePalace.heavenlyStem}${lifePalace.earthlyBranch}`,
-      身宮: chart.bodyPalace ? `${chart.bodyPalace.name}／${chart.bodyPalace.heavenlyStem}${chart.bodyPalace.earthlyBranch}` : '（未標記）',
-      命主: chart.soulMaster ?? '',
-      身主: chart.bodyMaster ?? '',
-      五行局: chart.fiveElementsClass ?? '',
-      命宮主星: lifePalace.majorStars.map((star) => `${star.name}${star.brightness ? `(${star.brightness})` : ''}`),
-      十二宮: chart.palaces.map((palace) => ({
+      陽曆: core.raw.solarDate,
+      農曆: core.raw.lunarDate,
+      時辰: `${core.raw.time}（timeIndex=${timeIndex}）`,
+      性別: gender,
+      排盤引擎: `${core.engine} (${core.engineVersion})`,
+      命宮: `${core.lifePalace.name}／${core.lifePalace.heavenlyStem}${core.lifePalace.earthlyBranch}`,
+      身宮: core.bodyPalace ? `${core.bodyPalace.name}／${core.bodyPalace.heavenlyStem}${core.bodyPalace.earthlyBranch}` : '（未標記）',
+      命主: core.raw.soulMaster ?? '',
+      身主: core.raw.bodyMaster ?? '',
+      五行局: core.raw.fiveElementsClass ?? '',
+      命宮主星: core.lifePalace.majorStarDetails.map((star) => `${star.name}${star.brightness ? `(${star.brightness})` : ''}`),
+      十二宮: core.palaces.map((palace) => ({
         宮位: palace.name,
         干支: `${palace.heavenlyStem}${palace.earthlyBranch}`,
-        主星: palace.majorStars.map((star) => star.name),
+        主星: palace.majorStars,
         身宮: palace.isBodyPalace,
       })),
-      十四主星: starPositions.map((item) => `${item.star} → ${item.palace}`),
+      十四主星: starPositions,
       三方四正: {
-        本宮: chart.sanFangSiZheng.target.name,
-        對宮: chart.sanFangSiZheng.opposite.name,
-        三合財帛: chart.sanFangSiZheng.wealth.name,
-        三合官祿: chart.sanFangSiZheng.career.name,
+        本宮: core.sanFangSiZheng.target.name,
+        對宮: core.sanFangSiZheng.opposite.name,
+        三合財帛: core.sanFangSiZheng.wealth.name,
+        三合官祿: core.sanFangSiZheng.career.name,
       },
       驗證: checks,
-      missing: majors.missing,
-      duplicate: majors.duplicate,
+      missing: core.validation.missingMajorStars,
+      duplicate: core.validation.duplicateMajorStars,
       ZIWEI_CHART_CERTIFIED: certified,
     });
   } catch (error) {

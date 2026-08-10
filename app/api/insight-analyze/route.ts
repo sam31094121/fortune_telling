@@ -81,7 +81,7 @@ function validateInsightRequest(body: unknown): string | null {
     req.shichen === undefined ||
     req.shichen === null ||
     req.shichen === 'unknown' ||
-    (typeof req.shichen === 'number' && Number.isInteger(req.shichen) && req.shichen >= 0 && req.shichen <= 11);
+    (typeof req.shichen === 'number' && Number.isInteger(req.shichen) && req.shichen >= 0 && req.shichen <= 12);
   if (!hasValidShichen) {
     return '出生時辰格式不正確。';
   }

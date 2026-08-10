@@ -1,6 +1,7 @@
-import { calculateHourByIndex, calculateTrueSolarTime, ziwei } from '@ziweijs/core';
+import { calculateTrueSolarTime } from '@ziweijs/core';
 import { LunarHour } from 'tyme4ts';
-import { getShichenInfo, shichenFromClockHour } from './shichen-engine';
+import { getShichenInfo } from './shichen-engine';
+import { assertChartCertifiedForAi, generateZiweiChart } from './ziwei/chartEngine';
 
 const PALACE_CONFIG = [
   { key: 'MING', name: '命宮', focus: '核心人格與行動動能' },
@@ -232,12 +233,11 @@ function parseBirthDate(value: string) {
 }
 
 function resolveShichen(value: ZiweiSanFangInput['shichen'], isTimeConfirmed?: boolean) {
-  if (typeof value === 'number' && value >= 0 && value <= 11) {
-    return { index: value, confidence: isTimeConfirmed === false ? 'estimated' as const : 'exact' as const };
+  if (typeof value === 'number' && value >= 0 && value <= 12 && isTimeConfirmed !== false) {
+    return { index: value, confidence: 'exact' as const };
   }
 
-  // The existing form permits an unknown hour. Keep the output usable, but mark it as an estimate.
-  return { index: 1, confidence: 'estimated' as const };
+  throw new Error('ZIWEI_BIRTH_TIME_REQUIRED');
 }
 
 function parseBirthTime(value: string) {
@@ -260,7 +260,8 @@ function getElementBalance(pillars: string[]) {
   return balance;
 }
 
-function transformationLabel(value: { key?: string; name?: string } | undefined) {
+function transformationLabel(value: string | { key?: string; name?: string } | undefined) {
+  if (typeof value === 'string') return value || null;
   if (!value?.key) return null;
   const keyMap: Record<string, string> = { A: '祿', B: '權', C: '科', D: '忌' };
   return keyMap[value.key] ?? value.name ?? null;
@@ -790,27 +791,24 @@ function buildSanFangSummary(palaces: ZiweiPalaceEvidence[], pattern: ZiweiPatte
 export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAnalysis {
   const { year, month, day } = parseBirthDate(input.birthDate);
   const exactClock = parseBirthTime(input.birthTime);
-  const exactShichen = shichenFromClockHour(exactClock.hour);
-  const shichen = resolveShichen(exactShichen, input.isTimeConfirmed);
-  const resolvedShichen = getShichenInfo(shichen.index);
-  const [fallbackHour, fallbackMinute, fallbackSecond] = calculateHourByIndex(shichen.index);
-  const hour = exactClock.hour ?? fallbackHour;
-  const minute = exactClock.minute ?? fallbackMinute;
-  const second = exactClock.second ?? fallbackSecond;
+  const shichen = resolveShichen(input.shichen, input.isTimeConfirmed);
+  const timeIndex = shichen.index === 0 && exactClock.hour === 23 ? 12 : shichen.index;
+  const resolvedShichen = getShichenInfo(timeIndex === 12 ? 0 : timeIndex);
+  const hour = exactClock.hour;
+  const minute = exactClock.minute;
+  const second = exactClock.second;
   const solarDate = new Date(year, month - 1, day, hour, minute, second);
   const hasLongitude = typeof input.longitude === 'number' && Number.isFinite(input.longitude);
   const calculationDate = hasLongitude
     ? calculateTrueSolarTime(solarDate, input.longitude as number, 8)
     : solarDate;
-  const chart = ziwei.bySolar({
-    name: '天宿命盤',
+  const chart = generateZiweiChart({
+    calendarType: 'solar',
+    date: input.birthDate,
     gender: input.gender,
-    date: solarDate,
-    language: 'zh-Hant',
-    longitude: hasLongitude ? input.longitude as number : undefined,
-    timezoneOffset: 8,
-    useTrueSolarTime: hasLongitude,
+    timeIndex,
   });
+  assertChartCertifiedForAi(chart, { isTimeKnown: true, birthDate: input.birthDate, gender: input.gender });
   const eightChar = LunarHour.fromYmdHms(
     calculationDate.getFullYear(),
     calculationDate.getMonth() + 1,
@@ -825,7 +823,6 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
     day: eightChar.getDay().getName(),
     hour: eightChar.getHour().getName(),
   };
-  const isExactTime = shichen.confidence === 'exact';
   const pillars = [bazi.year, bazi.month, bazi.day, bazi.hour];
   const elementBalance = getElementBalance(pillars);
   const dayMaster = bazi.day.charAt(0);
@@ -833,7 +830,7 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
 
   const allPalaces = chart.palaces.map((palace) => {
     const transformations = palace.majorStars
-      .map((star) => transformationLabel(star.YT))
+      .map((star) => transformationLabel(star.mutagen))
       .filter((value): value is string => Boolean(value));
 
     const minorStars = palace.minorStars.map((star) => star.name);
@@ -843,8 +840,8 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
       key: palace.key,
       name: palace.name,
       focus: buildFullPalaceFocus(palace.key, palace.name),
-      branch: palace.branch,
-      palaceStem: palace.stem,
+      branch: palace.earthlyBranch,
+      palaceStem: palace.heavenlyStem,
       majorStars: palace.majorStars.map((star) => star.name),
       minorStars,
       ...classifiedStars,
@@ -856,7 +853,7 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
     if (!palace) throw new Error(`排盤缺少${config.name}。`);
 
     const transformations = palace.majorStars
-      .map((star) => transformationLabel(star.YT))
+      .map((star) => transformationLabel(star.mutagen))
       .filter((value): value is string => Boolean(value));
 
     const minorStars = palace.minorStars.map((star) => star.name);
@@ -866,8 +863,8 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
       key: config.key,
       name: config.name,
       focus: config.focus,
-      branch: palace.branch,
-      palaceStem: palace.stem,
+      branch: palace.earthlyBranch,
+      palaceStem: palace.heavenlyStem,
       majorStars: palace.majorStars.map((star) => star.name),
       minorStars,
       ...classifiedStars,
@@ -875,27 +872,23 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
     };
   });
 
-  // 未知時辰也先使用生日挑出的良辰吉時完成暫定排盤，並透過
-  // timeConfidence 清楚標記為 estimated，讓客戶可以先取得結果。
   const visiblePalaces = palaces;
   const corePalaces = visiblePalaces.filter((palace) => palace.key !== 'QIAN_YI');
   const crossChecks = corePalaces.map((palace) => makeCrossCheck(palace, dayMasterElement, elementBalance));
   const pattern = identifyCorePattern(palaces);
   const patternMetrics = calculatePatternMetrics(visiblePalaces, pattern, dayMasterElement);
-  const dataCompleteness = isExactTime ? (hasLongitude ? 100 : 90) : (hasLongitude ? 75 : 65);
+  const dataCompleteness = hasLongitude ? 100 : 90;
   const consistencyScore = calculateConsistencyScore(patternMetrics, pattern, dataCompleteness);
-  const summary = isExactTime
-    ? buildSanFangSummary(visiblePalaces, pattern)
-    : `系統依生日自動選用${resolvedShichen.label}作為暫定時辰，先完成命財官遷三方四正與「${pattern.name}」判讀；日後補上真實時辰即可重新校正。`;
+  const summary = buildSanFangSummary(visiblePalaces, pattern);
   const palaceAnalyses = buildTwelvePalacePrecisionAnalyses(allPalaces, pattern, dataCompleteness, shichen.confidence);
 
   return {
-    methodVersion: '北派十四主星 + 節氣八字四柱 + 命財官遷三方四正 V1.0',
+    methodVersion: 'iztro 正統排盤核心 + 節氣八字四柱 + 命財官遷三方四正 V2.1',
     timeConfidence: shichen.confidence,
     timeNote: shichen.confidence === 'exact'
-      ? hasLongitude ? '已依使用者選定時辰與出生地經度套用真太陽時校正。' : '已依使用者選定時辰排盤；尚未提供出生地經度，採標準時。'
-      : `未提供真實出生時辰；系統已依生日自動採用${resolvedShichen.label}（${resolvedShichen.range}）完成暫定排盤，之後可用真實時辰重新校正。`,
-    trueSolarTimeApplied: hasLongitude && isExactTime,
+      ? hasLongitude ? '已依使用者確認時辰與出生地經度套用真太陽時校正。' : `已依使用者確認時辰排盤：${resolvedShichen.label}（${resolvedShichen.range}），採標準時。`
+      : '未確認時辰，第一層紫微排盤禁止進入 AI 解盤。',
+    trueSolarTimeApplied: hasLongitude,
     dataCompleteness,
     consistencyScore,
     summary,
@@ -907,8 +900,22 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
     },
     palaces: visiblePalaces,
     allPalaces,
-    bodyPalace: null,
-    bodyPalaceStatus: 'not_available_from_core',
+    bodyPalace: chart.bodyPalace
+      ? {
+          key: chart.bodyPalace.key,
+          name: chart.bodyPalace.name,
+          focus: buildFullPalaceFocus(chart.bodyPalace.key, chart.bodyPalace.name),
+          branch: chart.bodyPalace.earthlyBranch,
+          palaceStem: chart.bodyPalace.heavenlyStem,
+          majorStars: chart.bodyPalace.majorStars.map((star) => star.name),
+          minorStars: chart.bodyPalace.minorStars.map((star) => star.name),
+          ...classifyZiweiSupportStars(chart.bodyPalace.minorStars.map((star) => star.name)),
+          transformations: chart.bodyPalace.majorStars
+            .map((star) => transformationLabel(star.mutagen))
+            .filter((value): value is string => Boolean(value)),
+        }
+      : null,
+    bodyPalaceStatus: chart.bodyPalace ? 'provided' : 'not_available_from_core',
     palaceAnalyses,
     crossChecks,
     pattern,
