@@ -4,6 +4,10 @@
   --node-radius: 47%;
   --node-counter-angle: 0deg;
   --planet-color: #e7edf7;
+  --planet-x: 0px;
+  --planet-y: 0px;
+  --inner-planet-x: 0px;
+  --inner-planet-y: 0px;
   position: relative;
   display: grid;
   width: min(100%, 390px);
@@ -241,7 +245,8 @@
 }
 
 .planetSystem {
-  z-index: 7;
+  z-index: 30;
+  transform: translateZ(132px);
   transform-style: preserve-3d;
 }
 
@@ -250,14 +255,11 @@
   position: absolute;
   left: 50%;
   top: 50%;
+  z-index: 31;
   display: grid;
   place-items: center;
   border-radius: 999px;
-  transform:
-    rotate(var(--node-angle))
-    translateY(calc(var(--node-radius) * -1))
-    rotate(var(--node-counter-angle))
-    translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
 
 .innerPlanet {
@@ -270,10 +272,7 @@
     0 0 14px color-mix(in srgb, var(--planet-color), transparent 46%);
   opacity: 0.92;
   transform:
-    rotate(var(--node-angle))
-    translateY(calc(var(--node-radius) * -1))
-    rotate(var(--node-counter-angle))
-    translate(-50%, -50%)
+    translate(calc(-50% + var(--inner-planet-x)), calc(-50% + var(--inner-planet-y)))
     translateZ(94px);
 }
 
@@ -293,19 +292,16 @@
     linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(2, 6, 23, 0.62)),
     radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--planet-color), transparent 70%), transparent 64%);
   color: #f8fafc;
-  opacity: 0;
+  opacity: 0.76;
   padding: 6px 7px;
   box-shadow:
     0 12px 22px rgba(0, 0, 0, 0.36),
     0 0 18px color-mix(in srgb, var(--planet-color), transparent 68%),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transform:
-    rotate(var(--node-angle))
-    translateY(calc(var(--node-radius) * -1))
-    rotate(var(--node-counter-angle))
-    translate(-50%, -50%)
-    translateZ(86px)
-    scale(0.78);
+    translate(calc(-50% + var(--planet-x)), calc(-50% + var(--planet-y)))
+    translateZ(128px)
+    scale(0.9);
   transition: opacity 360ms ease, transform 560ms cubic-bezier(0.18, 0.72, 0.2, 1);
 }
 
@@ -516,11 +512,8 @@
 .shell[data-focus-open='true'] .outerPlanet {
   opacity: 1;
   transform:
-    rotate(var(--node-angle))
-    translateY(calc(var(--node-radius) * -1))
-    rotate(var(--node-counter-angle))
-    translate(-50%, -50%)
-    translateZ(86px)
+    translate(calc(-50% + var(--planet-x)), calc(-50% + var(--planet-y)))
+    translateZ(128px)
     scale(1);
 }
 
@@ -786,4 +779,23 @@
     transform: none;
     transition: none;
   }
+}
+
+/* ===== Three.js 科技太極（HIGH 才掛載） ===== */
+.webgl3d {
+  position: absolute;
+  inset: -32%;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+.webgl3d canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* WebGL 啟用時：SVG 退為隱形佔位（保留無障礙結構與點擊區） */
+.taijiSvg[data-webgl-active='true'] {
+  opacity: 0;
+  animation: none;
 }

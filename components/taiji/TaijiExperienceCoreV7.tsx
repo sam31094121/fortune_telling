@@ -3,8 +3,21 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useTaijiPerformance, type TaijiQuality } from './useTaijiPerformance';
 import styles from './TaijiExperienceCoreV7.module.css';
+
+/** Three.js 科技太極（只在 HIGH 效能掛載；SSR 關閉） */
+const TaijiWebGL3D = dynamic(() => import('./TaijiWebGL3D'), { ssr: false });
+
+function detectWebGL(): boolean {
+  try {
+    const canvas = document.createElement('canvas');
+    return Boolean(canvas.getContext('webgl2') ?? canvas.getContext('webgl'));
+  } catch {
+    return false;
+  }
+}
 
 export type TaijiState =
   | 'IDLE'
@@ -69,9 +82,9 @@ const TECH_PLANETS = [
     signal: '生長',
     color: '#45e6b5',
     x: '0px',
-    y: 'calc(var(--taiji-size) * -0.39)',
+    y: 'calc(var(--taiji-size) * -0.24)',
     innerX: '0px',
-    innerY: 'calc(var(--taiji-size) * -0.19)',
+    innerY: 'calc(var(--taiji-size) * -0.11)',
   },
   {
     key: 'mars',
@@ -168,13 +181,6 @@ function polarStyle(index: number, total: number, radius: string) {
   } as CSSProperties;
 }
 
-function planetStyle(index: number, total: number, radius: string, color: string) {
-  return {
-    ...polarStyle(index, total, radius),
-    '--planet-color': color,
-  } as CSSProperties;
-}
-
 function planetCoordinateStyle(item: (typeof TECH_PLANETS)[number]) {
   return {
     '--planet-color': item.color,
@@ -192,6 +198,14 @@ export default function TaijiExperienceCoreV7({ state, onStart }: TaijiExperienc
   const quality = useTaijiPerformance();
   const [tap, setTap] = useState(0);
   const stageRef = useRef<HTMLDivElement>(null);
+  const [webglOk, setWebglOk] = useState(false);
+
+  // WebGL 能力偵測（僅 client）；HIGH + WebGL 可用才掛 Three.js 科技太極
+  useEffect(() => {
+    setWebglOk(detectWebGL());
+  }, []);
+
+  const useWebGL3D = quality === 'HIGH' && webglOk;
 
   // 3D 指標視差：滑鼠/觸控靠近時太極自然朝向使用者傾斜，離開緩慢回正
   useEffect(() => {
@@ -321,7 +335,8 @@ export default function TaijiExperienceCoreV7({ state, onStart }: TaijiExperienc
         </div>
 
         <button type="button" className={styles.taijiButton} onClick={handleCoreClick} aria-label="展開太極核心">
-          <svg viewBox="0 0 200 200" className={styles.taijiSvg} aria-hidden="true">
+          {useWebGL3D && <TaijiWebGL3D className={styles.webgl3d} />}
+          <svg viewBox="0 0 200 200" className={styles.taijiSvg} data-webgl-active={useWebGL3D} aria-hidden="true">
             <defs>
               {/* 科技色系：陽＝冰鉑白（帶青色科技光感） */}
               <radialGradient id="v7Yang" cx="28%" cy="18%" r="90%">
