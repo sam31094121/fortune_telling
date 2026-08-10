@@ -1549,10 +1549,13 @@ export default function HomePage() {
   const fortuneLoading = fortuneStatus === 'validating' || fortuneStatus === 'loading' || fortuneStatus === 'recovering';
   const fortuneNumberDigitStyle = {
     fontSize: fortuneNumber.length >= 9
-      ? 'clamp(2.75rem, 12.4vw, 4.75rem)'
+      ? 'clamp(3.15rem, 13.4vw, 5.25rem)'
       : fortuneNumber.length >= 7
-        ? 'clamp(3.6rem, 15.5vw, 5.8rem)'
-        : 'clamp(5.4rem, 24vw, 7.25rem)',
+        ? 'clamp(4.15rem, 17vw, 6.6rem)'
+        : 'clamp(6.25rem, 27vw, 8.8rem)',
+    fontVariantNumeric: 'tabular-nums',
+    fontFeatureSettings: '"tnum" 1',
+    letterSpacing: '0',
   } as const;
   const numberInputNeedsAttention = fortuneNumber.length === 0;
 
@@ -3780,10 +3783,10 @@ export default function HomePage() {
                       setFortuneError('');
                     }}
                     onFocus={() => setFortuneError('')}
-                    placeholder={numberInputNeedsAttention ? '請填阿拉伯數字' : '輸入數字'}
+                    placeholder={numberInputNeedsAttention ? '1688' : '輸入數字'}
                     aria-label="數字論好壞輸入框"
                     style={fortuneNumberDigitStyle}
-                    className={`form-input min-h-[166px] w-full rounded-[30px] bg-slate-950/92 px-1.5 py-8 text-center font-mono font-black leading-none tracking-normal text-cyan-50 shadow-[0_0_70px_rgba(34,211,238,0.44),0_0_34px_rgba(251,191,36,0.08),inset_0_0_48px_rgba(34,211,238,0.14)] glass-input glass-input-cyan neon-input-focus sm:min-h-[186px] ${numberInputNeedsAttention ? 'border-rose-300/85 placeholder:text-rose-100/72 shadow-[0_0_64px_rgba(244,63,94,0.42),inset_0_0_42px_rgba(244,63,94,0.12)] animate-pulse' : 'border-cyan-100/80 placeholder:text-cyan-100/34'} ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_30px_rgba(244,63,94,0.38)]' : ''}`}
+                    className={`form-input min-h-[186px] w-full rounded-[30px] bg-slate-950/92 px-1.5 py-8 text-center font-mono font-black leading-none tracking-normal text-cyan-50 shadow-[0_0_70px_rgba(34,211,238,0.44),0_0_34px_rgba(251,191,36,0.08),inset_0_0_48px_rgba(34,211,238,0.14)] glass-input glass-input-cyan neon-input-focus sm:min-h-[214px] ${numberInputNeedsAttention ? 'border-rose-300/85 placeholder:text-rose-100/72 shadow-[0_0_64px_rgba(244,63,94,0.42),inset_0_0_42px_rgba(244,63,94,0.12)] animate-pulse' : 'border-cyan-100/80 placeholder:text-cyan-100/34'} ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_30px_rgba(244,63,94,0.38)]' : ''}`}
                   />
                   <p className="mt-2 px-2 text-center text-[11px] font-bold leading-5 text-cyan-100/62">
                     可輸入手機後 4 碼，也可輸入完整 10 碼。

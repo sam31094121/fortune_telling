@@ -2627,7 +2627,7 @@ function ZiweiDestinyCardView({
   if (!card) return null;
 
   const isReady = card.verification.readyForFrontend;
-  const title = card.cardType === 'DESTINY_CARD' ? '命工卡' : '生日主題卡';
+  const title = card.cardType === 'DESTINY_CARD' ? '神秘命宮卡' : '生日主題卡';
   const archetypeLabel = ZIWEI_DESTINY_ARCHETYPE_LABELS[card.visualTheme.archetype] ?? '命盤象徵';
   const elementLabels = card.visualTheme.elementSignals.map((item) => ZIWEI_DESTINY_ELEMENT_LABELS[item] ?? item);
   const destinyTarot = pickDestinyTarotCard(card.heroStars.map((star) => star.name), card.visualTheme.elementSignals);
@@ -2640,13 +2640,13 @@ function ZiweiDestinyCardView({
   const teacherSynthesis = isTimeExact && teacherPalaceMap.size ? buildZiweiTeacherSynthesis('MING', teacherPalaceMap, teacherAnnualPalace, teacherCrossCheck, annual) : null;
 
   return (
-    <section className="fortune-card overflow-hidden p-4 sm:p-7" aria-label="紫微命工卡">
+    <section className="fortune-card overflow-hidden p-4 sm:p-7" aria-label="紫微神秘命宮卡">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">ZIWEI DESTINY CARD</p>
           <h2 className="mt-2 font-serif text-2xl font-black leading-tight text-amber-50 sm:text-3xl">{title}</h2>
           <p className="mt-2 max-w-2xl text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
-            紫微負責算，命工卡負責讓客戶看懂；星曜、宮位、四化與三方四正皆可回溯到正式命盤。
+            紫微負責算，神秘命宮卡負責讓客戶看懂；星曜、宮位、四化與三方四正皆可回溯到正式命盤。
           </p>
         </div>
         <span className={`rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.14em] ${isReady ? 'border-emerald-200/30 bg-emerald-300/10 text-emerald-100' : 'border-amber-200/35 bg-amber-300/10 text-amber-100'}`}>
@@ -2723,7 +2723,7 @@ function ZiweiDestinyCardView({
                     <p className="mt-0.5 text-[11px] font-bold text-cyan-100/75">{destinyTarot.card.nameEn}</p>
                   </div>
                   <p className="mt-2 rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-semibold leading-5 text-[color:var(--text-sub)]">{destinyTarot.reason}</p>
-                  <p className="mt-2 text-center text-[11px] font-bold leading-5 text-cyan-100/70">再次點擊，回到命工卡正面</p>
+                  <p className="mt-2 text-center text-[11px] font-bold leading-5 text-cyan-100/70">再次點擊，回到神秘命宮卡正面</p>
                 </div>
               </div>
             </div>

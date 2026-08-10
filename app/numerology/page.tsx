@@ -108,6 +108,16 @@ export default function NumerologyPage() {
   const cleanValue = cleanNumber(value);
   const canSubmit = VALID_LENGTHS.has(cleanValue.length);
   const progress = Math.min(100, Math.round((cleanValue.length / 10) * 100));
+  const numberInputDigitStyle = {
+    fontSize: cleanValue.length >= 9
+      ? 'clamp(3.15rem, 13.4vw, 5.25rem)'
+      : cleanValue.length >= 7
+        ? 'clamp(4.15rem, 17vw, 6.6rem)'
+        : 'clamp(6.25rem, 27vw, 8.8rem)',
+    fontVariantNumeric: 'tabular-nums',
+    fontFeatureSettings: '"tnum" 1',
+    letterSpacing: '0',
+  } as const;
   const score = result ? result.finalScore ?? result.score : 0;
   const level = result ? getLevel(score) : null;
   const topStrengths = useMemo(() => (result ? pickEntries(result.matrix, 3) : []), [result]);
@@ -218,8 +228,13 @@ export default function NumerologyPage() {
             onFocus={() => setError('')}
             placeholder="1688"
             aria-label="數字論好壞輸入框"
-            className="mt-4 min-h-[116px] w-full rounded-[24px] border border-amber-100/35 bg-black/45 px-4 py-7 text-center font-mono text-6xl font-black text-amber-50 shadow-[inset_0_0_32px_rgba(251,191,36,0.08),0_0_30px_rgba(34,211,238,0.12)] outline-none transition placeholder:text-white/20 focus:border-amber-200/75 focus:shadow-[inset_0_0_34px_rgba(251,191,36,0.12),0_0_34px_rgba(251,191,36,0.16)]"
+            style={numberInputDigitStyle}
+            className="mt-4 min-h-[168px] w-full rounded-[30px] border border-amber-100/45 bg-black/55 px-2 py-8 text-center font-mono font-black leading-none text-amber-50 shadow-[inset_0_0_38px_rgba(251,191,36,0.12),0_0_38px_rgba(34,211,238,0.18)] outline-none transition placeholder:text-white/24 focus:border-amber-200/85 focus:shadow-[inset_0_0_42px_rgba(251,191,36,0.16),0_0_44px_rgba(251,191,36,0.22)] sm:min-h-[196px]"
           />
+
+          <p className="mt-2 px-2 text-center text-sm font-black leading-6 text-amber-100/82">
+            請輸入阿拉伯數字 0-9，例如 1688、8888、0912345678
+          </p>
 
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {SAMPLE_NUMBERS.map((sample) => (
