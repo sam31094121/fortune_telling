@@ -27,3 +27,4 @@
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.ziwei-test-build
