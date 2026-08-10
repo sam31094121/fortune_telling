@@ -14,6 +14,7 @@ import type { GrowthElement } from '@/lib/growth-center-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
+import TaijiTopShell3D from '@/components/taiji/TaijiTopShell3D';
 import TaijiExperienceCoreV7, { type TaijiCoreState } from '@/components/taiji/TaijiExperienceCoreV7';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
@@ -2611,6 +2612,15 @@ export default function HomePage() {
             // AI 姓名學（首頁入口正常顯示，保留原本功能資料）
           </Link>
         </div>
+
+        <section
+          id="home-top-empty-shell-card"
+          className="mb-5 min-h-[168px] w-full rounded-[28px] border border-cyan-200/18 bg-slate-950/35 shadow-[0_18px_55px_rgba(2,6,23,0.22),inset_0_0_26px_rgba(34,211,238,0.045)] backdrop-blur-xl sm:mb-6 sm:min-h-[196px]"
+          aria-label="首頁最上方太極三層立體卡片"
+          data-home-slot="top-empty-shell"
+        >
+          <TaijiTopShell3D />
+        </section>
 
         <HomeStickyJourneyPanel
           completed={growthCompletedCount}

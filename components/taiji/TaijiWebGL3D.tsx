@@ -112,7 +112,7 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
 
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 120);
-      camera.position.set(0, 4.8, 14.2);
+      camera.position.set(0, 5.4, 15.6);
       camera.lookAt(0, 0, 0);
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -186,13 +186,83 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
       );
       taiChiGroup.add(coreBeam);
 
+      // --- 兩儀（陰陽雙極光環，互相垂直） ---
+      const liangYi = new THREE.Group();
+      taiChiGroup.add(liangYi);
+      const yiGeo = new THREE.TorusGeometry(1.95, 0.025, 12, 80);
+      const yinRing = new THREE.Mesh(yiGeo, new THREE.MeshBasicMaterial({
+        color: 0x00e5ff, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending,
+      }));
+      yinRing.rotation.x = Math.PI / 2;
+      liangYi.add(yinRing);
+      const yangRing = new THREE.Mesh(yiGeo, new THREE.MeshBasicMaterial({
+        color: 0xff2a8a, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending,
+      }));
+      yangRing.rotation.x = Math.PI / 2;
+      yangRing.rotation.z = Math.PI / 2;
+      liangYi.add(yangRing);
+
+      // --- 四象（四方能量點＋中心連線：少陽/太陽/少陰/太陰） ---
+      const siXiang = new THREE.Group();
+      taiChiGroup.add(siXiang);
+      const siXiangColors = [0x00e5ff, 0xff2a8a, 0x9b59ff, 0x2ecc71];
+      for (let s = 0; s < 4; s++) {
+        const angle = (s / 4) * Math.PI * 2;
+        const point = new THREE.Mesh(
+          new THREE.SphereGeometry(0.11, 16, 16),
+          new THREE.MeshBasicMaterial({ color: siXiangColors[s], transparent: true, opacity: 0.9 }),
+        );
+        point.position.set(Math.cos(angle) * 2.35, 0, Math.sin(angle) * 2.35);
+        siXiang.add(point);
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(Math.cos(angle) * 2.35, 0, Math.sin(angle) * 2.35),
+        ]);
+        const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({
+          color: siXiangColors[s], transparent: true, opacity: 0.25,
+        }));
+        siXiang.add(line);
+      }
+
+      // --- 八卦（八方位能量柱＋頂部光點＋外環） ---
+      const baGua = new THREE.Group();
+      taiChiGroup.add(baGua);
+      const baGuaColors = [0xffdd44, 0xff8844, 0xff4455, 0x44ff88, 0x44ffcc, 0x4488ff, 0x8844ff, 0xaaaaaa];
+      for (let b = 0; b < 8; b++) {
+        const angle = (b / 8) * Math.PI * 2 - Math.PI / 2;
+        const r = 2.85;
+        const pillar = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.04, 0.04, 0.55, 8),
+          new THREE.MeshBasicMaterial({
+            color: baGuaColors[b], transparent: true, opacity: 0.75, blending: THREE.AdditiveBlending,
+          }),
+        );
+        pillar.position.set(Math.cos(angle) * r, 0, Math.sin(angle) * r);
+        baGua.add(pillar);
+        const tip = new THREE.Mesh(
+          new THREE.SphereGeometry(0.09, 12, 12),
+          new THREE.MeshBasicMaterial({ color: baGuaColors[b], transparent: true, opacity: 0.95 }),
+        );
+        tip.position.set(Math.cos(angle) * r, 0.32, Math.sin(angle) * r);
+        baGua.add(tip);
+      }
+      const baGuaRing = new THREE.Mesh(
+        new THREE.TorusGeometry(2.85, 0.018, 8, 100),
+        new THREE.MeshBasicMaterial({
+          color: 0xffffff, transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending,
+        }),
+      );
+      baGuaRing.rotation.x = Math.PI / 2;
+      baGua.add(baGuaRing);
+
       // ==================== 第二層：五顆立體行星（空風水火地） ====================
+      // 五元數行星（半徑外推，讓出第一層八卦環 2.85 的空間）
       const planetsConfig = [
-        { name: '空', color: 0x9b59ff, radius: 3.35, speed: 0.19, tilt: 0.22, size: 0.32 },
-        { name: '風', color: 0x00e5ff, radius: 4.15, speed: 0.27, tilt: -0.15, size: 0.28 },
-        { name: '水', color: 0x2980ff, radius: 5.05, speed: 0.16, tilt: 0.28, size: 0.34 },
-        { name: '火', color: 0xff4500, radius: 6.05, speed: 0.23, tilt: -0.18, size: 0.3 },
-        { name: '地', color: 0x2ecc71, radius: 7.15, speed: 0.13, tilt: 0.1, size: 0.36 },
+        { name: '空', color: 0x9b59ff, radius: 3.8, speed: 0.16, tilt: 0.18, size: 0.27 },
+        { name: '風', color: 0x00e5ff, radius: 4.7, speed: 0.24, tilt: -0.13, size: 0.24 },
+        { name: '水', color: 0x2980ff, radius: 5.7, speed: 0.14, tilt: 0.22, size: 0.28 },
+        { name: '火', color: 0xff4500, radius: 6.8, speed: 0.2, tilt: -0.15, size: 0.26 },
+        { name: '地', color: 0x2ecc71, radius: 8.0, speed: 0.11, tilt: 0.08, size: 0.3 },
       ];
       const planets: any[] = [];
       planetsConfig.forEach((cfg, i) => {
@@ -296,7 +366,7 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
       // ==================== 第三層：空間概念能量場 ====================
       // 巨大空間球體（包覆整體，持續釋放光芒）
       const spaceShell = new THREE.Mesh(
-        new THREE.SphereGeometry(9.8, 48, 48),
+        new THREE.SphereGeometry(10.8, 48, 48),
         new THREE.MeshBasicMaterial({
           color: 0x00cfff, transparent: true, opacity: 0.035,
           blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false,
@@ -304,7 +374,7 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
       );
       world.add(spaceShell);
       const spaceShell2 = new THREE.Mesh(
-        new THREE.SphereGeometry(8.6, 32, 32),
+        new THREE.SphereGeometry(9.6, 32, 32),
         new THREE.MeshBasicMaterial({
           color: 0xff2a8a, transparent: true, opacity: 0.025,
           blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false,
@@ -389,6 +459,11 @@ export default function TaijiWebGL3D({ className }: { className?: string }) {
         const taiChiMaterial = taiChiSphere.material as any;
         taiChiMaterial.uniforms.time.value = t;
         taiChiSphere.rotation.y = t * 0.25;
+        // 第一層演化結構動態：兩儀反向緩轉、四象順轉、八卦緩慢逆轉
+        liangYi.rotation.y = -t * 0.12;
+        liangYi.rotation.x = Math.sin(t * 0.4) * 0.1;
+        siXiang.rotation.y = t * 0.08;
+        baGua.rotation.y = -t * 0.05;
         const yinPulse = 1 + Math.sin(t * 1.8) * 0.06;
         const yangPulse = 1 + Math.sin(t * 1.5 + 1.1) * 0.08;
         taiChiYinAura.scale.setScalar(yinPulse);
