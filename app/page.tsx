@@ -2615,7 +2615,7 @@ export default function HomePage() {
 
         <section
           id="home-top-empty-shell-card"
-          className="mb-5 min-h-[168px] w-full rounded-[28px] border border-cyan-200/18 bg-slate-950/35 shadow-[0_18px_55px_rgba(2,6,23,0.22),inset_0_0_26px_rgba(34,211,238,0.045)] backdrop-blur-xl sm:mb-6 sm:min-h-[196px]"
+          className="mx-auto mb-5 w-[min(86vw,420px)] rounded-[28px] border border-cyan-200/18 bg-slate-950/35 shadow-[0_18px_55px_rgba(2,6,23,0.22),inset_0_0_26px_rgba(34,211,238,0.045)] backdrop-blur-xl sm:mb-6 sm:w-[440px]"
           aria-label="首頁最上方太極三層立體卡片"
           data-home-slot="top-empty-shell"
         >

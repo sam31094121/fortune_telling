@@ -129,7 +129,7 @@ export default function TaijiWebGL3D({
           120,
         )
         : new THREE.PerspectiveCamera(42, width / height, 0.1, 120);
-      camera.position.set(0, isBanner ? 5.8 : 5.4, isBanner ? 20 : 15.6);
+      camera.position.set(0, isBanner ? 6.6 : 5.5, isBanner ? 24.5 : 17.2);
       camera.lookAt(0, 0, 0);
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -169,14 +169,14 @@ export default function TaijiWebGL3D({
       world.add(taiChiGroup);
 
       const taiChiSphere = new THREE.Mesh(
-        new THREE.SphereGeometry(1.55, 64, 64),
+        new THREE.SphereGeometry(1.85, 64, 64),
         createTaiChiGlowMaterial(THREE),
       );
       taiChiGroup.add(taiChiSphere);
 
       // 太極雙色外層光暈膜：青色陰光 + 洋紅陽光
       const taiChiYinAura = new THREE.Mesh(
-        new THREE.SphereGeometry(1.76, 32, 32),
+        new THREE.SphereGeometry(2.1, 32, 32),
         new THREE.MeshBasicMaterial({
           color: 0x00e5ff, transparent: true, opacity: 0.09,
           blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false,
@@ -184,7 +184,7 @@ export default function TaijiWebGL3D({
       );
       taiChiGroup.add(taiChiYinAura);
       const taiChiYangAura = new THREE.Mesh(
-        new THREE.SphereGeometry(1.96, 32, 32),
+        new THREE.SphereGeometry(2.34, 32, 32),
         new THREE.MeshBasicMaterial({
           color: 0xff2a8a, transparent: true, opacity: 0.055,
           blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false,
@@ -192,7 +192,7 @@ export default function TaijiWebGL3D({
       );
       taiChiGroup.add(taiChiYangAura);
       const corePulse = new THREE.Mesh(
-        new THREE.SphereGeometry(0.34, 24, 24),
+        new THREE.SphereGeometry(0.41, 24, 24),
         new THREE.MeshBasicMaterial({
           color: 0xffffff, transparent: true, opacity: 0.28,
           blending: THREE.AdditiveBlending, depthWrite: false,
@@ -200,7 +200,7 @@ export default function TaijiWebGL3D({
       );
       taiChiGroup.add(corePulse);
       const coreBeam = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.025, 0.025, 3.45, 18),
+        new THREE.CylinderGeometry(0.03, 0.03, 4.1, 18),
         new THREE.MeshBasicMaterial({
           color: 0x9eefff, transparent: true, opacity: 0.42,
           blending: THREE.AdditiveBlending, depthWrite: false,
@@ -211,7 +211,7 @@ export default function TaijiWebGL3D({
       // --- 兩儀（陰陽雙極光環，互相垂直） ---
       const liangYi = new THREE.Group();
       taiChiGroup.add(liangYi);
-      const yiGeo = new THREE.TorusGeometry(1.95, 0.025, 12, 80);
+      const yiGeo = new THREE.TorusGeometry(2.45, 0.03, 12, 80);
       const yinRing = new THREE.Mesh(yiGeo, new THREE.MeshBasicMaterial({
         color: 0x00e5ff, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending,
       }));
@@ -231,14 +231,14 @@ export default function TaijiWebGL3D({
       for (let s = 0; s < 4; s++) {
         const angle = (s / 4) * Math.PI * 2;
         const point = new THREE.Mesh(
-          new THREE.SphereGeometry(0.11, 16, 16),
+          new THREE.SphereGeometry(0.13, 16, 16),
           new THREE.MeshBasicMaterial({ color: siXiangColors[s], transparent: true, opacity: 0.9 }),
         );
-        point.position.set(Math.cos(angle) * 2.35, 0, Math.sin(angle) * 2.35);
+        point.position.set(Math.cos(angle) * 2.95, 0, Math.sin(angle) * 2.95);
         siXiang.add(point);
         const lineGeo = new THREE.BufferGeometry().setFromPoints([
           new THREE.Vector3(0, 0, 0),
-          new THREE.Vector3(Math.cos(angle) * 2.35, 0, Math.sin(angle) * 2.35),
+          new THREE.Vector3(Math.cos(angle) * 2.95, 0, Math.sin(angle) * 2.95),
         ]);
         const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({
           color: siXiangColors[s], transparent: true, opacity: 0.25,
@@ -252,9 +252,9 @@ export default function TaijiWebGL3D({
       const baGuaColors = [0xffdd44, 0xff8844, 0xff4455, 0x44ff88, 0x44ffcc, 0x4488ff, 0x8844ff, 0xaaaaaa];
       for (let b = 0; b < 8; b++) {
         const angle = (b / 8) * Math.PI * 2 - Math.PI / 2;
-        const r = 2.85;
+        const r = 3.55;
         const pillar = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.04, 0.04, 0.55, 8),
+          new THREE.CylinderGeometry(0.045, 0.045, 0.65, 8),
           new THREE.MeshBasicMaterial({
             color: baGuaColors[b], transparent: true, opacity: 0.75, blending: THREE.AdditiveBlending,
           }),
@@ -262,14 +262,14 @@ export default function TaijiWebGL3D({
         pillar.position.set(Math.cos(angle) * r, 0, Math.sin(angle) * r);
         baGua.add(pillar);
         const tip = new THREE.Mesh(
-          new THREE.SphereGeometry(0.09, 12, 12),
+          new THREE.SphereGeometry(0.1, 12, 12),
           new THREE.MeshBasicMaterial({ color: baGuaColors[b], transparent: true, opacity: 0.95 }),
         );
-        tip.position.set(Math.cos(angle) * r, 0.32, Math.sin(angle) * r);
+        tip.position.set(Math.cos(angle) * r, 0.38, Math.sin(angle) * r);
         baGua.add(tip);
       }
       const baGuaRing = new THREE.Mesh(
-        new THREE.TorusGeometry(2.85, 0.018, 8, 100),
+        new THREE.TorusGeometry(3.55, 0.02, 8, 100),
         new THREE.MeshBasicMaterial({
           color: 0xffffff, transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending,
         }),
@@ -278,39 +278,39 @@ export default function TaijiWebGL3D({
       baGua.add(baGuaRing);
 
       // ==================== 第二層：五顆立體行星（空風水火地） ====================
-      // 五元數行星（半徑外推，讓出第一層八卦環 2.85 的空間）
+      // 五元數行星（半徑外推，讓出放大後八卦環 3.55 的空間）
       const planetsConfig = [
         {
           name: '空', behavior: 'void', color: 0x9b59ff, emissive: 0x7b2cff,
-          radius: 3.8, speed: 0.13, tilt: 0.12, size: 0.32, spinSpeed: 0.16,
+          radius: 4.3, speed: 0.13, tilt: 0.12, size: 0.32, spinSpeed: 0.16,
           atmosphereScale: 2.1, atmosphereOpacity: 0.1, particleCount: 110,
           particleSize: 0.036, roughness: 0.08, metalness: 0.05, opacity: 0.35,
           orbitOpacity: 0.055, bloom: 0.65,
         },
         {
           name: '風', behavior: 'wind', color: 0x00e5ff, emissive: 0x00f5d4,
-          radius: 4.7, speed: 0.28, tilt: -0.18, size: 0.25, spinSpeed: 2.4,
+          radius: 5.3, speed: 0.28, tilt: -0.18, size: 0.25, spinSpeed: 2.4,
           atmosphereScale: 1.95, atmosphereOpacity: 0.16, particleCount: 300,
           particleSize: 0.044, roughness: 0.18, metalness: 0.15, opacity: 0.85,
           orbitOpacity: 0.095, bloom: 0.9,
         },
         {
           name: '水', behavior: 'water', color: 0x2980ff, emissive: 0x00bbf9,
-          radius: 5.7, speed: 0.15, tilt: 0.2, size: 0.29, spinSpeed: 0.72,
+          radius: 6.4, speed: 0.15, tilt: 0.2, size: 0.29, spinSpeed: 0.72,
           atmosphereScale: 1.55, atmosphereOpacity: 0.13, particleCount: 280,
           particleSize: 0.04, roughness: 0.04, metalness: 0.05, opacity: 0.82,
           orbitOpacity: 0.075, bloom: 0.55,
         },
         {
           name: '火', behavior: 'fire', color: 0xff4d19, emissive: 0xff006e,
-          radius: 6.8, speed: 0.22, tilt: -0.14, size: 0.27, spinSpeed: 2.85,
+          radius: 7.6, speed: 0.22, tilt: -0.14, size: 0.27, spinSpeed: 2.85,
           atmosphereScale: 2.25, atmosphereOpacity: 0.28, particleCount: 380,
           particleSize: 0.068, roughness: 0.4, metalness: 0.1, opacity: 1,
           orbitOpacity: 0.12, bloom: 2.8,
         },
         {
           name: '地', behavior: 'earth', color: 0x5ad16f, emissive: 0x2ecc71,
-          radius: 8.0, speed: 0.09, tilt: 0.06, size: 0.34, spinSpeed: 0.12,
+          radius: 8.9, speed: 0.09, tilt: 0.06, size: 0.34, spinSpeed: 0.12,
           atmosphereScale: 1.34, atmosphereOpacity: 0.09, particleCount: 42,
           particleSize: 0.038, roughness: 0.88, metalness: 0.22, opacity: 1,
           orbitOpacity: 0.045, bloom: 0.32,
