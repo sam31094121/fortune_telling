@@ -3,6 +3,7 @@
   --node-angle: 0deg;
   --node-radius: 47%;
   --node-counter-angle: 0deg;
+  --planet-color: #e7edf7;
   position: relative;
   display: grid;
   width: min(100%, 390px);
@@ -23,9 +24,13 @@
   border-radius: 32px;
   content: '';
   background:
+    linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px),
     radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.1), transparent 18%),
+    radial-gradient(circle at 50% 48%, rgba(34, 211, 238, 0.12), transparent 34%),
     radial-gradient(ellipse at 50% 52%, rgba(148, 163, 184, 0.16), transparent 54%),
     linear-gradient(180deg, rgba(15, 23, 42, 0.18), rgba(2, 6, 23, 0.04));
+  background-size: 22px 22px, 22px 22px, auto, auto, auto, auto;
 }
 
 .brand {
@@ -45,6 +50,35 @@
   place-items: center;
   perspective: 900px;
   transform-style: preserve-3d;
+}
+
+.coreStage::before,
+.coreStage::after {
+  position: absolute;
+  inset: 50%;
+  width: calc(var(--taiji-size) * 0.98);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  content: '';
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.coreStage::before {
+  z-index: 1;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  background:
+    conic-gradient(from 12deg, rgba(34, 211, 238, 0.26), transparent 18%, rgba(255, 255, 255, 0.14) 35%, transparent 52%, rgba(232, 195, 106, 0.16) 74%, transparent 88%),
+    radial-gradient(circle, transparent 62%, rgba(15, 23, 42, 0.34) 63%, transparent 66%);
+  opacity: 0.7;
+  animation: techSweep 18s linear infinite;
+}
+
+.coreStage::after {
+  z-index: 2;
+  width: calc(var(--taiji-size) * 0.76);
+  border: 1px dashed rgba(226, 232, 240, 0.22);
+  opacity: 0.45;
 }
 
 .mainLight,
@@ -154,6 +188,88 @@
   inset: 0;
   z-index: 4;
   pointer-events: none;
+}
+
+.planetSystem,
+.innerPlanetLayer,
+.outerPlanetLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.planetSystem {
+  z-index: 7;
+}
+
+.innerPlanet,
+.outerPlanet {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  transform:
+    rotate(var(--node-angle))
+    translateY(calc(var(--node-radius) * -1))
+    rotate(var(--node-counter-angle))
+    translate(-50%, -50%);
+}
+
+.innerPlanet {
+  width: 16px;
+  height: 16px;
+  border: 1px solid color-mix(in srgb, var(--planet-color), white 22%);
+  background: rgba(2, 6, 23, 0.72);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--planet-color), transparent 86%),
+    0 0 14px color-mix(in srgb, var(--planet-color), transparent 46%);
+  opacity: 0.92;
+}
+
+.innerPlanet i {
+  width: 6px;
+  height: 6px;
+  border-radius: inherit;
+  background: var(--planet-color);
+  box-shadow: 0 0 10px var(--planet-color);
+}
+
+.outerPlanet {
+  width: 58px;
+  min-height: 38px;
+  border: 1px solid color-mix(in srgb, var(--planet-color), transparent 56%);
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(2, 6, 23, 0.62)),
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--planet-color), transparent 70%), transparent 64%);
+  color: #f8fafc;
+  opacity: 0;
+  padding: 5px 6px;
+  transform:
+    rotate(var(--node-angle))
+    translateY(calc(var(--node-radius) * -1))
+    rotate(var(--node-counter-angle))
+    translate(-50%, -50%)
+    scale(0.78);
+  transition: opacity 360ms ease, transform 560ms cubic-bezier(0.18, 0.72, 0.2, 1);
+}
+
+.outerPlanet b,
+.outerPlanet small {
+  line-height: 1;
+}
+
+.outerPlanet b {
+  color: color-mix(in srgb, var(--planet-color), white 24%);
+  font-size: 0.68rem;
+  font-weight: 950;
+}
+
+.outerPlanet small {
+  color: rgba(226, 232, 240, 0.78);
+  font-size: 0.54rem;
+  font-weight: 800;
 }
 
 .forceNode,
@@ -343,6 +459,20 @@
   transform: translate(-50%, -50%) scale(1);
 }
 
+.shell[data-focus-open='true'] .outerPlanet {
+  opacity: 1;
+  transform:
+    rotate(var(--node-angle))
+    translateY(calc(var(--node-radius) * -1))
+    rotate(var(--node-counter-angle))
+    translate(-50%, -50%)
+    scale(1);
+}
+
+.shell[data-eight-open='true'] .outerPlanet {
+  opacity: 0.36;
+}
+
 .shell[data-four-open='true'] .fourNodes span {
   opacity: 1;
   transform:
@@ -398,7 +528,9 @@
 
 .shell[data-quality='LOW'] .mainLight,
 .shell[data-quality='LOW'] .groundShadow,
-.shell[data-quality='LOW']::before {
+.shell[data-quality='LOW']::before,
+.shell[data-quality='LOW'] .coreStage::before,
+.shell[data-quality='LOW'] .coreStage::after {
   display: none;
 }
 
@@ -414,6 +546,16 @@
 
   to {
     rotate: 360deg;
+  }
+}
+
+@keyframes techSweep {
+  from {
+    rotate: 0deg;
+  }
+
+  to {
+    rotate: -360deg;
   }
 }
 
@@ -456,6 +598,20 @@
     font-size: 0.6rem;
   }
 
+  .outerPlanet {
+    width: 50px;
+    min-height: 34px;
+    padding: 4px;
+  }
+
+  .outerPlanet b {
+    font-size: 0.6rem;
+  }
+
+  .outerPlanet small {
+    font-size: 0.48rem;
+  }
+
   .baguaNode {
     width: 42px;
     height: 42px;
@@ -477,9 +633,50 @@
 
   .fish,
   .forceNode,
+  .outerPlanet,
   .fourNodes span,
   .baguaNode {
     transition-duration: 1ms;
   }
+
+  .coreStage::before {
+    animation: none;
+  }
 }
 
+
+/* ===== V7 升級：五元素訊號（真實資料才顯示） ===== */
+.elementSignals {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(214, 220, 232, 0.72);
+}
+
+.elementSignals span[data-primary='true'] {
+  color: rgba(238, 228, 202, 0.98);
+  text-shadow: 0 0 10px rgba(238, 228, 202, 0.4);
+}
+
+/* ===== V7 升級：分析儀式遞進點亮 ===== */
+.analysisRail span {
+  transition: color 320ms ease, opacity 320ms ease;
+}
+
+.analysisRail span[data-done='false'] {
+  opacity: 0.45;
+}
+
+.analysisRail span[data-done='true'] {
+  opacity: 1;
+}
+
+/* ===== V7 升級：RESULT_READY 完成文案 ===== */
+.readyText {
+  color: rgba(238, 228, 202, 0.98) !important;
+  text-shadow: 0 0 12px rgba(238, 228, 202, 0.45);
+  font-weight: 900;
+}

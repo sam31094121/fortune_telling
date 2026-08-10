@@ -9,7 +9,8 @@ import NextStepGuide from '@/components/NextStepGuide';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
-import { getCompletedGrowthModules, markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import { getCompletedGrowthModules, getGrowthElements, markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import type { GrowthElement } from '@/lib/growth-center-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
@@ -1235,13 +1236,37 @@ const HOME_GROWTH_MODULE_GUIDES: HomeGrowthModuleGuide[] = [
   { id: 'tarot', label: 'AI 塔羅牌', helper: '完成塔羅牌抽牌、正逆位與五元素判定。', cta: '去完成塔羅牌', href: '/tarot', sticky: '用當下提問補齊最後一段訊號。', reward: '完成後，8/8 就能打開 AI 個人成長中心。' },
 ];
 
-function buildHomeTaijiState(completed: number, completedModules: string[], total: number): TaijiCoreState {
+function buildHomeTaijiState(
+  completed: number,
+  completedModules: string[],
+  total: number,
+  elements?: Record<string, GrowthElement>,
+): TaijiCoreState {
   const completedSet = new Set(completedModules);
   const safeTotal = Math.max(1, total);
   const safeCompleted = Math.min(Math.max(completed, 0), safeTotal);
   const nextGuide = HOME_GROWTH_MODULE_GUIDES.find((module) => !completedSet.has(module.id));
 
+  // 五元素訊號：只有真實資料才計算（規格十一：沒有真實資料禁止顯示百分比）
+  const elementEntries = Object.values(elements ?? {});
+  let primaryElement: TaijiCoreState['primaryElement'];
+  let elementSignals: TaijiCoreState['elementSignals'];
+  if (elementEntries.length > 0) {
+    const tally = new Map<string, number>();
+    for (const element of elementEntries) {
+      tally.set(element, (tally.get(element) ?? 0) + 1);
+    }
+    const sorted = [...tally.entries()].sort((a, b) => b[1] - a[1]);
+    primaryElement = sorted[0][0] as TaijiCoreState['primaryElement'];
+    elementSignals = sorted.map(([element, count]) => ({
+      element: element as NonNullable<TaijiCoreState['primaryElement']>,
+      percent: Math.round((count / elementEntries.length) * 100),
+    }));
+  }
+
   return {
+    primaryElement,
+    elementSignals,
     state: safeCompleted >= safeTotal ? 'RESULT_READY' : 'IDLE',
     progress: {
       completed: safeCompleted,
@@ -1494,6 +1519,7 @@ export default function HomePage() {
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [growthCompletedCount, setGrowthCompletedCount] = useState(0);
   const [growthCompletedModules, setGrowthCompletedModules] = useState<string[]>([]);
+  const [growthElements, setGrowthElements] = useState<Record<string, GrowthElement>>({});
   const [growthJustUnlocked, setGrowthJustUnlocked] = useState(false);
   const previousGrowthCountRef = useRef(0);
   const [ziweiOpening, setZiweiOpening] = useState(false);
@@ -1601,6 +1627,7 @@ export default function HomePage() {
       const completedModules = getCompletedGrowthModules();
       const completed = completedModules.length;
       setGrowthCompletedModules(completedModules);
+      setGrowthElements(getGrowthElements());
       setGrowthCompletedCount(completed);
       if (previousGrowthCountRef.current < GROWTH_VIP_TOTAL_MODULES && completed >= GROWTH_VIP_TOTAL_MODULES) {
         setGrowthJustUnlocked(true);
@@ -2540,7 +2567,7 @@ export default function HomePage() {
   }
 
   const fortuneAura = getNumberFortuneAura(fortuneResult?.level);
-  const homeTaijiState = buildHomeTaijiState(growthCompletedCount, growthCompletedModules, GROWTH_VIP_TOTAL_MODULES);
+  const homeTaijiState = buildHomeTaijiState(growthCompletedCount, growthCompletedModules, GROWTH_VIP_TOTAL_MODULES, growthElements);
   const enterHomeTaiji = () => {
     const target = document.getElementById('home-eight-card-route');
     target?.scrollIntoView({ behavior: 'smooth', block: 'start' });

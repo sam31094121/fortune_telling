@@ -30,8 +30,26 @@ export interface TaijiCoreState {
     href: string;
   };
   primaryElement?: TaijiPrimaryElement;
+  /** 只有真實資料才提供；沒有真實資料禁止顯示百分比 */
+  elementSignals?: Array<{ element: TaijiPrimaryElement; percent: number }>;
   analysisStatus?: 'RECEIVED' | 'VERIFYING' | 'ANALYZING' | 'INTEGRATING' | 'QUALITY_CHECK' | 'READY';
 }
+
+const ELEMENT_LABELS: Record<TaijiPrimaryElement, string> = {
+  SPACE: '空',
+  AIR: '風',
+  WATER: '水',
+  FIRE: '火',
+  EARTH: '地',
+};
+
+/** 分析儀式步驟完成門檻（依 analysisStatus 遞進點亮） */
+const ANALYSIS_STEP_THRESHOLDS: Array<TaijiCoreState['analysisStatus'][]> = [
+  ['VERIFYING', 'ANALYZING', 'INTEGRATING', 'QUALITY_CHECK', 'READY'],
+  ['INTEGRATING', 'QUALITY_CHECK', 'READY'],
+  ['QUALITY_CHECK', 'READY'],
+  ['READY'],
+];
 
 type TaijiExperienceCoreV7Props = {
   state: TaijiCoreState;
@@ -41,6 +59,14 @@ type TaijiExperienceCoreV7Props = {
 const TWO_FORCES = [
   { label: '陰', className: styles.forceYin },
   { label: '陽', className: styles.forceYang },
+] as const;
+
+const TECH_PLANETS = [
+  { key: 'jupiter', planet: '木星', element: '木', signal: '生長', color: '#45e6b5' },
+  { key: 'mars', planet: '火星', element: '火', signal: '啟動', color: '#ff6b5f' },
+  { key: 'saturn', planet: '土星', element: '土', signal: '穩定', color: '#e8c36a' },
+  { key: 'venus', planet: '金星', element: '金', signal: '校準', color: '#e7edf7' },
+  { key: 'mercury', planet: '水星', element: '水', signal: '流動', color: '#61b8ff' },
 ] as const;
 
 const FOUR_SYMBOLS = [
@@ -77,7 +103,9 @@ function stageFromTap(tap: number): TaijiState {
 }
 
 function mergeQualityState(state: TaijiState, quality: TaijiQuality): TaijiState {
-  if (quality === 'LOW' && !['ANALYZING', 'RESULT_READY'].includes(state)) return 'LOW_POWER';
+  // 效能分級只降視覺，不奪功能（規格：所有模式功能完全一致）。
+  // LOW 只在待機時顯示 LOW_POWER；互動展開與分析狀態一律保留。
+  if (quality === 'LOW' && state === 'IDLE') return 'LOW_POWER';
   return state;
 }
 
@@ -90,12 +118,20 @@ function polarStyle(index: number, total: number, radius: string) {
   } as CSSProperties;
 }
 
+function planetStyle(index: number, total: number, radius: string, color: string) {
+  return {
+    ...polarStyle(index, total, radius),
+    '--planet-color': color,
+  } as CSSProperties;
+}
+
 export default function TaijiExperienceCoreV7({ state, onStart }: TaijiExperienceCoreV7Props) {
   const quality = useTaijiPerformance();
   const [tap, setTap] = useState(0);
   const expansionState = stageFromTap(tap);
   const interactiveState = state.state === 'IDLE' ? expansionState : state.state;
   const displayState = mergeQualityState(interactiveState, quality);
+  const isFocusOpen = expansionState !== 'IDLE';
   const isEightOpen = expansionState === 'EXPAND_EIGHT';
   const isFourOpen = isEightOpen || expansionState === 'EXPAND_FOUR';
   const isTwoOpen = isFourOpen || expansionState === 'EXPAND_TWO';
@@ -124,6 +160,7 @@ export default function TaijiExperienceCoreV7({ state, onStart }: TaijiExperienc
       data-taiji-version="taiji-experience-core-v7"
       data-state={displayState}
       data-quality={quality}
+      data-focus-open={isFocusOpen}
       data-two-open={isTwoOpen}
       data-four-open={isFourOpen}
       data-eight-open={isEightOpen}
@@ -133,6 +170,32 @@ export default function TaijiExperienceCoreV7({ state, onStart }: TaijiExperienc
       <div className={styles.coreStage}>
         <span className={styles.mainLight} aria-hidden="true" />
         <span className={styles.groundShadow} aria-hidden="true" />
+
+        <div className={styles.planetSystem} aria-hidden="true">
+          <div className={styles.innerPlanetLayer}>
+            {TECH_PLANETS.map((item, index) => (
+              <span
+                key={`${item.key}-inner`}
+                className={styles.innerPlanet}
+                style={planetStyle(index, TECH_PLANETS.length, 'calc(var(--taiji-size) * 0.295)', item.color)}
+              >
+                <i />
+              </span>
+            ))}
+          </div>
+          <div className={styles.outerPlanetLayer}>
+            {TECH_PLANETS.map((item, index) => (
+              <span
+                key={item.key}
+                className={styles.outerPlanet}
+                style={planetStyle(index, TECH_PLANETS.length, 'calc(var(--taiji-size) * 0.47)', item.color)}
+              >
+                <b>{item.planet}</b>
+                <small>{item.element} · {item.signal}</small>
+              </span>
+            ))}
+          </div>
+        </div>
 
         <div className={styles.twoForces} aria-hidden="true">
           {TWO_FORCES.map((item) => (
@@ -194,14 +257,35 @@ export default function TaijiExperienceCoreV7({ state, onStart }: TaijiExperienc
       <div className={styles.status} aria-live="polite">
         <p>看清現在，決定下一步。</p>
         <strong>目前進度 {progressText}</strong>
-        {state.nextModule ? <span>下一步：{state.nextModule.label}</span> : <span>下一步：自由探索</span>}
+        {displayState === 'RESULT_READY' ? (
+          <span className={styles.readyText}>結果已準備完成。</span>
+        ) : state.nextModule ? (
+          <span>下一步：{state.nextModule.label}</span>
+        ) : (
+          <span>下一步：自由探索</span>
+        )}
       </div>
+
+      {/* 五元素訊號：只有真實資料才顯示（規格十一） */}
+      {state.elementSignals && state.elementSignals.length > 0 ? (
+        <div className={styles.elementSignals} aria-label="目前主要元素訊號">
+          {state.elementSignals.slice(0, 5).map((signal) => (
+            <span key={signal.element} data-primary={signal.element === state.primaryElement}>
+              {ELEMENT_LABELS[signal.element]} {signal.percent}%
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       {displayState === 'ANALYZING' || displayState === 'RESULT_READY' ? (
         <div className={styles.analysisRail} aria-label="分析狀態">
-          {ANALYSIS_STEPS.map((item) => (
-            <span key={item}>{item}<b>✓</b></span>
-          ))}
+          {ANALYSIS_STEPS.map((item, index) => {
+            const done = displayState === 'RESULT_READY'
+              || (state.analysisStatus != null && ANALYSIS_STEP_THRESHOLDS[index].includes(state.analysisStatus));
+            return (
+              <span key={item} data-done={done}>{item}<b>{done ? '✓' : '…'}</b></span>
+            );
+          })}
         </div>
       ) : null}
 
