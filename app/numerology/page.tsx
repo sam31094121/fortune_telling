@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
@@ -108,16 +108,18 @@ export default function NumerologyPage() {
   const cleanValue = cleanNumber(value);
   const canSubmit = VALID_LENGTHS.has(cleanValue.length);
   const progress = Math.min(100, Math.round((cleanValue.length / 10) * 100));
-  const numberInputDigitStyle = {
-    fontSize: cleanValue.length >= 9
+  const numberInputSize = cleanValue.length >= 9
       ? 'clamp(3.15rem, 13.4vw, 5.25rem)'
       : cleanValue.length >= 7
         ? 'clamp(4.15rem, 17vw, 6.6rem)'
-        : 'clamp(6.25rem, 27vw, 8.8rem)',
+        : 'clamp(6.25rem, 27vw, 8.8rem)';
+  const numberInputDigitStyle = {
+    '--fortune-number-input-size': numberInputSize,
+    fontSize: numberInputSize,
     fontVariantNumeric: 'tabular-nums',
     fontFeatureSettings: '"tnum" 1',
     letterSpacing: '0',
-  } as const;
+  } as CSSProperties & Record<'--fortune-number-input-size', string>;
   const score = result ? result.finalScore ?? result.score : 0;
   const level = result ? getLevel(score) : null;
   const topStrengths = useMemo(() => (result ? pickEntries(result.matrix, 3) : []), [result]);
@@ -229,14 +231,15 @@ export default function NumerologyPage() {
             placeholder="1688"
             aria-label="數字論好壞輸入框"
             style={numberInputDigitStyle}
-            className="mt-4 min-h-[168px] w-full rounded-[30px] border border-amber-100/45 bg-black/55 px-2 py-8 text-center font-mono font-black leading-none text-amber-50 shadow-[inset_0_0_38px_rgba(251,191,36,0.12),0_0_38px_rgba(34,211,238,0.18)] outline-none transition placeholder:text-white/24 focus:border-amber-200/85 focus:shadow-[inset_0_0_42px_rgba(251,191,36,0.16),0_0_44px_rgba(251,191,36,0.22)] sm:min-h-[196px]"
+            className="fortune-number-max-input mt-4 min-h-[168px] w-full rounded-[30px] border border-amber-100/45 bg-black/55 px-2 py-8 text-center font-mono font-black leading-none text-amber-50 shadow-[inset_0_0_38px_rgba(251,191,36,0.12),0_0_38px_rgba(34,211,238,0.18)] outline-none transition placeholder:text-white/24 focus:border-amber-200/85 focus:shadow-[inset_0_0_42px_rgba(251,191,36,0.16),0_0_44px_rgba(251,191,36,0.22)] sm:min-h-[196px]"
           />
 
           <p className="mt-2 px-2 text-center text-sm font-black leading-6 text-amber-100/82">
             請輸入阿拉伯數字 0-9，例如 1688、8888、0912345678
           </p>
 
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {/* 範例數字快捷鈕已隱藏（2026-08-10）：客戶不需要看到 */}
+          <div className="mt-3 hidden grid-cols-2 gap-2 sm:grid-cols-4">
             {SAMPLE_NUMBERS.map((sample) => (
               <button
                 key={sample}

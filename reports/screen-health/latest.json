@@ -3,8 +3,8 @@
   "version": "screen-health-monitor-v1",
   "baseUrl": "http://localhost:8888",
   "port": 8888,
-  "startedAt": "2026-08-10T12:52:18.538Z",
-  "completedAt": "2026-08-10T12:52:18.694Z",
+  "startedAt": "2026-08-10T12:56:54.299Z",
+  "completedAt": "2026-08-10T12:56:54.433Z",
   "mode": "ONCE",
   "autoRepair": false,
   "summary": {
@@ -22,7 +22,7 @@
       "path": "/",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 62,
+      "durationMs": 46,
       "htmlLength": 44718,
       "error": null,
       "issue": null
@@ -46,7 +46,7 @@
       "path": "/nameology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 10,
+      "durationMs": 8,
       "htmlLength": 21498,
       "error": null,
       "issue": null
@@ -70,8 +70,8 @@
       "path": "/numerology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 8,
-      "htmlLength": 16029,
+      "durationMs": 4,
+      "htmlLength": 16111,
       "error": null,
       "issue": null
     },
@@ -82,7 +82,7 @@
       "path": "/match",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 8,
+      "durationMs": 7,
       "htmlLength": 20127,
       "error": null,
       "issue": null
@@ -94,7 +94,7 @@
       "path": "/music",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 7,
+      "durationMs": 8,
       "htmlLength": 30063,
       "error": null,
       "issue": null
@@ -106,7 +106,7 @@
       "path": "/bazi",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 8,
+      "durationMs": 7,
       "htmlLength": 19445,
       "error": null,
       "issue": null
@@ -130,7 +130,7 @@
       "path": "/tarot",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 7,
+      "durationMs": 6,
       "htmlLength": 18540,
       "error": null,
       "issue": null
@@ -142,7 +142,7 @@
       "path": "/growth-center",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 7,
+      "durationMs": 8,
       "htmlLength": 10319,
       "error": null,
       "issue": null

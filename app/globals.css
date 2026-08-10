@@ -21588,3 +21588,23 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
     transition: none;
   }
 }
+
+.fortune-number-max-input {
+  font-size: var(--fortune-number-input-size, clamp(6.25rem, 27vw, 8.8rem)) !important;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: 0 !important;
+  line-height: 0.88 !important;
+}
+
+.fortune-number-max-input::placeholder {
+  font-size: clamp(5.7rem, 24vw, 8rem) !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0 !important;
+}
+
+@media (max-width: 420px) {
+  .fortune-number-max-input {
+    line-height: 0.84 !important;
+  }
+}
