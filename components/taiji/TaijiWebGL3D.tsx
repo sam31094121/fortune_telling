@@ -61,15 +61,15 @@ function createTaiChiGlowMaterial(THREE: any) {
       varying vec2 vUv;
       varying vec3 vViewPosition;
 
-      // ===== 阿基米德螺線太極（李仕澂模型）=====
-      // 分界線 rho = R * theta / PI（theta 0~PI）+ 180 度對稱螺線
-      // 黑白分明主體 + 魚眼呼吸 + 螺線流轉 + 邊界能量釋放
+      // ===== 正統陰陽雙魚太極（意境版）=====
+      // S 形雙半圓分界：白魚頭抱黑魚尾、黑魚頭抱白魚尾
+      // 黑魚白眼、白魚黑眼（呼吸）＋水墨暈染邊界＋魚身流紋
       const float PI = 3.14159265;
       const float SPHERE_R = 2.3;
 
       void main() {
-        // 螺線流轉：整個圖騰隨時間旋轉
-        float rotA = time * 0.32;
+        // 太極緩慢流轉
+        float rotA = time * 0.22;
         float cs = cos(rotA);
         float sn = sin(rotA);
         vec2 q = vec2(
@@ -78,52 +78,59 @@ function createTaiChiGlowMaterial(THREE: any) {
         ) / SPHERE_R;
 
         float rho = length(q);
-        float theta = atan(q.y, q.x);
-        if (theta < 0.0) theta += 2.0 * PI;
-        float t = theta / PI; // 0 ~ 2
 
-        // 螺線展開係數微調：陰陽比例緩慢消長（陽極生陰、陰極生陽）
-        float bCoef = 0.94 + 0.06 * sin(time * 0.55);
-        float boundary = (t < 1.0 ? t : t - 1.0) * bCoef;
-        float side = t < 1.0 ? 1.0 : -1.0;
-        float d = (rho - boundary) * side;
-        float white = smoothstep(-0.03, 0.03, d);
+        // ---- 正統比例 S 形分界（雙半圓，比例 1/2）----
+        // 基底：右半白、左半黑；上半圓（0,0.5）內歸白、下半圓（0,-0.5）內歸黑
+        float soft = 0.022; // 水墨暈染寬度
+        float white = smoothstep(-soft, soft, q.x);
+        float dUpper = length(q - vec2(0.0, 0.5));
+        float dLower = length(q - vec2(0.0, -0.5));
+        white = mix(white, 1.0, smoothstep(soft, -soft, dUpper - 0.5));
+        white = mix(white, 0.0, smoothstep(soft, -soft, dLower - 0.5));
 
-        // 黑白分明主體
-        vec3 whiteBody = vec3(0.97, 0.975, 1.0);
-        vec3 blackBody = vec3(0.015, 0.02, 0.05);
+        // ---- 魚眼（黑魚含白眼、白魚含黑眼，緩慢呼吸）----
+        float eyeR = 0.11 + 0.018 * sin(time * 1.1);
+        float dEyeWhiteSide = length(q - vec2(0.0, 0.5));   // 白魚頭 → 黑眼
+        float dEyeBlackSide = length(q - vec2(0.0, -0.5));  // 黑魚頭 → 白眼
+        float blackEye = smoothstep(eyeR, eyeR * 0.8, dEyeWhiteSide);
+        float whiteEye = smoothstep(eyeR, eyeR * 0.8, dEyeBlackSide);
+
+        // ---- 意境色彩 ----
+        // 白魚：宣紙暖白，內蘊溫潤微光
+        // 黑魚：墨色深邃，內藏微星
+        vec3 whiteBody = vec3(0.93, 0.93, 0.96) + vec3(0.05, 0.04, 0.02) * (1.0 - rho);
+        vec3 blackBody = vec3(0.012, 0.016, 0.038);
+
+        // 黑魚微星（深邃感）：細碎星點緩慢明滅
+        float starSeed = fract(sin(dot(floor(q * 26.0), vec2(12.9898, 78.233))) * 43758.5453);
+        float star = step(0.965, starSeed) * (0.5 + 0.5 * sin(time * 1.4 + starSeed * 40.0));
+        blackBody += vec3(0.5, 0.72, 0.9) * star * 0.35;
+
+        // 魚身流紋：沿旋轉方向的細緻水墨紋理（極淡）
+        float angleQ = atan(q.y, q.x);
+        float flow = sin(angleQ * 3.0 + rho * 9.0 - time * 0.8) * 0.5 + 0.5;
+        whiteBody -= vec3(0.035) * flow * smoothstep(1.0, 0.3, rho);
+        blackBody += vec3(0.02, 0.025, 0.045) * flow * smoothstep(1.0, 0.3, rho);
+
         vec3 color = mix(blackBody, whiteBody, white);
+        // 疊上魚眼
+        color = mix(vec3(0.95, 0.96, 0.99), color, whiteEye); // 黑魚白眼
+        color = mix(vec3(0.01, 0.014, 0.03), color, blackEye); // 白魚黑眼
 
-        // 魚眼（呼吸）：黑魚含白眼、白魚含黑眼，隨圖騰同步旋轉
-        float eyeR = 0.085 + 0.03 * sin(time * 1.6);
-        vec2 eyeBlackFish = 0.42 * vec2(cos(0.62 * PI), sin(0.62 * PI));
-        vec2 eyeWhiteFish = -eyeBlackFish;
-        float dEyeInBlack = length(q - eyeBlackFish);
-        float dEyeInWhite = length(q - eyeWhiteFish);
-        color = mix(whiteBody, color, smoothstep(eyeR * 0.82, eyeR, dEyeInBlack));
-        color = mix(blackBody, color, smoothstep(eyeR * 0.82, eyeR, dEyeInWhite));
+        // ---- 分界水墨暈光：沿 S 線一縷極淡流光（收斂，不喧鬧）----
+        float sBoundary = min(abs(q.x), min(abs(dUpper - 0.5), abs(dLower - 0.5)));
+        float boundaryGlow = smoothstep(0.05, 0.0, sBoundary) * step(rho, 1.0);
+        vec3 glowColor = mix(yinColor, yangColor, 0.5 + 0.5 * sin(time * 0.7)) * 0.28;
+        color += glowColor * boundaryGlow;
 
-        // 螺線分界能量光：沿 S 形分界釋放青紅能量
-        float boundaryGlow = smoothstep(0.055, 0.0, abs(rho - boundary)) * step(rho, 1.0);
-        vec3 glowColor = mix(yinColor, yangColor, 0.5 + 0.5 * sin(time * 1.2));
-        color += glowColor * boundaryGlow * 0.85;
-
-        // 能量脈衝環：由核心向外釋放
-        float ripple = sin(rho * 12.0 - time * 3.2) * 0.5 + 0.5;
-        float rippleMask = smoothstep(1.0, 0.25, rho) * 0.12;
-        color += mix(yinColor, yangColor, white) * ripple * rippleMask;
-
-        // Fresnel 邊緣能量场：滿滿能量從球缘噴發
+        // ---- Fresnel 邊緣氣場：球緣一圈溫和能量 ----
         vec3 viewDir = normalize(vViewPosition);
-        float fresnel = pow(1.0 - max(dot(viewDir, normalize(vNormal)), 0.0), 2.3);
-        vec3 edgeColor = mix(yinColor, yangColor, white) * fresnel * 2.9;
+        float fresnel = pow(1.0 - max(dot(viewDir, normalize(vNormal)), 0.0), 2.5);
+        vec3 edgeColor = mix(yinColor, yangColor, white) * fresnel * 1.9;
 
-        // 核心脈動
-        float corePulse = smoothstep(0.2, 0.0, rho) * (0.3 + 0.25 * sin(time * 3.1));
-        vec3 emissive = glowColor * corePulse;
-
-        float pulse = 0.9 + 0.1 * sin(time * 2.2);
-        vec3 finalColor = color * pulse + edgeColor + emissive;
+        // ---- 整體呼吸：如吐納，靜中有動 ----
+        float pulse = 0.94 + 0.06 * sin(time * 1.3);
+        vec3 finalColor = color * pulse + edgeColor;
         gl_FragColor = vec4(finalColor, 1.0);
       }
     `,

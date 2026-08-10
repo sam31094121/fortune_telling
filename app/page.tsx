@@ -16,6 +16,7 @@ import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import TaijiTopShell3D from '@/components/taiji/TaijiTopShell3D';
 import TaijiExperienceCoreV7, { type TaijiCoreState } from '@/components/taiji/TaijiExperienceCoreV7';
+import MegaInputGuide from '@/components/MegaInputGuide';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
@@ -2718,6 +2719,13 @@ export default function HomePage() {
             <p>其他探索素材</p>
             <h2>想多看，再選一張；不想想，就照上面下一步走。</h2>
           </div>
+          <MegaInputGuide
+            title="8 張卡片，一張一張填"
+            steps={['先看每張卡的填寫任務', '點進去後照大字引導填', '看不清楚就按聽引導']}
+            example="姓名、生日、時辰、阿拉伯數字，都會放大提示。"
+            tone="cyan"
+            className="mb-4"
+          />
           <div className="flex w-full flex-col gap-4">
           <Link
             href="/match"

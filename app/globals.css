@@ -21608,3 +21608,271 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
     line-height: 0.84 !important;
   }
 }
+
+.home-card-fill-guide {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 100%;
+  gap: 0.28rem;
+  margin-top: 0.95rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 8% 20%, rgba(255, 255, 255, 0.18), transparent 32%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(15, 23, 42, 0.34));
+  box-shadow:
+    inset 0 0 28px rgba(255, 255, 255, 0.06),
+    0 0 28px rgba(34, 211, 238, 0.12);
+}
+
+.home-card-fill-guide strong {
+  display: block;
+  color: rgb(255, 255, 255);
+  font-size: clamp(1.18rem, 5.6vw, 1.75rem);
+  font-weight: 950;
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.home-card-fill-guide span,
+.home-card-fill-guide small {
+  display: block;
+  color: rgba(226, 232, 240, 0.88);
+  font-size: clamp(0.88rem, 4vw, 1.08rem);
+  font-weight: 850;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.home-card-fill-guide small {
+  color: rgba(254, 243, 199, 0.9);
+}
+
+a.home-feature-launch::after {
+  content: "填寫：進入後照大字提示完成資料";
+  position: relative;
+  z-index: 1;
+  flex: 1 0 100%;
+  display: block;
+  margin-top: 0.35rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 8% 20%, rgba(255, 255, 255, 0.18), transparent 32%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(15, 23, 42, 0.34));
+  color: rgba(255, 255, 255, 0.96);
+  font-size: clamp(1.02rem, 4.7vw, 1.34rem);
+  font-weight: 950;
+  line-height: 1.28;
+  letter-spacing: 0;
+  box-shadow:
+    inset 0 0 28px rgba(255, 255, 255, 0.06),
+    0 0 28px rgba(34, 211, 238, 0.12);
+}
+
+a.home-feature-launch[href="/tarot"]::after {
+  content: "填寫：問題一句話 / 選分類 / 抽牌。例：我現在最需要看清楚的是什麼？";
+}
+
+a.home-feature-launch[href="/numerology"]::after {
+  content: "填寫：阿拉伯數字 0-9。例：1688、8888、0912345678。";
+}
+
+a.home-feature-launch[href="/insight"]::after {
+  content: "填寫：姓名 / 出生日期 / 血型 / 性別 / 時辰。例：1979-09-02 寅時。";
+}
+
+a.home-feature-launch[href="/match"]::after {
+  content: "填寫：兩個人的姓名、生日、血型、性別、時辰，一步一步填。";
+}
+
+a.home-feature-launch[href="/music"]::after {
+  content: "填寫：人生主題 / 音樂風格 / 聲音偏好 / 姓名生日。";
+}
+
+a.home-feature-launch[href="/nameology"]::after {
+  content: "填寫：完整姓名至少 2 個字，再補生日、血型、性別。";
+}
+
+a.home-feature-launch[href="/bazi"]::after {
+  content: "填寫：姓名 / 出生年月日 / 性別 / 時辰 / 出生地。";
+}
+
+a.home-feature-launch[href="/zodiac"]::after {
+  content: "填寫：西元出生日期必填；時間、城市知道再填。";
+}
+
+.mega-input-guide {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: clamp(1.05rem, 4.8vw, 1.45rem);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.22), transparent 30%),
+    linear-gradient(135deg, rgba(8, 13, 28, 0.96), rgba(15, 23, 42, 0.82));
+  box-shadow:
+    0 0 38px rgba(34, 211, 238, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.mega-input-guide__pulse {
+  position: absolute;
+  inset: -45%;
+  z-index: -1;
+  background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.16), transparent, rgba(34, 211, 238, 0.18), transparent);
+  opacity: 0.48;
+  animation: mega-guide-spin 12s linear infinite;
+}
+
+.mega-input-guide__eyebrow {
+  color: rgba(165, 243, 252, 0.86);
+  font-size: clamp(0.78rem, 3.3vw, 0.9rem);
+  font-weight: 950;
+  letter-spacing: 0.12em;
+}
+
+.mega-input-guide h2 {
+  margin-top: 0.35rem;
+  color: rgb(255, 255, 255);
+  font-size: clamp(1.85rem, 8.8vw, 3.4rem);
+  font-weight: 950;
+  line-height: 1.03;
+  letter-spacing: 0;
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.24);
+}
+
+.mega-input-guide__steps {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}
+
+.mega-input-guide__steps span {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.07);
+  padding: 0.58rem 0.72rem;
+  color: rgba(248, 250, 252, 0.94);
+  font-size: clamp(1rem, 4.7vw, 1.28rem);
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.mega-input-guide__steps b {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: rgb(255, 255, 255);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.mega-input-guide__example {
+  margin-top: 0.85rem;
+  color: rgba(254, 243, 199, 0.96);
+  font-size: clamp(1.02rem, 4.8vw, 1.34rem);
+  font-weight: 950;
+  line-height: 1.36;
+}
+
+.mega-input-guide__voice {
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  min-width: 5.8rem;
+  min-height: 5.8rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgb(255, 255, 255);
+  box-shadow: 0 0 28px rgba(255, 255, 255, 0.14);
+}
+
+.mega-input-guide__voice span {
+  font-size: clamp(1.4rem, 7vw, 2.4rem);
+  font-weight: 950;
+  line-height: 1;
+}
+
+.mega-input-guide__voice strong {
+  font-size: 0.78rem;
+  font-weight: 950;
+  letter-spacing: 0.05em;
+}
+
+.mega-input-guide--amber { box-shadow: 0 0 42px rgba(251, 191, 36, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.12); }
+.mega-input-guide--rose { box-shadow: 0 0 42px rgba(244, 63, 94, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.12); }
+.mega-input-guide--violet { box-shadow: 0 0 42px rgba(139, 92, 246, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.12); }
+.mega-input-guide--emerald { box-shadow: 0 0 42px rgba(16, 185, 129, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.12); }
+.mega-input-guide--fuchsia { box-shadow: 0 0 42px rgba(217, 70, 239, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.12); }
+
+@keyframes mega-guide-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .mega-input-guide {
+    grid-template-columns: 1fr;
+  }
+
+  .mega-input-guide__voice {
+    grid-template-columns: auto auto;
+    justify-content: center;
+    min-height: 4.2rem;
+    min-width: 100%;
+    gap: 0.7rem;
+  }
+
+  .mega-friendly-form input:not([type="checkbox"]),
+  .mega-friendly-form textarea,
+  .mega-friendly-form select,
+  .fortune-card input:not([type="checkbox"]):focus,
+  .fortune-card textarea:focus,
+  .tarot-question-entry__textarea:focus {
+    min-height: 64px !important;
+    font-size: clamp(1.32rem, 6.4vw, 1.82rem) !important;
+    line-height: 1.25 !important;
+  }
+
+  .mega-friendly-form input:not([type="checkbox"]):focus,
+  .mega-friendly-form textarea:focus,
+  .fortune-card input:not([type="checkbox"]):focus,
+  .fortune-card textarea:focus,
+  .tarot-question-entry__textarea:focus {
+    position: relative;
+    z-index: 5;
+    transform: scale(1.02);
+    transform-origin: center;
+    border-color: rgba(254, 240, 138, 0.88) !important;
+    box-shadow:
+      0 0 0 3px rgba(254, 240, 138, 0.16),
+      0 0 34px rgba(251, 191, 36, 0.26) !important;
+  }
+
+  .form-missing-alert {
+    font-size: clamp(1rem, 4.7vw, 1.28rem) !important;
+    line-height: 1.45 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mega-input-guide__pulse {
+    animation: none;
+  }
+}

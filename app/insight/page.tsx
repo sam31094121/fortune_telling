@@ -20,6 +20,7 @@ import type { ZiweiPresentationBundle } from '@/lib/ziwei-presentation-service';
 import { TAROT_CARDS } from '@/features/tarot/data/cards';
 import type { TarotAiElement, TarotCard } from '@/features/tarot/types';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
+import MegaInputGuide from '@/components/MegaInputGuide';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
 type ShichenChoice = number | 'unknown' | 'known' | null;
@@ -3819,6 +3820,12 @@ export default function InsightPage() {
               {loading && <InsightAnalyticalConsole name={input.name} />}
               <div className={loading ? 'hidden' : 'space-y-8'}>
                 <IdentitySplitSelector />
+                <MegaInputGuide
+                  title="請填紫微排盤資料"
+                  steps={['姓名至少 2 個字', '生日要用萬年曆完成', '血型、性別、時辰依序點選']}
+                  example="1979-09-02，寅時，女。"
+                  tone="cyan"
+                />
                 {/* 狀態指示器 */}
               <div className="hidden rounded-lg border border-cyan-400/20 bg-cyan-400/5 p-4 sm:block">
                 <p className="text-xs text-[color:var(--text-muted)] mb-3">資料進度</p>

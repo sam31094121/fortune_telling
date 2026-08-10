@@ -5,6 +5,7 @@ import { useMemo, useState, type CSSProperties } from 'react';
 
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
+import MegaInputGuide from '@/components/MegaInputGuide';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 
@@ -183,7 +184,8 @@ export default function NumerologyPage() {
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-3 gap-2">
+          {/* S01-S03 接收/運算/判定狀態卡已隱藏（2026-08-10）：客戶不用看 */}
+          <div className="mt-5 hidden grid-cols-3 gap-2">
             {['接收', '運算', '判定'].map((step, index) => {
               const passed = index === 0 ? cleanValue.length > 0 : index === 1 ? loading || Boolean(result) : Boolean(result);
               return (
@@ -205,6 +207,13 @@ export default function NumerologyPage() {
         </section>
 
         <section className="rounded-[26px] border border-white/12 bg-[linear-gradient(160deg,rgba(12,15,22,0.98),rgba(18,29,32,0.92),rgba(8,10,16,0.98))] p-4 shadow-[0_18px_55px_rgba(0,0,0,0.28)] sm:p-5">
+          <MegaInputGuide
+            title="請填阿拉伯數字"
+            steps={['只輸入 0-9', '可填 4、6、8 或 10 碼', '看清大字後再按開始']}
+            example="1688、8888、0912345678"
+            tone="amber"
+            className="mb-4"
+          />
           <div className="flex items-end justify-between gap-3">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-100/70">NUMBER</p>

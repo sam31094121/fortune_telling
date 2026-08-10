@@ -12,6 +12,7 @@ import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
+import MegaInputGuide from '@/components/MegaInputGuide';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
 type NameologyResponse = {
@@ -1026,6 +1027,14 @@ export default function NameologyPage() {
           </div>
 
           <IdentitySplitSelector className="mt-6" />
+
+          <MegaInputGuide
+            title="請先填完整姓名"
+            steps={['姓名至少 2 個字', '再完成生日資料', '最後點選血型與性別']}
+            example="王小明，或你的真實姓名"
+            tone="amber"
+            className="mt-6"
+          />
 
           <div className="mt-6 rounded-2xl border border-amber-300/15 bg-amber-950/10 p-4">
             <p className="mb-3 text-xs text-[color:var(--text-muted)]">資料進度</p>

@@ -8,6 +8,7 @@ import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { runAnalysisJobClient } from '@/lib/analysis-job-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
+import MegaInputGuide from '@/components/MegaInputGuide';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
 type Gender = 'male' | 'female';
@@ -467,6 +468,13 @@ export default function BaziPage() {
         <div className="mb-5 rounded-2xl border border-amber-200/20 bg-amber-300/10 px-4 py-3 text-sm font-black leading-7 text-amber-100">
           AI 判定：八字命盤已接入資料分流。選「我自己」會累積到個人成長中心；選「親朋好友」只完成本次單次命盤，不寫入會員成長資料。
         </div>
+        <MegaInputGuide
+          title="請填出生資料"
+          steps={['姓名至少 2 個字', '生日用萬年曆完成', '性別、時辰、出生地要確認']}
+          example="台灣、台北、寅時；不知道時辰可選不確定。"
+          tone="emerald"
+          className="mb-5"
+        />
         <UnifiedBirthForm
           value={form}
           fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, birthPlace: true, calendarType: true }}

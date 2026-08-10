@@ -11,6 +11,7 @@ import { getCompletedGrowthModules, getGrowthElements, markGrowthModuleCompleted
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
+import MegaInputGuide from '@/components/MegaInputGuide';
 import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 
@@ -458,6 +459,14 @@ export default function MusicSystemPage() {
               <DailyAnalysisNotice record={dailyRecord} className="mb-6" moduleName="AI 生命歌曲" onViewResult={dailyRecord ? handleStart : undefined} />
 
               <IdentitySplitSelector className="mb-6" />
+
+              <MegaInputGuide
+                title="照順序填歌曲資料"
+                steps={['先選人生主題', '再選音樂風格與聲音', '最後填姓名、生日、血型、性別']}
+                example="可以寫：我想把撐了很久的自己唱出來。"
+                tone="violet"
+                className="mb-6"
+              />
 
               <PersonalityMusicFlow onSubmit={handleSubmit} loading={loading} />
 

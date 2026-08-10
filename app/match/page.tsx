@@ -6,6 +6,7 @@ import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
+import MegaInputGuide from '@/components/MegaInputGuide';
 import { enforceAiCopywritingTone, uniqueAiCopywritingLines } from '@/lib/ai-copywriting-style-center';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
@@ -790,6 +791,12 @@ export default function MatchPage() {
           <div className="space-y-6">
             <IdentitySplitSelector />
             <DailyAnalysisNotice record={dailyRecord} className="mt-4" moduleName="AI 靈魂配對" onViewResult={dailyRecord ? () => restoreDailyRecord(dailyRecord) : undefined} />
+            <MegaInputGuide
+              title="先填第一個人，再填第二個人"
+              steps={['第一位：姓名、生日、血型、性別', '第二位：同樣填一次', '最後確認兩人的資料再送出']}
+              example="不知道時辰也可以先選不知道。"
+              tone="rose"
+            />
             <div className="fortune-card p-5 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>

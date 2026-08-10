@@ -14,6 +14,7 @@ import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import type { BloodType } from '@/lib/types';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
+import MegaInputGuide from '@/components/MegaInputGuide';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
 type JobStatus = 'IDLE' | 'VALIDATING' | 'QUEUED' | 'PROCESSING' | 'FINALIZING' | 'COMPLETED' | 'FAILED' | 'TIMEOUT' | 'CANCELLED';
@@ -929,6 +930,13 @@ export default function ZodiacPage() {
               </div>
             </section>
 
+            <MegaInputGuide
+              title="請填出生日期"
+              steps={['生日是必填', '不知道時間可選不知道', '知道時間再填城市會更完整']}
+              example="1979 年 09 月 02 日"
+              tone="fuchsia"
+              className="mb-5"
+            />
             <section className="fortune-card zodiac-form-card p-5 sm:p-7">
               <div className="mb-5 rounded-2xl border border-fuchsia-300/18 bg-fuchsia-300/8 p-4">
                 <p className="text-xs font-black uppercase tracking-[0.24em] text-fuchsia-200">資料確認</p>

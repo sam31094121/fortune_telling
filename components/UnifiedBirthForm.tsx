@@ -179,7 +179,7 @@ export function UnifiedBirthForm({
         event.preventDefault();
         onSubmit(value);
       }}
-      className="space-y-4"
+      className="mega-friendly-form space-y-4"
     >
       <section className="rounded-[28px] border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.16),rgba(15,23,42,0.78)_58%,rgba(2,6,23,0.94)_100%)] p-5 shadow-[0_0_34px_rgba(251,191,36,0.12)]">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">資料填寫</p>
