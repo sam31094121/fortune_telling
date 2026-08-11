@@ -9,6 +9,7 @@ import { runAnalysisJobClient } from '@/lib/analysis-job-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import { BaziCustomerShell } from '@/components/bazi/customer/BaziCustomerShell';
+import { BaziCalculationCeremony, BaziGateFailed, runBaziFinalGate, toBaziProgressView, type BaziCalculationProgressViewModel } from '@/components/bazi/customer/BaziCalculationProgress';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
@@ -354,6 +355,10 @@ export default function BaziPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [result, setResult] = useState<BaziResult | null>(null);
+  // Real Calculation Ceremony：idle → processing（後端運算中）→ ceremony（揭示真實狀態）→ ready（進入命盤）
+  const [ceremonyPhase, setCeremonyPhase] = useState<'idle' | 'processing' | 'ceremony' | 'ready' | 'gate_failed'>('idle');
+  const [progressView, setProgressView] = useState<BaziCalculationProgressViewModel | null>(null);
+  const [gateIssues, setGateIssues] = useState<string[]>([]);
   const [missing, setMissing] = useState<string[]>([]);
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<BaziResult> | null>(null);
   const resolvedBirthTime = form.timeUnknown ? '12:00' : form.birthTime;
@@ -377,6 +382,7 @@ export default function BaziPage() {
     }
     setDailyRecord(record);
     setResult(record.result);
+    setCeremonyPhase('ready');
   }, []);
 
   useEffect(() => {
@@ -398,6 +404,7 @@ export default function BaziPage() {
       } else {
         setDailyRecord(existing);
         setResult(existing.result);
+        setCeremonyPhase('ready');
         scrollToResult();
         return;
       }
@@ -428,7 +435,9 @@ export default function BaziPage() {
 
     setLoading(true);
     setResult(null);
-    setMessage('已交給太極 AI Core 排程，第一層正在建立專業八字命盤。');
+    setCeremonyPhase('processing');
+    setProgressView(null);
+    setMessage('');
     try {
       const data = await runAnalysisJobClient<BaziResult>({
         analysisType: 'bazi',
@@ -448,13 +457,26 @@ export default function BaziPage() {
           if (job.message) setMessage(job.message);
         },
       });
+      const hourUnknownNow = form.timeUnknown === true;
+      const gate = runBaziFinalGate(data, hourUnknownNow);
+      if (!gate.passed) {
+        // Final Gate 未通過：不顯示半套假命盤
+        setGateIssues(gate.issues);
+        setCeremonyPhase('gate_failed');
+        setResult(null);
+        return;
+      }
       setResult(data);
+      setProgressView(toBaziProgressView(data, hourUnknownNow));
+      setCeremonyPhase('ceremony');
       setDailyRecord(saveDailyAnalysis<BaziResult>('bazi', data));
-      setMessage('三層資料流已完成：專業命盤 → AI 解讀 → AI 補強。');
+      setMessage('');
       scrollToResult();
       if (targetMode === 'self') markGrowthModuleCompleted('bazi', data.aiReinforcementPlan.first.brandElement);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : '目前無法完成八字命盤。');
+      setCeremonyPhase('gate_failed');
+      setGateIssues(['backend request failed']);
     } finally {
       setLoading(false);
     }
@@ -514,7 +536,30 @@ export default function BaziPage() {
         {error && <p className="mt-4 rounded-2xl border border-rose-300/35 bg-rose-500/12 px-4 py-3 text-sm font-black leading-6 text-rose-100">{error}</p>}
         {message && <p className="mt-4 rounded-2xl border border-cyan-300/25 bg-cyan-300/8 px-4 py-3 text-sm font-bold leading-6 text-cyan-100">{message}</p>}
 
-        {result && (
+        {(ceremonyPhase === 'processing' || ceremonyPhase === 'ceremony') && (
+          <div ref={ceremonyPhase === 'ceremony' ? resultSectionRef : undefined} className="mt-6 scroll-mt-20">
+            <BaziCalculationCeremony
+              phase={ceremonyPhase}
+              view={progressView}
+              onOpenResult={() => {
+                setCeremonyPhase('ready');
+                window.setTimeout(() => resultSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+              }}
+            />
+          </div>
+        )}
+
+        {ceremonyPhase === 'gate_failed' && (
+          <div className="mt-6">
+            <BaziGateFailed
+              issues={gateIssues}
+              onRetry={() => { void handleSubmit(); }}
+              onCheckInput={() => { setCeremonyPhase('idle'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            />
+          </div>
+        )}
+
+        {result && ceremonyPhase === 'ready' && (
           <div ref={resultSectionRef} className="mt-6 scroll-mt-20">
             {result.dailyTarot && <div className="mb-4"><BaziDailyTarotCard tarot={result.dailyTarot} /></div>}
             {/* Customer Frontend Visual Rebuild V1：三層架構（命工卡 → 老師專業 → 完整命盤）
