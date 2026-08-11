@@ -506,28 +506,32 @@ export default function BaziPage() {
   return (
     <div className="app-bg min-h-screen overflow-x-hidden">
       <main className="relative z-10 mx-auto max-w-4xl px-4 py-5 sm:px-6 sm:py-9">
-        <header className="mb-5 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            {/* 眉標：中文為主、英文為輔，金色引線建立儀式感 */}
-            <div className="flex items-center gap-3">
-              <span className="h-px w-8 bg-gradient-to-r from-amber-300/80 to-transparent" aria-hidden="true" />
+        <header className="mb-6">
+          {/* 返回首頁：獨立置右，不擠壓置中標題 */}
+          <div className="mb-4 flex justify-end">
+            <Link href="/" className="feature-home-link feature-home-link--amber shrink-0">
+              返回首頁
+            </Link>
+          </div>
+          {/* 標題區：全部置中，儀式感對稱 */}
+          <div className="text-center">
+            {/* 眉標：雙側金色引線夾中文 */}
+            <div className="flex items-center justify-center gap-3">
+              <span className="h-px w-10 bg-gradient-to-r from-transparent to-amber-300/80" aria-hidden="true" />
               <p className="text-xs font-black tracking-[0.3em] text-amber-200">
                 辰 · 八字命盤 <span className="ml-1 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/50">BAZI ENGINE</span>
               </p>
+              <span className="h-px w-10 bg-gradient-to-l from-transparent to-amber-300/80" aria-hidden="true" />
             </div>
-            {/* 主標：放大 + 金色漸層，視覺焦點 */}
-            <h1 className="mt-3 bg-gradient-to-br from-amber-50 via-amber-100 to-amber-300/80 bg-clip-text font-serif text-4xl font-black leading-tight text-transparent drop-shadow-[0_0_24px_rgba(251,191,36,0.18)] sm:text-6xl">
-              AI 八字命盤
+            {/* 主標：置中 + 金色漸層 */}
+            <h1 className="mx-auto mt-3 bg-gradient-to-br from-amber-50 via-amber-100 to-amber-300/80 bg-clip-text font-serif text-4xl font-black leading-tight text-transparent drop-shadow-[0_0_24px_rgba(251,191,36,0.18)] sm:text-6xl">
+              AI <span className="mx-1 align-middle font-sans text-3xl font-black text-amber-300/90 sm:text-5xl">+</span> 八字命盤
             </h1>
-            {/* 副標：金色豎線引導，語氣沉穩 */}
-            <p className="mt-4 flex max-w-2xl items-center gap-3 text-base font-bold leading-7 text-amber-100/75 sm:text-lg">
-              <span className="h-6 w-[3px] shrink-0 rounded-full bg-gradient-to-b from-amber-300/90 to-amber-500/30" aria-hidden="true" />
+            {/* 副標：置中收尾 */}
+            <p className="mx-auto mt-4 max-w-2xl text-base font-bold leading-7 text-amber-100/75 sm:text-lg">
               先排準，再解讀。
             </p>
           </div>
-          <Link href="/" className="feature-home-link feature-home-link--amber shrink-0">
-            返回首頁
-          </Link>
         </header>
 
         <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 八字命盤" onViewResult={result ? scrollToResult : undefined} />
