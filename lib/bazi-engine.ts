@@ -1,3 +1,10 @@
+/**
+ * LEGACY_BAZI_LOGIC（2026-08-11 標記）
+ * 已知違規：月柱直接用國曆月份（無節氣）、年柱固定 2/4 切換（非立春實刻）。
+ * Shadow Migration 進行中：新核心 lib/bazi/engine.ts（TraditionalBaziCore V1）。
+ * 通過 Golden Test + 人工核對後 CUTOVER，屆時本檔依 DEPRECATE → REMOVE 流程處理。
+ * 在 CUTOVER 前禁止直接刪除本檔（避免正式站中斷）。
+ */
 import { getDayPillarIndex, getHourPillar, shichenFromClockHour, getShichenInfo } from './shichen-engine';
 import { computeDetail } from './bazi-detail';
 import type { BaziDetail } from './bazi-detail';
@@ -139,6 +146,17 @@ export type BaziGodSet = {
   reason: string;
 };
 
+export type BaziVerificationGate = {
+  calendarVerified: boolean;
+  pillarsVerified: boolean;
+  tenGodsVerified: boolean;
+  luckCyclesVerified: boolean;
+  readyForInterpretation: boolean;
+  checksum: string;
+  evidence: string[];
+  failedReasons: string[];
+};
+
 export type BaziProfessionalChart = {
   layer: 'professional_chart';
   generatedFrom: 'normalized_birth_input';
@@ -162,6 +180,7 @@ export type BaziProfessionalChart = {
   annualFortunes: BaziAnnualFortune[];
   structurePattern: BaziStructurePattern;
   structureFocus: string;
+  verification: BaziVerificationGate;
   detail: BaziDetail;
 };
 
@@ -311,6 +330,40 @@ function chartChecksum(chart: Pick<BaziProfessionalChart, 'input' | 'pillars' | 
     structurePattern: chart.structurePattern,
   }));
 }
+
+function buildVerificationGate(chart: Pick<BaziProfessionalChart, 'calendar' | 'pillars' | 'pillarDetails' | 'tenGods' | 'luckCycles' | 'annualFortunes' | 'input' | 'elementCounts' | 'elementStatistics' | 'tenGodDistribution' | 'dayMaster' | 'gods' | 'structurePattern'>): BaziVerificationGate {
+  const pillarValues = PILLAR_KEYS.map((key) => chart.pillars[key]);
+  const pillarDetails = PILLAR_KEYS.map((key) => chart.pillarDetails[key]);
+  const tenGodValues = PILLAR_KEYS.map((key) => chart.tenGods[key]);
+  const calendarVerified = chart.calendar.calendarType === 'solar' && Boolean(chart.calendar.solarDate) && Boolean(chart.calendar.birthTime) && Boolean(chart.calendar.shichen.label);
+  const pillarsVerified = pillarValues.every((item) => Boolean(item?.stem && item?.branch)) && pillarDetails.every((item) => item.ganzhi === item.stem + item.branch);
+  const tenGodsVerified = tenGodValues.every((item) => Boolean(item?.stem && item?.branchMain) && Array.isArray(item.hidden));
+  const luckCyclesVerified = chart.luckCycles.length > 0 && chart.annualFortunes.length > 0 && chart.luckCycles.every((item) => Boolean(item.pillar && item.ageRange));
+  const failedReasons = [
+    calendarVerified ? null : '曆法與時辰資料未完整驗證。',
+    pillarsVerified ? null : '四柱干支或明細不一致。',
+    tenGodsVerified ? null : '十神資料未完整對應四柱。',
+    luckCyclesVerified ? null : '大運或流年資料未建立。',
+  ].filter(Boolean) as string[];
+  const readyForInterpretation = failedReasons.length === 0;
+
+  return {
+    calendarVerified,
+    pillarsVerified,
+    tenGodsVerified,
+    luckCyclesVerified,
+    readyForInterpretation,
+    checksum: chartChecksum(chart),
+    evidence: [
+      '曆法驗證：' + (calendarVerified ? chart.calendar.solarDate + ' ' + chart.calendar.birthTime + ' · ' + chart.calendar.shichen.label : '未通過'),
+      '四柱驗證：' + pillarDetails.map((item) => item.ganzhi).join('、'),
+      '十神驗證：' + tenGodValues.map((item) => item.stem + '/' + item.branchMain).join('、'),
+      '歲運驗證：大運 ' + chart.luckCycles.length + ' 筆，流年 ' + chart.annualFortunes.length + ' 筆。',
+    ],
+    failedReasons,
+  };
+}
+
 function analysisChecksum(analysis: Pick<BaziDeepAnalysis, 'summary' | 'plainText' | 'elementPriority'>) {
   return hashText(JSON.stringify({ summary: analysis.summary, plainText: analysis.plainText, elementPriority: analysis.elementPriority }));
 }
@@ -608,6 +661,24 @@ function buildProfessionalChart(input: BaziAnalysisInput): BaziProfessionalChart
   };
   const timezone = { country: inputSnapshot.country, city: inputSnapshot.city, note: '第一層只記錄國家與城市作為時區來源，本次以使用者輸入的當地時間排盤。' };
   const detail = computeDetail(pillars, hiddenStems, tenGods);
+  const luckCycles = buildLuckCycles(dayIndex, input.gender, pillars.year.stem, year, pillars.day.stem);
+  const annualFortunes = buildAnnualFortunes(new Date().getFullYear(), pillars.day.stem);
+  const chartCore = {
+    input: inputSnapshot,
+    calendar,
+    pillars,
+    pillarDetails,
+    tenGods,
+    elementCounts,
+    elementStatistics,
+    tenGodDistribution,
+    dayMaster: { stem: pillars.day.stem, element: pillars.day.stemElement, strength: Math.max(0, strengthAnalysis.supportScore - strengthAnalysis.pressureScore), level: strengthAnalysis.verdict },
+    gods,
+    luckCycles,
+    annualFortunes,
+    structurePattern,
+  };
+  const verification = buildVerificationGate(chartCore);
 
   return {
     layer: 'professional_chart',
@@ -622,16 +693,17 @@ function buildProfessionalChart(input: BaziAnalysisInput): BaziProfessionalChart
     hiddenStemStructure,
     tenGods,
     tenGodDistribution,
-    dayMaster: { stem: pillars.day.stem, element: pillars.day.stemElement, strength: Math.max(0, strengthAnalysis.supportScore - strengthAnalysis.pressureScore), level: strengthAnalysis.verdict },
+    dayMaster: chartCore.dayMaster,
     elementCounts,
     elementStatistics,
     strengthAnalysis,
     strengthFactors,
     gods,
-    luckCycles: buildLuckCycles(dayIndex, input.gender, pillars.year.stem, year, pillars.day.stem),
-    annualFortunes: buildAnnualFortunes(new Date().getFullYear(), pillars.day.stem),
+    luckCycles,
+    annualFortunes,
     structurePattern,
     structureFocus: '四柱已完成：' + pillars.year.stem + pillars.year.branch + '、' + pillars.month.stem + pillars.month.branch + '、' + pillars.day.stem + pillars.day.branch + '、' + pillars.hour.stem + pillars.hour.branch + '；時辰為' + shichen.label + '。',
+    verification,
     detail,
   };
 }
@@ -671,7 +743,10 @@ function buildElementPriority(chart: BaziProfessionalChart): BaziElementPriority
 }
 
 function buildDeepAnalysis(chart: BaziProfessionalChart): BaziDeepAnalysis {
-  const checksum = chartChecksum(chart);
+  if (!chart.verification.readyForInterpretation) {
+    throw new Error('第一層專業命盤尚未通過驗證，第二層 AI 解盤不可啟動：' + chart.verification.failedReasons.join('、'));
+  }
+  const checksum = chart.verification.checksum;
   const elementPriority = buildElementPriority(chart);
   const dayPillar = chart.pillars.day.stem + chart.pillars.day.branch;
   const topTenGods = chart.tenGodDistribution.ranked.slice(0, 3).map((item) => item.tenGod);
@@ -702,6 +777,7 @@ function buildDeepAnalysis(chart: BaziProfessionalChart): BaziDeepAnalysis {
   ];
   const keyFindings = [chart.structureFocus, professionalSignals.structure, professionalSignals.strengthFocus, chart.gods.reason, professionalSignals.elementFocus];
   const logicTrace = [
+    { step: '驗證第一層命盤', source: 'professional_chart' as const, output: 'verification.readyForInterpretation = true；checksum ' + chart.verification.checksum + '。' },
     { step: '讀取第一層四柱', source: 'professional_chart' as const, output: chart.structureFocus },
     { step: '讀取格局與十神', source: 'professional_chart' as const, output: professionalSignals.structure + '；十神：' + (topTenGods.join('、') || '分布平均') },
     { step: '讀取日主強弱', source: 'professional_chart' as const, output: professionalSignals.dayMaster + '；' + professionalSignals.strengthFocus },

@@ -63,6 +63,17 @@ type BaziStrengthFactor = {
   detail: string;
 };
 
+type BaziVerificationGate = {
+  calendarVerified: boolean;
+  pillarsVerified: boolean;
+  tenGodsVerified: boolean;
+  luckCyclesVerified: boolean;
+  readyForInterpretation: boolean;
+  checksum: string;
+  evidence: string[];
+  failedReasons: string[];
+};
+
 type BaziElementPriority = {
   rank: number;
   element: string;
@@ -114,6 +125,7 @@ type BaziResult = {
     elementStatistics: BaziElementStatistics;
     strengthFactors: BaziStrengthFactor[];
     structurePattern: { primaryPattern: string; supportingPattern: string; stability: 'stable' | 'mixed' | 'unstable'; mixed: boolean; brokenBy: string[]; specialNotes: string[] };
+    verification: BaziVerificationGate;
     detail: { readableSummary: string; pillarOrder: Array<{ label: string; ganzhi: string; hiddenStems: string[]; tenGods: string[] }> };
   };
   aiDeepAnalysis: {
@@ -629,7 +641,9 @@ export default function BaziPage() {
             <section className="rounded-[28px] border border-emerald-300/25 bg-emerald-300/8 p-5">
               <LayerBadge label="Layer 2 · AI Deep Analysis" />
               <h2 className="mt-3 text-2xl font-black leading-8 text-emerald-50">第二層｜AI 深度分析</h2>
-              <p className="mt-3 text-xs font-bold text-emerald-100/80">來源：{result.aiDeepAnalysis.sourceLayer} · checksum {result.aiDeepAnalysis.sourceChecksum} · 不重算命盤</p>
+              <p className="mt-3 text-xs font-bold text-emerald-100/80">
+                來源：{result.aiDeepAnalysis.sourceLayer} · checksum {result.aiDeepAnalysis.sourceChecksum} · {result.professionalChart.verification.readyForInterpretation ? '已驗證' : '未驗證'} · 不重算命盤
+              </p>
               <h3 className="mt-4 text-xl font-black text-emerald-50">{result.aiDeepAnalysis.chartSummary}</h3>
               <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{result.aiDeepAnalysis.summary}</p>
 

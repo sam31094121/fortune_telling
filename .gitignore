@@ -28,4 +28,5 @@
 *.tsbuildinfo
 next-env.d.ts
 .ziwei-test-build
+.bazi-test-build
 t12
