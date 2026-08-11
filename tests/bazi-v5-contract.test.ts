@@ -7,7 +7,7 @@
  */
 
 import { analyzeBazi } from '../lib/bazi-engine';
-import { attachBaziProfessionalCoreV5, type BaziRuntimeInput } from '../lib/bazi-professional-result-v5';
+import { attachBaziProfessionalCoreV5, isLegalBaziPipelineTransition, type BaziRuntimeInput } from '../lib/bazi-professional-result-v5';
 
 let pass = 0; let fail = 0;
 function check(label: string, actual: unknown, expected: unknown) {
@@ -27,6 +27,7 @@ function hasValue(value: unknown) {
 }
 
 const fullInput: BaziRuntimeInput = {
+  calculationId: 'bazi_contract_full',
   name: '測試命盤',
   birthDate: '1988-6-15',
   birthTime: '08:30',
@@ -45,10 +46,17 @@ const fullInput: BaziRuntimeInput = {
   check('V5 completeness valid', pc.professionalCompleteness.valid, true);
   check('V5 required fields exported', required.every((key) => hasValue(key === 'solarTerm' ? pc.calendar.solarTerm : pc[key])), true);
   check('V5 field traces are valid', pc.fieldTrace.every((trace: any) => trace.professionalResult === 'VALID_VALUE'), true);
+  check('V5 calculationId shared by field trace', pc.fieldTrace.every((trace: any) => trace.calculationId === pc.pipeline.calculationId), true);
+  check('V5 pipeline reaches API_READY', pc.pipeline.currentState, 'API_READY');
+  check('V5 pipeline calculationId locked', pc.pipeline.calculationId, fullInput.calculationId);
+  check('V5 pipeline fingerprint locked', pc.pipeline.birthInputFingerprint, pc.birthInputFingerprint);
+  check('V5 pipeline transitions legal', pc.pipeline.transitions.every((transition: any) => isLegalBaziPipelineTransition(transition.from, transition.to)), true);
+  check('V5 illegal transition blocked', isLegalBaziPipelineTransition('CORE_PROCESSING', 'CUSTOMER_VIEW_READY'), false);
   check('V5 five element ten god map keeps all five nodes', ['木', '火', '土', '金', '水'].every((element) => Array.isArray(pc.fiveElementTenGodMap[element])), true);
 }
 
 const partialInput: BaziRuntimeInput = {
+  calculationId: 'bazi_contract_partial',
   name: '未知時辰',
   birthDate: '1988-6-15',
   birthTime: '12:00',
@@ -66,6 +74,7 @@ const partialInput: BaziRuntimeInput = {
   check('PARTIAL_BAZI does not expose fake birthTime', result.input.birthTime, '');
   check('PARTIAL_BAZI core mode', pc.chartMode, 'PARTIAL_BAZI');
   check('PARTIAL_BAZI hour precision', pc.timePrecision, 'UNKNOWN_TIME');
+  check('PARTIAL_BAZI validation status', pc.pipeline.validationStatus, 'PARTIAL_VALID');
   check('PARTIAL_BAZI taiYuan still exported', hasValue(pc.taiYuan), true);
   check('PARTIAL_BAZI mingGong data condition', pc.fieldTrace.find((trace: any) => trace.field === 'mingGong')?.professionalResult, 'OPTIONAL_NOT_AVAILABLE');
 }

@@ -108,6 +108,7 @@ function normalizeBaziInput(value: unknown): BaziRuntimeInput {
     gender,
     country,
     city,
+    calculationId: typeof value.calculationId === 'string' ? value.calculationId : undefined,
     birthTimeKnown: timeUnknown ? false : value.birthTimeKnown as boolean | undefined,
     timeUnknown,
     birthHourBranch: typeof value.birthHourBranch === 'string' ? value.birthHourBranch : undefined,

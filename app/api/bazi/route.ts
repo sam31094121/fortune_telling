@@ -39,7 +39,8 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 type BaziApiBody = Partial<BaziAnalysisInput> & {
-  inputData?: Partial<BaziAnalysisInput>;
+  inputData?: Partial<BaziRuntimeInput>;
+  calculationId?: string;
   birthTimeKnown?: boolean;
   timeUnknown?: boolean;
   birthHourBranch?: string;
@@ -58,6 +59,7 @@ function normalizeInput(body: BaziApiBody): BaziRuntimeInput {
     gender: source.gender === 'male' || source.gender === 'female' ? source.gender : '' as BaziAnalysisInput['gender'],
     country: typeof source.country === 'string' && source.country.trim() ? source.country.trim() : '台灣',
     city: typeof source.city === 'string' && source.city.trim() ? source.city.trim() : '台北',
+    calculationId: typeof runtimeSource.calculationId === 'string' ? runtimeSource.calculationId : undefined,
     birthTimeKnown: timeUnknown ? false : runtimeSource.birthTimeKnown,
     timeUnknown,
     birthHourBranch: typeof runtimeSource.birthHourBranch === 'string' ? runtimeSource.birthHourBranch : undefined,

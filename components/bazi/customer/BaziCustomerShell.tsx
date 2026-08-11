@@ -8,7 +8,7 @@
  */
 
 import { useRef, useState } from 'react';
-import { toBaziCustomerView } from './adapter';
+import { toBaziCustomerView, validateBaziCustomerViewPipeline } from './adapter';
 import { BaziHeroCard } from './BaziHeroCard';
 import { TeacherSummary } from './TeacherSummary';
 import { ProfessionalBaziTable } from './ProfessionalBaziTable';
@@ -25,12 +25,23 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
   const detailRef = useRef<HTMLDivElement | null>(null);
 
   const view = toBaziCustomerView(result, hourUnknown);
+  const pipelineIssues = validateBaziCustomerViewPipeline(result, view, hourUnknown);
   const elementOf = (stem: string) => STEM_ELEMENT_LABEL[stem];
 
   const openLevel = (next: 'teacher' | 'full') => {
     setLevel((current) => (current === next ? null : next));
     requestAnimationFrame(() => detailRef.current?.scrollIntoView({ block: 'start' }));
   };
+
+  if (pipelineIssues.length > 0) {
+    return (
+      <section className="rounded-[24px] border border-rose-300/25 bg-rose-500/[0.06] p-5 text-center sm:p-6">
+        <p className="text-lg font-black text-rose-100">命盤尚未完成</p>
+        <p className="mt-1 text-sm font-semibold text-white/55">Final Render Gate 未通過，系統已停止顯示命盤。</p>
+        <p className="mt-3 text-xs font-semibold leading-5 text-white/40">{pipelineIssues.join('；')}</p>
+      </section>
+    );
+  }
 
   return (
     <div className="space-y-6">

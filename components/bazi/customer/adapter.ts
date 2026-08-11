@@ -78,6 +78,13 @@ export interface BaziCustomerView {
   gods: { usefulGod: string; joyGod: string; avoidGod: string };
   structurePattern: { primaryPattern: string; supportingPattern: string; stability: string };
   dataFlowRules: Record<string, boolean>;
+  source: {
+    calculationId: string;
+    birthInputFingerprint: string;
+    professionalResultId: string;
+    mode: 'FULL_BAZI' | 'PARTIAL_BAZI' | 'UNKNOWN';
+    pipelineState: 'ADAPTER_COMPLETED';
+  };
 }
 
 /* 後端結果的結構型輸入（唯讀，不完整列型別即可） */
@@ -103,6 +110,17 @@ type BackendResult = {
     tenGodDistribution: { ranked: Array<{ tenGod: string; score: number }>; dominant: string[]; missing: string[] };
     structurePattern: { primaryPattern: string; supportingPattern: string; stability: string };
     verification: { readyForInterpretation: boolean };
+    calculationId?: string;
+    birthInputFingerprint?: string;
+    professionalResultId?: string;
+    chartMode?: 'FULL_BAZI' | 'PARTIAL_BAZI';
+    pipeline?: {
+      calculationId?: string;
+      birthInputFingerprint?: string;
+      professionalResultId?: string;
+      mode?: 'FULL_BAZI' | 'PARTIAL_BAZI';
+      currentState?: string;
+    };
   };
   structureFocus: string;
   dataFlow: { rules: Record<string, boolean> };
@@ -170,7 +188,29 @@ export function toBaziCustomerView(result: BackendResult, hourUnknown: boolean):
     gods: result.gods,
     structurePattern: pc.structurePattern,
     dataFlowRules: result.dataFlow?.rules ?? {},
+    source: {
+      calculationId: pc.pipeline?.calculationId ?? pc.calculationId ?? '',
+      birthInputFingerprint: pc.pipeline?.birthInputFingerprint ?? pc.birthInputFingerprint ?? '',
+      professionalResultId: pc.pipeline?.professionalResultId ?? pc.professionalResultId ?? '',
+      mode: pc.pipeline?.mode ?? pc.chartMode ?? 'UNKNOWN',
+      pipelineState: 'ADAPTER_COMPLETED',
+    },
   };
+}
+
+export function validateBaziCustomerViewPipeline(result: BackendResult, view: BaziCustomerView, hourUnknown: boolean): string[] {
+  const pc = result.professionalChart;
+  const issues: string[] = [];
+  const pipeline = pc.pipeline;
+  if (pipeline?.currentState !== 'API_READY') issues.push('pipeline not API_READY before adapter');
+  if (!view.source.calculationId || view.source.calculationId !== pipeline?.calculationId) issues.push('view calculationId mismatch');
+  if (!view.source.birthInputFingerprint || view.source.birthInputFingerprint !== pipeline?.birthInputFingerprint) issues.push('view fingerprint mismatch');
+  if (!view.source.professionalResultId || view.source.professionalResultId !== pipeline?.professionalResultId) issues.push('view professionalResultId mismatch');
+  const expectedMode = hourUnknown ? 'PARTIAL_BAZI' : 'FULL_BAZI';
+  if (view.source.mode !== expectedMode || pipeline?.mode !== expectedMode) issues.push('view mode mismatch');
+  if (!result.aiDeepAnalysis?.summary) issues.push('AI_INTERPRETATION_COMPLETED missing');
+  if (!view.pillars.length || !view.professional) issues.push('CUSTOMER_VIEW_READY missing');
+  return issues;
 }
 
 /** 五行點綴色（基底墨黑，五行只作標識） */

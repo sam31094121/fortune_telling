@@ -289,6 +289,10 @@ export function ProfessionalBaziTable({ result, hourUnknown }: { result: any; ho
           <p>引擎版本：{result.engineVersion}</p>
           <p>資料完整度：{hourUnknown ? 'PARTIAL_BAZI（三柱）' : 'FULL_BAZI（完整四柱）'}</p>
           <p>核心：{pc.engine?.name ?? '—'} {pc.engine?.version ?? ''}｜{pc.engine?.ruleSet ?? ''}</p>
+          <p>Calculation ID：{pc.pipeline?.calculationId ?? pc.calculationId ?? '—'}</p>
+          <p>Input Fingerprint：{pc.pipeline?.birthInputFingerprint ?? pc.birthInputFingerprint ?? '—'}</p>
+          <p>Professional Result ID：{pc.pipeline?.professionalResultId ?? pc.professionalResultId ?? '—'}</p>
+          <p>Pipeline State：{pc.pipeline?.currentState ?? '—'}｜{pc.pipeline?.validationStatus ?? '—'}</p>
           <p>資料流：{(result.dataFlow?.pipeline ?? []).join(' → ')}</p>
           <p>驗證狀態：{pc.verification?.readyForInterpretation ? '已通過專業驗證' : '未通過'}</p>
           <p>完整欄位檢查：{pc.professionalCompleteness?.valid ? '通過' : '未通過'}</p>

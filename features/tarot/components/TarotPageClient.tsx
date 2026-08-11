@@ -225,7 +225,8 @@ export default function TarotPageClient() {
 
                 <DailyAnalysisNotice record={dailyRecord} className="mt-5" moduleName="AI 塔羅牌" onViewResult={dailyRecord ? () => restoreDailyRecord(dailyRecord) : undefined} />
                 <IdentitySplitSelector className="mt-5" />
-                <div className="mt-4 rounded-2xl border border-amber-200/20 bg-amber-300/10 px-4 py-3 text-sm font-black leading-7 text-amber-100">
+                {/* 資料分流說明卡已隱藏（2026-08-11）：內部機制說明，客戶不用看 */}
+                <div className="mt-4 hidden rounded-2xl border border-amber-200/20 bg-amber-300/10 px-4 py-3 text-sm font-black leading-7 text-amber-100">
                   AI 判定：塔羅牌已接入資料分流。選「我自己」會保留給個人成長中心累積；選「親朋好友」只完成本次單次抽牌，不寫入會員成長資料。
                 </div>
 

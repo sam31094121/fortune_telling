@@ -128,6 +128,18 @@ type BaziResult = {
     strengthFactors: BaziStrengthFactor[];
     structurePattern: { primaryPattern: string; supportingPattern: string; stability: 'stable' | 'mixed' | 'unstable'; mixed: boolean; brokenBy: string[]; specialNotes: string[] };
     verification: BaziVerificationGate;
+    calculationId?: string;
+    birthInputFingerprint?: string;
+    professionalResultId?: string;
+    chartMode?: 'FULL_BAZI' | 'PARTIAL_BAZI';
+    pipeline?: {
+      calculationId?: string;
+      birthInputFingerprint?: string;
+      professionalResultId?: string;
+      mode?: 'FULL_BAZI' | 'PARTIAL_BAZI';
+      validationStatus?: 'VALID' | 'PARTIAL_VALID' | 'INVALID';
+      currentState?: string;
+    };
     detail: { readableSummary: string; pillarOrder: Array<{ label: string; ganzhi: string; hiddenStems: string[]; tenGods: string[] }> };
   };
   aiDeepAnalysis: {
@@ -210,6 +222,10 @@ function isCurrentBaziResult(value: BaziResult | null | undefined): value is Baz
     value.professionalChart.elementStatistics &&
     value.professionalChart.strengthFactors &&
     value.professionalChart.structurePattern &&
+    value.professionalChart.pipeline?.currentState === 'API_READY' &&
+    value.professionalChart.pipeline?.calculationId &&
+    value.professionalChart.pipeline?.birthInputFingerprint &&
+    value.professionalChart.pipeline?.professionalResultId &&
     value.aiDeepAnalysis?.professionalSignals &&
     value.aiDeepAnalysis.logicTrace &&
     value.aiReinforcementPlan?.basisSummary &&
@@ -439,13 +455,15 @@ export default function BaziPage() {
     setProgressView(null);
     setMessage('');
     try {
+      const calculationId = `bazi_calc_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
       const data = await runAnalysisJobClient<BaziResult>({
         analysisType: 'bazi',
         timeoutMs: 45_000,
         maxRecoveryAttempts: 2,
-        idempotencyKey: `bazi_${form.birthDate}_${resolvedBirthTime}_${form.gender}_${Date.now()}`,
+        idempotencyKey: calculationId,
         sessionId: createSessionId(),
         inputData: {
+          calculationId,
           name: form.name.trim(),
           birthDate: form.birthDate,
           birthTime: resolvedBirthTime,
@@ -462,7 +480,7 @@ export default function BaziPage() {
         },
       });
       const hourUnknownNow = form.timeUnknown === true;
-      const gate = runBaziFinalGate(data, hourUnknownNow);
+      const gate = runBaziFinalGate(data, hourUnknownNow, calculationId);
       if (!gate.passed) {
         // Final Gate 未通過：不顯示半套假命盤
         setGateIssues(gate.issues);
@@ -503,10 +521,7 @@ export default function BaziPage() {
         </header>
 
         <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 八字命盤" onViewResult={result ? scrollToResult : undefined} />
-        <IdentitySplitSelector className="mb-5" />
-        <div className="mb-5 rounded-2xl border border-amber-200/20 bg-amber-300/10 px-4 py-3 text-sm font-black leading-7 text-amber-100">
-          AI 判定：八字命盤已接入資料分流。選「我自己」會累積到個人成長中心；選「親朋好友」只完成本次單次命盤，不寫入會員成長資料。
-        </div>
+        <IdentitySplitSelector compact className="mb-5" />
         <MegaInputGuide
           title="請填出生資料"
           steps={['姓名至少 2 個字', '生日用萬年曆完成', '性別、時辰、出生地要確認']}

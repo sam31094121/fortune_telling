@@ -1,7 +1,9 @@
 ﻿'use client';
 
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
+import { getAnalysisIdentityTarget, IDENTITY_TARGET_UPDATED_EVENT, type AnalysisIdentityTarget } from '@/lib/identity-split-client';
+import { readSelfBirthProfile, saveSelfBirthProfile } from '@/lib/self-profile-client';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 
 export type BirthGender = 'male' | 'female';
@@ -165,6 +167,44 @@ export function UnifiedBirthForm({
   onChange,
   onSubmit,
 }: UnifiedBirthFormProps) {
+  // ===== 本人資料檔案：選「自己」自動帶入之前填過的資料，不用重複填寫 =====
+  const valueRef = useRef(value);
+  valueRef.current = value;
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  useEffect(() => {
+    const applyIdentity = (target: AnalysisIdentityTarget | null) => {
+      if (target === 'self') {
+        const saved = readSelfBirthProfile();
+        if (saved) {
+          // 只帶入有存過的欄位；使用者仍可修改
+          onChangeRef.current({ ...valueRef.current, ...saved });
+        }
+      } else if (target === 'guest') {
+        // 切到親朋好友：若表單目前是本人檔案內容，清空讓使用者填別人的資料
+        const saved = readSelfBirthProfile();
+        const current = valueRef.current;
+        if (saved && saved.name && current.name === saved.name) {
+          onChangeRef.current({
+            ...current,
+            name: '', birthDate: '', birthTime: '', birthHourBranch: undefined,
+            gender: undefined, timeUnknown: undefined,
+          });
+        }
+      }
+    };
+    // 初始：若已選「自己」，直接帶入
+    applyIdentity(getAnalysisIdentityTarget());
+    const onIdentityChanged = (event: Event) => {
+      const detail = (event as CustomEvent<{ target?: AnalysisIdentityTarget }>).detail;
+      applyIdentity(detail?.target ?? getAnalysisIdentityTarget());
+    };
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, onIdentityChanged);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, onIdentityChanged);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const completed = [
     fields.name ? { id: 'name', label: '姓名', done: (value.name ?? '').trim().length >= 2, text: (value.name ?? '').trim().length >= 2 ? '已確認' : '待填寫' } : null,
     fields.birthDate ? { id: 'birthDate', label: '萬年曆生日', done: Boolean(value.birthDate), text: value.birthDate ? `西元 ${value.birthDate}` : '待換算' } : null,
@@ -177,6 +217,9 @@ export function UnifiedBirthForm({
     <form
       onSubmit={(event) => {
         event.preventDefault();
+        if (getAnalysisIdentityTarget() === 'self') {
+          saveSelfBirthProfile(value); // 本人資料檔案：下次選「自己」自動帶入
+        }
         onSubmit(value);
       }}
       className="mega-friendly-form space-y-4"

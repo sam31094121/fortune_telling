@@ -27,6 +27,7 @@ export interface BaziCalculationProgressViewModel {
   calculationId: string;
   mode: 'FULL_BAZI' | 'PARTIAL_BAZI';
   overallStatus: 'PROCESSING' | 'COMPLETED' | 'PARTIAL_COMPLETED' | 'FAILED';
+  pipelineState: string;
   items: BaziCalculationProgressItem[];
   missingRequiredFields: string[];
   unavailableOptionalFields: string[];
@@ -45,6 +46,7 @@ export type BaziFieldTraceStatus =
 
 export interface BaziFieldTrace {
   field: string;
+  calculationId?: string;
   label: string;
   sourcePath: string;
   core: BaziFieldTraceStatus;
@@ -53,6 +55,22 @@ export interface BaziFieldTrace {
   adapter: BaziFieldTraceStatus;
   frontend: BaziFieldTraceStatus;
 }
+
+const PIPELINE_ORDER = [
+  'INPUT_RECEIVED',
+  'INPUT_VALIDATED',
+  'INPUT_NORMALIZED',
+  'CORE_PROCESSING',
+  'CORE_COMPLETED',
+  'PROFESSIONAL_RESULT_CREATED',
+  'PROFESSIONAL_VALIDATED',
+  'API_READY',
+  'ADAPTER_COMPLETED',
+  'AI_INTERPRETATION_COMPLETED',
+  'CUSTOMER_VIEW_READY',
+  'FINAL_VALIDATED',
+  'COMPLETED',
+] as const;
 
 /* ==================== Adapter：Backend Result → ViewModel（零計算） ==================== */
 
@@ -122,58 +140,62 @@ export function validateBaziProfessionalCompleteness(result: any, hourUnknown: b
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function toBaziProgressView(result: any, hourUnknown: boolean): BaziCalculationProgressViewModel {
   const pc = result?.professionalChart;
+  const pipeline = pc?.pipeline;
+  const completedStates: string[] = Array.isArray(pipeline?.completedStates) ? pipeline.completedStates : [];
+  const pipelineDone = (state: string) => completedStates.includes(state);
   const has = (v: unknown) => v !== undefined && v !== null && v !== '';
   const arr = (v: unknown) => Array.isArray(v) && v.length > 0;
   const done = (v: boolean): BaziProgressStatus => (v ? 'COMPLETED' : 'FAILED');
   const completeness = validateBaziProfessionalCompleteness(result, hourUnknown);
   const items: BaziCalculationProgressItem[] = [
-    { key: 'input', label: '出生資料確認', status: done(has(result?.input)), source: 'BACKEND' },
-    { key: 'dateVerify', label: '出生日期驗證', status: done(has(pc?.calendar)), source: 'BACKEND' },
+    { key: 'input', label: '出生資料確認', status: done(pipelineDone('INPUT_VALIDATED') && has(result?.input)), source: 'BACKEND' },
+    { key: 'dateVerify', label: '出生日期驗證', status: done(pipelineDone('INPUT_VALIDATED') && has(pc?.calendar)), source: 'BACKEND' },
     {
       key: 'hourConfirm', label: '出生時辰確認',
-      status: hourUnknown ? 'SKIPPED_BY_DATA_CONDITION' : done(has(pc?.calendar?.shichen?.label)),
+      status: hourUnknown ? 'SKIPPED_BY_DATA_CONDITION' : done(pipelineDone('INPUT_VALIDATED') && has(pc?.calendar?.shichen?.label)),
       source: 'BACKEND', note: hourUnknown ? '未提供' : undefined,
     },
     {
       key: 'pillars', label: hourUnknown ? '三柱排定' : '四柱排定',
-      status: done(has(result?.pillars?.year) && has(result?.pillars?.month) && has(result?.pillars?.day)),
+      status: done(pipelineDone('CORE_COMPLETED') && has(result?.pillars?.year) && has(result?.pillars?.month) && has(result?.pillars?.day)),
       source: 'BACKEND',
     },
-    { key: 'stems', label: '天干確認', status: done(['year', 'month', 'day'].every((k) => has(result?.pillars?.[k]?.stem))), source: 'BACKEND' },
-    { key: 'branches', label: '地支確認', status: done(['year', 'month', 'day'].every((k) => has(result?.pillars?.[k]?.branch))), source: 'BACKEND' },
-    { key: 'hidden', label: '藏干建立', status: done(['year', 'month', 'day'].every((k) => arr(pc?.hiddenStemStructure?.[k]))), source: 'BACKEND' },
-    { key: 'dayMaster', label: '日主判定', status: done(has(result?.dayMaster?.stem)), source: 'BACKEND' },
-    { key: 'tenGods', label: '十神建立', status: done(arr(pc?.tenGodDistribution?.ranked)), source: 'BACKEND' },
-    { key: 'elements', label: '五行結構分析', status: done(has(pc?.elementStatistics?.percentages)), source: 'BACKEND' },
-    { key: 'strength', label: '日主強弱分析', status: done(arr(pc?.strengthFactors) && has(result?.dayMaster?.level)), source: 'BACKEND' },
-    { key: 'usefulGod', label: '喜用神分析', status: done(has(result?.gods?.usefulGod) && has(result?.gods?.joyGod)), source: 'BACKEND' },
-    { key: 'avoidGod', label: '忌神分析', status: done(has(result?.gods?.avoidGod)), source: 'BACKEND' },
-    { key: 'pattern', label: '格局判定', status: done(has(pc?.structurePattern?.primaryPattern)), source: 'BACKEND' },
-    { key: 'solarTerm', label: '節氣校正', status: done(hasProfessionalValue(pc?.calendar?.solarTerm)), source: 'BACKEND' },
-    { key: 'kongWang', label: '空亡資料', status: done(hasProfessionalValue(pc?.kongWang)), source: 'BACKEND' },
-    { key: 'twelveStages', label: '十二長生', status: done(hasProfessionalValue(pc?.twelveStages)), source: 'BACKEND' },
-    { key: 'interactions', label: '合沖刑害破', status: done(hasProfessionalValue(pc?.interactions)), source: 'BACKEND' },
-    { key: 'taiYuan', label: '胎元', status: done(hasProfessionalValue(pc?.taiYuan)), source: 'BACKEND' },
-    { key: 'taiXi', label: '胎息', status: done(hasProfessionalValue(pc?.taiXi)), source: 'BACKEND' },
-    { key: 'mingGong', label: '命宮', status: hourUnknown ? 'SKIPPED_BY_DATA_CONDITION' : done(hasProfessionalValue(pc?.mingGong)), source: 'BACKEND', note: hourUnknown ? '需出生時辰' : undefined },
-    { key: 'shenSha', label: '神煞／特星', status: done(hasProfessionalValue(pc?.shenSha)), source: 'BACKEND' },
-    { key: 'daYun', label: '大運排定', status: done(arr(result?.luckCycles)), source: 'BACKEND' },
-    { key: 'annual', label: '流年建立', status: done(arr(result?.annualFortunes)), source: 'BACKEND' },
-    { key: 'verify', label: '基礎命盤資料驗證', status: done(pc?.verification?.readyForInterpretation === true), source: 'BACKEND' },
+    { key: 'stems', label: '天干確認', status: done(pipelineDone('CORE_COMPLETED') && ['year', 'month', 'day'].every((k) => has(result?.pillars?.[k]?.stem))), source: 'BACKEND' },
+    { key: 'branches', label: '地支確認', status: done(pipelineDone('CORE_COMPLETED') && ['year', 'month', 'day'].every((k) => has(result?.pillars?.[k]?.branch))), source: 'BACKEND' },
+    { key: 'hidden', label: '藏干建立', status: done(pipelineDone('CORE_COMPLETED') && ['year', 'month', 'day'].every((k) => arr(pc?.hiddenStemStructure?.[k]))), source: 'BACKEND' },
+    { key: 'dayMaster', label: '日主判定', status: done(pipelineDone('CORE_COMPLETED') && has(result?.dayMaster?.stem)), source: 'BACKEND' },
+    { key: 'tenGods', label: '十神建立', status: done(pipelineDone('CORE_COMPLETED') && arr(pc?.tenGodDistribution?.ranked)), source: 'BACKEND' },
+    { key: 'elements', label: '五行結構分析', status: done(pipelineDone('CORE_COMPLETED') && has(pc?.elementStatistics?.percentages)), source: 'BACKEND' },
+    { key: 'strength', label: '日主強弱分析', status: done(pipelineDone('CORE_COMPLETED') && arr(pc?.strengthFactors) && has(result?.dayMaster?.level)), source: 'BACKEND' },
+    { key: 'usefulGod', label: '喜用神分析', status: done(pipelineDone('CORE_COMPLETED') && has(result?.gods?.usefulGod) && has(result?.gods?.joyGod)), source: 'BACKEND' },
+    { key: 'avoidGod', label: '忌神分析', status: done(pipelineDone('CORE_COMPLETED') && has(result?.gods?.avoidGod)), source: 'BACKEND' },
+    { key: 'pattern', label: '格局判定', status: done(pipelineDone('CORE_COMPLETED') && has(pc?.structurePattern?.primaryPattern)), source: 'BACKEND' },
+    { key: 'solarTerm', label: '節氣校正', status: done(pipelineDone('CORE_COMPLETED') && hasProfessionalValue(pc?.calendar?.solarTerm)), source: 'BACKEND' },
+    { key: 'kongWang', label: '空亡資料', status: done(pipelineDone('CORE_COMPLETED') && hasProfessionalValue(pc?.kongWang)), source: 'BACKEND' },
+    { key: 'twelveStages', label: '十二長生', status: done(pipelineDone('CORE_COMPLETED') && hasProfessionalValue(pc?.twelveStages)), source: 'BACKEND' },
+    { key: 'interactions', label: '合沖刑害破', status: done(pipelineDone('CORE_COMPLETED') && hasProfessionalValue(pc?.interactions)), source: 'BACKEND' },
+    { key: 'taiYuan', label: '胎元', status: done(pipelineDone('CORE_COMPLETED') && hasProfessionalValue(pc?.taiYuan)), source: 'BACKEND' },
+    { key: 'taiXi', label: '胎息', status: done(pipelineDone('CORE_COMPLETED') && hasProfessionalValue(pc?.taiXi)), source: 'BACKEND' },
+    { key: 'mingGong', label: '命宮', status: hourUnknown ? 'SKIPPED_BY_DATA_CONDITION' : done(pipelineDone('CORE_COMPLETED') && hasProfessionalValue(pc?.mingGong)), source: 'BACKEND', note: hourUnknown ? '需出生時辰' : undefined },
+    { key: 'shenSha', label: '神煞／特星', status: done(pipelineDone('CORE_COMPLETED') && hasProfessionalValue(pc?.shenSha)), source: 'BACKEND' },
+    { key: 'daYun', label: '大運排定', status: done(pipelineDone('CORE_COMPLETED') && arr(result?.luckCycles)), source: 'BACKEND' },
+    { key: 'annual', label: '流年建立', status: done(pipelineDone('CORE_COMPLETED') && arr(result?.annualFortunes)), source: 'BACKEND' },
+    { key: 'verify', label: '基礎命盤資料驗證', status: done(pipelineDone('PROFESSIONAL_VALIDATED') && pc?.verification?.readyForInterpretation === true), source: 'BACKEND' },
     {
       key: 'professionalCompleteness',
       label: '台灣完整欄位檢查',
-      status: done(completeness.valid),
+      status: done(pipelineDone('PROFESSIONAL_VALIDATED') && completeness.valid),
       source: 'BACKEND',
       note: completeness.valid ? undefined : `${completeness.missingRequiredFields.length} 項待接入`,
     },
-    { key: 'teacher', label: 'AI 老師解析', status: done(has(result?.aiDeepAnalysis?.summary)), source: 'BACKEND' },
+    { key: 'teacher', label: 'AI 老師解析', status: done(pipelineDone('API_READY') && has(result?.aiDeepAnalysis?.summary)), source: 'BACKEND' },
   ];
   const anyFailed = items.some((i) => i.status === 'FAILED');
   return {
-    calculationId: String(result?.aiDeepAnalysis?.sourceChecksum ?? result?.engineVersion ?? 'unknown'),
+    calculationId: String(pipeline?.calculationId ?? result?.aiDeepAnalysis?.sourceChecksum ?? result?.engineVersion ?? 'unknown'),
     mode: hourUnknown ? 'PARTIAL_BAZI' : 'FULL_BAZI',
     overallStatus: anyFailed ? 'FAILED' : hourUnknown ? 'PARTIAL_COMPLETED' : 'COMPLETED',
+    pipelineState: String(pipeline?.currentState ?? 'UNKNOWN'),
     items,
     missingRequiredFields: completeness.missingRequiredFields,
     unavailableOptionalFields: completeness.unavailableOptionalFields,
@@ -184,11 +206,32 @@ export function toBaziProgressView(result: any, hourUnknown: boolean): BaziCalcu
 /* ==================== Final Gate ==================== */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function runBaziFinalGate(result: any, hourUnknown: boolean): { passed: boolean; issues: string[] } {
+function isTransitionListLegal(transitions: Array<{ from: string; to: string }> | undefined): boolean {
+  if (!Array.isArray(transitions)) return false;
+  return transitions.every((transition) => {
+    const fromIndex = PIPELINE_ORDER.indexOf(transition.from as never);
+    return fromIndex >= 0 && PIPELINE_ORDER[fromIndex + 1] === transition.to;
+  });
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function runBaziFinalGate(result: any, hourUnknown: boolean, expectedCalculationId?: string): { passed: boolean; issues: string[] } {
   const issues: string[] = [];
   if (!result) issues.push('result missing');
   if (!result?.professionalChart) issues.push('professionalResult missing');
-  if (!result?.engineVersion) issues.push('calculationId missing');
+  const pipeline = result?.professionalChart?.pipeline;
+  if (!pipeline?.calculationId) issues.push('calculationId missing');
+  if (expectedCalculationId && pipeline?.calculationId !== expectedCalculationId) issues.push('calculationId mismatch');
+  if (!pipeline?.birthInputFingerprint) issues.push('birthInputFingerprint missing');
+  if (!result?.professionalChart?.professionalResultId || pipeline?.professionalResultId !== result.professionalChart.professionalResultId) issues.push('professionalResultId mismatch');
+  if (pipeline?.currentState !== 'API_READY') issues.push('pipeline not API_READY');
+  if (!isTransitionListLegal(pipeline?.transitions)) issues.push('pipeline transition illegal');
+  if (Array.isArray(pipeline?.illegalTransitions) && pipeline.illegalTransitions.length > 0) issues.push('pipeline illegal transition recorded');
+  if (pipeline?.failureStage || pipeline?.failureReason) issues.push('pipeline failure recorded');
+  const expectedMode = hourUnknown ? 'PARTIAL_BAZI' : 'FULL_BAZI';
+  if (pipeline?.mode !== expectedMode || result?.professionalChart?.chartMode !== expectedMode) issues.push('mode mismatch');
+  if (hourUnknown && pipeline?.validationStatus !== 'PARTIAL_VALID') issues.push('partial validation status invalid');
+  if (!hourUnknown && pipeline?.validationStatus !== 'VALID') issues.push('full validation status invalid');
   const requiredPillars = hourUnknown ? ['year', 'month', 'day'] : ['year', 'month', 'day', 'hour'];
   for (const k of requiredPillars) {
     if (!result?.pillars?.[k]?.stem || !result?.pillars?.[k]?.branch) issues.push(`pillar ${k} invalid`);

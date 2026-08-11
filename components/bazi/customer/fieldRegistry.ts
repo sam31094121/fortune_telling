@@ -67,6 +67,10 @@ export const BAZI_PROFESSIONAL_FIELD_REGISTRY: Record<string, BaziFieldRegistryE
   // 驗證與版本
   engineVersion: { required: true, level: [3], accessor: 'engineVersion', components: ['ProfessionalBaziTable.tsx'] },
   dataFlow: { required: true, level: [3], accessor: 'dataFlow', components: ['ProfessionalBaziTable.tsx'] },
+  pipelineState: { required: true, level: [1, 3], accessor: 'pipelineState', components: ['adapter.ts', 'BaziCalculationProgress.tsx'] },
+  calculationId: { required: true, level: [1, 3], accessor: 'calculationId', components: ['adapter.ts', 'ProfessionalBaziTable.tsx', 'BaziCalculationProgress.tsx'] },
+  birthInputFingerprint: { required: true, level: [1, 3], accessor: 'birthInputFingerprint', components: ['adapter.ts', 'ProfessionalBaziTable.tsx', 'BaziCalculationProgress.tsx'] },
+  professionalResultId: { required: true, level: [1, 3], accessor: 'professionalResultId', components: ['adapter.ts', 'ProfessionalBaziTable.tsx', 'BaziCalculationProgress.tsx'] },
   verification: { required: true, level: [3], accessor: 'verification', components: ['BaziCalculationProgress.tsx', 'ProfessionalBaziTable.tsx'] },
   professionalCompletenessGate: { required: true, level: [1, 3], accessor: 'validateBaziProfessionalCompleteness', components: ['BaziCalculationProgress.tsx'] },
   professionalCompletenessResult: { required: true, level: [3], accessor: 'professionalCompleteness', components: ['ProfessionalBaziTable.tsx'] },
