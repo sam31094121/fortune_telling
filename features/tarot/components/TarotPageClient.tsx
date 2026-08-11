@@ -187,7 +187,7 @@ export default function TarotPageClient() {
     <main className="min-h-screen bg-[color:var(--deep)] px-4 py-8 text-[color:var(--text-main)] sm:px-6 lg:px-8">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link href="/" className="flex min-h-[48px] items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-black text-[color:var(--text-sub)] transition hover:border-cyan-200/30 hover:text-cyan-100">
+          <Link href="/" className="feature-home-link feature-home-link--cyan shrink-0">
             返回首頁
           </Link>
           <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-amber-100">

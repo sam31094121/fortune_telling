@@ -183,7 +183,7 @@ export default function GrowthCenterPage() {
             <h1 className="mt-2 font-serif text-3xl font-black leading-tight text-[color:var(--text-main)] sm:text-5xl">AI 個人成長中心</h1>
             <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-[color:var(--text-sub)]">分析一次，終身陪伴。先給你今天最該做的一件事，其餘細節收起來。</p>
           </div>
-          <Link href="/" className="flex min-h-[48px] shrink-0 items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-[color:var(--text-sub)] transition hover:border-white/25 hover:text-white">返回首頁</Link>
+          <Link href="/" className="feature-home-link feature-home-link--cyan shrink-0">返回首頁</Link>
         </header>
 
         {loading && (

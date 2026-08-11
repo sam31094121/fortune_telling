@@ -10,7 +10,6 @@ import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/ide
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import { BaziCustomerShell } from '@/components/bazi/customer/BaziCustomerShell';
 import { BaziCalculationCeremony, BaziGateFailed, runBaziFinalGate, toBaziProgressView, type BaziCalculationProgressViewModel } from '@/components/bazi/customer/BaziCalculationProgress';
-import MegaInputGuide from '@/components/MegaInputGuide';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
 type Gender = 'male' | 'female';
@@ -509,26 +508,30 @@ export default function BaziPage() {
       <main className="relative z-10 mx-auto max-w-4xl px-4 py-5 sm:px-6 sm:py-9">
         <header className="mb-5 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-amber-200">BAZI ENGINE</p>
-            <h1 className="mt-2 font-serif text-3xl font-black leading-tight text-[color:var(--text-main)] sm:text-5xl">AI 八字命盤</h1>
-            <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-[color:var(--text-sub)]">
+            {/* 眉標：中文為主、英文為輔，金色引線建立儀式感 */}
+            <div className="flex items-center gap-3">
+              <span className="h-px w-8 bg-gradient-to-r from-amber-300/80 to-transparent" aria-hidden="true" />
+              <p className="text-xs font-black tracking-[0.3em] text-amber-200">
+                辰 · 八字命盤 <span className="ml-1 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/50">BAZI ENGINE</span>
+              </p>
+            </div>
+            {/* 主標：放大 + 金色漸層，視覺焦點 */}
+            <h1 className="mt-3 bg-gradient-to-br from-amber-50 via-amber-100 to-amber-300/80 bg-clip-text font-serif text-4xl font-black leading-tight text-transparent drop-shadow-[0_0_24px_rgba(251,191,36,0.18)] sm:text-6xl">
+              AI 八字命盤
+            </h1>
+            {/* 副標：金色豎線引導，語氣沉穩 */}
+            <p className="mt-4 flex max-w-2xl items-center gap-3 text-base font-bold leading-7 text-amber-100/75 sm:text-lg">
+              <span className="h-6 w-[3px] shrink-0 rounded-full bg-gradient-to-b from-amber-300/90 to-amber-500/30" aria-hidden="true" />
               先排準，再解讀。
             </p>
           </div>
-          <Link href="/" className="shrink-0 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-[color:var(--text-sub)] transition hover:border-white/25 hover:text-white">
+          <Link href="/" className="feature-home-link feature-home-link--amber shrink-0">
             返回首頁
           </Link>
         </header>
 
         <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 八字命盤" onViewResult={result ? scrollToResult : undefined} />
         <IdentitySplitSelector compact className="mb-5" />
-        <MegaInputGuide
-          title="請填出生資料"
-          steps={['姓名至少 2 個字', '生日用萬年曆完成', '性別、時辰、出生地要確認']}
-          example="台灣、台北、寅時；不知道時辰可選不確定。"
-          tone="emerald"
-          className="mb-5"
-        />
         <UnifiedBirthForm
           value={form}
           fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, birthPlace: true, calendarType: true }}
