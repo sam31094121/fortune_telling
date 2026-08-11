@@ -168,6 +168,31 @@ const mkInput = (date: string, time: string | null, gender: 'male' | 'female' = 
   check('農曆 1979-7-11 → 國曆', lunar.calendar.solarDate, '1979-09-02');
 }
 
+// ============ 5.5 空亡／命宮／胎元／胎息／十二長生 ============
+{
+  // 旬空獨立公式：void = branches[(b - s + 10) mod 12], [(b - s + 11) mod 12]
+  const xunKongCheck = (date: string) => {
+    const c = createBaziCore(mkInput(date, '10:00'));
+    const s0 = STEMS.indexOf(c.pillars.day.heavenlyStem);
+    const b0 = BRANCHES.indexOf(c.pillars.day.earthlyBranch);
+    const expected = `${BRANCHES[((b0 - s0 + 10) % 12 + 12) % 12]}${BRANCHES[((b0 - s0 + 11) % 12 + 12) % 12]}`;
+    check(`日柱旬空獨立公式 ${date}`, c.kongWang.dayXunKong, expected);
+  };
+  ['1988-6-15', '2024-2-4', '1979-9-2', '2000-1-1', '1965-12-25'].forEach(xunKongCheck);
+
+  const c = createBaziCore(mkInput('1988-6-15', '08:30', 'female'));
+  check('命宮存在（FULL）', typeof c.mingGong === 'string' && c.mingGong.length === 2, true);
+  check('胎元存在', c.taiYuan.length === 2, true);
+  check('胎息存在', c.taiXi.length === 2, true);
+  check('十二長生四柱齊備', [c.twelveStages.year, c.twelveStages.month, c.twelveStages.day, c.twelveStages.hour].every((v) => typeof v === 'string' && v.length > 0), true);
+  check('十二長生為正體字', ['長生','沐浴','冠帶','臨官','帝旺','衰','病','死','墓','絕','胎','養'].includes(c.twelveStages.day), true);
+
+  const partial = createBaziCore(mkInput('1988-6-15', null, 'female'));
+  check('PARTIAL 命宮不假算', partial.mingGong, 'NOT_CALCULATED');
+  check('PARTIAL 時柱長生 UNKNOWN', partial.twelveStages.hour, 'UNKNOWN');
+  check('PARTIAL 胎元仍可算（僅依月柱）', partial.taiYuan.length === 2, true);
+}
+
 // ============ 6. 驗證 Gate ============
 {
   const c = createBaziCore(mkInput('1988-6-15', '08:30'));

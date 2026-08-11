@@ -114,7 +114,7 @@ export function HourBranchSelector({ value, unknown, missing, onChange }: { valu
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <ChoiceButton active={Boolean(unknown || value === 'unknown')} alert={missing} onClick={() => onChange('unknown')}>
           <span className="block text-base font-black">不知道出生時辰</span>
-          <span className="mt-1.5 block text-xs font-semibold leading-5">先以午時 12:00 暫排，日後可補真實時辰校正。</span>
+          <span className="mt-1.5 block text-xs font-semibold leading-5">先建立三柱分析；補充出生時辰後，再建立完整四柱。</span>
         </ChoiceButton>
         <ChoiceButton active={knownSelected} alert={missing} tone="cyan" onClick={() => onChange((knownSelected ? value : 'wu') as BirthHourBranch)}>
           <span className="block text-base font-black">我知道出生時辰</span>

@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from 'react';
 
-/** 共用 Accordion：低調、留白層次、只有 Fade 展開 */
+/** 共用 Accordion：低調、留白層次、無重型動畫 */
 export function CustomerAccordion({ title, defaultOpen = false, children }: { title: string; defaultOpen?: boolean; children: ReactNode }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -16,7 +16,7 @@ export function CustomerAccordion({ title, defaultOpen = false, children }: { ti
         <span className="text-base font-black text-[color:var(--text-main)]">{title}</span>
         <span className={`text-sm text-white/45 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} aria-hidden="true">⌄</span>
       </button>
-      {open && <div className="animate-[fadeIn_240ms_ease] px-5 pb-5">{children}</div>}
+      {open && <div className="px-5 pb-5">{children}</div>}
     </section>
   );
 }

@@ -25,7 +25,7 @@ export function FourPillarsCard({ pillars, hourUnknown, elementOf }: {
               key={p.key}
               className={`flex flex-col items-center rounded-[18px] border px-1 py-4 text-center sm:px-3 sm:py-5 ${
                 isDay
-                  ? 'border-amber-200/45 bg-amber-100/[0.07] shadow-[0_0_28px_rgba(251,191,36,0.12)]'
+                  ? 'border-amber-200/45 bg-amber-100/[0.07]'
                   : 'border-white/8 bg-white/[0.03]'
               }`}
             >

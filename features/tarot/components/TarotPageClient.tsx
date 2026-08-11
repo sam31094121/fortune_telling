@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { FiveElementOrbitCard } from '@/components/five-elements/FiveElementOrbitCard';
 import Link from 'next/link';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
@@ -197,6 +198,7 @@ export default function TarotPageClient() {
         {adminMode && <TarotDeckAdminReview cards={TAROT_CARDS} onClose={resetExperience} />}
 
         {!adminMode && step === 'ready_to_draw' && (
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
           <section className="fortune-card tarot-experience-hero border-cyan-200/25 p-5 sm:p-7">
             <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
               <div>
@@ -356,6 +358,9 @@ export default function TarotPageClient() {
               </div>
             </div>
           </section>
+          {/* 五行星軌卡：獨立視覺卡，與塔羅零依賴（TAROT CORE FROZEN） */}
+          <FiveElementOrbitCard />
+          </div>
         )}
 
         {!adminMode && step === 'theater' && (

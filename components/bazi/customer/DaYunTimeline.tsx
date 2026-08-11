@@ -21,7 +21,7 @@ export function DaYunTimeline({ daYun }: { daYun: CustomerDaYun[] }) {
               onClick={() => setActive(isActive ? null : i)}
               className={`shrink-0 snap-start rounded-[18px] border px-4 py-3 text-center transition ${
                 isCurrent
-                  ? 'border-amber-200/55 bg-amber-100/[0.09] shadow-[0_0_20px_rgba(251,191,36,0.14)]'
+                  ? 'border-amber-200/55 bg-amber-100/[0.09]'
                   : isActive
                     ? 'border-white/25 bg-white/[0.06]'
                     : 'border-white/8 bg-white/[0.03]'
@@ -35,7 +35,7 @@ export function DaYunTimeline({ daYun }: { daYun: CustomerDaYun[] }) {
         })}
       </div>
       {active != null && daYun[active] && (
-        <div className="mt-2 animate-[fadeIn_240ms_ease] rounded-2xl bg-black/25 px-4 py-3">
+        <div className="mt-2 rounded-2xl bg-black/25 px-4 py-3">
           <p className="text-sm font-black text-[color:var(--text-main)]">{daYun[active].ageRange} · {daYun[active].pillar}{daYun[active].tenGod ? ` · ${daYun[active].tenGod}` : ''}</p>
           {(daYun[active].startYear || daYun[active].endYear) && (
             <p className="mt-1 text-sm font-semibold text-white/55">{daYun[active].startYear ?? ''}–{daYun[active].endYear ?? ''} 年</p>

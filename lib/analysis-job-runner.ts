@@ -5,6 +5,7 @@ import { buildNameologyAnalysis } from './nameology-engine';
 import { loadLocalNameologyDictionary } from './nameology-dictionary-loader';
 import { generateInsightAnalysis } from './insight-engine';
 import { analyzeBazi, type BaziAnalysisInput } from './bazi-engine';
+import { attachBaziProfessionalCoreV5, type BaziRuntimeInput } from './bazi-professional-result-v5';
 import { analyzeZodiac } from './zodiac-engine';
 import { isValidBirthday } from './validation';
 import type { BloodType, Gender, InsightRequest } from './types';
@@ -86,10 +87,11 @@ function normalizeInsightInput(value: unknown): InsightRequest {
   };
 }
 
-function normalizeBaziInput(value: unknown): BaziAnalysisInput {
+function normalizeBaziInput(value: unknown): BaziRuntimeInput {
   assertRecord(value);
   const name = typeof value.name === 'string' ? value.name.trim() : '';
   const birthDate = typeof value.birthDate === 'string' ? value.birthDate : '';
+  const timeUnknown = value.timeUnknown === true || value.birthHourBranch === 'unknown' || value.birthTimeKnown === false;
   const birthTime = typeof value.birthTime === 'string' && value.birthTime.length > 0 ? value.birthTime : '12:00';
   const gender = value.gender as BaziAnalysisInput['gender'];
   const country = typeof value.country === 'string' && value.country.trim().length > 0 ? value.country.trim() : '台灣';
@@ -97,9 +99,21 @@ function normalizeBaziInput(value: unknown): BaziAnalysisInput {
 
   if (name.length > 20) throw new Error('姓名請勿超過 20 個字。');
   if (!isValidBirthday(birthDate)) throw new Error('請提供有效生日。');
-  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(birthTime)) throw new Error('請選擇有效出生時間。');
+  if (!timeUnknown && !/^([01]\d|2[0-3]):[0-5]\d$/.test(birthTime)) throw new Error('請選擇有效出生時間。');
   if (!VALID_GENDERS.includes(gender)) throw new Error('請選擇有效性別。');
-  return { name, birthDate, birthTime, gender, country, city };
+  return {
+    name,
+    birthDate,
+    birthTime,
+    gender,
+    country,
+    city,
+    birthTimeKnown: timeUnknown ? false : value.birthTimeKnown as boolean | undefined,
+    timeUnknown,
+    birthHourBranch: typeof value.birthHourBranch === 'string' ? value.birthHourBranch : undefined,
+    traditionalHour: typeof value.traditionalHour === 'string' ? value.traditionalHour : undefined,
+    calendarType: value.calendarType === 'lunar' || value.calendarType === 'LUNAR' ? value.calendarType : 'solar',
+  };
 }
 
 async function withJobTimeout<T>(task: Promise<T>, ms: number): Promise<T> {
@@ -205,7 +219,7 @@ async function runBaziJob(job: AnalysisJob, inputData: unknown) {
   const input = normalizeBaziInput(inputData);
 
   updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: null, message: ANALYSIS_MODULES.BAZI.loadingCopy.processing });
-  const result = analyzeBazi(input);
+  const result = attachBaziProfessionalCoreV5(analyzeBazi(input), input);
   const fiveElement = buildBaziFiveElementResult({
     analysisId: ['bazi', input.birthDate, input.birthTime, input.gender].join(':'),
     elementEnergy: buildBaziElementEnergy(result.elementCounts),

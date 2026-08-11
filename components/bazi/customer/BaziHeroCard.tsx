@@ -2,7 +2,7 @@
 
 import type { BaziCustomerView } from './adapter';
 import { FourPillarsCard } from './FourPillarsCard';
-import { FiveElementBars } from './FiveElementBars';
+import { FiveElementOrbit } from './FiveElementOrbit';
 
 /**
  * LEVEL 1｜八字命工卡（手機第一屏）
@@ -15,7 +15,7 @@ export function BaziHeroCard({ view, elementOf, onOpenTeacher }: {
   onOpenTeacher: () => void;
 }) {
   return (
-    <section className="animate-[fadeIn_420ms_ease] rounded-[24px] border border-white/10 bg-[linear-gradient(165deg,rgba(16,16,20,0.96),rgba(24,22,18,0.92))] p-5 sm:p-6">
+    <section className="rounded-[24px] border border-white/10 bg-[linear-gradient(165deg,rgba(16,16,20,0.96),rgba(24,22,18,0.92))] p-5 sm:p-6">
       <div className="flex items-baseline justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-black tracking-[0.2em] text-white/40">AI 八字命盤</p>
@@ -33,8 +33,8 @@ export function BaziHeroCard({ view, elementOf, onOpenTeacher }: {
       </div>
 
       <div className="mt-5">
-        <p className="mb-2.5 text-sm font-black text-white/55">五行主調</p>
-        <FiveElementBars bars={view.elementBars} />
+        <p className="mb-2.5 text-sm font-black text-white/55">固定五行星體</p>
+        <FiveElementOrbit view={view.fiveElementOrbit} />
       </div>
 
       <p className="mt-5 rounded-2xl border border-amber-200/20 bg-amber-100/[0.05] px-4 py-3 text-center font-serif text-lg font-black leading-8 text-amber-50">

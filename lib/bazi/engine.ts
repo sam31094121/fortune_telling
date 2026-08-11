@@ -24,7 +24,7 @@ import { Solar } from 'lunar-typescript';
 
 export const BAZI_ENGINE = {
   name: 'TraditionalBaziCore',
-  version: '1.0.0',
+  version: '1.1.0', // +空亡/命宮/身宮/胎元/胎息/十二長生（皆確定性規則）
   ruleSet: 'TW_TRADITIONAL_BAZI_V1',
   yearBoundary: 'LI_CHUN',
   monthBoundary: 'JIE_QI',
@@ -165,6 +165,16 @@ export interface BaziProfessionalResult {
     score: number;
   };
   interactions: BaziInteraction[];
+  /** 空亡（旬空）：年柱旬空 + 日柱旬空 */
+  kongWang: { yearXunKong: string; dayXunKong: string };
+  /** 命宮／身宮（依月支+時支確定性推得；未知時辰 → NOT_CALCULATED） */
+  mingGong: string | 'NOT_CALCULATED';
+  shenGong: string | 'NOT_CALCULATED';
+  /** 胎元（月柱干進一支進三）／胎息（日柱干支之合） */
+  taiYuan: string;
+  taiXi: string;
+  /** 十二長生（各柱地勢）；未知時辰時 hour = UNKNOWN */
+  twelveStages: { year: string; month: string; day: string; hour: string | 'UNKNOWN' };
   daYun: BaziDaYunStep[] | 'NOT_CALCULATED';
   daYunMeta: { direction: 'FORWARD' | 'BACKWARD'; startAgeYears: number; startAgeMonths: number; startAgeDays: number } | 'NOT_CALCULATED';
   annualLuck: BaziAnnualLuckItem[];
@@ -387,6 +397,23 @@ export function createBaziCore(input: BaziBirthInput): BaziProfessionalResult {
   // ---- 10. ShenShaEngine（輔助訊號，不凌駕核心）----
   const shenSha = computeShenSha(dayMasterStem, yearPillar.earthlyBranch, dayPillar.earthlyBranch, activePillars);
 
+  // ---- 10.5 空亡／命宮／胎元／胎息／十二長生（lunar-typescript 確定性 API） ----
+  const toTraditional = (v: string): string => {
+    const MAP: Record<string, string> = { 长生: '長生', 冠带: '冠帶', 临官: '臨官', 绝: '絕', 养: '養' };
+    return MAP[v] ?? v;
+  };
+  const kongWang = { yearXunKong: eightChar.getYearXunKong(), dayXunKong: eightChar.getDayXunKong() };
+  const mingGong: string | 'NOT_CALCULATED' = chartMode === 'FULL_BAZI' ? eightChar.getMingGong() : 'NOT_CALCULATED';
+  const shenGong: string | 'NOT_CALCULATED' = chartMode === 'FULL_BAZI' ? eightChar.getShenGong() : 'NOT_CALCULATED';
+  const taiYuan = eightChar.getTaiYuan();
+  const taiXi = eightChar.getTaiXi();
+  const twelveStages = {
+    year: toTraditional(eightChar.getYearDiShi()),
+    month: toTraditional(eightChar.getMonthDiShi()),
+    day: toTraditional(eightChar.getDayDiShi()),
+    hour: chartMode === 'FULL_BAZI' ? toTraditional(eightChar.getTimeDiShi()) : 'UNKNOWN' as const,
+  };
+
   // ---- 11. 驗證 Gate ----
   const calendarVerified = Boolean(solar.toYmdHms()) && Boolean(lunar.toString()) && solarTerm !== '';
   const pillarsVerified = activePillars.every((p) => STEMS.includes(p.heavenlyStem) && BRANCHES.includes(p.earthlyBranch))
@@ -425,6 +452,12 @@ export function createBaziCore(input: BaziBirthInput): BaziProfessionalResult {
     fiveElements: { rawCount, weightedStrength: weighted, weightRule: BAZI_ENGINE.hiddenStemWeights + `_MONTHx${BAZI_ENGINE.monthQiMultiplier}` },
     seasonalStrength: { monthQi, lifeStage, seasonalSignals, supportSignals, drainSignals, controlSignals, tendency, score: supportScore },
     interactions,
+    kongWang,
+    mingGong,
+    shenGong,
+    taiYuan,
+    taiXi,
+    twelveStages,
     daYun,
     daYunMeta,
     annualLuck,
@@ -569,6 +602,12 @@ export function debugBaziCore(core: BaziProfessionalResult): Record<string, unkn
     },
     日主: `${core.dayMaster.stem}${core.dayMaster.element}（${core.dayMaster.yinYang}）`,
     節氣: `${core.calendar.solarTerm} @ ${core.calendar.solarTermTime}`,
+    空亡: `年柱旬空 ${core.kongWang.yearXunKong}｜日柱旬空 ${core.kongWang.dayXunKong}`,
+    命宮: core.mingGong,
+    身宮: core.shenGong,
+    胎元: core.taiYuan,
+    胎息: core.taiXi,
+    十二長生: core.twelveStages,
     驗證: core.verification,
   };
 }

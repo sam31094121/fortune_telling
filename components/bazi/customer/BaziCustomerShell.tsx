@@ -29,7 +29,7 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
 
   const openLevel = (next: 'teacher' | 'full') => {
     setLevel((current) => (current === next ? null : next));
-    requestAnimationFrame(() => detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    requestAnimationFrame(() => detailRef.current?.scrollIntoView({ block: 'start' }));
   };
 
   return (
@@ -40,7 +40,7 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
       {/* LEVEL 2 / 3 */}
       <div ref={detailRef} className="scroll-mt-24">
         {level === 'teacher' && (
-          <div className="animate-[fadeIn_320ms_ease]">
+          <div>
             <div className="mb-3 flex items-baseline justify-between">
               <h3 className="text-xl font-black text-[color:var(--text-main)]">老師專業解盤</h3>
               <p className="text-xs font-bold text-white/40">先排準，再解讀。</p>
@@ -49,7 +49,7 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
           </div>
         )}
         {level === 'full' && (
-          <div className="animate-[fadeIn_320ms_ease]">
+          <div>
             <div className="mb-3 flex items-baseline justify-between">
               <h3 className="text-xl font-black text-[color:var(--text-main)]">完整傳統八字命盤</h3>
               <p className="text-xs font-bold text-white/40">專業核對用</p>

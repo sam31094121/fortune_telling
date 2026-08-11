@@ -7,7 +7,7 @@ export function BaziBottomActions({ active, onTeacher, onFull }: {
   onFull: () => void;
 }) {
   return (
-    <div className="sticky bottom-3 z-20 mx-auto mt-5 flex max-w-md gap-2 rounded-full border border-white/12 bg-black/70 p-1.5 backdrop-blur-xl">
+    <div className="sticky bottom-3 z-20 mx-auto mt-5 flex max-w-md gap-2 rounded-full border border-white/12 bg-black/90 p-1.5">
       <button
         type="button"
         onClick={onTeacher}

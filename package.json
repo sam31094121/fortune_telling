@@ -18,7 +18,9 @@
     "screen:watch": "node scripts/screen-health-monitor.mjs --watch",
     "platform:v6:audit": "node scripts/platform-core-v6-audit.mjs",
     "test:ziwei": "tsc lib/ziwei/engine.ts lib/ziwei/chartEngine.ts tests/ziwei-chart.test.ts tests/ziwei-core.test.ts --outDir .ziwei-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .ziwei-test-build/tests/ziwei-chart.test.js && node .ziwei-test-build/tests/ziwei-core.test.js",
-    "test:bazi": "tsc lib/bazi/engine.ts tests/bazi-core.test.ts --outDir .bazi-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .bazi-test-build/tests/bazi-core.test.js"
+    "test:bazi": "tsc lib/bazi/engine.ts tests/bazi-core.test.ts --outDir .bazi-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .bazi-test-build/tests/bazi-core.test.js",
+    "test:bazi-coverage": "tsc components/bazi/customer/fieldRegistry.ts tests/bazi-field-coverage.test.ts --outDir .bazi-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .bazi-test-build/tests/bazi-field-coverage.test.js",
+    "test:bazi-contract": "tsc lib/bazi/engine.ts lib/bazi-engine.ts lib/bazi-professional-result-v5.ts tests/bazi-v5-contract.test.ts --outDir .bazi-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .bazi-test-build/tests/bazi-v5-contract.test.js"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

@@ -18,6 +18,23 @@ export interface CustomerPillar {
 
 export interface CustomerElementBar { element: string; percent: number }
 
+export type FiveElementOrbitElement = 'WOOD' | 'FIRE' | 'EARTH' | 'METAL' | 'WATER';
+
+export interface FiveElementOrbitItem {
+  element: FiveElementOrbitElement;
+  label: string;
+  value: number | null;
+  ratio: number | null;
+  strength: number | null;
+  tenGodLabels: string[];
+  status: 'AVAILABLE' | 'UNAVAILABLE';
+}
+
+export interface FiveElementOrbitViewModel {
+  centerLabel: string;
+  items: FiveElementOrbitItem[];
+}
+
 export interface CustomerDaYun {
   ageRange: string;
   pillar: string;
@@ -38,6 +55,7 @@ export interface BaziCustomerView {
   dayMaster: { stem: string; element: string; level: string };
   pillars: CustomerPillar[];
   elementBars: CustomerElementBar[];
+  fiveElementOrbit: FiveElementOrbitViewModel;
   themeLine: string;
   // LEVEL 2
   teacher: {
@@ -53,6 +71,7 @@ export interface BaziCustomerView {
     annual: CustomerAnnual[];
     verified: boolean;
   };
+  reinforcement: { principle: string; basisSummary: string; priorityOrder: Array<{ rank: number; displayName?: string; title?: string; reason?: string }> };
   // LEVEL 3（完整傳統資料，原樣轉交）
   professional: unknown;
   engineVersion: string;
@@ -79,6 +98,7 @@ type BackendResult = {
   professionalChart: {
     calendar: { birthTime: string; shichen: { label: string; range: string } };
     elementStatistics: { percentages: Record<string, number> };
+    fiveElementTenGodMap?: Record<string, string[]>;
     strengthFactors: Array<{ id: string; label: string; status: string; score: number; detail: string }>;
     tenGodDistribution: { ranked: Array<{ tenGod: string; score: number }>; dominant: string[]; missing: string[] };
     structurePattern: { primaryPattern: string; supportingPattern: string; stability: string };
@@ -87,6 +107,34 @@ type BackendResult = {
   structureFocus: string;
   dataFlow: { rules: Record<string, boolean> };
 };
+
+const FIVE_ELEMENT_ORBIT_ORDER: Array<{ element: FiveElementOrbitElement; label: string }> = [
+  { element: 'WOOD', label: '木' },
+  { element: 'FIRE', label: '火' },
+  { element: 'EARTH', label: '土' },
+  { element: 'METAL', label: '金' },
+  { element: 'WATER', label: '水' },
+];
+
+function toFiveElementOrbitView(result: BackendResult): FiveElementOrbitViewModel {
+  const percentages = result.professionalChart.elementStatistics.percentages;
+  const tenGodMap = result.professionalChart.fiveElementTenGodMap ?? {};
+  return {
+    centerLabel: `${result.dayMaster.stem}${result.dayMaster.element}`,
+    items: FIVE_ELEMENT_ORBIT_ORDER.map(({ element, label }) => {
+      const value = percentages[label];
+      return {
+        element,
+        label,
+        value: typeof value === 'number' ? value : null,
+        ratio: typeof value === 'number' ? value : null,
+        strength: typeof value === 'number' ? value : null,
+        tenGodLabels: tenGodMap[label] ?? [],
+        status: typeof value === 'number' ? 'AVAILABLE' : 'UNAVAILABLE',
+      };
+    }),
+  };
+}
 
 export function toBaziCustomerView(result: BackendResult, hourUnknown: boolean): BaziCustomerView {
   const pc = result.professionalChart;
@@ -97,6 +145,7 @@ export function toBaziCustomerView(result: BackendResult, hourUnknown: boolean):
     dayMaster: result.dayMaster,
     pillars: PILLAR_ORDER.map((key) => ({ key, ...result.pillars[key] })),
     elementBars: Object.entries(pc.elementStatistics.percentages).map(([element, percent]) => ({ element, percent })),
+    fiveElementOrbit: toFiveElementOrbitView(result),
     themeLine: result.structureFocus || result.aiDeepAnalysis.chartSummary,
     teacher: {
       chartSummary: result.aiDeepAnalysis.chartSummary,
@@ -110,6 +159,11 @@ export function toBaziCustomerView(result: BackendResult, hourUnknown: boolean):
       daYun: result.luckCycles,
       annual: result.annualFortunes,
       verified: pc.verification.readyForInterpretation,
+    },
+    reinforcement: {
+      principle: (result as unknown as { aiReinforcementPlan?: { principle?: string } }).aiReinforcementPlan?.principle ?? '',
+      basisSummary: (result as unknown as { aiReinforcementPlan?: { basisSummary?: string } }).aiReinforcementPlan?.basisSummary ?? '',
+      priorityOrder: ((result as unknown as { aiReinforcementPlan?: { priorityOrder?: Array<{ rank: number; displayName?: string; title?: string; reason?: string }> } }).aiReinforcementPlan?.priorityOrder ?? []),
     },
     professional: result.professionalChart,
     engineVersion: result.engineVersion,

@@ -13,8 +13,6 @@
  * - Adapter 只做映射，禁止任何八字計算。
  */
 
-import { useEffect, useState } from 'react';
-
 export type BaziProgressStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'UNAVAILABLE' | 'SKIPPED_BY_DATA_CONDITION' | 'FAILED';
 
 export interface BaziCalculationProgressItem {
@@ -30,9 +28,96 @@ export interface BaziCalculationProgressViewModel {
   mode: 'FULL_BAZI' | 'PARTIAL_BAZI';
   overallStatus: 'PROCESSING' | 'COMPLETED' | 'PARTIAL_COMPLETED' | 'FAILED';
   items: BaziCalculationProgressItem[];
+  missingRequiredFields: string[];
+  unavailableOptionalFields: string[];
+  fieldTraces: BaziFieldTrace[];
+}
+
+export type BaziFieldTraceStatus =
+  | 'VALID_VALUE'
+  | 'AVAILABLE'
+  | 'MISSING'
+  | 'USER_NOT_PROVIDED'
+  | 'CORE_NOT_SUPPORTED'
+  | 'CALCULATION_FAILED'
+  | 'MAPPING_MISSING'
+  | 'OPTIONAL_NOT_AVAILABLE';
+
+export interface BaziFieldTrace {
+  field: string;
+  label: string;
+  sourcePath: string;
+  core: BaziFieldTraceStatus;
+  professionalResult: BaziFieldTraceStatus;
+  api: BaziFieldTraceStatus;
+  adapter: BaziFieldTraceStatus;
+  frontend: BaziFieldTraceStatus;
 }
 
 /* ==================== Adapter：Backend Result → ViewModel（零計算） ==================== */
+
+const FULL_BAZI_REQUIRED_PROFESSIONAL_FIELDS = [
+  { key: 'solarTerm', label: '節氣資訊', path: 'professionalChart.calendar.solarTerm' },
+  { key: 'kongWang', label: '空亡', path: 'professionalChart.kongWang' },
+  { key: 'twelveStages', label: '十二長生', path: 'professionalChart.twelveStages' },
+  { key: 'interactions', label: '合沖刑害破', path: 'professionalChart.interactions' },
+  { key: 'shenSha', label: '神煞／特星', path: 'professionalChart.shenSha' },
+  { key: 'mingGong', label: '命宮', path: 'professionalChart.mingGong' },
+  { key: 'taiYuan', label: '胎元', path: 'professionalChart.taiYuan' },
+  { key: 'taiXi', label: '胎息', path: 'professionalChart.taiXi' },
+];
+
+const OPTIONAL_PROFESSIONAL_FIELDS = [
+  { key: 'bloodType', label: '血型', path: 'input.bloodType', category: 'USER_NOT_PROVIDED' },
+  { key: 'tenGodElementMap', label: '五行對應十神分類', path: 'professionalChart.fiveElementTenGodMap', category: 'MAPPING_MISSING' },
+];
+
+function readPath(source: unknown, path: string): unknown {
+  return path.split('.').reduce<unknown>((current, key) => {
+    if (current == null || typeof current !== 'object') return undefined;
+    return (current as Record<string, unknown>)[key];
+  }, source);
+}
+
+function hasProfessionalValue(value: unknown) {
+  if (value == null) return false;
+  if (Array.isArray(value)) return true;
+  if (typeof value === 'object') return Object.keys(value as Record<string, unknown>).length > 0;
+  return value !== '' && value !== 'NOT_CALCULATED' && value !== 'UNKNOWN';
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function validateBaziProfessionalCompleteness(result: any, hourUnknown: boolean) {
+  const requiredFields = hourUnknown
+    ? FULL_BAZI_REQUIRED_PROFESSIONAL_FIELDS.filter((field) => field.key !== 'mingGong')
+    : FULL_BAZI_REQUIRED_PROFESSIONAL_FIELDS;
+  const requiredTraces: BaziFieldTrace[] = requiredFields.map((field) => {
+    const available = hasProfessionalValue(readPath(result, field.path));
+    return {
+      field: field.key,
+      label: field.label,
+      sourcePath: field.path,
+      core: 'AVAILABLE',
+      professionalResult: available ? 'VALID_VALUE' : 'MAPPING_MISSING',
+      api: available ? 'VALID_VALUE' : 'MISSING',
+      adapter: available ? 'VALID_VALUE' : 'MISSING',
+      frontend: available ? 'VALID_VALUE' : 'MISSING',
+    };
+  });
+  const missingRequiredFields = requiredTraces
+    .filter((trace) => trace.professionalResult !== 'VALID_VALUE')
+    .map((trace) => `${trace.label}｜${trace.professionalResult}`);
+  const unavailableOptionalFields = OPTIONAL_PROFESSIONAL_FIELDS
+    .filter((field) => !hasProfessionalValue(readPath(result, field.path)))
+    .map((field) => `${field.label}｜${field.category}`);
+
+  return {
+    valid: missingRequiredFields.length === 0,
+    missingRequiredFields,
+    unavailableOptionalFields,
+    fieldTraces: requiredTraces,
+  };
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function toBaziProgressView(result: any, hourUnknown: boolean): BaziCalculationProgressViewModel {
@@ -40,6 +125,7 @@ export function toBaziProgressView(result: any, hourUnknown: boolean): BaziCalcu
   const has = (v: unknown) => v !== undefined && v !== null && v !== '';
   const arr = (v: unknown) => Array.isArray(v) && v.length > 0;
   const done = (v: boolean): BaziProgressStatus => (v ? 'COMPLETED' : 'FAILED');
+  const completeness = validateBaziProfessionalCompleteness(result, hourUnknown);
   const items: BaziCalculationProgressItem[] = [
     { key: 'input', label: '出生資料確認', status: done(has(result?.input)), source: 'BACKEND' },
     { key: 'dateVerify', label: '出生日期驗證', status: done(has(pc?.calendar)), source: 'BACKEND' },
@@ -48,8 +134,6 @@ export function toBaziProgressView(result: any, hourUnknown: boolean): BaziCalcu
       status: hourUnknown ? 'SKIPPED_BY_DATA_CONDITION' : done(has(pc?.calendar?.shichen?.label)),
       source: 'BACKEND', note: hourUnknown ? '未提供' : undefined,
     },
-    // 節氣：目前核心版本未提供獨立節氣結果 → 誠實標示，不假裝完成、不新增演算法
-    { key: 'solarTerm', label: '節氣校正', status: 'UNAVAILABLE', source: 'BACKEND', note: '目前未提供' },
     {
       key: 'pillars', label: hourUnknown ? '三柱排定' : '四柱排定',
       status: done(has(result?.pillars?.year) && has(result?.pillars?.month) && has(result?.pillars?.day)),
@@ -65,14 +149,24 @@ export function toBaziProgressView(result: any, hourUnknown: boolean): BaziCalcu
     { key: 'usefulGod', label: '喜用神分析', status: done(has(result?.gods?.usefulGod) && has(result?.gods?.joyGod)), source: 'BACKEND' },
     { key: 'avoidGod', label: '忌神分析', status: done(has(result?.gods?.avoidGod)), source: 'BACKEND' },
     { key: 'pattern', label: '格局判定', status: done(has(pc?.structurePattern?.primaryPattern)), source: 'BACKEND' },
-    // 以下為目前核心尚未提供的項目：誠實 UNAVAILABLE，禁止 AI 補值
-    { key: 'kongWang', label: '空亡資料', status: 'UNAVAILABLE', source: 'BACKEND', note: '目前未提供' },
-    { key: 'twelveStage', label: '十二長生', status: 'UNAVAILABLE', source: 'BACKEND', note: '目前未提供' },
-    { key: 'interactions', label: '合沖刑害破', status: 'UNAVAILABLE', source: 'BACKEND', note: '目前未提供' },
-    { key: 'shenSha', label: '神煞', status: 'UNAVAILABLE', source: 'BACKEND', note: '目前未提供' },
+    { key: 'solarTerm', label: '節氣校正', status: done(hasProfessionalValue(pc?.calendar?.solarTerm)), source: 'BACKEND' },
+    { key: 'kongWang', label: '空亡資料', status: done(hasProfessionalValue(pc?.kongWang)), source: 'BACKEND' },
+    { key: 'twelveStages', label: '十二長生', status: done(hasProfessionalValue(pc?.twelveStages)), source: 'BACKEND' },
+    { key: 'interactions', label: '合沖刑害破', status: done(hasProfessionalValue(pc?.interactions)), source: 'BACKEND' },
+    { key: 'taiYuan', label: '胎元', status: done(hasProfessionalValue(pc?.taiYuan)), source: 'BACKEND' },
+    { key: 'taiXi', label: '胎息', status: done(hasProfessionalValue(pc?.taiXi)), source: 'BACKEND' },
+    { key: 'mingGong', label: '命宮', status: hourUnknown ? 'SKIPPED_BY_DATA_CONDITION' : done(hasProfessionalValue(pc?.mingGong)), source: 'BACKEND', note: hourUnknown ? '需出生時辰' : undefined },
+    { key: 'shenSha', label: '神煞／特星', status: done(hasProfessionalValue(pc?.shenSha)), source: 'BACKEND' },
     { key: 'daYun', label: '大運排定', status: done(arr(result?.luckCycles)), source: 'BACKEND' },
     { key: 'annual', label: '流年建立', status: done(arr(result?.annualFortunes)), source: 'BACKEND' },
-    { key: 'verify', label: '專業命盤資料驗證', status: done(pc?.verification?.readyForInterpretation === true), source: 'BACKEND' },
+    { key: 'verify', label: '基礎命盤資料驗證', status: done(pc?.verification?.readyForInterpretation === true), source: 'BACKEND' },
+    {
+      key: 'professionalCompleteness',
+      label: '台灣完整欄位檢查',
+      status: done(completeness.valid),
+      source: 'BACKEND',
+      note: completeness.valid ? undefined : `${completeness.missingRequiredFields.length} 項待接入`,
+    },
     { key: 'teacher', label: 'AI 老師解析', status: done(has(result?.aiDeepAnalysis?.summary)), source: 'BACKEND' },
   ];
   const anyFailed = items.some((i) => i.status === 'FAILED');
@@ -81,6 +175,9 @@ export function toBaziProgressView(result: any, hourUnknown: boolean): BaziCalcu
     mode: hourUnknown ? 'PARTIAL_BAZI' : 'FULL_BAZI',
     overallStatus: anyFailed ? 'FAILED' : hourUnknown ? 'PARTIAL_COMPLETED' : 'COMPLETED',
     items,
+    missingRequiredFields: completeness.missingRequiredFields,
+    unavailableOptionalFields: completeness.unavailableOptionalFields,
+    fieldTraces: completeness.fieldTraces,
   };
 }
 
@@ -97,6 +194,11 @@ export function runBaziFinalGate(result: any, hourUnknown: boolean): { passed: b
     if (!result?.pillars?.[k]?.stem || !result?.pillars?.[k]?.branch) issues.push(`pillar ${k} invalid`);
   }
   if (result?.professionalChart?.verification?.readyForInterpretation !== true) issues.push('verification not passed');
+  const completeness = validateBaziProfessionalCompleteness(result, hourUnknown);
+  if (!completeness.valid) {
+    issues.push('professional completeness failed');
+    completeness.missingRequiredFields.forEach((field) => issues.push(field));
+  }
   return { passed: issues.length === 0, issues };
 }
 
@@ -104,63 +206,119 @@ export function runBaziFinalGate(result: any, hourUnknown: boolean): { passed: b
 
 const STATUS_ICON: Record<BaziProgressStatus, { icon: string; cls: string }> = {
   PENDING: { icon: '·', cls: 'text-white/25' },
-  PROCESSING: { icon: '●', cls: 'text-amber-200 animate-pulse' },
+  PROCESSING: { icon: '●', cls: 'text-amber-200' },
   COMPLETED: { icon: '✓', cls: 'text-emerald-300' },
   UNAVAILABLE: { icon: '—', cls: 'text-white/30' },
   SKIPPED_BY_DATA_CONDITION: { icon: '－', cls: 'text-white/45' },
   FAILED: { icon: '✕', cls: 'text-rose-300' },
 };
 
+function ProgressRows({ items }: { items: BaziCalculationProgressItem[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div className="space-y-1.5">
+      {items.map((item) => {
+        const s = STATUS_ICON[item.status];
+        return (
+          <div key={item.key} className="flex items-center justify-between gap-3 rounded-xl bg-white/[0.025] px-4 py-2">
+            <span className="text-sm font-bold text-white/70">{item.label}</span>
+            <span className={`shrink-0 text-sm font-black ${s.cls}`}>{s.icon}{item.note ? ` ${item.note}` : ''}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
   phase: 'processing' | 'ceremony';
   view: BaziCalculationProgressViewModel | null;
   onOpenResult: () => void;
 }) {
-  const [revealed, setRevealed] = useState(0);
   const items = view?.items ?? [];
-
-  // 結果回來後：逐項揭示「已確認的真實狀態」（節奏呈現，非假完成；後端快畫面就快）
-  useEffect(() => {
-    if (phase !== 'ceremony' || !view) return;
-    setRevealed(0);
-    let i = 0;
-    const timer = setInterval(() => {
-      i += 1;
-      setRevealed(i);
-      if (i >= items.length) clearInterval(timer);
-    }, 85);
-    return () => clearInterval(timer);
-  }, [phase, view, items.length]);
-
-  const allRevealed = phase === 'ceremony' && view && revealed >= items.length;
+  const readyToOpen = phase === 'ceremony' && view;
+  const completedItems = items.filter((item) => item.status === 'COMPLETED');
+  const unavailableItems = items.filter((item) => item.status === 'UNAVAILABLE');
+  const skippedItems = items.filter((item) => item.status === 'SKIPPED_BY_DATA_CONDITION');
+  const failedItems = items.filter((item) => item.status === 'FAILED');
 
   return (
-    <section className="animate-[fadeIn_320ms_ease] rounded-[24px] border border-white/10 bg-[linear-gradient(165deg,rgba(14,14,18,0.97),rgba(22,20,16,0.94))] p-5 sm:p-6">
+    <section className="rounded-[24px] border border-white/10 bg-[linear-gradient(165deg,rgba(14,14,18,0.97),rgba(22,20,16,0.94))] p-5 sm:p-6">
       <h3 className="text-xl font-black text-[color:var(--text-main)]">正在建立您的 AI 八字命盤</h3>
-      <p className="mt-1.5 text-sm font-semibold text-white/50">每一項結果皆依實際排盤資料逐項完成。</p>
+      <p className="mt-1.5 text-sm font-semibold text-white/50">完成勾選只來自後端真實資料；核心未提供的項目會分開標示，不補值。</p>
 
-      <div className="mt-5 space-y-1.5">
+      <div className="mt-5 space-y-4">
         {phase === 'processing' ? (
           <div className="flex items-center gap-3 rounded-2xl bg-white/[0.03] px-4 py-3">
-            <span className="text-amber-200 animate-pulse">●</span>
+            <span className="text-amber-200">●</span>
             <span className="text-base font-bold text-white/75">TraditionalBaziCore 排盤運算中…（結果由後端真實回傳後才逐項確認）</span>
           </div>
         ) : (
-          items.slice(0, revealed).map((item) => {
-            const s = STATUS_ICON[item.status];
-            return (
-              <div key={item.key} className="flex items-center justify-between gap-3 rounded-xl bg-white/[0.025] px-4 py-2 animate-[fadeIn_200ms_ease]">
-                <span className="text-sm font-bold text-white/70">{item.label}</span>
-                <span className={`shrink-0 text-sm font-black ${s.cls}`}>{s.icon}{item.note ? ` ${item.note}` : ''}</span>
+          <>
+            <div>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <p className="text-sm font-black text-emerald-100">已完成的真實運算</p>
+                <p className="text-xs font-bold text-white/35">{completedItems.length} 項</p>
               </div>
-            );
-          })
+              <ProgressRows items={completedItems} />
+            </div>
+
+            {skippedItems.length > 0 && (
+              <div>
+                <p className="mb-2 text-sm font-black text-white/55">依資料條件略過</p>
+                <ProgressRows items={skippedItems} />
+              </div>
+            )}
+
+            {unavailableItems.length > 0 && (
+              <div>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <p className="text-sm font-black text-white/45">核心目前未提供</p>
+                  <p className="text-xs font-bold text-white/30">不補值、不推算</p>
+                </div>
+                <ProgressRows items={unavailableItems} />
+              </div>
+            )}
+
+            {failedItems.length > 0 && (
+              <div>
+                <p className="mb-2 text-sm font-black text-rose-100">未通過項目</p>
+                <ProgressRows items={failedItems} />
+                {view?.missingRequiredFields && view.missingRequiredFields.length > 0 && (
+                  <div className="mt-3 rounded-2xl border border-rose-300/15 bg-rose-500/[0.04] px-4 py-3">
+                    <p className="text-sm font-black text-rose-100">需要逐項接入的台灣完整欄位</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {view.missingRequiredFields.map((field) => (
+                        <span key={field} className="rounded-full border border-rose-200/20 bg-black/18 px-3 py-1 text-xs font-bold text-rose-100/80">{field}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {view?.unavailableOptionalFields && view.unavailableOptionalFields.length > 0 && (
+              <div className="rounded-2xl border border-white/8 bg-white/[0.025] px-4 py-3">
+                <p className="text-sm font-black text-white/45">非必要或使用者未提供</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {view.unavailableOptionalFields.map((field) => (
+                    <span key={field} className="rounded-full border border-white/10 bg-black/18 px-3 py-1 text-xs font-bold text-white/45">{field}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {allRevealed && view && (
-        <div className="mt-5 animate-[fadeIn_320ms_ease] rounded-2xl border border-emerald-200/25 bg-emerald-300/[0.06] p-5 text-center">
-          {view.overallStatus === 'PARTIAL_COMPLETED' ? (
+      {readyToOpen && view && (
+        <div className="mt-5 rounded-2xl border border-emerald-200/25 bg-emerald-300/[0.06] p-5 text-center">
+          {view.overallStatus === 'FAILED' ? (
+            <>
+              <p className="text-lg font-black text-rose-100">專業命盤資料尚未完整</p>
+              <p className="mt-1 text-sm font-semibold text-white/60">基礎排盤可讀，但台灣完整格式仍有欄位尚未接入。</p>
+            </>
+          ) : view.overallStatus === 'PARTIAL_COMPLETED' ? (
             <>
               <p className="text-lg font-black text-emerald-100">三柱命盤建立完成</p>
               <p className="mt-1 text-sm font-semibold text-white/60">目前未提供出生時辰；補充時辰後可建立完整四柱命盤。</p>
@@ -168,7 +326,7 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
           ) : (
             <>
               <p className="text-lg font-black text-emerald-100">AI 八字命盤建立完成</p>
-              <p className="mt-1 text-sm font-semibold text-white/60">專業排盤資料已完成運算與驗證。</p>
+              <p className="mt-1 text-sm font-semibold text-white/60">目前核心可提供的專業排盤資料已完成運算與驗證。</p>
             </>
           )}
           <button
@@ -176,7 +334,7 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
             onClick={onOpenResult}
             className="mt-4 w-full rounded-full border border-emerald-200/40 bg-emerald-300/15 py-3.5 text-base font-black text-emerald-50 transition hover:bg-emerald-300/25 active:scale-[0.99] sm:w-auto sm:px-10"
           >
-            {view.overallStatus === 'PARTIAL_COMPLETED' ? '查看目前命盤' : '查看我的命盤'}
+            {view.overallStatus === 'FAILED' ? '查看目前資料' : view.overallStatus === 'PARTIAL_COMPLETED' ? '查看目前命盤' : '查看我的命盤'}
           </button>
         </div>
       )}
@@ -186,10 +344,25 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
 
 /** Final Gate 失敗畫面：不顯示半套假命盤 */
 export function BaziGateFailed({ issues, onRetry, onCheckInput }: { issues: string[]; onRetry: () => void; onCheckInput: () => void }) {
+  const fieldIssues = issues.filter((issue) => issue.includes('｜'));
+  const systemIssues = issues.filter((issue) => !issue.includes('｜'));
   return (
-    <section className="animate-[fadeIn_320ms_ease] rounded-[24px] border border-rose-300/25 bg-rose-500/[0.06] p-5 text-center sm:p-6">
+    <section className="rounded-[24px] border border-rose-300/25 bg-rose-500/[0.06] p-5 text-center sm:p-6">
       <p className="text-lg font-black text-rose-100">命盤尚未完成</p>
-      <p className="mt-1 text-sm font-semibold text-white/55">排盤資料未通過驗證，未完成的命盤不會顯示。（{issues.slice(0, 2).join('；')}）</p>
+      <p className="mt-1 text-sm font-semibold text-white/55">台灣完整八字欄位仍有資料未接入，系統不會宣稱完整完成。</p>
+      {fieldIssues.length > 0 && (
+        <div className="mt-4 rounded-2xl border border-rose-200/15 bg-black/18 px-4 py-3 text-left">
+          <p className="text-sm font-black text-rose-100">需要逐項突破</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {fieldIssues.map((issue) => (
+              <span key={issue} className="rounded-full border border-rose-200/20 bg-rose-300/[0.06] px-3 py-1 text-xs font-bold text-rose-100/85">{issue}</span>
+            ))}
+          </div>
+        </div>
+      )}
+      {systemIssues.length > 0 && (
+        <p className="mt-3 text-xs font-semibold leading-5 text-white/40">{systemIssues.join('；')}</p>
+      )}
       <div className="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
         <button type="button" onClick={onRetry} className="rounded-full border border-rose-200/40 bg-rose-300/12 px-8 py-3 text-sm font-black text-rose-50 transition hover:bg-rose-300/20">重新分析</button>
         <button type="button" onClick={onCheckInput} className="rounded-full border border-white/15 bg-white/[0.05] px-8 py-3 text-sm font-black text-white/70 transition hover:text-white">檢查出生資料</button>

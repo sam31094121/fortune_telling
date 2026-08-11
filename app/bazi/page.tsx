@@ -235,6 +235,11 @@ function scoreWidth(score: number | undefined) {
   return `${Math.max(4, Math.min(100, Math.round(score ?? 0)))}%`;
 }
 
+/**
+ * DEPRECATED（Layout Lock V3｜2026-08-11）
+ * 以下舊版扁平版面 helper（LayerBadge/PillarCard/InfoItem/ReinforcementCard）已被
+ * components/bazi/customer/* 三層架構取代，禁止新功能引用；保留僅作版本歷史。
+ */
 function LayerBadge({ label }: { label: string }) {
   return <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">{label}</p>;
 }
@@ -361,13 +366,11 @@ export default function BaziPage() {
   const [gateIssues, setGateIssues] = useState<string[]>([]);
   const [missing, setMissing] = useState<string[]>([]);
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<BaziResult> | null>(null);
-  const resolvedBirthTime = form.timeUnknown ? '12:00' : form.birthTime;
+  const resolvedBirthTime = form.timeUnknown ? '' : form.birthTime;
   const resultSectionRef = useRef<HTMLDivElement>(null);
 
   function scrollToResult() {
-    window.setTimeout(() => {
-      resultSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 80);
+    resultSectionRef.current?.scrollIntoView({ block: 'start' });
   }
 
   useEffect(() => {
@@ -387,10 +390,7 @@ export default function BaziPage() {
 
   useEffect(() => {
     if (!result || loading) return;
-    const timer = window.setTimeout(() => {
-      resultSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 180);
-    return () => window.clearTimeout(timer);
+    resultSectionRef.current?.scrollIntoView({ block: 'start' });
   }, [result, loading]);
 
   async function handleSubmit() {
@@ -429,7 +429,7 @@ export default function BaziPage() {
     if (nextMissing.length > 0) {
       setError('請先把八字命盤需要的生成資料填完整，系統才會進入第一層專業命盤。');
       const first = document.querySelector(`[data-field="${nextMissing[0]}"]`);
-      first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      first?.scrollIntoView({ block: 'center' });
       return;
     }
 
@@ -448,10 +448,14 @@ export default function BaziPage() {
         inputData: {
           name: form.name.trim(),
           birthDate: form.birthDate,
-          birthTime: resolvedBirthTime || '12:00',
+          birthTime: resolvedBirthTime,
           gender: form.gender,
           country: form.country.trim(),
           city: form.city.trim(),
+          birthTimeKnown: form.timeUnknown !== true,
+          timeUnknown: form.timeUnknown === true,
+          birthHourBranch: form.birthHourBranch,
+          calendarType: form.calendarType ?? 'solar',
         },
         onJob: (job) => {
           if (job.message) setMessage(job.message);
@@ -543,7 +547,7 @@ export default function BaziPage() {
               view={progressView}
               onOpenResult={() => {
                 setCeremonyPhase('ready');
-                window.setTimeout(() => resultSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+                resultSectionRef.current?.scrollIntoView({ block: 'start' });
               }}
             />
           </div>
@@ -554,7 +558,7 @@ export default function BaziPage() {
             <BaziGateFailed
               issues={gateIssues}
               onRetry={() => { void handleSubmit(); }}
-              onCheckInput={() => { setCeremonyPhase('idle'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onCheckInput={() => { setCeremonyPhase('idle'); window.scrollTo({ top: 0 }); }}
             />
           </div>
         )}
