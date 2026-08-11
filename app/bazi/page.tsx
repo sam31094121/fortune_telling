@@ -8,6 +8,7 @@ import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { runAnalysisJobClient } from '@/lib/analysis-job-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
+import { BaziCustomerShell } from '@/components/bazi/customer/BaziCustomerShell';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
@@ -466,8 +467,8 @@ export default function BaziPage() {
           <div className="min-w-0">
             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-amber-200">BAZI ENGINE</p>
             <h1 className="mt-2 font-serif text-3xl font-black leading-tight text-[color:var(--text-main)] sm:text-5xl">AI 八字命盤</h1>
-            <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
-              本模組採三層單向資料流：先建立專業命盤，再由 AI 讀取命盤轉成白話，最後輸出明確補強排序。
+            <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-[color:var(--text-sub)]">
+              先排準，再解讀。
             </p>
           </div>
           <Link href="/" className="shrink-0 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-[color:var(--text-sub)] transition hover:border-white/25 hover:text-white">
@@ -514,202 +515,11 @@ export default function BaziPage() {
         {message && <p className="mt-4 rounded-2xl border border-cyan-300/25 bg-cyan-300/8 px-4 py-3 text-sm font-bold leading-6 text-cyan-100">{message}</p>}
 
         {result && (
-          <div ref={resultSectionRef} className="mt-5 scroll-mt-20 space-y-4">
-            {result.dailyTarot && <BaziDailyTarotCard tarot={result.dailyTarot} />}
-            <section className="rounded-[28px] border border-amber-300/25 bg-black/18 p-5">
-              <LayerBadge label="Layer 1 · Professional Chart" />
-              <h2 className="mt-3 text-2xl font-black leading-8 text-amber-50">第一層｜專業八字命盤</h2>
-              <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">此層只建立命盤資料，不做 AI 解讀，不做補強建議。{result.professionalChart.detail.readableSummary}</p>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <InfoItem label="曆法" value={result.professionalChart.calendar.calendarType === 'solar' ? '陽曆排盤' : '曆法排盤'} />
-                <InfoItem label="出生時間" value={result.professionalChart.calendar.birthTime + ' · ' + result.professionalChart.calendar.shichen.label} />
-                <InfoItem label="時辰範圍" value={result.professionalChart.calendar.shichen.range} />
-                <InfoItem label="真太陽時" value={result.professionalChart.calendar.trueSolarTimeApplied ? '已套用' : '未套用'} />
-              </div>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-4">
-                {PILLAR_ORDER.map((key) => <PillarCard key={key} pillar={result.pillars[key]} />)}
-              </div>
-
-              <div className="mt-4 overflow-x-auto rounded-2xl border border-white/10 bg-black/14">
-                <div className="grid min-w-[720px] grid-cols-[0.8fr_0.9fr_1fr_1fr_1.2fr] border-b border-white/10 px-3 py-2 text-[11px] font-black text-amber-100/80 sm:px-4">
-                  <span>柱位</span><span>干支</span><span>天干十神</span><span>地支主氣</span><span>藏干</span>
-                </div>
-                {PILLAR_ORDER.map((key) => {
-                  const detail = result.professionalChart.pillarDetails[key];
-                  return (
-                    <div key={key} className="grid min-w-[720px] grid-cols-[0.8fr_0.9fr_1fr_1fr_1.2fr] border-b border-white/5 px-3 py-3 text-xs font-semibold leading-5 text-[color:var(--text-sub)] last:border-b-0 sm:px-4">
-                      <span className="text-amber-50">{detail.label}</span>
-                      <span className="font-serif text-base font-black text-amber-100">{detail.ganzhi}</span>
-                      <span>{detail.stemTenGod}</span>
-                      <span>{detail.branchMainElement} · {detail.branchMainTenGod}</span>
-                      <span>{detail.hiddenStemLabels.join('、')}</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                <article className="rounded-2xl border border-white/10 bg-black/14 p-4">
-                  <h3 className="text-sm font-black text-amber-50">藏干主中餘氣</h3>
-                  <div className="mt-3 space-y-2">
-                    {PILLAR_ORDER.map((key) => (
-                      <div key={key} className="rounded-xl bg-white/[0.04] px-3 py-2">
-                        <p className="text-xs font-black text-[color:var(--text-main)]">{result.pillars[key].label}</p>
-                        <p className="mt-1 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
-                          {result.professionalChart.hiddenStemStructure[key].map((item) => item.roleLabel + item.stem + item.element + item.tenGod + '(' + Math.round(item.weight * 100) + '%)').join('、')}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </article>
-
-                <article className="rounded-2xl border border-white/10 bg-black/14 p-4">
-                  <h3 className="text-sm font-black text-amber-50">十神分布</h3>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {result.professionalChart.tenGodDistribution.ranked.map((item) => (
-                      <span key={item.tenGod} className="rounded-full border border-amber-200/20 bg-amber-200/8 px-3 py-1 text-xs font-bold text-amber-50">{item.tenGod} {item.score}</span>
-                    ))}
-                  </div>
-                  <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">主訊號：{result.professionalChart.tenGodDistribution.dominant.join('、') || '分布平均'}；缺位：{result.professionalChart.tenGodDistribution.missing.join('、') || '無明顯缺位'}</p>
-                </article>
-              </div>
-
-              <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                <article className="rounded-2xl border border-white/10 bg-black/14 p-4">
-                  <h3 className="text-sm font-black text-amber-50">五行分層統計</h3>
-                  <div className="mt-3 space-y-3">
-                    {Object.entries(result.professionalChart.elementStatistics.percentages).map(([element, percent]) => (
-                      <div key={element}>
-                        <div className="mb-1 flex items-center justify-between text-xs font-bold text-[color:var(--text-sub)]">
-                          <span>{element}</span><span>{percent}%</span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-white/10"><span className="block h-full rounded-full bg-gradient-to-r from-amber-300 to-cyan-300" style={{ width: scoreWidth(percent) }} /></div>
-                        <p className="mt-1 text-[11px] font-semibold text-[color:var(--text-muted)]">天干 {result.professionalChart.elementStatistics.stems[element] ?? 0} · 地支 {result.professionalChart.elementStatistics.branches[element] ?? 0} · 藏干 {result.professionalChart.elementStatistics.hiddenStems[element] ?? 0}</p>
-                      </div>
-                    ))}
-                  </div>
-                </article>
-
-                <article className="rounded-2xl border border-white/10 bg-black/14 p-4">
-                  <h3 className="text-sm font-black text-amber-50">日主強弱規則</h3>
-                  <div className="mt-3 space-y-2">
-                    {result.professionalChart.strengthFactors.map((factor) => (
-                      <div key={factor.id} className="rounded-xl bg-white/[0.04] px-3 py-2">
-                        <div className="flex items-center justify-between gap-3 text-xs font-black">
-                          <span className="text-[color:var(--text-main)]">{factor.label}</span>
-                          <span className={factor.status === 'support' ? 'text-emerald-200' : factor.status === 'pressure' ? 'text-rose-200' : 'text-cyan-200'}>{factor.status === 'support' ? '扶助' : factor.status === 'pressure' ? '壓力' : '中性'} {factor.score}</span>
-                        </div>
-                        <p className="mt-1 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{factor.detail}</p>
-                      </div>
-                    ))}
-                  </div>
-                </article>
-              </div>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                <InfoItem label="日主" value={result.dayMaster.stem + result.dayMaster.element} />
-                <InfoItem label="旺衰判定" value={result.dayMaster.level} />
-                <InfoItem label="用神" value={result.gods.usefulGod} />
-                <InfoItem label="喜神" value={result.gods.joyGod} />
-                <InfoItem label="忌神" value={result.gods.avoidGod} />
-              </div>
-
-              <div className="mt-4 grid gap-3 lg:grid-cols-3">
-                <InfoItem label="格局主軸" value={result.professionalChart.structurePattern.primaryPattern} />
-                <InfoItem label="輔助訊號" value={result.professionalChart.structurePattern.supportingPattern} />
-                <InfoItem label="格局穩定" value={result.professionalChart.structurePattern.stability === 'stable' ? '穩定' : result.professionalChart.structurePattern.stability === 'mixed' ? '混雜' : '需校正'} />
-              </div>
-
-              <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                <article className="rounded-2xl border border-white/10 bg-black/14 p-4">
-                  <h3 className="text-sm font-black text-amber-50">大運資料</h3>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                    {result.luckCycles.slice(0, 4).map((cycle) => <InfoItem key={cycle.ageRange} label={cycle.ageRange + ' · ' + (cycle.tenGod ?? '十神')} value={cycle.pillar + '（' + (cycle.startYear ?? '') + '-' + (cycle.endYear ?? '') + '）'} />)}
-                  </div>
-                </article>
-                <article className="rounded-2xl border border-white/10 bg-black/14 p-4">
-                  <h3 className="text-sm font-black text-amber-50">流年資料</h3>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                    {result.annualFortunes.slice(0, 4).map((year) => <InfoItem key={year.year} label={year.year + ' · ' + (year.tenGod ?? '十神')} value={year.pillar + ' · ' + year.element} />)}
-                  </div>
-                </article>
-              </div>
-            </section>
-
-            <section className="rounded-[28px] border border-emerald-300/25 bg-emerald-300/8 p-5">
-              <LayerBadge label="Layer 2 · AI Deep Analysis" />
-              <h2 className="mt-3 text-2xl font-black leading-8 text-emerald-50">第二層｜AI 深度分析</h2>
-              <p className="mt-3 text-xs font-bold text-emerald-100/80">
-                來源：{result.aiDeepAnalysis.sourceLayer} · checksum {result.aiDeepAnalysis.sourceChecksum} · {result.professionalChart.verification.readyForInterpretation ? '已驗證' : '未驗證'} · 不重算命盤
-              </p>
-              <h3 className="mt-4 text-xl font-black text-emerald-50">{result.aiDeepAnalysis.chartSummary}</h3>
-              <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{result.aiDeepAnalysis.summary}</p>
-
-              <div className="mt-4 grid gap-3 lg:grid-cols-3">
-                <InfoItem label="日主訊號" value={result.aiDeepAnalysis.professionalSignals.dayMaster} />
-                <InfoItem label="格局訊號" value={result.aiDeepAnalysis.professionalSignals.structure} />
-                <InfoItem label="補強排序" value={result.aiDeepAnalysis.professionalSignals.elementFocus} />
-              </div>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {result.aiDeepAnalysis.userReadableSections.map((section) => (
-                  <article key={section.title} className="rounded-2xl border border-white/10 bg-black/16 p-4">
-                    <p className="text-sm font-black text-[color:var(--text-main)]">{section.title}</p>
-                    {section.basis && <p className="mt-1 text-[11px] font-black text-emerald-100/75">{section.basis}</p>}
-                    <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{section.content}</p>
-                  </article>
-                ))}
-              </div>
-
-              <div className="mt-4 rounded-2xl border border-emerald-200/15 bg-black/16 p-4">
-                <h3 className="text-sm font-black text-emerald-50">第二層邏輯追蹤</h3>
-                <div className="mt-3 grid gap-2">
-                  {result.aiDeepAnalysis.logicTrace.map((trace) => (
-                    <div key={trace.step} className="rounded-xl bg-white/[0.04] px-3 py-2">
-                      <p className="text-xs font-black text-emerald-100">{trace.step}</p>
-                      <p className="mt-1 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{trace.output}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            <section className="rounded-[28px] border border-violet-300/25 bg-violet-300/8 p-5">
-              <LayerBadge label="Layer 3 · AI Reinforcement" />
-              <h2 className="mt-3 text-2xl font-black leading-8 text-violet-50">第三層｜AI 補強方案</h2>
-              <p className="mt-3 text-xs font-bold text-violet-100/80">來源：{result.aiReinforcementPlan.sourceLayer} · checksum {result.aiReinforcementPlan.sourceChecksum} · 不重算命盤</p>
-              <p className="mt-3 text-sm font-black leading-7 text-[color:var(--text-main)]">{result.aiReinforcementPlan.principle}</p>
-              <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{result.aiReinforcementPlan.basisSummary}</p>
-              <p className="mt-1 text-sm font-semibold leading-7 text-violet-100">{result.aiReinforcementPlan.elementSequenceExplanation}</p>
-              <div className="mt-4 grid gap-3 lg:grid-cols-3">
-                {result.aiReinforcementPlan.priorityOrder.map((item) => <ReinforcementCard key={item.rank} item={item} />)}
-              </div>
-              <div className="mt-5 space-y-3">
-                {result.aiDeepAnalysis.elementPriority.slice(0, 5).map((item) => (
-                  <div key={item.displayName}>
-                    <div className="mb-1 flex items-center justify-between text-xs font-bold text-[color:var(--text-sub)]">
-                      <span>{item.rank}. {item.displayName}（{BRAND_LABEL[item.brandElement]}） · {item.judgementLevel}</span>
-                      <span>{item.needScore}</span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                      <span className="block h-full rounded-full bg-gradient-to-r from-violet-300 via-amber-300 to-cyan-300" style={{ width: scoreWidth(item.needScore) }} />
-                    </div>
-                    <p className="mt-1 text-[11px] font-semibold leading-5 text-[color:var(--text-muted)]">{item.reason}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-              <LayerBadge label="Forward Only Flow" />
-              <h2 className="mt-3 text-xl font-black text-[color:var(--text-main)]">資料流程驗證</h2>
-              <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{result.dataFlow.pipeline.join(' → ')}</p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {Object.entries(result.dataFlow.rules).map(([key, value]) => <InfoItem key={key} label={key} value={value ? '通過' : '未通過'} />)}
-              </div>
-            </section>
+          <div ref={resultSectionRef} className="mt-6 scroll-mt-20">
+            {result.dailyTarot && <div className="mb-4"><BaziDailyTarotCard tarot={result.dailyTarot} /></div>}
+            {/* Customer Frontend Visual Rebuild V1：三層架構（命工卡 → 老師專業 → 完整命盤）
+                只改呈現；TraditionalBaziCore／排盤規則／API Schema／AI 解盤邏輯完全未動 */}
+            <BaziCustomerShell result={result} hourUnknown={form.timeUnknown === true} />
           </div>
         )}
       </main>
