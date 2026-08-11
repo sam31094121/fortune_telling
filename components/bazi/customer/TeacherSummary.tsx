@@ -140,6 +140,26 @@ export function TeacherSummary({ view }: { view: BaziCustomerView }) {
         </CustomerAccordion>
       )}
 
+      {/* ⑧ 五行 Drill Down（Teacher Professional Drilldown V1）
+          只讀已完成的 Professional Result；點擊＝Lazy Render，不重算、不重新 Fetch */}
+      <CustomerAccordion title="⑧ 五行詳細分析（點元素看依據）">
+        <div className="space-y-2">
+          {view.elementEvidence.map((ev) => (
+            <details key={ev.element} className="group rounded-2xl bg-white/[0.03]">
+              <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
+                <span className="text-base font-black text-white/85">{ev.element}</span>
+                <span className="text-sm font-bold text-white/55">{ev.percent === null ? '—' : `${ev.percent}%`} <span className="ml-1 text-white/35 group-open:hidden">▸ 看依據</span></span>
+              </summary>
+              <div className="space-y-1.5 px-4 pb-3 text-sm font-semibold leading-6 text-white/60">
+                <p className="text-white/80">【{ev.element} 目前結果】比例 {ev.percent === null ? '未提供' : `${ev.percent}%`}<span className="ml-2 rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-black text-white/45">CORE_CALCULATED</span></p>
+                <p>【來源組成】天干 {ev.stems} 個・地支 {ev.branches} 個・藏干 {ev.hiddenStems} 個</p>
+                <p className="text-white/40">目前核心提供最終比例與來源計數；未提供更細的分數拆解（月令權重等），系統不自行編造。</p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </CustomerAccordion>
+
       {/* 其餘老師解讀段落 */}
       {t.sections.slice(5).map((s) => (
         <CustomerAccordion key={s.title} title={s.title}>

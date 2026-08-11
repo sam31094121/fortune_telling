@@ -85,12 +85,23 @@ export function hourBranchToBirthTime(branch?: string): string | undefined {
   return HOUR_BRANCH_TIME[branch as Exclude<BirthHourBranch, 'unknown'>];
 }
 
+/** 欄位是否已完成（完成後紅色警告即刻消失，不等下次送出） */
+function isFieldDone(value: BirthProfile, key: string): boolean {
+  if (key === 'name') return (value.name ?? '').trim().length >= 2;
+  if (key === 'birthDate') return Boolean(value.birthDate);
+  if (key === 'gender') return Boolean(value.gender);
+  if (key === 'birthPlace') return Boolean(value.country && value.city);
+  if (key === 'birthHourBranch') return Boolean(value.timeUnknown || value.birthHourBranch);
+  return false;
+}
+
 function hasMissing(missing: string[] | undefined, key: string) {
   return Boolean(missing?.includes(key));
 }
 
-function fieldFrameClass(missing: string[] | undefined, key: string) {
-  return `rounded-2xl border p-5 ${hasMissing(missing, key) ? 'border-rose-300/45 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.2)]' : 'border-white/10 bg-white/[0.04]'}`;
+function fieldFrameClass(missing: string[] | undefined, key: string, value?: BirthProfile) {
+  const stillMissing = hasMissing(missing, key) && !(value && isFieldDone(value, key));
+  return `rounded-2xl border p-5 ${stillMissing ? 'border-rose-300/45 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.2)]' : 'border-white/10 bg-white/[0.04]'}`;
 }
 
 function ChoiceButton({ active, alert, children, onClick, tone = 'amber' }: { active: boolean; alert?: boolean; children: ReactNode; onClick: () => void; tone?: 'amber' | 'cyan' }) {
@@ -226,7 +237,7 @@ export function UnifiedBirthForm({
     >
 
       {fields.name && (
-        <section data-field="name" className={fieldFrameClass(missing, 'name')}>
+        <section data-field="name" className={fieldFrameClass(missing, 'name', value)}>
           <label className="block text-sm font-black text-[color:var(--text-main)]">1. 姓名 {(value.name ?? '').trim().length >= 2 && <span className="ml-2 text-green-400">完成</span>}</label>
           <input
             value={value.name ?? ''}
@@ -238,12 +249,12 @@ export function UnifiedBirthForm({
             autoComplete="off"
             disabled={disabled}
           />
-          {hasMissing(missing, 'name') && <p className="form-missing-alert">請先填寫姓名，至少 2 個字。</p>}
+          {hasMissing(missing, 'name') && !isFieldDone(value, 'name') && <p className="form-missing-alert">請先填寫姓名，至少 2 個字。</p>}
         </section>
       )}
 
       {fields.birthDate && (
-        <section data-field="birthDate" className={fieldFrameClass(missing, 'birthDate')}>
+        <section data-field="birthDate" className={fieldFrameClass(missing, 'birthDate', value)}>
           <label className="block text-sm font-black text-[color:var(--text-main)]">2. 出生日期（萬年曆）{value.birthDate && <span className="ml-2 text-green-400">完成</span>}</label>
           <div className="mt-4">
             <LunarBirthdayInput
@@ -254,12 +265,12 @@ export function UnifiedBirthForm({
               disabled={disabled}
             />
           </div>
-          {hasMissing(missing, 'birthDate') && <p className="form-missing-alert">請先完成生日萬年曆推算。</p>}
+          {hasMissing(missing, 'birthDate') && !isFieldDone(value, 'birthDate') && <p className="form-missing-alert">請先完成生日萬年曆推算。</p>}
         </section>
       )}
 
       {fields.gender && (
-        <section data-field="gender" className={fieldFrameClass(missing, 'gender')}>
+        <section data-field="gender" className={fieldFrameClass(missing, 'gender', value)}>
           <label className="block text-sm font-black text-[color:var(--text-main)]">3. 性別 {value.gender && <span className="ml-2 text-green-400">完成</span>}</label>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {[
@@ -272,23 +283,23 @@ export function UnifiedBirthForm({
               </ChoiceButton>
             ))}
           </div>
-          {hasMissing(missing, 'gender') && <p className="form-missing-alert">請點選性別，這欄還沒有確認。</p>}
+          {hasMissing(missing, 'gender') && !isFieldDone(value, 'gender') && <p className="form-missing-alert">請點選性別，這欄還沒有確認。</p>}
         </section>
       )}
 
       {fields.birthPlace && (
-        <section data-field="birthPlace" className={fieldFrameClass(missing, 'birthPlace')}>
+        <section data-field="birthPlace" className={fieldFrameClass(missing, 'birthPlace', value)}>
           <label className="block text-sm font-black text-[color:var(--text-main)]">4. 出生地點 {value.country && value.city && <span className="ml-2 text-green-400">完成</span>}</label>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <input value={value.country ?? ''} onChange={(event) => onChange({ ...value, country: event.target.value, birthPlace: [event.target.value, value.city ?? ''].filter(Boolean).join(' ') })} placeholder="國家，例如台灣" className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" disabled={disabled} />
             <input value={value.city ?? ''} onChange={(event) => onChange({ ...value, city: event.target.value, birthPlace: [value.country ?? '', event.target.value].filter(Boolean).join(' ') })} placeholder="城市，例如台北" className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" disabled={disabled} />
           </div>
-          {hasMissing(missing, 'birthPlace') && <p className="form-missing-alert">請確認出生國家與城市。</p>}
+          {hasMissing(missing, 'birthPlace') && !isFieldDone(value, 'birthPlace') && <p className="form-missing-alert">請確認出生國家與城市。</p>}
         </section>
       )}
 
       {fields.birthHourBranch && (
-        <section data-field="birthHourBranch" className={fieldFrameClass(missing, 'birthHourBranch')}>
+        <section data-field="birthHourBranch" className={fieldFrameClass(missing, 'birthHourBranch', value)}>
           <label className="block text-sm font-black text-[color:var(--text-main)]">5. 出生時辰 {(value.timeUnknown || value.birthHourBranch) && <span className="ml-2 text-green-400">完成</span>}</label>
           <HourBranchSelector
             value={value.birthHourBranch}

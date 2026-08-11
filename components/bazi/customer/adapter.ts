@@ -72,6 +72,8 @@ export interface BaziCustomerView {
     verified: boolean;
   };
   reinforcement: { principle: string; basisSummary: string; priorityOrder: Array<{ rank: number; displayName?: string; title?: string; reason?: string }> };
+  /** 老師版五行 Drill Down 證據：全部來自後端 elementStatistics，未提供的細項誠實標示 */
+  elementEvidence: Array<{ element: string; percent: number | null; stems: number; branches: number; hiddenStems: number; tenGodLabels: string[] }>;
   // LEVEL 3（完整傳統資料，原樣轉交）
   professional: unknown;
   engineVersion: string;
@@ -164,7 +166,14 @@ export function toBaziCustomerView(result: BackendResult, hourUnknown: boolean):
     pillars: PILLAR_ORDER.map((key) => ({ key, ...result.pillars[key] })),
     elementBars: Object.entries(pc.elementStatistics.percentages).map(([element, percent]) => ({ element, percent })),
     fiveElementOrbit: toFiveElementOrbitView(result),
-    themeLine: result.structureFocus || result.aiDeepAnalysis.chartSummary,
+    themeLine: (() => {
+      const raw = result.structureFocus || result.aiDeepAnalysis.chartSummary || '';
+      // 未知時辰：舊核心文案可能含補午時敘述，與時柱「未提供」矛盾 → 以誠實句取代（僅呈現層，非重算）
+      if (hourUnknown && /(四柱已完成|時辰為|午時)/.test(raw)) {
+        return '三柱結構已完成；補充出生時辰後，可建立完整四柱。';
+      }
+      return raw;
+    })(),
     teacher: {
       chartSummary: result.aiDeepAnalysis.chartSummary,
       summary: result.aiDeepAnalysis.summary,
@@ -183,6 +192,17 @@ export function toBaziCustomerView(result: BackendResult, hourUnknown: boolean):
       basisSummary: (result as unknown as { aiReinforcementPlan?: { basisSummary?: string } }).aiReinforcementPlan?.basisSummary ?? '',
       priorityOrder: ((result as unknown as { aiReinforcementPlan?: { priorityOrder?: Array<{ rank: number; displayName?: string; title?: string; reason?: string }> } }).aiReinforcementPlan?.priorityOrder ?? []),
     },
+    elementEvidence: ['木', '火', '土', '金', '水'].map((el) => {
+      const stats = pc.elementStatistics as unknown as { percentages: Record<string, number>; stems?: Record<string, number>; branches?: Record<string, number>; hiddenStems?: Record<string, number> };
+      return {
+        element: el,
+        percent: typeof stats.percentages?.[el] === 'number' ? stats.percentages[el] : null,
+        stems: stats.stems?.[el] ?? 0,
+        branches: stats.branches?.[el] ?? 0,
+        hiddenStems: stats.hiddenStems?.[el] ?? 0,
+        tenGodLabels: [], // 後端未提供五行→十神正式對應；未提供即不顯示
+      };
+    }),
     professional: result.professionalChart,
     engineVersion: result.engineVersion,
     gods: result.gods,

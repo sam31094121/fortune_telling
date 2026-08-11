@@ -34,7 +34,7 @@ export function BaziHeroCard({ view, elementOf, onOpenTeacher }: {
 
       <div className="mt-5">
         <p className="mb-2.5 text-sm font-black text-white/55">固定五行星體</p>
-        <FiveElementOrbit view={view.fiveElementOrbit} />
+        <FiveElementOrbit view={view.fiveElementOrbit} evidence={view.elementEvidence} />
       </div>
 
       <p className="mt-5 rounded-2xl border border-amber-200/20 bg-amber-100/[0.05] px-4 py-3 text-center font-serif text-lg font-black leading-8 text-amber-50">

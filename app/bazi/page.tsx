@@ -507,12 +507,6 @@ export default function BaziPage() {
     <div className="app-bg min-h-screen overflow-x-hidden">
       <main className="relative z-10 mx-auto max-w-4xl px-4 py-5 sm:px-6 sm:py-9">
         <header className="mb-6">
-          {/* 返回首頁：獨立置右，不擠壓置中標題 */}
-          <div className="mb-4 flex justify-end">
-            <Link href="/" className="feature-home-link feature-home-link--amber shrink-0">
-              返回首頁
-            </Link>
-          </div>
           {/* 標題區：全部置中，儀式感對稱 */}
           <div className="text-center">
             {/* 眉標：雙側金色引線夾中文 */}
@@ -593,6 +587,16 @@ export default function BaziPage() {
             <BaziCustomerShell result={result} hourUnknown={form.timeUnknown === true} />
           </div>
         )}
+
+        <footer className="mt-8 flex justify-center pb-4 sm:mt-10">
+          <Link
+            href="/"
+            className="group inline-flex min-h-[48px] items-center justify-center rounded-2xl border border-cyan-200/20 bg-cyan-300/[0.06] px-5 py-3 text-sm font-black text-cyan-50 shadow-[0_12px_30px_rgba(8,47,73,0.22)] transition hover:border-cyan-200/40 hover:bg-cyan-300/[0.1] active:scale-[0.99]"
+          >
+            <span className="mr-2 h-1.5 w-1.5 rounded-full bg-amber-200/80 shadow-[0_0_14px_rgba(251,191,36,0.45)]" aria-hidden="true" />
+            返回首頁
+          </Link>
+        </footer>
       </main>
     </div>
   );

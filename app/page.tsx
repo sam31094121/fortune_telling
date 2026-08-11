@@ -1490,15 +1490,13 @@ function HomeStickyJourneyPanel({ completed, completedModules, total, onOpenNumb
 
   return (
     <section className="home-sticky-journey" aria-label="今日清楚下一步">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm font-bold leading-6 text-[color:var(--text-main)]">
-          {unlocked
-            ? '8/8 已完成，成長中心已開放。'
-            : nextModule
-              ? `已完成 ${safeCompleted}/${safeTotal}，下一步：${nextModule.label}。`
-              : `已完成 ${safeCompleted}/${safeTotal}。`}
-        </p>
-        <div className="sm:w-64 sm:shrink-0">{nextAction}</div>
+      <div className="home-sticky-journey__compact-grid">
+        <div className="home-sticky-journey__compact-copy">
+          <p className="home-sticky-journey__compact-kicker">今日下一步</p>
+          <h2>{unlocked ? '成長中心已開放' : nextModule?.label ?? '今日探索已完成'}</h2>
+          <p>{unlocked ? `已完成 ${safeCompleted}/${safeTotal}` : `已完成 ${safeCompleted}/${safeTotal}`}</p>
+        </div>
+        <div className="home-sticky-journey__compact-action">{nextAction}</div>
       </div>
     </section>
   );
@@ -2715,17 +2713,21 @@ export default function HomePage() {
 
 
         <section id="home-eight-card-route" className="home-eight-card-route mb-8 scroll-mt-6">
-          <div className="home-eight-card-route__header">
+          {/* 「其他探索素材」標題卡已隱藏（2026-08-11）：依指示不顯示 */}
+          <div className="home-eight-card-route__header hidden">
             <p>其他探索素材</p>
             <h2>想多看，再選一張；不想想，就照上面下一步走。</h2>
           </div>
-          <MegaInputGuide
-            title="8 張卡片，一張一張填"
-            steps={['先看每張卡的填寫任務', '點進去後照大字引導填', '看不清楚就按聽引導']}
-            example="姓名、生日、時辰、阿拉伯數字，都會放大提示。"
-            tone="cyan"
-            className="mb-4"
-          />
+          {/* 「8 張卡片，一張一張填」引導卡已隱藏（2026-08-11）：依指示不顯示 */}
+          {false && (
+            <MegaInputGuide
+              title="8 張卡片，一張一張填"
+              steps={['先看每張卡的填寫任務', '點進去後照大字引導填', '看不清楚就按聽引導']}
+              example="姓名、生日、時辰、阿拉伯數字，都會放大提示。"
+              tone="cyan"
+              className="mb-4"
+            />
+          )}
           <div className="flex w-full flex-col gap-4">
           <Link
             href="/match"
