@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiveElementOrbitCard } from '@/components/five-elements/FiveElementOrbitCard';
 import Link from 'next/link';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import MegaInputGuide from '@/components/MegaInputGuide';
@@ -197,19 +196,23 @@ export default function TarotPageClient() {
         {adminMode && <TarotDeckAdminReview cards={TAROT_CARDS} onClose={resetExperience} />}
 
         {!adminMode && step === 'ready_to_draw' && (
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
-          <section className="fortune-card tarot-experience-hero border-cyan-200/25 p-5 sm:p-7">
-            <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
-              <div>
-                {/* 主標排版美化（2026-08-12 依指示）：置中 + 引線 + 月光漸層字 + 柔光 */}
+          <div className="tarot-entry-two-card-grid">
+          <section className="fortune-card tarot-experience-hero tarot-experience-hero--primary border-cyan-200/25 p-5 sm:p-7">
+            <div className="tarot-experience-copy">
+                {/* 主標視覺強化（2026-08-12 依指示）：超大置中主標，強烈視覺衝擊 */}
                 <div className="flex items-center justify-center gap-3 text-center">
-                  <span className="h-px w-10 bg-gradient-to-r from-transparent to-cyan-300/80" aria-hidden="true" />
-                  <p className="text-[11px] font-black uppercase tracking-[0.28em] text-cyan-200">AI TAROT DRAW EXPERIENCE</p>
-                  <span className="h-px w-10 bg-gradient-to-l from-transparent to-cyan-300/80" aria-hidden="true" />
+                  <span className="h-px w-12 bg-gradient-to-r from-transparent via-cyan-300/60 to-amber-200/80" aria-hidden="true" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.34em] text-cyan-200/90">AI TAROT</p>
+                  <span className="h-px w-12 bg-gradient-to-l from-transparent via-cyan-300/60 to-amber-200/80" aria-hidden="true" />
                 </div>
-                <h1 className="mx-auto mt-4 bg-gradient-to-br from-cyan-50 via-white to-cyan-200/85 bg-clip-text text-center font-serif text-4xl font-black leading-tight tracking-[0.06em] text-transparent drop-shadow-[0_0_26px_rgba(34,211,238,0.22)] sm:text-5xl">
+                <h1 className="mx-auto mt-3 bg-gradient-to-b from-white via-cyan-50 to-cyan-300/90 bg-clip-text text-center font-serif text-6xl font-black leading-[1.08] tracking-[0.1em] text-transparent drop-shadow-[0_0_38px_rgba(34,211,238,0.45)] sm:text-7xl lg:text-8xl">
                   AI 塔羅牌
                 </h1>
+                <div className="mx-auto mt-4 flex items-center justify-center gap-2" aria-hidden="true">
+                  <span className="h-px w-16 bg-gradient-to-r from-transparent to-amber-200/70" />
+                  <span className="text-sm text-amber-200/90">✦</span>
+                  <span className="h-px w-16 bg-gradient-to-l from-transparent to-amber-200/70" />
+                </div>
                 <p className="mx-auto mt-4 max-w-2xl text-center text-base font-semibold leading-8 text-[color:var(--text-sub)]">
                   請先專注你現在最想了解的一件事。系統會完成 78 張牌洗牌，接著由你親手進入抽牌體驗。
                 </p>
@@ -328,7 +331,10 @@ export default function TarotPageClient() {
                     </button>
                   </div>
                 </form>
-              </div>
+            </div>
+          </section>
+
+          <aside className="fortune-card tarot-experience-hero tarot-experience-hero--deck border-cyan-200/20 p-4 sm:p-5" aria-label="塔羅牌庫預覽">
               <div
                 className="tarot-experience-deck-preview"
                 aria-label={`完整 78 張塔羅牌預覽，大阿爾克那 ${TAROT_DECK_INTEGRITY.major} 張，小阿爾克那 ${TAROT_DECK_INTEGRITY.minor} 張`}
@@ -362,10 +368,7 @@ export default function TarotPageClient() {
                   <i>Draw 3</i>
                 </div>
               </div>
-            </div>
-          </section>
-          {/* 五行星軌卡：獨立視覺卡，與塔羅零依賴（TAROT CORE FROZEN） */}
-          <FiveElementOrbitCard />
+          </aside>
           </div>
         )}
 
