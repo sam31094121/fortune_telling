@@ -22,7 +22,14 @@ export async function GET(request: Request) {
 
   const date = url.searchParams.get('date') ?? '';
   const time = url.searchParams.get('time');
-  const hourBranch = url.searchParams.get('hourBranch');
+  /* 2026-08-12 修復：hourBranch 同時支援羅馬拼音（zi/chou/...）與中文（子/丑/...），
+     拼音未轉換時會被核心視為未知時辰而誤退 PARTIAL_BAZI。 */
+  const HOUR_BRANCH_ROMAN: Record<string, string> = {
+    zi: '子', chou: '丑', yin: '寅', mao: '卯', chen: '辰', si: '巳',
+    wu: '午', wei: '未', shen: '申', you: '酉', xu: '戌', hai: '亥',
+  };
+  const hourBranchRaw = url.searchParams.get('hourBranch');
+  const hourBranch = hourBranchRaw ? (HOUR_BRANCH_ROMAN[hourBranchRaw.toLowerCase()] ?? hourBranchRaw) : null;
   const gender = url.searchParams.get('gender') === 'male' ? 'male' as const : 'female' as const;
   const calendarType = url.searchParams.get('calendar') === 'lunar' ? 'LUNAR' as const : 'SOLAR' as const;
   const isLeapMonth = url.searchParams.get('leap') === '1';
