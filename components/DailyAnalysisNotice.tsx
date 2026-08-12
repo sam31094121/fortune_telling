@@ -22,10 +22,14 @@ export default function DailyAnalysisNotice({
   return (
     <section className={`daily-analysis-notice ${statusClass} ${className}`.trim()}>
       <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* 標題排版優化（2026-08-12 依指示）：只寫模組名稱，狀態交給右側徽章表達 */}
         <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">DAILY PASS</p>
-          <h4 className="mt-1 font-serif text-lg font-black leading-tight text-cyan-50 sm:text-xl">
-            {record ? `${moduleName} 今日已完成` : `${moduleName} 今日可開始`}
+          <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] text-amber-200">
+            <span aria-hidden="true" className="inline-block h-px w-6 bg-gradient-to-r from-transparent to-amber-200/70" />
+            DAILY PASS
+          </p>
+          <h4 className="mt-1.5 bg-gradient-to-r from-amber-100 via-cyan-50 to-amber-100 bg-clip-text font-serif text-xl font-black leading-tight tracking-[0.08em] text-transparent sm:text-2xl">
+            {moduleName}
           </h4>
         </div>
         {canJump ? (
