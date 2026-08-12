@@ -121,6 +121,19 @@ function ChoiceButton({ active, alert, children, onClick, tone = 'amber' }: { ac
 
 export function HourBranchSelector({ value, unknown, missing, onChange }: { value?: string; unknown?: boolean; missing?: boolean; onChange: (branch: BirthHourBranch) => void }) {
   const knownSelected = Boolean(value && value !== 'unknown' && !unknown);
+  /* 手機修復（2026-08-12）：展開時辰卡後自動捲到眼前，客戶才知道要在這裡點選（原本展開在畫面外，像壞掉） */
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const prevKnownRef = useRef(knownSelected);
+  useEffect(() => {
+    if (knownSelected && !prevKnownRef.current) {
+      window.setTimeout(() => panelRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 120);
+    }
+    prevKnownRef.current = knownSelected;
+  }, [knownSelected]);
+
+  const selectedItem = knownSelected
+    ? SHICHEN_LIST[HOUR_BRANCH_ORDER.findIndex((branch) => branch === value)]
+    : undefined;
 
   return (
     <div>
@@ -131,17 +144,22 @@ export function HourBranchSelector({ value, unknown, missing, onChange }: { valu
         </ChoiceButton>
         <ChoiceButton active={knownSelected} alert={missing} tone="cyan" onClick={() => onChange((knownSelected ? value : 'wu') as BirthHourBranch)}>
           <span className="block text-base font-black">我知道出生時辰</span>
-          <span className="mt-1.5 block text-xs font-semibold leading-5">使用紫微同款時辰卡點選，不需手打。</span>
+          <span className="mt-1.5 block text-xs font-semibold leading-5">點下去會展開 12 張時辰卡，直接點選，不需手打。</span>
         </ChoiceButton>
       </div>
 
       {knownSelected && (
-        <div className="mt-5 rounded-2xl border border-cyan-300/25 bg-cyan-950/20 p-4 shadow-[0_0_30px_rgba(34,211,238,0.12)]">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <span className="text-xs font-semibold tracking-wide text-cyan-100">請選擇你的出生時辰</span>
-            <span className="text-[11px] text-cyan-200/70">標準十二時辰</span>
+        <div ref={panelRef} className="mt-5 scroll-mt-24 rounded-2xl border border-cyan-300/40 bg-cyan-950/20 p-4 shadow-[0_0_30px_rgba(34,211,238,0.18)]">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <span className="text-sm font-black tracking-wide text-cyan-100">👇 請點選你的出生時辰</span>
+            <span className="text-[11px] font-bold text-cyan-200/70">標準十二時辰</span>
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {selectedItem && (
+            <div className="mb-3 rounded-xl border border-cyan-200/45 bg-cyan-300/12 px-4 py-2.5 text-sm font-black text-cyan-50">
+              ✓ 已選擇：{selectedItem.label}（{selectedItem.range}）——選錯可直接點別張更換
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
             {SHICHEN_LIST.map((item, index) => {
               const branch = HOUR_BRANCH_ORDER[index];
               if (branch === 'unknown') return null;
@@ -150,10 +168,11 @@ export function HourBranchSelector({ value, unknown, missing, onChange }: { valu
                 <button
                   key={branch}
                   type="button"
+                  aria-pressed={selected}
                   onClick={() => onChange(branch)}
-                  className={`rounded-xl border px-3 py-3 text-left transition-all ${selected ? 'border-cyan-200 bg-cyan-400/20 text-cyan-100 shadow-[0_0_18px_rgba(255,255,255,0.18)]' : 'border-white/10 bg-white/5 hover:border-cyan-300/50 hover:bg-cyan-400/10'}`}
+                  className={`min-h-[88px] rounded-xl border px-3 py-4 text-left transition-all active:scale-[0.97] ${selected ? 'border-cyan-200 bg-cyan-400/20 text-cyan-100 shadow-[0_0_18px_rgba(255,255,255,0.18)]' : 'border-white/10 bg-white/5 hover:border-cyan-300/50 hover:bg-cyan-400/10'}`}
                 >
-                  <p className={`text-base font-bold ${selected ? 'text-cyan-100' : 'text-[color:var(--text-main)]'}`}>{item.label}</p>
+                  <p className={`text-lg font-black ${selected ? 'text-cyan-100' : 'text-[color:var(--text-main)]'}`}>{selected ? '✓ ' : ''}{item.label}</p>
                   <p className="mt-0.5 text-xs font-semibold text-[color:var(--text-sub)]">{item.range}</p>
                   <p className="mt-1 text-[11px] leading-4 text-[color:var(--text-muted)]">{item.imagery}</p>
                 </button>

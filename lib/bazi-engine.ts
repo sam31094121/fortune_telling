@@ -1,13 +1,7 @@
-/**
- * LEGACY_BAZI_LOGIC（2026-08-11 標記）
- * 已知違規：月柱直接用國曆月份（無節氣）、年柱固定 2/4 切換（非立春實刻）。
- * Shadow Migration 進行中：新核心 lib/bazi/engine.ts（TraditionalBaziCore V1）。
- * 通過 Golden Test + 人工核對後 CUTOVER，屆時本檔依 DEPRECATE → REMOVE 流程處理。
- * 在 CUTOVER 前禁止直接刪除本檔（避免正式站中斷）。
- */
-import { getDayPillarIndex, getHourPillar, shichenFromClockHour, getShichenInfo } from './shichen-engine';
+import { getShichenInfo } from './shichen-engine';
 import { computeDetail } from './bazi-detail';
 import type { BaziDetail } from './bazi-detail';
+import { createBaziCore, type BaziBirthInput, type BaziPillarModel, type Branch as CoreBranch } from './bazi/engine';
 
 const HEAVENLY_STEMS = ['\u7532', '\u4e59', '\u4e19', '\u4e01', '\u620a', '\u5df1', '\u5e9a', '\u8f9b', '\u58ec', '\u7678'] as const;
 const EARTHLY_BRANCHES = ['\u5b50', '\u4e11', '\u5bc5', '\u536f', '\u8fb0', '\u5df3', '\u5348', '\u672a', '\u7533', '\u9149', '\u620c', '\u4ea5'] as const;
@@ -30,15 +24,6 @@ const STEM_YINYANG: Record<Stem, YinYang> = {
   '\u7532': 'yang', '\u4e59': 'yin', '\u4e19': 'yang', '\u4e01': 'yin', '\u620a': 'yang', '\u5df1': 'yin', '\u5e9a': 'yang', '\u8f9b': 'yin', '\u58ec': 'yang', '\u7678': 'yin',
 };
 
-const BRANCH_ELEMENT: Record<Branch, TraditionalElement> = {
-  '\u5b50': '\u6c34', '\u4e11': '\u571f', '\u5bc5': '\u6728', '\u536f': '\u6728', '\u8fb0': '\u571f', '\u5df3': '\u706b', '\u5348': '\u706b', '\u672a': '\u571f', '\u7533': '\u91d1', '\u9149': '\u91d1', '\u620c': '\u571f', '\u4ea5': '\u6c34',
-};
-
-const HIDDEN_STEMS: Record<Branch, Stem[]> = {
-  '\u5b50': ['\u7678'], '\u4e11': ['\u5df1', '\u7678', '\u8f9b'], '\u5bc5': ['\u7532', '\u4e19', '\u620a'], '\u536f': ['\u4e59'], '\u8fb0': ['\u620a', '\u4e59', '\u7678'], '\u5df3': ['\u4e19', '\u620a', '\u5e9a'],
-  '\u5348': ['\u4e01', '\u5df1'], '\u672a': ['\u5df1', '\u4e01', '\u4e59'], '\u7533': ['\u5e9a', '\u58ec', '\u620a'], '\u9149': ['\u8f9b'], '\u620c': ['\u620a', '\u8f9b', '\u4e01'], '\u4ea5': ['\u58ec', '\u7532'],
-};
-
 const GENERATES: Record<TraditionalElement, TraditionalElement> = { '\u6728': '\u706b', '\u706b': '\u571f', '\u571f': '\u91d1', '\u91d1': '\u6c34', '\u6c34': '\u6728' };
 const CONTROLS: Record<TraditionalElement, TraditionalElement> = { '\u6728': '\u571f', '\u571f': '\u6c34', '\u6c34': '\u706b', '\u706b': '\u91d1', '\u91d1': '\u6728' };
 const ELEMENT_DISPLAY: Record<TraditionalElement, { brandElement: BrandElement; displayName: string; actionName: string }> = {
@@ -58,6 +43,12 @@ export type BaziAnalysisInput = {
   gender: BaziGender;
   country?: string;
   city?: string;
+  birthTimeKnown?: boolean;
+  timeUnknown?: boolean;
+  birthHourBranch?: string;
+  traditionalHour?: string;
+  calendarType?: 'solar' | 'lunar' | 'SOLAR' | 'LUNAR';
+  isLeapMonth?: boolean;
 };
 
 export type BaziHiddenStem = { stem: Stem; element: TraditionalElement; tenGod: string };
@@ -263,7 +254,7 @@ export type BaziAnalysisResult = {
   ok: true;
   mode: 'bazi';
   moduleId: 'BAZI';
-  engineVersion: 'bazi_three_layer_v3';
+  engineVersion: string;
   input: BaziInputSnapshot;
   timezone: BaziProfessionalChart['timezone'];
   pillars: BaziPillars;
@@ -285,29 +276,6 @@ export type BaziAnalysisResult = {
   dataFlow: BaziDataFlow;
 };
 
-function mod(value: number, base: number) { return ((value % base) + base) % base; }
-function ganzhiFromIndex(index: number) { const i = mod(index, 60); return { stem: HEAVENLY_STEMS[i % 10], branch: EARTHLY_BRANCHES[i % 12] }; }
-function parseDate(input: string) {
-  const parts = input.split('-');
-  if (parts.length !== 3) throw new Error('birthDate \u5fc5\u9808\u70ba YYYY-MM-DD \u683c\u5f0f');
-  const [year, month, day] = parts.map((value) => Number.parseInt(value, 10));
-  if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) throw new Error('birthDate \u5305\u542b\u975e\u6578\u5b57');
-  return { year, month, day };
-}
-function parseHour(input: string) {
-  const parts = input.split(':');
-  if (parts.length !== 2) throw new Error('birthTime \u5fc5\u9808\u70ba HH:MM \u683c\u5f0f');
-  const hour = Number.parseInt(parts[0], 10);
-  if (!Number.isInteger(hour) || hour < 0 || hour > 23) throw new Error('birthTime \u5c0f\u6642\u5fc5\u9808\u5728 0-23 \u4e4b\u9593');
-  return hour;
-}
-function getYearPillarIndex(year: number, month: number, day: number) { const adjustedYear = month < 2 || (month === 2 && day < 4) ? year - 1 : year; return mod(adjustedYear - 4, 60); }
-function getMonthPillarIndex(yearStemIndex: number, month: number) {
-  const monthBranchIndex = mod(month + 1, 12);
-  const monthStemIndex = mod((yearStemIndex % 5) * 2 + month, 10);
-  for (let index = 0; index < 60; index += 1) if (index % 10 === monthStemIndex && index % 12 === monthBranchIndex) return index;
-  return monthStemIndex;
-}
 function clampScore(value: number) { return Math.max(0, Math.min(100, Math.round(value))); }
 function hashText(text: string) {
   let hash = 2166136261;
@@ -316,52 +284,6 @@ function hashText(text: string) {
     hash = Math.imul(hash, 16777619);
   }
   return (hash >>> 0).toString(16);
-}
-function chartChecksum(chart: Pick<BaziProfessionalChart, 'input' | 'pillars' | 'pillarDetails' | 'elementCounts' | 'elementStatistics' | 'tenGodDistribution' | 'dayMaster' | 'gods' | 'structurePattern'>) {
-  return hashText(JSON.stringify({
-    input: chart.input,
-    pillars: chart.pillars,
-    pillarDetails: chart.pillarDetails,
-    elementCounts: chart.elementCounts,
-    elementStatistics: chart.elementStatistics,
-    tenGodDistribution: chart.tenGodDistribution,
-    dayMaster: chart.dayMaster,
-    gods: chart.gods,
-    structurePattern: chart.structurePattern,
-  }));
-}
-
-function buildVerificationGate(chart: Pick<BaziProfessionalChart, 'calendar' | 'pillars' | 'pillarDetails' | 'tenGods' | 'luckCycles' | 'annualFortunes' | 'input' | 'elementCounts' | 'elementStatistics' | 'tenGodDistribution' | 'dayMaster' | 'gods' | 'structurePattern'>): BaziVerificationGate {
-  const pillarValues = PILLAR_KEYS.map((key) => chart.pillars[key]);
-  const pillarDetails = PILLAR_KEYS.map((key) => chart.pillarDetails[key]);
-  const tenGodValues = PILLAR_KEYS.map((key) => chart.tenGods[key]);
-  const calendarVerified = chart.calendar.calendarType === 'solar' && Boolean(chart.calendar.solarDate) && Boolean(chart.calendar.birthTime) && Boolean(chart.calendar.shichen.label);
-  const pillarsVerified = pillarValues.every((item) => Boolean(item?.stem && item?.branch)) && pillarDetails.every((item) => item.ganzhi === item.stem + item.branch);
-  const tenGodsVerified = tenGodValues.every((item) => Boolean(item?.stem && item?.branchMain) && Array.isArray(item.hidden));
-  const luckCyclesVerified = chart.luckCycles.length > 0 && chart.annualFortunes.length > 0 && chart.luckCycles.every((item) => Boolean(item.pillar && item.ageRange));
-  const failedReasons = [
-    calendarVerified ? null : '曆法與時辰資料未完整驗證。',
-    pillarsVerified ? null : '四柱干支或明細不一致。',
-    tenGodsVerified ? null : '十神資料未完整對應四柱。',
-    luckCyclesVerified ? null : '大運或流年資料未建立。',
-  ].filter(Boolean) as string[];
-  const readyForInterpretation = failedReasons.length === 0;
-
-  return {
-    calendarVerified,
-    pillarsVerified,
-    tenGodsVerified,
-    luckCyclesVerified,
-    readyForInterpretation,
-    checksum: chartChecksum(chart),
-    evidence: [
-      '曆法驗證：' + (calendarVerified ? chart.calendar.solarDate + ' ' + chart.calendar.birthTime + ' · ' + chart.calendar.shichen.label : '未通過'),
-      '四柱驗證：' + pillarDetails.map((item) => item.ganzhi).join('、'),
-      '十神驗證：' + tenGodValues.map((item) => item.stem + '/' + item.branchMain).join('、'),
-      '歲運驗證：大運 ' + chart.luckCycles.length + ' 筆，流年 ' + chart.annualFortunes.length + ' 筆。',
-    ],
-    failedReasons,
-  };
 }
 
 function analysisChecksum(analysis: Pick<BaziDeepAnalysis, 'summary' | 'plainText' | 'elementPriority'>) {
@@ -380,59 +302,12 @@ function getTenGod(dayStem: Stem, targetStem: Stem) {
   return '\u5e73\u8861';
 }
 
-function pillar(label: string, index: number, dayStem: Stem): BaziPillar {
-  const value = ganzhiFromIndex(index);
-  return {
-    label,
-    stem: value.stem,
-    branch: value.branch,
-    stemElement: STEM_ELEMENT[value.stem],
-    branchElement: BRANCH_ELEMENT[value.branch],
-    stemTenGod: getTenGod(dayStem, value.stem),
-    hiddenStems: HIDDEN_STEMS[value.branch].map((stem) => ({ stem, element: STEM_ELEMENT[stem], tenGod: getTenGod(dayStem, stem) })),
-  };
-}
-
-function countElements(pillars: BaziPillars) {
-  const counts: Record<TraditionalElement, number> = { '\u91d1': 0, '\u6728': 0, '\u6c34': 0, '\u706b': 0, '\u571f': 0 };
-  Object.values(pillars).forEach((item) => {
-    counts[item.stemElement] += 1.2;
-    counts[item.branchElement] += 1;
-    item.hiddenStems.forEach((hidden, index) => { counts[hidden.element] += index === 0 ? 0.6 : 0.35; });
-  });
-  return Object.fromEntries(Object.entries(counts).map(([key, value]) => [key, Number(value.toFixed(2))])) as Record<TraditionalElement, number>;
-}
-
-function buildStrengthAnalysis(monthBranch: Branch, counts: Record<TraditionalElement, number>, dayElement: TraditionalElement) {
-  const monthSeason = BRANCH_ELEMENT[monthBranch];
-  const source = ELEMENTS.find((element) => GENERATES[element] === dayElement) ?? dayElement;
-  const pressure = ELEMENTS.find((element) => CONTROLS[element] === dayElement) ?? dayElement;
-  const supportScore = Math.round(counts[dayElement] * 14 + counts[source] * 9 + (monthSeason === dayElement ? 16 : 0));
-  const pressureScore = Math.round(counts[pressure] * 13 + counts[CONTROLS[dayElement]] * 7);
-  const net = supportScore - pressureScore;
-  const verdict = net >= 26 ? '\u504f\u65fa' : net >= -10 ? '\u4e2d\u548c' : '\u504f\u5f31';
-  return { monthSeason: monthSeason + '\u6c23\u7576\u4ee4', supportScore, pressureScore, verdict, explanation: '\u6708\u4ee4\u4e3b\u6c23\u70ba' + monthSeason + '\uff0c\u5f8c\u7aef\u4f9d\u540c\u6c23\u3001\u751f\u6276\u8207\u5236\u5316\u58d3\u529b\u7d71\u8a08\uff0c\u5224\u5b9a\u65e5\u4e3b\u70ba' + verdict + '\u3002' };
-}
-
 function emptyElementRecord(): Record<TraditionalElement, number> {
   return { '金': 0, '木': 0, '水': 0, '火': 0, '土': 0 };
 }
 
 function roundElementRecord(record: Record<TraditionalElement, number>) {
   return Object.fromEntries(Object.entries(record).map(([key, value]) => [key, Number(value.toFixed(2))])) as Record<TraditionalElement, number>;
-}
-
-function buildCalendarProfile(input: BaziAnalysisInput, shichenIndex: number): BaziCalendarProfile {
-  const shichen = getShichenInfo(shichenIndex);
-  return {
-    solarDate: input.birthDate,
-    birthTime: input.birthTime,
-    calendarType: 'solar',
-    lunarConverted: false,
-    trueSolarTimeApplied: false,
-    shichen: { branchIndex: shichenIndex, label: shichen.label, range: shichen.range, branch: EARTHLY_BRANCHES[shichenIndex] },
-    note: '第一層命盤以使用者輸入的陽曆日期與當地時間排盤；目前不在此層套入 AI 解讀，也不反向修改輸入資料。',
-  };
 }
 
 function buildPillarDetails(pillars: BaziPillars) {
@@ -588,126 +463,6 @@ function chooseGods(counts: Record<TraditionalElement, number>, strength: string
   };
 }
 
-function buildLuckCycles(dayIndex: number, gender: BaziGender, yearStem: Stem, birthYear: number, dayStem: Stem) {
-  const forward = (gender === 'male' && STEM_YINYANG[yearStem] === 'yang') || (gender === 'female' && STEM_YINYANG[yearStem] === 'yin');
-  return Array.from({ length: 8 }, (_, index) => {
-    const item = ganzhiFromIndex(mod(dayIndex + (forward ? index + 1 : -index - 1), 60));
-    const startAge = 8 + index * 10;
-    const endAge = startAge + 9;
-    return {
-      ageRange: startAge + '-' + endAge + '歲',
-      startAge,
-      endAge,
-      startYear: birthYear + startAge,
-      endYear: birthYear + endAge,
-      pillar: item.stem + item.branch,
-      element: STEM_ELEMENT[item.stem],
-      tenGod: getTenGod(dayStem, item.stem),
-      direction: forward ? 'forward' as const : 'backward' as const,
-      focus: '大運只作第一層節奏資料，後續層級只能讀取，不得重新起運或重算命盤。',
-    };
-  });
-}
-
-function buildAnnualFortunes(currentYear: number, dayStem: Stem) {
-  return Array.from({ length: 5 }, (_, index) => {
-    const year = currentYear + index;
-    const item = ganzhiFromIndex(year - 4);
-    return { year, pillar: item.stem + item.branch, element: STEM_ELEMENT[item.stem], tenGod: getTenGod(dayStem, item.stem), focus: '流年保留歲次、天干十神與五行訊號，供第二層讀取。' };
-  });
-}
-
-function buildProfessionalChart(input: BaziAnalysisInput): BaziProfessionalChart {
-  if (!input.birthDate || !input.birthTime || !input.gender) throw new Error('birthDate、birthTime、gender 為必填欄位');
-
-  const { year, month, day } = parseDate(input.birthDate);
-  const hour = parseHour(input.birthTime);
-  const yearIndex = getYearPillarIndex(year, month, day);
-  const monthIndex = getMonthPillarIndex(yearIndex % 10, month);
-  const dayIndex = getDayPillarIndex(input.birthDate);
-  const dayGanzhi = ganzhiFromIndex(dayIndex);
-  const shichenIndex = shichenFromClockHour(hour);
-  const hourPillar = getHourPillar(dayIndex % 10, shichenIndex);
-  const hourIndex = (() => {
-    for (let index = 0; index < 60; index += 1) if (index % 10 === hourPillar.stemIndex && index % 12 === hourPillar.branchIndex) return index;
-    return hourPillar.stemIndex;
-  })();
-  const pillars: BaziPillars = {
-    year: pillar('年柱', yearIndex, dayGanzhi.stem),
-    month: pillar('月柱', monthIndex, dayGanzhi.stem),
-    day: pillar('日柱', dayIndex, dayGanzhi.stem),
-    hour: pillar('時柱', hourIndex, dayGanzhi.stem),
-  };
-  const elementCounts = countElements(pillars);
-  const strengthAnalysis = buildStrengthAnalysis(pillars.month.branch, elementCounts, pillars.day.stemElement);
-  const gods = chooseGods(elementCounts, strengthAnalysis.verdict, pillars.day.stemElement);
-  const hiddenStems = Object.fromEntries(PILLAR_KEYS.map((key) => [key, pillars[key].hiddenStems])) as BaziProfessionalChart['hiddenStems'];
-  const hiddenStemStructure = buildHiddenStemStructure(pillars);
-  const tenGods = Object.fromEntries(PILLAR_KEYS.map((key) => [key, { stem: pillars[key].stemTenGod, branchMain: pillars[key].hiddenStems[0]?.tenGod ?? '平衡', hidden: pillars[key].hiddenStems.map((item) => item.tenGod) }])) as BaziProfessionalChart['tenGods'];
-  const pillarDetails = buildPillarDetails(pillars);
-  const tenGodDistribution = buildTenGodDistribution(pillars);
-  const elementStatistics = buildElementStatistics(pillars);
-  const strengthFactors = buildStrengthFactors(pillars, elementCounts, strengthAnalysis);
-  const structurePattern = buildStructurePattern(pillars, tenGodDistribution, strengthAnalysis);
-  const shichen = getShichenInfo(shichenIndex);
-  const calendar = buildCalendarProfile(input, shichenIndex);
-  const inputSnapshot: BaziInputSnapshot = {
-    name: input.name?.trim() || null,
-    birthDate: input.birthDate,
-    birthTime: input.birthTime,
-    gender: input.gender,
-    country: input.country?.trim() || '台灣',
-    city: input.city?.trim() || '台北',
-  };
-  const timezone = { country: inputSnapshot.country, city: inputSnapshot.city, note: '第一層只記錄國家與城市作為時區來源，本次以使用者輸入的當地時間排盤。' };
-  const detail = computeDetail(pillars, hiddenStems, tenGods);
-  const luckCycles = buildLuckCycles(dayIndex, input.gender, pillars.year.stem, year, pillars.day.stem);
-  const annualFortunes = buildAnnualFortunes(new Date().getFullYear(), pillars.day.stem);
-  const chartCore = {
-    input: inputSnapshot,
-    calendar,
-    pillars,
-    pillarDetails,
-    tenGods,
-    elementCounts,
-    elementStatistics,
-    tenGodDistribution,
-    dayMaster: { stem: pillars.day.stem, element: pillars.day.stemElement, strength: Math.max(0, strengthAnalysis.supportScore - strengthAnalysis.pressureScore), level: strengthAnalysis.verdict },
-    gods,
-    luckCycles,
-    annualFortunes,
-    structurePattern,
-  };
-  const verification = buildVerificationGate(chartCore);
-
-  return {
-    layer: 'professional_chart',
-    generatedFrom: 'normalized_birth_input',
-    recalculationAllowed: false,
-    input: inputSnapshot,
-    timezone,
-    calendar,
-    pillars,
-    pillarDetails,
-    hiddenStems,
-    hiddenStemStructure,
-    tenGods,
-    tenGodDistribution,
-    dayMaster: chartCore.dayMaster,
-    elementCounts,
-    elementStatistics,
-    strengthAnalysis,
-    strengthFactors,
-    gods,
-    luckCycles,
-    annualFortunes,
-    structurePattern,
-    structureFocus: '四柱已完成：' + pillars.year.stem + pillars.year.branch + '、' + pillars.month.stem + pillars.month.branch + '、' + pillars.day.stem + pillars.day.branch + '、' + pillars.hour.stem + pillars.hour.branch + '；時辰為' + shichen.label + '。',
-    verification,
-    detail,
-  };
-}
-
 function buildElementPriority(chart: BaziProfessionalChart): BaziElementPriority[] {
   const percentages = chart.elementStatistics.percentages;
   const maxPercent = Math.max(...ELEMENTS.map((element) => percentages[element]), 1);
@@ -857,8 +612,251 @@ function buildDataFlow(): BaziDataFlow {
   };
 }
 
+const RUNTIME_HOUR_BRANCH_TO_TRADITIONAL: Record<string, CoreBranch> = {
+  zi: '子',
+  chou: '丑',
+  yin: '寅',
+  mao: '卯',
+  chen: '辰',
+  si: '巳',
+  wu: '午',
+  wei: '未',
+  shen: '申',
+  you: '酉',
+  xu: '戌',
+  hai: '亥',
+};
+
+function isCoreBranch(value: unknown): value is CoreBranch {
+  return typeof value === 'string' && EARTHLY_BRANCHES.includes(value as Branch);
+}
+
+function toTraditionalCoreInput(input: BaziAnalysisInput): BaziBirthInput {
+  const timeUnknown = input.timeUnknown === true || input.birthHourBranch === 'unknown' || input.birthTimeKnown === false;
+  const traditionalHour = !timeUnknown && isCoreBranch(input.traditionalHour)
+    ? input.traditionalHour
+    : !timeUnknown && input.birthHourBranch
+      ? RUNTIME_HOUR_BRANCH_TO_TRADITIONAL[input.birthHourBranch]
+      : undefined;
+  return {
+    name: input.name,
+    gender: input.gender,
+    birthDate: input.birthDate,
+    birthTimeKnown: !timeUnknown && Boolean(input.birthTime || traditionalHour),
+    birthTime: !timeUnknown && !traditionalHour ? input.birthTime : undefined,
+    traditionalHour,
+    birthCountry: input.country,
+    birthCity: input.city,
+    timezone: 'Asia/Taipei',
+    calendarType: input.calendarType === 'lunar' || input.calendarType === 'LUNAR' ? 'LUNAR' : 'SOLAR',
+    isLeapMonth: input.isLeapMonth,
+  };
+}
+
+function corePillarToBaziPillar(label: string, source: BaziPillarModel): BaziPillar {
+  return {
+    label,
+    stem: source.heavenlyStem,
+    branch: source.earthlyBranch,
+    stemElement: source.element,
+    branchElement: source.branchElement,
+    stemTenGod: source.tenGodStem === 'DAY_MASTER' ? '日主' : source.tenGodStem,
+    hiddenStems: source.hiddenStems.map((hidden) => ({ stem: hidden.stem, element: hidden.element, tenGod: hidden.tenGod })),
+  };
+}
+
+function unknownHourPillar(dayStem: Stem): BaziPillar {
+  return {
+    label: '時柱',
+    stem: dayStem,
+    branch: '子',
+    stemElement: STEM_ELEMENT[dayStem],
+    branchElement: '水',
+    stemTenGod: '未定',
+    hiddenStems: [],
+  };
+}
+
+function buildBaziPillarsFromCore(core: ReturnType<typeof createBaziCore>): BaziPillars {
+  const dayStem = core.pillars.day.heavenlyStem;
+  return {
+    year: corePillarToBaziPillar('年柱', core.pillars.year),
+    month: corePillarToBaziPillar('月柱', core.pillars.month),
+    day: corePillarToBaziPillar('日柱', core.pillars.day),
+    hour: core.pillars.hour === 'UNKNOWN' ? unknownHourPillar(dayStem) : corePillarToBaziPillar('時柱', core.pillars.hour),
+  };
+}
+
+function activePillars(pillars: BaziPillars, hourKnown: boolean) {
+  return [pillars.year, pillars.month, pillars.day, ...(hourKnown ? [pillars.hour] : [])];
+}
+
+function elementStatisticsFromCore(core: ReturnType<typeof createBaziCore>, pillars: BaziPillars): BaziElementStatistics {
+  const hourKnown = core.pillars.hour !== 'UNKNOWN';
+  const stems = emptyElementRecord();
+  const branches = emptyElementRecord();
+  const hiddenStems = emptyElementRecord();
+  activePillars(pillars, hourKnown).forEach((item) => {
+    stems[item.stemElement] += 1;
+    branches[item.branchElement] += 1;
+    item.hiddenStems.forEach((hidden, index) => { hiddenStems[hidden.element] += index === 0 ? 0.6 : 0.35; });
+  });
+  const total = roundElementRecord(core.fiveElements.weightedStrength as Record<TraditionalElement, number>);
+  const totalScore = ELEMENTS.reduce((sum, element) => sum + total[element], 0) || 1;
+  const percentages = emptyElementRecord();
+  ELEMENTS.forEach((element) => { percentages[element] = Number(((total[element] / totalScore) * 100).toFixed(1)); });
+  return { stems: roundElementRecord(stems), branches: roundElementRecord(branches), hiddenStems: roundElementRecord(hiddenStems), total, percentages };
+}
+
+function strengthAnalysisFromCore(core: ReturnType<typeof createBaziCore>): BaziProfessionalChart['strengthAnalysis'] {
+  const verdict = core.seasonalStrength.tendency === 'STRONG' ? '偏旺' : core.seasonalStrength.tendency === 'WEAK' ? '偏弱' : '中和';
+  return {
+    monthSeason: `${core.seasonalStrength.monthQi}氣當令`,
+    supportScore: core.seasonalStrength.score,
+    pressureScore: Math.max(0, 100 - core.seasonalStrength.score),
+    verdict,
+    explanation: `新版八字核心依節氣月令、藏干權重與日主扶抑訊號判定，日主為${verdict}。`,
+  };
+}
+
+function luckCyclesFromCore(core: ReturnType<typeof createBaziCore>, dayStem: Stem): BaziLuckCycle[] {
+  if (core.daYun === 'NOT_CALCULATED') return [];
+  const direction = core.daYunMeta === 'NOT_CALCULATED' ? undefined : core.daYunMeta.direction === 'FORWARD' ? 'forward' as const : 'backward' as const;
+  return core.daYun.map((item) => ({
+    ageRange: `${item.startAge}-${item.endAge}歲`,
+    startAge: item.startAge,
+    endAge: item.endAge,
+    startYear: item.startYear,
+    endYear: item.startYear + Math.max(0, item.endAge - item.startAge),
+    pillar: item.ganZhi,
+    element: STEM_ELEMENT[item.ganZhi[0] as Stem],
+    tenGod: item.stemTenGod ?? getTenGod(dayStem, item.ganZhi[0] as Stem),
+    direction,
+    focus: '大運由 TraditionalBaziCore 依節氣與性別順逆產生，前端只讀取不重算。',
+  }));
+}
+
+function annualFortunesFromCore(core: ReturnType<typeof createBaziCore>): BaziAnnualFortune[] {
+  return core.annualLuck.map((item) => ({
+    year: item.year,
+    pillar: item.ganZhi,
+    element: STEM_ELEMENT[item.ganZhi[0] as Stem],
+    tenGod: item.stemTenGod,
+    focus: '流年由 TraditionalBaziCore 產生，供解讀層讀取。',
+  }));
+}
+
+function buildCoreProfessionalChart(input: BaziAnalysisInput, core: ReturnType<typeof createBaziCore>): BaziProfessionalChart {
+  const pillars = buildBaziPillarsFromCore(core);
+  const hourKnown = core.pillars.hour !== 'UNKNOWN';
+  const hiddenStems = Object.fromEntries(PILLAR_KEYS.map((key) => [key, pillars[key].hiddenStems])) as BaziProfessionalChart['hiddenStems'];
+  const tenGods = Object.fromEntries(PILLAR_KEYS.map((key) => [key, {
+    stem: key === 'hour' && !hourKnown ? '時辰未提供' : pillars[key].stemTenGod,
+    branchMain: key === 'hour' && !hourKnown ? '時辰未提供' : pillars[key].hiddenStems[0]?.tenGod ?? '平衡',
+    hidden: key === 'hour' && !hourKnown ? [] : pillars[key].hiddenStems.map((item) => item.tenGod),
+  }])) as BaziProfessionalChart['tenGods'];
+  const shichenIndex = hourKnown ? EARTHLY_BRANCHES.indexOf((core.pillars.hour as BaziPillarModel).earthlyBranch) : -1;
+  const shichen = hourKnown ? getShichenInfo(shichenIndex) : null;
+  const elementCounts = roundElementRecord(core.fiveElements.rawCount as Record<TraditionalElement, number>);
+  const elementStatistics = elementStatisticsFromCore(core, pillars);
+  const strengthAnalysis = strengthAnalysisFromCore(core);
+  const tenGodDistribution = buildTenGodDistribution(pillars);
+  const structurePattern = buildStructurePattern(pillars, tenGodDistribution, strengthAnalysis);
+  const gods = chooseGods(elementStatistics.total, strengthAnalysis.verdict, pillars.day.stemElement);
+  const luckCycles = luckCyclesFromCore(core, pillars.day.stem);
+  const annualFortunes = annualFortunesFromCore(core);
+  const detail = computeDetail(pillars, hiddenStems, tenGods);
+  const birthTime = hourKnown ? (input.birthTime || core.calendar.normalizedDateTime.slice(11, 16)) : '';
+  const inputSnapshot: BaziInputSnapshot = {
+    name: input.name?.trim() || null,
+    birthDate: input.birthDate,
+    birthTime,
+    gender: input.gender,
+    country: input.country?.trim() || '台灣',
+    city: input.city?.trim() || '台北',
+  };
+  const structureFocus = hourKnown
+    ? `四柱已完成：${pillars.year.stem}${pillars.year.branch}、${pillars.month.stem}${pillars.month.branch}、${pillars.day.stem}${pillars.day.branch}、${pillars.hour.stem}${pillars.hour.branch}；時辰為${shichen?.label ?? '已提供'}。`
+    : `三柱已完成：${pillars.year.stem}${pillars.year.branch}、${pillars.month.stem}${pillars.month.branch}、${pillars.day.stem}${pillars.day.branch}；時辰未提供，不冒充時柱。`;
+  return {
+    layer: 'professional_chart',
+    generatedFrom: 'normalized_birth_input',
+    recalculationAllowed: false,
+    input: inputSnapshot,
+    timezone: { country: inputSnapshot.country, city: inputSnapshot.city, note: 'TraditionalBaziCore 使用使用者輸入地點作時區來源，本階段記錄標準時，不偷套真太陽時。' },
+    calendar: {
+      solarDate: core.calendar.solarDate,
+      birthTime: hourKnown ? birthTime : '時辰未提供',
+      calendarType: (input.calendarType === 'lunar' || input.calendarType === 'LUNAR' ? 'lunar' : 'solar') as BaziCalendarProfile['calendarType'],
+      lunarConverted: input.calendarType === 'lunar' || input.calendarType === 'LUNAR',
+      trueSolarTimeApplied: false,
+      shichen: hourKnown
+        ? { branchIndex: shichenIndex, label: shichen?.label ?? `${(core.pillars.hour as BaziPillarModel).earthlyBranch}時`, range: shichen?.range ?? '', branch: (core.pillars.hour as BaziPillarModel).earthlyBranch }
+        : { branchIndex: -1, label: '時辰未提供', range: '—', branch: 'UNKNOWN' },
+      note: '正式排盤由 TraditionalBaziCore 計算，年柱以立春實刻為界，月柱以節氣為界。',
+      normalizedDateTime: core.calendar.normalizedDateTime,
+      lunarDate: core.calendar.lunarDate,
+      solarTerm: core.calendar.solarTerm,
+      solarTermTime: core.calendar.solarTermTime,
+      yearBoundaryRule: core.calendar.yearBoundaryRule,
+      timezone: core.calendar.timezone,
+    } as BaziCalendarProfile,
+    pillars,
+    pillarDetails: buildPillarDetails(pillars),
+    hiddenStems,
+    hiddenStemStructure: buildHiddenStemStructure(pillars),
+    tenGods,
+    tenGodDistribution,
+    dayMaster: { stem: core.dayMaster.stem, element: core.dayMaster.element, strength: core.seasonalStrength.score, level: strengthAnalysis.verdict },
+    elementCounts,
+    elementStatistics,
+    strengthAnalysis,
+    strengthFactors: buildStrengthFactors(pillars, elementStatistics.total, strengthAnalysis),
+    gods,
+    luckCycles,
+    annualFortunes,
+    structurePattern,
+    structureFocus,
+    verification: {
+      calendarVerified: core.verification.calendarVerified,
+      pillarsVerified: core.verification.pillarsVerified,
+      tenGodsVerified: core.verification.tenGodsVerified,
+      luckCyclesVerified: core.verification.luckCyclesVerified,
+      readyForInterpretation: core.verification.readyForInterpretation,
+      checksum: hashText(JSON.stringify({ pillars: core.pillars, calendar: core.calendar, engine: core.engine })),
+      evidence: [
+        `核心：${core.engine.name} ${core.engine.version}`,
+        `年界：${core.engine.yearBoundary}；月界：${core.engine.monthBoundary}`,
+        `節氣：${core.calendar.solarTerm} ${core.calendar.solarTermTime}`,
+      ],
+      failedReasons: core.verification.issues,
+    },
+    detail,
+    engine: core.engine,
+    chartMode: core.chartMode,
+    timePrecision: core.timePrecision,
+    traditionalCore: core,
+    kongWang: core.kongWang,
+    voidBranches: core.kongWang,
+    twelveStages: core.twelveStages,
+    interactions: core.interactions,
+    shenSha: core.shenSha,
+    mingGong: core.mingGong,
+    lifePalace: core.mingGong,
+    shenGong: core.shenGong,
+    taiYuan: core.taiYuan,
+    fetalOrigin: core.taiYuan,
+    taiXi: core.taiXi,
+    fetalBreath: core.taiXi,
+    daYunMeta: core.daYunMeta,
+    coreDaYun: core.daYun,
+    coreAnnualLuck: core.annualLuck,
+  } as BaziProfessionalChart;
+}
+
 export function analyzeBazi(input: BaziAnalysisInput): BaziAnalysisResult {
-  const professionalChart = buildProfessionalChart(input);
+  const core = createBaziCore(toTraditionalCoreInput(input));
+  const professionalChart = buildCoreProfessionalChart(input, core);
   const aiDeepAnalysis = buildDeepAnalysis(professionalChart);
   const aiReinforcementPlan = buildReinforcementPlan(aiDeepAnalysis);
 
@@ -866,7 +864,7 @@ export function analyzeBazi(input: BaziAnalysisInput): BaziAnalysisResult {
     ok: true,
     mode: 'bazi',
     moduleId: 'BAZI',
-    engineVersion: 'bazi_three_layer_v3',
+    engineVersion: `${core.engine.name}_${core.engine.version}`,
     input: professionalChart.input,
     timezone: professionalChart.timezone,
     pillars: professionalChart.pillars,

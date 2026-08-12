@@ -274,7 +274,7 @@ function summarizeCompleteness(fieldTraces: V5FieldTrace[]) {
   };
 }
 
-export function attachBaziProfessionalCoreV5<T extends BaziAnalysisResult>(legacyResult: T, input: BaziRuntimeInput): T {
+export function attachBaziProfessionalCoreV5<T extends BaziAnalysisResult>(result: T, input: BaziRuntimeInput): T {
   const calculationId = createCalculationId(input);
   const fingerprint = birthInputFingerprint(input);
   const pipeline = createPipelineRecorder(calculationId, fingerprint);
@@ -286,7 +286,7 @@ export function attachBaziProfessionalCoreV5<T extends BaziAnalysisResult>(legac
   const core = createBaziCore(coreInput);
   pipeline.advance('CORE_COMPLETED');
   const partial = core.chartMode === 'PARTIAL_BAZI';
-  const professionalChart = legacyResult.professionalChart as unknown as Record<string, unknown>;
+  const professionalChart = result.professionalChart as unknown as Record<string, unknown>;
   const existingCalendar = professionalChart.calendar && typeof professionalChart.calendar === 'object'
     ? professionalChart.calendar as Record<string, unknown>
     : {};
@@ -342,10 +342,10 @@ export function attachBaziProfessionalCoreV5<T extends BaziAnalysisResult>(legac
   professionalChart.calculationId = calculationId;
   professionalChart.birthInputFingerprint = fingerprint;
   professionalChart.professionalResultId = professionalResultId;
-  legacyResult.dataFlow = {
-    ...legacyResult.dataFlow,
+  result.dataFlow = {
+    ...result.dataFlow,
     rules: {
-      ...legacyResult.dataFlow.rules,
+      ...result.dataFlow.rules,
       sameCalculationIdRequired: true,
       birthInputFingerprintRequired: true,
       pipelineStateMachineLocked: true,
@@ -353,9 +353,9 @@ export function attachBaziProfessionalCoreV5<T extends BaziAnalysisResult>(legac
     } as never,
   };
   if (partial) {
-    legacyResult.input.birthTime = '';
+    result.input.birthTime = '';
     (professionalChart.input as Record<string, unknown>).birthTime = '';
     (professionalChart.calendar as Record<string, unknown>).birthTime = '時辰未提供';
   }
-  return legacyResult;
+  return result;
 }

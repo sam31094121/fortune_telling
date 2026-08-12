@@ -83,7 +83,7 @@ export default function IdentitySplitSelector({ className = '', compact = false 
 
   return (
     <section className={`rounded-2xl border border-cyan-200/15 bg-black/18 p-3 shadow-[0_12px_32px_rgba(2,6,23,0.18)] backdrop-blur-sm sm:p-4 ${className}`}>
-      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
+      <div className="hidden flex-col gap-1.5 sm:flex sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-200/75">TARGET</p>
           <h2 className="mt-1 text-base font-black leading-tight text-cyan-50 sm:text-lg">

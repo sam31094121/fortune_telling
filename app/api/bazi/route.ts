@@ -1,39 +1,6 @@
 import { NextResponse } from 'next/server';
 import { analyzeBazi, type BaziAnalysisInput } from '@/lib/bazi-engine';
-import { createBaziCore } from '@/lib/bazi/engine';
 import { attachBaziProfessionalCoreV5, type BaziRuntimeInput } from '@/lib/bazi-professional-result-v5';
-
-/**
- * SHADOW_MODE（Traditional Bazi Core V1）
- * 正式流量仍由 LEGACY analyzeBazi 服務；
- * 新核心平行計算並比對四柱差異，只記錄於伺服器 log 與回應 _shadow 欄位（內部觀察用）。
- * Golden Test + 人工核對通過後才 CUTOVER。
- */
-function runShadowCompare(input: BaziAnalysisInput, legacyResult: unknown) {
-  try {
-    const core = createBaziCore({
-      gender: input.gender,
-      birthDate: input.birthDate,
-      birthTimeKnown: Boolean(input.birthTime),
-      birthTime: input.birthTime || undefined,
-    });
-    const legacy = legacyResult as { pillars?: Record<string, { stem?: string; branch?: string }> } | null;
-    const diff: string[] = [];
-    const pairs: Array<[string, 'year' | 'month' | 'day' | 'hour']> = [['year', 'year'], ['month', 'month'], ['day', 'day'], ['hour', 'hour']];
-    for (const [legacyKey, coreKey] of pairs) {
-      const lp = legacy?.pillars?.[legacyKey];
-      const np = core.pillars[coreKey];
-      const legacyGZ = lp ? `${lp.stem ?? ''}${lp.branch ?? ''}` : 'N/A';
-      const newGZ = np === 'UNKNOWN' ? 'UNKNOWN' : np.ganZhi;
-      if (legacyGZ !== newGZ) diff.push(`${coreKey}: legacy=${legacyGZ} new=${newGZ}`);
-    }
-    if (diff.length > 0) console.warn('[bazi-shadow] PILLAR_DIFF', JSON.stringify(diff));
-    return { engine: core.engine.name, version: core.engine.version, certified: core.verification.readyForInterpretation, pillarDiff: diff };
-  } catch (error) {
-    console.error('[bazi-shadow] failed', error instanceof Error ? error.message : error);
-    return { engine: 'TraditionalBaziCore', error: 'SHADOW_FAILED' };
-  }
-}
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -79,8 +46,7 @@ export async function POST(request: Request) {
     }
 
     const result = attachBaziProfessionalCoreV5(analyzeBazi(input), input);
-    const shadow = runShadowCompare(input, result);
-    return NextResponse.json({ success: true, ok: true, data: result, _shadow: shadow }, { headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json({ success: true, ok: true, data: result }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     const message = error instanceof Error ? error.message : '八字命盤目前無法完成。';
     console.error('[bazi] request failed', message);

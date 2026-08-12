@@ -3,8 +3,8 @@
   "version": "screen-health-monitor-v1",
   "baseUrl": "http://localhost:8888",
   "port": 8888,
-  "startedAt": "2026-08-12T06:01:37.274Z",
-  "completedAt": "2026-08-12T06:01:37.376Z",
+  "startedAt": "2026-08-12T06:32:26.909Z",
+  "completedAt": "2026-08-12T06:32:27.011Z",
   "mode": "ONCE",
   "autoRepair": false,
   "summary": {
@@ -22,7 +22,7 @@
       "path": "/",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 45,
+      "durationMs": 41,
       "htmlLength": 44754,
       "error": null,
       "issue": null
@@ -46,7 +46,7 @@
       "path": "/nameology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 6,
+      "durationMs": 7,
       "htmlLength": 21746,
       "error": null,
       "issue": null
@@ -58,7 +58,7 @@
       "path": "/insight",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 7,
+      "durationMs": 6,
       "htmlLength": 22519,
       "error": null,
       "issue": null
@@ -94,7 +94,7 @@
       "path": "/music",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 4,
+      "durationMs": 5,
       "htmlLength": 30311,
       "error": null,
       "issue": null
@@ -106,7 +106,7 @@
       "path": "/bazi",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 4,
+      "durationMs": 5,
       "htmlLength": 19299,
       "error": null,
       "issue": null
@@ -131,7 +131,7 @@
       "status": "PASSED",
       "httpStatus": 200,
       "durationMs": 4,
-      "htmlLength": 22296,
+      "htmlLength": 22352,
       "error": null,
       "issue": null
     },

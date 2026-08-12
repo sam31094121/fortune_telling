@@ -61,6 +61,8 @@ export default function TarotPageClient() {
   const [selectedDeckCards, setSelectedDeckCards] = useState<TarotDeckCard[]>([]);
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<TarotDailyResult> | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  /** 真實洗牌演出（2026-08-12 依指示）：只做視覺呈現，洗牌順序仍 100% 由後端決定，零改核心 */
+  const [isShuffling, setIsShuffling] = useState(false);
   const [error, setError] = useState('');
   const [tarotQuestion, setTarotQuestion] = useState('');
   const [activeQuestion, setActiveQuestion] = useState('');
@@ -136,6 +138,8 @@ export default function TarotPageClient() {
     setError('');
     setSelectedDeckCards([]);
     setIsGenerating(true);
+    setIsShuffling(true);
+    const shuffleStartedAt = Date.now();
 
     try {
       const scope: TarotReadingScope = targetMode === 'guest' ? 'other' : 'self';
@@ -153,6 +157,13 @@ export default function TarotPageClient() {
         order: deckCard.shuffleOrder,
       }));
 
+      // 洗牌演出至少完整播放 3.4 秒，讓客戶親眼看到 78 張牌交錯洗切（純視覺，順序早由後端定案）
+      const MIN_SHUFFLE_SHOW_MS = 3400;
+      const elapsed = Date.now() - shuffleStartedAt;
+      if (elapsed < MIN_SHUFFLE_SHOW_MS) {
+        await new Promise((resolve) => window.setTimeout(resolve, MIN_SHUFFLE_SHOW_MS - elapsed));
+      }
+
       setDeck(nextDeck);
       setActiveQuestion(question);
       setActiveScope(scope);
@@ -165,6 +176,7 @@ export default function TarotPageClient() {
       setError(caught instanceof Error ? caught.message : '塔羅洗牌暫時失敗，請重新嘗試。');
     } finally {
       setIsGenerating(false);
+      setIsShuffling(false);
     }
   }, [isGenerating, restoreDailyRecord, tarotQuestion]);
 
@@ -183,6 +195,25 @@ export default function TarotPageClient() {
 
   return (
     <main className="min-h-screen bg-[color:var(--deep)] px-4 py-8 text-[color:var(--text-main)] sm:px-6 lg:px-8">
+      {/* 真實洗牌演出層（2026-08-12）：78 張牌背交錯洗切，順序仍由後端亂數決定 */}
+      {isShuffling && (
+        <div className="tarot-shuffle-overlay" role="status" aria-live="polite" aria-label="78 張塔羅牌洗牌中">
+          <div className="tarot-shuffle-overlay__stage" aria-hidden="true">
+            {Array.from({ length: 14 }).map((_, index) => (
+              <img
+                key={index}
+                src="/tarot/freecodecamp-js-fortune-teller/assets/img/cards/card-back_275x480.png"
+                alt=""
+                className="tarot-shuffle-overlay__card"
+                style={{ animationDelay: `${index * 0.11}s`, zIndex: (index * 5) % 14 }}
+              />
+            ))}
+          </div>
+          <p className="tarot-shuffle-overlay__title">78 張牌洗牌中</p>
+          <p className="tarot-shuffle-overlay__sub">亂數交錯洗切，請稍候幾秒…</p>
+          <div className="tarot-shuffle-overlay__bar" aria-hidden="true"><span /></div>
+        </div>
+      )}
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link href="/" className="feature-home-link feature-home-link--cyan shrink-0">
@@ -205,17 +236,15 @@ export default function TarotPageClient() {
                   <p className="text-[10px] font-black uppercase tracking-[0.34em] text-cyan-200/90">AI TAROT</p>
                   <span className="h-px w-12 bg-gradient-to-l from-transparent via-cyan-300/60 to-amber-200/80" aria-hidden="true" />
                 </div>
-                <h1 className="mx-auto mt-3 bg-gradient-to-b from-white via-cyan-50 to-cyan-300/90 bg-clip-text text-center font-serif text-6xl font-black leading-[1.08] tracking-[0.1em] text-transparent drop-shadow-[0_0_38px_rgba(34,211,238,0.45)] sm:text-7xl lg:text-8xl">
-                  AI 塔羅牌
+                <h1 className="tarot-brand-mark" aria-label="AI 塔羅牌">
+                  <span className="tarot-brand-mark__ai">AI</span>
+                  <span className="tarot-brand-mark__name">塔羅牌</span>
                 </h1>
                 <div className="mx-auto mt-4 flex items-center justify-center gap-2" aria-hidden="true">
                   <span className="h-px w-16 bg-gradient-to-r from-transparent to-amber-200/70" />
                   <span className="text-sm text-amber-200/90">✦</span>
                   <span className="h-px w-16 bg-gradient-to-l from-transparent to-amber-200/70" />
                 </div>
-                <p className="mx-auto mt-4 max-w-2xl text-center text-base font-semibold leading-8 text-[color:var(--text-sub)]">
-                  請先專注你現在最想了解的一件事。系統會完成 78 張牌洗牌，接著由你親手進入抽牌體驗。
-                </p>
                 {/* 78/12/3 統計卡已隱藏（2026-08-10）：客戶沒必要看 */}
                 <div className="mt-6 hidden gap-3 sm:grid-cols-3">
                   <div className="tarot-experience-stat">

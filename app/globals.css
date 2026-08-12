@@ -13160,14 +13160,51 @@ body.app-touching .home-taiji-cinema * {
   margin-inline: auto;
 }
 
-.tarot-experience-hero--primary h1 {
-  margin-top: 1rem;
-  font-size: 2.45rem;
-  letter-spacing: 0.035em;
+.tarot-brand-mark {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.48rem;
+  margin: 0.95rem auto 0;
+  border-bottom: 1px solid rgba(253, 230, 138, 0.34);
+  padding: 0.1rem 0.25rem 0.35rem;
+  color: rgb(236, 254, 255);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 950;
+  line-height: 1;
+  text-align: center;
+  text-shadow:
+    0 0 24px rgba(34, 211, 238, 0.36),
+    0 0 42px rgba(253, 230, 138, 0.16);
 }
 
-.tarot-experience-hero--primary h1 + p {
-  margin-top: 1.05rem;
+.tarot-brand-mark::after {
+  content: "";
+  position: absolute;
+  right: 12%;
+  bottom: -0.25rem;
+  left: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.72), transparent);
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.3);
+}
+
+.tarot-brand-mark__ai {
+  color: rgb(254, 243, 199);
+  font-size: clamp(2.9rem, 7vw, 5.8rem);
+  letter-spacing: 0.04em;
+}
+
+.tarot-brand-mark__name {
+  background: linear-gradient(180deg, #ffffff 0%, #ecfeff 46%, rgba(125, 211, 252, 0.96) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: clamp(2.55rem, 6.2vw, 5.25rem);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
 .tarot-experience-hero--primary .tarot-question-entry {
@@ -13196,14 +13233,19 @@ body.app-touching .home-taiji-cinema * {
     padding-inline: 1rem !important;
   }
 
-  .tarot-experience-hero--primary h1 {
-    margin-top: 0.85rem;
-    font-size: 2.18rem;
-    line-height: 1.08;
+  .tarot-brand-mark {
+    gap: 0.34rem;
+    margin-top: 0.78rem;
+    padding-bottom: 0.28rem;
   }
 
-  .tarot-experience-hero--primary h1 + p {
-    margin-top: 0.85rem;
+  .tarot-brand-mark__ai {
+    font-size: clamp(2.45rem, 12vw, 3.4rem);
+  }
+
+  .tarot-brand-mark__name {
+    font-size: clamp(2.05rem, 10vw, 3rem);
+    letter-spacing: 0.045em;
   }
 
   .tarot-experience-hero--deck {
@@ -22500,4 +22542,101 @@ a.home-feature-launch::after {
 @keyframes megaGuideArrow {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(5px); }
+}
+
+/* ==================== 塔羅真實洗牌演出層（2026-08-12 依指示） ==================== */
+/* 純視覺演出：牌背左右交錯洗切＋回疊，洗牌順序 100% 由後端亂數決定，不做任何計算 */
+.tarot-shuffle-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  background: radial-gradient(circle at 50% 42%, rgba(8, 20, 40, 0.92), rgba(2, 4, 12, 0.96));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: tarotShuffleFadeIn 0.35s ease both;
+}
+.tarot-shuffle-overlay__stage {
+  position: relative;
+  width: min(78vw, 320px);
+  height: min(58vw, 240px);
+  filter: drop-shadow(0 0 34px rgba(34, 211, 238, 0.16));
+}
+.tarot-shuffle-overlay__card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 88px;
+  height: auto;
+  margin: -77px 0 0 -44px;
+  border-radius: 10px;
+  border: 1px solid rgba(251, 191, 36, 0.22);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 16px rgba(34, 211, 238, 0.12);
+  will-change: transform;
+  animation: tarotRiffleRight 1.55s cubic-bezier(0.45, 0.08, 0.3, 1) infinite;
+}
+.tarot-shuffle-overlay__card:nth-child(odd) { animation-name: tarotRiffleLeft; }
+.tarot-shuffle-overlay__card:nth-child(3n) { animation-duration: 1.75s; }
+.tarot-shuffle-overlay__card:nth-child(4n) { animation-duration: 1.4s; }
+@keyframes tarotRiffleRight {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  24%  { transform: translate(104px, -38px) rotate(17deg); }
+  46%  { transform: translate(70px, 30px) rotate(8deg); }
+  68%  { transform: translate(12px, -6px) rotate(2deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+@keyframes tarotRiffleLeft {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  24%  { transform: translate(-104px, -34px) rotate(-17deg); }
+  46%  { transform: translate(-68px, 32px) rotate(-8deg); }
+  68%  { transform: translate(-12px, -6px) rotate(-2deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+.tarot-shuffle-overlay__title {
+  margin-top: 0.4rem;
+  background: linear-gradient(180deg, #ffffff, #cffafe 55%, #67e8f9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-family: var(--font-serif, serif);
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-shadow: 0 0 30px rgba(34, 211, 238, 0.35);
+}
+.tarot-shuffle-overlay__sub {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(226, 244, 255, 0.62);
+}
+.tarot-shuffle-overlay__bar {
+  width: 220px;
+  height: 5px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+}
+.tarot-shuffle-overlay__bar span {
+  display: block;
+  height: 100%;
+  width: 42%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22d3ee, #fbbf24);
+  animation: tarotShuffleBar 1.15s ease-in-out infinite alternate;
+}
+@keyframes tarotShuffleBar {
+  0%   { transform: translateX(-30%); }
+  100% { transform: translateX(310%); }
+}
+@keyframes tarotShuffleFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tarot-shuffle-overlay__card { animation-duration: 3.2s; }
 }
