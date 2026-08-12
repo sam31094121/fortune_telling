@@ -193,6 +193,21 @@ const mkInput = (date: string, time: string | null, gender: 'male' | 'female' = 
   check('PARTIAL 胎元仍可算（僅依月柱）', partial.taiYuan.length === 2, true);
 }
 
+// ============ 5.9 客訴回歸案例（2026-08-12）：1974-07-02 小暑前月柱 ============
+// 客戶（專業命理師）指出月柱錯誤。舊版引擎以國曆月份對照（7月→未月）產生辛未；
+// 正統規則：1974-07-02 在小暑（7/7）之前仍屬午月，甲年五虎遁 → 庚午。永久鎖定防回歸。
+{
+  const c = createBaziCore(mkInput('1974-07-02', '03:30', 'female'));
+  check('客訴回歸 1974-07-02 年柱', c.pillars.year.ganZhi, '甲寅');
+  check('客訴回歸 1974-07-02 月柱＝庚午（小暑前，非辛未）', c.pillars.month.ganZhi, '庚午');
+  check('客訴回歸 1974-07-02 日柱', c.pillars.day.ganZhi, '甲辰');
+  check('客訴回歸 1974-07-02 時柱', (c.pillars.hour as BaziPillarModel).ganZhi, '丙寅');
+  check('客訴回歸 月干十神＝七殺（庚剋甲同陽）', c.pillars.month.tenGodStem, '七殺');
+  // 邊界對照組：小暑（1974-07-07 16:38）之後才進未月 → 辛未
+  const after = createBaziCore(mkInput('1974-07-08', '03:30', 'female'));
+  check('對照組 1974-07-08 月柱＝辛未（小暑後）', after.pillars.month.ganZhi, '辛未');
+}
+
 // ============ 6. 驗證 Gate ============
 {
   const c = createBaziCore(mkInput('1988-6-15', '08:30'));
