@@ -214,7 +214,12 @@ const BRAND_LABEL: Record<BrandElement, string> = {
 };
 
 function isCurrentBaziResult(value: BaziResult | null | undefined): value is BaziResult {
+  /* 2026-08-12 修復：舊引擎時代的當日紀錄可能回放錯誤四柱（例如辛未＋正官），
+     必須驗證紀錄是由 TraditionalBaziCore 正統核心計算，否則一律清除重算。 */
+  const engine = (value?.professionalChart as { engine?: { name?: string; version?: string } } | undefined)?.engine;
+  const isTraditionalCore = engine?.name === 'TraditionalBaziCore' && typeof engine.version === 'string' && engine.version >= '1.1.0';
   return Boolean(
+    isTraditionalCore &&
     value?.professionalChart?.calendar &&
     value.professionalChart.pillarDetails &&
     value.professionalChart.hiddenStemStructure &&
@@ -395,7 +400,7 @@ export default function BaziPage() {
       clearDailyAnalysis('bazi');
       setDailyRecord(null);
       setResult(null);
-      setMessage('??????????????????????????????????????');
+      setMessage('偵測到舊版命盤紀錄，已自動清除；請按「立即開始」以最新正統核心重新排盤。');
       return;
     }
     setDailyRecord(record);
@@ -415,7 +420,7 @@ export default function BaziPage() {
         clearDailyAnalysis('bazi');
         setDailyRecord(null);
         setResult(null);
-        setMessage('??????????????????????');
+        setMessage('偵測到舊版命盤紀錄，已自動清除，正在以最新正統核心重新排盤。');
       } else {
         setDailyRecord(existing);
         setResult(existing.result);
