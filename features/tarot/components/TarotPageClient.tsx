@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiveElementOrbitCard } from '@/components/five-elements/FiveElementOrbitCard';
 import Link from 'next/link';
-import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import TarotDeckAdminReview from '@/features/tarot/components/TarotDeckAdminReview';
@@ -202,9 +201,16 @@ export default function TarotPageClient() {
           <section className="fortune-card tarot-experience-hero border-cyan-200/25 p-5 sm:p-7">
             <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.28em] text-cyan-200">AI TAROT DRAW EXPERIENCE</p>
-                <h1 className="mt-4 font-serif text-4xl font-black leading-tight text-cyan-50 sm:text-5xl">AI 塔羅牌</h1>
-                <p className="mt-4 max-w-2xl text-base font-semibold leading-8 text-[color:var(--text-sub)]">
+                {/* 主標排版美化（2026-08-12 依指示）：置中 + 引線 + 月光漸層字 + 柔光 */}
+                <div className="flex items-center justify-center gap-3 text-center">
+                  <span className="h-px w-10 bg-gradient-to-r from-transparent to-cyan-300/80" aria-hidden="true" />
+                  <p className="text-[11px] font-black uppercase tracking-[0.28em] text-cyan-200">AI TAROT DRAW EXPERIENCE</p>
+                  <span className="h-px w-10 bg-gradient-to-l from-transparent to-cyan-300/80" aria-hidden="true" />
+                </div>
+                <h1 className="mx-auto mt-4 bg-gradient-to-br from-cyan-50 via-white to-cyan-200/85 bg-clip-text text-center font-serif text-4xl font-black leading-tight tracking-[0.06em] text-transparent drop-shadow-[0_0_26px_rgba(34,211,238,0.22)] sm:text-5xl">
+                  AI 塔羅牌
+                </h1>
+                <p className="mx-auto mt-4 max-w-2xl text-center text-base font-semibold leading-8 text-[color:var(--text-sub)]">
                   請先專注你現在最想了解的一件事。系統會完成 78 張牌洗牌，接著由你親手進入抽牌體驗。
                 </p>
                 {/* 78/12/3 統計卡已隱藏（2026-08-10）：客戶沒必要看 */}
@@ -223,7 +229,6 @@ export default function TarotPageClient() {
                   </div>
                 </div>
 
-                <DailyAnalysisNotice record={dailyRecord} className="mt-5" moduleName="AI 塔羅牌" onViewResult={dailyRecord ? () => restoreDailyRecord(dailyRecord) : undefined} />
                 <IdentitySplitSelector className="mt-5" />
                 {/* 資料分流說明卡已隱藏（2026-08-11）：內部機制說明，客戶不用看 */}
                 <div className="mt-4 hidden rounded-2xl border border-amber-200/20 bg-amber-300/10 px-4 py-3 text-sm font-black leading-7 text-amber-100">
