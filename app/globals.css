@@ -5187,7 +5187,7 @@ body.app-lite-effects .home-line-share-card::after {
 /* Shared return-home controls across feature pages. */
 .feature-home-link {
   display: inline-flex;
-  min-height: 3.4rem;
+  min-height: 3.25rem;
   max-width: 100%;
   align-items: center;
   justify-content: center;
@@ -5195,11 +5195,11 @@ body.app-lite-effects .home-line-share-card::after {
   border-radius: 999px;
   border: 1.5px solid rgba(255, 255, 255, 0.28);
   background: linear-gradient(135deg, rgba(2, 6, 23, 0.72), rgba(30, 30, 46, 0.6));
-  padding: 0.95rem 1.7rem;
-  font-size: 1.05rem;
+  padding: 0.86rem 1.55rem;
+  font-size: 1rem;
   font-weight: 900;
   line-height: 1;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: rgba(250, 247, 238, 0.92);
   text-decoration: none;
   box-shadow: 0 12px 30px rgba(2, 6, 23, 0.3), 0 0 22px rgba(255, 255, 255, 0.06);
@@ -5228,10 +5228,6 @@ body.app-lite-effects .home-line-share-card::after {
   transform: scale(0.97);
 }
 
-.feature-home-link:active {
-  transform: scale(0.98);
-}
-
 .feature-home-link--amber {
   border-color: rgba(251, 191, 36, 0.26);
   background: rgba(251, 191, 36, 0.09);
@@ -5257,11 +5253,39 @@ body.app-lite-effects .home-line-share-card::after {
 }
 
 .feature-home-link--floating {
-  position: absolute;
-  right: 1rem;
-  top: 1rem;
-  z-index: 5;
-  box-shadow: 0 0 18px rgba(34, 211, 238, 0.16), 0 10px 26px rgba(2, 6, 23, 0.24);
+  /* 升級版（2026-08-11）：移至畫面最下層置中，精品膠囊質感 */
+  position: fixed;
+  left: 50%;
+  right: auto;
+  top: auto;
+  bottom: calc(0.95rem + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 40;
+  width: fit-content;
+  max-width: calc(100vw - 2rem);
+  min-height: 3rem;
+  padding: 0.78rem 1.35rem;
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(135deg, rgba(6, 10, 20, 0.9), rgba(18, 24, 38, 0.84)) padding-box,
+    linear-gradient(120deg, rgba(103, 232, 249, 0.72), rgba(251, 191, 36, 0.48), rgba(103, 232, 249, 0.72)) border-box;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 14px 36px rgba(2, 6, 23, 0.44), 0 0 24px rgba(34, 211, 238, 0.18);
+  animation: homeFloatGlow 3s ease-in-out infinite;
+}
+
+.feature-home-link--floating:hover {
+  transform: translateX(-50%) translateY(-3px);
+}
+
+.feature-home-link--floating:active {
+  transform: translateX(-50%) scale(0.96);
+}
+
+@keyframes homeFloatGlow {
+  0%, 100% { box-shadow: 0 14px 36px rgba(2, 6, 23, 0.44), 0 0 20px rgba(34, 211, 238, 0.14); }
+  50% { box-shadow: 0 16px 40px rgba(2, 6, 23, 0.48), 0 0 32px rgba(34, 211, 238, 0.28), 0 0 18px rgba(251, 191, 36, 0.12); }
 }
 
 .feature-home-link--amber.feature-home-link--floating {
@@ -5278,15 +5302,16 @@ body.app-lite-effects .home-line-share-card::after {
 
 @media (max-width: 640px) {
   .feature-home-link {
-    min-height: 3.1rem;
-    padding-inline: 1.3rem;
-    font-size: 0.98rem;
+    min-height: 3rem;
+    padding-inline: 1.18rem;
+    font-size: 0.94rem;
     letter-spacing: 0.08em;
   }
 
   .feature-home-link--floating {
-    right: 0.85rem;
-    top: 0.85rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    min-height: 2.85rem;
+    padding-block: 0.72rem;
   }
 }
 

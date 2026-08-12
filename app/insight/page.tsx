@@ -3826,40 +3826,6 @@ export default function InsightPage() {
                   example="1979-09-02，寅時，女。"
                   tone="cyan"
                 />
-                {/* 狀態指示器 */}
-              <div className="hidden rounded-lg border border-cyan-400/20 bg-cyan-400/5 p-4 sm:block">
-                <p className="text-xs text-[color:var(--text-muted)] mb-3">資料進度</p>
-                <div className="flex gap-2 flex-wrap">
-                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    input.name.trim().length >= 2
-                      ? 'bg-green-500/20 text-green-300 border border-green-400/30'
-                      : 'bg-white/10 text-[color:var(--text-muted)] border border-white/10'
-                  }`}>
-                    ✓ 姓名 {input.name.trim().length > 0 ? `(${input.name.trim().length}字)` : '(未填)'}
-                  </div>
-                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    input.birthDate
-                      ? 'bg-green-500/20 text-green-300 border border-green-400/30'
-                      : 'bg-white/10 text-[color:var(--text-muted)] border border-white/10'
-                  }`}>
-                    ✓ 生日 {input.birthDate ? '已填' : '(未填)'}
-                  </div>
-                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    input.bloodType
-                      ? 'bg-green-500/20 text-green-300 border border-green-400/30'
-                      : 'bg-white/10 text-[color:var(--text-muted)] border border-white/10'
-                  }`}>
-                    ✓ 血型 {input.bloodType ? input.bloodType + '型' : '(未選)'}
-                  </div>
-                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    input.shichen !== null && input.shichen !== 'known'
-                      ? 'bg-green-500/20 text-green-300 border border-green-400/30'
-                      : 'bg-white/10 text-[color:var(--text-muted)] border border-white/10'
-                  }`}>
-                  ✓ 時辰 {typeof input.shichen === 'number' ? SHICHEN_LIST[input.shichen].label : input.shichen === 'known' ? '等待選擇' : '自動良辰'}
-                  </div>
-                </div>
-              </div>
 
               <div>
                 <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
@@ -4050,7 +4016,8 @@ export default function InsightPage() {
                 )}
               </div>
 
-              <div className={typeof input.shichen !== 'number' ? 'opacity-50' : ''}>
+              {/* 出生地卡片：隱藏（2026-08-12 依指示，客戶不需看到）。恢復時把 hidden 移除即可；未選擇時系統以標準時排盤。 */}
+              <div className={`hidden ${typeof input.shichen !== 'number' ? 'opacity-50' : ''}`}>
                 <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">6. 出生地（選填，可提升真太陽時校正精準度）</label>
                 {typeof input.shichen !== 'number' ? (
                   <p className="text-xs font-semibold leading-6 text-[color:var(--text-sub)]">請先選擇真實出生時辰，才能進一步選擇出生地（提升真太陽時校正精準度）。</p>
@@ -4094,6 +4061,42 @@ export default function InsightPage() {
                   <p className="font-semibold">⚠ {error}</p>
                 </div>
               )}
+
+              {/* 資料進度：移至第六張卡片之後（第七張，2026-08-11 依指示） */}
+                {/* 狀態指示器 */}
+              <div className="hidden rounded-lg border border-cyan-400/20 bg-cyan-400/5 p-4 sm:block">
+                <p className="text-xs text-[color:var(--text-muted)] mb-3">資料進度</p>
+                <div className="flex gap-2 flex-wrap">
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    input.name.trim().length >= 2
+                      ? 'bg-green-500/20 text-green-300 border border-green-400/30'
+                      : 'bg-white/10 text-[color:var(--text-muted)] border border-white/10'
+                  }`}>
+                    ✓ 姓名 {input.name.trim().length > 0 ? `(${input.name.trim().length}字)` : '(未填)'}
+                  </div>
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    input.birthDate
+                      ? 'bg-green-500/20 text-green-300 border border-green-400/30'
+                      : 'bg-white/10 text-[color:var(--text-muted)] border border-white/10'
+                  }`}>
+                    ✓ 生日 {input.birthDate ? '已填' : '(未填)'}
+                  </div>
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    input.bloodType
+                      ? 'bg-green-500/20 text-green-300 border border-green-400/30'
+                      : 'bg-white/10 text-[color:var(--text-muted)] border border-white/10'
+                  }`}>
+                    ✓ 血型 {input.bloodType ? input.bloodType + '型' : '(未選)'}
+                  </div>
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    input.shichen !== null && input.shichen !== 'known'
+                      ? 'bg-green-500/20 text-green-300 border border-green-400/30'
+                      : 'bg-white/10 text-[color:var(--text-muted)] border border-white/10'
+                  }`}>
+                  ✓ 時辰 {typeof input.shichen === 'number' ? SHICHEN_LIST[input.shichen].label : input.shichen === 'known' ? '等待選擇' : '自動良辰'}
+                  </div>
+                </div>
+              </div>
 
               <div className="flex gap-3 pt-4">
                 <button
