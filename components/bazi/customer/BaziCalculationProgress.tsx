@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 /**
  * 【AI 八字｜Real Calculation Ceremony V1】
  * THIS IS NOT A FAKE LOADING SCREEN. THIS IS A REAL CALCULATION STATUS UI.
@@ -280,7 +282,31 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
 }) {
   const items = view?.items ?? [];
   const readyToOpen = phase === 'ceremony' && view;
-  const completedItems = items.filter((item) => item.status === 'COMPLETED');
+  // 逐項揭示（狀態全部來自後端真實資料；揭示節奏只是呈現）＋ 儀式完成自動進入命盤
+  const [revealed, setRevealed] = useState(0);
+  const completedAll = items.filter((item) => item.status === 'COMPLETED');
+  const totalReveal = completedAll.length;
+  useEffect(() => {
+    if (phase !== 'ceremony' || !view) return;
+    setRevealed(0);
+    let i = 0;
+    const timer = setInterval(() => {
+      i += 1;
+      setRevealed(i);
+      if (i >= totalReveal) clearInterval(timer);
+    }, 120);
+    return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, view]);
+  const allRevealed = phase === 'ceremony' && revealed >= totalReveal && totalReveal > 0;
+  useEffect(() => {
+    if (!allRevealed) return;
+    // 真實儀式做完 → 1.4 秒後自動按下「查看命盤」，客戶不用再按
+    const t = setTimeout(() => onOpenResult(), 1400);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allRevealed]);
+  const completedItems = completedAll.slice(0, revealed);
   const unavailableItems = items.filter((item) => item.status === 'UNAVAILABLE');
   const skippedItems = items.filter((item) => item.status === 'SKIPPED_BY_DATA_CONDITION');
   const failedItems = items.filter((item) => item.status === 'FAILED');
@@ -300,10 +326,17 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
           <>
             <div>
               <div className="mb-2 flex items-center justify-between gap-3">
-                <p className="text-sm font-black text-emerald-100">已完成的真實運算</p>
-                <p className="text-xs font-bold text-white/35">{completedItems.length} 項</p>
+                <p className="text-sm font-black text-emerald-100">認證通過中…</p>
+                <p className="text-xs font-black text-emerald-200">{completedItems.length} / {totalReveal}</p>
               </div>
-              <ProgressRows items={completedItems} />
+              <div className="space-y-1.5">
+                {completedItems.map((item, idx) => (
+                  <div key={item.key} className="flex items-center justify-between gap-3 rounded-xl bg-white/[0.025] px-4 py-2" style={{ animation: 'fadeIn 200ms ease' }}>
+                    <span className="text-sm font-bold text-white/70"><span className="mr-2 text-[11px] font-black text-emerald-300/70">{String(idx + 1).padStart(2, '0')}</span>{item.label}</span>
+                    <span className="shrink-0 text-sm font-black text-emerald-300">✓ 通過</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {skippedItems.length > 0 && (

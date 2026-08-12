@@ -22360,3 +22360,46 @@ a.home-feature-launch::after {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+
+/* 「立即開始」完成態：金色光芒明確引導（資料全部填寫完才出現） */
+.mega-submit-ready {
+  border: 2px solid rgba(251, 191, 36, 0.85);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(217, 119, 6, 0.22), rgba(251, 191, 36, 0.3));
+  padding: 1.15rem 2rem;
+  font-size: 1.15rem;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  color: #fff7e6;
+  text-shadow: 0 0 14px rgba(251, 191, 36, 0.55);
+  animation: megaSubmitGlow 1.8s ease-in-out infinite;
+  transition: transform 150ms ease;
+}
+
+.mega-submit-ready:hover { transform: translateY(-2px); }
+.mega-submit-ready:active { transform: scale(0.97); }
+
+@keyframes megaSubmitGlow {
+  0%, 100% { box-shadow: 0 0 22px rgba(251, 191, 36, 0.35), 0 0 60px rgba(251, 191, 36, 0.12), inset 0 0 16px rgba(251, 191, 36, 0.12); border-color: rgba(251, 191, 36, 0.65); }
+  50% { box-shadow: 0 0 44px rgba(251, 191, 36, 0.65), 0 0 90px rgba(251, 191, 36, 0.25), inset 0 0 22px rgba(251, 191, 36, 0.2); border-color: rgba(255, 226, 150, 1); }
+}
+
+.mega-submit-guide {
+  margin-bottom: 0.6rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: rgb(253, 230, 168);
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+}
+
+.mega-submit-guide__arrow {
+  display: inline-block;
+  animation: megaGuideArrow 1.1s ease-in-out infinite;
+}
+
+@keyframes megaGuideArrow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}

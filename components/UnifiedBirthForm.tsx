@@ -216,6 +216,7 @@ export function UnifiedBirthForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const completed = [
     fields.name ? { id: 'name', label: '姓名', done: (value.name ?? '').trim().length >= 2, text: (value.name ?? '').trim().length >= 2 ? '已確認' : '待填寫' } : null,
     fields.birthDate ? { id: 'birthDate', label: '萬年曆生日', done: Boolean(value.birthDate), text: value.birthDate ? `西元 ${value.birthDate}` : '待換算' } : null,
@@ -319,7 +320,24 @@ export function UnifiedBirthForm({
         </section>
       )}
 
-      <button type="submit" disabled={disabled || isSubmitting} className="inline-flex w-full items-center justify-center rounded-full border border-amber-300/35 bg-amber-300/14 px-6 py-4 text-sm font-black text-amber-50 transition hover:border-amber-200/60 hover:bg-amber-300/20 disabled:opacity-60">
+      {/* 完成引導：全部填好 → 金色光芒 + 明確指引（資料未完成則低調提示） */}
+      {completed.every((item) => item.done) && !isSubmitting ? (
+        <p className="mega-submit-guide" aria-live="polite">
+          <span aria-hidden="true">✨</span> 資料全部完成！點下方金色按鈕開始 <span className="mega-submit-guide__arrow" aria-hidden="true">⬇</span>
+        </p>
+      ) : (
+        <p className="text-center text-xs font-semibold text-white/40">完成上方欄位後，開始鍵會亮起金色光芒</p>
+      )}
+      <button
+        type="submit"
+        disabled={disabled || isSubmitting}
+        className={
+          completed.every((item) => item.done)
+            ? 'mega-submit-ready inline-flex w-full items-center justify-center gap-2 rounded-full disabled:opacity-60'
+            : 'inline-flex w-full items-center justify-center rounded-full border border-amber-300/35 bg-amber-300/14 px-6 py-4 text-sm font-black text-amber-50 transition hover:border-amber-200/60 hover:bg-amber-300/20 disabled:opacity-60'
+        }
+      >
+        {completed.every((item) => item.done) && !isSubmitting && <span aria-hidden="true">✨</span>}
         {isSubmitting ? loadingLabel : submitLabel}
       </button>
 
