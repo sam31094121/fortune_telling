@@ -17,6 +17,14 @@ export default function MegaInputGuide({
   tone = 'cyan',
   className = '',
 }: MegaInputGuideProps) {
+  /**
+   * 全站隱藏（2026-08-11 依指示）：
+   * 所有頁面的「手機大字填寫引導」卡（含聽引導按鈕）一律不顯示。
+   * 在元件源頭關閉＝8 張卡片頁面全部一次生效，不必逐頁尋找。
+   * 要恢復時把下面這行 return null 移除即可。
+   */
+  return null;
+  // eslint-disable-next-line no-unreachable
   const [speaking, setSpeaking] = useState(false);
   const spokenText = [title, ...steps, example ? `範例：${example}` : ''].filter(Boolean).join('。');
 
