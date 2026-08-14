@@ -43,6 +43,10 @@ export class Taiji24SoundEngine {
   private step = 0;
   private readonly maxStep = 24;
   private lastClickTime = 0;
+  /* 黏連性升級（2026-08-14）：持續氣息墊音（drone）＋前音滑入 */
+  private droneOsc: OscillatorNode | null = null;
+  private droneGain: GainNode | null = null;
+  private prevFrequency = 110.0;
 
   private readonly minClickGap: number;
   private readonly masterVolume: number;
@@ -124,9 +128,9 @@ export class Taiji24SoundEngine {
     this.dryGain = this.audioContext.createGain();
     this.dryGain.gain.value = 0.82;
     this.reverbGain = this.audioContext.createGain();
-    this.reverbGain.gain.value = 0.23;
+    this.reverbGain.gain.value = 0.3; // 黏連升級：殘響加深，尾韻互相橋接
     this.reverb = this.audioContext.createConvolver();
-    this.reverb.buffer = this.createImpulseResponse(this.audioContext, 2.2, 2.8);
+    this.reverb.buffer = this.createImpulseResponse(this.audioContext, 2.8, 2.6);
 
     this.dryGain.connect(this.compressor);
     this.reverb.connect(this.reverbGain);
@@ -181,30 +185,61 @@ export class Taiji24SoundEngine {
     return state;
   }
 
+  /** 氣息墊音：24 韻的黏連靈魂——持續低鳴、音高跟著每一韻滑行，點與點之間不斷氣 */
+  private ensureDrone(now: number, targetFrequency: number): void {
+    const ctx = this.audioContext!;
+    if (!this.droneOsc || !this.droneGain) {
+      this.droneOsc = ctx.createOscillator();
+      this.droneGain = ctx.createGain();
+      this.droneOsc.type = 'sine';
+      this.droneOsc.frequency.setValueAtTime(targetFrequency * 0.5, now);
+      this.droneGain.gain.setValueAtTime(0.0001, now);
+      this.droneOsc.connect(this.droneGain);
+      this.droneGain.connect(this.dryGain!);
+      this.droneGain.connect(this.reverb!);
+      this.droneOsc.start(now);
+    }
+    // 音高滑向本韻（黏連）＋呼吸式音量：點擊瞬間浮起，之後緩緩沉回但不熄滅
+    this.droneOsc.frequency.cancelScheduledValues(now);
+    this.droneOsc.frequency.setValueAtTime(this.droneOsc.frequency.value, now);
+    this.droneOsc.frequency.exponentialRampToValueAtTime(targetFrequency * 0.5, now + 0.55);
+    this.droneGain.gain.cancelScheduledValues(now);
+    this.droneGain.gain.setValueAtTime(Math.max(this.droneGain.gain.value, 0.0001), now);
+    this.droneGain.gain.exponentialRampToValueAtTime(0.075, now + 0.12);
+    this.droneGain.gain.exponentialRampToValueAtTime(0.032, now + 2.6);
+  }
+
   /** 第 1～23 韻 */
   private playStepSound(sound: StepSound, step: number): void {
     const ctx = this.audioContext!;
     const now = ctx.currentTime;
 
-    // 主音：sine 圓潤 + 微滑音（能量往前推，不像獨立按鍵）
+    this.ensureDrone(now, sound.frequency);
+
+    // 主音：從「前一韻音高」滑入本韻（音頭接骨），再微微上推
     const oscillator = ctx.createOscillator();
     const gain = ctx.createGain();
     oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(sound.frequency, now);
-    oscillator.frequency.exponentialRampToValueAtTime(sound.frequency * 1.025, now + sound.duration);
+    const glideFrom = step === 1 ? sound.frequency * 0.94 : this.prevFrequency;
+    oscillator.frequency.setValueAtTime(glideFrom, now);
+    oscillator.frequency.exponentialRampToValueAtTime(sound.frequency, now + 0.09);
+    oscillator.frequency.exponentialRampToValueAtTime(sound.frequency * 1.02, now + sound.duration);
+    this.prevFrequency = sound.frequency;
 
+    // 尾韻拉長 1.35 倍，疊進下一韻的音頭（禁止鍵盤感）
+    const tail = sound.duration * 1.35;
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(sound.volume, now + 0.018);
-    // 第一韻 Attack 更慢：太極核心被喚醒
+    gain.gain.exponentialRampToValueAtTime(sound.volume, now + 0.02);
     const sustainPoint = step === 1 ? sound.duration * 0.42 : sound.duration * 0.3;
     gain.gain.exponentialRampToValueAtTime(sound.volume * 0.62, now + sustainPoint);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + sound.duration);
+    gain.gain.exponentialRampToValueAtTime(sound.volume * 0.18, now + sound.duration);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + tail);
 
     oscillator.connect(gain);
     gain.connect(this.dryGain!);
     gain.connect(this.reverb!);
     oscillator.start(now);
-    oscillator.stop(now + sound.duration + 0.05);
+    oscillator.stop(now + tail + 0.05);
 
     this.playOvertone(sound, now);
     if (step <= 16) this.playSubTone(sound, step, now);
@@ -244,29 +279,99 @@ export class Taiji24SoundEngine {
     oscillator.stop(now + sound.duration * 0.85 + 0.05);
   }
 
-  /** 第 24 韻：最短主音 + 專屬彩蛋上行琶音 */
+  /** 第 24 韻｜SURPRISE 四段式大結尾（2026-08-14 升級）：
+      ① 吸氣上升（riser）→ ② 深鑼撞擊 → ③ 水晶瀑布琶音 → ④ 星光和弦收尾＋墊音昇華熄滅 */
   private playFinalEgg(sound: StepSound): void {
     const ctx = this.audioContext!;
     const now = ctx.currentTime;
     this.playStepSound(sound, this.maxStep);
 
-    // 彩蛋：C6-E6-G6-C7 快速上行水晶琶音
-    const arpeggio = [1046.5, 1318.51, 1567.98, 2093.0];
-    arpeggio.forEach((freq, i) => {
-      const t0 = now + 0.12 + i * 0.09;
+    // ① 吸氣上升：0.4 秒頻率急升的細riser，讓人「咦？」——期待被拉滿
+    const riser = ctx.createOscillator();
+    const riserGain = ctx.createGain();
+    riser.type = 'sine';
+    riser.frequency.setValueAtTime(392, now);
+    riser.frequency.exponentialRampToValueAtTime(1568, now + 0.4);
+    riserGain.gain.setValueAtTime(0.0001, now);
+    riserGain.gain.exponentialRampToValueAtTime(0.14, now + 0.3);
+    riserGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+    riser.connect(riserGain);
+    riserGain.connect(this.dryGain!);
+    riserGain.connect(this.reverb!);
+    riser.start(now);
+    riser.stop(now + 0.5);
+
+    // ② 深鑼撞擊：C2 基音＋不諧和泛音，4 秒長尾，殿堂級的一擊
+    const gongT = now + 0.45;
+    [
+      { freq: 65.41, level: 0.5 },
+      { freq: 98.3, level: 0.22 },
+      { freq: 147.6, level: 0.12 },
+    ].forEach(({ freq, level }) => {
+      const gong = ctx.createOscillator();
+      const gongGain = ctx.createGain();
+      gong.type = 'sine';
+      gong.frequency.setValueAtTime(freq, gongT);
+      gong.frequency.exponentialRampToValueAtTime(freq * 0.965, gongT + 4);
+      gongGain.gain.setValueAtTime(0.0001, gongT);
+      gongGain.gain.exponentialRampToValueAtTime(level, gongT + 0.012);
+      gongGain.gain.exponentialRampToValueAtTime(0.0001, gongT + 4);
+      gong.connect(gongGain);
+      gongGain.connect(this.dryGain!);
+      gongGain.connect(this.reverb!);
+      gong.start(gongT);
+      gong.stop(gongT + 4.1);
+    });
+
+    // ③ 水晶瀑布：七連音上行（C6-E6-G6-C7-E7-G7-C8），從鑼聲中湧出
+    const cascade = [1046.5, 1318.51, 1567.98, 2093.0, 2637.0, 3135.96, 4186.0];
+    cascade.forEach((freq, i) => {
+      const t0 = gongT + 0.18 + i * 0.075;
       const oscillator = ctx.createOscillator();
       const gain = ctx.createGain();
       oscillator.type = 'triangle';
       oscillator.frequency.value = freq;
       gain.gain.setValueAtTime(0.0001, t0);
-      gain.gain.exponentialRampToValueAtTime(0.26 - i * 0.03, t0 + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.65);
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.24 - i * 0.024, 0.06), t0 + 0.018);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.7);
       oscillator.connect(gain);
       gain.connect(this.dryGain!);
       gain.connect(this.reverb!);
       oscillator.start(t0);
-      oscillator.stop(t0 + 0.7);
+      oscillator.stop(t0 + 0.75);
     });
+
+    // ④ 星光和弦：C7/E7/G7 緩緩浮現又散去，像煙花落下的餘光
+    const chordT = gongT + 0.9;
+    [2093.0, 2637.0, 3135.96].forEach((freq) => {
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, chordT);
+      gain.gain.exponentialRampToValueAtTime(0.055, chordT + 0.5);
+      gain.gain.exponentialRampToValueAtTime(0.0001, chordT + 2.4);
+      oscillator.connect(gain);
+      gain.connect(this.reverb!);
+      oscillator.start(chordT);
+      oscillator.stop(chordT + 2.5);
+    });
+
+    // 墊音昇華熄滅：氣息拉高八度、輕輕放手——旅程真正結束
+    if (this.droneOsc && this.droneGain) {
+      const drone = this.droneOsc;
+      const droneGain = this.droneGain;
+      drone.frequency.cancelScheduledValues(now);
+      drone.frequency.setValueAtTime(drone.frequency.value, now);
+      drone.frequency.exponentialRampToValueAtTime(drone.frequency.value * 2, now + 0.8);
+      droneGain.gain.cancelScheduledValues(now);
+      droneGain.gain.setValueAtTime(Math.max(droneGain.gain.value, 0.0001), now);
+      droneGain.gain.exponentialRampToValueAtTime(0.09, now + 0.4);
+      droneGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.4);
+      drone.stop(now + 3.6);
+      this.droneOsc = null;
+      this.droneGain = null;
+    }
   }
 
   private complete(): void {
@@ -287,5 +392,16 @@ export class Taiji24SoundEngine {
 
   reset(): void {
     this.step = 0;
+    this.prevFrequency = 110.0;
+    // 墊音溫柔退場，重新開始時再由第 1 韻喚醒
+    if (this.droneOsc && this.droneGain && this.audioContext) {
+      const now = this.audioContext.currentTime;
+      this.droneGain.gain.cancelScheduledValues(now);
+      this.droneGain.gain.setValueAtTime(Math.max(this.droneGain.gain.value, 0.0001), now);
+      this.droneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+      this.droneOsc.stop(now + 0.9);
+      this.droneOsc = null;
+      this.droneGain = null;
+    }
   }
 }
