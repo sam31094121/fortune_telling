@@ -51,6 +51,14 @@ export default function TaijiStandaloneCard({
   holdEvolutionStages = false,
   adaptiveEntry = false,
 }: TaijiStandaloneCardProps) {
+  /**
+   * 全站停用（2026-08-13 依指示）：
+   * 五層太極核心（軌道動畫＋粒子＋視差＋24 步互動）效能過重，會拖慢其他卡片造成卡頓。
+   * 直接不渲染＝動畫、音效、事件監聽全部歸零，效能立即恢復。
+   * 要恢復時把下面這行 return null 移除即可，其餘程式碼原封保留。
+   */
+  // eslint-disable-next-line no-constant-condition
+  if (true) return null;
   const cardClassName = ['taiji-standalone-card taiji-open-stage taiji-parallax-stage', className].filter(Boolean).join(' ');
   const materialSignature = showThreeLayerMaterial ? buildTaijiMaterialSignature() : undefined;
   const cardRef = useRef<HTMLDivElement>(null);

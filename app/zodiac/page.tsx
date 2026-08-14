@@ -898,22 +898,23 @@ export default function ZodiacPage() {
           <>
             <IdentitySplitSelector className="mb-5" />
 
-            <section className="zodiac-input-hero mb-5 overflow-hidden rounded-3xl border border-fuchsia-300/25 bg-[radial-gradient(circle_at_top_left,rgba(217,70,239,0.2),rgba(34,211,238,0.09)_42%,rgba(15,23,42,0.82)_100%)] p-5 shadow-[0_0_40px_rgba(217,70,239,0.16)] sm:p-7">
-              <p className="text-[11px] font-black uppercase tracking-[0.28em] text-fuchsia-200">AI WESTERN ZODIAC</p>
-              <h1 className="mt-3 font-serif text-3xl font-black leading-tight text-fuchsia-50 sm:text-5xl">AI 西洋星座分析</h1>
-              <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">請依照下方欄位填寫出生資料。日期必填，時間與城市可選填；填得越完整，分析等級越深（太陽 → 上升＋月亮 → 完整星盤）。</p>
-              <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                <div className="rounded-2xl border border-white/10 bg-black/15 px-4 py-3">
-                  <p className="text-xs font-black text-fuchsia-100">1. 填資料</p>
-                  <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]">姓名、時間、城市可選填，出生日期必填。</p>
+            <section className="zodiac-input-hero zodiac-brand-hero mb-5 overflow-hidden rounded-3xl border border-fuchsia-300/25 p-5 shadow-[0_0_40px_rgba(217,70,239,0.16)] sm:p-7">
+              <div className="zodiac-brand-hero__content">
+                <div className="zodiac-brand-hero__copy">
+                  <p className="zodiac-brand-hero__eyebrow">TIANSU · AI WESTERN ZODIAC</p>
+                  <h1 className="zodiac-brand-hero__title">AI 西洋星座分析</h1>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-black/15 px-4 py-3">
-                  <p className="text-xs font-black text-cyan-100">2. 後端運算</p>
-                  <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]">依填寫完整度採真實天文位置計算太陽、月亮、上升星座。</p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-black/15 px-4 py-3">
-                  <p className="text-xs font-black text-amber-100">3. AI 白話整理</p>
-                  <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]">整理人格特質、優勢、忽略點與本週提醒。</p>
+
+                <div className="zodiac-brand-orbit" aria-hidden="true">
+                  <span className="zodiac-brand-orbit__ring zodiac-brand-orbit__ring--outer" />
+                  <span className="zodiac-brand-orbit__ring zodiac-brand-orbit__ring--inner" />
+                  <span className="zodiac-brand-orbit__axis zodiac-brand-orbit__axis--vertical" />
+                  <span className="zodiac-brand-orbit__axis zodiac-brand-orbit__axis--horizontal" />
+                  <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--top">AI</span>
+                  <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--right">12</span>
+                  <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--bottom">天宿</span>
+                  <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--left">星盤</span>
+                  <span className="zodiac-brand-orbit__core">Z</span>
                 </div>
               </div>
             </section>
@@ -926,18 +927,6 @@ export default function ZodiacPage() {
               className="mb-5"
             />
             <section className="fortune-card zodiac-form-card p-5 sm:p-7">
-              <div className="mb-5 rounded-2xl border border-fuchsia-300/18 bg-fuchsia-300/8 p-4">
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-fuchsia-200">資料確認</p>
-                <div className="zodiac-progress-grid mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
-                  {completedItems.map((item) => (
-                    <div key={item.label} className={`rounded-xl border px-3 py-2 ${item.done ? 'border-emerald-200/25 bg-emerald-300/10' : 'border-rose-300/35 bg-rose-500/10'}`}>
-                      <p className="text-[10px] font-black text-[color:var(--text-main)]">{item.done ? '完成' : '未填'} · {item.label}</p>
-                      <p className="mt-1 truncate text-[11px] font-semibold text-[color:var(--text-sub)]">{item.value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               <div className="space-y-6">
                 <div>
                   <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">1. 姓名（可選填）</label>
@@ -1095,6 +1084,18 @@ export default function ZodiacPage() {
                       重新填寫
                     </button>
                   )}
+                </div>
+
+                <div className="rounded-2xl border border-fuchsia-300/18 bg-fuchsia-300/8 p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-fuchsia-200">資料確認</p>
+                  <div className="zodiac-progress-grid mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+                    {completedItems.map((item) => (
+                      <div key={item.label} className={`rounded-xl border px-3 py-2 ${item.done ? 'border-emerald-200/25 bg-emerald-300/10' : 'border-rose-300/35 bg-rose-500/10'}`}>
+                        <p className="text-[10px] font-black text-[color:var(--text-main)]">{item.done ? '完成' : '未填'} · {item.label}</p>
+                        <p className="mt-1 truncate text-[11px] font-semibold text-[color:var(--text-sub)]">{item.value}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </section>

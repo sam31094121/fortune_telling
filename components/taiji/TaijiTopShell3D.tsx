@@ -13,9 +13,17 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 
-const TaijiWebGL3D = dynamic(() => import('./TaijiWebGL3D'), { ssr: false });
+/* 圖案全面換新（2026-08-13 依業主檔案）：改掛 TaijiSystem V2（R3F 版）。
+   舊 TaijiWebGL3D 保留原檔未刪，要回退時把下面這行換回 './TaijiWebGL3D' 即可。 */
+const TaijiSystem = dynamic(() => import('@/components/TaijiSystem'), { ssr: false });
 
-export default function TaijiTopShell3D() {
+export default function TaijiTopShell3D({
+  textureUrl,
+  videoUrl,
+}: {
+  textureUrl?: string;
+  videoUrl?: string;
+}) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -32,8 +40,8 @@ export default function TaijiTopShell3D() {
   if (!ready) return null;
 
   return (
-    <div className="relative aspect-square w-full overflow-hidden rounded-[28px]">
-      <TaijiWebGL3D className="absolute inset-0" variant="banner" />
+    <div className="relative w-full overflow-hidden rounded-[28px]">
+      <TaijiSystem textureUrl={textureUrl ?? '/taiji.png'} videoUrl={videoUrl} />
     </div>
   );
 }

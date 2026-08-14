@@ -1,0 +1,141 @@
+/* ====================== 太極演化系統 V2（依業主規格補齊完整版） ====================== */
+
+.root {
+  --energy-color: #7ec8ff;
+  --glow-color: rgba(126, 200, 255, 0.45);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 12px 22px;
+  user-select: none;
+  perspective: 1200px;
+}
+
+/* ====================== 3D 球體包裹 ====================== */
+.sphereWrapper {
+  position: relative;
+  width: min(84vw, 320px);
+  height: min(84vw, 320px);
+  transform-style: preserve-3d;
+  animation: sphereFloat 9s ease-in-out infinite;
+}
+
+@keyframes sphereFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* 階段光感：演化越深，環境光暈越亮 */
+.sphereWrapper::before {
+  content: '';
+  position: absolute;
+  inset: -26px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, var(--glow-color) 0%, rgba(126, 200, 255, 0.08) 46%, transparent 72%);
+  opacity: 0.5;
+  transition: opacity 0.9s ease;
+  z-index: 0;
+}
+
+.stage_taiji .sphereWrapper::before { opacity: 0.4; }
+.stage_liangyi .sphereWrapper::before { opacity: 0.62; }
+.stage_sixiang .sphereWrapper::before { opacity: 0.78; }
+.stage_bagua .sphereWrapper::before { opacity: 0.95; }
+
+.sphereWrapper > div {
+  position: relative;
+  z-index: 1;
+}
+
+/* ====================== 階段說明 ====================== */
+.information {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.information strong {
+  font-family: var(--font-serif, serif);
+  font-size: 1.55rem;
+  font-weight: 900;
+  letter-spacing: 0.3em;
+  padding-left: 0.3em; /* 平衡字距造成的偏移 */
+  background: linear-gradient(120deg, #eaf4ff, #a8d4ff 55%, #fde68a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 26px rgba(126, 200, 255, 0.3);
+}
+
+.information span {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: rgba(214, 231, 255, 0.62);
+}
+
+/* ====================== 進度點 ====================== */
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progressItem,
+.progressActive {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(126, 200, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.progressItem:hover {
+  background: rgba(126, 200, 255, 0.3);
+  transform: scale(1.2);
+}
+
+.progressActive {
+  background: linear-gradient(135deg, #7ec8ff, #fde68a);
+  border-color: rgba(253, 230, 138, 0.7);
+  box-shadow: 0 0 14px rgba(126, 200, 255, 0.55);
+  transform: scale(1.35);
+}
+
+/* ====================== 重置按鈕 ====================== */
+.resetButton {
+  border: 1px solid rgba(126, 200, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(126, 200, 255, 0.08);
+  color: rgba(214, 231, 255, 0.82);
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: border-color 0.25s ease, background 0.25s ease, transform 0.15s ease;
+}
+
+.resetButton:hover {
+  border-color: rgba(253, 230, 138, 0.55);
+  background: rgba(126, 200, 255, 0.16);
+}
+
+.resetButton:active {
+  transform: scale(0.96);
+}
+
+/* ====================== 低效能環境降級 ====================== */
+@media (prefers-reduced-motion: reduce) {
+  .sphereWrapper {
+    animation: none;
+  }
+}

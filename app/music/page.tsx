@@ -215,12 +215,14 @@ function LandingHero({ onStart, dailyRecord }: { onStart: () => void; dailyRecor
             <span className="music-landing-title-line music-landing-title-line--accent">先讓你聽見情緒</span>
             <span className="music-landing-title-line">再把故事唱出來</span>
           </h1>
-          <p className="music-landing-subcopy">
+          {/* 副標說明已隱藏（2026-08-13 依指示）：恢復時把 hidden 移除即可 */}
+          <p className="music-landing-subcopy hidden">
             選一個能打動你的男聲或女聲，AI 會把生命主題、姓名、生日與五元素整理成一首專屬歌曲。
           </p>
         </div>
 
-        <section className="mt-5 grid w-full max-w-3xl gap-3 text-left sm:grid-cols-3" aria-label="AI 生命歌曲三步驟">
+        {/* 三步驟卡已隱藏（2026-08-13 依指示）：先藏起來以後再說，恢復時把 hidden 移除即可 */}
+        <section className="mt-5 hidden w-full max-w-3xl gap-3 text-left sm:grid-cols-3" aria-label="AI 生命歌曲三步驟">
           {VOICE_PROMISES.map((item, index) => (
             <article key={item.title} className="rounded-[22px] border border-violet-300/18 bg-white/[0.045] p-4 shadow-[0_14px_34px_rgba(2,6,23,0.22)]">
               <p className="text-[11px] font-black tracking-[0.22em] text-amber-100">第 {index + 1} 道</p>

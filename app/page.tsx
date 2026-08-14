@@ -1006,7 +1006,6 @@ function PersonStep({
         {title}
       </p>
 
-      <h2 className="mt-4 font-serif text-3xl text-[color:var(--text-main)]">照順序填，不會漏</h2>
       <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">{description}</p>
 
       <div className="mt-8 space-y-8">

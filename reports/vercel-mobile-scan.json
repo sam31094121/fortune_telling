@@ -1,0 +1,32 @@
+{
+  "info": {
+    "bodyStart": "今日下一步\n\n成長中心已開放\n\n已完成 8/8\n\n開啟 AI 個人成長中心\n緣\nAI · 靈魂雙星配對\nAI 靈魂配對\n\n輸入兩位資料，分析相處頻率、吸引力、溝通模式與命定互補關係。\n\n立即開啟配對\n➜\n歌\nAI 聲音歌曲\nAI生成一首歌\n自我人格分裂\n跟你自我對話\n\n這首歌，是你人格分裂後，每一個自己共同唱出的內心獨白。\n\n立即生成歌曲\n➜\n名\nAI · 姓名決策系統\nAI 姓名學\n\n以臺灣字典固定部首、筆畫與取名意境，最後只留下今天",
+    "canvasAttrs": {
+      "data-engine": "three.js r170",
+      "data-taiji-scene": "ready",
+      "height": "668",
+      "style": "display: block; width: 334px; height: 334px; touch-action: pan-y;",
+      "width": "668"
+    },
+    "canvasExists": true,
+    "canvasRect": {
+      "height": 334.0000305175781,
+      "width": 333.9125061035156,
+      "x": 20.64166831970215,
+      "y": 16.80000114440918
+    },
+    "cardExists": true,
+    "cardRect": {
+      "height": 335.51251220703125,
+      "width": 335.51251220703125,
+      "x": 19.84166717529297,
+      "y": 16
+    },
+    "infoText": null,
+    "readySelector": true,
+    "recovering": false,
+    "title": "☯ 太極命理 AI｜天地人智慧分析系統",
+    "url": "https://heaven-earth-humanity-pair.vercel.app/?scan=1786622305244"
+  },
+  "logs": []
+}

@@ -1009,22 +1009,26 @@ export default function NameologyPage() {
   return (
     <main className="app-bg min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
-        <div className="mb-5 flex items-center text-sm">
-          <Link href="/" className="feature-home-link feature-home-link--amber">{"\u8fd4\u56de\u9996\u9801"}</Link>
-        </div>
-
         <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 姓名學" onViewResult={dailyRecord ? () => void handleSubmit() : undefined} />
         <section id="nameology-input-form" className="fortune-card p-5 sm:p-8 scroll-mt-20">
-          <p className="text-xs font-bold uppercase tracking-[0.35em] text-amber-300">NAMEOLOGY</p>
-          <h1 className="mt-4 font-serif text-4xl font-black text-amber-100 sm:text-6xl">AI 姓名學</h1>
-          <p className="mt-4 max-w-2xl text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
+          {/* 品牌標題視覺（2026-08-13 依指示）：與八字/塔羅同語言——置中、對稱引線、金色漸層、柔光、星芒收尾 */}
+          <div className="flex items-center justify-center gap-3 text-center">
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-amber-300/80" aria-hidden="true" />
+            <p className="text-[11px] font-black uppercase tracking-[0.34em] text-amber-300/90">NAMEOLOGY</p>
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-amber-300/80" aria-hidden="true" />
+          </div>
+          <h1 className="mx-auto mt-4 bg-gradient-to-br from-amber-50 via-amber-100 to-amber-300/80 bg-clip-text text-center font-serif text-5xl font-black leading-[1.08] tracking-[0.1em] text-transparent drop-shadow-[0_0_32px_rgba(251,191,36,0.3)] sm:text-6xl lg:text-7xl">
+            AI 姓名學
+          </h1>
+          <div className="mx-auto mt-4 flex items-center justify-center gap-2" aria-hidden="true">
+            <span className="h-px w-16 bg-gradient-to-r from-transparent to-amber-200/70" />
+            <span className="text-sm text-amber-200/90">✦</span>
+            <span className="h-px w-16 bg-gradient-to-l from-transparent to-amber-200/70" />
+          </div>
+          {/* 說明文字已隱藏（2026-08-13 依指示）：客戶不必看，之後視情況把 hidden 移除即可恢復 */}
+          <p className="mt-4 hidden max-w-2xl text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
             輸入姓名與基本資料後，系統先固定台灣字典部首與筆畫，再生成姓名拆字卡與今日行動判定。
           </p>
-          <div className="mt-4 flex flex-wrap gap-2" aria-label="姓名學輸出重點">
-            {['台灣字典', '拆字卡', 'AI 判定'].map((item) => (
-              <span key={item} className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-xs font-black text-amber-100">{item}</span>
-            ))}
-          </div>
 
           <IdentitySplitSelector className="mt-6" />
 
@@ -1035,20 +1039,6 @@ export default function NameologyPage() {
             tone="amber"
             className="mt-6"
           />
-
-          <div className="mt-6 rounded-2xl border border-amber-300/15 bg-amber-950/10 p-4">
-            <p className="mb-3 text-xs text-[color:var(--text-muted)]">資料進度</p>
-            <div className="flex flex-wrap gap-2">
-              {progressItems.map((item) => (
-                <span
-                  key={item.label}
-                  className={`rounded-full border px-3 py-1 text-xs font-semibold ${item.done ? 'border-green-400/30 bg-green-500/20 text-green-300' : 'border-white/10 bg-white/8 text-[color:var(--text-muted)]'}`}
-                >
-                  ✓ {item.label} {item.value}
-                </span>
-              ))}
-            </div>
-          </div>
 
           <div className="mt-7 grid gap-7">
             <div>
@@ -1164,6 +1154,24 @@ export default function NameologyPage() {
             >
               {isLoading ? '姓名學分析中...' : dailyRecord ? getDailyAnalysisButtonLabel(dailyRecord) : canSubmit ? '開始姓名學分析' : '請先完成上方資料'}
             </button>
+
+            <div className="flex flex-col gap-3 rounded-2xl border border-amber-300/15 bg-amber-950/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="mb-3 text-xs text-[color:var(--text-muted)]">資料進度</p>
+                <div className="flex flex-wrap gap-2">
+                  {progressItems.map((item) => (
+                    <span
+                      key={item.label}
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold ${item.done ? 'border-green-400/30 bg-green-500/20 text-green-300' : 'border-white/10 bg-white/8 text-[color:var(--text-muted)]'}`}
+                    >
+                      ✓ {item.label} {item.value}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <Link href="/" className="feature-home-link feature-home-link--amber shrink-0 self-start sm:self-center">{"\u8fd4\u56de\u9996\u9801"}</Link>
+            </div>
           </div>
         </section>
 
