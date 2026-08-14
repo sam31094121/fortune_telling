@@ -1,8 +1,8 @@
 /* ====================== 太極演化系統 V2（依業主規格補齊完整版） ====================== */
 
 .root {
-  --energy-color: #7ec8ff;
-  --glow-color: rgba(126, 200, 255, 0.45);
+  --energy-color: #d4af6a;
+  --glow-color: rgba(212, 175, 106, 0.32);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -34,7 +34,7 @@
   inset: -26px;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle, var(--glow-color) 0%, rgba(126, 200, 255, 0.08) 46%, transparent 72%);
+  background: radial-gradient(circle, var(--glow-color) 0%, rgba(212, 175, 106, 0.06) 46%, transparent 72%);
   opacity: 0.5;
   transition: opacity 0.9s ease;
   z-index: 0;
@@ -65,18 +65,18 @@
   font-weight: 900;
   letter-spacing: 0.3em;
   padding-left: 0.3em; /* 平衡字距造成的偏移 */
-  background: linear-gradient(120deg, #eaf4ff, #a8d4ff 55%, #fde68a);
+  background: linear-gradient(120deg, #fdf6e3, #e8cc8f 55%, #b8905a);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  text-shadow: 0 0 26px rgba(126, 200, 255, 0.3);
+  text-shadow: 0 0 26px rgba(212, 175, 106, 0.35);
 }
 
 .information span {
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: rgba(214, 231, 255, 0.62);
+  color: rgba(240, 230, 208, 0.6);
 }
 
 /* ====================== 進度點 ====================== */
@@ -91,31 +91,31 @@
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  border: 1px solid rgba(126, 200, 255, 0.4);
-  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(212, 175, 106, 0.4);
+  background: rgba(255, 255, 255, 0.07);
   padding: 0;
   cursor: pointer;
   transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
 }
 
 .progressItem:hover {
-  background: rgba(126, 200, 255, 0.3);
+  background: rgba(212, 175, 106, 0.35);
   transform: scale(1.2);
 }
 
 .progressActive {
-  background: linear-gradient(135deg, #7ec8ff, #fde68a);
-  border-color: rgba(253, 230, 138, 0.7);
-  box-shadow: 0 0 14px rgba(126, 200, 255, 0.55);
+  background: linear-gradient(135deg, #e8cc8f, #b8905a);
+  border-color: rgba(232, 204, 143, 0.75);
+  box-shadow: 0 0 14px rgba(212, 175, 106, 0.55);
   transform: scale(1.35);
 }
 
 /* ====================== 重置按鈕 ====================== */
 .resetButton {
-  border: 1px solid rgba(126, 200, 255, 0.28);
+  border: 1px solid rgba(212, 175, 106, 0.3);
   border-radius: 999px;
-  background: rgba(126, 200, 255, 0.08);
-  color: rgba(214, 231, 255, 0.82);
+  background: rgba(212, 175, 106, 0.07);
+  color: rgba(240, 230, 208, 0.85);
   font-size: 0.75rem;
   font-weight: 900;
   letter-spacing: 0.18em;
@@ -125,8 +125,8 @@
 }
 
 .resetButton:hover {
-  border-color: rgba(253, 230, 138, 0.55);
-  background: rgba(126, 200, 255, 0.16);
+  border-color: rgba(232, 204, 143, 0.6);
+  background: rgba(212, 175, 106, 0.15);
 }
 
 .resetButton:active {

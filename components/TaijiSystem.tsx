@@ -64,6 +64,8 @@ interface TaijiSystemProps {
 }
 
 function createDefaultTaijiTexture() {
+  /* 質感版（2026-08-14 依指示）：去卡通化。
+     墨玉黑（深處泛微光）× 月白瓷（暖白帶光暈）＋金環勾邊＋S 弧交界柔光。 */
   const size = 1024;
   const canvas = document.createElement('canvas');
   canvas.width = size;
@@ -81,36 +83,71 @@ function createDefaultTaijiTexture() {
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.clip();
 
-  ctx.fillStyle = '#050914';
+  // 墨玉黑底：左半，深黑但帶一點靛藍呼吸，不是死黑
+  const inkGrad = ctx.createRadialGradient(cx - radius * 0.35, cy - radius * 0.3, radius * 0.1, cx, cy, radius * 1.4);
+  inkGrad.addColorStop(0, '#1b2030');
+  inkGrad.addColorStop(0.45, '#0c0f18');
+  inkGrad.addColorStop(1, '#05060b');
+  ctx.fillStyle = inkGrad;
   ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2);
-  ctx.fillStyle = '#f4f8ff';
+
+  // 月白瓷：右半，暖白層次，像上釉的瓷
+  const moonGrad = ctx.createRadialGradient(cx + radius * 0.4, cy - radius * 0.35, radius * 0.08, cx + radius * 0.2, cy, radius * 1.35);
+  moonGrad.addColorStop(0, '#fffdf6');
+  moonGrad.addColorStop(0.5, '#f2efe4');
+  moonGrad.addColorStop(1, '#d9d4c4');
+  ctx.fillStyle = moonGrad;
   ctx.fillRect(cx, cy - radius, radius, radius * 2);
 
-  ctx.fillStyle = '#050914';
+  // S 弧：上墨下月
+  ctx.fillStyle = inkGrad;
   ctx.beginPath();
   ctx.arc(cx, cy - radius / 2, radius / 2, 0, Math.PI * 2);
   ctx.fill();
-
-  ctx.fillStyle = '#f4f8ff';
+  ctx.fillStyle = moonGrad;
   ctx.beginPath();
   ctx.arc(cx, cy + radius / 2, radius / 2, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = '#f4f8ff';
+  // 魚眼：月眼在墨中（帶暖光暈）、墨眼在月中（帶深邃）
+  const eyeR = radius * 0.115;
+  const moonEye = ctx.createRadialGradient(cx - eyeR * 0.3, cy - radius / 2 - eyeR * 0.3, eyeR * 0.1, cx, cy - radius / 2, eyeR);
+  moonEye.addColorStop(0, '#fffef8');
+  moonEye.addColorStop(1, '#e8e2d0');
+  ctx.fillStyle = moonEye;
   ctx.beginPath();
-  ctx.arc(cx, cy - radius / 2, radius * 0.12, 0, Math.PI * 2);
+  ctx.arc(cx, cy - radius / 2, eyeR, 0, Math.PI * 2);
+  ctx.fill();
+  const inkEye = ctx.createRadialGradient(cx - eyeR * 0.3, cy + radius / 2 - eyeR * 0.3, eyeR * 0.1, cx, cy + radius / 2, eyeR);
+  inkEye.addColorStop(0, '#232838');
+  inkEye.addColorStop(1, '#07080d');
+  ctx.fillStyle = inkEye;
+  ctx.beginPath();
+  ctx.arc(cx, cy + radius / 2, eyeR, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = '#050914';
+  // S 弧交界柔光：一縷若有似無的金
+  ctx.save();
+  ctx.strokeStyle = 'rgba(212, 175, 106, 0.22)';
+  ctx.lineWidth = size * 0.008;
+  ctx.filter = 'blur(6px)';
   ctx.beginPath();
-  ctx.arc(cx, cy + radius / 2, radius * 0.12, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.arc(cx, cy - radius / 2, radius / 2, Math.PI * 0.5, Math.PI * 1.5, true);
+  ctx.arc(cx, cy + radius / 2, radius / 2, Math.PI * 1.5, Math.PI * 0.5, false);
+  ctx.stroke();
+  ctx.restore();
   ctx.restore();
 
-  ctx.strokeStyle = 'rgba(191, 239, 255, 0.72)';
-  ctx.lineWidth = size * 0.012;
+  // 外環：雙層金環勾邊（外實內虛），高級感的關鍵
+  ctx.strokeStyle = 'rgba(212, 175, 106, 0.85)';
+  ctx.lineWidth = size * 0.007;
   ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.arc(cx, cy, radius + size * 0.006, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(232, 204, 143, 0.3)';
+  ctx.lineWidth = size * 0.018;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius + size * 0.02, 0, Math.PI * 2);
   ctx.stroke();
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -135,15 +172,16 @@ function createGlyphTexture(symbol: string, name?: string) {
   ctx.clearRect(0, 0, size, size);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(126, 200, 255, 0.9)';
-  ctx.shadowBlur = 18;
-  ctx.fillStyle = '#e6f2ff';
+  /* 質感版：卦符改鎏金色，光暈收斂 */
+  ctx.shadowColor = 'rgba(212, 175, 106, 0.55)';
+  ctx.shadowBlur = 12;
+  ctx.fillStyle = '#e8cc8f';
   ctx.font = `900 ${name ? 128 : 150}px "Segoe UI Symbol", "Noto Sans TC", serif`;
   ctx.fillText(symbol, size / 2, name ? size * 0.38 : size / 2);
   if (name) {
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = '#c7d8f0';
-    ctx.font = '900 64px "Noto Sans TC", "Microsoft JhengHei", serif';
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = '#d8c8a4';
+    ctx.font = '900 60px "Noto Sans TC", "Microsoft JhengHei", serif';
     ctx.fillText(name, size / 2, size * 0.8);
   }
   const texture = new THREE.CanvasTexture(canvas);
@@ -159,6 +197,40 @@ function GlyphSprite({ symbol, name, scale = 0.62, y = 0 }: { symbol: string; na
     <sprite position={[0, y, 0.34]} scale={[scale, scale, 1]}>
       <spriteMaterial map={texture} transparent depthWrite={false} />
     </sprite>
+  );
+}
+
+function OrbitRings({ stage }: { stage: Stage }) {
+  const ringRef = useRef<THREE.Group>(null);
+  const primaryGeo = useMemo(() => new THREE.TorusGeometry(1.58, 0.006, 8, 128), []);
+  const secondaryGeo = useMemo(() => new THREE.TorusGeometry(1.92, 0.004, 8, 128), []);
+  const stageDepth = STAGES.indexOf(stage);
+
+  useEffect(() => () => {
+    primaryGeo.dispose();
+    secondaryGeo.dispose();
+  }, [primaryGeo, secondaryGeo]);
+
+  useFrame((state, delta) => {
+    if (!ringRef.current) return;
+    const t = state.clock.elapsedTime;
+    ringRef.current.rotation.y += delta * (0.045 + stageDepth * 0.014);
+    ringRef.current.rotation.x = Math.sin(t * 0.18) * 0.12;
+    ringRef.current.rotation.z = Math.cos(t * 0.13) * 0.08;
+  });
+
+  return (
+    <group ref={ringRef} renderOrder={1}>
+      <mesh geometry={primaryGeo} rotation={[Math.PI / 2.32, 0, 0]}>
+        <meshBasicMaterial color="#d4af6a" transparent opacity={0.2 + stageDepth * 0.04} depthWrite={false} />
+      </mesh>
+      <mesh geometry={secondaryGeo} rotation={[Math.PI / 2.04, 0, Math.PI / 3]}>
+        <meshBasicMaterial color="#8f7447" transparent opacity={0.12 + stageDepth * 0.025} depthWrite={false} />
+      </mesh>
+      <mesh geometry={secondaryGeo} rotation={[Math.PI / 1.72, Math.PI / 4, 0]}>
+        <meshBasicMaterial color="#d8d1c2" transparent opacity={0.07 + stageDepth * 0.018} depthWrite={false} />
+      </mesh>
+    </group>
   );
 }
 
@@ -267,24 +339,27 @@ function TaijiCore({
       <mesh geometry={outerGeo}>
         <meshStandardMaterial
           ref={outerMatRef}
-          color="#7ec8ff"
+          color="#d4af6a"
           transparent
-          opacity={0.06}
-          emissive="#4a9eff"
+          opacity={0.045}
+          emissive="#b8905a"
           emissiveIntensity={0.5}
           side={THREE.DoubleSide}
           depthWrite={false}
         />
       </mesh>
 
-      {/* 粒子（數量已降低） */}
+      {/* 星軌：固定低成本幾何體，讓軌道存在感清楚但不卡通化 */}
+      <OrbitRings stage={stage} />
+
+      {/* 粒子（數量與速度再收斂，避免手機閃爍與廉價特效感） */}
       <Sparkles
-        count={stage === 'BAGUA' ? 45 : stage === 'SIXIANG' ? 30 : 22}
-        scale={2.5}
-        size={2}
-        speed={0.45}
-        opacity={0.65}
-        color="#a8d4ff"
+        count={stage === 'BAGUA' ? 30 : stage === 'SIXIANG' ? 22 : 14}
+        scale={2.45}
+        size={1.35}
+        speed={0.18}
+        opacity={0.38}
+        color="#e8cc8f"
       />
 
       {/* 太極階段：正面經典太極圓盤（自轉＝中間那一刻的能量） */}
@@ -294,26 +369,26 @@ function TaijiCore({
         </mesh>
       )}
 
-      {/* 兩儀之後：陰球（墨黑＋白魚眼），獨立旋轉 */}
+      {/* 兩儀之後：陰球（墨玉——高光澤深黑，如拋光黑曜石），獨立旋轉 */}
       {separate && (
         <group ref={yinRef} position={[0, 0.08, 0]} scale={scale}>
           <mesh geometry={mainGeo}>
-            <meshStandardMaterial color="#0a0e16" metalness={0.35} roughness={0.35} emissive="#1b2434" emissiveIntensity={0.35} />
+            <meshStandardMaterial color="#0b0d14" metalness={0.75} roughness={0.18} emissive="#141a28" emissiveIntensity={0.25} />
           </mesh>
           <mesh geometry={dotGeo} position={[0, 0.4, 0.72]}>
-            <meshStandardMaterial color="#f4f8ff" emissive="#dbeafe" emissiveIntensity={0.7} roughness={0.2} />
+            <meshStandardMaterial color="#f5f0e2" emissive="#e8dcc0" emissiveIntensity={0.45} metalness={0.2} roughness={0.25} />
           </mesh>
         </group>
       )}
 
-      {/* 兩儀之後：陽球（皓白＋黑魚眼），反向獨立旋轉 */}
+      {/* 兩儀之後：陽球（月白瓷——暖白上釉，如和田玉），反向獨立旋轉 */}
       {separate && (
         <group ref={yangRef} position={[0, -0.08, 0]} scale={scale}>
           <mesh geometry={mainGeo}>
-            <meshStandardMaterial color="#f4f8ff" metalness={0.15} roughness={0.3} emissive="#93c5fd" emissiveIntensity={0.12} />
+            <meshStandardMaterial color="#efe9da" metalness={0.1} roughness={0.32} emissive="#c9b98e" emissiveIntensity={0.06} />
           </mesh>
           <mesh geometry={dotGeo} position={[0, -0.4, 0.72]}>
-            <meshStandardMaterial color="#0a0e16" emissive="#000000" roughness={0.4} />
+            <meshStandardMaterial color="#0b0d14" metalness={0.6} roughness={0.2} emissive="#000000" />
           </mesh>
         </group>
       )}
@@ -330,7 +405,7 @@ function TaijiCore({
             <Float key={index} speed={1.6} rotationIntensity={0.3} floatIntensity={0.4}>
               <group position={[item.pos[0], item.pos[1], item.pos[2]]}>
                 <mesh geometry={smallGeo}>
-                  <meshStandardMaterial color="#0f172a" emissive="#3b82f6" emissiveIntensity={0.4} />
+                  <meshStandardMaterial color="#10121c" metalness={0.7} roughness={0.25} emissive="#3a3320" emissiveIntensity={0.4} />
                 </mesh>
                 <GlyphSprite symbol={item.symbol} scale={0.5} />
               </group>
@@ -349,7 +424,7 @@ function TaijiCore({
               <Float key={item.name} speed={1.3} rotationIntensity={0.25} floatIntensity={0.35}>
                 <group position={[Math.cos(rad) * r, Math.sin(rad) * r, 0]}>
                   <mesh geometry={baguaGeo}>
-                    <meshStandardMaterial color="#0b1220" emissive="#6366f1" emissiveIntensity={0.35} />
+                    <meshStandardMaterial color="#10121c" metalness={0.7} roughness={0.25} emissive="#3a3320" emissiveIntensity={0.35} />
                   </mesh>
                   <GlyphSprite symbol={item.symbol} name={item.name} scale={0.66} />
                 </group>
@@ -451,9 +526,11 @@ export default function TaijiSystem({
         >
           <AdaptiveDpr pixelated />
           <AdaptiveEvents />
-          <ambientLight intensity={0.55} />
-          <directionalLight position={[4, 6, 5]} intensity={1.15} color="#eaf4ff" />
-          <pointLight position={[-4, -3, -4]} intensity={0.5} color="#4a9eff" />
+          {/* 質感打光（2026-08-14）：電影三點光——暖金主光、冷青補光、背緣光雕出球體輪廓 */}
+          <ambientLight intensity={0.32} />
+          <directionalLight position={[4.5, 5.5, 4]} intensity={1.35} color="#f3e2c0" />
+          <pointLight position={[-4, -2.5, 2.5]} intensity={0.4} color="#5aa8c9" />
+          <pointLight position={[0, 2.2, -4.5]} intensity={0.9} color="#d4af6a" />
           <TaijiCore stage={stage} onCoreClick={goNext} />
           <ContactShadows position={[0, -1.9, 0]} opacity={0.4} scale={7} blur={2.6} far={3} frames={1} />
           <OrbitControls enableZoom={false} enablePan={false} rotateSpeed={0.6} />
