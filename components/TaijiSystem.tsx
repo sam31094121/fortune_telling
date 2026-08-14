@@ -99,6 +99,17 @@ function hslHex(h: number, s: number, l: number) {
   return `#${f(0)}${f(8)}${f(4)}`;
 }
 
+/* 真實感基準（第一張）：球體本體永遠用這一套——墨玉黑 × 月白瓷 × 鎏金 */
+const TAIJI_BENCHMARK_THEME: TaijiVisualTheme = {
+  primary: '#f5d78a',
+  secondary: '#cfe3ef',
+  soft: 'rgba(245, 215, 138, 0.16)',
+  ink: '#050712',
+  moon: '#f2ead6',
+  accent: '#d4af37',
+  glow: 'rgba(245, 215, 138, 0.3)',
+};
+
 const TAIJI_24_THEMES: TaijiVisualTheme[] = Array.from({ length: 24 }, (_, i) => {
   /* 金的溫度旅程：色相在 36°(琥珀)～52°(香檳) 之間呼吸，
      第 8、16 響短暫轉入月銀（低飽和冷光，換氣），其餘全程暖金家族 */
@@ -597,7 +608,10 @@ function TaijiCore({
   /* 24 響 × 24 主題：每一響換一套配色主題重繪球體與光效（可變獎勵的顏色維度）。
      未點擊（step 0）採用第 24 主題（經典鎏金）作為預設面貌。 */
   const activeTheme = theme ?? TAIJI_24_THEMES[step24 > 0 ? (step24 - 1) % 24 : 23];
-  const ballTexture = useMemo(() => createTaijiSphereTexture(activeTheme), [activeTheme]);
+  /* 真實感鐵律（2026-08-14 依指示）：真實物體不會換材質——
+     球體本體永遠使用「第一張」的墨玉×月瓷基準（材質恆定＝真實感恆定），
+     24 響的變化只落在環繞它的光（光暈、光束、軌道環、燈色溫）。 */
+  const ballTexture = useMemo(() => createTaijiSphereTexture(TAIJI_BENCHMARK_THEME), []);
   const glowTexture = useMemo(() => createGlowTexture(activeTheme), [activeTheme]);
   const raysTexture = useMemo(() => createGodRaysTexture(activeTheme), [activeTheme]);
   useEffect(() => () => { ballTexture?.dispose(); glowTexture?.dispose(); raysTexture?.dispose(); }, [ballTexture, glowTexture, raysTexture]);
@@ -751,7 +765,7 @@ function TaijiCore({
           <meshPhysicalMaterial
             map={ballTexture}
             emissiveMap={ballTexture}
-            emissive={activeTheme.accent}
+            emissive={TAIJI_BENCHMARK_THEME.accent}
             emissiveIntensity={0.08}
             metalness={0.08}
             roughness={0.34}
@@ -766,10 +780,10 @@ function TaijiCore({
       {separate && (
         <group ref={yinRef} position={[0, 0.08, 0]} scale={scale}>
           <mesh geometry={mainGeo}>
-            <meshPhysicalMaterial color={activeTheme.ink} metalness={0.35} roughness={0.16} clearcoat={1} clearcoatRoughness={0.08} envMapIntensity={1.4} emissive={activeTheme.accent} emissiveIntensity={0.05 + progress24 * 0.06} />
+            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.35} roughness={0.16} clearcoat={1} clearcoatRoughness={0.08} envMapIntensity={1.4} emissive={TAIJI_BENCHMARK_THEME.accent} emissiveIntensity={0.05 + progress24 * 0.04} />
           </mesh>
           <mesh geometry={dotGeo} position={[0, 0.4, 0.72]}>
-            <meshPhysicalMaterial color={activeTheme.moon} clearcoat={0.9} clearcoatRoughness={0.15} roughness={0.3} metalness={0.05} emissive={activeTheme.primary} emissiveIntensity={0.18 + progress24 * 0.08} />
+            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.moon} clearcoat={0.9} clearcoatRoughness={0.15} roughness={0.3} metalness={0.05} emissive={TAIJI_BENCHMARK_THEME.primary} emissiveIntensity={0.15 + progress24 * 0.06} />
           </mesh>
         </group>
       )}
@@ -778,10 +792,10 @@ function TaijiCore({
       {separate && (
         <group ref={yangRef} position={[0, -0.08, 0]} scale={scale}>
           <mesh geometry={mainGeo}>
-            <meshPhysicalMaterial color={activeTheme.moon} metalness={0.04} roughness={0.26} clearcoat={0.85} clearcoatRoughness={0.18} envMapIntensity={1.15} emissive={activeTheme.primary} emissiveIntensity={0.04 + progress24 * 0.05} />
+            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.moon} metalness={0.04} roughness={0.26} clearcoat={0.85} clearcoatRoughness={0.18} envMapIntensity={1.15} emissive={TAIJI_BENCHMARK_THEME.primary} emissiveIntensity={0.04 + progress24 * 0.04} />
           </mesh>
           <mesh geometry={dotGeo} position={[0, -0.4, 0.72]}>
-            <meshPhysicalMaterial color={activeTheme.ink} metalness={0.3} roughness={0.14} clearcoat={1} clearcoatRoughness={0.08} envMapIntensity={1.3} />
+            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.3} roughness={0.14} clearcoat={1} clearcoatRoughness={0.08} envMapIntensity={1.3} />
           </mesh>
         </group>
       )}
@@ -798,7 +812,7 @@ function TaijiCore({
             <Float key={index} speed={1.6} rotationIntensity={0.3} floatIntensity={0.4}>
               <group position={[item.pos[0], item.pos[1], item.pos[2]]}>
                 <mesh geometry={smallGeo}>
-                  <meshStandardMaterial color={activeTheme.ink} metalness={0.7} roughness={0.25} emissive={activeTheme.accent} emissiveIntensity={0.42 + progress24 * 0.18} />
+                  <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.5} roughness={0.2} clearcoat={0.8} clearcoatRoughness={0.12} emissive={activeTheme.accent} emissiveIntensity={0.18 + progress24 * 0.1} />
                 </mesh>
                 <GlyphSprite symbol={item.symbol} scale={0.5} />
               </group>
@@ -817,7 +831,7 @@ function TaijiCore({
               <Float key={item.name} speed={1.3} rotationIntensity={0.25} floatIntensity={0.35}>
                 <group position={[Math.cos(rad) * r, Math.sin(rad) * r, 0]}>
                   <mesh geometry={baguaGeo}>
-                    <meshStandardMaterial color={activeTheme.ink} metalness={0.7} roughness={0.25} emissive={activeTheme.accent} emissiveIntensity={0.38 + progress24 * 0.16} />
+                    <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.5} roughness={0.2} clearcoat={0.8} clearcoatRoughness={0.12} emissive={activeTheme.accent} emissiveIntensity={0.16 + progress24 * 0.1} />
                   </mesh>
                   <GlyphSprite symbol={item.symbol} name={item.name} scale={0.66} />
                 </group>
