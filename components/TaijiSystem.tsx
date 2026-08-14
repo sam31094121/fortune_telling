@@ -206,6 +206,39 @@ function createTaijiSphereTexture() {
   return texture;
 }
 
+function createGodRaysTexture() {
+  /* 人類最愛光線科技①：雲隙光（God Rays）——太陽穿透雲層的放射光束，
+     心理學上最受喜愛的自然光現象，光芒萬丈的本體。 */
+  const size = 1024;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  const cx = size / 2;
+  const cy = size / 2;
+  const rays = 22;
+  for (let i = 0; i < rays; i++) {
+    const angle = (i / rays) * Math.PI * 2 + (i % 3) * 0.05;
+    const length = size * (0.34 + ((i * 7919) % 100) / 100 * 0.14);
+    const halfWidth = size * (0.008 + ((i * 104729) % 100) / 100 * 0.01);
+    const grad = ctx.createLinearGradient(cx, cy, cx + Math.cos(angle) * length, cy + Math.sin(angle) * length);
+    grad.addColorStop(0, 'rgba(255, 236, 170, 0.5)');
+    grad.addColorStop(0.4, 'rgba(255, 215, 0, 0.16)');
+    grad.addColorStop(1, 'rgba(255, 215, 0, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(angle - Math.PI / 2) * halfWidth, cy + Math.sin(angle - Math.PI / 2) * halfWidth);
+    ctx.lineTo(cx + Math.cos(angle) * length, cy + Math.sin(angle) * length);
+    ctx.lineTo(cx + Math.cos(angle + Math.PI / 2) * halfWidth, cy + Math.sin(angle + Math.PI / 2) * halfWidth);
+    ctx.closePath();
+    ctx.fill();
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 function createGlowTexture() {
   /* 光芒貼圖：金色放射光暈（加法混合用） */
   const size = 512;
@@ -224,6 +257,18 @@ function createGlowTexture() {
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
+}
+
+/** 光線科技③：黃金時刻掃光——主光緩慢繞行，球面高光如夕陽流動（人類最愛的 golden hour） */
+function KeyLightSweep() {
+  const lightRef = useRef<THREE.DirectionalLight>(null);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (!lightRef.current) return;
+    lightRef.current.position.x = Math.sin(t * 0.12) * 5.2;
+    lightRef.current.position.z = 3.2 + Math.cos(t * 0.12) * 1.8;
+  });
+  return <directionalLight ref={lightRef} position={[4.5, 5.5, 4]} intensity={1.5} color="#ffe9b0" />;
 }
 
 /* =========================================================
@@ -335,7 +380,11 @@ function TaijiCore({
      改為等距柱狀投影貼圖包覆的真 3D 球體＋金色光芒光暈。 */
   const ballTexture = useMemo(() => createTaijiSphereTexture(), []);
   const glowTexture = useMemo(() => createGlowTexture(), []);
-  useEffect(() => () => { ballTexture?.dispose(); glowTexture?.dispose(); }, [ballTexture, glowTexture]);
+  const raysTexture = useMemo(() => createGodRaysTexture(), []);
+  useEffect(() => () => { ballTexture?.dispose(); glowTexture?.dispose(); raysTexture?.dispose(); }, [ballTexture, glowTexture, raysTexture]);
+  /* 人類最愛光線科技：光束旋轉／掃光燈／呼吸光暈 refs */
+  const raysRef = useRef<THREE.Sprite>(null);
+  const glowRef = useRef<THREE.Sprite>(null);
 
   const separate = stage !== 'TAIJI';
   /* 鐵律：兩球絕對不碰撞不重疊——球半徑 0.82×0.88≈0.72，兩心距 2×0.88=1.76 > 1.44，任何角度都不相交 */
@@ -376,6 +425,20 @@ function TaijiCore({
       diskRef.current.rotation.y = -Math.PI / 2 + Math.sin(t * 0.3) * 0.38;
       diskRef.current.rotation.x = Math.sin(t * 0.22) * 0.13;
       diskRef.current.scale.setScalar(1 + Math.sin(t * 1.6) * 0.025 + pulse * 0.06);
+    }
+
+    // 光線科技①：雲隙光束緩慢旋轉（光芒萬丈在轉動）＋隨呼吸與脈衝增輝
+    if (raysRef.current) {
+      raysRef.current.material.rotation += delta * 0.05;
+      raysRef.current.material.opacity = 0.5 + Math.sin(t * 0.8) * 0.1 + pulse * 0.45;
+      const rayScale = 5.6 * (1 + Math.sin(t * 0.8) * 0.03 + pulse * 0.22);
+      raysRef.current.scale.set(rayScale, rayScale, 1);
+    }
+    // 光線科技②：核心光暈呼吸（與球同頻，活的光）
+    if (glowRef.current) {
+      glowRef.current.material.opacity = 0.72 + Math.sin(t * 1.6) * 0.08 + pulse * 0.28;
+      const glowScale = 4.4 * (1 + Math.sin(t * 1.6) * 0.04 + pulse * 0.2);
+      glowRef.current.scale.set(glowScale, glowScale, 1);
     }
 
     // 兩儀分離距離平滑演化：從核心誕生撐開，不瞬間跳位
@@ -432,12 +495,19 @@ function TaijiCore({
         color="#ffd700"
       />
 
-      {/* 太極階段：真 3D 立體太極球（等距投影貼圖）＋金色光芒 */}
+      {/* 太極階段：真 3D 立體太極球＋人類最愛光線三件套（雲隙光束／呼吸光暈／焦外光斑） */}
+      {!separate && raysTexture && (
+        <sprite ref={raysRef} position={[0, 0, -0.9]} scale={[5.6, 5.6, 1]} renderOrder={0}>
+          <spriteMaterial map={raysTexture} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.5} />
+        </sprite>
+      )}
       {!separate && glowTexture && (
-        <sprite position={[0, 0, -0.6]} scale={[4.4, 4.4, 1]} renderOrder={1}>
+        <sprite ref={glowRef} position={[0, 0, -0.6]} scale={[4.4, 4.4, 1]} renderOrder={1}>
           <spriteMaterial map={glowTexture} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.75} />
         </sprite>
       )}
+      {/* 焦外光斑（bokeh）：少量大顆柔光珠，鏡頭感 */}
+      <Sparkles count={6} scale={3.1} size={7} speed={0.06} opacity={0.3} color="#fff3c4" />
       {!separate && ballTexture && (
         <mesh ref={diskRef} geometry={taijiBallGeo} renderOrder={2}>
           <meshStandardMaterial
@@ -604,7 +674,7 @@ export default function TaijiSystem({
           <AdaptiveEvents />
           {/* 質感打光（2026-08-14）：電影三點光——暖金主光、冷青補光、背緣光雕出球體輪廓 */}
           <ambientLight intensity={0.32} />
-          <directionalLight position={[4.5, 5.5, 4]} intensity={1.5} color="#ffe9b0" />
+          <KeyLightSweep />
           <pointLight position={[-4, -2.5, 2.5]} intensity={0.3} color="#6fa8c0" />
           <pointLight position={[0, 2.2, -4.5]} intensity={1.15} color="#ffd700" />
           <TaijiCore stage={stage} onCoreClick={goNext} />

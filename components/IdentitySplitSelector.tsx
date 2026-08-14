@@ -52,8 +52,11 @@ export default function IdentitySplitSelector({ className = '', compact = false 
 
   if (compact) {
     return (
-      <section className={`rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.05] p-2 ${className}`}>
-        <div className="grid grid-cols-2 gap-2">
+      <section
+        aria-label="選擇本次分析對象"
+        className={`identity-split-selector identity-split-selector--compact rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.05] p-2 ${className}`}
+      >
+        <div className="identity-split-selector__compact-grid grid grid-cols-2 gap-2">
           {OPTIONS.map((option) => {
             const active = selected === option.target;
             return (
@@ -66,7 +69,7 @@ export default function IdentitySplitSelector({ className = '', compact = false 
                   setAnalysisIdentityTarget(option.target);
                   setSelected(option.target);
                 }}
-                className={`min-h-12 rounded-xl border px-3 text-center text-base font-black transition active:scale-[0.99] ${
+                className={`identity-split-selector__button min-h-12 rounded-xl border px-3 text-center text-base font-black transition active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200/80 ${
                   active
                     ? 'border-amber-200/70 bg-amber-300/18 text-amber-50'
                     : 'border-white/10 bg-black/16 text-white/62 hover:border-cyan-200/35 hover:text-cyan-50'
