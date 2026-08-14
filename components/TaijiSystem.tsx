@@ -20,6 +20,8 @@ import {
   ContactShadows,
   AdaptiveDpr,
   AdaptiveEvents,
+  Environment,
+  Lightformer,
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { Taiji24SoundEngine } from '@/lib/taiji24-sound-engine';
@@ -632,15 +634,19 @@ function TaijiCore({
           <spriteMaterial map={glowTexture} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.75} />
         </sprite>
       )}
+      {/* 真實感升級（2026-08-14）：PBR 清漆層物理材質——上釉瓷器的真實反射，自發光大幅收斂 */}
       {!separate && ballTexture && (
         <mesh ref={diskRef} geometry={taijiBallGeo} renderOrder={2}>
-          <meshStandardMaterial
+          <meshPhysicalMaterial
             map={ballTexture}
             emissiveMap={ballTexture}
             emissive={activeTheme.accent}
-            emissiveIntensity={0.3}
-            metalness={0.25}
-            roughness={0.38}
+            emissiveIntensity={0.08}
+            metalness={0.08}
+            roughness={0.34}
+            clearcoat={1}
+            clearcoatRoughness={0.14}
+            envMapIntensity={1.25}
           />
         </mesh>
       )}
@@ -649,10 +655,10 @@ function TaijiCore({
       {separate && (
         <group ref={yinRef} position={[0, 0.08, 0]} scale={scale}>
           <mesh geometry={mainGeo}>
-            <meshStandardMaterial color={activeTheme.ink} metalness={0.75} roughness={0.18} emissive={activeTheme.accent} emissiveIntensity={0.22 + progress24 * 0.16} />
+            <meshPhysicalMaterial color={activeTheme.ink} metalness={0.35} roughness={0.16} clearcoat={1} clearcoatRoughness={0.08} envMapIntensity={1.4} emissive={activeTheme.accent} emissiveIntensity={0.05 + progress24 * 0.06} />
           </mesh>
           <mesh geometry={dotGeo} position={[0, 0.4, 0.72]}>
-            <meshStandardMaterial color={activeTheme.primary} emissive={activeTheme.primary} emissiveIntensity={0.48 + progress24 * 0.14} metalness={0.2} roughness={0.25} />
+            <meshPhysicalMaterial color={activeTheme.moon} clearcoat={0.9} clearcoatRoughness={0.15} roughness={0.3} metalness={0.05} emissive={activeTheme.primary} emissiveIntensity={0.18 + progress24 * 0.08} />
           </mesh>
         </group>
       )}
@@ -661,10 +667,10 @@ function TaijiCore({
       {separate && (
         <group ref={yangRef} position={[0, -0.08, 0]} scale={scale}>
           <mesh geometry={mainGeo}>
-            <meshStandardMaterial color={activeTheme.moon} metalness={0.12} roughness={0.3} emissive={activeTheme.primary} emissiveIntensity={0.12 + progress24 * 0.12} />
+            <meshPhysicalMaterial color={activeTheme.moon} metalness={0.04} roughness={0.26} clearcoat={0.85} clearcoatRoughness={0.18} envMapIntensity={1.15} emissive={activeTheme.primary} emissiveIntensity={0.04 + progress24 * 0.05} />
           </mesh>
           <mesh geometry={dotGeo} position={[0, -0.4, 0.72]}>
-            <meshStandardMaterial color={activeTheme.ink} metalness={0.6} roughness={0.2} emissive={activeTheme.accent} emissiveIntensity={0.1} />
+            <meshPhysicalMaterial color={activeTheme.ink} metalness={0.3} roughness={0.14} clearcoat={1} clearcoatRoughness={0.08} envMapIntensity={1.3} />
           </mesh>
         </group>
       )}
@@ -869,13 +875,25 @@ export default function TaijiSystem({
             gl.domElement.dataset.taijiScene = 'ready';
             gl.domElement.style.background = 'transparent';
             gl.setClearColor(0x000000, 0);
+            /* 真實感：ACES 電影級色調映射（全世界影視工業標準），高光滾降自然不死白 */
+            gl.toneMapping = THREE.ACESFilmicToneMapping;
+            gl.toneMappingExposure = 1.12;
           }}
           performance={{ min: 0.5 }}
         >
           <AdaptiveDpr pixelated />
           <AdaptiveEvents />
-          {/* 質感打光（2026-08-14）：電影三點光——主光與背光跟著本響主題換色 */}
-          <ambientLight intensity={0.32} />
+          {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
+              頂部暖色柔光箱＋側面冷色燈條＋背部輪廓光，球面反射出真實的影棚光形，
+              零網路資源、frames=1 只烘焙一次不吃效能 */}
+          <Environment resolution={256} frames={1}>
+            <Lightformer form="rect" intensity={2.2} color="#fff2d8" position={[0, 4, 2]} scale={[6, 3, 1]} target={[0, 0, 0]} />
+            <Lightformer form="rect" intensity={0.9} color="#bcd8ea" position={[-5, 0, 1]} rotation={[0, Math.PI / 2.4, 0]} scale={[4, 1.4, 1]} target={[0, 0, 0]} />
+            <Lightformer form="ring" intensity={1.4} color="#ffd9a0" position={[3, 1.5, -3]} scale={[3, 3, 1]} target={[0, 0, 0]} />
+            <Lightformer form="circle" intensity={0.6} color="#f5e0b8" position={[0, -4, 1]} scale={[5, 5, 1]} target={[0, 0, 0]} />
+          </Environment>
+          {/* 質感打光：電影三點光——主光與背光跟著本響主題換色 */}
+          <ambientLight intensity={0.22} />
           <KeyLightSweep theme={journeyTheme} progress24={journey.progress} />
           <pointLight position={[-4, -2.5, 2.5]} intensity={0.3} color="#6fa8c0" />
           <pointLight position={[0, 2.2, -4.5]} intensity={1.15} color={journeyTheme.accent} />
