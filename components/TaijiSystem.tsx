@@ -157,6 +157,89 @@ function createDefaultTaijiTexture() {
   return texture;
 }
 
+function createTaijiSphereTexture() {
+  /* 立體球版（2026-08-14 依指示）：等距柱狀投影——
+     球體正面（貼圖中央）畫完整太極 S 弧與雙魚眼，左右延伸墨／月兩色包覆全球，
+     從鏡頭看是一顆完整立體太極球，球緣自然彎曲、不再是紙片。 */
+  const w = 2048;
+  const h = 1024;
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  // 全球底色：左墨右月（經度分界），球背面也有正確的陰陽延續
+  const inkGrad = ctx.createLinearGradient(0, 0, w / 2, 0);
+  inkGrad.addColorStop(0, '#05060b');
+  inkGrad.addColorStop(1, '#141826');
+  ctx.fillStyle = inkGrad;
+  ctx.fillRect(0, 0, w / 2, h);
+  const moonGrad = ctx.createLinearGradient(w / 2, 0, w, 0);
+  moonGrad.addColorStop(0, '#f6f2e6');
+  moonGrad.addColorStop(1, '#d8d2c0');
+  ctx.fillStyle = moonGrad;
+  ctx.fillRect(w / 2, 0, w / 2, h);
+
+  // 正面太極（貼圖中央）：S 弧 + 雙魚眼
+  const cx = w / 2;
+  const cy = h / 2;
+  const R = h * 0.5;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(cx - R, 0, R * 2, h);
+  ctx.clip();
+  // 墨半（左）已由底色提供；畫 S 弧：上墨圓、下月圓（橫向略放大補償球面壓縮）
+  const stretch = 1.25;
+  ctx.fillStyle = '#0c0f18';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - R / 2, (R / 2) * stretch, R / 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#f2eee0';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + R / 2, (R / 2) * stretch, R / 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // 魚眼
+  const eyeR = R * 0.115;
+  ctx.fillStyle = '#f6f2e6';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - R / 2, eyeR * stretch, eyeR, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#0a0d15';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + R / 2, eyeR * stretch, eyeR, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.anisotropy = 4;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function createGlowTexture() {
+  /* 光芒貼圖：金色放射光暈（加法混合用） */
+  const size = 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  grad.addColorStop(0, 'rgba(255, 240, 200, 0.85)');
+  grad.addColorStop(0.25, 'rgba(232, 204, 143, 0.4)');
+  grad.addColorStop(0.55, 'rgba(212, 175, 106, 0.14)');
+  grad.addColorStop(1, 'rgba(212, 175, 106, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, size, size);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 /* =========================================================
    卦符文字貼圖（2026-08-14 修異常）：
    troika 3D 文字預設字型不含中文與卦符，四象/八卦會變空白。
@@ -255,18 +338,18 @@ function TaijiCore({
   const outerMatRef = useRef<THREE.MeshStandardMaterial>(null);
 
   // ===== 幾何體重用 =====
-  const diskGeo = useMemo(() => new THREE.CircleGeometry(1.12, 72), []);
+  const taijiBallGeo = useMemo(() => new THREE.SphereGeometry(1.08, 48, 48), []);
   const mainGeo = useMemo(() => new THREE.SphereGeometry(0.82, 40, 40), []);
   const dotGeo = useMemo(() => new THREE.SphereGeometry(0.15, 20, 20), []);
   const outerGeo = useMemo(() => new THREE.SphereGeometry(1.48, 32, 32), []);
   const smallGeo = useMemo(() => new THREE.SphereGeometry(0.2, 16, 16), []);
   const baguaGeo = useMemo(() => new THREE.SphereGeometry(0.24, 16, 16), []);
 
-  /* 修異常（2026-08-14）：平面太極圖包到球面會整顆變黑（陰陽不分明）。
-     太極階段改用「正面太極圓盤」，經典圖騰一眼可辨；
-     兩儀之後改為純黑／純白雙球（各帶對比魚眼），獨立反向旋轉。 */
-  const diskTexture = useMemo(() => createDefaultTaijiTexture(), []);
-  useEffect(() => () => { diskTexture?.dispose(); }, [diskTexture]);
+  /* 立體球版（2026-08-14 依指示）：太極不再是紙片圓盤，
+     改為等距柱狀投影貼圖包覆的真 3D 球體＋金色光芒光暈。 */
+  const ballTexture = useMemo(() => createTaijiSphereTexture(), []);
+  const glowTexture = useMemo(() => createGlowTexture(), []);
+  useEffect(() => () => { ballTexture?.dispose(); glowTexture?.dispose(); }, [ballTexture, glowTexture]);
 
   const separate = stage !== 'TAIJI';
   /* 鐵律：兩球絕對不碰撞不重疊——球半徑 0.82×0.88≈0.72，兩心距 2×0.88=1.76 > 1.44，任何角度都不相交 */
@@ -302,9 +385,10 @@ function TaijiCore({
       groupRef.current.rotation.z = 0;
     }
 
-    // 太極盤面自轉＋呼吸（活物能量）
+    // 太極球：圖騰面朝鏡頭（球面 UV 中心在 +x，基準 -90°）＋優雅搖曳展現球面弧度＋呼吸
     if (diskRef.current) {
-      diskRef.current.rotation.z -= delta * 0.55;
+      diskRef.current.rotation.y = -Math.PI / 2 + Math.sin(t * 0.3) * 0.38;
+      diskRef.current.rotation.x = Math.sin(t * 0.22) * 0.13;
       diskRef.current.scale.setScalar(1 + Math.sin(t * 1.6) * 0.025 + pulse * 0.06);
     }
 
@@ -362,10 +446,22 @@ function TaijiCore({
         color="#e8cc8f"
       />
 
-      {/* 太極階段：正面經典太極圓盤（自轉＝中間那一刻的能量） */}
-      {!separate && diskTexture && (
-        <mesh ref={diskRef} geometry={diskGeo} renderOrder={2}>
-          <meshBasicMaterial map={diskTexture} transparent side={THREE.DoubleSide} toneMapped={false} />
+      {/* 太極階段：真 3D 立體太極球（等距投影貼圖）＋金色光芒 */}
+      {!separate && glowTexture && (
+        <sprite position={[0, 0, -0.6]} scale={[4.4, 4.4, 1]} renderOrder={1}>
+          <spriteMaterial map={glowTexture} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.75} />
+        </sprite>
+      )}
+      {!separate && ballTexture && (
+        <mesh ref={diskRef} geometry={taijiBallGeo} renderOrder={2}>
+          <meshStandardMaterial
+            map={ballTexture}
+            emissiveMap={ballTexture}
+            emissive="#9a8a68"
+            emissiveIntensity={0.22}
+            metalness={0.25}
+            roughness={0.38}
+          />
         </mesh>
       )}
 
