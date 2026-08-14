@@ -86,32 +86,39 @@ type TaijiVisualTheme = {
   glow: string;
 };
 
-const TAIJI_24_THEMES: TaijiVisualTheme[] = [
-  { primary: '#f7d777', secondary: '#64d9ff', soft: 'rgba(247, 215, 119, 0.24)', ink: '#060915', moon: '#fff1c8', accent: '#f5b84b', glow: 'rgba(247, 215, 119, 0.42)' },
-  { primary: '#6bdcff', secondary: '#f6d27a', soft: 'rgba(107, 220, 255, 0.22)', ink: '#07101d', moon: '#e8f7ff', accent: '#38bdf8', glow: 'rgba(56, 189, 248, 0.38)' },
-  { primary: '#79f2c9', secondary: '#f8d36f', soft: 'rgba(121, 242, 201, 0.2)', ink: '#06140f', moon: '#ecfff8', accent: '#34d399', glow: 'rgba(52, 211, 153, 0.36)' },
-  { primary: '#ffcf87', secondary: '#7dd3fc', soft: 'rgba(255, 207, 135, 0.22)', ink: '#100915', moon: '#fff2de', accent: '#fb923c', glow: 'rgba(251, 146, 60, 0.34)' },
-  { primary: '#b8c7ff', secondary: '#fde68a', soft: 'rgba(184, 199, 255, 0.22)', ink: '#090b1f', moon: '#f1f4ff', accent: '#818cf8', glow: 'rgba(129, 140, 248, 0.34)' },
-  { primary: '#f9b4c7', secondary: '#ffe08a', soft: 'rgba(249, 180, 199, 0.2)', ink: '#150811', moon: '#fff0f5', accent: '#fb7185', glow: 'rgba(251, 113, 133, 0.32)' },
-  { primary: '#ffe29a', secondary: '#9ee7ff', soft: 'rgba(255, 226, 154, 0.24)', ink: '#0d0a08', moon: '#fff6dc', accent: '#f59e0b', glow: 'rgba(245, 158, 11, 0.36)' },
-  { primary: '#c9a7ff', secondary: '#8ff5d2', soft: 'rgba(201, 167, 255, 0.2)', ink: '#0d0719', moon: '#f6efff', accent: '#a78bfa', glow: 'rgba(167, 139, 250, 0.32)' },
-  { primary: '#83e7ff', secondary: '#ffd48f', soft: 'rgba(131, 231, 255, 0.21)', ink: '#06131a', moon: '#effbff', accent: '#22d3ee', glow: 'rgba(34, 211, 238, 0.34)' },
-  { primary: '#d6f5a8', secondary: '#f8c37d', soft: 'rgba(214, 245, 168, 0.19)', ink: '#0b1208', moon: '#fbfff0', accent: '#a3e635', glow: 'rgba(163, 230, 53, 0.3)' },
-  { primary: '#f6c66f', secondary: '#a7f3d0', soft: 'rgba(246, 198, 111, 0.22)', ink: '#120d06', moon: '#fff1cf', accent: '#d97706', glow: 'rgba(217, 119, 6, 0.34)' },
-  { primary: '#7dd3fc', secondary: '#fef3c7', soft: 'rgba(125, 211, 252, 0.2)', ink: '#06111e', moon: '#edf8ff', accent: '#0ea5e9', glow: 'rgba(14, 165, 233, 0.34)' },
-  { primary: '#f0abfc', secondary: '#bae6fd', soft: 'rgba(240, 171, 252, 0.18)', ink: '#130819', moon: '#fff0ff', accent: '#d946ef', glow: 'rgba(217, 70, 239, 0.28)' },
-  { primary: '#a7f3d0', secondary: '#fcd34d', soft: 'rgba(167, 243, 208, 0.2)', ink: '#06120d', moon: '#f0fff8', accent: '#10b981', glow: 'rgba(16, 185, 129, 0.32)' },
-  { primary: '#fed7aa', secondary: '#93c5fd', soft: 'rgba(254, 215, 170, 0.21)', ink: '#140d08', moon: '#fff3e7', accent: '#f97316', glow: 'rgba(249, 115, 22, 0.32)' },
-  { primary: '#bfdbfe', secondary: '#fde68a', soft: 'rgba(191, 219, 254, 0.2)', ink: '#071225', moon: '#eff6ff', accent: '#60a5fa', glow: 'rgba(96, 165, 250, 0.34)' },
-  { primary: '#fde68a', secondary: '#67e8f9', soft: 'rgba(253, 230, 138, 0.24)', ink: '#0e0b05', moon: '#fff7d6', accent: '#facc15', glow: 'rgba(250, 204, 21, 0.36)' },
-  { primary: '#99f6e4', secondary: '#f9a8d4', soft: 'rgba(153, 246, 228, 0.18)', ink: '#061413', moon: '#eefffb', accent: '#2dd4bf', glow: 'rgba(45, 212, 191, 0.3)' },
-  { primary: '#e9d5ff', secondary: '#fde68a', soft: 'rgba(233, 213, 255, 0.18)', ink: '#10081d', moon: '#faf5ff', accent: '#c084fc', glow: 'rgba(192, 132, 252, 0.3)' },
-  { primary: '#fca5a5', secondary: '#bfdbfe', soft: 'rgba(252, 165, 165, 0.18)', ink: '#150808', moon: '#fff1f1', accent: '#ef4444', glow: 'rgba(239, 68, 68, 0.28)' },
-  { primary: '#bae6fd', secondary: '#a7f3d0', soft: 'rgba(186, 230, 253, 0.2)', ink: '#07131b', moon: '#f0fbff', accent: '#38bdf8', glow: 'rgba(56, 189, 248, 0.32)' },
-  { primary: '#f5d0fe', secondary: '#fef08a', soft: 'rgba(245, 208, 254, 0.18)', ink: '#13071a', moon: '#fdf4ff', accent: '#e879f9', glow: 'rgba(232, 121, 249, 0.28)' },
-  { primary: '#fde68a', secondary: '#f8fafc', soft: 'rgba(253, 230, 138, 0.26)', ink: '#090806', moon: '#fff8db', accent: '#eab308', glow: 'rgba(234, 179, 8, 0.38)' },
-  { primary: '#fff1b8', secondary: '#7dd3fc', soft: 'rgba(255, 241, 184, 0.3)', ink: '#050712', moon: '#fff9e8', accent: '#fbbf24', glow: 'rgba(251, 191, 36, 0.48)' },
-];
+/* 24 主題重製（2026-08-14 依指示）：以「第一顆經典鎏金」為畫質基準——
+   24 響全部是同一種奢華語言的細膩變奏（晨金→純金→蜜金→琥珀→香檳→月銀微涼→回歸鎏金），
+   墨底與月瓷恆定（材質畫質一致），只有金的溫度在流轉。像名錶同系列換錶盤。 */
+function hslHex(h: number, s: number, l: number) {
+  const a = (s / 100) * Math.min(l / 100, 1 - l / 100);
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const c = l / 100 - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+    return Math.round(255 * c).toString(16).padStart(2, '0');
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+const TAIJI_24_THEMES: TaijiVisualTheme[] = Array.from({ length: 24 }, (_, i) => {
+  /* 金的溫度旅程：色相在 36°(琥珀)～52°(香檳) 之間呼吸，
+     第 8、16 響短暫轉入月銀（低飽和冷光，換氣），其餘全程暖金家族 */
+  const step = i + 1;
+  const isMoonBreath = step === 8 || step === 16;
+  const hue = isMoonBreath ? 210 : 44 + Math.sin((i / 23) * Math.PI * 2) * 8; // 36~52 呼吸
+  const sat = isMoonBreath ? 22 : 78 - (i % 4) * 6; // 微變飽和，永遠高級
+  const primary = hslHex(hue, sat, isMoonBreath ? 82 : 72);
+  const accent = hslHex(hue, Math.min(sat + 8, 86), isMoonBreath ? 68 : 58);
+  const moon = hslHex(isMoonBreath ? 210 : 46, 26, 93);
+  return {
+    primary,
+    secondary: hslHex(isMoonBreath ? 46 : 200, 30, 78), // 對比色永遠只當一絲點綴
+    soft: colorWithAlpha(primary, 0.16),
+    ink: '#050712', // 墨底恆定＝材質畫質恆定
+    moon,
+    accent,
+    glow: colorWithAlpha(primary, 0.3),
+  };
+});
 
 function hexToRgb(hex: string) {
   const normalized = hex.replace('#', '');
@@ -299,16 +306,18 @@ function createGodRaysTexture(theme: TaijiVisualTheme) {
   canvas.height = size;
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
+  /* 柔和版（2026-08-14 依指示）：光束變寬、變淡、變少——
+     不是刺出來的光，是「暈開來」的光，如月光透過薄雲。 */
   const cx = size / 2;
   const cy = size / 2;
-  const rays = 22;
+  const rays = 14;
   for (let i = 0; i < rays; i++) {
-    const angle = (i / rays) * Math.PI * 2 + (i % 3) * 0.05;
-    const length = size * (0.34 + ((i * 7919) % 100) / 100 * 0.14);
-    const halfWidth = size * (0.008 + ((i * 104729) % 100) / 100 * 0.01);
+    const angle = (i / rays) * Math.PI * 2 + (i % 3) * 0.07;
+    const length = size * (0.3 + ((i * 7919) % 100) / 100 * 0.12);
+    const halfWidth = size * (0.022 + ((i * 104729) % 100) / 100 * 0.018);
     const grad = ctx.createLinearGradient(cx, cy, cx + Math.cos(angle) * length, cy + Math.sin(angle) * length);
-    grad.addColorStop(0, colorWithAlpha(theme.primary, 0.52));
-    grad.addColorStop(0.38, colorWithAlpha(theme.accent, 0.18));
+    grad.addColorStop(0, colorWithAlpha(theme.primary, 0.26));
+    grad.addColorStop(0.45, colorWithAlpha(theme.accent, 0.09));
     grad.addColorStop(1, colorWithAlpha(theme.secondary, 0));
     ctx.fillStyle = grad;
     ctx.beginPath();
@@ -318,6 +327,12 @@ function createGodRaysTexture(theme: TaijiVisualTheme) {
     ctx.closePath();
     ctx.fill();
   }
+  // 疊一層整體柔暈，把光束「暈」進空間裡
+  const wash = ctx.createRadialGradient(cx, cy, size * 0.12, cx, cy, size * 0.5);
+  wash.addColorStop(0, colorWithAlpha(theme.primary, 0.1));
+  wash.addColorStop(1, colorWithAlpha(theme.primary, 0));
+  ctx.fillStyle = wash;
+  ctx.fillRect(0, 0, size, size);
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
@@ -331,10 +346,12 @@ function createGlowTexture(theme: TaijiVisualTheme) {
   canvas.height = size;
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
+  /* 柔和月暈式擴散：中心不刺眼、過渡綿長、邊緣溶進黑夜 */
   const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  grad.addColorStop(0, colorWithAlpha(theme.moon, 0.92));
-  grad.addColorStop(0.25, colorWithAlpha(theme.primary, 0.44));
-  grad.addColorStop(0.55, colorWithAlpha(theme.accent, 0.16));
+  grad.addColorStop(0, colorWithAlpha(theme.moon, 0.6));
+  grad.addColorStop(0.2, colorWithAlpha(theme.primary, 0.3));
+  grad.addColorStop(0.45, colorWithAlpha(theme.primary, 0.12));
+  grad.addColorStop(0.75, colorWithAlpha(theme.accent, 0.04));
   grad.addColorStop(1, colorWithAlpha(theme.secondary, 0));
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, size, size);
