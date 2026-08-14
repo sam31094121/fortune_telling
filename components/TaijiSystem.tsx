@@ -11,7 +11,7 @@
  * 範圍鎖定：只供太極卡使用，不影響其他卡片與手機版面。
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import {
   OrbitControls,
@@ -40,6 +40,31 @@ const BAGUA = [
   { name: '坤', symbol: '☷', angle: 315 },
 ] as const;
 
+/* ============================================================
+   24 響 × 24 面貌（2026-08-14 黏著性進化版）：
+   每一響有專屬金色相位與動態指紋——晨金/純金/蜜金/白金四相輪轉，
+   第 8、16 響光束反轉，軌道環逐響變速換角。
+   「下一響長什麼樣」不可完全預測 = 可變獎勵，黏著性的核心引擎。
+============================================================ */
+const VARIATION_24 = Array.from({ length: 24 }, (_, i) => {
+  const step = i + 1;
+  const phase = i % 4; // 0晨金 1純金 2蜜金 3白金
+  const rayTints = ['#ffdf8f', '#ffd700', '#e8b923', '#fff3c9'] as const;
+  const glowTints = ['#ffe9b0', '#ffd700', '#f0c75e', '#fff8e1'] as const;
+  return {
+    step,
+    rayTint: rayTints[phase],
+    glowTint: glowTints[phase],
+    // 光束方向：1-8 正轉、9-16 反轉、17-24 正轉加速（旅程有章法的變化）
+    raySpinDir: step > 8 && step <= 16 ? -1 : 1,
+    // 軌道環：逐響加速，方向每 8 響一換
+    ringSpeed: 0.045 + step * 0.006,
+    ringDir: step > 8 && step <= 16 ? -1 : 1,
+    // 軌道傾角微變：每響一點新角度
+    ringTiltSeed: (step * 137.5) % 360, // 黃金角散佈，永不重複
+  };
+});
+
 interface TaijiSystemProps {
   textureUrl?: string;
   videoUrl?: string;
@@ -47,6 +72,61 @@ interface TaijiSystemProps {
   autoPlayInterval?: number;
   onStageChange?: (stage: Stage) => void;
   onComplete?: () => void;
+}
+
+type TaijiVisualTheme = {
+  primary: string;
+  secondary: string;
+  soft: string;
+  ink: string;
+  moon: string;
+  accent: string;
+  glow: string;
+};
+
+const TAIJI_24_THEMES: TaijiVisualTheme[] = [
+  { primary: '#f7d777', secondary: '#64d9ff', soft: 'rgba(247, 215, 119, 0.24)', ink: '#060915', moon: '#fff1c8', accent: '#f5b84b', glow: 'rgba(247, 215, 119, 0.42)' },
+  { primary: '#6bdcff', secondary: '#f6d27a', soft: 'rgba(107, 220, 255, 0.22)', ink: '#07101d', moon: '#e8f7ff', accent: '#38bdf8', glow: 'rgba(56, 189, 248, 0.38)' },
+  { primary: '#79f2c9', secondary: '#f8d36f', soft: 'rgba(121, 242, 201, 0.2)', ink: '#06140f', moon: '#ecfff8', accent: '#34d399', glow: 'rgba(52, 211, 153, 0.36)' },
+  { primary: '#ffcf87', secondary: '#7dd3fc', soft: 'rgba(255, 207, 135, 0.22)', ink: '#100915', moon: '#fff2de', accent: '#fb923c', glow: 'rgba(251, 146, 60, 0.34)' },
+  { primary: '#b8c7ff', secondary: '#fde68a', soft: 'rgba(184, 199, 255, 0.22)', ink: '#090b1f', moon: '#f1f4ff', accent: '#818cf8', glow: 'rgba(129, 140, 248, 0.34)' },
+  { primary: '#f9b4c7', secondary: '#ffe08a', soft: 'rgba(249, 180, 199, 0.2)', ink: '#150811', moon: '#fff0f5', accent: '#fb7185', glow: 'rgba(251, 113, 133, 0.32)' },
+  { primary: '#ffe29a', secondary: '#9ee7ff', soft: 'rgba(255, 226, 154, 0.24)', ink: '#0d0a08', moon: '#fff6dc', accent: '#f59e0b', glow: 'rgba(245, 158, 11, 0.36)' },
+  { primary: '#c9a7ff', secondary: '#8ff5d2', soft: 'rgba(201, 167, 255, 0.2)', ink: '#0d0719', moon: '#f6efff', accent: '#a78bfa', glow: 'rgba(167, 139, 250, 0.32)' },
+  { primary: '#83e7ff', secondary: '#ffd48f', soft: 'rgba(131, 231, 255, 0.21)', ink: '#06131a', moon: '#effbff', accent: '#22d3ee', glow: 'rgba(34, 211, 238, 0.34)' },
+  { primary: '#d6f5a8', secondary: '#f8c37d', soft: 'rgba(214, 245, 168, 0.19)', ink: '#0b1208', moon: '#fbfff0', accent: '#a3e635', glow: 'rgba(163, 230, 53, 0.3)' },
+  { primary: '#f6c66f', secondary: '#a7f3d0', soft: 'rgba(246, 198, 111, 0.22)', ink: '#120d06', moon: '#fff1cf', accent: '#d97706', glow: 'rgba(217, 119, 6, 0.34)' },
+  { primary: '#7dd3fc', secondary: '#fef3c7', soft: 'rgba(125, 211, 252, 0.2)', ink: '#06111e', moon: '#edf8ff', accent: '#0ea5e9', glow: 'rgba(14, 165, 233, 0.34)' },
+  { primary: '#f0abfc', secondary: '#bae6fd', soft: 'rgba(240, 171, 252, 0.18)', ink: '#130819', moon: '#fff0ff', accent: '#d946ef', glow: 'rgba(217, 70, 239, 0.28)' },
+  { primary: '#a7f3d0', secondary: '#fcd34d', soft: 'rgba(167, 243, 208, 0.2)', ink: '#06120d', moon: '#f0fff8', accent: '#10b981', glow: 'rgba(16, 185, 129, 0.32)' },
+  { primary: '#fed7aa', secondary: '#93c5fd', soft: 'rgba(254, 215, 170, 0.21)', ink: '#140d08', moon: '#fff3e7', accent: '#f97316', glow: 'rgba(249, 115, 22, 0.32)' },
+  { primary: '#bfdbfe', secondary: '#fde68a', soft: 'rgba(191, 219, 254, 0.2)', ink: '#071225', moon: '#eff6ff', accent: '#60a5fa', glow: 'rgba(96, 165, 250, 0.34)' },
+  { primary: '#fde68a', secondary: '#67e8f9', soft: 'rgba(253, 230, 138, 0.24)', ink: '#0e0b05', moon: '#fff7d6', accent: '#facc15', glow: 'rgba(250, 204, 21, 0.36)' },
+  { primary: '#99f6e4', secondary: '#f9a8d4', soft: 'rgba(153, 246, 228, 0.18)', ink: '#061413', moon: '#eefffb', accent: '#2dd4bf', glow: 'rgba(45, 212, 191, 0.3)' },
+  { primary: '#e9d5ff', secondary: '#fde68a', soft: 'rgba(233, 213, 255, 0.18)', ink: '#10081d', moon: '#faf5ff', accent: '#c084fc', glow: 'rgba(192, 132, 252, 0.3)' },
+  { primary: '#fca5a5', secondary: '#bfdbfe', soft: 'rgba(252, 165, 165, 0.18)', ink: '#150808', moon: '#fff1f1', accent: '#ef4444', glow: 'rgba(239, 68, 68, 0.28)' },
+  { primary: '#bae6fd', secondary: '#a7f3d0', soft: 'rgba(186, 230, 253, 0.2)', ink: '#07131b', moon: '#f0fbff', accent: '#38bdf8', glow: 'rgba(56, 189, 248, 0.32)' },
+  { primary: '#f5d0fe', secondary: '#fef08a', soft: 'rgba(245, 208, 254, 0.18)', ink: '#13071a', moon: '#fdf4ff', accent: '#e879f9', glow: 'rgba(232, 121, 249, 0.28)' },
+  { primary: '#fde68a', secondary: '#f8fafc', soft: 'rgba(253, 230, 138, 0.26)', ink: '#090806', moon: '#fff8db', accent: '#eab308', glow: 'rgba(234, 179, 8, 0.38)' },
+  { primary: '#fff1b8', secondary: '#7dd3fc', soft: 'rgba(255, 241, 184, 0.3)', ink: '#050712', moon: '#fff9e8', accent: '#fbbf24', glow: 'rgba(251, 191, 36, 0.48)' },
+];
+
+function hexToRgb(hex: string) {
+  const normalized = hex.replace('#', '');
+  const value = normalized.length === 3
+    ? normalized.split('').map((char) => char + char).join('')
+    : normalized;
+  const int = Number.parseInt(value, 16);
+  return {
+    r: (int >> 16) & 255,
+    g: (int >> 8) & 255,
+    b: int & 255,
+  };
+}
+
+function colorWithAlpha(hex: string, alpha: number) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 function createDefaultTaijiTexture() {
@@ -143,7 +223,7 @@ function createDefaultTaijiTexture() {
   return texture;
 }
 
-function createTaijiSphereTexture() {
+function createTaijiSphereTexture(theme: TaijiVisualTheme) {
   /* 立體球版（2026-08-14 依指示）：等距柱狀投影——
      球體正面（貼圖中央）畫完整太極 S 弧與雙魚眼，左右延伸墨／月兩色包覆全球，
      從鏡頭看是一顆完整立體太極球，球緣自然彎曲、不再是紙片。 */
@@ -157,13 +237,15 @@ function createTaijiSphereTexture() {
 
   // 全球底色：左墨右月（經度分界），球背面也有正確的陰陽延續
   const inkGrad = ctx.createLinearGradient(0, 0, w / 2, 0);
-  inkGrad.addColorStop(0, '#05060b');
-  inkGrad.addColorStop(1, '#141826');
+  inkGrad.addColorStop(0, theme.ink);
+  inkGrad.addColorStop(0.55, '#05070f');
+  inkGrad.addColorStop(1, colorWithAlpha(theme.accent, 0.34));
   ctx.fillStyle = inkGrad;
   ctx.fillRect(0, 0, w / 2, h);
   const moonGrad = ctx.createLinearGradient(w / 2, 0, w, 0);
-  moonGrad.addColorStop(0, '#fdf3d7');
-  moonGrad.addColorStop(1, '#e6cf9a');
+  moonGrad.addColorStop(0, theme.moon);
+  moonGrad.addColorStop(0.58, '#f8f2df');
+  moonGrad.addColorStop(1, theme.primary);
   ctx.fillStyle = moonGrad;
   ctx.fillRect(w / 2, 0, w / 2, h);
 
@@ -177,21 +259,21 @@ function createTaijiSphereTexture() {
   ctx.clip();
   // 墨半（左）已由底色提供；畫 S 弧：上墨圓、下月圓（橫向略放大補償球面壓縮）
   const stretch = 1.25;
-  ctx.fillStyle = '#0c0f18';
+  ctx.fillStyle = theme.ink;
   ctx.beginPath();
   ctx.ellipse(cx, cy - R / 2, (R / 2) * stretch, R / 2, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = '#f7ecd2';
+  ctx.fillStyle = theme.moon;
   ctx.beginPath();
   ctx.ellipse(cx, cy + R / 2, (R / 2) * stretch, R / 2, 0, 0, Math.PI * 2);
   ctx.fill();
   // 魚眼
   const eyeR = R * 0.115;
-  ctx.fillStyle = '#fdf3d7';
+  ctx.fillStyle = theme.primary;
   ctx.beginPath();
   ctx.ellipse(cx, cy - R / 2, eyeR * stretch, eyeR, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = '#0a0d15';
+  ctx.fillStyle = theme.ink;
   ctx.beginPath();
   ctx.ellipse(cx, cy + R / 2, eyeR * stretch, eyeR, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -206,7 +288,7 @@ function createTaijiSphereTexture() {
   return texture;
 }
 
-function createGodRaysTexture() {
+function createGodRaysTexture(theme: TaijiVisualTheme) {
   /* 人類最愛光線科技①：雲隙光（God Rays）——太陽穿透雲層的放射光束，
      心理學上最受喜愛的自然光現象，光芒萬丈的本體。 */
   const size = 1024;
@@ -223,9 +305,9 @@ function createGodRaysTexture() {
     const length = size * (0.34 + ((i * 7919) % 100) / 100 * 0.14);
     const halfWidth = size * (0.008 + ((i * 104729) % 100) / 100 * 0.01);
     const grad = ctx.createLinearGradient(cx, cy, cx + Math.cos(angle) * length, cy + Math.sin(angle) * length);
-    grad.addColorStop(0, 'rgba(255, 236, 170, 0.5)');
-    grad.addColorStop(0.4, 'rgba(255, 215, 0, 0.16)');
-    grad.addColorStop(1, 'rgba(255, 215, 0, 0)');
+    grad.addColorStop(0, colorWithAlpha(theme.primary, 0.52));
+    grad.addColorStop(0.38, colorWithAlpha(theme.accent, 0.18));
+    grad.addColorStop(1, colorWithAlpha(theme.secondary, 0));
     ctx.fillStyle = grad;
     ctx.beginPath();
     ctx.moveTo(cx + Math.cos(angle - Math.PI / 2) * halfWidth, cy + Math.sin(angle - Math.PI / 2) * halfWidth);
@@ -239,7 +321,7 @@ function createGodRaysTexture() {
   return texture;
 }
 
-function createGlowTexture() {
+function createGlowTexture(theme: TaijiVisualTheme) {
   /* 光芒貼圖：金色放射光暈（加法混合用） */
   const size = 512;
   const canvas = document.createElement('canvas');
@@ -248,10 +330,10 @@ function createGlowTexture() {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
   const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  grad.addColorStop(0, 'rgba(255, 248, 220, 0.92)');
-  grad.addColorStop(0.25, 'rgba(255, 215, 0, 0.42)');
-  grad.addColorStop(0.55, 'rgba(212, 175, 55, 0.16)');
-  grad.addColorStop(1, 'rgba(212, 175, 55, 0)');
+  grad.addColorStop(0, colorWithAlpha(theme.moon, 0.92));
+  grad.addColorStop(0.25, colorWithAlpha(theme.primary, 0.44));
+  grad.addColorStop(0.55, colorWithAlpha(theme.accent, 0.16));
+  grad.addColorStop(1, colorWithAlpha(theme.secondary, 0));
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, size, size);
   const texture = new THREE.CanvasTexture(canvas);
@@ -260,7 +342,7 @@ function createGlowTexture() {
 }
 
 /** 光線科技③：黃金時刻掃光——主光緩慢繞行，球面高光如夕陽流動（人類最愛的 golden hour） */
-function KeyLightSweep() {
+function KeyLightSweep({ theme, progress24 }: { theme: TaijiVisualTheme; progress24: number }) {
   const lightRef = useRef<THREE.DirectionalLight>(null);
   useFrame((state) => {
     const t = state.clock.elapsedTime;
@@ -268,7 +350,7 @@ function KeyLightSweep() {
     lightRef.current.position.x = Math.sin(t * 0.12) * 5.2;
     lightRef.current.position.z = 3.2 + Math.cos(t * 0.12) * 1.8;
   });
-  return <directionalLight ref={lightRef} position={[4.5, 5.5, 4]} intensity={1.5} color="#ffe9b0" />;
+  return <directionalLight ref={lightRef} position={[4.5, 5.5, 4]} intensity={1.35 + progress24 * 0.45} color={theme.primary} />;
 }
 
 /* =========================================================
@@ -314,7 +396,17 @@ function GlyphSprite({ symbol, name, scale = 0.62, y = 0 }: { symbol: string; na
   );
 }
 
-function OrbitRings({ stage }: { stage: Stage }) {
+function OrbitRings({
+  stage,
+  step24 = 0,
+  theme,
+  progress24,
+}: {
+  stage: Stage;
+  step24?: number;
+  theme: TaijiVisualTheme;
+  progress24: number;
+}) {
   const ringRef = useRef<THREE.Group>(null);
   const primaryGeo = useMemo(() => new THREE.TorusGeometry(1.58, 0.006, 8, 128), []);
   const secondaryGeo = useMemo(() => new THREE.TorusGeometry(1.92, 0.004, 8, 128), []);
@@ -328,21 +420,26 @@ function OrbitRings({ stage }: { stage: Stage }) {
   useFrame((state, delta) => {
     if (!ringRef.current) return;
     const t = state.clock.elapsedTime;
-    ringRef.current.rotation.y += delta * (0.045 + stageDepth * 0.014);
-    ringRef.current.rotation.x = Math.sin(t * 0.18) * 0.12;
-    ringRef.current.rotation.z = Math.cos(t * 0.13) * 0.08;
+    // 24 面貌：每響專屬的環速、方向與傾角種子（黃金角散佈，永不重複）
+    const variation = step24 > 0 ? VARIATION_24[Math.min(23, step24 - 1)] : null;
+    const speed = variation ? variation.ringSpeed : 0.045 + stageDepth * 0.014;
+    const dir = variation ? variation.ringDir : 1;
+    const tiltSeed = variation ? (variation.ringTiltSeed * Math.PI) / 180 : 0;
+    ringRef.current.rotation.y += delta * speed * dir;
+    ringRef.current.rotation.x += (Math.sin(t * 0.18 + tiltSeed) * 0.14 - ringRef.current.rotation.x) * 0.05;
+    ringRef.current.rotation.z += (Math.cos(t * 0.13 + tiltSeed) * 0.1 - ringRef.current.rotation.z) * 0.05;
   });
 
   return (
     <group ref={ringRef} renderOrder={1}>
       <mesh geometry={primaryGeo} rotation={[Math.PI / 2.32, 0, 0]}>
-        <meshBasicMaterial color="#ffd700" transparent opacity={0.26 + stageDepth * 0.045} depthWrite={false} />
+        <meshBasicMaterial color={theme.primary} transparent opacity={0.26 + stageDepth * 0.045 + progress24 * 0.08} depthWrite={false} />
       </mesh>
       <mesh geometry={secondaryGeo} rotation={[Math.PI / 2.04, 0, Math.PI / 3]}>
-        <meshBasicMaterial color="#d4af37" transparent opacity={0.15 + stageDepth * 0.028} depthWrite={false} />
+        <meshBasicMaterial color={theme.accent} transparent opacity={0.15 + stageDepth * 0.028 + progress24 * 0.05} depthWrite={false} />
       </mesh>
       <mesh geometry={secondaryGeo} rotation={[Math.PI / 1.72, Math.PI / 4, 0]}>
-        <meshBasicMaterial color="#f7e7ce" transparent opacity={0.09 + stageDepth * 0.02} depthWrite={false} />
+        <meshBasicMaterial color={theme.secondary} transparent opacity={0.09 + stageDepth * 0.02 + progress24 * 0.04} depthWrite={false} />
       </mesh>
     </group>
   );
@@ -355,10 +452,14 @@ function TaijiCore({
   stage,
   step24 = 0,
   progress24 = 0,
+  attractTick = 0,
+  theme,
   onCoreClick,
 }: {
   step24?: number;
   progress24?: number;
+  attractTick?: number;
+  theme: TaijiVisualTheme;
   stage: Stage;
   onCoreClick: () => void;
 }) {
@@ -380,17 +481,20 @@ function TaijiCore({
   const smallGeo = useMemo(() => new THREE.SphereGeometry(0.2, 16, 16), []);
   const baguaGeo = useMemo(() => new THREE.SphereGeometry(0.24, 16, 16), []);
 
-  /* 立體球版（2026-08-14 依指示）：太極不再是紙片圓盤，
-     改為等距柱狀投影貼圖包覆的真 3D 球體＋金色光芒光暈。 */
-  const ballTexture = useMemo(() => createTaijiSphereTexture(), []);
-  const glowTexture = useMemo(() => createGlowTexture(), []);
-  const raysTexture = useMemo(() => createGodRaysTexture(), []);
+  /* 24 響 × 24 主題：每一響換一套配色主題重繪球體與光效（可變獎勵的顏色維度）。
+     未點擊（step 0）採用第 24 主題（經典鎏金）作為預設面貌。 */
+  const activeTheme = theme ?? TAIJI_24_THEMES[step24 > 0 ? (step24 - 1) % 24 : 23];
+  const ballTexture = useMemo(() => createTaijiSphereTexture(activeTheme), [activeTheme]);
+  const glowTexture = useMemo(() => createGlowTexture(activeTheme), [activeTheme]);
+  const raysTexture = useMemo(() => createGodRaysTexture(activeTheme), [activeTheme]);
   useEffect(() => () => { ballTexture?.dispose(); glowTexture?.dispose(); raysTexture?.dispose(); }, [ballTexture, glowTexture, raysTexture]);
   /* 人類最愛光線科技：光束旋轉／掃光燈／呼吸光暈 refs */
   const raysRef = useRef<THREE.Sprite>(null);
   const glowRef = useRef<THREE.Sprite>(null);
   /* 24 步旅程：里程碑爆發偵測 */
   const prevStep24Ref = useRef(0);
+  /* 待機召喚：attractTick 變化 → 溫柔脈衝一下 */
+  const prevAttractRef = useRef(0);
 
   const separate = stage !== 'TAIJI';
   /* 鐵律：兩球絕對不碰撞不重疊——球半徑 0.82×0.88≈0.72，兩心距 2×0.88=1.76 > 1.44，任何角度都不相交 */
@@ -407,6 +511,11 @@ function TaijiCore({
       prevStageRef.current = stage;
       pulseRef.current = 1;
     }
+    // 待機召喚脈衝（attract mode）：久未互動時輕輕呼喚
+    if (prevAttractRef.current !== attractTick) {
+      prevAttractRef.current = attractTick;
+      pulseRef.current = Math.max(pulseRef.current, 0.6);
+    }
     // 24 步里程碑偵測：每 6 步小爆發、第 24 步大覺醒（可變獎勵）
     if (prevStep24Ref.current !== step24) {
       prevStep24Ref.current = step24;
@@ -414,6 +523,8 @@ function TaijiCore({
       else if (step24 > 0 && step24 % 6 === 0) pulseRef.current = 1.25;
       else pulseRef.current = Math.max(pulseRef.current, 0.55);
     }
+    const activeVariation = step24 > 0 ? VARIATION_24[Math.min(23, step24 - 1)] : null;
+    const raySpinDir = activeVariation?.raySpinDir ?? 1;
     pulseRef.current = Math.max(0, pulseRef.current - delta * 1.6);
     const pulse = pulseRef.current;
     if (outerMatRef.current) {
@@ -440,9 +551,9 @@ function TaijiCore({
       diskRef.current.scale.setScalar(1 + Math.sin(t * 1.6) * 0.025 + pulse * 0.06);
     }
 
-    // 光線科技①：雲隙光束緩慢旋轉＋24 步進程增輝增速（越點越盛，黏著性核心）
+    // 光線科技①：雲隙光束緩慢旋轉＋24 步進程增輝增速（方向隨相位反轉，越點越盛）
     if (raysRef.current) {
-      raysRef.current.material.rotation += delta * (0.05 + progress24 * 0.09);
+      raysRef.current.material.rotation += delta * (0.05 + progress24 * 0.09) * raySpinDir;
       raysRef.current.material.opacity = Math.min(1, 0.38 + progress24 * 0.4 + Math.sin(t * 0.8) * 0.08 + pulse * 0.45);
       const rayScale = 5.6 * (1 + progress24 * 0.16 + Math.sin(t * 0.8) * 0.03 + pulse * 0.22);
       raysRef.current.scale.set(rayScale, rayScale, 1);
@@ -486,10 +597,10 @@ function TaijiCore({
       <mesh geometry={outerGeo}>
         <meshStandardMaterial
           ref={outerMatRef}
-          color="#ffd700"
+          color={activeTheme.primary}
           transparent
           opacity={0.06}
-          emissive="#e8b923"
+          emissive={activeTheme.accent}
           emissiveIntensity={0.5}
           side={THREE.DoubleSide}
           depthWrite={false}
@@ -497,7 +608,7 @@ function TaijiCore({
       </mesh>
 
       {/* 星軌：固定低成本幾何體，讓軌道存在感清楚但不卡通化 */}
-      <OrbitRings stage={stage} />
+      <OrbitRings stage={stage} step24={step24} theme={activeTheme} progress24={progress24} />
 
       {/* 粒子（數量與速度再收斂，避免手機閃爍與廉價特效感） */}
       {/* 粒子：隨 24 步旅程增生（越點星塵越盛，黏著性可變獎勵） */}
@@ -507,10 +618,10 @@ function TaijiCore({
         size={1.35 + progress24 * 0.5}
         speed={0.18 + progress24 * 0.12}
         opacity={0.5}
-        color="#ffd700"
+        color={activeTheme.primary}
       />
 
-      {/* 太極階段：真 3D 立體太極球＋人類最愛光線三件套（雲隙光束／呼吸光暈／焦外光斑） */}
+      {/* 太極階段：真 3D 立體太極球＋雲隙光束／呼吸光暈 */}
       {!separate && raysTexture && (
         <sprite ref={raysRef} position={[0, 0, -0.9]} scale={[5.6, 5.6, 1]} renderOrder={0}>
           <spriteMaterial map={raysTexture} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.5} />
@@ -521,14 +632,12 @@ function TaijiCore({
           <spriteMaterial map={glowTexture} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.75} />
         </sprite>
       )}
-      {/* 焦外光斑（bokeh）：少量大顆柔光珠，鏡頭感 */}
-      <Sparkles count={6} scale={3.1} size={7} speed={0.06} opacity={0.3} color="#fff3c4" />
       {!separate && ballTexture && (
         <mesh ref={diskRef} geometry={taijiBallGeo} renderOrder={2}>
           <meshStandardMaterial
             map={ballTexture}
             emissiveMap={ballTexture}
-            emissive="#c9a34a"
+            emissive={activeTheme.accent}
             emissiveIntensity={0.3}
             metalness={0.25}
             roughness={0.38}
@@ -540,10 +649,10 @@ function TaijiCore({
       {separate && (
         <group ref={yinRef} position={[0, 0.08, 0]} scale={scale}>
           <mesh geometry={mainGeo}>
-            <meshStandardMaterial color="#0b0d14" metalness={0.75} roughness={0.18} emissive="#141a28" emissiveIntensity={0.25} />
+            <meshStandardMaterial color={activeTheme.ink} metalness={0.75} roughness={0.18} emissive={activeTheme.accent} emissiveIntensity={0.22 + progress24 * 0.16} />
           </mesh>
           <mesh geometry={dotGeo} position={[0, 0.4, 0.72]}>
-            <meshStandardMaterial color="#fdf3d7" emissive="#f0d488" emissiveIntensity={0.5} metalness={0.2} roughness={0.25} />
+            <meshStandardMaterial color={activeTheme.primary} emissive={activeTheme.primary} emissiveIntensity={0.48 + progress24 * 0.14} metalness={0.2} roughness={0.25} />
           </mesh>
         </group>
       )}
@@ -552,10 +661,10 @@ function TaijiCore({
       {separate && (
         <group ref={yangRef} position={[0, -0.08, 0]} scale={scale}>
           <mesh geometry={mainGeo}>
-            <meshStandardMaterial color="#f5e7c8" metalness={0.12} roughness={0.3} emissive="#d4af37" emissiveIntensity={0.1} />
+            <meshStandardMaterial color={activeTheme.moon} metalness={0.12} roughness={0.3} emissive={activeTheme.primary} emissiveIntensity={0.12 + progress24 * 0.12} />
           </mesh>
           <mesh geometry={dotGeo} position={[0, -0.4, 0.72]}>
-            <meshStandardMaterial color="#0b0d14" metalness={0.6} roughness={0.2} emissive="#000000" />
+            <meshStandardMaterial color={activeTheme.ink} metalness={0.6} roughness={0.2} emissive={activeTheme.accent} emissiveIntensity={0.1} />
           </mesh>
         </group>
       )}
@@ -572,7 +681,7 @@ function TaijiCore({
             <Float key={index} speed={1.6} rotationIntensity={0.3} floatIntensity={0.4}>
               <group position={[item.pos[0], item.pos[1], item.pos[2]]}>
                 <mesh geometry={smallGeo}>
-                  <meshStandardMaterial color="#10121c" metalness={0.7} roughness={0.25} emissive="#6b5316" emissiveIntensity={0.5} />
+                  <meshStandardMaterial color={activeTheme.ink} metalness={0.7} roughness={0.25} emissive={activeTheme.accent} emissiveIntensity={0.42 + progress24 * 0.18} />
                 </mesh>
                 <GlyphSprite symbol={item.symbol} scale={0.5} />
               </group>
@@ -591,7 +700,7 @@ function TaijiCore({
               <Float key={item.name} speed={1.3} rotationIntensity={0.25} floatIntensity={0.35}>
                 <group position={[Math.cos(rad) * r, Math.sin(rad) * r, 0]}>
                   <mesh geometry={baguaGeo}>
-                    <meshStandardMaterial color="#10121c" metalness={0.7} roughness={0.25} emissive="#6b5316" emissiveIntensity={0.45} />
+                    <meshStandardMaterial color={activeTheme.ink} metalness={0.7} roughness={0.25} emissive={activeTheme.accent} emissiveIntensity={0.38 + progress24 * 0.16} />
                   </mesh>
                   <GlyphSprite symbol={item.symbol} name={item.name} scale={0.66} />
                 </group>
@@ -625,6 +734,41 @@ export default function TaijiSystem({
   /* 24 步視覺旅程（2026-08-14 黏著性升級）：與聲音引擎同步的可變獎勵——
      每點一下光束更盛、粒子增生、轉速微升；每 6 步一次能量小爆發；第 24 步大覺醒。 */
   const [journey, setJourney] = useState({ step: 0, progress: 0 });
+  /* 24 響 × 24 主題：本響的主題色（未點擊採第 24 主題經典鎏金） */
+  const journeyTheme = TAIJI_24_THEMES[journey.step > 0 ? (journey.step - 1) % 24 : 23];
+  /* 遊戲等級留客四機制（2026-08-14）：
+     ① 進度環（稟賦進度效應）② 連點光軌 ③ 每日圓滿光冠（habit loop）④ 待機召喚脈衝 */
+  const [combo, setCombo] = useState(0);
+  const [visualPulse, setVisualPulse] = useState(0);
+  const [todayAwakened, setTodayAwakened] = useState(false);
+  const [attractTick, setAttractTick] = useState(0);
+  const lastClickAtRef = useRef(0);
+
+  const TAIJI_DAILY_KEY = 'tdh:taiji24:daily:v1';
+  const todayKey = () => new Date().toISOString().slice(0, 10);
+
+  /* 每日圓滿：讀取今日紀錄——已圓滿者回訪即見全盛光冠；新的一天歸零重修 */
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(TAIJI_DAILY_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as { date?: string; awakened?: boolean };
+      if (saved.date === todayKey() && saved.awakened) {
+        setTodayAwakened(true);
+        setJourney({ step: 24, progress: 1 });
+      }
+    } catch { /* localStorage 受限時靜默略過 */ }
+  }, []);
+
+  /* 待機召喚（attract mode）：18 秒沒互動就輕輕呼喚一下 */
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (performance.now() - lastClickAtRef.current > 18000) {
+        setAttractTick((tick) => tick + 1);
+      }
+    }, 18000);
+    return () => clearInterval(timer);
+  }, []);
 
   const goToStage = useCallback(
     (nextStage: Stage) => {
@@ -632,10 +776,28 @@ export default function TaijiSystem({
       setIsAnimating(true);
       setStage(nextStage);
       onStageChange?.(nextStage);
+
+      /* 連點光軌：2.2 秒內連續點擊累積 */
+      const nowMs = performance.now();
+      const nextCombo = nowMs - lastClickAtRef.current < 2200 ? combo + 1 : 1;
+      lastClickAtRef.current = nowMs;
+      setCombo(nextCombo);
+
       if (!soundRef.current) soundRef.current = new Taiji24SoundEngine();
       void soundRef.current
         .click()
-        .then((soundState) => setJourney({ step: soundState.step, progress: soundState.progress }))
+        .then((soundState) => {
+          setJourney({ step: soundState.step, progress: soundState.progress });
+          /* 純視覺回饋：每一響觸發光脈衝，不顯示文字 */
+          setVisualPulse(nowMs);
+          /* 每日圓滿寫入 */
+          if (soundState.step >= 24) {
+            setTodayAwakened(true);
+            try {
+              window.localStorage.setItem(TAIJI_DAILY_KEY, JSON.stringify({ date: todayKey(), awakened: true }));
+            } catch { /* ignore */ }
+          }
+        })
         .catch(() => undefined);
       if (nextStage === 'BAGUA') {
         onComplete?.();
@@ -644,7 +806,7 @@ export default function TaijiSystem({
         setIsAnimating(false);
       }, 1000);
     },
-    [isAnimating, onComplete, onStageChange, stage],
+    [combo, isAnimating, onComplete, onStageChange, stage],
   );
 
   const goNext = useCallback(() => {
@@ -672,9 +834,27 @@ export default function TaijiSystem({
   void textureUrl;
   void videoUrl;
 
+  const visualStyle = {
+    '--journey-deg': `${Math.round(journey.progress * 360)}deg`,
+    '--theme-primary': journeyTheme.primary,
+    '--theme-secondary': journeyTheme.secondary,
+    '--theme-soft': journeyTheme.soft,
+    '--theme-glow': journeyTheme.glow,
+    '--combo-opacity': combo >= 3 ? '0.72' : '0',
+    '--completion-opacity': todayAwakened || journey.step >= 24 ? '1' : '0',
+  } as CSSProperties;
+
   return (
-    <section className={`${styles.root} ${styles[`stage_${stage.toLowerCase()}`]}`} aria-label="太極演化系統">
+    <section
+      className={`${styles.root} ${styles[`stage_${stage.toLowerCase()}`]}`}
+      aria-label="太極演化系統"
+      style={visualStyle}
+    >
       <div className={styles.sphereWrapper}>
+        <span className={styles.energyVeil} aria-hidden="true" />
+        <span className={styles.journeyRing} aria-hidden="true" />
+        <span key={visualPulse} className={styles.visualPulse} aria-hidden="true" />
+        <span className={styles.completionHalo} aria-hidden="true" />
         <Canvas
           camera={{ position: [0, 0, 5.1], fov: 42 }}
           dpr={[1, 1.5]} // 限制最高畫質
@@ -694,12 +874,12 @@ export default function TaijiSystem({
         >
           <AdaptiveDpr pixelated />
           <AdaptiveEvents />
-          {/* 質感打光（2026-08-14）：電影三點光——暖金主光、冷青補光、背緣光雕出球體輪廓 */}
+          {/* 質感打光（2026-08-14）：電影三點光——主光與背光跟著本響主題換色 */}
           <ambientLight intensity={0.32} />
-          <KeyLightSweep />
+          <KeyLightSweep theme={journeyTheme} progress24={journey.progress} />
           <pointLight position={[-4, -2.5, 2.5]} intensity={0.3} color="#6fa8c0" />
-          <pointLight position={[0, 2.2, -4.5]} intensity={1.15} color="#ffd700" />
-          <TaijiCore stage={stage} step24={journey.step} progress24={journey.progress} onCoreClick={goNext} />
+          <pointLight position={[0, 2.2, -4.5]} intensity={1.15} color={journeyTheme.accent} />
+          <TaijiCore stage={stage} step24={journey.step} progress24={journey.progress} attractTick={attractTick} theme={journeyTheme} onCoreClick={goNext} />
           <ContactShadows position={[0, -1.9, 0]} opacity={0.4} scale={7} blur={2.6} far={3} frames={1} />
           <OrbitControls enableZoom={false} enablePan={false} rotateSpeed={0.6} />
         </Canvas>
