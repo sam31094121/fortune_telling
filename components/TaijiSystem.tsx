@@ -29,20 +29,6 @@ type Stage = 'TAIJI' | 'LIANGYI' | 'SIXIANG' | 'BAGUA';
 
 const STAGES: Stage[] = ['TAIJI', 'LIANGYI', 'SIXIANG', 'BAGUA'];
 
-const LABELS: Record<Stage, string> = {
-  TAIJI: '太極',
-  LIANGYI: '兩儀',
-  SIXIANG: '四象',
-  BAGUA: '八卦',
-};
-
-const STAGE_COPY: Record<Stage, string> = {
-  TAIJI: '一個核心，萬象未分。',
-  LIANGYI: '太極生兩儀，陰陽自然分化。',
-  SIXIANG: '兩儀生四象，能量開始定位。',
-  BAGUA: '四象生八卦，萬物由此展開。',
-};
-
 const BAGUA = [
   { name: '乾', symbol: '☰', angle: 0 },
   { name: '兌', symbol: '☱', angle: 45 },
@@ -575,10 +561,6 @@ export default function TaijiSystem({
     goToStage(STAGES[nextIndex]);
   }, [goToStage, stage]);
 
-  const reset = useCallback(() => {
-    goToStage('TAIJI');
-  }, [goToStage]);
-
   useEffect(() => {
     if (!autoPlay) return;
     autoTimer.current = setInterval(goNext, autoPlayInterval);
@@ -593,8 +575,6 @@ export default function TaijiSystem({
       if (autoTimer.current) clearInterval(autoTimer.current);
     };
   }, []);
-
-  const stageIndex = STAGES.indexOf(stage);
 
   /* textureUrl / videoUrl 保留 API 相容；視覺已改為程式生成圖騰，不再需要外部貼圖 */
   void textureUrl;
@@ -632,30 +612,6 @@ export default function TaijiSystem({
           <OrbitControls enableZoom={false} enablePan={false} rotateSpeed={0.6} />
         </Canvas>
       </div>
-
-      {/* 階段說明 */}
-      <div className={styles.information} aria-live="polite">
-        <strong>{LABELS[stage]}</strong>
-        <span>{STAGE_COPY[stage]}</span>
-      </div>
-
-      {/* 進度點 */}
-      <div className={styles.progress}>
-        {STAGES.map((item, index) => (
-          <button
-            type="button"
-            key={item}
-            onClick={() => goToStage(item)}
-            className={index === stageIndex ? styles.progressActive : styles.progressItem}
-            aria-label={`切換到${LABELS[item]}`}
-          />
-        ))}
-      </div>
-
-      {/* 重置 */}
-      <button type="button" className={styles.resetButton} onClick={reset}>
-        重置演化
-      </button>
     </section>
   );
 }

@@ -7,8 +7,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
-  padding: 18px 12px 22px;
+  justify-content: center;
+  gap: 0;
+  padding: 8px 8px 10px;
   user-select: none;
   perspective: 1200px;
 }
@@ -16,8 +17,8 @@
 /* ====================== 3D 球體包裹 ====================== */
 .sphereWrapper {
   position: relative;
-  width: min(84vw, 320px);
-  height: min(84vw, 320px);
+  width: min(86vw, 360px);
+  height: min(86vw, 360px);
   transform-style: preserve-3d;
   animation: sphereFloat 9s ease-in-out infinite;
 }
@@ -48,89 +49,6 @@
 .sphereWrapper > div {
   position: relative;
   z-index: 1;
-}
-
-/* ====================== 階段說明 ====================== */
-.information {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  text-align: center;
-}
-
-.information strong {
-  font-family: var(--font-serif, serif);
-  font-size: 1.55rem;
-  font-weight: 900;
-  letter-spacing: 0.3em;
-  padding-left: 0.3em; /* 平衡字距造成的偏移 */
-  background: linear-gradient(120deg, #fdf6e3, #e8cc8f 55%, #b8905a);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow: 0 0 26px rgba(212, 175, 106, 0.35);
-}
-
-.information span {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: rgba(240, 230, 208, 0.6);
-}
-
-/* ====================== 進度點 ====================== */
-.progress {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.progressItem,
-.progressActive {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(212, 175, 106, 0.4);
-  background: rgba(255, 255, 255, 0.07);
-  padding: 0;
-  cursor: pointer;
-  transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
-}
-
-.progressItem:hover {
-  background: rgba(212, 175, 106, 0.35);
-  transform: scale(1.2);
-}
-
-.progressActive {
-  background: linear-gradient(135deg, #e8cc8f, #b8905a);
-  border-color: rgba(232, 204, 143, 0.75);
-  box-shadow: 0 0 14px rgba(212, 175, 106, 0.55);
-  transform: scale(1.35);
-}
-
-/* ====================== 重置按鈕 ====================== */
-.resetButton {
-  border: 1px solid rgba(212, 175, 106, 0.3);
-  border-radius: 999px;
-  background: rgba(212, 175, 106, 0.07);
-  color: rgba(240, 230, 208, 0.85);
-  font-size: 0.75rem;
-  font-weight: 900;
-  letter-spacing: 0.18em;
-  padding: 8px 20px;
-  cursor: pointer;
-  transition: border-color 0.25s ease, background 0.25s ease, transform 0.15s ease;
-}
-
-.resetButton:hover {
-  border-color: rgba(232, 204, 143, 0.6);
-  background: rgba(212, 175, 106, 0.15);
-}
-
-.resetButton:active {
-  transform: scale(0.96);
 }
 
 /* ====================== 低效能環境降級 ====================== */
