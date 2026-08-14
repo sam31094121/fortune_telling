@@ -353,8 +353,12 @@ function OrbitRings({ stage }: { stage: Stage }) {
 ========================================================= */
 function TaijiCore({
   stage,
+  step24 = 0,
+  progress24 = 0,
   onCoreClick,
 }: {
+  step24?: number;
+  progress24?: number;
   stage: Stage;
   onCoreClick: () => void;
 }) {
@@ -385,6 +389,8 @@ function TaijiCore({
   /* 人類最愛光線科技：光束旋轉／掃光燈／呼吸光暈 refs */
   const raysRef = useRef<THREE.Sprite>(null);
   const glowRef = useRef<THREE.Sprite>(null);
+  /* 24 步旅程：里程碑爆發偵測 */
+  const prevStep24Ref = useRef(0);
 
   const separate = stage !== 'TAIJI';
   /* 鐵律：兩球絕對不碰撞不重疊——球半徑 0.82×0.88≈0.72，兩心距 2×0.88=1.76 > 1.44，任何角度都不相交 */
@@ -401,11 +407,18 @@ function TaijiCore({
       prevStageRef.current = stage;
       pulseRef.current = 1;
     }
+    // 24 步里程碑偵測：每 6 步小爆發、第 24 步大覺醒（可變獎勵）
+    if (prevStep24Ref.current !== step24) {
+      prevStep24Ref.current = step24;
+      if (step24 >= 24) pulseRef.current = 1.6;
+      else if (step24 > 0 && step24 % 6 === 0) pulseRef.current = 1.25;
+      else pulseRef.current = Math.max(pulseRef.current, 0.55);
+    }
     pulseRef.current = Math.max(0, pulseRef.current - delta * 1.6);
     const pulse = pulseRef.current;
     if (outerMatRef.current) {
-      outerMatRef.current.opacity = 0.06 + pulse * 0.22;
-      outerMatRef.current.emissiveIntensity = 0.5 + pulse * 1.8;
+      outerMatRef.current.opacity = Math.min(0.5, 0.06 + progress24 * 0.05 + pulse * 0.22);
+      outerMatRef.current.emissiveIntensity = 0.5 + progress24 * 0.6 + pulse * 1.8;
     }
 
     if (separate) {
@@ -427,17 +440,17 @@ function TaijiCore({
       diskRef.current.scale.setScalar(1 + Math.sin(t * 1.6) * 0.025 + pulse * 0.06);
     }
 
-    // 光線科技①：雲隙光束緩慢旋轉（光芒萬丈在轉動）＋隨呼吸與脈衝增輝
+    // 光線科技①：雲隙光束緩慢旋轉＋24 步進程增輝增速（越點越盛，黏著性核心）
     if (raysRef.current) {
-      raysRef.current.material.rotation += delta * 0.05;
-      raysRef.current.material.opacity = 0.5 + Math.sin(t * 0.8) * 0.1 + pulse * 0.45;
-      const rayScale = 5.6 * (1 + Math.sin(t * 0.8) * 0.03 + pulse * 0.22);
+      raysRef.current.material.rotation += delta * (0.05 + progress24 * 0.09);
+      raysRef.current.material.opacity = Math.min(1, 0.38 + progress24 * 0.4 + Math.sin(t * 0.8) * 0.08 + pulse * 0.45);
+      const rayScale = 5.6 * (1 + progress24 * 0.16 + Math.sin(t * 0.8) * 0.03 + pulse * 0.22);
       raysRef.current.scale.set(rayScale, rayScale, 1);
     }
-    // 光線科技②：核心光暈呼吸（與球同頻，活的光）
+    // 光線科技②：核心光暈呼吸＋進程增亮（與球同頻，活的光）
     if (glowRef.current) {
-      glowRef.current.material.opacity = 0.72 + Math.sin(t * 1.6) * 0.08 + pulse * 0.28;
-      const glowScale = 4.4 * (1 + Math.sin(t * 1.6) * 0.04 + pulse * 0.2);
+      glowRef.current.material.opacity = Math.min(1, 0.66 + progress24 * 0.22 + Math.sin(t * 1.6) * 0.08 + pulse * 0.28);
+      const glowScale = 4.4 * (1 + progress24 * 0.1 + Math.sin(t * 1.6) * 0.04 + pulse * 0.2);
       glowRef.current.scale.set(glowScale, glowScale, 1);
     }
 
@@ -445,16 +458,17 @@ function TaijiCore({
     sepRef.current += (offset - sepRef.current) * Math.min(1, delta * 2.4);
     const sep = sepRef.current;
 
-    // 陰陽獨立旋轉（分離後反向不同速，永不碰撞）
+    // 陰陽獨立旋轉（分離後反向不同速，永不碰撞）＋24 步進程微加速（旅程越走越有勁）
+    const spinBoost = 1 + progress24 * 0.7;
     if (yinRef.current) {
       yinRef.current.position.x = -sep;
-      yinRef.current.rotation.z += delta * 0.9;
-      yinRef.current.rotation.y += delta * 0.35;
+      yinRef.current.rotation.z += delta * 0.9 * spinBoost;
+      yinRef.current.rotation.y += delta * 0.35 * spinBoost;
     }
     if (yangRef.current) {
       yangRef.current.position.x = sep;
-      yangRef.current.rotation.z -= delta * 1.15;
-      yangRef.current.rotation.y -= delta * 0.28;
+      yangRef.current.rotation.z -= delta * 1.15 * spinBoost;
+      yangRef.current.rotation.y -= delta * 0.28 * spinBoost;
     }
   });
 
@@ -486,11 +500,12 @@ function TaijiCore({
       <OrbitRings stage={stage} />
 
       {/* 粒子（數量與速度再收斂，避免手機閃爍與廉價特效感） */}
+      {/* 粒子：隨 24 步旅程增生（越點星塵越盛，黏著性可變獎勵） */}
       <Sparkles
-        count={stage === 'BAGUA' ? 30 : stage === 'SIXIANG' ? 22 : 14}
+        count={(stage === 'BAGUA' ? 30 : stage === 'SIXIANG' ? 22 : 14) + Math.round(progress24 * 12)}
         scale={2.45}
-        size={1.35}
-        speed={0.18}
+        size={1.35 + progress24 * 0.5}
+        speed={0.18 + progress24 * 0.12}
         opacity={0.5}
         color="#ffd700"
       />
@@ -607,6 +622,10 @@ export default function TaijiSystem({
   /* 功能保留：點擊演化沿用既有 24 步聲音旅程引擎 */
   const soundRef = useRef<Taiji24SoundEngine | null>(null);
 
+  /* 24 步視覺旅程（2026-08-14 黏著性升級）：與聲音引擎同步的可變獎勵——
+     每點一下光束更盛、粒子增生、轉速微升；每 6 步一次能量小爆發；第 24 步大覺醒。 */
+  const [journey, setJourney] = useState({ step: 0, progress: 0 });
+
   const goToStage = useCallback(
     (nextStage: Stage) => {
       if (isAnimating || nextStage === stage) return;
@@ -614,7 +633,10 @@ export default function TaijiSystem({
       setStage(nextStage);
       onStageChange?.(nextStage);
       if (!soundRef.current) soundRef.current = new Taiji24SoundEngine();
-      void soundRef.current.click().catch(() => undefined);
+      void soundRef.current
+        .click()
+        .then((soundState) => setJourney({ step: soundState.step, progress: soundState.progress }))
+        .catch(() => undefined);
       if (nextStage === 'BAGUA') {
         onComplete?.();
       }
@@ -677,7 +699,7 @@ export default function TaijiSystem({
           <KeyLightSweep />
           <pointLight position={[-4, -2.5, 2.5]} intensity={0.3} color="#6fa8c0" />
           <pointLight position={[0, 2.2, -4.5]} intensity={1.15} color="#ffd700" />
-          <TaijiCore stage={stage} onCoreClick={goNext} />
+          <TaijiCore stage={stage} step24={journey.step} progress24={journey.progress} onCoreClick={goNext} />
           <ContactShadows position={[0, -1.9, 0]} opacity={0.4} scale={7} blur={2.6} far={3} frames={1} />
           <OrbitControls enableZoom={false} enablePan={false} rotateSpeed={0.6} />
         </Canvas>
