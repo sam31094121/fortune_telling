@@ -1,8 +1,8 @@
 /* ====================== 太極演化系統 V2（依業主規格補齊完整版） ====================== */
 
 .root {
-  --energy-color: #d4af6a;
-  --glow-color: rgba(212, 175, 106, 0.32);
+  --energy-color: #ffd700;
+  --glow-color: rgba(255, 215, 0, 0.38);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -35,7 +35,7 @@
   inset: -26px;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle, var(--glow-color) 0%, rgba(212, 175, 106, 0.06) 46%, transparent 72%);
+  background: radial-gradient(circle, var(--glow-color) 0%, rgba(247, 231, 206, 0.08) 46%, transparent 72%);
   opacity: 0.5;
   transition: opacity 0.9s ease;
   z-index: 0;
