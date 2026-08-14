@@ -82,8 +82,8 @@
   background:
     radial-gradient(circle at 50% 50%, transparent 39%, var(--theme-soft) 40%, transparent 44%),
     conic-gradient(from 18deg, transparent 0deg, var(--theme-soft) 12deg, transparent 34deg, transparent 72deg, var(--glow-color) 90deg, transparent 118deg, transparent 360deg);
-  opacity: 0.38;
-  filter: blur(0.5px) drop-shadow(0 0 14px var(--glow-color));
+  opacity: 0.24;
+  filter: blur(0.6px) drop-shadow(0 0 10px var(--glow-color));
   animation: energyVeilTurn 18s linear infinite;
 }
 
@@ -108,12 +108,12 @@
   pointer-events: none;
   z-index: 2;
   background:
-    repeating-conic-gradient(from -90deg, var(--energy-color) 0deg 2deg, transparent 2deg 7.5deg),
-    radial-gradient(circle, transparent 60%, var(--glow-color) 66%, transparent 73%);
-  opacity: var(--completion-opacity);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 18px), #000 calc(100% - 17px), #000 calc(100% - 5px), transparent calc(100% - 4px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 18px), #000 calc(100% - 17px), #000 calc(100% - 5px), transparent calc(100% - 4px));
-  filter: drop-shadow(0 0 18px var(--glow-color));
+    repeating-conic-gradient(from -90deg, var(--energy-color) 0deg 1.2deg, transparent 1.2deg 15deg),
+    radial-gradient(circle, transparent 64%, var(--glow-color) 69%, transparent 74%);
+  opacity: calc(var(--completion-opacity) * 0.55);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px), #000 calc(100% - 4px), transparent calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px), #000 calc(100% - 4px), transparent calc(100% - 3px));
+  filter: drop-shadow(0 0 10px var(--glow-color));
   animation: completionBreath 4.2s ease-in-out infinite;
   transition: opacity 0.45s ease;
 }

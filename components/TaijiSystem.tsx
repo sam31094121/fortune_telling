@@ -355,6 +355,100 @@ function KeyLightSweep({ theme, progress24 }: { theme: TaijiVisualTheme; progres
   return <directionalLight ref={lightRef} position={[4.5, 5.5, 4]} intensity={1.35 + progress24 * 0.45} color={theme.primary} />;
 }
 
+/* ============================================================
+   周邊世界升級（2026-08-14）：世界級產品場景四件套
+   ① 深空星雲背景 ② 多層景深星塵 ③ 偶發流星 ④ 地面光暈舞台
+============================================================ */
+function createNebulaTexture(theme: TaijiVisualTheme) {
+  const size = 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  // 幾團柔軟的星雲霧，用主題色淡染
+  const blobs = [
+    { x: 0.32, y: 0.4, r: 0.42, c: theme.soft },
+    { x: 0.68, y: 0.3, r: 0.34, c: colorWithAlpha(theme.secondary, 0.1) },
+    { x: 0.55, y: 0.68, r: 0.4, c: colorWithAlpha(theme.primary, 0.08) },
+    { x: 0.2, y: 0.72, r: 0.3, c: colorWithAlpha(theme.accent, 0.06) },
+  ];
+  blobs.forEach(({ x, y, r, c }) => {
+    const grad = ctx.createRadialGradient(size * x, size * y, 0, size * x, size * y, size * r);
+    grad.addColorStop(0, c);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, size, size);
+  });
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+function createStreakTexture() {
+  const w = 256;
+  const h = 32;
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  const grad = ctx.createLinearGradient(0, 0, w, 0);
+  grad.addColorStop(0, 'rgba(255,255,255,0)');
+  grad.addColorStop(0.75, 'rgba(255,244,214,0.7)');
+  grad.addColorStop(1, 'rgba(255,255,255,0.95)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, h * 0.42, w, h * 0.16);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+function AmbientWorld({ theme, progress24 }: { theme: TaijiVisualTheme; progress24: number }) {
+  /* 乾淨俐落的空間概念（2026-08-14 依指示修正）：
+     不堆層次——只留三樣極簡元素撐出遼闊深空：
+     遠處疏落細星（縱深）、十幾秒一顆的孤流星（遼闊）、球下極淡舞台光（安定）。
+     留白就是高級感。 */
+  void progress24;
+  const meteorRef = useRef<THREE.Sprite>(null);
+  const streakTexture = useMemo(() => createStreakTexture(), []);
+  useEffect(() => () => { streakTexture?.dispose(); }, [streakTexture]);
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    // 孤流星：每 14 秒安靜劃過一次，稀有才珍貴
+    if (meteorRef.current) {
+      const cycle = t % 14;
+      if (cycle < 0.9) {
+        const k = cycle / 0.9;
+        meteorRef.current.position.set(-4.4 + k * 8.2, 2.7 - k * 2.4, -2.8);
+        meteorRef.current.material.opacity = Math.sin(k * Math.PI) * 0.55;
+        meteorRef.current.material.rotation = -0.28;
+      } else {
+        meteorRef.current.material.opacity = 0;
+      }
+    }
+  });
+
+  return (
+    <group>
+      {/* 遠處疏落細星：少而細，只為撐出空間縱深 */}
+      <Sparkles count={18} scale={[10, 6.5, 4]} size={0.7} speed={0.04} opacity={0.18} color="#e6edff" position={[0, 0, -2.4]} />
+      {/* 孤流星 */}
+      {streakTexture && (
+        <sprite ref={meteorRef} position={[-4.4, 2.7, -2.8]} scale={[1.7, 0.2, 1]} renderOrder={-1}>
+          <spriteMaterial map={streakTexture} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0} />
+        </sprite>
+      )}
+      {/* 球下極淡舞台光：安定感，幾乎看不見、但拿掉就少一味 */}
+      <mesh position={[0, -1.88, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={-1}>
+        <circleGeometry args={[2.4, 48]} />
+        <meshBasicMaterial color={theme.accent} transparent opacity={0.035} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
+    </group>
+  );
+}
+
 /* =========================================================
    卦符文字貼圖（2026-08-14 修異常）：
    troika 3D 文字預設字型不含中文與卦符，四象/八卦會變空白。
@@ -556,13 +650,13 @@ function TaijiCore({
     // 光線科技①：雲隙光束緩慢旋轉＋24 步進程增輝增速（方向隨相位反轉，越點越盛）
     if (raysRef.current) {
       raysRef.current.material.rotation += delta * (0.05 + progress24 * 0.09) * raySpinDir;
-      raysRef.current.material.opacity = Math.min(1, 0.38 + progress24 * 0.4 + Math.sin(t * 0.8) * 0.08 + pulse * 0.45);
-      const rayScale = 5.6 * (1 + progress24 * 0.16 + Math.sin(t * 0.8) * 0.03 + pulse * 0.22);
+      raysRef.current.material.opacity = Math.min(0.7, 0.26 + progress24 * 0.22 + Math.sin(t * 0.8) * 0.05 + pulse * 0.4);
+      const rayScale = 5.0 * (1 + progress24 * 0.1 + Math.sin(t * 0.8) * 0.02 + pulse * 0.18);
       raysRef.current.scale.set(rayScale, rayScale, 1);
     }
     // 光線科技②：核心光暈呼吸＋進程增亮（與球同頻，活的光）
     if (glowRef.current) {
-      glowRef.current.material.opacity = Math.min(1, 0.66 + progress24 * 0.22 + Math.sin(t * 1.6) * 0.08 + pulse * 0.28);
+      glowRef.current.material.opacity = Math.min(0.85, 0.52 + progress24 * 0.16 + Math.sin(t * 1.6) * 0.06 + pulse * 0.26);
       const glowScale = 4.4 * (1 + progress24 * 0.1 + Math.sin(t * 1.6) * 0.04 + pulse * 0.2);
       glowRef.current.scale.set(glowScale, glowScale, 1);
     }
@@ -892,6 +986,8 @@ export default function TaijiSystem({
             <Lightformer form="ring" intensity={1.4} color="#ffd9a0" position={[3, 1.5, -3]} scale={[3, 3, 1]} target={[0, 0, 0]} />
             <Lightformer form="circle" intensity={0.6} color="#f5e0b8" position={[0, -4, 1]} scale={[5, 5, 1]} target={[0, 0, 0]} />
           </Environment>
+          {/* 周邊世界：深空星雲＋景深星塵＋流星＋地面舞台 */}
+          <AmbientWorld theme={journeyTheme} progress24={journey.progress} />
           {/* 質感打光：電影三點光——主光與背光跟著本響主題換色 */}
           <ambientLight intensity={0.22} />
           <KeyLightSweep theme={journeyTheme} progress24={journey.progress} />
