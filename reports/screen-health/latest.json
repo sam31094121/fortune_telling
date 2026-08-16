@@ -1,43 +1,56 @@
 {
-  "ok": true,
+  "ok": false,
   "version": "screen-health-monitor-v1",
   "baseUrl": "http://localhost:8888",
   "port": 8888,
-  "startedAt": "2026-08-14T11:04:40.169Z",
-  "completedAt": "2026-08-14T11:04:40.817Z",
+  "startedAt": "2026-08-16T06:29:58.055Z",
+  "completedAt": "2026-08-16T06:30:15.979Z",
   "mode": "ONCE",
   "autoRepair": false,
   "summary": {
     "total": 11,
-    "passed": 11,
-    "failed": 0,
-    "screenStatus": "HEALTHY"
+    "passed": 9,
+    "failed": 2,
+    "screenStatus": "UNHEALTHY"
   },
-  "failedRoutes": [],
+  "failedRoutes": [
+    {
+      "id": "HOME",
+      "title": "首頁太極核心",
+      "path": "/",
+      "issue": "route / returned status 500 with 3347 bytes"
+    },
+    {
+      "id": "READY",
+      "title": "Next.js Ready",
+      "path": "/internal/health/ready",
+      "issue": "route /internal/health/ready returned status 500 with 7635 bytes"
+    }
+  ],
   "routes": [
     {
       "id": "HOME",
       "module": "home",
       "title": "首頁太極核心",
       "path": "/",
-      "status": "PASSED",
-      "httpStatus": 200,
-      "durationMs": 107,
-      "htmlLength": 52950,
+      "status": "FAILED",
+      "httpStatus": 500,
+      "durationMs": 6856,
+      "htmlLength": 3347,
       "error": null,
-      "issue": null
+      "issue": "route / returned status 500 with 3347 bytes"
     },
     {
       "id": "READY",
       "module": "ready",
       "title": "Next.js Ready",
       "path": "/internal/health/ready",
-      "status": "PASSED",
-      "httpStatus": 200,
-      "durationMs": 31,
-      "htmlLength": 95,
+      "status": "FAILED",
+      "httpStatus": 500,
+      "durationMs": 889,
+      "htmlLength": 7635,
       "error": null,
-      "issue": null
+      "issue": "route /internal/health/ready returned status 500 with 7635 bytes"
     },
     {
       "id": "CARD_01",
@@ -46,7 +59,7 @@
       "path": "/nameology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 56,
+      "durationMs": 2003,
       "htmlLength": 29944,
       "error": null,
       "issue": null
@@ -58,7 +71,7 @@
       "path": "/insight",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 64,
+      "durationMs": 1211,
       "htmlLength": 30174,
       "error": null,
       "issue": null
@@ -70,7 +83,7 @@
       "path": "/numerology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 43,
+      "durationMs": 670,
       "htmlLength": 24432,
       "error": null,
       "issue": null
@@ -82,8 +95,8 @@
       "path": "/match",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 54,
-      "htmlLength": 27034,
+      "durationMs": 777,
+      "htmlLength": 27035,
       "error": null,
       "issue": null
     },
@@ -94,8 +107,8 @@
       "path": "/music",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 51,
-      "htmlLength": 23420,
+      "durationMs": 1592,
+      "htmlLength": 23419,
       "error": null,
       "issue": null
     },
@@ -106,8 +119,8 @@
       "path": "/bazi",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 53,
-      "htmlLength": 27472,
+      "durationMs": 1646,
+      "htmlLength": 27473,
       "error": null,
       "issue": null
     },
@@ -118,8 +131,8 @@
       "path": "/zodiac",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 55,
-      "htmlLength": 26939,
+      "durationMs": 711,
+      "htmlLength": 27425,
       "error": null,
       "issue": null
     },
@@ -130,8 +143,8 @@
       "path": "/tarot",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 70,
-      "htmlLength": 31412,
+      "durationMs": 829,
+      "htmlLength": 30868,
       "error": null,
       "issue": null
     },
@@ -142,11 +155,11 @@
       "path": "/growth-center",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 54,
-      "htmlLength": 19094,
+      "durationMs": 717,
+      "htmlLength": 19093,
       "error": null,
       "issue": null
     }
   ],
-  "recoveryStatus": "NOT_NEEDED"
+  "recoveryStatus": "DISABLED"
 }

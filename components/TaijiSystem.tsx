@@ -335,6 +335,23 @@ function createTaijiSphereTexture(theme: TaijiVisualTheme) {
   ctx.beginPath();
   ctx.ellipse(cx, cy + R / 2, eyeR * stretch, eyeR, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  // 真實太極的關鍵：S 弧交界不是硬切，是一條帶微弱鎏金反射的釉面接縫。
+  ctx.save();
+  ctx.filter = 'blur(5px)';
+  ctx.strokeStyle = colorWithAlpha(theme.accent, 0.2);
+  ctx.lineWidth = h * 0.018;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - R / 2, (R / 2) * stretch, R / 2, 0, Math.PI * 0.5, Math.PI * 1.5, true);
+  ctx.ellipse(cx, cy + R / 2, (R / 2) * stretch, R / 2, 0, Math.PI * 1.5, Math.PI * 0.5, false);
+  ctx.stroke();
+  ctx.restore();
+  ctx.strokeStyle = colorWithAlpha(theme.primary, 0.42);
+  ctx.lineWidth = h * 0.0035;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - R / 2, (R / 2) * stretch, R / 2, 0, Math.PI * 0.5, Math.PI * 1.5, true);
+  ctx.ellipse(cx, cy + R / 2, (R / 2) * stretch, R / 2, 0, Math.PI * 1.5, Math.PI * 0.5, false);
+  ctx.stroke();
   ctx.restore();
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -748,12 +765,16 @@ function TaijiCore({
       groupRef.current.rotation.z = 0;
     }
 
-    // 太極球（2026-08-16 依指示追回）：真實 360 度連續自轉——
-    // 像真實球體在太空中不停旋轉，太極面轉入轉出，行星般的軸微傾；不做大小變化。
+    // 太極圖騰（2026-08-16 依指示恢復）：365° 連續自轉核心——
+    // 所有階段都保留真實太極本體，像實拍行星一樣完整環繞，太極面轉入轉出。
     if (diskRef.current) {
-      diskRef.current.rotation.y = -Math.PI / 2 + t * 0.38;
-      diskRef.current.rotation.x = Math.sin(t * 0.2) * 0.12;
-      diskRef.current.scale.setScalar(1);
+      const fullTotemSpin = 0.365 + progress24 * 0.055 + Math.sin(t * 0.21) * 0.014;
+      const totemScale = separate ? 0.62 + progress24 * 0.04 : 1;
+      diskRef.current.rotation.y = -Math.PI / 2 + t * fullTotemSpin;
+      diskRef.current.rotation.x = Math.sin(t * 0.2) * 0.12 + Math.sin(t * 0.073) * 0.035;
+      diskRef.current.rotation.z = Math.sin(t * 0.13) * 0.035;
+      diskRef.current.position.z = separate ? -0.36 : 0;
+      diskRef.current.scale.setScalar(totemScale);
     }
 
     // 光線科技①：雲隙光束緩慢旋轉＋24 步進程增輝增速（方向隨相位反轉，越點越盛）
@@ -840,13 +861,13 @@ function TaijiCore({
         </sprite>
       )}
       {/* 真實感升級（2026-08-14）：PBR 清漆層物理材質——上釉瓷器的真實反射，自發光大幅收斂 */}
-      {!separate && ballTexture && (
-        <mesh ref={diskRef} geometry={taijiBallGeo} renderOrder={2}>
+      {ballTexture && (
+        <mesh ref={diskRef} geometry={taijiBallGeo} renderOrder={separate ? 1 : 2}>
           <meshPhysicalMaterial
             map={ballTexture}
             emissiveMap={ballTexture}
             emissive={TAIJI_BENCHMARK_THEME.accent}
-            emissiveIntensity={0.08}
+            emissiveIntensity={separate ? 0.06 : 0.08}
             metalness={0.08}
             roughness={0.34}
             clearcoat={1}
@@ -854,6 +875,9 @@ function TaijiCore({
             envMapIntensity={1.25}
             bumpMap={surfaceNoise ?? undefined}
             bumpScale={0.012}
+            transparent={separate}
+            opacity={separate ? 0.86 : 1}
+            depthWrite={!separate}
           />
         </mesh>
       )}

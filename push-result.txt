@@ -1,2 +1,2 @@
 To https://github.com/sam31094121/fortune_telling.git
-   bceaebb..1d88c6d  main -> main
+   1d88c6d..ad5c7be  main -> main
