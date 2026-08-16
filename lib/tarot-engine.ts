@@ -1,5 +1,6 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import { TAROT_CARDS } from '@/features/tarot/data/cards';
+import { TAROT_CARD_BACK_ALT, TAROT_CARD_BACK_URL, TAROT_DECK_STYLE_ID } from '@/features/tarot/constants/cardBack';
 import { generateTarotInterpretation } from '@/features/tarot/services/interpretation';
 import {
   TAROT_CATEGORY_LABELS,
@@ -34,11 +35,10 @@ export const TAROT_ENGINE_VERSION = 'tarot-system-v1.2.0';
 export const TAROT_PUBLIC_TITLE = '塔羅牌';
 const SESSION_TTL_MS = 20 * 60 * 1000;
 const VISIBLE_DECK_COUNT = TAROT_VISIBLE_DECK_COUNT;
-const TAROT_DECK_STYLE_ID = 'freecodecamp-fortune-teller-assets-v1';
 const TAROT_CARD_BACK_RESOURCE: TarotCardBackResource = {
   styleId: TAROT_DECK_STYLE_ID,
-  imageAlt: 'Rider-Waite Smith CC0 塔羅牌背',
-  imageUrl: '/tarot/freecodecamp-js-fortune-teller/assets/img/cards/card-back_275x480.png',
+  imageAlt: TAROT_CARD_BACK_ALT,
+  imageUrl: TAROT_CARD_BACK_URL,
 };
 const TAROT_DRAW_RHYTHM: TarotDrawRhythm = {
   shuffleMs: 3600,

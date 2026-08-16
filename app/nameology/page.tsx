@@ -14,6 +14,7 @@ import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/ide
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
+import { TAROT_CARD_BACK_URL } from '@/features/tarot/constants/cardBack';
 
 type NameologyResponse = {
   ok: boolean;
@@ -581,7 +582,6 @@ function NameologyTarotBridgeCard({ analysis }: { analysis: NameologyAnalysis })
   const supportElement = analysis.standardOutput.integrationSignals.firstSupportElement;
   const bridge = NAMEOLOGY_TAROT_BRIDGE[supportElement];
   const firstDirection = analysis.standardOutput.layer1.firstDirection.replace(/^第一調整方向：/, '');
-  const cardBackUrl = '/tarot/freecodecamp-js-fortune-teller/assets/img/cards/card-back_275x480.png';
 
   return (
     <section className="fortune-card overflow-hidden border-violet-300/25 bg-[radial-gradient(circle_at_top_right,rgba(168,85,247,0.16),rgba(34,211,238,0.08)_42%,rgba(15,23,42,0.88)_100%)] p-5 sm:p-6">
@@ -594,7 +594,7 @@ function NameologyTarotBridgeCard({ analysis }: { analysis: NameologyAnalysis })
             onClick={() => setRevealed((current) => !current)}
             className="group block w-full overflow-hidden rounded-2xl border border-violet-200/25 bg-black/30 shadow-[0_22px_60px_rgba(88,28,135,0.34)] transition hover:border-violet-100/45 active:scale-[0.98]"
           >
-            <img src={revealed ? bridge.imageUrl : cardBackUrl} alt={revealed ? `${bridge.cardName} ${bridge.cardNameEn} 塔羅象徵牌` : '蓋牌中的姓名塔羅象徵牌'} loading="lazy" className="aspect-[275/480] w-full object-cover transition duration-500 group-active:scale-[0.985]" />
+            <img src={revealed ? bridge.imageUrl : TAROT_CARD_BACK_URL} alt={revealed ? `${bridge.cardName} ${bridge.cardNameEn} 塔羅象徵牌` : '蓋牌中的姓名塔羅象徵牌'} loading="lazy" className="aspect-[275/480] w-full object-cover transition duration-500 group-active:scale-[0.985]" />
           </button>
           {!revealed && (
             <p className="mt-3 rounded-full border border-violet-200/20 bg-violet-950/35 px-3 py-2 text-center text-xs font-black leading-5 text-violet-50">

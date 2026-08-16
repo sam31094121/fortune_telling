@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { TAROT_CARD_BACK_ALT, TAROT_CARD_BACK_URL } from '@/features/tarot/constants/cardBack';
 import type { TarotArcana, TarotCard, TarotSuit } from '@/features/tarot/types';
 
 type TarotDeckAdminReviewProps = {
@@ -105,8 +106,8 @@ export default function TarotDeckAdminReview({ cards, onClose }: TarotDeckAdminR
               aria-label={`查看 ${selectedCard.nameZh}`}
             >
               <img
-                src={showBack ? '/tarot/freecodecamp-js-fortune-teller/assets/img/cards/card-back_275x480.png' : selectedCard.imageUrl}
-                alt={showBack ? '塔羅牌背' : `${selectedCard.nameZh} ${selectedCard.nameEn}`}
+                src={showBack ? TAROT_CARD_BACK_URL : selectedCard.imageUrl}
+                alt={showBack ? TAROT_CARD_BACK_ALT : `${selectedCard.nameZh} ${selectedCard.nameEn}`}
                 onError={() => recordImageFailure(selectedCard.id)}
               />
             </button>

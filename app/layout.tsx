@@ -1,5 +1,7 @@
+import type { CSSProperties } from 'react';
 import type { Metadata, Viewport } from 'next';
 import AppStabilityGuard from '@/components/AppStabilityGuard';
+import { TAROT_CARD_BACK_CSS_IMAGE } from '@/features/tarot/constants/cardBack';
 import './globals.css';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
@@ -9,6 +11,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
     : 'http://localhost:8888';
 
 const shareImage = '/images/line-share-taichi.jpg?v=20260715-3';
+const rootStyle = { '--tarot-card-back-image': TAROT_CARD_BACK_CSS_IMAGE } as CSSProperties;
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -54,7 +57,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-Hant">
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased" style={rootStyle}>
         <AppStabilityGuard />
         {children}
       </body>

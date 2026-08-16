@@ -15,21 +15,15 @@ export default function TarotEntryCard() {
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
       <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+        {/* 2026-08-16 依指示改版：金字塔頂端低調訊號徽章。只服務塔羅入口卡，不影響其他卡片。 */}
         <div className="tarot-entry-emblem" aria-hidden="true">
           <span className="tarot-entry-emblem__halo" />
-          <span className="tarot-entry-emblem__orbit tarot-entry-emblem__orbit--outer" />
-          <span className="tarot-entry-emblem__orbit tarot-entry-emblem__orbit--inner" />
-          <span className="tarot-entry-emblem__spark tarot-entry-emblem__spark--one">*</span>
-          <span className="tarot-entry-emblem__spark tarot-entry-emblem__spark--two">*</span>
-          <span className="tarot-entry-emblem__card tarot-entry-emblem__card--back">
-            <span className="tarot-entry-emblem__line" />
-            <span className="tarot-entry-emblem__moon">月</span>
+          <span className="tarot-entry-emblem__pyramid">
+            <span className="tarot-entry-emblem__capstone" />
           </span>
-          <span className="tarot-entry-emblem__card tarot-entry-emblem__card--front">
-            <span className="tarot-entry-emblem__line" />
-            <span className="tarot-entry-emblem__sun">日</span>
-          </span>
-          <span className="tarot-entry-emblem__core">T</span>
+          <span className="tarot-entry-emblem__beam tarot-entry-emblem__beam--left" />
+          <span className="tarot-entry-emblem__beam tarot-entry-emblem__beam--right" />
+          <span className="tarot-entry-emblem__core" />
         </div>
         <div className="min-w-0 flex-1">
           <span className="inline-block rounded-full bg-cyan-300/10 border border-cyan-200/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-100 uppercase">

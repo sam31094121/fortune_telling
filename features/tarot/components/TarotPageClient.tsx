@@ -6,6 +6,7 @@ import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import TarotDeckAdminReview from '@/features/tarot/components/TarotDeckAdminReview';
 import TarotOriginalFortuneTeller from '@/features/tarot/components/TarotOriginalFortuneTeller';
+import { TAROT_CARD_BACK_URL } from '@/features/tarot/constants/cardBack';
 import { TAROT_CARDS } from '@/features/tarot/data/cards';
 import { requestTarotShuffle } from '@/features/tarot/services/api';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
@@ -32,9 +33,9 @@ const TAROT_DECK_INTEGRITY = {
   minor: TAROT_CARDS.filter((card) => card.arcana === 'minor').length,
 };
 const TAROT_QUESTION_EXAMPLES = [
-  { label: '範例 1', text: '我現在最需要看清楚的是什麼？' },
-  { label: '範例 2', text: '這段關係目前真正的課題是什麼？' },
-  { label: '範例 3', text: '接下來三個月我該優先調整哪個方向？' },
+  { label: '感情關係', text: '這段關係真正想提醒我的是什麼？' },
+  { label: '人生方向', text: '我現在最該看清楚的人生訊號是什麼？' },
+  { label: '事業金錢', text: '接下來三個月我該優先調整哪個方向？' },
 ] as const;
 
 export default function TarotPageClient() {
@@ -184,7 +185,7 @@ export default function TarotPageClient() {
             {Array.from({ length: 14 }).map((_, index) => (
               <img
                 key={index}
-                src="/tarot/freecodecamp-js-fortune-teller/assets/img/cards/card-back_275x480.png"
+                src={TAROT_CARD_BACK_URL}
                 alt=""
                 className="tarot-shuffle-overlay__card"
                 style={{ animationDelay: `${index * 0.11}s`, zIndex: (index * 5) % 14 }}
@@ -281,9 +282,9 @@ export default function TarotPageClient() {
                   </p>
                   <div className="tarot-question-entry__examples">
                     <div className="tarot-question-entry__example-head">
-                      <span>不知道怎麼問，直接點一個範例</span>
+                      <span>全球熱門提問方向，直接點一個</span>
                     </div>
-                    <div className="flex flex-wrap gap-2" aria-label="塔羅問題範例">
+                    <div className="tarot-question-entry__example-list flex flex-wrap gap-2" aria-label="塔羅問題範例">
                       {TAROT_QUESTION_EXAMPLES.map((example) => (
                         <button
                           key={example.text}

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { TAROT_CARD_BACK_URL } from '@/features/tarot/constants/cardBack';
 import type { TarotCard, TarotDeckCard, TarotReadingScope } from '@/features/tarot/types';
 import { TAROT_VISIBLE_DECK_COUNT } from '@/features/tarot/types';
 import type { TarotReadingApiResponse } from '@/features/tarot/services/api';
@@ -28,7 +29,6 @@ type DrawnCard = {
 };
 
 const SOURCE_BASE = '/tarot/freecodecamp-js-fortune-teller';
-const CARD_BACK_URL = `${SOURCE_BASE}/assets/img/cards/card-back_275x480.png`;
 const AUDIO = {
   dealAll: `${SOURCE_BASE}/assets/media/audio/dealAllCards.mp3`,
   shuffleOut: `${SOURCE_BASE}/assets/media/audio/shuffleCardOut.mp3`,
@@ -376,7 +376,7 @@ export default function TarotOriginalFortuneTeller({
                 >
                   <span className="reveal__position">{position.label}</span>
                   <span className="reveal__card-stage">
-                    <span className="reveal__card-back" style={{ backgroundImage: `url(${CARD_BACK_URL})` }} />
+                    <span className="reveal__card-back" style={{ backgroundImage: `url(${TAROT_CARD_BACK_URL})` }} />
                     <span className="reveal__card-front" style={{ backgroundImage: `url(${drawnCard.card.imageUrl})` }} />
                   </span>
                   <span className="reveal__card-name">{isRevealed ? drawnCard.card.nameZh : '尚未翻開'}</span>

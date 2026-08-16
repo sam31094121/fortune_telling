@@ -11,6 +11,7 @@ import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import { BaziCustomerShell } from '@/components/bazi/customer/BaziCustomerShell';
 import { BaziCalculationCeremony, BaziGateFailed, runBaziFinalGate, toBaziProgressView, type BaziCalculationProgressViewModel } from '@/components/bazi/customer/BaziCalculationProgress';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
+import { TAROT_CARD_BACK_URL } from '@/features/tarot/constants/cardBack';
 
 type Gender = 'male' | 'female';
 type PillarKey = 'year' | 'month' | 'day' | 'hour';
@@ -299,20 +300,11 @@ function BaziDailyTarotCard({ tarot }: { tarot: NonNullable<BaziResult['dailyTar
             type="button"
             onClick={() => setFlipped(true)}
             aria-label={flipped ? tarot.nameZh : '翻牌查看今日運勢'}
-            className={`relative block aspect-[3/5] w-full text-center transition-transform duration-700 [transform-style:preserve-3d] ${flipped ? '[transform:rotateY(180deg)] cursor-default' : 'hover:-translate-y-1'}`}
+            className={`relative block aspect-[275/480] w-full text-center transition-transform duration-700 [transform-style:preserve-3d] ${flipped ? '[transform:rotateY(180deg)] cursor-default' : 'hover:-translate-y-1'}`}
           >
-            <span className="absolute inset-0 flex flex-col overflow-hidden rounded-[16px] border-2 border-violet-300/30 bg-gradient-to-br from-violet-950 via-slate-950 to-black p-2.5 shadow-[0_14px_34px_rgba(2,6,23,0.34)] [backface-visibility:hidden]">
-              <span className="pointer-events-none absolute inset-[6px] rounded-[10px] border border-white/25" />
-              <span className="pointer-events-none absolute inset-[6px] rounded-[10px] [background:repeating-linear-gradient(45deg,rgba(255,255,255,0.05)_0,rgba(255,255,255,0.05)_2px,transparent_2px,transparent_10px)]" />
-              <span className="pointer-events-none absolute left-2 top-2 text-[10px] opacity-50">✦</span>
-              <span className="pointer-events-none absolute right-2 top-2 text-[10px] opacity-50">✦</span>
-              <span className="pointer-events-none absolute bottom-2 left-2 text-[10px] opacity-50">✦</span>
-              <span className="pointer-events-none absolute bottom-2 right-2 text-[10px] opacity-50">✦</span>
-              <span className="relative flex flex-1 flex-col items-center justify-center gap-1">
-                <span className="grid h-11 w-11 place-items-center rounded-full border border-white/25 bg-black/20 text-xl shadow-[inset_0_0_16px_rgba(255,255,255,0.12)]">辰</span>
-                <span className="font-serif text-base font-black text-amber-100">☯</span>
-              </span>
-              <span className="relative border-t border-white/15 pt-1.5 text-[10px] font-semibold leading-4 opacity-80">輕觸翻牌 ✦</span>
+            <span className="absolute inset-0 overflow-hidden rounded-[16px] border-2 border-violet-300/30 bg-black shadow-[0_14px_34px_rgba(2,6,23,0.34)] [backface-visibility:hidden]">
+              <img src={TAROT_CARD_BACK_URL} alt="" aria-hidden="true" className="h-full w-full object-cover" />
+              <span className="absolute inset-x-2 bottom-2 rounded-md bg-black/55 px-2 py-1 text-[10px] font-semibold leading-4 text-white/90">輕觸翻牌</span>
             </span>
             <span className="absolute inset-0 flex flex-col overflow-hidden rounded-[16px] border-2 border-amber-200/50 bg-black [backface-visibility:hidden] [transform:rotateY(180deg)]">
               <img src={tarot.imageUrl} alt={tarot.nameZh} loading="lazy" className="h-[62%] w-full object-cover object-top" />
