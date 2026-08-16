@@ -37,24 +37,6 @@ const TAROT_QUESTION_EXAMPLES = [
   { label: '範例 3', text: '接下來三個月我該優先調整哪個方向？' },
 ] as const;
 
-const TAROT_QUESTION_GUIDE_STEPS = [
-  {
-    step: '1',
-    title: '選擇對象',
-    body: '先選我自己或親朋好友，資料立即分流。',
-  },
-  {
-    step: '2',
-    title: '固定一件事',
-    body: '只輸入一個核心問題，抽牌焦點更準。',
-  },
-  {
-    step: '3',
-    title: '開始洗牌',
-    body: '系統洗 78 張牌，由你親手選牌。',
-  },
-] as const;
-
 export default function TarotPageClient() {
   const [step, setStep] = useState<TarotPageStep>('ready_to_draw');
   const [deck, setDeck] = useState<TarotDeckCard[]>([]);
@@ -276,18 +258,6 @@ export default function TarotPageClient() {
                 />
 
                 <form className="tarot-question-entry mt-4" onSubmit={(event) => { event.preventDefault(); void beginShuffle(); }}>
-                  <div className="tarot-question-entry__steps" aria-label="塔羅抽牌三步驟">
-                    {TAROT_QUESTION_GUIDE_STEPS.map((item) => (
-                      <div key={item.step} className="tarot-question-entry__step">
-                        <span className="tarot-question-entry__step-number">{item.step}</span>
-                        <div>
-                          <strong>{item.title}</strong>
-                          <p>{item.body}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
                   <div className="tarot-question-entry__label-row">
                     <label htmlFor="tarot-question-entry">
                       請專注你現在最想了解的一件事
