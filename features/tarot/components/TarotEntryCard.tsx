@@ -47,9 +47,9 @@ export default function TarotEntryCard() {
         </div>
       </div>
 
-      <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-cyan-200/45 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-50 transition group-hover:bg-cyan-300/20">
-        <span>立即開始</span>
-        <span className="transition-transform group-hover:translate-x-1.5">→</span>
+      <div className="tarot-entry-cta home-feature-cta relative flex items-center gap-2 rounded-xl border border-cyan-200/45 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-50 transition group-hover:bg-cyan-300/20">
+        <span>觸碰抽牌</span>
+        <span className="tarot-entry-cta__icon transition-transform group-hover:translate-x-1.5">→</span>
       </div>
     </Link>
   );

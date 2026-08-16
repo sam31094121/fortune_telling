@@ -24,13 +24,24 @@
   width: min(86vw, 360px);
   height: min(86vw, 360px);
   transform-style: preserve-3d;
-  animation: sphereFloat 9s ease-in-out infinite;
-  will-change: transform;
+  isolation: isolate;
+  touch-action: none;
+  cursor: grab;
+  animation: sphereFloat 18s ease-in-out infinite;
+  will-change: transform, filter;
+  filter: drop-shadow(0 26px 34px rgba(0, 0, 0, 0.32));
+}
+
+.sphereWrapperTouching {
+  cursor: grabbing;
+  filter:
+    drop-shadow(0 27px 36px rgba(0, 0, 0, 0.34))
+    drop-shadow(0 0 7px var(--glow-color));
 }
 
 @keyframes sphereFloat {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-2px); }
 }
 
 /* 階段光感：演化越深，環境光暈越亮 */
@@ -49,10 +60,10 @@
   transform: translateZ(-1px);
 }
 
-.stage_taiji .sphereWrapper::before { opacity: 0.4; }
-.stage_liangyi .sphereWrapper::before { opacity: 0.62; }
-.stage_sixiang .sphereWrapper::before { opacity: 0.78; }
-.stage_bagua .sphereWrapper::before { opacity: 0.95; }
+.stage_taiji .sphereWrapper::before { opacity: 0.26; }
+.stage_liangyi .sphereWrapper::before { opacity: 0.38; }
+.stage_sixiang .sphereWrapper::before { opacity: 0.44; }
+.stage_bagua .sphereWrapper::before { opacity: 0.4; }
 
 .sphereWrapper > div {
   position: relative;
@@ -87,10 +98,10 @@
   background:
     radial-gradient(circle at 50% 50%, transparent 39%, var(--theme-soft) 40%, transparent 44%),
     conic-gradient(from 18deg, transparent 0deg, var(--theme-soft) 12deg, transparent 34deg, transparent 72deg, var(--glow-color) 90deg, transparent 118deg, transparent 360deg);
-  opacity: 0.24;
-  filter: blur(0.8px) drop-shadow(0 0 10px var(--glow-color));
+  opacity: 0.075;
+  filter: blur(0.7px) drop-shadow(0 0 4px var(--glow-color));
   mix-blend-mode: screen;
-  animation: energyVeilTurn 22s linear infinite, energyVeilBreath 7s ease-in-out infinite;
+  animation: energyVeilTurn 48s linear infinite, energyVeilBreath 14s ease-in-out infinite;
 }
 
 .visualPulse {
@@ -101,10 +112,10 @@
   z-index: 3;
   border: 1px solid var(--energy-color);
   box-shadow:
-    0 0 22px var(--glow-color),
-    inset 0 0 26px var(--theme-soft);
+    0 0 12px var(--glow-color),
+    inset 0 0 16px var(--theme-soft);
   opacity: 0;
-  animation: visualPulseOut 980ms ease-out forwards;
+  animation: visualPulseOut 1600ms ease-out forwards;
 }
 
 .completionHalo {
@@ -133,11 +144,15 @@
   pointer-events: none;
   z-index: 2;
   background: conic-gradient(from 140deg, transparent, var(--theme-secondary), transparent 34%, var(--energy-color), transparent 72%);
-  opacity: calc(var(--combo-opacity) * 0.72);
+  opacity: calc(var(--combo-opacity) * 0.42);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
-  filter: drop-shadow(0 0 12px var(--theme-secondary));
-  animation: comboOrbit 3.2s linear infinite;
+  filter: drop-shadow(0 0 7px var(--theme-secondary));
+  animation: comboOrbit 9.2s linear infinite;
+}
+
+.sphereWrapperTouching::after {
+  opacity: 0.34;
 }
 
 @keyframes energyVeilTurn {
@@ -145,14 +160,14 @@
 }
 
 @keyframes energyVeilBreath {
-  0%, 100% { opacity: 0.18; }
-  50% { opacity: 0.32; }
+  0%, 100% { opacity: 0.045; }
+  50% { opacity: 0.085; }
 }
 
 @keyframes visualPulseOut {
-  0% { opacity: 0.82; transform: scale(0.76); }
-  55% { opacity: 0.38; }
-  100% { opacity: 0; transform: scale(1.18); }
+  0% { opacity: 0.32; transform: scale(0.92); }
+  55% { opacity: 0.12; }
+  100% { opacity: 0; transform: scale(1.035); }
 }
 
 @keyframes completionBreath {
@@ -174,5 +189,22 @@
   .completionHalo,
   .sphereWrapper::after {
     animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .root {
+    padding: 6px 4px 8px;
+    perspective: 900px;
+  }
+
+  .sphereWrapper {
+    width: min(92vw, 390px);
+    height: min(92vw, 390px);
+    max-height: 68vh;
+  }
+
+  .sphereWrapper::before {
+    inset: -18px;
   }
 }

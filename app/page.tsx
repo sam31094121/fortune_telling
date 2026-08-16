@@ -2777,14 +2777,15 @@ export default function HomePage() {
                 <span className="home-oracle-3d-emblem__bevel" />
                 <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
                 <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
-                <span className="home-oracle-3d-emblem__glyph">歌</span>
+                <span className="home-oracle-3d-emblem__glyph">生</span>
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-flex max-w-full rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-1 text-[10px] font-bold leading-none tracking-[0.12em] text-violet-300 uppercase animate-pulse">
                   {"AI \u8072\u97f3\u6b4c\u66f2"}
                 </span>
                 <h2 className="home-music-title mt-2 font-serif font-black text-violet-100">
-                  <span className="home-music-title-line">{"AI\u751f\u6210\u4e00\u9996\u6b4c"}</span>
+                  {/* 2026-08-16 依指示：標題首行改為「生成一首歌」（原「AI生成一首歌」，要恢復把下一行換回原字即可） */}
+                  <span className="home-music-title-line">{"\u751f\u6210\u4e00\u9996\u6b4c"}</span>
                   <span className="home-music-title-line">{"\u81ea\u6211\u4eba\u683c\u5206\u88c2"}</span>
                   <span className="home-music-title-line home-music-title-line--soft">{"\u8ddf\u4f60\u81ea\u6211\u5c0d\u8a71"}</span>
                 </h2>

@@ -5,20 +5,19 @@
  * 太極 → 兩儀 → 四象 → 八卦，功能保留、圖案全面換新：
  * - 陰陽兩球獨立旋轉（分離後反向、不同速、不碰撞不重疊）
  * - 真 3D 多軸旋轉（y 連續 + x/z 正弦擺動 = 近 4D 連續變化）
- * - 已套用效能優化：dpr 上限 1.5、antialias off、幾何體 useMemo 重用、
- *   Sparkles 降量、ContactShadows frames=1、AdaptiveDpr/AdaptiveEvents、條件渲染四象八卦
+ * - 已套用畫質優化：太極卡 Canvas 固定 3x DPR（360px≈1080px backing store）、
+ *   antialias on、幾何體 useMemo 重用、Sparkles 降量、ContactShadows frames=1
  * - 點擊演化接上既有 Taiji24SoundEngine（功能依然存在）
  * 範圍鎖定：只供太極卡使用，不影響其他卡片與手機版面。
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import {
   OrbitControls,
   Sparkles,
   Float,
   ContactShadows,
-  AdaptiveDpr,
   AdaptiveEvents,
   Environment,
   Lightformer,
@@ -42,6 +41,17 @@ const BAGUA = [
   { name: '坤', symbol: '☷', angle: 315 },
 ] as const;
 
+const BAGUA_BEAD_MATERIALS = [
+  { body: '#07080d', rim: '#b99b5c', glow: '#a98745', metalness: 0.38, roughness: 0.2 },
+  { body: '#d8d2c3', rim: '#a8b6bc', glow: '#b7a16e', metalness: 0.08, roughness: 0.34 },
+  { body: '#111723', rim: '#aa8f56', glow: '#9d7c3f', metalness: 0.32, roughness: 0.24 },
+  { body: '#bfc9cc', rim: '#9b8556', glow: '#93a6ad', metalness: 0.12, roughness: 0.32 },
+  { body: '#090b10', rim: '#b79858', glow: '#8f7138', metalness: 0.4, roughness: 0.2 },
+  { body: '#d1c5ad', rim: '#93a2a8', glow: '#a58d58', metalness: 0.08, roughness: 0.36 },
+  { body: '#151a20', rim: '#a88b52', glow: '#967642', metalness: 0.34, roughness: 0.24 },
+  { body: '#b7c2c4', rim: '#aa9059', glow: '#879ba3', metalness: 0.14, roughness: 0.3 },
+] as const;
+
 /* ============================================================
    24 響 × 24 面貌（2026-08-14 黏著性進化版）：
    每一響有專屬金色相位與動態指紋——晨金/純金/蜜金/白金四相輪轉，
@@ -59,8 +69,8 @@ const VARIATION_24 = Array.from({ length: 24 }, (_, i) => {
     glowTint: glowTints[phase],
     // 光束方向：1-8 正轉、9-16 反轉、17-24 正轉加速（旅程有章法的變化）
     raySpinDir: step > 8 && step <= 16 ? -1 : 1,
-    // 軌道環：逐響加速，方向每 8 響一換
-    ringSpeed: 0.045 + step * 0.006,
+    // 軌道環：逐響只做低幅度校準，方向每 8 響一換，避免越點越躁。
+    ringSpeed: 0.026 + step * 0.0014,
     ringDir: step > 8 && step <= 16 ? -1 : 1,
     // 軌道傾角微變：每響一點新角度
     ringTiltSeed: (step * 137.5) % 360, // 黃金角散佈，永不重複
@@ -358,7 +368,7 @@ function createTaijiSphereTexture(theme: TaijiVisualTheme) {
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.ClampToEdgeWrapping;
-  texture.anisotropy = 4;
+  texture.anisotropy = 8;
   texture.needsUpdate = true;
   return texture;
 }
@@ -429,9 +439,8 @@ function createGlowTexture(theme: TaijiVisualTheme) {
 /** 實拍感（2026-08-16）：呼吸鏡頭——真實攝影機永遠有極微晃動，完全靜止＝一眼 CG */
 function CameraBreath() {
   useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    state.camera.position.x = Math.sin(t * 0.23) * 0.07;
-    state.camera.position.y = Math.sin(t * 0.31) * 0.05;
+    state.camera.position.x += (0 - state.camera.position.x) * 0.04;
+    state.camera.position.y += (0 - state.camera.position.y) * 0.04;
     state.camera.lookAt(0, 0, 0);
   });
   return null;
@@ -617,19 +626,19 @@ function OrbitRings({
     const t = state.clock.elapsedTime;
     // 24 面貌：每響專屬的環速、方向與傾角種子（黃金角散佈，永不重複）
     const variation = step24 > 0 ? VARIATION_24[Math.min(23, step24 - 1)] : null;
-    const speed = (variation ? variation.ringSpeed : 0.045 + stageDepth * 0.014) * (1 + Math.sin(t * 0.47) * 0.08);
+    const speed = (variation ? variation.ringSpeed : 0.026 + stageDepth * 0.006) * (1 + Math.sin(t * 0.24) * 0.025);
     const dir = variation ? variation.ringDir : 1;
     const tiltSeed = variation ? (variation.ringTiltSeed * Math.PI) / 180 : 0;
     ringRef.current.rotation.y += delta * speed * dir;
-    ringRef.current.rotation.x += (Math.sin(t * 0.18 + tiltSeed) * 0.14 - ringRef.current.rotation.x) * 0.05;
-    ringRef.current.rotation.z += (Math.cos(t * 0.13 + tiltSeed) * 0.1 - ringRef.current.rotation.z) * 0.05;
+    ringRef.current.rotation.x += (Math.sin(t * 0.1 + tiltSeed) * 0.055 - ringRef.current.rotation.x) * 0.028;
+    ringRef.current.rotation.z += (Math.cos(t * 0.09 + tiltSeed) * 0.038 - ringRef.current.rotation.z) * 0.028;
 
-    const orbitPhase = t * (0.22 + progress24 * 0.1) * dir + tiltSeed;
+    const orbitPhase = t * (0.095 + progress24 * 0.035) * dir + tiltSeed;
     const placeBead = (mesh: THREE.Mesh | null, radius: number, phase: number, yScale: number) => {
       if (!mesh) return;
-      mesh.position.set(Math.cos(phase) * radius, Math.sin(phase) * radius * yScale, Math.sin(phase * 0.7) * 0.12);
+      mesh.position.set(Math.cos(phase) * radius, Math.sin(phase) * radius * yScale, Math.sin(phase * 0.7) * 0.055);
       const material = mesh.material as THREE.MeshBasicMaterial;
-      material.opacity = 0.35 + Math.sin(phase * 1.7) * 0.18 + progress24 * 0.12;
+      material.opacity = 0.24 + Math.sin(phase * 1.7) * 0.055 + progress24 * 0.045;
     };
     placeBead(beadOneRef.current, 1.58, orbitPhase, 0.64);
     placeBead(beadTwoRef.current, 1.92, orbitPhase + Math.PI * 0.72, 0.5);
@@ -639,13 +648,13 @@ function OrbitRings({
   return (
     <group ref={ringRef} renderOrder={1}>
       <mesh geometry={primaryGeo} rotation={[Math.PI / 2.32, 0, 0]}>
-        <meshBasicMaterial color={theme.primary} transparent opacity={0.26 + stageDepth * 0.045 + progress24 * 0.08} depthWrite={false} />
+        <meshBasicMaterial color={theme.primary} transparent opacity={0.18 + stageDepth * 0.026 + progress24 * 0.035} depthWrite={false} />
       </mesh>
       <mesh geometry={secondaryGeo} rotation={[Math.PI / 2.04, 0, Math.PI / 3]}>
-        <meshBasicMaterial color={theme.accent} transparent opacity={0.15 + stageDepth * 0.028 + progress24 * 0.05} depthWrite={false} />
+        <meshBasicMaterial color={theme.accent} transparent opacity={0.09 + stageDepth * 0.018 + progress24 * 0.026} depthWrite={false} />
       </mesh>
       <mesh geometry={secondaryGeo} rotation={[Math.PI / 1.72, Math.PI / 4, 0]}>
-        <meshBasicMaterial color={theme.secondary} transparent opacity={0.09 + stageDepth * 0.02 + progress24 * 0.04} depthWrite={false} />
+        <meshBasicMaterial color={theme.secondary} transparent opacity={0.055 + stageDepth * 0.012 + progress24 * 0.02} depthWrite={false} />
       </mesh>
       <mesh ref={beadOneRef} geometry={beadGeo}>
         <meshBasicMaterial color={theme.primary} transparent opacity={0.42} depthWrite={false} />
@@ -682,19 +691,32 @@ function TaijiCore({
   const diskRef = useRef<THREE.Mesh>(null);
   const yinRef = useRef<THREE.Group>(null);
   const yangRef = useRef<THREE.Group>(null);
+  const baguaOrbitRef = useRef<THREE.Group>(null);
+  const energyFieldRef = useRef<THREE.Mesh>(null);
+  const outerShellRef = useRef<THREE.Mesh>(null);
   /* 生命力升級（2026-08-14 批准）：分離距離平滑演化＋階段切換能量脈衝 */
   const sepRef = useRef(0);
+  /* 2026-08-16「太極要穩」：自轉角改增量積分（速度變化不瞬跳）＋縮放/深度平滑過渡 */
+  const totemAngleRef = useRef(0);
+  const totemScaleRef = useRef(1);
+  const totemZRef = useRef(0);
   const pulseRef = useRef(0);
   const prevStageRef = useRef<Stage>(stage);
-  const outerMatRef = useRef<THREE.MeshStandardMaterial>(null);
+  const outerMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
 
   // ===== 幾何體重用 =====
   const taijiBallGeo = useMemo(() => new THREE.SphereGeometry(1.08, 48, 48), []);
   const mainGeo = useMemo(() => new THREE.SphereGeometry(0.82, 64, 64), []);
   const dotGeo = useMemo(() => new THREE.SphereGeometry(0.15, 28, 28), []);
   const outerGeo = useMemo(() => new THREE.SphereGeometry(1.48, 32, 32), []);
+  const energyGeo = useMemo(() => new THREE.SphereGeometry(1.68, 32, 32), []);
   const smallGeo = useMemo(() => new THREE.SphereGeometry(0.2, 16, 16), []);
-  const baguaGeo = useMemo(() => new THREE.SphereGeometry(0.24, 16, 16), []);
+  const baguaGeo = useMemo(() => new THREE.SphereGeometry(0.24, 32, 32), []);
+  const baguaRimGeo = useMemo(() => new THREE.TorusGeometry(0.255, 0.006, 8, 64), []);
+  const baguaSealGeo = useMemo(() => new THREE.TorusGeometry(0.15, 0.004, 8, 48), []);
+  const baguaOrbitGeo = useMemo(() => new THREE.TorusGeometry(2.08, 0.004, 8, 160), []);
+  const baguaOuterOrbitGeo = useMemo(() => new THREE.TorusGeometry(2.3, 0.0025, 8, 160), []);
+  const baguaInnerOrbitGeo = useMemo(() => new THREE.TorusGeometry(1.86, 0.0025, 8, 160), []);
 
   /* 24 響 × 24 主題：每一響換一套配色主題重繪球體與光效（可變獎勵的顏色維度）。
      未點擊（step 0）採用第 24 主題（經典鎏金）作為預設面貌。 */
@@ -706,6 +728,20 @@ function TaijiCore({
   const surfaceNoise = useMemo(() => createSurfaceNoiseTexture(), []);
   const glowTexture = useMemo(() => createGlowTexture(activeTheme), [activeTheme]);
   const raysTexture = useMemo(() => createGodRaysTexture(activeTheme), [activeTheme]);
+  useEffect(() => () => {
+    taijiBallGeo.dispose();
+    mainGeo.dispose();
+    dotGeo.dispose();
+    outerGeo.dispose();
+    energyGeo.dispose();
+    smallGeo.dispose();
+    baguaGeo.dispose();
+    baguaRimGeo.dispose();
+    baguaSealGeo.dispose();
+    baguaOrbitGeo.dispose();
+    baguaOuterOrbitGeo.dispose();
+    baguaInnerOrbitGeo.dispose();
+  }, [taijiBallGeo, mainGeo, dotGeo, outerGeo, energyGeo, smallGeo, baguaGeo, baguaRimGeo, baguaSealGeo, baguaOrbitGeo, baguaOuterOrbitGeo, baguaInnerOrbitGeo]);
   useEffect(() => () => { surfaceNoise?.dispose(); }, [surfaceNoise]);
   useEffect(() => () => { ballTexture?.dispose(); glowTexture?.dispose(); raysTexture?.dispose(); }, [ballTexture, glowTexture, raysTexture]);
   /* 人類最愛光線科技：光束旋轉／掃光燈／呼吸光暈 refs */
@@ -729,85 +765,105 @@ function TaijiCore({
     // 階段切換偵測 → 觸發能量脈衝（誕生那一刻的爆發）
     if (prevStageRef.current !== stage) {
       prevStageRef.current = stage;
-      pulseRef.current = 1;
+      pulseRef.current = 0.56;
     }
     // 待機召喚脈衝（attract mode）：久未互動時輕輕呼喚
     if (prevAttractRef.current !== attractTick) {
       prevAttractRef.current = attractTick;
-      pulseRef.current = Math.max(pulseRef.current, 0.6);
+      pulseRef.current = Math.max(pulseRef.current, 0.32);
     }
     // 24 步里程碑偵測：每 6 步小爆發、第 24 步大覺醒（可變獎勵）
     if (prevStep24Ref.current !== step24) {
       prevStep24Ref.current = step24;
-      if (step24 >= 24) pulseRef.current = 1.6;
-      else if (step24 > 0 && step24 % 6 === 0) pulseRef.current = 1.25;
-      else pulseRef.current = Math.max(pulseRef.current, 0.55);
+      if (step24 >= 24) pulseRef.current = 0.9;
+      else if (step24 > 0 && step24 % 6 === 0) pulseRef.current = 0.68;
+      else pulseRef.current = Math.max(pulseRef.current, 0.36);
     }
     const activeVariation = step24 > 0 ? VARIATION_24[Math.min(23, step24 - 1)] : null;
     const raySpinDir = activeVariation?.raySpinDir ?? 1;
-    pulseRef.current = Math.max(0, pulseRef.current - delta * 1.6);
+    pulseRef.current = Math.max(0, pulseRef.current - delta * 0.72);
     const pulse = pulseRef.current;
     if (outerMatRef.current) {
-      outerMatRef.current.opacity = Math.min(0.5, 0.06 + progress24 * 0.05 + pulse * 0.22);
-      outerMatRef.current.emissiveIntensity = 0.5 + progress24 * 0.6 + pulse * 1.8;
+      outerMatRef.current.opacity = Math.min(0.085, 0.024 + progress24 * 0.01 + pulse * 0.022);
+      outerMatRef.current.emissiveIntensity = 0.1 + progress24 * 0.08 + pulse * 0.14;
+    }
+    if (outerShellRef.current) {
+      outerShellRef.current.scale.setScalar(1 + Math.sin(t * 0.52) * 0.005 + pulse * 0.007);
+      outerShellRef.current.rotation.y += delta * 0.011;
+    }
+    if (energyFieldRef.current) {
+      energyFieldRef.current.scale.setScalar(1 + Math.sin(t * 0.46 + 0.8) * 0.007 + pulse * 0.008);
+      energyFieldRef.current.rotation.y -= delta * 0.014;
+      energyFieldRef.current.rotation.x = Math.sin(t * 0.08) * 0.01;
     }
 
     if (separate) {
       // 分離後：整體多軸旋轉（365° 全角度、近 4D 連續變化）
-      const livingSpeed = 0.26 + progress24 * 0.1 + Math.sin(t * 0.37) * 0.025;
+      // 「穩」：俯仰/側傾改緩動追隨，階段切換無接縫，擺動永遠柔順。
+      const livingSpeed = 0.12 + progress24 * 0.026;
       groupRef.current.rotation.y += delta * livingSpeed;
-      groupRef.current.rotation.x = Math.sin(t * 0.23) * 0.17 + Math.sin(t * 0.071) * 0.035;
-      groupRef.current.rotation.z = Math.cos(t * 0.16) * 0.09 + Math.sin(t * 0.11) * 0.025;
+      groupRef.current.rotation.x += (Math.sin(t * 0.09) * 0.032 - groupRef.current.rotation.x) * 0.024;
+      groupRef.current.rotation.z += (Math.cos(t * 0.075) * 0.015 - groupRef.current.rotation.z) * 0.024;
     } else {
       // 太極階段：圖騰保持正面可辨識，只做輕微呼吸擺動，回正不歪斜
-      groupRef.current.rotation.y += (Math.sin(t * 0.34) * 0.25 + Math.sin(t * 0.09) * 0.06 - groupRef.current.rotation.y) * 0.035;
-      groupRef.current.rotation.x += (Math.sin(t * 0.27) * 0.1 - groupRef.current.rotation.x) * 0.035;
+      groupRef.current.rotation.y += (Math.sin(t * 0.12) * 0.052 - groupRef.current.rotation.y) * 0.02;
+      groupRef.current.rotation.x += (Math.sin(t * 0.1) * 0.02 - groupRef.current.rotation.x) * 0.02;
       groupRef.current.rotation.z = 0;
     }
 
-    // 太極圖騰（2026-08-16 依指示恢復）：365° 連續自轉核心——
-    // 所有階段都保留真實太極本體，像實拍行星一樣完整環繞，太極面轉入轉出。
+    // 太極圖騰（2026-08-16「太極要穩」）：365° 連續自轉核心——
+    // 穩定性關鍵修正：轉角改「增量積分」（rotation += delta×速度），
+    // 24 響任何一響改變速度時只影響當下、絕不瞬跳；縮放與深度同樣平滑過渡，順到無接縫。
     if (diskRef.current) {
-      const fullTotemSpin = 0.365 + progress24 * 0.055 + Math.sin(t * 0.21) * 0.014;
-      const totemScale = separate ? 0.62 + progress24 * 0.04 : 1;
-      diskRef.current.rotation.y = -Math.PI / 2 + t * fullTotemSpin;
-      diskRef.current.rotation.x = Math.sin(t * 0.2) * 0.12 + Math.sin(t * 0.073) * 0.035;
-      diskRef.current.rotation.z = Math.sin(t * 0.13) * 0.035;
-      diskRef.current.position.z = separate ? -0.36 : 0;
-      diskRef.current.scale.setScalar(totemScale);
+      const fullTotemSpin = 0.16 + progress24 * 0.016;
+      totemAngleRef.current += delta * fullTotemSpin;
+      const targetTotemScale = separate ? 0.62 + progress24 * 0.014 : 1;
+      const targetTotemZ = separate ? -0.36 : 0;
+      totemScaleRef.current += (targetTotemScale - totemScaleRef.current) * Math.min(1, delta * 1.35);
+      totemZRef.current += (targetTotemZ - totemZRef.current) * Math.min(1, delta * 1.35);
+      diskRef.current.rotation.y = -Math.PI / 2 + totemAngleRef.current;
+      diskRef.current.rotation.x = Math.sin(t * 0.09) * 0.026;
+      diskRef.current.rotation.z = Math.sin(t * 0.07) * 0.008;
+      diskRef.current.position.z = totemZRef.current;
+      diskRef.current.scale.setScalar(totemScaleRef.current);
     }
 
-    // 光線科技①：雲隙光束緩慢旋轉＋24 步進程增輝增速（方向隨相位反轉，越點越盛）
+    // 光線科技①：雲隙光束保留為極低亮度背景補光，避免貼圖感與卡通化。
     if (raysRef.current) {
-      raysRef.current.material.rotation += delta * (0.05 + progress24 * 0.09) * raySpinDir;
-      raysRef.current.material.opacity = Math.min(0.75, 0.3 + progress24 * 0.22 + Math.sin(t * 0.8) * 0.05 + pulse * 0.4);
-      const rayScale = 5.0 * (1 + progress24 * 0.1 + Math.sin(t * 0.8) * 0.02 + pulse * 0.18);
+      raysRef.current.material.rotation += delta * (0.007 + progress24 * 0.008) * raySpinDir;
+      raysRef.current.material.opacity = Math.min(0.09, 0.032 + progress24 * 0.018 + Math.sin(t * 0.28) * 0.003 + pulse * 0.025);
+      const rayScale = 4.55 * (1 + progress24 * 0.01 + Math.sin(t * 0.28) * 0.003 + pulse * 0.012);
       raysRef.current.scale.set(rayScale, rayScale, 1);
     }
-    // 光線科技②：核心光暈呼吸＋進程增亮（與球同頻，活的光）
+    // 光線科技②：核心光暈壓低，只做材質周圍的柔和反射。
     if (glowRef.current) {
-      glowRef.current.material.opacity = Math.min(0.9, 0.6 + progress24 * 0.16 + Math.sin(t * 1.6) * 0.06 + pulse * 0.26);
-      const glowScale = 4.4 * (1 + progress24 * 0.1 + Math.sin(t * 1.6) * 0.04 + pulse * 0.2);
+      glowRef.current.material.opacity = Math.min(0.13, 0.078 + progress24 * 0.018 + Math.sin(t * 0.46) * 0.003 + pulse * 0.022);
+      const glowScale = 3.65 * (1 + progress24 * 0.01 + Math.sin(t * 0.46) * 0.003 + pulse * 0.012);
       glowRef.current.scale.set(glowScale, glowScale, 1);
     }
 
     // 兩儀分離距離平滑演化：從核心誕生撐開，不瞬間跳位
-    sepRef.current += (offset - sepRef.current) * Math.min(1, delta * 2.4);
+    sepRef.current += (offset - sepRef.current) * Math.min(1, delta * 1.05);
     const sep = sepRef.current;
 
     // 陰陽獨立旋轉（分離後反向不同速，永不碰撞）＋24 步進程微加速（旅程越走越有勁）
-    const spinBoost = 1 + progress24 * 0.7;
+    const spinBoost = 1 + progress24 * 0.18;
     if (yinRef.current) {
       yinRef.current.position.x = -sep;
-      yinRef.current.position.y = 0.08 + Math.sin(t * 0.62) * 0.018;
-      yinRef.current.rotation.z += delta * 0.9 * spinBoost;
-      yinRef.current.rotation.y += delta * (0.32 + Math.sin(t * 0.41) * 0.035) * spinBoost;
+      yinRef.current.position.y = 0.08 + Math.sin(t * 0.22) * 0.004;
+      yinRef.current.rotation.z += delta * 0.38 * spinBoost;
+      yinRef.current.rotation.y += delta * 0.14 * spinBoost;
     }
     if (yangRef.current) {
       yangRef.current.position.x = sep;
-      yangRef.current.position.y = -0.08 + Math.sin(t * 0.58 + Math.PI) * 0.016;
-      yangRef.current.rotation.z -= delta * 1.15 * spinBoost;
-      yangRef.current.rotation.y -= delta * (0.27 + Math.cos(t * 0.39) * 0.03) * spinBoost;
+      yangRef.current.position.y = -0.08 + Math.sin(t * 0.2 + Math.PI) * 0.004;
+      yangRef.current.rotation.z -= delta * 0.44 * spinBoost;
+      yangRef.current.rotation.y -= delta * 0.13 * spinBoost;
+    }
+    if (baguaOrbitRef.current) {
+      baguaOrbitRef.current.rotation.z += delta * (0.008 + progress24 * 0.004);
+      baguaOrbitRef.current.rotation.x = Math.sin(t * 0.045) * 0.012;
+      baguaOrbitRef.current.rotation.y = Math.cos(t * 0.04) * 0.009;
     }
   });
 
@@ -821,15 +877,38 @@ function TaijiCore({
       onPointerOver={() => { document.body.style.cursor = 'pointer'; }}
       onPointerOut={() => { document.body.style.cursor = 'auto'; }}
     >
-      {/* 外層能量球（depthWrite 關閉：發光殼不得遮擋內部太極盤；脈衝時爆發增亮） */}
-      <mesh geometry={outerGeo}>
-        <meshStandardMaterial
+      {/* 電影級雙層能量場：透明物理球殼，低亮度，保留真實材質感。 */}
+      <mesh ref={energyFieldRef} geometry={energyGeo}>
+        <meshPhysicalMaterial
+          color={activeTheme.secondary}
+          transparent
+          opacity={0.018 + progress24 * 0.012}
+          transmission={0.35}
+          thickness={0.55}
+          metalness={0.02}
+          roughness={0.38}
+          clearcoat={0.7}
+          clearcoatRoughness={0.28}
+          emissive={activeTheme.secondary}
+          emissiveIntensity={0.08 + progress24 * 0.06}
+          side={THREE.BackSide}
+          depthWrite={false}
+        />
+      </mesh>
+      <mesh ref={outerShellRef} geometry={outerGeo}>
+        <meshPhysicalMaterial
           ref={outerMatRef}
           color={activeTheme.primary}
           transparent
-          opacity={0.06}
+          opacity={0.034}
+          transmission={0.24}
+          thickness={0.42}
+          metalness={0.06}
+          roughness={0.26}
+          clearcoat={0.82}
+          clearcoatRoughness={0.22}
           emissive={activeTheme.accent}
-          emissiveIntensity={0.5}
+          emissiveIntensity={0.18}
           side={THREE.DoubleSide}
           depthWrite={false}
         />
@@ -841,23 +920,23 @@ function TaijiCore({
       {/* 粒子（數量與速度再收斂，避免手機閃爍與廉價特效感） */}
       {/* 粒子：隨 24 步旅程增生（越點星塵越盛，黏著性可變獎勵） */}
       <Sparkles
-        count={(stage === 'BAGUA' ? 30 : stage === 'SIXIANG' ? 22 : 14) + Math.round(progress24 * 12)}
+        count={(stage === 'BAGUA' ? 8 : stage === 'SIXIANG' ? 10 : 8) + Math.round(progress24 * 3)}
         scale={2.45}
-        size={1.35 + progress24 * 0.5}
-        speed={0.18 + progress24 * 0.12}
-        opacity={0.5}
+        size={0.72 + progress24 * 0.18}
+        speed={0.04 + progress24 * 0.05}
+        opacity={0.18}
         color={activeTheme.primary}
       />
 
       {/* 太極階段：真 3D 立體太極球＋雲隙光束／呼吸光暈 */}
       {!separate && raysTexture && (
-        <sprite ref={raysRef} position={[0, 0, -0.9]} scale={[5.6, 5.6, 1]} renderOrder={0}>
-          <spriteMaterial map={raysTexture} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.5} />
+        <sprite ref={raysRef} position={[0, 0, -1.08]} scale={[4.7, 4.7, 1]} renderOrder={0}>
+          <spriteMaterial map={raysTexture} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.08} />
         </sprite>
       )}
       {!separate && glowTexture && (
-        <sprite ref={glowRef} position={[0, 0, -0.6]} scale={[4.4, 4.4, 1]} renderOrder={1}>
-          <spriteMaterial map={glowTexture} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.75} />
+        <sprite ref={glowRef} position={[0, 0, -0.74]} scale={[3.75, 3.75, 1]} renderOrder={1}>
+          <spriteMaterial map={glowTexture} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.14} />
         </sprite>
       )}
       {/* 真實感升級（2026-08-14）：PBR 清漆層物理材質——上釉瓷器的真實反射，自發光大幅收斂 */}
@@ -867,16 +946,18 @@ function TaijiCore({
             map={ballTexture}
             emissiveMap={ballTexture}
             emissive={TAIJI_BENCHMARK_THEME.accent}
-            emissiveIntensity={separate ? 0.06 : 0.08}
-            metalness={0.08}
-            roughness={0.34}
+            emissiveIntensity={separate ? 0.035 : 0.052}
+            metalness={0.12}
+            roughness={0.28}
             clearcoat={1}
-            clearcoatRoughness={0.14}
-            envMapIntensity={1.25}
+            clearcoatRoughness={0.1}
+            envMapIntensity={1.46}
             bumpMap={surfaceNoise ?? undefined}
-            bumpScale={0.012}
+            bumpScale={0.01}
+            iridescence={0.12}
+            iridescenceIOR={1.25}
             transparent={separate}
-            opacity={separate ? 0.86 : 1}
+            opacity={separate ? 0.82 : 1}
             depthWrite={!separate}
           />
         </mesh>
@@ -894,10 +975,10 @@ function TaijiCore({
       {separate && (
         <group ref={yinRef} position={[0, 0.08, 0]} scale={scale}>
           <mesh geometry={mainGeo}>
-            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.35} roughness={0.16} clearcoat={1} clearcoatRoughness={0.08} envMapIntensity={1.4} emissive={TAIJI_BENCHMARK_THEME.accent} emissiveIntensity={0.05 + progress24 * 0.04} bumpMap={surfaceNoise ?? undefined} bumpScale={0.015} iridescence={0.18} iridescenceIOR={1.3} />
+            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.34} roughness={0.18} clearcoat={1} clearcoatRoughness={0.09} envMapIntensity={1.48} emissive={TAIJI_BENCHMARK_THEME.accent} emissiveIntensity={0.028 + progress24 * 0.025} bumpMap={surfaceNoise ?? undefined} bumpScale={0.012} iridescence={0.16} iridescenceIOR={1.28} />
           </mesh>
           <mesh geometry={dotGeo} position={[0, 0.4, 0.72]}>
-            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.moon} clearcoat={0.9} clearcoatRoughness={0.15} roughness={0.3} metalness={0.05} emissive={TAIJI_BENCHMARK_THEME.primary} emissiveIntensity={0.15 + progress24 * 0.06} />
+            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.moon} clearcoat={0.95} clearcoatRoughness={0.12} roughness={0.28} metalness={0.04} emissive={TAIJI_BENCHMARK_THEME.primary} emissiveIntensity={0.07 + progress24 * 0.03} />
           </mesh>
         </group>
       )}
@@ -906,16 +987,16 @@ function TaijiCore({
       {separate && (
         <group ref={yangRef} position={[0, -0.08, 0]} scale={scale}>
           <mesh geometry={mainGeo}>
-            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.moon} metalness={0.04} roughness={0.26} clearcoat={0.85} clearcoatRoughness={0.18} envMapIntensity={1.15} emissive={TAIJI_BENCHMARK_THEME.primary} emissiveIntensity={0.04 + progress24 * 0.04} bumpMap={surfaceNoise ?? undefined} bumpScale={0.02} sheen={0.35} sheenColor={TAIJI_BENCHMARK_THEME.primary} sheenRoughness={0.6} />
+            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.moon} metalness={0.04} roughness={0.3} clearcoat={0.94} clearcoatRoughness={0.14} envMapIntensity={1.24} emissive={TAIJI_BENCHMARK_THEME.primary} emissiveIntensity={0.024 + progress24 * 0.025} bumpMap={surfaceNoise ?? undefined} bumpScale={0.016} sheen={0.28} sheenColor={TAIJI_BENCHMARK_THEME.primary} sheenRoughness={0.68} />
           </mesh>
           <mesh geometry={dotGeo} position={[0, -0.4, 0.72]}>
-            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.3} roughness={0.14} clearcoat={1} clearcoatRoughness={0.08} envMapIntensity={1.3} />
+            <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.32} roughness={0.18} clearcoat={1} clearcoatRoughness={0.09} envMapIntensity={1.36} />
           </mesh>
         </group>
       )}
 
-      {/* 四象（條件渲染） */}
-      {(stage === 'SIXIANG' || stage === 'BAGUA') && (
+      {/* 四象（條件渲染）：八卦階段收起四象符號，讓八顆太極石與軌道成為乾淨主視覺。 */}
+      {stage === 'SIXIANG' && (
         <group>
           {[
             { pos: [-1.2, 1.15, 0] as const, symbol: '⚊' },
@@ -923,7 +1004,7 @@ function TaijiCore({
             { pos: [-1.2, -1.15, 0] as const, symbol: '⚋' },
             { pos: [1.2, -1.15, 0] as const, symbol: '⚊' },
           ].map((item, index) => (
-            <Float key={index} speed={1.6} rotationIntensity={0.3} floatIntensity={0.4}>
+            <Float key={index} speed={1.5 + index * 0.12} rotationIntensity={0.28} floatIntensity={0.36 + (index % 2) * 0.06}>
               <group position={[item.pos[0], item.pos[1], item.pos[2]]}>
                 <mesh geometry={smallGeo}>
                   <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.5} roughness={0.2} clearcoat={0.8} clearcoatRoughness={0.12} emissive={activeTheme.accent} emissiveIntensity={0.18 + progress24 * 0.1} />
@@ -937,19 +1018,80 @@ function TaijiCore({
 
       {/* 八卦（條件渲染） */}
       {stage === 'BAGUA' && (
-        <group>
-          {BAGUA.map((item) => {
+        <group ref={baguaOrbitRef} rotation={[0.04, 0, 0]}>
+          <mesh geometry={baguaOrbitGeo} rotation={[Math.PI / 2, 0, 0]}>
+            <meshBasicMaterial color={activeTheme.primary} transparent opacity={0.09 + progress24 * 0.018} depthWrite={false} />
+          </mesh>
+          <mesh geometry={baguaOuterOrbitGeo} rotation={[Math.PI / 2.16, 0, Math.PI / 8]}>
+            <meshBasicMaterial color={activeTheme.secondary} transparent opacity={0.04 + progress24 * 0.012} depthWrite={false} />
+          </mesh>
+          <mesh geometry={baguaInnerOrbitGeo} rotation={[Math.PI / 1.92, 0, -Math.PI / 9]}>
+            <meshBasicMaterial color={activeTheme.accent} transparent opacity={0.035 + progress24 * 0.01} depthWrite={false} />
+          </mesh>
+          {BAGUA.map((item, index) => {
             const rad = ((item.angle - 90) * Math.PI) / 180;
-            const r = 2.08;
+            const r = 2.08 + (index % 2 === 0 ? 0.035 : -0.035);
+            const beadScale = 0.94 + (index % 3) * 0.035;
+            const beadMaterial = BAGUA_BEAD_MATERIALS[index];
             return (
-              <Float key={item.name} speed={1.3} rotationIntensity={0.25} floatIntensity={0.35}>
-                <group position={[Math.cos(rad) * r, Math.sin(rad) * r, 0]}>
-                  <mesh geometry={baguaGeo}>
-                    <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.5} roughness={0.2} clearcoat={0.8} clearcoatRoughness={0.12} emissive={activeTheme.accent} emissiveIntensity={0.16 + progress24 * 0.1} />
-                  </mesh>
-                  <GlyphSprite symbol={item.symbol} name={item.name} scale={0.66} />
-                </group>
-              </Float>
+              <group
+                key={item.name}
+                position={[Math.cos(rad) * r, Math.sin(rad) * r, Math.sin(rad) * 0.14]}
+                rotation={[0.5, -rad, rad * 0.2]}
+                scale={[beadScale, beadScale, beadScale]}
+              >
+                <mesh geometry={baguaGeo}>
+                  <meshPhysicalMaterial
+                    color={beadMaterial.body}
+                    metalness={beadMaterial.metalness}
+                    roughness={beadMaterial.roughness}
+                    clearcoat={1}
+                    clearcoatRoughness={0.12}
+                    envMapIntensity={1.16}
+                    emissive={beadMaterial.glow}
+                    emissiveIntensity={0.012 + progress24 * 0.012}
+                    bumpMap={surfaceNoise ?? undefined}
+                    bumpScale={0.012}
+                  />
+                </mesh>
+                <mesh geometry={baguaRimGeo} rotation={[Math.PI / 2, 0, 0]}>
+                  <meshPhysicalMaterial
+                    color={beadMaterial.rim}
+                    metalness={0.62}
+                    roughness={0.18}
+                    clearcoat={0.9}
+                    clearcoatRoughness={0.1}
+                    emissive={beadMaterial.glow}
+                    emissiveIntensity={0.016 + progress24 * 0.012}
+                  />
+                </mesh>
+                <mesh geometry={baguaRimGeo} rotation={[0, Math.PI / 2, rad * 0.12]}>
+                  <meshPhysicalMaterial
+                    color={beadMaterial.rim}
+                    metalness={0.5}
+                    roughness={0.22}
+                    clearcoat={0.82}
+                    clearcoatRoughness={0.14}
+                    transparent
+                    opacity={0.34}
+                    emissive={beadMaterial.glow}
+                    emissiveIntensity={0.012}
+                  />
+                </mesh>
+                <mesh geometry={baguaSealGeo} rotation={[Math.PI / 2, 0, Math.PI / 4]}>
+                  <meshPhysicalMaterial
+                    color={beadMaterial.rim}
+                    metalness={0.54}
+                    roughness={0.2}
+                    clearcoat={0.8}
+                    clearcoatRoughness={0.12}
+                    transparent
+                    opacity={0.32}
+                    emissive={beadMaterial.glow}
+                    emissiveIntensity={0.012}
+                  />
+                </mesh>
+              </group>
             );
           })}
         </group>
@@ -987,7 +1129,9 @@ export default function TaijiSystem({
   const [visualPulse, setVisualPulse] = useState(0);
   const [todayAwakened, setTodayAwakened] = useState(false);
   const [attractTick, setAttractTick] = useState(0);
+  const [touchActive, setTouchActive] = useState(false);
   const lastClickAtRef = useRef(0);
+  const touchRef = useRef({ active: false, x: 0, y: 0 });
 
   const TAIJI_DAILY_KEY = 'tdh:taiji24:daily:v1';
   const todayKey = () => new Date().toISOString().slice(0, 10);
@@ -1075,6 +1219,24 @@ export default function TaijiSystem({
     };
   }, []);
 
+  const handleTouchStart = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    touchRef.current.active = true;
+    touchRef.current.x = event.clientX;
+    touchRef.current.y = event.clientY;
+    setTouchActive(true);
+  }, []);
+
+  const handleTouchMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!touchRef.current.active) return;
+    touchRef.current.x = event.clientX;
+    touchRef.current.y = event.clientY;
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    touchRef.current.active = false;
+    setTouchActive(false);
+  }, []);
+
   /* textureUrl / videoUrl 保留 API 相容；視覺已改為程式生成圖騰，不再需要外部貼圖 */
   void textureUrl;
   void videoUrl;
@@ -1095,16 +1257,23 @@ export default function TaijiSystem({
       aria-label="太極演化系統"
       style={visualStyle}
     >
-      <div className={styles.sphereWrapper}>
+      <div
+        className={`${styles.sphereWrapper} ${touchActive ? styles.sphereWrapperTouching : ''}`}
+        onPointerDown={handleTouchStart}
+        onPointerMove={handleTouchMove}
+        onPointerUp={handleTouchEnd}
+        onPointerCancel={handleTouchEnd}
+        onPointerLeave={handleTouchEnd}
+      >
         <span className={styles.energyVeil} aria-hidden="true" />
         <span className={styles.journeyRing} aria-hidden="true" />
         <span key={visualPulse} className={styles.visualPulse} aria-hidden="true" />
         <span className={styles.completionHalo} aria-hidden="true" />
         <Canvas
           camera={{ position: [0, 0, 5.1], fov: 42 }}
-          dpr={[1, 1.5]} // 限制最高畫質
+          dpr={3} // 360px CSS canvas -> 1080px backing store for this Taiji card.
           gl={{
-            antialias: false,
+            antialias: true,
             powerPreference: 'high-performance',
             alpha: true,
             stencil: false,
@@ -1120,13 +1289,12 @@ export default function TaijiSystem({
           }}
           performance={{ min: 0.5 }}
         >
-          <AdaptiveDpr pixelated />
           <AdaptiveEvents />
           <CameraBreath />
           {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
               頂部暖色柔光箱＋側面冷色燈條＋背部輪廓光，球面反射出真實的影棚光形，
               零網路資源、frames=1 只烘焙一次不吃效能 */}
-          <Environment resolution={256} frames={1}>
+          <Environment resolution={512} frames={1}>
             <Lightformer form="rect" intensity={2.2} color="#fff2d8" position={[0, 4, 2]} scale={[6, 3, 1]} target={[0, 0, 0]} />
             <Lightformer form="rect" intensity={0.9} color="#bcd8ea" position={[-5, 0, 1]} rotation={[0, Math.PI / 2.4, 0]} scale={[4, 1.4, 1]} target={[0, 0, 0]} />
             <Lightformer form="ring" intensity={1.4} color="#ffd9a0" position={[3, 1.5, -3]} scale={[3, 3, 1]} target={[0, 0, 0]} />
@@ -1142,8 +1310,18 @@ export default function TaijiSystem({
           <pointLight position={[-4, -2.5, 2.5]} intensity={0.3} color="#6fa8c0" />
           <pointLight position={[0, 2.2, -4.5]} intensity={1.15} color={journeyTheme.accent} />
           <TaijiCore stage={stage} step24={journey.step} progress24={journey.progress} attractTick={attractTick} theme={journeyTheme} onCoreClick={goNext} />
-          <ContactShadows position={[0, -1.9, 0]} opacity={0.46} scale={7} blur={3.1} resolution={512} far={3} frames={1} />
-          <OrbitControls enableZoom={false} enablePan={false} rotateSpeed={0.6} />
+          <ContactShadows position={[0, -1.9, 0]} opacity={0.46} scale={7} blur={2.8} resolution={1024} far={3} frames={1} />
+          <OrbitControls
+            makeDefault
+            enableZoom={false}
+            enablePan={false}
+            enableDamping
+            dampingFactor={0.11}
+            rotateSpeed={0.52}
+            autoRotate={!touchActive}
+            autoRotateSpeed={0.16}
+            touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE }}
+          />
         </Canvas>
       </div>
     </section>
