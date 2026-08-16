@@ -906,15 +906,22 @@ export default function ZodiacPage() {
                 </div>
 
                 <div className="zodiac-brand-orbit" aria-hidden="true">
+                  <span className="zodiac-brand-orbit__disc" />
                   <span className="zodiac-brand-orbit__ring zodiac-brand-orbit__ring--outer" />
                   <span className="zodiac-brand-orbit__ring zodiac-brand-orbit__ring--inner" />
+                  <span className="zodiac-brand-orbit__ring zodiac-brand-orbit__ring--ecliptic" />
                   <span className="zodiac-brand-orbit__axis zodiac-brand-orbit__axis--vertical" />
                   <span className="zodiac-brand-orbit__axis zodiac-brand-orbit__axis--horizontal" />
-                  <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--top">AI</span>
-                  <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--right">12</span>
-                  <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--bottom">天宿</span>
-                  <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--left">星盤</span>
-                  <span className="zodiac-brand-orbit__core">Z</span>
+                  <span className="zodiac-brand-orbit__data zodiac-brand-orbit__data--one" />
+                  <span className="zodiac-brand-orbit__data zodiac-brand-orbit__data--two" />
+                  <span className="zodiac-brand-orbit__data zodiac-brand-orbit__data--three" />
+                  <span className="zodiac-brand-orbit__data zodiac-brand-orbit__data--four" />
+                  <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--top">SUN</span>
+                  <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--right">ASC</span>
+                  <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--bottom">MOON</span>
+                  <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--left">12H</span>
+                  <span className="zodiac-brand-orbit__scan" />
+                  <span className="zodiac-brand-orbit__core">AI</span>
                 </div>
               </div>
             </section>
