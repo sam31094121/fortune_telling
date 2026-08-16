@@ -25,6 +25,7 @@
   height: min(86vw, 360px);
   transform-style: preserve-3d;
   animation: sphereFloat 9s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes sphereFloat {
@@ -39,10 +40,13 @@
   inset: -26px;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle, var(--glow-color) 0%, var(--theme-soft) 42%, transparent 72%);
+  background:
+    radial-gradient(circle at 46% 42%, var(--glow-color) 0%, var(--theme-soft) 34%, transparent 68%),
+    conic-gradient(from 140deg, transparent 0deg, rgba(255,255,255,0.055) 48deg, transparent 92deg, transparent 360deg);
   opacity: 0.5;
   transition: opacity 0.9s ease;
   z-index: 0;
+  transform: translateZ(-1px);
 }
 
 .stage_taiji .sphereWrapper::before { opacity: 0.4; }
@@ -57,8 +61,9 @@
 
 /* ====================== 遊戲留客機制（2026-08-14） ====================== */
 
-/* 進度環：24 響修行進度，金色弧線隨點擊生長（稟賦進度效應） */
+/* 進度環（2026-08-16 依指示隱藏）：最外圍的圈收起，球體獨佔舞台；要恢復移除 display:none */
 .journeyRing {
+  display: none;
   position: absolute;
   inset: 6px;
   border-radius: 50%;
@@ -83,8 +88,9 @@
     radial-gradient(circle at 50% 50%, transparent 39%, var(--theme-soft) 40%, transparent 44%),
     conic-gradient(from 18deg, transparent 0deg, var(--theme-soft) 12deg, transparent 34deg, transparent 72deg, var(--glow-color) 90deg, transparent 118deg, transparent 360deg);
   opacity: 0.24;
-  filter: blur(0.6px) drop-shadow(0 0 10px var(--glow-color));
-  animation: energyVeilTurn 18s linear infinite;
+  filter: blur(0.8px) drop-shadow(0 0 10px var(--glow-color));
+  mix-blend-mode: screen;
+  animation: energyVeilTurn 22s linear infinite, energyVeilBreath 7s ease-in-out infinite;
 }
 
 .visualPulse {
@@ -102,6 +108,7 @@
 }
 
 .completionHalo {
+  display: none; /* 2026-08-16 依指示：最外圍圓滿環一併收起 */
   position: absolute;
   inset: -8px;
   border-radius: 50%;
@@ -126,15 +133,20 @@
   pointer-events: none;
   z-index: 2;
   background: conic-gradient(from 140deg, transparent, var(--theme-secondary), transparent 34%, var(--energy-color), transparent 72%);
-  opacity: var(--combo-opacity);
+  opacity: calc(var(--combo-opacity) * 0.72);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
   filter: drop-shadow(0 0 12px var(--theme-secondary));
-  animation: comboOrbit 2.4s linear infinite;
+  animation: comboOrbit 3.2s linear infinite;
 }
 
 @keyframes energyVeilTurn {
   to { transform: rotate(360deg); }
+}
+
+@keyframes energyVeilBreath {
+  0%, 100% { opacity: 0.18; }
+  50% { opacity: 0.32; }
 }
 
 @keyframes visualPulseOut {
