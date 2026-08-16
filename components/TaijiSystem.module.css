@@ -29,6 +29,10 @@
   cursor: grab;
   animation: sphereFloat 18s ease-in-out infinite;
   will-change: transform, filter;
+  contain: layout paint style;
+  backface-visibility: hidden;
+  overscroll-behavior: contain;
+  transition: filter 180ms ease;
   filter: drop-shadow(0 26px 34px rgba(0, 0, 0, 0.32));
 }
 
@@ -202,6 +206,20 @@
     width: min(92vw, 390px);
     height: min(92vw, 390px);
     max-height: 68vh;
+    /* 2026-08-16 手機減負：大半徑 drop-shadow 是手機 GPU 最貴的濾鏡之一，
+       縮小模糊半徑（視覺幾乎相同、成本大降）；視覺語言不變。 */
+    filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.3));
+  }
+
+  .sphereWrapperTouching {
+    filter:
+      drop-shadow(0 13px 18px rgba(0, 0, 0, 0.32))
+      drop-shadow(0 0 6px var(--glow-color));
+  }
+
+  .energyVeil {
+    /* blur 濾鏡在手機逐幀重算：拿掉 0.7px 微模糊（肉眼無差），保留光暈 */
+    filter: drop-shadow(0 0 4px var(--glow-color));
   }
 
   .sphereWrapper::before {

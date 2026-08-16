@@ -583,6 +583,39 @@ body.app-stress-mode .voice-song-consent-card {
   box-shadow: 0 6px 16px rgba(2, 6, 23, 0.14) !important;
 }
 
+body.app-mobile-device .home-feature-launch,
+body.app-social-browser .home-feature-launch,
+body.app-lite-effects .home-feature-launch {
+  min-height: 6.25rem;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 1.35rem;
+  isolation: isolate;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: border-color 110ms ease, background-color 110ms ease, box-shadow 110ms ease, transform 90ms ease !important;
+}
+
+body.app-mobile-device .home-feature-launch:active,
+body.app-social-browser .home-feature-launch:active,
+body.app-lite-effects .home-feature-launch:active {
+  border-color: rgba(255, 255, 255, 0.34) !important;
+  box-shadow: 0 7px 18px rgba(2, 6, 23, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+body.app-mobile-device .home-feature-launch:focus-visible,
+body.app-social-browser .home-feature-launch:focus-visible,
+body.app-lite-effects .home-feature-launch:focus-visible {
+  outline: 2px solid rgba(254, 240, 138, 0.72);
+  outline-offset: 3px;
+}
+
+body.app-mobile-device .home-feature-launch .home-feature-cta,
+body.app-social-browser .home-feature-launch .home-feature-cta,
+body.app-lite-effects .home-feature-launch .home-feature-cta {
+  min-height: 2.5rem;
+  transition: background-color 110ms ease, border-color 110ms ease, color 110ms ease !important;
+}
+
 @media (max-width: 640px), (pointer: coarse) {
   .home-feature-launch,
   .home-trust-card,

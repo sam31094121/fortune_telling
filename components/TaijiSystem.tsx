@@ -5,14 +5,14 @@
  * 太極 → 兩儀 → 四象 → 八卦，功能保留、圖案全面換新：
  * - 陰陽兩球獨立旋轉（分離後反向、不同速、不碰撞不重疊）
  * - 真 3D 多軸旋轉（y 連續 + x/z 正弦擺動 = 近 4D 連續變化）
- * - 已套用畫質優化：太極卡 Canvas 固定 3x DPR（360px≈1080px backing store）、
- *   antialias on、幾何體 useMemo 重用、Sparkles 降量、ContactShadows frames=1
+ * - 已套用畫質與穩定優化：高階裝置最高 3x DPR（360px≈1080px backing store）、
+ *   低階手機自動守住順暢、antialias on、幾何體 useMemo 重用、Sparkles 降量、ContactShadows frames=1
  * - 點擊演化接上既有 Taiji24SoundEngine（功能依然存在）
  * 範圍鎖定：只供太極卡使用，不影響其他卡片與手機版面。
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   OrbitControls,
   Sparkles,
@@ -29,6 +29,9 @@ import styles from './TaijiSystem.module.css';
 type Stage = 'TAIJI' | 'LIANGYI' | 'SIXIANG' | 'BAGUA';
 
 const STAGES: Stage[] = ['TAIJI', 'LIANGYI', 'SIXIANG', 'BAGUA'];
+const FRAME_DELTA_CAP = 1 / 45;
+
+type NavigatorWithDeviceMemory = Navigator & { deviceMemory?: number };
 
 const BAGUA = [
   { name: '乾', symbol: '☰', angle: 0 },
@@ -197,6 +200,55 @@ function colorWithAlpha(hex: string, alpha: number) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+function useTaijiCanvasQuality() {
+  const [quality, setQuality] = useState({
+    minDpr: 1.5,
+    maxDpr: 3,
+    environmentResolution: 512,
+    shadowResolution: 1024,
+  });
+
+  useEffect(() => {
+    const nav = navigator as NavigatorWithDeviceMemory;
+    const cores = nav.hardwareConcurrency ?? 4;
+    const memory = nav.deviceMemory ?? 4;
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    const isCompactViewport = window.matchMedia('(max-width: 760px)').matches;
+    const isTouchPhone = window.matchMedia('(pointer: coarse)').matches && isCompactViewport;
+    const constrainedPhone = isCompactViewport && (isTouchPhone || cores <= 4 || memory <= 4);
+    const balancedPhone = isCompactViewport && !constrainedPhone;
+
+    if (constrainedPhone) {
+      setQuality({
+        minDpr: 1.25,
+        maxDpr: Math.max(1.75, Math.min(devicePixelRatio, 2)),
+        environmentResolution: 256,
+        shadowResolution: 512,
+      });
+      return;
+    }
+
+    if (balancedPhone) {
+      setQuality({
+        minDpr: 1.5,
+        maxDpr: Math.max(2.25, Math.min(devicePixelRatio, 2.75)),
+        environmentResolution: 256,
+        shadowResolution: 512,
+      });
+      return;
+    }
+
+    setQuality({
+      minDpr: 1.5,
+      maxDpr: Math.max(2, Math.min(devicePixelRatio, 3)),
+      environmentResolution: 512,
+      shadowResolution: 1024,
+    });
+  }, []);
+
+  return quality;
+}
+
 function createDefaultTaijiTexture() {
   /* 質感版（2026-08-14 依指示）：去卡通化。
      墨玉黑（深處泛微光）× 月白瓷（暖白帶光暈）＋金環勾邊＋S 弧交界柔光。 */
@@ -295,8 +347,12 @@ function createTaijiSphereTexture(theme: TaijiVisualTheme) {
   /* 立體球版（2026-08-14 依指示）：等距柱狀投影——
      球體正面（貼圖中央）畫完整太極 S 弧與雙魚眼，左右延伸墨／月兩色包覆全球，
      從鏡頭看是一顆完整立體太極球，球緣自然彎曲、不再是紙片。 */
-  const w = 2048;
-  const h = 1024;
+  /* 2026-08-16 手機分級（穩紮穩打）：小螢幕觸控機貼圖降半（1024×512），
+     記憶體與上傳量省 4 倍，球面約 400px 寬時肉眼無差；桌機維持 2048 全解析。 */
+  const compactPhone = typeof window !== 'undefined'
+    && window.matchMedia('(pointer: coarse) and (max-width: 760px)').matches;
+  const w = compactPhone ? 1024 : 2048;
+  const h = compactPhone ? 512 : 1024;
   const canvas = document.createElement('canvas');
   canvas.width = w;
   canvas.height = h;
@@ -443,6 +499,16 @@ function CameraBreath() {
     state.camera.position.y += (0 - state.camera.position.y) * 0.04;
     state.camera.lookAt(0, 0, 0);
   });
+  return null;
+}
+
+function TaijiPerformanceGovernor({ active }: { active: boolean }) {
+  const { performance } = useThree();
+
+  useEffect(() => {
+    if (active) performance.regress();
+  }, [active, performance]);
+
   return null;
 }
 
@@ -623,15 +689,17 @@ function OrbitRings({
 
   useFrame((state, delta) => {
     if (!ringRef.current) return;
+    const frameDelta = Math.min(delta, FRAME_DELTA_CAP);
     const t = state.clock.elapsedTime;
     // 24 面貌：每響專屬的環速、方向與傾角種子（黃金角散佈，永不重複）
     const variation = step24 > 0 ? VARIATION_24[Math.min(23, step24 - 1)] : null;
     const speed = (variation ? variation.ringSpeed : 0.026 + stageDepth * 0.006) * (1 + Math.sin(t * 0.24) * 0.025);
     const dir = variation ? variation.ringDir : 1;
     const tiltSeed = variation ? (variation.ringTiltSeed * Math.PI) / 180 : 0;
-    ringRef.current.rotation.y += delta * speed * dir;
-    ringRef.current.rotation.x += (Math.sin(t * 0.1 + tiltSeed) * 0.055 - ringRef.current.rotation.x) * 0.028;
-    ringRef.current.rotation.z += (Math.cos(t * 0.09 + tiltSeed) * 0.038 - ringRef.current.rotation.z) * 0.028;
+    const settle = Math.min(1, frameDelta * 1.45);
+    ringRef.current.rotation.y += frameDelta * speed * dir;
+    ringRef.current.rotation.x += (Math.sin(t * 0.1 + tiltSeed) * 0.055 - ringRef.current.rotation.x) * settle;
+    ringRef.current.rotation.z += (Math.cos(t * 0.09 + tiltSeed) * 0.038 - ringRef.current.rotation.z) * settle;
 
     const orbitPhase = t * (0.095 + progress24 * 0.035) * dir + tiltSeed;
     const placeBead = (mesh: THREE.Mesh | null, radius: number, phase: number, yScale: number) => {
@@ -712,6 +780,7 @@ function TaijiCore({
   const energyGeo = useMemo(() => new THREE.SphereGeometry(1.68, 32, 32), []);
   const smallGeo = useMemo(() => new THREE.SphereGeometry(0.2, 16, 16), []);
   const baguaGeo = useMemo(() => new THREE.SphereGeometry(0.24, 32, 32), []);
+  const baguaHighlightGeo = useMemo(() => new THREE.SphereGeometry(0.048, 16, 16), []);
   const baguaRimGeo = useMemo(() => new THREE.TorusGeometry(0.255, 0.006, 8, 64), []);
   const baguaSealGeo = useMemo(() => new THREE.TorusGeometry(0.15, 0.004, 8, 48), []);
   const baguaOrbitGeo = useMemo(() => new THREE.TorusGeometry(2.08, 0.004, 8, 160), []);
@@ -736,12 +805,13 @@ function TaijiCore({
     energyGeo.dispose();
     smallGeo.dispose();
     baguaGeo.dispose();
+    baguaHighlightGeo.dispose();
     baguaRimGeo.dispose();
     baguaSealGeo.dispose();
     baguaOrbitGeo.dispose();
     baguaOuterOrbitGeo.dispose();
     baguaInnerOrbitGeo.dispose();
-  }, [taijiBallGeo, mainGeo, dotGeo, outerGeo, energyGeo, smallGeo, baguaGeo, baguaRimGeo, baguaSealGeo, baguaOrbitGeo, baguaOuterOrbitGeo, baguaInnerOrbitGeo]);
+  }, [taijiBallGeo, mainGeo, dotGeo, outerGeo, energyGeo, smallGeo, baguaGeo, baguaHighlightGeo, baguaRimGeo, baguaSealGeo, baguaOrbitGeo, baguaOuterOrbitGeo, baguaInnerOrbitGeo]);
   useEffect(() => () => { surfaceNoise?.dispose(); }, [surfaceNoise]);
   useEffect(() => () => { ballTexture?.dispose(); glowTexture?.dispose(); raysTexture?.dispose(); }, [ballTexture, glowTexture, raysTexture]);
   /* 人類最愛光線科技：光束旋轉／掃光燈／呼吸光暈 refs */
@@ -760,6 +830,9 @@ function TaijiCore({
   // ===== 優化後的 useFrame =====
   useFrame((state, delta) => {
     if (!groupRef.current) return;
+    const frameDelta = Math.min(delta, FRAME_DELTA_CAP);
+    const settleSoft = Math.min(1, frameDelta * 1.35);
+    const settleSlow = Math.min(1, frameDelta * 0.95);
     const t = state.clock.elapsedTime;
 
     // 階段切換偵測 → 觸發能量脈衝（誕生那一刻的爆發）
@@ -781,7 +854,7 @@ function TaijiCore({
     }
     const activeVariation = step24 > 0 ? VARIATION_24[Math.min(23, step24 - 1)] : null;
     const raySpinDir = activeVariation?.raySpinDir ?? 1;
-    pulseRef.current = Math.max(0, pulseRef.current - delta * 0.72);
+    pulseRef.current = Math.max(0, pulseRef.current - frameDelta * 0.72);
     const pulse = pulseRef.current;
     if (outerMatRef.current) {
       outerMatRef.current.opacity = Math.min(0.085, 0.024 + progress24 * 0.01 + pulse * 0.022);
@@ -789,11 +862,11 @@ function TaijiCore({
     }
     if (outerShellRef.current) {
       outerShellRef.current.scale.setScalar(1 + Math.sin(t * 0.52) * 0.005 + pulse * 0.007);
-      outerShellRef.current.rotation.y += delta * 0.011;
+      outerShellRef.current.rotation.y += frameDelta * 0.011;
     }
     if (energyFieldRef.current) {
       energyFieldRef.current.scale.setScalar(1 + Math.sin(t * 0.46 + 0.8) * 0.007 + pulse * 0.008);
-      energyFieldRef.current.rotation.y -= delta * 0.014;
+      energyFieldRef.current.rotation.y -= frameDelta * 0.014;
       energyFieldRef.current.rotation.x = Math.sin(t * 0.08) * 0.01;
     }
 
@@ -801,13 +874,13 @@ function TaijiCore({
       // 分離後：整體多軸旋轉（365° 全角度、近 4D 連續變化）
       // 「穩」：俯仰/側傾改緩動追隨，階段切換無接縫，擺動永遠柔順。
       const livingSpeed = 0.12 + progress24 * 0.026;
-      groupRef.current.rotation.y += delta * livingSpeed;
-      groupRef.current.rotation.x += (Math.sin(t * 0.09) * 0.032 - groupRef.current.rotation.x) * 0.024;
-      groupRef.current.rotation.z += (Math.cos(t * 0.075) * 0.015 - groupRef.current.rotation.z) * 0.024;
+      groupRef.current.rotation.y += frameDelta * livingSpeed;
+      groupRef.current.rotation.x += (Math.sin(t * 0.09) * 0.032 - groupRef.current.rotation.x) * settleSoft;
+      groupRef.current.rotation.z += (Math.cos(t * 0.075) * 0.015 - groupRef.current.rotation.z) * settleSoft;
     } else {
       // 太極階段：圖騰保持正面可辨識，只做輕微呼吸擺動，回正不歪斜
-      groupRef.current.rotation.y += (Math.sin(t * 0.12) * 0.052 - groupRef.current.rotation.y) * 0.02;
-      groupRef.current.rotation.x += (Math.sin(t * 0.1) * 0.02 - groupRef.current.rotation.x) * 0.02;
+      groupRef.current.rotation.y += (Math.sin(t * 0.12) * 0.052 - groupRef.current.rotation.y) * settleSlow;
+      groupRef.current.rotation.x += (Math.sin(t * 0.1) * 0.02 - groupRef.current.rotation.x) * settleSlow;
       groupRef.current.rotation.z = 0;
     }
 
@@ -816,11 +889,11 @@ function TaijiCore({
     // 24 響任何一響改變速度時只影響當下、絕不瞬跳；縮放與深度同樣平滑過渡，順到無接縫。
     if (diskRef.current) {
       const fullTotemSpin = 0.16 + progress24 * 0.016;
-      totemAngleRef.current += delta * fullTotemSpin;
+      totemAngleRef.current += frameDelta * fullTotemSpin;
       const targetTotemScale = separate ? 0.62 + progress24 * 0.014 : 1;
       const targetTotemZ = separate ? -0.36 : 0;
-      totemScaleRef.current += (targetTotemScale - totemScaleRef.current) * Math.min(1, delta * 1.35);
-      totemZRef.current += (targetTotemZ - totemZRef.current) * Math.min(1, delta * 1.35);
+      totemScaleRef.current += (targetTotemScale - totemScaleRef.current) * Math.min(1, frameDelta * 1.35);
+      totemZRef.current += (targetTotemZ - totemZRef.current) * Math.min(1, frameDelta * 1.35);
       diskRef.current.rotation.y = -Math.PI / 2 + totemAngleRef.current;
       diskRef.current.rotation.x = Math.sin(t * 0.09) * 0.026;
       diskRef.current.rotation.z = Math.sin(t * 0.07) * 0.008;
@@ -830,7 +903,7 @@ function TaijiCore({
 
     // 光線科技①：雲隙光束保留為極低亮度背景補光，避免貼圖感與卡通化。
     if (raysRef.current) {
-      raysRef.current.material.rotation += delta * (0.007 + progress24 * 0.008) * raySpinDir;
+      raysRef.current.material.rotation += frameDelta * (0.007 + progress24 * 0.008) * raySpinDir;
       raysRef.current.material.opacity = Math.min(0.09, 0.032 + progress24 * 0.018 + Math.sin(t * 0.28) * 0.003 + pulse * 0.025);
       const rayScale = 4.55 * (1 + progress24 * 0.01 + Math.sin(t * 0.28) * 0.003 + pulse * 0.012);
       raysRef.current.scale.set(rayScale, rayScale, 1);
@@ -843,7 +916,7 @@ function TaijiCore({
     }
 
     // 兩儀分離距離平滑演化：從核心誕生撐開，不瞬間跳位
-    sepRef.current += (offset - sepRef.current) * Math.min(1, delta * 1.05);
+    sepRef.current += (offset - sepRef.current) * Math.min(1, frameDelta * 1.05);
     const sep = sepRef.current;
 
     // 陰陽獨立旋轉（分離後反向不同速，永不碰撞）＋24 步進程微加速（旅程越走越有勁）
@@ -851,17 +924,17 @@ function TaijiCore({
     if (yinRef.current) {
       yinRef.current.position.x = -sep;
       yinRef.current.position.y = 0.08 + Math.sin(t * 0.22) * 0.004;
-      yinRef.current.rotation.z += delta * 0.38 * spinBoost;
-      yinRef.current.rotation.y += delta * 0.14 * spinBoost;
+      yinRef.current.rotation.z += frameDelta * 0.38 * spinBoost;
+      yinRef.current.rotation.y += frameDelta * 0.14 * spinBoost;
     }
     if (yangRef.current) {
       yangRef.current.position.x = sep;
       yangRef.current.position.y = -0.08 + Math.sin(t * 0.2 + Math.PI) * 0.004;
-      yangRef.current.rotation.z -= delta * 0.44 * spinBoost;
-      yangRef.current.rotation.y -= delta * 0.13 * spinBoost;
+      yangRef.current.rotation.z -= frameDelta * 0.44 * spinBoost;
+      yangRef.current.rotation.y -= frameDelta * 0.13 * spinBoost;
     }
     if (baguaOrbitRef.current) {
-      baguaOrbitRef.current.rotation.z += delta * (0.008 + progress24 * 0.004);
+      baguaOrbitRef.current.rotation.z += frameDelta * (0.008 + progress24 * 0.004);
       baguaOrbitRef.current.rotation.x = Math.sin(t * 0.045) * 0.012;
       baguaOrbitRef.current.rotation.y = Math.cos(t * 0.04) * 0.009;
     }
@@ -1054,6 +1127,14 @@ function TaijiCore({
                     bumpScale={0.012}
                   />
                 </mesh>
+                <mesh geometry={baguaHighlightGeo} position={[0.09, 0.08, 0.18]} scale={[1, 0.58, 0.42]}>
+                  <meshBasicMaterial
+                    color="#fff6d8"
+                    transparent
+                    opacity={0.12 + progress24 * 0.025}
+                    depthWrite={false}
+                  />
+                </mesh>
                 <mesh geometry={baguaRimGeo} rotation={[Math.PI / 2, 0, 0]}>
                   <meshPhysicalMaterial
                     color={beadMaterial.rim}
@@ -1132,6 +1213,7 @@ export default function TaijiSystem({
   const [touchActive, setTouchActive] = useState(false);
   const lastClickAtRef = useRef(0);
   const touchRef = useRef({ active: false, x: 0, y: 0 });
+  const canvasQuality = useTaijiCanvasQuality();
 
   const TAIJI_DAILY_KEY = 'tdh:taiji24:daily:v1';
   const todayKey = () => new Date().toISOString().slice(0, 10);
@@ -1224,6 +1306,7 @@ export default function TaijiSystem({
     touchRef.current.x = event.clientX;
     touchRef.current.y = event.clientY;
     setTouchActive(true);
+    if (navigator.vibrate) navigator.vibrate(8);
   }, []);
 
   const handleTouchMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
@@ -1271,7 +1354,7 @@ export default function TaijiSystem({
         <span className={styles.completionHalo} aria-hidden="true" />
         <Canvas
           camera={{ position: [0, 0, 5.1], fov: 42 }}
-          dpr={3} // 360px CSS canvas -> 1080px backing store for this Taiji card.
+          dpr={[canvasQuality.minDpr, canvasQuality.maxDpr]}
           gl={{
             antialias: true,
             powerPreference: 'high-performance',
@@ -1281,6 +1364,7 @@ export default function TaijiSystem({
           onCreated={({ gl }) => {
             gl.domElement.dataset.engine = 'three.js r170';
             gl.domElement.dataset.taijiScene = 'ready';
+            gl.domElement.dataset.taijiQuality = `${canvasQuality.maxDpr}x`;
             gl.domElement.style.background = 'transparent';
             gl.setClearColor(0x000000, 0);
             /* 真實感：ACES 電影級色調映射（全世界影視工業標準），高光滾降自然不死白 */
@@ -1290,11 +1374,12 @@ export default function TaijiSystem({
           performance={{ min: 0.5 }}
         >
           <AdaptiveEvents />
+          <TaijiPerformanceGovernor active={touchActive} />
           <CameraBreath />
           {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
               頂部暖色柔光箱＋側面冷色燈條＋背部輪廓光，球面反射出真實的影棚光形，
               零網路資源、frames=1 只烘焙一次不吃效能 */}
-          <Environment resolution={512} frames={1}>
+          <Environment resolution={canvasQuality.environmentResolution} frames={1}>
             <Lightformer form="rect" intensity={2.2} color="#fff2d8" position={[0, 4, 2]} scale={[6, 3, 1]} target={[0, 0, 0]} />
             <Lightformer form="rect" intensity={0.9} color="#bcd8ea" position={[-5, 0, 1]} rotation={[0, Math.PI / 2.4, 0]} scale={[4, 1.4, 1]} target={[0, 0, 0]} />
             <Lightformer form="ring" intensity={1.4} color="#ffd9a0" position={[3, 1.5, -3]} scale={[3, 3, 1]} target={[0, 0, 0]} />
@@ -1310,7 +1395,7 @@ export default function TaijiSystem({
           <pointLight position={[-4, -2.5, 2.5]} intensity={0.3} color="#6fa8c0" />
           <pointLight position={[0, 2.2, -4.5]} intensity={1.15} color={journeyTheme.accent} />
           <TaijiCore stage={stage} step24={journey.step} progress24={journey.progress} attractTick={attractTick} theme={journeyTheme} onCoreClick={goNext} />
-          <ContactShadows position={[0, -1.9, 0]} opacity={0.46} scale={7} blur={2.8} resolution={1024} far={3} frames={1} />
+          <ContactShadows position={[0, -1.9, 0]} opacity={0.46} scale={7} blur={2.8} resolution={canvasQuality.shadowResolution} far={3} frames={1} />
           <OrbitControls
             makeDefault
             enableZoom={false}

@@ -23008,12 +23008,29 @@ a.home-feature-launch::after {
     border-radius: 1.35rem !important;
     padding: 1rem !important;
     gap: 0.85rem !important;
+    -webkit-tap-highlight-color: transparent;
+    backface-visibility: hidden;
+    contain: layout paint style;
+    isolation: isolate;
+    touch-action: manipulation;
     box-shadow: 0 12px 28px rgba(2, 6, 23, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
-    transition: border-color 160ms ease, background-color 160ms ease, transform 120ms ease !important;
+    transition: border-color 110ms ease, background-color 110ms ease, box-shadow 110ms ease, transform 90ms ease !important;
+    will-change: transform;
   }
 
   .home-feature-launch:hover {
     transform: none !important;
+  }
+
+  .home-feature-launch:active {
+    transform: scale(0.992) translateY(1px) !important;
+    border-color: rgba(255, 255, 255, 0.34) !important;
+    box-shadow: 0 9px 22px rgba(2, 6, 23, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .home-feature-launch:focus-visible {
+    outline: 2px solid rgba(254, 240, 138, 0.72);
+    outline-offset: 3px;
   }
 
   .home-feature-launch::before,
@@ -23047,6 +23064,12 @@ a.home-feature-launch::after {
     border-radius: 0.9rem !important;
     padding: 0.62rem 0.82rem !important;
     box-shadow: none !important;
+    transition: background-color 110ms ease, border-color 110ms ease, color 110ms ease, transform 90ms ease !important;
+  }
+
+  .home-feature-launch:active .home-feature-cta {
+    transform: translateY(1px);
+    border-color: rgba(255, 255, 255, 0.3) !important;
   }
 
   .home-oracle-3d-emblem,
@@ -23084,5 +23107,16 @@ a.home-feature-launch::after {
   .home-feature-launch .home-feature-cta {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-feature-launch,
+  .home-feature-launch *,
+  .home-feature-cta {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 80ms !important;
   }
 }

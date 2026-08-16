@@ -3,8 +3,8 @@
   "version": "screen-health-monitor-v1",
   "baseUrl": "http://localhost:8888",
   "port": 8888,
-  "startedAt": "2026-08-16T12:17:35.283Z",
-  "completedAt": "2026-08-16T12:17:35.424Z",
+  "startedAt": "2026-08-16T13:08:09.467Z",
+  "completedAt": "2026-08-16T13:08:09.546Z",
   "mode": "ONCE",
   "autoRepair": false,
   "summary": {
@@ -22,7 +22,7 @@
       "path": "/",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 66,
+      "durationMs": 35,
       "htmlLength": 44787,
       "error": null,
       "issue": null
@@ -34,7 +34,7 @@
       "path": "/internal/health/ready",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 16,
+      "durationMs": 5,
       "htmlLength": 95,
       "error": null,
       "issue": null
@@ -58,7 +58,7 @@
       "path": "/insight",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 6,
+      "durationMs": 3,
       "htmlLength": 21676,
       "error": null,
       "issue": null
@@ -70,7 +70,7 @@
       "path": "/numerology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 5,
+      "durationMs": 2,
       "htmlLength": 15527,
       "error": null,
       "issue": null
@@ -82,7 +82,7 @@
       "path": "/match",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 6,
+      "durationMs": 3,
       "htmlLength": 18415,
       "error": null,
       "issue": null
@@ -94,7 +94,7 @@
       "path": "/music",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 5,
+      "durationMs": 2,
       "htmlLength": 14499,
       "error": null,
       "issue": null
@@ -118,7 +118,7 @@
       "path": "/zodiac",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 6,
+      "durationMs": 4,
       "htmlLength": 18536,
       "error": null,
       "issue": null
@@ -130,7 +130,7 @@
       "path": "/tarot",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 5,
+      "durationMs": 2,
       "htmlLength": 21818,
       "error": null,
       "issue": null
@@ -142,7 +142,7 @@
       "path": "/growth-center",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 6,
+      "durationMs": 4,
       "htmlLength": 10176,
       "error": null,
       "issue": null
