@@ -58,7 +58,7 @@
       "maxScore": 10,
       "status": "PASSED",
       "evidenceIds": [
-        "MAX_DURATION_304MS"
+        "MAX_DURATION_484MS"
       ]
     },
     {
@@ -67,8 +67,8 @@
       "maxScore": 10,
       "status": "PASSED",
       "evidenceIds": [
-        "REQUEST_ID_4008d990-bc1e-4fad-ad05-d87cdececf09",
-        "REQUEST_ID_2de0234c-64f7-4992-87d9-bdab7d407473"
+        "REQUEST_ID_2f0ce307-e7fc-4a94-ad7a-1410ba8e9a49",
+        "REQUEST_ID_75c834bd-383e-4f14-ba9d-4167a368b474"
       ]
     }
   ],
@@ -95,11 +95,11 @@
     "regressionPassed": true
   },
   "evidence": {
-    "baseUrl": "https://heaven-earth-humanity-pair.vercel.app",
+    "baseUrl": "http://localhost:8888",
     "route": {
       "ok": true,
       "status": 200,
-      "durationMs": 62,
+      "durationMs": 484,
       "length": 1000,
       "error": null
     },
@@ -109,7 +109,7 @@
         "ok": true,
         "status": 200,
         "route": "/api/growth-center?completedModules=nameology,bazi,zodiac,tarot&primaryElement=FIRE&secondaryElement=AIR&avoidElement=WATER&anonymousProfileId=quality-all-self",
-        "durationMs": 304,
+        "durationMs": 266,
         "data": {
           "success": true,
           "data": {
@@ -138,8 +138,8 @@
                 "reminder": "本週最重要：補強 火元素，用一個小行動帶動 行動、決斷、熱度與突破。",
                 "reinforcement": "本週持續補強：火元素。",
                 "energyColor": "本週能量色：深紅色。",
-                "task": "本週一件任務：把想做的事情排進行事曆，今天先做第一步。",
-                "quote": "Elon Musk: When something is important enough, you do it even if the odds are not in your favor."
+                "task": "本週一件任務：本週主動做出一個明確決定。",
+                "quote": "比爾蓋茲: 慶祝成功很好，但從失敗中記取教訓更重要。"
               },
               "followUpPolicy": {
                 "prompt": "本週 火元素 有持續補強嗎？",
@@ -208,17 +208,17 @@
                   "step": 4,
                   "label": "行動",
                   "title": "本週一件任務",
-                  "body": "把想做的事情排進行事曆，今天先做第一步。"
+                  "body": "本週主動做出一個明確決定。"
                 },
                 {
                   "step": 5,
                   "label": "鼓勵",
                   "title": "成功人士一句話",
-                  "body": "Elon Musk: When something is important enough, you do it even if the odds are not in your favor."
+                  "body": "比爾蓋茲: 慶祝成功很好，但從失敗中記取教訓更重要。"
                 }
               ],
               "checkIn": {
-                "weekKey": "2026-W32",
+                "weekKey": "2026-W34",
                 "title": "本週追蹤",
                 "prompt": "完成本週任務後，回來點一下完成，AI 會保留你的成長節奏。",
                 "buttonText": "完成本週追蹤",
@@ -248,7 +248,7 @@
                 {
                   "week": 2,
                   "title": "第二週：固定行動",
-                  "action": "把想做的事情排進行事曆，今天先做第一步。"
+                  "action": "本週主動做出一個明確決定。"
                 },
                 {
                   "week": 3,
@@ -265,9 +265,9 @@
               "policy": "第五層只建立長期陪伴生態，不新增命理、不重複各卡片內容、不覆蓋任何命理結果。 目前陪伴階段：交叉整合。"
             },
             "weeklyReport": {
-              "weekKey": "2026-W32",
+              "weekKey": "2026-W34",
               "oneLineReminder": "本週最重要：補強 火元素，用一個小行動帶動 行動、決斷、熱度與突破。",
-              "primaryAction": "把想做的事情排進行事曆，今天先做第一步。",
+              "primaryAction": "本週主動做出一個明確決定。",
               "evidence": [
                 "姓名學已提供文字頻率、音韻與人格外顯訊號。",
                 "八字命盤已提供出生時間、干支結構與五行平衡訊號。",
@@ -280,11 +280,11 @@
               "label": "火元素",
               "headline": "本週第一補強是火元素：先開始，執行力就會被帶起來。",
               "reason": "火元素代表行動力、決策速度、表達熱度與突破意願。補強火元素，重點是減少拖延，讓事情真正往前推進。",
-              "action": "把想做的事情排進行事曆，今天先做第一步。"
+              "action": "本週主動做出一個明確決定。"
             },
             "weeklyTask": {
               "title": "本週一件行動任務",
-              "task": "把想做的事情排進行事曆，今天先做第一步。",
+              "task": "本週主動做出一個明確決定。",
               "reason": "這件任務會直接帶動 火元素，讓 行動、決斷、熱度與突破 開始變得更穩定。"
             },
             "followUp": {
@@ -303,7 +303,7 @@
                 "重新排盤",
                 "與本週補強無關的聊天"
               ],
-              "weekKey": "2026-W32",
+              "weekKey": "2026-W34",
               "primaryElement": "FIRE",
               "elementLabel": "火元素",
               "prompt": "這一週，你有持續補強 火元素 嗎？",
@@ -322,13 +322,13 @@
               "replyWhenContinued": {
                 "title": "很好，請持續。",
                 "message": "你已經開始補強 火元素，現在要把它固定成穩定節奏。",
-                "nextStep": "下一步：把「把想做的事情排進行事曆，今天先做第一步。」固定成今天的一個小動作。",
+                "nextStep": "下一步：把「本週主動做出一個明確決定。」固定成今天的一個小動作。",
                 "improvement": "這會改善你的執行節奏、專注力與持續感。"
               },
               "replyWhenPaused": {
                 "title": "今天開始也不晚。",
                 "message": "目前仍建議持續補強 火元素，先不用想太多，今天先做第一步。",
-                "nextStep": "今天先做：「把想做的事情排進行事曆，今天先做第一步。」。",
+                "nextStep": "今天先做：「本週主動做出一個明確決定。」。",
                 "improvement": "這會幫你重新找回方向，降低拖延，讓行動重新開始。"
               },
               "boundary": "Follow-Up 只處理會員自己的補強進度、本週任務與行動提醒；不詢問私人生活，不重新分析命理。",
@@ -340,7 +340,7 @@
               ]
             },
             "weeklyEnergyColor": {
-              "weekKey": "2026-W32",
+              "weekKey": "2026-W34",
               "element": "FIRE",
               "colorName": "深紅色",
               "hex": "#B91C1C",
@@ -353,12 +353,12 @@
               "message": "本週能量色是 深紅色。可用在 衣服、手機桌布，提醒自己持續補強 火元素。"
             },
             "weeklyInspiration": {
-              "author": "Elon Musk",
-              "role": "Tesla / SpaceX CEO",
-              "quote": "When something is important enough, you do it even if the odds are not in your favor.",
-              "fit": "這句話適合提醒行動與突破。",
-              "sourceName": "Public quote",
-              "sourceUrl": "https://www.spacex.com/"
+              "author": "比爾蓋茲",
+              "role": "Microsoft 共同創辦人",
+              "quote": "慶祝成功很好，但從失敗中記取教訓更重要。",
+              "fit": "這句話提醒你從每一次調整中累積智慧。",
+              "sourceName": "比爾蓋茲個人部落格",
+              "sourceUrl": "https://www.gatesnotes.com/"
             },
             "fiveElement": {
               "primaryElement": "FIRE",
@@ -380,11 +380,11 @@
               "href": "/insight"
             },
             "dataPolicy": "AI Integration Layer 只讀取八張分析卡片已完成的狀態與元素方向，不重新排盤、不重新算命、不重複呼叫任何命理分析。 第五層只建立長期陪伴生態，不新增命理、不重複各卡片內容、不覆蓋任何命理結果。",
-            "updatedAt": "2026-08-06T15:15:31.984Z",
-            "nextWeeklyUpdateAt": "2026-08-10T00:00:00+08:00",
+            "updatedAt": "2026-08-17T16:52:21.914Z",
+            "nextWeeklyUpdateAt": "2026-08-24T00:00:00+08:00",
             "nextMonthlyUpdateAt": "2026-09-01T00:00:00+08:00",
             "generationVersion": "growth_center_v4",
-            "personalizationSeed": "19c7bf3231cc906b",
+            "personalizationSeed": "5d978d6b7cb36dd6",
             "systemStability": {
               "version": "tiandiren_master_plan_v1",
               "principle": "Analyze once, companion for life",
@@ -820,10 +820,10 @@
               ]
             }
           },
-          "requestId": "4008d990-bc1e-4fad-ad05-d87cdececf09"
+          "requestId": "2f0ce307-e7fc-4a94-ad7a-1410ba8e9a49"
         }
       },
-      "requestId": "4008d990-bc1e-4fad-ad05-d87cdececf09"
+      "requestId": "2f0ce307-e7fc-4a94-ad7a-1410ba8e9a49"
     },
     "other": {
       "ok": true,
@@ -831,7 +831,7 @@
         "ok": true,
         "status": 200,
         "route": "/api/growth-center?completedModules=tarot&primaryElement=WATER&secondaryElement=EARTH&avoidElement=FIRE&anonymousProfileId=quality-all-other",
-        "durationMs": 262,
+        "durationMs": 15,
         "data": {
           "success": true,
           "data": {
@@ -859,9 +859,9 @@
               "weeklyCompanion": {
                 "reminder": "本週最重要：補強 水元素，用一個小行動帶動 感受、流動、理解與修復。",
                 "reinforcement": "本週持續補強：水元素。",
-                "energyColor": "本週能量色：深海藍。",
-                "task": "本週一件任務：今天先聽完一個人的想法再回應。",
-                "quote": "Bill Gates: It is fine to celebrate success, but it is more important to heed the lessons of failure."
+                "energyColor": "本週能量色：湖水青。",
+                "task": "本週一件任務：把一個壓力點寫下來，找出能調整的地方。",
+                "quote": "比爾蓋茲: 慶祝成功很好，但從失敗中記取教訓更重要。"
               },
               "followUpPolicy": {
                 "prompt": "本週 水元素 有持續補強嗎？",
@@ -924,23 +924,23 @@
                   "step": 3,
                   "label": "顏色",
                   "title": "本週能量色",
-                  "body": "本週使用 深海藍。"
+                  "body": "本週使用 湖水青。"
                 },
                 {
                   "step": 4,
                   "label": "行動",
                   "title": "本週一件任務",
-                  "body": "今天先聽完一個人的想法再回應。"
+                  "body": "把一個壓力點寫下來，找出能調整的地方。"
                 },
                 {
                   "step": 5,
                   "label": "鼓勵",
                   "title": "成功人士一句話",
-                  "body": "Bill Gates: It is fine to celebrate success, but it is more important to heed the lessons of failure."
+                  "body": "比爾蓋茲: 慶祝成功很好，但從失敗中記取教訓更重要。"
                 }
               ],
               "checkIn": {
-                "weekKey": "2026-W32",
+                "weekKey": "2026-W34",
                 "title": "本週追蹤",
                 "prompt": "完成本週任務後，回來點一下完成，AI 會保留你的成長節奏。",
                 "buttonText": "完成本週追蹤",
@@ -970,7 +970,7 @@
                 {
                   "week": 2,
                   "title": "第二週：固定行動",
-                  "action": "今天先聽完一個人的想法再回應。"
+                  "action": "把一個壓力點寫下來，找出能調整的地方。"
                 },
                 {
                   "week": 3,
@@ -987,9 +987,9 @@
               "policy": "第五層只建立長期陪伴生態，不新增命理、不重複各卡片內容、不覆蓋任何命理結果。 目前陪伴階段：初始陪伴。"
             },
             "weeklyReport": {
-              "weekKey": "2026-W32",
+              "weekKey": "2026-W34",
               "oneLineReminder": "本週最重要：補強 水元素，用一個小行動帶動 感受、流動、理解與修復。",
-              "primaryAction": "今天先聽完一個人的想法再回應。",
+              "primaryAction": "把一個壓力點寫下來，找出能調整的地方。",
               "evidence": [
                 "塔羅牌已提供牌陣、正逆位、象徵語義與五元素權重訊號。"
               ]
@@ -999,11 +999,11 @@
               "label": "水元素",
               "headline": "本週第一補強是水元素：讓情緒流動，讓關係回到柔軟。",
               "reason": "水元素代表感受、傾聽、適應與修復。補強水元素，重點是降低僵硬反應，增加理解與調整能力。",
-              "action": "今天先聽完一個人的想法再回應。"
+              "action": "把一個壓力點寫下來，找出能調整的地方。"
             },
             "weeklyTask": {
               "title": "本週一件行動任務",
-              "task": "今天先聽完一個人的想法再回應。",
+              "task": "把一個壓力點寫下來，找出能調整的地方。",
               "reason": "這件任務會直接帶動 水元素，讓 感受、流動、理解與修復 開始變得更穩定。"
             },
             "followUp": {
@@ -1022,7 +1022,7 @@
                 "重新排盤",
                 "與本週補強無關的聊天"
               ],
-              "weekKey": "2026-W32",
+              "weekKey": "2026-W34",
               "primaryElement": "WATER",
               "elementLabel": "水元素",
               "prompt": "這一週，你有持續補強 水元素 嗎？",
@@ -1041,13 +1041,13 @@
               "replyWhenContinued": {
                 "title": "很好，請持續。",
                 "message": "你已經開始補強 水元素，現在要把它固定成穩定節奏。",
-                "nextStep": "下一步：把「今天先聽完一個人的想法再回應。」固定成今天的一個小動作。",
+                "nextStep": "下一步：把「把一個壓力點寫下來，找出能調整的地方。」固定成今天的一個小動作。",
                 "improvement": "這會改善你的執行節奏、專注力與持續感。"
               },
               "replyWhenPaused": {
                 "title": "今天開始也不晚。",
                 "message": "目前仍建議持續補強 水元素，先不用想太多，今天先做第一步。",
-                "nextStep": "今天先做：「今天先聽完一個人的想法再回應。」。",
+                "nextStep": "今天先做：「把一個壓力點寫下來，找出能調整的地方。」。",
                 "improvement": "這會幫你重新找回方向，降低拖延，讓行動重新開始。"
               },
               "boundary": "Follow-Up 只處理會員自己的補強進度、本週任務與行動提醒；不詢問私人生活，不重新分析命理。",
@@ -1059,24 +1059,24 @@
               ]
             },
             "weeklyEnergyColor": {
-              "weekKey": "2026-W32",
+              "weekKey": "2026-W34",
               "element": "WATER",
-              "colorName": "深海藍",
-              "hex": "#1D4ED8",
+              "colorName": "湖水青",
+              "hex": "#0891B2",
               "reason": "水元素代表感受、傾聽、適應與修復。補強水元素，重點是降低僵硬反應，增加理解與調整能力。",
               "usage": [
-                "衣服",
-                "手機桌布",
-                "水杯"
+                "配件",
+                "筆記",
+                "工作背景"
               ],
-              "message": "本週能量色是 深海藍。可用在 衣服、手機桌布，提醒自己持續補強 水元素。"
+              "message": "本週能量色是 湖水青。可用在 配件、筆記，提醒自己持續補強 水元素。"
             },
             "weeklyInspiration": {
-              "author": "Bill Gates",
-              "role": "Microsoft co-founder",
-              "quote": "It is fine to celebrate success, but it is more important to heed the lessons of failure.",
+              "author": "比爾蓋茲",
+              "role": "Microsoft 共同創辦人",
+              "quote": "慶祝成功很好，但從失敗中記取教訓更重要。",
               "fit": "這句話提醒你從每一次調整中累積智慧。",
-              "sourceName": "Gates Notes",
+              "sourceName": "比爾蓋茲個人部落格",
               "sourceUrl": "https://www.gatesnotes.com/"
             },
             "fiveElement": {
@@ -1099,11 +1099,11 @@
               "href": "/nameology"
             },
             "dataPolicy": "AI Integration Layer 只讀取八張分析卡片已完成的狀態與元素方向，不重新排盤、不重新算命、不重複呼叫任何命理分析。 第五層只建立長期陪伴生態，不新增命理、不重複各卡片內容、不覆蓋任何命理結果。",
-            "updatedAt": "2026-08-06T15:15:32.280Z",
-            "nextWeeklyUpdateAt": "2026-08-10T00:00:00+08:00",
+            "updatedAt": "2026-08-17T16:52:21.930Z",
+            "nextWeeklyUpdateAt": "2026-08-24T00:00:00+08:00",
             "nextMonthlyUpdateAt": "2026-09-01T00:00:00+08:00",
             "generationVersion": "growth_center_v4",
-            "personalizationSeed": "701879d8885a2baf",
+            "personalizationSeed": "f4bfe6e430a258bb",
             "systemStability": {
               "version": "tiandiren_master_plan_v1",
               "principle": "Analyze once, companion for life",
@@ -1536,10 +1536,10 @@
               ]
             }
           },
-          "requestId": "2de0234c-64f7-4992-87d9-bdab7d407473"
+          "requestId": "75c834bd-383e-4f14-ba9d-4167a368b474"
         }
       },
-      "requestId": "2de0234c-64f7-4992-87d9-bdab7d407473"
+      "requestId": "75c834bd-383e-4f14-ba9d-4167a368b474"
     },
     "screenHealth": {
       "id": "CARD_09",
@@ -1548,16 +1548,16 @@
       "path": "/growth-center",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 614,
-      "htmlLength": 12560,
+      "durationMs": 61,
+      "htmlLength": 19253,
       "error": null,
       "issue": null
     },
-    "startedAt": "2026-08-06T15:15:29.996Z",
-    "completedAt": "2026-08-06T15:15:30.624Z"
+    "startedAt": "2026-08-17T16:52:21.167Z",
+    "completedAt": "2026-08-17T16:52:21.932Z"
   },
   "totalScore": 82,
   "tier": "STANDARD",
   "allowNextCard": false,
-  "generatedAt": "2026-08-06T15:15:30.624Z"
+  "generatedAt": "2026-08-17T16:52:21.932Z"
 }

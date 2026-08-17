@@ -11,7 +11,7 @@ const timeoutMs = Number(process.env.CARD_QUALITY_TIMEOUT_MS || 45000);
 
 const cards = [
   { cardId: 'CARD_01', moduleId: 'nameology', cardName: 'AI 姓名學', route: '/nameology', apiKind: 'analysis', analysisType: 'nameology', input: (mode) => buildPerson('NameQA', mode) },
-  { cardId: 'CARD_02', moduleId: 'ziwei', cardName: 'AI 紫微斗數', route: '/insight', apiKind: 'analysis', analysisType: 'insight', input: (mode) => buildPerson('ZiweiQA', mode) },
+  { cardId: 'CARD_02', moduleId: 'ziwei', cardName: 'AI 紫微斗數', route: '/insight', apiKind: 'insight', input: (mode) => buildPerson('ZiweiQA', mode) },
   { cardId: 'CARD_03', moduleId: 'number', cardName: '數字論吉凶', route: '/numerology', apiKind: 'analysis', analysisType: 'number', input: (mode) => ({ value: mode === 'self' ? '0912345678' : '16889999' }) },
   { cardId: 'CARD_04', moduleId: 'soul_match', cardName: 'AI 靈魂配對', route: '/match', apiKind: 'match' },
   { cardId: 'CARD_05', moduleId: 'music', cardName: 'AI 生成歌曲', route: '/music', apiKind: 'music' },
@@ -78,11 +78,31 @@ async function checkAnalysis(card, mode) {
     userId: mode === 'self' ? 'card-quality-self' : null,
   });
   const job = create.data?.data;
-  const inlineResultOk = Boolean(create.ok && create.data?.ok === true && (create.data?.result || job?.resultId || job?.status === 'COMPLETED'));
+  const hasInlineResult = Boolean(create.data?.result || job?.status === 'COMPLETED');
+  const inlineResultOk = Boolean(create.ok && create.data?.ok === true && (hasInlineResult || job?.resultId));
+  // The real frontend (lib/analysis-job-client.ts) only polls when the create response did not
+  // already return a completed inline result; fast synchronous engines (bazi/zodiac/number/
+  // nameology) always do, so polling here would just re-test a path real users never take and
+  // report a false JOB_NOT_FOUND failure caused by serverless instances not sharing memory.
   let poll = null;
-  if (job?.jobId) poll = await request('GET', `/api/analysis/jobs/${job.jobId}`);
-  const pollOk = Boolean(poll?.ok && poll.data?.ok !== false && poll.data?.data?.status);
+  if (job?.jobId && !hasInlineResult) poll = await request('GET', `/api/analysis/jobs/${job.jobId}`);
+  const pollOk = poll ? Boolean(poll.ok && poll.data?.ok !== false && poll.data?.data?.status) : true;
   return { create, poll, ok: inlineResultOk, pollOk, jobId: job?.jobId || null, resultId: job?.resultId || null, status: job?.status || null, requestId: create.data?.requestId || poll?.data?.requestId || null };
+}
+
+async function checkInsight(mode) {
+  const input = buildPerson('ZiweiQA', mode);
+  const res = await request('POST', '/api/insight-analyze', {
+    name: input.name,
+    birthDate: input.birthDate,
+    birthTime: input.birthTime,
+    gender: input.gender,
+    shichen: input.shichen,
+    longitude: null,
+    timezone: null,
+    timeCorrectionMode: 'STANDARD_TIME',
+  });
+  return { ok: Boolean(res.ok && res.data?.analysisId && res.data?.presentation), response: res, requestId: res.data?.requestId || null };
 }
 
 async function checkMatch(mode) {
@@ -142,6 +162,7 @@ async function checkGrowth(mode) {
 
 async function checkApi(card, mode) {
   if (card.apiKind === 'analysis') return checkAnalysis(card, mode);
+  if (card.apiKind === 'insight') return checkInsight(mode);
   if (card.apiKind === 'match') return checkMatch(mode);
   if (card.apiKind === 'music') return checkMusic(mode);
   if (card.apiKind === 'tarot') return checkTarot(mode);

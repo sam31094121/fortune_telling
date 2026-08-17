@@ -1,4 +1,4 @@
-import { randomInt, randomUUID } from 'node:crypto';
+import { createHmac, randomInt, randomUUID, timingSafeEqual } from 'node:crypto';
 import { TAROT_CARDS } from '@/features/tarot/data/cards';
 import { TAROT_CARD_BACK_ALT, TAROT_CARD_BACK_URL, TAROT_DECK_STYLE_ID } from '@/features/tarot/constants/cardBack';
 import { generateTarotInterpretation } from '@/features/tarot/services/interpretation';
@@ -227,20 +227,62 @@ const tarotRuntimeStore = ((globalThis as typeof globalThis & { __tarotRuntimeSt
 });
 const tarotSessions = tarotRuntimeStore.sessions;
 
+// Vercel serverless functions do not share memory across instances, so a shuffle handled by one
+// instance can be invisible to the draw-output/reading call that lands on another instance a few
+// hundred ms later — the in-memory Map above then misses and users see a false "session expired"
+// error. To make every instance able to answer regardless of which one handled the shuffle, the
+// session id returned to the client is a self-contained, HMAC-signed token: any instance can
+// verify and rebuild the session from the token alone, with the Map kept only as a same-instance
+// fast path. This mirrors the inline-execution fix already applied to /api/analysis/jobs.
+const TAROT_SESSION_SECRET = process.env.TAROT_SESSION_SECRET || process.env.JWT_SECRET || 'tarot-stateless-session-v1';
+
+function encodeSessionToken(session: TarotSession): string {
+  const payload = Buffer.from(JSON.stringify(session), 'utf8').toString('base64url');
+  const signature = createHmac('sha256', TAROT_SESSION_SECRET).update(payload).digest('base64url');
+  return `${payload}.${signature}`;
+}
+
+function decodeSessionToken(token: string): TarotSession | null {
+  const separatorIndex = token.lastIndexOf('.');
+  if (separatorIndex <= 0) return null;
+  const payload = token.slice(0, separatorIndex);
+  const signature = token.slice(separatorIndex + 1);
+  const expectedSignature = createHmac('sha256', TAROT_SESSION_SECRET).update(payload).digest('base64url');
+  const signatureBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expectedSignature);
+  if (signatureBuffer.length !== expectedBuffer.length || !timingSafeEqual(signatureBuffer, expectedBuffer)) return null;
+  try {
+    const session = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as TarotSession;
+    if (!session || typeof session.id !== 'string' || !Array.isArray(session.deck) || typeof session.expiresAt !== 'number') return null;
+    return session;
+  } catch {
+    return null;
+  }
+}
+
 async function cleanupPersistedSessions(): Promise<void> {
   cleanupSessions();
 }
 
-async function persistSession(session: TarotSession): Promise<void> {
-  tarotSessions.set(session.id, session);
+/** Stores the session for same-instance reuse and returns the portable, signed session token. */
+async function persistSession(session: TarotSession): Promise<string> {
+  const token = encodeSessionToken(session);
+  tarotSessions.set(token, session);
+  return token;
 }
 
-async function getStoredSession(sessionId: string): Promise<TarotSession | undefined> {
-  return tarotSessions.get(sessionId);
+async function getStoredSession(sessionToken: string): Promise<TarotSession | undefined> {
+  const cached = tarotSessions.get(sessionToken);
+  if (cached) return cached.expiresAt > Date.now() ? cached : undefined;
+
+  const decoded = decodeSessionToken(sessionToken);
+  if (!decoded || decoded.expiresAt <= Date.now()) return undefined;
+  tarotSessions.set(sessionToken, decoded);
+  return decoded;
 }
 
-async function deleteStoredSession(sessionId: string): Promise<void> {
-  tarotSessions.delete(sessionId);
+async function deleteStoredSession(sessionToken: string): Promise<void> {
+  tarotSessions.delete(sessionToken);
 }
 
 function deckIntegrity() {
@@ -734,8 +776,7 @@ export async function createTarotShuffle(body: TarotShuffleRequest): Promise<Tar
     expiresAt,
   };
 
-  tarotSessions.set(sessionId, session);
-  await persistSession(session);
+  const sessionToken = await persistSession(session);
 
   await updateStats((stats) => {
     stats.totals.shuffles += 1;
@@ -745,7 +786,7 @@ export async function createTarotShuffle(body: TarotShuffleRequest): Promise<Tar
     ok: true,
     engineVersion: TAROT_ENGINE_VERSION,
     title: TAROT_PUBLIC_TITLE,
-    sessionId,
+    sessionId: sessionToken,
     categoryId,
     question,
     scope,
@@ -950,7 +991,7 @@ export async function createTarotReading(body: TarotReadingRequest): Promise<Tar
     nextStats.categoryCounts[reading.category] = (nextStats.categoryCounts[reading.category] ?? 0) + 1;
   });
 
-  await deleteStoredSession(session.id);
+  await deleteStoredSession(body.sessionId as string);
 
   return {
     ok: true,

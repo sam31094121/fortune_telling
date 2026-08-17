@@ -58,7 +58,7 @@
       "maxScore": 10,
       "status": "PASSED",
       "evidenceIds": [
-        "MAX_DURATION_4128MS"
+        "MAX_DURATION_3815MS"
       ]
     },
     {
@@ -92,11 +92,11 @@
     "regressionPassed": true
   },
   "evidence": {
-    "baseUrl": "https://heaven-earth-humanity-pair.vercel.app",
+    "baseUrl": "http://localhost:8888",
     "route": {
       "ok": true,
       "status": 200,
-      "durationMs": 52,
+      "durationMs": 643,
       "length": 1000,
       "error": null
     },
@@ -106,7 +106,7 @@
         "ok": true,
         "status": 200,
         "route": "/api/match-generate",
-        "durationMs": 3348,
+        "durationMs": 3815,
         "data": {
           "result": {
             "match_score": 90,
@@ -117,20 +117,20 @@
             "summary": "整體配對穩定度高，雙方在共鳴與相處節奏上有明顯優勢，只要持續保持真誠溝通，這段關係會越走越順。",
             "zones": {
               "resonance": [
-                "AI 判定，金牛 MatchASelf 與天蠍 MatchBOther 情感波頻高度一致，靈魂共鳴直抵核心。",
-                "AI 分析，屬馬的 MatchASelf 與屬龍的 MatchBOther 社交節奏天生合拍，相處自在無礙。"
+                "AI 判定金牛與天蠍，情感深邃，靈魂共振，無需言語已心領神會。",
+                "AI 分析生肖馬與龍，社交節奏一致，自在舒適，是彼此最佳的同行者。"
               ],
               "complement": [
-                "AI 確認，金牛 MatchASelf 的謹慎為天蠍 MatchBOther 的果敢提供穩固基石，互相制衡。",
-                "AI 分析，MatchBOther 的土性沉穩，恰好補足 MatchASelf 金性過剛，形成完美平衡。"
+                "AI 確認 MatchASelf 金牛的謹慎，精準平衡 MatchBOther 天蠍的勇敢，是關係的雙引擎。",
+                "AI 分析五行金與土相生，MatchBOther 的土滋養 MatchASelf 的金，彼此成就，力量倍增。"
               ],
               "grinding": [
-                "AI 判定，MatchASelf（金牛）與 MatchBOther（天蠍）對風險的接受度是核心磨合點，決策前需深度溝通。",
-                "AI 確認，MatchASelf 的 A 型血謹慎與 MatchBOther 的 O 型血開放，需刻意練習共識建立。"
+                "AI 判定 MatchASelf 金牛對風險的保守，與 MatchBOther 天蠍的果斷，是決策時的隱形斷層。",
+                "AI 確認血型 A 與 O，在重大決定前，需為彼此的思考模式預留緩衝，否則易生內耗。"
               ],
               "conflict": [
-                "AI 分析，目前未見高衝突警示，但 MatchASelf 的金性與 MatchBOther 的土性，需警惕固執引發的冷戰。",
-                "AI 建議立即執行，維持日常真誠溝通，避免金牛的內斂與天蠍的深沉累積誤解。"
+                "AI 分析目前未見高衝突警示，但潛在的『不說』才是最大風險，AI 建議立即執行：深度溝通。",
+                "AI 判定維持日常溝通，並非表面寒暄，而是直搗核心，揭露彼此最深層的擔憂與渴望。"
               ]
             },
             "communicationReport": {
@@ -264,8 +264,8 @@
                 "explanation": "讀取雙方情緒、人際與親密依戀的接近程度。",
                 "storyMeaning": "此軸決定兩人是否容易覺得對方懂自己。",
                 "evidence": [
-                  "AI 判定，金牛 MatchASelf 與天蠍 MatchBOther 情感波頻高度一致，靈魂共鳴直抵核心。",
-                  "AI 分析，屬馬的 MatchASelf 與屬龍的 MatchBOther 社交節奏天生合拍，相處自在無礙。"
+                  "AI 判定金牛與天蠍，情感深邃，靈魂共振，無需言語已心領神會。",
+                  "AI 分析生肖馬與龍，社交節奏一致，自在舒適，是彼此最佳的同行者。"
                 ]
               },
               {
@@ -275,8 +275,8 @@
                 "explanation": "讀取雙方情感表達、邏輯理解與人際節奏的對齊度。",
                 "storyMeaning": "此軸決定誤會出現時，兩人是能說開，還是各自退回自己的防線。",
                 "evidence": [
-                  "AI 判定，MatchASelf（金牛）與 MatchBOther（天蠍）對風險的接受度是核心磨合點，決策前需深度溝通。",
-                  "AI 確認，MatchASelf 的 A 型血謹慎與 MatchBOther 的 O 型血開放，需刻意練習共識建立。"
+                  "AI 判定 MatchASelf 金牛對風險的保守，與 MatchBOther 天蠍的果斷，是決策時的隱形斷層。",
+                  "AI 確認血型 A 與 O，在重大決定前，需為彼此的思考模式預留緩衝，否則易生內耗。"
                 ]
               },
               {
@@ -297,15 +297,15 @@
                 "explanation": "讀取雙方安全感落差、依戀落差與主導性拉扯。",
                 "storyMeaning": "此軸不是否定關係，而是標出需要優先處理的壓力點。",
                 "evidence": [
-                  "AI 分析，目前未見高衝突警示，但 MatchASelf 的金性與 MatchBOther 的土性，需警惕固執引發的冷戰。",
-                  "AI 建議立即執行，維持日常真誠溝通，避免金牛的內斂與天蠍的深沉累積誤解。"
+                  "AI 分析目前未見高衝突警示，但潛在的『不說』才是最大風險，AI 建議立即執行：深度溝通。",
+                  "AI 判定維持日常溝通，並非表面寒暄，而是直搗核心，揭露彼此最深層的擔憂與渴望。"
                 ]
               }
             ],
             "relationshipStory": {
               "opening": "MatchASelf帶著「情感共鳴型」進入關係，MatchBOther帶著「行動推進型」回應關係。",
-              "resonanceStory": "雙方的共鳴來自：AI 判定，金牛 MatchASelf 與天蠍 MatchBOther 情感波頻高度一致，靈魂共鳴直抵核心。；AI 分析，屬馬的 MatchASelf 與屬龍的 MatchBOther 社交節奏天生合拍，相處自在無礙。。",
-              "frictionStory": "關係的磨合來自：AI 分析，目前未見高衝突警示，但 MatchASelf 的金性與 MatchBOther 的土性，需警惕固執引發的冷戰。；AI 建議立即執行，維持日常真誠溝通，避免金牛的內斂與天蠍的深沉累積誤解。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。",
+              "resonanceStory": "雙方的共鳴來自：AI 判定金牛與天蠍，情感深邃，靈魂共振，無需言語已心領神會。；AI 分析生肖馬與龍，社交節奏一致，自在舒適，是彼此最佳的同行者。。",
+              "frictionStory": "關係的磨合來自：AI 分析目前未見高衝突警示，但潛在的『不說』才是最大風險，AI 建議立即執行：深度溝通。；AI 判定維持日常溝通，並非表面寒暄，而是直搗核心，揭露彼此最深層的擔憂與渴望。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。",
               "professionalSummary": "第一層只建立雙方固定資料、關係軸線、分數證據與故事素材，不直接做補強或保證結果。"
             },
             "readingBoundaries": [
@@ -361,14 +361,14 @@
             ],
             "userReadableSummary": "AI 讀取第一層後判定：MatchASelf × MatchBOther的關係不是只看總分，而是要先處理【承諾軸】，再帶動【共鳴軸】與【溝通軸】。",
             "relationshipPositioning": "MatchASelf帶著「情感共鳴型」進入關係，MatchBOther帶著「行動推進型」回應關係。這代表關係的主軸是「兩個底色不同的人如何在同一個日常裡對齊」。",
-            "emotionalPattern": "雙方的共鳴來自：AI 判定，金牛 MatchASelf 與天蠍 MatchBOther 情感波頻高度一致，靈魂共鳴直抵核心。；AI 分析，屬馬的 MatchASelf 與屬龍的 MatchBOther 社交節奏天生合拍，相處自在無礙。。這是關係可以繼續加深的情感根基。",
+            "emotionalPattern": "雙方的共鳴來自：AI 判定金牛與天蠍，情感深邃，靈魂共振，無需言語已心領神會。；AI 分析生肖馬與龍，社交節奏一致，自在舒適，是彼此最佳的同行者。。這是關係可以繼續加深的情感根基。",
             "communicationPattern": "溝通需要先回到「確認」而不是「說服」。當雙方能先確認感受與事實，關係就會進入可修復狀態。",
-            "riskTranslation": "關係的磨合來自：AI 分析，目前未見高衝突警示，但 MatchASelf 的金性與 MatchBOther 的土性，需警惕固執引發的冷戰。；AI 建議立即執行，維持日常真誠溝通，避免金牛的內斂與天蠍的深沉累積誤解。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。壓力點不是結論，而是關係需要學會的修復技術。",
+            "riskTranslation": "關係的磨合來自：AI 分析目前未見高衝突警示，但潛在的『不說』才是最大風險，AI 建議立即執行：深度溝通。；AI 判定維持日常溝通，並非表面寒暄，而是直搗核心，揭露彼此最深層的擔憂與渴望。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。壓力點不是結論，而是關係需要學會的修復技術。",
             "evidenceChain": [
               "第一層判定：MatchASelf × MatchBOther屬於「高共鳴」型關係。最強軸線是【溝通】，最需要被照顧的軸線是【穩定】。",
               "MatchASelf帶著「情感共鳴型」進入關係，MatchBOther帶著「行動推進型」回應關係。",
-              "雙方的共鳴來自：AI 判定，金牛 MatchASelf 與天蠍 MatchBOther 情感波頻高度一致，靈魂共鳴直抵核心。；AI 分析，屬馬的 MatchASelf 與屬龍的 MatchBOther 社交節奏天生合拍，相處自在無礙。。",
-              "關係的磨合來自：AI 分析，目前未見高衝突警示，但 MatchASelf 的金性與 MatchBOther 的土性，需警惕固執引發的冷戰。；AI 建議立即執行，維持日常真誠溝通，避免金牛的內斂與天蠍的深沉累積誤解。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。",
+              "雙方的共鳴來自：AI 判定金牛與天蠍，情感深邃，靈魂共振，無需言語已心領神會。；AI 分析生肖馬與龍，社交節奏一致，自在舒適，是彼此最佳的同行者。。",
+              "關係的磨合來自：AI 分析目前未見高衝突警示，但潛在的『不說』才是最大風險，AI 建議立即執行：深度溝通。；AI 判定維持日常溝通，並非表面寒暄，而是直搗核心，揭露彼此最深層的擔憂與渴望。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。",
               "MatchASelf的關係底色是「情感共鳴型」；金牛座帶出外在節奏，馬與金建立關係質地，重視承諾、秩序與穩定，關係中需要被好好放在心上。",
               "親密依戀：85",
               "安全穩定：84",
@@ -544,7 +544,7 @@
         "ok": true,
         "status": 200,
         "route": "/api/match-generate",
-        "durationMs": 4128,
+        "durationMs": 3578,
         "data": {
           "result": {
             "match_score": 90,
@@ -555,20 +555,20 @@
             "summary": "整體配對穩定度高，雙方在共鳴與相處節奏上有明顯優勢，只要持續保持真誠溝通，這段關係會越走越順。",
             "zones": {
               "resonance": [
-                "AI 判定：MatchASelf 金牛的務實與 MatchFriendOther 天蠍的深沉，在情感波頻上達到罕見的共振，靈魂深處彼此呼應。",
-                "AI 分析：屬馬的 MatchASelf 與屬龍的 MatchFriendOther，社交節奏天生一致，相處自在，安全感標準高度吻合，關係基石穩固。"
+                "AI 判定，金牛 MatchASelf 與天蠍 MatchFriendOther 情感波頻高度相近，靈魂共鳴直達深處。",
+                "AI 分析，屬馬 MatchASelf 與屬龍 MatchFriendOther 社交節奏一致，相處自在，安全感標準同步。"
               ],
               "complement": [
-                "AI 確認：MatchASelf 金的堅韌與 MatchFriendOther 土的承載，形成謹慎與勇敢的完美平衡，互相制衡，彼此激勵。",
-                "AI 分析：MatchASelf 的 A 型血特質與 MatchFriendOther 的 O 型血特質，在決策上能互補，一個細緻，一個果斷。"
+                "AI 確認，金牛 MatchASelf 的謹慎與天蠍 MatchFriendOther 的勇敢，形成完美制衡與激勵。",
+                "AI 分析，五行金的 MatchASelf 與五行土的 MatchFriendOther，土生金，關係互助共榮。"
               ],
               "grinding": [
-                "AI 判定：MatchASelf 金牛座對風險的保守，與 MatchFriendOther 天蠍座的敢於深入，在重大決策前將是磨合的關鍵。",
-                "AI 確認：MatchASelf 屬馬的直率與 MatchFriendOther 屬龍的權威感，在意見相左時，需刻意放緩溝通節奏，避免硬碰硬。"
+                "AI 判定，金牛 MatchASelf 對風險的保守與天蠍 MatchFriendOther 的果決，是重大決策前的隱形阻力。",
+                "AI 確認，A 型血 MatchASelf 與 O 型血 MatchFriendOther，需為彼此的決策風格預留緩衝時間。"
               ],
               "conflict": [
-                "AI 分析：矩陣顯示衝突風險極低，但這不代表沒有。AI 建議立即執行，維持日常真誠溝通，尤其在『錢』與『權』的議題上。",
-                "AI 確認：高契合度易生盲點。AI 建議立即執行，定期審視彼此對未來的期望，避免因小失大，讓隱性差異浮上檯面。"
+                "AI 分析，矩陣未見高衝突警示，但『日常溝通』絕非敷衍，而是關係的每日修煉。",
+                "AI 確認，維持開放對話，是 MatchASelf 與 MatchFriendOther 關係永續的唯一解方。"
               ]
             },
             "communicationReport": {
@@ -702,8 +702,8 @@
                 "explanation": "讀取雙方情緒、人際與親密依戀的接近程度。",
                 "storyMeaning": "此軸決定兩人是否容易覺得對方懂自己。",
                 "evidence": [
-                  "AI 判定：MatchASelf 金牛的務實與 MatchFriendOther 天蠍的深沉，在情感波頻上達到罕見的共振，靈魂深處彼此呼應。",
-                  "AI 分析：屬馬的 MatchASelf 與屬龍的 MatchFriendOther，社交節奏天生一致，相處自在，安全感標準高度吻合，關係基石穩固。"
+                  "AI 判定，金牛 MatchASelf 與天蠍 MatchFriendOther 情感波頻高度相近，靈魂共鳴直達深處。",
+                  "AI 分析，屬馬 MatchASelf 與屬龍 MatchFriendOther 社交節奏一致，相處自在，安全感標準同步。"
                 ]
               },
               {
@@ -713,8 +713,8 @@
                 "explanation": "讀取雙方情感表達、邏輯理解與人際節奏的對齊度。",
                 "storyMeaning": "此軸決定誤會出現時，兩人是能說開，還是各自退回自己的防線。",
                 "evidence": [
-                  "AI 判定：MatchASelf 金牛座對風險的保守，與 MatchFriendOther 天蠍座的敢於深入，在重大決策前將是磨合的關鍵。",
-                  "AI 確認：MatchASelf 屬馬的直率與 MatchFriendOther 屬龍的權威感，在意見相左時，需刻意放緩溝通節奏，避免硬碰硬。"
+                  "AI 判定，金牛 MatchASelf 對風險的保守與天蠍 MatchFriendOther 的果決，是重大決策前的隱形阻力。",
+                  "AI 確認，A 型血 MatchASelf 與 O 型血 MatchFriendOther，需為彼此的決策風格預留緩衝時間。"
                 ]
               },
               {
@@ -735,15 +735,15 @@
                 "explanation": "讀取雙方安全感落差、依戀落差與主導性拉扯。",
                 "storyMeaning": "此軸不是否定關係，而是標出需要優先處理的壓力點。",
                 "evidence": [
-                  "AI 分析：矩陣顯示衝突風險極低，但這不代表沒有。AI 建議立即執行，維持日常真誠溝通，尤其在『錢』與『權』的議題上。",
-                  "AI 確認：高契合度易生盲點。AI 建議立即執行，定期審視彼此對未來的期望，避免因小失大，讓隱性差異浮上檯面。"
+                  "AI 分析，矩陣未見高衝突警示，但『日常溝通』絕非敷衍，而是關係的每日修煉。",
+                  "AI 確認，維持開放對話，是 MatchASelf 與 MatchFriendOther 關係永續的唯一解方。"
                 ]
               }
             ],
             "relationshipStory": {
               "opening": "MatchASelf帶著「情感共鳴型」進入關係，MatchFriendOther帶著「行動推進型」回應關係。",
-              "resonanceStory": "雙方的共鳴來自：AI 判定：MatchASelf 金牛的務實與 MatchFriendOther 天蠍的深沉，在情感波頻上達到罕見的共振，靈魂深處彼此呼應。；AI 分析：屬馬的 MatchASelf 與屬龍的 MatchFriendOther，社交節奏天生一致，相處自在，安全感標準高度吻合，關係基石穩固。。",
-              "frictionStory": "關係的磨合來自：AI 分析：矩陣顯示衝突風險極低，但這不代表沒有。AI 建議立即執行，維持日常真誠溝通，尤其在『錢』與『權』的議題上。；AI 確認：高契合度易生盲點。AI 建議立即執行，定期審視彼此對未來的期望，避免因小失大，讓隱性差異浮上檯面。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。",
+              "resonanceStory": "雙方的共鳴來自：AI 判定，金牛 MatchASelf 與天蠍 MatchFriendOther 情感波頻高度相近，靈魂共鳴直達深處。；AI 分析，屬馬 MatchASelf 與屬龍 MatchFriendOther 社交節奏一致，相處自在，安全感標準同步。。",
+              "frictionStory": "關係的磨合來自：AI 分析，矩陣未見高衝突警示，但『日常溝通』絕非敷衍，而是關係的每日修煉。；AI 確認，維持開放對話，是 MatchASelf 與 MatchFriendOther 關係永續的唯一解方。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。",
               "professionalSummary": "第一層只建立雙方固定資料、關係軸線、分數證據與故事素材，不直接做補強或保證結果。"
             },
             "readingBoundaries": [
@@ -799,14 +799,14 @@
             ],
             "userReadableSummary": "AI 讀取第一層後判定：MatchASelf × MatchFriendOther的關係不是只看總分，而是要先處理【承諾軸】，再帶動【共鳴軸】與【溝通軸】。",
             "relationshipPositioning": "MatchASelf帶著「情感共鳴型」進入關係，MatchFriendOther帶著「行動推進型」回應關係。這代表關係的主軸是「兩個底色不同的人如何在同一個日常裡對齊」。",
-            "emotionalPattern": "雙方的共鳴來自：AI 判定：MatchASelf 金牛的務實與 MatchFriendOther 天蠍的深沉，在情感波頻上達到罕見的共振，靈魂深處彼此呼應。；AI 分析：屬馬的 MatchASelf 與屬龍的 MatchFriendOther，社交節奏天生一致，相處自在，安全感標準高度吻合，關係基石穩固。。這是關係可以繼續加深的情感根基。",
+            "emotionalPattern": "雙方的共鳴來自：AI 判定，金牛 MatchASelf 與天蠍 MatchFriendOther 情感波頻高度相近，靈魂共鳴直達深處。；AI 分析，屬馬 MatchASelf 與屬龍 MatchFriendOther 社交節奏一致，相處自在，安全感標準同步。。這是關係可以繼續加深的情感根基。",
             "communicationPattern": "溝通需要先回到「確認」而不是「說服」。當雙方能先確認感受與事實，關係就會進入可修復狀態。",
-            "riskTranslation": "關係的磨合來自：AI 分析：矩陣顯示衝突風險極低，但這不代表沒有。AI 建議立即執行，維持日常真誠溝通，尤其在『錢』與『權』的議題上。；AI 確認：高契合度易生盲點。AI 建議立即執行，定期審視彼此對未來的期望，避免因小失大，讓隱性差異浮上檯面。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。壓力點不是結論，而是關係需要學會的修復技術。",
+            "riskTranslation": "關係的磨合來自：AI 分析，矩陣未見高衝突警示，但『日常溝通』絕非敷衍，而是關係的每日修煉。；AI 確認，維持開放對話，是 MatchASelf 與 MatchFriendOther 關係永續的唯一解方。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。壓力點不是結論，而是關係需要學會的修復技術。",
             "evidenceChain": [
               "第一層判定：MatchASelf × MatchFriendOther屬於「高共鳴」型關係。最強軸線是【溝通】，最需要被照顧的軸線是【穩定】。",
               "MatchASelf帶著「情感共鳴型」進入關係，MatchFriendOther帶著「行動推進型」回應關係。",
-              "雙方的共鳴來自：AI 判定：MatchASelf 金牛的務實與 MatchFriendOther 天蠍的深沉，在情感波頻上達到罕見的共振，靈魂深處彼此呼應。；AI 分析：屬馬的 MatchASelf 與屬龍的 MatchFriendOther，社交節奏天生一致，相處自在，安全感標準高度吻合，關係基石穩固。。",
-              "關係的磨合來自：AI 分析：矩陣顯示衝突風險極低，但這不代表沒有。AI 建議立即執行，維持日常真誠溝通，尤其在『錢』與『權』的議題上。；AI 確認：高契合度易生盲點。AI 建議立即執行，定期審視彼此對未來的期望，避免因小失大，讓隱性差異浮上檯面。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。",
+              "雙方的共鳴來自：AI 判定，金牛 MatchASelf 與天蠍 MatchFriendOther 情感波頻高度相近，靈魂共鳴直達深處。；AI 分析，屬馬 MatchASelf 與屬龍 MatchFriendOther 社交節奏一致，相處自在，安全感標準同步。。",
+              "關係的磨合來自：AI 分析，矩陣未見高衝突警示，但『日常溝通』絕非敷衍，而是關係的每日修煉。；AI 確認，維持開放對話，是 MatchASelf 與 MatchFriendOther 關係永續的唯一解方。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。",
               "MatchASelf的關係底色是「情感共鳴型」；金牛座帶出外在節奏，馬與金建立關係質地，重視承諾、秩序與穩定，關係中需要被好好放在心上。",
               "親密依戀：85",
               "安全穩定：84",
@@ -983,16 +983,16 @@
       "path": "/match",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 600,
-      "htmlLength": 22423,
+      "durationMs": 451,
+      "htmlLength": 27195,
       "error": null,
       "issue": null
     },
-    "startedAt": "2026-08-06T15:15:02.788Z",
-    "completedAt": "2026-08-06T15:15:10.318Z"
+    "startedAt": "2026-08-17T16:51:52.847Z",
+    "completedAt": "2026-08-17T16:52:00.883Z"
   },
   "totalScore": 73,
   "tier": "STANDARD",
   "allowNextCard": false,
-  "generatedAt": "2026-08-06T15:15:10.318Z"
+  "generatedAt": "2026-08-17T16:52:00.883Z"
 }

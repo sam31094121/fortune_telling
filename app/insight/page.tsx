@@ -3033,7 +3033,7 @@ function ZiweiTwelvePalaceCards({
       <details open className="relative isolate mt-5 overflow-hidden rounded-[28px] border border-amber-200/20 bg-[linear-gradient(145deg,rgba(15,23,42,0.72),rgba(2,6,23,0.92))] p-4 shadow-[0_20px_60px_rgba(2,6,23,0.34)] sm:p-5">
         <span className="pointer-events-none absolute inset-0 -z-10 opacity-50 [background-image:linear-gradient(rgba(148,163,184,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.07)_1px,transparent_1px)] [background-size:26px_26px]" />
         <span className="pointer-events-none absolute -right-10 -top-10 -z-10 h-44 w-44 rounded-full border border-amber-200/20 bg-amber-300/[0.04] shadow-[0_0_80px_rgba(251,191,36,0.12)]" />
-        <summary className="relative flex cursor-pointer items-center justify-between gap-3">
+        <summary className="relative flex cursor-pointer touch-manipulation select-none items-center justify-between gap-3">
           <span>
             <span className="block text-[11px] font-black tracking-[0.22em] text-amber-200">紫微命盤</span>
             <span className="mt-1 block font-serif text-4xl font-black tracking-[0.08em] text-amber-50 sm:text-5xl">十二宮</span>
@@ -3080,7 +3080,7 @@ function ZiweiTwelvePalaceCards({
               <details key={palace.key} className={`group relative overflow-hidden rounded-[24px] border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_16px_34px_rgba(2,6,23,0.22)] transition duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[0_22px_42px_rgba(2,6,23,0.4)] ${visual.tone}`}>
                 <span className={`pointer-events-none absolute -right-2 -top-8 font-serif text-[118px] font-black leading-none opacity-[0.08] ${visual.accent}`}>{visual.glyph}</span>
                 <span className="pointer-events-none absolute bottom-5 right-5 h-2 w-2 rounded-full bg-white/60 shadow-[0_0_18px_rgba(255,255,255,0.95)]" />
-                <summary className="relative flex min-h-[132px] cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-3 py-4 [&::-webkit-details-marker]:hidden">
+                <summary className="relative flex min-h-[132px] cursor-pointer touch-manipulation select-none list-none items-center justify-between gap-4 rounded-2xl px-3 py-4 [-webkit-tap-highlight-color:transparent] [&::-webkit-details-marker]:hidden">
                   <div>
                     <h4 className="font-serif text-[2.6rem] font-black leading-none tracking-[0.08em] text-white drop-shadow-[0_4px_18px_rgba(255,255,255,0.16)] sm:text-5xl">{palaceName}</h4>
                     <p className={`mt-3 text-xs font-black tracking-[0.12em] ${visual.accent}`}>點選查看本宮資料</p>
@@ -3452,10 +3452,10 @@ function InsightAnalyticalConsole({
   const [logs, setLogs] = useState<string[]>([]);
 
   const fullLogs = useMemo(() => [
-    `【天宿天盤】抓取個人命格星曜氣場：${name || '未知本體'}`,
-    `【紫微排盤】命盤格局、三方四正與今年流年資料... 已就緒`,
-    `【天宿智算】正在計算超越樣本數據庫基底...`,
-    `【天星解密】生成個人潛能、盲點與改命建議分析報告...`,
+    `【資料確認】正在整理本次輸入資料：${name || '未填寫姓名'}`,
+    `【紫微排盤】正在建立命盤、三方四正與年度資料…`,
+    `【規則運算】依出生日期與時辰執行排盤與交叉整理…`,
+    `【白話整理】正在把命盤資訊轉成可閱讀的重點說明…`,
   ], [name]);
 
   useEffect(() => {
@@ -3478,7 +3478,7 @@ function InsightAnalyticalConsole({
         <div>
           <p className="text-xs uppercase tracking-[0.35em] text-cyan-300 flex items-center gap-2">
             <span className="animate-ping inline-block w-1.5 h-1.5 rounded-full bg-cyan-400" />
-            <span>🧬 大數據個人天宿洞察終端</span>
+            <span>☯ 紫微命盤資料整理中</span>
           </p>
           <div className="mt-6 space-y-3.5 text-xs sm:text-sm text-cyan-100 leading-7 min-h-[150px]">
             {logs.map((log, index) => (

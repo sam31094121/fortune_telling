@@ -58,7 +58,7 @@
       "maxScore": 10,
       "status": "PASSED",
       "evidenceIds": [
-        "MAX_DURATION_7900MS"
+        "MAX_DURATION_8657MS"
       ]
     },
     {
@@ -92,11 +92,11 @@
     "regressionPassed": true
   },
   "evidence": {
-    "baseUrl": "https://heaven-earth-humanity-pair.vercel.app",
+    "baseUrl": "http://localhost:8888",
     "route": {
       "ok": true,
       "status": 200,
-      "durationMs": 54,
+      "durationMs": 661,
       "length": 1000,
       "error": null
     },
@@ -106,7 +106,7 @@
         "ok": true,
         "status": 200,
         "route": "/api/music-generate",
-        "durationMs": 7900,
+        "durationMs": 8287,
         "data": {
           "life_song_context": {
             "targetMode": "self",
@@ -165,124 +165,122 @@
             ]
           },
           "music_report": {
-            "music_narrative": "你的音樂靈魂，如庚金般清亮，馬的奔放賦予旋律自由。金牛的沉穩與A型血的細膩，讓你的音樂既有精準的節奏感，又蘊含深沉的情感。AIR的流動與SPACE的廣闊，使你的樂章充滿探索與療癒的能量。在追求完美的同時，也別忘了給自己留白，讓心靈的流動引領你走向更寬廣的境地。",
-            "song_title_suggestion": "金馬流光：心之所向",
-            "lyric_opening": "金光劃破迷霧，指引方向， 風動心弦，自由奔放。",
-            "music_message": "這首歌是為你而生，願它能成為你人生轉折點的溫暖陪伴。它提醒你，內在的力量與流動的生命力，是你最珍貴的寶藏。放鬆去感受，去體驗，你會發現，療癒的旅程，其實就是一場與自我深度連結的舞蹈。",
-            "wisdom_note": "心存善念，如清風拂過，能滌淨塵埃，讓生命之路更加順遂。每一次的選擇，都種下未來的因果，願你以愛為引，收穫豐盛的善緣。",
-            "english_song_reason": "Coldplay的《Yellow》以其廣闊的音景和真摯情感，完美契合天層格局，展現療癒的宏大與溫暖。",
-            "mandarin_song_reason": "周杰倫的《七里香》旋律優美，情感細膩，能作為地層情緒與唱腔的錨點，展現流行中的溫柔力量。",
-            "taiwanese_song_reason": "江蕙的《甲你攬牢牢》情感真摯，故事感強烈，能作為人層故事與情感的錨點，觸動內心深處的共鳴。",
+            "music_narrative": "金馬之靈，生於庚金之年，妳的音樂靈魂如金屬般澄澈，追求完美與精準。內在奔放如脫韁野馬，渴望自由與律動。音樂是妳展現內在秩序與外在活力的橋樑，既有清晰的結構，又不失情感的流動。在轉折之際，這份金性將引導妳淬鍊自我，讓Quality self flow成為生命中最和諧的旋律。",
+            "song_title_suggestion": "金流序曲",
+            "lyric_opening": "金光初現，照亮迷途的岸，風動心弦，自由是妳的答案。",
+            "music_message": "這首歌是為妳而生，願它能成為妳在人生轉折點上的溫暖陪伴。它提醒妳，內在的流動與外在的展現，都是妳獨特的Quality self flow。勇敢地跟隨心之所向，每一步都將是療癒的印記。",
+            "wisdom_note": "心之所向，金石為開。當善念如涓流匯聚，命運自會引領妳走向更寬廣的境地，讓每一次的選擇都成為滋養生命的甘露。",
+            "english_song_reason": "Coldplay的《Yellow》以其宏大而溫暖的氛圍，完美契合天層格局，展現金性光芒與廣闊視野。",
+            "mandarin_song_reason": "周杰倫的《七里香》充滿詩意與流暢旋律，能作為地層情緒與唱腔的錨點，展現內在的細膩情感。",
+            "taiwanese_song_reason": "林宥嘉的《練習愛情》以其真摯情感與故事性，適合作為人層故事與情感的落點，觸動內心深處。",
             "famous_singers_mandarin": "周杰倫 / 蔡依林",
-            "famous_singers_english": "Coldplay / Adele",
-            "famous_singers_taiwanese": "伍佰 / 江蕙"
+            "famous_singers_english": "Coldplay / Beyoncé",
+            "famous_singers_taiwanese": "周杰倫 / 蔡依林"
           },
           "song_drafts": {
             "english": {
               "language_label": "天層 English 音樂藍圖",
-              "title": "Golden Flow",
-              "concept": "以金牛座的穩定與金屬的精準，勾勒出2000年代舞曲流行的核心旋律與音色，奠定歌曲明亮、抓耳的基調。",
+              "title": "Golden Flow Blueprint",
+              "concept": "定義歌曲的整體音樂氛圍、律動感與核心旋律走向，以金牛座的穩定與金屬的精準為基底。",
               "lyrics": [
-                "Oh-oh-oh, feel the flow",
-                "Yeah-yeah-yeah, let it glow",
+                "Oh-oh-oh, feel the rhythm flow",
+                "Yeah-yeah-yeah, let your spirit glow",
+                "A-ha-a-ha, find your inner peace",
+                "Oh-oh-oh, a gentle, steady release",
+                "Every beat, a new start",
+                "In the rhythm of your heart",
                 "Golden light, shining bright",
-                "Every beat, feels so right",
-                "In the rhythm, lose control",
-                "Find your peace, find your soul",
-                "Quality self, let it bloom",
-                "Chase away the inner gloom"
+                "Guiding you through the night"
               ],
-              "style": "2000s modern dance pop，BPM 131，E minor，以清脆的合成器主旋律與punchy kick鼓點，營造明亮、流暢的空間感。",
-              "vocal_direction": "空靈且帶有穿透力的Hook音節，作為記憶點。"
+              "style": "2000s modern dance pop，BPM 131，E minor，明亮且抓耳的合成器主旋律，帶有溫暖的弦樂與精準的鼓點。",
+              "vocal_direction": "輕快、流暢的 Hook 吟唱，帶有空靈感與穿透力。"
             },
             "mandarin": {
               "language_label": "地層 國語唱腔",
-              "title": "心流指引",
-              "concept": "承接天層的舞曲基底，發展出國語流行唱腔的副歌情緒與和聲，強調自我覺察與療癒的溫暖力量。",
+              "title": "療癒之聲：內在流動",
+              "concept": "確立國語副歌的流行唱腔、節奏感與和聲編排，營造溫暖而富有力量的療癒情緒。",
               "lyrics": [
-                "心打開，讓愛流動",
-                "每個呼吸，都變得輕鬆",
-                "不再迷惘，方向很清楚",
-                "跟著感覺，找到歸屬",
-                "Quality self，是我的禮物",
-                "擁抱自己，不再卻步",
-                "這份溫柔，是我的全部",
-                "療癒旅程，不再孤獨"
+                "跟著心跳，一步一步走",
+                "讓愛輕輕，將你擁抱",
+                "不再害怕，不再困擾",
+                "找到屬於，你的美好",
+                "呼吸之間，感受自由",
+                "每個瞬間，都是出口",
+                "讓旋律，帶你飛翔",
+                "在光中，找到方向"
               ],
-              "style": "流行舞曲節奏，鼓點清晰有力，加入溫暖的鋼琴和弦與弦樂鋪陳，營造出情感豐富且具穿透力的編曲厚度。",
-              "vocal_direction": "Soulful且富有情感的國語唱腔，副歌情緒飽滿，帶有溫暖的療癒感。"
+              "style": "流行抒情與舞曲融合，鼓點強勁而清晰，合成器貝斯線條流暢，和聲飽滿，營造溫暖而具穿透力的副歌情緒。",
+              "vocal_direction": "深情而富有感染力的流行唱腔，情感真摯，咬字清晰，副歌高音區帶有穿透力。"
             },
             "taiwanese": {
-              "language_label": "人層 台語故事",
-              "title": "真我佇這",
-              "concept": "以「MusicQASelf」的姓名氣質，結合台語的溫柔語感，描繪個人在轉折點上尋找內在平靜與歸屬感的故事，作為情感落點。",
+              "language_label": "人層 國語故事",
+              "title": "MusicQASelf 的療癒旅程",
+              "concept": "以 MusicQASelf 的姓名特質與人格矩陣為核心，編織出關於自我覺察與內在流動的國語歌詞故事。",
               "lyrics": [
-                "MusicQASelf，真我佇這",
-                "人生路，行到這",
-                "心內話，慢慢講出聲",
-                "毋免驚，有我陪你行",
-                "Quality self，是我的名",
-                "愛自己，毋免等別人疼",
-                "這條歌，唱乎你聽",
-                "願你平安，心頭定"
+                "MusicQASelf，聽見內心的聲音",
+                "金屬的意志，指引清晰的途徑",
+                "不再迷惘，不再尋覓",
+                "Quality self flow，是你的真理",
+                "每個選擇，都是成長的印記",
+                "擁抱真實，活出最美的自己",
+                "療癒的旅程，從此刻開啟",
+                "愛與光芒，永遠與你同行"
               ],
-              "style": "在流行舞曲的基底上，加入輕柔的吉他點綴，營造出親密、溫暖的氛圍，讓台語歌詞的情感更為突出。",
-              "vocal_direction": "親密且帶有敘事感的台語唱腔，情感真摯，語氣溫柔，作為歌曲的情感落點。"
+              "style": "歌詞語感溫暖而具啟發性，旋律線條流暢，搭配輕柔的鋼琴與吉他，營造出自我探索與療癒的氛圍。",
+              "vocal_direction": "溫柔而堅定的敘事唱腔，情感細膩，強調歌詞的意境與故事性，帶有撫慰人心的力量。"
             }
           },
           "fusion_song": {
             "fusion_title": "心流金光",
-            "fusion_concept": "以2000年代舞曲的明亮節奏為骨架，國語流行唱腔溫暖敘事自我覺察，台語核心句點綴情感，融合成一首關於內在平靜與歸屬感的療癒歌曲。",
+            "fusion_concept": "以金牛座的穩定旋律為基底，融合國語流行唱腔的溫暖療癒，講述MusicQASelf自我覺察、擁抱真實的內在流動旅程。",
             "fusion_lyrics": [
               "[主歌]",
-              "城市喧囂，腳步匆忙",
-              "誰能聽見，心底的聲響",
-              "Oh-oh-oh, feel the flow",
-              "尋找一個，能安放的港",
+              "Oh-oh-oh, feel the rhythm flow",
+              "跟著心跳，一步一步走",
+              "內心聲音，指引清晰的途徑",
+              "不再迷惘，不再尋覓",
               "[副歌]",
-              "心打開，讓愛流動",
-              "每個呼吸，都變得輕鬆",
-              "不再迷惘，方向很清楚",
-              "跟著感覺，找到歸屬",
-              "Quality self，是我的禮物",
-              "擁抱自己，不再卻步",
-              "這份溫柔，是我的全部",
-              "療癒旅程，不再孤獨",
+              "Yeah-yeah-yeah, let your spirit glow",
+              "讓愛輕輕，將你擁抱",
+              "Quality self flow，是你的真理",
+              "找到屬於，你的美好",
               "[橋段]",
-              "Yeah-yeah-yeah, let it glow",
-              "MusicQASelf，真我佇這",
-              "愛自己，毋免等別人疼",
+              "A-ha-a-ha, find your inner peace",
+              "每個選擇，都是成長的印記",
+              "擁抱真實，活出最美的自己",
               "[副歌]",
-              "心打開，讓愛流動",
-              "每個呼吸，都變得輕鬆"
+              "Oh-oh-oh, a gentle, steady release",
+              "讓旋律，帶你飛翔",
+              "療癒的旅程，從此刻開啟",
+              "愛與光芒，永遠與你同行"
             ],
-            "fusion_style": "天層以2000年代舞曲的明亮旋律為靈魂，地層用國語流行唱腔與溫暖和聲構築歌曲身體，人層則以台語核心句點綴，描繪尋找內在平靜的故事，打造一首充滿希望的現代舞曲。"
+            "fusion_style": "天層以現代舞曲的明亮旋律與穩定節奏為靈魂，地層用溫暖國語唱腔與厚實和聲構築身體，人層則以MusicQASelf的自我覺察故事為情感落點，打造一首充滿力量與療癒感的流行歌曲。"
           },
           "production_plan": {
-            "producer_summary": "AI 製作總監先讀取「療癒」這個當前生命目標，再把《Golden Flow》《心流指引》《真我佇這》視為天地人三個素材層，不視為三首歌，最後只整理成《心流金光》這一首 AI 專屬生命歌曲。",
-            "fusion_strategy": "天層負責英文音樂格局、主旋律方向與空間感；地層負責國語唱腔、節奏身體與副歌情緒；人層負責台語故事核心句與情感落點。融合時不三首硬拼，而是以「療癒：Quality self flow」作為共同主軸。",
+            "producer_summary": "AI 製作總監先讀取「療癒」這個當前生命目標，再把《Golden Flow Blueprint》《療癒之聲：內在流動》《MusicQASelf 的療癒旅程》視為天地人三個素材層，不視為三首歌，最後只整理成《心流金光》這一首 AI 專屬生命歌曲。",
+            "fusion_strategy": "天層負責英文音樂格局、主旋律方向與空間感；地層負責國語唱腔、節奏身體與副歌情緒；人層負責國語故事核心句與情感落點。融合時不三首硬拼，而是以「療癒：Quality self flow」作為共同主軸。",
             "final_song_brief": "modern_dance_pop · 131 BPM · E minor，情緒走向為bright、catchy、streaming_friendly、emotional，創作風格鎖定流行，人格高點集中在 security / attachment / emotion。",
             "arrangement_plan": [
               "天層前奏：punchy_kick先建立英文音樂格局、年代感與空間感，決定歌曲靈魂。",
               "地層主歌：國語唱腔進場，節奏、鼓點、和聲與編曲厚度承接天層曲風，不推翻原本方向。",
               "地層副歌：把旋律與鼓組推高，建立最容易記住的流行 Hook 與副歌情緒。",
-              "人層橋段：只加入台語姓名故事與核心句，讓情感落地，但不改變編曲骨架。",
+              "人層橋段：只加入國語姓名故事與核心句，讓情感落地，但不改變編曲骨架。",
               "融合收尾：由歌曲融合引擎統一收束成一首歌，保留一句人格記憶點。"
             ],
             "vocal_cast": [
-              "天層聲音：空靈且帶有穿透力的Hook音節，作為記憶點。",
-              "地層主唱：Soulful且富有情感的國語唱腔，副歌情緒飽滿，帶有溫暖的療癒感。",
-              "人層故事聲：親密且帶有敘事感的台語唱腔，情感真摯，語氣溫柔，作為歌曲的情感落點。"
+              "天層聲音：輕快、流暢的 Hook 吟唱，帶有空靈感與穿透力。",
+              "地層主唱：深情而富有感染力的流行唱腔，情感真摯，咬字清晰，副歌高音區帶有穿透力。",
+              "人層故事聲：溫柔而堅定的敘事唱腔，情感細膩，強調歌詞的意境與故事性，帶有撫慰人心的力量。"
             ],
             "lead_vocal_choice": "主唱性別由系統依人格與曲風自動配置；深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。",
-            "language_distribution": "國語主唱 70% · 英文 Hook 15% · 台語情感落點 15%。天地人人格權重仍保留，但最終歌曲以「國語生成」為主要聽感。",
-            "hook_design": "副歌核心 Hook 以《心流金光》為主題：天層給音樂記憶點，地層給國語副歌情緒，人層給一句台語人格落點。",
+            "language_distribution": "國語主唱 85% · 英文 Hook 15%。天地人人格權重仍保留，但最終歌曲以「國語生成」為主要聽感。",
+            "hook_design": "副歌核心 Hook 以《心流金光》為主題：天層給音樂記憶點，地層給國語副歌情緒，人層給一句國語人格落點。",
             "popular_music_dna": [
               "8 秒內先出現一個可記住的旋律、音色或短句 Hook，讓聽眾一開始就抓到歌曲身份。",
               "主歌保留空間與故事感，副歌再把鼓組、和聲與旋律高度一起拉開，形成明顯爆發。",
               "核心 Hook 重複 2 到 3 次，但每次換一點語言、和聲或樂器，熟悉但不單調。",
               "歌詞短句優先，避免把太多文字塞進旋律，讓人可以跟著哼、跟著記。",
-              "橋段降低編曲密度，讓人層台語核心句或低聲線把情緒落地，再回到最後副歌。",
+              "橋段降低編曲密度，讓人層國語核心句或低聲線把情緒落地，再回到最後副歌。",
               "結尾保留一句最核心的人格句子，像標誌一樣留在聽眾腦中。"
             ],
             "global_trend_blend": [
@@ -293,13 +291,13 @@
               "R&B / Emotional Pop：主歌保留人聲呼吸與親密感，副歌再加寬和聲，避免整首都太滿。",
               "Short-form friendly：保留一段 12-18 秒可剪成短影音的核心副歌片段，但不能犧牲完整歌曲情緒。"
             ],
-            "trend_arrangement_recipe": "以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層台語故事只負責情感落點；三者進同一個歌曲矩陣，不各自生成三套結果。",
+            "trend_arrangement_recipe": "以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層國語故事只負責情感落點；三者進同一個歌曲矩陣，不各自生成三套結果。",
             "rhythm_strategy": "主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。",
             "trend_safety_note": "只使用全球流行音樂的通用結構與聽感邏輯，不模仿特定歌手、特定歌曲、特定旋律或受版權保護的編曲細節。",
-            "hit_formula": "天層英文音樂前奏 8 拍 → 地層國語主歌 16 拍 → 地層副歌情緒拉升 → 人層台語核心句落點 → 融合引擎統一輸出最終副歌與一句記憶收尾。",
+            "hit_formula": "天層英文音樂前奏 8 拍 → 地層國語主歌 16 拍 → 地層副歌情緒拉升 → 人層國語核心句落點 → 融合引擎統一輸出最終副歌與一句記憶收尾。",
             "hook_repeat_strategy": "核心 Hook 出現三次：第一次由天層建立旋律記憶，第二次由地層推高副歌情緒，第三次由人層核心句完成情感落點。",
             "emotional_arc": "0-35% 天層建立音樂靈魂，35-70% 地層建立歌曲身體，70-100% 人層放入故事落點後由融合引擎收束成一首歌。",
-            "generation_prompt": "Life song mission: 療癒：Quality self flow. Worldview: 以「療癒」作為生命章節，把命理底色、五元素補強與流行聲景整合成一個專屬歌曲世界。. Scene: 使用者站在目前人生階段的轉折點，AI 以流行方式陪他把方向唱清楚。. Growth center: 成長中心已完成 2 個模組；元素紀錄 nameology:AIR、zodiac:SPACE。. Create one original Tiandiren life song, not three separate songs. Primary song language: 國語生成. 本次請以國語為主要可唱語言與副歌核心。英文只作短 Hook、音色記憶點或少量點綴；台語只作情感落點。國語是本系統主打強項，請讓歌曲最終聽感以國語流行歌為主。 Suggested language balance: 國語主唱 70% · 英文 Hook 15% · 台語情感落點 15%. modern_dance_pop, 131 BPM, E minor. Mood: bright、catchy、streaming_friendly、emotional. Instruments: punchy_kick、synth_bass、vocal_chops、hook_lead、piano. Vocal: 主唱性別由系統依人格與曲風自動配置；深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。. Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Taiwanese lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: memorable_hook、short_form_chorus、self-awareness、inner_world. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.",
+            "generation_prompt": "Life song mission: 療癒：Quality self flow. Worldview: 以「療癒」作為生命章節，把命理底色、五元素補強與流行聲景整合成一個專屬歌曲世界。. Scene: 使用者站在目前人生階段的轉折點，AI 以流行方式陪他把方向唱清楚。. Growth center: 成長中心已完成 2 個模組；元素紀錄 nameology:AIR、zodiac:SPACE。. Create one original Tiandiren life song, not three separate songs. Primary song language: 國語生成. 本次請以國語為主要可唱語言與副歌核心。英文只作短 Hook、音色記憶點或少量點綴；人層以國語故事核心句作情感落點。國語是本系統主打強項，請讓歌曲最終聽感以國語流行歌為主。 Suggested language balance: 國語主唱 85% · 英文 Hook 15%. modern_dance_pop, 131 BPM, E minor. Mood: bright、catchy、streaming_friendly、emotional. Instruments: punchy_kick、synth_bass、vocal_chops、hook_lead、piano. Vocal: 主唱性別由系統依人格與曲風自動配置；深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。. Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Mandarin story lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: memorable_hook、short_form_chorus、self-awareness、inner_world. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.",
             "next_step_note": "下一步才接音樂/人聲生成服務；目前這一層先把製作、編曲、主唱分配與生成提示整理好，避免一次做太重造成當機。"
           },
           "voice_profile": {
@@ -319,7 +317,7 @@
                 "ai_voice_auto",
                 "life_song_vocal"
               ],
-              "recordedAt": "2026-08-06T15:15:12.353Z"
+              "recordedAt": "2026-08-17T16:52:01.909Z"
             },
             "selfDialogueConcept": "AI 已自動建立演唱聲線，不需要使用者錄音、不需要麥克風權限；歌曲會依命理資料、五元素與本次目標自動生成歌詞、曲風、節奏與 AI 演唱。"
           },
@@ -564,9 +562,9 @@
             "videoId": "Bbp9ZaJD_eA"
           },
           "taiwanese_track": {
-            "title": "甲你攬牢牢",
-            "artist": "江蕙",
-            "videoId": "s8MKF5o6lco"
+            "title": "練習愛情",
+            "artist": "林宥嘉",
+            "videoId": "BUYOVuAdHAg"
           },
           "meta": {
             "eraDisplayName": "千禧年代",
@@ -616,7 +614,7 @@
         "ok": true,
         "status": 200,
         "route": "/api/music-generate",
-        "durationMs": 6614,
+        "durationMs": 8657,
         "data": {
           "life_song_context": {
             "targetMode": "guest",
@@ -675,117 +673,123 @@
             ]
           },
           "music_report": {
-            "music_narrative": "你生於戊土之年，肖龍，命格如大地般厚實，承載力豐沛，兼具龍的磅礴氣勢與天蠍的深邃洞察。音樂靈魂流淌著電影配樂的史詩感，既能沉穩包容，亦能展現領導魅力。你對夢想的追逐，如同土生萬物，需要穩固的根基與源源不絕的創造力。偶有過於執著的陰影，但那正是你轉化為力量的契機，引領你走向更廣闊的未來。",
-            "song_title_suggestion": "築夢之土：龍騰序章",
-            "lyric_opening": "大地深處蘊藏著光，龍魂覺醒劃破迷茫。",
-            "music_message": "這首歌是為你而生，願它成為你追逐夢想的序曲。在人生的轉折點，願你聽見內心的聲音，堅定步伐。你的夢想如種子，需要耐心灌溉，終將破土而出，綻放屬於你的獨特光芒。",
-            "wisdom_note": "心存善念，如土滋養萬物，所行之路自會開闊。每一次的付出與堅持，都是為未來鋪墊，命運終將回報以豐盛。",
-            "english_song_reason": "《Bad Romance》的宏大格局與戲劇張力，能完美錨定你龍的氣勢與電影配樂的史詩感，展現夢想的無限可能。",
-            "mandarin_song_reason": "《親愛的那不是愛情》的細膩情感與流行唱腔，能作為你情感表達的基石，讓夢想的溫度與真實感深入人心。",
-            "taiwanese_song_reason": "《落雨聲》的深沉故事性與情感穿透力，能為你的夢想注入人性的溫暖與連結，讓追夢之路更具共鳴。",
+            "music_narrative": "你生於戊土之年，肖龍，命格如大地般厚實，承載力豐沛，自帶王者氣勢與不凡魅力。音樂靈魂深沉而溫暖，猶如史詩般宏大，能將夢想化為堅實的根基。你擁有卓越的領導力與創造力，敢於冒險，卻也渴望安全感。這份音樂將引導你，將內在的澎湃熱情，轉化為清晰的目標與行動，讓你的夢想之花，在堅實的土壤上綻放光芒。",
+            "song_title_suggestion": "龍土築夢曲",
+            "lyric_opening": "戊土深藏龍魂志，夢想之流匯成詩。",
+            "music_message": "這首歌是為你而生，願它能成為你追逐夢想的指南針。在人生的轉折點，願你聽見內心的聲音，勇敢地踏出每一步。記住，你的潛力無限，只要堅定信念，就能創造屬於自己的輝煌。",
+            "wisdom_note": "生命如歌，每個音符都由心念譜寫。心存善念，如土般滋養萬物，你的夢想便能根深葉茂，命運自會順遂，結出豐碩的果實。",
+            "english_song_reason": "《Bad Romance》格局宏大，充滿戲劇張力，與你龍的氣勢和史詩感音樂傾向契合，作為天層格局錨點。",
+            "mandarin_song_reason": "《親愛的那不是愛情》情感細膩，唱腔真摯，能作為地層情緒與唱腔的錨點，展現你內在的溫暖與深度。",
+            "taiwanese_song_reason": "《七里香》充滿故事性與畫面感，能作為人層故事與情感的錨點，引導你將夢想化為具體情境。",
             "famous_singers_mandarin": "周杰倫 / 蔡依林",
             "famous_singers_english": "Eminem / Lady Gaga",
-            "famous_singers_taiwanese": "伍佰 / 江蕙"
+            "famous_singers_taiwanese": "周杰倫 / 蔡依林"
           },
           "song_drafts": {
             "english": {
               "language_label": "天層 English 音樂藍圖",
               "title": "Dream Weaver's Overture",
-              "concept": "定義歌曲的宏大電影配樂感與現代舞曲流行基底，確立主旋律的記憶點與整體情緒色彩。",
+              "concept": "以2000年代的舞曲流行為基底，結合史詩感弦樂，勾勒出夢想啟程的宏大與明亮，設定整體音樂的動態與空間感。",
               "lyrics": [
-                "Oh-oh-oh, the flow",
-                "Quality, other flow",
-                "Feel the rhythm, let it grow",
-                "Oh-oh-oh, where do we go?",
-                "Future's calling, let it show",
-                "Yeah-eh-eh, the dream we sow"
+                "Oh-oh-oh, the future calls",
+                "A symphony of light",
+                "Feel the rhythm, deep inside",
+                "Rise and soar, across the sky",
+                "Yeah-eh-eh, a brand new start",
+                "Every beat, a work of art",
+                "Quality flow, let it shine",
+                "This moment, truly mine"
               ],
-              "style": "BPM 152，E minor，融合2000年代舞曲的能量與史詩感弦樂，帶有明亮、自信且溫暖的氛圍。",
-              "vocal_direction": "高亢且具穿透力的Hook，帶有電子處理的音色記憶點。"
+              "style": "Modern Dance Pop，BPM 152，E minor。明亮、抓耳、具串流潛力，融合2000年代的電子合成器與史詩感弦樂，營造廣闊空間感。",
+              "vocal_direction": "Vocal chops 穿插，作為旋律記憶點，高亢而充滿能量。"
             },
             "mandarin": {
               "language_label": "地層 國語唱腔",
-              "title": "夢想啟程曲",
-              "concept": "承載天層的音樂骨架，以國語流行唱腔展現沉穩包容的土屬特質，並透過副歌堆疊出情感厚度。",
+              "title": "夢想啟程的脈動",
+              "concept": "承接天層的舞曲基調，加入國語流行唱腔的細膩與情感，透過鼓點、和聲與編曲厚度，堆疊副歌的澎湃情緒，展現O型血的包容與熱情。",
               "lyrics": [
-                "站在人生的轉折點",
-                "心底的聲音多麼清晰",
-                "Quality other flow",
-                "夢想的藍圖在眼前",
-                "每一步都堅定不移",
-                "勇敢去闖，不留遺憾",
-                "這就是我的Quality other flow"
+                "心跳聲，催促著我，別再等",
+                "每個步伐，都堅定，不後悔",
+                "夢想的藍圖，在眼前，逐漸清晰",
+                "Quality other flow，讓世界看見",
+                "這份熱情，永不熄滅，直到永遠",
+                "跟著節奏，勇敢去追，不妥協",
+                "我的故事，由我主宰，不設限",
+                "讓愛與光，引領我，飛向明天"
               ],
-              "style": "現代舞曲流行基底，加入厚實的鼓點與和聲，編曲層次豐富，副歌情緒飽滿，展現大地般的承載力。",
-              "vocal_direction": "深情而富有力量的流行唱腔，副歌部分情感爆發，具穿透力與感染力。"
+              "style": "國語流行唱腔，節奏感強烈，鼓點punchy，合成器貝斯與鋼琴交織，和聲飽滿，副歌編曲厚實，情緒由內斂轉為爆發。",
+              "vocal_direction": "Soulful 且富有表現力，情感深沉而真摯，副歌高音區充滿力量與自信。"
             },
             "taiwanese": {
-              "language_label": "人層 台語故事",
-              "title": "逐夢的腳步",
-              "concept": "以台語作為情感的最終落點，透過姓名「MusicQAOther」的意象，講述個人在追尋夢想路上的堅定與自我對話。",
+              "language_label": "人層 國語故事",
+              "title": "MusicQAOther 的夢想章節",
+              "concept": "以「MusicQAOther」的沉穩與承載力為核心，將土屬的厚實與生肖龍的宏大氣質融入國語歌詞，講述一個關於轉折與追尋夢想的個人故事。",
               "lyrics": [
-                "MusicQAOther，我的名",
-                "一步一腳印，毋驚風雨淋",
-                "Quality other flow，心內有數",
-                "夢想的路途，我會行予完",
-                "天光抑是暗，攏是我的伴",
-                "這條路，我會繼續行"
+                "MusicQAOther，這名字，承載著期盼",
+                "站在人生的轉折，我不再迷惘",
+                "土的沉穩，龍的氣魄，指引方向",
+                "Quality other flow，我的夢想，正要啟航",
+                "曾經的迷茫，化作力量，不再徬徨",
+                "每一步，都踏實，每一步，都堅強",
+                "用我的方式，寫下，屬於我的篇章",
+                "這就是我，MusicQAOther，為夢想而唱"
               ],
-              "style": "在現代舞曲流行基底上，融入溫暖的鋼琴與弦樂，營造出電影配樂般的敘事感，情感真摯。",
-              "vocal_direction": "溫柔而堅定的台語唱腔，情感真摯，帶有故事性，在歌曲尾聲作為情感的沉澱。"
+              "style": "歌詞語感真誠而富有力量，結合電影配樂的敘事感，以鋼琴與弦樂烘托情感，吉他點綴，營造出個人成長的史詩氛圍。",
+              "vocal_direction": "深沉而接地氣，帶有敘事感，情感表達細膩，強調歌詞核心句的記憶點與共鳴。"
             }
           },
           "fusion_song": {
-            "fusion_title": "夢想引路者",
-            "fusion_concept": "以電影配樂的宏大格局為基底，國語流行唱腔承載沉穩情緒，台語核心句點綴追夢的堅定，融合成一首激勵人心的現代舞曲。",
+            "fusion_title": "啟程之光",
+            "fusion_concept": "以2000年代舞曲的宏大格局為骨幹，融入國語流行樂的細膩情感與澎湃副歌，講述MusicQAOther從迷茫到堅定追尋夢想的個人故事。",
             "fusion_lyrics": [
               "[主歌]",
-              "站在人生的轉折點",
-              "心底的聲音多麼清晰",
-              "Oh-oh-oh, the flow",
-              "夢想的藍圖在眼前",
-              "每一步都堅定不移",
+              "Oh-oh-oh, the future calls",
+              "站在人生的轉折，我不再迷惘",
+              "土的沉穩，龍的氣魄，指引方向",
+              "心跳聲，催促著我，別再等",
               "[副歌]",
-              "勇敢去闖，不留遺憾",
-              "這就是我的Quality other flow",
-              "MusicQAOther，我的名",
-              "一步一腳印，毋驚風雨淋",
-              "Quality, other flow",
+              "Quality other flow，我的夢想，正要啟航",
+              "這份熱情，永不熄滅，直到永遠",
+              "Rise and soar, across the sky",
+              "讓愛與光，引領我，飛向明天",
               "[橋段]",
-              "天光抑是暗，攏是我的伴",
-              "Future's calling, let it show",
+              "曾經的迷茫，化作力量，不再徬徨",
+              "每一步，都踏實，每一步，都堅強",
               "[副歌]",
-              "勇敢去闖，不留遺憾",
-              "這就是我的Quality other flow",
-              "夢想的路途，我會行予完"
+              "Quality other flow，我的夢想，正要啟航",
+              "這份熱情，永不熄滅，直到永遠",
+              "Yeah-eh-eh, a brand new start",
+              "讓愛與光，引領我，飛向明天",
+              "[尾聲]",
+              "這就是我，MusicQAOther，為夢想而唱"
             ],
-            "fusion_style": "天層以現代舞曲的電影配樂感奠定宏大基調，地層用國語流行唱腔展現沉穩與情感堆疊，人層則以台語核心句點亮逐夢的堅定，共同編織出自信溫暖的歌曲。"
+            "fusion_style": "天層以2000年代舞曲的明亮與史詩感定調，地層以國語流行唱腔堆疊副歌熱情，人層則透過MusicQAOther的沉穩與追夢故事，將三者融合成一首充滿力量與希望的現代舞曲。"
           },
           "production_plan": {
-            "producer_summary": "AI 製作總監先讀取「夢想」這個當前生命目標，再把《Dream Weaver's Overture》《夢想啟程曲》《逐夢的腳步》視為天地人三個素材層，不視為三首歌，最後只整理成《夢想引路者》這一首 AI 專屬生命歌曲。",
-            "fusion_strategy": "天層負責英文音樂格局、主旋律方向與空間感；地層負責國語唱腔、節奏身體與副歌情緒；人層負責台語故事核心句與情感落點。融合時不三首硬拼，而是以「夢想：Quality other flow」作為共同主軸。",
+            "producer_summary": "AI 製作總監先讀取「夢想」這個當前生命目標，再把《Dream Weaver's Overture》《夢想啟程的脈動》《MusicQAOther 的夢想章節》視為天地人三個素材層，不視為三首歌，最後只整理成《啟程之光》這一首 AI 專屬生命歌曲。",
+            "fusion_strategy": "天層負責英文音樂格局、主旋律方向與空間感；地層負責國語唱腔、節奏身體與副歌情緒；人層負責國語故事核心句與情感落點。融合時不三首硬拼，而是以「夢想：Quality other flow」作為共同主軸。",
             "final_song_brief": "modern_dance_pop · 152 BPM · E minor，情緒走向為bright、catchy、streaming_friendly、emotional，創作風格鎖定電影配樂，人格高點集中在 leadership / logic / risk。",
             "arrangement_plan": [
               "天層前奏：punchy_kick先建立英文音樂格局、年代感與空間感，決定歌曲靈魂。",
               "地層主歌：國語唱腔進場，節奏、鼓點、和聲與編曲厚度承接天層曲風，不推翻原本方向。",
               "地層副歌：把旋律與鼓組推高，建立最容易記住的流行 Hook 與副歌情緒。",
-              "人層橋段：只加入台語姓名故事與核心句，讓情感落地，但不改變編曲骨架。",
+              "人層橋段：只加入國語姓名故事與核心句，讓情感落地，但不改變編曲骨架。",
               "融合收尾：由歌曲融合引擎統一收束成一首歌，保留一句人格記憶點。"
             ],
             "vocal_cast": [
-              "天層聲音：高亢且具穿透力的Hook，帶有電子處理的音色記憶點。",
-              "地層主唱：深情而富有力量的流行唱腔，副歌部分情感爆發，具穿透力與感染力。",
-              "人層故事聲：溫柔而堅定的台語唱腔，情感真摯，帶有故事性，在歌曲尾聲作為情感的沉澱。"
+              "天層聲音：Vocal chops 穿插，作為旋律記憶點，高亢而充滿能量。",
+              "地層主唱：Soulful 且富有表現力，情感深沉而真摯，副歌高音區充滿力量與自信。",
+              "人層故事聲：深沉而接地氣，帶有敘事感，情感表達細膩，強調歌詞核心句的記憶點與共鳴。"
             ],
             "lead_vocal_choice": "主唱性別由系統依人格與曲風自動配置；深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。",
-            "language_distribution": "國語主唱 70% · 英文 Hook 15% · 台語情感落點 15%。天地人人格權重仍保留，但最終歌曲以「國語生成」為主要聽感。",
-            "hook_design": "副歌核心 Hook 以《夢想引路者》為主題：天層給音樂記憶點，地層給國語副歌情緒，人層給一句台語人格落點。",
+            "language_distribution": "國語主唱 85% · 英文 Hook 15%。天地人人格權重仍保留，但最終歌曲以「國語生成」為主要聽感。",
+            "hook_design": "副歌核心 Hook 以《啟程之光》為主題：天層給音樂記憶點，地層給國語副歌情緒，人層給一句國語人格落點。",
             "popular_music_dna": [
               "8 秒內先出現一個可記住的旋律、音色或短句 Hook，讓聽眾一開始就抓到歌曲身份。",
               "主歌保留空間與故事感，副歌再把鼓組、和聲與旋律高度一起拉開，形成明顯爆發。",
               "核心 Hook 重複 2 到 3 次，但每次換一點語言、和聲或樂器，熟悉但不單調。",
               "歌詞短句優先，避免把太多文字塞進旋律，讓人可以跟著哼、跟著記。",
-              "橋段降低編曲密度，讓人層台語核心句或低聲線把情緒落地，再回到最後副歌。",
+              "橋段降低編曲密度，讓人層國語核心句或低聲線把情緒落地，再回到最後副歌。",
               "結尾保留一句最核心的人格句子，像標誌一樣留在聽眾腦中。"
             ],
             "global_trend_blend": [
@@ -796,13 +800,13 @@
               "R&B / Emotional Pop：主歌保留人聲呼吸與親密感，副歌再加寬和聲，避免整首都太滿。",
               "Short-form friendly：保留一段 12-18 秒可剪成短影音的核心副歌片段，但不能犧牲完整歌曲情緒。"
             ],
-            "trend_arrangement_recipe": "以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層台語故事只負責情感落點；三者進同一個歌曲矩陣，不各自生成三套結果。",
+            "trend_arrangement_recipe": "以天層英文音樂格局建立 Global Pop 骨架，地層國語唱腔與節奏補上歌曲身體，人層國語故事只負責情感落點；三者進同一個歌曲矩陣，不各自生成三套結果。",
             "rhythm_strategy": "主歌用半拍空間與輕鼓保持親密，副歌加入切分低頻、四拍推進與明亮 hi-hat；橋段降低鼓組，只保留心跳感，最後副歌再全開。",
             "trend_safety_note": "只使用全球流行音樂的通用結構與聽感邏輯，不模仿特定歌手、特定歌曲、特定旋律或受版權保護的編曲細節。",
-            "hit_formula": "天層英文音樂前奏 8 拍 → 地層國語主歌 16 拍 → 地層副歌情緒拉升 → 人層台語核心句落點 → 融合引擎統一輸出最終副歌與一句記憶收尾。",
+            "hit_formula": "天層英文音樂前奏 8 拍 → 地層國語主歌 16 拍 → 地層副歌情緒拉升 → 人層國語核心句落點 → 融合引擎統一輸出最終副歌與一句記憶收尾。",
             "hook_repeat_strategy": "核心 Hook 出現三次：第一次由天層建立旋律記憶，第二次由地層推高副歌情緒，第三次由人層核心句完成情感落點。",
             "emotional_arc": "0-35% 天層建立音樂靈魂，35-70% 地層建立歌曲身體，70-100% 人層放入故事落點後由融合引擎收束成一首歌。",
-            "generation_prompt": "Life song mission: 夢想：Quality other flow. Worldview: 以「夢想」作為生命章節，把命理底色、五元素補強與電影配樂聲景整合成一個專屬歌曲世界。. Scene: 使用者站在目前人生階段的轉折點，AI 以電影配樂方式陪他把方向唱清楚。. Growth center: 親朋好友模式：只做本次歌曲分析，不讀取會員長期成長資料。. Create one original Tiandiren life song, not three separate songs. Primary song language: 國語生成. 本次請以國語為主要可唱語言與副歌核心。英文只作短 Hook、音色記憶點或少量點綴；台語只作情感落點。國語是本系統主打強項，請讓歌曲最終聽感以國語流行歌為主。 Suggested language balance: 國語主唱 70% · 英文 Hook 15% · 台語情感落點 15%. modern_dance_pop, 152 BPM, E minor. Mood: bright、catchy、streaming_friendly、emotional. Instruments: punchy_kick、synth_bass、vocal_chops、hook_lead、piano. Vocal: 主唱性別由系統依人格與曲風自動配置；深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。. Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Taiwanese lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: memorable_hook、short_form_chorus、vision、growth. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.",
+            "generation_prompt": "Life song mission: 夢想：Quality other flow. Worldview: 以「夢想」作為生命章節，把命理底色、五元素補強與電影配樂聲景整合成一個專屬歌曲世界。. Scene: 使用者站在目前人生階段的轉折點，AI 以電影配樂方式陪他把方向唱清楚。. Growth center: 親朋好友模式：只做本次歌曲分析，不讀取會員長期成長資料。. Create one original Tiandiren life song, not three separate songs. Primary song language: 國語生成. 本次請以國語為主要可唱語言與副歌核心。英文只作短 Hook、音色記憶點或少量點綴；人層以國語故事核心句作情感落點。國語是本系統主打強項，請讓歌曲最終聽感以國語流行歌為主。 Suggested language balance: 國語主唱 85% · 英文 Hook 15%. modern_dance_pop, 152 BPM, E minor. Mood: bright、catchy、streaming_friendly、emotional. Instruments: punchy_kick、synth_bass、vocal_chops、hook_lead、piano. Vocal: 主唱性別由系統依人格與曲風自動配置；深情主唱作為主聲線，副歌增加和聲堆疊，讓情緒往上推。. Heaven layer 35% from birth date controls English music identity, main melody direction, era feeling, BPM, emotional color, and space; Heaven must not write full lyrics. Earth layer 35% from blood type controls Mandarin vocal phrasing, rhythm, drums, harmony, arrangement density, and chorus emotion; Earth must not override Heaven's style. Human layer 30% from name, gender, and name energy controls Mandarin story lyric feeling, personal story, name temperament, core lyric phrase, memory point, and emotional landing; Human must not change arrangement. All layers must enter one song matrix and be rendered by one fusion engine. Main theme: memorable_hook、short_form_chorus、vision、growth. Apply global streaming-friendly arrangement logic without copying any existing song, artist, melody, lyrics, or protected arrangement.",
             "next_step_note": "下一步才接音樂/人聲生成服務；目前這一層先把製作、編曲、主唱分配與生成提示整理好，避免一次做太重造成當機。"
           },
           "voice_profile": {
@@ -822,7 +826,7 @@
                 "ai_voice_auto",
                 "life_song_vocal"
               ],
-              "recordedAt": "2026-08-06T15:15:20.193Z"
+              "recordedAt": "2026-08-17T16:52:09.851Z"
             },
             "selfDialogueConcept": "AI 已自動建立演唱聲線，不需要使用者錄音、不需要麥克風權限；歌曲會依命理資料、五元素與本次目標自動生成歌詞、曲風、節奏與 AI 演唱。"
           },
@@ -1067,9 +1071,9 @@
             "videoId": "HwF1i_6Iwp8"
           },
           "taiwanese_track": {
-            "title": "落雨聲",
-            "artist": "江蕙",
-            "videoId": "a53LYWWuAWU"
+            "title": "七里香",
+            "artist": "周杰倫",
+            "videoId": "Bbp9ZaJD_eA"
           },
           "meta": {
             "eraDisplayName": "千禧年代",
@@ -1120,16 +1124,16 @@
       "path": "/music",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 602,
-      "htmlLength": 40982,
+      "durationMs": 529,
+      "htmlLength": 23580,
       "error": null,
       "issue": null
     },
-    "startedAt": "2026-08-06T15:15:10.319Z",
-    "completedAt": "2026-08-06T15:15:24.888Z"
+    "startedAt": "2026-08-17T16:52:00.885Z",
+    "completedAt": "2026-08-17T16:52:18.491Z"
   },
   "totalScore": 70,
   "tier": "STANDARD",
   "allowNextCard": false,
-  "generatedAt": "2026-08-06T15:15:24.888Z"
+  "generatedAt": "2026-08-17T16:52:18.491Z"
 }

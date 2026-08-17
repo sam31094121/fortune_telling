@@ -34,12 +34,13 @@
     },
     {
       "dimension": "STABILITY",
-      "score": 8,
+      "score": 15,
       "maxScore": 15,
-      "status": "FAILED",
+      "status": "PASSED",
       "evidenceIds": [
         "SCREEN_HEALTH_ROUTE",
-        "API_RESPONDED"
+        "API_RESPONDED",
+        "NO_JOB_POLLING_GAP"
       ]
     },
     {
@@ -57,7 +58,7 @@
       "maxScore": 10,
       "status": "PASSED",
       "evidenceIds": [
-        "MAX_DURATION_303MS"
+        "MAX_DURATION_342MS"
       ]
     },
     {
@@ -66,52 +67,12 @@
       "maxScore": 10,
       "status": "PASSED",
       "evidenceIds": [
-        "REQUEST_ID_332f841e-ed50-4419-9db8-19b9197d718c",
-        "REQUEST_ID_8dc4b5e8-a997-4ec7-a23c-6493652bbba7"
+        "REQUEST_ID_37f91a2e-0034-49bd-9c70-13dd217f8c24",
+        "REQUEST_ID_9313b43a-8a90-4b5d-a9ca-4c5aee4a546e"
       ]
     }
   ],
   "issues": [
-    {
-      "id": "CARD_03-INTEGRATION-Analysis_Task_polling-1786029302786",
-      "cardId": "CARD_03",
-      "severity": "CRITICAL",
-      "layer": "INTEGRATION",
-      "step": "Analysis Task polling",
-      "actualProblem": "Analysis job polling returned missing or invalid job after create.",
-      "rootCause": "Serverless in-memory job state is not durable across requests; this can show JOB_NOT_FOUND to users.",
-      "filePaths": [],
-      "repairAction": "定位對應 API / 共用任務 / 前端流程並修復後重測。",
-      "verificationAction": "重新執行 scripts/all-card-quality-audit.mjs 與相關卡片手動流程。",
-      "evidence": {
-        "selfPoll": {
-          "ok": false,
-          "status": 404,
-          "route": "/api/analysis/jobs/job_25b71a08-c4a8-4fbc-8899-ce42df69bcec",
-          "durationMs": 270,
-          "data": {
-            "ok": false,
-            "requestId": "2129bc91-e39b-4e44-b12b-ed3b9b53d018",
-            "code": "JOB_NOT_FOUND",
-            "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
-            "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
-          }
-        },
-        "otherPoll": {
-          "ok": false,
-          "status": 404,
-          "route": "/api/analysis/jobs/job_e95fb99c-88f5-4e7e-82e1-b37be685badb",
-          "durationMs": 270,
-          "data": {
-            "ok": false,
-            "requestId": "794a1e45-bce1-475b-b624-ee22a00cc184",
-            "code": "JOB_NOT_FOUND",
-            "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
-            "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
-          }
-        }
-      }
-    },
     {
       "id": "CARD_03-MOBILE-LINE-NOT-TESTED",
       "cardId": "CARD_03",
@@ -126,19 +87,19 @@
     }
   ],
   "mandatoryChecks": {
-    "fullFlowPassed": false,
+    "fullFlowPassed": true,
     "backendVerified": true,
     "mobilePassed": false,
     "linePassed": false,
-    "noCriticalIssues": false,
+    "noCriticalIssues": true,
     "regressionPassed": true
   },
   "evidence": {
-    "baseUrl": "https://heaven-earth-humanity-pair.vercel.app",
+    "baseUrl": "http://localhost:8888",
     "route": {
       "ok": true,
       "status": 200,
-      "durationMs": 61,
+      "durationMs": 342,
       "length": 1000,
       "error": null
     },
@@ -147,20 +108,20 @@
         "ok": true,
         "status": 200,
         "route": "/api/analysis/jobs",
-        "durationMs": 296,
+        "durationMs": 160,
         "data": {
           "ok": true,
-          "requestId": "332f841e-ed50-4419-9db8-19b9197d718c",
+          "requestId": "37f91a2e-0034-49bd-9c70-13dd217f8c24",
           "success": true,
           "data": {
-            "jobId": "job_25b71a08-c4a8-4fbc-8899-ce42df69bcec",
+            "jobId": "job_66bdfa84-16f0-404d-874f-1a3bd0db2a71",
             "analysisType": "number",
             "moduleId": "NUMBER",
             "status": "COMPLETED",
             "progressStage": "DONE",
             "progressPercent": 100,
             "message": "分析完成，結果已準備好。",
-            "resultId": "result_48a3883a-41d7-4b03-b301-b0127cbd86d5",
+            "resultId": "result_87f0fa37-a721-4b44-96b5-ea40da338706",
             "result": {
               "ok": true,
               "engine": "Number Core Engine",
@@ -556,11 +517,11 @@
             },
             "errorCode": null,
             "errorMessage": null,
-            "createdAt": "2026-08-06T15:15:03.582Z",
-            "startedAt": "2026-08-06T15:15:03.582Z",
-            "completedAt": "2026-08-06T15:15:03.589Z",
-            "updatedAt": "2026-08-06T15:15:03.589Z",
-            "expiresAt": "2026-08-06T15:45:03.589Z"
+            "createdAt": "2026-08-17T16:51:52.819Z",
+            "startedAt": "2026-08-17T16:51:52.820Z",
+            "completedAt": "2026-08-17T16:51:52.828Z",
+            "updatedAt": "2026-08-17T16:51:52.828Z",
+            "expiresAt": "2026-08-17T17:21:52.828Z"
           },
           "result": {
             "ok": true,
@@ -957,45 +918,33 @@
           }
         }
       },
-      "poll": {
-        "ok": false,
-        "status": 404,
-        "route": "/api/analysis/jobs/job_25b71a08-c4a8-4fbc-8899-ce42df69bcec",
-        "durationMs": 270,
-        "data": {
-          "ok": false,
-          "requestId": "2129bc91-e39b-4e44-b12b-ed3b9b53d018",
-          "code": "JOB_NOT_FOUND",
-          "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
-          "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
-        }
-      },
+      "poll": null,
       "ok": true,
-      "pollOk": false,
-      "jobId": "job_25b71a08-c4a8-4fbc-8899-ce42df69bcec",
-      "resultId": "result_48a3883a-41d7-4b03-b301-b0127cbd86d5",
+      "pollOk": true,
+      "jobId": "job_66bdfa84-16f0-404d-874f-1a3bd0db2a71",
+      "resultId": "result_87f0fa37-a721-4b44-96b5-ea40da338706",
       "status": "COMPLETED",
-      "requestId": "332f841e-ed50-4419-9db8-19b9197d718c"
+      "requestId": "37f91a2e-0034-49bd-9c70-13dd217f8c24"
     },
     "other": {
       "create": {
         "ok": true,
         "status": 200,
         "route": "/api/analysis/jobs",
-        "durationMs": 303,
+        "durationMs": 16,
         "data": {
           "ok": true,
-          "requestId": "8dc4b5e8-a997-4ec7-a23c-6493652bbba7",
+          "requestId": "9313b43a-8a90-4b5d-a9ca-4c5aee4a546e",
           "success": true,
           "data": {
-            "jobId": "job_e95fb99c-88f5-4e7e-82e1-b37be685badb",
+            "jobId": "job_da2a3a2b-674e-48a2-990d-84c34e2a8cb3",
             "analysisType": "number",
             "moduleId": "NUMBER",
             "status": "COMPLETED",
             "progressStage": "DONE",
             "progressPercent": 100,
             "message": "分析完成，結果已準備好。",
-            "resultId": "result_d429b024-67e3-41d6-a0bb-c996d75cae46",
+            "resultId": "result_94589aaf-8328-4d23-9b31-6d4f11931379",
             "result": {
               "ok": true,
               "engine": "Number Core Engine",
@@ -1381,11 +1330,11 @@
             },
             "errorCode": null,
             "errorMessage": null,
-            "createdAt": "2026-08-06T15:15:04.150Z",
-            "startedAt": "2026-08-06T15:15:04.150Z",
-            "completedAt": "2026-08-06T15:15:04.153Z",
-            "updatedAt": "2026-08-06T15:15:04.153Z",
-            "expiresAt": "2026-08-06T15:45:04.153Z"
+            "createdAt": "2026-08-17T16:51:52.843Z",
+            "startedAt": "2026-08-17T16:51:52.843Z",
+            "completedAt": "2026-08-17T16:51:52.844Z",
+            "updatedAt": "2026-08-17T16:51:52.844Z",
+            "expiresAt": "2026-08-17T17:21:52.844Z"
           },
           "result": {
             "ok": true,
@@ -1772,25 +1721,13 @@
           }
         }
       },
-      "poll": {
-        "ok": false,
-        "status": 404,
-        "route": "/api/analysis/jobs/job_e95fb99c-88f5-4e7e-82e1-b37be685badb",
-        "durationMs": 270,
-        "data": {
-          "ok": false,
-          "requestId": "794a1e45-bce1-475b-b624-ee22a00cc184",
-          "code": "JOB_NOT_FOUND",
-          "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
-          "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
-        }
-      },
+      "poll": null,
       "ok": true,
-      "pollOk": false,
-      "jobId": "job_e95fb99c-88f5-4e7e-82e1-b37be685badb",
-      "resultId": "result_d429b024-67e3-41d6-a0bb-c996d75cae46",
+      "pollOk": true,
+      "jobId": "job_da2a3a2b-674e-48a2-990d-84c34e2a8cb3",
+      "resultId": "result_94589aaf-8328-4d23-9b31-6d4f11931379",
       "status": "COMPLETED",
-      "requestId": "8dc4b5e8-a997-4ec7-a23c-6493652bbba7"
+      "requestId": "9313b43a-8a90-4b5d-a9ca-4c5aee4a546e"
     },
     "screenHealth": {
       "id": "CARD_03",
@@ -1799,16 +1736,16 @@
       "path": "/numerology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 622,
-      "htmlLength": 65634,
+      "durationMs": 432,
+      "htmlLength": 24592,
       "error": null,
       "issue": null
     },
-    "startedAt": "2026-08-06T15:15:01.586Z",
-    "completedAt": "2026-08-06T15:15:02.786Z"
+    "startedAt": "2026-08-17T16:51:52.327Z",
+    "completedAt": "2026-08-17T16:51:52.845Z"
   },
-  "totalScore": 75,
-  "tier": "UNRATED",
+  "totalScore": 82,
+  "tier": "STANDARD",
   "allowNextCard": false,
-  "generatedAt": "2026-08-06T15:15:02.786Z"
+  "generatedAt": "2026-08-17T16:51:52.845Z"
 }

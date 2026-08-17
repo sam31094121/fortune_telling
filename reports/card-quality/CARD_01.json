@@ -34,12 +34,13 @@
     },
     {
       "dimension": "STABILITY",
-      "score": 8,
+      "score": 15,
       "maxScore": 15,
-      "status": "FAILED",
+      "status": "PASSED",
       "evidenceIds": [
         "SCREEN_HEALTH_ROUTE",
-        "API_RESPONDED"
+        "API_RESPONDED",
+        "NO_JOB_POLLING_GAP"
       ]
     },
     {
@@ -53,11 +54,11 @@
     },
     {
       "dimension": "PERFORMANCE",
-      "score": 7,
+      "score": 10,
       "maxScore": 10,
       "status": "PASSED",
       "evidenceIds": [
-        "MAX_DURATION_1624MS"
+        "MAX_DURATION_780MS"
       ]
     },
     {
@@ -66,52 +67,12 @@
       "maxScore": 10,
       "status": "PASSED",
       "evidenceIds": [
-        "REQUEST_ID_5ab12392-0888-4d2b-a5ef-61e39b6df23a",
-        "REQUEST_ID_d5e5f8ad-a0e7-49d7-9c95-30601f374d8c"
+        "REQUEST_ID_5abd2ffb-9179-4bb3-8a46-b320b3442493",
+        "REQUEST_ID_3d16cd0f-1b23-45c9-ba9e-af0109e3182b"
       ]
     }
   ],
   "issues": [
-    {
-      "id": "CARD_01-INTEGRATION-Analysis_Task_polling-1786029300247",
-      "cardId": "CARD_01",
-      "severity": "CRITICAL",
-      "layer": "INTEGRATION",
-      "step": "Analysis Task polling",
-      "actualProblem": "Analysis job polling returned missing or invalid job after create.",
-      "rootCause": "Serverless in-memory job state is not durable across requests; this can show JOB_NOT_FOUND to users.",
-      "filePaths": [],
-      "repairAction": "定位對應 API / 共用任務 / 前端流程並修復後重測。",
-      "verificationAction": "重新執行 scripts/all-card-quality-audit.mjs 與相關卡片手動流程。",
-      "evidence": {
-        "selfPoll": {
-          "ok": false,
-          "status": 404,
-          "route": "/api/analysis/jobs/job_d6981e02-89c9-49c8-a744-c311d8949d32",
-          "durationMs": 380,
-          "data": {
-            "ok": false,
-            "requestId": "0a2f0718-8759-4bc3-b8ea-0ba801b254cb",
-            "code": "JOB_NOT_FOUND",
-            "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
-            "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
-          }
-        },
-        "otherPoll": {
-          "ok": false,
-          "status": 404,
-          "route": "/api/analysis/jobs/job_9c879fce-b9d3-4f94-a012-59e71b5921e0",
-          "durationMs": 279,
-          "data": {
-            "ok": false,
-            "requestId": "79ae791e-a51c-4395-ba53-cc70e00fefb0",
-            "code": "JOB_NOT_FOUND",
-            "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
-            "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
-          }
-        }
-      }
-    },
     {
       "id": "CARD_01-MOBILE-LINE-NOT-TESTED",
       "cardId": "CARD_01",
@@ -126,19 +87,19 @@
     }
   ],
   "mandatoryChecks": {
-    "fullFlowPassed": false,
+    "fullFlowPassed": true,
     "backendVerified": true,
     "mobilePassed": false,
     "linePassed": false,
-    "noCriticalIssues": false,
+    "noCriticalIssues": true,
     "regressionPassed": true
   },
   "evidence": {
-    "baseUrl": "https://heaven-earth-humanity-pair.vercel.app",
+    "baseUrl": "http://localhost:8888",
     "route": {
       "ok": true,
       "status": 200,
-      "durationMs": 223,
+      "durationMs": 628,
       "length": 1000,
       "error": null
     },
@@ -147,20 +108,20 @@
         "ok": true,
         "status": 200,
         "route": "/api/analysis/jobs",
-        "durationMs": 1624,
+        "durationMs": 780,
         "data": {
           "ok": true,
-          "requestId": "5ab12392-0888-4d2b-a5ef-61e39b6df23a",
+          "requestId": "5abd2ffb-9179-4bb3-8a46-b320b3442493",
           "success": true,
           "data": {
-            "jobId": "job_d6981e02-89c9-49c8-a744-c311d8949d32",
+            "jobId": "job_8a7587b6-79a9-449b-832a-678e54330af9",
             "analysisType": "nameology",
             "moduleId": "NAMEOLOGY",
             "status": "COMPLETED",
             "progressStage": "DONE",
             "progressPercent": 100,
             "message": "分析完成，結果已準備好。",
-            "resultId": "result_43716d14-a9dd-4eaf-b682-cc0a182df2d7",
+            "resultId": "result_03b5b6ad-20bd-4813-9189-410b08e46f47",
             "result": {
               "ok": true,
               "mode": "nameology",
@@ -1712,7 +1673,7 @@
                     "ritualText": "姓名資料已接收",
                     "passedText": "第一道資料確認完成",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:00.531Z",
+                    "verifiedAt": "2026-08-17T16:51:35.868Z",
                     "errorCode": null
                   },
                   {
@@ -1721,7 +1682,7 @@
                     "ritualText": "台灣正體字形已確認",
                     "passedText": "標準字形比對通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:00.531Z",
+                    "verifiedAt": "2026-08-17T16:51:35.868Z",
                     "errorCode": null
                   },
                   {
@@ -1730,7 +1691,7 @@
                     "ritualText": "姓名部首已確認",
                     "passedText": "部首資料驗證通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:00.531Z",
+                    "verifiedAt": "2026-08-17T16:51:35.868Z",
                     "errorCode": null
                   },
                   {
@@ -1739,7 +1700,7 @@
                     "ritualText": "姓名筆畫已確認",
                     "passedText": "筆畫資料驗證通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:00.531Z",
+                    "verifiedAt": "2026-08-17T16:51:35.868Z",
                     "errorCode": null
                   },
                   {
@@ -1748,7 +1709,7 @@
                     "ritualText": "字音與字義已確認",
                     "passedText": "台灣字典資料比對通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:00.531Z",
+                    "verifiedAt": "2026-08-17T16:51:35.868Z",
                     "errorCode": null
                   },
                   {
@@ -1757,7 +1718,7 @@
                     "ritualText": "姓名結構正在建立",
                     "passedText": "五格與三才運算通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:00.531Z",
+                    "verifiedAt": "2026-08-17T16:51:35.868Z",
                     "errorCode": null
                   },
                   {
@@ -1766,7 +1727,7 @@
                     "ritualText": "AI 正在整合重複訊號",
                     "passedText": "核心語意整合通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:00.531Z",
+                    "verifiedAt": "2026-08-17T16:51:35.868Z",
                     "errorCode": null
                   },
                   {
@@ -1775,7 +1736,7 @@
                     "ritualText": "五元素訊號已完成",
                     "passedText": "空、風、水、火、地判定通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:00.531Z",
+                    "verifiedAt": "2026-08-17T16:51:35.868Z",
                     "errorCode": null
                   },
                   {
@@ -1784,7 +1745,7 @@
                     "ritualText": "三層分析結果已建立",
                     "passedText": "專業層、精華層、判定層建立通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:00.531Z",
+                    "verifiedAt": "2026-08-17T16:51:35.868Z",
                     "errorCode": null
                   },
                   {
@@ -2125,11 +2086,11 @@
             },
             "errorCode": null,
             "errorMessage": null,
-            "createdAt": "2026-08-06T15:14:59.544Z",
-            "startedAt": "2026-08-06T15:14:59.545Z",
-            "completedAt": "2026-08-06T15:15:00.532Z",
-            "updatedAt": "2026-08-06T15:15:00.532Z",
-            "expiresAt": "2026-08-06T15:45:00.532Z"
+            "createdAt": "2026-08-17T16:51:35.748Z",
+            "startedAt": "2026-08-17T16:51:35.749Z",
+            "completedAt": "2026-08-17T16:51:35.868Z",
+            "updatedAt": "2026-08-17T16:51:35.868Z",
+            "expiresAt": "2026-08-17T17:21:35.868Z"
           },
           "result": {
             "ok": true,
@@ -3682,7 +3643,7 @@
                   "ritualText": "姓名資料已接收",
                   "passedText": "第一道資料確認完成",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:00.531Z",
+                  "verifiedAt": "2026-08-17T16:51:35.868Z",
                   "errorCode": null
                 },
                 {
@@ -3691,7 +3652,7 @@
                   "ritualText": "台灣正體字形已確認",
                   "passedText": "標準字形比對通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:00.531Z",
+                  "verifiedAt": "2026-08-17T16:51:35.868Z",
                   "errorCode": null
                 },
                 {
@@ -3700,7 +3661,7 @@
                   "ritualText": "姓名部首已確認",
                   "passedText": "部首資料驗證通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:00.531Z",
+                  "verifiedAt": "2026-08-17T16:51:35.868Z",
                   "errorCode": null
                 },
                 {
@@ -3709,7 +3670,7 @@
                   "ritualText": "姓名筆畫已確認",
                   "passedText": "筆畫資料驗證通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:00.531Z",
+                  "verifiedAt": "2026-08-17T16:51:35.868Z",
                   "errorCode": null
                 },
                 {
@@ -3718,7 +3679,7 @@
                   "ritualText": "字音與字義已確認",
                   "passedText": "台灣字典資料比對通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:00.531Z",
+                  "verifiedAt": "2026-08-17T16:51:35.868Z",
                   "errorCode": null
                 },
                 {
@@ -3727,7 +3688,7 @@
                   "ritualText": "姓名結構正在建立",
                   "passedText": "五格與三才運算通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:00.531Z",
+                  "verifiedAt": "2026-08-17T16:51:35.868Z",
                   "errorCode": null
                 },
                 {
@@ -3736,7 +3697,7 @@
                   "ritualText": "AI 正在整合重複訊號",
                   "passedText": "核心語意整合通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:00.531Z",
+                  "verifiedAt": "2026-08-17T16:51:35.868Z",
                   "errorCode": null
                 },
                 {
@@ -3745,7 +3706,7 @@
                   "ritualText": "五元素訊號已完成",
                   "passedText": "空、風、水、火、地判定通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:00.531Z",
+                  "verifiedAt": "2026-08-17T16:51:35.868Z",
                   "errorCode": null
                 },
                 {
@@ -3754,7 +3715,7 @@
                   "ritualText": "三層分析結果已建立",
                   "passedText": "專業層、精華層、判定層建立通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:00.531Z",
+                  "verifiedAt": "2026-08-17T16:51:35.868Z",
                   "errorCode": null
                 },
                 {
@@ -4095,45 +4056,33 @@
           }
         }
       },
-      "poll": {
-        "ok": false,
-        "status": 404,
-        "route": "/api/analysis/jobs/job_d6981e02-89c9-49c8-a744-c311d8949d32",
-        "durationMs": 380,
-        "data": {
-          "ok": false,
-          "requestId": "0a2f0718-8759-4bc3-b8ea-0ba801b254cb",
-          "code": "JOB_NOT_FOUND",
-          "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
-          "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
-        }
-      },
+      "poll": null,
       "ok": true,
-      "pollOk": false,
-      "jobId": "job_d6981e02-89c9-49c8-a744-c311d8949d32",
-      "resultId": "result_43716d14-a9dd-4eaf-b682-cc0a182df2d7",
+      "pollOk": true,
+      "jobId": "job_8a7587b6-79a9-449b-832a-678e54330af9",
+      "resultId": "result_03b5b6ad-20bd-4813-9189-410b08e46f47",
       "status": "COMPLETED",
-      "requestId": "5ab12392-0888-4d2b-a5ef-61e39b6df23a"
+      "requestId": "5abd2ffb-9179-4bb3-8a46-b320b3442493"
     },
     "other": {
       "create": {
         "ok": true,
         "status": 200,
         "route": "/api/analysis/jobs",
-        "durationMs": 491,
+        "durationMs": 31,
         "data": {
           "ok": true,
-          "requestId": "d5e5f8ad-a0e7-49d7-9c95-30601f374d8c",
+          "requestId": "3d16cd0f-1b23-45c9-ba9e-af0109e3182b",
           "success": true,
           "data": {
-            "jobId": "job_9c879fce-b9d3-4f94-a012-59e71b5921e0",
+            "jobId": "job_ff58c2ab-0b18-4140-ab6f-dfc19c1e45bd",
             "analysisType": "nameology",
             "moduleId": "NAMEOLOGY",
             "status": "COMPLETED",
             "progressStage": "DONE",
             "progressPercent": 100,
             "message": "分析完成，結果已準備好。",
-            "resultId": "result_50678fab-0a45-4297-a56c-c37c1e18249e",
+            "resultId": "result_2b085468-dd84-49a7-b845-1152c963aca3",
             "result": {
               "ok": true,
               "mode": "nameology",
@@ -5691,7 +5640,7 @@
                     "ritualText": "姓名資料已接收",
                     "passedText": "第一道資料確認完成",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:01.416Z",
+                    "verifiedAt": "2026-08-17T16:51:35.901Z",
                     "errorCode": null
                   },
                   {
@@ -5700,7 +5649,7 @@
                     "ritualText": "台灣正體字形已確認",
                     "passedText": "標準字形比對通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:01.416Z",
+                    "verifiedAt": "2026-08-17T16:51:35.901Z",
                     "errorCode": null
                   },
                   {
@@ -5709,7 +5658,7 @@
                     "ritualText": "姓名部首已確認",
                     "passedText": "部首資料驗證通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:01.416Z",
+                    "verifiedAt": "2026-08-17T16:51:35.901Z",
                     "errorCode": null
                   },
                   {
@@ -5718,7 +5667,7 @@
                     "ritualText": "姓名筆畫已確認",
                     "passedText": "筆畫資料驗證通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:01.416Z",
+                    "verifiedAt": "2026-08-17T16:51:35.901Z",
                     "errorCode": null
                   },
                   {
@@ -5727,7 +5676,7 @@
                     "ritualText": "字音與字義已確認",
                     "passedText": "台灣字典資料比對通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:01.416Z",
+                    "verifiedAt": "2026-08-17T16:51:35.901Z",
                     "errorCode": null
                   },
                   {
@@ -5736,7 +5685,7 @@
                     "ritualText": "姓名結構正在建立",
                     "passedText": "五格與三才運算通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:01.416Z",
+                    "verifiedAt": "2026-08-17T16:51:35.901Z",
                     "errorCode": null
                   },
                   {
@@ -5745,7 +5694,7 @@
                     "ritualText": "AI 正在整合重複訊號",
                     "passedText": "核心語意整合通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:01.416Z",
+                    "verifiedAt": "2026-08-17T16:51:35.901Z",
                     "errorCode": null
                   },
                   {
@@ -5754,7 +5703,7 @@
                     "ritualText": "五元素訊號已完成",
                     "passedText": "空、風、水、火、地判定通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:01.416Z",
+                    "verifiedAt": "2026-08-17T16:51:35.901Z",
                     "errorCode": null
                   },
                   {
@@ -5763,7 +5712,7 @@
                     "ritualText": "三層分析結果已建立",
                     "passedText": "專業層、精華層、判定層建立通過",
                     "status": "PASSED",
-                    "verifiedAt": "2026-08-06T15:15:01.416Z",
+                    "verifiedAt": "2026-08-17T16:51:35.901Z",
                     "errorCode": null
                   },
                   {
@@ -6097,11 +6046,11 @@
             },
             "errorCode": null,
             "errorMessage": null,
-            "createdAt": "2026-08-06T15:15:01.414Z",
-            "startedAt": "2026-08-06T15:15:01.414Z",
-            "completedAt": "2026-08-06T15:15:01.417Z",
-            "updatedAt": "2026-08-06T15:15:01.417Z",
-            "expiresAt": "2026-08-06T15:45:01.417Z"
+            "createdAt": "2026-08-17T16:51:35.900Z",
+            "startedAt": "2026-08-17T16:51:35.900Z",
+            "completedAt": "2026-08-17T16:51:35.901Z",
+            "updatedAt": "2026-08-17T16:51:35.901Z",
+            "expiresAt": "2026-08-17T17:21:35.901Z"
           },
           "result": {
             "ok": true,
@@ -7660,7 +7609,7 @@
                   "ritualText": "姓名資料已接收",
                   "passedText": "第一道資料確認完成",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:01.416Z",
+                  "verifiedAt": "2026-08-17T16:51:35.901Z",
                   "errorCode": null
                 },
                 {
@@ -7669,7 +7618,7 @@
                   "ritualText": "台灣正體字形已確認",
                   "passedText": "標準字形比對通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:01.416Z",
+                  "verifiedAt": "2026-08-17T16:51:35.901Z",
                   "errorCode": null
                 },
                 {
@@ -7678,7 +7627,7 @@
                   "ritualText": "姓名部首已確認",
                   "passedText": "部首資料驗證通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:01.416Z",
+                  "verifiedAt": "2026-08-17T16:51:35.901Z",
                   "errorCode": null
                 },
                 {
@@ -7687,7 +7636,7 @@
                   "ritualText": "姓名筆畫已確認",
                   "passedText": "筆畫資料驗證通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:01.416Z",
+                  "verifiedAt": "2026-08-17T16:51:35.901Z",
                   "errorCode": null
                 },
                 {
@@ -7696,7 +7645,7 @@
                   "ritualText": "字音與字義已確認",
                   "passedText": "台灣字典資料比對通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:01.416Z",
+                  "verifiedAt": "2026-08-17T16:51:35.901Z",
                   "errorCode": null
                 },
                 {
@@ -7705,7 +7654,7 @@
                   "ritualText": "姓名結構正在建立",
                   "passedText": "五格與三才運算通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:01.416Z",
+                  "verifiedAt": "2026-08-17T16:51:35.901Z",
                   "errorCode": null
                 },
                 {
@@ -7714,7 +7663,7 @@
                   "ritualText": "AI 正在整合重複訊號",
                   "passedText": "核心語意整合通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:01.416Z",
+                  "verifiedAt": "2026-08-17T16:51:35.901Z",
                   "errorCode": null
                 },
                 {
@@ -7723,7 +7672,7 @@
                   "ritualText": "五元素訊號已完成",
                   "passedText": "空、風、水、火、地判定通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:01.416Z",
+                  "verifiedAt": "2026-08-17T16:51:35.901Z",
                   "errorCode": null
                 },
                 {
@@ -7732,7 +7681,7 @@
                   "ritualText": "三層分析結果已建立",
                   "passedText": "專業層、精華層、判定層建立通過",
                   "status": "PASSED",
-                  "verifiedAt": "2026-08-06T15:15:01.416Z",
+                  "verifiedAt": "2026-08-17T16:51:35.901Z",
                   "errorCode": null
                 },
                 {
@@ -8066,25 +8015,13 @@
           }
         }
       },
-      "poll": {
-        "ok": false,
-        "status": 404,
-        "route": "/api/analysis/jobs/job_9c879fce-b9d3-4f94-a012-59e71b5921e0",
-        "durationMs": 279,
-        "data": {
-          "ok": false,
-          "requestId": "79ae791e-a51c-4395-ba53-cc70e00fefb0",
-          "code": "JOB_NOT_FOUND",
-          "error": "任務狀態已重整，系統會自動用同一份資料接續分析。",
-          "message": "任務狀態已重整，系統會自動用同一份資料接續分析。"
-        }
-      },
+      "poll": null,
       "ok": true,
-      "pollOk": false,
-      "jobId": "job_9c879fce-b9d3-4f94-a012-59e71b5921e0",
-      "resultId": "result_50678fab-0a45-4297-a56c-c37c1e18249e",
+      "pollOk": true,
+      "jobId": "job_ff58c2ab-0b18-4140-ab6f-dfc19c1e45bd",
+      "resultId": "result_2b085468-dd84-49a7-b845-1152c963aca3",
       "status": "COMPLETED",
-      "requestId": "d5e5f8ad-a0e7-49d7-9c95-30601f374d8c"
+      "requestId": "3d16cd0f-1b23-45c9-ba9e-af0109e3182b"
     },
     "screenHealth": {
       "id": "CARD_01",
@@ -8093,16 +8030,16 @@
       "path": "/nameology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 88,
-      "htmlLength": 23924,
+      "durationMs": 980,
+      "htmlLength": 30104,
       "error": null,
       "issue": null
     },
-    "startedAt": "2026-08-06T15:14:57.248Z",
-    "completedAt": "2026-08-06T15:15:00.248Z"
+    "startedAt": "2026-08-17T16:51:34.463Z",
+    "completedAt": "2026-08-17T16:51:35.903Z"
   },
-  "totalScore": 72,
-  "tier": "UNRATED",
+  "totalScore": 82,
+  "tier": "STANDARD",
   "allowNextCard": false,
-  "generatedAt": "2026-08-06T15:15:00.248Z"
+  "generatedAt": "2026-08-17T16:51:35.903Z"
 }
