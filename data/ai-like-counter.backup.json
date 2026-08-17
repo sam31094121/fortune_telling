@@ -1,6 +1,6 @@
 {
-  "totalCount": 630671,
-  "highestCount": 630671,
+  "totalCount": 630672,
+  "highestCount": 630672,
   "deviceIds": [
     "3ee7e5d6-baaa-4c16-b97e-c036e3a20b6f",
     "event_e5a2d8e6-6ef5-4806-8114-902fea211d7c",
@@ -44,7 +44,8 @@
     "event_9e3ec185-c6d8-4fad-9705-678f86284686",
     "event_f5e15ac0-8107-4081-873e-9b69086f8583",
     "event_39b195c5-a3aa-48ed-a058-c40c9f9570aa",
-    "event_1e8f0aff-aea3-4234-8f64-738d0cc14c24"
+    "event_1e8f0aff-aea3-4234-8f64-738d0cc14c24",
+    "event_78672e71-9c41-48de-8930-bea4340c6eaf"
   ],
   "logs": [
     {
@@ -261,6 +262,11 @@
       "deviceId": "event_1e8f0aff-aea3-4234-8f64-738d0cc14c24",
       "ipHash": "8366fa96519acf9570f5184495dcc6557d3d7dc107bf4c05b44aafc717b6a88f",
       "likedAt": "2026-07-31T16:00:52.139Z"
+    },
+    {
+      "deviceId": "event_78672e71-9c41-48de-8930-bea4340c6eaf",
+      "ipHash": "8366fa96519acf9570f5184495dcc6557d3d7dc107bf4c05b44aafc717b6a88f",
+      "likedAt": "2026-08-17T08:45:56.995Z"
     }
   ]
 }

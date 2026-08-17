@@ -10,7 +10,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
     ? `https://${process.env.VERCEL_URL}`
     : 'http://localhost:8888';
 
-const shareImage = '/images/line-share-taichi.jpg?v=20260715-3';
+const shareImage = '/images/og-taichi-preview.jpg?v=20260817-1';
 const rootStyle = { '--tarot-card-back-image': TAROT_CARD_BACK_CSS_IMAGE } as CSSProperties;
 
 export const viewport: Viewport = {
@@ -33,8 +33,8 @@ export const metadata: Metadata = {
       {
         url: shareImage,
         secureUrl: shareImage,
-        width: 1200,
-        height: 630,
+        width: 1024,
+        height: 1024,
         type: 'image/jpeg',
         alt: '太極命理 AI 智慧分析系統',
       },
