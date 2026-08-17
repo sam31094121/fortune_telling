@@ -908,22 +908,25 @@ function SanFangSummaryCard({ analysis, aiSummary }: { analysis?: InsightResult[
       <div className="pointer-events-none absolute -right-12 -top-16 h-48 w-48 rounded-full border border-amber-200/15" />
       <div className="relative">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1 text-[10px] font-black tracking-[0.2em] text-cyan-100">AI FUSION CARD</span>
-          <span className="text-[10px] font-black tracking-[0.18em] text-amber-100/75">命・遷・官・財｜四宮合參</span>
+          <span className="hidden rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1 text-[10px] font-black tracking-[0.2em] text-cyan-100" aria-hidden="true">AI FUSION CARD</span>
+          <span className="inline-flex rounded-full border border-amber-200/20 bg-amber-300/[0.08] px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-amber-100/90">命・遷・官・財｜四宮合參</span>
         </div>
-        <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
           <div>
-            <p className="text-xs font-bold tracking-[0.18em] text-cyan-100/70">你的四宮決策藍圖</p>
-            <h2 className="mt-2 font-serif text-3xl font-black tracking-wide text-amber-100 sm:text-4xl">{analysis.pattern.name}</h2>
-            <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[color:var(--text-sub)]">將本命、外界、職涯與財富串成一條可執行的人生主線。</p>
+            <p className="hidden text-xs font-bold tracking-[0.18em] text-cyan-100/70" aria-hidden="true">你的四宮決策藍圖</p>
+            <h2 className="font-serif text-[2.25rem] font-black leading-none tracking-wide text-amber-100 sm:text-5xl">{analysis.pattern.name}</h2>
+            <p className="hidden mt-2 max-w-2xl text-sm font-semibold leading-6 text-[color:var(--text-sub)]" aria-hidden="true">將本命、外界、職涯與財富串成一條可執行的人生主線。</p>
           </div>
-          <div className="rounded-2xl border border-amber-200/25 bg-amber-300/[0.08] px-5 py-3 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] sm:text-right">
-            <p className="text-[10px] font-black tracking-[0.16em] text-amber-100/70">結構匹配度</p>
-            <p className="mt-1 font-serif text-4xl font-black text-amber-200">{analysis.consistencyScore}<span className="ml-1 text-lg">%</span></p>
+          <div className="flex min-w-[142px] items-center gap-3 rounded-2xl border border-amber-200/30 bg-[linear-gradient(135deg,rgba(251,191,36,0.16),rgba(120,53,15,0.12))] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_10px_30px_rgba(120,53,15,0.12)]">
+            <span className="h-9 w-1 rounded-full bg-gradient-to-b from-amber-100 via-amber-300 to-amber-600" />
+            <div>
+              <p className="text-[10px] font-black tracking-[0.16em] text-amber-100/75">結構匹配度</p>
+              <p className="mt-0.5 font-serif text-3xl font-black leading-none text-amber-200">{analysis.consistencyScore}<span className="ml-0.5 text-base">%</span></p>
+            </div>
           </div>
         </div>
 
-        <div className="mt-5 rounded-2xl border border-amber-200/15 bg-black/20 px-4 py-3">
+        <div className="hidden mt-5 rounded-2xl border border-amber-200/15 bg-black/20 px-4 py-3" aria-hidden="true">
           <p className="text-[10px] font-black tracking-[0.18em] text-amber-100/70">定格依據</p>
           <p className="mt-1 text-sm font-black leading-6 text-amber-100">{analysis.pattern.basis}</p>
         </div>
@@ -958,7 +961,7 @@ function SanFangSummaryCard({ analysis, aiSummary }: { analysis?: InsightResult[
           })}
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-2">
+        <div className="hidden mt-4 grid grid-cols-3 gap-2" aria-hidden="true">
           {[
             ['關鍵星覆蓋', `${analysis.patternMetrics.patternCoverage}%`],
             ['三方分布', `${analysis.patternMetrics.trinePalaceCoverage}%`],
@@ -2999,7 +3002,7 @@ function ZiweiTwelvePalaceCards({
         </div>
       </details>
 
-      <details className="mt-4 rounded-2xl border border-white/10 bg-black/18 p-4">
+      <details className="hidden mt-4 rounded-2xl border border-white/10 bg-black/18 p-4" aria-hidden="true">
         <summary className="cursor-pointer text-sm font-black text-cyan-100">老師模式：十四主星看字說意境</summary>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {starStories.map((star) => (
