@@ -57,7 +57,7 @@ export default function TarotDeckAdminReview({ cards, onClose }: TarotDeckAdminR
           type="button"
           onClick={onClose}
           className="tarot-back-to-draw shrink-0"
-          aria-label="回到抽牌頁面"
+          aria-label="回到剛才的抽牌頁面，已填寫的資料會保留"
         >
           <span aria-hidden="true">⬅️</span>
           回到抽牌
