@@ -1488,7 +1488,7 @@ function HomeStickyJourneyPanel({ completed, completedModules, total, onOpenNumb
   ) : null;
 
   return (
-    <section className="home-sticky-journey" aria-label="今日清楚下一步">
+    <section className="hidden" aria-label="今日清楚下一步" aria-hidden="true">
       <div className="home-sticky-journey__compact-grid">
         <div className="home-sticky-journey__compact-copy">
           <p className="home-sticky-journey__compact-kicker">今日下一步</p>
@@ -2786,8 +2786,8 @@ export default function HomePage() {
                 <h2 className="home-music-title mt-2 font-serif font-black text-violet-100">
                   {/* 2026-08-16 依指示：標題首行改為「生成一首歌」（原「AI生成一首歌」，要恢復把下一行換回原字即可） */}
                   <span className="home-music-title-line">{"\u751f\u6210\u4e00\u9996\u6b4c"}</span>
-                  <span className="home-music-title-line">{"\u81ea\u6211\u4eba\u683c\u5206\u88c2"}</span>
-                  <span className="home-music-title-line home-music-title-line--soft">{"\u8ddf\u4f60\u81ea\u6211\u5c0d\u8a71"}</span>
+                  <span className="hidden" aria-hidden="true">{"\u81ea\u6211\u4eba\u683c\u5206\u88c2"}</span>
+                  <span className="hidden" aria-hidden="true">{"\u8ddf\u4f60\u81ea\u6211\u5c0d\u8a71"}</span>
                 </h2>
                 <p className="home-music-copy mt-1.5 text-xs text-[color:var(--text-sub)]">
                   {"\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002"}
