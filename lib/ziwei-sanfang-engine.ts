@@ -233,8 +233,8 @@ function parseBirthDate(value: string) {
 }
 
 function resolveShichen(value: ZiweiSanFangInput['shichen'], isTimeConfirmed?: boolean) {
-  if (typeof value === 'number' && value >= 0 && value <= 12 && isTimeConfirmed !== false) {
-    return { index: value, confidence: 'exact' as const };
+  if (typeof value === 'number' && value >= 0 && value <= 12) {
+    return { index: value, confidence: isTimeConfirmed === false ? ('estimated' as const) : ('exact' as const) };
   }
 
   throw new Error('ZIWEI_BIRTH_TIME_REQUIRED');

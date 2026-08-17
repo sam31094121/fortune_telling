@@ -3579,6 +3579,10 @@ export default function InsightPage() {
         bloodType: saved.bloodType || prev.bloodType,
         gender: saved.gender || prev.gender,
       }));
+      setSelectionConfirm((prev) => ({
+        bloodType: prev.bloodType || !!saved.bloodType,
+        gender: prev.gender || !!saved.gender,
+      }));
     }
   }, []);
 
