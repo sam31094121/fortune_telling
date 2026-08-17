@@ -39,6 +39,13 @@ export type MagState = {
 /** 唯一狀態來源：可變 ref，不進 React state，避免每幀重繪整棵樹 */
 export type MagRef = { current: MagState };
 
+/**
+ * 著色器暖機旗標（2026-08-17 穩定性專案）
+ * 載入後的空檔會把所有層級都「顯示幾幀」，讓著色器提前編譯完；
+ * 之後使用者不管怎麼點、怎麼轉倍率，都不會再撞上編譯造成的凍結。
+ */
+export type WarmRef = { current: { warming: boolean; frames: number; done: boolean } };
+
 /** 物鏡轉盤：八段，跟真實顯微鏡的鏡頭一樣一段一個數量級 */
 export const MAG_TIERS = [
   { key: 'macro', mag: 1, label: '全貌', detail: '太極本體', scale: '10 mm' },

@@ -24,6 +24,10 @@ import {
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { Taiji24SoundEngine } from '@/lib/taiji24-sound-engine';
+import TaijiQuantumField from './taiji/TaijiQuantumField';
+import TaijiEntanglementCore from './taiji/TaijiEntanglementCore';
+import TaijiMicroscopeHud from './taiji/TaijiMicroscopeHud';
+import { MAG_DECADES, smoothstep, useTaijiMagnifier, type MagRef } from './taiji/taijiMagnifier';
 import styles from './TaijiSystem.module.css';
 
 type Stage = 'TAIJI' | 'LIANGYI' | 'SIXIANG' | 'BAGUA';
@@ -115,7 +119,9 @@ function hslHex(h: number, s: number, l: number) {
 /* 表面微紋理（2026-08-14 兩儀真實感升級）：
    完美光滑＝一眼假。低對比噪點作 bumpMap，給瓷釉與黑曜石「呼吸的皮膚」。 */
 function createSurfaceNoiseTexture() {
-  const size = 512;
+  /* 2026-08-17 解析度升級：512 → 1024。顯微鏡拉到 ×100 以上時，
+     釉面的斑紋要有真正的細節可看，不能是放大的模糊塊。 */
+  const size = 1024;
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
@@ -125,9 +131,11 @@ function createSurfaceNoiseTexture() {
   ctx.fillRect(0, 0, size, size);
   // 大中小三層柔和斑紋，像手工釉面的自然不均
   const layers = [
-    { count: 60, rMin: 18, rMax: 60, alpha: 0.05 },
-    { count: 160, rMin: 6, rMax: 20, alpha: 0.045 },
-    { count: 420, rMin: 1.5, rMax: 6, alpha: 0.04 },
+    { count: 60, rMin: 36, rMax: 120, alpha: 0.05 },
+    { count: 160, rMin: 12, rMax: 40, alpha: 0.045 },
+    { count: 420, rMin: 3, rMax: 12, alpha: 0.04 },
+    /* 第四層（1024 才畫得出來）：顯微鏡下的釉裂與晶粒 */
+    { count: 900, rMin: 1, rMax: 3.5, alpha: 0.035 },
   ];
   let seed = 12345;
   const rand = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
@@ -200,51 +208,91 @@ function colorWithAlpha(hex: string, alpha: number) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function useTaijiCanvasQuality() {
-  const [quality, setQuality] = useState({
-    minDpr: 1.5,
+/* ============================================================
+   解析度政策（2026-08-17 依業主指示：只准往上，禁止往下）
+   ------------------------------------------------------------
+   內部渲染（canvas backing store）保底 1080p——不論手機或桌機。
+   卡片 CSS 只有 360px 寬，所以 DPR 是「反推」出來的：dpr = 1080 / 卡片寬。
+   強力手機拉到 1296p、桌機 1440p、高階桌機 1620p。
+   環境光探針、陰影、貼圖、異方性全部同步升級，沒有任何一項下修。
+============================================================ */
+const RESOLUTION_FLOOR = 1080; // 鐵板：內部渲染的短邊像素數不得低於此
+
+type TaijiQuality = {
+  minDpr: number;
+  maxDpr: number;
+  environmentResolution: number;
+  shadowResolution: number;
+  quantumPairs: number;
+  quantumLinks: number;
+  ultraTexture: boolean;
+};
+
+function useTaijiCanvasQuality(wrapperRef: { current: HTMLElement | null }) {
+  const [quality, setQuality] = useState<TaijiQuality>({
+    minDpr: 3,
     maxDpr: 3,
     environmentResolution: 512,
     shadowResolution: 1024,
+    quantumPairs: 3200,
+    quantumLinks: 110,
+    ultraTexture: false,
   });
 
   useEffect(() => {
-    const nav = navigator as NavigatorWithDeviceMemory;
-    const cores = nav.hardwareConcurrency ?? 4;
-    const memory = nav.deviceMemory ?? 4;
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    const isCompactViewport = window.matchMedia('(max-width: 760px)').matches;
-    const isTouchPhone = window.matchMedia('(pointer: coarse)').matches && isCompactViewport;
-    const constrainedPhone = isCompactViewport && (isTouchPhone || cores <= 4 || memory <= 4);
-    const balancedPhone = isCompactViewport && !constrainedPhone;
+    const compute = () => {
+      const nav = navigator as NavigatorWithDeviceMemory;
+      const cores = nav.hardwareConcurrency ?? 4;
+      const memory = nav.deviceMemory ?? 4;
+      const box = wrapperRef.current?.getBoundingClientRect();
+      const cssSize = Math.max(220, Math.min(box?.width || 360, box?.height || 360));
+      const isCompactViewport = window.matchMedia('(max-width: 760px)').matches;
+      const strongPhone = cores >= 8 && memory >= 6;
+      const strongDesktop = cores >= 8 && memory >= 8;
 
-    if (constrainedPhone) {
-      setQuality({
-        minDpr: 1.25,
-        maxDpr: Math.max(1.75, Math.min(devicePixelRatio, 2)),
-        environmentResolution: 256,
-        shadowResolution: 512,
+      const targetPixels = isCompactViewport
+        ? (strongPhone ? 1296 : RESOLUTION_FLOOR)
+        : (strongDesktop ? 1620 : 1440);
+      const floorDpr = RESOLUTION_FLOOR / cssSize;
+      const targetDpr = Math.max(floorDpr, targetPixels / cssSize);
+
+      const next: TaijiQuality = {
+        minDpr: floorDpr, // R3F 只會在 [min,max] 之間夾——下限就是 1080p
+        maxDpr: targetDpr,
+        environmentResolution: isCompactViewport ? 512 : 1024,
+        shadowResolution: isCompactViewport ? 1024 : 2048,
+        quantumPairs: isCompactViewport ? (strongPhone ? 3600 : 2600) : 6400,
+        quantumLinks: isCompactViewport ? 84 : 180,
+        ultraTexture: !isCompactViewport || (strongPhone && memory >= 6),
+      };
+      /* 【穩定性｜2026-08-17】只有數值真的變了才更新 state。
+         手機捲動時網址列縮放會連續觸發 resize；每更新一次就會重設 drawing buffer
+         並重繪整棵場景樹——那是捲動時掉幀的典型原因。 */
+      setQuality((prev) => {
+        const same = Math.abs(prev.minDpr - next.minDpr) < 0.01
+          && Math.abs(prev.maxDpr - next.maxDpr) < 0.01
+          && prev.environmentResolution === next.environmentResolution
+          && prev.shadowResolution === next.shadowResolution
+          && prev.quantumPairs === next.quantumPairs
+          && prev.quantumLinks === next.quantumLinks
+          && prev.ultraTexture === next.ultraTexture;
+        return same ? prev : next;
       });
-      return;
-    }
+    };
 
-    if (balancedPhone) {
-      setQuality({
-        minDpr: 1.5,
-        maxDpr: Math.max(2.25, Math.min(devicePixelRatio, 2.75)),
-        environmentResolution: 256,
-        shadowResolution: 512,
-      });
-      return;
-    }
-
-    setQuality({
-      minDpr: 1.5,
-      maxDpr: Math.max(2, Math.min(devicePixelRatio, 3)),
-      environmentResolution: 512,
-      shadowResolution: 1024,
-    });
-  }, []);
+    compute();
+    // 防抖：縮放停下來 250ms 之後才重算，過程中不動任何東西
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const onResize = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(compute, 250);
+    };
+    window.addEventListener('resize', onResize);
+    return () => {
+      if (timer) clearTimeout(timer);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [wrapperRef]);
 
   return quality;
 }
@@ -343,16 +391,14 @@ function createDefaultTaijiTexture() {
   return texture;
 }
 
-function createTaijiSphereTexture(theme: TaijiVisualTheme) {
+function createTaijiSphereTexture(theme: TaijiVisualTheme, detailWidth = 2048) {
   /* 立體球版（2026-08-14 依指示）：等距柱狀投影——
      球體正面（貼圖中央）畫完整太極 S 弧與雙魚眼，左右延伸墨／月兩色包覆全球，
      從鏡頭看是一顆完整立體太極球，球緣自然彎曲、不再是紙片。 */
-  /* 2026-08-16 手機分級（穩紮穩打）：小螢幕觸控機貼圖降半（1024×512），
-     記憶體與上傳量省 4 倍，球面約 400px 寬時肉眼無差；桌機維持 2048 全解析。 */
-  const compactPhone = typeof window !== 'undefined'
-    && window.matchMedia('(pointer: coarse) and (max-width: 760px)').matches;
-  const w = compactPhone ? 1024 : 2048;
-  const h = compactPhone ? 512 : 1024;
+  /* 2026-08-17 解析度只升不降：手機的 1024×512 減半版廢止，全裝置 2048×1024 起跳；
+     顯微鏡進入 ×10 以上時再升到 4096×2048（釉面要禁得起放大檢視）。 */
+  const w = detailWidth;
+  const h = detailWidth / 2;
   const canvas = document.createElement('canvas');
   canvas.width = w;
   canvas.height = h;
@@ -424,7 +470,11 @@ function createTaijiSphereTexture(theme: TaijiVisualTheme) {
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.ClampToEdgeWrapping;
-  texture.anisotropy = 8;
+  /* 異方性過濾拉到硬體上限（多數裝置 16）：斜視球面時的紋理不再糊掉 */
+  texture.anisotropy = 16;
+  texture.generateMipmaps = true;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
   texture.needsUpdate = true;
   return texture;
 }
@@ -490,6 +540,45 @@ function createGlowTexture(theme: TaijiVisualTheme) {
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
+}
+
+/* ============================================================
+   顯微鏡鏡筒（2026-08-17）：把倍率變成真正的鏡頭推進
+   ------------------------------------------------------------
+   ×1 → ×約 700：鏡頭實際推近（5.1 → 2.15），焦段由 42mm 收到 30mm，
+   像顯微鏡換上長焦物鏡，空間被壓縮、景深變淺。
+   再往下（×700 → ×100,000）鏡頭已到極限，改由「物質本身放大」接手——
+   粒子場往外撐開，我們是走進太極的內部，不是看著它。
+   它同時是整個顯微鏡的唯一平滑器：magRef.current 由這裡每幀積分，
+   其他元件一律唯讀，不得再自建一份。
+============================================================ */
+function MicroscopeRig({ magRef }: { magRef: MagRef }) {
+  const { camera } = useThree();
+
+  useFrame((_, delta) => {
+    const mag = magRef.current;
+    const frameDelta = Math.min(delta, FRAME_DELTA_CAP);
+    mag.current += (mag.target - mag.current) * Math.min(1, frameDelta * 3.4);
+    // 一律用「數量級」當刻度：d=3 是 ×1,000、d=5 是 ×100,000、d=7 是 ×10,000,000
+    const d = mag.current * MAG_DECADES;
+
+    /* 前段：正常推近（5.1 → 2.15）。
+       中段（×3,000 之後）：鏡頭直接走進粒子場內部（2.15 → 1.35），
+       粒子從四面八方掠過——「站在物質裡面」的那種深度感，密度也才夠。
+       ×100,000 之後鏡頭就停在這裡不動了——再深入不是靠鏡頭前進，
+       而是靠「物體本身持續變大」（見 TaijiEntanglementCore），跟真顯微鏡換高倍物鏡一樣。 */
+    const distance = 5.1 - smoothstep(0, 3.1, d) * 2.95 - smoothstep(3.5, 5, d) * 0.8;
+    camera.position.setLength(distance);
+
+    const perspective = camera as THREE.PerspectiveCamera;
+    const fov = 42 - smoothstep(0.6, 5, d) * 12;
+    if (Math.abs(perspective.fov - fov) > 0.02) {
+      perspective.fov = fov;
+      perspective.updateProjectionMatrix();
+    }
+  });
+
+  return null;
 }
 
 /** 實拍感（2026-08-16）：呼吸鏡頭——真實攝影機永遠有極微晃動，完全靜止＝一眼 CG */
@@ -746,6 +835,10 @@ function TaijiCore({
   progress24 = 0,
   attractTick = 0,
   theme,
+  magRef,
+  quantumPairs,
+  quantumLinks,
+  ultraTexture,
   onCoreClick,
 }: {
   step24?: number;
@@ -753,6 +846,10 @@ function TaijiCore({
   attractTick?: number;
   theme: TaijiVisualTheme;
   stage: Stage;
+  magRef: MagRef;
+  quantumPairs: number;
+  quantumLinks: number;
+  ultraTexture: boolean;
   onCoreClick: () => void;
 }) {
   const groupRef = useRef<THREE.Group>(null);
@@ -770,22 +867,57 @@ function TaijiCore({
   const totemZRef = useRef(0);
   const pulseRef = useRef(0);
   const prevStageRef = useRef<Stage>(stage);
-  const outerMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
+  const outerMatRef = useRef<THREE.MeshBasicMaterial>(null);
+  /* 顯微鏡（2026-08-17）：宏觀外殼群組與量子層群組 */
+  const macroGroupRef = useRef<THREE.Group>(null);
+  const sixiangGroupRef = useRef<THREE.Group>(null);
+  const quantumGroupRef = useRef<THREE.Group>(null);
+  const deepGroupRef = useRef<THREE.Group>(null);
+  const ballMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
 
-  // ===== 幾何體重用 =====
-  const taijiBallGeo = useMemo(() => new THREE.SphereGeometry(1.08, 48, 48), []);
-  const mainGeo = useMemo(() => new THREE.SphereGeometry(0.82, 64, 64), []);
-  const dotGeo = useMemo(() => new THREE.SphereGeometry(0.15, 28, 28), []);
+  // ===== 幾何體重用（2026-08-17 解析度只升不降：球面段數全面加密，球緣不再有多邊形感）=====
+  const taijiBallGeo = useMemo(() => new THREE.SphereGeometry(1.08, 128, 128), []);
+  const mainGeo = useMemo(() => new THREE.SphereGeometry(0.82, 96, 96), []);
+  const dotGeo = useMemo(() => new THREE.SphereGeometry(0.15, 48, 48), []);
   const outerGeo = useMemo(() => new THREE.SphereGeometry(1.48, 32, 32), []);
   const energyGeo = useMemo(() => new THREE.SphereGeometry(1.68, 32, 32), []);
   const smallGeo = useMemo(() => new THREE.SphereGeometry(0.2, 16, 16), []);
-  const baguaGeo = useMemo(() => new THREE.SphereGeometry(0.24, 32, 32), []);
+  const baguaGeo = useMemo(() => new THREE.SphereGeometry(0.24, 64, 64), []);
   const baguaHighlightGeo = useMemo(() => new THREE.SphereGeometry(0.048, 16, 16), []);
   const baguaRimGeo = useMemo(() => new THREE.TorusGeometry(0.255, 0.006, 8, 64), []);
   const baguaSealGeo = useMemo(() => new THREE.TorusGeometry(0.15, 0.004, 8, 48), []);
   const baguaOrbitGeo = useMemo(() => new THREE.TorusGeometry(2.08, 0.004, 8, 160), []);
   const baguaOuterOrbitGeo = useMemo(() => new THREE.TorusGeometry(2.3, 0.0025, 8, 160), []);
   const baguaInnerOrbitGeo = useMemo(() => new THREE.TorusGeometry(1.86, 0.0025, 8, 160), []);
+  /* 【穩定性｜2026-08-17】點擊用的隱形碰撞球（低面數）。
+     three.js 的射線檢測不會跳過看不見的物件，而點擊處理若掛在最外層群組上，
+     每一次指標事件都要遞迴檢測底下所有子物件——現在底下有 40 顆八卦石、12,800 個粒子、
+     兩顆 128×128 的波包，實測 handleIntersects 就吃掉 12.9% 的時間。
+     改由這顆 16×12 段的球獨自承接點擊，其餘物件永遠不進入檢測名單。 */
+  const hitProxyGeo = useMemo(() => new THREE.SphereGeometry(2.2, 16, 12), []);
+
+  /* ============================================================
+     著色器暖機（2026-08-17 穩定性專案）
+     ------------------------------------------------------------
+     問題：ANGLE / D3D11 上每支 PBR 著色器要編譯數百毫秒，而 three.js 連結完會做一次
+     「同步回讀」（getProgramInfoLog / getProgramParameter）等驅動程式編完——主執行緒直接凍住。
+     只要互動當下才第一次用到某個材質，那一刻就必然掉幀。
+     解法：所有物件永遠掛載（見下方 JSX），並在載入後的第一段空檔把它們全部「顯示幾幀」，
+     讓著色器在使用者還沒開始互動時就編譯完；之後不管怎麼點、怎麼轉倍率，都不會再有新著色器。
+     暖機期間把物件縮到 0.0001 倍——渲染管線照樣編譯，肉眼完全看不到。
+  ============================================================ */
+  const warmRef = useRef({ warming: false, frames: 0, done: false });
+
+  useEffect(() => {
+    const start = () => { warmRef.current.warming = true; };
+    const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+    if (idle) {
+      const handle = idle(start, { timeout: 2500 });
+      return () => (window as Window & { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback?.(handle);
+    }
+    const timer = setTimeout(start, 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   /* 24 響 × 24 主題：每一響換一套配色主題重繪球體與光效（可變獎勵的顏色維度）。
      未點擊（step 0）採用第 24 主題（經典鎏金）作為預設面貌。 */
@@ -793,10 +925,34 @@ function TaijiCore({
   /* 真實感鐵律（2026-08-14 依指示）：真實物體不會換材質——
      球體本體永遠使用「第一張」的墨玉×月瓷基準（材質恆定＝真實感恆定），
      24 響的變化只落在環繞它的光（光暈、光束、軌道環、燈色溫）。 */
-  const ballTexture = useMemo(() => createTaijiSphereTexture(TAIJI_BENCHMARK_THEME), []);
+  /* 顯微鏡貼圖 LOD（只升不降）：開場 2048×1024 立即可用（首屏零延遲），
+     載入後趁瀏覽器空檔升到 4096×2048——等使用者真的轉倍率時，4K 早就備好了，
+     不會在轉盤那一刻卡一下（顯微鏡不能有頓挫）。 */
+  const [textureDetail, setTextureDetail] = useState(2048);
+
+  useEffect(() => {
+    if (!ultraTexture || textureDetail >= 4096) return;
+    const idle = (window as Window & { requestIdleCallback?: (cb: () => void, options?: { timeout: number }) => number }).requestIdleCallback;
+    if (idle) {
+      const handle = idle(() => setTextureDetail(4096), { timeout: 4000 });
+      return () => (window as Window & { cancelIdleCallback?: (handle: number) => void }).cancelIdleCallback?.(handle);
+    }
+    const timer = setTimeout(() => setTextureDetail(4096), 1800);
+    return () => clearTimeout(timer);
+  }, [ultraTexture, textureDetail]);
+  const ballTexture = useMemo(() => createTaijiSphereTexture(TAIJI_BENCHMARK_THEME, textureDetail), [textureDetail]);
   const surfaceNoise = useMemo(() => createSurfaceNoiseTexture(), []);
-  const glowTexture = useMemo(() => createGlowTexture(activeTheme), [activeTheme]);
-  const raysTexture = useMemo(() => createGodRaysTexture(activeTheme), [activeTheme]);
+  /* 量子層預算：依裝置能力給定，物件身分穩定（不會因為重繪而重建幾何） */
+  const quantumBudget = useMemo(
+    () => ({ pairs: quantumPairs, links: quantumLinks }),
+    [quantumPairs, quantumLinks],
+  );
+  /* 【穩定性｜2026-08-17】光暈與雲隙光貼圖只畫一次。
+     原本它們掛在 activeTheme 上，24 響每按一下就重畫 512² + 1024² 兩張 canvas 並重新上傳 GPU——
+     每一次點擊都在做一件肉眼幾乎看不出差別的重活。
+     改成用基準色畫一次，24 響的色溫變化交給 spriteMaterial.color 著色（純 uniform，零成本）。 */
+  const glowTexture = useMemo(() => createGlowTexture(TAIJI_BENCHMARK_THEME), []);
+  const raysTexture = useMemo(() => createGodRaysTexture(TAIJI_BENCHMARK_THEME), []);
   useEffect(() => () => {
     taijiBallGeo.dispose();
     mainGeo.dispose();
@@ -811,7 +967,8 @@ function TaijiCore({
     baguaOrbitGeo.dispose();
     baguaOuterOrbitGeo.dispose();
     baguaInnerOrbitGeo.dispose();
-  }, [taijiBallGeo, mainGeo, dotGeo, outerGeo, energyGeo, smallGeo, baguaGeo, baguaHighlightGeo, baguaRimGeo, baguaSealGeo, baguaOrbitGeo, baguaOuterOrbitGeo, baguaInnerOrbitGeo]);
+    hitProxyGeo.dispose();
+  }, [taijiBallGeo, mainGeo, dotGeo, outerGeo, energyGeo, smallGeo, baguaGeo, baguaHighlightGeo, baguaRimGeo, baguaSealGeo, baguaOrbitGeo, baguaOuterOrbitGeo, baguaInnerOrbitGeo, hitProxyGeo]);
   useEffect(() => () => { surfaceNoise?.dispose(); }, [surfaceNoise]);
   useEffect(() => () => { ballTexture?.dispose(); glowTexture?.dispose(); raysTexture?.dispose(); }, [ballTexture, glowTexture, raysTexture]);
   /* 人類最愛光線科技：光束旋轉／掃光燈／呼吸光暈 refs */
@@ -857,8 +1014,8 @@ function TaijiCore({
     pulseRef.current = Math.max(0, pulseRef.current - frameDelta * 0.72);
     const pulse = pulseRef.current;
     if (outerMatRef.current) {
-      outerMatRef.current.opacity = Math.min(0.085, 0.024 + progress24 * 0.01 + pulse * 0.022);
-      outerMatRef.current.emissiveIntensity = 0.1 + progress24 * 0.08 + pulse * 0.14;
+      /* 加法混合已經自帶發光，原本的 emissiveIntensity 併進不透明度：亮度曲線一致 */
+      outerMatRef.current.opacity = Math.min(0.085, 0.024 + progress24 * 0.012 + pulse * 0.026);
     }
     if (outerShellRef.current) {
       outerShellRef.current.scale.setScalar(1 + Math.sin(t * 0.52) * 0.005 + pulse * 0.007);
@@ -901,18 +1058,111 @@ function TaijiCore({
       diskRef.current.scale.setScalar(totemScaleRef.current);
     }
 
+    /* ============================================================
+       顯微鏡層（2026-08-17）：×1 時一切與原本完全相同（zoomD=0 → 所有係數皆為 1／0），
+       倍率一升，宏觀外殼依序讓位，最後只剩下光子與粒子。
+    ============================================================ */
+    // 數量級刻度（d=2 → ×100、d=5 → ×100,000、d=7 → ×10,000,000）
+    const zoomD = magRef.current.current * MAG_DECADES;
+    // 太極本體的材質變化只發生在前五個數量級，之後畫面已經交給量子層
+    const surfaceD = Math.min(zoomD, 5) / 5;
+    // 外圍裝飾（軌道環、星塵、四象八卦）：×50 起淡出，×2,000 完全讓位
+    const macroFade = 1 - smoothstep(1.7, 3.3, zoomD);
+    // 球體本體：×1,000 起釉面開始透出內部結構，×20,000 完全解離
+    const shellFade = 1 - smoothstep(2.5, 4.3, zoomD);
+    /* 暖機視窗：連續 8 幀把所有階段的物件都顯示出來（縮到 0.0001 倍，看不見），
+       讓每一支著色器在這裡編譯完；之後互動全程零編譯。 */
+    const warm = warmRef.current;
+    if (warm.warming) {
+      warm.frames += 1;
+      if (warm.frames > 8) {
+        warm.warming = false;
+        warm.done = true;
+      }
+    }
+    const warming = warm.warming;
+    const warmScale = 0.0001;
+
+    const macroVisible = macroFade > 0.02;
+    /* 兩層能量殼是「站遠了看」才存在的氛圍層：鏡頭一推近它們就佔滿整個畫面，
+       等於兩張全螢幕的透明 PBR——所以它們必須比其他宏觀元素更早退場（×50 前後收乾淨）。
+       這是 1080p 之下最關鍵的一刀：畫面上看不出差別，×100～×1,000 直接換回流暢。 */
+    const haloVisible = zoomD < 2.2;
+    if (macroGroupRef.current) macroGroupRef.current.visible = macroVisible;
+    if (energyFieldRef.current) energyFieldRef.current.visible = haloVisible;
+    if (outerShellRef.current) outerShellRef.current.visible = haloVisible;
+    if (outerMatRef.current) outerMatRef.current.opacity *= 1 - smoothstep(1.0, 2.2, zoomD);
+
+    /* 階段可見度（取代原本的條件掛載）：物件恆在，只切 visible 與 scale */
+    const showLiangyi = separate && shellFade > 0.02;
+    if (yinRef.current) {
+      yinRef.current.visible = showLiangyi || warming;
+      yinRef.current.scale.setScalar(showLiangyi ? scale : warmScale);
+    }
+    if (yangRef.current) {
+      yangRef.current.visible = showLiangyi || warming;
+      yangRef.current.scale.setScalar(showLiangyi ? scale : warmScale);
+    }
+    const showSixiang = stage === 'SIXIANG' && macroVisible;
+    if (sixiangGroupRef.current) {
+      sixiangGroupRef.current.visible = showSixiang || warming;
+      sixiangGroupRef.current.scale.setScalar(showSixiang ? 1 : warmScale);
+    }
+
+    const ballMat = ballMatRef.current;
+    if (ballMat && diskRef.current) {
+      const baseOpacity = separate ? 0.82 : 1;
+      const opacity = baseOpacity * shellFade;
+      /* transparent 固定為 true（見 JSX 註解），這裡只動 uniform 級的參數，永遠不會觸發重編譯 */
+      ballMat.opacity = opacity;
+      ballMat.depthWrite = opacity > 0.995;
+      /* 顯微鏡下材質會活過來：倍率越高，釉面凹凸越深、越看得見手工感 */
+      ballMat.bumpScale = 0.01 + surfaceD * 0.075;
+      /* 光滑到反射如鏡，凹凸就藏在鏡面裡看不見。倍率一上來讓微觀粗糙度跟著上升
+         （這也是物理上該發生的事：放大到晶粒尺度，任何拋光面都是粗的），
+         高光被撐開，釉裂與晶粒才會在光暈邊緣浮出來。 */
+      ballMat.roughness = 0.28 + surfaceD * 0.22;
+      ballMat.clearcoatRoughness = 0.1 + surfaceD * 0.16;
+      diskRef.current.visible = opacity > 0.004;
+    }
+    /* 真顯微鏡的關鍵手感：換上高倍物鏡時，會「浮出」原本看不到的細節。
+       鏡頭推近會把紋理放大成模糊的大塊；所以同步把噪點貼圖的重複次數往上調，
+       螢幕上的顆粒維持一樣細，等於一層比一層更細的釉裂與晶粒被翻出來。 */
+    if (surfaceNoise) {
+      const grain = 2 + surfaceD * 11;
+      if (Math.abs(surfaceNoise.repeat.x - grain) > 0.01) surfaceNoise.repeat.set(grain, grain);
+    }
+    // 量子粒子場與太極圖騰同一個朝向（同一顆物體的裡與外）
+    if (quantumGroupRef.current && diskRef.current) {
+      quantumGroupRef.current.rotation.y = diskRef.current.rotation.y + Math.PI / 2;
+    }
+    /* 糾纏內景層：反轉抵銷父層旋轉，讓那一對波包在畫面上穩穩不動。
+       使用者拖曳時是鏡頭繞著它轉（OrbitControls），觀察角度照樣自由。 */
+    if (deepGroupRef.current) {
+      deepGroupRef.current.visible = zoomD > 4.2 || warming;
+      if (deepGroupRef.current.visible) {
+        // 用四元數反轉才是精確的抵銷（尤拉角逐軸取負在複合旋轉下並不等於反轉）
+        deepGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
+      }
+    }
+
     // 光線科技①：雲隙光束保留為極低亮度背景補光，避免貼圖感與卡通化。
     if (raysRef.current) {
       raysRef.current.material.rotation += frameDelta * (0.007 + progress24 * 0.008) * raySpinDir;
-      raysRef.current.material.opacity = Math.min(0.09, 0.032 + progress24 * 0.018 + Math.sin(t * 0.28) * 0.003 + pulse * 0.025);
+      raysRef.current.material.opacity = Math.min(0.09, 0.032 + progress24 * 0.018 + Math.sin(t * 0.28) * 0.003 + pulse * 0.025) * macroFade;
       const rayScale = 4.55 * (1 + progress24 * 0.01 + Math.sin(t * 0.28) * 0.003 + pulse * 0.012);
       raysRef.current.scale.set(rayScale, rayScale, 1);
+      raysRef.current.visible = (!separate && macroVisible) || warming;
+      // 24 響的色溫改用材質著色（uniform），不再每一響重畫貼圖
+      raysRef.current.material.color.set(activeTheme.primary);
     }
     // 光線科技②：核心光暈壓低，只做材質周圍的柔和反射。
     if (glowRef.current) {
-      glowRef.current.material.opacity = Math.min(0.13, 0.078 + progress24 * 0.018 + Math.sin(t * 0.46) * 0.003 + pulse * 0.022);
+      glowRef.current.material.opacity = Math.min(0.13, 0.078 + progress24 * 0.018 + Math.sin(t * 0.46) * 0.003 + pulse * 0.022) * macroFade;
       const glowScale = 3.65 * (1 + progress24 * 0.01 + Math.sin(t * 0.46) * 0.003 + pulse * 0.012);
       glowRef.current.scale.set(glowScale, glowScale, 1);
+      glowRef.current.visible = (!separate && macroVisible) || warming;
+      glowRef.current.material.color.set(activeTheme.primary);
     }
 
     // 兩儀分離距離平滑演化：從核心誕生撐開，不瞬間跳位
@@ -934,6 +1184,9 @@ function TaijiCore({
       yangRef.current.rotation.y -= frameDelta * 0.13 * spinBoost;
     }
     if (baguaOrbitRef.current) {
+      const showBagua = stage === 'BAGUA' && macroVisible;
+      baguaOrbitRef.current.visible = showBagua || warming;
+      baguaOrbitRef.current.scale.setScalar(showBagua ? 1 : warmScale);
       baguaOrbitRef.current.rotation.z += frameDelta * (0.008 + progress24 * 0.004);
       baguaOrbitRef.current.rotation.x = Math.sin(t * 0.045) * 0.012;
       baguaOrbitRef.current.rotation.y = Math.cos(t * 0.04) * 0.009;
@@ -941,73 +1194,99 @@ function TaijiCore({
   });
 
   return (
-    <group
-      ref={groupRef}
-      onClick={(event) => {
-        event.stopPropagation();
-        onCoreClick();
-      }}
-      onPointerOver={() => { document.body.style.cursor = 'pointer'; }}
-      onPointerOut={() => { document.body.style.cursor = 'auto'; }}
-    >
-      {/* 電影級雙層能量場：透明物理球殼，低亮度，保留真實材質感。 */}
+    <group ref={groupRef}>
+      {/* 唯一的互動目標：隱形碰撞球（見上方 hitProxyGeo 的說明） */}
+      <mesh
+        geometry={hitProxyGeo}
+        visible={false}
+        onClick={(event) => {
+          event.stopPropagation();
+          onCoreClick();
+        }}
+        onPointerOver={() => { document.body.style.cursor = 'pointer'; }}
+        onPointerOut={() => { document.body.style.cursor = 'auto'; }}
+      />
+      {/* 電影級雙層能量場：透明物理球殼，低亮度，保留真實材質感。
+          2026-08-17 為了扛住 1080p+ 內部渲染：拿掉 transmission——
+          three.js 只要場上有一個 transmission 材質，每幀就會「整個場景多渲染一次」再做 mipmap，
+          而這兩層的不透明度只有 0.018／0.034，折射根本看不見。
+          畫質零損失、每幀省下一整趟場景渲染，解析度才有本錢往上加。 */}
       <mesh ref={energyFieldRef} geometry={energyGeo}>
-        <meshPhysicalMaterial
+        <meshBasicMaterial
           color={activeTheme.secondary}
           transparent
           opacity={0.018 + progress24 * 0.012}
-          transmission={0.35}
-          thickness={0.55}
-          metalness={0.02}
-          roughness={0.38}
-          clearcoat={0.7}
-          clearcoatRoughness={0.28}
-          emissive={activeTheme.secondary}
-          emissiveIntensity={0.08 + progress24 * 0.06}
           side={THREE.BackSide}
           depthWrite={false}
+          blending={THREE.AdditiveBlending}
         />
       </mesh>
       <mesh ref={outerShellRef} geometry={outerGeo}>
-        <meshPhysicalMaterial
+        <meshBasicMaterial
           ref={outerMatRef}
           color={activeTheme.primary}
           transparent
           opacity={0.034}
-          transmission={0.24}
-          thickness={0.42}
-          metalness={0.06}
-          roughness={0.26}
-          clearcoat={0.82}
-          clearcoatRoughness={0.22}
-          emissive={activeTheme.accent}
-          emissiveIntensity={0.18}
           side={THREE.DoubleSide}
           depthWrite={false}
+          blending={THREE.AdditiveBlending}
         />
       </mesh>
 
-      {/* 星軌：固定低成本幾何體，讓軌道存在感清楚但不卡通化 */}
-      <OrbitRings stage={stage} step24={step24} theme={activeTheme} progress24={progress24} />
+      {/* 宏觀世界（2026-08-17 顯微鏡分層）：軌道、星塵、四象、八卦——
+          倍率一過 ×50 就整組讓位，把 GPU 預算全部交給量子層。 */}
+      <group ref={macroGroupRef}>
+        {/* 星軌：固定低成本幾何體，讓軌道存在感清楚但不卡通化 */}
+        <OrbitRings stage={stage} step24={step24} theme={activeTheme} progress24={progress24} />
 
-      {/* 粒子（數量與速度再收斂，避免手機閃爍與廉價特效感） */}
-      {/* 粒子：隨 24 步旅程增生（越點星塵越盛，黏著性可變獎勵） */}
-      <Sparkles
-        count={(stage === 'BAGUA' ? 8 : stage === 'SIXIANG' ? 10 : 8) + Math.round(progress24 * 3)}
-        scale={2.45}
-        size={0.72 + progress24 * 0.18}
-        speed={0.04 + progress24 * 0.05}
-        opacity={0.18}
-        color={activeTheme.primary}
-      />
+        {/* 粒子（數量與速度再收斂，避免手機閃爍與廉價特效感）
+            【穩定性｜2026-08-17】數量固定為 11：count 一變，drei 會整組重建幾何緩衝區
+            （每次點擊配置新的 Float32Array → GC 壓力 → 掉幀）。
+            「越點星塵越盛」的感受改由尺寸、速度與亮度表現，視覺不減、成本歸零。 */}
+        <Sparkles
+          count={11}
+          scale={2.45}
+          size={0.72 + progress24 * 0.24}
+          speed={0.04 + progress24 * 0.05}
+          opacity={0.18 + progress24 * 0.05}
+          color={activeTheme.primary}
+        />
+      </group>
 
-      {/* 太極階段：真 3D 立體太極球＋雲隙光束／呼吸光暈 */}
-      {!separate && raysTexture && (
+      {/* 量子層：光子與粒子的糾纏（×100 起浮現，×10,000 之後接管整個畫面） */}
+      <group ref={quantumGroupRef}>
+        <TaijiQuantumField
+          magRef={magRef}
+          warmRef={warmRef}
+          budget={quantumBudget}
+          yinColor="#9fc4e8"
+          yangColor={TAIJI_BENCHMARK_THEME.primary}
+          sparkColor="#fff6dc"
+        />
+      </group>
+
+      {/* 糾纏內景層：×1,000,000 → ×10,000,000，鑽進其中一對粒子的內部。
+          這一組必須「站著不動」——太極本體是會自轉的，跟著轉的話這麼近的距離
+          會直接把波包甩出畫面，所以在 useFrame 裡把父層的旋轉反轉抵銷掉。 */}
+      <group ref={deepGroupRef}>
+        <TaijiEntanglementCore
+          magRef={magRef}
+          warmRef={warmRef}
+          yinColor="#9fc4e8"
+          yangColor={TAIJI_BENCHMARK_THEME.primary}
+          sparkColor="#fff6dc"
+        />
+      </group>
+
+      {/* 太極階段：真 3D 立體太極球＋雲隙光束／呼吸光暈。
+          同樣永遠掛載：卸載會讓材質被 dispose，著色器程式的參考數歸零而被刪除，
+          下次回到太極階段又要重編一次。 */}
+      {raysTexture && (
         <sprite ref={raysRef} position={[0, 0, -1.08]} scale={[4.7, 4.7, 1]} renderOrder={0}>
           <spriteMaterial map={raysTexture} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.08} />
         </sprite>
       )}
-      {!separate && glowTexture && (
+      {glowTexture && (
         <sprite ref={glowRef} position={[0, 0, -0.74]} scale={[3.75, 3.75, 1]} renderOrder={1}>
           <spriteMaterial map={glowTexture} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.14} />
         </sprite>
@@ -1016,6 +1295,7 @@ function TaijiCore({
       {ballTexture && (
         <mesh ref={diskRef} geometry={taijiBallGeo} renderOrder={separate ? 1 : 2}>
           <meshPhysicalMaterial
+            ref={ballMatRef}
             map={ballTexture}
             emissiveMap={ballTexture}
             emissive={TAIJI_BENCHMARK_THEME.accent}
@@ -1029,24 +1309,30 @@ function TaijiCore({
             bumpScale={0.01}
             iridescence={0.12}
             iridescenceIOR={1.25}
-            transparent={separate}
-            opacity={separate ? 0.82 : 1}
-            depthWrite={!separate}
+            /* 【穩定性｜2026-08-17】transparent 是著色器快取鍵的一部分：
+               原本它跟著階段切換 true/false，等於每次演化都要重編一次太極球的著色器。
+               改成永遠 true，實際的不透明度與深度寫入交給 useFrame 每幀設定（那是 uniform，不會重編）。
+               opacity=1 且 depthWrite=true 時，視覺上與不透明材質完全一致。 */
+            transparent
+            opacity={1}
+            depthWrite
           />
         </mesh>
       )}
 
-      {/* 兩儀真實感：球間互照——兩顆實體相鄰必然互相反光（月瓷暖光映向陰球、微弱冷反射回照陽球） */}
-      {separate && (
-        <>
-          <pointLight position={[-0.45, 0, 1.0]} intensity={0.22} distance={2.6} decay={2} color={TAIJI_BENCHMARK_THEME.moon} />
-          <pointLight position={[0.45, 0, 1.0]} intensity={0.08} distance={2.2} decay={2} color="#3a4358" />
-        </>
-      )}
+      {/* 兩儀真實感：球間互照——兩顆實體相鄰必然互相反光（月瓷暖光映向陰球、微弱冷反射回照陽球）
+          【穩定性關鍵｜2026-08-17】這兩盞燈永遠掛著，用亮度 0 來「關」，絕對不能條件掛載——
+          燈的數量是 three.js 著色器快取鍵的一部分，多一盞燈＝畫面上每一個材質全部重新編譯，
+          在 ANGLE 上就是一次數百毫秒的凍結。實測就是點擊卡頓的元凶之一。 */}
+      <pointLight position={[-0.45, 0, 1.0]} intensity={separate ? 0.22 : 0} distance={2.6} decay={2} color={TAIJI_BENCHMARK_THEME.moon} />
+      <pointLight position={[0.45, 0, 1.0]} intensity={separate ? 0.08 : 0} distance={2.2} decay={2} color="#3a4358" />
 
-      {/* 兩儀之後：陰球（墨玉——高光澤深黑，如拋光黑曜石），獨立旋轉 */}
-      {separate && (
-        <group ref={yinRef} position={[0, 0.08, 0]} scale={scale}>
+      {/* 兩儀之後：陰球（墨玉——高光澤深黑，如拋光黑曜石），獨立旋轉。
+          【穩定性｜2026-08-17】所有階段的物件一律「永遠掛載、用 visible 開關」，不再條件掛載——
+          條件掛載＝每次演化都在建新材質、連結新著色器（實測每次點擊新增 1～6 支），
+          那正是 300～770ms 凍結的來源。掛著不顯示的物件在 three.js 是零成本（直接跳過）。 */}
+      {(
+        <group ref={yinRef} position={[0, 0.08, 0]} visible={false}>
           <mesh geometry={mainGeo}>
             <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.ink} metalness={0.34} roughness={0.18} clearcoat={1} clearcoatRoughness={0.09} envMapIntensity={1.48} emissive={TAIJI_BENCHMARK_THEME.accent} emissiveIntensity={0.028 + progress24 * 0.025} bumpMap={surfaceNoise ?? undefined} bumpScale={0.012} iridescence={0.16} iridescenceIOR={1.28} />
           </mesh>
@@ -1057,8 +1343,8 @@ function TaijiCore({
       )}
 
       {/* 兩儀之後：陽球（月白瓷——暖白上釉，如和田玉），反向獨立旋轉 */}
-      {separate && (
-        <group ref={yangRef} position={[0, -0.08, 0]} scale={scale}>
+      {(
+        <group ref={yangRef} position={[0, -0.08, 0]} visible={false}>
           <mesh geometry={mainGeo}>
             <meshPhysicalMaterial color={TAIJI_BENCHMARK_THEME.moon} metalness={0.04} roughness={0.3} clearcoat={0.94} clearcoatRoughness={0.14} envMapIntensity={1.24} emissive={TAIJI_BENCHMARK_THEME.primary} emissiveIntensity={0.024 + progress24 * 0.025} bumpMap={surfaceNoise ?? undefined} bumpScale={0.016} sheen={0.28} sheenColor={TAIJI_BENCHMARK_THEME.primary} sheenRoughness={0.68} />
           </mesh>
@@ -1068,9 +1354,9 @@ function TaijiCore({
         </group>
       )}
 
-      {/* 四象（條件渲染）：八卦階段收起四象符號，讓八顆太極石與軌道成為乾淨主視覺。 */}
-      {stage === 'SIXIANG' && (
-        <group>
+      {/* 四象（永遠掛載、以 visible 開關）：八卦階段收起四象符號，讓八顆太極石與軌道成為乾淨主視覺。 */}
+      {(
+        <group ref={sixiangGroupRef} visible={false}>
           {[
             { pos: [-1.2, 1.15, 0] as const, symbol: '⚊' },
             { pos: [1.2, 1.15, 0] as const, symbol: '⚋' },
@@ -1089,9 +1375,9 @@ function TaijiCore({
         </group>
       )}
 
-      {/* 八卦（條件渲染） */}
-      {stage === 'BAGUA' && (
-        <group ref={baguaOrbitRef} rotation={[0.04, 0, 0]}>
+      {/* 八卦（永遠掛載、以 visible 開關） */}
+      {(
+        <group ref={baguaOrbitRef} rotation={[0.04, 0, 0]} visible={false}>
           <mesh geometry={baguaOrbitGeo} rotation={[Math.PI / 2, 0, 0]}>
             <meshBasicMaterial color={activeTheme.primary} transparent opacity={0.09 + progress24 * 0.018} depthWrite={false} />
           </mesh>
@@ -1213,7 +1499,10 @@ export default function TaijiSystem({
   const [touchActive, setTouchActive] = useState(false);
   const lastClickAtRef = useRef(0);
   const touchRef = useRef({ active: false, x: 0, y: 0 });
-  const canvasQuality = useTaijiCanvasQuality();
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const canvasQuality = useTaijiCanvasQuality(wrapperRef);
+  /* 顯微鏡倍率：唯一狀態來源（ref，不進 React state） */
+  const magRef = useTaijiMagnifier(wrapperRef);
 
   const TAIJI_DAILY_KEY = 'tdh:taiji24:daily:v1';
   const todayKey = () => new Date().toISOString().slice(0, 10);
@@ -1229,6 +1518,22 @@ export default function TaijiSystem({
         setJourney({ step: 24, progress: 1 });
       }
     } catch { /* localStorage 受限時靜默略過 */ }
+  }, []);
+
+  /* 音訊暖機（2026-08-17 穩定性專案）：把 AudioContext 與 2.8 秒殘響脈衝的建置
+     移到載入後的空檔，第一次點擊就不會為了「建立聲音」而掉一大段幀。 */
+  useEffect(() => {
+    const warmAudio = () => {
+      if (!soundRef.current) soundRef.current = new Taiji24SoundEngine();
+      void soundRef.current.prewarm().catch(() => undefined);
+    };
+    const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+    if (idle) {
+      const handle = idle(warmAudio, { timeout: 3500 });
+      return () => (window as Window & { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback?.(handle);
+    }
+    const timer = setTimeout(warmAudio, 1600);
+    return () => clearTimeout(timer);
   }, []);
 
   /* 待機召喚（attract mode）：18 秒沒互動就輕輕呼喚一下 */
@@ -1341,6 +1646,7 @@ export default function TaijiSystem({
       style={visualStyle}
     >
       <div
+        ref={wrapperRef}
         className={`${styles.sphereWrapper} ${touchActive ? styles.sphereWrapperTouching : ''}`}
         onPointerDown={handleTouchStart}
         onPointerMove={handleTouchMove}
@@ -1356,6 +1662,8 @@ export default function TaijiSystem({
           camera={{ position: [0, 0, 5.1], fov: 42 }}
           dpr={[canvasQuality.minDpr, canvasQuality.maxDpr]}
           gl={{
+            /* 2026-08-17 實測：1080p 超取樣之下再開 MSAA 幾乎零成本（64–73 vs 64–71 FPS），
+               那就留著——超取樣＋MSAA 雙層反鋸齒，球緣與金線在任何裝置上都是乾淨的。 */
             antialias: true,
             powerPreference: 'high-performance',
             alpha: true,
@@ -1370,11 +1678,18 @@ export default function TaijiSystem({
             /* 真實感：ACES 電影級色調映射（全世界影視工業標準），高光滾降自然不死白 */
             gl.toneMapping = THREE.ACESFilmicToneMapping;
             gl.toneMappingExposure = 1.12;
+            /* 【穩定性｜2026-08-17】正式版關掉著色器錯誤檢查。
+               three.js 每連結一支著色器就會呼叫 getProgramParameter / getProgramInfoLog，
+               那是一次同步回讀，會把主執行緒卡住等驅動程式編譯完（實測佔點擊卡頓的 28.7%）。
+               開發模式保留檢查（著色器寫錯要看得到錯誤訊息），正式版關掉。 */
+            gl.debug.checkShaderErrors = process.env.NODE_ENV !== 'production';
           }}
           performance={{ min: 0.5 }}
         >
           <AdaptiveEvents />
           <TaijiPerformanceGovernor active={touchActive} />
+          {/* 顯微鏡鏡筒必須掛在最前面：它負責每幀積分倍率，其他元件才讀得到同一幀的值 */}
+          <MicroscopeRig magRef={magRef} />
           <CameraBreath />
           {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
               頂部暖色柔光箱＋側面冷色燈條＋背部輪廓光，球面反射出真實的影棚光形，
@@ -1394,7 +1709,18 @@ export default function TaijiSystem({
           <KeyLightSweep theme={journeyTheme} progress24={journey.progress} />
           <pointLight position={[-4, -2.5, 2.5]} intensity={0.3} color="#6fa8c0" />
           <pointLight position={[0, 2.2, -4.5]} intensity={1.15} color={journeyTheme.accent} />
-          <TaijiCore stage={stage} step24={journey.step} progress24={journey.progress} attractTick={attractTick} theme={journeyTheme} onCoreClick={goNext} />
+          <TaijiCore
+            stage={stage}
+            step24={journey.step}
+            progress24={journey.progress}
+            attractTick={attractTick}
+            theme={journeyTheme}
+            magRef={magRef}
+            quantumPairs={canvasQuality.quantumPairs}
+            quantumLinks={canvasQuality.quantumLinks}
+            ultraTexture={canvasQuality.ultraTexture}
+            onCoreClick={goNext}
+          />
           <ContactShadows position={[0, -1.9, 0]} opacity={0.46} scale={7} blur={2.8} resolution={canvasQuality.shadowResolution} far={3} frames={1} />
           <OrbitControls
             makeDefault
@@ -1408,6 +1734,8 @@ export default function TaijiSystem({
             touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE }}
           />
         </Canvas>
+        {/* 顯微鏡面板：倍率讀數／物鏡轉盤／行程滑桿／比例尺／內部渲染解析度 */}
+        <TaijiMicroscopeHud magRef={magRef} canvasRef={wrapperRef} />
       </div>
     </section>
   );

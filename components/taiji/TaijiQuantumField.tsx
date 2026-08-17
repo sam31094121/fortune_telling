@@ -20,7 +20,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { MAG_DECADES, smoothstep, type MagRef } from './taijiMagnifier';
+import { MAG_DECADES, smoothstep, type MagRef, type WarmRef } from './taijiMagnifier';
 
 export type QuantumBudget = {
   /** 糾纏對數（實際點數 = pairs × 2） */
@@ -46,6 +46,10 @@ function taijiPolarity(x: number, y: number, radius: number) {
 }
 
 const FIELD_RADIUS = 1.06;
+
+/* 這一層純粹是視覺，永遠不該被指標事件的射線檢測掃到——
+   12,800 個點做逐點檢測是每次點擊數百毫秒的等級。 */
+const NO_RAYCAST = () => null;
 
 function buildQuantumGeometry(budget: QuantumBudget) {
   const { pairs, links } = budget;
@@ -247,12 +251,14 @@ const LINK_FRAGMENT = /* glsl */ `
 
 export default function TaijiQuantumField({
   magRef,
+  warmRef,
   budget,
   yinColor,
   yangColor,
   sparkColor,
 }: {
   magRef: MagRef;
+  warmRef: WarmRef;
   budget: QuantumBudget;
   yinColor: string;
   yangColor: string;
@@ -322,8 +328,11 @@ export default function TaijiQuantumField({
     /* 門檻一律用「數量級」：d=2 是 ×100、d=5 是 ×100,000、d=7 是 ×10,000,000。
        用絕對刻度寫，日後再往下加倍率也不會把既有的節奏整個位移。 */
     const d = magRef.current.current * MAG_DECADES;
+    const warming = warmRef.current.warming;
     if (!armed || !materials) {
-      if (magRef.current.target * MAG_DECADES > 0.08 || d > 0.08) setArmed(true);
+      /* 暖機視窗也要上場：幾何在這裡建好、著色器在這裡編好，
+         使用者第一次轉倍率時就不會撞上建構與編譯的雙重停頓。 */
+      if (warming || magRef.current.target * MAG_DECADES > 0.08 || d > 0.08) setArmed(true);
       return;
     }
     const pointUniforms = materials.pointMaterial.uniforms;
@@ -339,8 +348,12 @@ export default function TaijiQuantumField({
     const reveal = smoothstep(2, 4, d) * handover;
     const linkReveal = smoothstep(3.3, 4.7, d) * handover;
     const visible = reveal > 0.002;
-    if (group) group.visible = visible;
-    if (!visible) return;
+    if (group) {
+      group.visible = visible || warming;
+      // 暖機時縮到看不見，但渲染管線照樣會編譯這支著色器
+      group.scale.setScalar(visible ? 1 : 0.0001);
+    }
+    if (!visible && !warming) return;
 
     const t = state.clock.elapsedTime;
     /* 場域膨脹只給到 1.7 倍——這是實測校正過的關鍵數字：
@@ -367,7 +380,7 @@ export default function TaijiQuantumField({
     linkUniforms.uField.value = field;
     linkUniforms.uJitter.value = jitter;
 
-    if (links) links.visible = linkReveal > 0.004;
+    if (links) links.visible = linkReveal > 0.004 || warming;
     if (points && group) {
       // 整團粒子維持與太極圖騰同一個朝向，慢慢自轉
       group.rotation.y += Math.min(delta, 1 / 45) * 0.035;
@@ -383,6 +396,7 @@ export default function TaijiQuantumField({
         geometry={built.pointGeometry}
         material={materials.pointMaterial}
         frustumCulled={false}
+        raycast={NO_RAYCAST}
         renderOrder={4}
       />
       <lineSegments
@@ -390,6 +404,7 @@ export default function TaijiQuantumField({
         geometry={built.linkGeometry}
         material={materials.linkMaterial}
         frustumCulled={false}
+        raycast={NO_RAYCAST}
         renderOrder={3}
       />
     </group>

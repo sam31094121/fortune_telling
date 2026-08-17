@@ -152,6 +152,16 @@ export class Taiji24SoundEngine {
     return impulse;
   }
 
+  /**
+   * 暖機（2026-08-17 穩定性專案）：在載入後的空檔先把 AudioContext 與整條音訊圖建好。
+   * 最貴的是 2.8 秒的殘響脈衝響應——那是 26 萬個取樣點在主執行緒上算出來的，
+   * 原本卡在「第一次點擊」那一刻，正是最不該卡的時候。
+   * 這裡不會發出任何聲音，也不強迫 resume；瀏覽器的自動播放政策照舊由第一次點擊解鎖。
+   */
+  async prewarm(): Promise<void> {
+    await this.init();
+  }
+
   /** 點擊入口：回傳目前狀態供前端動畫同步 */
   async click(): Promise<Taiji24State> {
     const nowMs = performance.now();

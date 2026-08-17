@@ -20,7 +20,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { MAG_DECADES, smoothstep, type MagRef } from './taijiMagnifier';
+import { MAG_DECADES, smoothstep, type MagRef, type WarmRef } from './taijiMagnifier';
+
+/* 純視覺層：兩顆 128×128 的球加上管狀通道，逐面射線檢測太貴，直接退出檢測名單 */
+const NO_RAYCAST = () => null;
 
 /** 這一層開始接手的數量級（×50,000 左右先預備，×1,000,000 完全成形） */
 const DEEP_IN = 4.7;
@@ -157,11 +160,13 @@ function buildBridgeGeometry() {
 
 export default function TaijiEntanglementCore({
   magRef,
+  warmRef,
   yinColor,
   yangColor,
   sparkColor,
 }: {
   magRef: MagRef;
+  warmRef: WarmRef;
   yinColor: string;
   yangColor: string;
   sparkColor: string;
@@ -238,15 +243,21 @@ export default function TaijiEntanglementCore({
 
   useFrame((state, delta) => {
     const d = magRef.current.current * MAG_DECADES;
+    const warming = warmRef.current.warming;
     if (!armed || !built) {
-      if (d > DEEP_IN - 0.5 || magRef.current.target * MAG_DECADES > DEEP_IN - 0.5) setArmed(true);
+      // 暖機視窗一併把這一層的幾何與著色器準備好（見 TaijiSystem 的暖機說明）
+      if (warming || d > DEEP_IN - 0.5 || magRef.current.target * MAG_DECADES > DEEP_IN - 0.5) setArmed(true);
       return;
     }
 
     const root = rootRef.current;
     const reveal = smoothstep(DEEP_IN, DEEP_FULL, d);
-    if (root) root.visible = reveal > 0.002;
-    if (reveal <= 0.002) return;
+    const showDeep = reveal > 0.002;
+    if (root) {
+      root.visible = showDeep || warming;
+      root.scale.setScalar(showDeep ? 1 : 0.0001);
+    }
+    if (!showDeep) return;
 
     const t = state.clock.elapsedTime;
 
@@ -313,10 +324,10 @@ export default function TaijiEntanglementCore({
 
   return (
     <group ref={rootRef} visible={false} renderOrder={6}>
-      <mesh ref={yinRef} geometry={built.packetGeometry} material={built.yinMaterial} frustumCulled={false} />
-      <mesh ref={yangRef} geometry={built.packetGeometry} material={built.yangMaterial} frustumCulled={false} />
-      <mesh ref={bridgeARef} geometry={built.bridgeGeometry} material={built.bridgeMaterial} frustumCulled={false} />
-      <mesh ref={bridgeBRef} geometry={built.bridgeGeometry} material={built.bridgeMaterial} frustumCulled={false} />
+      <mesh ref={yinRef} geometry={built.packetGeometry} material={built.yinMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
+      <mesh ref={yangRef} geometry={built.packetGeometry} material={built.yangMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
+      <mesh ref={bridgeARef} geometry={built.bridgeGeometry} material={built.bridgeMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
+      <mesh ref={bridgeBRef} geometry={built.bridgeGeometry} material={built.bridgeMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
     </group>
   );
 }
