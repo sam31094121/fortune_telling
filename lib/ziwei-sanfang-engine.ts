@@ -28,6 +28,7 @@ export interface ZiweiPalaceEvidence {
   branch: string;
   palaceStem: string;
   majorStars: string[];
+  majorStarDetails: Array<{ name: string; brightness?: string }>;
   minorStars: string[];
   auspiciousStars: string[];
   maleficStars: string[];
@@ -42,6 +43,7 @@ export interface ZiweiFullPalaceEvidence {
   branch: string;
   palaceStem: string;
   majorStars: string[];
+  majorStarDetails: Array<{ name: string; brightness?: string }>;
   minorStars: string[];
   auspiciousStars: string[];
   maleficStars: string[];
@@ -843,6 +845,7 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
       branch: palace.earthlyBranch,
       palaceStem: palace.heavenlyStem,
       majorStars: palace.majorStars.map((star) => star.name),
+      majorStarDetails: palace.majorStars.map((star) => ({ name: star.name, brightness: star.brightness })),
       minorStars,
       ...classifiedStars,
       transformations,
@@ -866,6 +869,7 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
       branch: palace.earthlyBranch,
       palaceStem: palace.heavenlyStem,
       majorStars: palace.majorStars.map((star) => star.name),
+      majorStarDetails: palace.majorStars.map((star) => ({ name: star.name, brightness: star.brightness })),
       minorStars,
       ...classifiedStars,
       transformations,
@@ -908,6 +912,7 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
           branch: chart.bodyPalace.earthlyBranch,
           palaceStem: chart.bodyPalace.heavenlyStem,
           majorStars: chart.bodyPalace.majorStars.map((star) => star.name),
+          majorStarDetails: chart.bodyPalace.majorStars.map((star) => ({ name: star.name, brightness: star.brightness })),
           minorStars: chart.bodyPalace.minorStars.map((star) => star.name),
           ...classifyZiweiSupportStars(chart.bodyPalace.minorStars.map((star) => star.name)),
           transformations: chart.bodyPalace.majorStars
