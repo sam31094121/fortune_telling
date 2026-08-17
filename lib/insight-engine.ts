@@ -1,6 +1,5 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { getBirthPersonalityScores, getBirthZodiac } from './birth-model-db';
-import { getBloodTypePersonalityScores } from './blood-model-db';
 import { getNamePersonalityScores } from './name-model-db';
 import { buildNameologyAnalysis, type NameologyAnalysis } from './nameology-engine';
 import { buildInsightFiveElementResult, type FiveElementIntegrationResult } from './five-element-engine';
@@ -205,6 +204,7 @@ export interface InsightAnalysisResponse {
   }[];
   personalizedRecommendations: string[];
   summary: string;
+  plainSummary: string;
   ziweiPalaces: {
     palaceName: string;
     starName: string;
@@ -217,6 +217,8 @@ export interface InsightAnalysisResponse {
   fiveElement: FiveElementIntegrationResult;
   ritualSteps: InsightRitualStep[];
   meta?: {
+    subjectName?: string;
+    gender?: 'male' | 'female';
     dayPillar: string;
     hourPillar: string;
     wuxing: string;
@@ -225,6 +227,26 @@ export interface InsightAnalysisResponse {
     shichen?: number | 'unknown' | null;
     timeCorrectionMode: 'STANDARD_TIME' | 'TRUE_SOLAR_TIME';
   };
+}
+
+function buildSanFangPlainFallback(analysis: ZiweiSanFangAnalysis, annual: AnnualFortuneAnalysis) {
+  const palace = (key: ZiweiSanFangAnalysis['palaces'][number]['key']) => analysis.palaces.find((item) => item.key === key);
+  const stars = (key: ZiweiSanFangAnalysis['palaces'][number]['key']) => palace(key)?.majorStars.join('、') || '無十四主星';
+  const focus = (key: ZiweiSanFangAnalysis['palaces'][number]['key']) => palace(key)?.focus || '本宮資料';
+
+  return [
+    `【現在重點】命宮是${stars('MING')}；先處理${focus('MING')}，不要同時把所有事扛在身上。`,
+    `【工作與錢】官祿宮是${stars('GUAN_LU')}、財帛宮是${stars('CAI_BO')}；工作與金錢先把${focus('GUAN_LU')}和${focus('CAI_BO')}講清楚。`,
+    `【人際與機會】遷移宮是${stars('QIAN_YI')}；外出、合作或換環境時，重點放在${focus('QIAN_YI')}。`,
+    `【下一步】${annual.year} 年先照「${annual.annualTheme}」排一件本週能完成的工作，再決定下一個機會。`,
+  ].join('\n');
+}
+
+function normalizeSanFangPlainSummary(value: string | undefined, analysis: ZiweiSanFangAnalysis, annual: AnnualFortuneAnalysis) {
+  const lines = String(value ?? '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const expectedLabels = ['【現在重點】', '【工作與錢】', '【人際與機會】', '【下一步】'];
+  const valid = lines.length === 4 && expectedLabels.every((label, index) => lines[index].startsWith(label));
+  return valid ? lines.join('\n') : buildSanFangPlainFallback(analysis, annual);
 }
 
 const INSIGHT_RESPONSE_SCHEMA = {
@@ -248,6 +270,7 @@ const INSIGHT_RESPONSE_SCHEMA = {
       description: '個性化建議，3-5 項',
     },
     summary: { type: Type.STRING, description: '完整摘要，200-300 字' },
+    plain_summary: { type: Type.STRING, description: '給「白話重點」卡的四行固定格式摘要。每行只能一個完整句子，依序為【現在重點】、【工作與錢】、【人際與機會】、【下一步】。每行 22-38 字，以台灣生活語言寫，禁用 AI 判定、五行不足、日主、格局、星曜等術語。' },
   },
   required: [
     'psychology_insights',
@@ -282,13 +305,12 @@ function calculateGlobalPercentile(score: number): number {
 }
 
 const SCORE_WEIGHTS = {
-  birth: 40,
-  blood: 25,
-  name: 25,
+  birth: 50,
+  name: 40,
   shichen: 10,
 } as const;
 
-const SCORE_FORMULA = '生日人格骨架 40% + 血型行為模型 25% + 姓名個體校正 25% + 真實出生時辰 10%';
+const SCORE_FORMULA = '生日人格骨架 50% + 姓名個體校正 40% + 真實出生時辰 10%';
 
 function clampPercentage(value: number): number {
   return Math.max(0, Math.min(100, Math.round(value)));
@@ -344,7 +366,6 @@ function uniquenessOffsetOrder(seed: number): number[] {
 function buildStatisticalAnalysis(
   request: InsightRequest,
   birthScores: DimensionScores,
-  bloodScores: DimensionScores,
   nameScores: DimensionScores,
   shichen: ReturnType<typeof computeShichenProfile>,
   dataSourceCount: number,
@@ -353,10 +374,9 @@ function buildStatisticalAnalysis(
 
   return DIMENSION_KEYS.map((key, index) => {
     const weightedBirth = birthScores[key] * (SCORE_WEIGHTS.birth / 100);
-    const weightedBlood = bloodScores[key] * (SCORE_WEIGHTS.blood / 100);
     const weightedName = nameScores[key] * (SCORE_WEIGHTS.name / 100);
     const weightedShichen = shichenScores[key] * (SCORE_WEIGHTS.shichen / 100);
-    const rawScore = weightedBirth + weightedBlood + weightedName + weightedShichen;
+    const rawScore = weightedBirth + weightedName + weightedShichen;
     const baseScore = clampPercentage(rawScore);
 
     const score = baseScore;
@@ -364,7 +384,6 @@ function buildStatisticalAnalysis(
     const label = dimensionLabel(key);
     const sourceBreakdown = [
       { label: `生日骨架（${getBirthZodiac(request.birthDate)}）`, value: birthScores[key], weight: SCORE_WEIGHTS.birth, contribution: Number(weightedBirth.toFixed(1)) },
-      { label: `${request.bloodType} 型行為模型`, value: bloodScores[key], weight: SCORE_WEIGHTS.blood, contribution: Number(weightedBlood.toFixed(1)) },
       { label: '姓名個體校正', value: nameScores[key], weight: SCORE_WEIGHTS.name, contribution: Number(weightedName.toFixed(1)) },
       { label: `${shichen.shichen.label}${shichen.isKnown ? '' : '（未確認）'}`, value: shichenScores[key], weight: SCORE_WEIGHTS.shichen, contribution: Number(weightedShichen.toFixed(1)) },
     ];
@@ -386,13 +405,12 @@ function buildStatisticalAnalysis(
 function calculateAccuracyBreakdown(
   shichen: ReturnType<typeof computeShichenProfile>,
   birthScores: DimensionScores,
-  bloodScores: DimensionScores,
   nameScores: DimensionScores,
   statisticalAnalysis: InsightAnalysisResponse['statisticalAnalysis'],
 ): InsightAnalysisResponse['accuracyBreakdown'] {
   const shichenScores = shichenScoresFromProfile(shichen);
   const spreads = DIMENSION_KEYS.map((key) => {
-    const values = [birthScores[key], bloodScores[key], nameScores[key], shichenScores[key]];
+    const values = [birthScores[key], nameScores[key], shichenScores[key]];
     return Math.max(...values) - Math.min(...values);
   });
   const averageSpread = spreads.reduce((sum, value) => sum + value, 0) / spreads.length;
@@ -405,7 +423,7 @@ function calculateAccuracyBreakdown(
     {
       label: '資料完整度',
       value: dataCompleteness,
-      description: shichen.isKnown ? '生日、血型、姓名、真實時辰皆已納入。' : '未確認時辰，不宣稱紫微命宮已定盤。',
+      description: shichen.isKnown ? '生日、姓名、真實時辰皆已納入。' : '未確認時辰，不宣稱紫微命宮已定盤。',
     },
     {
       label: '來源一致性',
@@ -415,7 +433,7 @@ function calculateAccuracyBreakdown(
     {
       label: '規則覆蓋度',
       value: modelCoverage,
-      description: '12 個人格指標皆由生日、血型、姓名、時辰四層計算。',
+      description: '12 個人格指標皆由生日、姓名、時辰三層計算。',
     },
     {
       label: '分數辨識度',
@@ -540,9 +558,8 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 
   // 獲取基本人格分數
   const birthScores = getBirthPersonalityScores(request.birthDate);
-  const bloodScores = getBloodTypePersonalityScores(request.bloodType);
   const nameScores = getNamePersonalityScores(request.name);
-  const nameology = buildNameologyAnalysis(request.name, nameScores, { gender: request.gender, bloodType: request.bloodType, birthDate: request.birthDate });
+  const nameology = buildNameologyAnalysis(request.name, nameScores, { gender: request.gender, birthDate: request.birthDate });
 
   const birthZodiac = getBirthZodiac(request.birthDate);
 
@@ -562,8 +579,8 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
     longitude: request.longitude ?? null,
   });
   const dataSourceCount = calculateReferenceSampleCount(request, shichen);
-  const statisticalAnalysis = buildStatisticalAnalysis(request, birthScores, bloodScores, nameScores, shichen, dataSourceCount);
-  const accuracyBreakdown = calculateAccuracyBreakdown(shichen, birthScores, bloodScores, nameScores, statisticalAnalysis);
+  const statisticalAnalysis = buildStatisticalAnalysis(request, birthScores, nameScores, shichen, dataSourceCount);
+  const accuracyBreakdown = calculateAccuracyBreakdown(shichen, birthScores, nameScores, statisticalAnalysis);
   const accuracyScore = calculateAccuracyScore(accuracyBreakdown);
   const bigDataInsights: InsightAnalysisResponse['bigDataInsights'] = [];
   const annualFortune = calculateAnnualFortune({
@@ -586,7 +603,6 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 【基本資料】
 - 姓名: ${request.name}
 - 生日: ${request.birthDate} (星座: ${birthZodiac})
-- 血型: ${request.bloodType}型
 - 性別: ${request.gender === 'female' ? '女性' : '男性'}
 
 【八字時辰（人 30% 子層，供八字與紫微斗數分析）】
@@ -602,7 +618,7 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 - 24性情矩陣: ${nameology.temperamentProfile.topTendencies.map((item) => `${item.label}${item.score}分/${item.tone}`).join('；')}
 - 明確性情方向: ${nameology.temperamentProfile.clearDirection}
 - 姓名結構: ${nameology.composition.surnameSummary} ${nameology.composition.givenNameSummary} ${nameology.composition.combinedIntent}
-- 交叉校正: ${nameology.crossCheck.alignmentLabel}；${nameology.crossCheck.genderLens}；${nameology.crossCheck.bloodTypeLens}；${nameology.crossCheck.birthdayLens}
+- 交叉校正: ${nameology.crossCheck.alignmentLabel}；${nameology.crossCheck.genderLens}；${nameology.crossCheck.birthdayLens}
 - 每字拆解: ${nameology.characters.map((item) => `${item.char}${item.strokeCount}畫/${item.element}${item.yinYang}/${item.role}/部首${item.glyph.radical}/拆字${item.glyph.parts.join('+')}/象意${item.glyph.meaning}/取名意圖${item.glyph.namingIntent}/性情${item.tendencies.slice(0, 3).map((tendency) => tendency.label).join('、')}`).join('；')}
 - 五格: ${nameology.grids.map((item) => `${item.label}${item.value}畫${item.element}`).join('；')}
 - 相生相剋: ${nameology.elementFlow.map((item) => `${item.from}->${item.to}/${item.relation}`).join('；')}
@@ -634,9 +650,6 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 生日骨架:
 ${JSON.stringify(birthScores, null, 2)}
 
-血型補充:
-${JSON.stringify(bloodScores, null, 2)}
-
 姓名校正:
 ${JSON.stringify(nameScores, null, 2)}
 
@@ -651,6 +664,7 @@ ${JSON.stringify(statisticalAnalysis.map((item) => ({
 1. 紫微斗數洞察（3-5項），必須以命盤格局、三方四正、今年流年運勢、命財官遷為主，不可自行創造新分數。
 2. 個性化建議（3-5項）。
 3. 完整分析摘要。
+4. plain_summary：嚴格輸出四行，格式固定為「【現在重點】...\n【工作與錢】...\n【人際與機會】...\n【下一步】...」。第一行只根據命宮，第二行必須同時根據官祿宮與財帛宮，第三行只根據遷移宮，第四行必須承接今年流年主題。這是使用者最先閱讀的卡片：直接講生活處境和行動，不解釋術語、不重複資料、不寫「AI 判定／AI 建議」、不宣稱統計結論。
 
 ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
 
@@ -662,6 +676,7 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
 - 若時辰未確認，只能使用「趨勢參考」的措辭，不可宣稱精準定盤。
 - 不要輸出任何具體的分數、百分位或樣本數（這些後端會自動渲染）。
 - 統一繁體中文，言字有物、精準犀利。
+- plain_summary 必須使用台灣日常用語；例如以「工作上先把責任和進度講清楚」取代「官祿宮受星曜影響」，以「主動約人談合作或投履歷」取代「補強火元素」。
 
 返回結構化的 JSON 格式。`;
 
@@ -695,6 +710,7 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
     psychology_insights: Array<{ title: string; description: string; confidence: number }>;
     recommendations: string[];
     summary: string;
+    plain_summary?: string;
   }>(textStr);
 
   const ritualSteps = buildInsightRitualSteps({
@@ -709,6 +725,8 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
     aiAnalysis,
   });
   const meta: NonNullable<InsightAnalysisResponse['meta']> = {
+    subjectName: request.name,
+    gender: request.gender,
     dayPillar: shichen.dayPillar,
     hourPillar: shichen.hourPillar.ganzhi,
     wuxing: shichen.wuxing,
@@ -718,6 +736,7 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
     timeCorrectionMode: typeof request.longitude === 'number' ? 'TRUE_SOLAR_TIME' : 'STANDARD_TIME',
   };
   const summary = enforceAiCopywritingTone(aiAnalysis.summary);
+  const plainSummary = normalizeSanFangPlainSummary(aiAnalysis.plain_summary, ziweiSanFang, annualFortune);
   const analysisId = resolveZiweiAnalysisId({
     summary,
     ziweiSanFang,
@@ -749,7 +768,7 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
     scoreMethodology: {
       formula: SCORE_FORMULA,
       percentile: '未採用人群百分位；目前沒有可驗證的外部樣本資料集。',
-      sampleBasis: '本報告的數值來自姓名字義、筆畫五格、生日、血型與時辰的手寫規則模型，不是大數據樣本。',
+      sampleBasis: '本報告的數值來自姓名字義、筆畫五格、生日與時辰的手寫規則模型，不是大數據樣本。',
       duplicatePolicy: '保留原始加權結果；相同分數不做人為拆分。',
     },
     accuracyBreakdown,
@@ -761,6 +780,7 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
     bigDataInsights,
     personalizedRecommendations: aiAnalysis.recommendations.map((item) => enforceAiCopywritingTone(item)),
     summary,
+    plainSummary,
     ziweiPalaces: (ziweiSanFang.timeConfidence === 'exact' ? ziweiSanFang.palaces : []).map((palace) => ({
       palaceName: palace.name,
       starName: palace.majorStars.join('、') || '無十四主星坐守',

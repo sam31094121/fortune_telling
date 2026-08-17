@@ -7,7 +7,6 @@ import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/ap
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // 設定最大執行時間 60 秒
 
-const VALID_BLOOD_TYPES = ['A', 'B', 'AB', 'O'];
 const VALID_GENDERS = ['male', 'female'];
 
 // 簡單的記憶體緩存 (用於相同查詢的快速響應)
@@ -35,7 +34,6 @@ function getCacheKey(body: InsightRequest): string {
   return hashedCacheKey([
     body.name.trim(),
     body.birthDate,
-    body.bloodType,
     body.gender,
     shichenKey,
     longitudeKey,
@@ -67,10 +65,6 @@ function validateInsightRequest(body: unknown): string | null {
     if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(req.birthTime)) {
       return '出生時間格式不正確（時：分）。';
     }
-  }
-
-  if (typeof req.bloodType !== 'string' || !VALID_BLOOD_TYPES.includes(req.bloodType)) {
-    return '血型只能是 A、B、AB、O。';
   }
 
   if (typeof req.gender !== 'string' || !VALID_GENDERS.includes(req.gender)) {

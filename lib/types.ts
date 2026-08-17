@@ -24,7 +24,6 @@ export interface InsightRequest {
   name: string;
   birthDate: string;
   birthTime: string;
-  bloodType: Exclude<BloodType, ''>;
   gender: Gender;
   // 時辰：number(0–11 地支序)=已知；'unknown'/null=未知。
   shichen?: number | 'unknown' | null;

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { buildGrowthCenterQuery } from '@/lib/growth-center-client';
+import { GROWTH_MODULES } from '@/lib/growth-center-engine';
 import type { GrowthCenterResult, GrowthElement } from '@/lib/growth-center-engine';
 
 type ApiResult = GrowthCenterResult & { requestId?: string };
@@ -89,6 +90,51 @@ function scoreWidth(score: number | undefined) {
   return `${Math.max(4, Math.min(100, Math.round(score ?? 0)))}%`;
 }
 
+function parseIsoWeekKey(weekKey: string): { year: number; week: number } | null {
+  const match = /^(\d{4})-W(\d{2})$/.exec(weekKey);
+  if (!match) return null;
+  return { year: Number(match[1]), week: Number(match[2]) };
+}
+
+function previousIsoWeekKey(weekKey: string): string | null {
+  const parsed = parseIsoWeekKey(weekKey);
+  if (!parsed) return null;
+  if (parsed.week > 1) return `${parsed.year}-W${String(parsed.week - 1).padStart(2, '0')}`;
+  return `${parsed.year - 1}-W52`;
+}
+
+function computeWeeklyStreak(history: CheckInHistory, currentWeekKey: string): number {
+  const checkedInWeeks = new Set(
+    Object.keys(history)
+      .map((key) => key.split(':')[1])
+      .filter((week): week is string => Boolean(week)),
+  );
+  let streak = 0;
+  let cursor: string | null = currentWeekKey;
+  while (cursor && checkedInWeeks.has(cursor)) {
+    streak += 1;
+    cursor = previousIsoWeekKey(cursor);
+  }
+  return streak;
+}
+
+function streakMilestone(streak: number): string {
+  if (streak >= 12) return '🏆 連續 12 週：你已經是長期夥伴，AI 會持續加深每週判定的精準度。';
+  if (streak >= 8) return '🏆 連續 8 週：節奏已經穩定，這是真正的養成中。';
+  if (streak >= 4) return '🏅 連續 4 週：習慣正在養成，繼續保持。';
+  if (streak >= 2) return `🔥 連續 ${streak} 週回來，AI 記得你走過的每一步。`;
+  return '';
+}
+
+function greetingByHour(hour: number): string {
+  if (hour < 5) return '這麼晚還在，辛苦了';
+  if (hour < 11) return '早安';
+  if (hour < 14) return '午安';
+  if (hour < 18) return '午後好';
+  if (hour < 22) return '晚安';
+  return '夜深了，辛苦了';
+}
+
 export default function GrowthCenterPage() {
   const [data, setData] = useState<ApiResult['data'] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -149,6 +195,14 @@ export default function GrowthCenterPage() {
   }, [checkHistory, data]);
   const lifetimeCheckInCount = useMemo(() => Object.keys(checkHistory).length, [checkHistory]);
 
+  const weeklyStreak = useMemo(() => {
+    if (!data) return 0;
+    return computeWeeklyStreak(checkHistory, data.weeklyReport.weekKey);
+  }, [checkHistory, data]);
+  const isReturningAfterGap = lifetimeCheckInCount > 0 && weeklyStreak === 0;
+  const greeting = useMemo(() => greetingByHour(new Date().getHours()), []);
+  const completedModuleSet = useMemo(() => new Set(data?.progress.completedModules ?? []), [data]);
+
   const followUpReply = data && followUpAnswer
     ? followUpAnswer === 'continued'
       ? data.followUp.replyWhenContinued
@@ -204,6 +258,32 @@ export default function GrowthCenterPage() {
 
         {data && (
           <div className="space-y-4">
+            <p className="text-sm font-bold leading-6 text-[color:var(--text-sub)]">
+              {greeting}{lifetimeCheckInCount > 0 ? `，這是你第 ${lifetimeCheckInCount} 次回來。` : '，很高興認識你。'}
+            </p>
+
+            <section className="rounded-2xl border border-rose-300/25 bg-rose-300/8 p-5">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-200">AI 陪伴承諾</p>
+              <h2 className="mt-3 text-2xl font-black leading-8 text-rose-50">
+                {lifetimeCheckInCount === 0
+                  ? '第一次見面，AI 會記住你，不會催促你。'
+                  : isReturningAfterGap
+                    ? '好久不見，AI 一直都在，不用擔心中間空掉的時間。'
+                    : weeklyStreak >= 2
+                      ? `你已經連續 ${weeklyStreak} 週回來，AI 記得你走過的每一步。`
+                      : '謝謝你回來，AI 記得你上一次的進度。'}
+              </h2>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-sm font-bold leading-6 text-[color:var(--text-sub)]">🔒 資料只給你自己看，不對外公開。</p>
+                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-sm font-bold leading-6 text-[color:var(--text-sub)]">🚫 不會重新算命，只整理你已完成的結果。</p>
+                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-sm font-bold leading-6 text-[color:var(--text-sub)]">🤝 只判定方向，不保證結果，成果由你創造。</p>
+                <p className="rounded-xl border border-white/10 bg-black/15 px-4 py-3 text-sm font-bold leading-6 text-[color:var(--text-sub)]">💛 不管你多久沒回來，AI 都不會催促或評判你。</p>
+              </div>
+              {weeklyStreak >= 2 && (
+                <p className="mt-4 rounded-xl border border-amber-200/25 bg-amber-300/12 px-4 py-3 text-sm font-black leading-6 text-amber-100">{streakMilestone(weeklyStreak)}</p>
+              )}
+            </section>
+
             <section className="rounded-[28px] border border-amber-300/35 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.22),rgba(16,185,129,0.12)_42%,rgba(15,23,42,0.88)_100%)] p-5 shadow-[0_0_44px_rgba(251,191,36,0.16)] sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
@@ -229,7 +309,10 @@ export default function GrowthCenterPage() {
                 <button type="button" onClick={handleCheckIn} disabled={checkedIn} className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-cyan-200/40 bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 shadow-[0_0_22px_rgba(34,211,238,0.18)] transition active:scale-[0.98] disabled:bg-emerald-300 disabled:text-emerald-950 sm:w-auto">
                   {checkedIn ? '本週任務已收到' : '我今天會做這一件事'}
                 </button>
-                <span className="text-xs font-bold leading-6 text-[color:var(--text-muted)]">本月回來 {monthCheckInCount} 次，累計 {lifetimeCheckInCount} 次。</span>
+                <span className="text-xs font-bold leading-6 text-[color:var(--text-muted)]">
+                  本月回來 {monthCheckInCount} 次，累計 {lifetimeCheckInCount} 次。
+                  {weeklyStreak >= 2 && <span className="ml-2 rounded-full border border-amber-200/30 bg-amber-300/12 px-2 py-0.5 text-amber-100">🔥 連續 {weeklyStreak} 週</span>}
+                </span>
               </div>
             </section>
 
@@ -295,7 +378,7 @@ export default function GrowthCenterPage() {
 
             <section className="rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-5">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-200">留給今天的一句話</p>
-              <blockquote className="mt-4 font-serif text-2xl font-black leading-9 text-emerald-50">“{data.weeklyInspiration.quote}”</blockquote>
+              <blockquote className="mt-4 font-serif text-2xl font-black leading-9 text-emerald-50">「{data.weeklyInspiration.quote}」</blockquote>
               <p className="mt-3 text-sm font-bold text-emerald-100">{data.weeklyInspiration.author} · {data.weeklyInspiration.role}</p>
               <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{data.weeklyInspiration.fit}</p>
               <details className="growth-detail-drawer mt-3"><summary>公開來源</summary><a href={data.weeklyInspiration.sourceUrl} target="_blank" rel="noreferrer">{data.weeklyInspiration.sourceName}</a></details>
@@ -334,6 +417,35 @@ export default function GrowthCenterPage() {
                 </div>
               </section>
             </details>
+
+            <section className="rounded-2xl border border-cyan-300/25 bg-cyan-300/8 p-5">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">你的完整探索地圖</p>
+              <h2 className="mt-3 text-2xl font-black leading-8 text-cyan-50">八張卡片，一次看懂進度與下一步。</h2>
+              <p className="mt-2 text-sm font-semibold leading-6 text-[color:var(--text-sub)]">點任何一張都能直接前往，AI 只整理已完成的結果，不重新分析。</p>
+              <div className="growth-module-route-grid" aria-label="八張探索卡片連結">
+                {GROWTH_MODULES.map((module, index) => {
+                  const done = completedModuleSet.has(module.id);
+                  const isNext = !done && module.id === data.nextStep.moduleId;
+                  const state = done ? 'done' : isNext ? 'next' : 'pending';
+                  const statusText = done ? '已完成' : isNext ? '下一步' : '待探索';
+                  return (
+                    <Link
+                      key={module.id}
+                      href={module.href}
+                      className={`growth-module-route growth-module-route--${state}`}
+                      aria-label={`${module.title}：${statusText}`}
+                    >
+                      <span className="growth-module-route__index">{String(index + 1).padStart(2, '0')}</span>
+                      <span className="growth-module-route__body">
+                        <span className="growth-module-route__label">{module.title}</span>
+                        <span className="growth-module-route__helper">{done ? '已寫入成長進度。' : module.evidence}</span>
+                      </span>
+                      <span className="growth-module-route__status">{statusText}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
 
             <section className="rounded-2xl border border-white/10 bg-black/15 p-5">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-200">下一步</p>

@@ -274,11 +274,11 @@ const ELEMENT_THEMES: Record<GrowthElement, ElementTheme> = {
 };
 
 const SUCCESS_QUOTES: SuccessQuote[] = [
-  { author: 'Steve Jobs', role: 'Apple co-founder', quote: 'Stay hungry. Stay foolish.', fit: '這句話提醒你保持探索，讓下一步保持清楚與有力。', sourceName: 'Stanford News', sourceUrl: 'https://news.stanford.edu/stories/2005/06/youve-got-find-love-jobs-says' },
-  { author: 'Elon Musk', role: 'Tesla / SpaceX CEO', quote: 'When something is important enough, you do it even if the odds are not in your favor.', fit: '這句話適合提醒行動與突破。', sourceName: 'Public quote', sourceUrl: 'https://www.spacex.com/' },
-  { author: 'Warren Buffett', role: 'Berkshire Hathaway chairman', quote: 'The best investment you can make is in yourself.', fit: '這句話提醒你把成長放回自己身上。', sourceName: 'CNBC', sourceUrl: 'https://www.cnbc.com/warren-buffett/' },
-  { author: 'Bill Gates', role: 'Microsoft co-founder', quote: 'It is fine to celebrate success, but it is more important to heed the lessons of failure.', fit: '這句話提醒你從每一次調整中累積智慧。', sourceName: 'Gates Notes', sourceUrl: 'https://www.gatesnotes.com/' },
-  { author: 'Jensen Huang', role: 'NVIDIA founder and CEO', quote: 'Pain and suffering build character.', fit: '這句話提醒你把壓力轉成韌性。', sourceName: 'Stanford Engineering', sourceUrl: 'https://engineering.stanford.edu/' },
+  { author: '賈伯斯', role: 'Apple 共同創辦人', quote: '求知若飢，虛心若愚。', fit: '這句話提醒你保持探索，讓下一步保持清楚與有力。', sourceName: '史丹佛大學新聞', sourceUrl: 'https://news.stanford.edu/stories/2005/06/youve-got-find-love-jobs-says' },
+  { author: '馬斯克', role: 'Tesla／SpaceX 執行長', quote: '當一件事情夠重要時，就算勝算對你不利，你還是會去做。', fit: '這句話適合提醒行動與突破。', sourceName: '公開語錄', sourceUrl: 'https://www.spacex.com/' },
+  { author: '巴菲特', role: 'Berkshire Hathaway 董事長', quote: '你能做的最好投資，就是投資自己。', fit: '這句話提醒你把成長放回自己身上。', sourceName: 'CNBC 財經新聞網', sourceUrl: 'https://www.cnbc.com/warren-buffett/' },
+  { author: '比爾蓋茲', role: 'Microsoft 共同創辦人', quote: '慶祝成功很好，但從失敗中記取教訓更重要。', fit: '這句話提醒你從每一次調整中累積智慧。', sourceName: '比爾蓋茲個人部落格', sourceUrl: 'https://www.gatesnotes.com/' },
+  { author: '黃仁勳', role: 'NVIDIA 創辦人暨執行長', quote: '痛苦與磨難能塑造性格。', fit: '這句話提醒你把壓力轉成韌性。', sourceName: '史丹佛大學工程學院', sourceUrl: 'https://engineering.stanford.edu/' },
 ];
 
 const CORE_ELEMENT_LABEL: Record<GrowthElement, string> = {

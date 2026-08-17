@@ -70,7 +70,7 @@ function normalizeNameologyInput(value: unknown): NameologyJobInput {
 }
 
 function normalizeInsightInput(value: unknown): InsightRequest {
-  const input = normalizeNameologyInput(value) as InsightRequest;
+  const input = normalizeNameologyInput(value);
   assertRecord(value);
   const rawShichen = value.shichen;
   const shichen = rawShichen === undefined || rawShichen === null || rawShichen === 'unknown'
