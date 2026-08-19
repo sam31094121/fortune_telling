@@ -1,20 +1,25 @@
 'use client';
 
 /**
- * 【細胞內景層｜×100,000,000 → ×100,000,000,000】（2026-08-19 依業主指示再深入四級）
+ * 【細胞內景層｜×100,000,000 → ×1,000,000,000,000】（2026-08-19 依業主指示再深入五級）
  *
  * ×10,000,000（TaijiEntanglementCore 的終點）看到的是：波包內部浮現的還是太極。
  * 這一層接著往裡鑽，把那顆重新浮現的太極當成一層細胞膜，繼續深入：
  *
- *  ×100,000,000     細胞膜   —— 膜面浮出量子泡沫般的顆粒紋理，陰陽仍在膜上分域。
- *  ×1,000,000,000   核質場   —— 穿膜而入，內部浮現一組更小的糾纏粒子對，
- *                              每一顆自己就是一顆縮小的太極——太極生太極，自相似遞迴。
- *  ×10,000,000,000  共振絲   —— 連接那對更小粒子的相位絲線本身也在振動糾纏。
- *  ×100,000,000,000 太極源點 —— 一切收斂成同時是陰陽的奇點光源，不再可分：
- *                              其大無外，其小無內，在此完全閉合、呼應回第一層的太極本體。
+ *  ×100,000,000       細胞膜   —— 膜面浮出量子泡沫般的顆粒紋理，陰陽仍在膜上分域。
+ *  ×1,000,000,000     核質場   —— 穿膜而入，內部浮現一組更小的糾纏粒子對，
+ *                                每一顆自己就是一顆縮小的太極——太極生太極，自相似遞迴。
+ *  ×10,000,000,000    共振絲   —— 連接那對更小粒子的相位絲線本身也在振動糾纏。
+ *  ×100,000,000,000   太極源點 —— 一切收斂成同時是陰陽的奇點光源，不再可分：
+ *                                其大無外，其小無內。
+ *  ×1,000,000,000,000 無極之門 —— 那個「不再可分」的奇點其實是一道門檻：沒有任何幾何框架，
+ *                                純粹由粒子與光子的細胞狀光暈聚成一團，門後浮現的
+ *                                是完整而縮小的太極本體本身（同一張貼圖、同一顆核心），
+ *                                暗示結構向下無窮遞迴，深不可測——這是收尾的懸念，不是終點。
+ *                                （2026-08-21 依業主指示拿掉環狀框架：第 13 層只能是
+ *                                粒子與光子構成的細胞，不能有任何硬邊界幾何。）
  *
- * 銜接規則：淡入門檻刻意早於 TaijiEntanglementCore 在 d=7 完全定格（見 MEMBRANE_IN），
- * 兩層有意重疊淡入淡出，畫面才會像剪接一樣順接，不是硬切。
+ * 銜接規則：淡入門檻刻意早於前一段完全定格就重疊淡入，畫面才會像剪接一樣順接，不是硬切。
  * 太極核心一行不動：這一層只在 ×10,000,000 前後才存在，之前完全不掛載計算。
  */
 
@@ -25,8 +30,8 @@ import { MAG_DECADES, smoothstep, type MagRef, type WarmRef } from './taijiMagni
 
 const NO_RAYCAST = () => null;
 
-/* 四段的絕對數量級門檻——與 TaijiEntanglementCore 在 d=7 的收尾故意重疊 0.6~0.8 個數量級，
-   讓細胞膜在「波包內浮現太極」還完全可見時就已經開始淡入。 */
+/* 五段的絕對數量級門檻——與前一段的收尾故意重疊 0.2~0.8 個數量級，
+   讓下一段在上一段還完全可見時就已經開始淡入。 */
 const MEMBRANE_IN = 6.6;
 const MEMBRANE_FULL = 7.4;
 const NUCLEUS_IN = 7.6;
@@ -35,6 +40,8 @@ const FILAMENT_IN = 8.6;
 const FILAMENT_FULL = 9.4;
 const SOURCE_IN = 9.6;
 const SOURCE_FULL = 10.6;
+const GATE_IN = 10.4;
+const GATE_FULL = 11.6;
 
 const TAIJI_GLSL = /* glsl */ `
   float taijiField(vec2 p) {
@@ -188,6 +195,76 @@ const SOURCE_FRAGMENT = /* glsl */ `
   }
 `;
 
+/* 無極之門：不用任何幾何框架——純粹是一團粒子與光子構成的細胞狀光暈，
+   聚在門後迷你太極周圍，用「密度」而不是「邊界線」暗示這裡有一道門檻。 */
+const GATE_HALO_COUNT = 900;
+
+function buildGateHaloGeometry() {
+  const positions = new Float32Array(GATE_HALO_COUNT * 3);
+  const seeds = new Float32Array(GATE_HALO_COUNT);
+  let seed = 20260821;
+  const rand = () => {
+    seed = (seed * 16807) % 2147483647;
+    return seed / 2147483647;
+  };
+  for (let i = 0; i < GATE_HALO_COUNT; i++) {
+    const r = 1.05 + Math.pow(rand(), 0.7) * 0.6;
+    const cosTheta = rand() * 2 - 1;
+    const sinTheta = Math.sqrt(1 - cosTheta * cosTheta);
+    const phi = rand() * Math.PI * 2;
+    positions[i * 3] = r * sinTheta * Math.cos(phi);
+    positions[i * 3 + 1] = r * cosTheta;
+    positions[i * 3 + 2] = r * sinTheta * Math.sin(phi);
+    seeds[i] = rand();
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
+  return geo;
+}
+
+const GATE_HALO_VERTEX = /* glsl */ `
+  attribute float aSeed;
+  uniform float uTime;
+  uniform float uReveal;
+  varying float vSeed;
+  varying float vPolarity;
+  varying float vFade;
+  void main() {
+    vSeed = aSeed;
+    vPolarity = position.y;
+    vec3 p = position + normalize(position) * sin(uTime * 0.5 + aSeed * 40.0) * 0.035;
+    vec4 mv = modelViewMatrix * vec4(p, 1.0);
+    gl_Position = projectionMatrix * mv;
+    float size = (0.9 + aSeed * 1.3) * uReveal * (70.0 / max(0.5, -mv.z));
+    vFade = clamp(size / 14.0, 0.0, 1.0); // 尺寸被夾住時同步降低不透明度，避免大量點重疊後過曝
+    gl_PointSize = min(size, 14.0);
+  }
+`;
+
+const GATE_HALO_FRAGMENT = /* glsl */ `
+  precision highp float;
+  uniform float uTime;
+  uniform float uReveal;
+  uniform vec3 uYin;
+  uniform vec3 uYang;
+  uniform vec3 uSpark;
+  varying float vSeed;
+  varying float vPolarity;
+  varying float vFade;
+  void main() {
+    vec2 uv = gl_PointCoord - 0.5;
+    float d = length(uv);
+    if (d > 0.5) discard;
+    float glow = pow(1.0 - d * 2.0, 3.2);
+    float twinkle = 0.5 + 0.5 * sin(uTime * 2.1 + vSeed * 32.0);
+    vec3 col = mix(uYin, uYang, step(0.0, vPolarity));
+    col = mix(col, uSpark, twinkle * 0.4);
+    float alpha = glow * uReveal * vFade * (0.22 + twinkle * 0.28);
+    gl_FragColor = vec4(col * alpha, alpha);
+  }
+`;
+
 function buildFilamentGeometry() {
   const points: THREE.Vector3[] = [];
   const segments = 160;
@@ -208,12 +285,17 @@ export default function TaijiCellularCore({
   yinColor,
   yangColor,
   sparkColor,
+  coreTexture,
+  coreBumpMap,
 }: {
   magRef: MagRef;
   warmRef: WarmRef;
   yinColor: string;
   yangColor: string;
   sparkColor: string;
+  /** 無極之門後方的迷你太極：直接複用卡片最外層第 1 層的貼圖，像素等級的同一顆太極 */
+  coreTexture?: THREE.Texture | null;
+  coreBumpMap?: THREE.Texture | null;
 }) {
   const [armed, setArmed] = useState(false);
   const rootRef = useRef<THREE.Group>(null);
@@ -222,6 +304,15 @@ export default function TaijiCellularCore({
   const nucleusYangRef = useRef<THREE.Mesh>(null);
   const filamentRef = useRef<THREE.Mesh>(null);
   const sourceRef = useRef<THREE.Mesh>(null);
+  const gateHaloRef = useRef<THREE.Points>(null);
+  const gateCoreRef = useRef<THREE.Mesh>(null);
+  /* coreTexture/coreBumpMap 會隨外層 LOD 從 2048 升到 4096（見 TaijiSystem 的貼圖升級效果）。
+     用 ref 讀初始值、不放進下面 useMemo 的依賴陣列——避免貼圖一升級就把整組深層材質全部重建，
+     那等於在使用者可能正深潛互動時重新編譯著色器，牴觸鐵律。升級改用下面的 useEffect 就地套用。 */
+  const coreTextureRef = useRef(coreTexture);
+  const coreBumpMapRef = useRef(coreBumpMap);
+  coreTextureRef.current = coreTexture;
+  coreBumpMapRef.current = coreBumpMap;
 
   const built = useMemo(() => {
     if (!armed) return null;
@@ -277,14 +368,44 @@ export default function TaijiCellularCore({
       side: THREE.FrontSide,
     });
 
+    /* 無極之門：不是幾何框架，是一團粒子與光子細胞——用點雲聚在門後迷你太極周圍 */
+    const gateHaloGeometry = buildGateHaloGeometry();
+    const gateHaloMaterial = new THREE.ShaderMaterial({
+      vertexShader: GATE_HALO_VERTEX,
+      fragmentShader: GATE_HALO_FRAGMENT,
+      uniforms: baseUniforms(),
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+
+    /* 門後的迷你太極：直接讀取卡片最外層第 1 層的同一份貼圖，不是另外畫一顆——
+       真正的碎形自我指涉，只用真實 PBR 材質（跟主球同一家族），不寫新著色器。 */
+    const gateCoreMaterial = new THREE.MeshPhysicalMaterial({
+      map: coreTextureRef.current ?? null,
+      bumpMap: coreBumpMapRef.current ?? null,
+      bumpScale: 0.012,
+      metalness: 0.3,
+      roughness: 0.2,
+      clearcoat: 0.9,
+      clearcoatRoughness: 0.12,
+      envMapIntensity: 1.3,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    });
+
     return {
       sphereGeometry,
       filamentGeometry,
+      gateHaloGeometry,
       membraneMaterial,
       nucleusYinMaterial: makeNucleusMaterial(1),
       nucleusYangMaterial: makeNucleusMaterial(-1),
       filamentMaterial,
       sourceMaterial,
+      gateHaloMaterial,
+      gateCoreMaterial,
     };
   }, [armed, yinColor, yangColor, sparkColor]);
 
@@ -292,14 +413,25 @@ export default function TaijiCellularCore({
     () => () => {
       built?.sphereGeometry.dispose();
       built?.filamentGeometry.dispose();
+      built?.gateHaloGeometry.dispose();
       built?.membraneMaterial.dispose();
       built?.nucleusYinMaterial.dispose();
       built?.nucleusYangMaterial.dispose();
       built?.filamentMaterial.dispose();
       built?.sourceMaterial.dispose();
+      built?.gateHaloMaterial.dispose();
+      built?.gateCoreMaterial.dispose();
     },
     [built],
   );
+
+  useEffect(() => {
+    if (!built) return;
+    // 貼圖 LOD 升級（2048→4096）就地套用到已存在的材質，不重建、不重編著色器
+    built.gateCoreMaterial.map = coreTexture ?? null;
+    built.gateCoreMaterial.bumpMap = coreBumpMap ?? null;
+    built.gateCoreMaterial.needsUpdate = true;
+  }, [built, coreTexture, coreBumpMap]);
 
   useFrame((state, delta) => {
     const d = magRef.current.current * MAG_DECADES;
@@ -363,22 +495,48 @@ export default function TaijiCellularCore({
       source.scale.setScalar(halfHeight * (0.02 + sourceReveal * 0.1));
     }
 
+    // 無極之門：源點裂開，沒有框架，只有粒子與光子的細胞狀光暈聚在門後迷你太極周圍——
+    // 放在門後方一小段 z，讓 OrbitControls 轉動視角時，光暈與門後的迷你太極之間有真正的視差。
+    const gateReveal = smoothstep(GATE_IN, GATE_FULL, d);
+    const halo = gateHaloRef.current;
+    if (halo) {
+      const haloRadius = halfHeight * (0.04 + gateReveal * 0.34);
+      halo.scale.setScalar(haloRadius);
+      halo.position.set(0, 0, -halfHeight * 0.22);
+      halo.rotation.y += spin * 0.4;
+    }
+    const gateCore = gateCoreRef.current;
+    if (gateCore) {
+      const coreRadius = halfHeight * (0.03 + gateReveal * 0.3);
+      gateCore.scale.setScalar(coreRadius);
+      gateCore.position.set(0, 0, -halfHeight * 0.22);
+      // 獨立自轉：刻意不跟前面幾段共用同一個 spin 變數，給它自己的節奏，
+      // 讓門後看起來是「另一個空間」而不是同一組物件的延伸。
+      gateCore.rotation.y += Math.min(delta, 1 / 45) * 0.09;
+      gateCore.rotation.x = Math.sin(t * 0.05) * 0.12;
+    }
+
     const membraneUniforms = built.membraneMaterial.uniforms;
     membraneUniforms.uTime.value = t;
-    membraneUniforms.uReveal.value = membraneReveal * (1 - sourceReveal * 0.7);
+    membraneUniforms.uReveal.value = membraneReveal * (1 - sourceReveal * 0.7) * (1 - gateReveal);
 
     const yinUniforms = built.nucleusYinMaterial.uniforms;
     const yangUniforms = built.nucleusYangMaterial.uniforms;
     yinUniforms.uTime.value = t;
     yangUniforms.uTime.value = t;
-    yinUniforms.uReveal.value = nucleusReveal;
-    yangUniforms.uReveal.value = nucleusReveal;
+    yinUniforms.uReveal.value = nucleusReveal * (1 - gateReveal);
+    yangUniforms.uReveal.value = nucleusReveal * (1 - gateReveal);
 
     built.filamentMaterial.uniforms.uTime.value = t;
-    built.filamentMaterial.uniforms.uReveal.value = filamentReveal;
+    built.filamentMaterial.uniforms.uReveal.value = filamentReveal * (1 - gateReveal);
 
     built.sourceMaterial.uniforms.uTime.value = t;
-    built.sourceMaterial.uniforms.uReveal.value = sourceReveal;
+    built.sourceMaterial.uniforms.uReveal.value = sourceReveal * (1 - gateReveal * 0.85);
+
+    built.gateHaloMaterial.uniforms.uTime.value = t;
+    built.gateHaloMaterial.uniforms.uReveal.value = gateReveal;
+
+    built.gateCoreMaterial.opacity = gateReveal;
   });
 
   if (!built) return null;
@@ -390,6 +548,8 @@ export default function TaijiCellularCore({
       <mesh ref={nucleusYangRef} geometry={built.sphereGeometry} material={built.nucleusYangMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
       <mesh ref={filamentRef} geometry={built.filamentGeometry} material={built.filamentMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
       <mesh ref={sourceRef} geometry={built.sphereGeometry} material={built.sourceMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
+      <points ref={gateHaloRef} geometry={built.gateHaloGeometry} material={built.gateHaloMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
+      <mesh ref={gateCoreRef} geometry={built.sphereGeometry} material={built.gateCoreMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
     </group>
   );
 }

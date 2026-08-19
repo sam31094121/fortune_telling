@@ -27,6 +27,7 @@ import { Taiji24SoundEngine } from '@/lib/taiji24-sound-engine';
 import TaijiQuantumField from './taiji/TaijiQuantumField';
 import TaijiEntanglementCore from './taiji/TaijiEntanglementCore';
 import TaijiCellularCore from './taiji/TaijiCellularCore';
+import TaijiDeepField13 from './taiji/TaijiDeepField13';
 import TaijiMicroscopeHud from './taiji/TaijiMicroscopeHud';
 import { MAG_DECADES, smoothstep, useTaijiMagnifier, type MagRef } from './taiji/taijiMagnifier';
 import styles from './TaijiSystem.module.css';
@@ -1207,14 +1208,16 @@ function TaijiCore({
       {/* 唯一的互動目標：隱形碰撞球（見上方 hitProxyGeo 的說明） */}
       <mesh
         geometry={hitProxyGeo}
-        visible={false}
         onClick={(event) => {
           event.stopPropagation();
           onCoreClick();
         }}
         onPointerOver={() => { document.body.style.cursor = 'pointer'; }}
         onPointerOut={() => { document.body.style.cursor = 'auto'; }}
-      />
+      >
+        {/* 保持可射線命中；visible=false 會讓部分 R3F/Three 組合略過點擊事件。 */}
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} depthTest={false} colorWrite={false} />
+      </mesh>
       {/* 電影級雙層能量場：透明物理球殼，低亮度，保留真實材質感。
           2026-08-17 為了扛住 1080p+ 內部渲染：拿掉 transmission——
           three.js 只要場上有一個 transmission 材質，每幀就會「整個場景多渲染一次」再做 mipmap，
@@ -1295,6 +1298,8 @@ function TaijiCore({
           yinColor="#9fc4e8"
           yangColor={TAIJI_BENCHMARK_THEME.primary}
           sparkColor="#fff6dc"
+          coreTexture={ballTexture}
+          coreBumpMap={surfaceNoise}
         />
       </group>
 
@@ -1664,6 +1669,7 @@ export default function TaijiSystem({
       className={`${styles.root} ${styles[`stage_${stage.toLowerCase()}`]}`}
       aria-label="太極演化系統"
       style={visualStyle}
+      data-deep-field={journey.step >= 13}
     >
       <div
         ref={wrapperRef}
@@ -1724,6 +1730,7 @@ export default function TaijiSystem({
           </Environment>
           {/* 周邊世界：深空星雲＋景深星塵＋流星＋地面舞台 */}
           <AmbientWorld theme={journeyTheme} progress24={journey.progress} />
+          <TaijiDeepField13 active={journey.step >= 13} step={journey.step} />
           {/* 質感打光：電影三點光——主光與背光跟著本響主題換色 */}
           <ambientLight intensity={0.22} />
           <KeyLightSweep theme={journeyTheme} progress24={journey.progress} />

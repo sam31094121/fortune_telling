@@ -16,12 +16,13 @@
 
 import { useEffect, useRef, type RefObject } from 'react';
 
-/** 十一個數量級：10^11 = 100,000,000,000 倍
-    （2026-08-19 依業主指示由 8 段延伸到 12 段：糾纏本身之後繼續往「細胞」尺度深入）
+/** 十二個數量級：10^12 = 1,000,000,000,000 倍
+    （2026-08-19 依業主指示：8→12 段之後再加第 13 段「無極之門」，
+    源點裂開後浮現同一顆太極本體，暗示結構向下無窮遞迴）
     注意：所有動畫門檻一律用「數量級」(decade = u × MAG_DECADES) 表示，不要用 u。
     u 是相對行程，加深倍率上限時 u 的意義會整個位移；decade 是絕對刻度，永遠對得上倍率。
-    第 1~8 段（decade 0~7）的既有門檻全部維持絕對數量級不變，延伸不影響它們。 */
-export const MAG_DECADES = 11;
+    第 1~12 段（decade 0~11）的既有門檻全部維持絕對數量級不變，延伸不影響它們。 */
+export const MAG_DECADES = 12;
 
 /** u → 數量級（0 = ×1、5 = ×100,000、7 = ×10,000,000） */
 export const decadesFromU = (u: number) => u * MAG_DECADES;
@@ -64,6 +65,8 @@ export const MAG_TIERS = [
   { key: 'nucleus', mag: 1000000000, label: '核質場', detail: '穿過膜面，內部再浮現一組更小的糾纏粒子對——太極生太極', scale: '1 fm' },
   { key: 'filament', mag: 10000000000, label: '共振絲', detail: '連接那對更小粒子的相位絲線本身也在振動糾纏', scale: '100 am' },
   { key: 'source', mag: 100000000000, label: '太極源點', detail: '一切收斂成同時是陰陽的奇點光源；其大無外，其小無內', scale: '10 am' },
+  /* 2026-08-19 再深入一級：那個「不再可分」的奇點，其實是一扇門 */
+  { key: 'gate', mag: 1000000000000, label: '無極之門', detail: '源點裂開，門後浮現的是完整而縮小的太極本體——同一個結構，向下無窮遞迴，深不可測', scale: '1 am' },
 ] as const;
 
 export type MagTier = (typeof MAG_TIERS)[number];
