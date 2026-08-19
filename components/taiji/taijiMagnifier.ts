@@ -16,10 +16,12 @@
 
 import { useEffect, useRef, type RefObject } from 'react';
 
-/** 七個數量級：10^7 = 10,000,000 倍（2026-08-17 依業主指示由 10 萬延伸到 1000 萬）
+/** 十一個數量級：10^11 = 100,000,000,000 倍
+    （2026-08-19 依業主指示由 8 段延伸到 12 段：糾纏本身之後繼續往「細胞」尺度深入）
     注意：所有動畫門檻一律用「數量級」(decade = u × MAG_DECADES) 表示，不要用 u。
-    u 是相對行程，加深倍率上限時 u 的意義會整個位移；decade 是絕對刻度，永遠對得上倍率。 */
-export const MAG_DECADES = 7;
+    u 是相對行程，加深倍率上限時 u 的意義會整個位移；decade 是絕對刻度，永遠對得上倍率。
+    第 1~8 段（decade 0~7）的既有門檻全部維持絕對數量級不變，延伸不影響它們。 */
+export const MAG_DECADES = 11;
 
 /** u → 數量級（0 = ×1、5 = ×100,000、7 = ×10,000,000） */
 export const decadesFromU = (u: number) => u * MAG_DECADES;
@@ -57,6 +59,11 @@ export const MAG_TIERS = [
   /* 2026-08-17 再深入兩級：不再看「整片粒子」，而是鑽進其中一對的內部 */
   { key: 'packet', mag: 1000000, label: '波包內景', detail: '粒子不是點，是一團駐波；自旋方向看得見', scale: '1 pm' },
   { key: 'weave', mag: 10000000, label: '糾纏本身', detail: '兩顆共用同一個相位；至微之處，太極再現', scale: '100 fm' },
+  /* 2026-08-19 再深入四級：把波包裡浮現的那顆太極，當成一層細胞膜，繼續往裡鑽 */
+  { key: 'membrane', mag: 100000000, label: '細胞膜', detail: '重新浮現的太極化為一層膜，膜面浮出量子泡沫般的顆粒紋理', scale: '10 fm' },
+  { key: 'nucleus', mag: 1000000000, label: '核質場', detail: '穿過膜面，內部再浮現一組更小的糾纏粒子對——太極生太極', scale: '1 fm' },
+  { key: 'filament', mag: 10000000000, label: '共振絲', detail: '連接那對更小粒子的相位絲線本身也在振動糾纏', scale: '100 am' },
+  { key: 'source', mag: 100000000000, label: '太極源點', detail: '一切收斂成同時是陰陽的奇點光源；其大無外，其小無內', scale: '10 am' },
 ] as const;
 
 export type MagTier = (typeof MAG_TIERS)[number];

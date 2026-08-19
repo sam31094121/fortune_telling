@@ -94,9 +94,14 @@ export default function AppStabilityGuard() {
     const markStressMode = () => {
       if (body.classList.contains('app-stress-mode')) return;
       body.classList.add('app-stress-mode');
+      body.classList.add('app-lite-effects');
+      // Visual enhancements can subscribe to this signal and yield resources
+      // before a long task turns into a visible interaction stall.
+      window.dispatchEvent(new CustomEvent('tdh:performance-stress'));
       if (stressTimerId !== undefined) window.clearTimeout(stressTimerId);
       stressTimerId = window.setTimeout(() => {
         body.classList.remove('app-stress-mode');
+        updatePerformanceMode();
       }, 5200);
     };
 

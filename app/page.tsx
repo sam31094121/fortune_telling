@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useDeferredValue, useEffect, useRef, type CSSProperties } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { injectPerformanceCSS } from '@/lib/performance-css';
 import AiTrustFeedback from '@/components/AiTrustFeedback';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
@@ -13,9 +14,7 @@ import { getCompletedGrowthModules, getGrowthElements, markGrowthModuleCompleted
 import type { GrowthElement } from '@/lib/growth-center-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
-import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import TaijiTopShell3D from '@/components/taiji/TaijiTopShell3D';
-import TaijiExperienceCoreV7, { type TaijiCoreState } from '@/components/taiji/TaijiExperienceCoreV7';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
@@ -29,6 +28,10 @@ import { evaluateExperienceQualityGate, getFriendlyQualityGateError } from '@/li
 import type { NumberAnalysisResponse } from '@/lib/number-core-engine';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
+
+/* 全站停用中的死碼元件（見 TaijiStandaloneCard.tsx 內註解）：改成動態載入，
+   避免它與依賴的 UnifiedTaijiCore（約 1,300 行 TSX + CSS module）進入首屏 bundle。 */
+const TaijiStandaloneCard = dynamic(() => import('@/components/TaijiStandaloneCard'), { ssr: false });
 
 interface PersonInput {
   name: string;
@@ -1236,56 +1239,6 @@ const HOME_GROWTH_MODULE_GUIDES: HomeGrowthModuleGuide[] = [
   { id: 'zodiac', label: 'AI 西洋星座', helper: '完成西洋星座人格分析。', cta: '去完成西洋星座', href: '/zodiac', sticky: '加入星座人格與每週提醒。', reward: '完成後，每週提醒會更像你的語氣。' },
   { id: 'tarot', label: 'AI 塔羅牌', helper: '完成塔羅牌抽牌、正逆位與五元素判定。', cta: '去完成塔羅牌', href: '/tarot', sticky: '用當下提問補齊最後一段訊號。', reward: '完成後，8/8 就能打開 AI 個人成長中心。' },
 ];
-
-function buildHomeTaijiState(
-  completed: number,
-  completedModules: string[],
-  total: number,
-  elements?: Record<string, GrowthElement>,
-): TaijiCoreState {
-  const completedSet = new Set(completedModules);
-  const safeTotal = Math.max(1, total);
-  const safeCompleted = Math.min(Math.max(completed, 0), safeTotal);
-  const nextGuide = HOME_GROWTH_MODULE_GUIDES.find((module) => !completedSet.has(module.id));
-
-  // 五元素訊號：只有真實資料才計算（規格十一：沒有真實資料禁止顯示百分比）
-  const elementEntries = Object.values(elements ?? {});
-  let primaryElement: TaijiCoreState['primaryElement'];
-  let elementSignals: TaijiCoreState['elementSignals'];
-  if (elementEntries.length > 0) {
-    const tally = new Map<string, number>();
-    for (const element of elementEntries) {
-      tally.set(element, (tally.get(element) ?? 0) + 1);
-    }
-    const sorted = [...tally.entries()].sort((a, b) => b[1] - a[1]);
-    primaryElement = sorted[0][0] as TaijiCoreState['primaryElement'];
-    elementSignals = sorted.map(([element, count]) => ({
-      element: element as NonNullable<TaijiCoreState['primaryElement']>,
-      percent: Math.round((count / elementEntries.length) * 100),
-    }));
-  }
-
-  return {
-    primaryElement,
-    elementSignals,
-    state: safeCompleted >= safeTotal ? 'RESULT_READY' : 'IDLE',
-    progress: {
-      completed: safeCompleted,
-      total: safeTotal,
-    },
-    nextModule: nextGuide
-      ? {
-          id: nextGuide.id,
-          label: nextGuide.label,
-          href: nextGuide.href ?? '/',
-        }
-      : {
-          id: 'growth_center',
-          label: 'AI 個人成長中心',
-          href: '/growth-center',
-        },
-  };
-}
 
 type VipGrowthUnlockCardProps = {
   completed: number;
@@ -2571,11 +2524,6 @@ export default function HomePage() {
   }
 
   const fortuneAura = getNumberFortuneAura(fortuneResult?.level);
-  const homeTaijiState = buildHomeTaijiState(growthCompletedCount, growthCompletedModules, GROWTH_VIP_TOTAL_MODULES, growthElements);
-  const enterHomeTaiji = () => {
-    const target = document.getElementById('home-eight-card-route');
-    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
 
   return (
     <div className="app-bg min-h-screen overflow-hidden">
@@ -2730,7 +2678,7 @@ export default function HomePage() {
           <div className="flex w-full flex-col gap-4">
           <Link
             href="/match"
-            className="home-feature-launch home-feature-rose order-4 w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-all duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-rose order-4 w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -2767,7 +2715,7 @@ export default function HomePage() {
 
           <Link
             href="/music"
-            className="home-feature-launch home-feature-violet order-5 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-4 flex-wrap sm:p-6 sm:gap-6"
+            className="home-feature-launch home-feature-violet order-5 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-4 flex-wrap sm:p-6 sm:gap-6"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
@@ -2803,7 +2751,7 @@ export default function HomePage() {
 
           <Link
             href="/nameology"
-            className="home-feature-launch home-feature-amber order-6 w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-amber order-6 w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -2841,7 +2789,7 @@ export default function HomePage() {
           <Link
             href="/numerology"
             prefetch
-            className="home-feature-launch home-feature-cyan order-2 w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-all duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-cyan order-2 w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -2880,7 +2828,7 @@ export default function HomePage() {
             data-module="ziwei"
             data-navigation-target={ZIWEI_ROUTE}
             onClick={handleZiweiOpen}
-            className="home-feature-launch home-feature-indigo order-3 w-full relative group overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-all duration-500 hover:border-indigo-400 hover:shadow-[0_0_50px_rgba(99,102,241,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap [touch-action:manipulation]"
+            className="home-feature-launch home-feature-indigo order-3 w-full relative group overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-indigo-400 hover:shadow-[0_0_50px_rgba(99,102,241,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap [touch-action:manipulation]"
             aria-label="開啟 AI 紫微斗數"
             aria-busy={ziweiOpening}
           >
@@ -2918,7 +2866,7 @@ export default function HomePage() {
 
           <Link
             href="/bazi"
-            className="home-feature-launch home-feature-emerald order-7 w-full relative group overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-emerald-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-500 hover:border-emerald-400 hover:shadow-[0_0_50px_rgba(16,185,129,0.26)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-emerald order-7 w-full relative group overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-emerald-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-emerald-400 hover:shadow-[0_0_50px_rgba(16,185,129,0.26)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 

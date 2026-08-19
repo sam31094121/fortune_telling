@@ -26,6 +26,7 @@ import * as THREE from 'three';
 import { Taiji24SoundEngine } from '@/lib/taiji24-sound-engine';
 import TaijiQuantumField from './taiji/TaijiQuantumField';
 import TaijiEntanglementCore from './taiji/TaijiEntanglementCore';
+import TaijiCellularCore from './taiji/TaijiCellularCore';
 import TaijiMicroscopeHud from './taiji/TaijiMicroscopeHud';
 import { MAG_DECADES, smoothstep, useTaijiMagnifier, type MagRef } from './taiji/taijiMagnifier';
 import styles from './TaijiSystem.module.css';
@@ -873,6 +874,7 @@ function TaijiCore({
   const sixiangGroupRef = useRef<THREE.Group>(null);
   const quantumGroupRef = useRef<THREE.Group>(null);
   const deepGroupRef = useRef<THREE.Group>(null);
+  const cellularGroupRef = useRef<THREE.Group>(null);
   const ballMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
 
   // ===== 幾何體重用（2026-08-17 解析度只升不降：球面段數全面加密，球緣不再有多邊形感）=====
@@ -1145,6 +1147,13 @@ function TaijiCore({
         deepGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
       }
     }
+    /* 細胞內景層（×100,000,000 起）：同樣站著不動，門檻與糾纏內景層共用同一顆父層旋轉抵銷邏輯 */
+    if (cellularGroupRef.current) {
+      cellularGroupRef.current.visible = zoomD > 4.2 || warming;
+      if (cellularGroupRef.current.visible) {
+        cellularGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
+      }
+    }
 
     // 光線科技①：雲隙光束保留為極低亮度背景補光，避免貼圖感與卡通化。
     if (raysRef.current) {
@@ -1236,8 +1245,7 @@ function TaijiCore({
       {/* 宏觀世界（2026-08-17 顯微鏡分層）：軌道、星塵、四象、八卦——
           倍率一過 ×50 就整組讓位，把 GPU 預算全部交給量子層。 */}
       <group ref={macroGroupRef}>
-        {/* 星軌：固定低成本幾何體，讓軌道存在感清楚但不卡通化 */}
-        <OrbitRings stage={stage} step24={step24} theme={activeTheme} progress24={progress24} />
+        {/* 外圍行星軌道依首頁視覺規格隱藏；保留中央太極、陰陽分界與核心光感。 */}
 
         {/* 粒子（數量與速度再收斂，避免手機閃爍與廉價特效感）
             【穩定性｜2026-08-17】數量固定為 11：count 一變，drei 會整組重建幾何緩衝區
@@ -1270,6 +1278,18 @@ function TaijiCore({
           會直接把波包甩出畫面，所以在 useFrame 裡把父層的旋轉反轉抵銷掉。 */}
       <group ref={deepGroupRef}>
         <TaijiEntanglementCore
+          magRef={magRef}
+          warmRef={warmRef}
+          yinColor="#9fc4e8"
+          yangColor={TAIJI_BENCHMARK_THEME.primary}
+          sparkColor="#fff6dc"
+        />
+      </group>
+
+      {/* 細胞內景層：×100,000,000 → ×100,000,000,000，把波包內浮現的太極當成一層細胞膜繼續深入。
+          與糾纏內景層同一種「站著不動」處理，淡入門檻與其終點刻意重疊，銜接才會順。 */}
+      <group ref={cellularGroupRef}>
+        <TaijiCellularCore
           magRef={magRef}
           warmRef={warmRef}
           yinColor="#9fc4e8"

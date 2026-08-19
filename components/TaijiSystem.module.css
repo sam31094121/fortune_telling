@@ -51,26 +51,26 @@
   50% { transform: translateY(-2px); }
 }
 
-/* 階段光感：演化越深，環境光暈越亮 */
+/* 卡片級空間霧光：位於太極後方，延展至整張卡片，不形成任何軌道或圓環線。 */
 .sphereWrapper::before {
   content: '';
   position: absolute;
-  inset: -26px;
+  inset: -74px;
   border-radius: 50%;
   pointer-events: none;
   background:
-    radial-gradient(circle at 46% 42%, var(--glow-color) 0%, var(--theme-soft) 34%, transparent 68%),
-    conic-gradient(from 140deg, transparent 0deg, rgba(255,255,255,0.055) 48deg, transparent 92deg, transparent 360deg);
-  opacity: 0.5;
+    radial-gradient(circle at 50% 47%, rgba(255, 244, 216, 0.12) 0%, rgba(226, 190, 122, 0.075) 28%, rgba(177, 128, 55, 0.038) 50%, transparent 74%);
+  filter: blur(10px);
+  opacity: 0.56;
   transition: opacity 0.9s ease;
   z-index: 0;
-  transform: translateZ(-1px);
+  transform: translateZ(-1px) scale(1.04);
 }
 
-.stage_taiji .sphereWrapper::before { opacity: 0.26; }
-.stage_liangyi .sphereWrapper::before { opacity: 0.38; }
-.stage_sixiang .sphereWrapper::before { opacity: 0.44; }
-.stage_bagua .sphereWrapper::before { opacity: 0.4; }
+.stage_taiji .sphereWrapper::before { opacity: 0.5; }
+.stage_liangyi .sphereWrapper::before { opacity: 0.54; }
+.stage_sixiang .sphereWrapper::before { opacity: 0.58; }
+.stage_bagua .sphereWrapper::before { opacity: 0.56; }
 
 .sphereWrapper > div {
   position: relative;
