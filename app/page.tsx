@@ -2564,9 +2564,12 @@ export default function HomePage() {
           </Link>
         </div>
 
+        {/* 2026-08-21 依業主指示拿掉外框：粒子與光子連宇宙都框不住，太極不該被裝在
+            一個有邊線、有暗底的卡片裡——讓它直接浮在頁面本身的星空背景上，
+            從第一眼（×1）就沒有邊界，不是放大之後才「無限」。 */}
         <section
           id="home-top-empty-shell-card"
-          className="mx-auto mb-5 w-[min(86vw,420px)] rounded-[28px] border border-cyan-200/18 bg-slate-950/35 shadow-[0_18px_55px_rgba(2,6,23,0.22),inset_0_0_26px_rgba(34,211,238,0.045)] backdrop-blur-xl sm:mb-6 sm:w-[440px]"
+          className="mx-auto mb-5 w-[min(86vw,420px)] sm:mb-6 sm:w-[440px]"
           aria-label="首頁最上方太極三層立體卡片"
           data-home-slot="top-empty-shell"
         >

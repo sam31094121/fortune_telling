@@ -1,22 +1,23 @@
 'use client';
 
 /**
- * 【深淵場｜×10,000,000,000,000 → ×100,000,000,000,000,000,000,000】（2026-08-21 依業主指示）
+ * 【深淵場｜×10,000,000,000,000 → ×10,000,000,000,000,000,000,000,000】（2026-08-21）
  *
- * 無極之門（第 13 層）之後，一路連接到第 24 層，形成一個無限循環：
+ * 無極之門之後，一路連接到最後一段（宇宙太極，decade 25），形成一個無限循環：
  *
- *  第 14~18 層（相位潮汐→無名之境）：失去固定參照，形體被一條連續的「抽象化」曲線
+ *  相位潮汐→無名之境：失去固定參照，形體被一條連續的「抽象化」曲線
  *  （uAbyss）逐漸吃掉——陰陽分色慢慢被雜訊蓋過，這是誠實的視覺語言：越深，
  *  真的應該越看不清楚，不是畫得更精緻。
- *  第 19~21 層（事件視界→奇異點→白洞噴湧）：黑洞意象的核心——同一顆點雲用
+ *  事件視界→奇異點→白洞噴湧：黑洞意象的核心——同一顆點雲用
  *  uSuction 驅動頂點沿半徑位移，先被「吸」向中心，在奇異點附近收到最緊，
  *  再「噴」出去，時間感在此翻轉。
- *  第 22~23 層（不可定域→宇宙止境）：噴發後歸於極低頻率的呼吸。
- *  第 24 層（宇宙太極）：白洞噴出的，是縮小版的太極全貌本身——同一張貼圖、
- *  同一圈軌道環，呼應第 1 層。使用者把倍率轉回 ×1，看到的是同一顆——首尾閉合。
+ *  不可定域→宇宙止境→歸零之息→迴聲初醒：噴發後歸於極低頻率的呼吸，
+ *  收尾多兩段緩衝，不是直接硬切到全貌。
+ *  宇宙太極（decade 25）：白洞噴出的，是縮小版的太極全貌本身——同一張貼圖、
+ *  同一圈軌道環，呼應最一開始的太極。使用者把倍率轉回 ×1，看到的是同一顆——首尾閉合。
  *
- * 效能與鐵律：十段深度只用一顆共用 ShaderMaterial + 一顆點雲幾何（armed 時建一次，
- * 之後只調 uniform，不因深度切換重建），加上第 24 層的收尾用一顆球體+一圈環，
+ * 效能與鐵律：這麼多段深度只用一顆共用 ShaderMaterial + 一顆點雲幾何（armed 時建一次，
+ * 之後只調 uniform，不因深度切換重建），加上終局用一顆球體+一圈環，
  * 全部一次建好、只切 `.visible`，不在互動中重編著色器。
  */
 
@@ -33,15 +34,23 @@ const ABYSS_FULL = 13.2;
 /* uAbyss：貫穿 14~22 層的連續抽象化曲線（清晰 → 雜訊） */
 const CLARITY_START = 13.0;
 const CLARITY_END = 22.0;
+/* 遙遠感（2026-08-22 依業主指示：相位潮汐→無名之境這幾段要有「越走越遠」的樓梯感，
+   不能是同一團點雲只換顏色）：從相位潮汐開始，整團場慢慢縮小、退遠、變暗，
+   一路退到事件視界前一刻——黑洞的引力才把它「拉回來」，變大、變近、收緊。
+   這樣 11~16 層才有真正的空間推移，不是靜止不動只調參數。 */
+const RECEDE_START = 13.0;
+const RECEDE_END = 17.6;
 /* 黑洞三段：事件視界吸入 → 奇異點收到最緊 → 白洞噴出 */
 const PULL_IN = 17.6;
 const PULL_PEAK = 19.3;
 const HOLD_END = 20.3;
 const BURST_OUT = 21.0;
 const BURST_END = 22.4;
-/* 第 24 層：白洞噴回最初的太極全貌，首尾閉合 */
-const FINALE_IN = 21.8;
-const FINALE_FULL = 23.0;
+/* 第 24 段（宇宙太極，decade 25）：白洞噴回最初的太極全貌，首尾閉合。
+   2026-08-21 補了「歸零之息」「迴聲初醒」兩段收尾（decade 23~24）之後，
+   終局改到 decade 25 才完全成形，讓收尾多兩段呼吸感，不是直接硬切到全貌。 */
+const FINALE_IN = 23.8;
+const FINALE_FULL = 25.0;
 
 const ABYSS_PARTICLE_COUNT = 1600;
 
@@ -259,15 +268,19 @@ export default function TaijiAbyssField({
     const push = smoothstep(HOLD_END, BURST_OUT, d) * (1 - smoothstep(BURST_OUT, BURST_END, d) * 0.999);
     const suction = pull - push;
 
+    /* 遙遠感：相位潮汐開始退遠，事件視界前的引力（pull）把它拉回來——
+       退到最遠時場縮到 42% 大小、亮度也跟著降，才是真的「越走越遠」。 */
+    const recede = smoothstep(RECEDE_START, RECEDE_END, d) * (1 - pull);
+
     const field = fieldRef.current;
     if (field) {
-      const fieldScale = halfHeight * (0.05 + reveal * 0.55);
+      const fieldScale = halfHeight * (0.05 + reveal * 0.55) * (1 - recede * 0.58);
       field.scale.setScalar(fieldScale);
-      field.rotation.y += spin;
+      field.rotation.y += spin * (1 + recede * 0.6);
     }
 
     built.fieldMaterial.uniforms.uTime.value = t;
-    built.fieldMaterial.uniforms.uReveal.value = reveal;
+    built.fieldMaterial.uniforms.uReveal.value = reveal * (1 - recede * 0.35);
     built.fieldMaterial.uniforms.uAbyss.value = abyss;
     built.fieldMaterial.uniforms.uSuction.value = suction;
 
@@ -287,8 +300,8 @@ export default function TaijiAbyssField({
     built.finaleCoreMaterial.opacity = finaleReveal;
     built.finaleRingMaterial.opacity = finaleReveal * 0.8;
 
-    // 深淵場本身在終局淡出，把畫面交給重新浮現的太極全貌
-    built.fieldMaterial.uniforms.uReveal.value = reveal * (1 - finaleReveal * 0.7);
+    // 深淵場本身在終局淡出，把畫面交給重新浮現的太極全貌（疊乘遙遠感，不覆蓋掉它）
+    built.fieldMaterial.uniforms.uReveal.value = reveal * (1 - recede * 0.35) * (1 - finaleReveal * 0.7);
   });
 
   if (!built) return null;
