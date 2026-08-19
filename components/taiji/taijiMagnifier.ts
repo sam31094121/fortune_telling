@@ -16,13 +16,13 @@
 
 import { useEffect, useRef, type RefObject } from 'react';
 
-/** 十二個數量級：10^12 = 1,000,000,000,000 倍
-    （2026-08-19 依業主指示：8→12 段之後再加第 13 段「無極之門」，
-    源點裂開後浮現同一顆太極本體，暗示結構向下無窮遞迴）
+/** 二十三個數量級：10^23 倍
+    （2026-08-21 依業主指示：13 層之後一路連接到 24 層，形成無限循環——
+    深入到黑洞事件視界／奇異點／白洞噴湧，最終在第 24 層噴回最初的太極全貌）
     注意：所有動畫門檻一律用「數量級」(decade = u × MAG_DECADES) 表示，不要用 u。
     u 是相對行程，加深倍率上限時 u 的意義會整個位移；decade 是絕對刻度，永遠對得上倍率。
-    第 1~12 段（decade 0~11）的既有門檻全部維持絕對數量級不變，延伸不影響它們。 */
-export const MAG_DECADES = 12;
+    第 1~13 段（decade 0~12）的既有門檻全部維持絕對數量級不變，延伸不影響它們。 */
+export const MAG_DECADES = 23;
 
 /** u → 數量級（0 = ×1、5 = ×100,000、7 = ×10,000,000） */
 export const decadesFromU = (u: number) => u * MAG_DECADES;
@@ -67,6 +67,20 @@ export const MAG_TIERS = [
   { key: 'source', mag: 100000000000, label: '太極源點', detail: '一切收斂成同時是陰陽的奇點光源；其大無外，其小無內', scale: '10 am' },
   /* 2026-08-19 再深入一級：那個「不再可分」的奇點，其實是一扇門 */
   { key: 'gate', mag: 1000000000000, label: '無極之門', detail: '源點裂開，門後浮現的是完整而縮小的太極本體——同一個結構，向下無窮遞迴，深不可測', scale: '1 am' },
+  /* 2026-08-21 再深入十一級：從無極之門一路連到宇宙尺度，形成無限循環。
+     超過原子尺度之後已無公認物理單位，scale 欄位刻意留下「不可測」——
+     這正是敘事本身：越深越沒有答案，直到第 24 層回到最初的 10 mm。 */
+  { key: 'tide', mag: 1e13, label: '相位潮汐', detail: '失去固定參照，只剩陰陽之間的相位差，如潮汐起落', scale: '不可測' },
+  { key: 'echo', mag: 1e14, label: '微光回聲', detail: '粒子不再是物件，只是曾被看見一瞬的殘影', scale: '不可測' },
+  { key: 'veil', mag: 1e15, label: '互感之幕', detail: '陰陽不再相觸，只靠感應改變彼此的存在', scale: '不可測' },
+  { key: 'fold', mag: 1e16, label: '靜默摺疊', detail: '空間向內收摺，時間感被拉得很慢', scale: '不可測' },
+  { key: 'unnamed', mag: 1e17, label: '無名之境', detail: '放大不再帶來答案，只帶來更深的未知', scale: '不可測' },
+  { key: 'horizon', mag: 1e18, label: '事件視界', detail: '黑洞的邊界——一切只進不出，連光都被吞下', scale: '視界' },
+  { key: 'singularity', mag: 1e19, label: '奇異點', detail: '密度趨近無限，已知的規則在此失效', scale: '∞' },
+  { key: 'white-hole', mag: 1e20, label: '白洞噴湧', detail: '被吞下的一切從另一端噴出，時間感倒轉', scale: '倒流' },
+  { key: 'undefined-zone', mag: 1e21, label: '不可定域', detail: '中心不再是一個位置，觀者無法固定它', scale: '不可測' },
+  { key: 'cosmos-edge', mag: 1e22, label: '宇宙止境', detail: '所有運動收斂成極低的呼吸，遙不可及', scale: '遙不可及' },
+  { key: 'cosmic-taiji', mag: 1e23, label: '宇宙太極', detail: '止境其實是輪迴的起點——白洞噴出的，是最初那顆太極的全貌；同一顆核心，同一個開始，無限循環在此閉合', scale: '10 mm' },
 ] as const;
 
 export type MagTier = (typeof MAG_TIERS)[number];

@@ -223,16 +223,17 @@
     height: 104px;
   }
 
-  /* 轉盤八段擠在 360px 內：字級與內距一起收，並禁止換行（不然 100 會斷成 10/0） */
+  /* 轉盤 24 段擠在 360px 內（2026-08-21 由 8 段延伸到 24 段）：
+     字級與內距一起收，並禁止換行（不然 100 會斷成 10/0） */
   .turret {
-    gap: 6px;
+    gap: 4px;
     padding: 3px;
   }
 
   .lens {
-    width: 10px;
-    min-width: 10px;
-    height: 10px;
+    width: 7px;
+    min-width: 7px;
+    height: 7px;
     padding: 0;
   }
 }

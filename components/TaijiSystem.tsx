@@ -27,6 +27,7 @@ import { Taiji24SoundEngine } from '@/lib/taiji24-sound-engine';
 import TaijiQuantumField from './taiji/TaijiQuantumField';
 import TaijiEntanglementCore from './taiji/TaijiEntanglementCore';
 import TaijiCellularCore from './taiji/TaijiCellularCore';
+import TaijiAbyssField from './taiji/TaijiAbyssField';
 import TaijiDeepField13 from './taiji/TaijiDeepField13';
 import TaijiMicroscopeHud from './taiji/TaijiMicroscopeHud';
 import { MAG_DECADES, smoothstep, useTaijiMagnifier, type MagRef } from './taiji/taijiMagnifier';
@@ -118,8 +119,12 @@ function hslHex(h: number, s: number, l: number) {
   return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-/* 表面微紋理（2026-08-14 兩儀真實感升級）：
-   完美光滑＝一眼假。低對比噪點作 bumpMap，給瓷釉與黑曜石「呼吸的皮膚」。 */
+/* 表面微紋理（2026-08-14 兩儀真實感升級，2026-08-21 依業主指示重畫第 2~4 層形狀語言）：
+   完美光滑＝一眼假。低對比噪點作 bumpMap，給瓷釉與黑曜石「呼吸的皮膚」。
+   四組圖案烘進同一張貼圖，靠既有的 repeat（貼圖重複次數）連續調整哪一組「浮出來」——
+   這套機制本身完全不動，只重畫四組圖案各自的形狀，讓「釉面→微結構→場紋」
+   從模糊到清楚，而且從場紋這一層開始，就要看得出「顆粒帶膜」的細胞感，
+   替第 9 層才出現的「細胞膜」語言預先鋪路。 */
 function createSurfaceNoiseTexture() {
   /* 2026-08-17 解析度升級：512 → 1024。顯微鏡拉到 ×100 以上時，
      釉面的斑紋要有真正的細節可看，不能是放大的模糊塊。 */
@@ -131,29 +136,118 @@ function createSurfaceNoiseTexture() {
   if (!ctx) return null;
   ctx.fillStyle = '#808080';
   ctx.fillRect(0, 0, size, size);
-  // 大中小三層柔和斑紋，像手工釉面的自然不均
-  const layers = [
-    { count: 60, rMin: 36, rMax: 120, alpha: 0.05 },
-    { count: 160, rMin: 12, rMax: 40, alpha: 0.045 },
-    { count: 420, rMin: 3, rMax: 12, alpha: 0.04 },
-    /* 第四層（1024 才畫得出來）：顯微鏡下的釉裂與晶粒 */
-    { count: 900, rMin: 1, rMax: 3.5, alpha: 0.035 },
-  ];
+
   let seed = 12345;
   const rand = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-  layers.forEach(({ count, rMin, rMax, alpha }) => {
-    for (let i = 0; i < count; i++) {
-      const x = rand() * size;
-      const y = rand() * size;
-      const r = rMin + rand() * (rMax - rMin);
-      const light = rand() > 0.5;
-      const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
-      grad.addColorStop(0, light ? `rgba(255,255,255,${alpha})` : `rgba(0,0,0,${alpha})`);
-      grad.addColorStop(1, 'rgba(128,128,128,0)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(x - r, y - r, r * 2, r * 2);
+
+  const softBlob = (x: number, y: number, r: number, alpha: number, light: boolean, squash = 1, angle = 0) => {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.scale(1, squash);
+    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+    grad.addColorStop(0, light ? `rgba(255,255,255,${alpha})` : `rgba(0,0,0,${alpha})`);
+    grad.addColorStop(1, 'rgba(128,128,128,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(-r, -r, r * 2, r * 2);
+    ctx.restore();
+  };
+
+  /* 第 1 層（全貌，×1 未縮放時看到的主要一層）：不動——保證 ×1 逐像素不變 */
+  for (let i = 0; i < 60; i++) {
+    const x = rand() * size;
+    const y = rand() * size;
+    const r = 36 + rand() * 84;
+    softBlob(x, y, r, 0.05, rand() > 0.5);
+  }
+
+  /* 第 2 層（釉面）：柔斑不再是正圓，改成微橢圓、帶角度——皮膚不是完美光滑，
+     為下一層「有結構的顆粒」鋪墊。 */
+  for (let i = 0; i < 160; i++) {
+    const x = rand() * size;
+    const y = rand() * size;
+    const r = 12 + rand() * 28;
+    softBlob(x, y, r, 0.045, rand() > 0.5, 0.55 + rand() * 0.35, rand() * Math.PI);
+  }
+
+  /* 第 3 層（微結構）：不規則多邊形晶粒切面，取代模糊圓斑——放大後讀出來是
+     「結晶顆粒」，每一顆有自己的稜角與明暗，不是同一種形狀縮小。 */
+  for (let i = 0; i < 320; i++) {
+    const cx = rand() * size;
+    const cy = rand() * size;
+    const r = 3 + rand() * 9;
+    const sides = 3 + Math.floor(rand() * 4); // 3~6 邊
+    const light = rand() > 0.5;
+    ctx.beginPath();
+    for (let s = 0; s < sides; s++) {
+      const a = (s / sides) * Math.PI * 2 + rand() * 0.6;
+      const rr = r * (0.65 + rand() * 0.5);
+      const px = cx + Math.cos(a) * rr;
+      const py = cy + Math.sin(a) * rr;
+      if (s === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
     }
+    ctx.closePath();
+    ctx.fillStyle = light ? 'rgba(255,255,255,0.045)' : 'rgba(0,0,0,0.045)';
+    ctx.fill();
+    ctx.strokeStyle = light ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)';
+    ctx.lineWidth = 0.6;
+    ctx.stroke();
+  }
+
+  /* 第 4 層（場紋）：節點以三角網格為底、加擾動，用短直線連接近鄰——讀出來是
+     「能量晶格」；每個節點再疊一顆帶不規則輪廓的小顆粒（不是正圓，模擬細胞膜的
+     皺褶邊界），從這裡開始就該讓人隱約覺得「這些顆粒有點像細胞」，
+     銜接第 5 層粒子雲與第 9 層「細胞膜」語言。 */
+  const cell = 34;
+  const nodes: { x: number; y: number }[] = [];
+  for (let gy = 0; gy < size / cell + 1; gy++) {
+    for (let gx = 0; gx < size / cell + 1; gx++) {
+      const offset = gy % 2 === 0 ? 0 : cell / 2;
+      const jitterX = (rand() - 0.5) * cell * 0.5;
+      const jitterY = (rand() - 0.5) * cell * 0.5;
+      nodes.push({ x: gx * cell + offset + jitterX, y: gy * cell + jitterY });
+    }
+  }
+  const cols = Math.floor(size / cell) + 1;
+  ctx.lineWidth = 0.5;
+  nodes.forEach((node, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const neighborIdx = [i + 1, i + cols];
+    neighborIdx.forEach((ni) => {
+      if (ni >= nodes.length) return;
+      if (ni === i + 1 && col === cols - 1) return;
+      const other = nodes[ni];
+      const dist = Math.hypot(other.x - node.x, other.y - node.y);
+      if (dist > cell * 1.6) return;
+      ctx.strokeStyle = rand() > 0.5 ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)';
+      ctx.beginPath();
+      ctx.moveTo(node.x, node.y);
+      ctx.lineTo(other.x, other.y);
+      ctx.stroke();
+    });
+    void row;
   });
+  nodes.forEach(({ x, y }) => {
+    const r = 2.2 + rand() * 2.4;
+    const light = rand() > 0.5;
+    // 膜狀輪廓：用 6~8 個帶擾動半徑的點畫出微皺褶的閉合曲線，不是正圓
+    const points = 6 + Math.floor(rand() * 3);
+    ctx.beginPath();
+    for (let p = 0; p < points; p++) {
+      const a = (p / points) * Math.PI * 2;
+      const rr = r * (0.75 + rand() * 0.5);
+      const px = x + Math.cos(a) * rr;
+      const py = y + Math.sin(a) * rr;
+      if (p === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = light ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)';
+    ctx.fill();
+  });
+
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   texture.repeat.set(2, 2);
@@ -876,6 +970,7 @@ function TaijiCore({
   const quantumGroupRef = useRef<THREE.Group>(null);
   const deepGroupRef = useRef<THREE.Group>(null);
   const cellularGroupRef = useRef<THREE.Group>(null);
+  const abyssGroupRef = useRef<THREE.Group>(null);
   const ballMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
 
   // ===== 幾何體重用（2026-08-17 解析度只升不降：球面段數全面加密，球緣不再有多邊形感）=====
@@ -1155,6 +1250,13 @@ function TaijiCore({
         cellularGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
       }
     }
+    /* 深淵場（第 14~24 層）：同樣站著不動，共用同一顆父層旋轉抵銷邏輯 */
+    if (abyssGroupRef.current) {
+      abyssGroupRef.current.visible = zoomD > 4.2 || warming;
+      if (abyssGroupRef.current.visible) {
+        abyssGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
+      }
+    }
 
     // 光線科技①：雲隙光束保留為極低亮度背景補光，避免貼圖感與卡通化。
     if (raysRef.current) {
@@ -1293,6 +1395,20 @@ function TaijiCore({
           與糾纏內景層同一種「站著不動」處理，淡入門檻與其終點刻意重疊，銜接才會順。 */}
       <group ref={cellularGroupRef}>
         <TaijiCellularCore
+          magRef={magRef}
+          warmRef={warmRef}
+          yinColor="#9fc4e8"
+          yangColor={TAIJI_BENCHMARK_THEME.primary}
+          sparkColor="#fff6dc"
+          coreTexture={ballTexture}
+          coreBumpMap={surfaceNoise}
+        />
+      </group>
+
+      {/* 深淵場：×10,000,000,000,000 → ×100,000,000,000,000,000,000,000（第 14~24 層）。
+          從無極之門一路連到黑洞事件視界／奇異點／白洞噴湧，終局在第 24 層噴回最初的太極全貌。 */}
+      <group ref={abyssGroupRef}>
+        <TaijiAbyssField
           magRef={magRef}
           warmRef={warmRef}
           yinColor="#9fc4e8"
