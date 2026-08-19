@@ -119,12 +119,11 @@ function hslHex(h: number, s: number, l: number) {
   return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-/* 表面微紋理（2026-08-14 兩儀真實感升級，2026-08-21 依業主指示重畫第 2~4 層形狀語言）：
-   完美光滑＝一眼假。低對比噪點作 bumpMap，給瓷釉與黑曜石「呼吸的皮膚」。
+/* 表面微紋理（2026-08-14 兩儀真實感升級，2026-08-21 依業主指示：顯微鏡的概念就是細胞——
+   物鏡轉盤第一段（×100）開始就要看到細胞，第二段（×1000）看到細菌，不是材料科學的
+   晶粒／能量晶格。完美光滑＝一眼假。低對比噪點作 bumpMap，給瓷釉與黑曜石「呼吸的皮膚」。
    四組圖案烘進同一張貼圖，靠既有的 repeat（貼圖重複次數）連續調整哪一組「浮出來」——
-   這套機制本身完全不動，只重畫四組圖案各自的形狀，讓「釉面→微結構→場紋」
-   從模糊到清楚，而且從場紋這一層開始，就要看得出「顆粒帶膜」的細胞感，
-   替第 9 層才出現的「細胞膜」語言預先鋪路。 */
+   這套機制本身完全不動，只重畫後兩組圖案的形狀語言。 */
 function createSurfaceNoiseTexture() {
   /* 2026-08-17 解析度升級：512 → 1024。顯微鏡拉到 ×100 以上時，
      釉面的斑紋要有真正的細節可看，不能是放大的模糊塊。 */
@@ -170,83 +169,71 @@ function createSurfaceNoiseTexture() {
     softBlob(x, y, r, 0.045, rand() > 0.5, 0.55 + rand() * 0.35, rand() * Math.PI);
   }
 
-  /* 第 3 層（微結構）：不規則多邊形晶粒切面，取代模糊圓斑——放大後讀出來是
-     「結晶顆粒」，每一顆有自己的稜角與明暗，不是同一種形狀縮小。 */
-  for (let i = 0; i < 320; i++) {
+  /* 物鏡第 1 段（×100，細胞）：帶皺褶膜輪廓的圓潤細胞，中央疊一顆更小的核——
+     不是晶粒切面，是真正讀得出「這是一顆細胞」的形狀：膜＋核。 */
+  for (let i = 0; i < 200; i++) {
     const cx = rand() * size;
     const cy = rand() * size;
-    const r = 3 + rand() * 9;
-    const sides = 3 + Math.floor(rand() * 4); // 3~6 邊
+    const r = 4 + rand() * 10;
     const light = rand() > 0.5;
-    ctx.beginPath();
-    for (let s = 0; s < sides; s++) {
-      const a = (s / sides) * Math.PI * 2 + rand() * 0.6;
-      const rr = r * (0.65 + rand() * 0.5);
-      const px = cx + Math.cos(a) * rr;
-      const py = cy + Math.sin(a) * rr;
-      if (s === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    }
-    ctx.closePath();
-    ctx.fillStyle = light ? 'rgba(255,255,255,0.045)' : 'rgba(0,0,0,0.045)';
-    ctx.fill();
-    ctx.strokeStyle = light ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)';
-    ctx.lineWidth = 0.6;
-    ctx.stroke();
-  }
-
-  /* 第 4 層（場紋）：節點以三角網格為底、加擾動，用短直線連接近鄰——讀出來是
-     「能量晶格」；每個節點再疊一顆帶不規則輪廓的小顆粒（不是正圓，模擬細胞膜的
-     皺褶邊界），從這裡開始就該讓人隱約覺得「這些顆粒有點像細胞」，
-     銜接第 5 層粒子雲與第 9 層「細胞膜」語言。 */
-  const cell = 34;
-  const nodes: { x: number; y: number }[] = [];
-  for (let gy = 0; gy < size / cell + 1; gy++) {
-    for (let gx = 0; gx < size / cell + 1; gx++) {
-      const offset = gy % 2 === 0 ? 0 : cell / 2;
-      const jitterX = (rand() - 0.5) * cell * 0.5;
-      const jitterY = (rand() - 0.5) * cell * 0.5;
-      nodes.push({ x: gx * cell + offset + jitterX, y: gy * cell + jitterY });
-    }
-  }
-  const cols = Math.floor(size / cell) + 1;
-  ctx.lineWidth = 0.5;
-  nodes.forEach((node, i) => {
-    const col = i % cols;
-    const row = Math.floor(i / cols);
-    const neighborIdx = [i + 1, i + cols];
-    neighborIdx.forEach((ni) => {
-      if (ni >= nodes.length) return;
-      if (ni === i + 1 && col === cols - 1) return;
-      const other = nodes[ni];
-      const dist = Math.hypot(other.x - node.x, other.y - node.y);
-      if (dist > cell * 1.6) return;
-      ctx.strokeStyle = rand() > 0.5 ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)';
-      ctx.beginPath();
-      ctx.moveTo(node.x, node.y);
-      ctx.lineTo(other.x, other.y);
-      ctx.stroke();
-    });
-    void row;
-  });
-  nodes.forEach(({ x, y }) => {
-    const r = 2.2 + rand() * 2.4;
-    const light = rand() > 0.5;
-    // 膜狀輪廓：用 6~8 個帶擾動半徑的點畫出微皺褶的閉合曲線，不是正圓
-    const points = 6 + Math.floor(rand() * 3);
+    // 膜：8~10 個帶擾動半徑的點，畫出微皺褶的閉合曲線，不是正圓
+    const points = 8 + Math.floor(rand() * 3);
     ctx.beginPath();
     for (let p = 0; p < points; p++) {
       const a = (p / points) * Math.PI * 2;
-      const rr = r * (0.75 + rand() * 0.5);
-      const px = x + Math.cos(a) * rr;
-      const py = y + Math.sin(a) * rr;
+      const rr = r * (0.8 + rand() * 0.35);
+      const px = cx + Math.cos(a) * rr;
+      const py = cy + Math.sin(a) * rr;
       if (p === 0) ctx.moveTo(px, py);
       else ctx.lineTo(px, py);
     }
     ctx.closePath();
     ctx.fillStyle = light ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)';
     ctx.fill();
-  });
+    ctx.strokeStyle = light ? 'rgba(255,255,255,0.035)' : 'rgba(0,0,0,0.035)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+    // 核：偏心一點，不要正中央，看起來才像活的細胞
+    const nx = cx + (rand() - 0.5) * r * 0.5;
+    const ny = cy + (rand() - 0.5) * r * 0.5;
+    const nucleusGrad = ctx.createRadialGradient(nx, ny, 0, nx, ny, r * 0.4);
+    nucleusGrad.addColorStop(0, light ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)');
+    nucleusGrad.addColorStop(1, 'rgba(128,128,128,0)');
+    ctx.fillStyle = nucleusGrad;
+    ctx.fillRect(nx - r * 0.4, ny - r * 0.4, r * 0.8, r * 0.8);
+  }
+
+  /* 物鏡第 2 段（×1000，細菌）：細長的桿狀/球狀菌體，有些兩兩相連（正在分裂），
+     取代原本的「能量晶格網格」——讀出來是菌落聚集，不是材料的結晶結構，
+     銜接第 5 層粒子雲與第 9 層「細胞膜」語言。 */
+  for (let i = 0; i < 260; i++) {
+    const cx = rand() * size;
+    const cy = rand() * size;
+    const len = 5 + rand() * 8;
+    const width = len * (0.32 + rand() * 0.15);
+    const angle = rand() * Math.PI * 2;
+    const light = rand() > 0.5;
+    const drawRod = (ox: number, oy: number) => {
+      ctx.save();
+      ctx.translate(ox, oy);
+      ctx.rotate(angle);
+      const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, len * 0.6);
+      grad.addColorStop(0, light ? 'rgba(255,255,255,0.045)' : 'rgba(0,0,0,0.045)');
+      grad.addColorStop(1, 'rgba(128,128,128,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, len * 0.5, width * 0.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    };
+    drawRod(cx, cy);
+    // 三成機率畫成正在分裂的一對（兩顆貼在一起），菌落感更明顯
+    if (rand() < 0.3) {
+      const dx = Math.cos(angle) * len * 0.9;
+      const dy = Math.sin(angle) * len * 0.9;
+      drawRod(cx + dx, cy + dy);
+    }
+  }
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;

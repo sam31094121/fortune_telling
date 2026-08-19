@@ -1,27 +1,31 @@
 'use client';
 
 /**
- * 【太極顯微鏡｜倍率核心】（2026-08-17 依業主指示開工）
+ * 【太極顯微鏡｜倍率核心】（2026-08-17 依業主指示開工，2026-08-21 全線校正）
  *
  * 概念：太極不是一張圖，是一個「可以無限放大的真實物體」。
- * 把倍率從 ×1 一路轉到 ×10,000,000（顯微鏡物鏡轉盤的概念），
- * 太極的本體會逐層解離：
- * 全貌 → 釉面 → 微結構 → 場紋 → 粒子雲 → 光子糾纏 → 波包內景 → 糾纏本身。
+ * ×1（未互動的基準畫面）之後，物鏡轉盤從 ×100 開始一段一個數量級往下鑽，
+ * 一路連到 ×10^23，最終在最後一段噴回最初的太極全貌，形成無限循環：
+ *
+ * 微結構 → 場紋 → 粒子雲 → 光子糾纏 → 波包內景 → 糾纏本身 → 細胞膜 → 核質場
+ * → 共振絲 → 太極源點 → 無極之門 → 相位潮汐 → 微光回聲 → 互感之幕 → 靜默摺疊
+ * → 無名之境 → 事件視界 → 奇異點 → 白洞噴湧 → 不可定域 → 宇宙止境 → 宇宙太極。
  *
  * 鐵律（太極核心憲章）：
  * - 倍率只有「一個」狀態來源（magRef），不得再開第二套 state。
  * - ×1 時畫面必須與原本一模一樣，顯微鏡只是「擴充」，不改核心。
  * - 解析度只准往上，不准往下。
+ * - 每一段物鏡都剛好差一個數量級（precise, 見 MAG_TIERS），不是隨意湊數。
  */
 
 import { useEffect, useRef, type RefObject } from 'react';
 
-/** 二十三個數量級：10^23 倍
-    （2026-08-21 依業主指示：13 層之後一路連接到 24 層，形成無限循環——
-    深入到黑洞事件視界／奇異點／白洞噴湧，最終在第 24 層噴回最初的太極全貌）
+/** 二十三個數量級：×1（decade 0）到 ×10^23（decade 23）。
+    物鏡轉盤（MAG_TIERS）從 decade 2（×100）才開始有名字，一路連到 decade 23——
+    深入到黑洞事件視界／奇異點／白洞噴湧，最終噴回最初的太極全貌，形成無限循環。
     注意：所有動畫門檻一律用「數量級」(decade = u × MAG_DECADES) 表示，不要用 u。
     u 是相對行程，加深倍率上限時 u 的意義會整個位移；decade 是絕對刻度，永遠對得上倍率。
-    第 1~13 段（decade 0~12）的既有門檻全部維持絕對數量級不變，延伸不影響它們。 */
+    每一段既有門檻全部維持絕對數量級不變，之後再延伸不會影響它們。 */
 export const MAG_DECADES = 23;
 
 /** u → 數量級（0 = ×1、5 = ×100,000、7 = ×10,000,000） */
@@ -49,10 +53,10 @@ export type MagRef = { current: MagState };
  */
 export type WarmRef = { current: { warming: boolean; frames: number; done: boolean } };
 
-/** 物鏡轉盤：八段，跟真實顯微鏡的鏡頭一樣一段一個數量級 */
+/** 物鏡轉盤（2026-08-21 依業主指示：拿掉 ×1/×10 這兩級——×1 只是互動前的
+    靜止基準畫面，不是顯微鏡的「一段」；×10 沒有樓梯感，不算真正進入顯微鏡。
+    第一段直接從 ×100 起跳，之後每段仍是一個數量級，跟真實顯微鏡物鏡一樣。 */
 export const MAG_TIERS = [
-  { key: 'macro', mag: 1, label: '全貌', detail: '太極本體', scale: '10 mm' },
-  { key: 'glaze', mag: 10, label: '釉面', detail: '墨玉與月瓷的皮膚', scale: '1 mm' },
   { key: 'grain', mag: 100, label: '微結構', detail: '釉裂與晶粒', scale: '10 µm' },
   { key: 'lattice', mag: 1000, label: '場紋', detail: '能量晶格浮現', scale: '1 µm' },
   { key: 'particle', mag: 10000, label: '粒子雲', detail: '物質解離成粒子', scale: '10 nm' },
@@ -69,7 +73,7 @@ export const MAG_TIERS = [
   { key: 'gate', mag: 1000000000000, label: '無極之門', detail: '源點裂開，門後浮現的是完整而縮小的太極本體——同一個結構，向下無窮遞迴，深不可測', scale: '1 am' },
   /* 2026-08-21 再深入十一級：從無極之門一路連到宇宙尺度，形成無限循環。
      超過原子尺度之後已無公認物理單位，scale 欄位刻意留下「不可測」——
-     這正是敘事本身：越深越沒有答案，直到第 24 層回到最初的 10 mm。 */
+     這正是敘事本身：越深越沒有答案，直到最後一段回到最初的 10 mm。 */
   { key: 'tide', mag: 1e13, label: '相位潮汐', detail: '失去固定參照，只剩陰陽之間的相位差，如潮汐起落', scale: '不可測' },
   { key: 'echo', mag: 1e14, label: '微光回聲', detail: '粒子不再是物件，只是曾被看見一瞬的殘影', scale: '不可測' },
   { key: 'veil', mag: 1e15, label: '互感之幕', detail: '陰陽不再相觸，只靠感應改變彼此的存在', scale: '不可測' },
@@ -85,9 +89,13 @@ export const MAG_TIERS = [
 
 export type MagTier = (typeof MAG_TIERS)[number];
 
-/** 由 u 取得目前所在層級 */
+/** 陣列第 0 筆對應的數量級——現在從 ×100（decade 2）起跳，不是 ×1 */
+const TIER_DECADE_OFFSET = 2;
+
+/** 由 u 取得目前所在層級（decade < 2，即 ×1~×10，還沒進入任何一段物鏡，回傳第一段） */
 export function tierForU(u: number): MagTier {
-  const index = Math.min(MAG_TIERS.length - 1, Math.max(0, Math.round(u * MAG_DECADES)));
+  const decade = Math.round(u * MAG_DECADES) - TIER_DECADE_OFFSET;
+  const index = Math.min(MAG_TIERS.length - 1, Math.max(0, decade));
   return MAG_TIERS[index];
 }
 
