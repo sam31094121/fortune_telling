@@ -4,6 +4,8 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import { getAnalysisIdentityTarget, IDENTITY_TARGET_UPDATED_EVENT, type AnalysisIdentityTarget } from '@/lib/identity-split-client';
 import { readSelfBirthProfile, saveSelfBirthProfile } from '@/lib/self-profile-client';
+import { readCanonicalBirthProfile, saveCanonicalBirthProfile } from '@/lib/canonical-birth-profile-client';
+import { fromUnifiedBirthProfile, toUnifiedBirthProfile } from '@/lib/canonical-birth-profile';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 
 export type BirthGender = 'male' | 'female';
@@ -210,6 +212,11 @@ export function UnifiedBirthForm({
         if (saved) {
           // 只帶入有存過的欄位；使用者仍可修改
           onChangeRef.current({ ...valueRef.current, ...saved });
+        } else {
+          // 本頁（八字）還沒存過本人資料，退而求其次看看唯一出生資料裡有沒有
+          // 別的頁面（例如紫微）已經填過的——只在完全沒有本地資料時才帶入
+          const canonical = readCanonicalBirthProfile();
+          if (canonical) onChangeRef.current({ ...valueRef.current, ...toUnifiedBirthProfile(canonical) });
         }
       } else if (target === 'guest') {
         // 切到親朋好友：若表單目前是本人檔案內容，清空讓使用者填別人的資料
@@ -250,6 +257,7 @@ export function UnifiedBirthForm({
         event.preventDefault();
         if (getAnalysisIdentityTarget() === 'self') {
           saveSelfBirthProfile(value); // 本人資料檔案：下次選「自己」自動帶入
+          saveCanonicalBirthProfile(fromUnifiedBirthProfile(value)); // 唯一出生資料：讓紫微那頁也能帶出來
         }
         onSubmit(value);
       }}

@@ -374,6 +374,23 @@ export function createZiweiCore(input: ZiweiBirthInput): ZiweiCoreResult {
   return { ...coreWithoutValidation, validation };
 }
 
+/**
+ * 任一宮位的三方四正（2026-08-22 依業主指示：紫微三老師系統要支援 12 宮切換，
+ * 不能只有命宮）。iztro 的 `astrolabe.surroundedPalaces(indexOrName)` 本來就通用，
+ * 不是綁死命宮——這裡只是重新用同一份 birthInput 建一次 astrolabe（跟 createZiweiCore
+ * 用的是同一個決定性函式，同樣輸入永遠得到同一顆命盤），再對指定宮位取三方四正。
+ * 不改 createZiweiCore 既有的命宮專用邏輯，純新增。
+ */
+export function resolveSanFangSiZhengFor(
+  input: ZiweiBirthInput,
+  palaceName: string,
+): { target: ZiweiPalaceResult; wealth: ZiweiPalaceResult; career: ZiweiPalaceResult; opposite: ZiweiPalaceResult } {
+  const astrolabe = createZiweiAstrolabe(input);
+  const raw = getFunctionalPalace(astrolabe, palaceName);
+  if (!raw) throw new Error(`ZIWEI_PALACE_NOT_FOUND:${palaceName}`);
+  return normalizeSurrounded(astrolabe.surroundedPalaces(raw.name as any));
+}
+
 export function debugZiweiCore(result: ZiweiCoreResult): void {
   console.table(
     result.palaces.map((palace) => ({

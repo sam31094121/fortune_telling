@@ -21,6 +21,8 @@ import {
   resolveZiweiAnalysisId,
   type ZiweiPresentationBundle,
 } from './ziwei-presentation-service';
+import { createZiweiCore } from './ziwei/engine';
+import { saveVerifiedZiweiChart } from './ziwei-chart-store';
 
 const MODEL_NAME = 'gemini-2.5-flash';
 const GEMINI_TIMEOUT_MS = 20000;
@@ -744,6 +746,15 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
     fiveElement,
     meta,
   });
+  // 紫微三老師系統（規格「十七」）：把這次已驗證的命盤存起來，讓老師 API 之後能用
+  // analysisId 查回同一張盤，不必自己重新排盤。用同一份 birthInput 決定性地重建
+  // ZiweiCoreResult（跟 calculateZiweiSanFang 內部用的是同一顆命盤，不是另外算一次）。
+  // 存盤失敗不能影響主流程，這裡只是側寫，用 try/catch 隔開。
+  try {
+    saveVerifiedZiweiChart(analysisId, createZiweiCore(ziweiSanFang.ziweiBirthInput));
+  } catch (error) {
+    console.error('ZIWEI_CHART_STORE_SAVE_FAILED', error);
+  }
   const presentation = buildZiweiPresentationBundle({
     analysisId,
     summary,

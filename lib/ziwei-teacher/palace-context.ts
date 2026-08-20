@@ -1,0 +1,128 @@
+/**
+ * Palace Context Builder（2026-08-22）｜規格「六、七、十六」
+ *
+ * 純引擎、零 AI：只從已經驗證過的正式命盤（ZiweiCoreResult）抽資料、
+ * 對指定宮位重新取三方四正——不重新排盤、不安星、不改四化、不猜資料。
+ * 三位老師只能讀這裡輸出的 PalaceAnalysisContext，不得直接碰 ZiweiCoreResult。
+ */
+
+import {
+  resolveSanFangSiZhengFor,
+  type ZiweiCoreResult,
+  type ZiweiMajorStarDetail,
+  type ZiweiPalaceKey,
+  type ZiweiPalaceResult,
+  type ZiweiSupportStarDetail,
+} from '../ziwei/engine';
+import { ZIWEI_AUSPICIOUS_STAR_NAMES, ZIWEI_MALEFIC_STAR_NAMES } from '../ziwei-sanfang-engine';
+import type { PalaceAnalysisContext, PalaceId, PalaceSnapshot, ZiweiStar, ZiweiTransformation } from './types';
+
+const PALACE_ID_TO_KEY: Record<PalaceId, ZiweiPalaceKey> = {
+  LIFE: 'MING',
+  SIBLINGS: 'XIONG_DI',
+  SPOUSE: 'FU_QI',
+  CHILDREN: 'ZI_NV',
+  WEALTH: 'CAI_BO',
+  HEALTH: 'JI_E',
+  TRAVEL: 'QIAN_YI',
+  FRIENDS: 'JIAO_YOU',
+  CAREER: 'GUAN_LU',
+  PROPERTY: 'TIAN_ZHAI',
+  FORTUNE: 'FU_DE',
+  PARENTS: 'FU_MU',
+};
+
+const PALACE_KEY_TO_ID = Object.fromEntries(
+  Object.entries(PALACE_ID_TO_KEY).map(([id, key]) => [key, id as PalaceId]),
+) as Record<ZiweiPalaceKey, PalaceId>;
+
+export function palaceIdToKey(id: PalaceId): ZiweiPalaceKey {
+  return PALACE_ID_TO_KEY[id];
+}
+
+export function palaceKeyToId(key: ZiweiPalaceKey): PalaceId {
+  return PALACE_KEY_TO_ID[key];
+}
+
+const MUTAGEN_TO_TYPE: Record<string, ZiweiTransformation['type']> = {
+  祿: 'LU',
+  權: 'QUAN',
+  科: 'KE',
+  忌: 'JI',
+};
+
+function starsToZiweiStars(
+  majorStars: ZiweiMajorStarDetail[],
+  minorStars: ZiweiSupportStarDetail[],
+): { majorStars: ZiweiStar[]; supportingStars: ZiweiStar[]; maleficStars: ZiweiStar[] } {
+  const major: ZiweiStar[] = majorStars.map((star) => ({ id: star.name, name: star.name, category: 'MAJOR' }));
+  const supporting: ZiweiStar[] = [];
+  const malefic: ZiweiStar[] = [];
+  minorStars.forEach((star) => {
+    if (ZIWEI_MALEFIC_STAR_NAMES.has(star.name)) {
+      malefic.push({ id: star.name, name: star.name, category: 'MALEFIC' });
+    } else if (ZIWEI_AUSPICIOUS_STAR_NAMES.has(star.name)) {
+      supporting.push({ id: star.name, name: star.name, category: 'SUPPORTING' });
+    }
+    // 既不吉也不凶的中性星曜：不塞進格局/人生/故事老師的資料裡，避免噪音蓋過重點星曜
+  });
+  return { majorStars: major, supportingStars: supporting, maleficStars: malefic };
+}
+
+function starsToTransformations(majorStars: ZiweiMajorStarDetail[], minorStars: ZiweiSupportStarDetail[]): ZiweiTransformation[] {
+  const all: ZiweiTransformation[] = [];
+  [...majorStars, ...minorStars].forEach((star) => {
+    const type = star.mutagen ? MUTAGEN_TO_TYPE[star.mutagen] : undefined;
+    if (type) all.push({ starId: star.name, starName: star.name, type });
+  });
+  return all;
+}
+
+function toPalaceSnapshot(palace: ZiweiPalaceResult): PalaceSnapshot {
+  const { majorStars, supportingStars, maleficStars } = starsToZiweiStars(palace.majorStarDetails, palace.minorStars);
+  return {
+    palaceId: palaceKeyToId(palace.key),
+    palaceName: palace.name,
+    majorStars,
+    supportingStars,
+    maleficStars,
+    transformations: starsToTransformations(palace.majorStarDetails, palace.minorStars),
+  };
+}
+
+/**
+ * 建立指定宮位的完整判讀 Context。切宮位時呼叫這個函式即可——
+ * 只重新取三方四正（呼叫 `resolveSanFangSiZhengFor`，內部用同一份 birthInput
+ * 決定性地重建 astrolabe，不是重新排一次不一樣的盤），不重新排整張命盤。
+ */
+export function buildPalaceContext(chart: ZiweiCoreResult, palaceId: PalaceId, analysisId: string): PalaceAnalysisContext {
+  if (!chart.validation.passed) {
+    throw new Error('ZIWEI_CHART_NOT_VERIFIED');
+  }
+
+  const targetKey = palaceIdToKey(palaceId);
+  const selected = chart.palaces.find((palace) => palace.key === targetKey);
+  if (!selected) throw new Error(`ZIWEI_PALACE_NOT_IN_CHART:${palaceId}`);
+
+  const surrounded = resolveSanFangSiZhengFor(chart.birthInput, selected.name);
+
+  return {
+    analysisId,
+    selectedPalace: toPalaceSnapshot(selected),
+    threeHarmony: {
+      harmonyA: toPalaceSnapshot(surrounded.wealth),
+      harmonyB: toPalaceSnapshot(surrounded.career),
+      opposite: toPalaceSnapshot(surrounded.opposite),
+    },
+    // Phase 1：大限/流年逐宮訊號尚未補齊（見計劃路線圖），先給空陣列，不假裝有資料
+    decadeSignals: [],
+    annualSignals: [],
+    engineVersion: chart.engineVersion,
+    verified: chart.validation.passed,
+  };
+}
+
+export const ZIWEI_TEACHER_PALACE_ORDER: PalaceId[] = [
+  'LIFE', 'SIBLINGS', 'SPOUSE', 'CHILDREN', 'WEALTH', 'HEALTH',
+  'TRAVEL', 'FRIENDS', 'CAREER', 'PROPERTY', 'FORTUNE', 'PARENTS',
+];

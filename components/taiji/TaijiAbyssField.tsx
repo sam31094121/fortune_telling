@@ -14,17 +14,19 @@
  *  不可定域→宇宙止境→歸零之息→迴聲初醒：噴發後歸於極低頻率的呼吸，
  *  收尾多兩段緩衝，不是直接硬切到全貌。
  *  宇宙太極（decade 25）：白洞噴出的，是縮小版的太極全貌本身——同一張貼圖、
- *  同一圈軌道環，呼應最一開始的太極。使用者把倍率轉回 ×1，看到的是同一顆——首尾閉合。
+ *  同一顆核心，呼應最一開始的太極。使用者把倍率轉回 ×1，看到的是同一顆——首尾閉合。
+ *  （2026-08-22 依業主指示：核心外面不能有任何圓框——粒子與光子連宇宙都框不住，
+ *  太極本體也不能被自己的收尾套一圈框，所以拿掉了原本包著它的軌道環。）
  *
  * 效能與鐵律：這麼多段深度只用一顆共用 ShaderMaterial + 一顆點雲幾何（armed 時建一次，
- * 之後只調 uniform，不因深度切換重建），加上終局用一顆球體+一圈環，
+ * 之後只調 uniform，不因深度切換重建），加上終局只用一顆球體、沒有任何框架，
  * 全部一次建好、只切 `.visible`，不在互動中重編著色器。
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { MAG_DECADES, smoothstep, type MagRef, type WarmRef } from './taijiMagnifier';
+import { MAG_DECADES, smoothstep, clamp01, type MagRef, type WarmRef } from './taijiMagnifier';
 
 const NO_RAYCAST = () => null;
 
@@ -51,6 +53,32 @@ const BURST_END = 22.4;
    終局改到 decade 25 才完全成形，讓收尾多兩段呼吸感，不是直接硬切到全貌。 */
 const FINALE_IN = 23.8;
 const FINALE_FULL = 25.0;
+/* 2026-08-22 依業主指示：13~24 段要有系統性、計劃性、故事性的意境，不能是參數平移。
+   「歸零之息」（decade 23）與「迴聲初醒」（decade 24）原本只套用跟其他段一樣的通用
+   脈動，沒有自己的戲——現在補上專屬的兩拍：先靜下來（屏息），再被單獨一次更強的
+   回聲打破寂靜，才接得上第 24 段的全貌重現，收尾更有敘事的起承轉合。 */
+const ZERO_BREATH_CENTER = 23.0;
+const FIRST_ECHO_CENTER = 24.0;
+
+/* 分場調色表：decade 13(相位潮汐) → decade 24(迴聲初醒)，一段一個顏色，CPU 端每幀
+   按目前 decade 內插出當下色調，只傳一顆 vec3 uniform 進 shader——零額外 draw call、
+   零額外幾何，純粹是色彩語言的「分場」，讓 12 段共用同一組點雲時仍然一眼可辨。 */
+const TIER_TINTS: readonly [number, string][] = [
+  [13, '#8ec5ff'], // 相位潮汐：冷藍，潮汐月光感
+  [14, '#c9c9d6'], // 微光回聲：銀灰，殘影感
+  [15, '#6a5acd'], // 互感之幕：靛紫，隔著一層紗
+  [16, '#4b3f72'], // 靜默摺疊：深紫，空間收摺
+  [17, '#5a5a5a'], // 無名之境：中性灰，無以名之
+  [18, '#ff6a3d'], // 事件視界：警示橙紅，吞噬的邊界
+  [19, '#ffffff'], // 奇異點：純白熾光，規則失效
+  [20, '#fff2a8'], // 白洞噴湧：亮金白，噴發閃光
+  [21, '#b388ff'], // 不可定域：漂移紫，抓不住中心
+  [22, '#3a6ea5'], // 宇宙止境：深冷藍，極低頻呼吸
+  [23, '#1a1a2e'], // 歸零之息：近黑，屏息
+  [24, '#ffd76a'], // 迴聲初醒：暖金閃，破寂靜的回聲
+];
+const TIER_TINT_COLORS = TIER_TINTS.map(([, hex]) => new THREE.Color(hex));
+const TIER_TINT_BASE_DECADE = TIER_TINTS[0][0];
 
 const ABYSS_PARTICLE_COUNT = 1600;
 
@@ -116,6 +144,7 @@ const ABYSS_FRAGMENT = /* glsl */ `
   uniform vec3 uYin;
   uniform vec3 uYang;
   uniform vec3 uSpark;
+  uniform vec3 uTierTint;
   varying float vSeed;
   varying float vPolarity;
   varying float vAbyss;
@@ -134,6 +163,9 @@ const ABYSS_FRAGMENT = /* glsl */ `
     vec3 clearCol = mix(uYin, uYang, step(0.0, vPolarity));
     vec3 noiseCol = mix(uYin, uYang, flicker);
     vec3 col = mix(clearCol, noiseCol, vAbyss);
+    // 分場調色：每一段物鏡有自己的專屬色調（CPU 端按 decade 內插好才傳進來，
+    // 這裡只做一次 mix，零額外成本），像電影分場調色一樣一眼認得出「這是哪一幕」
+    col = mix(col, uTierTint, 0.55);
 
     float pulse = 0.5 + 0.5 * sin(uTime * (0.5 + vAbyss * 1.3) + vSeed * 30.0);
     float burst = clamp(abs(uSuction), 0.0, 1.0);
@@ -167,12 +199,12 @@ export default function TaijiAbyssField({
   const rootRef = useRef<THREE.Group>(null);
   const fieldRef = useRef<THREE.Points>(null);
   const finaleCoreRef = useRef<THREE.Mesh>(null);
-  const finaleRingRef = useRef<THREE.Mesh>(null);
 
   const coreTextureRef = useRef(coreTexture);
   const coreBumpMapRef = useRef(coreBumpMap);
   coreTextureRef.current = coreTexture;
   coreBumpMapRef.current = coreBumpMap;
+  const tintScratchRef = useRef(new THREE.Color());
 
   const built = useMemo(() => {
     if (!armed) return null;
@@ -188,14 +220,16 @@ export default function TaijiAbyssField({
         uYin: { value: new THREE.Color(yinColor) },
         uYang: { value: new THREE.Color(yangColor) },
         uSpark: { value: new THREE.Color(sparkColor) },
+        uTierTint: { value: new THREE.Color(TIER_TINT_COLORS[0]) },
       },
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
 
-    /* 第 24 層收尾：只准往上——球體規格不低於前面幾段已用的水準 */
-    const finaleGeometry = new THREE.SphereGeometry(1, 96, 96);
+    /* 2026-08-22 效能調整：跟 TaijiCellularCore 同樣的道理——降的是多邊形密度，
+       不是內部渲染解析度／貼圖／DPR，那些維持只准往上不變。 */
+    const finaleGeometry = new THREE.SphereGeometry(1, 64, 64);
     const finaleCoreMaterial = new THREE.MeshPhysicalMaterial({
       map: coreTextureRef.current ?? null,
       bumpMap: coreBumpMapRef.current ?? null,
@@ -210,16 +244,7 @@ export default function TaijiAbyssField({
       depthWrite: false,
     });
 
-    const finaleRingGeometry = new THREE.TorusGeometry(1, 0.035, 24, 96);
-    const finaleRingMaterial = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(sparkColor),
-      transparent: true,
-      opacity: 0,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
-
-    return { fieldGeometry, fieldMaterial, finaleGeometry, finaleCoreMaterial, finaleRingGeometry, finaleRingMaterial };
+    return { fieldGeometry, fieldMaterial, finaleGeometry, finaleCoreMaterial };
   }, [armed, yinColor, yangColor, sparkColor]);
 
   useEffect(
@@ -228,8 +253,6 @@ export default function TaijiAbyssField({
       built?.fieldMaterial.dispose();
       built?.finaleGeometry.dispose();
       built?.finaleCoreMaterial.dispose();
-      built?.finaleRingGeometry.dispose();
-      built?.finaleRingMaterial.dispose();
     },
     [built],
   );
@@ -264,44 +287,59 @@ export default function TaijiAbyssField({
     const spin = Math.min(delta, 1 / 45) * 0.05;
 
     const abyss = smoothstep(CLARITY_START, CLARITY_END, d);
+
+    // 分場調色：按目前 decade 在 TIER_TINT_COLORS 表裡內插，CPU 端一次 lerp，零額外 GPU 成本
+    const tintFloat = clamp01((d - TIER_TINT_BASE_DECADE) / (TIER_TINT_COLORS.length - 1)) * (TIER_TINT_COLORS.length - 1);
+    const tintIndex = Math.min(TIER_TINT_COLORS.length - 2, Math.floor(tintFloat));
+    const tintFrac = tintFloat - tintIndex;
+    const tint = tintScratchRef.current.copy(TIER_TINT_COLORS[tintIndex]).lerp(TIER_TINT_COLORS[tintIndex + 1], tintFrac);
+    built.fieldMaterial.uniforms.uTierTint.value.copy(tint);
+
     const pull = smoothstep(PULL_IN, PULL_PEAK, d) * (1 - smoothstep(PULL_PEAK, HOLD_END, d));
     const push = smoothstep(HOLD_END, BURST_OUT, d) * (1 - smoothstep(BURST_OUT, BURST_END, d) * 0.999);
     const suction = pull - push;
 
-    /* 遙遠感：相位潮汐開始退遠，事件視界前的引力（pull）把它拉回來——
-       退到最遠時場縮到 42% 大小、亮度也跟著降，才是真的「越走越遠」。 */
+    /* 遙遠感：相位潮汐開始退遠，事件視界前的引力（pull）把它拉回來——但退遠只能是
+       「越看越深」，不能讀成「畫面死掉了」，所以縮小/變暗的幅度收斂很多；
+       同時每跨過一個整數數量級（也就是每換一段物鏡）補一次短暫脈動——
+       像剪接的一個個鏡頭切點，讓 12~16 這幾段各自有自己「發生了什麼」的瞬間，
+       不是一條看不出段落的連續淡變。深不見底：這條脈動永遠不停，沒有終點。 */
     const recede = smoothstep(RECEDE_START, RECEDE_END, d) * (1 - pull);
+    const nearestDecade = Math.round(d);
+    const distToDecade = Math.abs(d - nearestDecade);
+    const tierBeat = Math.exp(-distToDecade * 9) * smoothstep(ABYSS_FULL, ABYSS_FULL + 0.4, d);
+
+    // 歸零之息：屏息——在這一拍把通用脈動與呼吸幅度壓到最低，畫面刻意安靜下來
+    const stillness = Math.exp(-Math.pow(d - ZERO_BREATH_CENTER, 2) * 6);
+    // 迴聲初醒：單獨一次比通用脈動更強的回聲，打破前一拍的寂靜，預告終局將至
+    const echoPulse = Math.exp(-Math.pow(d - FIRST_ECHO_CENTER, 2) * 10);
 
     const field = fieldRef.current;
     if (field) {
-      const fieldScale = halfHeight * (0.05 + reveal * 0.55) * (1 - recede * 0.58);
+      const fieldScale = halfHeight * (0.05 + reveal * 0.55) * (1 - recede * 0.22) * (1 + tierBeat * 0.12) * (1 - stillness * 0.28) * (1 + echoPulse * 0.22);
       field.scale.setScalar(fieldScale);
-      field.rotation.y += spin * (1 + recede * 0.6);
+      field.rotation.y += spin * (1 + recede * 0.4) * (1 - stillness * 0.7);
     }
 
     built.fieldMaterial.uniforms.uTime.value = t;
-    built.fieldMaterial.uniforms.uReveal.value = reveal * (1 - recede * 0.35);
+    built.fieldMaterial.uniforms.uReveal.value =
+      reveal * (1 - recede * 0.12) * (1 + tierBeat * 0.4) * (1 - stillness * 0.45) * (1 + echoPulse * 0.5);
     built.fieldMaterial.uniforms.uAbyss.value = abyss;
     built.fieldMaterial.uniforms.uSuction.value = suction;
 
-    // 第 24 層：白洞噴回最初的太極全貌，首尾閉合
+    // 第 24 層：白洞噴回最初的太極全貌，首尾閉合——核心本身，沒有任何框架圍著它
     const finaleReveal = smoothstep(FINALE_IN, FINALE_FULL, d);
     const finaleCore = finaleCoreRef.current;
-    const finaleRing = finaleRingRef.current;
     if (finaleCore) {
-      finaleCore.scale.setScalar(halfHeight * (0.05 + finaleReveal * 0.34));
+      // 拿掉外圈軌道環之後，核心單獨撐開構圖，把原本環佔的視覺份量收回自己身上
+      finaleCore.scale.setScalar(halfHeight * (0.05 + finaleReveal * 0.46));
       finaleCore.rotation.y += Math.min(delta, 1 / 45) * 0.08;
     }
-    if (finaleRing) {
-      finaleRing.scale.setScalar(halfHeight * (0.09 + finaleReveal * 0.5));
-      finaleRing.rotation.x = Math.PI / 2.3;
-      finaleRing.rotation.z += Math.min(delta, 1 / 45) * 0.04;
-    }
     built.finaleCoreMaterial.opacity = finaleReveal;
-    built.finaleRingMaterial.opacity = finaleReveal * 0.8;
 
-    // 深淵場本身在終局淡出，把畫面交給重新浮現的太極全貌（疊乘遙遠感，不覆蓋掉它）
-    built.fieldMaterial.uniforms.uReveal.value = reveal * (1 - recede * 0.35) * (1 - finaleReveal * 0.7);
+    // 深淵場本身在終局淡出，把畫面交給重新浮現的太極全貌（疊乘遙遠感、段落脈動與歸零/回聲兩拍，不覆蓋掉它們）
+    built.fieldMaterial.uniforms.uReveal.value =
+      reveal * (1 - recede * 0.12) * (1 + tierBeat * 0.4) * (1 - stillness * 0.45) * (1 + echoPulse * 0.5) * (1 - finaleReveal * 0.7);
   });
 
   if (!built) return null;
@@ -310,7 +348,6 @@ export default function TaijiAbyssField({
     <group ref={rootRef} visible={false} renderOrder={8}>
       <points ref={fieldRef} geometry={built.fieldGeometry} material={built.fieldMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
       <mesh ref={finaleCoreRef} geometry={built.finaleGeometry} material={built.finaleCoreMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
-      <mesh ref={finaleRingRef} geometry={built.finaleRingGeometry} material={built.finaleRingMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
     </group>
   );
 }

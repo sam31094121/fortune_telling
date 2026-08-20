@@ -316,8 +316,11 @@ export default function TaijiCellularCore({
 
   const built = useMemo(() => {
     if (!armed) return null;
-    /* 高解析度球面（只准往上）：與 TaijiEntanglementCore 同規格，不因為層數增加而降規格 */
-    const sphereGeometry = new THREE.SphereGeometry(1, 128, 128);
+    /* 2026-08-22 效能調整：切換物鏡當下(多層同時疊加淡入淡出)會是全程最吃 GPU 的瞬間。
+       這裡調的是「球面幾何的多邊形密度」，跟畫布內部渲染解析度(DPR/貼圖/陰影)是兩件事——
+       那些只准往上、完全沒動；圓滑漸層球體在 64 段跟 128 段肉眼看不出差別，
+       但三角形數少 4 倍，同時疊 3~5 層時明顯減輕負擔。 */
+    const sphereGeometry = new THREE.SphereGeometry(1, 64, 64);
     const filamentGeometry = buildFilamentGeometry();
 
     const baseUniforms = () => ({

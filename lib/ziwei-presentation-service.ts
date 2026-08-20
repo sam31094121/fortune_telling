@@ -64,6 +64,7 @@ export type ZiweiPresentationSource = {
   meta?: {
     birthDate?: string;
     shichenLabel?: string;
+    gender?: 'male' | 'female';
     timeCorrectionMode?: 'STANDARD_TIME' | 'TRUE_SOLAR_TIME';
   };
 };
@@ -145,6 +146,7 @@ export function resolveZiweiAnalysisId(source: ZiweiPresentationSource) {
   const seed = [
     source.meta?.birthDate,
     source.meta?.shichenLabel,
+    source.meta?.gender,
     source.meta?.timeCorrectionMode,
     source.ziweiSanFang?.pattern?.name,
     source.ziweiSanFang?.methodVersion,

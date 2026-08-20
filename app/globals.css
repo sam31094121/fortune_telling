@@ -13848,6 +13848,24 @@ body.app-touching .home-taiji-cinema * {
   line-height: 1.45;
 }
 
+.tarot-question-entry__example-head strong,
+.tarot-question-entry__example-head span {
+  display: block;
+}
+
+.tarot-question-entry__example-head strong {
+  color: rgb(255, 243, 203);
+  font-size: clamp(1rem, 3vw, 1.16rem);
+  letter-spacing: 0.01em;
+}
+
+.tarot-question-entry__example-head span {
+  margin-top: 0.22rem;
+  color: rgba(191, 219, 254, 0.78);
+  font-size: 0.74rem;
+  font-weight: 750;
+}
+
 .tarot-question-entry__example-list {
   display: grid !important;
   grid-template-columns: 1fr;
@@ -13889,6 +13907,30 @@ body.app-touching .home-taiji-cinema * {
   z-index: 1;
 }
 
+.tarot-question-entry__example-copy {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.tarot-question-entry__example-copy strong {
+  color: rgb(255, 243, 203);
+  font-size: 0.84rem;
+  letter-spacing: 0.015em;
+}
+
+.tarot-question-entry__example-copy small {
+  color: rgba(125, 211, 252, 0.82);
+  font-size: 0.7rem;
+  font-weight: 850;
+}
+
+.tarot-question-entry__example-copy > span {
+  color: rgba(255, 250, 235, 0.94);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
 .tarot-question-entry__example-badge {
   flex: 0 0 auto;
   border-radius: 999px;
@@ -13927,7 +13969,11 @@ body.app-touching .home-taiji-cinema * {
   .tarot-question-entry__example {
     min-height: 86px;
     align-items: flex-start;
-    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tarot-question-entry__example-copy > span {
+    font-size: 0.76rem;
   }
 }
 

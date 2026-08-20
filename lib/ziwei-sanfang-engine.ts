@@ -1,7 +1,7 @@
 import { calculateTrueSolarTime } from '@ziweijs/core';
 import { LunarHour } from 'tyme4ts';
 import { getShichenInfo } from './shichen-engine';
-import { assertChartCertifiedForAi, generateZiweiChart } from './ziwei/chartEngine';
+import { assertChartCertifiedForAi, generateZiweiChart, type ZiweiBirthInput } from './ziwei/chartEngine';
 
 const PALACE_CONFIG = [
   { key: 'MING', name: '命宮', focus: '核心人格與行動動能' },
@@ -157,13 +157,18 @@ export interface ZiweiSanFangAnalysis {
   pattern: ZiweiPattern;
   patternMetrics: ZiweiPatternMetrics;
   ruleCount: number;
+  /** 2026-08-22：純新增欄位（不影響既有任何欄位），讓呼叫端能用同一份 birthInput
+      決定性地重建完整 ZiweiCoreResult——三老師系統的命盤暫存需要這個。 */
+  ziweiBirthInput: ZiweiBirthInput;
 }
 
-const ZIWEI_AUSPICIOUS_STAR_NAMES = new Set([
+/* 2026-08-22：加 export，讓紫微三老師系統（lib/ziwei-teacher/）能重用同一份吉凶星分類，
+   不必另外複製一份清單造成兩邊分類漂移。分類內容本身完全不變。 */
+export const ZIWEI_AUSPICIOUS_STAR_NAMES = new Set([
   '左輔', '右弼', '文昌', '文曲', '天魁', '天鉞', '祿存', '天馬', '恩光', '天貴', '台輔', '封誥', '龍池', '鳳閣', '紅鸞', '天喜', '三台', '八座',
 ]);
 
-const ZIWEI_MALEFIC_STAR_NAMES = new Set([
+export const ZIWEI_MALEFIC_STAR_NAMES = new Set([
   '擎羊', '陀羅', '火星', '鈴星', '地空', '地劫', '天空', '天刑', '天姚', '陰煞', '劫煞', '災煞', '大耗', '小耗', '白虎', '喪門', '吊客', '官符',
 ]);
 
@@ -925,6 +930,7 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
     crossChecks,
     pattern,
     patternMetrics,
+    ziweiBirthInput: chart.birthInput,
     ruleCount: visiblePalaces.length + crossChecks.length + pillars.length + visiblePalaces.reduce((count, palace) => count + palace.majorStars.length, 0),
   };
 }

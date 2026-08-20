@@ -33,9 +33,24 @@ const TAROT_DECK_INTEGRITY = {
   minor: TAROT_CARDS.filter((card) => card.arcana === 'minor').length,
 };
 const TAROT_QUESTION_EXAMPLES = [
-  { label: '01 關係取捨', text: '這段關係值得我繼續投入，還是該先設定界線？' },
-  { label: '02 事業金錢', text: '接下來 90 天，哪個事業或金錢決策最值得優先投入？' },
-  { label: '03 下一步', text: '我現在卡住的核心是什麼，下一步該怎麼做？' },
+  {
+    number: '01',
+    label: '我怕的不是失去他，是承認他從沒真正選過我',
+    cue: '你留在原地，究竟是在等愛，還是在等一個不會來的交代？',
+    text: '我捨不得的是這個人，還是承認自己一直沒有被珍惜？我還要把最後一次機會交出去嗎？',
+  },
+  {
+    number: '02',
+    label: '我不是怕離開，是怕承認這幾年可能走錯了',
+    cue: '你不甘心的，是現在的工作，還是已經投進去的時間？',
+    text: '我繼續留著是在替未來鋪路，還是只是不敢面對沉沒的成本？現在該承擔哪一種痛？',
+  },
+  {
+    number: '03',
+    label: '我把自己塞得很忙，因為安靜下來就得承認我不快樂',
+    cue: '你真正害怕的那件事，並沒有因為拖延而消失',
+    text: '我一直用忙碌躲開的是哪一個決定？如果今天不再替自己找藉口，我必須面對什麼？',
+  },
 ] as const;
 
 export default function TarotPageClient() {
@@ -278,9 +293,10 @@ export default function TarotPageClient() {
                   <p className={`tarot-question-entry__field-hint ${questionReady ? 'tarot-question-entry__field-hint--ready' : ''}`}>
                     {questionReady ? '問題已建立，可以開始洗牌。' : '請輸入至少 4 個字，或直接點選下方範例。'}
                   </p>
-                    <div className="tarot-question-entry__examples">
+                  <div className="tarot-question-entry__examples">
                     <div className="tarot-question-entry__example-head">
-                      <span>高頻決策提問 · 公開線上塔羅趨勢整理</span>
+                      <strong>最讓你刺痛的那一句，往往就是你真正該問的事</strong>
+                      <span>不要挑最好回答的。選你最想跳過的那一句，牌才會照見你真正不敢面對的地方。</span>
                     </div>
                     <div className="tarot-question-entry__example-list flex flex-wrap gap-2" aria-label="塔羅問題範例">
                       {TAROT_QUESTION_EXAMPLES.map((example) => (
@@ -293,8 +309,12 @@ export default function TarotPageClient() {
                           }}
                           className="tarot-question-entry__example"
                         >
-                          <span className="tarot-question-entry__example-badge">{example.label}</span>
-                          <span>{example.text}</span>
+                          <span className="tarot-question-entry__example-badge">{example.number}</span>
+                          <span className="tarot-question-entry__example-copy">
+                            <strong>{example.label}</strong>
+                            <small>{example.cue}</small>
+                            <span>{example.text}</span>
+                          </span>
                         </button>
                       ))}
                     </div>
