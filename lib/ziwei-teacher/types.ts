@@ -55,6 +55,16 @@ export interface PalaceAnalysisContext {
     opposite: PalaceSnapshot;
   };
 
+  timeContext: {
+    currentAge: number | null;
+    annualYear: number;
+    annualTheme: string | null;
+    annualLevel: string | null;
+    readingPeriod: 'YANG_DAY' | 'YIN_NIGHT';
+    readingPeriodLabel: string;
+    observedAt: string;
+  };
+
   decadeSignals: unknown[];
   annualSignals: unknown[];
 

@@ -2734,6 +2734,7 @@ function ZiweiTeacherSynthesisPanel({
   const [teacherCache, setTeacherCache] = useState<Record<string, ZiweiTeacherApiResult>>({});
   const [teacherLoading, setTeacherLoading] = useState(false);
   const [teacherError, setTeacherError] = useState<string | null>(null);
+  const [timeRefresh, setTimeRefresh] = useState(0);
   const fetchedKeysRef = useRef<Set<string>>(new Set());
 
   const [activeEntertainer, setActiveEntertainer] = useState<EntertainmentTeacherId>('HORROR');
@@ -2743,7 +2744,7 @@ function ZiweiTeacherSynthesisPanel({
   const fetchedEntertainmentKeysRef = useRef<Set<string>>(new Set());
 
   const palaceId = ZIWEI_TEACHER_PALACE_ID_MAP[originKey] ?? 'LIFE';
-  const cacheKey = `${analysisId}|${palaceId}|${activeTeacher}`;
+  const cacheKey = `${analysisId}|${palaceId}|${activeTeacher}|time-${timeRefresh}`;
   const activeResult = teacherCache[cacheKey];
   const entertainmentCacheKey = `${analysisId}|${palaceId}|${activeEntertainer}`;
   const activeEntertainmentResult = entertainmentCache[entertainmentCacheKey];
@@ -2823,6 +2824,15 @@ function ZiweiTeacherSynthesisPanel({
         >
           返回十二宮
         </button>
+        {mode === 'PROFESSIONAL' && (
+          <button
+            type="button"
+            onClick={() => setTimeRefresh((value) => value + 1)}
+            className="rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1.5 text-xs font-black text-amber-100 transition hover:border-amber-200/60 hover:bg-amber-300/18"
+          >
+            更新當下時間解盤
+          </button>
+        )}
       </div>
 
       {mode === 'PROFESSIONAL' ? (

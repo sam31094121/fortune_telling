@@ -751,7 +751,12 @@ ${buildAiCopywritingInstruction('天地人 AI 紫微洞察系統')}
   // ZiweiCoreResult（跟 calculateZiweiSanFang 內部用的是同一顆命盤，不是另外算一次）。
   // 存盤失敗不能影響主流程，這裡只是側寫，用 try/catch 隔開。
   try {
-    saveVerifiedZiweiChart(analysisId, createZiweiCore(ziweiSanFang.ziweiBirthInput));
+    saveVerifiedZiweiChart(analysisId, createZiweiCore(ziweiSanFang.ziweiBirthInput), {
+      birthDate: request.birthDate,
+      annualYear: annualFortune.year,
+      annualTheme: annualFortune.annualTheme,
+      annualLevel: annualFortune.level,
+    });
   } catch (error) {
     console.error('ZIWEI_CHART_STORE_SAVE_FAILED', error);
   }

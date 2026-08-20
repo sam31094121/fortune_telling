@@ -15,7 +15,19 @@ import type { ZiweiCoreResult } from './ziwei/engine';
 
 const CHART_TTL_MS = 30 * 60 * 1000; // 30 分鐘：跟分析任務的 TTL 一致
 
-type ChartStore = Map<string, { chart: ZiweiCoreResult; createdAt: number; expiresAt: number }>;
+export type ZiweiVerifiedTimeSeed = {
+  birthDate?: string;
+  annualYear?: number;
+  annualTheme?: string;
+  annualLevel?: string;
+};
+
+export type ZiweiVerifiedChartRecord = {
+  chart: ZiweiCoreResult;
+  timeSeed: ZiweiVerifiedTimeSeed;
+};
+
+type ChartStore = Map<string, ZiweiVerifiedChartRecord & { createdAt: number; expiresAt: number }>;
 
 const store = ((globalThis as typeof globalThis & { __ziweiChartStore?: ChartStore }).__ziweiChartStore ??= new Map());
 
@@ -27,14 +39,20 @@ function cleanupExpired() {
 }
 
 /** 命盤算完、通過驗證後呼叫這個——只有驗證通過的命盤才准存進來 */
-export function saveVerifiedZiweiChart(analysisId: string, chart: ZiweiCoreResult): void {
+export function saveVerifiedZiweiChart(analysisId: string, chart: ZiweiCoreResult, timeSeed: ZiweiVerifiedTimeSeed = {}): void {
   if (!chart.validation.passed) return; // 沒驗證過的命盤絕對不存，老師 API 查不到就是查不到
   cleanupExpired();
   const now = Date.now();
-  store.set(analysisId, { chart, createdAt: now, expiresAt: now + CHART_TTL_MS });
+  store.set(analysisId, { chart, timeSeed, createdAt: now, expiresAt: now + CHART_TTL_MS });
 }
 
 export function getVerifiedZiweiChart(analysisId: string): ZiweiCoreResult | null {
   cleanupExpired();
   return store.get(analysisId)?.chart ?? null;
+}
+
+export function getVerifiedZiweiChartRecord(analysisId: string): ZiweiVerifiedChartRecord | null {
+  cleanupExpired();
+  const entry = store.get(analysisId);
+  return entry ? { chart: entry.chart, timeSeed: entry.timeSeed } : null;
 }

@@ -16,6 +16,7 @@ import {
 } from '../ziwei/engine';
 import { ZIWEI_AUSPICIOUS_STAR_NAMES, ZIWEI_MALEFIC_STAR_NAMES } from '../ziwei-sanfang-engine';
 import type { PalaceAnalysisContext, PalaceId, PalaceSnapshot, ZiweiStar, ZiweiTransformation } from './types';
+import type { ZiweiVerifiedTimeSeed } from '../ziwei-chart-store';
 
 const PALACE_ID_TO_KEY: Record<PalaceId, ZiweiPalaceKey> = {
   LIFE: 'MING',
@@ -95,7 +96,32 @@ function toPalaceSnapshot(palace: ZiweiPalaceResult): PalaceSnapshot {
  * 只重新取三方四正（呼叫 `resolveSanFangSiZhengFor`，內部用同一份 birthInput
  * 決定性地重建 astrolabe，不是重新排一次不一樣的盤），不重新排整張命盤。
  */
-export function buildPalaceContext(chart: ZiweiCoreResult, palaceId: PalaceId, analysisId: string): PalaceAnalysisContext {
+function calculateAge(birthDate?: string, now = new Date()): number | null {
+  if (!birthDate) return null;
+  const birth = new Date(`${birthDate}T00:00:00`);
+  if (Number.isNaN(birth.getTime())) return null;
+  let age = now.getUTCFullYear() - birth.getUTCFullYear();
+  const monthDay = (now.getUTCMonth() + 1) * 100 + now.getUTCDate();
+  const birthMonthDay = (birth.getUTCMonth() + 1) * 100 + birth.getUTCDate();
+  if (monthDay < birthMonthDay) age -= 1;
+  return age >= 0 && age < 130 ? age : null;
+}
+
+function buildTimeContext(seed: ZiweiVerifiedTimeSeed, now = new Date()) {
+  const taipeiHour = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Taipei', hour: '2-digit', hourCycle: 'h23' }).format(now));
+  const daytime = taipeiHour >= 5 && taipeiHour < 19;
+  return {
+    currentAge: calculateAge(seed.birthDate, now),
+    annualYear: seed.annualYear ?? now.getUTCFullYear(),
+    annualTheme: seed.annualTheme ?? null,
+    annualLevel: seed.annualLevel ?? null,
+    readingPeriod: daytime ? 'YANG_DAY' as const : 'YIN_NIGHT' as const,
+    readingPeriodLabel: daytime ? '日間陽時（行動、外在互動）' : '夜間陰時（收斂、內在感受）',
+    observedAt: now.toISOString(),
+  };
+}
+
+export function buildPalaceContext(chart: ZiweiCoreResult, palaceId: PalaceId, analysisId: string, timeSeed: ZiweiVerifiedTimeSeed = {}): PalaceAnalysisContext {
   if (!chart.validation.passed) {
     throw new Error('ZIWEI_CHART_NOT_VERIFIED');
   }
@@ -114,7 +140,13 @@ export function buildPalaceContext(chart: ZiweiCoreResult, palaceId: PalaceId, a
       harmonyB: toPalaceSnapshot(surrounded.career),
       opposite: toPalaceSnapshot(surrounded.opposite),
     },
-    // Phase 1：大限/流年逐宮訊號尚未補齊（見計劃路線圖），先給空陣列，不假裝有資料
+    timeContext: buildTimeContext({
+      ...timeSeed,
+      // 舊的已驗證紀錄尚未帶 timeSeed 時，至少以正式命盤中的陽曆生日補足年齡；
+      // 不重算、不改盤，僅避免新版時間層被舊快取完全掏空。
+      birthDate: timeSeed.birthDate ?? chart.raw.solarDate,
+    }),
+    // Phase 1：大限逐宮訊號尚未補齊，先給空陣列，不假裝有資料
     decadeSignals: [],
     annualSignals: [],
     engineVersion: chart.engineVersion,

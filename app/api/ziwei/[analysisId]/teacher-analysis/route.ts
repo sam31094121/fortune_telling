@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
-import { getVerifiedZiweiChart } from '@/lib/ziwei-chart-store';
+import { getVerifiedZiweiChartRecord } from '@/lib/ziwei-chart-store';
 import { buildPalaceContext, ZIWEI_TEACHER_PALACE_ORDER } from '@/lib/ziwei-teacher/palace-context';
 import { runTeacher } from '@/lib/ziwei-teacher/teachers';
 import type { PalaceId, TeacherId } from '@/lib/ziwei-teacher/types';
@@ -17,7 +17,7 @@ import type { PalaceId, TeacherId } from '@/lib/ziwei-teacher/types';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const PROMPT_VERSION = 'teacher-v4-grounded-atmosphere';
+const PROMPT_VERSION = 'teacher-v6-time-evidence';
 
 type RouteContext = { params: Promise<{ analysisId: string }> };
 
@@ -49,20 +49,22 @@ export async function POST(request: Request, context: RouteContext) {
     return friendlyErrorResponse(requestId, 'INVALID_TEACHER_ID', '老師參數不正確。', 400);
   }
 
-  const chart = getVerifiedZiweiChart(analysisId);
-  if (!chart) {
+  const record = getVerifiedZiweiChartRecord(analysisId);
+  if (!record) {
     // 規格「十三」的 Gate 精神：查不到已驗證命盤，老師不解讀
     return friendlyErrorResponse(requestId, 'CHART_NOT_FOUND', '找不到已驗證的命盤，請重新完成一次紫微分析。', 404);
   }
 
-  const cacheKey = hashedCacheKey([analysisId, palaceId, teacherId, chart.engineVersion, PROMPT_VERSION]);
+  const chart = record.chart;
+  const nowBucket = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' }).format(new Date());
+  const cacheKey = hashedCacheKey([analysisId, palaceId, teacherId, chart.engineVersion, PROMPT_VERSION, nowBucket]);
   const cached = teacherCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION_MS) {
     return NextResponse.json({ ok: true, requestId, cached: true, data: cached.result }, { headers: { 'Cache-Control': 'no-store' } });
   }
 
   try {
-    const context = buildPalaceContext(chart, palaceId, analysisId);
+    const context = buildPalaceContext(chart, palaceId, analysisId, record.timeSeed);
     const result = await runTeacher(teacherId, context);
     teacherCache.set(cacheKey, { result, timestamp: Date.now() });
     return NextResponse.json({ ok: true, requestId, cached: false, data: result }, { headers: { 'Cache-Control': 'no-store' } });

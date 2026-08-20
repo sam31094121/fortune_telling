@@ -74,6 +74,11 @@ function renderContext(context: PalaceAnalysisContext): string {
   ].join('\n\n');
 }
 
+function renderTimeContext(context: PalaceAnalysisContext): string {
+  const time = context.timeContext;
+  return `【當下時間層】\n目前年齡：${time.currentAge === null ? '資料不足' : `${time.currentAge} 歲`}\n流年：${time.annualYear}${time.annualLevel ? `・${time.annualLevel}` : ''}${time.annualTheme ? `\n流年主題：${time.annualTheme}` : ''}\n查看時段：${time.readingPeriodLabel}`;
+}
+
 const RULE_PREFACE = `你只能解讀以下已由正式紫微斗數引擎驗證過的命盤資料。
 禁止：新增星曜、新增宮位、改四化、猜三方四正、保證未來事件、把規則推論宣稱為科學定論。
 如果提供的資料不足以回答，必須明確回傳 "${INSUFFICIENT_DATA}"，不得補故事假裝完整。`;
@@ -113,6 +118,8 @@ function buildStructurePrompt(context: PalaceAnalysisContext): string {
 語氣：理性、精準、專業、結論先行。禁止出現任何人生雞湯或勵志語句。
 
 ${renderContext(context)}
+
+${renderTimeContext(context)}
 
 請依上述固定順序輸出 JSON。`;
 }
@@ -169,6 +176,8 @@ function buildLifePrompt(context: PalaceAnalysisContext): string {
 
 ${renderContext(context)}
 
+${renderTimeContext(context)}
+
 請輸出 JSON。`;
 }
 
@@ -223,6 +232,8 @@ function buildNarrativePrompt(context: PalaceAnalysisContext): string {
 
 ${renderContext(context)}
 
+${renderTimeContext(context)}
+
 請輸出 JSON。`;
 }
 
@@ -249,6 +260,9 @@ export async function runNarrativeTeacher(context: PalaceAnalysisContext): Promi
 
 function buildEvidenceRefs(context: PalaceAnalysisContext): string[] {
   const refs = [`宮位:${context.selectedPalace.palaceName}`];
+  if (context.timeContext.currentAge !== null) refs.push(`目前年齡:${context.timeContext.currentAge}歲`);
+  refs.push(`流年:${context.timeContext.annualYear}`, `當下時段:${context.timeContext.readingPeriodLabel}`);
+  if (context.timeContext.annualTheme) refs.push(`流年主題:${context.timeContext.annualTheme}`);
   context.selectedPalace.majorStars.forEach((s) => refs.push(`主星:${s.name}`));
   context.selectedPalace.transformations.forEach((t) => refs.push(`四化:${t.starName}化${t.type}`));
   refs.push(`三合宮A:${context.threeHarmony.harmonyA.palaceName}`, `三合宮B:${context.threeHarmony.harmonyB.palaceName}`, `對宮:${context.threeHarmony.opposite.palaceName}`);
