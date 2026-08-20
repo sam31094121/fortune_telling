@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -30,6 +30,22 @@ type TaijiDeepField13Props = {
 };
 
 const PARTICLE_COUNT = 280;
+
+/* 同一組霧與光子，分 12 個鏡頭調度。沒有新增幾何或 draw call。 */
+const DEEP_CUTS = [
+  { mist: 0.105, inner: 0.070, particles: 0.24, size: 0.027, scale: 1.00, drift: 0.010, mistColor: '#d4af72', innerColor: '#6d7f98' },
+  { mist: 0.088, inner: 0.094, particles: 0.29, size: 0.029, scale: 1.04, drift: 0.015, mistColor: '#9fc4e8', innerColor: '#c9c9d6' },
+  { mist: 0.070, inner: 0.118, particles: 0.34, size: 0.031, scale: 1.08, drift: 0.020, mistColor: '#8d7fbe', innerColor: '#6a5acd' },
+  { mist: 0.058, inner: 0.132, particles: 0.38, size: 0.032, scale: 1.12, drift: 0.026, mistColor: '#62557f', innerColor: '#4b3f72' },
+  { mist: 0.046, inner: 0.102, particles: 0.31, size: 0.028, scale: 1.16, drift: 0.008, mistColor: '#4d5564', innerColor: '#5a5a5a' },
+  { mist: 0.062, inner: 0.082, particles: 0.42, size: 0.035, scale: 1.21, drift: 0.039, mistColor: '#8b4c3f', innerColor: '#ff6a3d' },
+  { mist: 0.038, inner: 0.148, particles: 0.55, size: 0.040, scale: 1.26, drift: 0.051, mistColor: '#bfc7d3', innerColor: '#fff6dc' },
+  { mist: 0.075, inner: 0.120, particles: 0.48, size: 0.036, scale: 1.31, drift: 0.046, mistColor: '#f5d987', innerColor: '#fff2a8' },
+  { mist: 0.054, inner: 0.136, particles: 0.46, size: 0.034, scale: 1.35, drift: 0.033, mistColor: '#8f72ba', innerColor: '#b388ff' },
+  { mist: 0.034, inner: 0.062, particles: 0.19, size: 0.024, scale: 1.39, drift: 0.006, mistColor: '#31526e', innerColor: '#3a6ea5' },
+  { mist: 0.018, inner: 0.030, particles: 0.10, size: 0.019, scale: 1.42, drift: 0.002, mistColor: '#171725', innerColor: '#1a1a2e' },
+  { mist: 0.085, inner: 0.154, particles: 0.62, size: 0.043, scale: 1.48, drift: 0.055, mistColor: '#c89d48', innerColor: '#ffd76a' },
+] as const;
 
 function createDeepFieldPositions() {
   const positions = new Float32Array(PARTICLE_COUNT * 3);
@@ -61,13 +77,18 @@ export default function TaijiDeepField13({ active, step }: TaijiDeepField13Props
   const mistRef = useRef<THREE.MeshBasicMaterial>(null);
   const innerMistRef = useRef<THREE.MeshBasicMaterial>(null);
   const particlesRef = useRef<THREE.PointsMaterial>(null);
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    if (active) setArmed(true);
+  }, [active]);
   const geometry = useMemo(() => {
+    if (!armed) return null;
     const next = new THREE.BufferGeometry();
     next.setAttribute('position', new THREE.BufferAttribute(createDeepFieldPositions(), 3));
     return next;
-  }, []);
+  }, [armed]);
 
-  useEffect(() => () => geometry.dispose(), [geometry]);
+  useEffect(() => () => geometry?.dispose(), [geometry]);
 
   useFrame((state, delta) => {
     const group = groupRef.current;
@@ -80,16 +101,24 @@ export default function TaijiDeepField13({ active, step }: TaijiDeepField13Props
     group.visible = presence > 0.006;
 
     const t = state.clock.elapsedTime;
-    const depth = THREE.MathUtils.clamp((step - 13) / 11, 0, 1);
-    group.rotation.y += frameDelta * (0.012 + depth * 0.006);
-    group.rotation.z = Math.sin(t * 0.07) * 0.025;
-    group.scale.setScalar(1 + Math.sin(t * 0.18) * 0.012 + depth * 0.05);
+    const cutIndex = THREE.MathUtils.clamp(step, 13, 24) - 13;
+    const cut = DEEP_CUTS[cutIndex];
+    group.rotation.y += frameDelta * (0.010 + cut.drift * 0.34);
+    group.rotation.z = Math.sin(t * (0.055 + cut.drift)) * (0.014 + cut.drift * 0.25);
+    group.scale.setScalar(cut.scale + Math.sin(t * (0.15 + cut.drift)) * 0.009);
 
-    if (mistRef.current) mistRef.current.opacity = presence * (0.11 + depth * 0.025);
-    if (innerMistRef.current) innerMistRef.current.opacity = presence * (0.075 + Math.sin(t * 0.21) * 0.012);
+    if (mistRef.current) {
+      mistRef.current.opacity = presence * cut.mist;
+      mistRef.current.color.set(cut.mistColor);
+    }
+    if (innerMistRef.current) {
+      innerMistRef.current.opacity = presence * (cut.inner + Math.sin(t * (0.18 + cut.drift)) * 0.008);
+      innerMistRef.current.color.set(cut.innerColor);
+    }
     if (particlesRef.current) {
-      particlesRef.current.opacity = presence * (0.26 + depth * 0.08);
-      particlesRef.current.size = 0.028 + depth * 0.006;
+      particlesRef.current.opacity = presence * cut.particles;
+      particlesRef.current.size = cut.size;
+      particlesRef.current.color.set(cut.innerColor);
     }
   });
 
@@ -103,9 +132,11 @@ export default function TaijiDeepField13({ active, step }: TaijiDeepField13Props
         <sphereGeometry args={[1, 40, 28]} />
         <meshBasicMaterial ref={innerMistRef} color="#6d7f98" transparent opacity={0} side={THREE.BackSide} depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
-      <points geometry={geometry}>
-        <pointsMaterial ref={particlesRef} color="#f5dfad" transparent opacity={0} size={0.028} sizeAttenuation depthWrite={false} blending={THREE.AdditiveBlending} />
-      </points>
+      {geometry && (
+        <points geometry={geometry}>
+          <pointsMaterial ref={particlesRef} color="#f5dfad" transparent opacity={0} size={0.028} sizeAttenuation depthWrite={false} blending={THREE.AdditiveBlending} />
+        </points>
+      )}
     </group>
   );
 }

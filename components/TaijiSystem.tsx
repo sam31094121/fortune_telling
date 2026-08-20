@@ -292,14 +292,12 @@ function colorWithAlpha(hex: string, alpha: number) {
 }
 
 /* ============================================================
-   解析度政策（2026-08-17 依業主指示：只准往上，禁止往下）
+   解析度政策
    ------------------------------------------------------------
-   內部渲染（canvas backing store）保底 1080p——不論手機或桌機。
-   卡片 CSS 只有 360px 寬，所以 DPR 是「反推」出來的：dpr = 1080 / 卡片寬。
-   強力手機拉到 1296p、桌機 1440p、高階桌機 1620p。
-   環境光探針、陰影、貼圖、異方性全部同步升級，沒有任何一項下修。
+   太極卡片不能因為 CSS 尺寸小，就把小手機強迫渲成 1080p 以上；那會讓
+   DPR 飆到 3~4 倍，透明光效與點雲同時吃掉 GPU。改成依裝置設品質上限，
+   先守住手感，再保留足夠的球緣清晰度。
 ============================================================ */
-const RESOLUTION_FLOOR = 1080; // 鐵板：內部渲染的短邊像素數不得低於此
 
 type TaijiQuality = {
   minDpr: number;
@@ -313,12 +311,12 @@ type TaijiQuality = {
 
 function useTaijiCanvasQuality(wrapperRef: { current: HTMLElement | null }) {
   const [quality, setQuality] = useState<TaijiQuality>({
-    minDpr: 3,
-    maxDpr: 3,
-    environmentResolution: 512,
-    shadowResolution: 1024,
-    quantumPairs: 3200,
-    quantumLinks: 110,
+    minDpr: 1,
+    maxDpr: 1.75,
+    environmentResolution: 256,
+    shadowResolution: 512,
+    quantumPairs: 1400,
+    quantumLinks: 64,
     ultraTexture: false,
   });
 
@@ -327,25 +325,23 @@ function useTaijiCanvasQuality(wrapperRef: { current: HTMLElement | null }) {
       const nav = navigator as NavigatorWithDeviceMemory;
       const cores = nav.hardwareConcurrency ?? 4;
       const memory = nav.deviceMemory ?? 4;
-      const box = wrapperRef.current?.getBoundingClientRect();
-      const cssSize = Math.max(220, Math.min(box?.width || 360, box?.height || 360));
       const isCompactViewport = window.matchMedia('(max-width: 760px)').matches;
       const strongPhone = cores >= 8 && memory >= 6;
       const strongDesktop = cores >= 8 && memory >= 8;
 
-      const targetPixels = isCompactViewport
-        ? (strongPhone ? 1296 : RESOLUTION_FLOOR)
-        : (strongDesktop ? 1620 : 1440);
-      const floorDpr = RESOLUTION_FLOOR / cssSize;
-      const targetDpr = Math.max(floorDpr, targetPixels / cssSize);
+      const deviceDpr = Math.max(1, window.devicePixelRatio || 1);
+      const maxDpr = isCompactViewport
+        ? Math.min(deviceDpr, strongPhone ? 2.1 : 1.7)
+        : Math.min(deviceDpr, strongDesktop ? 2.25 : 1.8);
+      const minDpr = Math.min(1.25, maxDpr);
 
       const next: TaijiQuality = {
-        minDpr: floorDpr, // R3F 只會在 [min,max] 之間夾——下限就是 1080p
-        maxDpr: targetDpr,
-        environmentResolution: isCompactViewport ? 512 : 1024,
-        shadowResolution: isCompactViewport ? 1024 : 2048,
-        quantumPairs: isCompactViewport ? (strongPhone ? 3600 : 2600) : 6400,
-        quantumLinks: isCompactViewport ? 84 : 180,
+        minDpr,
+        maxDpr,
+        environmentResolution: isCompactViewport ? 256 : 512,
+        shadowResolution: isCompactViewport ? 512 : 1024,
+        quantumPairs: isCompactViewport ? (strongPhone ? 1800 : 1200) : 3200,
+        quantumLinks: isCompactViewport ? 56 : 110,
         ultraTexture: !isCompactViewport || (strongPhone && memory >= 6),
       };
       /* 【穩定性｜2026-08-17】只有數值真的變了才更新 state。
@@ -1065,6 +1061,14 @@ function TaijiCore({
   const prevAttractRef = useRef(0);
 
   const separate = stage !== 'TAIJI';
+  /*
+     第 13 層後不能只等使用者手動轉顯微鏡倍率；24 響本身也是同一部
+     深潛電影的鏡頭。把第 13→24 層映射到深淵場既有的 12→25 深度，
+     所有變化仍沿用同一顆點雲與 shader，只更新 uniform。
+  */
+  const journeyDepth = step24 >= 13
+    ? 12 + ((Math.min(24, step24) - 13) / 11) * 13
+    : 0;
   /* 鐵律：兩球絕對不碰撞不重疊——球半徑 0.82×0.88≈0.72，兩心距 2×0.88=1.76 > 1.44，任何角度都不相交 */
   const offset = separate ? 0.88 : 0;
   const scale = separate ? 0.88 : 1;
@@ -1239,7 +1243,7 @@ function TaijiCore({
     }
     /* 深淵場（第 14~24 層）：同樣站著不動，共用同一顆父層旋轉抵銷邏輯 */
     if (abyssGroupRef.current) {
-      abyssGroupRef.current.visible = zoomD > 4.2 || warming;
+      abyssGroupRef.current.visible = zoomD > 4.2 || journeyDepth > 0 || warming;
       if (abyssGroupRef.current.visible) {
         abyssGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
       }
@@ -1398,6 +1402,7 @@ function TaijiCore({
         <TaijiAbyssField
           magRef={magRef}
           warmRef={warmRef}
+          journeyDepth={journeyDepth}
           yinColor="#9fc4e8"
           yangColor={TAIJI_BENCHMARK_THEME.primary}
           sparkColor="#fff6dc"
@@ -1791,9 +1796,8 @@ export default function TaijiSystem({
           camera={{ position: [0, 0, 5.1], fov: 42 }}
           dpr={[canvasQuality.minDpr, canvasQuality.maxDpr]}
           gl={{
-            /* 2026-08-17 實測：1080p 超取樣之下再開 MSAA 幾乎零成本（64–73 vs 64–71 FPS），
-               那就留著——超取樣＋MSAA 雙層反鋸齒，球緣與金線在任何裝置上都是乾淨的。 */
-            antialias: true,
+            /* DPR 已保留球緣清晰度；關閉 MSAA 以避免手機在透明特效下多一層 framebuffer 成本。 */
+            antialias: false,
             powerPreference: 'high-performance',
             alpha: true,
             stencil: false,

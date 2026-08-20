@@ -10,7 +10,7 @@
 import { useRef, useState } from 'react';
 import { toBaziCustomerView, validateBaziCustomerViewPipeline } from './adapter';
 import { BaziHeroCard } from './BaziHeroCard';
-import { TeacherSummary } from './TeacherSummary';
+import { BaziTeacherModes } from './BaziTeacherModes';
 import { ProfessionalBaziTable } from './ProfessionalBaziTable';
 import { BaziBottomActions } from './BaziBottomActions';
 
@@ -53,10 +53,10 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
         {level === 'teacher' && (
           <div>
             <div className="mb-3 flex items-baseline justify-between">
-              <h3 className="text-xl font-black text-[color:var(--text-main)]">老師專業解盤</h3>
-              <p className="text-xs font-bold text-white/40">先排準，再解讀。</p>
+              <h3 className="text-xl font-black text-[color:var(--text-main)]">三位老師解盤</h3>
+              <p className="text-xs font-bold text-white/40">同盤鎖定，切換解讀。</p>
             </div>
-            <TeacherSummary view={view} />
+            <BaziTeacherModes view={view} />
           </div>
         )}
         {level === 'full' && (

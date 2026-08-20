@@ -184,6 +184,23 @@ export default function NumerologyPage() {
             </div>
           </div>
 
+          <div className="relative mt-5 grid grid-cols-3 overflow-hidden rounded-2xl border border-white/10 bg-black/25 text-center shadow-[inset_0_0_26px_rgba(34,211,238,0.06)]">
+            <div className="relative px-2 py-3">
+              <span className="absolute inset-y-2 right-0 w-px bg-white/10" />
+              <p className="text-[9px] font-black tracking-[0.2em] text-emerald-200">GOOD</p>
+              <p className="mt-1 text-xs font-black text-emerald-50">可用推力</p>
+            </div>
+            <div className="relative px-2 py-3">
+              <span className="absolute inset-y-2 right-0 w-px bg-white/10" />
+              <p className="text-[9px] font-black tracking-[0.2em] text-rose-200">WATCH</p>
+              <p className="mt-1 text-xs font-black text-rose-50">先看風險</p>
+            </div>
+            <div className="px-2 py-3">
+              <p className="text-[9px] font-black tracking-[0.2em] text-amber-200">TODAY</p>
+              <p className="mt-1 text-xs font-black text-amber-50">一個行動</p>
+            </div>
+          </div>
+
           {/* S01-S03 接收/運算/判定狀態卡已隱藏（2026-08-10）：客戶不用看 */}
           <div className="mt-5 hidden grid-cols-3 gap-2">
             {['接收', '運算', '判定'].map((step, index) => {
@@ -286,6 +303,13 @@ export default function NumerologyPage() {
 
         {result && level && (
           <section className="space-y-4 rounded-[26px] border border-amber-200/20 bg-[linear-gradient(145deg,rgba(12,15,22,0.98),rgba(28,23,14,0.95),rgba(8,10,16,0.98))] p-4 shadow-[0_22px_70px_rgba(0,0,0,0.34)] sm:p-5">
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+              <div className="flex items-center gap-2 text-[10px] font-black tracking-[0.16em] text-cyan-100/75">
+                <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,0.9)]" />
+                NUMBER SIGNAL · RESULT READY
+              </div>
+              <span className="font-mono text-[10px] font-black text-amber-100/75">{result.valueMasked ?? result.value}</span>
+            </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200">AI FINAL</p>
               <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
@@ -320,6 +344,20 @@ export default function NumerologyPage() {
                   保留好的力量，避開最低分的風險，今天只完成一個最小決定。
                 </p>
               </article>
+            </div>
+
+            <div className="grid grid-cols-3 overflow-hidden rounded-2xl border border-white/10 bg-black/20 text-center">
+              {[
+                ['01', '好在哪裡', '保留最強推力'],
+                ['02', '壞在哪裡', '先收最低風險'],
+                ['03', '今天怎麼走', '只做一個決定'],
+              ].map(([order, title, caption], index) => (
+                <div key={order} className={`px-2 py-3 ${index < 2 ? 'border-r border-white/10' : ''}`}>
+                  <p className="font-mono text-[10px] font-black text-amber-200/85">{order}</p>
+                  <p className="mt-1 text-xs font-black text-cyan-50">{title}</p>
+                  <p className="mt-1 text-[10px] font-semibold leading-4 text-white/48">{caption}</p>
+                </div>
+              ))}
             </div>
 
             <details open className="rounded-2xl border border-cyan-200/15 bg-cyan-300/[0.045] p-4">

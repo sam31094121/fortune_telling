@@ -180,6 +180,7 @@ const ABYSS_FRAGMENT = /* glsl */ `
 export default function TaijiAbyssField({
   magRef,
   warmRef,
+  journeyDepth = 0,
   yinColor,
   yangColor,
   sparkColor,
@@ -188,6 +189,11 @@ export default function TaijiAbyssField({
 }: {
   magRef: MagRef;
   warmRef: WarmRef;
+  /**
+   * 24 層敘事旅程的深度。顯微鏡倍率與點擊旅程共用同一條深潛曲線：
+   * 第 13 層開門，第 24 層回到完整太極。這只改 uniform，不重建幾何。
+   */
+  journeyDepth?: number;
   yinColor: string;
   yangColor: string;
   sparkColor: string;
@@ -265,10 +271,13 @@ export default function TaijiAbyssField({
   }, [built, coreTexture, coreBumpMap]);
 
   useFrame((state, delta) => {
-    const d = magRef.current.current * MAG_DECADES;
-    const warming = warmRef.current.warming;
+    const magnifierDepth = magRef.current.current * MAG_DECADES;
+    const d = Math.max(magnifierDepth, journeyDepth);
     if (!armed || !built) {
-      if (warming || d > ABYSS_IN - 0.5 || magRef.current.target * MAG_DECADES > ABYSS_IN - 0.5) setArmed(true);
+      if (
+        d > ABYSS_IN - 0.5 ||
+        magRef.current.target * MAG_DECADES > ABYSS_IN - 0.5
+      ) setArmed(true);
       return;
     }
 
@@ -276,7 +285,7 @@ export default function TaijiAbyssField({
     const reveal = smoothstep(ABYSS_IN, ABYSS_FULL, d);
     const showLayer = reveal > 0.002;
     if (root) {
-      root.visible = showLayer || warming;
+      root.visible = showLayer;
       root.scale.setScalar(showLayer ? 1 : 0.0001);
     }
     if (!showLayer) return;

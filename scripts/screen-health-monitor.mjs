@@ -18,6 +18,7 @@ const STARTUP_TIMEOUT_MS = Number(process.env.SCREEN_HEALTH_STARTUP_TIMEOUT_MS |
 const args = new Set(process.argv.slice(2));
 const WATCH = args.has('--watch');
 const AUTO_REPAIR = !args.has('--no-repair');
+const CLEAR_CACHE_DURING_REPAIR = args.has('--clear-cache');
 const REPORT_DIR = path.join(PROJECT_ROOT, 'reports', 'screen-health');
 const REPORT_FILE = path.join(REPORT_DIR, 'latest.json');
 const LOG_FILE = path.join(REPORT_DIR, 'monitor.log');
@@ -227,6 +228,15 @@ async function stopPortProcesses() {
   }
 }
 
+async function waitForPortToRelease() {
+  const deadline = Date.now() + 15_000;
+  while (Date.now() < deadline) {
+    if ((await getPortPids()).length === 0) return true;
+    await sleep(500);
+  }
+  return false;
+}
+
 async function clearNextCache() {
   const nextCache = path.resolve(PROJECT_ROOT, '.next');
   const projectRootWithSep = `${path.resolve(PROJECT_ROOT)}${path.sep}`;
@@ -276,8 +286,12 @@ async function waitForAllRoutesHealthy() {
 async function repairScreenHealth(reason) {
   await log(`Screen health recovery started: ${reason}`, 'REPAIR');
   await stopPortProcesses();
-  await sleep(1500);
-  await clearNextCache();
+  if (!(await waitForPortToRelease())) {
+    throw new Error(`port ${PORT} is still in use; skipped cache cleanup to protect the active service`);
+  }
+  if (CLEAR_CACHE_DURING_REPAIR) {
+    await clearNextCache();
+  }
   const pid = startDevServer();
   await log(`Started Next.js dev server on port ${PORT} (PID ${pid}).`, 'REPAIR');
 
