@@ -87,6 +87,8 @@ export interface StructureTeacherResult {
   importantSupportingStars: string[];
   structuralStrength: string;
   structuralPressure: string;
+  pastStructure: string;
+  futureTendency: string;
   conclusion: string;
 
   evidenceRefs: string[];
@@ -95,7 +97,10 @@ export interface StructureTeacherResult {
 export interface LifeTeacherResult {
   teacherId: 'LIFE_MASTER';
 
+  fearScene: string;
   lifeMeaning: string;
+  pastPattern: string;
+  futureRiskWindow: string;
   strengthInReality: string;
   repeatedPattern: string;
   blindSpot: string;
@@ -114,6 +119,8 @@ export interface NarrativeTeacherResult {
   mainCharacter: string;
   symbols: Array<{ symbol: string; meaning: string; sourceRef: string }>;
   story: string;
+  pastEcho: string;
+  futureShadow: string;
   finalMetaphor: string;
 
   evidenceRefs: string[];

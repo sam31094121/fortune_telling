@@ -542,9 +542,11 @@ export default function BaziPage() {
               name: profile.name ?? '',
               birthDate: profile.birthDate ?? '',
               birthTime: profile.birthTime ?? '',
+              birthHourBranch: profile.birthHourBranch ?? undefined,
               gender: (profile.gender ?? '') as '' | Gender,
               country: profile.country ?? current.country,
               city: profile.city ?? current.city,
+              timeUnknown: profile.timeUnknown,
             }));
           }}
           onSubmit={() => { void handleSubmit(); }}

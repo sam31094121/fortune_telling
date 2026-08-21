@@ -21,7 +21,7 @@ const OPTIONS: Array<{
 }> = [
   {
     target: 'self',
-    label: '\u81ea\u5df1',
+    label: '\u6211\u81ea\u5df1',
     description: '\u5beb\u5165\u6210\u9577\u4e2d\u5fc3',
     accent: '\u9577\u671f\u8ffd\u8e64',
   },
@@ -85,16 +85,16 @@ export default function IdentitySplitSelector({ className = '', compact = false 
   }
 
   return (
-    <section className={`rounded-2xl border border-cyan-200/15 bg-black/18 p-3 shadow-[0_12px_32px_rgba(2,6,23,0.18)] backdrop-blur-sm sm:p-4 ${className}`}>
-      <div className="hidden flex-col gap-1.5 sm:flex sm:flex-row sm:items-end sm:justify-between">
+    <section className={`rounded-2xl border-2 bg-black/18 p-3 shadow-[0_12px_32px_rgba(2,6,23,0.18)] backdrop-blur-sm sm:p-4 ${selected === null ? 'animate-[pulse_1.6s_ease-in-out_infinite] border-amber-100 shadow-[0_0_28px_rgba(251,191,36,0.32)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#080a10]' : 'border-cyan-200/25'} ${className}`}>
+      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-200/75">TARGET</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-200/75">0 · ANALYSIS TARGET</p>
           <h2 className="mt-1 text-base font-black leading-tight text-cyan-50 sm:text-lg">
-            {'\u5206\u6790\u5c0d\u8c61'}
+            {'先選擇：自己使用，還是親朋好友使用'}
           </h2>
         </div>
-        <p className="text-xs font-semibold leading-5 text-[color:var(--text-muted)]">
-          {'\u9078\u64c7\u672c\u6b21\u8cc7\u6599\u5c6c\u65bc\u8ab0'}
+        <p className="text-xs font-semibold leading-5 text-amber-100/78">
+          {selected === null ? '請點選一個對象後再開始判定' : '已選擇，可繼續輸入與判定'}
         </p>
       </div>
 
@@ -112,7 +112,7 @@ export default function IdentitySplitSelector({ className = '', compact = false 
               }}
               className={`group rounded-xl border px-4 py-3 text-left transition-all active:scale-[0.99] ${
                 active
-                  ? 'border-amber-200/65 bg-amber-300/14 shadow-[0_0_24px_rgba(251,191,36,0.16)]'
+                  ? 'animate-[pulse_1.6s_ease-in-out_infinite] border-2 border-amber-100 bg-amber-300/22 shadow-[0_0_28px_rgba(251,191,36,0.38)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#080a10]'
                   : 'border-white/10 bg-white/[0.035] hover:border-cyan-200/35 hover:bg-cyan-200/[0.06]'
               }`}
             >

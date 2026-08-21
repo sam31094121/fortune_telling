@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
+import { GoogleGenAI } from '@google/genai';
 
 import {
   NUMBER_CORE_ENGINE_VERSION,
@@ -17,11 +18,22 @@ export const revalidate = 0;
 type NumberFortuneRequest = {
   mode?: unknown;
   value?: unknown;
+  purpose?: unknown;
+};
+
+type NumberPurpose = 'general' | 'plate' | 'phone' | 'birthdate';
+
+const PURPOSE_PROMPTS: Record<NumberPurpose, string> = {
+  general: '萬用碼：不預設任何特定用途，只說明整體數字結構。',
+  plate: '車牌號碼：直接談這張車牌的數字結構在出行、往來與使用安排上的優勢與注意點；不得宣稱車況、事故或行車安全結果。',
+  phone: '電話號碼：直接談這支電話的數字結構在人際聯絡、工作溝通與回應節奏上的優勢與注意點。',
+  birthdate: '出生年月日：直接談這組生日數字在個人節奏與成長安排上的優勢與注意點。',
 };
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 30;
 const requestBuckets = new Map<string, { count: number; resetAt: number }>();
+const GOOGLE_EXPLANATION_TIMEOUT_MS = 10_000;
 
 function hashValue(value: string) {
   return createHash('sha256')
@@ -62,6 +74,40 @@ async function withTimeout<T>(task: Promise<T>, ms: number) {
     ]);
   } finally {
     if (timer) clearTimeout(timer);
+  }
+}
+
+/** Google 只負責把既有數字核心的結果說清楚；不參與分數計算、不修改好壞判定。 */
+function resolvePurpose(value: unknown): NumberPurpose {
+  return value === 'plate' || value === 'phone' || value === 'birthdate' ? value : 'general';
+}
+
+async function explainNumberWithGoogle(result: NumberAnalysisResponse, purpose: NumberPurpose): Promise<string | null> {
+  const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (!apiKey) return null;
+
+  const strongest = Object.entries(result.matrix).sort(([, left], [, right]) => right - left).slice(0, 2);
+  const weakest = Object.entries(result.matrix).sort(([, left], [, right]) => left - right).slice(0, 2);
+  const ai = new GoogleGenAI({ apiKey });
+
+  try {
+    const response = await withTimeout(
+      ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: `你是「Google 數字解說」。只能根據下面已完成的固定數字規則結果，用繁體中文寫 80 到 140 字的白話說明。
+規則：不得重新算分、不得宣稱科學準確率、不得預言或保證結果；用「傾向、可留意、適合」等條件式語言。
+用途：${PURPOSE_PROMPTS[purpose]}
+固定總分：${result.finalScore}；固定等級：${result.fortuneLevel}；最強面向：${strongest.map(([key, score]) => `${key} ${score}`).join('、')}；最需留意：${weakest.map(([key, score]) => `${key} ${score}`).join('、')}；規則摘要：${result.summary}
+請直接輸出解說本文，不要標題、不要條列。`,
+        config: { temperature: 0.45, maxOutputTokens: 220 },
+      }),
+      GOOGLE_EXPLANATION_TIMEOUT_MS,
+    );
+    const text = response.text?.trim().replace(/\s+/g, ' ');
+    return text ? text.slice(0, 420) : null;
+  } catch (error) {
+    console.warn('[number-fortune] Google explanation skipped', error instanceof Error ? error.message : String(error));
+    return null;
   }
 }
 
@@ -157,6 +203,7 @@ export async function POST(request: Request) {
   }
 
   const rawValue = body.value as string;
+  const purpose = resolvePurpose(body.purpose);
   const analysisHash = hashValue(rawValue);
   const analysisId = hashToUuid(analysisHash);
   const result = analyzeNumberCore(rawValue);
@@ -165,11 +212,14 @@ export async function POST(request: Request) {
   }
 
   const fiveElement = buildNumberFiveElementResult(result);
-  const response: NumberAnalysisResponse & { analysisId: string; requestId: string; mode: NumberAnalysisMode; fiveElement: ReturnType<typeof buildNumberFiveElementResult> } = {
+  const googleExplanation = await explainNumberWithGoogle(result, purpose);
+  const response: NumberAnalysisResponse & { analysisId: string; requestId: string; mode: NumberAnalysisMode; purpose: NumberPurpose; fiveElement: ReturnType<typeof buildNumberFiveElementResult>; googleExplanation?: string; googleProvider?: 'Google Gemini' } = {
     ...result,
     analysisId,
     requestId,
+    purpose,
     fiveElement,
+    ...(googleExplanation ? { googleExplanation, googleProvider: 'Google Gemini' as const } : {}),
   };
 
   await persistAnalysisResult(response, rawValue, analysisHash, analysisId);

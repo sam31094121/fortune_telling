@@ -17,7 +17,7 @@ import type { PalaceId, TeacherId } from '@/lib/ziwei-teacher/types';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const PROMPT_VERSION = 'teacher-v6-time-evidence';
+const PROMPT_VERSION = 'teacher-v11-horror-ghost-ethical-arc';
 
 type RouteContext = { params: Promise<{ analysisId: string }> };
 

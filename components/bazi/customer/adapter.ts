@@ -46,6 +46,14 @@ export interface CustomerDaYun {
 
 export interface CustomerAnnual { year: number; pillar: string; tenGod?: string; element: string; focus?: string }
 
+export interface BaziTimeContext {
+  age: number | null;
+  currentYear: number;
+  dayNight: '白天' | '夜晚';
+  activeDaYun: CustomerDaYun | null;
+  annualLuck: CustomerAnnual | null;
+}
+
 export interface CustomerTeacherSection { title: string; basis?: string; content: string }
 
 export interface BaziCustomerView {
@@ -71,6 +79,8 @@ export interface BaziCustomerView {
     annual: CustomerAnnual[];
     verified: boolean;
   };
+  /** 當下情境層：只讀鎖定命盤的既有大運／流年，不重算四柱。 */
+  timeContext: BaziTimeContext;
   reinforcement: { principle: string; basisSummary: string; priorityOrder: Array<{ rank: number; displayName?: string; title?: string; reason?: string }> };
   /** 老師版五行 Drill Down 證據：全部來自後端 elementStatistics，未提供的細項誠實標示 */
   elementEvidence: Array<{ element: string; percent: number | null; stems: number; branches: number; hiddenStems: number; tenGodLabels: string[] }>;
@@ -156,6 +166,26 @@ function toFiveElementOrbitView(result: BackendResult): FiveElementOrbitViewMode
   };
 }
 
+function buildTimeContext(result: BackendResult): BaziTimeContext {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const birth = result.input?.birthDate ? new Date(`${result.input.birthDate}T00:00:00`) : null;
+  const age = birth && !Number.isNaN(birth.getTime())
+    ? currentYear - birth.getFullYear() - (now < new Date(currentYear, birth.getMonth(), birth.getDate()) ? 1 : 0)
+    : null;
+  const daYun = result.luckCycles.find((item) => typeof item.startYear === 'number' && typeof item.endYear === 'number' && currentYear >= item.startYear && currentYear <= item.endYear) ?? null;
+  const annual = result.annualFortunes.find((item) => item.year === currentYear) ?? result.annualFortunes[0] ?? null;
+  const hour = now.getHours();
+
+  return {
+    age: typeof age === 'number' && age >= 0 ? age : null,
+    currentYear,
+    dayNight: hour >= 6 && hour < 18 ? '白天' : '夜晚',
+    activeDaYun: daYun,
+    annualLuck: annual,
+  };
+}
+
 export function toBaziCustomerView(result: BackendResult, hourUnknown: boolean): BaziCustomerView {
   const pc = result.professionalChart;
   return {
@@ -187,6 +217,7 @@ export function toBaziCustomerView(result: BackendResult, hourUnknown: boolean):
       annual: result.annualFortunes,
       verified: pc.verification.readyForInterpretation,
     },
+    timeContext: buildTimeContext(result),
     reinforcement: {
       principle: (result as unknown as { aiReinforcementPlan?: { principle?: string } }).aiReinforcementPlan?.principle ?? '',
       basisSummary: (result as unknown as { aiReinforcementPlan?: { basisSummary?: string } }).aiReinforcementPlan?.basisSummary ?? '',

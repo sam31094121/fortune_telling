@@ -1,6 +1,6 @@
 export const NUMBER_CORE_ENGINE_VERSION = 'V5.0.0';
 
-export type NumberAnalysisMode = 'last4' | 'six6' | 'digit8' | 'phone10';
+export type NumberAnalysisMode = 'digit2' | 'digit3' | 'last4' | 'digit5' | 'six6' | 'digit7' | 'digit8' | 'digit9' | 'phone10';
 
 export type NumberFortuneLevel =
   | '大吉'
@@ -671,7 +671,7 @@ function scoreFromIndexes(indexes: NumberAnalysisIndexes) {
 }
 
 function confidenceFromEvidence(mode: NumberAnalysisMode, indexes: NumberAnalysisIndexes, evidence: NumberAnalysisEvidence) {
-  const inputCompleteness = mode === 'phone10' ? 100 : mode === 'digit8' ? 94 : mode === 'six6' ? 88 : 80;
+  const inputCompleteness = mode === 'phone10' ? 100 : mode === 'digit9' ? 97 : mode === 'digit8' ? 94 : mode === 'digit7' ? 91 : mode === 'six6' ? 88 : mode === 'digit5' ? 84 : mode === 'last4' ? 80 : mode === 'digit3' ? 70 : 62;
   const ruleCoverage = clamp(60 + evidence.pairPatterns.length * 8 + evidence.triplePatterns.length * 3 + (evidence.mirrorPattern ? 5 : 0));
   const structureConsistency = Math.round((indexes.structure + indexes.balance + indexes.stability) / 3);
   const modelStability = 96;
@@ -709,7 +709,15 @@ function buildText(value: string, mode: NumberAnalysisMode, score: number, level
       ? `八位數字 ${maskNumberValue(value, mode)}`
       : mode === 'six6'
         ? `六位數字 ${value}`
-        : `後四碼 ${value}`;
+        : mode === 'digit5'
+          ? `五位數字 ${value}`
+          : mode === 'digit7'
+            ? `七位數字 ${value}`
+            : mode === 'digit9'
+              ? `九位數字 ${value}`
+              : mode === 'last4'
+                ? `後四碼 ${value}`
+                : `${value.length} 位數字 ${value}`;
   const rule = levelRuleFromScore(score);
   const keyStrength = strengths[0]?.label ?? '整體結構';
   const keyCaution = cautions[0]?.label ?? '節奏管理';
@@ -719,7 +727,9 @@ function buildText(value: string, mode: NumberAnalysisMode, score: number, level
       ? '八碼模式採前段雙碼結構加重後四碼，並交叉檢查全碼統計、整體組合、重複排列與數字根。'
       : mode === 'six6'
         ? '六碼模式採三段雙碼結構，並交叉檢查後四碼、整體組合、重複排列與數字根。'
-        : '後四碼模式以單碼、雙碼、三碼、整體組合、重複排列與數字根加權。';
+        : mode === 'digit2' || mode === 'digit3' || mode === 'digit5' || mode === 'digit7' || mode === 'digit9'
+          ? '中間碼數模式採全碼、前段、後四碼、整體組合、重複排列與數字根交叉加權。'
+          : '後四碼模式以單碼、雙碼、三碼、整體組合、重複排列與數字根加權。';
   const levelExplanation = `${score} 分屬於「${level}」，代表目前數字結構的主軸是「${rule.headline}」${rule.principle}`;
 
   return {
@@ -802,11 +812,16 @@ export function validateNumberCoreInput(value: unknown): NumberAnalysisMode | Nu
   if (!/^\d+$/.test(value)) {
     return { ok: false, message: '只能輸入 0–9，不能包含空格、符號或英文字母。', ruleVersion: NUMBER_CORE_ENGINE_VERSION };
   }
+  if (value.length === 2) return 'digit2';
+  if (value.length === 3) return 'digit3';
   if (value.length === 4) return 'last4';
+  if (value.length === 5) return 'digit5';
   if (value.length === 6) return 'six6';
+  if (value.length === 7) return 'digit7';
   if (value.length === 8) return 'digit8';
+  if (value.length === 9) return 'digit9';
   if (value.length === 10) return 'phone10';
-  return { ok: false, message: '長度僅允許 4 碼、6 碼、8 碼或 10 碼阿拉伯數字。', ruleVersion: NUMBER_CORE_ENGINE_VERSION };
+  return { ok: false, message: '長度僅允許 2 到 10 碼阿拉伯數字。', ruleVersion: NUMBER_CORE_ENGINE_VERSION };
 }
 
 export function analyzeNumberCore(value: string): NumberAnalysisResponse | NumberAnalysisError {
@@ -862,7 +877,8 @@ export function analyzeNumberCore(value: string): NumberAnalysisResponse | Numbe
           { matrix: repeatArrangementMatrix(value), weight: DIGIT8_WEIGHTS.repeatArrangement },
           { matrix: sumRootMatrix(value), weight: DIGIT8_WEIGHTS.sumRoot },
         ])
-    : buildWeightedMatrix([
+    : mode === 'phone10'
+      ? buildWeightedMatrix([
         { matrix: singleDigitMatrix(value), weight: PHONE10_WEIGHTS.fullDigit },
         { matrix: segmentMatrix(value.slice(0, 3)), weight: PHONE10_WEIGHTS.front },
         { matrix: segmentMatrix(value.slice(3, 6)), weight: PHONE10_WEIGHTS.middle },
@@ -877,8 +893,24 @@ export function analyzeNumberCore(value: string): NumberAnalysisResponse | Numbe
         ]), weight: PHONE10_WEIGHTS.back },
         { matrix: combinationMatrix(value, pairPatterns), weight: PHONE10_WEIGHTS.combination },
         { matrix: repeatArrangementMatrix(value), weight: PHONE10_WEIGHTS.repeatArrangement },
-        { matrix: sumRootMatrix(value), weight: PHONE10_WEIGHTS.sumRoot },
-      ]);
+          { matrix: sumRootMatrix(value), weight: PHONE10_WEIGHTS.sumRoot },
+        ])
+      : buildWeightedMatrix([
+          { matrix: singleDigitMatrix(value), weight: 30 },
+          { matrix: segmentMatrix(value.slice(0, Math.ceil(value.length / 2))), weight: 16 },
+          { matrix: buildWeightedMatrix([
+            { matrix: singleDigitMatrix(back), weight: LAST4_WEIGHTS.singleDigit },
+            { matrix: pairMatrix(back, pairPatterns), weight: LAST4_WEIGHTS.pair },
+            { matrix: tripleMatrix(back), weight: LAST4_WEIGHTS.triple },
+            { matrix: wholeMatrix(back), weight: LAST4_WEIGHTS.whole },
+            { matrix: repeatMatrix(back), weight: LAST4_WEIGHTS.repeat },
+            { matrix: arrangementMatrix(back), weight: LAST4_WEIGHTS.arrangement },
+            { matrix: sumRootMatrix(back), weight: LAST4_WEIGHTS.sumRoot },
+          ]), weight: 28 },
+          { matrix: combinationMatrix(value, pairPatterns), weight: 14 },
+          { matrix: repeatArrangementMatrix(value), weight: 6 },
+          { matrix: sumRootMatrix(value), weight: 6 },
+        ]);
 
   const evidence = buildEvidence(value, mode, pairPatterns);
   const indexes = calculateIndexes(matrix, evidence);

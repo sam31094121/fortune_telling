@@ -14180,7 +14180,92 @@ body.app-touching .home-taiji-cinema * {
   animation: tarotPreviewCardSettle 1.25s cubic-bezier(.16, .84, .2, 1) both;
   animation-delay: var(--preview-delay);
   will-change: transform, filter, opacity;
+  transition: transform 520ms cubic-bezier(.22, .78, .2, 1), opacity 260ms ease, filter 260ms ease;
   overflow: hidden;
+}
+
+.tarot-experience-deck-preview--shuffling .tarot-experience-deck-preview__card {
+  animation: none;
+}
+
+/* While the first card travels, the target card moves aside first. This creates
+   a real, visible slot instead of a replacement cut. */
+.tarot-experience-deck-preview--opening-seam .tarot-experience-deck-preview__card--slot {
+  transform:
+    translateX(calc(var(--preview-x) + 0.95rem))
+    translateY(calc(var(--preview-y) - 0.08rem))
+    translateZ(calc(var(--preview-depth) + 12px))
+    rotateZ(calc(var(--preview-rot) + 4deg))
+    rotateX(13deg)
+    rotateY(-8deg);
+  transition: transform 780ms cubic-bezier(.2, .78, .2, 1);
+}
+
+.tarot-experience-deck-preview--shuffling .tarot-experience-deck-preview__card--inserting {
+  animation: tarotPreviewInsertToBack 6s linear both;
+  z-index: 90 !important;
+}
+
+.tarot-experience-deck-preview--shuffling .tarot-experience-deck-preview__card--settled {
+  animation: none !important;
+  opacity: 1;
+  filter: saturate(var(--preview-warmth)) contrast(1.08);
+}
+
+/* The customer-facing deck is a full riffle shuffle: one deck separates into
+   two physical piles, cards alternate back into the centre, then the deck
+   compresses. Every visible item is an existing face card; none are swapped. */
+.tarot-experience-deck-preview--fancy-shuffling .tarot-experience-deck-preview__card {
+  animation: tarotPreviewFancyRiffle 6.2s cubic-bezier(.22, .76, .18, 1) var(--preview-delay) infinite;
+  will-change: transform;
+}
+
+@keyframes tarotPreviewFancyRiffle {
+  0%, 9% {
+    transform:
+      translateX(var(--preview-x))
+      translateY(var(--preview-y))
+      translateZ(var(--preview-depth))
+      rotateZ(var(--preview-rot))
+      rotateX(13deg)
+      rotateY(-8deg);
+  }
+  24%, 34% {
+    transform:
+      translateX(var(--preview-pile-x))
+      translateY(var(--preview-pile-y))
+      translateZ(calc(var(--preview-depth) + 28px))
+      rotateZ(var(--preview-pile-rot))
+      rotateX(17deg)
+      rotateY(-18deg);
+  }
+  52% {
+    transform:
+      translateX(var(--preview-bridge-x))
+      translateY(calc(var(--preview-pile-y) + 0.34rem))
+      translateZ(calc(var(--preview-interlace-depth) + 40px))
+      rotateZ(var(--preview-bridge-rot))
+      rotateX(18deg)
+      rotateY(-14deg);
+  }
+  72%, 84% {
+    transform:
+      translateX(var(--preview-interlace-x))
+      translateY(var(--preview-interlace-y))
+      translateZ(var(--preview-interlace-depth))
+      rotateZ(var(--preview-interlace-rot))
+      rotateX(13deg)
+      rotateY(-8deg);
+  }
+  100% {
+    transform:
+      translateX(var(--preview-x))
+      translateY(var(--preview-y))
+      translateZ(var(--preview-depth))
+      rotateZ(var(--preview-rot))
+      rotateX(13deg)
+      rotateY(-8deg);
+  }
 }
 
 .tarot-experience-deck-preview__card img {
@@ -14392,6 +14477,186 @@ body.app-touching .home-taiji-cinema * {
       rotateZ(var(--preview-rot))
       rotateX(13deg)
       rotateY(-8deg)
+      scale(1);
+  }
+}
+
+@keyframes tarotPreviewCardShuffle {
+  0%, 100% {
+    opacity: 1;
+    filter: saturate(var(--preview-warmth)) contrast(1.08);
+    transform:
+      translateX(var(--preview-x))
+      translateY(var(--preview-y))
+      translateZ(var(--preview-depth))
+      rotateZ(var(--preview-rot))
+      rotateX(13deg)
+      rotateY(-8deg)
+      scale(1);
+  }
+  16% {
+    transform:
+      translateX(calc(var(--preview-x) + var(--shuffle-start-x)))
+      translateY(calc(var(--preview-y) - 1.5rem))
+      translateZ(calc(var(--preview-depth) + 58px))
+      rotateZ(calc(var(--preview-rot) + var(--shuffle-twist)))
+      rotateX(22deg)
+      rotateY(24deg)
+      scale(1.035);
+  }
+  38% {
+    filter: saturate(calc(var(--preview-warmth) + 0.18)) contrast(1.14);
+    transform:
+      translateX(calc(var(--preview-x) + var(--shuffle-mid-x)))
+      translateY(calc(var(--preview-y) - 0.4rem))
+      translateZ(calc(var(--preview-depth) + 74px))
+      rotateZ(calc(var(--preview-rot) + var(--shuffle-twist)))
+      rotateX(8deg)
+      rotateY(-18deg)
+      scale(1.06);
+  }
+  62% {
+    transform:
+      translateX(calc(var(--preview-x) - var(--shuffle-mid-x)))
+      translateY(calc(var(--preview-y) + 0.48rem))
+      translateZ(calc(var(--preview-depth) + 34px))
+      rotateZ(calc(var(--preview-rot) - var(--shuffle-twist)))
+      rotateX(18deg)
+      rotateY(18deg)
+      scale(1.028);
+  }
+  80% {
+    transform:
+      translateX(calc(var(--preview-x) - 1rem))
+      translateY(calc(var(--preview-y) - 0.3rem))
+      translateZ(calc(var(--preview-depth) + 16px))
+      rotateZ(calc(var(--preview-rot) - 5deg))
+      rotateX(16deg)
+      rotateY(-13deg)
+      scale(1.014);
+  }
+}
+
+@keyframes tarotPreviewInsertToBack {
+  0% {
+    opacity: 1;
+    transform:
+      translateX(var(--preview-x))
+      translateY(var(--preview-y))
+      translateZ(calc(var(--preview-depth) + 110px))
+      rotateZ(var(--preview-rot))
+      rotateX(13deg)
+      rotateY(-8deg)
+      scale(1.06);
+  }
+  10% {
+    opacity: 1;
+    transform:
+      translateX(calc(var(--preview-x) + 1.3rem))
+      translateY(calc(var(--preview-y) - 0.25rem))
+      translateZ(124px)
+      rotateZ(calc(var(--preview-rot) + 7deg))
+      rotateX(16deg)
+      rotateY(-14deg)
+      scale(1.08);
+  }
+  20% {
+    opacity: 1;
+    transform:
+      translateX(calc(var(--preview-x) + 2.8rem))
+      translateY(calc(var(--preview-y) - 0.6rem))
+      translateZ(150px)
+      rotateZ(calc(var(--preview-rot) + 14deg))
+      rotateX(19deg)
+      rotateY(-20deg)
+      scale(1.1);
+  }
+  30% {
+    opacity: 1;
+    transform:
+      translateX(calc(var(--preview-x) + 4.3rem))
+      translateY(calc(var(--preview-y) - 1rem))
+      translateZ(174px)
+      rotateZ(calc(var(--preview-rot) + 21deg))
+      rotateX(22deg)
+      rotateY(-28deg)
+      scale(1.12);
+  }
+  40% {
+    opacity: 1;
+    transform:
+      translateX(calc(var(--preview-x) + 5.8rem))
+      translateY(calc(var(--preview-y) - 1.6rem))
+      translateZ(185px)
+      rotateZ(calc(var(--preview-rot) + 28deg))
+      rotateX(24deg)
+      rotateY(-32deg)
+      scale(1.12);
+  }
+  50% {
+    opacity: 1;
+    transform:
+      translateX(calc(var(--preview-insert-x) + 2.8rem))
+      translateY(calc(var(--preview-insert-y) - 1.4rem))
+      translateZ(calc(var(--preview-insert-depth) + 150px))
+      rotateZ(calc(var(--preview-insert-rot) + 20deg))
+      rotateX(22deg)
+      rotateY(-28deg)
+      scale(1.1);
+  }
+  60% {
+    opacity: 1;
+    transform:
+      translateX(calc(var(--preview-insert-x) + 1.7rem))
+      translateY(calc(var(--preview-insert-y) - 0.9rem))
+      translateZ(calc(var(--preview-insert-depth) + 100px))
+      rotateZ(calc(var(--preview-insert-rot) + 14deg))
+      rotateX(20deg)
+      rotateY(-40deg)
+      scale(1.06);
+  }
+  70% {
+    opacity: 1;
+    transform:
+      translateX(calc(var(--preview-insert-x) + 1.1rem))
+      translateY(calc(var(--preview-insert-y) - 0.55rem))
+      translateZ(calc(var(--preview-insert-depth) + 66px))
+      rotateZ(calc(var(--preview-insert-rot) + 10deg))
+      rotateX(18deg)
+      rotateY(-52deg)
+      scale(1.02);
+  }
+  80% {
+    opacity: 1;
+    transform:
+      translateX(calc(var(--preview-insert-x) + 0.65rem))
+      translateY(calc(var(--preview-insert-y) - 0.3rem))
+      translateZ(calc(var(--preview-insert-depth) + 40px))
+      rotateZ(calc(var(--preview-insert-rot) + 6deg))
+      rotateX(17deg)
+      rotateY(-58deg)
+      scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform:
+      translateX(calc(var(--preview-insert-x) + 0.22rem))
+      translateY(calc(var(--preview-insert-y) - 0.08rem))
+      translateZ(calc(var(--preview-insert-depth) + 16px))
+      rotateZ(calc(var(--preview-insert-rot) + 2deg))
+      rotateX(15deg)
+      rotateY(-29deg)
+      scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform:
+      translateX(var(--preview-insert-x))
+      translateY(var(--preview-insert-y))
+      translateZ(var(--preview-insert-depth))
+      rotateZ(var(--preview-insert-rot))
+      rotateX(14deg)
+      rotateY(-6deg)
       scale(1);
   }
 }
@@ -15998,6 +16263,15 @@ body.app-touching .home-taiji-cinema * {
     0 0 44px rgba(251, 191, 36, 0.14);
   transition-delay: 0ms !important;
 }
+
+.tarot-original-shell .card--insert-ghost {
+  pointer-events: none;
+  filter: brightness(1.12) saturate(1.08);
+  box-shadow:
+    0 0 20px rgba(253, 230, 138, 0.32),
+    0 0 44px rgba(251, 191, 36, 0.14);
+}
+
 
 .tarot-original-shell .cards--dealt .card:not(.card--actively-shuffling) {
   transform: translate(-50%, -50%);

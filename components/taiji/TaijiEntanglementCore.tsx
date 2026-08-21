@@ -161,12 +161,15 @@ function buildBridgeGeometry() {
 export default function TaijiEntanglementCore({
   magRef,
   warmRef,
+  journeyStep = 0,
   yinColor,
   yangColor,
   sparkColor,
 }: {
   magRef: MagRef;
   warmRef: WarmRef;
+  /** 24 層旅程的最後五幕會主動喚醒糾纏終景，不能只靠手動放大才看得到。 */
+  journeyStep?: number;
   yinColor: string;
   yangColor: string;
   sparkColor: string;
@@ -244,14 +247,20 @@ export default function TaijiEntanglementCore({
   useFrame((state, delta) => {
     const d = magRef.current.current * MAG_DECADES;
     const warming = warmRef.current.warming;
+    /* 17～19 層是粒子／光子的糾纏段；第 20 層後把鏡頭交給黑洞與白洞，
+       不讓同一張糾纏畫面佔住後半段。 */
+    const journeyReveal = smoothstep(17, 18, journeyStep) * (1 - smoothstep(19, 20, journeyStep));
+    /* 旅程取景同時看得到雙生粒子與中間光橋，不把鏡頭塞進單一波包。 */
+    const journeyDepth = journeyStep >= 17 && journeyStep <= 20 ? 5.25 + Math.min(1, (journeyStep - 17) / 2) * 0.95 : 0;
+    const effectiveDepth = Math.max(d, journeyDepth);
     if (!armed || !built) {
       // 暖機視窗一併把這一層的幾何與著色器準備好（見 TaijiSystem 的暖機說明）
-      if (warming || d > DEEP_IN - 0.5 || magRef.current.target * MAG_DECADES > DEEP_IN - 0.5) setArmed(true);
+      if (warming || journeyStep >= 17 || d > DEEP_IN - 0.5 || magRef.current.target * MAG_DECADES > DEEP_IN - 0.5) setArmed(true);
       return;
     }
 
     const root = rootRef.current;
-    const reveal = smoothstep(DEEP_IN, DEEP_FULL, d);
+    const reveal = Math.max(smoothstep(DEEP_IN, DEEP_FULL, d), journeyReveal);
     const showDeep = reveal > 0.002;
     if (root) {
       root.visible = showDeep || warming;
@@ -268,21 +277,21 @@ export default function TaijiEntanglementCore({
     /* 取景校準：×1,000,000 時兩顆完整入鏡（各佔約 0.37 個半高），
        ×10,000,000 時單顆撐滿畫面但不超過 0.95——超過就會鑽進球體內部，
        變成一片沒有輪廓的糊光（實測過，那樣看不出是什麼）。 */
-    const fill = Math.min(0.95, 0.16 * Math.pow(10, Math.max(0, d - 5.2) * 0.46));
+    const fill = Math.min(0.95, 0.16 * Math.pow(10, Math.max(0, effectiveDepth - 5.2) * 0.46));
     const radius = halfHeight * fill;
     const centerX = radius * 1.58; // 兩顆之間要留得下那條糾纏通道，太近就看不見了
     /* ×3,000,000 之後把鏡頭「對準其中一顆」：另一顆退到畫面邊緣，
        但通道還連著——你正對著一顆光子的內部，它的另一半仍在遠處同步著。 */
-    const focus = smoothstep(6.0, 7.0, d);
+    const focus = smoothstep(6.0, 7.0, effectiveDepth);
     const shift = -centerX * focus;
 
     /* 觀測事件：每 5.2 秒一次，隨機決定哪一顆亮——但永遠一亮一暗（反相關） */
     const cycle = t % 5.2;
     const cycleIndex = Math.floor(t / 5.2);
     const outcome = Math.sin(cycleIndex * 127.1) > 0 ? 1 : -1;
-    const flash = Math.exp(-cycle * 3.4) * smoothstep(5.6, 6.4, d);
+    const flash = Math.exp(-cycle * 3.4) * smoothstep(5.6, 6.4, effectiveDepth);
 
-    const taiji = smoothstep(6.2, 7.0, d); // 最深處，波包內部浮現太極
+    const taiji = smoothstep(6.2, 7.0, effectiveDepth); // 最深處，波包內部浮現太極
     /* 自轉在最深處幾乎停下來：太極浮現時要正對鏡頭讓人看清楚，
        轉太快只會看到圖案一直轉走。 */
     const spinRate = Math.min(delta, 1 / 45) * 0.22 * (1 - taiji * 0.88);

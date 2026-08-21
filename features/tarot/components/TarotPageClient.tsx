@@ -23,10 +23,6 @@ type TarotDailyResult = {
 };
 
 const DRAW_SPREAD: TarotSpreadType = 'three_card';
-const TAROT_PREVIEW_CARD_INDICES = [0, 1, 2, 3, 4, 5, 6, 7, 22, 23, 36, 37, 50, 51, 64, 65];
-const TAROT_PREVIEW_CARDS = TAROT_PREVIEW_CARD_INDICES
-  .map((index) => TAROT_CARDS[index])
-  .filter((card): card is (typeof TAROT_CARDS)[number] => Boolean(card));
 const TAROT_DECK_INTEGRITY = {
   total: TAROT_CARDS.length,
   major: TAROT_CARDS.filter((card) => card.arcana === 'major').length,
@@ -67,6 +63,20 @@ export default function TarotPageClient() {
   const [activeScope, setActiveScope] = useState<TarotReadingScope>('self');
   const [activeSessionId, setActiveSessionId] = useState('');
   const [adminMode, setAdminMode] = useState(false);
+  const [previewDeck, setPreviewDeck] = useState(() => [...TAROT_CARDS]);
+
+  useEffect(() => {
+    // At the end of every visible shuffle, the top card is moved underneath
+    // the deck. The next cycle therefore starts with a genuinely new card.
+    const cycleTimer = window.setInterval(() => {
+      setPreviewDeck((current) => {
+        if (current.length < 2) return current;
+        const topCard = current[current.length - 1];
+        return [topCard, ...current.slice(0, -1)];
+      });
+    }, 6600);
+    return () => window.clearInterval(cycleTimer);
+  }, []);
 
   const cardsById = useMemo(() => new Map(TAROT_CARDS.map((card) => [card.id, card] as const)), []);
   const trimmedQuestionLength = tarotQuestion.trim().length;
@@ -78,7 +88,6 @@ export default function TarotPageClient() {
       : questionReady
         ? '開始 78 張洗牌'
         : '先輸入問題';
-
   const restoreDailyRecord = useCallback((record: DailyAnalysisRecord<TarotDailyResult>) => {
     setDailyRecord(record);
     setDeck(record.result.deck);
@@ -354,22 +363,33 @@ export default function TarotPageClient() {
 
           <aside className="fortune-card tarot-experience-hero tarot-experience-hero--deck border-cyan-200/20 p-4 sm:p-5" aria-label="塔羅牌庫預覽">
               <div
-                className="tarot-experience-deck-preview"
-                aria-label="塔羅牌庫預覽"
+                className="tarot-experience-deck-preview tarot-experience-deck-preview--fancy-shuffling"
+                aria-label="78 張塔羅牌正在洗牌"
               >
-                {TAROT_PREVIEW_CARDS.map((card, index) => {
-                  const offset = index - 7.5;
-                  const arc = Math.abs(offset);
+                {previewDeck.map((card, index) => {
+                  const leftPile = index < 39;
+                  const pileIndex = leftPile ? index : index - 39;
+                  const interlaceIndex = leftPile ? pileIndex * 2 : pileIndex * 2 + 1;
+                  const interlaceOffset = (interlaceIndex % 11) - 5;
                   return (
-                    <span key={card.id} className="tarot-experience-deck-preview__card" data-arcana={card.arcana} style={{
-                      ['--preview-x' as string]: `${offset * 0.43}rem`,
-                      ['--preview-y' as string]: `${arc * 0.052 - 0.26}rem`,
-                      ['--preview-rot' as string]: `${offset * 2.05}deg`,
-                      ['--preview-depth' as string]: `${(7.5 - arc) * 3.2}px`,
-                      ['--preview-delay' as string]: `${index * 36}ms`,
-                      ['--preview-ridge' as string]: `${0.12 + index * 0.006}rem`,
-                      ['--preview-warmth' as string]: `${0.55 + index * 0.018}`,
-                      zIndex: index + 1,
+                    <span key={card.id} className="tarot-experience-deck-preview__card" data-arcana={card.arcana} data-preview-index={index} style={{
+                      ['--preview-x' as string]: '0rem',
+                      ['--preview-y' as string]: `${(pileIndex % 7) * 0.012}rem`,
+                      ['--preview-rot' as string]: `${((pileIndex % 5) - 2) * 0.38}deg`,
+                      ['--preview-depth' as string]: `${78 - index}px`,
+                      ['--preview-delay' as string]: `${(interlaceIndex % 13) * 18}ms`,
+                      ['--preview-ridge' as string]: `${0.12 + (pileIndex % 9) * 0.008}rem`,
+                      ['--preview-warmth' as string]: `${0.58 + (index % 5) * 0.045}`,
+                      ['--preview-pile-x' as string]: leftPile ? '-4.25rem' : '4.25rem',
+                      ['--preview-pile-y' as string]: `${-0.72 + (pileIndex % 7) * 0.032}rem`,
+                      ['--preview-pile-rot' as string]: leftPile ? '-10deg' : '10deg',
+                      ['--preview-bridge-x' as string]: leftPile ? '-1.87rem' : '1.87rem',
+                      ['--preview-bridge-rot' as string]: leftPile ? '-4.2deg' : '4.2deg',
+                      ['--preview-interlace-x' as string]: `${interlaceOffset * 0.045}rem`,
+                      ['--preview-interlace-y' as string]: `${(interlaceIndex % 10) * 0.028}rem`,
+                      ['--preview-interlace-rot' as string]: `${interlaceOffset * 0.32}deg`,
+                      ['--preview-interlace-depth' as string]: `${interlaceIndex}px`,
+                      zIndex: interlaceIndex + 1,
                     }}>
                       <img src={card.imageUrl} alt="" loading="lazy" aria-hidden="true" />
                     </span>

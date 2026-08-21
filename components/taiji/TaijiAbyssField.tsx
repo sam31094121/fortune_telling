@@ -81,6 +81,25 @@ const TIER_TINT_COLORS = TIER_TINTS.map(([, hex]) => new THREE.Color(hex));
 const TIER_TINT_BASE_DECADE = TIER_TINTS[0][0];
 
 const ABYSS_PARTICLE_COUNT = 1600;
+const WHITE_HOLE_PARTICLE_COUNT = 420;
+
+function buildSoftPhotonTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const context = canvas.getContext('2d');
+  if (!context) return new THREE.Texture();
+  const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gradient.addColorStop(0, 'rgba(255,255,255,1)');
+  gradient.addColorStop(0.32, 'rgba(255,238,170,0.9)');
+  gradient.addColorStop(0.78, 'rgba(172,211,255,0.18)');
+  gradient.addColorStop(1, 'rgba(172,211,255,0)');
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, 64, 64);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
 
 function buildAbyssGeometry() {
   const positions = new Float32Array(ABYSS_PARTICLE_COUNT * 3);
@@ -104,6 +123,30 @@ function buildAbyssGeometry() {
   geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   geo.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
   return geo;
+}
+
+/* 白洞不是另一顆星體：這組點是由中心反轉、沿雙螺旋向外噴出的同一批光子／粒子。 */
+function buildWhiteHoleJetGeometry() {
+  const positions = new Float32Array(WHITE_HOLE_PARTICLE_COUNT * 3);
+  let seed = 22022;
+  const rand = () => {
+    seed = (seed * 16807) % 2147483647;
+    return seed / 2147483647;
+  };
+  for (let index = 0; index < WHITE_HOLE_PARTICLE_COUNT; index += 1) {
+    const arm = index % 2;
+    const progress = Math.pow(rand(), 1.75);
+    const radius = 0.04 + progress * 0.72;
+    const theta = progress * Math.PI * 5.4 + (arm ? Math.PI : 0) + (rand() - 0.5) * 0.34;
+    const z = (rand() - 0.5) * (0.1 + progress * 0.72);
+    const offset = index * 3;
+    positions[offset] = Math.cos(theta) * radius;
+    positions[offset + 1] = Math.sin(theta) * radius * 0.7;
+    positions[offset + 2] = z + Math.sin(progress * Math.PI * 4.0) * 0.16;
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  return geometry;
 }
 
 const ABYSS_VERTEX = /* glsl */ `
@@ -181,6 +224,7 @@ export default function TaijiAbyssField({
   magRef,
   warmRef,
   journeyDepth = 0,
+  journeyStep = 0,
   yinColor,
   yangColor,
   sparkColor,
@@ -194,6 +238,8 @@ export default function TaijiAbyssField({
    * 第 13 層開門，第 24 層回到完整太極。這只改 uniform，不重建幾何。
    */
   journeyDepth?: number;
+  /** 旅程第 20～23 層交給黑洞／白洞；第 24 層才讓太極重新生成。 */
+  journeyStep?: number;
   yinColor: string;
   yangColor: string;
   sparkColor: string;
@@ -204,6 +250,10 @@ export default function TaijiAbyssField({
   const [armed, setArmed] = useState(false);
   const rootRef = useRef<THREE.Group>(null);
   const fieldRef = useRef<THREE.Points>(null);
+  const blackHoleRef = useRef<THREE.Mesh>(null);
+  const blackHoleJetsRef = useRef<THREE.Points>(null);
+  const whiteHoleRef = useRef<THREE.Mesh>(null);
+  const whiteHoleJetsRef = useRef<THREE.Points>(null);
   const finaleCoreRef = useRef<THREE.Mesh>(null);
 
   const coreTextureRef = useRef(coreTexture);
@@ -250,7 +300,47 @@ export default function TaijiAbyssField({
       depthWrite: false,
     });
 
-    return { fieldGeometry, fieldMaterial, finaleGeometry, finaleCoreMaterial };
+    // 黑洞與白洞不是外加的行星，而是同一批粒子在吸入／噴出兩個瞬間的中心狀態。
+    const blackHoleMaterial = new THREE.MeshBasicMaterial({
+      color: '#010108',
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    });
+    const whiteHoleMaterial = new THREE.MeshBasicMaterial({
+      color: '#fff0b0',
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const whiteHoleJetGeometry = buildWhiteHoleJetGeometry();
+    const blackHoleJetGeometry = buildWhiteHoleJetGeometry();
+    const softPhotonTexture = buildSoftPhotonTexture();
+    const blackHoleJetMaterial = new THREE.PointsMaterial({
+      color: '#9fc4e8',
+      transparent: true,
+      opacity: 0,
+      size: 0.07,
+      map: softPhotonTexture,
+      alphaTest: 0.04,
+      sizeAttenuation: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const whiteHoleJetMaterial = new THREE.PointsMaterial({
+      color: '#fff4c8',
+      transparent: true,
+      opacity: 0,
+      size: 0.085,
+      map: softPhotonTexture,
+      alphaTest: 0.04,
+      sizeAttenuation: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+
+    return { fieldGeometry, fieldMaterial, finaleGeometry, finaleCoreMaterial, blackHoleMaterial, whiteHoleMaterial, softPhotonTexture, blackHoleJetGeometry, blackHoleJetMaterial, whiteHoleJetGeometry, whiteHoleJetMaterial };
   }, [armed, yinColor, yangColor, sparkColor]);
 
   useEffect(
@@ -259,6 +349,13 @@ export default function TaijiAbyssField({
       built?.fieldMaterial.dispose();
       built?.finaleGeometry.dispose();
       built?.finaleCoreMaterial.dispose();
+      built?.blackHoleMaterial.dispose();
+      built?.blackHoleJetGeometry.dispose();
+      built?.blackHoleJetMaterial.dispose();
+      built?.whiteHoleMaterial.dispose();
+      built?.whiteHoleJetGeometry.dispose();
+      built?.whiteHoleJetMaterial.dispose();
+      built?.softPhotonTexture.dispose();
     },
     [built],
   );
@@ -307,6 +404,10 @@ export default function TaijiAbyssField({
     const pull = smoothstep(PULL_IN, PULL_PEAK, d) * (1 - smoothstep(PULL_PEAK, HOLD_END, d));
     const push = smoothstep(HOLD_END, BURST_OUT, d) * (1 - smoothstep(BURST_OUT, BURST_END, d) * 0.999);
     const suction = pull - push;
+    // 旅程視覺錨點：20 層黑洞吞入、21～22 層白洞噴出。它們隨著同一個深場自轉，
+    // 不是獨立漂浮的天體。
+    const blackHoleReveal = smoothstep(19.2, 20.0, d) * (1 - smoothstep(20.75, 21.15, d));
+    const whiteHoleReveal = smoothstep(20.75, 21.35, d) * (1 - smoothstep(23.0, 23.65, d));
 
     /* 遙遠感：相位潮汐開始退遠，事件視界前的引力（pull）把它拉回來——但退遠只能是
        「越看越深」，不能讀成「畫面死掉了」，所以縮小/變暗的幅度收斂很多；
@@ -336,19 +437,57 @@ export default function TaijiAbyssField({
     built.fieldMaterial.uniforms.uAbyss.value = abyss;
     built.fieldMaterial.uniforms.uSuction.value = suction;
 
-    // 第 24 層：白洞噴回最初的太極全貌，首尾閉合——核心本身，沒有任何框架圍著它
-    const finaleReveal = smoothstep(FINALE_IN, FINALE_FULL, d);
+    const blackHole = blackHoleRef.current;
+    if (blackHole) {
+      const radius = halfHeight * (0.06 + blackHoleReveal * 0.31);
+      blackHole.visible = blackHoleReveal > 0.002;
+      blackHole.scale.setScalar(radius);
+      blackHole.rotation.y += Math.min(delta, 1 / 45) * 0.5;
+      blackHole.rotation.x = Math.sin(t * 0.4) * 0.18;
+    }
+    built.blackHoleMaterial.opacity = blackHoleReveal;
+    const blackHoleJets = blackHoleJetsRef.current;
+    if (blackHoleJets) {
+      blackHoleJets.visible = blackHoleReveal > 0.002;
+      // 反向旋轉與逐步縮小，讓粒子是被黑洞吸入，而非停在周圍。
+      blackHoleJets.scale.setScalar(halfHeight * (0.86 - blackHoleReveal * 0.43));
+      blackHoleJets.rotation.y -= Math.min(delta, 1 / 45) * 0.92;
+      blackHoleJets.rotation.x = Math.sin(t * 0.48) * 0.18;
+    }
+    built.blackHoleJetMaterial.opacity = blackHoleReveal * 0.9;
+
+    const whiteHole = whiteHoleRef.current;
+    if (whiteHole) {
+      // 中心不使用白球；白洞只由反轉噴出的粒子定義。
+      whiteHole.visible = false;
+      whiteHole.scale.setScalar(0.0001);
+    }
+    built.whiteHoleMaterial.opacity = 0;
+    const whiteHoleJets = whiteHoleJetsRef.current;
+    if (whiteHoleJets) {
+      whiteHoleJets.visible = whiteHoleReveal > 0.002;
+      whiteHoleJets.scale.setScalar(halfHeight * (0.34 + whiteHoleReveal * 0.82));
+      whiteHoleJets.rotation.y += Math.min(delta, 1 / 45) * 0.72;
+      whiteHoleJets.rotation.x = Math.sin(t * 0.44) * 0.22;
+    }
+    built.whiteHoleJetMaterial.opacity = whiteHoleReveal * 0.94;
+
+    // 點擊旅程第 20～23 層只呈現黑洞吸入與白洞噴出；最後一層才把噴出的粒子合回太極。
+    const journeyFinale = journeyStep >= 24 ? smoothstep(23.35, 24, journeyStep) : 0;
+    const finaleReveal = journeyStep > 0 ? journeyFinale : smoothstep(FINALE_IN, FINALE_FULL, d);
     const finaleCore = finaleCoreRef.current;
     if (finaleCore) {
       // 拿掉外圈軌道環之後，核心單獨撐開構圖，把原本環佔的視覺份量收回自己身上
       finaleCore.scale.setScalar(halfHeight * (0.05 + finaleReveal * 0.46));
-      finaleCore.rotation.y += Math.min(delta, 1 / 45) * 0.08;
+      // 回歸的太極維持立體自轉，讓終局是同一顆 3D 圖騰而不是靜態片尾。
+      finaleCore.rotation.y += Math.min(delta, 1 / 45) * 0.34;
+      finaleCore.rotation.x = Math.sin(t * 0.28) * 0.16;
     }
     built.finaleCoreMaterial.opacity = finaleReveal;
 
     // 深淵場本身在終局淡出，把畫面交給重新浮現的太極全貌（疊乘遙遠感、段落脈動與歸零/回聲兩拍，不覆蓋掉它們）
     built.fieldMaterial.uniforms.uReveal.value =
-      reveal * (1 - recede * 0.12) * (1 + tierBeat * 0.4) * (1 - stillness * 0.45) * (1 + echoPulse * 0.5) * (1 - finaleReveal * 0.7);
+      reveal * (1 - recede * 0.12) * (1 + tierBeat * 0.4) * (1 - stillness * 0.45) * (1 + echoPulse * 0.5) * (1 - finaleReveal * 0.7) * (1 - Math.max(blackHoleReveal, whiteHoleReveal));
   });
 
   if (!built) return null;
@@ -356,6 +495,10 @@ export default function TaijiAbyssField({
   return (
     <group ref={rootRef} visible={false} renderOrder={8}>
       <points ref={fieldRef} geometry={built.fieldGeometry} material={built.fieldMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
+      <mesh ref={blackHoleRef} geometry={built.finaleGeometry} material={built.blackHoleMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
+      <points ref={blackHoleJetsRef} geometry={built.blackHoleJetGeometry} material={built.blackHoleJetMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
+      <mesh ref={whiteHoleRef} geometry={built.finaleGeometry} material={built.whiteHoleMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
+      <points ref={whiteHoleJetsRef} geometry={built.whiteHoleJetGeometry} material={built.whiteHoleJetMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
       <mesh ref={finaleCoreRef} geometry={built.finaleGeometry} material={built.finaleCoreMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
     </group>
   );

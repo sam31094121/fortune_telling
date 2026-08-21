@@ -282,6 +282,7 @@ function buildFilamentGeometry() {
 export default function TaijiCellularCore({
   magRef,
   warmRef,
+  journeyStep = 0,
   yinColor,
   yangColor,
   sparkColor,
@@ -290,6 +291,8 @@ export default function TaijiCellularCore({
 }: {
   magRef: MagRef;
   warmRef: WarmRef;
+  /** 24 層旅程第 16 層的類細胞鏡頭；手動顯微鏡路徑仍維持原本倍率規則。 */
+  journeyStep?: number;
   yinColor: string;
   yangColor: string;
   sparkColor: string;
@@ -437,10 +440,10 @@ export default function TaijiCellularCore({
   }, [built, coreTexture, coreBumpMap]);
 
   useFrame((state, delta) => {
-    const d = magRef.current.current * MAG_DECADES;
+    const d = Math.max(magRef.current.current * MAG_DECADES, journeyStep >= 16 && journeyStep < 17 ? 7.35 : 0);
     const warming = warmRef.current.warming;
     if (!armed || !built) {
-      if (warming || d > MEMBRANE_IN - 0.5 || magRef.current.target * MAG_DECADES > MEMBRANE_IN - 0.5) setArmed(true);
+      if (warming || journeyStep >= 16 || d > MEMBRANE_IN - 0.5 || magRef.current.target * MAG_DECADES > MEMBRANE_IN - 0.5) setArmed(true);
       return;
     }
 

@@ -2527,15 +2527,7 @@ export default function HomePage() {
 
   return (
     <div className="app-bg min-h-screen overflow-hidden">
-      <div className="starfield pointer-events-none absolute inset-0 z-0" />
-
-      {/* 仙氣天然流星雨天幕 */}
-      <div className="shooting-stars-container">
-        <div className="shooting-star" />
-        <div className="shooting-star" />
-        <div className="shooting-star" />
-        <div className="shooting-star" />
-      </div>
+      {/* 首頁背景不放星點／流星；光子與粒子只存在於太極圖騰內。 */}
 
       {unlocking && (
         <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-slate-950/95 backdrop-blur-md">

@@ -148,9 +148,20 @@ export default function TarotOriginalFortuneTeller({
 
     const frontCardIndex = stackOrderRef.current.pop();
     if (frontCardIndex === undefined) return;
-    stackOrderRef.current.unshift(frontCardIndex);
     shuffleSequenceRef.current += 1;
     const activeZIndex = 200 + shuffleSequenceRef.current;
+    const shuffleStyle = shuffleSequenceRef.current % 3;
+    const liftTransform = [
+      'translate(calc(-50% + 62px), -164%) rotate(12deg)',
+      'translate(calc(-50% - 62px), -164%) rotate(-12deg)',
+      'translate(-50%, -178%) rotate(7deg)',
+    ][shuffleStyle];
+    const routeTransform = [
+      'translate(calc(-50% + 5.1rem), calc(-50% + 0.7rem)) rotate(18deg)',
+      'translate(calc(-50% - 5.1rem), calc(-50% + 0.7rem)) rotate(-18deg)',
+      'translate(calc(-50% + 0.45rem), calc(-50% + 1.2rem)) rotate(8deg)',
+    ][shuffleStyle];
+    const insertAt = Math.min(49, stackOrderRef.current.length);
 
     stackOrderRef.current.forEach((cardIndex, stackIndex) => {
       const card = rootRef.current?.querySelector<HTMLElement>(`.card[data-card-index="${cardIndex}"]`);
@@ -160,21 +171,67 @@ export default function TarotOriginalFortuneTeller({
     });
 
     const frontCard = rootRef.current?.querySelector<HTMLElement>(`.card[data-card-index="${frontCardIndex}"]`);
-    if (!frontCard) return;
+    const cardsStage = rootRef.current?.querySelector<HTMLElement>('.cards');
+    if (!frontCard || !cardsStage) return;
 
-    frontCard.classList.add('card--actively-shuffling');
-    frontCard.style.transitionDelay = '0ms';
-    frontCard.style.zIndex = String(activeZIndex);
-    frontCard.style.transform = 'translate(calc(-50% + 25px), -160%)';
+    // Keep one visible DOM card throughout the move. The underlying deck is
+    // only reordered after that card has physically reached the 50th seam.
+    const movingCard = frontCard.cloneNode(true) as HTMLElement;
+    movingCard.classList.remove('card--actively-shuffling', 'card--receiving-insert');
+    movingCard.classList.add('card--insert-ghost');
+    movingCard.style.opacity = '1';
+    movingCard.style.zIndex = String(activeZIndex);
+    movingCard.style.transition = 'none';
+    movingCard.style.transform = 'translate(-50%, -50%)';
+    cardsStage.appendChild(movingCard);
+
+    frontCard.style.opacity = '0';
+    frontCard.style.zIndex = '1';
     playAudio(rootRef.current, '.cards__shuffle-out-sfx');
 
-    const timer = window.setTimeout(() => {
+    const liftTimer = window.setTimeout(() => {
+      movingCard.style.transition = 'transform 1700ms cubic-bezier(.2, .76, .16, 1)';
+      movingCard.style.transform = liftTransform;
+    }, 20);
+
+    const insertTimer = window.setTimeout(() => {
+      // Carry the card around the outside of the deck first. This makes the
+      // cut visible before it starts entering the 50-card section.
+      movingCard.style.transition = 'transform 1500ms cubic-bezier(.2, .72, .18, 1)';
+      movingCard.style.transform = routeTransform;
+    }, 1780);
+
+    const settleTimer = window.setTimeout(() => {
+      // Slide this same card from the outer edge into the rear of card 50.
+      movingCard.style.transition = 'transform 2800ms linear';
+      movingCard.style.transform = 'translate(calc(-50% + 0.05rem), calc(-50% + 0.04rem)) rotate(0.4deg)';
+    }, 3340);
+
+    const finishTimer = window.setTimeout(() => {
+      const remainingCards = stackOrderRef.current;
+      stackOrderRef.current = [
+        ...remainingCards.slice(0, insertAt),
+        frontCardIndex,
+        ...remainingCards.slice(insertAt),
+      ];
+      stackOrderRef.current.forEach((cardIndex, stackIndex) => {
+        const card = rootRef.current?.querySelector<HTMLElement>(`.card[data-card-index="${cardIndex}"]`);
+        if (!card) return;
+        card.style.zIndex = String(stackIndex + 1);
+      });
+      const insertedZIndex = insertAt + 1;
+      frontCard.style.transition = 'none';
       frontCard.style.transform = 'translate(-50%, -50%)';
-      frontCard.style.zIndex = '1';
-      frontCard.classList.remove('card--actively-shuffling');
+      frontCard.style.zIndex = String(insertedZIndex);
+      frontCard.style.opacity = '1';
+      // The moving card now sits behind the latter 28 cards. Removing the
+      // motion layer is therefore invisible rather than a fade or a swap.
+      movingCard.style.zIndex = String(insertedZIndex);
+      const cleanupTimer = window.setTimeout(() => movingCard.remove(), 80);
+      timersRef.current.push(cleanupTimer);
       playAudio(rootRef.current, '.cards__shuffle-in-sfx');
-    }, 500);
-    timersRef.current.push(timer);
+    }, 6280);
+    timersRef.current.push(liftTimer, insertTimer, settleTimer, finishTimer);
   }, []);
 
   const handleShuffle = useCallback(() => {

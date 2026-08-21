@@ -400,6 +400,13 @@ export class Taiji24SoundEngine {
     };
   }
 
+  /** 供首頁 24 層分鏡列精準跳轉；下一次正常點擊會從選定層的下一幕續播。 */
+  seek(step: number): Taiji24State {
+    this.step = Math.max(0, Math.min(this.maxStep, Math.round(step)));
+    this.lastClickTime = 0;
+    return this.getState();
+  }
+
   reset(): void {
     this.step = 0;
     this.prevFrequency = 110.0;

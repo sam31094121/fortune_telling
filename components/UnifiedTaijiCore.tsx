@@ -8,6 +8,9 @@ import styles from './UnifiedTaijiCore.module.css';
 const MAX_STEP = 24;
 
 type UnifiedTaijiCoreProps = {
+  /** 外部旅程傳入時，圖騰只顯示同一份 1～24 層狀態，不再自行計數。 */
+  step24?: number;
+  onCoreClick?: () => void;
   active?: boolean;
   auraClass?: string;
   auraBadgeClass?: string;
@@ -58,6 +61,8 @@ function clampStep(step: number) {
 }
 
 export default function UnifiedTaijiCore({
+  step24,
+  onCoreClick,
   active = false,
   auraClass = '',
   auraBadgeClass = '',
@@ -70,7 +75,8 @@ export default function UnifiedTaijiCore({
   const audioContextRef = useRef<AudioContext | null>(null);
   const touchRef = useRef(0);
 
-  const currentStep = clampStep(step || 1);
+  const controlledStep = typeof step24 === 'number' ? clampStep(step24 || 1) : null;
+  const currentStep = controlledStep ?? clampStep(step || 1);
   const cappedStep = limitToLiangyi ? Math.min(currentStep, 2) : currentStep;
   const stage = getStage(cappedStep);
   const progress = useMemo(() => cappedStep / MAX_STEP, [cappedStep]);
@@ -182,6 +188,10 @@ export default function UnifiedTaijiCore({
   };
 
   const handleTaijiClick = () => {
+    if (controlledStep !== null) {
+      onCoreClick?.();
+      return;
+    }
     const next = limitToLiangyi ? (step >= 2 ? 1 : step + 1) : (step >= MAX_STEP ? 1 : step + 1);
     setStep(next);
     setPulseId((value) => value + 1);

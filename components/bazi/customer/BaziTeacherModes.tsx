@@ -14,10 +14,7 @@ const TEACHERS: Array<{ id: TeacherMode; title: string; subtitle: string }> = [
 ];
 
 function currentLuck(view: BaziCustomerView) {
-  const year = new Date().getFullYear();
-  return view.teacher.daYun.find((item) => typeof item.startYear === 'number' && typeof item.endYear === 'number' && year >= item.startYear && year <= item.endYear)
-    ?? view.teacher.daYun[0]
-    ?? null;
+  return view.timeContext.activeDaYun ?? view.teacher.daYun[0] ?? null;
 }
 
 /**
@@ -28,12 +25,14 @@ export function BaziTeacherModes({ view }: { view: BaziCustomerView }) {
   const [active, setActive] = useState<TeacherMode>('CHART');
   const evidence = useMemo(() => {
     const luck = currentLuck(view);
+    const timing = view.timeContext;
     return [
       { label: '日主', value: `${view.dayMaster.stem}${view.dayMaster.element}（${view.dayMaster.level}）` },
       { label: '格局', value: view.structurePattern.primaryPattern },
       { label: '用神／忌神', value: `${view.gods.usefulGod}／${view.gods.avoidGod}` },
       { label: '當前大運', value: luck ? `${luck.ageRange}｜${luck.pillar}` : '核心未提供可對應的大運' },
       { label: '流年', value: view.teacher.annual[0] ? `${view.teacher.annual[0].year}｜${view.teacher.annual[0].pillar}` : '核心未提供流年資料' },
+      { label: '當下情境', value: `${timing.age === null ? '年齡未能換算' : `${timing.age} 歲`}｜${timing.currentYear}｜${timing.dayNight}` },
     ];
   }, [view]);
 
@@ -64,6 +63,15 @@ export function BaziTeacherModes({ view }: { view: BaziCustomerView }) {
         </div>
       </div>
 
+      <section className="rounded-[20px] border border-cyan-200/20 bg-cyan-950/20 px-4 py-3">
+        <p className="text-[11px] font-black tracking-[0.16em] text-cyan-100">當下時間層・不改本命盤</p>
+        <p className="mt-1 text-sm font-semibold leading-6 text-white/75">
+          {view.timeContext.age === null ? '年齡資料待確認' : `目前 ${view.timeContext.age} 歲`}・{view.timeContext.currentYear} 年・{view.timeContext.dayNight}閱讀
+          {view.timeContext.activeDaYun ? `・正在走 ${view.timeContext.activeDaYun.ageRange} 的 ${view.timeContext.activeDaYun.pillar} 大運` : '・大運區間未能對應'}
+          {view.timeContext.annualLuck ? `・流年 ${view.timeContext.annualLuck.pillar}` : ''}
+        </p>
+      </section>
+
       {active === 'CHART' && <TeacherSummary view={view} />}
 
       {active === 'HORROR' && (
@@ -72,7 +80,7 @@ export function BaziTeacherModes({ view }: { view: BaziCustomerView }) {
           <h4 className="mt-2 text-xl font-black text-white">壓力不是命定事件，而是現在最不能忽略的結構訊號。</h4>
           <div className="mt-4 space-y-3 text-base font-semibold leading-7 text-white/75">
             <p>你的命盤以「{view.structurePattern.primaryPattern}」為主軸；當忌神「{view.gods.avoidGod}」被外在壓力放大時，容易先出現節奏失衡與決策反覆，而不是立刻看得見的結果。</p>
-            <p>目前需要盯住的缺口是：{missing}。{primaryLuck ? `正在走的 ${primaryLuck.ageRange} 大運為「${primaryLuck.pillar}」，這段時間應把選擇拆小、把資源留出緩衝。` : '核心未提供可對應大運，系統不虛構時間斷言。'}</p>
+            <p>目前需要盯住的缺口是：{missing}。{primaryLuck ? `現在 ${view.timeContext.age === null ? '的' : `${view.timeContext.age} 歲`}正走 ${primaryLuck.ageRange} 大運「${primaryLuck.pillar}」，這段時間應把選擇拆小、把資源留出緩衝。` : '核心未提供可對應大運，系統不虛構時間斷言。'}</p>
             {pressureFactors.length > 0 ? <p>核心已標記的壓力證據：{pressureFactors.map((factor) => `${factor.label}（${factor.detail}）`).join('；')}。</p> : <p>核心目前未標出直接壓力因子；此處不把氛圍敘事誤當作真實風險。</p>}
           </div>
           <CustomerEvidenceDrawer items={evidence} />
@@ -86,7 +94,7 @@ export function BaziTeacherModes({ view }: { view: BaziCustomerView }) {
           <div className="mt-4 space-y-3 text-base font-semibold leading-7 text-white/75">
             <p>「{view.dayMaster.stem}{view.dayMaster.element}」像命盤裡持續亮著的一點光：{view.teacher.signals.dayMaster}</p>
             <p>五行的焦點落在「{view.teacher.signals.elementFocus}」，它不是外在神祕力量，而是你在關係、工作與選擇裡反覆感到拉扯的象徵。</p>
-            <p>{primaryLuck ? `此刻走在 ${primaryLuck.ageRange} 的「${primaryLuck.pillar}」，較適合先辨認哪些聲音是真正需要回應的，哪些只是短暫的擾動。` : '核心未提供可對應的大運區間，因此只保留盤面象徵，不虛構時間故事。'}</p>
+            <p>{primaryLuck ? `在 ${view.timeContext.dayNight}閱讀的此刻，正走 ${primaryLuck.ageRange} 的「${primaryLuck.pillar}」；較適合先辨認哪些聲音是真正需要回應的，哪些只是短暫的擾動。` : '核心未提供可對應的大運區間，因此只保留盤面象徵，不虛構時間故事。'}</p>
           </div>
           <CustomerEvidenceDrawer items={evidence} />
         </article>

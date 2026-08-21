@@ -2543,14 +2543,10 @@ function buildZiweiTeacherSynthesis(
 
 type ZiweiTeacherSynthesis = ReturnType<typeof buildZiweiTeacherSynthesis>;
 
-/**
- * 三位老師共用同一張正式命盤，切宮位時各自重新針對本宮＋三方四正判讀——
- * 不是換名字講同一段話（見 lib/ziwei-teacher/teachers.ts 三套獨立 prompt）。
- */
+/** Google 正統解盤＋恐怖鬼魅合體解盤，共用同一張正式命盤。 */
 const ZIWEI_TEACHERS: { id: ZiweiTeacherId; name: string; note: string }[] = [
-  { id: 'STRUCTURE_MASTER', name: '老師解命盤', note: '本宮、主星、三方四正與四化' },
-  { id: 'LIFE_MASTER', name: '恐怖解命盤', note: '危機解盤：只指出盤內已有的壓力、煞曜與化忌' },
-  { id: 'NARRATIVE_MASTER', name: '鬼魅解命盤', note: '以命盤證據轉成幽暗、可回查的象徵場景' },
+  { id: 'STRUCTURE_MASTER', name: 'Google 老師解盤', note: '本宮、主星、三方四正與四化' },
+  { id: 'LIFE_MASTER', name: '恐怖鬼魅解盤', note: '恐怖壓迫 × 鬼魅電影場景，同一張正式命盤' },
 ];
 
 const ZIWEI_TEACHER_PALACE_ID_MAP: Record<string, ZiweiTeacherPalaceId> = {
@@ -2617,6 +2613,8 @@ function ZiweiTeacherResultView({ result }: { result: StructureTeacherResult | L
           )}
           <p><span className="font-black text-emerald-200">結構優勢：</span>{result.structuralStrength}</p>
           <p><span className="font-black text-rose-200">結構壓力：</span>{result.structuralPressure}</p>
+          <p><span className="font-black text-purple-200">過去慣性：</span>{result.pastStructure}</p>
+          <p><span className="font-black text-cyan-200">未來趨勢：</span>{result.futureTendency}</p>
           <p><span className="font-black text-cyan-200">結論：</span>{result.conclusion}</p>
         </div>
         <ZiweiTeacherEvidenceRefs refs={result.evidenceRefs} />
@@ -2627,14 +2625,20 @@ function ZiweiTeacherResultView({ result }: { result: StructureTeacherResult | L
     return (
       <div className="mt-4">
         <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">恐怖解命盤｜危機解盤</p>
+        <div className="mt-3 rounded-2xl border border-rose-300/25 bg-gradient-to-br from-rose-950/50 via-purple-950/35 to-slate-950/55 px-4 py-3 shadow-[inset_0_0_32px_rgba(244,63,94,0.12)]">
+          <p className="text-[10px] font-black tracking-[0.18em] text-rose-200/90">本宮驚悚開場・戲劇化風險情境</p>
+          <p className="mt-1 font-serif text-base font-bold leading-7 text-rose-50">{result.fearScene}</p>
+        </div>
         <h4 className="mt-2 font-serif text-xl font-black leading-tight text-purple-50">{result.lifeMeaning}</h4>
         <div className="mt-3 grid gap-2.5 text-base font-semibold leading-7 text-[color:var(--text-main)]">
+          <p><span className="font-black text-purple-200">過去慣性：</span>{result.pastPattern}</p>
+          <p><span className="font-black text-cyan-200">未來風險窗口：</span>{result.futureRiskWindow}</p>
           <p><span className="font-black text-emerald-200">現實中的優勢：</span>{result.strengthInReality}</p>
           <p><span className="font-black text-purple-200">重複模式：</span>{result.repeatedPattern}</p>
           <p><span className="font-black text-rose-200">盲點：</span>{result.blindSpot}</p>
           <p><span className="font-black text-cyan-200">決策風格：</span>{result.decisionStyle}</p>
           <p><span className="font-black text-purple-200">與環境的關係：</span>{result.relationshipWithEnvironment}</p>
-          <p><span className="font-black text-amber-200">具體方向：</span>{result.practicalDirection}</p>
+          <p><span className="font-black text-amber-200">道德收束：</span>{result.practicalDirection}</p>
         </div>
         <ZiweiTeacherEvidenceRefs refs={result.evidenceRefs} />
       </div>
@@ -2657,7 +2661,9 @@ function ZiweiTeacherResultView({ result }: { result: StructureTeacherResult | L
         </div>
       )}
       <p className="mt-3 text-base font-semibold leading-7 text-[color:var(--text-main)]">{result.story}</p>
-      <p className="mt-3 rounded-xl border border-amber-200/20 bg-amber-300/[0.06] px-3 py-2 text-base font-black leading-7 text-amber-50">{result.finalMetaphor}</p>
+      <p className="mt-3 text-base font-semibold leading-7 text-[color:var(--text-main)]"><span className="font-black text-purple-200">過去迴聲：</span>{result.pastEcho}</p>
+      <p className="mt-2 text-base font-semibold leading-7 text-[color:var(--text-main)]"><span className="font-black text-cyan-200">未來暗影：</span>{result.futureShadow}</p>
+      <p className="mt-3 rounded-xl border border-amber-200/20 bg-amber-300/[0.06] px-3 py-2 text-base font-black leading-7 text-amber-50"><span className="text-amber-200">道德結尾：</span>{result.finalMetaphor}</p>
       <ZiweiTeacherEvidenceRefs refs={result.evidenceRefs} />
     </div>
   );
@@ -2746,6 +2752,8 @@ function ZiweiTeacherSynthesisPanel({
   const palaceId = ZIWEI_TEACHER_PALACE_ID_MAP[originKey] ?? 'LIFE';
   const cacheKey = `${analysisId}|${palaceId}|${activeTeacher}|time-${timeRefresh}`;
   const activeResult = teacherCache[cacheKey];
+  const combinedNarrativeCacheKey = `${analysisId}|${palaceId}|NARRATIVE_MASTER|time-${timeRefresh}`;
+  const combinedNarrativeResult = teacherCache[combinedNarrativeCacheKey];
   const entertainmentCacheKey = `${analysisId}|${palaceId}|${activeEntertainer}`;
   const activeEntertainmentResult = entertainmentCache[entertainmentCacheKey];
 
@@ -2777,6 +2785,24 @@ function ZiweiTeacherSynthesisPanel({
         setTeacherLoading(false);
       });
   }, [mode, analysisId, palaceId, activeTeacher, cacheKey]);
+
+  useEffect(() => {
+    if (mode !== 'PROFESSIONAL' || activeTeacher !== 'LIFE_MASTER' || !analysisId) return;
+    if (fetchedKeysRef.current.has(combinedNarrativeCacheKey)) return;
+    fetchedKeysRef.current.add(combinedNarrativeCacheKey);
+    fetch(`/api/ziwei/${analysisId}/teacher-analysis`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ palaceId, teacherId: 'NARRATIVE_MASTER' }),
+    })
+      .then(async (res) => {
+        const json = await res.json();
+        if (!res.ok || !json.ok) throw new Error(json.message || '鬼魅段落生成失敗，請稍後再試。');
+        return json.data as ZiweiTeacherApiResult;
+      })
+      .then((data) => setTeacherCache((prev) => ({ ...prev, [combinedNarrativeCacheKey]: data })))
+      .catch(() => fetchedKeysRef.current.delete(combinedNarrativeCacheKey));
+  }, [mode, analysisId, palaceId, activeTeacher, combinedNarrativeCacheKey]);
 
   useEffect(() => {
     if (mode !== 'ENTERTAINMENT') return;
@@ -2811,12 +2837,8 @@ function ZiweiTeacherSynthesisPanel({
     <div className="mt-4 rounded-2xl border border-purple-300/25 bg-[linear-gradient(160deg,rgba(88,28,135,0.28),rgba(15,23,42,0.9)_60%,rgba(2,6,23,0.96))] p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-[11px] font-black uppercase tracking-[0.22em] text-purple-200">
-          {mode === 'PROFESSIONAL' ? '老師切換 · 同一命盤，三種判讀方法' : '娛樂模式 · 同一命盤，虛構故事創作'}
+          {mode === 'PROFESSIONAL' ? '老師切換 · 同一命盤，兩種解盤方式' : '娛樂模式 · 同一命盤，虛構故事創作'}
         </p>
-        <div className="flex gap-1.5 rounded-full border border-white/10 bg-black/20 p-1">
-          <button type="button" onClick={() => setMode('PROFESSIONAL')} className={`rounded-full px-3 py-1 text-[11px] font-black transition ${mode === 'PROFESSIONAL' ? 'bg-purple-300/25 text-purple-50' : 'text-purple-200/60 hover:text-purple-100'}`}>專業模式</button>
-          <button type="button" onClick={() => setMode('ENTERTAINMENT')} className={`rounded-full px-3 py-1 text-[11px] font-black transition ${mode === 'ENTERTAINMENT' ? 'bg-red-500/25 text-red-100' : 'text-purple-200/60 hover:text-purple-100'}`}>娛樂模式</button>
-        </div>
         <button
           type="button"
           onClick={() => document.getElementById('ziwei-twelve-palaces')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
@@ -2837,7 +2859,7 @@ function ZiweiTeacherSynthesisPanel({
 
       {mode === 'PROFESSIONAL' ? (
         <>
-          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {ZIWEI_TEACHERS.map((teacher) => {
               const active = activeTeacher === teacher.id;
               return <button key={teacher.id} type="button" onClick={() => setActiveTeacher(teacher.id)} aria-pressed={active} className={`min-h-[72px] rounded-xl border px-3 py-2.5 text-left transition ${active ? 'border-amber-200/55 bg-amber-300/14 text-amber-50' : 'border-white/10 bg-black/15 text-purple-100 hover:border-purple-200/40 hover:bg-purple-300/10'}`}><span className="block text-sm font-black">{teacher.name}</span><span className="mt-1 block text-[11px] font-semibold leading-4 text-white/60">{teacher.note}</span></button>;
@@ -2854,6 +2876,12 @@ function ZiweiTeacherSynthesisPanel({
             <p className="mt-4 text-sm font-semibold text-amber-200">本宮資料不足，老師暫不勉強生成判讀，不補故事假裝完整。</p>
           )}
           {activeResult && activeResult !== 'INSUFFICIENT_DATA' && <ZiweiTeacherResultView result={activeResult} />}
+          {activeTeacher === 'LIFE_MASTER' && combinedNarrativeResult && combinedNarrativeResult !== 'INSUFFICIENT_DATA' && (
+            <div className="mt-5 border-t border-rose-300/20 pt-4">
+              <p className="text-[11px] font-black tracking-[0.18em] text-rose-200/85">鬼魅段・同一命盤的陰影收尾</p>
+              <ZiweiTeacherResultView result={combinedNarrativeResult} />
+            </div>
+          )}
         </>
       ) : (
         <>
