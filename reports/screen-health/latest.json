@@ -1,219 +1,152 @@
 {
-  "ok": false,
+  "ok": true,
   "version": "screen-health-monitor-v1",
   "baseUrl": "http://localhost:8888",
   "port": 8888,
-  "startedAt": "2026-08-21T18:20:09.506Z",
-  "completedAt": "2026-08-21T18:20:12.351Z",
+  "startedAt": "2026-08-21T18:21:11.036Z",
+  "completedAt": "2026-08-21T18:21:22.750Z",
   "mode": "ONCE",
   "autoRepair": false,
   "summary": {
     "total": 11,
-    "passed": 0,
-    "failed": 11,
-    "screenStatus": "UNHEALTHY"
+    "passed": 11,
+    "failed": 0,
+    "screenStatus": "HEALTHY"
   },
-  "failedRoutes": [
-    {
-      "id": "HOME",
-      "title": "首頁太極核心",
-      "path": "/",
-      "issue": "route / returned status 500 with 7674 bytes"
-    },
-    {
-      "id": "READY",
-      "title": "Next.js Ready",
-      "path": "/internal/health/ready",
-      "issue": "route /internal/health/ready returned status 500 with 7724 bytes"
-    },
-    {
-      "id": "CARD_01",
-      "title": "AI 姓名學",
-      "path": "/nameology",
-      "issue": "route /nameology returned status 500 with 7696 bytes"
-    },
-    {
-      "id": "CARD_02",
-      "title": "紫微斗數",
-      "path": "/insight",
-      "issue": "route /insight returned status 500 with 7692 bytes"
-    },
-    {
-      "id": "CARD_03",
-      "title": "數字論吉凶",
-      "path": "/numerology",
-      "issue": "route /numerology returned status 500 with 7696 bytes"
-    },
-    {
-      "id": "CARD_04",
-      "title": "靈魂配對",
-      "path": "/match",
-      "issue": "route /match returned status 500 with 7686 bytes"
-    },
-    {
-      "id": "CARD_05",
-      "title": "AI 專屬生命歌曲",
-      "path": "/music",
-      "issue": "route /music returned status 500 with 7688 bytes"
-    },
-    {
-      "id": "CARD_06",
-      "title": "AI 八字命盤",
-      "path": "/bazi",
-      "issue": "route /bazi returned status 500 with 7684 bytes"
-    },
-    {
-      "id": "CARD_07",
-      "title": "AI 西洋星座",
-      "path": "/zodiac",
-      "issue": "route /zodiac returned status 500 with 7688 bytes"
-    },
-    {
-      "id": "CARD_08",
-      "title": "AI 塔羅牌",
-      "path": "/tarot",
-      "issue": "route /tarot returned status 500 with 7688 bytes"
-    },
-    {
-      "id": "CARD_09",
-      "title": "AI 個人成長中心",
-      "path": "/growth-center",
-      "issue": "route /growth-center returned status 500 with 7702 bytes"
-    }
-  ],
+  "failedRoutes": [],
   "routes": [
     {
       "id": "HOME",
       "module": "home",
       "title": "首頁太極核心",
       "path": "/",
-      "status": "FAILED",
-      "httpStatus": 500,
-      "durationMs": 279,
-      "htmlLength": 7674,
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 5124,
+      "htmlLength": 53949,
       "error": null,
-      "issue": "route / returned status 500 with 7674 bytes"
+      "issue": null
     },
     {
       "id": "READY",
       "module": "ready",
       "title": "Next.js Ready",
       "path": "/internal/health/ready",
-      "status": "FAILED",
-      "httpStatus": 500,
-      "durationMs": 257,
-      "htmlLength": 7724,
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 38,
+      "htmlLength": 95,
       "error": null,
-      "issue": "route /internal/health/ready returned status 500 with 7724 bytes"
+      "issue": null
     },
     {
       "id": "CARD_01",
       "module": "nameology",
       "title": "AI 姓名學",
       "path": "/nameology",
-      "status": "FAILED",
-      "httpStatus": 500,
-      "durationMs": 262,
-      "htmlLength": 7696,
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 1708,
+      "htmlLength": 30255,
       "error": null,
-      "issue": "route /nameology returned status 500 with 7696 bytes"
+      "issue": null
     },
     {
       "id": "CARD_02",
       "module": "ziwei",
       "title": "紫微斗數",
       "path": "/insight",
-      "status": "FAILED",
-      "httpStatus": 500,
-      "durationMs": 263,
-      "htmlLength": 7692,
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 964,
+      "htmlLength": 28517,
       "error": null,
-      "issue": "route /insight returned status 500 with 7692 bytes"
+      "issue": null
     },
     {
       "id": "CARD_03",
       "module": "numerology",
       "title": "數字論吉凶",
       "path": "/numerology",
-      "status": "FAILED",
-      "httpStatus": 500,
-      "durationMs": 248,
-      "htmlLength": 7696,
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 313,
+      "htmlLength": 27163,
       "error": null,
-      "issue": "route /numerology returned status 500 with 7696 bytes"
+      "issue": null
     },
     {
       "id": "CARD_04",
       "module": "soul_match",
       "title": "靈魂配對",
       "path": "/match",
-      "status": "FAILED",
-      "httpStatus": 500,
-      "durationMs": 250,
-      "htmlLength": 7686,
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 392,
+      "htmlLength": 27910,
       "error": null,
-      "issue": "route /match returned status 500 with 7686 bytes"
+      "issue": null
     },
     {
       "id": "CARD_05",
       "module": "music",
       "title": "AI 專屬生命歌曲",
       "path": "/music",
-      "status": "FAILED",
-      "httpStatus": 500,
-      "durationMs": 263,
-      "htmlLength": 7688,
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 1066,
+      "htmlLength": 23731,
       "error": null,
-      "issue": "route /music returned status 500 with 7688 bytes"
+      "issue": null
     },
     {
       "id": "CARD_06",
       "module": "bazi",
       "title": "AI 八字命盤",
       "path": "/bazi",
-      "status": "FAILED",
-      "httpStatus": 500,
-      "durationMs": 249,
-      "htmlLength": 7684,
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 647,
+      "htmlLength": 27635,
       "error": null,
-      "issue": "route /bazi returned status 500 with 7684 bytes"
+      "issue": null
     },
     {
       "id": "CARD_07",
       "module": "zodiac",
       "title": "AI 西洋星座",
       "path": "/zodiac",
-      "status": "FAILED",
-      "httpStatus": 500,
-      "durationMs": 263,
-      "htmlLength": 7688,
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 440,
+      "htmlLength": 27736,
       "error": null,
-      "issue": "route /zodiac returned status 500 with 7688 bytes"
+      "issue": null
     },
     {
       "id": "CARD_08",
       "module": "tarot",
       "title": "AI 塔羅牌",
       "path": "/tarot",
-      "status": "FAILED",
-      "httpStatus": 500,
-      "durationMs": 247,
-      "htmlLength": 7688,
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 477,
+      "htmlLength": 76184,
       "error": null,
-      "issue": "route /tarot returned status 500 with 7688 bytes"
+      "issue": null
     },
     {
       "id": "CARD_09",
       "module": "growth_center",
       "title": "AI 個人成長中心",
       "path": "/growth-center",
-      "status": "FAILED",
-      "httpStatus": 500,
-      "durationMs": 253,
-      "htmlLength": 7702,
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 532,
+      "htmlLength": 19254,
       "error": null,
-      "issue": "route /growth-center returned status 500 with 7702 bytes"
+      "issue": null
     }
   ],
-  "recoveryStatus": "DISABLED"
+  "recoveryStatus": "NOT_NEEDED"
 }

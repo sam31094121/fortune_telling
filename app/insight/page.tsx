@@ -28,7 +28,6 @@ import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { calculateBoneWeight, formatQian } from '@/lib/bone-weight';
 import { WaterTreasureOrb } from '@/components/bazi/customer/WaterTreasureOrb';
-import { StarBeastRetentionCard } from '@/components/StarBeastRetentionCard';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
 type ShichenChoice = number | 'unknown' | 'known' | null;
@@ -5015,17 +5014,6 @@ export default function InsightPage() {
             </div>
 
             <ZiweiDestinyCardView card={result?.destinyCard} subjectName={input.name} subjectBirthDate={input.birthDate} analysis={result?.ziweiSanFang} annual={result?.annualFortune} analysisId={result?.presentation?.analysisId ?? result?.analysisId} fiveElement={result?.fiveElement} />
-
-            {result?.fiveElement && result?.ziweiSanFang && (
-              <StarBeastRetentionCard
-                source="紫微斗數"
-                primaryElement={result.fiveElement.primaryElement}
-                secondaryElement={result.fiveElement.secondaryElement}
-                stableSeed={`${input.birthDate}:${result.ziweiSanFang.pattern.name}`}
-                weeklySeed={`${result.annualFortune?.year ?? new Date().getFullYear()}:${result.annualFortune?.annualTheme ?? ''}`}
-                evidence={`命宮格局「${result.ziweiSanFang.pattern.name}」與五行第一補強「${result.fiveElement.primaryElement}」交叉判定`}
-              />
-            )}
 
             <SanFangSummaryCard analysis={result?.ziweiSanFang} plainSummary={result?.plainSummary} meta={result?.meta} />
 
