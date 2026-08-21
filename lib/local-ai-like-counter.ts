@@ -3,9 +3,11 @@ import 'server-only';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { resolveLocalDataDirectory } from './local-data-directory';
+
 export const AI_LIKE_INITIAL_COUNT = 630_628;
 
-const DATA_DIRECTORY = path.join(process.cwd(), 'data');
+const DATA_DIRECTORY = resolveLocalDataDirectory();
 const COUNTER_FILE = path.join(DATA_DIRECTORY, 'ai-like-counter.json');
 const COUNTER_BACKUP_FILE = path.join(DATA_DIRECTORY, 'ai-like-counter.backup.json');
 

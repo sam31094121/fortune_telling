@@ -9,8 +9,9 @@ import {
   VISITOR_SEED_COUNT,
   type FeatureKey,
 } from '@/lib/visitor-counter';
+import { resolveLocalDataDirectory } from '@/lib/local-data-directory';
 
-const DATA_DIRECTORY = path.join(process.cwd(), 'data');
+const DATA_DIRECTORY = resolveLocalDataDirectory();
 const COUNTERS_FILE = path.join(DATA_DIRECTORY, 'visitor-counters.json');
 const COUNTERS_BACKUP_FILE = path.join(DATA_DIRECTORY, 'visitor-counters.backup.json');
 const COUNTER_AUTO_INCREMENT_INTERVAL_MS = 18_000;
