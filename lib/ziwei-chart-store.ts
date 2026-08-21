@@ -11,7 +11,7 @@
  * 已被專案其他地方接受的限制；真的需要跨執行個體持久化時再考慮外部儲存。
  */
 
-import type { ZiweiCoreResult } from './ziwei/engine';
+import { createZiweiCore, type ZiweiBirthInput, type ZiweiCoreResult } from './ziwei/engine';
 
 const CHART_TTL_MS = 30 * 60 * 1000; // 30 分鐘：跟分析任務的 TTL 一致
 
@@ -55,4 +55,26 @@ export function getVerifiedZiweiChartRecord(analysisId: string): ZiweiVerifiedCh
   cleanupExpired();
   const entry = store.get(analysisId);
   return entry ? { chart: entry.chart, timeSeed: entry.timeSeed } : null;
+}
+
+/**
+ * 2026-08-23 修正：正式站（Vercel serverless）已證實會發生查不到已驗證命盤的狀況——
+ * 算命盤那次請求跟之後查老師的請求不保證落在同一個執行個體，記憶體 Map 不共用，
+ * 導致老師 API 100% 回 CHART_NOT_FOUND（不是偶發，任何跨執行個體的請求都會中招）。
+ *
+ * 修法：查不到時，如果呼叫端有附上原始 `birthInput`（只是出生年月日時辰性別，
+ * 不是算好的命盤），就用跟 `createZiweiCore` 完全相同的決定性引擎當場重新算一次——
+ * 同樣輸入永遠得到同樣命盤，這跟查記憶體拿到的是同一份資料，不是老師自己亂補。
+ * 只有算出來且通過驗證的命盤才會被使用，沒過驗證一樣視為查不到。
+ */
+export function resolveVerifiedZiweiChart(analysisId: string, birthInput?: ZiweiBirthInput, timeSeed: ZiweiVerifiedTimeSeed = {}): ZiweiVerifiedChartRecord | null {
+  const existing = getVerifiedZiweiChartRecord(analysisId);
+  if (existing) return existing;
+  if (!birthInput) return null;
+
+  const chart = createZiweiCore(birthInput);
+  if (!chart.validation.passed) return null;
+
+  saveVerifiedZiweiChart(analysisId, chart, timeSeed);
+  return { chart, timeSeed };
 }

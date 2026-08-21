@@ -20,6 +20,7 @@ import type { InsightRitualStep } from '@/lib/insight-engine';
 import type { ZiweiDestinyCard as ZiweiDestinyCardModel } from '@/lib/ziwei-destiny-card';
 import type { ZiweiPresentationBundle } from '@/lib/ziwei-presentation-service';
 import type { LifeTeacherResult, NarrativeTeacherResult, PalaceId as ZiweiTeacherPalaceId, StructureTeacherResult, TeacherId as ZiweiTeacherId } from '@/lib/ziwei-teacher/types';
+import type { ZiweiBirthInput } from '@/lib/ziwei/engine';
 import type { EntertainmentTeacherId, EntertainmentTeacherResult } from '@/lib/ziwei-teacher/entertainment-types';
 import { TAROT_CARDS } from '@/features/tarot/data/cards';
 import type { TarotAiElement, TarotCard } from '@/features/tarot/types';
@@ -225,6 +226,7 @@ interface InsightResult {
       methodology: string;
     };
     ruleCount: number;
+    ziweiBirthInput?: ZiweiBirthInput;
   };
   destinyCard?: ZiweiDestinyCardModel | null;
   annualFortune?: {
@@ -2526,9 +2528,9 @@ function buildZiweiTeacherSynthesis(
 
 type ZiweiTeacherSynthesis = ReturnType<typeof buildZiweiTeacherSynthesis>;
 
-/** Google 正統解盤＋恐怖鬼魅合體解盤，共用同一張正式命盤。 */
+/** 命盤解析老師（正統結構解盤）＋恐怖鬼魅合體解盤，共用同一張正式命盤——老師角色不對外掛模型品牌名。 */
 const ZIWEI_TEACHERS: { id: ZiweiTeacherId; name: string; note: string }[] = [
-  { id: 'STRUCTURE_MASTER', name: 'Google 老師解盤', note: '本宮、主星、三方四正與四化' },
+  { id: 'STRUCTURE_MASTER', name: '命盤解析老師', note: '本宮、主星、三方四正與四化' },
   { id: 'LIFE_MASTER', name: '恐怖鬼魅解盤', note: '恐怖壓迫 × 鬼魅電影場景，同一張正式命盤' },
 ];
 
@@ -2700,7 +2702,7 @@ function ZiweiTeacherResultView({ result }: { result: StructureTeacherResult | L
   if (result.teacherId === 'STRUCTURE_MASTER') {
     return (
       <div className="mt-4">
-        <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">Google 命盤解析老師｜結構解盤</p>
+        <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">命盤解析老師｜結構解盤</p>
         <h4 className="mt-2 font-serif text-xl font-black leading-tight text-purple-50">{result.corePattern}</h4>
         <div className="mt-3 grid gap-2.5 text-base font-semibold leading-7 text-[color:var(--text-main)]">
           <p><span className="font-black text-purple-200">主星組合：</span>{result.primaryStarSynthesis}</p>
@@ -2829,6 +2831,7 @@ function ZiweiTeacherSynthesisPanel({
   originKey,
   subjectName,
   subjectAge,
+  birthInput,
 }: {
   synthesis: ZiweiTeacherSynthesis;
   showTarotBridge?: boolean;
@@ -2836,6 +2839,7 @@ function ZiweiTeacherSynthesisPanel({
   originKey: string;
   subjectName?: string;
   subjectAge?: number | null;
+  birthInput?: ZiweiBirthInput;
 }) {
   const [mode, setMode] = useState<'PROFESSIONAL' | 'ENTERTAINMENT'>('PROFESSIONAL');
   const [activeTeacher, setActiveTeacher] = useState<ZiweiTeacherId>('STRUCTURE_MASTER');
@@ -2884,7 +2888,7 @@ function ZiweiTeacherSynthesisPanel({
     fetch(`/api/ziwei/${analysisId}/teacher-analysis`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ palaceId, teacherId: activeTeacher }),
+      body: JSON.stringify({ palaceId, teacherId: activeTeacher, birthInput }),
     })
       .then(async (res) => {
         const json = await res.json();
@@ -2901,7 +2905,7 @@ function ZiweiTeacherSynthesisPanel({
       .finally(() => {
         setTeacherLoading(false);
       });
-  }, [mode, analysisId, palaceId, activeTeacher, cacheKey]);
+  }, [mode, analysisId, palaceId, activeTeacher, cacheKey, birthInput]);
 
   useEffect(() => {
     if (mode !== 'PROFESSIONAL' || activeTeacher !== 'LIFE_MASTER' || !analysisId) return;
@@ -2910,7 +2914,7 @@ function ZiweiTeacherSynthesisPanel({
     fetch(`/api/ziwei/${analysisId}/teacher-analysis`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ palaceId, teacherId: 'NARRATIVE_MASTER' }),
+      body: JSON.stringify({ palaceId, teacherId: 'NARRATIVE_MASTER', birthInput }),
     })
       .then(async (res) => {
         const json = await res.json();
@@ -2919,7 +2923,7 @@ function ZiweiTeacherSynthesisPanel({
       })
       .then((data) => setTeacherCache((prev) => ({ ...prev, [combinedNarrativeCacheKey]: data })))
       .catch(() => fetchedKeysRef.current.delete(combinedNarrativeCacheKey));
-  }, [mode, analysisId, palaceId, activeTeacher, combinedNarrativeCacheKey]);
+  }, [mode, analysisId, palaceId, activeTeacher, combinedNarrativeCacheKey, birthInput]);
 
   useEffect(() => {
     if (mode !== 'ENTERTAINMENT') return;
@@ -2931,7 +2935,7 @@ function ZiweiTeacherSynthesisPanel({
     fetch(`/api/ziwei/${analysisId}/entertainment-analysis`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ palaceId, teacherId: activeEntertainer }),
+      body: JSON.stringify({ palaceId, teacherId: activeEntertainer, birthInput }),
     })
       .then(async (res) => {
         const json = await res.json();
@@ -2948,7 +2952,7 @@ function ZiweiTeacherSynthesisPanel({
       .finally(() => {
         setEntertainmentLoading(false);
       });
-  }, [mode, analysisId, palaceId, activeEntertainer, entertainmentCacheKey]);
+  }, [mode, analysisId, palaceId, activeEntertainer, entertainmentCacheKey, birthInput]);
 
   return (
     <div className="mt-4 rounded-2xl border border-purple-300/25 bg-[linear-gradient(160deg,rgba(88,28,135,0.28),rgba(15,23,42,0.9)_60%,rgba(2,6,23,0.96))] p-4 sm:p-5">
@@ -3313,6 +3317,7 @@ function ZiweiDestinyCardView({
           originKey="MING"
           subjectName={subjectName}
           subjectAge={ageFromBirthDate(subjectBirthDate)}
+          birthInput={analysis?.ziweiBirthInput}
         />
       )}
     </section>
@@ -3610,6 +3615,7 @@ function ZiweiTwelvePalaceCards({
               originKey={teacherPalaceKey as string}
               subjectName={subjectName}
               subjectAge={ageFromBirthDate(subjectBirthDate)}
+              birthInput={analysis?.ziweiBirthInput}
             />
           ) : (
             <p className="mt-3 text-xs font-semibold leading-6 text-amber-200/80">找不到分析編號，暫時無法呼叫老師 AI，僅顯示命盤證據。</p>

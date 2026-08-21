@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
-import { getVerifiedZiweiChartRecord } from '@/lib/ziwei-chart-store';
+import { resolveVerifiedZiweiChart } from '@/lib/ziwei-chart-store';
 import { buildPalaceContext, ZIWEI_TEACHER_PALACE_ORDER } from '@/lib/ziwei-teacher/palace-context';
 import { runTeacher } from '@/lib/ziwei-teacher/teachers';
 import type { PalaceId, TeacherId } from '@/lib/ziwei-teacher/types';
+import type { ZiweiBirthInput } from '@/lib/ziwei/engine';
 
 /**
  * 紫微三老師 API（規格「十七」）
@@ -32,7 +33,7 @@ export async function POST(request: Request, context: RouteContext) {
   const requestId = createRequestId();
   const { analysisId } = await context.params;
 
-  let body: { palaceId?: string; teacherId?: string };
+  let body: { palaceId?: string; teacherId?: string; birthInput?: ZiweiBirthInput; timeSeed?: { birthDate?: string; annualYear?: number; annualTheme?: string; annualLevel?: string } };
   try {
     body = await request.json();
   } catch {
@@ -49,7 +50,9 @@ export async function POST(request: Request, context: RouteContext) {
     return friendlyErrorResponse(requestId, 'INVALID_TEACHER_ID', '老師參數不正確。', 400);
   }
 
-  const record = getVerifiedZiweiChartRecord(analysisId);
+  // Vercel serverless 執行個體不共用記憶體：查不到已存的命盤時，若前端附上原始
+  // birthInput（出生年月日時辰性別），用同一顆決定性引擎當場重算，不是補假資料。
+  const record = resolveVerifiedZiweiChart(analysisId, body.birthInput, body.timeSeed ?? {});
   if (!record) {
     // 規格「十三」的 Gate 精神：查不到已驗證命盤，老師不解讀
     return friendlyErrorResponse(requestId, 'CHART_NOT_FOUND', '找不到已驗證的命盤，請重新完成一次紫微分析。', 404);
