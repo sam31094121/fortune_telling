@@ -1,0 +1,562 @@
+{
+  "version": "platform-core-v6-audit-v1",
+  "generatedAt": "2026-08-04T19:32:58.248Z",
+  "rule": "No COMPLETED_AND_VERIFIED without project code, fresh build, full tests, mobile evidence, and clean post-test state.",
+  "coreContracts": [
+    {
+      "id": "platform_core",
+      "label": "Platform Core",
+      "files": [
+        {
+          "file": "lib/platform-stability-layer.ts",
+          "exists": true
+        },
+        {
+          "file": "lib/platform-control-center.ts",
+          "exists": true
+        }
+      ],
+      "status": "PRESENT"
+    },
+    {
+      "id": "taiji_core",
+      "label": "Taiji Core",
+      "files": [
+        {
+          "file": "lib/taiji-core-engine.ts",
+          "exists": true
+        },
+        {
+          "file": "components/UnifiedTaijiCore.tsx",
+          "exists": true
+        },
+        {
+          "file": "components/taiji/TaijiCoreVisual.tsx",
+          "exists": true
+        }
+      ],
+      "status": "PRESENT"
+    },
+    {
+      "id": "identity_core",
+      "label": "Identity Core",
+      "files": [
+        {
+          "file": "lib/identity-split-client.ts",
+          "exists": true
+        }
+      ],
+      "status": "PRESENT"
+    },
+    {
+      "id": "analysis_task_core",
+      "label": "Analysis Task Core",
+      "files": [
+        {
+          "file": "lib/analysis-job-store.ts",
+          "exists": true
+        },
+        {
+          "file": "lib/analysis-job-client.ts",
+          "exists": true
+        },
+        {
+          "file": "lib/analysis-job-runner.ts",
+          "exists": true
+        },
+        {
+          "file": "app/api/analysis/jobs/route.ts",
+          "exists": true
+        },
+        {
+          "file": "app/api/analysis/jobs/[jobId]/route.ts",
+          "exists": true
+        },
+        {
+          "file": "app/api/analysis/results/[resultId]/route.ts",
+          "exists": true
+        }
+      ],
+      "status": "PRESENT"
+    },
+    {
+      "id": "dictionary_core",
+      "label": "Dictionary Core",
+      "files": [
+        {
+          "file": "lib/nameology-dictionary-loader.ts",
+          "exists": true
+        },
+        {
+          "file": "data/dictionaries/nameology/manifest.json",
+          "exists": true
+        },
+        {
+          "file": "data/dictionaries/nameology/characters.json",
+          "exists": true
+        }
+      ],
+      "status": "PRESENT"
+    },
+    {
+      "id": "integration_layer",
+      "label": "Integration Layer",
+      "files": [
+        {
+          "file": "lib/ai-integration-layer.ts",
+          "exists": true
+        }
+      ],
+      "status": "PRESENT"
+    },
+    {
+      "id": "growth_center",
+      "label": "Growth Center",
+      "files": [
+        {
+          "file": "lib/growth-center-engine.ts",
+          "exists": true
+        },
+        {
+          "file": "lib/growth-center-client.ts",
+          "exists": true
+        }
+      ],
+      "status": "PRESENT"
+    },
+    {
+      "id": "shared_form",
+      "label": "Shared Form Boundary",
+      "files": [
+        {
+          "file": "components/UnifiedBirthForm.tsx",
+          "exists": true
+        },
+        {
+          "file": "components/FriendlyChoiceCard.tsx",
+          "exists": true
+        },
+        {
+          "file": "components/IdentitySplitSelector.tsx",
+          "exists": true
+        }
+      ],
+      "status": "PRESENT"
+    },
+    {
+      "id": "shared_error",
+      "label": "Shared Error Boundary",
+      "files": [
+        {
+          "file": "app/error.tsx",
+          "exists": true
+        },
+        {
+          "file": "app/global-error.tsx",
+          "exists": true
+        }
+      ],
+      "status": "PRESENT"
+    }
+  ],
+  "cards": [
+    {
+      "id": "CARD_01",
+      "module": "nameology",
+      "title": "AI 姓名學",
+      "route": "/nameology",
+      "page": "app/nameology/page.tsx",
+      "order": 1,
+      "allowedStates": [
+        "LOCKED",
+        "READY",
+        "SCANNING",
+        "INPUT_TESTING",
+        "SUBMIT_TESTING",
+        "BACKEND_TESTING",
+        "ENGINE_TESTING",
+        "RESPONSE_TESTING",
+        "MOBILE_TESTING",
+        "PERFORMANCE_TESTING",
+        "REPAIRING",
+        "RETESTING",
+        "PASSED",
+        "COMPLETED"
+      ],
+      "pageExists": true,
+      "staticStatus": "READY_FOR_FLOW_TEST",
+      "requiredEvidence": [
+        "homepage_entry",
+        "form_input",
+        "submit_once",
+        "api_backend_engine_result",
+        "frontend_result_render",
+        "mobile_320_360_375_390_412_430",
+        "return_home_cleanup",
+        "regression_all_previous_cards"
+      ]
+    },
+    {
+      "id": "CARD_02",
+      "module": "ziwei",
+      "title": "AI 紫微斗數",
+      "route": "/insight",
+      "page": "app/insight/page.tsx",
+      "order": 2,
+      "allowedStates": [
+        "LOCKED",
+        "READY",
+        "SCANNING",
+        "INPUT_TESTING",
+        "SUBMIT_TESTING",
+        "BACKEND_TESTING",
+        "ENGINE_TESTING",
+        "RESPONSE_TESTING",
+        "MOBILE_TESTING",
+        "PERFORMANCE_TESTING",
+        "REPAIRING",
+        "RETESTING",
+        "PASSED",
+        "COMPLETED"
+      ],
+      "pageExists": true,
+      "staticStatus": "READY_FOR_FLOW_TEST",
+      "requiredEvidence": [
+        "homepage_entry",
+        "form_input",
+        "submit_once",
+        "api_backend_engine_result",
+        "frontend_result_render",
+        "mobile_320_360_375_390_412_430",
+        "return_home_cleanup",
+        "regression_all_previous_cards"
+      ]
+    },
+    {
+      "id": "CARD_03",
+      "module": "numerology",
+      "title": "數字論吉凶",
+      "route": "/numerology",
+      "page": "app/numerology/page.tsx",
+      "order": 3,
+      "allowedStates": [
+        "LOCKED",
+        "READY",
+        "SCANNING",
+        "INPUT_TESTING",
+        "SUBMIT_TESTING",
+        "BACKEND_TESTING",
+        "ENGINE_TESTING",
+        "RESPONSE_TESTING",
+        "MOBILE_TESTING",
+        "PERFORMANCE_TESTING",
+        "REPAIRING",
+        "RETESTING",
+        "PASSED",
+        "COMPLETED"
+      ],
+      "pageExists": true,
+      "staticStatus": "READY_FOR_FLOW_TEST",
+      "requiredEvidence": [
+        "homepage_entry",
+        "form_input",
+        "submit_once",
+        "api_backend_engine_result",
+        "frontend_result_render",
+        "mobile_320_360_375_390_412_430",
+        "return_home_cleanup",
+        "regression_all_previous_cards"
+      ]
+    },
+    {
+      "id": "CARD_04",
+      "module": "soul_match",
+      "title": "AI 靈魂配對",
+      "route": "/match",
+      "page": "app/match/page.tsx",
+      "order": 4,
+      "allowedStates": [
+        "LOCKED",
+        "READY",
+        "SCANNING",
+        "INPUT_TESTING",
+        "SUBMIT_TESTING",
+        "BACKEND_TESTING",
+        "ENGINE_TESTING",
+        "RESPONSE_TESTING",
+        "MOBILE_TESTING",
+        "PERFORMANCE_TESTING",
+        "REPAIRING",
+        "RETESTING",
+        "PASSED",
+        "COMPLETED"
+      ],
+      "pageExists": true,
+      "staticStatus": "READY_FOR_FLOW_TEST",
+      "requiredEvidence": [
+        "homepage_entry",
+        "form_input",
+        "submit_once",
+        "api_backend_engine_result",
+        "frontend_result_render",
+        "mobile_320_360_375_390_412_430",
+        "return_home_cleanup",
+        "regression_all_previous_cards"
+      ]
+    },
+    {
+      "id": "CARD_05",
+      "module": "music",
+      "title": "AI 生成歌曲",
+      "route": "/music",
+      "page": "app/music/page.tsx",
+      "order": 5,
+      "allowedStates": [
+        "LOCKED",
+        "READY",
+        "SCANNING",
+        "INPUT_TESTING",
+        "SUBMIT_TESTING",
+        "BACKEND_TESTING",
+        "ENGINE_TESTING",
+        "RESPONSE_TESTING",
+        "MOBILE_TESTING",
+        "PERFORMANCE_TESTING",
+        "REPAIRING",
+        "RETESTING",
+        "PASSED",
+        "COMPLETED"
+      ],
+      "pageExists": true,
+      "staticStatus": "READY_FOR_FLOW_TEST",
+      "requiredEvidence": [
+        "homepage_entry",
+        "form_input",
+        "submit_once",
+        "api_backend_engine_result",
+        "frontend_result_render",
+        "mobile_320_360_375_390_412_430",
+        "return_home_cleanup",
+        "regression_all_previous_cards"
+      ]
+    },
+    {
+      "id": "CARD_06",
+      "module": "bazi",
+      "title": "八字命盤",
+      "route": "/bazi",
+      "page": "app/bazi/page.tsx",
+      "order": 6,
+      "allowedStates": [
+        "LOCKED",
+        "READY",
+        "SCANNING",
+        "INPUT_TESTING",
+        "SUBMIT_TESTING",
+        "BACKEND_TESTING",
+        "ENGINE_TESTING",
+        "RESPONSE_TESTING",
+        "MOBILE_TESTING",
+        "PERFORMANCE_TESTING",
+        "REPAIRING",
+        "RETESTING",
+        "PASSED",
+        "COMPLETED"
+      ],
+      "pageExists": true,
+      "staticStatus": "READY_FOR_FLOW_TEST",
+      "requiredEvidence": [
+        "homepage_entry",
+        "form_input",
+        "submit_once",
+        "api_backend_engine_result",
+        "frontend_result_render",
+        "mobile_320_360_375_390_412_430",
+        "return_home_cleanup",
+        "regression_all_previous_cards"
+      ]
+    },
+    {
+      "id": "CARD_07",
+      "module": "zodiac",
+      "title": "西洋星座",
+      "route": "/zodiac",
+      "page": "app/zodiac/page.tsx",
+      "order": 7,
+      "allowedStates": [
+        "LOCKED",
+        "READY",
+        "SCANNING",
+        "INPUT_TESTING",
+        "SUBMIT_TESTING",
+        "BACKEND_TESTING",
+        "ENGINE_TESTING",
+        "RESPONSE_TESTING",
+        "MOBILE_TESTING",
+        "PERFORMANCE_TESTING",
+        "REPAIRING",
+        "RETESTING",
+        "PASSED",
+        "COMPLETED"
+      ],
+      "pageExists": true,
+      "staticStatus": "READY_FOR_FLOW_TEST",
+      "requiredEvidence": [
+        "homepage_entry",
+        "form_input",
+        "submit_once",
+        "api_backend_engine_result",
+        "frontend_result_render",
+        "mobile_320_360_375_390_412_430",
+        "return_home_cleanup",
+        "regression_all_previous_cards"
+      ]
+    },
+    {
+      "id": "CARD_08",
+      "module": "tarot",
+      "title": "AI 塔羅牌",
+      "route": "/tarot",
+      "page": "app/tarot/page.tsx",
+      "order": 8,
+      "allowedStates": [
+        "LOCKED",
+        "READY",
+        "SCANNING",
+        "INPUT_TESTING",
+        "SUBMIT_TESTING",
+        "BACKEND_TESTING",
+        "ENGINE_TESTING",
+        "RESPONSE_TESTING",
+        "MOBILE_TESTING",
+        "PERFORMANCE_TESTING",
+        "REPAIRING",
+        "RETESTING",
+        "PASSED",
+        "COMPLETED"
+      ],
+      "pageExists": true,
+      "staticStatus": "READY_FOR_FLOW_TEST",
+      "requiredEvidence": [
+        "homepage_entry",
+        "form_input",
+        "submit_once",
+        "api_backend_engine_result",
+        "frontend_result_render",
+        "mobile_320_360_375_390_412_430",
+        "return_home_cleanup",
+        "regression_all_previous_cards"
+      ]
+    },
+    {
+      "id": "CARD_09",
+      "module": "growth_center",
+      "title": "AI 個人成長中心",
+      "route": "/growth-center",
+      "page": "app/growth-center/page.tsx",
+      "order": 9,
+      "allowedStates": [
+        "LOCKED",
+        "READY",
+        "SCANNING",
+        "INPUT_TESTING",
+        "SUBMIT_TESTING",
+        "BACKEND_TESTING",
+        "ENGINE_TESTING",
+        "RESPONSE_TESTING",
+        "MOBILE_TESTING",
+        "PERFORMANCE_TESTING",
+        "REPAIRING",
+        "RETESTING",
+        "PASSED",
+        "COMPLETED"
+      ],
+      "pageExists": true,
+      "staticStatus": "READY_FOR_FLOW_TEST",
+      "requiredEvidence": [
+        "homepage_entry",
+        "form_input",
+        "submit_once",
+        "api_backend_engine_result",
+        "frontend_result_render",
+        "mobile_320_360_375_390_412_430",
+        "return_home_cleanup",
+        "regression_all_previous_cards"
+      ]
+    }
+  ],
+  "packageScripts": [
+    {
+      "name": "build",
+      "exists": true,
+      "command": "next build"
+    },
+    {
+      "name": "auto-qa",
+      "exists": true,
+      "command": "node scripts/auto-qa.mjs"
+    },
+    {
+      "name": "screen:health",
+      "exists": true,
+      "command": "node scripts/screen-health-monitor.mjs"
+    }
+  ],
+  "evidence": {
+    "build": {
+      "note": "Build evidence is command output, not persisted by this audit script. Run npm run build after platform changes.",
+      "status": "REQUIRES_FRESH_COMMAND_OUTPUT"
+    },
+    "autoQa": {
+      "reportPath": "reports/auto-qa/latest.json",
+      "exists": true,
+      "ok": true,
+      "completedAt": "2026-08-03T07:06:16.288Z",
+      "version": "tiandiren-auto-qa-v1.2"
+    },
+    "screenHealth": {
+      "reportPath": "reports/screen-health/latest.json",
+      "exists": true,
+      "ok": true,
+      "completedAt": "2026-08-03T06:28:15.371Z",
+      "screenStatus": "HEALTHY",
+      "version": "screen-health-monitor-v1"
+    },
+    "mobileE2E": {
+      "status": "NOT_EXECUTED_BY_STATIC_AUDIT",
+      "requiredViewports": [
+        320,
+        360,
+        375,
+        390,
+        412,
+        430
+      ],
+      "requiredBrowsers": [
+        "Android Chrome",
+        "Android WebView",
+        "iPhone Safari",
+        "LINE WebView",
+        "Facebook WebView"
+      ]
+    }
+  },
+  "git": {
+    "dirtyFiles": [],
+    "unavailable": true,
+    "unavailableReason": "spawn EPERM"
+  },
+  "finalStatus": "NOT_COMPLETED",
+  "blockers": [
+    "Real mobile E2E evidence is not attached to this audit.",
+    "Git status could not be read by the audit script; run git status separately before claiming completion."
+  ],
+  "nextActions": [
+    "Run npm run build after every Platform Core or card change.",
+    "Run npm run screen:health against the active local or deployed site.",
+    "Run npm run auto-qa for the full nine-card backend and Integration Layer flow.",
+    "Run real mobile or Playwright mobile viewport E2E for 320, 360, 375, 390, 412, 430 widths.",
+    "If a shared core is modified while testing CARD_01, retest CARD_01 fully before unlocking CARD_02.",
+    "After each completed card, regression test all previously completed cards."
+  ]
+}

@@ -1,0 +1,37 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.log
+.tmp/
+.tmp-*
+.guardian-log.txt
+push-result.txt
+
+# 環境變數（含 API Key，嚴禁上傳）
+.env.local
+.env*.local
+
+# Local fallback visitor counters (created when Supabase is not configured).
+/data/visitor-counters.json
+/data/visitor-counters.backup.json
+/data/visitor-counters.json.tmp
+/data/visitor-counters.backup.json.tmp
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+.ziwei-test-build
+.bazi-test-build
+t12
+
+.vercel
+.env*

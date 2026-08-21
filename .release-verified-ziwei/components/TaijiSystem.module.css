@@ -1,0 +1,258 @@
+/* ====================== 太極演化系統 V2（依業主規格補齊完整版） ====================== */
+
+.root {
+  --energy-color: var(--theme-primary, #ffd700);
+  --glow-color: var(--theme-glow, rgba(255, 215, 0, 0.38));
+  --theme-secondary: #7dd3fc;
+  --theme-soft: rgba(255, 215, 0, 0.18);
+  --combo-opacity: 0;
+  --completion-opacity: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 8px 8px 10px;
+  user-select: none;
+  perspective: 1200px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ====================== 3D 球體包裹 ====================== */
+.sphereWrapper {
+  position: relative;
+  width: min(86vw, 360px);
+  height: min(86vw, 360px);
+  transform-style: preserve-3d;
+  isolation: isolate;
+  touch-action: none;
+  cursor: grab;
+  animation: sphereFloat 18s ease-in-out infinite;
+  will-change: transform, filter;
+  contain: layout paint style;
+  backface-visibility: hidden;
+  overscroll-behavior: contain;
+  transition: filter 180ms ease;
+  margin-inline: auto;
+  filter: drop-shadow(0 26px 34px rgba(0, 0, 0, 0.32));
+}
+
+.sphereWrapperTouching {
+  cursor: grabbing;
+  filter:
+    drop-shadow(0 27px 36px rgba(0, 0, 0, 0.34))
+    drop-shadow(0 0 7px var(--glow-color));
+}
+
+@keyframes sphereFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+/* 卡片級空間霧光：位於太極後方，延展至整張卡片，不形成任何軌道或圓環線。 */
+.sphereWrapper::before {
+  content: '';
+  position: absolute;
+  inset: -74px;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 47%, rgba(255, 244, 216, 0.12) 0%, rgba(226, 190, 122, 0.075) 28%, rgba(177, 128, 55, 0.038) 50%, transparent 74%);
+  filter: blur(10px);
+  opacity: 0.56;
+  transition: opacity 0.9s ease;
+  z-index: 0;
+  transform: translateZ(-1px) scale(1.04);
+}
+
+.stage_taiji .sphereWrapper::before { opacity: 0.5; }
+.stage_liangyi .sphereWrapper::before { opacity: 0.54; }
+.stage_sixiang .sphereWrapper::before { opacity: 0.58; }
+.stage_bagua .sphereWrapper::before { opacity: 0.56; }
+
+/* 第 13 層起，卡片本身也進入深場：金光更深，但仍保持低調、沒有軌道線。 */
+.root[data-deep-field='true'] .sphereWrapper::before {
+  background:
+    radial-gradient(circle at 50% 47%, rgba(218, 239, 255, 0.22) 0%, rgba(92, 132, 184, 0.15) 28%, rgba(25, 35, 74, 0.18) 55%, transparent 78%),
+    radial-gradient(circle at 50% 54%, rgba(255, 208, 109, 0.09), transparent 46%);
+  filter: blur(17px);
+  opacity: 0.9;
+}
+
+.sphereWrapper > div {
+  position: relative;
+  z-index: 1;
+}
+
+/* ====================== 遊戲留客機制（2026-08-14） ====================== */
+
+/* 進度環（2026-08-16 依指示隱藏）：最外圍的圈收起，球體獨佔舞台；要恢復移除 display:none */
+.journeyRing {
+  display: none;
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    repeating-conic-gradient(from -90deg, rgba(255,255,255,0.18) 0deg 2deg, transparent 2deg 15deg),
+    conic-gradient(from -90deg, var(--energy-color) var(--journey-deg, 0deg), rgba(255, 255, 255, 0.055) var(--journey-deg, 0deg));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3px));
+  filter: drop-shadow(0 0 7px var(--glow-color));
+  transition: background 0.35s ease;
+}
+
+.energyVeil {
+  /* 外圍旋轉光紋不屬於太極核心，且與「乾淨、沒有軌道與繞線」規格衝突。 */
+  display: none;
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 39%, var(--theme-soft) 40%, transparent 44%),
+    conic-gradient(from 18deg, transparent 0deg, var(--theme-soft) 12deg, transparent 34deg, transparent 72deg, var(--glow-color) 90deg, transparent 118deg, transparent 360deg);
+  opacity: 0.075;
+  filter: blur(0.7px) drop-shadow(0 0 4px var(--glow-color));
+  mix-blend-mode: screen;
+  animation: energyVeilTurn 48s linear infinite, energyVeilBreath 14s ease-in-out infinite;
+}
+
+.visualPulse {
+  position: absolute;
+  inset: 20px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
+  border: 1px solid var(--energy-color);
+  box-shadow:
+    0 0 12px var(--glow-color),
+    inset 0 0 16px var(--theme-soft);
+  opacity: 0;
+  animation: visualPulseOut 1600ms ease-out forwards;
+}
+
+.completionHalo {
+  display: none; /* 2026-08-16 依指示：最外圍圓滿環一併收起 */
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    repeating-conic-gradient(from -90deg, var(--energy-color) 0deg 1.2deg, transparent 1.2deg 15deg),
+    radial-gradient(circle, transparent 64%, var(--glow-color) 69%, transparent 74%);
+  opacity: calc(var(--completion-opacity) * 0.55);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px), #000 calc(100% - 4px), transparent calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px), #000 calc(100% - 4px), transparent calc(100% - 3px));
+  filter: drop-shadow(0 0 10px var(--glow-color));
+  animation: completionBreath 4.2s ease-in-out infinite;
+  transition: opacity 0.45s ease;
+}
+
+.sphereWrapper::after {
+  content: '';
+  position: absolute;
+  inset: 28px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  background: conic-gradient(from 140deg, transparent, var(--theme-secondary), transparent 34%, var(--energy-color), transparent 72%);
+  opacity: calc(var(--combo-opacity) * 0.42);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+  filter: drop-shadow(0 0 7px var(--theme-secondary));
+  animation: comboOrbit 9.2s linear infinite;
+}
+
+.sphereWrapperTouching::after {
+  opacity: 0.34;
+}
+
+@keyframes energyVeilTurn {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes energyVeilBreath {
+  0%, 100% { opacity: 0.045; }
+  50% { opacity: 0.085; }
+}
+
+/* 手機與低效能情境優先讓出合成器資源：核心畫面保留，非必要的漂浮與濾鏡停止。 */
+:global(.app-lite-effects) .sphereWrapper,
+:global(.app-scrolling) .sphereWrapper,
+:global(.app-page-hidden) .sphereWrapper {
+  animation: none;
+  will-change: auto;
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.24));
+}
+
+:global(.app-lite-effects) .sphereWrapper::before,
+:global(.app-scrolling) .sphereWrapper::before,
+:global(.app-page-hidden) .sphereWrapper::before {
+  opacity: 0.34;
+  filter: none;
+}
+
+@keyframes visualPulseOut {
+  0% { opacity: 0.32; transform: scale(0.92); }
+  55% { opacity: 0.12; }
+  100% { opacity: 0; transform: scale(1.035); }
+}
+
+@keyframes completionBreath {
+  0%, 100% { transform: scale(0.985) rotate(0deg); filter: drop-shadow(0 0 14px var(--glow-color)); }
+  50% { transform: scale(1.015) rotate(8deg); filter: drop-shadow(0 0 28px var(--glow-color)); }
+}
+
+@keyframes comboOrbit {
+  to { transform: rotate(360deg); }
+}
+
+/* ====================== 低效能環境降級 ====================== */
+@media (prefers-reduced-motion: reduce) {
+  .sphereWrapper {
+    animation: none;
+  }
+  .energyVeil,
+  .visualPulse,
+  .completionHalo,
+  .sphereWrapper::after {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .root {
+    padding: 6px 4px 8px;
+    perspective: 900px;
+  }
+
+  .sphereWrapper {
+    width: min(92vw, 390px);
+    height: min(92vw, 390px);
+    max-height: 68vh;
+    /* 2026-08-16 手機減負：大半徑 drop-shadow 是手機 GPU 最貴的濾鏡之一，
+       縮小模糊半徑（視覺幾乎相同、成本大降）；視覺語言不變。 */
+    filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.3));
+  }
+
+  .sphereWrapperTouching {
+    filter:
+      drop-shadow(0 13px 18px rgba(0, 0, 0, 0.32))
+      drop-shadow(0 0 6px var(--glow-color));
+  }
+
+  .energyVeil {
+    /* blur 濾鏡在手機逐幀重算：拿掉 0.7px 微模糊（肉眼無差），保留光暈 */
+    filter: drop-shadow(0 0 4px var(--glow-color));
+  }
+
+  .sphereWrapper::before {
+    inset: -18px;
+  }
+}

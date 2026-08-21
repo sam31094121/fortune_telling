@@ -108,7 +108,7 @@ const ARCHETYPE_COPY: Record<ZiweiVisualArchetype, { subtitle: string; keywords:
   PROTECTOR: { subtitle: '風雨中的守護者', keywords: ['屋梁', '盾牌', '道義'], power: '你有支撐他人與修復局面的能力。', challenge: '保護別人之前，需要先保護自己的能量。', direction: '先守邊界，再給支援。', action: '拒絕一件消耗你的事。' },
   CREATOR: { subtitle: '舞台上的創造者', keywords: ['火光', '舞台', '慾望'], power: '你能把渴望轉成吸引力與作品。', challenge: '熱度若沒有方向，容易變成分心。', direction: '把興趣收束成作品。', action: '完成一個可展示成果。' },
   CONNECTOR: { subtitle: '關係裡的協調者', keywords: ['印章', '橋樑', '圓桌'], power: '你擅長建立合作感，讓不同立場可以對話。', challenge: '過度協調時，容易忘記自己的立場。', direction: '讓善意有規格。', action: '清楚說出你的條件。' },
-  TRANSFORMER: { subtitle: '重組中的改革者', keywords: ['浪潮', '斷裂', '重建'], power: '你有打破舊框架、重新組裝路線的能力。', challenge: '改變太快時，容易連重要資源一起推翻。', direction: '改方法，不必全歸零。', action: '保留一個有效資源。' },
+  TRANSFORMER: { subtitle: '重組中的開創者', keywords: ['浪潮', '斷裂', '重建'], power: '你有打破舊框架、重新組裝路線的能力。', challenge: '改變太快時，容易連重要資源一起推翻。', direction: '改方法，不必全歸零。', action: '保留一個有效資源。' },
   OBSERVER: { subtitle: '門後的洞察者', keywords: ['門', '眼睛', '界線'], power: '你能看見問題背後真正的矛盾。', challenge: '話語太尖銳時，答案會被防衛心擋住。', direction: '把質疑變成提問。', action: '先問一個好問題。' },
   BUILDER: { subtitle: '城池裡的建構者', keywords: ['倉庫', '城池', '土台'], power: '你擅長累積、管理與守住長期資源。', challenge: '太求穩時，可能錯過該升級的時機。', direction: '穩住根基，再做升級。', action: '整理一項核心資源。' },
   GUIDE: { subtitle: '光線中的引路者', keywords: ['太陽', '道路', '旗幟'], power: '你能把方向說清楚，讓人願意跟上。', challenge: '一直照亮別人時，也要看見自己的需要。', direction: '把理念變成清楚指令。', action: '說出你的下一步。' },

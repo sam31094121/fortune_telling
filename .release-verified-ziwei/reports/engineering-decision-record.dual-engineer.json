@@ -1,0 +1,169 @@
+{
+  "mode": "Dual Engineer Safe Parallel Mode V1",
+  "status": "BLOCKED",
+  "statusReason": "三項 CONFLICT 需實測證據才能決定方案；真機與 LINE WebView 完全未測；工作區有第三個 writer 同時在寫。",
+  "updatedAt": "2026-08-07T13:35:00+08:00",
+  "phase": "PHASE_2_CROSS_COMPARISON_COMPLETE",
+
+  "baseline": {
+    "originalDefectBaseline": "1bc8602",
+    "mainHead": "1bc8602",
+    "workBranchHead": "4075661",
+    "note": "main 未被直接修改。4075661 落在 feature/engineer-a，且 feature/engineer-b 與 integration/dual-engineer 目前都指向同一個 commit（B 的分支已含 A 的工作，是協定上的瑕疵，合併前需釐清）。"
+  },
+
+  "agreed": [
+    "根因鏈：chunk / RSC 載入失敗 → 全域 error handler（AppStabilityGuard.tsx:105,110）→ recoverFromChunkError → window.location.replace(window.location.href)。因為 App Router 在 transition commit 前網址仍是 /，這行等於把首頁重載一次，使用者被靜靜留在原地。",
+    "全專案沒有任何 loading.tsx / template.tsx。導航期間畫面 100% 不變，是把根因放大成『點了沒反應』的關鍵。正解是新增 app/insight/loading.tsx，而非在單一卡片上寫 state。",
+    "排除：route 不存在、feature flag、middleware（專案無 middleware）、/insight mount 打 API 或 redirect（grep 全零）、document/window 層級 click 攔截（grep 全零）、巢狀 anchor、hydration 失敗（反而會退化成原生導航而成功）。",
+    "排除：裝飾層攔截。卡片是 <a>，子元素 pointer-events 不影響 anchor 導航；shimmer 層 baseline 就已 pointer-events-none。（兩人皆為靜態排除，未做 elementFromPoint 實測。）",
+    "未提交修改中，只有 lib/chunk-recovery.ts 的 pending-route redirect 真正打到根因。",
+    "6 秒 watchdog 有風險：慢但會成功的導航會被硬中斷成整頁重載，弱網手機上更慢。",
+    "app/globals.css 的 touch-action: manipulation 改動理由錯誤且實質為 no-op；pointer-events: none 於裝飾層多餘。兩項應撤除。",
+    "app/insight/page.tsx +319 行（命宮卦象卡）與本 bug 無關，應拆成獨立 commit；且會加重 /insight client bundle。"
+  ],
+
+  "conflicts": [
+    {
+      "id": "C1",
+      "topic": "touch-action 是否可能造成『完全無法導航』",
+      "a": "hypothesis：.home-feature-launch 被強制 pan-y，手指按下時幾 px 位移就被判定為 scroll、click 被取消，但 :active 已亮過。",
+      "b": "明確否定：非 auto 的 touch-action 最多造成延遲，不可能造成永遠不導航。",
+      "resolution": "UNRESOLVED — 需真機（LINE WebView / iOS Safari）實測：按住後微幅位移是否仍觸發 click。在有證據前，雙方都不得依自己的判斷修改 touch-action。"
+    },
+    {
+      "id": "C2",
+      "topic": "/insight bundle 體積的嚴重度",
+      "a": "143 KB 未壓縮 client chunk，是導航期間無回饋的主因之一。",
+      "b": "gzip 後 41 KB，在 production 屬正常；真正慢的是 dev 模式 7 MB 的 main.js，屬環境問題非程式缺陷。",
+      "resolution": "RESOLVED_FOR_B — 使用者確認手機連的是『本機 dev server + 隧道分享』。因此 bundle 體積不是本案根因，不拆頁；真正的問題是把 next dev 直接分享給手機。"
+    },
+    {
+      "id": "C3",
+      "topic": "prefetch 的效益",
+      "a": "與根因無因果，中性。",
+      "b": "多餘且可能有害：/insight 有 no-store header，prefetch 不會被 HTTP 快取，等於替每個手機使用者多下載一份。",
+      "resolution": "UNRESOLVED — 需實測 prefetch 在 no-store 下是否仍預載 client chunk。"
+    }
+  ],
+
+  "uniqueFindingsA": [
+    {
+      "finding": "使用者看到的『抖動』是 body.app-touching 的 !important transform 蓋掉 :active 縮放造成的副作用（globals.css:5794-5799 / 5997-6006 / 6666-6681），特異度 (0,2,1) > (0,2,0)。",
+      "impact": "『有抖動』不等於『click 有進來』。整個問題描述的前提可能是誤導的。",
+      "verified": "UNVERIFIED — 需實測確認"
+    },
+    {
+      "finding": "pending route 未綁定來源頁：成功進 /insight 後 15 秒內返回首頁、若首頁發生任何 chunk error，使用者會被無預警丟回 /insight。",
+      "impact": "我方修改引入的新缺陷。",
+      "verified": "CONFIRMED — 讀 lib/chunk-recovery.ts 可證"
+    },
+    {
+      "finding": "recoverFromChunkError 的 regex 含 webpack 與 cannot find module，過寬。",
+      "impact": "誤判殺傷力被 pending-route redirect 放大：以前是重載原頁，現在是把人送到 /insight。",
+      "verified": "CONFIRMED"
+    },
+    {
+      "finding": "content-visibility: auto + contain-intrinsic-size: 560px（實際卡片約 118px），hydration 前版面會跳。",
+      "impact": "點擊可能打在錯位置。",
+      "verified": "UNVERIFIED"
+    }
+  ],
+
+  "uniqueFindingsB": [
+    {
+      "finding": "scripts/screen-health-monitor.mjs clearNextCache() 刪除整個 .next（非 .next/cache），後接重啟 dev server，--watch 每 30 秒掃一次。",
+      "impact": "健康檢查誤判一次，所有正在看首頁的手機同時進入 chunk 404 失效態。這是根因的觸發源。",
+      "verified": "CONFIRMED — scripts/screen-health-monitor.mjs:230-243"
+    },
+    {
+      "finding": "scripts/stability-lock.sh:45-50 執行 rm -rf .next + git restore . + git clean -fd。",
+      "impact": "會無差別抹掉所有未提交工作。",
+      "verified": "CONFIRMED"
+    },
+    {
+      "finding": "recoverFromChunkError 的 cooldown(60s) / attempts(2 per 5min) 用完後直接 return false，pending route 不被消費、錯誤被完全靜默。",
+      "impact": "『完全沒反應』這個症狀在我方修改後仍然存在，而且狀態存在 sessionStorage，LINE WebView 一個 session 內會持續卡著。",
+      "verified": "CONFIRMED"
+    },
+    {
+      "finding": "handleZiweiOpen 未接收 event，未排除修飾鍵與中鍵。",
+      "impact": "桌機 Cmd/Ctrl+click 開新分頁的同時，原分頁 6 秒後被 watchdog 帶走。",
+      "verified": "CONFIRMED — app/page.tsx:2125"
+    },
+    {
+      "finding": "重複核心：lib/ziwei-calculator.ts 無任何 import，實際使用的是 lib/ziwei-sanfang-engine.ts。",
+      "impact": "兩套並存遲早被誤用。",
+      "verified": "NEEDS_RECHECK"
+    },
+    {
+      "finding": "契約分裂：/api/analysis/jobs 輪詢制 vs /insight 的同步 POST /api/insight-analyze（maxDuration 60）。",
+      "impact": "60 秒同步 POST 在 LINE WebView 上脆弱且無法斷線續傳。",
+      "verified": "NEEDS_RECHECK"
+    }
+  ],
+
+  "correctionsToPreviousWork": [
+    "撤回：CSS 註解宣稱 pan-y pinch-zoom 會讓 WebView 等待 double-tap。錯誤——非 auto 的 touch-action 值本來就會關閉 double-tap zoom，manipulation 只是額外開放 pan-x。該 CSS 改動應撤除。",
+    "撤回：先前判斷 4075661 提交到 main。實際落在 feature/engineer-a，main 仍在 1bc8602。",
+    "遺漏：沒有採用 loading.tsx 這個框架級解法，改用單卡 state + timer 的 workaround。兩位工程師獨立指出同一點。"
+  ],
+
+  "environmentConfirmedByUser": {
+    "answer": "本機 dev server + 隧道分享（非 Vercel 正式部署）",
+    "consequence": [
+      "根因觸發源確定為 B 的發現：dev 產物沒有 content hash，任何重新編譯、健康檢查砍 .next、或在 next dev 執行中跑 next build，都會讓手機上已開啟的首頁手上的 chunk URL 立刻 404。",
+      "接著就走 AGREED 第 1 條的鏈條：ChunkLoadError → recoverFromChunkError → 留在首頁。",
+      "C2 裁決給 B：bundle 體積不是本案根因，不拆頁。",
+      "新增最高優先項 P0-0：對手機分享不得使用 next dev。"
+    ]
+  },
+
+  "finalDecision": [
+    "P0-0 [B] 對外／對手機分享改用 next build && next start，不再把 next dev 分享出去。這一項最可能直接讓症狀消失。",
+    "P0-1 [A] 新增 app/insight/loading.tsx（兩人一致，覆蓋所有進入 /insight 的路徑）",
+    "P0-2 [SHARED] 收緊 recoverFromChunkError regex：移除 webpack 與 cannot find module",
+    "P0-3 [SHARED] 修 cooldown/attempts 死角：額度用完時不得靜默，必須有可見出口",
+    "P0-4 [SHARED] pending route 綁定來源頁，並在抵達目標後清除",
+    "P0-5 [A] 撤除 globals.css 的 touch-action / pointer-events 區塊（理由已被證偽）",
+    "P0-6 [A] handleZiweiOpen 接收 event，排除修飾鍵與中鍵",
+    "P0-7 [B] 修 screen-health-monitor.mjs 的 rm -rf .next；stability-lock.sh 加互動確認",
+    "P1-1 [A] 有 loading.tsx 後移除 6 秒 watchdog",
+    "P1-2 [A] 拆 commit：命宮卦象卡獨立",
+    "HOLD C1 / C2 / C3 — 取得實測證據前不得動手"
+  ],
+
+  "ownerMap": {
+    "app/page.tsx": "ENGINEER_A",
+    "app/globals.css": "ENGINEER_A",
+    "app/insight/loading.tsx": "ENGINEER_A",
+    "lib/chunk-recovery.ts": "ENGINEER_A (SHARED — 影響全站三個呼叫點，變更需 ENGINEER_B 覆核)",
+    "components/AppStabilityGuard.tsx": "ENGINEER_A (SHARED — 同上)",
+    "scripts/screen-health-monitor.mjs": "ENGINEER_B",
+    "scripts/stability-lock.sh": "ENGINEER_B",
+    "lib/ziwei-calculator.ts": "ENGINEER_B",
+    "app/api/insight-analyze/route.ts": "ENGINEER_B",
+    "app/insight/page.tsx": "OUT_OF_SCOPE — 命宮卦象卡應獨立 PR"
+  },
+
+  "blockers": [
+    {
+      "id": "B1",
+      "blocker": "工作區有第三個 writer。13:18 有人在 next dev 執行中跑 next build，把 .next 打成 dev/prod 混寫，兩位工程師整段診斷期間 server 全站 500（Cannot find module './1331.js'）。",
+      "consequence": "elementFromPoint 實測、chunk 載入計時、runtime 觀測全部沒做成。AGREED 第 4 項只是靜態排除。",
+      "currentState": "server 已自行恢復 200；分支 feature/engineer-a 為當前 HEAD，工作區乾淨。"
+    },
+    {
+      "id": "B2",
+      "blocker": "真機完全未測：iPhone Safari、LINE iOS、Android Chrome、LINE Android。",
+      "consequence": "驗收標準 4 項無法勾選。C1 無法裁決。"
+    },
+    {
+      "id": "B3",
+      "blocker": "不確定使用者回報問題時連的是 production 部署還是本機 dev/tunnel。",
+      "consequence": "直接決定 C2 的嚴重度，以及根因觸發源是『健康檢查砍 .next』還是『部署時 chunk hash 更替』。"
+    }
+  ],
+
+  "readyToMerge": false
+}

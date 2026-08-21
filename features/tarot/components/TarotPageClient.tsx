@@ -74,7 +74,7 @@ export default function TarotPageClient() {
         const topCard = current[current.length - 1];
         return [topCard, ...current.slice(0, -1)];
       });
-    }, 6600);
+    }, 4500);
     return () => window.clearInterval(cycleTimer);
   }, []);
 
@@ -377,7 +377,7 @@ export default function TarotPageClient() {
                       ['--preview-y' as string]: `${(pileIndex % 7) * 0.012}rem`,
                       ['--preview-rot' as string]: `${((pileIndex % 5) - 2) * 0.38}deg`,
                       ['--preview-depth' as string]: `${78 - index}px`,
-                      ['--preview-delay' as string]: `${(interlaceIndex % 13) * 18}ms`,
+                      ['--preview-delay' as string]: `${(interlaceIndex % 13) * 10}ms`,
                       ['--preview-ridge' as string]: `${0.12 + (pileIndex % 9) * 0.008}rem`,
                       ['--preview-warmth' as string]: `${0.58 + (index % 5) * 0.045}`,
                       ['--preview-pile-x' as string]: leftPile ? '-4.25rem' : '4.25rem',

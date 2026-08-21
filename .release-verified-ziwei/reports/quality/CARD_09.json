@@ -1,0 +1,52 @@
+{
+  "cardId": "CARD_09",
+  "cardName": "AI 個人成長中心 /growth-center",
+  "dimensions": [
+    { "dimension": "FUNCTIONALITY", "score": 18, "maxScore": 20, "status": "PASSED", "evidenceIds": ["net:/api/growth-center 200", "checkin-idempotent-triple-click", "retry-button-recovers"] },
+    { "dimension": "ACCURACY", "score": 16, "maxScore": 20, "status": "PASSED", "evidenceIds": ["self-other-isolation-code-review", "markGrowthModuleCompleted-guard-verified"] },
+    { "dimension": "MOBILE_UX", "score": 10, "maxScore": 15, "status": "PASSED", "evidenceIds": ["viewport-320-no-hscroll", "viewport-375-no-hscroll", "buttons-48px-verified"] },
+    { "dimension": "STABILITY", "score": 12, "maxScore": 15, "status": "PASSED", "evidenceIds": ["error-retry-flow-verified", "no-duplicate-checkin-writes"] },
+    { "dimension": "CONTENT_QUALITY", "score": 9, "maxScore": 10, "status": "PASSED", "evidenceIds": ["no-repeated-semantics-found", "three-layer-structure-present"] },
+    { "dimension": "PERFORMANCE", "score": 3, "maxScore": 10, "status": "NOT_TESTED", "evidenceIds": [] },
+    { "dimension": "TRACEABILITY", "score": 8, "maxScore": 10, "status": "PASSED", "evidenceIds": ["api-response-requestId-present"] }
+  ],
+  "issues": [
+    {
+      "id": "ISSUE-CARD09-001",
+      "cardId": "CARD_09",
+      "severity": "MINOR",
+      "layer": "FRONTEND",
+      "step": "查看補強細節 / 更新時間 收合層顯示",
+      "actualProblem": "收合層內文字字級為 12.48px，低於 16px 標準。",
+      "rootCause": "共用 CSS class .growth-detail-drawer 定義 font-size: 0.78rem，此樣式被全站多張卡片共用。",
+      "filePaths": ["app/globals.css"],
+      "repairAction": "需與 Platform Core 負責人協調統一調整 .growth-detail-drawer 字級，不可由單一卡片獨自修改共用核心樣式。",
+      "verificationAction": "調整後於 320/375/390/412/430px 重新量測收合層內所有文字節點 computed font-size。"
+    },
+    {
+      "id": "ISSUE-CARD09-002",
+      "cardId": "CARD_09",
+      "severity": "INFO",
+      "layer": "PERFORMANCE",
+      "step": "全流程",
+      "actualProblem": "尚未執行正式 FPS / 主執行緒佔用 / 記憶體量測。",
+      "rootCause": "測試環境僅有 Chromium-based 模擬瀏覽器，無效能剖析工具串接。",
+      "filePaths": [],
+      "repairAction": "待具備 Lighthouse/Chrome DevTools Performance 或真機工具時補測。",
+      "verificationAction": "使用 Performance 面板記錄一次完整互動並附上報告。"
+    }
+  ],
+  "totalScore": 76,
+  "tier": "STANDARD",
+  "mandatoryChecks": {
+    "fullFlowPassed": true,
+    "backendVerified": true,
+    "mobilePassed": true,
+    "linePassed": false,
+    "noCriticalIssues": true,
+    "regressionPassed": true
+  },
+  "allowNextCard": false,
+  "generatedAt": "2026-08-06T05:20:00.000Z",
+  "notTestedDisclosure": "本次測試環境為瀏覽器行動裝置模擬（無實體手機、無法開啟真正 LINE App）。linePassed 及 PERFORMANCE 維度因此如實標記為未通過門檻／NOT_TESTED，未做任何美化。"
+}

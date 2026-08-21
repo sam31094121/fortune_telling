@@ -1,0 +1,1563 @@
+{
+  "cardId": "CARD_09",
+  "cardName": "AI 個人成長中心",
+  "moduleId": "growth_center",
+  "route": "/growth-center",
+  "dimensions": [
+    {
+      "dimension": "FUNCTIONALITY",
+      "score": 20,
+      "maxScore": 20,
+      "status": "PASSED",
+      "evidenceIds": [
+        "ROUTE_OK",
+        "API_SELF_OTHER_OK"
+      ]
+    },
+    {
+      "dimension": "ACCURACY",
+      "score": 16,
+      "maxScore": 20,
+      "status": "PASSED",
+      "evidenceIds": [
+        "BACKEND_RESULT_SHAPE_OK"
+      ]
+    },
+    {
+      "dimension": "MOBILE_UX",
+      "score": 5,
+      "maxScore": 15,
+      "status": "NOT_TESTED",
+      "evidenceIds": [
+        "ROUTE_HTML_REACHABLE_ONLY"
+      ]
+    },
+    {
+      "dimension": "STABILITY",
+      "score": 15,
+      "maxScore": 15,
+      "status": "PASSED",
+      "evidenceIds": [
+        "SCREEN_HEALTH_ROUTE",
+        "API_RESPONDED",
+        "NO_JOB_POLLING_GAP"
+      ]
+    },
+    {
+      "dimension": "CONTENT_QUALITY",
+      "score": 8,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "PAGE_RENDERED_CONTENT_PRESENT"
+      ]
+    },
+    {
+      "dimension": "PERFORMANCE",
+      "score": 10,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "MAX_DURATION_484MS"
+      ]
+    },
+    {
+      "dimension": "TRACEABILITY",
+      "score": 8,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "REQUEST_ID_2f0ce307-e7fc-4a94-ad7a-1410ba8e9a49",
+        "REQUEST_ID_75c834bd-383e-4f14-ba9d-4167a368b474"
+      ]
+    }
+  ],
+  "issues": [
+    {
+      "id": "CARD_09-MOBILE-LINE-NOT-TESTED",
+      "cardId": "CARD_09",
+      "severity": "MAJOR",
+      "layer": "INTERACTION",
+      "step": "mobile LINE visual verification",
+      "actualProblem": "This audit did not include real LINE/iPhone/Android tap-and-screenshot evidence.",
+      "rootCause": "Current evidence is route/API/HTTP. Mobile visual evidence must be captured separately.",
+      "filePaths": [],
+      "repairAction": "Use controlled mobile browser or real device LINE flow and attach screenshot evidence.",
+      "verificationAction": "Record device, browser, viewport, screenshot path, startedAt/completedAt."
+    }
+  ],
+  "mandatoryChecks": {
+    "fullFlowPassed": true,
+    "backendVerified": true,
+    "mobilePassed": false,
+    "linePassed": false,
+    "noCriticalIssues": true,
+    "regressionPassed": true
+  },
+  "evidence": {
+    "baseUrl": "http://localhost:8888",
+    "route": {
+      "ok": true,
+      "status": 200,
+      "durationMs": 484,
+      "length": 1000,
+      "error": null
+    },
+    "self": {
+      "ok": true,
+      "response": {
+        "ok": true,
+        "status": 200,
+        "route": "/api/growth-center?completedModules=nameology,bazi,zodiac,tarot&primaryElement=FIRE&secondaryElement=AIR&avoidElement=WATER&anonymousProfileId=quality-all-self",
+        "durationMs": 266,
+        "data": {
+          "success": true,
+          "data": {
+            "coreV2": {
+              "version": "growth_center_core_v2",
+              "positioning": {
+                "title": "AI 個人成長中心",
+                "principle": "分析一次，終身陪伴。",
+                "roleSplit": "八張分析卡片負責分析；AI 成長中心只負責整理、提醒、陪伴與行動。"
+              },
+              "firstScreen": {
+                "title": "本週 AI 成長提醒",
+                "headline": "本週第一補強：火元素",
+                "body": "AI 已讀取目前完成的分析，本週重點鎖定 火元素。今天先完成一個小行動，讓節奏開始改變。",
+                "primaryMetric": "4/8",
+                "status": "還差 4 項完整解鎖"
+              },
+              "memberMemory": {
+                "title": "會員成長記憶",
+                "completedText": "已完成 4 項探索。",
+                "missingText": "尚有 4 項探索可完成。",
+                "currentFocus": "目前核心補強：火元素。",
+                "noReanalysisPolicy": "AI 成長中心只讀取已完成結果，不重新分析、不覆蓋原本命理資料。"
+              },
+              "weeklyCompanion": {
+                "reminder": "本週最重要：補強 火元素，用一個小行動帶動 行動、決斷、熱度與突破。",
+                "reinforcement": "本週持續補強：火元素。",
+                "energyColor": "本週能量色：深紅色。",
+                "task": "本週一件任務：本週主動做出一個明確決定。",
+                "quote": "比爾蓋茲: 慶祝成功很好，但從失敗中記取教訓更重要。"
+              },
+              "followUpPolicy": {
+                "prompt": "本週 火元素 有持續補強嗎？",
+                "ifContinued": "有持續，就把同一個行動固定成習慣。",
+                "ifPaused": "沒有持續，今天重新開始也算前進。",
+                "boundary": "Follow-Up 只追蹤補強、行動與成長，不聊天、不偏題、不重新算命。"
+              },
+              "retentionLoop": {
+                "title": "每週陪伴循環",
+                "steps": [
+                  "完成分析",
+                  "整合結果",
+                  "每週提醒",
+                  "完成一件任務",
+                  "下週回來追蹤"
+                ]
+              }
+            },
+            "progress": {
+              "completedModules": [
+                "nameology",
+                "bazi",
+                "zodiac",
+                "tarot"
+              ],
+              "missingModules": [
+                "ziwei",
+                "number",
+                "soul_match",
+                "music"
+              ],
+              "completed": 4,
+              "total": 8,
+              "unlockLevel": "cross_module",
+              "message": "目前已完成 4/8，距離完整解鎖還差 4 項。繼續完成探索，AI 陪伴會更精準。"
+            },
+            "companionJourney": {
+              "version": "growth_companion_v4",
+              "purpose": "lifetime_retention_without_reanalysis",
+              "stage": {
+                "id": "cross_module",
+                "label": "交叉整合",
+                "description": "已具備跨模組訊號，成長中心會輸出更明確的元素補強排序。",
+                "returnReason": "繼續完成剩餘卡片，讓平台形成完整陪伴循環。"
+              },
+              "loop": [
+                {
+                  "step": 1,
+                  "label": "提醒",
+                  "title": "本週一句話",
+                  "body": "本週最重要：補強 火元素，用一個小行動帶動 行動、決斷、熱度與突破。"
+                },
+                {
+                  "step": 2,
+                  "label": "補強",
+                  "title": "本週第一補強",
+                  "body": "本週持續補強 火元素。"
+                },
+                {
+                  "step": 3,
+                  "label": "顏色",
+                  "title": "本週能量色",
+                  "body": "本週使用 深紅色。"
+                },
+                {
+                  "step": 4,
+                  "label": "行動",
+                  "title": "本週一件任務",
+                  "body": "本週主動做出一個明確決定。"
+                },
+                {
+                  "step": 5,
+                  "label": "鼓勵",
+                  "title": "成功人士一句話",
+                  "body": "比爾蓋茲: 慶祝成功很好，但從失敗中記取教訓更重要。"
+                }
+              ],
+              "checkIn": {
+                "weekKey": "2026-W34",
+                "title": "本週追蹤",
+                "prompt": "完成本週任務後，回來點一下完成，AI 會保留你的成長節奏。",
+                "buttonText": "完成本週追蹤",
+                "completedText": "本週已完成追蹤。下週回來看新的提醒。",
+                "returnHint": "繼續完成剩餘卡片，讓平台形成完整陪伴循環。"
+              }
+            },
+            "longTermEcosystem": {
+              "version": "lifetime_companion_v1",
+              "monthKey": "2026-08",
+              "title": "AI 長期陪伴生態系",
+              "monthlyTheme": "2026-08 月核心方向：火元素",
+              "monthlyFocus": "本月重點是提高完成速度與主動性。",
+              "promise": "AI 不要求你重複算命，而是每週提醒你完成一件真正能推進自己的事。",
+              "rhythm": [
+                "每週提醒",
+                "每週任務",
+                "每週追蹤",
+                "每月整理"
+              ],
+              "checkpoints": [
+                {
+                  "week": 1,
+                  "title": "第一週：建立方向",
+                  "action": "確認本月核心補強：火元素。"
+                },
+                {
+                  "week": 2,
+                  "title": "第二週：固定行動",
+                  "action": "本週主動做出一個明確決定。"
+                },
+                {
+                  "week": 3,
+                  "title": "第三週：修正節奏",
+                  "action": "檢查哪一件事卡住，今天重新推進一步。"
+                },
+                {
+                  "week": 4,
+                  "title": "第四週：整理成果",
+                  "action": "寫下本月一個完成與一個調整。"
+                }
+              ],
+              "nextMonthlyUpdateAt": "2026-09-01T00:00:00+08:00",
+              "policy": "第五層只建立長期陪伴生態，不新增命理、不重複各卡片內容、不覆蓋任何命理結果。 目前陪伴階段：交叉整合。"
+            },
+            "weeklyReport": {
+              "weekKey": "2026-W34",
+              "oneLineReminder": "本週最重要：補強 火元素，用一個小行動帶動 行動、決斷、熱度與突破。",
+              "primaryAction": "本週主動做出一個明確決定。",
+              "evidence": [
+                "姓名學已提供文字頻率、音韻與人格外顯訊號。",
+                "八字命盤已提供出生時間、干支結構與五行平衡訊號。",
+                "西洋星座已提供星座特質、外在互動與心理傾向訊號。",
+                "塔羅牌已提供牌陣、正逆位、象徵語義與五元素權重訊號。"
+              ]
+            },
+            "weeklyReinforcement": {
+              "element": "FIRE",
+              "label": "火元素",
+              "headline": "本週第一補強是火元素：先開始，執行力就會被帶起來。",
+              "reason": "火元素代表行動力、決策速度、表達熱度與突破意願。補強火元素，重點是減少拖延，讓事情真正往前推進。",
+              "action": "本週主動做出一個明確決定。"
+            },
+            "weeklyTask": {
+              "title": "本週一件行動任務",
+              "task": "本週主動做出一個明確決定。",
+              "reason": "這件任務會直接帶動 火元素，讓 行動、決斷、熱度與突破 開始變得更穩定。"
+            },
+            "followUp": {
+              "version": "ai_follow_up_system_v2",
+              "purpose": "追蹤會員本週補強進度，增加長期陪伴與回訪，不新增命理分析。",
+              "highestPrinciple": "AI 只追蹤補強、任務與行動，不聊天、不偏題、不重新分析。",
+              "sourcePolicy": "所有追蹤內容只讀取 AI Integration Layer 已整理的結果。",
+              "scopePolicy": "本週只圍繞 火元素、本週任務與會員自己的補強進度。",
+              "forbiddenTopics": [
+                "家庭隱私",
+                "收入狀況",
+                "孩子與伴侶細節",
+                "生活八卦",
+                "健康診斷",
+                "重新算命",
+                "重新排盤",
+                "與本週補強無關的聊天"
+              ],
+              "weekKey": "2026-W34",
+              "primaryElement": "FIRE",
+              "elementLabel": "火元素",
+              "prompt": "這一週，你有持續補強 火元素 嗎？",
+              "quickReplies": [
+                {
+                  "id": "continued",
+                  "label": "有持續",
+                  "meaning": "會員本週有依照提醒完成補強行動。"
+                },
+                {
+                  "id": "paused",
+                  "label": "還沒有",
+                  "meaning": "會員本週尚未開始或中斷補強行動。"
+                }
+              ],
+              "replyWhenContinued": {
+                "title": "很好，請持續。",
+                "message": "你已經開始補強 火元素，現在要把它固定成穩定節奏。",
+                "nextStep": "下一步：把「本週主動做出一個明確決定。」固定成今天的一個小動作。",
+                "improvement": "這會改善你的執行節奏、專注力與持續感。"
+              },
+              "replyWhenPaused": {
+                "title": "今天開始也不晚。",
+                "message": "目前仍建議持續補強 火元素，先不用想太多，今天先做第一步。",
+                "nextStep": "今天先做：「本週主動做出一個明確決定。」。",
+                "improvement": "這會幫你重新找回方向，降低拖延，讓行動重新開始。"
+              },
+              "boundary": "Follow-Up 只處理會員自己的補強進度、本週任務與行動提醒；不詢問私人生活，不重新分析命理。",
+              "metrics": [
+                "weekly_follow_up_viewed",
+                "weekly_follow_up_answered",
+                "weekly_task_continued",
+                "weekly_task_paused"
+              ]
+            },
+            "weeklyEnergyColor": {
+              "weekKey": "2026-W34",
+              "element": "FIRE",
+              "colorName": "深紅色",
+              "hex": "#B91C1C",
+              "reason": "火元素代表行動力、決策速度、表達熱度與突破意願。補強火元素，重點是減少拖延，讓事情真正往前推進。",
+              "usage": [
+                "衣服",
+                "手機桌布",
+                "重點標籤"
+              ],
+              "message": "本週能量色是 深紅色。可用在 衣服、手機桌布，提醒自己持續補強 火元素。"
+            },
+            "weeklyInspiration": {
+              "author": "比爾蓋茲",
+              "role": "Microsoft 共同創辦人",
+              "quote": "慶祝成功很好，但從失敗中記取教訓更重要。",
+              "fit": "這句話提醒你從每一次調整中累積智慧。",
+              "sourceName": "比爾蓋茲個人部落格",
+              "sourceUrl": "https://www.gatesnotes.com/"
+            },
+            "fiveElement": {
+              "primaryElement": "FIRE",
+              "secondaryElement": "AIR",
+              "elementScore": {
+                "EARTH": 62,
+                "WATER": 20,
+                "FIRE": 91,
+                "AIR": 90,
+                "SPACE": 48
+              },
+              "avoidElement": "WATER",
+              "confidence": "high",
+              "summary": "AI Integration Layer 判定本週第一補強為 火元素，第二參考為 風元素。成長中心只讀取結果，不重新分析。"
+            },
+            "nextStep": {
+              "moduleId": "ziwei",
+              "title": "下一步完成：AI 紫微斗數",
+              "href": "/insight"
+            },
+            "dataPolicy": "AI Integration Layer 只讀取八張分析卡片已完成的狀態與元素方向，不重新排盤、不重新算命、不重複呼叫任何命理分析。 第五層只建立長期陪伴生態，不新增命理、不重複各卡片內容、不覆蓋任何命理結果。",
+            "updatedAt": "2026-08-17T16:52:21.914Z",
+            "nextWeeklyUpdateAt": "2026-08-24T00:00:00+08:00",
+            "nextMonthlyUpdateAt": "2026-09-01T00:00:00+08:00",
+            "generationVersion": "growth_center_v4",
+            "personalizationSeed": "5d978d6b7cb36dd6",
+            "systemStability": {
+              "version": "tiandiren_master_plan_v1",
+              "principle": "Analyze once, companion for life",
+              "status": "ready",
+              "layers": [
+                {
+                  "id": "analysis",
+                  "title": "Layer 1: eight independent analysis cards",
+                  "rule": "Eight cards analyze and save independently without overwriting each other."
+                },
+                {
+                  "id": "integration",
+                  "title": "Layer 2: AI Integration Layer",
+                  "rule": "Read completed analysis results only. Do not re-analyze or re-calculate."
+                },
+                {
+                  "id": "growth_center",
+                  "title": "Layer 3: AI Growth Center",
+                  "rule": "Convert saved signals into companionship, reminders, encouragement, and action."
+                },
+                {
+                  "id": "weekly_companion",
+                  "title": "Layer 4: AI Weekly Companion",
+                  "rule": "Keep one task, one color, one reminder, and one quote per week."
+                },
+                {
+                  "id": "system_stability",
+                  "title": "Layer 5: System Stability Layer",
+                  "rule": "Every new module must pass no conflict, no duplicate, and no overwrite checks."
+                }
+              ],
+              "aiCorePolicy": {
+                "id": "single_ai_core_policy",
+                "title": "Single AI Core",
+                "rule": "AI Core coordinates copy, loading, errors, and companionship text. The eight analysis cards keep their engines independent."
+              },
+              "modules": [
+                {
+                  "id": "nameology",
+                  "title": "AI Nameology",
+                  "shortTitle": "Nameology",
+                  "href": "/nameology",
+                  "apiHint": "/api/nameology-analyze",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state and element direction. Growth Center must not re-analyze names."
+                },
+                {
+                  "id": "ziwei",
+                  "title": "AI Ziwei",
+                  "shortTitle": "Ziwei",
+                  "href": "/insight",
+                  "apiHint": "/api/insight-analyze",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state and element direction. Growth Center must not re-run Ziwei."
+                },
+                {
+                  "id": "number",
+                  "title": "AI Number Fortune",
+                  "shortTitle": "Number",
+                  "href": "/numerology",
+                  "apiHint": "/api/number/analyze",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state and element direction. Growth Center must not re-calculate numbers."
+                },
+                {
+                  "id": "soul_match",
+                  "title": "AI Soul Match",
+                  "shortTitle": "Match",
+                  "href": "/match",
+                  "apiHint": "/api/match-generate",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state and relationship direction. Growth Center must not re-analyze matching."
+                },
+                {
+                  "id": "music",
+                  "title": "AI Music",
+                  "shortTitle": "Music",
+                  "href": "/music",
+                  "apiHint": "/api/music-generate",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state and rhythm direction. Growth Center must not regenerate music."
+                },
+                {
+                  "id": "bazi",
+                  "title": "AI Bazi Chart",
+                  "shortTitle": "Bazi",
+                  "href": "/bazi",
+                  "apiHint": "/api/analysis/jobs",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state and chart direction. Growth Center must not re-run Bazi."
+                },
+                {
+                  "id": "zodiac",
+                  "title": "AI Western Zodiac",
+                  "shortTitle": "Zodiac",
+                  "href": "/zodiac",
+                  "apiHint": "/api/analysis/jobs",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state, zodiac sign, and weekly reminder. Growth Center must not re-run zodiac analysis."
+                },
+                {
+                  "id": "tarot",
+                  "title": "AI Tarot Card",
+                  "shortTitle": "Tarot",
+                  "href": "/tarot",
+                  "apiHint": "/api/tarot/reading",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only tarot completion state and element signal. Growth Center must not auto-draw cards or overwrite core member elements."
+                }
+              ],
+              "checks": [
+                {
+                  "id": "eight_modules_registered",
+                  "label": "Eight analysis cards registered",
+                  "ok": true,
+                  "detail": "Registered analysis cards: 8."
+                },
+                {
+                  "id": "completed_modules_known",
+                  "label": "Completed modules are known",
+                  "ok": true,
+                  "detail": "Completed states belong to registered cards only."
+                },
+                {
+                  "id": "integration_read_only",
+                  "label": "Integration Layer is read-only",
+                  "ok": true,
+                  "detail": "Growth Center receives completion state and element direction only. It does not call analysis engines."
+                },
+                {
+                  "id": "weekly_single_focus",
+                  "label": "Weekly companion keeps one focus",
+                  "ok": true,
+                  "detail": "Each week keeps one element, one color, one task, and one quote."
+                },
+                {
+                  "id": "no_analysis_reentry",
+                  "label": "Analysis re-entry is blocked",
+                  "ok": true,
+                  "detail": "Forbidden analysis entry points: 8."
+                }
+              ]
+            },
+            "copywritingStyle": {
+              "version": "ai_copywriting_style_center_v2",
+              "positioning": {
+                "role": "一位有判斷力、有方向感、能陪伴使用者成長的 AI 顧問。",
+                "notRole": [
+                  "老師",
+                  "算命先生",
+                  "心靈雞湯"
+                ],
+                "coreValue": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。"
+              },
+              "tone": [
+                "advisor",
+                "clear",
+                "direct",
+                "actionable",
+                "companion"
+              ],
+              "forbiddenWords": [
+                "可能",
+                "也許",
+                "或許",
+                "大概",
+                "應該",
+                "建議可以",
+                "建議你",
+                "試試看",
+                "傾向",
+                "比較像",
+                "疑似",
+                "看起來",
+                "可以試試",
+                "看情況",
+                "如果有空",
+                "隨緣"
+              ],
+              "replacements": [
+                {
+                  "avoid": "可能",
+                  "use": "AI 判定",
+                  "reason": "把不確定語氣改成清楚判斷。"
+                },
+                {
+                  "avoid": "也許",
+                  "use": "目前重點",
+                  "reason": "把模糊推測改成當下方向。"
+                },
+                {
+                  "avoid": "或許",
+                  "use": "現在最重要",
+                  "reason": "讓使用者知道優先順序。"
+                },
+                {
+                  "avoid": "大概",
+                  "use": "本週重點",
+                  "reason": "把籠統描述改成週期任務。"
+                },
+                {
+                  "avoid": "應該",
+                  "use": "必須",
+                  "reason": "把柔性期待改成明確要求。"
+                },
+                {
+                  "avoid": "建議可以",
+                  "use": "請優先",
+                  "reason": "把軟性建議改成明確補強。"
+                },
+                {
+                  "avoid": "建議你",
+                  "use": "AI 判定你",
+                  "reason": "把個人意見語氣改成系統判定語氣。"
+                },
+                {
+                  "avoid": "試試看",
+                  "use": "立即開始做",
+                  "reason": "把不確定的嘗試改成明確行動。"
+                },
+                {
+                  "avoid": "傾向",
+                  "use": "判定方向",
+                  "reason": "把推測語氣改成判定語氣。"
+                },
+                {
+                  "avoid": "比較像",
+                  "use": "系統判定為",
+                  "reason": "把相似描述改成明確分類。"
+                },
+                {
+                  "avoid": "疑似",
+                  "use": "系統判定",
+                  "reason": "移除不確定判斷。"
+                },
+                {
+                  "avoid": "看起來",
+                  "use": "系統判定",
+                  "reason": "移除觀感式描述。"
+                },
+                {
+                  "avoid": "可以試試",
+                  "use": "今天開始做",
+                  "reason": "把建議改成行動。"
+                },
+                {
+                  "avoid": "看情況",
+                  "use": "先完成這一步",
+                  "reason": "把等待改成可執行步驟。"
+                },
+                {
+                  "avoid": "如果有空",
+                  "use": "今天安排一段時間",
+                  "reason": "把可做可不做改成具體安排。"
+                },
+                {
+                  "avoid": "隨緣",
+                  "use": "主動行動",
+                  "reason": "把被動接受改成主動建立改變。"
+                }
+              ],
+              "rules": [
+                {
+                  "id": "clear_judgement",
+                  "title": "清楚判定",
+                  "rule": "每段 AI 文案必須清楚指出目前最重要的方向，禁止模稜兩可。"
+                },
+                {
+                  "id": "one_action",
+                  "title": "一定帶一個行動",
+                  "rule": "每次 AI 回覆必須帶出一個可執行行動，不能只有分析。"
+                },
+                {
+                  "id": "three_answers",
+                  "title": "回答三件事",
+                  "rule": "每段重點文案要回答：現在最重要是什麼、你應該做什麼、做了會產生什麼改變。"
+                },
+                {
+                  "id": "growth_change_only",
+                  "title": "改變限定在成長層面",
+                  "rule": "改變只描述行為、習慣、思考、節奏、執行力、專注力、人際互動。"
+                },
+                {
+                  "id": "no_outcome_guarantee",
+                  "title": "禁止結果保證",
+                  "rule": "不得保證發財、中獎、升官、疾病改善、桃花一定成功。"
+                },
+                {
+                  "id": "lifetime_companion",
+                  "title": "分析一次，持續陪伴",
+                  "rule": "分析只做一次，陪伴一直持續；每次登入都給一個方向、一個行動、一份力量。"
+                }
+              ],
+              "actionContract": {
+                "now": "現在最重要是什麼",
+                "action": "你應該做什麼",
+                "change": "做了會產生什麼行為與節奏改變"
+              },
+              "backendFrontendCopyContract": {
+                "purpose": "後端輸出標準化，前端直接美化呈現。",
+                "voice": "快、狠、準、肯定、有感。",
+                "headlineRule": "標題直接給結論，不繞路，不重複，不使用模糊詞。",
+                "confidenceRule": "信心值代表資料完整度與模型一致性，不代表命運保證。",
+                "structure": [
+                  "AI 判定標題",
+                  "信心值標示",
+                  "資料依據",
+                  "立即行動",
+                  "不保證結果聲明"
+                ],
+                "frontendFields": [
+                  "eyebrow",
+                  "headline",
+                  "confidenceBadge",
+                  "confidenceText",
+                  "evidenceItems",
+                  "actionText",
+                  "safetyText",
+                  "frontendTone"
+                ]
+              },
+              "backendFrontendCopySample": {
+                "eyebrow": "AI 五元素｜AI 判定輸出",
+                "headline": "AI 判定：目前最缺火元素。第一補強鎖定火元素。",
+                "confidenceBadge": "AI 明確判定｜91%",
+                "confidenceText": "信心值 91% 代表資料完整度與模型一致性；這是判定強度，不是命運保證。",
+                "evidenceTitle": "判定依據",
+                "evidenceItems": [
+                  "五元素權重差距明確",
+                  "第一補強與第二補強差距已達可判定區間",
+                  "多模組交叉方向一致"
+                ],
+                "actionTitle": "立即行動",
+                "actionText": "AI 建議立即執行：今天先補火元素，完成後再補風元素，最後回到地元素穩定。",
+                "safetyText": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。成果由使用者的行動創造。",
+                "frontendTone": "high-confidence"
+              },
+              "actionGuidance": {
+                "version": "ai_action_guidance_v1",
+                "purpose": "讓使用者離開平台前，一定知道今天開始要做什麼。",
+                "highestPrinciple": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+                "requiredSteps": [
+                  {
+                    "id": "judgement",
+                    "title": "目前判斷",
+                    "question": "AI 目前判定了什麼？",
+                    "outputRule": "直接說出第一判斷，例如：AI 判定：目前最缺火元素。請優先補強火元素。"
+                  },
+                  {
+                    "id": "priority",
+                    "title": "現在最重要",
+                    "question": "現在最重要的一件事是什麼？",
+                    "outputRule": "只給一個重點，不同時丟出多個方向。"
+                  },
+                  {
+                    "id": "next_action",
+                    "title": "下一步要做什麼",
+                    "question": "會員今天開始要做什麼？",
+                    "outputRule": "給出今天就能開始的一個行動，例如：主動完成一件拖延最久的事情。"
+                  },
+                  {
+                    "id": "improvement_direction",
+                    "title": "改善方向",
+                    "question": "做了之後會改善哪一個方向？",
+                    "outputRule": "只能描述行動力、決策速度、執行效率、習慣、節奏、專注力、人際互動等成長方向。"
+                  }
+                ],
+                "forbidden": [
+                  "不能只給答案，必須給下一步。",
+                  "不得使用可能、也許、或許、建議可以、傾向、比較像、疑似、看起來、大概、看情況等模糊詞。",
+                  "不得保證發財、中獎、升官、疾病改善、桃花一定成功。",
+                  "不得一開始就推產品；必須先說原因，再說行動，最後才推薦五元素補強方案。",
+                  "成功人士名言只能放最後，用來增加力量，不得取代 AI 分析。"
+                ],
+                "productOrder": [
+                  "先說原因",
+                  "再說行動",
+                  "最後推薦五元素補強方案"
+                ],
+                "examples": {
+                  "elementJudgement": "AI 判定：目前最缺火元素。請優先補強火元素。完成後再補風元素，最後補地元素。",
+                  "priority": "現在最重要：先讓行動發生。",
+                  "nextAction": "今天開始：主動完成一件拖延最久的事情。",
+                  "improvement": "這個行動會改善你的行動力、決策速度與執行效率。"
+                },
+                "instruction": "天地人和 AI 每一次分析完成後，必須提供 AI 行動引導。\n輸出必須包含四件事：目前判斷、現在最重要、下一步要做什麼、做了會改善哪一個方向。\n每次只告訴會員現在最重要的一件事情。\n語氣必須直接、清楚、有力量、有方向。\n不能使用模稜兩可文字，不能保證不存在的結果。\nAI 不預測你的命運；AI 判定你目前最需要補強的方向。\n產品只能在原因與行動之後出現，成功人士名言只能放在最後。"
+              },
+              "instruction": "天地人和 AI 平台 必須使用天地人和 AI 專屬語言風格。\nAI 定位：一位有判斷力、有方向感、能陪伴使用者成長的 AI 顧問。\nAI 不預測你的命運；AI 判定你目前最需要補強的方向。\nAI 的工作是判定缺口，不是保證結果。\n結論可以強烈，但必須根據資料完整度與模型一致性給出信心值。信心值不是命運保證。\n語氣：清楚、直接、有力量、有方向、有行動，全部使用肯定句、明確句、行動句。\n句式公式：先講破壞力判斷（點出現在最卡住的核心問題），再給出精準建設方向，語氣要快、狠、準、肯定、有感。\n全部使用「AI 判定」「AI 分析」「AI 確認」開頭，行動指令用「AI 建議立即執行」，不得使用模糊建議語氣。\n禁止模糊詞：可能、也許、或許、大概、應該、建議可以、建議你、試試看、傾向、比較像、疑似、看起來、可以試試、看情況、如果有空、隨緣。\n五元素輸出必須使用：AI 判定 → 目前最缺 → 請立即補強 → 完成後再補 → 最後補。\n每次輸出必須回答四件事：目前判斷、現在最重要、下一步要做什麼、做了會改善哪一個方向。\n改變只能描述行為、習慣、思考、節奏、執行力、專注力、人際互動。\n不得保證發財、中獎、升官、疾病改善、桃花一定成功。"
+            },
+            "integrationLayer": {
+              "version": "ai_integration_layer_v1",
+              "role": "read_only_weekly_companion",
+              "sourceModules": [
+                "nameology",
+                "bazi",
+                "zodiac",
+                "tarot"
+              ],
+              "forbiddenCalls": [
+                "nameology-engine",
+                "ziwei-calculator",
+                "bazi-engine",
+                "number-core-engine",
+                "match-generate",
+                "music-generate",
+                "zodiac-engine",
+                "tarot-engine"
+              ],
+              "pipeline": [
+                "ReadCompletedModuleState",
+                "NormalizeElementSignal",
+                "ChooseWeeklyPrimaryElement",
+                "BuildWeeklyCompanionPayload",
+                "BuildCompanionReturnLoop",
+                "BuildLifetimeCompanionEcosystem",
+                "ReturnGrowthCenterViewModel"
+              ]
+            }
+          },
+          "requestId": "2f0ce307-e7fc-4a94-ad7a-1410ba8e9a49"
+        }
+      },
+      "requestId": "2f0ce307-e7fc-4a94-ad7a-1410ba8e9a49"
+    },
+    "other": {
+      "ok": true,
+      "response": {
+        "ok": true,
+        "status": 200,
+        "route": "/api/growth-center?completedModules=tarot&primaryElement=WATER&secondaryElement=EARTH&avoidElement=FIRE&anonymousProfileId=quality-all-other",
+        "durationMs": 15,
+        "data": {
+          "success": true,
+          "data": {
+            "coreV2": {
+              "version": "growth_center_core_v2",
+              "positioning": {
+                "title": "AI 個人成長中心",
+                "principle": "分析一次，終身陪伴。",
+                "roleSplit": "八張分析卡片負責分析；AI 成長中心只負責整理、提醒、陪伴與行動。"
+              },
+              "firstScreen": {
+                "title": "本週 AI 成長提醒",
+                "headline": "本週第一補強：水元素",
+                "body": "AI 已讀取目前完成的分析，本週重點鎖定 水元素。今天先完成一個小行動，讓節奏開始改變。",
+                "primaryMetric": "1/8",
+                "status": "還差 7 項完整解鎖"
+              },
+              "memberMemory": {
+                "title": "會員成長記憶",
+                "completedText": "已完成 1 項探索。",
+                "missingText": "尚有 7 項探索可完成。",
+                "currentFocus": "目前核心補強：水元素。",
+                "noReanalysisPolicy": "AI 成長中心只讀取已完成結果，不重新分析、不覆蓋原本命理資料。"
+              },
+              "weeklyCompanion": {
+                "reminder": "本週最重要：補強 水元素，用一個小行動帶動 感受、流動、理解與修復。",
+                "reinforcement": "本週持續補強：水元素。",
+                "energyColor": "本週能量色：湖水青。",
+                "task": "本週一件任務：把一個壓力點寫下來，找出能調整的地方。",
+                "quote": "比爾蓋茲: 慶祝成功很好，但從失敗中記取教訓更重要。"
+              },
+              "followUpPolicy": {
+                "prompt": "本週 水元素 有持續補強嗎？",
+                "ifContinued": "有持續，就把同一個行動固定成習慣。",
+                "ifPaused": "沒有持續，今天重新開始也算前進。",
+                "boundary": "Follow-Up 只追蹤補強、行動與成長，不聊天、不偏題、不重新算命。"
+              },
+              "retentionLoop": {
+                "title": "每週陪伴循環",
+                "steps": [
+                  "完成分析",
+                  "整合結果",
+                  "每週提醒",
+                  "完成一件任務",
+                  "下週回來追蹤"
+                ]
+              }
+            },
+            "progress": {
+              "completedModules": [
+                "tarot"
+              ],
+              "missingModules": [
+                "nameology",
+                "ziwei",
+                "number",
+                "soul_match",
+                "music",
+                "bazi",
+                "zodiac"
+              ],
+              "completed": 1,
+              "total": 8,
+              "unlockLevel": "starter",
+              "message": "目前已完成 1/8。先累積三項探索，AI 成長中心會開始給出更清楚的每週方向。"
+            },
+            "companionJourney": {
+              "version": "growth_companion_v4",
+              "purpose": "lifetime_retention_without_reanalysis",
+              "stage": {
+                "id": "starter",
+                "label": "初始陪伴",
+                "description": "已累積第一批分析訊號，成長中心開始整理每週方向。",
+                "returnReason": "再完成兩項分析，AI 的交叉整理會更精準。"
+              },
+              "loop": [
+                {
+                  "step": 1,
+                  "label": "提醒",
+                  "title": "本週一句話",
+                  "body": "本週最重要：補強 水元素，用一個小行動帶動 感受、流動、理解與修復。"
+                },
+                {
+                  "step": 2,
+                  "label": "補強",
+                  "title": "本週第一補強",
+                  "body": "本週持續補強 水元素。"
+                },
+                {
+                  "step": 3,
+                  "label": "顏色",
+                  "title": "本週能量色",
+                  "body": "本週使用 湖水青。"
+                },
+                {
+                  "step": 4,
+                  "label": "行動",
+                  "title": "本週一件任務",
+                  "body": "把一個壓力點寫下來，找出能調整的地方。"
+                },
+                {
+                  "step": 5,
+                  "label": "鼓勵",
+                  "title": "成功人士一句話",
+                  "body": "比爾蓋茲: 慶祝成功很好，但從失敗中記取教訓更重要。"
+                }
+              ],
+              "checkIn": {
+                "weekKey": "2026-W34",
+                "title": "本週追蹤",
+                "prompt": "完成本週任務後，回來點一下完成，AI 會保留你的成長節奏。",
+                "buttonText": "完成本週追蹤",
+                "completedText": "本週已完成追蹤。下週回來看新的提醒。",
+                "returnHint": "再完成兩項分析，AI 的交叉整理會更精準。"
+              }
+            },
+            "longTermEcosystem": {
+              "version": "lifetime_companion_v1",
+              "monthKey": "2026-08",
+              "title": "AI 長期陪伴生態系",
+              "monthlyTheme": "2026-08 月核心方向：水元素",
+              "monthlyFocus": "本月重點是讓關係與節奏變得更順。",
+              "promise": "AI 不要求你重複算命，而是每週提醒你完成一件真正能推進自己的事。",
+              "rhythm": [
+                "每週提醒",
+                "每週任務",
+                "每週追蹤",
+                "每月整理"
+              ],
+              "checkpoints": [
+                {
+                  "week": 1,
+                  "title": "第一週：建立方向",
+                  "action": "確認本月核心補強：水元素。"
+                },
+                {
+                  "week": 2,
+                  "title": "第二週：固定行動",
+                  "action": "把一個壓力點寫下來，找出能調整的地方。"
+                },
+                {
+                  "week": 3,
+                  "title": "第三週：修正節奏",
+                  "action": "檢查哪一件事卡住，今天重新推進一步。"
+                },
+                {
+                  "week": 4,
+                  "title": "第四週：整理成果",
+                  "action": "寫下本月一個完成與一個調整。"
+                }
+              ],
+              "nextMonthlyUpdateAt": "2026-09-01T00:00:00+08:00",
+              "policy": "第五層只建立長期陪伴生態，不新增命理、不重複各卡片內容、不覆蓋任何命理結果。 目前陪伴階段：初始陪伴。"
+            },
+            "weeklyReport": {
+              "weekKey": "2026-W34",
+              "oneLineReminder": "本週最重要：補強 水元素，用一個小行動帶動 感受、流動、理解與修復。",
+              "primaryAction": "把一個壓力點寫下來，找出能調整的地方。",
+              "evidence": [
+                "塔羅牌已提供牌陣、正逆位、象徵語義與五元素權重訊號。"
+              ]
+            },
+            "weeklyReinforcement": {
+              "element": "WATER",
+              "label": "水元素",
+              "headline": "本週第一補強是水元素：讓情緒流動，讓關係回到柔軟。",
+              "reason": "水元素代表感受、傾聽、適應與修復。補強水元素，重點是降低僵硬反應，增加理解與調整能力。",
+              "action": "把一個壓力點寫下來，找出能調整的地方。"
+            },
+            "weeklyTask": {
+              "title": "本週一件行動任務",
+              "task": "把一個壓力點寫下來，找出能調整的地方。",
+              "reason": "這件任務會直接帶動 水元素，讓 感受、流動、理解與修復 開始變得更穩定。"
+            },
+            "followUp": {
+              "version": "ai_follow_up_system_v2",
+              "purpose": "追蹤會員本週補強進度，增加長期陪伴與回訪，不新增命理分析。",
+              "highestPrinciple": "AI 只追蹤補強、任務與行動，不聊天、不偏題、不重新分析。",
+              "sourcePolicy": "所有追蹤內容只讀取 AI Integration Layer 已整理的結果。",
+              "scopePolicy": "本週只圍繞 水元素、本週任務與會員自己的補強進度。",
+              "forbiddenTopics": [
+                "家庭隱私",
+                "收入狀況",
+                "孩子與伴侶細節",
+                "生活八卦",
+                "健康診斷",
+                "重新算命",
+                "重新排盤",
+                "與本週補強無關的聊天"
+              ],
+              "weekKey": "2026-W34",
+              "primaryElement": "WATER",
+              "elementLabel": "水元素",
+              "prompt": "這一週，你有持續補強 水元素 嗎？",
+              "quickReplies": [
+                {
+                  "id": "continued",
+                  "label": "有持續",
+                  "meaning": "會員本週有依照提醒完成補強行動。"
+                },
+                {
+                  "id": "paused",
+                  "label": "還沒有",
+                  "meaning": "會員本週尚未開始或中斷補強行動。"
+                }
+              ],
+              "replyWhenContinued": {
+                "title": "很好，請持續。",
+                "message": "你已經開始補強 水元素，現在要把它固定成穩定節奏。",
+                "nextStep": "下一步：把「把一個壓力點寫下來，找出能調整的地方。」固定成今天的一個小動作。",
+                "improvement": "這會改善你的執行節奏、專注力與持續感。"
+              },
+              "replyWhenPaused": {
+                "title": "今天開始也不晚。",
+                "message": "目前仍建議持續補強 水元素，先不用想太多，今天先做第一步。",
+                "nextStep": "今天先做：「把一個壓力點寫下來，找出能調整的地方。」。",
+                "improvement": "這會幫你重新找回方向，降低拖延，讓行動重新開始。"
+              },
+              "boundary": "Follow-Up 只處理會員自己的補強進度、本週任務與行動提醒；不詢問私人生活，不重新分析命理。",
+              "metrics": [
+                "weekly_follow_up_viewed",
+                "weekly_follow_up_answered",
+                "weekly_task_continued",
+                "weekly_task_paused"
+              ]
+            },
+            "weeklyEnergyColor": {
+              "weekKey": "2026-W34",
+              "element": "WATER",
+              "colorName": "湖水青",
+              "hex": "#0891B2",
+              "reason": "水元素代表感受、傾聽、適應與修復。補強水元素，重點是降低僵硬反應，增加理解與調整能力。",
+              "usage": [
+                "配件",
+                "筆記",
+                "工作背景"
+              ],
+              "message": "本週能量色是 湖水青。可用在 配件、筆記，提醒自己持續補強 水元素。"
+            },
+            "weeklyInspiration": {
+              "author": "比爾蓋茲",
+              "role": "Microsoft 共同創辦人",
+              "quote": "慶祝成功很好，但從失敗中記取教訓更重要。",
+              "fit": "這句話提醒你從每一次調整中累積智慧。",
+              "sourceName": "比爾蓋茲個人部落格",
+              "sourceUrl": "https://www.gatesnotes.com/"
+            },
+            "fiveElement": {
+              "primaryElement": "WATER",
+              "secondaryElement": "EARTH",
+              "elementScore": {
+                "EARTH": 76,
+                "WATER": 91,
+                "FIRE": 20,
+                "AIR": 20,
+                "SPACE": 90
+              },
+              "avoidElement": "FIRE",
+              "confidence": "medium",
+              "summary": "AI Integration Layer 判定本週第一補強為 水元素，第二參考為 地元素。成長中心只讀取結果，不重新分析。"
+            },
+            "nextStep": {
+              "moduleId": "nameology",
+              "title": "下一步完成：AI 姓名學",
+              "href": "/nameology"
+            },
+            "dataPolicy": "AI Integration Layer 只讀取八張分析卡片已完成的狀態與元素方向，不重新排盤、不重新算命、不重複呼叫任何命理分析。 第五層只建立長期陪伴生態，不新增命理、不重複各卡片內容、不覆蓋任何命理結果。",
+            "updatedAt": "2026-08-17T16:52:21.930Z",
+            "nextWeeklyUpdateAt": "2026-08-24T00:00:00+08:00",
+            "nextMonthlyUpdateAt": "2026-09-01T00:00:00+08:00",
+            "generationVersion": "growth_center_v4",
+            "personalizationSeed": "f4bfe6e430a258bb",
+            "systemStability": {
+              "version": "tiandiren_master_plan_v1",
+              "principle": "Analyze once, companion for life",
+              "status": "ready",
+              "layers": [
+                {
+                  "id": "analysis",
+                  "title": "Layer 1: eight independent analysis cards",
+                  "rule": "Eight cards analyze and save independently without overwriting each other."
+                },
+                {
+                  "id": "integration",
+                  "title": "Layer 2: AI Integration Layer",
+                  "rule": "Read completed analysis results only. Do not re-analyze or re-calculate."
+                },
+                {
+                  "id": "growth_center",
+                  "title": "Layer 3: AI Growth Center",
+                  "rule": "Convert saved signals into companionship, reminders, encouragement, and action."
+                },
+                {
+                  "id": "weekly_companion",
+                  "title": "Layer 4: AI Weekly Companion",
+                  "rule": "Keep one task, one color, one reminder, and one quote per week."
+                },
+                {
+                  "id": "system_stability",
+                  "title": "Layer 5: System Stability Layer",
+                  "rule": "Every new module must pass no conflict, no duplicate, and no overwrite checks."
+                }
+              ],
+              "aiCorePolicy": {
+                "id": "single_ai_core_policy",
+                "title": "Single AI Core",
+                "rule": "AI Core coordinates copy, loading, errors, and companionship text. The eight analysis cards keep their engines independent."
+              },
+              "modules": [
+                {
+                  "id": "nameology",
+                  "title": "AI Nameology",
+                  "shortTitle": "Nameology",
+                  "href": "/nameology",
+                  "apiHint": "/api/nameology-analyze",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state and element direction. Growth Center must not re-analyze names."
+                },
+                {
+                  "id": "ziwei",
+                  "title": "AI Ziwei",
+                  "shortTitle": "Ziwei",
+                  "href": "/insight",
+                  "apiHint": "/api/insight-analyze",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state and element direction. Growth Center must not re-run Ziwei."
+                },
+                {
+                  "id": "number",
+                  "title": "AI Number Fortune",
+                  "shortTitle": "Number",
+                  "href": "/numerology",
+                  "apiHint": "/api/number/analyze",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state and element direction. Growth Center must not re-calculate numbers."
+                },
+                {
+                  "id": "soul_match",
+                  "title": "AI Soul Match",
+                  "shortTitle": "Match",
+                  "href": "/match",
+                  "apiHint": "/api/match-generate",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state and relationship direction. Growth Center must not re-analyze matching."
+                },
+                {
+                  "id": "music",
+                  "title": "AI Music",
+                  "shortTitle": "Music",
+                  "href": "/music",
+                  "apiHint": "/api/music-generate",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state and rhythm direction. Growth Center must not regenerate music."
+                },
+                {
+                  "id": "bazi",
+                  "title": "AI Bazi Chart",
+                  "shortTitle": "Bazi",
+                  "href": "/bazi",
+                  "apiHint": "/api/analysis/jobs",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state and chart direction. Growth Center must not re-run Bazi."
+                },
+                {
+                  "id": "zodiac",
+                  "title": "AI Western Zodiac",
+                  "shortTitle": "Zodiac",
+                  "href": "/zodiac",
+                  "apiHint": "/api/analysis/jobs",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only completion state, zodiac sign, and weekly reminder. Growth Center must not re-run zodiac analysis."
+                },
+                {
+                  "id": "tarot",
+                  "title": "AI Tarot Card",
+                  "shortTitle": "Tarot",
+                  "href": "/tarot",
+                  "apiHint": "/api/tarot/reading",
+                  "role": "independent_analysis_source",
+                  "canAnalyze": true,
+                  "canFeedIntegrationLayer": true,
+                  "integrationRule": "Save only tarot completion state and element signal. Growth Center must not auto-draw cards or overwrite core member elements."
+                }
+              ],
+              "checks": [
+                {
+                  "id": "eight_modules_registered",
+                  "label": "Eight analysis cards registered",
+                  "ok": true,
+                  "detail": "Registered analysis cards: 8."
+                },
+                {
+                  "id": "completed_modules_known",
+                  "label": "Completed modules are known",
+                  "ok": true,
+                  "detail": "Completed states belong to registered cards only."
+                },
+                {
+                  "id": "integration_read_only",
+                  "label": "Integration Layer is read-only",
+                  "ok": true,
+                  "detail": "Growth Center receives completion state and element direction only. It does not call analysis engines."
+                },
+                {
+                  "id": "weekly_single_focus",
+                  "label": "Weekly companion keeps one focus",
+                  "ok": true,
+                  "detail": "Each week keeps one element, one color, one task, and one quote."
+                },
+                {
+                  "id": "no_analysis_reentry",
+                  "label": "Analysis re-entry is blocked",
+                  "ok": true,
+                  "detail": "Forbidden analysis entry points: 8."
+                }
+              ]
+            },
+            "copywritingStyle": {
+              "version": "ai_copywriting_style_center_v2",
+              "positioning": {
+                "role": "一位有判斷力、有方向感、能陪伴使用者成長的 AI 顧問。",
+                "notRole": [
+                  "老師",
+                  "算命先生",
+                  "心靈雞湯"
+                ],
+                "coreValue": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。"
+              },
+              "tone": [
+                "advisor",
+                "clear",
+                "direct",
+                "actionable",
+                "companion"
+              ],
+              "forbiddenWords": [
+                "可能",
+                "也許",
+                "或許",
+                "大概",
+                "應該",
+                "建議可以",
+                "建議你",
+                "試試看",
+                "傾向",
+                "比較像",
+                "疑似",
+                "看起來",
+                "可以試試",
+                "看情況",
+                "如果有空",
+                "隨緣"
+              ],
+              "replacements": [
+                {
+                  "avoid": "可能",
+                  "use": "AI 判定",
+                  "reason": "把不確定語氣改成清楚判斷。"
+                },
+                {
+                  "avoid": "也許",
+                  "use": "目前重點",
+                  "reason": "把模糊推測改成當下方向。"
+                },
+                {
+                  "avoid": "或許",
+                  "use": "現在最重要",
+                  "reason": "讓使用者知道優先順序。"
+                },
+                {
+                  "avoid": "大概",
+                  "use": "本週重點",
+                  "reason": "把籠統描述改成週期任務。"
+                },
+                {
+                  "avoid": "應該",
+                  "use": "必須",
+                  "reason": "把柔性期待改成明確要求。"
+                },
+                {
+                  "avoid": "建議可以",
+                  "use": "請優先",
+                  "reason": "把軟性建議改成明確補強。"
+                },
+                {
+                  "avoid": "建議你",
+                  "use": "AI 判定你",
+                  "reason": "把個人意見語氣改成系統判定語氣。"
+                },
+                {
+                  "avoid": "試試看",
+                  "use": "立即開始做",
+                  "reason": "把不確定的嘗試改成明確行動。"
+                },
+                {
+                  "avoid": "傾向",
+                  "use": "判定方向",
+                  "reason": "把推測語氣改成判定語氣。"
+                },
+                {
+                  "avoid": "比較像",
+                  "use": "系統判定為",
+                  "reason": "把相似描述改成明確分類。"
+                },
+                {
+                  "avoid": "疑似",
+                  "use": "系統判定",
+                  "reason": "移除不確定判斷。"
+                },
+                {
+                  "avoid": "看起來",
+                  "use": "系統判定",
+                  "reason": "移除觀感式描述。"
+                },
+                {
+                  "avoid": "可以試試",
+                  "use": "今天開始做",
+                  "reason": "把建議改成行動。"
+                },
+                {
+                  "avoid": "看情況",
+                  "use": "先完成這一步",
+                  "reason": "把等待改成可執行步驟。"
+                },
+                {
+                  "avoid": "如果有空",
+                  "use": "今天安排一段時間",
+                  "reason": "把可做可不做改成具體安排。"
+                },
+                {
+                  "avoid": "隨緣",
+                  "use": "主動行動",
+                  "reason": "把被動接受改成主動建立改變。"
+                }
+              ],
+              "rules": [
+                {
+                  "id": "clear_judgement",
+                  "title": "清楚判定",
+                  "rule": "每段 AI 文案必須清楚指出目前最重要的方向，禁止模稜兩可。"
+                },
+                {
+                  "id": "one_action",
+                  "title": "一定帶一個行動",
+                  "rule": "每次 AI 回覆必須帶出一個可執行行動，不能只有分析。"
+                },
+                {
+                  "id": "three_answers",
+                  "title": "回答三件事",
+                  "rule": "每段重點文案要回答：現在最重要是什麼、你應該做什麼、做了會產生什麼改變。"
+                },
+                {
+                  "id": "growth_change_only",
+                  "title": "改變限定在成長層面",
+                  "rule": "改變只描述行為、習慣、思考、節奏、執行力、專注力、人際互動。"
+                },
+                {
+                  "id": "no_outcome_guarantee",
+                  "title": "禁止結果保證",
+                  "rule": "不得保證發財、中獎、升官、疾病改善、桃花一定成功。"
+                },
+                {
+                  "id": "lifetime_companion",
+                  "title": "分析一次，持續陪伴",
+                  "rule": "分析只做一次，陪伴一直持續；每次登入都給一個方向、一個行動、一份力量。"
+                }
+              ],
+              "actionContract": {
+                "now": "現在最重要是什麼",
+                "action": "你應該做什麼",
+                "change": "做了會產生什麼行為與節奏改變"
+              },
+              "backendFrontendCopyContract": {
+                "purpose": "後端輸出標準化，前端直接美化呈現。",
+                "voice": "快、狠、準、肯定、有感。",
+                "headlineRule": "標題直接給結論，不繞路，不重複，不使用模糊詞。",
+                "confidenceRule": "信心值代表資料完整度與模型一致性，不代表命運保證。",
+                "structure": [
+                  "AI 判定標題",
+                  "信心值標示",
+                  "資料依據",
+                  "立即行動",
+                  "不保證結果聲明"
+                ],
+                "frontendFields": [
+                  "eyebrow",
+                  "headline",
+                  "confidenceBadge",
+                  "confidenceText",
+                  "evidenceItems",
+                  "actionText",
+                  "safetyText",
+                  "frontendTone"
+                ]
+              },
+              "backendFrontendCopySample": {
+                "eyebrow": "AI 五元素｜AI 判定輸出",
+                "headline": "AI 判定：目前最缺火元素。第一補強鎖定火元素。",
+                "confidenceBadge": "AI 明確判定｜91%",
+                "confidenceText": "信心值 91% 代表資料完整度與模型一致性；這是判定強度，不是命運保證。",
+                "evidenceTitle": "判定依據",
+                "evidenceItems": [
+                  "五元素權重差距明確",
+                  "第一補強與第二補強差距已達可判定區間",
+                  "多模組交叉方向一致"
+                ],
+                "actionTitle": "立即行動",
+                "actionText": "AI 建議立即執行：今天先補火元素，完成後再補風元素，最後回到地元素穩定。",
+                "safetyText": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。成果由使用者的行動創造。",
+                "frontendTone": "high-confidence"
+              },
+              "actionGuidance": {
+                "version": "ai_action_guidance_v1",
+                "purpose": "讓使用者離開平台前，一定知道今天開始要做什麼。",
+                "highestPrinciple": "AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+                "requiredSteps": [
+                  {
+                    "id": "judgement",
+                    "title": "目前判斷",
+                    "question": "AI 目前判定了什麼？",
+                    "outputRule": "直接說出第一判斷，例如：AI 判定：目前最缺火元素。請優先補強火元素。"
+                  },
+                  {
+                    "id": "priority",
+                    "title": "現在最重要",
+                    "question": "現在最重要的一件事是什麼？",
+                    "outputRule": "只給一個重點，不同時丟出多個方向。"
+                  },
+                  {
+                    "id": "next_action",
+                    "title": "下一步要做什麼",
+                    "question": "會員今天開始要做什麼？",
+                    "outputRule": "給出今天就能開始的一個行動，例如：主動完成一件拖延最久的事情。"
+                  },
+                  {
+                    "id": "improvement_direction",
+                    "title": "改善方向",
+                    "question": "做了之後會改善哪一個方向？",
+                    "outputRule": "只能描述行動力、決策速度、執行效率、習慣、節奏、專注力、人際互動等成長方向。"
+                  }
+                ],
+                "forbidden": [
+                  "不能只給答案，必須給下一步。",
+                  "不得使用可能、也許、或許、建議可以、傾向、比較像、疑似、看起來、大概、看情況等模糊詞。",
+                  "不得保證發財、中獎、升官、疾病改善、桃花一定成功。",
+                  "不得一開始就推產品；必須先說原因，再說行動，最後才推薦五元素補強方案。",
+                  "成功人士名言只能放最後，用來增加力量，不得取代 AI 分析。"
+                ],
+                "productOrder": [
+                  "先說原因",
+                  "再說行動",
+                  "最後推薦五元素補強方案"
+                ],
+                "examples": {
+                  "elementJudgement": "AI 判定：目前最缺火元素。請優先補強火元素。完成後再補風元素，最後補地元素。",
+                  "priority": "現在最重要：先讓行動發生。",
+                  "nextAction": "今天開始：主動完成一件拖延最久的事情。",
+                  "improvement": "這個行動會改善你的行動力、決策速度與執行效率。"
+                },
+                "instruction": "天地人和 AI 每一次分析完成後，必須提供 AI 行動引導。\n輸出必須包含四件事：目前判斷、現在最重要、下一步要做什麼、做了會改善哪一個方向。\n每次只告訴會員現在最重要的一件事情。\n語氣必須直接、清楚、有力量、有方向。\n不能使用模稜兩可文字，不能保證不存在的結果。\nAI 不預測你的命運；AI 判定你目前最需要補強的方向。\n產品只能在原因與行動之後出現，成功人士名言只能放在最後。"
+              },
+              "instruction": "天地人和 AI 平台 必須使用天地人和 AI 專屬語言風格。\nAI 定位：一位有判斷力、有方向感、能陪伴使用者成長的 AI 顧問。\nAI 不預測你的命運；AI 判定你目前最需要補強的方向。\nAI 的工作是判定缺口，不是保證結果。\n結論可以強烈，但必須根據資料完整度與模型一致性給出信心值。信心值不是命運保證。\n語氣：清楚、直接、有力量、有方向、有行動，全部使用肯定句、明確句、行動句。\n句式公式：先講破壞力判斷（點出現在最卡住的核心問題），再給出精準建設方向，語氣要快、狠、準、肯定、有感。\n全部使用「AI 判定」「AI 分析」「AI 確認」開頭，行動指令用「AI 建議立即執行」，不得使用模糊建議語氣。\n禁止模糊詞：可能、也許、或許、大概、應該、建議可以、建議你、試試看、傾向、比較像、疑似、看起來、可以試試、看情況、如果有空、隨緣。\n五元素輸出必須使用：AI 判定 → 目前最缺 → 請立即補強 → 完成後再補 → 最後補。\n每次輸出必須回答四件事：目前判斷、現在最重要、下一步要做什麼、做了會改善哪一個方向。\n改變只能描述行為、習慣、思考、節奏、執行力、專注力、人際互動。\n不得保證發財、中獎、升官、疾病改善、桃花一定成功。"
+            },
+            "integrationLayer": {
+              "version": "ai_integration_layer_v1",
+              "role": "read_only_weekly_companion",
+              "sourceModules": [
+                "tarot"
+              ],
+              "forbiddenCalls": [
+                "nameology-engine",
+                "ziwei-calculator",
+                "bazi-engine",
+                "number-core-engine",
+                "match-generate",
+                "music-generate",
+                "zodiac-engine",
+                "tarot-engine"
+              ],
+              "pipeline": [
+                "ReadCompletedModuleState",
+                "NormalizeElementSignal",
+                "ChooseWeeklyPrimaryElement",
+                "BuildWeeklyCompanionPayload",
+                "BuildCompanionReturnLoop",
+                "BuildLifetimeCompanionEcosystem",
+                "ReturnGrowthCenterViewModel"
+              ]
+            }
+          },
+          "requestId": "75c834bd-383e-4f14-ba9d-4167a368b474"
+        }
+      },
+      "requestId": "75c834bd-383e-4f14-ba9d-4167a368b474"
+    },
+    "screenHealth": {
+      "id": "CARD_09",
+      "module": "growth_center",
+      "title": "AI 個人成長中心",
+      "path": "/growth-center",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 61,
+      "htmlLength": 19253,
+      "error": null,
+      "issue": null
+    },
+    "startedAt": "2026-08-17T16:52:21.167Z",
+    "completedAt": "2026-08-17T16:52:21.932Z"
+  },
+  "totalScore": 82,
+  "tier": "STANDARD",
+  "allowNextCard": false,
+  "generatedAt": "2026-08-17T16:52:21.932Z"
+}

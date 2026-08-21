@@ -1,0 +1,352 @@
+/* ============================================================
+   Taiji Experience Core V7 · 高級克制版
+   材質：玉石（拋光墨玉 × 暖白瓷玉）＋金色髮絲細邊
+   光：單一主光源＋弱環境光；陰影柔和；動態慢；留白多
+   手機優先：390px 起，太極最大 min(78vw, 320px)
+   ============================================================ */
+
+.taiji-v7 {
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  width: 100%;
+  padding-block: 8px;
+}
+
+/* 品牌（太極上方，唯一標題） */
+.taiji-v7__brand {
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  color: rgba(233, 224, 201, 0.92);
+}
+
+/* 舞台 */
+.taiji-v7__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(78vw, 320px);
+  aspect-ratio: 1;
+}
+
+/* 弱環境光 */
+.taiji-v7__ambient {
+  position: absolute;
+  inset: -14%;
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 42%, rgba(233, 224, 201, 0.14), rgba(103, 168, 196, 0.05) 55%, transparent 72%);
+  pointer-events: none;
+}
+
+/* 光的粒子：HIGH 才渲染，僅 6 顆，緩慢漂浮 */
+.taiji-v7__particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.taiji-v7__particles i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(238, 228, 202, 0.85);
+  box-shadow: 0 0 6px rgba(238, 228, 202, 0.55);
+  animation: tj7-drift 9s ease-in-out infinite;
+}
+
+.taiji-v7__particles i:nth-child(1) { left: 8%; top: 24%; animation-delay: 0s; }
+.taiji-v7__particles i:nth-child(2) { left: 88%; top: 18%; animation-delay: -1.6s; }
+.taiji-v7__particles i:nth-child(3) { left: 94%; top: 62%; animation-delay: -3.1s; }
+.taiji-v7__particles i:nth-child(4) { left: 12%; top: 74%; animation-delay: -4.7s; }
+.taiji-v7__particles i:nth-child(5) { left: 50%; top: 4%; animation-delay: -6.2s; }
+.taiji-v7__particles i:nth-child(6) { left: 56%; top: 94%; animation-delay: -7.8s; }
+
+/* 按鈕本體 */
+.taiji-v7__button {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.taiji-v7__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* LAYER 1｜太極本體：單組動畫（呼吸＋慢旋轉），柔和落影 */
+.taiji-v7__disc {
+  transform-origin: 100px 100px;
+  animation: tj7-breathe 6s ease-in-out infinite, tj7-rotate 36s linear infinite;
+  filter: drop-shadow(0 10px 22px rgba(3, 6, 12, 0.5));
+  will-change: transform;
+}
+
+.taiji-v7__halves {
+  transform-origin: 100px 100px;
+}
+
+.taiji-v7__half {
+  transform-origin: 100px 100px;
+  transition: transform 720ms cubic-bezier(0.22, 0.86, 0.28, 1), opacity 420ms ease;
+}
+
+/* 魚眼描邊：白眼金絲、黑眼墨絲，永久存在 */
+.taiji-v7__eye--yin { stroke: rgba(233, 224, 201, 0.4); stroke-width: 0.8; }
+.taiji-v7__eye--yang { stroke: rgba(10, 13, 18, 0.5); stroke-width: 0.8; }
+.taiji-v7__glint { fill: rgba(255, 255, 255, 0.9); }
+.taiji-v7__glint--soft { fill: rgba(255, 255, 255, 0.45); }
+
+/* FOCUS：微聚焦 */
+.taiji-v7[data-state='FOCUS'] .taiji-v7__disc {
+  animation: tj7-breathe 4.6s ease-in-out infinite, tj7-rotate 28s linear infinite;
+}
+
+/* EXPAND_TWO｜兩儀分離：scale/translate/rotate/opacity，前端圓潤尾端收尖、中心視覺連續 */
+.taiji-v7[data-state='EXPAND_TWO'] .taiji-v7__half--yang,
+.taiji-v7[data-state='EXPAND_FOUR'] .taiji-v7__half--yang,
+.taiji-v7[data-state='EXPAND_EIGHT'] .taiji-v7__half--yang {
+  transform: translateX(-14px) rotate(-6deg) scale(0.94);
+}
+
+.taiji-v7[data-state='EXPAND_TWO'] .taiji-v7__half--yin,
+.taiji-v7[data-state='EXPAND_FOUR'] .taiji-v7__half--yin,
+.taiji-v7[data-state='EXPAND_EIGHT'] .taiji-v7__half--yin {
+  transform: translateX(14px) rotate(6deg) scale(0.94);
+}
+
+/* 四象節點：預設隱藏，EXPAND_FOUR 起淡入 */
+.taiji-v7__four-node {
+  opacity: 0;
+  transform: scale(0.7);
+  transform-origin: center;
+  transform-box: fill-box;
+  transition: opacity 480ms ease var(--node-delay, 0ms), transform 520ms cubic-bezier(0.3, 1.2, 0.4, 1) var(--node-delay, 0ms);
+}
+
+.taiji-v7__four-node circle {
+  fill: rgba(10, 13, 18, 0.78);
+  stroke: rgba(200, 180, 120, 0.7);
+  stroke-width: 1;
+}
+
+.taiji-v7__four-node text {
+  font-size: 8.5px;
+  font-weight: 700;
+  fill: rgba(238, 230, 208, 0.95);
+}
+
+.taiji-v7[data-state='EXPAND_FOUR'] .taiji-v7__four-node,
+.taiji-v7[data-state='EXPAND_EIGHT'] .taiji-v7__four-node {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 八卦環形節點：EXPAND_EIGHT 才展開，小巧克制 */
+.taiji-v7__bagua {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.taiji-v7__gua {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(var(--gua-angle)) translateY(calc(min(78vw, 320px) / -2 - 16px)) rotate(calc(-1 * var(--gua-angle))) scale(0.7);
+  transition: opacity 420ms ease var(--gua-delay, 0ms), transform 520ms cubic-bezier(0.3, 1.15, 0.4, 1) var(--gua-delay, 0ms);
+}
+
+.taiji-v7__gua em {
+  font-style: normal;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: rgba(233, 224, 201, 0.95);
+  text-shadow: 0 1px 4px rgba(3, 6, 12, 0.6);
+}
+
+.taiji-v7__gua small {
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: rgba(210, 216, 228, 0.72);
+  white-space: nowrap;
+}
+
+.taiji-v7[data-state='EXPAND_EIGHT'] .taiji-v7__gua {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(var(--gua-angle)) translateY(calc(min(78vw, 320px) / -2 - 16px)) rotate(calc(-1 * var(--gua-angle))) scale(1);
+}
+
+/* ANALYZING：中心儀式清單（唯一主動畫：緩慢光脈） */
+.taiji-v7[data-state='ANALYZING'] .taiji-v7__disc {
+  animation: tj7-pulse 2.4s ease-in-out infinite;
+}
+
+.taiji-v7__ritual {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 6px;
+  border-radius: 999px;
+  background: rgba(5, 8, 14, 0.62);
+  backdrop-filter: blur(2px);
+}
+
+.taiji-v7__ritual span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(210, 216, 228, 0.5);
+  transition: color 320ms ease;
+}
+
+.taiji-v7__ritual span[data-done='true'] {
+  color: rgba(233, 224, 201, 0.95);
+}
+
+/* RESULT_READY：中心亮起 */
+.taiji-v7[data-state='RESULT_READY'] .taiji-v7__light {
+  opacity: 1;
+}
+
+.taiji-v7[data-state='RESULT_READY'] .taiji-v7__disc {
+  animation: tj7-breathe 3.6s ease-in-out infinite;
+  filter: drop-shadow(0 10px 22px rgba(3, 6, 12, 0.5)) drop-shadow(0 0 26px rgba(233, 224, 201, 0.45));
+}
+
+.taiji-v7__ready {
+  position: absolute;
+  left: 50%;
+  bottom: -1.9rem;
+  transform: translateX(-50%);
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: rgba(233, 224, 201, 0.95);
+  white-space: nowrap;
+}
+
+/* 元素訊號（僅真實資料） */
+.taiji-v7__signals {
+  position: absolute;
+  left: 50%;
+  bottom: -2.6rem;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: rgba(210, 216, 228, 0.78);
+  white-space: nowrap;
+}
+
+/* 文案與行動（太極下方：一句文案＋開始探索＋進度） */
+.taiji-v7__tagline {
+  margin: 4px 0 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: rgba(214, 220, 232, 0.85);
+}
+
+.taiji-v7__actions {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+
+.taiji-v7__cta {
+  padding: 10px 30px;
+  border: 1px solid rgba(200, 180, 120, 0.55);
+  border-radius: 999px;
+  background: linear-gradient(150deg, rgba(233, 224, 201, 0.14), rgba(185, 155, 87, 0.1));
+  color: rgba(238, 230, 208, 0.96);
+  font-size: 0.84rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-indent: 0.18em;
+  cursor: pointer;
+  transition: border-color 240ms ease, background 240ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.taiji-v7__cta:hover {
+  border-color: rgba(233, 224, 201, 0.85);
+  background: linear-gradient(150deg, rgba(233, 224, 201, 0.2), rgba(185, 155, 87, 0.16));
+}
+
+.taiji-v7__progress {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(210, 216, 228, 0.6);
+}
+
+/* ============ 效能分級 ============ */
+/* MEDIUM：降陰影、去粒子、去 blur */
+.taiji-v7[data-quality='MEDIUM'] .taiji-v7__disc {
+  filter: drop-shadow(0 6px 12px rgba(3, 6, 12, 0.4));
+}
+
+.taiji-v7[data-quality='MEDIUM'] .taiji-v7__ritual {
+  backdrop-filter: none;
+}
+
+/* LOW：純 SVG＋CSS Transform，只保留呼吸 */
+.taiji-v7[data-quality='LOW'] .taiji-v7__disc {
+  animation: tj7-breathe 8s ease-in-out infinite;
+  filter: none;
+}
+
+.taiji-v7[data-quality='LOW'] .taiji-v7__ambient {
+  display: none;
+}
+
+/* ============ 動畫 ============ */
+@keyframes tj7-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes tj7-breathe {
+  0%, 100% { scale: 0.985; opacity: 0.94; }
+  50% { scale: 1; opacity: 1; }
+}
+
+@keyframes tj7-pulse {
+  0%, 100% { scale: 0.98; }
+  50% { scale: 1.015; }
+}
+
+@keyframes tj7-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.5; }
+  50% { transform: translate3d(4px, -8px, 0); opacity: 0.95; }
+}
+
+/* Reduced motion：全部停止（功能不變） */
+@media (prefers-reduced-motion: reduce) {
+  .taiji-v7__disc,
+  .taiji-v7__particles i {
+    animation: none !important;
+  }
+}
+
+/* 小螢幕微調（320~375） */
+@media (max-width: 374px) {
+  .taiji-v7__stage { width: min(82vw, 300px); }
+  .taiji-v7__gua small { display: none; }
+}

@@ -53,7 +53,7 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
         {level === 'teacher' && (
           <div>
             <div className="mb-3 flex items-baseline justify-between">
-              <h3 className="text-xl font-black text-[color:var(--text-main)]">三位老師解盤</h3>
+              <h3 className="text-xl font-black text-[color:var(--text-main)]">兩位老師解盤</h3>
               <p className="text-xs font-bold text-white/40">同盤鎖定，切換解讀。</p>
             </div>
             <BaziTeacherModes view={view} />

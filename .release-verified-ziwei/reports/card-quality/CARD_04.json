@@ -1,0 +1,998 @@
+{
+  "cardId": "CARD_04",
+  "cardName": "AI 靈魂配對",
+  "moduleId": "soul_match",
+  "route": "/match",
+  "dimensions": [
+    {
+      "dimension": "FUNCTIONALITY",
+      "score": 20,
+      "maxScore": 20,
+      "status": "PASSED",
+      "evidenceIds": [
+        "ROUTE_OK",
+        "API_SELF_OTHER_OK"
+      ]
+    },
+    {
+      "dimension": "ACCURACY",
+      "score": 16,
+      "maxScore": 20,
+      "status": "PASSED",
+      "evidenceIds": [
+        "BACKEND_RESULT_SHAPE_OK"
+      ]
+    },
+    {
+      "dimension": "MOBILE_UX",
+      "score": 5,
+      "maxScore": 15,
+      "status": "NOT_TESTED",
+      "evidenceIds": [
+        "ROUTE_HTML_REACHABLE_ONLY"
+      ]
+    },
+    {
+      "dimension": "STABILITY",
+      "score": 15,
+      "maxScore": 15,
+      "status": "PASSED",
+      "evidenceIds": [
+        "SCREEN_HEALTH_ROUTE",
+        "API_RESPONDED",
+        "NO_JOB_POLLING_GAP"
+      ]
+    },
+    {
+      "dimension": "CONTENT_QUALITY",
+      "score": 8,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "PAGE_RENDERED_CONTENT_PRESENT"
+      ]
+    },
+    {
+      "dimension": "PERFORMANCE",
+      "score": 7,
+      "maxScore": 10,
+      "status": "PASSED",
+      "evidenceIds": [
+        "MAX_DURATION_3815MS"
+      ]
+    },
+    {
+      "dimension": "TRACEABILITY",
+      "score": 2,
+      "maxScore": 10,
+      "status": "FAILED",
+      "evidenceIds": []
+    }
+  ],
+  "issues": [
+    {
+      "id": "CARD_04-MOBILE-LINE-NOT-TESTED",
+      "cardId": "CARD_04",
+      "severity": "MAJOR",
+      "layer": "INTERACTION",
+      "step": "mobile LINE visual verification",
+      "actualProblem": "This audit did not include real LINE/iPhone/Android tap-and-screenshot evidence.",
+      "rootCause": "Current evidence is route/API/HTTP. Mobile visual evidence must be captured separately.",
+      "filePaths": [],
+      "repairAction": "Use controlled mobile browser or real device LINE flow and attach screenshot evidence.",
+      "verificationAction": "Record device, browser, viewport, screenshot path, startedAt/completedAt."
+    }
+  ],
+  "mandatoryChecks": {
+    "fullFlowPassed": true,
+    "backendVerified": true,
+    "mobilePassed": false,
+    "linePassed": false,
+    "noCriticalIssues": true,
+    "regressionPassed": true
+  },
+  "evidence": {
+    "baseUrl": "http://localhost:8888",
+    "route": {
+      "ok": true,
+      "status": 200,
+      "durationMs": 643,
+      "length": 1000,
+      "error": null
+    },
+    "self": {
+      "ok": true,
+      "response": {
+        "ok": true,
+        "status": 200,
+        "route": "/api/match-generate",
+        "durationMs": 3815,
+        "data": {
+          "result": {
+            "match_score": 90,
+            "resonance": 94,
+            "communication": 95,
+            "stability": 75,
+            "conflict_risk": 5,
+            "summary": "整體配對穩定度高，雙方在共鳴與相處節奏上有明顯優勢，只要持續保持真誠溝通，這段關係會越走越順。",
+            "zones": {
+              "resonance": [
+                "AI 判定金牛與天蠍，情感深邃，靈魂共振，無需言語已心領神會。",
+                "AI 分析生肖馬與龍，社交節奏一致，自在舒適，是彼此最佳的同行者。"
+              ],
+              "complement": [
+                "AI 確認 MatchASelf 金牛的謹慎，精準平衡 MatchBOther 天蠍的勇敢，是關係的雙引擎。",
+                "AI 分析五行金與土相生，MatchBOther 的土滋養 MatchASelf 的金，彼此成就，力量倍增。"
+              ],
+              "grinding": [
+                "AI 判定 MatchASelf 金牛對風險的保守，與 MatchBOther 天蠍的果斷，是決策時的隱形斷層。",
+                "AI 確認血型 A 與 O，在重大決定前，需為彼此的思考模式預留緩衝，否則易生內耗。"
+              ],
+              "conflict": [
+                "AI 分析目前未見高衝突警示，但潛在的『不說』才是最大風險，AI 建議立即執行：深度溝通。",
+                "AI 判定維持日常溝通，並非表面寒暄，而是直搗核心，揭露彼此最深層的擔憂與渴望。"
+              ]
+            },
+            "communicationReport": {
+              "personA": {
+                "type": "熱烈表達型",
+                "emoji": "🔥",
+                "tagline": "說話帶溫度，情緒就是訊息",
+                "howTheySpeak": "語氣起伏明顯，喜歡用比喻和故事，情緒直接體現在語調中；高興時滔滔不絕，難過時沉默以對",
+                "whatTriggersShutdown": "被說「你太情緒化了」或「冷靜一點」——感覺情感被否定時，會關閉或反向爆發",
+                "whatTheyNeedToHear": "「我懂你的感受」「你說的我都聽進去了」——先被理解，再談解決方案",
+                "pattern": "情感型"
+              },
+              "personB": {
+                "type": "直接主導型",
+                "emoji": "⚡",
+                "tagline": "說到做到，不繞彎子，快速決策",
+                "howTheySpeak": "語速快、直接切重點，不喜歡鋪墊太多；高壓時可能不顧慮對方感受直接說出口",
+                "whatTriggersShutdown": "說了半天沒有結論、對方一直猶豫——會失去耐心，甚至自己做決定把對方晾在一邊",
+                "whatTheyNeedToHear": "「我決定了，跟你的建議一樣」「你說的我已經在做了」——效率與行動是他們的愛的語言",
+                "pattern": "行動型"
+              },
+              "clashType": "感受 vs 效率 型衝突",
+              "clashDescription": "一個覺得沒被在乎，一個覺得沒有進展——都在付出，頻道不對。",
+              "topConflicts": [
+                {
+                  "title": "「你只管做，都不問問我感受」",
+                  "howItStarts": "MatchBOther直接做了決定或採取行動，沒有先問MatchASelf的感受",
+                  "whatHappens": "MatchASelf感覺被忽視、不被在乎；MatchBOther困惑「我做的一切都是為了我們，哪裡有問題？」——兩人都覺得委屈",
+                  "rootCause": "行動型以「做事」表達愛，情感型以「被問到」感受愛——付出方式不同，對方收不到",
+                  "solution": "MatchBOther做重要決定前多一句：「你覺得呢？」；MatchASelf也練習把「我想被問」說出口，而不是等對方猜"
+                }
+              ],
+              "dailyHarmony": [
+                "每天花 5 分鐘，不談「事情」，只聊「感受」——「今天你心情怎樣？」這個問題比任何分析都有力量",
+                "重要決定前給彼此一個「冷靜期」——寫下各自的想法，24小時後再討論，避免在情緒高峰時說出傷人的話",
+                "記住彼此的「關閉觸發點」：MatchASelf最怕「被說「你太情緒化了」或「冷靜一點」——感…」，MatchBOther最怕「說了半天沒有結論、對方一直猶豫——會失去…」——避開這些，衝突減少一半"
+              ]
+            }
+          },
+          "displayA": {
+            "name": "MatchASelf",
+            "zodiacZh": "金牛座",
+            "chineseZodiac": "馬",
+            "wuxing": "金",
+            "bloodType": "A"
+          },
+          "displayB": {
+            "name": "MatchBOther",
+            "zodiacZh": "天蠍座",
+            "chineseZodiac": "龍",
+            "wuxing": "土",
+            "bloodType": "O"
+          },
+          "professionalLayer": {
+            "layer": "professional_soul_match_decomposition",
+            "generatedFrom": "dual_input_and_match_engine",
+            "recalculationAllowed": false,
+            "pairTitle": "MatchASelf × MatchBOther",
+            "pairOverview": "第一層判定：MatchASelf × MatchBOther屬於「高共鳴」型關係。最強軸線是【溝通】，最需要被照顧的軸線是【穩定】。",
+            "people": [
+              {
+                "role": "personA",
+                "name": "MatchASelf",
+                "birthDate": "1990-05-20",
+                "bloodType": "A",
+                "gender": "女性",
+                "zodiacZh": "金牛座",
+                "chineseZodiac": "馬",
+                "wuxing": "金",
+                "primaryPattern": "情感共鳴型",
+                "strongestSignals": [
+                  "親密依戀：85",
+                  "安全穩定：84",
+                  "情緒共感：80"
+                ],
+                "supportNeeds": [
+                  "變動冒險：49",
+                  "主導推進：62",
+                  "創造想像：73"
+                ],
+                "storySeed": "MatchASelf的關係底色是「情感共鳴型」；金牛座帶出外在節奏，馬與金建立關係質地，重視承諾、秩序與穩定，關係中需要被好好放在心上。",
+                "fixedSignals": [
+                  "姓名：MatchASelf",
+                  "生日：1990-05-20",
+                  "星座：金牛座",
+                  "生肖：馬",
+                  "五行：金",
+                  "血型：A",
+                  "性別：女性",
+                  "關係模式：情感共鳴型"
+                ]
+              },
+              {
+                "role": "personB",
+                "name": "MatchBOther",
+                "birthDate": "1988-11-08",
+                "bloodType": "O",
+                "gender": "男性",
+                "zodiacZh": "天蠍座",
+                "chineseZodiac": "龍",
+                "wuxing": "土",
+                "primaryPattern": "行動推進型",
+                "strongestSignals": [
+                  "主導推進：86",
+                  "邏輯理解：81",
+                  "變動冒險：81"
+                ],
+                "supportNeeds": [
+                  "人際互動：72",
+                  "情緒共感：74",
+                  "創造想像：75"
+                ],
+                "storySeed": "MatchBOther的關係底色是「行動推進型」；天蠍座帶出外在節奏，龍與土建立關係質地，行動感與保護欲較強，關係中需要看見目標與方向。",
+                "fixedSignals": [
+                  "姓名：MatchBOther",
+                  "生日：1988-11-08",
+                  "星座：天蠍座",
+                  "生肖：龍",
+                  "五行：土",
+                  "血型：O",
+                  "性別：男性",
+                  "關係模式：行動推進型"
+                ]
+              }
+            ],
+            "relationshipAxes": [
+              {
+                "key": "resonance",
+                "title": "共鳴軸",
+                "score": 94,
+                "explanation": "讀取雙方情緒、人際與親密依戀的接近程度。",
+                "storyMeaning": "此軸決定兩人是否容易覺得對方懂自己。",
+                "evidence": [
+                  "AI 判定金牛與天蠍，情感深邃，靈魂共振，無需言語已心領神會。",
+                  "AI 分析生肖馬與龍，社交節奏一致，自在舒適，是彼此最佳的同行者。"
+                ]
+              },
+              {
+                "key": "communication",
+                "title": "溝通軸",
+                "score": 95,
+                "explanation": "讀取雙方情感表達、邏輯理解與人際節奏的對齊度。",
+                "storyMeaning": "此軸決定誤會出現時，兩人是能說開，還是各自退回自己的防線。",
+                "evidence": [
+                  "AI 判定 MatchASelf 金牛對風險的保守，與 MatchBOther 天蠍的果斷，是決策時的隱形斷層。",
+                  "AI 確認血型 A 與 O，在重大決定前，需為彼此的思考模式預留緩衝，否則易生內耗。"
+                ]
+              },
+              {
+                "key": "stability",
+                "title": "承諾軸",
+                "score": 75,
+                "explanation": "讀取雙方安全感、變動程度與關係承載能力。",
+                "storyMeaning": "此軸決定關係能不能在日常裡繼續穩定累積。",
+                "evidence": [
+                  "穩定指數：75",
+                  "衝突風險：5"
+                ]
+              },
+              {
+                "key": "friction",
+                "title": "磨合軸",
+                "score": 5,
+                "explanation": "讀取雙方安全感落差、依戀落差與主導性拉扯。",
+                "storyMeaning": "此軸不是否定關係，而是標出需要優先處理的壓力點。",
+                "evidence": [
+                  "AI 分析目前未見高衝突警示，但潛在的『不說』才是最大風險，AI 建議立即執行：深度溝通。",
+                  "AI 判定維持日常溝通，並非表面寒暄，而是直搗核心，揭露彼此最深層的擔憂與渴望。"
+                ]
+              }
+            ],
+            "relationshipStory": {
+              "opening": "MatchASelf帶著「情感共鳴型」進入關係，MatchBOther帶著「行動推進型」回應關係。",
+              "resonanceStory": "雙方的共鳴來自：AI 判定金牛與天蠍，情感深邃，靈魂共振，無需言語已心領神會。；AI 分析生肖馬與龍，社交節奏一致，自在舒適，是彼此最佳的同行者。。",
+              "frictionStory": "關係的磨合來自：AI 分析目前未見高衝突警示，但潛在的『不說』才是最大風險，AI 建議立即執行：深度溝通。；AI 判定維持日常溝通，並非表面寒暄，而是直搗核心，揭露彼此最深層的擔憂與渴望。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。",
+              "professionalSummary": "第一層只建立雙方固定資料、關係軸線、分數證據與故事素材，不直接做補強或保證結果。"
+            },
+            "readingBoundaries": [
+              "第一層只做靈魂配對專業拆解，不做 AI 補強方案。",
+              "後續第二層只能讀取此層資料，不得重新計算配對分數。",
+              "後續第三層只能讀取第二層結果，不反向改寫本層固定素材。"
+            ],
+            "aiEvolutionMaterial": {
+              "fixedFacts": [
+                "姓名：MatchASelf",
+                "生日：1990-05-20",
+                "星座：金牛座",
+                "生肖：馬",
+                "五行：金",
+                "血型：A",
+                "性別：女性",
+                "關係模式：情感共鳴型",
+                "姓名：MatchBOther",
+                "生日：1988-11-08",
+                "星座：天蠍座",
+                "生肖：龍",
+                "五行：土",
+                "血型：O",
+                "性別：男性",
+                "關係模式：行動推進型",
+                "配對分數：90",
+                "共鳴指數：94",
+                "溝通指數：95",
+                "穩定指數：75",
+                "衝突風險：5"
+              ],
+              "interpretationRules": [
+                "先讀個人底色，再讀雙人軸線，最後讀關係故事。",
+                "共鳴與承諾是關係動能；磨合與衝突是需要轉譯成日常邊界的素材。",
+                "故事可以有起伏，但不得偏離固定分數與雙方輸入資料。"
+              ],
+              "prohibitedMoves": [
+                "不得將配對寫成絕對命定或絕對不適合。",
+                "不得跳過第一層直接做補強結論。",
+                "不得改動其他卡片或跨模組計算。"
+              ]
+            }
+          },
+          "aiInterpretationLayer": {
+            "layer": "ai_soul_match_interpretation",
+            "sourceLayer": "professional_soul_match_decomposition",
+            "recalculationAllowed": false,
+            "pairTitle": "MatchASelf × MatchBOther",
+            "focusAxes": [
+              "stability",
+              "resonance",
+              "communication"
+            ],
+            "userReadableSummary": "AI 讀取第一層後判定：MatchASelf × MatchBOther的關係不是只看總分，而是要先處理【承諾軸】，再帶動【共鳴軸】與【溝通軸】。",
+            "relationshipPositioning": "MatchASelf帶著「情感共鳴型」進入關係，MatchBOther帶著「行動推進型」回應關係。這代表關係的主軸是「兩個底色不同的人如何在同一個日常裡對齊」。",
+            "emotionalPattern": "雙方的共鳴來自：AI 判定金牛與天蠍，情感深邃，靈魂共振，無需言語已心領神會。；AI 分析生肖馬與龍，社交節奏一致，自在舒適，是彼此最佳的同行者。。這是關係可以繼續加深的情感根基。",
+            "communicationPattern": "溝通需要先回到「確認」而不是「說服」。當雙方能先確認感受與事實，關係就會進入可修復狀態。",
+            "riskTranslation": "關係的磨合來自：AI 分析目前未見高衝突警示，但潛在的『不說』才是最大風險，AI 建議立即執行：深度溝通。；AI 判定維持日常溝通，並非表面寒暄，而是直搗核心，揭露彼此最深層的擔憂與渴望。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。壓力點不是結論，而是關係需要學會的修復技術。",
+            "evidenceChain": [
+              "第一層判定：MatchASelf × MatchBOther屬於「高共鳴」型關係。最強軸線是【溝通】，最需要被照顧的軸線是【穩定】。",
+              "MatchASelf帶著「情感共鳴型」進入關係，MatchBOther帶著「行動推進型」回應關係。",
+              "雙方的共鳴來自：AI 判定金牛與天蠍，情感深邃，靈魂共振，無需言語已心領神會。；AI 分析生肖馬與龍，社交節奏一致，自在舒適，是彼此最佳的同行者。。",
+              "關係的磨合來自：AI 分析目前未見高衝突警示，但潛在的『不說』才是最大風險，AI 建議立即執行：深度溝通。；AI 判定維持日常溝通，並非表面寒暄，而是直搗核心，揭露彼此最深層的擔憂與渴望。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。",
+              "MatchASelf的關係底色是「情感共鳴型」；金牛座帶出外在節奏，馬與金建立關係質地，重視承諾、秩序與穩定，關係中需要被好好放在心上。",
+              "親密依戀：85",
+              "安全穩定：84",
+              "變動冒險：49",
+              "主導推進：62",
+              "MatchBOther的關係底色是「行動推進型」；天蠍座帶出外在節奏，龍與土建立關係質地，行動感與保護欲較強，關係中需要看見目標與方向。",
+              "主導推進：86",
+              "邏輯理解：81",
+              "人際互動：72",
+              "情緒共感：74"
+            ],
+            "interpretationPoints": [
+              {
+                "title": "關係主軸",
+                "reading": "關係的主軸落在承諾軸：此軸決定關係能不能在日常裡繼續穩定累積。",
+                "evidence": [
+                  "讀取雙方安全感、變動程度與關係承載能力。",
+                  "穩定指數：75",
+                  "衝突風險：5"
+                ]
+              },
+              {
+                "title": "雙方底色",
+                "reading": "MatchASelf是情感共鳴型；MatchBOther是行動推進型。這份差異是互補素材，也是需要被翻譯的日常語言。",
+                "evidence": [
+                  "MatchASelf的關係底色是「情感共鳴型」；金牛座帶出外在節奏，馬與金建立關係質地，重視承諾、秩序與穩定，關係中需要被好好放在心上。",
+                  "MatchBOther的關係底色是「行動推進型」；天蠍座帶出外在節奏，龍與土建立關係質地，行動感與保護欲較強，關係中需要看見目標與方向。"
+                ]
+              },
+              {
+                "title": "關係修復點",
+                "reading": "關係需要把共鳴軸與溝通軸轉成可執行的約定，才能讓共鳴不被壓力消耗。",
+                "evidence": [
+                  "讀取雙方情緒、人際與親密依戀的接近程度。",
+                  "讀取雙方情感表達、邏輯理解與人際節奏的對齊度。"
+                ]
+              }
+            ]
+          },
+          "reinforcementLayer": {
+            "layer": "ai_soul_match_reinforcement",
+            "sourceLayer": "ai_soul_match_interpretation",
+            "recalculationAllowed": false,
+            "clearStatement": "AI 判定：MatchASelf × MatchBOther第一補強為【承諾補強】。完成後，依序補【共鳴補強】，最後補【溝通補強】。",
+            "priorities": [
+              {
+                "order": 1,
+                "label": "第一補強",
+                "axis": "stability",
+                "title": "承諾補強",
+                "direction": "補強安全感、日常節奏與可信任累積",
+                "reason": "第二層解讀顯示關係需要把感情落到穩定行動，不只停在感覺與承諾。",
+                "action": "建立一個小型穩定約定：固定聯繫、固定確認、固定完成一件共同的事。"
+              },
+              {
+                "order": 2,
+                "label": "第二補強",
+                "axis": "resonance",
+                "title": "共鳴補強",
+                "direction": "補強同理、情緒接住與相互看見",
+                "reason": "第二層解讀顯示雙方需要先把彼此的真實感受接住，共鳴才會繼續轉成關係動能。",
+                "action": "每週固定一次深聊，各自說出一件被理解的事與一件希望被看見的事。"
+              },
+              {
+                "order": 3,
+                "label": "第三補強",
+                "axis": "communication",
+                "title": "溝通補強",
+                "direction": "補強說明方式、確認節奏與誤會修復",
+                "reason": "第二層解讀顯示關係要先把「我的意思」與「你聽到的意思」對齊，壓力才不會擴大。",
+                "action": "遇到分歧時先用三句話：我在意的是、我擔心的是、我需要你確認的是。"
+              }
+            ],
+            "executionPrinciple": "AI 不預測關係命運；AI 判定這段關係目前最需要補強的相處方向。雙方依序執行，關係成果由雙方共同創造。",
+            "boundaries": [
+              "第三層只讀取第二層 AI 解讀，不重新計算配對分數。",
+              "補強是明確行動方向，不是對關係結果做保證。",
+              "這份補強只屬於靈魂配對模組，不改動其他卡片。"
+            ]
+          },
+          "karmaRelation": {
+            "nameHarmony": 76,
+            "birthdayAlignment": 32,
+            "bloodTypeCompatibility": 78,
+            "wuxingAlignment": 50,
+            "zodiacHarmony": 53,
+            "genderDynamics": 95,
+            "shichenBalance": 45,
+            "personalityResonance": 97,
+            "personalityComplementarity": 50,
+            "personalityConflict": 32,
+            "overallResonance": 67,
+            "activePerson": "equal",
+            "needsUnderstanding": "mutual",
+            "primaryChallenge": "相處溝通",
+            "primaryGift": "互相滋養",
+            "relationshipArchetype": "平衡者",
+            "karmicTheme": "靈魂學習",
+            "growthOpportunity": "在關係中學會信任",
+            "emotionalDepth": 35,
+            "painPoint": "控制與掙脫的邊界撕扯課題",
+            "painPointIntensity": 35,
+            "deepPain": "你總是在期待對方為你改變，卻在一次次的期待落空中學會了自我封閉。那種被最愛之人無視的冰冷，正在慢慢抽乾你靈魂深處的熱情。",
+            "harshTruth": "你的敏感不是無理取鬧，而是靈魂在深淵邊緣掙扎的警報。當你終於不再抱怨、不再索求，代表你已經在心底為這段關係宣判了死刑。",
+            "warmthFactor": "在衝突中學會珍惜",
+            "emotionalArc": "陌生→一見如故→深入→挑戰→蛻變",
+            "storyTwist": "原來靈魂相近的兩個人，早已在冥冥中等待彼此"
+          },
+          "fiveElementMatch": {
+            "engineVersion": "match_five_element_v1",
+            "summary": "AI 判定：MatchASelf目前最缺火元素；MatchBOther目前最缺地元素。AI 判定：兩人共同第一補強鎖定火元素。請共同優先補強火元素，先校準主動表達、熱情互動與關係推進力。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+            "relationMode": "generating",
+            "sharedElement": "fire",
+            "sharedAction": "AI 判定：兩人共同第一補強鎖定火元素。請共同優先補強火元素，先校準主動表達、熱情互動與關係推進力。",
+            "relationReason": "目前屬於可相生的結構：MatchASelf的主缺為火元素，MatchBOther的主缺為地元素。",
+            "personA": {
+              "name": "MatchASelf",
+              "primaryElement": "fire",
+              "secondaryElement": "air",
+              "elementScores": {
+                "earth": 100,
+                "water": 48,
+                "fire": 42,
+                "air": 42,
+                "space": 42
+              },
+              "needScores": {
+                "earth": 0,
+                "water": 52,
+                "fire": 58,
+                "air": 58,
+                "space": 58
+              },
+              "reason": "AI 判定：MatchASelf目前最缺火元素。請優先補強火元素。完成後再補風元素。判定來源為生日結構、血型節奏與本次配對分數交叉計算。",
+              "changeTarget": "補強火元素，先校準主動表達、熱情互動與關係推進力。"
+            },
+            "personB": {
+              "name": "MatchBOther",
+              "primaryElement": "earth",
+              "secondaryElement": "air",
+              "elementScores": {
+                "earth": 42,
+                "water": 54,
+                "fire": 62,
+                "air": 42,
+                "space": 76
+              },
+              "needScores": {
+                "earth": 58,
+                "water": 46,
+                "fire": 38,
+                "air": 58,
+                "space": 24
+              },
+              "reason": "AI 判定：MatchBOther目前最缺地元素。請優先補強地元素。完成後再補風元素。判定來源為生日結構、血型節奏與本次配對分數交叉計算。",
+              "changeTarget": "補強地元素，先校準關係的穩定感、承諾感與安全感。"
+            },
+            "integratedAdvice": "本次靈魂配對的 5 元素結論：AI 判定：MatchASelf目前最缺火元素；MatchBOther目前最缺地元素。AI 判定：兩人共同第一補強鎖定火元素。請共同優先補強火元素，先校準主動表達、熱情互動與關係推進力。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。 平台只判定補強方向，不保證關係結果；請把補強方向落到日常溝通與共同節奏。",
+            "inlineHighlights": [
+              "AI 判定：MatchASelf目前最缺火元素。請優先補強火元素。完成後再補風元素。判定來源為生日結構、血型節奏與本次配對分數交叉計算。",
+              "AI 判定：MatchBOther目前最缺地元素。請優先補強地元素。完成後再補風元素。判定來源為生日結構、血型節奏與本次配對分數交叉計算。",
+              "AI 判定：兩人共同第一補強鎖定火元素。請共同優先補強火元素，先校準主動表達、熱情互動與關係推進力。",
+              "目前屬於可相生的結構，所以補強不是只看一個人；兩個人都要補到正確位置。"
+            ]
+          }
+        }
+      },
+      "requestId": null
+    },
+    "other": {
+      "ok": true,
+      "response": {
+        "ok": true,
+        "status": 200,
+        "route": "/api/match-generate",
+        "durationMs": 3578,
+        "data": {
+          "result": {
+            "match_score": 90,
+            "resonance": 94,
+            "communication": 95,
+            "stability": 75,
+            "conflict_risk": 5,
+            "summary": "整體配對穩定度高，雙方在共鳴與相處節奏上有明顯優勢，只要持續保持真誠溝通，這段關係會越走越順。",
+            "zones": {
+              "resonance": [
+                "AI 判定，金牛 MatchASelf 與天蠍 MatchFriendOther 情感波頻高度相近，靈魂共鳴直達深處。",
+                "AI 分析，屬馬 MatchASelf 與屬龍 MatchFriendOther 社交節奏一致，相處自在，安全感標準同步。"
+              ],
+              "complement": [
+                "AI 確認，金牛 MatchASelf 的謹慎與天蠍 MatchFriendOther 的勇敢，形成完美制衡與激勵。",
+                "AI 分析，五行金的 MatchASelf 與五行土的 MatchFriendOther，土生金，關係互助共榮。"
+              ],
+              "grinding": [
+                "AI 判定，金牛 MatchASelf 對風險的保守與天蠍 MatchFriendOther 的果決，是重大決策前的隱形阻力。",
+                "AI 確認，A 型血 MatchASelf 與 O 型血 MatchFriendOther，需為彼此的決策風格預留緩衝時間。"
+              ],
+              "conflict": [
+                "AI 分析，矩陣未見高衝突警示，但『日常溝通』絕非敷衍，而是關係的每日修煉。",
+                "AI 確認，維持開放對話，是 MatchASelf 與 MatchFriendOther 關係永續的唯一解方。"
+              ]
+            },
+            "communicationReport": {
+              "personA": {
+                "type": "熱烈表達型",
+                "emoji": "🔥",
+                "tagline": "說話帶溫度，情緒就是訊息",
+                "howTheySpeak": "語氣起伏明顯，喜歡用比喻和故事，情緒直接體現在語調中；高興時滔滔不絕，難過時沉默以對",
+                "whatTriggersShutdown": "被說「你太情緒化了」或「冷靜一點」——感覺情感被否定時，會關閉或反向爆發",
+                "whatTheyNeedToHear": "「我懂你的感受」「你說的我都聽進去了」——先被理解，再談解決方案",
+                "pattern": "情感型"
+              },
+              "personB": {
+                "type": "直接主導型",
+                "emoji": "⚡",
+                "tagline": "說到做到，不繞彎子，快速決策",
+                "howTheySpeak": "語速快、直接切重點，不喜歡鋪墊太多；高壓時可能不顧慮對方感受直接說出口",
+                "whatTriggersShutdown": "說了半天沒有結論、對方一直猶豫——會失去耐心，甚至自己做決定把對方晾在一邊",
+                "whatTheyNeedToHear": "「我決定了，跟你的建議一樣」「你說的我已經在做了」——效率與行動是他們的愛的語言",
+                "pattern": "行動型"
+              },
+              "clashType": "感受 vs 效率 型衝突",
+              "clashDescription": "一個覺得沒被在乎，一個覺得沒有進展——都在付出，頻道不對。",
+              "topConflicts": [
+                {
+                  "title": "「你只管做，都不問問我感受」",
+                  "howItStarts": "MatchFriendOther直接做了決定或採取行動，沒有先問MatchASelf的感受",
+                  "whatHappens": "MatchASelf感覺被忽視、不被在乎；MatchFriendOther困惑「我做的一切都是為了我們，哪裡有問題？」——兩人都覺得委屈",
+                  "rootCause": "行動型以「做事」表達愛，情感型以「被問到」感受愛——付出方式不同，對方收不到",
+                  "solution": "MatchFriendOther做重要決定前多一句：「你覺得呢？」；MatchASelf也練習把「我想被問」說出口，而不是等對方猜"
+                }
+              ],
+              "dailyHarmony": [
+                "每天花 5 分鐘，不談「事情」，只聊「感受」——「今天你心情怎樣？」這個問題比任何分析都有力量",
+                "重要決定前給彼此一個「冷靜期」——寫下各自的想法，24小時後再討論，避免在情緒高峰時說出傷人的話",
+                "記住彼此的「關閉觸發點」：MatchASelf最怕「被說「你太情緒化了」或「冷靜一點」——感…」，MatchFriendOther最怕「說了半天沒有結論、對方一直猶豫——會失去…」——避開這些，衝突減少一半"
+              ]
+            }
+          },
+          "displayA": {
+            "name": "MatchASelf",
+            "zodiacZh": "金牛座",
+            "chineseZodiac": "馬",
+            "wuxing": "金",
+            "bloodType": "A"
+          },
+          "displayB": {
+            "name": "MatchFriendOther",
+            "zodiacZh": "天蠍座",
+            "chineseZodiac": "龍",
+            "wuxing": "土",
+            "bloodType": "O"
+          },
+          "professionalLayer": {
+            "layer": "professional_soul_match_decomposition",
+            "generatedFrom": "dual_input_and_match_engine",
+            "recalculationAllowed": false,
+            "pairTitle": "MatchASelf × MatchFriendOther",
+            "pairOverview": "第一層判定：MatchASelf × MatchFriendOther屬於「高共鳴」型關係。最強軸線是【溝通】，最需要被照顧的軸線是【穩定】。",
+            "people": [
+              {
+                "role": "personA",
+                "name": "MatchASelf",
+                "birthDate": "1990-05-20",
+                "bloodType": "A",
+                "gender": "女性",
+                "zodiacZh": "金牛座",
+                "chineseZodiac": "馬",
+                "wuxing": "金",
+                "primaryPattern": "情感共鳴型",
+                "strongestSignals": [
+                  "親密依戀：85",
+                  "安全穩定：84",
+                  "情緒共感：80"
+                ],
+                "supportNeeds": [
+                  "變動冒險：49",
+                  "主導推進：62",
+                  "創造想像：73"
+                ],
+                "storySeed": "MatchASelf的關係底色是「情感共鳴型」；金牛座帶出外在節奏，馬與金建立關係質地，重視承諾、秩序與穩定，關係中需要被好好放在心上。",
+                "fixedSignals": [
+                  "姓名：MatchASelf",
+                  "生日：1990-05-20",
+                  "星座：金牛座",
+                  "生肖：馬",
+                  "五行：金",
+                  "血型：A",
+                  "性別：女性",
+                  "關係模式：情感共鳴型"
+                ]
+              },
+              {
+                "role": "personB",
+                "name": "MatchFriendOther",
+                "birthDate": "1988-11-08",
+                "bloodType": "O",
+                "gender": "男性",
+                "zodiacZh": "天蠍座",
+                "chineseZodiac": "龍",
+                "wuxing": "土",
+                "primaryPattern": "行動推進型",
+                "strongestSignals": [
+                  "主導推進：86",
+                  "邏輯理解：81",
+                  "變動冒險：81"
+                ],
+                "supportNeeds": [
+                  "人際互動：72",
+                  "情緒共感：74",
+                  "創造想像：75"
+                ],
+                "storySeed": "MatchFriendOther的關係底色是「行動推進型」；天蠍座帶出外在節奏，龍與土建立關係質地，行動感與保護欲較強，關係中需要看見目標與方向。",
+                "fixedSignals": [
+                  "姓名：MatchFriendOther",
+                  "生日：1988-11-08",
+                  "星座：天蠍座",
+                  "生肖：龍",
+                  "五行：土",
+                  "血型：O",
+                  "性別：男性",
+                  "關係模式：行動推進型"
+                ]
+              }
+            ],
+            "relationshipAxes": [
+              {
+                "key": "resonance",
+                "title": "共鳴軸",
+                "score": 94,
+                "explanation": "讀取雙方情緒、人際與親密依戀的接近程度。",
+                "storyMeaning": "此軸決定兩人是否容易覺得對方懂自己。",
+                "evidence": [
+                  "AI 判定，金牛 MatchASelf 與天蠍 MatchFriendOther 情感波頻高度相近，靈魂共鳴直達深處。",
+                  "AI 分析，屬馬 MatchASelf 與屬龍 MatchFriendOther 社交節奏一致，相處自在，安全感標準同步。"
+                ]
+              },
+              {
+                "key": "communication",
+                "title": "溝通軸",
+                "score": 95,
+                "explanation": "讀取雙方情感表達、邏輯理解與人際節奏的對齊度。",
+                "storyMeaning": "此軸決定誤會出現時，兩人是能說開，還是各自退回自己的防線。",
+                "evidence": [
+                  "AI 判定，金牛 MatchASelf 對風險的保守與天蠍 MatchFriendOther 的果決，是重大決策前的隱形阻力。",
+                  "AI 確認，A 型血 MatchASelf 與 O 型血 MatchFriendOther，需為彼此的決策風格預留緩衝時間。"
+                ]
+              },
+              {
+                "key": "stability",
+                "title": "承諾軸",
+                "score": 75,
+                "explanation": "讀取雙方安全感、變動程度與關係承載能力。",
+                "storyMeaning": "此軸決定關係能不能在日常裡繼續穩定累積。",
+                "evidence": [
+                  "穩定指數：75",
+                  "衝突風險：5"
+                ]
+              },
+              {
+                "key": "friction",
+                "title": "磨合軸",
+                "score": 5,
+                "explanation": "讀取雙方安全感落差、依戀落差與主導性拉扯。",
+                "storyMeaning": "此軸不是否定關係，而是標出需要優先處理的壓力點。",
+                "evidence": [
+                  "AI 分析，矩陣未見高衝突警示，但『日常溝通』絕非敷衍，而是關係的每日修煉。",
+                  "AI 確認，維持開放對話，是 MatchASelf 與 MatchFriendOther 關係永續的唯一解方。"
+                ]
+              }
+            ],
+            "relationshipStory": {
+              "opening": "MatchASelf帶著「情感共鳴型」進入關係，MatchFriendOther帶著「行動推進型」回應關係。",
+              "resonanceStory": "雙方的共鳴來自：AI 判定，金牛 MatchASelf 與天蠍 MatchFriendOther 情感波頻高度相近，靈魂共鳴直達深處。；AI 分析，屬馬 MatchASelf 與屬龍 MatchFriendOther 社交節奏一致，相處自在，安全感標準同步。。",
+              "frictionStory": "關係的磨合來自：AI 分析，矩陣未見高衝突警示，但『日常溝通』絕非敷衍，而是關係的每日修煉。；AI 確認，維持開放對話，是 MatchASelf 與 MatchFriendOther 關係永續的唯一解方。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。",
+              "professionalSummary": "第一層只建立雙方固定資料、關係軸線、分數證據與故事素材，不直接做補強或保證結果。"
+            },
+            "readingBoundaries": [
+              "第一層只做靈魂配對專業拆解，不做 AI 補強方案。",
+              "後續第二層只能讀取此層資料，不得重新計算配對分數。",
+              "後續第三層只能讀取第二層結果，不反向改寫本層固定素材。"
+            ],
+            "aiEvolutionMaterial": {
+              "fixedFacts": [
+                "姓名：MatchASelf",
+                "生日：1990-05-20",
+                "星座：金牛座",
+                "生肖：馬",
+                "五行：金",
+                "血型：A",
+                "性別：女性",
+                "關係模式：情感共鳴型",
+                "姓名：MatchFriendOther",
+                "生日：1988-11-08",
+                "星座：天蠍座",
+                "生肖：龍",
+                "五行：土",
+                "血型：O",
+                "性別：男性",
+                "關係模式：行動推進型",
+                "配對分數：90",
+                "共鳴指數：94",
+                "溝通指數：95",
+                "穩定指數：75",
+                "衝突風險：5"
+              ],
+              "interpretationRules": [
+                "先讀個人底色，再讀雙人軸線，最後讀關係故事。",
+                "共鳴與承諾是關係動能；磨合與衝突是需要轉譯成日常邊界的素材。",
+                "故事可以有起伏，但不得偏離固定分數與雙方輸入資料。"
+              ],
+              "prohibitedMoves": [
+                "不得將配對寫成絕對命定或絕對不適合。",
+                "不得跳過第一層直接做補強結論。",
+                "不得改動其他卡片或跨模組計算。"
+              ]
+            }
+          },
+          "aiInterpretationLayer": {
+            "layer": "ai_soul_match_interpretation",
+            "sourceLayer": "professional_soul_match_decomposition",
+            "recalculationAllowed": false,
+            "pairTitle": "MatchASelf × MatchFriendOther",
+            "focusAxes": [
+              "stability",
+              "resonance",
+              "communication"
+            ],
+            "userReadableSummary": "AI 讀取第一層後判定：MatchASelf × MatchFriendOther的關係不是只看總分，而是要先處理【承諾軸】，再帶動【共鳴軸】與【溝通軸】。",
+            "relationshipPositioning": "MatchASelf帶著「情感共鳴型」進入關係，MatchFriendOther帶著「行動推進型」回應關係。這代表關係的主軸是「兩個底色不同的人如何在同一個日常裡對齊」。",
+            "emotionalPattern": "雙方的共鳴來自：AI 判定，金牛 MatchASelf 與天蠍 MatchFriendOther 情感波頻高度相近，靈魂共鳴直達深處。；AI 分析，屬馬 MatchASelf 與屬龍 MatchFriendOther 社交節奏一致，相處自在，安全感標準同步。。這是關係可以繼續加深的情感根基。",
+            "communicationPattern": "溝通需要先回到「確認」而不是「說服」。當雙方能先確認感受與事實，關係就會進入可修復狀態。",
+            "riskTranslation": "關係的磨合來自：AI 分析，矩陣未見高衝突警示，但『日常溝通』絕非敷衍，而是關係的每日修煉。；AI 確認，維持開放對話，是 MatchASelf 與 MatchFriendOther 關係永續的唯一解方。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。壓力點不是結論，而是關係需要學會的修復技術。",
+            "evidenceChain": [
+              "第一層判定：MatchASelf × MatchFriendOther屬於「高共鳴」型關係。最強軸線是【溝通】，最需要被照顧的軸線是【穩定】。",
+              "MatchASelf帶著「情感共鳴型」進入關係，MatchFriendOther帶著「行動推進型」回應關係。",
+              "雙方的共鳴來自：AI 判定，金牛 MatchASelf 與天蠍 MatchFriendOther 情感波頻高度相近，靈魂共鳴直達深處。；AI 分析，屬馬 MatchASelf 與屬龍 MatchFriendOther 社交節奏一致，相處自在，安全感標準同步。。",
+              "關係的磨合來自：AI 分析，矩陣未見高衝突警示，但『日常溝通』絕非敷衍，而是關係的每日修煉。；AI 確認，維持開放對話，是 MatchASelf 與 MatchFriendOther 關係永續的唯一解方。。這些是後續 AI 解讀要優先轉譯成日常行動的素材。",
+              "MatchASelf的關係底色是「情感共鳴型」；金牛座帶出外在節奏，馬與金建立關係質地，重視承諾、秩序與穩定，關係中需要被好好放在心上。",
+              "親密依戀：85",
+              "安全穩定：84",
+              "變動冒險：49",
+              "主導推進：62",
+              "MatchFriendOther的關係底色是「行動推進型」；天蠍座帶出外在節奏，龍與土建立關係質地，行動感與保護欲較強，關係中需要看見目標與方向。",
+              "主導推進：86",
+              "邏輯理解：81",
+              "人際互動：72",
+              "情緒共感：74"
+            ],
+            "interpretationPoints": [
+              {
+                "title": "關係主軸",
+                "reading": "關係的主軸落在承諾軸：此軸決定關係能不能在日常裡繼續穩定累積。",
+                "evidence": [
+                  "讀取雙方安全感、變動程度與關係承載能力。",
+                  "穩定指數：75",
+                  "衝突風險：5"
+                ]
+              },
+              {
+                "title": "雙方底色",
+                "reading": "MatchASelf是情感共鳴型；MatchFriendOther是行動推進型。這份差異是互補素材，也是需要被翻譯的日常語言。",
+                "evidence": [
+                  "MatchASelf的關係底色是「情感共鳴型」；金牛座帶出外在節奏，馬與金建立關係質地，重視承諾、秩序與穩定，關係中需要被好好放在心上。",
+                  "MatchFriendOther的關係底色是「行動推進型」；天蠍座帶出外在節奏，龍與土建立關係質地，行動感與保護欲較強，關係中需要看見目標與方向。"
+                ]
+              },
+              {
+                "title": "關係修復點",
+                "reading": "關係需要把共鳴軸與溝通軸轉成可執行的約定，才能讓共鳴不被壓力消耗。",
+                "evidence": [
+                  "讀取雙方情緒、人際與親密依戀的接近程度。",
+                  "讀取雙方情感表達、邏輯理解與人際節奏的對齊度。"
+                ]
+              }
+            ]
+          },
+          "reinforcementLayer": {
+            "layer": "ai_soul_match_reinforcement",
+            "sourceLayer": "ai_soul_match_interpretation",
+            "recalculationAllowed": false,
+            "clearStatement": "AI 判定：MatchASelf × MatchFriendOther第一補強為【承諾補強】。完成後，依序補【共鳴補強】，最後補【溝通補強】。",
+            "priorities": [
+              {
+                "order": 1,
+                "label": "第一補強",
+                "axis": "stability",
+                "title": "承諾補強",
+                "direction": "補強安全感、日常節奏與可信任累積",
+                "reason": "第二層解讀顯示關係需要把感情落到穩定行動，不只停在感覺與承諾。",
+                "action": "建立一個小型穩定約定：固定聯繫、固定確認、固定完成一件共同的事。"
+              },
+              {
+                "order": 2,
+                "label": "第二補強",
+                "axis": "resonance",
+                "title": "共鳴補強",
+                "direction": "補強同理、情緒接住與相互看見",
+                "reason": "第二層解讀顯示雙方需要先把彼此的真實感受接住，共鳴才會繼續轉成關係動能。",
+                "action": "每週固定一次深聊，各自說出一件被理解的事與一件希望被看見的事。"
+              },
+              {
+                "order": 3,
+                "label": "第三補強",
+                "axis": "communication",
+                "title": "溝通補強",
+                "direction": "補強說明方式、確認節奏與誤會修復",
+                "reason": "第二層解讀顯示關係要先把「我的意思」與「你聽到的意思」對齊，壓力才不會擴大。",
+                "action": "遇到分歧時先用三句話：我在意的是、我擔心的是、我需要你確認的是。"
+              }
+            ],
+            "executionPrinciple": "AI 不預測關係命運；AI 判定這段關係目前最需要補強的相處方向。雙方依序執行，關係成果由雙方共同創造。",
+            "boundaries": [
+              "第三層只讀取第二層 AI 解讀，不重新計算配對分數。",
+              "補強是明確行動方向，不是對關係結果做保證。",
+              "這份補強只屬於靈魂配對模組，不改動其他卡片。"
+            ]
+          },
+          "karmaRelation": {
+            "nameHarmony": 32,
+            "birthdayAlignment": 32,
+            "bloodTypeCompatibility": 79,
+            "wuxingAlignment": 45,
+            "zodiacHarmony": 54,
+            "genderDynamics": 95,
+            "shichenBalance": 52,
+            "personalityResonance": 98,
+            "personalityComplementarity": 50,
+            "personalityConflict": 32,
+            "overallResonance": 67,
+            "activePerson": "equal",
+            "needsUnderstanding": "mutual",
+            "primaryChallenge": "相處溝通",
+            "primaryGift": "互相滋養",
+            "relationshipArchetype": "平衡者",
+            "karmicTheme": "靈魂學習",
+            "growthOpportunity": "在關係中學會信任",
+            "emotionalDepth": 35,
+            "painPoint": "控制與掙脫的邊界撕扯課題",
+            "painPointIntensity": 35,
+            "deepPain": "你在這段關係中習慣了默默吞下委屈，卻在某個無意間的冰冷細節裡發現——對方其實從未試圖真正看懂你的敏感。那一刻的荒涼，比任何激烈的爭吵都更具殺傷力。",
+            "harshTruth": "你的敏感不是無理取鬧，而是靈魂在深淵邊緣掙扎的警報。當你終於不再抱怨、不再索求，代表你已經在心底為這段關係宣判了死刑。",
+            "warmthFactor": "在衝突中學會珍惜",
+            "emotionalArc": "陌生→一見如故→深入→挑戰→蛻變",
+            "storyTwist": "原來靈魂相近的兩個人，早已在冥冥中等待彼此"
+          },
+          "fiveElementMatch": {
+            "engineVersion": "match_five_element_v1",
+            "summary": "AI 判定：MatchASelf目前最缺火元素；MatchFriendOther目前最缺地元素。AI 判定：兩人共同第一補強鎖定火元素。請共同優先補強火元素，先校準主動表達、熱情互動與關係推進力。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。",
+            "relationMode": "generating",
+            "sharedElement": "fire",
+            "sharedAction": "AI 判定：兩人共同第一補強鎖定火元素。請共同優先補強火元素，先校準主動表達、熱情互動與關係推進力。",
+            "relationReason": "目前屬於可相生的結構：MatchASelf的主缺為火元素，MatchFriendOther的主缺為地元素。",
+            "personA": {
+              "name": "MatchASelf",
+              "primaryElement": "fire",
+              "secondaryElement": "air",
+              "elementScores": {
+                "earth": 100,
+                "water": 48,
+                "fire": 42,
+                "air": 42,
+                "space": 42
+              },
+              "needScores": {
+                "earth": 0,
+                "water": 52,
+                "fire": 58,
+                "air": 58,
+                "space": 58
+              },
+              "reason": "AI 判定：MatchASelf目前最缺火元素。請優先補強火元素。完成後再補風元素。判定來源為生日結構、血型節奏與本次配對分數交叉計算。",
+              "changeTarget": "補強火元素，先校準主動表達、熱情互動與關係推進力。"
+            },
+            "personB": {
+              "name": "MatchFriendOther",
+              "primaryElement": "earth",
+              "secondaryElement": "air",
+              "elementScores": {
+                "earth": 42,
+                "water": 54,
+                "fire": 62,
+                "air": 42,
+                "space": 76
+              },
+              "needScores": {
+                "earth": 58,
+                "water": 46,
+                "fire": 38,
+                "air": 58,
+                "space": 24
+              },
+              "reason": "AI 判定：MatchFriendOther目前最缺地元素。請優先補強地元素。完成後再補風元素。判定來源為生日結構、血型節奏與本次配對分數交叉計算。",
+              "changeTarget": "補強地元素，先校準關係的穩定感、承諾感與安全感。"
+            },
+            "integratedAdvice": "本次靈魂配對的 5 元素結論：AI 判定：MatchASelf目前最缺火元素；MatchFriendOther目前最缺地元素。AI 判定：兩人共同第一補強鎖定火元素。請共同優先補強火元素，先校準主動表達、熱情互動與關係推進力。 AI 不預測你的命運；AI 判定你目前最需要補強的方向。 平台只判定補強方向，不保證關係結果；請把補強方向落到日常溝通與共同節奏。",
+            "inlineHighlights": [
+              "AI 判定：MatchASelf目前最缺火元素。請優先補強火元素。完成後再補風元素。判定來源為生日結構、血型節奏與本次配對分數交叉計算。",
+              "AI 判定：MatchFriendOther目前最缺地元素。請優先補強地元素。完成後再補風元素。判定來源為生日結構、血型節奏與本次配對分數交叉計算。",
+              "AI 判定：兩人共同第一補強鎖定火元素。請共同優先補強火元素，先校準主動表達、熱情互動與關係推進力。",
+              "目前屬於可相生的結構，所以補強不是只看一個人；兩個人都要補到正確位置。"
+            ]
+          }
+        }
+      },
+      "requestId": null
+    },
+    "screenHealth": {
+      "id": "CARD_04",
+      "module": "soul_match",
+      "title": "靈魂配對",
+      "path": "/match",
+      "status": "PASSED",
+      "httpStatus": 200,
+      "durationMs": 451,
+      "htmlLength": 27195,
+      "error": null,
+      "issue": null
+    },
+    "startedAt": "2026-08-17T16:51:52.847Z",
+    "completedAt": "2026-08-17T16:52:00.883Z"
+  },
+  "totalScore": 73,
+  "tier": "STANDARD",
+  "allowNextCard": false,
+  "generatedAt": "2026-08-17T16:52:00.883Z"
+}

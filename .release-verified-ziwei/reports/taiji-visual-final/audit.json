@@ -1,0 +1,40 @@
+{
+  "mobileInfo": {
+    "canvas": true,
+    "canvasRect": {
+      "height": 320.0000305175781,
+      "width": 320.0000305175781,
+      "x": 472.5333557128906,
+      "y": 47.04592514038086
+    },
+    "cardRect": {
+      "height": 523.6000366210938,
+      "width": 440.0000305175781,
+      "x": 412.5333557128906,
+      "y": 32
+    },
+    "engine": "three.js r170",
+    "label": "mobile",
+    "recovering": false,
+    "scene": "ready"
+  },
+  "desktopInfo": {
+    "canvas": true,
+    "canvasRect": {
+      "height": 320.0000305175781,
+      "width": 320.0000305175781,
+      "x": 472.5333557128906,
+      "y": 50.077842712402344
+    },
+    "cardRect": {
+      "height": 523.6000366210938,
+      "width": 440.0000305175781,
+      "x": 412.5333557128906,
+      "y": 32
+    },
+    "engine": "three.js r170",
+    "label": "desktop",
+    "recovering": false,
+    "scene": "ready"
+  }
+}

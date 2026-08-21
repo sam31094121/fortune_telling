@@ -1,0 +1,102 @@
+import { NextResponse } from 'next/server';
+import { analyzeDestiny } from '@/lib/gemini';
+import type { AnalyzeRequest, BloodType, Gender, PersonInput } from '@/lib/types';
+import { isValidBirthday } from '@/lib/validation';
+import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
+
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
+const VALID_BLOOD_TYPES: Exclude<BloodType, ''>[] = ['A', 'B', 'AB', 'O'];
+const VALID_GENDERS: Gender[] = ['male', 'female'];
+
+const ipCache = new Map<string, { count: number; resetTime: number }>();
+const responseCache = new Map<string, { result: unknown; expireTime: number }>();
+
+function cleanCaches() {
+  const now = Date.now();
+  if (ipCache.size > 200) {
+    for (const [key, val] of ipCache.entries()) {
+      if (now > val.resetTime) ipCache.delete(key);
+    }
+  }
+  if (responseCache.size > 200) {
+    for (const [key, val] of responseCache.entries()) {
+      if (now > val.expireTime) responseCache.delete(key);
+    }
+  }
+}
+
+function validatePerson(person: unknown): string | null {
+  if (!person || typeof person !== 'object') return '請提供正確的人格解碼資料。';
+
+  const p = person as Partial<PersonInput>;
+
+  if (!isValidBirthday(p.birthday)) return '生日不是有效日期或晚於今天。';
+
+  if (typeof p.bloodType !== 'string' || !VALID_BLOOD_TYPES.includes(p.bloodType as Exclude<BloodType, ''>)) {
+    return '血型只能是 A、B、AB、O。';
+  }
+
+  if (typeof p.name !== 'string' || p.name.trim().length < 2) {
+    return '姓名至少需要 2 個字，才能開啟 VIP 解碼。';
+  }
+  if (p.name.trim().length > 20) return '姓名長度不可超過 20 個字。';
+
+  if (typeof p.gender !== 'string' || !VALID_GENDERS.includes(p.gender as Gender)) {
+    return '性別只能是 male 或 female。';
+  }
+
+  return null;
+}
+
+export async function POST(request: Request) {
+  const requestId = createRequestId();
+  const now = Date.now();
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown_ip';
+
+  cleanCaches();
+
+  const limitRecord = ipCache.get(ip);
+  if (limitRecord && now < limitRecord.resetTime) {
+    if (limitRecord.count >= 5) {
+      return friendlyErrorResponse(requestId, 'RATE_LIMITED', '請求過於頻繁，請稍後再試。', 429);
+    }
+    limitRecord.count += 1;
+  } else {
+    ipCache.set(ip, { count: 1, resetTime: now + 60_000 });
+  }
+
+  let body: AnalyzeRequest;
+  try {
+    body = (await request.json()) as AnalyzeRequest;
+  } catch {
+    return friendlyErrorResponse(requestId, 'INVALID_JSON', '請傳入有效的 JSON。', 400);
+  }
+
+  const errorMsg = validatePerson(body.person);
+  if (errorMsg) {
+    return friendlyErrorResponse(requestId, 'INVALID_INPUT', errorMsg, 400);
+  }
+
+  const cacheKey = hashedCacheKey([
+    body.person.birthday,
+    body.person.bloodType,
+    body.person.name.trim(),
+    body.person.gender,
+  ]);
+
+  const cached = responseCache.get(cacheKey);
+  if (cached && now < cached.expireTime) {
+    return NextResponse.json(cached.result, { status: 200 });
+  }
+
+  try {
+    const result = await analyzeDestiny({ ...body.person, name: body.person.name.trim() });
+    responseCache.set(cacheKey, { result, expireTime: now + 300_000 });
+    return NextResponse.json(result, { status: 200 });
+  } catch (err) {
+    console.error('[analyze] request failed', requestId, err instanceof Error ? err.message : String(err));
+    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '系統正在重新同步，請稍候再試。', 502);
+  }
+}

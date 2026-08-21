@@ -1,0 +1,91 @@
+{
+  "ok": true,
+  "version": "tiandiren-auto-qa-v1.2",
+  "baseUrl": "http://localhost:8888",
+  "stopOnFail": false,
+  "startedAt": "2026-08-21T07:19:11.532Z",
+  "completedAt": "2026-08-21T07:19:31.104Z",
+  "summary": {
+    "modules": 1,
+    "modes": [
+      "self",
+      "other"
+    ],
+    "passed": 1,
+    "failed": 0,
+    "stoppedAt": null
+  },
+  "homepage": {
+    "status": 200,
+    "durationMs": 241,
+    "checkedEntrances": [
+      {
+        "id": "ziwei",
+        "href": "/insight"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "id": "ziwei",
+      "title": "AI Ziwei",
+      "href": "/insight",
+      "api": "/api/analysis/jobs",
+      "checks": [
+        {
+          "step": "enter module page",
+          "status": "passed",
+          "api": "/insight",
+          "durationMs": 311,
+          "detail": {
+            "status": 200,
+            "durationMs": 311,
+            "length": 28462
+          }
+        },
+        {
+          "step": "SELF: submit data, API, backend, result, integration",
+          "status": "passed",
+          "api": "/api/analysis/jobs",
+          "durationMs": 8774,
+          "detail": {
+            "status": "COMPLETED",
+            "jobId": "job_224e87e4-7495-409a-8344-e79d87629d20",
+            "resultId": "result_c99215ce-84b6-41d2-8472-bf8bac9cb140",
+            "progressStage": "DONE",
+            "moduleId": "ZIWEI",
+            "mode": "insight",
+            "hasFiveElement": true
+          }
+        },
+        {
+          "step": "OTHER: submit data, API, backend, result, integration",
+          "status": "passed",
+          "api": "/api/analysis/jobs",
+          "durationMs": 8607,
+          "detail": {
+            "status": "COMPLETED",
+            "jobId": "job_a85bb559-6c7c-489b-b9eb-074e103312de",
+            "resultId": "result_21d8edb9-281c-4029-98cc-39a25bb8bac6",
+            "progressStage": "DONE",
+            "moduleId": "ZIWEI",
+            "mode": "insight",
+            "hasFiveElement": true
+          }
+        },
+        {
+          "step": "return home after module flow",
+          "status": "passed",
+          "api": "/",
+          "durationMs": 105,
+          "detail": {
+            "status": 200,
+            "durationMs": 105,
+            "length": 51871
+          }
+        }
+      ]
+    }
+  ],
+  "runtimeRestored": true
+}

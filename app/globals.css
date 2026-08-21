@@ -14216,7 +14216,7 @@ body.app-touching .home-taiji-cinema * {
    two physical piles, cards alternate back into the centre, then the deck
    compresses. Every visible item is an existing face card; none are swapped. */
 .tarot-experience-deck-preview--fancy-shuffling .tarot-experience-deck-preview__card {
-  animation: tarotPreviewFancyRiffle 6.2s cubic-bezier(.22, .76, .18, 1) var(--preview-delay) infinite;
+  animation: tarotPreviewFancyRiffle 4.2s cubic-bezier(.22, .76, .18, 1) var(--preview-delay) infinite;
   will-change: transform;
 }
 
