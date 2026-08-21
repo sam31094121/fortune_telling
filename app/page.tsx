@@ -2959,6 +2959,23 @@ export default function HomePage() {
           </Link>
 
           <TarotEntryCard />
+          <Link
+            href="/star-beasts"
+            className="home-feature-launch order-9 w-full relative group overflow-hidden rounded-3xl border border-amber-200/30 bg-[radial-gradient(circle_at_82%_22%,rgba(251,191,36,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(63,35,70,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(251,191,36,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-200/70 hover:shadow-[0_0_50px_rgba(251,191,36,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+            <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
+              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-amber-100/35 bg-amber-200/10 font-serif text-2xl font-black text-amber-100 shadow-[0_0_28px_rgba(251,191,36,0.18)]" aria-hidden="true">宿</div>
+              <div className="min-w-0 flex-1">
+                <span className="inline-block rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-100">28 星宿・四象收藏</span>
+                <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-amber-50 sm:text-2xl">星宿神獸卡片</h2>
+                <p className="mt-1 text-xs text-slate-300">完整收藏二十八星宿神獸；依春夏秋冬瀏覽，點選卡片閱讀守護意義與特質。</p>
+              </div>
+            </div>
+            <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-amber-200/40 bg-amber-300/15 px-5 py-3 text-xs font-bold text-amber-50 transition group-hover:bg-amber-300/25">
+              <span>查看 28 張卡片</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
+            </div>
+          </Link>
           </div>
         </section>
 
