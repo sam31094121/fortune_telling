@@ -1240,15 +1240,35 @@ const HOME_GROWTH_MODULE_GUIDES: HomeGrowthModuleGuide[] = [
   { id: 'tarot', label: 'AI 塔羅牌', helper: '完成塔羅牌抽牌、正逆位與五元素判定。', cta: '去完成塔羅牌', href: '/tarot', sticky: '用當下提問補齊最後一段訊號。', reward: '完成後，8/8 就能打開 AI 個人成長中心。' },
 ];
 
+const HOME_MODULE_TREASURE_SEALS: Record<HomeGrowthModuleId, { element: GrowthElement; relic: string; gear: string }> = {
+  number: { element: 'EARTH', relic: '定數印', gear: '節奏護膝・象徵穩住判斷與步伐' },
+  ziwei: { element: 'SPACE', relic: '命宮鑰', gear: '觀星頭盔・象徵看見命盤主線' },
+  soul_match: { element: 'WATER', relic: '共鳴珠', gear: '回音盾牌・象徵辨識彼此的互動節奏' },
+  music: { element: 'AIR', relic: '旋律鈴', gear: '共振護腕・象徵找回自己的情緒節拍' },
+  nameology: { element: 'EARTH', relic: '姓名符', gear: '成長藤甲・象徵整理姓名訊號' },
+  bazi: { element: 'FIRE', relic: '日主燈', gear: '定心護盾・象徵照見五行補強方向' },
+  zodiac: { element: 'AIR', relic: '星座羅盤', gear: '風向護目鏡・象徵辨識性格的前進方向' },
+  tarot: { element: 'SPACE', relic: '牌陣鏡', gear: '映照胸甲・象徵看清當下提問的線索' },
+};
+
+const HOME_ELEMENT_TREASURE_PREFIX: Record<GrowthElement, string> = {
+  EARTH: '地脈',
+  WATER: '潮汐',
+  FIRE: '燼火',
+  AIR: '風語',
+  SPACE: '星隙',
+};
+
 type VipGrowthUnlockCardProps = {
   completed: number;
   completedModules: string[];
+  growthElements: Record<string, GrowthElement>;
   total: number;
   justUnlocked: boolean;
   onOpenNumber: () => void;
 };
 
-function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked, onOpenNumber }: VipGrowthUnlockCardProps) {
+function VipGrowthUnlockCard({ completed, completedModules, growthElements, total, justUnlocked, onOpenNumber }: VipGrowthUnlockCardProps) {
   const completedSet = new Set(completedModules);
   const missingModules = HOME_GROWTH_MODULE_GUIDES.filter((module) => !completedSet.has(module.id));
   const nextModule = missingModules[0];
@@ -1257,26 +1277,32 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
   const unlocked = safeCompleted >= safeTotal;
   const remaining = Math.max(safeTotal - safeCompleted, 0);
   const progressPercent = Math.min(100, Math.round((safeCompleted / safeTotal) * 100));
-  const headline = unlocked ? '我已記住你的 8 張探索，成長中心已開啟。' : '我會記住你的命理進度，每次回來只給你一個清楚下一步。';
+  const headline = unlocked ? '八件五元素寶物已集齊，成長中心的封印已解開。' : '每完成一張探索，就收下一件五元素寶物；未完成的關卡仍維持封印。';
   const progressText = unlocked ? `\u63a2\u7d22\u5b8c\u6210\uff1a${safeTotal} / ${safeTotal}` : `\u63a2\u7d22\u9032\u5ea6\uff1a${safeCompleted} / ${safeTotal}`;
   const remainingText = unlocked
-    ? '鎖頭已打開，立即進入。'
+    ? '鎖頭已打開；這些寶物會把每一份完成的分析，轉成下一步的遊戲線索。'
     : nextModule
-      ? `我記得你已完成 ${safeCompleted} / ${safeTotal}。今天只要先完成：${nextModule.label}。`
-      : `目前已完成 ${safeCompleted} 項探索，距離解鎖還差 ${remaining} 項。`;
+      ? `目前已收下 ${safeCompleted} / ${safeTotal} 件寶物；下一件要從「${nextModule.label}」關卡取得。`
+      : `目前已收下 ${safeCompleted} 件寶物，距離解開整體封印還差 ${remaining} 件。`;
 
   const renderModuleRoute = (module: HomeGrowthModuleGuide, index: number) => {
     const done = completedSet.has(module.id);
     const isNext = !unlocked && nextModule?.id === module.id;
     const state = done ? 'done' : isNext ? 'next' : 'pending';
-    const statusText = done ? '已完成' : isNext ? '下一步' : '待探索';
+    const statusText = done ? '已收下' : isNext ? '可獲取' : '封印中';
+    const treasureSeal = HOME_MODULE_TREASURE_SEALS[module.id];
+    const treasureElement = growthElements[module.id] ?? treasureSeal.element;
+    const treasureName = `${HOME_ELEMENT_TREASURE_PREFIX[treasureElement]}${treasureSeal.relic}`;
+    const treasureText = done
+      ? `已收下 ${treasureElement}元素寶物「${treasureName}」，解鎖：${treasureSeal.gear}`
+      : `封印寶物・${treasureElement}元素「${treasureName}」；完成本關才會解鎖：${treasureSeal.gear}`;
     const commonClassName = `growth-module-route growth-module-route--${state}`;
     const inner = (
       <>
         <span className="growth-module-route__index">{String(index + 1).padStart(2, '0')}</span>
         <span className="growth-module-route__body">
           <span className="growth-module-route__label">{module.label}</span>
-          <span className="growth-module-route__helper">{done ? '已寫入成長進度。' : module.sticky}</span>
+          <span className="growth-module-route__helper">{done ? `${treasureText}。` : `${module.sticky}・${treasureText}`}</span>
         </span>
         <span className="growth-module-route__status">{statusText}</span>
       </>
@@ -2940,6 +2966,7 @@ export default function HomePage() {
         <VipGrowthUnlockCard
           completed={growthCompletedCount}
           completedModules={growthCompletedModules}
+          growthElements={growthElements}
           total={GROWTH_VIP_TOTAL_MODULES}
           justUnlocked={growthJustUnlocked}
           onOpenNumber={openFortuneModal}

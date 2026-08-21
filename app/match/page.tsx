@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
+import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import NextStepGuide from '@/components/NextStepGuide';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import MegaInputGuide from '@/components/MegaInputGuide';
@@ -16,7 +17,8 @@ import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, sav
 interface PersonInput {
   name: string;
   birthDate: string;
-  bloodType: 'A' | 'B' | 'AB' | 'O';
+  birthHourBranch: string;
+  bloodType: 'A' | 'B' | 'AB' | 'O' | 'unknown';
   gender: 'male' | 'female';
 }
 
@@ -70,11 +72,21 @@ interface MatchFiveElementResult {
   integratedAdvice: string;
   inlineHighlights: string[];
 }
+
+interface BaziMatchFoundation {
+  source: '八字四柱合盤' | '八字三柱基礎合盤' | '八字混合合盤';
+  timeNote: string;
+  sceneKey: string;
+  sharedElement: MatchFiveElementKey;
+  personA: { dayMaster: string; primaryReinforcement: string };
+  personB: { dayMaster: string; primaryReinforcement: string };
+}
 interface MatchResponse {
   result: MatchResult;
   displayA: PersonDisplay;
   displayB: PersonDisplay;
   fiveElementMatch?: MatchFiveElementResult;
+  baziFoundation?: BaziMatchFoundation;
 }
 
 type MatchDailyResult = {
@@ -87,9 +99,9 @@ type StepKey = 'personA' | 'personB' | 'review';
 type SelectionConfirm = { bloodType: boolean; gender: boolean };
 
 const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
-const EMPTY: PersonInput = { name: '', birthDate: '', bloodType: 'A', gender: 'female' };
+const EMPTY: PersonInput = { name: '', birthDate: '', birthHourBranch: 'unknown', bloodType: 'unknown', gender: 'female' };
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { bloodType: false, gender: false };
-const MATCH_DAILY_SCHEMA_VERSION = 'soul-match-reset-v1';
+const MATCH_DAILY_SCHEMA_VERSION = 'soul-match-hour-v1';
 const MATCH_DEMO_NAMES = new Set(['\u738b\u5c0f\u660e', '\u9673\u5c0f\u7f8e']);
 
 function isDemoMatchName(name?: string | null) {
@@ -105,7 +117,7 @@ function isCurrentMatchDailyRecord(record?: DailyAnalysisRecord<MatchDailyResult
   return Boolean(record?.meta?.schemaVersion === MATCH_DAILY_SCHEMA_VERSION && record.result?.data?.result?.summary);
 }
 
-const BLOOD_DESC: Record<PersonInput['bloodType'], string> = {
+const BLOOD_DESC: Record<Exclude<PersonInput['bloodType'], 'unknown'>, string> = {
   A: '細膩穩定，重視秩序與安全感。',
   B: '自由直覺，重視感受與關係中的空間。',
   AB: '理性與感性交織，關係節奏需要彈性。',
@@ -117,7 +129,6 @@ const STEP_ORDER: StepKey[] = ['personA', 'personB', 'review'];
 function getPersonError(label: string, person: PersonInput, selectionConfirm?: SelectionConfirm) {
   if (person.name.trim().length < 2) return `請先輸入${label}姓名，至少 2 個字。`;
   if (!person.birthDate) return `請先完成${label}的萬年曆生日推算。`;
-  if (selectionConfirm && !selectionConfirm.bloodType) return `請點選${label}血型。`;
   if (selectionConfirm && !selectionConfirm.gender) return `請點選${label}性別。`;
   return '';
 }
@@ -133,6 +144,103 @@ function stableHash(input: string) {
 
 function pickStable<T>(items: T[], seed: number, salt = 0) {
   return items[(seed + salt) % items.length];
+}
+
+function maskGameName(name?: string | null) {
+  const trimmed = name?.trim() ?? '';
+  return trimmed.length >= 2 ? trimmed.slice(-2) : trimmed || '旅人';
+}
+
+function getAgeFromBirthDate(birthDate?: string | null) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(birthDate?.trim() ?? '');
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const now = new Date();
+  return now.getFullYear() - year - (now.getMonth() + 1 < month || (now.getMonth() + 1 === month && now.getDate() < day) ? 1 : 0);
+}
+
+function buildMysteryMatchGame(data: MatchResponse, personABirthDate?: string, personBBirthDate?: string) {
+  const aName = maskGameName(data.displayA.name);
+  const bName = maskGameName(data.displayB.name);
+  const aAge = getAgeFromBirthDate(personABirthDate);
+  const bAge = getAgeFromBirthDate(personBBirthDate);
+  const aIdentity = aAge === null ? aName : `${aName}，${aAge}歲`;
+  const bIdentity = bAge === null ? bName : `${bName}，${bAge}歲`;
+  const result = data.result;
+  const seed = stableHash(data.baziFoundation?.sceneKey ?? [aName, bName, result.match_score, result.resonance, result.communication, result.stability, result.conflict_risk].join('|'));
+  const strongest = [
+    ['共鳴感', result.resonance],
+    ['溝通感', result.communication],
+    ['穩定度', result.stability],
+  ].sort((a, b) => Number(b[1]) - Number(a[1]))[0];
+  const weakest = [
+    ['共鳴感', result.resonance],
+    ['溝通感', result.communication],
+    ['穩定度', result.stability],
+    ['衝突風險', 100 - result.conflict_risk],
+  ].sort((a, b) => Number(a[1]) - Number(b[1]))[0];
+  const realmByElement: Record<MatchFiveElementKey, { title: string; location: string; omen: string; exit: string; treasure: string; treasurePower: string }> = {
+    water: { title: '沉水回聲館', location: '雨聲貼著玻璃、地面倒映著不存在腳步的長廊', omen: '每一次沒說出口的委屈，都會化成牆上的水痕往下蔓延', exit: '先接住情緒，再談答案', treasure: '潮汐回音珠', treasurePower: '把彼此沒有說出口的感受，化成能被好好聽見的回音。' },
+    fire: { title: '燼火密室', location: '燈火忽明忽暗、影子在牆面延遲半拍的密室', omen: '每一次急著證明自己，都會讓出口的火光再縮小一圈', exit: '先放低音量，再保留彼此的餘地', treasure: '燼火共鳴晶', treasurePower: '把衝動的火光收成勇氣，讓兩人敢把在意說出口。' },
+    air: { title: '無聲風廊', location: '風從空門穿過、卻只帶回斷裂耳語的長廊', omen: '每一次猜測都會把耳語吹得更遠，直到兩人聽不見彼此', exit: '把真正的意思說清楚，再等待回應', treasure: '風語引路鈴', treasurePower: '讓斷裂的訊息重新連線，替彼此留下等待回應的空間。' },
+    earth: { title: '封印地窖', location: '門縫滲出冷光、地面留著兩串忽近忽遠足跡的地窖', omen: '每一次逃開承諾，地窖的封印就會再往下沉一寸', exit: '把承諾說成能做到的一件事', treasure: '地脈守約印', treasurePower: '把飄忽的關係拉回可靠的行動，讓承諾有能落地的重量。' },
+    space: { title: '空域觀測塔', location: '鏡面映出兩個方向不同身影、回音比腳步更早抵達的觀測塔', omen: '每一次沉默都會讓鏡裡的距離拉長，直到彼此只剩輪廓', exit: '在沉默變成距離前，先伸手確認彼此', treasure: '星隙磁引石', treasurePower: '象徵兩人願意靠近的方向感；它是遊戲裡的共鳴線索，不替現實關係下保證。' },
+  };
+  const sharedElement = data.baziFoundation?.sharedElement ?? data.fiveElementMatch?.sharedElement ?? 'space';
+  const realm = realmByElement[sharedElement];
+  const baziOpening = data.baziFoundation
+    ? `${aName}的日主為${data.baziFoundation.personA.dayMaster}，${bName}的日主為${data.baziFoundation.personB.dayMaster}；本局先以八字結構推導你們需要共同面對的${data.baziFoundation.personA.primaryReinforcement}與${data.baziFoundation.personB.primaryReinforcement}線索。`
+    : '本局以配對資料建立關係線索。';
+  const resonanceScene = pickStable([
+    '燈沒有熄滅，卻只照出你們彼此靠近時才會出現的影子。',
+    '門後傳來兩次相同的敲擊聲；不是催促，而是提醒你們有一段話尚未說完。',
+    '鏡面映出兩個方向不同的身影，但只要願意停下來聽，回音會慢慢重合。',
+  ], seed);
+  const friction = result.zones.conflict[seed % Math.max(1, result.zones.conflict.length)] ?? result.zones.grinding[0] ?? '把真正的感受說清楚';
+  const ending = result.communication < 65
+    ? '當警報停下，唯一的出口是：先聽完彼此的感受，再決定答案。'
+    : '當最後一盞燈亮起，唯一的出口是：把在意說出口，別讓沉默替你們下結論。';
+  const soulEcho = result.resonance >= 75 && result.communication >= 65
+    ? {
+        label: '回音明顯',
+        copy: `${aName}與${bName}的共鳴與溝通訊號都偏亮，容易在相處後留下牽掛；這代表更容易想起彼此，不等於能讀到對方當下正在想什麼。`,
+        tone: 'border-cyan-200/30 bg-cyan-950/35 text-cyan-100',
+      }
+    : result.resonance >= 60
+      ? {
+          label: '回音存在',
+          copy: `${aName}與${bName}之間有牽掛的訊號，但容易被忙碌、沉默或猜測蓋住。想確認彼此是否在意，最可靠的方式仍是主動而清楚的聯絡。`,
+          tone: 'border-violet-200/30 bg-violet-950/35 text-violet-100',
+        }
+      : {
+          label: '回音微弱',
+          copy: `目前關係磁場的回音較淡，不能從分數推定誰一定在想誰。先用一次真誠、無壓力的聯絡，讓關係有重新被聽見的機會。`,
+          tone: 'border-slate-200/25 bg-slate-950/40 text-slate-100',
+        };
+
+  return {
+    aName,
+    bName,
+    aIdentity,
+    bIdentity,
+    initiator: aIdentity,
+    initiatorCopy: `${aIdentity}先開啟本局，代表他先主動把這段關係放進心裡、願意理解你們的磁場。這是發起探索的線索，不是對任何人內心的保證。`,
+    realmTitle: realm.title,
+    resonanceTreasure: {
+      element: MATCH_ELEMENT_LABEL[sharedElement],
+      name: realm.treasure,
+      power: realm.treasurePower,
+    },
+    soulEcho,
+    opening: `${aIdentity}與${bIdentity}，本局進入「${realm.title}」：${realm.location}。${baziOpening} 本局只分析靈魂與關係磁場的協調，不涉及肉體接觸或行為；這是一段依配對資料生成的虛構關係遊戲，不是對現實事件的判定。`,
+    acts: [
+      { title: '第一幕・鬼魅異象', copy: `${resonanceScene} ${aName}與${bName}最亮的線索是「${strongest[0]}」；鬼魅不是亂入，而是由八字元素形成的異象與引路燈。`, tone: 'border-violet-300/30 bg-violet-950/35 text-violet-100' },
+      { title: '第二幕・恐怖壓迫', copy: `${realm.omen} 真正的暗門藏在「${weakest[0]}」與「${friction}」：恐怖感來自不能假裝沒看見的關係壓力，不是命定的壞結局。`, tone: 'border-rose-300/30 bg-rose-950/35 text-rose-100' },
+      { title: '第三幕・神秘出口', copy: `${ending} 神秘感的答案不是隨機，而是本局破關線索：${realm.exit}。找回「${realm.treasure}」後，兩人才能在遊戲裡解鎖${MATCH_ELEMENT_LABEL[sharedElement]}元素的共鳴；這是自願靠近與相惜的象徵，不是把任何人強行拉向對方。`, tone: 'border-amber-300/30 bg-amber-950/35 text-amber-100' },
+    ],
+  };
 }
 
 function buildMatchGuidance(data: MatchResponse) {
@@ -222,16 +330,16 @@ function ElderChoiceCard({
 }) {
   const tones = {
     violet: active
-      ? 'border-violet-400 bg-violet-500/15 text-violet-100'
+      ? 'border-2 border-violet-200 bg-violet-500/20 text-violet-50 shadow-[0_0_30px_rgba(167,139,250,0.42)] ring-2 ring-violet-300/50 ring-offset-2 ring-offset-[#10101a]'
       : 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
     amber: active
-      ? 'border-amber-400 bg-amber-500/15 text-amber-100'
+      ? 'border-2 border-amber-100 bg-amber-500/20 text-amber-50 shadow-[0_0_30px_rgba(251,191,36,0.42)] ring-2 ring-amber-200/50 ring-offset-2 ring-offset-[#10101a]'
       : 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
     pink: active
-      ? 'border-pink-400 bg-pink-500/15 text-pink-100'
+      ? 'border-2 border-pink-200 bg-pink-500/20 text-pink-50 shadow-[0_0_30px_rgba(244,114,182,0.42)] ring-2 ring-pink-300/50 ring-offset-2 ring-offset-[#10101a]'
       : 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
     cyan: active
-      ? 'border-cyan-400 bg-cyan-500/15 text-cyan-100'
+      ? 'border-2 border-cyan-100 bg-cyan-500/20 text-cyan-50 shadow-[0_0_30px_rgba(34,211,238,0.42)] ring-2 ring-cyan-200/50 ring-offset-2 ring-offset-[#10101a]'
       : 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
   };
 
@@ -330,8 +438,9 @@ function PersonStep({
 }) {
   const showMissingName = showValidation && value.name.trim().length < 2;
   const showMissingBirthDate = showValidation && !value.birthDate;
-  const showMissingBloodType = showValidation && !selectionConfirm.bloodType;
+  const [showBloodOptions, setShowBloodOptions] = useState(value.bloodType !== 'unknown');
   const showMissingGender = showValidation && !selectionConfirm.gender;
+  const [showShichenOptions, setShowShichenOptions] = useState(Boolean(value.birthHourBranch && value.birthHourBranch !== 'unknown'));
   return (
     <div className="fortune-card p-5 sm:p-7">
       <div className="max-w-2xl">
@@ -380,13 +489,70 @@ function PersonStep({
 
         <div>
           <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]">
-            3. 血型
+            3. 出生時辰（可略過）
+            <OracleHint text="知道時辰可生成完整四柱八字；不知道也可以直接選不知道，系統只用年、月、日三柱，不會假裝補出時柱。" />
+          </label>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <ElderChoiceCard
+              active={showShichenOptions}
+              title="我知道出生時辰"
+              description="展開十二時辰，點選正確時辰後以完整四柱配對。"
+              onClick={() => setShowShichenOptions(true)}
+              tone={accent}
+            />
+            <ElderChoiceCard
+              active={!showShichenOptions && (!value.birthHourBranch || value.birthHourBranch === 'unknown')}
+              title="不知道出生時辰"
+              description="直接用八字三柱基礎配對；時柱不推定。"
+              onClick={() => {
+                setShowShichenOptions(false);
+                onChange({ ...value, birthHourBranch: 'unknown' });
+              }}
+              tone={accent === 'violet' ? 'cyan' : 'pink'}
+            />
+          </div>
+          {showShichenOptions && (
+            <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {SHICHEN_LIST.map((shichen) => (
+                <button
+                  key={shichen.branch}
+                  type="button"
+                  onClick={() => onChange({ ...value, birthHourBranch: shichen.branch })}
+                  className={`rounded-xl border px-2 py-2.5 text-center transition ${value.birthHourBranch === shichen.branch ? 'border-2 border-amber-100 bg-amber-300/20 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.26)]' : 'border-white/10 bg-white/[0.035] text-white/65 hover:border-cyan-100/40 hover:text-cyan-50'}`}
+                >
+                  <span className="block text-sm font-black">{shichen.label}</span>
+                  <span className="mt-0.5 block text-[10px] font-bold opacity-70">{shichen.range}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]">
+            4. 血型
             <OracleHint text="🧬 血型蘊含地脈遺傳之性格吸引力密碼，決定了雙人磁場的基礎吸引力與相處共鳴率。" />
           </label>
-          {showMissingBloodType && (
-            <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u9ede\u9078\u8840\u578b\uff0c\u9019\u6b04\u9084\u6c92\u6709\u9078\u3002"}</p>
-          )}
           <div className="grid gap-3 sm:grid-cols-2">
+            <ElderChoiceCard
+              active={showBloodOptions}
+              title="我知道血型"
+              description="展開 A、B、O、AB，將血型納入配對。"
+              onClick={() => setShowBloodOptions(true)}
+              tone={accent}
+            />
+            <ElderChoiceCard
+              active={!showBloodOptions && value.bloodType === 'unknown'}
+              title="不知道血型"
+              description="仍可繼續配對；血型維度改為中性，不假裝已知。"
+              onClick={() => {
+                setShowBloodOptions(false);
+                onChange({ ...value, bloodType: 'unknown' });
+              }}
+              tone={accent === 'violet' ? 'cyan' : 'pink'}
+            />
+          </div>
+          {showBloodOptions && <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {BLOOD_TYPES.map((bloodType, index) => (
               <ElderChoiceCard
                 key={bloodType}
@@ -398,15 +564,15 @@ function PersonStep({
                   onSelectionConfirm({ ...selectionConfirm, bloodType: true });
                 }}
                 tone={index % 2 === 0 ? accent : accent === 'violet' ? 'cyan' : 'pink'}
-                attention={showMissingBloodType}
+                attention={false}
               />
             ))}
-          </div>
+          </div>}
         </div>
 
         <div>
           <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]">
-            4. 性別
+            5. 性別
             <OracleHint text="✦ 性別主要作為外在表徵與修辭調整的輔助變數，不影響底層天盤骨架的因果計算。" />
           </label>
           {showMissingGender && (
@@ -1275,7 +1441,7 @@ export default function MatchPage() {
       saveUserData({
         name: personA.name,
         birthday: personA.birthDate,
-        bloodType: personA.bloodType,
+        bloodType: personA.bloodType === 'unknown' ? '' : personA.bloodType,
         gender: personA.gender,
       });
     }
@@ -1478,7 +1644,7 @@ export default function MatchPage() {
             {step === 'personA' && (
               <PersonStep
                 title="第一位資料"
-                description="先輸入第一位的姓名、生日、血型和性別。填好後再進下一位。"
+                description="先輸入第一位的姓名、生日、時辰、血型和性別。時辰不知道可直接略過。"
                 accent="violet"
                 value={personA}
                 onChange={setPersonA}
@@ -1491,7 +1657,7 @@ export default function MatchPage() {
             {step === 'personB' && (
               <PersonStep
                 title="第二位資料"
-                description="接著輸入第二位。欄位一樣，跟著順序填就好。"
+                description="接著輸入第二位。時辰知道就選十二時辰，不知道可直接略過。"
                 accent="amber"
                 value={personB}
                 onChange={setPersonB}
@@ -1525,6 +1691,10 @@ export default function MatchPage() {
                         <div>
                           <span className="text-[color:var(--text-muted)]">西元生日：</span>
                           <span className="text-[color:var(--text-main)]">{person.birthDate || '未換算完成'}</span>
+                        </div>
+                        <div>
+                          <span className="text-[color:var(--text-muted)]">出生時辰：</span>
+                          <span className="text-[color:var(--text-main)]">{person.birthHourBranch && person.birthHourBranch !== 'unknown' ? `${person.birthHourBranch}時` : '不知道（以三柱計算）'}</span>
                         </div>
                         <div>
                           <span className="text-[color:var(--text-muted)]">血型：</span>
@@ -1627,40 +1797,47 @@ export default function MatchPage() {
           <div className="space-y-6">
             <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 靈魂配對" onViewResult={dailyRecord ? () => restoreDailyRecord(dailyRecord) : undefined} />
             {(() => {
-              const guidance = buildMatchGuidance(data);
+              const mysteryGame = buildMysteryMatchGame(data, personA.birthDate, personB.birthDate);
               return (
-                <div className="fortune-card border border-amber-300/25 bg-amber-950/10 p-6 sm:p-8">
+                <div className="fortune-card overflow-hidden border border-violet-300/35 bg-[radial-gradient(circle_at_top,rgba(112,43,122,0.34),transparent_42%),linear-gradient(145deg,rgba(18,9,30,0.98),rgba(34,8,21,0.96)_55%,rgba(7,12,25,0.98))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.42)] sm:p-8">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.3em] text-amber-300">專屬配對鼓勵與建議</p>
-                      <h2 className="mt-3 font-serif text-2xl text-amber-100 sm:text-3xl">
-                        {data.displayA.name} × {data.displayB.name} · {guidance.level}
+                      <p className="text-xs font-black tracking-[0.3em] text-violet-200">恐怖・鬼魅・神秘靈魂磁場遊戲</p>
+                      <h2 className="mt-3 font-serif text-3xl font-black text-amber-100 sm:text-4xl">
+                        {mysteryGame.aIdentity} × {mysteryGame.bIdentity}
                       </h2>
+                      <p className="mt-2 text-sm font-black tracking-[0.12em] text-violet-100/85">本局關卡・{mysteryGame.realmTitle}</p>
                     </div>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-[color:var(--text-sub)]">
-                      依輸入資料生成
+                    <span className="rounded-full border border-violet-200/25 bg-violet-300/10 px-3 py-1 text-xs font-semibold text-violet-100/85">
+                      {data.baziFoundation ? '八字基礎合盤驅動' : '虛構遊戲情境'}
                     </span>
                   </div>
 
-                  <p className="mt-5 text-sm leading-8 text-amber-50">{guidance.coreEncouragement}</p>
+                  <p className="mt-5 text-sm font-bold leading-8 text-amber-50/90">{mysteryGame.opening}</p>
 
-                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-cyan-300/20 bg-cyan-950/15 p-4">
-                      <p className="text-xs font-semibold text-cyan-200">目前優勢</p>
-                      <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{guidance.mainStrength}</p>
-                    </div>
-                    <div className="rounded-2xl border border-rose-300/20 bg-rose-950/15 p-4">
-                      <p className="text-xs font-semibold text-rose-200">需要留意</p>
-                      <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{guidance.mainWarning}</p>
-                    </div>
-                    <div className="rounded-2xl border border-emerald-300/20 bg-emerald-950/15 p-4">
-                      <p className="text-xs font-semibold text-emerald-200">可執行建議</p>
-                      <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{guidance.actionAdvice}</p>
-                    </div>
-                    <div className="rounded-2xl border border-amber-300/20 bg-black/15 p-4">
-                      <p className="text-xs font-semibold text-amber-200">成長提醒</p>
-                      <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{guidance.growthReminder}</p>
-                    </div>
+                  <article className="mt-4 rounded-2xl border-2 border-amber-200/70 bg-[linear-gradient(135deg,rgba(120,53,15,0.42),rgba(49,46,129,0.34))] p-4 shadow-[0_0_26px_rgba(251,191,36,0.18)]">
+                    <p className="text-xs font-black tracking-[0.2em] text-amber-100">已發現・{mysteryGame.resonanceTreasure.element}共鳴寶物</p>
+                    <h3 className="mt-2 font-serif text-2xl font-black text-amber-50">{mysteryGame.resonanceTreasure.name}</h3>
+                    <p className="mt-2 text-sm font-semibold leading-7 text-amber-50/88">{mysteryGame.resonanceTreasure.power} 這是本局用來表達相惜與共鳴的遊戲獎勵。</p>
+                  </article>
+
+                  <div className="mt-4 rounded-xl border border-cyan-200/25 bg-cyan-950/30 px-4 py-3">
+                    <p className="text-xs font-black tracking-[0.18em] text-cyan-100">本局開局者・{mysteryGame.initiator}</p>
+                    <p className="mt-1 text-sm font-semibold leading-6 text-white/76">{mysteryGame.initiatorCopy}</p>
+                  </div>
+
+                  <article className={`mt-4 rounded-2xl border p-4 ${mysteryGame.soulEcho.tone}`}>
+                    <p className="text-xs font-black tracking-[0.2em]">靈魂回音・{mysteryGame.soulEcho.label}</p>
+                    <p className="mt-2 text-sm font-semibold leading-7 text-white/82">{mysteryGame.soulEcho.copy}</p>
+                  </article>
+
+                  <div className="mt-5 grid gap-3">
+                    {mysteryGame.acts.map((act) => (
+                      <article key={act.title} className={`rounded-2xl border p-4 ${act.tone}`}>
+                        <h3 className="text-base font-black tracking-wide">{act.title}</h3>
+                        <p className="mt-2 text-sm font-semibold leading-7 text-white/82">{act.copy}</p>
+                      </article>
+                    ))}
                   </div>
                 </div>
               );

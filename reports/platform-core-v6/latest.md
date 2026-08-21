@@ -1,11 +1,12 @@
 # Platform Core V6 Audit Report
 
 Final status: NOT_COMPLETED
-Generated at: 2026-08-04T19:32:58.248Z
+Generated at: 2026-08-21T09:32:16.172Z
 
 ## Blockers
+- Full nine-card Auto QA evidence is missing or failing.
 - Real mobile E2E evidence is not attached to this audit.
-- Git status could not be read by the audit script; run git status separately before claiming completion.
+- Working tree has uncommitted or untracked changes; fresh regression evidence must be produced after these changes.
 
 ## Card Queue
 - CARD_01 AI 姓名學 /nameology: READY_FOR_FLOW_TEST

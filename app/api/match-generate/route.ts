@@ -11,13 +11,15 @@ import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/ap
 import { buildAiCopywritingInstruction, enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import { buildMatchFiveElementResult } from '@/lib/match-five-element-engine';
 import { buildSoulMatchAiInterpretationLayer, buildSoulMatchProfessionalLayer, buildSoulMatchReinforcementLayer } from '@/lib/match-professional-layer';
+import { analyzeBazi } from '@/lib/bazi-engine';
 
 export const dynamic = 'force-dynamic';
 
 interface PersonInput {
   name: string;
   birthDate: string;
-  bloodType: 'A' | 'B' | 'AB' | 'O';
+  birthHourBranch?: string;
+  bloodType: 'A' | 'B' | 'AB' | 'O' | 'unknown';
   gender: 'male' | 'female';
 }
 
@@ -40,6 +42,23 @@ type MatchEnhancementPayload = {
   grinding: string[];
   conflict: string[];
 };
+
+type BaziMatchFoundation = {
+  source: '八字四柱合盤' | '八字三柱基礎合盤' | '八字混合合盤';
+  timeNote: string;
+  sceneKey: string;
+  sharedElement: 'earth' | 'water' | 'fire' | 'air' | 'space';
+  personA: { dayMaster: string; primaryReinforcement: string };
+  personB: { dayMaster: string; primaryReinforcement: string };
+};
+
+const BAZI_BRAND_TO_MATCH = {
+  EARTH: 'earth',
+  WATER: 'water',
+  FIRE: 'fire',
+  AIR: 'air',
+  SPACE: 'space',
+} as const;
 
 const MATCH_ENHANCEMENT_SCHEMA = {
   type: Type.OBJECT,
@@ -95,8 +114,8 @@ function validate(body: unknown): string | null {
       return `${label}的生日日期無效。`;
     }
 
-    if (!['A', 'B', 'AB', 'O'].includes(person.bloodType)) {
-      return `${label}的血型只能是 A、B、AB、O。`;
+    if (!['A', 'B', 'AB', 'O', 'unknown'].includes(person.bloodType)) {
+      return `${label}的血型只能是 A、B、AB、O 或不知道。`;
     }
 
     if (!['male', 'female'].includes(person.gender)) {
@@ -134,7 +153,67 @@ function buildProfile(person: PersonInput): { profile: PersonProfile; display: P
       zodiacZh,
       chineseZodiac: destiny.chineseZodiac,
       wuxing: destiny.dominantWuxing,
-      bloodType: person.bloodType,
+      bloodType: person.bloodType === 'unknown' ? '不知道' : person.bloodType,
+    },
+  };
+}
+
+function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): BaziMatchFoundation {
+  const toBaziInput = (person: PersonInput) => {
+    const traditionalHour = person.birthHourBranch && person.birthHourBranch !== 'unknown'
+      ? person.birthHourBranch
+      : undefined;
+    return {
+      name: person.name.trim(),
+      birthDate: person.birthDate,
+      birthTime: '12:00',
+      birthTimeKnown: Boolean(traditionalHour),
+      timeUnknown: !traditionalHour,
+      traditionalHour,
+      gender: person.gender,
+      country: 'TW',
+      city: 'Taipei',
+    };
+  };
+  const chartA = analyzeBazi(toBaziInput(personA));
+  const chartB = analyzeBazi(toBaziInput(personB));
+  const firstA = chartA.aiReinforcementPlan.first;
+  const firstB = chartB.aiReinforcementPlan.first;
+  const hasHourA = Boolean(personA.birthHourBranch && personA.birthHourBranch !== 'unknown');
+  const hasHourB = Boolean(personB.birthHourBranch && personB.birthHourBranch !== 'unknown');
+  const sharedElement = firstA.brandElement === firstB.brandElement
+    ? BAZI_BRAND_TO_MATCH[firstA.brandElement]
+    : BAZI_BRAND_TO_MATCH[chartA.aiReinforcementPlan.second.brandElement];
+
+  return {
+    source: hasHourA && hasHourB ? '八字四柱合盤' : hasHourA || hasHourB ? '八字混合合盤' : '八字三柱基礎合盤',
+    timeNote: hasHourA && hasHourB
+      ? '雙方皆已提供出生時辰，使用完整四柱八字合盤。'
+      : hasHourA || hasHourB
+        ? '至少一方未填出生時辰，因此以可用的完整四柱與三柱資料合盤；未知時柱不作推定。'
+        : '雙方未填出生時辰，因此以年、月、日三柱建立基礎合盤；時柱不作推定。',
+    sceneKey: [
+      chartA.pillars.year.stem,
+      chartA.pillars.year.branch,
+      chartA.pillars.month.stem,
+      chartA.pillars.month.branch,
+      chartA.pillars.day.stem,
+      chartA.pillars.day.branch,
+      chartB.pillars.year.stem,
+      chartB.pillars.year.branch,
+      chartB.pillars.month.stem,
+      chartB.pillars.month.branch,
+      chartB.pillars.day.stem,
+      chartB.pillars.day.branch,
+    ].join(''),
+    sharedElement,
+    personA: {
+      dayMaster: `${chartA.dayMaster.stem}${chartA.dayMaster.element}`,
+      primaryReinforcement: firstA.displayName,
+    },
+    personB: {
+      dayMaster: `${chartB.dayMaster.stem}${chartB.dayMaster.element}`,
+      primaryReinforcement: firstB.displayName,
     },
   };
 }
@@ -291,10 +370,12 @@ export async function POST(request: Request) {
   const cacheKey = hashedCacheKey([
     body.personA.name.trim(),
     body.personA.birthDate,
+    body.personA.birthHourBranch ?? 'unknown',
     body.personA.bloodType,
     body.personA.gender,
     body.personB.name.trim(),
     body.personB.birthDate,
+    body.personB.birthHourBranch ?? 'unknown',
     body.personB.bloodType,
     body.personB.gender,
     'soul-match-three-layer-v2',
@@ -332,6 +413,7 @@ export async function POST(request: Request) {
 
     const finalResult = { ...result, summary: finalSummary, zones: enhanced.zones };
     const fiveElementMatch = buildMatchFiveElementResult(body.personA, body.personB, result);
+    const baziFoundation = buildBaziMatchFoundation(body.personA, body.personB);
     const professionalLayer = buildSoulMatchProfessionalLayer({
       personA: body.personA,
       personB: body.personB,
@@ -353,6 +435,7 @@ export async function POST(request: Request) {
       reinforcementLayer,
       karmaRelation,
       fiveElementMatch,
+      baziFoundation,
     };
 
     responseCache.set(cacheKey, { result: responseData, expireTime: now + 300_000 });

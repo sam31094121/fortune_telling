@@ -1,16 +1,50 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { BaziCustomerView } from './adapter';
 import { TeacherSummary } from './TeacherSummary';
 import { CustomerEvidenceDrawer } from './CustomerAccordion';
+import { WaterTreasureOrb } from './WaterTreasureOrb';
 
 type TeacherMode = 'CHART' | 'HORROR_GHOST';
 
 const TEACHERS: Array<{ id: TeacherMode; title: string; subtitle: string }> = [
-  { id: 'CHART', title: '老師解命盤', subtitle: '結構、用神、運勢' },
+  { id: 'CHART', title: 'Google 解盤', subtitle: 'Google 交叉白話解說・結構、用神、運勢' },
   { id: 'HORROR_GHOST', title: '恐怖鬼魅解命盤', subtitle: '壓力訊號、象徵意境與當下時間' },
 ];
+
+/**
+ * Customer-facing five-element vocabulary is permanently the product system:
+ * 空、風、水、火、地. Bazi can still calculate with traditional 五行 internally,
+ * but no teacher or treasure may expose a competing 金、木、土 reward system.
+ */
+const TRADITIONAL_TO_PRODUCT_ELEMENT: Record<string, '空' | '風' | '水' | '火' | '地'> = {
+  金: '空',
+  木: '風',
+  水: '水',
+  火: '火',
+  土: '地',
+  空: '空',
+  風: '風',
+  地: '地',
+};
+
+const ELEMENT_TREASURES: Record<'空' | '風' | '水' | '火' | '地', { name: string; power: string }> = {
+  空: { name: '星界定軸環', power: '提醒你先騰出空間，讓真正重要的選擇回到中心。' },
+  風: { name: '迴風續行符', power: '提醒你把卡住的事拆成下一個可執行的小步。' },
+  水: { name: '潮汐回聲珠', power: '提醒你先接住感受，再決定如何回應。' },
+  火: { name: '燼火定心燈', power: '提醒你把衝動收成清楚的表達與行動。' },
+  地: { name: '地脈守界印', power: '提醒你先守住作息、界線與能承擔的承諾。' },
+};
+
+function getBaziElementTreasure(view: BaziCustomerView) {
+  const weakest = view.fiveElementOrbit.items
+    .filter((item) => item.status === 'AVAILABLE' && typeof item.strength === 'number')
+    .sort((a, b) => (a.strength ?? Number.POSITIVE_INFINITY) - (b.strength ?? Number.POSITIVE_INFINITY))[0]?.label;
+  const sourceElement = weakest ?? view.dayMaster.element;
+  const element = TRADITIONAL_TO_PRODUCT_ELEMENT[sourceElement] ?? '空';
+  return { element, ...ELEMENT_TREASURES[element] };
+}
 
 function currentLuck(view: BaziCustomerView) {
   return view.timeContext.activeDaYun ?? view.teacher.daYun[0] ?? null;
@@ -20,8 +54,15 @@ function currentLuck(view: BaziCustomerView) {
  * 兩位老師只讀同一張 BaziCustomerView；不重算四柱、不改動既有核心。
  * 目前先提供可驗證的本地解讀模組，底層獨立 AI 服務會在後續任務另行接入。
  */
-export function BaziTeacherModes({ view }: { view: BaziCustomerView }) {
+export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView; onOpenFull: () => void }) {
   const [active, setActive] = useState<TeacherMode>('CHART');
+  const [treasureCollected, setTreasureCollected] = useState(false);
+  const [treasureOpening, setTreasureOpening] = useState(false);
+  const [treasurePulse, setTreasurePulse] = useState(0);
+  const [googleReading, setGoogleReading] = useState<string | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState<string | null>(null);
+  const [googleRun, setGoogleRun] = useState(0);
   const evidence = useMemo(() => {
     const luck = currentLuck(view);
     const timing = view.timeContext;
@@ -40,11 +81,75 @@ export function BaziTeacherModes({ view }: { view: BaziCustomerView }) {
   const primaryLuck = currentLuck(view);
   const shortName = view.name.trim().slice(-2) || '你';
   const ageLabel = view.timeContext.age === null ? '年齡待確認' : `${view.timeContext.age} 歲`;
+  const previousAgeLabel = view.timeContext.age === null ? '前一歲' : `${view.timeContext.age - 1} 歲`;
+  const nextAgeLabel = view.timeContext.age === null ? '下一歲' : `${view.timeContext.age + 1} 歲`;
+  const elementTreasure = useMemo(() => getBaziElementTreasure(view), [view]);
+  const collectTreasure = () => {
+    if (treasureOpening) return;
+    setTreasureOpening(true);
+    // Re-mounting only this small visual restarts the short 3D release.
+    setTreasurePulse((value) => value + 1);
+    window.setTimeout(() => {
+      setTreasureCollected(true);
+      setTreasureOpening(false);
+    }, 12_000);
+  };
+  const treasureActive = treasureCollected || treasureOpening;
+  const googleRequest = useMemo(() => ({
+    shortName,
+    age: ageLabel,
+    previousAge: previousAgeLabel,
+    nextAge: nextAgeLabel,
+    dayMaster: `${view.dayMaster.stem}${view.dayMaster.element}（${view.dayMaster.level}）`,
+    structure: view.structurePattern.primaryPattern,
+    usefulGod: view.gods.usefulGod,
+    avoidGod: view.gods.avoidGod,
+    activeLuck: primaryLuck ? `${primaryLuck.ageRange}・${primaryLuck.pillar}` : '',
+    annualLuck: view.teacher.annual[0] ? `${view.teacher.annual[0].year}・${view.teacher.annual[0].pillar}` : '',
+    elementFocus: view.teacher.signals.elementFocus,
+    chartSummary: view.teacher.chartSummary,
+    structureSignal: view.teacher.signals.structure,
+    dominantTenGods: view.teacher.tenGodsDominant.join('、') || '分布平均',
+    missingTenGods: view.teacher.tenGodsMissing.join('、') || '未見明顯缺位',
+    strengthFactors: view.teacher.strengthFactors.map((factor) => `${factor.label}：${factor.detail}`).join('；'),
+    plainSections: view.teacher.sections.slice(0, 7).map((section) => `${section.title}：${section.content}`).join('；'),
+    treasureElement: elementTreasure.element,
+    treasureName: elementTreasure.name,
+    treasurePower: elementTreasure.power,
+  }), [shortName, ageLabel, previousAgeLabel, nextAgeLabel, view, primaryLuck, elementTreasure]);
+  const googleRequestKey = JSON.stringify(googleRequest);
+
+  useEffect(() => {
+    if (active !== 'CHART') return;
+    const controller = new AbortController();
+    setGoogleLoading(true);
+    setGoogleError(null);
+    fetch('/api/bazi/google-reading', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: googleRequestKey,
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        const json = await response.json() as { ok?: boolean; reading?: string; message?: string };
+        if (!response.ok || !json.ok || !json.reading) throw new Error(json.message || 'Google 解盤未返回內容。');
+        setGoogleReading(json.reading);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        setGoogleReading(null);
+        setGoogleError(error instanceof Error ? error.message : 'Google 解盤暫時無法完成。');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setGoogleLoading(false);
+      });
+    return () => controller.abort();
+  }, [active, googleRequestKey, googleRun]);
 
   return (
     <section className="space-y-4" aria-label="AI 八字老師解盤">
-      <div className="rounded-[22px] border border-amber-200/20 bg-black/20 p-3">
-        <p className="px-2 pb-2 text-[11px] font-black tracking-[0.16em] text-amber-200/75">同一張正式八字命盤・兩位老師切換</p>
+      <div className="rounded-[22px] border-2 border-amber-200/60 bg-[linear-gradient(135deg,rgba(120,53,15,0.2),rgba(2,6,23,0.62))] p-3 shadow-[0_0_26px_rgba(251,191,36,0.16)]">
+        <p className="rounded-xl border-2 border-amber-100/60 bg-amber-300/12 px-3 py-2 text-[11px] font-black tracking-[0.16em] text-amber-100 shadow-[0_0_16px_rgba(251,191,36,0.12)]">友善引導・先選一位老師開始解盤</p>
         <div className="grid gap-2 sm:grid-cols-2">
           {TEACHERS.map((teacher) => {
             const selected = active === teacher.id;
@@ -52,9 +157,14 @@ export function BaziTeacherModes({ view }: { view: BaziCustomerView }) {
               <button
                 key={teacher.id}
                 type="button"
-                onClick={() => setActive(teacher.id)}
+                onClick={() => {
+                  setActive(teacher.id);
+                  // The Google card is intentionally never collapsible. A tap is an
+                  // explicit request for a fresh reading, including when it is already selected.
+                  if (teacher.id === 'CHART') setGoogleRun((value) => value + 1);
+                }}
                 aria-pressed={selected}
-                className={`rounded-2xl border px-4 py-3 text-left transition ${selected ? 'border-amber-200/55 bg-amber-100/[0.12] text-amber-50' : 'border-white/10 bg-white/[0.03] text-white/65'}`}
+                className={`rounded-2xl border-2 px-4 py-3 text-left transition ${selected ? 'border-amber-100/90 bg-amber-300/[0.16] text-amber-50 shadow-[0_0_22px_rgba(251,191,36,0.2)] ring-1 ring-amber-100/35' : 'border-violet-200/45 bg-white/[0.05] text-white/80 shadow-[0_0_12px_rgba(139,92,246,0.08)] hover:border-violet-100/75 hover:bg-violet-400/[0.1]'}`}
               >
                 <span className="block text-sm font-black">{teacher.title}</span>
                 <span className="mt-1 block text-xs font-semibold opacity-65">{teacher.subtitle}</span>
@@ -73,7 +183,53 @@ export function BaziTeacherModes({ view }: { view: BaziCustomerView }) {
         </p>
       </section>
 
-      {active === 'CHART' && <TeacherSummary view={view} />}
+      {active === 'CHART' && (
+        <>
+          <article className="flex flex-col rounded-[20px] border-2 border-cyan-200/55 bg-[linear-gradient(135deg,rgba(8,47,73,0.54),rgba(15,23,42,0.78))] p-4 shadow-[0_0_22px_rgba(34,211,238,0.12)]" aria-label="Google 八字解盤">
+            <div className="order-1 flex items-center justify-between gap-3">
+              <p className="text-[11px] font-black tracking-[0.16em] text-cyan-100">Google Gemini・全盤白話翻譯</p>
+              <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${googleLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : googleReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-cyan-100/35 bg-cyan-300/10 text-cyan-50/80'}`}>
+                {googleLoading ? '正在生成' : googleReading ? 'Google 已完成' : '等待解盤'}
+              </span>
+            </div>
+            <p className="order-2 mt-2 rounded-xl border border-cyan-100/20 bg-cyan-950/35 px-3 py-2 text-xs font-bold leading-5 text-cyan-50/75">Google 會以姓名後兩字與目前年齡開場，按「前一歲／現在／下一歲」白話解說日主、格局、十神、五行、大運與流年；第一步先取得五元素寶物，再閱讀完整解盤。</p>
+            {googleLoading && <p className="order-3 mt-3 text-sm font-semibold leading-6 text-cyan-50/80">Google 正在依已鎖定的八字結構生成解盤…</p>}
+            {googleError && (
+              <div className="order-3 mt-2">
+                <p className="text-sm font-semibold leading-6 text-rose-100">Google 解盤暫時未完成：{googleError}</p>
+                <button type="button" onClick={() => setGoogleRun((value) => value + 1)} className="mt-2 rounded-xl border-2 border-cyan-100/70 bg-cyan-300/12 px-3 py-2 text-xs font-black text-cyan-50">重新請 Google 解盤</button>
+              </div>
+            )}
+            {googleReading && <p className="order-5 mt-4 rounded-2xl border border-cyan-100/30 bg-black/20 p-3 text-sm font-semibold leading-7 text-cyan-50/90">{googleReading}</p>}
+            {googleReading && (
+              <section className="five-element-treasure-card order-4 mt-4 overflow-hidden rounded-[1.45rem] border-2 border-amber-200/70 p-5" aria-label="今日五元素寶物行動">
+                <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">第一步・五元素寶物封印</p>
+                <div className="mt-3 grid grid-cols-1 items-center gap-5 rounded-2xl border-2 border-amber-100/55 bg-black/25 p-5 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
+                  <div key={`google-treasure-${treasurePulse}`} className={`treasure-reveal-stage treasure-reveal-stage--${elementTreasure.element === '水' ? 'water' : 'standard'} treasure-reveal-stage--hero justify-self-center scale-[1.78] ${treasureCollected ? 'treasure-reveal-stage--collected' : ''} ${treasureOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
+                    <WaterTreasureOrb element={elementTreasure.element} released={treasureActive} />
+                  </div>
+                  <div className="min-w-0 text-center sm:text-left">
+                    <p className="text-[10px] font-black tracking-[0.2em] text-cyan-100/80">命盤專屬補強方向</p>
+                    <h5 className="mt-1 font-serif text-2xl font-black leading-8 text-amber-50">{elementTreasure.element}元素・{elementTreasure.name}</h5>
+                    <p className="mt-2 text-sm font-bold leading-6 text-amber-50/80">{elementTreasure.power}</p>
+                    <p className={`mt-2 text-xs font-black tracking-[0.1em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureOpening ? '封印正在鬆動・寶物即將入背包' : treasureCollected ? '已收下・今天的練習已啟動' : '未收下也可以直接執行這項練習'}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={collectTreasure}
+                  aria-pressed={treasureCollected}
+                  disabled={treasureOpening}
+                  className={`mt-3 w-full rounded-xl border-2 px-3 py-3 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/85 bg-amber-300/20 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.2)]'}`}
+                >
+                  {treasureOpening ? '封印正在解開・寶物釋放中…' : treasureCollected ? '再次喚醒寶物・把今天的一步做完' : `第一步・解開${elementTreasure.element}元素封印`}
+                </button>
+              </section>
+            )}
+          </article>
+          <TeacherSummary view={view} />
+        </>
+      )}
 
       {active === 'HORROR_GHOST' && (
         <article className="relative overflow-hidden rounded-[24px] border border-rose-300/35 bg-[radial-gradient(circle_at_82%_6%,rgba(190,24,93,0.28),transparent_31%),linear-gradient(145deg,rgba(69,10,10,0.58),rgba(46,16,101,0.42),rgba(2,6,23,0.82))] p-5 shadow-[0_0_50px_rgba(190,24,93,0.14)]">
@@ -110,6 +266,38 @@ export function BaziTeacherModes({ view }: { view: BaziCustomerView }) {
               命盤根據「{view.structurePattern.primaryPattern}」與忌神「{view.gods.avoidGod}」建立伏筆 → 以 {view.timeContext.currentYear} 年、{ageLabel} 與當前大運推進警報 → 用日主與五行焦點收束成未來的選擇岔路。
             </p>
           </div>
+          <section className="five-element-treasure-card five-element-treasure-card--horror relative mt-3 overflow-hidden rounded-2xl border-2 border-amber-200/70 p-5" aria-label="五元素寶物關卡">
+            <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">五元素寶物關・命盤推導</p>
+            <div className="mt-3 grid grid-cols-1 items-center gap-5 rounded-2xl border-2 border-amber-100/50 bg-black/25 p-5 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
+              <div key={`horror-treasure-${treasurePulse}`} className={`treasure-reveal-stage treasure-reveal-stage--${elementTreasure.element === '水' ? 'water' : 'standard'} treasure-reveal-stage--hero justify-self-center scale-[1.78] ${treasureCollected ? 'treasure-reveal-stage--collected' : ''} ${treasureOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
+                <WaterTreasureOrb element={elementTreasure.element} released={treasureActive} />
+              </div>
+              <div className="min-w-0 text-center sm:text-left">
+                <p className="text-[10px] font-black tracking-[0.2em] text-cyan-100/80">命盤專屬補強方向</p>
+                <h5 className="mt-1 font-serif text-2xl font-black text-amber-50">{elementTreasure.element}元素・{elementTreasure.name}</h5>
+                <p className={`mt-1 text-xs font-black tracking-[0.12em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureOpening ? '封印鬆動中・寶物正在釋放' : treasureCollected ? '封印已解除・寶物已入背包' : '封印守護中・尚未收下'}</p>
+              </div>
+            </div>
+            <p className="mt-3 text-sm font-semibold leading-6 text-amber-50/85">{elementTreasure.power} 這是依命盤五行強弱得到的遊戲線索；收下它代表你願意練習這個方向，不是保證任何結果。</p>
+            <button
+              type="button"
+              onClick={collectTreasure}
+              aria-pressed={treasureCollected}
+              disabled={treasureOpening}
+              className={`mt-3 w-full rounded-xl border-2 px-3 py-2 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/80 bg-amber-300/15 text-amber-50 shadow-[0_0_18px_rgba(251,191,36,0.18)]'}`}
+            >
+              {treasureOpening ? '封印正在解開・寶物釋放中…' : treasureCollected ? '再次喚醒寶物・下一幕由你的選擇推進' : '解開封印・收下這件五元素寶物'}
+            </button>
+            {treasureCollected && (
+              <div className="mt-3 rounded-xl border-2 border-cyan-100/50 bg-cyan-950/35 p-3">
+                <p className="text-xs font-black tracking-[0.14em] text-cyan-100">寶物已入背包・選擇下一個畫面</p>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  <button type="button" onClick={() => setActive('CHART')} className="rounded-xl border-2 border-violet-100/50 bg-violet-300/10 px-3 py-2 text-sm font-black text-violet-50">回到老師解盤</button>
+                  <button type="button" onClick={onOpenFull} className="rounded-xl border-2 border-amber-100/70 bg-amber-300/14 px-3 py-2 text-sm font-black text-amber-50">進入完整命盤</button>
+                </div>
+              </div>
+            )}
+          </section>
           <div className="mt-4 space-y-3 text-base font-semibold leading-7 text-white/75">
             <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/25 p-4">
               <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-rose-100/10">01</span>

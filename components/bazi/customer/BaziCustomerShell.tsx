@@ -21,7 +21,8 @@ const STEM_ELEMENT_LABEL: Record<string, string> = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUnknown: boolean }) {
-  const [level, setLevel] = useState<'teacher' | 'full' | null>(null);
+  // 命盤一旦通過資料驗證，就優先穩定呈現兩位老師；避免重新渲染後又回到空白收合狀態。
+  const [level, setLevel] = useState<'teacher' | 'full' | null>('teacher');
   const detailRef = useRef<HTMLDivElement | null>(null);
 
   const view = toBaziCustomerView(result, hourUnknown);
@@ -29,7 +30,9 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
   const elementOf = (stem: string) => STEM_ELEMENT_LABEL[stem];
 
   const openLevel = (next: 'teacher' | 'full') => {
-    setLevel((current) => (current === next ? null : next));
+    // 「老師怎麼看？」是開啟入口，不應因客戶再次確認而把老師區塊收掉。
+    // 完整命盤仍可切換，但同一張命工卡的重複點擊永遠維持目前層級可見。
+    setLevel(next);
     requestAnimationFrame(() => detailRef.current?.scrollIntoView({ block: 'start' }));
   };
 
@@ -56,7 +59,7 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
               <h3 className="text-xl font-black text-[color:var(--text-main)]">兩位老師解盤</h3>
               <p className="text-xs font-bold text-white/40">同盤鎖定，切換解讀。</p>
             </div>
-            <BaziTeacherModes view={view} />
+            <BaziTeacherModes view={view} onOpenFull={() => openLevel('full')} />
           </div>
         )}
         {level === 'full' && (

@@ -439,7 +439,15 @@ export default function BaziPage() {
     setMissing(nextMissing);
     setError('');
     if (nextMissing.length > 0) {
-      setError('請先把八字命盤需要的生成資料填完整，系統才會進入第一層專業命盤。');
+      const fieldLabels: Record<string, string> = {
+        name: '姓名（至少 2 個字）',
+        birthDate: '出生日期',
+        gender: '性別',
+        birthPlace: '出生地',
+        birthHourBranch: '出生時辰（可選「不知道」）',
+      };
+      const missingLabels = nextMissing.map((field) => fieldLabels[field] ?? field).join('、');
+      setError(`尚未完成：${missingLabels}。請依序填完或選擇「不知道出生時辰」後，再開始生成八字命盤。`);
       const first = document.querySelector(`[data-field="${nextMissing[0]}"]`);
       first?.scrollIntoView({ block: 'center' });
       return;

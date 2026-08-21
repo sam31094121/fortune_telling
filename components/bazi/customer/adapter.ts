@@ -22,6 +22,8 @@ export type FiveElementOrbitElement = 'WOOD' | 'FIRE' | 'EARTH' | 'METAL' | 'WAT
 
 export interface FiveElementOrbitItem {
   element: FiveElementOrbitElement;
+  /** Backend-only orthodox five-element key. Never display this to customers. */
+  sourceLabel: string;
   label: string;
   value: number | null;
   ratio: number | null;
@@ -138,12 +140,12 @@ type BackendResult = {
   dataFlow: { rules: Record<string, boolean> };
 };
 
-const FIVE_ELEMENT_ORBIT_ORDER: Array<{ element: FiveElementOrbitElement; label: string }> = [
-  { element: 'WOOD', label: '木' },
-  { element: 'FIRE', label: '火' },
-  { element: 'EARTH', label: '土' },
-  { element: 'METAL', label: '金' },
-  { element: 'WATER', label: '水' },
+const FIVE_ELEMENT_ORBIT_ORDER: Array<{ element: FiveElementOrbitElement; sourceLabel: string; label: string }> = [
+  { element: 'WOOD', sourceLabel: '木', label: '風' },
+  { element: 'FIRE', sourceLabel: '火', label: '火' },
+  { element: 'EARTH', sourceLabel: '土', label: '地' },
+  { element: 'METAL', sourceLabel: '金', label: '空' },
+  { element: 'WATER', sourceLabel: '水', label: '水' },
 ];
 
 function toFiveElementOrbitView(result: BackendResult): FiveElementOrbitViewModel {
@@ -151,15 +153,16 @@ function toFiveElementOrbitView(result: BackendResult): FiveElementOrbitViewMode
   const tenGodMap = result.professionalChart.fiveElementTenGodMap ?? {};
   return {
     centerLabel: `${result.dayMaster.stem}${result.dayMaster.element}`,
-    items: FIVE_ELEMENT_ORBIT_ORDER.map(({ element, label }) => {
-      const value = percentages[label];
+    items: FIVE_ELEMENT_ORBIT_ORDER.map(({ element, sourceLabel, label }) => {
+      const value = percentages[sourceLabel];
       return {
         element,
+        sourceLabel,
         label,
         value: typeof value === 'number' ? value : null,
         ratio: typeof value === 'number' ? value : null,
         strength: typeof value === 'number' ? value : null,
-        tenGodLabels: tenGodMap[label] ?? [],
+        tenGodLabels: tenGodMap[sourceLabel] ?? [],
         status: typeof value === 'number' ? 'AVAILABLE' : 'UNAVAILABLE',
       };
     }),

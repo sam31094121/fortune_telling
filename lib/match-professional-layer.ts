@@ -3,7 +3,7 @@ import type { PersonalityMatrixCompat, MatchResult } from './compatibility-engin
 export type SoulMatchInputPerson = {
   name: string;
   birthDate: string;
-  bloodType: 'A' | 'B' | 'AB' | 'O';
+  bloodType: 'A' | 'B' | 'AB' | 'O' | 'unknown';
   gender: 'male' | 'female';
 };
 
@@ -119,6 +119,7 @@ const BLOOD_STORY: Record<SoulMatchInputPerson['bloodType'], string> = {
   B: '\u91cd\u8996\u81ea\u7531\u3001\u7bc0\u594f\u8207\u771f\u5be6\u611f\uff0c\u95dc\u4fc2\u4e2d\u9700\u8981\u4fdd\u7559\u547c\u5438\u7a7a\u9593\u3002',
   AB: '\u7406\u6027\u8207\u611f\u6027\u4ea4\u932f\uff0c\u95dc\u4fc2\u4e2d\u9700\u8981\u6e05\u695a\u800c\u4e0d\u58d3\u8feb\u7684\u6e9d\u901a\u3002',
   O: '\u884c\u52d5\u611f\u8207\u4fdd\u8b77\u6b32\u8f03\u5f37\uff0c\u95dc\u4fc2\u4e2d\u9700\u8981\u770b\u898b\u76ee\u6a19\u8207\u65b9\u5411\u3002',
+  unknown: '\u8840\u578b\u672a\u63d0\u4f9b\uff0c\u9019\u4e00\u5c64\u4e0d\u4f5c\u63a8\u5b9a\uff0c\u4ee5\u5176\u4ed6\u914d\u5c0d\u8cc7\u6599\u70ba\u4e3b\u3002',
 };
 
 function genderLabel(gender: SoulMatchInputPerson['gender']) {

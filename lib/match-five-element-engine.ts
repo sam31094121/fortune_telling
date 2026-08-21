@@ -73,7 +73,7 @@ export type MatchFiveElementResult = {
 type MatchPersonInput = {
   name: string;
   birthDate: string;
-  bloodType: 'A' | 'B' | 'AB' | 'O';
+  bloodType: 'A' | 'B' | 'AB' | 'O' | 'unknown';
   gender: 'male' | 'female';
 };
 
@@ -110,7 +110,7 @@ const GENERATES: Record<MatchFiveElementKey, MatchFiveElementKey> = deriveMatchT
 
 const CONTROLS: Record<MatchFiveElementKey, MatchFiveElementKey> = deriveMatchTable(SHARED_CONTROLS);
 
-const BLOOD_ELEMENT: Record<MatchPersonInput['bloodType'], MatchFiveElementKey> = {
+const BLOOD_ELEMENT: Record<Exclude<MatchPersonInput['bloodType'], 'unknown'>, MatchFiveElementKey> = {
   A: 'earth',
   B: 'air',
   AB: 'space',
@@ -156,7 +156,7 @@ function buildPersonResult(person: MatchPersonInput, scores: MatchScoreInput): M
   add(elementScores, elementFromIndex(birth.year + birth.month), 18);
   add(elementScores, elementFromIndex(birth.month + birth.day), 16);
   add(elementScores, elementFromIndex(birth.year + birth.day), 12);
-  add(elementScores, BLOOD_ELEMENT[person.bloodType], 14);
+  if (person.bloodType !== 'unknown') add(elementScores, BLOOD_ELEMENT[person.bloodType], 14);
   add(elementScores, person.gender === 'male' ? 'fire' : 'water', 6);
 
   if (scores.communication < 68) add(elementScores, 'water', -10);

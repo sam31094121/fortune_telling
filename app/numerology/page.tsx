@@ -33,28 +33,40 @@ const VALID_LENGTHS = new Set([2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
 const PURPOSE_OPTIONS: Array<{ id: NumberPurpose; label: string; shortLabel: string; detail: string }> = [
   { id: 'general', label: '萬用碼', shortLabel: '這組數字', detail: '不限定用途，直接看整體結構' },
-  { id: 'plate', label: '汽車號碼', shortLabel: '這張車牌', detail: '直接解讀車牌的數字結構' },
+  { id: 'plate', label: '車牌號碼', shortLabel: '這張車牌', detail: '汽車與機車都可用，直接解讀車牌的數字結構' },
   { id: 'phone', label: '電話號碼', shortLabel: '這支電話', detail: '直接解讀聯絡與溝通節奏' },
   { id: 'birthdate', label: '出生年月日', shortLabel: '這組生日數字', detail: '直接解讀個人節奏與成長' },
 ];
 
-const PURPOSE_COPY: Record<NumberPurpose, { good: string; risk: string; next: string }> = {
+const PURPOSE_COPY: Record<NumberPurpose, { goodHeading: string; riskHeading: string; strengthTitle: string; good: string; risk: string; next: string }> = {
   general: {
-    good: '最能支持整體使用節奏與資源安排。',
-    risk: '是這組數字最需要先留意的壓力點。',
+    goodHeading: '好在哪裡',
+    riskHeading: '要留意什麼',
+    strengthTitle: '八段強弱',
+    good: '最能支持目前的整體使用節奏與資源安排。',
+    risk: '是目前最需要先留意的壓力點。',
     next: '保留優勢，先把最低分的面向收穩。',
   },
   plate: {
+    goodHeading: '車牌好在哪裡',
+    riskHeading: '車牌要留意什麼',
+    strengthTitle: '車牌八段強弱',
     good: '在這張車牌的數字解讀中，較能支持出行、往來與使用安排。',
     risk: '是這張車牌在使用節奏與外出安排上較需要留意的地方；不代表車況或行車安全的保證。',
     next: '以正常保養與安全駕駛為主，再把數字當作選牌參考。',
   },
   phone: {
+    goodHeading: '電話號碼好在哪裡',
+    riskHeading: '電話號碼要留意什麼',
+    strengthTitle: '電話號碼八段強弱',
     good: '在這支電話的數字解讀中，較能支持聯絡、人際與工作溝通。',
     risk: '是這支電話在溝通節奏、回應壓力或人際往來上較需要留意的地方。',
     next: '把重要訊息說清楚、留出回應時間，讓溝通優勢真正發揮。',
   },
   birthdate: {
+    goodHeading: '出生年月日好在哪裡',
+    riskHeading: '出生年月日要留意什麼',
+    strengthTitle: '出生年月日八段強弱',
     good: '在這組生日數字的解讀中，較能支持個人節奏與成長方向。',
     risk: '是這組生日數字反映出的壓力傾向，適合用來安排生活節奏。',
     next: '把優勢放進日常選擇，並先照顧最容易失衡的環節。',
@@ -146,10 +158,9 @@ export default function NumerologyPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [purpose, setPurpose] = useState<NumberPurpose>('general');
-  const [selectedLength, setSelectedLength] = useState<number | null>(null);
 
   const cleanValue = cleanNumber(value);
-  const canSubmit = VALID_LENGTHS.has(cleanValue.length) && (selectedLength === null || cleanValue.length === selectedLength);
+  const canSubmit = VALID_LENGTHS.has(cleanValue.length);
   const progress = Math.min(100, Math.round((cleanValue.length / 10) * 100));
   const numberInputSize = cleanValue.length >= 9
       ? 'clamp(3.15rem, 13.4vw, 5.25rem)'
@@ -179,7 +190,7 @@ export default function NumerologyPage() {
       return;
     }
     if (!canSubmit) {
-      setError(selectedLength ? `請輸入完整的 ${selectedLength} 碼阿拉伯數字。` : '請輸入 2 到 10 碼阿拉伯數字。');
+      setError('請輸入 2 到 10 碼阿拉伯數字。');
       return;
     }
 
@@ -231,7 +242,7 @@ export default function NumerologyPage() {
           {/* S01-S03 接收/運算/判定狀態卡已隱藏（2026-08-10）：客戶不用看 */}
           <div className="mt-5 hidden grid-cols-3 gap-2">
             {['接收', '運算', '判定'].map((step, index) => {
-              const passed = index === 0 ? purpose !== 'general' || selectedLength !== null : index === 1 ? selectedLength !== null : loading || Boolean(result);
+              const passed = index === 0 ? purpose !== 'general' || cleanValue.length > 0 : index === 1 ? VALID_LENGTHS.has(cleanValue.length) : loading || Boolean(result);
               return (
                 <div
                   key={step}
@@ -278,7 +289,7 @@ export default function NumerologyPage() {
 
           <div className="mt-3 rounded-2xl border border-cyan-100/15 bg-cyan-200/[0.045] px-3 py-2.5 text-center">
             <p className="text-[10px] font-black tracking-[0.16em] text-cyan-100/65">1 · 選擇解讀用途（可略過，預設萬用碼）</p>
-            <p className="mt-1 text-[11px] font-bold text-white/60">不確定用途？直接使用閃爍的萬用碼；需要時再選汽車、電話或出生年月日。</p>
+            <p className="mt-1 text-[11px] font-bold text-white/60">不確定用途？直接使用閃爍的萬用碼；需要時再選車牌、電話或出生年月日。</p>
             <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {PURPOSE_OPTIONS.map((option) => (
                 <button
@@ -296,23 +307,9 @@ export default function NumerologyPage() {
             <p className="mt-2 text-[11px] font-bold text-white/58">目前：{purposeOption.label}。依輸入位數與組合進行判定。</p>
           </div>
 
-          <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5" aria-label="第 2 步，選擇數字長度">
-            <p className={`col-span-full rounded-xl border-2 px-3 py-2 text-center text-[12px] font-black ${selectedLength === null ? 'animate-[pulse_1.6s_ease-in-out_infinite] border-amber-100 bg-amber-300/20 text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.32)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#112026]' : 'border-emerald-200/35 bg-emerald-300/10 text-emerald-100'}`}>
-              {selectedLength === null ? '2 · 請先點選你要輸入的碼數' : `2 · 已選擇 ${selectedLength} 碼，現在開始輸入`}
-            </p>
-            {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((length) => (
-              <button
-                key={length}
-                type="button"
-                onClick={() => { setSelectedLength(length); setResult(null); setError(''); }}
-                aria-pressed={selectedLength === length}
-                className={`rounded-xl border px-2 py-2 text-center transition ${selectedLength === length ? 'animate-[pulse_1.6s_ease-in-out_infinite] border-2 border-amber-100 bg-amber-300/22 text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.38)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#112026]' : 'border-white/10 bg-white/[0.035] text-white/58 hover:border-cyan-100/40 hover:text-cyan-50'}`}
-              >
-                <p className="text-[10px] font-black tracking-[0.14em]">使用 {length} 碼</p>
-                <p className="mt-0.5 text-[10px] font-bold">{selectedLength === length ? '已選擇，開始輸入' : `我要輸入 ${length} 碼`}</p>
-              </button>
-            ))}
-          </div>
+          <p className="mt-3 rounded-xl border-2 border-amber-100 bg-amber-300/20 px-3 py-2 text-center text-[12px] font-black text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.32)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#112026]">
+            直接輸入 2 到 10 碼阿拉伯數字，系統會自動辨識位數
+          </p>
 
           <input
             value={value}
@@ -321,14 +318,13 @@ export default function NumerologyPage() {
             onChange={(event) => {
               const nextValue = cleanNumber(event.target.value);
               setValue(nextValue);
-              if (selectedLength === null && VALID_LENGTHS.has(nextValue.length)) setSelectedLength(nextValue.length);
               setError('');
             }}
             onFocus={() => setError('')}
             placeholder="1688"
             aria-label="第 3 步，輸入數字"
             style={numberInputDigitStyle}
-            className={`fortune-number-max-input mt-4 min-h-[168px] w-full rounded-[30px] border-2 bg-black/55 px-2 py-8 text-center font-mono font-black leading-none outline-none transition placeholder:text-white/24 sm:min-h-[196px] ${selectedLength !== null ? 'animate-[pulse_1.6s_ease-in-out_infinite] border-amber-100 text-amber-50 shadow-[inset_0_0_42px_rgba(251,191,36,0.16),0_0_44px_rgba(251,191,36,0.32)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#112026] focus:shadow-[inset_0_0_42px_rgba(251,191,36,0.2),0_0_52px_rgba(251,191,36,0.4)]' : 'border-amber-100/45 text-amber-50 shadow-[inset_0_0_38px_rgba(251,191,36,0.12),0_0_38px_rgba(34,211,238,0.18)] focus:border-amber-200/85'}`}
+            className="fortune-number-max-input mt-4 min-h-[168px] w-full rounded-[30px] border-2 border-amber-100 bg-black/55 px-2 py-8 text-center font-mono font-black leading-none text-amber-50 shadow-[inset_0_0_42px_rgba(251,191,36,0.16),0_0_44px_rgba(251,191,36,0.32)] outline-none transition placeholder:text-white/24 ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#112026] focus:shadow-[inset_0_0_42px_rgba(251,191,36,0.2),0_0_52px_rgba(251,191,36,0.4)] sm:min-h-[196px]"
           />
 
           {/* 範例說明已依指示隱藏；客戶只需看上方的位數引導後直接輸入。 */}
@@ -398,14 +394,14 @@ export default function NumerologyPage() {
             <div className="grid gap-3 sm:grid-cols-3">
               <article className="rounded-2xl border border-emerald-200/25 bg-emerald-300/[0.08] p-4">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-100">GOOD</p>
-                <h3 className="mt-2 text-base font-black text-emerald-50">{purposeOption.shortLabel}好在哪裡</h3>
+                <h3 className="mt-2 text-base font-black text-emerald-50">{purposeCopy.goodHeading}</h3>
                 <p className="mt-2 text-sm font-bold leading-7 text-white/76">
                   {bestPoint ? `${DIMENSION_LABELS[bestPoint[0]] ?? bestPoint[0]}最亮，${purposeCopy.good}` : `${purposeOption.shortLabel}仍有可用的支持點。`}
                 </p>
               </article>
               <article className="rounded-2xl border border-rose-200/25 bg-rose-300/[0.08] p-4">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-rose-100">RISK</p>
-                <h3 className="mt-2 text-base font-black text-rose-50">{purposeOption.shortLabel}壞在哪裡</h3>
+                <h3 className="mt-2 text-base font-black text-rose-50">{purposeCopy.riskHeading}</h3>
                 <p className="mt-2 text-sm font-bold leading-7 text-white/76">
                   {weakPoint ? `${DIMENSION_LABELS[weakPoint[0]] ?? weakPoint[0]}最低，${purposeCopy.risk}` : `${purposeOption.shortLabel}目前沒有明顯低點，但仍保留檢查節奏。`}
                 </p>
@@ -437,7 +433,7 @@ export default function NumerologyPage() {
               <div className="flex items-end justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-black tracking-[0.18em] text-violet-100">EIGHT PARTS</p>
-                  <h3 className="mt-1 text-base font-black text-violet-50">八段強弱</h3>
+                  <h3 className="mt-1 text-base font-black text-violet-50">{purposeCopy.strengthTitle}</h3>
                 </div>
                 <p className="text-[10px] font-bold text-white/52">數字結構的八個面向</p>
               </div>

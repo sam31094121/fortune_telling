@@ -93,7 +93,7 @@ async function explainNumberWithGoogle(result: NumberAnalysisResponse, purpose: 
   try {
     const response = await withTimeout(
       ai.models.generateContent({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.6-flash',
         contents: `你是「Google 數字解說」。只能根據下面已完成的固定數字規則結果，用繁體中文寫 80 到 140 字的白話說明。
 規則：不得重新算分、不得宣稱科學準確率、不得預言或保證結果；用「傾向、可留意、適合」等條件式語言。
 用途：${PURPOSE_PROMPTS[purpose]}

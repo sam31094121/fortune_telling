@@ -30,7 +30,7 @@ export interface PersonalityMatrixInput {
   
   // 地：身體與行為資料
   gender: "male" | "female" | "non-binary";
-  bloodType: "A" | "B" | "AB" | "O";
+  bloodType: "A" | "B" | "AB" | "O" | "unknown";
   voiceCharacteristics?: string[]; // e.g., ["confident", "emotional_tone"]
   
   // 人：個人識別資料
@@ -90,7 +90,7 @@ export class PersonalityMatrixEngine {
    * 從地模型提取人格參數（35%）
    */
   static extractEarthModel(
-    bloodType: "A" | "B" | "AB" | "O",
+    bloodType: "A" | "B" | "AB" | "O" | "unknown",
     voiceCharacteristics: string[] = []
   ): Partial<PersonalityMatrix> {
     const matrix: Partial<PersonalityMatrix> = {

@@ -5,7 +5,7 @@ import { getZodiacEnglishName, getZodiacSign } from './zodiac';
 interface PersonData {
   name: string;
   birthDate: string;
-  bloodType: 'A' | 'B' | 'AB' | 'O';
+  bloodType: 'A' | 'B' | 'AB' | 'O' | 'unknown';
   gender: 'male' | 'female';
   shichen: number | 'unknown' | null;
 }

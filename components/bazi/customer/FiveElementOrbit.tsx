@@ -43,16 +43,16 @@ const ELEMENT_RING: Record<ElementKey, string> = {
   WOOD: 'ring-emerald-300/70', FIRE: 'ring-rose-300/70', EARTH: 'ring-amber-300/70', METAL: 'ring-slate-200/70', WATER: 'ring-blue-300/70',
 };
 
-/** 固定五行關係（傳統，顯示用）：相生相鄰環、相剋五角星 */
+/** 固定五元素關係（前台名稱）：相生相鄰環、相剋五角星 */
 const GENERATING_PAIRS: Array<[ElementKey, ElementKey]> = [
   ['WOOD', 'FIRE'], ['FIRE', 'EARTH'], ['EARTH', 'METAL'], ['METAL', 'WATER'], ['WATER', 'WOOD'],
 ];
 const CONTROLLING_PAIRS: Array<[ElementKey, ElementKey]> = [
   ['WOOD', 'EARTH'], ['EARTH', 'WATER'], ['WATER', 'FIRE'], ['FIRE', 'METAL'], ['METAL', 'WOOD'],
 ];
-const GENERATES_ME: Record<string, string> = { 木: '水', 火: '木', 土: '火', 金: '土', 水: '金' };
-const I_GENERATE: Record<string, string> = { 木: '火', 火: '土', 土: '金', 金: '水', 水: '木' };
-const CONTROLS_ME: Record<string, string> = { 木: '金', 火: '水', 土: '木', 金: '火', 水: '土' };
+const GENERATES_ME: Record<string, string> = { 風: '水', 火: '風', 地: '火', 空: '地', 水: '空' };
+const I_GENERATE: Record<string, string> = { 風: '火', 火: '地', 地: '空', 空: '水', 水: '風' };
+const CONTROLS_ME: Record<string, string> = { 風: '空', 火: '水', 地: '風', 空: '火', 水: '地' };
 
 function scaleClass(value: number | null) {
   if (value == null) return 'h-[78px] w-[78px]';
@@ -68,7 +68,7 @@ export function FiveElementOrbit({ view, evidence }: {
 }) {
   const [active, setActive] = useState<ElementKey | null>(null);
   const activeItem = view.items.find((i) => i.element === active) ?? null;
-  const activeEvidence = activeItem ? evidence?.find((e) => e.element === activeItem.label) ?? null : null;
+  const activeEvidence = activeItem ? evidence?.find((e) => e.element === activeItem.sourceLabel) ?? null : null;
 
   const segOpacity = (a: ElementKey, b: ElementKey, base: number, boost: number) =>
     active === null ? base : (a === active || b === active ? boost : base * 0.35);

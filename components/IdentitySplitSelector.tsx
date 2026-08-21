@@ -11,6 +11,7 @@ import {
 type Props = {
   className?: string;
   compact?: boolean;
+  onSelected?: (target: AnalysisIdentityTarget) => void;
 };
 
 const OPTIONS: Array<{
@@ -33,7 +34,7 @@ const OPTIONS: Array<{
   },
 ];
 
-export default function IdentitySplitSelector({ className = '', compact = false }: Props) {
+export default function IdentitySplitSelector({ className = '', compact = false, onSelected }: Props) {
   const [selected, setSelected] = useState<AnalysisIdentityTarget | null>(null);
 
   useEffect(() => {
@@ -49,6 +50,12 @@ export default function IdentitySplitSelector({ className = '', compact = false 
     window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, handleUpdate);
     return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, handleUpdate);
   }, []);
+
+  const chooseTarget = (target: AnalysisIdentityTarget) => {
+    setAnalysisIdentityTarget(target);
+    setSelected(target);
+    onSelected?.(target);
+  };
 
   if (compact) {
     return (
@@ -66,8 +73,7 @@ export default function IdentitySplitSelector({ className = '', compact = false 
                 aria-pressed={active}
                 aria-label={option.label}
                 onClick={() => {
-                  setAnalysisIdentityTarget(option.target);
-                  setSelected(option.target);
+                  chooseTarget(option.target);
                 }}
                 className={`identity-split-selector__button min-h-12 rounded-xl border px-3 text-center text-base font-black transition active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200/80 ${
                   active
@@ -94,7 +100,7 @@ export default function IdentitySplitSelector({ className = '', compact = false 
           </h2>
         </div>
         <p className="text-xs font-semibold leading-5 text-amber-100/78">
-          {selected === null ? '請點選一個對象後再開始判定' : '已選擇，可繼續輸入與判定'}
+          {selected === null ? '請點選一個對象後再開始判定' : `已選擇「${selected === 'self' ? '我自己' : '親朋好友'}」・接著填姓名`}
         </p>
       </div>
 
@@ -107,8 +113,7 @@ export default function IdentitySplitSelector({ className = '', compact = false 
               type="button"
               aria-pressed={active}
               onClick={() => {
-                setAnalysisIdentityTarget(option.target);
-                setSelected(option.target);
+                chooseTarget(option.target);
               }}
               className={`group rounded-xl border px-4 py-3 text-left transition-all active:scale-[0.99] ${
                 active

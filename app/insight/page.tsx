@@ -27,6 +27,7 @@ import type { TarotAiElement, TarotCard } from '@/features/tarot/types';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { calculateBoneWeight, formatQian } from '@/lib/bone-weight';
+import { WaterTreasureOrb } from '@/components/bazi/customer/WaterTreasureOrb';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
 type ShichenChoice = number | 'unknown' | 'known' | null;
@@ -2608,6 +2609,24 @@ function plainPalaceTopic(palaceName: string) {
   return ZIWEI_PALACE_PLAIN_TOPICS[palaceName] ?? `${palaceName}所代表的生活議題`;
 }
 
+const ZIWEI_ELEMENT_TREASURES: Record<FiveElementKey, { label: string; name: string; gear: string; power: string }> = {
+  wood: { label: '風', name: '風語星圖鈴', gear: '風向護目鏡', power: '把散開的線索重新排成可前進的方向。' },
+  fire: { label: '火', name: '燼火宮燈', gear: '定心護盾', power: '把急促的能量收成清楚、可負責的行動。' },
+  earth: { label: '地', name: '地脈封印印', gear: '穩定護膝', power: '把本宮壓力拉回界線、承諾與可落地的節奏。' },
+  metal: { label: '空', name: '星隙斷雜劍', gear: '觀星頭盔', power: '幫你辨認哪些訊號該留下、哪些負擔可以放下。' },
+  water: { label: '水', name: '潮汐回聲珠', gear: '回音盾牌', power: '讓被壓住的感受先被聽見，再決定如何回應。' },
+};
+
+// 命盤仍以正統五行計算；客戶看見的寶物固定翻成空、風、水、火、地。
+// 同一張命盤的兩位老師必須共用這個結果，不能各自換元素。
+const ZIWEI_PRODUCT_ELEMENT: Record<FiveElementKey, '空' | '風' | '水' | '火' | '地'> = {
+  metal: '空',
+  wood: '風',
+  water: '水',
+  fire: '火',
+  earth: '地',
+};
+
 function ageFromBirthDate(birthDate?: string) {
   const match = birthDate?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!match) return null;
@@ -2633,17 +2652,26 @@ function ZiweiHorrorGhostMovieView({
   subjectName,
   subjectAge,
   palaceName,
+  fiveElement,
 }: {
   life: LifeTeacherResult;
   narrative?: NarrativeTeacherResult;
   subjectName?: string;
   subjectAge?: number | null;
   palaceName: string;
+  fiveElement?: FiveElementIntegrationResult;
 }) {
   const evidenceRefs = [...new Set([...life.evidenceRefs, ...(narrative?.evidenceRefs ?? [])])];
   const name = maskedTeacherName(subjectName);
   const ageLabel = subjectAge === null || subjectAge === undefined ? '年齡待確認' : `${subjectAge} 歲`;
   const topic = plainPalaceTopic(palaceName);
+  const [treasureCollected, setTreasureCollected] = useState(false);
+  const primaryElement = fiveElement?.primaryElement ?? 'earth';
+  const treasure = ZIWEI_ELEMENT_TREASURES[primaryElement];
+  const productElement = ZIWEI_PRODUCT_ELEMENT[primaryElement];
+  // The previews are a reference board only.  They make the fixed five-element
+  // material system inspectable without changing this palace's derived element.
+  const materialPreviewElements = (Object.keys(ZIWEI_ELEMENT_TREASURES) as FiveElementKey[]).filter((element) => element !== primaryElement);
 
   return (
     <section className="mt-4 relative overflow-hidden rounded-[24px] border border-rose-300/35 bg-[radial-gradient(circle_at_82%_6%,rgba(190,24,93,0.25),transparent_31%),linear-gradient(145deg,rgba(69,10,10,0.6),rgba(46,16,101,0.42),rgba(2,6,23,0.86))] p-4 shadow-[0_0_48px_rgba(190,24,93,0.14)]">
@@ -2656,6 +2684,48 @@ function ZiweiHorrorGhostMovieView({
       <p className="relative mt-2 rounded-xl border border-violet-200/15 bg-black/25 px-3 py-2 text-xs font-bold leading-5 text-violet-100/80">戲劇化紫微命盤遊戲情境：只以本宮、主星、三方四正與時間層創作，不代表已發生的真實事件。</p>
       <p className="relative mt-3 text-base font-black leading-7 text-rose-50">{name}，你現在 {ageLabel}；你的{palaceName}命盤正在打開。恐怖是壓力的逼近；鬼魅是同一張命盤最後浮現的象徵畫面。</p>
       <p className="relative mt-2 rounded-xl border border-cyan-100/15 bg-cyan-950/20 px-3 py-2 text-sm font-bold leading-6 text-cyan-50/90">白話說，{palaceName}在講的是「{topic}」。接下來的恐怖鬼魅情境只會圍繞這個主題，不會跳去講別宮的事。</p>
+
+      <section className="relative mt-3 rounded-2xl border-2 border-amber-200/70 bg-[linear-gradient(135deg,rgba(120,53,15,0.38),rgba(49,46,129,0.34))] p-4 shadow-[0_0_26px_rgba(251,191,36,0.16)]" aria-label="紫微五元素寶物關">
+        <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">五元素寶物關・紫微命盤推導</p>
+        <div className="mt-3 grid grid-cols-[4.25rem_minmax(0,1fr)] items-center gap-3 rounded-2xl border-2 border-amber-100/50 bg-black/25 p-3">
+          <div className={`treasure-reveal-stage ${treasureCollected ? 'treasure-reveal-stage--collected' : ''}`} aria-hidden="true">
+            <WaterTreasureOrb element={productElement} released={treasureCollected} />
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-serif text-xl font-black text-amber-50">{treasure.label}元素・{treasure.name}</h3>
+            <p className={`mt-1 text-xs font-black tracking-[0.12em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureCollected ? '本宮封印已解除・寶物已入背包' : '本宮封印守護中・尚未收下'}</p>
+          </div>
+        </div>
+        <p className="mt-3 text-sm font-semibold leading-6 text-amber-50/88">解開本宮封印後，取得「{treasure.gear}」：{treasure.power} 這是遊戲中的保護與行動線索，不代表現實防護或命定結果。</p>
+        <button
+          type="button"
+          onClick={() => setTreasureCollected(true)}
+          aria-pressed={treasureCollected}
+          className={`mt-3 w-full rounded-xl border-2 px-3 py-2 text-sm font-black transition ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/80 bg-amber-300/15 text-amber-50 shadow-[0_0_18px_rgba(251,191,36,0.18)]'}`}
+        >
+          {treasureCollected ? '本宮寶物已入背包・可進入下一幕' : '解開本宮封印・收下寶物'}
+        </button>
+        <section className="mt-4 border-t border-amber-100/20 pt-4" aria-label="其餘四元素材質預覽">
+          <p className="text-[10px] font-black tracking-[0.16em] text-amber-100/75">其餘四顆・科技寶石材質</p>
+          <p className="mt-1 text-[11px] font-semibold leading-5 text-amber-50/65">用來確認五元素的材質邏輯；不會更改這一宮已判定的補強元素。</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {materialPreviewElements.map((element) => {
+              const preview = ZIWEI_ELEMENT_TREASURES[element];
+              return (
+                <article key={element} className="flex min-h-[92px] items-center gap-2 rounded-xl border border-amber-100/20 bg-black/20 p-2">
+                  <div className="treasure-reveal-stage scale-[0.76] shrink-0" aria-hidden="true">
+                    <WaterTreasureOrb element={ZIWEI_PRODUCT_ELEMENT[element]} released={false} preview />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-black text-amber-50">{preview.label}元素</p>
+                    <p className="mt-1 text-[10px] font-semibold leading-4 text-amber-100/70">{preview.name}</p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      </section>
 
       <div className="relative mt-4 grid grid-cols-3 gap-2" aria-label="恐怖鬼魅三幕結構">
         {[
@@ -2832,6 +2902,7 @@ function ZiweiTeacherSynthesisPanel({
   subjectName,
   subjectAge,
   birthInput,
+  fiveElement,
 }: {
   synthesis: ZiweiTeacherSynthesis;
   showTarotBridge?: boolean;
@@ -2840,6 +2911,7 @@ function ZiweiTeacherSynthesisPanel({
   subjectName?: string;
   subjectAge?: number | null;
   birthInput?: ZiweiBirthInput;
+  fiveElement?: FiveElementIntegrationResult;
 }) {
   const [mode, setMode] = useState<'PROFESSIONAL' | 'ENTERTAINMENT'>('PROFESSIONAL');
   const [activeTeacher, setActiveTeacher] = useState<ZiweiTeacherId>('STRUCTURE_MASTER');
@@ -3004,6 +3076,7 @@ function ZiweiTeacherSynthesisPanel({
               subjectName={subjectName}
               subjectAge={subjectAge}
               palaceName={synthesis.harmonyTexts[0]?.palaceName ?? '本宮'}
+              fiveElement={fiveElement}
             />
           )}
         </>
@@ -3126,6 +3199,7 @@ function ZiweiDestinyCardView({
   analysis,
   annual,
   analysisId,
+  fiveElement,
 }: {
   card?: ZiweiDestinyCardModel | null;
   subjectName?: string;
@@ -3133,9 +3207,9 @@ function ZiweiDestinyCardView({
   analysis?: InsightResult['ziweiSanFang'];
   annual?: InsightResult['annualFortune'];
   analysisId?: string;
+  fiveElement?: InsightResult['fiveElement'];
 }) {
   const [flipped, setFlipped] = useState(false);
-  const [teacherOpen, setTeacherOpen] = useState(false);
   if (!card) return null;
 
   const isReady = card.verification.readyForFrontend;
@@ -3145,12 +3219,11 @@ function ZiweiDestinyCardView({
   const elementLabels = card.visualTheme.elementSignals.map((item) => ZIWEI_DESTINY_ELEMENT_LABELS[item] ?? item);
   const destinyTarot = pickDestinyTarotCard(card.heroStars.map((star) => star.name), card.visualTheme.elementSignals);
 
-  const isTimeExact = analysis?.timeConfidence === 'exact';
   const teacherPalaceSource: ZiweiFullPalace[] = analysis?.allPalaces?.length ? analysis.allPalaces : analysis?.palaces ?? [];
   const teacherPalaceMap = new Map<string, ZiweiFullPalace>(teacherPalaceSource.map((palace) => [palace.key, palace]));
   const teacherAnnualPalace = annual?.sanFangFourZheng?.find((item) => item.palaceKey === 'MING');
   const teacherCrossCheck = analysis?.crossChecks?.find((item) => item.palaceKey === 'MING') ?? null;
-  const teacherSynthesis = isTimeExact && teacherPalaceMap.size ? buildZiweiTeacherSynthesis('MING', teacherPalaceMap, teacherAnnualPalace, teacherCrossCheck, annual) : null;
+  const teacherSynthesis = analysis?.timeConfidence === 'exact' && teacherPalaceMap.size ? buildZiweiTeacherSynthesis('MING', teacherPalaceMap, teacherAnnualPalace, teacherCrossCheck, annual) : null;
 
   return (
     <section className="fortune-card overflow-hidden p-4 sm:p-7" aria-label="紫微神秘命宮卡">
@@ -3194,10 +3267,10 @@ function ZiweiDestinyCardView({
                   </div>
 
                   <div className="my-auto text-center">
-                    <div className="relative inline-flex max-w-full overflow-hidden rounded-[28px] border-2 border-amber-100/80 bg-[linear-gradient(135deg,rgba(253,230,138,0.38),rgba(180,83,9,0.45),rgba(69,26,3,0.62))] px-4 py-6 shadow-[0_0_64px_rgba(251,191,36,0.42),inset_0_1px_0_rgba(255,255,255,0.44),inset_0_-18px_28px_rgba(69,26,3,0.26)] sm:px-7">
+                    <div className="relative inline-flex w-full max-w-full justify-center overflow-hidden rounded-[24px] border-2 border-amber-100/80 bg-[linear-gradient(135deg,rgba(253,230,138,0.38),rgba(180,83,9,0.45),rgba(69,26,3,0.62))] px-2 py-5 shadow-[0_0_64px_rgba(251,191,36,0.42),inset_0_1px_0_rgba(255,255,255,0.44),inset_0_-18px_28px_rgba(69,26,3,0.26)] sm:w-auto sm:rounded-[28px] sm:px-7 sm:py-6">
                       <span className="pointer-events-none absolute inset-x-5 top-1.5 h-px bg-gradient-to-r from-transparent via-amber-50 to-transparent" />
                       <span className="pointer-events-none absolute inset-x-5 bottom-1.5 h-px bg-gradient-to-r from-transparent via-amber-50/60 to-transparent" />
-                      <h3 className="relative whitespace-nowrap font-serif text-[2.35rem] font-black leading-none tracking-[0.06em] text-amber-50 drop-shadow-[0_5px_0_rgba(69,26,3,0.85)] sm:text-7xl sm:tracking-[0.11em]">{majorPattern}</h3>
+                      <h3 className="relative whitespace-nowrap text-center font-serif text-[clamp(1.65rem,8vw,2.35rem)] font-black leading-none tracking-[0.02em] text-amber-50 drop-shadow-[0_4px_0_rgba(69,26,3,0.85)] sm:text-7xl sm:tracking-[0.11em] sm:drop-shadow-[0_5px_0_rgba(69,26,3,0.85)]">{majorPattern}</h3>
                     </div>
                     <div className="mt-6 border-t border-amber-100/25 pt-4 text-amber-100/80">
                       <p className="text-center text-[11px] font-black tracking-[0.24em] text-amber-100/70">核心主星</p>
@@ -3296,30 +3369,33 @@ function ZiweiDestinyCardView({
             </div>
           </details>
 
-          {teacherSynthesis && (
-            <button
-              type="button"
-              onClick={() => setTeacherOpen((value) => !value)}
-              aria-expanded={teacherOpen}
-              className="flex min-h-[48px] w-full items-center justify-between rounded-2xl border border-purple-200/25 bg-purple-300/10 px-4 py-3 text-left transition hover:border-purple-200/45 hover:bg-purple-300/15"
-            >
-              <span className="text-sm font-black text-purple-100">老師怎麼看？</span>
-              <span className="text-xs font-bold text-purple-200/80">{teacherOpen ? '收起' : '展開第二層解析'}</span>
-            </button>
-          )}
+          <section className="rounded-[24px] border-2 border-purple-200/25 bg-purple-950/18 p-4" aria-label="兩位老師解盤">
+            <p className="text-[11px] font-black tracking-[0.18em] text-purple-100">兩位老師解盤</p>
+            {teacherSynthesis && analysisId ? (
+              <ZiweiTeacherSynthesisPanel
+                synthesis={teacherSynthesis}
+                analysisId={analysisId}
+                originKey="MING"
+                subjectName={subjectName}
+                subjectAge={ageFromBirthDate(subjectBirthDate)}
+                birthInput={analysis?.ziweiBirthInput}
+                fiveElement={fiveElement}
+              />
+            ) : (
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <article className="rounded-2xl border border-amber-200/35 bg-amber-300/10 p-3">
+                  <p className="text-sm font-black text-amber-50">命盤解析老師</p>
+                  <p className="mt-1 text-xs font-semibold leading-5 text-amber-100/75">已保留生日資料的趨勢解讀；補上時辰後，才能精準定位命宮、三方四正與主星。</p>
+                </article>
+                <article className="rounded-2xl border border-rose-200/30 bg-rose-500/10 p-3">
+                  <p className="text-sm font-black text-rose-100">恐怖鬼魅解盤</p>
+                  <p className="mt-1 text-xs font-semibold leading-5 text-rose-100/75">遊戲劇情仍會保留生日資料的氣氛線索；補上時辰後，才會進入對應宮位的專屬故事。</p>
+                </article>
+              </div>
+            )}
+          </section>
         </div>
       </div>
-
-      {teacherOpen && teacherSynthesis && analysisId && (
-        <ZiweiTeacherSynthesisPanel
-          synthesis={teacherSynthesis}
-          analysisId={analysisId}
-          originKey="MING"
-          subjectName={subjectName}
-          subjectAge={ageFromBirthDate(subjectBirthDate)}
-          birthInput={analysis?.ziweiBirthInput}
-        />
-      )}
     </section>
   );
 }
@@ -3359,6 +3435,19 @@ function ZiweiTwelvePalaceCards({
         <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
           紫微斗數的命宮、三方四正與主星位置都依賴出生時辰。資料未確認前，系統只保留趨勢提示，不輸出單一命盤故事，避免誤導客戶。
         </p>
+        <section className="mt-5 rounded-[24px] border-2 border-purple-200/25 bg-purple-950/18 p-4" aria-label="兩位老師解盤">
+          <p className="text-[11px] font-black tracking-[0.18em] text-purple-100">兩位老師解盤</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <article className="rounded-2xl border border-amber-200/35 bg-amber-300/10 p-3">
+              <p className="text-sm font-black text-amber-50">命盤解析老師</p>
+              <p className="mt-1 text-xs font-semibold leading-5 text-amber-100/75">生日趨勢可先閱讀；命宮、三方四正與主星要在補上時辰後才會精準產生。</p>
+            </article>
+            <article className="rounded-2xl border border-rose-200/30 bg-rose-500/10 p-3">
+              <p className="text-sm font-black text-rose-100">恐怖鬼魅解盤</p>
+              <p className="mt-1 text-xs font-semibold leading-5 text-rose-100/75">遊戲的氣氛與主線入口會保留；時辰確認後才會對應到正確宮位與專屬情節。</p>
+            </article>
+          </div>
+        </section>
       </section>
     );
   }
@@ -3583,14 +3672,16 @@ function ZiweiTwelvePalaceCards({
                 </div>
                 <button
                   type="button"
-                  onClick={() => setTeacherPalaceKey((current) => current === palace.key ? null : palace.key)}
+                  // 十二宮老師只能「切換到另一宮」，不能再因重複點擊被收起來。
+                  // 這讓客戶永遠保有本宮的兩位老師入口，不會誤以為系統當掉。
+                  onClick={() => setTeacherPalaceKey(palace.key)}
                   aria-expanded={teacherPalaceKey === palace.key}
-                  aria-label={`${teacherPalaceKey === palace.key ? '收起' : '開啟'}${palaceName}三位老師解盤`}
+                  aria-label={`查看${palaceName}兩位老師解盤`}
                   className="relative mt-4 flex min-h-[64px] w-full items-center justify-between gap-3 rounded-xl border border-purple-200/45 bg-[linear-gradient(135deg,rgba(168,85,247,0.22),rgba(30,41,59,0.68))] px-4 text-left text-purple-50 shadow-[0_10px_24px_rgba(88,28,135,0.22)] transition hover:border-amber-200/55 hover:bg-purple-300/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
                 >
                   <span>
-                    <span className="block text-sm font-black">{teacherPalaceKey === palace.key ? '收起這一宮的老師解盤' : '開啟三位老師解盤'}</span>
-                    <span className="mt-1 block text-[11px] font-bold leading-4 text-purple-100/75">老師解命盤 · 恐怖解命盤 · 鬼魅解命盤</span>
+                    <span className="block text-sm font-black">{teacherPalaceKey === palace.key ? '本宮老師解盤已顯示' : '查看兩位老師解盤'}</span>
+                    <span className="mt-1 block text-[11px] font-bold leading-4 text-purple-100/75">命盤解析老師 · 恐怖鬼魅解盤</span>
                   </span>
                   <span className="shrink-0 rounded-full border border-amber-200/30 bg-amber-300/10 px-2.5 py-1 text-[10px] font-black text-amber-100">本宮＋三方四正</span>
                 </button>
@@ -3605,7 +3696,7 @@ function ZiweiTwelvePalaceCards({
         <div id="ziwei-selected-palace-teachers" className="mt-4 scroll-mt-5">
           <div className="flex items-center justify-between gap-3 px-1">
             <p className="text-sm font-black text-purple-100">正在深讀：{teacherSynthesis.originName}</p>
-            <button type="button" onClick={() => setTeacherPalaceKey(null)} className="text-xs font-bold text-purple-200/75 hover:text-purple-100">關閉</button>
+            <p className="text-xs font-bold text-purple-200/75">切換另一宮時會自動更新</p>
           </div>
           {realAnalysisId ? (
             <ZiweiTeacherSynthesisPanel
@@ -3616,6 +3707,7 @@ function ZiweiTwelvePalaceCards({
               subjectName={subjectName}
               subjectAge={ageFromBirthDate(subjectBirthDate)}
               birthInput={analysis?.ziweiBirthInput}
+              fiveElement={fiveElement}
             />
           ) : (
             <p className="mt-3 text-xs font-semibold leading-6 text-amber-200/80">找不到分析編號，暫時無法呼叫老師 AI，僅顯示命盤證據。</p>
@@ -4334,8 +4426,12 @@ export default function InsightPage() {
       return '請輸入完整的生日日期。';
     }
 
+    if (input.shichen === null) {
+      return '請先選擇出生時辰方式：知道時辰可選十二時辰；不知道可直接選「不知道出生時辰」後繼續。';
+    }
+
     if (input.shichen === 'known') {
-      return '請先選擇出生時辰，或改選「不知道出生時辰」。';
+      return '你已選擇知道出生時辰，請再點選十二時辰中的一個；若不確定，改選「不知道出生時辰」即可繼續。';
     }
 
 
@@ -4354,6 +4450,7 @@ export default function InsightPage() {
   const showMissingName = showMissingFields && input.name.trim().length < 2;
   const showMissingBirthDate = showMissingFields && !input.birthDate;
   const showMissingGender = showMissingFields && !selectionConfirm.gender;
+  const showMissingShichen = showMissingFields && (input.shichen === null || input.shichen === 'known');
 
   const handleSubmit = async () => {
     if (submitLockRef.current) return;
@@ -4533,7 +4630,14 @@ export default function InsightPage() {
             <div id="input-form" className="fortune-card p-6 sm:p-8 scroll-mt-20">
               {loading && <InsightAnalyticalConsole name={input.name} />}
               <div className={loading ? 'hidden' : 'space-y-8'}>
-                <IdentitySplitSelector />
+                <IdentitySplitSelector
+                  onSelected={() => {
+                    window.requestAnimationFrame(() => {
+                      document.getElementById('ziwei-name-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      document.getElementById('ziwei-name-input')?.focus({ preventScroll: true });
+                    });
+                  }}
+                />
                 <MegaInputGuide
                   title="請填紫微排盤資料"
                   steps={['姓名至少 2 個字', '生日要用萬年曆完成', '性別、時辰依序點選']}
@@ -4546,6 +4650,7 @@ export default function InsightPage() {
                   1. 姓名 {input.name.trim().length >= 2 && <span className="text-green-400">✓</span>}
                 </label>
                 <input
+                  id="ziwei-name-input"
                   type="text"
                   value={input.name}
                   onChange={(e) => {
@@ -4620,7 +4725,7 @@ export default function InsightPage() {
                 </div>
               </div>
 
-              <div>
+              <div data-field="birthHourBranch" className={showMissingShichen ? 'rounded-2xl border border-rose-400/75 bg-rose-500/[0.08] p-4 shadow-[0_0_22px_rgba(244,63,94,0.18)]' : ''}>
                 <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
                   4. 出生時辰
                   <span className="ml-1 text-xs font-normal text-amber-300">（選填）</span>
@@ -4629,6 +4734,9 @@ export default function InsightPage() {
                 <p className="mb-4 text-xs leading-6 text-[color:var(--text-muted)]">
                   真實時辰可提升紫微命宮精準度；不知道也沒關係，系統會先以生日資料完成趨勢參考。
                 </p>
+                {showMissingShichen && (
+                  <p className="form-missing-alert">⚠ 請先選一種方式：知道時辰就選十二時辰；不知道就按左側「不知道出生時辰」。</p>
+                )}
 
 
 
@@ -4905,7 +5013,7 @@ export default function InsightPage() {
               </div>
             </div>
 
-            <ZiweiDestinyCardView card={result?.destinyCard} subjectName={input.name} subjectBirthDate={input.birthDate} analysis={result?.ziweiSanFang} annual={result?.annualFortune} analysisId={result?.presentation?.analysisId ?? result?.analysisId} />
+            <ZiweiDestinyCardView card={result?.destinyCard} subjectName={input.name} subjectBirthDate={input.birthDate} analysis={result?.ziweiSanFang} annual={result?.annualFortune} analysisId={result?.presentation?.analysisId ?? result?.analysisId} fiveElement={result?.fiveElement} />
 
             <SanFangSummaryCard analysis={result?.ziweiSanFang} plainSummary={result?.plainSummary} meta={result?.meta} />
 
