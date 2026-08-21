@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { buildGrowthCenterQuery } from '@/lib/growth-center-client';
 import { GROWTH_MODULES } from '@/lib/growth-center-engine';
 import type { GrowthCenterResult, GrowthElement } from '@/lib/growth-center-engine';
+import starBeastsData from '@/data/star-beasts.json';
 
 type ApiResult = GrowthCenterResult & { requestId?: string };
 type CheckInHistory = Record<string, string>;
@@ -42,6 +43,9 @@ const GROWTH_PREFERENCES: Array<{ id: GrowthPreferenceId; label: string; body: s
 ];
 
 const PREFERENCE_IDS = new Set<GrowthPreferenceId>(GROWTH_PREFERENCES.map((item) => item.id));
+const STAR_BEASTS = starBeastsData.items as Array<{ id: number; name: string; image: string; coreMeaning: string }>;
+const MODULE_CARD_IDS: Record<string, number> = { number: 1, ziwei: 2, bazi: 3, nameology: 4, zodiac: 5, soul_match: 6, music: 7, tarot: 8 };
+const WEEKLY_CARD_IDS = STAR_BEASTS.map((beast) => beast.id).filter((id) => !Object.values(MODULE_CARD_IDS).includes(id));
 
 function formatNextUpdate(value: string) {
   return value.replace('T00:00:00+08:00', ' 00:00');
@@ -202,6 +206,13 @@ export default function GrowthCenterPage() {
   const isReturningAfterGap = lifetimeCheckInCount > 0 && weeklyStreak === 0;
   const greeting = useMemo(() => greetingByHour(new Date().getHours()), []);
   const completedModuleSet = useMemo(() => new Set(data?.progress.completedModules ?? []), [data]);
+  const unlockedCardIds = useMemo(() => {
+    const moduleCards = [...completedModuleSet].map((module) => MODULE_CARD_IDS[module]).filter((id): id is number => Boolean(id));
+    const weeklyCards = WEEKLY_CARD_IDS.slice(0, lifetimeCheckInCount);
+    return [...new Set([...moduleCards, ...weeklyCards])].sort((a, b) => a - b);
+  }, [completedModuleSet, lifetimeCheckInCount]);
+  const unlockedCards = useMemo(() => unlockedCardIds.map((id) => STAR_BEASTS.find((beast) => beast.id === id)).filter((beast): beast is typeof STAR_BEASTS[number] => Boolean(beast)), [unlockedCardIds]);
+  const nextCard = STAR_BEASTS.find((beast) => !unlockedCardIds.includes(beast.id)) ?? null;
 
   const followUpReply = data && followUpAnswer
     ? followUpAnswer === 'continued'
@@ -314,6 +325,30 @@ export default function GrowthCenterPage() {
                   {weeklyStreak >= 2 && <span className="ml-2 rounded-full border border-amber-200/30 bg-amber-300/12 px-2 py-0.5 text-amber-100">🔥 連續 {weeklyStreak} 週</span>}
                 </span>
               </div>
+            </section>
+
+            <section className="relative overflow-hidden rounded-2xl border border-amber-300/30 bg-[radial-gradient(circle_at_92%_12%,rgba(251,191,36,0.2),transparent_28%),linear-gradient(135deg,rgba(31,23,58,0.92),rgba(8,15,31,0.96))] p-5 shadow-[0_0_30px_rgba(251,191,36,0.12)]">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">星宿神獸收藏</p>
+              <div className="mt-3 flex items-end justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-black leading-8 text-amber-50">完成一個遊戲，解鎖一張卡</h2>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-[color:var(--text-sub)]">完成探索遊戲先拿卡；每週完成成長任務，再拿下一張。卡片會一直保留在你的收藏裡。</p>
+                </div>
+                <p className="shrink-0 font-serif text-4xl font-black text-amber-100">{unlockedCards.length}<span className="text-lg text-amber-100/60">/28</span></p>
+              </div>
+              <div className="mt-4 grid grid-cols-7 gap-2 sm:grid-cols-9">
+                {STAR_BEASTS.map((beast) => {
+                  const unlocked = unlockedCardIds.includes(beast.id);
+                  return <div key={beast.id} className={`relative aspect-[275/480] overflow-hidden rounded-lg border ${unlocked ? 'border-amber-200/45 bg-slate-950' : 'border-white/10 bg-slate-950/55'}`} title={unlocked ? beast.name : '尚未解鎖'}>
+                    {unlocked ? <img src={beast.image} alt={beast.name} className="h-full w-full object-cover" /> : <span className="grid h-full place-items-center text-xs font-black text-white/35">？</span>}
+                  </div>;
+                })}
+              </div>
+              {nextCard && <div className="mt-4 flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-3">
+                <img src={nextCard.image} alt="下一張待解鎖神獸卡" className="h-16 w-11 rounded-md object-cover opacity-55" />
+                <p className="text-sm font-bold leading-6 text-slate-200">下一張：<span className="text-amber-100">{nextCard.name}</span><br /><span className="text-xs text-slate-400">完成下一個探索遊戲或本週成長任務即可解鎖。</span></p>
+              </div>}
+              <Link href="/star-beasts" className="mt-4 inline-flex rounded-full border border-amber-200/35 px-4 py-2 text-xs font-black text-amber-100 transition hover:bg-amber-300/10">查看完整神獸圖鑑</Link>
             </section>
 
             <section className="growth-preference-panel rounded-2xl border border-fuchsia-300/25 bg-fuchsia-300/8 p-5">
