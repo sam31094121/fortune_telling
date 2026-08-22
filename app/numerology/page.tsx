@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
@@ -158,6 +158,7 @@ export default function NumerologyPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [purpose, setPurpose] = useState<NumberPurpose>('general');
+  const resultRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const clearIdentityError = () => {
@@ -218,6 +219,9 @@ export default function NumerologyPage() {
       }
       setResult(json as NumberResult);
       markGrowthModuleCompleted('number');
+      window.setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 80);
     } catch (event) {
       setError(event instanceof Error ? event.message : '數字分析暫時無法完成，請再試一次。');
     } finally {
@@ -372,7 +376,11 @@ export default function NumerologyPage() {
         </section>
 
         {result && level && (
-          <section className="space-y-4 rounded-[26px] border border-amber-200/20 bg-[linear-gradient(145deg,rgba(12,15,22,0.98),rgba(28,23,14,0.95),rgba(8,10,16,0.98))] p-4 shadow-[0_22px_70px_rgba(0,0,0,0.34)] sm:p-5">
+          <section ref={resultRef} tabIndex={-1} className="number-fortune-analysis-card scroll-mt-5 space-y-4 rounded-[26px] border border-amber-200/20 bg-[linear-gradient(145deg,rgba(12,15,22,0.98),rgba(28,23,14,0.95),rgba(8,10,16,0.98))] p-4 shadow-[0_22px_70px_rgba(0,0,0,0.34)] outline-none sm:p-5">
+            <div className="rounded-2xl border border-emerald-200/35 bg-emerald-300/10 px-4 py-3 text-center shadow-[0_0_28px_rgba(110,231,183,0.12)]">
+              <p className="text-sm font-black text-emerald-50">分析完成，以下是你的數字解說</p>
+              <p className="mt-1 text-xs font-bold text-emerald-100/75">已自動帶你來到解盤結果。</p>
+            </div>
             <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
               <div className="flex items-center gap-2 text-[10px] font-black tracking-[0.16em] text-cyan-100/75">
                 <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,0.9)]" />
