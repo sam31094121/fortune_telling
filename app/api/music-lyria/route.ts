@@ -103,10 +103,49 @@ function sanitizeFilename(value: string) {
     .slice(0, 60) || '人格主題曲';
 }
 
+function buildPerformanceArc(musicParameters: MusicParameters) {
+  const profile = `${musicParameters.genre} ${musicParameters.mood.join(' ')} ${musicParameters.lyric_theme.join(' ')}`.toLowerCase();
+
+  if (/healing|piano|ballad|療癒|鋼琴|抒情|告白|想念/.test(profile)) {
+    return [
+      'Performance arc: intimate healing ballad.',
+      '- Begin close and vulnerable, as if speaking a private truth rather than performing for a crowd.',
+      '- Let the middle open with warmer resonance and a little more breath support; do not force an early climax.',
+      '- Release the hook with relief and tenderness, then leave a calm, healing afterglow instead of a loud ending.',
+    ].join('\n');
+  }
+
+  if (/rock|搖滾|cinematic|電影|epic|史詩/.test(profile)) {
+    return [
+      'Performance arc: resilient, cinematic release.',
+      '- Start grounded and contained, with audible determination under the line.',
+      '- Increase intensity through rhythmic articulation and resonance, not by shouting or distorting the voice.',
+      '- Let the hook arrive as earned resolve: broad, emotionally direct and rhythmically locked, then finish with steady conviction.',
+    ].join('\n');
+  }
+
+  if (/electronic|edm|dance|電子|舞曲|club/.test(profile)) {
+    return [
+      'Performance arc: modern forward-moving lift.',
+      '- Keep the verses clean, close and rhythmically precise so the emotional intent stays clear above the groove.',
+      '- Use the pre-hook to add anticipation through phrasing and a controlled lift in register.',
+      '- Let the hook open into a bright, confident release with a memorable melodic contour; avoid sterile, looped delivery.',
+    ].join('\n');
+  }
+
+  return [
+    'Performance arc: emotional modern pop.',
+    '- Start with a believable held-back feeling, then reveal more tone and breath as the lyric gains courage.',
+    '- Make the pre-hook feel like a thought that can no longer be held inside.',
+    '- Give the hook a warm, resonant release with clear words and a memorable melodic rise; end with emotional resolution, not a generic fade.',
+  ].join('\n');
+}
+
 function buildLyriaPrompt(body: MusicLyriaRequest) {
   const { subjectName, fusionSong, productionPlan, musicParameters, voiceProfile } = body;
   const voiceTraits = voiceProfile?.sample?.inferredCharacteristics ?? [];
   const isMaleLead = voiceTraits.includes('ai_voice_male');
+  const performanceArc = buildPerformanceArc(musicParameters);
   const leadVoiceSpecificRule = isMaleLead
     ? `
 Male lead standard:
@@ -156,6 +195,8 @@ ${productionPlan.arrangement_prompt || productionPlan.generation_prompt}
 
 Vocal direction:
 ${productionPlan.vocal_prompt || musicParameters.vocal_style}
+
+${performanceArc}
 
 Vocal quality target:
 - Lead with a magnetic, close and three-dimensional vocal tone: rich chest resonance and a focused midrange that stays present over the arrangement.
