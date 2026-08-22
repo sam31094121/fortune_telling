@@ -144,6 +144,20 @@ ${productionPlan.arrangement_prompt || productionPlan.generation_prompt}
 Vocal direction:
 ${productionPlan.vocal_prompt || musicParameters.vocal_style}
 
+Vocal quality target:
+- Lead with a magnetic, close and three-dimensional vocal tone: rich chest resonance and a focused midrange that stays present over the arrangement.
+- Keep Mandarin diction crisp and forward; every key lyric must be intelligible without sounding shouted or nasal.
+- Give the chorus controlled penetration through resonance, supported breath and dynamic lift—not harshness, distortion or excessive volume.
+- Shape each phrase with a natural breath, clear consonants, a stable pitch center and an emotional release at the end of the chorus line.
+- Preserve warm low frequencies, open high-frequency air and clean transients; avoid muddy low-mids, thin vocals, flat delivery and over-compression.
+- Deliver a clean studio-vocal finish: no audible hiss, clipping, crackle, muddiness, unstable pitch, swallowed words, accidental distortion or distracting background artifacts.
+- Keep the lead vocal clearly separated from the backing track, with enough space and headroom for the words, breath and emotional detail to remain clean on phone speakers and headphones.
+- Use professional singing technique: grounded breath support, intentional phrasing, clean consonant attacks and unhurried breath placement in the verses.
+- Build the pre-chorus with measured dynamic growth, then connect chest and head registers smoothly in the chorus with stable pitch, sustained notes and controlled vibrato.
+- Use tasteful ad-libs and wide supporting harmonies only at the emotional peak; keep the lead melody clear and never over-sing every phrase.
+- Do not reuse one fixed vocal delivery: adapt technique, register, phrasing, ornamentation and intensity to this song's genre, BPM, lyric emotion and arrangement arc.
+- Let quiet, intimate songs use close phrasing and space; let powerful songs use fuller chest resonance and a wider chorus; let healing songs use lighter head-voice release and restrained vibrato.
+
 ${voiceCalibrationRule}
 
 Tiandiren language / layer balance:
@@ -157,6 +171,7 @@ Important rules:
 - If voice calibration exists, it is only a local summary for phrasing and emotion; do not present the output as cloned from the user's real voice.
 - Generate exactly one unified 30-second song preview, not three separate songs.
 - Make it immediately playable, emotional, modern, and hook-forward.
+- Prioritize a magnetic lead vocal with clear diction and a chorus that cuts through the music with warmth and controlled power.
 - Include vocals only if the model can render them naturally; otherwise prioritize a high-quality instrumental arrangement.
 - Do not imitate any real singer, copyrighted melody, protected lyrics, or specific existing song.
 - ${productionPlan.trend_safety_note || 'Use general global pop arrangement logic only.'}

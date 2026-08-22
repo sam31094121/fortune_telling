@@ -8,7 +8,12 @@ import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import { getCompletedGrowthModules, getGrowthElements, markGrowthModuleCompleted } from '@/lib/growth-center-client';
-import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
+import {
+  getAnalysisIdentityTarget,
+  getIdentityRequiredMessage,
+  IDENTITY_TARGET_UPDATED_EVENT,
+  type AnalysisIdentityTarget,
+} from '@/lib/identity-split-client';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import MegaInputGuide from '@/components/MegaInputGuide';
@@ -168,7 +173,15 @@ const VOICE_PROMISES = [
   { title: '最後出歌', body: 'AI 會輸出歌名、歌詞、主唱方向與完整創作藍圖。' },
 ];
 
-function LandingHero({ onStart, dailyRecord }: { onStart: () => void; dailyRecord: DailyAnalysisRecord<MusicDailyResult> | null }) {
+function LandingHero({
+  onStart,
+  dailyRecord,
+  identityTarget,
+}: {
+  onStart: () => void;
+  dailyRecord: DailyAnalysisRecord<MusicDailyResult> | null;
+  identityTarget: AnalysisIdentityTarget | null;
+}) {
   const lastStartTouchRef = useRef(0);
 
   const handleStartPointerUp = (event: PointerEvent<HTMLButtonElement>) => {
@@ -198,7 +211,18 @@ function LandingHero({ onStart, dailyRecord }: { onStart: () => void; dailyRecor
         <TaijiStandaloneCard className="music-landing-taiji mb-4" />
 
         <DailyAnalysisNotice record={dailyRecord} className="mb-5 w-full max-w-2xl text-left" moduleName="AI 生命歌曲" />
-        <IdentitySplitSelector className="mb-5 w-full max-w-2xl text-left" />
+        {identityTarget ? (
+          <section className="mb-5 w-full max-w-2xl rounded-2xl border border-cyan-300/25 bg-cyan-300/[0.06] px-4 py-3 text-left shadow-[0_12px_28px_rgba(2,6,23,0.18)]">
+            <p className="text-sm font-black text-cyan-50">
+              已選擇「{identityTarget === 'self' ? '我自己' : '親朋好友'}」
+            </p>
+            <p className="mt-1 text-xs font-semibold leading-5 text-cyan-100/75">
+              下一步：開始後依序選擇歌曲主題、風格與需要補充的資料。
+            </p>
+          </section>
+        ) : (
+          <IdentitySplitSelector className="mb-5 w-full max-w-2xl text-left" />
+        )}
 
         <MegaInputGuide
           title="先看懂，再開始生成歌曲"
@@ -234,7 +258,11 @@ function LandingHero({ onStart, dailyRecord }: { onStart: () => void; dailyRecor
 
         <div className="music-landing-actions mt-5 flex flex-col items-center gap-3">
           <button type="button" onPointerUp={handleStartPointerUp} onClick={handleStartClick} className="vip-gold-btn music-start-button w-full max-w-[22rem] px-8 py-4 text-base shadow-[0_0_25px_rgba(201,162,74,0.26)] border border-amber-400/20 sm:w-auto sm:px-14 sm:py-5 sm:text-lg sm:animate-bounce">
-            {dailyRecord ? getDailyAnalysisButtonLabel(dailyRecord) : '開始創作生命歌曲'}
+            {dailyRecord
+              ? getDailyAnalysisButtonLabel(dailyRecord)
+              : identityTarget
+                ? '下一步：選擇歌曲主題'
+                : '先選擇創作對象'}
           </button>
           <Link href="/" className="feature-home-link feature-home-link--violet">
             返回首頁
@@ -314,15 +342,18 @@ export default function MusicSystemPage() {
   const [submittedName, setSubmittedName] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<MusicDailyResult> | null>(null);
+  const [identityTarget, setIdentityTarget] = useState<AnalysisIdentityTarget | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const clearIdentityError = () => {
+    const syncIdentityTarget = () => {
+      setIdentityTarget(getAnalysisIdentityTarget());
       setErrorMsg((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
     };
-    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
-    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+    syncIdentityTarget();
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, syncIdentityTarget);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, syncIdentityTarget);
   }, []);
 
   useEffect(() => {
@@ -425,6 +456,12 @@ export default function MusicSystemPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+    if (!identityTarget) {
+      setErrorMsg(getIdentityRequiredMessage());
+      return;
+    }
+
+    setErrorMsg('');
     setPageState('form');
     setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   }
@@ -463,7 +500,7 @@ export default function MusicSystemPage() {
         </div>
       )}
 
-      {pageState === 'landing' && <LandingHero onStart={handleStart} dailyRecord={dailyRecord} />}
+      {pageState === 'landing' && <LandingHero onStart={handleStart} dailyRecord={dailyRecord} identityTarget={identityTarget} />}
 
       {pageState === 'form' && (
         <main ref={formRef} className="relative z-10 mx-auto max-w-6xl px-4 pb-10 pt-5 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8">
@@ -476,7 +513,12 @@ export default function MusicSystemPage() {
 
               <DailyAnalysisNotice record={dailyRecord} className="mb-6" moduleName="AI 生命歌曲" onViewResult={dailyRecord ? handleStart : undefined} />
 
-              <IdentitySplitSelector className="mb-6" />
+              <section className="mb-6 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.05] px-4 py-3">
+                <p className="text-sm font-black text-cyan-50">已完成創作對象確認</p>
+                <p className="mt-1 text-xs font-semibold leading-5 text-cyan-100/75">
+                  現在只要照下面順序填寫；完成一項就會帶你到下一項，不會再回到「我自己／親朋好友」。
+                </p>
+              </section>
 
               <MegaInputGuide
                 title="照順序填歌曲資料"
