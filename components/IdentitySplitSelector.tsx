@@ -11,6 +11,7 @@ import {
 type Props = {
   className?: string;
   compact?: boolean;
+  selectedTarget?: AnalysisIdentityTarget | null;
   onSelected?: (target: AnalysisIdentityTarget) => void;
 };
 
@@ -34,8 +35,9 @@ const OPTIONS: Array<{
   },
 ];
 
-export default function IdentitySplitSelector({ className = '', compact = false, onSelected }: Props) {
+export default function IdentitySplitSelector({ className = '', compact = false, selectedTarget, onSelected }: Props) {
   const [selected, setSelected] = useState<AnalysisIdentityTarget | null>(null);
+  const effectiveSelected = selectedTarget ?? selected;
 
   useEffect(() => {
     setSelected(getAnalysisIdentityTarget());
@@ -65,7 +67,7 @@ export default function IdentitySplitSelector({ className = '', compact = false,
       >
         <div className="identity-split-selector__compact-grid grid grid-cols-2 gap-2">
           {OPTIONS.map((option) => {
-            const active = selected === option.target;
+            const active = effectiveSelected === option.target;
             return (
               <button
                 key={option.target}
@@ -91,7 +93,7 @@ export default function IdentitySplitSelector({ className = '', compact = false,
   }
 
   return (
-    <section className={`rounded-2xl border-2 bg-black/18 p-3 shadow-[0_12px_32px_rgba(2,6,23,0.18)] backdrop-blur-sm sm:p-4 ${selected === null ? 'animate-[pulse_1.6s_ease-in-out_infinite] border-amber-100 shadow-[0_0_28px_rgba(251,191,36,0.32)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#080a10]' : 'border-cyan-200/25'} ${className}`}>
+      <section className={`rounded-2xl border-2 bg-black/18 p-3 shadow-[0_12px_32px_rgba(2,6,23,0.18)] backdrop-blur-sm sm:p-4 ${effectiveSelected === null ? 'animate-[pulse_1.6s_ease-in-out_infinite] border-amber-100 shadow-[0_0_28px_rgba(251,191,36,0.32)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#080a10]' : 'border-cyan-200/25'} ${className}`}>
       <div className="flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-200/75">0 · ANALYSIS TARGET</p>
@@ -100,13 +102,13 @@ export default function IdentitySplitSelector({ className = '', compact = false,
           </h2>
         </div>
         <p className="text-xs font-semibold leading-5 text-amber-100/78">
-          {selected === null ? '請點選一個對象後再開始判定' : `已選擇「${selected === 'self' ? '我自己' : '親朋好友'}」・接著填姓名`}
+          {effectiveSelected === null ? '請點選一個對象後再開始判定' : `已選擇「${effectiveSelected === 'self' ? '我自己' : '親朋好友'}」・接著填姓名`}
         </p>
       </div>
 
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {OPTIONS.map((option) => {
-          const active = selected === option.target;
+            const active = effectiveSelected === option.target;
           return (
             <button
               key={option.target}

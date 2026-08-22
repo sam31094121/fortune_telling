@@ -4302,6 +4302,7 @@ export default function InsightPage() {
   const cityResults = useMemo(() => searchCities(citySearch), [citySearch]);
   const selectedCity: CityEntry | null = input.birthCityId ? findCityById(input.birthCityId) : null;
   const [selectionConfirm, setSelectionConfirm] = useState<SelectionConfirm>(EMPTY_SELECTION_CONFIRM);
+  const [analysisTarget, setAnalysisTarget] = useState<'self' | 'guest' | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<InsightResult | null>(null);
@@ -4494,7 +4495,7 @@ export default function InsightPage() {
       setError(validationError);
       return;
     }
-    if (!getAnalysisIdentityTarget()) {
+    if (!analysisTarget && !getAnalysisIdentityTarget()) {
       setError(getIdentityRequiredMessage());
       return;
     }
@@ -4646,7 +4647,9 @@ export default function InsightPage() {
               {loading && <InsightAnalyticalConsole name={input.name} />}
               <div className={loading ? 'hidden' : 'space-y-8'}>
                 <IdentitySplitSelector
-                  onSelected={() => {
+                  selectedTarget={analysisTarget}
+                  onSelected={(target) => {
+                    setAnalysisTarget(target);
                     window.requestAnimationFrame(() => {
                       document.getElementById('ziwei-name-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       document.getElementById('ziwei-name-input')?.focus({ preventScroll: true });
