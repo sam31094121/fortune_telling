@@ -157,6 +157,10 @@ Vocal quality target:
 - Use tasteful ad-libs and wide supporting harmonies only at the emotional peak; keep the lead melody clear and never over-sing every phrase.
 - Do not reuse one fixed vocal delivery: adapt technique, register, phrasing, ornamentation and intensity to this song's genre, BPM, lyric emotion and arrangement arc.
 - Let quiet, intimate songs use close phrasing and space; let powerful songs use fuller chest resonance and a wider chorus; let healing songs use lighter head-voice release and restrained vibrato.
+- Treat the lyric as a lived emotional story, never as words being read over a beat. Find the turning point in the lyric and let the vocal performance move toward it.
+- Give the opening an intimate, held-back feeling; let the pre-chorus show a believable lift in resolve; make the chorus feel like earned release, not a sudden generic volume increase.
+- Place meaningful words slightly forward with natural pauses, gentle vocal colour changes and emotionally appropriate breath. Avoid a flat, even delivery or identical emphasis on every line.
+- Let the final phrase land with warmth and resolution, leaving a human aftertaste rather than an abrupt, synthetic finish.
 
 ${voiceCalibrationRule}
 
@@ -172,6 +176,7 @@ Important rules:
 - Generate exactly one unified 30-second song preview, not three separate songs.
 - Make it immediately playable, emotional, modern, and hook-forward.
 - Prioritize a magnetic lead vocal with clear diction and a chorus that cuts through the music with warmth and controlled power.
+- Prioritize emotional interpretation: the listener should hear a real journey from tension to release, with phrasing that makes the lyric feel personal and believable.
 - Include vocals only if the model can render them naturally; otherwise prioritize a high-quality instrumental arrangement.
 - Do not imitate any real singer, copyrighted melody, protected lyrics, or specific existing song.
 - ${productionPlan.trend_safety_note || 'Use general global pop arrangement logic only.'}
