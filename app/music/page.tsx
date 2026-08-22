@@ -8,7 +8,7 @@ import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import { getCompletedGrowthModules, getGrowthElements, markGrowthModuleCompleted } from '@/lib/growth-center-client';
-import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import MegaInputGuide from '@/components/MegaInputGuide';
@@ -316,6 +316,14 @@ export default function MusicSystemPage() {
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<MusicDailyResult> | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const clearIdentityError = () => {
+      setErrorMsg((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
+    };
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+  }, []);
 
   useEffect(() => {
     const record = readDailyAnalysis<MusicDailyResult>('music');

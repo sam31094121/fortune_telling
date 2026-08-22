@@ -11,7 +11,7 @@ import { enforceAiCopywritingTone, uniqueAiCopywritingLines } from '@/lib/ai-cop
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import type { GrowthElement } from '@/lib/growth-center-engine';
-import { getAnalysisIdentityTarget, getIdentityRequiredMessage, setAnalysisIdentityTarget } from '@/lib/identity-split-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage, setAnalysisIdentityTarget, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 
 interface PersonInput {
@@ -1417,6 +1417,14 @@ export default function MatchPage() {
     if (!getAnalysisIdentityTarget()) {
       setAnalysisIdentityTarget('self');
     }
+  }, []);
+
+  useEffect(() => {
+    const clearIdentityError = () => {
+      setError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
+    };
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
   }, []);
 
   // 載入 localStorage 預填到 personA

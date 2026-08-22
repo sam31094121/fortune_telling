@@ -10,7 +10,7 @@ import type { NameologyAnalysis, NameologyProfessionalCharacter, NameologyRitual
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
-import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
@@ -862,6 +862,14 @@ export default function NameologyPage() {
   const [ritualCollapsed, setRitualCollapsed] = useState(false);
   const ritualTimerRef = useRef<number | null>(null);
   const submitLockRef = useRef(false);
+
+  useEffect(() => {
+    const clearIdentityError = () => {
+      setError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
+    };
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+  }, []);
 
   function clearRitualTimer() {
     if (ritualTimerRef.current) {

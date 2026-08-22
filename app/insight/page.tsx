@@ -4650,6 +4650,7 @@ export default function InsightPage() {
                   selectedTarget={analysisTarget}
                   onSelected={(target) => {
                     setAnalysisTarget(target);
+                    setError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
                     window.requestAnimationFrame(() => {
                       document.getElementById('ziwei-name-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       document.getElementById('ziwei-name-input')?.focus({ preventScroll: true });
@@ -4699,6 +4700,7 @@ export default function InsightPage() {
                   2. 出生日期（民國年）{input.birthDate && <span className="text-green-400">✓</span>}
                 </label>
                 <LunarBirthdayInput
+                  key={input.birthDate || 'empty-birth-date'}
                   value={input.birthDate}
                   onChange={(solarDate) => setInput({ ...input, birthDate: solarDate.trim() })}
                   accent="violet"

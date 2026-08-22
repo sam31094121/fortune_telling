@@ -3,8 +3,8 @@
   "version": "screen-health-monitor-v1",
   "baseUrl": "http://localhost:8888",
   "port": 8888,
-  "startedAt": "2026-08-22T01:57:08.065Z",
-  "completedAt": "2026-08-22T01:57:12.440Z",
+  "startedAt": "2026-08-22T02:53:38.362Z",
+  "completedAt": "2026-08-22T02:53:41.978Z",
   "mode": "ONCE",
   "autoRepair": false,
   "summary": {
@@ -22,8 +22,8 @@
       "path": "/",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 135,
-      "htmlLength": 53949,
+      "durationMs": 144,
+      "htmlLength": 53948,
       "error": null,
       "issue": null
     },
@@ -34,7 +34,7 @@
       "path": "/internal/health/ready",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 317,
+      "durationMs": 453,
       "htmlLength": 95,
       "error": null,
       "issue": null
@@ -46,7 +46,7 @@
       "path": "/nameology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 813,
+      "durationMs": 505,
       "htmlLength": 30255,
       "error": null,
       "issue": null
@@ -58,7 +58,7 @@
       "path": "/insight",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 449,
+      "durationMs": 210,
       "htmlLength": 28517,
       "error": null,
       "issue": null
@@ -70,7 +70,7 @@
       "path": "/numerology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 324,
+      "durationMs": 54,
       "htmlLength": 27163,
       "error": null,
       "issue": null
@@ -82,7 +82,7 @@
       "path": "/match",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 306,
+      "durationMs": 564,
       "htmlLength": 27910,
       "error": null,
       "issue": null
@@ -94,7 +94,7 @@
       "path": "/music",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 369,
+      "durationMs": 63,
       "htmlLength": 23731,
       "error": null,
       "issue": null
@@ -106,8 +106,8 @@
       "path": "/bazi",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 512,
-      "htmlLength": 27635,
+      "durationMs": 734,
+      "htmlLength": 27634,
       "error": null,
       "issue": null
     },
@@ -118,8 +118,8 @@
       "path": "/zodiac",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 357,
-      "htmlLength": 27735,
+      "durationMs": 61,
+      "htmlLength": 27736,
       "error": null,
       "issue": null
     },
@@ -130,8 +130,8 @@
       "path": "/tarot",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 407,
-      "htmlLength": 76183,
+      "durationMs": 424,
+      "htmlLength": 76184,
       "error": null,
       "issue": null
     },
@@ -142,7 +142,7 @@
       "path": "/growth-center",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 373,
+      "durationMs": 387,
       "htmlLength": 19254,
       "error": null,
       "issue": null

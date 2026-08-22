@@ -7,7 +7,7 @@ import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import GuidedDateInput from '@/components/GuidedDateInput';
 import GuidedTimeInput from '@/components/GuidedTimeInput';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
-import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import { saveBirthProfile } from '@/lib/birth-profile-client';
 import { searchCities, findCityById, type CityEntry } from '@/lib/city-directory';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
@@ -774,6 +774,14 @@ export default function ZodiacPage() {
   const [showMissingFields, setShowMissingFields] = useState(false);
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<ZodiacResult> | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const clearIdentityError = () => {
+      setError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
+    };
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+  }, []);
 
   useEffect(() => {
     const record = readDailyAnalysis<ZodiacResult>('zodiac');

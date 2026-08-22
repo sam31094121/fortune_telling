@@ -6,7 +6,7 @@ import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { runAnalysisJobClient } from '@/lib/analysis-job-client';
-import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import { BaziCustomerShell } from '@/components/bazi/customer/BaziCustomerShell';
 import { BaziCalculationCeremony, BaziGateFailed, runBaziFinalGate, toBaziProgressView, type BaziCalculationProgressViewModel } from '@/components/bazi/customer/BaziCalculationProgress';
@@ -380,6 +380,14 @@ export default function BaziPage() {
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<BaziResult> | null>(null);
   const resolvedBirthTime = form.timeUnknown ? '' : form.birthTime;
   const resultSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const clearIdentityError = () => {
+      setError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
+    };
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+  }, []);
 
   function scrollToResult() {
     resultSectionRef.current?.scrollIntoView({ block: 'start' });

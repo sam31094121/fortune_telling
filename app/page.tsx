@@ -12,7 +12,7 @@ import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { getCompletedGrowthModules, getGrowthElements, markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import type { GrowthElement } from '@/lib/growth-center-engine';
-import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiTopShell3D from '@/components/taiji/TaijiTopShell3D';
 import MegaInputGuide from '@/components/MegaInputGuide';
@@ -1517,6 +1517,14 @@ export default function HomePage() {
   const [fortuneStatus, setFortuneStatus] = useState<SystemStatus>('idle');
   const [fortuneError, setFortuneError] = useState('');
   const [fortuneJob, setFortuneJob] = useState<AnalysisJobPublic | null>(null);
+
+  useEffect(() => {
+    const clearIdentityError = () => {
+      setFortuneError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
+    };
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+  }, []);
   const [isFortuneModalOpen, setIsFortuneModalOpen] = useState(false);
   const [modalEvolutionStage, setModalEvolutionStage] = useState<EvolutionStage>('idle');
   const [modalEvolutionLabel, setModalEvolutionLabel] = useState('觸碰太極，觀察萬象演化');

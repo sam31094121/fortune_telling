@@ -1,13 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
-import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 
 type NumberMode = 'digit2' | 'digit3' | 'last4' | 'digit5' | 'six6' | 'digit7' | 'digit8' | 'digit9' | 'phone10';
 type NumberPurpose = 'general' | 'plate' | 'phone' | 'birthdate';
@@ -158,6 +158,14 @@ export default function NumerologyPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [purpose, setPurpose] = useState<NumberPurpose>('general');
+
+  useEffect(() => {
+    const clearIdentityError = () => {
+      setError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
+    };
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+  }, []);
 
   const cleanValue = cleanNumber(value);
   const canSubmit = VALID_LENGTHS.has(cleanValue.length);
