@@ -2,11 +2,12 @@
 
 ## 交付內容與使用規則
 
-- 正式圖片位於 `public/star-beasts/`，共 28 張，每季 7 張。
+- 覺醒體正式圖片位於 `public/star-beasts/`，共 28 張，每季 7 張。
+- 春季另已完成 7 張「星宿幼體」卡；它們與覺醒體為同一隻神獸的不同成長階段，不是一般動物版本。
 - 每張皆為唯一正式版本：PNG、直式、`950 × 1656 px`。不得改用舊版或自行重新命名。
 - 網站請引用下表的 `/star-beasts/...` 路徑；前端以 CSS 等比例縮放，不裁切、不拉伸。
 - 所有結構化資料均在 `data/star-beasts.json`，可直接供前端建立列表、詳細頁或篩選功能。
-- 檔名規則：`{兩位數編號}-{拼音}.png`。季節由資料夾表示，故檔名不重複寫季節。
+- 覺醒體檔名規則：`{兩位數編號}-{拼音}.png`；幼體檔名規則：`{兩位數編號}-{拼音}-young-divine.png`。季節由資料夾表示，故檔名不重複寫季節。
 
 ## 路徑說明
 
@@ -18,6 +19,24 @@
 | `public/star-beasts/winter/` | 北方玄武七宿，冬季正式圖片（08–14） |
 | `data/star-beasts.json` | 供工程師／程式讀取的完整資料與圖片路徑 |
 | `docs/star-beasts-delivery.md` | 本交付手冊 |
+
+## 成長階段資料規則
+
+- `image`：既有的「覺醒體」神獸卡。
+- `youngDivineImage`：同一神獸的「星宿幼體」卡。已完成的春季 01–07 均有此欄位；其他季節會在幼體卡完成後補上。
+- 前端若只需原有 28 張卡，維持讀取 `image` 即可；需要進化展示時，先顯示 `youngDivineImage`，再切換至 `image`。
+
+## 春季幼體卡｜已完成
+
+| 編號 | 星宿 | 幼體圖片路徑 | 對應覺醒體 |
+|---:|---|---|---|
+| 01 | 角木蛟 | `/star-beasts/spring/01-jiao-mu-jiao-young-divine.png` | `/star-beasts/spring/01-jiao-mu-jiao.png` |
+| 02 | 亢金龍 | `/star-beasts/spring/02-kang-jin-long-young-divine.png` | `/star-beasts/spring/02-kang-jin-long.png` |
+| 03 | 氐土貉 | `/star-beasts/spring/03-di-tu-he-young-divine.png` | `/star-beasts/spring/03-di-tu-he.png` |
+| 04 | 房日兔 | `/star-beasts/spring/04-fang-ri-tu-young-divine.png` | `/star-beasts/spring/04-fang-ri-tu.png` |
+| 05 | 心月狐 | `/star-beasts/spring/05-xin-yue-hu-young-divine.png` | `/star-beasts/spring/05-xin-yue-hu.png` |
+| 06 | 尾火虎 | `/star-beasts/spring/06-wei-huo-hu-young-divine.png` | `/star-beasts/spring/06-wei-huo-hu.png` |
+| 07 | 箕水豹 | `/star-beasts/spring/07-ji-shui-bao-young-divine.png` | `/star-beasts/spring/07-ji-shui-bao.png` |
 
 ## 東方蒼龍七宿｜春季
 
