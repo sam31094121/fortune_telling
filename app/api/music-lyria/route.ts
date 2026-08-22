@@ -105,6 +105,17 @@ function sanitizeFilename(value: string) {
 
 function buildLyriaPrompt(body: MusicLyriaRequest) {
   const { subjectName, fusionSong, productionPlan, musicParameters, voiceProfile } = body;
+  const voiceTraits = voiceProfile?.sample?.inferredCharacteristics ?? [];
+  const isMaleLead = voiceTraits.includes('ai_voice_male');
+  const leadVoiceSpecificRule = isMaleLead
+    ? `
+Male lead standard:
+- Use a contemporary, emotionally credible male lead: warm baritone-to-tenor colour, present but never artificially deep, elderly, muffled, cartoonish or synthetic.
+- Let vulnerability come through restrained phrasing, small changes in tone and supported breath—not a constant rasp, forced gravel, shouting or imitation of a famous singer.
+- Keep register changes smooth and the melody singable. Use restrained vibrato and only one or two meaningful vocal lifts at the emotional peak; avoid repetitive slides, excessive ad-libs and theatrical over-singing.
+- Make the chorus feel open, human and emotionally resolved, with a clear lead vocal rather than thick layers hiding the feeling.
+`
+    : '';
   const lyrics = fusionSong.fusion_lyrics
     .map((line) => line.trim())
     .filter(Boolean)
@@ -161,6 +172,8 @@ Vocal quality target:
 - Give the opening an intimate, held-back feeling; let the pre-chorus show a believable lift in resolve; make the chorus feel like earned release, not a sudden generic volume increase.
 - Place meaningful words slightly forward with natural pauses, gentle vocal colour changes and emotionally appropriate breath. Avoid a flat, even delivery or identical emphasis on every line.
 - Let the final phrase land with warmth and resolution, leaving a human aftertaste rather than an abrupt, synthetic finish.
+
+${leadVoiceSpecificRule}
 
 ${voiceCalibrationRule}
 
