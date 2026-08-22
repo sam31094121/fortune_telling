@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { BaziCustomerView } from './adapter';
 import { TeacherSummary } from './TeacherSummary';
 import { CustomerEvidenceDrawer } from './CustomerAccordion';
@@ -37,6 +37,14 @@ const ELEMENT_TREASURES: Record<'空' | '風' | '水' | '火' | '地', { name: s
   地: { name: '地脈守界印', power: '提醒你先守住作息、界線與能承擔的承諾。' },
 };
 
+const BAZI_TREASURE_RITUALS: Record<'空' | '風' | '水' | '火' | '地', { title: string; scenes: [string, string, string, string] }> = {
+  空: { title: '星淵虛空珠・解封儀式', scenes: ['第一幕・黑暗把雜訊吞沒，封印中央只剩一個安靜的空位。', '第二幕・細微光點開始校正漂移的方向，混亂慢慢退到邊緣。', '第三幕・空位化成定軸，讓真正重要的選擇重新對焦。', '終幕・虛空珠入背包；下一步，留給你親自踏出去。'] },
+  風: { title: '蒼嵐御風珠・解封儀式', scenes: ['第一幕・封印裡的風停在原地，像一句沒有說完的話。', '第二幕・第一道氣流穿過裂縫，卡住的節奏開始有了出口。', '第三幕・風把雜亂吹成一條可走的路，只留下最小的一步。', '終幕・御風珠入背包；今天，先完成那一步。'] },
+  水: { title: '深海潮汐珠・解封儀式', scenes: ['第一幕・潮聲被封在珠心，表面安靜得不自然。', '第二幕・深淺水紋開始推移，沒有說出口的感受逐漸浮起。', '第三幕・潮汐把混亂帶回節奏，讓回應不再只是衝動。', '終幕・潮汐珠入背包；先接住感受，再做選擇。'] },
+  火: { title: '燼星業火珠・解封儀式', scenes: ['第一幕・火光被壓在封印下，只有微弱餘溫還在呼吸。', '第二幕・火線穿過裂縫，猶豫與衝動被照得無處可藏。', '第三幕・火焰收束成穩定的光，照出清楚的一句行動。', '終幕・業火珠入背包；把熱度放在真正要做的事上。'] },
+  地: { title: '地脈琥珀珠・解封儀式', scenes: ['第一幕・地脈沉睡在琥珀深處，封印仍緊緊壓住核心。', '第二幕・金色紋理開始流動，散掉的節奏重新沉回地面。', '第三幕・琥珀裂開一道光，讓承諾與界線重新站穩。', '終幕・地脈珠入背包；下一步，真正落地。'] },
+};
+
 function getBaziElementTreasure(view: BaziCustomerView) {
   const weakest = view.fiveElementOrbit.items
     .filter((item) => item.status === 'AVAILABLE' && typeof item.strength === 'number')
@@ -58,11 +66,17 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
   const [active, setActive] = useState<TeacherMode>('CHART');
   const [treasureCollected, setTreasureCollected] = useState(false);
   const [treasureOpening, setTreasureOpening] = useState(false);
+  const [ritualStage, setRitualStage] = useState<number | null>(null);
   const [treasurePulse, setTreasurePulse] = useState(0);
+  const ritualTimersRef = useRef<number[]>([]);
   const [googleReading, setGoogleReading] = useState<string | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
   const [googleRun, setGoogleRun] = useState(0);
+  const [horrorReading, setHorrorReading] = useState<string | null>(null);
+  const [horrorLoading, setHorrorLoading] = useState(false);
+  const [horrorError, setHorrorError] = useState<string | null>(null);
+  const [horrorRun, setHorrorRun] = useState(0);
   const evidence = useMemo(() => {
     const luck = currentLuck(view);
     const timing = view.timeContext;
@@ -76,23 +90,37 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
     ];
   }, [view]);
 
-  const pressureFactors = view.teacher.strengthFactors.filter((factor) => factor.status === 'pressure');
-  const missing = view.teacher.tenGodsMissing.length > 0 ? view.teacher.tenGodsMissing.join('、') : '未見明顯缺位';
   const primaryLuck = currentLuck(view);
   const shortName = view.name.trim().slice(-2) || '你';
   const ageLabel = view.timeContext.age === null ? '年齡待確認' : `${view.timeContext.age} 歲`;
   const previousAgeLabel = view.timeContext.age === null ? '前一歲' : `${view.timeContext.age - 1} 歲`;
   const nextAgeLabel = view.timeContext.age === null ? '下一歲' : `${view.timeContext.age + 1} 歲`;
   const elementTreasure = useMemo(() => getBaziElementTreasure(view), [view]);
+  const treasureRitual = BAZI_TREASURE_RITUALS[elementTreasure.element];
+  const ghostReply = `「${shortName}，以前沒有回答完的問題沒有消失；它只是藏在你現在的門縫裡，等你決定要不要先跨出那一步。」`;
+  const episodeTitle = '第 01 集・以前留下的暗門';
+
+  useEffect(() => () => ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer)), []);
+
   const collectTreasure = () => {
     if (treasureOpening) return;
+    ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    setTreasureCollected(false);
     setTreasureOpening(true);
+    setRitualStage(0);
     // Re-mounting only this small visual restarts the short 3D release.
     setTreasurePulse((value) => value + 1);
-    window.setTimeout(() => {
-      setTreasureCollected(true);
-      setTreasureOpening(false);
-    }, 12_000);
+    ritualTimersRef.current = [
+      window.setTimeout(() => setRitualStage(1), 3000),
+      window.setTimeout(() => setRitualStage(2), 6000),
+      window.setTimeout(() => setRitualStage(3), 9000),
+      window.setTimeout(() => {
+        setTreasureCollected(true);
+        setTreasureOpening(false);
+        setRitualStage(null);
+        ritualTimersRef.current = [];
+      }, 12_000),
+    ];
   };
   const treasureActive = treasureCollected || treasureOpening;
   const googleRequest = useMemo(() => ({
@@ -146,6 +174,33 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
     return () => controller.abort();
   }, [active, googleRequestKey, googleRun]);
 
+  useEffect(() => {
+    if (active !== 'HORROR_GHOST') return;
+    const controller = new AbortController();
+    setHorrorLoading(true);
+    setHorrorError(null);
+    fetch('/api/bazi/horror-reading', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: googleRequestKey,
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        const json = await response.json() as { ok?: boolean; reading?: string; message?: string };
+        if (!response.ok || !json.ok || !json.reading) throw new Error(json.message || '恐怖鬼魅解盤未返回內容。');
+        setHorrorReading(json.reading);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        setHorrorReading(null);
+        setHorrorError(error instanceof Error ? error.message : '恐怖鬼魅解盤暫時無法完成。');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setHorrorLoading(false);
+      });
+    return () => controller.abort();
+  }, [active, googleRequestKey, horrorRun]);
+
   return (
     <section className="space-y-4" aria-label="AI 八字老師解盤">
       <div className="rounded-[22px] border-2 border-amber-200/60 bg-[linear-gradient(135deg,rgba(120,53,15,0.2),rgba(2,6,23,0.62))] p-3 shadow-[0_0_26px_rgba(251,191,36,0.16)]">
@@ -162,6 +217,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
                   // The Google card is intentionally never collapsible. A tap is an
                   // explicit request for a fresh reading, including when it is already selected.
                   if (teacher.id === 'CHART') setGoogleRun((value) => value + 1);
+                  if (teacher.id === 'HORROR_GHOST') setHorrorRun((value) => value + 1);
                 }}
                 aria-pressed={selected}
                 className={`rounded-2xl border-2 px-4 py-3 text-left transition ${selected ? 'border-amber-100/90 bg-amber-300/[0.16] text-amber-50 shadow-[0_0_22px_rgba(251,191,36,0.2)] ring-1 ring-amber-100/35' : 'border-violet-200/45 bg-white/[0.05] text-white/80 shadow-[0_0_12px_rgba(139,92,246,0.08)] hover:border-violet-100/75 hover:bg-violet-400/[0.1]'}`}
@@ -237,21 +293,22 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
           <div aria-hidden="true" className="pointer-events-none absolute -left-16 bottom-16 h-52 w-52 rounded-full bg-violet-500/10 blur-3xl" />
           <div aria-hidden="true" className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-rose-100/60 to-transparent" />
           <div className="relative flex items-center justify-between gap-3">
-            <p className="text-xs font-black tracking-[0.18em] text-rose-200">恐怖鬼魅解命盤・沉浸式劇情模式</p>
+            <p className="text-xs font-black tracking-[0.18em] text-rose-200">恐怖鬼魅解命盤・集數式沉浸劇情</p>
             <span className="rounded-full border border-rose-200/25 bg-rose-500/10 px-2 py-1 text-[10px] font-black tracking-[0.12em] text-rose-100">原創恐怖遊戲</span>
           </div>
           <p className="mt-2 rounded-xl border border-violet-200/15 bg-black/25 px-3 py-2 text-xs font-bold leading-5 text-violet-100/80">戲劇化命盤遊戲情境：以同一張八字盤與當下時間層創作，不代表已發生的真實事件。</p>
-          <h4 className="relative mt-3 text-xl font-black text-white">{shortName}，你現在 {ageLabel}；命盤的陰影已經開始靠近。</h4>
+          <h4 className="relative mt-3 font-serif text-[1.38rem] font-black leading-8 text-white">{episodeTitle}</h4>
+          <p className="relative mt-1 text-sm font-black leading-6 text-rose-100/90">{shortName}，你現在 {ageLabel}。這一集只用以前、現在、未來的生活節奏來推進故事。</p>
           <div className="relative mt-3 flex items-center gap-2 rounded-xl border border-rose-200/30 bg-black/35 px-3 py-2 shadow-[inset_0_0_20px_rgba(190,24,93,0.08)]">
             <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-rose-300 shadow-[0_0_12px_rgba(253,164,175,0.95)]" />
             <p className="text-xs font-black tracking-[0.12em] text-rose-100">劇情壓力正在累積・每一幕都比前一幕更靠近</p>
           </div>
-          <p className="relative mt-2 text-sm font-bold leading-6 text-rose-100/80">這不是預言，而是一場以你的命盤節奏展開的恐怖遊戲；先有看不見的異常，再有靠近的壓力，最後才讓鬼魅的畫面從命盤的裂縫裡浮現。</p>
+          <p className="relative mt-2 text-sm font-bold leading-6 text-rose-100/80">這是原創虛構的恐怖遊戲，不是事件預言。本集先讓異常出現，再讓壓力逼近，最後由鬼魅回應前面留下的八字線索；每一段都能回到同一張盤核對。</p>
           <div className="relative mt-4 grid grid-cols-3 gap-2" aria-label="恐怖鬼魅劇情結構">
             {[
-              ['過去', '命盤伏筆', '恐怖的起點'],
-              ['當下', '時間警報', '壓力正在靠近'],
-              ['未來', '鬼魅岔路', '選擇決定下一幕'],
+              ['第 01 段', '殘影開場', '八字伏筆開始失真'],
+              ['第 02 段', '警報深處', '當下壓力逐步逼近'],
+              ['第 03 段', '鬼魅回應', '封印決定下一幕'],
             ].map(([time, title, detail], index) => (
               <div key={time} className={`rounded-xl border p-3 ${index === 1 ? 'border-rose-200/35 bg-rose-500/10' : 'border-white/10 bg-black/20'}`}>
                 <p className="text-[10px] font-black tracking-[0.16em] text-rose-200/80">{time}</p>
@@ -261,13 +318,23 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
             ))}
           </div>
           <div className="relative mt-3 rounded-2xl border border-rose-200/15 bg-black/25 p-3" aria-label="劇情因果鏈">
-            <p className="text-[10px] font-black tracking-[0.16em] text-rose-200/80">劇情因果鏈・不是隨機故事</p>
+            <p className="text-[10px] font-black tracking-[0.16em] text-rose-200/80">本集命盤腳本・不是隨機故事</p>
             <p className="mt-1 text-sm font-bold leading-6 text-white/75">
-              命盤根據「{view.structurePattern.primaryPattern}」與忌神「{view.gods.avoidGod}」建立伏筆 → 以 {view.timeContext.currentYear} 年、{ageLabel} 與當前大運推進警報 → 用日主與五行焦點收束成未來的選擇岔路。
+              後端會用已鎖定的八字資料建立伏筆；客戶端只看以前的你留下的殘影、{shortName}現在的警報與未來的你面前的門縫。你不必先懂術語，照著這三段就能走完本集。
             </p>
           </div>
+          <section className="relative mt-3 rounded-2xl border-2 border-violet-200/35 bg-[linear-gradient(135deg,rgba(76,5,25,0.42),rgba(30,27,75,0.52))] p-4" aria-label="正式恐怖鬼魅八字解盤">
+            <div className="flex items-center justify-between gap-3">
+              <p className="ghost-reply-title">鬼魅正式解盤・同盤回應</p>
+              <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${horrorLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : horrorReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-rose-100/35 bg-rose-300/10 text-rose-100/80'}`}>{horrorLoading ? '正在生成' : horrorReading ? '鬼魅已回應' : '等待回應'}</span>
+            </div>
+            <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和 Google 解盤使用完全相同的八字資料與五元素寶物；客戶只會看到以前、現在、未來與生活情境。恐怖、鬼魅、神祕只改變這位老師的遊戲語氣，不會塞進看不懂的術語。</p>
+            {horrorLoading && <p className="mt-3 text-sm font-semibold leading-6 text-rose-100/85">鬼魅正在沿著同一張八字盤，把三段時間線寫成這一集的回應…</p>}
+            {horrorError && <div className="mt-3"><p className="text-sm font-semibold leading-6 text-rose-100">鬼魅回應暫時未完成：{horrorError}</p><button type="button" onClick={() => setHorrorRun((value) => value + 1)} className="mt-2 rounded-xl border-2 border-rose-100/70 bg-rose-300/10 px-3 py-2 text-xs font-black text-rose-50">重新請鬼魅回應</button></div>}
+            {horrorReading && <p className="ghost-reply-copy mt-3 rounded-xl border border-rose-100/20 bg-black/25 p-3">{horrorReading}</p>}
+          </section>
           <section className="five-element-treasure-card five-element-treasure-card--horror relative mt-3 overflow-hidden rounded-2xl border-2 border-amber-200/70 p-5" aria-label="五元素寶物關卡">
-            <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">五元素寶物關・命盤推導</p>
+            <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">本集片尾・五元素寶物封印</p>
             <div className="mt-3 grid grid-cols-1 items-center gap-5 rounded-2xl border-2 border-amber-100/50 bg-black/25 p-5 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
               <div key={`horror-treasure-${treasurePulse}`} className={`treasure-reveal-stage treasure-reveal-stage--${elementTreasure.element === '水' ? 'water' : 'standard'} treasure-reveal-stage--hero justify-self-center scale-[1.78] ${treasureCollected ? 'treasure-reveal-stage--collected' : ''} ${treasureOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
                 <WaterTreasureOrb element={elementTreasure.element} released={treasureActive} />
@@ -286,11 +353,21 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
               disabled={treasureOpening}
               className={`mt-3 w-full rounded-xl border-2 px-3 py-2 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/80 bg-amber-300/15 text-amber-50 shadow-[0_0_18px_rgba(251,191,36,0.18)]'}`}
             >
-              {treasureOpening ? '封印正在解開・寶物釋放中…' : treasureCollected ? '再次喚醒寶物・下一幕由你的選擇推進' : '解開封印・收下這件五元素寶物'}
+              {treasureOpening ? `封印儀式進行中・${ritualStage! + 1}/4` : treasureCollected ? '再次喚醒寶物・下一幕由你的選擇推進' : '解開封印・開始十二秒儀式'}
             </button>
+            {treasureOpening && ritualStage !== null && (
+              <section className="mt-3 rounded-xl border border-amber-100/25 bg-black/25 px-3 py-3" aria-live="polite">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[11px] font-black tracking-[0.12em] text-amber-100">{treasureRitual.title}</p>
+                  <p className="text-[10px] font-bold text-amber-50/65">十二秒儀式</p>
+                </div>
+                <p className="mt-2 text-sm font-semibold leading-6 text-amber-50">{treasureRitual.scenes[ritualStage]}</p>
+                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-black/40"><div className="h-full rounded-full bg-gradient-to-r from-amber-200 via-amber-50 to-cyan-100 transition-[width] duration-[2800ms] ease-linear" style={{ width: `${(ritualStage + 1) * 25}%` }} /></div>
+              </section>
+            )}
             {treasureCollected && (
               <div className="mt-3 rounded-xl border-2 border-cyan-100/50 bg-cyan-950/35 p-3">
-                <p className="text-xs font-black tracking-[0.14em] text-cyan-100">寶物已入背包・選擇下一個畫面</p>
+              <p className="text-xs font-black tracking-[0.14em] text-cyan-100">片尾解封完成・選擇下一集</p>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   <button type="button" onClick={() => setActive('CHART')} className="rounded-xl border-2 border-violet-100/50 bg-violet-300/10 px-3 py-2 text-sm font-black text-violet-50">回到老師解盤</button>
                   <button type="button" onClick={onOpenFull} className="rounded-xl border-2 border-amber-100/70 bg-amber-300/14 px-3 py-2 text-sm font-black text-amber-50">進入完整命盤</button>
@@ -301,23 +378,33 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
           <div className="mt-4 space-y-3 text-base font-semibold leading-7 text-white/75">
             <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/25 p-4">
               <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-rose-100/10">01</span>
-              <p className="text-xs font-black tracking-[0.14em] text-rose-100">第一幕・異常已經出現</p>
-              <p className="mt-2">{shortName}，鏡頭回到命盤主軸「{view.structurePattern.primaryPattern}」第一次失去平衡的時刻。忌神「{view.gods.avoidGod}」一被壓力放大，畫面裡沒有怪物先現身，只有燈光一明一滅、關不掉的雜訊，和那道始終落在身後、卻不肯回頭的腳步聲。你以為只是巧合，鏡頭卻把每一次失衡都剪回同一個陰暗角落；異常沒有離開，它只是在等你注意到它。</p>
+              <p className="text-xs font-black tracking-[0.14em] text-rose-100">以前的你・第 01 段・殘影開場</p>
+              <p className="mt-2">{shortName}，鏡頭回到那些還沒被好好處理的小事：一個拖延的決定、一段沒說清楚的話，或一件總覺得「明天再做」的事。畫面裡沒有怪物搶先現身，只有反覆跳出的雜訊、忽明忽滅的光，和一個始終不肯被回答的問題。你以為它早已過去，鏡頭卻把每次失衡都剪回同一個角落；殘影沒有離開，它只是在等你叫出它的名字。</p>
             </section>
             <section className="relative overflow-hidden rounded-2xl border border-rose-200/25 bg-rose-950/30 p-4 shadow-[inset_0_0_28px_rgba(127,29,29,0.18)]">
               <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-rose-100/15">02</span>
-              <p className="text-xs font-black tracking-[0.14em] text-rose-100">第二幕・警報逼近・{view.timeContext.currentYear} 年・{view.timeContext.dayNight}</p>
-              <p className="mt-2">現在輪到 {shortName}，{ageLabel} 的關卡。遊戲裡的警報從缺口「{missing}」開始亮起；每一次忽略，都讓畫面更暗一格。{primaryLuck ? `你正走 ${primaryLuck.ageRange} 的「${primaryLuck.pillar}」大運；鏡頭不再停在遠處，而是跟著你走近那扇門，讓每一個看似平常的選擇都帶著逼近感。` : '核心未提供可對應的大運，因此這一幕只保留盤面已能證明的壓力訊號。'}</p>
-              {pressureFactors.length > 0 ? <p className="mt-2">命盤已標記的壓力證據：{pressureFactors.map((factor) => `${factor.label}（${factor.detail}）`).join('；')}。</p> : <p className="mt-2">核心目前未標出直接壓力因子；不把氛圍敘事誤當作真實風險。</p>}
+              <p className="text-xs font-black tracking-[0.14em] text-rose-100">{shortName}，你現在 {ageLabel}・第 02 段・警報深處</p>
+              <p className="mt-2">{shortName}，現在輪到你的關卡。警報從那個最容易被忽略的缺口亮起：每一次延後、每一次用忙碌蓋過真正想處理的事，畫面就更暗一格。鏡頭不再停在遠處，而是把每個看似平常的選擇推到門前。</p>
+              <p className="mt-2">這一段不是說壞事會發生，而是提醒你：現在最能改變劇情的，不是繼續猜，而是選一件小事立刻做完。</p>
             </section>
             <section className="relative overflow-hidden rounded-2xl border border-violet-200/20 bg-violet-950/30 p-4 shadow-[inset_0_0_28px_rgba(76,29,149,0.16)]">
               <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-violet-100/15">03</span>
-              <p className="text-xs font-black tracking-[0.14em] text-violet-100">第三幕・最後一盞燈</p>
-              <p className="mt-2">前方不是唯一結局，而是兩條黑暗的岔路。「{view.dayMaster.stem}{view.dayMaster.element}」留下的訊號是：{view.teacher.signals.dayMaster}。五行焦點「{view.teacher.signals.elementFocus}」把關係、工作與選擇推向不同出口；鏡頭停在門縫前，最後一盞燈正在晃動，牆上的影子比你先動了一步。黑暗沒有替你做決定，真正決定下一幕的仍是你的選擇。</p>
-              <p className="mt-2 border-t border-violet-100/10 pt-2 text-sm font-black text-violet-100/85">鬼魅不是另一位老師，而是這條恐怖主線最後浮現的象徵畫面。</p>
+              <p className="text-xs font-black tracking-[0.14em] text-violet-100">未來的你・第 03 段・最後一盞燈</p>
+              <p className="mt-2">{shortName}，未來不是唯一結局，而是兩條尚未選定的岔路：一條是把現在的問題繼續留在門外；另一條是從今天開始，把一件該做的事完成。鏡頭停在門縫前，最後一盞燈正在晃動，影子比你先動了一步。下一幕，不由黑暗決定，而由你現在做出的選擇決定。</p>
+              <p className="mt-2 border-t border-violet-100/10 pt-2 text-sm font-black text-violet-100/85">鬼魅不是另一位老師；它是本集最後依八字線索開口的回應。</p>
             </section>
           </div>
           <CustomerEvidenceDrawer items={evidence} />
+          <section className="relative mt-3 overflow-hidden rounded-2xl border-2 border-rose-100/65 bg-[radial-gradient(circle_at_78%_16%,rgba(190,24,93,0.3),transparent_30%),linear-gradient(135deg,rgba(76,5,25,0.78),rgba(30,27,75,0.66),rgba(2,6,23,0.94))] p-5 shadow-[0_0_34px_rgba(190,24,93,0.23),inset_0_0_30px_rgba(190,24,93,0.16)]" aria-label="鬼魅回應">
+            <span aria-hidden="true" className="absolute right-3 top-1 font-serif text-6xl font-black text-rose-100/[0.08]">答</span>
+            <div className="relative flex items-center justify-between gap-2">
+            <p className="ghost-reply-title">第 01 集・封印的最後警告</p>
+              <span className="ghost-reply-status">不要回頭</span>
+            </div>
+            <p className="ghost-reply-lead relative mt-4">「{shortName}，門外的聲音停了。不是它離開，而是它已經站在封印的另一邊，等你開口。」</p>
+            <p className="ghost-reply-copy relative mt-2">{ghostReply}</p>
+            <p className="relative mt-5 border-l-2 border-rose-200/80 pl-3 text-sm font-black leading-6 text-rose-50">這不是說明，也不是預言。這是本集最後的選擇：現在解封，帶著寶珠走進下一幕；或把門關上，讓同一個問題留到明天。</p>
+          </section>
         </article>
       )}
     </section>

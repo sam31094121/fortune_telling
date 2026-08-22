@@ -3,8 +3,8 @@
   "version": "tiandiren-auto-qa-v1.2",
   "baseUrl": "http://localhost:8888",
   "stopOnFail": false,
-  "startedAt": "2026-08-22T02:25:51.814Z",
-  "completedAt": "2026-08-22T02:26:11.430Z",
+  "startedAt": "2026-08-22T05:48:32.570Z",
+  "completedAt": "2026-08-22T05:48:49.272Z",
   "summary": {
     "modules": 1,
     "modes": [
@@ -17,7 +17,7 @@
   },
   "homepage": {
     "status": 200,
-    "durationMs": 121,
+    "durationMs": 135,
     "checkedEntrances": [
       {
         "id": "ziwei",
@@ -36,10 +36,10 @@
           "step": "enter module page",
           "status": "passed",
           "api": "/insight",
-          "durationMs": 167,
+          "durationMs": 188,
           "detail": {
             "status": 200,
-            "durationMs": 167,
+            "durationMs": 188,
             "length": 28517
           }
         },
@@ -47,11 +47,11 @@
           "step": "SELF: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/analysis/jobs",
-          "durationMs": 9396,
+          "durationMs": 6924,
           "detail": {
             "status": "COMPLETED",
-            "jobId": "job_6bcf957d-3c9e-4e91-9fcf-4f753dbb3f2b",
-            "resultId": "result_82ee2473-246c-4c6e-959c-72d6cea1dd94",
+            "jobId": "job_8a7eee00-42f9-4038-898c-9f73ce4ff5ea",
+            "resultId": "result_d3adee7e-b949-419d-b7fc-d74a56352ea9",
             "progressStage": "DONE",
             "moduleId": "ZIWEI",
             "mode": "insight",
@@ -62,11 +62,11 @@
           "step": "OTHER: submit data, API, backend, result, integration",
           "status": "passed",
           "api": "/api/analysis/jobs",
-          "durationMs": 8729,
+          "durationMs": 8340,
           "detail": {
             "status": "COMPLETED",
-            "jobId": "job_0e2ad879-761b-4c08-bf1c-1fbf31851107",
-            "resultId": "result_d169edc0-94a4-42da-84f8-3c8b4404e560",
+            "jobId": "job_b7fd0a3b-1c3d-42af-89b6-3aed86f1787d",
+            "resultId": "result_33e60f72-e703-4a00-8bb1-c923ec49268e",
             "progressStage": "DONE",
             "moduleId": "ZIWEI",
             "mode": "insight",
@@ -77,10 +77,10 @@
           "step": "return home after module flow",
           "status": "passed",
           "api": "/",
-          "durationMs": 135,
+          "durationMs": 137,
           "detail": {
             "status": 200,
-            "durationMs": 135,
+            "durationMs": 137,
             "length": 53949
           }
         }

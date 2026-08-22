@@ -13,7 +13,6 @@ import { BaziHeroCard } from './BaziHeroCard';
 import { BaziTeacherModes } from './BaziTeacherModes';
 import { ProfessionalBaziTable } from './ProfessionalBaziTable';
 import { BaziBottomActions } from './BaziBottomActions';
-import { StarBeastRetentionCard } from '@/components/StarBeastRetentionCard';
 
 /** 天干五行對照（顯示用標識色，非計算） */
 const STEM_ELEMENT_LABEL: Record<string, string> = {
@@ -51,15 +50,6 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
     <div className="space-y-6">
       {/* LEVEL 1｜命工卡 */}
       <BaziHeroCard view={view} elementOf={elementOf} onOpenTeacher={() => openLevel('teacher')} />
-
-      <StarBeastRetentionCard
-        source="八字命盤"
-        primaryElement={Object.entries(result.professionalChart.elementStatistics.percentages).sort(([, a], [, b]) => Number(a) - Number(b))[0]?.[0] === '木' ? 'wood' : Object.entries(result.professionalChart.elementStatistics.percentages).sort(([, a], [, b]) => Number(a) - Number(b))[0]?.[0] === '火' ? 'fire' : Object.entries(result.professionalChart.elementStatistics.percentages).sort(([, a], [, b]) => Number(a) - Number(b))[0]?.[0] === '金' ? 'metal' : Object.entries(result.professionalChart.elementStatistics.percentages).sort(([, a], [, b]) => Number(a) - Number(b))[0]?.[0] === '水' ? 'water' : 'earth'}
-        secondaryElement="earth"
-        stableSeed={result.professionalChart.birthInputFingerprint ?? result.dayMaster?.stem ?? 'bazi'}
-        weeklySeed={`${new Date().getFullYear()}:${result.annualFortunes?.[0]?.pillar ?? result.structureFocus ?? ''}`}
-        evidence={`八字五行比例與${new Date().getFullYear()}流年柱已納入判定`}
-      />
 
       {/* LEVEL 2 / 3 */}
       <div ref={detailRef} className="scroll-mt-24">

@@ -28,6 +28,7 @@ import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { calculateBoneWeight, formatQian } from '@/lib/bone-weight';
 import { WaterTreasureOrb } from '@/components/bazi/customer/WaterTreasureOrb';
+import { deriveZiweiStarBeastLink } from '@/lib/ziwei-star-beast-link';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
 type ShichenChoice = number | 'unknown' | 'known' | null;
@@ -914,6 +915,12 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
     GUAN_LU: { name: '官祿宮', role: '職涯舞台', glyph: '官', index: '03' },
     CAI_BO: { name: '財帛宮', role: '財富輸出', glyph: '財', index: '04' },
   } as const;
+  const beastVisualTone = {
+    spring: { panel: 'from-emerald-400/20 via-cyan-950/28 to-slate-950/88', line: 'via-emerald-200/70', glow: 'bg-emerald-300/20', text: 'text-emerald-100' },
+    summer: { panel: 'from-rose-400/20 via-orange-950/28 to-slate-950/88', line: 'via-rose-200/70', glow: 'bg-rose-300/20', text: 'text-rose-100' },
+    autumn: { panel: 'from-amber-300/20 via-violet-950/28 to-slate-950/88', line: 'via-amber-100/75', glow: 'bg-amber-300/20', text: 'text-amber-100' },
+    winter: { panel: 'from-sky-300/20 via-indigo-950/28 to-slate-950/88', line: 'via-sky-100/75', glow: 'bg-sky-300/20', text: 'text-sky-100' },
+  } as const;
   const palaceTone = {
     MING: { card: 'border-cyan-300/35 bg-[linear-gradient(145deg,rgba(8,145,178,0.18),rgba(8,15,35,0.82)_60%)]', text: 'text-cyan-100', chip: 'border-cyan-200/30 bg-cyan-300/10 text-cyan-50', brightness: 'bg-cyan-200/15 text-cyan-100' },
     QIAN_YI: { card: 'border-violet-300/35 bg-[linear-gradient(145deg,rgba(109,40,217,0.18),rgba(8,15,35,0.82)_60%)]', text: 'text-violet-100', chip: 'border-violet-200/30 bg-violet-300/10 text-violet-50', brightness: 'bg-violet-200/15 text-violet-100' },
@@ -925,6 +932,9 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
     const brightnessByStar = new Map((palace.majorStarDetails ?? []).map((star) => [star.name, star.brightness]));
     return palace.majorStars.map((name) => ({ name, brightness: brightnessByStar.get(name) }));
   };
+  const allPalaces = analysis.allPalaces?.length ? analysis.allPalaces : analysis.palaces;
+  const palaceMap = new Map(allPalaces.map((palace) => [palace.key, palace]));
+  const bodyPalace = analysis.bodyPalace ?? null;
 
   return (
     <section className="fortune-card relative overflow-hidden rounded-[32px] border border-cyan-200/20 bg-[radial-gradient(circle_at_8%_0%,rgba(34,211,238,0.18),transparent_28%),radial-gradient(circle_at_94%_8%,rgba(251,191,36,0.16),transparent_26%),linear-gradient(135deg,rgba(2,6,23,0.98),rgba(15,23,42,0.94))] p-4 shadow-[0_28px_80px_rgba(2,6,23,0.5)] sm:p-7">
@@ -965,7 +975,8 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
           <p className="mt-1 text-sm font-black leading-6 text-amber-100">{analysis.pattern.basis}</p>
         </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {/* 下方神獸大卡已完整承接主星、四象與三方四正依據；舊四宮摘要卡保留資料結構但不再重複顯示。 */}
+        <div className="hidden mt-5 grid gap-3 sm:grid-cols-2" aria-hidden="true">
           {(['MING', 'QIAN_YI', 'GUAN_LU', 'CAI_BO'] as const).map((key) => {
             const palace = analysis.palaces.find((item) => item.key === key);
             const label = palaceLabels[key];
@@ -995,20 +1006,66 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
           })}
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <section className="mt-3 rounded-2xl border border-white/10 bg-black/20 p-3" aria-label="紫微斗數與二十八宿神獸連結">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-[10px] font-black tracking-[0.16em] text-cyan-100">紫微斗數 × 二十八宿神獸</p>
+              <p className="mt-1 text-[11px] font-semibold leading-5 text-white/55">四張宮位先看本宮主星；空宮才依三方四正借星，固定對應一張二十八宿收藏卡。</p>
+            </div>
+            <Link href="/star-beasts" className="rounded-full border border-cyan-100/25 px-3 py-1.5 text-[10px] font-black text-cyan-50">查看 28 張神獸</Link>
+          </div>
+          <p className="mt-2 text-[10px] font-semibold leading-4 text-white/40">這是依正式紫微資料建立的遊戲收藏連結，不宣稱為傳統紫微斗數既有的二十八宿定盤規則。</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {(['MING', 'QIAN_YI', 'GUAN_LU', 'CAI_BO'] as const).map((key) => {
             const label = palaceLabels[key];
             const tone = palaceTone[key];
+            const palace = palaceMap.get(key);
+            const crossPalaces = (['MING', 'QIAN_YI', 'GUAN_LU', 'CAI_BO'] as const)
+              .filter((otherKey) => otherKey !== key)
+              .map((otherKey) => palaceMap.get(otherKey))
+              .filter((candidate): candidate is ZiweiFullPalace => Boolean(candidate));
+            const link = palace ? deriveZiweiStarBeastLink({ palace, bodyPalace, crossPalaces }) : null;
+            const visual = link ? beastVisualTone[link.season] : null;
             return (
-              <article key={`${key}-star-beast`} className={`relative min-h-[88px] overflow-hidden rounded-2xl border px-3 py-3 ${tone.card}`}>
-                <span className={`pointer-events-none absolute -right-1 -top-4 font-serif text-6xl font-black opacity-[0.08] ${tone.text}`}>{label.glyph}</span>
-                <p className={`relative text-[9px] font-black tracking-[0.14em] ${tone.text}`}>星宿神獸卡</p>
-                <h4 className="relative mt-1 text-sm font-black text-white">{label.name}</h4>
-                <p className="relative mt-2 text-[10px] font-semibold leading-4 text-white/60">果老宿度交叉校驗中</p>
+              <article key={`${key}-star-beast`} className={`relative min-h-[280px] overflow-hidden rounded-[26px] border p-4 shadow-[0_18px_42px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.14)] ${link ? `bg-gradient-to-br ${visual?.panel}` : tone.card}`}>
+                {link && <img src={link.beast.image} alt="" aria-hidden="true" className="pointer-events-none absolute -right-7 -top-8 h-[220px] w-[156px] opacity-[0.16] blur-[1px] object-cover" />}
+                {link && <div aria-hidden="true" className={`pointer-events-none absolute -right-16 top-20 h-44 w-44 rounded-full blur-3xl ${visual?.glow}`} />}
+                <span className={`pointer-events-none absolute -right-1 -top-7 font-serif text-[104px] font-black opacity-[0.08] ${tone.text}`}>{label.glyph}</span>
+                <div className="relative flex items-start justify-between gap-3">
+                  <div>
+                    <p className={`text-[10px] font-black tracking-[0.18em] ${tone.text}`}>{label.role}・星宿神獸卡</p>
+                    <h4 className="mt-1 font-serif text-2xl font-black text-white">{label.name}</h4>
+                  </div>
+                  <span className={`rounded-full border border-white/15 bg-black/20 px-2.5 py-1 text-[10px] font-black ${tone.text}`}>{label.index}</span>
+                </div>
+                {link ? (
+                  <div className="relative mt-4 grid min-h-[144px] grid-cols-2 overflow-hidden rounded-2xl border border-white/15 bg-black/20">
+                    <div className="relative min-w-0 overflow-hidden border-r border-white/12">
+                      <div aria-hidden="true" className={`absolute inset-0 ${visual?.glow} blur-2xl`} />
+                      <img src={link.beast.image} alt={`${link.beast.name}神獸卡`} className="relative h-full min-h-[144px] w-full object-cover object-center shadow-[0_16px_30px_rgba(0,0,0,0.38)]" />
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/95 via-slate-950/35 to-transparent px-2 pb-2 pt-8">
+                        <p className={`text-[9px] font-black tracking-[0.12em] ${visual?.text}`}>{link.seasonLabel}</p>
+                        <p className="mt-0.5 text-xs font-black text-white">{link.beast.name}</p>
+                      </div>
+                    </div>
+                    <div className="min-w-0 p-3">
+                      <p className={`text-[10px] font-black tracking-[0.14em] ${visual?.text}`}>{link.seasonLabel}・{link.productElement}訊號</p>
+                      <p className="mt-2 text-xs font-semibold leading-5 text-white/70">{link.beast.coreMeaning}</p>
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {(palace?.majorStars.length ? palace.majorStars : link.sourceStar ? [link.sourceStar] : []).map((star) => (
+                          <span key={star} className={`rounded-lg border px-2 py-1 text-xs font-black ${tone.chip}`}>{star}</span>
+                        ))}
+                        {!palace?.majorStars.length && link.borrowedPalaceName && <span className="rounded-lg border border-white/15 bg-black/20 px-2 py-1 text-[10px] font-bold text-white/65">借{link.borrowedPalaceName}主星</span>}
+                      </div>
+                    </div>
+                  </div>
+                ) : <p className="relative mt-4 text-sm font-semibold leading-5 text-white/60">等待{label.name}完成定盤後連結神獸卡</p>}
+                {link && <div className="relative mt-4 overflow-hidden rounded-2xl border border-white/15 bg-black/30 px-3 py-3 text-[11px] font-semibold leading-5 text-white/70"><div aria-hidden="true" className={`absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent ${visual?.line} to-transparent`} /><span className={`font-black ${visual?.text}`}>三方四正配對：</span>{link.evidence}</div>}
               </article>
             );
           })}
         </div>
+        </section>
 
         <div className="hidden mt-4 grid grid-cols-3 gap-2" aria-hidden="true">
           {[
@@ -2625,11 +2682,11 @@ function plainPalaceTopic(palaceName: string) {
 }
 
 const ZIWEI_ELEMENT_TREASURES: Record<FiveElementKey, { label: string; name: string; gear: string; power: string }> = {
-  wood: { label: '風', name: '風語星圖鈴', gear: '風向護目鏡', power: '把散開的線索重新排成可前進的方向。' },
-  fire: { label: '火', name: '燼火宮燈', gear: '定心護盾', power: '把急促的能量收成清楚、可負責的行動。' },
-  earth: { label: '地', name: '地脈封印印', gear: '穩定護膝', power: '把本宮壓力拉回界線、承諾與可落地的節奏。' },
-  metal: { label: '空', name: '星隙斷雜劍', gear: '觀星頭盔', power: '幫你辨認哪些訊號該留下、哪些負擔可以放下。' },
-  water: { label: '水', name: '潮汐回聲珠', gear: '回音盾牌', power: '讓被壓住的感受先被聽見，再決定如何回應。' },
+  wood: { label: '風', name: '蒼嵐御風珠', gear: '風向護目鏡', power: '把散開的線索重新排成可前進的方向。' },
+  fire: { label: '火', name: '燼星業火珠', gear: '定心護盾', power: '把急促的能量收成清楚、可負責的行動。' },
+  earth: { label: '地', name: '地脈琥珀珠', gear: '穩定護膝', power: '把本宮壓力拉回界線、承諾與可落地的節奏。' },
+  metal: { label: '空', name: '星淵虛空珠', gear: '觀星頭盔', power: '幫你辨認哪些訊號該留下、哪些負擔可以放下。' },
+  water: { label: '水', name: '深海潮汐珠', gear: '回音盾牌', power: '讓被壓住的感受先被聽見，再決定如何回應。' },
 };
 
 // 命盤仍以正統五行計算；客戶看見的寶物固定翻成空、風、水、火、地。
@@ -2640,6 +2697,29 @@ const ZIWEI_PRODUCT_ELEMENT: Record<FiveElementKey, '空' | '風' | '水' | '火
   water: '水',
   fire: '火',
   earth: '地',
+};
+
+const ZIWEI_TREASURE_RITUALS: Record<FiveElementKey, { title: string; scenes: [string, string, string, string] }> = {
+  metal: {
+    title: '星淵虛空珠・斷雜儀式',
+    scenes: ['第一幕・星隙無聲張開，雜訊被黑暗慢慢吸走。', '第二幕・銀白霧從珠心翻湧，封印開始失去重量。', '第三幕・一道冷光切開舊殼，留下真正該保留的訊號。', '終幕・星淵回應，你收下空的力量，準備清楚前進。'],
+  },
+  wood: {
+    title: '蒼嵐御風珠・引路儀式',
+    scenes: ['第一幕・風還被困在珠內，只有細微的綠光呼吸。', '第二幕・蒼嵐從深處翻轉，散亂的方向逐漸靠攏。', '第三幕・風痕劃開封印，替你指出第一條可走的路。', '終幕・御風之力入背包，下一步不再只是停在想像。'],
+  },
+  water: {
+    title: '深海潮汐珠・回聲儀式',
+    scenes: ['第一幕・潮聲仍被壓在深處，珠面只留一點暗藍呼吸。', '第二幕・淺海與深海的光在珠內交錯，回聲開始靠近。', '第三幕・潮汐推開封印，沉下去的感受終於浮上水面。', '終幕・潮汐之力入背包，你可以選擇如何回應下一幕。'],
+  },
+  fire: {
+    title: '燼星業火珠・點燃儀式',
+    scenes: ['第一幕・餘燼被封在珠心，紅光還沒有越過界線。', '第二幕・火色從深紅推向亮紅，行動的溫度開始回來。', '第三幕・業火穿過裂縫，不再只燃燒焦慮，而是照亮目標。', '終幕・燼星之力入背包，今天的第一個行動已被點亮。'],
+  },
+  earth: {
+    title: '地脈琥珀珠・定錨儀式',
+    scenes: ['第一幕・地脈沉睡在琥珀深處，封印仍緊緊壓住核心。', '第二幕・金色紋理開始流動，散掉的節奏重新沉回地面。', '第三幕・琥珀裂開一道光，讓承諾與界線重新站穩。', '終幕・地脈之力入背包，你可以把下一步真正落地。'],
+  },
 };
 
 function ageFromBirthDate(birthDate?: string) {
@@ -2681,12 +2761,36 @@ function ZiweiHorrorGhostMovieView({
   const ageLabel = subjectAge === null || subjectAge === undefined ? '年齡待確認' : `${subjectAge} 歲`;
   const topic = plainPalaceTopic(palaceName);
   const [treasureCollected, setTreasureCollected] = useState(false);
+  const [ritualStage, setRitualStage] = useState<number | null>(null);
+  const ritualTimersRef = useRef<number[]>([]);
   const primaryElement = fiveElement?.primaryElement ?? 'earth';
   const treasure = ZIWEI_ELEMENT_TREASURES[primaryElement];
   const productElement = ZIWEI_PRODUCT_ELEMENT[primaryElement];
   // The previews are a reference board only.  They make the fixed five-element
   // material system inspectable without changing this palace's derived element.
   const materialPreviewElements = (Object.keys(ZIWEI_ELEMENT_TREASURES) as FiveElementKey[]).filter((element) => element !== primaryElement);
+  const ritual = ZIWEI_TREASURE_RITUALS[primaryElement];
+  const ritualOpening = ritualStage !== null;
+  const ghostReply = narrative?.finalMetaphor ?? life.practicalDirection;
+
+  useEffect(() => () => ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer)), []);
+
+  const startRitual = () => {
+    if (ritualOpening) return;
+    ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    setTreasureCollected(false);
+    setRitualStage(0);
+    ritualTimersRef.current = [
+      window.setTimeout(() => setRitualStage(1), 3000),
+      window.setTimeout(() => setRitualStage(2), 6000),
+      window.setTimeout(() => setRitualStage(3), 9000),
+      window.setTimeout(() => {
+        setTreasureCollected(true);
+        setRitualStage(null);
+        ritualTimersRef.current = [];
+      }, 12000),
+    ];
+  };
 
   return (
     <section className="mt-4 relative overflow-hidden rounded-[24px] border border-rose-300/35 bg-[radial-gradient(circle_at_82%_6%,rgba(190,24,93,0.25),transparent_31%),linear-gradient(145deg,rgba(69,10,10,0.6),rgba(46,16,101,0.42),rgba(2,6,23,0.86))] p-4 shadow-[0_0_48px_rgba(190,24,93,0.14)]">
@@ -2700,41 +2804,67 @@ function ZiweiHorrorGhostMovieView({
       <p className="relative mt-3 text-base font-black leading-7 text-rose-50">{name}，你現在 {ageLabel}；你的{palaceName}命盤正在打開。恐怖是壓力的逼近；鬼魅是同一張命盤最後浮現的象徵畫面。</p>
       <p className="relative mt-2 rounded-xl border border-cyan-100/15 bg-cyan-950/20 px-3 py-2 text-sm font-bold leading-6 text-cyan-50/90">白話說，{palaceName}在講的是「{topic}」。接下來的恐怖鬼魅情境只會圍繞這個主題，不會跳去講別宮的事。</p>
 
+      <section className="relative mt-3 overflow-hidden rounded-2xl border border-rose-200/25 bg-[linear-gradient(135deg,rgba(69,10,10,0.55),rgba(30,27,75,0.46))] p-3" aria-label="恐怖鬼魅遊戲關卡設定">
+        <div aria-hidden="true" className="absolute -right-6 -top-8 text-8xl font-black text-rose-100/[0.05]">封</div>
+        <div className="relative flex items-center justify-between gap-3">
+          <p className="text-[11px] font-black tracking-[0.18em] text-rose-100">本局遊戲任務</p>
+          <span className="rounded-full border border-rose-100/25 bg-black/25 px-2 py-1 text-[10px] font-black text-rose-100">三幕試煉</span>
+        </div>
+        <div className="relative mt-3 grid grid-cols-3 gap-2">
+          <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[9px] font-black tracking-[0.12em] text-rose-100/70">舞台</p><p className="mt-1 text-[11px] font-black leading-4 text-white">{palaceName}</p></div>
+          <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[9px] font-black tracking-[0.12em] text-rose-100/70">線索</p><p className="mt-1 line-clamp-2 text-[11px] font-black leading-4 text-white">{evidenceRefs.slice(0, 2).join('・') || '正式命盤訊號'}</p></div>
+          <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[9px] font-black tracking-[0.12em] text-rose-100/70">出口</p><p className="mt-1 text-[11px] font-black leading-4 text-white">{treasure.label}元素寶珠</p></div>
+        </div>
+      </section>
+
       <section className="relative mt-3 rounded-2xl border-2 border-amber-200/70 bg-[linear-gradient(135deg,rgba(120,53,15,0.38),rgba(49,46,129,0.34))] p-4 shadow-[0_0_26px_rgba(251,191,36,0.16)]" aria-label="紫微五元素寶物關">
-        <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">五元素寶物關・紫微命盤推導</p>
+        <p className="text-xs font-black tracking-[0.16em] text-amber-100">最終關・五元素寶物封印</p>
+        <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">五顆寶珠初始皆維持封印；本宮命盤只指出這一局優先可解開的寶物。</p>
         <div className="mt-3 grid grid-cols-[4.25rem_minmax(0,1fr)] items-center gap-3 rounded-2xl border-2 border-amber-100/50 bg-black/25 p-3">
-          <div className={`treasure-reveal-stage ${treasureCollected ? 'treasure-reveal-stage--collected' : ''}`} aria-hidden="true">
-            <WaterTreasureOrb element={productElement} released={treasureCollected} />
+          <div className={`treasure-reveal-stage ${treasureCollected ? 'treasure-reveal-stage--collected' : 'treasure-reveal-stage--sealed'} ${ritualOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
+            <WaterTreasureOrb element={productElement} released={treasureCollected || ritualOpening} />
           </div>
           <div className="min-w-0">
-            <h3 className="font-serif text-xl font-black text-amber-50">{treasure.label}元素・{treasure.name}</h3>
-            <p className={`mt-1 text-xs font-black tracking-[0.12em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureCollected ? '本宮封印已解除・寶物已入背包' : '本宮封印守護中・尚未收下'}</p>
+            <h3 className="font-serif text-[1.35rem] font-black leading-tight text-amber-50">{treasure.label}元素・{treasure.name}</h3>
+            <p className={`mt-1 text-sm font-black tracking-[0.08em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureCollected ? '本宮封印已解除・寶物已入背包' : '五元素封印中・本宮可優先解開'}</p>
           </div>
         </div>
-        <p className="mt-3 text-sm font-semibold leading-6 text-amber-50/88">解開本宮封印後，取得「{treasure.gear}」：{treasure.power} 這是遊戲中的保護與行動線索，不代表現實防護或命定結果。</p>
+        <p className="mt-3 text-[13px] font-semibold leading-6 text-amber-50/88">解開本宮封印後，取得「{treasure.gear}」：{treasure.power} 這是遊戲中的保護與行動線索，不代表現實防護或命定結果。</p>
         <button
           type="button"
-          onClick={() => setTreasureCollected(true)}
+          onClick={startRitual}
           aria-pressed={treasureCollected}
-          className={`mt-3 w-full rounded-xl border-2 px-3 py-2 text-sm font-black transition ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/80 bg-amber-300/15 text-amber-50 shadow-[0_0_18px_rgba(251,191,36,0.18)]'}`}
+          disabled={ritualOpening}
+          className={`mt-3 w-full rounded-xl border-2 px-3 py-2 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/80 bg-amber-300/15 text-amber-50 shadow-[0_0_18px_rgba(251,191,36,0.18)]'}`}
         >
-          {treasureCollected ? '本宮寶物已入背包・可進入下一幕' : '解開本宮封印・收下寶物'}
+          {ritualOpening ? `封印儀式進行中・${ritualStage! + 1}/4` : treasureCollected ? '本宮寶物已入背包・再次觀看儀式' : '解開本宮封印・開始十二秒儀式'}
         </button>
+        {ritualOpening && <section className="mt-3 rounded-xl border border-amber-100/25 bg-black/25 px-3 py-3" aria-live="polite">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[11px] font-black tracking-[0.12em] text-amber-100">{ritual.title}</p>
+            <p className="text-[10px] font-bold text-amber-50/65">十二秒儀式</p>
+          </div>
+          <p className="mt-2 text-sm font-semibold leading-6 text-amber-50">{ritual.scenes[ritualStage]}</p>
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-black/40">
+            <div className="h-full rounded-full bg-gradient-to-r from-amber-200 via-amber-50 to-cyan-100 transition-[width] duration-[2800ms] ease-linear" style={{ width: `${(ritualStage + 1) * 25}%` }} />
+          </div>
+        </section>}
         <section className="mt-4 border-t border-amber-100/20 pt-4" aria-label="其餘四元素材質預覽">
-          <p className="text-[10px] font-black tracking-[0.16em] text-amber-100/75">其餘四顆・科技寶石材質</p>
-          <p className="mt-1 text-[11px] font-semibold leading-5 text-amber-50/65">用來確認五元素的材質邏輯；不會更改這一宮已判定的補強元素。</p>
+          <p className="text-xs font-black tracking-[0.14em] text-amber-100/80">其餘四顆・科技寶石材質</p>
+          <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">用來確認五元素的材質邏輯；不會更改這一宮已判定的補強元素。</p>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {materialPreviewElements.map((element) => {
               const preview = ZIWEI_ELEMENT_TREASURES[element];
               return (
-                <article key={element} className="flex min-h-[92px] items-center gap-2 rounded-xl border border-amber-100/20 bg-black/20 p-2">
-                  <div className="treasure-reveal-stage scale-[0.76] shrink-0" aria-hidden="true">
+                <article key={element} className="relative flex min-h-[92px] items-center gap-2 overflow-hidden rounded-xl border border-amber-100/20 bg-black/20 p-2">
+                  <div className="treasure-reveal-stage treasure-reveal-stage--sealed scale-[0.76] shrink-0" aria-hidden="true">
                     <WaterTreasureOrb element={ZIWEI_PRODUCT_ELEMENT[element]} released={false} preview />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-black text-amber-50">{preview.label}元素</p>
-                    <p className="mt-1 text-[10px] font-semibold leading-4 text-amber-100/70">{preview.name}</p>
+                    <p className="text-sm font-black text-amber-50">{preview.label}元素</p>
+                    <p className="mt-1 text-[11px] font-semibold leading-4 text-amber-100/75">{preview.name}</p>
                   </div>
+                  <span className="absolute right-2 top-2 rounded-full border border-amber-100/25 bg-slate-950/75 px-2 py-1 text-[10px] font-black tracking-[0.1em] text-amber-100/85">封印中</span>
                 </article>
               );
             })}
@@ -2744,9 +2874,9 @@ function ZiweiHorrorGhostMovieView({
 
       <div className="relative mt-4 grid grid-cols-3 gap-2" aria-label="恐怖鬼魅三幕結構">
         {[
-          ['過去', '命盤伏筆', '星曜留下的舊迴聲'],
-          ['當下', '警報逼近', '本宮壓力正在推進'],
-          ['未來', '鬼魅岔路', '選擇決定下一幕'],
+          ['第一關', '禁區開場', '命盤留下的舊迴聲'],
+          ['第二關', '異象逼近', '本宮壓力正在推進'],
+          ['最終關', '封印出口', '解封後才能推進下一幕'],
         ].map(([time, title, detail], index) => (
           <div key={time} className={`rounded-xl border p-3 ${index === 1 ? 'border-rose-200/35 bg-rose-500/10' : 'border-white/10 bg-black/20'}`}>
             <p className="text-[10px] font-black tracking-[0.16em] text-rose-200/80">{time}</p>
@@ -2774,10 +2904,24 @@ function ZiweiHorrorGhostMovieView({
           <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-violet-100/15">03</span>
           <p className="text-xs font-black tracking-[0.14em] text-violet-100">第三幕・最後一盞燈</p>
           <p className="mt-2"><span className="font-black text-cyan-100">未來壓力窗口：</span>{life.futureRiskWindow}</p>
-          {narrative && <p className="mt-2 text-violet-100/85">鬼魅畫面：{narrative.futureShadow}</p>}
+          {narrative && <p className="mt-2 text-violet-100/85">鬼魅低語：{narrative.futureShadow}</p>}
           <p className="mt-2 border-t border-violet-100/10 pt-2 text-sm font-black text-violet-100/90">{narrative?.finalMetaphor ?? life.practicalDirection}</p>
         </section>
       </div>
+      <section className="relative mt-3 overflow-hidden rounded-2xl border border-rose-200/30 bg-[linear-gradient(135deg,rgba(76,5,25,0.56),rgba(30,27,75,0.5))] p-4 shadow-[inset_0_0_30px_rgba(190,24,93,0.12)]" aria-label="鬼魅回應">
+        <span aria-hidden="true" className="absolute right-3 top-1 font-serif text-6xl font-black text-rose-100/[0.08]">答</span>
+        <div className="relative flex items-center justify-between gap-2">
+          <p className="ghost-reply-title">鬼魅回應・封印低語</p>
+          <span className="ghost-reply-status">它已聽見</span>
+        </div>
+        <p className="ghost-reply-lead relative mt-3">「{name}，{palaceName}的門沒有關好。」</p>
+        <p className="ghost-reply-copy relative mt-2">「{ghostReply}」</p>
+        <div className="relative mt-3 grid grid-cols-2 gap-2 border-t border-rose-100/15 pt-3">
+          <p className="rounded-xl border border-rose-100/15 bg-black/20 px-2.5 py-2 text-[11px] font-semibold leading-5 text-violet-100/80"><span className="block text-[9px] font-black tracking-[0.14em] text-rose-100/80">它盯上的線索</span>{evidenceRefs.slice(0, 1).join('') || `${palaceName}的正式命盤訊號`}</p>
+          <p className="rounded-xl border border-rose-100/15 bg-black/20 px-2.5 py-2 text-[11px] font-semibold leading-5 text-violet-100/80"><span className="block text-[9px] font-black tracking-[0.14em] text-rose-100/80">它留下的問題</span>{life.blindSpot}</p>
+        </div>
+        <p className="relative mt-3 border-l-2 border-rose-300/50 pl-3 text-xs font-semibold leading-5 text-violet-100/80">封印沒有替你決定結局；它只把{palaceName}的答案留在門縫裡。解開寶珠，才會走進本局的下一幕。</p>
+      </section>
       <ZiweiTeacherEvidenceRefs refs={evidenceRefs} />
     </section>
   );
@@ -5072,7 +5216,10 @@ export default function InsightPage() {
               </button>
             </div>
 
-            <NextStepGuide current="insight" />
+            {/* 紫微結果頁已用十二宮與神獸卡完成主流程；底層的歌曲／靈魂配對導流卡先不重複顯示。功能入口仍保留在首頁與各自頁面。 */}
+            <div className="hidden" aria-hidden="true">
+              <NextStepGuide current="insight" />
+            </div>
           </div>
         </div>
       )}
