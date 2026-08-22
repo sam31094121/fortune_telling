@@ -123,7 +123,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
   const elementTreasure = useMemo(() => getBaziElementTreasure(view), [view]);
   const treasureRitual = BAZI_TREASURE_RITUALS[elementTreasure.element];
   const ghostReply = `「${shortName}，以前沒有回答完的問題沒有消失；它只是藏在你現在的門縫裡，等你決定要不要先跨出那一步。」`;
-  const episodeTitle = '鬼魅老師的暗示提醒';
+  const episodeTitle = '鬼魅老師解封暗示提醒';
 
   useEffect(() => () => ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer)), []);
 
@@ -299,7 +299,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
                 {googleLoading ? '正在生成' : googleReading ? 'Google 老師已完成' : '等待解盤'}
               </span>
             </div>
-            <p className="order-2 mt-2 rounded-xl border border-cyan-100/20 bg-cyan-950/35 px-3 py-2 text-xs font-bold leading-5 text-cyan-50/75">Google 老師會以姓名後兩字與目前年齡開場，按「前一歲／現在／下一歲」白話解說日主、格局、十神、五行、大運與流年；第一步先取得五元素寶物，再閱讀完整解盤。</p>
+            <p className="order-2 mt-2 rounded-xl border border-cyan-100/20 bg-cyan-950/35 px-3 py-2 text-xs font-bold leading-5 text-cyan-50/75">Google 老師會以姓名後兩字與目前年齡開場，按「前一歲／現在／下一歲」白話解說日主、格局、十神、五行、大運與流年；讀完提醒後，解開你的五元素寶石，讓今天的行動有一個明確起點。</p>
             {googleLoading && (
               <div className="order-3 mt-3 rounded-xl border border-cyan-100/25 bg-cyan-950/40 px-3 py-3" aria-live="polite">
                 <div className="flex items-center gap-2">
@@ -320,7 +320,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
             {googleReading && <p className="order-5 mt-4 rounded-2xl border border-cyan-100/30 bg-black/20 p-3 text-sm font-semibold leading-7 text-cyan-50/90">{googleReading}</p>}
             {googleReading && (
               <section className="five-element-treasure-card order-4 mt-4 overflow-hidden rounded-[1.45rem] border-2 border-amber-200/70 p-5" aria-label="今日五元素寶物行動">
-                <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">第一步・五元素寶物封印</p>
+                <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">依老師提醒・解開五元素寶石</p>
                 <div className="mt-3 grid grid-cols-1 items-center gap-5 rounded-2xl border-2 border-amber-100/55 bg-black/25 p-5 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
                   <div key={`google-treasure-${treasurePulse}`} className={`treasure-reveal-stage treasure-reveal-stage--${elementTreasure.element === '水' ? 'water' : 'standard'} treasure-reveal-stage--hero justify-self-center scale-[1.78] ${treasureCollected ? 'treasure-reveal-stage--collected' : ''} ${treasureOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
                     <WaterTreasureOrb element={elementTreasure.element} released={treasureActive} />
@@ -339,7 +339,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
                   disabled={treasureOpening}
                   className={`mt-3 w-full rounded-xl border-2 px-3 py-3 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/85 bg-amber-300/20 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.2)]'}`}
                 >
-                  {treasureOpening ? '封印正在解開・寶物釋放中…' : treasureCollected ? '再次喚醒寶物・把今天的一步做完' : `第一步・解開${elementTreasure.element}元素封印`}
+                  {treasureOpening ? '寶石正在解封・能量釋放中…' : treasureCollected ? '寶石已解封・把今天的一步做完' : `依提醒解開${elementTreasure.element}元素寶石`}
                 </button>
               </section>
             )}
@@ -388,7 +388,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
               <p className="ghost-reply-title">鬼魅正式解盤・同盤回應</p>
               <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${horrorLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : horrorReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-rose-100/35 bg-rose-300/10 text-rose-100/80'}`}>{horrorLoading ? '正在生成' : horrorReading ? '鬼魅已回應' : '等待回應'}</span>
             </div>
-            <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和 Google 老師解盤使用完全相同的八字資料與五元素寶物；客戶只會看到以前、現在、未來與生活情境。恐怖、鬼魅、神祕只改變這位老師的遊戲語氣，不會塞進看不懂的術語。</p>
+            <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和 Google 老師解盤使用完全相同的八字資料與五元素寶石；鬼魅老師會用故事給你一個暗示提醒，最後引導你解開對應的寶石，不會塞進看不懂的術語。</p>
             {horrorLoading && (
               <div className="mt-3 rounded-xl border border-rose-100/25 bg-black/35 px-3 py-3" aria-live="polite">
                 <div className="flex items-center gap-2">
@@ -404,7 +404,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
             {horrorReading && <p className="ghost-reply-copy mt-3 rounded-xl border border-rose-100/20 bg-black/25 p-3">{horrorReading}</p>}
           </section>
           <section className="five-element-treasure-card five-element-treasure-card--horror relative mt-3 overflow-hidden rounded-2xl border-2 border-amber-200/70 p-5" aria-label="五元素寶物關卡">
-            <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">本集片尾・五元素寶物封印</p>
+            <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">依鬼魅老師提醒・解開五元素寶石</p>
             <div className="mt-3 grid grid-cols-1 items-center gap-5 rounded-2xl border-2 border-amber-100/50 bg-black/25 p-5 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
               <div key={`horror-treasure-${treasurePulse}`} className={`treasure-reveal-stage treasure-reveal-stage--${elementTreasure.element === '水' ? 'water' : 'standard'} treasure-reveal-stage--hero justify-self-center scale-[1.78] ${treasureCollected ? 'treasure-reveal-stage--collected' : ''} ${treasureOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
                 <WaterTreasureOrb element={elementTreasure.element} released={treasureActive} />
@@ -437,7 +437,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
             )}
             {treasureCollected && (
               <div className="mt-3 rounded-xl border-2 border-cyan-100/50 bg-cyan-950/35 p-3">
-              <p className="text-xs font-black tracking-[0.14em] text-cyan-100">片尾解封完成・選擇下一集</p>
+              <p className="text-xs font-black tracking-[0.14em] text-cyan-100">寶石已解封・選擇下一步</p>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   <button type="button" onClick={() => setActive('CHART')} className="rounded-xl border-2 border-violet-100/50 bg-violet-300/10 px-3 py-2 text-sm font-black text-violet-50">回到老師解盤</button>
                   <button type="button" onClick={onOpenFull} className="rounded-xl border-2 border-amber-100/70 bg-amber-300/14 px-3 py-2 text-sm font-black text-amber-50">進入完整命盤</button>
@@ -468,12 +468,12 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
           <section className="relative mt-3 overflow-hidden rounded-2xl border-2 border-rose-100/65 bg-[radial-gradient(circle_at_78%_16%,rgba(190,24,93,0.3),transparent_30%),linear-gradient(135deg,rgba(76,5,25,0.78),rgba(30,27,75,0.66),rgba(2,6,23,0.94))] p-5 shadow-[0_0_34px_rgba(190,24,93,0.23),inset_0_0_30px_rgba(190,24,93,0.16)]" aria-label="鬼魅回應">
             <span aria-hidden="true" className="absolute right-3 top-1 font-serif text-6xl font-black text-rose-100/[0.08]">答</span>
             <div className="relative flex items-center justify-between gap-2">
-            <p className="ghost-reply-title">鬼魅老師的暗示提醒</p>
+            <p className="ghost-reply-title">鬼魅老師解封暗示提醒</p>
               <span className="ghost-reply-status">不要回頭</span>
             </div>
             <p className="ghost-reply-lead relative mt-4">「{shortName}，門外的聲音停了。不是它離開，而是它已經站在封印的另一邊，等你開口。」</p>
             <p className="ghost-reply-copy relative mt-2">{ghostReply}</p>
-            <p className="relative mt-5 border-l-2 border-rose-200/80 pl-3 text-sm font-black leading-6 text-rose-50">這不是說明，也不是預言。這是本集最後的選擇：現在解封，帶著寶珠走進下一幕；或把門關上，讓同一個問題留到明天。</p>
+            <p className="relative mt-5 border-l-2 border-rose-200/80 pl-3 text-sm font-black leading-6 text-rose-50">這不是預言，而是鬼魅老師給你的暗示提醒：現在解開五元素寶石，帶著它的行動方向往下一步走。</p>
           </section>
         </article>
       )}
