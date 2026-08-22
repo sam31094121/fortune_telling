@@ -9,10 +9,9 @@ import { FiveElementOrbit } from './FiveElementOrbit';
  * 只顯示：姓名、出生摘要、日主、四柱、五行主調、一句主題、一個 CTA。
  * 3 秒內知道日主與核心主題。
  */
-export function BaziHeroCard({ view, elementOf, onOpenTeacher }: {
+export function BaziHeroCard({ view, elementOf }: {
   view: BaziCustomerView;
   elementOf: (stem: string) => string | undefined;
-  onOpenTeacher: () => void;
 }) {
   return (
     <section className="rounded-[24px] border border-white/10 bg-[linear-gradient(165deg,rgba(16,16,20,0.96),rgba(24,22,18,0.92))] p-5 sm:p-6">
@@ -40,14 +39,6 @@ export function BaziHeroCard({ view, elementOf, onOpenTeacher }: {
       <p className="mt-5 rounded-2xl border border-amber-200/20 bg-amber-100/[0.05] px-4 py-3 text-center font-serif text-lg font-black leading-8 text-amber-50">
         「{view.themeLine}」
       </p>
-
-      <button
-        type="button"
-        onClick={onOpenTeacher}
-        className="mt-4 w-full rounded-full border border-amber-200/40 bg-amber-200/12 py-3.5 text-base font-black text-amber-50 transition hover:bg-amber-200/20 active:scale-[0.99]"
-      >
-        老師怎麼看？
-      </button>
     </section>
   );
 }

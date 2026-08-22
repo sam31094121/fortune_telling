@@ -30,8 +30,6 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
   const elementOf = (stem: string) => STEM_ELEMENT_LABEL[stem];
 
   const openLevel = (next: 'teacher' | 'full') => {
-    // 「老師怎麼看？」是開啟入口，不應因客戶再次確認而把老師區塊收掉。
-    // 完整命盤仍可切換，但同一張命工卡的重複點擊永遠維持目前層級可見。
     setLevel(next);
     requestAnimationFrame(() => detailRef.current?.scrollIntoView({ block: 'start' }));
   };
@@ -49,7 +47,7 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
   return (
     <div className="space-y-6">
       {/* LEVEL 1｜命工卡 */}
-      <BaziHeroCard view={view} elementOf={elementOf} onOpenTeacher={() => openLevel('teacher')} />
+      <BaziHeroCard view={view} elementOf={elementOf} />
 
       {/* LEVEL 2 / 3 */}
       <div ref={detailRef} className="scroll-mt-24">
