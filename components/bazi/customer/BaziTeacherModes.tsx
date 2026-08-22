@@ -123,7 +123,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
   const elementTreasure = useMemo(() => getBaziElementTreasure(view), [view]);
   const treasureRitual = BAZI_TREASURE_RITUALS[elementTreasure.element];
   const ghostReply = `「${shortName}，以前沒有回答完的問題沒有消失；它只是藏在你現在的門縫裡，等你決定要不要先跨出那一步。」`;
-  const episodeTitle = '第 01 集・以前留下的暗門';
+  const episodeTitle = '鬼魅老師幫你解封';
 
   useEffect(() => () => ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer)), []);
 
@@ -358,7 +358,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
           </div>
           <p className="mt-2 rounded-xl border border-violet-200/15 bg-black/25 px-3 py-2 text-xs font-bold leading-5 text-violet-100/80">戲劇化命盤遊戲情境：以同一張八字盤與當下時間層創作，不代表已發生的真實事件。</p>
           <h4 className="relative mt-3 font-serif text-[1.38rem] font-black leading-8 text-white">{episodeTitle}</h4>
-          <p className="relative mt-1 text-sm font-black leading-6 text-rose-100/90">{shortName}，你現在 {ageLabel}。這一集只用以前、現在、未來的生活節奏來推進故事。</p>
+          <p className="relative mt-1 text-sm font-black leading-6 text-rose-100/90">{shortName}，你現在 {ageLabel}。這次解盤會用以前、現在、未來的生活節奏，陪你看懂眼前的訊號。</p>
           <div className="relative mt-3 flex items-center gap-2 rounded-xl border border-rose-200/30 bg-black/35 px-3 py-2 shadow-[inset_0_0_20px_rgba(190,24,93,0.08)]">
             <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-rose-300 shadow-[0_0_12px_rgba(253,164,175,0.95)]" />
             <p className="text-xs font-black tracking-[0.12em] text-rose-100">劇情壓力正在累積・每一幕都比前一幕更靠近</p>
@@ -468,7 +468,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
           <section className="relative mt-3 overflow-hidden rounded-2xl border-2 border-rose-100/65 bg-[radial-gradient(circle_at_78%_16%,rgba(190,24,93,0.3),transparent_30%),linear-gradient(135deg,rgba(76,5,25,0.78),rgba(30,27,75,0.66),rgba(2,6,23,0.94))] p-5 shadow-[0_0_34px_rgba(190,24,93,0.23),inset_0_0_30px_rgba(190,24,93,0.16)]" aria-label="鬼魅回應">
             <span aria-hidden="true" className="absolute right-3 top-1 font-serif text-6xl font-black text-rose-100/[0.08]">答</span>
             <div className="relative flex items-center justify-between gap-2">
-            <p className="ghost-reply-title">第 01 集・封印的最後警告</p>
+            <p className="ghost-reply-title">鬼魅老師的解封提醒</p>
               <span className="ghost-reply-status">不要回頭</span>
             </div>
             <p className="ghost-reply-lead relative mt-4">「{shortName}，門外的聲音停了。不是它離開，而是它已經站在封印的另一邊，等你開口。」</p>
