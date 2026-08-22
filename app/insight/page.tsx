@@ -995,6 +995,21 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
           })}
         </div>
 
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {(['MING', 'QIAN_YI', 'GUAN_LU', 'CAI_BO'] as const).map((key) => {
+            const label = palaceLabels[key];
+            const tone = palaceTone[key];
+            return (
+              <article key={`${key}-star-beast`} className={`relative min-h-[88px] overflow-hidden rounded-2xl border px-3 py-3 ${tone.card}`}>
+                <span className={`pointer-events-none absolute -right-1 -top-4 font-serif text-6xl font-black opacity-[0.08] ${tone.text}`}>{label.glyph}</span>
+                <p className={`relative text-[9px] font-black tracking-[0.14em] ${tone.text}`}>星宿神獸卡</p>
+                <h4 className="relative mt-1 text-sm font-black text-white">{label.name}</h4>
+                <p className="relative mt-2 text-[10px] font-semibold leading-4 text-white/60">果老宿度交叉校驗中</p>
+              </article>
+            );
+          })}
+        </div>
+
         <div className="hidden mt-4 grid grid-cols-3 gap-2" aria-hidden="true">
           {[
             ['關鍵星覆蓋', `${analysis.patternMetrics.patternCoverage}%`],
