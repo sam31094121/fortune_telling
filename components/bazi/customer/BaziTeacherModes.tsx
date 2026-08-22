@@ -123,7 +123,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
   const elementTreasure = useMemo(() => getBaziElementTreasure(view), [view]);
   const treasureRitual = BAZI_TREASURE_RITUALS[elementTreasure.element];
   const ghostReply = `「${shortName}，以前沒有回答完的問題沒有消失；它只是藏在你現在的門縫裡，等你決定要不要先跨出那一步。」`;
-  const episodeTitle = '鬼魅老師幫你解封';
+  const episodeTitle = '鬼魅老師幫你解封印的提醒';
 
   useEffect(() => () => ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer)), []);
 
@@ -468,7 +468,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
           <section className="relative mt-3 overflow-hidden rounded-2xl border-2 border-rose-100/65 bg-[radial-gradient(circle_at_78%_16%,rgba(190,24,93,0.3),transparent_30%),linear-gradient(135deg,rgba(76,5,25,0.78),rgba(30,27,75,0.66),rgba(2,6,23,0.94))] p-5 shadow-[0_0_34px_rgba(190,24,93,0.23),inset_0_0_30px_rgba(190,24,93,0.16)]" aria-label="鬼魅回應">
             <span aria-hidden="true" className="absolute right-3 top-1 font-serif text-6xl font-black text-rose-100/[0.08]">答</span>
             <div className="relative flex items-center justify-between gap-2">
-            <p className="ghost-reply-title">鬼魅老師的解封提醒</p>
+            <p className="ghost-reply-title">鬼魅老師幫你解封印的提醒</p>
               <span className="ghost-reply-status">不要回頭</span>
             </div>
             <p className="ghost-reply-lead relative mt-4">「{shortName}，門外的聲音停了。不是它離開，而是它已經站在封印的另一邊，等你開口。」</p>
