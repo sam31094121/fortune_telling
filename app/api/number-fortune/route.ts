@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 
 import {
@@ -19,6 +19,7 @@ type NumberFortuneRequest = {
   mode?: unknown;
   value?: unknown;
   purpose?: unknown;
+  includeAiExplanation?: unknown;
 };
 
 type NumberPurpose = 'general' | 'plate' | 'phone' | 'birthdate';
@@ -212,7 +213,12 @@ export async function POST(request: Request) {
   }
 
   const fiveElement = buildNumberFiveElementResult(result);
-  const googleExplanation = await explainNumberWithGoogle(result, purpose);
+  // The deterministic Number Core result is the primary response.  External AI
+  // prose is opt-in so a slow provider cannot make a basic number lookup feel
+  // frozen or delay the user from seeing the calculated result.
+  const googleExplanation = body.includeAiExplanation === true
+    ? await explainNumberWithGoogle(result, purpose)
+    : null;
   const response: NumberAnalysisResponse & { analysisId: string; requestId: string; mode: NumberAnalysisMode; purpose: NumberPurpose; fiveElement: ReturnType<typeof buildNumberFiveElementResult>; googleExplanation?: string; googleProvider?: 'Google Gemini' } = {
     ...result,
     analysisId,
@@ -222,7 +228,9 @@ export async function POST(request: Request) {
     ...(googleExplanation ? { googleExplanation, googleProvider: 'Google Gemini' as const } : {}),
   };
 
-  await persistAnalysisResult(response, rawValue, analysisHash, analysisId);
+  // Persistence is best-effort analytics. Schedule it after the response so it
+  // can never delay the deterministic result the user is waiting to read.
+  after(() => persistAnalysisResult(response, rawValue, analysisHash, analysisId));
 
   return NextResponse.json(response, { headers: { 'Cache-Control': 'no-store' } });
 }

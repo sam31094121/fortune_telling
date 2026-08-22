@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { BaziCustomerView } from './adapter';
-import { TeacherSummary } from './TeacherSummary';
 import { CustomerEvidenceDrawer } from './CustomerAccordion';
 import { WaterTreasureOrb } from './WaterTreasureOrb';
 
@@ -12,6 +11,30 @@ const TEACHERS: Array<{ id: TeacherMode; title: string; subtitle: string }> = [
   { id: 'CHART', title: 'Google 解盤', subtitle: 'Google 交叉白話解說・結構、用神、運勢' },
   { id: 'HORROR_GHOST', title: '恐怖鬼魅解命盤', subtitle: '壓力訊號、象徵意境與當下時間' },
 ];
+
+/**
+ * A tap must never feel like nothing happened. These stages rotate while the
+ * reading is in flight so the wait always reads as "the system is working",
+ * never as a frozen screen — even when the API answers in under a second.
+ */
+const GOOGLE_RITUAL_STAGES = [
+  'Google 正在喚醒命盤引擎…',
+  '正在比對日主、格局與十神…',
+  '正在校對五行、用神與大運流年…',
+  '正在把結構整理成白話…',
+];
+const HORROR_RITUAL_STAGES = [
+  '鬼魅正在翻開封印的第一頁…',
+  '殘影與警報正在對齊同一張命盤…',
+  '最後一盞燈正在被點亮…',
+  '正在寫下這一集的回應…',
+];
+const MIN_RITUAL_MS = 3200;
+const RITUAL_STAGE_INTERVAL_MS = 1100;
+
+function delay(ms: number) {
+  return new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+}
 
 /**
  * Customer-facing five-element vocabulary is permanently the product system:
@@ -73,6 +96,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
   const [googleRun, setGoogleRun] = useState(0);
+  const [googleStage, setGoogleStage] = useState(0);
   const [horrorReading, setHorrorReading] = useState<string | null>(null);
   const [horrorLoading, setHorrorLoading] = useState(false);
   const [horrorError, setHorrorError] = useState<string | null>(null);
@@ -90,6 +114,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
     ];
   }, [view]);
 
+  const [horrorStage, setHorrorStage] = useState(0);
   const primaryLuck = currentLuck(view);
   const shortName = view.name.trim().slice(-2) || '你';
   const ageLabel = view.timeContext.age === null ? '年齡待確認' : `${view.timeContext.age} 歲`;
@@ -150,55 +175,81 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
   useEffect(() => {
     if (active !== 'CHART') return;
     const controller = new AbortController();
+    let cancelled = false;
     setGoogleLoading(true);
     setGoogleError(null);
-    fetch('/api/bazi/google-reading', {
+    setGoogleStage(0);
+    const stageTimer = window.setInterval(() => {
+      setGoogleStage((stage) => (stage + 1) % GOOGLE_RITUAL_STAGES.length);
+    }, RITUAL_STAGE_INTERVAL_MS);
+    const request = fetch('/api/bazi/google-reading', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: googleRequestKey,
       signal: controller.signal,
-    })
-      .then(async (response) => {
-        const json = await response.json() as { ok?: boolean; reading?: string; message?: string };
-        if (!response.ok || !json.ok || !json.reading) throw new Error(json.message || 'Google 解盤未返回內容。');
-        setGoogleReading(json.reading);
-      })
-      .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === 'AbortError') return;
+    }).then(async (response) => {
+      const json = await response.json() as { ok?: boolean; reading?: string; message?: string };
+      if (!response.ok || !json.ok || !json.reading) throw new Error(json.message || 'Google 解盤未返回內容。');
+      return json.reading;
+    });
+    // A tap must always visibly "run" for at least MIN_RITUAL_MS, even when
+    // the API answers instantly — otherwise a fast reply reads as no reaction at all.
+    Promise.allSettled([request, delay(MIN_RITUAL_MS)]).then(([result]) => {
+      window.clearInterval(stageTimer);
+      if (cancelled) return;
+      if (result.status === 'fulfilled') {
+        setGoogleReading(result.value);
+        setGoogleError(null);
+      } else if (!(result.reason instanceof DOMException && result.reason.name === 'AbortError')) {
         setGoogleReading(null);
-        setGoogleError(error instanceof Error ? error.message : 'Google 解盤暫時無法完成。');
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setGoogleLoading(false);
-      });
-    return () => controller.abort();
+        setGoogleError(result.reason instanceof Error ? result.reason.message : 'Google 解盤暫時無法完成。');
+      }
+      setGoogleLoading(false);
+    });
+    return () => {
+      cancelled = true;
+      controller.abort();
+      window.clearInterval(stageTimer);
+    };
   }, [active, googleRequestKey, googleRun]);
 
   useEffect(() => {
     if (active !== 'HORROR_GHOST') return;
     const controller = new AbortController();
+    let cancelled = false;
     setHorrorLoading(true);
     setHorrorError(null);
-    fetch('/api/bazi/horror-reading', {
+    setHorrorStage(0);
+    const stageTimer = window.setInterval(() => {
+      setHorrorStage((stage) => (stage + 1) % HORROR_RITUAL_STAGES.length);
+    }, RITUAL_STAGE_INTERVAL_MS);
+    const request = fetch('/api/bazi/horror-reading', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: googleRequestKey,
       signal: controller.signal,
-    })
-      .then(async (response) => {
-        const json = await response.json() as { ok?: boolean; reading?: string; message?: string };
-        if (!response.ok || !json.ok || !json.reading) throw new Error(json.message || '恐怖鬼魅解盤未返回內容。');
-        setHorrorReading(json.reading);
-      })
-      .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === 'AbortError') return;
+    }).then(async (response) => {
+      const json = await response.json() as { ok?: boolean; reading?: string; message?: string };
+      if (!response.ok || !json.ok || !json.reading) throw new Error(json.message || '恐怖鬼魅解盤未返回內容。');
+      return json.reading;
+    });
+    Promise.allSettled([request, delay(MIN_RITUAL_MS)]).then(([result]) => {
+      window.clearInterval(stageTimer);
+      if (cancelled) return;
+      if (result.status === 'fulfilled') {
+        setHorrorReading(result.value);
+        setHorrorError(null);
+      } else if (!(result.reason instanceof DOMException && result.reason.name === 'AbortError')) {
         setHorrorReading(null);
-        setHorrorError(error instanceof Error ? error.message : '恐怖鬼魅解盤暫時無法完成。');
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setHorrorLoading(false);
-      });
-    return () => controller.abort();
+        setHorrorError(result.reason instanceof Error ? result.reason.message : '恐怖鬼魅解盤暫時無法完成。');
+      }
+      setHorrorLoading(false);
+    });
+    return () => {
+      cancelled = true;
+      controller.abort();
+      window.clearInterval(stageTimer);
+    };
   }, [active, googleRequestKey, horrorRun]);
 
   return (
@@ -249,7 +300,17 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
               </span>
             </div>
             <p className="order-2 mt-2 rounded-xl border border-cyan-100/20 bg-cyan-950/35 px-3 py-2 text-xs font-bold leading-5 text-cyan-50/75">Google 會以姓名後兩字與目前年齡開場，按「前一歲／現在／下一歲」白話解說日主、格局、十神、五行、大運與流年；第一步先取得五元素寶物，再閱讀完整解盤。</p>
-            {googleLoading && <p className="order-3 mt-3 text-sm font-semibold leading-6 text-cyan-50/80">Google 正在依已鎖定的八字結構生成解盤…</p>}
+            {googleLoading && (
+              <div className="order-3 mt-3 rounded-xl border border-cyan-100/25 bg-cyan-950/40 px-3 py-3" aria-live="polite">
+                <div className="flex items-center gap-2">
+                  <span aria-hidden="true" className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-cyan-100/25 border-t-cyan-100" />
+                  <p className="text-sm font-semibold leading-6 text-cyan-50/90">{GOOGLE_RITUAL_STAGES[googleStage]}</p>
+                </div>
+                <div className="mt-2 h-1 overflow-hidden rounded-full bg-black/40">
+                  <div className="ritual-progress-sweep h-full w-1/3 rounded-full bg-gradient-to-r from-transparent via-cyan-100 to-transparent" />
+                </div>
+              </div>
+            )}
             {googleError && (
               <div className="order-3 mt-2">
                 <p className="text-sm font-semibold leading-6 text-rose-100">Google 解盤暫時未完成：{googleError}</p>
@@ -283,7 +344,6 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
               </section>
             )}
           </article>
-          <TeacherSummary view={view} />
         </>
       )}
 
@@ -329,7 +389,17 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
               <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${horrorLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : horrorReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-rose-100/35 bg-rose-300/10 text-rose-100/80'}`}>{horrorLoading ? '正在生成' : horrorReading ? '鬼魅已回應' : '等待回應'}</span>
             </div>
             <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和 Google 解盤使用完全相同的八字資料與五元素寶物；客戶只會看到以前、現在、未來與生活情境。恐怖、鬼魅、神祕只改變這位老師的遊戲語氣，不會塞進看不懂的術語。</p>
-            {horrorLoading && <p className="mt-3 text-sm font-semibold leading-6 text-rose-100/85">鬼魅正在沿著同一張八字盤，把三段時間線寫成這一集的回應…</p>}
+            {horrorLoading && (
+              <div className="mt-3 rounded-xl border border-rose-100/25 bg-black/35 px-3 py-3" aria-live="polite">
+                <div className="flex items-center gap-2">
+                  <span aria-hidden="true" className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-rose-100/25 border-t-rose-200" />
+                  <p className="text-sm font-semibold leading-6 text-rose-100/90">{HORROR_RITUAL_STAGES[horrorStage]}</p>
+                </div>
+                <div className="mt-2 h-1 overflow-hidden rounded-full bg-black/40">
+                  <div className="ritual-progress-sweep h-full w-1/3 rounded-full bg-gradient-to-r from-transparent via-rose-200 to-transparent" />
+                </div>
+              </div>
+            )}
             {horrorError && <div className="mt-3"><p className="text-sm font-semibold leading-6 text-rose-100">鬼魅回應暫時未完成：{horrorError}</p><button type="button" onClick={() => setHorrorRun((value) => value + 1)} className="mt-2 rounded-xl border-2 border-rose-100/70 bg-rose-300/10 px-3 py-2 text-xs font-black text-rose-50">重新請鬼魅回應</button></div>}
             {horrorReading && <p className="ghost-reply-copy mt-3 rounded-xl border border-rose-100/20 bg-black/25 p-3">{horrorReading}</p>}
           </section>

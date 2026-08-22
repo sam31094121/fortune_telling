@@ -11,10 +11,14 @@ import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
+import { readNameologySelfProfile, saveNameologySelfProfile } from '@/lib/nameology-self-profile';
+import { emptyCanonicalBirthProfile } from '@/lib/canonical-birth-profile';
+import { readCanonicalBirthProfile, saveCanonicalBirthProfile } from '@/lib/canonical-birth-profile-client';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 import { TAROT_CARD_BACK_URL } from '@/features/tarot/constants/cardBack';
+import { deriveNameologyTotalBeast } from '@/lib/nameology-total-beast';
 
 type NameologyResponse = {
   ok: boolean;
@@ -545,6 +549,74 @@ function NameologyUltimateDecisionPanel({ analysis }: { analysis: NameologyAnaly
   );
 }
 
+function NameologyNamingIntentionCard({ analysis }: { analysis: NameologyAnalysis }) {
+  const layer = analysis.professionalLayer;
+  const surnameCount = layer.nameStructure.surnameCharacterCount;
+  const givenCharacters = layer.characterDecomposition.slice(surnameCount);
+  const givenName = layer.nameStructure.givenName || givenCharacters.map((item) => item.char).join('');
+  const hopedQualities = Array.from(new Set(givenCharacters.flatMap((item) => item.temperamentSignals.map((signal) => signal.split('：')[0])))).slice(0, 5);
+
+  if (!givenName || givenCharacters.length === 0) return null;
+
+  return (
+    <section className="fortune-card overflow-hidden border-amber-200/35 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.18),rgba(120,53,15,0.18)_38%,rgba(15,23,42,0.94)_74%,rgba(2,6,23,0.99)_100%)] p-5 shadow-[0_18px_60px_rgba(180,83,9,0.18)] sm:p-7">
+      <p className="text-[10px] font-black tracking-[0.24em] text-amber-200">NAMING INTENTION</p>
+      <div className="mt-2 flex items-end justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="font-serif text-3xl font-black leading-tight text-amber-50 sm:text-4xl">當初取名的意境</h2>
+          <p className="mt-2 text-sm font-semibold leading-7 text-amber-100/85">不是抽象吉凶，而是名字後兩字裡，放進了希望你長成的樣子。</p>
+        </div>
+        <span className="shrink-0 rounded-2xl border border-amber-200/30 bg-amber-100/10 px-3 py-2 text-center text-xs font-black leading-5 text-amber-100">
+          名字<br /><span className="font-serif text-2xl leading-none">{givenName}</span>
+        </span>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {givenCharacters.map((item) => (
+          <article key={`${item.position}-${item.char}`} className="min-w-0 rounded-2xl border border-amber-100/15 bg-black/25 p-4">
+            <div className="flex items-center gap-3">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-amber-200/30 bg-amber-300/10 font-serif text-3xl font-black text-amber-100">{item.char}</span>
+              <div className="min-w-0">
+                <p className="text-[11px] font-black tracking-[0.16em] text-amber-200">這個字本身的意思</p>
+                <p className="mt-1 text-xs font-bold leading-5 text-[color:var(--text-sub)]">{item.primaryMeaning}</p>
+              </div>
+            </div>
+            <div className="mt-3 border-l-2 border-amber-200/60 pl-3">
+              <p className="text-[11px] font-black text-amber-200">取名者留在這個字裡的話</p>
+              <p className="mt-1 break-words text-sm font-semibold leading-7 text-amber-50">把「{item.char}」放進名字，像是在對孩子說：{item.namingIntent}</p>
+            </div>
+            {item.temperamentSignals.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {item.temperamentSignals.slice(0, 3).map((signal) => (
+                  <span key={signal} className="rounded-full border border-amber-100/15 bg-amber-100/[0.06] px-2.5 py-1 text-[11px] font-bold text-amber-100/85">{signal.split('：')[0]}</span>
+                ))}
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-amber-200/25 bg-amber-950/25 p-4">
+        <p className="text-xs font-black text-amber-200">把「{givenName}」連起來，是一個怎樣的期盼</p>
+        <p className="mt-2 break-words text-base font-black leading-8 text-amber-50">取名者透過這兩個字，像是在期盼你把{hopedQualities.join('、') || '自己的長處'}帶進做決定、待人處事與未來想走的路。</p>
+        <p className="mt-3 break-words text-sm font-semibold leading-7 text-amber-100/85">{layer.namingStory.wholeNameIntent}</p>
+        <p className="mt-3 rounded-xl border border-amber-100/10 bg-black/15 px-3 py-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">判讀邏輯：先讀名字後兩字各自的字義與部首意象，再把兩個字放在一起，整理出取名時想留給下一代的祝福、能力與人生方向。</p>
+      </div>
+
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        <div className="rounded-2xl border border-cyan-200/20 bg-cyan-950/25 p-4">
+          <p className="text-xs font-black text-cyan-200">姓氏在姓名中的位置</p>
+          <p className="mt-2 text-sm font-semibold leading-7 text-cyan-50">「{layer.nameStructure.surname || '姓氏'}」負責家族脈絡與外在識別，是姓名的根基。</p>
+        </div>
+        <div className="rounded-2xl border border-amber-200/20 bg-amber-950/25 p-4">
+          <p className="text-xs font-black text-amber-200">名字在姓名中的位置</p>
+          <p className="mt-2 text-sm font-semibold leading-7 text-amber-50">「{givenName}」承接取名時放進去的期盼；本卡只依字義與部首意象逐字說明。</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function NameologyCharacterDeckPreview({ analysis }: { analysis: NameologyAnalysis }) {
   const characters = analysis.standardOutput.layer3.characters.slice(0, 4);
   const matchedCount = characters.filter((item) => item.dictionaryMatched).length;
@@ -573,6 +645,40 @@ function NameologyCharacterDeckPreview({ analysis }: { analysis: NameologyAnalys
             <p className="mt-2 line-clamp-3 break-words text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{item.primaryMeaning}</p>
           </article>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function NameologyTotalBeastCard({ analysis }: { analysis: NameologyAnalysis }) {
+  const totalGrid = analysis.grids.find((grid) => grid.key === 'total');
+  if (!totalGrid) return null;
+  const link = deriveNameologyTotalBeast(totalGrid, analysis.characters.map((item) => item.strokeCount));
+
+  return (
+    <section className="fortune-card relative overflow-hidden border-2 border-violet-200/45 bg-[radial-gradient(circle_at_16%_8%,rgba(196,181,253,0.24),rgba(76,29,149,0.28)_36%,rgba(15,23,42,0.96)_72%,rgba(2,6,23,0.99)_100%)] p-4 shadow-[0_20px_70px_rgba(76,29,149,0.30)] sm:p-7">
+      <span aria-hidden="true" className="absolute -right-8 -top-12 h-40 w-40 rounded-full bg-violet-300/10 blur-3xl" />
+      <div className="flex items-start justify-between gap-3">
+        <div className="relative min-w-0">
+          <p className="text-[10px] font-black tracking-[0.22em] text-violet-200">NAME · TOTAL BEAST</p>
+          <h2 className="mt-2 font-serif text-[2rem] font-black leading-tight text-violet-50 sm:text-4xl">{link.beast.name}</h2>
+          <p className="mt-2 text-sm font-bold leading-6 text-violet-100/85">你的姓名整體格局，唯一對應的神獸卡</p>
+        </div>
+        <div className="relative shrink-0 rounded-2xl border border-violet-100/45 bg-black/30 px-3 py-2 text-center shadow-[inset_0_0_20px_rgba(196,181,253,0.10)]">
+          <p className="text-[10px] font-black text-violet-100/65">總格</p>
+          <p className="mt-1 text-2xl font-black text-violet-50">{totalGrid.value}</p>
+          <p className="text-[10px] font-bold text-violet-100/70">{totalGrid.element}行</p>
+        </div>
+      </div>
+      <div className="relative mt-5 grid grid-cols-[124px_minmax(0,1fr)] items-center gap-4 sm:grid-cols-[174px_minmax(0,1fr)]">
+        <div className="rounded-2xl border border-violet-100/30 bg-black/30 p-1.5 shadow-[0_0_38px_rgba(167,139,250,0.36)]">
+          <img src={link.beast.image} alt={`${link.beast.name}總格神獸卡`} loading="lazy" className="aspect-[950/1656] w-full rounded-xl object-cover" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-base font-black text-violet-50">{link.beast.coreMeaning}</p>
+          <p className="mt-3 border-l-2 border-violet-200/75 pl-3 text-xs font-semibold leading-6 text-violet-100/85">{link.evidence}</p>
+          <p className="mt-3 rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-bold leading-5 text-violet-100/85">總格先定五行，再由姓名各字筆畫順序固定選卡。</p>
+        </div>
       </div>
     </section>
   );
@@ -607,30 +713,13 @@ function NameologyTarotBridgeCard({ analysis }: { analysis: NameologyAnalysis })
           <h2 className="mt-2 font-serif text-2xl font-black leading-tight text-violet-50 sm:text-3xl">姓名塔羅象徵已蓋牌</h2>
           <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">依姓名學五元素第一補強方向，先蓋牌連接 78 張塔羅素材中的象徵牌。客戶親手翻開後才顯示牌名與下一步；正式塔羅仍由塔羅牌卡獨立完成。</p>
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <p className="text-xs font-black text-cyan-100">姓名學方向</p>
-              <p className="mt-2 break-words text-sm font-bold leading-7 text-[color:var(--text-main)]">{firstDirection}</p>
-            </article>
-            <article className="rounded-2xl border border-violet-200/15 bg-violet-950/15 p-4">
-              <p className="text-xs font-black text-violet-100">塔羅象徵 · {revealed ? bridge.label : '等待翻牌'}</p>
-              <p className="mt-2 text-base font-black text-violet-50">{revealed ? `${bridge.cardName}｜${bridge.cardNameEn}` : '牌面已蓋起'}</p>
-              <p className="mt-2 break-words text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{revealed ? bridge.meaning : '請先點左側牌背，翻開姓名學對應的塔羅象徵。'}</p>
-            </article>
-          </div>
-
-          <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="min-w-0 break-words text-xs font-bold leading-6 text-violet-100">{revealed ? bridge.action : '翻開後，系統會顯示一個可帶入正式塔羅的下一步問題。'}</p>
-            {revealed ? (
-              <Link href="/tarot" className="inline-flex min-h-[48px] shrink-0 items-center justify-center rounded-full border border-violet-200/35 bg-violet-300/20 px-4 text-sm font-black text-violet-50 transition active:scale-[0.98]">
-                進入正式塔羅
-              </Link>
-            ) : (
+          {!revealed && (
+            <div className="mt-4 flex justify-end rounded-2xl border border-white/10 bg-black/20 p-4">
               <button type="button" onClick={() => setRevealed(true)} className="inline-flex min-h-[48px] shrink-0 items-center justify-center rounded-full border border-violet-200/35 bg-violet-300/20 px-4 text-sm font-black text-violet-50 transition active:scale-[0.98]">
                 翻開象徵牌
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -797,10 +886,11 @@ function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; f
   return (
     <section className="space-y-5">
       <NameologyUltimateDecisionPanel analysis={analysis} />
+      <NameologyNamingIntentionCard analysis={analysis} />
+      <NameologyTotalBeastCard analysis={analysis} />
       <NameologyCharacterDeckPreview analysis={analysis} />
       <NameologyTarotBridgeCard analysis={analysis} />
       <FiveElementPriorityCard result={fiveElement} />
-      <NameologyEssenceDetails analysis={analysis} />
       <NameologyProfessionalStructureDetails analysis={analysis} />
     </section>
   );
@@ -862,13 +952,43 @@ export default function NameologyPage() {
   const [ritualCollapsed, setRitualCollapsed] = useState(false);
   const ritualTimerRef = useRef<number | null>(null);
   const submitLockRef = useRef(false);
+  const formRef = useRef(form);
+  const selectionConfirmRef = useRef(selectionConfirm);
+  formRef.current = form;
+  selectionConfirmRef.current = selectionConfirm;
 
   useEffect(() => {
-    const clearIdentityError = () => {
-      setError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
+    const applyIdentity = (target = getAnalysisIdentityTarget()) => {
+      if (target === 'self') {
+        const saved = readNameologySelfProfile();
+        const canonical = readCanonicalBirthProfile();
+        const current = formRef.current;
+        const next: FormState = saved ?? {
+          ...current,
+          name: canonical?.name || current.name,
+          birthDate: canonical?.birthDate || current.birthDate,
+          gender: canonical?.gender === 'FEMALE' ? 'female' : canonical?.gender === 'MALE' ? 'male' : current.gender,
+        };
+        setForm(next);
+        if (saved) {
+          setSelectionConfirm({ bloodType: Boolean(saved.bloodType), gender: Boolean(saved.gender) });
+        } else if (canonical?.name || canonical?.birthDate || canonical?.gender !== 'UNSPECIFIED') {
+          setSelectionConfirm((previous) => ({ ...previous, gender: canonical?.gender !== 'UNSPECIFIED' || previous.gender }));
+        }
+      } else if (target === 'guest') {
+        // 親朋好友一律從空白開始，避免把本人資料誤帶進他人的分析。
+        setForm(initialForm);
+        setSelectionConfirm(initialSelectionConfirm);
+      }
     };
-    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
-    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+    const handleIdentityChange = (event: Event) => {
+      setError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
+      const detail = (event as CustomEvent<{ target?: 'self' | 'guest' }>).detail;
+      applyIdentity(detail?.target);
+    };
+    applyIdentity();
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, handleIdentityChange);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, handleIdentityChange);
   }, []);
 
   function clearRitualTimer() {
@@ -999,6 +1119,17 @@ export default function NameologyPage() {
       if (!isCurrentNameologyResult(nextResult)) throw new Error('\u59d3\u540d\u5b78\u4e09\u5c64\u5206\u6790\u8cc7\u6599\u672a\u5b8c\u6574\uff0c\u8acb\u91cd\u65b0\u5206\u6790\u3002');
       setResult((data as NameologyResponse).analysis);
       setFiveElement((data as NameologyResponse).fiveElement);
+      if (getAnalysisIdentityTarget() === 'self') {
+        saveNameologySelfProfile(snapshot.form);
+        const existingCanonical = readCanonicalBirthProfile();
+        saveCanonicalBirthProfile({
+          ...(existingCanonical ?? emptyCanonicalBirthProfile()),
+          subjectType: 'SELF',
+          name: snapshot.form.name,
+          birthDate: snapshot.form.birthDate,
+          gender: snapshot.form.gender === 'female' ? 'FEMALE' : 'MALE',
+        });
+      }
       if ((data as NameologyResponse).analysis.ritualSteps?.length) {
         playRitualReveal((data as NameologyResponse).analysis.ritualSteps);
       } else {
@@ -1189,7 +1320,6 @@ export default function NameologyPage() {
               <ResultPanel analysis={result} fiveElement={fiveElement} />
             </div>
           )}
-          {result && <NameologyBackendVerificationDetails analysis={result} revealCount={ritualRevealCount} />}
         </div>
       </div>
     </main>

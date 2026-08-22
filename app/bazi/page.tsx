@@ -440,7 +440,6 @@ export default function BaziPage() {
       form.name.trim().length < 2 ? 'name' : '',
       !form.birthDate ? 'birthDate' : '',
       !form.gender ? 'gender' : '',
-      !form.country || !form.city ? 'birthPlace' : '',
       !form.timeUnknown && !form.birthHourBranch ? 'birthHourBranch' : '',
     ].filter(Boolean);
 
@@ -451,7 +450,6 @@ export default function BaziPage() {
         name: '姓名（至少 2 個字）',
         birthDate: '出生日期',
         gender: '性別',
-        birthPlace: '出生地',
         birthHourBranch: '出生時辰（可選「不知道」）',
       };
       const missingLabels = nextMissing.map((field) => fieldLabels[field] ?? field).join('、');
@@ -545,7 +543,7 @@ export default function BaziPage() {
         <IdentitySplitSelector compact className="mb-5" />
         <UnifiedBirthForm
           value={form}
-          fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, birthPlace: true, calendarType: true }}
+          fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, calendarType: true }}
           missing={missing}
           isSubmitting={loading}
           submitLabel={getDailyAnalysisButtonLabel(dailyRecord)}

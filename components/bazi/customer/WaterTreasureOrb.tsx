@@ -274,10 +274,11 @@ export function WaterTreasureOrb({ element, released, variant = 'luminous', prev
   return (
     <span className={`water-treasure-orb water-treasure-orb--${element} water-treasure-orb--${variant} ${preview ? 'water-treasure-orb--preview' : ''} ${released ? 'water-treasure-orb--released' : 'water-treasure-orb--sealed'}`} aria-hidden="true">
       <Canvas
-        dpr={[1, 1.5]}
-        frameloop={preview ? 'demand' : 'always'}
+        // 客戶頁以穩定優先：首幀照常渲染，但不持續佔用 GPU 動畫迴圈。
+        dpr={[1, 1.25]}
+        frameloop="demand"
         camera={{ position: [0, 0, 3.2], fov: 36 }}
-        gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }}
+        gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }}
       >
         <ambientLight intensity={0.4} />
         <pointLight
@@ -288,7 +289,7 @@ export function WaterTreasureOrb({ element, released, variant = 'luminous', prev
         <pointLight position={[2.6, -1.2, 2]} intensity={element === '空' ? (released ? 2.5 : 1.2) : (released ? 8 : 3)} color={material.light} />
         {/* 質感提升來源：HDRI 反射讓寶石表面出現真實環境高光，而不是純靠點光源硬堆。
             預覽格維持極低解析度控制成本；主要展示的一顆用稍高解析度換更好的反光細節。 */}
-        <Environment preset="city" resolution={preview ? 32 : 96} />
+        <Environment preset="city" resolution={preview ? 24 : 48} />
         <ElementSphere element={element} released={released} variant={variant} preview={preview} />
       </Canvas>
     </span>

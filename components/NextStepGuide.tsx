@@ -51,8 +51,10 @@ const TONE_STYLE: Record<SystemMeta['tone'], { card: string; cta: string }> = {
   },
 };
 
-export default function NextStepGuide({ current }: { current: SystemKey }) {
-  const others = (Object.keys(SYSTEMS) as SystemKey[]).filter((key) => key !== current);
+export default function NextStepGuide({ current, hideDestinations = [] }: { current: SystemKey; hideDestinations?: SystemKey[] }) {
+  const others = (Object.keys(SYSTEMS) as SystemKey[]).filter((key) => key !== current && !hideDestinations.includes(key));
+
+  if (others.length === 0) return null;
 
   return (
     <div className="fortune-card p-6 sm:p-8">

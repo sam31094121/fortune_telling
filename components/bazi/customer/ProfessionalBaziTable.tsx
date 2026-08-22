@@ -45,7 +45,7 @@ export function ProfessionalBaziTable({ result, hourUnknown }: { result: any; ho
           <p>姓名：{result.input?.name || '未提供'}</p>
           <p>性別：{result.input?.gender === 'male' ? '男' : '女'}</p>
           <p>出生日期：{result.input?.birthDate || '—'}</p>
-          <p>出生地：{result.input?.country || ''}{result.input?.city || ''}{!result.input?.country && !result.input?.city ? '未提供' : ''}</p>
+          <p>排盤時間：採標準時；未啟用出生地與真太陽時校正。</p>
           <p>資料完整度：{hourUnknown ? 'PARTIAL_BAZI（三柱）' : 'FULL_BAZI（完整四柱）'}</p>
           <p>曆法：{pc.calendar.calendarType === 'solar' ? '陽曆排盤' : '曆法排盤'}</p>
           <p>出生時間：{hourUnknown ? '時辰未提供' : `${pc.calendar.birthTime} · ${pc.calendar.shichen.label}`}</p>

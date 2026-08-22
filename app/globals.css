@@ -1865,6 +1865,24 @@ body.app-lite-effects .taiji-light-orbit--violet .taiji-light-orbit__head {
   }
 }
 
+/* Indeterminate sweep bar for reading-in-progress ritual blocks: signals "still
+   running" during the 3-5s wait so a tap never reads as a frozen screen. */
+.ritual-progress-sweep {
+  animation: ritual-progress-sweep 1.6s ease-in-out infinite;
+}
+
+@keyframes ritual-progress-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(150%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
 @keyframes twinkle {
   0%,
   100% {

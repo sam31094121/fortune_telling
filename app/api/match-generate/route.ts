@@ -12,6 +12,7 @@ import { buildAiCopywritingInstruction, enforceAiCopywritingTone } from '@/lib/a
 import { buildMatchFiveElementResult } from '@/lib/match-five-element-engine';
 import { buildSoulMatchAiInterpretationLayer, buildSoulMatchProfessionalLayer, buildSoulMatchReinforcementLayer } from '@/lib/match-professional-layer';
 import { analyzeBazi } from '@/lib/bazi-engine';
+import { deriveBaziPillarBeast } from '@/lib/bazi-four-pillar-beasts';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,8 +49,18 @@ type BaziMatchFoundation = {
   timeNote: string;
   sceneKey: string;
   sharedElement: 'earth' | 'water' | 'fire' | 'air' | 'space';
-  personA: { dayMaster: string; primaryReinforcement: string };
-  personB: { dayMaster: string; primaryReinforcement: string };
+  personA: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard };
+  personB: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard };
+};
+
+type BaziBeastCard = {
+  name: string;
+  image: string;
+  coreMeaning: string;
+  direction: string;
+  productElement: '空' | '風' | '水' | '火' | '地';
+  evidence: string;
+  dayPillar: string;
 };
 
 const BAZI_BRAND_TO_MATCH = {
@@ -179,6 +190,20 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
   const chartB = analyzeBazi(toBaziInput(personB));
   const firstA = chartA.aiReinforcementPlan.first;
   const firstB = chartB.aiReinforcementPlan.first;
+  // Soul matching deliberately reuses the exact same day-pillar helper as the
+  // Bazi page. The same birth data therefore always returns the same beast.
+  const beastA = deriveBaziPillarBeast({
+    key: 'day',
+    label: '日柱',
+    stem: chartA.pillars.day.stem,
+    branch: chartA.pillars.day.branch,
+  });
+  const beastB = deriveBaziPillarBeast({
+    key: 'day',
+    label: '日柱',
+    stem: chartB.pillars.day.stem,
+    branch: chartB.pillars.day.branch,
+  });
   const hasHourA = Boolean(personA.birthHourBranch && personA.birthHourBranch !== 'unknown');
   const hasHourB = Boolean(personB.birthHourBranch && personB.birthHourBranch !== 'unknown');
   const sharedElement = firstA.brandElement === firstB.brandElement
@@ -210,11 +235,48 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
     personA: {
       dayMaster: `${chartA.dayMaster.stem}${chartA.dayMaster.element}`,
       primaryReinforcement: firstA.displayName,
+      beastCard: {
+        name: beastA.beast.name,
+        image: beastA.beast.image,
+        coreMeaning: beastA.beast.coreMeaning,
+        direction: beastA.direction,
+        productElement: beastA.productElement,
+        evidence: beastA.evidence,
+        dayPillar: `${chartA.pillars.day.stem}${chartA.pillars.day.branch}`,
+      },
     },
     personB: {
       dayMaster: `${chartB.dayMaster.stem}${chartB.dayMaster.element}`,
       primaryReinforcement: firstB.displayName,
+      beastCard: {
+        name: beastB.beast.name,
+        image: beastB.beast.image,
+        coreMeaning: beastB.beast.coreMeaning,
+        direction: beastB.direction,
+        productElement: beastB.productElement,
+        evidence: beastB.evidence,
+        dayPillar: `${chartB.pillars.day.stem}${chartB.pillars.day.branch}`,
+      },
     },
+  };
+}
+
+function buildGhostTeacherReading(
+  foundation: BaziMatchFoundation,
+  result: { communication: number; conflict_risk: number; zones: { conflict: string[]; grinding: string[] } },
+) {
+  const tension = result.conflict_risk >= 55
+    ? '兩股節奏一靠近，封印就開始震動'
+    : result.communication < 65
+      ? '未回應的話正在結界裡留下回音'
+      : '回音尚未失控，但結界仍在等待第一個人伸手';
+  const thread = result.zones.conflict[0] || result.zones.grinding[0] || '把真正的感受說清楚';
+
+  return {
+    displayName: '鬼魅老師',
+    // 僅供後端敘事引擎使用，前台名稱固定顯示「鬼魅老師」。
+    internalStyle: '恐怖・驚悚',
+    reading: `封印沒有睡著。${foundation.personA.beastCard.name}與${foundation.personB.beastCard.name}在同一個結界裡相望；${tension}。鬼魅把暗線指向「${thread}」，要讓這一局往前，必須先解除共同元素的封印。`,
   };
 }
 
@@ -235,9 +297,10 @@ async function enhanceMatchResultWithAI(
   },
   displayA: PersonDisplay,
   displayB: PersonDisplay,
-): Promise<{ summary: string; zones: { resonance: string[]; complement: string[]; grinding: string[]; conflict: string[] } }> {
+  baziFoundation: BaziMatchFoundation,
+): Promise<{ summary: string; zones: { resonance: string[]; complement: string[]; grinding: string[]; conflict: string[] }; provider: 'google' | 'local' }> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return { summary: result.summary, zones: result.zones };
+  if (!apiKey) return { summary: result.summary, zones: result.zones, provider: 'local' };
 
   const prompt = `
 你是「天地人配對系統」的玄學合盤大師。
@@ -248,6 +311,11 @@ ${buildAiCopywritingInstruction('天地人配對系統')}
 合盤對象：
 - 第一位：姓名 ${displayA.name}，生肖 ${displayA.chineseZodiac}，星座 ${displayA.zodiacZh}，五行 ${displayA.wuxing}，血型 ${displayA.bloodType}
 - 第二位：姓名 ${displayB.name}，生肖 ${displayB.chineseZodiac}，星座 ${displayB.zodiacZh}，五行 ${displayB.wuxing}，血型 ${displayB.bloodType}
+
+八字交叉依據（同一份出生資料在八字頁與配對頁必須一致，不可自行改寫）：
+- 第一位日主：${baziFoundation.personA.dayMaster}；日柱神獸：${baziFoundation.personA.beastCard.name}；先補方向：${baziFoundation.personA.primaryReinforcement}
+- 第二位日主：${baziFoundation.personB.dayMaster}；日柱神獸：${baziFoundation.personB.beastCard.name}；先補方向：${baziFoundation.personB.primaryReinforcement}
+- 兩人共同優先元素：${baziFoundation.sharedElement}
 
 配對數理指標：
 - 總體契合指數：${result.match_score}
@@ -264,7 +332,7 @@ ${buildAiCopywritingInstruction('天地人配對系統')}
 - 原始注意衝突點：${result.zones.conflict.join('、')}
 
 【改寫指令與限制】：
-1. 必須將原始各點改寫融入「雙方姓名、星座、生肖或血型五行」的特性（例如：星座配對、五行相生相剋、或生肖相合）。
+1. 必須將原始各點改寫融入「雙方姓名、星座、生肖、八字日主、日柱神獸與共同元素」的實際差異；不可只換姓名後輸出相同內容。
 2. 四大關係象限（共鳴、互補、磨合、衝突）中，每一區請生成 1 到 2 條全新、扎心、個性化的合盤指點（每條請控制在 25 字內，切忌空洞泛泛的讚美，多說有用的修行相處建議）。
 3. 摘要 summary 請控制在 120 字內的一段話，語氣高冷犀利、字字點中要害，直接點破相處關卡。
 4. ⚠️【JSON 安全與轉義鐵律】：
@@ -312,11 +380,12 @@ ${buildAiCopywritingInstruction('天地人配對系統')}
         complement: (parsed.complement?.length ? parsed.complement : result.zones.complement).slice(0, 3).map(enforceAiCopywritingTone),
         grinding: (parsed.grinding?.length ? parsed.grinding : result.zones.grinding).slice(0, 3).map(enforceAiCopywritingTone),
         conflict: (parsed.conflict?.length ? parsed.conflict : result.zones.conflict).slice(0, 3).map(enforceAiCopywritingTone),
-      }
+      },
+      provider: 'google',
     };
   } catch (error) {
     console.info('[enhanceMatchResultWithAI] AI enhancement unavailable; using deterministic templates.', error instanceof Error ? error.message : String(error));
-    return { summary: result.summary, zones: result.zones };
+    return { summary: result.summary, zones: result.zones, provider: 'local' };
   }
 }
 
@@ -391,7 +460,8 @@ export async function POST(request: Request) {
 
     const rawResult = computeCompatibility(profileA, profileB);
     const result = stabilizeMatchResult(rawResult);
-    const enhanced = await enhanceMatchResultWithAI(result, displayA, displayB);
+    const baziFoundation = buildBaziMatchFoundation(body.personA, body.personB);
+    const enhanced = await enhanceMatchResultWithAI(result, displayA, displayB, baziFoundation);
     const finalSummary = isConsistentAiSummary(enhanced.summary, result) ? enhanced.summary : result.summary;
 
     const karmaRelation = computeRelationshipMatrix(
@@ -413,7 +483,7 @@ export async function POST(request: Request) {
 
     const finalResult = { ...result, summary: finalSummary, zones: enhanced.zones };
     const fiveElementMatch = buildMatchFiveElementResult(body.personA, body.personB, result);
-    const baziFoundation = buildBaziMatchFoundation(body.personA, body.personB);
+    const ghostTeacher = buildGhostTeacherReading(baziFoundation, finalResult);
     const professionalLayer = buildSoulMatchProfessionalLayer({
       personA: body.personA,
       personB: body.personB,
@@ -436,6 +506,13 @@ export async function POST(request: Request) {
       karmaRelation,
       fiveElementMatch,
       baziFoundation,
+      teacherReadings: {
+        google: {
+          reading: enhanced.summary || finalSummary,
+          source: enhanced.provider,
+        },
+        ghost: ghostTeacher,
+      },
     };
 
     responseCache.set(cacheKey, { result: responseData, expireTime: now + 300_000 });
