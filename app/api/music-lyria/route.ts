@@ -114,6 +114,8 @@ Male lead standard:
 - Let vulnerability come through restrained phrasing, small changes in tone and supported breath—not a constant rasp, forced gravel, shouting or imitation of a famous singer.
 - Keep register changes smooth and the melody singable. Use restrained vibrato and only one or two meaningful vocal lifts at the emotional peak; avoid repetitive slides, excessive ad-libs and theatrical over-singing.
 - Make the chorus feel open, human and emotionally resolved, with a clear lead vocal rather than thick layers hiding the feeling.
+- Treat every line as a musical thought with a clear destination: enter just behind or on the groove, lengthen only the important vowels, and leave enough silence for the emotion to register.
+- Build a real performance contrast inside the 30 seconds: intimate first line, rising pressure before the hook, then a resonant and emotionally released hook that remains on pitch and in time.
 `
     : '';
   const lyrics = fusionSong.fusion_lyrics
@@ -172,6 +174,8 @@ Vocal quality target:
 - Give the opening an intimate, held-back feeling; let the pre-chorus show a believable lift in resolve; make the chorus feel like earned release, not a sudden generic volume increase.
 - Place meaningful words slightly forward with natural pauses, gentle vocal colour changes and emotionally appropriate breath. Avoid a flat, even delivery or identical emphasis on every line.
 - Let the final phrase land with warmth and resolution, leaving a human aftertaste rather than an abrupt, synthetic finish.
+- Lock the vocal phrasing to the groove and harmonic changes. The melody, consonants and breaths must sound intentional against the accompaniment, never like a spoken sentence placed loosely over a loop.
+- Let the accompaniment support the vocal story: leave the verse sparse and close, add rhythmic and harmonic motion before the hook, then widen only at the emotional release so the vocal remains the centre.
 
 ${leadVoiceSpecificRule}
 
