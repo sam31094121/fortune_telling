@@ -389,6 +389,14 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
               <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${horrorLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : horrorReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-rose-100/35 bg-rose-300/10 text-rose-100/80'}`}>{horrorLoading ? '正在生成' : horrorReading ? '鬼魅已回應' : '等待回應'}</span>
             </div>
             <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和 Google 老師解盤使用完全相同的八字資料與五元素寶石；鬼魅老師會用故事給你一個暗示提醒，最後引導你解開對應的寶石，不會塞進看不懂的術語。</p>
+            <button
+              type="button"
+              onClick={collectTreasure}
+              disabled={treasureOpening}
+              className={`mt-3 w-full rounded-xl border-2 px-3 py-3 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/85 bg-amber-300/20 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.2)]'}`}
+            >
+              {treasureOpening ? '寶石正在解封・能量釋放中…' : treasureCollected ? '寶石已解封・繼續閱讀鬼魅老師提醒' : `第一步・解開${elementTreasure.element}元素寶石`}
+            </button>
             {horrorLoading && (
               <div className="mt-3 rounded-xl border border-rose-100/25 bg-black/35 px-3 py-3" aria-live="polite">
                 <div className="flex items-center gap-2">
