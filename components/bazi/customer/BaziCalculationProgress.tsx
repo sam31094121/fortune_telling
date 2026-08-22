@@ -281,7 +281,6 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
   onOpenResult: () => void;
 }) {
   const items = view?.items ?? [];
-  const readyToOpen = phase === 'ceremony' && view;
   // 逐項揭示（狀態全部來自後端真實資料；揭示節奏只是呈現）＋ 儀式完成自動進入命盤
   const [revealed, setRevealed] = useState(0);
   const completedAll = items.filter((item) => item.status === 'COMPLETED');
@@ -387,33 +386,6 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
         )}
       </div>
 
-      {readyToOpen && view && (
-        <div className="mt-5 rounded-2xl border border-emerald-200/25 bg-emerald-300/[0.06] p-5 text-center">
-          {view.overallStatus === 'FAILED' ? (
-            <>
-              <p className="text-lg font-black text-rose-100">專業命盤資料尚未完整</p>
-              <p className="mt-1 text-sm font-semibold text-white/60">基礎排盤可讀，但台灣完整格式仍有欄位尚未接入。</p>
-            </>
-          ) : view.overallStatus === 'PARTIAL_COMPLETED' ? (
-            <>
-              <p className="text-lg font-black text-emerald-100">三柱命盤建立完成</p>
-              <p className="mt-1 text-sm font-semibold text-white/60">目前未提供出生時辰；補充時辰後可建立完整四柱命盤。</p>
-            </>
-          ) : (
-            <>
-              <p className="text-lg font-black text-emerald-100">AI 八字命盤建立完成</p>
-              <p className="mt-1 text-sm font-semibold text-white/60">目前核心可提供的專業排盤資料已完成運算與驗證。</p>
-            </>
-          )}
-          <button
-            type="button"
-            onClick={onOpenResult}
-            className="mt-4 w-full rounded-full border border-emerald-200/40 bg-emerald-300/15 py-3.5 text-base font-black text-emerald-50 transition hover:bg-emerald-300/25 active:scale-[0.99] sm:w-auto sm:px-10"
-          >
-            {view.overallStatus === 'FAILED' ? '查看目前資料' : view.overallStatus === 'PARTIAL_COMPLETED' ? '查看目前命盤' : '查看我的命盤'}
-          </button>
-        </div>
-      )}
     </section>
   );
 }
