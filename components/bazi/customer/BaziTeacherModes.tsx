@@ -8,8 +8,8 @@ import { WaterTreasureOrb } from './WaterTreasureOrb';
 type TeacherMode = 'CHART' | 'HORROR_GHOST';
 
 const TEACHERS: Array<{ id: TeacherMode; title: string; subtitle: string }> = [
-  { id: 'CHART', title: 'Google 解盤', subtitle: 'Google 交叉白話解說・結構、用神、運勢' },
-  { id: 'HORROR_GHOST', title: '恐怖鬼魅解命盤', subtitle: '壓力訊號、象徵意境與當下時間' },
+  { id: 'CHART', title: 'Google 老師解盤', subtitle: 'Google 交叉白話解說・結構、用神、運勢' },
+  { id: 'HORROR_GHOST', title: '鬼魅老師解盤', subtitle: '壓力訊號、象徵意境與當下時間' },
 ];
 
 /**
@@ -18,7 +18,7 @@ const TEACHERS: Array<{ id: TeacherMode; title: string; subtitle: string }> = [
  * never as a frozen screen — even when the API answers in under a second.
  */
 const GOOGLE_RITUAL_STAGES = [
-  'Google 正在喚醒命盤引擎…',
+  'Google 老師正在整理命盤重點…',
   '正在比對日主、格局與十神…',
   '正在校對五行、用神與大運流年…',
   '正在把結構整理成白話…',
@@ -189,7 +189,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
       signal: controller.signal,
     }).then(async (response) => {
       const json = await response.json() as { ok?: boolean; reading?: string; message?: string };
-      if (!response.ok || !json.ok || !json.reading) throw new Error(json.message || 'Google 解盤未返回內容。');
+      if (!response.ok || !json.ok || !json.reading) throw new Error(json.message || 'Google 老師解盤未返回內容。');
       return json.reading;
     });
     // A tap must always visibly "run" for at least MIN_RITUAL_MS, even when
@@ -202,7 +202,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
         setGoogleError(null);
       } else if (!(result.reason instanceof DOMException && result.reason.name === 'AbortError')) {
         setGoogleReading(null);
-        setGoogleError(result.reason instanceof Error ? result.reason.message : 'Google 解盤暫時無法完成。');
+        setGoogleError(result.reason instanceof Error ? result.reason.message : 'Google 老師解盤暫時無法完成。');
       }
       setGoogleLoading(false);
     });
@@ -292,14 +292,14 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
 
       {active === 'CHART' && (
         <>
-          <article className="flex flex-col rounded-[20px] border-2 border-cyan-200/55 bg-[linear-gradient(135deg,rgba(8,47,73,0.54),rgba(15,23,42,0.78))] p-4 shadow-[0_0_22px_rgba(34,211,238,0.12)]" aria-label="Google 八字解盤">
+          <article className="flex flex-col rounded-[20px] border-2 border-cyan-200/55 bg-[linear-gradient(135deg,rgba(8,47,73,0.54),rgba(15,23,42,0.78))] p-4 shadow-[0_0_22px_rgba(34,211,238,0.12)]" aria-label="Google 老師八字解盤">
             <div className="order-1 flex items-center justify-between gap-3">
-              <p className="text-[11px] font-black tracking-[0.16em] text-cyan-100">Google Gemini・全盤白話翻譯</p>
+              <p className="text-[11px] font-black tracking-[0.16em] text-cyan-100">Google 老師解盤・全盤白話翻譯</p>
               <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${googleLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : googleReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-cyan-100/35 bg-cyan-300/10 text-cyan-50/80'}`}>
-                {googleLoading ? '正在生成' : googleReading ? 'Google 已完成' : '等待解盤'}
+                {googleLoading ? '正在生成' : googleReading ? 'Google 老師已完成' : '等待解盤'}
               </span>
             </div>
-            <p className="order-2 mt-2 rounded-xl border border-cyan-100/20 bg-cyan-950/35 px-3 py-2 text-xs font-bold leading-5 text-cyan-50/75">Google 會以姓名後兩字與目前年齡開場，按「前一歲／現在／下一歲」白話解說日主、格局、十神、五行、大運與流年；第一步先取得五元素寶物，再閱讀完整解盤。</p>
+            <p className="order-2 mt-2 rounded-xl border border-cyan-100/20 bg-cyan-950/35 px-3 py-2 text-xs font-bold leading-5 text-cyan-50/75">Google 老師會以姓名後兩字與目前年齡開場，按「前一歲／現在／下一歲」白話解說日主、格局、十神、五行、大運與流年；第一步先取得五元素寶物，再閱讀完整解盤。</p>
             {googleLoading && (
               <div className="order-3 mt-3 rounded-xl border border-cyan-100/25 bg-cyan-950/40 px-3 py-3" aria-live="polite">
                 <div className="flex items-center gap-2">
@@ -313,8 +313,8 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
             )}
             {googleError && (
               <div className="order-3 mt-2">
-                <p className="text-sm font-semibold leading-6 text-rose-100">Google 解盤暫時未完成：{googleError}</p>
-                <button type="button" onClick={() => setGoogleRun((value) => value + 1)} className="mt-2 rounded-xl border-2 border-cyan-100/70 bg-cyan-300/12 px-3 py-2 text-xs font-black text-cyan-50">重新請 Google 解盤</button>
+                <p className="text-sm font-semibold leading-6 text-rose-100">Google 老師解盤暫時未完成：{googleError}</p>
+                <button type="button" onClick={() => setGoogleRun((value) => value + 1)} className="mt-2 rounded-xl border-2 border-cyan-100/70 bg-cyan-300/12 px-3 py-2 text-xs font-black text-cyan-50">重新請 Google 老師解盤</button>
               </div>
             )}
             {googleReading && <p className="order-5 mt-4 rounded-2xl border border-cyan-100/30 bg-black/20 p-3 text-sm font-semibold leading-7 text-cyan-50/90">{googleReading}</p>}
@@ -388,7 +388,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
               <p className="ghost-reply-title">鬼魅正式解盤・同盤回應</p>
               <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${horrorLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : horrorReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-rose-100/35 bg-rose-300/10 text-rose-100/80'}`}>{horrorLoading ? '正在生成' : horrorReading ? '鬼魅已回應' : '等待回應'}</span>
             </div>
-            <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和 Google 解盤使用完全相同的八字資料與五元素寶物；客戶只會看到以前、現在、未來與生活情境。恐怖、鬼魅、神祕只改變這位老師的遊戲語氣，不會塞進看不懂的術語。</p>
+            <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和 Google 老師解盤使用完全相同的八字資料與五元素寶物；客戶只會看到以前、現在、未來與生活情境。恐怖、鬼魅、神祕只改變這位老師的遊戲語氣，不會塞進看不懂的術語。</p>
             {horrorLoading && (
               <div className="mt-3 rounded-xl border border-rose-100/25 bg-black/35 px-3 py-3" aria-live="polite">
                 <div className="flex items-center gap-2">
