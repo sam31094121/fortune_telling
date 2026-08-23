@@ -5,7 +5,7 @@
  * 太極 → 兩儀 → 四象 → 八卦，功能保留、圖案全面換新：
  * - 陰陽兩球獨立旋轉（分離後反向、不同速、不碰撞不重疊）
  * - 真 3D 多軸旋轉（y 連續 + x/z 正弦擺動 = 近 4D 連續變化）
- * - 已套用畫質與穩定優化：高階裝置最高 3x DPR（360px≈1080px backing store）、
+ * - 已套用畫質與穩定優化：依裝置能力限制 DPR 與粒子預算，
  *   低階手機自動守住順暢、antialias on、幾何體 useMemo 重用、Sparkles 降量、ContactShadows frames=1
  * - 點擊演化接上既有 Taiji24SoundEngine（功能依然存在）
  * 範圍鎖定：只供太極卡使用，不影響其他卡片與手機版面。
@@ -319,8 +319,9 @@ type TaijiQuality = {
 
 function useTaijiCanvasQuality(wrapperRef: { current: HTMLElement | null }) {
   const [quality, setQuality] = useState<TaijiQuality>({
-    minDpr: 3,
-    maxDpr: 3,
+    // 先以安全畫質建立第一個 frame，避免 useEffect 執行前就用 3x DPR 佔滿手機 GPU。
+    minDpr: 1,
+    maxDpr: 1.25,
     environmentResolution: 256,
     shadowResolution: 512,
     quantumPairs: 1400,
@@ -334,30 +335,35 @@ function useTaijiCanvasQuality(wrapperRef: { current: HTMLElement | null }) {
       const cores = nav.hardwareConcurrency ?? 4;
       const memory = nav.deviceMemory ?? 4;
       const isCompactViewport = window.matchMedia('(max-width: 760px)').matches;
+      const lowPower = cores <= 4 || memory <= 4;
       const strongPhone = cores >= 8 && memory >= 6;
       const strongDesktop = cores >= 8 && memory >= 8;
 
       const deviceDpr = Math.max(1, window.devicePixelRatio || 1);
-      /* 太極畫布短邊鎖定至少 1080px；解析度只能往上。 */
+      /* 以合理 backing-store 上限取代固定 1080px 下限。
+         舊邏輯會讓 360px 手機強制以 3x DPR 繪製，捲動與點擊時特別容易掉幀。 */
       const canvasEdge = Math.max(1, Math.min(
         wrapperRef.current?.getBoundingClientRect().width ?? 360,
         wrapperRef.current?.getBoundingClientRect().height ?? 360,
       ));
-      const resolutionFloor = Math.max(1, 1080 / canvasEdge);
+      const maxBackingEdge = isCompactViewport
+        ? (strongPhone ? 900 : lowPower ? 640 : 760)
+        : (strongDesktop ? 1440 : 1080);
+      const backingCap = Math.max(1, maxBackingEdge / canvasEdge);
       const deviceTarget = isCompactViewport
-        ? Math.min(deviceDpr, strongPhone ? 2.1 : 1.7)
-        : Math.min(deviceDpr, strongDesktop ? 2.25 : 1.8);
-      const minDpr = resolutionFloor;
-      const maxDpr = Math.max(resolutionFloor, deviceTarget);
+        ? Math.min(deviceDpr, strongPhone ? 2 : lowPower ? 1.25 : 1.5)
+        : Math.min(deviceDpr, strongDesktop ? 2 : 1.5);
+      const minDpr = 1;
+      const maxDpr = Math.max(1, Math.min(backingCap, deviceTarget));
 
       const next: TaijiQuality = {
         minDpr,
         maxDpr,
         environmentResolution: isCompactViewport ? 256 : 512,
         shadowResolution: isCompactViewport ? 512 : 1024,
-        quantumPairs: isCompactViewport ? (strongPhone ? 1800 : 1200) : 3200,
-        quantumLinks: isCompactViewport ? 56 : 110,
-        ultraTexture: !isCompactViewport || (strongPhone && memory >= 6),
+        quantumPairs: isCompactViewport ? (strongPhone ? 1200 : lowPower ? 500 : 800) : (strongDesktop ? 2000 : 1200),
+        quantumLinks: isCompactViewport ? (lowPower ? 28 : 44) : (strongDesktop ? 80 : 56),
+        ultraTexture: (!isCompactViewport && strongDesktop) || (strongPhone && memory >= 8),
       };
       /* 【穩定性｜2026-08-17】只有數值真的變了才更新 state。
          手機捲動時網址列縮放會連續觸發 resize；每更新一次就會重設 drawing buffer
