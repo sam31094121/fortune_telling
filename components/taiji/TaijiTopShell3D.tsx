@@ -31,7 +31,25 @@ export default function TaijiTopShell3D({
       const canvas = document.createElement('canvas');
       const webgl = Boolean(canvas.getContext('webgl2') ?? canvas.getContext('webgl'));
       const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-      setReady(webgl && !reduced);
+      const nav = navigator as Navigator & { deviceMemory?: number };
+      const compact = window.matchMedia?.('(max-width: 768px), (pointer: coarse)')?.matches;
+      const limitedDevice = Boolean(
+        (typeof nav.deviceMemory === 'number' && nav.deviceMemory <= 4)
+        || (typeof nav.hardwareConcurrency === 'number' && nav.hardwareConcurrency <= 4),
+      );
+
+      // 首屏互動優先：低功耗裝置保留靜態外框，其他裝置在瀏覽器空檔才載入 3D。
+      if (!webgl || reduced || (compact && limitedDevice)) return;
+
+      const start = () => setReady(true);
+      const canUseIdleCallback = typeof window.requestIdleCallback === 'function';
+      const handle = canUseIdleCallback
+        ? window.requestIdleCallback(start, { timeout: 1800 })
+        : window.setTimeout(start, 900);
+      return () => {
+        if (canUseIdleCallback) window.cancelIdleCallback(handle as number);
+        else window.clearTimeout(handle as number);
+      };
     } catch {
       setReady(false);
     }

@@ -8,7 +8,7 @@ import { WaterTreasureOrb } from './WaterTreasureOrb';
 type TeacherMode = 'CHART' | 'HORROR_GHOST';
 
 const TEACHERS: Array<{ id: TeacherMode; title: string; subtitle: string }> = [
-  { id: 'CHART', title: 'Google 老師解盤', subtitle: 'Google 交叉白話解說・結構、用神、運勢' },
+  { id: 'CHART', title: 'Google 老師解盤', subtitle: '交叉白話解說・結構、用神、運勢' },
   { id: 'HORROR_GHOST', title: '鬼魅老師解盤', subtitle: '壓力訊號、象徵意境與當下時間' },
 ];
 
@@ -230,7 +230,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
       signal: controller.signal,
     }).then(async (response) => {
       const json = await response.json() as { ok?: boolean; reading?: string; message?: string };
-      if (!response.ok || !json.ok || !json.reading) throw new Error(json.message || '恐怖鬼魅解盤未返回內容。');
+      if (!response.ok || !json.ok || !json.reading) throw new Error(json.message || '鬼魅解盤未返回內容。');
       return json.reading;
     });
     Promise.allSettled([request, delay(MIN_RITUAL_MS)]).then(([result]) => {
@@ -241,7 +241,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
         setHorrorError(null);
       } else if (!(result.reason instanceof DOMException && result.reason.name === 'AbortError')) {
         setHorrorReading(null);
-        setHorrorError(result.reason instanceof Error ? result.reason.message : '恐怖鬼魅解盤暫時無法完成。');
+        setHorrorError(result.reason instanceof Error ? result.reason.message : '鬼魅解盤暫時無法完成。');
       }
       setHorrorLoading(false);
     });
@@ -265,7 +265,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
                 type="button"
                 onClick={() => {
                   setActive(teacher.id);
-                  // The Google card is intentionally never collapsible. A tap is an
+                  // The Google 老師 card is intentionally never collapsible. A tap is an
                   // explicit request for a fresh reading, including when it is already selected.
                   if (teacher.id === 'CHART') setGoogleRun((value) => value + 1);
                   if (teacher.id === 'HORROR_GHOST') setHorrorRun((value) => value + 1);
@@ -292,7 +292,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
 
       {active === 'CHART' && (
         <>
-          <article className="flex flex-col rounded-[20px] border-2 border-cyan-200/55 bg-[linear-gradient(135deg,rgba(8,47,73,0.54),rgba(15,23,42,0.78))] p-4 shadow-[0_0_22px_rgba(34,211,238,0.12)]" aria-label="Google 老師八字解盤">
+          <article className="flex flex-col rounded-[20px] border-2 border-cyan-200/55 bg-[linear-gradient(135deg,rgba(8,47,73,0.54),rgba(15,23,42,0.78))] p-4 shadow-[0_0_22px_rgba(34,211,238,0.12)]" aria-label="Google 老師解盤">
             <div className="order-1 flex items-center justify-between gap-3">
               <p className="text-[11px] font-black tracking-[0.16em] text-cyan-100">Google 老師解盤・全盤白話翻譯</p>
               <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${googleLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : googleReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-cyan-100/35 bg-cyan-300/10 text-cyan-50/80'}`}>
@@ -388,7 +388,12 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
               <p className="ghost-reply-title">鬼魅正式解盤・同盤回應</p>
               <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${horrorLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : horrorReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-rose-100/35 bg-rose-300/10 text-rose-100/80'}`}>{horrorLoading ? '正在生成' : horrorReading ? '鬼魅已回應' : '等待回應'}</span>
             </div>
-            <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和 Google 老師解盤使用完全相同的八字資料與五元素寶石；鬼魅老師會用故事給你一個暗示提醒，最後引導你解開對應的寶石，不會塞進看不懂的術語。</p>
+            <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和Google 老師解盤使用完全相同的八字資料與五元素寶石；鬼魅老師會用故事給你一個暗示提醒，最後引導你解開對應的寶石，不會塞進看不懂的術語。</p>
+            <div className="mt-2 flex flex-wrap gap-1.5" aria-label="鬼魅解盤五大元素">
+              {['恐怖', '血腥', '鬼魅', '驚悚', '災難'].map((tag) => (
+                <span key={tag} className="rounded-full border border-rose-200/30 bg-rose-500/10 px-2 py-0.5 text-[10px] font-black tracking-[0.1em] text-rose-100/85">{tag}</span>
+              ))}
+            </div>
             <button
               type="button"
               onClick={collectTreasure}
@@ -420,7 +425,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
               <div className="min-w-0 text-center sm:text-left">
                 <p className="text-[10px] font-black tracking-[0.2em] text-cyan-100/80">命盤專屬補強方向</p>
                 <h5 className="mt-1 font-serif text-2xl font-black text-amber-50">{elementTreasure.element}元素・{elementTreasure.name}</h5>
-                <p className={`mt-1 text-xs font-black tracking-[0.12em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureOpening ? '封印鬆動中・寶物正在釋放' : treasureCollected ? '封印已解除・寶物已入背包' : '封印守護中・尚未收下'}</p>
+                <p className={`mt-1 text-xs font-black tracking-[0.12em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureOpening ? '魔珠正在裂開・寶珠正在釋放' : treasureCollected ? '魔珠已破・寶珠已入背包' : '魔珠封印中・尚未收下'}</p>
               </div>
             </div>
             <p className="mt-3 text-sm font-semibold leading-6 text-amber-50/85">{elementTreasure.power} 這是依命盤五行強弱得到的遊戲線索；收下它代表你願意練習這個方向，不是保證任何結果。</p>

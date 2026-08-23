@@ -43,6 +43,9 @@ type WaterOrbVariant = 'crystal' | 'caustic' | 'luminous';
 // 客戶介面固定使用「空、風、水、火、地」，但視覺保留正統五行的比例來源。
 // 採用一組年輕的科技寶石色盤，但每一顆仍必須一眼看出元素本質：
 // 金/空=鈦金、木/風=電光帝王綠、水=電光藍、火=鴿血紅、土/地=金絲楠木琥珀。
+// 色相不是隨手選的：水藍／風綠／火紅同時對到全球最愛顏色調查前三名
+//（2024 Ipsos／YouGov：藍 37-38%、綠 22%、紅 16%）與傳統五行色（金白·木青·水黑·火赤·土黄），
+// 空／地則延續五行「金、土」的貴金屬與大地基調，走鈦金與琥珀而非死板的白／黄。
 // 兩位老師只讀這張表，不能各自改色。
 const ORB_MATERIAL: Record<ProductElement, { color: string; emissive: string; ring: string; light: string; metalness: number; roughness: number }> = {
   // Not flat "theme colours": every base is a deep gemstone body, with a
@@ -63,6 +66,35 @@ const INNER_MIST: Record<ProductElement, { deep: string; pale: string }> = {
   地: { deep: '#ee7800', pale: '#fff0a6' },
 };
 
+// 「魔珠」封印態：五顆各自是自己元素的「黑化／詛咒版」——同一支色相，飽和度與明度砍到邪氣的
+// 深色調，讓封印中就隱約埋下解封後身分的伏筆，而不是五顆長得一樣。不透光、高粗糙度的詛咒石頭
+// 質地維持共用（見 DEMON_TEXTURE），跟解封後透光發亮的水晶寶珠形成最大反差；解封瞬間才「裂開」
+// 洗白成真正鮮明的元素玻璃球材質。
+const DEMON_TEXTURE = { metalness: 0.3, roughness: 0.55, transmission: 0.04, clearcoat: 0.22, iridescence: 0 };
+// 每個元素的魔珠色相必須鎖在自己天使色（ORB_MATERIAL）的同一色系上，只降飽和度／明度、
+// 不換色相——這樣「解封」才是同一元素的洗白，而不是換了一顆完全無關的珠子。
+const DEMON_MATERIAL: Record<ProductElement, { color: string; emissive: string }> = {
+  空: { color: '#120a1c', emissive: '#5b2a86' }, // 吞噬一切的虛空黑紫（同色系：天使紫金 #b4a2ff）
+  風: { color: '#04120c', emissive: '#1f6b4a' }, // 瘴氣毒綠（同色系：天使翠綠 #00f5a0，不再跑去橄欖黃綠）
+  水: { color: '#04141a', emissive: '#0d6b62' }, // 深淵毒潭黑青（同色系：天使電光藍 #00e5ff）
+  火: { color: '#1a0410', emissive: '#7a0f3a' }, // 焦血暗紅（同色系：天使桃紅 #ff1264，不再跑去焦橙）
+  地: { color: '#140d04', emissive: '#5c3d0f' }, // 腐土黴斑黑褐（同色系：天使琥珀 #ffad12）
+};
+const DEMON_MIST: Record<ProductElement, { deep: string; pale: string }> = {
+  空: { deep: '#2a1240', pale: '#5c2e82' },
+  風: { deep: '#0a2418', pale: '#2f7a54' },
+  水: { deep: '#062830', pale: '#0e6a60' },
+  火: { deep: '#2e0616', pale: '#8a1244' },
+  地: { deep: '#241708', pale: '#5c3d0f' },
+};
+const DEMON_LIGHT: Record<ProductElement, { primary: string; secondary: string }> = {
+  空: { primary: '#8b2fd1', secondary: '#3a0f5c' },
+  風: { primary: '#1fbf7a', secondary: '#0a4a2e' },
+  水: { primary: '#14a396', secondary: '#053a35' },
+  火: { primary: '#d1145a', secondary: '#4a0824' },
+  地: { primary: '#7a5414', secondary: '#2e1e08' },
+};
+
 function ElementSphere({ element, released, variant, preview }: { element: ProductElement; released: boolean; variant: WaterOrbVariant; preview: boolean }) {
   const group = useRef<Group>(null);
   const surfaceMaterialRef = useRef<MeshPhysicalMaterial>(null);
@@ -71,8 +103,12 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
   const rimMeshRef = useRef<Mesh>(null);
   const material = ORB_MATERIAL[element];
   const mist = INNER_MIST[element];
-  const isLuminousWater = element === '水' && variant === 'luminous';
-  const rimColor = useMemo(() => new Color(material.emissive), [material.emissive]);
+  const isLuminousWater = released && element === '水' && variant === 'luminous';
+  const demon = DEMON_MATERIAL[element];
+  const demonMist = DEMON_MIST[element];
+  const demonColorDim = useMemo(() => new Color(demon.color), [demon.color]);
+  const demonColorPeak = useMemo(() => new Color(demon.emissive), [demon.emissive]);
+  const rimColor = useMemo(() => new Color(released ? material.emissive : demon.emissive), [material.emissive, demon.emissive, released]);
   // CC0 source textures are used as micro-relief only. Their original colours
   // never paint over the fixed element palette, so the product remains coherent.
   const [waterTexture, windTexture, groundTexture] = useLoader(TextureLoader, [
@@ -135,25 +171,34 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
     // element receives its fine moving relief while keeping its own gemstone colour.
     reliefTexture.offset.x = (reliefTexture.offset.x + delta * (released ? 0.055 : 0.018)) % 1;
     reliefTexture.offset.y = (reliefTexture.offset.y + delta * (released ? 0.022 : 0.008)) % 1;
-    if (element === '水') {
+    if (!released) {
+      // 魔珠封印態：每顆元素走自己的黑化色相，脈動像被封住的東西在裡面掙扎，看不出精緻寶石感。
+      const surface = surfaceMaterialRef.current;
+      if (surface) {
+        const dread = 0.5 + Math.sin(now / 640) * 0.5;
+        surface.color.copy(demonColorDim).lerp(demonColorPeak, dread * 0.32);
+        surface.emissive.copy(demonColorDim).lerp(demonColorPeak, 0.42 + dread * 0.46);
+        surface.emissiveIntensity = 0.14 + dread * 0.16;
+      }
+    } else if (element === '水') {
       // The colour shift stays on the 3D water surface: shallow cyan passes into deeper ocean blue.
-      const tide = 0.5 + Math.sin(performance.now() / (released ? 780 : 1550)) * 0.5;
+      const tide = 0.5 + Math.sin(performance.now() / 780) * 0.5;
       const surface = surfaceMaterialRef.current;
       if (surface) {
         surface.color.setRGB(0.055 + tide * 0.19, 0.46 + tide * 0.29, 0.67 + tide * 0.27);
         surface.emissive.setRGB(0.02 + tide * 0.1, 0.3 + tide * 0.36, 0.47 + tide * 0.4);
-        const breath = 0.5 + Math.sin(performance.now() / (released ? 510 : 1500)) * 0.5;
-        surface.emissiveIntensity = released ? 0.34 + breath * 0.3 : 0.07 + breath * 0.09;
+        const breath = 0.5 + Math.sin(performance.now() / 510) * 0.5;
+        surface.emissiveIntensity = 0.34 + breath * 0.3;
       }
     } else {
       const surface = surfaceMaterialRef.current;
       if (surface) {
-        const tide = 0.5 + Math.sin(now / (released ? 720 : 1750)) * 0.5;
+        const tide = 0.5 + Math.sin(now / 720) * 0.5;
         // 金／空專用：深鈦金與淺金光在球面緩慢換位；其他元素也保有同樣的生命感。
         if (element === '空') {
             surface.color.setRGB(0.4 + tide * 0.42, 0.22 + tide * 0.38, 0.0 + tide * 0.09);
             surface.emissive.setRGB(0.22 + tide * 0.58, 0.1 + tide * 0.4, 0.0 + tide * 0.06);
-            surface.emissiveIntensity = released ? 0.18 + tide * 0.22 : 0.05 + tide * 0.08;
+            surface.emissiveIntensity = 0.18 + tide * 0.22;
         } else {
           if (element === '火') {
             surface.color.setRGB(0.38 + tide * 0.5, 0.0 + tide * 0.1, 0.08 + tide * 0.2);
@@ -165,7 +210,7 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
             surface.color.setRGB(0.25 + tide * 0.38, 0.1 + tide * 0.25, 0.01 + tide * 0.08);
             surface.emissive.setRGB(0.22 + tide * 0.46, 0.07 + tide * 0.25, 0.0 + tide * 0.06);
           }
-          surface.emissiveIntensity = released ? 0.2 + tide * 0.22 : 0.05 + tide * 0.09;
+          surface.emissiveIntensity = 0.2 + tide * 0.22;
         }
       }
     }
@@ -185,38 +230,39 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
         <sphereGeometry args={[1, 48, 48]} />
         <meshPhysicalMaterial
           ref={surfaceMaterialRef}
-          color={isLuminousWater ? '#38bdf8' : material.color}
-          emissive={isLuminousWater ? '#a5f3fc' : material.emissive}
-          emissiveIntensity={released ? (isLuminousWater ? 0.56 : 0.32) : isLuminousWater ? 0.34 : 0.08}
-          metalness={material.metalness}
-          roughness={element === '水' && variant === 'caustic' ? 0.05 : element === '水' && variant === 'luminous' ? 0.07 : material.roughness}
-          transmission={element === '水' && variant === 'caustic' ? 0.42 : variant === 'luminous' ? 0.56 : 0.28}
+          color={released ? (isLuminousWater ? '#38bdf8' : material.color) : demon.color}
+          emissive={released ? (isLuminousWater ? '#a5f3fc' : material.emissive) : demon.emissive}
+          emissiveIntensity={released ? (isLuminousWater ? 0.56 : 0.32) : 0.2}
+          metalness={released ? material.metalness : DEMON_TEXTURE.metalness}
+          roughness={released ? (element === '水' && variant === 'caustic' ? 0.05 : element === '水' && variant === 'luminous' ? 0.07 : material.roughness) : DEMON_TEXTURE.roughness}
+          transmission={released ? (element === '水' && variant === 'caustic' ? 0.42 : variant === 'luminous' ? 0.56 : 0.28) : DEMON_TEXTURE.transmission}
           thickness={0.72}
           ior={1.33}
-          clearcoat={0.96}
+          clearcoat={released ? 0.96 : DEMON_TEXTURE.clearcoat}
           clearcoatRoughness={0.08}
           // Subtle gemstone refraction: it keeps the object refined and dimensional
-          // without adding a separate icon, ring, or cartoon ornament.
-          iridescence={element === '空' ? 0.12 : 0.22}
+          // without adding a separate icon, ring, or cartoon ornament. The demon
+          // shell has none — it is not meant to look precious yet.
+          iridescence={released ? (element === '空' ? 0.12 : 0.22) : DEMON_TEXTURE.iridescence}
           iridescenceIOR={1.3}
           iridescenceThicknessRange={[120, 360]}
           // Keep the translucent internal mist visible through the glass sphere.
           depthWrite={false}
-          map={element === '水' ? waterTexture : null}
-          emissiveMap={element === '水' ? waterTexture : null}
+          map={released && element === '水' ? waterTexture : null}
+          emissiveMap={released && element === '水' ? waterTexture : null}
           bumpMap={reliefTexture}
-          bumpScale={element === '水' ? 0.13 : 0.075}
+          bumpScale={released ? (element === '水' ? 0.13 : 0.075) : 0.16}
         />
       </mesh>
       <group ref={goldMistRef}>
         <mesh scale={[0.82, 0.38, 0.72]} rotation={[0.35, 0.7, -0.22]}>
           <sphereGeometry args={[1, 28, 28]} />
           <meshPhysicalMaterial
-            color={mist.deep}
-            emissive={material.emissive}
-            emissiveIntensity={released ? 0.17 : 0.075}
+            color={released ? mist.deep : demonMist.deep}
+            emissive={released ? material.emissive : demon.emissive}
+            emissiveIntensity={released ? 0.17 : 0.09}
             transparent
-            opacity={preview ? 0.16 : released ? 0.11 : 0.055}
+            opacity={preview ? 0.16 : released ? 0.11 : 0.065}
             transmission={0.92}
             roughness={0.28}
             depthWrite={false}
@@ -226,7 +272,7 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
       <group ref={paleMistRef}>
         <mesh position={[0.24, -0.2, 0.15]} scale={[0.48, 0.24, 0.56]} rotation={[-0.48, 0.25, 0.4]}>
           <sphereGeometry args={[1, 24, 24]} />
-          <meshBasicMaterial color={mist.pale} transparent opacity={preview ? 0.13 : released ? 0.085 : 0.04} depthWrite={false} />
+          <meshBasicMaterial color={released ? mist.pale : demonMist.pale} transparent opacity={preview ? 0.13 : released ? 0.085 : 0.05} depthWrite={false} />
         </mesh>
       </group>
       {isLuminousWater && (
@@ -283,10 +329,10 @@ export function WaterTreasureOrb({ element, released, variant = 'luminous', prev
         <ambientLight intensity={0.4} />
         <pointLight
           position={[-2.2, 2.5, 3.1]}
-          intensity={element === '空' ? (released ? 6 : 2.5) : (released ? 15 : 6)}
-          color={element === '空' ? '#fff3cc' : element === '火' ? '#ff8ca9' : element === '風' ? '#a7ffe0' : element === '地' ? '#ffd784' : '#c8f8ff'}
+          intensity={released ? (element === '空' ? 6 : 15) : (element === '空' ? 2.5 : 6)}
+          color={released ? (element === '空' ? '#fff3cc' : element === '火' ? '#ff8ca9' : element === '風' ? '#a7ffe0' : element === '地' ? '#ffd784' : '#c8f8ff') : DEMON_LIGHT[element].primary}
         />
-        <pointLight position={[2.6, -1.2, 2]} intensity={element === '空' ? (released ? 2.5 : 1.2) : (released ? 8 : 3)} color={material.light} />
+        <pointLight position={[2.6, -1.2, 2]} intensity={released ? (element === '空' ? 2.5 : 8) : (element === '空' ? 1.2 : 3)} color={released ? material.light : DEMON_LIGHT[element].secondary} />
         {/* 質感提升來源：HDRI 反射讓寶石表面出現真實環境高光，而不是純靠點光源硬堆。
             預覽格維持極低解析度控制成本；主要展示的一顆用稍高解析度換更好的反光細節。 */}
         <Environment preset="city" resolution={preview ? 24 : 48} />
