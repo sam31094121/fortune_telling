@@ -7,6 +7,10 @@ description: "Conduct precise visual cross-checks for an open Codex right-side p
 
 Use this workflow for collaborative visual edits where the user wants to confirm the exact on-screen target before any change.
 
+## Quick command
+
+When the user says **「螢幕箭頭指令」**, immediately enter targeting mode for the element they indicate: show and hold the temporary arrow, make no content or design changes, and wait for their confirmation. The user does not need to repeat the full workflow instructions.
+
 ## Targeting workflow
 
 1. Open or preserve the relevant page in Codex's right-side panel. If the user refers to a visible element, inspect the current panel state before asking them to repeat it. Before positioning the indicator, tell the user the most useful place to move or hold the page so both sides can cross-check the same target.

@@ -71,7 +71,7 @@ const GROWTH_PREFERENCES: Array<{ id: GrowthPreferenceId; label: string; body: s
 ];
 
 const PREFERENCE_IDS = new Set<GrowthPreferenceId>(GROWTH_PREFERENCES.map((item) => item.id));
-const STAR_BEASTS = starBeastsData.items as Array<{ id: number; name: string; image: string; coreMeaning: string }>;
+const STAR_BEASTS = starBeastsData.items as Array<{ id: number; name: string; image: string; youngDivineImage: string; coreMeaning: string }>;
 const MODULE_CARD_IDS: Record<string, number> = { number: 1, ziwei: 2, bazi: 3, nameology: 4, zodiac: 5, soul_match: 6, music: 7, tarot: 8 };
 const WEEKLY_CARD_IDS = STAR_BEASTS.map((beast) => beast.id).filter((id) => !Object.values(MODULE_CARD_IDS).includes(id));
 
@@ -241,6 +241,15 @@ export default function GrowthCenterPage() {
   }, [completedModuleSet, lifetimeCheckInCount]);
   const unlockedCards = useMemo(() => unlockedCardIds.map((id) => STAR_BEASTS.find((beast) => beast.id === id)).filter((beast): beast is typeof STAR_BEASTS[number] => Boolean(beast)), [unlockedCardIds]);
   const nextCard = STAR_BEASTS.find((beast) => !unlockedCardIds.includes(beast.id)) ?? null;
+  const explorationBeastCount = Math.min(completedModuleSet.size, Object.keys(MODULE_CARD_IDS).length);
+  const weeklyBeastCount = Math.max(0, unlockedCards.length - explorationBeastCount);
+  const nextBeastMilestone = explorationBeastCount < 8
+    ? `再完成 ${8 - explorationBeastCount} 張首頁探索卡，就能集齊第一階段 8 張幼體。`
+    : nextCard
+      ? checkedIn
+        ? '本週任務已完成；下一張幼體會在下週新任務開啟後繼續累積。'
+        : '八大探索已貫通；完成本週唯一任務，就能喚醒下一張幼體。'
+      : '28 張星宿幼體已全數喚醒，下一階段將進入完整體覺醒。';
   const growthOrbChapters = useMemo(() => GROWTH_ORB_CHAPTERS.map((chapter) => {
     const completedRequirements = chapter.requiredModules.filter((moduleId) => completedModuleSet.has(moduleId));
     const unlocked = chapter.enabled && chapter.requiredModules.length === 8 && completedRequirements.length === 8;
@@ -404,25 +413,38 @@ export default function GrowthCenterPage() {
             </section>
 
             <section className="relative overflow-hidden rounded-2xl border border-amber-300/30 bg-[radial-gradient(circle_at_92%_12%,rgba(251,191,36,0.2),transparent_28%),linear-gradient(135deg,rgba(31,23,58,0.92),rgba(8,15,31,0.96))] p-5 shadow-[0_0_30px_rgba(251,191,36,0.12)]">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">星宿神獸收藏</p>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">二十八宿・星宿幼體收藏</p>
               <div className="mt-3 flex items-end justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-black leading-8 text-amber-50">完成一個遊戲，解鎖一張卡</h2>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-[color:var(--text-sub)]">完成探索遊戲先拿卡；每週完成成長任務，再拿下一張。卡片會一直保留在你的收藏裡。</p>
+                  <h2 className="text-2xl font-black leading-8 text-amber-50">完成一個階段，喚醒一張星宿幼體</h2>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-[color:var(--text-sub)]">八張探索卡各自留下通關印記；完成探索與每週成長任務，才依序喚醒下一張幼體。既有進度會延續，不重新抽卡。</p>
                 </div>
                 <p className="shrink-0 font-serif text-4xl font-black text-amber-100">{unlockedCards.length}<span className="text-lg text-amber-100/60">/28</span></p>
               </div>
+              <div className="mt-4 grid grid-cols-2 gap-2" aria-label="二十八宿幼體收藏進度依據">
+                <div className="rounded-xl border border-emerald-200/20 bg-emerald-300/[0.07] px-3 py-3">
+                  <p className="text-[10px] font-black tracking-[0.14em] text-emerald-200">第一階段・八大探索</p>
+                  <p className="mt-1 text-xl font-black text-emerald-50">{explorationBeastCount}<span className="text-xs text-emerald-100/55">/8 張</span></p>
+                  <p className="mt-1 text-[10px] font-semibold leading-4 text-slate-300">一張首頁卡，只留下自己的一枚通關印記。</p>
+                </div>
+                <div className="rounded-xl border border-cyan-200/20 bg-cyan-300/[0.07] px-3 py-3">
+                  <p className="text-[10px] font-black tracking-[0.14em] text-cyan-200">第二階段・每週陪伴</p>
+                  <p className="mt-1 text-xl font-black text-cyan-50">{weeklyBeastCount}<span className="text-xs text-cyan-100/55">/20 張</span></p>
+                  <p className="mt-1 text-[10px] font-semibold leading-4 text-slate-300">每週完成一次真實任務，依序喚醒下一張。</p>
+                </div>
+              </div>
+              <p className="mt-3 rounded-xl border border-amber-200/20 bg-amber-300/[0.08] px-3 py-2.5 text-xs font-black leading-5 text-amber-100">{nextBeastMilestone}</p>
               <div className="mt-4 grid grid-cols-7 gap-2 sm:grid-cols-9">
                 {STAR_BEASTS.map((beast) => {
                   const unlocked = unlockedCardIds.includes(beast.id);
                   return <div key={beast.id} className={`relative aspect-[275/480] overflow-hidden rounded-lg border ${unlocked ? 'border-amber-200/45 bg-slate-950' : 'border-white/10 bg-slate-950/55'}`} title={unlocked ? beast.name : '尚未解鎖'}>
-                    {unlocked ? <img src={beast.image} alt={beast.name} className="h-full w-full object-cover" /> : <span className="grid h-full place-items-center text-xs font-black text-white/35">？</span>}
+                    {unlocked ? <img src={beast.youngDivineImage} alt={`${beast.name}星宿幼體`} className="h-full w-full object-cover" /> : <span className="grid h-full place-items-center text-xs font-black text-white/35">？</span>}
                   </div>;
                 })}
               </div>
               {nextCard && <div className="mt-4 flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-3">
-                <img src={nextCard.image} alt="下一張待解鎖神獸卡" className="h-16 w-11 rounded-md object-cover opacity-55" />
-                <p className="text-sm font-bold leading-6 text-slate-200">下一張：<span className="text-amber-100">{nextCard.name}</span><br /><span className="text-xs text-slate-400">完成下一個探索遊戲或本週成長任務即可解鎖。</span></p>
+                <img src={nextCard.youngDivineImage} alt="下一張待喚醒星宿幼體" className="h-16 w-11 rounded-md object-cover opacity-55" />
+                <p className="text-sm font-bold leading-6 text-slate-200">下一張幼體：<span className="text-amber-100">{nextCard.name}</span><br /><span className="text-xs text-slate-400">完成下一個探索階段或本週成長任務，才會依序喚醒。</span></p>
               </div>}
               <Link href="/star-beasts" className="mt-4 inline-flex rounded-full border border-amber-200/35 px-4 py-2 text-xs font-black text-amber-100 transition hover:bg-amber-300/10">查看完整神獸圖鑑</Link>
             </section>
