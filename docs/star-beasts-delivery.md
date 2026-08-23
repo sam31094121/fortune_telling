@@ -3,7 +3,7 @@
 ## 交付內容與使用規則
 
 - 覺醒體正式圖片位於 `public/star-beasts/`，共 28 張，每季 7 張。
-- 春季另已完成 7 張「星宿幼體」卡；它們與覺醒體為同一隻神獸的不同成長階段，不是一般動物版本。
+- 春季與夏季已各完成 7 張「星宿幼體」卡；它們與覺醒體為同一隻神獸的不同成長階段，不是一般動物版本。
 - 每張皆為唯一正式版本：PNG、直式、`950 × 1656 px`。不得改用舊版或自行重新命名。
 - 網站請引用下表的 `/star-beasts/...` 路徑；前端以 CSS 等比例縮放，不裁切、不拉伸。
 - 所有結構化資料均在 `data/star-beasts.json`，可直接供前端建立列表、詳細頁或篩選功能。
@@ -23,7 +23,7 @@
 ## 成長階段資料規則
 
 - `image`：既有的「覺醒體」神獸卡。
-- `youngDivineImage`：同一神獸的「星宿幼體」卡。已完成的春季 01–07 均有此欄位；其他季節會在幼體卡完成後補上。
+- `youngDivineImage`：同一神獸的「星宿幼體」卡。已完成的春季 01–07 與夏季 22–28 均有此欄位；其他季節會在幼體卡完成後補上。
 - 前端若只需原有 28 張卡，維持讀取 `image` 即可；需要進化展示時，先顯示 `youngDivineImage`，再切換至 `image`。
 
 ## 春季幼體卡｜已完成
@@ -37,6 +37,18 @@
 | 05 | 心月狐 | `/star-beasts/spring/05-xin-yue-hu-young-divine.png` | `/star-beasts/spring/05-xin-yue-hu.png` |
 | 06 | 尾火虎 | `/star-beasts/spring/06-wei-huo-hu-young-divine.png` | `/star-beasts/spring/06-wei-huo-hu.png` |
 | 07 | 箕水豹 | `/star-beasts/spring/07-ji-shui-bao-young-divine.png` | `/star-beasts/spring/07-ji-shui-bao.png` |
+
+## 夏季幼體卡｜已完成
+
+| 編號 | 星宿 | 幼體圖片路徑 | 對應覺醒體 |
+|---:|---|---|---|
+| 22 | 井木犴 | `/star-beasts/summer/22-jing-mu-an-young-divine.png` | `/star-beasts/summer/22-jing-mu-an.png` |
+| 23 | 鬼金羊 | `/star-beasts/summer/23-gui-jin-yang-young-divine.png` | `/star-beasts/summer/23-gui-jin-yang.png` |
+| 24 | 柳土獐 | `/star-beasts/summer/24-liu-tu-zhang-young-divine.png` | `/star-beasts/summer/24-liu-tu-zhang.png` |
+| 25 | 星日馬 | `/star-beasts/summer/25-xing-ri-ma-young-divine.png` | `/star-beasts/summer/25-xing-ri-ma.png` |
+| 26 | 張月鹿 | `/star-beasts/summer/26-zhang-yue-lu-young-divine.png` | `/star-beasts/summer/26-zhang-yue-lu.png` |
+| 27 | 翼火蛇 | `/star-beasts/summer/27-yi-huo-she-young-divine.png` | `/star-beasts/summer/27-yi-huo-she.png` |
+| 28 | 軫水蚓 | `/star-beasts/summer/28-zhen-shui-yin-young-divine.png` | `/star-beasts/summer/28-zhen-shui-yin.png` |
 
 ## 東方蒼龍七宿｜春季
 
