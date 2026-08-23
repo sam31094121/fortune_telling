@@ -13,6 +13,8 @@ import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import type { GrowthElement } from '@/lib/growth-center-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, setAnalysisIdentityTarget, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
+import { WaterTreasureOrb, type ProductElement } from '@/components/bazi/customer/WaterTreasureOrb';
+import { ElementUnsealSoundToggle, playElementUnsealSound } from '@/components/ElementUnsealSound';
 
 interface PersonInput {
   name: string;
@@ -799,7 +801,7 @@ const MATCH_ELEMENT_LABEL: Record<MatchFiveElementKey, string> = {
   earth: '地元素',
 };
 
-const MATCH_ELEMENT_SHORT_LABEL: Record<MatchFiveElementKey, string> = {
+const MATCH_ELEMENT_SHORT_LABEL: Record<MatchFiveElementKey, ProductElement> = {
   space: '空',
   air: '風',
   water: '水',
@@ -1490,6 +1492,7 @@ function MatchSharedElementPearl({ result }: { result?: MatchFiveElementResult }
   ] as const;
   const startUnseal = (nextInitiator: 'personA' | 'personB') => {
     if (ritualState !== 'sealed') return;
+    playElementUnsealSound(MATCH_ELEMENT_SHORT_LABEL[result.sharedElement]);
     setInitiator(nextInitiator);
     setRitualState('opening');
     setRitualStage(1);
@@ -1516,25 +1519,18 @@ function MatchSharedElementPearl({ result }: { result?: MatchFiveElementResult }
   const pearlScale = [1, 1.26, 1.08, 1.12, 1.17, 1.09][ritualStage];
   const pearlBrightness = [1, 1.7, 1.15, 1.3, 1.45, 1.12][ritualStage];
   const ritualGlowOpacity = [0.36, 0.96, 0.64, 0.76, 0.88, 0.58][ritualStage];
-  const currentShift = ritualStage * 3;
 
   return (
     <section className="fortune-card relative overflow-hidden border border-white/14 bg-[linear-gradient(135deg,rgba(8,15,31,0.98),rgba(17,24,39,0.94)_56%,rgba(8,47,73,0.78))] p-4 shadow-[0_18px_52px_rgba(0,0,0,0.25)] sm:p-5">
       <div className="grid grid-cols-[112px_minmax(0,1fr)] items-center gap-4 sm:grid-cols-[140px_minmax(0,1fr)] sm:gap-5">
         <div className="relative mx-auto grid h-24 w-24 place-items-center sm:h-32 sm:w-32">
           <div className={`absolute inset-[5%] rounded-full blur-2xl transition-all ${ritualStage === 1 ? 'duration-300' : 'duration-[2800ms]'}`} style={{ backgroundColor: meta.glow, opacity: ritualGlowOpacity, transform: `scale(${ritualStage === 1 ? 1.48 : 0.9 + ritualStage * 0.05})` }} />
-          <div className={`relative h-full w-full overflow-hidden rounded-full border border-white/50 shadow-[inset_-18px_-20px_28px_rgba(0,0,0,0.6),inset_14px_14px_24px_rgba(255,255,255,0.58),0_0_28px_rgba(255,255,255,0.12)] transition-all ${ritualStage === 1 ? 'duration-300' : 'duration-[2800ms]'}`} style={{ background: meta.surface, transform: `translateY(${ritualStage >= 4 ? -5 : 0}px) scale(${pearlScale})`, filter: `brightness(${pearlBrightness}) saturate(${1 + ritualStage * 0.05})` }}>
-            <span
-              className="absolute -left-[18%] top-[22%] h-[63%] w-[84%] rounded-[54%] opacity-70 blur-md transition-all duration-[2800ms]"
-              style={{ background: `linear-gradient(135deg, rgba(255,255,255,0.68), ${meta.glow})`, transform: `translate(${currentShift}px, ${-currentShift * 0.55}px) rotate(${-18 + ritualStage * 4}deg)` }}
-            />
-            <span
-              className="absolute -right-[18%] bottom-[16%] h-[61%] w-[84%] rounded-[54%] opacity-70 blur-md transition-all duration-[2800ms]"
-              style={{ background: `linear-gradient(315deg, rgba(2,6,23,0.78), ${meta.glow})`, transform: `translate(${-currentShift}px, ${currentShift * 0.48}px) rotate(${18 - ritualStage * 4}deg)` }}
-            />
-            <span className="absolute inset-[9%] rounded-full opacity-90 transition-all duration-[2800ms]" style={{ background: meta.core, transform: `translate(${ritualStage * 1.5}px, ${ritualStage * -1}px) scale(${1 + ritualStage * 0.035})` }} />
-            <span className="absolute left-[18%] top-[13%] h-[28%] w-[24%] -rotate-[28deg] rounded-full bg-white/80 blur-[2px]" />
-            <span className="absolute bottom-[13%] right-[12%] h-[23%] w-[38%] rounded-full bg-slate-950/30 blur-md" />
+          <div
+            className={`treasure-reveal-stage treasure-reveal-stage--hero transition-all ${ritualState === 'sealed' ? 'treasure-reveal-stage--sealed' : 'treasure-reveal-stage--collected'} ${ritualState === 'opening' ? 'treasure-reveal-stage--opening' : ''} ${ritualStage === 1 ? 'duration-300' : 'duration-[2800ms]'}`}
+            style={{ transform: `translateY(${ritualStage >= 4 ? -5 : 0}px) scale(${pearlScale})`, filter: `brightness(${pearlBrightness}) saturate(${1 + ritualStage * 0.05})` }}
+            aria-hidden="true"
+          >
+            <WaterTreasureOrb element={MATCH_ELEMENT_SHORT_LABEL[result.sharedElement]} released={ritualState !== 'sealed'} />
           </div>
         </div>
         <div className="min-w-0">
@@ -1593,6 +1589,7 @@ function MatchSharedElementPearl({ result }: { result?: MatchFiveElementResult }
             : `${initiatorName}正在解除結界・請等待十二秒`}
         </div>
       )}
+      <div className="mt-2 flex justify-end"><ElementUnsealSoundToggle /></div>
     </section>
   );
 }

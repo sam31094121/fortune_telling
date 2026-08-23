@@ -15,7 +15,7 @@ import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import { searchCities, findCityById, type CityEntry } from '@/lib/city-directory';
 import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
-import type { FiveElementIntegrationResult, FiveElementKey } from '@/lib/five-element-engine';
+import { getFiveElementShortName, type FiveElementIntegrationResult, type FiveElementKey } from '@/lib/five-element-engine';
 import type { InsightRitualStep } from '@/lib/insight-engine';
 import type { ZiweiDestinyCard as ZiweiDestinyCardModel } from '@/lib/ziwei-destiny-card';
 import type { ZiweiPresentationBundle } from '@/lib/ziwei-presentation-service';
@@ -28,6 +28,7 @@ import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { calculateBoneWeight, formatQian } from '@/lib/bone-weight';
 import { WaterTreasureOrb } from '@/components/bazi/customer/WaterTreasureOrb';
+import { playElementUnsealSound } from '@/components/ElementUnsealSound';
 import { deriveZiweiStarBeastLink } from '@/lib/ziwei-star-beast-link';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
@@ -2689,36 +2690,26 @@ const ZIWEI_ELEMENT_TREASURES: Record<FiveElementKey, { label: string; name: str
   water: { label: '水', name: '深海潮汐珠', gear: '回音盾牌', power: '讓被壓住的感受先被聽見，再決定如何回應。' },
 };
 
-// 命盤仍以正統五行計算；客戶看見的寶物固定翻成空、風、水、火、地。
-// 同一張命盤的兩位老師必須共用這個結果，不能各自換元素。
-const ZIWEI_PRODUCT_ELEMENT: Record<FiveElementKey, '空' | '風' | '水' | '火' | '地'> = {
-  metal: '空',
-  wood: '風',
-  water: '水',
-  fire: '火',
-  earth: '地',
-};
-
 const ZIWEI_TREASURE_RITUALS: Record<FiveElementKey, { title: string; scenes: [string, string, string, string] }> = {
   metal: {
-    title: '星淵虛空珠・斷雜儀式',
-    scenes: ['第一幕・星隙無聲張開，雜訊被黑暗慢慢吸走。', '第二幕・銀白霧從珠心翻湧，封印開始失去重量。', '第三幕・一道冷光切開舊殼，留下真正該保留的訊號。', '終幕・星淵回應，你收下空的力量，準備清楚前進。'],
+    title: '星淵虛空珠・本源甦醒儀式',
+    scenes: ['第一幕・邪氣緊纏珠心，星淵被壓成一片死寂。', '第二幕・紙符裂開，暗紫濁霧從縫隙急速退散。', '第三幕・銀白星塵甦醒，虛空重新透出清澈深度。', '終幕・空之本源已淨化，真正的訊號在光裡留下。'],
   },
   wood: {
-    title: '蒼嵐御風珠・引路儀式',
-    scenes: ['第一幕・風還被困在珠內，只有細微的綠光呼吸。', '第二幕・蒼嵐從深處翻轉，散亂的方向逐漸靠攏。', '第三幕・風痕劃開封印，替你指出第一條可走的路。', '終幕・御風之力入背包，下一步不再只是停在想像。'],
+    title: '蒼嵐御風珠・本源甦醒儀式',
+    scenes: ['第一幕・混濁邪風被困在珠內，越掙扎越失去方向。', '第二幕・紙符斷裂，沉重黑霧被第一道清風推開。', '第三幕・青綠風流甦醒，散亂氣息重新找到出口。', '終幕・風之本源已淨化，前進的方向清楚展開。'],
   },
   water: {
-    title: '深海潮汐珠・回聲儀式',
-    scenes: ['第一幕・潮聲仍被壓在深處，珠面只留一點暗藍呼吸。', '第二幕・淺海與深海的光在珠內交錯，回聲開始靠近。', '第三幕・潮汐推開封印，沉下去的感受終於浮上水面。', '終幕・潮汐之力入背包，你可以選擇如何回應下一幕。'],
+    title: '深海潮汐珠・本源甦醒儀式',
+    scenes: ['第一幕・冰冷邪潮封死珠心，深海回聲無法浮出。', '第二幕・紙符裂解，濁浪翻湧後逐漸沉回海底。', '第三幕・清透潮光甦醒，深淺水流重新彼此映照。', '終幕・水之本源已淨化，被壓住的感受終於能被聽見。'],
   },
   fire: {
-    title: '燼星業火珠・點燃儀式',
-    scenes: ['第一幕・餘燼被封在珠心，紅光還沒有越過界線。', '第二幕・火色從深紅推向亮紅，行動的溫度開始回來。', '第三幕・業火穿過裂縫，不再只燃燒焦慮，而是照亮目標。', '終幕・燼星之力入背包，今天的第一個行動已被點亮。'],
+    title: '燼星業火珠・本源甦醒儀式',
+    scenes: ['第一幕・失控邪焰撞擊封印，珠心只剩焦黑壓迫。', '第二幕・紙符燒斷，濁火崩散成逐漸冷卻的灰燼。', '第三幕・赤金火核甦醒，光與熱重新回到清楚方向。', '終幕・火之本源已淨化，力量不再灼傷，而是照亮行動。'],
   },
   earth: {
-    title: '地脈琥珀珠・定錨儀式',
-    scenes: ['第一幕・地脈沉睡在琥珀深處，封印仍緊緊壓住核心。', '第二幕・金色紋理開始流動，散掉的節奏重新沉回地面。', '第三幕・琥珀裂開一道光，讓承諾與界線重新站穩。', '終幕・地脈之力入背包，你可以把下一步真正落地。'],
+    title: '地脈琥珀珠・本源甦醒儀式',
+    scenes: ['第一幕・沉重邪氣壓住地脈，珠心像被岩層永久埋藏。', '第二幕・紙符崩裂，暗色塵霧沿著裂縫向外退去。', '第三幕・金褐晶脈甦醒，穩定光流重新撐起核心。', '終幕・地之本源已淨化，界線與承諾重新站穩。'],
   },
 };
 
@@ -2762,10 +2753,11 @@ function ZiweiHorrorGhostMovieView({
   const topic = plainPalaceTopic(palaceName);
   const [treasureCollected, setTreasureCollected] = useState(false);
   const [ritualStage, setRitualStage] = useState<number | null>(null);
+  const [showReleasedPreview, setShowReleasedPreview] = useState(false);
   const ritualTimersRef = useRef<number[]>([]);
   const primaryElement = fiveElement?.primaryElement ?? 'earth';
   const treasure = ZIWEI_ELEMENT_TREASURES[primaryElement];
-  const productElement = ZIWEI_PRODUCT_ELEMENT[primaryElement];
+  const productElement = getFiveElementShortName(primaryElement);
   // The previews are a reference board only.  They make the fixed five-element
   // material system inspectable without changing this palace's derived element.
   const materialPreviewElements = (Object.keys(ZIWEI_ELEMENT_TREASURES) as FiveElementKey[]).filter((element) => element !== primaryElement);
@@ -2774,9 +2766,18 @@ function ZiweiHorrorGhostMovieView({
   const ghostReply = narrative?.finalMetaphor ?? life.practicalDirection;
 
   useEffect(() => () => ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer)), []);
+  useEffect(() => {
+    ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    ritualTimersRef.current = [];
+    setTreasureCollected(false);
+    setRitualStage(null);
+    setShowReleasedPreview(false);
+  }, [palaceName, primaryElement]);
 
   const startRitual = () => {
     if (ritualOpening) return;
+    playElementUnsealSound(productElement);
+    setShowReleasedPreview(false);
     ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     setTreasureCollected(false);
     setRitualStage(0);
@@ -2800,11 +2801,6 @@ function ZiweiHorrorGhostMovieView({
         <p className="text-[11px] font-black tracking-[0.18em] text-rose-100">鬼魅老師解盤・紫微沉浸式電影模式</p>
         <span className="rounded-full border border-rose-200/25 bg-rose-500/10 px-2.5 py-1 text-[10px] font-black tracking-[0.12em] text-rose-100">原創虛構遊戲</span>
       </div>
-      <div className="relative mt-2 flex flex-wrap gap-1.5" aria-label="鬼魅老師解盤五大元素">
-        {['恐怖', '血腥', '鬼魅', '驚悚', '災難'].map((tag) => (
-          <span key={tag} className="rounded-full border border-rose-200/30 bg-rose-500/10 px-2 py-0.5 text-[10px] font-black tracking-[0.1em] text-rose-100/85">{tag}</span>
-        ))}
-      </div>
       <p className="relative mt-2 rounded-xl border border-violet-200/15 bg-black/25 px-3 py-2 text-xs font-bold leading-5 text-violet-100/80">戲劇化紫微命盤遊戲情境：只以本宮、主星、三方四正與時間層創作，不代表已發生的真實事件。</p>
       <p className="relative mt-3 text-base font-black leading-7 text-rose-50">{name}，你現在 {ageLabel}；你的{palaceName}命盤正在打開。恐怖是壓力的逼近；鬼魅是同一張命盤最後浮現的象徵畫面。</p>
       <p className="relative mt-2 rounded-xl border border-cyan-100/15 bg-cyan-950/20 px-3 py-2 text-sm font-bold leading-6 text-cyan-50/90">白話說，{palaceName}在講的是「{topic}」。接下來的恐怖鬼魅情境只會圍繞這個主題，不會跳去講別宮的事。</p>
@@ -2824,26 +2820,39 @@ function ZiweiHorrorGhostMovieView({
 
       <section className="relative mt-3 rounded-2xl border-2 border-amber-200/70 bg-[linear-gradient(135deg,rgba(120,53,15,0.38),rgba(49,46,129,0.34))] p-4 shadow-[0_0_26px_rgba(251,191,36,0.16)]" aria-label="紫微五元素寶物關">
         <p className="text-xs font-black tracking-[0.16em] text-amber-100">最終關・五元素魔珠封印</p>
-        <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">五顆珠子初始都是看不出身分的邪氣魔珠；本宮命盤只指出這一局優先可解開哪一顆，解封瞬間才會裂開現出真正的元素寶珠。</p>
-        <div className="mt-3 grid grid-cols-[4.25rem_minmax(0,1fr)] items-center gap-3 rounded-2xl border-2 border-amber-100/50 bg-black/25 p-3">
-          <div className={`treasure-reveal-stage ${treasureCollected ? 'treasure-reveal-stage--collected' : 'treasure-reveal-stage--sealed'} ${ritualOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
-            <WaterTreasureOrb element={productElement} released={treasureCollected || ritualOpening} />
+        <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">五顆魔珠都被邪氣侵蝕，紙符正壓住即將失控的核心。本宮命盤只指出優先解封的一顆；破除邪印後，暗氣才會退去，元素本源才會明亮甦醒。</p>
+        <div className="mt-3 rounded-xl border border-cyan-100/20 bg-slate-950/35 p-2.5">
+          <button
+            type="button"
+            onClick={() => setShowReleasedPreview((value) => !value)}
+            disabled={ritualOpening || treasureCollected}
+            aria-pressed={showReleasedPreview}
+            className="w-full rounded-lg border border-cyan-100/35 bg-cyan-300/10 px-3 py-2 text-xs font-black text-cyan-50 transition hover:bg-cyan-300/15 disabled:cursor-not-allowed disabled:opacity-55"
+          >
+            {showReleasedPreview ? '返回邪印封鎖狀態' : '查看淨化後的本源形態'}
+          </button>
+          <p className="mt-1.5 text-center text-[10px] font-semibold leading-4 text-cyan-50/60">僅供外觀核對・不會改變你的真實解封進度</p>
+        </div>
+        <div className="mt-3 grid grid-cols-[4.6rem_minmax(0,1fr)] items-center gap-3 rounded-2xl border-2 border-amber-100/50 bg-black/25 p-3">
+          <div className={`treasure-reveal-stage treasure-reveal-stage--hero ${treasureCollected || showReleasedPreview ? 'treasure-reveal-stage--collected' : 'treasure-reveal-stage--sealed'} ${ritualOpening ? 'treasure-reveal-stage--opening' : ''} ${showReleasedPreview ? 'treasure-reveal-stage--released-preview' : ''}`} aria-hidden="true">
+            <WaterTreasureOrb element={productElement} released={treasureCollected || ritualOpening || showReleasedPreview} burnSealOnRelease />
           </div>
           <div className="min-w-0">
             <h3 className="font-serif text-[1.35rem] font-black leading-tight text-amber-50">{treasure.label}元素・{treasure.name}</h3>
-            <p className={`mt-1 text-sm font-black tracking-[0.08em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureCollected ? '魔珠已破・元素寶珠已入背包' : '魔珠封印中・本宮可優先解開'}</p>
+            <p className={`mt-1 text-sm font-black tracking-[0.08em] ${treasureCollected || showReleasedPreview ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureCollected ? '邪氣已淨・元素本源完全甦醒' : showReleasedPreview ? '淨化後本源預覽・真實仍被封印' : '邪氣受封・危險核心仍在沉睡'}</p>
           </div>
         </div>
-        <p className="mt-3 text-[13px] font-semibold leading-6 text-amber-50/88">解開本宮封印後，取得「{treasure.gear}」：{treasure.power} 這是遊戲中的保護與行動線索，不代表現實防護或命定結果。</p>
-        <button
-          type="button"
-          onClick={startRitual}
-          aria-pressed={treasureCollected}
-          disabled={ritualOpening}
-          className={`mt-3 w-full rounded-xl border-2 px-3 py-2 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/80 bg-amber-300/15 text-amber-50 shadow-[0_0_18px_rgba(251,191,36,0.18)]'}`}
-        >
-          {ritualOpening ? `封印儀式進行中・${ritualStage! + 1}/4` : treasureCollected ? '本宮寶物已入背包・再次觀看儀式' : '解開本宮封印・開始十二秒儀式'}
-        </button>
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={startRitual}
+            aria-pressed={treasureCollected}
+            disabled={ritualOpening}
+            className={`w-full rounded-xl border-2 px-3 py-2 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/80 bg-amber-300/15 text-amber-50 shadow-[0_0_18px_rgba(251,191,36,0.18)]'}`}
+          >
+            {ritualOpening ? `破印淨化進行中・${ritualStage! + 1}/4` : treasureCollected ? '元素本源已甦醒・重現淨化儀式' : '破除邪印・啟動十二秒淨化'}
+          </button>
+        </div>
         {ritualOpening && <section className="mt-3 rounded-xl border border-amber-100/25 bg-black/25 px-3 py-3" aria-live="polite">
           <div className="flex items-center justify-between gap-2">
             <p className="text-[11px] font-black tracking-[0.12em] text-amber-100">{ritual.title}</p>
@@ -2855,21 +2864,20 @@ function ZiweiHorrorGhostMovieView({
           </div>
         </section>}
         <section className="mt-4 border-t border-amber-100/20 pt-4" aria-label="其餘四元素材質預覽">
-          <p className="text-xs font-black tracking-[0.14em] text-amber-100/80">其餘四顆・尚未解封</p>
-          <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">同樣是看不出身分的魔珠，解封後才會現出各自的元素寶石材質；不會更改這一宮已判定的補強元素。</p>
+          <p className="text-xs font-black tracking-[0.14em] text-amber-100/80">其餘四顆・邪印未解</p>
+          <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">四顆仍被邪氣與紙符壓住，無法看見真正本源。只有解封後，暗色才會退散，各自的元素晶光才會甦醒。</p>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {materialPreviewElements.map((element) => {
               const preview = ZIWEI_ELEMENT_TREASURES[element];
               return (
-                <article key={element} className="relative flex min-h-[92px] items-center gap-2 overflow-hidden rounded-xl border border-amber-100/20 bg-black/20 p-2">
-                  <div className="treasure-reveal-stage treasure-reveal-stage--sealed scale-[0.76] shrink-0" aria-hidden="true">
-                    <WaterTreasureOrb element={ZIWEI_PRODUCT_ELEMENT[element]} released={false} preview />
+                <article key={element} className="relative flex min-h-[98px] items-center gap-1.5 overflow-hidden rounded-xl border border-amber-100/20 bg-black/20 p-2">
+                  <div className={`treasure-reveal-stage ${showReleasedPreview ? 'treasure-reveal-stage--collected treasure-reveal-stage--released-preview' : 'treasure-reveal-stage--sealed'} scale-[0.82] shrink-0`} aria-hidden="true">
+                    <WaterTreasureOrb element={getFiveElementShortName(element)} released={showReleasedPreview} preview />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-black text-amber-50">{preview.label}元素</p>
                     <p className="mt-1 text-[11px] font-semibold leading-4 text-amber-100/75">{preview.name}</p>
                   </div>
-                  <span className="absolute right-2 top-2 rounded-full border border-amber-100/25 bg-slate-950/75 px-2 py-1 text-[10px] font-black tracking-[0.1em] text-amber-100/85">封印中</span>
                 </article>
               );
             })}
@@ -2881,7 +2889,7 @@ function ZiweiHorrorGhostMovieView({
         {[
           ['第一關', '禁區開場', '命盤留下的舊迴聲'],
           ['第二關', '異象逼近', '本宮壓力正在推進'],
-          ['最終關', '封印出口', '解封後才能推進下一幕'],
+          ['最終關', '淨化出口', '破開邪印，喚醒元素本源'],
         ].map(([time, title, detail], index) => (
           <div key={time} className={`rounded-xl border p-3 ${index === 1 ? 'border-rose-200/35 bg-rose-500/10' : 'border-white/10 bg-black/20'}`}>
             <p className="text-[10px] font-black tracking-[0.16em] text-rose-200/80">{time}</p>
@@ -2925,7 +2933,7 @@ function ZiweiHorrorGhostMovieView({
           <p className="rounded-xl border border-rose-100/15 bg-black/20 px-2.5 py-2 text-[11px] font-semibold leading-5 text-violet-100/80"><span className="block text-[9px] font-black tracking-[0.14em] text-rose-100/80">它盯上的線索</span>{evidenceRefs.slice(0, 1).join('') || `${palaceName}的正式命盤訊號`}</p>
           <p className="rounded-xl border border-rose-100/15 bg-black/20 px-2.5 py-2 text-[11px] font-semibold leading-5 text-violet-100/80"><span className="block text-[9px] font-black tracking-[0.14em] text-rose-100/80">它留下的問題</span>{life.blindSpot}</p>
         </div>
-        <p className="relative mt-3 border-l-2 border-rose-300/50 pl-3 text-xs font-semibold leading-5 text-violet-100/80">封印沒有替你決定結局；它只把{palaceName}的答案留在門縫裡。解開寶珠，才會走進本局的下一幕。</p>
+        <p className="relative mt-3 border-l-2 border-rose-300/50 pl-3 text-xs font-semibold leading-5 text-violet-100/80">邪印仍壓著{palaceName}的答案。破開封鎖、讓元素本源甦醒，才會走進本局的下一幕。</p>
       </section>
       <ZiweiTeacherEvidenceRefs refs={evidenceRefs} />
     </section>

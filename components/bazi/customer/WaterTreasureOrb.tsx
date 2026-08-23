@@ -37,7 +37,24 @@ declare module '@react-three/fiber' {
   }
 }
 
-type ProductElement = '空' | '風' | '水' | '火' | '地';
+export type ProductElement = '空' | '風' | '水' | '火' | '地';
+
+/**
+ * 五元素共用的唯一封印符资源。
+ * 以 CSS、字型與向量式輪廓即時繪製，沒有低解析點陣圖；在 1080p 以上仍保持清晰。
+ * 所有使用 WaterTreasureOrb 的卡片都必須由這裡呈現封印，不可各自複製或降級替換。
+ */
+function SharedElementSealPaper({ burning = false }: { burning?: boolean }) {
+  return (
+    <span className={`space-seal-paper ${burning ? 'space-seal-paper--burning' : ''}`} data-seal-resource="shared-vector-1080p-plus">
+      <span className="space-seal-paper__script">敕令</span>
+      <span className="space-seal-paper__mark">封</span>
+      {burning && <span className="space-seal-ash" aria-hidden="true">
+        {Array.from({ length: 7 }, (_, index) => <i key={index} />)}
+      </span>}
+    </span>
+  );
+}
 type WaterOrbVariant = 'crystal' | 'caustic' | 'luminous';
 
 // 客戶介面固定使用「空、風、水、火、地」，但視覺保留正統五行的比例來源。
@@ -66,11 +83,28 @@ const INNER_MIST: Record<ProductElement, { deep: string; pale: string }> = {
   地: { deep: '#ee7800', pale: '#fff0a6' },
 };
 
+// 共用幾何與封印規則，但五顆解封後各有自己的內在語義；差異不是只換顏色。
+// 全部變化都留在圓形外殼內，只調內核比例、霧流節奏與少量粒子，避免手機負擔與外形變形。
+const ELEMENT_VISUAL_SEMANTICS: Record<ProductElement, {
+  deepScale: [number, number, number];
+  paleScale: [number, number, number];
+  drift: number;
+  sparkleCount: number;
+  sparkleSize: number;
+  sparkleSpeed: number;
+}> = {
+  空: { deepScale: [0.62, 0.55, 0.62], paleScale: [0.24, 0.2, 0.3], drift: 0.22, sparkleCount: 13, sparkleSize: 1.55, sparkleSpeed: 0.12 },
+  風: { deepScale: [0.9, 0.3, 0.74], paleScale: [0.56, 0.18, 0.44], drift: 0.72, sparkleCount: 10, sparkleSize: 1.2, sparkleSpeed: 0.48 },
+  水: { deepScale: [0.82, 0.4, 0.72], paleScale: [0.5, 0.26, 0.58], drift: 0.46, sparkleCount: 6, sparkleSize: 1.05, sparkleSpeed: 0.24 },
+  火: { deepScale: [0.7, 0.52, 0.66], paleScale: [0.38, 0.42, 0.36], drift: 0.58, sparkleCount: 12, sparkleSize: 1.7, sparkleSpeed: 0.2 },
+  地: { deepScale: [0.68, 0.62, 0.68], paleScale: [0.34, 0.28, 0.4], drift: 0.16, sparkleCount: 5, sparkleSize: 1.35, sparkleSpeed: 0.08 },
+};
+
 // 「魔珠」封印態：五顆各自是自己元素的「黑化／詛咒版」——同一支色相，飽和度與明度砍到邪氣的
 // 深色調，讓封印中就隱約埋下解封後身分的伏筆，而不是五顆長得一樣。不透光、高粗糙度的詛咒石頭
 // 質地維持共用（見 DEMON_TEXTURE），跟解封後透光發亮的水晶寶珠形成最大反差；解封瞬間才「裂開」
 // 洗白成真正鮮明的元素玻璃球材質。
-const DEMON_TEXTURE = { metalness: 0.3, roughness: 0.55, transmission: 0.04, clearcoat: 0.22, iridescence: 0 };
+const DEMON_TEXTURE = { metalness: 0.24, roughness: 0.34, transmission: 0.12, clearcoat: 0.58, iridescence: 0 };
 // 每個元素的魔珠色相必須鎖在自己天使色（ORB_MATERIAL）的同一色系上，只降飽和度／明度、
 // 不換色相——這樣「解封」才是同一元素的洗白，而不是換了一顆完全無關的珠子。
 const DEMON_MATERIAL: Record<ProductElement, { color: string; emissive: string }> = {
@@ -103,6 +137,7 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
   const rimMeshRef = useRef<Mesh>(null);
   const material = ORB_MATERIAL[element];
   const mist = INNER_MIST[element];
+  const semantics = ELEMENT_VISUAL_SEMANTICS[element];
   const isLuminousWater = released && element === '水' && variant === 'luminous';
   const demon = DEMON_MATERIAL[element];
   const demonMist = DEMON_MIST[element];
@@ -158,12 +193,12 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
       palePosition.y = 0.08 + Math.sin(now / 2550) * 0.035;
     }
     if (goldMistRef.current) {
-      goldMistRef.current.rotation.y += delta * (released ? 0.56 : 0.14);
+      goldMistRef.current.rotation.y += delta * (released ? semantics.drift : 0.14);
       goldMistRef.current.rotation.z = lift * 0.25;
       goldMistRef.current.position.set(deepPosition.x, deepPosition.y, deepPosition.z);
     }
     if (paleMistRef.current) {
-      paleMistRef.current.rotation.y -= delta * (released ? 0.48 : 0.12);
+      paleMistRef.current.rotation.y -= delta * (released ? semantics.drift * 0.86 : 0.12);
       paleMistRef.current.rotation.x = pull * 0.22;
       paleMistRef.current.position.set(palePosition.x, palePosition.y, palePosition.z);
     }
@@ -227,7 +262,7 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
   return (
     <group ref={group} scale={released ? 1.08 : 0.94}>
       <mesh>
-        <sphereGeometry args={[1, 48, 48]} />
+        <sphereGeometry args={[1, preview ? 64 : 96, preview ? 64 : 96]} />
         <meshPhysicalMaterial
           ref={surfaceMaterialRef}
           color={released ? (isLuminousWater ? '#38bdf8' : material.color) : demon.color}
@@ -251,18 +286,18 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
           map={released && element === '水' ? waterTexture : null}
           emissiveMap={released && element === '水' ? waterTexture : null}
           bumpMap={reliefTexture}
-          bumpScale={released ? (element === '水' ? 0.13 : 0.075) : 0.16}
+          bumpScale={released ? (element === '水' ? 0.13 : 0.075) : 0.11}
         />
       </mesh>
       <group ref={goldMistRef}>
-        <mesh scale={[0.82, 0.38, 0.72]} rotation={[0.35, 0.7, -0.22]}>
-          <sphereGeometry args={[1, 28, 28]} />
+        <mesh scale={semantics.deepScale} rotation={[0.35, 0.7, -0.22]}>
+          <sphereGeometry args={[1, preview ? 32 : 40, preview ? 32 : 40]} />
           <meshPhysicalMaterial
             color={released ? mist.deep : demonMist.deep}
             emissive={released ? material.emissive : demon.emissive}
             emissiveIntensity={released ? 0.17 : 0.09}
             transparent
-            opacity={preview ? 0.16 : released ? 0.11 : 0.065}
+            opacity={preview ? 0.18 : released ? 0.12 : 0.1}
             transmission={0.92}
             roughness={0.28}
             depthWrite={false}
@@ -270,26 +305,47 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
         </mesh>
       </group>
       <group ref={paleMistRef}>
-        <mesh position={[0.24, -0.2, 0.15]} scale={[0.48, 0.24, 0.56]} rotation={[-0.48, 0.25, 0.4]}>
-          <sphereGeometry args={[1, 24, 24]} />
-          <meshBasicMaterial color={released ? mist.pale : demonMist.pale} transparent opacity={preview ? 0.13 : released ? 0.085 : 0.05} depthWrite={false} />
+        <mesh position={[0.24, -0.2, 0.15]} scale={semantics.paleScale} rotation={[-0.48, 0.25, 0.4]}>
+          <sphereGeometry args={[1, preview ? 28 : 36, preview ? 28 : 36]} />
+          <meshBasicMaterial color={released ? mist.pale : demonMist.pale} transparent opacity={preview ? 0.15 : released ? 0.1 : 0.075} depthWrite={false} />
         </mesh>
       </group>
+      {/* 內核與非對稱反射斑讓封印中的球仍讀成多層晶體，而不是平面色塊。 */}
+      <mesh scale={released ? 0.58 : 0.66} rotation={[0.18, -0.42, 0.16]}>
+        <sphereGeometry args={[1, preview ? 36 : 48, preview ? 36 : 48]} />
+        <meshPhysicalMaterial
+          color={released ? mist.deep : demonMist.deep}
+          emissive={released ? material.emissive : demon.emissive}
+          emissiveIntensity={released ? 0.16 : 0.11}
+          transparent
+          opacity={released ? 0.15 : 0.2}
+          transmission={released ? 0.64 : 0.42}
+          thickness={0.9}
+          roughness={0.18}
+          clearcoat={0.72}
+          clearcoatRoughness={0.12}
+          depthWrite={false}
+        />
+      </mesh>
+      <mesh position={[-0.34, 0.38, 0.72]} scale={[0.24, 0.12, 0.08]} rotation={[0.18, 0.08, -0.55]}>
+        <sphereGeometry args={[1, preview ? 28 : 36, preview ? 28 : 36]} />
+        <meshBasicMaterial color={released ? mist.pale : demonMist.pale} transparent opacity={released ? 0.34 : 0.22} depthWrite={false} />
+      </mesh>
       {isLuminousWater && (
         <>
           <mesh position={[-0.3, 0.34, 0.62]} scale={0.46}>
-            <sphereGeometry args={[1, 32, 32]} />
+            <sphereGeometry args={[1, preview ? 36 : 48, preview ? 36 : 48]} />
             <meshBasicMaterial color="#ecfeff" transparent opacity={released ? 0.48 : 0.26} />
           </mesh>
           <mesh scale={1.025}>
-            <sphereGeometry args={[1, 48, 48]} />
+            <sphereGeometry args={[1, preview ? 56 : 72, preview ? 56 : 72]} />
             <meshBasicMaterial color="#22d3ee" transparent opacity={released ? 0.11 : 0.055} side={1} />
           </mesh>
         </>
       )}
       {/* 科技感邊緣光護罩：輪廓發亮，dpr/多邊形完全沿用主球，不新增額外解析度負擔 */}
       <mesh ref={rimMeshRef} scale={1.06}>
-        <sphereGeometry args={[1, 48, 48]} />
+        <sphereGeometry args={[1, preview ? 64 : 96, preview ? 64 : 96]} />
         <rimGlowMaterial
           uColor={rimColor}
           uPower={preview ? 2.6 : 2.1}
@@ -302,12 +358,12 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
       {/* 能量粒子：只在寶物已釋放（非預覽格）時出現，控制多顆同框的總成本 */}
       {released && !preview && (
         <Sparkles
-          count={16}
+          count={semantics.sparkleCount}
           scale={2.6}
-          size={2.4}
-          speed={0.3}
+          size={semantics.sparkleSize}
+          speed={semantics.sparkleSpeed}
           opacity={0.85}
-          color={material.emissive}
+          color={element === '空' ? '#f4f1ff' : element === '火' ? '#ffd08a' : material.emissive}
           noise={0.6}
         />
       )}
@@ -315,16 +371,18 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
   );
 }
 
-export function WaterTreasureOrb({ element, released, variant = 'luminous', preview = false }: { element: ProductElement; released: boolean; variant?: WaterOrbVariant; preview?: boolean }) {
+export function WaterTreasureOrb({ element, released, variant = 'luminous', preview = false, burnSealOnRelease = false }: { element: ProductElement; released: boolean; variant?: WaterOrbVariant; preview?: boolean; burnSealOnRelease?: boolean }) {
   const material = ORB_MATERIAL[element];
   return (
     <span className={`water-treasure-orb water-treasure-orb--${element} water-treasure-orb--${variant} ${preview ? 'water-treasure-orb--preview' : ''} ${released ? 'water-treasure-orb--released' : 'water-treasure-orb--sealed'}`} aria-hidden="true">
+      {!released && <span className="water-treasure-seal-aura" />}
+      {(!released || burnSealOnRelease) && <SharedElementSealPaper burning={released && burnSealOnRelease} />}
       <Canvas
-        // 客戶頁以穩定優先：首幀照常渲染，但不持續佔用 GPU 動畫迴圈。
-        dpr={[1, 1.25]}
+        // 以 1080p／高密度手機仍清晰為準；只在需求幀渲染，避免提高解析度後常駐佔用 GPU。
+        dpr={preview ? 5 : 6}
         frameloop="demand"
         camera={{ position: [0, 0, 3.2], fov: 36 }}
-        gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }}
+        gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
       >
         <ambientLight intensity={0.4} />
         <pointLight
@@ -335,7 +393,7 @@ export function WaterTreasureOrb({ element, released, variant = 'luminous', prev
         <pointLight position={[2.6, -1.2, 2]} intensity={released ? (element === '空' ? 2.5 : 8) : (element === '空' ? 1.2 : 3)} color={released ? material.light : DEMON_LIGHT[element].secondary} />
         {/* 質感提升來源：HDRI 反射讓寶石表面出現真實環境高光，而不是純靠點光源硬堆。
             預覽格維持極低解析度控制成本；主要展示的一顆用稍高解析度換更好的反光細節。 */}
-        <Environment preset="city" resolution={preview ? 24 : 48} />
+        <Environment preset="city" resolution={preview ? 96 : 192} />
         <ElementSphere element={element} released={released} variant={variant} preview={preview} />
       </Canvas>
     </span>

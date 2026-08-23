@@ -161,6 +161,15 @@ const ZH_TO_KEY: Record<NameologyElement, FiveElementKey> = {
   ['\u571f']: 'earth',
 };
 
+/**
+ * 前端五元素名稱唯一映射：金→空、木→風、水→水、火→火、土→地。
+ * 傳統五行原值仍留在後端計算資料，不在這裡改寫。
+ */
+export function getProductElementNameFromTraditional(element: string): FiveElementDisplayName {
+  const key = ZH_TO_KEY[element as NameologyElement];
+  return key ? FIVE_ELEMENT_DEFINITIONS[key].displayZh : '空';
+}
+
 const ELEMENT_KEYS = Object.keys(FIVE_ELEMENT_DEFINITIONS) as FiveElementKey[];
 const AI_CORE_ELEMENT_ORDER: AiCoreElementCode[] = ['AIR', 'SPACE', 'WATER', 'FIRE', 'EARTH'];
 
@@ -1189,4 +1198,3 @@ export function buildZodiacFiveElementResult(result: ZodiacAnalysisResult, blood
     positiveQuote: getFiveElementPositiveQuote(primaryElement),
   });
 }
-

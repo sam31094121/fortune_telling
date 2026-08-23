@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { BaziCustomerView } from './adapter';
 import { CustomerEvidenceDrawer } from './CustomerAccordion';
 import { WaterTreasureOrb } from './WaterTreasureOrb';
+import { getProductElementNameFromTraditional } from '@/lib/five-element-engine';
+import { ElementUnsealSoundToggle, playElementUnsealSound } from '@/components/ElementUnsealSound';
 
 type TeacherMode = 'CHART' | 'HORROR_GHOST';
 
@@ -41,17 +43,6 @@ function delay(ms: number) {
  * 空、風、水、火、地. Bazi can still calculate with traditional 五行 internally,
  * but no teacher or treasure may expose a competing 金、木、土 reward system.
  */
-const TRADITIONAL_TO_PRODUCT_ELEMENT: Record<string, '空' | '風' | '水' | '火' | '地'> = {
-  金: '空',
-  木: '風',
-  水: '水',
-  火: '火',
-  土: '地',
-  空: '空',
-  風: '風',
-  地: '地',
-};
-
 const ELEMENT_TREASURES: Record<'空' | '風' | '水' | '火' | '地', { name: string; power: string }> = {
   空: { name: '星界定軸環', power: '提醒你先騰出空間，讓真正重要的選擇回到中心。' },
   風: { name: '迴風續行符', power: '提醒你把卡住的事拆成下一個可執行的小步。' },
@@ -73,7 +64,9 @@ function getBaziElementTreasure(view: BaziCustomerView) {
     .filter((item) => item.status === 'AVAILABLE' && typeof item.strength === 'number')
     .sort((a, b) => (a.strength ?? Number.POSITIVE_INFINITY) - (b.strength ?? Number.POSITIVE_INFINITY))[0]?.label;
   const sourceElement = weakest ?? view.dayMaster.element;
-  const element = TRADITIONAL_TO_PRODUCT_ELEMENT[sourceElement] ?? '空';
+  const element = ['空', '風', '水', '火', '地'].includes(sourceElement)
+    ? sourceElement as '空' | '風' | '水' | '火' | '地'
+    : getProductElementNameFromTraditional(sourceElement);
   return { element, ...ELEMENT_TREASURES[element] };
 }
 
@@ -129,6 +122,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
 
   const collectTreasure = () => {
     if (treasureOpening) return;
+    playElementUnsealSound(elementTreasure.element);
     ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     setTreasureCollected(false);
     setTreasureOpening(true);
@@ -341,6 +335,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
                 >
                   {treasureOpening ? '寶石正在解封・能量釋放中…' : treasureCollected ? '寶石已解封・把今天的一步做完' : `依提醒解開${elementTreasure.element}元素寶石`}
                 </button>
+                <div className="mt-2 flex justify-end"><ElementUnsealSoundToggle /></div>
               </section>
             )}
           </article>
@@ -388,12 +383,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
               <p className="ghost-reply-title">鬼魅正式解盤・同盤回應</p>
               <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${horrorLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : horrorReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-rose-100/35 bg-rose-300/10 text-rose-100/80'}`}>{horrorLoading ? '正在生成' : horrorReading ? '鬼魅已回應' : '等待回應'}</span>
             </div>
-            <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和Google 老師解盤使用完全相同的八字資料與五元素寶石；鬼魅老師會用故事給你一個暗示提醒，最後引導你解開對應的寶石，不會塞進看不懂的術語。</p>
-            <div className="mt-2 flex flex-wrap gap-1.5" aria-label="鬼魅解盤五大元素">
-              {['恐怖', '血腥', '鬼魅', '驚悚', '災難'].map((tag) => (
-                <span key={tag} className="rounded-full border border-rose-200/30 bg-rose-500/10 px-2 py-0.5 text-[10px] font-black tracking-[0.1em] text-rose-100/85">{tag}</span>
-              ))}
-            </div>
+            <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和 Google 老師解盤使用完全相同的八字資料與五元素寶石；鬼魅老師會用故事給你一個暗示提醒，最後引導你解開對應的寶石，不會塞進看不懂的術語。</p>
             <button
               type="button"
               onClick={collectTreasure}
@@ -438,6 +428,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
             >
               {treasureOpening ? `封印儀式進行中・${ritualStage! + 1}/4` : treasureCollected ? '再次喚醒寶物・下一幕由你的選擇推進' : '解開封印・開始十二秒儀式'}
             </button>
+            <div className="mt-2 flex justify-end"><ElementUnsealSoundToggle /></div>
             {treasureOpening && ritualStage !== null && (
               <section className="mt-3 rounded-xl border border-amber-100/25 bg-black/25 px-3 py-3" aria-live="polite">
                 <div className="flex items-center justify-between gap-2">

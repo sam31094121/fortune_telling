@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { buildGrowthCenterQuery } from '@/lib/growth-center-client';
 import { GROWTH_MODULES } from '@/lib/growth-center-engine';
-import type { GrowthCenterResult, GrowthElement } from '@/lib/growth-center-engine';
+import type { GrowthCenterResult, GrowthElement, GrowthModuleId } from '@/lib/growth-center-engine';
+import { WaterTreasureOrb, type ProductElement } from '@/components/bazi/customer/WaterTreasureOrb';
 import starBeastsData from '@/data/star-beasts.json';
 
 type ApiResult = GrowthCenterResult & { requestId?: string };
@@ -28,6 +29,33 @@ const ELEMENT_BADGE: Record<GrowthElement, string> = {
 };
 
 const ELEMENT_ORDER: GrowthElement[] = ['AIR', 'SPACE', 'WATER', 'FIRE', 'EARTH'];
+const GROWTH_ORB_ELEMENT: Record<GrowthElement, ProductElement> = {
+  SPACE: '空',
+  AIR: '風',
+  WATER: '水',
+  FIRE: '火',
+  EARTH: '地',
+};
+const GROWTH_ORB_NAME: Record<GrowthElement, string> = {
+  SPACE: '星淵虛空珠',
+  AIR: '蒼嵐御風珠',
+  WATER: '深海潮汐珠',
+  FIRE: '燼星業火珠',
+  EARTH: '地脈琥珀珠',
+};
+const GROWTH_ORB_CHAPTERS: Array<{
+  element: GrowthElement;
+  chapter: string;
+  meaning: string;
+  requiredModules: GrowthModuleId[];
+  enabled: boolean;
+}> = [
+  { element: 'SPACE', chapter: '第一篇・八關試煉', meaning: '完整通過首頁八張分析，才取得第一顆寶珠。', requiredModules: ['number', 'ziwei', 'soul_match', 'music', 'nameology', 'bazi', 'zodiac', 'tarot'], enabled: true },
+  { element: 'AIR', chapter: '第二篇・尚未開放', meaning: '完成第一篇後，等待下一組八關開放。', requiredModules: [], enabled: false },
+  { element: 'WATER', chapter: '第三篇・尚未開放', meaning: '完成前一篇後，等待下一組八關開放。', requiredModules: [], enabled: false },
+  { element: 'FIRE', chapter: '第四篇・尚未開放', meaning: '完成前一篇後，等待下一組八關開放。', requiredModules: [], enabled: false },
+  { element: 'EARTH', chapter: '第五篇・尚未開放', meaning: '完成前一篇後，等待下一組八關開放。', requiredModules: [], enabled: false },
+];
 const CHECKIN_STORAGE_KEY = 'tdh_growth_checkin_history_v4';
 const PREFERENCE_STORAGE_KEY = 'tdh_growth_preference_ids_v1';
 
@@ -213,6 +241,13 @@ export default function GrowthCenterPage() {
   }, [completedModuleSet, lifetimeCheckInCount]);
   const unlockedCards = useMemo(() => unlockedCardIds.map((id) => STAR_BEASTS.find((beast) => beast.id === id)).filter((beast): beast is typeof STAR_BEASTS[number] => Boolean(beast)), [unlockedCardIds]);
   const nextCard = STAR_BEASTS.find((beast) => !unlockedCardIds.includes(beast.id)) ?? null;
+  const growthOrbChapters = useMemo(() => GROWTH_ORB_CHAPTERS.map((chapter) => {
+    const completedRequirements = chapter.requiredModules.filter((moduleId) => completedModuleSet.has(moduleId));
+    const unlocked = chapter.enabled && chapter.requiredModules.length === 8 && completedRequirements.length === 8;
+    return { ...chapter, completedRequirements, unlocked, available: chapter.enabled && !unlocked };
+  }), [completedModuleSet]);
+  const collectedOrbCount = growthOrbChapters.filter((chapter) => chapter.unlocked).length;
+  const activeOrbChapter = growthOrbChapters.find((chapter) => chapter.available) ?? growthOrbChapters.find((chapter) => !chapter.unlocked) ?? null;
 
   const followUpReply = data && followUpAnswer
     ? followUpAnswer === 'continued'
@@ -309,6 +344,47 @@ export default function GrowthCenterPage() {
                 </div>
               </div>
               <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/10"><span className="block h-full rounded-full bg-gradient-to-r from-emerald-300 via-amber-300 to-cyan-300" style={{ width: `${progressPercent}%` }} /></div>
+            </section>
+
+            <section className="relative overflow-hidden rounded-[28px] border border-violet-300/30 bg-[radial-gradient(circle_at_50%_-8%,rgba(139,92,246,0.2),transparent_38%),linear-gradient(145deg,rgba(23,18,50,0.96),rgba(5,12,27,0.98))] p-4 shadow-[0_0_34px_rgba(109,40,217,0.14)] sm:p-5" aria-label="五元素成長寶珠收藏">
+              <div className="flex items-end justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-200">五元素成長寶珠</p>
+                  <h2 className="mt-2 text-xl font-black leading-7 text-violet-50">解開一篇，才取得一顆寶珠</h2>
+                </div>
+                <p className="shrink-0 font-serif text-3xl font-black text-amber-100">{collectedOrbCount}<span className="text-sm text-amber-100/55">/5</span></p>
+              </div>
+              <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">每一篇固定八關，八關全部通過才解封一顆；少一關，寶珠仍保持封印。第一篇會讀取首頁八張真實完成紀錄，離開再回來也會保留進度。</p>
+
+              <div className="mt-4 grid grid-cols-5 gap-1.5 sm:gap-3" aria-label="空風水火地五顆成長寶珠">
+                {growthOrbChapters.map((chapter) => {
+                  const element = chapter.element;
+                  const productElement = GROWTH_ORB_ELEMENT[element];
+                  return (
+                    <article key={element} className={`min-w-0 rounded-2xl border px-1.5 py-2 text-center ${chapter.unlocked ? 'border-amber-200/30 bg-white/[0.055]' : chapter.available ? 'border-cyan-200/30 bg-cyan-300/[0.06]' : 'border-white/10 bg-black/20'}`}>
+                      <div className="growth-center-orb-stage mx-auto" aria-hidden="true">
+                        <WaterTreasureOrb element={productElement} released={chapter.unlocked} preview />
+                      </div>
+                      <p className={`mt-1 text-sm font-black ${chapter.unlocked ? 'text-amber-50' : 'text-slate-400'}`}>{productElement}</p>
+                      <p className="truncate text-[9px] font-bold text-slate-400">{GROWTH_ORB_NAME[element]}</p>
+                      <p className={`mt-1 text-[9px] font-black ${chapter.available ? 'text-cyan-200' : chapter.unlocked ? 'text-emerald-200' : 'text-slate-500'}`}>
+                        {chapter.unlocked ? '已取得' : chapter.available ? `${chapter.completedRequirements.length}/8 關` : '封印中'}
+                      </p>
+                    </article>
+                  );
+                })}
+              </div>
+
+              <div className="mt-4 rounded-2xl border border-cyan-200/18 bg-cyan-300/[0.06] px-4 py-3">
+                <p className="text-xs font-black text-cyan-100">{activeOrbChapter ? `目前篇章：${activeOrbChapter.chapter}・${GROWTH_ORB_NAME[activeOrbChapter.element]}` : collectedOrbCount === 1 ? '第一篇完成・第一顆寶珠已取得' : '五篇完成・五顆寶珠已全部取得'}</p>
+                <p className="mt-1 text-[11px] font-semibold leading-5 text-[color:var(--text-sub)]">
+                  {activeOrbChapter
+                    ? `${activeOrbChapter.meaning} 本篇已通過 ${activeOrbChapter.completedRequirements.length}/8 關；八關全部完成才會解封。`
+                    : collectedOrbCount === 1
+                      ? '首頁八張分析已完整貫通。其餘四顆維持封印，等下一篇八關正式開放，不會提前送出。'
+                      : '所有篇章都已完成；後續每週任務會延續五元素方向，不會重新亂算。'}
+                </p>
+              </div>
             </section>
 
             <section className="growth-engagement-panel rounded-2xl border border-cyan-300/25 bg-cyan-300/8 p-5 shadow-[0_0_28px_rgba(34,211,238,0.1)]">

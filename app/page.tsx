@@ -10,7 +10,7 @@ import NextStepGuide from '@/components/NextStepGuide';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { saveUserData, loadUserData } from '@/lib/storage';
-import { getCompletedGrowthModules, getGrowthElements, markGrowthModuleCompleted } from '@/lib/growth-center-client';
+import { getCompletedGrowthModules, markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import type { GrowthElement } from '@/lib/growth-center-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
@@ -1299,24 +1299,15 @@ const HOME_MODULE_TREASURE_SEALS: Record<HomeGrowthModuleId, { element: GrowthEl
   tarot: { element: 'SPACE', relic: '牌陣鏡', gear: '映照胸甲・象徵看清當下提問的線索' },
 };
 
-const HOME_ELEMENT_TREASURE_PREFIX: Record<GrowthElement, string> = {
-  EARTH: '地脈',
-  WATER: '潮汐',
-  FIRE: '燼火',
-  AIR: '風語',
-  SPACE: '星隙',
-};
-
 type VipGrowthUnlockCardProps = {
   completed: number;
   completedModules: string[];
-  growthElements: Record<string, GrowthElement>;
   total: number;
   justUnlocked: boolean;
   onOpenNumber: () => void;
 };
 
-function VipGrowthUnlockCard({ completed, completedModules, growthElements, total, justUnlocked, onOpenNumber }: VipGrowthUnlockCardProps) {
+function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked, onOpenNumber }: VipGrowthUnlockCardProps) {
   const completedSet = new Set(completedModules);
   const missingModules = HOME_GROWTH_MODULE_GUIDES.filter((module) => !completedSet.has(module.id));
   const nextModule = missingModules[0];
@@ -1325,13 +1316,13 @@ function VipGrowthUnlockCard({ completed, completedModules, growthElements, tota
   const unlocked = safeCompleted >= safeTotal;
   const remaining = Math.max(safeTotal - safeCompleted, 0);
   const progressPercent = Math.min(100, Math.round((safeCompleted / safeTotal) * 100));
-  const headline = unlocked ? '八件五元素寶物已集齊，成長中心的封印已解開。' : '每完成一張探索，就收下一件五元素寶物；未完成的關卡仍維持封印。';
+  const headline = unlocked ? '八道關卡已全部通過，第一顆五元素寶珠可以解封。' : '完成一張探索只算通過一道關卡；八關全部完成前，五顆寶珠一律封印。';
   const progressText = unlocked ? `\u63a2\u7d22\u5b8c\u6210\uff1a${safeTotal} / ${safeTotal}` : `\u63a2\u7d22\u9032\u5ea6\uff1a${safeCompleted} / ${safeTotal}`;
   const remainingText = unlocked
-    ? '鎖頭已打開；這些寶物會把每一份完成的分析，轉成下一步的遊戲線索。'
+    ? '八道通關印記已集齊；現在可以進入成長中心取得第一顆寶珠。'
     : nextModule
-      ? `目前已收下 ${safeCompleted} / ${safeTotal} 件寶物；下一件要從「${nextModule.label}」關卡取得。`
-      : `目前已收下 ${safeCompleted} 件寶物，距離解開整體封印還差 ${remaining} 件。`;
+      ? `目前已通過 ${safeCompleted} / ${safeTotal} 關；下一道是「${nextModule.label}」。`
+      : `目前已通過 ${safeCompleted} 關，距離第一顆寶珠解封還差 ${remaining} 關。`;
 
   const renderModuleRoute = (module: HomeGrowthModuleGuide, index: number) => {
     const done = completedSet.has(module.id);
@@ -1339,11 +1330,9 @@ function VipGrowthUnlockCard({ completed, completedModules, growthElements, tota
     const state = done ? 'done' : isNext ? 'next' : 'pending';
     const statusText = done ? '已收下' : isNext ? '可獲取' : '封印中';
     const treasureSeal = HOME_MODULE_TREASURE_SEALS[module.id];
-    const treasureElement = growthElements[module.id] ?? treasureSeal.element;
-    const treasureName = `${HOME_ELEMENT_TREASURE_PREFIX[treasureElement]}${treasureSeal.relic}`;
     const treasureText = done
-      ? `已收下 ${treasureElement}元素寶物「${treasureName}」，解鎖：${treasureSeal.gear}`
-      : `封印寶物・${treasureElement}元素「${treasureName}」；完成本關才會解鎖：${treasureSeal.gear}`;
+      ? `已通過本關，取得「${treasureSeal.relic}」通關印記；本關線索：${treasureSeal.gear}`
+      : `本關印記「${treasureSeal.relic}」尚未取得；完成本關才會記入八關進度`;
     const commonClassName = `growth-module-route growth-module-route--${state}`;
     const inner = (
       <>
@@ -1545,7 +1534,6 @@ export default function HomePage() {
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [growthCompletedCount, setGrowthCompletedCount] = useState(0);
   const [growthCompletedModules, setGrowthCompletedModules] = useState<string[]>([]);
-  const [growthElements, setGrowthElements] = useState<Record<string, GrowthElement>>({});
   const [growthJustUnlocked, setGrowthJustUnlocked] = useState(false);
   const previousGrowthCountRef = useRef(0);
   const [ziweiOpening, setZiweiOpening] = useState(false);
@@ -1666,7 +1654,6 @@ export default function HomePage() {
       const completedModules = getCompletedGrowthModules();
       const completed = completedModules.length;
       setGrowthCompletedModules(completedModules);
-      setGrowthElements(getGrowthElements());
       setGrowthCompletedCount(completed);
       if (previousGrowthCountRef.current < GROWTH_VIP_TOTAL_MODULES && completed >= GROWTH_VIP_TOTAL_MODULES) {
         setGrowthJustUnlocked(true);
@@ -3041,7 +3028,6 @@ export default function HomePage() {
         <VipGrowthUnlockCard
           completed={growthCompletedCount}
           completedModules={growthCompletedModules}
-          growthElements={growthElements}
           total={GROWTH_VIP_TOTAL_MODULES}
           justUnlocked={growthJustUnlocked}
           onOpenNumber={openFortuneModal}

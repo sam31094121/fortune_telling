@@ -4,6 +4,8 @@
  * 核心算什麼，前端就忠實呈現什麼。
  */
 
+import { getProductElementNameFromTraditional } from '@/lib/five-element-engine';
+
 export type PillarKey = 'year' | 'month' | 'day' | 'hour';
 export const PILLAR_ORDER: PillarKey[] = ['year', 'month', 'day', 'hour'];
 
@@ -140,12 +142,12 @@ type BackendResult = {
   dataFlow: { rules: Record<string, boolean> };
 };
 
-const FIVE_ELEMENT_ORBIT_ORDER: Array<{ element: FiveElementOrbitElement; sourceLabel: string; label: string }> = [
-  { element: 'WOOD', sourceLabel: '木', label: '風' },
-  { element: 'FIRE', sourceLabel: '火', label: '火' },
-  { element: 'EARTH', sourceLabel: '土', label: '地' },
-  { element: 'METAL', sourceLabel: '金', label: '空' },
-  { element: 'WATER', sourceLabel: '水', label: '水' },
+const FIVE_ELEMENT_ORBIT_ORDER: Array<{ element: FiveElementOrbitElement; sourceLabel: string }> = [
+  { element: 'WOOD', sourceLabel: '木' },
+  { element: 'FIRE', sourceLabel: '火' },
+  { element: 'EARTH', sourceLabel: '土' },
+  { element: 'METAL', sourceLabel: '金' },
+  { element: 'WATER', sourceLabel: '水' },
 ];
 
 function toFiveElementOrbitView(result: BackendResult): FiveElementOrbitViewModel {
@@ -153,12 +155,12 @@ function toFiveElementOrbitView(result: BackendResult): FiveElementOrbitViewMode
   const tenGodMap = result.professionalChart.fiveElementTenGodMap ?? {};
   return {
     centerLabel: `${result.dayMaster.stem}${result.dayMaster.element}`,
-    items: FIVE_ELEMENT_ORBIT_ORDER.map(({ element, sourceLabel, label }) => {
+    items: FIVE_ELEMENT_ORBIT_ORDER.map(({ element, sourceLabel }) => {
       const value = percentages[sourceLabel];
       return {
         element,
         sourceLabel,
-        label,
+        label: getProductElementNameFromTraditional(sourceLabel),
         value: typeof value === 'number' ? value : null,
         ratio: typeof value === 'number' ? value : null,
         strength: typeof value === 'number' ? value : null,

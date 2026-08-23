@@ -20037,6 +20037,8 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 }
 
 .water-treasure-orb canvas {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100% !important;
   height: 100% !important;
@@ -20046,49 +20048,532 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 /* 魔珠封印態：每顆元素走自己的黑化色相（見 WaterTreasureOrb.tsx 的 DEMON_MATERIAL），
    這層濾鏡只負責統一收暗、提高邪氣飽和度，解封瞬間才現出真身元素色。 */
 .water-treasure-orb--sealed {
-  filter: brightness(0.86) saturate(1.4) drop-shadow(0 7px 10px rgba(139,0,32,0.4));
+  filter: brightness(0.94) saturate(1.28) contrast(1.05) drop-shadow(0 8px 12px rgba(5, 4, 16, 0.62));
 }
 
-/* 封印符文：魔珠外圈的咒印環＋中央「封」字，視覺上明確標出「這是被鎮住的東西」；
-   解封瞬間隨顏色一起消失，不需額外狀態控制。 */
+/* 成長中心五珠收藏：手機固定五格，只縮舞台、不改共用寶珠與封印元件。 */
+.growth-center-orb-stage {
+  position: relative;
+  display: grid;
+  width: min(100%, 3.55rem);
+  aspect-ratio: 1;
+  place-items: center;
+  isolation: isolate;
+}
+
+@media (min-width: 640px) {
+  .growth-center-orb-stage {
+    width: min(100%, 4.25rem);
+  }
+}
+
+/* 封印舞台氣勢：光暈不只停在珠子本身，連整張卡片的外圍都透出邪氣紅光，
+   讓「這裡鎮著東西」的氣場在珠子之外就先感受到。 */
+.treasure-reveal-stage--sealed {
+  filter: drop-shadow(0 0 13px rgba(67, 56, 202, 0.24)) drop-shadow(0 8px 15px rgba(3, 2, 12, 0.48));
+}
+
+.treasure-reveal-stage--hero {
+  width: 4.55rem;
+  height: 4.55rem;
+}
+
+/* 五顆魔珠共用「封印裂隙洩漏」語言，但各自保留元素色。
+   禁止完整圓環、等距刻度與硬直線：只做不規則霧斑、斷續流氣與微粒。 */
+.water-treasure-orb--空 { --seal-aura-deep: 76 29 149; --seal-aura-pale: 167 139 250; --seal-drift-x: -9%; --seal-drift-y: 5%; --seal-duration: 6.8s; --seal-shape: 63% 37% 58% 42% / 46% 66% 34% 54%; }
+.water-treasure-orb--風 { --seal-aura-deep: 4 120 87; --seal-aura-pale: 52 211 153; --seal-drift-x: 11%; --seal-drift-y: -7%; --seal-duration: 4.9s; --seal-shape: 72% 28% 39% 61% / 38% 59% 41% 62%; }
+.water-treasure-orb--水 { --seal-aura-deep: 8 82 112; --seal-aura-pale: 34 211 238; --seal-drift-x: -5%; --seal-drift-y: 12%; --seal-duration: 7.6s; --seal-shape: 58% 42% 68% 32% / 55% 36% 64% 45%; }
+.water-treasure-orb--火 { --seal-aura-deep: 159 18 57; --seal-aura-pale: 251 113 133; --seal-drift-x: 8%; --seal-drift-y: -10%; --seal-duration: 3.9s; --seal-shape: 36% 64% 31% 69% / 69% 35% 65% 31%; }
+.water-treasure-orb--地 { --seal-aura-deep: 120 72 20; --seal-aura-pale: 245 158 11; --seal-drift-x: -12%; --seal-drift-y: -4%; --seal-duration: 8.4s; --seal-shape: 68% 32% 53% 47% / 41% 48% 52% 59%; }
+
 .water-treasure-orb--sealed::before {
   content: '';
   position: absolute;
-  inset: -18%;
-  border-radius: 50%;
-  border: 1.5px dashed rgba(255, 70, 100, 0.55);
-  box-shadow: 0 0 14px rgba(255, 30, 60, 0.35), inset 0 0 10px rgba(255, 30, 60, 0.2);
-  animation: demon-seal-spin 14s linear infinite;
+  z-index: 0;
+  inset: -31% -27% -25% -32%;
+  border-radius: var(--seal-shape);
+  background:
+    radial-gradient(ellipse at 22% 54%, rgb(var(--seal-aura-pale) / 0.2) 0 7%, transparent 28%),
+    radial-gradient(ellipse at 72% 28%, rgb(var(--seal-aura-deep) / 0.34) 0 10%, transparent 37%),
+    radial-gradient(ellipse at 56% 84%, rgb(var(--seal-aura-deep) / 0.27) 0 12%, transparent 43%),
+    radial-gradient(ellipse at 47% 48%, rgb(var(--seal-aura-deep) / 0.2), transparent 64%);
+  filter: blur(7px) saturate(1.24);
+  opacity: 0.78;
+  transform: translate(var(--seal-drift-x), var(--seal-drift-y)) rotate(-7deg) scale(0.92);
   pointer-events: none;
 }
 
-.water-treasure-orb--sealed::after {
-  content: '封';
+.water-treasure-seal-aura {
   position: absolute;
-  inset: 0;
-  z-index: 3;
-  display: grid;
-  place-items: center;
-  font-size: 1.2rem;
-  font-weight: 900;
-  color: rgba(255, 170, 185, 0.6);
-  text-shadow: 0 0 10px rgba(220, 20, 60, 0.8), 0 0 20px rgba(220, 20, 60, 0.45);
-  animation: demon-seal-pulse 2.6s ease-in-out infinite;
+  z-index: 0;
+  inset: -34%;
+  overflow: visible;
+  pointer-events: none;
+  opacity: 0.8;
+  filter: blur(1.2px);
+  animation: demon-seal-breathe 4.6s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.water-treasure-seal-aura::before,
+.water-treasure-seal-aura::after {
+  content: '';
+  position: absolute;
   pointer-events: none;
 }
 
-@keyframes demon-seal-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.water-treasure-seal-aura::before {
+  left: 4%;
+  top: 14%;
+  width: 91%;
+  height: 68%;
+  border-radius: 71% 29% 64% 36% / 32% 73% 27% 68%;
+  background:
+    radial-gradient(ellipse at 14% 68%, rgb(var(--seal-aura-pale) / 0.16) 0 4%, transparent 19%),
+    radial-gradient(ellipse at 62% 32%, rgb(var(--seal-aura-deep) / 0.34) 0 8%, transparent 39%),
+    linear-gradient(118deg, transparent 8%, rgb(var(--seal-aura-deep) / 0.12) 34%, transparent 64%);
+  filter: blur(5px);
+  transform: translate(-8%, 4%) rotate(13deg) skewX(-11deg);
+}
+
+.water-treasure-seal-aura::after {
+  inset: 9% 4% 8% 7%;
+  background:
+    radial-gradient(circle at 13% 68%, rgb(var(--seal-aura-pale) / 0.72) 0 1px, transparent 2px),
+    radial-gradient(circle at 76% 19%, rgb(var(--seal-aura-pale) / 0.54) 0 1px, transparent 2px),
+    radial-gradient(circle at 86% 73%, rgb(var(--seal-aura-deep) / 0.75) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 44% 5%, rgb(var(--seal-aura-pale) / 0.46) 0 1px, transparent 2px),
+    radial-gradient(circle at 26% 28%, rgb(var(--seal-aura-deep) / 0.5) 0 1px, transparent 2px);
+}
+
+/* 五元素共用紙符：只改外觀，不承接點擊事件，也不改解封狀態機。 */
+.water-treasure-orb--sealed::after {
+  content: none;
+}
+
+.space-seal-paper {
+  position: absolute;
+  z-index: 5;
+  top: -7%;
+  left: 24%;
+  width: 38%;
+  height: 114%;
+  display: flex;
+  justify-content: center;
+  padding-top: 12%;
+  overflow: visible;
+  color: #100b06;
+  background:
+    radial-gradient(ellipse at 14% 7%, rgba(52, 27, 5, 0.42) 0 3%, transparent 13%),
+    radial-gradient(ellipse at 91% 77%, rgba(50, 25, 4, 0.38) 0 4%, transparent 15%),
+    radial-gradient(ellipse at 42% 39%, rgba(255, 241, 181, 0.28) 0 3%, transparent 28%),
+    repeating-linear-gradient(94deg, rgba(64, 35, 7, 0.065) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(4deg, rgba(255, 244, 196, 0.045) 0 1px, transparent 1px 7px),
+    linear-gradient(101deg, rgba(124, 74, 10, 0.98) 0%, rgba(220, 169, 59, 0.96) 12%, rgba(244, 216, 124, 0.92) 45%, rgba(197, 135, 36, 0.96) 83%, rgba(67, 34, 5, 0.98) 100%);
+  background-blend-mode: multiply, multiply, screen, multiply, soft-light, normal;
+  border: 1px solid rgba(39, 20, 4, 0.9);
+  border-radius: 8% 4% 11% 5% / 3% 8% 4% 10%;
+  clip-path: polygon(4% 1%, 96% 0, 100% 9%, 96% 22%, 100% 35%, 96% 49%, 100% 64%, 95% 79%, 98% 96%, 76% 98%, 55% 95%, 34% 100%, 5% 97%, 1% 82%, 5% 66%, 1% 50%, 5% 34%, 1% 17%);
+  box-shadow:
+    4px 7px 11px rgba(0, 0, 0, 0.76),
+    0 5px 15px rgba(30, 27, 75, 0.52),
+    0 0 12px rgba(76, 29, 149, 0.24),
+    inset 2px 0 4px rgba(255, 241, 166, 0.35),
+    inset -4px 0 6px rgba(51, 25, 4, 0.48),
+    inset 0 4px 5px rgba(45, 22, 3, 0.28),
+    inset 0 -5px 6px rgba(38, 18, 3, 0.42);
+  opacity: 0.96;
+  transform: rotate(-8deg) skewY(-1.5deg);
+  transform-origin: 50% 8%;
+  animation: space-seal-paper-drift 3.9s ease-in-out infinite;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+.space-seal-paper::before {
+  content: '';
+  position: absolute;
+  left: 19%;
+  top: 28%;
+  width: 62%;
+  height: 27%;
+  border-top: 2px solid rgba(9, 7, 4, 0.94);
+  border-right: 2px solid rgba(9, 7, 4, 0.9);
+  border-bottom: 1px solid rgba(9, 7, 4, 0.82);
+  border-left: 1px solid rgba(9, 7, 4, 0.42);
+  border-radius: 63% 13% 46% 24%;
+  box-shadow: 4px 3px 0 -2px rgba(8, 6, 3, 0.7), -3px 7px 0 -2px rgba(8, 6, 3, 0.48);
+  transform: rotate(13deg) skewX(-21deg) scaleY(0.94);
+}
+
+.space-seal-paper::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 27%;
+  height: 13%;
+  background: linear-gradient(135deg, rgba(82, 45, 6, 0.52), #f0d173 62%, #9c6713 63%);
+  border-radius: 80% 0 0 0;
+  box-shadow: -2px -2px 3px rgba(66, 36, 5, 0.24);
+  transform: skew(-8deg, -4deg);
+}
+
+.space-seal-paper__script {
+  position: relative;
+  z-index: 1;
+  font-family: "Ma Shan Zheng", var(--font-serif), "Noto Serif TC", serif;
+  font-size: 0.46rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.08em;
+  writing-mode: vertical-rl;
+  opacity: 0.88;
+  text-shadow: 1px 0 0 rgba(8, 6, 3, 0.88), -0.5px 1px 0 rgba(8, 6, 3, 0.58);
+  transform: rotate(-5deg) skewY(7deg);
+}
+
+.space-seal-paper__script::before,
+.space-seal-paper__script::after {
+  position: absolute;
+  color: rgba(8, 6, 3, 0.76);
+  font-family: "Ma Shan Zheng", var(--font-serif), "Noto Serif TC", serif;
+  pointer-events: none;
+}
+
+.space-seal-paper__script::before {
+  content: '罡';
+  left: -0.19rem;
+  top: 0.42rem;
+  font-size: 0.42rem;
+  transform: rotate(18deg) scaleX(0.7);
+}
+
+.space-seal-paper__script::after {
+  content: '乂';
+  right: -0.17rem;
+  top: 0.7rem;
+  font-size: 0.48rem;
+  opacity: 0.62;
+  transform: rotate(-24deg) scaleY(1.3);
+}
+
+.space-seal-paper__mark {
+  position: absolute;
+  z-index: 2;
+  left: 49%;
+  top: 57%;
+  font-family: "Ma Shan Zheng", var(--font-serif), "Noto Serif TC", serif;
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #090704;
+  text-shadow: 0.7px 0.8px 0 rgba(91, 50, 7, 0.28), -0.8px 0 0 rgba(9, 7, 4, 0.68);
+  transform: translate(-50%, -50%) rotate(3deg) scaleX(0.88);
+}
+
+/* 少量朱砂只作真實符咒的點睛：不發光、不霓虹，也不搶走黑色符紋。 */
+.space-seal-paper__mark::before {
+  content: '';
+  position: absolute;
+  left: -0.32rem;
+  bottom: -0.18rem;
+  width: 0.62rem;
+  height: 0.12rem;
+  background: #a82d22;
+  clip-path: polygon(0 35%, 18% 6%, 39% 27%, 58% 0, 77% 40%, 100% 19%, 91% 77%, 69% 63%, 45% 100%, 21% 72%);
+  opacity: 0.62;
+  mix-blend-mode: multiply;
+  transform: rotate(-8deg);
+}
+
+.space-seal-paper__mark::after {
+  content: '印';
+  position: absolute;
+  right: -0.48rem;
+  bottom: -0.4rem;
+  display: grid;
+  width: 0.58rem;
+  height: 0.58rem;
+  place-items: center;
+  border: 1.5px solid rgba(153, 37, 29, 0.82);
+  border-radius: 47% 53% 44% 56% / 54% 43% 57% 46%;
+  color: rgba(145, 31, 24, 0.84);
+  font-family: var(--font-serif), "Noto Serif TC", serif;
+  font-size: 0.34rem;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: inset 0 0 0 1px rgba(126, 25, 20, 0.18);
+  opacity: 0.78;
+  mix-blend-mode: multiply;
+  transform: rotate(11deg) scale(0.92, 1.04);
+}
+
+/* 單顆核對版的破印動畫：符紙與邪氣一起燒成灰，最後才露出明亮元素本源。 */
+.space-seal-paper--burning {
+  animation: seal-paper-burn-away 12s cubic-bezier(0.44, 0.02, 0.72, 0.28) forwards;
+  transform-origin: 50% 88%;
+}
+
+.space-seal-paper--burning .space-seal-paper__script,
+.space-seal-paper--burning .space-seal-paper__mark {
+  animation: seal-ink-burn-away 9s ease-in forwards;
+}
+
+.space-seal-ash {
+  position: absolute;
+  z-index: 8;
+  inset: -12% -35%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.space-seal-ash::before {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 8%;
+  height: 28%;
+  border-radius: 48% 52% 34% 66% / 68% 42% 58% 32%;
+  background:
+    radial-gradient(ellipse at 24% 78%, rgba(255, 236, 153, 0.95) 0 8%, transparent 28%),
+    radial-gradient(ellipse at 54% 50%, rgba(249, 115, 22, 0.92) 0 16%, transparent 43%),
+    radial-gradient(ellipse at 82% 75%, rgba(185, 28, 28, 0.88) 0 10%, transparent 35%);
+  filter: blur(1px);
+  opacity: 0;
+  animation: seal-flame-front 10.8s ease-out forwards;
+  will-change: transform, opacity;
+}
+
+.space-seal-ash i {
+  position: absolute;
+  left: calc(20% + var(--ash-x, 0%));
+  bottom: 14%;
+  width: 4px;
+  height: 4px;
+  border-radius: 45% 55% 60% 40%;
+  background: #2d211c;
+  box-shadow: 0 0 4px rgba(249, 115, 22, 0.72);
+  opacity: 0;
+  animation: seal-ash-rise 8.6s ease-out forwards;
+  animation-delay: var(--ash-delay, 0s);
+  will-change: transform, opacity;
+}
+
+.space-seal-ash i:nth-child(1) { --ash-x: 2%; --ash-drift: -14px; --ash-delay: 1.2s; }
+.space-seal-ash i:nth-child(2) { --ash-x: 13%; --ash-drift: 9px; --ash-delay: 2.1s; }
+.space-seal-ash i:nth-child(3) { --ash-x: 25%; --ash-drift: -7px; --ash-delay: 0.7s; }
+.space-seal-ash i:nth-child(4) { --ash-x: 37%; --ash-drift: 15px; --ash-delay: 2.8s; }
+.space-seal-ash i:nth-child(5) { --ash-x: 48%; --ash-drift: -11px; --ash-delay: 1.6s; }
+.space-seal-ash i:nth-child(6) { --ash-x: 58%; --ash-drift: 6px; --ash-delay: 3.2s; }
+.space-seal-ash i:nth-child(7) { --ash-x: 66%; --ash-drift: 13px; --ash-delay: 2.3s; }
+
+@keyframes seal-paper-burn-away {
+  0% { opacity: 0.96; filter: brightness(1) sepia(0); transform: rotate(-8deg) skewY(-1.5deg) scale(1); }
+  28% { opacity: 1; filter: brightness(1.32) sepia(0.42) saturate(1.3); transform: rotate(-8deg) skewY(-1.5deg) scale(1.015); }
+  62% { opacity: 0.76; filter: brightness(0.74) sepia(0.88) saturate(0.68); transform: translateY(3%) rotate(-7deg) skewY(-1.5deg) scale(0.96, 0.82); }
+  100% { opacity: 0; filter: brightness(0.32) grayscale(0.9); transform: translateY(18%) rotate(-3deg) skewY(-1.5deg) scale(0.72, 0.28); }
+}
+
+@keyframes seal-ink-burn-away {
+  0%, 22% { opacity: 1; }
+  58% { opacity: 0.42; filter: blur(0); }
+  100% { opacity: 0; filter: blur(1px); }
+}
+
+@keyframes seal-flame-front {
+  0% { opacity: 0; transform: translateY(22%) scale(0.68, 0.42); }
+  26% { opacity: 0.94; transform: translateY(0) scale(1, 0.78); }
+  68% { opacity: 0.78; transform: translateY(-76%) scale(1.16, 1.22); }
+  100% { opacity: 0; transform: translateY(-132%) scale(0.82, 0.48); }
+}
+
+@keyframes seal-ash-rise {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg) scale(0.5); }
+  30% { opacity: 0.85; }
+  100% { opacity: 0; transform: translate3d(var(--ash-drift, 0), -64px, 0) rotate(210deg) scale(1.25); }
+}
+
+@keyframes space-seal-paper-drift {
+  0%, 100% { opacity: 0.94; transform: rotate(-8deg) skewY(-1.5deg) translateY(0); }
+  48% { opacity: 0.98; transform: rotate(-5.8deg) skewY(0.3deg) translate(1px, -2px); }
+  72% { opacity: 0.96; transform: rotate(-9.4deg) skewY(-2deg) translate(-1px, 1px); }
+}
+
+/* 「封」字改用古老符咒毛筆字體（Ma Shan Zheng），筆鋒蒼勁不工整，比印刷體更有邪氣手書感；
+   輕微歪斜＋不對稱陰影模擬符紙上手繪的筆觸，不是機器刻出來的字。 */
+.water-treasure-orb--sealed::after {
+  content: none;
+}
+
+@keyframes demon-seal-leak {
+  0% { opacity: 0.48; transform: translate(var(--seal-drift-x), var(--seal-drift-y)) rotate(-9deg) scale(0.82, 0.94); }
+  55% { opacity: 0.9; transform: translate(6%, -4%) rotate(4deg) scale(1.08, 0.88); }
+  100% { opacity: 0.62; transform: translate(-3%, -8%) rotate(11deg) scale(0.94, 1.12); }
+}
+
+@keyframes demon-seal-wisp {
+  0% { opacity: 0.28; transform: translate(-13%, 8%) rotate(15deg) skewX(-13deg) scale(0.82, 1); }
+  52% { opacity: 0.86; transform: translate(8%, -4%) rotate(-4deg) skewX(7deg) scale(1.08, 0.82); }
+  100% { opacity: 0.42; transform: translate(-2%, -13%) rotate(9deg) skewX(-5deg) scale(0.91, 1.13); }
+}
+
+@keyframes demon-seal-breathe {
+  0%, 100% { opacity: 0.44; transform: scale(0.88) translateY(2%); }
+  46% { opacity: 0.92; transform: scale(1.08, 0.96) translateY(-3%); }
+  72% { opacity: 0.64; transform: scale(0.96, 1.08) translateX(3%); }
+}
+
+@keyframes demon-seal-motes {
+  0% { opacity: 0.24; transform: translate(-5%, 7%) rotate(-5deg); }
+  60% { opacity: 0.88; transform: translate(7%, -8%) rotate(4deg); }
+  100% { opacity: 0.38; transform: translate(2%, -15%) rotate(9deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .water-treasure-seal-aura,
+  .space-seal-paper {
+    animation: none;
+  }
+
+  .space-seal-paper.space-seal-paper--burning {
+    opacity: 0;
+  }
+
+  .space-seal-paper--burning .space-seal-ash {
+    display: none;
+  }
 }
 
 @keyframes demon-seal-pulse {
-  0%, 100% { opacity: 0.5; transform: scale(0.94); }
-  50% { opacity: 0.9; transform: scale(1.05); }
+  0%, 100% { opacity: 0.55; transform: rotate(-4deg) scale(0.9); }
+  50% { opacity: 1; transform: rotate(-4deg) scale(1.1); }
 }
 
 .water-treasure-orb--released {
   filter: brightness(1.08) saturate(1.12) drop-shadow(0 0 13px rgba(125,211,252,0.54));
+  animation: refined-orb-breathe 4.8s ease-in-out infinite;
+}
+
+/* 萬年封印解除後的能量外放：只在 released 狀態出現。
+   兩層都是靜態漸層搭配 transform/opacity 合成動畫，不畫完整圓環、不動寶珠幾何。 */
+.water-treasure-orb--released::before,
+.water-treasure-orb--released::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.water-treasure-orb--released::before {
+  inset: -52%;
+  border-radius: var(--released-field-shape);
+  background: var(--released-energy-field);
+  filter: blur(4px);
+  opacity: 0.78;
+  animation: released-energy-breathe var(--released-energy-duration) ease-in-out infinite;
+}
+
+.water-treasure-orb--released::after {
+  inset: -45%;
+  background: var(--released-energy-traces);
+  clip-path: var(--released-trace-shape);
+  opacity: 0.68;
+  animation: released-energy-drift calc(var(--released-energy-duration) * 1.18) ease-in-out infinite alternate;
+}
+
+/* 空：深邃留白裡的空氣循環與星塵擴散。 */
+.water-treasure-orb--空.water-treasure-orb--released {
+  --released-energy-duration: 5.8s;
+  --released-field-shape: 61% 39% 68% 32% / 45% 64% 36% 55%;
+  --released-energy-field:
+    radial-gradient(circle at 16% 34%, rgba(244,241,255,.82) 0 1px, transparent 2px),
+    radial-gradient(circle at 78% 18%, rgba(196,181,253,.72) 0 1.2px, transparent 2.3px),
+    radial-gradient(ellipse at 48% 54%, rgba(139,92,246,.44), transparent 62%);
+  --released-energy-traces:
+    radial-gradient(ellipse at 28% 66%, rgba(255,255,255,.46), transparent 23%),
+    radial-gradient(ellipse at 72% 31%, rgba(167,139,250,.52), transparent 28%);
+  --released-trace-shape: polygon(4% 34%, 34% 4%, 58% 22%, 94% 8%, 78% 48%, 98% 76%, 60% 70%, 34% 98%, 25% 65%, 0 72%);
+}
+
+/* 風：不對稱的流線與風雨軌跡，方向感明確但不繞成環。 */
+.water-treasure-orb--風.water-treasure-orb--released {
+  --released-energy-duration: 3.9s;
+  --released-field-shape: 73% 27% 46% 54% / 35% 58% 42% 65%;
+  --released-energy-field:
+    linear-gradient(118deg, transparent 8%, rgba(110,231,183,.08) 26%, rgba(167,243,208,.58) 39%, transparent 50%),
+    linear-gradient(151deg, transparent 30%, rgba(52,211,153,.5) 46%, transparent 58%);
+  --released-energy-traces:
+    repeating-linear-gradient(128deg, transparent 0 13%, rgba(209,250,229,.46) 14% 15%, transparent 16% 27%);
+  --released-trace-shape: polygon(0 24%, 69% 0, 49% 29%, 100% 18%, 63% 48%, 94% 70%, 47% 61%, 13% 100%, 29% 61%, 0 72%);
+}
+
+/* 水：海流、溪水與瀑布般的清透流動。 */
+.water-treasure-orb--水.water-treasure-orb--released {
+  --released-energy-duration: 5.1s;
+  --released-field-shape: 57% 43% 64% 36% / 68% 42% 58% 32%;
+  --released-energy-field:
+    linear-gradient(165deg, transparent 12%, rgba(186,230,253,.18) 29%, rgba(103,232,249,.62) 42%, transparent 55%),
+    radial-gradient(ellipse at 35% 72%, rgba(14,165,233,.48), transparent 54%);
+  --released-energy-traces:
+    repeating-linear-gradient(98deg, transparent 0 15%, rgba(224,242,254,.42) 17% 18%, transparent 20% 34%);
+  --released-trace-shape: polygon(12% 0, 38% 9%, 48% 40%, 68% 0, 88% 12%, 72% 54%, 100% 81%, 63% 72%, 49% 100%, 31% 69%, 0 88%, 20% 49%);
+}
+
+/* 火：火焰、岩漿與流星餘燼向外躍動。 */
+.water-treasure-orb--火.water-treasure-orb--released {
+  --released-energy-duration: 3.4s;
+  --released-field-shape: 43% 57% 35% 65% / 66% 38% 62% 34%;
+  --released-energy-field:
+    radial-gradient(ellipse at 49% 67%, rgba(251,113,133,.58), transparent 52%),
+    linear-gradient(34deg, transparent 27%, rgba(253,186,116,.62) 42%, transparent 55%);
+  --released-energy-traces:
+    linear-gradient(72deg, transparent 18%, rgba(255,237,213,.68) 36%, transparent 47%),
+    linear-gradient(118deg, transparent 31%, rgba(251,113,133,.54) 48%, transparent 58%);
+  --released-trace-shape: polygon(6% 84%, 24% 45%, 31% 6%, 47% 42%, 63% 0, 69% 43%, 94% 18%, 79% 61%, 100% 91%, 58% 76%, 36% 100%);
+}
+
+/* 地：岩层裂隙、矿物能量與厚實上湧。 */
+.water-treasure-orb--地.water-treasure-orb--released {
+  --released-energy-duration: 6.2s;
+  --released-field-shape: 67% 33% 55% 45% / 42% 49% 51% 58%;
+  --released-energy-field:
+    radial-gradient(ellipse at 50% 76%, rgba(245,158,11,.56), transparent 58%),
+    linear-gradient(24deg, transparent 29%, rgba(253,230,138,.4) 42%, transparent 49%);
+  --released-energy-traces:
+    linear-gradient(68deg, transparent 12%, rgba(254,243,199,.48) 14% 16%, transparent 18% 55%, rgba(217,119,6,.46) 57% 60%, transparent 62%);
+  --released-trace-shape: polygon(3% 89%, 18% 54%, 32% 60%, 41% 12%, 53% 53%, 71% 27%, 76% 62%, 97% 75%, 66% 82%, 51% 100%, 35% 78%);
+}
+
+@keyframes released-energy-breathe {
+  0%, 100% { opacity: 0.58; transform: translate(-2%, 3%) scale(0.86); }
+  44% { opacity: 0.98; transform: translate(3%, -4%) scale(1.15); }
+  72% { opacity: 0.72; transform: translate(-1%, -1%) scale(1.01); }
+}
+
+@keyframes released-energy-drift {
+  0% { opacity: 0.48; transform: translate(-7%, 7%) rotate(-5deg) scale(0.86); }
+  55% { opacity: 0.94; transform: translate(7%, -7%) rotate(4deg) scale(1.13); }
+  100% { opacity: 0.62; transform: translate(1%, -12%) rotate(8deg) scale(0.98); }
+}
+
+/* 解封後只讓完整圓珠做極輕微呼吸；不扭曲幾何、不增加規則光環。 */
+@keyframes refined-orb-breathe {
+  0%, 100% { opacity: 0.965; transform: translateZ(32px) scale(0.992); }
+  50% { opacity: 1; transform: translateZ(32px) scale(1.008); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .water-treasure-orb--released {
+    animation: none;
+  }
+
+  .water-treasure-orb--released::before,
+  .water-treasure-orb--released::after {
+    animation: none;
+  }
 }
 
 /* Preview cards still show the demon shell while sealed — the whole point is you don't
@@ -20162,6 +20647,11 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
 
 .treasure-reveal-stage--collected {
   filter: drop-shadow(0 0 13px rgba(110, 231, 183, 0.48)) drop-shadow(0 0 26px rgba(251, 191, 36, 0.2));
+}
+
+/* 僅供核對的解封後預覽：正向、淨化、輕微天使感，不寫入真實進度。 */
+.treasure-reveal-stage--released-preview {
+  filter: drop-shadow(0 0 12px rgba(186, 230, 253, 0.42)) drop-shadow(0 8px 16px rgba(15, 23, 42, 0.42));
 }
 
 .treasure-reveal-stage--opening::after {
@@ -20527,7 +21017,10 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   .treasure-reveal-stage--water .treasure-reveal-core--released::before,
   .treasure-reveal-stage--water .treasure-reveal-core--released::after,
   .water-treasure-orb--sealed::before,
-  .water-treasure-orb--sealed::after {
+  .water-treasure-orb--sealed::after,
+  .water-treasure-seal-aura,
+  .water-treasure-seal-aura::before,
+  .water-treasure-seal-aura::after {
     animation: none;
   }
 }
