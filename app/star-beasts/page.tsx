@@ -19,6 +19,13 @@ type StarBeast = {
 
 const BEASTS = starBeastsData.items as StarBeast[];
 
+const SEASON_ORDER: Record<Exclude<Season, 'all'>, number> = {
+  spring: 0,
+  summer: 1,
+  autumn: 2,
+  winter: 3,
+};
+
 const SEASONS: Array<{ id: Season; label: string; guardian: string; detail: string; className: string }> = [
   { id: 'all', label: '全覽', guardian: '二十八宿', detail: '28 隻完整收藏', className: 'border-white/20 bg-white/10 text-white' },
   { id: 'spring', label: '春', guardian: '東方蒼龍', detail: '七宿', className: 'border-emerald-300/35 bg-emerald-400/10 text-emerald-100' },
@@ -44,7 +51,9 @@ const SEASON_NAMES: Record<Exclude<Season, 'all'>, string> = {
 export default function StarBeastsPage() {
   const [season, setSeason] = useState<Season>('all');
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const visibleBeasts = useMemo(() => BEASTS.filter((beast) => season === 'all' || beast.season === season), [season]);
+  const visibleBeasts = useMemo(() => BEASTS
+    .filter((beast) => season === 'all' || beast.season === season)
+    .toSorted((a, b) => SEASON_ORDER[a.season] - SEASON_ORDER[b.season] || a.id - b.id), [season]);
   const selected = selectedId === null ? null : BEASTS.find((beast) => beast.id === selectedId) ?? null;
 
   useEffect(() => {
