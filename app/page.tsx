@@ -167,6 +167,54 @@ const HOME_COMMAND_STATUS = [
   ['數字好壞', '太極八卦已啟封'],
 ] as const;
 
+const HOME_QUICK_NAV = [
+  { href: '/numerology', icon: '數', label: '數字論好壞', tone: 'cyan' },
+  { href: '/insight', icon: '紫', label: '紫微深度洞察', tone: 'indigo' },
+  { href: '/bazi', icon: '八', label: '八字命盤', tone: 'emerald' },
+  { href: '/zodiac', icon: '星', label: '西洋星座', tone: 'fuchsia' },
+  { href: '/tarot', icon: '牌', label: '塔羅占問', tone: 'amber' },
+] as const;
+
+function HomeQuickNavigation() {
+  return (
+    <>
+      <aside
+        aria-label="命理功能快速入口"
+        className="fixed right-4 top-1/2 z-30 hidden w-14 -translate-y-1/2 flex-col items-center gap-2 rounded-3xl border border-white/10 bg-slate-950/75 px-2 py-3 shadow-[0_16px_45px_rgba(2,6,23,0.42)] backdrop-blur-xl min-[1280px]:flex"
+      >
+        <span className="mb-1 text-[9px] font-black tracking-[0.18em] text-white/45 [writing-mode:vertical-rl]">快速切換</span>
+        {HOME_QUICK_NAV.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            prefetch
+            aria-label={item.label}
+            title={item.label}
+            className="grid h-10 w-10 place-items-center rounded-2xl border border-white/15 bg-white/[0.06] text-sm font-black text-white/90 transition duration-200 hover:-translate-y-0.5 hover:border-cyan-200/70 hover:bg-cyan-300/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/90"
+          >
+            <span aria-hidden="true">{item.icon}</span>
+            <span className="sr-only">{item.label}</span>
+          </Link>
+        ))}
+      </aside>
+
+      <details className="group fixed right-2 top-1/2 z-30 -translate-y-1/2 min-[1280px]:hidden">
+        <summary className="grid h-12 w-12 cursor-pointer list-none place-items-center rounded-2xl border border-cyan-200/35 bg-slate-950/90 text-[11px] font-black tracking-[0.12em] text-cyan-100 shadow-[0_10px_28px_rgba(2,6,23,0.42)] backdrop-blur-xl transition hover:border-cyan-100/70 [&::-webkit-details-marker]:hidden">
+          功能
+        </summary>
+        <nav aria-label="命理功能快速入口" className="absolute right-0 top-[-7.25rem] flex w-40 flex-col gap-1.5 rounded-2xl border border-white/15 bg-slate-950/95 p-2 shadow-[0_16px_44px_rgba(2,6,23,0.5)] backdrop-blur-xl">
+          {HOME_QUICK_NAV.map((item) => (
+            <Link key={item.href} href={item.href} prefetch className="flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-white/85 transition hover:bg-cyan-300/12 hover:text-cyan-50">
+              <span className="grid h-6 w-6 place-items-center rounded-lg border border-white/12 bg-white/[0.06] text-xs text-cyan-100" aria-hidden="true">{item.icon}</span>
+              <span>{item.label}</span>
+            </Link>
+          ))}
+        </nav>
+      </details>
+    </>
+  );
+}
+
 interface PersonDisplay {
   name: string;
   zodiacZh: string;
@@ -2562,6 +2610,8 @@ export default function HomePage() {
   return (
     <div className="app-bg min-h-screen overflow-hidden">
       {/* 首頁背景不放星點／流星；光子與粒子只存在於太極圖騰內。 */}
+
+      <HomeQuickNavigation />
 
       {unlocking && (
         <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-slate-950/95 backdrop-blur-md">

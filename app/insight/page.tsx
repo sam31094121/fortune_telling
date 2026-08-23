@@ -2601,10 +2601,10 @@ function buildZiweiTeacherSynthesis(
 
 type ZiweiTeacherSynthesis = ReturnType<typeof buildZiweiTeacherSynthesis>;
 
-/** 命盤解析老師（正統結構解盤）＋恐怖鬼魅合體解盤，共用同一張正式命盤——老師角色不對外掛模型品牌名。 */
+/** Google 老師解盤（正統結構解盤）＋鬼魅合體解盤，共用同一張正式命盤。 */
 const ZIWEI_TEACHERS: { id: ZiweiTeacherId; name: string; note: string }[] = [
-  { id: 'STRUCTURE_MASTER', name: '命盤解析老師', note: '本宮、主星、三方四正與四化' },
-  { id: 'LIFE_MASTER', name: '恐怖鬼魅解盤', note: '恐怖壓迫 × 鬼魅電影場景，同一張正式命盤' },
+  { id: 'STRUCTURE_MASTER', name: 'Google 老師解盤', note: '本宮、主星、三方四正與四化' },
+  { id: 'LIFE_MASTER', name: '鬼魅老師解盤', note: '恐怖壓迫 × 鬼魅電影場景，同一張正式命盤' },
 ];
 
 const ZIWEI_TEACHER_PALACE_ID_MAP: Record<string, ZiweiTeacherPalaceId> = {
@@ -2797,8 +2797,13 @@ function ZiweiHorrorGhostMovieView({
       <div aria-hidden="true" className="pointer-events-none absolute -right-12 top-8 h-36 w-36 animate-pulse rounded-full border border-rose-200/15 bg-rose-500/5" />
       <div aria-hidden="true" className="pointer-events-none absolute -left-14 bottom-8 h-44 w-44 rounded-full bg-violet-500/10 blur-3xl" />
       <div className="relative flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[11px] font-black tracking-[0.18em] text-rose-100">恐怖鬼魅解盤・紫微沉浸式電影模式</p>
+        <p className="text-[11px] font-black tracking-[0.18em] text-rose-100">鬼魅老師解盤・紫微沉浸式電影模式</p>
         <span className="rounded-full border border-rose-200/25 bg-rose-500/10 px-2.5 py-1 text-[10px] font-black tracking-[0.12em] text-rose-100">原創虛構遊戲</span>
+      </div>
+      <div className="relative mt-2 flex flex-wrap gap-1.5" aria-label="鬼魅老師解盤五大元素">
+        {['恐怖', '血腥', '鬼魅', '驚悚', '災難'].map((tag) => (
+          <span key={tag} className="rounded-full border border-rose-200/30 bg-rose-500/10 px-2 py-0.5 text-[10px] font-black tracking-[0.1em] text-rose-100/85">{tag}</span>
+        ))}
       </div>
       <p className="relative mt-2 rounded-xl border border-violet-200/15 bg-black/25 px-3 py-2 text-xs font-bold leading-5 text-violet-100/80">戲劇化紫微命盤遊戲情境：只以本宮、主星、三方四正與時間層創作，不代表已發生的真實事件。</p>
       <p className="relative mt-3 text-base font-black leading-7 text-rose-50">{name}，你現在 {ageLabel}；你的{palaceName}命盤正在打開。恐怖是壓力的逼近；鬼魅是同一張命盤最後浮現的象徵畫面。</p>
@@ -2818,15 +2823,15 @@ function ZiweiHorrorGhostMovieView({
       </section>
 
       <section className="relative mt-3 rounded-2xl border-2 border-amber-200/70 bg-[linear-gradient(135deg,rgba(120,53,15,0.38),rgba(49,46,129,0.34))] p-4 shadow-[0_0_26px_rgba(251,191,36,0.16)]" aria-label="紫微五元素寶物關">
-        <p className="text-xs font-black tracking-[0.16em] text-amber-100">最終關・五元素寶物封印</p>
-        <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">五顆寶珠初始皆維持封印；本宮命盤只指出這一局優先可解開的寶物。</p>
+        <p className="text-xs font-black tracking-[0.16em] text-amber-100">最終關・五元素魔珠封印</p>
+        <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">五顆珠子初始都是看不出身分的邪氣魔珠；本宮命盤只指出這一局優先可解開哪一顆，解封瞬間才會裂開現出真正的元素寶珠。</p>
         <div className="mt-3 grid grid-cols-[4.25rem_minmax(0,1fr)] items-center gap-3 rounded-2xl border-2 border-amber-100/50 bg-black/25 p-3">
           <div className={`treasure-reveal-stage ${treasureCollected ? 'treasure-reveal-stage--collected' : 'treasure-reveal-stage--sealed'} ${ritualOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
             <WaterTreasureOrb element={productElement} released={treasureCollected || ritualOpening} />
           </div>
           <div className="min-w-0">
             <h3 className="font-serif text-[1.35rem] font-black leading-tight text-amber-50">{treasure.label}元素・{treasure.name}</h3>
-            <p className={`mt-1 text-sm font-black tracking-[0.08em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureCollected ? '本宮封印已解除・寶物已入背包' : '五元素封印中・本宮可優先解開'}</p>
+            <p className={`mt-1 text-sm font-black tracking-[0.08em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureCollected ? '魔珠已破・元素寶珠已入背包' : '魔珠封印中・本宮可優先解開'}</p>
           </div>
         </div>
         <p className="mt-3 text-[13px] font-semibold leading-6 text-amber-50/88">解開本宮封印後，取得「{treasure.gear}」：{treasure.power} 這是遊戲中的保護與行動線索，不代表現實防護或命定結果。</p>
@@ -2850,8 +2855,8 @@ function ZiweiHorrorGhostMovieView({
           </div>
         </section>}
         <section className="mt-4 border-t border-amber-100/20 pt-4" aria-label="其餘四元素材質預覽">
-          <p className="text-xs font-black tracking-[0.14em] text-amber-100/80">其餘四顆・科技寶石材質</p>
-          <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">用來確認五元素的材質邏輯；不會更改這一宮已判定的補強元素。</p>
+          <p className="text-xs font-black tracking-[0.14em] text-amber-100/80">其餘四顆・尚未解封</p>
+          <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">同樣是看不出身分的魔珠，解封後才會現出各自的元素寶石材質；不會更改這一宮已判定的補強元素。</p>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {materialPreviewElements.map((element) => {
               const preview = ZIWEI_ELEMENT_TREASURES[element];
@@ -2931,7 +2936,7 @@ function ZiweiTeacherResultView({ result }: { result: StructureTeacherResult | L
   if (result.teacherId === 'STRUCTURE_MASTER') {
     return (
       <div className="mt-4">
-        <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">命盤解析老師｜結構解盤</p>
+        <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">Google 老師解盤｜結構解盤</p>
         <h4 className="mt-2 font-serif text-xl font-black leading-tight text-purple-50">{result.corePattern}</h4>
         <div className="mt-3 grid gap-2.5 text-base font-semibold leading-7 text-[color:var(--text-main)]">
           <p><span className="font-black text-purple-200">主星組合：</span>{result.primaryStarSynthesis}</p>
@@ -2953,7 +2958,7 @@ function ZiweiTeacherResultView({ result }: { result: StructureTeacherResult | L
   if (result.teacherId === 'LIFE_MASTER') {
     return (
       <div className="mt-4">
-        <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">恐怖鬼魅解盤｜命盤壓力依據</p>
+        <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">鬼魅老師解盤｜命盤壓力依據</p>
         <div className="mt-3 rounded-2xl border border-rose-300/25 bg-gradient-to-br from-rose-950/50 via-purple-950/35 to-slate-950/55 px-4 py-3 shadow-[inset_0_0_32px_rgba(244,63,94,0.12)]">
           <p className="text-[10px] font-black tracking-[0.18em] text-rose-200/90">本宮驚悚開場・戲劇化風險情境</p>
           <p className="mt-1 font-serif text-base font-bold leading-7 text-rose-50">{result.fearScene}</p>
@@ -2975,7 +2980,7 @@ function ZiweiTeacherResultView({ result }: { result: StructureTeacherResult | L
   }
   return (
     <div className="mt-4">
-      <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">鬼魅解命盤｜鬼魅解盤</p>
+      <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">鬼魅解命盤｜鬼魅老師解盤</p>
       <h4 className="mt-2 font-serif text-xl font-black leading-tight text-purple-50">{result.visualTitle}</h4>
       <p className="mt-3 text-base font-semibold leading-7 text-[color:var(--text-main)]">{result.scene}</p>
       <p className="mt-2 text-base font-semibold leading-7 text-[color:var(--text-main)]"><span className="font-black text-purple-200">主角：</span>{result.mainCharacter}</p>
@@ -3543,11 +3548,11 @@ function ZiweiDestinyCardView({
             ) : (
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <article className="rounded-2xl border border-amber-200/35 bg-amber-300/10 p-3">
-                  <p className="text-sm font-black text-amber-50">命盤解析老師</p>
+                  <p className="text-sm font-black text-amber-50">Google 老師解盤</p>
                   <p className="mt-1 text-xs font-semibold leading-5 text-amber-100/75">已保留生日資料的趨勢解讀；補上時辰後，才能精準定位命宮、三方四正與主星。</p>
                 </article>
                 <article className="rounded-2xl border border-rose-200/30 bg-rose-500/10 p-3">
-                  <p className="text-sm font-black text-rose-100">恐怖鬼魅解盤</p>
+                  <p className="text-sm font-black text-rose-100">鬼魅老師解盤</p>
                   <p className="mt-1 text-xs font-semibold leading-5 text-rose-100/75">遊戲劇情仍會保留生日資料的氣氛線索；補上時辰後，才會進入對應宮位的專屬故事。</p>
                 </article>
               </div>
@@ -3598,11 +3603,11 @@ function ZiweiTwelvePalaceCards({
           <p className="text-[11px] font-black tracking-[0.18em] text-purple-100">兩位老師解盤</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             <article className="rounded-2xl border border-amber-200/35 bg-amber-300/10 p-3">
-              <p className="text-sm font-black text-amber-50">命盤解析老師</p>
+              <p className="text-sm font-black text-amber-50">Google 老師解盤</p>
               <p className="mt-1 text-xs font-semibold leading-5 text-amber-100/75">生日趨勢可先閱讀；命宮、三方四正與主星要在補上時辰後才會精準產生。</p>
             </article>
             <article className="rounded-2xl border border-rose-200/30 bg-rose-500/10 p-3">
-              <p className="text-sm font-black text-rose-100">恐怖鬼魅解盤</p>
+              <p className="text-sm font-black text-rose-100">鬼魅老師解盤</p>
               <p className="mt-1 text-xs font-semibold leading-5 text-rose-100/75">遊戲的氣氛與主線入口會保留；時辰確認後才會對應到正確宮位與專屬情節。</p>
             </article>
           </div>
@@ -3840,7 +3845,7 @@ function ZiweiTwelvePalaceCards({
                 >
                   <span>
                     <span className="block text-sm font-black">{teacherPalaceKey === palace.key ? '本宮老師解盤已顯示' : '查看兩位老師解盤'}</span>
-                    <span className="mt-1 block text-[11px] font-bold leading-4 text-purple-100/75">命盤解析老師 · 恐怖鬼魅解盤</span>
+                    <span className="mt-1 block text-[11px] font-bold leading-4 text-purple-100/75">Google 老師解盤 · 鬼魅老師解盤</span>
                   </span>
                   <span className="shrink-0 rounded-full border border-amber-200/30 bg-amber-300/10 px-2.5 py-1 text-[10px] font-black text-amber-100">本宮＋三方四正</span>
                 </button>
@@ -4787,9 +4792,9 @@ export default function InsightPage() {
             </section>
 
             <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 紫微斗數" onViewResult={dailyRecord ? jumpToTodayResult : undefined} />
-            <div id="input-form" className="fortune-card p-6 sm:p-8 scroll-mt-20">
+            <div id="input-form" className="fortune-card p-4 sm:p-8 scroll-mt-20">
               {loading && <InsightAnalyticalConsole name={input.name} />}
-              <div className={loading ? 'hidden' : 'space-y-8'}>
+              <div className={loading ? 'hidden' : 'space-y-6 sm:space-y-8'}>
                 <IdentitySplitSelector
                   selectedTarget={analysisTarget}
                   onSelected={(target) => {

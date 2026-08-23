@@ -93,7 +93,7 @@ export default function IdentitySplitSelector({ className = '', compact = false,
   }
 
   return (
-      <section className={`rounded-2xl border-2 bg-black/18 p-3 shadow-[0_12px_32px_rgba(2,6,23,0.18)] backdrop-blur-sm sm:p-4 ${effectiveSelected === null ? 'animate-[pulse_1.6s_ease-in-out_infinite] border-amber-100 shadow-[0_0_28px_rgba(251,191,36,0.32)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#080a10]' : 'border-cyan-200/25'} ${className}`}>
+      <section className={`rounded-2xl border-2 bg-black/18 p-3 shadow-[0_12px_32px_rgba(2,6,23,0.18)] backdrop-blur-sm sm:p-4 ${effectiveSelected === null ? 'sm:animate-[pulse_1.6s_ease-in-out_infinite] border-amber-100 shadow-[0_0_28px_rgba(251,191,36,0.32)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#080a10]' : 'border-cyan-200/25'} ${className}`}>
       <div className="flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-200/75">0 · ANALYSIS TARGET</p>
@@ -119,7 +119,7 @@ export default function IdentitySplitSelector({ className = '', compact = false,
               }}
               className={`group rounded-xl border px-4 py-3 text-left transition-all active:scale-[0.99] ${
                 active
-                  ? 'animate-[pulse_1.6s_ease-in-out_infinite] border-2 border-amber-100 bg-amber-300/22 shadow-[0_0_28px_rgba(251,191,36,0.38)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#080a10]'
+                  ? 'sm:animate-[pulse_1.6s_ease-in-out_infinite] border-2 border-amber-100 bg-amber-300/22 shadow-[0_0_28px_rgba(251,191,36,0.38)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#080a10]'
                   : 'border-white/10 bg-white/[0.035] hover:border-cyan-200/35 hover:bg-cyan-200/[0.06]'
               }`}
             >
