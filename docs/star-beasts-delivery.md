@@ -3,7 +3,7 @@
 ## 交付內容與使用規則
 
 - 覺醒體正式圖片位於 `public/star-beasts/`，共 28 張，每季 7 張。
-- 春季與夏季已各完成 7 張「星宿幼體」卡；它們與覺醒體為同一隻神獸的不同成長階段，不是一般動物版本。
+- 四季共 28 張「星宿幼體」卡已完成；它們與覺醒體為同一隻神獸的不同成長階段，不是一般動物版本。
 - 每張皆為唯一正式版本：PNG、直式、`950 × 1656 px`。不得改用舊版或自行重新命名。
 - 網站請引用下表的 `/star-beasts/...` 路徑；前端以 CSS 等比例縮放，不裁切、不拉伸。
 - 所有結構化資料均在 `data/star-beasts.json`，可直接供前端建立列表、詳細頁或篩選功能。
@@ -23,7 +23,7 @@
 ## 成長階段資料規則
 
 - `image`：既有的「覺醒體」神獸卡。
-- `youngDivineImage`：同一神獸的「星宿幼體」卡。已完成的春季 01–07 與夏季 22–28 均有此欄位；其他季節會在幼體卡完成後補上。
+- `youngDivineImage`：同一神獸的「星宿幼體」卡。28 隻神獸皆有此欄位，且路徑已對應正式幼體檔案。
 - 前端若只需原有 28 張卡，維持讀取 `image` 即可；需要進化展示時，先顯示 `youngDivineImage`，再切換至 `image`。
 
 ## 春季幼體卡｜已完成
@@ -37,6 +37,30 @@
 | 05 | 心月狐 | `/star-beasts/spring/05-xin-yue-hu-young-divine.png` | `/star-beasts/spring/05-xin-yue-hu.png` |
 | 06 | 尾火虎 | `/star-beasts/spring/06-wei-huo-hu-young-divine.png` | `/star-beasts/spring/06-wei-huo-hu.png` |
 | 07 | 箕水豹 | `/star-beasts/spring/07-ji-shui-bao-young-divine.png` | `/star-beasts/spring/07-ji-shui-bao.png` |
+
+## 冬季幼體卡｜已完成
+
+| 編號 | 星宿 | 幼體圖片路徑 | 對應覺醒體 |
+|---:|---|---|---|
+| 08 | 斗木獬 | `/star-beasts/winter/08-dou-mu-xie-young-divine.png` | `/star-beasts/winter/08-dou-mu-xie.png` |
+| 09 | 牛金牛 | `/star-beasts/winter/09-niu-jin-niu-young-divine.png` | `/star-beasts/winter/09-niu-jin-niu.png` |
+| 10 | 女土蝠 | `/star-beasts/winter/10-nu-tu-fu-young-divine.png` | `/star-beasts/winter/10-nu-tu-fu.png` |
+| 11 | 虛日鼠 | `/star-beasts/winter/11-xu-ri-shu-young-divine.png` | `/star-beasts/winter/11-xu-ri-shu.png` |
+| 12 | 危月燕 | `/star-beasts/winter/12-wei-yue-yan-young-divine.png` | `/star-beasts/winter/12-wei-yue-yan.png` |
+| 13 | 室火豬 | `/star-beasts/winter/13-shi-huo-zhu-young-divine.png` | `/star-beasts/winter/13-shi-huo-zhu.png` |
+| 14 | 壁水貐 | `/star-beasts/winter/14-bi-shui-yu-young-divine.png` | `/star-beasts/winter/14-bi-shui-yu.png` |
+
+## 秋季幼體卡｜已完成
+
+| 編號 | 星宿 | 幼體圖片路徑 | 對應覺醒體 |
+|---:|---|---|---|
+| 15 | 奎木狼 | `/star-beasts/autumn/15-kui-mu-lang-young-divine.png` | `/star-beasts/autumn/15-kui-mu-lang.png` |
+| 16 | 婁金狗 | `/star-beasts/autumn/16-lou-jin-gou-young-divine.png` | `/star-beasts/autumn/16-lou-jin-gou.png` |
+| 17 | 胃土雉 | `/star-beasts/autumn/17-wei-tu-zhi-young-divine.png` | `/star-beasts/autumn/17-wei-tu-zhi.png` |
+| 18 | 昴日雞 | `/star-beasts/autumn/18-mao-ri-ji-young-divine.png` | `/star-beasts/autumn/18-mao-ri-ji.png` |
+| 19 | 畢月烏 | `/star-beasts/autumn/19-bi-yue-wu-young-divine.png` | `/star-beasts/autumn/19-bi-yue-wu.png` |
+| 20 | 觜火猴 | `/star-beasts/autumn/20-zi-huo-hou-young-divine.png` | `/star-beasts/autumn/20-zi-huo-hou.png` |
+| 21 | 參水猿 | `/star-beasts/autumn/21-shen-shui-yuan-young-divine.png` | `/star-beasts/autumn/21-shen-shui-yuan.png` |
 
 ## 夏季幼體卡｜已完成
 

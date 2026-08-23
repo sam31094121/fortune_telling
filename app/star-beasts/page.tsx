@@ -5,6 +5,7 @@ import Link from 'next/link';
 import starBeastsData from '@/data/star-beasts.json';
 
 type Season = 'all' | 'spring' | 'summer' | 'autumn' | 'winter';
+type Form = 'young' | 'awakened';
 
 type StarBeast = {
   id: number;
@@ -12,6 +13,7 @@ type StarBeast = {
   animal: string;
   season: Exclude<Season, 'all'>;
   image: string;
+  youngDivineImage: string;
   symbolicPart: string;
   coreMeaning: string;
   traits: string;
@@ -48,8 +50,19 @@ const SEASON_NAMES: Record<Exclude<Season, 'all'>, string> = {
   winter: '北方玄武・冬',
 };
 
+const FORMS: Array<{ id: Form; label: string; detail: string }> = [
+  { id: 'young', label: '星宿幼體', detail: '初生神性・未完全成長' },
+  { id: 'awakened', label: '覺醒完整體', detail: '完整星紋・成熟神獸' },
+];
+
+const FORM_LABELS: Record<Form, string> = {
+  young: '星宿幼體',
+  awakened: '覺醒完整體',
+};
+
 export default function StarBeastsPage() {
   const [season, setSeason] = useState<Season>('all');
+  const [form, setForm] = useState<Form>('awakened');
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const visibleBeasts = useMemo(() => BEASTS
     .filter((beast) => season === 'all' || beast.season === season)
@@ -79,6 +92,8 @@ export default function StarBeastsPage() {
     setSelectedId(null);
   };
 
+  const cardImage = (beast: StarBeast, targetForm = form) => targetForm === 'young' ? beast.youngDivineImage : beast.image;
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#050612] px-4 pb-16 pt-5 text-white sm:px-6 sm:pt-8">
       <div className="pointer-events-none fixed inset-0 -z-0 overflow-hidden" aria-hidden="true">
@@ -95,9 +110,9 @@ export default function StarBeastsPage() {
           <div className="pointer-events-none absolute right-5 top-5 font-serif text-7xl font-black text-amber-100/[0.06] sm:right-10 sm:text-9xl">28</div>
           <p className="text-xs font-black tracking-[0.28em] text-amber-200/85">THE TWENTY-EIGHT MANSIONS</p>
           <h1 className="mt-3 font-serif text-4xl font-black tracking-wide text-white sm:text-6xl">星宿神獸卡片</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">二十八星宿，各自守護一段天象與性格。選擇一張卡，完整閱讀牠的象徵、核心意義與命運特質。</p>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">二十八星宿，各自守護一段天象與性格。可切換星宿幼體與覺醒完整體，查看每隻神獸的成長連結。</p>
           <div className="mt-6 flex flex-wrap gap-2 text-xs font-bold text-slate-200/85">
-            <span className="rounded-full border border-white/15 bg-white/[0.07] px-3 py-1.5">28 隻正式神獸</span>
+            <span className="rounded-full border border-white/15 bg-white/[0.07] px-3 py-1.5">28 組幼體・完整體</span>
             <span className="rounded-full border border-white/15 bg-white/[0.07] px-3 py-1.5">春夏秋冬・每季七宿</span>
             <span className="rounded-full border border-white/15 bg-white/[0.07] px-3 py-1.5">點選卡片查看完整解說</span>
           </div>
@@ -115,22 +130,35 @@ export default function StarBeastsPage() {
           </div>
         </section>
 
+        <section className="mt-4" aria-label="選擇神獸成長階段">
+          <div className="inline-flex rounded-2xl border border-white/10 bg-slate-950/55 p-1.5 shadow-lg">
+            {FORMS.map((item) => (
+              <button key={item.id} type="button" onClick={() => setForm(item.id)} aria-pressed={form === item.id}
+                className={`rounded-xl px-4 py-2.5 text-left transition sm:px-5 ${form === item.id ? 'bg-amber-300/15 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.12)]' : 'text-slate-400 hover:text-white'}`}>
+                <span className="block text-sm font-black">{item.label}</span>
+                <span className="mt-0.5 block text-[10px] font-medium opacity-75">{item.detail}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
         <section className="mt-5" aria-live="polite">
           <div className="mb-4 flex items-end justify-between gap-4">
             <div>
               <p className="text-xs font-bold tracking-[0.18em] text-amber-200/75">CARD COLLECTION</p>
-              <h2 className="mt-1 font-serif text-2xl font-black text-white">{season === 'all' ? '全部神獸' : SEASON_NAMES[season]}</h2>
+              <h2 className="mt-1 font-serif text-2xl font-black text-white">{FORM_LABELS[form]}・{season === 'all' ? '全部神獸' : SEASON_NAMES[season]}</h2>
             </div>
-            <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-xs font-bold text-slate-300">{visibleBeasts.length} 張</span>
+            <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-xs font-bold text-slate-300">{visibleBeasts.length} 張{form === 'young' ? '幼體' : '完整體'}</span>
           </div>
 
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
             {visibleBeasts.map((beast) => (
               <button key={beast.id} type="button" onClick={() => setSelectedId(beast.id)} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 text-left shadow-lg transition duration-300 hover:-translate-y-1 hover:border-amber-200/55 hover:shadow-[0_14px_35px_rgba(0,0,0,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200">
                 <div className="relative aspect-[950/1656] overflow-hidden bg-slate-950">
-                  <img src={beast.image} alt={`${beast.name}神獸卡`} className="h-full w-full object-contain transition duration-500 group-hover:scale-[1.035]" />
+                  <img src={cardImage(beast)} alt={`${beast.name}${FORM_LABELS[form]}神獸卡`} className="h-full w-full object-contain transition duration-500 group-hover:scale-[1.035]" />
                   <span className={`absolute left-2 top-2 h-1.5 w-8 rounded-full bg-gradient-to-r ${SEASON_ACCENTS[beast.season]}`} />
                   <span className="absolute right-2 top-2 rounded-full bg-slate-950/75 px-2 py-1 text-[10px] font-black text-white backdrop-blur">{String(beast.id).padStart(2, '0')}</span>
+                  <span className="absolute bottom-2 left-2 rounded-full border border-white/15 bg-slate-950/75 px-2 py-1 text-[10px] font-black text-amber-100 backdrop-blur">{form === 'young' ? '幼體' : '完整體'}</span>
                 </div>
                 <div className="p-2 sm:p-2.5">
                   <p className="text-[10px] font-bold text-slate-400">{SEASON_NAMES[beast.season].split('・')[0]}</p>
@@ -148,16 +176,24 @@ export default function StarBeastsPage() {
           <button type="button" aria-label="關閉詳細資料" onClick={() => setSelectedId(null)} className="absolute inset-0 cursor-default" />
           <article className="relative z-10 max-h-[92dvh] w-full max-w-4xl overflow-y-auto rounded-t-[2rem] border border-white/15 bg-[#0a1025] shadow-2xl sm:rounded-[2rem]">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#0a1025]/95 px-5 py-4 backdrop-blur sm:px-7">
-              <p className="text-xs font-black tracking-[0.18em] text-amber-200">CARD {String(selected.id).padStart(2, '0')} ・ {SEASON_NAMES[selected.season]}</p>
+              <p className="text-xs font-black tracking-[0.18em] text-amber-200">CARD {String(selected.id).padStart(2, '0')} ・ {FORM_LABELS[form]} ・ {SEASON_NAMES[selected.season]}</p>
               <button type="button" onClick={() => setSelectedId(null)} className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-bold text-slate-200 hover:border-white/40 hover:text-white">關閉 ✕</button>
             </div>
             <div className="grid gap-6 p-5 sm:grid-cols-[minmax(230px,0.8fr)_minmax(0,1.2fr)] sm:p-7">
               <div className="mx-auto w-full max-w-[330px] overflow-hidden rounded-2xl border border-amber-200/25 bg-slate-950 shadow-[0_18px_45px_rgba(0,0,0,0.38)]">
-                <img src={selected.image} alt={`${selected.name}神獸卡完整圖`} className="block h-auto w-full" />
+                <img src={cardImage(selected)} alt={`${selected.name}${FORM_LABELS[form]}神獸卡完整圖`} className="block h-auto w-full" />
               </div>
               <div className="flex min-w-0 flex-col justify-center">
                 <p className="text-sm font-bold text-slate-400">{selected.animal}・{selected.symbolicPart}</p>
                 <h2 className="mt-2 font-serif text-4xl font-black text-white">{selected.name}</h2>
+                <div className="mt-4 inline-flex w-fit rounded-xl border border-white/10 bg-white/[0.04] p-1">
+                  {FORMS.map((item) => (
+                    <button key={item.id} type="button" onClick={() => setForm(item.id)} aria-pressed={form === item.id}
+                      className={`rounded-lg px-3 py-2 text-xs font-black transition ${form === item.id ? 'bg-amber-300/20 text-amber-50' : 'text-slate-400 hover:text-white'}`}>
+                      看{item.label}
+                    </button>
+                  ))}
+                </div>
                 <div className="mt-5 rounded-2xl border border-amber-200/20 bg-amber-300/[0.07] p-4">
                   <p className="text-xs font-black tracking-[0.16em] text-amber-200/80">核心意義</p>
                   <p className="mt-2 font-serif text-2xl font-black text-amber-50">{selected.coreMeaning}</p>
