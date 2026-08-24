@@ -676,7 +676,7 @@ function NameologyTotalBeastCard({ analysis }: { analysis: NameologyAnalysis }) 
           beast={link.beast}
           context="姓名總格星宿卡"
           className="overflow-hidden rounded-2xl border border-violet-100/30 bg-black/30 p-1.5 shadow-[0_0_38px_rgba(167,139,250,0.36)]"
-          imageClassName="aspect-[950/1656] w-full rounded-xl object-cover"
+          imageClassName="aspect-[53/79] w-full rounded-xl object-cover"
           overlayClassName="absolute inset-x-1.5 bottom-1.5 rounded-b-xl bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-transparent px-2 pb-2 pt-10"
           buttonClassName="mt-1 w-full rounded-lg border border-violet-100/30 bg-slate-950/75 px-1 py-1.5 text-[10px] font-black text-violet-50 transition hover:border-violet-100/65"
           showName={false}

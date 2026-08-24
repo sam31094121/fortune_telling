@@ -154,7 +154,7 @@ export default function StarBeastsPage() {
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
             {visibleBeasts.map((beast) => (
               <button key={beast.id} type="button" onClick={() => setSelectedId(beast.id)} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 text-left shadow-lg transition duration-300 hover:-translate-y-1 hover:border-amber-200/55 hover:shadow-[0_14px_35px_rgba(0,0,0,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200">
-                <div className="relative aspect-[950/1656] overflow-hidden bg-slate-950">
+                <div className="relative aspect-[53/79] overflow-hidden bg-slate-950">
                   <img src={cardImage(beast)} alt={`${beast.name}${FORM_LABELS[form]}神獸卡`} className="h-full w-full object-contain transition duration-500 group-hover:scale-[1.035]" />
                   <span className={`absolute left-2 top-2 h-1.5 w-8 rounded-full bg-gradient-to-r ${SEASON_ACCENTS[beast.season]}`} />
                   <span className="absolute right-2 top-2 rounded-full bg-slate-950/75 px-2 py-1 text-[10px] font-black text-white backdrop-blur">{String(beast.id).padStart(2, '0')}</span>
