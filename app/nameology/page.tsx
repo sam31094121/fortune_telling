@@ -19,6 +19,7 @@ import MegaInputGuide from '@/components/MegaInputGuide';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 import { TAROT_CARD_BACK_URL } from '@/features/tarot/constants/cardBack';
 import { deriveNameologyTotalBeast } from '@/lib/nameology-total-beast';
+import StarBeastLineageReveal from '@/components/StarBeastLineageReveal';
 
 type NameologyResponse = {
   ok: boolean;
@@ -671,11 +672,18 @@ function NameologyTotalBeastCard({ analysis }: { analysis: NameologyAnalysis }) 
         </div>
       </div>
       <div className="relative mt-5 grid grid-cols-[124px_minmax(0,1fr)] items-center gap-4 sm:grid-cols-[174px_minmax(0,1fr)]">
-        <div className="rounded-2xl border border-violet-100/30 bg-black/30 p-1.5 shadow-[0_0_38px_rgba(167,139,250,0.36)]">
-          <img src={link.beast.youngDivineImage} alt={`${link.beast.name}總格星宿幼體卡`} loading="lazy" className="aspect-[950/1656] w-full rounded-xl object-cover" />
-        </div>
+        <StarBeastLineageReveal
+          beast={link.beast}
+          context="姓名總格星宿卡"
+          className="overflow-hidden rounded-2xl border border-violet-100/30 bg-black/30 p-1.5 shadow-[0_0_38px_rgba(167,139,250,0.36)]"
+          imageClassName="aspect-[950/1656] w-full rounded-xl object-cover"
+          overlayClassName="absolute inset-x-1.5 bottom-1.5 rounded-b-xl bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-transparent px-2 pb-2 pt-10"
+          buttonClassName="mt-1 w-full rounded-lg border border-violet-100/30 bg-slate-950/75 px-1 py-1.5 text-[10px] font-black text-violet-50 transition hover:border-violet-100/65"
+          showName={false}
+        />
         <div className="min-w-0">
           <p className="text-base font-black text-violet-50">{link.beast.coreMeaning}</p>
+          <p className="mt-2 text-xs font-semibold leading-5 text-violet-100/75">先認識本命神獸的守護力量；神獸幼子是主動深入查看的同血統收藏內容。</p>
           <p className="mt-3 border-l-2 border-violet-200/75 pl-3 text-xs font-semibold leading-6 text-violet-100/85">{link.evidence}</p>
           <p className="mt-3 rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-bold leading-5 text-violet-100/85">總格先定五行，再由姓名各字筆畫順序固定選卡。</p>
         </div>

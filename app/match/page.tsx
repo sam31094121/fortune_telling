@@ -17,6 +17,7 @@ import { WaterTreasureOrb, type ProductElement } from '@/components/bazi/custome
 import { ElementUnsealSoundToggle } from '@/components/ElementUnsealSound';
 import { useElementTreasureRitual } from '@/components/five-elements/useElementTreasureRitual';
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
+import StarBeastLineageReveal from '@/components/StarBeastLineageReveal';
 
 interface PersonInput {
   name: string;
@@ -140,8 +141,8 @@ const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const EMPTY: PersonInput = { name: '', birthDate: '', birthHourBranch: 'unknown', bloodType: 'unknown', gender: 'female' };
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { bloodType: false, gender: false };
 const MATCH_DAILY_SCHEMA_VERSION = 'soul-match-bazi-beast-v4';
-// 視覺尚未定稿前，先保留共同寶珠的計算與儀式邏輯，但不在客戶頁顯示。
-const SHOW_SHARED_ELEMENT_PEARL = false;
+// sharedElement 已改為真實八字五行需求驅動（見 match-generate/route.ts），視覺開放顯示。
+const SHOW_SHARED_ELEMENT_PEARL = true;
 const MATCH_DEMO_NAMES = new Set(['\u738b\u5c0f\u660e', '\u9673\u5c0f\u7f8e']);
 
 function isDemoMatchName(name?: string | null) {
@@ -1425,14 +1426,14 @@ function BaziBeastPairCards({
               <p className="mt-1 truncate text-sm font-black text-[color:var(--text-main)]">{name}{age === null ? '' : `・${age}歲`}</p>
 
               <div className="relative mt-2 aspect-[1.04] overflow-hidden rounded-[17px] border border-white/14 bg-black/25">
-                <img
-                  src={beast.youngDivineImage}
-                  alt={`${beast.name}星宿幼體`}
-                  className="h-full w-full object-cover"
+                <StarBeastLineageReveal
+                  beast={beast}
+                  context="八字配對神獸卡"
+                  className="h-full"
+                  imageClassName="h-full w-full object-cover"
+                  overlayClassName="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent px-2 pb-2 pt-9"
+                  buttonClassName="mt-1 rounded-full border border-white/20 bg-slate-950/75 px-2 py-1 text-[9px] font-black text-cyan-50 transition hover:border-cyan-100/60"
                 />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent px-2 pb-2 pt-7">
-                  <p className="font-serif text-xl font-black tracking-wide text-white drop-shadow-[0_2px_9px_rgba(0,0,0,0.8)] sm:text-2xl">{beast.name}</p>
-                </div>
               </div>
 
               <div className="mt-2 flex flex-wrap gap-1.5">
@@ -1442,6 +1443,7 @@ function BaziBeastPairCards({
                 <span className="rounded-full border border-white/10 bg-black/20 px-2 py-1 text-[10px] font-bold text-white/75">日柱 {beast.dayPillar}</span>
               </div>
               <p className="mt-2 line-clamp-2 text-[11px] font-semibold leading-5 text-white/75 sm:text-xs">{beast.coreMeaning}</p>
+              <p className="mt-2 text-[9px] leading-4 text-white/55">先看本命神獸；神獸幼子需主動深入查看。</p>
               <p className="mt-2 border-t border-white/8 pt-2 text-[9px] leading-4 text-white/45">{beast.direction}</p>
             </article>
           );

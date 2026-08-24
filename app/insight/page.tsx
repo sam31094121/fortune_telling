@@ -30,6 +30,7 @@ import { calculateBoneWeight, formatQian } from '@/lib/bone-weight';
 import { WaterTreasureOrb } from '@/components/bazi/customer/WaterTreasureOrb';
 import { useElementTreasureRitual } from '@/components/five-elements/useElementTreasureRitual';
 import { deriveZiweiStarBeastLink } from '@/lib/ziwei-star-beast-link';
+import StarBeastLineageReveal from '@/components/StarBeastLineageReveal';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
 type ShichenChoice = number | 'unknown' | 'known' | null;
@@ -1029,7 +1030,7 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
             const visual = link ? beastVisualTone[link.season] : null;
             return (
               <article key={`${key}-star-beast`} className={`relative min-h-[280px] overflow-hidden rounded-[26px] border p-4 shadow-[0_18px_42px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.14)] ${link ? `bg-gradient-to-br ${visual?.panel}` : tone.card}`}>
-                {link && <img src={link.beast.youngDivineImage} alt="" aria-hidden="true" className="pointer-events-none absolute -right-7 -top-8 h-[220px] w-[156px] opacity-[0.16] blur-[1px] object-cover" />}
+                {link && <img src={link.beast.image} alt="" aria-hidden="true" className="pointer-events-none absolute -right-7 -top-8 h-[220px] w-[156px] opacity-[0.16] blur-[1px] object-cover" />}
                 {link && <div aria-hidden="true" className={`pointer-events-none absolute -right-16 top-20 h-44 w-44 rounded-full blur-3xl ${visual?.glow}`} />}
                 <span className={`pointer-events-none absolute -right-1 -top-7 font-serif text-[104px] font-black opacity-[0.08] ${tone.text}`}>{label.glyph}</span>
                 <div className="relative flex items-start justify-between gap-3">
@@ -1043,14 +1044,18 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
                   <div className="relative mt-4 grid min-h-[144px] grid-cols-2 overflow-hidden rounded-2xl border border-white/15 bg-black/20">
                     <div className="relative min-w-0 overflow-hidden border-r border-white/12">
                       <div aria-hidden="true" className={`absolute inset-0 ${visual?.glow} blur-2xl`} />
-                      <img src={link.beast.youngDivineImage} alt={`${link.beast.name}星宿幼體卡`} className="relative h-full min-h-[144px] w-full object-cover object-center shadow-[0_16px_30px_rgba(0,0,0,0.38)]" />
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/95 via-slate-950/35 to-transparent px-2 pb-2 pt-8">
-                        <p className={`text-[9px] font-black tracking-[0.12em] ${visual?.text}`}>{link.seasonLabel}</p>
-                        <p className="mt-0.5 text-xs font-black text-white">{link.beast.name}</p>
-                      </div>
+                      <StarBeastLineageReveal
+                        beast={link.beast}
+                        context="紫微斗數星宿卡"
+                        className="relative h-full min-h-[144px]"
+                        imageClassName="h-full min-h-[144px] w-full object-cover object-center shadow-[0_16px_30px_rgba(0,0,0,0.38)]"
+                        overlayClassName="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-transparent px-2 pb-2 pt-8"
+                        buttonClassName="mt-1 rounded-full border border-white/20 bg-slate-950/75 px-2 py-1 text-[9px] font-black text-cyan-50 transition hover:border-cyan-100/60"
+                      />
                     </div>
                     <div className="min-w-0 p-3">
                       <p className={`text-[10px] font-black tracking-[0.14em] ${visual?.text}`}>{link.seasonLabel}・{link.productElement}訊號</p>
+                      <p className="mt-1 text-[10px] font-semibold leading-4 text-white/60">先看本命神獸的守護力量；神獸幼子需主動查看。</p>
                       <p className="mt-2 text-xs font-semibold leading-5 text-white/70">{link.beast.coreMeaning}</p>
                       <div className="mt-3 flex flex-wrap gap-1.5">
                         {(palace?.majorStars.length ? palace.majorStars : link.sourceStar ? [link.sourceStar] : []).map((star) => (

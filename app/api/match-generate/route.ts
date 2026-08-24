@@ -73,6 +73,16 @@ const BAZI_BRAND_TO_MATCH = {
   SPACE: 'space',
 } as const;
 
+/** 把八字引擎算出的真實 elementPriority（用神喜神＋五行強弱）轉成配對頁五元素引擎要的
+ * needScores 格式，讓配對的五元素判定跟這個人自己的八字頁用同一份真實命盤資料，不是兩套各算各的。 */
+function elementPriorityToNeedScores(elementPriority: ReturnType<typeof analyzeBazi>['aiDeepAnalysis']['elementPriority']): Record<MatchFiveElementKey, number> {
+  const scores: Record<MatchFiveElementKey, number> = { earth: 0, water: 0, fire: 0, air: 0, space: 0 };
+  for (const item of elementPriority) {
+    scores[BAZI_BRAND_TO_MATCH[item.brandElement]] = item.needScore;
+  }
+  return scores;
+}
+
 const MATCH_ENHANCEMENT_SCHEMA = {
   type: Type.OBJECT,
   properties: {
@@ -208,9 +218,11 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
   });
   const hasHourA = Boolean(personA.birthHourBranch && personA.birthHourBranch !== 'unknown');
   const hasHourB = Boolean(personB.birthHourBranch && personB.birthHourBranch !== 'unknown');
-  const sharedElement = firstA.brandElement === firstB.brandElement
-    ? BAZI_BRAND_TO_MATCH[firstA.brandElement]
-    : BAZI_BRAND_TO_MATCH[chartA.aiReinforcementPlan.second.brandElement];
+  const needScoresA = elementPriorityToNeedScores(chartA.aiDeepAnalysis.elementPriority);
+  const needScoresB = elementPriorityToNeedScores(chartB.aiDeepAnalysis.elementPriority);
+  // 暫定值：呼叫端算完 fiveElementMatch 後會立刻覆蓋成同一份真實需求分數算出的結果
+  // （見 route.ts 主流程），這裡不再用「對不上就忽略對方命盤」的舊邏輯頂替。
+  const sharedElement = BAZI_BRAND_TO_MATCH[firstA.brandElement];
 
   return {
     source: hasHourA && hasHourB ? '八字四柱合盤' : hasHourA || hasHourB ? '八字混合合盤' : '八字三柱基礎合盤',
@@ -237,6 +249,7 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
     personA: {
       dayMaster: `${chartA.dayMaster.stem}${chartA.dayMaster.element}`,
       primaryReinforcement: firstA.displayName,
+      needScores: needScoresA,
       beastCard: {
         name: beastA.beast.name,
         image: beastA.beast.image,
@@ -250,6 +263,7 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
     personB: {
       dayMaster: `${chartB.dayMaster.stem}${chartB.dayMaster.element}`,
       primaryReinforcement: firstB.displayName,
+      needScores: needScoresB,
       beastCard: {
         name: beastB.beast.name,
         image: beastB.beast.image,
@@ -463,6 +477,14 @@ export async function POST(request: Request) {
     const rawResult = computeCompatibility(profileA, profileB);
     const result = stabilizeMatchResult(rawResult);
     const baziFoundation = buildBaziMatchFoundation(body.personA, body.personB);
+    // fiveElementMatch 提前算，兩人的 needScores 直接來自 baziFoundation（真實八字），
+    // 算完立刻把 sharedElement 寫回 baziFoundation，讓下面的 AI 提示詞跟五元素引擎、
+    // 前端寶珠三方看到的是同一個判定結果，不會各說各話。
+    const fiveElementMatch = buildMatchFiveElementResult(
+      { name: body.personA.name, needScores: baziFoundation.personA.needScores },
+      { name: body.personB.name, needScores: baziFoundation.personB.needScores },
+    );
+    baziFoundation.sharedElement = fiveElementMatch.sharedElement;
     const enhanced = await enhanceMatchResultWithAI(result, displayA, displayB, baziFoundation);
     const finalSummary = isConsistentAiSummary(enhanced.summary, result) ? enhanced.summary : result.summary;
 
@@ -484,7 +506,6 @@ export async function POST(request: Request) {
     );
 
     const finalResult = { ...result, summary: finalSummary, zones: enhanced.zones };
-    const fiveElementMatch = buildMatchFiveElementResult(body.personA, body.personB, result);
     const ghostTeacher = buildGhostTeacherReading(baziFoundation, finalResult);
     const professionalLayer = buildSoulMatchProfessionalLayer({
       personA: body.personA,
