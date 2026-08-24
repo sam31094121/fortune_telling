@@ -70,19 +70,12 @@ export type MatchFiveElementResult = {
   inlineHighlights: string[];
 };
 
-type MatchPersonInput = {
+/** 這個人的真實五元素需求分數——來自八字引擎的 elementPriority（用神喜神＋五行強弱），
+ * 不是生日數字雜湊出來的近似值。呼叫端（match-generate/route.ts）負責把 analyzeBazi() 的
+ * elementPriority 轉成這個 Record，兩人共用同一份真實命盤資料，不會各算各的。 */
+export type MatchElementNeedInput = {
   name: string;
-  birthDate: string;
-  bloodType: 'A' | 'B' | 'AB' | 'O' | 'unknown';
-  gender: 'male' | 'female';
-};
-
-type MatchScoreInput = {
-  match_score: number;
-  resonance: number;
-  communication: number;
-  stability: number;
-  conflict_risk: number;
+  needScores: Record<MatchFiveElementKey, number>;
 };
 
 const ELEMENTS: MatchFiveElementKey[] = ['earth', 'water', 'fire', 'air', 'space'];
@@ -110,63 +103,22 @@ const GENERATES: Record<MatchFiveElementKey, MatchFiveElementKey> = deriveMatchT
 
 const CONTROLS: Record<MatchFiveElementKey, MatchFiveElementKey> = deriveMatchTable(SHARED_CONTROLS);
 
-const BLOOD_ELEMENT: Record<Exclude<MatchPersonInput['bloodType'], 'unknown'>, MatchFiveElementKey> = {
-  A: 'earth',
-  B: 'air',
-  AB: 'space',
-  O: 'fire',
-};
-
 function clamp(value: number) {
   return Math.max(0, Math.min(100, Math.round(value)));
-}
-
-function parseBirthDate(value: string) {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) return { year: 2000, month: 1, day: 1 };
-  return {
-    year: Number(match[1]),
-    month: Number(match[2]),
-    day: Number(match[3]),
-  };
-}
-
-function elementFromIndex(index: number) {
-  return ELEMENTS[((index % ELEMENTS.length) + ELEMENTS.length) % ELEMENTS.length];
-}
-
-function add(scores: Record<MatchFiveElementKey, number>, element: MatchFiveElementKey, amount: number) {
-  scores[element] = clamp(scores[element] + amount);
 }
 
 function rank(scores: Record<MatchFiveElementKey, number>) {
   return [...ELEMENTS].sort((a, b) => scores[b] - scores[a]);
 }
 
-function buildPersonResult(person: MatchPersonInput, scores: MatchScoreInput): MatchFiveElementPersonResult {
-  const birth = parseBirthDate(person.birthDate);
-  const elementScores: Record<MatchFiveElementKey, number> = {
-    earth: 42,
-    water: 42,
-    fire: 42,
-    air: 42,
-    space: 42,
-  };
-
-  add(elementScores, elementFromIndex(birth.year + birth.month), 18);
-  add(elementScores, elementFromIndex(birth.month + birth.day), 16);
-  add(elementScores, elementFromIndex(birth.year + birth.day), 12);
-  if (person.bloodType !== 'unknown') add(elementScores, BLOOD_ELEMENT[person.bloodType], 14);
-  add(elementScores, person.gender === 'male' ? 'fire' : 'water', 6);
-
-  if (scores.communication < 68) add(elementScores, 'water', -10);
-  if (scores.stability < 68) add(elementScores, 'earth', -10);
-  if (scores.resonance < 68) add(elementScores, 'fire', -8);
-  if (scores.conflict_risk > 55) add(elementScores, 'space', -10);
-  if (scores.match_score < 70) add(elementScores, 'air', -8);
-
+function buildPersonResult(person: MatchElementNeedInput): MatchFiveElementPersonResult {
   const needScores = ELEMENTS.reduce((acc, element) => {
-    acc[element] = clamp(100 - elementScores[element]);
+    acc[element] = clamp(person.needScores[element] ?? 0);
+    return acc;
+  }, {} as Record<MatchFiveElementKey, number>);
+  // elementScores 只為型別相容保留（前端未使用）；數值就是需求分數的反面。
+  const elementScores = ELEMENTS.reduce((acc, element) => {
+    acc[element] = clamp(100 - needScores[element]);
     return acc;
   }, {} as Record<MatchFiveElementKey, number>);
 
@@ -181,7 +133,7 @@ function buildPersonResult(person: MatchPersonInput, scores: MatchScoreInput): M
     secondaryElement,
     elementScores,
     needScores,
-    reason: `AI 判定：${name}目前最缺${ELEMENT_LABEL[primaryElement]}。請優先補強${ELEMENT_LABEL[primaryElement]}。完成後再補${ELEMENT_LABEL[secondaryElement]}。判定來源為生日結構、血型節奏與本次配對分數交叉計算。`,
+    reason: `AI 判定：${name}目前最缺${ELEMENT_LABEL[primaryElement]}。請優先補強${ELEMENT_LABEL[primaryElement]}。完成後再補${ELEMENT_LABEL[secondaryElement]}。判定來源為本人真實八字五行強弱與用神喜神分析。`,
     changeTarget: `補強${ELEMENT_LABEL[primaryElement]}，先校準${CHANGE_TARGET[primaryElement]}。`,
   };
 }
@@ -200,7 +152,8 @@ function getSharedElement(personA: MatchFiveElementPersonResult, personB: MatchF
       ? personA.primaryElement
       : personB.primaryElement;
   }
-  if (mode === 'conflicting') return 'water';
+  // 相剋／制衡都改用兩人真實需求分數加總最高者；相剋不再寫死固定答案，
+  // 而是從兩人各自的真實八字需求裡，找出兩人共同都缺得最多的那一個。
   const combined = ELEMENTS.reduce((acc, element) => {
     acc[element] = personA.needScores[element] + personB.needScores[element];
     return acc;
@@ -209,12 +162,11 @@ function getSharedElement(personA: MatchFiveElementPersonResult, personB: MatchF
 }
 
 export function buildMatchFiveElementResult(
-  personAInput: MatchPersonInput,
-  personBInput: MatchPersonInput,
-  scores: MatchScoreInput,
+  personAInput: MatchElementNeedInput,
+  personBInput: MatchElementNeedInput,
 ): MatchFiveElementResult {
-  const personA = buildPersonResult(personAInput, scores);
-  const personB = buildPersonResult(personBInput, scores);
+  const personA = buildPersonResult(personAInput);
+  const personB = buildPersonResult(personBInput);
   const relationMode = getRelationMode(personA.primaryElement, personB.primaryElement);
   const sharedElement = getSharedElement(personA, personB);
   const modeText = relationMode === 'generating'

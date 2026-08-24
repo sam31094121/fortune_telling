@@ -29,6 +29,6 @@
     { "id": 25, "name": "星日馬", "slug": "xing-ri-ma", "animal": "馬", "season": "summer", "image": "/star-beasts/summer/25-xing-ri-ma.png", "youngDivineImage": "/star-beasts/summer/25-xing-ri-ma-young-divine.png", "symbolicPart": "朱雀頸部", "coreMeaning": "奔波忠烈", "traits": "熱愛奔波，生命力旺盛，重視榮譽；一生多在外地發展，有大將之風。" },
     { "id": 26, "name": "張月鹿", "slug": "zhang-yue-lu", "animal": "鹿", "season": "summer", "image": "/star-beasts/summer/26-zhang-yue-lu.png", "youngDivineImage": "/star-beasts/summer/26-zhang-yue-lu-young-divine.png", "symbolicPart": "朱雀羽翼", "coreMeaning": "華麗受矚", "traits": "愛漂亮，喜歡成為全場焦點，表演慾強；具備極佳的公關與演藝天賦。" },
     { "id": 27, "name": "翼火蛇", "slug": "yi-huo-she", "animal": "蛇", "season": "summer", "image": "/star-beasts/summer/27-yi-huo-she.png", "youngDivineImage": "/star-beasts/summer/27-yi-huo-she-young-divine.png", "symbolicPart": "朱雀翅膀", "coreMeaning": "輔助飛翔", "traits": "擅長輔佐領導者，心思慎密，行動快如閃電；是不可或缺的靈魂幕僚。" },
-    { "id": 28, "name": "軫水蚓", "slug": "zhen-shui-yin", "animal": "蚓", "season": "summer", "image": "/star-beasts/summer/28-zhen-shui-yin.png", "youngDivineImage": "/star-beasts/summer/28-zhen-shui-yin-young-divine-v5.png", "symbolicPart": "朱雀尾端", "coreMeaning": "車輿協調", "traits": "擅長協調各方利益，處事圓融；一生與車船、貿易有緣，平穩向成功。" }
+    { "id": 28, "name": "軫水蚓", "slug": "zhen-shui-yin", "animal": "蚓", "season": "summer", "image": "/star-beasts/summer/28-zhen-shui-yin.png", "youngDivineImage": "/star-beasts/summer/28-zhen-shui-yin-young-divine-v8-composite.png", "symbolicPart": "朱雀尾端", "coreMeaning": "車輿協調", "traits": "擅長協調各方利益，處事圓融；一生與車船、貿易有緣，平穩向成功。" }
   ]
 }

@@ -371,7 +371,7 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
   );
 }
 
-export function WaterTreasureOrb({ element, released, variant = 'luminous', preview = false, burnSealOnRelease = false }: { element: ProductElement; released: boolean; variant?: WaterOrbVariant; preview?: boolean; burnSealOnRelease?: boolean }) {
+export function WaterTreasureOrb({ element, released, variant = 'luminous', preview = false, burnSealOnRelease = false, animating = false }: { element: ProductElement; released: boolean; variant?: WaterOrbVariant; preview?: boolean; burnSealOnRelease?: boolean; animating?: boolean }) {
   const material = ORB_MATERIAL[element];
   return (
     <span className={`water-treasure-orb water-treasure-orb--${element} water-treasure-orb--${variant} ${preview ? 'water-treasure-orb--preview' : ''} ${released ? 'water-treasure-orb--released' : 'water-treasure-orb--sealed'}`} aria-hidden="true">
@@ -379,8 +379,8 @@ export function WaterTreasureOrb({ element, released, variant = 'luminous', prev
       {(!released || burnSealOnRelease) && <SharedElementSealPaper burning={released && burnSealOnRelease} />}
       <Canvas
         // 以 1080p／高密度手機仍清晰為準；只在需求幀渲染，避免提高解析度後常駐佔用 GPU。
-        dpr={preview ? 5 : 6}
-        frameloop="demand"
+        dpr={preview ? [1, 1.5] : [1, 2]}
+        frameloop={animating ? 'always' : 'demand'}
         camera={{ position: [0, 0, 3.2], fov: 36 }}
         gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
       >

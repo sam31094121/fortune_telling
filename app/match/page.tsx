@@ -14,7 +14,9 @@ import type { GrowthElement } from '@/lib/growth-center-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, setAnalysisIdentityTarget, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 import { WaterTreasureOrb, type ProductElement } from '@/components/bazi/customer/WaterTreasureOrb';
-import { ElementUnsealSoundToggle, playElementUnsealSound } from '@/components/ElementUnsealSound';
+import { ElementUnsealSoundToggle } from '@/components/ElementUnsealSound';
+import { useElementTreasureRitual } from '@/components/five-elements/useElementTreasureRitual';
+import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 
 interface PersonInput {
   name: string;
@@ -802,13 +804,9 @@ const MATCH_ELEMENT_LABEL: Record<MatchFiveElementKey, string> = {
   earth: '地元素',
 };
 
-const MATCH_ELEMENT_SHORT_LABEL: Record<MatchFiveElementKey, ProductElement> = {
-  space: '空',
-  air: '風',
-  water: '水',
-  fire: '火',
-  earth: '地',
-};
+const MATCH_ELEMENT_SHORT_LABEL: Record<MatchFiveElementKey, ProductElement> = Object.freeze({
+  space: getProductOrbFromBrand('space'), air: getProductOrbFromBrand('air'), water: getProductOrbFromBrand('water'), fire: getProductOrbFromBrand('fire'), earth: getProductOrbFromBrand('earth'),
+});
 
 const MATCH_ELEMENT_ICON: Record<MatchFiveElementKey, string> = {
   space: '★',
@@ -1464,79 +1462,43 @@ const MATCH_PEARL_META: Record<MatchFiveElementKey, { name: string; title: strin
   fire: { name: '燼星業火珠', title: '熱度與推進', surface: 'radial-gradient(circle at 29% 22%, rgba(255,251,235,.96) 0 4%, rgba(253,186,116,.9) 13%, rgba(244,63,94,.8) 44%, rgba(76,5,25,.99) 77%)', core: 'radial-gradient(ellipse at 70% 70%, rgba(127,29,29,.9), transparent 57%), radial-gradient(ellipse at 33% 33%, rgba(254,215,170,.7), transparent 48%)', glow: 'rgba(251,113,133,0.52)' },
   earth: { name: '地脈琥珀珠', title: '穩定與承諾', surface: 'radial-gradient(circle at 29% 22%, rgba(255,251,235,.98) 0 4%, rgba(253,230,138,.85) 13%, rgba(217,119,6,.78) 44%, rgba(69,26,3,.99) 77%)', core: 'radial-gradient(ellipse at 70% 70%, rgba(120,53,15,.92), transparent 58%), radial-gradient(ellipse at 34% 32%, rgba(254,243,199,.65), transparent 48%)', glow: 'rgba(251,191,36,0.5)' },
 };
+const MATCH_PRODUCT_ELEMENTS: ProductElement[] = ['空', '風', '水', '火', '地'];
 
 function MatchSharedElementPearl({ result }: { result?: MatchFiveElementResult }) {
-  const [ritualState, setRitualState] = useState<'sealed' | 'opening' | 'unlocked'>('sealed');
   const [initiator, setInitiator] = useState<'personA' | 'personB' | null>(null);
-  const [ritualStage, setRitualStage] = useState(0);
-  const ritualTimersRef = useRef<number[]>([]);
-
-  const clearRitualTimers = () => {
-    ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer));
-    ritualTimersRef.current = [];
-  };
-
-  useEffect(() => {
-    clearRitualTimers();
-    setRitualState('sealed');
-    setInitiator(null);
-    setRitualStage(0);
-    return clearRitualTimers;
-  }, [result?.sharedElement]);
-
+  const primaryElement = result ? MATCH_ELEMENT_SHORT_LABEL[result.sharedElement] : '空';
+  const { released, opening, stage, start, reseal } = useElementTreasureRitual(primaryElement);
   if (!result) return null;
   const meta = MATCH_PEARL_META[result.sharedElement];
   const elementLabel = MATCH_ELEMENT_LABEL[result.sharedElement];
+  const productElement = primaryElement;
   const personalPriorities = [
     { label: '第一位先補', person: result.personA },
     { label: '第二位先補', person: result.personB },
   ] as const;
   const startUnseal = (nextInitiator: 'personA' | 'personB') => {
-    if (ritualState !== 'sealed') return;
-    playElementUnsealSound(MATCH_ELEMENT_SHORT_LABEL[result.sharedElement]);
+    if (opening) return;
     setInitiator(nextInitiator);
-    setRitualState('opening');
-    setRitualStage(1);
-    clearRitualTimers();
-    ritualTimersRef.current = [
-      window.setTimeout(() => setRitualStage(2), 3_000),
-      window.setTimeout(() => setRitualStage(3), 6_000),
-      window.setTimeout(() => setRitualStage(4), 9_000),
-      window.setTimeout(() => {
-        setRitualStage(5);
-        setRitualState('unlocked');
-      }, 12_000),
-    ];
+    start();
   };
   const initiatorName = initiator === 'personA' ? result.personA.name : initiator === 'personB' ? result.personB.name : '';
-  const ritualCopy = [
-    '五元素封印寶珠・靜止等待先行者',
-    '第一幕・封元素寶珠強烈破封，雙流瞬間衝出',
-    '第二幕・衝出的能量慢慢回穩，內層霧流甦醒',
-    '第三幕・光從球心慢慢聚集',
-    '第四幕・寶珠浮出，結界即將鬆開',
-    '儀式完成・五元素封印寶珠已收下',
-  ][ritualStage];
-  const pearlScale = [1, 1.26, 1.08, 1.12, 1.17, 1.09][ritualStage];
-  const pearlBrightness = [1, 1.7, 1.15, 1.3, 1.45, 1.12][ritualStage];
-  const ritualGlowOpacity = [0.36, 0.96, 0.64, 0.76, 0.88, 0.58][ritualStage];
+  const ritualCopy = opening ? `解封儀式進行中・${(stage ?? 0) + 1}/4` : released ? '儀式完成・五元素封印寶珠已收下' : '五元素封印寶珠・靜止等待先行者';
 
   return (
     <section className="fortune-card relative overflow-hidden border border-white/14 bg-[linear-gradient(135deg,rgba(8,15,31,0.98),rgba(17,24,39,0.94)_56%,rgba(8,47,73,0.78))] p-4 shadow-[0_18px_52px_rgba(0,0,0,0.25)] sm:p-5">
       <div className="grid grid-cols-[112px_minmax(0,1fr)] items-center gap-4 sm:grid-cols-[140px_minmax(0,1fr)] sm:gap-5">
         <div className="relative mx-auto grid h-24 w-24 place-items-center sm:h-32 sm:w-32">
-          <div className={`absolute inset-[5%] rounded-full blur-2xl transition-all ${ritualStage === 1 ? 'duration-300' : 'duration-[2800ms]'}`} style={{ backgroundColor: meta.glow, opacity: ritualGlowOpacity, transform: `scale(${ritualStage === 1 ? 1.48 : 0.9 + ritualStage * 0.05})` }} />
+          <div className="absolute inset-[5%] rounded-full blur-2xl transition-all duration-[2800ms]" style={{ backgroundColor: meta.glow, opacity: opening ? 0.9 : released ? 0.58 : 0.36 }} />
           <div
-            className={`treasure-reveal-stage treasure-reveal-stage--hero transition-all ${ritualState === 'sealed' ? 'treasure-reveal-stage--sealed' : 'treasure-reveal-stage--collected'} ${ritualState === 'opening' ? 'treasure-reveal-stage--opening' : ''} ${ritualStage === 1 ? 'duration-300' : 'duration-[2800ms]'}`}
-            style={{ transform: `translateY(${ritualStage >= 4 ? -5 : 0}px) scale(${pearlScale})`, filter: `brightness(${pearlBrightness}) saturate(${1 + ritualStage * 0.05})` }}
+            className={`treasure-reveal-stage treasure-reveal-stage--hero transition-all ${released || opening ? 'treasure-reveal-stage--collected' : 'treasure-reveal-stage--sealed'} ${opening ? 'treasure-reveal-stage--opening' : ''}`}
             aria-hidden="true"
           >
-            <WaterTreasureOrb element={MATCH_ELEMENT_SHORT_LABEL[result.sharedElement]} released={ritualState !== 'sealed'} />
+            <WaterTreasureOrb element={productElement} released={released || opening} burnSealOnRelease animating={opening} />
           </div>
         </div>
         <div className="min-w-0">
           <p className="text-[10px] font-black tracking-[0.22em] text-cyan-100/80">
-            {ritualState === 'unlocked' ? '五元素封印寶珠・本局已解除' : ritualState === 'opening' ? '五元素封印寶珠・結界解除中' : '五顆封印寶珠・從這一顆開始解除'}
+            {released ? '五元素封印寶珠・本局已解除' : opening ? '五元素封印寶珠・結界解除中' : '五顆封印寶珠・從這一顆開始解除'}
           </p>
           <h2 className="mt-1 font-serif text-2xl font-black tracking-wide text-amber-50 sm:text-3xl">{meta.name}</h2>
           <p className="mt-1 text-sm font-black text-cyan-100">{elementLabel}元素・{meta.title}</p>
@@ -1544,7 +1506,7 @@ function MatchSharedElementPearl({ result }: { result?: MatchFiveElementResult }
             這一顆是兩人目前共同要補的元素。兩位老師會先解讀原因，最後由你們一起拿到這顆五元素封印寶珠、解除結界並收下它。
           </p>
           <p className="mt-2 text-[11px] font-black leading-5 text-amber-100/90">
-            五元素共有五顆封印寶珠：空、風、水、火、地。五顆都在等待解封；本局必須先解除這一顆共同優先寶珠，完成後才能繼續下一顆。
+            五元素共有五顆封印寶珠：空、風、水、火、地。本局只可解除依配對引擎選出的共同優先寶珠；其餘四顆保留封印作為元素對照。
           </p>
         </div>
       </div>
@@ -1563,7 +1525,15 @@ function MatchSharedElementPearl({ result }: { result?: MatchFiveElementResult }
       <p className="mt-2 text-center text-[10px] font-semibold leading-5 text-white/45">
         {ritualCopy}
       </p>
-      {ritualState === 'sealed' ? (
+      <div className="mt-3 grid grid-cols-2 gap-2" aria-label="其餘四顆封印元素對照">
+        {MATCH_PRODUCT_ELEMENTS.filter((element) => element !== productElement).map((element) => (
+          <div key={element} className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 p-2">
+            <span className="treasure-reveal-stage treasure-reveal-stage--sealed scale-[0.7] shrink-0" aria-hidden="true"><WaterTreasureOrb element={element} released={false} preview /></span>
+            <span className="text-xs font-black text-white/75">{element}元素・封印中</span>
+          </div>
+        ))}
+      </div>
+      {!opening && !released ? (
         <div className="mt-3 grid grid-cols-2 gap-2">
           {[
             { key: 'personA' as const, label: `${result.personA.name}拿起封印寶珠` },
@@ -1580,14 +1550,11 @@ function MatchSharedElementPearl({ result }: { result?: MatchFiveElementResult }
           ))}
         </div>
       ) : (
-        <div className={`mt-3 rounded-2xl border px-4 py-3 text-center text-sm font-black ${
-          ritualState === 'unlocked'
-            ? 'border-emerald-200/35 bg-emerald-300/14 text-emerald-50'
-            : 'border-cyan-200/35 bg-cyan-300/14 text-cyan-50 animate-pulse'
-        }`}>
-          {ritualState === 'unlocked'
-            ? `${initiatorName}已先解除五元素封印寶珠・收下${meta.name}`
-            : `${initiatorName}正在解除結界・請等待十二秒`}
+        <div className="mt-3" aria-live="polite">
+          <div className={`rounded-2xl border px-4 py-3 text-center text-sm font-black ${released ? 'border-emerald-200/35 bg-emerald-300/14 text-emerald-50' : 'border-cyan-200/35 bg-cyan-300/14 text-cyan-50 animate-pulse'}`}>
+            {released ? `${initiatorName}已先解除五元素封印寶珠・收下${meta.name}` : `${initiatorName}正在解除結界・請等待十二秒`}
+          </div>
+          {released && <button type="button" onClick={() => { setInitiator(null); reseal(); }} className="mt-2 w-full rounded-2xl border border-amber-200/55 bg-amber-300/10 px-3 py-2 text-sm font-black text-amber-50 transition active:scale-[0.99]">還原封印・再次進行完整儀式</button>}
         </div>
       )}
       <div className="mt-2 flex justify-end"><ElementUnsealSoundToggle /></div>

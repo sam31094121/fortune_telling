@@ -28,7 +28,7 @@ import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { calculateBoneWeight, formatQian } from '@/lib/bone-weight';
 import { WaterTreasureOrb } from '@/components/bazi/customer/WaterTreasureOrb';
-import { playElementUnsealSound } from '@/components/ElementUnsealSound';
+import { useElementTreasureRitual } from '@/components/five-elements/useElementTreasureRitual';
 import { deriveZiweiStarBeastLink } from '@/lib/ziwei-star-beast-link';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
@@ -2751,10 +2751,6 @@ function ZiweiHorrorGhostMovieView({
   const name = maskedTeacherName(subjectName);
   const ageLabel = subjectAge === null || subjectAge === undefined ? '年齡待確認' : `${subjectAge} 歲`;
   const topic = plainPalaceTopic(palaceName);
-  const [treasureCollected, setTreasureCollected] = useState(false);
-  const [ritualStage, setRitualStage] = useState<number | null>(null);
-  const [showReleasedPreview, setShowReleasedPreview] = useState(false);
-  const ritualTimersRef = useRef<number[]>([]);
   const primaryElement = fiveElement?.primaryElement ?? 'earth';
   const treasure = ZIWEI_ELEMENT_TREASURES[primaryElement];
   const productElement = getFiveElementShortName(primaryElement);
@@ -2762,36 +2758,8 @@ function ZiweiHorrorGhostMovieView({
   // material system inspectable without changing this palace's derived element.
   const materialPreviewElements = (Object.keys(ZIWEI_ELEMENT_TREASURES) as FiveElementKey[]).filter((element) => element !== primaryElement);
   const ritual = ZIWEI_TREASURE_RITUALS[primaryElement];
-  const ritualOpening = ritualStage !== null;
+  const { released: treasureCollected, opening: ritualOpening, stage: ritualStage, start: startRitual, reseal } = useElementTreasureRitual(productElement);
   const ghostReply = narrative?.finalMetaphor ?? life.practicalDirection;
-
-  useEffect(() => () => ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer)), []);
-  useEffect(() => {
-    ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer));
-    ritualTimersRef.current = [];
-    setTreasureCollected(false);
-    setRitualStage(null);
-    setShowReleasedPreview(false);
-  }, [palaceName, primaryElement]);
-
-  const startRitual = () => {
-    if (ritualOpening) return;
-    playElementUnsealSound(productElement);
-    setShowReleasedPreview(false);
-    ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer));
-    setTreasureCollected(false);
-    setRitualStage(0);
-    ritualTimersRef.current = [
-      window.setTimeout(() => setRitualStage(1), 3000),
-      window.setTimeout(() => setRitualStage(2), 6000),
-      window.setTimeout(() => setRitualStage(3), 9000),
-      window.setTimeout(() => {
-        setTreasureCollected(true);
-        setRitualStage(null);
-        ritualTimersRef.current = [];
-      }, 12000),
-    ];
-  };
 
   return (
     <section className="mt-4 relative overflow-hidden rounded-[24px] border border-rose-300/35 bg-[radial-gradient(circle_at_82%_6%,rgba(190,24,93,0.25),transparent_31%),linear-gradient(145deg,rgba(69,10,10,0.6),rgba(46,16,101,0.42),rgba(2,6,23,0.86))] p-4 shadow-[0_0_48px_rgba(190,24,93,0.14)]">
@@ -2821,36 +2789,24 @@ function ZiweiHorrorGhostMovieView({
       <section className="relative mt-3 rounded-2xl border-2 border-amber-200/70 bg-[linear-gradient(135deg,rgba(120,53,15,0.38),rgba(49,46,129,0.34))] p-4 shadow-[0_0_26px_rgba(251,191,36,0.16)]" aria-label="紫微五元素寶物關">
         <p className="text-xs font-black tracking-[0.16em] text-amber-100">最終關・五元素魔珠封印</p>
         <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">五顆魔珠都被邪氣侵蝕，紙符正壓住即將失控的核心。本宮命盤只指出優先解封的一顆；破除邪印後，暗氣才會退去，元素本源才會明亮甦醒。</p>
-        <div className="mt-3 rounded-xl border border-cyan-100/20 bg-slate-950/35 p-2.5">
-          <button
-            type="button"
-            onClick={() => setShowReleasedPreview((value) => !value)}
-            disabled={ritualOpening || treasureCollected}
-            aria-pressed={showReleasedPreview}
-            className="w-full rounded-lg border border-cyan-100/35 bg-cyan-300/10 px-3 py-2 text-xs font-black text-cyan-50 transition hover:bg-cyan-300/15 disabled:cursor-not-allowed disabled:opacity-55"
-          >
-            {showReleasedPreview ? '返回邪印封鎖狀態' : '查看淨化後的本源形態'}
-          </button>
-          <p className="mt-1.5 text-center text-[10px] font-semibold leading-4 text-cyan-50/60">僅供外觀核對・不會改變你的真實解封進度</p>
-        </div>
         <div className="mt-3 grid grid-cols-[4.6rem_minmax(0,1fr)] items-center gap-3 rounded-2xl border-2 border-amber-100/50 bg-black/25 p-3">
-          <div className={`treasure-reveal-stage treasure-reveal-stage--hero ${treasureCollected || showReleasedPreview ? 'treasure-reveal-stage--collected' : 'treasure-reveal-stage--sealed'} ${ritualOpening ? 'treasure-reveal-stage--opening' : ''} ${showReleasedPreview ? 'treasure-reveal-stage--released-preview' : ''}`} aria-hidden="true">
-            <WaterTreasureOrb element={productElement} released={treasureCollected || ritualOpening || showReleasedPreview} burnSealOnRelease />
+          <div className={`treasure-reveal-stage treasure-reveal-stage--hero ${treasureCollected ? 'treasure-reveal-stage--collected' : 'treasure-reveal-stage--sealed'} ${ritualOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
+            <WaterTreasureOrb element={productElement} released={treasureCollected || ritualOpening} burnSealOnRelease animating={ritualOpening} />
           </div>
           <div className="min-w-0">
             <h3 className="font-serif text-[1.35rem] font-black leading-tight text-amber-50">{treasure.label}元素・{treasure.name}</h3>
-            <p className={`mt-1 text-sm font-black tracking-[0.08em] ${treasureCollected || showReleasedPreview ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureCollected ? '邪氣已淨・元素本源完全甦醒' : showReleasedPreview ? '淨化後本源預覽・真實仍被封印' : '邪氣受封・危險核心仍在沉睡'}</p>
+            <p className={`mt-1 text-sm font-black tracking-[0.08em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureCollected ? '邪氣已淨・元素本源完全甦醒' : ritualOpening ? '破印淨化進行中・本源正在甦醒' : '邪氣受封・危險核心仍在沉睡'}</p>
           </div>
         </div>
         <div className="mt-3">
           <button
             type="button"
-            onClick={startRitual}
+            onClick={treasureCollected ? reseal : startRitual}
             aria-pressed={treasureCollected}
             disabled={ritualOpening}
             className={`w-full rounded-xl border-2 px-3 py-2 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/80 bg-amber-300/15 text-amber-50 shadow-[0_0_18px_rgba(251,191,36,0.18)]'}`}
           >
-            {ritualOpening ? `破印淨化進行中・${ritualStage! + 1}/4` : treasureCollected ? '元素本源已甦醒・重現淨化儀式' : '破除邪印・啟動十二秒淨化'}
+            {ritualOpening ? `破印淨化進行中・${ritualStage! + 1}/4` : treasureCollected ? '還原封印・再次進行完整儀式' : '破除邪印・啟動十二秒淨化'}
           </button>
         </div>
         {ritualOpening && <section className="mt-3 rounded-xl border border-amber-100/25 bg-black/25 px-3 py-3" aria-live="polite">
@@ -2858,21 +2814,21 @@ function ZiweiHorrorGhostMovieView({
             <p className="text-[11px] font-black tracking-[0.12em] text-amber-100">{ritual.title}</p>
             <p className="text-[10px] font-bold text-amber-50/65">十二秒儀式</p>
           </div>
-          <p className="mt-2 text-sm font-semibold leading-6 text-amber-50">{ritual.scenes[ritualStage]}</p>
+          <p className="mt-2 text-sm font-semibold leading-6 text-amber-50">{ritual.scenes[ritualStage ?? 0]}</p>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-black/40">
-            <div className="h-full rounded-full bg-gradient-to-r from-amber-200 via-amber-50 to-cyan-100 transition-[width] duration-[2800ms] ease-linear" style={{ width: `${(ritualStage + 1) * 25}%` }} />
+            <div className="h-full rounded-full bg-gradient-to-r from-amber-200 via-amber-50 to-cyan-100 transition-[width] duration-[2800ms] ease-linear" style={{ width: `${((ritualStage ?? 0) + 1) * 25}%` }} />
           </div>
         </section>}
         <section className="mt-4 border-t border-amber-100/20 pt-4" aria-label="其餘四元素材質預覽">
-          <p className="text-xs font-black tracking-[0.14em] text-amber-100/80">其餘四顆・邪印未解</p>
-          <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">四顆仍被邪氣與紙符壓住，無法看見真正本源。只有解封後，暗色才會退散，各自的元素晶光才會甦醒。</p>
+          <p className="text-xs font-black tracking-[0.14em] text-amber-100/80">其餘四顆・封印對照</p>
+          <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">本宮只依正式五元素判定解封上方主珠；其餘四顆保留封印，作為完整元素對照。</p>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {materialPreviewElements.map((element) => {
               const preview = ZIWEI_ELEMENT_TREASURES[element];
               return (
                 <article key={element} className="relative flex min-h-[98px] items-center gap-1.5 overflow-hidden rounded-xl border border-amber-100/20 bg-black/20 p-2">
-                  <div className={`treasure-reveal-stage ${showReleasedPreview ? 'treasure-reveal-stage--collected treasure-reveal-stage--released-preview' : 'treasure-reveal-stage--sealed'} scale-[0.82] shrink-0`} aria-hidden="true">
-                    <WaterTreasureOrb element={getFiveElementShortName(element)} released={showReleasedPreview} preview />
+                  <div className="treasure-reveal-stage treasure-reveal-stage--sealed scale-[0.82] shrink-0" aria-hidden="true">
+                    <WaterTreasureOrb element={getFiveElementShortName(element)} released={false} preview />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-black text-amber-50">{preview.label}元素</p>

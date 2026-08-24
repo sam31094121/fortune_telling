@@ -9,9 +9,10 @@ import {
   type FiveElementProductRecommendation,
 } from './five-element-positive-quotes';
 import { AI_CORE_JUDGEMENT_PRINCIPLE } from './ai-language-principle';
+import { getProductOrbFromWuxing, type ProductOrbElement } from './five-element-orb-map';
 
 export type FiveElementKey = 'metal' | 'wood' | 'water' | 'fire' | 'earth';
-export type FiveElementDisplayName = '\u7a7a' | '\u98a8' | '\u6c34' | '\u706b' | '\u5730';
+export type FiveElementDisplayName = ProductOrbElement;
 export type FiveElementConfidence = 'low' | 'medium' | 'high';
 
 export type TraditionalFiveElementCode = 'METAL' | 'WOOD' | 'WATER' | 'FIRE' | 'EARTH';
@@ -166,8 +167,7 @@ const ZH_TO_KEY: Record<NameologyElement, FiveElementKey> = {
  * 傳統五行原值仍留在後端計算資料，不在這裡改寫。
  */
 export function getProductElementNameFromTraditional(element: string): FiveElementDisplayName {
-  const key = ZH_TO_KEY[element as NameologyElement];
-  return key ? FIVE_ELEMENT_DEFINITIONS[key].displayZh : '空';
+  return getProductOrbFromWuxing(element);
 }
 
 const ELEMENT_KEYS = Object.keys(FIVE_ELEMENT_DEFINITIONS) as FiveElementKey[];
@@ -252,7 +252,7 @@ function addScore(scores: Record<FiveElementKey, number>, element: FiveElementKe
 }
 
 export function getFiveElementShortName(element: FiveElementKey) {
-  return FIVE_ELEMENT_DEFINITIONS[element].displayZh;
+  return getProductOrbFromWuxing(FIVE_ELEMENT_DEFINITIONS[element].zh);
 }
 
 export function getFiveElementName(element: FiveElementKey) {

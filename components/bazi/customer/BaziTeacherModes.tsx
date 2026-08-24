@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { BaziCustomerView } from './adapter';
 import { CustomerEvidenceDrawer } from './CustomerAccordion';
-import { WaterTreasureOrb } from './WaterTreasureOrb';
+import { WaterTreasureOrb, type ProductElement } from './WaterTreasureOrb';
 import { getProductElementNameFromTraditional } from '@/lib/five-element-engine';
-import { ElementUnsealSoundToggle, playElementUnsealSound } from '@/components/ElementUnsealSound';
+import { ElementUnsealSoundToggle } from '@/components/ElementUnsealSound';
+import { useElementTreasureRitual } from '@/components/five-elements/useElementTreasureRitual';
 
 type TeacherMode = 'CHART' | 'HORROR_GHOST';
 
@@ -59,6 +60,27 @@ const BAZI_TREASURE_RITUALS: Record<'空' | '風' | '水' | '火' | '地', { tit
   地: { title: '地脈琥珀珠・解封儀式', scenes: ['第一幕・地脈沉睡在琥珀深處，封印仍緊緊壓住核心。', '第二幕・金色紋理開始流動，散掉的節奏重新沉回地面。', '第三幕・琥珀裂開一道光，讓承諾與界線重新站穩。', '終幕・地脈珠入背包；下一步，真正落地。'] },
 };
 
+const PRODUCT_ORB_ORDER: readonly ProductElement[] = ['空', '風', '水', '火', '地'];
+
+/** Shared by both teacher modes: exactly four sealed, comparison-only orbs. */
+function BaziSealedComparisonOrbs({ primaryElement }: { primaryElement: ProductElement }) {
+  return (
+    <section className="mt-4 overflow-hidden rounded-2xl border-2 border-amber-100/30 bg-black/25 p-4 shadow-[inset_0_0_24px_rgba(251,191,36,0.06)]" aria-label="其餘四顆封印元素對照">
+      <p className="text-xs font-black tracking-[0.14em] text-amber-100/90">其餘四顆・封印對照</p>
+      <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">命盤只解封上方依五行強弱選出的主珠；其餘四顆維持封咒，作為完整元素對照。</p>
+      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {PRODUCT_ORB_ORDER.filter((element) => element !== primaryElement).map((element) => (
+          <div key={element} className="relative flex min-h-[116px] flex-col items-center justify-center overflow-hidden rounded-xl border border-amber-100/20 bg-black/20 px-2 py-3 text-center">
+            <span className="treasure-reveal-stage treasure-reveal-stage--sealed scale-[0.82]" aria-hidden="true"><WaterTreasureOrb element={element} released={false} preview /></span>
+            <p className="mt-1 text-xs font-black text-amber-50">{element}元素</p>
+            <p className="mt-0.5 text-[10px] font-semibold text-amber-100/65">封印中・僅供對照</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function getBaziElementTreasure(view: BaziCustomerView) {
   const weakest = view.fiveElementOrbit.items
     .filter((item) => item.status === 'AVAILABLE' && typeof item.strength === 'number')
@@ -80,11 +102,7 @@ function currentLuck(view: BaziCustomerView) {
  */
 export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView; onOpenFull: () => void }) {
   const [active, setActive] = useState<TeacherMode>('CHART');
-  const [treasureCollected, setTreasureCollected] = useState(false);
-  const [treasureOpening, setTreasureOpening] = useState(false);
-  const [ritualStage, setRitualStage] = useState<number | null>(null);
   const [treasurePulse, setTreasurePulse] = useState(0);
-  const ritualTimersRef = useRef<number[]>([]);
   const [googleReading, setGoogleReading] = useState<string | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
@@ -115,33 +133,15 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
   const nextAgeLabel = view.timeContext.age === null ? '下一歲' : `${view.timeContext.age + 1} 歲`;
   const elementTreasure = useMemo(() => getBaziElementTreasure(view), [view]);
   const treasureRitual = BAZI_TREASURE_RITUALS[elementTreasure.element];
+  const { released: treasureCollected, opening: treasureOpening, stage: ritualStage, start: startTreasureRitual, reseal: resealTreasure } = useElementTreasureRitual(elementTreasure.element);
   const ghostReply = `「${shortName}，以前沒有回答完的問題沒有消失；它只是藏在你現在的門縫裡，等你決定要不要先跨出那一步。」`;
   const episodeTitle = '鬼魅老師解封暗示提醒';
 
-  useEffect(() => () => ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer)), []);
-
   const collectTreasure = () => {
     if (treasureOpening) return;
-    playElementUnsealSound(elementTreasure.element);
-    ritualTimersRef.current.forEach((timer) => window.clearTimeout(timer));
-    setTreasureCollected(false);
-    setTreasureOpening(true);
-    setRitualStage(0);
-    // Re-mounting only this small visual restarts the short 3D release.
     setTreasurePulse((value) => value + 1);
-    ritualTimersRef.current = [
-      window.setTimeout(() => setRitualStage(1), 3000),
-      window.setTimeout(() => setRitualStage(2), 6000),
-      window.setTimeout(() => setRitualStage(3), 9000),
-      window.setTimeout(() => {
-        setTreasureCollected(true);
-        setTreasureOpening(false);
-        setRitualStage(null);
-        ritualTimersRef.current = [];
-      }, 12_000),
-    ];
+    startTreasureRitual();
   };
-  const treasureActive = treasureCollected || treasureOpening;
   const googleRequest = useMemo(() => ({
     shortName,
     age: ageLabel,
@@ -317,7 +317,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
                 <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">依老師提醒・解開五元素寶石</p>
                 <div className="mt-3 grid grid-cols-1 items-center gap-5 rounded-2xl border-2 border-amber-100/55 bg-black/25 p-5 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
                   <div key={`google-treasure-${treasurePulse}`} className={`treasure-reveal-stage treasure-reveal-stage--${elementTreasure.element === '水' ? 'water' : 'standard'} treasure-reveal-stage--hero justify-self-center scale-[1.78] ${treasureCollected ? 'treasure-reveal-stage--collected' : ''} ${treasureOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
-                    <WaterTreasureOrb element={elementTreasure.element} released={treasureActive} />
+                    <WaterTreasureOrb element={elementTreasure.element} released={treasureCollected || treasureOpening} burnSealOnRelease animating={treasureOpening} />
                   </div>
                   <div className="min-w-0 text-center sm:text-left">
                     <p className="text-[10px] font-black tracking-[0.2em] text-cyan-100/80">命盤專屬補強方向</p>
@@ -328,14 +328,15 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
                 </div>
                 <button
                   type="button"
-                  onClick={collectTreasure}
+                  onClick={treasureCollected ? resealTreasure : collectTreasure}
                   aria-pressed={treasureCollected}
                   disabled={treasureOpening}
                   className={`mt-3 w-full rounded-xl border-2 px-3 py-3 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/85 bg-amber-300/20 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.2)]'}`}
                 >
-                  {treasureOpening ? '寶石正在解封・能量釋放中…' : treasureCollected ? '寶石已解封・把今天的一步做完' : `依提醒解開${elementTreasure.element}元素寶石`}
+                  {treasureOpening ? '寶石正在解封・能量釋放中…' : treasureCollected ? '還原封印・再次進行完整儀式' : `依提醒解開${elementTreasure.element}元素寶石`}
                 </button>
                 <div className="mt-2 flex justify-end"><ElementUnsealSoundToggle /></div>
+                <BaziSealedComparisonOrbs primaryElement={elementTreasure.element} />
               </section>
             )}
           </article>
@@ -386,11 +387,11 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
             <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和 Google 老師解盤使用完全相同的八字資料與五元素寶石；鬼魅老師會用故事給你一個暗示提醒，最後引導你解開對應的寶石，不會塞進看不懂的術語。</p>
             <button
               type="button"
-              onClick={collectTreasure}
+                  onClick={treasureCollected ? resealTreasure : collectTreasure}
               disabled={treasureOpening}
               className={`mt-3 w-full rounded-xl border-2 px-3 py-3 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/85 bg-amber-300/20 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.2)]'}`}
             >
-              {treasureOpening ? '寶石正在解封・能量釋放中…' : treasureCollected ? '寶石已解封・繼續閱讀鬼魅老師提醒' : `第一步・解開${elementTreasure.element}元素寶石`}
+                  {treasureOpening ? '寶石正在解封・能量釋放中…' : treasureCollected ? '還原封印・再次進行完整儀式' : `第一步・解開${elementTreasure.element}元素寶石`}
             </button>
             {horrorLoading && (
               <div className="mt-3 rounded-xl border border-rose-100/25 bg-black/35 px-3 py-3" aria-live="polite">
@@ -410,7 +411,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
             <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">依鬼魅老師提醒・解開五元素寶石</p>
             <div className="mt-3 grid grid-cols-1 items-center gap-5 rounded-2xl border-2 border-amber-100/50 bg-black/25 p-5 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
               <div key={`horror-treasure-${treasurePulse}`} className={`treasure-reveal-stage treasure-reveal-stage--${elementTreasure.element === '水' ? 'water' : 'standard'} treasure-reveal-stage--hero justify-self-center scale-[1.78] ${treasureCollected ? 'treasure-reveal-stage--collected' : ''} ${treasureOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
-                <WaterTreasureOrb element={elementTreasure.element} released={treasureActive} />
+                <WaterTreasureOrb element={elementTreasure.element} released={treasureCollected || treasureOpening} burnSealOnRelease animating={treasureOpening} />
               </div>
               <div className="min-w-0 text-center sm:text-left">
                 <p className="text-[10px] font-black tracking-[0.2em] text-cyan-100/80">命盤專屬補強方向</p>
@@ -421,14 +422,15 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
             <p className="mt-3 text-sm font-semibold leading-6 text-amber-50/85">{elementTreasure.power} 這是依命盤五行強弱得到的遊戲線索；收下它代表你願意練習這個方向，不是保證任何結果。</p>
             <button
               type="button"
-              onClick={collectTreasure}
+                onClick={treasureCollected ? resealTreasure : collectTreasure}
               aria-pressed={treasureCollected}
               disabled={treasureOpening}
               className={`mt-3 w-full rounded-xl border-2 px-3 py-2 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/80 bg-amber-300/15 text-amber-50 shadow-[0_0_18px_rgba(251,191,36,0.18)]'}`}
             >
-              {treasureOpening ? `封印儀式進行中・${ritualStage! + 1}/4` : treasureCollected ? '再次喚醒寶物・下一幕由你的選擇推進' : '解開封印・開始十二秒儀式'}
+              {treasureOpening ? `封印儀式進行中・${ritualStage! + 1}/4` : treasureCollected ? '還原封印・再次進行完整儀式' : '解開封印・開始十二秒儀式'}
             </button>
             <div className="mt-2 flex justify-end"><ElementUnsealSoundToggle /></div>
+            <BaziSealedComparisonOrbs primaryElement={elementTreasure.element} />
             {treasureOpening && ritualStage !== null && (
               <section className="mt-3 rounded-xl border border-amber-100/25 bg-black/25 px-3 py-3" aria-live="polite">
                 <div className="flex items-center justify-between gap-2">

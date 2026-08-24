@@ -7,6 +7,7 @@ import { GROWTH_MODULES } from '@/lib/growth-center-engine';
 import type { GrowthCenterResult, GrowthElement, GrowthModuleId } from '@/lib/growth-center-engine';
 import { WaterTreasureOrb, type ProductElement } from '@/components/bazi/customer/WaterTreasureOrb';
 import starBeastsData from '@/data/star-beasts.json';
+import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 
 type ApiResult = GrowthCenterResult & { requestId?: string };
 type CheckInHistory = Record<string, string>;
@@ -29,13 +30,9 @@ const ELEMENT_BADGE: Record<GrowthElement, string> = {
 };
 
 const ELEMENT_ORDER: GrowthElement[] = ['AIR', 'SPACE', 'WATER', 'FIRE', 'EARTH'];
-const GROWTH_ORB_ELEMENT: Record<GrowthElement, ProductElement> = {
-  SPACE: '空',
-  AIR: '風',
-  WATER: '水',
-  FIRE: '火',
-  EARTH: '地',
-};
+const GROWTH_ORB_ELEMENT: Record<GrowthElement, ProductElement> = Object.freeze({
+  SPACE: getProductOrbFromBrand('space'), AIR: getProductOrbFromBrand('air'), WATER: getProductOrbFromBrand('water'), FIRE: getProductOrbFromBrand('fire'), EARTH: getProductOrbFromBrand('earth'),
+});
 const GROWTH_ORB_NAME: Record<GrowthElement, string> = {
   SPACE: '星淵虛空珠',
   AIR: '蒼嵐御風珠',

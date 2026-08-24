@@ -9,7 +9,7 @@ import { isValidBirthday } from '@/lib/validation';
 import { computeRelationshipMatrix } from '@/lib/relationship-matrix-engine';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
 import { buildAiCopywritingInstruction, enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
-import { buildMatchFiveElementResult } from '@/lib/match-five-element-engine';
+import { buildMatchFiveElementResult, type MatchFiveElementKey } from '@/lib/match-five-element-engine';
 import { buildSoulMatchAiInterpretationLayer, buildSoulMatchProfessionalLayer, buildSoulMatchReinforcementLayer } from '@/lib/match-professional-layer';
 import { analyzeBazi } from '@/lib/bazi-engine';
 import { deriveBaziPillarBeast } from '@/lib/bazi-four-pillar-beasts';
@@ -48,9 +48,11 @@ type BaziMatchFoundation = {
   source: '八字四柱合盤' | '八字三柱基礎合盤' | '八字混合合盤';
   timeNote: string;
   sceneKey: string;
-  sharedElement: 'earth' | 'water' | 'fire' | 'air' | 'space';
-  personA: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard };
-  personB: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard };
+  // 這個欄位先給一個暫定值（見 buildBaziMatchFoundation），主流程算完 fiveElementMatch
+  // 後會立刻覆蓋成同一份真實資料算出的結果，確保跟五元素引擎不會各說各話。
+  sharedElement: MatchFiveElementKey;
+  personA: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard; needScores: Record<MatchFiveElementKey, number> };
+  personB: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard; needScores: Record<MatchFiveElementKey, number> };
 };
 
 type BaziBeastCard = {
