@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import type { Metadata, Viewport } from 'next';
 import AppStabilityGuard from '@/components/AppStabilityGuard';
+import ScreenArrowReview from '@/components/ScreenArrowReview';
 import { TAROT_CARD_BACK_CSS_IMAGE } from '@/features/tarot/constants/cardBack';
 import './globals.css';
 
@@ -65,6 +66,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased" style={rootStyle}>
         <AppStabilityGuard />
+        <ScreenArrowReview />
         {children}
       </body>
     </html>

@@ -153,7 +153,7 @@ export default function StarBeastsPage() {
 
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
             {visibleBeasts.map((beast) => (
-              <button key={beast.id} type="button" onClick={() => setSelectedId(beast.id)} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 text-left shadow-lg transition duration-300 hover:-translate-y-1 hover:border-amber-200/55 hover:shadow-[0_14px_35px_rgba(0,0,0,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200">
+              <button key={beast.id} type="button" data-screen-arrow-card={beast.name} onClick={() => setSelectedId(beast.id)} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 text-left shadow-lg transition duration-300 hover:-translate-y-1 hover:border-amber-200/55 hover:shadow-[0_14px_35px_rgba(0,0,0,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200">
                 <div className="relative aspect-[950/1656] overflow-hidden bg-slate-950">
                   <img src={cardImage(beast)} alt={`${beast.name}${FORM_LABELS[form]}神獸卡`} className="h-full w-full object-contain transition duration-500 group-hover:scale-[1.035]" />
                   <span className={`absolute left-2 top-2 h-1.5 w-8 rounded-full bg-gradient-to-r ${SEASON_ACCENTS[beast.season]}`} />
@@ -180,7 +180,7 @@ export default function StarBeastsPage() {
               <button type="button" onClick={() => setSelectedId(null)} className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-bold text-slate-200 hover:border-white/40 hover:text-white">關閉 ✕</button>
             </div>
             <div className="grid gap-6 p-5 sm:grid-cols-[minmax(230px,0.8fr)_minmax(0,1.2fr)] sm:p-7">
-              <div className="mx-auto w-full max-w-[330px] overflow-hidden rounded-2xl border border-amber-200/25 bg-slate-950 shadow-[0_18px_45px_rgba(0,0,0,0.38)]">
+              <div data-screen-arrow-target={`${selected.name}${FORM_LABELS[form]}大卡`} className="mx-auto w-full max-w-[330px] overflow-hidden rounded-2xl border border-amber-200/25 bg-slate-950 shadow-[0_18px_45px_rgba(0,0,0,0.38)]">
                 <img src={cardImage(selected)} alt={`${selected.name}${FORM_LABELS[form]}神獸卡完整圖`} className="block h-auto w-full" />
               </div>
               <div className="flex min-w-0 flex-col justify-center">
