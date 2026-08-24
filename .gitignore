@@ -5,6 +5,7 @@
 /.next/
 /.next-production/
 /.next-production-verify/
+/.next-production-final-*/
 /out/
 
 # production
