@@ -672,7 +672,7 @@ function NameologyTotalBeastCard({ analysis }: { analysis: NameologyAnalysis }) 
       </div>
       <div className="relative mt-5 grid grid-cols-[124px_minmax(0,1fr)] items-center gap-4 sm:grid-cols-[174px_minmax(0,1fr)]">
         <div className="rounded-2xl border border-violet-100/30 bg-black/30 p-1.5 shadow-[0_0_38px_rgba(167,139,250,0.36)]">
-          <img src={link.beast.image} alt={`${link.beast.name}總格神獸卡`} loading="lazy" className="aspect-[950/1656] w-full rounded-xl object-cover" />
+          <img src={link.beast.youngDivineImage} alt={`${link.beast.name}總格星宿幼體卡`} loading="lazy" className="aspect-[950/1656] w-full rounded-xl object-cover" />
         </div>
         <div className="min-w-0">
           <p className="text-base font-black text-violet-50">{link.beast.coreMeaning}</p>

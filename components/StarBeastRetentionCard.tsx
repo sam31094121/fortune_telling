@@ -5,7 +5,7 @@ import Link from 'next/link';
 import starBeastsData from '@/data/star-beasts.json';
 import type { FiveElementKey } from '@/lib/five-element-engine';
 
-type Beast = { id: number; name: string; image: string; coreMeaning: string; season: 'spring' | 'summer' | 'autumn' | 'winter' };
+type Beast = { id: number; name: string; image: string; youngDivineImage: string; coreMeaning: string; season: 'spring' | 'summer' | 'autumn' | 'winter' };
 type Element = FiveElementKey | 'wood' | 'fire' | 'earth' | 'metal' | 'water';
 
 const BEASTS = starBeastsData.items as Beast[];
@@ -52,7 +52,7 @@ export function StarBeastRetentionCard({
   return (
     <section className="relative overflow-hidden rounded-3xl border border-amber-200/25 bg-[radial-gradient(circle_at_85%_15%,rgba(251,191,36,0.18),transparent_28%),linear-gradient(135deg,rgba(20,17,48,0.96),rgba(8,15,31,0.96))] p-5 shadow-[0_16px_40px_rgba(0,0,0,0.22)]">
       <div className="relative flex gap-4">
-        <img src={guardian.image} alt={`${guardian.name}守護神獸`} className="h-28 w-[4.9rem] shrink-0 rounded-xl border border-amber-100/25 object-cover object-center" />
+        <img src={guardian.youngDivineImage} alt={`${guardian.name}星宿幼體`} className="h-28 w-[4.9rem] shrink-0 rounded-xl border border-amber-100/25 object-cover object-center" />
         <div className="min-w-0 flex-1">
           <p className="text-xs font-black tracking-[0.18em] text-amber-200">你的星宿守護</p>
           <h3 className="mt-1 font-serif text-2xl font-black text-white">{guardian.name}</h3>

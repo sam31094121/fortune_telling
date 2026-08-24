@@ -124,16 +124,23 @@ export function getMagneticVoiceArchetype(type?: MagneticVoiceType | null): Magn
   return (type && ARCHETYPE_MAP[type]) || ARCHETYPE_MAP[DEFAULT_MAGNETIC_VOICE_TYPE];
 }
 
+/**
+ * 現代網紅神曲唱法疊加層：套在五型聲線之上的「時代感」共用規格，不取代原本聲線本質，
+ * 只是把演唱方式從老派美聲拉到當代社群神曲最流行的唱法。
+ */
+const MODERN_VIRAL_VOCAL_LAYER_ZH = `【現代網紅神曲唱法・時代感疊加層】在上述聲線本質之上，疊加當代最流行的社群神曲演唱手法，讓整首歌聽起來像這個時代正在瘋傳的翻唱版本，不是老派舞台美聲：①鼻腔共鳴貼耳唱法——主歌大量使用鼻腔共鳴混氣音，聲音壓得很近很貼麥克風，像對著手機自彈自唱那種親密感，不是圓潤發聲的老派唱腔；②R&B 轉音與即興花腔——樂句尾端、副歌前的過門與最後一次副歌加入現代 R&B 式滑音、裝飾轉音與即興花腔（runs），展現唱功但要服務情緒，不能炫技搶戲；③輕聲到爆發的神曲反差結構——主歌維持氣音貼耳的克制音量，副歌尤其是最後一次副歌要真正拉滿爆發力度，反差大到讓人一聽就想按讚轉發；④情感真實是一切的前提——以上所有技巧都必須聽起來是「這個人此刻真的在感受歌詞」而唱出來的，不是炫技的空殼：轉音要帶著鼻酸或激動才出現，音量爆發要伴隨真實的顫抖或哽咽質地，鼻腔貼耳唱法要像忍不住靠近想被聽見，而不是冷靜示範唱功；寧可少一個花腔，也不能讓聽者覺得「唱得很準但沒有心」；⑤洋蔥式層層遞進——整首歌的情感要像剝洋蔥一樣一層一層剝開，不能每一段都用同一種強度唱：第一段主歌只露出最外層、情緒最收斂；第二段主歌或預副歌要比第一段再多褪一層防備，聲音裡多一點鬆動；第一次副歌釋放但留一手；到最後一次副歌／橋段才剝到最裡層、最沒有防備的核心，聲音在這裡是全曲最赤裸、最止不住的一刻，讓人一層一層被剝開情緒直到噴淚，而不是一開口就給到最滿、後面反而沒有地方可以再深。`;
+const MODERN_VIRAL_VOCAL_LAYER_EN = `Layer today's most viral social-media singing conventions on top of the vocal core above, so the take sounds like a version people are sharing right now, not an old-school stage delivery: nasal-resonant, breathy close-mic intimacy in the verses, like an intimate phone-camera cover rather than polished stage belting; modern R&B-style slides, ornamental runs and ad-lib melisma at phrase tails, the pre-chorus turn and the final chorus — in service of the emotion, never showing off over the song; a viral-song dynamic arc where the verse stays hushed and close while the chorus, especially the final one, truly opens up to full belted power, a contrast sharp enough to make people want to like and share; above all, genuine felt emotion must anchor every technique — every run only appears because it is driven by a real ache or surge of feeling, every dynamic swell carries a real tremor or catch in the voice, the nasal close-mic delivery sounds like someone leaning in because they can't help wanting to be heard, not a technical demonstration, and it is better to drop an ornament than let the performance sound technically correct but emotionally hollow; and finally, peel the emotion open like an onion, one layer at a time, across the whole song — never sing every section at the same intensity: the first verse shows only the outermost layer, most guarded and held back; the second verse or pre-chorus sheds one more layer of defense, a little more give in the voice; the first chorus releases but still holds something back; only the final chorus or bridge peels all the way to the innermost, most defenseless core — the rawest, most unstoppable moment in the whole song — so the listener is peeled open layer by layer until they cry, instead of giving everything at the first line and leaving nowhere deeper to go.`;
+
 /** 中文聲學指令：類型 + 男/女 */
 export function buildMagneticVoiceDirectiveZh(type?: MagneticVoiceType | null, gender: MagneticVoiceGender = null): string {
   const a = getMagneticVoiceArchetype(type);
-  return `【全世界最有磁性的聲音 · ${a.label}｜${genderZh(gender)}】${a.acousticZh(gender)}`;
+  return `【全世界最有磁性的聲音 · ${a.label}｜${genderZh(gender)}】${a.acousticZh(gender)} ${MODERN_VIRAL_VOCAL_LAYER_ZH}`;
 }
 
 /** 英文聲學指令：類型 + 男/女 */
 export function buildMagneticVoiceDirectiveEn(type?: MagneticVoiceType | null, gender: MagneticVoiceGender = null): string {
   const a = getMagneticVoiceArchetype(type);
-  return `The world's most magnetic, tear-inducing lead vocal (${a.key}): ${a.acousticEn(gender)}`;
+  return `The world's most magnetic, tear-inducing lead vocal (${a.key}): ${a.acousticEn(gender)} ${MODERN_VIRAL_VOCAL_LAYER_EN}`;
 }
 
 /** 與聲線綁定的歌詞語感規則 */

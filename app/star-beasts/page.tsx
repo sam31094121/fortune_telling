@@ -51,18 +51,18 @@ const SEASON_NAMES: Record<Exclude<Season, 'all'>, string> = {
 };
 
 const FORMS: Array<{ id: Form; label: string; detail: string }> = [
-  { id: 'young', label: '星宿幼體', detail: '初生神性・未完全成長' },
+  { id: 'young', label: '星宿初相', detail: '初顯神性・尚在成長' },
   { id: 'awakened', label: '覺醒完整體', detail: '完整星紋・成熟神獸' },
 ];
 
 const FORM_LABELS: Record<Form, string> = {
-  young: '星宿幼體',
+  young: '星宿初相',
   awakened: '覺醒完整體',
 };
 
 export default function StarBeastsPage() {
   const [season, setSeason] = useState<Season>('all');
-  const [form, setForm] = useState<Form>('awakened');
+  const [form, setForm] = useState<Form>('young');
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const visibleBeasts = useMemo(() => BEASTS
     .filter((beast) => season === 'all' || beast.season === season)
@@ -96,6 +96,13 @@ export default function StarBeastsPage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#050612] px-4 pb-16 pt-5 text-white sm:px-6 sm:pt-8">
+      <div data-review-marker aria-hidden="true" className="pointer-events-none fixed left-1/2 top-1/2 z-[70] -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_0_12px_rgba(250,204,21,0.95)]">
+        <div className="flex flex-col items-center text-center text-yellow-300">
+          <span className="text-5xl font-black leading-none">↓</span>
+          <span className="mt-1 h-4 w-4 rounded-full border-2 border-slate-950 bg-yellow-300 ring-4 ring-yellow-300/45" />
+          <span className="mt-2 rounded-full border border-yellow-100 bg-slate-950/95 px-2 py-1 text-[10px] font-black tracking-[0.14em] text-yellow-200">對齊位置</span>
+        </div>
+      </div>
       <div className="pointer-events-none fixed inset-0 -z-0 overflow-hidden" aria-hidden="true">
         <div className="absolute -left-32 top-0 h-80 w-80 rounded-full bg-violet-600/20 blur-3xl" />
         <div className="absolute right-0 top-1/3 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
@@ -110,9 +117,9 @@ export default function StarBeastsPage() {
           <div className="pointer-events-none absolute right-5 top-5 font-serif text-7xl font-black text-amber-100/[0.06] sm:right-10 sm:text-9xl">28</div>
           <p className="text-xs font-black tracking-[0.28em] text-amber-200/85">THE TWENTY-EIGHT MANSIONS</p>
           <h1 className="mt-3 font-serif text-4xl font-black tracking-wide text-white sm:text-6xl">星宿神獸卡片</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">二十八星宿，各自守護一段天象與性格。可切換星宿幼體與覺醒完整體，查看每隻神獸的成長連結。</p>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">二十八星宿，各自守護一段天象與性格。可切換初相與覺醒完整體，查看每隻神獸的成長連結。</p>
           <div className="mt-6 flex flex-wrap gap-2 text-xs font-bold text-slate-200/85">
-            <span className="rounded-full border border-white/15 bg-white/[0.07] px-3 py-1.5">28 組幼體・完整體</span>
+            <span className="rounded-full border border-white/15 bg-white/[0.07] px-3 py-1.5">28 組初相・完整體</span>
             <span className="rounded-full border border-white/15 bg-white/[0.07] px-3 py-1.5">春夏秋冬・每季七宿</span>
             <span className="rounded-full border border-white/15 bg-white/[0.07] px-3 py-1.5">點選卡片查看完整解說</span>
           </div>
@@ -148,17 +155,17 @@ export default function StarBeastsPage() {
               <p className="text-xs font-bold tracking-[0.18em] text-amber-200/75">CARD COLLECTION</p>
               <h2 className="mt-1 font-serif text-2xl font-black text-white">{FORM_LABELS[form]}・{season === 'all' ? '全部神獸' : SEASON_NAMES[season]}</h2>
             </div>
-            <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-xs font-bold text-slate-300">{visibleBeasts.length} 張{form === 'young' ? '幼體' : '完整體'}</span>
+            <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-xs font-bold text-slate-300">{visibleBeasts.length} 張{form === 'young' ? '初相' : '完整體'}</span>
           </div>
 
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
             {visibleBeasts.map((beast) => (
-              <button key={beast.id} type="button" data-screen-arrow-card={beast.name} onClick={() => setSelectedId(beast.id)} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 text-left shadow-lg transition duration-300 hover:-translate-y-1 hover:border-amber-200/55 hover:shadow-[0_14px_35px_rgba(0,0,0,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200">
+              <button key={beast.id} type="button" onClick={() => setSelectedId(beast.id)} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 text-left shadow-lg transition duration-300 hover:-translate-y-1 hover:border-amber-200/55 hover:shadow-[0_14px_35px_rgba(0,0,0,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200">
                 <div className="relative aspect-[950/1656] overflow-hidden bg-slate-950">
                   <img src={cardImage(beast)} alt={`${beast.name}${FORM_LABELS[form]}神獸卡`} className="h-full w-full object-contain transition duration-500 group-hover:scale-[1.035]" />
                   <span className={`absolute left-2 top-2 h-1.5 w-8 rounded-full bg-gradient-to-r ${SEASON_ACCENTS[beast.season]}`} />
                   <span className="absolute right-2 top-2 rounded-full bg-slate-950/75 px-2 py-1 text-[10px] font-black text-white backdrop-blur">{String(beast.id).padStart(2, '0')}</span>
-                  <span className="absolute bottom-2 left-2 rounded-full border border-white/15 bg-slate-950/75 px-2 py-1 text-[10px] font-black text-amber-100 backdrop-blur">{form === 'young' ? '幼體' : '完整體'}</span>
+                  <span className="absolute bottom-2 left-2 rounded-full border border-white/15 bg-slate-950/75 px-2 py-1 text-[10px] font-black text-amber-100 backdrop-blur">{form === 'young' ? '初相' : '完整體'}</span>
                 </div>
                 <div className="p-2 sm:p-2.5">
                   <p className="text-[10px] font-bold text-slate-400">{SEASON_NAMES[beast.season].split('・')[0]}</p>
@@ -180,7 +187,7 @@ export default function StarBeastsPage() {
               <button type="button" onClick={() => setSelectedId(null)} className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-bold text-slate-200 hover:border-white/40 hover:text-white">關閉 ✕</button>
             </div>
             <div className="grid gap-6 p-5 sm:grid-cols-[minmax(230px,0.8fr)_minmax(0,1.2fr)] sm:p-7">
-              <div data-screen-arrow-target={`${selected.name}${FORM_LABELS[form]}大卡`} className="mx-auto w-full max-w-[330px] overflow-hidden rounded-2xl border border-amber-200/25 bg-slate-950 shadow-[0_18px_45px_rgba(0,0,0,0.38)]">
+              <div className="mx-auto w-full max-w-[330px] overflow-hidden rounded-2xl border border-amber-200/25 bg-slate-950 shadow-[0_18px_45px_rgba(0,0,0,0.38)]">
                 <img src={cardImage(selected)} alt={`${selected.name}${FORM_LABELS[form]}神獸卡完整圖`} className="block h-auto w-full" />
               </div>
               <div className="flex min-w-0 flex-col justify-center">

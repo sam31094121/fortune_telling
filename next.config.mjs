@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Keep production builds isolated from the live development server. Sharing
+  // `.next` lets a build replace dev manifests while the page is open, which
+  // causes apparent freezes and "clientReferenceManifest" runtime failures.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
   compress: true,
   productionBrowserSourceMaps: false,

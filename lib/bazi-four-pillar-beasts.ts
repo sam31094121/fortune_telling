@@ -7,6 +7,7 @@ type Beast = {
   id: number;
   name: string;
   image: string;
+  youngDivineImage: string;
   coreMeaning: string;
   season: Season;
 };

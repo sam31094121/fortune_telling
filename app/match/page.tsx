@@ -87,6 +87,7 @@ interface BaziMatchFoundation {
 interface BaziBeastCard {
   name: string;
   image: string;
+  youngDivineImage: string;
   coreMeaning: string;
   direction: string;
   productElement: '空' | '風' | '水' | '火' | '地';
@@ -1427,8 +1428,8 @@ function BaziBeastPairCards({
 
               <div className="relative mt-2 aspect-[1.04] overflow-hidden rounded-[17px] border border-white/14 bg-black/25">
                 <img
-                  src={beast.image}
-                  alt={`${beast.name}神獸`}
+                  src={beast.youngDivineImage}
+                  alt={`${beast.name}星宿幼體`}
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent px-2 pb-2 pt-7">

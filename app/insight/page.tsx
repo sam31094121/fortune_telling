@@ -1029,7 +1029,7 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
             const visual = link ? beastVisualTone[link.season] : null;
             return (
               <article key={`${key}-star-beast`} className={`relative min-h-[280px] overflow-hidden rounded-[26px] border p-4 shadow-[0_18px_42px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.14)] ${link ? `bg-gradient-to-br ${visual?.panel}` : tone.card}`}>
-                {link && <img src={link.beast.image} alt="" aria-hidden="true" className="pointer-events-none absolute -right-7 -top-8 h-[220px] w-[156px] opacity-[0.16] blur-[1px] object-cover" />}
+                {link && <img src={link.beast.youngDivineImage} alt="" aria-hidden="true" className="pointer-events-none absolute -right-7 -top-8 h-[220px] w-[156px] opacity-[0.16] blur-[1px] object-cover" />}
                 {link && <div aria-hidden="true" className={`pointer-events-none absolute -right-16 top-20 h-44 w-44 rounded-full blur-3xl ${visual?.glow}`} />}
                 <span className={`pointer-events-none absolute -right-1 -top-7 font-serif text-[104px] font-black opacity-[0.08] ${tone.text}`}>{label.glyph}</span>
                 <div className="relative flex items-start justify-between gap-3">
@@ -1043,7 +1043,7 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
                   <div className="relative mt-4 grid min-h-[144px] grid-cols-2 overflow-hidden rounded-2xl border border-white/15 bg-black/20">
                     <div className="relative min-w-0 overflow-hidden border-r border-white/12">
                       <div aria-hidden="true" className={`absolute inset-0 ${visual?.glow} blur-2xl`} />
-                      <img src={link.beast.image} alt={`${link.beast.name}神獸卡`} className="relative h-full min-h-[144px] w-full object-cover object-center shadow-[0_16px_30px_rgba(0,0,0,0.38)]" />
+                      <img src={link.beast.youngDivineImage} alt={`${link.beast.name}星宿幼體卡`} className="relative h-full min-h-[144px] w-full object-cover object-center shadow-[0_16px_30px_rgba(0,0,0,0.38)]" />
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/95 via-slate-950/35 to-transparent px-2 pb-2 pt-8">
                         <p className={`text-[9px] font-black tracking-[0.12em] ${visual?.text}`}>{link.seasonLabel}</p>
                         <p className="mt-0.5 text-xs font-black text-white">{link.beast.name}</p>
