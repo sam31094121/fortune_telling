@@ -21,6 +21,7 @@ import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, sav
 import { TAROT_CARD_BACK_URL } from '@/features/tarot/constants/cardBack';
 import { deriveNameologyTotalBeast } from '@/lib/nameology-total-beast';
 import StarBeastLineageReveal from '@/components/StarBeastLineageReveal';
+import styles from './nameology.module.css';
 
 type NameologyResponse = {
   ok: boolean;
@@ -1268,7 +1269,7 @@ export default function NameologyPage() {
   }
 
   return (
-    <main className="app-bg min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+    <main className={`${styles.page} app-bg min-h-screen px-4 py-6 sm:px-6 lg:px-8`}>
       <div className="mx-auto max-w-4xl">
         <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="易經姓名學" onViewResult={dailyRecord ? () => void handleSubmit() : undefined} />
         <section id="nameology-input-form" className="fortune-card p-5 sm:p-8 scroll-mt-20">
