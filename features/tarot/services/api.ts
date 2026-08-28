@@ -147,24 +147,35 @@ async function parseJsonResponse<T>(response: Response, fallbackMessage: string)
   return payload as T;
 }
 
+async function requestWithDeadline<T>(path: string, input: unknown, timeoutMs: number, fallback: string): Promise<T> {
+  const controller = new AbortController();
+  const startedAt = Date.now();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      body: JSON.stringify(input),
+      signal: controller.signal,
+    });
+    return await parseJsonResponse<T>(response, fallback);
+  } catch (caught) {
+    // Diagnostic metadata only: never log questions, birth data, or session IDs.
+    console.warn('[tarot-request]', { path, elapsedMs: Date.now() - startedAt, reason: controller.signal.aborted ? 'timeout' : 'request-failed' });
+    if (controller.signal.aborted) throw new Error('連線等待逾時，請再試一次；目前輸入與已抽出的牌會保留。');
+    throw caught;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function requestTarotShuffle(input: { categoryId: TarotQuestionCategoryId; question: string; scope: TarotReadingScope; spreadType: TarotSpreadType }): Promise<TarotShuffleApiResponse> {
-  const response = await fetch('/api/tarot/shuffle', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    cache: 'no-store',
-    body: JSON.stringify(input),
-  });
-  return parseJsonResponse<TarotShuffleApiResponse>(response, '塔羅牌洗牌引擎暫時無法啟動。');
+  return requestWithDeadline<TarotShuffleApiResponse>('/api/tarot/shuffle', input, 30000, '塔羅牌洗牌引擎暫時無法啟動。');
 }
 
 export async function requestTarotReading(input: { sessionId: string; deckKey?: string; deckKeys?: string[] }): Promise<TarotReadingApiResponse> {
-  const response = await fetch('/api/tarot/reading', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    cache: 'no-store',
-    body: JSON.stringify(input),
-  });
-  return parseJsonResponse<TarotReadingApiResponse>(response, '塔羅牌抽牌引擎暫時無法完成解讀。');
+  return requestWithDeadline<TarotReadingApiResponse>('/api/tarot/reading', input, 120000, '塔羅牌抽牌引擎暫時無法完成解讀。');
 }
 
 export async function requestTarotStats(): Promise<TarotStatsSnapshot> {

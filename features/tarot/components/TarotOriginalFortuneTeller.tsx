@@ -298,7 +298,7 @@ export default function TarotOriginalFortuneTeller({
     }).catch((caught) => {
       growthSyncedReadingRef.current = null;
       setAiReadingState('error');
-      setAiReadingError(caught instanceof Error ? caught.message : '這一道確認尚未通過，系統已停止後續分析。');
+      setAiReadingError(toSafeReadingErrorMessage(caught));
     });
   }, [drawnByPosition, drawnCards, sessionId]);
 
@@ -465,6 +465,7 @@ export default function TarotOriginalFortuneTeller({
             <div className="rounded-2xl border border-amber-200/25 bg-amber-300/8 p-5" role="status" aria-live="polite">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">第四道確認</p>
               <p className="mt-3 text-base font-black leading-7 text-amber-50">結果完整性正在確認：AI 正在交叉整合三張牌的訊號。</p>
+              <p className="mt-2 text-sm leading-6 text-amber-100">三張牌已保留，請稍候；若連線逾時，會顯示重試按鈕，不必重新抽牌。</p>
             </div>
           )}
 
