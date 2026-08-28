@@ -403,6 +403,7 @@ export type NameologyStandardOutput = {
 };
 
 export type NameologyAnalysis = {
+  iching?: import('./nameology-iching-presentation').NameologyIChing;
   baziCrossCheck?: NameologyBaziCrossCheck;
   name: string;
   dictionaryStatus: {

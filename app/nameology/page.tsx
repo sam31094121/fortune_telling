@@ -49,7 +49,22 @@ const initialForm: FormState = {
 };
 
 const initialSelectionConfirm: SelectionConfirm = { gender: false };
-const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-ultimate-engine-v4.0.0-bazi-hour';
+const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-ultimate-engine-v4.0.0-bazi-hour-iching-v1';
+const GUEST_SESSION_KEY = 'nameology-guest-session-v1';
+
+function readGuestSession() {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(GUEST_SESSION_KEY) || 'null');
+    if (!saved || saved.schema !== NAMEOLOGY_DAILY_SCHEMA_VERSION || !Number.isFinite(saved.savedAt) || Date.now() - saved.savedAt > 30 * 60 * 1000) {
+      sessionStorage.removeItem(GUEST_SESSION_KEY);
+      return null;
+    }
+    const value = saved.form;
+    if (!value || typeof value.name !== 'string' || typeof value.birthDate !== 'string' || !['male', 'female'].includes(value.gender)) return null;
+    if (value.shichen != null && (!Number.isInteger(value.shichen) || value.shichen < 0 || value.shichen > 11)) return null;
+    return saved as { form: FormState; selectionConfirm: SelectionConfirm; showShichen: boolean; result?: NameologyDailyResult; inputKey?: string };
+  } catch { return null; }
+}
 
 function isCurrentNameologyResult(value?: NameologyDailyResult | null) {
   return Boolean(value?.analysis?.standardOutput?.moduleVersion === '4.0.0' && value.analysis.standardOutput.verification?.readyForFrontend && value.fiveElement);
@@ -965,6 +980,12 @@ export default function NameologyPage() {
   const [fiveElement, setFiveElement] = useState<FiveElementIntegrationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [identity, setIdentity] = useState<'self' | 'guest' | null>(null);
+  const [sessionReady, setSessionReady] = useState(false);
+  const [birthInputVersion, setBirthInputVersion] = useState(0);
+  const resultInputKeyRef = useRef('');
+  const requestVersionRef = useRef(0);
+  const requestAbortRef = useRef<AbortController | null>(null);
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<NameologyDailyResult> | null>(null);
   // 儀式感揭露：這些步驟的 PASSED/FAILED 都是後端已經算完、真實驗證過的資料
   // （見 lib/nameology-engine.ts 的 buildNameologyRitualSteps），這裡只是用節奏
@@ -980,6 +1001,18 @@ export default function NameologyPage() {
 
   useEffect(() => {
     const applyIdentity = (target = getAnalysisIdentityTarget()) => {
+      requestVersionRef.current += 1;
+      requestAbortRef.current?.abort();
+      submitLockRef.current = false;
+      setIsLoading(false);
+      setError('');
+      setResult(null);
+      setFiveElement(null);
+      setDailyRecord(null);
+      clearRitualTimer();
+      resultInputKeyRef.current = '';
+      setIdentity(target);
+      setBirthInputVersion(version => version + 1);
       if (target === 'self') {
         const saved = readNameologySelfProfile();
         const canonical = readCanonicalBirthProfile();
@@ -998,11 +1031,19 @@ export default function NameologyPage() {
           setSelectionConfirm((previous) => ({ ...previous, gender: canonical?.gender !== 'UNSPECIFIED' || previous.gender }));
         }
       } else if (target === 'guest') {
-        // 親朋好友一律從空白開始，避免把本人資料誤帶進他人的分析。
-        setForm(initialForm);
-        setShowShichen(false);
-        setSelectionConfirm(initialSelectionConfirm);
+        // Guest data is isolated to this tab, never the member profile.
+        const saved = readGuestSession();
+        setForm(saved?.form ?? initialForm);
+        setShowShichen(Boolean(saved?.showShichen));
+        setSelectionConfirm({ gender: Boolean(saved?.selectionConfirm?.gender) });
+        if (saved?.result && saved.inputKey === nameologyInputKey(saved.form) && isCurrentNameologyResult(saved.result)) {
+          resultInputKeyRef.current = saved.inputKey;
+          setResult(saved.result.analysis);
+          setFiveElement(saved.result.fiveElement);
+          showRitualCompleteImmediately(saved.result.analysis.ritualSteps);
+        }
       }
+      setSessionReady(true);
     };
     const handleIdentityChange = (event: Event) => {
       setError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
@@ -1011,8 +1052,50 @@ export default function NameologyPage() {
     };
     applyIdentity();
     window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, handleIdentityChange);
-    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, handleIdentityChange);
+    return () => {
+      window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, handleIdentityChange);
+      requestVersionRef.current += 1;
+      requestAbortRef.current?.abort();
+    };
   }, []);
+
+  const currentInputKey = nameologyInputKey(form);
+  useEffect(() => {
+    if (!sessionReady) return;
+    if (resultInputKeyRef.current && resultInputKeyRef.current !== currentInputKey) {
+      clearRitualTimer();
+      setResult(null);
+      setFiveElement(null);
+      setDailyRecord(null);
+      resultInputKeyRef.current = '';
+    }
+    if (identity !== 'guest') return;
+    try {
+      sessionStorage.setItem(GUEST_SESSION_KEY, JSON.stringify({
+        schema: NAMEOLOGY_DAILY_SCHEMA_VERSION, savedAt: Date.now(), form, selectionConfirm, showShichen,
+        inputKey: currentInputKey,
+        result: resultInputKeyRef.current === currentInputKey && result && fiveElement ? { analysis: result, fiveElement } : undefined,
+      }));
+    } catch { /* Storage unavailable: analysis still works without persistence. */ }
+  }, [sessionReady, identity, currentInputKey, form, selectionConfirm, showShichen, result, fiveElement]);
+
+  function clearGuestSession() {
+    requestVersionRef.current += 1;
+    requestAbortRef.current?.abort();
+    submitLockRef.current = false;
+    clearRitualTimer();
+    try { sessionStorage.removeItem(GUEST_SESSION_KEY); } catch { /* optional storage */ }
+    resultInputKeyRef.current = '';
+    setForm(initialForm);
+    setBirthInputVersion(version => version + 1);
+    setSelectionConfirm(initialSelectionConfirm);
+    setShowShichen(false);
+    setResult(null);
+    setFiveElement(null);
+    setDailyRecord(null);
+    setError('');
+    setIsLoading(false);
+  }
 
   function clearRitualTimer() {
     if (ritualTimerRef.current) {
@@ -1066,6 +1149,9 @@ export default function NameologyPage() {
 
   const validationMessage = useMemo(() => buildValidationMessage(form, selectionConfirm) || (showShichen && form.shichen == null ? '請選擇出生時辰，或改選不知道。' : ''), [form, selectionConfirm, showShichen]);
   const canSubmit = validationMessage === '';
+  useEffect(() => {
+    setError(previous => previous.startsWith('請先') || previous.startsWith('請選擇出生時辰') ? validationMessage : previous);
+  }, [validationMessage]);
   const showMissingFields = Boolean(error) && !result;
   const showMissingName = showMissingFields && form.name.trim().length < 2;
   const showMissingBirthDate = showMissingFields && !form.birthDate;
@@ -1082,7 +1168,7 @@ export default function NameologyPage() {
     try {
       await handleSubmitInner();
     } finally {
-      submitLockRef.current = false;
+      if (!requestAbortRef.current || requestAbortRef.current.signal.aborted) submitLockRef.current = false;
     }
   }
 
@@ -1129,19 +1215,26 @@ export default function NameologyPage() {
     setRitualRevealCount(0);
     setRitualCollapsed(false);
 
+    const requestVersion = ++requestVersionRef.current;
+    const requestInputKey = nameologyInputKey(snapshot.form);
+    const controller = new AbortController();
+    requestAbortRef.current = controller;
     try {
       const response = await fetch('/api/nameology-analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...snapshot.form, analysisTarget: getAnalysisIdentityTarget() }),
+        signal: controller.signal,
       });
       const data = await response.json();
+      if (requestVersion !== requestVersionRef.current || requestInputKey !== nameologyInputKey(formRef.current)) return;
       if (!response.ok || !data?.analysis || !data?.fiveElement || !data?.verification?.readyForFrontend) throw new Error(data?.message || data?.error || '目前無法完成可靠的姓名分析，請稍後重新嘗試。');
       const nextResult = {
         analysis: (data as NameologyResponse).analysis,
         fiveElement: (data as NameologyResponse).fiveElement,
       };
       if (!isCurrentNameologyResult(nextResult)) throw new Error('\u59d3\u540d\u5b78\u4e09\u5c64\u5206\u6790\u8cc7\u6599\u672a\u5b8c\u6574\uff0c\u8acb\u91cd\u65b0\u5206\u6790\u3002');
+      resultInputKeyRef.current = requestInputKey;
       setResult((data as NameologyResponse).analysis);
       setFiveElement((data as NameologyResponse).fiveElement);
       if (getAnalysisIdentityTarget() === 'self') {
@@ -1164,9 +1257,13 @@ export default function NameologyPage() {
       if (getAnalysisIdentityTarget() === 'self') markGrowthModuleCompleted('nameology', (data as NameologyResponse).fiveElement.brandElement);
       window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     } catch (err) {
+      if (requestVersion !== requestVersionRef.current) return;
       setError(err instanceof Error ? err.message : '目前無法完成可靠的姓名分析，請稍後重新嘗試。');
     } finally {
-      setIsLoading(false);
+      if (requestVersion === requestVersionRef.current) {
+        requestAbortRef.current = null;
+        setIsLoading(false);
+      }
     }
   }
 
@@ -1195,6 +1292,12 @@ export default function NameologyPage() {
           </p>
 
           <IdentitySplitSelector className="mt-6" />
+          {identity === 'guest' && (
+            <div className="mt-3 rounded-xl border border-amber-200/20 p-3">
+              <p className="text-sm leading-6">本次資料與結果僅暫存在此分頁，30 分鐘未操作後不再恢復，不寫入會員成長中心。換人或共用手機時請先清除。</p>
+              <button type="button" onClick={clearGuestSession} className="mt-2 min-h-[44px] rounded-xl border border-amber-200/40 px-4 py-2">清除本次資料・換人分析</button>
+            </div>
+          )}
 
           <MegaInputGuide
             title="請先填完整姓名"
@@ -1235,6 +1338,7 @@ export default function NameologyPage() {
                 2. 出生日期（民國年）{form.birthDate && <span className="text-green-400">✓</span>}
               </label>
               <LunarBirthdayInput
+                key={birthInputVersion}
                 value={form.birthDate}
                 onChange={(solarDate) => setForm((prev) => ({ ...prev, birthDate: solarDate.trim() }))}
                 accent="amber"
@@ -1330,6 +1434,30 @@ export default function NameologyPage() {
         <div id="nameology-result" className="mt-6 scroll-mt-24">
           {result && fiveElement && (
             <div className="space-y-5 animate-fade-in">
+              {result.iching ? (
+                <section aria-label="姓名學易經卦象" className="rounded-2xl border border-amber-300/30 bg-amber-950/20 p-4 text-amber-50 sm:p-6">
+                  <p className="text-xs tracking-widest">姓名學・易經文化參考</p>
+                  <div className="mt-3 flex items-center gap-4">
+                    <span aria-hidden="true" className="text-5xl">{result.iching.glyph}</span>
+                    <div className="min-w-0">
+                      <h2 className="break-words text-2xl font-bold">第 {result.iching.kingWen} 卦・{result.iching.hexagramName}</h2>
+                      <p className="mt-2 text-sm">上卦：{result.iching.upper.name}（{result.iching.upper.nature}）／下卦：{result.iching.lower.name}（{result.iching.lower.nature}）</p>
+                      <p className="mt-1 text-sm">動爻：第 {result.iching.changingLine} 爻（由下往上數）</p>
+                    </div>
+                  </div>
+                  <h3 className="mt-4 font-bold">卦義重點</h3>
+                  <p className="mt-2 break-words text-sm leading-7">{result.iching.essence}</p>
+                  <h3 className="mt-4 font-bold">行動參考</h3>
+                  <p className="mt-2 break-words text-sm leading-7">{result.iching.advice}</p>
+                  <details className="mt-4 rounded-xl border border-amber-200/20 p-3 text-sm leading-6">
+                    <summary className="min-h-[44px] cursor-pointer">查看起卦依據</summary>
+                    <p>{result.iching.method === 'birth-date-hour'
+                      ? '採用既有生辰數值規則：以西元出生年月日加總及時辰序數取餘計算上下卦與動爻。這是生辰參考卦，不是只由名字決定的卦。'
+                      : '出生時辰未知：以姓名、生日及固定主題，依既有字串雜湊規則產生象徵參考卦；沒有補造出生時辰，也不等同傳統占筮。'}</p>
+                    <p className="mt-2">規則版本：{result.iching.ruleVersion}。卦義沿用專案既有資料；本服務提供文化解讀與自我反思，並非心理診斷或確定預測。</p>
+                  </details>
+                </section>
+              ) : <p role="status" className="rounded-xl border border-amber-300/20 p-4">這份舊結果尚未包含卦象，請重新分析以取得後端卦象資料。</p>}
               <ResultPanel analysis={result} fiveElement={fiveElement} />
             </div>
           )}
