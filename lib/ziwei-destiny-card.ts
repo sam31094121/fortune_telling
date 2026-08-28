@@ -191,6 +191,8 @@ export function buildZiweiDestinyCard(input: {
   chart: ZiweiSanFangAnalysis;
   fiveElement?: FiveElementIntegrationResult;
 }): ZiweiDestinyCard | null {
+  // Never expose stars inferred from an unknown-time reference chart as a natal card.
+  if (input.chart.timeConfidence !== 'exact') return null;
   const chartVerified = input.chart.timeConfidence === 'exact' && Array.isArray(input.chart.allPalaces) && input.chart.allPalaces.length === 12;
   const source = mapZiweiToDestinySource(input.chart);
   const heroStars = source.primaryStars.slice(0, 2);

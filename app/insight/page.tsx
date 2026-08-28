@@ -879,7 +879,7 @@ function ZiweiSanFangPanel({ analysis }: { analysis?: InsightResult['ziweiSanFan
 function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: InsightResult['ziweiSanFang']; plainSummary?: string; meta?: InsightResult['meta'] }) {
   if (!analysis) return null;
 
-  const boneWeight = calculateBoneWeight(meta?.birthDate, meta?.shichen);
+  const boneWeight = analysis.timeConfidence === 'exact' ? calculateBoneWeight(meta?.birthDate, meta?.shichen) : null;
   const plainLines = String(plainSummary ?? '')
     .split(/\r?\n/)
     .map((line) => line.replace(/AI\s*(判定|分析|建議|確認)[：:]?\s*/g, '').trim())
@@ -900,13 +900,7 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
         <p className="text-xs font-black tracking-[0.28em] text-amber-300">八字 × 稱骨幾兩重</p>
         <h2 className="mt-3 font-serif text-2xl font-black text-amber-100">等待出生時辰定盤</h2>
         <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">命宮、遷移宮、官祿宮與財帛宮會隨時辰改變；時辰確認後才產生四宮交叉的 AI 組合解讀。</p>
-        {boneWeight && <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200/20 bg-amber-300/[0.07] px-4 py-3">
-          <div>
-            <p className="text-[10px] font-black tracking-[0.16em] text-amber-100/75">稱骨幾兩重（暫估）</p>
-            <p className="mt-1 font-serif text-3xl font-black text-amber-200">{boneWeight.display}</p>
-          </div>
-          <p className="max-w-xs text-xs leading-5 text-[color:var(--text-muted)]">{boneWeight.lunarDateLabel}；時辰尚未確認，暫以午時權重換算，選定時辰後會立即重算。</p>
-        </div>}
+        <p className="mt-4 text-sm text-[color:var(--text-muted)]">稱骨重量需出生時辰，補齊後才計算；目前不代填午時，也不顯示暫估重量。</p>
       </section>
     );
   }
@@ -3343,7 +3337,7 @@ function ZiweiDestinyCardView({
   fiveElement?: InsightResult['fiveElement'];
 }) {
   const [flipped, setFlipped] = useState(false);
-  if (!card) return null;
+  if (!card || analysis?.timeConfidence !== 'exact') return null;
 
   const isReady = card.verification.readyForFrontend;
   const title = card.cardType === 'DESTINY_CARD' ? '神秘命宮卡' : '生日主題卡';
@@ -5114,7 +5108,7 @@ export default function InsightPage() {
                 </g>
               </svg>
             </div>
-            {result?.ritualSteps?.length ? (
+            {result?.ziweiSanFang?.timeConfidence === 'exact' && result?.ritualSteps?.length ? (
               <div
                 className="grid overflow-hidden transition-[grid-template-rows] duration-500 ease-out"
                 style={{ gridTemplateRows: ritualCollapsed ? '0fr' : '1fr' }}
@@ -5124,7 +5118,7 @@ export default function InsightPage() {
                 </div>
               </div>
             ) : null}
-            <div className={`space-y-6 transition-opacity duration-500 ${!result?.ritualSteps?.length || ritualCollapsed ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
+            <div className={`space-y-6 transition-opacity duration-500 ${result?.ziweiSanFang?.timeConfidence !== 'exact' || !result?.ritualSteps?.length || ritualCollapsed ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
             <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 紫微斗數" onViewResult={jumpToTodayResult} />
             <div className="fortune-card relative hidden overflow-hidden border-amber-400/25 bg-slate-950/55 p-6 sm:p-8">
               <div className="pointer-events-none absolute inset-4 border border-cyan-400/10" />

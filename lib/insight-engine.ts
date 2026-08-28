@@ -129,6 +129,8 @@ function buildInsightRitualSteps(input: {
   fiveElement: FiveElementIntegrationResult;
   aiAnalysis: { psychology_insights: Array<{ title: string; description: string; confidence: number }>; recommendations: string[]; summary: string };
 }): InsightRitualStep[] {
+  // A reference chart is not a verified natal chart. Missing time is not a failure.
+  if (input.ziweiSanFang.timeConfidence !== 'exact') return [];
   const checks: Record<InsightRitualStepId, boolean> = {
     TIME_RESOLVED: Boolean(input.shichen.dayPillar) && Boolean(input.shichen.hourPillar?.ganzhi),
     CHART_BUILT: Array.isArray(input.ziweiSanFang.allPalaces) && input.ziweiSanFang.allPalaces.length > 0,
