@@ -328,7 +328,7 @@ export function UnifiedBirthForm({
 
       {fields.birthHourBranch && (
         <section data-field="birthHourBranch" className={fieldFrameClass(missing, 'birthHourBranch', value)}>
-          <label className="block text-sm font-black text-[color:var(--text-main)]">5. 出生時辰 {(value.timeUnknown || value.birthHourBranch) && <span className="ml-2 text-green-400">完成</span>}</label>
+          <label className="block text-sm font-black text-[color:var(--text-main)]">{[fields.name, fields.birthDate, fields.gender, fields.birthPlace].filter(Boolean).length + 1}. 出生時辰 {(value.timeUnknown || value.birthHourBranch) && <span className="ml-2 text-green-400">完成</span>}</label>
           <HourBranchSelector
             value={value.birthHourBranch}
             unknown={value.timeUnknown}

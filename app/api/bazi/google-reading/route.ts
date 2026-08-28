@@ -37,7 +37,7 @@ async function withTimeout<T>(task: Promise<T>, ms: number) {
     return await Promise.race([
       task,
       new Promise<T>((_, reject) => {
-        timer = setTimeout(() => reject(new Error('Google 老師解盤逾時')), ms);
+        timer = setTimeout(() => reject(new Error('易經老師解盤逾時')), ms);
       }),
     ]);
   } finally {
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
       treasurePower: text(body.treasurePower, 220),
     };
     if (!facts.dayMaster || !facts.structure) {
-      return NextResponse.json({ ok: false, message: '命盤核心資料不足，暫不送 Google 老師解盤。' }, { status: 400 });
+      return NextResponse.json({ ok: false, message: '命盤核心資料不足，暫不送易經老師解盤。' }, { status: 400 });
     }
 
     const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
@@ -124,7 +124,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, provider: 'Google 老師', reading }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Google 老師解盤暫時無法完成。';
+    const message = error instanceof Error ? error.message : '易經老師解盤暫時無法完成。';
     console.error('[bazi/google-reading]', message);
     return NextResponse.json({ ok: false, message }, { status: 502, headers: { 'Cache-Control': 'no-store' } });
   }
