@@ -1106,7 +1106,7 @@ function IntegratedSongMaker({
       const url = URL.createObjectURL(blob);
       lyriaAudioUrlRef.current = url;
       setLyriaAudioUrl(url);
-      setLyriaFilename(data.filename || `AI生命歌曲-${name || fusionSong.fusion_title}.mp3`);
+      setLyriaFilename(data.filename || `易經生命歌曲-${name || fusionSong.fusion_title}.mp3`);
       setLyriaPromptPreview(data.promptPreview || '');
       setLyriaLyricsText(data.lyricsText || '');
     } catch {
@@ -1188,7 +1188,7 @@ function IntegratedSongMaker({
 
   async function handleShareSong() {
     if (!fusionSong) return;
-    const shareText = `這是我的 AI 生命歌曲《${fusionSong.fusion_title}》：${fusionSong.fusion_concept}`;
+    const shareText = `這是我的 易經生命歌曲《${fusionSong.fusion_title}》：${fusionSong.fusion_concept}`;
     try {
       if (navigator.share) {
         await navigator.share({ title: fusionSong.fusion_title, text: shareText });
@@ -1258,7 +1258,7 @@ function IntegratedSongMaker({
       {true && (
         <div className="mt-6 space-y-4">
           <div className="rounded-[22px] border border-amber-300/20 bg-black/20 p-5">
-            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">AI SONG BLUEPRINT</p>
+            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-amber-300/70">I-CHING SONG BLUEPRINT</p>
             <h4 className="font-serif text-2xl text-[color:var(--text-main)]">《{fusionSong.fusion_title}》</h4>
             <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">{fusionSong.fusion_concept}</p>
           </div>
@@ -1289,7 +1289,7 @@ function IntegratedSongMaker({
                 </audio>
                 <a
                   href={lyriaAudioUrl}
-                  download={lyriaFilename || `${fusionSong.fusion_title || 'AI生命歌曲'}.mp3`}
+                  download={lyriaFilename || `${fusionSong.fusion_title || '易經生命歌曲'}.mp3`}
                   className="inline-flex w-full items-center justify-center rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-3 text-xs font-bold tracking-[0.18em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15"
                 >
                   下載 MP3
@@ -1325,7 +1325,7 @@ function IntegratedSongMaker({
 
             <div className="space-y-4">
               <div className="rounded-[22px] border border-cyan-300/15 bg-cyan-950/10 p-5">
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-cyan-300/70">AI 主唱選擇</p>
+                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-cyan-300/70">易經主唱選擇</p>
                 <p className="text-sm leading-8 text-[color:var(--text-main)]">{productionPlan.lead_vocal_choice}</p>
               </div>
 
@@ -1361,7 +1361,7 @@ function IntegratedSongMaker({
               </div>
 
               <div className="rounded-[22px] border border-emerald-300/15 bg-emerald-950/10 p-5">
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-emerald-200/70">正式 AI 服務 / 聲音生成</p>
+                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-emerald-200/70">正式 易經服務 / 聲音生成</p>
                 <p className="text-xs leading-7 text-[color:var(--text-muted)]">
                   這裡只保留正式服務需要的歌曲 prompt、聲線設定、BPM、Key 與情緒指令。工程預覽已移除，前端不再顯示低質感 WAV。
                 </p>
@@ -1378,7 +1378,7 @@ function IntegratedSongMaker({
                   onClick={handleCreateServicePackage}
                   className="mt-4 w-full rounded-full border border-emerald-300/25 bg-emerald-400/10 px-4 py-3 text-xs font-semibold tracking-[0.15em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15"
                 >
-                  產生正式 AI 服務資料
+                  產生正式 易經服務資料
                 </button>
                 <button
                   type="button"
@@ -1440,7 +1440,7 @@ function IntegratedSongMaker({
                 <div>
                   <p className="text-xs uppercase tracking-[0.25em] text-emerald-200/70">Service Payload</p>
                   <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">
-                    這份資料提供給下一階段正式 AI 音樂／聲音生成服務使用。
+                    這份資料提供給下一階段正式 易經音樂／聲音生成服務使用。
                   </p>
                 </div>
                 <button
@@ -1526,7 +1526,7 @@ export default function PersonalityMusicReport({
 
           {lifeSongContext && (
             <div className="mt-6 rounded-[22px] border border-amber-300/20 bg-amber-300/[0.07] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-200">AI 生命歌曲定位</p>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-200">易經生命歌曲定位</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
                   <p className="text-[11px] font-bold text-[color:var(--text-muted)]">創作目標</p>
@@ -1627,7 +1627,7 @@ export default function PersonalityMusicReport({
         <div className="vip-gold-card rounded-[24px] px-6 py-8 sm:px-8">
           <div className="mb-6 text-center">
             <p className="text-xs uppercase tracking-[0.4em] text-amber-300/70">
-              AI 鋆賭?蝮賜 繚 ?芸??芸???
+              易經鋆賭?蝮賜 繚 ?芸??芸???
             </p>
             <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
               ?予?唬犖蝝?撅方ˊ雿?銝擐犖?潔蜓憿
@@ -1762,7 +1762,7 @@ export default function PersonalityMusicReport({
       <div className="space-y-4">
         <div className="fortune-card p-6 sm:p-8 border-violet-500/30 bg-gradient-to-r from-violet-950/15 via-slate-900/40 to-violet-950/15 relative overflow-hidden">
           <div className="absolute top-2 right-3 text-[8px] text-violet-400/40 font-mono tracking-widest">[DATA_STATISTICS_AI_MATCH]</div>
-          <p className="text-xs uppercase tracking-[0.35em] text-violet-300 font-semibold mb-4">AI 音樂頻率契合度</p>
+          <p className="text-xs uppercase tracking-[0.35em] text-violet-300 font-semibold mb-4">易經音樂頻率契合度</p>
           <div className="rounded-2xl bg-slate-950/50 border border-violet-500/10 px-5 py-4">
             <p className="text-sm font-semibold text-violet-200">
               天地人共鳴年代：{meta.eraDisplayName ?? meta.era}
@@ -1774,7 +1774,7 @@ export default function PersonalityMusicReport({
               <div className="flex-1 h-1.5 bg-slate-900 rounded-full overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full animate-pulse" style={{ width: '99.8%' }}></div>
               </div>
-              <span className="text-[10px] font-mono text-violet-300">AI 匹配度 99.8%</span>
+              <span className="text-[10px] font-mono text-violet-300">易經匹配度 99.8%</span>
             </div>
           </div>
         </div>
@@ -1816,7 +1816,7 @@ export default function PersonalityMusicReport({
         <div className="vip-gold-card rounded-[24px] px-6 py-8 sm:px-8">
           <div className="mb-5 text-center">
             <p className="text-xs uppercase tracking-[0.4em] text-amber-300/70">
-              AI 天地人人格原創主題曲
+              易經天地人人格原創主題曲
             </p>
             <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
               《{fusionSong.fusion_title}》

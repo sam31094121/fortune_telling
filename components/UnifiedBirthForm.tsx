@@ -371,7 +371,7 @@ export function UnifiedBirthForm({
       {/* 資料填寫進度總覽：移至送出鈕下方（2026-08-11）——按下開始時直接看到哪裡沒填 */}
       <section className="rounded-[28px] border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.16),rgba(15,23,42,0.78)_58%,rgba(2,6,23,0.94)_100%)] p-5 shadow-[0_0_34px_rgba(251,191,36,0.12)]">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">資料填寫</p>
-        <h2 className="mt-3 text-2xl font-black leading-8 text-amber-50">依序完成欄位，AI 才會開始運算</h2>
+        <h2 className="mt-3 text-2xl font-black leading-8 text-amber-50">依序完成欄位，易經才會開始運算</h2>
         <div className={`mt-4 grid gap-2 ${completed.length >= 5 ? 'sm:grid-cols-5' : 'sm:grid-cols-4'}`}>
           {completed.map((item) => (
             <div key={item.id} className={`rounded-xl border px-3 py-2 text-xs font-black ${item.done ? 'border-emerald-300/30 bg-emerald-300/10 text-emerald-100' : hasMissing(missing, item.id) ? 'border-rose-300/50 bg-rose-500/15 text-rose-100 shadow-[0_0_18px_rgba(244,63,94,0.22)]' : 'border-white/10 bg-black/15 text-[color:var(--text-sub)]'}`}>

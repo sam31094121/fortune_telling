@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { buildNameologyBaziCrossCheck, normalizeNameologyShichen } from '@/lib/nameology-bazi-crosscheck';
 import { buildNameologyAnalysis, type NameologySubjectType } from '@/lib/nameology-engine';
+import { castHexagram, castHexagramFromBirth, formatHexagramLine } from '@/lib/iching-engine';
+import { buildEmpathicFromHexagram, buildGhostDecoding, formatEmpathicReading } from '@/lib/iching-psychology';
 import { buildNameologyFiveElementResult } from '@/lib/five-element-engine';
 import { getNamePersonalityScores } from '@/lib/name-model-db';
 import { loadLocalNameologyDictionary } from '@/lib/nameology-dictionary-loader';
@@ -99,7 +101,15 @@ export async function POST(request: Request) {
     }
     analysis.baziCrossCheck = buildNameologyBaziCrossCheck(normalized, analysis.characters);
     const fiveElement = buildNameologyFiveElementResult(analysis);
-    const result = { ok: true, mode: 'nameology', analysis, nameScores, fiveElement, standardOutput: analysis.standardOutput, verification: analysis.standardOutput.verification };
+    // 易經起卦：有生日用梅花易數生辰起卦，沒有生日就以姓名起卦，附進姓名學結論
+    // 未知時辰不可在生辰起卦中補午時；此時僅保留明示的字串象徵起卦。
+    const gua = normalized.shichen !== null && normalized.shichen !== undefined
+      ? castHexagramFromBirth(normalized.birthDate, normalized.shichen)
+      : castHexagram(normalized.name, normalized.birthDate, '姓名象徵參考');
+    // 易經心理學共感層：與姓名卦同一顆卦（剝洋蔥＋我懂你＋核心脆弱性），有溫度的輸出
+    const empathic = buildEmpathicFromHexagram(normalized.name, gua);
+    analysis.corePersonality = `${analysis.corePersonality}${formatHexagramLine(gua)}：${gua.essence}——${gua.advice}\n${empathic.specialYou}\n${empathic.absolution}`;
+    const result = { ok: true, mode: 'nameology', analysis, nameScores, fiveElement, standardOutput: analysis.standardOutput, verification: analysis.standardOutput.verification, iching: { line: formatHexagramLine(gua), essence: gua.essence, advice: gua.advice }, empathicReading: formatEmpathicReading(empathic), ghostDecoding: buildGhostDecoding(gua) };
 
     analysisCache.set(cacheKey, { result, timestamp: Date.now() });
     if (analysisCache.size > 100) {

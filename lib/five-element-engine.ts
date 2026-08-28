@@ -348,7 +348,7 @@ function buildElementPriorityTemplate(priorityOrder: FiveElementKey[]) {
   const second = priorityOrder[1] ?? first;
   const third = priorityOrder[2] ?? second;
   return [
-    'AI 判定：',
+    '易經卜卦判定：',
     '目前最缺：',
     `【${getFiveElementShortName(first)}】`,
     '請優先補強：',
@@ -387,8 +387,8 @@ function buildElementDecision(result: Pick<FiveElementIntegrationResult, 'elemen
     : null;
 
   return {
-    title: 'AI 判定：目前最缺【' + primaryShort + '】',
-    conclusion: 'AI 判定：目前最缺' + primaryName + '。請優先補強' + primaryName + '。',
+    title: '易經卜卦判定：目前最缺【' + primaryShort + '】',
+    conclusion: '易經卜卦判定：目前最缺' + primaryName + '。請優先補強' + primaryName + '。',
     primaryAction: '第一補強：' + primaryName + '。完成後再補：' + secondaryName + '。最後補：' + thirdName + '。',
     changeTarget: getElementChangeTarget(result.primaryElement),
     why: enforceAiJudgementTone(whyText),

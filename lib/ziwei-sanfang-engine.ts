@@ -896,7 +896,7 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
     timeConfidence: shichen.confidence,
     timeNote: shichen.confidence === 'exact'
       ? hasLongitude ? '已依使用者確認時辰與出生地經度套用真太陽時校正。' : `已依使用者確認時辰排盤：${resolvedShichen.label}（${resolvedShichen.range}），採標準時。`
-      : '未確認時辰，第一層紫微排盤禁止進入 AI 解盤。',
+      : '未確認時辰，第一層紫微排盤禁止進入 易經解盤。',
     trueSolarTimeApplied: hasLongitude,
     dataCompleteness,
     consistencyScore,

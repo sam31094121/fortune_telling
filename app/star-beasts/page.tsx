@@ -152,21 +152,53 @@ export default function StarBeastsPage() {
           </div>
 
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
-            {visibleBeasts.map((beast) => (
-              <button key={beast.id} type="button" onClick={() => setSelectedId(beast.id)} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 text-left shadow-lg transition duration-300 hover:-translate-y-1 hover:border-amber-200/55 hover:shadow-[0_14px_35px_rgba(0,0,0,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200">
-                <div className="relative aspect-[53/79] overflow-hidden bg-slate-950">
-                  <img src={cardImage(beast)} alt={`${beast.name}${FORM_LABELS[form]}神獸卡`} className="h-full w-full object-contain transition duration-500 group-hover:scale-[1.035]" />
-                  <span className={`absolute left-2 top-2 h-1.5 w-8 rounded-full bg-gradient-to-r ${SEASON_ACCENTS[beast.season]}`} />
-                  <span className="absolute right-2 top-2 rounded-full bg-slate-950/75 px-2 py-1 text-[10px] font-black text-white backdrop-blur">{String(beast.id).padStart(2, '0')}</span>
-                  <span className="absolute bottom-2 left-2 rounded-full border border-white/15 bg-slate-950/75 px-2 py-1 text-[10px] font-black text-amber-100 backdrop-blur">{FORM_LABELS[form]}</span>
-                </div>
-                <div className="p-2 sm:p-2.5">
-                  <p className="text-[10px] font-bold text-slate-400">{SEASON_NAMES[beast.season].split('・')[0]}</p>
-                  <h3 className="mt-0.5 font-serif text-base font-black text-white sm:text-lg">{beast.name}</h3>
-                  <p className="mt-0.5 truncate text-[11px] text-amber-100/80">{beast.coreMeaning}</p>
-                </div>
-              </button>
-            ))}
+            {visibleBeasts.map((beast) => {
+              const hasLeatherCardSurface = form === 'awakened';
+              // 第 28 張來源圖比例較窄；只在本命網格內下移影像，避免頭部被固定內框裁掉。
+              const hasLoweredBeastImage = hasLeatherCardSurface && beast.id === 28;
+
+              return (
+                <button
+                  key={beast.id}
+                  type="button"
+                  onClick={() => setSelectedId(beast.id)}
+                  data-card-surface={hasLeatherCardSurface ? 'leather' : undefined}
+                  data-card-interior={hasLeatherCardSurface ? 'leather-layered' : undefined}
+                  className={`group relative overflow-hidden rounded-2xl border text-left shadow-lg transition duration-300 hover:-translate-y-1 hover:border-amber-200/55 hover:shadow-[0_14px_35px_rgba(0,0,0,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200 ${hasLeatherCardSurface
+                    ? 'border-[#bb8854]/75 bg-[radial-gradient(ellipse_at_18%_12%,rgba(255,224,174,0.18),transparent_34%),radial-gradient(circle_at_80%_92%,rgba(32,15,9,0.35),transparent_42%),repeating-linear-gradient(105deg,rgba(255,255,255,0.035)_0_1px,transparent_1px_5px),linear-gradient(135deg,#5a3825,#2e1b16_50%,#68442a)] p-1 shadow-[0_16px_32px_rgba(0,0,0,0.5),inset_0_0_0_1px_rgba(255,229,184,0.2)]'
+                    : 'border-white/10 bg-slate-900/70'}`}
+                >
+                  <div className={hasLeatherCardSurface ? 'relative overflow-hidden rounded-[0.72rem] border border-[#704329]/80 bg-[#100f19] shadow-[inset_0_0_0_1px_rgba(35,17,10,0.85)]' : ''}>
+                    <div data-card-image-frame={hasLeatherCardSurface ? 'leather-cropped' : undefined} className={hasLeatherCardSurface ? 'relative m-[3px] aspect-[53/79] overflow-hidden rounded-[0.5rem] bg-[#24140d] p-[2px] ring-1 ring-inset ring-[#9a6238]/75 shadow-[inset_0_0_0_1px_rgba(20,10,6,0.75)]' : 'relative aspect-[53/79] overflow-hidden bg-slate-950'}>
+                      <div className={hasLeatherCardSurface ? 'relative h-full overflow-hidden rounded-[0.32rem] bg-slate-950' : 'h-full'}>
+                        <img src={cardImage(beast)} alt={`${beast.name}${FORM_LABELS[form]}神獸卡`} className={`h-full w-full object-cover object-center transition duration-500 ${hasLeatherCardSurface ? `scale-[1.42] group-hover:scale-[1.455]${hasLoweredBeastImage ? ' translate-y-[6%]' : ''}` : 'object-contain group-hover:scale-[1.035]'}`} />
+                      </div>
+                      {!hasLeatherCardSurface && (
+                        <span data-card-season-accent="young" className={`absolute left-2 top-2 h-1.5 w-8 rounded-full bg-gradient-to-r ${SEASON_ACCENTS[beast.season]}`} />
+                      )}
+                      {!hasLeatherCardSurface && (
+                        <span className="absolute right-2 top-2 rounded-full bg-slate-950/75 px-2 py-1 text-[10px] font-black text-white backdrop-blur">{String(beast.id).padStart(2, '0')}</span>
+                      )}
+                      {!hasLeatherCardSurface && (
+                        <span data-card-form-overlay="young" className="absolute bottom-2 left-2 rounded-full border border-white/15 bg-slate-950/75 px-2 py-1 text-[10px] font-black text-amber-100 backdrop-blur">{FORM_LABELS[form]}</span>
+                      )}
+                    </div>
+                    <div className={hasLeatherCardSurface ? 'relative mx-[3px] mb-[3px] rounded-b-[0.5rem] border border-[#e8bd7a]/35 border-t-[#e8bd7a]/55 bg-[linear-gradient(100deg,rgba(92,56,35,0.95),rgba(36,20,17,0.98),rgba(91,56,35,0.95))] p-2 shadow-[inset_0_1px_0_rgba(255,229,184,0.1)] sm:p-2.5' : 'p-2 sm:p-2.5'}>
+                      {hasLeatherCardSurface ? (
+                        <div className="flex items-center gap-1 whitespace-nowrap text-[10px] font-bold leading-4 text-amber-100/65">
+                          <span data-card-info-number className="text-[#f2ca83]">{String(beast.id).padStart(2, '0')}</span>
+                          <p>{SEASON_NAMES[beast.season].split('・')[0]}</p>
+                        </div>
+                      ) : (
+                        <p className="text-[10px] font-bold text-slate-400">{SEASON_NAMES[beast.season].split('・')[0]}</p>
+                      )}
+                      <h3 className="mt-0.5 font-serif text-base font-black text-white sm:text-lg">{beast.name}</h3>
+                      <p className="mt-0.5 truncate text-[11px] text-amber-100/80">{beast.coreMeaning}</p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </section>
       </div>

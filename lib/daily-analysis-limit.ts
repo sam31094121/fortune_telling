@@ -22,7 +22,7 @@ export const DAILY_ANALYSIS_LIMIT_ENABLED = false;
 
 export const DAILY_ANALYSIS_TTL_MS = 24 * 60 * 60 * 1000;
 export const DAILY_ANALYSIS_NOTICE =
-  '每日可完成一次正式分析。先填資料，AI 會逐步整理結果；完成後可回到成長中心查看下一步。';
+  '每日可完成一次正式分析。先填資料，易經會逐步整理結果；完成後可回到成長中心查看下一步。';
 
 function storageKey(moduleKey: DailyAnalysisModuleKey) {
   return `tdh:daily-analysis:${moduleKey}:v1`;

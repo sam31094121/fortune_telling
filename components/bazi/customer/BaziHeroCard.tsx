@@ -17,7 +17,7 @@ export function BaziHeroCard({ view, elementOf }: {
     <section className="rounded-[24px] border border-white/10 bg-[linear-gradient(165deg,rgba(16,16,20,0.96),rgba(24,22,18,0.92))] p-5 sm:p-6">
       <div className="flex items-baseline justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-black tracking-[0.2em] text-white/40">AI 八字命盤</p>
+          <p className="text-xs font-black tracking-[0.2em] text-white/40">易經八字命盤</p>
           <h2 className="mt-1 truncate font-serif text-2xl font-black text-[color:var(--text-main)] sm:text-3xl">{view.name || '我的八字'}</h2>
         </div>
         <div className="shrink-0 text-right">

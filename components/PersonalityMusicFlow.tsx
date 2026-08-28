@@ -77,7 +77,7 @@ const DATA_FIELD_LABELS: Record<DataField, { label: string; hint: string }> = {
   birthDate: { label: '生日資料', hint: '生日用來建立歌曲的人格節奏，讓旋律更貼近你的故事。' },
   bloodType: { label: '血型氣質', hint: '血型只做輔助，不會取代真正的姓名與生日資料。' },
   name: { label: '姓名', hint: '姓名會變成歌詞裡最重要的情緒核心。' },
-  gender: { label: '性別', hint: '性別協助 AI 調整敘事角度與歌曲口吻。' },
+  gender: { label: '性別', hint: '性別協助 易經調整敘事角度與歌曲口吻。' },
   shichen: { label: '出生時辰', hint: '知道時辰會更完整；不知道也可以選擇不確定。' },
 };
 
@@ -282,7 +282,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   }
 
   function validateDataField(field: DataField): ValidationResult | null {
-    if (field === 'birthDate' && !form.birthDate) return { field: 'birthDate', message: '請先完成生日資料，AI 才能建立歌曲節奏。' };
+    if (field === 'birthDate' && !form.birthDate) return { field: 'birthDate', message: '請先完成生日資料，易經才能建立歌曲節奏。' };
     if (field === 'bloodType' && !form.bloodType) return { field: 'bloodType', message: '請選擇血型，讓歌曲氣質更完整。' };
     if (field === 'name' && form.name.trim().length < 2) return { field: 'name', message: '姓名至少需要 2 個字。' };
     if (field === 'name' && form.name.trim().length > 20) return { field: 'name', message: '姓名不可超過 20 個字。' };
@@ -294,7 +294,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   function validateStep(targetStep = step): ValidationResult | null {
     if (targetStep === 0 && !form.lifeGoal) return { field: 'goal', message: '請先選擇這首歌最想陪你完成的事情。' };
     if (targetStep === 1 && !form.songCreativeStyle) return { field: 'style', message: '請選擇一種歌曲質感。' };
-    if (targetStep === 2 && !form.vocalGenderPreference) return { field: 'voice', message: '請選擇男聲或女聲，AI 才能鎖定演唱情緒。' };
+    if (targetStep === 2 && !form.vocalGenderPreference) return { field: 'voice', message: '請選擇男聲或女聲，易經才能鎖定演唱情緒。' };
     if (targetStep === 3) return validateDataField(activeDataField);
     return null;
   }
@@ -410,7 +410,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
   const selectedVoice = EMOTIONAL_VOICE_OPTIONS.find((item) => item.key === form.vocalGenderPreference);
 
   function getPrimaryButtonLabel() {
-    if (loading) return 'AI 正在準備你的生命歌曲...';
+    if (loading) return '易經正在準備你的生命歌曲...';
     if (step === 0) return '下一步：選擇歌曲質感';
     if (step === 1) return '下一步：選擇主唱聲線';
     if (step === 2) return '下一步：填寫資料';
@@ -421,7 +421,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
       if (activeDataField === 'gender') return '下一步：選擇時辰';
       return '下一步：確認生成';
     }
-    return '開始生成 AI 生命歌曲';
+    return '開始生成 易經生命歌曲';
   }
 
   const stepLabel = step === 0
@@ -441,16 +441,16 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         ? '先聽見主唱的情緒'
         : step === 3
           ? currentDataMeta.label
-          : 'AI 已準備好開始創作';
+          : '易經已準備好開始創作';
   const stepHint = step === 0
     ? '先鎖定人生主題，歌曲才會像寫給你。'
     : step === 1
       ? '選擇曲風，決定這首歌是溫柔、釋放、還是電影感。'
       : step === 2
-        ? '這一步會把男聲或女聲的情緒標籤送到後端，讓 AI 依照聲線創作。'
+        ? '這一步會把男聲或女聲的情緒標籤送到後端，讓 易經依照聲線創作。'
         : step === 3
           ? currentDataMeta.hint
-          : '確認後，AI 會整合生命主題、聲線、資料與五元素，產生歌曲方向。';
+          : '確認後，易經會整合生命主題、聲線、資料與五元素，產生歌曲方向。';
 
   return (
     <div ref={flowTopRef} className="space-y-8">
@@ -465,7 +465,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
           <div className="music-flow-stage-heading">
             <p>第一道</p>
             <h3>先選這首歌的心事</h3>
-            <span>不要一次塞滿資訊，先讓 AI 知道這首歌要陪你面對哪件事。</span>
+            <span>不要一次塞滿資訊，先讓 易經知道這首歌要陪你面對哪件事。</span>
           </div>
           {showMissingGoal && <p className="form-missing-alert">請先選擇一個生命主題。</p>}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -610,7 +610,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
 
       {step === 3 && activeDataField === 'birthDate' && (
         <div ref={(node) => { fieldRefs.current.birthDate = node; }} className={`music-required-field music-flow-stage-card music-flow-stage-card--data space-y-4 ${showMissingBirthDate ? 'music-required-field--missing' : ''}`}>
-          <p className="text-sm leading-6 text-[color:var(--text-sub)]">生日協助 AI 找出節奏與生命週期，讓歌曲不只是好聽，而是更像你的故事。</p>
+          <p className="text-sm leading-6 text-[color:var(--text-sub)]">生日協助 易經找出節奏與生命週期，讓歌曲不只是好聽，而是更像你的故事。</p>
           <LunarBirthdayInput
             value={form.birthDate}
             onChange={(solarDate) => {
@@ -625,7 +625,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
 
       {step === 3 && activeDataField === 'bloodType' && (
         <div ref={(node) => { fieldRefs.current.bloodType = node; }} className={`music-required-field space-y-4 ${showMissingBloodType ? 'music-required-field--missing' : ''}`}>
-          <p className="text-sm leading-6 text-[color:var(--text-sub)]">血型作為輔助氣質，協助 AI 調整歌曲的速度、情緒厚度與表達方式。</p>
+          <p className="text-sm leading-6 text-[color:var(--text-sub)]">血型作為輔助氣質，協助 易經調整歌曲的速度、情緒厚度與表達方式。</p>
           {showMissingBloodType && <p className="form-missing-alert">請選擇血型。</p>}
           <div className="grid grid-cols-2 gap-3">
             {BLOOD_TYPES.map((bloodType, index) => (
@@ -701,7 +701,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
             className={`w-full rounded-2xl border px-5 py-4 text-left transition-all ${form.shichen === 'unknown' ? 'border-emerald-400 bg-emerald-400/15' : showMissingShichen ? 'border-rose-400/85 bg-rose-500/12 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : 'border-white/15 bg-white/5 hover:border-white/25'}`}
           >
             <p className={`text-base font-bold ${form.shichen === 'unknown' ? 'text-emerald-300' : 'text-[color:var(--text-main)]'}`}>不確定出生時辰</p>
-            <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">AI 會以已知資料生成，不會卡住流程。</p>
+            <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">易經會以已知資料生成，不會卡住流程。</p>
           </button>
           {showMissingShichen && <p className="form-missing-alert">請選擇時辰，或選擇不確定。</p>}
           <div className="flex items-center gap-3">
@@ -737,11 +737,11 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
           <div className="music-flow-stage-card music-flow-stage-card--generate">
             <div className="music-flow-stage-heading">
               <p>最後一道</p>
-              <h3>確認後，AI 開始為你出歌</h3>
+              <h3>確認後，易經開始為你出歌</h3>
               <span>不是單純分析，而是把人生主題、主唱聲線、資料與五元素整合成一首歌。</span>
             </div>
             <div className="music-generate-ready-note">
-              <strong>AI 已完成歌曲準備</strong>
+              <strong>易經已完成歌曲準備</strong>
               <span>主題：{selectedGoal?.label}。質感：{selectedStyle?.label}。主唱：{selectedVoice?.label}。下一步將產生歌名、歌詞方向、演唱建議與完整創作藍圖。</span>
             </div>
 

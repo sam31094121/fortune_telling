@@ -17,7 +17,7 @@ export interface LicensedAsset {
  * 本卡片不引入任何外部圖片素材：
  * 星體節點與軌道皆為專案自有之原生 SVG 向量圖形（圓形漸層 + 路徑），
  * 授權歸屬專案本身，可完全追溯、無第三方 License 風險。
- * 禁止：AI 生成星球圖、未授權網路圖片、廉價 PNG。
+ * 禁止：易經生成星球圖、未授權網路圖片、廉價 PNG。
  */
 export const FIVE_ELEMENT_ASSET_MANIFEST: LicensedAsset[] = [
   {

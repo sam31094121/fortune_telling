@@ -36,7 +36,7 @@ export default function MultiStepForm({
         <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">免費初步分析</p>
         <h2 className="font-serif text-3xl text-[color:var(--text-main)]">填兩項資料，先看人格輪廓</h2>
         <p className="text-sm leading-7 text-[color:var(--text-sub)]">
-          先用萬年曆確認生日，再選血型。AI 會在背景完成整理，前台只顯示白話重點。
+          先用萬年曆確認生日，再選血型。易經會在背景完成整理，前台只顯示白話重點。
         </p>
       </div>
 

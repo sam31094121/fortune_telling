@@ -530,7 +530,7 @@ export default function BaziPage() {
             </div>
             {/* 主標：置中 + 金色漸層 */}
             <h1 className="mx-auto mt-3 bg-gradient-to-br from-amber-50 via-amber-100 to-amber-300/80 bg-clip-text font-serif text-4xl font-black leading-tight text-transparent drop-shadow-[0_0_24px_rgba(251,191,36,0.18)] sm:text-6xl">
-              AI <span className="mx-1 align-middle font-sans text-3xl font-black text-amber-300/90 sm:text-5xl">+</span> 八字命盤
+              易經八字命盤
             </h1>
             {/* 副標：置中收尾 */}
             <p className="mx-auto mt-4 max-w-2xl text-base font-bold leading-7 text-amber-100/75 sm:text-lg">
@@ -539,7 +539,7 @@ export default function BaziPage() {
           </div>
         </header>
 
-        <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 八字命盤" onViewResult={result ? scrollToResult : undefined} />
+        <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="易經八字命盤" onViewResult={result ? scrollToResult : undefined} />
         <IdentitySplitSelector compact className="mb-5" />
         <UnifiedBirthForm
           value={form}
@@ -596,7 +596,7 @@ export default function BaziPage() {
           <div ref={resultSectionRef} className="mt-6 scroll-mt-20">
             {result.dailyTarot && <div className="mb-4"><BaziDailyTarotCard tarot={result.dailyTarot} /></div>}
             {/* Customer Frontend Visual Rebuild V1：三層架構（命工卡 → 老師專業 → 完整命盤）
-                只改呈現；TraditionalBaziCore／排盤規則／API Schema／AI 解盤邏輯完全未動 */}
+                只改呈現；TraditionalBaziCore／排盤規則／API Schema／易經解盤邏輯完全未動 */}
             <BaziCustomerShell result={result} hourUnknown={form.timeUnknown === true} />
           </div>
         )}

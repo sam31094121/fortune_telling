@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
+import { castHexagram, formatHexagramLine } from '@/lib/iching-engine';
+import { buildEmpathicFromHexagram, patternNameOf } from '@/lib/iching-psychology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -79,11 +81,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, message: '尚未設定 Gemini API 金鑰。' }, { status: 503 });
     }
 
+    // 易經起卦：以日主＋格局＋姓名決定性起卦，解盤必須以易經卦象與八字互為印證
+    const iching = castHexagram(facts.shortName, facts.dayMaster, facts.structure);
+    // 易經心理學共感層：與上面同一卦，保證口徑一致（剝洋蔥＋我懂你＋核心脆弱性）
+    const empathic = buildEmpathicFromHexagram(facts.shortName, iching);
+
     const ai = new GoogleGenAI({ apiKey });
     const response = await withTimeout(
       ai.models.generateContent({
         model: 'gemini-3.6-flash',
-        contents: `你是「Google 老師」。只能根據下列已鎖定的客戶八字資料，用繁體中文產出可直接給客戶閱讀的正式解盤。
+        contents: `你是「Google 老師」，以易經與生辰八字交叉解盤。只能根據下列已鎖定的客戶八字資料與後端已起好的易經卦象，用繁體中文產出可直接給客戶閱讀的正式解盤。
+易經卦象（後端已決定性起卦，必須在解盤中自然引用印證，不可自行改卦）：${formatHexagramLine(iching)}；卦義：${iching.judgment}；卦示行動：${iching.advice}
+易經心理學共感層（後端已運算；整份解盤要像「最懂他的密友」在說話——剝洋蔥式由外而內，最後帶到核心脆弱性，語氣有溫度，不是老師對學生）：
+- 他的專屬格局名稱：「${patternNameOf(iching)}」（六十四格裡就這一格是他）
+- 他的人格外殼：${empathic.iKnowYourSurface}
+- 殼下的他：${empathic.iKnowYourInside}
+- 外冷內熱的反差：${empathic.specialYou}
+- 核心脆弱性（要溫柔地帶到「那不是你的錯」）：${empathic.absolution}
+卜卦儀式（開場必須依此意境、用沉穩導師話術改寫，不可照抄原句）：先感應——他此刻正拿著手機，手心的溫度透過螢幕傳來；請他先靜下來、慢慢呼吸，說你要為他起一卦，心靜了卦才起得準；卦成後鄭重告訴他：這是特殊格局「${patternNameOf(iching)}」，六十四格裡就這一格是他——他本來就是很特別的人。之後才進入三個年齡段。
+共感規則（心理學剝洋蔥）：三個年齡段像剝洋蔥一層比一層深——前一歲剝外殼慣性、現在剝殼下的自我與此刻心思、下一歲逼近核心；至少一處自然呼應上述心理側寫；結尾要有密友的溫度、抵達「那不是你的錯」的暖意，不可推翻共感層的判定，也不可整段照抄。
 規則：不得重新排盤、不得改變用神或忌神、不得預言或保證未來、不得把戲劇化內容當事實。名字只可用後兩字。
 請直接輸出 360 到 560 字的繁體中文解盤。語氣要像一位沉穩、專業又積極的老師：不恐嚇、不空泛，但清楚鼓勵客戶把今天浮現的正確念頭化成行動。先以「${facts.shortName}，你現在 ${facts.age}」開場，目標是把下方專業八字資料翻成客戶看得懂的白話文。
 接著必須依序用三個小段落和明確標籤呈現「${facts.previousAge}：」「${facts.age}（現在）：」「${facts.nextAge}：」。

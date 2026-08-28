@@ -27,6 +27,16 @@ type NumberResult = {
   engineVersion?: string;
   googleExplanation?: string;
   googleProvider?: 'Google Gemini';
+  iching?: {
+    hexagramName: string;
+    kingWen: number;
+    patternName: string;
+    chainScore: number;
+    verdictLine: string;
+    digitReadings: Array<{ digit: string; trigram: string; nature: string; element: string; image: string; tone: string; psych: string }>;
+    crossChain: Array<{ pair: string; kind: '相生' | '相剋' | '比和'; note: string }>;
+    ghost: { spirit: string; field: string; karma: string };
+  };
 };
 
 const VALID_LENGTHS = new Set([2, 3, 4, 5, 6, 7, 8, 9, 10]);
@@ -241,7 +251,7 @@ export default function NumerologyPage() {
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200/85">CARD 02 · NUMBER TASTING</p>
-              <h1 className="mt-2 font-serif text-3xl font-black leading-tight text-amber-50">數字論好壞</h1>
+              <h1 className="mt-2 font-serif text-3xl font-black leading-tight text-amber-50">易經論數字</h1>
               {/* 說明句已依指示隱藏：客戶直接看輸入規格與結果即可。 */}
             </div>
             <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-amber-200/35 bg-amber-300/12 font-serif text-3xl font-black text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.2)]">
@@ -278,7 +288,7 @@ export default function NumerologyPage() {
           {false && (
             <MegaInputGuide
               title="請填阿拉伯數字"
-              steps={['只輸入 0-9', '可填 4、6、8 或 10 碼', '看清大字後再按開始']}
+              steps={['只輸入 0-9', '可填 2 到 10 碼', '看清大字後再按開始']}
               example="1688、8888、0912345678"
               tone="amber"
               className="mb-4"
@@ -366,12 +376,12 @@ export default function NumerologyPage() {
             disabled={loading}
             className="mt-4 min-h-[58px] w-full rounded-2xl border border-amber-200/55 bg-amber-300 px-5 py-4 text-base font-black text-slate-950 shadow-[0_0_30px_rgba(251,191,36,0.24)] transition active:scale-[0.99] disabled:opacity-50"
           >
-            {loading ? 'AI 正在完成判定' : '立即開始'}
+            {loading ? '易經正在完成判定' : '立即開始'}
           </button>
         </section>
 
         <section className="grid gap-3">
-          <DailyAnalysisNotice moduleName="AI 數字論好壞" />
+          <DailyAnalysisNotice moduleName="易經論數字" />
           <IdentitySplitSelector />
         </section>
 
@@ -389,7 +399,7 @@ export default function NumerologyPage() {
               <span className="font-mono text-[10px] font-black text-amber-100/75">{result.valueMasked ?? result.value}</span>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200">AI FINAL</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200">I-CHING FINAL</p>
               <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <p className="font-serif text-5xl font-black leading-none text-amber-100">{score}</p>
@@ -399,6 +409,47 @@ export default function NumerologyPage() {
               </div>
               <p className="mt-4 text-lg font-black leading-8 text-cyan-50">{level.tone}</p>
             </div>
+
+            {/* 你的數字屬什麼卦：每一組輸入都經梅花易數起卦＋逐碼配卦＋生剋交叉，卦是比對出來的，不是亂補 */}
+            {result.iching && (
+              <section className="rounded-2xl border border-amber-200/30 bg-[linear-gradient(140deg,rgba(251,191,36,0.1),rgba(15,23,42,0.7))] p-4" aria-label="你的數字屬什麼卦">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200">YOUR HEXAGRAM・你的數字屬什麼卦</p>
+                    <h3 className="mt-2 font-serif text-2xl font-black leading-8 text-amber-50">
+                      第 {result.iching.kingWen} 卦「{result.iching.hexagramName}」・特殊格局「{result.iching.patternName}」
+                    </h3>
+                  </div>
+                  <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-amber-200/35 bg-amber-300/12 font-serif text-4xl font-black text-amber-100" aria-hidden="true">
+                    {String.fromCodePoint(0x4dc0 + result.iching.kingWen - 1)}
+                  </span>
+                </div>
+                <p className="mt-3 rounded-xl border border-white/10 bg-black/25 px-3 py-2.5 text-sm font-bold leading-7 text-amber-50/90">{result.iching.verdictLine}</p>
+                <div className="mt-3">
+                  <p className="text-[10px] font-black tracking-[0.16em] text-amber-100/75">逐碼配卦・每一個數字都有它的卦</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {result.iching.digitReadings.map((d, i) => (
+                      <span key={`${d.digit}-${i}`} className="rounded-xl border border-amber-200/25 bg-black/25 px-2.5 py-1.5 text-center">
+                        <span className="block font-mono text-base font-black text-amber-100">{d.digit}</span>
+                        <span className="block text-[10px] font-black text-white/70">{d.trigram}{d.nature}・{d.element}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                {result.iching.crossChain.length > 0 && (
+                  <details className="growth-detail-drawer mt-3">
+                    <summary>易經交叉比對紀錄（{result.iching.crossChain.filter((l) => l.kind === '相生').length}生{result.iching.crossChain.filter((l) => l.kind === '相剋').length}剋{result.iching.crossChain.filter((l) => l.kind === '比和').length}和・能量鏈 {result.iching.chainScore}/100）</summary>
+                    <div className="mt-2 space-y-1.5">
+                      {result.iching.crossChain.map((link, i) => (
+                        <p key={i} className="text-xs font-bold leading-5 text-white/65">
+                          {link.pair}【{link.kind}】{link.note}
+                        </p>
+                      ))}
+                    </div>
+                  </details>
+                )}
+              </section>
+            )}
 
             {result.googleExplanation && (
               <article className="rounded-2xl border border-blue-200/25 bg-blue-300/[0.07] p-4">
@@ -476,7 +527,7 @@ export default function NumerologyPage() {
             </section>
 
             <details open className="rounded-2xl border border-cyan-200/15 bg-cyan-300/[0.045] p-4">
-              <summary className="cursor-pointer text-sm font-black text-cyan-100">AI 精華分析</summary>
+              <summary className="cursor-pointer text-sm font-black text-cyan-100">易經精華分析</summary>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <article className="rounded-2xl border border-white/10 bg-black/18 p-3">
                   <p className="text-xs font-black text-emerald-100">最有利</p>

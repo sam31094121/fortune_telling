@@ -464,7 +464,7 @@ export default function TarotOriginalFortuneTeller({
           {finished && aiReadingState === 'loading' && (
             <div className="rounded-2xl border border-amber-200/25 bg-amber-300/8 p-5" role="status" aria-live="polite">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">第四道確認</p>
-              <p className="mt-3 text-base font-black leading-7 text-amber-50">結果完整性正在確認：AI 正在交叉整合三張牌的訊號。</p>
+              <p className="mt-3 text-base font-black leading-7 text-amber-50">結果完整性正在確認：易經正在交叉整合三張牌的訊號。</p>
               <p className="mt-2 text-sm leading-6 text-amber-100">三張牌已保留，請稍候；若連線逾時，會顯示重試按鈕，不必重新抽牌。</p>
             </div>
           )}
@@ -480,13 +480,40 @@ export default function TarotOriginalFortuneTeller({
           {finished && aiReadingState === 'ready' && aiReading && (
             <div className="space-y-3">
               <div className="rounded-[28px] border border-amber-300/35 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.22),rgba(16,185,129,0.12)_42%,rgba(15,23,42,0.88)_100%)] p-5 shadow-[0_0_44px_rgba(251,191,36,0.16)]">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">AI 最終判定</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">易經最終判定</p>
+                {typeof aiReading.interpretation.successProbability === 'number' && (
+                  <div className="mt-3 flex items-center gap-3">
+                    <span className="text-4xl font-black text-amber-50">{aiReading.interpretation.successProbability}%</span>
+                    <span className="text-sm font-bold leading-6 text-amber-200">綜合三張牌的<br />最終達成機率</span>
+                  </div>
+                )}
                 <p className="mt-3 text-base font-semibold leading-8 text-amber-50">{aiReading.interpretation.summary}</p>
                 <p className="mt-4 rounded-2xl border border-amber-200/20 bg-black/20 px-4 py-4 text-base font-black leading-7 text-amber-50">立即行動：{aiReading.interpretation.actionSuggestion}</p>
               </div>
 
+              {aiReading.interpretation.cardAnswers?.map((answer, index) => (
+                <article key={`${answer.positionLabel}-${answer.cardName}`} className="rounded-[24px] border border-cyan-200/25 bg-slate-950/70 p-5">
+                  <header className="flex items-center justify-between gap-3">
+                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-200">
+                      第{['一', '二', '三'][index] ?? index + 1}張・{answer.positionLabel}｜{answer.cardName}{answer.orientation === 'upright' ? '正位' : '逆位'}
+                    </p>
+                    <p className="shrink-0 rounded-full border border-cyan-200/30 bg-cyan-400/10 px-3 py-1 text-sm font-black text-cyan-100">
+                      {answer.probabilityLabel} {answer.probability}%
+                    </p>
+                  </header>
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-800" role="img" aria-label={`${answer.probabilityLabel} ${answer.probability}%`}>
+                    <div
+                      className={`h-full rounded-full ${answer.probability >= 60 ? 'bg-emerald-400' : 'bg-rose-400'}`}
+                      style={{ width: `${answer.probability}%` }}
+                    />
+                  </div>
+                  <p className="mt-4 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{answer.cardStory}</p>
+                  <p className="mt-3 rounded-2xl border border-cyan-200/15 bg-black/25 px-4 py-3 text-base font-bold leading-8 text-cyan-50">{answer.directAnswer}</p>
+                </article>
+              ))}
+
               <details className="growth-detail-drawer growth-detail-drawer--major">
-                <summary>查看 AI 精華分析</summary>
+                <summary>查看 易經精華分析</summary>
                 <div className="mt-3 space-y-3">
                   <p className="text-base font-semibold leading-7 text-[color:var(--text-sub)]">{aiReading.interpretation.questionConnection}</p>
                   <p className="text-base font-semibold leading-7 text-[color:var(--text-sub)]">{aiReading.interpretation.elementDecision}</p>
@@ -495,7 +522,7 @@ export default function TarotOriginalFortuneTeller({
               </details>
 
               <details className="growth-detail-drawer">
-                <summary>查看完整專業資料（AI 牌陣交叉判定）</summary>
+                <summary>查看完整專業資料（易經牌陣交叉判定）</summary>
                 <div className="mt-3 space-y-2">
                   <p>{aiReading.interpretation.spreadSummary}</p>
                   <p>{aiReading.interpretation.integrationSummary}</p>
@@ -509,16 +536,16 @@ export default function TarotOriginalFortuneTeller({
           {finished && aiReadingState === 'ready' && (
             <div className="tarot-growth-complete" data-tarot-growth-state={growthSyncState} role="status" aria-live="polite">
               <p className="tarot-growth-complete__eyebrow">TASK COMPLETE</p>
-              <h2>{growthSyncState === 'saved' ? '塔羅牌任務已完成，AI 個人成長中心已更新。' : '塔羅牌單次任務已完成。'}</h2>
+              <h2>{growthSyncState === 'saved' ? '塔羅牌任務已完成，易經個人成長中心已更新。' : '塔羅牌單次任務已完成。'}</h2>
               <p>
                 {growthSyncState === 'saved'
-                  ? '本次三張牌、正位與五元素訊號已寫入成長中心。回到首頁後會顯示 8/8，並可開啟 AI 個人成長中心。'
+                  ? '本次三張牌、正位與五元素訊號已寫入成長中心。回到首頁後會顯示 8/8，並可開啟 易經個人成長中心。'
                   : '這次是親朋好友模式，只保留本次抽牌結果，不寫入你的會員成長中心。'}
               </p>
               {growthSyncState === 'saved' && (
                 <div className="tarot-growth-complete__actions">
                   <Link href="/" className="tarot-growth-complete__primary">回首頁查看 8/8</Link>
-                  <Link href="/growth-center" className="tarot-growth-complete__secondary">開啟 AI 個人成長中心</Link>
+                  <Link href="/growth-center" className="tarot-growth-complete__secondary">開啟 易經個人成長中心</Link>
                 </div>
               )}
             </div>

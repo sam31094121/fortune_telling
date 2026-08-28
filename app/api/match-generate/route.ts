@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI, Type } from '@google/genai';
+import { castHexagram, formatHexagramLine } from '@/lib/iching-engine';
+import { buildEmpathicFromHexagram, formatGhostDecoding } from '@/lib/iching-psychology';
 import { computeCompatibility, type PersonProfile, type PersonalityMatrixCompat } from '@/lib/compatibility-engine';
 import { isConsistentAiSummary, stabilizeMatchResult } from '@/lib/match-stability';
 import { PersonalityMatrixEngine } from '@/lib/personality-matrix-engine';
@@ -318,9 +320,27 @@ async function enhanceMatchResultWithAI(
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return { summary: result.summary, zones: result.zones, provider: 'local' };
 
+  // 易經合卦：以雙方姓名＋日主決定性起卦，作為合盤的易經印證
+  const matchGua = castHexagram(displayA.name, displayB.name, baziFoundation.personA.dayMaster, baziFoundation.personB.dayMaster);
+  // 易經心理學共感層：兩人各自起卦推導心理側寫（剝洋蔥＋核心脆弱性），讓合盤懂兩顆心
+  const empathicA = buildEmpathicFromHexagram(displayA.name, castHexagram(displayA.name, baziFoundation.personA.dayMaster));
+  const empathicB = buildEmpathicFromHexagram(displayB.name, castHexagram(displayB.name, baziFoundation.personB.dayMaster));
+
   const prompt = `
-你是「天地人配對系統」的玄學合盤大師。
-請根據以下雙方的基本資料與大數據配對指數，將原始配對結果（摘要與四個關係象限文字）改寫成極具個性化、起伏分明、字字扎心、絕不重複的繁體中文大師合盤結論。
+你是「天地人配對系統」的玄學合盤大師，以易經與生辰八字交叉推算兩人關係。
+請根據以下雙方的基本資料、易經合卦與大數據配對指數，將原始配對結果（摘要與四個關係象限文字）改寫成極具個性化、起伏分明、字字扎心、絕不重複的繁體中文大師合盤結論。
+
+易經合卦（後端已決定性起卦，摘要中必須自然引用一次卦名印證，不可自行改卦）：${formatHexagramLine(matchGua)}；卦義：${matchGua.judgment}；卦示行動：${matchGua.advice}
+
+易經心理學共感層（後端已運算；合盤不只算契合度，還要讓兩個人都感覺「你真的懂我」）：
+- ${displayA.name}的外冷內熱：${empathicA.specialYou}
+- ${displayA.name}的核心脆弱性：${empathicA.absolution}
+- ${displayB.name}的外冷內熱：${empathicB.specialYou}
+- ${displayB.name}的核心脆弱性：${empathicB.absolution}
+共感規則：四大象限與摘要至少各有一處要呼應上述心理側寫——尤其「磨合」與「衝突」要指出：真正碰撞的不是兩個人的缺點，是兩顆沒被看懂的核心脆弱性；語氣扎心但有溫度，不可推翻共感層判定，也不可整段照抄。
+
+鬼魅拆卦・合卦版（後端已運算的標準檔案輸出＝靈異・磁場・因果；「衝突」象限可借用其中的磁場與因果語言增強穿透力，神秘話術底下必須保留心理機制）：
+${formatGhostDecoding(matchGua)}
 
 ${buildAiCopywritingInstruction('天地人配對系統')}
 
@@ -478,7 +498,7 @@ export async function POST(request: Request) {
     const result = stabilizeMatchResult(rawResult);
     const baziFoundation = buildBaziMatchFoundation(body.personA, body.personB);
     // fiveElementMatch 提前算，兩人的 needScores 直接來自 baziFoundation（真實八字），
-    // 算完立刻把 sharedElement 寫回 baziFoundation，讓下面的 AI 提示詞跟五元素引擎、
+    // 算完立刻把 sharedElement 寫回 baziFoundation，讓下面的 易經提示詞跟五元素引擎、
     // 前端寶珠三方看到的是同一個判定結果，不會各說各話。
     const fiveElementMatch = buildMatchFiveElementResult(
       { name: body.personA.name, needScores: baziFoundation.personA.needScores },

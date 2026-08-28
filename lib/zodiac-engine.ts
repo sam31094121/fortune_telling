@@ -1,5 +1,7 @@
 ﻿import * as Astronomy from 'astronomy-engine';
 import { findCityById, getDefaultCity, type CityEntry } from './city-directory';
+import { castHexagramFromBirth, formatHexagramLine } from './iching-engine';
+import { formatGhostDecoding } from './iching-psychology';
 import { zonedTimeToUtc } from './timezone-utils';
 
 export type ZodiacSignKey =
@@ -843,7 +845,12 @@ export function analyzeZodiac(input: ZodiacAnalysisInput): ZodiacAnalysisResult 
     personality: displayName + profile.name + '\u4e3b\u8ef8\uff1a' + profile.personality,
     strengths: profile.strengths,
     blindSpots: profile.blindSpots,
-    currentAdvice: profile.currentAdvice,
+    currentAdvice: (() => {
+      // 易經起卦（梅花易數・生辰起卦法）：星座建議附上易經卦象印證
+      // ＋鬼魅老師標準檔案輸出（靈異・磁場・因果，全站八卡標配）
+      const gua = castHexagramFromBirth(birthDate, null);
+      return `${profile.currentAdvice}（${formatHexagramLine(gua)}：${gua.essence}——${gua.advice}）\n${formatGhostDecoding(gua)}`;
+    })(),
     weeklyReminder: profile.weeklyReminder,
     integrationSummary: '\u897f\u6d0b\u661f\u5ea7\u5df2\u5b8c\u6210\u7368\u7acb\u5206\u6790\uff0cIntegration Layer \u53ea\u8b80\u53d6\u672c\u7d50\u679c\u4f5c\u70ba\u6703\u54e1\u6210\u9577\u8cc7\u6599\u88dc\u5145\uff0c\u4e0d\u91cd\u65b0\u5206\u6790\u5176\u4ed6\u547d\u7406\u6a21\u7d44\u3002',
   };

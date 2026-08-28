@@ -58,7 +58,7 @@ export default function TaijiTopShell3D({
   if (!ready) return null;
 
   return (
-    <div className="relative w-full overflow-hidden rounded-[28px]">
+    <div className="relative w-full overflow-visible rounded-[28px]">
       <TaijiSystem textureUrl={textureUrl ?? '/taiji.png'} videoUrl={videoUrl} />
     </div>
   );

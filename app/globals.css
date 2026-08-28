@@ -24805,3 +24805,67 @@ a.home-feature-launch::after {
     animation: none;
   }
 }
+
+/* ── 五星軌道・活體邏輯動畫（相生金線／相剋青線的光在線路上跑） ── */
+@keyframes orbit-dash-run {
+  to { stroke-dashoffset: -60; }
+}
+.orbit-line-run-gold {
+  stroke-dasharray: 5.5 4.5;
+  animation: orbit-dash-run 2.1s linear infinite;
+}
+.orbit-line-run-cyan {
+  stroke-dasharray: 2.6 5.2;
+  animation: orbit-dash-run 3.6s linear infinite reverse;
+}
+@keyframes orbit-conflict-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+.orbit-line-conflict-active {
+  animation: orbit-conflict-pulse 1.5s ease-in-out infinite;
+}
+@keyframes orbit-repair-pulse {
+  0%, 100% { opacity: 0.5; stroke-width: 2.2; }
+  50% { opacity: 1; stroke-width: 3; }
+}
+.orbit-line-repair-active {
+  stroke-dasharray: 4 3;
+  animation: orbit-dash-run 1.4s linear infinite, orbit-repair-pulse 1.4s ease-in-out infinite;
+}
+
+/* ── 成長中心・偏好按鍵靈魂回應（按下去殼就活起來） ── */
+@keyframes growth-soul-response-in {
+  0% { opacity: 0; transform: translateY(10px) scale(0.98); box-shadow: 0 0 0 rgba(217, 70, 239, 0); }
+  55% { opacity: 1; transform: translateY(0) scale(1.01); box-shadow: 0 0 34px rgba(217, 70, 239, 0.35); }
+  100% { opacity: 1; transform: translateY(0) scale(1); box-shadow: 0 0 18px rgba(217, 70, 239, 0.18); }
+}
+.growth-soul-response {
+  animation: growth-soul-response-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes growth-chip-alive {
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(217, 70, 239, 0); }
+  40% { transform: scale(1.04); box-shadow: 0 0 26px rgba(217, 70, 239, 0.45); }
+  100% { transform: scale(1); box-shadow: 0 0 12px rgba(217, 70, 239, 0.2); }
+}
+.growth-preference-chip--alive {
+  animation: growth-chip-alive 0.6s ease-out both;
+}
+
+/* ── 殼與禮物：未拆的殼會呼吸微光（暗示裡面有東西），拆開後保持活著的溫度 ── */
+@keyframes growth-shell-breath {
+  0%, 100% { box-shadow: 0 0 5px rgba(251, 191, 36, 0.08); }
+  50% { box-shadow: 0 0 18px rgba(251, 191, 36, 0.28); }
+}
+.growth-preference-chip--shell {
+  animation: growth-shell-breath 2.8s ease-in-out infinite;
+}
+.growth-preference-chip__gift {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+  color: rgba(252, 211, 77, 0.85);
+  animation: growth-shell-breath 2.8s ease-in-out infinite;
+}

@@ -1,4 +1,6 @@
 import { GoogleGenAI, Type } from '@google/genai';
+import { castHexagramFromBirth, formatHexagramLine } from './iching-engine';
+import { formatGhostDecoding } from './iching-psychology';
 import { getBirthPersonalityScores, getBirthZodiac } from './birth-model-db';
 import { getBloodTypeDescription, getBloodTypePersonalityScores } from './blood-model-db';
 import { generateGenderAdjustments, getGenderCorrectionExplanation } from './gender-corrector';
@@ -130,16 +132,19 @@ function buildAnalysisPrompt(
   const genderLabel = person.gender === 'male' ? '男性' : '女性';
 
   return `
-你是「天地人 AI 人格解碼系統」的高級分析顧問，請只負責寫出肯定、明確、彼此一致、不可互相否定的繁體中文摘要。
+你是「天地人 易經人格解碼系統」的高級分析顧問，請只負責寫出肯定、明確、彼此一致、不可互相否定的繁體中文摘要。
 
-${buildAiCopywritingInstruction('天地人 AI 人格解碼系統')}
+${buildAiCopywritingInstruction('天地人 易經人格解碼系統')}
 
 鐵律：
 1. 生日是人格骨架，血型只能補充生日，姓名只能深化天地，性別只能修飾外在呈現。
 2. 任何後面的分析都不得推翻前面的分析。
 3. 用詞只能使用「補充、深化、校正、細化、調和」，不可使用「相反、推翻、其實不是、完全改變」。
-4. 語氣要肯定、直接、有力量，全部使用「AI 判定」「AI 分析」開頭的斷言句，不可浮誇、不可搞笑、不可模糊。
+4. 語氣要肯定、直接、有力量，全部使用「易經卜卦判定」「易經卜卦分析」開頭的斷言句，不可浮誇、不可搞笑、不可模糊。
 5. 最後結語必須帶到「以善為本、多行善能讓命運更順」的價值，但不要說教。
+
+易經卦象（後端已以梅花易數生辰起卦，摘要中須自然引用印證，不可自行改卦）：
+${(() => { const gua = castHexagramFromBirth(person.birthday, null); return `${formatHexagramLine(gua)}；卦義：${gua.essence}；卦示行動：${gua.advice}`; })()}
 
 人物資料：
 - 姓名：${person.name}
@@ -179,15 +184,15 @@ function buildPreviewPrompt(
   const zodiac = getBirthZodiac(birthday);
 
   return `
-你是「天地人 AI 人格解碼系統」的免費天地預分析顧問。
+你是「天地人 易經人格解碼系統」的免費天地預分析顧問。
 
-${buildAiCopywritingInstruction('天地人 AI 人格解碼系統')}
+${buildAiCopywritingInstruction('天地人 易經人格解碼系統')}
 
 規則：
 1. 只能描述生日骨架與血型補充。
 2. 不可假裝已經分析姓名或最終命運。
 3. 血型只能補充，不能推翻生日。
-4. 語氣要肯定、直接、有力量，全部使用「AI 判定」「AI 分析」開頭的斷言句，不可浮誇、不可模糊。
+4. 語氣要肯定、直接、有力量，全部使用「易經卜卦判定」「易經卜卦分析」開頭的斷言句，不可浮誇、不可模糊。
 
 人物資料：
 - 生日：${birthday}
@@ -378,7 +383,7 @@ export interface MusicReportInput {
     archetypeSecondary: string;
     oceanHighlight: string;
   };
-  // 已由大數據選歌引擎挑出的主題曲（英文 / 國語 / 國語），請 AI 說明為何對應此人
+  // 已由大數據選歌引擎挑出的主題曲（英文 / 國語 / 國語），請 易經說明為何對應此人
   selectedSongs?: {
     english: { title: string; artist: string };
     mandarin: { title: string; artist: string };
@@ -561,7 +566,7 @@ ${languageInstructionBlock}
 ${voiceProfileInstructionBlock}
 ${lifeSongInstructionBlock}
 
-你是「天地人 AI 人格音樂系統」的靈魂音樂顧問，同時精通命理學與深層心理學。
+你是「天地人 易經人格音樂系統」的靈魂音樂顧問，同時精通命理學與深層心理學。
 根據以下四層數據——使用者當前目標、天地人命理架構、心理學原型、音樂矩陣——寫出一份深刻的人格音樂報告。
 
 系統鐵律：
@@ -575,6 +580,9 @@ ${lifeSongInstructionBlock}
 
 ━━━ 生命歌曲創作任務 ━━━
 ${lifeSongInstructionBlock}
+
+━━━ 易經卦象（後端已以梅花易數生辰起卦，音樂敘事須自然引用此卦意象，不可自行改卦）━━━
+${(() => { const gua = castHexagramFromBirth(input.birthDate, null); return `${formatHexagramLine(gua)}；卦義：${gua.essence}；卦示行動：${gua.advice}\n鬼魅拆卦素材（靈異・磁場・因果；music_narrative 與 wisdom_note 可借其意象與心理機制，不可照抄）：\n${formatGhostDecoding(gua)}`; })()}
 
 ━━━ 人物命格 ━━━
 姓名：${input.name}
@@ -662,7 +670,7 @@ const TIANDIREN_SONG_MATRIX_RULES = `
 - 人 30%（姓名 + 性別 + 名字性格男/女/中性）：只決定國語歌詞語感、姓名氣質、個人故事、歌詞核心句、記憶點、情感落點；人不能亂改編曲。
 - 天只決定音樂靈魂，地只決定音樂身體，人只決定音樂故事。
 - 三者不能互相推翻，所有結果都必須進入同一個歌曲矩陣。
-- AI 不能各自生成三套最終歌曲；english / mandarin / taiwanese 欄位只是素材層，不是三首正式歌。
+- 易經不能各自生成三套最終歌曲；english / mandarin / taiwanese 欄位只是素材層，不是三首正式歌。
 - 若規則衝突，停止擴寫，以歌曲矩陣為唯一輸出。
 `.trim();
 
@@ -889,7 +897,7 @@ export async function generateSongDrafts(input: MusicReportInput): Promise<Origi
 }
 
 // ────────────────────────────────────────────────────────────
-// AI 製作總監（輕量自動優化層：把天地人素材層整理成一首歌）
+// 易經製作總監（輕量自動優化層：把天地人素材層整理成一首歌）
 // ────────────────────────────────────────────────────────────
 
 export interface AiProductionPlanInput extends MusicReportInput {
@@ -976,7 +984,7 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
 
   return {
     producer_summary:
-      `AI 製作總監先讀取「${lifeSong?.goal ?? '療癒'}」這個當前生命目標，再把《${heavenLayerTitle}》《${earthLayerTitle}》《${humanLayerTitle}》視為天地人三個素材層，不視為三首歌，最後只整理成《${input.fusionSong.fusion_title}》這一首 AI 專屬生命歌曲。`,
+      `易經製作總監先讀取「${lifeSong?.goal ?? '療癒'}」這個當前生命目標，再把《${heavenLayerTitle}》《${earthLayerTitle}》《${humanLayerTitle}》視為天地人三個素材層，不視為三首歌，最後只整理成《${input.fusionSong.fusion_title}》這一首 易經專屬生命歌曲。`,
     fusion_strategy:
       `天層負責英文音樂格局、主旋律方向與空間感；地層負責國語唱腔、節奏身體與副歌情緒；人層負責國語故事核心句與情感落點。融合時不三首硬拼，而是以「${lifeSong?.theme ?? themes}」作為共同主軸。`,
     final_song_brief:
@@ -1019,7 +1027,7 @@ export function generateAiProductionPlan(input: AiProductionPlanInput): AiProduc
 }
 
 // ────────────────────────────────────────────────────────────
-// AI 歌曲融合引擎（第一階段：文字版 — 歌名 + 天地人融合歌詞 + 融合曲風）
+// 易經歌曲融合引擎（第一階段：文字版 — 歌名 + 天地人融合歌詞 + 融合曲風）
 // ────────────────────────────────────────────────────────────
 
 export interface FusionSongInput {
@@ -1101,7 +1109,7 @@ function buildFusionSongPrompt(input: FusionSongInput): string {
 語言比例建議：${languageGuidance.distribution}`;
   const drafts = input.songDrafts
     ? `
-━━━ 第一階段 AI 已生成的天地人素材層（這才是主要融合素材）━━━
+━━━ 第一階段 易經已生成的天地人素材層（這才是主要融合素材）━━━
 天層素材：《${input.songDrafts.english.title}》
 概念：${input.songDrafts.english.concept}
 素材文字：
@@ -1134,7 +1142,7 @@ ${TIANDIREN_SONG_MATRIX_RULES}
 3. 地層只給國語唱腔、節奏、鼓點、和聲、編曲厚度與副歌情緒，不可推翻天層曲風。
 4. 人層只給國語歌詞語感、姓名故事、核心句、記憶點與情感落點，不可亂改編曲。
 5. 歌詞要呼應此人的人格特質，溫暖、有畫面、不浮誇。
-6. 優先融合「AI 已生成的天地人素材層」，參考曲只作年代/情緒輔助，不可搶主導。
+6. 優先融合「易經已生成的天地人素材層」，參考曲只作年代/情緒輔助，不可搶主導。
 7. 每次融合都要展現新的創意組合——用不同的和聲安排、不同的節奏組織、不同的故事線索。
 
 ${drafts}

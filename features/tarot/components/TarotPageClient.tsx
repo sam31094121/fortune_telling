@@ -28,6 +28,9 @@ const TAROT_DECK_INTEGRITY = {
   major: TAROT_CARDS.filter((card) => card.arcana === 'major').length,
   minor: TAROT_CARDS.filter((card) => card.arcana === 'minor').length,
 };
+// 範例問題卡片開關：依需求隱藏整張卡片，之後要恢復把這裡改回 true 即可
+const SHOW_QUESTION_EXAMPLES = false;
+
 const TAROT_QUESTION_EXAMPLES = [
   {
     number: '01',
@@ -238,11 +241,11 @@ export default function TarotPageClient() {
                 {/* 主標視覺強化（2026-08-12 依指示）：超大置中主標，強烈視覺衝擊 */}
                 <div className="tarot-brand-kicker">
                   <span aria-hidden="true" />
-                  <p>AI TAROT</p>
+                  <p>I-CHING TAROT</p>
                   <span aria-hidden="true" />
                 </div>
-                <h1 className="tarot-brand-mark" aria-label="AI 塔羅牌">
-                  <span className="tarot-brand-mark__ai">AI</span>
+                <h1 className="tarot-brand-mark" aria-label="古老塔羅牌">
+                  <span className="tarot-brand-mark__ai">易經</span>
                   <span className="tarot-brand-mark__name">塔羅牌</span>
                 </h1>
                 <div className="tarot-brand-divider" aria-hidden="true">
@@ -269,7 +272,7 @@ export default function TarotPageClient() {
                 <IdentitySplitSelector className="mt-5" />
                 {/* 資料分流說明卡已隱藏（2026-08-11）：內部機制說明，客戶不用看 */}
                 <div className="mt-4 hidden rounded-2xl border border-amber-200/20 bg-amber-300/10 px-4 py-3 text-sm font-black leading-7 text-amber-100">
-                  AI 判定：塔羅牌已接入資料分流。選「我自己」會保留給個人成長中心累積；選「親朋好友」只完成本次單次抽牌，不寫入會員成長資料。
+                  易經卜卦判定：塔羅牌已接入資料分流。選「我自己」會保留給個人成長中心累積；選「親朋好友」只完成本次單次抽牌，不寫入會員成長資料。
                 </div>
 
                 <MegaInputGuide
@@ -300,34 +303,41 @@ export default function TarotPageClient() {
                     className="tarot-question-entry__textarea"
                   />
                   <p className={`tarot-question-entry__field-hint ${questionReady ? 'tarot-question-entry__field-hint--ready' : ''}`}>
-                    {questionReady ? '問題已建立，可以開始洗牌。' : '請輸入至少 4 個字，或直接點選下方範例。'}
+                    {questionReady
+                      ? '問題已建立，可以開始洗牌。'
+                      : SHOW_QUESTION_EXAMPLES
+                        ? '請輸入至少 4 個字，或直接點選下方範例。'
+                        : '請輸入至少 4 個字。'}
                   </p>
-                  <div className="tarot-question-entry__examples">
-                    <div className="tarot-question-entry__example-head">
-                      <strong>最讓你刺痛的那一句，往往就是你真正該問的事</strong>
-                      <span>不要挑最好回答的。選你最想跳過的那一句，牌才會照見你真正不敢面對的地方。</span>
+                  {/* 範例問題卡片依需求隱藏；SHOW_QUESTION_EXAMPLES 改回 true 即可恢復 */}
+                  {SHOW_QUESTION_EXAMPLES && (
+                    <div className="tarot-question-entry__examples">
+                      <div className="tarot-question-entry__example-head">
+                        <strong>最讓你刺痛的那一句，往往就是你真正該問的事</strong>
+                        <span>不要挑最好回答的。選你最想跳過的那一句，牌才會照見你真正不敢面對的地方。</span>
+                      </div>
+                      <div className="tarot-question-entry__example-list flex flex-wrap gap-2" aria-label="塔羅問題範例">
+                        {TAROT_QUESTION_EXAMPLES.map((example) => (
+                          <button
+                            key={example.text}
+                            type="button"
+                            onClick={() => {
+                              setTarotQuestion(example.text);
+                              setError('');
+                            }}
+                            className="tarot-question-entry__example"
+                          >
+                            <span className="tarot-question-entry__example-badge">{example.number}</span>
+                            <span className="tarot-question-entry__example-copy">
+                              <strong>{example.label}</strong>
+                              <small>{example.cue}</small>
+                              <span>{example.text}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div className="tarot-question-entry__example-list flex flex-wrap gap-2" aria-label="塔羅問題範例">
-                      {TAROT_QUESTION_EXAMPLES.map((example) => (
-                        <button
-                          key={example.text}
-                          type="button"
-                          onClick={() => {
-                            setTarotQuestion(example.text);
-                            setError('');
-                          }}
-                          className="tarot-question-entry__example"
-                        >
-                          <span className="tarot-question-entry__example-badge">{example.number}</span>
-                          <span className="tarot-question-entry__example-copy">
-                            <strong>{example.label}</strong>
-                            <small>{example.cue}</small>
-                            <span>{example.text}</span>
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  )}
                   {error && (
                     <p className="mt-4 rounded-2xl border border-rose-300/30 bg-rose-950/25 px-4 py-3 text-sm font-bold leading-7 text-rose-100">
                       {error}

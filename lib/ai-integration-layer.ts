@@ -68,7 +68,7 @@ export type AiIntegrationResult = {
 export const AI_INTEGRATION_MODULES: AiIntegrationModuleMeta[] = [
   {
     id: 'nameology',
-    title: 'AI 姓名學',
+    title: '易經姓名學',
     shortTitle: '姓名學',
     href: '/nameology',
     defaultElement: 'AIR',
@@ -76,7 +76,7 @@ export const AI_INTEGRATION_MODULES: AiIntegrationModuleMeta[] = [
   },
   {
     id: 'ziwei',
-    title: 'AI 紫微斗數',
+    title: '易經紫微斗數',
     shortTitle: '紫微',
     href: '/insight',
     defaultElement: 'SPACE',
@@ -84,15 +84,15 @@ export const AI_INTEGRATION_MODULES: AiIntegrationModuleMeta[] = [
   },
   {
     id: 'number',
-    title: 'AI 數字論好壞',
+    title: '易經論數字',
     shortTitle: '數字',
     href: '/numerology',
     defaultElement: 'FIRE',
-    evidence: '數字論好壞已提供行動節奏、數字磁場與決策推進訊號。',
+    evidence: '易經論數字已提供行動節奏、數字磁場與決策推進訊號。',
   },
   {
     id: 'soul_match',
-    title: 'AI 靈魂配對',
+    title: '易經靈魂配對',
     shortTitle: '配對',
     href: '/match',
     defaultElement: 'WATER',
@@ -100,15 +100,15 @@ export const AI_INTEGRATION_MODULES: AiIntegrationModuleMeta[] = [
   },
   {
     id: 'music',
-    title: 'AI 生成歌曲',
+    title: '易經生成歌曲',
     shortTitle: '歌曲',
     href: '/music',
     defaultElement: 'EARTH',
-    evidence: 'AI 生成歌曲已提供聲音記憶、陪伴節奏與穩定落地訊號。',
+    evidence: '易經生成歌曲已提供聲音記憶、陪伴節奏與穩定落地訊號。',
   },
   {
     id: 'bazi',
-    title: 'AI 八字命盤',
+    title: '易經八字命盤',
     shortTitle: '八字',
     href: '/bazi',
     defaultElement: 'EARTH',
@@ -116,7 +116,7 @@ export const AI_INTEGRATION_MODULES: AiIntegrationModuleMeta[] = [
   },
   {
     id: 'zodiac',
-    title: 'AI 西洋星座',
+    title: '易經西洋星座',
     shortTitle: '星座',
     href: '/zodiac',
     defaultElement: 'AIR',
@@ -124,7 +124,7 @@ export const AI_INTEGRATION_MODULES: AiIntegrationModuleMeta[] = [
   },
   {
     id: 'tarot',
-    title: 'AI 塔羅牌',
+    title: '古老塔羅牌',
     shortTitle: '塔羅牌',
     href: '/tarot',
     defaultElement: 'SPACE',
@@ -259,7 +259,7 @@ function getCompanionStage(completed: number, total: number): AiCompanionStage {
       id: 'empty',
       label: '尚未啟動',
       description: '尚未完成任何分析，成長中心只顯示啟動提示。',
-      returnReason: '先完成任一張分析卡片，AI 才能建立第一層陪伴資料。',
+      returnReason: '先完成任一張分析卡片，易經才能建立第一層陪伴資料。',
     };
   }
   if (completed < 3) {
@@ -267,7 +267,7 @@ function getCompanionStage(completed: number, total: number): AiCompanionStage {
       id: 'starter',
       label: '初始陪伴',
       description: '已累積第一批分析訊號，成長中心開始整理每週方向。',
-      returnReason: '再完成兩項分析，AI 的交叉整理會更精準。',
+      returnReason: '再完成兩項分析，易經的交叉整理會更精準。',
     };
   }
   if (completed < total) {
@@ -329,7 +329,7 @@ export function buildAiIntegrationLayer(input: AiIntegrationInput): AiIntegratio
     nextModule,
     nextWeeklyUpdateAt: nextMondayTaipei(now),
     nextMonthlyUpdateAt: nextMonthTaipei(now),
-    dataPolicy: 'AI Integration Layer 只讀取八張分析卡片已完成的狀態與元素方向，不重新排盤、不重新算命、不重複呼叫任何命理分析。',
+    dataPolicy: '易經整合層 只讀取八張分析卡片已完成的狀態與元素方向，不重新排盤、不重新算命、不重複呼叫任何命理分析。',
     ecosystemPolicy: '第五層只建立長期陪伴生態，不新增命理、不重複各卡片內容、不覆蓋任何命理結果。',
     sourceModules: completedModules,
     forbiddenCalls: [...PLATFORM_FORBIDDEN_ANALYSIS_CALLS],

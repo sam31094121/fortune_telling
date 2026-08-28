@@ -1,12 +1,12 @@
 /**
  * ============================================================
- * 【天地人和 AI 平台】Traditional Bazi Core V1
+ * 【天地人和 易經平台】Traditional Bazi Core V1
  * 傳統八字確定性排盤核心｜先算準 → 再驗證 → 再解盤
  * ============================================================
  *
  * 架構鐵律：
- * A. CALCULATION WORLD（本檔）＝確定性排盤，禁止 AI 參與。
- * B. INTERPRETATION WORLD（AI 老師層）＝只讀本檔已驗證結果。
+ * A. CALCULATION WORLD（本檔）＝確定性排盤，禁止 易經參與。
+ * B. INTERPRETATION WORLD（易經老師層）＝只讀本檔已驗證結果。
  *
  * 曆法來源：lunar-typescript（確定性天文曆法庫）
  * - 年柱：立春實刻為界（yearBoundary = LI_CHUN）
@@ -54,7 +54,7 @@ export const BRANCH_YINYANG: Record<Branch, YinYang> = {
   子: '陽', 丑: '陰', 寅: '陽', 卯: '陰', 辰: '陽', 巳: '陰', 午: '陽', 未: '陰', 申: '陽', 酉: '陰', 戌: '陽', 亥: '陰',
 };
 
-/** 藏干唯一字典（HiddenStemDictionary｜固定資料表，禁止 AI 生成） */
+/** 藏干唯一字典（HiddenStemDictionary｜固定資料表，禁止 易經生成） */
 export const HIDDEN_STEM_DICTIONARY: Record<Branch, { primary: Stem; secondary?: Stem; tertiary?: Stem }> = {
   子: { primary: '癸' },
   丑: { primary: '己', secondary: '癸', tertiary: '辛' },
@@ -189,7 +189,7 @@ export interface BaziProfessionalResult {
   };
 }
 
-// ==================== TenGodEngine（禁止 AI 判十神） ====================
+// ==================== TenGodEngine（禁止 易經判十神） ====================
 
 export function calculateTenGod(dayMaster: Stem, target: Stem): TenGod {
   const dmElement = STEM_ELEMENT[dayMaster];
@@ -258,7 +258,7 @@ export function createBaziCore(input: BaziBirthInput): BaziProfessionalResult {
   const eightChar = lunar.getEightChar();
   eightChar.setSect(2); // 晚子時日柱不換日（規則版本已記錄於 BAZI_ENGINE.lateZiRule）
 
-  // ---- 3. 節氣（確定性曆法取得，禁止 AI 推測）----
+  // ---- 3. 節氣（確定性曆法取得，禁止 易經推測）----
   let solarTerm = ''; let solarTermTime = '';
   try {
     const prevJie = lunar.getPrevJie(true);
@@ -466,7 +466,7 @@ export function createBaziCore(input: BaziBirthInput): BaziProfessionalResult {
   };
 }
 
-/** 驗證未通過即擋下 AI 解盤（Gate） */
+/** 驗證未通過即擋下 易經解盤（Gate） */
 export function assertReadyForInterpretation(core: BaziProfessionalResult): void {
   if (!core.verification.readyForInterpretation) {
     throw new Error('BAZI_CORE_VALIDATION_FAILED: ' + core.verification.issues.join(','));

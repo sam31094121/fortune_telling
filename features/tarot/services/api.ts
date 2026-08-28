@@ -191,7 +191,7 @@ export async function requestTarotInterpretation(input: { reading: TarotReading 
     cache: 'no-store',
     body: JSON.stringify(input),
   });
-  return parseJsonResponse<TarotInterpretApiResponse>(response, '塔羅牌 AI 解讀暫時無法重新產生。');
+  return parseJsonResponse<TarotInterpretApiResponse>(response, '塔羅牌 易經解讀暫時無法重新產生。');
 }
 export async function requestTarotDeckCatalog(): Promise<TarotDeckCatalogApiResponse> {
   const response = await fetch('/api/tarot/deck', { cache: 'no-store' });

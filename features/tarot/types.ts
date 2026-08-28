@@ -252,6 +252,17 @@ export type TarotInterpretationInput = {
   drawnCards?: TarotInterpretationCardInput[];
 };
 
+// 逐張直答：每張牌針對使用者輸入的問題給出明確判定與機率數據，不模稜兩可。
+export type TarotCardAnswer = {
+  positionLabel: string; // 過去／現在／未來
+  cardName: string;
+  orientation: 'upright' | 'reversed';
+  cardStory: string; // 看圖說故事：牌面意境
+  directAnswer: string; // 直接針對使用者的問題作答
+  probability: number; // 0-100 的明確機率數據
+  probabilityLabel: string; // 這個數字代表什麼（如「準備充足度」「當下成功機率」「最終達成機率」）
+};
+
 export type TarotInterpretationOutput = {
   summary: string;
   questionConnection: string;
@@ -263,6 +274,9 @@ export type TarotInterpretationOutput = {
   integrationSummary?: string;
   cardDetails?: string[];
   analysisMatrix?: string[];
+  cardAnswers?: TarotCardAnswer[]; // 三張牌逐張直答（過去／現在／未來）
+  successProbability?: number; // 綜合三張牌後的最終達成機率
+  finalVerdict?: string; // 一句話直接回答使用者的問題
 };
 
 export type TarotReadinessItem = {
@@ -336,4 +350,4 @@ export const TAROT_SPREAD_LABELS: Record<TarotSpreadType, string> = {
   three_card: '三張牌交叉判定',
 };
 
-export const TAROT_FIXED_DISCLAIMER = '塔羅牌不預測命運，也不保證人生結果。AI 只根據你親手抽出的牌、正逆位、牌陣與問題，明確判定當下最需要補強的方向；成果由使用者自己創造。';
+export const TAROT_FIXED_DISCLAIMER = '塔羅牌不預測命運，也不保證人生結果。易經只根據你親手抽出的牌、正逆位、牌陣與問題，明確判定當下最需要補強的方向；成果由使用者自己創造。';

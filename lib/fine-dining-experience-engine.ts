@@ -47,15 +47,15 @@ export type FineDiningStageView = FineDiningExperienceStage & {
 export const FINE_DINING_EXPERIENCE_VERSION = 'fine_dining_experience_v2';
 
 export const FINE_DINING_MODULE_LABEL: Record<FineDiningExperienceModule, string> = {
-  number: '數字論好壞',
-  nameology: 'AI 姓名學',
-  ziwei: 'AI 紫微斗數',
-  bazi: 'AI 八字命盤',
-  zodiac: 'AI 西洋星座',
-  soul_match: 'AI 靈魂配對',
-  music: 'AI 生成歌曲',
-  tarot: 'AI 塔羅牌',
-  growth: 'AI 個人成長中心',
+  number: '易經論數字',
+  nameology: '易經姓名學',
+  ziwei: '易經紫微斗數',
+  bazi: '易經八字命盤',
+  zodiac: '易經西洋星座',
+  soul_match: '易經靈魂配對',
+  music: '易經生成歌曲',
+  tarot: '古老塔羅牌',
+  growth: '易經個人成長中心',
 };
 
 export const FINE_DINING_STAGES: FineDiningExperienceStage[] = [
@@ -76,7 +76,7 @@ export const FINE_DINING_STAGES: FineDiningExperienceStage[] = [
   },
   {
     id: 'STAGE_04_COOK',
-    label: 'AI 分析中',
+    label: '易經卜卦分析中',
     detail: '後端開始運算，不讓使用者面對空白等待。',
   },
   {
@@ -91,7 +91,7 @@ export const FINE_DINING_STAGES: FineDiningExperienceStage[] = [
   },
   {
     id: 'STAGE_07_CHEF_SUMMARY',
-    label: 'AI 最終判定',
+    label: '易經最終判定',
     detail: '整合成一句最核心的今日方向。',
   },
   {

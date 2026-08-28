@@ -4,7 +4,7 @@
  * 不是投票算命。三位老師各自的結構化輸出裡本來就已經有各自的收尾欄位
  * （格局老師的 conclusion／人生老師的 practicalDirection／故事老師的 finalMetaphor），
  * 這裡只是把三個既有欄位整理成「核心力量／核心課題／第一方向」，
- * 不重新呼叫 AI、不做語意合併猜測。
+ * 不重新呼叫 易經、不做語意合併猜測。
  */
 
 import { INSUFFICIENT_DATA, type LifeTeacherResult, type NarrativeTeacherResult, type PalaceAnalysisContext, type PalaceId, type StructureTeacherResult, type TeacherConsensus } from './types';

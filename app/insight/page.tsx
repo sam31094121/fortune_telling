@@ -487,7 +487,7 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
             {analysis.name}
           </h2>
           <p className="mt-4 text-sm font-semibold tracking-[0.16em] text-cyan-100 sm:text-base">
-            AI 姓名學 · 測字意境 × 24性情矩陣 × 相生相剋
+            易經姓名學 · 測字意境 × 24性情矩陣 × 相生相剋
           </p>
           <p className="mx-auto mt-4 max-w-3xl text-sm leading-7 text-[color:var(--text-sub)] lg:mx-0">
             {analysis.summary}
@@ -899,7 +899,7 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
       <section className="fortune-card relative overflow-hidden p-6 sm:p-8">
         <p className="text-xs font-black tracking-[0.28em] text-amber-300">八字 × 稱骨幾兩重</p>
         <h2 className="mt-3 font-serif text-2xl font-black text-amber-100">等待出生時辰定盤</h2>
-        <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">命宮、遷移宮、官祿宮與財帛宮會隨時辰改變；時辰確認後才產生四宮交叉的 AI 組合解讀。</p>
+        <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">命宮、遷移宮、官祿宮與財帛宮會隨時辰改變；時辰確認後才產生四宮交叉的 易經組合解讀。</p>
         <p className="mt-4 text-sm text-[color:var(--text-muted)]">稱骨重量需出生時辰，補齊後才計算；目前不代填午時，也不顯示暫估重量。</p>
       </section>
     );
@@ -938,7 +938,7 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
       <div className="pointer-events-none absolute -right-12 -top-16 h-48 w-48 rounded-full border border-amber-200/15" />
       <div className="relative">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="hidden rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1 text-[10px] font-black tracking-[0.2em] text-cyan-100" aria-hidden="true">AI FUSION CARD</span>
+          <span className="hidden rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1 text-[10px] font-black tracking-[0.2em] text-cyan-100" aria-hidden="true">I-CHING FUSION CARD</span>
           <span className="inline-flex rounded-full border border-amber-200/20 bg-amber-300/[0.08] px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-amber-100/90">命・遷・官・財｜四宮合參</span>
         </div>
         <div className="mt-3 flex justify-end">
@@ -1414,7 +1414,7 @@ function getZiweiAiElementPriorities(fiveElement?: FiveElementIntegrationResult)
     return {
       label: ['第一補強', '第二補強', '第三補強'][index] ?? '後續補強',
       element: `${element}元素`,
-      detail: `AI 判定：目前${index === 0 ? '最需要' : '依序需要'}補強 ${element}元素${typeof need === 'number' ? `，補強需求 ${need} 分` : ''}。`,
+      detail: `易經卜卦判定：目前${index === 0 ? '最需要' : '依序需要'}補強 ${element}元素${typeof need === 'number' ? `，補強需求 ${need} 分` : ''}。`,
     };
   });
 }
@@ -2126,7 +2126,7 @@ function ZiweiProfessionalTeacherMode({
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">TEACHER MODE V2</p>
           <h4 className="mt-2 font-serif text-2xl font-black text-amber-50 sm:text-3xl">老師模式｜完整命盤檢核</h4>
           <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-amber-50/76">
-            第一層先呈現專業命盤：十二宮、十四主星、輔星、生年四化與宮干地支。AI 只讀取此命盤，不自行亂排、不跳過排盤。
+            第一層先呈現專業命盤：十二宮、十四主星、輔星、生年四化與宮干地支。易經只讀取此命盤，不自行亂排、不跳過排盤。
           </p>
         </div>
         <div className="grid grid-cols-2 gap-2 text-center text-xs sm:grid-cols-4 lg:min-w-[420px]">
@@ -2231,7 +2231,7 @@ function ZiweiProfessionalTeacherMode({
       </div>
 
       <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 text-xs font-bold leading-6 text-[color:var(--text-sub)]">
-        飛星交接欄位已建立：目前以前端收到的正式排盤四化訊號為準；資料不足時不由 AI 補星、不自行亂推飛化。紫微只提供權重與證據，最後五元素仍交由 Integration Layer 統一判定。
+        飛星交接欄位已建立：目前以前端收到的正式排盤四化訊號為準；資料不足時不由 易經補星、不自行亂推飛化。紫微只提供權重與證據，最後五元素仍交由 Integration Layer 統一判定。
       </div>
     </div>
   );
@@ -2842,9 +2842,9 @@ function ZiweiHorrorGhostMovieView({
 
       <div className="relative mt-4 grid grid-cols-3 gap-2" aria-label="恐怖鬼魅三幕結構">
         {[
-          ['第一關', '禁區開場', '命盤留下的舊迴聲'],
-          ['第二關', '異象逼近', '本宮壓力正在推進'],
-          ['最終關', '淨化出口', '破開邪印，喚醒元素本源'],
+          ['第一關', '靈異', '異象顯跡・命盤留下的舊迴聲'],
+          ['第二關', '磁場', '干擾判讀・說中你當下的感受'],
+          ['最終關', '因果', '因果鏈拆解・破印喚醒本源'],
         ].map(([time, title, detail], index) => (
           <div key={time} className={`rounded-xl border p-3 ${index === 1 ? 'border-rose-200/35 bg-rose-500/10' : 'border-white/10 bg-black/20'}`}>
             <p className="text-[10px] font-black tracking-[0.16em] text-rose-200/80">{time}</p>
@@ -3275,7 +3275,7 @@ function ZiweiTeacherSynthesisPanel({
               <p key={`${item.palaceName}-${item.raw}-${index}`} className="text-base font-semibold leading-7 text-[color:var(--text-main)]">{item.text}</p>
             ))
           ) : (
-            <p className="text-base font-semibold leading-7 text-[color:var(--text-sub)]">三方四正本次未見四化訊號，不由 AI 補作四化判斷。</p>
+            <p className="text-base font-semibold leading-7 text-[color:var(--text-sub)]">三方四正本次未見四化訊號，不由 易經補作四化判斷。</p>
           )}
         </div>
         <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-purple-200/70">輔星煞星</p>
@@ -3648,7 +3648,7 @@ function ZiweiTwelvePalaceCards({
     { label: '十二宮', value: `${sortedPalaces.length} 宮完整回傳`, detail: `${completedPalaceCount} 宮已有星曜或四化訊號。` },
     { label: '星曜', value: `${allMajorStars.length} 種主星／${allMinorStars.length} 種輔星小星`, detail: '主星、輔星、小星保留在完整命盤資料，不只顯示單一主星。' },
     { label: '吉星', value: allAuspiciousStars.length ? formatStars(allAuspiciousStars) : '本次未見吉星', detail: '依後端固定星曜字典分類，前端只讀結果。' },
-    { label: '煞星', value: allMaleficStars.length ? formatStars(allMaleficStars) : '本次未見煞星', detail: allNeutralStars.length ? `未分類星曜：${formatStars(allNeutralStars)}` : '核心排盤未提供煞星時，不由 AI 補星。' },
+    { label: '煞星', value: allMaleficStars.length ? formatStars(allMaleficStars) : '本次未見煞星', detail: allNeutralStars.length ? `未分類星曜：${formatStars(allNeutralStars)}` : '核心排盤未提供煞星時，不由 易經補星。' },
     { label: '四化', value: allTransformations.length ? `${allTransformations.length} 筆四化訊號` : '目前未見四化訊號', detail: allTransformations.slice(0, 3).join('、') || '依後端排盤結果如實顯示。' },
     { label: '三方四正', value: '命、遷、財、官', detail: '用 4 張宮位卡呈現，所有訊號回到正式紫微命盤。' },
   ];
@@ -3675,7 +3675,7 @@ function ZiweiTwelvePalaceCards({
             <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">ZIWEI CHART TRUST</p>
             <h2 className="mt-2 break-words font-serif text-2xl font-black leading-tight text-cyan-50 sm:text-4xl">完整命盤先確認</h2>
             <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-cyan-100/82">
-              閱讀順序：先看命工卡，再看命宮與完整十二宮，接著看 AI 解讀；視覺只負責說明，不取代命盤。
+              閱讀順序：先看命工卡，再看命宮與完整十二宮，接著看 易經解讀；視覺只負責說明，不取代命盤。
             </p>
             <p className="mt-2 text-xs font-black tracking-wide text-amber-100/85">主星亮度：廟、旺、得地、利益、平和、不得地、落陷</p>
           </div>
@@ -3699,7 +3699,7 @@ function ZiweiTwelvePalaceCards({
             <p className="mt-2 text-xs font-semibold leading-6 text-amber-100/82">{dataStatus}</p>
           </article>
           <article className="rounded-2xl border border-emerald-200/18 bg-emerald-300/[0.06] p-4">
-            <p className="text-[10px] font-black tracking-[0.18em] text-emerald-100/75">AI 最終方向</p>
+            <p className="text-[10px] font-black tracking-[0.18em] text-emerald-100/75">易經最終方向</p>
             <h3 className="mt-1 text-sm font-black leading-6 text-emerald-50">{coreAction}</h3>
             <p className="mt-2 text-xs font-semibold leading-6 text-emerald-100/75">{coreTitle}：{coreReason}</p>
           </article>
@@ -3837,7 +3837,7 @@ function ZiweiTwelvePalaceCards({
               fiveElement={fiveElement}
             />
           ) : (
-            <p className="mt-3 text-xs font-semibold leading-6 text-amber-200/80">找不到分析編號，暫時無法呼叫老師 AI，僅顯示命盤證據。</p>
+            <p className="mt-3 text-xs font-semibold leading-6 text-amber-200/80">找不到分析編號，暫時無法呼叫老師 易經，僅顯示命盤證據。</p>
           )}
         </div>
       )}
@@ -3978,7 +3978,7 @@ function ZiweiPalaceStoryPanel({
 
           <article className="rounded-2xl border border-violet-200/18 bg-violet-950/18 p-4">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-200">Layer 2</p>
-            <h5 className="mt-2 text-base font-black text-violet-50">AI 白話故事解讀</h5>
+            <h5 className="mt-2 text-base font-black text-violet-50">易經白話故事解讀</h5>
             <p className="mt-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{palaceBlueprint.layerTwo}</p>
             <p className="mt-3 rounded-xl border border-white/10 bg-black/18 px-3 py-2 text-xs font-bold leading-6 text-violet-50/84">
               第二層只讀第一層：{palaceName}主星「{mainStars}」、輔佐星「{supportStars || '未集中顯示'}」、三方四正與年度訊號，轉成使用者看得懂的故事，不重新排盤。
@@ -3987,7 +3987,7 @@ function ZiweiPalaceStoryPanel({
 
           <article className="rounded-2xl border border-amber-200/20 bg-amber-950/18 p-4">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200">Layer 3</p>
-            <h5 className="mt-2 text-base font-black text-amber-50">AI 五元素補強排序</h5>
+            <h5 className="mt-2 text-base font-black text-amber-50">易經五元素補強排序</h5>
             <p className="mt-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{palaceBlueprint.layerThree}</p>
             <div className="mt-3 grid gap-2">
               {elementPriorities.map((item) => (
@@ -4055,7 +4055,7 @@ function ZiweiPalaceStoryPanel({
       </div>
 
       <div className="mt-4 rounded-2xl border border-violet-300/20 bg-violet-950/15 p-4">
-        <p className="text-xs font-semibold tracking-[0.2em] text-violet-200">第二層 AI 白話解讀</p>
+        <p className="text-xs font-semibold tracking-[0.2em] text-violet-200">第二層 易經白話解讀</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {secondLayerCards.map((item) => (
             <div key={item.label} className="border-l border-violet-200/20 pl-3">
@@ -4070,9 +4070,9 @@ function ZiweiPalaceStoryPanel({
       </div>
 
       <div className="mt-4 rounded-2xl border border-amber-300/20 bg-amber-950/15 p-4">
-        <p className="text-xs font-semibold tracking-[0.2em] text-amber-200">第三層 AI 行動排序</p>
+        <p className="text-xs font-semibold tracking-[0.2em] text-amber-200">第三層 易經行動排序</p>
         <p className="mt-3 rounded-xl border border-amber-200/20 bg-black/15 px-3 py-2 text-sm font-bold leading-7 text-amber-100">
-          AI 判定：{palaceName} 目前優先執行「{layerMaterial.layerThreeTitle}」。第一步處理「{thirdLayerPriorities[0].title}」，完成後再處理「{thirdLayerPriorities[1].title}」，最後回到「{thirdLayerPriorities[2].title}」。
+          易經卜卦判定：{palaceName} 目前優先執行「{layerMaterial.layerThreeTitle}」。第一步處理「{thirdLayerPriorities[0].title}」，完成後再處理「{thirdLayerPriorities[1].title}」，最後回到「{thirdLayerPriorities[2].title}」。
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {thirdLayerPriorities.map((item) => (
@@ -4282,9 +4282,9 @@ const ZIWEI_RITUAL_COPY: Record<InsightRitualStep['id'], { label: string; ritual
     passedText: '五元素整合判定完成',
   },
   AI_INSIGHT_GENERATED: {
-    label: 'AI 深度洞察',
-    ritualText: '正在產生 AI 深度洞察...',
-    passedText: 'AI 深度洞察生成完成',
+    label: '易經深度洞察',
+    ritualText: '正在產生 易經深度洞察...',
+    passedText: '易經深度洞察生成完成',
   },
   FINAL_RESULT_VERIFIED: {
     label: '最終結果',
@@ -4381,6 +4381,7 @@ function ZiweiRitualStepsPanel({
 
 export default function InsightPage() {
   const mainRef = useRef<HTMLElement>(null);
+  const errorBannerRef = useRef<HTMLDivElement>(null);
 
   function jumpToTodayResult() {
     const existing = readDailyAnalysis<InsightResult>('ziwei');
@@ -4407,7 +4408,9 @@ export default function InsightPage() {
     name: '',
     birthDate: '',
     gender: 'female',
-    shichen: null,
+    // 預設即為「不知道出生時辰」：卡片本來就以高亮呈現這個選項，狀態必須跟外觀一致，
+    // 否則客戶以為已選、按開始卻被擋（2026-08-25 客戶動線實測發現的卡點）。
+    shichen: 'unknown',
     birthCityId: null,
   });
   const [citySearch, setCitySearch] = useState('');
@@ -4533,7 +4536,13 @@ export default function InsightPage() {
   }, [input.name, input.birthDate, input.gender, input.shichen, selectionConfirm.gender]);
 
   useEffect(() => {
-    if (loading || result || error) {
+    // 出錯時要把「錯誤訊息」捲進視野，而不是捲回頁面頂端——捲到頂端會讓客戶
+    // 完全看不到失敗原因，以為按鈕壞掉（2026-08-25 客戶動線實測發現的卡點）。
+    if (error && !result) {
+      errorBannerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (loading || result) {
       mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [loading, !!result, error]);
@@ -4718,13 +4727,13 @@ export default function InsightPage() {
             <section className="mb-2 flex justify-center sm:mb-4">
               <div className="hidden">
                 <div className="mb-4 inline-block rounded-full border border-cyan-400/20 bg-cyan-400/8 px-4 py-1 text-xs tracking-[0.35em] text-cyan-300">
-                  AI 紫微斗數
+                  易經紫微斗數
                 </div>
                 <h1 className="mystic-title mb-3 font-serif text-3xl leading-tight sm:text-5xl">
                   看懂你的命盤<br />掌握今年方向
                 </h1>
                 <p className="max-w-2xl text-sm leading-8 text-[color:var(--text-sub)]">
-                  輸入基本資料，AI 會把紫微命盤、三方四正與今年運勢整理成白話建議。
+                  輸入基本資料，易經會把紫微命盤、三方四正與今年運勢整理成白話建議。
                   重點放在命盤格局、今年運勢與可行動的調整方向。
                 </p>
                 <div className="mt-8">
@@ -4754,7 +4763,7 @@ export default function InsightPage() {
 
             </section>
 
-            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 紫微斗數" onViewResult={dailyRecord ? jumpToTodayResult : undefined} />
+            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="易經紫微斗數" onViewResult={dailyRecord ? jumpToTodayResult : undefined} />
             <div id="input-form" className="fortune-card p-4 sm:p-8 scroll-mt-20">
               {loading && <InsightAnalyticalConsole name={input.name} />}
               <div className={loading ? 'hidden' : 'space-y-6 sm:space-y-8'}>
@@ -4988,7 +4997,7 @@ export default function InsightPage() {
               </div>
 
               {error && (
-                <div className="rounded-2xl border-l-4 border-l-rose-400 border border-rose-400/20 bg-rose-950/30 p-4 text-sm text-rose-300 animate-pulse">
+                <div ref={errorBannerRef} className="rounded-2xl border-l-4 border-l-rose-400 border border-rose-400/20 bg-rose-950/30 p-4 text-sm text-rose-300 animate-pulse">
                   <p className="font-semibold">⚠ {error}</p>
                 </div>
               )}
@@ -5047,7 +5056,7 @@ export default function InsightPage() {
                 {(input.name || input.birthDate) && (
                   <button
                     onClick={() => {
-                      setInput({ name: '', birthDate: '', gender: 'female', shichen: null, birthCityId: null });
+                      setInput({ name: '', birthDate: '', gender: 'female', shichen: 'unknown', birthCityId: null });
                       setCitySearch('');
                       setSelectionConfirm(EMPTY_SELECTION_CONFIRM);
                       setError('');
@@ -5119,7 +5128,7 @@ export default function InsightPage() {
               </div>
             ) : null}
             <div className={`space-y-6 transition-opacity duration-500 ${result?.ziweiSanFang?.timeConfidence !== 'exact' || !result?.ritualSteps?.length || ritualCollapsed ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
-            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 紫微斗數" onViewResult={jumpToTodayResult} />
+            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="易經紫微斗數" onViewResult={jumpToTodayResult} />
             <div className="fortune-card relative hidden overflow-hidden border-amber-400/25 bg-slate-950/55 p-6 sm:p-8">
               <div className="pointer-events-none absolute inset-4 border border-cyan-400/10" />
               <div className="relative flex flex-col gap-5 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">

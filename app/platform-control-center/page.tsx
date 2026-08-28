@@ -34,7 +34,7 @@ export default function PlatformControlCenterPage() {
         <header className="mb-5 flex flex-col gap-4 rounded-2xl border border-amber-300/20 bg-black/20 p-5 shadow-[0_18px_55px_rgba(0,0,0,0.18)] sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <p className="text-[11px] font-black uppercase tracking-[0.22em] text-amber-200">Platform Control Center</p>
-            <h1 className="mt-2 font-serif text-3xl font-black leading-tight text-[color:var(--text-main)] sm:text-5xl">天地人和 AI 全面統一管理中心</h1>
+            <h1 className="mt-2 font-serif text-3xl font-black leading-tight text-[color:var(--text-main)] sm:text-5xl">天地人和 易經全面統一管理中心</h1>
             <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{data.purpose}</p>
             <p className="mt-3 inline-flex rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-2 text-sm font-black text-emerald-100">{data.principle}</p>
           </div>
@@ -126,7 +126,7 @@ export default function PlatformControlCenterPage() {
         <section className="mt-4 grid gap-4 lg:grid-cols-3">
           <div className="rounded-2xl border border-violet-300/20 bg-violet-300/8 p-5">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-200">AI Center</p>
-            <h2 className="mt-2 text-2xl font-black text-violet-50">唯一 AI Core</h2>
+            <h2 className="mt-2 text-2xl font-black text-violet-50">唯一 易經 Core</h2>
             <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{data.aiCenter.modelStrategy}</p>
             <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-muted)]">{data.aiCenter.promptStrategy}</p>
             <div className="mt-4 rounded-xl border border-white/10 bg-black/15 p-3">
@@ -136,7 +136,7 @@ export default function PlatformControlCenterPage() {
           </div>
 
           <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/8 p-5">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">AI 文案統一優化中心</p>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">易經文案統一優化中心</p>
             <h2 className="mt-2 text-2xl font-black text-cyan-50">天地人和專屬語言</h2>
             <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{data.copywritingCenter.positioning.role}</p>
             <div className="mt-4 rounded-xl border border-white/10 bg-black/15 p-3">

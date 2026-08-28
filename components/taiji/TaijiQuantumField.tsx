@@ -70,6 +70,7 @@ function buildQuantumGeometry(budget: QuantumBudget) {
   const linkPositions = new Float32Array(links * 2 * 3);
   const linkSeeds = new Float32Array(links * 2);
   const linkMirrors = new Float32Array(links * 2);
+  const linkPolarity = new Float32Array(links * 2);
   const linkT = new Float32Array(links * 2);
 
   for (let i = 0; i < pairs; i++) {
@@ -116,6 +117,8 @@ function buildQuantumGeometry(budget: QuantumBudget) {
       linkSeeds[lb] = s;
       linkMirrors[la] = 1;
       linkMirrors[lb] = -1;
+      linkPolarity[la] = pole;
+      linkPolarity[lb] = -pole;
       linkT[la] = 0;
       linkT[lb] = 1;
     }
@@ -133,6 +136,7 @@ function buildQuantumGeometry(budget: QuantumBudget) {
   linkGeometry.setAttribute('position', new THREE.BufferAttribute(linkPositions, 3));
   linkGeometry.setAttribute('aSeed', new THREE.BufferAttribute(linkSeeds, 1));
   linkGeometry.setAttribute('aMirror', new THREE.BufferAttribute(linkMirrors, 1));
+  linkGeometry.setAttribute('aPolarity', new THREE.BufferAttribute(linkPolarity, 1));
   linkGeometry.setAttribute('aT', new THREE.BufferAttribute(linkT, 1));
   linkGeometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(), FIELD_RADIUS * 8);
 
@@ -157,6 +161,8 @@ const POINT_VERTEX = /* glsl */ `
   uniform float uField;
   uniform float uSize;
   uniform float uProjScale;
+  uniform float uSplit;
+  uniform float uPhotonFocus;
   attribute float aPolarity;
   attribute float aSeed;
   attribute float aMirror;
@@ -168,6 +174,7 @@ const POINT_VERTEX = /* glsl */ `
 
   void main() {
     vec3 p = position * uField + quantumWobble(aSeed, aMirror, uTime, uJitter);
+    p.x += aPolarity * uSplit * (0.25 + abs(p.y) * 0.15);
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mv;
 
@@ -176,7 +183,7 @@ const POINT_VERTEX = /* glsl */ `
     vPolarity = aPolarity;
     vPhoton = aPhoton;
 
-    float radius = uSize * (0.5 + aSeed * 0.85 + aPhoton * 0.75) * (0.75 + twinkle * 0.45);
+    float radius = uSize * (0.5 + aSeed * 0.85 + aPhoton * (0.75 + uPhotonFocus)) * (0.75 + twinkle * 0.45);
     gl_PointSize = clamp(radius * uProjScale / max(0.25, -mv.z), 1.0, 96.0);
   }
 `;
@@ -208,8 +215,10 @@ const LINK_VERTEX = /* glsl */ `
   uniform float uTime;
   uniform float uJitter;
   uniform float uField;
+  uniform float uSplit;
   attribute float aSeed;
   attribute float aMirror;
+  attribute float aPolarity;
   attribute float aT;
   varying float vT;
   varying float vSeed;
@@ -217,6 +226,7 @@ const LINK_VERTEX = /* glsl */ `
 
   void main() {
     vec3 p = position * uField + quantumWobble(aSeed, aMirror, uTime, uJitter);
+    p.x += aPolarity * uSplit * (0.25 + abs(p.y) * 0.15);
     vT = aT;
     vSeed = aSeed;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
@@ -229,6 +239,7 @@ const LINK_FRAGMENT = /* glsl */ `
   uniform vec3 uYang;
   uniform vec3 uSpark;
   uniform float uReveal;
+  uniform float uBodyBoost;
   uniform float uTime;
   varying float vT;
   varying float vSeed;
@@ -244,7 +255,8 @@ const LINK_FRAGMENT = /* glsl */ `
     float signal = smoothstep(0.05, 0.0, abs(vT - travel)) * (0.28 + 0.72 * edge);
     vec3 col = mix(uYin, uYang, vT);
     col = mix(col, uSpark, signal);
-    float alpha = (filament + signal * 0.9) * uReveal;
+    float continuous = uBodyBoost * (0.035 + edge * 0.14);
+    float alpha = (filament + continuous + signal * 0.9) * uReveal;
     gl_FragColor = vec4(col * alpha, alpha);
   }
 `;
@@ -252,6 +264,7 @@ const LINK_FRAGMENT = /* glsl */ `
 export default function TaijiQuantumField({
   magRef,
   warmRef,
+  journeyStep = 0,
   budget,
   yinColor,
   yangColor,
@@ -259,6 +272,8 @@ export default function TaijiQuantumField({
 }: {
   magRef: MagRef;
   warmRef: WarmRef;
+  /** 24 層旅程第 5～11 層的逐幕取景；手動顯微鏡仍沿用連續倍率。 */
+  journeyStep?: number;
   budget: QuantumBudget;
   yinColor: string;
   yangColor: string;
@@ -284,6 +299,7 @@ export default function TaijiQuantumField({
       uTime: { value: 0 },
       uJitter: { value: 0 },
       uField: { value: 1 },
+      uSplit: { value: 0 },
       uReveal: { value: 0 },
       uYin: { value: new THREE.Color(yinColor) },
       uYang: { value: new THREE.Color(yangColor) },
@@ -292,7 +308,7 @@ export default function TaijiQuantumField({
     const pointMaterial = new THREE.ShaderMaterial({
       vertexShader: POINT_VERTEX,
       fragmentShader: POINT_FRAGMENT,
-      uniforms: { ...shared(), uSize: { value: 0.008 }, uProjScale: { value: 900 } },
+      uniforms: { ...shared(), uSize: { value: 0.008 }, uProjScale: { value: 900 }, uPhotonFocus: { value: 0 } },
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -300,7 +316,7 @@ export default function TaijiQuantumField({
     const linkMaterial = new THREE.ShaderMaterial({
       vertexShader: LINK_VERTEX,
       fragmentShader: LINK_FRAGMENT,
-      uniforms: shared(),
+      uniforms: { ...shared(), uBodyBoost: { value: 0 } },
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -328,11 +344,40 @@ export default function TaijiQuantumField({
     /* 門檻一律用「數量級」：d=2 是 ×100、d=5 是 ×100,000、d=7 是 ×10,000,000。
        用絕對刻度寫，日後再往下加倍率也不會把既有的節奏整個位移。 */
     const d = magRef.current.current * MAG_DECADES;
+    const journeyCuts: Record<number, {
+      points: number;
+      links: number;
+      field: number;
+      jitter: number;
+      size: number;
+      scale: number;
+      split: number;
+      photonFocus: number;
+      linkBody: number;
+      spin: number;
+      tilt: number;
+    }> = {
+      // 5：釉面晶格崩解，顆粒仍貼近原本表面。
+      5: { points: 0.95, links: 0.05, field: 0.62, jitter: 0.008, size: 0.011, scale: 1, split: 0, photonFocus: 0.2, linkBody: 0, spin: 0.015, tilt: 0 },
+      // 6：晶格裂成成對粒子，開始看見點對稱關係。
+      6: { points: 1.15, links: 0.68, field: 0.55, jitter: 0.026, size: 0.023, scale: 0.85, split: 1.8, photonFocus: 0.45, linkBody: 0.12, spin: 0.085, tilt: 0 },
+      // 7：粒子退暗，糾纏線成為滿版主構圖。
+      7: { points: 0.18, links: 2.8, field: 0.82, jitter: 0.046, size: 0.01, scale: 1.1, split: 0.36, photonFocus: 0.6, linkBody: 1.15, spin: 0.15, tilt: 0.3 },
+      // 8：穿過光線後進入高密度粒子海，連線幾乎消失。
+      8: { points: 1.2, links: 0.03, field: 0.76, jitter: 0.086, size: 0.023, scale: 1.08, split: 0.2, photonFocus: 0.9, linkBody: 0, spin: 0.21, tilt: -0.34 },
+      // 9：鎖定光子，少數高亮光點放大成主角。
+      9: { points: 1.6, links: 0.5, field: 0.82, jitter: 0.18, size: 0.052, scale: 1.48, split: 0.12, photonFocus: 1.9, linkBody: 0.08, spin: 0.3, tilt: 0.58 },
+      // 10：光子重新分成冷暖兩群，兩側拉開形成細胞前驅腔。
+      10: { points: 0.92, links: 0.42, field: 0.38, jitter: 0.06, size: 0.044, scale: 0.75, split: 1.7, photonFocus: 0.8, linkBody: 0.32, spin: -0.18, tilt: 0 },
+      // 11：兩群粒子撐成透明膜；量子場只剩稀疏種子，交給細胞鏡頭接手。
+      11: { points: 0.24, links: 0.16, field: 2.05, jitter: 0.04, size: 0.06, scale: 1.24, split: 1.16, photonFocus: 0.65, linkBody: 0.06, spin: 0.06, tilt: 1.05 },
+    };
+    const journeyCut = journeyCuts[journeyStep];
     const warming = warmRef.current.warming;
     if (!armed || !materials) {
       /* 暖機視窗也要上場：幾何在這裡建好、著色器在這裡編好，
          使用者第一次轉倍率時就不會撞上建構與編譯的雙重停頓。 */
-      if (warming || magRef.current.target * MAG_DECADES > 0.08 || d > 0.08) setArmed(true);
+      if (warming || journeyCut || magRef.current.target * MAG_DECADES > 0.08 || d > 0.08) setArmed(true);
       return;
     }
     const pointUniforms = materials.pointMaterial.uniforms;
@@ -345,13 +390,13 @@ export default function TaijiQuantumField({
     /* 顯現節奏：×100 起微微浮現顆粒 → ×10,000 完全接管畫面。
        ×100,000 之後把舞台交給更深的糾纏內景層（粒子海退場，鏡頭鎖定其中一對）。 */
     const handover = 1 - smoothstep(5.0, 5.9, d);
-    const reveal = smoothstep(2, 4, d) * handover;
-    const linkReveal = smoothstep(3.3, 4.7, d) * handover;
+    const reveal = journeyCut?.points ?? smoothstep(2, 4, d) * handover;
+    const linkReveal = journeyCut?.links ?? smoothstep(3.3, 4.7, d) * handover;
     const visible = reveal > 0.002;
     if (group) {
       group.visible = visible || warming;
       // 暖機時縮到看不見，但渲染管線照樣會編譯這支著色器
-      group.scale.setScalar(visible ? 1 : 0.0001);
+      group.scale.setScalar(visible ? (journeyCut?.scale ?? 1) : 0.0001);
     }
     if (!visible && !warming) return;
 
@@ -361,8 +406,8 @@ export default function TaijiQuantumField({
        撐到 4 倍時整個畫面只剩下二十幾顆粒子（一片空白）。
        正確作法是鏡頭「走進」粒子之間（見 MicroscopeRig 的最後一段推進），
        粒子本身只微微散開、但顆顆變大——這才是顯微鏡下該有的稠密感。 */
-    const field = 1 + smoothstep(2.25, 5, d) * 0.7;
-    const jitter = 0.003 + smoothstep(1.9, 5, d) * 0.075;
+    const field = journeyCut?.field ?? 1 + smoothstep(2.25, 5, d) * 0.7;
+    const jitter = journeyCut?.jitter ?? 0.003 + smoothstep(1.9, 5, d) * 0.075;
     /* 點大小依實際 backing store 換算，1080p / 1440p 都是正確的物理尺寸 */
     const camera = state.camera as THREE.PerspectiveCamera;
     const projScale = gl.domElement.height / (2 * Math.tan((camera.fov * Math.PI) / 360));
@@ -371,19 +416,25 @@ export default function TaijiQuantumField({
     pointUniforms.uReveal.value = reveal;
     pointUniforms.uField.value = field;
     pointUniforms.uJitter.value = jitter;
+    pointUniforms.uSplit.value = journeyCut?.split ?? 0;
     pointUniforms.uProjScale.value = projScale;
     /* 倍率越高，單顆粒子在畫面上越大（放大鏡的本份） */
-    pointUniforms.uSize.value = 0.0075 + smoothstep(2.25, 5, d) * 0.017;
+    pointUniforms.uSize.value = journeyCut?.size ?? 0.0075 + smoothstep(2.25, 5, d) * 0.017;
+    pointUniforms.uPhotonFocus.value = journeyCut?.photonFocus ?? 0;
 
     linkUniforms.uTime.value = t;
     linkUniforms.uReveal.value = linkReveal;
+    linkUniforms.uBodyBoost.value = journeyCut?.linkBody ?? 0;
     linkUniforms.uField.value = field;
     linkUniforms.uJitter.value = jitter;
+    linkUniforms.uSplit.value = journeyCut?.split ?? 0;
 
     if (links) links.visible = linkReveal > 0.004 || warming;
     if (points && group) {
       // 整團粒子維持與太極圖騰同一個朝向，慢慢自轉
-      group.rotation.y += Math.min(delta, 1 / 45) * 0.035;
+      if (journeyCut) group.rotation.y = Math.sin(t * (0.24 + Math.abs(journeyCut.spin))) * journeyCut.spin;
+      else group.rotation.y += Math.min(delta, 1 / 45) * 0.035;
+      group.rotation.x = THREE.MathUtils.lerp(group.rotation.x, journeyCut?.tilt ?? 0, Math.min(1, delta * 1.8));
     }
   });
 

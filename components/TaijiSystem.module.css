@@ -17,12 +17,15 @@
   user-select: none;
   perspective: 1200px;
   width: 100%;
+  min-height: min(92vw, 390px);
   box-sizing: border-box;
 }
 
 /* ====================== 3D 球體包裹 ====================== */
 .sphereWrapper {
   position: relative;
+  display: grid;
+  place-items: center;
   width: min(86vw, 360px);
   height: min(86vw, 360px);
   transform-style: preserve-3d;
@@ -36,14 +39,13 @@
   overscroll-behavior: contain;
   transition: filter 180ms ease;
   margin-inline: auto;
-  filter: drop-shadow(0 26px 34px rgba(0, 0, 0, 0.32));
+  /* 陰影由場景內的 ContactShadows 統一計算，避免畫布外框投出不合球體的長條黑影。 */
+  filter: none;
 }
 
 .sphereWrapperTouching {
   cursor: grabbing;
-  filter:
-    drop-shadow(0 27px 36px rgba(0, 0, 0, 0.34))
-    drop-shadow(0 0 7px var(--glow-color));
+  filter: drop-shadow(0 0 7px var(--glow-color));
 }
 
 @keyframes sphereFloat {
@@ -51,16 +53,18 @@
   50% { transform: translateY(-2px); }
 }
 
-/* 卡片級空間霧光：位於太極後方，延展至整張卡片，不形成任何軌道或圓環線。 */
+/* 卡片級空間霧光：偏心、疊層的光霧，避免形成可辨識的同心圓。 */
 .sphereWrapper::before {
   content: '';
   position: absolute;
   inset: -74px;
-  border-radius: 50%;
+  border-radius: 48% 52% 46% 54% / 54% 45% 55% 46%;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 47%, rgba(255, 244, 216, 0.12) 0%, rgba(226, 190, 122, 0.075) 28%, rgba(177, 128, 55, 0.038) 50%, transparent 74%);
-  filter: blur(10px);
+    radial-gradient(ellipse 54% 42% at 50% 48%, rgba(255, 244, 216, 0.16) 0%, rgba(226, 190, 122, 0.07) 48%, transparent 100%),
+    radial-gradient(ellipse 38% 52% at 53% 54%, rgba(177, 128, 55, 0.075) 0%, transparent 100%),
+    radial-gradient(ellipse 44% 30% at 49% 68%, rgba(255, 224, 166, 0.05) 0%, transparent 100%);
+  filter: blur(16px);
   opacity: 0.56;
   transition: opacity 0.9s ease;
   z-index: 0;
@@ -75,9 +79,10 @@
 /* 第 13 層起，卡片本身也進入深場：金光更深，但仍保持低調、沒有軌道線。 */
 .root[data-deep-field='true'] .sphereWrapper::before {
   background:
-    radial-gradient(circle at 50% 47%, rgba(218, 239, 255, 0.22) 0%, rgba(92, 132, 184, 0.15) 28%, rgba(25, 35, 74, 0.18) 55%, transparent 78%),
-    radial-gradient(circle at 50% 54%, rgba(255, 208, 109, 0.09), transparent 46%);
-  filter: blur(17px);
+    radial-gradient(ellipse 56% 46% at 39% 42%, rgba(218, 239, 255, 0.2) 0%, rgba(92, 132, 184, 0.12) 52%, transparent 100%),
+    radial-gradient(ellipse 44% 55% at 66% 63%, rgba(25, 35, 74, 0.16) 0%, transparent 100%),
+    radial-gradient(ellipse 34% 28% at 53% 76%, rgba(255, 208, 109, 0.09) 0%, transparent 100%);
+  filter: blur(22px);
   opacity: 0.9;
 }
 
@@ -124,16 +129,16 @@
 
 .visualPulse {
   position: absolute;
-  inset: 20px;
-  border-radius: 50%;
+  inset: -18px;
   pointer-events: none;
   z-index: 3;
-  border: 1px solid var(--energy-color);
-  box-shadow:
-    0 0 12px var(--glow-color),
-    inset 0 0 16px var(--theme-soft);
+  background:
+    radial-gradient(ellipse 34% 26% at 35% 47%, var(--theme-soft) 0%, transparent 100%),
+    radial-gradient(ellipse 25% 38% at 66% 55%, var(--glow-color) 0%, transparent 100%),
+    radial-gradient(ellipse 30% 22% at 52% 74%, color-mix(in srgb, var(--energy-color) 26%, transparent) 0%, transparent 100%);
+  filter: blur(15px);
   opacity: 0;
-  animation: visualPulseOut 1600ms ease-out forwards;
+  animation: visualPulseOut 1300ms ease-out forwards;
 }
 
 .completionHalo {
@@ -154,19 +159,98 @@
   transition: opacity 0.45s ease;
 }
 
+/* 球體下方唯一的投影：水平扁橢圓、最深處在接觸點，向外自然消散。 */
+.groundShadow {
+  position: absolute;
+  left: 50%;
+  bottom: 7.5%;
+  width: 56%;
+  height: 8%;
+  pointer-events: none;
+  z-index: 0;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(3, 6, 18, 0.42) 0%, rgba(4, 7, 20, 0.24) 38%, rgba(7, 9, 29, 0.08) 66%, transparent 100%);
+  filter: blur(7px);
+  opacity: 0.9;
+}
+
+/* 暫時的 24 層人工檢視器：固定在太極正下方，不遮擋球體以便逐層核對。 */
+.layerReviewPanel {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 248px);
+  margin-top: 10px;
+  padding: 8px 10px 7px;
+  border: 1px solid rgba(226, 232, 240, 0.24);
+  border-radius: 14px;
+  background: rgba(8, 15, 37, 0.88);
+  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.38);
+  backdrop-filter: blur(12px);
+  color: rgba(241, 245, 249, 0.94);
+}
+
+.layerReviewHeading,
+.layerReviewEnds {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.layerReviewHeading {
+  margin-bottom: 6px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.layerReviewHeading output {
+  color: #fde68a;
+  font-variant-numeric: tabular-nums;
+}
+
+.layerReviewGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+
+.layerReviewButton,
+.layerReviewButtonActive {
+  min-height: 21px;
+  border: 1px solid rgba(226, 232, 240, 0.18);
+  border-radius: 6px;
+  background: rgba(148, 163, 184, 0.1);
+  color: rgba(226, 232, 240, 0.9);
+  font-size: 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.layerReviewButton:hover {
+  border-color: rgba(253, 230, 138, 0.7);
+  background: rgba(253, 230, 138, 0.14);
+}
+
+.layerReviewButtonActive {
+  border-color: rgba(253, 230, 138, 0.9);
+  background: rgba(217, 119, 6, 0.32);
+  color: #fffbeb;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.24);
+}
+
 .sphereWrapper::after {
   content: '';
   position: absolute;
-  inset: 28px;
-  border-radius: 50%;
+  inset: -10px;
   pointer-events: none;
   z-index: 2;
-  background: conic-gradient(from 140deg, transparent, var(--theme-secondary), transparent 34%, var(--energy-color), transparent 72%);
-  opacity: calc(var(--combo-opacity) * 0.42);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
-  filter: drop-shadow(0 0 7px var(--theme-secondary));
-  animation: comboOrbit 9.2s linear infinite;
+  background:
+    radial-gradient(ellipse 20% 36% at 23% 39%, var(--theme-secondary) 0%, transparent 100%),
+    radial-gradient(ellipse 32% 20% at 74% 66%, var(--energy-color) 0%, transparent 100%),
+    radial-gradient(ellipse 17% 24% at 56% 18%, var(--glow-color) 0%, transparent 100%);
+  opacity: calc(var(--combo-opacity) * 0.2);
+  filter: blur(18px);
+  animation: comboMistDrift 9.2s ease-in-out infinite;
 }
 
 .sphereWrapperTouching::after {
@@ -188,7 +272,7 @@
 :global(.app-page-hidden) .sphereWrapper {
   animation: none;
   will-change: auto;
-  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.24));
+  filter: none;
 }
 
 :global(.app-lite-effects) .sphereWrapper::before,
@@ -199,9 +283,9 @@
 }
 
 @keyframes visualPulseOut {
-  0% { opacity: 0.32; transform: scale(0.92); }
-  55% { opacity: 0.12; }
-  100% { opacity: 0; transform: scale(1.035); }
+  0% { opacity: 0.34; transform: scale(0.84) translate(-2%, 2%); }
+  55% { opacity: 0.13; transform: scale(1.02) translate(2%, -1%); }
+  100% { opacity: 0; transform: scale(1.18) translate(-3%, 3%); }
 }
 
 @keyframes completionBreath {
@@ -209,8 +293,9 @@
   50% { transform: scale(1.015) rotate(8deg); filter: drop-shadow(0 0 28px var(--glow-color)); }
 }
 
-@keyframes comboOrbit {
-  to { transform: rotate(360deg); }
+@keyframes comboMistDrift {
+  0%, 100% { transform: translate3d(-1.5%, 1%, 0) scale(0.98); }
+  50% { transform: translate3d(2%, -1.5%, 0) scale(1.05); }
 }
 
 /* ====================== 低效能環境降級 ====================== */
@@ -238,13 +323,11 @@
     max-height: 68vh;
     /* 2026-08-16 手機減負：大半徑 drop-shadow 是手機 GPU 最貴的濾鏡之一，
        縮小模糊半徑（視覺幾乎相同、成本大降）；視覺語言不變。 */
-    filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.3));
+    filter: none;
   }
 
   .sphereWrapperTouching {
-    filter:
-      drop-shadow(0 13px 18px rgba(0, 0, 0, 0.32))
-      drop-shadow(0 0 6px var(--glow-color));
+    filter: drop-shadow(0 0 6px var(--glow-color));
   }
 
   .energyVeil {
@@ -254,5 +337,23 @@
 
   .sphereWrapper::before {
     inset: -18px;
+  }
+
+  .groundShadow {
+    bottom: 8%;
+    width: 54%;
+    height: 7%;
+    filter: blur(5px);
+  }
+
+  .layerReviewPanel {
+    width: min(100%, 224px);
+    margin-top: 8px;
+    padding: 7px 8px 6px;
+  }
+
+  .layerReviewHeading {
+    margin-bottom: 5px;
+    font-size: 10px;
   }
 }

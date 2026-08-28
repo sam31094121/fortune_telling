@@ -2,7 +2,7 @@
  * 紫微三老師系統｜核心型別（2026-08-22）
  *
  * 依業主規格書「七、八、九、十」逐字建立，不額外發明欄位。
- * 這裡只是型別，不含任何排盤或 AI 呼叫邏輯。
+ * 這裡只是型別，不含任何排盤或 易經呼叫邏輯。
  */
 
 export type TeacherId = 'STRUCTURE_MASTER' | 'LIFE_MASTER' | 'NARRATIVE_MASTER';

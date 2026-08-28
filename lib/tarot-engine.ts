@@ -69,9 +69,9 @@ const SPREAD_CARD_COUNT: Record<TarotSpreadType, number> = {
 const SPREAD_POSITIONS: Record<TarotSpreadType, Array<Pick<TarotReadingCard, 'positionKey' | 'positionLabel'>>> = {
   single: [{ positionKey: 'core', positionLabel: '核心' }],
   three_card: [
-    { positionKey: 'situation', positionLabel: '現況' },
-    { positionKey: 'challenge', positionLabel: '阻礙' },
-    { positionKey: 'action', positionLabel: '行動' },
+    { positionKey: 'situation', positionLabel: '過去' },
+    { positionKey: 'challenge', positionLabel: '現在' },
+    { positionKey: 'action', positionLabel: '未來' },
   ],
 };
 const CATEGORY_EVENT_MULTIPLIER: Partial<Record<TarotQuestionCategoryId, Partial<Record<TarotAiElement, number>>>> = {
@@ -431,10 +431,10 @@ function buildTarotReadiness(): TarotSystemReadiness {
     { id: 'card_meaning', title: '每張牌含正位／逆位／象徵／關鍵字', complete: cardDataComplete(), detail: '每張牌均具備牌義、正逆位解釋、象徵與五元素權重。' },
     { id: 'unified_art', title: '同一套牌面風格', complete: unifiedArt, detail: '牌面統一使用 Rider-Waite Smith CC0 PNG 素材。' },
     { id: 'shuffle', title: 'Fisher-Yates 真洗牌', complete: true, detail: '後端使用 crypto randomInt 搭配 Fisher-Yates，每次重新排列 78 張。' },
-    { id: 'user_draw', title: '使用者親手抽牌', complete: true, detail: '後端只提供牌背牌序與 session，AI 不代替使用者選牌。' },
+    { id: 'user_draw', title: '使用者親手抽牌', complete: true, detail: '後端只提供牌背牌序與 session，易經不代替使用者選牌。' },
     { id: 'orientation', title: '正逆位同步判定', complete: true, detail: '每張牌入牌堆時即以後端亂數決定正位或逆位。' },
-    { id: 'spread', title: '一張牌與三張牌牌陣', complete: true, detail: '支援核心判定與現況／阻礙／行動三張牌交叉判定。' },
-    { id: 'ai_interpretation', title: 'AI 交叉解讀', complete: true, detail: '解讀根據問題、類別、牌陣、牌位、正逆位與五元素權重產生。' },
+    { id: 'spread', title: '一張牌與三張牌牌陣', complete: true, detail: '支援核心判定與過去／現在／未來三張牌交叉判定。' },
+    { id: 'ai_interpretation', title: '易經交叉解讀', complete: true, detail: '解讀根據問題、類別、牌陣、牌位、正逆位與五元素權重產生。' },
     { id: 'route_isolation', title: '塔羅獨立路由與獨立 API', complete: true, detail: '頁面固定由 /tarot 進入，後端固定使用 /api/tarot/shuffle、/api/tarot/reading、/api/tarot/interpret，不走共用分析入口。' },
     { id: 'integration_layer', title: 'Integration Layer 分流', complete: true, detail: '塔羅只輸出整合訊號；自己可更新成長中心，親友只做單次分析。' },
     { id: 'five_elements', title: '五元素人格／事件權重', complete: true, detail: '塔羅提供人格權重、事件權重與總權重，最終由 Integration Layer 統一判定。' },

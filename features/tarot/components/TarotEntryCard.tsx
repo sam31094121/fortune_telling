@@ -27,16 +27,16 @@ export default function TarotEntryCard() {
         </div>
         <div className="min-w-0 flex-1">
           <span className="inline-block rounded-full bg-cyan-300/10 border border-cyan-200/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-100 uppercase">
-            CARD 01 · AI 塔羅牌
+            CARD 01 · 古老塔羅牌
           </span>
           <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-50 tracking-wide flex items-center gap-2">
-            <span>AI 塔羅牌</span>
+            <span>古老塔羅牌</span>
             <span className="text-xs font-sans text-cyan-100 font-normal opacity-85 hidden sm:inline">
               // 78 張牌庫 · 真洗牌 · 親手抽牌
             </span>
           </h2>
           <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-            先固定一個問題，再親手抽牌；AI 最後只留下最重要的一句判定。
+            先固定一個問題，再親手抽牌；易經最後只留下最重要的一句判定。🎁 拆開有禮：三張牌直接回答你的問題，附上明確的機率數字。
           </p>
         </div>
       </div>

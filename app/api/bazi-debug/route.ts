@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
  *   /api/bazi-debug?debugBazi=1&date=1979-9-2&gender=female            （未知時辰 → PARTIAL_BAZI）
  *   /api/bazi-debug?debugBazi=1&calendar=lunar&date=1979-7-11&time=04:00&gender=female
  *
- * 只輸出排盤驗證資訊；AI 解盤不在此路由。
+ * 只輸出排盤驗證資訊；易經解盤不在此路由。
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);

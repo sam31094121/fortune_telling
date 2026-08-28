@@ -56,7 +56,7 @@ const ZODIAC_TRACE_TEMPLATE: ZodiacTraceStep[] = [
   { id: 'sign', label: '判定星座', status: 'pending' },
   { id: 'blood', label: '判定血型', status: 'pending' },
   { id: 'prompt', label: '建立 Prompt', status: 'pending' },
-  { id: 'ai', label: 'AI 分析', status: 'pending' },
+  { id: 'ai', label: '易經卜卦分析', status: 'pending' },
   { id: 'element', label: '五元素整合', status: 'pending' },
   { id: 'write', label: '資料寫入分流', status: 'pending' },
   { id: 'done', label: '建立報告', status: 'pending' },
@@ -358,7 +358,7 @@ async function requestZodiacAnalysis(
 
   while (Date.now() - started < ZODIAC_ANALYSIS_TIMEOUT_MS) {
     if (job.status === 'COMPLETED' && job.resultId) {
-      updateTraceStep(onTrace, 'ai', 'done', 'AI 分析已完成。');
+      updateTraceStep(onTrace, 'ai', 'done', '易經卜卦分析已完成。');
       const result = await safeJson<ApiResponse<ZodiacResult>>('/api/analysis/results/' + job.resultId, undefined, remaining());
       console.info('[ZODIAC][HTTP]', 'GET /api/analysis/results', result.status, { ok: result.body.ok, resultId: job.resultId });
       if (result.body.ok && result.body.data) {
@@ -378,7 +378,7 @@ async function requestZodiacAnalysis(
     }
 
     if (job.status === 'FAILED' || job.status === 'TIMEOUT' || job.status === 'CANCELLED') {
-      updateTraceStep(onTrace, 'ai', 'error', job.errorMessage || job.message || 'AI 分析中斷。');
+      updateTraceStep(onTrace, 'ai', 'error', job.errorMessage || job.message || '易經卜卦分析中斷。');
       throw new Error(job.errorMessage || job.message || '目前無法完成西洋星座分析。');
     }
 
@@ -424,7 +424,7 @@ function LoadingPanel({ job, traceSteps }: { job: AnalysisJob | null; traceSteps
     <section className="fortune-card border-cyan-300/25 bg-cyan-300/[0.06] p-5" role="status" aria-live="polite" aria-busy="true">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">AI ZODIAC DEBUG TRACE</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">I-CHING ZODIAC DEBUG TRACE</p>
           <h2 className="mt-3 text-xl font-black text-cyan-50">{job?.message || '西洋星座分析流程已啟動。'}</h2>
         </div>
         <p className="text-xs font-semibold text-[color:var(--text-sub)]">45 秒保護 / {job?.progressStage || 'READY'}</p>
@@ -514,7 +514,7 @@ function ProfessionalZodiacLayer({ result }: { result: ZodiacResult }) {
         <div className="min-w-0">
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-fuchsia-200">PROFESSIONAL ZODIAC CHART</p>
           <h2 className="mt-3 break-words font-serif text-2xl font-black leading-tight text-fuchsia-50 sm:text-3xl">第一層｜專業西洋星座盤</h2>
-          <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">此層只建立星座盤資料，不做 AI 解讀，不做補強建議。後續第二層、第三層只能讀取這份已成立的盤面資料。</p>
+          <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">此層只建立星座盤資料，不做 易經解讀，不做補強建議。後續第二層、第三層只能讀取這份已成立的盤面資料。</p>
         </div>
         <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4 lg:w-[460px]">
           <InfoItem label="LEVEL" value={PRECISION_LABEL[chart.precision]} />
@@ -579,7 +579,7 @@ function DeepZodiacAnalysisLayer({ result }: { result: ZodiacResult }) {
     <section className="fortune-card border-cyan-300/20 bg-cyan-300/[0.06] p-5 sm:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">AI DEEP READING LAYER</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">I-CHING DEEP READING LAYER</p>
           <h2 className="mt-3 break-words font-serif text-2xl font-black leading-tight text-cyan-50 sm:text-3xl">{'\u7b2c\u4e8c\u5c64\uff5cAI \u6df1\u5ea6\u89e3\u8b80'}</h2>
           <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{analysis.coreNarrative}</p>
         </div>
@@ -632,7 +632,7 @@ function ZodiacReinforcementPlanLayer({ result }: { result: ZodiacResult }) {
     <section className="fortune-card border-amber-300/24 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.15),rgba(217,70,239,0.07)_44%,rgba(15,23,42,0.74)_100%)] p-5 sm:p-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">AI REINFORCEMENT LAYER</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">I-CHING REINFORCEMENT LAYER</p>
           <h2 className="mt-3 break-words font-serif text-2xl font-black leading-tight text-amber-50 sm:text-3xl">{'\u7b2c\u4e09\u5c64\uff5cAI \u88dc\u5f37\u65b9\u6848'}</h2>
           <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{plan.principle}</p>
         </div>
@@ -692,7 +692,7 @@ function ResultPanel({ result, onReset }: { result: ZodiacResult; onReset: () =>
         </div>
       </article>
       <AnalysisReadingFlow
-        moduleLabel="AI ZODIAC"
+        moduleLabel="I-CHING ZODIAC"
         headline={`本次星座：${result.sign.symbol} ${result.sign.name}`}
         summary={`${ELEMENT_LABEL[result.sign.element]}｜${result.sign.dateRange}。${result.personality}`}
         steps={[
@@ -873,7 +873,7 @@ export default function ZodiacPage() {
           birthCityId,
           birthTimezone: birthCityId ? findCityById(birthCityId)?.timezone ?? null : null,
         });
-        updateTrace('write', 'done', 'SELF：已寫入會員、AI 成長中心與 Integration Layer。');
+        updateTrace('write', 'done', 'SELF：已寫入會員、易經成長中心與 Integration Layer。');
       } else {
         updateTrace('write', 'done', 'OTHER：只保留本次單次分析，不寫入會員資料。');
       }
@@ -909,8 +909,8 @@ export default function ZodiacPage() {
             <section className="zodiac-input-hero zodiac-brand-hero mb-5 overflow-hidden rounded-3xl border border-fuchsia-300/25 p-5 shadow-[0_0_40px_rgba(217,70,239,0.16)] sm:p-7">
               <div className="zodiac-brand-hero__content">
                 <div className="zodiac-brand-hero__copy">
-                  <p className="zodiac-brand-hero__eyebrow">TIANSU · AI WESTERN ZODIAC</p>
-                  <h1 className="zodiac-brand-hero__title">AI 西洋星座分析</h1>
+                  <p className="zodiac-brand-hero__eyebrow">TIANSU · I-CHING WESTERN ZODIAC</p>
+                  <h1 className="zodiac-brand-hero__title">易經西洋星座分析</h1>
                 </div>
 
                 <div className="zodiac-brand-orbit" aria-hidden="true">
@@ -929,7 +929,7 @@ export default function ZodiacPage() {
                   <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--bottom">MOON</span>
                   <span className="zodiac-brand-orbit__mark zodiac-brand-orbit__mark--left">12H</span>
                   <span className="zodiac-brand-orbit__scan" />
-                  <span className="zodiac-brand-orbit__core">AI</span>
+                  <span className="zodiac-brand-orbit__core">易經</span>
                 </div>
               </div>
             </section>
@@ -1087,7 +1087,7 @@ export default function ZodiacPage() {
 
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <button type="button" onClick={submit} disabled={submitting} className="vip-gold-btn flex-1 py-4 text-sm font-black disabled:opacity-50">
-                    {submitting ? 'AI 正在分析星座' : dailyRecord ? getDailyAnalysisButtonLabel(dailyRecord) : '開始 AI 西洋星座分析'}
+                    {submitting ? '易經正在分析星座' : dailyRecord ? getDailyAnalysisButtonLabel(dailyRecord) : '開始 易經西洋星座分析'}
                   </button>
                   {(form.name || form.birthDate) && (
                     <button

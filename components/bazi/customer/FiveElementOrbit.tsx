@@ -6,7 +6,7 @@
  * - 星軌層（SVG）：外圈相生環＋內部相剋五角星，一次性畫線動畫後靜態
  * - 星體層（Button）：真實比例＋十神、44px+ 觸控、點擊開 Drilldown 證據面板
  * - 互動升級：點擊某元素 → 與它相關的生剋線路亮起（誰生我／我生誰／誰剋我）
- * CORE CALCULATES ONCE. UI READS MANY TIMES. 零重算、零 AI 補值、零假拆分。
+ * CORE CALCULATES ONCE. UI READS MANY TIMES. 零重算、零 易經補值、零假拆分。
  */
 
 import { useState } from 'react';

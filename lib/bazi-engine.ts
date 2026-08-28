@@ -499,7 +499,7 @@ function buildElementPriority(chart: BaziProfessionalChart): BaziElementPriority
 
 function buildDeepAnalysis(chart: BaziProfessionalChart): BaziDeepAnalysis {
   if (!chart.verification.readyForInterpretation) {
-    throw new Error('第一層專業命盤尚未通過驗證，第二層 AI 解盤不可啟動：' + chart.verification.failedReasons.join('、'));
+    throw new Error('第一層專業命盤尚未通過驗證，第二層 易經解盤不可啟動：' + chart.verification.failedReasons.join('、'));
   }
   const checksum = chart.verification.checksum;
   const elementPriority = buildElementPriority(chart);
@@ -522,7 +522,7 @@ function buildDeepAnalysis(chart: BaziProfessionalChart): BaziDeepAnalysis {
     timingFocus,
   };
   const chartSummary = '命盤重點：' + dayPillar + '日主、' + chart.strengthAnalysis.verdict + '、' + chart.structurePattern.primaryPattern + '、用神' + chart.gods.usefulGod + '、喜神' + chart.gods.joyGod + '。';
-  const summary = '第二層 AI 解讀：直接讀取第一層專業命盤，不重新排盤。本命' + professionalSignals.dayMaster + '，目前優先讀取' + firstElement.displayName + '作第一補強方向。';
+  const summary = '第二層 易經解讀：直接讀取第一層專業命盤，不重新排盤。本命' + professionalSignals.dayMaster + '，目前優先讀取' + firstElement.displayName + '作第一補強方向。';
   const userReadableSections = [
     { title: '命盤核心', basis: '來源：第一層四柱、日主、格局。', content: chartSummary + '此段只把命盤主軸轉成一般使用者能理解的語言。' },
     { title: '格局與十神', basis: '來源：第一層格局與十神分布。', content: '第一層判定格局為' + professionalSignals.structure + '；十神主訊號為' + (topTenGods.join('、') || '分布平均') + '。這代表第二層解讀會以格局主軸與十神比例作為分析骨架。' },
@@ -569,7 +569,7 @@ function buildReinforcementItem(priority: BaziElementPriority, rank: 1 | 2 | 3, 
     brandElement: priority.brandElement,
     displayName: priority.displayName,
     title: rankLabel + '：' + priority.displayName,
-    judgement: 'AI 判定：目前' + rankLabel + '為' + priority.displayName + '，補強分數 ' + priority.needScore + '。',
+    judgement: '易經卜卦判定：目前' + rankLabel + '為' + priority.displayName + '，補強分數 ' + priority.needScore + '。',
     action: '請補強：' + priority.displayName + '。',
     suggestion: '行動方向：先對準' + display.actionName + '元素對應的節奏、空間與日常選擇。' + sequenceNote,
     basis,
@@ -588,7 +588,7 @@ function buildReinforcementPlan(analysis: BaziDeepAnalysis): BaziReinforcementPl
     sourceLayer: 'ai_deep_analysis',
     sourceChecksum: checksum,
     recalculationAllowed: false,
-    principle: 'AI 不預測你的命運；AI 判定你目前最需要補強的方向。',
+    principle: '易經不預測你的命運；易經卜卦判定你目前最需要補強的方向。',
     basisSummary: '第三層只讀取第二層輸出的補強排序與專業訊號：' + analysis.professionalSignals.elementFocus + '。',
     elementSequenceExplanation: '補強順序固定為：' + [first.displayName, second.displayName, third.displayName].join(' → ') + '。先補第一順位，再補第二順位，最後補第三順位。',
     first,

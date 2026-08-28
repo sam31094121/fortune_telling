@@ -182,9 +182,9 @@ export function ProfessionalBaziTable({ result, hourUnknown }: { result: any; ho
         <p className="mt-1 text-xs font-semibold text-white/40">時區備註：{result.timezone?.note ?? `${result.timezone?.country ?? ''} ${result.timezone?.city ?? ''}`}</p>
       </section>
 
-      {/* AI 解讀鏈路（logicTrace / elementPriority｜Interpretation 層追蹤，非計算） */}
+      {/* 易經解讀鏈路（logicTrace / elementPriority｜Interpretation 層追蹤，非計算） */}
       <section className="rounded-[20px] border border-white/8 bg-white/[0.03] p-5">
-        <h4 className="text-base font-black text-[color:var(--text-main)]">11｜AI 解讀鏈路追蹤</h4>
+        <h4 className="text-base font-black text-[color:var(--text-main)]">11｜易經解讀鏈路追蹤</h4>
         <div className="mt-3 space-y-1.5 text-sm font-semibold leading-6 text-white/55">
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {(result.aiDeepAnalysis?.logicTrace ?? []).map((t: any) => (
@@ -199,7 +199,7 @@ export function ProfessionalBaziTable({ result, hourUnknown }: { result: any; ho
         </div>
       </section>
 
-      {/* 命局摘要｜核心未提供欄位明確標示（不隱藏、不假裝、不 AI 補） */}
+      {/* 命局摘要｜核心未提供欄位明確標示（不隱藏、不假裝、不 易經補） */}
       <section className="rounded-[20px] border border-white/8 bg-white/[0.03] p-5">
         <h4 className="text-base font-black text-[color:var(--text-main)]">12｜命局摘要（傳統完整欄位對照）</h4>
         <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm font-semibold leading-6 text-white/60">
@@ -226,13 +226,13 @@ export function ProfessionalBaziTable({ result, hourUnknown }: { result: any; ho
             <p key={`shensha-${index}`}>神煞：{item.name}｜{item.evidence}｜{item.ruleVersion}</p>
           ))}
         </div>
-        <p className="mt-2 text-xs font-semibold leading-5 text-white/35">此區只呈現 Professional Result 已回傳欄位；缺欄會顯示 Data Condition Status，不以 AI 補值、不顯示假資料。</p>
+        <p className="mt-2 text-xs font-semibold leading-5 text-white/35">此區只呈現 Professional Result 已回傳欄位；缺欄會顯示 Data Condition Status，不以 易經補值、不顯示假資料。</p>
       </section>
 
-      {/* AI 白話解讀（aiReading｜Interpretation 層，完整保留） */}
+      {/* 易經白話解讀（aiReading｜Interpretation 層，完整保留） */}
       {result.aiReading && (
         <section className="rounded-[20px] border border-white/8 bg-white/[0.03] p-5">
-          <h4 className="text-base font-black text-[color:var(--text-main)]">13｜AI 白話解讀</h4>
+          <h4 className="text-base font-black text-[color:var(--text-main)]">13｜易經白話解讀</h4>
           <div className="mt-3 space-y-2 text-sm font-semibold leading-6 text-white/60">
             {result.aiReading.chartSummary && <p>{result.aiReading.chartSummary}</p>}
             {result.aiReading.summary && <p>{result.aiReading.summary}</p>}

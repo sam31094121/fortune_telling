@@ -156,7 +156,7 @@ const BAGUA_SYMBOLS = [
 
 const HOME_SIGNAL_METRICS = [
   { label: '即時人氣', value: 'LIVE', tone: 'cyan' },
-  { label: 'AI 命理艙', value: '4 核同步', tone: 'rose' },
+  { label: '易經命理艙', value: '4 核同步', tone: 'rose' },
   { label: '數字解碼', value: '1 秒啟動', tone: 'amber' },
 ] as const;
 
@@ -168,49 +168,58 @@ const HOME_COMMAND_STATUS = [
 ] as const;
 
 const HOME_QUICK_NAV = [
-  { href: '/numerology', icon: '數', label: '數字論好壞', tone: 'cyan' },
+  { href: '/numerology', icon: '數', label: '易經論數字', tone: 'cyan' },
   { href: '/insight', icon: '紫', label: '紫微深度洞察', tone: 'indigo' },
   { href: '/bazi', icon: '八', label: '八字命盤', tone: 'emerald' },
   { href: '/zodiac', icon: '星', label: '西洋星座', tone: 'fuchsia' },
   { href: '/tarot', icon: '牌', label: '塔羅占問', tone: 'amber' },
 ] as const;
 
+// 桌機右側「快速切換」直欄依需求隱藏；要恢復把這裡改回 true 即可
+const SHOW_DESKTOP_QUICK_NAV = false;
+// 行動版右側「功能」按鈕依需求隱藏；要恢復把這裡改回 true 即可
+const SHOW_MOBILE_QUICK_NAV = false;
+
 function HomeQuickNavigation() {
   return (
     <>
-      <aside
-        aria-label="命理功能快速入口"
-        className="fixed right-4 top-1/2 z-30 hidden w-14 -translate-y-1/2 flex-col items-center gap-2 rounded-3xl border border-white/10 bg-slate-950/75 px-2 py-3 shadow-[0_16px_45px_rgba(2,6,23,0.42)] backdrop-blur-xl min-[1280px]:flex"
-      >
-        <span className="mb-1 text-[9px] font-black tracking-[0.18em] text-white/45 [writing-mode:vertical-rl]">快速切換</span>
-        {HOME_QUICK_NAV.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            prefetch
-            aria-label={item.label}
-            title={item.label}
-            className="grid h-10 w-10 place-items-center rounded-2xl border border-white/15 bg-white/[0.06] text-sm font-black text-white/90 transition duration-200 hover:-translate-y-0.5 hover:border-cyan-200/70 hover:bg-cyan-300/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/90"
-          >
-            <span aria-hidden="true">{item.icon}</span>
-            <span className="sr-only">{item.label}</span>
-          </Link>
-        ))}
-      </aside>
-
-      <details className="group fixed right-2 top-1/2 z-30 -translate-y-1/2 min-[1280px]:hidden">
-        <summary className="grid h-12 w-12 cursor-pointer list-none place-items-center rounded-2xl border border-cyan-200/35 bg-slate-950/90 text-[11px] font-black tracking-[0.12em] text-cyan-100 shadow-[0_10px_28px_rgba(2,6,23,0.42)] backdrop-blur-xl transition hover:border-cyan-100/70 [&::-webkit-details-marker]:hidden">
-          功能
-        </summary>
-        <nav aria-label="命理功能快速入口" className="absolute right-0 top-[-7.25rem] flex w-40 flex-col gap-1.5 rounded-2xl border border-white/15 bg-slate-950/95 p-2 shadow-[0_16px_44px_rgba(2,6,23,0.5)] backdrop-blur-xl">
+      {SHOW_DESKTOP_QUICK_NAV && (
+        <aside
+          aria-label="命理功能快速入口"
+          className="fixed right-4 top-1/2 z-30 hidden w-14 -translate-y-1/2 flex-col items-center gap-2 rounded-3xl border border-white/10 bg-slate-950/75 px-2 py-3 shadow-[0_16px_45px_rgba(2,6,23,0.42)] backdrop-blur-xl min-[1280px]:flex"
+        >
+          <span className="mb-1 text-[9px] font-black tracking-[0.18em] text-white/45 [writing-mode:vertical-rl]">快速切換</span>
           {HOME_QUICK_NAV.map((item) => (
-            <Link key={item.href} href={item.href} prefetch className="flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-white/85 transition hover:bg-cyan-300/12 hover:text-cyan-50">
-              <span className="grid h-6 w-6 place-items-center rounded-lg border border-white/12 bg-white/[0.06] text-xs text-cyan-100" aria-hidden="true">{item.icon}</span>
-              <span>{item.label}</span>
+            <Link
+              key={item.href}
+              href={item.href}
+              prefetch
+              aria-label={item.label}
+              title={item.label}
+              className="grid h-10 w-10 place-items-center rounded-2xl border border-white/15 bg-white/[0.06] text-sm font-black text-white/90 transition duration-200 hover:-translate-y-0.5 hover:border-cyan-200/70 hover:bg-cyan-300/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/90"
+            >
+              <span aria-hidden="true">{item.icon}</span>
+              <span className="sr-only">{item.label}</span>
             </Link>
           ))}
-        </nav>
-      </details>
+        </aside>
+      )}
+
+      {SHOW_MOBILE_QUICK_NAV && (
+        <details className="group fixed right-2 top-1/2 z-30 -translate-y-1/2 min-[1280px]:hidden">
+          <summary className="grid h-12 w-12 cursor-pointer list-none place-items-center rounded-2xl border border-cyan-200/35 bg-slate-950/90 text-[11px] font-black tracking-[0.12em] text-cyan-100 shadow-[0_10px_28px_rgba(2,6,23,0.42)] backdrop-blur-xl transition hover:border-cyan-100/70 [&::-webkit-details-marker]:hidden">
+            功能
+          </summary>
+          <nav aria-label="命理功能快速入口" className="absolute right-0 top-[-7.25rem] flex w-40 flex-col gap-1.5 rounded-2xl border border-white/15 bg-slate-950/95 p-2 shadow-[0_16px_44px_rgba(2,6,23,0.5)] backdrop-blur-xl">
+            {HOME_QUICK_NAV.map((item) => (
+              <Link key={item.href} href={item.href} prefetch className="flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-white/85 transition hover:bg-cyan-300/12 hover:text-cyan-50">
+                <span className="grid h-6 w-6 place-items-center rounded-lg border border-white/12 bg-white/[0.06] text-xs text-cyan-100" aria-hidden="true">{item.icon}</span>
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </nav>
+        </details>
+      )}
     </>
   );
 }
@@ -617,7 +626,7 @@ function getNumberFortuneGradePresentation(result: NumberAnalysisResult) {
     return {
       title: '大吉登峰，吉勢主場',
       subtitle: '數字結構進入強支撐區，優先承接順勢推進。',
-      badge: 'AI 後端判定｜最高吉勢',
+      badge: '易經後端判定｜最高吉勢',
       frameClass: 'border-amber-200/60 bg-[radial-gradient(circle_at_50%_0%,rgba(251,191,36,0.32),transparent_42%),linear-gradient(135deg,rgba(69,42,8,0.68),rgba(8,13,28,0.96))] shadow-[0_0_42px_rgba(251,191,36,0.28),inset_0_0_28px_rgba(253,230,138,0.09)]',
       badgeClass: 'border-amber-200/55 bg-amber-300/18 text-amber-100',
       titleClass: 'text-amber-100 drop-shadow-[0_0_18px_rgba(251,191,36,0.46)]',
@@ -629,7 +638,7 @@ function getNumberFortuneGradePresentation(result: NumberAnalysisResult) {
     return {
       title: '吉勢成局，順勢可攻',
       subtitle: '數字能量具備明確支撐，行動方向可以更果斷。',
-      badge: 'AI 後端判定｜強吉等級',
+      badge: '易經後端判定｜強吉等級',
       frameClass: 'border-emerald-200/45 bg-[radial-gradient(circle_at_50%_0%,rgba(52,211,153,0.26),transparent_44%),linear-gradient(135deg,rgba(6,78,59,0.45),rgba(8,13,28,0.96))] shadow-[0_0_34px_rgba(16,185,129,0.22),inset_0_0_24px_rgba(52,211,153,0.07)]',
       badgeClass: 'border-emerald-200/45 bg-emerald-300/14 text-emerald-100',
       titleClass: 'text-emerald-100 drop-shadow-[0_0_14px_rgba(52,211,153,0.34)]',
@@ -641,7 +650,7 @@ function getNumberFortuneGradePresentation(result: NumberAnalysisResult) {
     return {
       title: '吉凶交戰，轉勢在手',
       subtitle: '數字結構同時有推力與阻力，關鍵在先分清順逆。',
-      badge: 'AI 後端判定｜轉化等級',
+      badge: '易經後端判定｜轉化等級',
       frameClass: 'border-cyan-200/42 bg-[radial-gradient(circle_at_50%_0%,rgba(34,211,238,0.24),transparent_44%),linear-gradient(135deg,rgba(14,116,144,0.36),rgba(8,13,28,0.96))] shadow-[0_0_30px_rgba(34,211,238,0.18),inset_0_0_22px_rgba(34,211,238,0.06)]',
       badgeClass: 'border-cyan-200/42 bg-cyan-300/12 text-cyan-100',
       titleClass: 'text-cyan-100 drop-shadow-[0_0_14px_rgba(34,211,238,0.32)]',
@@ -652,7 +661,7 @@ function getNumberFortuneGradePresentation(result: NumberAnalysisResult) {
   return {
     title: '凶勢已現，先穩後破',
     subtitle: '數字風險訊號偏強，當前第一任務是降風險、穩節奏。',
-    badge: 'AI 後端判定｜警戒等級',
+    badge: '易經後端判定｜警戒等級',
     frameClass: 'border-rose-200/48 bg-[radial-gradient(circle_at_50%_0%,rgba(251,113,133,0.28),transparent_42%),linear-gradient(135deg,rgba(76,5,25,0.52),rgba(8,13,28,0.96))] shadow-[0_0_34px_rgba(244,63,94,0.22),inset_0_0_24px_rgba(251,113,133,0.07)]',
     badgeClass: 'border-rose-200/48 bg-rose-300/14 text-rose-100',
     titleClass: 'text-rose-100 drop-shadow-[0_0_14px_rgba(251,113,133,0.34)]',
@@ -728,14 +737,14 @@ const NUMBER_FORTUNE_THREE_LAYER_MATERIAL: NumberFortuneLayerMaterial[] = [
     aiInput:
       '只讀取使用者輸入與 Number Core Engine 的 evidence / indexes / matrix 原始資料。',
     aiOutput:
-      '輸出可稽核的數字命盤底稿，不做 AI 解讀，不直接給補強建議。',
+      '輸出可稽核的數字命盤底稿，不做 易經解讀，不直接給補強建議。',
     handoff:
       '交給第二層時，只交付已完成的數字結構、吉凶分級、分數矩陣與證據清單。',
     checkpoints: ['位數模式正確', '重複與連號可追溯', '吉凶分級有規則版本', '不得跳過後端運算'],
   },
   {
     layer: '第二層',
-    title: 'AI 白話解讀轉譯',
+    title: '易經白話解讀轉譯',
     professionalMaterial:
       '把第一層的財富、事業、感情、家庭、人際、健康、成長、風險、壓力、穩定十項矩陣轉成一般使用者看得懂的語義。',
     aiInput:
@@ -748,7 +757,7 @@ const NUMBER_FORTUNE_THREE_LAYER_MATERIAL: NumberFortuneLayerMaterial[] = [
   },
   {
     layer: '第三層',
-    title: 'AI 補強排序方案',
+    title: '易經補強排序方案',
     professionalMaterial:
       '依第二層解讀與五元素 Integration Layer 結果，明確排列第一補強、第二補強、第三補強，形成可執行方向。',
     aiInput:
@@ -756,7 +765,7 @@ const NUMBER_FORTUNE_THREE_LAYER_MATERIAL: NumberFortuneLayerMaterial[] = [
     aiOutput:
       '輸出明確判定：目前最需要補強的方向、後續排序與行動建議。',
     handoff:
-      'SELF 可交給 AI 個人成長中心留存；OTHER 僅保留單次分析，不寫入會員核心資料。',
+      'SELF 可交給 易經個人成長中心留存；OTHER 僅保留單次分析，不寫入會員核心資料。',
     checkpoints: ['第一補強明確', '第二第三依序排列', '不保證人生結果', '自己與親友資料分流'],
   },
 ];
@@ -796,8 +805,8 @@ function NumberFortuneThreeLayerCard({
     <div className={cardClassName}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-200">AI 三層判定</p>
-          <h4 className="mt-2 font-serif text-xl font-black leading-tight text-cyan-50">數字規則 → AI 判定 → 今日行動</h4>
+          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-200">易經三層判定</p>
+          <h4 className="mt-2 font-serif text-xl font-black leading-tight text-cyan-50">數字規則 → 易經卜卦判定 → 今日行動</h4>
           <p className="mt-2 text-xs font-semibold leading-6 text-cyan-100/72">{layerCaption}</p>
         </div>
         <span className="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-[10px] font-black text-cyan-100">
@@ -822,7 +831,7 @@ function NumberFortuneThreeLayerCard({
       {result && grade && (
         <div className="mt-4 space-y-3">
           <section className="rounded-[24px] border border-emerald-200/25 bg-emerald-300/10 p-4 shadow-[0_0_24px_rgba(16,185,129,0.12)]">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">第一層｜AI 最終判定</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">第一層｜易經最終判定</p>
             <h5 className={`mt-2 font-serif text-2xl font-black leading-tight ${grade.titleClass}`}>{grade.title}</h5>
             <p className="mt-2 text-sm font-bold leading-7 text-cyan-50/85">{grade.subtitle}</p>
             <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[11px] font-black">
@@ -837,7 +846,7 @@ function NumberFortuneThreeLayerCard({
 
           <details className="overflow-hidden rounded-2xl border border-cyan-200/15 bg-slate-950/45 p-4">
             <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm font-black leading-7 text-cyan-100">
-              <span>第二層｜查看 AI 精華</span>
+              <span>第二層｜查看 易經精華</span>
               <span className="text-[11px] text-cyan-100/60">3 個重點</span>
             </summary>
             <div className="mt-3 grid gap-2 text-xs font-semibold leading-6 text-cyan-50/82">
@@ -960,7 +969,7 @@ function AnalyticalConsole({
     `[CALCULATOR] 映射「地脈」血型引力場關係矩陣... OK`,
     `[VOICE] 聲學頻率模型提取：合成 432Hz 靈魂能量音訊共鳴... READY`,
     `[DECRYPT] 映射「人和」緣分課題... 正在寫入 VIP 加密天宿數據艙`,
-    `[AI_STATUS] 分析完成，正在載入最終配對結果...`
+    `[易經] 分析完成，正在載入最終配對結果...`
   ], [nameA, nameB, birthA, birthB]);
 
   useEffect(() => {
@@ -981,7 +990,7 @@ function AnalyticalConsole({
     <div className="fortune-card p-6 sm:p-8 font-mono border border-cyan-500/20 bg-slate-950/80 shadow-[0_0_30px_rgba(34,211,238,0.08)]">
       <div className="flex flex-col md:flex-row items-center gap-6 justify-between">
         <div className="flex-1 w-full">
-          <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">🧬 大數據 AI 運算終端</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">🧬 大數據 易經運算終端</p>
           <div className="mt-6 space-y-3.5 text-xs sm:text-sm text-cyan-100 leading-7 min-h-[160px]">
             {logs.map((log, index) => (
               <p key={index} className="animate-fade-in">
@@ -1278,14 +1287,14 @@ type HomeGrowthModuleGuide = {
 };
 
 const HOME_GROWTH_MODULE_GUIDES: HomeGrowthModuleGuide[] = [
-  { id: 'number', label: '數字論好壞', helper: '完成一組數字，取得今日好壞判定。', cta: '立即開始', href: '/numerology', sticky: '用一組數字建立今日行動訊號。', reward: '完成後，首頁會記住你的數字提醒。' },
-  { id: 'ziwei', label: 'AI 紫微斗數', helper: '完成紫微命盤探索。', cta: '去完成紫微斗數', href: '/insight', sticky: '把長期方向接進成長中心。', reward: '完成後，成長中心會知道你的長期方向。' },
-  { id: 'soul_match', label: 'AI 靈魂配對', helper: '完成雙人配對探索。', cta: '去完成靈魂配對', href: '/match', sticky: '讓關係互動留下可追蹤提醒。', reward: '完成後，關係提醒會變得更貼近你。' },
-  { id: 'music', label: 'AI 生成歌曲', helper: '完成生命音樂生成。', cta: '去生成一首歌', href: '/music', sticky: '把個人節奏變成可回聽記憶。', reward: '完成後，你會多一個可以回來聽的記憶點。' },
-  { id: 'nameology', label: 'AI 姓名學', helper: '完成姓名學分析。', cta: '去完成姓名學', href: '/nameology', sticky: '補上姓名能量與性格支點。', reward: '完成後，AI 會記住你的姓名支點。' },
-  { id: 'bazi', label: 'AI 生辰八字', helper: '完成八字命盤分析。', cta: '去完成八字命盤', href: '/bazi', sticky: '讓出生結構接入元素補強。', reward: '完成後，本週補強會更準。' },
-  { id: 'zodiac', label: 'AI 西洋星座', helper: '完成西洋星座人格分析。', cta: '去完成西洋星座', href: '/zodiac', sticky: '加入星座人格與每週提醒。', reward: '完成後，每週提醒會更像你的語氣。' },
-  { id: 'tarot', label: 'AI 塔羅牌', helper: '完成塔羅牌抽牌、正逆位與五元素判定。', cta: '去完成塔羅牌', href: '/tarot', sticky: '用當下提問補齊最後一段訊號。', reward: '完成後，8/8 就能打開 AI 個人成長中心。' },
+  { id: 'number', label: '易經論數字', helper: '完成一組數字，取得今日好壞判定。', cta: '立即開始', href: '/numerology', sticky: '用一組數字建立今日行動訊號。', reward: '完成後，首頁會記住你的數字提醒。' },
+  { id: 'ziwei', label: '易經紫微斗數', helper: '完成紫微命盤探索。', cta: '去完成紫微斗數', href: '/insight', sticky: '把長期方向接進成長中心。', reward: '完成後，成長中心會知道你的長期方向。' },
+  { id: 'soul_match', label: '易經靈魂配對', helper: '完成雙人配對探索。', cta: '去完成靈魂配對', href: '/match', sticky: '讓關係互動留下可追蹤提醒。', reward: '完成後，關係提醒會變得更貼近你。' },
+  { id: 'music', label: '易經生成歌曲', helper: '完成生命音樂生成。', cta: '去生成一首歌', href: '/music', sticky: '把個人節奏變成可回聽記憶。', reward: '完成後，你會多一個可以回來聽的記憶點。' },
+  { id: 'nameology', label: '易經姓名學', helper: '完成姓名學分析。', cta: '去完成姓名學', href: '/nameology', sticky: '補上姓名能量與性格支點。', reward: '完成後，易經會記住你的姓名支點。' },
+  { id: 'bazi', label: '易經生辰八字', helper: '完成八字命盤分析。', cta: '去完成八字命盤', href: '/bazi', sticky: '讓出生結構接入元素補強。', reward: '完成後，本週補強會更準。' },
+  { id: 'zodiac', label: '易經西洋星座', helper: '完成西洋星座人格分析。', cta: '去完成西洋星座', href: '/zodiac', sticky: '加入星座人格與每週提醒。', reward: '完成後，每週提醒會更像你的語氣。' },
+  { id: 'tarot', label: '古老塔羅牌', helper: '完成塔羅牌抽牌、正逆位與五元素判定。', cta: '去完成塔羅牌', href: '/tarot', sticky: '用當下提問補齊最後一段訊號。', reward: '完成後，8/8 就能打開 易經個人成長中心。' },
 ];
 
 const HOME_MODULE_TREASURE_SEALS: Record<HomeGrowthModuleId, { element: GrowthElement; relic: string; gear: string }> = {
@@ -1404,7 +1413,7 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
             ? 'border-cyan-300/35 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.14),rgba(15,23,42,0.9)_68%,rgba(2,6,23,0.96)_100%)]'
             : 'border-white/12 bg-white/[0.055]'
       }`}
-      aria-label="AI 個人成長中心入口"
+      aria-label="易經個人成長中心入口"
     >
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent)] opacity-0 transition duration-700 group-hover:opacity-100" />
       {unlocked && <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-amber-300/16 blur-3xl" />}
@@ -1419,7 +1428,7 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
             </span>
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200/85">Growth Center</p>
-              <h2 className="mt-1 font-serif text-2xl font-black leading-tight text-[color:var(--text-main)] sm:text-3xl">AI 個人成長中心</h2>
+              <h2 className="mt-1 font-serif text-2xl font-black leading-tight text-[color:var(--text-main)] sm:text-3xl">易經個人成長中心</h2>
             </div>
           </div>
           <p className="mt-4 text-sm font-black leading-7 text-[color:var(--text-main)]">{headline}</p>
@@ -1441,7 +1450,7 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
           </div>
           {justUnlocked && (
             <p className="mt-3 rounded-xl border border-amber-200/25 bg-amber-300/12 px-4 py-3 text-sm font-black leading-7 text-amber-100 animate-pulse">
-              恭喜，AI 已完成你的專屬成長檔案。
+              恭喜，易經已完成你的專屬成長檔案。
             </p>
           )}
         </div>
@@ -1470,7 +1479,7 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
             href="/growth-center"
             className="inline-flex items-center justify-center rounded-full border border-amber-200/40 bg-amber-300 px-5 py-3 text-sm font-black text-slate-950 shadow-[0_0_24px_rgba(251,191,36,0.22)] transition active:scale-[0.98]"
           >
-            開啟 AI 個人成長中心
+            開啟 易經個人成長中心
           </Link>
         ) : nextAction}
       </div>
@@ -1496,7 +1505,7 @@ function HomeStickyJourneyPanel({ completed, completedModules, total, onOpenNumb
   const ctaClassName = 'home-sticky-journey__cta';
 
   const nextAction = unlocked ? (
-    <Link href="/growth-center" className={ctaClassName}>開啟 AI 個人成長中心</Link>
+    <Link href="/growth-center" className={ctaClassName}>開啟 易經個人成長中心</Link>
   ) : nextModule?.action === 'number-modal' ? (
     <button type="button" onClick={onOpenNumber} className={ctaClassName}>{nextModule.cta}</button>
   ) : nextModule ? (
@@ -1546,7 +1555,7 @@ export default function HomePage() {
   const scrollVisibilityRef = useRef({ top: false, down: false });
   const hasMountedStepGuideRef = useRef(false);
 
-  // 數字論吉凶 state 與處理函數
+  // 易經論數字 state 與處理函數
   const [fortuneNumber, setFortuneNumber] = useState('');
   const [fortuneResult, setFortuneResult] = useState<NumberAnalysisResult | null>(null);
   const [numberDailyRecord, setNumberDailyRecord] = useState<DailyAnalysisRecord<NumberDailyResult> | null>(null);
@@ -1675,8 +1684,8 @@ export default function HomePage() {
   const handleLineShare = async () => {
     const shareUrl = 'https://heaven-earth-humanity-pair.vercel.app/';
     const shareData = {
-      title: '☯ 太極命理 AI',
-      text: '用 AI 探索靈魂配對、人格能量與數字好壞，看看天、地、人之間的共鳴。',
+      title: '☯ 太極命理 易經',
+      text: '用 易經探索靈魂配對、人格能量與數字好壞，看看天、地、人之間的共鳴。',
       url: shareUrl,
     };
 
@@ -2616,14 +2625,14 @@ export default function HomePage() {
 
       <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:pt-8 lg:pb-14">
         <div className="hidden mb-8 items-center gap-4">
-          <span className="text-xs tracking-widest text-rose-300">// AI 靈魂配對</span>
+          <span className="text-xs tracking-widest text-rose-300">// 易經靈魂配對</span>
           <span className="text-[color:var(--text-muted)]">·</span>
           <Link href="/music" className="text-xs tracking-widest text-violet-300/70 transition hover:text-violet-300">
             // 人格音樂
           </Link>
           <span className="text-[color:var(--text-muted)]">·</span>
           <Link href="/insight" className="text-xs tracking-widest text-amber-300/70 transition hover:text-amber-300">
-            // AI 姓名學（首頁入口正常顯示，保留原本功能資料）
+            // 易經姓名學（首頁入口正常顯示，保留原本功能資料）
           </Link>
         </div>
 
@@ -2632,7 +2641,7 @@ export default function HomePage() {
             從第一眼（×1）就沒有邊界，不是放大之後才「無限」。 */}
         <section
           id="home-top-empty-shell-card"
-          className="mx-auto mb-5 w-[min(86vw,420px)] sm:mb-6 sm:w-[440px]"
+          className="mx-auto grid w-[min(92vw,440px)] place-items-center mb-5 sm:mb-6"
           aria-label="首頁最上方太極三層立體卡片"
           data-home-slot="top-empty-shell"
         >
@@ -2652,7 +2661,7 @@ export default function HomePage() {
               配對你的命運靈魂伴侶
             </div>
             <h1 className="mystic-title home-hero-title mb-4 font-serif text-4xl leading-tight sm:text-6xl md:text-7xl">
-              天宿命理<br />AI 能量解碼艙
+              天宿命理<br />易經能量解碼艙
             </h1>
             <p className="hidden max-w-2xl text-sm leading-7 text-[color:var(--text-sub)] sm:text-base">
               靈魂配對、人格聲波、深度洞察與數字好壞集中啟動，讓每一次進站都像打開一座會呼吸的命理主控台。
@@ -2759,16 +2768,16 @@ export default function HomePage() {
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-rose-500/10 border border-rose-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-rose-300 uppercase animate-pulse">
-                  AI · 靈魂雙星配對
+                  易經 · 靈魂雙星配對
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-rose-100 tracking-wide flex items-center gap-2">
-                  <span>AI 靈魂配對</span>
+                  <span>易經靈魂配對</span>
                   <span className="text-xs font-sans text-rose-300 font-normal opacity-85 hidden sm:inline">
                     // 雙人命盤 · 相處節奏 · 互補點分析
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  輸入兩位資料，分析相處頻率、吸引力、溝通模式與命定互補關係。
+                  輸入兩位資料，分析相處頻率、吸引力、溝通模式與命定互補關係。🎁 拆開有禮：兩顆心的合卦，和一句誰最懂誰的答案。
                 </p>
               </div>
             </div>
@@ -2795,16 +2804,16 @@ export default function HomePage() {
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-flex max-w-full rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-1 text-[10px] font-bold leading-none tracking-[0.12em] text-violet-300 uppercase animate-pulse">
-                  {"AI \u8072\u97f3\u6b4c\u66f2"}
+                  {"\u6613\u7d93\u8072\u97f3\u6b4c\u66f2"}
                 </span>
                 <h2 className="home-music-title mt-2 font-serif font-black text-violet-100">
-                  {/* 2026-08-16 依指示：標題首行改為「生成一首歌」（原「AI生成一首歌」，要恢復把下一行換回原字即可） */}
+                  {/* 2026-08-16 依指示：標題首行改為「生成一首歌」（原「易經生成一首歌」，要恢復把下一行換回原字即可） */}
                   <span className="home-music-title-line">{"\u751f\u6210\u4e00\u9996\u6b4c"}</span>
                   <span className="hidden" aria-hidden="true">{"\u81ea\u6211\u4eba\u683c\u5206\u88c2"}</span>
                   <span className="hidden" aria-hidden="true">{"\u8ddf\u4f60\u81ea\u6211\u5c0d\u8a71"}</span>
                 </h2>
                 <p className="home-music-copy mt-1.5 text-xs text-[color:var(--text-sub)]">
-                  {"\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002"}
+                  {"\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002\ud83c\udf81 \u62c6\u958b\u6709\u79ae\uff1a\u4e00\u9996\u53ea\u5c6c\u65bc\u4f60\u751f\u8fb0\u5366\u8c61\u7684\u9748\u9b42\u4e4b\u6b4c\u3002"}
                 </p>
               </div>
             </div>
@@ -2832,16 +2841,16 @@ export default function HomePage() {
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-300 uppercase animate-pulse">
-                  AI · 姓名決策系統
+                  易經 · 姓名決策系統
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-amber-100 tracking-wide flex items-center gap-2">
-                  <span>AI 姓名學</span>
+                  <span>易經姓名學</span>
                   <span className="text-xs font-sans text-amber-300 font-normal opacity-85 hidden sm:inline">
-                    // 臺灣字典 · 取名意境 · AI 判定
+                    // 臺灣字典 · 取名意境 · 易經卜卦判定
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  以臺灣字典固定部首、筆畫與取名意境，最後只留下今天最需要改變的一個方向。
+                  以臺灣字典固定部首、筆畫與取名意境，最後只留下今天最需要改變的一個方向。🎁 拆開有禮：你名字裡藏著一句沒人說破的溫度話。
                 </p>
               </div>
             </div>
@@ -2872,13 +2881,13 @@ export default function HomePage() {
                   CARD 01 · 數字好壞速測
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-100 tracking-wide flex items-center gap-2">
-                  <span>數字論好壞</span>
+                  <span>易經論數字</span>
                   <span className="text-xs font-sans text-cyan-300 font-normal opacity-85 hidden sm:inline">
                     // 4 / 6 / 8 / 10 碼 · 即時判定
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  輸入 4、6、8 或 10 碼，AI 立即整理吉凶傾向與今日行動。
+                  輸入 2 到 10 碼，易經立即整理吉凶傾向與今日行動。🎁 拆開有禮：你的數字會起出一支專屬卦，六十四格裡就這一格是你。
                 </p>
               </div>
             </div>
@@ -2895,7 +2904,7 @@ export default function HomePage() {
             data-navigation-target={ZIWEI_ROUTE}
             onClick={handleZiweiOpen}
             className="home-feature-launch home-feature-indigo order-3 w-full relative group overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-indigo-400 hover:shadow-[0_0_50px_rgba(99,102,241,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap [touch-action:manipulation]"
-            aria-label="開啟 AI 紫微斗數"
+            aria-label="開啟 易經紫微斗數"
             aria-busy={ziweiOpening}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -2910,16 +2919,16 @@ export default function HomePage() {
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-indigo-500/10 border border-indigo-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-indigo-300 uppercase animate-pulse">
-                  AI · 紫微斗數命盤
+                  易經 · 紫微斗數命盤
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-indigo-100 tracking-wide flex items-center gap-2">
-                  <span>AI 紫微斗數</span>
+                  <span>易經紫微斗數</span>
                   <span className="text-xs font-sans text-indigo-300 font-normal opacity-85 hidden sm:inline">
                     // 命宮主軸 · 三方四正 · 年度方向
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  依出生資料整理命宮主軸，先看懂長期方向，再交給 AI 做精華判定。
+                  依出生資料整理命宮主軸，先看懂長期方向，再交給 易經做精華判定。🎁 拆開有禮：你的特殊格局名稱，和一句「我真的懂你」。
                 </p>
               </div>
             </div>
@@ -2946,16 +2955,16 @@ export default function HomePage() {
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-emerald-500/10 border border-emerald-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-emerald-300 uppercase animate-pulse">
-                  {'AI · 八字命盤'}
+                  {'易經 · 八字命盤'}
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-emerald-100 tracking-wide flex items-center gap-2">
-                  <span>{'AI 八字命盤'}</span>
+                  <span>{'易經八字命盤'}</span>
                   <span className="text-xs font-sans text-emerald-300 font-normal opacity-85 hidden sm:inline">
                     {'// \u516b\u5b57\u56db\u67f1 \u00b7 \u4e94\u5143\u7d20\u88dc\u5f37 \u00b7 \u76f8\u751f\u76f8\u524b'}
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  {'獨立八字排盤，整理四柱、藏干、十神、旺衰、大運與流年。'}
+                  {'獨立八字排盤，整理四柱、藏干、十神、旺衰、大運與流年。🎁 拆開有禮：同一張盤的兩種聲音——溫柔的與神祕的，各給你一份。'}
                 </p>
               </div>
             </div>
@@ -2983,16 +2992,16 @@ export default function HomePage() {
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-fuchsia-500/10 border border-fuchsia-400/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-fuchsia-200 uppercase animate-pulse">
-                  {'AI \u00b7 \u661f\u7a7a\u4eba\u683c'}
+                  {'\u6613\u7d93 \u00b7 \u661f\u7a7a\u4eba\u683c'}
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-fuchsia-100 tracking-wide flex items-center gap-2">
-                  <span>{'AI \u897f\u6d0b\u661f\u5ea7'}</span>
+                  <span>{'\u6613\u7d93\u897f\u6d0b\u661f\u5ea7'}</span>
                   <span className="text-xs font-sans text-fuchsia-200 font-normal opacity-85 hidden sm:inline">
                     {'// \u51fa\u751f\u5e74\u6708\u65e5 \u00b7 \u5341\u4e8c\u661f\u5ea7 \u00b7 \u672c\u9031\u63d0\u9192'}
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  {'\u8f38\u5165\u51fa\u751f\u5e74\u6708\u65e5\uff0c\u7368\u7acb\u5224\u5b9a\u5341\u4e8c\u661f\u5ea7\uff0c\u6574\u7406\u4eba\u683c\u7279\u8cea\u3001\u512a\u52e2\u3001\u5ffd\u7565\u9ede\u8207\u672c\u9031\u63d0\u9192\u3002'}
+                  {'\u8f38\u5165\u51fa\u751f\u5e74\u6708\u65e5\uff0c\u7368\u7acb\u5224\u5b9a\u5341\u4e8c\u661f\u5ea7\uff0c\u6574\u7406\u4eba\u683c\u7279\u8cea\u3001\u512a\u52e2\u3001\u5ffd\u7565\u9ede\u8207\u672c\u9031\u63d0\u9192\u3002\ud83c\udf81 \u62c6\u958b\u6709\u79ae\uff1a\u4f60\u7684\u661f\u5ea7\u00d7\u6613\u7d93\u5366\u8c61\uff0c\u4e00\u9031\u525b\u525b\u597d\u7684\u63d0\u9192\u3002'}
                 </p>
               </div>
             </div>
@@ -3084,7 +3093,7 @@ export default function HomePage() {
                     {isDemoRunning ? '🔮 天宿配對演示自動運行中…' : '🔮 一鍵自動天盤對齊演練'}
                   </button>
                 </div>
-                <DailyAnalysisNotice record={matchDailyRecord} className="mb-5" moduleName="AI 靈魂配對" onViewResult={matchDailyRecord ? () => restoreMatchDailyRecord(matchDailyRecord) : undefined} />
+                <DailyAnalysisNotice record={matchDailyRecord} className="mb-5" moduleName="易經靈魂配對" onViewResult={matchDailyRecord ? () => restoreMatchDailyRecord(matchDailyRecord) : undefined} />
 
                 <div className="fortune-card p-5 sm:p-6">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -3473,7 +3482,7 @@ export default function HomePage() {
               </div>
             )}
 
-            {/* 解鎖中或已解鎖但 AI 前世故事尚未返回時，展示高科技因果解密骨架屏 */}
+            {/* 解鎖中或已解鎖但 易經前世故事尚未返回時，展示高科技因果解密骨架屏 */}
             {isUnlocked && !data.karma_story && (
               <div className="fortune-card vip-gold-card p-6 sm:p-8 text-center border border-amber-500/20 shadow-[0_0_30px_rgba(201,162,74,0.15)] space-y-6 animate-pulse">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 text-2xl border border-amber-500/30 animate-spin">
@@ -3488,7 +3497,7 @@ export default function HomePage() {
                 <div>
                   <h3 className="font-serif text-xl font-bold text-amber-300">🔮 天宿星宮因果密鑰解鎖中…</h3>
                   <p className="mt-3 text-xs leading-6 text-[color:var(--text-sub)]">
-                    系統正在為雙方聯結姓名五格、生辰八字天干地支與血型引力場。這段前世今生的宿因可能需要稍長的時間，Gemini AI 正在為你解鎖靈魂密碼，請稍候。
+                    系統正在為雙方聯結姓名五格、生辰八字天干地支與血型引力場。這段前世今生的宿因可能需要稍長的時間，Gemini 易經正在為你解鎖靈魂密碼，請稍候。
                   </p>
                 </div>
                 <div className="space-y-3 pt-2 max-w-sm mx-auto">
@@ -3730,7 +3739,7 @@ export default function HomePage() {
         </button>
       )}
 
-      {/* 數字論吉凶 Modal 彈窗 */}
+      {/* 易經論數字 Modal 彈窗 */}
       {isFortuneModalOpen && (
         <div className="number-fortune-modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in font-sans">
           <div className="number-fortune-panel relative w-full max-w-2xl rounded-3xl border border-cyan-500/30 bg-slate-900/95 p-6 pt-16 sm:p-8 sm:pt-16 shadow-[0_0_50px_rgba(34,211,238,0.25)] max-h-[90vh] overflow-y-auto">
@@ -3772,17 +3781,17 @@ export default function HomePage() {
             <div className="number-fortune-split-stack">
               <section className="number-fortune-card number-fortune-analysis-card" aria-label="Number fortune analysis">
             <div className="number-fortune-intro mb-6">
-              <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">AI 數字好壞</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">易經數字好壞</p>
               <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">輸入數字，立即判定</h3>
               <p className="mt-2 text-xs leading-5 text-[color:var(--text-muted)]">
-                輸入 4、6、8 或 10 碼，系統會自動過濾符號，只保留數字。
+                輸入 2 到 10 碼，系統會自動過濾符號，只保留數字。
               </p>
             </div>
 
             <FeatureVisitorCounter featureKey="number" className="hidden" />
 
             <IdentitySplitSelector className="mb-4" />
-            <DailyAnalysisNotice record={numberDailyRecord} className="mb-4" moduleName="AI 數字論好壞" onViewResult={numberDailyRecord ? () => restoreNumberDailyRecord(numberDailyRecord) : undefined} />
+            <DailyAnalysisNotice record={numberDailyRecord} className="mb-4" moduleName="易經論數字" onViewResult={numberDailyRecord ? () => restoreNumberDailyRecord(numberDailyRecord) : undefined} />
             {!fortuneLoading && !fortuneResult && (
               <FineDiningServiceProgress
                 module="number"
@@ -3827,7 +3836,7 @@ export default function HomePage() {
                     }}
                     onFocus={() => setFortuneError('')}
                     placeholder={numberInputNeedsAttention ? '1688' : '輸入數字'}
-                    aria-label="數字論好壞輸入框"
+                    aria-label="易經論數字輸入框"
                     style={fortuneNumberDigitStyle}
                     className={`fortune-number-max-input min-h-[186px] w-full rounded-[30px] bg-slate-950/92 px-1.5 py-8 text-center font-mono font-black leading-none tracking-normal text-cyan-50 shadow-[0_0_70px_rgba(34,211,238,0.44),0_0_34px_rgba(251,191,36,0.08),inset_0_0_48px_rgba(34,211,238,0.14)] glass-input glass-input-cyan neon-input-focus sm:min-h-[214px] ${numberInputNeedsAttention ? 'border-rose-300/85 placeholder:text-rose-100/72 shadow-[0_0_64px_rgba(244,63,94,0.42),inset_0_0_42px_rgba(244,63,94,0.12)] animate-pulse' : 'border-cyan-100/80 placeholder:text-cyan-100/34'} ${fortuneError && !fortuneResult ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_30px_rgba(244,63,94,0.38)]' : ''}`}
                   />
@@ -3841,7 +3850,7 @@ export default function HomePage() {
                   disabled={fortuneLoading}
                   className="vip-gold-btn min-h-[66px] w-full px-10 py-4 text-base font-black tracking-[0.12em] shadow-[0_0_34px_rgba(251,191,36,0.26)] disabled:opacity-40 sm:self-end sm:w-auto"
                 >
-                  {fortuneLoading ? 'AI 正在確認流程' : getDailyAnalysisButtonLabel(numberDailyRecord)}
+                  {fortuneLoading ? '易經正在確認流程' : getDailyAnalysisButtonLabel(numberDailyRecord)}
                 </button>
               </div>
             </div>

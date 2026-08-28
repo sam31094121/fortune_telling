@@ -66,7 +66,7 @@ export async function analyze(name: string): Promise<NameologyAnalysis> {
         meaning: info.meaning,
         namingIntent: info.namingIntent,
       },
-      tendencies: [], // 後端可自行呼叫 AI 生成或直接返回空陣列
+      tendencies: [], // 後端可自行呼叫 易經生成或直接返回空陣列
     } as CharInfo;
   });
 

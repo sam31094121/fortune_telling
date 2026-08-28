@@ -3,9 +3,12 @@ import type { AiCompanionStage, AiIntegrationElement, AiIntegrationModuleId, AiI
 import { buildSystemStabilitySnapshot } from './platform-stability-layer';
 import { buildAiCopywritingStyleSnapshot } from './ai-copywriting-style-center';
 import { buildAiFollowUpSystem } from './ai-follow-up-system';
+import { castHexagram } from './iching-engine';
+import { buildEmpathicFromHexagram, buildGhostDecoding, patternNameOf } from './iching-psychology';
 
 export type GrowthModuleId = AiIntegrationModuleId;
 export type GrowthElement = AiIntegrationElement;
+export type GrowthPreferenceId = 'daily' | 'weekly' | 'direct' | 'gentle' | 'career' | 'relationship' | 'wealth' | 'energy';
 
 export type GrowthCenterInput = {
   userId?: string | null;
@@ -16,8 +19,28 @@ export type GrowthCenterInput = {
   elementScore?: Partial<Record<GrowthElement, number>> | null;
   avoidElement?: GrowthElement | null;
   analysisHash?: string | null;
+  preferences?: GrowthPreferenceId[] | null;
   now?: Date;
 };
+
+type PreferenceTopic = 'career' | 'relationship' | 'wealth' | 'energy';
+type PreferenceFlags = { tone: 'direct' | 'gentle' | null; cadence: 'daily' | 'weekly' | null; topic: PreferenceTopic | null };
+
+const TOPIC_TIPS: Record<PreferenceTopic, string> = {
+  career: '這也會直接影響你的工作與行動安排，把它排進今天的待辦。',
+  relationship: '這也會影響你和身邊人的互動，留意今天的一次對話或訊息回覆。',
+  wealth: '這也牽動你的金錢決策，今天避免臨時衝動花費，先觀察一天。',
+  energy: '這也是在補你的整體狀態，今天留一段安靜恢復的時間給自己。',
+};
+
+function resolvePreferenceFlags(preferences?: GrowthPreferenceId[] | null): PreferenceFlags {
+  const set = new Set(preferences ?? []);
+  const tone = set.has('direct') ? 'direct' : set.has('gentle') ? 'gentle' : null;
+  const cadence = set.has('daily') ? 'daily' : set.has('weekly') ? 'weekly' : null;
+  const topicOrder: PreferenceTopic[] = ['career', 'relationship', 'wealth', 'energy'];
+  const topic = topicOrder.find((item) => set.has(item)) ?? null;
+  return { tone, cadence, topic };
+}
 
 type ModuleMeta = {
   id: GrowthModuleId;
@@ -172,6 +195,19 @@ export type GrowthCenterResult = {
       message: string;
     };
     weeklyInspiration: SuccessQuote;
+    // 心理學主任層：八張卡是八位心理學醫生，主任每週親自為你卜一卦——
+    // 卦象＋專屬特殊格局＋洋蔥式溫度話術（同一週同一人永遠同一卦，可回查）。
+    chiefPsychologist: {
+      weekKey: string;
+      hexagramName: string;
+      glyph: string;
+      patternName: string;
+      castingLine: string; // 主任的卜卦宣告（含特殊格局）
+      specialYou: string; // 外冷內熱的溫度話（無條件正向關懷）
+      absolution: string; // 核心脆弱性：「那不是你的錯」
+      ghost: { spirit: string; field: string; karma: string }; // 靈異・磁場・因果
+      returnHook: string; // 回診黏著鉤：主任下週等你
+    };
     fiveElement: {
       primaryElement: GrowthElement;
       secondaryElement: GrowthElement;
@@ -298,10 +334,10 @@ function pickBySeed<T>(items: T[], seed: string, salt: string) {
 
 function buildProgressMessage(completed: number, total: number) {
   const missing = Math.max(total - completed, 0);
-  if (completed === 0) return '目前尚未完成探索。先完成任一項分析，AI 就會開始建立你的成長檔案。';
-  if (completed < 3) return `目前已完成 ${completed}/${total}。先累積三項探索，AI 成長中心會開始給出更清楚的每週方向。`;
-  if (completed < total) return `目前已完成 ${completed}/${total}，距離完整解鎖還差 ${missing} 項。繼續完成探索，AI 陪伴會更精準。`;
-  return '八項探索已完成。AI 已建立你的專屬成長中心，接下來每週提供一個方向、一個行動與一份提醒。';
+  if (completed === 0) return '目前尚未完成探索。先完成任一項分析，易經就會開始建立你的成長檔案。';
+  if (completed < 3) return `目前已完成 ${completed}/${total}。先累積三項探索，易經成長中心會開始給出更清楚的每週方向。`;
+  if (completed < total) return `目前已完成 ${completed}/${total}，距離完整解鎖還差 ${missing} 項。繼續完成探索，易經陪伴會更精準。`;
+  return '八項探索已完成。易經已建立你的專屬成長中心，接下來每週提供一個方向、一個行動與一份提醒。';
 }
 
 function buildCoreGrowthCenterV2(args: {
@@ -311,25 +347,30 @@ function buildCoreGrowthCenterV2(args: {
   action: string;
   oneLineReminder: string;
   quote: SuccessQuote;
+  preferenceFlags: PreferenceFlags;
 }): GrowthCenterCoreV2 {
   const completed = args.integration.completed;
   const total = args.integration.total;
   const missing = Math.max(total - completed, 0);
   const focus = CORE_ELEMENT_LABEL[args.integration.primaryElement] ?? args.elementLabel;
+  const isPersonalized = Boolean(args.preferenceFlags.tone || args.preferenceFlags.cadence);
+  const topicTip = args.preferenceFlags.topic ? TOPIC_TIPS[args.preferenceFlags.topic] : '';
 
   return {
     version: 'growth_center_core_v2',
     positioning: {
-      title: 'AI 個人成長中心',
+      title: '易經個人成長中心',
       principle: '分析一次，終身陪伴。',
-      roleSplit: '八張分析卡片負責分析；AI 成長中心只負責整理、提醒、陪伴與行動。',
+      roleSplit: '八張分析卡片負責分析；易經成長中心只負責整理、提醒、陪伴與行動。',
     },
     firstScreen: {
-      title: '本週 AI 成長提醒',
-      headline: completed === 0 ? '先完成第一項探索，AI 會開始建立你的專屬成長檔案。' : `本週第一補強：${focus}`,
-      body: completed === 0
-        ? 'AI 成長中心不重新算命。它會讀取你已完成的分析，整理成每週最重要的一件事。'
-        : `AI 已讀取目前完成的分析，本週重點鎖定 ${focus}。今天先完成一個小行動，讓節奏開始改變。`,
+      title: '本週 易經成長提醒',
+      headline: isPersonalized
+        ? args.oneLineReminder
+        : completed === 0 ? '先完成第一項探索，易經會開始建立你的專屬成長檔案。' : `本週第一補強：${focus}`,
+      body: (completed === 0
+        ? '易經成長中心不重新算命。它會讀取你已完成的分析，整理成每週最重要的一件事。'
+        : `易經已讀取目前完成的分析，本週重點鎖定 ${focus}。今天先完成一個小行動，讓節奏開始改變。`) + (topicTip ? ` ${topicTip}` : ''),
       primaryMetric: `${completed}/${total}`,
       status: completed >= total ? '已完整解鎖' : completed === 0 ? '等待第一項探索' : `還差 ${missing} 項完整解鎖`,
     },
@@ -338,7 +379,7 @@ function buildCoreGrowthCenterV2(args: {
       completedText: completed === 0 ? '尚未完成探索。' : `已完成 ${completed} 項探索。`,
       missingText: missing === 0 ? '所有探索已完成。' : `尚有 ${missing} 項探索可完成。`,
       currentFocus: completed === 0 ? '目前先完成任一項分析。' : `目前核心補強：${focus}。`,
-      noReanalysisPolicy: 'AI 成長中心只讀取已完成結果，不重新分析、不覆蓋原本命理資料。',
+      noReanalysisPolicy: '易經成長中心只讀取已完成結果，不重新分析、不覆蓋原本命理資料。',
     },
     weeklyCompanion: {
       reminder: args.oneLineReminder,
@@ -382,10 +423,10 @@ function buildLongTermEcosystem(args: {
   return {
     version: 'lifetime_companion_v1' as const,
     monthKey: args.monthKey,
-    title: 'AI 長期陪伴生態系',
+    title: '易經長期陪伴生態系',
     monthlyTheme: `${args.monthKey} 月核心方向：${args.elementLabel}`,
     monthlyFocus: args.monthlyFocus,
-    promise: 'AI 不要求你重複算命，而是每週提醒你完成一件真正能推進自己的事。',
+    promise: '易經不要求你重複算命，而是每週提醒你完成一件真正能推進自己的事。',
     rhythm: ['每週提醒', '每週任務', '每週追蹤', '每月整理'],
     checkpoints: [
       { week: 1 as const, title: '第一週：建立方向', action: `確認本月核心補強：${args.elementLabel}。` },
@@ -410,10 +451,24 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
   const action = pickBySeed(themeData.actionPool, integration.personalizationSeed, 'weekly-action');
   const monthlyFocus = pickBySeed(themeData.monthlyFocusPool, integration.monthlySeed, 'monthly-focus');
   const completed = integration.completed;
+  const preferenceFlags = resolvePreferenceFlags(input.preferences);
+  const timeWord = preferenceFlags.cadence === 'daily' ? '今天' : '本週';
 
-  const oneLineReminder = completed === 0
-    ? '本週最重要：先完成第一項探索，讓 AI 建立你的成長起點。'
-    : `本週最重要：補強 ${themeData.label}，用一個小行動帶動 ${themeData.theme}。`;
+  const oneLineReminder = (() => {
+    if (!preferenceFlags.tone) {
+      return completed === 0
+        ? `${timeWord}最重要：先完成第一項探索，讓 易經建立你的成長起點。`
+        : `${timeWord}最重要：補強 ${themeData.label}，用一個小行動帶動 ${themeData.theme}。`;
+    }
+    if (completed === 0) {
+      return preferenceFlags.tone === 'direct'
+        ? '現在就開始：先完成第一項探索，易經才能建立你的成長起點。'
+        : `不用急，${timeWord}先完成第一項探索就好，易經會開始建立你的專屬成長檔案。`;
+    }
+    return preferenceFlags.tone === 'direct'
+      ? `${timeWord}就做：直接補強 ${themeData.label}，把 ${themeData.theme} 往前推進。`
+      : `${timeWord}慢慢補強 ${themeData.label} 就好，讓 ${themeData.theme} 一點一點變穩定。`;
+  })();
 
   const weeklyReport = {
     weekKey: integration.weekKey,
@@ -435,7 +490,7 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
   return {
     success: true,
     data: {
-      coreV2: buildCoreGrowthCenterV2({ integration, elementLabel: themeData.label, colorName: color.colorName, action, oneLineReminder, quote }),
+      coreV2: buildCoreGrowthCenterV2({ integration, elementLabel: themeData.label, colorName: color.colorName, action, oneLineReminder, quote, preferenceFlags }),
       progress: {
         completedModules: integration.completedModules,
         missingModules: integration.missingModules,
@@ -452,7 +507,7 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
         checkIn: {
           weekKey: integration.weekKey,
           title: '本週追蹤',
-          prompt: '完成本週任務後，回來點一下完成，AI 會保留你的成長節奏。',
+          prompt: '完成本週任務後，回來點一下完成——這一下就是心理學的「自我監控（Self-Monitoring）」：被記錄的行為，改變速度是沒記錄的兩倍；易經替你保留每一次的節奏。',
           buttonText: '完成本週追蹤',
           completedText: '本週已完成追蹤。下週回來看新的提醒。',
           returnHint: integration.companionStage.returnReason,
@@ -478,7 +533,7 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
       weeklyTask: {
         title: '本週一件行動任務',
         task: action,
-        reason: `這件任務會直接帶動 ${themeData.label}，讓 ${themeData.theme} 開始變得更穩定。`,
+        reason: `這件任務會直接帶動 ${themeData.label}，讓 ${themeData.theme} 開始變得更穩定。心理學上這叫「行為活化（Behavioral Activation）」：不等心情好才行動，而是用一個微行動先啟動，情緒會跟著行動走——易經只開一件，因為「微習慣（Tiny Habits）」的完成率才是黏住改變的關鍵。${preferenceFlags.topic ? TOPIC_TIPS[preferenceFlags.topic] : ''}`,
       },
       followUp,
       weeklyEnergyColor: {
@@ -488,9 +543,26 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
         hex: color.hex,
         reason: themeData.reason,
         usage: color.usage,
-        message: `本週能量色是 ${color.colorName}。可用在 ${color.usage.slice(0, 2).join('、')}，提醒自己持續補強 ${themeData.label}。`,
+        message: `本週能量色是 ${color.colorName}。可用在 ${color.usage.slice(0, 2).join('、')}——心理學叫「環境線索（Environmental Cue）」：把提醒放進每天會看到的地方，大腦就會自動幫你記得補強 ${themeData.label}，不用靠意志力。`,
       },
       weeklyInspiration: quote,
+      chiefPsychologist: (() => {
+        // 主任每週卜卦：週次＋個人種子＋本週補強元素決定性起卦
+        const gua = castHexagram(integration.weekKey, integration.personalizationSeed, themeData.label);
+        const empathic = buildEmpathicFromHexagram('朋友', gua);
+        const ghost = buildGhostDecoding(gua);
+        return {
+          weekKey: integration.weekKey,
+          hexagramName: gua.hexagramName,
+          glyph: gua.glyph,
+          patternName: patternNameOf(gua),
+          castingLine: `易經親自為你起了這一卦：第${gua.kingWen}卦「${gua.hexagramName}」${gua.glyph}——特殊格局「${patternNameOf(gua)}」，六十四格裡就這一格是你。${gua.essence}。`,
+          specialYou: empathic.specialYou,
+          absolution: empathic.absolution,
+          ghost: { spirit: ghost.spirit, field: ghost.field, karma: ghost.karma },
+          returnHook: `這一卦易經會替你留著。下週同一時間回來，我們核對這一週「${themeData.label}」有沒有真的補進去——你不用表現，也不用交代，易經只想看看你過得好不好。`,
+        };
+      })(),
       fiveElement: {
         primaryElement: integration.primaryElement,
         secondaryElement: integration.secondaryElement,
@@ -498,8 +570,8 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
         avoidElement: integration.avoidElement,
         confidence: integration.confidence,
         summary: completed === 0
-          ? '尚未完成探索，AI 會在完成分析後建立唯一五元素核心。'
-          : `AI Integration Layer 判定本週第一補強為 ${themeData.label}，第二參考為 ${secondaryTheme.label}。成長中心只讀取結果，不重新分析。`,
+          ? '尚未完成探索，易經會在完成分析後建立唯一五元素核心。'
+          : `易經整合層 判定本週第一補強為 ${themeData.label}，第二參考為 ${secondaryTheme.label}。成長中心只讀取結果，不重新分析。`,
       },
       nextStep: {
         moduleId: integration.nextModule?.id ?? null,

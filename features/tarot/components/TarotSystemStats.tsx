@@ -54,7 +54,7 @@ export default function TarotSystemStats({ stats, error }: TarotSystemStatsProps
               {stats.deckIntegrity.total} 張牌 · 大阿爾克那 {stats.deckIntegrity.major} · 小阿爾克那 {stats.deckIntegrity.minor}
             </p>
             <p className="mt-1 text-xs font-semibold text-[color:var(--text-sub)]">
-              {stats.deckIntegrity.complete ? 'AI 判定：78 張牌庫完整。' : 'AI 判定：牌庫不完整，塔羅牌禁止上線。'}
+              {stats.deckIntegrity.complete ? '易經卜卦判定：78 張牌庫完整。' : '易經卜卦判定：牌庫不完整，塔羅牌禁止上線。'}
             </p>
           </div>
 

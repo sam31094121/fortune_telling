@@ -140,7 +140,7 @@ function normalizeLifeSongContext(input: { lifeGoal?: LifeSongGoal; lifeGoalNote
     growthSummary,
     worldView: `以「${goal}」作為生命章節，把命理底色、五元素補強與${creativeStyle}聲景整合成一個專屬歌曲世界。`,
     theme: goalNote ? `${goal}：${goalNote}` : `${goal}補強與自我陪伴`,
-    scene: `使用者站在目前人生階段的轉折點，AI 以${creativeStyle}方式陪他把方向唱清楚。`,
+    scene: `使用者站在目前人生階段的轉折點，易經以${creativeStyle}方式陪他把方向唱清楚。`,
   };
 }
 
@@ -154,20 +154,20 @@ function isAiVoiceDirectSample(sample?: VoiceSampleSummary) {
 
 function validateVoiceConsent(payload: unknown): string | null {
   if (payload === undefined || payload === null) return null;
-  if (typeof payload !== 'object') return 'AI 聲音生成資料格式無效。';
+  if (typeof payload !== 'object') return '易經聲音生成資料格式無效。';
   const consent = payload as Partial<VoiceConsentPayload>;
   if (!consent.sample) return null;
 
   const sample = consent.sample;
   const aiVoiceDirect = isAiVoiceDirectSample(sample);
   if (!aiVoiceDirect && consent.confirmedOwnVoice === true) {
-    return '本版本已取消使用者錄音，請改用 AI 自動聲音生成。';
+    return '本版本已取消使用者錄音，請改用 易經自動聲音生成。';
   }
   if (!Number.isFinite(sample.durationSeconds) || sample.durationSeconds < 0 || sample.durationSeconds > 60) {
-    return 'AI 聲音設定格式無效。';
+    return '易經聲音設定格式無效。';
   }
-  if (!Number.isFinite(sample.qualityScore) || sample.qualityScore < 0 || sample.qualityScore > 100) return 'AI 聲音清晰度格式無效。';
-  if (!isStringArray(sample.inferredCharacteristics, 12, 48)) return 'AI 聲音設定格式無效。';
+  if (!Number.isFinite(sample.qualityScore) || sample.qualityScore < 0 || sample.qualityScore > 100) return '易經聲音清晰度格式無效。';
+  if (!isStringArray(sample.inferredCharacteristics, 12, 48)) return '易經聲音設定格式無效。';
 
   return null;
 }
@@ -272,7 +272,7 @@ function normalizeVoiceConsent(payload?: VoiceConsentPayload) {
         inferredCharacteristics,
         recordedAt: sample.recordedAt,
       },
-      selfDialogueConcept: 'AI 已自動建立演唱聲線，不需要使用者錄音、不需要麥克風權限；歌曲會依命理資料、五元素與本次目標自動生成歌詞、曲風、節奏與 AI 演唱。',
+      selfDialogueConcept: '易經已自動建立演唱聲線，不需要使用者錄音、不需要麥克風權限；歌曲會依命理資料、五元素與本次目標自動生成歌詞、曲風、節奏與 易經演唱。',
     },
   };
 }

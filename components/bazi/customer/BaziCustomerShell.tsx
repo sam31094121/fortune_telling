@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 【AI 八字｜Customer Frontend Visual Rebuild V1】
+ * 【易經八字｜Customer Frontend Visual Rebuild V1】
  * 三層固定架構（不得混成一頁）：
  *   LEVEL 1 八字命工卡 → LEVEL 2 老師專業解盤 → LEVEL 3 完整傳統命盤
  * 鐵律：只呈現後端資料，前端零計算（Adapter 只做映射）。

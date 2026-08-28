@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 
 /**
- * 【AI 八字｜Real Calculation Ceremony V1】
+ * 【易經八字｜Real Calculation Ceremony V1】
  * THIS IS NOT A FAKE LOADING SCREEN. THIS IS A REAL CALCULATION STATUS UI.
  *
  * 鐵律：
@@ -190,7 +190,7 @@ export function toBaziProgressView(result: any, hourUnknown: boolean): BaziCalcu
       source: 'BACKEND',
       note: completeness.valid ? undefined : `${completeness.missingRequiredFields.length} 項待接入`,
     },
-    { key: 'teacher', label: 'AI 老師解析', status: done(pipelineDone('API_READY') && has(result?.aiDeepAnalysis?.summary)), source: 'BACKEND' },
+    { key: 'teacher', label: '易經老師解析', status: done(pipelineDone('API_READY') && has(result?.aiDeepAnalysis?.summary)), source: 'BACKEND' },
   ];
   const anyFailed = items.some((i) => i.status === 'FAILED');
   return {
@@ -312,7 +312,7 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
 
   return (
     <section className="rounded-[24px] border border-white/10 bg-[linear-gradient(165deg,rgba(14,14,18,0.97),rgba(22,20,16,0.94))] p-5 sm:p-6">
-      <h3 className="text-xl font-black text-[color:var(--text-main)]">正在建立您的 AI 八字命盤</h3>
+      <h3 className="text-xl font-black text-[color:var(--text-main)]">正在建立您的 易經八字命盤</h3>
       <p className="mt-1.5 text-sm font-semibold text-white/50">完成勾選只來自後端真實資料；核心未提供的項目會分開標示，不補值。</p>
 
       <div className="mt-5 space-y-4">

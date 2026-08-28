@@ -43,7 +43,7 @@ export default function FineDiningServiceProgress({
     <section
       className={`overflow-hidden rounded-2xl border border-amber-200/18 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.12),transparent_38%),rgba(2,6,23,0.64)] p-4 ${className}`}
       aria-live="polite"
-      aria-label={`${moduleLabel} AI 分層服務進度`}
+      aria-label={`${moduleLabel} 易經分層服務進度`}
       data-experience-version={FINE_DINING_EXPERIENCE_VERSION}
     >
       <div className="flex items-start justify-between gap-3">

@@ -1,15 +1,21 @@
 import { NextResponse } from 'next/server';
 import { createRequestId } from '@/lib/api-stability';
-import { buildGrowthCenter, parseGrowthModules, type GrowthElement } from '@/lib/growth-center-engine';
+import { buildGrowthCenter, parseGrowthModules, type GrowthElement, type GrowthPreferenceId } from '@/lib/growth-center-engine';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const ELEMENTS = new Set(['EARTH', 'WATER', 'FIRE', 'AIR', 'SPACE']);
+const PREFERENCE_IDS = new Set(['daily', 'weekly', 'direct', 'gentle', 'career', 'relationship', 'wealth', 'energy']);
 
 function parseElement(value: string | null): GrowthElement | null {
   const normalized = value?.toUpperCase() ?? '';
   return ELEMENTS.has(normalized) ? normalized as GrowthElement : null;
+}
+
+function parsePreferences(value: string | null): GrowthPreferenceId[] {
+  if (!value) return [];
+  return value.split(',').map((item) => item.trim()).filter((item) => PREFERENCE_IDS.has(item)) as GrowthPreferenceId[];
 }
 
 export async function GET(request: Request) {
@@ -22,6 +28,7 @@ export async function GET(request: Request) {
   const primaryElement = parseElement(url.searchParams.get('primaryElement'));
   const secondaryElement = parseElement(url.searchParams.get('secondaryElement'));
   const avoidElement = parseElement(url.searchParams.get('avoidElement'));
+  const preferences = parsePreferences(url.searchParams.get('preferences'));
 
   const result = buildGrowthCenter({
     userId,
@@ -31,6 +38,7 @@ export async function GET(request: Request) {
     secondaryElement,
     avoidElement,
     analysisHash,
+    preferences,
   });
 
   return NextResponse.json(

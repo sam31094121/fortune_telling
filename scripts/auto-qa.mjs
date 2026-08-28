@@ -415,7 +415,7 @@ async function checkGrowthCenter(mode) {
 const MODULES = [
   { id: 'nameology', title: 'AI Nameology', href: '/nameology', api: '/api/analysis/jobs', homeMarkers: ['/nameology', '姓名學'], check: checkNameology },
   { id: 'ziwei', title: 'AI Ziwei', href: '/insight', api: '/api/analysis/jobs', homeMarkers: ['/insight', '紫微'], check: checkZiwei },
-  { id: 'number', title: 'Number Fortune', href: '/numerology', api: '/api/analysis/jobs', homeMarkers: ['/numerology', 'number-modal', 'Number Fortune', '數字論吉凶'], check: checkNumber },
+  { id: 'number', title: 'Number Fortune', href: '/numerology', api: '/api/analysis/jobs', homeMarkers: ['/numerology', 'number-modal', 'Number Fortune', '易經論數字'], check: checkNumber },
   { id: 'soul_match', title: 'AI Soul Match', href: '/match', api: '/api/match-generate', homeMarkers: ['/match', '靈魂配對'], check: checkMatch },
   { id: 'music', title: 'AI Life Song', href: '/music', api: '/api/music-generate', homeMarkers: ['/music', '生命歌曲', '生成一首歌'], check: checkMusic },
   { id: 'bazi', title: 'AI Bazi Chart', href: '/bazi', api: '/api/analysis/jobs', homeMarkers: ['/bazi', '八字'], check: checkBazi },

@@ -35,7 +35,7 @@ function findWeakestElement(elements: Record<string, GrowthElement>): GrowthElem
 }
 
 /**
- * AI 依會員今天的成長狀態，決定首頁太極今天從哪個階段開始演化：
+ * 易經依會員今天的成長狀態，決定首頁太極今天從哪個階段開始演化：
  * 首次造訪固定從太極開始；完成的分析越多，起始階段越後面；
  * 已完成模組的五元素分布，決定要優先點亮哪個元素（缺哪個元素，哪個先亮）。
  */

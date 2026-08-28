@@ -1,7 +1,7 @@
 /**
  * Palace Context Builder（2026-08-22）｜規格「六、七、十六」
  *
- * 純引擎、零 AI：只從已經驗證過的正式命盤（ZiweiCoreResult）抽資料、
+ * 純引擎、零 易經：只從已經驗證過的正式命盤（ZiweiCoreResult）抽資料、
  * 對指定宮位重新取三方四正——不重新排盤、不安星、不改四化、不猜資料。
  * 三位老師只能讀這裡輸出的 PalaceAnalysisContext，不得直接碰 ZiweiCoreResult。
  */

@@ -244,7 +244,7 @@ function logZodiacJob(jobId: string, step: string, detail?: Record<string, unkno
 function buildZodiacDebugPrompt(input: { name: string; birthDate: string; birthTime: string | null; birthCityId: string | null }, bloodType: BloodType, analysisTarget: unknown) {
   const target = analysisTarget === 'self' ? 'SELF' : analysisTarget === 'guest' ? 'OTHER' : 'UNKNOWN';
   return [
-    'AI 西洋星座分析 Prompt',
+    '易經西洋星座分析 Prompt',
     `分析模式：${target}`,
     `出生日期：${input.birthDate}`,
     `出生時間：${input.birthTime ?? '未提供'}`,
@@ -277,7 +277,7 @@ async function runZodiacJob(job: AnalysisJob, inputData: unknown) {
   if (!isValidBirthday(input.birthDate)) throw new Error('請提供有效生日。');
   logZodiacJob(job.jobId, 'BLOOD_TYPE', { bloodType: bloodType || 'NONE' });
   const aiPrompt = buildZodiacDebugPrompt(input, bloodType, inputData.analysisTarget);
-  if (!aiPrompt.trim()) throw new Error('西洋星座 AI Prompt 建立失敗。');
+  if (!aiPrompt.trim()) throw new Error('西洋星座 易經 Prompt 建立失敗。');
   logZodiacJob(job.jobId, 'PROMPT_READY', { promptLength: aiPrompt.length });
 
   updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: 45, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.processing });

@@ -15,8 +15,8 @@ export const AI_ACTION_GUIDANCE_STEPS: AiActionGuidanceStep[] = [
   {
     id: 'judgement',
     title: '目前判斷',
-    question: 'AI 目前判定了什麼？',
-    outputRule: '直接說出第一判斷，例如：AI 判定：目前最缺火元素。請優先補強火元素。',
+    question: '易經目前判定了什麼？',
+    outputRule: '直接說出第一判斷，例如：易經卜卦判定：目前最缺火元素。請優先補強火元素。',
   },
   {
     id: 'priority',
@@ -43,7 +43,7 @@ export const AI_ACTION_GUIDANCE_FORBIDDEN = [
   '不得使用可能、也許、或許、建議可以、傾向、比較像、疑似、看起來、大概、看情況等模糊詞。',
   '不得保證發財、中獎、升官、疾病改善、桃花一定成功。',
   '不得一開始就推產品；必須先說原因，再說行動，最後才推薦五元素補強方案。',
-  '成功人士名言只能放最後，用來增加力量，不得取代 AI 分析。',
+  '成功人士名言只能放最後，用來增加力量，不得取代 易經卜卦分析。',
 ] as const;
 
 export const AI_ACTION_GUIDANCE_PRODUCT_ORDER = [
@@ -53,15 +53,15 @@ export const AI_ACTION_GUIDANCE_PRODUCT_ORDER = [
 ] as const;
 
 export const AI_ACTION_GUIDANCE_COPY_EXAMPLES = {
-  elementJudgement: 'AI 判定：目前最缺火元素。請優先補強火元素。完成後再補風元素，最後補地元素。',
+  elementJudgement: '易經卜卦判定：目前最缺火元素。請優先補強火元素。完成後再補風元素，最後補地元素。',
   priority: '現在最重要：先讓行動發生。',
   nextAction: '今天開始：主動完成一件拖延最久的事情。',
   improvement: '這個行動會改善你的行動力、決策速度與執行效率。',
 };
 
-export function buildAiActionGuidanceInstruction(moduleName = '天地人和 AI') {
+export function buildAiActionGuidanceInstruction(moduleName = '天地人和 易經') {
   return [
-    `${moduleName} 每一次分析完成後，必須提供 AI 行動引導。`,
+    `${moduleName} 每一次分析完成後，必須提供 易經行動引導。`,
     '輸出必須包含四件事：目前判斷、現在最重要、下一步要做什麼、做了會改善哪一個方向。',
     '每次只告訴會員現在最重要的一件事情。',
     '語氣必須直接、清楚、有力量、有方向。',

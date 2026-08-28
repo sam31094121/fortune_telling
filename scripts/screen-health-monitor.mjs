@@ -28,7 +28,7 @@ const NEXT_ERR_LOG = path.join(PROJECT_ROOT, '.screen-health-next.err.log');
 const CARD_ROUTES = [
   { id: 'CARD_01', module: 'nameology', title: 'AI 姓名學', path: '/nameology' },
   { id: 'CARD_02', module: 'ziwei', title: '紫微斗數', path: '/insight' },
-  { id: 'CARD_03', module: 'numerology', title: '數字論吉凶', path: '/numerology' },
+  { id: 'CARD_03', module: 'numerology', title: '易經論數字', path: '/numerology' },
   { id: 'CARD_04', module: 'soul_match', title: '靈魂配對', path: '/match' },
   { id: 'CARD_05', module: 'music', title: 'AI 專屬生命歌曲', path: '/music' },
   { id: 'CARD_06', module: 'bazi', title: 'AI 八字命盤', path: '/bazi' },

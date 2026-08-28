@@ -1004,7 +1004,7 @@ function MatchNeedOrbit({
                     : 'opacity-85'
             } transition-transform active:scale-[0.98]`}
             aria-pressed={isSelected}
-            aria-label={`查看${MATCH_ELEMENT_LABEL[element]}AI解讀`}
+            aria-label={`查看${MATCH_ELEMENT_LABEL[element]}易經解讀`}
             onClick={() => onSelect(element)}
             style={{
               left: point.left,
@@ -1065,7 +1065,7 @@ function MatchFiveElementPriorityCard({ result }: { result: MatchFiveElementResu
   const selectedProfile = MATCH_ELEMENT_PROFILE[selectedElement];
   const selectedAverageNeed = Math.round((result.personA.needScores[selectedElement] + result.personB.needScores[selectedElement]) / 2);
   const selectedIsShared = selectedElement === result.sharedElement;
-  /* 點星有感升級（2026-08-13）：點軌道星體 → 自動捲到 AI 點星解讀卡（原本解讀卡在畫面外，點了沒感覺） */
+  /* 點星有感升級（2026-08-13）：點軌道星體 → 自動捲到 易經點星解讀卡（原本解讀卡在畫面外，點了沒感覺） */
   const starReadingRef = useRef<HTMLDivElement | null>(null);
   const selectFromOrbit = (element: MatchFiveElementKey) => {
     setSelectedElement(element);
@@ -1082,12 +1082,12 @@ function MatchFiveElementPriorityCard({ result }: { result: MatchFiveElementResu
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_250px] lg:items-start">
         <div className="min-w-0">
-          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-rose-200">AI MATCH · 五元素軌道</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-rose-200">I-CHING MATCH · 五元素軌道</p>
           <h2 className="mt-2 bg-gradient-to-br from-amber-50 via-rose-100 to-cyan-100 bg-clip-text font-serif text-3xl font-black leading-tight text-transparent sm:text-5xl">
             靈魂配對五元素
           </h2>
           <p className="mt-3 text-sm font-bold leading-7 text-amber-100/78">
-            AI 將兩人的生日結構、血型節奏與配對分數交叉統計，轉成五元素軌道。客戶看到的不只是分數，而是這段關係要補哪一種「聯結」與「共鳴」。
+            易經將兩人的生日結構、血型節奏與配對分數交叉統計，轉成五元素軌道。客戶看到的不只是分數，而是這段關係要補哪一種「聯結」與「共鳴」。
           </p>
         </div>
 
@@ -1163,7 +1163,7 @@ function MatchFiveElementPriorityCard({ result }: { result: MatchFiveElementResu
               </div>
 
               <p className="mt-3 text-xs font-black leading-6 text-amber-100">
-                AI 統計：{MATCH_ELEMENT_LABEL[person.primaryElement]}需求 {person.needScores[person.primaryElement]}，{MATCH_ELEMENT_LABEL[person.secondaryElement]}需求 {person.needScores[person.secondaryElement]}。先補主補，再用次補穩住互動。
+                易經統計：{MATCH_ELEMENT_LABEL[person.primaryElement]}需求 {person.needScores[person.primaryElement]}，{MATCH_ELEMENT_LABEL[person.secondaryElement]}需求 {person.needScores[person.secondaryElement]}。先補主補，再用次補穩住互動。
               </p>
             </article>
           );
@@ -1191,7 +1191,7 @@ function MatchFiveElementPriorityCard({ result }: { result: MatchFiveElementResu
             </div>
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/55">AI 點星解讀</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/55">易經點星解讀</p>
             <h3 className="mt-1 text-2xl font-black leading-tight text-[color:var(--text-main)]">
               {MATCH_ELEMENT_LABEL[selectedElement]} · {selectedProfile.title}
             </h3>
@@ -1199,7 +1199,7 @@ function MatchFiveElementPriorityCard({ result }: { result: MatchFiveElementResu
           </div>
           {selectedIsShared && (
             <span className="rounded-full border border-amber-100/35 bg-amber-100/15 px-3 py-1 text-[11px] font-black text-amber-50">
-              AI 判定必補
+              易經卜卦判定必補
             </span>
           )}
         </div>
@@ -1233,7 +1233,7 @@ function MatchFiveElementPriorityCard({ result }: { result: MatchFiveElementResu
             if (needA === needB) return `兩人對${MATCH_ELEMENT_LABEL[selectedElement]}的需求同為 ${needA}，步調一致，一起補、一起穩。`;
             const lead = needA > needB ? result.personA : result.personB;
             const follow = needA > needB ? result.personB : result.personA;
-            return `AI 判讀：${lead.name} 需求 ${Math.max(needA, needB)} 較高，由${lead.name}主導這一項補強，${follow.name}（${Math.min(needA, needB)}）配合節奏就好。`;
+            return `易經判讀：${lead.name} 需求 ${Math.max(needA, needB)} 較高，由${lead.name}主導這一項補強，${follow.name}（${Math.min(needA, needB)}）配合節奏就好。`;
           })()}
         </p>
 
@@ -1247,7 +1247,7 @@ function MatchFiveElementPriorityCard({ result }: { result: MatchFiveElementResu
             <p className="mt-1 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{selectedProfile.excess}</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-black/18 p-3">
-            <p className="text-[10px] font-black text-cyan-100">AI 建議行動</p>
+            <p className="text-[10px] font-black text-cyan-100">易經卜卦指引行動</p>
             <p className="mt-1 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{selectedProfile.action}</p>
           </div>
         </div>
@@ -1255,7 +1255,7 @@ function MatchFiveElementPriorityCard({ result }: { result: MatchFiveElementResu
 
       {highlights.length > 0 && (
         <div className="mt-5 rounded-[24px] border border-white/10 bg-black/18 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-white/55">AI 行動提醒</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-white/55">易經行動提醒</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-3">
             {highlights.map((item) => (
               <p key={item} className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">
@@ -1348,12 +1348,12 @@ const ORBIT_RELATION_COPY: Record<MatchFiveElementResult['relationMode'], { titl
   generating: {
     title: '相生：能量互相推動',
     story: '相生線代表這段關係有自然推進力。空定方向，風說清楚，水接住情緒，火推進行動，地把承諾落地。',
-    focus: '優先把 AI 判定必補的元素補起來，兩人的吸引力才會變成穩定互動。',
+    focus: '優先把 易經卜卦判定必補的元素補起來，兩人的吸引力才會變成穩定互動。',
   },
   conflicting: {
     title: '相剋：摩擦需要調和',
     story: '相剋線代表互動容易拉扯。不是不適合，而是某個元素缺口會讓情緒、節奏或承諾互相消耗。',
-    focus: '先補 AI 判定必補的元素，降低衝突，再讓相生線重新接上。',
+    focus: '先補 易經卜卦判定必補的元素，降低衝突，再讓相生線重新接上。',
   },
   balancing: {
     title: '平衡：差異可以互補',
@@ -1573,6 +1573,14 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
   const selectedNeed = averageNeedScore(result, selectedElement);
   const rankedElements = [...ORBIT_ELEMENT_ORDER].sort((a, b) => averageNeedScore(result, b) - averageNeedScore(result, a));
   const activePath = result.relationMode === 'conflicting' ? ORBIT_CONFLICT_CHAIN : ORBIT_GENERATING_CHAIN;
+  // 破剋補生的邏輯線：找出「正在剋住必補元素」的那一段（紅光警示），
+  // 以及「補了之後必補元素生出去」的那一段（金光接通）——讓邏輯圖自己會說話。
+  const sharedConflictIdx = ORBIT_CONFLICT_CHAIN.findIndex((el, i) => i > 0 && el === result.sharedElement);
+  const attackerElement = ORBIT_CONFLICT_CHAIN[Math.max(0, sharedConflictIdx - 1)];
+  const sharedGenIdx = ORBIT_GENERATING_CHAIN.findIndex((el) => el === result.sharedElement);
+  const beneficiaryElement = ORBIT_GENERATING_CHAIN[Math.min(sharedGenIdx + 1, ORBIT_GENERATING_CHAIN.length - 1)];
+  const attackerMeta = ORBIT_ELEMENT_META[attackerElement];
+  const beneficiaryMeta = ORBIT_ELEMENT_META[beneficiaryElement];
 
   useEffect(() => {
     setSelectedElement(result.sharedElement);
@@ -1584,12 +1592,12 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_270px] lg:items-start">
         <div className="min-w-0">
-          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-100">AI ORBIT ENGINE</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-100">I-CHING ORBIT ENGINE</p>
           <h2 className="mt-2 bg-gradient-to-br from-cyan-50 via-amber-50 to-rose-100 bg-clip-text font-serif text-3xl font-black leading-tight text-transparent sm:text-5xl">
             五元素星軌配對
           </h2>
           <p className="mt-3 text-sm font-bold leading-7 text-[color:var(--text-sub)]">
-            系統會把兩人的資料轉成五顆星的補強比例。最亮的星，就是 AI 判定這段關係必須優先補上的元素；點星可看原因、摩擦點與行動建議。
+            系統會把兩人的資料轉成五顆星的補強比例。最亮的星，就是 易經卜卦判定這段關係必須優先補上的元素；點星可看原因、摩擦點與行動建議。
           </p>
         </div>
 
@@ -1599,7 +1607,7 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
             <p className="mt-1 text-sm font-black text-cyan-50">{ORBIT_RELATION_COPY[result.relationMode].title}</p>
           </div>
           <div className="rounded-2xl border border-amber-200/30 bg-amber-300/12 px-3 py-3 text-center">
-            <p className="text-[10px] font-black text-amber-100">AI 必補</p>
+            <p className="text-[10px] font-black text-amber-100">易經必補</p>
             <p className="mt-1 font-serif text-2xl font-black leading-none text-amber-50">{sharedMeta.short}</p>
           </div>
           <div className="rounded-2xl border border-rose-200/25 bg-rose-300/10 px-3 py-3 text-center">
@@ -1612,10 +1620,11 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
       <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(330px,420px)_minmax(0,1fr)] lg:items-stretch">
         <div className="rounded-[28px] border border-white/10 bg-black/24 p-3 sm:p-4">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-white/50">五星軌道</p>
-            <div className="flex gap-2 text-[10px] font-black">
-              <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-2 py-1 text-amber-100">金色相生</span>
-              <span className="rounded-full border border-cyan-200/25 bg-cyan-300/10 px-2 py-1 text-cyan-100">青色相剋</span>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-white/50">五星軌道・活體邏輯圖</p>
+            <div className="flex flex-wrap justify-end gap-1.5 text-[10px] font-black">
+              <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-2 py-1 text-amber-100">金線＝相生（順）</span>
+              <span className="rounded-full border border-cyan-200/25 bg-cyan-300/10 px-2 py-1 text-cyan-100">青線＝相剋（卡）</span>
+              <span className="rounded-full border border-rose-200/30 bg-rose-400/12 px-2 py-1 text-rose-100">紅光＝現在卡住的剋</span>
             </div>
           </div>
 
@@ -1624,20 +1633,37 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
               <circle cx="50" cy="50" r="44" fill="rgba(255,255,255,0.014)" stroke="rgba(255,255,255,0.14)" strokeWidth="0.9" />
               <circle cx="50" cy="50" r="31" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="0.7" />
               <polygon points={orbitPointList([...ORBIT_ELEMENT_ORDER, 'space'])} fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
-              <polyline points={orbitPointList(ORBIT_GENERATING_CHAIN)} fill="none" stroke="rgba(251,191,36,0.34)" strokeWidth="1.35" strokeLinejoin="round" />
-              <polyline points={orbitPointList(ORBIT_CONFLICT_CHAIN)} fill="none" stroke="rgba(34,211,238,0.28)" strokeWidth="1.15" strokeDasharray="2.4 2.2" strokeLinejoin="round" />
-              <polyline
-                points={orbitPointList(activePath)}
-                fill="none"
-                stroke={result.relationMode === 'conflicting' ? 'rgba(34,211,238,0.82)' : 'rgba(251,191,36,0.78)'}
-                strokeWidth="2.05"
-                strokeLinejoin="round"
+              <polyline points={orbitPointList(ORBIT_GENERATING_CHAIN)} fill="none" stroke="rgba(251,191,36,0.22)" strokeWidth="1.35" strokeLinejoin="round" />
+              <polyline points={orbitPointList(ORBIT_CONFLICT_CHAIN)} fill="none" stroke="rgba(34,211,238,0.18)" strokeWidth="1.15" strokeLinejoin="round" />
+              {/* 活體光線：金光沿相生線順跑、青光沿相剋線反向跑——線路是活的 */}
+              <polyline points={orbitPointList(ORBIT_GENERATING_CHAIN)} fill="none" stroke="rgba(251,191,36,0.85)" strokeWidth="1.6" strokeLinejoin="round" className="orbit-line-run-gold" />
+              <polyline points={orbitPointList(ORBIT_CONFLICT_CHAIN)} fill="none" stroke="rgba(34,211,238,0.7)" strokeWidth="1.2" strokeLinejoin="round" className="orbit-line-run-cyan" />
+              {/* 紅光：現在正卡住必補元素的那一段剋 */}
+              <line
+                x1={ORBIT_POINTS[attackerElement].x}
+                y1={ORBIT_POINTS[attackerElement].y}
+                x2={ORBIT_POINTS[result.sharedElement].x}
+                y2={ORBIT_POINTS[result.sharedElement].y}
+                stroke="rgba(251,113,133,0.95)"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                className="orbit-line-conflict-active"
+              />
+              {/* 金光：補上必補元素後，能量生出去接通的那一段 */}
+              <line
+                x1={ORBIT_POINTS[result.sharedElement].x}
+                y1={ORBIT_POINTS[result.sharedElement].y}
+                x2={ORBIT_POINTS[beneficiaryElement].x}
+                y2={ORBIT_POINTS[beneficiaryElement].y}
+                stroke="rgba(252,211,77,0.95)"
+                strokeLinecap="round"
+                className="orbit-line-repair-active"
               />
             </svg>
 
             <div className="absolute inset-[35%] grid place-items-center rounded-full border border-white/12 bg-slate-950/72 text-center shadow-[inset_0_0_24px_rgba(255,255,255,0.06)]">
               <div>
-                <p className="text-[10px] font-black tracking-[0.18em] text-white/45">AI 必補</p>
+                <p className="text-[10px] font-black tracking-[0.18em] text-white/45">易經必補</p>
                 <p className="mt-1 font-serif text-3xl font-black leading-none text-amber-100">{sharedMeta.short}</p>
                 <p className="mt-1 text-[10px] font-bold text-cyan-100">點星看解讀</p>
               </div>
@@ -1676,17 +1702,45 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
                   <span className="sr-only">{meta.label}</span>
                   <span className="font-serif text-2xl font-black leading-none">{meta.short}</span>
                   <span className="mt-1 text-xs font-black leading-none">{score}</span>
-                  <span className={`mt-1 text-[10px] font-black leading-tight ${isShared ? 'text-amber-50' : 'text-white/58'}`}>{isShared ? 'AI 必補' : isSelected ? '解讀中' : '點選'}</span>
+                  <span className={`mt-1 text-[10px] font-black leading-tight ${isShared ? 'text-amber-50' : 'text-white/58'}`}>{isShared ? '易經必補' : isSelected ? '解讀中' : '點選'}</span>
                 </button>
               );
             })}
+          </div>
+
+          {/* 一眼看懂的邏輯條：剋卡住 → 補 → 轉生 → 變順 */}
+          <div className="mt-3 rounded-2xl border border-white/10 bg-black/30 px-3 py-2.5" aria-label="破剋補生邏輯">
+            <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr] items-center gap-1 text-center">
+              <div className="rounded-xl border border-rose-300/35 bg-rose-400/12 px-1.5 py-1.5">
+                <p className="text-[9px] font-black text-rose-200">現在卡住</p>
+                <p className="text-[11px] font-black leading-4 text-rose-50">{attackerMeta.short}剋{sharedMeta.short}</p>
+              </div>
+              <span className="text-sm font-black text-white/45">→</span>
+              <div className="rounded-xl border-2 border-amber-200/70 bg-amber-300/18 px-1.5 py-1.5 shadow-[0_0_18px_rgba(251,191,36,0.25)]">
+                <p className="text-[9px] font-black text-amber-200">解法</p>
+                <p className="text-[11px] font-black leading-4 text-amber-50">補「{sharedMeta.short}」</p>
+              </div>
+              <span className="text-sm font-black text-white/45">→</span>
+              <div className="rounded-xl border border-emerald-300/35 bg-emerald-400/12 px-1.5 py-1.5">
+                <p className="text-[9px] font-black text-emerald-200">剋轉生</p>
+                <p className="text-[11px] font-black leading-4 text-emerald-50">{sharedMeta.short}生{beneficiaryMeta.short}</p>
+              </div>
+              <span className="text-sm font-black text-white/45">→</span>
+              <div className="rounded-xl border border-cyan-300/35 bg-cyan-400/12 px-1.5 py-1.5">
+                <p className="text-[9px] font-black text-cyan-200">結果</p>
+                <p className="text-[11px] font-black leading-4 text-cyan-50">關係變順</p>
+              </div>
+            </div>
+            <p className="mt-2 text-center text-[10px] font-bold leading-4 text-white/55">
+              紅光＝{attackerMeta.label}正在剋住{sharedMeta.label}（卡住的地方）；補上「{sharedMeta.short}」後，金光把能量從{sharedMeta.label}送往{beneficiaryMeta.label}——剋被解除，五星轉為相生，事情就順。
+            </p>
           </div>
         </div>
 
         <div className={`rounded-[28px] border p-4 ${selectedMeta.className}`}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/55">AI 點星解讀</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/55">易經點星解讀</p>
               <h3 className="mt-1 text-3xl font-black leading-tight text-[color:var(--text-main)]">
                 {selectedMeta.label} · {selectedMeta.title}
               </h3>
@@ -1708,7 +1762,7 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
               <p className="mt-1 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{selectedMeta.friction}</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/18 p-3">
-              <p className="text-[10px] font-black text-cyan-100">AI 建議行動</p>
+              <p className="text-[10px] font-black text-cyan-100">易經卜卦指引行動</p>
               <p className="mt-1 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{selectedMeta.action}</p>
             </div>
           </div>
@@ -1726,7 +1780,7 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
         </div>
 
         <div className="rounded-[24px] border border-white/10 bg-black/18 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-white/55">AI 補強排序</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-white/55">易經補強排序</p>
           <div className="mt-3 space-y-2">
             {rankedElements.map((element, index) => {
               const meta = ORBIT_ELEMENT_META[element];
@@ -2012,7 +2066,7 @@ export default function MatchPage() {
       <main className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
         {!data && (
           <div className="space-y-6">
-            <DailyAnalysisNotice record={dailyRecord} className="mt-4" moduleName="AI 靈魂配對" onViewResult={dailyRecord ? () => restoreDailyRecord(dailyRecord) : undefined} />
+            <DailyAnalysisNotice record={dailyRecord} className="mt-4" moduleName="易經靈魂配對" onViewResult={dailyRecord ? () => restoreDailyRecord(dailyRecord) : undefined} />
             <MegaInputGuide
               title="先填第一個人，再填第二個人"
               steps={['第一位：姓名、生日、血型、性別', '第二位：同樣填一次', '最後確認兩人的資料再送出']}
@@ -2173,7 +2227,7 @@ export default function MatchPage() {
 
         {data && (
           <div className="space-y-6">
-            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 靈魂配對" onViewResult={dailyRecord ? () => restoreDailyRecord(dailyRecord) : undefined} />
+            <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="易經靈魂配對" onViewResult={dailyRecord ? () => restoreDailyRecord(dailyRecord) : undefined} />
             <MatchTeacherReadings data={data} />
             <BaziBeastPairCards
               foundation={data.baziFoundation}

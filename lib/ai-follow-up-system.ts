@@ -61,8 +61,8 @@ export function buildAiFollowUpSystem(input: AiFollowUpInput): AiFollowUpSystem 
   return {
     version: AI_FOLLOW_UP_SYSTEM_VERSION,
     purpose: '追蹤會員本週補強進度，增加長期陪伴與回訪，不新增命理分析。',
-    highestPrinciple: 'AI 只追蹤補強、任務與行動，不聊天、不偏題、不重新分析。',
-    sourcePolicy: '所有追蹤內容只讀取 AI Integration Layer 已整理的結果。',
+    highestPrinciple: '易經只追蹤補強、任務與行動，不聊天、不偏題、不重新分析。',
+    sourcePolicy: '所有追蹤內容只讀取 易經 Integration Layer 已整理的結果。',
     scopePolicy: `本週只圍繞 ${input.elementLabel}、本週任務與會員自己的補強進度。`,
     forbiddenTopics: [...AI_FOLLOW_UP_FORBIDDEN_TOPICS],
     weekKey: input.weekKey,

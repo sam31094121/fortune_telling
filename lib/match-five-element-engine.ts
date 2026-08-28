@@ -133,7 +133,7 @@ function buildPersonResult(person: MatchElementNeedInput): MatchFiveElementPerso
     secondaryElement,
     elementScores,
     needScores,
-    reason: `AI 判定：${name}目前最缺${ELEMENT_LABEL[primaryElement]}。請優先補強${ELEMENT_LABEL[primaryElement]}。完成後再補${ELEMENT_LABEL[secondaryElement]}。判定來源為本人真實八字五行強弱與用神喜神分析。`,
+    reason: `易經卜卦判定：${name}目前最缺${ELEMENT_LABEL[primaryElement]}。請優先補強${ELEMENT_LABEL[primaryElement]}。完成後再補${ELEMENT_LABEL[secondaryElement]}。判定來源為本人真實八字五行強弱與用神喜神分析。`,
     changeTarget: `補強${ELEMENT_LABEL[primaryElement]}，先校準${CHANGE_TARGET[primaryElement]}。`,
   };
 }
@@ -175,8 +175,8 @@ export function buildMatchFiveElementResult(
       ? '\u76ee\u524d\u6709\u76f8\u514b\u6469\u64e6\uff0c\u4e00\u5b9a\u8981\u5148\u505a\u8abf\u548c'
       : '\u76ee\u524d\u5c6c\u65bc\u9700\u8981\u5e73\u8861\u7684\u7d50\u69cb';
 
-  const sharedAction = `AI 判定：兩人共同第一補強鎖定${ELEMENT_LABEL[sharedElement]}。請共同優先補強${ELEMENT_LABEL[sharedElement]}，先校準${CHANGE_TARGET[sharedElement]}。`;
-  const summary = `AI 判定：${personA.name}目前最缺${ELEMENT_LABEL[personA.primaryElement]}；${personB.name}目前最缺${ELEMENT_LABEL[personB.primaryElement]}。${sharedAction} ${AI_CORE_JUDGEMENT_PRINCIPLE}`;
+  const sharedAction = `易經卜卦判定：兩人共同第一補強鎖定${ELEMENT_LABEL[sharedElement]}。請共同優先補強${ELEMENT_LABEL[sharedElement]}，先校準${CHANGE_TARGET[sharedElement]}。`;
+  const summary = `易經卜卦判定：${personA.name}目前最缺${ELEMENT_LABEL[personA.primaryElement]}；${personB.name}目前最缺${ELEMENT_LABEL[personB.primaryElement]}。${sharedAction} ${AI_CORE_JUDGEMENT_PRINCIPLE}`;
 
   return {
     engineVersion: 'match_five_element_v1',

@@ -12,7 +12,7 @@ const timeoutMs = Number(process.env.CARD_QUALITY_TIMEOUT_MS || 45000);
 const cards = [
   { cardId: 'CARD_01', moduleId: 'nameology', cardName: 'AI 姓名學', route: '/nameology', apiKind: 'analysis', analysisType: 'nameology', input: (mode) => buildPerson('NameQA', mode) },
   { cardId: 'CARD_02', moduleId: 'ziwei', cardName: 'AI 紫微斗數', route: '/insight', apiKind: 'insight', input: (mode) => buildPerson('ZiweiQA', mode) },
-  { cardId: 'CARD_03', moduleId: 'number', cardName: '數字論吉凶', route: '/numerology', apiKind: 'analysis', analysisType: 'number', input: (mode) => ({ value: mode === 'self' ? '0912345678' : '16889999' }) },
+  { cardId: 'CARD_03', moduleId: 'number', cardName: '易經論數字', route: '/numerology', apiKind: 'analysis', analysisType: 'number', input: (mode) => ({ value: mode === 'self' ? '0912345678' : '16889999' }) },
   { cardId: 'CARD_04', moduleId: 'soul_match', cardName: 'AI 靈魂配對', route: '/match', apiKind: 'match' },
   { cardId: 'CARD_05', moduleId: 'music', cardName: 'AI 生成歌曲', route: '/music', apiKind: 'music' },
   { cardId: 'CARD_06', moduleId: 'bazi', cardName: 'AI 八字命盤', route: '/bazi', apiKind: 'analysis', analysisType: 'bazi', input: (mode) => buildPerson('BaziQA', mode) },

@@ -6,7 +6,7 @@
  * - 陰陽兩球獨立旋轉（分離後反向、不同速、不碰撞不重疊）
  * - 真 3D 多軸旋轉（y 連續 + x/z 正弦擺動 = 近 4D 連續變化）
  * - 已套用畫質與穩定優化：依裝置能力限制 DPR 與粒子預算，
- *   低階手機自動守住順暢、antialias on、幾何體 useMemo 重用、Sparkles 降量、ContactShadows frames=1
+ *   低階手機自動守住順暢、antialias on、幾何體 useMemo 重用、Sparkles 降量、CSS 接觸陰影
  * - 點擊演化接上既有 Taiji24SoundEngine（功能依然存在）
  * 範圍鎖定：只供太極卡使用，不影響其他卡片與手機版面。
  */
@@ -17,7 +17,6 @@ import {
   OrbitControls,
   Sparkles,
   Float,
-  ContactShadows,
   AdaptiveEvents,
   Environment,
   Lightformer,
@@ -36,13 +35,16 @@ type Stage = 'TAIJI' | 'LIANGYI' | 'SIXIANG' | 'BAGUA';
 
 const STAGES: Stage[] = ['TAIJI', 'LIANGYI', 'SIXIANG', 'BAGUA'];
 const FRAME_DELTA_CAP = 1 / 45;
+// 24 層人工預覽已完成驗收；正式首頁隱藏檢查面板，保留完整演化內容。
+const SHOW_LAYER_REVIEW_PANEL = false;
+const journeyZoomTarget = (step: number) => step <= 1 ? 0 : Math.min(1, (step - 1) / 23);
 
-/* 前十二層不再隨每次點擊循環重複四種圖案；它們是同一條顯微鏡電影的四段連續鏡頭。 */
+/* 每一層都要有立即可辨的視覺回饋：第 2 層直接進入兩儀，避免前 3 層看起來沒有變化。 */
 function stageForJourney(step: number, fallback: Stage): Stage {
   if (step <= 0) return fallback;
-  if (step <= 3) return 'TAIJI';
-  if (step <= 6) return 'LIANGYI';
-  if (step <= 9) return 'SIXIANG';
+  if (step === 1) return 'TAIJI';
+  if (step === 2) return 'LIANGYI';
+  if (step === 3) return 'SIXIANG';
   return 'BAGUA';
 }
 
@@ -346,13 +348,14 @@ function useTaijiCanvasQuality(wrapperRef: { current: HTMLElement | null }) {
         wrapperRef.current?.getBoundingClientRect().width ?? 360,
         wrapperRef.current?.getBoundingClientRect().height ?? 360,
       ));
+      // 高階桌機以 4K 級畫布為上限；一般桌機與手機仍依原有保護策略，避免犧牲操作流暢度。
       const maxBackingEdge = isCompactViewport
         ? (strongPhone ? 900 : lowPower ? 640 : 760)
-        : (strongDesktop ? 1440 : 1080);
+        : (strongDesktop ? 3840 : 1080);
       const backingCap = Math.max(1, maxBackingEdge / canvasEdge);
       const deviceTarget = isCompactViewport
         ? Math.min(deviceDpr, strongPhone ? 2 : lowPower ? 1.25 : 1.5)
-        : Math.min(deviceDpr, strongDesktop ? 2 : 1.5);
+        : Math.min(Math.max(deviceDpr, strongDesktop ? 4 : 1), strongDesktop ? 4 : 1.5);
       const minDpr = 1;
       const maxDpr = Math.max(1, Math.min(backingCap, deviceTarget));
 
@@ -1179,6 +1182,7 @@ function TaijiCore({
     // 外圍裝飾（軌道環、星塵、四象八卦）：×50 起淡出，×2,000 完全讓位
     /* 第 13 層是穿透太極本體的剪接點：圖騰本身讓位給深場，不再看起來停住。 */
     /* 第 13 層不是淡淡加一層特效，而是鏡頭正式穿透圖騰；主球必須完全讓位。 */
+    // 第 13 層起原始主球永久退場；第 24 層由獨立量子點雲生成新太極，禁止回用第 1 層。
     const journeyDive = step24 >= 13 ? 1 : 0;
     const macroFade = (1 - smoothstep(1.7, 3.3, zoomD)) * (1 - journeyDive);
     // 球體本體：×1,000 起釉面開始透出內部結構，×20,000 完全解離
@@ -1197,10 +1201,9 @@ function TaijiCore({
     const warmScale = 0.0001;
 
     const macroVisible = macroFade > 0.02;
-    /* 兩層能量殼是「站遠了看」才存在的氛圍層：鏡頭一推近它們就佔滿整個畫面，
-       等於兩張全螢幕的透明 PBR——所以它們必須比其他宏觀元素更早退場（×50 前後收乾淨）。
-       這是 1080p 之下最關鍵的一刀：畫面上看不出差別，×100～×1,000 直接換回流暢。 */
-    const haloVisible = zoomD < 2.2 && journeyDive < 0.02;
+    /* 外圍能量殼會投出可辨識的同心圓，與首頁要的自然散光衝突；
+       直接關閉，改由背景光霧、柔和光束與底部接觸陰影提供空間感。 */
+    const haloVisible = false;
     if (macroGroupRef.current) macroGroupRef.current.visible = macroVisible;
     if (energyFieldRef.current) energyFieldRef.current.visible = haloVisible;
     if (outerShellRef.current) outerShellRef.current.visible = haloVisible;
@@ -1247,13 +1250,20 @@ function TaijiCore({
     }
     // 量子粒子場與太極圖騰同一個朝向（同一顆物體的裡與外）
     if (quantumGroupRef.current && diskRef.current) {
-      quantumGroupRef.current.rotation.y = diskRef.current.rotation.y + Math.PI / 2;
+      if (step24 >= 5 && step24 <= 11) {
+        // 逐層顯微鏡鏡頭固定正面取景，避免父層自轉把成對粒子甩出畫面。
+        quantumGroupRef.current.rotation.set(0, 0, 0);
+      } else {
+        quantumGroupRef.current.rotation.y = diskRef.current.rotation.y + Math.PI / 2;
+      }
+      // 第 12 層起由逐層專用鏡頭接管；關閉通用量子場，避免各層疊成相似白點畫面。
+      quantumGroupRef.current.visible = step24 < 12 || warming;
     }
     /* 糾纏內景層：反轉抵銷父層旋轉，讓那一對波包在畫面上穩穩不動。
        使用者拖曳時是鏡頭繞著它轉（OrbitControls），觀察角度照樣自由。 */
     if (deepGroupRef.current) {
-      /* 旅程第 17～19 層進入糾纏鏡頭；第 20 層後讓黑洞／白洞接手。 */
-      deepGroupRef.current.visible = zoomD > 4.2 || (step24 >= 17 && step24 <= 20) || warming;
+      /* 第 17～20 層進入糾纏鏡頭；其餘層讓位，避免多個深層場景重疊。 */
+      deepGroupRef.current.visible = (step24 >= 17 && step24 <= 20) || warming;
       if (deepGroupRef.current.visible) {
         // 用四元數反轉才是精確的抵銷（尤拉角逐軸取負在複合旋轉下並不等於反轉）
         deepGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
@@ -1261,14 +1271,15 @@ function TaijiCore({
     }
     /* 細胞內景層（×100,000,000 起）：同樣站著不動，門檻與糾纏內景層共用同一顆父層旋轉抵銷邏輯 */
     if (cellularGroupRef.current) {
-      cellularGroupRef.current.visible = zoomD > 4.2 || (step24 >= 16 && step24 < 17) || warming;
+      cellularGroupRef.current.visible = (step24 >= 11 && step24 <= 16) || warming;
       if (cellularGroupRef.current.visible) {
         cellularGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
       }
     }
     /* 深淵場（第 14~24 層）：同樣站著不動，共用同一顆父層旋轉抵銷邏輯 */
     if (abyssGroupRef.current) {
-      abyssGroupRef.current.visible = zoomD > 4.2 || journeyDepth > 0 || warming;
+      // 第 21～24 層才進入事件視界、白洞與量子太極回歸。
+      abyssGroupRef.current.visible = (step24 >= 21 && step24 <= 24) || warming;
       if (abyssGroupRef.current.visible) {
         abyssGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
       }
@@ -1387,6 +1398,7 @@ function TaijiCore({
         <TaijiQuantumField
           magRef={magRef}
           warmRef={warmRef}
+          journeyStep={step24}
           budget={quantumBudget}
           yinColor="#9fc4e8"
           yangColor={TAIJI_BENCHMARK_THEME.primary}
@@ -1423,8 +1435,7 @@ function TaijiCore({
         />
       </group>
 
-      {/* 深淵場：×10,000,000,000,000 → ×100,000,000,000,000,000,000,000（第 14~24 層）。
-          從無極之門一路連到黑洞事件視界／奇異點／白洞噴湧，終局在第 24 層噴回最初的太極全貌。 */}
+      {/* 深淵場：第 21～24 層依序吸入、噴發、雙旋流重組，最後以全新量子點雲生成太極。 */}
       <group ref={abyssGroupRef}>
         <TaijiAbyssField
           magRef={magRef}
@@ -1434,8 +1445,6 @@ function TaijiCore({
           yinColor="#9fc4e8"
           yangColor={TAIJI_BENCHMARK_THEME.primary}
           sparkColor="#fff6dc"
-          coreTexture={ballTexture}
-          coreBumpMap={surfaceNoise}
         />
       </group>
 
@@ -1666,6 +1675,11 @@ export default function TaijiSystem({
   /* 顯微鏡倍率：唯一狀態來源（ref，不進 React state） */
   const magRef = useTaijiMagnifier(wrapperRef);
 
+  /* 24 層按鈕同時驅動鏡頭：第 1 層是全貌，第 2 層立刻推近，其後逐層深入到細胞與量子內景。 */
+  useEffect(() => {
+    if (journey.step > 0) magRef.current.target = journeyZoomTarget(journey.step);
+  }, [journey.step, magRef]);
+
   const TAIJI_DAILY_KEY = 'tdh:taiji24:daily:v1';
   const todayKey = () => new Date().toISOString().slice(0, 10);
 
@@ -1754,6 +1768,15 @@ export default function TaijiSystem({
     goToStage(STAGES[nextIndex]);
   }, [goToStage, stage]);
 
+  const selectJourneyStep = useCallback((nextStep: number) => {
+    const safeStep = Math.max(1, Math.min(24, Math.round(nextStep)));
+    const engine = soundRef.current ?? new Taiji24SoundEngine();
+    const state = engine.seek(safeStep);
+    soundRef.current = engine;
+    setJourney({ step: state.step, progress: state.progress });
+    setVisualPulse(performance.now());
+  }, []);
+
   /* 驗收入口：`?taijiStep=13` 可讓設計與客戶直接檢視第 13 層以後的鏡頭，
      不改一般使用者從第 1 層逐步推進的流程。 */
   useEffect(() => {
@@ -1834,6 +1857,7 @@ export default function TaijiSystem({
         <span className={styles.journeyRing} aria-hidden="true" />
         <span key={visualPulse} className={styles.visualPulse} aria-hidden="true" />
         <span className={styles.completionHalo} aria-hidden="true" />
+        <span className={styles.groundShadow} aria-hidden="true" />
         <Canvas
           camera={{ position: [0, 0, 5.1], fov: 42 }}
           dpr={[canvasQuality.minDpr, canvasQuality.maxDpr]}
@@ -1878,7 +1902,7 @@ export default function TaijiSystem({
             <Lightformer form="rect" intensity={0.4} color="#dce9f5" position={[-3.5, 3.5, 2]} rotation={[0, Math.PI / 3.2, 0]} scale={[0.25, 2, 1]} target={[0, 0, 0]} />
           </Environment>
           {/* 鏡頭只保留太極、粒子與光子：不放小行星、星雲或任何外部物件。 */}
-          <TaijiDeepField13 active={journey.step >= 13} step={journey.step} />
+          <TaijiDeepField13 active={journey.step >= 13 && journey.step <= 16} step={journey.step} />
           {/* 質感打光：電影三點光——主光與背光跟著本響主題換色 */}
           <ambientLight intensity={0.22} />
           <KeyLightSweep theme={journeyTheme} progress24={journey.progress} />
@@ -1896,7 +1920,6 @@ export default function TaijiSystem({
             ultraTexture={canvasQuality.ultraTexture}
             onCoreClick={goNext}
           />
-          <ContactShadows position={[0, -1.9, 0]} opacity={0.46} scale={7} blur={2.8} resolution={canvasQuality.shadowResolution} far={3} frames={1} />
           <OrbitControls
             makeDefault
             enableZoom={false}
@@ -1911,6 +1934,31 @@ export default function TaijiSystem({
         </Canvas>
         {/* 客戶頁只保留可直接點擊的太極圖騰；倍率／步數／解析度等驗收輔助資訊不對外顯示。 */}
       </div>
+      {SHOW_LAYER_REVIEW_PANEL && (
+        <aside className={styles.layerReviewPanel} aria-label="太極二十四層預覽控制">
+          <div className={styles.layerReviewHeading}>
+            <span>24 層預覽</span>
+            <output>{Math.max(1, journey.step)} / 24</output>
+          </div>
+          <div className={styles.layerReviewGrid} aria-label="選擇太極演化層數">
+            {Array.from({ length: 24 }, (_, index) => {
+              const layer = index + 1;
+              const selected = Math.max(1, journey.step) === layer;
+              return (
+                <button
+                  key={layer}
+                  type="button"
+                  className={selected ? styles.layerReviewButtonActive : styles.layerReviewButton}
+                  aria-pressed={selected}
+                  onClick={() => selectJourneyStep(layer)}
+                >
+                  {layer}
+                </button>
+              );
+            })}
+          </div>
+        </aside>
+      )}
     </section>
   );
 }

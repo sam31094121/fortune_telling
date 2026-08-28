@@ -170,7 +170,7 @@ const MUSIC_GENERATION_FRIENDLY_FAILURE = '目前暫時無法完成歌曲生成�
 const VOICE_PROMISES = [
   { title: '先聽見聲音', body: '進入後先選催淚女聲或深情男聲，客戶能立刻感覺到方向。' },
   { title: '再整理資料', body: '生日、姓名、血型與時辰只分段出現，手機上不會一次塞滿。' },
-  { title: '最後出歌', body: 'AI 會輸出歌名、歌詞、主唱方向與完整創作藍圖。' },
+  { title: '最後出歌', body: '易經會輸出歌名、歌詞、主唱方向與完整創作藍圖。' },
 ];
 
 function LandingHero({
@@ -210,7 +210,7 @@ function LandingHero({
       <div className="music-landing-stack relative z-20 flex max-w-3xl flex-col items-center">
         <TaijiStandaloneCard className="music-landing-taiji mb-4" />
 
-        <DailyAnalysisNotice record={dailyRecord} className="mb-5 w-full max-w-2xl text-left" moduleName="AI 生命歌曲" />
+        <DailyAnalysisNotice record={dailyRecord} className="mb-5 w-full max-w-2xl text-left" moduleName="易經生命歌曲" />
         {identityTarget ? (
           <section className="mb-5 w-full max-w-2xl rounded-2xl border border-cyan-300/25 bg-cyan-300/[0.06] px-4 py-3 text-left shadow-[0_12px_28px_rgba(2,6,23,0.18)]">
             <p className="text-sm font-black text-cyan-50">
@@ -233,20 +233,20 @@ function LandingHero({
         />
 
         <div className="music-landing-copy">
-          <span className="music-landing-eyebrow">AI EMOTIONAL VOICE SONG</span>
+          <span className="music-landing-eyebrow">I-CHING EMOTIONAL VOICE SONG</span>
           <h1 className="music-landing-title">
-            <span className="music-landing-title-line">AI 生命歌曲</span>
+            <span className="music-landing-title-line">易經生命歌曲</span>
             <span className="music-landing-title-line music-landing-title-line--accent">先讓你聽見情緒</span>
             <span className="music-landing-title-line">再把故事唱出來</span>
           </h1>
           {/* 副標說明已隱藏（2026-08-13 依指示）：恢復時把 hidden 移除即可 */}
           <p className="music-landing-subcopy hidden">
-            選一個能打動你的男聲或女聲，AI 會把生命主題、姓名、生日與五元素整理成一首專屬歌曲。
+            選一個能打動你的男聲或女聲，易經會把生命主題、姓名、生日與五元素整理成一首專屬歌曲。
           </p>
         </div>
 
         {/* 三步驟卡已隱藏（2026-08-13 依指示）：先藏起來以後再說，恢復時把 hidden 移除即可 */}
-        <section className="mt-5 hidden w-full max-w-3xl gap-3 text-left sm:grid-cols-3" aria-label="AI 生命歌曲三步驟">
+        <section className="mt-5 hidden w-full max-w-3xl gap-3 text-left sm:grid-cols-3" aria-label="易經生命歌曲三步驟">
           {VOICE_PROMISES.map((item, index) => (
             <article key={item.title} className="rounded-[22px] border border-violet-300/18 bg-white/[0.045] p-4 shadow-[0_14px_34px_rgba(2,6,23,0.22)]">
               <p className="text-[11px] font-black tracking-[0.22em] text-amber-100">第 {index + 1} 道</p>
@@ -276,13 +276,13 @@ function LandingHero({
 function MusicAnalyticalConsole({ name }: { name: string }) {
   const logs = [
     `讀取使用者資料：${name || '未命名'}`,
-    'AI 正在整合生命主題、聲線、五元素與歌曲風格。',
+    '易經正在整合生命主題、聲線、五元素與歌曲風格。',
     '準備歌名、歌詞方向、主唱情緒與完整創作藍圖。',
   ];
 
   return (
     <div className="fortune-card border border-violet-500/20 bg-slate-950/80 p-6 font-mono shadow-[0_0_30px_rgba(139,92,246,0.08)] sm:p-8">
-      <p className="text-xs uppercase tracking-[0.22em] text-violet-300">AI 正在生成您的專屬歌曲</p>
+      <p className="text-xs uppercase tracking-[0.22em] text-violet-300">易經正在生成您的專屬歌曲</p>
       <div className="mt-6 min-h-[150px] space-y-3.5 text-xs leading-7 text-violet-100 sm:text-sm">
         {logs.map((log, index) => (
           <div key={`${log}-${index}`} className="flex items-start gap-2">
@@ -299,16 +299,16 @@ function VoiceResultCard({ voiceProfile }: { voiceProfile: VoiceProfile }) {
   const traits = voiceProfile.sample?.inferredCharacteristics ?? [];
   const isFemale = traits.includes('ai_voice_female');
   const isMale = traits.includes('ai_voice_male');
-  const voiceLabel = isFemale ? '催淚女聲' : isMale ? '深情男聲' : 'AI 自動聲線';
+  const voiceLabel = isFemale ? '催淚女聲' : isMale ? '深情男聲' : '易經自動聲線';
 
   return (
     <section className="mb-6 rounded-[22px] border border-violet-300/20 bg-violet-950/20 p-4 shadow-[0_10px_28px_rgba(2,6,23,0.22)]">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-black tracking-[0.22em] text-violet-200">AI 主唱聲線</p>
+          <p className="text-xs font-black tracking-[0.22em] text-violet-200">易經主唱聲線</p>
           <h2 className="mt-2 text-xl font-black leading-tight text-violet-50">{voiceLabel}</h2>
           <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]">
-            AI 已依照你選擇的聲線建立演唱方向：溫度、呼吸、情緒轉折與副歌釋放都會一起送進歌曲生成。
+            易經已依照你選擇的聲線建立演唱方向：溫度、呼吸、情緒轉折與副歌釋放都會一起送進歌曲生成。
           </p>
         </div>
         <span className="shrink-0 rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1.5 text-xs font-bold text-cyan-100">
@@ -319,7 +319,7 @@ function VoiceResultCard({ voiceProfile }: { voiceProfile: VoiceProfile }) {
         <div className="mt-4 grid grid-cols-3 gap-2 text-center">
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-2 py-3">
             <p className="text-[10px] text-[color:var(--text-muted)]">模式</p>
-            <p className="mt-1 text-sm font-black text-violet-100">AI 主唱</p>
+            <p className="mt-1 text-sm font-black text-violet-100">易經主唱</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-2 py-3">
             <p className="text-[10px] text-[color:var(--text-muted)]">品質</p>
@@ -507,11 +507,11 @@ export default function MusicSystemPage() {
           <section className="mx-auto max-w-3xl">
             <div className="fortune-card p-6 sm:p-8">
               <div className="mb-6">
-                <p className="text-xs uppercase tracking-[0.35em] text-violet-300">AI VOICE SONG</p>
+                <p className="text-xs uppercase tracking-[0.35em] text-violet-300">I-CHING VOICE SONG</p>
                 <h1 className="mt-2 font-serif text-2xl font-black leading-tight text-[color:var(--text-main)]">生成一首會被記住的生命歌曲</h1>
               </div>
 
-              <DailyAnalysisNotice record={dailyRecord} className="mb-6" moduleName="AI 生命歌曲" onViewResult={dailyRecord ? handleStart : undefined} />
+              <DailyAnalysisNotice record={dailyRecord} className="mb-6" moduleName="易經生命歌曲" onViewResult={dailyRecord ? handleStart : undefined} />
 
               <section className="mb-6 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.05] px-4 py-3">
                 <p className="text-sm font-black text-cyan-50">已完成創作對象確認</p>
@@ -548,15 +548,15 @@ export default function MusicSystemPage() {
 
       {pageState === 'result' && result && (
         <main className="relative z-10 mx-auto max-w-6xl overflow-hidden px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-          <DailyAnalysisNotice record={dailyRecord} className="mb-6" moduleName="AI 生命歌曲" />
+          <DailyAnalysisNotice record={dailyRecord} className="mb-6" moduleName="易經生命歌曲" />
 
           <div className="mb-6 flex flex-col items-start gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <p className="max-w-2xl text-xs font-semibold leading-6 tracking-[0.08em] text-violet-300 sm:text-sm">
-                AI 已完成歌曲方向：主題、聲線、五元素與創作藍圖都已整理完成。
+                易經已完成歌曲方向：主題、聲線、五元素與創作藍圖都已整理完成。
               </p>
               <h2 className="mt-1 font-serif text-3xl text-[color:var(--text-main)]">
-                {submittedName}的 AI 專屬生命歌曲
+                {submittedName}的 易經專屬生命歌曲
               </h2>
             </div>
             <Link href="/" className="feature-home-link feature-home-link--violet shrink-0 self-end sm:self-start">返回首頁</Link>

@@ -324,7 +324,7 @@ export type NameologyUltimateDecision = {
     finalDecision: string;
   };
   integrationLayerHandoff: {
-    target: 'AI Integration Layer';
+    target: '易經整合層';
     fiveElementOrder: Array<'風' | '空' | '水' | '火' | '地'>;
     selfPolicy: string;
     otherPolicy: string;
@@ -499,7 +499,7 @@ export const NAMEOLOGY_RITUAL_STEP_LABELS: Record<NameologyRitualStepId, { label
   VERIFY_STROKES: { label: '筆畫資料', ritualText: '姓名筆畫已確認', passedText: '筆畫資料驗證通過' },
   VERIFY_MEANINGS: { label: '字音與字義', ritualText: '字音與字義已確認', passedText: '台灣字典資料比對通過' },
   CALCULATE_NAME_STRUCTURE: { label: '姓名結構', ritualText: '姓名結構正在建立', passedText: '五格與三才運算通過' },
-  DEDUPLICATE_SEMANTICS: { label: 'AI 核心語意', ritualText: 'AI 正在整合重複訊號', passedText: '核心語意整合通過' },
+  DEDUPLICATE_SEMANTICS: { label: '易經核心語意', ritualText: '易經正在整合重複訊號', passedText: '核心語意整合通過' },
   CALCULATE_ELEMENTS: { label: '五元素訊號', ritualText: '五元素訊號已完成', passedText: '空、風、水、火、地判定通過' },
   BUILD_THREE_LAYERS: { label: '三層分析結果', ritualText: '三層分析結果已建立', passedText: '專業層、精華層、判定層建立通過' },
   VERIFY_FINAL_RESULT: { label: '最終資料', ritualText: '最終資料已驗證', passedText: '姓名學分析正式完成' },
@@ -1162,7 +1162,7 @@ function buildNameologyProfessionalLayer(
     radicalNarrative: characterDecomposition.map((item) => item.taiwanDictionaryMatched ? '「' + item.char + '」取' + item.radical + '意象：' + item.radicalImagery : '「' + item.char + '」待補臺灣字典：不猜部首。').join(' '),
     nameStory: '\u59d3\u540d\u6545\u4e8b\u4ee5\u300c' + (composition.surname || name.slice(0, 1)) + '\u300d\u70ba\u6839\uff0c\u627f\u63a5\u5bb6\u65cf\u8207\u5916\u5728\u8b58\u5225\uff1b\u540d\u5b57\u300c' + (composition.givenName || name.slice(1)) + '\u300d\u8ca0\u8cac\u958b\u5c55\u500b\u4eba\u4e3b\u8ef8\u3002' + givenStory,
     namingStory,
-    professionalSummary: characters.every((item) => item.strokeSource === 'dictionary_file') ? '第一層判定「' + name + '」的可用素材：字形以' + characters.map((item) => item.glyph.structure).join('、') + '為骨架，正式部首以臺灣字典的「' + characters.map((item) => item.glyph.radical).join('、') + '」為固定來源；後端再依正式部首拆解意境，形成後續 AI 解讀的固定基礎。' : '第一層判定「' + name + '」時發現未命中臺灣字典的漢字；系統先鎖定已命中字，未命中字列入待補，等補入正式部首後再由後端產生部首意境。',
+    professionalSummary: characters.every((item) => item.strokeSource === 'dictionary_file') ? '第一層判定「' + name + '」的可用素材：字形以' + characters.map((item) => item.glyph.structure).join('、') + '為骨架，正式部首以臺灣字典的「' + characters.map((item) => item.glyph.radical).join('、') + '」為固定來源；後端再依正式部首拆解意境，形成後續 易經解讀的固定基礎。' : '第一層判定「' + name + '」時發現未命中臺灣字典的漢字；系統先鎖定已命中字，未命中字列入待補，等補入正式部首後再由後端產生部首意境。',
     elementStory: flowStory,
     readingBoundaries: [
       '\u7b2c\u4e00\u5c64\u53ea\u5efa\u7acb\u59d3\u540d\u62c6\u89e3\u3001\u90e8\u9996\u610f\u5883\u3001\u7b46\u756b\u4e94\u884c\u8207\u540d\u5b57\u6545\u4e8b\u3002',
@@ -1299,7 +1299,7 @@ function buildNameologyThreeLayerPresentation(
   return {
     layer: 'nameology_three_layer_presentation',
     title: '姓名學三層架構',
-    summary: '第一層先用臺灣字典固定部首、筆畫與取名意境；第二層由後端 AI 只讀第一層資料做故事解讀；第三層整理成今天可執行、值得回來追蹤的補強方向。',
+    summary: '第一層先用臺灣字典固定部首、筆畫與取名意境；第二層由後端 易經只讀第一層資料做故事解讀；第三層整理成今天可執行、值得回來追蹤的補強方向。',
     cards: [
       {
         order: 1,
@@ -1320,7 +1320,7 @@ function buildNameologyThreeLayerPresentation(
         order: 2,
         layerKey: 'ai_interpretation',
         eyebrow: 'LAYER 02',
-        title: 'AI 姓名解讀',
+        title: '易經姓名解讀',
         status: '讀取第一層，不重新拆字',
         primary: aiInterpretationLayer.userReadableSummary,
         detail: namingStory.wholeNameIntent + ' ' + aiInterpretationLayer.personalityStory,
@@ -1396,7 +1396,7 @@ function buildNameologyAnalysisId(name: string, dictionaryVersion: string, subje
 }
 
 function shortText(text: string, maxLength = 34) {
-  const clean = text.replace(/^(補強|第一補強：|AI 判定：)/, '').replace(/。.*$/, '。').trim();
+  const clean = text.replace(/^(補強|第一補強：|易經卜卦判定：)/, '').replace(/。.*$/, '。').trim();
   return clean.length > maxLength ? clean.slice(0, maxLength - 1) + '。' : clean;
 }
 
@@ -1452,7 +1452,7 @@ function buildNameSemanticDeduplicator(input: {
   const mergedSignals = Array.from(buckets.values()).slice(0, 5);
   const strengths = mergedSignals.slice(0, 3).map((item) => item.coreJudgment + '：' + item.reason);
   const blindSpots = [input.aiInterpretationLayer.hiddenTension, input.crossCheck.alignmentLabel === '交叉需要校正' ? '姓名訊號與生日或性別資料需要校準成同一個行動節奏。' : '不要讓優勢停留在想法，需要落到可完成的日常行動。'].filter(Boolean).slice(0, 2);
-  const summary = 'AI 已合併重複語意，保留 ' + mergedSignals.map((item) => item.coreJudgment).join('、') + ' 作為本次姓名精華。';
+  const summary = '易經已合併重複語意，保留 ' + mergedSignals.map((item) => item.coreJudgment).join('、') + ' 作為本次姓名精華。';
   return { summary, strengths, blindSpots, mergedSignals };
 }
 
@@ -1497,7 +1497,7 @@ function buildNameologyUltimateDecision(
     ? '讓優勢停在想法，今天要落到可完成的行動。'
     : shortText(biggestObstacle, 48);
   const coreObstacle = '目前必須停止：' + conciseObstacle;
-  const finalOneLine = 'AI 判定：先用' + (topPower?.label ?? '姓名力量') + '穩住' + (firstPriority?.element ?? '核心') + '方向。';
+  const finalOneLine = '易經卜卦判定：先用' + (topPower?.label ?? '姓名力量') + '穩住' + (firstPriority?.element ?? '核心') + '方向。';
   const fiveGridValue = (key: NameologyGridItem['key']) => grids.find((item) => item.key === key)?.value ?? 0;
   const talent = {
     heaven: grids.find((item) => item.key === 'sky')?.element ?? '土',
@@ -1510,7 +1510,7 @@ function buildNameologyUltimateDecision(
 
   const ultimateDecision: NameologyUltimateDecision = {
     version: 'nameology_ultimate_engine_v4',
-    title: 'AI 姓名學判定',
+    title: '易經姓名學判定',
     customerPromise: '台灣正體字典資料已確認，後端姓名結構運算已完成。',
     dictionaryGate: {
       mode: 'strict_taiwan_authority',
@@ -1531,7 +1531,7 @@ function buildNameologyUltimateDecision(
       finalDecision: finalOneLine,
     },
     integrationLayerHandoff: {
-      target: 'AI Integration Layer',
+      target: '易經整合層',
       fiveElementOrder: completeNameologyBrandElementOrder(reinforcementLayer.priorities.map((item) => item.element)),
       selfPolicy: 'SELF 可寫入會員姓名學完成狀態與五元素方向。',
       otherPolicy: 'OTHER 只做本次分析，不更新會員成長資料。',

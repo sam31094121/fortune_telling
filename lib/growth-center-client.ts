@@ -1,11 +1,18 @@
 'use client';
 
-import type { GrowthElement, GrowthModuleId } from './growth-center-engine';
+import type { GrowthElement, GrowthModuleId, GrowthPreferenceId } from './growth-center-engine';
 import { isMemberGrowthTarget } from './identity-split-client';
 
 const MODULE_STORAGE_KEY = 'tdh_growth_completed_modules_v1';
 const PROFILE_STORAGE_KEY = 'tdh_growth_profile_id_v1';
 const ELEMENT_STORAGE_KEY = 'tdh_growth_elements_v1';
+const PREFERENCE_STORAGE_KEY = 'tdh_growth_preference_ids_v1';
+const FOLLOWUP_STORAGE_KEY = 'tdh_growth_followup_history_v1';
+
+const PREFERENCE_IDS = new Set<GrowthPreferenceId>(['daily', 'weekly', 'direct', 'gentle', 'career', 'relationship', 'wealth', 'energy']);
+
+export type FollowUpAnswer = 'continued' | 'paused';
+export type FollowUpHistory = Record<string, FollowUpAnswer>;
 
 const MODULES = new Set<GrowthModuleId>(['nameology', 'ziwei', 'number', 'soul_match', 'music', 'bazi', 'zodiac', 'tarot']);
 const CORE_ELEMENT_MODULES = new Set<GrowthModuleId>(['nameology', 'ziwei', 'soul_match', 'music', 'bazi', 'zodiac', 'tarot']);
@@ -81,15 +88,45 @@ export function getGrowthElements() {
   ) as Record<string, GrowthElement>;
 }
 
+export function getGrowthPreferences(): GrowthPreferenceId[] {
+  const raw = readJson<string[]>(PREFERENCE_STORAGE_KEY, []);
+  return raw.filter((item): item is GrowthPreferenceId => PREFERENCE_IDS.has(item as GrowthPreferenceId));
+}
+
+export function setGrowthPreferences(preferences: GrowthPreferenceId[]) {
+  writeJson(PREFERENCE_STORAGE_KEY, preferences);
+}
+
+export function readFollowUpHistory(): FollowUpHistory {
+  return readJson<FollowUpHistory>(FOLLOWUP_STORAGE_KEY, {});
+}
+
+export function writeFollowUpAnswer(weekKey: string, answer: FollowUpAnswer) {
+  const history = readFollowUpHistory();
+  history[weekKey] = answer;
+  writeJson(FOLLOWUP_STORAGE_KEY, history);
+}
+
+export function getLastFollowUpBeforeWeek(currentWeekKey: string): { weekKey: string; answer: FollowUpAnswer } | null {
+  const history = readFollowUpHistory();
+  const entries = Object.entries(history)
+    .filter(([weekKey]) => weekKey !== currentWeekKey)
+    .sort(([a], [b]) => (a < b ? 1 : a > b ? -1 : 0));
+  const [weekKey, answer] = entries[0] ?? [];
+  return weekKey && answer ? { weekKey, answer } : null;
+}
+
 export function buildGrowthCenterQuery() {
   const modules = getCompletedGrowthModules();
   const elements = getGrowthElements();
+  const preferences = getGrowthPreferences();
   const params = new URLSearchParams();
   params.set('anonymousProfileId', getAnonymousProfileId());
   params.set('completedModules', modules.join(','));
   const firstElement = modules.map((moduleId) => elements[moduleId]).find(Boolean);
   if (firstElement) params.set('primaryElement', firstElement);
   params.set('analysisHash', modules.map((moduleId) => `${moduleId}:${elements[moduleId] ?? 'none'}`).join('|'));
+  if (preferences.length > 0) params.set('preferences', preferences.join(','));
   return params;
 }
 

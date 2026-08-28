@@ -163,7 +163,7 @@ const BAGUA = [
 const ANALYSIS_STEPS = [
   '資料確認',
   '專業引擎',
-  'AI 整合',
+  '易經整合',
   '品質確認',
 ] as const;
 
@@ -290,7 +290,7 @@ export default function TaijiExperienceCoreV7({ state, onStart }: TaijiExperienc
       data-eight-open={isEightOpen}
       aria-label="天地人和核心"
     >
-      <p className={styles.brand}>天地人和 AI</p>
+      <p className={styles.brand}>天地人和 易經</p>
       <div ref={stageRef} className={styles.coreStage}>
         <span className={styles.mainLight} aria-hidden="true" />
         <span className={styles.groundShadow} aria-hidden="true" />

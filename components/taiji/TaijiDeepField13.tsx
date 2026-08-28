@@ -9,18 +9,18 @@ import * as THREE from 'three';
  * 第 13 層是深場轉場門；之後每層都沿同一條鏡頭路線遞進到第 24 層終幕。
  */
 export const DEEP_STORY_ROADMAP = [
-  ['13', '顯微鏡入口', '太極表面退至背景，雙螺旋粒子把鏡頭帶入內部。'],
-  ['14', '粒子雲', '陰陽的邊界放大成流動粒子，不再是固定圖案。'],
-  ['15', '光子流', '粒子拉成明暗相反的光子流，沿同一條深度前進。'],
-  ['16', '類細胞結構', '光子流在微觀尺度形成膜、核與細絲般的立體結構。'],
-  ['17', '雙生粒子', '兩個相依的粒子在畫面兩端開始以相反節律自轉。'],
-  ['18', '糾纏光橋', '兩端之間浮現雙螺旋光橋，關聯成為可見的形狀。'],
-  ['19', '糾纏回應', '一端的明暗變化由另一端回應，畫面保持同一個中心。'],
-  ['20', '黑洞事件視界', '所有粒子開始被向內拉回，旋轉收斂成黑洞的吸入感。'],
-  ['21', '黑洞奇異點', '吸入到最深處，光與粒子短暫集中為一個安靜核心。'],
-  ['22', '白洞噴湧', '核心反轉，粒子與光子從中心向外噴出。'],
-  ['23', '光子重組', '噴出的粒子重新連成陰陽兩股旋流，回到同一條軌跡。'],
-  ['24', '太極回歸', '兩股光重新合成一顆立體太極，首尾閉合成完整循環。'],
+  ['13', '透明膜內壁', '撞入透明細胞膜，外界全貌消失，只剩膜面與遠方粒子。'],
+  ['14', '雙核鎖定', '膜面退場，兩顆反向自旋的核質突然佔據畫面兩端。'],
+  ['15', '相位絲內景', '雙核退到視野外，鏡頭沿唯一留下的相位絲高速深入。'],
+  ['16', '粒子門', '相位絲塌縮成源點，再裂解為沒有硬邊界的光子門。'],
+  ['17', '雙生粒子', '門後只出現兩個相依波包，尚未形成可見通道。'],
+  ['18', '糾纏光橋', '波包縮到角落，雙螺旋光橋撐滿整個視野。'],
+  ['19', '單波包內景', '鎖定其中一顆放大到滿版，另一顆只剩邊緣回應。'],
+  ['20', '量子塌縮', '整片波包瞬間收斂成中央兩點與短距離相位脈衝。'],
+  ['21', '事件視界', '相位脈衝被黑暗核心反向吞入，所有光線向內收束。'],
+  ['22', '白洞噴發', '吸入方向完全反轉，光子從中心大幅向外爆發。'],
+  ['23', '雙旋流重組', '冷暖兩股粒子分離成互補旋流，尚未出現太極輪廓。'],
+  ['24', '量子太極', '兩股旋流以粒子與光子的相位糾纏生成全新透明太極。'],
 ] as const;
 
 type TaijiDeepField13Props = {
@@ -35,10 +35,10 @@ const THRESHOLD_SPIRAL_COUNT = 360;
 /* 不放行星、星雲或大片霧面。遠景與近景都只由同一批光子／粒子構成；
    差別只在鏡頭放大後的尺寸、密度與自轉速度。 */
 const DEEP_CUTS = [
-  { mist: 0, inner: 0, particles: 0.78, size: 0.055, scale: 1.16, drift: 0.044, mistColor: '#527aa7', innerColor: '#f4d58a' },
-  { mist: 0, inner: 0, particles: 0.29, size: 0.029, scale: 1.04, drift: 0.015, mistColor: '#9fc4e8', innerColor: '#c9c9d6' },
-  { mist: 0, inner: 0, particles: 0.34, size: 0.031, scale: 1.08, drift: 0.020, mistColor: '#8d7fbe', innerColor: '#6a5acd' },
-  { mist: 0, inner: 0, particles: 0.38, size: 0.032, scale: 1.12, drift: 0.026, mistColor: '#62557f', innerColor: '#4b3f72' },
+  { mist: 0, inner: 0, particles: 0.14, size: 0.11, scale: 1.72, drift: 0.012, mistColor: '#527aa7', innerColor: '#f4d58a' },
+  { mist: 0, inner: 0, particles: 0.88, size: 0.024, scale: 0.72, drift: 0.085, mistColor: '#9fc4e8', innerColor: '#c9c9d6' },
+  { mist: 0, inner: 0, particles: 0.3, size: 0.094, scale: 1.66, drift: 0.16, mistColor: '#8d7fbe', innerColor: '#6a5acd' },
+  { mist: 0, inner: 0, particles: 1, size: 0.016, scale: 0.42, drift: 0.22, mistColor: '#62557f', innerColor: '#fff6dc' },
   { mist: 0, inner: 0, particles: 0.31, size: 0.028, scale: 1.16, drift: 0.008, mistColor: '#4d5564', innerColor: '#5a5a5a' },
   { mist: 0, inner: 0, particles: 0.42, size: 0.035, scale: 1.21, drift: 0.039, mistColor: '#8b4c3f', innerColor: '#ff6a3d' },
   { mist: 0, inner: 0, particles: 0.55, size: 0.040, scale: 1.26, drift: 0.051, mistColor: '#bfc7d3', innerColor: '#fff6dc' },
@@ -144,7 +144,7 @@ export default function TaijiDeepField13({ active, step }: TaijiDeepField13Props
 
     const frameDelta = Math.min(delta, 1 / 45);
     // 第 20 層起畫面交給黑洞／白洞的單一旋流；深場散點在此前淡出，避免變成無意義白點。
-    const target = active && step < 20 ? 1 : 0;
+    const target = active && step >= 13 && step <= 16 ? 1 : 0;
     group.userData.presence = THREE.MathUtils.lerp(group.userData.presence ?? 0, target, Math.min(1, frameDelta * 1.45));
     const presence = group.userData.presence as number;
     group.visible = presence > 0.006;
@@ -172,8 +172,8 @@ export default function TaijiDeepField13({ active, step }: TaijiDeepField13Props
       particlesRef.current.color.set(cut.innerColor);
     }
     if (thresholdSpiralRef.current) {
-      /* 13 層最清楚，往後逐步溶入深場，讓下一幕可以接手而不是重複同一畫面。 */
-      const thresholdPresence = presence * (1 - THREE.MathUtils.clamp((step - 13) / 4, 0, 1));
+      /* 雙螺旋入口只屬於第 13 層；第 14 層立即換成雙核主構圖，禁止複製上一幕。 */
+      const thresholdPresence = step === 13 ? presence : 0;
       thresholdSpiralRef.current.opacity = thresholdPresence * 0.92;
       thresholdSpiralRef.current.size = cut.size * 1.5;
       thresholdSpiralRef.current.color.set(step % 2 === 0 ? '#9fc4e8' : '#ffe09a');

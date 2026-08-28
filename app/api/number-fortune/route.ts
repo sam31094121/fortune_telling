@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { after, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
+import { formatNumberReading, readNumberByIChing } from '@/lib/iching-numbers';
 
 import {
   NUMBER_CORE_ENGINE_VERSION,
@@ -83,24 +84,29 @@ function resolvePurpose(value: unknown): NumberPurpose {
   return value === 'plate' || value === 'phone' || value === 'birthdate' ? value : 'general';
 }
 
-async function explainNumberWithGoogle(result: NumberAnalysisResponse, purpose: NumberPurpose): Promise<string | null> {
+async function explainNumberWithGoogle(result: NumberAnalysisResponse, purpose: NumberPurpose, rawValue: string): Promise<string | null> {
   const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (!apiKey) return null;
 
   const strongest = Object.entries(result.matrix).sort(([, left], [, right]) => right - left).slice(0, 2);
   const weakest = Object.entries(result.matrix).sort(([, left], [, right]) => left - right).slice(0, 2);
+  const numberIChing = readNumberByIChing(rawValue);
   const ai = new GoogleGenAI({ apiKey });
 
   try {
     const response = await withTimeout(
       ai.models.generateContent({
         model: 'gemini-3.6-flash',
-        contents: `你是「Google 數字解說」。只能根據下面已完成的固定數字規則結果，用繁體中文寫 80 到 140 字的白話說明。
+        contents: `你是「《易經》論數字」解說老師——以易經卜卦的方式論述數字。後端已把這組數字逐碼配卦、相鄰五行生剋交叉、整組梅花易數起卦，你只能根據以下已完成的精準交叉結果，用繁體中文寫 100 到 180 字的白話論述。
+【《易經》論數字・後端交叉素材（不可自行改卦、改分、改生剋）】
+${formatNumberReading(numberIChing)}
+論述要求：開頭先像卜卦一樣宣告整組卦名與格局名稱（一字不差）；中段點出交叉鏈裡最順的一段相生與最需留意的一段相剋（引用實際數字對）；結尾用一句心理學白話收攏（可用逐碼心理層素材）。
 規則：不得重新算分、不得宣稱科學準確率、不得預言或保證結果；用「傾向、可留意、適合」等條件式語言。
 用途：${PURPOSE_PROMPTS[purpose]}
 固定總分：${result.finalScore}；固定等級：${result.fortuneLevel}；最強面向：${strongest.map(([key, score]) => `${key} ${score}`).join('、')}；最需留意：${weakest.map(([key, score]) => `${key} ${score}`).join('、')}；規則摘要：${result.summary}
-請直接輸出解說本文，不要標題、不要條列。`,
-        config: { temperature: 0.45, maxOutputTokens: 220 },
+請直接輸出論述本文，不要標題、不要條列。`,
+        // gemini-3.6-flash 會把輸出 token 預留給內部推理，上限太小會把中文論述截斷
+        config: { temperature: 0.45, maxOutputTokens: 2048 },
       }),
       GOOGLE_EXPLANATION_TIMEOUT_MS,
     );
@@ -213,18 +219,32 @@ export async function POST(request: Request) {
   }
 
   const fiveElement = buildNumberFiveElementResult(result);
+  // 《易經》論數字：逐碼配卦＋相鄰生剋交叉＋整組梅花易數起卦（決定性、可回查）。
+  // 判語直接併入 summary，前端不需改版就能看到卜卦結論；完整交叉資料附在 iching 欄位。
+  const numberIChing = readNumberByIChing(rawValue);
+  result.summary = `${numberIChing.verdictLine}${result.summary}`;
   // The deterministic Number Core result is the primary response.  External AI
   // prose is opt-in so a slow provider cannot make a basic number lookup feel
   // frozen or delay the user from seeing the calculated result.
   const googleExplanation = body.includeAiExplanation === true
-    ? await explainNumberWithGoogle(result, purpose)
+    ? await explainNumberWithGoogle(result, purpose, rawValue)
     : null;
-  const response: NumberAnalysisResponse & { analysisId: string; requestId: string; mode: NumberAnalysisMode; purpose: NumberPurpose; fiveElement: ReturnType<typeof buildNumberFiveElementResult>; googleExplanation?: string; googleProvider?: 'Google Gemini' } = {
+  const response: NumberAnalysisResponse & { analysisId: string; requestId: string; mode: NumberAnalysisMode; purpose: NumberPurpose; fiveElement: ReturnType<typeof buildNumberFiveElementResult>; googleExplanation?: string; googleProvider?: 'Google Gemini'; iching: { hexagramName: string; kingWen: number; patternName: string; chainScore: number; verdictLine: string; digitReadings: typeof numberIChing.digitReadings; crossChain: typeof numberIChing.crossChain; ghost: typeof numberIChing.ghost } } = {
     ...result,
     analysisId,
     requestId,
     purpose,
     fiveElement,
+    iching: {
+      hexagramName: numberIChing.hexagram.hexagramName,
+      kingWen: numberIChing.hexagram.kingWen,
+      patternName: numberIChing.patternName,
+      chainScore: numberIChing.chainScore,
+      verdictLine: numberIChing.verdictLine,
+      digitReadings: numberIChing.digitReadings,
+      crossChain: numberIChing.crossChain,
+      ghost: numberIChing.ghost,
+    },
     ...(googleExplanation ? { googleExplanation, googleProvider: 'Google Gemini' as const } : {}),
   };
 

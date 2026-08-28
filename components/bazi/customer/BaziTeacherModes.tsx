@@ -98,7 +98,7 @@ function currentLuck(view: BaziCustomerView) {
 
 /**
  * 兩位老師只讀同一張 BaziCustomerView；不重算四柱、不改動既有核心。
- * 目前先提供可驗證的本地解讀模組，底層獨立 AI 服務會在後續任務另行接入。
+ * 目前先提供可驗證的本地解讀模組，底層獨立 易經服務會在後續任務另行接入。
  */
 export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView; onOpenFull: () => void }) {
   const [active, setActive] = useState<TeacherMode>('CHART');
@@ -247,7 +247,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
   }, [active, googleRequestKey, horrorRun]);
 
   return (
-    <section className="space-y-4" aria-label="AI 八字老師解盤">
+    <section className="space-y-4" aria-label="易經八字老師解盤">
       <div className="rounded-[22px] border-2 border-amber-200/60 bg-[linear-gradient(135deg,rgba(120,53,15,0.2),rgba(2,6,23,0.62))] p-3 shadow-[0_0_26px_rgba(251,191,36,0.16)]">
         <p className="rounded-xl border-2 border-amber-100/60 bg-amber-300/12 px-3 py-2 text-[11px] font-black tracking-[0.16em] text-amber-100 shadow-[0_0_16px_rgba(251,191,36,0.12)]">友善引導・先選一位老師開始解盤</p>
         <div className="grid gap-2 sm:grid-cols-2">

@@ -6,7 +6,7 @@
  * 鐵律（規格 §0/§4/§21/§22）：
  * - 不觸碰任何塔羅元件/狀態/邏輯；本卡無塔羅依賴。
  * - 五行數值只讀既有後端正式結果（八字每日分析紀錄之 elementStatistics）；
- *   Frontend/Adapter 零計算、零 AI 補值。
+ *   Frontend/Adapter 零計算、零 易經補值。
  * - 缺資料 → 節點仍在、數值顯示「—」；0 只有後端明確回傳 0 才顯示。
  * - 動畫一次性完成後靜態（無旋轉、無粒子、無 WebGL）。
  */
@@ -65,7 +65,7 @@ export function FiveElementOrbitCard() {
 
       {!hasData && (
         <p className="mt-3 rounded-2xl bg-white/[0.04] px-4 py-2.5 text-center text-xs font-semibold leading-5 text-white/50">
-          尚無你的五行資料——完成一次 AI 八字命盤後，這裡會顯示你的真實五行強弱。
+          尚無你的五行資料——完成一次 易經八字命盤後，這裡會顯示你的真實五行強弱。
         </p>
       )}
     </section>

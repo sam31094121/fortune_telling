@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
  *   /api/ziwei-debug?debugZiwei=1&date=1979-9-2&timeIndex=2&gender=女
  *   /api/ziwei-debug?debugZiwei=1&calendar=lunar&date=1979-7-11&timeIndex=2&gender=女
  *
- * 只輸出排盤驗證資訊，不觸碰塔羅牌、AI 文案、卡片 UI 與客戶流程。
+ * 只輸出排盤驗證資訊，不觸碰塔羅牌、易經文案、卡片 UI 與客戶流程。
  * 只有全部 PASS 才回報 ZIWEI_CHART_CERTIFIED=true。
  */
 export async function GET(request: Request) {

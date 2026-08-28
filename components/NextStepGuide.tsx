@@ -16,7 +16,7 @@ const SYSTEMS: Record<SystemKey, SystemMeta> = {
   music: {
     href: '/music',
     emoji: '歌',
-    title: 'AI 生成一首歌',
+    title: '易經生成一首歌',
     desc: '用文字或錄音整理你的狀態，生成更貼近自己的專屬音樂。',
     tone: 'violet',
   },
@@ -62,7 +62,7 @@ export default function NextStepGuide({ current, hideDestinations = [] }: { curr
         <p className="text-xs uppercase tracking-[0.35em] text-[color:var(--text-muted)]">下一步</p>
         <h3 className="mt-2 font-serif text-2xl text-[color:var(--text-main)]">繼續完成更多分析</h3>
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-[color:var(--text-sub)]">
-          每完成一張卡片，AI 個人成長中心就會多一份資料，最後統整出本週行動與本月能量色。
+          每完成一張卡片，易經個人成長中心就會多一份資料，最後統整出本週行動與本月能量色。
         </p>
       </div>
 
@@ -96,7 +96,7 @@ export default function NextStepGuide({ current, hideDestinations = [] }: { curr
           href="/growth-center"
           className="inline-flex items-center justify-center rounded-full border border-emerald-300/25 bg-emerald-300/10 px-5 py-3 text-xs font-black tracking-[0.16em] text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15"
         >
-          查看 AI 個人成長中心
+          查看 易經個人成長中心
         </Link>
       </div>
     </div>

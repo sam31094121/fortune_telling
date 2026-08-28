@@ -260,7 +260,7 @@ export function assertChartCertifiedForAi(
       missingMajorStars: chart.validation.majorStars.missing,
       duplicateMajorStars: chart.validation.majorStars.duplicate,
     });
-    throw new Error('紫微斗數排盤驗證失敗，禁止進入 AI 解盤');
+    throw new Error('紫微斗數排盤驗證失敗，禁止進入 易經解盤');
   }
 }
 

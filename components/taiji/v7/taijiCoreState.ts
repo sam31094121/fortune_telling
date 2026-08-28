@@ -30,7 +30,7 @@ export interface TaijiCoreState {
     completed: number;
     total: number;
   };
-  /** AI 判定的唯一下一步（例：AI 紫微斗數） */
+  /** 易經卜卦判定的唯一下一步（例：易經紫微斗數） */
   nextModule?: string;
   /** 有真實資料才提供；沒有真實資料禁止顯示元素訊號 */
   primaryElement?: TaijiElement;

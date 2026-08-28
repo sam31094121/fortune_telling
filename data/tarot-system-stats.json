@@ -41,7 +41,7 @@
         "id": "user_draw",
         "title": "使用者親手抽牌",
         "complete": true,
-        "detail": "後端只提供牌背牌序與 session，AI 不代替使用者選牌。"
+        "detail": "後端只提供牌背牌序與 session，易經不代替使用者選牌。"
       },
       {
         "id": "orientation",
@@ -57,7 +57,7 @@
       },
       {
         "id": "ai_interpretation",
-        "title": "AI 交叉解讀",
+        "title": "易經交叉解讀",
         "complete": true,
         "detail": "解讀根據問題、類別、牌陣、牌位、正逆位與五元素權重產生。"
       },

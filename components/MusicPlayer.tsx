@@ -76,7 +76,7 @@ export default function MusicPlayer({
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-[color:var(--text-muted)]">{label}</p>
             <p className="font-serif text-base text-[color:var(--text-main)]">
-              AI 音樂共鳴度 {affinityScore ?? 0}
+              易經音樂共鳴度 {affinityScore ?? 0}
             </p>
           </div>
 

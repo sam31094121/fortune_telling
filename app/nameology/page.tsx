@@ -357,7 +357,7 @@ function NameologyAiFlowLayers({ analysis }: { analysis: NameologyAnalysis }) {
   return (
     <section className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
       <div className="fortune-card border-violet-300/20 bg-slate-950/55 p-5 sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.28em] text-violet-300">AI INTERPRETATION</p>
+        <p className="text-xs font-bold uppercase tracking-[0.28em] text-violet-300">I-CHING INTERPRETATION</p>
         <h2 className="mt-3 break-words font-serif text-3xl font-black text-violet-100 sm:text-4xl">
           {'\u7b2c\u4e8c\u5c64\uff5cAI \u6df1\u5ea6\u89e3\u8b80'}
         </h2>
@@ -399,7 +399,7 @@ function NameologyAiFlowLayers({ analysis }: { analysis: NameologyAnalysis }) {
       </div>
 
       <div className="fortune-card border-amber-300/25 bg-amber-950/10 p-5 sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.28em] text-amber-300">AI REINFORCEMENT</p>
+        <p className="text-xs font-bold uppercase tracking-[0.28em] text-amber-300">I-CHING REINFORCEMENT</p>
         <h2 className="mt-3 break-words font-serif text-3xl font-black text-amber-100 sm:text-4xl">
           {'\u7b2c\u4e09\u5c64\uff5cAI \u88dc\u5f37\u65b9\u6848'}
         </h2>
@@ -448,7 +448,7 @@ function NameologyCustomerSummary({ analysis }: { analysis: NameologyAnalysis })
             {analysis.name} 的姓名支點
           </h2>
           <p className="mt-4 text-sm font-semibold leading-8 text-[color:var(--text-sub)]">
-            AI 已先讀取臺灣繁體姓名字典，先確認每個字的部首與總筆畫，再整合生日與性別。客戶第一眼只看結論：姓名如何被記住、今天先補哪一個方向、下一步怎麼做。
+            易經已先讀取臺灣繁體姓名字典，先確認每個字的部首與總筆畫，再整合生日與性別。客戶第一眼只看結論：姓名如何被記住、今天先補哪一個方向、下一步怎麼做。
           </p>
         </div>
         <div className="grid shrink-0 grid-cols-2 gap-3 lg:w-[260px]">
@@ -519,15 +519,15 @@ function NameologyUltimateDecisionPanel({ analysis }: { analysis: NameologyAnaly
   return (
     <section className="fortune-card overflow-hidden border-amber-300/35 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),rgba(15,23,42,0.90)_58%,rgba(2,6,23,0.98)_100%)] p-5 sm:p-7">
       <div className="min-w-0">
-        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">AI NAME JUDGEMENT</p>
+        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">I-CHING NAME JUDGEMENT</p>
         <h2 className="mt-3 break-words font-serif text-4xl font-black leading-tight text-amber-100 sm:text-5xl">{output.name.normalized}</h2>
         <p className="mt-3 text-sm font-bold leading-7 text-cyan-100">台灣正體字典資料已確認</p>
         <p className="text-sm font-bold leading-7 text-cyan-100">後端姓名結構運算已完成</p>
       </div>
 
       <div className="mt-5 rounded-2xl border border-amber-200/25 bg-black/25 p-4">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">AI 最終判定</p>
-        <p className="mt-3 break-words text-base font-black leading-8 text-amber-50">AI 判定：{layer1.coreJudgment}</p>
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">易經最終判定</p>
+        <p className="mt-3 break-words text-base font-black leading-8 text-amber-50">易經卜卦判定：{layer1.coreJudgment}</p>
       </div>
 
       <div className="mt-4 grid gap-3">
@@ -739,13 +739,13 @@ function NameologyEssenceDetails({ analysis }: { analysis: NameologyAnalysis }) 
   return (
     <details className="fortune-card overflow-hidden border-violet-300/20 bg-slate-950/55 p-5 sm:p-6">
       <summary className="flex min-h-[52px] cursor-pointer items-center justify-between gap-3 text-base font-black leading-7 text-violet-100">
-        <span>一般模式 · AI 精華分析</span>
+        <span>一般模式 · 易經精華分析</span>
         <span className="shrink-0 text-xs font-bold text-violet-100/65">3 個重點</span>
       </summary>
       <div className="mt-4 space-y-4">
         <div className="rounded-2xl border border-violet-200/15 bg-violet-950/15 p-4">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-violet-200/80">Simple View</p>
-          <p className="mt-2 text-sm font-black leading-7 text-violet-50">AI 已把重複語意整理乾淨，只保留最需要先理解的三件事。</p>
+          <p className="mt-2 text-sm font-black leading-7 text-violet-50">易經已把重複語意整理乾淨，只保留最需要先理解的三件事。</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           {visibleSignals.map((item, index) => {
@@ -1173,7 +1173,7 @@ export default function NameologyPage() {
   return (
     <main className="app-bg min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
-        <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="AI 姓名學" onViewResult={dailyRecord ? () => void handleSubmit() : undefined} />
+        <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="易經姓名學" onViewResult={dailyRecord ? () => void handleSubmit() : undefined} />
         <section id="nameology-input-form" className="fortune-card p-5 sm:p-8 scroll-mt-20">
           {/* 品牌標題視覺（2026-08-13 依指示）：與八字/塔羅同語言——置中、對稱引線、金色漸層、柔光、星芒收尾 */}
           <div className="flex items-center justify-center gap-3 text-center">
@@ -1182,7 +1182,7 @@ export default function NameologyPage() {
             <span className="h-px w-12 bg-gradient-to-l from-transparent to-amber-300/80" aria-hidden="true" />
           </div>
           <h1 className="mx-auto mt-4 bg-gradient-to-br from-amber-50 via-amber-100 to-amber-300/80 bg-clip-text text-center font-serif text-5xl font-black leading-[1.08] tracking-[0.1em] text-transparent drop-shadow-[0_0_32px_rgba(251,191,36,0.3)] sm:text-6xl lg:text-7xl">
-            AI 姓名學
+            易經姓名學
           </h1>
           <div className="mx-auto mt-4 flex items-center justify-center gap-2" aria-hidden="true">
             <span className="h-px w-16 bg-gradient-to-r from-transparent to-amber-200/70" />

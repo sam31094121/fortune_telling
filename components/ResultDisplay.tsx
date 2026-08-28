@@ -17,7 +17,7 @@ interface ResultDisplayProps {
 
 const CUSTOMER_FLOW_DISPLAY = [
   { label: '資料已收好', desc: '生日與血型已完成初步整理' },
-  { label: 'AI 已歸納', desc: '背景運算只留下關鍵訊號' },
+  { label: '易經已歸納', desc: '背景運算只留下關鍵訊號' },
   { label: '白話呈現', desc: '結果用容易理解的方式顯示' },
 ];
 
@@ -47,7 +47,7 @@ export default function ResultDisplay({
     : [
         { title: '性格底色', body: enforceAiCopywritingTone(previewResult.skeleton_summary), tone: 'sky' },
         { title: '日常行為傾向', body: enforceAiCopywritingTone(previewResult.behavior_summary), tone: 'earth' },
-        { title: 'AI 整理重點', body: enforceAiCopywritingTone(previewResult.preview_summary), tone: 'human' },
+        { title: '易經整理重點', body: enforceAiCopywritingTone(previewResult.preview_summary), tone: 'human' },
       ];
 
   const unlockProgress = useMemo(() => (isUnlocked ? 100 : 70), [isUnlocked]);
@@ -224,7 +224,7 @@ export default function ResultDisplay({
           <p className="text-xs uppercase tracking-[0.35em] text-amber-300">最終提醒</p>
           <h3 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">以善為本，才能讓命運更順</h3>
           <p className="mt-4 text-sm leading-8 text-[color:var(--text-main)]">
-            AI 分析可以幫你看見自己的底層傾向，但真正能讓人生變好的，還是你每天的選擇。
+            易經卜卦分析可以幫你看見自己的底層傾向，但真正能讓人生變好的，還是你每天的選擇。
             多行善、守信用、善待關係，才能把好的共鳴真正落到現實裡。
           </p>
 

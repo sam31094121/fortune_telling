@@ -82,6 +82,7 @@ const TIER_TINT_BASE_DECADE = TIER_TINTS[0][0];
 
 const ABYSS_PARTICLE_COUNT = 1600;
 const WHITE_HOLE_PARTICLE_COUNT = 420;
+const QUANTUM_TAIJI_PARTICLE_COUNT = 2400;
 
 function buildSoftPhotonTexture() {
   const canvas = document.createElement('canvas');
@@ -146,6 +147,59 @@ function buildWhiteHoleJetGeometry() {
   }
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  return geometry;
+}
+
+/* 第 24 層專用：全新生成的量子太極點雲。
+   不讀取、不取樣、也不複用第 1 層貼圖；陰陽只由粒子位置的相位關係推導。 */
+function quantumTaijiPolarity(x: number, y: number) {
+  const halfR = 0.5;
+  const eye = 0.115;
+  const dUp = Math.hypot(x, y - halfR);
+  const dLo = Math.hypot(x, y + halfR);
+  let polarity = x >= 0 ? 1 : -1;
+  if (dUp < halfR) polarity = -1;
+  if (dLo < halfR) polarity = 1;
+  if (dUp < eye) polarity = 1;
+  if (dLo < eye) polarity = -1;
+  return polarity;
+}
+
+function buildQuantumTaijiGeometry() {
+  const positions = new Float32Array(QUANTUM_TAIJI_PARTICLE_COUNT * 3);
+  const seeds = new Float32Array(QUANTUM_TAIJI_PARTICLE_COUNT);
+  const polarities = new Float32Array(QUANTUM_TAIJI_PARTICLE_COUNT);
+  const features = new Float32Array(QUANTUM_TAIJI_PARTICLE_COUNT);
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+  let seed = 24024;
+  const rand = () => {
+    seed = (seed * 16807) % 2147483647;
+    return seed / 2147483647;
+  };
+  for (let index = 0; index < QUANTUM_TAIJI_PARTICLE_COUNT; index += 1) {
+    // 以有厚度的圓盤而不是球殼承載陰陽分域；正面保持清楚，側視仍有真實視差與透明深度。
+    const radius = Math.sqrt((index + 0.5) / QUANTUM_TAIJI_PARTICLE_COUNT);
+    const theta = goldenAngle * index;
+    const x = Math.cos(theta) * radius;
+    const y = Math.sin(theta) * radius;
+    const z = (rand() - 0.5) * 0.3 * (1 - radius * 0.48);
+    const offset = index * 3;
+    positions[offset] = x;
+    positions[offset + 1] = y;
+    positions[offset + 2] = z;
+    seeds[index] = rand();
+    polarities[index] = quantumTaijiPolarity(x, y);
+    const dUp = Math.hypot(x, y - 0.5);
+    const dLo = Math.hypot(x, y + 0.5);
+    const isEye = dUp < 0.14 || dLo < 0.14;
+    const isPhaseBoundary = Math.abs(dUp - 0.5) < 0.026 || Math.abs(dLo - 0.5) < 0.026;
+    features[index] = isEye ? 2 : isPhaseBoundary ? 1 : 0;
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
+  geometry.setAttribute('aPolarity', new THREE.BufferAttribute(polarities, 1));
+  geometry.setAttribute('aFeature', new THREE.BufferAttribute(features, 1));
   return geometry;
 }
 
@@ -220,6 +274,63 @@ const ABYSS_FRAGMENT = /* glsl */ `
   }
 `;
 
+const QUANTUM_TAIJI_VERTEX = /* glsl */ `
+  attribute float aSeed;
+  attribute float aPolarity;
+  attribute float aFeature;
+  uniform float uTime;
+  uniform float uReveal;
+  varying float vSeed;
+  varying float vPolarity;
+  varying float vDepth;
+  varying float vFeature;
+  void main() {
+    vSeed = aSeed;
+    vPolarity = aPolarity;
+    vFeature = aFeature;
+    vec3 p = position;
+    float direction = aPolarity < 0.0 ? -1.0 : 1.0;
+    float angle = direction * (0.1 + 0.055 * sin(uTime * 0.7 + aSeed * 18.0));
+    mat2 spin = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+    p.xz = spin * p.xz;
+    p += normalize(p) * sin(uTime * 1.15 + aSeed * 42.0) * 0.025;
+    vec4 mv = modelViewMatrix * vec4(p, 1.0);
+    gl_Position = projectionMatrix * mv;
+    float featureSize = aFeature > 1.5 ? 3.0 : (aFeature > 0.5 ? 1.45 : 1.0);
+    float size = (1.25 + aSeed * 2.2) * featureSize * uReveal * (84.0 / max(0.6, -mv.z));
+    gl_PointSize = min(size, 18.0);
+    vDepth = clamp(1.0 + mv.z * 0.08, 0.28, 1.0);
+  }
+`;
+
+const QUANTUM_TAIJI_FRAGMENT = /* glsl */ `
+  precision highp float;
+  uniform float uTime;
+  uniform float uReveal;
+  uniform vec3 uYin;
+  uniform vec3 uYang;
+  uniform vec3 uSpark;
+  varying float vSeed;
+  varying float vPolarity;
+  varying float vDepth;
+  varying float vFeature;
+  void main() {
+    vec2 uv = gl_PointCoord - 0.5;
+    float radius = length(uv);
+    if (radius > 0.5) discard;
+    float glow = pow(1.0 - radius * 2.0, 2.7);
+    float photon = pow(0.5 + 0.5 * sin(uTime * 2.3 + vSeed * 55.0), 7.0);
+    vec3 phaseColor = mix(uYin, uYang, step(0.0, vPolarity));
+    vec3 color = mix(phaseColor, uSpark, photon * 0.24);
+    float boundary = step(0.5, vFeature) * (1.0 - step(1.5, vFeature));
+    float eye = step(1.5, vFeature);
+    color = mix(color, uSpark, boundary * 0.68);
+    color = mix(color, phaseColor * 1.45, eye * 0.9);
+    float alpha = glow * uReveal * vDepth * (0.34 + photon * 0.56 + boundary * 0.34 + eye * 0.65);
+    gl_FragColor = vec4(color * alpha, alpha);
+  }
+`;
+
 export default function TaijiAbyssField({
   magRef,
   warmRef,
@@ -228,8 +339,6 @@ export default function TaijiAbyssField({
   yinColor,
   yangColor,
   sparkColor,
-  coreTexture,
-  coreBumpMap,
 }: {
   magRef: MagRef;
   warmRef: WarmRef;
@@ -243,9 +352,6 @@ export default function TaijiAbyssField({
   yinColor: string;
   yangColor: string;
   sparkColor: string;
-  /** 第 24 層「宇宙太極」收尾：直接複用卡片最外層第 1 層的貼圖，首尾閉合成同一顆核心 */
-  coreTexture?: THREE.Texture | null;
-  coreBumpMap?: THREE.Texture | null;
 }) {
   const [armed, setArmed] = useState(false);
   const rootRef = useRef<THREE.Group>(null);
@@ -254,12 +360,7 @@ export default function TaijiAbyssField({
   const blackHoleJetsRef = useRef<THREE.Points>(null);
   const whiteHoleRef = useRef<THREE.Mesh>(null);
   const whiteHoleJetsRef = useRef<THREE.Points>(null);
-  const finaleCoreRef = useRef<THREE.Mesh>(null);
-
-  const coreTextureRef = useRef(coreTexture);
-  const coreBumpMapRef = useRef(coreBumpMap);
-  coreTextureRef.current = coreTexture;
-  coreBumpMapRef.current = coreBumpMap;
+  const finaleCoreRef = useRef<THREE.Points>(null);
   const tintScratchRef = useRef(new THREE.Color());
 
   const built = useMemo(() => {
@@ -273,8 +374,8 @@ export default function TaijiAbyssField({
         uReveal: { value: 0 },
         uAbyss: { value: 0 },
         uSuction: { value: 0 },
-        uYin: { value: new THREE.Color(yinColor) },
-        uYang: { value: new THREE.Color(yangColor) },
+        uYin: { value: new THREE.Color('#55d8ff') },
+        uYang: { value: new THREE.Color('#ffb62e') },
         uSpark: { value: new THREE.Color(sparkColor) },
         uTierTint: { value: new THREE.Color(TIER_TINT_COLORS[0]) },
       },
@@ -286,18 +387,20 @@ export default function TaijiAbyssField({
     /* 2026-08-22 效能調整：跟 TaijiCellularCore 同樣的道理——降的是多邊形密度，
        不是內部渲染解析度／貼圖／DPR，那些維持只准往上不變。 */
     const finaleGeometry = new THREE.SphereGeometry(1, 64, 64);
-    const finaleCoreMaterial = new THREE.MeshPhysicalMaterial({
-      map: coreTextureRef.current ?? null,
-      bumpMap: coreBumpMapRef.current ?? null,
-      bumpScale: 0.012,
-      metalness: 0.3,
-      roughness: 0.2,
-      clearcoat: 0.9,
-      clearcoatRoughness: 0.12,
-      envMapIntensity: 1.3,
+    const finaleQuantumGeometry = buildQuantumTaijiGeometry();
+    const finaleCoreMaterial = new THREE.ShaderMaterial({
+      vertexShader: QUANTUM_TAIJI_VERTEX,
+      fragmentShader: QUANTUM_TAIJI_FRAGMENT,
+      uniforms: {
+        uTime: { value: 0 },
+        uReveal: { value: 0 },
+        uYin: { value: new THREE.Color(yinColor) },
+        uYang: { value: new THREE.Color(yangColor) },
+        uSpark: { value: new THREE.Color(sparkColor) },
+      },
       transparent: true,
-      opacity: 0,
       depthWrite: false,
+      blending: THREE.AdditiveBlending,
     });
 
     // 黑洞與白洞不是外加的行星，而是同一批粒子在吸入／噴出兩個瞬間的中心狀態。
@@ -318,7 +421,7 @@ export default function TaijiAbyssField({
     const blackHoleJetGeometry = buildWhiteHoleJetGeometry();
     const softPhotonTexture = buildSoftPhotonTexture();
     const blackHoleJetMaterial = new THREE.PointsMaterial({
-      color: '#9fc4e8',
+      color: '#58c7ff',
       transparent: true,
       opacity: 0,
       size: 0.07,
@@ -329,7 +432,7 @@ export default function TaijiAbyssField({
       blending: THREE.AdditiveBlending,
     });
     const whiteHoleJetMaterial = new THREE.PointsMaterial({
-      color: '#fff4c8',
+      color: '#ffb52e',
       transparent: true,
       opacity: 0,
       size: 0.085,
@@ -340,7 +443,7 @@ export default function TaijiAbyssField({
       blending: THREE.AdditiveBlending,
     });
 
-    return { fieldGeometry, fieldMaterial, finaleGeometry, finaleCoreMaterial, blackHoleMaterial, whiteHoleMaterial, softPhotonTexture, blackHoleJetGeometry, blackHoleJetMaterial, whiteHoleJetGeometry, whiteHoleJetMaterial };
+    return { fieldGeometry, fieldMaterial, finaleGeometry, finaleQuantumGeometry, finaleCoreMaterial, blackHoleMaterial, whiteHoleMaterial, softPhotonTexture, blackHoleJetGeometry, blackHoleJetMaterial, whiteHoleJetGeometry, whiteHoleJetMaterial };
   }, [armed, yinColor, yangColor, sparkColor]);
 
   useEffect(
@@ -348,6 +451,7 @@ export default function TaijiAbyssField({
       built?.fieldGeometry.dispose();
       built?.fieldMaterial.dispose();
       built?.finaleGeometry.dispose();
+      built?.finaleQuantumGeometry.dispose();
       built?.finaleCoreMaterial.dispose();
       built?.blackHoleMaterial.dispose();
       built?.blackHoleJetGeometry.dispose();
@@ -359,13 +463,6 @@ export default function TaijiAbyssField({
     },
     [built],
   );
-
-  useEffect(() => {
-    if (!built) return;
-    built.finaleCoreMaterial.map = coreTexture ?? null;
-    built.finaleCoreMaterial.bumpMap = coreBumpMap ?? null;
-    built.finaleCoreMaterial.needsUpdate = true;
-  }, [built, coreTexture, coreBumpMap]);
 
   useFrame((state, delta) => {
     const magnifierDepth = magRef.current.current * MAG_DECADES;
@@ -391,6 +488,7 @@ export default function TaijiAbyssField({
     const camera = state.camera as THREE.PerspectiveCamera;
     const halfHeight = camera.position.length() * Math.tan((camera.fov * Math.PI) / 360);
     const spin = Math.min(delta, 1 / 45) * 0.05;
+    const isJourneyEnd = journeyStep >= 21 && journeyStep <= 24;
 
     const abyss = smoothstep(CLARITY_START, CLARITY_END, d);
 
@@ -403,11 +501,22 @@ export default function TaijiAbyssField({
 
     const pull = smoothstep(PULL_IN, PULL_PEAK, d) * (1 - smoothstep(PULL_PEAK, HOLD_END, d));
     const push = smoothstep(HOLD_END, BURST_OUT, d) * (1 - smoothstep(BURST_OUT, BURST_END, d) * 0.999);
-    const suction = pull - push;
+    const journeySuction: Record<number, number> = { 21: 0.94, 22: -1, 23: 0, 24: 0 };
+    const suction = isJourneyEnd ? journeySuction[journeyStep] : pull - push;
     // 旅程視覺錨點：20 層黑洞吞入、21～22 層白洞噴出。它們隨著同一個深場自轉，
     // 不是獨立漂浮的天體。
-    const blackHoleReveal = smoothstep(19.2, 20.0, d) * (1 - smoothstep(20.75, 21.15, d));
-    const whiteHoleReveal = smoothstep(20.75, 21.35, d) * (1 - smoothstep(23.0, 23.65, d));
+    const blackHoleReveal = isJourneyEnd
+      ? 0
+      : smoothstep(19.2, 20.0, d) * (1 - smoothstep(20.75, 21.15, d));
+    const whiteHoleReveal = isJourneyEnd
+      ? (journeyStep === 22 ? 1 : 0)
+      : smoothstep(20.75, 21.35, d) * (1 - smoothstep(23.0, 23.65, d));
+    const blackJetReveal = isJourneyEnd
+      ? (journeyStep === 21 ? 1 : journeyStep === 23 ? 0.62 : 0)
+      : blackHoleReveal;
+    const whiteJetReveal = isJourneyEnd
+      ? (journeyStep === 22 ? 1 : journeyStep === 23 ? 0.62 : 0)
+      : whiteHoleReveal;
 
     /* 遙遠感：相位潮汐開始退遠，事件視界前的引力（pull）把它拉回來——但退遠只能是
        「越看越深」，不能讀成「畫面死掉了」，所以縮小/變暗的幅度收斂很多；
@@ -448,13 +557,20 @@ export default function TaijiAbyssField({
     built.blackHoleMaterial.opacity = blackHoleReveal;
     const blackHoleJets = blackHoleJetsRef.current;
     if (blackHoleJets) {
-      blackHoleJets.visible = blackHoleReveal > 0.002;
-      // 反向旋轉與逐步縮小，讓粒子是被黑洞吸入，而非停在周圍。
-      blackHoleJets.scale.setScalar(halfHeight * (0.86 - blackHoleReveal * 0.43));
+      blackHoleJets.visible = blackJetReveal > 0.002;
+      if (journeyStep === 23) {
+        blackHoleJets.scale.set(halfHeight * 0.92, halfHeight * 0.48, halfHeight * 0.3);
+        blackHoleJets.position.set(-halfHeight * 0.24, halfHeight * 0.1, 0);
+        blackHoleJets.rotation.z = -0.82;
+      } else {
+        blackHoleJets.scale.setScalar(halfHeight * (0.86 - blackHoleReveal * 0.43));
+        blackHoleJets.position.set(0, 0, 0);
+        blackHoleJets.rotation.z = 0;
+      }
       blackHoleJets.rotation.y -= Math.min(delta, 1 / 45) * 0.92;
       blackHoleJets.rotation.x = Math.sin(t * 0.48) * 0.18;
     }
-    built.blackHoleJetMaterial.opacity = blackHoleReveal * 0.9;
+    built.blackHoleJetMaterial.opacity = blackJetReveal * (journeyStep === 23 ? 0.62 : 0.78);
 
     const whiteHole = whiteHoleRef.current;
     if (whiteHole) {
@@ -465,29 +581,45 @@ export default function TaijiAbyssField({
     built.whiteHoleMaterial.opacity = 0;
     const whiteHoleJets = whiteHoleJetsRef.current;
     if (whiteHoleJets) {
-      whiteHoleJets.visible = whiteHoleReveal > 0.002;
-      whiteHoleJets.scale.setScalar(halfHeight * (0.34 + whiteHoleReveal * 0.82));
+      whiteHoleJets.visible = whiteJetReveal > 0.002;
+      if (journeyStep === 23) {
+        whiteHoleJets.scale.set(halfHeight * 0.92, halfHeight * 0.48, halfHeight * 0.3);
+        whiteHoleJets.position.set(halfHeight * 0.24, -halfHeight * 0.1, 0);
+        whiteHoleJets.rotation.z = 0.82;
+      } else if (journeyStep === 22) {
+        whiteHoleJets.scale.set(halfHeight * 1.55, halfHeight * 1.15, halfHeight * 0.72);
+        whiteHoleJets.position.set(0, 0, 0);
+        whiteHoleJets.rotation.z = t * 0.12;
+      } else {
+        whiteHoleJets.scale.setScalar(halfHeight * (0.34 + whiteHoleReveal * 0.82));
+        whiteHoleJets.position.set(0, 0, 0);
+        whiteHoleJets.rotation.z = 0;
+      }
       whiteHoleJets.rotation.y += Math.min(delta, 1 / 45) * 0.72;
       whiteHoleJets.rotation.x = Math.sin(t * 0.44) * 0.22;
     }
-    built.whiteHoleJetMaterial.opacity = whiteHoleReveal * 0.94;
+    built.whiteHoleJetMaterial.opacity = whiteJetReveal * (journeyStep === 22 ? 0.92 : journeyStep === 23 ? 0.62 : 0.78);
 
-    // 點擊旅程第 20～23 層只呈現黑洞吸入與白洞噴出；最後一層才把噴出的粒子合回太極。
+    // 第 24 層由全新的量子點雲生成太極；不載入第 1 層貼圖，也不讓原球回場。
     const journeyFinale = journeyStep >= 24 ? smoothstep(23.35, 24, journeyStep) : 0;
     const finaleReveal = journeyStep > 0 ? journeyFinale : smoothstep(FINALE_IN, FINALE_FULL, d);
     const finaleCore = finaleCoreRef.current;
     if (finaleCore) {
-      // 拿掉外圈軌道環之後，核心單獨撐開構圖，把原本環佔的視覺份量收回自己身上
-      finaleCore.scale.setScalar(halfHeight * (0.05 + finaleReveal * 0.46));
-      // 回歸的太極維持立體自轉，讓終局是同一顆 3D 圖騰而不是靜態片尾。
-      finaleCore.rotation.y += Math.min(delta, 1 / 45) * 0.34;
-      finaleCore.rotation.x = Math.sin(t * 0.28) * 0.16;
+      finaleCore.visible = finaleReveal > 0.002;
+      finaleCore.scale.setScalar(halfHeight * (0.04 + finaleReveal * 0.58));
+      // 陰、陽點雲在著色器裡反向相位旋轉；整體再低速自轉，呈現持續糾纏而非靜態圖案。
+      finaleCore.rotation.z += Math.min(delta, 1 / 45) * 0.1;
+      finaleCore.rotation.y = Math.sin(t * 0.18) * 0.16;
+      finaleCore.rotation.x = Math.sin(t * 0.24) * 0.1;
     }
-    built.finaleCoreMaterial.opacity = finaleReveal;
+    built.finaleCoreMaterial.uniforms.uTime.value = t;
+    built.finaleCoreMaterial.uniforms.uReveal.value = finaleReveal;
 
     // 深淵場本身在終局淡出，把畫面交給重新浮現的太極全貌（疊乘遙遠感、段落脈動與歸零/回聲兩拍，不覆蓋掉它們）
-    built.fieldMaterial.uniforms.uReveal.value =
-      reveal * (1 - recede * 0.12) * (1 + tierBeat * 0.4) * (1 - stillness * 0.45) * (1 + echoPulse * 0.5) * (1 - finaleReveal * 0.7) * (1 - Math.max(blackHoleReveal, whiteHoleReveal));
+    const journeyFieldReveal: Record<number, number> = { 21: 0.42, 22: 0.24, 23: 0.04, 24: 0 };
+    built.fieldMaterial.uniforms.uReveal.value = isJourneyEnd
+      ? journeyFieldReveal[journeyStep]
+      : reveal * (1 - recede * 0.12) * (1 + tierBeat * 0.4) * (1 - stillness * 0.45) * (1 + echoPulse * 0.5) * (1 - finaleReveal * 0.7) * (1 - Math.max(blackHoleReveal, whiteHoleReveal));
   });
 
   if (!built) return null;
@@ -499,7 +631,7 @@ export default function TaijiAbyssField({
       <points ref={blackHoleJetsRef} geometry={built.blackHoleJetGeometry} material={built.blackHoleJetMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
       <mesh ref={whiteHoleRef} geometry={built.finaleGeometry} material={built.whiteHoleMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
       <points ref={whiteHoleJetsRef} geometry={built.whiteHoleJetGeometry} material={built.whiteHoleJetMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
-      <mesh ref={finaleCoreRef} geometry={built.finaleGeometry} material={built.finaleCoreMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
+      <points ref={finaleCoreRef} geometry={built.finaleQuantumGeometry} material={built.finaleCoreMaterial} frustumCulled={false} raycast={NO_RAYCAST} />
     </group>
   );
 }

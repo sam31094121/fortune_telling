@@ -193,7 +193,7 @@ export default function TaijiCoreV7({
             <span className="taiji-v7__ritual" aria-live="polite">
               <span data-done={state.analysisStatus !== 'RECEIVED'}>資料確認 ✓</span>
               <span data-done={state.analysisStatus === 'INTEGRATING' || state.analysisStatus === 'QUALITY_CHECK' || state.analysisStatus === 'READY'}>專業引擎 ✓</span>
-              <span data-done={state.analysisStatus === 'QUALITY_CHECK' || state.analysisStatus === 'READY'}>AI 整合 ✓</span>
+              <span data-done={state.analysisStatus === 'QUALITY_CHECK' || state.analysisStatus === 'READY'}>易經整合 ✓</span>
               <span data-done={state.analysisStatus === 'READY'}>品質確認 ✓</span>
             </span>
           )}

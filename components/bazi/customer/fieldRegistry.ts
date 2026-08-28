@@ -54,12 +54,12 @@ export const BAZI_PROFESSIONAL_FIELD_REGISTRY: Record<string, BaziFieldRegistryE
   daYun: { required: true, level: [2, 3], accessor: 'luckCycles', components: ['adapter.ts', 'ProfessionalBaziTable.tsx'] },
   // I｜流年
   annualLuck: { required: true, level: [2, 3], accessor: 'annualFortunes', components: ['adapter.ts', 'ProfessionalBaziTable.tsx'] },
-  // AI 解讀層（Interpretation，不是 Calculation）
+  // 易經解讀層（Interpretation，不是 Calculation）
   aiDeepAnalysis: { required: true, level: [2], accessor: 'aiDeepAnalysis', components: ['adapter.ts'] },
   aiLogicTrace: { required: true, level: [3], accessor: 'logicTrace', components: ['ProfessionalBaziTable.tsx'] },
   aiElementPriority: { required: true, level: [3], accessor: 'elementPriority', components: ['ProfessionalBaziTable.tsx'] },
   aiReinforcementPlan: { required: true, level: [2], accessor: 'reinforcement', components: ['TeacherSummary.tsx'] },
-  // V3｜基本資料完整欄位 + 未提供欄位明確標示 + AI 白話 + 推導明細
+  // V3｜基本資料完整欄位 + 未提供欄位明確標示 + 易經白話 + 推導明細
   basicInfoFull: { required: true, level: [3], accessor: 'result.input?.name', components: ['ProfessionalBaziTable.tsx'] },
   missingFieldsExplicit: { required: true, level: [3], accessor: '命局摘要', components: ['ProfessionalBaziTable.tsx'] },
   aiReading: { required: true, level: [3], accessor: 'aiReading', components: ['ProfessionalBaziTable.tsx'] },

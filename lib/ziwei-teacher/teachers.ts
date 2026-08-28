@@ -1,5 +1,5 @@
 /**
- * 三位 AI 老師（2026-08-22）｜規格「二、三、八、九、十、二十」
+ * 三位 易經老師（2026-08-22）｜規格「二、三、八、九、十、二十」
  *
  * 鐵律：三位老師只能讀 `PalaceAnalysisContext`（已驗證的正式命盤資料），
  * 不得自行安星、改宮位、改四化、猜三方四正、補不存在的星曜。
@@ -12,6 +12,8 @@
  */
 
 import { GoogleGenAI, Type } from '@google/genai';
+import { castHexagram, formatHexagramLine } from '@/lib/iching-engine';
+import { formatGhostDecoding, patternNameOf } from '@/lib/iching-psychology';
 import type {
   LifeTeacherResult,
   NarrativeTeacherResult,
@@ -126,6 +128,20 @@ function renderContext(context: PalaceAnalysisContext): string {
   ].join('\n\n');
 }
 
+/** 每一宮的易經卦象：以宮名＋主星＋流年決定性起卦，三位老師（含鬼魅老師）共用同一卦。 */
+function castPalaceHexagram(context: PalaceAnalysisContext) {
+  return castHexagram(
+    context.selectedPalace.palaceName,
+    context.selectedPalace.majorStars.map((s) => s.name).join(','),
+    context.timeContext.annualYear,
+  );
+}
+
+function renderIChing(context: PalaceAnalysisContext): string {
+  const gua = castPalaceHexagram(context);
+  return `【易經卦象（後端已決定性起卦，解讀時必須引用印證，不可自行改卦）】\n${formatHexagramLine(gua)}\n專屬格局名稱（引用時必須一字不差，禁止改名、縮寫或自創別名）：「${patternNameOf(gua)}」（六十四格裡就這一格是這張盤——特殊格局，這個人本來就很特別）\n卦義：${gua.judgment}\n卦示行動：${gua.advice}\n卜卦儀式規則（硬性要求，違反即不合格）：每位老師都是同一場易經卜卦的不同話術分身——客戶可讀的內容中，卦名「${gua.hexagramName}」與格局名稱「${patternNameOf(gua)}」兩者至少各出現一次：理性老師以定盤宣告帶出（例如「此宮起卦得○○，成『○○格』」）、恐怖老師讓卦名以壓迫倒數中的符號浮現、鬼魅老師讓卦名化為場景中隱隱發光的神祕符號、格局名稱由低語說出。整體要像剝洋蔥一層層深入，不可照抄本段原句。`;
+}
+
 function renderTimeContext(context: PalaceAnalysisContext): string {
   const time = context.timeContext;
   return `【隱藏的當下情境層：僅供推理，不得逐字展示給客戶】\n目前年齡：${time.currentAge === null ? '資料不足' : `${time.currentAge} 歲`}\n流年：${time.annualYear}${time.annualLevel ? `・${time.annualLevel}` : ''}${time.annualTheme ? `\n流年主題：${time.annualTheme}` : ''}\n當下時段類型：${time.sceneMoment}\n畫面規則：${time.sceneCue}\n要求：把這個時段轉化成合適的情境與畫面，但禁止在回答中直接說出時刻、時段類型、上午、中午、晚上或半夜。`;
@@ -184,7 +200,7 @@ function apiKey(): string {
 const STRUCTURE_SCHEMA = {
   type: Type.OBJECT,
   properties: {
-    corePattern: { type: Type.STRING, description: '這個宮位形成什麼結構，一句話結論先行' },
+    corePattern: { type: Type.STRING, description: '這個宮位形成什麼結構，一句話結論先行；並以定盤宣告帶出資料中提供的易經卦名與格局名稱（例：此宮起卦得○○，成「○○格」）' },
     primaryStarSynthesis: { type: Type.STRING, description: '本宮主星組合的結構意涵' },
     threeHarmonySynthesis: { type: Type.STRING, description: '三方四正如何呼應或牽制本宮' },
     transformationEffect: { type: Type.STRING, description: '四化對這個結構造成的具體效果' },
@@ -216,27 +232,38 @@ ${renderTimeContext(context)}
 
 export async function runStructureTeacher(context: PalaceAnalysisContext): Promise<StructureTeacherResult | typeof INSUFFICIENT_DATA> {
   if (!hasUsableData(context)) return INSUFFICIENT_DATA;
-  const route = TEACHER_MODEL_ROUTE.STRUCTURE_MASTER;
-  const ai = new GoogleGenAI({ apiKey: apiKey() });
-  const response = await withTimeout(
-    ai.models.generateContent({
-      model: route.model,
-      contents: buildStructurePrompt(context),
-      config: { responseSchema: STRUCTURE_SCHEMA as never, responseMimeType: 'application/json', temperature: route.temperature, thinkingConfig: { thinkingBudget: 0 }, maxOutputTokens: 2048 },
-    }),
-    TEACHER_TIMEOUT_MS,
-    '格局老師分析逾時，請稍後再試。',
-  );
-  const text = response.text || '';
-  if (!text) throw new Error('格局老師未返回有效回應。');
-  const parsed = safeJsonParse<Omit<StructureTeacherResult, 'teacherId' | 'palace' | 'evidenceRefs'>>(text);
-  return {
-    teacherId: 'STRUCTURE_MASTER',
-    palace: context.selectedPalace.palaceName,
-    ...parsed,
-    importantSupportingStars: parsed.importantSupportingStars ?? [],
-    evidenceRefs: buildEvidenceRefs(context),
-  };
+  try {
+    const route = TEACHER_MODEL_ROUTE.STRUCTURE_MASTER;
+    const ai = new GoogleGenAI({ apiKey: apiKey() });
+    const response = await withTimeout(
+      ai.models.generateContent({
+        model: route.model,
+        contents: buildStructurePrompt(context),
+        config: { responseSchema: STRUCTURE_SCHEMA as never, responseMimeType: 'application/json', temperature: route.temperature, thinkingConfig: { thinkingBudget: 0 }, maxOutputTokens: 2048 },
+      }),
+      TEACHER_TIMEOUT_MS,
+      '格局老師分析逾時，請稍後再試。',
+    );
+    const text = response.text || '';
+    if (!text) throw new Error('格局老師未返回有效回應。');
+    const parsed = safeJsonParse<Omit<StructureTeacherResult, 'teacherId' | 'palace' | 'evidenceRefs'>>(text);
+    // 卜卦儀式的程式碼保證：卦名或格局名稱缺席時，以定盤宣告決定性補進開頭
+    const gua = castPalaceHexagram(context);
+    if (!`${parsed.corePattern} ${parsed.conclusion}`.includes(patternNameOf(gua))) {
+      parsed.corePattern = `此宮起卦得「${gua.hexagramName}」，定盤為特殊格局「${patternNameOf(gua)}」。${parsed.corePattern}`;
+    }
+    return {
+      teacherId: 'STRUCTURE_MASTER',
+      palace: context.selectedPalace.palaceName,
+      ...parsed,
+      importantSupportingStars: parsed.importantSupportingStars ?? [],
+      evidenceRefs: buildEvidenceRefs(context),
+    };
+  } catch (error) {
+    // 易經不可用（額度、逾時、金鑰）→ 本地統計後備接手，功能不中斷
+    console.error('[ziwei-teacher] 格局老師 易經不可用，改用本地統計後備：', error instanceof Error ? error.message : String(error));
+    return buildLocalStructureResult(context);
+  }
 }
 
 /* ==================== 老師 2｜恐怖型老師 LIFE_MASTER ==================== */
@@ -244,7 +271,7 @@ export async function runStructureTeacher(context: PalaceAnalysisContext): Promi
 const LIFE_SCHEMA = {
   type: Type.OBJECT,
   properties: {
-    fearScene: { type: Type.STRING, description: '最多兩句話帶過場景與觸發徵兆，第三句起必須直接講出這一宮真正的壓力代價是什麼；禁止整段停留在環境描寫，帶血色質地與一次驚悚轉折但要為主題服務。必須只談本宮議題，且是戲劇化風險情境，不是已發生事實或事件預告。' },
+    fearScene: { type: Type.STRING, description: '最多兩句話帶過場景與觸發徵兆，第三句起必須直接講出這一宮真正的壓力代價是什麼；資料中提供的易經卦名與格局名稱必須在本欄以壓迫感的方式各出現一次（如倒數中浮現的符號）。禁止整段停留在環境描寫，帶血色質地與一次驚悚轉折但要為主題服務。必須只談本宮議題，且是戲劇化風險情境，不是已發生事實或事件預告。' },
     lifeMeaning: { type: Type.STRING, description: '冷峻地指出本宮真正的壓力核心，必須點名一項命盤證據' },
     pastPattern: { type: Type.STRING, description: '這個宮位過去容易形成的模式；只作命盤傾向推論，不捏造已發生事件' },
     futureRiskWindow: { type: Type.STRING, description: '結合目前年齡、流年與日夜情境的未來風險窗口；條件式描述，不作預言' },
@@ -287,21 +314,32 @@ ${renderSituationAnchor(context)}
 
 export async function runLifeTeacher(context: PalaceAnalysisContext): Promise<LifeTeacherResult | typeof INSUFFICIENT_DATA> {
   if (!hasUsableData(context)) return INSUFFICIENT_DATA;
-  const route = TEACHER_MODEL_ROUTE.LIFE_MASTER;
-  const ai = new GoogleGenAI({ apiKey: apiKey() });
-  const response = await withTimeout(
-    ai.models.generateContent({
-      model: route.model,
-      contents: buildLifePrompt(context),
-      config: { responseSchema: LIFE_SCHEMA as never, responseMimeType: 'application/json', temperature: route.temperature, thinkingConfig: { thinkingBudget: 0 }, maxOutputTokens: 2048 },
-    }),
-    TEACHER_TIMEOUT_MS,
-    '恐怖型老師解盤逾時，請稍後再試。',
-  );
-  const text = response.text || '';
-  if (!text) throw new Error('恐怖型老師未返回有效回應。');
-  const parsed = safeJsonParse<Omit<LifeTeacherResult, 'teacherId' | 'evidenceRefs'>>(text);
-  return { teacherId: 'LIFE_MASTER', ...normalizeLifeResult(parsed), evidenceRefs: buildEvidenceRefs(context) };
+  try {
+    const route = TEACHER_MODEL_ROUTE.LIFE_MASTER;
+    const ai = new GoogleGenAI({ apiKey: apiKey() });
+    const response = await withTimeout(
+      ai.models.generateContent({
+        model: route.model,
+        contents: buildLifePrompt(context),
+        config: { responseSchema: LIFE_SCHEMA as never, responseMimeType: 'application/json', temperature: route.temperature, thinkingConfig: { thinkingBudget: 0 }, maxOutputTokens: 2048 },
+      }),
+      TEACHER_TIMEOUT_MS,
+      '恐怖型老師解盤逾時，請稍後再試。',
+    );
+    const text = response.text || '';
+    if (!text) throw new Error('恐怖型老師未返回有效回應。');
+    const parsed = safeJsonParse<Omit<LifeTeacherResult, 'teacherId' | 'evidenceRefs'>>(text);
+    // 卜卦儀式的程式碼保證：模型漏掉卦名或格局名稱時，決定性補進開場欄位
+    const gua = castPalaceHexagram(context);
+    const joined = Object.values(parsed).filter((v) => typeof v === 'string').join(' ');
+    if (!joined.includes(gua.hexagramName) || !joined.includes(patternNameOf(gua))) {
+      parsed.fearScene = `此宮起卦，卦成——「${gua.hexagramName}」，特殊格局「${patternNameOf(gua)}」的倒數已經開始。${parsed.fearScene}`;
+    }
+    return { teacherId: 'LIFE_MASTER', ...normalizeLifeResult(parsed), evidenceRefs: buildEvidenceRefs(context) };
+  } catch (error) {
+    console.error('[ziwei-teacher] 恐怖型老師 易經不可用，改用本地統計後備：', error instanceof Error ? error.message : String(error));
+    return buildLocalLifeResult(context);
+  }
 }
 
 /* ==================== 老師 3｜鬼魅型老師 NARRATIVE_MASTER ==================== */
@@ -317,7 +355,7 @@ const NARRATIVE_SCHEMA = {
       items: { type: Type.OBJECT, properties: { symbol: { type: Type.STRING }, meaning: { type: Type.STRING }, sourceRef: { type: Type.STRING } } },
       description: '至少四個彼此不同的象徵物件；每一個都要對應命盤裡的星曜、四化或四宮位置',
     },
-    story: { type: Type.STRING, description: '一段帶懸念的幽微敘事，中段須有一次驚悚轉折／意外發現，並讓壓力在某一刻放大成毀滅級的災難意象（停電、崩裂、暴雨吞沒空間），象徵性、非事實陳述；讓各象徵自然連結，禁止改寫成白話建議' },
+    story: { type: Type.STRING, description: '一段帶懸念的幽微敘事，中段須有一次驚悚轉折／意外發現，並讓壓力在某一刻放大成毀滅級的災難意象（停電、崩裂、暴雨吞沒空間），象徵性、非事實陳述；資料中提供的易經卦名必須化為場景中隱隱發光的神祕符號出現一次、格局名稱必須由低語說出一次；讓各象徵自然連結，禁止改寫成白話建議' },
     pastEcho: { type: Type.STRING, description: '像舊畫面殘留的過去迴聲；只能映照命盤慣性，不能捏造客戶真實往事' },
     futureShadow: { type: Type.STRING, description: '結合年齡、流年與當下時段的未來暗影；使用條件式象徵，不是預言' },
     finalMetaphor: { type: Type.STRING, description: '恐怖鬼魅段的道德結尾：像一句午夜低語般收尾，保留餘韻但回到誠實、界線、負責任的選擇；不作預言或威脅' },
@@ -331,6 +369,9 @@ function buildNarrativePrompt(context: PalaceAnalysisContext): string {
 ${GHOST_READING_FIVE_ELEMENTS}
 
 你是「鬼魅型老師」，核心動作是「鬼魅解盤」——把宮位、星曜、三方四正、四化轉成幽微的象徵、場景、人物與命盤故事。
+鬼魅三大核心（缺一不可）：①神秘口氣（外衣）②真實邏輯推理（骨架：干擾有起點、有因果鏈，不是隨機嚇人）③當下實際感受（錨點：至少一處把讀者此刻真實的身體感受說中，讓讀者點頭「對，我最近就是這樣」）。
+【鬼魅拆卦素材（後端已運算，拆解卦象＝磁場／干擾／因果；神秘語言底下綁著真實心理機制，取用時融進場景，不可照抄）】
+${formatGhostDecoding(castPalaceHexagram(context))}
 回答的問題是：如果把這個宮位畫成一幅圖，它正在說什麼故事？
 禁止直接給結構分析（那是命盤解析老師的工作），禁止直接給危機建議或行動方向（那是恐怖型老師的工作）。
 語氣要像午夜時分有人在門外低聲講述一段不能直說的往事：克制、幽暗、帶有停頓與餘韻，而不是溫和的勵志寓言。真實感來自日常空間被輕微扭轉：例如辦公室最後一盞燈、手機螢幕未讀的訊息、無人回應的走廊、桌上被翻到同一頁的文件。場景必須有明確的光源、聲音、空間感與一個未被說破的異樣細節；讓讀者感到詭譎，但不得宣稱有真實靈異事件或威脅。
@@ -356,27 +397,168 @@ ${renderSituationAnchor(context)}
 
 export async function runNarrativeTeacher(context: PalaceAnalysisContext): Promise<NarrativeTeacherResult | typeof INSUFFICIENT_DATA> {
   if (!hasUsableData(context)) return INSUFFICIENT_DATA;
-  const route = TEACHER_MODEL_ROUTE.NARRATIVE_MASTER;
-  const ai = new GoogleGenAI({ apiKey: apiKey() });
-  const response = await withTimeout(
-    ai.models.generateContent({
-      model: route.model,
-      contents: buildNarrativePrompt(context),
-      config: { responseSchema: NARRATIVE_SCHEMA as never, responseMimeType: 'application/json', temperature: route.temperature, thinkingConfig: { thinkingBudget: 0 }, maxOutputTokens: 2048 },
-    }),
-    TEACHER_TIMEOUT_MS,
-    '鬼魅型老師解盤逾時，請稍後再試。',
-  );
-  const text = response.text || '';
-  if (!text) throw new Error('鬼魅型老師未返回有效回應。');
-  const parsed = safeJsonParse<Omit<NarrativeTeacherResult, 'teacherId' | 'evidenceRefs'>>(text);
-  return { teacherId: 'NARRATIVE_MASTER', ...normalizeNarrativeResult(parsed), evidenceRefs: buildEvidenceRefs(context) };
+  try {
+    const route = TEACHER_MODEL_ROUTE.NARRATIVE_MASTER;
+    const ai = new GoogleGenAI({ apiKey: apiKey() });
+    const response = await withTimeout(
+      ai.models.generateContent({
+        model: route.model,
+        contents: buildNarrativePrompt(context),
+        config: { responseSchema: NARRATIVE_SCHEMA as never, responseMimeType: 'application/json', temperature: route.temperature, thinkingConfig: { thinkingBudget: 0 }, maxOutputTokens: 2048 },
+      }),
+      TEACHER_TIMEOUT_MS,
+      '鬼魅型老師解盤逾時，請稍後再試。',
+    );
+    const text = response.text || '';
+    if (!text) throw new Error('鬼魅型老師未返回有效回應。');
+    const parsed = safeJsonParse<Omit<NarrativeTeacherResult, 'teacherId' | 'evidenceRefs'>>(text);
+    // 卜卦儀式的程式碼保證：卦名或格局名稱缺席時，以鬼魅低語決定性補進收尾
+    const gua = castPalaceHexagram(context);
+    const joined = [parsed.scene, parsed.story, parsed.pastEcho, parsed.futureShadow, parsed.finalMetaphor].join(' ');
+    if (!joined.includes(gua.hexagramName.slice(-1)) || !joined.includes(patternNameOf(gua))) {
+      parsed.finalMetaphor = `門的另一邊，有人用舊墨寫下你的卦——「${gua.hexagramName}」，低語念出你的格局：「${patternNameOf(gua)}」，六十四格裡就這一格是你。${parsed.finalMetaphor}`;
+    }
+    return { teacherId: 'NARRATIVE_MASTER', ...normalizeNarrativeResult(parsed), evidenceRefs: buildEvidenceRefs(context) };
+  } catch (error) {
+    console.error('[ziwei-teacher] 鬼魅型老師 易經不可用，改用本地統計後備：', error instanceof Error ? error.message : String(error));
+    return buildLocalNarrativeResult(context);
+  }
+}
+
+/* ==================== 本地統計後備引擎（免費、離線、決定性） ====================
+ * Gemini 不可用（額度、逾時、金鑰缺失）時，三位老師改由這裡供稿：
+ * 全部內容取自已驗證命盤的實際星曜、煞曜、四化與三方四正，用固定權重做
+ * 「結構能量指數」的統計交叉比對——同一張盤永遠得到同一組數字與判語。
+ * 易經恢復後自動接回，本引擎只在 易經失敗時出手。 */
+
+type PalaceBlock = PalaceAnalysisContext['selectedPalace'];
+
+const TRANS_LABEL = { LU: '祿', QUAN: '權', KE: '科', JI: '忌' } as const;
+
+/** 結構能量指數：主星 +8／輔星 +3／煞曜 −6；化祿權科 +5、化忌 −7；基準 50，範圍 5–95。 */
+function palaceEnergyScore(palace: PalaceBlock): number {
+  let score = 50 + palace.majorStars.length * 8 + palace.supportingStars.length * 3 - palace.maleficStars.length * 6;
+  for (const t of palace.transformations) score += t.type === 'JI' ? -7 : 5;
+  return Math.min(95, Math.max(5, score));
+}
+
+function majorText(palace: PalaceBlock): string {
+  return palace.majorStars.map((s) => s.name).join('、') || '無十四主星（借對宮論）';
+}
+
+function transText(palace: PalaceBlock): string {
+  return palace.transformations.map((t) => `${t.starName}化${TRANS_LABEL[t.type]}`).join('、') || '無四化';
+}
+
+/** 依當下時段挑選合規的畫面素材（正午不得寫成深夜，遵守既有情境層規則）。 */
+function momentImagery(moment: PalaceAnalysisContext['timeContext']['sceneMoment']): { light: string; sound: string } {
+  switch (moment) {
+    case 'NOON': return { light: '白到刺眼的日光壓在空無一人的走廊上', sound: '只剩空調運轉的單調聲' };
+    case 'MORNING': return { light: '亮得過分的晨光照著沒人動過的桌面', sound: '走廊傳來越來越近的腳步聲' };
+    case 'DAWN': return { light: '天剛亮的灰藍光線停在窗框上', sound: '整層樓安靜得能聽見自己的呼吸' };
+    case 'AFTERNOON': return { light: '拉長的午後影子貼著牆角', sound: '時鐘秒針一格一格逼近截止的聲音' };
+    case 'EVENING': return { light: '室內只剩半排燈亮著', sound: '電梯在別的樓層停了很久' };
+    case 'NIGHT': return { light: '螢幕的冷光映在暗下來的房間', sound: '走廊盡頭傳來一聲很輕的關門聲' };
+    case 'MIDNIGHT':
+    default: return { light: '門縫下漏進一線微弱的光', sound: '靜止的空間裡有什麼輕輕動了一下' };
+  }
+}
+
+function buildLocalStructureResult(context: PalaceAnalysisContext): StructureTeacherResult {
+  const p = context.selectedPalace;
+  const score = palaceEnergyScore(p);
+  const scores = {
+    A: palaceEnergyScore(context.threeHarmony.harmonyA),
+    B: palaceEnergyScore(context.threeHarmony.harmonyB),
+    O: palaceEnergyScore(context.threeHarmony.opposite),
+  };
+  const strongest = scores.A >= scores.B && scores.A >= scores.O ? context.threeHarmony.harmonyA : scores.B >= scores.O ? context.threeHarmony.harmonyB : context.threeHarmony.opposite;
+  const weakest = scores.A <= scores.B && scores.A <= scores.O ? context.threeHarmony.harmonyA : scores.B <= scores.O ? context.threeHarmony.harmonyB : context.threeHarmony.opposite;
+  const structureType = score >= 70 ? '攻堅型' : score >= 55 ? '穩健型' : '承壓型';
+  const jiList = p.transformations.filter((t) => t.type === 'JI');
+  const guide = PALACE_SITUATION_GUIDES[p.palaceId];
+
+  return {
+    teacherId: 'STRUCTURE_MASTER',
+    palace: p.palaceName,
+    corePattern: `${p.palaceName}結構能量指數 ${score}/100，判定為${structureType}結構：主星${majorText(p)}，四化${transText(p)}。`,
+    primaryStarSynthesis: `本宮主星${majorText(p)}，主星 ${p.majorStars.length} 顆、輔星 ${p.supportingStars.length} 顆、煞曜 ${p.maleficStars.length} 顆——星曜密度直接決定此宮承載「${guide.topic}」議題的量能。`,
+    threeHarmonySynthesis: `三方四正交叉指數：${context.threeHarmony.harmonyA.palaceName} ${scores.A}、${context.threeHarmony.harmonyB.palaceName} ${scores.B}、對宮${context.threeHarmony.opposite.palaceName} ${scores.O}。支撐最強的是${strongest.palaceName}（${majorText(strongest)}），牽制最明顯的是${weakest.palaceName}。`,
+    transformationEffect: jiList.length > 0
+      ? `${jiList.map((t) => `${t.starName}化忌`).join('、')}是本結構的主要耗損點（每一化忌以 −7 計入指數）；其餘四化${p.transformations.filter((t) => t.type !== 'JI').map((t) => `${t.starName}化${TRANS_LABEL[t.type]}`).join('、') || '無'}提供加分能量。`
+      : `本宮${transText(p)}；${p.transformations.length > 0 ? '四化以加分方向為主，結構取得額外推力。' : '無四化introduces波動，結構以星曜本質穩定運作。'}`,
+    importantSupportingStars: [
+      ...p.supportingStars.slice(0, 2).map((s) => `輔星${s.name}：加分訊號（+3），強化本宮的支撐面。`),
+      ...p.maleficStars.slice(0, 2).map((s) => `煞曜${s.name}：耗損訊號（−6），是指數被拉低的可回查原因。`),
+    ],
+    structuralStrength: `統計面最強的一段：${strongest.palaceName}以 ${Math.max(scores.A, scores.B, scores.O)} 分支撐本宮，配合主星${majorText(p)}，在「${guide.topic}」上有可複用的結構慣性。`,
+    structuralPressure: `壓力集中在${weakest.palaceName}（${Math.min(scores.A, scores.B, scores.O)} 分）${jiList.length > 0 ? `，且${jiList[0].starName}化忌落在本宮，` : '，'}表示此結構的下限由這裡決定。`,
+    pastStructure: `此宮長期容易養成「${guide.topic}」上的固定慣性：能量高時傾向多承接、能量低時傾向遞延處理；這是盤面推論，不指涉具體經歷。`,
+    futureTendency: `${context.timeContext.annualYear} 年${context.timeContext.annualTheme ? `主題「${context.timeContext.annualTheme}」` : ''}期間，若${weakest.palaceName}的牽制未處理，指數容易向下修；反之補上該處，${structureType}結構可望升級。`,
+    conclusion: `結論：${p.palaceName}為${structureType}結構（${score}/100）。易經同步起卦得「${castPalaceHexagram(context).hexagramName}」印證：${castPalaceHexagram(context).advice}優先處理${weakest.palaceName}的牽制、善用${strongest.palaceName}的支撐，是本盤統計交叉後的最短路徑。`,
+    evidenceRefs: buildEvidenceRefs(context),
+  };
+}
+
+function buildLocalLifeResult(context: PalaceAnalysisContext): LifeTeacherResult {
+  const p = context.selectedPalace;
+  const guide = PALACE_SITUATION_GUIDES[p.palaceId];
+  const img = momentImagery(context.timeContext.sceneMoment);
+  const score = palaceEnergyScore(p);
+  const mainStar = p.majorStars[0]?.name ?? context.threeHarmony.opposite.majorStars[0]?.name ?? '對宮主星';
+  const malefic = p.maleficStars[0]?.name;
+  const ji = p.transformations.find((t) => t.type === 'JI');
+  const pressurePoint = ji ? `${ji.starName}化忌` : malefic ? `煞曜${malefic}` : `${mainStar}的高張力面`;
+
+  const raw: Omit<LifeTeacherResult, 'teacherId' | 'evidenceRefs'> = {
+    fearScene: `這一宮談的是${guide.topic}。${img.light}，${img.sound}。真正逼近的不是畫面，是${pressurePoint}在${guide.topic}上累積的代價：${guide.lifeScenes}裡的每一次遞延，都會讓你付出的成本再墊高一層；若持續忽視，這股壓力容易從單點擴大成整片。`,
+    lifeMeaning: `本宮壓力核心：${pressurePoint}。它讓「${guide.topic}」的每個決定都帶著隱形利息，越晚面對，本金越大。`,
+    pastPattern: `此宮長期容易重複的模式：在${guide.lifeScenes}的場景中先扛下、後消化；這是盤面傾向的推論，不是已發生事件。`,
+    futureRiskWindow: `${context.timeContext.annualYear} 年${context.timeContext.annualTheme ? `「${context.timeContext.annualTheme}」` : ''}期間${context.timeContext.currentAge !== null ? `、${context.timeContext.currentAge} 歲的這一段` : ''}，當${pressurePoint}與截止壓力疊加時，是需要提高警覺的窗口；條件不成立時，壓力不會自動引爆。`,
+    strengthInReality: `可用的力量是${mainStar}帶來的承載力（能量指數 ${score}/100）；但它失控時會反噬成「什麼都自己扛」，反而把${guide.topic}的界線推垮。`,
+    repeatedPattern: `一開始：你告訴自己再撐一下。接著：${guide.lifeScenes}裡的訊號被合理化。最後代價：壓力放大成整個結構發出聲響的規模——這是象徵畫面，提醒失控的方向，不是命定結局。`,
+    blindSpot: `最容易被合理化的盲點：把「還沒出事」當成「沒有事」。${pressurePoint}的耗損是複利式的，安靜不等於安全。`,
+    decisionStyle: `壓力下的決策傾向：${mainStar}式的先斬後奏或先扛再說；證據就在本宮星曜配置——快，但容易把代價往後挪。`,
+    relationshipWithEnvironment: `對外互動的摩擦點：${context.threeHarmony.opposite.palaceName}（${majorText(context.threeHarmony.opposite)}）的對照顯示，外界回應的節奏與你的預期存在落差，容易演變為單向消耗。`,
+    practicalDirection: `易經為此宮起卦得「${castPalaceHexagram(context).hexagramName}」，${castPalaceHexagram(context).advice}止損動作只有一個：本週為「${guide.topic}」設一條明確界線（一句話能說完的那種），並向一位相關的人說出口。行有餘力，把省下的力氣拿去幫一個真正需要的人。`,
+  };
+  return { teacherId: 'LIFE_MASTER', ...normalizeLifeResult(raw), evidenceRefs: buildEvidenceRefs(context) };
+}
+
+function buildLocalNarrativeResult(context: PalaceAnalysisContext): NarrativeTeacherResult {
+  const p = context.selectedPalace;
+  const guide = PALACE_SITUATION_GUIDES[p.palaceId];
+  const img = momentImagery(context.timeContext.sceneMoment);
+  const props = guide.narrativeSet.split('、');
+  const mainStar = p.majorStars[0]?.name ?? context.threeHarmony.opposite.majorStars[0]?.name ?? '對宮主星';
+  const harmonyStar = context.threeHarmony.harmonyA.majorStars[0]?.name ?? context.threeHarmony.harmonyB.majorStars[0]?.name ?? '三合星曜';
+  const oppositeStar = context.threeHarmony.opposite.majorStars[0]?.name ?? '對宮';
+  const trans = p.transformations[0];
+
+  const symbols = [
+    { symbol: props[0] ?? '半掩的門', meaning: `${guide.topic}裡尚未面對的那一項`, sourceRef: `主星:${mainStar}` },
+    { symbol: props[1] ?? '停住的時鐘', meaning: '被遞延的決定在原地累積重量', sourceRef: trans ? `四化:${trans.starName}化${TRANS_LABEL[trans.type]}` : `宮位:${p.palaceName}` },
+    { symbol: props[2] ?? '走廊盡頭的燈', meaning: '三方支撐仍亮著，但需要有人走過去', sourceRef: `三合:${harmonyStar}` },
+    { symbol: props[3] ?? '玻璃上的倒影', meaning: '對面照回來的，是你遲遲沒有回應的部分', sourceRef: `對宮:${oppositeStar}` },
+  ];
+
+  const raw: Omit<NarrativeTeacherResult, 'teacherId' | 'evidenceRefs'> = {
+    visualTitle: `${p.palaceName}．${props[0] ?? '未拆的信'}`,
+    scene: `這一幕談的是${guide.topic}。${img.light}，${img.sound}；${props[0] ?? '桌上的物件'}就放在那裡，暗紅的反光在邊緣停了一瞬——沒有人碰它，它卻像被翻動過。`,
+    mainCharacter: `畫面中央是這個人。這個人伸手又收回，做了一個沒有說破的動作：把${props[1] ?? '那件事'}往旁邊挪了一格，假裝它不存在。`,
+    symbols,
+    story: `${mainStar}的光落在${props[0] ?? '門口'}，一切看起來如常。直到${props[2] ?? '走廊盡頭'}傳來一下不該有的聲響——這個人回頭，發現${props[1] ?? '時鐘'}不知何時已經停了。就在此刻，整個空間的燈忽然一暗，像要把${guide.topic}裡拖延的一切一次收走；黑下來的不是房間，是選項。${harmonyStar}在遠處仍亮著一盞燈，提示這條線還有支撐——但得有人先動。`,
+    pastEcho: `舊畫面的殘影：同樣的${props[0] ?? '物件'}、同樣被放回原位的手。這是命盤慣性的映照，不是真實往事。`,
+    futureShadow: `${context.timeContext.annualYear} 年的光線斜過來時，若這個人仍把${props[1] ?? '該面對的事'}往旁邊挪，影子會比現在長一倍；若伸手拆開它，畫面就換場。這是條件式的暗影，不是預言。`,
+    finalMetaphor: `牆上有人用舊墨寫過一卦：「${castPalaceHexagram(context).hexagramName}」。午夜的低語只說一句：燈一直都在，門也沒有鎖——誠實地伸手，比任何咒語都靈。`,
+  };
+  return { teacherId: 'NARRATIVE_MASTER', ...normalizeNarrativeResult(raw), evidenceRefs: buildEvidenceRefs(context) };
 }
 
 /* ---------------- 共用：可回查的證據來源（規格「二十一」的可追溯性要求） ---------------- */
 
 function buildEvidenceRefs(context: PalaceAnalysisContext): string[] {
-  const refs = [`宮位:${context.selectedPalace.palaceName}`];
+  const refs = [`宮位:${context.selectedPalace.palaceName}`, `易經:${castPalaceHexagram(context).hexagramName}第${castPalaceHexagram(context).changingLine}爻`];
   if (context.timeContext.currentAge !== null) refs.push(`目前年齡:${context.timeContext.currentAge}歲`);
   refs.push(`流年:${context.timeContext.annualYear}`);
   if (context.timeContext.annualTheme) refs.push(`流年主題:${context.timeContext.annualTheme}`);

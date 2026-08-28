@@ -54,19 +54,19 @@ export const ANALYSIS_MODULES: Record<AnalysisModuleId, AnalysisModuleDefinition
   BAZI: {
     moduleId: 'BAZI',
     analysisType: 'bazi',
-    displayName: 'AI 八字命盤',
+    displayName: '易經八字命盤',
     routePath: '/bazi',
     loadingCopy: {
       queued: '\u516b\u5b57\u6a21\u7d44\u5df2\u63a5\u6536\uff0c\u6b63\u5728\u5b89\u6392\u7368\u7acb\u904b\u7b97\u3002',
       validating: '\u6b63\u5728\u78ba\u8a8d\u51fa\u751f\u5e74\u6708\u65e5\u3001\u6642\u9593\u8207\u6027\u5225\u3002',
       processing: '\u6b63\u5728\u6392\u958b\u516b\u5b57\u56db\u67f1\u3001\u5929\u5e72\u5730\u652f\u8207\u65e5\u4e3b\u5f37\u5f31\u3002',
-      finalizing: '正在整理八字命盤摘要與 AI 白話說明。',
+      finalizing: '正在整理八字命盤摘要與 易經白話說明。',
     },
   },
   ZODIAC: {
     moduleId: 'ZODIAC',
     analysisType: 'zodiac',
-    displayName: 'AI 西洋星座',
+    displayName: '易經西洋星座',
     routePath: '/zodiac',
     loadingCopy: {
       queued: '西洋星座模組已接收，正在安排獨立運算。',

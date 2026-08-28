@@ -117,7 +117,7 @@ export const PLATFORM_ANALYSIS_MODULES: PlatformAnalysisModule[] = [
 
 export const PLATFORM_LAYER_RULES: Array<{ id: PlatformLayerId; title: string; rule: string }> = [
   { id: 'analysis', title: 'Layer 1: eight independent analysis cards', rule: 'Eight cards analyze and save independently without overwriting each other.' },
-  { id: 'integration', title: 'Layer 2: AI Integration Layer', rule: 'Read completed analysis results only. Do not re-analyze or re-calculate.' },
+  { id: 'integration', title: 'Layer 2: 易經整合層', rule: 'Read completed analysis results only. Do not re-analyze or re-calculate.' },
   { id: 'growth_center', title: 'Layer 3: AI Growth Center', rule: 'Convert saved signals into companionship, reminders, encouragement, and action.' },
   { id: 'weekly_companion', title: 'Layer 4: AI Weekly Companion', rule: 'Keep one task, one color, one reminder, and one quote per week.' },
   { id: 'system_stability', title: 'Layer 5: System Stability Layer', rule: 'Every new module must pass no conflict, no duplicate, and no overwrite checks.' },

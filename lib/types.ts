@@ -126,7 +126,7 @@ export interface MusicProfile {
 }
 
 /* ────────────────────────────────────────────
-   天地人 AI 人格音樂系統 V1.0 - 新增類型定義
+   天地人 易經人格音樂系統 V1.0 - 新增類型定義
    ──────────────────────────────────────────── */
 
 export interface PersonalityMatrixData {
