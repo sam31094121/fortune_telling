@@ -2,6 +2,7 @@ import { analyzeNumberCore, validateNumberCoreInput } from './number-core-engine
 import { buildNumberFiveElementResult, buildNameologyFiveElementResult, buildBaziFiveElementResult, buildZodiacFiveElementResult, type FiveElementKey } from './five-element-engine';
 import { getNamePersonalityScores } from './name-model-db';
 import { buildNameologyAnalysis } from './nameology-engine';
+import { buildNameologyBaziCrossCheck, normalizeNameologyShichen } from './nameology-bazi-crosscheck';
 import { loadLocalNameologyDictionary } from './nameology-dictionary-loader';
 import { generateInsightAnalysis } from './insight-engine';
 import { analyzeBazi, type BaziAnalysisInput } from './bazi-engine';
@@ -46,7 +47,6 @@ function buildBaziElementEnergy(elementCounts: Record<string, number>) {
 type NameologyJobInput = {
   name: string;
   birthDate: string;
-  bloodType: Exclude<BloodType, ''>;
   gender: Gender;
 };
 
@@ -58,20 +58,21 @@ function normalizeNameologyInput(value: unknown): NameologyJobInput {
   assertRecord(value);
   const name = typeof value.name === 'string' ? value.name.trim() : '';
   const birthDate = typeof value.birthDate === 'string' ? value.birthDate : '';
-  const bloodType = value.bloodType as Exclude<BloodType, ''>;
   const gender = value.gender as Gender;
 
   if (name.length < 2) throw new Error('\u8acb\u8f38\u5165\u81f3\u5c11 2 \u500b\u5b57\u7684\u59d3\u540d\u3002');
   if (name.length > 20) throw new Error('\u59d3\u540d\u8acb\u52ff\u8d85\u904e 20 \u500b\u5b57\u3002');
   if (!isValidBirthday(birthDate)) throw new Error('\u8acb\u63d0\u4f9b\u6709\u6548\u751f\u65e5\u3002');
-  if (!VALID_BLOOD_TYPES.includes(bloodType)) throw new Error('\u8acb\u9078\u64c7\u6709\u6548\u8840\u578b\u3002');
   if (!VALID_GENDERS.includes(gender)) throw new Error('\u8acb\u9078\u64c7\u6709\u6548\u6027\u5225\u3002');
-  return { name, birthDate, bloodType, gender };
+  return { name, birthDate, gender };
 }
 
 function normalizeInsightInput(value: unknown): InsightRequest {
   const input = normalizeNameologyInput(value);
   assertRecord(value);
+  // 紫微既有血型規則保留；姓名學不再收集或校正血型。
+  const bloodType = value.bloodType as Exclude<BloodType, ''>;
+  if (!VALID_BLOOD_TYPES.includes(bloodType)) throw new Error('\u8acb\u9078\u64c7\u6709\u6548\u8840\u578b\u3002');
   const rawShichen = value.shichen;
   const shichen = rawShichen === undefined || rawShichen === null || rawShichen === 'unknown'
     ? rawShichen as InsightRequest['shichen']
@@ -149,11 +150,13 @@ async function runNumberJob(job: AnalysisJob, inputData: unknown) {
 async function runNameologyJob(job: AnalysisJob, inputData: unknown) {
   updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: null, message: ANALYSIS_MODULES.NAMEOLOGY.loadingCopy.validating });
   const input = normalizeNameologyInput(inputData);
+  const shichen = normalizeNameologyShichen((inputData as Record<string, unknown>).shichen);
 
   updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: null, message: ANALYSIS_MODULES.NAMEOLOGY.loadingCopy.processing });
   const nameScores = getNamePersonalityScores(input.name);
   const dictionarySnapshot = await loadLocalNameologyDictionary();
   const analysis = buildNameologyAnalysis(input.name, nameScores, { ...input, dictionarySnapshot });
+  analysis.baziCrossCheck = buildNameologyBaziCrossCheck({ ...input, shichen }, analysis.characters);
 
   updateAnalysisJob(job.jobId, { status: 'FINALIZING', progressStage: 'BUILDING_RESULT', progressPercent: null, message: ANALYSIS_MODULES.NAMEOLOGY.loadingCopy.finalizing });
 

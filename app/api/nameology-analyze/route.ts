@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
+import { buildNameologyBaziCrossCheck, normalizeNameologyShichen } from '@/lib/nameology-bazi-crosscheck';
 import { buildNameologyAnalysis, type NameologySubjectType } from '@/lib/nameology-engine';
 import { buildNameologyFiveElementResult } from '@/lib/five-element-engine';
 import { getNamePersonalityScores } from '@/lib/name-model-db';
 import { loadLocalNameologyDictionary } from '@/lib/nameology-dictionary-loader';
-import type { BloodType, Gender } from '@/lib/types';
+import type { Gender } from '@/lib/types';
 import { isValidBirthday } from '@/lib/validation';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 20;
 
-const VALID_BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const VALID_GENDERS = ['male', 'female'] as const;
 const SIMPLIFIED_NAME_CHARS = new Set(Array.from(
   '张刘陈黄杨赵吴郑马冯许谢韩罗邓叶钟卢苏赖谭萧蓝吕' +
@@ -24,8 +24,8 @@ function hasSimplifiedNameCharacter(name: string) {
 type NameologyRequest = {
   name: string;
   birthDate: string;
-  bloodType: Exclude<BloodType, ''>;
   gender: Gender;
+  shichen?: number | null;
   analysisTarget?: 'self' | 'guest';
 };
 
@@ -39,7 +39,7 @@ function validateNameologyRequest(body: unknown): string | null {
   if (typeof req.name !== 'string' || req.name.trim().length < 2) return '姓名至少需要 2 個字。';
   if (req.name.trim().length > 20) return '姓名長度不可超過 20 個字。';
   if (!isValidBirthday(req.birthDate)) return '生日不是有效日期。';
-  if (typeof req.bloodType !== 'string' || !VALID_BLOOD_TYPES.includes(req.bloodType as Exclude<BloodType, ''>)) return '血型只能是 A、B、AB、O。';
+  try { normalizeNameologyShichen(req.shichen); } catch { return '出生時辰請選擇十二時辰之一，或選擇不知道。'; }
   if (typeof req.gender !== 'string' || !VALID_GENDERS.includes(req.gender as Gender)) return '性別只能是 male 或 female。';
 
   return null;
@@ -50,7 +50,7 @@ function subjectTypeFromTarget(target: NameologyRequest['analysisTarget']): Name
 }
 
 function getCacheKey(body: NameologyRequest, dictionaryVersion: string) {
-  return hashedCacheKey([body.name.trim(), body.birthDate, body.bloodType, body.gender, subjectTypeFromTarget(body.analysisTarget), dictionaryVersion, 'nameology-ultimate-v4-cns-moe-dedup']);
+  return hashedCacheKey([body.name.trim(), body.birthDate, body.gender, String(normalizeNameologyShichen(body.shichen) ?? 'unknown'), subjectTypeFromTarget(body.analysisTarget), dictionaryVersion, 'nameology-ultimate-v4-bazi-hour']);
 }
 
 export async function POST(request: Request) {
@@ -69,8 +69,8 @@ export async function POST(request: Request) {
   const normalized: NameologyRequest = {
     name: body.name.trim(),
     birthDate: body.birthDate,
-    bloodType: body.bloodType,
     gender: body.gender,
+    shichen: normalizeNameologyShichen(body.shichen),
     analysisTarget: body.analysisTarget === 'guest' ? 'guest' : 'self',
   };
 
@@ -89,7 +89,6 @@ export async function POST(request: Request) {
     const nameScores = getNamePersonalityScores(normalized.name);
     const analysis = buildNameologyAnalysis(normalized.name, nameScores, {
       gender: normalized.gender,
-      bloodType: normalized.bloodType,
       birthDate: normalized.birthDate,
       dictionarySnapshot,
       subjectType: subjectTypeFromTarget(normalized.analysisTarget),
@@ -98,6 +97,7 @@ export async function POST(request: Request) {
       console.warn('[nameology-analyze] blocked unreliable result', requestId, analysis.standardOutput.verification);
       return friendlyErrorResponse(requestId, 'NAME_RULES_NOT_READY', '目前無法完成可靠的姓名分析，請稍後重新嘗試。', 422);
     }
+    analysis.baziCrossCheck = buildNameologyBaziCrossCheck(normalized, analysis.characters);
     const fiveElement = buildNameologyFiveElementResult(analysis);
     const result = { ok: true, mode: 'nameology', analysis, nameScores, fiveElement, standardOutput: analysis.standardOutput, verification: analysis.standardOutput.verification };
 

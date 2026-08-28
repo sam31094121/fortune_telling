@@ -1,5 +1,6 @@
-import type { BloodType, DimensionScores, Gender } from './types';
+import type { DimensionScores, Gender } from './types';
 import { getNameologyRadicalProfile } from './nameology-radical-dictionary';
+import type { NameologyBaziCrossCheck } from './nameology-bazi-crosscheck';
 
 export type NameologyElement = '木' | '火' | '土' | '金' | '水';
 export type NameologyRelation = '相生' | '相剋' | '比和';
@@ -150,7 +151,6 @@ export type NameologyNameComposition = {
 
 export type NameologyCrossCheck = {
   genderLens: string;
-  bloodTypeLens: string;
   birthdayLens: string;
   alignmentLabel: string;
   summary: string;
@@ -403,6 +403,7 @@ export type NameologyStandardOutput = {
 };
 
 export type NameologyAnalysis = {
+  baziCrossCheck?: NameologyBaziCrossCheck;
   name: string;
   dictionaryStatus: {
     source: 'local_dictionary';
@@ -917,13 +918,6 @@ function buildNameComposition(characters: NameologyCharAnalysis[], temperamentPr
   };
 }
 
-function bloodTypeLens(bloodType?: Exclude<BloodType, ''>) {
-  if (bloodType === 'A') return { label: 'A 型校正：重秩序、細節與安全感。', keys: ['discipline', 'detail', 'stability'] as NameologyTendencyKey[] };
-  if (bloodType === 'B') return { label: 'B 型校正：重自由、創意與彈性。', keys: ['independence', 'creativity', 'adaptability'] as NameologyTendencyKey[] };
-  if (bloodType === 'AB') return { label: 'AB 型校正：重理性、直覺與雙軌整合。', keys: ['logic', 'intuition', 'balance'] as NameologyTendencyKey[] };
-  if (bloodType === 'O') return { label: 'O 型校正：重行動、領導與人際號召。', keys: ['action', 'leadership', 'relationship'] as NameologyTendencyKey[] };
-  return { label: '血型未提供，先不做血型校正。', keys: [] as NameologyTendencyKey[] };
-}
 
 function birthdayLens(birthDate?: string) {
   const month = Number.parseInt((birthDate ?? '').slice(5, 7), 10);
@@ -936,7 +930,7 @@ function birthdayLens(birthDate?: string) {
 
 function buildCrossCheck(
   temperamentProfile: ReturnType<typeof buildTemperamentProfile>,
-  context?: { gender?: Gender; bloodType?: Exclude<BloodType, ''>; birthDate?: string },
+  context?: { gender?: Gender; birthDate?: string },
 ): NameologyCrossCheck {
   const masculine = tendencyScore(temperamentProfile, 'masculine') + tendencyScore(temperamentProfile, 'authority') * 0.45 + tendencyScore(temperamentProfile, 'action') * 0.35;
   const feminine = tendencyScore(temperamentProfile, 'feminine') + tendencyScore(temperamentProfile, 'gentleness') * 0.45 + tendencyScore(temperamentProfile, 'empathy') * 0.35;
@@ -955,21 +949,18 @@ function buildCrossCheck(
           : '女性資料交叉：名字陰陽接近，適合用柔中帶剛的方式發揮。'
       : '性別未提供，先以姓名本身的陰陽訊號判讀。';
 
-  const blood = bloodTypeLens(context?.bloodType);
   const birthday = birthdayLens(context?.birthDate);
   const topKeys = temperamentProfile.topTendencies.slice(0, 6).map((item) => item.key);
-  const bloodHits = blood.keys.filter((key) => topKeys.includes(key));
   const birthdayHits = birthday.keys.filter((key) => topKeys.includes(key));
-  const alignmentScore = bloodHits.length + birthdayHits.length + (Math.abs(masculine - feminine) <= 12 ? 1 : 0);
+  const alignmentScore = birthdayHits.length + (Math.abs(masculine - feminine) <= 12 ? 1 : 0);
   const alignmentLabel = alignmentScore >= 4 ? '交叉高度一致' : alignmentScore >= 2 ? '交叉可互補' : '交叉需要校正';
 
   return {
     genderLens,
-    bloodTypeLens: bloodHits.length > 0 ? `${blood.label} 與姓名主軸中的${bloodHits.map((key) => TENDENCY_META[key].label).join('、')}相呼應。` : `${blood.label} 與姓名主軸不完全重疊，適合用後天習慣補齊。`,
     birthdayLens: birthdayHits.length > 0 ? `${birthday.label} 與姓名主軸中的${birthdayHits.map((key) => TENDENCY_META[key].label).join('、')}相呼應。` : `${birthday.label} 與姓名主軸不同頻，代表要靠選擇與環境把能量接起來。`,
     alignmentLabel,
-    summary: `完整資料交叉後，系統判定為「${alignmentLabel}」。姓名先定性情主軸，性別看陰陽呈現，血型看行為習慣，生日看節奏輔助，最後合成同一個答案。`,
-    corrections: [genderLens, blood.label, birthday.label],
+    summary: `完整資料交叉後，系統判定為「${alignmentLabel}」。姓名先定性情主軸，性別看陰陽呈現，生日看節奏輔助，最後合成同一個答案。`,
+    corrections: [genderLens, birthday.label],
   };
 }
 function buildFiveGrids(chars: NameologyCharAnalysis[]): NameologyGridItem[] {
@@ -1460,7 +1451,7 @@ function buildNameSemanticDeduplicator(input: {
 
   const mergedSignals = Array.from(buckets.values()).slice(0, 5);
   const strengths = mergedSignals.slice(0, 3).map((item) => item.coreJudgment + '：' + item.reason);
-  const blindSpots = [input.aiInterpretationLayer.hiddenTension, input.crossCheck.alignmentLabel === '交叉需要校正' ? '姓名訊號與生日、血型或性別資料需要校準成同一個行動節奏。' : '不要讓優勢停留在想法，需要落到可完成的日常行動。'].filter(Boolean).slice(0, 2);
+  const blindSpots = [input.aiInterpretationLayer.hiddenTension, input.crossCheck.alignmentLabel === '交叉需要校正' ? '姓名訊號與生日或性別資料需要校準成同一個行動節奏。' : '不要讓優勢停留在想法，需要落到可完成的日常行動。'].filter(Boolean).slice(0, 2);
   const summary = 'AI 已合併重複語意，保留 ' + mergedSignals.map((item) => item.coreJudgment).join('、') + ' 作為本次姓名精華。';
   return { summary, strengths, blindSpots, mergedSignals };
 }
@@ -1665,7 +1656,7 @@ function buildNameologyRitualSteps(input: {
   });
 }
 
-export function buildNameologyAnalysis(name: string, nameScores: DimensionScores, context?: { gender?: Gender; bloodType?: Exclude<BloodType, ''>; birthDate?: string; dictionarySnapshot?: NameologyDictionarySnapshot; subjectType?: NameologySubjectType }): NameologyAnalysis {
+export function buildNameologyAnalysis(name: string, nameScores: DimensionScores, context?: { gender?: Gender; birthDate?: string; dictionarySnapshot?: NameologyDictionarySnapshot; subjectType?: NameologySubjectType }): NameologyAnalysis {
   const originalName = name;
   const cleanName = name.trim();
   const sourceChars = Array.from(cleanName).slice(0, 8);

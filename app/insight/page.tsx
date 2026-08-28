@@ -306,7 +306,7 @@ interface InsightResult {
     };
     crossCheck?: {
       genderLens: string;
-      bloodTypeLens: string;
+      bloodTypeLens?: string;
       birthdayLens: string;
       alignmentLabel: string;
       summary: string;

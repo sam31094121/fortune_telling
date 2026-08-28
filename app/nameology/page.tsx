@@ -4,8 +4,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
+import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
-import type { BloodType, Gender } from '@/lib/types';
+import type { Gender } from '@/lib/types';
 import type { NameologyAnalysis, NameologyProfessionalCharacter, NameologyRitualStep } from '@/lib/nameology-engine';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
@@ -31,25 +32,24 @@ type NameologyResponse = {
 type FormState = {
   name: string;
   birthDate: string;
-  bloodType: Exclude<BloodType, ''>;
   gender: Gender;
+  shichen?: number | null;
 };
 
-type SelectionConfirm = { bloodType: boolean; gender: boolean };
+type SelectionConfirm = { gender: boolean };
 type NameologyDailyResult = { analysis: NameologyAnalysis; fiveElement: FiveElementIntegrationResult };
 
 
-const BLOOD_TYPES: Array<Exclude<BloodType, ''>> = ['A', 'B', 'AB', 'O'];
 
 const initialForm: FormState = {
   name: '',
   birthDate: '',
-  bloodType: 'O',
   gender: 'male',
+  shichen: null,
 };
 
-const initialSelectionConfirm: SelectionConfirm = { bloodType: false, gender: false };
-const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-ultimate-engine-v4.0.0';
+const initialSelectionConfirm: SelectionConfirm = { gender: false };
+const NAMEOLOGY_DAILY_SCHEMA_VERSION = 'nameology-ultimate-engine-v4.0.0-bazi-hour';
 
 function isCurrentNameologyResult(value?: NameologyDailyResult | null) {
   return Boolean(value?.analysis?.standardOutput?.moduleVersion === '4.0.0' && value.analysis.standardOutput.verification?.readyForFrontend && value.fiveElement);
@@ -57,6 +57,10 @@ function isCurrentNameologyResult(value?: NameologyDailyResult | null) {
 
 function isCurrentNameologyRecord(record?: DailyAnalysisRecord<NameologyDailyResult> | null) {
   return Boolean(record?.meta?.schemaVersion === NAMEOLOGY_DAILY_SCHEMA_VERSION && isCurrentNameologyResult(record.result));
+}
+
+function nameologyInputKey(form: FormState) {
+  return JSON.stringify([form.name.trim(), form.birthDate, form.gender, form.shichen ?? null, getAnalysisIdentityTarget()]);
 }
 
 type NameologyCharacterResult = NameologyAnalysis['characters'][number];
@@ -287,12 +291,6 @@ function ProfessionalNameologyLayer({ analysis }: { analysis: NameologyAnalysis 
   );
 }
 
-const BLOOD_DESC: Record<Exclude<BloodType, ''>, string> = {
-  A: '細膩穩定，重視秩序、承諾與安全感。',
-  B: '自主鮮明，重視自由、節奏與個人風格。',
-  AB: '理性感性並存，觀察力與整合力較明顯。',
-  O: '主動直接，行動力、號召力與外放感較強。',
-};
 
 
 
@@ -450,7 +448,7 @@ function NameologyCustomerSummary({ analysis }: { analysis: NameologyAnalysis })
             {analysis.name} 的姓名支點
           </h2>
           <p className="mt-4 text-sm font-semibold leading-8 text-[color:var(--text-sub)]">
-            AI 已先讀取臺灣繁體姓名字典，先確認每個字的部首與總筆畫，再整合生日、血型與性別。客戶第一眼只看結論：姓名如何被記住、今天先補哪一個方向、下一步怎麼做。
+            AI 已先讀取臺灣繁體姓名字典，先確認每個字的部首與總筆畫，再整合生日與性別。客戶第一眼只看結論：姓名如何被記住、今天先補哪一個方向、下一步怎麼做。
           </p>
         </div>
         <div className="grid shrink-0 grid-cols-2 gap-3 lg:w-[260px]">
@@ -893,6 +891,22 @@ function NameologyBackendVerificationDetails({ analysis, revealCount }: { analys
 function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; fiveElement: FiveElementIntegrationResult }) {
   return (
     <section className="space-y-5">
+      {analysis.baziCrossCheck && (
+        <section aria-label="姓名與八字對照" className="rounded-2xl border border-amber-300/25 bg-amber-950/20 p-4 text-amber-50">
+          <h2 className="text-lg font-bold">姓名與八字對照</h2>
+          <p className="mt-2 text-sm">{analysis.baziCrossCheck.summary}</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {(['year', 'month', 'day', 'hour'] as const).map((key, index) => (
+              <p key={key} className="rounded-xl bg-black/20 p-3 text-center">{['年柱', '月柱', '日柱', '時柱'][index]}<br />{analysis.baziCrossCheck!.pillars[key] ?? '未知，不推定'}</p>
+            ))}
+          </div>
+          <p className="mt-3 text-sm">日主：{analysis.baziCrossCheck.dayMaster.stem}（{analysis.baziCrossCheck.dayMaster.element}）</p>
+          <ul className="mt-2 space-y-1 text-sm">
+            {analysis.baziCrossCheck.comparison.map(row => <li key={row.element}>{row.element}：姓名字「{row.nameCharacters.join('、') || '無'}」；已知柱干支計數 {row.baziCount}</li>)}
+          </ul>
+          <p className="mt-3 text-xs text-amber-100/70">{analysis.baziCrossCheck.limitation}</p>
+        </section>
+      )}
       <NameologyUltimateDecisionPanel analysis={analysis} />
       <NameologyNamingIntentionCard analysis={analysis} />
       <NameologyTotalBeastCard analysis={analysis} />
@@ -907,7 +921,6 @@ function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; f
 function buildValidationMessage(form: FormState, selectionConfirm: SelectionConfirm) {
   if (form.name.trim().length < 2) return '請先輸入完整姓名，至少 2 個字。';
   if (!form.birthDate) return '請先完成生日萬年曆推算。';
-  if (!selectionConfirm.bloodType) return '請點選血型，系統才會套用血型校正。';
   if (!selectionConfirm.gender) return '請點選性別，系統才會套用外在呈現校正。';
   return '';
 }
@@ -939,13 +952,13 @@ function readNameologyFormSnapshot(form: FormState, selectionConfirm: SelectionC
   return {
     form: nextForm,
     selectionConfirm: {
-      bloodType: selectionConfirm.bloodType || Boolean(nextForm.bloodType),
       gender: selectionConfirm.gender || Boolean(nextForm.gender),
     },
   };
 }
 
 export default function NameologyPage() {
+  const [showShichen, setShowShichen] = useState(false);
   const [form, setForm] = useState<FormState>(initialForm);
   const [selectionConfirm, setSelectionConfirm] = useState<SelectionConfirm>(initialSelectionConfirm);
   const [result, setResult] = useState<NameologyAnalysis | null>(null);
@@ -978,14 +991,16 @@ export default function NameologyPage() {
           gender: canonical?.gender === 'FEMALE' ? 'female' : canonical?.gender === 'MALE' ? 'male' : current.gender,
         };
         setForm(next);
+        setShowShichen(typeof next.shichen === 'number');
         if (saved) {
-          setSelectionConfirm({ bloodType: Boolean(saved.bloodType), gender: Boolean(saved.gender) });
+          setSelectionConfirm({ gender: Boolean(saved.gender) });
         } else if (canonical?.name || canonical?.birthDate || canonical?.gender !== 'UNSPECIFIED') {
           setSelectionConfirm((previous) => ({ ...previous, gender: canonical?.gender !== 'UNSPECIFIED' || previous.gender }));
         }
       } else if (target === 'guest') {
         // 親朋好友一律從空白開始，避免把本人資料誤帶進他人的分析。
         setForm(initialForm);
+        setShowShichen(false);
         setSelectionConfirm(initialSelectionConfirm);
       }
     };
@@ -1049,17 +1064,15 @@ export default function NameologyPage() {
     showRitualCompleteImmediately(record.result.analysis.ritualSteps);
   }, []);
 
-  const validationMessage = useMemo(() => buildValidationMessage(form, selectionConfirm), [form, selectionConfirm]);
+  const validationMessage = useMemo(() => buildValidationMessage(form, selectionConfirm) || (showShichen && form.shichen == null ? '請選擇出生時辰，或改選不知道。' : ''), [form, selectionConfirm, showShichen]);
   const canSubmit = validationMessage === '';
   const showMissingFields = Boolean(error) && !result;
   const showMissingName = showMissingFields && form.name.trim().length < 2;
   const showMissingBirthDate = showMissingFields && !form.birthDate;
-  const showMissingBloodType = showMissingFields && !selectionConfirm.bloodType;
   const showMissingGender = showMissingFields && !selectionConfirm.gender;
   const progressItems = [
     { label: '姓名', done: form.name.trim().length >= 2, value: form.name.trim().length > 0 ? `${form.name.trim().length}字` : '未填' },
     { label: '生日', done: Boolean(form.birthDate), value: form.birthDate ? '已推算' : '未填' },
-    { label: '血型', done: selectionConfirm.bloodType, value: selectionConfirm.bloodType ? `${form.bloodType}型` : '未選' },
     { label: '性別', done: selectionConfirm.gender, value: selectionConfirm.gender ? (form.gender === 'male' ? '男性' : '女性') : '未選' },
   ];
 
@@ -1074,9 +1087,13 @@ export default function NameologyPage() {
   }
 
   async function handleSubmitInner() {
+    if (showShichen && form.shichen == null) {
+      setError('請選擇出生時辰，或改選不知道。');
+      return;
+    }
     const existing = readDailyAnalysis<NameologyDailyResult>('nameology');
     if (existing) {
-      if (isCurrentNameologyRecord(existing)) {
+      if (isCurrentNameologyRecord(existing) && existing.meta?.inputKey === nameologyInputKey(form)) {
         setDailyRecord(existing);
         setResult(existing.result.analysis);
         setFiveElement(existing.result.fiveElement);
@@ -1091,7 +1108,7 @@ export default function NameologyPage() {
     if (isLoading) return;
 
     const snapshot = readNameologyFormSnapshot(form, selectionConfirm);
-    const submitValidationMessage = buildValidationMessage(snapshot.form, snapshot.selectionConfirm);
+    const submitValidationMessage = buildValidationMessage(snapshot.form, snapshot.selectionConfirm) || (showShichen && snapshot.form.shichen == null ? '請選擇出生時辰，或改選不知道。' : '');
     if (submitValidationMessage) {
       setForm(snapshot.form);
       setSelectionConfirm(snapshot.selectionConfirm);
@@ -1143,7 +1160,7 @@ export default function NameologyPage() {
       } else {
         showRitualCompleteImmediately((data as NameologyResponse).analysis.ritualSteps);
       }
-      setDailyRecord(saveDailyAnalysis<NameologyDailyResult>('nameology', nextResult, { schemaVersion: NAMEOLOGY_DAILY_SCHEMA_VERSION }));
+      setDailyRecord(saveDailyAnalysis<NameologyDailyResult>('nameology', nextResult, { schemaVersion: NAMEOLOGY_DAILY_SCHEMA_VERSION, inputKey: nameologyInputKey(snapshot.form) }));
       if (getAnalysisIdentityTarget() === 'self') markGrowthModuleCompleted('nameology', (data as NameologyResponse).fiveElement.brandElement);
       window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     } catch (err) {
@@ -1181,7 +1198,7 @@ export default function NameologyPage() {
 
           <MegaInputGuide
             title="請先填完整姓名"
-            steps={['姓名至少 2 個字', '再完成生日資料', '最後點選血型與性別']}
+            steps={['姓名至少 2 個字', '再完成生日資料', '最後確認性別']}
             example="王小明，或你的真實姓名"
             tone="amber"
             className="mt-6"
@@ -1231,32 +1248,7 @@ export default function NameologyPage() {
 
             <div>
               <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
-                3. 血型 {selectionConfirm.bloodType && <span className="text-green-400">✓</span>}
-              </label>
-              {showMissingBloodType && (
-                <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u9ede\u9078\u8840\u578b\uff0c\u9019\u6b04\u9084\u6c92\u6709\u9078\u3002"}</p>
-              )}
-              <div className="grid gap-3 sm:grid-cols-2">
-                {BLOOD_TYPES.map((bloodType, index) => (
-                  <FriendlyChoiceCard
-                    key={bloodType}
-                    active={selectionConfirm.bloodType && form.bloodType === bloodType}
-                    title={`${bloodType} 型`}
-                    description={BLOOD_DESC[bloodType]}
-                    onClick={() => {
-                      setForm((prev) => ({ ...prev, bloodType }));
-                      setSelectionConfirm((prev) => ({ ...prev, bloodType: true }));
-                    }}
-                    tone={index % 2 === 0 ? 'violet' : 'cyan'}
-                    attention={showMissingBloodType}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
-                4. 性別 {selectionConfirm.gender && <span className="text-green-400">✓</span>}
+                3. 性別 {selectionConfirm.gender && <span className="text-green-400">✓</span>}
               </label>
               {showMissingGender && (
                 <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u9ede\u9078\u6027\u5225\uff0c\u9019\u6b04\u9084\u6c92\u6709\u78ba\u8a8d\u3002"}</p>
@@ -1287,6 +1279,19 @@ export default function NameologyPage() {
               </div>
             </div>
 
+            <section aria-label="出生時辰選填" className="space-y-3">
+              <h3 className="text-sm font-semibold">4. 出生時辰（選填）</h3>
+              <p className="text-xs text-[color:var(--text-muted)]">依臺灣標準時間。未知仍可分析姓名與三柱；知道時辰可加入時柱，資料更完整。</p>
+              <div className="grid grid-cols-2 gap-3">
+                <button type="button" aria-pressed={!showShichen} onClick={() => { setShowShichen(false); setForm(prev => ({ ...prev, shichen: null })); }} className="rounded-xl border border-amber-300/30 p-3">不知道出生時辰</button>
+                <button type="button" aria-pressed={showShichen} onClick={() => setShowShichen(true)} className="rounded-xl border border-amber-300/30 p-3">我知道出生時辰</button>
+              </div>
+              {!showShichen && <p className="text-xs text-[color:var(--text-muted)]">良辰吉時・不知道也可以分析。出生時辰仍記為未知，不代填時柱。</p>}
+              {showShichen && <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {SHICHEN_LIST.map(item => <button key={item.branchIndex} type="button" aria-pressed={form.shichen === item.branchIndex} onClick={() => setForm(prev => ({ ...prev, shichen: item.branchIndex }))} className={`rounded-xl border p-3 text-sm ${form.shichen === item.branchIndex ? 'border-amber-300 bg-amber-900/40' : 'border-white/15'}`}>{item.label}<br /><span className="text-xs">{item.range}</span></button>)}
+              </div>}
+            </section>
+
             {(error || validationMessage) && !result && (
               <p className={`rounded-2xl border px-4 py-3 text-sm ${error ? 'border-rose-400/25 bg-rose-950/20 text-rose-100' : 'border-amber-400/20 bg-amber-950/15 text-amber-100'}`}>
                 {error || validationMessage}
@@ -1311,7 +1316,7 @@ export default function NameologyPage() {
                       key={item.label}
                       className={`rounded-full border px-3 py-1 text-xs font-semibold ${item.done ? 'border-green-400/30 bg-green-500/20 text-green-300' : 'border-white/10 bg-white/8 text-[color:var(--text-muted)]'}`}
                     >
-                      ✓ {item.label} {item.value}
+                      {item.done ? '✓' : '○'} {item.label} {item.value}
                     </span>
                   ))}
                 </div>
