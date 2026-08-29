@@ -91,118 +91,6 @@
   z-index: 1;
 }
 
-/* 手機深潛保底：第 9 層起即使 WebGL 被系統回收，使用者仍能看見一個明確的
-   深層核心。它是 HTML/CSS 層，完全不仰賴 GPU 畫布；桌機保留原本純 3D 畫面。 */
-.mobileDeepAnchor {
-  display: none;
-  position: absolute;
-  inset: 20%;
-  z-index: 4;
-  pointer-events: none;
-  border-radius: 50%;
-  opacity: 0.9;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255, 249, 216, 0.98) 0 3%, rgba(253, 230, 138, 0.82) 4% 7%, rgba(251, 191, 36, 0.22) 12%, transparent 39%),
-    radial-gradient(circle at 38% 42%, rgba(191, 219, 254, 0.45), transparent 11%),
-    radial-gradient(circle at 66% 61%, rgba(253, 230, 138, 0.34), transparent 14%);
-  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.68));
-  animation: mobileDeepAnchorPulse 2.8s ease-in-out infinite;
-}
-
-/* 小手機的完整替代渲染器：用 CSS 合成、只讀取同一份 journey.step。
-   它不建立 WebGL context，因此第 1～24 層不會被行動裝置的 GPU 回收。 */
-.mobileTaijiRenderer {
-  display: none;
-  position: absolute;
-  inset: 4%;
-  z-index: 2;
-  pointer-events: none;
-  overflow: hidden;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 49%, rgba(255, 243, 194, 0.16), transparent 32%),
-    radial-gradient(circle at 35% 35%, rgba(122, 162, 255, 0.13), transparent 37%);
-}
-
-.mobileTaijiAura,
-.mobileTaijiParticles,
-.mobileTaijiCore,
-.mobileTaijiDisk {
-  position: absolute;
-  border-radius: 50%;
-}
-
-.mobileTaijiAura {
-  inset: 4%;
-  border: 1px solid rgba(253, 230, 138, 0.24);
-  box-shadow: inset 0 0 28px rgba(251, 191, 36, 0.16), 0 0 32px rgba(147, 197, 253, 0.16);
-  animation: mobileTaijiBreath 4.2s ease-in-out infinite;
-}
-
-.mobileTaijiDisk {
-  inset: 20%;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 25%, #f8e5b2 0 9%, transparent 10%),
-    radial-gradient(circle at 50% 75%, #080b16 0 9%, transparent 10%),
-    radial-gradient(circle at 50% 25%, #090c17 0 25%, transparent 26%),
-    radial-gradient(circle at 50% 75%, #f3dfae 0 25%, transparent 26%),
-    linear-gradient(90deg, #090c17 0 50%, #f3dfae 50% 100%);
-  box-shadow: 0 0 0 2px rgba(253, 230, 138, 0.75), 0 0 24px rgba(251, 191, 36, 0.42);
-  animation: mobileTaijiTurn 18s linear infinite;
-}
-
-.mobileTaijiDotLight,
-.mobileTaijiDotDark {
-  position: absolute;
-  width: 16%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-}
-
-.mobileTaijiDotLight { top: 17%; left: 42%; background: #f8e5b2; }
-.mobileTaijiDotDark { bottom: 17%; left: 42%; background: #080b16; }
-
-.mobileTaijiParticles {
-  inset: 7%;
-  opacity: 0.38;
-  background-image:
-    radial-gradient(circle, rgba(255, 243, 194, 0.95) 0 1px, transparent 2px),
-    radial-gradient(circle, rgba(147, 197, 253, 0.8) 0 1px, transparent 2px);
-  background-size: 17px 19px, 23px 29px;
-  mask-image: radial-gradient(circle, transparent 0 38%, #000 52%, transparent 74%);
-  animation: mobileTaijiTurn 14s linear infinite reverse;
-}
-
-.mobileTaijiCore {
-  inset: 43%;
-  background: #fff5c7;
-  box-shadow: 0 0 10px 5px rgba(255, 235, 154, 0.8), 0 0 34px 13px rgba(251, 191, 36, 0.38);
-  animation: mobileTaijiBreath 2.6s ease-in-out infinite;
-}
-
-@keyframes mobileTaijiTurn { to { transform: rotate(360deg); } }
-@keyframes mobileTaijiBreath { 0%,100% { transform: scale(0.9); opacity: 0.66; } 50% { transform: scale(1.08); opacity: 1; } }
-
-.mobileDeepAnchorCore,
-.mobileDeepAnchorOrbit {
-  position: absolute;
-  inset: 35%;
-  border: 1px solid rgba(255, 244, 189, 0.78);
-  border-radius: 50%;
-}
-
-.mobileDeepAnchorOrbit {
-  inset: 16%;
-  border-color: rgba(147, 197, 253, 0.32);
-  transform: rotateX(64deg) rotateZ(24deg);
-}
-
-@keyframes mobileDeepAnchorPulse {
-  0%, 100% { transform: scale(0.92); opacity: 0.65; }
-  50% { transform: scale(1.08); opacity: 1; }
-}
-
 /* ====================== 遊戲留客機制（2026-08-14） ====================== */
 
 /* 進度環（2026-08-16 依指示隱藏）：最外圍的圈收起，球體獨佔舞台；要恢復移除 display:none */
@@ -456,14 +344,6 @@
     width: 54%;
     height: 7%;
     filter: blur(5px);
-  }
-
-  .mobileDeepAnchor {
-    display: block;
-  }
-
-  .mobileTaijiRenderer {
-    display: block;
   }
 
   .layerReviewPanel {

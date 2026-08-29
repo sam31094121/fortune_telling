@@ -35,8 +35,8 @@ type Stage = 'TAIJI' | 'LIANGYI' | 'SIXIANG' | 'BAGUA';
 
 const STAGES: Stage[] = ['TAIJI', 'LIANGYI', 'SIXIANG', 'BAGUA'];
 const FRAME_DELTA_CAP = 1 / 45;
-// 24 層功能按鍵面板：2026-08-28 依指示恢復顯示——現有素材直接顯示，24 響 × 24 面貌全開。
-const SHOW_LAYER_REVIEW_PANEL = true;
+// 24 層人工預覽已完成驗收；正式首頁隱藏檢查面板，保留完整演化內容。
+const SHOW_LAYER_REVIEW_PANEL = false;
 const journeyZoomTarget = (step: number) => step <= 1 ? 0 : Math.min(1, (step - 1) / 23);
 
 /* 每一層都要有立即可辨的視覺回饋：第 2 層直接進入兩儀，避免前 3 層看起來沒有變化。 */
@@ -1668,12 +1668,6 @@ export default function TaijiSystem({
   const [todayAwakened, setTodayAwakened] = useState(false);
   const [attractTick, setAttractTick] = useState(0);
   const [touchActive, setTouchActive] = useState(false);
-  /* 小手機不再執行完整 WebGL 深潛場景；改由同一份 24 層狀態驅動的
-     CSS 演化器承接，避免第 9 層後因 GPU／驅動差異變成空白。 */
-  const [isPhoneViewport, setIsPhoneViewport] = useState(false);
-  /* 行動裝置的 WebGL 可能因記憶體壓力暫時失去畫布。保留一個 DOM 層級的
-     深潛核心，讓第 9 層以後絕不會只剩空白背景。 */
-  const [canvasLost, setCanvasLost] = useState(false);
   const lastClickAtRef = useRef(0);
   const touchRef = useRef({ active: false, x: 0, y: 0 });
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -1842,14 +1836,6 @@ export default function TaijiSystem({
     '--completion-opacity': todayAwakened || journey.step >= 24 ? '1' : '0',
   } as CSSProperties;
 
-  useEffect(() => {
-    const query = window.matchMedia('(max-width: 640px)');
-    const sync = () => setIsPhoneViewport(query.matches);
-    sync();
-    query.addEventListener('change', sync);
-    return () => query.removeEventListener('change', sync);
-  }, []);
-
   return (
     <section
       className={`${styles.root} ${styles[`stage_${journeyStage.toLowerCase()}`]}`}
@@ -1857,7 +1843,6 @@ export default function TaijiSystem({
       style={visualStyle}
       data-deep-field={journey.step >= 13}
       data-journey-step={journey.step}
-      data-canvas-fallback={canvasLost}
     >
       <div
         ref={wrapperRef}
@@ -1873,33 +1858,7 @@ export default function TaijiSystem({
         <span key={visualPulse} className={styles.visualPulse} aria-hidden="true" />
         <span className={styles.completionHalo} aria-hidden="true" />
         <span className={styles.groundShadow} aria-hidden="true" />
-        {(journey.step >= 9 || canvasLost) && (
-          <span className={styles.mobileDeepAnchor} aria-hidden="true">
-            <span className={styles.mobileDeepAnchorCore} />
-            <span className={styles.mobileDeepAnchorOrbit} />
-          </span>
-        )}
-        {isPhoneViewport && (
-          <span
-            className={styles.mobileTaijiRenderer}
-            aria-label={`太極演化第 ${Math.max(1, journey.step)} 層，共 24 層`}
-            role="button"
-            tabIndex={0}
-            onClick={goNext}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') goNext();
-            }}
-          >
-            <span className={styles.mobileTaijiAura} />
-            <span className={styles.mobileTaijiDisk}>
-              <span className={styles.mobileTaijiDotLight} />
-              <span className={styles.mobileTaijiDotDark} />
-            </span>
-            <span className={styles.mobileTaijiParticles} />
-            <span className={styles.mobileTaijiCore} />
-          </span>
-        )}
-        {!isPhoneViewport && <Canvas
+        <Canvas
           camera={{ position: [0, 0, 5.1], fov: 42 }}
           dpr={[canvasQuality.minDpr, canvasQuality.maxDpr]}
           gl={{
@@ -1914,13 +1873,6 @@ export default function TaijiSystem({
             gl.domElement.dataset.taijiScene = 'ready';
             gl.domElement.dataset.taijiQuality = `${canvasQuality.maxDpr}x`;
             gl.domElement.style.background = 'transparent';
-            gl.domElement.addEventListener('webglcontextlost', (event) => {
-              event.preventDefault();
-              setCanvasLost(true);
-            });
-            gl.domElement.addEventListener('webglcontextrestored', () => {
-              setCanvasLost(false);
-            });
             gl.setClearColor(0x000000, 0);
             /* 真實感：ACES 電影級色調映射（全世界影視工業標準），高光滾降自然不死白 */
             gl.toneMapping = THREE.ACESFilmicToneMapping;
@@ -1979,7 +1931,7 @@ export default function TaijiSystem({
             autoRotateSpeed={0.16}
             touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE }}
           />
-        </Canvas>}
+        </Canvas>
         {/* 客戶頁只保留可直接點擊的太極圖騰；倍率／步數／解析度等驗收輔助資訊不對外顯示。 */}
       </div>
       {SHOW_LAYER_REVIEW_PANEL && (
