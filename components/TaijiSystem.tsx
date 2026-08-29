@@ -1248,6 +1248,12 @@ function TaijiCore({
       const grain = 2 + surfaceD * 11;
       if (Math.abs(surfaceNoise.repeat.x - grain) > 0.01) surfaceNoise.repeat.set(grain, grain);
     }
+    /* 鐵律修正（2026-08-29）：這四層深潛場原本只認「第幾響」（離散的 step24），
+       純粹用滾輪／觸控連續放大（journey.step 永遠是 0）時，不管倍率拉多深，
+       這幾層永遠不會出現——畫面在量子粒子場淡出後（約 decade 5）就直接見底。
+       改成「離散響數」與「連續數量級 zoomD」兩條件用 OR 併存：
+       點 24 響按鈕／選層面板走原本的即時響應；純滾輪／觸控連續縮放改讀 zoomD，
+       跟每層子元件內部本來就有的 smoothstep 連續公式接上，兩種操作方式共用同一批畫面。 */
     // 量子粒子場與太極圖騰同一個朝向（同一顆物體的裡與外）
     if (quantumGroupRef.current && diskRef.current) {
       if (step24 >= 5 && step24 <= 11) {
@@ -1256,14 +1262,14 @@ function TaijiCore({
       } else {
         quantumGroupRef.current.rotation.y = diskRef.current.rotation.y + Math.PI / 2;
       }
-      // 第 12 層起由逐層專用鏡頭接管；關閉通用量子場，避免各層疊成相似白點畫面。
-      quantumGroupRef.current.visible = step24 < 12 || warming;
+      // 第 12 層起（或連續放大超過 decade 11.6）由逐層專用鏡頭接管，關閉通用量子場。
+      quantumGroupRef.current.visible = (step24 < 12 && zoomD < 11.6) || warming;
     }
     /* 糾纏內景層：反轉抵銷父層旋轉，讓那一對波包在畫面上穩穩不動。
        使用者拖曳時是鏡頭繞著它轉（OrbitControls），觀察角度照樣自由。 */
     if (deepGroupRef.current) {
-      /* 第 17～20 層進入糾纏鏡頭；其餘層讓位，避免多個深層場景重疊。 */
-      deepGroupRef.current.visible = (step24 >= 17 && step24 <= 20) || warming;
+      /* 第 17～20 層，或連續放大落在 ×50,000～×2,500萬（decade 4.2~7.4）之間時進入糾纏鏡頭。 */
+      deepGroupRef.current.visible = (step24 >= 17 && step24 <= 20) || (zoomD >= 4.2 && zoomD < 7.4) || warming;
       if (deepGroupRef.current.visible) {
         // 用四元數反轉才是精確的抵銷（尤拉角逐軸取負在複合旋轉下並不等於反轉）
         deepGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
@@ -1271,15 +1277,15 @@ function TaijiCore({
     }
     /* 細胞內景層（×100,000,000 起）：同樣站著不動，門檻與糾纏內景層共用同一顆父層旋轉抵銷邏輯 */
     if (cellularGroupRef.current) {
-      cellularGroupRef.current.visible = (step24 >= 11 && step24 <= 16) || warming;
+      cellularGroupRef.current.visible = (step24 >= 11 && step24 <= 16) || (zoomD >= 6.1 && zoomD < 12.3) || warming;
       if (cellularGroupRef.current.visible) {
         cellularGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
       }
     }
-    /* 深淵場（第 14~24 層）：同樣站著不動，共用同一顆父層旋轉抵銷邏輯 */
+    /* 深淵場（第 21~24 層）：同樣站著不動，共用同一顆父層旋轉抵銷邏輯 */
     if (abyssGroupRef.current) {
-      // 第 21～24 層才進入事件視界、白洞與量子太極回歸。
-      abyssGroupRef.current.visible = (step24 >= 21 && step24 <= 24) || warming;
+      // 第 21～24 層，或連續放大超過 ×10,000,000,000（decade 11.3）才進入事件視界、白洞與量子太極回歸。
+      abyssGroupRef.current.visible = (step24 >= 21 && step24 <= 24) || zoomD >= 11.3 || warming;
       if (abyssGroupRef.current.visible) {
         abyssGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
       }
