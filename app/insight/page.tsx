@@ -2901,18 +2901,22 @@ function ZiweiTeacherResultView({ result }: { result: StructureTeacherResult | L
       <div className="mt-4">
         <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">易經老師解盤｜結構解盤</p>
         <h4 className="mt-2 font-serif text-xl font-black leading-tight text-purple-50">{result.corePattern}</h4>
-        <div className="mt-3 grid gap-2.5 text-base font-semibold leading-7 text-[color:var(--text-main)]">
-          <p><span className="font-black text-purple-200">主星組合：</span>{result.primaryStarSynthesis}</p>
-          <p><span className="font-black text-purple-200">三方四正：</span>{result.threeHarmonySynthesis}</p>
-          <p><span className="font-black text-purple-200">四化效應：</span>{result.transformationEffect}</p>
-          {result.importantSupportingStars.length > 0 && (
-            <p><span className="font-black text-purple-200">重要輔星：</span>{result.importantSupportingStars.join('、')}</p>
-          )}
-          <p><span className="font-black text-emerald-200">結構優勢：</span>{result.structuralStrength}</p>
-          <p><span className="font-black text-rose-200">結構壓力：</span>{result.structuralPressure}</p>
-          <p><span className="font-black text-purple-200">過去慣性：</span>{result.pastStructure}</p>
-          <p><span className="font-black text-cyan-200">未來趨勢：</span>{result.futureTendency}</p>
-          <p><span className="font-black text-cyan-200">結論：</span>{result.conclusion}</p>
+        <div className="mt-3 grid gap-3 text-base font-semibold leading-7 text-[color:var(--text-main)]">
+          <p><span className="font-black text-purple-200">本宮重點：</span>{result.primaryStarSynthesis}</p>
+          <p><span className="font-black text-rose-200">內在張力：</span>{result.structuralPressure}</p>
+          <p><span className="font-black text-emerald-200">可用優勢：</span>{result.structuralStrength}</p>
+          <p><span className="font-black text-cyan-200">當前方向：</span>{result.futureTendency} {result.conclusion}</p>
+          <details className="rounded-xl border border-white/10 bg-black/10 px-3 py-2">
+            <summary className="cursor-pointer text-sm font-black text-purple-200">查看命盤依據</summary>
+            <div className="mt-2 grid gap-2 text-sm leading-6 text-[color:var(--text-sub)]">
+              <p><span className="font-black text-purple-200">三方四正：</span>{result.threeHarmonySynthesis}</p>
+              <p><span className="font-black text-purple-200">四化效應：</span>{result.transformationEffect}</p>
+              {result.importantSupportingStars.length > 0 && (
+                <p><span className="font-black text-purple-200">重要輔星：</span>{result.importantSupportingStars.join('、')}</p>
+              )}
+              <p><span className="font-black text-purple-200">過去慣性：</span>{result.pastStructure}</p>
+            </div>
+          </details>
         </div>
         <ZiweiTeacherEvidenceRefs refs={result.evidenceRefs} />
       </div>

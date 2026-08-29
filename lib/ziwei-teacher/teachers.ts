@@ -139,7 +139,7 @@ function castPalaceHexagram(context: PalaceAnalysisContext) {
 
 function renderIChing(context: PalaceAnalysisContext): string {
   const gua = castPalaceHexagram(context);
-  return `【易經卦象（後端已決定性起卦，解讀時必須引用印證，不可自行改卦）】\n${formatHexagramLine(gua)}\n專屬格局名稱（引用時必須一字不差，禁止改名、縮寫或自創別名）：「${patternNameOf(gua)}」（六十四格裡就這一格是這張盤——特殊格局，這個人本來就很特別）\n卦義：${gua.judgment}\n卦示行動：${gua.advice}\n卜卦儀式規則（硬性要求，違反即不合格）：每位老師都是同一場易經卜卦的不同話術分身——客戶可讀的內容中，卦名「${gua.hexagramName}」與格局名稱「${patternNameOf(gua)}」兩者至少各出現一次：理性老師以定盤宣告帶出（例如「此宮起卦得○○，成『○○格』」）、恐怖老師讓卦名以壓迫倒數中的符號浮現、鬼魅老師讓卦名化為場景中隱隱發光的神祕符號、格局名稱由低語說出。整體要像剝洋蔥一層層深入，不可照抄本段原句。`;
+  return `【易經卦象（後端已決定性起卦，解讀時必須引用印證，不可自行改卦）】\n${formatHexagramLine(gua)}\n此盤此宮的解讀格局名稱（引用時必須一字不差，禁止改名、縮寫或自創別名）：「${patternNameOf(gua)}」\n卦義：${gua.judgment}\n卦示行動：${gua.advice}\n卜卦規則（硬性要求，違反即不合格）：三位老師必須共用上方同一個正式卦象，禁止另起第二卦、改卦或自行補卦。客戶可讀內容只需自然呈現一次卦名「${gua.hexagramName}」與格局名稱「${patternNameOf(gua)}」；其餘內容直接解讀本宮、主星、三方四正與四化，不得重複儀式句或宣稱此格局全球唯一。`;
 }
 
 function renderTimeContext(context: PalaceAnalysisContext): string {
@@ -200,7 +200,7 @@ function apiKey(): string {
 const STRUCTURE_SCHEMA = {
   type: Type.OBJECT,
   properties: {
-    corePattern: { type: Type.STRING, description: '這個宮位形成什麼結構，一句話結論先行；並以定盤宣告帶出資料中提供的易經卦名與格局名稱（例：此宮起卦得○○，成「○○格」）' },
+    corePattern: { type: Type.STRING, description: '只寫這個宮位形成的紫微結構，一句話結論先行；不得自行起卦、寫卦名或另創格局名稱' },
     primaryStarSynthesis: { type: Type.STRING, description: '本宮主星組合的結構意涵' },
     threeHarmonySynthesis: { type: Type.STRING, description: '三方四正如何呼應或牽制本宮' },
     transformationEffect: { type: Type.STRING, description: '四化對這個結構造成的具體效果' },
@@ -230,6 +230,13 @@ ${renderTimeContext(context)}
 請依上述固定順序輸出 JSON。`;
 }
 
+function stripModelHexagramClaims(value: string): string {
+  return value
+    .replace(/(?:此宮)?起卦得[^。！？]*[。！？]?/gu, '')
+    .replace(/六十四格[^。！？]*[。！？]?/gu, '')
+    .trim();
+}
+
 export async function runStructureTeacher(context: PalaceAnalysisContext): Promise<StructureTeacherResult | typeof INSUFFICIENT_DATA> {
   if (!hasUsableData(context)) return INSUFFICIENT_DATA;
   try {
@@ -247,11 +254,10 @@ export async function runStructureTeacher(context: PalaceAnalysisContext): Promi
     const text = response.text || '';
     if (!text) throw new Error('格局老師未返回有效回應。');
     const parsed = safeJsonParse<Omit<StructureTeacherResult, 'teacherId' | 'palace' | 'evidenceRefs'>>(text);
-    // 卜卦儀式的程式碼保證：卦名或格局名稱缺席時，以定盤宣告決定性補進開頭
+    // 正式卦象只由後端決定。模型只負責紫微結構文字，不能另起第二卦。
     const gua = castPalaceHexagram(context);
-    if (!`${parsed.corePattern} ${parsed.conclusion}`.includes(patternNameOf(gua))) {
-      parsed.corePattern = `此宮起卦得「${gua.hexagramName}」，定盤為特殊格局「${patternNameOf(gua)}」。${parsed.corePattern}`;
-    }
+    parsed.corePattern = `此宮正式卦象為「${gua.hexagramName}」，對應此盤此宮的解讀格局「${patternNameOf(gua)}」。`;
+    parsed.conclusion = stripModelHexagramClaims(parsed.conclusion);
     return {
       teacherId: 'STRUCTURE_MASTER',
       palace: context.selectedPalace.palaceName,
@@ -416,7 +422,7 @@ export async function runNarrativeTeacher(context: PalaceAnalysisContext): Promi
     const gua = castPalaceHexagram(context);
     const joined = [parsed.scene, parsed.story, parsed.pastEcho, parsed.futureShadow, parsed.finalMetaphor].join(' ');
     if (!joined.includes(gua.hexagramName.slice(-1)) || !joined.includes(patternNameOf(gua))) {
-      parsed.finalMetaphor = `門的另一邊，有人用舊墨寫下你的卦——「${gua.hexagramName}」，低語念出你的格局：「${patternNameOf(gua)}」，六十四格裡就這一格是你。${parsed.finalMetaphor}`;
+      parsed.finalMetaphor = `門的另一邊，有人用舊墨寫下此宮的卦——「${gua.hexagramName}」，低語念出此盤此宮的解讀格局：「${patternNameOf(gua)}」。${parsed.finalMetaphor}`;
     }
     return { teacherId: 'NARRATIVE_MASTER', ...normalizeNarrativeResult(parsed), evidenceRefs: buildEvidenceRefs(context) };
   } catch (error) {
@@ -486,7 +492,7 @@ function buildLocalStructureResult(context: PalaceAnalysisContext): StructureTea
     threeHarmonySynthesis: `三方四正交叉指數：${context.threeHarmony.harmonyA.palaceName} ${scores.A}、${context.threeHarmony.harmonyB.palaceName} ${scores.B}、對宮${context.threeHarmony.opposite.palaceName} ${scores.O}。支撐最強的是${strongest.palaceName}（${majorText(strongest)}），牽制最明顯的是${weakest.palaceName}。`,
     transformationEffect: jiList.length > 0
       ? `${jiList.map((t) => `${t.starName}化忌`).join('、')}是本結構的主要耗損點（每一化忌以 −7 計入指數）；其餘四化${p.transformations.filter((t) => t.type !== 'JI').map((t) => `${t.starName}化${TRANS_LABEL[t.type]}`).join('、') || '無'}提供加分能量。`
-      : `本宮${transText(p)}；${p.transformations.length > 0 ? '四化以加分方向為主，結構取得額外推力。' : '無四化introduces波動，結構以星曜本質穩定運作。'}`,
+      : `本宮${transText(p)}；${p.transformations.length > 0 ? '四化以加分方向為主，結構取得額外推力。' : '無四化引入額外波動，結構以星曜本質穩定運作。'}`,
     importantSupportingStars: [
       ...p.supportingStars.slice(0, 2).map((s) => `輔星${s.name}：加分訊號（+3），強化本宮的支撐面。`),
       ...p.maleficStars.slice(0, 2).map((s) => `煞曜${s.name}：耗損訊號（−6），是指數被拉低的可回查原因。`),

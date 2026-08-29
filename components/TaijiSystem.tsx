@@ -36,7 +36,7 @@ type Stage = 'TAIJI' | 'LIANGYI' | 'SIXIANG' | 'BAGUA';
 const STAGES: Stage[] = ['TAIJI', 'LIANGYI', 'SIXIANG', 'BAGUA'];
 const FRAME_DELTA_CAP = 1 / 45;
 // 24 層人工預覽已完成驗收；正式首頁隱藏檢查面板，保留完整演化內容。
-const SHOW_LAYER_REVIEW_PANEL = false;
+const SHOW_LAYER_REVIEW_PANEL = true;
 const journeyZoomTarget = (step: number) => step <= 1 ? 0 : Math.min(1, (step - 1) / 23);
 
 /* 每一層都要有立即可辨的視覺回饋：第 2 層直接進入兩儀，避免前 3 層看起來沒有變化。 */

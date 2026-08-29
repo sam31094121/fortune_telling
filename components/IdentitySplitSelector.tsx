@@ -11,6 +11,7 @@ import {
 type Props = {
   className?: string;
   compact?: boolean;
+  nextStepLabel?: string;
   selectedTarget?: AnalysisIdentityTarget | null;
   onSelected?: (target: AnalysisIdentityTarget) => void;
 };
@@ -35,7 +36,13 @@ const OPTIONS: Array<{
   },
 ];
 
-export default function IdentitySplitSelector({ className = '', compact = false, selectedTarget, onSelected }: Props) {
+export default function IdentitySplitSelector({
+  className = '',
+  compact = false,
+  nextStepLabel = '接著填姓名',
+  selectedTarget,
+  onSelected,
+}: Props) {
   const [selected, setSelected] = useState<AnalysisIdentityTarget | null>(null);
   const effectiveSelected = selectedTarget ?? selected;
 
@@ -102,7 +109,7 @@ export default function IdentitySplitSelector({ className = '', compact = false,
           </h2>
         </div>
         <p className="text-xs font-semibold leading-5 text-amber-100/78">
-          {effectiveSelected === null ? '請點選一個對象後再開始判定' : `已選擇「${effectiveSelected === 'self' ? '我自己' : '親朋好友'}」・接著填姓名`}
+          {effectiveSelected === null ? '請點選一個對象後再開始判定' : `已選擇「${effectiveSelected === 'self' ? '我自己' : '親朋好友'}」・${nextStepLabel}`}
         </p>
       </div>
 

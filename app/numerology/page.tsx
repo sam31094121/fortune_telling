@@ -382,7 +382,7 @@ export default function NumerologyPage() {
 
         <section className="grid gap-3">
           <DailyAnalysisNotice moduleName="易經論數字" />
-          <IdentitySplitSelector />
+          <IdentitySplitSelector nextStepLabel="接著輸入數字" />
         </section>
 
         {result && level && (
