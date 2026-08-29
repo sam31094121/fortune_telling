@@ -32,6 +32,23 @@ const HORROR_RITUAL_STAGES = [
   '最後一盞燈正在被點亮…',
   '正在寫下這一集的回應…',
 ];
+const GHOST_READING_MARKERS = ['第一道・磁場：', '第二道・詭異：', '第三道・因果：', '五元素封印：'] as const;
+const GHOST_READING_SECTIONS = [
+  { label: '第一道・磁場', sub: '干擾判讀', num: '01', wrap: 'border-white/10 bg-black/25', tone: 'text-rose-100', mark: 'text-rose-100/10' },
+  { label: '第二道・詭異', sub: '異象顯跡', num: '02', wrap: 'border-rose-200/25 bg-rose-950/30 shadow-[inset_0_0_28px_rgba(127,29,29,0.18)]', tone: 'text-rose-100', mark: 'text-rose-100/15' },
+  { label: '第三道・因果', sub: '因果鏈拆解', num: '03', wrap: 'border-violet-200/20 bg-violet-950/30 shadow-[inset_0_0_28px_rgba(76,29,149,0.16)]', tone: 'text-violet-100', mark: 'text-violet-100/15' },
+] as const;
+
+// 三道論述由後端運算輸出；前端只負責把整段文字拆成開場低語＋三道卡片＋封印卡美化呈現。拆不出固定標籤時退回整段顯示。
+function splitGhostReading(reading: string) {
+  const positions = GHOST_READING_MARKERS.map((marker) => reading.indexOf(marker));
+  if (positions.some((index) => index < 0)) return null;
+  for (let i = 1; i < positions.length; i += 1) if (positions[i] <= positions[i - 1]) return null;
+  const bodies = GHOST_READING_MARKERS.map((marker, i) =>
+    reading.slice(positions[i] + marker.length, i + 1 < positions.length ? positions[i + 1] : undefined).trim());
+  return { intro: reading.slice(0, positions[0]).trim(), sections: bodies.slice(0, 3), seal: bodies[3] };
+}
+
 const MIN_RITUAL_MS = 3200;
 const RITUAL_STAGE_INTERVAL_MS = 1100;
 
@@ -423,7 +440,31 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
               </div>
             )}
             {horrorError && <div className="mt-3"><p className="text-sm font-semibold leading-6 text-rose-100">鬼魅回應暫時未完成：{horrorError}</p><button type="button" onClick={() => setHorrorRun((value) => value + 1)} className="mt-2 rounded-xl border-2 border-rose-100/70 bg-rose-300/10 px-3 py-2 text-xs font-black text-rose-50">重新請鬼魅回應</button></div>}
-            {horrorReading && <p className="ghost-reply-copy mt-3 rounded-xl border border-rose-100/20 bg-black/25 p-3">{horrorReading}</p>}
+            {horrorReading && (() => {
+              const parsed = splitGhostReading(horrorReading);
+              if (!parsed) return <p className="ghost-reply-copy mt-3 rounded-xl border border-rose-100/20 bg-black/25 p-3">{horrorReading}</p>;
+              return (
+                <div className="mt-3 space-y-3">
+                  <div className="relative overflow-hidden rounded-2xl border border-rose-100/25 bg-black/30 p-4">
+                    <span aria-hidden="true" className="absolute right-3 top-1 font-serif text-5xl font-black text-rose-100/[0.08]">卦</span>
+                    <p className="text-[10px] font-black tracking-[0.2em] text-rose-200/80">隔門卜卦・開場低語</p>
+                    <p className="ghost-reply-copy relative mt-2">{parsed.intro}</p>
+                  </div>
+                  {GHOST_READING_SECTIONS.map((section, index) => (
+                    <section key={section.label} className={`relative overflow-hidden rounded-2xl border p-4 ${section.wrap}`}>
+                      <span aria-hidden="true" className={`absolute right-3 top-2 text-3xl font-black ${section.mark}`}>{section.num}</span>
+                      <p className={`text-xs font-black tracking-[0.14em] ${section.tone}`}>{section.label}・{section.sub}</p>
+                      <p className="mt-2 text-sm font-semibold leading-7 text-white/85">{parsed.sections[index]}</p>
+                    </section>
+                  ))}
+                  <div className="relative overflow-hidden rounded-2xl border-2 border-amber-200/60 bg-amber-950/25 p-4 shadow-[inset_0_0_24px_rgba(251,191,36,0.1)]">
+                    <span aria-hidden="true" className="absolute right-3 top-1 font-serif text-5xl font-black text-amber-100/[0.08]">封</span>
+                    <p className="text-xs font-black tracking-[0.14em] text-amber-100">五元素封印・今天就能做的一小步</p>
+                    <p className="relative mt-2 text-sm font-semibold leading-7 text-amber-50/90">{parsed.seal}</p>
+                  </div>
+                </div>
+              );
+            })()}
           </section>
           <section className="five-element-treasure-card five-element-treasure-card--horror relative mt-3 overflow-hidden rounded-2xl border-2 border-amber-200/70 p-5" aria-label="五元素寶物關卡">
             <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">依鬼魅老師提醒・解開五元素寶石</p>
@@ -473,7 +514,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
             <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/25 p-4">
               <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-rose-100/10">01</span>
               <p className="text-xs font-black tracking-[0.14em] text-rose-100">第一道・磁場・干擾判讀</p>
-              <p className="mt-2">{shortName}，先不談玄的——談你的身體。最近是不是常常肩頸先僵、胃先縮，事情都還沒發生，警覺就先開機了？心理學叫這個「過度警覺」：你的雷達替太多人開著，訊號全往你這裡灌，所以你會累，不是因為你弱，是因為你接收得太多。磁場說的就是這件事：外面的壓力場，正在用你的身體先說話。</p>
+              <p className="mt-2">{shortName}，先不談玄的——談你的身體。最近是不是常常肩頸先僵、胃先縮，事情都還沒發生，警覺就先開機了？易經卜卦判定：你的雷達替太多人開著，訊號全往你這裡灌，所以你會累，不是因為你弱，是因為你接收得太多。磁場說的就是這件事：外面的壓力場，正在用你的身體先說話。</p>
             </section>
             <section className="relative overflow-hidden rounded-2xl border border-rose-200/25 bg-rose-950/30 p-4 shadow-[inset_0_0_28px_rgba(127,29,29,0.18)]">
               <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-rose-100/15">02</span>
@@ -484,7 +525,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
             <section className="relative overflow-hidden rounded-2xl border border-violet-200/20 bg-violet-950/30 p-4 shadow-[inset_0_0_28px_rgba(76,29,149,0.16)]">
               <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-violet-100/15">03</span>
               <p className="text-xs font-black tracking-[0.14em] text-violet-100">第三道・因果・因果鏈拆解</p>
-              <p className="mt-2">{shortName}，把邏輯鏈攤開：當年學會的自保，變成今天的慣性；今天的慣性，累積成此刻身體的訊號。若照舊，代價會繼續往身上疊；若今天先做一件該做卻一直放著的小事，鏈條就從這一環鬆開。這不是命定，是條件式——下一幕由你選。</p>
+              <p className="mt-2">{shortName}，卦把邏輯鏈攤開：當年學會的自保，變成今天的慣性；今天的慣性，累積成此刻身體的訊號。若照舊，代價會繼續往身上疊；若今天先做一件該做卻一直放著的小事，鏈條就從這一環鬆開。這不是命定，是條件式——下一幕由你選。</p>
               <p className="mt-2 border-t border-violet-100/10 pt-2 text-sm font-black text-violet-100/85">還有一句要說在前面：會長成這樣，那不是你的錯。那是當年最聰明的自保，只是現在的你，已經不需要付這麼大的代價了。</p>
             </section>
           </div>
