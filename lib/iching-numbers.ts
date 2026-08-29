@@ -77,8 +77,8 @@ export function formatNumberReading(reading: NumberIChingReading): string {
     `相鄰交叉：${reading.crossChain.map((l) => `${l.pair}【${l.kind}】${l.note}`).join('；') || '單碼無交叉'}`,
     `能量鏈評分：${reading.chainScore}/100`,
     `逐碼心理層：${reading.digitReadings.map((d) => `${d.digit}：${d.psych}`).join('；')}`,
-    reading.ghost.spirit,
     reading.ghost.field,
+    reading.ghost.spirit,
     reading.ghost.karma,
   ].join('\n');
 }

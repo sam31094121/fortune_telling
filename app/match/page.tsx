@@ -249,7 +249,7 @@ function MatchTeacherReadings({ data }: { data: MatchResponse }) {
       copy: `這道封印鎖住的是兩人共同缺的${sharedElementName}元素，也就是彼此最難自然給出的回應；${firstBeast}與${secondBeast}必須用共同寶珠打開它。`,
     },
     {
-      title: '靈異磁場',
+      title: '詭異磁場',
       copy: `${maskGameName(data.displayA.name)}是「${spiritSense[firstNeedElement]}」、${maskGameName(data.displayB.name)}是「${spiritSense[secondNeedElement]}」；${ghostField}。這是遊戲角色設定，不是現實體質判定。`,
     },
   ];

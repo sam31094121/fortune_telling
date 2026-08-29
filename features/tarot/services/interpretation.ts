@@ -310,10 +310,10 @@ function buildCardAnswers(question: string, category: TarotInterpretationInput['
     `題卡吻合度：過去 ${pastResult.fit}%、現在 ${presentResult.fit}%、未來 ${futureResult.fit}%（問題需求向量 × 牌元素權重的餘弦核對）`,
     `${formatHexagramLine(iching)}｜${iching.judgment}`,
     iching.advice,
-    // 鬼魅老師標準檔案輸出：靈異・磁場・因果（同一顆問題卦拆解，全站八卡標配）
+    // 鬼魅老師標準檔案輸出：磁場・詭異・因果（同一顆問題卦拆解，全站八卡標配）
     ...((): string[] => {
       const ghost = buildGhostDecoding(iching);
-      return [ghost.spirit, ghost.field, ghost.karma];
+      return [ghost.field, ghost.spirit, ghost.karma];
     })(),
   ];
 

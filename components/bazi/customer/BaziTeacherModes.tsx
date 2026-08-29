@@ -28,7 +28,7 @@ const GOOGLE_RITUAL_STAGES = [
 ];
 const HORROR_RITUAL_STAGES = [
   '鬼魅正在翻開封印的第一頁…',
-  '殘影與警報正在對齊同一張命盤…',
+  '磁場、詭異、因果正在對齊同一張命盤…',
   '最後一盞燈正在被點亮…',
   '正在寫下這一集的回應…',
 ];
@@ -134,7 +134,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
   const elementTreasure = useMemo(() => getBaziElementTreasure(view), [view]);
   const treasureRitual = BAZI_TREASURE_RITUALS[elementTreasure.element];
   const { released: treasureCollected, opening: treasureOpening, stage: ritualStage, start: startTreasureRitual, reseal: resealTreasure } = useElementTreasureRitual(elementTreasure.element);
-  const ghostReply = `「${shortName}，以前沒有回答完的問題沒有消失；它只是藏在你現在的門縫裡，等你決定要不要先跨出那一步。」`;
+  const ghostReply = `「${shortName}，以前沒有回答完的問題沒有消失；它只是變成你現在的慣性，等你看見它、替它做一個新的決定。」`;
   const episodeTitle = '鬼魅老師解封暗示提醒';
 
   const collectTreasure = () => {
@@ -352,19 +352,28 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
             <p className="text-xs font-black tracking-[0.18em] text-rose-200">恐怖鬼魅解命盤・集數式沉浸劇情</p>
             <span className="rounded-full border border-rose-200/25 bg-rose-500/10 px-2 py-1 text-[10px] font-black tracking-[0.12em] text-rose-100">原創恐怖遊戲</span>
           </div>
-          <p className="mt-2 rounded-xl border border-violet-200/15 bg-black/25 px-3 py-2 text-xs font-bold leading-5 text-violet-100/80">戲劇化命盤遊戲情境：以同一張八字盤與當下時間層創作，不代表已發生的真實事件。</p>
+          {/* 戲劇化情境提示卡依需求隱藏（2026-08-28）；「不代表真實事件」的界線已由後端提示詞強制寫進解盤內容本身 */}
+          {false && (
+            <p className="mt-2 rounded-xl border border-violet-200/15 bg-black/25 px-3 py-2 text-xs font-bold leading-5 text-violet-100/80">戲劇化命盤遊戲情境：以同一張八字盤與當下時間層創作，不代表已發生的真實事件。</p>
+          )}
           <h4 className="relative mt-3 font-serif text-[1.38rem] font-black leading-8 text-white">{episodeTitle}</h4>
           <p className="relative mt-1 text-sm font-black leading-6 text-rose-100/90">{shortName}，你現在 {ageLabel}。這次解盤會用以前、現在、未來的生活節奏，陪你看懂眼前的訊號。</p>
-          <div className="relative mt-3 flex items-center gap-2 rounded-xl border border-rose-200/30 bg-black/35 px-3 py-2 shadow-[inset_0_0_20px_rgba(190,24,93,0.08)]">
-            <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-rose-300 shadow-[0_0_12px_rgba(253,164,175,0.95)]" />
-            <p className="text-xs font-black tracking-[0.12em] text-rose-100">劇情壓力正在累積・每一幕都比前一幕更靠近</p>
-          </div>
-          <p className="relative mt-2 text-sm font-bold leading-6 text-rose-100/80">這是原創虛構的恐怖遊戲，不是事件預言。本集先讓異常出現，再讓壓力逼近，最後由鬼魅回應前面留下的八字線索；每一段都能回到同一張盤核對。</p>
+          {/* 「劇情壓力正在累積」跑馬提示依需求永久隱藏（2026-08-28），以後不再顯示 */}
+          {false && (
+            <div className="relative mt-3 flex items-center gap-2 rounded-xl border border-rose-200/30 bg-black/35 px-3 py-2 shadow-[inset_0_0_20px_rgba(190,24,93,0.08)]">
+              <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-rose-300 shadow-[0_0_12px_rgba(253,164,175,0.95)]" />
+              <p className="text-xs font-black tracking-[0.12em] text-rose-100">劇情壓力正在累積・每一幕都比前一幕更靠近</p>
+            </div>
+          )}
+          {/* 流程說明段依需求隱藏（2026-08-28）；「非事件預言」的免責聲明由上方戲劇化情境提示卡保留，要恢復移除 false && 即可 */}
+          {false && (
+            <p className="relative mt-2 text-sm font-bold leading-6 text-rose-100/80">這是原創虛構的恐怖遊戲，不是事件預言。本集先讓異常出現，再讓壓力逼近，最後由鬼魅回應前面留下的八字線索；每一段都能回到同一張盤核對。</p>
+          )}
           <div className="relative mt-4 grid grid-cols-3 gap-2" aria-label="恐怖鬼魅劇情結構">
             {[
-              ['第 01 段', '殘影開場', '八字伏筆開始失真'],
-              ['第 02 段', '警報深處', '當下壓力逐步逼近'],
-              ['第 03 段', '鬼魅回應', '封印決定下一幕'],
+              ['功能 01', '磁場', '干擾判讀・說中你當下的感受'],
+              ['功能 02', '詭異', '異象顯跡・還沒散場的舊迴聲'],
+              ['功能 03', '因果', '因果鏈拆解・封印決定下一幕'],
             ].map(([time, title, detail], index) => (
               <div key={time} className={`rounded-xl border p-3 ${index === 1 ? 'border-rose-200/35 bg-rose-500/10' : 'border-white/10 bg-black/20'}`}>
                 <p className="text-[10px] font-black tracking-[0.16em] text-rose-200/80">{time}</p>
@@ -373,26 +382,35 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
               </div>
             ))}
           </div>
-          <div className="relative mt-3 rounded-2xl border border-rose-200/15 bg-black/25 p-3" aria-label="劇情因果鏈">
-            <p className="text-[10px] font-black tracking-[0.16em] text-rose-200/80">本集命盤腳本・不是隨機故事</p>
-            <p className="mt-1 text-sm font-bold leading-6 text-white/75">
-              後端會用已鎖定的八字資料建立伏筆；客戶端只看以前的你留下的殘影、{shortName}現在的警報與未來的你面前的門縫。你不必先懂術語，照著這三段就能走完本集。
-            </p>
-          </div>
+          {/* 「本集命盤腳本」說明卡依需求隱藏（2026-08-28）：後端運作方式客戶沒必要看到；要恢復移除 false && 即可 */}
+          {false && (
+            <div className="relative mt-3 rounded-2xl border border-rose-200/15 bg-black/25 p-3" aria-label="劇情因果鏈">
+              <p className="text-[10px] font-black tracking-[0.16em] text-rose-200/80">本集命盤腳本・不是隨機故事</p>
+              <p className="mt-1 text-sm font-bold leading-6 text-white/75">
+                後端會用已鎖定的八字資料建立伏筆；客戶端只看以前的你留下的殘影、{shortName}現在的警報與未來的你面前的門縫。你不必先懂術語，照著這三段就能走完本集。
+              </p>
+            </div>
+          )}
           <section className="relative mt-3 rounded-2xl border-2 border-violet-200/35 bg-[linear-gradient(135deg,rgba(76,5,25,0.42),rgba(30,27,75,0.52))] p-4" aria-label="正式恐怖鬼魅八字解盤">
             <div className="flex items-center justify-between gap-3">
               <p className="ghost-reply-title">鬼魅正式解盤・同盤回應</p>
               <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${horrorLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : horrorReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-rose-100/35 bg-rose-300/10 text-rose-100/80'}`}>{horrorLoading ? '正在生成' : horrorReading ? '鬼魅已回應' : '等待回應'}</span>
             </div>
-            <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和 易經老師解盤使用完全相同的八字資料與五元素寶石；鬼魅老師會用故事給你一個暗示提醒，最後引導你解開對應的寶石，不會塞進看不懂的術語。</p>
-            <button
-              type="button"
-                  onClick={treasureCollected ? resealTreasure : collectTreasure}
-              disabled={treasureOpening}
-              className={`mt-3 w-full rounded-xl border-2 px-3 py-3 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/85 bg-amber-300/20 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.2)]'}`}
-            >
-                  {treasureOpening ? '寶石正在解封・能量釋放中…' : treasureCollected ? '還原封印・再次進行完整儀式' : `第一步・解開${elementTreasure.element}元素寶石`}
-            </button>
+            {/* 同盤說明卡依需求隱藏（2026-08-28）：又是講後端運作的說明，客戶不需要 */}
+            {false && (
+              <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和 易經老師解盤使用完全相同的八字資料與五元素寶石；鬼魅老師會用故事給你一個暗示提醒，最後引導你解開對應的寶石，不會塞進看不懂的術語。</p>
+            )}
+            {/* 「第一步・解開寶石」按鈕依需求隱藏（2026-08-28）：所有隱藏元素一律不得再顯示，除非明確叫醒／顯示；解封入口保留下方鬼魅回應後的封印儀式 */}
+            {false && (
+              <button
+                type="button"
+                onClick={treasureCollected ? resealTreasure : collectTreasure}
+                disabled={treasureOpening}
+                className={`mt-3 w-full rounded-xl border-2 px-3 py-3 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/85 bg-amber-300/20 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.2)]'}`}
+              >
+                {treasureOpening ? '寶石正在解封・能量釋放中…' : treasureCollected ? '還原封印・再次進行完整儀式' : `第一步・解開${elementTreasure.element}元素寶石`}
+              </button>
+            )}
             {horrorLoading && (
               <div className="mt-3 rounded-xl border border-rose-100/25 bg-black/35 px-3 py-3" aria-live="polite">
                 <div className="flex items-center gap-2">
@@ -454,20 +472,20 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
           <div className="mt-4 space-y-3 text-base font-semibold leading-7 text-white/75">
             <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/25 p-4">
               <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-rose-100/10">01</span>
-              <p className="text-xs font-black tracking-[0.14em] text-rose-100">以前的你・第 01 段・殘影開場</p>
-              <p className="mt-2">{shortName}，鏡頭回到那些還沒被好好處理的小事：一個拖延的決定、一段沒說清楚的話，或一件總覺得「明天再做」的事。畫面裡沒有怪物搶先現身，只有反覆跳出的雜訊、忽明忽滅的光，和一個始終不肯被回答的問題。你以為它早已過去，鏡頭卻把每次失衡都剪回同一個角落；殘影沒有離開，它只是在等你叫出它的名字。</p>
+              <p className="text-xs font-black tracking-[0.14em] text-rose-100">第一道・磁場・干擾判讀</p>
+              <p className="mt-2">{shortName}，先不談玄的——談你的身體。最近是不是常常肩頸先僵、胃先縮，事情都還沒發生，警覺就先開機了？心理學叫這個「過度警覺」：你的雷達替太多人開著，訊號全往你這裡灌，所以你會累，不是因為你弱，是因為你接收得太多。磁場說的就是這件事：外面的壓力場，正在用你的身體先說話。</p>
             </section>
             <section className="relative overflow-hidden rounded-2xl border border-rose-200/25 bg-rose-950/30 p-4 shadow-[inset_0_0_28px_rgba(127,29,29,0.18)]">
               <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-rose-100/15">02</span>
-              <p className="text-xs font-black tracking-[0.14em] text-rose-100">{shortName}，你現在 {ageLabel}・第 02 段・警報深處</p>
-              <p className="mt-2">{shortName}，現在輪到你的關卡。警報從那個最容易被忽略的缺口亮起：每一次延後、每一次用忙碌蓋過真正想處理的事，畫面就更暗一格。鏡頭不再停在遠處，而是把每個看似平常的選擇推到門前。</p>
-              <p className="mt-2">這一段不是說壞事會發生，而是提醒你：現在最能改變劇情的，不是繼續猜，而是選一件小事立刻做完。</p>
+              <p className="text-xs font-black tracking-[0.14em] text-rose-100">第二道・詭異・異象顯跡</p>
+              <p className="mt-2">{shortName}，那些反覆出現的老感覺——明明想拒絕卻先答應、明明累了卻先照顧別人——不是這幾天才長出來的。它們是還沒散場的舊迴聲：你很早就學會察言觀色、先扛起期待，因為當年那樣做最安全。詭異的不是有什麼跟著你，而是一套學來的慣性還在替過去的你做決定。</p>
+              <p className="mt-2">被說中不用害怕。看見它從哪裡來，它就管不動你了。</p>
             </section>
             <section className="relative overflow-hidden rounded-2xl border border-violet-200/20 bg-violet-950/30 p-4 shadow-[inset_0_0_28px_rgba(76,29,149,0.16)]">
               <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-violet-100/15">03</span>
-              <p className="text-xs font-black tracking-[0.14em] text-violet-100">未來的你・第 03 段・最後一盞燈</p>
-              <p className="mt-2">{shortName}，未來不是唯一結局，而是兩條尚未選定的岔路：一條是把現在的問題繼續留在門外；另一條是從今天開始，把一件該做的事完成。鏡頭停在門縫前，最後一盞燈正在晃動，影子比你先動了一步。下一幕，不由黑暗決定，而由你現在做出的選擇決定。</p>
-              <p className="mt-2 border-t border-violet-100/10 pt-2 text-sm font-black text-violet-100/85">鬼魅不是另一位老師；它是本集最後依八字線索開口的回應。</p>
+              <p className="text-xs font-black tracking-[0.14em] text-violet-100">第三道・因果・因果鏈拆解</p>
+              <p className="mt-2">{shortName}，把邏輯鏈攤開：當年學會的自保，變成今天的慣性；今天的慣性，累積成此刻身體的訊號。若照舊，代價會繼續往身上疊；若今天先做一件該做卻一直放著的小事，鏈條就從這一環鬆開。這不是命定，是條件式——下一幕由你選。</p>
+              <p className="mt-2 border-t border-violet-100/10 pt-2 text-sm font-black text-violet-100/85">還有一句要說在前面：會長成這樣，那不是你的錯。那是當年最聰明的自保，只是現在的你，已經不需要付這麼大的代價了。</p>
             </section>
           </div>
           <CustomerEvidenceDrawer items={evidence} />

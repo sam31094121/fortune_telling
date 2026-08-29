@@ -175,8 +175,8 @@ const HOME_QUICK_NAV = [
   { href: '/tarot', icon: '牌', label: '塔羅占問', tone: 'amber' },
 ] as const;
 
-// 桌機右側「快速切換」直欄依需求隱藏；要恢復把這裡改回 true 即可
-const SHOW_DESKTOP_QUICK_NAV = false;
+// 桌機（24 吋等寬螢幕）右側「快速切換」功能按鍵：2026-08-28 依指示恢復顯示
+const SHOW_DESKTOP_QUICK_NAV = true;
 // 行動版右側「功能」按鈕依需求隱藏；要恢復把這裡改回 true 即可
 const SHOW_MOBILE_QUICK_NAV = false;
 

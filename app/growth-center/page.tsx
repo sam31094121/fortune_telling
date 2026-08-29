@@ -429,10 +429,10 @@ export default function GrowthCenterPage() {
                 <p className="rounded-xl border border-rose-200/25 bg-rose-400/10 px-4 py-3 text-sm font-black leading-7 text-rose-50">{data.chiefPsychologist.absolution}</p>
               </div>
               <details className="growth-detail-drawer mt-3">
-                <summary>易經三段拆卦（靈異・磁場・因果）</summary>
+                <summary>易經三段拆卦（磁場・詭異・因果）</summary>
                 <div className="mt-2 space-y-2">
-                  <p className="text-sm font-semibold leading-6 text-[color:var(--text-sub)]">{data.chiefPsychologist.ghost.spirit}</p>
                   <p className="text-sm font-semibold leading-6 text-[color:var(--text-sub)]">{data.chiefPsychologist.ghost.field}</p>
+                  <p className="text-sm font-semibold leading-6 text-[color:var(--text-sub)]">{data.chiefPsychologist.ghost.spirit}</p>
                   <p className="text-sm font-semibold leading-6 text-[color:var(--text-sub)]">{data.chiefPsychologist.ghost.karma}</p>
                 </div>
               </details>

@@ -190,32 +190,32 @@ const CHANGING_LINE_KARMA: Record<number, string> = {
 };
 
 /**
- * 鬼魅老師的標準輸出格式（永久技能）：三段檔案輸出＝靈異・磁場・因果。
- * 靈異＝異象顯跡（卦影＋舊迴聲）、磁場＝干擾判讀（外場＋身體感受錨點）、
+ * 鬼魅老師的標準輸出格式（永久技能）：三段檔案輸出＝磁場・詭異・因果（功能 01/02/03）。
+ * 磁場＝干擾判讀（外場＋身體感受錨點）、詭異＝異象顯跡（卦影＋舊迴聲）、
  * 因果＝因果鏈拆解（起因→現在→走向的條件式推理）。每段都綁真實心理機制。
  */
 export type GhostDecoding = {
-  spirit: string; // 【靈異】異象顯跡：卦影＋還沒散場的舊迴聲
-  field: string; // 【磁場】干擾判讀：外場判讀＋當下身體實際感受錨點
-  karma: string; // 【因果】因果鏈拆解：條件式邏輯推理
+  field: string; // 【磁場】功能01・干擾判讀：外場判讀＋當下身體實際感受錨點
+  spirit: string; // 【詭異】功能02・異象顯跡：卦影＋還沒散場的舊迴聲
+  karma: string; // 【因果】功能03・因果鏈拆解：條件式邏輯推理
 };
 
-/** 鬼魅拆卦：靈異／磁場／因果三段標準輸出，句句綁真實心理學與身體感受。 */
+/** 鬼魅拆卦：磁場／詭異／因果三段標準輸出，句句綁真實心理學與身體感受。 */
 export function buildGhostDecoding(hexagram: IChingReading): GhostDecoding {
   const upperField = TRIGRAM_FIELD[hexagram.upper.name];
   const lowerField = TRIGRAM_FIELD[hexagram.lower.name];
   const wound = TRIGRAM_SOUL[hexagram.lower.name].wound;
   return {
-    spirit: `【靈異】異象顯跡（卦影${hexagram.glyph}・${hexagram.hexagramName}）：在你身邊徘徊的不是外靈，是一段還沒散場的舊迴聲——${wound}。所謂「不乾淨」，其實是未完成事件的殘影（Unfinished Business，完形心理學）。`,
     field: `【磁場】干擾判讀（上卦${hexagram.upper.name}外場、下卦${hexagram.lower.name}內源）：${upperField.field}。${TRIGRAM_FELT_SENSE[hexagram.lower.name]}。說穿了——外場是「${upperField.mechanism}」、內源是「${lowerField.mechanism}」，不是玄，是你的身心真的在這個狀態裡。`,
+    spirit: `【詭異】異象顯跡（卦影${hexagram.glyph}・${hexagram.hexagramName}）：在你身邊徘徊的不是外靈，是一段還沒散場的舊迴聲——${wound}。所謂「不乾淨」，其實是未完成事件的殘影（Unfinished Business，完形心理學）。`,
     karma: `【因果】因果鏈拆解（動爻第${hexagram.changingLine}爻）：${CHANGING_LINE_KARMA[hexagram.changingLine] ?? CHANGING_LINE_KARMA[2]}。`,
   };
 }
 
-/** 給鬼魅老師提示詞用：三段標準檔案輸出（靈異→磁場→因果，順序固定）。 */
+/** 給鬼魅老師提示詞用：三段標準檔案輸出（磁場→詭異→因果，順序固定）。 */
 export function formatGhostDecoding(hexagram: IChingReading): string {
   const d = buildGhostDecoding(hexagram);
-  return `${d.spirit}\n${d.field}\n${d.karma}`;
+  return `${d.field}\n${d.spirit}\n${d.karma}`;
 }
 
 export type EmpathicReading = {

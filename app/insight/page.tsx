@@ -2842,9 +2842,9 @@ function ZiweiHorrorGhostMovieView({
 
       <div className="relative mt-4 grid grid-cols-3 gap-2" aria-label="恐怖鬼魅三幕結構">
         {[
-          ['第一關', '靈異', '異象顯跡・命盤留下的舊迴聲'],
-          ['第二關', '磁場', '干擾判讀・說中你當下的感受'],
-          ['最終關', '因果', '因果鏈拆解・破印喚醒本源'],
+          ['功能 01', '磁場', '干擾判讀・說中你當下的感受'],
+          ['功能 02', '詭異', '異象顯跡・命盤留下的舊迴聲'],
+          ['功能 03', '因果', '因果鏈拆解・破印喚醒本源'],
         ].map(([time, title, detail], index) => (
           <div key={time} className={`rounded-xl border p-3 ${index === 1 ? 'border-rose-200/35 bg-rose-500/10' : 'border-white/10 bg-black/20'}`}>
             <p className="text-[10px] font-black tracking-[0.16em] text-rose-200/80">{time}</p>
