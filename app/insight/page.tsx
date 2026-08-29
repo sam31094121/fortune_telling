@@ -2601,9 +2601,9 @@ function buildZiweiTeacherSynthesis(
 
 type ZiweiTeacherSynthesis = ReturnType<typeof buildZiweiTeacherSynthesis>;
 
-/** Google 老師解盤（正統結構解盤）＋鬼魅合體解盤，共用同一張正式命盤。 */
+/** 易經老師解盤（正統結構解盤）＋鬼魅合體解盤，共用同一張正式命盤。 */
 const ZIWEI_TEACHERS: { id: ZiweiTeacherId; name: string; note: string }[] = [
-  { id: 'STRUCTURE_MASTER', name: 'Google 老師解盤', note: '本宮、主星、三方四正與四化' },
+  { id: 'STRUCTURE_MASTER', name: '易經老師解盤', note: '本宮、主星、三方四正與四化' },
   { id: 'LIFE_MASTER', name: '鬼魅老師解盤', note: '恐怖壓迫 × 鬼魅電影場景，同一張正式命盤' },
 ];
 
@@ -2899,7 +2899,7 @@ function ZiweiTeacherResultView({ result }: { result: StructureTeacherResult | L
   if (result.teacherId === 'STRUCTURE_MASTER') {
     return (
       <div className="mt-4">
-        <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">Google 老師解盤｜結構解盤</p>
+        <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">易經老師解盤｜結構解盤</p>
         <h4 className="mt-2 font-serif text-xl font-black leading-tight text-purple-50">{result.corePattern}</h4>
         <div className="mt-3 grid gap-2.5 text-base font-semibold leading-7 text-[color:var(--text-main)]">
           <p><span className="font-black text-purple-200">主星組合：</span>{result.primaryStarSynthesis}</p>
@@ -3511,7 +3511,7 @@ function ZiweiDestinyCardView({
             ) : (
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <article className="rounded-2xl border border-amber-200/35 bg-amber-300/10 p-3">
-                  <p className="text-sm font-black text-amber-50">Google 老師解盤</p>
+                  <p className="text-sm font-black text-amber-50">易經老師解盤</p>
                   <p className="mt-1 text-xs font-semibold leading-5 text-amber-100/75">已保留生日資料的趨勢解讀；補上時辰後，才能精準定位命宮、三方四正與主星。</p>
                 </article>
                 <article className="rounded-2xl border border-rose-200/30 bg-rose-500/10 p-3">
@@ -3566,7 +3566,7 @@ function ZiweiTwelvePalaceCards({
           <p className="text-[11px] font-black tracking-[0.18em] text-purple-100">兩位老師解盤</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             <article className="rounded-2xl border border-amber-200/35 bg-amber-300/10 p-3">
-              <p className="text-sm font-black text-amber-50">Google 老師解盤</p>
+              <p className="text-sm font-black text-amber-50">易經老師解盤</p>
               <p className="mt-1 text-xs font-semibold leading-5 text-amber-100/75">生日趨勢可先閱讀；命宮、三方四正與主星要在補上時辰後才會精準產生。</p>
             </article>
             <article className="rounded-2xl border border-rose-200/30 bg-rose-500/10 p-3">
@@ -3808,7 +3808,7 @@ function ZiweiTwelvePalaceCards({
                 >
                   <span>
                     <span className="block text-sm font-black">{teacherPalaceKey === palace.key ? '本宮老師解盤已顯示' : '查看兩位老師解盤'}</span>
-                    <span className="mt-1 block text-[11px] font-bold leading-4 text-purple-100/75">Google 老師解盤 · 鬼魅老師解盤</span>
+                    <span className="mt-1 block text-[11px] font-bold leading-4 text-purple-100/75">易經老師解盤 · 鬼魅老師解盤</span>
                   </span>
                   <span className="shrink-0 rounded-full border border-amber-200/30 bg-amber-300/10 px-2.5 py-1 text-[10px] font-black text-amber-100">本宮＋三方四正</span>
                 </button>

@@ -563,7 +563,7 @@ function buildEvidenceRefs(context: PalaceAnalysisContext): string[] {
   refs.push(`流年:${context.timeContext.annualYear}`);
   if (context.timeContext.annualTheme) refs.push(`流年主題:${context.timeContext.annualTheme}`);
   context.selectedPalace.majorStars.forEach((s) => refs.push(`主星:${s.name}`));
-  context.selectedPalace.transformations.forEach((t) => refs.push(`四化:${t.starName}化${t.type}`));
+  context.selectedPalace.transformations.forEach((t) => refs.push(`四化:${t.starName}化${TRANS_LABEL[t.type]}`));
   refs.push(`三合宮A:${context.threeHarmony.harmonyA.palaceName}`, `三合宮B:${context.threeHarmony.harmonyB.palaceName}`, `對宮:${context.threeHarmony.opposite.palaceName}`);
   return refs;
 }
