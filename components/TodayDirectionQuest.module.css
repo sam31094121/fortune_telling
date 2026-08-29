@@ -61,6 +61,22 @@
   gap: 1rem;
 }
 
+.topStatus {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.collectedMini {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: rgba(167, 243, 208, 0.92);
+  font-size: 0.66rem;
+  font-weight: 950;
+}
+
 .eyebrow,
 .progressText,
 .kicker {
@@ -233,6 +249,30 @@
 
 .primaryButton:active {
   transform: scale(0.985);
+}
+
+.secondaryButton {
+  display: inline-flex;
+  width: 100%;
+  min-height: 3.35rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.15rem;
+  border: 1px solid rgba(103, 232, 249, 0.38);
+  border-radius: 999px;
+  background: rgba(14, 116, 144, 0.2);
+  color: #e0f2fe;
+  font-size: 0.92rem;
+  font-weight: 950;
+}
+
+.feedbackGrid {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.feedbackGrid .quietButton {
+  margin-top: 0.15rem;
 }
 
 .step,
@@ -582,6 +622,14 @@
     gap: 0.5rem;
   }
 
+  .topStatus {
+    gap: 0.35rem;
+  }
+
+  .collectedMini {
+    font-size: 0.7rem;
+  }
+
   .eyebrow,
   .progressText {
     font-size: 0.72rem;
@@ -639,6 +687,11 @@
     font-weight: 950;
   }
 
+  .secondaryButton {
+    min-height: 3.55rem;
+    font-size: 0.96rem;
+  }
+
   .choiceButton strong {
     font-size: 1.02rem;
   }
@@ -650,7 +703,8 @@
 
   .choiceButton,
   .pathButton,
-  .primaryButton {
+  .primaryButton,
+  .secondaryButton {
     max-width: 100%;
   }
 
