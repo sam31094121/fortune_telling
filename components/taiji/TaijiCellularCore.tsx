@@ -26,7 +26,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { MAG_DECADES, smoothstep, type MagRef, type WarmRef } from './taijiMagnifier';
+import {
+  TAIJI_BANDS,
+  bandWeight,
+  readJourneyDepth,
+  sampleNumericKeyframes,
+  type TaijiJourneyRef,
+} from '@/lib/taiji-journey-depth';
+import { type WarmRef } from './taijiMagnifier';
 
 const NO_RAYCAST = () => null;
 
@@ -279,24 +286,42 @@ function buildFilamentGeometry() {
   return new THREE.TubeGeometry(curve, segments, 0.016, 8, false);
 }
 
+const CELL_FRAMES: Record<number, {
+  membrane: number;
+  nuclei: number;
+  filament: number;
+  source: number;
+  particles: number;
+  membraneFill: number;
+  nucleusFill: number;
+  nucleusSpread: number;
+  filamentFill: number;
+  sourceFill: number;
+  particleFill: number;
+  filamentTwist: number;
+}> = {
+  11: { membrane: 1, nuclei: 0, filament: 0, source: 0, particles: 0.38, membraneFill: 1.16, nucleusFill: 0.04, nucleusSpread: 1, filamentFill: 0.2, sourceFill: 0.03, particleFill: 0.5, filamentTwist: 0 },
+  12: { membrane: 0.42, nuclei: 0.9, filament: 0.24, source: 0, particles: 0.1, membraneFill: 0.9, nucleusFill: 0.22, nucleusSpread: 1.45, filamentFill: 0.85, sourceFill: 0.05, particleFill: 0.14, filamentTwist: 0 },
+  13: { membrane: 1, nuclei: 0.12, filament: 0, source: 0, particles: 0.18, membraneFill: 1.38, nucleusFill: 0.06, nucleusSpread: 3.2, filamentFill: 0.2, sourceFill: 0.03, particleFill: 0.24, filamentTwist: 0 },
+  14: { membrane: 0.04, nuclei: 1, filament: 0.18, source: 0, particles: 0.28, membraneFill: 0.3, nucleusFill: 0.42, nucleusSpread: 1.62, filamentFill: 0.55, sourceFill: 0.04, particleFill: 0.32, filamentTwist: 0 },
+  15: { membrane: 0, nuclei: 0.05, filament: 2.6, source: 0.42, particles: 0.9, membraneFill: 0.2, nucleusFill: 0.1, nucleusSpread: 5.4, filamentFill: 1.05, sourceFill: 0.11, particleFill: 0.72, filamentTwist: 1 },
+  16: { membrane: 0, nuclei: 0, filament: 0.06, source: 1, particles: 1, membraneFill: 0.1, nucleusFill: 0.04, nucleusSpread: 1, filamentFill: 0.3, sourceFill: 0.18, particleFill: 0.62, filamentTwist: 0 },
+};
+
 export default function TaijiCellularCore({
-  magRef,
+  journeyRef,
   warmRef,
-  journeyStep = 0,
   yinColor,
   yangColor,
   sparkColor,
   coreTexture,
   coreBumpMap,
 }: {
-  magRef: MagRef;
+  journeyRef: TaijiJourneyRef;
   warmRef: WarmRef;
-  /** 24 層旅程第 11～16 層的細胞鏡頭；手動顯微鏡路徑仍維持原本倍率規則。 */
-  journeyStep?: number;
   yinColor: string;
   yangColor: string;
   sparkColor: string;
-  /** 手動顯微鏡路徑的既有核心貼圖；第 11～16 層旅程一律不顯示，避免回用第 1 層原型。 */
   coreTexture?: THREE.Texture | null;
   coreBumpMap?: THREE.Texture | null;
 }) {
@@ -440,47 +465,23 @@ export default function TaijiCellularCore({
   }, [built, coreTexture, coreBumpMap]);
 
   useFrame((state, delta) => {
-    const rawD = magRef.current.current * MAG_DECADES;
-    // 11～16 層採單調遞增倍率；第 11 層先生成透明膜，再接第 12 層細胞全貌。
-    const cellularJourneyDepth: Record<number, number> = { 11: 7.15, 12: 8.9, 13: 9.35, 14: 9.9, 15: 10.65, 16: 11.55 };
-    const cellularJourneyCut: Record<number, {
-      membrane: number;
-      nuclei: number;
-      filament: number;
-      source: number;
-      particles: number;
-      membraneFill: number;
-      nucleusFill: number;
-      nucleusSpread: number;
-      filamentFill: number;
-      sourceFill: number;
-      particleFill: number;
-    }> = {
-      // 11：量子粒子先撐出一層透明膜，為第 12 層細胞全貌建立清楚入口。
-      11: { membrane: 1, nuclei: 0, filament: 0, source: 0, particles: 0.38, membraneFill: 1.16, nucleusFill: 0.04, nucleusSpread: 1, filamentFill: 0.2, sourceFill: 0.03, particleFill: 0.5 },
-      // 12 是銜接基準：細胞全貌仍可辨識。
-      12: { membrane: 0.42, nuclei: 0.9, filament: 0.24, source: 0, particles: 0.1, membraneFill: 0.9, nucleusFill: 0.22, nucleusSpread: 1.45, filamentFill: 0.85, sourceFill: 0.05, particleFill: 0.14 },
-      // 13：鏡頭撞入透明膜內壁；雙核只留下遠方的兩點線索。
-      13: { membrane: 1, nuclei: 0.12, filament: 0, source: 0, particles: 0.18, membraneFill: 1.38, nucleusFill: 0.06, nucleusSpread: 3.2, filamentFill: 0.2, sourceFill: 0.03, particleFill: 0.24 },
-      // 14：膜消失，兩顆反向自旋的細胞核突然佔據畫面兩側。
-      14: { membrane: 0.04, nuclei: 1, filament: 0.18, source: 0, particles: 0.28, membraneFill: 0.3, nucleusFill: 0.42, nucleusSpread: 1.62, filamentFill: 0.55, sourceFill: 0.04, particleFill: 0.32 },
-      // 15：鏡頭鑽入核間相位絲，雙核退到畫面外，光橋成為唯一主體。
-      15: { membrane: 0, nuclei: 0.05, filament: 2.6, source: 0.42, particles: 0.9, membraneFill: 0.2, nucleusFill: 0.1, nucleusSpread: 5.4, filamentFill: 1.05, sourceFill: 0.11, particleFill: 0.72 },
-      // 16：相位絲塌縮成源點並裂成粒子門；所有具象細胞外形退場。
-      16: { membrane: 0, nuclei: 0, filament: 0.06, source: 1, particles: 1, membraneFill: 0.1, nucleusFill: 0.04, nucleusSpread: 1, filamentFill: 0.3, sourceFill: 0.18, particleFill: 0.62 },
-    };
-    const isCellReview = journeyStep >= 11 && journeyStep <= 16;
-    const d = cellularJourneyDepth[journeyStep] ?? rawD;
-    const journeyCut = cellularJourneyCut[journeyStep];
+    const depth = readJourneyDepth(journeyRef);
+    const presence = bandWeight(
+      depth,
+      TAIJI_BANDS.cellular.enter,
+      TAIJI_BANDS.cellular.full,
+      TAIJI_BANDS.cellular.exitStart,
+      TAIJI_BANDS.cellular.exitEnd,
+    );
     const warming = warmRef.current.warming;
     if (!armed || !built) {
-      if (warming || journeyStep >= 11 || d > MEMBRANE_IN - 0.5 || magRef.current.target * MAG_DECADES > MEMBRANE_IN - 0.5) setArmed(true);
+      if (warming || presence > 0.002 || journeyRef.current.target >= TAIJI_BANDS.cellular.enter) setArmed(true);
       return;
     }
 
+    const cut = sampleNumericKeyframes(depth, CELL_FRAMES);
     const root = rootRef.current;
-    const membraneReveal = smoothstep(MEMBRANE_IN, MEMBRANE_FULL, d);
-    const showLayer = membraneReveal > 0.002;
+    const showLayer = presence > 0.002;
     if (root) {
       root.visible = showLayer || warming;
       root.scale.setScalar(showLayer ? 1 : 0.0001);
@@ -492,19 +493,15 @@ export default function TaijiCellularCore({
     const halfHeight = camera.position.length() * Math.tan((camera.fov * Math.PI) / 360);
     const spin = Math.min(delta, 1 / 45) * 0.12;
 
-    // 膜：延續前一層 fill 封頂(0.95)時的視覺大小，緩慢呼吸，不做鏡頭跳動
     const membrane = membraneRef.current;
     if (membrane) {
       const breathe = 1 + Math.sin(t * 0.4) * 0.01;
-      membrane.scale.setScalar(halfHeight * (journeyCut?.membraneFill ?? 0.95) * breathe);
+      membrane.scale.setScalar(halfHeight * (cut.membraneFill ?? 0.95) * breathe);
       membrane.rotation.y += spin * 0.6;
     }
 
-    // 核質對：穿膜而入，兩顆更小的自相似太極，隨數量級持續放大、彼此拉開
-    const nucleusReveal = smoothstep(NUCLEUS_IN, NUCLEUS_FULL, d);
-    const nucleusGrow = Math.min(1, Math.max(0, (d - NUCLEUS_IN) / (SOURCE_IN - NUCLEUS_IN)));
-    const nucleusRadius = halfHeight * (journeyCut?.nucleusFill ?? (0.16 + nucleusGrow * 0.5));
-    const nucleusCenterX = nucleusRadius * (journeyCut?.nucleusSpread ?? 1.5);
+    const nucleusRadius = halfHeight * (cut.nucleusFill ?? 0.16);
+    const nucleusCenterX = nucleusRadius * (cut.nucleusSpread ?? 1.5);
     const yin = nucleusYinRef.current;
     const yang = nucleusYangRef.current;
     if (yin) {
@@ -518,70 +515,51 @@ export default function TaijiCellularCore({
       yang.rotation.y -= spin;
     }
 
-    // 共振絲：連接核質對的相位絲線
-    const filamentReveal = smoothstep(FILAMENT_IN, FILAMENT_FULL, d);
     const filament = filamentRef.current;
     if (filament) {
-      const filamentFill = journeyCut?.filamentFill ?? 1;
+      const filamentFill = cut.filamentFill ?? 1;
       filament.scale.set(halfHeight * filamentFill, halfHeight * 0.42 * filamentFill, halfHeight * 0.42 * filamentFill);
-      filament.rotation.z = journeyStep === 15 ? Math.sin(t * 0.22) * 0.28 : 0;
+      filament.rotation.z = Math.sin(t * 0.22) * 0.28 * (cut.filamentTwist ?? 0);
     }
 
-    // 太極源點：最終收斂成同時是陰陽的奇點光源
-    const sourceReveal = smoothstep(SOURCE_IN, SOURCE_FULL, d);
     const source = sourceRef.current;
     if (source) {
-      source.scale.setScalar(halfHeight * (journeyCut?.sourceFill ?? (0.02 + sourceReveal * 0.1)));
+      source.scale.setScalar(halfHeight * (cut.sourceFill ?? 0.02));
     }
 
-    // 無極之門：源點裂開，沒有框架，只有粒子與光子的細胞狀光暈聚在門後迷你太極周圍——
-    // 放在門後方一小段 z，讓 OrbitControls 轉動視角時，光暈與門後的迷你太極之間有真正的視差。
-    const gateReveal = smoothstep(GATE_IN, GATE_FULL, d);
-    // 細胞檢視不顯示門後太極；改用粒子與光子點雲包覆雙核，表達細胞內部的量子訊號。
-    // 第 13 層是從細胞雙核切入量子場的第一拍：提高光子與粒子點雲，仍保留細胞結構作為銜接。
-    const cellParticleReveal = isCellReview ? journeyCut.particles : gateReveal;
     const halo = gateHaloRef.current;
     if (halo) {
-      const haloRadius = halfHeight * (journeyCut?.particleFill ?? (0.04 + cellParticleReveal * 0.34));
+      const haloRadius = halfHeight * (cut.particleFill ?? 0.04);
       halo.scale.setScalar(haloRadius);
       halo.position.set(0, 0, -halfHeight * 0.22);
       halo.rotation.y += spin * 0.4;
     }
     const gateCore = gateCoreRef.current;
     if (gateCore) {
-      const coreRadius = halfHeight * (0.03 + gateReveal * 0.3);
-      gateCore.scale.setScalar(coreRadius);
+      gateCore.scale.setScalar(0.0001);
       gateCore.position.set(0, 0, -halfHeight * 0.22);
-      // 獨立自轉：刻意不跟前面幾段共用同一個 spin 變數，給它自己的節奏，
-      // 讓門後看起來是「另一個空間」而不是同一組物件的延伸。
-      gateCore.rotation.y += Math.min(delta, 1 / 45) * 0.09;
-      gateCore.rotation.x = Math.sin(t * 0.05) * 0.12;
     }
 
     const membraneUniforms = built.membraneMaterial.uniforms;
     membraneUniforms.uTime.value = t;
-    membraneUniforms.uReveal.value = journeyCut
-      ? journeyCut.membrane
-      : membraneReveal * (1 - sourceReveal * 0.7) * (1 - gateReveal);
+    membraneUniforms.uReveal.value = (cut.membrane ?? 0) * presence;
 
     const yinUniforms = built.nucleusYinMaterial.uniforms;
     const yangUniforms = built.nucleusYangMaterial.uniforms;
     yinUniforms.uTime.value = t;
     yangUniforms.uTime.value = t;
-    yinUniforms.uReveal.value = journeyCut ? journeyCut.nuclei : nucleusReveal * (1 - gateReveal);
-    yangUniforms.uReveal.value = journeyCut ? journeyCut.nuclei : nucleusReveal * (1 - gateReveal);
+    yinUniforms.uReveal.value = (cut.nuclei ?? 0) * presence;
+    yangUniforms.uReveal.value = (cut.nuclei ?? 0) * presence;
 
     built.filamentMaterial.uniforms.uTime.value = t;
-    built.filamentMaterial.uniforms.uReveal.value = journeyCut ? journeyCut.filament : filamentReveal * (1 - gateReveal);
+    built.filamentMaterial.uniforms.uReveal.value = (cut.filament ?? 0) * presence;
 
     built.sourceMaterial.uniforms.uTime.value = t;
-    built.sourceMaterial.uniforms.uReveal.value = journeyCut ? journeyCut.source : sourceReveal * (1 - gateReveal * 0.85);
+    built.sourceMaterial.uniforms.uReveal.value = (cut.source ?? 0) * presence;
 
     built.gateHaloMaterial.uniforms.uTime.value = t;
-    built.gateHaloMaterial.uniforms.uReveal.value = cellParticleReveal;
-
-    // 旅程深層禁止出現第 1 層貼圖；只有獨立的手動顯微鏡路徑保留舊相容行為。
-    built.gateCoreMaterial.opacity = isCellReview ? 0 : gateReveal;
+    built.gateHaloMaterial.uniforms.uReveal.value = (cut.particles ?? 0) * presence;
+    built.gateCoreMaterial.opacity = 0;
   });
 
   if (!built) return null;

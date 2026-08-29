@@ -26,7 +26,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { MAG_DECADES, smoothstep, clamp01, type MagRef, type WarmRef } from './taijiMagnifier';
+import {
+  TAIJI_BANDS,
+  bandWeight,
+  clamp01,
+  lerpNumber,
+  readJourneyDepth,
+  sampleNumericKeyframes,
+  type TaijiJourneyRef,
+} from '@/lib/taiji-journey-depth';
+import { type WarmRef } from './taijiMagnifier';
 
 const NO_RAYCAST = () => null;
 
@@ -331,24 +340,32 @@ const QUANTUM_TAIJI_FRAGMENT = /* glsl */ `
   }
 `;
 
+const ABYSS_FRAMES: Record<number, {
+  suction: number;
+  blackHole: number;
+  whiteHole: number;
+  blackJet: number;
+  whiteJet: number;
+  swirl: number;
+  finale: number;
+  field: number;
+  abyss: number;
+}> = {
+  21: { suction: 0.94, blackHole: 1, whiteHole: 0, blackJet: 1, whiteJet: 0, swirl: 0, finale: 0, field: 0.42, abyss: 0.55 },
+  22: { suction: -1, blackHole: 0, whiteHole: 1, blackJet: 0, whiteJet: 1, swirl: 0, finale: 0, field: 0.24, abyss: 0.72 },
+  23: { suction: 0, blackHole: 0, whiteHole: 0, blackJet: 0.62, whiteJet: 0.62, swirl: 1, finale: 0, field: 0.04, abyss: 0.88 },
+  24: { suction: 0, blackHole: 0, whiteHole: 0, blackJet: 0, whiteJet: 0, swirl: 0.12, finale: 1, field: 0, abyss: 0.2 },
+};
+
 export default function TaijiAbyssField({
-  magRef,
+  journeyRef,
   warmRef,
-  journeyDepth = 0,
-  journeyStep = 0,
   yinColor,
   yangColor,
   sparkColor,
 }: {
-  magRef: MagRef;
+  journeyRef: TaijiJourneyRef;
   warmRef: WarmRef;
-  /**
-   * 24 層敘事旅程的深度。顯微鏡倍率與點擊旅程共用同一條深潛曲線：
-   * 第 13 層開門，第 24 層回到完整太極。這只改 uniform，不重建幾何。
-   */
-  journeyDepth?: number;
-  /** 旅程第 20～23 層交給黑洞／白洞；第 24 層才讓太極重新生成。 */
-  journeyStep?: number;
   yinColor: string;
   yangColor: string;
   sparkColor: string;
@@ -465,19 +482,22 @@ export default function TaijiAbyssField({
   );
 
   useFrame((state, delta) => {
-    const magnifierDepth = magRef.current.current * MAG_DECADES;
-    const d = Math.max(magnifierDepth, journeyDepth);
+    const depth = readJourneyDepth(journeyRef);
+    const presence = bandWeight(
+      depth,
+      TAIJI_BANDS.abyss.enter,
+      TAIJI_BANDS.abyss.full,
+      TAIJI_BANDS.abyss.exitStart,
+      TAIJI_BANDS.abyss.exitEnd,
+    );
     if (!armed || !built) {
-      if (
-        d > ABYSS_IN - 0.5 ||
-        magRef.current.target * MAG_DECADES > ABYSS_IN - 0.5
-      ) setArmed(true);
+      if (presence > 0.002 || journeyRef.current.target >= TAIJI_BANDS.abyss.enter || warmRef.current.warming) setArmed(true);
       return;
     }
 
+    const cut = sampleNumericKeyframes(depth, ABYSS_FRAMES);
     const root = rootRef.current;
-    const reveal = smoothstep(ABYSS_IN, ABYSS_FULL, d);
-    const showLayer = reveal > 0.002;
+    const showLayer = presence > 0.002;
     if (root) {
       root.visible = showLayer;
       root.scale.setScalar(showLayer ? 1 : 0.0001);
@@ -488,63 +508,30 @@ export default function TaijiAbyssField({
     const camera = state.camera as THREE.PerspectiveCamera;
     const halfHeight = camera.position.length() * Math.tan((camera.fov * Math.PI) / 360);
     const spin = Math.min(delta, 1 / 45) * 0.05;
-    const isJourneyEnd = journeyStep >= 21 && journeyStep <= 24;
-
-    const abyss = smoothstep(CLARITY_START, CLARITY_END, d);
-
-    // 分場調色：按目前 decade 在 TIER_TINT_COLORS 表裡內插，CPU 端一次 lerp，零額外 GPU 成本
-    const tintFloat = clamp01((d - TIER_TINT_BASE_DECADE) / (TIER_TINT_COLORS.length - 1)) * (TIER_TINT_COLORS.length - 1);
+    const tintFloat = clamp01((depth - 21) / 3) * (TIER_TINT_COLORS.length - 1);
     const tintIndex = Math.min(TIER_TINT_COLORS.length - 2, Math.floor(tintFloat));
     const tintFrac = tintFloat - tintIndex;
     const tint = tintScratchRef.current.copy(TIER_TINT_COLORS[tintIndex]).lerp(TIER_TINT_COLORS[tintIndex + 1], tintFrac);
     built.fieldMaterial.uniforms.uTierTint.value.copy(tint);
 
-    const pull = smoothstep(PULL_IN, PULL_PEAK, d) * (1 - smoothstep(PULL_PEAK, HOLD_END, d));
-    const push = smoothstep(HOLD_END, BURST_OUT, d) * (1 - smoothstep(BURST_OUT, BURST_END, d) * 0.999);
-    const journeySuction: Record<number, number> = { 21: 0.94, 22: -1, 23: 0, 24: 0 };
-    const suction = isJourneyEnd ? journeySuction[journeyStep] : pull - push;
-    // 旅程視覺錨點：20 層黑洞吞入、21～22 層白洞噴出。它們隨著同一個深場自轉，
-    // 不是獨立漂浮的天體。
-    const blackHoleReveal = isJourneyEnd
-      ? 0
-      : smoothstep(19.2, 20.0, d) * (1 - smoothstep(20.75, 21.15, d));
-    const whiteHoleReveal = isJourneyEnd
-      ? (journeyStep === 22 ? 1 : 0)
-      : smoothstep(20.75, 21.35, d) * (1 - smoothstep(23.0, 23.65, d));
-    const blackJetReveal = isJourneyEnd
-      ? (journeyStep === 21 ? 1 : journeyStep === 23 ? 0.62 : 0)
-      : blackHoleReveal;
-    const whiteJetReveal = isJourneyEnd
-      ? (journeyStep === 22 ? 1 : journeyStep === 23 ? 0.62 : 0)
-      : whiteHoleReveal;
-
-    /* 遙遠感：相位潮汐開始退遠，事件視界前的引力（pull）把它拉回來——但退遠只能是
-       「越看越深」，不能讀成「畫面死掉了」，所以縮小/變暗的幅度收斂很多；
-       同時每跨過一個整數數量級（也就是每換一段物鏡）補一次短暫脈動——
-       像剪接的一個個鏡頭切點，讓 12~16 這幾段各自有自己「發生了什麼」的瞬間，
-       不是一條看不出段落的連續淡變。深不見底：這條脈動永遠不停，沒有終點。 */
-    const recede = smoothstep(RECEDE_START, RECEDE_END, d) * (1 - pull);
-    const nearestDecade = Math.round(d);
-    const distToDecade = Math.abs(d - nearestDecade);
-    const tierBeat = Math.exp(-distToDecade * 9) * smoothstep(ABYSS_FULL, ABYSS_FULL + 0.4, d);
-
-    // 歸零之息：屏息——在這一拍把通用脈動與呼吸幅度壓到最低，畫面刻意安靜下來
-    const stillness = Math.exp(-Math.pow(d - ZERO_BREATH_CENTER, 2) * 6);
-    // 迴聲初醒：單獨一次比通用脈動更強的回聲，打破前一拍的寂靜，預告終局將至
-    const echoPulse = Math.exp(-Math.pow(d - FIRST_ECHO_CENTER, 2) * 10);
+    const fieldReveal = (cut.field ?? 0) * presence;
+    const blackHoleReveal = (cut.blackHole ?? 0) * presence;
+    const whiteHoleReveal = (cut.whiteHole ?? 0) * presence;
+    const blackJetReveal = (cut.blackJet ?? 0) * presence;
+    const whiteJetReveal = (cut.whiteJet ?? 0) * presence;
+    const swirl = cut.swirl ?? 0;
+    const finaleReveal = (cut.finale ?? 0) * presence;
 
     const field = fieldRef.current;
     if (field) {
-      const fieldScale = halfHeight * (0.05 + reveal * 0.55) * (1 - recede * 0.22) * (1 + tierBeat * 0.12) * (1 - stillness * 0.28) * (1 + echoPulse * 0.22);
-      field.scale.setScalar(fieldScale);
-      field.rotation.y += spin * (1 + recede * 0.4) * (1 - stillness * 0.7);
+      field.scale.setScalar(halfHeight * (0.08 + fieldReveal * 0.52));
+      field.rotation.y += spin;
     }
 
     built.fieldMaterial.uniforms.uTime.value = t;
-    built.fieldMaterial.uniforms.uReveal.value =
-      reveal * (1 - recede * 0.12) * (1 + tierBeat * 0.4) * (1 - stillness * 0.45) * (1 + echoPulse * 0.5);
-    built.fieldMaterial.uniforms.uAbyss.value = abyss;
-    built.fieldMaterial.uniforms.uSuction.value = suction;
+    built.fieldMaterial.uniforms.uReveal.value = fieldReveal;
+    built.fieldMaterial.uniforms.uAbyss.value = cut.abyss ?? 0;
+    built.fieldMaterial.uniforms.uSuction.value = cut.suction ?? 0;
 
     const blackHole = blackHoleRef.current;
     if (blackHole) {
@@ -558,10 +545,13 @@ export default function TaijiAbyssField({
     const blackHoleJets = blackHoleJetsRef.current;
     if (blackHoleJets) {
       blackHoleJets.visible = blackJetReveal > 0.002;
-      if (journeyStep === 23) {
-        blackHoleJets.scale.set(halfHeight * 0.92, halfHeight * 0.48, halfHeight * 0.3);
-        blackHoleJets.position.set(-halfHeight * 0.24, halfHeight * 0.1, 0);
-        blackHoleJets.rotation.z = -0.82;
+      const swirlScaleX = lerpNumber(0.86 - blackHoleReveal * 0.43, 0.92, swirl);
+      const swirlScaleY = lerpNumber(0.86 - blackHoleReveal * 0.43, 0.48, swirl);
+      const swirlScaleZ = lerpNumber(0.86 - blackHoleReveal * 0.43, 0.3, swirl);
+      if (swirl > 0.02) {
+        blackHoleJets.scale.set(halfHeight * swirlScaleX, halfHeight * swirlScaleY, halfHeight * swirlScaleZ);
+        blackHoleJets.position.set(-halfHeight * 0.24 * swirl, halfHeight * 0.1 * swirl, 0);
+        blackHoleJets.rotation.z = -0.82 * swirl;
       } else {
         blackHoleJets.scale.setScalar(halfHeight * (0.86 - blackHoleReveal * 0.43));
         blackHoleJets.position.set(0, 0, 0);
@@ -570,11 +560,10 @@ export default function TaijiAbyssField({
       blackHoleJets.rotation.y -= Math.min(delta, 1 / 45) * 0.92;
       blackHoleJets.rotation.x = Math.sin(t * 0.48) * 0.18;
     }
-    built.blackHoleJetMaterial.opacity = blackJetReveal * (journeyStep === 23 ? 0.62 : 0.78);
+    built.blackHoleJetMaterial.opacity = blackJetReveal * lerpNumber(0.78, 0.62, swirl);
 
     const whiteHole = whiteHoleRef.current;
     if (whiteHole) {
-      // 中心不使用白球；白洞只由反轉噴出的粒子定義。
       whiteHole.visible = false;
       whiteHole.scale.setScalar(0.0001);
     }
@@ -582,11 +571,11 @@ export default function TaijiAbyssField({
     const whiteHoleJets = whiteHoleJetsRef.current;
     if (whiteHoleJets) {
       whiteHoleJets.visible = whiteJetReveal > 0.002;
-      if (journeyStep === 23) {
-        whiteHoleJets.scale.set(halfHeight * 0.92, halfHeight * 0.48, halfHeight * 0.3);
-        whiteHoleJets.position.set(halfHeight * 0.24, -halfHeight * 0.1, 0);
-        whiteHoleJets.rotation.z = 0.82;
-      } else if (journeyStep === 22) {
+      if (swirl > 0.02) {
+        whiteHoleJets.scale.set(halfHeight * lerpNumber(1.55, 0.92, swirl), halfHeight * lerpNumber(1.15, 0.48, swirl), halfHeight * lerpNumber(0.72, 0.3, swirl));
+        whiteHoleJets.position.set(halfHeight * 0.24 * swirl, -halfHeight * 0.1 * swirl, 0);
+        whiteHoleJets.rotation.z = 0.82 * swirl;
+      } else if (whiteHoleReveal > 0.02) {
         whiteHoleJets.scale.set(halfHeight * 1.55, halfHeight * 1.15, halfHeight * 0.72);
         whiteHoleJets.position.set(0, 0, 0);
         whiteHoleJets.rotation.z = t * 0.12;
@@ -598,28 +587,18 @@ export default function TaijiAbyssField({
       whiteHoleJets.rotation.y += Math.min(delta, 1 / 45) * 0.72;
       whiteHoleJets.rotation.x = Math.sin(t * 0.44) * 0.22;
     }
-    built.whiteHoleJetMaterial.opacity = whiteJetReveal * (journeyStep === 22 ? 0.92 : journeyStep === 23 ? 0.62 : 0.78);
+    built.whiteHoleJetMaterial.opacity = whiteJetReveal * lerpNumber(0.92, 0.62, swirl);
 
-    // 第 24 層由全新的量子點雲生成太極；不載入第 1 層貼圖，也不讓原球回場。
-    const journeyFinale = journeyStep >= 24 ? smoothstep(23.35, 24, journeyStep) : 0;
-    const finaleReveal = journeyStep > 0 ? journeyFinale : smoothstep(FINALE_IN, FINALE_FULL, d);
     const finaleCore = finaleCoreRef.current;
     if (finaleCore) {
       finaleCore.visible = finaleReveal > 0.002;
       finaleCore.scale.setScalar(halfHeight * (0.04 + finaleReveal * 0.58));
-      // 陰、陽點雲在著色器裡反向相位旋轉；整體再低速自轉，呈現持續糾纏而非靜態圖案。
       finaleCore.rotation.z += Math.min(delta, 1 / 45) * 0.1;
       finaleCore.rotation.y = Math.sin(t * 0.18) * 0.16;
       finaleCore.rotation.x = Math.sin(t * 0.24) * 0.1;
     }
     built.finaleCoreMaterial.uniforms.uTime.value = t;
     built.finaleCoreMaterial.uniforms.uReveal.value = finaleReveal;
-
-    // 深淵場本身在終局淡出，把畫面交給重新浮現的太極全貌（疊乘遙遠感、段落脈動與歸零/回聲兩拍，不覆蓋掉它們）
-    const journeyFieldReveal: Record<number, number> = { 21: 0.42, 22: 0.24, 23: 0.04, 24: 0 };
-    built.fieldMaterial.uniforms.uReveal.value = isJourneyEnd
-      ? journeyFieldReveal[journeyStep]
-      : reveal * (1 - recede * 0.12) * (1 + tierBeat * 0.4) * (1 - stillness * 0.45) * (1 + echoPulse * 0.5) * (1 - finaleReveal * 0.7) * (1 - Math.max(blackHoleReveal, whiteHoleReveal));
   });
 
   if (!built) return null;

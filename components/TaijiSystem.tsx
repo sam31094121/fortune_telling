@@ -23,30 +23,39 @@ import {
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { Taiji24SoundEngine } from '@/lib/taiji24-sound-engine';
+import {
+  TAIJI_BANDS,
+  TAIJI_DEPTH_MAX,
+  TAIJI_DEPTH_MIN,
+  baguaPresence,
+  bandWeight,
+  cameraDistanceFromDepth,
+  cameraFovFromDepth,
+  createTaijiJourneyState,
+  integrateJourney,
+  jumpJourney,
+  layerFromDepth,
+  liangyiAmount,
+  lerpNumber,
+  macroPresence,
+  progressFromDepth,
+  setJourneyTarget,
+  sixiangPresence,
+  stageFromDepth,
+  type TaijiJourneyRef,
+  type TaijiMacroStage,
+} from '@/lib/taiji-journey-depth';
 import TaijiQuantumField from './taiji/TaijiQuantumField';
 import TaijiEntanglementCore from './taiji/TaijiEntanglementCore';
 import TaijiCellularCore from './taiji/TaijiCellularCore';
 import TaijiAbyssField from './taiji/TaijiAbyssField';
-import TaijiDeepField13 from './taiji/TaijiDeepField13';
-import { MAG_DECADES, smoothstep, useTaijiMagnifier, type MagRef } from './taiji/taijiMagnifier';
+import { useTaijiJourneyGestures } from './taiji/taijiMagnifier';
 import styles from './TaijiSystem.module.css';
 
-type Stage = 'TAIJI' | 'LIANGYI' | 'SIXIANG' | 'BAGUA';
+type Stage = TaijiMacroStage;
 
-const STAGES: Stage[] = ['TAIJI', 'LIANGYI', 'SIXIANG', 'BAGUA'];
 const FRAME_DELTA_CAP = 1 / 45;
-// 24 層人工預覽已完成驗收；正式首頁隱藏檢查面板，保留完整演化內容。
 const SHOW_LAYER_REVIEW_PANEL = true;
-const journeyZoomTarget = (step: number) => step <= 1 ? 0 : Math.min(1, (step - 1) / 23);
-
-/* 每一層都要有立即可辨的視覺回饋：第 2 層直接進入兩儀，避免前 3 層看起來沒有變化。 */
-function stageForJourney(step: number, fallback: Stage): Stage {
-  if (step <= 0) return fallback;
-  if (step === 1) return 'TAIJI';
-  if (step === 2) return 'LIANGYI';
-  if (step === 3) return 'SIXIANG';
-  return 'BAGUA';
-}
 
 type NavigatorWithDeviceMemory = Navigator & { deviceMemory?: number };
 
@@ -645,52 +654,40 @@ function createGlowTexture(theme: TaijiVisualTheme) {
   return texture;
 }
 
-/* ============================================================
-   顯微鏡鏡筒（2026-08-17）：把倍率變成真正的鏡頭推進
-   ------------------------------------------------------------
-   ×1 → ×約 700：鏡頭實際推近（5.1 → 2.15），焦段由 42mm 收到 30mm，
-   像顯微鏡換上長焦物鏡，空間被壓縮、景深變淺。
-   再往下（×700 → ×100,000）鏡頭已到極限，改由「物質本身放大」接手——
-   粒子場往外撐開，我們是走進太極的內部，不是看著它。
-   它同時是整個顯微鏡的唯一平滑器：magRef.current 由這裡每幀積分，
-   其他元件一律唯讀，不得再自建一份。
-============================================================ */
-function MicroscopeRig({ magRef }: { magRef: MagRef }) {
+function JourneyRig({
+  journeyRef,
+  onLayerChange,
+}: {
+  journeyRef: TaijiJourneyRef;
+  onLayerChange: (layer: number) => void;
+}) {
   const { camera } = useThree();
+  const lastLayerRef = useRef(layerFromDepth(journeyRef.current.current));
 
-  useFrame((_, delta) => {
-    const mag = magRef.current;
-    const frameDelta = Math.min(delta, FRAME_DELTA_CAP);
-    mag.current += (mag.target - mag.current) * Math.min(1, frameDelta * 3.4);
-    // 一律用「數量級」當刻度：d=3 是 ×1,000、d=5 是 ×100,000、d=7 是 ×10,000,000
-    const d = mag.current * MAG_DECADES;
-
-    /* 前段：正常推近（5.1 → 2.15）。
-       中段（×3,000 之後）：鏡頭直接走進粒子場內部（2.15 → 1.35），
-       粒子從四面八方掠過——「站在物質裡面」的那種深度感，密度也才夠。
-       ×100,000 之後鏡頭就停在這裡不動了——再深入不是靠鏡頭前進，
-       而是靠「物體本身持續變大」（見 TaijiEntanglementCore），跟真顯微鏡換高倍物鏡一樣。 */
-    const distance = 5.1 - smoothstep(0, 3.1, d) * 2.95 - smoothstep(3.5, 5, d) * 0.8;
-    camera.position.setLength(distance);
-
+  useFrame((state, delta) => {
+    const depth = integrateJourney(journeyRef.current, Number.isFinite(delta) ? delta : 1 / 60);
+    const breath = Math.sin(state.clock.elapsedTime * 0.35) * 0.012;
+    const desired = cameraDistanceFromDepth(depth) + breath;
+    if (!Number.isFinite(desired) || desired < 0.4) {
+      camera.position.set(0, 0, 5.1);
+    } else if (camera.position.lengthSq() < 0.04) {
+      camera.position.set(0, 0, desired);
+    } else {
+      camera.position.setLength(desired);
+    }
     const perspective = camera as THREE.PerspectiveCamera;
-    const fov = 42 - smoothstep(0.6, 5, d) * 12;
-    if (Math.abs(perspective.fov - fov) > 0.02) {
+    const fov = cameraFovFromDepth(depth);
+    if (Number.isFinite(fov) && Math.abs(perspective.fov - fov) > 0.02) {
       perspective.fov = fov;
       perspective.updateProjectionMatrix();
     }
+    const layer = layerFromDepth(depth);
+    if (layer !== lastLayerRef.current) {
+      lastLayerRef.current = layer;
+      queueMicrotask(() => onLayerChange(layer));
+    }
   });
 
-  return null;
-}
-
-/** 實拍感（2026-08-16）：呼吸鏡頭——真實攝影機永遠有極微晃動，完全靜止＝一眼 CG */
-function CameraBreath() {
-  useFrame((state) => {
-    state.camera.position.x += (0 - state.camera.position.x) * 0.04;
-    state.camera.position.y += (0 - state.camera.position.y) * 0.04;
-    state.camera.lookAt(0, 0, 0);
-  });
   return null;
 }
 
@@ -853,16 +850,27 @@ function GlyphSprite({ symbol, name, scale = 0.62, y = 0 }: { symbol: string; na
   );
 }
 
+function sampleVariation(depth: number) {
+  const index = Math.min(23, Math.max(0, depth - 1));
+  const fromIndex = Math.floor(index);
+  const toIndex = Math.min(23, fromIndex + 1);
+  const mix = index - fromIndex;
+  const from = VARIATION_24[fromIndex];
+  const to = VARIATION_24[toIndex];
+  return {
+    ringSpeed: lerpNumber(from.ringSpeed, to.ringSpeed, mix),
+    ringDir: lerpNumber(from.ringDir, to.ringDir, mix),
+    raySpinDir: lerpNumber(from.raySpinDir, to.raySpinDir, mix),
+    ringTiltSeed: lerpNumber(from.ringTiltSeed, to.ringTiltSeed, mix),
+  };
+}
+
 function OrbitRings({
-  stage,
-  step24 = 0,
+  journeyRef,
   theme,
-  progress24,
 }: {
-  stage: Stage;
-  step24?: number;
+  journeyRef: TaijiJourneyRef;
   theme: TaijiVisualTheme;
-  progress24: number;
 }) {
   const ringRef = useRef<THREE.Group>(null);
   const beadOneRef = useRef<THREE.Mesh>(null);
@@ -871,7 +879,6 @@ function OrbitRings({
   const primaryGeo = useMemo(() => new THREE.TorusGeometry(1.58, 0.006, 8, 128), []);
   const secondaryGeo = useMemo(() => new THREE.TorusGeometry(1.92, 0.004, 8, 128), []);
   const beadGeo = useMemo(() => new THREE.SphereGeometry(0.035, 12, 12), []);
-  const stageDepth = STAGES.indexOf(stage);
 
   useEffect(() => () => {
     primaryGeo.dispose();
@@ -883,11 +890,12 @@ function OrbitRings({
     if (!ringRef.current) return;
     const frameDelta = Math.min(delta, FRAME_DELTA_CAP);
     const t = state.clock.elapsedTime;
-    // 24 面貌：每響專屬的環速、方向與傾角種子（黃金角散佈，永不重複）
-    const variation = step24 > 0 ? VARIATION_24[Math.min(23, step24 - 1)] : null;
-    const speed = (variation ? variation.ringSpeed : 0.026 + stageDepth * 0.006) * (1 + Math.sin(t * 0.24) * 0.025);
-    const dir = variation ? variation.ringDir : 1;
-    const tiltSeed = variation ? (variation.ringTiltSeed * Math.PI) / 180 : 0;
+    const depth = journeyRef.current.current;
+    const progress24 = progressFromDepth(depth);
+    const variation = sampleVariation(depth);
+    const speed = variation.ringSpeed * (1 + Math.sin(t * 0.24) * 0.025);
+    const dir = variation.ringDir;
+    const tiltSeed = (variation.ringTiltSeed * Math.PI) / 180;
     const settle = Math.min(1, frameDelta * 1.45);
     ringRef.current.rotation.y += frameDelta * speed * dir;
     ringRef.current.rotation.x += (Math.sin(t * 0.1 + tiltSeed) * 0.055 - ringRef.current.rotation.x) * settle;
@@ -908,13 +916,13 @@ function OrbitRings({
   return (
     <group ref={ringRef} renderOrder={1}>
       <mesh geometry={primaryGeo} rotation={[Math.PI / 2.32, 0, 0]}>
-        <meshBasicMaterial color={theme.primary} transparent opacity={0.18 + stageDepth * 0.026 + progress24 * 0.035} depthWrite={false} />
+        <meshBasicMaterial color={theme.primary} transparent opacity={0.18} depthWrite={false} />
       </mesh>
       <mesh geometry={secondaryGeo} rotation={[Math.PI / 2.04, 0, Math.PI / 3]}>
-        <meshBasicMaterial color={theme.accent} transparent opacity={0.09 + stageDepth * 0.018 + progress24 * 0.026} depthWrite={false} />
+        <meshBasicMaterial color={theme.accent} transparent opacity={0.09} depthWrite={false} />
       </mesh>
       <mesh geometry={secondaryGeo} rotation={[Math.PI / 1.72, Math.PI / 4, 0]}>
-        <meshBasicMaterial color={theme.secondary} transparent opacity={0.055 + stageDepth * 0.012 + progress24 * 0.02} depthWrite={false} />
+        <meshBasicMaterial color={theme.secondary} transparent opacity={0.055} depthWrite={false} />
       </mesh>
       <mesh ref={beadOneRef} geometry={beadGeo}>
         <meshBasicMaterial color={theme.primary} transparent opacity={0.42} depthWrite={false} />
@@ -933,23 +941,17 @@ function OrbitRings({
    3D 核心（已優化）
 ========================================================= */
 function TaijiCore({
-  stage,
-  step24 = 0,
-  progress24 = 0,
   attractTick = 0,
   theme,
-  magRef,
+  journeyRef,
   quantumPairs,
   quantumLinks,
   ultraTexture,
   onCoreClick,
 }: {
-  step24?: number;
-  progress24?: number;
   attractTick?: number;
   theme: TaijiVisualTheme;
-  stage: Stage;
-  magRef: MagRef;
+  journeyRef: TaijiJourneyRef;
   quantumPairs: number;
   quantumLinks: number;
   ultraTexture: boolean;
@@ -969,7 +971,7 @@ function TaijiCore({
   const totemScaleRef = useRef(1);
   const totemZRef = useRef(0);
   const pulseRef = useRef(0);
-  const prevStageRef = useRef<Stage>(stage);
+  const prevStageRef = useRef<Stage>(stageFromDepth(journeyRef.current.current));
   const outerMatRef = useRef<THREE.MeshBasicMaterial>(null);
   /* 顯微鏡（2026-08-17）：宏觀外殼群組與量子層群組 */
   const macroGroupRef = useRef<THREE.Group>(null);
@@ -1024,9 +1026,7 @@ function TaijiCore({
     return () => clearTimeout(timer);
   }, []);
 
-  /* 24 響 × 24 主題：每一響換一套配色主題重繪球體與光效（可變獎勵的顏色維度）。
-     未點擊（step 0）採用第 24 主題（經典鎏金）作為預設面貌。 */
-  const activeTheme = theme ?? TAIJI_24_THEMES[step24 > 0 ? (step24 - 1) % 24 : 23];
+  const activeTheme = theme ?? TAIJI_BENCHMARK_THEME;
   /* 真實感鐵律（2026-08-14 依指示）：真實物體不會換材質——
      球體本體永遠使用「第一張」的墨玉×月瓷基準（材質恆定＝真實感恆定），
      24 響的變化只落在環繞它的光（光暈、光束、軌道環、燈色溫）。 */
@@ -1052,6 +1052,8 @@ function TaijiCore({
     () => ({ pairs: quantumPairs, links: quantumLinks }),
     [quantumPairs, quantumLinks],
   );
+  const progress24 = progressFromDepth(journeyRef.current.current);
+  const separate = liangyiAmount(journeyRef.current.current) > 0.04;
   /* 【穩定性｜2026-08-17】光暈與雲隙光貼圖只畫一次。
      原本它們掛在 activeTheme 上，24 響每按一下就重畫 512² + 1024² 兩張 canvas 並重新上傳 GPU——
      每一次點擊都在做一件肉眼幾乎看不出差別的重活。
@@ -1084,51 +1086,44 @@ function TaijiCore({
   /* 待機召喚：attractTick 變化 → 溫柔脈衝一下 */
   const prevAttractRef = useRef(0);
 
-  const separate = stage !== 'TAIJI';
-  /*
-     第 13 層後不能只等使用者手動轉顯微鏡倍率；24 響本身也是同一部
-     深潛電影的鏡頭。把第 13→24 層映射到深淵場既有的 12→25 深度，
-     所有變化仍沿用同一顆點雲與 shader，只更新 uniform。
-  */
-  const journeyDepth = step24 >= 13
-    ? 13.25 + ((Math.min(24, step24) - 13) / 11) * 11.75
-    : 0;
-  /* 鐵律：兩球絕對不碰撞不重疊——球半徑 0.82×0.88≈0.72，兩心距 2×0.88=1.76 > 1.44，任何角度都不相交 */
-  const offset = separate ? 0.88 : 0;
-  const scale = separate ? 0.88 : 1;
-
-  // ===== 優化後的 useFrame =====
   useFrame((state, delta) => {
     if (!groupRef.current) return;
+    const depth = journeyRef.current.current;
+    const progress24 = progressFromDepth(depth);
+    const split = liangyiAmount(depth);
+    const separate = split > 0.04;
+    const offset = 0.88 * split;
+    const scale = lerpNumber(1, 0.88, split);
+    const macroFade = macroPresence(depth);
+    const shellFade = macroFade;
+    const surfaceD = 1 - macroFade;
+    const stage = stageFromDepth(depth);
+    const layer = layerFromDepth(depth);
+    const variation = sampleVariation(depth);
     const frameDelta = Math.min(delta, FRAME_DELTA_CAP);
     const settleSoft = Math.min(1, frameDelta * 1.35);
     const settleSlow = Math.min(1, frameDelta * 0.95);
     const t = state.clock.elapsedTime;
 
-    // 階段切換偵測 → 觸發能量脈衝（誕生那一刻的爆發）
     if (prevStageRef.current !== stage) {
       prevStageRef.current = stage;
       pulseRef.current = 0.56;
     }
-    // 待機召喚脈衝（attract mode）：久未互動時輕輕呼喚
     if (prevAttractRef.current !== attractTick) {
       prevAttractRef.current = attractTick;
       pulseRef.current = Math.max(pulseRef.current, 0.32);
     }
-    // 24 步里程碑偵測：每 6 步小爆發、第 24 步大覺醒（可變獎勵）
-    if (prevStep24Ref.current !== step24) {
-      prevStep24Ref.current = step24;
-      if (step24 >= 24) pulseRef.current = 0.9;
-      else if (step24 > 0 && step24 % 6 === 0) pulseRef.current = 0.68;
+    if (prevStep24Ref.current !== layer) {
+      prevStep24Ref.current = layer;
+      if (layer >= 24) pulseRef.current = 0.9;
+      else if (layer > 0 && layer % 6 === 0) pulseRef.current = 0.68;
       else pulseRef.current = Math.max(pulseRef.current, 0.36);
     }
-    const activeVariation = step24 > 0 ? VARIATION_24[Math.min(23, step24 - 1)] : null;
-    const raySpinDir = activeVariation?.raySpinDir ?? 1;
+    const raySpinDir = variation.raySpinDir;
     pulseRef.current = Math.max(0, pulseRef.current - frameDelta * 0.72);
     const pulse = pulseRef.current;
     if (outerMatRef.current) {
-      /* 加法混合已經自帶發光，原本的 emissiveIntensity 併進不透明度：亮度曲線一致 */
-      outerMatRef.current.opacity = Math.min(0.085, 0.024 + progress24 * 0.012 + pulse * 0.026);
+      outerMatRef.current.opacity = Math.min(0.085, 0.024 + progress24 * 0.012 + pulse * 0.026) * macroFade;
     }
     if (outerShellRef.current) {
       outerShellRef.current.scale.setScalar(1 + Math.sin(t * 0.52) * 0.005 + pulse * 0.007);
@@ -1141,27 +1136,21 @@ function TaijiCore({
     }
 
     if (separate) {
-      // 分離後：整體多軸旋轉（365° 全角度、近 4D 連續變化）
-      // 「穩」：俯仰/側傾改緩動追隨，階段切換無接縫，擺動永遠柔順。
       const livingSpeed = 0.12 + progress24 * 0.026;
       groupRef.current.rotation.y += frameDelta * livingSpeed;
       groupRef.current.rotation.x += (Math.sin(t * 0.09) * 0.032 - groupRef.current.rotation.x) * settleSoft;
       groupRef.current.rotation.z += (Math.cos(t * 0.075) * 0.015 - groupRef.current.rotation.z) * settleSoft;
     } else {
-      // 太極階段：圖騰保持正面可辨識，只做輕微呼吸擺動，回正不歪斜
       groupRef.current.rotation.y += (Math.sin(t * 0.12) * 0.052 - groupRef.current.rotation.y) * settleSlow;
       groupRef.current.rotation.x += (Math.sin(t * 0.1) * 0.02 - groupRef.current.rotation.x) * settleSlow;
       groupRef.current.rotation.z = 0;
     }
 
-    // 太極圖騰（2026-08-16「太極要穩」）：365° 連續自轉核心——
-    // 穩定性關鍵修正：轉角改「增量積分」（rotation += delta×速度），
-    // 24 響任何一響改變速度時只影響當下、絕不瞬跳；縮放與深度同樣平滑過渡，順到無接縫。
     if (diskRef.current) {
       const fullTotemSpin = 0.16 + progress24 * 0.016;
       totemAngleRef.current += frameDelta * fullTotemSpin;
-      const targetTotemScale = separate ? 0.62 + progress24 * 0.014 : 1;
-      const targetTotemZ = separate ? -0.36 : 0;
+      const targetTotemScale = lerpNumber(1, 0.62 + progress24 * 0.014, split);
+      const targetTotemZ = -0.36 * split;
       totemScaleRef.current += (targetTotemScale - totemScaleRef.current) * Math.min(1, frameDelta * 1.35);
       totemZRef.current += (targetTotemZ - totemZRef.current) * Math.min(1, frameDelta * 1.35);
       diskRef.current.rotation.y = -Math.PI / 2 + totemAngleRef.current;
@@ -1171,24 +1160,6 @@ function TaijiCore({
       diskRef.current.scale.setScalar(totemScaleRef.current);
     }
 
-    /* ============================================================
-       顯微鏡層（2026-08-17）：×1 時一切與原本完全相同（zoomD=0 → 所有係數皆為 1／0），
-       倍率一升，宏觀外殼依序讓位，最後只剩下光子與粒子。
-    ============================================================ */
-    // 數量級刻度（d=2 → ×100、d=5 → ×100,000、d=7 → ×10,000,000）
-    const zoomD = magRef.current.current * MAG_DECADES;
-    // 太極本體的材質變化只發生在前五個數量級，之後畫面已經交給量子層
-    const surfaceD = Math.min(zoomD, 5) / 5;
-    // 外圍裝飾（軌道環、星塵、四象八卦）：×50 起淡出，×2,000 完全讓位
-    /* 第 13 層是穿透太極本體的剪接點：圖騰本身讓位給深場，不再看起來停住。 */
-    /* 第 13 層不是淡淡加一層特效，而是鏡頭正式穿透圖騰；主球必須完全讓位。 */
-    // 第 13 層起原始主球永久退場；第 24 層由獨立量子點雲生成新太極，禁止回用第 1 層。
-    const journeyDive = step24 >= 13 ? 1 : 0;
-    const macroFade = (1 - smoothstep(1.7, 3.3, zoomD)) * (1 - journeyDive);
-    // 球體本體：×1,000 起釉面開始透出內部結構，×20,000 完全解離
-    const shellFade = (1 - smoothstep(2.5, 4.3, zoomD)) * (1 - journeyDive);
-    /* 暖機視窗：連續 8 幀把所有階段的物件都顯示出來（縮到 0.0001 倍，看不見），
-       讓每一支著色器在這裡編譯完；之後互動全程零編譯。 */
     const warm = warmRef.current;
     if (warm.warming) {
       warm.frames += 1;
@@ -1199,18 +1170,13 @@ function TaijiCore({
     }
     const warming = warm.warming;
     const warmScale = 0.0001;
-
     const macroVisible = macroFade > 0.02;
-    /* 外圍能量殼會投出可辨識的同心圓，與首頁要的自然散光衝突；
-       直接關閉，改由背景光霧、柔和光束與底部接觸陰影提供空間感。 */
     const haloVisible = false;
     if (macroGroupRef.current) macroGroupRef.current.visible = macroVisible;
     if (energyFieldRef.current) energyFieldRef.current.visible = haloVisible;
     if (outerShellRef.current) outerShellRef.current.visible = haloVisible;
-    if (outerMatRef.current) outerMatRef.current.opacity *= 1 - smoothstep(1.0, 2.2, zoomD);
 
-    /* 階段可見度（取代原本的條件掛載）：物件恆在，只切 visible 與 scale */
-    const showLiangyi = separate && shellFade > 0.02;
+    const showLiangyi = split > 0.04 && shellFade > 0.02;
     if (yinRef.current) {
       yinRef.current.visible = showLiangyi || warming;
       yinRef.current.scale.setScalar(showLiangyi ? scale : warmScale);
@@ -1219,89 +1185,68 @@ function TaijiCore({
       yangRef.current.visible = showLiangyi || warming;
       yangRef.current.scale.setScalar(showLiangyi ? scale : warmScale);
     }
-    const showSixiang = stage === 'SIXIANG' && macroVisible;
+    const showSixiang = sixiangPresence(depth) > 0.04 && macroVisible;
     if (sixiangGroupRef.current) {
       sixiangGroupRef.current.visible = showSixiang || warming;
-      sixiangGroupRef.current.scale.setScalar(showSixiang ? 1 : warmScale);
+      sixiangGroupRef.current.scale.setScalar(showSixiang ? sixiangPresence(depth) : warmScale);
     }
 
     const ballMat = ballMatRef.current;
     if (ballMat && diskRef.current) {
-      const baseOpacity = separate ? 0.82 : 1;
-      const opacity = baseOpacity * shellFade;
-      /* transparent 固定為 true（見 JSX 註解），這裡只動 uniform 級的參數，永遠不會觸發重編譯 */
+      const baseOpacity = lerpNumber(1, 0.82, split);
+      const opacity = Number.isFinite(baseOpacity * shellFade) ? Math.min(1, Math.max(0, baseOpacity * shellFade)) : 1;
       ballMat.opacity = opacity;
       ballMat.depthWrite = opacity > 0.995;
-      /* 顯微鏡下材質會活過來：倍率越高，釉面凹凸越深、越看得見手工感 */
       ballMat.bumpScale = 0.01 + surfaceD * 0.075;
-      /* 光滑到反射如鏡，凹凸就藏在鏡面裡看不見。倍率一上來讓微觀粗糙度跟著上升
-         （這也是物理上該發生的事：放大到晶粒尺度，任何拋光面都是粗的），
-         高光被撐開，釉裂與晶粒才會在光暈邊緣浮出來。 */
       ballMat.roughness = 0.28 + surfaceD * 0.22;
       ballMat.clearcoatRoughness = 0.1 + surfaceD * 0.16;
       diskRef.current.visible = opacity > 0.004;
+      if (opacity > 0.004 && diskRef.current.scale.lengthSq() < 0.0001) {
+        diskRef.current.scale.setScalar(1);
+      }
     }
-    /* 真顯微鏡的關鍵手感：換上高倍物鏡時，會「浮出」原本看不到的細節。
-       鏡頭推近會把紋理放大成模糊的大塊；所以同步把噪點貼圖的重複次數往上調，
-       螢幕上的顆粒維持一樣細，等於一層比一層更細的釉裂與晶粒被翻出來。 */
     if (surfaceNoise) {
       const grain = 2 + surfaceD * 11;
       if (Math.abs(surfaceNoise.repeat.x - grain) > 0.01) surfaceNoise.repeat.set(grain, grain);
     }
-    /* 鐵律修正（2026-08-29）：這四層深潛場原本只認「第幾響」（離散的 step24），
-       純粹用滾輪／觸控連續放大（journey.step 永遠是 0）時，不管倍率拉多深，
-       這幾層永遠不會出現——畫面在量子粒子場淡出後（約 decade 5）就直接見底。
-       改成「離散響數」與「連續數量級 zoomD」兩條件用 OR 併存：
-       點 24 響按鈕／選層面板走原本的即時響應；純滾輪／觸控連續縮放改讀 zoomD，
-       跟每層子元件內部本來就有的 smoothstep 連續公式接上，兩種操作方式共用同一批畫面。 */
-    // 量子粒子場與太極圖騰同一個朝向（同一顆物體的裡與外）
+
+    const quantumWeight = bandWeight(depth, TAIJI_BANDS.quantum.enter, TAIJI_BANDS.quantum.full, TAIJI_BANDS.quantum.exitStart, TAIJI_BANDS.quantum.exitEnd);
+    const cellularWeight = bandWeight(depth, TAIJI_BANDS.cellular.enter, TAIJI_BANDS.cellular.full, TAIJI_BANDS.cellular.exitStart, TAIJI_BANDS.cellular.exitEnd);
+    const entangleWeight = bandWeight(depth, TAIJI_BANDS.entanglement.enter, TAIJI_BANDS.entanglement.full, TAIJI_BANDS.entanglement.exitStart, TAIJI_BANDS.entanglement.exitEnd);
+    const abyssWeight = bandWeight(depth, TAIJI_BANDS.abyss.enter, TAIJI_BANDS.abyss.full, TAIJI_BANDS.abyss.exitStart, TAIJI_BANDS.abyss.exitEnd);
+
     if (quantumGroupRef.current && diskRef.current) {
-      if (step24 >= 5 && step24 <= 11) {
-        // 逐層顯微鏡鏡頭固定正面取景，避免父層自轉把成對粒子甩出畫面。
-        quantumGroupRef.current.rotation.set(0, 0, 0);
-      } else {
-        quantumGroupRef.current.rotation.y = diskRef.current.rotation.y + Math.PI / 2;
-      }
-      // 第 12 層起（或連續放大超過 decade 11.6）由逐層專用鏡頭接管，關閉通用量子場。
-      quantumGroupRef.current.visible = (step24 < 12 && zoomD < 11.6) || warming;
+      if (quantumWeight > 0.02) quantumGroupRef.current.rotation.set(0, 0, 0);
+      else quantumGroupRef.current.rotation.y = diskRef.current.rotation.y + Math.PI / 2;
+      quantumGroupRef.current.visible = quantumWeight > 0.002 || warming;
     }
-    /* 糾纏內景層：反轉抵銷父層旋轉，讓那一對波包在畫面上穩穩不動。
-       使用者拖曳時是鏡頭繞著它轉（OrbitControls），觀察角度照樣自由。 */
     if (deepGroupRef.current) {
-      /* 第 17～20 層，或連續放大落在 ×50,000～×2,500萬（decade 4.2~7.4）之間時進入糾纏鏡頭。 */
-      deepGroupRef.current.visible = (step24 >= 17 && step24 <= 20) || (zoomD >= 4.2 && zoomD < 7.4) || warming;
+      deepGroupRef.current.visible = entangleWeight > 0.002 || warming;
       if (deepGroupRef.current.visible) {
-        // 用四元數反轉才是精確的抵銷（尤拉角逐軸取負在複合旋轉下並不等於反轉）
         deepGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
       }
     }
-    /* 細胞內景層（×100,000,000 起）：同樣站著不動，門檻與糾纏內景層共用同一顆父層旋轉抵銷邏輯 */
     if (cellularGroupRef.current) {
-      cellularGroupRef.current.visible = (step24 >= 11 && step24 <= 16) || (zoomD >= 6.1 && zoomD < 12.3) || warming;
+      cellularGroupRef.current.visible = cellularWeight > 0.002 || warming;
       if (cellularGroupRef.current.visible) {
         cellularGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
       }
     }
-    /* 深淵場（第 21~24 層）：同樣站著不動，共用同一顆父層旋轉抵銷邏輯 */
     if (abyssGroupRef.current) {
-      // 第 21～24 層，或連續放大超過 ×10,000,000,000（decade 11.3）才進入事件視界、白洞與量子太極回歸。
-      abyssGroupRef.current.visible = (step24 >= 21 && step24 <= 24) || zoomD >= 11.3 || warming;
+      abyssGroupRef.current.visible = abyssWeight > 0.002 || warming;
       if (abyssGroupRef.current.visible) {
         abyssGroupRef.current.quaternion.copy(groupRef.current.quaternion).invert();
       }
     }
 
-    // 光線科技①：雲隙光束保留為極低亮度背景補光，避免貼圖感與卡通化。
     if (raysRef.current) {
       raysRef.current.material.rotation += frameDelta * (0.007 + progress24 * 0.008) * raySpinDir;
       raysRef.current.material.opacity = Math.min(0.09, 0.032 + progress24 * 0.018 + Math.sin(t * 0.28) * 0.003 + pulse * 0.025) * macroFade;
       const rayScale = 4.55 * (1 + progress24 * 0.01 + Math.sin(t * 0.28) * 0.003 + pulse * 0.012);
       raysRef.current.scale.set(rayScale, rayScale, 1);
       raysRef.current.visible = (!separate && macroVisible) || warming;
-      // 24 響的色溫改用材質著色（uniform），不再每一響重畫貼圖
       raysRef.current.material.color.set(activeTheme.primary);
     }
-    // 光線科技②：核心光暈壓低，只做材質周圍的柔和反射。
     if (glowRef.current) {
       glowRef.current.material.opacity = Math.min(0.13, 0.078 + progress24 * 0.018 + Math.sin(t * 0.46) * 0.003 + pulse * 0.022) * macroFade;
       const glowScale = 3.65 * (1 + progress24 * 0.01 + Math.sin(t * 0.46) * 0.003 + pulse * 0.012);
@@ -1310,11 +1255,8 @@ function TaijiCore({
       glowRef.current.material.color.set(activeTheme.primary);
     }
 
-    // 兩儀分離距離平滑演化：從核心誕生撐開，不瞬間跳位
     sepRef.current += (offset - sepRef.current) * Math.min(1, frameDelta * 1.05);
     const sep = sepRef.current;
-
-    // 陰陽獨立旋轉（分離後反向不同速，永不碰撞）＋24 步進程微加速（旅程越走越有勁）
     const spinBoost = 1 + progress24 * 0.18;
     if (yinRef.current) {
       yinRef.current.position.x = -sep;
@@ -1329,9 +1271,9 @@ function TaijiCore({
       yangRef.current.rotation.y -= frameDelta * 0.13 * spinBoost;
     }
     if (baguaOrbitRef.current) {
-      const showBagua = stage === 'BAGUA' && macroVisible;
+      const showBagua = baguaPresence(depth) > 0.04 && macroVisible;
       baguaOrbitRef.current.visible = showBagua || warming;
-      baguaOrbitRef.current.scale.setScalar(showBagua ? 1 : warmScale);
+      baguaOrbitRef.current.scale.setScalar(showBagua ? baguaPresence(depth) : warmScale);
       baguaOrbitRef.current.rotation.z += frameDelta * (0.008 + progress24 * 0.004);
       baguaOrbitRef.current.rotation.x = Math.sin(t * 0.045) * 0.012;
       baguaOrbitRef.current.rotation.y = Math.cos(t * 0.04) * 0.009;
@@ -1362,7 +1304,7 @@ function TaijiCore({
         <meshBasicMaterial
           color={activeTheme.secondary}
           transparent
-          opacity={0.018 + progress24 * 0.012}
+          opacity={0.018}
           side={THREE.BackSide}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
@@ -1392,9 +1334,9 @@ function TaijiCore({
         <Sparkles
           count={11}
           scale={2.45}
-          size={0.72 + progress24 * 0.24}
-          speed={0.04 + progress24 * 0.05}
-          opacity={0.18 + progress24 * 0.05}
+          size={0.72}
+          speed={0.04}
+          opacity={0.18}
           color={activeTheme.primary}
         />
       </group>
@@ -1402,9 +1344,8 @@ function TaijiCore({
       {/* 量子層：光子與粒子的糾纏（×100 起浮現，×10,000 之後接管整個畫面） */}
       <group ref={quantumGroupRef}>
         <TaijiQuantumField
-          magRef={magRef}
+          journeyRef={journeyRef}
           warmRef={warmRef}
-          journeyStep={step24}
           budget={quantumBudget}
           yinColor="#9fc4e8"
           yangColor={TAIJI_BENCHMARK_THEME.primary}
@@ -1417,9 +1358,8 @@ function TaijiCore({
           會直接把波包甩出畫面，所以在 useFrame 裡把父層的旋轉反轉抵銷掉。 */}
       <group ref={deepGroupRef}>
         <TaijiEntanglementCore
-          magRef={magRef}
+          journeyRef={journeyRef}
           warmRef={warmRef}
-          journeyStep={step24}
           yinColor="#9fc4e8"
           yangColor={TAIJI_BENCHMARK_THEME.primary}
           sparkColor="#fff6dc"
@@ -1430,9 +1370,8 @@ function TaijiCore({
           與糾纏內景層同一種「站著不動」處理，淡入門檻與其終點刻意重疊，銜接才會順。 */}
       <group ref={cellularGroupRef}>
         <TaijiCellularCore
-          magRef={magRef}
+          journeyRef={journeyRef}
           warmRef={warmRef}
-          journeyStep={step24}
           yinColor="#9fc4e8"
           yangColor={TAIJI_BENCHMARK_THEME.primary}
           sparkColor="#fff6dc"
@@ -1444,10 +1383,8 @@ function TaijiCore({
       {/* 深淵場：第 21～24 層依序吸入、噴發、雙旋流重組，最後以全新量子點雲生成太極。 */}
       <group ref={abyssGroupRef}>
         <TaijiAbyssField
-          magRef={magRef}
+          journeyRef={journeyRef}
           warmRef={warmRef}
-          journeyDepth={journeyDepth}
-          journeyStep={step24}
           yinColor="#9fc4e8"
           yangColor={TAIJI_BENCHMARK_THEME.primary}
           sparkColor="#fff6dc"
@@ -1654,21 +1591,12 @@ export default function TaijiSystem({
   onStageChange,
   onComplete,
 }: TaijiSystemProps) {
-  const [stage, setStage] = useState<Stage>('TAIJI');
-  const [isAnimating, setIsAnimating] = useState(false);
-  const animationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoTimer = useRef<ReturnType<typeof setInterval> | null>(null);
-  /* 功能保留：點擊演化沿用既有 24 步聲音旅程引擎 */
   const soundRef = useRef<Taiji24SoundEngine | null>(null);
-
-  /* 24 步視覺旅程（2026-08-14 黏著性升級）：與聲音引擎同步的可變獎勵——
-     每點一下光束更盛、粒子增生、轉速微升；每 6 步一次能量小爆發；第 24 步大覺醒。 */
-  const [journey, setJourney] = useState({ step: 0, progress: 0 });
-  const journeyStage = stageForJourney(journey.step, stage);
-  /* 24 響 × 24 主題：本響的主題色（未點擊採第 24 主題經典鎏金） */
-  const journeyTheme = TAIJI_24_THEMES[journey.step > 0 ? (journey.step - 1) % 24 : 23];
-  /* 遊戲等級留客四機制（2026-08-14）：
-     ① 進度環（稟賦進度效應）② 連點光軌 ③ 每日圓滿光冠（habit loop）④ 待機召喚脈衝 */
+  const journeyRef = useRef(createTaijiJourneyState(TAIJI_DEPTH_MIN));
+  const [displayLayer, setDisplayLayer] = useState(TAIJI_DEPTH_MIN);
+  const journeyStage = stageFromDepth(displayLayer);
+  const journeyTheme = TAIJI_24_THEMES[displayLayer - 1];
   const [combo, setCombo] = useState(0);
   const [visualPulse, setVisualPulse] = useState(0);
   const [todayAwakened, setTodayAwakened] = useState(false);
@@ -1678,18 +1606,21 @@ export default function TaijiSystem({
   const touchRef = useRef({ active: false, x: 0, y: 0 });
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasQuality = useTaijiCanvasQuality(wrapperRef);
-  /* 顯微鏡倍率：唯一狀態來源（ref，不進 React state） */
-  const magRef = useTaijiMagnifier(wrapperRef);
-
-  /* 24 層按鈕同時驅動鏡頭：第 1 層是全貌，第 2 層立刻推近，其後逐層深入到細胞與量子內景。 */
-  useEffect(() => {
-    if (journey.step > 0) magRef.current.target = journeyZoomTarget(journey.step);
-  }, [journey.step, magRef]);
+  useTaijiJourneyGestures(wrapperRef, journeyRef);
 
   const TAIJI_DAILY_KEY = 'tdh:taiji24:daily:v1';
   const todayKey = () => new Date().toISOString().slice(0, 10);
 
-  /* 每日圓滿：讀取今日紀錄——已圓滿者回訪即見全盛光冠；新的一天歸零重修 */
+  const markLayer = useCallback((layer: number, playSound: boolean) => {
+    const next = Math.max(TAIJI_DEPTH_MIN, Math.min(TAIJI_DEPTH_MAX, Math.round(layer)));
+    setJourneyTarget(journeyRef.current, next);
+    setVisualPulse(performance.now());
+    if (!playSound) return;
+    const engine = soundRef.current ?? new Taiji24SoundEngine();
+    soundRef.current = engine;
+    void engine.playLayer(next).catch(() => undefined);
+  }, []);
+
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(TAIJI_DAILY_KEY);
@@ -1697,13 +1628,12 @@ export default function TaijiSystem({
       const saved = JSON.parse(raw) as { date?: string; awakened?: boolean };
       if (saved.date === todayKey() && saved.awakened) {
         setTodayAwakened(true);
-        setJourney({ step: 24, progress: 1 });
+        jumpJourney(journeyRef.current, TAIJI_DEPTH_MAX);
+        setDisplayLayer(TAIJI_DEPTH_MAX);
       }
     } catch { /* localStorage 受限時靜默略過 */ }
   }, []);
 
-  /* 音訊暖機（2026-08-17 穩定性專案）：把 AudioContext 與 2.8 秒殘響脈衝的建置
-     移到載入後的空檔，第一次點擊就不會為了「建立聲音」而掉一大段幀。 */
   useEffect(() => {
     const warmAudio = () => {
       if (!soundRef.current) soundRef.current = new Taiji24SoundEngine();
@@ -1718,7 +1648,6 @@ export default function TaijiSystem({
     return () => clearTimeout(timer);
   }, []);
 
-  /* 待機召喚（attract mode）：18 秒沒互動就輕輕呼喚一下 */
   useEffect(() => {
     const timer = setInterval(() => {
       if (performance.now() - lastClickAtRef.current > 18000) {
@@ -1728,83 +1657,47 @@ export default function TaijiSystem({
     return () => clearInterval(timer);
   }, []);
 
-  const goToStage = useCallback(
-    (nextStage: Stage) => {
-      /* 24 層旅程不能被四段舞台轉場的 1 秒動畫卡住。
-         使用者每一次點擊都必須確實推進一層；舞台本身仍維持平滑轉場。 */
-      const nowMs = performance.now();
-      const nextCombo = nowMs - lastClickAtRef.current < 2200 ? combo + 1 : 1;
-      lastClickAtRef.current = nowMs;
-      setCombo(nextCombo);
-
-      if (!soundRef.current) soundRef.current = new Taiji24SoundEngine();
-      void soundRef.current
-        .click()
-        .then((soundState) => {
-          setJourney({ step: soundState.step, progress: soundState.progress });
-          /* 純視覺回饋：每一響觸發光脈衝，不顯示文字 */
-          setVisualPulse(nowMs);
-          /* 每日圓滿寫入 */
-          if (soundState.step >= 24) {
-            setTodayAwakened(true);
-            try {
-              window.localStorage.setItem(TAIJI_DAILY_KEY, JSON.stringify({ date: todayKey(), awakened: true }));
-            } catch { /* ignore */ }
-          }
-        })
-        .catch(() => undefined);
-
-      if (isAnimating || nextStage === stage) return;
-      setIsAnimating(true);
-      setStage(nextStage);
-      onStageChange?.(nextStage);
-      if (nextStage === 'BAGUA') {
-        onComplete?.();
-      }
-      animationTimer.current = setTimeout(() => {
-        setIsAnimating(false);
-      }, 1000);
-    },
-    [combo, isAnimating, onComplete, onStageChange, stage],
-  );
-
-  const goNext = useCallback(() => {
-    const currentIndex = STAGES.indexOf(stage);
-    const nextIndex = (currentIndex + 1) % STAGES.length;
-    goToStage(STAGES[nextIndex]);
-  }, [goToStage, stage]);
+  const advanceLayer = useCallback(() => {
+    if (journeyRef.current.current >= TAIJI_DEPTH_MAX - 0.02 && journeyRef.current.target >= TAIJI_DEPTH_MAX) return;
+    const currentLayer = Math.floor(journeyRef.current.current + 1e-6);
+    if (currentLayer >= TAIJI_DEPTH_MAX) return;
+    const nowMs = performance.now();
+    const nextCombo = nowMs - lastClickAtRef.current < 2200 ? combo + 1 : 1;
+    lastClickAtRef.current = nowMs;
+    setCombo(nextCombo);
+    const next = currentLayer + 1;
+    markLayer(next, true);
+    onStageChange?.(stageFromDepth(next));
+    if (next >= TAIJI_DEPTH_MAX) {
+      setTodayAwakened(true);
+      onComplete?.();
+      try {
+        window.localStorage.setItem(TAIJI_DAILY_KEY, JSON.stringify({ date: todayKey(), awakened: true }));
+      } catch { /* ignore */ }
+    }
+  }, [combo, markLayer, onComplete, onStageChange]);
 
   const selectJourneyStep = useCallback((nextStep: number) => {
-    const safeStep = Math.max(1, Math.min(24, Math.round(nextStep)));
-    const engine = soundRef.current ?? new Taiji24SoundEngine();
-    const state = engine.seek(safeStep);
-    soundRef.current = engine;
-    setJourney({ step: state.step, progress: state.progress });
-    setVisualPulse(performance.now());
-  }, []);
+    markLayer(nextStep, true);
+  }, [markLayer]);
 
-  /* 驗收入口：`?taijiStep=13` 可讓設計與客戶直接檢視第 13 層以後的鏡頭，
-     不改一般使用者從第 1 層逐步推進的流程。 */
   useEffect(() => {
     const requestedStep = Number(new URLSearchParams(window.location.search).get('taijiStep'));
     if (!Number.isInteger(requestedStep) || requestedStep < 1 || requestedStep > 24) return;
-    const initialEngine = new Taiji24SoundEngine();
-    const state = initialEngine.seek(requestedStep);
-    soundRef.current = initialEngine;
-    setJourney({ step: state.step, progress: state.progress });
+    jumpJourney(journeyRef.current, requestedStep);
+    setDisplayLayer(requestedStep);
   }, []);
 
   useEffect(() => {
     if (!autoPlay) return;
-    autoTimer.current = setInterval(goNext, autoPlayInterval);
+    autoTimer.current = setInterval(advanceLayer, autoPlayInterval);
     return () => {
       if (autoTimer.current) clearInterval(autoTimer.current);
     };
-  }, [autoPlay, autoPlayInterval, goNext]);
+  }, [autoPlay, autoPlayInterval, advanceLayer]);
 
   useEffect(() => {
     return () => {
-      if (animationTimer.current) clearTimeout(animationTimer.current);
       if (autoTimer.current) clearInterval(autoTimer.current);
     };
   }, []);
@@ -1833,13 +1726,13 @@ export default function TaijiSystem({
   void videoUrl;
 
   const visualStyle = {
-    '--journey-deg': `${Math.round(journey.progress * 360)}deg`,
+    '--journey-deg': `${Math.round(progressFromDepth(displayLayer) * 360)}deg`,
     '--theme-primary': journeyTheme.primary,
     '--theme-secondary': journeyTheme.secondary,
     '--theme-soft': journeyTheme.soft,
     '--theme-glow': journeyTheme.glow,
     '--combo-opacity': combo >= 3 ? '0.72' : '0',
-    '--completion-opacity': todayAwakened || journey.step >= 24 ? '1' : '0',
+    '--completion-opacity': todayAwakened || displayLayer >= 24 ? '1' : '0',
   } as CSSProperties;
 
   return (
@@ -1847,8 +1740,8 @@ export default function TaijiSystem({
       className={`${styles.root} ${styles[`stage_${journeyStage.toLowerCase()}`]}`}
       aria-label="太極演化系統"
       style={visualStyle}
-      data-deep-field={journey.step >= 13}
-      data-journey-step={journey.step}
+      data-deep-field={displayLayer >= 13}
+      data-journey-step={displayLayer}
     >
       <div
         ref={wrapperRef}
@@ -1893,9 +1786,6 @@ export default function TaijiSystem({
         >
           <AdaptiveEvents />
           <TaijiPerformanceGovernor active={touchActive} />
-          {/* 顯微鏡鏡筒必須掛在最前面：它負責每幀積分倍率，其他元件才讀得到同一幀的值 */}
-          <MicroscopeRig magRef={magRef} />
-          <CameraBreath />
           {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
               頂部暖色柔光箱＋側面冷色燈條＋背部輪廓光，球面反射出真實的影棚光形，
               零網路資源、frames=1 只烘焙一次不吃效能 */}
@@ -1908,23 +1798,18 @@ export default function TaijiSystem({
             <Lightformer form="rect" intensity={0.4} color="#dce9f5" position={[-3.5, 3.5, 2]} rotation={[0, Math.PI / 3.2, 0]} scale={[0.25, 2, 1]} target={[0, 0, 0]} />
           </Environment>
           {/* 鏡頭只保留太極、粒子與光子：不放小行星、星雲或任何外部物件。 */}
-          <TaijiDeepField13 active={journey.step >= 13 && journey.step <= 16} step={journey.step} />
-          {/* 質感打光：電影三點光——主光與背光跟著本響主題換色 */}
           <ambientLight intensity={0.22} />
-          <KeyLightSweep theme={journeyTheme} progress24={journey.progress} />
+          <KeyLightSweep theme={journeyTheme} progress24={progressFromDepth(displayLayer)} />
           <pointLight position={[-4, -2.5, 2.5]} intensity={0.3} color="#6fa8c0" />
           <pointLight position={[0, 2.2, -4.5]} intensity={1.15} color={journeyTheme.accent} />
           <TaijiCore
-            stage={journeyStage}
-            step24={journey.step}
-            progress24={journey.progress}
             attractTick={attractTick}
             theme={journeyTheme}
-            magRef={magRef}
+            journeyRef={journeyRef}
             quantumPairs={canvasQuality.quantumPairs}
             quantumLinks={canvasQuality.quantumLinks}
             ultraTexture={canvasQuality.ultraTexture}
-            onCoreClick={goNext}
+            onCoreClick={advanceLayer}
           />
           <OrbitControls
             makeDefault
@@ -1935,8 +1820,9 @@ export default function TaijiSystem({
             rotateSpeed={0.52}
             autoRotate={!touchActive}
             autoRotateSpeed={0.16}
-            touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE }}
+            touches={{ ONE: THREE.TOUCH.ROTATE }}
           />
+          <JourneyRig journeyRef={journeyRef} onLayerChange={setDisplayLayer} />
         </Canvas>
         {/* 客戶頁只保留可直接點擊的太極圖騰；倍率／步數／解析度等驗收輔助資訊不對外顯示。 */}
       </div>
@@ -1944,12 +1830,12 @@ export default function TaijiSystem({
         <aside className={styles.layerReviewPanel} aria-label="太極二十四層預覽控制">
           <div className={styles.layerReviewHeading}>
             <span>24 層預覽</span>
-            <output>{Math.max(1, journey.step)} / 24</output>
+            <output>{displayLayer} / 24</output>
           </div>
           <div className={styles.layerReviewGrid} aria-label="選擇太極演化層數">
             {Array.from({ length: 24 }, (_, index) => {
               const layer = index + 1;
-              const selected = Math.max(1, journey.step) === layer;
+              const selected = displayLayer === layer;
               return (
                 <button
                   key={layer}

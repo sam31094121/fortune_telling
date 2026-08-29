@@ -20,7 +20,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { MAG_DECADES, smoothstep, type MagRef, type WarmRef } from './taijiMagnifier';
+import {
+  TAIJI_BANDS,
+  bandWeight,
+  readJourneyDepth,
+  sampleNumericKeyframes,
+  type TaijiJourneyRef,
+} from '@/lib/taiji-journey-depth';
+import { type WarmRef } from './taijiMagnifier';
 
 export type QuantumBudget = {
   /** 糾纏對數（實際點數 = pairs × 2） */
@@ -261,19 +268,38 @@ const LINK_FRAGMENT = /* glsl */ `
   }
 `;
 
+const QUANTUM_FRAMES: Record<number, {
+  points: number;
+  links: number;
+  field: number;
+  jitter: number;
+  size: number;
+  scale: number;
+  split: number;
+  photonFocus: number;
+  linkBody: number;
+  spin: number;
+  tilt: number;
+}> = {
+  5: { points: 0.95, links: 0.05, field: 0.62, jitter: 0.008, size: 0.011, scale: 1, split: 0, photonFocus: 0.2, linkBody: 0, spin: 0.015, tilt: 0 },
+  6: { points: 1.15, links: 0.68, field: 0.55, jitter: 0.026, size: 0.023, scale: 0.85, split: 1.8, photonFocus: 0.45, linkBody: 0.12, spin: 0.085, tilt: 0 },
+  7: { points: 0.18, links: 2.8, field: 0.82, jitter: 0.046, size: 0.01, scale: 1.1, split: 0.36, photonFocus: 0.6, linkBody: 1.15, spin: 0.15, tilt: 0.3 },
+  8: { points: 1.2, links: 0.03, field: 0.76, jitter: 0.086, size: 0.023, scale: 1.08, split: 0.2, photonFocus: 0.9, linkBody: 0, spin: 0.21, tilt: -0.34 },
+  9: { points: 1.6, links: 0.5, field: 0.82, jitter: 0.18, size: 0.052, scale: 1.48, split: 0.12, photonFocus: 1.9, linkBody: 0.08, spin: 0.3, tilt: 0.58 },
+  10: { points: 0.92, links: 0.42, field: 0.38, jitter: 0.06, size: 0.044, scale: 0.75, split: 1.7, photonFocus: 0.8, linkBody: 0.32, spin: -0.18, tilt: 0 },
+  11: { points: 0.24, links: 0.16, field: 2.05, jitter: 0.04, size: 0.06, scale: 1.24, split: 1.16, photonFocus: 0.65, linkBody: 0.06, spin: 0.06, tilt: 1.05 },
+};
+
 export default function TaijiQuantumField({
-  magRef,
+  journeyRef,
   warmRef,
-  journeyStep = 0,
   budget,
   yinColor,
   yangColor,
   sparkColor,
 }: {
-  magRef: MagRef;
+  journeyRef: TaijiJourneyRef;
   warmRef: WarmRef;
-  /** 24 層旅程第 5～11 層的逐幕取景；手動顯微鏡仍沿用連續倍率。 */
-  journeyStep?: number;
   budget: QuantumBudget;
   yinColor: string;
   yangColor: string;
@@ -341,45 +367,20 @@ export default function TaijiQuantumField({
   );
 
   useFrame((state, delta) => {
-    /* 門檻一律用「數量級」：d=2 是 ×100、d=5 是 ×100,000、d=7 是 ×10,000,000。
-       用絕對刻度寫，日後再往下加倍率也不會把既有的節奏整個位移。 */
-    const d = magRef.current.current * MAG_DECADES;
-    const journeyCuts: Record<number, {
-      points: number;
-      links: number;
-      field: number;
-      jitter: number;
-      size: number;
-      scale: number;
-      split: number;
-      photonFocus: number;
-      linkBody: number;
-      spin: number;
-      tilt: number;
-    }> = {
-      // 5：釉面晶格崩解，顆粒仍貼近原本表面。
-      5: { points: 0.95, links: 0.05, field: 0.62, jitter: 0.008, size: 0.011, scale: 1, split: 0, photonFocus: 0.2, linkBody: 0, spin: 0.015, tilt: 0 },
-      // 6：晶格裂成成對粒子，開始看見點對稱關係。
-      6: { points: 1.15, links: 0.68, field: 0.55, jitter: 0.026, size: 0.023, scale: 0.85, split: 1.8, photonFocus: 0.45, linkBody: 0.12, spin: 0.085, tilt: 0 },
-      // 7：粒子退暗，糾纏線成為滿版主構圖。
-      7: { points: 0.18, links: 2.8, field: 0.82, jitter: 0.046, size: 0.01, scale: 1.1, split: 0.36, photonFocus: 0.6, linkBody: 1.15, spin: 0.15, tilt: 0.3 },
-      // 8：穿過光線後進入高密度粒子海，連線幾乎消失。
-      8: { points: 1.2, links: 0.03, field: 0.76, jitter: 0.086, size: 0.023, scale: 1.08, split: 0.2, photonFocus: 0.9, linkBody: 0, spin: 0.21, tilt: -0.34 },
-      // 9：鎖定光子，少數高亮光點放大成主角。
-      9: { points: 1.6, links: 0.5, field: 0.82, jitter: 0.18, size: 0.052, scale: 1.48, split: 0.12, photonFocus: 1.9, linkBody: 0.08, spin: 0.3, tilt: 0.58 },
-      // 10：光子重新分成冷暖兩群，兩側拉開形成細胞前驅腔。
-      10: { points: 0.92, links: 0.42, field: 0.38, jitter: 0.06, size: 0.044, scale: 0.75, split: 1.7, photonFocus: 0.8, linkBody: 0.32, spin: -0.18, tilt: 0 },
-      // 11：兩群粒子撐成透明膜；量子場只剩稀疏種子，交給細胞鏡頭接手。
-      11: { points: 0.24, links: 0.16, field: 2.05, jitter: 0.04, size: 0.06, scale: 1.24, split: 1.16, photonFocus: 0.65, linkBody: 0.06, spin: 0.06, tilt: 1.05 },
-    };
-    const journeyCut = journeyCuts[journeyStep];
+    const depth = readJourneyDepth(journeyRef);
+    const presence = bandWeight(
+      depth,
+      TAIJI_BANDS.quantum.enter,
+      TAIJI_BANDS.quantum.full,
+      TAIJI_BANDS.quantum.exitStart,
+      TAIJI_BANDS.quantum.exitEnd,
+    );
     const warming = warmRef.current.warming;
     if (!armed || !materials) {
-      /* 暖機視窗也要上場：幾何在這裡建好、著色器在這裡編好，
-         使用者第一次轉倍率時就不會撞上建構與編譯的雙重停頓。 */
-      if (warming || journeyCut || magRef.current.target * MAG_DECADES > 0.08 || d > 0.08) setArmed(true);
+      if (warming || presence > 0.002 || journeyRef.current.target >= TAIJI_BANDS.quantum.enter) setArmed(true);
       return;
     }
+    const cut = sampleNumericKeyframes(depth, QUANTUM_FRAMES);
     const pointUniforms = materials.pointMaterial.uniforms;
     const linkUniforms = materials.linkMaterial.uniforms;
 
@@ -387,54 +388,40 @@ export default function TaijiQuantumField({
     const links = linksRef.current;
     const group = groupRef.current;
 
-    /* 顯現節奏：×100 起微微浮現顆粒 → ×10,000 完全接管畫面。
-       ×100,000 之後把舞台交給更深的糾纏內景層（粒子海退場，鏡頭鎖定其中一對）。 */
-    const handover = 1 - smoothstep(5.0, 5.9, d);
-    const reveal = journeyCut?.points ?? smoothstep(2, 4, d) * handover;
-    const linkReveal = journeyCut?.links ?? smoothstep(3.3, 4.7, d) * handover;
+    const reveal = (cut.points ?? 0) * presence;
+    const linkReveal = (cut.links ?? 0) * presence;
     const visible = reveal > 0.002;
     if (group) {
       group.visible = visible || warming;
-      // 暖機時縮到看不見，但渲染管線照樣會編譯這支著色器
-      group.scale.setScalar(visible ? (journeyCut?.scale ?? 1) : 0.0001);
+      group.scale.setScalar(visible ? (cut.scale ?? 1) : 0.0001);
     }
     if (!visible && !warming) return;
 
     const t = state.clock.elapsedTime;
-    /* 場域膨脹只給到 1.7 倍——這是實測校正過的關鍵數字：
-       粒子總數固定，場域每放大一倍，畫面內的密度就掉一個立方，
-       撐到 4 倍時整個畫面只剩下二十幾顆粒子（一片空白）。
-       正確作法是鏡頭「走進」粒子之間（見 MicroscopeRig 的最後一段推進），
-       粒子本身只微微散開、但顆顆變大——這才是顯微鏡下該有的稠密感。 */
-    const field = journeyCut?.field ?? 1 + smoothstep(2.25, 5, d) * 0.7;
-    const jitter = journeyCut?.jitter ?? 0.003 + smoothstep(1.9, 5, d) * 0.075;
-    /* 點大小依實際 backing store 換算，1080p / 1440p 都是正確的物理尺寸 */
     const camera = state.camera as THREE.PerspectiveCamera;
     const projScale = gl.domElement.height / (2 * Math.tan((camera.fov * Math.PI) / 360));
 
     pointUniforms.uTime.value = t;
     pointUniforms.uReveal.value = reveal;
-    pointUniforms.uField.value = field;
-    pointUniforms.uJitter.value = jitter;
-    pointUniforms.uSplit.value = journeyCut?.split ?? 0;
+    pointUniforms.uField.value = cut.field ?? 1;
+    pointUniforms.uJitter.value = cut.jitter ?? 0;
+    pointUniforms.uSplit.value = cut.split ?? 0;
     pointUniforms.uProjScale.value = projScale;
-    /* 倍率越高，單顆粒子在畫面上越大（放大鏡的本份） */
-    pointUniforms.uSize.value = journeyCut?.size ?? 0.0075 + smoothstep(2.25, 5, d) * 0.017;
-    pointUniforms.uPhotonFocus.value = journeyCut?.photonFocus ?? 0;
+    pointUniforms.uSize.value = cut.size ?? 0.011;
+    pointUniforms.uPhotonFocus.value = cut.photonFocus ?? 0;
 
     linkUniforms.uTime.value = t;
     linkUniforms.uReveal.value = linkReveal;
-    linkUniforms.uBodyBoost.value = journeyCut?.linkBody ?? 0;
-    linkUniforms.uField.value = field;
-    linkUniforms.uJitter.value = jitter;
-    linkUniforms.uSplit.value = journeyCut?.split ?? 0;
+    linkUniforms.uBodyBoost.value = cut.linkBody ?? 0;
+    linkUniforms.uField.value = cut.field ?? 1;
+    linkUniforms.uJitter.value = cut.jitter ?? 0;
+    linkUniforms.uSplit.value = cut.split ?? 0;
 
     if (links) links.visible = linkReveal > 0.004 || warming;
     if (points && group) {
-      // 整團粒子維持與太極圖騰同一個朝向，慢慢自轉
-      if (journeyCut) group.rotation.y = Math.sin(t * (0.24 + Math.abs(journeyCut.spin))) * journeyCut.spin;
-      else group.rotation.y += Math.min(delta, 1 / 45) * 0.035;
-      group.rotation.x = THREE.MathUtils.lerp(group.rotation.x, journeyCut?.tilt ?? 0, Math.min(1, delta * 1.8));
+      const spin = cut.spin ?? 0;
+      group.rotation.y = Math.sin(t * (0.24 + Math.abs(spin))) * spin;
+      group.rotation.x = THREE.MathUtils.lerp(group.rotation.x, cut.tilt ?? 0, Math.min(1, delta * 1.8));
     }
   });
 

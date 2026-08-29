@@ -407,6 +407,27 @@ export class Taiji24SoundEngine {
     return this.getState();
   }
 
+  /** 只在點核心／點層時發聲；連續放大不走這裡。 */
+  async playLayer(step: number): Promise<Taiji24State> {
+    const safeStep = Math.max(1, Math.min(this.maxStep, Math.round(step)));
+    await this.init();
+    if (!this.audioContext) return this.getState();
+
+    this.step = safeStep;
+    this.lastClickTime = performance.now();
+    const sound = this.sequence[this.step - 1];
+    if (this.step === this.maxStep) this.playFinalEgg(sound);
+    else this.playStepSound(sound, this.step);
+
+    const state = this.getState();
+    this.onStep(state);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('taiji24:step', { detail: state }));
+    }
+    if (this.step === this.maxStep) this.complete();
+    return state;
+  }
+
   reset(): void {
     this.step = 0;
     this.prevFrequency = 110.0;

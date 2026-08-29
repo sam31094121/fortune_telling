@@ -20,7 +20,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { MAG_DECADES, smoothstep, type MagRef, type WarmRef } from './taijiMagnifier';
+import {
+  TAIJI_BANDS,
+  bandWeight,
+  readJourneyDepth,
+  sampleNumericKeyframes,
+  type TaijiJourneyRef,
+} from '@/lib/taiji-journey-depth';
+import { type WarmRef } from './taijiMagnifier';
 
 /* 純視覺層：兩顆 128×128 的球加上管狀通道，逐面射線檢測太貴，直接退出檢測名單 */
 const NO_RAYCAST = () => null;
@@ -158,18 +165,32 @@ function buildBridgeGeometry() {
   return new THREE.TubeGeometry(curve, segments, 0.028, 8, false);
 }
 
+const ENTANGLE_FRAMES: Record<number, {
+  yin: number;
+  yang: number;
+  bridge: number;
+  fill: number;
+  spread: number;
+  focus: number;
+  spin: number;
+  flash: number;
+  twist: number;
+}> = {
+  17: { yin: 1, yang: 1, bridge: 0.05, fill: 0.23, spread: 1.9, focus: 0, spin: 0.7, flash: 0.15, twist: 0 },
+  18: { yin: 0.34, yang: 0.34, bridge: 2.8, fill: 0.16, spread: 3.7, focus: 0, spin: 1.6, flash: 0.35, twist: 1 },
+  19: { yin: 0.08, yang: 1, bridge: 0.18, fill: 0.84, spread: 1.08, focus: 1, spin: 0.2, flash: 0.8, twist: 0 },
+  20: { yin: 1.35, yang: 1.35, bridge: 1.8, fill: 0.14, spread: 1.75, focus: 0, spin: 3.2, flash: 2.2, twist: 0 },
+};
+
 export default function TaijiEntanglementCore({
-  magRef,
+  journeyRef,
   warmRef,
-  journeyStep = 0,
   yinColor,
   yangColor,
   sparkColor,
 }: {
-  magRef: MagRef;
+  journeyRef: TaijiJourneyRef;
   warmRef: WarmRef;
-  /** 24 層旅程的最後五幕會主動喚醒糾纏終景，不能只靠手動放大才看得到。 */
-  journeyStep?: number;
   yinColor: string;
   yangColor: string;
   sparkColor: string;
@@ -245,38 +266,23 @@ export default function TaijiEntanglementCore({
   );
 
   useFrame((state, delta) => {
-    const d = magRef.current.current * MAG_DECADES;
+    const depth = readJourneyDepth(journeyRef);
     const warming = warmRef.current.warming;
-    /* 17～20 不靠同一組參數平移，而是四個主構圖完全不同的顯微鏡鏡頭。
-       相鄰層只保留一個因果線索：雙生粒子 → 光橋 → 單波包內景 → 塌縮源點。 */
-    const journeyCuts: Record<number, {
-      depth: number;
-      yin: number;
-      yang: number;
-      bridge: number;
-      fill: number;
-      spread: number;
-      focus: number;
-      spin: number;
-      flash: number;
-    }> = {
-      17: { depth: 5.2, yin: 1, yang: 1, bridge: 0.05, fill: 0.23, spread: 1.9, focus: 0, spin: 0.7, flash: 0.15 },
-      18: { depth: 5.85, yin: 0.34, yang: 0.34, bridge: 2.8, fill: 0.16, spread: 3.7, focus: 0, spin: 1.6, flash: 0.35 },
-      19: { depth: 6.5, yin: 0.08, yang: 1, bridge: 0.18, fill: 0.84, spread: 1.08, focus: 1, spin: 0.2, flash: 0.8 },
-      20: { depth: 6.95, yin: 1.35, yang: 1.35, bridge: 1.8, fill: 0.14, spread: 1.75, focus: 0, spin: 3.2, flash: 2.2 },
-    };
-    const journeyCut = journeyCuts[journeyStep];
-    const journeyReveal = journeyCut ? 1 : 0;
-    const journeyDepth = journeyCut?.depth ?? 0;
-    const effectiveDepth = Math.max(d, journeyDepth);
+    const presence = bandWeight(
+      depth,
+      TAIJI_BANDS.entanglement.enter,
+      TAIJI_BANDS.entanglement.full,
+      TAIJI_BANDS.entanglement.exitStart,
+      TAIJI_BANDS.entanglement.exitEnd,
+    );
     if (!armed || !built) {
-      // 暖機視窗一併把這一層的幾何與著色器準備好（見 TaijiSystem 的暖機說明）
-      if (warming || journeyStep >= 17 || d > DEEP_IN - 0.5 || magRef.current.target * MAG_DECADES > DEEP_IN - 0.5) setArmed(true);
+      if (warming || presence > 0.002 || journeyRef.current.target >= TAIJI_BANDS.entanglement.enter) setArmed(true);
       return;
     }
 
+    const cut = sampleNumericKeyframes(depth, ENTANGLE_FRAMES);
     const root = rootRef.current;
-    const reveal = Math.max(smoothstep(DEEP_IN, DEEP_FULL, d), journeyReveal);
+    const reveal = presence;
     const showDeep = reveal > 0.002;
     if (root) {
       root.visible = showDeep || warming;
@@ -285,33 +291,19 @@ export default function TaijiEntanglementCore({
     if (!showDeep) return;
 
     const t = state.clock.elapsedTime;
-
-    /* 連續放大：用「一顆波包佔畫面多少」來定尺寸，鏡頭不必再往前推，
-       而是物體本身持續變大——這就是顯微鏡換上更高倍物鏡的手感。 */
     const camera = state.camera as THREE.PerspectiveCamera;
     const halfHeight = camera.position.length() * Math.tan((camera.fov * Math.PI) / 360);
-    /* 取景校準：×1,000,000 時兩顆完整入鏡（各佔約 0.37 個半高），
-       ×10,000,000 時單顆撐滿畫面但不超過 0.95——超過就會鑽進球體內部，
-       變成一片沒有輪廓的糊光（實測過，那樣看不出是什麼）。 */
-    const fill = journeyCut?.fill ?? Math.min(0.95, 0.16 * Math.pow(10, Math.max(0, effectiveDepth - 5.2) * 0.46));
+    const fill = cut.fill ?? 0.23;
     const radius = halfHeight * fill;
-    const centerX = radius * (journeyCut?.spread ?? 1.58); // 每幕重新取景，避免只換顏色或倍率
-    /* ×3,000,000 之後把鏡頭「對準其中一顆」：另一顆退到畫面邊緣，
-       但通道還連著——你正對著一顆光子的內部，它的另一半仍在遠處同步著。 */
-    const focus = journeyCut?.focus ?? smoothstep(6.0, 7.0, effectiveDepth);
+    const centerX = radius * (cut.spread ?? 1.9);
+    const focus = cut.focus ?? 0;
     const shift = -centerX * focus;
 
-    /* 觀測事件：每 5.2 秒一次，隨機決定哪一顆亮——但永遠一亮一暗（反相關） */
     const cycle = t % 5.2;
     const cycleIndex = Math.floor(t / 5.2);
     const outcome = Math.sin(cycleIndex * 127.1) > 0 ? 1 : -1;
-    const flash = Math.exp(-cycle * 3.4) * smoothstep(5.6, 6.4, effectiveDepth) * (journeyCut?.flash ?? 1);
-
-    // 旅程深層絕不浮現第 1 層太極輪廓；第 24 層會由另一套量子點雲重新生成。
-    const taiji = journeyCut ? 0 : smoothstep(6.2, 7.0, effectiveDepth);
-    /* 自轉在最深處幾乎停下來：太極浮現時要正對鏡頭讓人看清楚，
-       轉太快只會看到圖案一直轉走。 */
-    const spinRate = Math.min(delta, 1 / 45) * 0.22 * (1 - taiji * 0.88) * (journeyCut?.spin ?? 1);
+    const flash = Math.exp(-cycle * 3.4) * (cut.flash ?? 0) * presence;
+    const spinRate = Math.min(delta, 1 / 45) * 0.22 * (cut.spin ?? 1);
 
     const yin = yinRef.current;
     const yang = yangRef.current;
@@ -323,28 +315,28 @@ export default function TaijiEntanglementCore({
     if (yang) {
       yang.position.set(centerX + shift, 0, 0);
       yang.scale.setScalar(radius);
-      yang.rotation.y -= spinRate; // 反向自轉：一顆向上、一顆向下
+      yang.rotation.y -= spinRate;
     }
     [bridgeARef.current, bridgeBRef.current].forEach((bridge, index) => {
       if (!bridge) return;
       bridge.position.set(shift, 0, 0);
       bridge.scale.set(centerX, radius * 0.9, radius * 0.9);
-      bridge.rotation.x = index === 0 ? 0 : Math.PI; // 兩股相差半個週期＝雙螺旋
-      bridge.rotation.z = journeyStep === 18 ? Math.sin(t * 0.18) * 0.45 : journeyStep === 20 ? Math.PI / 2 : 0;
+      bridge.rotation.x = index === 0 ? 0 : Math.PI;
+      bridge.rotation.z = Math.sin(t * 0.18) * 0.45 * (cut.twist ?? 0);
     });
 
     const yinUniforms = built.yinMaterial.uniforms;
     const yangUniforms = built.yangMaterial.uniforms;
     yinUniforms.uTime.value = t;
     yangUniforms.uTime.value = t;
-    yinUniforms.uReveal.value = reveal * (journeyCut?.yin ?? 1);
-    yangUniforms.uReveal.value = reveal * (journeyCut?.yang ?? 1);
-    yinUniforms.uTaiji.value = taiji;
-    yangUniforms.uTaiji.value = taiji;
+    yinUniforms.uReveal.value = reveal * (cut.yin ?? 1);
+    yangUniforms.uReveal.value = reveal * (cut.yang ?? 1);
+    yinUniforms.uTaiji.value = 0;
+    yangUniforms.uTaiji.value = 0;
     yinUniforms.uFlash.value = flash * outcome;
     yangUniforms.uFlash.value = flash * -outcome;
     built.bridgeMaterial.uniforms.uTime.value = t;
-    built.bridgeMaterial.uniforms.uReveal.value = reveal * (journeyCut?.bridge ?? 1);
+    built.bridgeMaterial.uniforms.uReveal.value = reveal * (cut.bridge ?? 1);
   });
 
   if (!built) return null;

@@ -20,6 +20,14 @@
  */
 
 import { useEffect, useRef, type RefObject } from 'react';
+import {
+  TAIJI_PINCH_DEPTH_GAIN,
+  TAIJI_WHEEL_DEPTH_CAP,
+  TAIJI_WHEEL_DEPTH_GAIN,
+  clampDepth,
+  nudgeJourneyTarget,
+  type TaijiJourneyRef,
+} from '@/lib/taiji-journey-depth';
 
 /** 二十五個數量級：×1（decade 0）到 ×10^25（decade 25）。
     物鏡轉盤（MAG_TIERS）從 decade 2（×100）開始，剛好 24 段連到 decade 25——
@@ -125,6 +133,77 @@ export function formatMag(mag: number) {
  * - 手機：兩指捏合（單指仍然是旋轉太極，功能不衝突）
  * - 兩者共用：HUD 上的滑桿與物鏡轉盤按鈕
  */
+/**
+ * 兩指捏合與修飾鍵滾輪只寫入唯一旅程 target。
+ * 單指旋轉交給 OrbitControls；未按修飾鍵的滾輪仍給頁面捲動。
+ */
+export function useTaijiJourneyGestures(
+  elementRef: RefObject<HTMLElement | null>,
+  journeyRef: TaijiJourneyRef,
+) {
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element) return;
+
+    const pointers = new Map<number, { x: number; y: number }>();
+    let pinchStartDistance = 0;
+    let pinchStartDepth = 1;
+
+    const distanceOf = () => {
+      const [a, b] = Array.from(pointers.values());
+      if (!a || !b) return 0;
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    };
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const unit = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * 80 : event.deltaY;
+      const raw = -unit * TAIJI_WHEEL_DEPTH_GAIN;
+      const step = Math.max(-TAIJI_WHEEL_DEPTH_CAP, Math.min(TAIJI_WHEEL_DEPTH_CAP, raw));
+      nudgeJourneyTarget(journeyRef.current, step);
+    };
+
+    const onPointerDown = (event: PointerEvent) => {
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (pointers.size === 2) {
+        pinchStartDistance = distanceOf();
+        pinchStartDepth = journeyRef.current.target;
+      }
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (!pointers.has(event.pointerId)) return;
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (pointers.size !== 2 || pinchStartDistance <= 0) return;
+      const distance = distanceOf();
+      if (distance <= 0) return;
+      const next = pinchStartDepth + Math.log2(distance / pinchStartDistance) * TAIJI_PINCH_DEPTH_GAIN;
+      journeyRef.current.target = clampDepth(next);
+    };
+
+    const onPointerUp = (event: PointerEvent) => {
+      pointers.delete(event.pointerId);
+      if (pointers.size < 2) pinchStartDistance = 0;
+    };
+
+    element.addEventListener('wheel', onWheel, { passive: false });
+    element.addEventListener('pointerdown', onPointerDown);
+    element.addEventListener('pointermove', onPointerMove);
+    element.addEventListener('pointerup', onPointerUp);
+    element.addEventListener('pointercancel', onPointerUp);
+    element.addEventListener('pointerleave', onPointerUp);
+
+    return () => {
+      element.removeEventListener('wheel', onWheel);
+      element.removeEventListener('pointerdown', onPointerDown);
+      element.removeEventListener('pointermove', onPointerMove);
+      element.removeEventListener('pointerup', onPointerUp);
+      element.removeEventListener('pointercancel', onPointerUp);
+      element.removeEventListener('pointerleave', onPointerUp);
+    };
+  }, [elementRef, journeyRef]);
+}
+
 export function useTaijiMagnifier(elementRef: RefObject<HTMLElement | null>) {
   const magRef = useRef<MagState>({ target: 0, current: 0 });
 
