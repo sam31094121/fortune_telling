@@ -15,6 +15,7 @@ import type { GrowthElement } from '@/lib/growth-center-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiTopShell3D from '@/components/taiji/TaijiTopShell3D';
+import TodayDirectionQuest from '@/components/TodayDirectionQuest';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
@@ -2647,6 +2648,8 @@ export default function HomePage() {
         >
           <TaijiTopShell3D />
         </section>
+
+        <TodayDirectionQuest />
 
         <HomeStickyJourneyPanel
           completed={growthCompletedCount}

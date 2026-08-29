@@ -371,8 +371,9 @@ function ElementSphere({ element, released, variant, preview }: { element: Produ
   );
 }
 
-export function WaterTreasureOrb({ element, released, variant = 'luminous', preview = false, burnSealOnRelease = false, animating = false }: { element: ProductElement; released: boolean; variant?: WaterOrbVariant; preview?: boolean; burnSealOnRelease?: boolean; animating?: boolean }) {
+export function WaterTreasureOrb({ element, released, variant = 'luminous', preview = false, burnSealOnRelease = false, animating = false, displayProfile = 'default' }: { element: ProductElement; released: boolean; variant?: WaterOrbVariant; preview?: boolean; burnSealOnRelease?: boolean; animating?: boolean; displayProfile?: 'default' | 'mobile-reward' }) {
   const material = ORB_MATERIAL[element];
+  const mobileReward = displayProfile === 'mobile-reward';
   return (
     <span className={`water-treasure-orb water-treasure-orb--${element} water-treasure-orb--${variant} ${preview ? 'water-treasure-orb--preview' : ''} ${released ? 'water-treasure-orb--released' : 'water-treasure-orb--sealed'}`} aria-hidden="true">
       {!released && <span className="water-treasure-seal-aura" />}
@@ -383,17 +384,18 @@ export function WaterTreasureOrb({ element, released, variant = 'luminous', prev
         frameloop={animating ? 'always' : 'demand'}
         camera={{ position: [0, 0, 3.2], fov: 36 }}
         gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
+        onCreated={mobileReward ? ({ gl }) => { gl.toneMappingExposure = 0.2; } : undefined}
       >
-        <ambientLight intensity={0.4} />
+        <ambientLight intensity={mobileReward ? 0.05 : 0.4} />
         <pointLight
           position={[-2.2, 2.5, 3.1]}
-          intensity={released ? (element === '空' ? 6 : 15) : (element === '空' ? 2.5 : 6)}
+          intensity={mobileReward ? (released ? 0.62 : 0.34) : released ? (element === '空' ? 6 : 15) : (element === '空' ? 2.5 : 6)}
           color={released ? (element === '空' ? '#fff3cc' : element === '火' ? '#ff8ca9' : element === '風' ? '#a7ffe0' : element === '地' ? '#ffd784' : '#c8f8ff') : DEMON_LIGHT[element].primary}
         />
-        <pointLight position={[2.6, -1.2, 2]} intensity={released ? (element === '空' ? 2.5 : 8) : (element === '空' ? 1.2 : 3)} color={released ? material.light : DEMON_LIGHT[element].secondary} />
+        <pointLight position={[2.6, -1.2, 2]} intensity={mobileReward ? (released ? 0.22 : 0.12) : released ? (element === '空' ? 2.5 : 8) : (element === '空' ? 1.2 : 3)} color={released ? material.light : DEMON_LIGHT[element].secondary} />
         {/* 質感提升來源：HDRI 反射讓寶石表面出現真實環境高光，而不是純靠點光源硬堆。
             預覽格維持極低解析度控制成本；主要展示的一顆用稍高解析度換更好的反光細節。 */}
-        <Environment preset="city" resolution={preview ? 96 : 192} />
+        <Environment preset="city" resolution={preview ? 96 : 192} environmentIntensity={mobileReward ? 0.08 : 1} />
         <ElementSphere element={element} released={released} variant={variant} preview={preview} />
       </Canvas>
     </span>
