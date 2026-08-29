@@ -275,6 +275,59 @@
   margin-top: 0.15rem;
 }
 
+.checkinOrb {
+  display: flex;
+  max-width: 21rem;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 1.1rem auto;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  border-radius: 20px;
+  background: rgba(6, 78, 59, 0.2);
+  text-align: left;
+}
+
+.checkinOrb small,
+.checkinOrb strong {
+  display: block;
+}
+
+.checkinOrb small {
+  color: rgba(167, 243, 208, 0.78);
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.checkinOrb strong {
+  margin-top: 0.25rem;
+  color: #ecfdf5;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.checkinPromise,
+.returnNote,
+.tomorrowClue {
+  margin: 0.85rem 0 0;
+  color: rgba(167, 243, 208, 0.86);
+  font-size: 0.8rem;
+  font-weight: 850;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.returnNote {
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 14px;
+  background: rgba(6, 78, 59, 0.16);
+}
+
+.tomorrowClue {
+  color: rgba(254, 243, 199, 0.9);
+}
+
 .step,
 .reward {
   margin: 1.3rem auto 0;

@@ -380,7 +380,7 @@ export function WaterTreasureOrb({ element, released, variant = 'luminous', prev
       {(!released || burnSealOnRelease) && <SharedElementSealPaper burning={released && burnSealOnRelease} />}
       <Canvas
         // 以 1080p／高密度手機仍清晰為準；只在需求幀渲染，避免提高解析度後常駐佔用 GPU。
-        dpr={preview ? [1, 1.5] : [1, 2]}
+        dpr={preview || mobileReward ? [1, 1.5] : [1, 2]}
         frameloop={animating ? 'always' : 'demand'}
         camera={{ position: [0, 0, 3.2], fov: 36 }}
         gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
@@ -395,7 +395,7 @@ export function WaterTreasureOrb({ element, released, variant = 'luminous', prev
         <pointLight position={[2.6, -1.2, 2]} intensity={mobileReward ? (released ? 0.22 : 0.12) : released ? (element === '空' ? 2.5 : 8) : (element === '空' ? 1.2 : 3)} color={released ? material.light : DEMON_LIGHT[element].secondary} />
         {/* 質感提升來源：HDRI 反射讓寶石表面出現真實環境高光，而不是純靠點光源硬堆。
             預覽格維持極低解析度控制成本；主要展示的一顆用稍高解析度換更好的反光細節。 */}
-        <Environment preset="city" resolution={preview ? 96 : 192} environmentIntensity={mobileReward ? 0.08 : 1} />
+        <Environment preset="city" resolution={preview ? 96 : mobileReward ? 128 : 192} environmentIntensity={mobileReward ? 0.08 : 1} />
         <ElementSphere element={element} released={released} variant={variant} preview={preview} />
       </Canvas>
     </span>

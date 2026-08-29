@@ -6,8 +6,9 @@ import { WaterTreasureOrb } from '@/components/bazi/customer/WaterTreasureOrb';
 import { useElementTreasureRitual } from '@/components/five-elements/useElementTreasureRitual';
 import styles from './TodayDirectionQuest.module.css';
 
-type QuestStage = 'intro' | 'area' | 'tension' | 'action' | 'reward';
+type QuestStage = 'intro' | 'checkin' | 'area' | 'tension' | 'action' | 'reward';
 type QuestAreaId = 'self' | 'work' | 'relationship';
+type CheckinResponse = 'done' | 'progress' | 'switch';
 
 type QuestPath = {
   id: string;
@@ -137,7 +138,7 @@ const QUEST_AREAS: QuestArea[] = [
   },
 ];
 
-const STAGE_NUMBER: Record<Exclude<QuestStage, 'intro' | 'reward'>, number> = {
+const STAGE_NUMBER: Record<Exclude<QuestStage, 'intro' | 'checkin' | 'reward'>, number> = {
   area: 1,
   tension: 2,
   action: 3,
@@ -174,7 +175,7 @@ function isQuestAreaId(value: unknown): value is QuestAreaId {
 }
 
 function isSavedStage(value: unknown): value is SavedQuestState['stage'] {
-  return value === 'intro' || value === 'area' || value === 'tension' || value === 'action' || value === 'reward';
+  return value === 'intro' || value === 'checkin' || value === 'area' || value === 'tension' || value === 'action' || value === 'reward';
 }
 
 function isActionMode(value: unknown): value is ActionMode {
@@ -184,9 +185,10 @@ function isActionMode(value: unknown): value is ActionMode {
 function isValidSavedState(value: unknown): value is SavedQuestState {
   if (!value || typeof value !== 'object') return false;
   const saved = value as Partial<SavedQuestState>;
-  if (saved.date !== todayKey() || !isSavedStage(saved.stage)) return false;
+  if (typeof saved.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(saved.date) || !isSavedStage(saved.stage)) return false;
   if (saved.actionMode !== undefined && !isActionMode(saved.actionMode)) return false;
   if (saved.stage === 'intro') return saved.areaId === null && saved.pathId === null;
+  if (saved.stage === 'checkin') return saved.completed === true && saved.areaId === null && saved.pathId === null;
   if (saved.stage === 'area') return saved.areaId === null && saved.pathId === null;
   if (!isQuestAreaId(saved.areaId)) return false;
   if (saved.stage === 'tension') return saved.pathId === null;
@@ -202,6 +204,7 @@ export default function TodayDirectionQuest() {
   const [collectedToday, setCollectedToday] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [restoredReleased, setRestoredReleased] = useState(false);
+  const [returnNote, setReturnNote] = useState<string | null>(null);
   const panelRef = useRef<HTMLElement>(null);
   const rewardRef = useRef<HTMLDivElement>(null);
   const windRitual = useElementTreasureRitual('風');
@@ -218,6 +221,16 @@ export default function TodayDirectionQuest() {
       const saved: unknown = JSON.parse(raw);
       if (!isValidSavedState(saved)) {
         window.localStorage.removeItem(QUEST_STORAGE_KEY);
+        return;
+      }
+      if (saved.date !== todayKey()) {
+        if (saved.completed) {
+          setAreaId(null);
+          setPathId(null);
+          setStage('checkin');
+          setCollectedToday(true);
+          setRestoredReleased(true);
+        }
         return;
       }
       setAreaId(saved.areaId);
@@ -273,6 +286,7 @@ export default function TodayDirectionQuest() {
   }
 
   function chooseArea(nextAreaId: QuestAreaId) {
+    setReturnNote(null);
     setActionMode('ready');
     setAreaId(nextAreaId);
     setPathId(null);
@@ -319,6 +333,19 @@ export default function TodayDirectionQuest() {
     windRitual.start();
   }
 
+  function answerCheckin(response: CheckinResponse) {
+    const notes: Record<CheckinResponse, string> = {
+      done: '做到了。今天再讓一件事往前。',
+      progress: '有前進就算數。今天再走一小步。',
+      switch: '換路也算前進。今天重新選一條。',
+    };
+    setReturnNote(notes[response]);
+    setActionMode('ready');
+    setAreaId(null);
+    setPathId(null);
+    setStage('area');
+  }
+
   function chooseAnotherPath() {
     windRitual.reseal();
     setRestoredReleased(false);
@@ -360,7 +387,9 @@ export default function TodayDirectionQuest() {
             )}
             {stage !== 'intro' && (
               <span className={styles.progressText} aria-live="polite">
-                {stage === 'reward'
+                {stage === 'checkin'
+                  ? '歡迎回來'
+                  : stage === 'reward'
                   ? rewardOpening
                     ? '解封中'
                     : rewardReleased
@@ -372,7 +401,7 @@ export default function TodayDirectionQuest() {
           </span>
         </div>
 
-        {stage !== 'intro' && (
+        {stage !== 'intro' && stage !== 'checkin' && (
           <div className={styles.progressTrack} aria-hidden="true">
             <span style={{ width: `${(progressStage / 3) * 100}%` }} />
           </div>
@@ -409,10 +438,33 @@ export default function TodayDirectionQuest() {
           </div>
         )}
 
+        {stage === 'checkin' && (
+          <div className={styles.step}>
+            <p className={styles.kicker}>風寶珠記得你</p>
+            <h2 id="today-direction-title">上次那一步，現在怎麼樣？</h2>
+            <div className={styles.checkinOrb} aria-label="已保留的風寶珠，寶珠進度一共五顆，目前一顆">
+              <span className={`treasure-reveal-stage treasure-reveal-stage--collected ${styles.introOrbStage}`}>
+                <WaterTreasureOrb element="風" released preview displayProfile="mobile-reward" />
+              </span>
+              <span>
+                <small>成果已保留</small>
+                <strong>寶珠 1 / 5</strong>
+              </span>
+            </div>
+            <div className={styles.feedbackGrid} aria-label="回訪選擇">
+              <button type="button" className={styles.primaryButton} onClick={() => answerCheckin('done')}>我完成了</button>
+              <button type="button" className={styles.secondaryButton} onClick={() => answerCheckin('progress')}>我有前進</button>
+              <button type="button" className={styles.quietButton} onClick={() => answerCheckin('switch')}>我想換條路</button>
+            </div>
+            <p className={styles.checkinPromise}>不論答案，成果都會保留。</p>
+          </div>
+        )}
+
         {stage === 'area' && (
           <div className={styles.step}>
             <p className={styles.kicker}>第一層</p>
             <h2 id="today-direction-title">今天想先整理哪裡？</h2>
+            {returnNote && <p className={styles.returnNote} aria-live="polite">{returnNote}</p>}
             <div className={styles.areaGrid}>
               {QUEST_AREAS.map((item) => (
                 <button
@@ -515,7 +567,7 @@ export default function TodayDirectionQuest() {
               />
             </div>
             <div className={styles.sealedPreview} aria-label="其餘四顆仍在封印中的元素寶珠">
-              <span>其餘元素仍封印</span>
+              <span>{rewardReleased ? '寶珠進度 1 / 5' : '其餘元素仍封印'}</span>
               <div>
                 {SEALED_COMPARISON_ORBS.map((element) => (
                   <span key={element} className={`treasure-reveal-stage treasure-reveal-stage--sealed ${styles.sealedOrb}`}>
@@ -541,6 +593,7 @@ export default function TodayDirectionQuest() {
                 <p className={styles.kicker}>今天已前進</p>
                 <h2 id="today-direction-title">風寶珠已解封</h2>
                 <p className={styles.rewardLead}>今天的一步，正在改變明天。</p>
+                <p className={styles.tomorrowClue}>明天，風寶珠會帶回下一條線索。</p>
                 <div className={styles.nextClue}>
                   <span>繼續探索</span>
                   <strong>{path.routeLabel}</strong>
