@@ -1,7 +1,7 @@
 'use client';
 
 import type { ChangeEvent } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { normalizeCalendarInput, solarToLunarParts } from '@/lib/lunar-calendar';
 
 interface LunarBirthdayInputProps {
@@ -24,7 +24,7 @@ function formatLunarDate(lunar: { rocYear: number; month: number; day: number; i
   return `農曆 ${lunar.rocYear} 年 ${lunar.isLeapMonth ? '閏' : ''}${lunar.month} 月 ${lunar.day} 日`;
 }
 
-export default function LunarBirthdayInput({
+function LunarBirthdayInput({
   value,
   onChange,
   disabled = false,
@@ -184,3 +184,5 @@ export default function LunarBirthdayInput({
     </div>
   );
 }
+
+export default memo(LunarBirthdayInput);

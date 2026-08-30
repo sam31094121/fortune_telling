@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useCallback, useMemo, useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
@@ -619,11 +619,23 @@ function PersonStep({
   description: string;
   accent: 'violet' | 'amber';
   value: PersonInput;
-  onChange: (value: PersonInput) => void;
+  onChange: Dispatch<SetStateAction<PersonInput>>;
   selectionConfirm: SelectionConfirm;
-  onSelectionConfirm: (value: SelectionConfirm) => void;
+  onSelectionConfirm: Dispatch<SetStateAction<SelectionConfirm>>;
   showValidation?: boolean;
 }) {
+  const updatePerson = useCallback((patch: Partial<PersonInput>) => {
+    onChange((current) => ({ ...current, ...patch }));
+  }, [onChange]);
+  const updateName = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    updatePerson({ name: event.target.value });
+  }, [updatePerson]);
+  const updateBirthDate = useCallback((birthDate: string) => {
+    updatePerson({ birthDate });
+  }, [updatePerson]);
+  const confirmSelection = useCallback((field: keyof SelectionConfirm) => {
+    onSelectionConfirm((current) => ({ ...current, [field]: true }));
+  }, [onSelectionConfirm]);
   const showMissingName = showValidation && value.name.trim().length < 2;
   const showMissingBirthDate = showValidation && !value.birthDate;
   const [showBloodOptions, setShowBloodOptions] = useState(value.bloodType !== 'unknown');
@@ -650,7 +662,7 @@ function PersonStep({
           <input
             type="text"
             value={value.name}
-            onChange={(event) => onChange({ ...value, name: event.target.value })}
+            onChange={updateName}
             placeholder="請輸入姓名，至少 2 個字"
             className={`form-input w-full text-base neon-input-focus neon-card-hover glass-input ${accent === 'violet' ? 'glass-input-cyan' : ''} ${showMissingName ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
           />
@@ -666,7 +678,7 @@ function PersonStep({
           </label>
           <LunarBirthdayInput
             value={value.birthDate}
-            onChange={(solarDate) => onChange({ ...value, birthDate: solarDate })}
+            onChange={updateBirthDate}
             accent={accent}
             label="請選擇國曆或農曆"
           />
@@ -694,7 +706,7 @@ function PersonStep({
               description="直接用八字三柱基礎配對；時柱不推定。"
               onClick={() => {
                 setShowShichenOptions(false);
-                onChange({ ...value, birthHourBranch: 'unknown' });
+                updatePerson({ birthHourBranch: 'unknown' });
               }}
               tone={accent === 'violet' ? 'cyan' : 'pink'}
             />
@@ -705,7 +717,7 @@ function PersonStep({
                 <button
                   key={shichen.branch}
                   type="button"
-                  onClick={() => onChange({ ...value, birthHourBranch: shichen.branch })}
+                  onClick={() => updatePerson({ birthHourBranch: shichen.branch })}
                   className={`rounded-xl border px-2 py-2.5 text-center transition ${value.birthHourBranch === shichen.branch ? 'border-2 border-amber-100 bg-amber-300/20 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.26)]' : 'border-white/10 bg-white/[0.035] text-white/65 hover:border-cyan-100/40 hover:text-cyan-50'}`}
                 >
                   <span className="block text-sm font-black">{shichen.label}</span>
@@ -735,7 +747,7 @@ function PersonStep({
               description="仍可繼續配對；血型維度改為中性，不假裝已知。"
               onClick={() => {
                 setShowBloodOptions(false);
-                onChange({ ...value, bloodType: 'unknown' });
+                updatePerson({ bloodType: 'unknown' });
               }}
               tone={accent === 'violet' ? 'cyan' : 'pink'}
             />
@@ -748,8 +760,8 @@ function PersonStep({
                 title={`${bloodType} 型`}
                 description={BLOOD_DESC[bloodType]}
                 onClick={() => {
-                  onChange({ ...value, bloodType });
-                  onSelectionConfirm({ ...selectionConfirm, bloodType: true });
+                  updatePerson({ bloodType });
+                  confirmSelection('bloodType');
                 }}
                 tone={index % 2 === 0 ? accent : accent === 'violet' ? 'cyan' : 'pink'}
                 attention={false}
@@ -772,8 +784,8 @@ function PersonStep({
               title="女性"
               description="用來修飾外在表現。"
               onClick={() => {
-                onChange({ ...value, gender: 'female' });
-                onSelectionConfirm({ ...selectionConfirm, gender: true });
+                updatePerson({ gender: 'female' });
+                confirmSelection('gender');
               }}
               tone="pink"
               attention={showMissingGender}
@@ -783,8 +795,8 @@ function PersonStep({
               title="男性"
               description="只做外在呈現修飾。"
               onClick={() => {
-                onChange({ ...value, gender: 'male' });
-                onSelectionConfirm({ ...selectionConfirm, gender: true });
+                updatePerson({ gender: 'male' });
+                confirmSelection('gender');
               }}
               tone="cyan"
               attention={showMissingGender}
