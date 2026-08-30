@@ -2123,7 +2123,7 @@ function ZiweiProfessionalTeacherMode({
     <div className="mt-5 rounded-[26px] border border-amber-200/25 bg-[radial-gradient(circle_at_8%_0%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(135deg,rgba(15,23,42,0.78),rgba(2,6,23,0.9))] p-4 shadow-[0_0_40px_rgba(251,191,36,0.12)] sm:p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">TEACHER MODE V2</p>
+          <p className="text-[11px] font-black tracking-[0.24em] text-amber-200">老師模式</p>
           <h4 className="mt-2 font-serif text-2xl font-black text-amber-50 sm:text-3xl">老師模式｜完整命盤檢核</h4>
           <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-amber-50/76">
             第一層先呈現專業命盤：十二宮、十四主星、輔星、生年四化與宮干地支。易經只讀取此命盤，不自行亂排、不跳過排盤。
@@ -2197,7 +2197,7 @@ function ZiweiProfessionalTeacherMode({
       <div className="mt-5 rounded-[22px] border border-cyan-200/18 bg-cyan-300/8 p-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">FULL PALACE TABLE</p>
+            <p className="text-[11px] font-black tracking-[0.22em] text-cyan-200">十二宮排盤表</p>
             <h5 className="mt-1 font-serif text-xl font-black text-cyan-50">十二宮完整排盤</h5>
           </div>
           <p className="text-xs font-bold leading-6 text-cyan-100/72">排盤版本：{analysis.methodVersion}｜流年：{annual?.year ?? new Date().getFullYear()}</p>
@@ -3025,6 +3025,33 @@ function ZiweiTeacherTarotBridgePanel({ cards }: { cards: ZiweiTeacherTarotSlot[
   );
 }
 
+function ZiweiReadingScanState({
+  tone,
+  title,
+  detail,
+}: {
+  tone: 'violet' | 'rose';
+  title: string;
+  detail: string;
+}) {
+  const palette = tone === 'rose'
+    ? 'border-rose-200/30 bg-rose-950/30 text-rose-50'
+    : 'border-violet-200/30 bg-violet-950/30 text-violet-50';
+  const accent = tone === 'rose' ? 'border-rose-200 border-t-transparent' : 'border-violet-200 border-t-transparent';
+  const label = tone === 'rose' ? 'text-rose-100/80' : 'text-violet-100/80';
+
+  return (
+    <div className={`mt-4 flex min-h-[88px] items-center gap-3 rounded-2xl border p-4 ${palette}`} role="status" aria-live="polite" aria-busy="true">
+      <span aria-hidden="true" className={`h-7 w-7 shrink-0 animate-spin rounded-full border-2 ${accent}`} />
+      <div className="min-w-0">
+        <p className={`text-[10px] font-black tracking-[0.18em] ${label}`}>命盤掃描中</p>
+        <p className="mt-1 text-sm font-black leading-6">{title}</p>
+        <p className={`mt-1 text-xs font-semibold leading-5 ${label}`}>{detail}</p>
+      </div>
+    </div>
+  );
+}
+
 function ZiweiTeacherSynthesisPanel({
   synthesis,
   showTarotBridge = true,
@@ -3049,6 +3076,7 @@ function ZiweiTeacherSynthesisPanel({
   const [teacherCache, setTeacherCache] = useState<Record<string, ZiweiTeacherApiResult>>({});
   const [teacherLoading, setTeacherLoading] = useState(false);
   const [teacherError, setTeacherError] = useState<string | null>(null);
+  const [narrativeLoading, setNarrativeLoading] = useState(false);
   const [timeRefresh, setTimeRefresh] = useState(0);
   const fetchedKeysRef = useRef<Set<string>>(new Set());
 
@@ -3068,6 +3096,8 @@ function ZiweiTeacherSynthesisPanel({
   const activeLifeResult = activeResult && activeResult !== 'INSUFFICIENT_DATA' && activeResult.teacherId === 'LIFE_MASTER' ? activeResult : undefined;
   const activeNarrativeResult = combinedNarrativeResult && combinedNarrativeResult !== 'INSUFFICIENT_DATA' && combinedNarrativeResult.teacherId === 'NARRATIVE_MASTER' ? combinedNarrativeResult : undefined;
   const isHorrorGhostMode = mode === 'PROFESSIONAL' && activeTeacher === 'LIFE_MASTER';
+  const hasGhostNarrativeResponse = combinedNarrativeResult !== undefined;
+  const isGhostNarrativePending = isHorrorGhostMode && !hasGhostNarrativeResponse && !teacherError;
 
   // 當下時段是恐怖鬼魅場景的隱藏推理依據；跨整點後自動重新讀盤，
   // 讓正午、傍晚、夜晚不會沿用先前時段的畫面。
@@ -3114,6 +3144,7 @@ function ZiweiTeacherSynthesisPanel({
     if (mode !== 'PROFESSIONAL' || activeTeacher !== 'LIFE_MASTER' || !analysisId) return;
     if (fetchedKeysRef.current.has(combinedNarrativeCacheKey)) return;
     fetchedKeysRef.current.add(combinedNarrativeCacheKey);
+    setNarrativeLoading(true);
     fetch(`/api/ziwei/${analysisId}/teacher-analysis`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -3125,7 +3156,13 @@ function ZiweiTeacherSynthesisPanel({
         return json.data as ZiweiTeacherApiResult;
       })
       .then((data) => setTeacherCache((prev) => ({ ...prev, [combinedNarrativeCacheKey]: data })))
-      .catch(() => fetchedKeysRef.current.delete(combinedNarrativeCacheKey));
+      .catch((err) => {
+        fetchedKeysRef.current.delete(combinedNarrativeCacheKey);
+        setTeacherError(err instanceof Error ? err.message : '鬼魅段落暫時無法整理，請稍後再試。');
+      })
+      .finally(() => {
+        setNarrativeLoading(false);
+      });
   }, [mode, analysisId, palaceId, activeTeacher, combinedNarrativeCacheKey, birthInput]);
 
   useEffect(() => {
@@ -3176,7 +3213,7 @@ function ZiweiTeacherSynthesisPanel({
             onClick={() => setTimeRefresh((value) => value + 1)}
             className="rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1.5 text-xs font-black text-amber-100 transition hover:border-amber-200/60 hover:bg-amber-300/18"
           >
-            更新當下時間解盤
+            更新今年流年解讀
           </button>
         )}
       </div>
@@ -3186,21 +3223,25 @@ function ZiweiTeacherSynthesisPanel({
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {ZIWEI_TEACHERS.map((teacher) => {
               const active = activeTeacher === teacher.id;
-              return <button key={teacher.id} type="button" onClick={() => setActiveTeacher(teacher.id)} aria-pressed={active} className={`min-h-[72px] rounded-xl border px-3 py-2.5 text-left transition ${active ? 'border-amber-200/55 bg-amber-300/14 text-amber-50' : 'border-white/10 bg-black/15 text-purple-100 hover:border-purple-200/40 hover:bg-purple-300/10'}`}><span className="block text-sm font-black">{teacher.name}</span><span className="mt-1 block text-[11px] font-semibold leading-4 text-white/60">{teacher.note}</span></button>;
+              return <button key={teacher.id} type="button" onClick={() => { setTeacherError(null); setActiveTeacher(teacher.id); }} aria-pressed={active} className={`min-h-[72px] rounded-xl border px-3 py-2.5 text-left transition ${active ? 'border-amber-200/55 bg-amber-300/14 text-amber-50' : 'border-white/10 bg-black/15 text-purple-100 hover:border-purple-200/40 hover:bg-purple-300/10'}`}><span className="block text-sm font-black">{teacher.name}</span><span className="mt-1 block text-[11px] font-semibold leading-4 text-white/60">{teacher.note}</span></button>;
             })}
           </div>
 
-          {teacherLoading && !activeResult && (
-            <p className="mt-4 text-sm font-semibold text-purple-100/70">老師正在讀盤中…</p>
+          {(teacherLoading || (isHorrorGhostMode && (isGhostNarrativePending || narrativeLoading))) && (
+            <ZiweiReadingScanState
+              tone="violet"
+              title={isHorrorGhostMode ? '鬼魅老師正在整理這一宮的故事線' : '老師正在掃描這一宮的命盤依據'}
+              detail="正在讀取同一份命盤資料；不會重算出生資料，也不會變更你的命盤。"
+            />
           )}
-          {teacherError && !activeResult && (
+          {teacherError && !activeResult && !isGhostNarrativePending && (
             <p className="mt-4 text-sm font-semibold text-rose-200">{teacherError}</p>
           )}
           {activeResult === 'INSUFFICIENT_DATA' && (
             <p className="mt-4 text-sm font-semibold text-amber-200">本宮資料不足，老師暫不勉強生成判讀，不補故事假裝完整。</p>
           )}
           {activeTeacher !== 'LIFE_MASTER' && activeResult && activeResult !== 'INSUFFICIENT_DATA' && <ZiweiTeacherResultView result={activeResult} />}
-          {activeTeacher === 'LIFE_MASTER' && activeLifeResult && (
+          {activeTeacher === 'LIFE_MASTER' && activeLifeResult && !isGhostNarrativePending && !narrativeLoading && (
             <ZiweiHorrorGhostMovieView
               life={activeLifeResult}
               narrative={activeNarrativeResult}
@@ -3221,7 +3262,11 @@ function ZiweiTeacherSynthesisPanel({
           </div>
 
           {entertainmentLoading && !activeEntertainmentResult && (
-            <p className="mt-4 text-sm font-semibold text-red-200/70">故事生成中…</p>
+            <ZiweiReadingScanState
+              tone="rose"
+              title="鬼魅老師正在編排這一宮的虛構故事"
+              detail="正在依同一份命盤資料整理敘事；這是娛樂創作，不會改變正式命盤。"
+            />
           )}
           {entertainmentError && !activeEntertainmentResult && (
             <p className="mt-4 text-sm font-semibold text-rose-200">{entertainmentError}</p>
@@ -3360,14 +3405,14 @@ function ZiweiDestinyCardView({
     <section className="fortune-card overflow-hidden p-4 sm:p-7" aria-label="紫微神秘命宮卡">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">ZIWEI DESTINY CARD</p>
+          <p className="text-[11px] font-black tracking-[0.24em] text-amber-200">紫微命宮卡</p>
           <h2 className="mt-2 font-serif text-2xl font-black leading-tight text-amber-50 sm:text-3xl">{title}</h2>
           <p className="mt-2 max-w-2xl text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
             紫微負責算，神秘命宮卡負責讓客戶看懂；星曜、宮位、四化與三方四正皆可回溯到正式命盤。
           </p>
         </div>
         <span className={`rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.14em] ${isReady ? 'border-emerald-200/30 bg-emerald-300/10 text-emerald-100' : 'border-amber-200/35 bg-amber-300/10 text-amber-100'}`}>
-          {isReady ? 'VERIFIED' : 'REFERENCE'}
+          {isReady ? '資料已核對' : '文化參考'}
         </span>
       </div>
 
@@ -3446,7 +3491,6 @@ function ZiweiDestinyCardView({
                   </div>
                   <div className="mt-3 text-center">
                     <h3 className="break-words font-serif text-2xl font-black leading-tight text-amber-50">{destinyTarot.cardNameZh}</h3>
-                    <p className="mt-0.5 text-[11px] font-bold text-cyan-100/75">{destinyTarot.card.nameEn}</p>
                   </div>
                   <p className="mt-2 rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-semibold leading-5 text-[color:var(--text-sub)]">{destinyTarot.reason}</p>
                   <p className="mt-2 text-center text-[11px] font-bold leading-5 text-cyan-100/70">再次點擊，回到神秘命宮卡正面</p>
@@ -3773,9 +3817,9 @@ function ZiweiTwelvePalaceCards({
                 <summary className="relative flex min-h-[132px] cursor-pointer touch-manipulation select-none list-none items-center justify-between gap-4 rounded-2xl px-3 py-4 [-webkit-tap-highlight-color:transparent] [&::-webkit-details-marker]:hidden">
                   <div>
                     <h4 className="font-serif text-[2.6rem] font-black leading-none tracking-[0.08em] text-white drop-shadow-[0_4px_18px_rgba(255,255,255,0.16)] sm:text-5xl">{palaceName}</h4>
-                    <p className={`mt-3 text-xs font-black tracking-[0.12em] ${visual.accent}`}>點選查看本宮資料</p>
+                    <p className={`mt-3 text-xs font-black tracking-[0.12em] ${visual.accent}`}>點選按鈕展開完整資料</p>
                   </div>
-                  <span className={`rounded-full border px-4 py-2 text-sm font-black shadow-[0_8px_20px_rgba(2,6,23,0.2)] ${visual.chip}`}><span className="group-open:hidden">點選查看</span><span className="hidden group-open:inline">收起資料</span></span>
+                  <span className={`rounded-full border px-4 py-2 text-sm font-black shadow-[0_8px_20px_rgba(2,6,23,0.2)] ${visual.chip}`}><span className="group-open:hidden">查看{palaceName}資料</span><span className="hidden group-open:inline">收起資料</span></span>
                 </summary>
                 <div className="relative border-t border-white/10 pt-4">
                 <div className="flex items-start justify-between gap-3">
@@ -4230,7 +4274,7 @@ const ZIWEI_RITUAL_MARK: Record<InsightRitualStep['status'], string> = {
   LOCKED: '',
   WAITING: '',
   PROCESSING: '',
-  PASSED: 'PASS',
+  PASSED: '✓',
   FAILED: '!',
 };
 
@@ -4325,7 +4369,7 @@ function ZiweiRitualStepsPanel({
     >
       <div className="pointer-events-none absolute inset-0 opacity-40" style={{ background: 'linear-gradient(180deg, transparent 0%, rgba(34,211,238,0.06) 50%, transparent 100%)' }} />
       <div className="relative flex items-center justify-between gap-3">
-        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-cyan-200">ZIWEI RITUAL · 命盤逐宮驗證</p>
+        <p className="text-[11px] font-black tracking-[0.28em] text-cyan-200">紫微命盤・逐宮驗證</p>
         <p className="text-[11px] font-bold text-cyan-100/70">{Math.min(revealCount, total)}/{total}</p>
       </div>
       <div className="relative mt-2 h-1 w-full overflow-hidden rounded-full bg-white/5">
