@@ -17,7 +17,10 @@ const WATCH_INTERVAL_MS = Number(process.env.SCREEN_HEALTH_INTERVAL_MS || 30000)
 const STARTUP_TIMEOUT_MS = Number(process.env.SCREEN_HEALTH_STARTUP_TIMEOUT_MS || 65000);
 const args = new Set(process.argv.slice(2));
 const WATCH = args.has('--watch');
-const AUTO_REPAIR = !args.has('--no-repair');
+// Recovery must be explicitly requested. A routine check may never alter app
+// functionality, content, cards, or customer data.
+const AUTO_REPAIR = args.has('--recover-server');
+const MOBILE_FIRST = args.has('--mobile-first');
 const CLEAR_CACHE_DURING_REPAIR = args.has('--clear-cache');
 const REPORT_DIR = path.join(PROJECT_ROOT, 'reports', 'screen-health');
 const REPORT_FILE = path.join(REPORT_DIR, 'latest.json');
@@ -75,7 +78,10 @@ async function fetchRoute(routePath) {
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache',
-        'User-Agent': 'Tiandiren-Screen-Health-Monitor/1.0',
+        'User-Agent': MOBILE_FIRST
+          ? 'Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 Chrome/124.0 Mobile Safari/537.36 Tiandiren-Mobile-Health/1.0'
+          : 'Tiandiren-Screen-Health-Monitor/1.0',
+        ...(MOBILE_FIRST ? { 'Viewport-Width': '390', 'Sec-CH-UA-Mobile': '?1' } : {}),
       },
       signal: controller.signal,
     });
@@ -147,6 +153,7 @@ async function scanScreenHealth() {
     startedAt,
     completedAt: nowIso(),
     mode: WATCH ? 'WATCH' : 'ONCE',
+    scanProfile: MOBILE_FIRST ? 'MOBILE_FIRST' : 'STANDARD',
     autoRepair: AUTO_REPAIR,
     summary: {
       total: routes.length,
@@ -303,7 +310,7 @@ async function repairScreenHealth(reason) {
 }
 
 async function runOnce() {
-  await log('Screen health scan started.');
+  await log(`Screen health scan started (${MOBILE_FIRST ? 'mobile-first' : 'standard'} profile).`);
   let report = await scanScreenHealth();
 
   if (!report.ok && AUTO_REPAIR) {

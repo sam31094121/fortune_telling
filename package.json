@@ -15,6 +15,7 @@
     "share:lan": "node scripts/share-tunnel.js --lan-only",
     "auto-qa": "node scripts/auto-qa.mjs",
     "screen:health": "node scripts/screen-health-monitor.mjs --no-repair",
+    "health:check": "node scripts/screen-health-monitor.mjs --mobile-first --recover-server",
     "screen:watch": "node scripts/screen-health-monitor.mjs --watch",
     "platform:v6:audit": "node scripts/platform-core-v6-audit.mjs",
     "test:ziwei": "tsc lib/ziwei/engine.ts lib/ziwei/chartEngine.ts tests/ziwei-chart.test.ts tests/ziwei-core.test.ts --outDir .ziwei-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .ziwei-test-build/tests/ziwei-chart.test.js && node .ziwei-test-build/tests/ziwei-core.test.js",
