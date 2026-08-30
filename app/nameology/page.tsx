@@ -192,8 +192,8 @@ function RadicalPictureStory({ item }: { item: NameologyProfessionalCharacter })
   ];
 
   return (
-    <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
-      <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50">看圖說故事 · 部首「{item.radical}」</p>
+    <details className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4">
+      <summary className="cursor-pointer text-sm font-black text-cyan-100">查看「{item.char}」的完整字義依據</summary>
       <div className="mt-3 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
         <div className={`grid h-20 w-20 shrink-0 place-items-center rounded-full border-2 ${style.ring} ${style.bg} ${style.glow}`}>
           <span className={`font-serif text-4xl font-black ${style.text}`}>{item.radical}</span>
@@ -207,7 +207,7 @@ function RadicalPictureStory({ item }: { item: NameologyProfessionalCharacter })
           ))}
         </div>
       </div>
-    </div>
+    </details>
   );
 }
 
@@ -225,12 +225,12 @@ function ProfessionalNameologyLayer({ analysis }: { analysis: NameologyAnalysis 
     <section className="fortune-card overflow-hidden border-cyan-300/20 bg-slate-950/60 p-5 sm:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-cyan-300">PROFESSIONAL LAYER</p>
+          <p className="text-xs font-bold tracking-[0.28em] text-cyan-300">名字細節</p>
           <h2 className="mt-3 break-words font-serif text-3xl font-black text-cyan-100 sm:text-4xl">
-            {'\u7b2c\u4e00\u5c64\uff5c\u5c08\u696d\u59d3\u540d\u62c6\u89e3'}
+            {'逐字看名字的故事'}
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
-            {'\u6b64\u5c64\u53ea\u5efa\u7acb\u59d3\u540d\u62c6\u89e3\u3001\u90e8\u9996\u610f\u5883\u3001\u5b57\u7fa9\u89e3\u8aaa\u8207\u540d\u5b57\u6545\u4e8b\uff0c\u4e0d\u505a\u4e94\u5143\u7d20\u88dc\u5f37\u5efa\u8b70\u3002'}
+            {'先點一個字，慢慢看它的字義與意象；資料依據依需要展開。'}
           </p>
         </div>
         <div className="grid shrink-0 grid-cols-3 gap-2 lg:w-[280px]">
@@ -245,7 +245,8 @@ function ProfessionalNameologyLayer({ analysis }: { analysis: NameologyAnalysis 
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         {layer.characterDecomposition.map((item) => (
-          <article key={String(item.position) + '-' + item.char} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.045] p-4 shadow-[0_18px_50px_rgba(8,13,30,0.26)]">
+          <details id={`nameology-character-${item.position}`} key={String(item.position) + '-' + item.char} className="group min-w-0 rounded-2xl border border-white/10 bg-white/[0.045] p-4 shadow-[0_18px_50px_rgba(8,13,30,0.26)]">
+            <summary className="cursor-pointer list-none">
             <div className="flex items-start gap-4">
               <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-amber-300/25 bg-amber-950/25 font-serif text-4xl font-black text-amber-100">
                 {item.char}
@@ -257,52 +258,36 @@ function ProfessionalNameologyLayer({ analysis }: { analysis: NameologyAnalysis 
                   <span className={`rounded-full border px-3 py-1 text-xs ${item.taiwanDictionaryMatched ? 'border-white/10 bg-black/20 text-[color:var(--text-sub)]' : 'border-rose-300/25 bg-rose-950/20 text-rose-100'}`}>{item.taiwanDictionaryMatched ? <>{'\u90e8\u9996'} {item.radical}</> : '待補臺灣部首'}</span>
                 </div>
                 <p className="mt-3 break-words text-sm leading-7 text-[color:var(--text-main)]">{item.glyphMeaning}</p>
-                {item.sourceSummary && <p className="mt-2 rounded-xl border border-cyan-300/15 bg-cyan-950/15 px-3 py-2 text-[11px] font-bold leading-6 text-cyan-100/85">{item.sourceSummary}</p>}
                 {!item.taiwanDictionaryMatched && <p className="mt-2 rounded-xl border border-rose-300/20 bg-rose-950/20 px-3 py-2 text-xs font-bold leading-6 text-rose-100">此字未命中臺灣字典，不宣告正式部首。</p>}
+                <p className="mt-2 text-xs font-black text-cyan-100/75 group-open:hidden">點一下，看看這個字的故事</p>
               </div>
             </div>
+            </summary>
 
             <RadicalPictureStory item={item} />
 
             <div className="mt-4 rounded-xl border border-white/10 bg-black/15 p-3">
-              <p className="text-[11px] font-bold text-rose-200">{'\u5f8c\u7e8c\u6f14\u5316\u7d20\u6750'}</p>
+              <p className="text-[11px] font-bold text-rose-200">字典與規則依據</p>
+              {item.sourceSummary && <p className="mt-2 text-[11px] font-bold leading-6 text-cyan-100/85">{item.sourceSummary}</p>}
               <div className="mt-2 flex flex-wrap gap-2">
                 {item.evolutionMaterial.slice(0, 4).map((material) => (
                   <span key={material} className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] text-[color:var(--text-sub)]">{material}</span>
                 ))}
               </div>
             </div>
-          </article>
+          </details>
         ))}
       </div>
 
-      <div className="mt-5 grid gap-3 lg:grid-cols-3">
-        <div className="rounded-2xl border border-cyan-300/15 bg-cyan-950/15 p-4">
-          <p className="text-xs font-bold text-cyan-200">{'\u90e8\u9996\u4e3b\u8ef8'}</p>
-          <p className="mt-2 break-words text-sm leading-7 text-[color:var(--text-sub)]">{layer.radicalNarrative}</p>
+      <details className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+        <summary className="cursor-pointer text-sm font-black text-[color:var(--text-main)]">查看完整名字故事與規則說明</summary>
+        <div className="mt-4 grid gap-3 lg:grid-cols-3">
+          <div className="rounded-2xl border border-cyan-300/15 bg-cyan-950/15 p-4"><p className="text-xs font-bold text-cyan-200">部首主軸</p><p className="mt-2 break-words text-sm leading-7 text-[color:var(--text-sub)]">{layer.radicalNarrative}</p></div>
+          <div className="rounded-2xl border border-amber-300/15 bg-amber-950/15 p-4"><p className="text-xs font-bold text-amber-200">名字故事</p><p className="mt-2 break-words text-sm leading-7 text-[color:var(--text-sub)]">{layer.nameStory}</p><p className="mt-3 break-words text-sm font-semibold leading-7 text-amber-50">{layer.namingStory.wholeNameIntent}</p></div>
+          <div className="rounded-2xl border border-violet-300/15 bg-violet-950/15 p-4"><p className="text-xs font-bold text-violet-200">規則摘要</p><p className="mt-2 break-words text-sm leading-7 text-[color:var(--text-sub)]">{layer.professionalSummary}</p></div>
         </div>
-        <div className="rounded-2xl border border-amber-300/15 bg-amber-950/15 p-4">
-          <p className="text-xs font-bold text-amber-200">{'\u540d\u5b57\u6545\u4e8b'}</p>
-          <p className="mt-2 break-words text-sm leading-7 text-[color:var(--text-sub)]">{layer.nameStory}</p>
-          <div className="mt-4 rounded-2xl border border-amber-300/20 bg-amber-950/20 p-4">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">NAMING STORY</p>
-            <h3 className="mt-2 font-serif text-2xl font-black text-amber-100">{layer.namingStory.title}</h3>
-            <p className="mt-3 break-words text-sm font-semibold leading-7 text-amber-50">{layer.namingStory.wholeNameIntent}</p>
-            <p className="mt-2 break-words text-xs leading-6 text-[color:var(--text-sub)]">{layer.namingStory.givenNameIntent}</p>
-          </div>
-        </div>
-        <div className="rounded-2xl border border-violet-300/15 bg-violet-950/15 p-4">
-          <p className="text-xs font-bold text-violet-200">{'\u5c08\u696d\u6458\u8981'}</p>
-          <p className="mt-2 break-words text-sm leading-7 text-[color:var(--text-sub)]">{layer.professionalSummary}</p>
-        </div>
-      </div>
-
-      <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4">
-        <p className="text-xs font-bold text-[color:var(--text-main)]">{'\u5c64\u7d1a\u908a\u754c'}</p>
-        <ul className="mt-2 space-y-2 text-sm leading-7 text-[color:var(--text-sub)]">
-          {layer.readingBoundaries.map((item) => <li key={item}>{'\u00b7'} {item}</li>)}
-        </ul>
-      </div>
+        <ul className="mt-4 space-y-2 text-sm leading-7 text-[color:var(--text-sub)]">{layer.readingBoundaries.map((item) => <li key={item}>{'\u00b7'} {item}</li>)}</ul>
+      </details>
     </section>
   );
 }
@@ -531,32 +516,34 @@ function NameologyCustomerSummary({ analysis }: { analysis: NameologyAnalysis })
 function NameologyUltimateDecisionPanel({ analysis }: { analysis: NameologyAnalysis }) {
   const output = analysis.standardOutput;
   const layer1 = output.layer1;
+  const coreJudgment = layer1.coreJudgment
+    .replace('能名字容易帶出', '這個名字容易帶出')
+    .replace('能名字', '這個名字');
 
   return (
     <section className="fortune-card overflow-hidden border-amber-300/35 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),rgba(15,23,42,0.90)_58%,rgba(2,6,23,0.98)_100%)] p-5 sm:p-7">
       <div className="min-w-0">
-        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">I-CHING NAME JUDGEMENT</p>
+        <p className="text-[11px] font-black tracking-[0.24em] text-amber-200">姓名學</p>
         <h2 className="mt-3 break-words font-serif text-4xl font-black leading-tight text-amber-100 sm:text-5xl">{output.name.normalized}</h2>
-        <p className="mt-3 text-sm font-bold leading-7 text-cyan-100">台灣正體字典資料已確認</p>
-        <p className="text-sm font-bold leading-7 text-cyan-100">後端姓名結構運算已完成</p>
+        <p className="mt-3 text-sm font-bold leading-7 text-cyan-100">先看這個名字想帶給你的方向</p>
       </div>
 
       <div className="mt-5 rounded-2xl border border-amber-200/25 bg-black/25 p-4">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">易經最終判定</p>
-        <p className="mt-3 break-words text-base font-black leading-8 text-amber-50">易經卜卦判定：{layer1.coreJudgment}</p>
+        <p className="text-xs font-black tracking-[0.18em] text-amber-200">這個名字的節奏</p>
+        <p className="mt-3 break-words text-lg font-black leading-8 text-amber-50">{coreJudgment}</p>
       </div>
 
       <div className="mt-4 grid gap-3">
-        <article className="min-w-0 rounded-2xl border border-rose-200/15 bg-rose-950/15 p-4">
-          <p className="text-xs font-black text-rose-100">目前必須停止</p>
-          <p className="mt-2 break-words text-base font-bold leading-7 text-rose-50">{layer1.coreObstacle.replace(/^目前必須停止：/, '')}</p>
+        <article className="min-w-0 rounded-2xl border border-slate-300/15 bg-slate-900/55 p-4">
+          <p className="text-xs font-black text-slate-200">可以先放下</p>
+          <p className="mt-2 break-words text-base font-bold leading-7 text-slate-50">{layer1.coreObstacle.replace(/^目前必須停止：/, '')}</p>
         </article>
         <article className="min-w-0 rounded-2xl border border-cyan-200/15 bg-cyan-950/15 p-4">
-          <p className="text-xs font-black text-cyan-100">第一調整方向</p>
+          <p className="text-xs font-black text-cyan-100">可以試著</p>
           <p className="mt-2 break-words text-base font-bold leading-7 text-cyan-50">{layer1.firstDirection.replace(/^第一調整方向：/, '')}</p>
         </article>
         <article className="min-w-0 rounded-2xl border border-amber-200/20 bg-amber-950/20 p-4">
-          <p className="text-xs font-black text-amber-100">立即行動</p>
+          <p className="text-xs font-black text-amber-100">今天的小一步</p>
           <p className="mt-2 break-words text-base font-black leading-7 text-amber-50">{layer1.immediateAction.replace(/^立即行動：/, '')}</p>
         </article>
       </div>
@@ -574,91 +561,68 @@ function NameologyNamingIntentionCard({ analysis }: { analysis: NameologyAnalysi
   if (!givenName || givenCharacters.length === 0) return null;
 
   return (
-    <section className="fortune-card overflow-hidden border-amber-200/35 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.18),rgba(120,53,15,0.18)_38%,rgba(15,23,42,0.94)_74%,rgba(2,6,23,0.99)_100%)] p-5 shadow-[0_18px_60px_rgba(180,83,9,0.18)] sm:p-7">
-      <p className="text-[10px] font-black tracking-[0.24em] text-amber-200">NAMING INTENTION</p>
-      <div className="mt-2 flex items-end justify-between gap-3">
+    <details className="fortune-card overflow-hidden border-amber-200/35 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.18),rgba(120,53,15,0.18)_38%,rgba(15,23,42,0.94)_74%,rgba(2,6,23,0.99)_100%)] p-5 shadow-[0_18px_60px_rgba(180,83,9,0.18)] sm:p-7">
+      <summary className="cursor-pointer list-none">
+        <p className="text-[10px] font-black tracking-[0.24em] text-amber-200">名字的祝福</p>
+        <div className="mt-2 flex items-end justify-between gap-3">
         <div className="min-w-0">
           <h2 className="font-serif text-3xl font-black leading-tight text-amber-50 sm:text-4xl">當初取名的意境</h2>
-          <p className="mt-2 text-sm font-semibold leading-7 text-amber-100/85">不是抽象吉凶，而是名字後兩字裡，放進了希望你長成的樣子。</p>
+          <p className="mt-2 text-sm font-semibold leading-7 text-amber-100/85">想知道這個名字的祝福？點一下，再慢慢看。</p>
         </div>
         <span className="shrink-0 rounded-2xl border border-amber-200/30 bg-amber-100/10 px-3 py-2 text-center text-xs font-black leading-5 text-amber-100">
           名字<br /><span className="font-serif text-2xl leading-none">{givenName}</span>
         </span>
-      </div>
+        </div>
+      </summary>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        {givenCharacters.map((item) => (
-          <article key={`${item.position}-${item.char}`} className="min-w-0 rounded-2xl border border-amber-100/15 bg-black/25 p-4">
-            <div className="flex items-center gap-3">
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-amber-200/30 bg-amber-300/10 font-serif text-3xl font-black text-amber-100">{item.char}</span>
-              <div className="min-w-0">
-                <p className="text-[11px] font-black tracking-[0.16em] text-amber-200">這個字本身的意思</p>
-                <p className="mt-1 text-xs font-bold leading-5 text-[color:var(--text-sub)]">{item.primaryMeaning}</p>
-              </div>
-            </div>
-            <div className="mt-3 border-l-2 border-amber-200/60 pl-3">
-              <p className="text-[11px] font-black text-amber-200">取名者留在這個字裡的話</p>
-              <p className="mt-1 break-words text-sm font-semibold leading-7 text-amber-50">把「{item.char}」放進名字，像是在對孩子說：{item.namingIntent}</p>
-            </div>
-            {item.temperamentSignals.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {item.temperamentSignals.slice(0, 3).map((signal) => (
-                  <span key={signal} className="rounded-full border border-amber-100/15 bg-amber-100/[0.06] px-2.5 py-1 text-[11px] font-bold text-amber-100/85">{signal.split('：')[0]}</span>
-                ))}
-              </div>
-            )}
-          </article>
-        ))}
-      </div>
-
-      <div className="mt-4 rounded-2xl border border-amber-200/25 bg-amber-950/25 p-4">
+      <div className="mt-5 rounded-2xl border border-amber-200/25 bg-amber-950/25 p-4">
         <p className="text-xs font-black text-amber-200">把「{givenName}」連起來，是一個怎樣的期盼</p>
         <p className="mt-2 break-words text-base font-black leading-8 text-amber-50">取名者透過這兩個字，像是在期盼你把{hopedQualities.join('、') || '自己的長處'}帶進做決定、待人處事與未來想走的路。</p>
         <p className="mt-3 break-words text-sm font-semibold leading-7 text-amber-100/85">{layer.namingStory.wholeNameIntent}</p>
         <p className="mt-3 rounded-xl border border-amber-100/10 bg-black/15 px-3 py-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">判讀邏輯：先讀名字後兩字各自的字義與部首意象，再把兩個字放在一起，整理出取名時想留給下一代的祝福、能力與人生方向。</p>
       </div>
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-        <div className="rounded-2xl border border-cyan-200/20 bg-cyan-950/25 p-4">
-          <p className="text-xs font-black text-cyan-200">姓氏在姓名中的位置</p>
-          <p className="mt-2 text-sm font-semibold leading-7 text-cyan-50">「{layer.nameStructure.surname || '姓氏'}」負責家族脈絡與外在識別，是姓名的根基。</p>
-        </div>
-        <div className="rounded-2xl border border-amber-200/20 bg-amber-950/25 p-4">
-          <p className="text-xs font-black text-amber-200">名字在姓名中的位置</p>
-          <p className="mt-2 text-sm font-semibold leading-7 text-amber-50">「{givenName}」承接取名時放進去的期盼；本卡只依字義與部首意象逐字說明。</p>
-        </div>
-      </div>
-    </section>
+    </details>
   );
 }
 
 function NameologyCharacterDeckPreview({ analysis }: { analysis: NameologyAnalysis }) {
   const characters = analysis.standardOutput.layer3.characters.slice(0, 4);
-  const matchedCount = characters.filter((item) => item.dictionaryMatched).length;
+  const positionForCharacter = (char: string) => analysis.professionalLayer.characterDecomposition.find((item) => item.char === char)?.position;
+  const openDetails = (position?: number) => {
+    const layer = document.getElementById('nameology-professional-structure') as HTMLDetailsElement | null;
+    const character = position === undefined
+      ? null
+      : document.getElementById(`nameology-character-${position}`) as HTMLDetailsElement | null;
+    if (layer) layer.open = true;
+    if (character) character.open = true;
+    window.setTimeout(() => (character ?? layer)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
+  };
 
   return (
     <section className="fortune-card overflow-hidden border-cyan-300/25 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.12),rgba(15,23,42,0.86)_54%,rgba(2,6,23,0.96)_100%)] p-5 sm:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">NAME CARDS</p>
-          <h2 className="mt-2 font-serif text-2xl font-black leading-tight text-cyan-50 sm:text-3xl">姓名拆字卡已生成</h2>
-          <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{characters.length} 張字卡 · {matchedCount} 字台灣字典命中</p>
+          <p className="text-[11px] font-black tracking-[0.22em] text-cyan-200">點一個字，慢慢看</p>
+          <h2 className="mt-2 font-serif text-2xl font-black leading-tight text-cyan-50 sm:text-3xl">名字裡的三個小提醒</h2>
+          <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">先看字義；想深入時，再查看部首與資料依據。</p>
         </div>
-        <a href="#nameology-professional-structure" className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-cyan-200/30 bg-cyan-300/15 px-4 text-sm font-black text-cyan-50 transition active:scale-[0.98]">
-          看完整部首故事
-        </a>
+        <button type="button" onClick={() => openDetails()} className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-cyan-200/30 bg-cyan-300/15 px-4 text-sm font-black text-cyan-50 transition active:scale-[0.98]">
+          查看完整字義
+        </button>
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         {characters.map((item) => (
-          <article key={item.role + item.char} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.045] p-4 shadow-[0_18px_45px_rgba(2,6,23,0.24)]">
+          <button type="button" onClick={() => openDetails(positionForCharacter(item.char))} key={item.role + item.char} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-left shadow-[0_18px_45px_rgba(2,6,23,0.24)] transition hover:border-cyan-200/45 active:scale-[0.98]">
             <div className="flex items-start justify-between gap-3">
               <p className="font-serif text-5xl font-black leading-none text-amber-100">{item.char}</p>
               <span className="shrink-0 rounded-full border border-cyan-200/20 bg-cyan-950/25 px-3 py-1 text-xs font-black text-cyan-100">{item.role}</span>
             </div>
-            <p className="mt-4 text-sm font-black text-cyan-100">部首 {item.radical} · {item.strokes}畫</p>
+            <p className="mt-4 text-sm font-black text-cyan-100">字義重點</p>
             <p className="mt-2 line-clamp-3 break-words text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{item.primaryMeaning}</p>
-          </article>
+            <p className="mt-3 text-xs font-black text-cyan-100/75">點一下，看這個字的故事</p>
+          </button>
         ))}
       </div>
     </section>
@@ -675,7 +639,7 @@ function NameologyTotalBeastCard({ analysis }: { analysis: NameologyAnalysis }) 
       <span aria-hidden="true" className="absolute -right-8 -top-12 h-40 w-40 rounded-full bg-violet-300/10 blur-3xl" />
       <div className="flex items-start justify-between gap-3">
         <div className="relative min-w-0">
-          <p className="text-[10px] font-black tracking-[0.22em] text-violet-200">NAME · TOTAL BEAST</p>
+          <p className="text-[10px] font-black tracking-[0.22em] text-violet-200">姓名總格神獸</p>
           <h2 className="mt-2 font-serif text-[2rem] font-black leading-tight text-violet-50 sm:text-4xl">{link.beast.name}</h2>
           <p className="mt-2 text-sm font-bold leading-6 text-violet-100/85">你的姓名整體格局，唯一對應的神獸卡</p>
         </div>
@@ -731,7 +695,7 @@ function NameologyTarotBridgeCard({ analysis }: { analysis: NameologyAnalysis })
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-violet-200">NAMEOLOGY × TAROT</p>
+          <p className="text-[11px] font-black tracking-[0.22em] text-violet-200">姓名與塔羅</p>
           <h2 className="mt-2 font-serif text-2xl font-black leading-tight text-violet-50 sm:text-3xl">姓名塔羅象徵已蓋牌</h2>
           <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">依姓名學五元素第一補強方向，先蓋牌連接 78 張塔羅素材中的象徵牌。客戶親手翻開後才顯示牌名與下一步；正式塔羅仍由塔羅牌卡獨立完成。</p>
 
@@ -851,7 +815,7 @@ const RITUAL_STATUS_MARK: Record<NameologyRitualStep['status'], string> = {
 function RitualStepsPanel({ steps, revealCount }: { steps: NameologyRitualStep[]; revealCount: number }) {
   return (
     <section className="fortune-card border-amber-300/25 bg-amber-300/[0.05] p-5" role="status" aria-live="polite">
-      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">NAME RITUAL · 台灣官方字典逐關驗證</p>
+      <p className="text-[11px] font-black tracking-[0.24em] text-amber-200">姓名資料驗證 · 臺灣官方字典逐關核對</p>
       <div className="mt-4 space-y-2">
         {steps.map((step, index) => {
           const revealed = index < revealCount;
@@ -907,28 +871,31 @@ function NameologyBackendVerificationDetails({ analysis, revealCount }: { analys
 function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; fiveElement: FiveElementIntegrationResult }) {
   return (
     <section className="space-y-5">
+      <NameologyUltimateDecisionPanel analysis={analysis} />
+      <NameologyCharacterDeckPreview analysis={analysis} />
+      <NameologyNamingIntentionCard analysis={analysis} />
+      <NameologyTotalBeastCard analysis={analysis} />
+      <NameologyTarotBridgeCard analysis={analysis} />
+      <FiveElementPriorityCard result={fiveElement} />
       {analysis.baziCrossCheck && (
-        <section aria-label="姓名與八字對照" className="rounded-2xl border border-amber-300/25 bg-amber-950/20 p-4 text-amber-50">
-          <h2 className="text-lg font-bold">姓名與八字對照</h2>
-          <p className="mt-2 text-sm">{analysis.baziCrossCheck.summary}</p>
+        <details aria-label="姓名與八字對照" className="fortune-card overflow-hidden border-cyan-300/20 bg-slate-950/55 p-4 text-cyan-50 sm:p-5">
+          <summary className="flex min-h-[48px] cursor-pointer items-center justify-between gap-3 text-sm font-black leading-6 text-cyan-100">
+            <span>姓名與八字對照</span>
+            <span className="text-xs font-bold text-cyan-100/65">想查計算依據再展開</span>
+          </summary>
+          <p className="mt-4 text-sm leading-7 text-[color:var(--text-sub)]">{analysis.baziCrossCheck.summary}</p>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {(['year', 'month', 'day', 'hour'] as const).map((key, index) => (
-              <p key={key} className="rounded-xl bg-black/20 p-3 text-center">{['年柱', '月柱', '日柱', '時柱'][index]}<br />{analysis.baziCrossCheck!.pillars[key] ?? '未知，不推定'}</p>
+              <p key={key} className="rounded-xl bg-black/20 p-3 text-center text-sm">{['年柱', '月柱', '日柱', '時柱'][index]}<br />{analysis.baziCrossCheck!.pillars[key] ?? '未知，不推定'}</p>
             ))}
           </div>
           <p className="mt-3 text-sm">日主：{analysis.baziCrossCheck.dayMaster.stem}（{analysis.baziCrossCheck.dayMaster.element}）</p>
-          <ul className="mt-2 space-y-1 text-sm">
+          <ul className="mt-2 space-y-1 text-sm leading-6 text-[color:var(--text-sub)]">
             {analysis.baziCrossCheck.comparison.map(row => <li key={row.element}>{row.element}：姓名字「{row.nameCharacters.join('、') || '無'}」；已知柱干支計數 {row.baziCount}</li>)}
           </ul>
-          <p className="mt-3 text-xs text-amber-100/70">{analysis.baziCrossCheck.limitation}</p>
-        </section>
+          <p className="mt-3 text-xs leading-6 text-cyan-100/70">{analysis.baziCrossCheck.limitation}</p>
+        </details>
       )}
-      <NameologyUltimateDecisionPanel analysis={analysis} />
-      <NameologyNamingIntentionCard analysis={analysis} />
-      <NameologyTotalBeastCard analysis={analysis} />
-      <NameologyCharacterDeckPreview analysis={analysis} />
-      <NameologyTarotBridgeCard analysis={analysis} />
-      <FiveElementPriorityCard result={fiveElement} />
       <NameologyProfessionalStructureDetails analysis={analysis} />
     </section>
   );
@@ -1276,7 +1243,7 @@ export default function NameologyPage() {
           {/* 品牌標題視覺（2026-08-13 依指示）：與八字/塔羅同語言——置中、對稱引線、金色漸層、柔光、星芒收尾 */}
           <div className="flex items-center justify-center gap-3 text-center">
             <span className="h-px w-12 bg-gradient-to-r from-transparent to-amber-300/80" aria-hidden="true" />
-            <p className="text-[11px] font-black uppercase tracking-[0.34em] text-amber-300/90">NAMEOLOGY</p>
+            <p className="text-[11px] font-black tracking-[0.34em] text-amber-300/90">易經姓名學</p>
             <span className="h-px w-12 bg-gradient-to-l from-transparent to-amber-300/80" aria-hidden="true" />
           </div>
           <h1 className="mx-auto mt-4 bg-gradient-to-br from-amber-50 via-amber-100 to-amber-300/80 bg-clip-text text-center font-serif text-5xl font-black leading-[1.08] tracking-[0.1em] text-transparent drop-shadow-[0_0_32px_rgba(251,191,36,0.3)] sm:text-6xl lg:text-7xl">
@@ -1435,10 +1402,14 @@ export default function NameologyPage() {
         <div id="nameology-result" className="mt-6 scroll-mt-24">
           {result && fiveElement && (
             <div className="space-y-5 animate-fade-in">
+              <ResultPanel analysis={result} fiveElement={fiveElement} />
               {result.iching ? (
-                <section aria-label="姓名學易經卦象" className="rounded-2xl border border-amber-300/30 bg-amber-950/20 p-4 text-amber-50 sm:p-6">
-                  <p className="text-xs tracking-widest">姓名學・易經文化參考</p>
-                  <div className="mt-3 flex items-center gap-4">
+                <details aria-label="姓名學易經卦象" className="fortune-card overflow-hidden border-amber-300/25 bg-amber-950/15 p-4 text-amber-50 sm:p-5">
+                  <summary className="flex min-h-[52px] cursor-pointer items-center justify-between gap-3">
+                    <span className="text-sm font-black">易經文化參考</span>
+                    <span className="text-xs font-bold text-amber-100/70">想看卦象依據再展開</span>
+                  </summary>
+                  <div className="mt-4 flex items-center gap-4">
                     <span aria-hidden="true" className="text-5xl">{result.iching.glyph}</span>
                     <div className="min-w-0">
                       <h2 className="break-words text-2xl font-bold">第 {result.iching.kingWen} 卦・{result.iching.hexagramName}</h2>
@@ -1457,9 +1428,8 @@ export default function NameologyPage() {
                       : '出生時辰未知：以姓名、生日及固定主題，依既有字串雜湊規則產生象徵參考卦；沒有補造出生時辰，也不等同傳統占筮。'}</p>
                     <p className="mt-2">規則版本：{result.iching.ruleVersion}。卦義沿用專案既有資料；本服務提供文化解讀與自我反思，並非心理診斷或確定預測。</p>
                   </details>
-                </section>
+                </details>
               ) : <p role="status" className="rounded-xl border border-amber-300/20 p-4">這份舊結果尚未包含卦象，請重新分析以取得後端卦象資料。</p>}
-              <ResultPanel analysis={result} fiveElement={fiveElement} />
             </div>
           )}
         </div>
