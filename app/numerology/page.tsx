@@ -689,7 +689,11 @@ export default function NumerologyPage() {
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-[11px] font-bold leading-5 text-white/54">金錢、感情兩個中軸各自融合 4 個面向的平均分數，共用同一條八階能量線，最高「大吉」、最低「大凶」，中間依序是大吉帶吉、吉、半吉、凶帶吉、凶、大凶帶凶；兩個中軸的平均值再融合成最上方{purposeOption.shortLabel}的單一判定。分級門檻依這套固定規則實際算出的分數範圍校準，不是機率統計或人生保證。</p>
+              {/* 技術性校準說明對客戶沒意義，已依指示隱藏；保留程式碼供之後需要時叫醒。 */}
+              {false && (
+                <p className="mt-3 text-[11px] font-bold leading-5 text-white/54">金錢、感情兩個中軸各自融合 4 個面向的平均分數，共用同一條八階能量線，最高「大吉」、最低「大凶」，中間依序是大吉帶吉、吉、半吉、凶帶吉、凶、大凶帶凶；兩個中軸的平均值再融合成最上方{purposeOption.shortLabel}的單一判定。分級門檻依這套固定規則實際算出的分數範圍校準，不是機率統計或人生保證。</p>
+              )}
+              <p className="mt-3 text-[11px] font-semibold leading-5 text-white/50">這不是在幫你貼標籤，是想讓你先看懂自己此刻站在哪一階；易經懂你走到這裡的不容易，才知道下一步怎麼走最順。</p>
             </section>
 
             {/* 「補充：結構重點」是 8 個原始面向的強弱清單，跟上方金錢／感情兩個中軸完全重複，已依指示隱藏；保留程式碼供之後需要時叫醒。 */}
