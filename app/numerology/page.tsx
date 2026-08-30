@@ -48,38 +48,42 @@ const PURPOSE_OPTIONS: Array<{ id: NumberPurpose; label: string; shortLabel: str
   { id: 'birthdate', label: '出生年月日', shortLabel: '這組生日數字', detail: '直接解讀個人節奏與成長' },
 ];
 
-const PURPOSE_COPY: Record<NumberPurpose, { goodHeading: string; riskHeading: string; strengthTitle: string; good: string; risk: string; next: string }> = {
+const PURPOSE_COPY: Record<NumberPurpose, { goodHeading: string; riskHeading: string; strengthTitle: string; good: string; risk: string; next: string; psychologyContext: string }> = {
   general: {
-    goodHeading: '好在哪裡',
-    riskHeading: '要留意什麼',
-    strengthTitle: '八段強弱',
-    good: '最能支持目前的整體使用節奏與資源安排。',
-    risk: '是目前最需要先留意的壓力點。',
-    next: '保留優勢，先把最低分的面向收穩。',
+    goodHeading: '可運用的地方',
+    riskHeading: '需要留意的地方',
+    strengthTitle: '完整結構指標',
+    good: '可作為安排目前使用節奏與資源的參考。',
+    risk: '適合優先安排與調整的地方。',
+    next: '先選一件能讓節奏更清楚的小事完成。',
+    psychologyContext: '這股能量主要反映在你目前整體的節奏與資源分配上。',
   },
   plate: {
-    goodHeading: '車牌好在哪裡',
-    riskHeading: '車牌要留意什麼',
-    strengthTitle: '車牌八段強弱',
+    goodHeading: '車牌可運用的地方',
+    riskHeading: '車牌需要留意的地方',
+    strengthTitle: '車牌完整結構指標',
     good: '在這張車牌的數字解讀中，較能支持出行、往來與使用安排。',
     risk: '是這張車牌在使用節奏與外出安排上較需要留意的地方；不代表車況或行車安全的保證。',
     next: '以正常保養與安全駕駛為主，再把數字當作選牌參考。',
+    psychologyContext: '這股能量主要反映在你的出行、往來與車輛使用節奏上。',
   },
   phone: {
-    goodHeading: '電話號碼好在哪裡',
-    riskHeading: '電話號碼要留意什麼',
-    strengthTitle: '電話號碼八段強弱',
+    goodHeading: '電話號碼可運用的地方',
+    riskHeading: '電話號碼需要留意的地方',
+    strengthTitle: '電話號碼完整結構指標',
     good: '在這支電話的數字解讀中，較能支持聯絡、人際與工作溝通。',
     risk: '是這支電話在溝通節奏、回應壓力或人際往來上較需要留意的地方。',
     next: '把重要訊息說清楚、留出回應時間，讓溝通優勢真正發揮。',
+    psychologyContext: '這股能量主要反映在你的聯絡節奏、人際互動與工作溝通上。',
   },
   birthdate: {
-    goodHeading: '出生年月日好在哪裡',
-    riskHeading: '出生年月日要留意什麼',
-    strengthTitle: '出生年月日八段強弱',
+    goodHeading: '出生年月日可運用的地方',
+    riskHeading: '出生年月日需要留意的地方',
+    strengthTitle: '出生年月日完整結構指標',
     good: '在這組生日數字的解讀中，較能支持個人節奏與成長方向。',
     risk: '是這組生日數字反映出的壓力傾向，適合用來安排生活節奏。',
     next: '把優勢放進日常選擇，並先照顧最容易失衡的環節。',
+    psychologyContext: '這股能量主要反映在你的個人成長步調與生活節奏上。',
   },
 };
 
@@ -103,8 +107,8 @@ const DIMENSION_LABELS: Record<string, string> = {
   social: '人際連結',
   health: '身心節奏',
   growth: '成長動能',
-  risk: '風險壓力',
-  pressure: '壓力管理',
+  risk: '節奏提醒',
+  pressure: '負荷安排',
   stability: '穩定度',
   structure: '結構',
   balance: '平衡',
@@ -114,10 +118,131 @@ const DIMENSION_LABELS: Record<string, string> = {
 
 const EIGHT_STRENGTH_KEYS = ['wealth', 'career', 'love', 'family', 'social', 'health', 'growth', 'stability'] as const;
 
+const TWO_AXIS_GROUPS = [
+  { id: 'money', label: '金錢', icon: '💰', keys: ['wealth', 'career', 'growth', 'stability'] as const, note: '財務資源、事業推進、成長動能、穩定度融合成的物質面向。' },
+  { id: 'relationship', label: '感情', icon: '💞', keys: ['love', 'family', 'social', 'health'] as const, note: '感情互動、家庭穩定、人際連結、身心節奏融合成的關係面向。' },
+] as const;
+
+const FORTUNE_ENERGY_TIERS = [
+  {
+    min: 72,
+    label: '大吉',
+    feel: '萬事亨通，富貴繁榮。',
+    psychology: '心理學上，這反映你在此領域已建立穩定的自我效能感（self-efficacy），行動與回饋容易形成正向循環，適合乘勢擴大投入。',
+    tone: 'bg-emerald-300',
+    labelTone: 'text-emerald-100',
+  },
+  {
+    min: 66,
+    label: '大吉帶吉',
+    feel: '青雲直上，多得貴人。',
+    psychology: '從行為心理學角度看，你在這裡已累積可觀的外部資源與人際支持，持續投入容易觸發正向強化。',
+    tone: 'bg-emerald-300',
+    labelTone: 'text-emerald-100',
+  },
+  {
+    min: 60,
+    label: '吉',
+    feel: '平安順遂，衣食無憂。',
+    psychology: '整體呈現低焦慮、可預期的因應風格（coping style），代表你對這個領域有一定掌控感，維持現有節奏即可。',
+    tone: 'bg-cyan-300',
+    labelTone: 'text-cyan-100',
+  },
+  {
+    min: 55,
+    label: '半吉',
+    feel: '吉凶參半，三分靠天七分靠人。',
+    psychology: '這是內在動機與外在條件拉鋸的區間，屬於自我調節（self-regulation）最容易發揮作用的位置，投入的意志力會直接反映在結果上。',
+    tone: 'bg-cyan-300',
+    labelTone: 'text-cyan-100',
+  },
+  {
+    min: 50,
+    label: '凶帶吉',
+    feel: '先苦後甘，外美內苦。',
+    psychology: '這類「先苦後甘」的型態對應延遲滿足（delayed gratification）——短期回饋感偏低，撐過去的耐受力會是關鍵。',
+    tone: 'bg-amber-300',
+    labelTone: 'text-amber-100',
+  },
+  {
+    min: 45,
+    label: '凶',
+    feel: '阻礙重重，力不從心。',
+    psychology: '容易出現習得無助（learned helplessness）傾向或迴避因應，建議先拆解成可控的小步驟，重建掌控感比一次解決更有效。',
+    tone: 'bg-amber-300',
+    labelTone: 'text-amber-100',
+  },
+  {
+    min: 40,
+    label: '大凶帶凶',
+    feel: '波折不斷，易招是非。',
+    psychology: '壓力累積可能已經影響認知評估（cognitive appraisal）與情緒穩定度，照顧身心資源比急著解決問題本身更優先。',
+    tone: 'bg-rose-300',
+    labelTone: 'text-rose-100',
+  },
+  {
+    min: 0,
+    label: '大凶',
+    feel: '萬事休止，前途坎坷。',
+    psychology: '這是典型的耗竭訊號（burnout signal），建議先按下暫停鍵、降低輸入，避免在資源見底時做重大決定。',
+    tone: 'bg-rose-300',
+    labelTone: 'text-rose-100',
+  },
+] as const;
+
+function getFortuneEnergyTier(score: number) {
+  return FORTUNE_ENERGY_TIERS.find((tier) => score >= tier.min) ?? FORTUNE_ENERGY_TIERS[FORTUNE_ENERGY_TIERS.length - 1];
+}
+
+const FORTUNE_TIER_GLOW: Record<string, string> = {
+  '大吉': 'shadow-[0_0_10px_2px_rgba(110,231,183,0.65)]',
+  '大吉帶吉': 'shadow-[0_0_10px_2px_rgba(110,231,183,0.65)]',
+  '吉': 'shadow-[0_0_10px_2px_rgba(103,232,249,0.65)]',
+  '半吉': 'shadow-[0_0_10px_2px_rgba(103,232,249,0.65)]',
+  '凶帶吉': 'shadow-[0_0_10px_2px_rgba(252,211,77,0.65)]',
+  '凶': 'shadow-[0_0_10px_2px_rgba(252,211,77,0.65)]',
+  '大凶帶凶': 'shadow-[0_0_10px_2px_rgba(251,113,133,0.65)]',
+  '大凶': 'shadow-[0_0_10px_2px_rgba(251,113,133,0.65)]',
+};
+
+function EnergyLine({ tier }: { tier: (typeof FORTUNE_ENERGY_TIERS)[number] }) {
+  const activeIndex = FORTUNE_ENERGY_TIERS.indexOf(tier);
+  return (
+    <div
+      className="mt-3 flex items-stretch gap-[3px] rounded-xl border border-white/10 bg-black/25 p-1.5"
+      role="img"
+      aria-label={`八階能量線，目前位置：${tier.label}`}
+    >
+      {FORTUNE_ENERGY_TIERS.map((step, index) => {
+        const active = index === activeIndex;
+        return (
+          <div
+            key={step.label}
+            className={`flex flex-1 flex-col items-center gap-1.5 rounded-lg py-1.5 transition-all duration-500 ${active ? 'bg-white/[0.06]' : ''}`}
+          >
+            <span
+              className={`h-1.5 w-full rounded-full ${step.tone} transition-all duration-500 ${active ? `opacity-100 ${FORTUNE_TIER_GLOW[step.label] ?? ''}` : 'opacity-25'}`}
+            />
+            <span
+              className={`flex h-12 items-center justify-center font-mono text-[10px] font-black leading-tight tracking-[0.08em] transition-all duration-500 ${active ? `${step.labelTone} opacity-100` : 'text-white/32 opacity-80'}`}
+              style={{ writingMode: 'vertical-rl' }}
+            >
+              {step.label}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 const SAMPLE_NUMBERS = ['1688', '168888', '52013145', '0912345678'];
 
 function cleanNumber(value: string) {
-  return value.replace(/\D/g, '').slice(0, 10);
+  return value
+    .replace(/[０-９]/g, (digit) => String.fromCharCode(digit.charCodeAt(0) - 0xfee0))
+    .replace(/\D/g, '')
+    .slice(0, 10);
 }
 
 function pickEntries(values: Record<string, number>, count: number, order: 'desc' | 'asc' = 'desc') {
@@ -129,35 +254,35 @@ function pickEntries(values: Record<string, number>, count: number, order: 'desc
 function getLevel(score: number) {
   if (score >= 82) {
     return {
-      label: '很好',
-      tone: '能量集中，適合主動推進。',
+      label: '結構較順',
+      tone: '這組排列較容易形成連貫節奏，可挑一件事穩定推進。',
       className: 'border-emerald-200/35 bg-emerald-300/12 text-emerald-50',
     };
   }
   if (score >= 68) {
     return {
-      label: '偏好',
-      tone: '條件順手，可以穩定前進。',
+      label: '節奏可用',
+      tone: '這組排列有可運用的地方，先把重點放在穩定與清楚。',
       className: 'border-cyan-200/35 bg-cyan-300/12 text-cyan-50',
     };
   }
   if (score >= 55) {
     return {
-      label: '好中帶壓',
-      tone: '有機會，也有壓力，先控風險再前進。',
+      label: '需要安排',
+      tone: '這組排列提醒你先安排節奏，再決定要不要往前推進。',
       className: 'border-amber-200/40 bg-amber-300/12 text-amber-50',
     };
   }
   if (score >= 40) {
     return {
-      label: '壞中有轉',
-      tone: '先整理節奏，避免急著擴張。',
+      label: '先整理節奏',
+      tone: '先把訊息、時間或資源整理清楚，再做下一個選擇。',
       className: 'border-orange-200/40 bg-orange-300/12 text-orange-50',
     };
   }
   return {
-    label: '需要避險',
-    tone: '暫時不衝，先修正最弱環節。',
+    label: '先從簡單處開始',
+    tone: '不急著放大這組數字的意義，先回到一個可完成的小步驟。',
     className: 'border-rose-200/40 bg-rose-300/12 text-rose-50',
   };
 }
@@ -195,10 +320,27 @@ export default function NumerologyPage() {
   } as CSSProperties & Record<'--fortune-number-input-size', string>;
   const score = result ? result.finalScore ?? result.score : 0;
   const level = result ? getLevel(score) : null;
-  const topStrengths = useMemo(() => (result ? pickEntries(result.matrix, 3) : []), [result]);
-  const topRisks = useMemo(() => (result ? pickEntries(result.matrix, 2, 'asc') : []), [result]);
+  const directionalMatrix = useMemo(() => {
+    if (!result) return {};
+    return Object.fromEntries(EIGHT_STRENGTH_KEYS.map((key) => [key, result.matrix[key]]));
+  }, [result]);
+  const topStrengths = useMemo(() => pickEntries(directionalMatrix, 3), [directionalMatrix]);
+  const topRisks = useMemo(() => pickEntries(directionalMatrix, 2, 'asc'), [directionalMatrix]);
   const bestPoint = topStrengths[0];
   const weakPoint = topRisks[0];
+  const bestTier = bestPoint ? getFortuneEnergyTier(bestPoint[1]) : null;
+  const weakTier = weakPoint ? getFortuneEnergyTier(weakPoint[1]) : null;
+  const overallDirectionalScore = useMemo(() => {
+    const values = EIGHT_STRENGTH_KEYS.map((key) => directionalMatrix[key]).filter((score): score is number => typeof score === 'number');
+    if (values.length === 0) return 0;
+    return values.reduce((sum, score) => sum + score, 0) / values.length;
+  }, [directionalMatrix]);
+  const overallTier = getFortuneEnergyTier(overallDirectionalScore);
+  const twoAxisScores = useMemo(() => TWO_AXIS_GROUPS.map((group) => {
+    const values = group.keys.map((key) => directionalMatrix[key]).filter((score): score is number => typeof score === 'number');
+    const average = values.length === 0 ? 0 : values.reduce((sum, score) => sum + score, 0) / values.length;
+    return { ...group, average, tier: getFortuneEnergyTier(average) };
+  }), [directionalMatrix]);
   const purposeOption = PURPOSE_OPTIONS.find((option) => option.id === purpose) ?? PURPOSE_OPTIONS[0];
   const purposeCopy = PURPOSE_COPY[purpose];
 
@@ -250,12 +392,12 @@ export default function NumerologyPage() {
           <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-amber-100/60 to-transparent" />
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200/85">CARD 02 · NUMBER TASTING</p>
+              <p className="text-[10px] font-black tracking-[0.2em] text-amber-200/85">數字文化解讀</p>
               <h1 className="mt-2 font-serif text-3xl font-black leading-tight text-amber-50">易經論數字</h1>
               {/* 說明句已依指示隱藏：客戶直接看輸入規格與結果即可。 */}
             </div>
             <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-amber-200/35 bg-amber-300/12 font-serif text-3xl font-black text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.2)]">
-              吉
+              數
             </div>
           </div>
 
@@ -283,6 +425,11 @@ export default function NumerologyPage() {
           </div>
         </section>
 
+        <section className="grid gap-3">
+          <DailyAnalysisNotice moduleName="易經論數字" />
+          <IdentitySplitSelector nextStepLabel="接著選用途並輸入數字" />
+        </section>
+
         <section className="rounded-[26px] border border-white/12 bg-[linear-gradient(160deg,rgba(12,15,22,0.98),rgba(18,29,32,0.92),rgba(8,10,16,0.98))] p-4 shadow-[0_18px_55px_rgba(0,0,0,0.28)] sm:p-5">
           {/* 「請填阿拉伯數字」引導卡已隱藏（2026-08-11）：依指示不顯示 */}
           {false && (
@@ -296,9 +443,9 @@ export default function NumerologyPage() {
           )}
           <div className="flex items-end justify-between gap-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-100/70">NUMBER</p>
+              <p className="text-[10px] font-black tracking-[0.2em] text-cyan-100/70">第二步</p>
               <h2 className="mt-1 font-serif text-2xl font-black text-cyan-50">輸入數字</h2>
-              <p className="mt-1 text-xs font-black text-amber-100/80">支援 2 到 10 碼阿拉伯數字</p>
+              <p className="mt-1 text-xs font-black text-amber-100/80">支援 2 到 10 碼數字</p>
             </div>
             <span className="rounded-full border border-cyan-200/25 bg-cyan-300/10 px-3 py-1 text-[11px] font-black text-cyan-100">
               {cleanValue.length}/10
@@ -310,7 +457,7 @@ export default function NumerologyPage() {
           </div>
 
           <div className="mt-3 rounded-2xl border border-cyan-100/15 bg-cyan-200/[0.045] px-3 py-2.5 text-center">
-            <p className="text-[10px] font-black tracking-[0.16em] text-cyan-100/65">1 · 選擇解讀用途（可略過，預設萬用碼）</p>
+            <p className="text-[10px] font-black tracking-[0.16em] text-cyan-100/65">第二步 · 選擇解讀用途（可略過，預設萬用碼）</p>
             <p className="mt-1 text-[11px] font-bold text-white/60">不確定用途？直接使用閃爍的萬用碼；需要時再選車牌、電話或出生年月日。</p>
             <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {PURPOSE_OPTIONS.map((option) => (
@@ -330,7 +477,7 @@ export default function NumerologyPage() {
           </div>
 
           <p className="mt-3 rounded-xl border-2 border-amber-100 bg-amber-300/20 px-3 py-2 text-center text-[12px] font-black text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.32)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#112026]">
-            直接輸入 2 到 10 碼阿拉伯數字，系統會自動辨識位數
+            第三步 · 直接輸入 0–9 數字，例如 2559（全形數字也可）
           </p>
 
           <input
@@ -380,11 +527,6 @@ export default function NumerologyPage() {
           </button>
         </section>
 
-        <section className="grid gap-3">
-          <DailyAnalysisNotice moduleName="易經論數字" />
-          <IdentitySplitSelector nextStepLabel="接著輸入數字" />
-        </section>
-
         {result && level && (
           <section ref={resultRef} tabIndex={-1} className="number-fortune-analysis-card scroll-mt-5 space-y-4 rounded-[26px] border border-amber-200/20 bg-[linear-gradient(145deg,rgba(12,15,22,0.98),rgba(28,23,14,0.95),rgba(8,10,16,0.98))] p-4 shadow-[0_22px_70px_rgba(0,0,0,0.34)] outline-none sm:p-5">
             <div className="rounded-2xl border border-emerald-200/35 bg-emerald-300/10 px-4 py-3 text-center shadow-[0_0_28px_rgba(110,231,183,0.12)]">
@@ -394,30 +536,36 @@ export default function NumerologyPage() {
             <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
               <div className="flex items-center gap-2 text-[10px] font-black tracking-[0.16em] text-cyan-100/75">
                 <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,0.9)]" />
-                NUMBER SIGNAL · RESULT READY
+                數字解讀完成
               </div>
               <span className="font-mono text-[10px] font-black text-amber-100/75">{result.valueMasked ?? result.value}</span>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200">I-CHING FINAL</p>
-              <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <p className="font-serif text-5xl font-black leading-none text-amber-100">{score}</p>
-                  <p className="mt-2 text-xs font-bold text-white/58">信心度 {result.confidenceScore}% · {MODE_LABEL[result.mode]}</p>
+            {/* 「這組數字的節奏」（getLevel 5級敘事）與下方金錢／感情吉凶判定重複，已依指示隱藏；保留程式碼供之後需要時叫醒。 */}
+            {false && (
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-[10px] font-black tracking-[0.2em] text-amber-200">這組數字的節奏</p>
+                <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <p className="font-serif text-3xl font-black leading-none text-amber-100">{level!.label}</p>
+                    <p className="mt-2 text-xs font-bold text-white/58">{MODE_LABEL[result!.mode]} · 固定規則的結構提示</p>
+                  </div>
+                  <span className={`rounded-full border px-4 py-2 text-sm font-black ${level!.className}`}>文化參考</span>
                 </div>
-                <span className={`rounded-full border px-4 py-2 text-sm font-black ${level.className}`}>{level.label}</span>
+                <p className="mt-4 text-lg font-black leading-8 text-cyan-50">{level!.tone}</p>
               </div>
-              <p className="mt-4 text-lg font-black leading-8 text-cyan-50">{level.tone}</p>
-            </div>
+            )}
 
             {/* 你的數字屬什麼卦：每一組輸入都經梅花易數起卦＋逐碼配卦＋生剋交叉，卦是比對出來的，不是亂補 */}
             {result.iching && (
-              <section className="rounded-2xl border border-amber-200/30 bg-[linear-gradient(140deg,rgba(251,191,36,0.1),rgba(15,23,42,0.7))] p-4" aria-label="你的數字屬什麼卦">
+              <details className="rounded-2xl border border-amber-200/30 bg-[linear-gradient(140deg,rgba(251,191,36,0.1),rgba(15,23,42,0.7))] p-4" aria-label="你的數字屬什麼卦">
+                <summary className="flex min-h-[48px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-amber-100">
+                  <span>本次卦象主題</span>
+                  <span className="text-xs font-bold text-amber-100/65">文化參考，想深入再展開</span>
+                </summary>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200">YOUR HEXAGRAM・你的數字屬什麼卦</p>
                     <h3 className="mt-2 font-serif text-2xl font-black leading-8 text-amber-50">
-                      第 {result.iching.kingWen} 卦「{result.iching.hexagramName}」・特殊格局「{result.iching.patternName}」
+                      第 {result.iching.kingWen} 卦「{result.iching.hexagramName}」・主題「{result.iching.patternName}」
                     </h3>
                   </div>
                   <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-amber-200/35 bg-amber-300/12 font-serif text-4xl font-black text-amber-100" aria-hidden="true">
@@ -438,7 +586,7 @@ export default function NumerologyPage() {
                 </div>
                 {result.iching.crossChain.length > 0 && (
                   <details className="growth-detail-drawer mt-3">
-                    <summary>易經交叉比對紀錄（{result.iching.crossChain.filter((l) => l.kind === '相生').length}生{result.iching.crossChain.filter((l) => l.kind === '相剋').length}剋{result.iching.crossChain.filter((l) => l.kind === '比和').length}和・能量鏈 {result.iching.chainScore}/100）</summary>
+                    <summary>查看逐碼關係與計算依據</summary>
                     <div className="mt-2 space-y-1.5">
                       {result.iching.crossChain.map((link, i) => (
                         <p key={i} className="text-xs font-bold leading-5 text-white/65">
@@ -448,125 +596,149 @@ export default function NumerologyPage() {
                     </div>
                   </details>
                 )}
-              </section>
+              </details>
             )}
 
             {result.googleExplanation && (
               <article className="rounded-2xl border border-blue-200/25 bg-blue-300/[0.07] p-4">
-                <p className="text-[10px] font-black tracking-[0.18em] text-blue-100">GOOGLE 解說</p>
+                <p className="text-[10px] font-black tracking-[0.18em] text-blue-100">延伸解說</p>
                 <p className="mt-2 text-sm font-bold leading-7 text-white/82">{result.googleExplanation}</p>
               </article>
             )}
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              <article className="rounded-2xl border border-emerald-200/25 bg-emerald-300/[0.08] p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-100">GOOD</p>
-                <h3 className="mt-2 text-base font-black text-emerald-50">{purposeCopy.goodHeading}</h3>
-                <p className="mt-2 text-sm font-bold leading-7 text-white/76">
-                  {bestPoint ? `${DIMENSION_LABELS[bestPoint[0]] ?? bestPoint[0]}最亮，${purposeCopy.good}` : `${purposeOption.shortLabel}仍有可用的支持點。`}
-                </p>
-              </article>
-              <article className="rounded-2xl border border-rose-200/25 bg-rose-300/[0.08] p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-rose-100">RISK</p>
-                <h3 className="mt-2 text-base font-black text-rose-50">{purposeCopy.riskHeading}</h3>
-                <p className="mt-2 text-sm font-bold leading-7 text-white/76">
-                  {weakPoint ? `${DIMENSION_LABELS[weakPoint[0]] ?? weakPoint[0]}最低，${purposeCopy.risk}` : `${purposeOption.shortLabel}目前沒有明顯低點，但仍保留檢查節奏。`}
-                </p>
-              </article>
-              <article className="rounded-2xl border border-amber-200/25 bg-amber-300/[0.1] p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-100">NEXT</p>
-                <h3 className="mt-2 text-base font-black text-amber-50">下一步</h3>
-                <p className="mt-2 text-sm font-bold leading-7 text-white/76">
-                  {purposeCopy.next}
-                </p>
-              </article>
-            </div>
-
-            <div className="grid grid-cols-3 overflow-hidden rounded-2xl border border-white/10 bg-black/20 text-center">
-              {[
-                ['01', '好在哪裡', '保留最強推力'],
-                ['02', '壞在哪裡', '先收最低風險'],
-                ['03', '今天怎麼走', '只做一個決定'],
-              ].map(([order, title, caption], index) => (
-                <div key={order} className={`px-2 py-3 ${index < 2 ? 'border-r border-white/10' : ''}`}>
-                  <p className="font-mono text-[10px] font-black text-amber-200/85">{order}</p>
-                  <p className="mt-1 text-xs font-black text-cyan-50">{title}</p>
-                  <p className="mt-1 text-[10px] font-semibold leading-4 text-white/48">{caption}</p>
-                </div>
-              ))}
-            </div>
-
-            <section className="rounded-2xl border border-violet-200/20 bg-violet-300/[0.055] p-4">
-              <div className="flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-black tracking-[0.18em] text-violet-100">EIGHT PARTS</p>
-                  <h3 className="mt-1 text-base font-black text-violet-50">{purposeCopy.strengthTitle}</h3>
-                </div>
-                <p className="text-[10px] font-bold text-white/52">數字結構的八個面向</p>
-              </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                {EIGHT_STRENGTH_KEYS.map((key, index) => {
-                  const itemScore = result.matrix[key] ?? 0;
-                  const tone = itemScore >= 68 ? 'bg-emerald-300' : itemScore >= 55 ? 'bg-cyan-300' : itemScore >= 40 ? 'bg-amber-300' : 'bg-rose-300';
-                  const fortuneLabel = itemScore >= 90 ? '大吉' : itemScore >= 80 ? '吉' : itemScore >= 70 ? '中吉' : itemScore >= 60 ? '小吉' : itemScore >= 50 ? '平' : itemScore >= 40 ? '小凶' : itemScore >= 30 ? '凶' : '大凶';
-                  const labelTone = itemScore >= 80 ? 'text-emerald-100' : itemScore >= 60 ? 'text-cyan-100' : itemScore >= 50 ? 'text-white/70' : itemScore >= 40 ? 'text-amber-100' : 'text-rose-100';
-                  return (
-                    <div key={key} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2.5">
-                      <div className="flex items-center justify-between gap-3 text-xs font-black">
-                        <span className="text-white/78">{index + 1}. {DIMENSION_LABELS[key]}</span>
-                        <span className={labelTone}>{fortuneLabel} · {itemScore}</span>
-                      </div>
-                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-                        <span className={`block h-full rounded-full transition-all duration-500 ${tone}`} style={{ width: `${itemScore}%` }} />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="mt-3 text-[11px] font-bold leading-5 text-white/54">分數越高代表該面向的數字結構支持度較高；較低的段落用來提示優先留意處。</p>
-            </section>
-
-            <details open className="rounded-2xl border border-cyan-200/15 bg-cyan-300/[0.045] p-4">
-              <summary className="cursor-pointer text-sm font-black text-cyan-100">易經精華分析</summary>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <article className="rounded-2xl border border-white/10 bg-black/18 p-3">
-                  <p className="text-xs font-black text-emerald-100">最有利</p>
-                  <div className="mt-2 space-y-2">
-                    {topStrengths.map(([key, itemScore]) => (
-                      <p key={key} className="flex items-center justify-between gap-3 text-sm font-bold text-white/76">
-                        <span>{DIMENSION_LABELS[key] ?? key}</span>
-                        <span className="text-emerald-100">{itemScore}</span>
-                      </p>
-                    ))}
+            {/* 「可運用・本次最強」「先留意・本次待補強」兩張卡片與下方金錢／感情吉凶判定內容重複，已依指示隱藏；保留程式碼供之後需要時叫醒。 */}
+            {false && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <article className="rounded-2xl border border-emerald-200/25 bg-emerald-300/[0.08] p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-[10px] font-black tracking-[0.18em] text-emerald-100">可運用・本次最強</p>
+                    {bestTier && <span className="rounded-full border border-emerald-200/30 bg-emerald-300/15 px-2 py-0.5 text-[10px] font-black text-emerald-100">{bestTier!.label}</span>}
                   </div>
-                </article>
-                <article className="rounded-2xl border border-white/10 bg-black/18 p-3">
-                  <p className="text-xs font-black text-rose-100">先留意</p>
-                  <div className="mt-2 space-y-2">
-                    {topRisks.map(([key, itemScore]) => (
-                      <p key={key} className="flex items-center justify-between gap-3 text-sm font-bold text-white/76">
-                        <span>{DIMENSION_LABELS[key] ?? key}</span>
-                        <span className="text-rose-100">{itemScore}</span>
-                      </p>
-                    ))}
-                  </div>
-                </article>
-              </div>
-            </details>
-
-            <details className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-              <summary className="cursor-pointer text-sm font-black text-amber-100">老師模式：完整指標</summary>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                {Object.entries(result.indexes).map(([key, itemScore]) => (
-                  <p key={key} className="rounded-xl border border-white/10 bg-black/18 px-3 py-2 text-xs font-bold text-white/58">
-                    {DIMENSION_LABELS[key] ?? key}：<span className="text-cyan-100">{itemScore}</span>
+                  <h3 className="mt-2 text-base font-black text-emerald-50">{purposeCopy.goodHeading}</h3>
+                  <p className="mt-2 text-sm font-bold leading-7 text-white/76">
+                    {bestPoint ? `${DIMENSION_LABELS[bestPoint[0]] ?? bestPoint[0]}較可運用，${purposeCopy.good}` : `${purposeOption.shortLabel}仍有可用的支持點。`}
                   </p>
+                  {bestTier && <p className="mt-2 text-[11px] font-semibold leading-5 text-emerald-100/75">{bestTier!.psychology}{purposeCopy.psychologyContext}</p>}
+                </article>
+                <article className="rounded-2xl border border-rose-200/25 bg-rose-300/[0.08] p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-[10px] font-black tracking-[0.18em] text-rose-100">先留意・本次待補強</p>
+                    {weakTier && <span className="rounded-full border border-rose-200/30 bg-rose-300/15 px-2 py-0.5 text-[10px] font-black text-rose-100">{weakTier!.label}</span>}
+                  </div>
+                  <h3 className="mt-2 text-base font-black text-rose-50">{purposeCopy.riskHeading}</h3>
+                  <p className="mt-2 text-sm font-bold leading-7 text-white/76">
+                    {weakPoint ? `${DIMENSION_LABELS[weakPoint[0]] ?? weakPoint[0]}是本次優先安排的面向，${purposeCopy.risk}` : `${purposeOption.shortLabel}目前沒有明顯優先安排處，但仍可保留檢查節奏。`}
+                  </p>
+                  {weakTier && <p className="mt-2 text-[11px] font-semibold leading-5 text-rose-100/75">{weakTier!.psychology}{purposeCopy.psychologyContext}</p>}
+                </article>
+              </div>
+            )}
+
+            <article className="rounded-2xl border border-amber-200/25 bg-amber-300/[0.1] p-4">
+              <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">今天的小一步</p>
+              <h3 className="mt-2 text-base font-black text-amber-50">今天怎麼安排</h3>
+              <p className="mt-2 text-sm font-bold leading-7 text-white/76">
+                {purposeCopy.next}
+              </p>
+            </article>
+
+            {/* 01/02/03 索引條原本對應上方三張卡片，「可運用」「先留意」已隱藏，索引條一併隱藏；保留程式碼供之後需要時叫醒。 */}
+            {false && (
+              <div className="grid grid-cols-3 overflow-hidden rounded-2xl border border-white/10 bg-black/20 text-center">
+                {[
+                  ['01', '可運用', '看見可用的安排'],
+                  ['02', '先留意', '先收好需要調整處'],
+                  ['03', '今天怎麼安排', '只做一個小決定'],
+                ].map(([order, title, caption], index) => (
+                  <div key={order} className={`px-2 py-3 ${index < 2 ? 'border-r border-white/10' : ''}`}>
+                    <p className="font-mono text-[10px] font-black text-amber-200/85">{order}</p>
+                    <p className="mt-1 text-xs font-black text-cyan-50">{title}</p>
+                    <p className="mt-1 text-[10px] font-semibold leading-4 text-white/48">{caption}</p>
+                  </div>
                 ))}
               </div>
-              <p className="mt-3 text-xs font-semibold leading-6 text-white/44">
-                老師模式只保留後端運算指標，給需要細看的人展開；一般客戶先看上方三句判定即可。
-              </p>
-            </details>
+            )}
+
+            <section className="rounded-2xl border border-violet-200/20 bg-violet-300/[0.055] p-4" aria-label="數字論吉凶：金錢與感情兩個中軸">
+              <div className="flex min-h-[48px] items-center justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-black tracking-[0.18em] text-violet-100">數字論吉凶</p>
+                  <h3 className="mt-1 text-base font-black text-violet-50">{purposeCopy.strengthTitle}</h3>
+                </div>
+                <p className={`text-xs font-black ${overallTier.labelTone}`}>{purposeOption.shortLabel}論吉凶：{overallTier.label}</p>
+              </div>
+
+              <div className="mt-4 rounded-2xl border border-violet-200/25 bg-violet-300/[0.08] p-4">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-200">融會貫通・單一判定</p>
+                <p className={`mt-2 text-2xl font-black ${overallTier.labelTone}`}>{purposeOption.shortLabel}論吉凶：{overallTier.label}</p>
+                <p className="mt-2 text-sm font-bold leading-6 text-white/76">{overallTier.feel}</p>
+                <EnergyLine tier={overallTier} />
+                <p className="mt-3 text-[10px] font-bold text-white/40">以下是這項判定融合出來的組成依據：金錢、感情兩個中軸。</p>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {twoAxisScores.map((axis) => (
+                  <div key={axis.id} className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-black text-white/85">{axis.icon} {axis.label}</span>
+                      <span className={`text-sm font-black ${axis.tier.labelTone}`}>{axis.tier.label}</span>
+                    </div>
+                    <p className="mt-2 text-xs font-bold leading-5 text-white/60">{axis.tier.feel}</p>
+                    <p className="mt-2 text-[10px] font-semibold leading-4 text-white/40">{axis.note}</p>
+                    <EnergyLine tier={axis.tier} />
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 text-[11px] font-bold leading-5 text-white/54">金錢、感情兩個中軸各自融合 4 個面向的平均分數，共用同一條八階能量線，最高「大吉」、最低「大凶」，中間依序是大吉帶吉、吉、半吉、凶帶吉、凶、大凶帶凶；兩個中軸的平均值再融合成最上方{purposeOption.shortLabel}的單一判定。分級門檻依這套固定規則實際算出的分數範圍校準，不是機率統計或人生保證。</p>
+            </section>
+
+            {/* 「補充：結構重點」是 8 個原始面向的強弱清單，跟上方金錢／感情兩個中軸完全重複，已依指示隱藏；保留程式碼供之後需要時叫醒。 */}
+            {false && (
+              <details className="rounded-2xl border border-cyan-200/15 bg-cyan-300/[0.045] p-4">
+                <summary className="cursor-pointer text-sm font-black text-cyan-100">補充：結構重點</summary>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <article className="rounded-2xl border border-white/10 bg-black/18 p-3">
+                    <p className="text-xs font-black text-emerald-100">較可運用</p>
+                    <div className="mt-2 space-y-2">
+                      {topStrengths.map(([key, itemScore]) => (
+                        <p key={key} className="flex items-center justify-between gap-3 text-sm font-bold text-white/76">
+                          <span>{DIMENSION_LABELS[key] ?? key}</span>
+                          <span className="text-emerald-100">{getFortuneEnergyTier(itemScore).label}<span className="ml-1 text-[10px] text-emerald-100/50">{itemScore}</span></span>
+                        </p>
+                      ))}
+                    </div>
+                  </article>
+                  <article className="rounded-2xl border border-white/10 bg-black/18 p-3">
+                    <p className="text-xs font-black text-rose-100">先留意</p>
+                    <div className="mt-2 space-y-2">
+                      {topRisks.map(([key, itemScore]) => (
+                        <p key={key} className="flex items-center justify-between gap-3 text-sm font-bold text-white/76">
+                          <span>{DIMENSION_LABELS[key] ?? key}</span>
+                          <span className="text-rose-100">{getFortuneEnergyTier(itemScore).label}<span className="ml-1 text-[10px] text-rose-100/50">{itemScore}</span></span>
+                        </p>
+                      ))}
+                    </div>
+                  </article>
+                </div>
+              </details>
+            )}
+
+            {/* 「老師模式：完整指標」依指示隱藏，不需要客戶看到；保留程式碼供之後需要時叫醒。 */}
+            {false && (
+              <details className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+                <summary className="cursor-pointer text-sm font-black text-amber-100">老師模式：完整指標</summary>
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  {Object.entries(result!.indexes).map(([key, itemScore]) => (
+                    <p key={key} className="rounded-xl border border-white/10 bg-black/18 px-3 py-2 text-xs font-bold text-white/58">
+                      {DIMENSION_LABELS[key] ?? key}：<span className="text-cyan-100">{itemScore}</span>
+                    </p>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs font-semibold leading-6 text-white/44">
+                  老師模式只保留後端運算指標，給需要細看的人展開；一般客戶先看上方三句判定即可。
+                </p>
+              </details>
+            )}
           </section>
         )}
       </div>
