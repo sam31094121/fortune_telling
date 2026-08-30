@@ -50,6 +50,12 @@ import TaijiEntanglementCore from './taiji/TaijiEntanglementCore';
 import TaijiCellularCore from './taiji/TaijiCellularCore';
 import TaijiAbyssField from './taiji/TaijiAbyssField';
 import { useTaijiJourneyGestures } from './taiji/taijiMagnifier';
+import {
+  Level01FrameBinder,
+  Level01TaijiMotionController,
+  Level01TaijiOverlay,
+  type Level01Pose,
+} from './taiji/level-01';
 import styles from './TaijiSystem.module.css';
 
 type Stage = TaijiMacroStage;
@@ -948,6 +954,7 @@ function TaijiCore({
   quantumLinks,
   ultraTexture,
   onCoreClick,
+  level01PoseRef,
 }: {
   attractTick?: number;
   theme: TaijiVisualTheme;
@@ -956,6 +963,7 @@ function TaijiCore({
   quantumLinks: number;
   ultraTexture: boolean;
   onCoreClick: () => void;
+  level01PoseRef?: { current: Level01Pose };
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const diskRef = useRef<THREE.Mesh>(null);
@@ -1104,6 +1112,7 @@ function TaijiCore({
     const settleSoft = Math.min(1, frameDelta * 1.35);
     const settleSlow = Math.min(1, frameDelta * 0.95);
     const t = state.clock.elapsedTime;
+    const level01Drive = Boolean(level01PoseRef?.current?.driving) && layer === 1;
 
     if (prevStageRef.current !== stage) {
       prevStageRef.current = stage;
@@ -1135,7 +1144,10 @@ function TaijiCore({
       energyFieldRef.current.rotation.x = Math.sin(t * 0.08) * 0.01;
     }
 
-    if (separate) {
+    if (level01Drive && level01PoseRef?.current) {
+      const pose = level01PoseRef.current;
+      groupRef.current.rotation.set(pose.visualEuler.x, pose.visualEuler.y, pose.visualEuler.z);
+    } else if (separate) {
       const livingSpeed = 0.12 + progress24 * 0.026;
       groupRef.current.rotation.y += frameDelta * livingSpeed;
       groupRef.current.rotation.x += (Math.sin(t * 0.09) * 0.032 - groupRef.current.rotation.x) * settleSoft;
@@ -1147,17 +1159,30 @@ function TaijiCore({
     }
 
     if (diskRef.current) {
-      const fullTotemSpin = 0.16 + progress24 * 0.016;
-      totemAngleRef.current += frameDelta * fullTotemSpin;
-      const targetTotemScale = lerpNumber(1, 0.62 + progress24 * 0.014, split);
-      const targetTotemZ = -0.36 * split;
-      totemScaleRef.current += (targetTotemScale - totemScaleRef.current) * Math.min(1, frameDelta * 1.35);
-      totemZRef.current += (targetTotemZ - totemZRef.current) * Math.min(1, frameDelta * 1.35);
-      diskRef.current.rotation.y = -Math.PI / 2 + totemAngleRef.current;
-      diskRef.current.rotation.x = Math.sin(t * 0.09) * 0.026;
-      diskRef.current.rotation.z = Math.sin(t * 0.07) * 0.008;
-      diskRef.current.position.z = totemZRef.current;
-      diskRef.current.scale.setScalar(totemScaleRef.current);
+      if (level01Drive && level01PoseRef?.current) {
+        totemAngleRef.current = level01PoseRef.current.spinAngle;
+        const targetTotemScale = lerpNumber(1, 0.62 + progress24 * 0.014, split);
+        const targetTotemZ = -0.36 * split;
+        totemScaleRef.current += (targetTotemScale - totemScaleRef.current) * Math.min(1, frameDelta * 1.35);
+        totemZRef.current += (targetTotemZ - totemZRef.current) * Math.min(1, frameDelta * 1.35);
+        diskRef.current.rotation.y = -Math.PI / 2 + totemAngleRef.current;
+        diskRef.current.rotation.x = 0;
+        diskRef.current.rotation.z = 0;
+        diskRef.current.position.z = totemZRef.current;
+        diskRef.current.scale.setScalar(totemScaleRef.current);
+      } else {
+        const fullTotemSpin = 0.16 + progress24 * 0.016;
+        totemAngleRef.current += frameDelta * fullTotemSpin;
+        const targetTotemScale = lerpNumber(1, 0.62 + progress24 * 0.014, split);
+        const targetTotemZ = -0.36 * split;
+        totemScaleRef.current += (targetTotemScale - totemScaleRef.current) * Math.min(1, frameDelta * 1.35);
+        totemZRef.current += (targetTotemZ - totemZRef.current) * Math.min(1, frameDelta * 1.35);
+        diskRef.current.rotation.y = -Math.PI / 2 + totemAngleRef.current;
+        diskRef.current.rotation.x = Math.sin(t * 0.09) * 0.026;
+        diskRef.current.rotation.z = Math.sin(t * 0.07) * 0.008;
+        diskRef.current.position.z = totemZRef.current;
+        diskRef.current.scale.setScalar(totemScaleRef.current);
+      }
     }
 
     const warm = warmRef.current;
@@ -1607,6 +1632,14 @@ export default function TaijiSystem({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasQuality = useTaijiCanvasQuality(wrapperRef);
   useTaijiJourneyGestures(wrapperRef, journeyRef);
+  const level01ControllerRef = useRef<Level01TaijiMotionController | null>(null);
+  if (level01ControllerRef.current == null) {
+    level01ControllerRef.current = new Level01TaijiMotionController();
+  }
+  const level01Controller = level01ControllerRef.current;
+  const level01PoseRef = useRef(level01Controller.pose);
+  level01PoseRef.current = level01Controller.pose;
+  const [level01Driving, setLevel01Driving] = useState(false);
 
   const TAIJI_DAILY_KEY = 'tdh:taiji24:daily:v1';
   const todayKey = () => new Date().toISOString().slice(0, 10);
@@ -1697,9 +1730,19 @@ export default function TaijiSystem({
   }, [autoPlay, autoPlayInterval, advanceLayer]);
 
   useEffect(() => {
+    const controller = level01ControllerRef.current;
     return () => {
       if (autoTimer.current) clearInterval(autoTimer.current);
+      controller?.dispose();
+      if (level01ControllerRef.current === controller) level01ControllerRef.current = null;
     };
+  }, []);
+
+  useEffect(() => {
+    const syncHidden = () => level01ControllerRef.current?.setHidden(document.hidden);
+    syncHidden();
+    document.addEventListener('visibilitychange', syncHidden);
+    return () => document.removeEventListener('visibilitychange', syncHidden);
   }, []);
 
   const handleTouchStart = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
@@ -1707,8 +1750,8 @@ export default function TaijiSystem({
     touchRef.current.x = event.clientX;
     touchRef.current.y = event.clientY;
     setTouchActive(true);
-    if (navigator.vibrate) navigator.vibrate(8);
-  }, []);
+    if (displayLayer !== 1 && navigator.vibrate) navigator.vibrate(8);
+  }, [displayLayer]);
 
   const handleTouchMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     if (!touchRef.current.active) return;
@@ -1785,6 +1828,7 @@ export default function TaijiSystem({
           performance={{ min: 0.5 }}
         >
           <AdaptiveEvents />
+          <Level01FrameBinder controller={level01Controller} enabled={displayLayer === 1} />
           <TaijiPerformanceGovernor active={touchActive} />
           {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
               頂部暖色柔光箱＋側面冷色燈條＋背部輪廓光，球面反射出真實的影棚光形，
@@ -1810,6 +1854,7 @@ export default function TaijiSystem({
             quantumLinks={canvasQuality.quantumLinks}
             ultraTexture={canvasQuality.ultraTexture}
             onCoreClick={advanceLayer}
+            level01PoseRef={level01PoseRef}
           />
           <OrbitControls
             makeDefault
@@ -1818,12 +1863,17 @@ export default function TaijiSystem({
             enableDamping
             dampingFactor={0.11}
             rotateSpeed={0.52}
-            autoRotate={!touchActive}
+            autoRotate={!touchActive && !level01Driving}
             autoRotateSpeed={0.16}
             touches={{ ONE: THREE.TOUCH.ROTATE }}
           />
           <JourneyRig journeyRef={journeyRef} onLayerChange={setDisplayLayer} />
         </Canvas>
+        <Level01TaijiOverlay
+          controller={level01Controller}
+          visible={displayLayer === 1}
+          onDrivingChange={setLevel01Driving}
+        />
         {/* 客戶頁只保留可直接點擊的太極圖騰；倍率／步數／解析度等驗收輔助資訊不對外顯示。 */}
       </div>
       {SHOW_LAYER_REVIEW_PANEL && (

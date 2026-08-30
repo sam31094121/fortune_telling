@@ -1,0 +1,107 @@
+{
+  "version": "LEVEL_02_TO_24_BASELINE",
+  "createdAt": "2026-08-30T12:00:00.000Z",
+  "fileHashes": {
+    "lib/taiji-journey-depth.ts": "3d7dc730494b3d241718476ee0d335418311fdd5e404c504528ee6b5c215be06",
+    "lib/taiji24-sound-engine.ts": "470e6e63a091266538ec26f178eb1e9a52cfc8355b07ba9c3fb91b70639e9b25",
+    "lib/taiji-adaptive-stage.ts": "dbab461c4e0f92cbacc444ed815f9606f7a6ce24718e848c26afcc35387a54ca",
+    "lib/taiji-core-engine.ts": "1c45aa21f9e261b2e48c1313efb7cb48ffcac8397d05ce13f399ebcb2ad06f3b",
+    "components/taiji/TaijiQuantumField.tsx": "cbf34e0b78d3d75955ffd1004134a50e3c8eb82dcf9cda3b6401b95a49cc6824",
+    "components/taiji/TaijiCellularCore.tsx": "c3c24bf26e37d8577a05e12a50301ba67ca83638a2aac9e4408aa44532eed00f",
+    "components/taiji/TaijiEntanglementCore.tsx": "17e111ed819a994c6117cc76cec057f3ed254f753f7c7178d038783106788832",
+    "components/taiji/TaijiAbyssField.tsx": "d6ddc31401880a7fce64c2d652f603dca08310743a3dcfc6f6f65e07dd4065be",
+    "components/taiji/TaijiCore.tsx": "7ad61ef2cec45fad03caaf4e13282f7c3da92e303c17627eee02098cce7686cf",
+    "components/taiji/TaijiCoreSwitch.tsx": "ffa55c221ceccdbdcf1e7993bb17de14222022f1259aef8e3c1382cea1c18c2a",
+    "components/taiji/TaijiCoreVisual.tsx": "7d1b6439d1b91cf4205238303018e63e9b8b70a880d21f26de6de02d3f20243a",
+    "components/taiji/TaijiCoreVisual.module.css": "1095abde84f9f6aff3354c3b1d9ecbaa68f2c0884512179cd3752e2a84f989e5",
+    "components/taiji/v7/taijiCoreState.ts": "33ea56df23837ebd0fb97e534edc982a35d1e2678dc68813e6b370ef0122c9eb",
+    "components/taiji/v7/TaijiCoreV7.tsx": "94e4a037b6c5ff2f331b439b96c5a774536673d17f632377295096e5f036ab37",
+    "components/taiji/v7/TaijiCoreV7.css": "47e5455041766660954790536da9a791c7f7f32eee8326e06a32a666afb849b9",
+    "components/taiji/v7/useTaijiPerformance.ts": "3e9b29800a749f4ca0d688f4533dc4d98b19e0e36a227f94a87d48bb56e0453e",
+    "components/taiji/useTaijiPerformance.ts": "28f11b8ee639d046a1f2a98174dead6876a9ae3f29dd304be248488ce52e9dbd",
+    "components/taiji/taijiMagnifier.ts": "5554e45d0384631c138e1103e0b4a203bd7a2a79ca19cfc37f633bd9f764bc66",
+    "components/taiji/TaijiWebGL3D.tsx": "7cbff953c44059339f9b96d2f7485e1a41843fca499bb0cfedbe59504abbd2ae",
+    "components/UnifiedTaijiCore.tsx": "24387e173e266bc139362912971aa975cc5fb38fe4780881fb1dd63abbe846ce",
+    "components/UnifiedTaijiCore.module.css": "29aeb7c8afdc73a5c640ee29297360e31ba76c851fe00cf45296a07321cbe984",
+    "components/TaijiSystem.module.css": "dc7c9b250664dc52c937e89a41dbc3fdf92c376fba75f581acd8012b48d4cb93"
+  },
+  "animationConfig": {
+    "livingSpeed": "0.12 + progress24 * 0.026",
+    "fullTotemSpin": "0.16 + progress24 * 0.016",
+    "idleSwayY": "Math.sin(t * 0.12) * 0.052",
+    "idleSwayX": "Math.sin(t * 0.1) * 0.02",
+    "ringSpeed": "0.026 + step * 0.0014",
+    "ringTiltSeed": "(step * 137.5) % 360",
+    "yinSpin": "frameDelta * 0.38 * spinBoost",
+    "yangSpin": "frameDelta * 0.44 * spinBoost",
+    "baguaOrbit": "0.008 + progress24 * 0.004"
+  },
+  "timingConfig": {
+    "TAIJI_DEPTH_MIN": 1,
+    "TAIJI_DEPTH_MAX": 24,
+    "CAMERA_FAR_DISTANCE": 5.1,
+    "CAMERA_NEAR_DISTANCE": 1.35,
+    "CAMERA_FAR_FOV": 42,
+    "CAMERA_NEAR_FOV": 30,
+    "CAMERA_DOLLY_END_DEPTH": 5,
+    "TAIJI_WHEEL_DEPTH_GAIN": 0.0035,
+    "TAIJI_WHEEL_DEPTH_CAP": 0.22,
+    "TAIJI_PINCH_DEPTH_GAIN": 1.35
+  },
+  "stateConfig": {
+    "TAIJI_MACRO": {
+      "fadeStart": 4.05,
+      "fadeEnd": 5,
+      "liangyiStart": 1.12,
+      "liangyiFull": 2.2,
+      "sixiangStart": 2.15,
+      "sixiangFull": 3.2,
+      "baguaStart": 3.15,
+      "baguaFull": 4.2
+    },
+    "TAIJI_BANDS": {
+      "quantum": { "enter": 3.9, "full": 4.95, "exitStart": 10.65, "exitEnd": 12.05 },
+      "cellular": { "enter": 10.55, "full": 11.65, "exitStart": 15.55, "exitEnd": 16.85 },
+      "entanglement": { "enter": 16.15, "full": 17.15, "exitStart": 19.75, "exitEnd": 20.85 },
+      "abyss": { "enter": 20.15, "full": 21.15, "exitStart": 24.6, "exitEnd": 25 }
+    }
+  },
+  "interactionConfig": {
+    "forbiddenLevel01Imports": [
+      "taiji/level-01",
+      "Level01Taiji",
+      "Level01MotionController",
+      "Level01Orientation",
+      "Level01Physics",
+      "Level01Haptics",
+      "Level01Audio",
+      "Level01Compass",
+      "Level01Fallback"
+    ]
+  },
+  "sourceMarkers": {
+    "VARIATION_24_FORMULA": [
+      "ringSpeed: 0.026 + step * 0.0014",
+      "ringTiltSeed: (step * 137.5) % 360",
+      "raySpinDir: step > 8 && step <= 16 ? -1 : 1"
+    ],
+    "LAYER_02_24_MOTION": [
+      "const livingSpeed = 0.12 + progress24 * 0.026;",
+      "const fullTotemSpin = 0.16 + progress24 * 0.016;",
+      "groupRef.current.rotation.y += (Math.sin(t * 0.12) * 0.052 - groupRef.current.rotation.y) * settleSlow;",
+      "yinRef.current.rotation.z += frameDelta * 0.38 * spinBoost;",
+      "yangRef.current.rotation.z -= frameDelta * 0.44 * spinBoost;",
+      "baguaOrbitRef.current.rotation.z += frameDelta * (0.008 + progress24 * 0.004);"
+    ],
+    "HEALTH_MARKERS": [
+      "aria-label=\"太極演化系統\"",
+      "aria-label=\"太極二十四層預覽控制\"",
+      "aria-label=\"選擇太極演化層數\"",
+      "Array.from({ length: 24",
+      "onClick={() => selectJourneyStep(layer)}"
+    ]
+  },
+  "assetHash": {
+    "taijiPng": "public/taiji.png"
+  }
+}
