@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { appendFile, mkdir, rm, writeFile } from 'node:fs/promises';
+import { appendFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
@@ -43,6 +43,77 @@ const CARD_ROUTES = [
 const HEALTH_ROUTES = [
   { id: 'HOME', module: 'home', title: '首頁太極核心', path: '/' },
   { id: 'READY', module: 'ready', title: 'Next.js Ready', path: '/internal/health/ready' },
+];
+
+// These primary experiences are rendered on the homepage rather than at their
+// own routes. Keep their structural checks beside the normal route scan so a
+// mobile-first health report does not accidentally treat a reachable homepage
+// as proof that its primary actions are still available.
+const HOME_COMPONENT_CHECKS = [
+  {
+    id: 'HOME_TAIJI',
+    module: 'taiji_evolution',
+    title: '首頁太極演化與層數控制',
+    path: '/',
+    sourcePath: 'components/TaijiSystem.tsx',
+    requiredMarkers: [
+      'aria-label="太極演化系統"',
+      'aria-label="太極二十四層預覽控制"',
+      'aria-label="選擇太極演化層數"',
+      'Array.from({ length: 24',
+      'onClick={() => selectJourneyStep(layer)}',
+    ],
+  },
+  {
+    id: 'HOME_QUEST',
+    module: 'today_direction_quest',
+    title: '今日定向關卡',
+    path: '/',
+    sourcePath: 'components/TodayDirectionQuest.tsx',
+    requiredMarkers: [
+      'id="today-direction-quest"',
+      'data-quest-action="start"',
+      '90 秒',
+      '免填資料',
+      'stage === \'area\'',
+    ],
+  },
+  {
+    id: 'HOME_GROWTH',
+    module: 'home_growth_entry',
+    title: '易經個人成長中心入口',
+    path: '/',
+    sourcePath: 'app/page.tsx',
+    requiredMarkers: [
+      'home-growth-entry',
+      'aria-label="八張探索卡片連結"',
+      'HOME_GROWTH_MODULE_GUIDES',
+      'href="/growth-center"',
+    ],
+    expectedOccurrences: [{ marker: "id: '", count: 8, within: 'HOME_GROWTH_MODULE_GUIDES' }],
+  },
+  {
+    id: 'HOME_ENTRY_MAP',
+    module: 'home_navigation_and_entries',
+    title: '首頁快速入口、推薦與服務入口',
+    path: '/',
+    sourcePath: 'app/page.tsx',
+    requiredMarkers: [
+      '<HomeQuickNavigation />',
+      'HOME_QUICK_NAV',
+      'id="home-eight-card-route"',
+      'href="/match"',
+      'href="/music"',
+      'href="/nameology"',
+      'href="/numerology"',
+      'href="/bazi"',
+      'href="/zodiac"',
+      '<TarotEntryCard />',
+      'href="/star-beasts"',
+      'FeatureVisitorCounter featureKey="home"',
+      '<LineVipShareCard friendHref={lineFriendHref} onShare={handleLineShare} />',
+    ],
+  },
 ];
 
 function nowIso() {
@@ -134,6 +205,59 @@ async function checkRoute(route) {
   };
 }
 
+async function checkHomeComponent(component) {
+  const startedAt = Date.now();
+  const sourceFile = path.join(PROJECT_ROOT, component.sourcePath);
+
+  try {
+    const source = await readFile(sourceFile, 'utf8');
+    const missingMarkers = component.requiredMarkers.filter((marker) => !source.includes(marker));
+    let occurrenceIssue = null;
+
+    for (const rule of component.expectedOccurrences ?? []) {
+      const start = source.indexOf(rule.within);
+      const scope = start >= 0 ? source.slice(start, source.indexOf('];', start) + 2) : '';
+      const count = scope.split(rule.marker).length - 1;
+      if (count !== rule.count) {
+        occurrenceIssue = `${rule.within} expected ${rule.count} entries, found ${count}`;
+        break;
+      }
+    }
+
+    const issue = missingMarkers.length > 0
+      ? `missing mobile interaction markers: ${missingMarkers.join(', ')}`
+      : occurrenceIssue;
+
+    return {
+      id: component.id,
+      module: component.module,
+      title: component.title,
+      path: component.path,
+      sourcePath: component.sourcePath,
+      status: issue ? 'FAILED' : 'PASSED',
+      httpStatus: null,
+      durationMs: Date.now() - startedAt,
+      htmlLength: source.length,
+      error: null,
+      issue,
+    };
+  } catch (error) {
+    return {
+      id: component.id,
+      module: component.module,
+      title: component.title,
+      path: component.path,
+      sourcePath: component.sourcePath,
+      status: 'FAILED',
+      httpStatus: null,
+      durationMs: Date.now() - startedAt,
+      htmlLength: 0,
+      error: error instanceof Error ? error.message : String(error),
+      issue: 'unable to read homepage card source',
+    };
+  }
+}
+
 async function scanScreenHealth() {
   const startedAt = nowIso();
   const routes = [];
@@ -142,6 +266,12 @@ async function scanScreenHealth() {
     const result = await checkRoute(route);
     routes.push(result);
     await log(`${result.status} ${result.title} ${result.path} (${result.httpStatus}, ${result.durationMs}ms)`, result.status === 'PASSED' ? 'INFO' : 'WARN');
+  }
+
+  for (const component of HOME_COMPONENT_CHECKS) {
+    const result = await checkHomeComponent(component);
+    routes.push(result);
+    await log(`${result.status} ${result.title} homepage interaction coverage (${result.durationMs}ms)`, result.status === 'PASSED' ? 'INFO' : 'WARN');
   }
 
   const failed = routes.filter((route) => route.status !== 'PASSED');
