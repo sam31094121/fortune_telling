@@ -21,6 +21,9 @@ export const ORIENTATION_NORMALIZE = 25;
 export const ROTATION_NORMALIZE = 180;
 export const ACCEL_NORMALIZE = 15;
 export const SENSOR_TIMEOUT_MS = 1600;
+export const SENSOR_WARMUP_TIMEOUT_MS = 2500;
+export const GRAVITY_FILTER_FACTOR = 0.08;
+export const GRAVITY_MAGNITUDE = 9.80665;
 export const FRAME_DELTA_CAP = 1 / 45;
 export const HUD_REFRESH_MS = 160;
 

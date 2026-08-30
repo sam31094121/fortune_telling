@@ -1,6 +1,12 @@
-import { FRAME_DELTA_CAP, SENSOR_TIMEOUT_MS } from './level01.constants';
+import { FRAME_DELTA_CAP, SENSOR_TIMEOUT_MS, SENSOR_WARMUP_TIMEOUT_MS } from './level01.constants';
 import { Level01SoundEngine } from './Level01Audio';
-import { isLevel01Driving, resolveLevel01Mode, type Level01Mode, type Level01Permission } from './Level01Fallback';
+import {
+  isLevel01Driving,
+  resolveEffectivePermission,
+  resolveLevel01Mode,
+  type Level01Mode,
+  type Level01Permission,
+} from './Level01Fallback';
 import { Level01HapticController } from './Level01Haptics';
 import {
   createPhysicsState,
@@ -12,10 +18,12 @@ import {
   type PhysicsState,
 } from './Level01Physics';
 import {
+  createGravityEstimate,
   readMotionEvent,
   readOrientationEvent,
   requestLevel01SensorPermission,
   sensorsSupported,
+  type GravityEstimate,
   type MotionSample,
   type OrientationSample,
 } from './Level01Orientation';
@@ -45,6 +53,8 @@ export class Level01TaijiMotionController {
   private lastHudKey = '';
   private bubbleEl: HTMLElement | null = null;
   private armedAt = 0;
+  private sensorTimedOut = false;
+  private readonly gravity: GravityEstimate = createGravityEstimate();
 
   constructor() {
     this.pose = this.buildPose(false);
@@ -92,6 +102,7 @@ export class Level01TaijiMotionController {
     this.permission = status === 'granted' ? 'granted' : status === 'unsupported' ? 'unsupported' : 'denied';
     if (this.permission === 'granted') {
       this.armedAt = typeof performance !== 'undefined' ? performance.now() : Date.now();
+      this.sensorTimedOut = false;
       this.attachSensors();
     }
     this.publish(false);
@@ -105,13 +116,17 @@ export class Level01TaijiMotionController {
     }
 
     const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
-    if (this.permission === 'granted' && !this.latestOrientation && this.armedAt > 0 && now - this.armedAt > 2500) {
-      this.permission = 'unsupported';
+    const orientationFresh = Boolean(
+      this.latestOrientation && now - this.latestOrientation.receivedAt < SENSOR_TIMEOUT_MS,
+    );
+    // 暖機逾時只降級顯示；事件晚到時 orientationFresh 會把旗標清掉並自動回到 LIVE。
+    if (this.permission === 'granted') {
+      if (orientationFresh) this.sensorTimedOut = false;
+      else if (this.armedAt > 0 && now - this.armedAt > SENSOR_WARMUP_TIMEOUT_MS) this.sensorTimedOut = true;
     }
-    const orientationFresh = this.latestOrientation && now - this.latestOrientation.receivedAt < SENSOR_TIMEOUT_MS;
     const driving = isLevel01Driving(resolveLevel01Mode({
-      permission: this.permission,
-      hasSensorData: Boolean(orientationFresh),
+      permission: this.effectivePermission(orientationFresh),
+      hasSensorData: orientationFresh,
       layerEnabled: this.layerEnabled,
     }));
 
@@ -164,7 +179,7 @@ export class Level01TaijiMotionController {
       this.latestOrientation = sample;
     };
     const onMotion = (event: DeviceMotionEvent) => {
-      this.latestMotion = readMotionEvent(event, performance.now());
+      this.latestMotion = readMotionEvent(event, performance.now(), this.gravity);
     };
     window.addEventListener('deviceorientation', onOrientation, { passive: true });
     window.addEventListener('devicemotion', onMotion, { passive: true });
@@ -172,6 +187,14 @@ export class Level01TaijiMotionController {
       window.removeEventListener('deviceorientation', onOrientation);
       window.removeEventListener('devicemotion', onMotion);
     };
+  }
+
+  private effectivePermission(hasSensorData: boolean): Level01Permission {
+    return resolveEffectivePermission({
+      permission: this.permission,
+      sensorTimedOut: this.sensorTimedOut,
+      hasSensorData,
+    });
   }
 
   private syncEnvironment() {
@@ -186,7 +209,7 @@ export class Level01TaijiMotionController {
     const visual = visualPoseFromPhysics(this.physics, driving);
     this.pose.driving = driving;
     this.pose.fallback = !driving;
-    this.pose.permission = this.permission;
+    this.pose.permission = this.effectivePermission(driving);
     this.pose.mode = driving ? 'LIVE' : 'FALLBACK_MODE';
     this.pose.hapticMode = this.haptics.mode;
     this.pose.visualEuler = visual.visualEuler;

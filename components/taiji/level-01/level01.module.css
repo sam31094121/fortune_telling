@@ -1,4 +1,6 @@
-.overlay {
+/* 疊寫自身類別提高特異度：共用的 .sphereWrapper > div{position:relative} 特異度較高，
+   會把本層壓成 0x0。共用檔屬 LEVEL_02～24 領域不得修改，只能在此拉高特異度。 */
+.overlay.overlay {
   position: absolute;
   inset: 0;
   z-index: 4;
@@ -26,13 +28,14 @@
 .south { bottom: 0; left: 50%; transform: translate3d(-50%, 0, 0); }
 .west { left: 0; top: 50%; transform: translate3d(0, -50%, 0); }
 
+/* 左下氣泡、右下按鈕、正下方留給方位環的 S，三者互不遮擋。 */
 .balanceWell {
   position: absolute;
-  left: 50%;
-  bottom: 14%;
+  left: 10%;
+  bottom: 7%;
   width: 54px;
   height: 54px;
-  transform: translate3d(-50%, 0, 0);
+  transform: translate3d(0, 0, 0);
   border: 1px solid rgba(253, 230, 138, 0.38);
   border-radius: 50%;
   background: rgba(8, 15, 37, 0.28);
@@ -72,9 +75,10 @@
 .startButton {
   pointer-events: auto;
   position: absolute;
-  left: 50%;
-  bottom: 6%;
-  transform: translate3d(-50%, 0, 0);
+  right: 10%;
+  bottom: 7%;
+  transform: translate3d(0, 0, 0);
+  white-space: nowrap;
   min-height: 34px;
   padding: 0 14px;
   border: 1px solid rgba(253, 230, 138, 0.72);
@@ -93,7 +97,7 @@
 .status {
   position: absolute;
   left: 50%;
-  top: 7%;
+  top: 11%;
   transform: translate3d(-50%, 0, 0);
   color: rgba(255, 251, 235, 0.82);
   font-size: 10px;

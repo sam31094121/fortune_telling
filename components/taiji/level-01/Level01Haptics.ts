@@ -8,6 +8,7 @@ export class Level01HapticController {
   private lastPulseAt = 0;
   private lastBalanceAt = 0;
   private reducedMotion = false;
+  private hasVibrated = false;
 
   constructor() {
     this.syncSupport();
@@ -24,7 +25,9 @@ export class Level01HapticController {
   }
 
   stop() {
-    if (this.mode !== 'LIVE') return;
+    // 沒震過就不要呼叫 vibrate(0)：未經使用者手勢的呼叫會被瀏覽器攔下並吐 console error。
+    if (this.mode !== 'LIVE' || !this.hasVibrated) return;
+    this.hasVibrated = false;
     try {
       navigator.vibrate(0);
     } catch {
@@ -53,6 +56,7 @@ export class Level01HapticController {
 
   private safeVibrate(pattern: number | number[]) {
     try {
+      this.hasVibrated = true;
       navigator.vibrate(pattern);
     } catch {
       this.mode = 'NO_HAPTIC_MODE';

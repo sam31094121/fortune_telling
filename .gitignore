@@ -34,6 +34,7 @@ push-result.txt
 next-env.d.ts
 .ziwei-test-build
 .bazi-test-build
+.taiji-level-01-test-build
 t12
 
 .vercel

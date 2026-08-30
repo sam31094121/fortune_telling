@@ -10,7 +10,8 @@ import {
   resolveBalanceState,
   shortestAngleDelta,
 } from '../components/taiji/level-01/Level01Physics';
-import { resolveLevel01Mode } from '../components/taiji/level-01/Level01Fallback';
+import { resolveEffectivePermission, resolveLevel01Mode } from '../components/taiji/level-01/Level01Fallback';
+import { createGravityEstimate, readMotionEvent } from '../components/taiji/level-01/Level01Orientation';
 import { MAX_SAFE_ROTATION_SPEED, WAKE_THRESHOLD } from '../components/taiji/level-01/level01.constants';
 
 function assert(condition: boolean, message: string) {
@@ -96,5 +97,47 @@ assert(locked.balanceState === 'UNBALANCED', 'LOCKED must wake without reload');
 assert(resolveLevel01Mode({ permission: 'denied', hasSensorData: false, layerEnabled: true }) === 'FALLBACK_MODE', 'denied stays visible via fallback');
 assert(resolveLevel01Mode({ permission: 'granted', hasSensorData: true, layerEnabled: true }) === 'LIVE', 'granted live mode');
 assert(resolveLevel01Mode({ permission: 'granted', hasSensorData: true, layerEnabled: false }) === 'FALLBACK_MODE', 'layers 2-24 must not keep level 01 live');
+
+function motionEvent(includingGravity: { x: number; y: number; z: number }, linear?: { x: number; y: number; z: number }) {
+  return {
+    rotationRate: null,
+    acceleration: linear ?? null,
+    accelerationIncludingGravity: includingGravity,
+  } as unknown as DeviceMotionEvent;
+}
+
+// 重力不得污染 motionEnergy：只有 accelerationIncludingGravity 的裝置，靜止時必須趨近 0。
+const gravity = createGravityEstimate();
+const resting = motionEvent({ x: 0, y: 0, z: -9.81 });
+let restSample = readMotionEvent(resting, 0, gravity);
+for (let i = 1; i <= 40; i += 1) restSample = readMotionEvent(resting, i * 16, gravity);
+assert(restSample.acceleration < 0.05, '靜止手機殘餘加速度必須趨近 0');
+assert(
+  calculateMotionEnergy({ orientationDelta: 0, rotationRate: 0, acceleration: restSample.acceleration }) < 0.01,
+  '靜止手機不得有假能量底值',
+);
+
+const shaken = readMotionEvent(motionEvent({ x: 6, y: 0, z: -9.81 }), 700, gravity);
+assert(shaken.acceleration > 3, '甩動時仍必須讀得到真實加速度');
+
+const scalarOnly = readMotionEvent(resting, 0);
+assert(scalarOnly.acceleration < 0.05, '無重力估計器時也要扣掉重力基準');
+
+const linearFirst = readMotionEvent(motionEvent({ x: 0, y: 0, z: -9.81 }, { x: 1, y: 2, z: 2 }), 0, createGravityEstimate());
+assert(Math.abs(linearFirst.acceleration - 3) < 1e-9, '有線性加速度時必須優先採用');
+
+// 感測器暖機逾時必須可復原，不得寫死 unsupported。
+assert(
+  resolveEffectivePermission({ permission: 'granted', sensorTimedOut: true, hasSensorData: false }) === 'unsupported',
+  '逾時且無資料時降級為觀賞模式',
+);
+assert(
+  resolveEffectivePermission({ permission: 'granted', sensorTimedOut: true, hasSensorData: true }) === 'granted',
+  '事件晚到必須自動回到 LIVE，不需重新整理',
+);
+assert(
+  resolveEffectivePermission({ permission: 'denied', sensorTimedOut: false, hasSensorData: false }) === 'denied',
+  '使用者拒絕授權維持拒絕',
+);
 
 console.log('Taiji Level 01 physics lock passed');
