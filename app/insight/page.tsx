@@ -2772,18 +2772,21 @@ function ZiweiHorrorGhostMovieView({
       <p className="relative mt-3 text-base font-black leading-7 text-rose-50">{name}，你現在 {ageLabel}；你的{palaceName}命盤正在打開。恐怖是壓力的逼近；鬼魅是同一張命盤最後浮現的象徵畫面。</p>
       <p className="relative mt-2 rounded-xl border border-cyan-100/15 bg-cyan-950/20 px-3 py-2 text-sm font-bold leading-6 text-cyan-50/90">白話說，{palaceName}在講的是「{topic}」。接下來的恐怖鬼魅情境只會圍繞這個主題，不會跳去講別宮的事。</p>
 
-      <section className="relative mt-3 overflow-hidden rounded-2xl border border-rose-200/25 bg-[linear-gradient(135deg,rgba(69,10,10,0.55),rgba(30,27,75,0.46))] p-3" aria-label="恐怖鬼魅遊戲關卡設定">
-        <div aria-hidden="true" className="absolute -right-6 -top-8 text-8xl font-black text-rose-100/[0.05]">封</div>
-        <div className="relative flex items-center justify-between gap-3">
-          <p className="text-[11px] font-black tracking-[0.18em] text-rose-100">本局遊戲任務</p>
-          <span className="rounded-full border border-rose-100/25 bg-black/25 px-2 py-1 text-[10px] font-black text-rose-100">三幕試煉</span>
-        </div>
-        <div className="relative mt-3 grid grid-cols-3 gap-2">
-          <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[9px] font-black tracking-[0.12em] text-rose-100/70">舞台</p><p className="mt-1 text-[11px] font-black leading-4 text-white">{palaceName}</p></div>
-          <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[9px] font-black tracking-[0.12em] text-rose-100/70">線索</p><p className="mt-1 line-clamp-2 text-[11px] font-black leading-4 text-white">{evidenceRefs.slice(0, 2).join('・') || '正式命盤訊號'}</p></div>
-          <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[9px] font-black tracking-[0.12em] text-rose-100/70">出口</p><p className="mt-1 text-[11px] font-black leading-4 text-white">{treasure.label}元素寶珠</p></div>
-        </div>
-      </section>
+      {/* 「本局遊戲任務」是遊戲設計用的關卡中繼資料（舞台/線索/出口），客戶看到沒有意義、跟心理學共感無關，已依指示隱藏；保留程式碼供之後需要時叫醒。 */}
+      {false && (
+        <section className="relative mt-3 overflow-hidden rounded-2xl border border-rose-200/25 bg-[linear-gradient(135deg,rgba(69,10,10,0.55),rgba(30,27,75,0.46))] p-3" aria-label="恐怖鬼魅遊戲關卡設定">
+          <div aria-hidden="true" className="absolute -right-6 -top-8 text-8xl font-black text-rose-100/[0.05]">封</div>
+          <div className="relative flex items-center justify-between gap-3">
+            <p className="text-[11px] font-black tracking-[0.18em] text-rose-100">本局遊戲任務</p>
+            <span className="rounded-full border border-rose-100/25 bg-black/25 px-2 py-1 text-[10px] font-black text-rose-100">三幕試煉</span>
+          </div>
+          <div className="relative mt-3 grid grid-cols-3 gap-2">
+            <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[9px] font-black tracking-[0.12em] text-rose-100/70">舞台</p><p className="mt-1 text-[11px] font-black leading-4 text-white">{palaceName}</p></div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[9px] font-black tracking-[0.12em] text-rose-100/70">線索</p><p className="mt-1 line-clamp-2 text-[11px] font-black leading-4 text-white">{evidenceRefs.slice(0, 2).join('・') || '正式命盤訊號'}</p></div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[9px] font-black tracking-[0.12em] text-rose-100/70">出口</p><p className="mt-1 text-[11px] font-black leading-4 text-white">{treasure.label}元素寶珠</p></div>
+          </div>
+        </section>
+      )}
 
       <section className="relative mt-3 rounded-2xl border-2 border-amber-200/70 bg-[linear-gradient(135deg,rgba(120,53,15,0.38),rgba(49,46,129,0.34))] p-4 shadow-[0_0_26px_rgba(251,191,36,0.16)]" aria-label="紫微五元素寶物關">
         <p className="text-xs font-black tracking-[0.16em] text-amber-100">最終關・五元素魔珠封印</p>
