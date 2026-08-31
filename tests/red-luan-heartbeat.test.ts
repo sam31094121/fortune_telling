@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import {
   annualBranchOf,
   buildBaziLovePersonSignal,
+  buildRedLuanContextAlignment,
   buildSingleRedLuanAnnualRhythm,
   buildSingleRedLuanHeartbeat,
   buildZiweiLovePersonSignal,
@@ -136,9 +137,25 @@ assert.match(validateRedLuanSelfReportedContext({ ...selfReportedContextA, famil
 assert.match(validateRedLuanSelfReportedContext({ ...selfReportedContextA, currentExpectation: 'UNKNOWN' }) ?? '', /期待/);
 
 const deterministicBeforeContextValidation = structuredClone(oneYearResult);
-validateRedLuanSelfReportedContext(selfReportedContextA);
-validateRedLuanSelfReportedContext(selfReportedContextB);
-assert.deepEqual(oneYearResult, deterministicBeforeContextValidation, '自述現況驗證不得改寫命盤或年度規則結果');
+const contextAlignmentA = buildRedLuanContextAlignment(selfReportedContextA, oneYearResult);
+const contextAlignmentB = buildRedLuanContextAlignment(selfReportedContextB, oneYearResult);
+assert.deepEqual(oneYearResult, deterministicBeforeContextValidation, '關係情境交叉運算不得改寫命盤或年度規則結果');
+assert.equal(contextAlignmentA.mode, 'REFLECTION_GUIDANCE_ONLY');
+assert.equal(contextAlignmentA.calculationOrder.stageOne.evidenceFrozenBeforeContext, true);
+assert.equal(contextAlignmentA.calculationOrder.stageOne.ziweiStatus, 'UNAVAILABLE_BIRTH_TIME_REQUIRED');
+assert.equal(contextAlignmentA.calculationOrder.stageTwo.status, 'COMPUTED');
+assert.notEqual(contextAlignmentA.themeTitle, contextAlignmentB.themeTitle);
+assert.notDeepEqual(contextAlignmentA.actionDirections, contextAlignmentB.actionDirections);
+
+const relationshipVariant = buildRedLuanContextAlignment({ ...selfReportedContextA, relationshipStatus: RED_LUAN_RELATIONSHIP_STATUSES[1] }, oneYearResult);
+const familyVariant = buildRedLuanContextAlignment({ ...selfReportedContextA, familyResponsibility: RED_LUAN_FAMILY_RESPONSIBILITIES[1] }, oneYearResult);
+const expectationVariant = buildRedLuanContextAlignment({ ...selfReportedContextA, currentExpectation: RED_LUAN_CURRENT_EXPECTATIONS[1] }, oneYearResult);
+assert.notEqual(contextAlignmentA.actionDirections[0].reflectionQuestion, relationshipVariant.actionDirections[0].reflectionQuestion);
+assert.notEqual(contextAlignmentA.actionDirections[1].reflectionQuestion, familyVariant.actionDirections[1].reflectionQuestion);
+assert.notEqual(contextAlignmentA.actionDirections[2].reflectionQuestion, expectationVariant.actionDirections[2].reflectionQuestion);
+for (const direction of contextAlignmentA.actionDirections) {
+  assert.ok(direction.symbolism && direction.reflectionQuestion && direction.action);
+}
 
 const aiEvidencePayload = buildRedLuanAiEvidencePayload(oneYearResult);
 const serializedAiPayload = JSON.stringify(aiEvidencePayload);
@@ -167,6 +184,7 @@ const noEvidenceResult = buildSingleRedLuanHeartbeat({
 });
 assert.equal(noEvidenceResult.annualRhythm[0].evidence.length, 0);
 assert.equal(inspectRedLuanAiGate(noEvidenceResult).status, 'BLOCKED');
+assert.equal(buildRedLuanContextAlignment(selfReportedContextA, noEvidenceResult).alignmentStatus, 'NO_VERIFIED_YEARLY_RULE_HIT');
 
 assert.throws(() => buildSingleRedLuanAnnualRhythm({
   yearBranch: '子', dayBranch: '子', presentBranches: [], hourKnown: false, fromYear: 2027, toYear: 2026,
@@ -177,14 +195,16 @@ const routeSource = readFileSync(join(process.cwd(), 'app/api/red-luan-heartbeat
 assert.ok(pageSource.includes("import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm'"));
 assert.ok(pageSource.includes('<UnifiedBirthForm'));
 assert.equal(pageSource.includes('aria-label="出生年份"'), false);
-for (const title of ['第一層・定盤', '第二層・見象', '第三層・問心', '第四層・易經引導']) {
+for (const title of ['第一層・命理底盤', '第二層・此刻位置', '第三層・情境交叉', '第四層・問心', '第五層・易經引導']) {
   assert.ok(pageSource.includes(title), `missing onion layer: ${title}`);
 }
 assert.ok(pageSource.includes('useState(0)'));
 assert.ok(pageSource.includes('openedLayer >= 1'));
 assert.ok(pageSource.includes('openedLayer >= 2'));
 assert.ok(pageSource.includes('openedLayer >= 3'));
+assert.ok(pageSource.includes('openedLayer >= 4'));
 assert.ok(pageSource.includes('aria-pressed={reflectionChoice === choice.id}'));
+assert.ok(pageSource.includes('aria-pressed={alignmentChoice === direction.id}'));
 assert.ok(pageSource.includes('品質門控通過前不會傳給 AI'));
 assert.ok(pageSource.includes('不是超自然權威'));
 assert.ok(pageSource.includes('此刻的關係位置'));
@@ -192,11 +212,16 @@ for (const label of ['關係現況', '目前主要家庭責任', '期待方向',
   assert.ok(pageSource.includes(label), `missing relationship context option: ${label}`);
 }
 assert.ok(pageSource.includes('不送入 AI'));
-assert.ok(pageSource.includes('不重複顯示關係或家庭身分'));
+assert.ok(pageSource.includes('已完成情境運算'));
+assert.ok(pageSource.includes('關係情境運算依你的自述調整引導，不改變八字排盤'));
+assert.ok(pageSource.includes('不推斷焦慮、依附型態、創傷、性格或未填資訊'));
 assert.ok(routeSource.includes('validateRedLuanSelfReportedContext'));
 assert.ok(routeSource.includes("usage: 'REFLECTION_GUIDANCE_ONLY'"));
+assert.ok(routeSource.includes('buildRedLuanContextAlignment(selfReportedContext, result)'));
 assert.ok(routeSource.includes('generateRedLuanCulturalReading(result)'));
 assert.equal(routeSource.includes('generateRedLuanCulturalReading(result,'), false);
+assert.ok(routeSource.indexOf('const result = buildSingleRedLuanHeartbeat') < routeSource.indexOf('buildRedLuanContextAlignment(selfReportedContext, result)'));
+assert.ok(routeSource.indexOf('buildRedLuanContextAlignment(selfReportedContext, result)') < routeSource.indexOf('generateRedLuanCulturalReading(result)'));
 for (const simplified of ['资料', '时间', '验证', '规则', '关系', '显示', '开启', '选择', '说明', '预测']) {
   assert.equal(pageSource.includes(simplified), false, `customer copy contains simplified Chinese: ${simplified}`);
 }

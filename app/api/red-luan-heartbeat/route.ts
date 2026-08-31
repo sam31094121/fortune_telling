@@ -3,6 +3,7 @@ import { createBaziCore } from '@/lib/bazi/engine';
 import { SHICHEN_LIST, shichenFromClockHour } from '@/lib/shichen-engine';
 import { isValidBirthday } from '@/lib/validation';
 import {
+  buildRedLuanContextAlignment,
   buildSingleRedLuanHeartbeat,
   validateRedLuanSelfReportedContext,
   type RedLuanSelfReportedContext,
@@ -151,16 +152,21 @@ export async function POST(request: Request) {
       },
       timelineYears: 6,
     });
+    const selfReportedContext: RedLuanSelfReportedContext = {
+      relationshipStatus: person.relationshipStatus,
+      familyResponsibility: person.familyResponsibility,
+      currentExpectation: person.currentExpectation,
+    };
+    const contextAlignment = buildRedLuanContextAlignment(selfReportedContext, result);
     const culturalReading = await generateRedLuanCulturalReading(result);
 
     return NextResponse.json({
       person: { name: person.name.trim(), birthDate: core.calendar.solarDate, hourKnown },
-      selfReportedContext: {
-        relationshipStatus: person.relationshipStatus,
-        familyResponsibility: person.familyResponsibility,
-        currentExpectation: person.currentExpectation,
+      relationshipPosition: {
+        ...selfReportedContext,
         usage: 'REFLECTION_GUIDANCE_ONLY',
       },
+      contextAlignment,
       result: { ...result, culturalReading },
     });
   } catch (error) {

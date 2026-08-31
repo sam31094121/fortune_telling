@@ -55,6 +55,40 @@ export type RedLuanSelfReportedContext = {
   currentExpectation: (typeof RED_LUAN_CURRENT_EXPECTATIONS)[number];
 };
 
+export type RedLuanContextAlignment = {
+  mode: 'REFLECTION_GUIDANCE_ONLY';
+  alignmentStatus: 'EVIDENCE_AVAILABLE' | 'NO_VERIFIED_YEARLY_RULE_HIT';
+  calculationOrder: {
+    stageOne: {
+      label: 'BAZI_ZIWEI_EVIDENCE';
+      baziStatus: RedLuanValidationState['primaryStatus'];
+      ziweiStatus: ZiweiLovePersonSignal['status'];
+      evidenceFrozenBeforeContext: true;
+    };
+    stageTwo: {
+      label: 'RELATIONSHIP_CONTEXT_ALIGNMENT';
+      status: 'COMPUTED';
+      inputFields: ['relationshipStatus', 'familyResponsibility', 'currentExpectation'];
+    };
+  };
+  relationshipPosition: RedLuanSelfReportedContext;
+  annualEvidence: {
+    precision: 'ANNUAL_BRANCH';
+    years: number[];
+    evidenceCount: number;
+  };
+  themeTitle: string;
+  guidancePrompt: string;
+  actionDirections: Array<{
+    id: 'relationship_rhythm' | 'life_arrangement' | 'expectation_direction';
+    title: string;
+    symbolism: string;
+    reflectionQuestion: string;
+    action: string;
+  }>;
+  limitations: string[];
+};
+
 /**
  * Validates customer-provided context only. These fields are deliberately not
  * accepted by buildSingleRedLuanHeartbeat, so they cannot alter chart rules,
@@ -74,6 +108,55 @@ export function validateRedLuanSelfReportedContext(value: unknown): string | nul
   }
   return null;
 }
+
+type ContextGuidanceModule = { theme: string; symbolism: string; reflectionQuestion: string; action: string };
+
+const RELATIONSHIP_GUIDANCE: Record<RedLuanSelfReportedContext['relationshipStatus'], ContextGuidanceModule> = {
+  SINGLE_NEVER_MARRIED: { theme: '留白開新', symbolism: '如初爻留白，先讓新的相遇有地方落腳。', reflectionQuestion: '在不勉強自己的前提下，你願意為認識新朋友留出多少空間？', action: '選擇一個自己願意參與、也方便自然認識新朋友的場合。' },
+  DATING: { theme: '同行定步', symbolism: '兩線同行，先辨彼此步幅，再決定下一程。', reflectionQuestion: '你希望目前的關係用什麼速度前進，哪些界線需要先說清楚？', action: '安排一次雙方都願意的關係節奏對話，先交換期待，不急著下結論。' },
+  MARRIED: { theme: '守成有新', symbolism: '守其所成，也為日常添一點新的流動。', reflectionQuestion: '在既有關係裡，你想先為哪一種相處品質留出時間？', action: '為目前關係保留一段不被打擾的相處時間，從一件可共同完成的小事開始。' },
+  SEPARATED: { theme: '先界後行', symbolism: '水有岸才可安行；先定界線，再看是否前進。', reflectionQuestion: '什麼樣的聯絡方式與距離，對你現在而言較尊重也較安全？', action: '先確認安全、尊重且雙方願意的聯絡界線，再決定是否安排下一次對話。' },
+  DIVORCED: { theme: '整序再啟', symbolism: '一卦既終，不催下一卦；先由自己決定何時再啟。', reflectionQuestion: '如果重新開放連結，你希望保留哪些步調與選擇權？', action: '按自己的步調決定是否開放新的社交連結，不需要配合任何命理時程。' },
+  WIDOWED: { theme: '敬昔迎今', symbolism: '珍重走過的篇章，也容許新的陪伴依自己的節奏靠近。', reflectionQuestion: '此刻你願意接受的是陪伴、社交，還是先保留自己的時間？', action: '尊重自己的步調，選擇是否接受一段低壓力的陪伴或社交邀請。' },
+};
+
+const FAMILY_GUIDANCE: Record<RedLuanSelfReportedContext['familyResponsibility'], ContextGuidanceModule> = {
+  NO_CHILDREN_OR_PRIMARY_CARE: { theme: '自在留時', symbolism: '行有餘地，才有空間觀察新的變化。', reflectionQuestion: '你現在願意固定留出哪一段時間，照顧自己的關係探索？', action: '先在日常行程中留下一段可自由運用的關係探索時間。' },
+  LIVE_WITH_OR_CARE_FOR_PARENTS: { theme: '承責有度', symbolism: '承載不是停滯；先定份量，才能讓生活繼續流動。', reflectionQuestion: '在照顧父母之外，你希望如何保留自己的時間與支持？', action: '先盤點照顧安排與可運用時間，再選擇不增加負擔的互動方式。' },
+  HAS_CHILDREN: { theme: '護持並行', symbolism: '一邊護持既有責任，一邊為自己的關係需要留一條路。', reflectionQuestion: '什麼樣的安排能同時尊重照顧責任與你的關係需求？', action: '選擇不影響照顧責任、時間界線清楚的相處安排。' },
+  CARE_FOR_OTHER_FAMILY: { theme: '分力安行', symbolism: '先量可用之力，再選可長久的步幅。', reflectionQuestion: '目前可運用的時間與心力到哪裡，哪些支持可以先安排？', action: '先確認目前可負擔的時間與心力，再決定互動頻率。' },
+};
+
+const EXPECTATION_GUIDANCE: Record<RedLuanSelfReportedContext['currentExpectation'], ContextGuidanceModule & { prompt: string }> = {
+  MEET_SOMEONE: {
+    theme: '開門見人',
+    symbolism: '門開一線，不求結果先到，只讓相遇有機會發生。',
+    reflectionQuestion: '你想從什麼樣的場合開始，才會感到自然且保有選擇？',
+    prompt: '這一段時間，你想先為哪一種認識新人的節奏留出位置？',
+    action: '從一個低壓力、興趣相近的活動開始，保留接受或婉拒的選擇。',
+  },
+  STABLE_RELATIONSHIP: {
+    theme: '穩中求進',
+    symbolism: '水流不必急，方向一致才能走得長。',
+    reflectionQuestion: '你希望彼此先穩定哪一項相處習慣或溝通方式？',
+    prompt: '這一段時間，你想先穩住哪一種相處節奏？',
+    action: '選一個彼此都方便的時間，先談一項希望維持的相處習慣。',
+  },
+  MARRIAGE_PLANNING: {
+    theme: '共築有序',
+    symbolism: '成屋先立樑柱；共同生活也從可討論的現實安排開始。',
+    reflectionQuestion: '在共同生活的想像裡，你最想先談清楚哪一項安排？',
+    prompt: '這一段時間，你想先釐清哪一項共同生活安排？',
+    action: '先挑一項現實議題交換想法，例如時間、住居或家庭責任，不把結果當成命盤承諾。',
+  },
+  REPAIR_RELATIONSHIP: {
+    theme: '緩修再連',
+    symbolism: '裂處不以急力相合，先確認雙方是否仍願意靠近。',
+    reflectionQuestion: '若要開始修復，你希望先從哪一件小事建立可對話的空間？',
+    prompt: '這一段時間，你想先為哪一種修復節奏留出空間？',
+    action: '先確認雙方是否願意對話，再從一件可具體說明的小事開始；任何一方都可以停止。',
+  },
+};
 
 export type RedLuanTimePrecision = 'EXACT_TIME' | 'TRADITIONAL_HOUR' | 'UNKNOWN_TIME';
 
@@ -195,6 +278,58 @@ export type SingleRedLuanHeartbeatResult = {
     limitation: string;
   };
 };
+
+/**
+ * Builds a separate reflection layer by placing explicit customer context next
+ * to already-computed annual evidence. It never mutates or recalculates the
+ * chart result and is intentionally separate from the calculation quality gate.
+ */
+export function buildRedLuanContextAlignment(
+  context: RedLuanSelfReportedContext,
+  result: SingleRedLuanHeartbeatResult,
+): RedLuanContextAlignment {
+  const contextError = validateRedLuanSelfReportedContext(context);
+  if (contextError) throw new Error(`RED_LUAN_CONTEXT_INVALID:${contextError}`);
+  const evidenceRows = result.annualRhythm.filter((item) => item.evidence.length > 0);
+  const relationship = RELATIONSHIP_GUIDANCE[context.relationshipStatus];
+  const family = FAMILY_GUIDANCE[context.familyResponsibility];
+  const expectation = EXPECTATION_GUIDANCE[context.currentExpectation];
+  return {
+    mode: 'REFLECTION_GUIDANCE_ONLY',
+    alignmentStatus: evidenceRows.length > 0 ? 'EVIDENCE_AVAILABLE' : 'NO_VERIFIED_YEARLY_RULE_HIT',
+    calculationOrder: {
+      stageOne: {
+        label: 'BAZI_ZIWEI_EVIDENCE',
+        baziStatus: result.validation.primaryStatus,
+        ziweiStatus: result.ziwei.status,
+        evidenceFrozenBeforeContext: true,
+      },
+      stageTwo: {
+        label: 'RELATIONSHIP_CONTEXT_ALIGNMENT',
+        status: 'COMPUTED',
+        inputFields: ['relationshipStatus', 'familyResponsibility', 'currentExpectation'],
+      },
+    },
+    relationshipPosition: { ...context },
+    annualEvidence: {
+      precision: 'ANNUAL_BRANCH',
+      years: evidenceRows.map((item) => item.year),
+      evidenceCount: evidenceRows.reduce((total, item) => total + item.evidence.length, 0),
+    },
+    themeTitle: `${relationship.theme}・${family.theme}・${expectation.theme}`,
+    guidancePrompt: expectation.prompt,
+    actionDirections: [
+      { id: 'relationship_rhythm', title: `界線與步調・${relationship.theme}`, symbolism: relationship.symbolism, reflectionQuestion: relationship.reflectionQuestion, action: relationship.action },
+      { id: 'life_arrangement', title: `支持系統・${family.theme}`, symbolism: family.symbolism, reflectionQuestion: family.reflectionQuestion, action: family.action },
+      { id: 'expectation_direction', title: `關係準備度・${expectation.theme}`, symbolism: expectation.symbolism, reflectionQuestion: expectation.reflectionQuestion, action: expectation.action },
+    ],
+    limitations: [
+      '這是客戶自述與已驗證年度規則證據的交叉呈現，只用來增加引導貼合度。',
+      '自述資料不改變八字排盤、紅鸞規則、年份證據或品質門控，也不提高命盤計算精準度。',
+      '本層不推斷未填資訊、人格、焦慮、依附型態或創傷，不作心理診斷或婚姻預測。',
+    ],
+  };
+}
 
 export function annualBranchOf(year: number): Branch {
   return BRANCHES[((Math.trunc(year) - 4) % 12 + 12) % 12];
