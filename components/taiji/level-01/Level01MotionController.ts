@@ -261,6 +261,12 @@ export class Level01TaijiMotionController {
         shadow.style.setProperty('--shadow-opacity', `${(0.72 - Math.min(0.2, energy * 0.16)).toFixed(3)}`);
         shadow.style.setProperty('--shadow-glow', `${(0.42 + Math.min(0.3, energy * 0.24)).toFixed(3)}`);
         shadow.style.setProperty('--shadow-angle', `${Math.max(-3, Math.min(3, this.physics.gamma * 0.08)).toFixed(2)}deg`);
+        // A restrained particle field shares the already-filtered tilt and energy
+        // values so it feels bound to the shadow, without introducing raw-sensor
+        // jitter or another animation loop on lower-end phones.
+        shadow.style.setProperty('--particle-drift-x', `${(x * 0.2).toFixed(2)}px`);
+        shadow.style.setProperty('--particle-drift-y', `${(y * 0.16).toFixed(2)}px`);
+        shadow.style.setProperty('--particle-opacity', `${(0.3 + Math.min(0.22, energy * 0.2 + tilt * 0.006)).toFixed(3)}`);
       }
     }
     const hudKey = `${this.pose.mode}|${this.pose.permission}|${this.pose.driving}|${this.pose.balanceState}|${this.pose.hapticMode}`;
