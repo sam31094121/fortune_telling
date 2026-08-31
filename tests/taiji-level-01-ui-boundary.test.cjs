@@ -21,5 +21,6 @@ if (!styles.includes('pointer-events: none') || !styles.includes('prefers-reduce
 if (!controller.includes('this.haptics.armFromUserGesture()') || !haptics.includes('armedByUserGesture')) throw new Error('haptic feedback must remain behind a real user gesture');
 if (!haptics.includes('lastDirectionAt') || !haptics.includes('motionEnergy >= 0.16') || !audio.includes('playTiltAccent')) throw new Error('direction feedback must keep its dead zone, cooldown, and quiet audio accent');
 if (!audio.includes('playReentryCheerAccent') || !haptics.includes('scheduleReentryCheer') || !haptics.includes('reentryCheerTimer')) throw new Error('the one-shot re-entry cheer must keep aligned audio and haptic feedback');
+if (!haptics.includes('scheduleVisualBurst') || !controller.includes('lastVisualBurstId') || !haptics.includes('safeTurns')) throw new Error('visual turns must map to a finite, throttled haptic rhythm');
 if (!styles.includes('left: 50%') || !styles.includes('bottom: 7.5%') || !styles.includes('.cueSouth { opacity: 0; }') || !styles.includes('.balanceBubble')) throw new Error('dynamic shadow must stay in the ball bottom-centre seat');
 console.log('Taiji Level 01 UI boundary passed');

@@ -44,6 +44,9 @@ export interface Level01VisualPose {
   motionEnergy: number;
   balanceState: BalanceState;
   visualMomentum: number;
+  visualBurstId: number;
+  visualBurstTurns: number;
+  visualBurstDuration: number;
 }
 
 export interface PhysicsState {
@@ -65,6 +68,7 @@ export interface PhysicsState {
   visualBurstAngle: number;
   visualBurstVelocity: number;
   lastVisualBurstAt: number;
+  visualBurstId: number;
 }
 
 export const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
@@ -161,6 +165,7 @@ export function createPhysicsState(): PhysicsState {
     visualBurstAngle: 0,
     visualBurstVelocity: 0,
     lastVisualBurstAt: -Infinity,
+    visualBurstId: 0,
   };
 }
 
@@ -275,6 +280,7 @@ export function integrateLevel01Physics(
     state.visualBurstAngle = 0;
     state.visualBurstVelocity = 0;
     state.lastVisualBurstAt = input.now;
+    state.visualBurstId += 1;
   }
   if (state.visualBurstStartedAt >= 0) {
     const progress = Math.max(0, Math.min(1, (input.now - state.visualBurstStartedAt) / 1000 / state.visualBurstDuration));
@@ -308,6 +314,9 @@ export function visualPoseFromPhysics(state: PhysicsState, driving: boolean): Le
     motionEnergy: state.motionEnergy,
     balanceState: state.balanceState,
     visualMomentum: Math.min(1, Math.abs(state.visualBurstVelocity) / 34),
+    visualBurstId: state.visualBurstId,
+    visualBurstTurns: state.visualBurstTurns,
+    visualBurstDuration: state.visualBurstDuration,
   };
 }
 

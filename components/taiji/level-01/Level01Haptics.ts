@@ -58,6 +58,19 @@ export class Level01HapticController {
     }, Math.round(LEVEL01_REENTRY_DURATION_SECONDS * LEVEL01_REENTRY_CHEER_PROGRESS * 1000));
   }
 
+  scheduleVisualBurst(turns: number, durationSeconds: number, momentum: number) {
+    if (this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return;
+    const safeTurns = Math.max(1, Math.min(5, Math.round(turns)));
+    const strength = safeTurns >= 5 ? 13 : safeTurns >= 3 ? 10 : 7;
+    const gap = Math.max(72, Math.min(160, Math.round((durationSeconds * 1000) / safeTurns) - 18));
+    const pattern: number[] = [];
+    for (let index = 0; index < safeTurns; index += 1) {
+      pattern.push(Math.min(15, strength + Math.round(momentum * 2)));
+      if (index < safeTurns - 1) pattern.push(gap);
+    }
+    this.safeVibrate(pattern);
+  }
+
   pulse(input: { now: number; motionEnergy: number; balanceState: BalanceState; lockChime: boolean; direction: Level01TiltDirection | null }) {
     if (this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return false;
     if (input.balanceState === 'LOCKED' && !input.lockChime) return;

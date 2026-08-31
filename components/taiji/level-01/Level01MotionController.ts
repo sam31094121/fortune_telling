@@ -58,6 +58,7 @@ export class Level01TaijiMotionController {
   private armedAt = 0;
   private sensorTimedOut = false;
   private autoArmAttempted = false;
+  private lastVisualBurstId = 0;
   private readonly gravity: GravityEstimate = createGravityEstimate();
 
   constructor() {
@@ -182,6 +183,7 @@ export class Level01TaijiMotionController {
       delta: Math.min(delta, FRAME_DELTA_CAP),
       reducedMotion: this.reducedMotion,
     });
+    const visual = visualPoseFromPhysics(this.physics, true);
     const direction = resolveLevel01TiltDirection(this.physics.beta, this.physics.gamma);
     const directionAcknowledged = this.haptics.pulse({
       now,
@@ -191,6 +193,10 @@ export class Level01TaijiMotionController {
       direction,
     });
     if (directionAcknowledged) this.audio.playTiltAccent(direction!, this.physics.motionEnergy);
+    if (visual.visualBurstId !== this.lastVisualBurstId) {
+      this.lastVisualBurstId = visual.visualBurstId;
+      this.haptics.scheduleVisualBurst(visual.visualBurstTurns, visual.visualBurstDuration, visual.visualMomentum);
+    }
     this.audio.sync({
       motionEnergy: this.physics.motionEnergy,
       angularVelocity: this.physics.angularVelocity,
