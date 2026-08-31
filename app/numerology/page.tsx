@@ -8,6 +8,7 @@ import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
+import { getNumerologyDisplayTier, NUMEROLOGY_ENERGY_LINE_STEPS, type NumerologyDisplayTier } from '@/lib/numerology-display-tiers';
 
 type NumberMode = 'digit2' | 'digit3' | 'last4' | 'digit5' | 'six6' | 'digit7' | 'digit8' | 'digit9' | 'phone10';
 type NumberPurpose = 'general' | 'plate' | 'phone' | 'birthdate';
@@ -123,77 +124,6 @@ const TWO_AXIS_GROUPS = [
   { id: 'relationship', label: '感情', icon: '💞', keys: ['love', 'family', 'social', 'health'] as const, note: '感情互動、家庭穩定、人際連結、身心節奏融合成的關係面向。' },
 ] as const;
 
-const FORTUNE_ENERGY_TIERS = [
-  {
-    min: 72,
-    label: '大吉',
-    feel: '萬事亨通，富貴繁榮。',
-    psychology: '心理學上，這反映你在此領域已建立穩定的自我效能感（self-efficacy），行動與回饋容易形成正向循環，適合乘勢擴大投入。',
-    tone: 'bg-emerald-300',
-    labelTone: 'text-emerald-100',
-  },
-  {
-    min: 66,
-    label: '大吉帶吉',
-    feel: '青雲直上，多得貴人。',
-    psychology: '從行為心理學角度看，你在這裡已累積可觀的外部資源與人際支持，持續投入容易觸發正向強化。',
-    tone: 'bg-emerald-300',
-    labelTone: 'text-emerald-100',
-  },
-  {
-    min: 60,
-    label: '吉',
-    feel: '平安順遂，衣食無憂。',
-    psychology: '整體呈現低焦慮、可預期的因應風格（coping style），代表你對這個領域有一定掌控感，維持現有節奏即可。',
-    tone: 'bg-cyan-300',
-    labelTone: 'text-cyan-100',
-  },
-  {
-    min: 55,
-    label: '半吉',
-    feel: '吉凶參半，三分靠天七分靠人。',
-    psychology: '這是內在動機與外在條件拉鋸的區間，屬於自我調節（self-regulation）最容易發揮作用的位置，投入的意志力會直接反映在結果上。',
-    tone: 'bg-cyan-300',
-    labelTone: 'text-cyan-100',
-  },
-  {
-    min: 50,
-    label: '凶帶吉',
-    feel: '先苦後甘，外美內苦。',
-    psychology: '這類「先苦後甘」的型態對應延遲滿足（delayed gratification）——短期回饋感偏低，撐過去的耐受力會是關鍵。',
-    tone: 'bg-amber-300',
-    labelTone: 'text-amber-100',
-  },
-  {
-    min: 45,
-    label: '凶',
-    feel: '阻礙重重，力不從心。',
-    psychology: '容易出現習得無助（learned helplessness）傾向或迴避因應，建議先拆解成可控的小步驟，重建掌控感比一次解決更有效。',
-    tone: 'bg-amber-300',
-    labelTone: 'text-amber-100',
-  },
-  {
-    min: 40,
-    label: '大凶帶凶',
-    feel: '波折不斷，易招是非。',
-    psychology: '壓力累積可能已經影響認知評估（cognitive appraisal）與情緒穩定度，照顧身心資源比急著解決問題本身更優先。',
-    tone: 'bg-rose-300',
-    labelTone: 'text-rose-100',
-  },
-  {
-    min: 0,
-    label: '大凶',
-    feel: '萬事休止，前途坎坷。',
-    psychology: '這是典型的耗竭訊號（burnout signal），建議先按下暫停鍵、降低輸入，避免在資源見底時做重大決定。',
-    tone: 'bg-rose-300',
-    labelTone: 'text-rose-100',
-  },
-] as const;
-
-function getFortuneEnergyTier(score: number) {
-  return FORTUNE_ENERGY_TIERS.find((tier) => score >= tier.min) ?? FORTUNE_ENERGY_TIERS[FORTUNE_ENERGY_TIERS.length - 1];
-}
-
 const FORTUNE_TIER_GLOW: Record<string, string> = {
   '大吉': 'shadow-[0_0_10px_2px_rgba(110,231,183,0.65)]',
   '大吉帶吉': 'shadow-[0_0_10px_2px_rgba(110,231,183,0.65)]',
@@ -205,15 +135,15 @@ const FORTUNE_TIER_GLOW: Record<string, string> = {
   '大凶': 'shadow-[0_0_10px_2px_rgba(251,113,133,0.65)]',
 };
 
-function EnergyLine({ tier }: { tier: (typeof FORTUNE_ENERGY_TIERS)[number] }) {
-  const activeIndex = FORTUNE_ENERGY_TIERS.indexOf(tier);
+function EnergyLine({ tier }: { tier: NumerologyDisplayTier }) {
+  const activeIndex = NUMEROLOGY_ENERGY_LINE_STEPS.indexOf(tier);
   return (
     <div
       className="mt-3 flex items-stretch gap-[3px] rounded-xl border border-white/10 bg-black/25 p-1.5"
       role="img"
-      aria-label={`八階能量線，目前位置：${tier.label}`}
+      aria-label={`八階能量線，目前判定：${tier.label}`}
     >
-      {FORTUNE_ENERGY_TIERS.map((step, index) => {
+      {NUMEROLOGY_ENERGY_LINE_STEPS.map((step, index) => {
         const active = index === activeIndex;
         return (
           <div
@@ -328,18 +258,18 @@ export default function NumerologyPage() {
   const topRisks = useMemo(() => pickEntries(directionalMatrix, 2, 'asc'), [directionalMatrix]);
   const bestPoint = topStrengths[0];
   const weakPoint = topRisks[0];
-  const bestTier = bestPoint ? getFortuneEnergyTier(bestPoint[1]) : null;
-  const weakTier = weakPoint ? getFortuneEnergyTier(weakPoint[1]) : null;
+  const bestTier = bestPoint ? getNumerologyDisplayTier(bestPoint[1]) : null;
+  const weakTier = weakPoint ? getNumerologyDisplayTier(weakPoint[1]) : null;
   const overallDirectionalScore = useMemo(() => {
     const values = EIGHT_STRENGTH_KEYS.map((key) => directionalMatrix[key]).filter((score): score is number => typeof score === 'number');
     if (values.length === 0) return 0;
     return values.reduce((sum, score) => sum + score, 0) / values.length;
   }, [directionalMatrix]);
-  const overallTier = getFortuneEnergyTier(overallDirectionalScore);
+  const overallTier = getNumerologyDisplayTier(overallDirectionalScore);
   const twoAxisScores = useMemo(() => TWO_AXIS_GROUPS.map((group) => {
     const values = group.keys.map((key) => directionalMatrix[key]).filter((score): score is number => typeof score === 'number');
     const average = values.length === 0 ? 0 : values.reduce((sum, score) => sum + score, 0) / values.length;
-    return { ...group, average, tier: getFortuneEnergyTier(average) };
+    return { ...group, average, tier: getNumerologyDisplayTier(average) };
   }), [directionalMatrix]);
   const purposeOption = PURPOSE_OPTIONS.find((option) => option.id === purpose) ?? PURPOSE_OPTIONS[0];
   const purposeCopy = PURPOSE_COPY[purpose];
@@ -691,7 +621,7 @@ export default function NumerologyPage() {
               </div>
               {/* 技術性校準說明對客戶沒意義，已依指示隱藏；保留程式碼供之後需要時叫醒。 */}
               {false && (
-                <p className="mt-3 text-[11px] font-bold leading-5 text-white/54">金錢、感情兩個中軸各自融合 4 個面向的平均分數，共用同一條八階能量線，最高「大吉」、最低「大凶」，中間依序是大吉帶吉、吉、半吉、凶帶吉、凶、大凶帶凶；兩個中軸的平均值再融合成最上方{purposeOption.shortLabel}的單一判定。分級門檻依這套固定規則實際算出的分數範圍校準，不是機率統計或人生保證。</p>
+                <p className="mt-3 text-[11px] font-bold leading-5 text-white/54">金錢、感情兩個中軸各自融合 4 個面向的平均分數，共用同一條八階能量線，最高「大吉」、最低「大凶」。能量線保留大吉、大吉帶吉、吉、半吉、凶帶吉、凶、大凶帶凶、大凶八個位置，呈現分數落點的細微差異；但最終判定只會落在大吉、大吉帶吉、吉、凶、大凶帶凶、大凶六種標籤：55 至 59 分會跳至「吉」，50 至 54 分會跳至「凶」，所以「半吉」與「凶帶吉」只作為視覺刻度、不會成為判定落點。原始分數與 8 個面向的計算依據完整保留。分級門檻依這套固定規則實際算出的分數範圍校準，不是機率統計或人生保證。</p>
               )}
               <p className="mt-3 text-[11px] font-semibold leading-5 text-white/50">這不是在幫你貼標籤，是想讓你先看懂自己此刻站在哪一階；易經懂你走到這裡的不容易，才知道下一步怎麼走最順。</p>
             </section>
@@ -707,7 +637,7 @@ export default function NumerologyPage() {
                       {topStrengths.map(([key, itemScore]) => (
                         <p key={key} className="flex items-center justify-between gap-3 text-sm font-bold text-white/76">
                           <span>{DIMENSION_LABELS[key] ?? key}</span>
-                          <span className="text-emerald-100">{getFortuneEnergyTier(itemScore).label}<span className="ml-1 text-[10px] text-emerald-100/50">{itemScore}</span></span>
+                          <span className="text-emerald-100">{getNumerologyDisplayTier(itemScore).label}<span className="ml-1 text-[10px] text-emerald-100/50">{itemScore}</span></span>
                         </p>
                       ))}
                     </div>
@@ -718,7 +648,7 @@ export default function NumerologyPage() {
                       {topRisks.map(([key, itemScore]) => (
                         <p key={key} className="flex items-center justify-between gap-3 text-sm font-bold text-white/76">
                           <span>{DIMENSION_LABELS[key] ?? key}</span>
-                          <span className="text-rose-100">{getFortuneEnergyTier(itemScore).label}<span className="ml-1 text-[10px] text-rose-100/50">{itemScore}</span></span>
+                          <span className="text-rose-100">{getNumerologyDisplayTier(itemScore).label}<span className="ml-1 text-[10px] text-rose-100/50">{itemScore}</span></span>
                         </p>
                       ))}
                     </div>
