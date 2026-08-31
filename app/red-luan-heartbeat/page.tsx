@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
+import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-public-access';
 
 type Evidence = { label: string; targetBranch: string; evidence: string };
 type TimelineEvidence = { label: string; ruleId: string; ruleVersion: string; evidenceBranches: string[]; evidence: string; source: string; precision: string };
@@ -211,7 +212,7 @@ function CalculationEvidence({ result }: { result: Reading['result'] }) {
   );
 }
 
-export default function RedLuanHeartbeatPage() {
+function RedLuanHeartbeatExperience() {
   const [form, setForm] = useState<BirthProfile>(EMPTY_FORM);
   const [context, setContext] = useState<SelfReportedContext>(EMPTY_CONTEXT);
   const [missing, setMissing] = useState<string[]>([]);
@@ -452,4 +453,25 @@ export default function RedLuanHeartbeatPage() {
       <Link href="/" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-cyan-100 underline underline-offset-4">⌂ 返回首頁</Link>
     </main>
   );
+}
+
+function RedLuanArchivedPage() {
+  return (
+    <main className="mx-auto grid min-h-screen max-w-3xl place-items-center px-4 py-8 sm:px-6">
+      <section role="status" aria-live="polite" className="relative w-full overflow-hidden rounded-3xl border border-rose-200/30 bg-[radial-gradient(circle_at_50%_38%,rgba(251,113,133,0.18),transparent_30%),radial-gradient(circle_at_82%_22%,rgba(251,191,36,0.10),transparent_28%),linear-gradient(135deg,rgba(51,8,30,0.98),rgba(26,12,42,0.97)_58%,rgba(15,23,42,0.99))] p-7 text-center shadow-[0_24px_72px_rgba(244,63,94,0.15)] sm:p-10">
+        <div className="pointer-events-none absolute inset-0 bg-white/[0.015]" />
+        <div className="pointer-events-none absolute inset-x-12 top-[42%] h-px bg-gradient-to-r from-transparent via-rose-100/25 to-transparent shadow-[0_0_20px_rgba(251,113,133,0.22)]" />
+        <div className="relative mx-auto grid h-20 w-20 place-items-center rounded-full border border-rose-100/35 bg-rose-200/[0.08] font-serif text-4xl font-black text-rose-100/90 shadow-[0_0_38px_rgba(251,113,133,0.20)]" aria-hidden="true"><span className="absolute inset-2 rounded-full border border-amber-100/15" /><span className="absolute -inset-2.5 rounded-full border border-rose-100/10" /><span>鸞</span><span className="absolute -bottom-1 rounded-full border border-amber-100/25 bg-[#351020] px-2.5 py-0.5 text-[9px] font-black tracking-[0.18em] text-amber-50/80">封</span></div>
+        <div className="relative mt-5">
+          <h1 className="font-serif text-3xl font-black text-rose-50">{RED_LUAN_ARCHIVE_COPY.title}</h1>
+          <p className="mt-3 text-sm font-black tracking-[0.16em] text-amber-50/80">{RED_LUAN_ARCHIVE_COPY.message}</p>
+          <Link href="/" className="mt-7 inline-flex min-h-11 items-center justify-center text-sm font-black text-rose-100/80 underline decoration-rose-100/30 underline-offset-4 transition hover:text-rose-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-rose-100">返回首頁</Link>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+export default function RedLuanHeartbeatPage() {
+  return RED_LUAN_PUBLIC_ARCHIVED ? <RedLuanArchivedPage /> : <RedLuanHeartbeatExperience />;
 }

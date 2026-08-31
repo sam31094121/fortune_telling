@@ -10,6 +10,7 @@ import {
 } from '@/lib/red-luan-heartbeat-engine';
 import { generateRedLuanCulturalReading } from '@/lib/red-luan-cultural-reading';
 import { createRequestId, friendlyErrorResponse } from '@/lib/api-stability';
+import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-public-access';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,6 +76,14 @@ function validate(body: unknown): string | null {
 
 export async function POST(request: Request) {
   const requestId = createRequestId();
+  if (RED_LUAN_PUBLIC_ARCHIVED) {
+    return friendlyErrorResponse(
+      requestId,
+      'RED_LUAN_ARCHIVED',
+      `${RED_LUAN_ARCHIVE_COPY.title}${RED_LUAN_ARCHIVE_COPY.message}，目前暫停提供運算。`,
+      503,
+    );
+  }
   let person: SinglePersonRequest;
 
   try {

@@ -29,6 +29,7 @@ import { evaluateExperienceQualityGate, getFriendlyQualityGateError } from '@/li
 import type { NumberAnalysisResponse } from '@/lib/number-core-engine';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
+import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-public-access';
 
 /* 全站停用中的死碼元件（見 TaijiStandaloneCard.tsx 內註解）：改成動態載入，
    避免它與依賴的 UnifiedTaijiCore（約 1,300 行 TSX + CSS module）進入首屏 bundle。 */
@@ -3015,23 +3016,42 @@ export default function HomePage() {
             </div>
           </Link>
 
-          <Link
-            href="/red-luan-heartbeat"
-            className="home-feature-launch order-0 w-full relative group overflow-hidden rounded-3xl border border-rose-300/35 bg-[radial-gradient(circle_at_14%_20%,rgba(251,113,133,0.24),transparent_34%),radial-gradient(circle_at_84%_22%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(115deg,rgba(51,8,30,0.98),rgba(26,12,42,0.96)_58%,rgba(15,23,42,0.98))] p-6 text-left shadow-[0_0_34px_rgba(244,63,94,0.18)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-200/75 hover:shadow-[0_0_54px_rgba(244,63,94,0.30)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
-            aria-label="開啟桃花・紅鸞心動個人關係主題"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-100/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
-            <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
-              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-rose-100/40 bg-rose-200/10 font-serif text-3xl font-black text-rose-100 shadow-[0_0_28px_rgba(251,113,133,0.24)]" aria-hidden="true">鸞</div>
-              <div className="min-w-0 flex-1">
-                <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-rose-50 sm:text-2xl">桃花・紅鸞心動</h2>
-                <p className="mt-1 text-xs leading-5 text-rose-50/75">從自己的出生資料開始，整理一份可回看、可慢慢理解的關係主題參考。</p>
+          {RED_LUAN_PUBLIC_ARCHIVED ? (
+            <section
+              className="home-feature-launch order-0 w-full relative overflow-hidden rounded-3xl border border-rose-200/30 bg-[radial-gradient(circle_at_50%_40%,rgba(251,113,133,0.18),transparent_32%),radial-gradient(circle_at_82%_22%,rgba(251,191,36,0.10),transparent_28%),linear-gradient(115deg,rgba(51,8,30,0.98),rgba(26,12,42,0.96)_58%,rgba(15,23,42,0.98))] p-6 text-center shadow-[0_0_34px_rgba(244,63,94,0.14)]"
+              aria-label={`${RED_LUAN_ARCHIVE_COPY.title}，${RED_LUAN_ARCHIVE_COPY.message}`}
+              aria-disabled="true"
+            >
+              <div className="pointer-events-none absolute inset-0 bg-white/[0.015]" />
+              <div className="pointer-events-none absolute inset-x-12 top-[42%] h-px bg-gradient-to-r from-transparent via-rose-100/25 to-transparent shadow-[0_0_18px_rgba(251,113,133,0.20)]" />
+              <div className="relative mx-auto grid h-16 w-16 place-items-center rounded-full border border-rose-100/35 bg-rose-200/[0.08] font-serif text-3xl font-black text-rose-100/90 shadow-[0_0_30px_rgba(251,113,133,0.20)]" aria-hidden="true">
+                <span className="absolute inset-1.5 rounded-full border border-amber-100/15" />
+                <span className="absolute -inset-2 rounded-full border border-rose-100/10" />
+                <span>鸞</span>
+                <span className="absolute -bottom-1 rounded-full border border-amber-100/25 bg-[#351020] px-2 py-0.5 text-[9px] font-black tracking-[0.18em] text-amber-50/80">封</span>
               </div>
-            </div>
-            <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-rose-100/45 bg-rose-200/12 px-5 py-3 text-xs font-bold text-rose-50 transition group-hover:bg-rose-200/22">
-              <span>開始關係核對</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
-            </div>
-          </Link>
+              <h2 className="relative mt-4 font-serif text-xl font-black tracking-wide text-rose-50 sm:text-2xl">{RED_LUAN_ARCHIVE_COPY.title}</h2>
+              <p className="relative mt-2 text-xs font-black tracking-[0.16em] text-amber-50/80">{RED_LUAN_ARCHIVE_COPY.message}</p>
+            </section>
+          ) : (
+            <Link
+              href="/red-luan-heartbeat"
+              className="home-feature-launch order-0 w-full relative group overflow-hidden rounded-3xl border border-rose-300/35 bg-[radial-gradient(circle_at_14%_20%,rgba(251,113,133,0.24),transparent_34%),radial-gradient(circle_at_84%_22%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(115deg,rgba(51,8,30,0.98),rgba(26,12,42,0.96)_58%,rgba(15,23,42,0.98))] p-6 text-left shadow-[0_0_34px_rgba(244,63,94,0.18)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-200/75 hover:shadow-[0_0_54px_rgba(244,63,94,0.30)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+              aria-label="開啟桃花・紅鸞心動個人關係主題"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-100/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+              <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
+                <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-rose-100/40 bg-rose-200/10 font-serif text-3xl font-black text-rose-100 shadow-[0_0_28px_rgba(251,113,133,0.24)]" aria-hidden="true">鸞</div>
+                <div className="min-w-0 flex-1">
+                  <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-rose-50 sm:text-2xl">桃花・紅鸞心動</h2>
+                  <p className="mt-1 text-xs leading-5 text-rose-50/75">從自己的出生資料開始，整理一份可回看、可慢慢理解的關係主題參考。</p>
+                </div>
+              </div>
+              <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-rose-100/45 bg-rose-200/12 px-5 py-3 text-xs font-bold text-rose-50 transition group-hover:bg-rose-200/22">
+                <span>開始關係核對</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
+              </div>
+            </Link>
+          )}
           <TarotEntryCard />
           <Link
             href="/star-beasts"

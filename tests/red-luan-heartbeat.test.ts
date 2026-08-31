@@ -16,6 +16,7 @@ import {
   validateRedLuanSelfReportedContext,
 } from '../lib/red-luan-heartbeat-engine';
 import { buildRedLuanAiEvidencePayload, inspectRedLuanAiGate } from '../lib/red-luan-cultural-reading';
+import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '../lib/red-luan-public-access';
 
 const branches = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'] as const;
 const redLuan = ['卯', '寅', '丑', '子', '亥', '戌', '酉', '申', '未', '午', '巳', '辰'];
@@ -192,6 +193,17 @@ assert.throws(() => buildSingleRedLuanAnnualRhythm({
 
 const pageSource = readFileSync(join(process.cwd(), 'app/red-luan-heartbeat/page.tsx'), 'utf8');
 const routeSource = readFileSync(join(process.cwd(), 'app/api/red-luan-heartbeat/route.ts'), 'utf8');
+const homeSource = readFileSync(join(process.cwd(), 'app/page.tsx'), 'utf8');
+assert.equal(RED_LUAN_PUBLIC_ARCHIVED, true);
+assert.equal(RED_LUAN_ARCHIVE_COPY.message, '正在優化・強化中');
+assert.ok(homeSource.includes('RED_LUAN_PUBLIC_ARCHIVED ?'));
+assert.ok(homeSource.includes('aria-disabled="true"'));
+assert.ok(homeSource.includes('RED_LUAN_ARCHIVE_COPY.message'));
+assert.ok(pageSource.includes('role="status" aria-live="polite"'));
+assert.ok(pageSource.includes('return RED_LUAN_PUBLIC_ARCHIVED ? <RedLuanArchivedPage /> : <RedLuanHeartbeatExperience />'));
+assert.ok(pageSource.includes('返回首頁'));
+assert.ok(routeSource.indexOf('if (RED_LUAN_PUBLIC_ARCHIVED)') < routeSource.indexOf('request.json()'));
+assert.ok(routeSource.includes("'RED_LUAN_ARCHIVED'"));
 assert.ok(pageSource.includes("import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm'"));
 assert.ok(pageSource.includes('<UnifiedBirthForm'));
 assert.equal(pageSource.includes('aria-label="出生年份"'), false);
