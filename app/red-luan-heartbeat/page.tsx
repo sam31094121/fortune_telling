@@ -236,18 +236,6 @@ export default function RedLuanHeartbeatPage() {
     ].filter(Boolean);
   }
 
-  function continueToContext(profile: BirthProfile) {
-    const nextMissing = birthMissingFields(profile);
-    setMissing(nextMissing);
-    if (nextMissing.length > 0) {
-      setError('請依序完成姓名、出生日期、性別與出生時辰；不知道時辰時可直接選擇「不知道出生時辰」。');
-      document.querySelector(`[data-field="${nextMissing[0]}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      return;
-    }
-    setError('');
-    document.getElementById('red-luan-relationship-context')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
-  }
-
   async function submit(profile: BirthProfile) {
     if (loading) return;
     const nextMissing = birthMissingFields(profile);
@@ -320,7 +308,7 @@ export default function RedLuanHeartbeatPage() {
         <p className="mt-3 text-sm leading-7 text-white/75">填寫自己的出生資料，核對傳統文化中的年度關係主題訊號。這不是配對，也不預測事件。</p>
       </header>
 
-      <section className="mt-5 rounded-3xl border border-white/12 bg-slate-950/70 p-5 shadow-[0_18px_48px_rgba(2,6,23,0.35)]">
+      <section className="red-luan-unified-flow mt-5 rounded-3xl border border-white/12 bg-slate-950/70 p-5 shadow-[0_18px_48px_rgba(2,6,23,0.35)]">
         <div className="mb-5 flex items-center justify-between gap-3"><div><p className="text-xs font-black tracking-[0.16em] text-amber-200">單人資料・沿用八字正式輸入</p><h2 className="mt-1 text-xl font-black text-white">你的出生資料</h2></div><span className="rounded-full border border-white/15 px-3 py-1 text-xs font-bold text-white/70">只填一位</span></div>
         <UnifiedBirthForm
           value={form}
@@ -328,18 +316,18 @@ export default function RedLuanHeartbeatPage() {
           missing={missing}
           disabled={loading}
           isSubmitting={loading}
-          submitLabel="下一步：選擇此刻的關係位置"
+          submitLabel="開始核對關係主題"
           loadingLabel="確定性規則核對中…"
           dateAccent="amber"
           onChange={(profile) => setForm((current) => ({ ...current, ...profile }))}
-          onSubmit={continueToContext}
+          onSubmit={(profile) => { void submit(profile); }}
         />
 
-        <section id="red-luan-relationship-context" className="mt-5 scroll-mt-5 rounded-3xl border border-amber-200/25 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.12),transparent_48%),rgba(15,23,42,0.82)] p-4 shadow-[0_16px_42px_rgba(2,6,23,0.25)] sm:p-5">
+        <section id="red-luan-relationship-context" className="mt-4 scroll-mt-5 rounded-2xl border border-amber-200/25 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.12),transparent_48%),rgba(15,23,42,0.82)] p-4 shadow-[0_16px_42px_rgba(2,6,23,0.25)] sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-black tracking-[0.18em] text-amber-200">紅鸞專屬・一張卡快速完成</p>
-              <h2 className="mt-2 text-xl font-black text-white">此刻的關係位置</h2>
+              <p className="text-xs font-black tracking-[0.18em] text-amber-200">同一份資料・最後三格</p>
+              <h2 className="mt-2 text-xl font-black text-white">5. 此刻的關係位置</h2>
               <p className="mt-2 max-w-2xl text-sm leading-7 text-white/65">請依現在的實際狀況選擇。這些自述只會與已驗證的年度規則證據並列，幫你選擇較貼合的「問心」方向；不會提高或改變命盤計算結果。</p>
             </div>
             <span className="rounded-full border border-amber-200/20 bg-amber-300/[0.08] px-3 py-1 text-xs font-bold text-amber-100">不送入 AI</span>
@@ -381,18 +369,25 @@ export default function RedLuanHeartbeatPage() {
             </div>
           </div>
 
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => { void submit(form); }}
-            className={`mt-5 inline-flex w-full items-center justify-center rounded-full border px-6 py-4 text-sm font-black transition disabled:opacity-60 ${contextComplete ? 'border-amber-100/65 bg-amber-300/20 text-amber-50 shadow-[0_0_24px_rgba(251,191,36,0.16)]' : 'border-white/10 bg-white/[0.04] text-white/55'}`}
-          >
-            {loading ? '確定性規則核對中…' : contextComplete ? '開始核對關係主題' : '完成三項選擇後開始'}
-          </button>
           <p className="mt-3 text-center text-[11px] leading-5 text-white/45">自述內容不參與八字、紅鸞、天喜、桃花、天乙、合沖、年份證據或品質門控。</p>
         </section>
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => { void submit(form); }}
+          className={`mt-5 inline-flex w-full items-center justify-center rounded-full border px-6 py-4 text-sm font-black transition disabled:opacity-60 ${contextComplete ? 'border-amber-100/65 bg-amber-300/20 text-amber-50 shadow-[0_0_24px_rgba(251,191,36,0.16)]' : 'border-white/10 bg-white/[0.04] text-white/55'}`}
+        >
+          {loading ? '確定性規則核對中…' : contextComplete ? '開始核對關係主題' : '完成三項選擇後開始'}
+        </button>
         {error && <p className="mt-5 rounded-2xl border border-rose-300/30 bg-rose-500/10 p-3 text-sm font-bold text-rose-100">{error}</p>}
       </section>
+      <style jsx>{`
+        .red-luan-unified-flow :global(.mega-friendly-form > p),
+        .red-luan-unified-flow :global(.mega-friendly-form > button[type='submit']),
+        .red-luan-unified-flow :global(.mega-friendly-form > section:last-child) {
+          display: none;
+        }
+      `}</style>
 
       {reading && <section id="red-luan-result" className="mt-6 scroll-mt-5 space-y-4" aria-live="polite">
         <header className="rounded-3xl border border-cyan-200/25 bg-cyan-300/[0.08] p-5">

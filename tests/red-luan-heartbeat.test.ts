@@ -195,6 +195,12 @@ const routeSource = readFileSync(join(process.cwd(), 'app/api/red-luan-heartbeat
 assert.ok(pageSource.includes("import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm'"));
 assert.ok(pageSource.includes('<UnifiedBirthForm'));
 assert.equal(pageSource.includes('aria-label="出生年份"'), false);
+assert.ok(pageSource.includes('5. 此刻的關係位置'));
+assert.ok(pageSource.includes(".mega-friendly-form > button[type='submit']"));
+assert.ok(pageSource.includes('.mega-friendly-form > section:last-child'));
+assert.equal(pageSource.includes('continueToContext'), false);
+assert.ok(pageSource.indexOf('<UnifiedBirthForm') < pageSource.indexOf('id="red-luan-relationship-context"'));
+assert.ok(pageSource.indexOf('id="red-luan-relationship-context"') < pageSource.indexOf('onClick={() => { void submit(form); }}'));
 for (const title of ['第一層・命理底盤', '第二層・此刻位置', '第三層・情境交叉', '第四層・問心', '第五層・易經引導']) {
   assert.ok(pageSource.includes(title), `missing onion layer: ${title}`);
 }
