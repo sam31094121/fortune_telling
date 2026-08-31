@@ -24885,3 +24885,8 @@ a.home-feature-launch::after {
 @media (prefers-reduced-motion: reduce) { .numerology-verdict-panel--auspicious::before, .numerology-verdict-panel--auspicious::after, .numerology-verdict-panel--reflective::before, .numerology-verdict-panel--reflective::after { animation: none; } }
 /* Local Traditional-Chinese calligraphic fallbacks only for the hexagram entry title. */
 .numerology-hexagram-title { font-family: "DFKai-SB", "KaiTi", "STKaiti", var(--font-serif); }
+.numerology-hexagram-disclosure__trigger { transition: background-color .18s ease, border-color .18s ease, transform .18s ease; }
+.numerology-hexagram-disclosure summary:active .numerology-hexagram-disclosure__trigger { transform: scale(.94); }
+.numerology-hexagram-disclosure summary:hover .numerology-hexagram-disclosure__trigger { border-color: rgba(254,240,138,.78); background: rgba(254,240,138,.18); }
+.numerology-hexagram-disclosure[open] .numerology-hexagram-disclosure__trigger { border-color: rgba(254,240,138,.82); background: rgba(254,240,138,.2); }
+.numerology-hexagram-disclosure[open] .numerology-hexagram-disclosure__trigger span { display: inline-block; transform: rotate(180deg); }

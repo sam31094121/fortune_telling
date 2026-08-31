@@ -501,10 +501,10 @@ export default function NumerologyPage() {
 
             {/* 你的數字屬什麼卦：每一組輸入都經梅花易數起卦＋逐碼配卦＋生剋交叉，卦是比對出來的，不是亂補 */}
             {result.iching && (
-              <details className="rounded-2xl border border-amber-200/30 bg-[linear-gradient(140deg,rgba(251,191,36,0.1),rgba(15,23,42,0.7))] p-4" aria-label="你的數字屬什麼卦">
+              <details className="numerology-hexagram-disclosure rounded-2xl border border-amber-200/30 bg-[linear-gradient(140deg,rgba(251,191,36,0.1),rgba(15,23,42,0.7))] p-4" aria-label="你的數字屬什麼卦">
                 <summary className="flex min-h-[56px] cursor-pointer items-center justify-between gap-3 rounded-xl px-3 py-1.5 text-left transition hover:bg-amber-100/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-100 sm:min-h-[60px] sm:px-4">
                   <span className="numerology-hexagram-title min-w-0 whitespace-nowrap text-xl font-black leading-none tracking-[0.1em] text-amber-50 sm:text-2xl">數字易經卦象</span>
-                  <span className="shrink-0 text-right text-[11px] font-bold tracking-[0.08em] text-amber-100/70">點閱</span>
+                  <span className="numerology-hexagram-disclosure__trigger shrink-0 rounded-full border border-amber-100/35 bg-amber-100/10 px-2.5 py-1 text-right text-[11px] font-black tracking-[0.08em] text-amber-50">點閱 <span aria-hidden="true">⌄</span></span>
                 </summary>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
