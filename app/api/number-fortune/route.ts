@@ -3,6 +3,7 @@ import { after, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { formatNumberReading, readNumberByIChing } from '@/lib/iching-numbers';
 import { buildNumberCrossVerdict } from '@/lib/number-cross-verdict';
+import { hasCompleteNumberCrossVerdict } from '@/lib/number-cross-gate';
 
 import {
   NUMBER_CORE_ENGINE_VERSION,
@@ -224,6 +225,9 @@ export async function POST(request: Request) {
   // 判語直接併入 summary，前端不需改版就能看到卜卦結論；完整交叉資料附在 iching 欄位。
   const numberIChing = readNumberByIChing(rawValue);
   const crossVerdict = buildNumberCrossVerdict(result.finalScore, numberIChing);
+  if (!hasCompleteNumberCrossVerdict(crossVerdict, numberIChing)) {
+    return NextResponse.json({ ok: false, requestId, code: 'CROSS_VERDICT_INCOMPLETE', message: '交叉判定尚未完成，請稍後再試。', ruleVersion: NUMBER_CORE_ENGINE_VERSION }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
+  }
   result.summary = `${numberIChing.verdictLine}${result.summary}`;
   // The deterministic Number Core result is the primary response.  External AI
   // prose is opt-in so a slow provider cannot make a basic number lookup feel

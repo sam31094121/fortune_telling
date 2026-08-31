@@ -10,6 +10,7 @@ import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import { getNumerologyDisplayTier, NUMEROLOGY_ENERGY_LINE_STEPS, type NumerologyDisplayTier } from '@/lib/numerology-display-tiers';
 import { getNumerologyExtremeCopy, getNumerologyExtremeVisual } from '@/lib/numerology-extreme-visual';
+import { hasCompleteNumberCrossVerdict } from '@/lib/number-cross-gate';
 
 type NumberMode = 'digit2' | 'digit3' | 'last4' | 'digit5' | 'six6' | 'digit7' | 'digit8' | 'digit9' | 'phone10';
 type NumberPurpose = 'general' | 'plate' | 'phone' | 'birthdate';
@@ -28,6 +29,7 @@ type NumberResult = {
   requestId?: string;
   engineVersion?: string;
   crossVerdict?: {
+    version: 'number-cross-verdict-v1';
     score: number;
     matrix: { score: number; weight: 60; contribution: number };
     iching: { score: number; weight: 40; contribution: number; signalSummary: string };
@@ -254,7 +256,8 @@ export default function NumerologyPage() {
     fontFeatureSettings: '"tnum" 1',
     letterSpacing: '0',
   } as CSSProperties & Record<'--fortune-number-input-size', string>;
-  const score = result ? result.crossVerdict?.score ?? result.finalScore ?? result.score : 0;
+  const crossVerdictComplete = result ? hasCompleteNumberCrossVerdict(result.crossVerdict, result.iching) : false;
+  const score = crossVerdictComplete && result?.crossVerdict ? result.crossVerdict.score : 0;
   const level = result ? getLevel(score) : null;
   const directionalMatrix = useMemo(() => {
     if (!result) return {};
@@ -465,7 +468,13 @@ export default function NumerologyPage() {
           </button>
         </section>
 
-        {result && level && (
+        {result && !crossVerdictComplete && (
+          <section ref={resultRef} tabIndex={-1} className="number-fortune-analysis-card scroll-mt-5 rounded-[26px] border border-amber-200/20 bg-slate-950/90 p-5 outline-none">
+            <p className="text-base font-black text-amber-100">交叉判定尚未完成</p>
+            <p className="mt-2 text-sm font-bold leading-6 text-white/70">需要同時取得數字結構與易經交叉資料後，才會顯示最終吉凶與能量線。請重新嘗試，不會以原始分數替代結論。</p>
+          </section>
+        )}
+        {result && level && crossVerdictComplete && (
           <section ref={resultRef} tabIndex={-1} className="number-fortune-analysis-card scroll-mt-5 space-y-4 rounded-[26px] border border-amber-200/20 bg-[linear-gradient(145deg,rgba(12,15,22,0.98),rgba(28,23,14,0.95),rgba(8,10,16,0.98))] p-4 shadow-[0_22px_70px_rgba(0,0,0,0.34)] outline-none sm:p-5">
             <div className="rounded-2xl border border-emerald-200/35 bg-emerald-300/10 px-4 py-3 text-center shadow-[0_0_28px_rgba(110,231,183,0.12)]">
               <p className="text-sm font-black text-emerald-50">分析完成，以下是你的數字解說</p>

@@ -38,6 +38,7 @@ next-env.d.ts
 .numerology-display-tier-test-build
 .number-cross-verdict-test-build
 .numerology-extreme-visual-test-build
+.number-cross-gate-test-build
 t12
 
 .vercel
