@@ -625,7 +625,6 @@ export default function NumerologyPage() {
               </div>
 
               <div className={`numerology-verdict-panel numerology-verdict-panel--${extremeVisual ?? 'standard'} mt-4 rounded-2xl border border-violet-200/25 bg-violet-300/[0.08] p-4`} aria-label={`${overallTier.label}判定；${extremeVisual ? '已啟用極位文化反思提示' : '一般判定'}`}>
-                {extremeVisual === 'auspicious' && <span className="numerology-gold-seal" aria-hidden="true">金印</span>}
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-200">融會貫通・單一判定</p>
                 <p className={`mt-2 text-2xl font-black ${overallTier.labelTone}`}>{purposeOption.shortLabel}論吉凶：{overallTier.label}</p>
                 <p className="mt-2 text-sm font-bold leading-6 text-white/76">{overallTier.feel}</p>
