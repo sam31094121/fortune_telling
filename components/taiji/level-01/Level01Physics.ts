@@ -19,6 +19,8 @@ import {
   REDUCED_MOTION_SPEED_SCALE,
   ROTATION_NORMALIZE,
   WAKE_THRESHOLD,
+  VISUAL_BURST_COOLDOWN_MS,
+  VISUAL_BURST_MIN_TILT_DEG,
 } from './level01.constants';
 
 export type BalanceState = 'UNBALANCED' | 'APPROACHING' | 'BALANCED' | 'LOCKED';
@@ -41,6 +43,7 @@ export interface Level01VisualPose {
   spinAngle: number;
   motionEnergy: number;
   balanceState: BalanceState;
+  visualMomentum: number;
 }
 
 export interface PhysicsState {
@@ -55,6 +58,13 @@ export interface PhysicsState {
   spinAngle: number;
   balancedSince: number;
   lockChimePending: boolean;
+  visualBurstStartedAt: number;
+  visualBurstDuration: number;
+  visualBurstTurns: number;
+  visualBurstDirection: number;
+  visualBurstAngle: number;
+  visualBurstVelocity: number;
+  lastVisualBurstAt: number;
 }
 
 export const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
@@ -144,6 +154,13 @@ export function createPhysicsState(): PhysicsState {
     spinAngle: 0,
     balancedSince: -1,
     lockChimePending: false,
+    visualBurstStartedAt: -1,
+    visualBurstDuration: 0,
+    visualBurstTurns: 0,
+    visualBurstDirection: 0,
+    visualBurstAngle: 0,
+    visualBurstVelocity: 0,
+    lastVisualBurstAt: -Infinity,
   };
 }
 
@@ -240,6 +257,40 @@ export function integrateLevel01Physics(
   }
   state.spinAngle += state.angularVelocity * delta;
 
+  // Visual burst is deliberately independent from balance classification: it
+  // turns a clear small gesture into a short full-turn flourish while leaving
+  // the real tilt/dead-zone calculations untouched.
+  const burstElapsedSeconds = state.visualBurstStartedAt >= 0 ? (input.now - state.visualBurstStartedAt) / 1000 : Infinity;
+  const burstActive = state.visualBurstStartedAt >= 0 && burstElapsedSeconds < state.visualBurstDuration;
+  const burstDirection = Math.sign(state.gamma) || Math.sign(state.beta) || flick.direction;
+  const canStartBurst = !input.reducedMotion && !burstActive && burstDirection !== 0
+    && input.now - state.lastVisualBurstAt >= VISUAL_BURST_COOLDOWN_MS
+    && (flick.strength > 0 || (tilt >= VISUAL_BURST_MIN_TILT_DEG && state.motionEnergy >= 0.14));
+  if (canStartBurst) {
+    const turns = flick.strength > 0 ? 5 : tilt >= APPROACHING_THRESHOLD_DEG ? 3 : 2;
+    state.visualBurstStartedAt = input.now;
+    state.visualBurstDuration = flick.strength > 0 ? 0.9 : 0.58;
+    state.visualBurstTurns = turns;
+    state.visualBurstDirection = burstDirection;
+    state.visualBurstAngle = 0;
+    state.visualBurstVelocity = 0;
+    state.lastVisualBurstAt = input.now;
+  }
+  if (state.visualBurstStartedAt >= 0) {
+    const progress = Math.max(0, Math.min(1, (input.now - state.visualBurstStartedAt) / 1000 / state.visualBurstDuration));
+    const eased = 1 - (1 - progress) ** 3;
+    const total = state.visualBurstTurns * Math.PI * 2;
+    state.visualBurstAngle = state.visualBurstDirection * total * eased;
+    state.visualBurstVelocity = state.visualBurstDirection * total * 3 * (1 - progress) ** 2 / state.visualBurstDuration;
+    if (progress >= 1) {
+      // Whole turns finish visually aligned, so the physical spin can continue
+      // without a snap or a residual orientation error.
+      state.visualBurstStartedAt = -1;
+      state.visualBurstAngle = 0;
+      state.visualBurstVelocity = 0;
+    }
+  }
+
   return state;
 }
 
@@ -249,13 +300,14 @@ export function visualPoseFromPhysics(state: PhysicsState, driving: boolean): Le
     driving,
     visualEuler: {
       x: mapTiltAxis(state.beta),
-      y: heading + state.spinAngle,
+      y: heading + state.spinAngle + state.visualBurstAngle,
       z: mapTiltAxis(state.gamma),
     },
-    angularVelocity: state.angularVelocity,
+    angularVelocity: state.angularVelocity + state.visualBurstVelocity,
     spinAngle: state.spinAngle,
     motionEnergy: state.motionEnergy,
     balanceState: state.balanceState,
+    visualMomentum: Math.min(1, Math.abs(state.visualBurstVelocity) / 34),
   };
 }
 

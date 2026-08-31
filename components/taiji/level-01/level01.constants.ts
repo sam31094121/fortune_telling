@@ -33,6 +33,8 @@ export const GRAVITY_FILTER_FACTOR = 0.08;
 export const GRAVITY_MAGNITUDE = 9.80665;
 export const FRAME_DELTA_CAP = 1 / 45;
 export const HUD_REFRESH_MS = 160;
+export const VISUAL_BURST_COOLDOWN_MS = 620;
+export const VISUAL_BURST_MIN_TILT_DEG = 1.7;
 
 export const MOTION_ENERGY_WEIGHTS = {
   orientation: 0.3,

@@ -12,6 +12,7 @@ import {
   resolveLevel01TiltDirection,
   resolveBalanceState,
   shortestAngleDelta,
+  visualPoseFromPhysics,
 } from '../components/taiji/level-01/Level01Physics';
 import { resolveEffectivePermission, resolveLevel01Mode } from '../components/taiji/level-01/Level01Fallback';
 import { canAutoStartLevel01Sensors, createGravityEstimate, readMotionEvent } from '../components/taiji/level-01/Level01Orientation';
@@ -96,6 +97,22 @@ integrateLevel01Physics(state, {
 });
 assert(state.angularVelocity <= MAX_SAFE_ROTATION_SPEED, 'rotation must respect max safe speed');
 assert(state.balanceState === 'BALANCED' || state.balanceState === 'UNBALANCED' || state.balanceState === 'APPROACHING', 'valid state');
+
+const expressive = createPhysicsState();
+for (let i = 0; i < 12; i += 1) {
+  integrateLevel01Physics(expressive, {
+    alpha: 0,
+    beta: 3,
+    gamma: 2,
+    rotationRate: 60,
+    acceleration: 4,
+    now: i * 16,
+    delta: 1 / 60,
+    reducedMotion: false,
+  });
+}
+const expressivePose = visualPoseFromPhysics(expressive, true);
+assert(expressive.visualBurstTurns >= 2 && expressivePose.visualMomentum > 0, 'a clear small tilt gets a bounded visual flourish without changing balance rules');
 
 const flicked = createPhysicsState();
 for (let i = 0; i < 8; i += 1) {

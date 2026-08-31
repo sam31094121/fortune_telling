@@ -257,6 +257,7 @@ export class Level01TaijiMotionController {
     this.pose.spinAngle = visual.spinAngle;
     this.pose.motionEnergy = visual.motionEnergy;
     this.pose.balanceState = visual.balanceState;
+    this.pose.visualMomentum = visual.visualMomentum;
     this.pose.snapshot = snapshotFromPhysics(this.physics);
     if (this.bubbleEl) {
       // The shadow control and its glow share filtered physics state with the ball;
@@ -267,7 +268,7 @@ export class Level01TaijiMotionController {
       const shadow = this.bubbleEl.parentElement;
       if (shadow) {
         const tilt = Math.hypot(this.physics.beta, this.physics.gamma);
-        const energy = this.physics.motionEnergy;
+        const energy = Math.max(this.physics.motionEnergy, visual.visualMomentum * 0.72);
         shadow.style.setProperty('--shadow-shift-x', `${(x * 0.32).toFixed(2)}px`);
         shadow.style.setProperty('--shadow-shift-y', `${(y * 0.12).toFixed(2)}px`);
         shadow.style.setProperty('--shadow-spread', `${(1 + Math.min(0.14, tilt * 0.008 + energy * 0.08)).toFixed(3)}`);
