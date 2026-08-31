@@ -11,7 +11,8 @@ if (styles.includes('水平儀')) throw new Error('visible level label must rema
 if (!styles.includes('--shadow-shift-x') || !styles.includes('--shadow-spread') || !styles.includes('--shadow-angle') || !styles.includes('.shadowGlow')) throw new Error('the level 01 control must remain a physics-driven shadow');
 if (overlay.includes('輕觸啟動') || overlay.includes('shadowHint') || styles.includes('.shadowHint')) throw new Error('the level 01 trigger must not show a start-text prompt');
 if (!overlay.includes('attemptAutomaticSensorStart')) throw new Error('the level 01 overlay must attempt gesture-free sensor start when supported');
-if (!overlay.includes('particleField') || !styles.includes('.particleField') || !styles.includes('shadowParticleFloat')) throw new Error('the level 01 shadow must keep its restrained particle field');
+if (!overlay.includes('particlePair') || !styles.includes('.particlePair') || !styles.includes('shadowPhotonDrift')) throw new Error('the level 01 shadow must keep its paired photon field');
+if (!styles.includes('--pair-gap') || !styles.includes('--pair-angle')) throw new Error('the paired photons must reflect the filtered balance state');
 if (!styles.includes('pointer-events: none') || !styles.includes('prefers-reduced-motion')) throw new Error('particles must not block touch and must respect reduced motion');
 if (!styles.includes('left: 50%') || !styles.includes('bottom: 7.5%') || !styles.includes('.cueSouth { opacity: 0; }') || !styles.includes('.balanceBubble')) throw new Error('dynamic shadow must stay in the ball bottom-centre seat');
 console.log('Taiji Level 01 UI boundary passed');

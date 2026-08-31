@@ -20,6 +20,8 @@
   --particle-drift-x: 0px;
   --particle-drift-y: 0px;
   --particle-opacity: 0.3;
+  --pair-gap: 8px;
+  --pair-angle: 0deg;
   position: absolute;
   left: 50%;
   bottom: 7.5%;
@@ -86,38 +88,39 @@
   z-index: -1;
 }
 
-/* Five quiet, transform-only particles keep the field dimensional without
-   turning the mobile interaction into a busy visual effect. */
-.particleField {
+/* A paired photon marker is part of the shadow, not a separate meter. Its
+   distance and angle gently follow the same filtered balance physics. */
+.particlePair {
   position: absolute;
-  inset: -15px -22px;
-  transform: translate3d(var(--particle-drift-x), var(--particle-drift-y), 0);
+  left: 50%;
+  top: 50%;
+  width: 1px;
+  height: 1px;
+  transform: translate3d(calc(-50% + var(--particle-drift-x)), calc(-50% + var(--particle-drift-y)), 0) rotateZ(var(--pair-angle));
   opacity: var(--particle-opacity);
   pointer-events: none;
   z-index: -1;
   will-change: transform, opacity;
 }
 
-.particleField span {
+.particlePair span {
   position: absolute;
-  width: 3px;
-  height: 3px;
+  top: 50%;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
-  background: rgba(255, 244, 186, 0.92);
+  background: radial-gradient(circle at 35% 30%, #fffdf2 0%, #fde68a 44%, rgba(217, 119, 6, 0.58) 100%);
   box-shadow: 0 0 7px rgba(253, 230, 138, 0.75);
-  animation: shadowParticleFloat 3.8s ease-in-out infinite;
+  animation: shadowPhotonDrift 2.9s ease-in-out infinite;
   will-change: transform, opacity;
 }
 
-.particleField span:nth-child(1) { left: 19%; top: 58%; animation-delay: -1.2s; }
-.particleField span:nth-child(2) { left: 34%; top: 22%; width: 2px; height: 2px; animation-delay: -2.8s; }
-.particleField span:nth-child(3) { left: 57%; top: 68%; animation-delay: -0.6s; }
-.particleField span:nth-child(4) { left: 72%; top: 30%; width: 2px; height: 2px; animation-delay: -2s; }
-.particleField span:nth-child(5) { left: 84%; top: 60%; animation-delay: -3.3s; }
+.particlePair span:first-child { left: calc(-1 * var(--pair-gap)); transform: translate3d(-50%, -50%, 0); }
+.particlePair span:last-child { left: var(--pair-gap); transform: translate3d(-50%, -50%, 0); animation-delay: -1.45s; }
 
-@keyframes shadowParticleFloat {
-  0%, 100% { transform: translate3d(-2px, 4px, 0) scale(0.72); opacity: 0.16; }
-  48% { transform: translate3d(3px, -8px, 0) scale(1); opacity: 0.84; }
+@keyframes shadowPhotonDrift {
+  0%, 100% { margin-top: 2px; opacity: 0.34; }
+  50% { margin-top: -3px; opacity: 0.9; }
 }
 
 .balanceBubble {
@@ -130,6 +133,8 @@
   transform: translate3d(-50%, -50%, 0);
   left: 50%;
   top: 50%;
+  /* Kept as the physics anchor; the visible indicator is the paired photons. */
+  opacity: 0;
   will-change: transform;
 }
 
@@ -145,13 +150,13 @@
     transition: none;
   }
 
-  .particleField {
+  .particlePair {
     opacity: 0.14;
     transform: none;
     will-change: auto;
   }
 
-  .particleField span {
+  .particlePair span {
     animation: none;
     opacity: 0.42;
     will-change: auto;
