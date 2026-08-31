@@ -503,8 +503,8 @@ export default function NumerologyPage() {
             {result.iching && (
               <details className="rounded-2xl border border-amber-200/30 bg-[linear-gradient(140deg,rgba(251,191,36,0.1),rgba(15,23,42,0.7))] p-4" aria-label="你的數字屬什麼卦">
                 <summary className="flex min-h-[56px] cursor-pointer items-center justify-between gap-3 rounded-xl px-2 text-left transition hover:bg-amber-100/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-100">
-                  <span className="text-base font-black tracking-[0.08em] text-amber-50">數字易經卦象</span>
-                  <span className="text-right text-xs font-bold leading-5 text-amber-100/80">點閱查看卦象</span>
+                  <span className="text-lg font-black tracking-[0.1em] text-amber-50 sm:text-xl">數字易經卦象</span>
+                  <span className="text-right text-xs font-bold leading-5 text-amber-100/80">點閱</span>
                 </summary>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
