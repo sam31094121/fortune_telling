@@ -19,6 +19,7 @@ import {
   type PhysicsState,
 } from './Level01Physics';
 import {
+  canAutoStartLevel01Sensors,
   createGravityEstimate,
   readMotionEvent,
   readOrientationEvent,
@@ -55,6 +56,7 @@ export class Level01TaijiMotionController {
   private bubbleEl: HTMLElement | null = null;
   private armedAt = 0;
   private sensorTimedOut = false;
+  private autoArmAttempted = false;
   private readonly gravity: GravityEstimate = createGravityEstimate();
 
   constructor() {
@@ -92,6 +94,24 @@ export class Level01TaijiMotionController {
     if (this.disposed) return this.pose;
     this.syncEnvironment();
     void this.audio.armFromUserGesture();
+    return this.enableSensors();
+  }
+
+  /**
+   * Android and desktop browsers can expose device sensors without a permission
+   * dialog. Start those immediately so the first screen feels alive. iOS has a
+   * gesture-only permission rule; deliberately leave it untouched until the
+   * customer taps the ball or its shadow.
+   */
+  async attemptAutomaticSensorStart() {
+    if (this.disposed || this.autoArmAttempted) return this.pose;
+    this.autoArmAttempted = true;
+    this.syncEnvironment();
+    if (!canAutoStartLevel01Sensors()) return this.pose;
+    return this.enableSensors();
+  }
+
+  private async enableSensors() {
     if (!sensorsSupported()) {
       this.permission = 'unsupported';
       this.publish(false);

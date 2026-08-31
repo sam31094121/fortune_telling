@@ -8,6 +8,8 @@ if (!overlay.includes('data-level01-direction') || !overlay.includes('orientatio
 if (!styles.includes('visibility: hidden') || !styles.includes('explicit future restore')) throw new Error('direction letters must be hidden while their level-01 logic remains restorable');
 if (overlay.includes('啟動太極') || styles.includes('.compassMark') || styles.includes('.startButton')) throw new Error('old compass/start control must not return');
 if (styles.includes('水平儀')) throw new Error('visible level label must remain absent');
-if (!styles.includes('--shadow-shift-x') || !styles.includes('--shadow-spread') || !styles.includes('--shadow-angle') || !styles.includes('.shadowGlow') || !styles.includes('.shadowHint')) throw new Error('the level 01 control must remain a physics-driven shadow with a clear start cue');
+if (!styles.includes('--shadow-shift-x') || !styles.includes('--shadow-spread') || !styles.includes('--shadow-angle') || !styles.includes('.shadowGlow')) throw new Error('the level 01 control must remain a physics-driven shadow');
+if (overlay.includes('輕觸啟動') || overlay.includes('shadowHint') || styles.includes('.shadowHint')) throw new Error('the level 01 trigger must not show a start-text prompt');
+if (!overlay.includes('attemptAutomaticSensorStart')) throw new Error('the level 01 overlay must attempt gesture-free sensor start when supported');
 if (!styles.includes('left: 50%') || !styles.includes('bottom: 7.5%') || !styles.includes('.cueSouth { opacity: 0; }') || !styles.includes('.balanceBubble')) throw new Error('dynamic shadow must stay in the ball bottom-centre seat');
 console.log('Taiji Level 01 UI boundary passed');

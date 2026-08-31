@@ -34,6 +34,16 @@ export default function Level01TaijiOverlay({
     onDrivingChange?.(visible && pose.driving);
   }, [onDrivingChange, pose.driving, visible]);
 
+  useEffect(() => {
+    if (!visible) return;
+    // On browsers that do not require a user gesture, begin sensing as soon as
+    // the first layer appears. Safari/iOS safely remains idle until a natural
+    // touch reaches the ball or its shadow.
+    void controller.attemptAutomaticSensorStart().then((next) => {
+      setPose({ ...next, visualEuler: { ...next.visualEuler }, snapshot: { ...next.snapshot } });
+    });
+  }, [controller, visible]);
+
   const arm = useCallback(() => {
     void controller.armFromUserGesture().then((next) => setPose({ ...next, visualEuler: { ...next.visualEuler }, snapshot: { ...next.snapshot } }));
   }, [controller]);
@@ -57,7 +67,6 @@ export default function Level01TaijiOverlay({
       <button type="button" className={styles.balanceWell} onClick={arm} aria-label="啟用太極平衡感測" data-level01-layer="balance-indicator" data-level01-surface="dynamic-shadow">
         <span className={styles.shadowGlow} aria-hidden="true" />
         <span ref={bubbleRef} className={styles.balanceBubble} />
-        <span className={styles.shadowHint} aria-hidden="true">輕觸啟動</span>
       </button>
     </div>
   );

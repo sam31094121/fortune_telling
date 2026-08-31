@@ -54,6 +54,12 @@ export function sensorsSupported() {
     && (typeof DeviceOrientationEvent !== 'undefined' || typeof DeviceMotionEvent !== 'undefined');
 }
 
+/** Safe to call without a customer gesture only when the browser has no sensor
+ * permission dialog. Safari/iOS is intentionally excluded here. */
+export function canAutoStartLevel01Sensors() {
+  return sensorsSupported() && !orientationPermissionRequired() && !motionPermissionRequired();
+}
+
 export async function requestLevel01SensorPermission(): Promise<PermissionName | 'unsupported'> {
   if (!sensorsSupported()) return 'unsupported';
 

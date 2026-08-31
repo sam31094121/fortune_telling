@@ -13,7 +13,7 @@ import {
   shortestAngleDelta,
 } from '../components/taiji/level-01/Level01Physics';
 import { resolveEffectivePermission, resolveLevel01Mode } from '../components/taiji/level-01/Level01Fallback';
-import { createGravityEstimate, readMotionEvent } from '../components/taiji/level-01/Level01Orientation';
+import { canAutoStartLevel01Sensors, createGravityEstimate, readMotionEvent } from '../components/taiji/level-01/Level01Orientation';
 import { level01ReentryPose, shouldTriggerLevel01Reentry } from '../components/taiji/level-01/Level01Reentry';
 import { MAX_FLICK_SPIN_SPEED, MAX_SAFE_ROTATION_SPEED, WAKE_THRESHOLD } from '../components/taiji/level-01/level01.constants';
 
@@ -43,6 +43,21 @@ assert(clamp01(1.8) === 1, 'energy clamp high');
 assert(clamp01(-0.2) === 0, 'energy clamp low');
 assert(calculateMotionEnergy({ orientationDelta: 250, rotationRate: 900, acceleration: 80 }) === 1, 'motion energy cannot exceed 1');
 assert(calculateMotionEnergy({ orientationDelta: 0, rotationRate: 0, acceleration: 0 }) === 0, 'still phone is 0 energy');
+
+// A browser that exposes an iOS-style requestPermission must wait for a real
+// tap. We never auto-open that permission dialog on first render.
+const originalOrientation = (globalThis as { DeviceOrientationEvent?: unknown }).DeviceOrientationEvent;
+const originalMotion = (globalThis as { DeviceMotionEvent?: unknown }).DeviceMotionEvent;
+const originalWindow = (globalThis as { window?: unknown }).window;
+(globalThis as { window?: unknown }).window = globalThis;
+(globalThis as { DeviceOrientationEvent?: unknown }).DeviceOrientationEvent = Object.assign(class {}, { requestPermission: async () => 'granted' });
+(globalThis as { DeviceMotionEvent?: unknown }).DeviceMotionEvent = class {};
+assert(!canAutoStartLevel01Sensors(), 'gesture-only sensor permission must not auto-start');
+(globalThis as { DeviceOrientationEvent?: unknown }).DeviceOrientationEvent = class {};
+assert(canAutoStartLevel01Sensors(), 'gesture-free sensor browsers may start when the first layer opens');
+(globalThis as { DeviceOrientationEvent?: unknown }).DeviceOrientationEvent = originalOrientation;
+(globalThis as { DeviceMotionEvent?: unknown }).DeviceMotionEvent = originalMotion;
+(globalThis as { window?: unknown }).window = originalWindow;
 
 const state = createPhysicsState();
 integrateLevel01Physics(state, {
