@@ -57,14 +57,13 @@ const PURPOSE_OPTIONS: Array<{ id: NumberPurpose; label: string; shortLabel: str
   { id: 'birthdate', label: '出生年月日', shortLabel: '這組生日數字', detail: '直接解讀個人節奏與成長' },
 ];
 
-const PURPOSE_COPY: Record<NumberPurpose, { goodHeading: string; riskHeading: string; strengthTitle: string; good: string; risk: string; next: string; psychologyContext: string }> = {
+const PURPOSE_COPY: Record<NumberPurpose, { goodHeading: string; riskHeading: string; strengthTitle: string; good: string; risk: string; psychologyContext: string }> = {
   general: {
     goodHeading: '可運用的地方',
     riskHeading: '需要留意的地方',
     strengthTitle: '完整結構指標',
     good: '可作為安排目前使用節奏與資源的參考。',
     risk: '適合優先安排與調整的地方。',
-    next: '先選一件能讓節奏更清楚的小事完成。',
     psychologyContext: '這股能量主要反映在你目前整體的節奏與資源分配上。',
   },
   plate: {
@@ -73,7 +72,6 @@ const PURPOSE_COPY: Record<NumberPurpose, { goodHeading: string; riskHeading: st
     strengthTitle: '車牌完整結構指標',
     good: '在這張車牌的數字解讀中，較能支持出行、往來與使用安排。',
     risk: '是這張車牌在使用節奏與外出安排上較需要留意的地方；不代表車況或行車安全的保證。',
-    next: '以正常保養與安全駕駛為主，再把數字當作選牌參考。',
     psychologyContext: '這股能量主要反映在你的出行、往來與車輛使用節奏上。',
   },
   phone: {
@@ -82,7 +80,6 @@ const PURPOSE_COPY: Record<NumberPurpose, { goodHeading: string; riskHeading: st
     strengthTitle: '電話號碼完整結構指標',
     good: '在這支電話的數字解讀中，較能支持聯絡、人際與工作溝通。',
     risk: '是這支電話在溝通節奏、回應壓力或人際往來上較需要留意的地方。',
-    next: '把重要訊息說清楚、留出回應時間，讓溝通優勢真正發揮。',
     psychologyContext: '這股能量主要反映在你的聯絡節奏、人際互動與工作溝通上。',
   },
   birthdate: {
@@ -91,7 +88,6 @@ const PURPOSE_COPY: Record<NumberPurpose, { goodHeading: string; riskHeading: st
     strengthTitle: '出生年月日完整結構指標',
     good: '在這組生日數字的解讀中，較能支持個人節奏與成長方向。',
     risk: '是這組生日數字反映出的壓力傾向，適合用來安排生活節奏。',
-    next: '把優勢放進日常選擇，並先照顧最容易失衡的環節。',
     psychologyContext: '這股能量主要反映在你的個人成長步調與生活節奏上。',
   },
 };
@@ -589,14 +585,6 @@ export default function NumerologyPage() {
                 </article>
               </div>
             )}
-
-            <article className="rounded-2xl border border-amber-200/25 bg-amber-300/[0.1] p-4">
-              <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">今天的小一步</p>
-              <h3 className="mt-2 text-base font-black text-amber-50">今天怎麼安排</h3>
-              <p className="mt-2 text-sm font-bold leading-7 text-white/76">
-                {purposeCopy.next}
-              </p>
-            </article>
 
             {/* 01/02/03 索引條原本對應上方三張卡片，「可運用」「先留意」已隱藏，索引條一併隱藏；保留程式碼供之後需要時叫醒。 */}
             {false && (
