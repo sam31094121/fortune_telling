@@ -17,6 +17,7 @@ if (!overlay.includes('attemptAutomaticSensorStart')) throw new Error('the level
 if (!overlay.includes("window.addEventListener('pointerdown'") || !overlay.includes("window.addEventListener('touchstart'")) throw new Error('iOS fallback must accept any natural page touch without visible start copy');
 if (!overlay.includes('particlePair') || !styles.includes('.particlePair') || !styles.includes('shadowPhotonDrift')) throw new Error('the level 01 shadow must keep its paired photon field');
 if (!styles.includes('--pair-gap') || !styles.includes('--pair-angle')) throw new Error('the paired photons must reflect the filtered balance state');
+if (!styles.includes('--shadow-rise') || !styles.includes('--shadow-depth')) throw new Error('the shadow must express depth from real horizontal tilt without visible labels');
 if (!styles.includes('pointer-events: none') || !styles.includes('prefers-reduced-motion')) throw new Error('particles must not block touch and must respect reduced motion');
 if (!controller.includes('this.haptics.armFromUserGesture()') || !haptics.includes('armedByUserGesture')) throw new Error('haptic feedback must remain behind a real user gesture');
 if (!haptics.includes('lastDirectionAt') || !haptics.includes('motionEnergy >= 0.16') || !audio.includes('playTiltAccent')) throw new Error('direction feedback must keep its dead zone, cooldown, and quiet audio accent');

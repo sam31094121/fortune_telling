@@ -289,6 +289,10 @@ export class Level01TaijiMotionController {
         shadow.style.setProperty('--particle-opacity', `${(0.3 + Math.min(0.22, energy * 0.2 + tilt * 0.006)).toFixed(3)}`);
         shadow.style.setProperty('--pair-gap', `${(8 + Math.min(5, tilt * 0.13 + energy * 2)).toFixed(2)}px`);
         shadow.style.setProperty('--pair-angle', `${Math.max(-8, Math.min(8, this.physics.gamma * 0.22)).toFixed(2)}deg`);
+        // gamma/beta are the real horizontal axes. The small rise is only a
+        // visual depth layer derived from tilt magnitude, never a fake height sensor.
+        shadow.style.setProperty('--shadow-rise', `${(-Math.min(5, tilt * 0.42)).toFixed(2)}px`);
+        shadow.style.setProperty('--shadow-depth', `${(1 - Math.min(0.16, Math.abs(this.physics.beta) * 0.012)).toFixed(3)}`);
       }
     }
     const hudKey = `${this.pose.mode}|${this.pose.permission}|${this.pose.driving}|${this.pose.balanceState}|${this.pose.hapticMode}`;
