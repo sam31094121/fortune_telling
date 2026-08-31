@@ -232,6 +232,7 @@ export default function NumerologyPage() {
   const [loading, setLoading] = useState(false);
   const [purpose, setPurpose] = useState<NumberPurpose>('general');
   const resultRef = useRef<HTMLElement>(null);
+  const numberInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const clearIdentityError = () => {
@@ -320,6 +321,13 @@ export default function NumerologyPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function retryWithAnotherNumber() {
+    setValue('');
+    setResult(null);
+    setError('');
+    window.setTimeout(() => numberInputRef.current?.focus(), 0);
   }
 
   return (
@@ -422,6 +430,7 @@ export default function NumerologyPage() {
           </p>
 
           <input
+            ref={numberInputRef}
             value={value}
             inputMode="numeric"
             autoComplete="off"
@@ -624,6 +633,12 @@ export default function NumerologyPage() {
                   <p className="mt-2 text-xs font-bold leading-5 text-white/58">綜合判定 {result.crossVerdict.score} 分：數字結構 {result.crossVerdict.matrix.score} 分 × 60%（{result.crossVerdict.matrix.contribution}）＋易經訊號 {result.crossVerdict.iching.score} 分 × 40%（{result.crossVerdict.iching.contribution}）。作為文化解讀與自我反思參考，不代表保證或預測。</p>
                 )}
                 {extremeCopy && <p className="numerology-extreme-copy mt-3 rounded-xl px-3 py-2 text-xs font-black leading-5 text-white/82">{extremeCopy}</p>}
+                {overallTier.label === '大凶' && (
+                  <div className="mt-3 rounded-xl border border-rose-200/25 bg-black/20 p-3">
+                    <p className="text-xs font-bold leading-5 text-white/72">想換一組數字重新探索嗎？這是數字結構的文化解讀，不代表改變命運或避免任何現實事件。</p>
+                    <button type="button" onClick={retryWithAnotherNumber} className="mt-2 min-h-[44px] rounded-xl border border-rose-200/60 bg-rose-300/20 px-4 text-sm font-black text-rose-50">換一個號碼再試</button>
+                  </div>
+                )}
                 <EnergyLine tier={overallTier} />
                 <p className="mt-3 text-[10px] font-bold text-white/40">以下是這項判定融合出來的組成依據：金錢、感情兩個中軸。</p>
               </div>
