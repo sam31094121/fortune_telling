@@ -12,7 +12,8 @@
 .balanceWell {
   position: absolute;
   left: 50%;
-  bottom: 7%;
+  /* Occupies the S / bottom-centre seat, leaving the ball a clean breathing gap. */
+  bottom: 2%;
   width: 76px;
   height: 30px;
   transform: translate3d(-50%, 0, 0);
@@ -27,6 +28,7 @@
 .orientationCue { position: absolute; inset: 5%; pointer-events: none; color: rgba(253,230,138,.46); font-size: 10px; font-weight: 900; letter-spacing: .08em; text-shadow: 0 1px 6px rgba(2,6,23,.72); }
 .orientationCue span { position: absolute; transition: color .18s ease, text-shadow .18s ease, transform .18s ease; }
 .cueNorth { top: 0; left: 50%; transform: translateX(-50%); }.cueEast { right: 0; top: 50%; transform: translateY(-50%); }.cueSouth { bottom: 0; left: 50%; transform: translateX(-50%); }.cueWest { left: 0; top: 50%; transform: translateY(-50%); }
+.cueSouth { opacity: 0; }
 .overlay[data-level01-direction='N'] .cueNorth, .overlay[data-level01-direction='E'] .cueEast, .overlay[data-level01-direction='S'] .cueSouth, .overlay[data-level01-direction='W'] .cueWest { color: #fff3bf; text-shadow: 0 0 10px rgba(253,230,138,.9); transform: translateX(-50%) scale(1.16); }
 .overlay[data-level01-direction='E'] .cueEast, .overlay[data-level01-direction='W'] .cueWest { transform: translateY(-50%) scale(1.16); }
 
