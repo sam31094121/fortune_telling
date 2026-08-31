@@ -233,6 +233,55 @@ async function checkRoute(route) {
   };
 }
 
+// A route can return valid HTML while its Next.js CSS asset is missing. That
+// leaves mobile customers with a white, unstyled page even though a basic HTTP
+// health check says the homepage is available. Verify the delivered stylesheet
+// includes the primary homepage quest module, which is deliberately a visual
+// (not just structural) health signal.
+async function checkHomeVisualStyles() {
+  const startedAt = Date.now();
+  const home = await fetchRoute('/');
+  const cssMatch = home.text.match(/href="([^"?]*\/_next\/static\/css\/app\/page\.css(?:\?[^\"]*)?)"/);
+
+  if (!home.ok || !cssMatch) {
+    return {
+      id: 'HOME_VISUAL_STYLES',
+      module: 'home_visual_styles',
+      title: '首頁手機視覺樣式',
+      path: '/',
+      status: 'FAILED',
+      httpStatus: home.status,
+      durationMs: Date.now() - startedAt,
+      htmlLength: home.length,
+      error: home.error || null,
+      issue: 'homepage did not provide its page stylesheet',
+    };
+  }
+
+  const cssPath = cssMatch[1].replaceAll('&amp;', '&');
+  const css = await fetchRoute(cssPath);
+  const requiredMarkers = ['TodayDirectionQuest_quest'];
+  const missingMarkers = requiredMarkers.filter((marker) => !css.text.includes(marker));
+  const issue = !css.ok
+    ? css.error || `homepage stylesheet returned status ${css.status}`
+    : missingMarkers.length > 0
+      ? `homepage stylesheet is incomplete: missing ${missingMarkers.join(', ')}`
+      : null;
+
+  return {
+    id: 'HOME_VISUAL_STYLES',
+    module: 'home_visual_styles',
+    title: '首頁手機視覺樣式',
+    path: cssPath,
+    status: issue ? 'FAILED' : 'PASSED',
+    httpStatus: css.status,
+    durationMs: Date.now() - startedAt,
+    htmlLength: css.length,
+    error: css.error || null,
+    issue,
+  };
+}
+
 async function checkHomeComponent(component) {
   const startedAt = Date.now();
   const sourceFile = path.join(PROJECT_ROOT, component.sourcePath);
@@ -338,6 +387,10 @@ async function scanScreenHealth() {
     routes.push(result);
     await log(`${result.status} ${result.title} ${result.path} (${result.httpStatus}, ${result.durationMs}ms)`, result.status === 'PASSED' ? 'INFO' : 'WARN');
   }
+
+  const visualStyles = await checkHomeVisualStyles();
+  routes.push(visualStyles);
+  await log(`${visualStyles.status} ${visualStyles.title} CSS delivery (${visualStyles.httpStatus}, ${visualStyles.durationMs}ms)`, visualStyles.status === 'PASSED' ? 'INFO' : 'WARN');
 
   for (const component of HOME_COMPONENT_CHECKS) {
     const result = await checkHomeComponent(component);
