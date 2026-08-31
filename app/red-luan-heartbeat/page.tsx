@@ -320,7 +320,7 @@ export default function RedLuanHeartbeatPage() {
           onSubmit={(profile) => { void submit(profile); }}
         />
 
-        <section id="red-luan-relationship-context" className="mt-4 scroll-mt-5 rounded-2xl border border-amber-200/25 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.12),transparent_48%),rgba(15,23,42,0.82)] p-4 shadow-[0_16px_42px_rgba(2,6,23,0.25)] sm:p-5">
+        <section id="red-luan-relationship-context" className="mt-5 scroll-mt-5 border-t border-amber-200/20 pt-5">
           <h2 className="text-xl font-black text-white">5. 此刻的關係位置</h2>
           <p className="mt-2 text-sm font-bold text-white/65">選擇最貼近此刻的位置。</p>
 

@@ -201,6 +201,7 @@ assert.ok(pageSource.includes('.mega-friendly-form > section:last-child'));
 assert.equal(pageSource.includes('continueToContext'), false);
 assert.ok(pageSource.indexOf('<UnifiedBirthForm') < pageSource.indexOf('id="red-luan-relationship-context"'));
 assert.ok(pageSource.indexOf('id="red-luan-relationship-context"') < pageSource.indexOf('onClick={() => { void submit(form); }}'));
+assert.ok(pageSource.includes('id="red-luan-relationship-context" className="mt-5 scroll-mt-5 border-t border-amber-200/20 pt-5"'));
 const relationshipInputSection = pageSource.slice(pageSource.indexOf('id="red-luan-relationship-context"'), pageSource.indexOf('onClick={() => { void submit(form); }}'));
 assert.ok(relationshipInputSection.includes('選擇最貼近此刻的位置。'));
 for (const removedCopy of ['同一份資料・最後三格', '不送入 AI', '請依現在的實際狀況選擇', '自述內容不參與', 'hint=']) {
