@@ -66,6 +66,16 @@ export function lowPass(previous: number, current: number, factor = LOW_PASS_FAC
   return previous + (current - previous) * factor;
 }
 
+export function frameRateIndependentFactor(delta: number, baseFactor = LOW_PASS_FACTOR) {
+  return 1 - Math.pow(1 - baseFactor, Math.max(0, delta) * 60);
+}
+
+export function level01BubbleOffset(degrees: number) {
+  const deadZone = 1.2;
+  const magnitude = Math.max(0, Math.abs(degrees) - deadZone);
+  return Math.max(-18, Math.min(18, Math.sign(degrees) * magnitude * 1.45));
+}
+
 export function lowPassAngle(previousDeg: number, currentDeg: number, factor = LOW_PASS_FACTOR) {
   return normalizeAngle(previousDeg + shortestAngleDelta(previousDeg, currentDeg) * factor);
 }
@@ -134,11 +144,12 @@ export function integrateLevel01Physics(
   const prevBeta = state.beta;
   const prevGamma = state.gamma;
 
-  state.alpha = lowPassAngle(state.alpha, input.alpha);
-  state.beta = lowPass(state.beta, input.beta);
-  state.gamma = lowPass(state.gamma, input.gamma);
-  state.rotationRate = lowPass(state.rotationRate, Math.abs(input.rotationRate));
-  state.acceleration = lowPass(state.acceleration, Math.abs(input.acceleration));
+  const smoothing = frameRateIndependentFactor(delta);
+  state.alpha = lowPassAngle(state.alpha, input.alpha, smoothing);
+  state.beta = lowPass(state.beta, input.beta, smoothing);
+  state.gamma = lowPass(state.gamma, input.gamma, smoothing);
+  state.rotationRate = lowPass(state.rotationRate, Math.abs(input.rotationRate), smoothing);
+  state.acceleration = lowPass(state.acceleration, Math.abs(input.acceleration), smoothing);
 
   const orientationDelta = (
     Math.abs(shortestAngleDelta(prevAlpha, state.alpha))

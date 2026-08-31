@@ -11,6 +11,7 @@ import { Level01HapticController } from './Level01Haptics';
 import {
   createPhysicsState,
   integrateLevel01Physics,
+  level01BubbleOffset,
   snapshotFromPhysics,
   visualPoseFromPhysics,
   type Level01VisualPose,
@@ -219,8 +220,9 @@ export class Level01TaijiMotionController {
     this.pose.balanceState = visual.balanceState;
     this.pose.snapshot = snapshotFromPhysics(this.physics);
     if (this.bubbleEl) {
-      const x = Math.max(-18, Math.min(18, this.physics.gamma * 1.6));
-      const y = Math.max(-18, Math.min(18, this.physics.beta * 1.6));
+      // Bubble and ball share the same filtered physics state; never read raw sensor events here.
+      const x = level01BubbleOffset(this.physics.gamma);
+      const y = level01BubbleOffset(this.physics.beta);
       this.bubbleEl.style.transform = `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), 0)`;
     }
     const hudKey = `${this.pose.mode}|${this.pose.permission}|${this.pose.driving}|${this.pose.balanceState}|${this.pose.hapticMode}`;

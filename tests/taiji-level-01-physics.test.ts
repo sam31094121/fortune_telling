@@ -4,6 +4,8 @@ import {
   clamp01,
   createPhysicsState,
   integrateLevel01Physics,
+  frameRateIndependentFactor,
+  level01BubbleOffset,
   lowPass,
   lowPassAngle,
   normalizeAngle,
@@ -23,6 +25,8 @@ assert(normalizeAngle(-90) === 270, 'negative angle wraps');
 assert(Math.abs(shortestAngleDelta(359, 1) - 2) < 1e-9, '359→1 must be +2 not -358');
 assert(Math.abs(shortestAngleDelta(10, 350) + 20) < 1e-9, '10→350 must be -20');
 assert(Math.abs(lowPassAngle(359, 1) - 359.24) < 1e-6, 'circular low-pass must not jump across 0/360');
+assert(Math.abs(frameRateIndependentFactor(1 / 60) - 0.12) < 1e-9, '60fps smoothing preserves the calibrated response');
+assert(level01BubbleOffset(0.8) === 0 && level01BubbleOffset(30) === 18, 'bubble applies a dead zone and safe clamp from shared tilt state');
 
 assert(Math.abs(calculateTilt(3, 4) - 5) < 1e-9, 'tilt uses hypot');
 assert(resolveBalanceState(1.2) === 'BALANCED', 'inside 2.5° is balanced');
