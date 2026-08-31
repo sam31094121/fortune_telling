@@ -4,6 +4,7 @@ const styles = fs.readFileSync('components/taiji/level-01/level01.module.css', '
 if (!overlay.includes('LEVEL_01 UI SCOPE LOCK')) throw new Error('level 01 scope lock comment is required');
 if (!overlay.includes('aria-label="啟用太極平衡感測"')) throw new Error('level 01 balance control must request sensors from a user gesture');
 if (!overlay.includes('data-level01-direction') || !overlay.includes('orientation-cue')) throw new Error('level 01 must keep its game-like orientation cue');
+if (!styles.includes('visibility: hidden') || !styles.includes('explicit future restore')) throw new Error('direction letters must be hidden while their level-01 logic remains restorable');
 if (overlay.includes('啟動太極') || styles.includes('.compassMark') || styles.includes('.startButton')) throw new Error('old compass/start control must not return');
 if (styles.includes('水平儀')) throw new Error('visible level label must remain absent');
 if (!styles.includes('left: 50%') || !styles.includes('bottom: 2%') || !styles.includes('.cueSouth { opacity: 0; }') || !styles.includes('.balanceBubble')) throw new Error('bubble control must occupy the bottom-centre S seat');
