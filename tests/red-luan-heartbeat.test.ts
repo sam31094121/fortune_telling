@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {
   annualBranchOf,
   buildBaziLovePersonSignal,
+  buildSingleRedLuanHeartbeat,
   buildZiweiLovePersonSignal,
   redLuanBranchOf,
   tianXiBranchOf,
@@ -41,5 +42,22 @@ const knownZiwei = buildZiweiLovePersonSignal({ birth: { calendarType: 'solar', 
 assert.equal(knownZiwei.status, 'READY');
 assert.equal(knownZiwei.annualStatus, 'UNAVAILABLE_RULE_SOURCE_REQUIRED');
 assert.ok(knownZiwei.palaces?.some((palace) => palace.palace === '夫妻宮'));
+
+const singleUnknownHour = buildSingleRedLuanHeartbeat({
+  yearBranch: '巳',
+  dayBranch: '午',
+  annualYear: 2026,
+  hourKnown: false,
+  presentBranches: [
+    { pillar: '年', branch: '巳' },
+    { pillar: '月', branch: '子' },
+    { pillar: '日', branch: '午' },
+    { pillar: '時', branch: '酉' },
+  ],
+  ziweiBirth: null,
+});
+assert.equal(singleUnknownHour.ziwei.status, 'UNAVAILABLE_BIRTH_TIME_REQUIRED');
+assert.equal(singleUnknownHour.crossCheck.status, 'PARTIAL');
+assert.ok(singleUnknownHour.iching.limitation.includes('不生成卦象'));
 
 console.log('Red Luan heartbeat rules passed');

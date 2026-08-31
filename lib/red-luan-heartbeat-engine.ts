@@ -64,6 +64,21 @@ export type RedLuanHeartbeatResult = {
   };
 };
 
+export type SingleRedLuanHeartbeatResult = {
+  annualYear: number;
+  bazi: BaziLovePersonSignal;
+  ziwei: ZiweiLovePersonSignal;
+  crossCheck: {
+    status: 'READY' | 'PARTIAL';
+    summary: string;
+    limitation: string;
+  };
+  iching: {
+    status: 'UNAVAILABLE_RULE_SOURCE_REQUIRED';
+    limitation: string;
+  };
+};
+
 export function annualBranchOf(year: number): Branch {
   return BRANCHES[((Math.trunc(year) - 4) % 12 + 12) % 12];
 }
@@ -181,5 +196,40 @@ export function buildZiweiLovePersonSignal(input: { birth: ZiweiBirthInput | nul
       '本層只列出本命夫妻宮及其三方四正的可核對星曜，不將星曜直接判為關係結果。',
       '紫微流年夫妻宮需要另行指定流派、安星與四化規則；目前刻意不推算。',
     ],
+  };
+}
+
+/**
+ * Single-person red-luan reading.  This deliberately keeps each tradition's
+ * evidence separate: it is not a compatibility score and never invents a
+ * second person or an I Ching hexagram.
+ */
+export function buildSingleRedLuanHeartbeat(input: {
+  yearBranch: string;
+  dayBranch: string;
+  presentBranches: Array<{ pillar: '年' | '月' | '日' | '時'; branch: string }>;
+  hourKnown: boolean;
+  annualYear: number;
+  ziweiBirth: ZiweiBirthInput | null;
+}): SingleRedLuanHeartbeatResult {
+  const bazi = buildBaziLovePersonSignal(input);
+  const ziwei = buildZiweiLovePersonSignal({ birth: input.ziweiBirth });
+  const ziweiReady = ziwei.status === 'READY';
+
+  return {
+    annualYear: input.annualYear,
+    bazi,
+    ziwei,
+    crossCheck: {
+      status: ziweiReady ? 'READY' : 'PARTIAL',
+      summary: ziweiReady
+        ? '八字年度訊號與紫微本命夫妻宮資料皆已各自核對；請分開閱讀各自的證據。'
+        : '八字年度訊號已核對；紫微本命資料需補出生時辰，暫不進行跨系統推論。',
+      limitation: '交叉摘要只說明資料是否可並列閱讀，不新增分數、不以 AI 補足缺項，也不保證任何關係事件。',
+    },
+    iching: {
+      status: 'UNAVAILABLE_RULE_SOURCE_REQUIRED',
+      limitation: '易經補卦尚未選定可追溯的單人起卦或映射規則，因此目前不生成卦象。',
+    },
   };
 }

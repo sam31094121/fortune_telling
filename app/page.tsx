@@ -2755,7 +2755,7 @@ export default function HomePage() {
           )}
           <div className="flex w-full flex-col gap-4">
           <Link
-            href="/match"
+            href="/red-luan-heartbeat"
             className="home-feature-launch home-feature-rose order-4 w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
@@ -3018,14 +3018,14 @@ export default function HomePage() {
           <Link
             href="/match"
             className="home-feature-launch order-0 w-full relative group overflow-hidden rounded-3xl border border-rose-300/35 bg-[radial-gradient(circle_at_14%_20%,rgba(251,113,133,0.24),transparent_34%),radial-gradient(circle_at_84%_22%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(115deg,rgba(51,8,30,0.98),rgba(26,12,42,0.96)_58%,rgba(15,23,42,0.98))] p-6 text-left shadow-[0_0_34px_rgba(244,63,94,0.18)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-200/75 hover:shadow-[0_0_54px_rgba(244,63,94,0.30)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
-            aria-label="開啟桃花・紅鸞心動靈魂配對"
+            aria-label="開啟桃花・紅鸞心動個人關係主題"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-100/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
             <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
               <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-rose-100/40 bg-rose-200/10 font-serif text-3xl font-black text-rose-100 shadow-[0_0_28px_rgba(251,113,133,0.24)]" aria-hidden="true">鸞</div>
               <div className="min-w-0 flex-1">
                 <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-rose-50 sm:text-2xl">桃花・紅鸞心動</h2>
-                <p className="mt-1 text-xs leading-5 text-rose-50/75">從兩人的出生資料開始，整理一份可回看、可慢慢理解的關係主題參考。</p>
+                <p className="mt-1 text-xs leading-5 text-rose-50/75">從自己的出生資料開始，整理一份可回看、可慢慢理解的關係主題參考。</p>
               </div>
             </div>
             <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-rose-100/45 bg-rose-200/12 px-5 py-3 text-xs font-bold text-rose-50 transition group-hover:bg-rose-200/22">
