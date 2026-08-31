@@ -142,6 +142,7 @@ export class Level01TaijiMotionController {
   playReentryWhoosh() {
     // The engine only exists after armFromUserGesture, so this can never autoplay.
     this.audio.playReentryWhoosh();
+    this.haptics.scheduleReentryCheer();
   }
 
   tick(delta: number) {

@@ -1,4 +1,5 @@
 import { HAPTIC_RATE_LIMIT_MS } from './level01.constants';
+import { LEVEL01_REENTRY_CHEER_PROGRESS, LEVEL01_REENTRY_DURATION_SECONDS } from './Level01Reentry';
 import type { BalanceState, Level01TiltDirection } from './Level01Physics';
 
 export type HapticMode = 'LIVE' | 'NO_HAPTIC_MODE';
@@ -12,6 +13,7 @@ export class Level01HapticController {
   private armedByUserGesture = false;
   private lastDirection: Level01TiltDirection | null = null;
   private lastDirectionAt = 0;
+  private reentryCheerTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     this.syncSupport();
@@ -33,6 +35,10 @@ export class Level01HapticController {
   }
 
   stop() {
+    if (this.reentryCheerTimer) {
+      clearTimeout(this.reentryCheerTimer);
+      this.reentryCheerTimer = null;
+    }
     // 沒震過就不要呼叫 vibrate(0)：未經使用者手勢的呼叫會被瀏覽器攔下並吐 console error。
     if (this.mode !== 'LIVE' || !this.hasVibrated) return;
     this.hasVibrated = false;
@@ -41,6 +47,15 @@ export class Level01HapticController {
     } catch {
       this.mode = 'NO_HAPTIC_MODE';
     }
+  }
+
+  scheduleReentryCheer() {
+    if (this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return;
+    if (this.reentryCheerTimer) clearTimeout(this.reentryCheerTimer);
+    this.reentryCheerTimer = setTimeout(() => {
+      this.reentryCheerTimer = null;
+      if (this.mode === 'LIVE' && !this.reducedMotion && this.armedByUserGesture) this.safeVibrate(8);
+    }, Math.round(LEVEL01_REENTRY_DURATION_SECONDS * LEVEL01_REENTRY_CHEER_PROGRESS * 1000));
   }
 
   pulse(input: { now: number; motionEnergy: number; balanceState: BalanceState; lockChime: boolean; direction: Level01TiltDirection | null }) {

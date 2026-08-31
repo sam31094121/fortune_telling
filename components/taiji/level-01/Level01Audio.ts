@@ -1,6 +1,6 @@
 import { AUDIO_GAIN_LIMIT, MAX_FLICK_SPIN_SPEED } from './level01.constants';
 import type { BalanceState } from './Level01Physics';
-import { LEVEL01_REENTRY_DURATION_SECONDS, level01ReentrySoundEnvelope } from './Level01Reentry';
+import { LEVEL01_REENTRY_CHEER_PROGRESS, LEVEL01_REENTRY_DURATION_SECONDS, level01ReentrySoundEnvelope } from './Level01Reentry';
 import type { Level01TiltDirection } from './Level01Physics';
 
 export class Level01SoundEngine {
@@ -115,6 +115,7 @@ export class Level01SoundEngine {
     this.master.gain.exponentialRampToValueAtTime(Math.min(AUDIO_GAIN_LIMIT, middle.gain), now + coastMiddle);
     this.master.gain.exponentialRampToValueAtTime(Math.min(AUDIO_GAIN_LIMIT, coast.gain), now + coastEnd);
     this.master.gain.exponentialRampToValueAtTime(end.gain, now + duration);
+    this.playReentryCheerAccent(now + duration * LEVEL01_REENTRY_CHEER_PROGRESS, now + duration);
     this.reentryUntil = now + duration;
   }
 
@@ -154,6 +155,27 @@ export class Level01SoundEngine {
     this.master.gain.cancelScheduledValues(now);
     this.master.gain.setValueAtTime(Math.min(AUDIO_GAIN_LIMIT, 0.16), now);
     this.master.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+  }
+
+  private playReentryCheerAccent(at: number, endsAt: number) {
+    if (!this.context) return;
+    try {
+      const osc = this.context.createOscillator();
+      const gain = this.context.createGain();
+      const end = Math.min(endsAt, at + 0.115);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(286, at);
+      osc.frequency.exponentialRampToValueAtTime(338, at + 0.055);
+      gain.gain.setValueAtTime(0.0001, at);
+      gain.gain.exponentialRampToValueAtTime(0.026, at + 0.018);
+      gain.gain.exponentialRampToValueAtTime(0.0001, end);
+      osc.connect(gain);
+      gain.connect(this.context.destination);
+      osc.start(at);
+      osc.stop(end + 0.01);
+    } catch {
+      // The return remains complete without this optional closing accent.
+    }
   }
 
   private disposeGraph() {

@@ -1,6 +1,7 @@
 // The fast launch needs to read clearly, but most of the return is deliberately
 // spent coasting down. 1.08s is long enough to feel alive without slowing touch.
 export const LEVEL01_REENTRY_DURATION_SECONDS = 1.08;
+export const LEVEL01_REENTRY_CHEER_PROGRESS = 0.88;
 
 export function shouldTriggerLevel01Reentry(previousLayer: number, nextLayer: number) {
   return previousLayer > 1 && nextLayer === 1;
@@ -48,6 +49,17 @@ export function level01ReentryTimeline(progress: number) {
   };
 }
 
+/** A single, low-amplitude greeting at the end of the return — never a loop. */
+export function level01ReentryCheer(settle: number) {
+  const local = Math.max(0, Math.min(1, settle));
+  const arc = Math.sin(local * Math.PI);
+  return {
+    x: Math.sin(local * Math.PI * 1.12 + 0.2) * arc * 0.0045,
+    y: arc * 0.012,
+    z: -arc * 0.003,
+  };
+}
+
 export function level01ReentryPose(elapsedSeconds: number, reducedMotion: boolean) {
   if (reducedMotion || elapsedSeconds >= LEVEL01_REENTRY_DURATION_SECONDS) {
     return { active: false, spin: 0, x: 0, y: 0, z: 0, tailVelocity: 0 };
@@ -58,14 +70,15 @@ export function level01ReentryPose(elapsedSeconds: number, reducedMotion: boolea
   // A five-turn offset begins and ends visually aligned. The short launch carries
   // the first 34%, then most of the spin is a smooth coast before a soft settle.
   const settleSway = Math.sin(timeline.settle * Math.PI * 1.18 + 0.42) * (1 - timeline.settle) * 0.008;
+  const cheer = level01ReentryCheer(timeline.settle);
   return {
     active: true,
     // Leave a sub-quarter-radian tail at the handoff. TaijiSystem damps this
     // residual velocity into the level-01 pose instead of snapping to zero.
     spin: (1 - timeline.spinProgress) * Math.PI * 10 + 0.18 * progress * progress,
-    x: flight * 0.064 + settleSway,
-    y: flight * 0.04 + Math.sin(progress * Math.PI * 1.6 + 0.35) * (1 - progress) * 0.007 + settleSway * 0.58,
-    z: flight * 0.052 - settleSway * 0.68,
+    x: flight * 0.064 + settleSway + cheer.x,
+    y: flight * 0.04 + Math.sin(progress * Math.PI * 1.6 + 0.35) * (1 - progress) * 0.007 + settleSway * 0.58 + cheer.y,
+    z: flight * 0.052 - settleSway * 0.68 + cheer.z,
     tailVelocity: timeline.tailVelocity,
   };
 }

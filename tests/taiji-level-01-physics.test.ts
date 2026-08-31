@@ -15,7 +15,7 @@ import {
 } from '../components/taiji/level-01/Level01Physics';
 import { resolveEffectivePermission, resolveLevel01Mode } from '../components/taiji/level-01/Level01Fallback';
 import { canAutoStartLevel01Sensors, createGravityEstimate, readMotionEvent } from '../components/taiji/level-01/Level01Orientation';
-import { LEVEL01_REENTRY_DURATION_SECONDS, level01ReentryPose, level01ReentrySoundEnvelope, level01ReentryTimeline, shouldTriggerLevel01Reentry } from '../components/taiji/level-01/Level01Reentry';
+import { LEVEL01_REENTRY_CHEER_PROGRESS, LEVEL01_REENTRY_DURATION_SECONDS, level01ReentryCheer, level01ReentryPose, level01ReentrySoundEnvelope, level01ReentryTimeline, shouldTriggerLevel01Reentry } from '../components/taiji/level-01/Level01Reentry';
 import { MAX_FLICK_SPIN_SPEED, MAX_SAFE_ROTATION_SPEED, WAKE_THRESHOLD } from '../components/taiji/level-01/level01.constants';
 
 function assert(condition: boolean, message: string) {
@@ -43,6 +43,11 @@ assert(launchTimeline.phase === 'LAUNCH' && coastTimeline.phase === 'COAST' && s
 assert(launchTimeline.energy > coastTimeline.energy && coastTimeline.energy > settleTimeline.energy, 're-entry kinetic energy decays through the longer coast');
 assert(settleTimeline.tailVelocity < 0, 're-entry supplies a small residual angular velocity for the level-01 handoff');
 assert(level01ReentryPose(LEVEL01_REENTRY_DURATION_SECONDS * 0.99, false).spin > 0.1, 're-entry keeps a visible low-speed rotational tail instead of hard-stopping');
+const cheerStart = level01ReentryCheer(0);
+const cheerPeak = level01ReentryCheer(0.5);
+const cheerEnd = level01ReentryCheer(1);
+assert(Math.abs(cheerStart.y) < 1e-9 && Math.abs(cheerEnd.y) < 1e-9 && cheerPeak.y > 0.01, 're-entry adds one restrained lift-and-settle greeting only in the tail');
+assert(LEVEL01_REENTRY_CHEER_PROGRESS > 0.76 && LEVEL01_REENTRY_CHEER_PROGRESS < 1, 'the cheer feedback occurs once in the low-speed settling tail');
 const reentryStartSound = level01ReentrySoundEnvelope(0);
 const reentryPeakSound = level01ReentrySoundEnvelope(0.14);
 const reentryMiddleSound = level01ReentrySoundEnvelope(0.5);
