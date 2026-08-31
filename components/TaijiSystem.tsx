@@ -54,6 +54,8 @@ import {
   Level01FrameBinder,
   Level01TaijiMotionController,
   Level01TaijiOverlay,
+  level01ReentryPose,
+  shouldTriggerLevel01Reentry,
   type Level01Pose,
 } from './taiji/level-01';
 import styles from './TaijiSystem.module.css';
@@ -955,6 +957,7 @@ function TaijiCore({
   ultraTexture,
   onCoreClick,
   level01PoseRef,
+  onLevel01Reentry,
 }: {
   attractTick?: number;
   theme: TaijiVisualTheme;
@@ -964,6 +967,7 @@ function TaijiCore({
   ultraTexture: boolean;
   onCoreClick: () => void;
   level01PoseRef?: { current: Level01Pose };
+  onLevel01Reentry?: () => void;
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const diskRef = useRef<THREE.Mesh>(null);
@@ -989,6 +993,16 @@ function TaijiCore({
   const cellularGroupRef = useRef<THREE.Group>(null);
   const abyssGroupRef = useRef<THREE.Group>(null);
   const ballMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
+  const level01ReentryRef = useRef({ previousLayer: 1, startedAt: -1 });
+  const reducedMotionRef = useRef(false);
+
+  useEffect(() => {
+    const media = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    const sync = () => { reducedMotionRef.current = media?.matches ?? false; };
+    sync();
+    media?.addEventListener?.('change', sync);
+    return () => media?.removeEventListener?.('change', sync);
+  }, []);
 
   // ===== 幾何體重用（2026-08-17 解析度只升不降：球面段數全面加密，球緣不再有多邊形感）=====
   const taijiBallGeo = useMemo(() => new THREE.SphereGeometry(1.08, 128, 128), []);
@@ -1113,6 +1127,13 @@ function TaijiCore({
     const settleSlow = Math.min(1, frameDelta * 0.95);
     const t = state.clock.elapsedTime;
     const level01Drive = Boolean(level01PoseRef?.current?.driving) && layer === 1;
+    const reentryState = level01ReentryRef.current;
+    if (shouldTriggerLevel01Reentry(reentryState.previousLayer, layer) && !reducedMotionRef.current) {
+      reentryState.startedAt = t;
+      onLevel01Reentry?.();
+    }
+    reentryState.previousLayer = layer;
+    const reentry = level01ReentryPose(t - reentryState.startedAt, reducedMotionRef.current);
 
     if (prevStageRef.current !== stage) {
       prevStageRef.current = stage;
@@ -1144,15 +1165,26 @@ function TaijiCore({
       energyFieldRef.current.rotation.x = Math.sin(t * 0.08) * 0.01;
     }
 
-    if (level01Drive && level01PoseRef?.current) {
+    if (layer === 1 && reentry.active) {
+      const pose = level01PoseRef?.current;
+      groupRef.current.rotation.set(
+        pose?.visualEuler.x ?? 0,
+        (pose?.visualEuler.y ?? 0) + reentry.spin,
+        pose?.visualEuler.z ?? 0,
+      );
+      groupRef.current.position.set(reentry.x, reentry.y, reentry.z);
+    } else if (level01Drive && level01PoseRef?.current) {
       const pose = level01PoseRef.current;
       groupRef.current.rotation.set(pose.visualEuler.x, pose.visualEuler.y, pose.visualEuler.z);
+      groupRef.current.position.set(0, 0, 0);
     } else if (separate) {
+      groupRef.current.position.set(0, 0, 0);
       const livingSpeed = 0.12 + progress24 * 0.026;
       groupRef.current.rotation.y += frameDelta * livingSpeed;
       groupRef.current.rotation.x += (Math.sin(t * 0.09) * 0.032 - groupRef.current.rotation.x) * settleSoft;
       groupRef.current.rotation.z += (Math.cos(t * 0.075) * 0.015 - groupRef.current.rotation.z) * settleSoft;
     } else {
+      groupRef.current.position.set(0, 0, 0);
       groupRef.current.rotation.y += (Math.sin(t * 0.12) * 0.052 - groupRef.current.rotation.y) * settleSlow;
       groupRef.current.rotation.x += (Math.sin(t * 0.1) * 0.02 - groupRef.current.rotation.x) * settleSlow;
       groupRef.current.rotation.z = 0;
@@ -1855,6 +1887,7 @@ export default function TaijiSystem({
             ultraTexture={canvasQuality.ultraTexture}
             onCoreClick={advanceLayer}
             level01PoseRef={level01PoseRef}
+            onLevel01Reentry={() => level01Controller.playReentryWhoosh()}
           />
           <OrbitControls
             makeDefault

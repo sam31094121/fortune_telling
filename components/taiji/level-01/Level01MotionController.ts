@@ -110,6 +110,11 @@ export class Level01TaijiMotionController {
     return this.pose;
   }
 
+  playReentryWhoosh() {
+    // The engine only exists after armFromUserGesture, so this can never autoplay.
+    this.audio.playReentryWhoosh();
+  }
+
   tick(delta: number) {
     if (this.disposed || this.hidden || !this.layerEnabled) {
       this.publish(false);

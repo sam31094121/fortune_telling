@@ -16,3 +16,4 @@ export type { Level01Pose } from './Level01MotionController';
 export { Level01FrameBinder } from './Level01PoseDriver';
 export { default as Level01TaijiOverlay } from './Level01Taiji';
 export { resolveLevel01Mode } from './Level01Fallback';
+export { level01ReentryPose, shouldTriggerLevel01Reentry } from './Level01Reentry';

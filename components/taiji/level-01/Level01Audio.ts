@@ -9,6 +9,7 @@ export class Level01SoundEngine {
   private blocked = false;
   private reducedMotion = false;
   private lockPlayed = false;
+  private reentryUntil = 0;
 
   setReducedMotion(value: boolean) {
     this.reducedMotion = value;
@@ -61,6 +62,8 @@ export class Level01SoundEngine {
       return;
     }
 
+    if (now < this.reentryUntil) return;
+
     if (input.lockChime) {
       this.playLockChime(now);
       this.lockPlayed = true;
@@ -81,6 +84,18 @@ export class Level01SoundEngine {
     const frequency = 148 + energy * (this.reducedMotion ? 70 : 100) + spin * (this.reducedMotion ? 45 : 190);
     this.osc.frequency.setTargetAtTime(frequency, now, 0.08);
     this.master.gain.setTargetAtTime(gain, now, 0.1);
+  }
+
+  playReentryWhoosh() {
+    if (this.reducedMotion || this.blocked || !this.context || !this.master || !this.osc) return;
+    const now = this.context.currentTime;
+    this.osc.frequency.cancelScheduledValues(now);
+    this.osc.frequency.setValueAtTime(360, now);
+    this.osc.frequency.exponentialRampToValueAtTime(148, now + 0.42);
+    this.master.gain.cancelScheduledValues(now);
+    this.master.gain.setValueAtTime(Math.min(AUDIO_GAIN_LIMIT, 0.105), now);
+    this.master.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+    this.reentryUntil = now + 0.42;
   }
 
   dispose() {
