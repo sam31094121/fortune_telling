@@ -1,6 +1,7 @@
 import { AUDIO_GAIN_LIMIT, MAX_FLICK_SPIN_SPEED } from './level01.constants';
 import type { BalanceState } from './Level01Physics';
 import { LEVEL01_REENTRY_DURATION_SECONDS, level01ReentrySoundEnvelope } from './Level01Reentry';
+import type { Level01TiltDirection } from './Level01Physics';
 
 export class Level01SoundEngine {
   private context: AudioContext | null = null;
@@ -11,6 +12,7 @@ export class Level01SoundEngine {
   private reducedMotion = false;
   private lockPlayed = false;
   private reentryUntil = 0;
+  private lastTiltAccentAt = 0;
 
   setReducedMotion(value: boolean) {
     this.reducedMotion = value;
@@ -91,23 +93,54 @@ export class Level01SoundEngine {
     if (this.reducedMotion || this.blocked || !this.context || !this.master || !this.osc) return;
     const now = this.context.currentTime;
     const duration = LEVEL01_REENTRY_DURATION_SECONDS;
-    const leadIn = 0.055;
-    const midPoint = duration * 0.44;
+    const launchEnd = duration * 0.14;
+    const coastMiddle = duration * 0.42;
+    const coastEnd = duration * 0.76;
     const start = level01ReentrySoundEnvelope(0);
-    const middle = level01ReentrySoundEnvelope(0.44);
+    const launch = level01ReentrySoundEnvelope(0.14);
+    const middle = level01ReentrySoundEnvelope(0.42);
+    const coast = level01ReentrySoundEnvelope(0.76);
     const end = level01ReentrySoundEnvelope(1);
     this.osc.frequency.cancelScheduledValues(now);
     this.osc.frequency.setValueAtTime(start.frequency, now);
-    this.osc.frequency.exponentialRampToValueAtTime(middle.frequency, now + midPoint);
+    this.osc.frequency.exponentialRampToValueAtTime(launch.frequency, now + launchEnd);
+    this.osc.frequency.exponentialRampToValueAtTime(middle.frequency, now + coastMiddle);
+    this.osc.frequency.exponentialRampToValueAtTime(coast.frequency, now + coastEnd);
     this.osc.frequency.exponentialRampToValueAtTime(end.frequency, now + duration);
     this.master.gain.cancelScheduledValues(now);
     // A brief, firm entry follows the return's initial spin, then the gain
     // follows the same decelerating curve and is silent at the visual settle.
     this.master.gain.setValueAtTime(Math.min(AUDIO_GAIN_LIMIT, start.gain * 0.56), now);
-    this.master.gain.exponentialRampToValueAtTime(Math.min(AUDIO_GAIN_LIMIT, start.gain), now + leadIn);
-    this.master.gain.exponentialRampToValueAtTime(Math.min(AUDIO_GAIN_LIMIT, middle.gain), now + midPoint);
+    this.master.gain.exponentialRampToValueAtTime(Math.min(AUDIO_GAIN_LIMIT, launch.gain), now + launchEnd);
+    this.master.gain.exponentialRampToValueAtTime(Math.min(AUDIO_GAIN_LIMIT, middle.gain), now + coastMiddle);
+    this.master.gain.exponentialRampToValueAtTime(Math.min(AUDIO_GAIN_LIMIT, coast.gain), now + coastEnd);
     this.master.gain.exponentialRampToValueAtTime(end.gain, now + duration);
     this.reentryUntil = now + duration;
+  }
+
+  playTiltAccent(direction: Level01TiltDirection, motionEnergy: number) {
+    if (this.reducedMotion || this.blocked || !this.context) return;
+    const now = this.context.currentTime;
+    if (now - this.lastTiltAccentAt < 0.28) return;
+    this.lastTiltAccentAt = now;
+    try {
+      const osc = this.context.createOscillator();
+      const gain = this.context.createGain();
+      const base = direction === 'E' ? 246 : direction === 'W' ? 208 : direction === 'S' ? 184 : 224;
+      const peak = Math.min(0.045, 0.021 + motionEnergy * 0.016);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(base, now);
+      osc.frequency.exponentialRampToValueAtTime(base * 0.86, now + 0.09);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(peak, now + 0.014);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
+      osc.connect(gain);
+      gain.connect(this.context.destination);
+      osc.start(now);
+      osc.stop(now + 0.12);
+    } catch {
+      // Accent is enhancement-only; normal motion audio remains available.
+    }
   }
 
   dispose() {

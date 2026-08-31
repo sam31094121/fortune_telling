@@ -22,6 +22,7 @@ import {
 } from './level01.constants';
 
 export type BalanceState = 'UNBALANCED' | 'APPROACHING' | 'BALANCED' | 'LOCKED';
+export type Level01TiltDirection = 'N' | 'E' | 'S' | 'W';
 
 export interface MotionSnapshot {
   alpha: number;
@@ -100,6 +101,13 @@ export function lowPassAngle(previousDeg: number, currentDeg: number, factor = L
 
 export function calculateTilt(beta: number, gamma: number) {
   return Math.sqrt(beta * beta + gamma * gamma);
+}
+
+/** Four-way feedback only begins beyond the normal balancing range. */
+export function resolveLevel01TiltDirection(beta: number, gamma: number): Level01TiltDirection | null {
+  if (calculateTilt(beta, gamma) < APPROACHING_THRESHOLD_DEG) return null;
+  if (Math.abs(gamma) >= Math.abs(beta)) return gamma >= 0 ? 'E' : 'W';
+  return beta >= 0 ? 'S' : 'N';
 }
 
 export function resolveBalanceState(tilt: number): Exclude<BalanceState, 'LOCKED'> {

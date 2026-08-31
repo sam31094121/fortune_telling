@@ -9,12 +9,13 @@ import {
   lowPass,
   lowPassAngle,
   normalizeAngle,
+  resolveLevel01TiltDirection,
   resolveBalanceState,
   shortestAngleDelta,
 } from '../components/taiji/level-01/Level01Physics';
 import { resolveEffectivePermission, resolveLevel01Mode } from '../components/taiji/level-01/Level01Fallback';
 import { canAutoStartLevel01Sensors, createGravityEstimate, readMotionEvent } from '../components/taiji/level-01/Level01Orientation';
-import { level01ReentryPose, level01ReentrySoundEnvelope, shouldTriggerLevel01Reentry } from '../components/taiji/level-01/Level01Reentry';
+import { LEVEL01_REENTRY_DURATION_SECONDS, level01ReentryPose, level01ReentrySoundEnvelope, level01ReentryTimeline, shouldTriggerLevel01Reentry } from '../components/taiji/level-01/Level01Reentry';
 import { MAX_FLICK_SPIN_SPEED, MAX_SAFE_ROTATION_SPEED, WAKE_THRESHOLD } from '../components/taiji/level-01/level01.constants';
 
 function assert(condition: boolean, message: string) {
@@ -33,17 +34,29 @@ assert(shouldTriggerLevel01Reentry(24, 1), 'any higher layer returning directly 
 assert(!shouldTriggerLevel01Reentry(3, 2), 'returns that do not reach level 1 cannot start the re-entry');
 const reentry = level01ReentryPose(0.12, false);
 assert(reentry.active && reentry.spin > 0 && Math.abs(reentry.x) > 0, 're-entry has one bounded spin-and-drift pose');
-assert(!level01ReentryPose(0.12, true).active && !level01ReentryPose(1, false).active, 're-entry settles immediately for reduced motion and ends once');
+assert(!level01ReentryPose(0.12, true).active && !level01ReentryPose(LEVEL01_REENTRY_DURATION_SECONDS, false).active, 're-entry settles immediately for reduced motion and ends once');
+assert(LEVEL01_REENTRY_DURATION_SECONDS > 0.76, 're-entry gives the natural coast more time than the former short transition');
+const launchTimeline = level01ReentryTimeline(0.14);
+const coastTimeline = level01ReentryTimeline(0.5);
+const settleTimeline = level01ReentryTimeline(0.9);
+assert(launchTimeline.phase === 'LAUNCH' && coastTimeline.phase === 'COAST' && settleTimeline.phase === 'SETTLE', 're-entry follows launch, coast, then settle phases');
+assert(launchTimeline.energy > coastTimeline.energy && coastTimeline.energy > settleTimeline.energy, 're-entry kinetic energy decays through the longer coast');
+assert(settleTimeline.tailVelocity < 0, 're-entry supplies a small residual angular velocity for the level-01 handoff');
+assert(level01ReentryPose(LEVEL01_REENTRY_DURATION_SECONDS * 0.99, false).spin > 0.1, 're-entry keeps a visible low-speed rotational tail instead of hard-stopping');
 const reentryStartSound = level01ReentrySoundEnvelope(0);
+const reentryPeakSound = level01ReentrySoundEnvelope(0.14);
 const reentryMiddleSound = level01ReentrySoundEnvelope(0.5);
 const reentryEndSound = level01ReentrySoundEnvelope(1);
-assert(reentryStartSound.frequency > reentryMiddleSound.frequency && reentryMiddleSound.frequency > reentryEndSound.frequency, 're-entry sound pitch follows the decelerating spin');
-assert(reentryStartSound.gain > reentryMiddleSound.gain && reentryEndSound.gain <= 0.00011, 're-entry sound fades cleanly to silence at visual settle');
+assert(reentryPeakSound.frequency > reentryStartSound.frequency && reentryStartSound.frequency > reentryMiddleSound.frequency && reentryMiddleSound.frequency > reentryEndSound.frequency, 're-entry sound follows the launch then decelerating spin');
+assert(reentryPeakSound.gain > reentryStartSound.gain && reentryStartSound.gain > reentryMiddleSound.gain && reentryEndSound.gain <= 0.00011, 're-entry sound fades cleanly to silence at visual settle');
 
 assert(Math.abs(calculateTilt(3, 4) - 5) < 1e-9, 'tilt uses hypot');
 assert(resolveBalanceState(1.2) === 'BALANCED', 'inside 2.5° is balanced');
 assert(resolveBalanceState(5) === 'APPROACHING', 'inside 8° is approaching');
 assert(resolveBalanceState(12) === 'UNBALANCED', 'beyond 8° is unbalanced');
+assert(resolveLevel01TiltDirection(1, 1) === null, 'small natural movement stays inside the four-way feedback dead zone');
+assert(resolveLevel01TiltDirection(0, 12) === 'E' && resolveLevel01TiltDirection(0, -12) === 'W', 'horizontal tilt maps to a stable east/west pair');
+assert(resolveLevel01TiltDirection(12, 0) === 'S' && resolveLevel01TiltDirection(-12, 0) === 'N', 'vertical tilt maps to a stable north/south pair');
 
 assert(clamp01(1.8) === 1, 'energy clamp high');
 assert(clamp01(-0.2) === 0, 'energy clamp low');

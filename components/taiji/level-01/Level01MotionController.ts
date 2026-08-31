@@ -12,6 +12,7 @@ import {
   createPhysicsState,
   integrateLevel01Physics,
   level01BubbleOffset,
+  resolveLevel01TiltDirection,
   snapshotFromPhysics,
   visualPoseFromPhysics,
   type Level01VisualPose,
@@ -94,6 +95,7 @@ export class Level01TaijiMotionController {
     if (this.disposed) return this.pose;
     this.syncEnvironment();
     void this.audio.armFromUserGesture();
+    this.haptics.armFromUserGesture();
     return this.enableSensors();
   }
 
@@ -172,12 +174,15 @@ export class Level01TaijiMotionController {
       delta: Math.min(delta, FRAME_DELTA_CAP),
       reducedMotion: this.reducedMotion,
     });
-    this.haptics.pulse({
+    const direction = resolveLevel01TiltDirection(this.physics.beta, this.physics.gamma);
+    const directionAcknowledged = this.haptics.pulse({
       now,
       motionEnergy: this.physics.motionEnergy,
       balanceState: this.physics.balanceState,
       lockChime: this.physics.lockChimePending,
+      direction,
     });
+    if (directionAcknowledged) this.audio.playTiltAccent(direction!, this.physics.motionEnergy);
     this.audio.sync({
       motionEnergy: this.physics.motionEnergy,
       angularVelocity: this.physics.angularVelocity,

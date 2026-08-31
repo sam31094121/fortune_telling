@@ -1,24 +1,72 @@
-export const LEVEL01_REENTRY_DURATION_SECONDS = 0.76;
+// The fast launch needs to read clearly, but most of the return is deliberately
+// spent coasting down. 1.08s is long enough to feel alive without slowing touch.
+export const LEVEL01_REENTRY_DURATION_SECONDS = 1.08;
 
 export function shouldTriggerLevel01Reentry(previousLayer: number, nextLayer: number) {
   return previousLayer > 1 && nextLayer === 1;
 }
 
+function easeOutCubic(value: number) {
+  return 1 - (1 - value) ** 3;
+}
+
+function easeOutQuad(value: number) {
+  return 1 - (1 - value) ** 2;
+}
+
+export function level01ReentryTimeline(progress: number) {
+  const clamped = Math.max(0, Math.min(1, progress));
+  const launchEnd = 0.14;
+  const coastEnd = 0.76;
+  if (clamped <= launchEnd) {
+    const local = clamped / launchEnd;
+    return {
+      phase: 'LAUNCH' as const,
+      spinProgress: 0.34 * easeOutCubic(local),
+      energy: 0.64 + 0.36 * easeOutQuad(local),
+      settle: 0,
+      tailVelocity: -0.68,
+    };
+  }
+  if (clamped <= coastEnd) {
+    const local = (clamped - launchEnd) / (coastEnd - launchEnd);
+    return {
+      phase: 'COAST' as const,
+      spinProgress: 0.34 + 0.6 * easeOutCubic(local),
+      energy: 0.98 * (1 - 0.78 * easeOutQuad(local)),
+      settle: 0,
+      tailVelocity: -0.5,
+    };
+  }
+  const local = (clamped - coastEnd) / (1 - coastEnd);
+  return {
+    phase: 'SETTLE' as const,
+    spinProgress: 0.94 + 0.06 * easeOutQuad(local),
+    energy: 0.216 * (1 - local) ** 2,
+    settle: local,
+    tailVelocity: -0.34 + local * 0.12,
+  };
+}
+
 export function level01ReentryPose(elapsedSeconds: number, reducedMotion: boolean) {
   if (reducedMotion || elapsedSeconds >= LEVEL01_REENTRY_DURATION_SECONDS) {
-    return { active: false, spin: 0, x: 0, y: 0, z: 0 };
+    return { active: false, spin: 0, x: 0, y: 0, z: 0, tailVelocity: 0 };
   }
   const progress = Math.max(0, Math.min(1, elapsedSeconds / LEVEL01_REENTRY_DURATION_SECONDS));
-  const remaining = 1 - progress;
-  // Four-and-a-half turns unwind quickly. A tiny, decaying side-to-side and
-  // vertical settle keeps the return alive without turning into a continuous shake.
-  const microSway = Math.sin(progress * Math.PI * 3) * remaining * 0.008;
+  const timeline = level01ReentryTimeline(progress);
+  const flight = Math.sin(Math.min(1, progress / 0.76) * Math.PI);
+  // A five-turn offset begins and ends visually aligned. The short launch carries
+  // the first 34%, then most of the spin is a smooth coast before a soft settle.
+  const settleSway = Math.sin(timeline.settle * Math.PI * 1.18 + 0.42) * (1 - timeline.settle) * 0.008;
   return {
     active: true,
-    spin: remaining * remaining * Math.PI * 9,
-    x: Math.sin(progress * Math.PI) * 0.07 + microSway,
-    y: Math.sin(progress * Math.PI) * 0.045 + Math.sin(progress * Math.PI * 2) * remaining * 0.011,
-    z: Math.sin(progress * Math.PI) * 0.055 - microSway * 0.7,
+    // Leave a sub-quarter-radian tail at the handoff. TaijiSystem damps this
+    // residual velocity into the level-01 pose instead of snapping to zero.
+    spin: (1 - timeline.spinProgress) * Math.PI * 10 + 0.18 * progress * progress,
+    x: flight * 0.064 + settleSway,
+    y: flight * 0.04 + Math.sin(progress * Math.PI * 1.6 + 0.35) * (1 - progress) * 0.007 + settleSway * 0.58,
+    z: flight * 0.052 - settleSway * 0.68,
+    tailVelocity: timeline.tailVelocity,
   };
 }
 
@@ -28,8 +76,7 @@ export function level01ReentryPose(elapsedSeconds: number, reducedMotion: boolea
  * exactly when the re-entry pose settles.
  */
 export function level01ReentrySoundEnvelope(progress: number) {
-  const clamped = Math.max(0, Math.min(1, progress));
-  const kinetic = (1 - clamped) ** 2;
+  const kinetic = level01ReentryTimeline(progress).energy;
   return {
     frequency: 148 + 232 * kinetic,
     gain: 0.0001 + 0.108 * kinetic,

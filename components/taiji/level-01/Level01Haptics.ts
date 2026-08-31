@@ -1,5 +1,5 @@
 import { HAPTIC_RATE_LIMIT_MS } from './level01.constants';
-import type { BalanceState } from './Level01Physics';
+import type { BalanceState, Level01TiltDirection } from './Level01Physics';
 
 export type HapticMode = 'LIVE' | 'NO_HAPTIC_MODE';
 
@@ -9,6 +9,9 @@ export class Level01HapticController {
   private lastBalanceAt = 0;
   private reducedMotion = false;
   private hasVibrated = false;
+  private armedByUserGesture = false;
+  private lastDirection: Level01TiltDirection | null = null;
+  private lastDirectionAt = 0;
 
   constructor() {
     this.syncSupport();
@@ -16,6 +19,11 @@ export class Level01HapticController {
 
   setReducedMotion(value: boolean) {
     this.reducedMotion = value;
+  }
+
+  armFromUserGesture() {
+    this.armedByUserGesture = true;
+    this.syncSupport();
   }
 
   syncSupport() {
@@ -35,16 +43,29 @@ export class Level01HapticController {
     }
   }
 
-  pulse(input: { now: number; motionEnergy: number; balanceState: BalanceState; lockChime: boolean }) {
-    if (this.mode !== 'LIVE' || this.reducedMotion) return;
+  pulse(input: { now: number; motionEnergy: number; balanceState: BalanceState; lockChime: boolean; direction: Level01TiltDirection | null }) {
+    if (this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return false;
     if (input.balanceState === 'LOCKED' && !input.lockChime) return;
 
     if (input.lockChime || input.balanceState === 'BALANCED') {
       if (input.now - this.lastBalanceAt < 900) return;
       this.lastBalanceAt = input.now;
       this.safeVibrate(input.lockChime ? [16, 40, 22] : [12]);
-      return;
+      return false;
     }
+
+    // A deliberate, clear four-way tilt gets one light acknowledgement. The
+    // direction must change and pass a cooldown, so held/rough sensor data
+    // cannot become a continuous vibration.
+    if (input.direction && input.motionEnergy >= 0.16
+      && input.direction !== this.lastDirection
+      && input.now - this.lastDirectionAt >= 280) {
+      this.lastDirection = input.direction;
+      this.lastDirectionAt = input.now;
+      this.safeVibrate(10);
+      return true;
+    }
+    if (!input.direction) this.lastDirection = null;
 
     if (input.now - this.lastPulseAt < HAPTIC_RATE_LIMIT_MS) return;
     if (input.motionEnergy < 0.28) return;
@@ -52,6 +73,7 @@ export class Level01HapticController {
     this.lastPulseAt = input.now;
     if (input.motionEnergy >= 0.75) this.safeVibrate(18);
     else if (input.motionEnergy >= 0.5) this.safeVibrate(12);
+    return false;
   }
 
   private safeVibrate(pattern: number | number[]) {

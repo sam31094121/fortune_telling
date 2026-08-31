@@ -1,6 +1,9 @@
 const fs = require('fs');
 const overlay = fs.readFileSync('components/taiji/level-01/Level01Taiji.tsx', 'utf8');
 const styles = fs.readFileSync('components/taiji/level-01/level01.module.css', 'utf8');
+const controller = fs.readFileSync('components/taiji/level-01/Level01MotionController.ts', 'utf8');
+const audio = fs.readFileSync('components/taiji/level-01/Level01Audio.ts', 'utf8');
+const haptics = fs.readFileSync('components/taiji/level-01/Level01Haptics.ts', 'utf8');
 if (!overlay.includes('LEVEL_01 UI SCOPE LOCK')) throw new Error('level 01 scope lock comment is required');
 if (!overlay.includes('aria-label="啟用太極平衡感測"')) throw new Error('level 01 balance control must request sensors from a user gesture');
 if (!overlay.includes('data-level01-surface="dynamic-shadow"')) throw new Error('level 01 trigger must remain the dynamic shadow surface');
@@ -14,5 +17,7 @@ if (!overlay.includes('attemptAutomaticSensorStart')) throw new Error('the level
 if (!overlay.includes('particlePair') || !styles.includes('.particlePair') || !styles.includes('shadowPhotonDrift')) throw new Error('the level 01 shadow must keep its paired photon field');
 if (!styles.includes('--pair-gap') || !styles.includes('--pair-angle')) throw new Error('the paired photons must reflect the filtered balance state');
 if (!styles.includes('pointer-events: none') || !styles.includes('prefers-reduced-motion')) throw new Error('particles must not block touch and must respect reduced motion');
+if (!controller.includes('this.haptics.armFromUserGesture()') || !haptics.includes('armedByUserGesture')) throw new Error('haptic feedback must remain behind a real user gesture');
+if (!haptics.includes('lastDirectionAt') || !haptics.includes('motionEnergy >= 0.16') || !audio.includes('playTiltAccent')) throw new Error('direction feedback must keep its dead zone, cooldown, and quiet audio accent');
 if (!styles.includes('left: 50%') || !styles.includes('bottom: 7.5%') || !styles.includes('.cueSouth { opacity: 0; }') || !styles.includes('.balanceBubble')) throw new Error('dynamic shadow must stay in the ball bottom-centre seat');
 console.log('Taiji Level 01 UI boundary passed');

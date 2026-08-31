@@ -993,7 +993,7 @@ function TaijiCore({
   const cellularGroupRef = useRef<THREE.Group>(null);
   const abyssGroupRef = useRef<THREE.Group>(null);
   const ballMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
-  const level01ReentryRef = useRef({ previousLayer: 1, startedAt: -1 });
+  const level01ReentryRef = useRef({ previousLayer: 1, startedAt: -1, tailAngle: 0, tailVelocity: 0 });
   const reducedMotionRef = useRef(false);
 
   useEffect(() => {
@@ -1130,10 +1130,25 @@ function TaijiCore({
     const reentryState = level01ReentryRef.current;
     if (shouldTriggerLevel01Reentry(reentryState.previousLayer, layer) && !reducedMotionRef.current) {
       reentryState.startedAt = t;
+      reentryState.tailAngle = 0;
+      reentryState.tailVelocity = 0;
       onLevel01Reentry?.();
     }
     reentryState.previousLayer = layer;
     const reentry = level01ReentryPose(t - reentryState.startedAt, reducedMotionRef.current);
+    if (reentry.active) {
+      reentryState.tailAngle = reentry.spin;
+      reentryState.tailVelocity = reentry.tailVelocity;
+    } else if (Math.abs(reentryState.tailVelocity) > 0.0005 || Math.abs(reentryState.tailAngle) > 0.0005) {
+      // Frame-rate-independent residual spin: this is the soft handoff from
+      // the re-entry animation to the first layer's own sensor/living pose.
+      reentryState.tailAngle += reentryState.tailVelocity * frameDelta;
+      reentryState.tailVelocity *= Math.exp(-frameDelta * 5.2);
+      if (Math.abs(reentryState.tailAngle) < 0.0005 && Math.abs(reentryState.tailVelocity) < 0.0005) {
+        reentryState.tailAngle = 0;
+        reentryState.tailVelocity = 0;
+      }
+    }
 
     if (prevStageRef.current !== stage) {
       prevStageRef.current = stage;
@@ -1175,7 +1190,7 @@ function TaijiCore({
       groupRef.current.position.set(reentry.x, reentry.y, reentry.z);
     } else if (level01Drive && level01PoseRef?.current) {
       const pose = level01PoseRef.current;
-      groupRef.current.rotation.set(pose.visualEuler.x, pose.visualEuler.y, pose.visualEuler.z);
+      groupRef.current.rotation.set(pose.visualEuler.x, pose.visualEuler.y + reentryState.tailAngle, pose.visualEuler.z);
       groupRef.current.position.set(0, 0, 0);
     } else if (separate) {
       groupRef.current.position.set(0, 0, 0);
@@ -1186,6 +1201,9 @@ function TaijiCore({
     } else {
       groupRef.current.position.set(0, 0, 0);
       groupRef.current.rotation.y += (Math.sin(t * 0.12) * 0.052 - groupRef.current.rotation.y) * settleSlow;
+      if (layer === 1 && reentryState.tailAngle !== 0) {
+        groupRef.current.rotation.y += reentryState.tailAngle * settleSlow;
+      }
       groupRef.current.rotation.x += (Math.sin(t * 0.1) * 0.02 - groupRef.current.rotation.x) * settleSlow;
       groupRef.current.rotation.z = 0;
     }

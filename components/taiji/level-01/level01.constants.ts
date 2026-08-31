@@ -18,7 +18,8 @@ export const FLICK_ACCELERATION_THRESHOLD = 3;
 export const FLICK_RESPONSE_DAMPING = 4.2;
 export const FLICK_COAST_DAMPING = 1.35;
 export const MAX_TILT_VISUAL_ANGLE_DEG = 28;
-export const HAPTIC_RATE_LIMIT_MS = 180;
+// Prevent sustained shaking from becoming a continuous vibration on a phone.
+export const HAPTIC_RATE_LIMIT_MS = 320;
 export const AUDIO_GAIN_LIMIT = 0.28;
 export const DAMPING = 3.4;
 export const LOCKED_DAMPING = 5.8;
