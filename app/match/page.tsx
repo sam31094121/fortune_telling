@@ -134,6 +134,7 @@ interface RedLuanHeartbeatResult {
   annualYear: number;
   bazi: { personA: BaziLoveSignal; personB: BaziLoveSignal };
   ziwei: { personA: ZiweiLoveSignal; personB: ZiweiLoveSignal };
+  crossCheck: { status: 'READY' | 'PARTIAL'; summary: string; limitation: string };
   iching: { status: 'UNAVAILABLE_RULE_SOURCE_REQUIRED'; limitation: string };
 }
 
@@ -1502,6 +1503,11 @@ function RedLuanHeartbeatPanel({ result, personAName, personBName }: { result?: 
         <span className="rounded-full border border-rose-100/25 bg-rose-200/10 px-3 py-1.5 text-xs font-black text-rose-100">{result.annualYear} 年文化參考</span>
       </div>
       <p className="mt-4 text-sm font-semibold leading-7 text-rose-50/80">先看可核對的八字年度訊號；出生時辰完整後，再展開紫微本命夫妻宮資料。不判定感情好壞，也不保證事件。</p>
+      <article className="mt-4 rounded-2xl border border-amber-100/20 bg-amber-200/[0.06] p-4">
+        <p className="text-xs font-black tracking-[0.18em] text-amber-100">交叉核對摘要・{result.crossCheck.status === 'READY' ? '資料可並列閱讀' : '待補出生時辰'}</p>
+        <p className="mt-2 text-sm font-semibold leading-7 text-amber-50/88">{result.crossCheck.summary}</p>
+        <p className="mt-2 text-xs leading-6 text-white/60">{result.crossCheck.limitation}</p>
+      </article>
       <details className="mt-5 rounded-2xl border border-white/10 bg-black/15 p-4" open>
         <summary className="cursor-pointer list-none text-base font-black text-amber-100">查看八字年度關係訊號 <span className="ml-2 text-xs text-rose-100/70">點選可收起</span></summary>
         <div className="mt-4 grid gap-3 lg:grid-cols-2">{people.map(({ name, bazi }) => <article key={name} className="rounded-2xl border border-rose-100/12 bg-white/[0.04] p-4"><p className="font-black text-rose-100">{name}</p><p className="mt-1 text-xs font-semibold text-white/60">{bazi.inputCompleteness}・流年支 {bazi.annualBranch}・{bazi.ruleVersion}</p><p className="mt-3 text-sm font-black text-amber-100">年度關係主題觸發</p>{bazi.annualTriggers.length ? <ul className="mt-2 space-y-1.5 text-sm leading-6 text-rose-50/85">{bazi.annualTriggers.map((item) => <li key={`${item.label}-${item.evidence}`}>• {item.label}：{item.evidence}</li>)}</ul> : <p className="mt-2 text-sm leading-6 text-white/65">今年未命中這組固定關係訊號；不代表感情沒有可能或沒有價值。</p>}{bazi.natalEvidence.length > 0 && <p className="mt-3 text-xs leading-6 text-white/62">命盤現位：{bazi.natalEvidence.map((item) => `${item.label}（${item.evidence}）`).join('；')}</p>}</article>)}</div>
@@ -1511,7 +1517,7 @@ function RedLuanHeartbeatPanel({ result, personAName, personBName }: { result?: 
         <summary className="cursor-pointer list-none text-base font-black text-violet-100">查看紫微本命夫妻宮資料 <span className="ml-2 text-xs text-violet-100/65">需完整出生時辰</span></summary>
         <div className="mt-4 grid gap-3 lg:grid-cols-2">{people.map(({ name, ziwei }) => <article key={name} className="rounded-2xl border border-violet-100/10 bg-black/15 p-4"><p className="font-black text-violet-100">{name}</p>{ziwei.status === 'UNAVAILABLE_BIRTH_TIME_REQUIRED' ? <p className="mt-2 text-sm leading-7 text-white/70">時辰尚未提供，因此不以預設時辰排紫微。補上時辰後，才能解鎖本命夫妻宮與三方四正資料。</p> : <div className="mt-3 space-y-2">{ziwei.palaces?.map((palace) => <div key={palace.palace} className="rounded-xl bg-white/[0.04] p-3 text-xs leading-6 text-white/72"><b className="text-violet-100">{palace.palace}・{palace.earthlyBranch}</b><br />主星：{palace.majorStars.join('、') || '無十四主星'}<br />輔星：{palace.minorStars.join('、') || '—'}</div>)}</div>}<p className="mt-3 text-xs leading-6 text-white/55">年度紫微：規則來源待確認，現階段不推算。</p></article>)}</div>
       </details>
-      <details className="mt-3 rounded-2xl border border-cyan-100/12 bg-cyan-950/15 p-4"><summary className="cursor-pointer list-none text-base font-black text-cyan-100">易經補充 <span className="ml-2 text-xs text-cyan-100/65">規則待確認</span></summary><p className="mt-3 text-sm leading-7 text-white/70">{result.iching.limitation}</p></details>
+      <details className="mt-3 rounded-2xl border border-cyan-100/12 bg-cyan-950/15 p-4"><summary className="cursor-pointer list-none text-base font-black text-cyan-100">易經補卦 <span className="ml-2 text-xs text-cyan-100/65">待選定起卦規則</span></summary><p className="mt-3 text-sm leading-7 text-white/70">{result.iching.limitation}</p></details>
     </section>
   );
 }

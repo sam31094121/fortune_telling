@@ -313,6 +313,9 @@ function buildRedLuanHeartbeat(
     if (timeIndex === undefined) return null;
     return { calendarType: 'solar' as const, date: person.birthDate, gender: person.gender === 'female' ? '女' as const : '男' as const, timeIndex };
   };
+  const ziweiA = buildZiweiLovePersonSignal({ birth: toZiweiBirth(personA) });
+  const ziweiB = buildZiweiLovePersonSignal({ birth: toZiweiBirth(personB) });
+  const ziweiReady = ziweiA.status === 'READY' && ziweiB.status === 'READY';
 
   return {
     annualYear,
@@ -321,12 +324,19 @@ function buildRedLuanHeartbeat(
       personB: buildBazi(charts.personB, personB),
     },
     ziwei: {
-      personA: buildZiweiLovePersonSignal({ birth: toZiweiBirth(personA) }),
-      personB: buildZiweiLovePersonSignal({ birth: toZiweiBirth(personB) }),
+      personA: ziweiA,
+      personB: ziweiB,
+    },
+    crossCheck: {
+      status: ziweiReady ? 'READY' : 'PARTIAL',
+      summary: ziweiReady
+        ? '八字年度訊號與紫微本命夫妻宮資料皆已各自核對；請分開閱讀證據，不合併成感情結果。'
+        : '八字年度訊號已核對；紫微本命資料仍待補出生時辰，暫不進行跨系統推論。',
+      limitation: '交叉摘要只說明資料是否可並列閱讀，不新增分數、不以 AI 補足缺項，也不保證關係事件。',
     },
     iching: {
       status: 'UNAVAILABLE_RULE_SOURCE_REQUIRED',
-      limitation: '易經補充尚未選定可追溯的雙人起卦或映射規則，因此本階段不生成卦象。',
+      limitation: '易經補卦尚未選定可追溯的雙人起卦或映射規則，因此本階段不生成卦象。',
     },
   };
 }

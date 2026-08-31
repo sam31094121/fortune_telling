@@ -53,6 +53,11 @@ export type RedLuanHeartbeatResult = {
   annualYear: number;
   bazi: { personA: BaziLovePersonSignal; personB: BaziLovePersonSignal };
   ziwei: { personA: ZiweiLovePersonSignal; personB: ZiweiLovePersonSignal };
+  crossCheck: {
+    status: 'READY' | 'PARTIAL';
+    summary: string;
+    limitation: string;
+  };
   iching: {
     status: 'UNAVAILABLE_RULE_SOURCE_REQUIRED';
     limitation: string;
