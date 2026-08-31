@@ -14,6 +14,7 @@ if (styles.includes('水平儀')) throw new Error('visible level label must rema
 if (!styles.includes('--shadow-shift-x') || !styles.includes('--shadow-spread') || !styles.includes('--shadow-angle') || !styles.includes('.shadowGlow')) throw new Error('the level 01 control must remain a physics-driven shadow');
 if (overlay.includes('輕觸啟動') || overlay.includes('shadowHint') || styles.includes('.shadowHint')) throw new Error('the level 01 trigger must not show a start-text prompt');
 if (!overlay.includes('attemptAutomaticSensorStart')) throw new Error('the level 01 overlay must attempt gesture-free sensor start when supported');
+if (!overlay.includes("window.addEventListener('pointerdown'") || !overlay.includes("window.addEventListener('touchstart'")) throw new Error('iOS fallback must accept any natural page touch without visible start copy');
 if (!overlay.includes('particlePair') || !styles.includes('.particlePair') || !styles.includes('shadowPhotonDrift')) throw new Error('the level 01 shadow must keep its paired photon field');
 if (!styles.includes('--pair-gap') || !styles.includes('--pair-angle')) throw new Error('the paired photons must reflect the filtered balance state');
 if (!styles.includes('pointer-events: none') || !styles.includes('prefers-reduced-motion')) throw new Error('particles must not block touch and must respect reduced motion');

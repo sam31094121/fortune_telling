@@ -92,10 +92,17 @@ export class Level01TaijiMotionController {
   }
 
   async armFromUserGesture() {
-    if (this.disposed) return this.pose;
+    if (this.disposed || this.permission === 'pending') return this.pose;
     this.syncEnvironment();
     void this.audio.armFromUserGesture();
     this.haptics.armFromUserGesture();
+    // Returning to the first layer after a granted session should resume
+    // immediately; do not ask a second browser permission question.
+    if (this.permission === 'granted') {
+      this.attachSensors();
+      this.publish(false);
+      return this.pose;
+    }
     return this.enableSensors();
   }
 

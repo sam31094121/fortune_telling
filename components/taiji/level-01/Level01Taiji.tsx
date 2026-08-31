@@ -48,6 +48,20 @@ export default function Level01TaijiOverlay({
     void controller.armFromUserGesture().then((next) => setPose({ ...next, visualEuler: { ...next.visualEuler }, snapshot: { ...next.snapshot } }));
   }, [controller]);
 
+  useEffect(() => {
+    if (!visible || pose.permission === 'granted' || pose.permission === 'pending') return;
+    // iOS requires a real user gesture before it will show the sensor dialog.
+    // Any first natural touch on the visible page (including the start of a
+    // scroll) counts; we never prevent that gesture or show a text instruction.
+    const armFromNaturalGesture = () => arm();
+    window.addEventListener('pointerdown', armFromNaturalGesture, { capture: true, passive: true, once: true });
+    window.addEventListener('touchstart', armFromNaturalGesture, { capture: true, passive: true, once: true });
+    return () => {
+      window.removeEventListener('pointerdown', armFromNaturalGesture, true);
+      window.removeEventListener('touchstart', armFromNaturalGesture, true);
+    };
+  }, [arm, pose.permission, visible]);
+
   if (!visible) return null;
 
   const direction = Math.abs(pose.snapshot.gamma) >= Math.abs(pose.snapshot.beta)
