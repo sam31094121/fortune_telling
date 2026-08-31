@@ -1,4 +1,4 @@
-import { AUDIO_GAIN_LIMIT } from './level01.constants';
+import { AUDIO_GAIN_LIMIT, MAX_FLICK_SPIN_SPEED } from './level01.constants';
 import type { BalanceState } from './Level01Physics';
 
 export class Level01SoundEngine {
@@ -46,7 +46,13 @@ export class Level01SoundEngine {
     }
   }
 
-  sync(input: { motionEnergy: number; balanceState: BalanceState; lockChime: boolean; active: boolean }) {
+  sync(input: {
+    motionEnergy: number;
+    angularVelocity: number;
+    balanceState: BalanceState;
+    lockChime: boolean;
+    active: boolean;
+  }) {
     if (this.blocked || !this.context || !this.master || !this.osc || !this.oscGain) return;
     const now = this.context.currentTime;
     if (!input.active) {
@@ -68,9 +74,11 @@ export class Level01SoundEngine {
 
     this.lockPlayed = false;
     const energy = this.reducedMotion ? input.motionEnergy * 0.45 : input.motionEnergy;
+    const spin = Math.min(1, Math.abs(input.angularVelocity) / MAX_FLICK_SPIN_SPEED);
     const quiet = input.balanceState === 'BALANCED' ? 0.12 : 1;
-    const gain = Math.min(AUDIO_GAIN_LIMIT, energy * AUDIO_GAIN_LIMIT * quiet);
-    const frequency = 148 + energy * (this.reducedMotion ? 70 : 168);
+    // A single, deliberately quiet oscillator avoids a harsh continuous whirr.
+    const gain = Math.min(AUDIO_GAIN_LIMIT, (energy * 0.35 + spin * 0.65) * AUDIO_GAIN_LIMIT * quiet);
+    const frequency = 148 + energy * (this.reducedMotion ? 70 : 100) + spin * (this.reducedMotion ? 45 : 190);
     this.osc.frequency.setTargetAtTime(frequency, now, 0.08);
     this.master.gain.setTargetAtTime(gain, now, 0.1);
   }

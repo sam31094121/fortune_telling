@@ -75,7 +75,7 @@ export class Level01TaijiMotionController {
     this.layerEnabled = enabled;
     if (!enabled) {
       this.haptics.stop();
-      this.audio.sync({ motionEnergy: 0, balanceState: 'UNBALANCED', lockChime: false, active: false });
+      this.audio.sync({ motionEnergy: 0, angularVelocity: 0, balanceState: 'UNBALANCED', lockChime: false, active: false });
       this.publish(false);
     }
   }
@@ -84,7 +84,7 @@ export class Level01TaijiMotionController {
     this.hidden = hidden;
     if (hidden) {
       this.haptics.stop();
-      this.audio.sync({ motionEnergy: 0, balanceState: this.physics.balanceState, lockChime: false, active: false });
+      this.audio.sync({ motionEnergy: 0, angularVelocity: 0, balanceState: this.physics.balanceState, lockChime: false, active: false });
     }
   }
 
@@ -132,7 +132,7 @@ export class Level01TaijiMotionController {
     }));
 
     if (!driving || !this.latestOrientation) {
-      this.audio.sync({ motionEnergy: 0, balanceState: this.physics.balanceState, lockChime: false, active: false });
+      this.audio.sync({ motionEnergy: 0, angularVelocity: 0, balanceState: this.physics.balanceState, lockChime: false, active: false });
       this.publish(false);
       return this.pose;
     }
@@ -155,6 +155,7 @@ export class Level01TaijiMotionController {
     });
     this.audio.sync({
       motionEnergy: this.physics.motionEnergy,
+      angularVelocity: this.physics.angularVelocity,
       balanceState: this.physics.balanceState,
       lockChime: this.physics.lockChimePending,
       active: true,

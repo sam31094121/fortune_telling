@@ -11,6 +11,12 @@ export const LOCKED_HOLD_MS = 750;
 export const WAKE_THRESHOLD = 0.22;
 export const LOW_PASS_FACTOR = 0.12;
 export const MAX_SAFE_ROTATION_SPEED = 4.2;
+// 快甩時允許的短暫慣性上限；與一般傾斜的低速轉動分開校準。
+export const MAX_FLICK_SPIN_SPEED = 12;
+export const FLICK_ROTATION_THRESHOLD = 70;
+export const FLICK_ACCELERATION_THRESHOLD = 3;
+export const FLICK_RESPONSE_DAMPING = 4.2;
+export const FLICK_COAST_DAMPING = 1.35;
 export const MAX_TILT_VISUAL_ANGLE_DEG = 28;
 export const HAPTIC_RATE_LIMIT_MS = 180;
 export const AUDIO_GAIN_LIMIT = 0.28;

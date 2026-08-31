@@ -1,12 +1,17 @@
 import {
   APPROACHING_THRESHOLD_DEG,
   DAMPING,
+  FLICK_ACCELERATION_THRESHOLD,
+  FLICK_COAST_DAMPING,
+  FLICK_RESPONSE_DAMPING,
+  FLICK_ROTATION_THRESHOLD,
   FRAME_DELTA_CAP,
   LEVEL_THRESHOLD_DEG,
   LOCKED_DAMPING,
   LOCKED_HOLD_MS,
   LOW_PASS_FACTOR,
   MAX_SAFE_ROTATION_SPEED,
+  MAX_FLICK_SPIN_SPEED,
   MAX_TILT_VISUAL_ANGLE_DEG,
   MOTION_ENERGY_WEIGHTS,
   ACCEL_NORMALIZE,
@@ -74,6 +79,19 @@ export function level01BubbleOffset(degrees: number) {
   const deadZone = 1.2;
   const magnitude = Math.max(0, Math.abs(degrees) - deadZone);
   return Math.max(-18, Math.min(18, Math.sign(degrees) * magnitude * 1.45));
+}
+
+function resolveFlick(state: PhysicsState, previous: { alpha: number; beta: number; gamma: number }) {
+  // Rotation-rate magnitude identifies a deliberate flick; the signed orientation
+  // change supplies its spin direction. Tilt alone deliberately does not trigger it.
+  const rotational = clamp01((state.rotationRate - FLICK_ROTATION_THRESHOLD) / 250);
+  const acceleration = clamp01((state.acceleration - FLICK_ACCELERATION_THRESHOLD) / 12);
+  const strength = Math.max(rotational, acceleration * 0.85);
+  const heading = shortestAngleDelta(previous.alpha, state.alpha);
+  const lateral = state.gamma - previous.gamma;
+  const vertical = state.beta - previous.beta;
+  const direction = Math.sign(heading) || Math.sign(lateral) || Math.sign(vertical);
+  return { strength, direction };
 }
 
 export function lowPassAngle(previousDeg: number, currentDeg: number, factor = LOW_PASS_FACTOR) {
@@ -191,10 +209,24 @@ export function integrateLevel01Physics(
   const maxSpeed = input.reducedMotion
     ? MAX_SAFE_ROTATION_SPEED * REDUCED_MOTION_SPEED_SCALE
     : MAX_SAFE_ROTATION_SPEED;
-  const targetOmega = state.balanceState === 'LOCKED' ? 0 : state.motionEnergy * maxSpeed;
-  const damping = state.balanceState === 'LOCKED' ? LOCKED_DAMPING : DAMPING;
+  const flick = input.reducedMotion ? { strength: 0, direction: 0 } : resolveFlick(state, {
+    alpha: prevAlpha,
+    beta: prevBeta,
+    gamma: prevGamma,
+  });
+  const baseTarget = state.balanceState === 'LOCKED' ? 0 : state.motionEnergy * maxSpeed;
+  const flickTarget = state.balanceState === 'LOCKED' || flick.direction === 0
+    ? 0
+    : flick.direction * (MAX_SAFE_ROTATION_SPEED + flick.strength * (MAX_FLICK_SPIN_SPEED - MAX_SAFE_ROTATION_SPEED));
+  const targetOmega = flick.strength > 0 ? flickTarget : baseTarget;
+  const damping = state.balanceState === 'LOCKED'
+    ? LOCKED_DAMPING
+    : flick.strength > 0
+      ? FLICK_RESPONSE_DAMPING
+      : Math.abs(state.angularVelocity) > maxSpeed ? FLICK_COAST_DAMPING : DAMPING;
   const settle = 1 - Math.exp(-damping * delta);
   state.angularVelocity += (targetOmega - state.angularVelocity) * settle;
+  state.angularVelocity = Math.max(-MAX_FLICK_SPIN_SPEED, Math.min(MAX_FLICK_SPIN_SPEED, state.angularVelocity));
   if (state.balanceState === 'LOCKED' && Math.abs(state.angularVelocity) < 0.002) {
     state.angularVelocity = 0;
   }

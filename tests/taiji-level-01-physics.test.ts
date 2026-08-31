@@ -14,7 +14,7 @@ import {
 } from '../components/taiji/level-01/Level01Physics';
 import { resolveEffectivePermission, resolveLevel01Mode } from '../components/taiji/level-01/Level01Fallback';
 import { createGravityEstimate, readMotionEvent } from '../components/taiji/level-01/Level01Orientation';
-import { MAX_SAFE_ROTATION_SPEED, WAKE_THRESHOLD } from '../components/taiji/level-01/level01.constants';
+import { MAX_FLICK_SPIN_SPEED, MAX_SAFE_ROTATION_SPEED, WAKE_THRESHOLD } from '../components/taiji/level-01/level01.constants';
 
 function assert(condition: boolean, message: string) {
   if (!condition) throw new Error(message);
@@ -51,6 +51,36 @@ integrateLevel01Physics(state, {
 });
 assert(state.angularVelocity <= MAX_SAFE_ROTATION_SPEED, 'rotation must respect max safe speed');
 assert(state.balanceState === 'BALANCED' || state.balanceState === 'UNBALANCED' || state.balanceState === 'APPROACHING', 'valid state');
+
+const flicked = createPhysicsState();
+for (let i = 0; i < 8; i += 1) {
+  integrateLevel01Physics(flicked, {
+    alpha: 0,
+    beta: 11,
+    gamma: (i + 1) * 8,
+    rotationRate: 780,
+    acceleration: 15,
+    now: i * 16,
+    delta: 1 / 60,
+    reducedMotion: false,
+  });
+}
+assert(flicked.angularVelocity > MAX_SAFE_ROTATION_SPEED, 'a deliberate fast flick earns a short inertial spin above normal tilt speed');
+assert(flicked.angularVelocity <= MAX_FLICK_SPIN_SPEED, 'fast flick spin has a hard safe cap');
+const flickSpeed = flicked.angularVelocity;
+for (let i = 0; i < 90; i += 1) {
+  integrateLevel01Physics(flicked, {
+    alpha: 0,
+    beta: 11,
+    gamma: 56,
+    rotationRate: 0,
+    acceleration: 0,
+    now: 176 + i * 16,
+    delta: 1 / 60,
+    reducedMotion: false,
+  });
+}
+assert(flicked.angularVelocity < flickSpeed, 'inertial flick spin decays with friction after the motion ends');
 
 let locked = createPhysicsState();
 let sawLockChime = false;
