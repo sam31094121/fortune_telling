@@ -2755,7 +2755,7 @@ export default function HomePage() {
           )}
           <div className="flex w-full flex-col gap-4">
           <Link
-            href="/red-luan-heartbeat"
+            href="/match"
             className="home-feature-launch home-feature-rose order-4 w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
@@ -3016,7 +3016,7 @@ export default function HomePage() {
           </Link>
 
           <Link
-            href="/match"
+            href="/red-luan-heartbeat"
             className="home-feature-launch order-0 w-full relative group overflow-hidden rounded-3xl border border-rose-300/35 bg-[radial-gradient(circle_at_14%_20%,rgba(251,113,133,0.24),transparent_34%),radial-gradient(circle_at_84%_22%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(115deg,rgba(51,8,30,0.98),rgba(26,12,42,0.96)_58%,rgba(15,23,42,0.98))] p-6 text-left shadow-[0_0_34px_rgba(244,63,94,0.18)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-200/75 hover:shadow-[0_0_54px_rgba(244,63,94,0.30)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
             aria-label="開啟桃花・紅鸞心動個人關係主題"
           >
