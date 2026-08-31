@@ -315,11 +315,15 @@ export default function NumerologyPage() {
     }
   }
 
-  function retryWithAnotherNumber() {
+  function clearNumerologyInput() {
     setValue('');
     setResult(null);
     setError('');
     window.setTimeout(() => numberInputRef.current?.focus(), 0);
+  }
+
+  function retryWithAnotherNumber() {
+    clearNumerologyInput();
   }
 
   return (
@@ -459,14 +463,17 @@ export default function NumerologyPage() {
 
           {error && <p className="mt-3 rounded-2xl border border-rose-200/35 bg-rose-300/10 p-3 text-sm font-bold leading-6 text-rose-100">{error}</p>}
 
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={loading}
-            className="mt-4 min-h-[58px] w-full rounded-2xl border border-amber-200/55 bg-amber-300 px-5 py-4 text-base font-black text-slate-950 shadow-[0_0_30px_rgba(251,191,36,0.24)] transition active:scale-[0.99] disabled:opacity-50"
-          >
-            {loading ? '易經正在完成判定' : '立即開始'}
-          </button>
+          <div className="mt-4 flex gap-2">
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={loading}
+              className="min-h-[58px] min-w-0 flex-1 rounded-2xl border border-amber-200/55 bg-amber-300 px-5 py-4 text-base font-black text-slate-950 shadow-[0_0_30px_rgba(251,191,36,0.24)] transition active:scale-[0.99] disabled:opacity-50"
+            >
+              {loading ? '易經正在完成判定' : '立即開始'}
+            </button>
+            <button type="button" onClick={clearNumerologyInput} disabled={loading} className="min-h-[58px] shrink-0 rounded-2xl border border-white/25 bg-white/[0.06] px-4 py-4 text-sm font-black text-white/82 transition hover:border-cyan-100/55 hover:bg-cyan-200/[0.1] active:scale-[0.98] disabled:opacity-50">清除</button>
+          </div>
         </section>
 
         {result && !crossVerdictComplete && (
