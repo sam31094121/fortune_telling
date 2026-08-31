@@ -29,6 +29,7 @@
     "test:numerology-display-tiers": "tsc lib/numerology-display-tiers.ts tests/numerology-display-tiers.test.ts --outDir .numerology-display-tier-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .numerology-display-tier-test-build/tests/numerology-display-tiers.test.js",
     "test:number-cross-verdict": "tsc lib/number-cross-verdict.ts lib/numerology-display-tiers.ts tests/number-cross-verdict.test.ts --outDir .number-cross-verdict-test-build --module commonjs --target es2020 --moduleResolution node --baseUrl . --resolveJsonModule --esModuleInterop --skipLibCheck && node .number-cross-verdict-test-build/tests/number-cross-verdict.test.js",
     "test:numerology-extreme-visual": "tsc lib/numerology-extreme-visual.ts tests/numerology-extreme-visual.test.ts --outDir .numerology-extreme-visual-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .numerology-extreme-visual-test-build/tests/numerology-extreme-visual.test.js",
+    "test:taiji-level-01-ui": "node tests/taiji-level-01-ui-boundary.test.cjs",
     "test:number-cross-gate": "tsc lib/number-cross-gate.ts tests/number-cross-gate.test.ts --outDir .number-cross-gate-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .number-cross-gate-test-build/tests/number-cross-gate.test.js"
   },
   "dependencies": {

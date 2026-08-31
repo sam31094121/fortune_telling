@@ -1,16 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Level01Compass } from './Level01Compass';
 import type { Level01Pose, Level01TaijiMotionController } from './Level01MotionController';
 import styles from './level01.module.css';
-
-const STATE_LABEL: Record<Level01Pose['balanceState'], string> = {
-  UNBALANCED: '尋找水平',
-  APPROACHING: '接近平衡',
-  BALANCED: '已水平',
-  LOCKED: '平衡鎖定',
-};
 
 export default function Level01TaijiOverlay({
   controller,
@@ -42,24 +34,7 @@ export default function Level01TaijiOverlay({
     onDrivingChange?.(visible && pose.driving);
   }, [onDrivingChange, pose.driving, visible]);
 
-  const arm = useCallback(() => {
-    void controller.armFromUserGesture().then((next) => {
-      setPose({ ...next, visualEuler: { ...next.visualEuler }, snapshot: { ...next.snapshot } });
-    });
-  }, [controller]);
-
   if (!visible) return null;
-
-  const showStart = pose.mode !== 'LIVE';
-  const startLabel = pose.permission === 'denied'
-    ? '感測未授權，改以觀賞模式'
-    : pose.permission === 'unsupported'
-      ? '此裝置改以觀賞模式'
-      : pose.permission === 'pending'
-        ? '授權中'
-        : pose.permission === 'granted'
-          ? '等待水平儀'
-          : '啟動太極';
 
   return (
     <div
@@ -69,19 +44,11 @@ export default function Level01TaijiOverlay({
       data-level01-state={pose.balanceState}
       data-level01-permission={pose.permission}
     >
-      <Level01Compass />
-      <div className={styles.status} data-level01-layer="balance-indicator">
-        {pose.mode === 'LIVE' ? STATE_LABEL[pose.balanceState] : '第一層水平儀待命'}
-      </div>
-      <div className={styles.balanceWell} aria-hidden="true">
+      {/* LEVEL_01 UI SCOPE LOCK: do not add controls or layout changes for levels 02–24 here. */}
+      <div className={styles.balanceWell} aria-label="水平儀" data-level01-layer="balance-indicator">
         <span className={styles.balanceCross} />
         <span ref={bubbleRef} className={styles.balanceBubble} />
       </div>
-      {showStart && (
-        <button type="button" className={styles.startButton} onClick={arm} disabled={pose.permission === 'pending'}>
-          {startLabel}
-        </button>
-      )}
     </div>
   );
 }

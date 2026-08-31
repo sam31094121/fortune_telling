@@ -8,42 +8,24 @@
   transform: translate3d(0, 0, 0);
 }
 
-.compass {
-  position: absolute;
-  inset: 4%;
-  pointer-events: none;
-}
-
-.compassMark {
-  position: absolute;
-  color: rgba(253, 230, 138, 0.86);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-shadow: 0 1px 6px rgba(2, 6, 23, 0.72);
-}
-
-.north { top: 0; left: 50%; transform: translate3d(-50%, 0, 0); }
-.east { right: 0; top: 50%; transform: translate3d(0, -50%, 0); }
-.south { bottom: 0; left: 50%; transform: translate3d(-50%, 0, 0); }
-.west { left: 0; top: 50%; transform: translate3d(0, -50%, 0); }
-
-/* 左下氣泡、右下按鈕、正下方留給方位環的 S，三者互不遮擋。 */
+/* LEVEL_01 ONLY: a single bottom-centre level indicator replaces the old compass. */
 .balanceWell {
   position: absolute;
-  left: 10%;
+  left: 50%;
   bottom: 7%;
-  width: 54px;
-  height: 54px;
-  transform: translate3d(0, 0, 0);
+  width: 76px;
+  height: 30px;
+  transform: translate3d(-50%, 0, 0);
   border: 1px solid rgba(253, 230, 138, 0.38);
-  border-radius: 50%;
+  border-radius: 999px;
   background: rgba(8, 15, 37, 0.28);
 }
 
+.balanceWell::before { content: '水平儀'; position: absolute; left: 50%; top: -15px; transform: translateX(-50%); color: rgba(253, 230, 138, 0.88); font-size: 10px; font-weight: 800; letter-spacing: .12em; white-space: nowrap; }
+
 .balanceCross {
   position: absolute;
-  inset: 50% 8%;
+  inset: 50% 10%;
   height: 1px;
   background: rgba(255, 251, 235, 0.28);
   transform: translate3d(0, -50%, 0);
@@ -55,7 +37,7 @@
   left: 50%;
   top: 50%;
   width: 1px;
-  height: 38px;
+  height: 18px;
   background: rgba(255, 251, 235, 0.28);
   transform: translate3d(-50%, -50%, 0);
 }
@@ -72,44 +54,8 @@
   will-change: transform;
 }
 
-.startButton {
-  pointer-events: auto;
-  position: absolute;
-  right: 10%;
-  bottom: 7%;
-  transform: translate3d(0, 0, 0);
-  white-space: nowrap;
-  min-height: 34px;
-  padding: 0 14px;
-  border: 1px solid rgba(253, 230, 138, 0.72);
-  border-radius: 999px;
-  background: rgba(8, 15, 37, 0.78);
-  color: #fffbeb;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-}
-
-.startButton:disabled {
-  opacity: 0.64;
-}
-
-.status {
-  position: absolute;
-  left: 50%;
-  top: 11%;
-  transform: translate3d(-50%, 0, 0);
-  color: rgba(255, 251, 235, 0.82);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .balanceBubble,
-  .startButton,
-  .status {
+  .balanceBubble {
     transition: none;
   }
 }
