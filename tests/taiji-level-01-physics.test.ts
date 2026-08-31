@@ -14,7 +14,7 @@ import {
 } from '../components/taiji/level-01/Level01Physics';
 import { resolveEffectivePermission, resolveLevel01Mode } from '../components/taiji/level-01/Level01Fallback';
 import { canAutoStartLevel01Sensors, createGravityEstimate, readMotionEvent } from '../components/taiji/level-01/Level01Orientation';
-import { level01ReentryPose, shouldTriggerLevel01Reentry } from '../components/taiji/level-01/Level01Reentry';
+import { level01ReentryPose, level01ReentrySoundEnvelope, shouldTriggerLevel01Reentry } from '../components/taiji/level-01/Level01Reentry';
 import { MAX_FLICK_SPIN_SPEED, MAX_SAFE_ROTATION_SPEED, WAKE_THRESHOLD } from '../components/taiji/level-01/level01.constants';
 
 function assert(condition: boolean, message: string) {
@@ -28,11 +28,17 @@ assert(Math.abs(shortestAngleDelta(10, 350) + 20) < 1e-9, '10→350 must be -20'
 assert(Math.abs(lowPassAngle(359, 1) - 359.24) < 1e-6, 'circular low-pass must not jump across 0/360');
 assert(Math.abs(frameRateIndependentFactor(1 / 60) - 0.12) < 1e-9, '60fps smoothing preserves the calibrated response');
 assert(level01BubbleOffset(0.8) === 0 && level01BubbleOffset(30) === 18, 'bubble applies a dead zone and safe clamp from shared tilt state');
-assert(shouldTriggerLevel01Reentry(2, 1), 'only the layer 2→1 path starts the level 1 re-entry');
-assert(!shouldTriggerLevel01Reentry(3, 1), 'other layers cannot start the level 1 re-entry');
+assert(shouldTriggerLevel01Reentry(2, 1), 'the layer 2→1 path starts the level 1 re-entry');
+assert(shouldTriggerLevel01Reentry(24, 1), 'any higher layer returning directly to level 1 starts the re-entry');
+assert(!shouldTriggerLevel01Reentry(3, 2), 'returns that do not reach level 1 cannot start the re-entry');
 const reentry = level01ReentryPose(0.12, false);
 assert(reentry.active && reentry.spin > 0 && Math.abs(reentry.x) > 0, 're-entry has one bounded spin-and-drift pose');
 assert(!level01ReentryPose(0.12, true).active && !level01ReentryPose(1, false).active, 're-entry settles immediately for reduced motion and ends once');
+const reentryStartSound = level01ReentrySoundEnvelope(0);
+const reentryMiddleSound = level01ReentrySoundEnvelope(0.5);
+const reentryEndSound = level01ReentrySoundEnvelope(1);
+assert(reentryStartSound.frequency > reentryMiddleSound.frequency && reentryMiddleSound.frequency > reentryEndSound.frequency, 're-entry sound pitch follows the decelerating spin');
+assert(reentryStartSound.gain > reentryMiddleSound.gain && reentryEndSound.gain <= 0.00011, 're-entry sound fades cleanly to silence at visual settle');
 
 assert(Math.abs(calculateTilt(3, 4) - 5) < 1e-9, 'tilt uses hypot');
 assert(resolveBalanceState(1.2) === 'BALANCED', 'inside 2.5° is balanced');

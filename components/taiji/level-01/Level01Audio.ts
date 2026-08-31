@@ -1,5 +1,6 @@
 import { AUDIO_GAIN_LIMIT, MAX_FLICK_SPIN_SPEED } from './level01.constants';
 import type { BalanceState } from './Level01Physics';
+import { LEVEL01_REENTRY_DURATION_SECONDS, level01ReentrySoundEnvelope } from './Level01Reentry';
 
 export class Level01SoundEngine {
   private context: AudioContext | null = null;
@@ -89,13 +90,24 @@ export class Level01SoundEngine {
   playReentryWhoosh() {
     if (this.reducedMotion || this.blocked || !this.context || !this.master || !this.osc) return;
     const now = this.context.currentTime;
+    const duration = LEVEL01_REENTRY_DURATION_SECONDS;
+    const leadIn = 0.055;
+    const midPoint = duration * 0.44;
+    const start = level01ReentrySoundEnvelope(0);
+    const middle = level01ReentrySoundEnvelope(0.44);
+    const end = level01ReentrySoundEnvelope(1);
     this.osc.frequency.cancelScheduledValues(now);
-    this.osc.frequency.setValueAtTime(360, now);
-    this.osc.frequency.exponentialRampToValueAtTime(148, now + 0.42);
+    this.osc.frequency.setValueAtTime(start.frequency, now);
+    this.osc.frequency.exponentialRampToValueAtTime(middle.frequency, now + midPoint);
+    this.osc.frequency.exponentialRampToValueAtTime(end.frequency, now + duration);
     this.master.gain.cancelScheduledValues(now);
-    this.master.gain.setValueAtTime(Math.min(AUDIO_GAIN_LIMIT, 0.105), now);
-    this.master.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
-    this.reentryUntil = now + 0.42;
+    // A brief, firm entry follows the return's initial spin, then the gain
+    // follows the same decelerating curve and is silent at the visual settle.
+    this.master.gain.setValueAtTime(Math.min(AUDIO_GAIN_LIMIT, start.gain * 0.56), now);
+    this.master.gain.exponentialRampToValueAtTime(Math.min(AUDIO_GAIN_LIMIT, start.gain), now + leadIn);
+    this.master.gain.exponentialRampToValueAtTime(Math.min(AUDIO_GAIN_LIMIT, middle.gain), now + midPoint);
+    this.master.gain.exponentialRampToValueAtTime(end.gain, now + duration);
+    this.reentryUntil = now + duration;
   }
 
   dispose() {
