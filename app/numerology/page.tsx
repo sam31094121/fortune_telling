@@ -599,10 +599,6 @@ export default function NumerologyPage() {
               <div className={`numerology-verdict-panel numerology-verdict-panel--${extremeVisual ?? 'standard'} mt-4 rounded-2xl border border-violet-200/25 bg-violet-300/[0.08] p-4`} aria-label={`${overallTier.label}判定；${extremeVisual ? '已啟用極位文化反思提示' : '一般判定'}`}>
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-200">融會貫通・單一判定</p>
                 <p className={`mt-2 text-2xl font-black ${overallTier.labelTone}`}>{purposeOption.shortLabel}論吉凶：{overallTier.label}</p>
-                <p className="mt-2 text-sm font-bold leading-6 text-white/76">{overallTier.feel}</p>
-                {result.crossVerdict && (
-                  <p className="mt-2 text-xs font-bold leading-5 text-white/58">綜合判定 {result.crossVerdict.score} 分：數字結構 {result.crossVerdict.matrix.score} 分 × 60%（{result.crossVerdict.matrix.contribution}）＋易經訊號 {result.crossVerdict.iching.score} 分 × 40%（{result.crossVerdict.iching.contribution}）。作為文化解讀與自我反思參考，不代表保證或預測。</p>
-                )}
                 {extremeCopy && <p className="numerology-extreme-copy mt-3 rounded-xl px-3 py-2 text-xs font-black leading-5 text-white/82">{extremeCopy}</p>}
                 {overallTier.label === '大凶' && (
                   <div className="mt-3 rounded-xl border border-rose-200/25 bg-black/20 p-3">
