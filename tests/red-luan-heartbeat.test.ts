@@ -201,6 +201,11 @@ assert.ok(pageSource.includes('.mega-friendly-form > section:last-child'));
 assert.equal(pageSource.includes('continueToContext'), false);
 assert.ok(pageSource.indexOf('<UnifiedBirthForm') < pageSource.indexOf('id="red-luan-relationship-context"'));
 assert.ok(pageSource.indexOf('id="red-luan-relationship-context"') < pageSource.indexOf('onClick={() => { void submit(form); }}'));
+const relationshipInputSection = pageSource.slice(pageSource.indexOf('id="red-luan-relationship-context"'), pageSource.indexOf('onClick={() => { void submit(form); }}'));
+assert.ok(relationshipInputSection.includes('選擇最貼近此刻的位置。'));
+for (const removedCopy of ['同一份資料・最後三格', '不送入 AI', '請依現在的實際狀況選擇', '自述內容不參與', 'hint=']) {
+  assert.equal(relationshipInputSection.includes(removedCopy), false, `relationship input still contains verbose copy: ${removedCopy}`);
+}
 for (const title of ['第一層・命理底盤', '第二層・此刻位置', '第三層・情境交叉', '第四層・問心', '第五層・易經引導']) {
   assert.ok(pageSource.includes(title), `missing onion layer: ${title}`);
 }
@@ -217,7 +222,6 @@ assert.ok(pageSource.includes('此刻的關係位置'));
 for (const label of ['關係現況', '目前主要家庭責任', '期待方向', '未婚單身', '交往中', '已婚', '分居', '離異', '喪偶', '認識對象', '穩定交往', '婚姻規劃', '修復關係']) {
   assert.ok(pageSource.includes(label), `missing relationship context option: ${label}`);
 }
-assert.ok(pageSource.includes('不送入 AI'));
 assert.ok(pageSource.includes('已完成情境運算'));
 assert.ok(pageSource.includes('關係情境運算依你的自述調整引導，不改變八字排盤'));
 assert.ok(pageSource.includes('不推斷焦慮、依附型態、創傷、性格或未填資訊'));

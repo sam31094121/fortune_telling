@@ -165,7 +165,6 @@ function EvidenceList({ title, items, empty }: { title: string; items: Evidence[
 
 function ContextChoiceGroup<T extends string>({
   title,
-  hint,
   value,
   options,
   missing,
@@ -173,7 +172,6 @@ function ContextChoiceGroup<T extends string>({
   onChange,
 }: {
   title: string;
-  hint: string;
   value: T | '';
   options: Array<{ value: T; label: string }>;
   missing: boolean;
@@ -183,7 +181,6 @@ function ContextChoiceGroup<T extends string>({
   return (
     <fieldset className={`rounded-2xl border p-4 ${missing ? 'border-rose-300/50 bg-rose-500/10' : 'border-white/10 bg-black/15'}`}>
       <legend className="px-1 text-sm font-black text-amber-50">{title}</legend>
-      <p className="mt-1 text-xs leading-5 text-white/55">{hint}</p>
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
         {options.map((option) => (
           <button
@@ -324,20 +321,13 @@ export default function RedLuanHeartbeatPage() {
         />
 
         <section id="red-luan-relationship-context" className="mt-4 scroll-mt-5 rounded-2xl border border-amber-200/25 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.12),transparent_48%),rgba(15,23,42,0.82)] p-4 shadow-[0_16px_42px_rgba(2,6,23,0.25)] sm:p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="text-xs font-black tracking-[0.18em] text-amber-200">同一份資料・最後三格</p>
-              <h2 className="mt-2 text-xl font-black text-white">5. 此刻的關係位置</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-white/65">請依現在的實際狀況選擇。這些自述只會與已驗證的年度規則證據並列，幫你選擇較貼合的「問心」方向；不會提高或改變命盤計算結果。</p>
-            </div>
-            <span className="rounded-full border border-amber-200/20 bg-amber-300/[0.08] px-3 py-1 text-xs font-bold text-amber-100">不送入 AI</span>
-          </div>
+          <h2 className="text-xl font-black text-white">5. 此刻的關係位置</h2>
+          <p className="mt-2 text-sm font-bold text-white/65">選擇最貼近此刻的位置。</p>
 
           <div className="mt-4 space-y-3">
             <div data-context-field="relationshipStatus">
               <ContextChoiceGroup
                 title="關係現況"
-                hint="選擇最接近此刻的狀態；單身不會被系統自行等同為其他身分。"
                 value={context.relationshipStatus}
                 options={RELATIONSHIP_STATUS_OPTIONS}
                 missing={contextMissing.includes('relationshipStatus')}
@@ -348,7 +338,6 @@ export default function RedLuanHeartbeatPage() {
             <div data-context-field="familyResponsibility">
               <ContextChoiceGroup
                 title="目前主要家庭責任"
-                hint="只選一項最貼近目前生活安排的描述，不用補充私密細節。"
                 value={context.familyResponsibility}
                 options={FAMILY_RESPONSIBILITY_OPTIONS}
                 missing={contextMissing.includes('familyResponsibility')}
@@ -359,7 +348,6 @@ export default function RedLuanHeartbeatPage() {
             <div data-context-field="currentExpectation">
               <ContextChoiceGroup
                 title="期待方向"
-                hint="這不是承諾或預測，只是讓你決定接下來想探索的關係節奏。"
                 value={context.currentExpectation}
                 options={CURRENT_EXPECTATION_OPTIONS}
                 missing={contextMissing.includes('currentExpectation')}
@@ -369,7 +357,6 @@ export default function RedLuanHeartbeatPage() {
             </div>
           </div>
 
-          <p className="mt-3 text-center text-[11px] leading-5 text-white/45">自述內容不參與八字、紅鸞、天喜、桃花、天乙、合沖、年份證據或品質門控。</p>
         </section>
         <button
           type="button"
