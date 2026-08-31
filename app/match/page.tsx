@@ -118,12 +118,32 @@ interface MatchTeacherReadings {
   };
 }
 
+type RelationshipEvidence = { label: '紅鸞' | '天喜' | '桃花'; targetBranch: string; evidence: string };
+type BaziLoveSignal = {
+  status: 'READY'; ruleVersion: string; annualYear: number; annualBranch: string;
+  inputCompleteness: string; natalEvidence: RelationshipEvidence[]; annualTriggers: RelationshipEvidence[];
+  sources: Array<{ title: string; reference: string }>; limitations: string[];
+};
+type ZiweiLoveSignal = {
+  status: 'READY' | 'UNAVAILABLE_BIRTH_TIME_REQUIRED'; ruleVersion: string;
+  annualStatus: 'UNAVAILABLE_RULE_SOURCE_REQUIRED'; inputCompleteness: string;
+  palaces?: Array<{ palace: string; earthlyBranch: string; majorStars: string[]; minorStars: string[] }>;
+  limitations: string[];
+};
+interface RedLuanHeartbeatResult {
+  annualYear: number;
+  bazi: { personA: BaziLoveSignal; personB: BaziLoveSignal };
+  ziwei: { personA: ZiweiLoveSignal; personB: ZiweiLoveSignal };
+  iching: { status: 'UNAVAILABLE_RULE_SOURCE_REQUIRED'; limitation: string };
+}
+
 interface MatchResponse {
   result: MatchResult;
   displayA: PersonDisplay;
   displayB: PersonDisplay;
   fiveElementMatch?: MatchFiveElementResult;
   baziFoundation?: BaziMatchFoundation;
+  redLuanHeartbeat?: RedLuanHeartbeatResult;
   aiInterpretationLayer?: MatchAiInterpretationLayer;
   teacherReadings?: MatchTeacherReadings;
 }
@@ -140,7 +160,7 @@ type SelectionConfirm = { bloodType: boolean; gender: boolean };
 const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const EMPTY: PersonInput = { name: '', birthDate: '', birthHourBranch: 'unknown', bloodType: 'unknown', gender: 'female' };
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { bloodType: false, gender: false };
-const MATCH_DAILY_SCHEMA_VERSION = 'soul-match-bazi-beast-v4';
+const MATCH_DAILY_SCHEMA_VERSION = 'soul-match-red-luan-heartbeat-v5';
 // sharedElement 已改為真實八字五行需求驅動（見 match-generate/route.ts），視覺開放顯示。
 const SHOW_SHARED_ELEMENT_PEARL = true;
 const MATCH_DEMO_NAMES = new Set(['\u738b\u5c0f\u660e', '\u9673\u5c0f\u7f8e']);
@@ -1469,6 +1489,33 @@ function BaziBeastPairCards({
   );
 }
 
+function RedLuanHeartbeatPanel({ result, personAName, personBName }: { result?: RedLuanHeartbeatResult; personAName: string; personBName: string }) {
+  if (!result) return null;
+  const people = [
+    { name: personAName, bazi: result.bazi.personA, ziwei: result.ziwei.personA },
+    { name: personBName, bazi: result.bazi.personB, ziwei: result.ziwei.personB },
+  ];
+  return (
+    <section className="fortune-card overflow-hidden border border-rose-200/25 bg-[radial-gradient(circle_at_12%_0%,rgba(244,63,94,0.18),transparent_33%),linear-gradient(145deg,rgba(44,10,27,0.92),rgba(17,12,35,0.96))] p-5 sm:p-7">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div><p className="text-xs font-black tracking-[0.24em] text-rose-200">紅鸞心動・第二階段</p><h2 className="mt-2 font-serif text-3xl font-black text-amber-100">關係訊號核對</h2></div>
+        <span className="rounded-full border border-rose-100/25 bg-rose-200/10 px-3 py-1.5 text-xs font-black text-rose-100">{result.annualYear} 年文化參考</span>
+      </div>
+      <p className="mt-4 text-sm font-semibold leading-7 text-rose-50/80">先看可核對的八字年度訊號；出生時辰完整後，再展開紫微本命夫妻宮資料。不判定感情好壞，也不保證事件。</p>
+      <details className="mt-5 rounded-2xl border border-white/10 bg-black/15 p-4" open>
+        <summary className="cursor-pointer list-none text-base font-black text-amber-100">查看八字年度關係訊號 <span className="ml-2 text-xs text-rose-100/70">點選可收起</span></summary>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">{people.map(({ name, bazi }) => <article key={name} className="rounded-2xl border border-rose-100/12 bg-white/[0.04] p-4"><p className="font-black text-rose-100">{name}</p><p className="mt-1 text-xs font-semibold text-white/60">{bazi.inputCompleteness}・流年支 {bazi.annualBranch}・{bazi.ruleVersion}</p><p className="mt-3 text-sm font-black text-amber-100">年度關係主題觸發</p>{bazi.annualTriggers.length ? <ul className="mt-2 space-y-1.5 text-sm leading-6 text-rose-50/85">{bazi.annualTriggers.map((item) => <li key={`${item.label}-${item.evidence}`}>• {item.label}：{item.evidence}</li>)}</ul> : <p className="mt-2 text-sm leading-6 text-white/65">今年未命中這組固定關係訊號；不代表感情沒有可能或沒有價值。</p>}{bazi.natalEvidence.length > 0 && <p className="mt-3 text-xs leading-6 text-white/62">命盤現位：{bazi.natalEvidence.map((item) => `${item.label}（${item.evidence}）`).join('；')}</p>}</article>)}</div>
+        <p className="mt-4 text-xs leading-6 text-white/58">依據：{result.bazi.personA.sources.map((item) => `${item.title}（${item.reference}）`).join('；')}</p>
+      </details>
+      <details className="mt-3 rounded-2xl border border-violet-100/12 bg-violet-950/20 p-4">
+        <summary className="cursor-pointer list-none text-base font-black text-violet-100">查看紫微本命夫妻宮資料 <span className="ml-2 text-xs text-violet-100/65">需完整出生時辰</span></summary>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">{people.map(({ name, ziwei }) => <article key={name} className="rounded-2xl border border-violet-100/10 bg-black/15 p-4"><p className="font-black text-violet-100">{name}</p>{ziwei.status === 'UNAVAILABLE_BIRTH_TIME_REQUIRED' ? <p className="mt-2 text-sm leading-7 text-white/70">時辰尚未提供，因此不以預設時辰排紫微。補上時辰後，才能解鎖本命夫妻宮與三方四正資料。</p> : <div className="mt-3 space-y-2">{ziwei.palaces?.map((palace) => <div key={palace.palace} className="rounded-xl bg-white/[0.04] p-3 text-xs leading-6 text-white/72"><b className="text-violet-100">{palace.palace}・{palace.earthlyBranch}</b><br />主星：{palace.majorStars.join('、') || '無十四主星'}<br />輔星：{palace.minorStars.join('、') || '—'}</div>)}</div>}<p className="mt-3 text-xs leading-6 text-white/55">年度紫微：規則來源待確認，現階段不推算。</p></article>)}</div>
+      </details>
+      <details className="mt-3 rounded-2xl border border-cyan-100/12 bg-cyan-950/15 p-4"><summary className="cursor-pointer list-none text-base font-black text-cyan-100">易經補充 <span className="ml-2 text-xs text-cyan-100/65">規則待確認</span></summary><p className="mt-3 text-sm leading-7 text-white/70">{result.iching.limitation}</p></details>
+    </section>
+  );
+}
+
 const MATCH_PEARL_META: Record<MatchFiveElementKey, { name: string; title: string; surface: string; core: string; glow: string }> = {
   space: { name: '星淵虛空珠', title: '界線與視野', surface: 'radial-gradient(circle at 29% 22%, rgba(255,255,255,.96) 0 4%, rgba(196,181,253,.82) 13%, rgba(79,70,229,.82) 42%, rgba(15,23,42,.98) 75%)', core: 'radial-gradient(ellipse at 68% 70%, rgba(15,23,42,.88), transparent 59%), radial-gradient(ellipse at 35% 30%, rgba(221,214,254,.64), transparent 48%)', glow: 'rgba(167,139,250,0.55)' },
   air: { name: '蒼嵐御風珠', title: '溝通與理解', surface: 'radial-gradient(circle at 29% 22%, rgba(255,255,255,.96) 0 4%, rgba(165,243,252,.84) 13%, rgba(6,182,212,.8) 44%, rgba(8,47,73,.98) 76%)', core: 'radial-gradient(ellipse at 67% 70%, rgba(8,47,73,.88), transparent 59%), radial-gradient(ellipse at 31% 36%, rgba(207,250,254,.65), transparent 50%)', glow: 'rgba(34,211,238,0.5)' },
@@ -2247,6 +2294,11 @@ export default function MatchPage() {
               personBName={data.displayB.name}
               personABirthDate={personA.birthDate}
               personBBirthDate={personB.birthDate}
+            />
+            <RedLuanHeartbeatPanel
+              result={data.redLuanHeartbeat}
+              personAName={data.displayA.name}
+              personBName={data.displayB.name}
             />
             {SHOW_SHARED_ELEMENT_PEARL && <MatchSharedElementPearl result={data.fiveElementMatch} />}
             {(() => {

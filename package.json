@@ -30,7 +30,8 @@
     "test:number-cross-verdict": "tsc lib/number-cross-verdict.ts lib/numerology-display-tiers.ts tests/number-cross-verdict.test.ts --outDir .number-cross-verdict-test-build --module commonjs --target es2020 --moduleResolution node --baseUrl . --resolveJsonModule --esModuleInterop --skipLibCheck && node .number-cross-verdict-test-build/tests/number-cross-verdict.test.js",
     "test:numerology-extreme-visual": "tsc lib/numerology-extreme-visual.ts tests/numerology-extreme-visual.test.ts --outDir .numerology-extreme-visual-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .numerology-extreme-visual-test-build/tests/numerology-extreme-visual.test.js",
     "test:taiji-level-01-ui": "node tests/taiji-level-01-ui-boundary.test.cjs",
-    "test:number-cross-gate": "tsc lib/number-cross-gate.ts tests/number-cross-gate.test.ts --outDir .number-cross-gate-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .number-cross-gate-test-build/tests/number-cross-gate.test.js"
+    "test:number-cross-gate": "tsc lib/number-cross-gate.ts tests/number-cross-gate.test.ts --outDir .number-cross-gate-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .number-cross-gate-test-build/tests/number-cross-gate.test.js",
+    "test:red-luan-heartbeat": "tsc lib/red-luan-heartbeat-engine.ts lib/ziwei/engine.ts tests/red-luan-heartbeat.test.ts --outDir .red-luan-heartbeat-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .red-luan-heartbeat-test-build/tests/red-luan-heartbeat.test.js"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

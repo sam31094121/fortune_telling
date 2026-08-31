@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI, Type } from '@google/genai';
-import { castHexagram, formatHexagramLine } from '@/lib/iching-engine';
-import { buildEmpathicFromHexagram, formatGhostDecoding } from '@/lib/iching-psychology';
 import { computeCompatibility, type PersonProfile, type PersonalityMatrixCompat } from '@/lib/compatibility-engine';
 import { isConsistentAiSummary, stabilizeMatchResult } from '@/lib/match-stability';
 import { PersonalityMatrixEngine } from '@/lib/personality-matrix-engine';
@@ -15,6 +13,8 @@ import { buildMatchFiveElementResult, type MatchFiveElementKey } from '@/lib/mat
 import { buildSoulMatchAiInterpretationLayer, buildSoulMatchProfessionalLayer, buildSoulMatchReinforcementLayer } from '@/lib/match-professional-layer';
 import { analyzeBazi } from '@/lib/bazi-engine';
 import { deriveBaziPillarBeast } from '@/lib/bazi-four-pillar-beasts';
+import { SHICHEN_LIST } from '@/lib/shichen-engine';
+import { buildBaziLovePersonSignal, buildZiweiLovePersonSignal, type RedLuanHeartbeatResult } from '@/lib/red-luan-heartbeat-engine';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,6 +55,11 @@ type BaziMatchFoundation = {
   sharedElement: MatchFiveElementKey;
   personA: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard; needScores: Record<MatchFiveElementKey, number> };
   personB: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard; needScores: Record<MatchFiveElementKey, number> };
+};
+
+type BaziMatchFoundationBuild = {
+  foundation: BaziMatchFoundation;
+  charts: { personA: ReturnType<typeof analyzeBazi>; personB: ReturnType<typeof analyzeBazi> };
 };
 
 type BaziBeastCard = {
@@ -183,7 +188,7 @@ function buildProfile(person: PersonInput): { profile: PersonProfile; display: P
   };
 }
 
-function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): BaziMatchFoundation {
+function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): BaziMatchFoundationBuild {
   const toBaziInput = (person: PersonInput) => {
     const traditionalHour = person.birthHourBranch && person.birthHourBranch !== 'unknown'
       ? person.birthHourBranch
@@ -227,6 +232,8 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
   const sharedElement = BAZI_BRAND_TO_MATCH[firstA.brandElement];
 
   return {
+    charts: { personA: chartA, personB: chartB },
+    foundation: {
     source: hasHourA && hasHourB ? '八字四柱合盤' : hasHourA || hasHourB ? '八字混合合盤' : '八字三柱基礎合盤',
     timeNote: hasHourA && hasHourB
       ? '雙方皆已提供出生時辰，使用完整四柱八字合盤。'
@@ -276,6 +283,51 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
         dayPillar: `${chartB.pillars.day.stem}${chartB.pillars.day.branch}`,
       },
     },
+    },
+  };
+}
+
+function buildRedLuanHeartbeat(
+  personA: PersonInput,
+  personB: PersonInput,
+  charts: BaziMatchFoundationBuild['charts'],
+): RedLuanHeartbeatResult {
+  const annualYear = new Date().getFullYear();
+  const buildBazi = (chart: ReturnType<typeof analyzeBazi>, person: PersonInput) => {
+    const hourKnown = Boolean(person.birthHourBranch && person.birthHourBranch !== 'unknown');
+    return buildBaziLovePersonSignal({
+      yearBranch: chart.pillars.year.branch,
+      dayBranch: chart.pillars.day.branch,
+      presentBranches: [
+        { pillar: '年', branch: chart.pillars.year.branch },
+        { pillar: '月', branch: chart.pillars.month.branch },
+        { pillar: '日', branch: chart.pillars.day.branch },
+        { pillar: '時', branch: chart.pillars.hour.branch },
+      ],
+      hourKnown,
+      annualYear,
+    });
+  };
+  const toZiweiBirth = (person: PersonInput) => {
+    const timeIndex = SHICHEN_LIST.find((item) => item.branch === person.birthHourBranch)?.branchIndex;
+    if (timeIndex === undefined) return null;
+    return { calendarType: 'solar' as const, date: person.birthDate, gender: person.gender === 'female' ? '女' as const : '男' as const, timeIndex };
+  };
+
+  return {
+    annualYear,
+    bazi: {
+      personA: buildBazi(charts.personA, personA),
+      personB: buildBazi(charts.personB, personB),
+    },
+    ziwei: {
+      personA: buildZiweiLovePersonSignal({ birth: toZiweiBirth(personA) }),
+      personB: buildZiweiLovePersonSignal({ birth: toZiweiBirth(personB) }),
+    },
+    iching: {
+      status: 'UNAVAILABLE_RULE_SOURCE_REQUIRED',
+      limitation: '易經補充尚未選定可追溯的雙人起卦或映射規則，因此本階段不生成卦象。',
+    },
   };
 }
 
@@ -320,27 +372,11 @@ async function enhanceMatchResultWithAI(
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return { summary: result.summary, zones: result.zones, provider: 'local' };
 
-  // 易經合卦：以雙方姓名＋日主決定性起卦，作為合盤的易經印證
-  const matchGua = castHexagram(displayA.name, displayB.name, baziFoundation.personA.dayMaster, baziFoundation.personB.dayMaster);
-  // 易經心理學共感層：兩人各自起卦推導心理側寫（剝洋蔥＋核心脆弱性），讓合盤懂兩顆心
-  const empathicA = buildEmpathicFromHexagram(displayA.name, castHexagram(displayA.name, baziFoundation.personA.dayMaster));
-  const empathicB = buildEmpathicFromHexagram(displayB.name, castHexagram(displayB.name, baziFoundation.personB.dayMaster));
-
   const prompt = `
-你是「天地人配對系統」的玄學合盤大師，以易經與生辰八字交叉推算兩人關係。
-請根據以下雙方的基本資料、易經合卦與大數據配對指數，將原始配對結果（摘要與四個關係象限文字）改寫成極具個性化、起伏分明、字字扎心、絕不重複的繁體中文大師合盤結論。
+你是「天地人配對系統」的八字基礎合盤解讀助手。
+請根據以下雙方的基本資料、八字基礎與配對指標，將原始配對結果（摘要與四個關係象限文字）改寫成具體、易懂且不重複的繁體中文合盤結論。
 
-易經合卦（後端已決定性起卦，摘要中必須自然引用一次卦名印證，不可自行改卦）：${formatHexagramLine(matchGua)}；卦義：${matchGua.judgment}；卦示行動：${matchGua.advice}
-
-易經心理學共感層（後端已運算；合盤不只算契合度，還要讓兩個人都感覺「你真的懂我」）：
-- ${displayA.name}的外冷內熱：${empathicA.specialYou}
-- ${displayA.name}的核心脆弱性：${empathicA.absolution}
-- ${displayB.name}的外冷內熱：${empathicB.specialYou}
-- ${displayB.name}的核心脆弱性：${empathicB.absolution}
-共感規則：四大象限與摘要至少各有一處要呼應上述心理側寫——尤其「磨合」與「衝突」要指出：真正碰撞的不是兩個人的缺點，是兩顆沒被看懂的核心脆弱性；語氣扎心但有溫度，不可推翻共感層判定，也不可整段照抄。
-
-鬼魅拆卦・合卦版（後端已運算的標準檔案輸出＝磁場・詭異・因果；「衝突」象限可借用其中的磁場與因果語言增強穿透力，神秘話術底下必須保留心理機制）：
-${formatGhostDecoding(matchGua)}
+本次尚未選定可追溯的雙人易經起卦規則；不可生成、引用或暗示卦象，也不可從出生資料推定心理狀態。
 
 ${buildAiCopywritingInstruction('天地人配對系統')}
 
@@ -369,7 +405,7 @@ ${buildAiCopywritingInstruction('天地人配對系統')}
 
 【改寫指令與限制】：
 1. 必須將原始各點改寫融入「雙方姓名、星座、生肖、八字日主、日柱神獸與共同元素」的實際差異；不可只換姓名後輸出相同內容。
-2. 四大關係象限（共鳴、互補、磨合、衝突）中，每一區請生成 1 到 2 條全新、扎心、個性化的合盤指點（每條請控制在 25 字內，切忌空洞泛泛的讚美，多說有用的修行相處建議）。
+2. 四大關係象限（共鳴、互補、磨合、衝突）中，每一區請生成 1 到 2 條全新、具體、個性化的相處提醒（每條請控制在 25 字內，切忌空洞泛泛的讚美）。
 3. 摘要 summary 請控制在 120 字內的一段話，語氣高冷犀利、字字點中要害，直接點破相處關卡。
 4. ⚠️【JSON 安全與轉義鐵律】：
    - 輸出必須是合法的 JSON。
@@ -483,7 +519,7 @@ export async function POST(request: Request) {
     body.personB.birthHourBranch ?? 'unknown',
     body.personB.bloodType,
     body.personB.gender,
-    'soul-match-three-layer-v2',
+    'soul-match-red-luan-heartbeat-v3',
   ]);
   const cached = responseCache.get(cacheKey);
   if (cached && now < cached.expireTime) {
@@ -496,7 +532,9 @@ export async function POST(request: Request) {
 
     const rawResult = computeCompatibility(profileA, profileB);
     const result = stabilizeMatchResult(rawResult);
-    const baziFoundation = buildBaziMatchFoundation(body.personA, body.personB);
+    const baziBuild = buildBaziMatchFoundation(body.personA, body.personB);
+    const baziFoundation = baziBuild.foundation;
+    const redLuanHeartbeat = buildRedLuanHeartbeat(body.personA, body.personB, baziBuild.charts);
     // fiveElementMatch 提前算，兩人的 needScores 直接來自 baziFoundation（真實八字），
     // 算完立刻把 sharedElement 寫回 baziFoundation，讓下面的 易經提示詞跟五元素引擎、
     // 前端寶珠三方看到的是同一個判定結果，不會各說各話。
@@ -549,6 +587,7 @@ export async function POST(request: Request) {
       karmaRelation,
       fiveElementMatch,
       baziFoundation,
+      redLuanHeartbeat,
       teacherReadings: {
         google: {
           reading: enhanced.summary || finalSummary,
