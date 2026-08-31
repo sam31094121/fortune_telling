@@ -26,6 +26,11 @@ type NumberResult = {
   analysisId?: string;
   requestId?: string;
   engineVersion?: string;
+  crossVerdict?: {
+    score: number;
+    matrix: { score: number; weight: 60; contribution: number };
+    iching: { score: number; weight: 40; contribution: number; signalSummary: string };
+  };
   googleExplanation?: string;
   googleProvider?: 'Google Gemini';
   iching?: {
@@ -248,7 +253,7 @@ export default function NumerologyPage() {
     fontFeatureSettings: '"tnum" 1',
     letterSpacing: '0',
   } as CSSProperties & Record<'--fortune-number-input-size', string>;
-  const score = result ? result.finalScore ?? result.score : 0;
+  const score = result ? result.crossVerdict?.score ?? result.finalScore ?? result.score : 0;
   const level = result ? getLevel(score) : null;
   const directionalMatrix = useMemo(() => {
     if (!result) return {};
@@ -265,7 +270,7 @@ export default function NumerologyPage() {
     if (values.length === 0) return 0;
     return values.reduce((sum, score) => sum + score, 0) / values.length;
   }, [directionalMatrix]);
-  const overallTier = getNumerologyDisplayTier(overallDirectionalScore);
+  const overallTier = getNumerologyDisplayTier(score);
   const twoAxisScores = useMemo(() => TWO_AXIS_GROUPS.map((group) => {
     const values = group.keys.map((key) => directionalMatrix[key]).filter((score): score is number => typeof score === 'number');
     const average = values.length === 0 ? 0 : values.reduce((sum, score) => sum + score, 0) / values.length;
@@ -602,6 +607,9 @@ export default function NumerologyPage() {
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-200">融會貫通・單一判定</p>
                 <p className={`mt-2 text-2xl font-black ${overallTier.labelTone}`}>{purposeOption.shortLabel}論吉凶：{overallTier.label}</p>
                 <p className="mt-2 text-sm font-bold leading-6 text-white/76">{overallTier.feel}</p>
+                {result.crossVerdict && (
+                  <p className="mt-2 text-xs font-bold leading-5 text-white/58">綜合判定 {result.crossVerdict.score} 分：數字結構 {result.crossVerdict.matrix.score} 分 × 60%（{result.crossVerdict.matrix.contribution}）＋易經訊號 {result.crossVerdict.iching.score} 分 × 40%（{result.crossVerdict.iching.contribution}）。作為文化解讀與自我反思參考，不代表保證或預測。</p>
+                )}
                 <EnergyLine tier={overallTier} />
                 <p className="mt-3 text-[10px] font-bold text-white/40">以下是這項判定融合出來的組成依據：金錢、感情兩個中軸。</p>
               </div>

@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { after, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { formatNumberReading, readNumberByIChing } from '@/lib/iching-numbers';
+import { buildNumberCrossVerdict } from '@/lib/number-cross-verdict';
 
 import {
   NUMBER_CORE_ENGINE_VERSION,
@@ -222,6 +223,7 @@ export async function POST(request: Request) {
   // 《易經》論數字：逐碼配卦＋相鄰生剋交叉＋整組梅花易數起卦（決定性、可回查）。
   // 判語直接併入 summary，前端不需改版就能看到卜卦結論；完整交叉資料附在 iching 欄位。
   const numberIChing = readNumberByIChing(rawValue);
+  const crossVerdict = buildNumberCrossVerdict(result.finalScore, numberIChing);
   result.summary = `${numberIChing.verdictLine}${result.summary}`;
   // The deterministic Number Core result is the primary response.  External AI
   // prose is opt-in so a slow provider cannot make a basic number lookup feel
@@ -229,12 +231,13 @@ export async function POST(request: Request) {
   const googleExplanation = body.includeAiExplanation === true
     ? await explainNumberWithGoogle(result, purpose, rawValue)
     : null;
-  const response: NumberAnalysisResponse & { analysisId: string; requestId: string; mode: NumberAnalysisMode; purpose: NumberPurpose; fiveElement: ReturnType<typeof buildNumberFiveElementResult>; googleExplanation?: string; googleProvider?: 'Google Gemini'; iching: { hexagramName: string; kingWen: number; patternName: string; chainScore: number; verdictLine: string; digitReadings: typeof numberIChing.digitReadings; crossChain: typeof numberIChing.crossChain; ghost: typeof numberIChing.ghost } } = {
+  const response: NumberAnalysisResponse & { analysisId: string; requestId: string; mode: NumberAnalysisMode; purpose: NumberPurpose; fiveElement: ReturnType<typeof buildNumberFiveElementResult>; crossVerdict: typeof crossVerdict; googleExplanation?: string; googleProvider?: 'Google Gemini'; iching: { hexagramName: string; kingWen: number; patternName: string; chainScore: number; verdictLine: string; digitReadings: typeof numberIChing.digitReadings; crossChain: typeof numberIChing.crossChain; ghost: typeof numberIChing.ghost } } = {
     ...result,
     analysisId,
     requestId,
     purpose,
     fiveElement,
+    crossVerdict,
     iching: {
       hexagramName: numberIChing.hexagram.hexagramName,
       kingWen: numberIChing.hexagram.kingWen,
