@@ -600,14 +600,6 @@ export default function NumerologyPage() {
             )}
 
             <section className="rounded-2xl border border-violet-200/20 bg-violet-300/[0.055] p-4" aria-label="《易經》論數字：金錢與感情兩個中軸">
-              <div className="flex min-h-[48px] items-center justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-black tracking-[0.18em] text-violet-100">《易經》論數字</p>
-                  <h3 className="mt-1 text-base font-black text-violet-50">{purposeCopy.strengthTitle}</h3>
-                </div>
-                <p className={`text-xs font-black ${overallTier.labelTone}`}>{purposeOption.shortLabel}論吉凶：{overallTier.label}</p>
-              </div>
-
               <div className={`numerology-verdict-panel numerology-verdict-panel--${extremeVisual ?? 'standard'} mt-4 rounded-2xl border border-violet-200/25 bg-violet-300/[0.08] p-4`} aria-label={`${overallTier.label}判定；${extremeVisual ? '已啟用極位文化反思提示' : '一般判定'}`}>
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-200">融會貫通・單一判定</p>
                 <p className={`mt-2 text-2xl font-black ${overallTier.labelTone}`}>{purposeOption.shortLabel}論吉凶：{overallTier.label}</p>
