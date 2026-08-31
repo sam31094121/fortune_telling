@@ -24883,3 +24883,5 @@ a.home-feature-launch::after {
 @keyframes numerology-indigo-mist { 50% { opacity: .5; transform: translateY(-5px) scale(1.03); } }
 @keyframes numerology-rift-shift { 50% { opacity: .62; transform: rotate(-7deg) translateX(6px); } }
 @media (prefers-reduced-motion: reduce) { .numerology-verdict-panel--auspicious::before, .numerology-verdict-panel--auspicious::after, .numerology-verdict-panel--reflective::before, .numerology-verdict-panel--reflective::after { animation: none; } }
+/* Local Traditional-Chinese calligraphic fallbacks only for the hexagram entry title. */
+.numerology-hexagram-title { font-family: "DFKai-SB", "KaiTi", "STKaiti", var(--font-serif); }
