@@ -45,7 +45,7 @@ export default function Level01TaijiOverlay({
       data-level01-permission={pose.permission}
     >
       {/* LEVEL_01 UI SCOPE LOCK: do not add controls or layout changes for levels 02–24 here. */}
-      <div className={styles.balanceWell} aria-label="水平儀" data-level01-layer="balance-indicator">
+      <div className={styles.balanceWell} aria-label="太極平衡控制" data-level01-layer="balance-indicator">
         <span className={styles.balanceCross} />
         <span ref={bubbleRef} className={styles.balanceBubble} />
       </div>
