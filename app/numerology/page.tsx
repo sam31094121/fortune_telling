@@ -9,6 +9,7 @@ import MegaInputGuide from '@/components/MegaInputGuide';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import { getNumerologyDisplayTier, NUMEROLOGY_ENERGY_LINE_STEPS, type NumerologyDisplayTier } from '@/lib/numerology-display-tiers';
+import { getNumerologyExtremeCopy, getNumerologyExtremeVisual } from '@/lib/numerology-extreme-visual';
 
 type NumberMode = 'digit2' | 'digit3' | 'last4' | 'digit5' | 'six6' | 'digit7' | 'digit8' | 'digit9' | 'phone10';
 type NumberPurpose = 'general' | 'plate' | 'phone' | 'birthdate';
@@ -271,6 +272,8 @@ export default function NumerologyPage() {
     return values.reduce((sum, score) => sum + score, 0) / values.length;
   }, [directionalMatrix]);
   const overallTier = getNumerologyDisplayTier(score);
+  const extremeVisual = getNumerologyExtremeVisual(overallTier.label);
+  const extremeCopy = getNumerologyExtremeCopy(extremeVisual);
   const twoAxisScores = useMemo(() => TWO_AXIS_GROUPS.map((group) => {
     const values = group.keys.map((key) => directionalMatrix[key]).filter((score): score is number => typeof score === 'number');
     const average = values.length === 0 ? 0 : values.reduce((sum, score) => sum + score, 0) / values.length;
@@ -603,13 +606,14 @@ export default function NumerologyPage() {
                 <p className={`text-xs font-black ${overallTier.labelTone}`}>{purposeOption.shortLabel}論吉凶：{overallTier.label}</p>
               </div>
 
-              <div className="mt-4 rounded-2xl border border-violet-200/25 bg-violet-300/[0.08] p-4">
+              <div className={`numerology-verdict-panel numerology-verdict-panel--${extremeVisual ?? 'standard'} mt-4 rounded-2xl border border-violet-200/25 bg-violet-300/[0.08] p-4`} aria-label={`${overallTier.label}判定；${extremeVisual ? '已啟用極位文化反思提示' : '一般判定'}`}>
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-200">融會貫通・單一判定</p>
                 <p className={`mt-2 text-2xl font-black ${overallTier.labelTone}`}>{purposeOption.shortLabel}論吉凶：{overallTier.label}</p>
                 <p className="mt-2 text-sm font-bold leading-6 text-white/76">{overallTier.feel}</p>
                 {result.crossVerdict && (
                   <p className="mt-2 text-xs font-bold leading-5 text-white/58">綜合判定 {result.crossVerdict.score} 分：數字結構 {result.crossVerdict.matrix.score} 分 × 60%（{result.crossVerdict.matrix.contribution}）＋易經訊號 {result.crossVerdict.iching.score} 分 × 40%（{result.crossVerdict.iching.contribution}）。作為文化解讀與自我反思參考，不代表保證或預測。</p>
                 )}
+                {extremeCopy && <p className="numerology-extreme-copy mt-3 rounded-xl px-3 py-2 text-xs font-black leading-5 text-white/82">{extremeCopy}</p>}
                 <EnergyLine tier={overallTier} />
                 <p className="mt-3 text-[10px] font-bold text-white/40">以下是這項判定融合出來的組成依據：金錢、感情兩個中軸。</p>
               </div>

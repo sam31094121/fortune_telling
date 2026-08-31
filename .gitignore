@@ -37,6 +37,7 @@ next-env.d.ts
 .taiji-level-01-test-build
 .numerology-display-tier-test-build
 .number-cross-verdict-test-build
+.numerology-extreme-visual-test-build
 t12
 
 .vercel
