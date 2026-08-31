@@ -57,11 +57,10 @@ const PURPOSE_OPTIONS: Array<{ id: NumberPurpose; label: string; shortLabel: str
   { id: 'birthdate', label: '出生年月日', shortLabel: '這組生日數字', detail: '直接解讀個人節奏與成長' },
 ];
 
-const PURPOSE_COPY: Record<NumberPurpose, { goodHeading: string; riskHeading: string; strengthTitle: string; good: string; risk: string; psychologyContext: string }> = {
+const PURPOSE_COPY: Record<NumberPurpose, { goodHeading: string; riskHeading: string; good: string; risk: string; psychologyContext: string }> = {
   general: {
     goodHeading: '可運用的地方',
     riskHeading: '需要留意的地方',
-    strengthTitle: '完整結構指標',
     good: '可作為安排目前使用節奏與資源的參考。',
     risk: '適合優先安排與調整的地方。',
     psychologyContext: '這股能量主要反映在你目前整體的節奏與資源分配上。',
@@ -69,7 +68,6 @@ const PURPOSE_COPY: Record<NumberPurpose, { goodHeading: string; riskHeading: st
   plate: {
     goodHeading: '車牌可運用的地方',
     riskHeading: '車牌需要留意的地方',
-    strengthTitle: '車牌完整結構指標',
     good: '在這張車牌的數字解讀中，較能支持出行、往來與使用安排。',
     risk: '是這張車牌在使用節奏與外出安排上較需要留意的地方；不代表車況或行車安全的保證。',
     psychologyContext: '這股能量主要反映在你的出行、往來與車輛使用節奏上。',
@@ -77,7 +75,6 @@ const PURPOSE_COPY: Record<NumberPurpose, { goodHeading: string; riskHeading: st
   phone: {
     goodHeading: '電話號碼可運用的地方',
     riskHeading: '電話號碼需要留意的地方',
-    strengthTitle: '電話號碼完整結構指標',
     good: '在這支電話的數字解讀中，較能支持聯絡、人際與工作溝通。',
     risk: '是這支電話在溝通節奏、回應壓力或人際往來上較需要留意的地方。',
     psychologyContext: '這股能量主要反映在你的聯絡節奏、人際互動與工作溝通上。',
@@ -85,7 +82,6 @@ const PURPOSE_COPY: Record<NumberPurpose, { goodHeading: string; riskHeading: st
   birthdate: {
     goodHeading: '出生年月日可運用的地方',
     riskHeading: '出生年月日需要留意的地方',
-    strengthTitle: '出生年月日完整結構指標',
     good: '在這組生日數字的解讀中，較能支持個人節奏與成長方向。',
     risk: '是這組生日數字反映出的壓力傾向，適合用來安排生活節奏。',
     psychologyContext: '這股能量主要反映在你的個人成長步調與生活節奏上。',
