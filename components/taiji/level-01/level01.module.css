@@ -8,21 +8,31 @@
   transform: translate3d(0, 0, 0);
 }
 
-/* LEVEL_01 ONLY: a single bottom-centre level indicator replaces the old compass. */
+/* LEVEL_01 ONLY: the sensor trigger reads as the taiji ball's live ground shadow,
+   not as a separate instrument. Its variables are written from filtered physics. */
 .balanceWell {
+  --shadow-shift-x: 0px;
+  --shadow-shift-y: 0px;
+  --shadow-spread: 1;
+  --shadow-opacity: 0.72;
+  --shadow-glow: 0.42;
+  --shadow-angle: 0deg;
   position: absolute;
   left: 50%;
-  /* Occupies the S / bottom-centre seat, leaving the ball a clean breathing gap. */
-  bottom: 2%;
-  width: 76px;
-  height: 30px;
-  transform: translate3d(-50%, 0, 0);
-  border: 1px solid rgba(253, 230, 138, 0.38);
+  bottom: 7.5%;
+  width: 154px;
+  height: 34px;
+  transform: translate3d(calc(-50% + var(--shadow-shift-x)), var(--shadow-shift-y), 0) scaleX(var(--shadow-spread));
+  transform-origin: center;
+  border: 0;
   border-radius: 999px;
-  background: rgba(8, 15, 37, 0.28);
+  background: transparent;
   padding: 0;
   cursor: pointer;
   pointer-events: auto;
+  isolation: isolate;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .orientationCue { position: absolute; inset: 5%; pointer-events: none; visibility: hidden; /* Keep level-01 direction logic ready for an explicit future restore. */ color: rgba(253,230,138,.46); font-size: 10px; font-weight: 900; letter-spacing: .08em; text-shadow: 0 1px 6px rgba(2,6,23,.72); }
@@ -32,40 +42,86 @@
 .overlay[data-level01-direction='N'] .cueNorth, .overlay[data-level01-direction='E'] .cueEast, .overlay[data-level01-direction='S'] .cueSouth, .overlay[data-level01-direction='W'] .cueWest { color: #fff3bf; text-shadow: 0 0 10px rgba(253,230,138,.9); transform: translateX(-50%) scale(1.16); }
 .overlay[data-level01-direction='E'] .cueEast, .overlay[data-level01-direction='W'] .cueWest { transform: translateY(-50%) scale(1.16); }
 
-.balanceCross {
+.balanceWell::before {
+  content: '';
   position: absolute;
-  inset: 50% 10%;
-  height: 1px;
-  background: rgba(255, 251, 235, 0.28);
-  transform: translate3d(0, -50%, 0);
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse 34% 58% at 50% 54%, rgba(1, 4, 14, 0.76) 0%, rgba(3, 7, 21, 0.46) 48%, transparent 100%),
+    radial-gradient(ellipse 72% 78% at 50% 50%, rgba(4, 8, 24, 0.34) 0%, rgba(15, 23, 42, 0.11) 58%, transparent 100%),
+    radial-gradient(ellipse at 50% 58%, rgba(250, 204, 21, 0.16), transparent 54%);
+  opacity: var(--shadow-opacity);
+  transform: rotateZ(var(--shadow-angle));
+  pointer-events: none;
+  z-index: -2;
 }
 
-.balanceCross::after {
+.balanceWell::after {
   content: '';
+  position: absolute;
+  inset: -9px -22px;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at center, rgba(253, 230, 138, 0.12) 0%, rgba(250, 204, 21, 0.045) 40%, transparent 74%);
+  opacity: calc(var(--shadow-glow) * 0.58);
+  transform: rotateZ(var(--shadow-angle));
+  pointer-events: none;
+  z-index: -3;
+}
+
+.shadowGlow {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 1px;
-  height: 18px;
-  background: rgba(255, 251, 235, 0.28);
+  width: 52%;
+  height: 56%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(253, 230, 138, 0.3), rgba(251, 191, 36, 0.08) 48%, transparent 74%);
   transform: translate3d(-50%, -50%, 0);
+  opacity: var(--shadow-glow);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .balanceBubble {
   position: absolute;
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: #fde68a;
+  background: radial-gradient(circle at 35% 30%, #fffdf2 0%, #fde68a 40%, rgba(217, 119, 6, 0.75) 100%);
+  box-shadow: 0 0 8px rgba(253, 230, 138, 0.62);
   transform: translate3d(-50%, -50%, 0);
   left: 50%;
   top: 50%;
   will-change: transform;
 }
 
+.shadowHint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  color: rgba(255, 251, 235, 0.72);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-shadow: 0 1px 8px rgba(2, 6, 23, 0.9);
+  transform: translate3d(-50%, -50%, 0);
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.overlay[data-level01-mode='LIVE'] .shadowHint {
+  opacity: 0;
+}
+
 .balanceWell:focus-visible { outline: 2px solid #fde68a; outline-offset: 3px; }
 
 @media (prefers-reduced-motion: reduce) {
+  .balanceWell {
+    transform: translate3d(-50%, 0, 0);
+    will-change: auto;
+  }
+
   .balanceBubble {
     transition: none;
   }

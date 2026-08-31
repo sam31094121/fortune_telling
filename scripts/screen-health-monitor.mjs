@@ -116,6 +116,34 @@ const HOME_COMPONENT_CHECKS = [
   },
 ];
 
+// LEVEL_01 is a sensor-driven mobile experience. A reachable homepage alone
+// cannot prove that the motion physics, audio guard, re-entry path and the
+// LEVEL_02–24 firewall remain intact, so run its deterministic checks as part
+// of every health scan. These tests use synthetic sensor values only.
+const TAIJI_LEVEL01_CHECKS = [
+  {
+    id: 'HOME_TAIJI_LEVEL01_MOTION',
+    module: 'taiji_level_01_motion',
+    title: '第一層太極手機感測、慣性、水平儀與回場',
+    path: '/',
+    script: 'test:taiji-level-01',
+  },
+  {
+    id: 'HOME_TAIJI_LEVEL01_UI',
+    module: 'taiji_level_01_ui',
+    title: '第一層太極啟動與降級介面邊界',
+    path: '/',
+    script: 'test:taiji-level-01-ui',
+  },
+  {
+    id: 'HOME_TAIJI_LEVEL02_24_LOCK',
+    module: 'taiji_level_02_24_lock',
+    title: '太極第 2～24 層隔離鎖定',
+    path: '/',
+    script: 'test:taiji-lock',
+  },
+];
+
 function nowIso() {
   return new Date().toISOString();
 }
@@ -258,6 +286,49 @@ async function checkHomeComponent(component) {
   }
 }
 
+async function checkHealthScript(check) {
+  const startedAt = Date.now();
+  // npm.cmd is a batch file on Windows and cannot be spawned directly with
+  // execFile. Run it through cmd.exe so a healthy verification is never
+  // mistaken for a failed service and sent through recovery.
+  const command = process.platform === 'win32' ? 'cmd.exe' : 'npm';
+  const commandArgs = process.platform === 'win32'
+    ? ['/d', '/s', '/c', `npm.cmd run ${check.script}`]
+    : ['run', check.script];
+
+  try {
+    const { stdout, stderr } = await execFileAsync(command, commandArgs, {
+      cwd: PROJECT_ROOT,
+      windowsHide: true,
+      timeout: TIMEOUT_MS,
+      maxBuffer: 1024 * 1024,
+    });
+    return {
+      ...check,
+      status: 'PASSED',
+      sourcePath: null,
+      httpStatus: null,
+      durationMs: Date.now() - startedAt,
+      htmlLength: 0,
+      error: null,
+      issue: null,
+      output: `${stdout}${stderr}`.trim().slice(-2000),
+    };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    return {
+      ...check,
+      status: 'FAILED',
+      sourcePath: null,
+      httpStatus: null,
+      durationMs: Date.now() - startedAt,
+      htmlLength: 0,
+      error: detail,
+      issue: `mobile Taiji verification failed: ${detail}`,
+    };
+  }
+}
+
 async function scanScreenHealth() {
   const startedAt = nowIso();
   const routes = [];
@@ -272,6 +343,12 @@ async function scanScreenHealth() {
     const result = await checkHomeComponent(component);
     routes.push(result);
     await log(`${result.status} ${result.title} homepage interaction coverage (${result.durationMs}ms)`, result.status === 'PASSED' ? 'INFO' : 'WARN');
+  }
+
+  for (const check of TAIJI_LEVEL01_CHECKS) {
+    const result = await checkHealthScript(check);
+    routes.push(result);
+    await log(`${result.status} ${result.title} health verification (${result.durationMs}ms)`, result.status === 'PASSED' ? 'INFO' : 'WARN');
   }
 
   const failed = routes.filter((route) => route.status !== 'PASSED');

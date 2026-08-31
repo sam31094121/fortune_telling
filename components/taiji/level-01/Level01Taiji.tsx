@@ -54,9 +54,10 @@ export default function Level01TaijiOverlay({
     >
       {/* LEVEL_01 UI SCOPE LOCK: do not add controls or layout changes for levels 02–24 here. */}
       <div className={styles.orientationCue} aria-hidden="true" data-level01-layer="orientation-cue"><span className={styles.cueNorth}>N</span><span className={styles.cueEast}>E</span><span className={styles.cueSouth}>S</span><span className={styles.cueWest}>W</span></div>
-      <button type="button" className={styles.balanceWell} onClick={arm} aria-label="啟用太極平衡感測" data-level01-layer="balance-indicator">
-        <span className={styles.balanceCross} />
+      <button type="button" className={styles.balanceWell} onClick={arm} aria-label="啟用太極平衡感測" data-level01-layer="balance-indicator" data-level01-surface="dynamic-shadow">
+        <span className={styles.shadowGlow} aria-hidden="true" />
         <span ref={bubbleRef} className={styles.balanceBubble} />
+        <span className={styles.shadowHint} aria-hidden="true">輕觸啟動</span>
       </button>
     </div>
   );

@@ -226,10 +226,22 @@ export class Level01TaijiMotionController {
     this.pose.balanceState = visual.balanceState;
     this.pose.snapshot = snapshotFromPhysics(this.physics);
     if (this.bubbleEl) {
-      // Bubble and ball share the same filtered physics state; never read raw sensor events here.
+      // The shadow control and its glow share filtered physics state with the ball;
+      // never read raw sensor events here or the visual will jitter on a phone.
       const x = level01BubbleOffset(this.physics.gamma);
       const y = level01BubbleOffset(this.physics.beta);
       this.bubbleEl.style.transform = `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), 0)`;
+      const shadow = this.bubbleEl.parentElement;
+      if (shadow) {
+        const tilt = Math.hypot(this.physics.beta, this.physics.gamma);
+        const energy = this.physics.motionEnergy;
+        shadow.style.setProperty('--shadow-shift-x', `${(x * 0.32).toFixed(2)}px`);
+        shadow.style.setProperty('--shadow-shift-y', `${(y * 0.12).toFixed(2)}px`);
+        shadow.style.setProperty('--shadow-spread', `${(1 + Math.min(0.14, tilt * 0.008 + energy * 0.08)).toFixed(3)}`);
+        shadow.style.setProperty('--shadow-opacity', `${(0.72 - Math.min(0.2, energy * 0.16)).toFixed(3)}`);
+        shadow.style.setProperty('--shadow-glow', `${(0.42 + Math.min(0.3, energy * 0.24)).toFixed(3)}`);
+        shadow.style.setProperty('--shadow-angle', `${Math.max(-3, Math.min(3, this.physics.gamma * 0.08)).toFixed(2)}deg`);
+      }
     }
     const hudKey = `${this.pose.mode}|${this.pose.permission}|${this.pose.driving}|${this.pose.balanceState}|${this.pose.hapticMode}`;
     if (hudKey !== this.lastHudKey) {
