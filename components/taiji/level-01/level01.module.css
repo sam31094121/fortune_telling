@@ -148,11 +148,11 @@
 
 .chaseLight {
   position: absolute;
-  width: 14px;
-  height: 14px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: radial-gradient(circle, #fff 0 13%, #fff7c2 22%, rgba(253, 224, 71, .56) 42%, rgba(125, 211, 252, .12) 68%, transparent 74%);
-  box-shadow: 0 0 7px rgba(255, 255, 255, .96), 0 0 18px rgba(253, 224, 71, .52), 0 0 30px rgba(125, 211, 252, .2);
+  background: #fffbea;
+  box-shadow: 0 0 4px rgba(255,255,255,.98), 0 0 10px rgba(253,224,71,.56), 3px -2px 18px rgba(125,211,252,.18);
   transform: translate(-50%, -50%);
   animation: chaseLightArrive .34s cubic-bezier(.16,.9,.24,1) both, chaseLightBreathe 1.15s .34s ease-in-out infinite;
 }
@@ -181,14 +181,14 @@
 
 .chaseCounterLight {
   position: absolute;
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
   transform: translate(-50%, -50%);
   border: 0;
   border-radius: 50%;
-  background: radial-gradient(circle, #020307 0 32%, #000 54%, rgba(15,23,42,.72) 70%, transparent 76%);
-  box-shadow: 0 0 8px 3px rgba(0,0,0,.64), 0 0 17px rgba(30,41,59,.54);
-  opacity: .86;
+  background: radial-gradient(ellipse at 46% 42%, #000 0 36%, #02040b 55%, rgba(15,23,42,.64) 68%, transparent 76%);
+  box-shadow: 0 0 7px 3px rgba(0,0,0,.72), -2px 2px 16px rgba(38,74,122,.52), 3px -2px 22px rgba(21,36,65,.42);
+  opacity: .94;
   animation: chaseLightArrive .34s cubic-bezier(.16,.9,.24,1) both, chaseCounterLightBreathe 1.15s .34s ease-in-out infinite;
 }
 
@@ -206,12 +206,12 @@
 }
 
 .chaseCounterLight::before {
-  box-shadow: -10px -7px 0 #02040a, 8px -10px 0 #090d18, 12px 5px 0 #000, -8px 10px 0 #111827;
+  box-shadow: -9px -7px 0 #08101f, 7px -9px 0 #20395e, 11px 4px 0 #000, -8px 9px 0 #1c3152, 3px 12px 0 #0b1628;
   animation: darkParticleOrbit 1.15s ease-in-out infinite;
 }
 
 .chaseCounterLight::after {
-  box-shadow: -15px 2px 0 rgba(0,0,0,.82), 4px 14px 0 rgba(2,6,23,.9), 15px -3px 0 rgba(15,23,42,.72);
+  box-shadow: -14px 2px 0 rgba(0,0,0,.9), 4px 13px 0 rgba(8,20,40,.96), 14px -3px 0 rgba(35,65,105,.88), -4px -14px 0 rgba(18,39,70,.84);
   animation: darkParticleGather 1.15s ease-in-out infinite;
 }
 
@@ -254,8 +254,8 @@
 }
 
 @keyframes chaseCounterLightBreathe {
-  0%, 100% { opacity: .72; box-shadow: 0 0 6px 2px rgba(0,0,0,.5), 0 0 10px rgba(15,23,42,.38); }
-  50% { opacity: 1; box-shadow: 0 0 11px 5px rgba(0,0,0,.72), 0 0 17px rgba(15,23,42,.6); }
+  0%, 100% { opacity: .72; box-shadow: 0 0 6px 2px rgba(0,0,0,.58), -2px 2px 11px rgba(30,58,95,.3); }
+  50% { opacity: 1; box-shadow: 0 0 10px 4px rgba(0,0,0,.76), -2px 2px 17px rgba(30,58,95,.52); }
 }
 
 @keyframes photonGather {
