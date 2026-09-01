@@ -88,10 +88,6 @@ function RuntimeOverlay({
     void controller.attemptAutomaticSensorStart().then((next) => setPose(clonePose(next)));
   }, [controller, visible]);
 
-  const arm = useCallback(() => {
-    void controller.armFromUserGesture().then((next) => setPose(clonePose(next)));
-  }, [controller]);
-
   const startStatic = useCallback(() => {
     if (controller.pose.staticMode) controller.useFallback(true);
     else controller.toggleStaticMode();
@@ -168,18 +164,11 @@ function RuntimeOverlay({
         </div>
       )}
 
-      {pose.gameState === 'IDLE' && pose.motionGameEnabled && (
-        <button type="button" className={styles.touchInvitation} onClick={arm} aria-label="輕觸太極，立即感受回應">
-          <span>輕觸太極</span>
-          <small>立即感受回應</small>
-        </button>
-      )}
-
       {pose.gameState === 'IDLE' && (
         <div className={styles.startPanel}>
-          <p>{pose.motionGameEnabled ? '轉動手機，感受太極回應' : pose.message}</p>
+          {!pose.motionGameEnabled && <p>{pose.message}</p>}
           <div className={styles.startActions}>
-            {!pose.motionGameEnabled && <button type="button" className={styles.startButton} onClick={arm}>啟動太極</button>}
+            {!pose.motionGameEnabled && <button type="button" className={styles.startButton} onClick={() => void controller.armFromUserGesture()}>啟動太極</button>}
             {pose.motionGameEnabled && <button type="button" className={styles.staticStartButton} onClick={startStatic}>靜態模式</button>}
           </div>
         </div>

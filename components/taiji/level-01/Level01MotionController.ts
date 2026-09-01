@@ -23,7 +23,7 @@ import { rotationFeedbackProfile } from './Level01SensoryFeedback';
 import { Level01SensorController } from './Level01SensorController';
 import { Level01SoundPreferenceEngine } from './Level01SoundPreference';
 import { Level01Telemetry } from './Level01Telemetry';
-import { requestLevel01SensorPermission, sensorsSupported } from './Level01Orientation';
+import { canAutoStartLevel01Sensors, requestLevel01SensorPermission, sensorsSupported } from './Level01Orientation';
 import type { Level01GameState, Level01Score, QualityLevel } from './Level01Runtime';
 import type { TaijiSoundVariant } from '@/lib/taiji/experience-types';
 
@@ -196,11 +196,28 @@ export class Level01TaijiMotionController {
     });
   }
 
-  /** Explicit-start V2: preflight only; permission remains behind the central button. */
+  /** Start the visible experience immediately. Browsers that require a gesture
+   * keep sensor permission for the first natural sphere touch. */
   async attemptAutomaticSensorStart() {
+    if (this.disposed || this.pose.gameState !== 'IDLE') return this.pose;
     this.syncEnvironment();
     this.telemetry.update({ sensorAvailable: sensorsSupported() });
-    this.publish(false, this.game.snapshot());
+    const now = this.now();
+    this.completedAt = -1;
+    this.motionGame.reset();
+    this.resetRotationFeedback();
+    this.activationId += 1;
+    if (canAutoStartLevel01Sensors()) {
+      this.manualFallback = false;
+      this.game.beginPermission(now);
+      this.publish(false, this.game.snapshot());
+      void this.enableSensors();
+    } else {
+      this.manualFallback = true;
+      this.game.fallback(now);
+      this.telemetry.update({ fallbackUsed: true });
+      this.publish(true, this.game.snapshot());
+    }
     return this.pose;
   }
 

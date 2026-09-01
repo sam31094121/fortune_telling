@@ -65,8 +65,6 @@ import styles from './TaijiSystem.module.css';
 type Stage = TaijiMacroStage;
 
 const FRAME_DELTA_CAP = 1 / 45;
-const SHOW_LAYER_REVIEW_PANEL = true;
-
 type NavigatorWithDeviceMemory = Navigator & { deviceMemory?: number };
 
 const BAGUA = [
@@ -1758,6 +1756,8 @@ export default function TaijiSystem({
   const level01PoseRef = useRef(level01Controller.pose);
   level01PoseRef.current = level01Controller.pose;
   const [level01Driving, setLevel01Driving] = useState(false);
+  const [showLayerReviewPanel, setShowLayerReviewPanel] = useState(false);
+  const [taijiInView, setTaijiInView] = useState(true);
 
   const TAIJI_DAILY_KEY = 'tdh:taiji24:daily:v1';
   const todayKey = () => new Date().toISOString().slice(0, 10);
@@ -1833,7 +1833,9 @@ export default function TaijiSystem({
   }, [markLayer]);
 
   useEffect(() => {
-    const requestedStep = Number(new URLSearchParams(window.location.search).get('taijiStep'));
+    const params = new URLSearchParams(window.location.search);
+    const requestedStep = Number(params.get('taijiStep'));
+    setShowLayerReviewPanel(params.get('taijiReview') === '1' || params.has('taijiStep'));
     if (!Number.isInteger(requestedStep) || requestedStep < 1 || requestedStep > 24) return;
     jumpJourney(journeyRef.current, requestedStep);
     setDisplayLayer(requestedStep);
@@ -1857,10 +1859,23 @@ export default function TaijiSystem({
   }, []);
 
   useEffect(() => {
-    const syncHidden = () => level01ControllerRef.current?.setHidden(document.hidden);
+    const target = wrapperRef.current;
+    let inView = true;
+    const syncHidden = () => level01ControllerRef.current?.setHidden(document.hidden || !inView);
+    const observer = target && typeof IntersectionObserver !== 'undefined'
+      ? new IntersectionObserver(([entry]) => {
+        inView = Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.05);
+        setTaijiInView(inView);
+        syncHidden();
+      }, { threshold: [0, 0.05] })
+      : null;
+    if (target) observer?.observe(target);
     syncHidden();
     document.addEventListener('visibilitychange', syncHidden);
-    return () => document.removeEventListener('visibilitychange', syncHidden);
+    return () => {
+      observer?.disconnect();
+      document.removeEventListener('visibilitychange', syncHidden);
+    };
   }, []);
 
   const handleTouchStart = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
@@ -1868,8 +1883,9 @@ export default function TaijiSystem({
     touchRef.current.x = event.clientX;
     touchRef.current.y = event.clientY;
     setTouchActive(true);
+    if (displayLayer === 1 && level01Controller.pose.permission === 'idle') void level01Controller.armFromUserGesture();
     if (displayLayer !== 1 && navigator.vibrate) navigator.vibrate(8);
-  }, [displayLayer]);
+  }, [displayLayer, level01Controller]);
 
   const handleTouchMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     if (!touchRef.current.active) return;
@@ -1919,6 +1935,7 @@ export default function TaijiSystem({
         <span className={styles.completionHalo} aria-hidden="true" />
         <span className={styles.groundShadow} aria-hidden="true" />
         <Canvas
+          frameloop={taijiInView ? 'always' : 'never'}
           camera={{ position: [0, 0, 5.1], fov: 42 }}
           dpr={[canvasQuality.minDpr, canvasQuality.maxDpr]}
           gl={{
@@ -1995,7 +2012,7 @@ export default function TaijiSystem({
         />
         {/* 客戶頁只保留可直接點擊的太極圖騰；倍率／步數／解析度等驗收輔助資訊不對外顯示。 */}
       </div>
-      {SHOW_LAYER_REVIEW_PANEL && (
+      {showLayerReviewPanel && (
         <aside className={styles.layerReviewPanel} aria-label="太極二十四層預覽控制">
           <div className={styles.layerReviewHeading}>
             <span>24 層預覽</span>

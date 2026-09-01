@@ -22,7 +22,12 @@ if (!overlay.includes('LEVEL_01 UI SCOPE LOCK')) throw new Error('level 01 scope
 if (!overlay.includes('啟動太極') || !styles.includes('.startButton')) throw new Error('level 01 must expose the explicit central activation ritual');
 if (!overlay.includes('data-level01-surface="dynamic-shadow"')) throw new Error('level 01 must keep its dynamic shadow surface');
 if (!overlay.includes('data-level01-layer="world-reference"') || !styles.includes('.worldReference')) throw new Error('fixed world-reference direction layer is required');
-if (!styles.includes('.touchInvitation') || !styles.includes('border: 0;') || !styles.includes('background: transparent;')) throw new Error('the full-size taiji touch target must remain usable without a visible circular frame');
+if (styles.includes('.touchInvitation') || overlay.includes('輕觸太極，立即感受回應')) throw new Error('the obsolete explicit-start prompt must not remain in the automatic first-layer experience');
+if (!overlay.includes('attemptAutomaticSensorStart()') || !controller.includes('canAutoStartLevel01Sensors()')) throw new Error('level 01 must start automatically when it becomes visible');
+if (!taijiSystem.includes('IntersectionObserver') || !taijiSystem.includes("frameloop={taijiInView ? 'always' : 'never'}")) throw new Error('level 01 rendering and sensors must pause after the taiji leaves the viewport');
+if (overlay.includes("pose.motionGameEnabled ? '轉動手機，感受太極回應'")) throw new Error('the customer view must not stack a duplicate motion instruction over the taiji surface');
+if (!taijiSystem.includes("params.get('taijiReview') === '1'") || taijiSystem.includes('const SHOW_LAYER_REVIEW_PANEL = true')) throw new Error('the 24-layer engineering review panel must stay hidden from the customer view');
+if (!styles.includes(".overlay:not([data-level01-state='IDLE']) .worldReference")) throw new Error('direction cues must remain quiet until the first-layer experience is active');
 if (overlay.includes('data-level01-layer="energy-field"') || overlay.includes('data-level01-layer="balance-ring"')) throw new Error('level 01 must keep both decorative outer circles off the customer surface');
 if (!overlay.includes('COMBO_CUES') || !overlay.includes("'流', '合', '破', '極'")) throw new Error('level 01 must turn repeated control into concise progressive mastery cues');
 if (!overlay.includes('styles.chaseField') || !overlay.includes('追光目標') || !motionGame.includes('CHASE_HOLD_MS')) throw new Error('level 01 must expose a bounded four-direction chase-light challenge');
