@@ -710,6 +710,53 @@ function TaijiPerformanceGovernor({ active }: { active: boolean }) {
   return null;
 }
 
+function Level01SpatialLightning({ active }: { active: boolean }) {
+  const group = useMemo(() => {
+    const root = new THREE.Group();
+    const createBolt = (points: THREE.Vector3[], color: number, opacity: number, zOffset: number) => {
+      const offset = new THREE.Vector3(0, 0, zOffset);
+      const geometry = new THREE.BufferGeometry().setFromPoints(points.map((point) => point.clone().add(offset)));
+      const material = new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending });
+      root.add(new THREE.Line(geometry, material));
+    };
+    const left = [
+      new THREE.Vector3(-2.6, -1.62, .24), new THREE.Vector3(-2.13, -1.34, .52),
+      new THREE.Vector3(-1.82, -1.42, .12), new THREE.Vector3(-1.42, -.96, .68),
+      new THREE.Vector3(-1.02, -1.02, .34), new THREE.Vector3(-.68, -.58, .88),
+    ];
+    const right = left.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
+    createBolt(left, 0xfff4c2, .82, .08);
+    createBolt(left, 0x818cf8, .28, -.14);
+    createBolt(right, 0x11112b, .86, .08);
+    createBolt(right, 0x6366f1, .34, -.14);
+    root.renderOrder = 8;
+    return root;
+  }, []);
+
+  useEffect(() => () => {
+    group.children.forEach((child) => {
+      const line = child as THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>;
+      line.geometry.dispose();
+      line.material.dispose();
+    });
+  }, [group]);
+
+  useFrame(({ clock }, delta) => {
+    const target = active ? 1 : .54;
+    const easing = 1 - Math.exp(-delta * (active ? 18 : 7));
+    group.scale.x += (target - group.scale.x) * easing;
+    group.scale.y += (target - group.scale.y) * easing;
+    group.rotation.y = Math.sin(clock.elapsedTime * 8.5) * (active ? .055 : .018);
+    group.rotation.x = -.08 + Math.cos(clock.elapsedTime * 6.2) * (active ? .028 : .009);
+    group.children.forEach((child, index) => {
+      const material = (child as THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>).material;
+      material.opacity = (index % 2 === 0 ? .82 : .3) * (active ? .98 : .34);
+    });
+  });
+
+  return <primitive object={group} />;
+}
+
 /** 光線科技③：黃金時刻掃光——主光緩慢繞行，球面高光如夕陽流動（人類最愛的 golden hour） */
 function KeyLightSweep({ theme, progress24 }: { theme: TaijiVisualTheme; progress24: number }) {
   const lightRef = useRef<THREE.DirectionalLight>(null);
@@ -1994,6 +2041,7 @@ export default function TaijiSystem({
         >
           <AdaptiveEvents />
           <Level01FrameBinder controller={level01Controller} enabled={displayLayer === 1} />
+          {displayLayer === 1 && showLayerReviewPanel && <Level01SpatialLightning active={touchActive} />}
           <TaijiPerformanceGovernor active={touchActive} />
           {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
               頂部暖色柔光箱＋側面冷色燈條＋背部輪廓光，球面反射出真實的影棚光形，
