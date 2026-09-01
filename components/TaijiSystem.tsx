@@ -772,6 +772,35 @@ function Level01SpatialLightning({ active }: { active: boolean }) {
       mesh.renderOrder = input.glow ? 7 : 9;
       root.add(mesh);
     };
+    const createAftershockArc = (input: {
+      radius: number;
+      tube: number;
+      arc: number;
+      color: number;
+      opacity: number;
+      delay: number;
+      z: number;
+      rotation: [number, number, number];
+    }) => {
+      const geometry = new THREE.TorusGeometry(input.radius, input.tube, 7, 34, input.arc);
+      const material = new THREE.MeshBasicMaterial({
+        color: input.color,
+        transparent: true,
+        opacity: input.opacity,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+        toneMapped: false,
+      });
+      material.userData.baseOpacity = input.opacity;
+      material.userData.delay = input.delay;
+      material.userData.aftershock = true;
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.z = input.z;
+      mesh.rotation.set(...input.rotation);
+      mesh.renderOrder = 8;
+      root.add(mesh);
+    };
     const leftMain = [
       new THREE.Vector3(-2.82, -1.92, .18), new THREE.Vector3(-2.54, -1.48, .58),
       new THREE.Vector3(-2.76, -1.12, .08), new THREE.Vector3(-2.3, -.78, .52),
@@ -831,6 +860,12 @@ function Level01SpatialLightning({ active }: { active: boolean }) {
         !fromYin,
       );
     });
+    // Broken, depth-layered burn aftershock. Partial arcs avoid framing the orb
+    // with a static ring while still creating a strong front/back spatial wave.
+    createAftershockArc({ radius: 1.08, tube: .11, arc: Math.PI * 1.38, color: 0xff2d12, opacity: .72, delay: .285, z: .78, rotation: [.18, -.12, -.7] });
+    createAftershockArc({ radius: 1.18, tube: .075, arc: Math.PI * 1.08, color: 0xff8a1f, opacity: .62, delay: .3, z: 1.08, rotation: [-.16, .2, 1.08] });
+    createAftershockArc({ radius: 1.28, tube: .13, arc: Math.PI * .82, color: 0xb3130b, opacity: .42, delay: .315, z: .22, rotation: [.34, -.28, 2.14] });
+    createAftershockArc({ radius: 1.42, tube: .055, arc: Math.PI * .72, color: 0xffc14a, opacity: .48, delay: .33, z: 1.34, rotation: [-.3, .38, -.08] });
     return root;
   }, []);
 
@@ -874,7 +909,10 @@ function Level01SpatialLightning({ active }: { active: boolean }) {
       material.opacity = Number(material.userData.baseOpacity ?? .5) * envelope;
       const phase = Number(material.userData.delay ?? 0);
       const pulse = 1 + Math.sin((clock.elapsedTime + phase) * 72) * .09 * envelope;
-      bolt.scale.set(pulse, pulse, pulse);
+      const aftershockExpansion = material.userData.aftershock
+        ? .76 + Math.max(0, Math.min(1, localAge / .24)) * .52
+        : 1;
+      bolt.scale.set(pulse * aftershockExpansion, pulse * aftershockExpansion, pulse * aftershockExpansion);
       bolt.rotation.z = Math.sin(clock.elapsedTime * 53 + phase * 41) * .018 * envelope;
       bolt.position.x = Math.sin(clock.elapsedTime * 67 + phase * 29) * .018 * envelope;
       bolt.position.y = Math.cos(clock.elapsedTime * 61 + phase * 37) * .014 * envelope;
