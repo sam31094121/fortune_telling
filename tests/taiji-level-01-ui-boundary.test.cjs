@@ -19,22 +19,24 @@ const soundPreference = read('components/taiji/level-01/Level01SoundPreference.t
 const soundPreferenceRoute = read('app/api/taiji-sound-preference/route.ts');
 
 if (!overlay.includes('LEVEL_01 UI SCOPE LOCK')) throw new Error('level 01 scope lock comment is required');
-if (!overlay.includes('啟動太極') || !styles.includes('.startButton')) throw new Error('level 01 must expose the explicit central activation ritual');
+if (overlay.includes('啟動太極') || styles.includes('.touchInvitation')) throw new Error('level 01 must never restore the obsolete explicit activation ritual');
 if (!overlay.includes('data-level01-surface="dynamic-shadow"')) throw new Error('level 01 must keep its dynamic shadow surface');
-if (!overlay.includes('data-level01-layer="world-reference"') || !styles.includes('.worldReference')) throw new Error('fixed world-reference direction layer is required');
+if (overlay.includes('data-level01-layer="world-reference"') || overlay.includes('太極體感進度') || overlay.includes('第一層必要控制')) throw new Error('customer level 01 must stay visually clean without instructional HUD text');
 if (styles.includes('.touchInvitation') || overlay.includes('輕觸太極，立即感受回應')) throw new Error('the obsolete explicit-start prompt must not remain in the automatic first-layer experience');
 if (!overlay.includes('attemptAutomaticSensorStart()') || !controller.includes('canAutoStartLevel01Sensors()')) throw new Error('level 01 must start automatically when it becomes visible');
 if (!taijiSystem.includes('IntersectionObserver') || !taijiSystem.includes("frameloop={taijiInView ? 'always' : 'never'}")) throw new Error('level 01 rendering and sensors must pause after the taiji leaves the viewport');
+if (!taijiSystem.includes('const motionSplit = layer === 1 ? 0') || !taijiSystem.includes("if (displayLayer === 1)")) throw new Error('clicking or progressing inside level 01 must not reveal level 02 macro visuals');
 if (overlay.includes("pose.motionGameEnabled ? '轉動手機，感受太極回應'")) throw new Error('the customer view must not stack a duplicate motion instruction over the taiji surface');
 if (!taijiSystem.includes("params.get('taijiReview') === '1'") || taijiSystem.includes('const SHOW_LAYER_REVIEW_PANEL = true')) throw new Error('the 24-layer engineering review panel must stay hidden from the customer view');
-if (!styles.includes(".overlay:not([data-level01-state='IDLE']) .worldReference")) throw new Error('direction cues must remain quiet until the first-layer experience is active');
+if (overlay.includes('cueNorth') || overlay.includes('cueEast') || overlay.includes('cueSouth') || overlay.includes('cueWest')) throw new Error('customer level 01 must not expose compass letters');
 if (overlay.includes('data-level01-layer="energy-field"') || overlay.includes('data-level01-layer="balance-ring"')) throw new Error('level 01 must keep both decorative outer circles off the customer surface');
-if (!overlay.includes('COMBO_CUES') || !overlay.includes("'流', '合', '破', '極'")) throw new Error('level 01 must turn repeated control into concise progressive mastery cues');
+if (overlay.includes('COMBO_CUES') || overlay.includes('styles.combo')) throw new Error('customer level 01 must keep combo labels hidden while the engine continues scoring');
 if (!overlay.includes('styles.chaseField') || !overlay.includes('追光目標') || !motionGame.includes('CHASE_HOLD_MS')) throw new Error('level 01 must expose a bounded four-direction chase-light challenge');
+if (!overlay.includes('styles.chaseCounterLight') || !styles.includes('.chaseCounterLight')) throw new Error('the chase target must keep an opposite dark yin-light counterpart');
 if (styles.includes('--balance-angle') || styles.includes('--hold-angle')) throw new Error('removed outer-circle progress variables must not remain in level 01 styles');
-if (!overlay.includes('重新校正') || !overlay.includes('重新連接') || !overlay.includes('改用拖曳')) throw new Error('recalibration and sensor-loss recovery controls are required');
+if (!overlay.includes('重新連接') || !overlay.includes('改用拖曳')) throw new Error('sensor-loss recovery must remain available only when an actual error occurs');
 if (!overlay.includes('拖曳控制太極平衡') || !controller.includes('beginPointer') || !controller.includes('updatePointer')) throw new Error('desktop/touch fallback must preserve the same balancing objective');
-if (!overlay.includes('第一層必要控制') || !overlay.includes('退出') || !overlay.includes('音效開')) throw new Error('active mode must expose only essential controls');
+if (overlay.includes('第一層必要控制') || overlay.includes('音效開') || overlay.includes('震動開')) throw new Error('customer level 01 must keep operating controls hidden');
 if (!runtime.includes("| 'HOLDING'") || !runtime.includes("| 'SENSOR_LOST'") || !runtime.includes("| 'LOW_PERFORMANCE'")) throw new Error('complete game-state vocabulary is required');
 if (!sensor.includes('SENSOR_SPIKE_THRESHOLD_DEG') || !sensor.includes('unwrapAngle') || !sensor.includes('SENSOR_DEAD_ZONE_DEG')) throw new Error('sensor fusion must reject spikes, unwrap headings, and apply a dead zone');
 if (!quality.includes('QUALITY_RECOVER_HOLD_MS') || !quality.includes("this.quality = 'LOW'")) throw new Error('adaptive quality must include hysteresis and an immediate low-quality guard');
@@ -44,9 +46,9 @@ if (!haptics.includes('gameEvent') || !haptics.includes('armedByUserGesture')) t
 if (!styles.includes('aspect-ratio: 1') || !styles.includes("data-level01-quality='LOW'")) throw new Error('level 01 must reserve layout and expose quality-specific visual reductions');
 if (overlay.includes("window.addEventListener('pointerdown'") || overlay.includes("window.addEventListener('touchstart'")) throw new Error('sensor permission must not be requested from an unrelated page gesture');
 if (!featureFlag.includes('NEXT_PUBLIC_TAIJI_MOTION_GAME_V1') || !featureFlag.includes('taijiMotionGame')) throw new Error('motion game must remain behind its independent rollout and review flag');
-if (!overlay.includes('開始今日探索') || !overlay.includes('靜態模式') || !overlay.includes('震動開')) throw new Error('V1 must expose the delayed homepage CTA and complete accessibility preferences');
+if (!overlay.includes('開始今日探索') || !controller.includes('toggleStaticMode') || !controller.includes('toggleHaptics')) throw new Error('V1 must preserve its delayed CTA and internal accessibility capabilities');
 if (!motionGame.includes("'動'") || !motionGame.includes("'流'") || !motionGame.includes("'定'") || !motionGame.includes("'平衡'") || !motionGame.includes("'歸一'")) throw new Error('customer UI must use semantic motion language');
-if (!overlay.includes('非命理分析') || motionGame.includes('five-element-engine') || motionGame.includes('five-element-orb')) throw new Error('five-element motion signals must stay local and separate from formal analysis');
+if (motionGame.includes('five-element-engine') || motionGame.includes('five-element-orb')) throw new Error('five-element motion signals must stay local and separate from formal analysis');
 if (overlay.includes('用力甩手機')) throw new Error('unsafe phone-shaking copy is forbidden');
 if (!controller.includes('unityReady') || !controller.includes('>= 1500')) throw new Error('unity must hold before the homepage exploration CTA appears');
 if ((poseDriver.match(/useFrame\(/g) || []).length !== 1 || controller.includes('requestAnimationFrame(')) throw new Error('level 01 must use exactly one R3F frame-clock callback and no private RAF loop');
@@ -62,9 +64,9 @@ if (!haptics.includes('pulseRotation') || !haptics.includes('rotationBurstTimeli
 if (!controller.includes('this.audio.playRotationPulse(profile)') || !controller.includes('this.haptics.pulseRotation({ now')) throw new Error('rotation sound and vibration must be dispatched in the same frame');
 if (!controller.includes('this.audio.playChaseHit') || !controller.includes('this.haptics.playChaseHit')) throw new Error('chase-light hits must dispatch sound and palm feedback together');
 if (!controller.includes('this.armAudioFromUserGesture()') || !controller.includes('this.haptics.armFromUserGesture()')) throw new Error('sound and haptics must be armed only from explicit customer controls');
-if (!overlay.includes('controller.useFallback(true)') || !controller.includes('this.useFallback(true)')) throw new Error('persisted static mode and pointer fallback must arm enhancements from their explicit gesture');
+if (!controller.includes('this.useFallback(true)')) throw new Error('pointer fallback must still arm enhancements from its explicit gesture');
 if (!controller.includes('STATIC_ADVANCE_LOCK_MS') || !controller.includes('now - this.lastStaticAdvanceAt < STATIC_ADVANCE_LOCK_MS')) throw new Error('rapid static taps must not skip stages or stack sensory feedback');
-if (!overlay.includes('aria-pressed={pose.audioEnabled}')) throw new Error('audio toggle accessibility state must match the visible enabled state');
+if (overlay.includes('aria-pressed={pose.audioEnabled}')) throw new Error('hidden operating controls must not leave an invisible audio toggle in the customer DOM');
 if (!controller.includes('suppressDirectional: this.featureEnabled && visualBurstTriggered') || !haptics.includes('!input.suppressDirectional')) throw new Error('a synchronized burst must not be overwritten by a same-frame directional haptic');
 if (!soundPreference.includes('TAIJI_SOUND_VARIANTS') || !soundPreference.includes('MIN_SAMPLE_SIZE')) throw new Error('sound preference work must keep explicit candidates and a real sample threshold');
 if (soundPreference.includes('sendBeacon') || soundPreference.includes('mediaDevices') || soundPreference.includes('getUserMedia')) throw new Error('sound preference must never capture or upload private audio');
@@ -72,6 +74,6 @@ if (soundPreference.includes('fetch(') && (!soundPreference.includes('JSON.strin
 if (controller.includes('private readonly soundVariant') || !controller.includes('this.soundVariant ?? this.soundPreference.resolveVariant()')) throw new Error('A/B assignment must be resolved lazily after an explicit customer interaction');
 if (!controller.includes('recordNextStepCompleted()') || !overlay.includes('controller.recordNextStepCompleted()')) throw new Error('the next-step conversion signal must be recorded only from the explicit homepage CTA');
 if (!audio.includes('this.blocked || !this.enabled')) throw new Error('disabled sound must not create or resume an AudioContext');
-if (!overlay.includes("!['IDLE', 'LEVEL_COMPLETE'].includes(pose.gameState)")) throw new Error('persisted static preference must not expose progression before the experience starts');
+if (overlay.includes('styles.staticPanel')) throw new Error('customer level 01 must not expose static-mode instructions over the taiji');
 
 console.log('Taiji Level 01 UI boundary passed');

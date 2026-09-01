@@ -1126,7 +1126,9 @@ function TaijiCore({
     const motionStageRank = motionGamePose
       ? ['TAIJI', 'LIANGYI', 'SIXIANG', 'BAGUA', 'FIVE_ELEMENTS', 'UNITY'].indexOf(motionGamePose.motionGame.stage)
       : -1;
-    const motionSplit = motionStageRank >= 1 ? Math.min(.82, .42 + motionStageRank * .1) : 0;
+    // Level 01 stays visually Tai Chi. Its local game may progress internally,
+    // but Liangyi and later macro layers only appear after leaving Level 01.
+    const motionSplit = layer === 1 ? 0 : motionStageRank >= 1 ? Math.min(.82, .42 + motionStageRank * .1) : 0;
     const split = Math.max(liangyiAmount(depth), motionSplit);
     const separate = split > 0.04;
     const offset = 0.88 * split;
@@ -1828,6 +1830,14 @@ export default function TaijiSystem({
     }
   }, [combo, markLayer, onComplete, onStageChange]);
 
+  const handleCoreClick = useCallback(() => {
+    if (displayLayer === 1) {
+      if (level01Controller.pose.permission === 'idle') void level01Controller.armFromUserGesture();
+      return;
+    }
+    advanceLayer();
+  }, [advanceLayer, displayLayer, level01Controller]);
+
   const selectJourneyStep = useCallback((nextStep: number) => {
     markLayer(nextStep, true);
   }, [markLayer]);
@@ -1988,7 +1998,7 @@ export default function TaijiSystem({
             quantumPairs={canvasQuality.quantumPairs}
             quantumLinks={canvasQuality.quantumLinks}
             ultraTexture={canvasQuality.ultraTexture}
-            onCoreClick={advanceLayer}
+            onCoreClick={handleCoreClick}
             level01PoseRef={level01PoseRef}
             onLevel01Reentry={() => level01Controller.playReentryWhoosh()}
           />

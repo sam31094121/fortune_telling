@@ -41,18 +41,6 @@ const clonePose = (pose: Level01Pose): Level01Pose => {
   };
 };
 
-const MOTION_STAGES = [
-  ['TAIJI', '太極'],
-  ['LIANGYI', '兩儀'],
-  ['SIXIANG', '四象'],
-  ['BAGUA', '八卦'],
-  ['FIVE_ELEMENTS', '五元素'],
-  ['UNITY', '歸一'],
-] as const;
-
-const VISUAL_ELEMENTS = ['空', '風', '水', '火', '地'] as const;
-const COMBO_CUES = ['定', '流', '合', '破', '極'] as const;
-
 function RuntimeOverlay({
   controller,
   visible,
@@ -88,12 +76,6 @@ function RuntimeOverlay({
     void controller.attemptAutomaticSensorStart().then((next) => setPose(clonePose(next)));
   }, [controller, visible]);
 
-  const startStatic = useCallback(() => {
-    if (controller.pose.staticMode) controller.useFallback(true);
-    else controller.toggleStaticMode();
-    setPose(clonePose(controller.pose));
-  }, [controller]);
-
   const startToday = useCallback(() => {
     controller.recordNextStepCompleted();
     document.getElementById('home-eight-card-route')?.scrollIntoView({ behavior: pose.reducedMotion ? 'auto' : 'smooth', block: 'start' });
@@ -113,10 +95,6 @@ function RuntimeOverlay({
 
   if (!visible) return null;
 
-  const direction = Math.abs(pose.snapshot.gamma) >= Math.abs(pose.snapshot.beta)
-    ? (pose.snapshot.gamma > 4 ? 'E' : pose.snapshot.gamma < -4 ? 'W' : 'N')
-    : (pose.snapshot.beta > 4 ? 'S' : pose.snapshot.beta < -4 ? 'N' : 'N');
-  const active = !['IDLE', 'PERMISSION', 'CALIBRATING', 'LEVEL_COMPLETE'].includes(pose.gameState);
   const fallbackPlayable = pose.gameState === 'FALLBACK' || (pose.motionGameEnabled && pose.staticMode);
   const motionGameActive = pose.motionGameEnabled && pose.gameState !== 'IDLE';
   return (
@@ -127,7 +105,6 @@ function RuntimeOverlay({
       data-level01-state={pose.gameState}
       data-level01-balance-state={pose.balanceState}
       data-level01-permission={pose.permission}
-      data-level01-direction={direction}
       data-level01-quality={pose.quality}
       data-taiji-motion-game={pose.motionGameEnabled ? 'enabled' : 'disabled'}
       data-taiji-motion-state={pose.motionGame.state}
@@ -147,10 +124,6 @@ function RuntimeOverlay({
         />
       )}
 
-      <div className={styles.worldReference} aria-hidden="true" data-level01-layer="world-reference">
-        <span className={styles.cueNorth}>N</span><span className={styles.cueEast}>E</span>
-        <span className={styles.cueSouth}>S</span><span className={styles.cueWest}>W</span>
-      </div>
       <div className={styles.balanceWell} aria-hidden="true" data-level01-layer="balance-indicator" data-level01-surface="dynamic-shadow">
         <span className={styles.shadowGlow} />
         <span className={styles.particlePair}><span /><span /></span>
@@ -160,37 +133,7 @@ function RuntimeOverlay({
       {motionGameActive && !pose.staticMode && pose.gameState !== 'LEVEL_COMPLETE' && (
         <div className={styles.chaseField} aria-label={`追光目標：${pose.motionGame.chase.direction}`} data-direction={pose.motionGame.chase.direction}>
           <span key={`${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={styles.chaseLight} />
-          <small>追光 {pose.motionGame.chase.hits}/4</small>
-        </div>
-      )}
-
-      {pose.gameState === 'IDLE' && (
-        <div className={styles.startPanel}>
-          {!pose.motionGameEnabled && <p>{pose.message}</p>}
-          <div className={styles.startActions}>
-            {!pose.motionGameEnabled && <button type="button" className={styles.startButton} onClick={() => void controller.armFromUserGesture()}>啟動太極</button>}
-            {pose.motionGameEnabled && <button type="button" className={styles.staticStartButton} onClick={startStatic}>靜態模式</button>}
-          </div>
-        </div>
-      )}
-
-      {pose.gameState !== 'IDLE' && (
-        <output className={styles.stateMessage} aria-live="polite">
-          {motionGameActive ? <><b>{pose.motionGame.customerState}</b><span>{pose.message}</span></> : pose.message}
-        </output>
-      )}
-
-      {motionGameActive && pose.gameState !== 'LEVEL_COMPLETE' && (
-        <div className={styles.motionHud} aria-label="太極體感進度">
-          <div className={styles.stageRail}>
-            {MOTION_STAGES.slice(0, 5).map(([key, label]) => (
-              <span key={key} data-active={key === pose.motionGame.stage ? 'true' : 'false'} data-passed={MOTION_STAGES.findIndex(([stage]) => stage === key) <= MOTION_STAGES.findIndex(([stage]) => stage === pose.motionGame.stage) ? 'true' : 'false'}>{label}</span>
-            ))}
-          </div>
-          <div className={styles.elementSignal} aria-label="五元素互動視覺訊號，非命理分析">
-            {VISUAL_ELEMENTS.map((element) => <span key={element} data-active={element === pose.motionGame.visualElement ? 'true' : 'false'}>{element}</span>)}
-          </div>
-          <small>互動視覺訊號・非命理分析</small>
+          <span className={styles.chaseCounterLight} aria-hidden="true" />
         </div>
       )}
 
@@ -201,26 +144,6 @@ function RuntimeOverlay({
         </div>
       )}
 
-      {active && (
-        <div className={styles.controls} aria-label="第一層必要控制">
-          <button type="button" onClick={() => controller.exitGame()}>退出</button>
-          <button type="button" aria-pressed={pose.audioEnabled} onClick={() => controller.toggleAudio()}>{pose.audioEnabled ? '音效開' : '音效關'}</button>
-          {pose.motionGameEnabled && <button type="button" aria-pressed={pose.hapticEnabled} onClick={() => controller.toggleHaptics()}>{pose.hapticEnabled ? '震動開' : '震動關'}</button>}
-          {pose.motionGameEnabled && <button type="button" aria-pressed={pose.staticMode} onClick={() => controller.toggleStaticMode()}>{pose.staticMode ? '靜態中' : '體感中'}</button>}
-          {!pose.motionGameEnabled && <button type="button" onClick={() => controller.recalibrate()}>重新校正</button>}
-        </div>
-      )}
-
-      {fallbackPlayable && !pose.staticMode && <p className={styles.fallbackHint}>拖曳球面產生動能，放回中心完成平衡</p>}
-      {pose.motionGameEnabled && pose.staticMode && !['IDLE', 'LEVEL_COMPLETE'].includes(pose.gameState) && (
-        <div className={styles.staticPanel}>
-          <span>不移動手機也能完整探索</span>
-          {pose.motionGame.stage === 'FIVE_ELEMENTS'
-            ? <button type="button" onClick={() => controller.settleStaticMotion()}>回到平衡</button>
-            : <button type="button" onClick={() => controller.advanceStaticMotion()}>輕觸推進</button>}
-        </div>
-      )}
-      {pose.combo > 0 && pose.gameState !== 'LEVEL_COMPLETE' && <div className={styles.combo}>{pose.motionGameEnabled ? COMBO_CUES[Math.min(4, pose.combo)] : '平衡'} × {pose.combo}</div>}
       {pose.gameState === 'LEVEL_COMPLETE' && (
         <div className={styles.completeCard} role="status">
           <strong>{pose.motionGameEnabled ? '● 歸一完成' : '第一層・平衡完成'}</strong>
