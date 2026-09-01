@@ -61,6 +61,7 @@ import {
   type Level01Pose,
 } from './taiji/level-01';
 import styles from './TaijiSystem.module.css';
+import level01Styles from './taiji/level-01/level01.module.css';
 
 type Stage = TaijiMacroStage;
 
@@ -1745,6 +1746,8 @@ export default function TaijiSystem({
   const [todayAwakened, setTodayAwakened] = useState(false);
   const [attractTick, setAttractTick] = useState(0);
   const [touchActive, setTouchActive] = useState(false);
+  const [touchRebounding, setTouchRebounding] = useState(false);
+  const touchReboundTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastClickAtRef = useRef(0);
   const touchRef = useRef({ active: false, x: 0, y: 0 });
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -1889,11 +1892,14 @@ export default function TaijiSystem({
   }, []);
 
   const handleTouchStart = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    if (touchReboundTimerRef.current) clearTimeout(touchReboundTimerRef.current);
+    setTouchRebounding(false);
     touchRef.current.active = true;
     touchRef.current.x = event.clientX;
     touchRef.current.y = event.clientY;
     setTouchActive(true);
     if (displayLayer === 1 && level01Controller.pose.permission === 'idle') void level01Controller.armFromUserGesture();
+    else if (displayLayer === 1) level01Controller.playTouchReboundFeedback();
     if (displayLayer !== 1 && navigator.vibrate) navigator.vibrate(8);
   }, [displayLayer, level01Controller]);
 
@@ -1904,8 +1910,20 @@ export default function TaijiSystem({
   }, []);
 
   const handleTouchEnd = useCallback(() => {
+    const shouldRebound = touchRef.current.active && displayLayer === 1;
     touchRef.current.active = false;
     setTouchActive(false);
+    if (shouldRebound) {
+      setTouchRebounding(true);
+      touchReboundTimerRef.current = setTimeout(() => {
+        setTouchRebounding(false);
+        touchReboundTimerRef.current = null;
+      }, 520);
+    }
+  }, [displayLayer]);
+
+  useEffect(() => () => {
+    if (touchReboundTimerRef.current) clearTimeout(touchReboundTimerRef.current);
   }, []);
 
   /* textureUrl / videoUrl 保留 API 相容；視覺已改為程式生成圖騰，不再需要外部貼圖 */
@@ -1945,6 +1963,7 @@ export default function TaijiSystem({
         <span className={styles.completionHalo} aria-hidden="true" />
         <span className={styles.groundShadow} aria-hidden="true" />
         <Canvas
+          className={`${level01Styles.taijiCanvas} ${displayLayer === 1 && touchActive ? level01Styles.taijiCanvasPressed : ''} ${displayLayer === 1 && touchRebounding ? level01Styles.taijiCanvasRebound : ''}`}
           frameloop={taijiInView ? 'always' : 'never'}
           camera={{ position: [0, 0, 5.1], fov: 42 }}
           dpr={[canvasQuality.minDpr, canvasQuality.maxDpr]}

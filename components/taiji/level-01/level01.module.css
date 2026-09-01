@@ -215,6 +215,28 @@
 
 .pointerSurface:active { cursor: grabbing; }
 
+/* 純動作手感：只縮放 3D 畫布，不移動下方既有影子。 */
+.taijiCanvas {
+  transform-origin: 50% 50%;
+  transition: transform 150ms cubic-bezier(.2, .75, .25, 1);
+}
+
+.taijiCanvasPressed {
+  transform: scale(.965) translateY(2px);
+  transition-duration: 95ms;
+}
+
+.taijiCanvasRebound {
+  animation: taijiTouchRebound 500ms cubic-bezier(.16, .9, .22, 1) both;
+}
+
+@keyframes taijiTouchRebound {
+  0% { transform: scale(.965) translateY(2px); }
+  38% { transform: scale(1.045) translateY(-3px); }
+  68% { transform: scale(.992) translateY(1px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
 .completeCard {
   position: absolute;
   left: 50%;
@@ -278,6 +300,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .chaseLight, .chaseCounterLight { animation: none; }
+  .taijiCanvasPressed { transform: scale(.985); }
+  .taijiCanvasRebound { animation: none; }
   .balanceWell {
     transform: translate3d(-50%, 0, 0);
     will-change: auto;

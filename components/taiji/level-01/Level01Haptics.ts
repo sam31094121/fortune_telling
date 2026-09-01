@@ -19,6 +19,7 @@ export class Level01HapticController {
   private lastDirectionAt = 0;
   private reentryCheerTimer: ReturnType<typeof setTimeout> | null = null;
   private lastActivationImpactAt = -Infinity;
+  private lastTouchReboundAt = -Infinity;
   private lastChaseHitAt = -Infinity;
 
   constructor() {
@@ -45,6 +46,16 @@ export class Level01HapticController {
     this.lastActivationImpactAt = now;
     // Noticeable in the palm, but short and bounded: impact → recoil.
     this.safeVibrate([...TAIJI_ACTIVATION_FEEDBACK.hapticPattern]);
+    return true;
+  }
+
+  playTouchRebound(now: number) {
+    if (!this.enabled || this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return false;
+    if (now - this.lastTouchReboundAt < 420) return false;
+    this.lastTouchReboundAt = now;
+    // Web vibration cannot set motor amplitude. Two short, separated pulses
+    // create the device-independent impression of compression then recoil.
+    this.safeVibrate([7, 30, 11]);
     return true;
   }
 

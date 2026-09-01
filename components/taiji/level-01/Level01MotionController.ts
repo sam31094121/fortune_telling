@@ -196,6 +196,12 @@ export class Level01TaijiMotionController {
     });
   }
 
+  playTouchReboundFeedback() {
+    if (this.disposed) return false;
+    this.haptics.armFromUserGesture();
+    return this.haptics.playTouchRebound(this.now());
+  }
+
   /** Start the visible experience immediately. Browsers that require a gesture
    * keep sensor permission for the first natural sphere touch. */
   async attemptAutomaticSensorStart() {
