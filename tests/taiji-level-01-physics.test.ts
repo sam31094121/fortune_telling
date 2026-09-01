@@ -22,6 +22,7 @@ import { resolveEffectivePermission, resolveLevel01Mode } from '../components/ta
 import { canAutoStartLevel01Sensors, createGravityEstimate, readMotionEvent } from '../components/taiji/level-01/Level01Orientation';
 import { LEVEL01_REENTRY_CHEER_PROGRESS, LEVEL01_REENTRY_DURATION_SECONDS, level01ReentryCheer, level01ReentryPose, level01ReentrySoundEnvelope, level01ReentryTimeline, shouldTriggerLevel01Reentry } from '../components/taiji/level-01/Level01Reentry';
 import { MAX_FLICK_SPIN_SPEED, MAX_SAFE_ROTATION_SPEED, WAKE_THRESHOLD } from '../components/taiji/level-01/level01.constants';
+import { Level01MotionGameEngine, type TaijiMotionGameInput } from '../components/taiji/level-01/Level01MotionGameEngine';
 
 function assert(condition: boolean, message: string) {
   if (!condition) throw new Error(message);
@@ -253,6 +254,8 @@ const corrected = calibration.apply({ alpha: 361, beta: 8, gamma: -2 });
 assert(Math.abs(corrected.beta) < 1.1 && Math.abs(corrected.gamma) < 1.1, 'calibration removes the real holding baseline');
 
 const game = new Level01GameController();
+game.lowPerformance(true, 0);
+assert(game.snapshot().state === 'IDLE', 'performance warmup cannot start the game before the customer');
 game.beginPermission(0);
 game.beginCalibration(20);
 game.ready(420);
@@ -275,5 +278,74 @@ quality.update(slowMetrics, 0);
 assert(quality.update(slowMetrics, 1700) === 'BALANCED', 'sustained sub-45 FPS degrades quality one level');
 const criticalMetrics = { fps: 24, averageFrameMs: 42, droppedFrames: 30, longTasks: 3, memoryPressure: false };
 assert(quality.update(criticalMetrics, 1900) === 'LOW', 'sub-30 FPS immediately protects the device with LOW quality');
+
+const motionGameInput = (overrides: Partial<TaijiMotionGameInput> = {}): TaijiMotionGameInput => ({
+  alpha: 0,
+  beta: 9,
+  gamma: 4,
+  acceleration: 1.6,
+  rotationRate: 90,
+  motionEnergy: 0.32,
+  angularVelocity: 1.2,
+  balanceState: 'UNBALANCED',
+  now: 0,
+  delta: 1 / 60,
+  reducedMotion: false,
+  ...overrides,
+});
+
+const runMotionGameAtHz = (hz: number) => {
+  const engine = new Level01MotionGameEngine();
+  const frames = hz * 2;
+  for (let frame = 0; frame < frames; frame += 1) {
+    engine.update(motionGameInput({ now: frame / hz * 1000, delta: 1 / hz }));
+  }
+  return engine.snapshot();
+};
+
+const motion60 = runMotionGameAtHz(60);
+const motion90 = runMotionGameAtHz(90);
+const motion120 = runMotionGameAtHz(120);
+assert(Math.abs(motion60.motionMagnitude - motion90.motionMagnitude) < 0.003, 'motion response is deltaTime-consistent at 60Hz and 90Hz');
+assert(Math.abs(motion60.motionMagnitude - motion120.motionMagnitude) < 0.003, 'motion response is deltaTime-consistent at 60Hz and 120Hz');
+
+const stagedMotion = new Level01MotionGameEngine();
+for (let burst = 0; burst < 4; burst += 1) {
+  const now = burst * 700;
+  stagedMotion.update(motionGameInput({ now, acceleration: 5.2, rotationRate: 340, motionEnergy: 0.82 }));
+  stagedMotion.update(motionGameInput({ now: now + 300, acceleration: 0, rotationRate: 0, motionEnergy: 0 }));
+}
+assert(stagedMotion.snapshot().stage === 'FIVE_ELEMENTS' && stagedMotion.snapshot().combo === 4, 'four safe ordinary-motion bursts reveal two forms, four symbols, bagua, then five elements');
+const afterBurst = stagedMotion.update(motionGameInput({ now: 2901, acceleration: 0, rotationRate: 0, motionEnergy: 0 }));
+assert(afterBurst.state !== 'BURST', 'a visual burst can never remain active beyond 800ms');
+stagedMotion.markUnity();
+assert(stagedMotion.snapshot().stage === 'UNITY' && stagedMotion.snapshot().visualElement === '空', 'completion returns the local visual signal to Void');
+
+const reducedGame = new Level01MotionGameEngine();
+const reducedSnapshot = reducedGame.update(motionGameInput({ acceleration: 5.2, rotationRate: 340, motionEnergy: 0.82, reducedMotion: true }));
+assert(reducedSnapshot.stage === 'LIANGYI' && reducedSnapshot.state !== 'BURST', 'reduced motion keeps full stage progress without a burst effect');
+
+const waterGame = new Level01MotionGameEngine();
+let waterSnapshot = waterGame.snapshot();
+for (let frame = 0; frame < 30; frame += 1) waterSnapshot = waterGame.update(motionGameInput({ now: frame * 16, beta: 5, gamma: 3, motionEnergy: 0.16, acceleration: 0.3, rotationRate: 20 }));
+assert(waterSnapshot.visualElement === '水', 'slow movement maps only to the local Water visual signal');
+const windSnapshot = waterGame.update(motionGameInput({ now: 520, beta: 2, gamma: 16, motionEnergy: 0.48, acceleration: 1.8, rotationRate: 120 }));
+assert(windSnapshot.visualElement === '風', 'fast lateral movement maps to Wind');
+const fireSnapshot = waterGame.update(motionGameInput({ now: 1200, acceleration: 5.2, rotationRate: 340, motionEnergy: 0.84 }));
+assert(fireSnapshot.visualElement === '火', 'a safe burst maps to Fire');
+const earthSnapshot = waterGame.update(motionGameInput({ now: 2100, beta: 0, gamma: 0, acceleration: 0, rotationRate: 0, motionEnergy: 0, balanceState: 'BALANCED' }));
+assert(earthSnapshot.visualElement === '地', 'a stable horizontal phone maps to Earth');
+
+const longRun = new Level01MotionGameEngine();
+for (let frame = 0; frame < 30 * 120; frame += 1) {
+  longRun.update(motionGameInput({
+    now: frame / 120 * 1000,
+    delta: 1 / 120,
+    beta: Math.sin(frame / 25) * 8,
+    gamma: Math.cos(frame / 29) * 11,
+    motionEnergy: 0.28,
+  }));
+}
+assert(Number.isFinite(longRun.snapshot().motionMagnitude) && longRun.snapshot().motionMagnitude <= 1, '30-second 120Hz simulation remains finite and bounded');
 
 console.log('Taiji Level 01 physics lock passed');

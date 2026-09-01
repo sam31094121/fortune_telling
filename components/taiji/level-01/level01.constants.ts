@@ -53,6 +53,15 @@ export const QUALITY_RECOVER_FPS = 56;
 export const QUALITY_DEGRADE_HOLD_MS = 1500;
 export const QUALITY_RECOVER_HOLD_MS = 8000;
 
+// V3：LOCKED 必須角度小「且」角速度小，避免殘留自轉時誤鎖。
+export const ANGULAR_VELOCITY_LOCK_THRESHOLD = 0.35;
+// V3：傾斜軸（beta/gamma）改走跟自轉一樣手法的阻尼追蹤，避免感測雜訊直接反映在畫面上。
+export const TILT_DAMPING = 9;
+// V3：死區改成越過門檻後短距離線性斜坡漸入，取代硬切為 0。
+export const SENSOR_DEAD_ZONE_RAMP_DEG = 0.8;
+// V3：角速度上限改軟限幅（tanh 漸近），這是漸近曲線的縮放係數，非硬牆。
+export const ANGULAR_VELOCITY_SOFT_KNEE = MAX_FLICK_SPIN_SPEED * 0.82;
+
 export const MOTION_ENERGY_WEIGHTS = {
   orientation: 0.3,
   rotation: 0.45,

@@ -7,6 +7,7 @@ export type HapticMode = 'LIVE' | 'NO_HAPTIC_MODE';
 
 export class Level01HapticController {
   mode: HapticMode = 'NO_HAPTIC_MODE';
+  private enabled = true;
   private lastPulseAt = 0;
   private lastBalanceAt = 0;
   private reducedMotion = false;
@@ -22,6 +23,11 @@ export class Level01HapticController {
 
   setReducedMotion(value: boolean) {
     this.reducedMotion = value;
+  }
+
+  setEnabled(value: boolean) {
+    this.enabled = value;
+    if (!value) this.stop();
   }
 
   armFromUserGesture() {
@@ -51,7 +57,7 @@ export class Level01HapticController {
   }
 
   scheduleReentryCheer() {
-    if (this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return;
+    if (!this.enabled || this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return;
     if (this.reentryCheerTimer) clearTimeout(this.reentryCheerTimer);
     this.reentryCheerTimer = setTimeout(() => {
       this.reentryCheerTimer = null;
@@ -60,7 +66,7 @@ export class Level01HapticController {
   }
 
   scheduleVisualBurst(turns: number, durationSeconds: number, momentum: number) {
-    if (this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return;
+    if (!this.enabled || this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return;
     const safeTurns = Math.max(1, Math.min(5, Math.round(turns)));
     const strength = safeTurns >= 5 ? 13 : safeTurns >= 3 ? 10 : 7;
     const gap = Math.max(72, Math.min(160, Math.round((durationSeconds * 1000) / safeTurns) - 18));
@@ -73,7 +79,7 @@ export class Level01HapticController {
   }
 
   pulse(input: { now: number; motionEnergy: number; balanceState: BalanceState; lockChime: boolean; direction: Level01TiltDirection | null; gameEvent?: Level01GameEvent }) {
-    if (this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return false;
+    if (!this.enabled || this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return false;
     if (input.balanceState === 'LOCKED' && !input.lockChime) return;
 
     if (input.lockChime || input.gameEvent === 'LOCK_COMPLETE' || input.gameEvent === 'BALANCE_ENTER') {

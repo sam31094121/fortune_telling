@@ -10,6 +10,12 @@ export type OrientationSample = {
 export type MotionSample = {
   rotationRate: number;
   acceleration: number;
+  accelerationX?: number;
+  accelerationY?: number;
+  accelerationZ?: number;
+  rotationAlpha?: number;
+  rotationBeta?: number;
+  rotationGamma?: number;
   receivedAt: number;
 };
 
@@ -97,13 +103,22 @@ export function readMotionEvent(
   gravity?: GravityEstimate,
 ): MotionSample {
   const rate = event.rotationRate;
-  const rotationRate = Math.hypot(rate?.alpha ?? 0, rate?.beta ?? 0, rate?.gamma ?? 0);
+  const rotationAlpha = rate?.alpha ?? 0;
+  const rotationBeta = rate?.beta ?? 0;
+  const rotationGamma = rate?.gamma ?? 0;
+  const rotationRate = Math.hypot(rotationAlpha, rotationBeta, rotationGamma);
 
   const linear = event.acceleration;
   if (linear && (linear.x != null || linear.y != null || linear.z != null)) {
     return {
       rotationRate,
       acceleration: Math.hypot(linear.x ?? 0, linear.y ?? 0, linear.z ?? 0),
+      accelerationX: linear.x ?? 0,
+      accelerationY: linear.y ?? 0,
+      accelerationZ: linear.z ?? 0,
+      rotationAlpha,
+      rotationBeta,
+      rotationGamma,
       receivedAt: now,
     };
   }
@@ -117,6 +132,12 @@ export function readMotionEvent(
     return {
       rotationRate,
       acceleration: Math.abs(Math.hypot(x, y, z) - GRAVITY_MAGNITUDE),
+      accelerationX: 0,
+      accelerationY: 0,
+      accelerationZ: 0,
+      rotationAlpha,
+      rotationBeta,
+      rotationGamma,
       receivedAt: now,
     };
   }
@@ -135,6 +156,12 @@ export function readMotionEvent(
   return {
     rotationRate,
     acceleration: Math.hypot(x - gravity.x, y - gravity.y, z - gravity.z),
+    accelerationX: x - gravity.x,
+    accelerationY: y - gravity.y,
+    accelerationZ: z - gravity.z,
+    rotationAlpha,
+    rotationBeta,
+    rotationGamma,
     receivedAt: now,
   };
 }

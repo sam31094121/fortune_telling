@@ -1112,7 +1112,13 @@ function TaijiCore({
     if (!groupRef.current) return;
     const depth = journeyRef.current.current;
     const progress24 = progressFromDepth(depth);
-    const split = liangyiAmount(depth);
+    const layer = layerFromDepth(depth);
+    const motionGamePose = layer === 1 && level01PoseRef?.current?.motionGameEnabled ? level01PoseRef.current : null;
+    const motionStageRank = motionGamePose
+      ? ['TAIJI', 'LIANGYI', 'SIXIANG', 'BAGUA', 'FIVE_ELEMENTS', 'UNITY'].indexOf(motionGamePose.motionGame.stage)
+      : -1;
+    const motionSplit = motionStageRank >= 1 ? Math.min(.82, .42 + motionStageRank * .1) : 0;
+    const split = Math.max(liangyiAmount(depth), motionSplit);
     const separate = split > 0.04;
     const offset = 0.88 * split;
     const scale = lerpNumber(1, 0.88, split);
@@ -1120,7 +1126,6 @@ function TaijiCore({
     const shellFade = macroFade;
     const surfaceD = 1 - macroFade;
     const stage = stageFromDepth(depth);
-    const layer = layerFromDepth(depth);
     const variation = sampleVariation(depth);
     const frameDelta = Math.min(delta, FRAME_DELTA_CAP);
     const settleSoft = Math.min(1, frameDelta * 1.35);
@@ -1246,12 +1251,17 @@ function TaijiCore({
     const warming = warm.warming;
     const warmScale = 0.0001;
     const macroVisible = macroFade > 0.02;
-    const haloVisible = false;
+    const haloVisible = Boolean(
+      motionGamePose
+      && !motionGamePose.reducedMotion
+      && motionGamePose.quality !== 'LOW'
+      && (motionStageRank >= 4 || motionGamePose.motionEnergy > .28),
+    );
     if (macroGroupRef.current) macroGroupRef.current.visible = macroVisible;
     if (energyFieldRef.current) energyFieldRef.current.visible = haloVisible;
     if (outerShellRef.current) outerShellRef.current.visible = haloVisible;
 
-    const showLiangyi = split > 0.04 && shellFade > 0.02;
+    const showLiangyi = (split > 0.04 && shellFade > 0.02) || motionStageRank >= 1;
     if (yinRef.current) {
       yinRef.current.visible = showLiangyi || warming;
       yinRef.current.scale.setScalar(showLiangyi ? scale : warmScale);
@@ -1260,10 +1270,10 @@ function TaijiCore({
       yangRef.current.visible = showLiangyi || warming;
       yangRef.current.scale.setScalar(showLiangyi ? scale : warmScale);
     }
-    const showSixiang = sixiangPresence(depth) > 0.04 && macroVisible;
+    const showSixiang = (sixiangPresence(depth) > 0.04 && macroVisible) || motionStageRank >= 2;
     if (sixiangGroupRef.current) {
       sixiangGroupRef.current.visible = showSixiang || warming;
-      sixiangGroupRef.current.scale.setScalar(showSixiang ? sixiangPresence(depth) : warmScale);
+      sixiangGroupRef.current.scale.setScalar(showSixiang ? Math.max(sixiangPresence(depth), motionStageRank >= 2 ? .72 : 0) : warmScale);
     }
 
     const ballMat = ballMatRef.current;
@@ -1346,9 +1356,9 @@ function TaijiCore({
       yangRef.current.rotation.y -= frameDelta * 0.13 * spinBoost;
     }
     if (baguaOrbitRef.current) {
-      const showBagua = baguaPresence(depth) > 0.04 && macroVisible;
+      const showBagua = (baguaPresence(depth) > 0.04 && macroVisible) || motionStageRank >= 3;
       baguaOrbitRef.current.visible = showBagua || warming;
-      baguaOrbitRef.current.scale.setScalar(showBagua ? baguaPresence(depth) : warmScale);
+      baguaOrbitRef.current.scale.setScalar(showBagua ? Math.max(baguaPresence(depth), motionStageRank >= 3 ? .78 : 0) : warmScale);
       baguaOrbitRef.current.rotation.z += frameDelta * (0.008 + progress24 * 0.004);
       baguaOrbitRef.current.rotation.x = Math.sin(t * 0.045) * 0.012;
       baguaOrbitRef.current.rotation.y = Math.cos(t * 0.04) * 0.009;

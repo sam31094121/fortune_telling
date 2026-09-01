@@ -66,6 +66,7 @@ export class Level01GameController {
 
   lowPerformance(active: boolean, now: number) {
     if (this.isFinished()) return;
+    if (active && (this.state === 'IDLE' || this.state === 'PERMISSION' || this.state === 'CALIBRATING' || this.state === 'SENSOR_LOST')) return;
     if (active && this.state !== 'LOW_PERFORMANCE') {
       this.resumableState = this.state;
       this.transition('LOW_PERFORMANCE', now);

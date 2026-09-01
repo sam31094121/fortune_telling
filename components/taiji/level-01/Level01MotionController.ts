@@ -2,7 +2,9 @@ import { FRAME_DELTA_CAP, SENSOR_WARMUP_TIMEOUT_MS } from './level01.constants';
 import { Level01SoundEngine } from './Level01Audio';
 import { resolveEffectivePermission, resolveLevel01Mode, type Level01Mode, type Level01Permission } from './Level01Fallback';
 import { Level01GameController, type Level01GameSnapshot } from './Level01GameController';
+import { isTaijiMotionGameV1Enabled } from './Level01FeatureFlags';
 import { Level01HapticController } from './Level01Haptics';
+import { Level01MotionGameEngine, type TaijiMotionGameSnapshot } from './Level01MotionGameEngine';
 import { Level01PerformanceGuard } from './Level01PerformanceGuard';
 import {
   createPhysicsState,
@@ -34,6 +36,13 @@ export interface Level01Pose extends Level01VisualPose {
   combo: number;
   score: Level01Score;
   audioEnabled: boolean;
+  hapticEnabled: boolean;
+  motionEnabled: boolean;
+  staticMode: boolean;
+  reducedMotion: boolean;
+  motionGameEnabled: boolean;
+  motionGame: TaijiMotionGameSnapshot;
+  unityReady: boolean;
   snapshot: MotionSnapshot;
 }
 
@@ -53,6 +62,7 @@ export class Level01TaijiMotionController {
   private readonly physics: PhysicsState = createPhysicsState();
   private readonly audio = new Level01SoundEngine();
   private readonly haptics = new Level01HapticController();
+  private readonly motionGame = new Level01MotionGameEngine();
   private readonly sensors = new Level01SensorController();
   private readonly game = new Level01GameController();
   private readonly performance = new Level01PerformanceGuard();
@@ -72,6 +82,13 @@ export class Level01TaijiMotionController {
   private sensorTimedOut = false;
   private lastVisualBurstId = 0;
   private audioEnabled = true;
+  private hapticEnabled = true;
+  private motionEnabled = true;
+  private staticMode = false;
+  private featureEnabled = false;
+  private preferencesLoaded = false;
+  private staticPulseUntil = -Infinity;
+  private completedAt = -1;
   private manualFallback = false;
   private pointer: PointerInput = {
     active: false,
@@ -91,6 +108,11 @@ export class Level01TaijiMotionController {
       this.game.fallback(now);
       this.telemetry.update({ fallbackUsed: true });
     });
+    this.featureEnabled = isTaijiMotionGameV1Enabled();
+    if (this.featureEnabled) {
+      this.audioEnabled = false;
+      this.audio.setEnabled(false);
+    }
     this.pose = this.buildPose(false, this.game.snapshot());
     this.syncEnvironment();
   }
@@ -106,9 +128,14 @@ export class Level01TaijiMotionController {
   setLayerEnabled(enabled: boolean) {
     if (this.layerEnabled === enabled) return;
     this.layerEnabled = enabled;
-    if (enabled) this.performance.start();
+    if (enabled) {
+      this.performance.start();
+      if (this.permission === 'granted') this.attachSensors();
+      this.updateSensorPause();
+    }
     else {
       this.performance.stop();
+      this.detachSensors();
       this.pointer.active = false;
       this.haptics.stop();
       this.audio.sync({ motionEnergy: 0, angularVelocity: 0, balanceState: 'UNBALANCED', lockChime: false, active: false });
@@ -117,12 +144,19 @@ export class Level01TaijiMotionController {
   }
 
   setHidden(hidden: boolean) {
+    const wasHidden = this.hidden;
     this.hidden = hidden;
-    this.sensors.setPaused(hidden);
+    if (hidden) this.detachSensors();
+    else if (this.layerEnabled && this.permission === 'granted') this.attachSensors();
+    this.updateSensorPause();
     this.audio.setPaused(hidden);
     if (hidden) {
       this.haptics.stop();
       this.audio.sync({ motionEnergy: 0, angularVelocity: 0, balanceState: this.physics.balanceState, lockChime: false, active: false });
+    } else if (wasHidden && this.permission === 'granted') {
+      // V3：背景分頁切回時，感測器暫停期間的濾波基準已經過期，重新確認/校正
+      // 一次比繼續沿用舊資料安全，也不會讓角度瞬跳（recalibrate 本身走平滑取樣）。
+      this.recalibrate();
     }
   }
 
@@ -131,6 +165,8 @@ export class Level01TaijiMotionController {
     return this.boundary.run(this.pose, () => {
       const now = this.now();
       this.manualFallback = false;
+      this.completedAt = -1;
+      this.motionGame.reset();
       this.syncEnvironment();
       this.game.beginPermission(now);
       void this.audio.armFromUserGesture();
@@ -145,6 +181,7 @@ export class Level01TaijiMotionController {
   async attemptAutomaticSensorStart() {
     this.syncEnvironment();
     this.telemetry.update({ sensorAvailable: sensorsSupported() });
+    this.publish(false, this.game.snapshot());
     return this.pose;
   }
 
@@ -173,6 +210,10 @@ export class Level01TaijiMotionController {
 
   useFallback() {
     const now = this.now();
+    if (this.pose.gameState === 'IDLE' || this.pose.gameState === 'LEVEL_COMPLETE') {
+      this.completedAt = -1;
+      this.motionGame.reset();
+    }
     this.manualFallback = true;
     this.game.fallback(now);
     this.telemetry.update({ fallbackUsed: true });
@@ -184,6 +225,8 @@ export class Level01TaijiMotionController {
     this.manualFallback = false;
     this.pointer.active = false;
     this.game.exit(this.now());
+    this.motionGame.reset();
+    this.completedAt = -1;
     this.haptics.stop();
     this.audio.sync({ motionEnergy: 0, angularVelocity: 0, balanceState: 'UNBALANCED', lockChime: false, active: false });
     this.publish(false, this.game.snapshot());
@@ -192,8 +235,77 @@ export class Level01TaijiMotionController {
   toggleAudio() {
     this.audioEnabled = !this.audioEnabled;
     this.audio.setEnabled(this.audioEnabled);
+    this.persistPreferences();
     this.publish(this.pose.driving, this.game.snapshot(this.physics.holdProgress));
     return this.audioEnabled;
+  }
+
+  toggleHaptics() {
+    this.hapticEnabled = !this.hapticEnabled;
+    this.haptics.setEnabled(this.hapticEnabled);
+    this.persistPreferences();
+    this.publish(this.pose.driving, this.game.snapshot(this.physics.holdProgress));
+    return this.hapticEnabled;
+  }
+
+  toggleMotion() {
+    this.motionEnabled = !this.motionEnabled;
+    this.staticMode = !this.motionEnabled;
+    this.manualFallback = this.staticMode || this.permission !== 'granted';
+    if (this.staticMode && !this.game.isFinished()) this.game.fallback(this.now());
+    this.pointer.active = false;
+    if (this.motionEnabled && this.permission === 'granted') this.attachSensors();
+    else this.detachSensors();
+    this.updateSensorPause();
+    this.persistPreferences();
+    this.publish(this.pose.driving, this.game.snapshot(this.physics.holdProgress));
+    return this.motionEnabled;
+  }
+
+  toggleStaticMode() {
+    this.staticMode = !this.staticMode;
+    this.motionEnabled = !this.staticMode;
+    if (this.staticMode) {
+      this.manualFallback = true;
+      if (this.pose.gameState === 'IDLE' || this.pose.gameState === 'LEVEL_COMPLETE') {
+        this.completedAt = -1;
+        this.motionGame.reset();
+      }
+      if (!this.game.isFinished()) this.game.fallback(this.now());
+    } else {
+      this.manualFallback = this.permission !== 'granted';
+      if (this.permission === 'granted') this.recalibrate();
+    }
+    if (this.staticMode) this.detachSensors();
+    else if (this.permission === 'granted') this.attachSensors();
+    this.updateSensorPause();
+    this.persistPreferences();
+    this.publish(this.staticMode, this.game.snapshot(this.physics.holdProgress));
+    return this.staticMode;
+  }
+
+  advanceStaticMotion() {
+    if (!this.featureEnabled || !this.staticMode || this.game.isFinished()) return this.pose;
+    const now = this.now();
+    const next = this.motionGame.advanceStaticStage(now);
+    this.pointer.active = false;
+    this.pointer.beta = next.combo % 2 === 0 ? 9 : -9;
+    this.pointer.gamma = next.combo % 2 === 0 ? -15 : 15;
+    this.pointer.rotationRate = 250;
+    this.pointer.acceleration = 5.2;
+    this.staticPulseUntil = now + 260;
+    this.publish(true, this.game.snapshot(this.physics.holdProgress));
+    return this.pose;
+  }
+
+  settleStaticMotion() {
+    this.pointer.active = false;
+    this.pointer.beta = 0;
+    this.pointer.gamma = 0;
+    this.pointer.rotationRate = 0;
+    this.pointer.acceleration = 0;
+    this.staticPulseUntil = -Infinity;
+    return this.pose;
   }
 
   beginPointer(clientX: number, clientY: number, width: number, height: number) {
@@ -304,7 +416,10 @@ export class Level01TaijiMotionController {
     }
     if (this.permission === 'granted' && sensor.calibrated && this.pose.gameState === 'CALIBRATING') this.game.ready(now);
 
-    const fallback = this.manualFallback || this.permission !== 'granted' || this.pose.gameState === 'FALLBACK';
+    const fallback = this.manualFallback
+      || this.permission !== 'granted'
+      || this.pose.gameState === 'FALLBACK'
+      || (this.featureEnabled && (!this.motionEnabled || this.staticMode));
     if (!this.manualFallback && this.permission === 'granted' && !sensor.fresh && this.sensorTimedOut) {
       this.game.sensorLost(now);
       this.audio.sync({ motionEnergy: 0, angularVelocity: 0, balanceState: this.physics.balanceState, lockChime: false, active: false });
@@ -312,16 +427,23 @@ export class Level01TaijiMotionController {
       return this.pose;
     }
     if (this.game.isFinished()) {
+      if (this.featureEnabled) {
+        if (this.completedAt < 0) this.completedAt = now;
+        this.motionGame.markUnity();
+      }
       this.audio.sync({ motionEnergy: 0, angularVelocity: 0, balanceState: 'LOCKED', lockChime: false, active: false });
       this.publish(false, this.game.snapshot(1));
       return this.pose;
     }
 
     if (!this.pointer.active && fallback) {
-      this.pointer.beta *= Math.exp(-delta * 3.4);
-      this.pointer.gamma *= Math.exp(-delta * 3.4);
-      this.pointer.rotationRate *= Math.exp(-delta * 5);
-      this.pointer.acceleration *= Math.exp(-delta * 5);
+      const pulseActive = this.staticMode && now < this.staticPulseUntil;
+      if (!pulseActive) {
+        this.pointer.beta *= Math.exp(-delta * 3.4);
+        this.pointer.gamma *= Math.exp(-delta * 3.4);
+        this.pointer.rotationRate *= Math.exp(-delta * 5);
+        this.pointer.acceleration *= Math.exp(-delta * 5);
+      }
     }
     const input = fallback ? {
       alpha: 0,
@@ -343,8 +465,23 @@ export class Level01TaijiMotionController {
       reducedMotion: this.reducedMotion,
     });
     const visual = visualPoseFromPhysics(this.physics, true);
+    const motionGame = this.featureEnabled
+      ? this.motionGame.update({
+        ...input,
+        motionEnergy: this.physics.motionEnergy,
+        angularVelocity: this.physics.angularVelocity,
+        balanceState: this.physics.balanceState,
+        now,
+        delta: Math.min(delta, FRAME_DELTA_CAP),
+        reducedMotion: this.reducedMotion || this.staticMode,
+      })
+      : this.motionGame.snapshot();
+    const stageReadyForUnity = !this.featureEnabled || motionGame.stage === 'FIVE_ELEMENTS' || motionGame.stage === 'UNITY';
+    const balanceStateForGame = !stageReadyForUnity && this.physics.balanceState === 'LOCKED'
+      ? 'BALANCED'
+      : this.physics.balanceState;
     const game = this.game.sync({
-      balanceState: this.physics.balanceState,
+      balanceState: balanceStateForGame,
       balanceProgress: this.physics.balanceProgress,
       holdProgress: this.physics.holdProgress,
       motionEnergy: this.physics.motionEnergy,
@@ -371,21 +508,57 @@ export class Level01TaijiMotionController {
       lockChime: this.physics.lockChimePending,
       active: true,
     });
-    if (game.state === 'LEVEL_COMPLETE') this.telemetry.update({ completionSuccess: true });
+    if (game.state === 'LEVEL_COMPLETE') {
+      this.telemetry.update({ completionSuccess: true });
+      if (this.featureEnabled) {
+        this.completedAt = now;
+        this.motionGame.markUnity();
+      }
+    }
     this.publish(true, game);
     return this.pose;
   }
 
   private attachSensors() {
     if (this.removeListeners || typeof window === 'undefined') return;
+    if (!this.layerEnabled || this.hidden || (this.featureEnabled && (!this.motionEnabled || this.staticMode))) {
+      this.updateSensorPause();
+      return;
+    }
     const onOrientation = (event: DeviceOrientationEvent) => this.sensors.pushOrientationEvent(event, performance.now());
     const onMotion = (event: DeviceMotionEvent) => this.sensors.pushMotionEvent(event, performance.now());
+    // V3：直向/橫向切換會讓校正基準跟著偏移，螢幕方向一變就重新校正一次，
+    // 避免使用者轉手機之後太極一直傾向某一邊。
+    const onOrientationChange = () => {
+      if (this.disposed || this.permission !== 'granted') return;
+      this.recalibrate();
+    };
     window.addEventListener('deviceorientation', onOrientation, { passive: true });
     window.addEventListener('devicemotion', onMotion, { passive: true });
+    window.addEventListener('orientationchange', onOrientationChange, { passive: true });
+    const screenOrientation = typeof screen !== 'undefined' ? screen.orientation : undefined;
+    screenOrientation?.addEventListener?.('change', onOrientationChange);
     this.removeListeners = () => {
       window.removeEventListener('deviceorientation', onOrientation);
       window.removeEventListener('devicemotion', onMotion);
+      window.removeEventListener('orientationchange', onOrientationChange);
+      screenOrientation?.removeEventListener?.('change', onOrientationChange);
     };
+    this.updateSensorPause();
+  }
+
+  private detachSensors() {
+    this.removeListeners?.();
+    this.removeListeners = null;
+    this.sensors.setPaused(true);
+  }
+
+  private updateSensorPause() {
+    this.sensors.setPaused(
+      this.hidden
+      || !this.layerEnabled
+      || (this.featureEnabled && (!this.motionEnabled || this.staticMode)),
+    );
   }
 
   private effectivePermission(hasSensorData: boolean): Level01Permission {
@@ -394,10 +567,54 @@ export class Level01TaijiMotionController {
 
   private syncEnvironment() {
     if (typeof window === 'undefined') return;
+    const nextFeatureEnabled = isTaijiMotionGameV1Enabled();
+    if (nextFeatureEnabled && !this.featureEnabled && !this.preferencesLoaded) {
+      this.audioEnabled = false;
+      this.audio.setEnabled(false);
+    }
+    this.featureEnabled = nextFeatureEnabled;
     this.reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
+    this.loadPreferences();
     this.audio.setReducedMotion(this.reducedMotion);
+    this.audio.setEnabled(this.audioEnabled);
     this.haptics.setReducedMotion(this.reducedMotion);
+    this.haptics.setEnabled(this.hapticEnabled);
     this.haptics.syncSupport();
+    this.updateSensorPause();
+  }
+
+  private loadPreferences() {
+    if (!this.featureEnabled || this.preferencesLoaded || typeof window === 'undefined') return;
+    this.preferencesLoaded = true;
+    try {
+      const stored = window.localStorage.getItem('taijiMotionGameV1.preferences');
+      if (!stored) return;
+      const preferences = JSON.parse(stored) as { audio?: boolean; haptic?: boolean; mode?: 'motion' | 'static' };
+      if (typeof preferences.audio === 'boolean') this.audioEnabled = preferences.audio;
+      if (typeof preferences.haptic === 'boolean') this.hapticEnabled = preferences.haptic;
+      if (preferences.mode === 'static') {
+        this.staticMode = true;
+        this.motionEnabled = false;
+      } else if (preferences.mode === 'motion') {
+        this.staticMode = false;
+        this.motionEnabled = true;
+      }
+    } catch {
+      // A blocked or malformed local preference never blocks the game.
+    }
+  }
+
+  private persistPreferences() {
+    if (!this.featureEnabled || typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem('taijiMotionGameV1.preferences', JSON.stringify({
+        audio: this.audioEnabled,
+        haptic: this.hapticEnabled,
+        mode: this.staticMode ? 'static' : 'motion',
+      }));
+    } catch {
+      // Privacy/storage restrictions fall back to session defaults.
+    }
   }
 
   private publish(driving: boolean, game: Level01GameSnapshot) {
@@ -406,18 +623,28 @@ export class Level01TaijiMotionController {
     const permission = this.effectivePermission(hasSensorData);
     const fallback = game.state === 'FALLBACK' || permission === 'denied' || permission === 'unsupported';
     const mode = resolveLevel01Mode({ permission, hasSensorData, layerEnabled: this.layerEnabled });
+    const motionGame = this.motionGame.snapshot();
+    const motionMessageAllowed = this.featureEnabled
+      && !['IDLE', 'PERMISSION', 'CALIBRATING', 'SENSOR_LOST', 'LOW_PERFORMANCE'].includes(game.state);
     this.pose.driving = driving;
     this.pose.fallback = fallback;
     this.pose.permission = permission;
     this.pose.mode = fallback ? 'FALLBACK_MODE' : mode;
     this.pose.hapticMode = this.haptics.mode;
     this.pose.gameState = game.state;
-    this.pose.message = game.message;
+    this.pose.message = motionMessageAllowed ? motionGame.message : game.message;
     this.pose.quality = this.quality.quality;
     this.pose.fps = this.performance.snapshot().fps;
-    this.pose.combo = game.combo;
+    this.pose.combo = this.featureEnabled ? motionGame.combo : game.combo;
     this.pose.score = game.score;
     this.pose.audioEnabled = this.audioEnabled;
+    this.pose.hapticEnabled = this.hapticEnabled;
+    this.pose.motionEnabled = this.motionEnabled;
+    this.pose.staticMode = this.staticMode;
+    this.pose.reducedMotion = this.reducedMotion;
+    this.pose.motionGameEnabled = this.featureEnabled;
+    this.pose.motionGame = motionGame;
+    this.pose.unityReady = game.state === 'LEVEL_COMPLETE' && this.completedAt >= 0 && this.now() - this.completedAt >= 1500;
     this.pose.visualEuler = visual.visualEuler;
     this.pose.angularVelocity = visual.angularVelocity;
     this.pose.spinAngle = visual.spinAngle;
@@ -431,7 +658,7 @@ export class Level01TaijiMotionController {
     this.pose.visualBurstDuration = visual.visualBurstDuration;
     this.pose.snapshot = snapshotFromPhysics(this.physics);
     this.renderer.render(this.physics, visual.visualMomentum, visual.balanceProgress, game.holdProgress, this.quality.quality);
-    const hudKey = `${this.pose.mode}|${permission}|${driving}|${game.state}|${this.pose.hapticMode}|${this.pose.quality}|${this.audioEnabled}|${game.combo}`;
+    const hudKey = `${this.pose.mode}|${permission}|${driving}|${game.state}|${this.pose.hapticMode}|${this.pose.quality}|${this.audioEnabled}|${this.hapticEnabled}|${this.motionEnabled}|${this.staticMode}|${motionGame.state}|${motionGame.stage}|${motionGame.visualElement}|${motionGame.customerState}|${motionGame.combo}|${this.pose.unityReady}`;
     if (hudKey !== this.lastHudKey) {
       this.lastHudKey = hudKey;
       const notify = this.onChange;
@@ -454,6 +681,13 @@ export class Level01TaijiMotionController {
       combo: game.combo,
       score: game.score,
       audioEnabled: this.audioEnabled,
+      hapticEnabled: this.hapticEnabled,
+      motionEnabled: this.motionEnabled,
+      staticMode: this.staticMode,
+      reducedMotion: this.reducedMotion,
+      motionGameEnabled: this.featureEnabled,
+      motionGame: this.motionGame.snapshot(),
+      unityReady: false,
       snapshot: snapshotFromPhysics(this.physics),
     };
   }

@@ -1,4 +1,6 @@
 import {
+  ANGULAR_VELOCITY_LOCK_THRESHOLD,
+  ANGULAR_VELOCITY_SOFT_KNEE,
   APPROACHING_THRESHOLD_DEG,
   BALANCED_CONFIRM_MS,
   DAMPING,
@@ -18,6 +20,7 @@ import {
   ORIENTATION_NORMALIZE,
   REDUCED_MOTION_SPEED_SCALE,
   ROTATION_NORMALIZE,
+  TILT_DAMPING,
   WAKE_THRESHOLD,
   VISUAL_BURST_COOLDOWN_MS,
   VISUAL_BURST_MIN_TILT_DEG,
@@ -71,6 +74,8 @@ export interface PhysicsState {
   holdProgress: number;
   angularVelocity: number;
   spinAngle: number;
+  dampedBeta: number;
+  dampedGamma: number;
   balancedSince: number;
   lockChimePending: boolean;
   visualBurstStartedAt: number;
@@ -176,6 +181,8 @@ export function createPhysicsState(): PhysicsState {
     holdProgress: 0,
     angularVelocity: 0,
     spinAngle: 0,
+    dampedBeta: 0,
+    dampedGamma: 0,
     balancedSince: -1,
     lockChimePending: false,
     visualBurstStartedAt: -1,
@@ -192,6 +199,19 @@ export function createPhysicsState(): PhysicsState {
 function mapTiltAxis(degrees: number) {
   const normalized = Math.max(-1, Math.min(1, degrees / 90));
   return normalized * (MAX_TILT_VISUAL_ANGLE_DEG * Math.PI / 180);
+}
+
+/**
+ * V3：角速度上限改軟限幅（tanh 漸近曲線），超過 knee 後越來越難再往上衝，
+ * 但永遠不會像硬 clamp 那樣「撞牆」瞬間截斷。
+ */
+function softClampAngularVelocity(value: number) {
+  const knee = ANGULAR_VELOCITY_SOFT_KNEE;
+  const magnitude = Math.abs(value);
+  if (magnitude <= knee) return value;
+  const headroom = MAX_FLICK_SPIN_SPEED - knee;
+  const eased = headroom * Math.tanh((magnitude - knee) / Math.max(headroom, 0.001));
+  return Math.sign(value) * (knee + eased);
 }
 
 export function integrateLevel01Physics(
@@ -238,12 +258,14 @@ export function integrateLevel01Physics(
   state.balanceProgress = level01BalanceProgress(tilt);
   state.lockChimePending = false;
 
+  // V3：LOCKED 除了角度小，角速度也要小，避免殘留自轉時被誤判「已經定住」。
+  const spinSettled = Math.abs(state.angularVelocity) <= ANGULAR_VELOCITY_LOCK_THRESHOLD;
   if (state.balanceState === 'LOCKED') {
     if (state.motionEnergy > WAKE_THRESHOLD || candidate === 'UNBALANCED') {
       state.balanceState = 'UNBALANCED';
       state.balancedSince = -1;
     }
-  } else if (candidate === 'BALANCED') {
+  } else if (candidate === 'BALANCED' && spinSettled) {
     if ((state.balanceState !== 'BALANCED' && state.balanceState !== 'HOLDING') || state.balancedSince < 0) {
       state.balancedSince = input.now;
     }
@@ -252,6 +274,10 @@ export function integrateLevel01Physics(
       state.balanceState = 'LOCKED';
       state.lockChimePending = true;
     }
+  } else if (candidate === 'BALANCED') {
+    // 角度已經到位，但還在轉——維持 BALANCED 顯示，不開始倒數計時，等轉速沉澱下來。
+    state.balanceState = 'BALANCED';
+    state.balancedSince = -1;
   } else {
     state.balanceState = candidate;
     state.balancedSince = -1;
@@ -278,11 +304,17 @@ export function integrateLevel01Physics(
       : Math.abs(state.angularVelocity) > maxSpeed ? FLICK_COAST_DAMPING : DAMPING;
   const settle = 1 - Math.exp(-damping * delta);
   state.angularVelocity += (targetOmega - state.angularVelocity) * settle;
-  state.angularVelocity = Math.max(-MAX_FLICK_SPIN_SPEED, Math.min(MAX_FLICK_SPIN_SPEED, state.angularVelocity));
+  state.angularVelocity = softClampAngularVelocity(state.angularVelocity);
   if (state.balanceState === 'LOCKED' && Math.abs(state.angularVelocity) < 0.002) {
     state.angularVelocity = 0;
   }
   state.spinAngle += state.angularVelocity * delta;
+
+  // V3：傾斜軸（beta/gamma）也走跟自轉一樣的阻尼追蹤，不是把濾波後的值直接畫出來，
+  // 讓視覺讀起來像太極真的有重量，而不是跟著感測器雜訊硬跳。
+  const tiltSettle = 1 - Math.exp(-TILT_DAMPING * delta);
+  state.dampedBeta += (state.beta - state.dampedBeta) * tiltSettle;
+  state.dampedGamma += (state.gamma - state.dampedGamma) * tiltSettle;
 
   // Visual burst is deliberately independent from balance classification: it
   // turns a clear small gesture into a short full-turn flourish while leaving
@@ -327,9 +359,9 @@ export function visualPoseFromPhysics(state: PhysicsState, driving: boolean): Le
   return {
     driving,
     visualEuler: {
-      x: mapTiltAxis(state.beta),
+      x: mapTiltAxis(state.dampedBeta),
       y: heading + state.spinAngle + state.visualBurstAngle,
-      z: mapTiltAxis(state.gamma),
+      z: mapTiltAxis(state.dampedGamma),
     },
     angularVelocity: state.angularVelocity + state.visualBurstVelocity,
     spinAngle: state.spinAngle,

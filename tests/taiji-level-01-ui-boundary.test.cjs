@@ -10,6 +10,10 @@ const runtime = read('components/taiji/level-01/Level01Runtime.ts');
 const quality = read('components/taiji/level-01/Level01QualityManager.ts');
 const sensor = read('components/taiji/level-01/Level01SensorController.ts');
 const errorBoundary = read('components/taiji/level-01/Level01ErrorBoundary.tsx');
+const featureFlag = read('components/taiji/level-01/Level01FeatureFlags.ts');
+const motionGame = read('components/taiji/level-01/Level01MotionGameEngine.ts');
+const poseDriver = read('components/taiji/level-01/Level01PoseDriver.tsx');
+const taijiSystem = read('components/TaijiSystem.tsx');
 
 if (!overlay.includes('LEVEL_01 UI SCOPE LOCK')) throw new Error('level 01 scope lock comment is required');
 if (!overlay.includes('啟動太極') || !styles.includes('.startButton')) throw new Error('level 01 must expose the explicit central activation ritual');
@@ -28,5 +32,15 @@ if (!controller.includes('Level01RuntimeBoundary') || !errorBoundary.includes('g
 if (!haptics.includes('gameEvent') || !haptics.includes('armedByUserGesture')) throw new Error('haptics must be event-driven and gesture-gated');
 if (!styles.includes('aspect-ratio: 1') || !styles.includes("data-level01-quality='LOW'")) throw new Error('level 01 must reserve layout and expose quality-specific visual reductions');
 if (overlay.includes("window.addEventListener('pointerdown'") || overlay.includes("window.addEventListener('touchstart'")) throw new Error('sensor permission must not be requested from an unrelated page gesture');
+if (!featureFlag.includes('NEXT_PUBLIC_TAIJI_MOTION_GAME_V1') || !featureFlag.includes('taijiMotionGame')) throw new Error('motion game must remain behind its independent rollout and review flag');
+if (!overlay.includes('開始今日探索') || !overlay.includes('靜態模式') || !overlay.includes('震動開')) throw new Error('V1 must expose the delayed homepage CTA and complete accessibility preferences');
+if (!motionGame.includes("'動'") || !motionGame.includes("'流'") || !motionGame.includes("'定'") || !motionGame.includes("'平衡'") || !motionGame.includes("'歸一'")) throw new Error('customer UI must use semantic motion language');
+if (!overlay.includes('非命理分析') || motionGame.includes('five-element-engine') || motionGame.includes('five-element-orb')) throw new Error('five-element motion signals must stay local and separate from formal analysis');
+if (overlay.includes('用力甩手機')) throw new Error('unsafe phone-shaking copy is forbidden');
+if (!controller.includes('unityReady') || !controller.includes('>= 1500')) throw new Error('unity must hold before the homepage exploration CTA appears');
+if ((poseDriver.match(/useFrame\(/g) || []).length !== 1 || controller.includes('requestAnimationFrame(')) throw new Error('level 01 must use exactly one R3F frame-clock callback and no private RAF loop');
+if (sensor.includes('setState(') || sensor.includes('setPose(')) throw new Error('sensor event handlers may update refs/controllers only');
+if (!taijiSystem.includes("motionGamePose") || !taijiSystem.includes("motionStageRank >= 3")) throw new Error('the existing 3D core must reveal motion-game stages only under the level-01 flag');
+if (!styles.includes('@media (prefers-reduced-motion: reduce)') || !styles.includes('.particlePair { display: none; }')) throw new Error('reduced motion must stop level-01 particles');
 
 console.log('Taiji Level 01 UI boundary passed');
