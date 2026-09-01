@@ -41,6 +41,7 @@ export class Level01SoundEngine {
   private lockPlayed = false;
   private reentryUntil = 0;
   private lastTiltAccentAt = 0;
+  private lastLightningAt = -Infinity;
 
   setReducedMotion(value: boolean) {
     this.reducedMotion = value;
@@ -212,6 +213,52 @@ export class Level01SoundEngine {
       pulseIndex: hits + 1,
       reducedMotion: this.reducedMotion,
     }), this.context.currentTime + 0.004);
+  }
+
+  playLightningStrike() {
+    if (!this.enabled || this.paused || this.blocked || !this.context || !this.master) return;
+    const now = this.context.currentTime;
+    if (now - this.lastLightningAt < 0.72) return;
+    this.lastLightningAt = now;
+    try {
+      // Large perceived scale, bounded peak: a sharp electric crack rides over
+      // a low falling pressure wave, both contained by the shared compressor.
+      const boom = this.context.createOscillator();
+      const boomGain = this.context.createGain();
+      boom.type = 'sine';
+      boom.frequency.setValueAtTime(86, now);
+      boom.frequency.exponentialRampToValueAtTime(38, now + 0.46);
+      boomGain.gain.setValueAtTime(0.0001, now);
+      boomGain.gain.exponentialRampToValueAtTime(0.085, now + 0.018);
+      boomGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.58);
+      boom.connect(boomGain);
+      boomGain.connect(this.master);
+      boom.start(now);
+      boom.stop(now + 0.62);
+
+      if (this.airTexture) {
+        const crack = this.context.createBufferSource();
+        const crackFilter = this.context.createBiquadFilter();
+        const crackGain = this.context.createGain();
+        crack.buffer = this.airTexture;
+        crackFilter.type = 'bandpass';
+        crackFilter.frequency.setValueAtTime(1900, now);
+        crackFilter.frequency.exponentialRampToValueAtTime(420, now + 0.34);
+        crackFilter.Q.value = 0.74;
+        crackGain.gain.setValueAtTime(0.0001, now);
+        crackGain.gain.exponentialRampToValueAtTime(0.072, now + 0.006);
+        crackGain.gain.exponentialRampToValueAtTime(0.012, now + 0.1);
+        crackGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+        crack.connect(crackFilter);
+        crackFilter.connect(crackGain);
+        crackGain.connect(this.master);
+        crack.start(now);
+        crack.stop(now + 0.45);
+      }
+      this.master.gain.setTargetAtTime(Math.min(AUDIO_GAIN_LIMIT, 0.72), now, 0.006);
+    } catch {
+      // Thunder is enhancement-only; visual capture and haptics remain playable.
+    }
   }
 
   playReentryWhoosh() {

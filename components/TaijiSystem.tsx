@@ -1914,13 +1914,14 @@ export default function TaijiSystem({
     touchRef.current.active = false;
     setTouchActive(false);
     if (shouldRebound) {
+      level01Controller.playTouchReboundFeedback('release');
       setTouchRebounding(true);
       touchReboundTimerRef.current = setTimeout(() => {
         setTouchRebounding(false);
         touchReboundTimerRef.current = null;
       }, 520);
     }
-  }, [displayLayer]);
+  }, [displayLayer, level01Controller]);
 
   useEffect(() => () => {
     if (touchReboundTimerRef.current) clearTimeout(touchReboundTimerRef.current);
@@ -2037,6 +2038,7 @@ export default function TaijiSystem({
         <Level01TaijiOverlay
           controller={level01Controller}
           visible={displayLayer === 1}
+          interacting={touchActive}
           onDrivingChange={setLevel01Driving}
         />
         {/* 客戶頁只保留可直接點擊的太極圖騰；倍率／步數／解析度等驗收輔助資訊不對外顯示。 */}

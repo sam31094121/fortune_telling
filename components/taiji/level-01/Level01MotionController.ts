@@ -196,10 +196,19 @@ export class Level01TaijiMotionController {
     });
   }
 
-  playTouchReboundFeedback() {
+  playTouchReboundFeedback(phase: 'press' | 'release' = 'press') {
     if (this.disposed) return false;
+    this.armAudioFromUserGesture();
     this.haptics.armFromUserGesture();
-    return this.haptics.playTouchRebound(this.now());
+    const profile = rotationFeedbackProfile({
+      spin: phase === 'press' ? 0.46 : 0.3,
+      energy: phase === 'press' ? 0.58 : 0.36,
+      pulseIndex: this.activationId + (phase === 'press' ? 2 : 3),
+      reducedMotion: this.reducedMotion,
+    });
+    this.audio.playRotationPulse(profile);
+    if (phase === 'press') this.audio.playLightningStrike();
+    return phase === 'press' ? this.haptics.playTouchRebound(this.now()) : true;
   }
 
   /** Start the visible experience immediately. Browsers that require a gesture

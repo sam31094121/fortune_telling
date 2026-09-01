@@ -141,6 +141,8 @@
   inset: 4%;
   z-index: 6;
   border-radius: 50%;
+  perspective: 520px;
+  transform-style: preserve-3d;
   pointer-events: none;
 }
 
@@ -171,6 +173,69 @@
 /* 第一層遊戲起點：陰陽雙光固定守在球體下方兩側，方向判定仍留在引擎內。 */
 .chaseField .chaseLight { left: 97%; top: 94%; }
 .chaseField .chaseCounterLight { left: 3%; top: 94%; }
+
+/* 審查模式原型：陰核放白雷、陽核放黑雷，向球心抓取；不另開動畫迴圈。 */
+.captureLightning {
+  position: absolute;
+  top: 54%;
+  width: 45%;
+  height: 7px;
+  opacity: clamp(.32, calc(.32 + var(--chase-progress, 0) * .62), .94);
+  transform-origin: 0 50%;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  pointer-events: none;
+  animation: captureLightningFlicker 160ms steps(2, end) infinite;
+}
+
+.captureLightning::before,
+.captureLightning::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bolt-gradient);
+  clip-path: polygon(0 40%, 18% 0, 30% 65%, 48% 12%, 62% 70%, 80% 18%, 100% 44%, 82% 72%, 64% 42%, 47% 88%, 29% 38%, 15% 76%);
+  backface-visibility: hidden;
+}
+
+.captureLightning::before { transform: translateZ(8px); }
+.captureLightning::after {
+  opacity: .46;
+  transform: translate3d(0, 4px, -13px) scaleY(.72);
+  filter: blur(.65px);
+}
+
+.captureLightningWhite {
+  left: 4%;
+  --bolt-gradient: linear-gradient(90deg, #fff, #fffbd8 58%, rgba(255,255,255,.18));
+  transform: rotate(-32deg) rotateX(38deg) translateZ(9px) scaleX(clamp(.48, var(--chase-progress, 0), 1));
+  filter: drop-shadow(0 1px 1px rgba(129,140,248,.78)) drop-shadow(0 0 5px rgba(255,255,255,.98)) drop-shadow(0 5px 6px rgba(15,23,42,.48));
+}
+
+.captureLightningBlack {
+  right: 4%;
+  --bolt-gradient: linear-gradient(270deg, #000 0%, #070913 46%, #1e1b4b 72%, rgba(15,23,42,.2));
+  transform-origin: 100% 50%;
+  transform: rotate(32deg) rotateX(-38deg) translateZ(9px) scaleX(clamp(.48, var(--chase-progress, 0), 1));
+  filter: drop-shadow(0 -1px 1px rgba(165,180,252,.68)) drop-shadow(0 0 5px rgba(49,46,129,.96)) drop-shadow(0 5px 7px rgba(0,0,0,.74));
+}
+
+.overlay[data-taiji-interacting='true'] .captureLightning {
+  opacity: .96;
+}
+
+.overlay[data-taiji-interacting='true'] .captureLightningWhite {
+  transform: rotate(-32deg) rotateX(38deg) translateZ(14px) scaleX(1);
+}
+
+.overlay[data-taiji-interacting='true'] .captureLightningBlack {
+  transform: rotate(32deg) rotateX(-38deg) translateZ(14px) scaleX(1);
+}
+
+@keyframes captureLightningFlicker {
+  0%, 100% { margin-top: 0; }
+  50% { margin-top: -2px; }
+}
 
 .chaseField small {
   position: absolute;
@@ -295,6 +360,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .chaseLight, .chaseCounterLight { animation: none; }
+  .captureLightning { animation: none; }
   .taijiCanvasPressed { transform: scale(.985); }
   .taijiCanvasRebound { animation: none; }
   .balanceWell {
