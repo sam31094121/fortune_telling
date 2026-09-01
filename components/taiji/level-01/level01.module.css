@@ -165,6 +165,7 @@
   background: radial-gradient(circle at 34% 30%, rgba(71, 85, 105, .62), #030712 48%, #000 100%);
   box-shadow: 0 0 7px rgba(253, 230, 138, .18), inset 0 1px 2px rgba(255,255,255,.16);
   opacity: .86;
+  animation: chaseLightArrive .34s cubic-bezier(.16,.9,.24,1) both, chaseCounterLightBreathe 1.15s .34s ease-in-out infinite;
 }
 
 .chaseField[data-direction='N'] .chaseLight { left: 50%; top: 5%; }
@@ -197,6 +198,11 @@
   50% { opacity: 1; filter: brightness(1.28); }
 }
 
+@keyframes chaseCounterLightBreathe {
+  0%, 100% { opacity: .7; box-shadow: 0 0 5px rgba(253,230,138,.12), inset 0 1px 2px rgba(255,255,255,.12); }
+  50% { opacity: 1; box-shadow: 0 0 11px rgba(253,230,138,.28), inset 0 1px 3px rgba(255,255,255,.22); }
+}
+
 .pointerSurface {
   position: absolute;
   inset: 4%;
@@ -208,31 +214,6 @@
 }
 
 .pointerSurface:active { cursor: grabbing; }
-
-.recoveryPanel {
-  position: absolute;
-  left: 50%;
-  top: 5%;
-  z-index: 10;
-  display: flex;
-  gap: 6px;
-  transform: translateX(-50%);
-  pointer-events: auto;
-}
-
-.recoveryPanel { top: 50%; transform: translate(-50%, -50%); }
-
-.recoveryPanel button {
-  min-height: 32px;
-  padding: 6px 10px;
-  border: 1px solid rgba(253,230,138,.38);
-  border-radius: 999px;
-  background: rgba(2,6,23,.7);
-  color: #fef3c7;
-  font-size: 10px;
-  font-weight: 800;
-  backdrop-filter: blur(6px);
-}
 
 .completeCard {
   position: absolute;
@@ -296,7 +277,7 @@
 .overlay[data-level01-quality='LOW'] .particlePair { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .chaseLight { animation: none; }
+  .chaseLight, .chaseCounterLight { animation: none; }
   .balanceWell {
     transform: translate3d(-50%, 0, 0);
     will-change: auto;

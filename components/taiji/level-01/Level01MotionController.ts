@@ -473,9 +473,13 @@ export class Level01TaijiMotionController {
     else if (this.permission === 'granted' && this.armedAt > 0 && now - this.armedAt > SENSOR_WARMUP_TIMEOUT_MS) this.sensorTimedOut = true;
 
     if (!this.manualFallback && this.permission === 'granted' && !sensor.calibrated) {
-      if (this.sensorTimedOut) this.game.sensorLost(now);
-      else this.game.beginCalibration(now);
-      this.publish(false, this.game.snapshot());
+      if (this.sensorTimedOut) {
+        this.manualFallback = true;
+        this.detachSensors();
+        this.game.fallback(now);
+        this.telemetry.update({ fallbackUsed: true });
+      } else this.game.beginCalibration(now);
+      this.publish(this.manualFallback, this.game.snapshot());
       return this.pose;
     }
     if (this.permission === 'granted' && sensor.calibrated && this.pose.gameState === 'CALIBRATING') this.game.ready(now);
@@ -485,9 +489,12 @@ export class Level01TaijiMotionController {
       || this.pose.gameState === 'FALLBACK'
       || (this.featureEnabled && (!this.motionEnabled || this.staticMode));
     if (!this.manualFallback && this.permission === 'granted' && !sensor.fresh && this.sensorTimedOut) {
-      this.game.sensorLost(now);
+      this.manualFallback = true;
+      this.detachSensors();
+      this.game.fallback(now);
+      this.telemetry.update({ fallbackUsed: true });
       this.audio.sync({ motionEnergy: 0, angularVelocity: 0, balanceState: this.physics.balanceState, lockChime: false, active: false });
-      this.publish(false, this.game.snapshot());
+      this.publish(true, this.game.snapshot());
       return this.pose;
     }
     if (this.game.isFinished()) {

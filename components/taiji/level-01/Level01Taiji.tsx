@@ -133,14 +133,7 @@ function RuntimeOverlay({
       {motionGameActive && !pose.staticMode && pose.gameState !== 'LEVEL_COMPLETE' && (
         <div className={styles.chaseField} aria-label={`追光目標：${pose.motionGame.chase.direction}`} data-direction={pose.motionGame.chase.direction}>
           <span key={`${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={styles.chaseLight} />
-          <span className={styles.chaseCounterLight} aria-hidden="true" />
-        </div>
-      )}
-
-      {pose.gameState === 'SENSOR_LOST' && (
-        <div className={styles.recoveryPanel}>
-          <button type="button" onClick={() => void controller.reconnect()}>重新連接</button>
-          <button type="button" onClick={() => controller.useFallback()}>改用拖曳</button>
+          <span key={`yin-${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={styles.chaseCounterLight} aria-hidden="true" />
         </div>
       )}
 

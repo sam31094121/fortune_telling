@@ -32,9 +32,9 @@ if (overlay.includes('cueNorth') || overlay.includes('cueEast') || overlay.inclu
 if (overlay.includes('data-level01-layer="energy-field"') || overlay.includes('data-level01-layer="balance-ring"')) throw new Error('level 01 must keep both decorative outer circles off the customer surface');
 if (overlay.includes('COMBO_CUES') || overlay.includes('styles.combo')) throw new Error('customer level 01 must keep combo labels hidden while the engine continues scoring');
 if (!overlay.includes('styles.chaseField') || !overlay.includes('追光目標') || !motionGame.includes('CHASE_HOLD_MS')) throw new Error('level 01 must expose a bounded four-direction chase-light challenge');
-if (!overlay.includes('styles.chaseCounterLight') || !styles.includes('.chaseCounterLight')) throw new Error('the chase target must keep an opposite dark yin-light counterpart');
+if (!overlay.includes('key={`yin-${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`}') || !styles.includes('chaseCounterLightBreathe 1.15s')) throw new Error('the opposite dark yin-light must share the target direction, hit lifecycle, and breathing cadence');
 if (styles.includes('--balance-angle') || styles.includes('--hold-angle')) throw new Error('removed outer-circle progress variables must not remain in level 01 styles');
-if (!overlay.includes('重新連接') || !overlay.includes('改用拖曳')) throw new Error('sensor-loss recovery must remain available only when an actual error occurs');
+if (overlay.includes('重新連接') || overlay.includes('改用拖曳') || !controller.includes('this.detachSensors()')) throw new Error('sensor loss must silently downgrade without exposing recovery controls over the taiji');
 if (!overlay.includes('拖曳控制太極平衡') || !controller.includes('beginPointer') || !controller.includes('updatePointer')) throw new Error('desktop/touch fallback must preserve the same balancing objective');
 if (overlay.includes('第一層必要控制') || overlay.includes('音效開') || overlay.includes('震動開')) throw new Error('customer level 01 must keep operating controls hidden');
 if (!runtime.includes("| 'HOLDING'") || !runtime.includes("| 'SENSOR_LOST'") || !runtime.includes("| 'LOW_PERFORMANCE'")) throw new Error('complete game-state vocabulary is required');
