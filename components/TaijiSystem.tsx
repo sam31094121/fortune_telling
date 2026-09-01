@@ -710,7 +710,7 @@ function TaijiPerformanceGovernor({ active }: { active: boolean }) {
   return null;
 }
 
-function Level01SpatialLightning({ active, ballRef }: { active: boolean; ballRef?: { current: THREE.Mesh | null } }) {
+function Level01SpatialLightning({ active, poseRef }: { active: boolean; poseRef?: { current: { visualEuler: { x: number; y: number; z: number } } } }) {
   const wasActiveRef = useRef(false);
   const strikeStartedAtRef = useRef(-Infinity);
   const previewStartedAtRef = useRef<number | null>(null);
@@ -926,8 +926,20 @@ function Level01SpatialLightning({ active, ballRef }: { active: boolean; ballRef
     group.scale.y += (target - group.scale.y) * easing;
     group.scale.z += ((.9 + spatialEnvelope * .28) - group.scale.z) * easing;
     group.position.z = -.16 + spatialEnvelope * .34;
-    group.rotation.y = Math.sin(clock.elapsedTime * 41) * .045;
-    group.rotation.x = -.045 + Math.cos(clock.elapsedTime * 37) * .022;
+    // The two strike origins are authored as fixed local points around the orb's
+    // default pose. Without this, they'd drift away from the yin/yang eyes once
+    // Level01 physics tilts or spins the ball; matching the ball's own live Euler
+    // pose first keeps the weapon glued to the eyes at any orientation, then the
+    // small ambient sway below is layered on top exactly as before.
+    if (poseRef?.current) {
+      const ballEuler = poseRef.current.visualEuler;
+      group.rotation.set(ballEuler.x, ballEuler.y, ballEuler.z);
+      group.rotateY(Math.sin(clock.elapsedTime * 41) * .045);
+      group.rotateX(-.045 + Math.cos(clock.elapsedTime * 37) * .022);
+    } else {
+      group.rotation.y = Math.sin(clock.elapsedTime * 41) * .045;
+      group.rotation.x = -.045 + Math.cos(clock.elapsedTime * 37) * .022;
+    }
     group.children.forEach((child) => {
       const bolt = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
       const material = bolt.material;
@@ -2261,7 +2273,7 @@ export default function TaijiSystem({
         >
           <AdaptiveEvents />
           <Level01FrameBinder controller={level01Controller} enabled={displayLayer === 1} />
-          {displayLayer === 1 && showLayerReviewPanel && <Level01SpatialLightning active={touchActive} />}
+          {displayLayer === 1 && showLayerReviewPanel && <Level01SpatialLightning active={touchActive} poseRef={level01PoseRef} />}
           <TaijiPerformanceGovernor active={touchActive} />
           {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
               頂部暖色柔光箱＋側面冷色燈條＋背部輪廓光，球面反射出真實的影棚光形，
