@@ -138,7 +138,7 @@
 
 .chaseField {
   position: absolute;
-  inset: 12%;
+  inset: 4%;
   z-index: 6;
   border-radius: 50%;
   pointer-events: none;
@@ -168,14 +168,9 @@
   animation: chaseLightArrive .34s cubic-bezier(.16,.9,.24,1) both, chaseCounterLightBreathe 1.15s .34s ease-in-out infinite;
 }
 
-.chaseField[data-direction='N'] .chaseLight { left: 50%; top: 5%; }
-.chaseField[data-direction='E'] .chaseLight { left: 95%; top: 50%; }
-.chaseField[data-direction='S'] .chaseLight { left: 50%; top: 89%; }
-.chaseField[data-direction='W'] .chaseLight { left: 5%; top: 50%; }
-.chaseField[data-direction='N'] .chaseCounterLight { left: 50%; top: 89%; }
-.chaseField[data-direction='E'] .chaseCounterLight { left: 5%; top: 50%; }
-.chaseField[data-direction='S'] .chaseCounterLight { left: 50%; top: 5%; }
-.chaseField[data-direction='W'] .chaseCounterLight { left: 95%; top: 50%; }
+/* 第一層遊戲起點：陰陽雙光固定守在球體下方兩側，方向判定仍留在引擎內。 */
+.chaseField .chaseLight { left: 97%; top: 94%; }
+.chaseField .chaseCounterLight { left: 3%; top: 94%; }
 
 .chaseField small {
   position: absolute;
