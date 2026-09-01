@@ -713,67 +713,142 @@ function TaijiPerformanceGovernor({ active }: { active: boolean }) {
 function Level01SpatialLightning({ active }: { active: boolean }) {
   const wasActiveRef = useRef(false);
   const strikeStartedAtRef = useRef(-Infinity);
+  const previewStartedAtRef = useRef<number | null>(null);
   const group = useMemo(() => {
     const root = new THREE.Group();
-    const createBolt = (points: THREE.Vector3[], color: number, opacity: number, zOffset: number) => {
-      const offset = new THREE.Vector3(0, 0, zOffset);
-      const geometry = new THREE.BufferGeometry().setFromPoints(points.map((point) => point.clone().add(offset)));
-      const material = new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending });
-      material.userData.baseOpacity = opacity;
-      root.add(new THREE.Line(geometry, material));
+    class LightningPolyline extends THREE.Curve<THREE.Vector3> {
+      constructor(private readonly nodes: THREE.Vector3[]) { super(); }
+      getPoint(t: number, target = new THREE.Vector3()) {
+        const scaled = Math.max(0, Math.min(1, t)) * (this.nodes.length - 1);
+        const index = Math.min(this.nodes.length - 2, Math.floor(scaled));
+        return target.copy(this.nodes[index]).lerp(this.nodes[index + 1], scaled - index);
+      }
+    }
+    const createBolt = (input: {
+      points: THREE.Vector3[];
+      color: number;
+      opacity: number;
+      radius: number;
+      delay?: number;
+      glow?: boolean;
+      blackCore?: boolean;
+    }) => {
+      const curve = new LightningPolyline(input.points);
+      const tubularSegments = Math.max(18, input.points.length * 8);
+      const radialSegments = input.glow ? 7 : 6;
+      const geometry = new THREE.TubeGeometry(curve, tubularSegments, input.radius, radialSegments, false);
+      const positions = geometry.attributes.position as THREE.BufferAttribute;
+      const center = new THREE.Vector3();
+      const vertex = new THREE.Vector3();
+      for (let ring = 0; ring <= tubularSegments; ring += 1) {
+        const progress = ring / tubularSegments;
+        curve.getPointAt(progress, center);
+        const taper = Math.max(.18, 1.05 - progress * .67 + Math.sin(progress * Math.PI * 9) * .11);
+        for (let side = 0; side <= radialSegments; side += 1) {
+          const index = ring * (radialSegments + 1) + side;
+          vertex.fromBufferAttribute(positions, index).sub(center).multiplyScalar(taper).add(center);
+          positions.setXYZ(index, vertex.x, vertex.y, vertex.z);
+        }
+      }
+      positions.needsUpdate = true;
+      geometry.computeVertexNormals();
+      const material = new THREE.MeshBasicMaterial({
+        color: input.color,
+        transparent: true,
+        opacity: input.opacity,
+        depthWrite: false,
+        blending: input.blackCore ? THREE.NormalBlending : THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+        toneMapped: false,
+      });
+      material.userData.baseOpacity = input.opacity;
+      material.userData.delay = input.delay ?? 0;
+      material.userData.glow = Boolean(input.glow);
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.renderOrder = input.glow ? 7 : 9;
+      root.add(mesh);
     };
-    const left = [
-      new THREE.Vector3(-2.6, -1.62, .24), new THREE.Vector3(-2.13, -1.34, .52),
-      new THREE.Vector3(-1.82, -1.42, .12), new THREE.Vector3(-1.42, -.96, .68),
-      new THREE.Vector3(-1.02, -1.02, .34), new THREE.Vector3(-.68, -.58, .88),
+    const leftMain = [
+      new THREE.Vector3(-2.82, -1.92, .18), new THREE.Vector3(-2.54, -1.48, .58),
+      new THREE.Vector3(-2.76, -1.12, .08), new THREE.Vector3(-2.3, -.78, .52),
+      new THREE.Vector3(-2.47, -.42, .04), new THREE.Vector3(-1.92, -.18, .62),
+      new THREE.Vector3(-2.02, .08, .14), new THREE.Vector3(-1.52, .18, .72),
+      new THREE.Vector3(-1.37, .38, .24), new THREE.Vector3(-1.18, .24, .78),
+      new THREE.Vector3(-.82, .2, .98),
     ];
-    const right = left.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
-    const leftBranchA = [left[2], new THREE.Vector3(-1.95, -1.08, .48), new THREE.Vector3(-1.72, -.9, .22)];
-    const leftBranchB = [left[3], new THREE.Vector3(-1.28, -1.22, .42), new THREE.Vector3(-1.08, -1.3, .08)];
+    const rightMain = leftMain.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
+    const leftCanopy = [
+      leftMain[0], new THREE.Vector3(-3.02, -1.25, .36), new THREE.Vector3(-2.72, -.62, -.04),
+      new THREE.Vector3(-2.95, .06, .48), new THREE.Vector3(-2.5, .72, .08),
+      new THREE.Vector3(-2.16, 1.38, .62), new THREE.Vector3(-1.65, 1.74, .16),
+      new THREE.Vector3(-1.18, 1.52, .72), new THREE.Vector3(-.72, 1.18, .28),
+      new THREE.Vector3(-.26, .9, .86), new THREE.Vector3(.08, .7, 1.2),
+    ];
+    const rightCanopy = leftCanopy.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
+    const leftBranchA = [leftMain[3], new THREE.Vector3(-2.7, -.58, .72), new THREE.Vector3(-2.52, -.18, .24)];
+    const leftBranchB = [leftMain[6], new THREE.Vector3(-2.28, .36, .5), new THREE.Vector3(-2.05, .68, .1)];
     const rightBranchA = leftBranchA.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
     const rightBranchB = leftBranchB.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
-    createBolt(left, 0xffffff, .96, .12);
-    createBolt(left, 0xfbbf24, .58, -.08);
-    createBolt(left, 0x67e8f9, .32, -.18);
-    createBolt(right, 0x000008, .96, .12);
-    createBolt(right, 0x312e81, .72, -.05);
-    createBolt(right, 0x67e8f9, .62, -.18);
-    createBolt(leftBranchA, 0xffffff, .74, .03);
-    createBolt(leftBranchB, 0xfef08a, .58, -.04);
-    createBolt(rightBranchA, 0x11103a, .78, .03);
-    createBolt(rightBranchB, 0x67e8f9, .58, -.04);
-    root.renderOrder = 8;
+    const addLayeredBolt = (points: THREE.Vector3[], core: number, rim: number, radius: number, delay = 0, blackCore = false) => {
+      createBolt({ points, color: rim, opacity: .2, radius: radius * 2.15, delay, glow: true });
+      createBolt({ points, color: rim, opacity: .48, radius: radius * 1.42, delay, glow: true });
+      createBolt({ points, color: core, opacity: .98, radius, delay, blackCore });
+    };
+    addLayeredBolt(leftMain, 0xfff7cf, 0xfbbf24, .082, 0);
+    addLayeredBolt(rightMain, 0x02020a, 0x60a5fa, .084, .025, true);
+    addLayeredBolt(leftCanopy, 0xffffff, 0x67e8f9, .058, .055);
+    addLayeredBolt(rightCanopy, 0x02020a, 0x818cf8, .06, .075, true);
+    addLayeredBolt(leftBranchA, 0xffffff, 0x67e8f9, .034, .065);
+    addLayeredBolt(leftBranchB, 0xfff4b8, 0xfbbf24, .029, .1);
+    addLayeredBolt(rightBranchA, 0x03030b, 0x818cf8, .036, .09, true);
+    addLayeredBolt(rightBranchB, 0x050512, 0x67e8f9, .03, .12, true);
     return root;
   }, []);
 
   useEffect(() => () => {
     group.children.forEach((child) => {
-      const line = child as THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>;
-      line.geometry.dispose();
-      line.material.dispose();
+      const bolt = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
+      bolt.geometry.dispose();
+      bolt.material.dispose();
     });
   }, [group]);
 
   useFrame(({ clock }, delta) => {
+    if (previewStartedAtRef.current == null) previewStartedAtRef.current = clock.elapsedTime + .16;
     if (active && !wasActiveRef.current) strikeStartedAtRef.current = clock.elapsedTime;
     wasActiveRef.current = active;
-    const strikeAge = clock.elapsedTime - strikeStartedAtRef.current;
-    const strikeEnvelope = !active ? 0
-      : strikeAge < .07 ? 1
-        : strikeAge < .14 ? .08
-          : strikeAge < .23 ? .88
-            : strikeAge < .34 ? .18
-              : strikeAge < .52 ? .58 * (1 - (strikeAge - .34) / .18)
+    const previewAge = (clock.elapsedTime - previewStartedAtRef.current + 3.4) % 3.4;
+    const previewActive = previewAge >= 0 && previewAge < .62;
+    const striking = active || previewActive;
+    const strikeAge = active ? clock.elapsedTime - strikeStartedAtRef.current : previewAge;
+    const envelopeAt = (age: number) => !striking || age < 0 ? 0
+      : age < .055 ? 1
+        : age < .105 ? .08
+          : age < .19 ? .94
+            : age < .28 ? .16
+              : age < .46 ? .7 * (1 - (age - .28) / .18)
                 : 0;
-    const target = active ? 1 : .82;
-    const easing = 1 - Math.exp(-delta * (active ? 18 : 7));
+    const spatialEnvelope = envelopeAt(strikeAge);
+    const target = striking ? 1 : .9;
+    const easing = 1 - Math.exp(-delta * (striking ? 18 : 7));
     group.scale.x += (target - group.scale.x) * easing;
     group.scale.y += (target - group.scale.y) * easing;
-    group.rotation.y = Math.sin(clock.elapsedTime * 38) * .055 * strikeEnvelope;
-    group.rotation.x = -.08 + Math.cos(clock.elapsedTime * 31) * .032 * strikeEnvelope;
+    group.scale.z += ((.9 + spatialEnvelope * .28) - group.scale.z) * easing;
+    group.position.z = -.16 + spatialEnvelope * .34;
+    group.rotation.y = Math.sin(clock.elapsedTime * 41) * .045;
+    group.rotation.x = -.045 + Math.cos(clock.elapsedTime * 37) * .022;
     group.children.forEach((child) => {
-      const material = (child as THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>).material;
-      material.opacity = Number(material.userData.baseOpacity ?? .5) * strikeEnvelope;
+      const bolt = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
+      const material = bolt.material;
+      const localAge = strikeAge - Number(material.userData.delay ?? 0);
+      const envelope = envelopeAt(localAge);
+      material.opacity = Number(material.userData.baseOpacity ?? .5) * envelope;
+      const phase = Number(material.userData.delay ?? 0);
+      const pulse = 1 + Math.sin((clock.elapsedTime + phase) * 72) * .09 * envelope;
+      bolt.scale.set(pulse, pulse, pulse);
+      bolt.rotation.z = Math.sin(clock.elapsedTime * 53 + phase * 41) * .018 * envelope;
+      bolt.position.x = Math.sin(clock.elapsedTime * 67 + phase * 29) * .018 * envelope;
+      bolt.position.y = Math.cos(clock.elapsedTime * 61 + phase * 37) * .014 * envelope;
     });
   });
 

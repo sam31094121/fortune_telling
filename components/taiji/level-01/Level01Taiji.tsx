@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
 import { Level01ErrorBoundary } from './Level01ErrorBoundary';
 import type { Level01Pose, Level01TaijiMotionController } from './Level01MotionController';
 import styles from './level01.module.css';
@@ -53,7 +53,6 @@ function RuntimeOverlay({
   onDrivingChange?: (driving: boolean) => void;
 }) {
   const [pose, setPose] = useState<Level01Pose>(() => clonePose(controller.pose));
-  const [reviewLightningPrototype, setReviewLightningPrototype] = useState(false);
   const bubbleRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -78,10 +77,6 @@ function RuntimeOverlay({
     if (!visible) return;
     void controller.attemptAutomaticSensorStart().then((next) => setPose(clonePose(next)));
   }, [controller, visible]);
-
-  useEffect(() => {
-    setReviewLightningPrototype(new URLSearchParams(window.location.search).get('taijiReview') === '1');
-  }, []);
 
   const startToday = useCallback(() => {
     controller.recordNextStepCompleted();
@@ -143,16 +138,9 @@ function RuntimeOverlay({
           className={styles.chaseField}
           aria-label={`追光目標：${pose.motionGame.chase.direction}`}
           data-direction={pose.motionGame.chase.direction}
-          style={{ '--chase-progress': pose.motionGame.chase.progress } as CSSProperties}
         >
           <span key={`${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={styles.chaseLight} />
           <span key={`yin-${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={styles.chaseCounterLight} data-screen-arrow-target="level01-yin-light" aria-hidden="true" />
-          {reviewLightningPrototype && (
-            <>
-              <span className={`${styles.captureLightning} ${styles.captureLightningWhite}`} aria-hidden="true" />
-              <span className={`${styles.captureLightning} ${styles.captureLightningBlack}`} aria-hidden="true" />
-            </>
-          )}
         </div>
       )}
 
