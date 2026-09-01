@@ -1301,13 +1301,20 @@ function TaijiCore({
 
     const ballMat = ballMatRef.current;
     if (ballMat && diskRef.current) {
+      const level01SurfaceEnergy = motionGamePose
+        ? Math.max(motionGamePose.motionGame.motionMagnitude, motionGamePose.motionEnergy)
+        : 0;
       const baseOpacity = lerpNumber(1, 0.82, split);
       const opacity = Number.isFinite(baseOpacity * shellFade) ? Math.min(1, Math.max(0, baseOpacity * shellFade)) : 1;
       ballMat.opacity = opacity;
       ballMat.depthWrite = opacity > 0.995;
-      ballMat.bumpScale = 0.01 + surfaceD * 0.075;
-      ballMat.roughness = 0.28 + surfaceD * 0.22;
-      ballMat.clearcoatRoughness = 0.1 + surfaceD * 0.16;
+      // LEVEL 01 surface refinement: reuse material uniforms only. Motion makes
+      // the glaze read more crisply, then it eases back without extra geometry.
+      ballMat.bumpScale = 0.01 + surfaceD * 0.075 + level01SurfaceEnergy * 0.007;
+      ballMat.roughness = 0.28 + surfaceD * 0.22 - level01SurfaceEnergy * 0.055;
+      ballMat.clearcoatRoughness = 0.1 + surfaceD * 0.16 - level01SurfaceEnergy * 0.025;
+      ballMat.envMapIntensity = 1.46 + level01SurfaceEnergy * 0.2;
+      ballMat.emissiveIntensity = (separate ? 0.035 : 0.052) + level01SurfaceEnergy * 0.018;
       diskRef.current.visible = opacity > 0.004;
       if (opacity > 0.004 && diskRef.current.scale.lengthSq() < 0.0001) {
         diskRef.current.scale.setScalar(1);

@@ -21,8 +21,9 @@ if (!overlay.includes('LEVEL_01 UI SCOPE LOCK')) throw new Error('level 01 scope
 if (!overlay.includes('啟動太極') || !styles.includes('.startButton')) throw new Error('level 01 must expose the explicit central activation ritual');
 if (!overlay.includes('data-level01-surface="dynamic-shadow"')) throw new Error('level 01 must keep its dynamic shadow surface');
 if (!overlay.includes('data-level01-layer="world-reference"') || !styles.includes('.worldReference')) throw new Error('fixed world-reference direction layer is required');
-if (!overlay.includes('data-level01-layer="energy-field"') || !overlay.includes('data-level01-layer="balance-ring"')) throw new Error('energy field and balance ring layers are required');
-if (!styles.includes('--balance-angle') || !styles.includes('--hold-angle')) throw new Error('balance and hold progress must drive the ring');
+if (overlay.includes('data-level01-layer="energy-field"') || overlay.includes('data-level01-layer="balance-ring"')) throw new Error('level 01 must keep both decorative outer circles off the customer surface');
+if (!overlay.includes('COMBO_CUES') || !overlay.includes("'流', '合', '破', '極'")) throw new Error('level 01 must turn repeated control into concise progressive mastery cues');
+if (styles.includes('--balance-angle') || styles.includes('--hold-angle')) throw new Error('removed outer-circle progress variables must not remain in level 01 styles');
 if (!overlay.includes('重新校正') || !overlay.includes('重新連接') || !overlay.includes('改用拖曳')) throw new Error('recalibration and sensor-loss recovery controls are required');
 if (!overlay.includes('拖曳控制太極平衡') || !controller.includes('beginPointer') || !controller.includes('updatePointer')) throw new Error('desktop/touch fallback must preserve the same balancing objective');
 if (!overlay.includes('第一層必要控制') || !overlay.includes('退出') || !overlay.includes('音效開')) throw new Error('active mode must expose only essential controls');
@@ -43,6 +44,7 @@ if (!controller.includes('unityReady') || !controller.includes('>= 1500')) throw
 if ((poseDriver.match(/useFrame\(/g) || []).length !== 1 || controller.includes('requestAnimationFrame(')) throw new Error('level 01 must use exactly one R3F frame-clock callback and no private RAF loop');
 if (sensor.includes('setState(') || sensor.includes('setPose(')) throw new Error('sensor event handlers may update refs/controllers only');
 if (!taijiSystem.includes("motionGamePose") || !taijiSystem.includes("motionStageRank >= 3")) throw new Error('the existing 3D core must reveal motion-game stages only under the level-01 flag');
+if (!taijiSystem.includes('level01SurfaceEnergy') || !taijiSystem.includes('ballMat.envMapIntensity')) throw new Error('level 01 surface detail must respond through existing material uniforms, not extra geometry');
 if (!styles.includes('@media (prefers-reduced-motion: reduce)') || !styles.includes('.particlePair { display: none; }')) throw new Error('reduced motion must stop level-01 particles');
 if (!sensory.includes('TAIJI_PENTATONIC_HZ') || !sensory.includes('rotationBurstTimeline')) throw new Error('rotation feedback must use one bounded pentatonic audio-haptic profile');
 if (!audio.includes('playRotationPulse') || !audio.includes('playRotationBurst') || !audio.includes('BiquadFilterNode')) throw new Error('rotation audio must include soft filtering and synchronized pulse/burst voices');

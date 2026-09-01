@@ -8,9 +8,6 @@
   transform: translate3d(0, 0, 0);
   aspect-ratio: 1;
   contain: layout paint style;
-  --balance-angle: 0deg;
-  --hold-angle: 0deg;
-  --motion-energy: 0;
 }
 
 /* LEVEL_01 ONLY: the sensor trigger reads as the taiji ball's live ground shadow,
@@ -156,34 +153,6 @@
 }
 
 .pointerSurface:active { cursor: grabbing; }
-
-.energyField {
-  position: absolute;
-  inset: 13%;
-  z-index: 2;
-  border-radius: 50%;
-  pointer-events: none;
-  opacity: calc(.08 + var(--motion-energy) * .48);
-  transform: scale(calc(1 + var(--motion-energy) * .08));
-  background: radial-gradient(circle, rgba(253,230,138,.02) 48%, rgba(250,204,21,.24) 68%, transparent 74%);
-  filter: blur(5px);
-  transition: opacity 120ms linear;
-}
-
-.balanceRing {
-  position: absolute;
-  inset: 4.5%;
-  z-index: 4;
-  border-radius: 50%;
-  pointer-events: none;
-  background:
-    conic-gradient(from -90deg, rgba(255,248,215,.96) var(--hold-angle), transparent var(--hold-angle)),
-    conic-gradient(from -90deg, rgba(250,204,21,.72) var(--balance-angle), rgba(255,255,255,.07) var(--balance-angle));
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
-  filter: drop-shadow(0 0 7px rgba(250,204,21,.5));
-  opacity: .82;
-}
 
 .touchInvitation {
   position: absolute;
@@ -485,21 +454,11 @@
   pointer-events: none;
 }
 
-.overlay[data-level01-state='HOLDING'] .balanceRing,
-.overlay[data-level01-state='LOCKED'] .balanceRing,
-.overlay[data-level01-state='LEVEL_COMPLETE'] .balanceRing {
-  filter: drop-shadow(0 0 11px rgba(253,230,138,.86));
-  opacity: 1;
-}
-
 /* V3 降級優先順序：先砍 Particle，再降 Blur，最後才動 Shadow/Glow；
    感測、物理、震動、音效邏輯完全不受畫質影響，只有這些裝飾效果會降級。 */
 .overlay[data-level01-quality='HIGH'] .particlePair { opacity: calc(var(--particle-opacity) * .6); }
 .overlay[data-level01-quality='BALANCED'] .particlePair { display: none; }
-.overlay[data-level01-quality='BALANCED'] .energyField { filter: blur(3px); }
-.overlay[data-level01-quality='LOW'] .particlePair,
-.overlay[data-level01-quality='LOW'] .energyField { display: none; }
-.overlay[data-level01-quality='LOW'] .balanceRing { filter: none; }
+.overlay[data-level01-quality='LOW'] .particlePair { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .touchInvitation { animation: none; }
@@ -520,6 +479,4 @@
     will-change: auto;
   }
 
-  .energyField { display: none; }
-  .balanceRing { transition: none; filter: none; }
 }

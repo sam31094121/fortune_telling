@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
 import { Level01ErrorBoundary } from './Level01ErrorBoundary';
 import type { Level01Pose, Level01TaijiMotionController } from './Level01MotionController';
 import styles from './level01.module.css';
@@ -49,6 +49,7 @@ const MOTION_STAGES = [
 ] as const;
 
 const VISUAL_ELEMENTS = ['空', '風', '水', '火', '地'] as const;
+const COMBO_CUES = ['定', '流', '合', '破', '極'] as const;
 
 function RuntimeOverlay({
   controller,
@@ -120,12 +121,6 @@ function RuntimeOverlay({
   const active = !['IDLE', 'PERMISSION', 'CALIBRATING', 'LEVEL_COMPLETE'].includes(pose.gameState);
   const fallbackPlayable = pose.gameState === 'FALLBACK' || (pose.motionGameEnabled && pose.staticMode);
   const motionGameActive = pose.motionGameEnabled && pose.gameState !== 'IDLE';
-  const ringStyle = {
-    '--balance-angle': `${Math.round(pose.balanceProgress * 360)}deg`,
-    '--hold-angle': `${Math.round(pose.holdProgress * 360)}deg`,
-    '--motion-energy': pose.motionEnergy.toFixed(3),
-  } as CSSProperties;
-
   return (
     <div
       className={styles.overlay}
@@ -141,7 +136,6 @@ function RuntimeOverlay({
       data-taiji-motion-stage={pose.motionGame.stage}
       data-taiji-visual-element={pose.motionGame.visualElement}
       data-taiji-static-mode={pose.staticMode ? 'true' : 'false'}
-      style={ringStyle}
     >
       {/* LEVEL_01 UI SCOPE LOCK: this overlay is unmounted for levels 02–24. */}
       {fallbackPlayable && (
@@ -159,9 +153,6 @@ function RuntimeOverlay({
         <span className={styles.cueNorth}>N</span><span className={styles.cueEast}>E</span>
         <span className={styles.cueSouth}>S</span><span className={styles.cueWest}>W</span>
       </div>
-      <div className={styles.energyField} aria-hidden="true" data-level01-layer="energy-field" />
-      <div className={styles.balanceRing} aria-hidden="true" data-level01-layer="balance-ring" />
-
       <div className={styles.balanceWell} aria-hidden="true" data-level01-layer="balance-indicator" data-level01-surface="dynamic-shadow">
         <span className={styles.shadowGlow} />
         <span className={styles.particlePair}><span /><span /></span>
@@ -231,7 +222,7 @@ function RuntimeOverlay({
             : <button type="button" onClick={() => controller.advanceStaticMotion()}>輕觸推進</button>}
         </div>
       )}
-      {pose.combo > 1 && pose.gameState !== 'LEVEL_COMPLETE' && <div className={styles.combo}>{pose.motionGameEnabled ? '流動' : '平衡'} Combo × {pose.combo}</div>}
+      {pose.combo > 0 && pose.gameState !== 'LEVEL_COMPLETE' && <div className={styles.combo}>{pose.motionGameEnabled ? COMBO_CUES[Math.min(4, pose.combo)] : '平衡'} × {pose.combo}</div>}
       {pose.gameState === 'LEVEL_COMPLETE' && (
         <div className={styles.completeCard} role="status">
           <strong>{pose.motionGameEnabled ? '● 歸一完成' : '第一層・平衡完成'}</strong>
