@@ -794,6 +794,19 @@ function Level01SpatialLightning({ active }: { active: boolean }) {
     const leftBranchB = [leftMain[6], new THREE.Vector3(-2.28, .36, .5), new THREE.Vector3(-2.05, .68, .1)];
     const rightBranchA = leftBranchA.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
     const rightBranchB = leftBranchB.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
+    // Impact phase: after the two weapon bolts reach the orb, the charge races
+    // across its near surface as a broken lightning web. Every strand begins at
+    // one of the two impact points, so it reads as a consequence of the shot.
+    const leftImpact = leftMain[leftMain.length - 1];
+    const rightImpact = rightMain[rightMain.length - 1];
+    const impactWeb = [
+      [leftImpact, new THREE.Vector3(-.58, .62, 1.12), new THREE.Vector3(-.18, .92, 1.08), new THREE.Vector3(.22, .64, 1.14), rightImpact],
+      [leftImpact, new THREE.Vector3(-.44, -.12, 1.2), new THREE.Vector3(-.06, -.62, 1.12), new THREE.Vector3(.42, -.28, 1.18), rightImpact],
+      [leftImpact, new THREE.Vector3(-.72, .06, 1.16), new THREE.Vector3(-.32, .02, 1.28), new THREE.Vector3(.04, .42, 1.24)],
+      [rightImpact, new THREE.Vector3(.7, .12, 1.16), new THREE.Vector3(.34, .04, 1.28), new THREE.Vector3(.02, -.42, 1.24)],
+      [new THREE.Vector3(-.18, .92, 1.08), new THREE.Vector3(-.02, .48, 1.3), new THREE.Vector3(-.06, -.62, 1.12)],
+      [new THREE.Vector3(.22, .64, 1.14), new THREE.Vector3(.08, .18, 1.32), new THREE.Vector3(.42, -.28, 1.18)],
+    ];
     const addLayeredBolt = (points: THREE.Vector3[], core: number, rim: number, radius: number, delay = 0, blackCore = false) => {
       createBolt({ points, color: rim, opacity: .2, radius: radius * 2.15, delay, glow: true });
       createBolt({ points, color: rim, opacity: .48, radius: radius * 1.42, delay, glow: true });
@@ -807,6 +820,17 @@ function Level01SpatialLightning({ active }: { active: boolean }) {
     addLayeredBolt(leftBranchB, 0xfff4b8, 0xfbbf24, .029, .1);
     addLayeredBolt(rightBranchA, 0x03030b, 0x818cf8, .036, .09, true);
     addLayeredBolt(rightBranchB, 0x050512, 0x67e8f9, .03, .12, true);
+    impactWeb.forEach((points, index) => {
+      const fromYin = index % 2 === 0;
+      addLayeredBolt(
+        points,
+        fromYin ? 0xfffbeb : 0x060611,
+        fromYin ? 0x67e8f9 : 0x818cf8,
+        index < 2 ? .046 : .027,
+        .17 + index * .018,
+        !fromYin,
+      );
+    });
     return root;
   }, []);
 
