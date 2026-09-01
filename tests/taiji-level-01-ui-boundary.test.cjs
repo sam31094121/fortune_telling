@@ -14,6 +14,8 @@ const featureFlag = read('components/taiji/level-01/Level01FeatureFlags.ts');
 const motionGame = read('components/taiji/level-01/Level01MotionGameEngine.ts');
 const poseDriver = read('components/taiji/level-01/Level01PoseDriver.tsx');
 const taijiSystem = read('components/TaijiSystem.tsx');
+const sensory = read('components/taiji/level-01/Level01SensoryFeedback.ts');
+const soundPreference = read('components/taiji/level-01/Level01SoundPreference.ts');
 
 if (!overlay.includes('LEVEL_01 UI SCOPE LOCK')) throw new Error('level 01 scope lock comment is required');
 if (!overlay.includes('啟動太極') || !styles.includes('.startButton')) throw new Error('level 01 must expose the explicit central activation ritual');
@@ -42,5 +44,20 @@ if ((poseDriver.match(/useFrame\(/g) || []).length !== 1 || controller.includes(
 if (sensor.includes('setState(') || sensor.includes('setPose(')) throw new Error('sensor event handlers may update refs/controllers only');
 if (!taijiSystem.includes("motionGamePose") || !taijiSystem.includes("motionStageRank >= 3")) throw new Error('the existing 3D core must reveal motion-game stages only under the level-01 flag');
 if (!styles.includes('@media (prefers-reduced-motion: reduce)') || !styles.includes('.particlePair { display: none; }')) throw new Error('reduced motion must stop level-01 particles');
+if (!sensory.includes('TAIJI_PENTATONIC_HZ') || !sensory.includes('rotationBurstTimeline')) throw new Error('rotation feedback must use one bounded pentatonic audio-haptic profile');
+if (!audio.includes('playRotationPulse') || !audio.includes('playRotationBurst') || !audio.includes('BiquadFilterNode')) throw new Error('rotation audio must include soft filtering and synchronized pulse/burst voices');
+if (!haptics.includes('pulseRotation') || !haptics.includes('rotationBurstTimeline')) throw new Error('rotation haptics must share the audible burst timeline');
+if (!controller.includes('this.audio.playRotationPulse(profile)') || !controller.includes('this.haptics.pulseRotation({ now')) throw new Error('rotation sound and vibration must be dispatched in the same frame');
+if (!controller.includes('this.armAudioFromUserGesture()') || !controller.includes('this.haptics.armFromUserGesture()')) throw new Error('sound and haptics must be armed only from explicit customer controls');
+if (!overlay.includes('controller.useFallback(true)') || !controller.includes('this.useFallback(true)')) throw new Error('persisted static mode and pointer fallback must arm enhancements from their explicit gesture');
+if (!controller.includes('STATIC_ADVANCE_LOCK_MS') || !controller.includes('now - this.lastStaticAdvanceAt < STATIC_ADVANCE_LOCK_MS')) throw new Error('rapid static taps must not skip stages or stack sensory feedback');
+if (!overlay.includes('aria-pressed={pose.audioEnabled}')) throw new Error('audio toggle accessibility state must match the visible enabled state');
+if (!controller.includes('suppressDirectional: this.featureEnabled && visualBurstTriggered') || !haptics.includes('!input.suppressDirectional')) throw new Error('a synchronized burst must not be overwritten by a same-frame directional haptic');
+if (!soundPreference.includes('TAIJI_SOUND_VARIANTS') || !soundPreference.includes('MIN_SAMPLE_SIZE')) throw new Error('sound preference work must keep explicit candidates and a real sample threshold');
+if (soundPreference.includes('fetch(') || soundPreference.includes('sendBeacon') || soundPreference.includes('mediaDevices') || soundPreference.includes('getUserMedia')) throw new Error('sound preference scaffolding must stay local and must never capture or upload private audio');
+if (controller.includes('private readonly soundVariant') || !controller.includes('this.soundVariant ?? this.soundPreference.resolveVariant()')) throw new Error('A/B assignment must be resolved lazily after an explicit customer interaction');
+if (!controller.includes('recordNextStepCompleted()') || !overlay.includes('controller.recordNextStepCompleted()')) throw new Error('the next-step conversion signal must be recorded only from the explicit homepage CTA');
+if (!audio.includes('this.blocked || !this.enabled')) throw new Error('disabled sound must not create or resume an AudioContext');
+if (!overlay.includes("!['IDLE', 'LEVEL_COMPLETE'].includes(pose.gameState)")) throw new Error('persisted static preference must not expose progression before the experience starts');
 
 console.log('Taiji Level 01 UI boundary passed');

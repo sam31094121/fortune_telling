@@ -90,14 +90,15 @@ function RuntimeOverlay({
   }, [controller]);
 
   const startStatic = useCallback(() => {
-    if (controller.pose.staticMode) controller.useFallback();
+    if (controller.pose.staticMode) controller.useFallback(true);
     else controller.toggleStaticMode();
     setPose(clonePose(controller.pose));
   }, [controller]);
 
   const startToday = useCallback(() => {
+    controller.recordNextStepCompleted();
     document.getElementById('home-eight-card-route')?.scrollIntoView({ behavior: pose.reducedMotion ? 'auto' : 'smooth', block: 'start' });
-  }, [pose.reducedMotion]);
+  }, [controller, pose.reducedMotion]);
 
   const pointerPosition = useCallback((event: PointerEvent<HTMLDivElement>, begin: boolean) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -167,11 +168,18 @@ function RuntimeOverlay({
         <span ref={bubbleRef} className={styles.balanceBubble} />
       </div>
 
+      {pose.gameState === 'IDLE' && pose.motionGameEnabled && (
+        <button type="button" className={styles.touchInvitation} onClick={arm} aria-label="輕觸太極，立即感受回應">
+          <span>輕觸太極</span>
+          <small>立即感受回應</small>
+        </button>
+      )}
+
       {pose.gameState === 'IDLE' && (
         <div className={styles.startPanel}>
-          <p>{pose.motionGameEnabled ? '輕輕移動手機，讓太極醒來' : pose.message}</p>
+          <p>{pose.motionGameEnabled ? '轉動手機，感受太極回應' : pose.message}</p>
           <div className={styles.startActions}>
-            <button type="button" className={styles.startButton} onClick={arm}>{pose.motionGameEnabled ? '啟動體感' : '啟動太極'}</button>
+            {!pose.motionGameEnabled && <button type="button" className={styles.startButton} onClick={arm}>啟動太極</button>}
             {pose.motionGameEnabled && <button type="button" className={styles.staticStartButton} onClick={startStatic}>靜態模式</button>}
           </div>
         </div>
@@ -207,7 +215,7 @@ function RuntimeOverlay({
       {active && (
         <div className={styles.controls} aria-label="第一層必要控制">
           <button type="button" onClick={() => controller.exitGame()}>退出</button>
-          <button type="button" aria-pressed={!pose.audioEnabled} onClick={() => controller.toggleAudio()}>{pose.audioEnabled ? '音效開' : '音效關'}</button>
+          <button type="button" aria-pressed={pose.audioEnabled} onClick={() => controller.toggleAudio()}>{pose.audioEnabled ? '音效開' : '音效關'}</button>
           {pose.motionGameEnabled && <button type="button" aria-pressed={pose.hapticEnabled} onClick={() => controller.toggleHaptics()}>{pose.hapticEnabled ? '震動開' : '震動關'}</button>}
           {pose.motionGameEnabled && <button type="button" aria-pressed={pose.staticMode} onClick={() => controller.toggleStaticMode()}>{pose.staticMode ? '靜態中' : '體感中'}</button>}
           {!pose.motionGameEnabled && <button type="button" onClick={() => controller.recalibrate()}>重新校正</button>}
@@ -215,7 +223,7 @@ function RuntimeOverlay({
       )}
 
       {fallbackPlayable && !pose.staticMode && <p className={styles.fallbackHint}>拖曳球面產生動能，放回中心完成平衡</p>}
-      {pose.motionGameEnabled && pose.staticMode && pose.gameState !== 'LEVEL_COMPLETE' && (
+      {pose.motionGameEnabled && pose.staticMode && !['IDLE', 'LEVEL_COMPLETE'].includes(pose.gameState) && (
         <div className={styles.staticPanel}>
           <span>不移動手機也能完整探索</span>
           {pose.motionGame.stage === 'FIVE_ELEMENTS'

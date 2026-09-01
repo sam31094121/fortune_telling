@@ -54,6 +54,7 @@ import {
   Level01FrameBinder,
   Level01TaijiMotionController,
   Level01TaijiOverlay,
+  level01EntrancePose,
   level01ReentryPose,
   shouldTriggerLevel01Reentry,
   type Level01Pose,
@@ -994,6 +995,7 @@ function TaijiCore({
   const abyssGroupRef = useRef<THREE.Group>(null);
   const ballMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
   const level01ReentryRef = useRef({ previousLayer: 1, startedAt: -1, tailAngle: 0, tailVelocity: 0 });
+  const level01EntranceRef = useRef({ lastActivationId: 0, startedAt: -1 });
   const reducedMotionRef = useRef(false);
 
   useEffect(() => {
@@ -1132,6 +1134,14 @@ function TaijiCore({
     const settleSlow = Math.min(1, frameDelta * 0.95);
     const t = state.clock.elapsedTime;
     const level01Drive = Boolean(level01PoseRef?.current?.driving) && layer === 1;
+    const entranceState = level01EntranceRef.current;
+    const activationId = level01PoseRef?.current?.activationId ?? 0;
+    if (layer === 1 && activationId !== entranceState.lastActivationId) {
+      entranceState.lastActivationId = activationId;
+      entranceState.startedAt = t;
+      pulseRef.current = Math.max(pulseRef.current, 0.82);
+    }
+    const entrance = level01EntrancePose(t - entranceState.startedAt, reducedMotionRef.current);
     const reentryState = level01ReentryRef.current;
     if (shouldTriggerLevel01Reentry(reentryState.previousLayer, layer) && !reducedMotionRef.current) {
       reentryState.startedAt = t;
@@ -1185,7 +1195,16 @@ function TaijiCore({
       energyFieldRef.current.rotation.x = Math.sin(t * 0.08) * 0.01;
     }
 
-    if (layer === 1 && reentry.active) {
+    if (layer === 1 && entrance.active) {
+      const pose = level01PoseRef?.current;
+      groupRef.current.rotation.set(
+        (pose?.visualEuler.x ?? 0) + entrance.rx,
+        (pose?.visualEuler.y ?? 0) + entrance.ry,
+        (pose?.visualEuler.z ?? 0) + entrance.rz,
+      );
+      groupRef.current.position.set(entrance.x, entrance.y, entrance.z);
+      groupRef.current.scale.setScalar(entrance.scale);
+    } else if (layer === 1 && reentry.active) {
       const pose = level01PoseRef?.current;
       groupRef.current.rotation.set(
         pose?.visualEuler.x ?? 0,
@@ -1193,18 +1212,22 @@ function TaijiCore({
         pose?.visualEuler.z ?? 0,
       );
       groupRef.current.position.set(reentry.x, reentry.y, reentry.z);
+      groupRef.current.scale.setScalar(1);
     } else if (level01Drive && level01PoseRef?.current) {
       const pose = level01PoseRef.current;
       groupRef.current.rotation.set(pose.visualEuler.x, pose.visualEuler.y + reentryState.tailAngle, pose.visualEuler.z);
-      groupRef.current.position.set(0, 0, 0);
+      groupRef.current.position.set(pose.visualOffset.x, pose.visualOffset.y, pose.visualOffset.z);
+      groupRef.current.scale.setScalar(1);
     } else if (separate) {
       groupRef.current.position.set(0, 0, 0);
+      groupRef.current.scale.setScalar(1);
       const livingSpeed = 0.12 + progress24 * 0.026;
       groupRef.current.rotation.y += frameDelta * livingSpeed;
       groupRef.current.rotation.x += (Math.sin(t * 0.09) * 0.032 - groupRef.current.rotation.x) * settleSoft;
       groupRef.current.rotation.z += (Math.cos(t * 0.075) * 0.015 - groupRef.current.rotation.z) * settleSoft;
     } else {
       groupRef.current.position.set(0, 0, 0);
+      groupRef.current.scale.setScalar(1);
       groupRef.current.rotation.y += (Math.sin(t * 0.12) * 0.052 - groupRef.current.rotation.y) * settleSlow;
       if (layer === 1 && reentryState.tailAngle !== 0) {
         groupRef.current.rotation.y += reentryState.tailAngle * settleSlow;

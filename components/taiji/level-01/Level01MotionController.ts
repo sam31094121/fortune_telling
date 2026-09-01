@@ -1,4 +1,4 @@
-import { FRAME_DELTA_CAP, SENSOR_WARMUP_TIMEOUT_MS } from './level01.constants';
+import { FRAME_DELTA_CAP, MAX_FLICK_SPIN_SPEED, SENSOR_WARMUP_TIMEOUT_MS } from './level01.constants';
 import { Level01SoundEngine } from './Level01Audio';
 import { resolveEffectivePermission, resolveLevel01Mode, type Level01Mode, type Level01Permission } from './Level01Fallback';
 import { Level01GameController, type Level01GameSnapshot } from './Level01GameController';
@@ -19,12 +19,16 @@ import {
 import { Level01QualityManager } from './Level01QualityManager';
 import { Level01RenderEngine } from './Level01RenderEngine';
 import { Level01RuntimeBoundary } from './Level01RuntimeBoundary';
+import { rotationFeedbackProfile } from './Level01SensoryFeedback';
 import { Level01SensorController } from './Level01SensorController';
+import { Level01SoundPreferenceEngine } from './Level01SoundPreference';
 import { Level01Telemetry } from './Level01Telemetry';
 import { requestLevel01SensorPermission, sensorsSupported } from './Level01Orientation';
 import type { Level01GameState, Level01Score, QualityLevel } from './Level01Runtime';
+import type { TaijiSoundVariant } from '@/lib/taiji/experience-types';
 
 export interface Level01Pose extends Level01VisualPose {
+  activationId: number;
   fallback: boolean;
   permission: Level01Permission;
   mode: Level01Mode;
@@ -57,6 +61,8 @@ type PointerInput = {
   lastAt: number;
 };
 
+const STATIC_ADVANCE_LOCK_MS = 320;
+
 export class Level01TaijiMotionController {
   readonly pose: Level01Pose;
   private readonly physics: PhysicsState = createPhysicsState();
@@ -88,8 +94,19 @@ export class Level01TaijiMotionController {
   private featureEnabled = false;
   private preferencesLoaded = false;
   private staticPulseUntil = -Infinity;
+  private lastStaticAdvanceAt = -Infinity;
   private completedAt = -1;
+  private lastRotationFeedbackAt = -Infinity;
+  private lastRotationFeedbackStep: number | null = null;
+  private readonly soundPreference = new Level01SoundPreferenceEngine();
+  private soundVariant: TaijiSoundVariant | null = null;
+  private hasArmedBefore = false;
+  private activationEventRecorded = false;
+  private armedAudioAt = -Infinity;
+  private activationArmInFlight = false;
+  private lastActivationAt = -Infinity;
   private manualFallback = false;
+  private activationId = 0;
   private pointer: PointerInput = {
     active: false,
     beta: 0,
@@ -109,10 +126,6 @@ export class Level01TaijiMotionController {
       this.telemetry.update({ fallbackUsed: true });
     });
     this.featureEnabled = isTaijiMotionGameV1Enabled();
-    if (this.featureEnabled) {
-      this.audioEnabled = false;
-      this.audio.setEnabled(false);
-    }
     this.pose = this.buildPose(false, this.game.snapshot());
     this.syncEnvironment();
   }
@@ -136,6 +149,7 @@ export class Level01TaijiMotionController {
     else {
       this.performance.stop();
       this.detachSensors();
+      this.resetRotationFeedback();
       this.pointer.active = false;
       this.haptics.stop();
       this.audio.sync({ motionEnergy: 0, angularVelocity: 0, balanceState: 'UNBALANCED', lockChime: false, active: false });
@@ -167,10 +181,14 @@ export class Level01TaijiMotionController {
       this.manualFallback = false;
       this.completedAt = -1;
       this.motionGame.reset();
+      this.resetRotationFeedback();
+      this.lastStaticAdvanceAt = -Infinity;
       this.syncEnvironment();
       this.game.beginPermission(now);
-      void this.audio.armFromUserGesture();
+      this.armAudioFromUserGesture();
       this.haptics.armFromUserGesture();
+      this.activationId += 1;
+      this.haptics.playActivationImpact(now);
       void this.enableSensors();
       this.publish(false, this.game.snapshot());
       return this.pose;
@@ -208,11 +226,19 @@ export class Level01TaijiMotionController {
     return this.armFromUserGesture();
   }
 
-  useFallback() {
+  useFallback(fromUserGesture = false) {
     const now = this.now();
+    if (fromUserGesture) {
+      this.armAudioFromUserGesture();
+      if (this.hapticEnabled) this.haptics.armFromUserGesture();
+      this.activationId += 1;
+      this.haptics.playActivationImpact(now);
+    }
     if (this.pose.gameState === 'IDLE' || this.pose.gameState === 'LEVEL_COMPLETE') {
       this.completedAt = -1;
       this.motionGame.reset();
+      this.resetRotationFeedback();
+      this.lastStaticAdvanceAt = -Infinity;
     }
     this.manualFallback = true;
     this.game.fallback(now);
@@ -227,6 +253,8 @@ export class Level01TaijiMotionController {
     this.game.exit(this.now());
     this.motionGame.reset();
     this.completedAt = -1;
+    this.lastStaticAdvanceAt = -Infinity;
+    this.resetRotationFeedback();
     this.haptics.stop();
     this.audio.sync({ motionEnergy: 0, angularVelocity: 0, balanceState: 'UNBALANCED', lockChime: false, active: false });
     this.publish(false, this.game.snapshot());
@@ -234,6 +262,11 @@ export class Level01TaijiMotionController {
 
   toggleAudio() {
     this.audioEnabled = !this.audioEnabled;
+    if (this.audioEnabled) this.armAudioFromUserGesture();
+    else if (this.soundVariant && this.hasArmedBefore && this.now() - this.armedAudioAt < 4000) {
+      // 啟動音才剛播沒幾秒就被關掉，算一次「立即靜音」，是偏好學習要看的負向訊號。
+      this.soundPreference.recordEvent({ variant: this.soundVariant, mutedImmediately: true });
+    }
     this.audio.setEnabled(this.audioEnabled);
     this.persistPreferences();
     this.publish(this.pose.driving, this.game.snapshot(this.physics.holdProgress));
@@ -242,6 +275,7 @@ export class Level01TaijiMotionController {
 
   toggleHaptics() {
     this.hapticEnabled = !this.hapticEnabled;
+    if (this.hapticEnabled) this.haptics.armFromUserGesture();
     this.haptics.setEnabled(this.hapticEnabled);
     this.persistPreferences();
     this.publish(this.pose.driving, this.game.snapshot(this.physics.holdProgress));
@@ -266,7 +300,12 @@ export class Level01TaijiMotionController {
     this.staticMode = !this.staticMode;
     this.motionEnabled = !this.staticMode;
     if (this.staticMode) {
+      this.armAudioFromUserGesture();
+      this.haptics.armFromUserGesture();
+      this.activationId += 1;
+      this.haptics.playActivationImpact(this.now());
       this.manualFallback = true;
+      this.lastStaticAdvanceAt = -Infinity;
       if (this.pose.gameState === 'IDLE' || this.pose.gameState === 'LEVEL_COMPLETE') {
         this.completedAt = -1;
         this.motionGame.reset();
@@ -287,6 +326,8 @@ export class Level01TaijiMotionController {
   advanceStaticMotion() {
     if (!this.featureEnabled || !this.staticMode || this.game.isFinished()) return this.pose;
     const now = this.now();
+    if (now - this.lastStaticAdvanceAt < STATIC_ADVANCE_LOCK_MS) return this.pose;
+    this.lastStaticAdvanceAt = now;
     const next = this.motionGame.advanceStaticStage(now);
     this.pointer.active = false;
     this.pointer.beta = next.combo % 2 === 0 ? 9 : -9;
@@ -310,7 +351,7 @@ export class Level01TaijiMotionController {
 
   beginPointer(clientX: number, clientY: number, width: number, height: number) {
     if (this.game.isFinished()) return;
-    if (this.pose.gameState === 'IDLE') this.useFallback();
+    if (this.pose.gameState === 'IDLE') this.useFallback(true);
     const now = this.now();
     this.pointer.active = true;
     this.pointer.lastX = clientX;
@@ -343,6 +384,11 @@ export class Level01TaijiMotionController {
   playReentryWhoosh() {
     this.audio.playReentryWhoosh();
     this.haptics.scheduleReentryCheer();
+  }
+
+  recordNextStepCompleted() {
+    if (!this.soundVariant) return;
+    this.soundPreference.recordEvent({ variant: this.soundVariant, nextStepCompleted: true });
   }
 
   tick(delta: number) {
@@ -451,6 +497,12 @@ export class Level01TaijiMotionController {
       gamma: this.pointer.gamma,
       rotationRate: this.pointer.rotationRate,
       acceleration: this.pointer.acceleration,
+      accelerationX: 0,
+      accelerationY: 0,
+      accelerationZ: 0,
+      rotationAlpha: 0,
+      rotationBeta: 0,
+      rotationGamma: 0,
     } : sensor;
     const canDrive = fallback || sensor.fresh;
     if (!canDrive) {
@@ -487,6 +539,13 @@ export class Level01TaijiMotionController {
       motionEnergy: this.physics.motionEnergy,
       now,
     });
+    let visualBurstTriggered = false;
+    if (visual.visualBurstId !== this.lastVisualBurstId) {
+      this.lastVisualBurstId = visual.visualBurstId;
+      visualBurstTriggered = true;
+      this.audio.playRotationBurst(visual.visualBurstTurns, visual.visualBurstDuration, visual.visualMomentum);
+      this.haptics.scheduleVisualBurst(visual.visualBurstTurns, visual.visualBurstDuration, visual.visualMomentum);
+    }
     const direction = resolveLevel01TiltDirection(this.physics.beta, this.physics.gamma);
     const directionAcknowledged = this.haptics.pulse({
       now,
@@ -495,12 +554,11 @@ export class Level01TaijiMotionController {
       lockChime: this.physics.lockChimePending,
       direction,
       gameEvent: game.event,
+      rotationSynchronized: this.featureEnabled,
+      suppressDirectional: this.featureEnabled && visualBurstTriggered,
     });
     if (directionAcknowledged) this.audio.playTiltAccent(direction!, this.physics.motionEnergy);
-    if (visual.visualBurstId !== this.lastVisualBurstId) {
-      this.lastVisualBurstId = visual.visualBurstId;
-      this.haptics.scheduleVisualBurst(visual.visualBurstTurns, visual.visualBurstDuration, visual.visualMomentum);
-    }
+    if (this.featureEnabled && !visualBurstTriggered) this.syncRotationFeedback(now);
     this.audio.sync({
       motionEnergy: this.physics.motionEnergy,
       angularVelocity: this.physics.angularVelocity,
@@ -510,6 +568,10 @@ export class Level01TaijiMotionController {
     });
     if (game.state === 'LEVEL_COMPLETE') {
       this.telemetry.update({ completionSuccess: true });
+      if (this.soundVariant && !this.activationEventRecorded) {
+        this.activationEventRecorded = true;
+        this.soundPreference.recordEvent({ variant: this.soundVariant, completedInteraction: true });
+      }
       if (this.featureEnabled) {
         this.completedAt = now;
         this.motionGame.markUnity();
@@ -517,6 +579,57 @@ export class Level01TaijiMotionController {
     }
     this.publish(true, game);
     return this.pose;
+  }
+
+  private syncRotationFeedback(now: number) {
+    const spin = Math.min(1, Math.abs(this.physics.angularVelocity) / MAX_FLICK_SPIN_SPEED);
+    const step = Math.floor(this.physics.spinAngle / (Math.PI / 2));
+    if (this.lastRotationFeedbackStep === null) {
+      this.lastRotationFeedbackStep = step;
+      return;
+    }
+    if (step === this.lastRotationFeedbackStep) return;
+    this.lastRotationFeedbackStep = step;
+    if (spin < 0.08 || this.physics.motionEnergy < 0.1 || this.physics.balanceState === 'LOCKED') return;
+    const profile = rotationFeedbackProfile({
+      spin,
+      energy: this.physics.motionEnergy,
+      pulseIndex: step,
+      reducedMotion: this.reducedMotion,
+    });
+    const cooldown = Math.round(250 - profile.intensity * 32);
+    if (now - this.lastRotationFeedbackAt < cooldown) return;
+    this.lastRotationFeedbackAt = now;
+    // Same frame, same envelope: hearing and touch describe one rotation beat.
+    this.audio.playRotationPulse(profile);
+    this.haptics.pulseRotation({ now, hapticMs: profile.hapticMs, intensity: profile.intensity });
+  }
+
+  private armAudioFromUserGesture() {
+    if (!this.audioEnabled || this.activationArmInFlight) return;
+    const requestedAt = this.now();
+    if (requestedAt - this.lastActivationAt < 700) return;
+    this.activationArmInFlight = true;
+    void this.audio.armFromUserGesture().then((ready) => {
+      if (!ready || this.disposed) return;
+      // Assign the local experiment only after a real gesture successfully
+      // unlocks audio; constructing the page itself records nothing.
+      const variant = this.soundVariant ?? this.soundPreference.resolveVariant();
+      this.soundVariant = variant;
+      this.audio.playActivationChime(variant);
+      this.armedAudioAt = this.now();
+      this.lastActivationAt = this.armedAudioAt;
+      this.soundPreference.recordEvent({ variant, replayed: this.hasArmedBefore });
+      this.hasArmedBefore = true;
+      this.activationEventRecorded = false;
+    }).finally(() => {
+      this.activationArmInFlight = false;
+    });
+  }
+
+  private resetRotationFeedback() {
+    this.lastRotationFeedbackAt = -Infinity;
+    this.lastRotationFeedbackStep = null;
   }
 
   private attachSensors() {
@@ -568,10 +681,6 @@ export class Level01TaijiMotionController {
   private syncEnvironment() {
     if (typeof window === 'undefined') return;
     const nextFeatureEnabled = isTaijiMotionGameV1Enabled();
-    if (nextFeatureEnabled && !this.featureEnabled && !this.preferencesLoaded) {
-      this.audioEnabled = false;
-      this.audio.setEnabled(false);
-    }
     this.featureEnabled = nextFeatureEnabled;
     this.reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
     this.loadPreferences();
@@ -646,6 +755,8 @@ export class Level01TaijiMotionController {
     this.pose.motionGame = motionGame;
     this.pose.unityReady = game.state === 'LEVEL_COMPLETE' && this.completedAt >= 0 && this.now() - this.completedAt >= 1500;
     this.pose.visualEuler = visual.visualEuler;
+    this.pose.activationId = this.activationId;
+    this.pose.visualOffset = visual.visualOffset;
     this.pose.angularVelocity = visual.angularVelocity;
     this.pose.spinAngle = visual.spinAngle;
     this.pose.motionEnergy = visual.motionEnergy;
@@ -670,6 +781,7 @@ export class Level01TaijiMotionController {
     const visual = visualPoseFromPhysics(this.physics, driving);
     return {
       ...visual,
+      activationId: this.activationId,
       fallback: true,
       permission: this.permission,
       mode: 'FALLBACK_MODE',

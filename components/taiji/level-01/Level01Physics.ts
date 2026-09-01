@@ -50,6 +50,7 @@ export interface MotionSnapshot {
 export interface Level01VisualPose {
   driving: boolean;
   visualEuler: { x: number; y: number; z: number };
+  visualOffset: { x: number; y: number; z: number };
   angularVelocity: number;
   spinAngle: number;
   motionEnergy: number;
@@ -76,6 +77,15 @@ export interface PhysicsState {
   spinAngle: number;
   dampedBeta: number;
   dampedGamma: number;
+  axisAngleX: number;
+  axisAngleY: number;
+  axisAngleZ: number;
+  axisVelocityX: number;
+  axisVelocityY: number;
+  axisVelocityZ: number;
+  motionOffsetX: number;
+  motionOffsetY: number;
+  motionOffsetZ: number;
   balancedSince: number;
   lockChimePending: boolean;
   visualBurstStartedAt: number;
@@ -183,6 +193,15 @@ export function createPhysicsState(): PhysicsState {
     spinAngle: 0,
     dampedBeta: 0,
     dampedGamma: 0,
+    axisAngleX: 0,
+    axisAngleY: 0,
+    axisAngleZ: 0,
+    axisVelocityX: 0,
+    axisVelocityY: 0,
+    axisVelocityZ: 0,
+    motionOffsetX: 0,
+    motionOffsetY: 0,
+    motionOffsetZ: 0,
     balancedSince: -1,
     lockChimePending: false,
     visualBurstStartedAt: -1,
@@ -222,6 +241,12 @@ export function integrateLevel01Physics(
     gamma: number;
     rotationRate: number;
     acceleration: number;
+    accelerationX?: number;
+    accelerationY?: number;
+    accelerationZ?: number;
+    rotationAlpha?: number;
+    rotationBeta?: number;
+    rotationGamma?: number;
     now: number;
     delta: number;
     reducedMotion: boolean;
@@ -316,6 +341,36 @@ export function integrateLevel01Physics(
   state.dampedBeta += (state.beta - state.dampedBeta) * tiltSettle;
   state.dampedGamma += (state.gamma - state.dampedGamma) * tiltSettle;
 
+  // 三軸陀螺儀直接積分成連續角度，讓上下、左右與手腕轉向都能越過
+  // 360°，而不是只有有限角度的左右傾斜。速度採軟壓縮並在停止後自然衰減。
+  const axisResponse = 1 - Math.exp(-8.5 * delta);
+  const axisDamping = Math.exp(-3.8 * delta);
+  const axisLimit = input.reducedMotion ? 1.1 : 5.4;
+  const axisTarget = (degreesPerSecond: number) => {
+    const radians = degreesPerSecond * Math.PI / 180;
+    return axisLimit * Math.tanh(radians / Math.max(axisLimit, 0.001));
+  };
+  const nextAxisVelocity = (current: number, raw: number) => {
+    const target = axisTarget(raw);
+    return Math.abs(raw) > 0.01
+      ? current + (target - current) * axisResponse
+      : current * axisDamping;
+  };
+  state.axisVelocityX = nextAxisVelocity(state.axisVelocityX, input.rotationBeta ?? 0);
+  state.axisVelocityY = nextAxisVelocity(state.axisVelocityY, input.rotationAlpha ?? 0);
+  state.axisVelocityZ = nextAxisVelocity(state.axisVelocityZ, input.rotationGamma ?? 0);
+  state.axisAngleX += state.axisVelocityX * delta;
+  state.axisAngleY += state.axisVelocityY * delta;
+  state.axisAngleZ += state.axisVelocityZ * delta;
+
+  // 線性加速度只負責很小的有重量位移／跳動；tanh 保證球不會被甩出卡片。
+  const offsetResponse = 1 - Math.exp(-10 * delta);
+  const offsetScale = input.reducedMotion ? 0.006 : 0.018;
+  const targetOffset = (value: number) => Math.tanh(value / 5) * offsetScale;
+  state.motionOffsetX += (targetOffset(input.accelerationX ?? 0) - state.motionOffsetX) * offsetResponse;
+  state.motionOffsetY += (-targetOffset(input.accelerationY ?? 0) - state.motionOffsetY) * offsetResponse;
+  state.motionOffsetZ += (targetOffset(input.accelerationZ ?? 0) - state.motionOffsetZ) * offsetResponse;
+
   // Visual burst is deliberately independent from balance classification: it
   // turns a clear small gesture into a short full-turn flourish while leaving
   // the real tilt/dead-zone calculations untouched.
@@ -359,10 +414,11 @@ export function visualPoseFromPhysics(state: PhysicsState, driving: boolean): Le
   return {
     driving,
     visualEuler: {
-      x: mapTiltAxis(state.dampedBeta),
-      y: heading + state.spinAngle + state.visualBurstAngle,
-      z: mapTiltAxis(state.dampedGamma),
+      x: mapTiltAxis(state.dampedBeta) + state.axisAngleX,
+      y: heading + state.spinAngle + state.visualBurstAngle + state.axisAngleY,
+      z: mapTiltAxis(state.dampedGamma) + state.axisAngleZ,
     },
+    visualOffset: { x: state.motionOffsetX, y: state.motionOffsetY, z: state.motionOffsetZ },
     angularVelocity: state.angularVelocity + state.visualBurstVelocity,
     spinAngle: state.spinAngle,
     motionEnergy: state.motionEnergy,

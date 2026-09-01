@@ -21,8 +21,10 @@ import { Level01QualityManager } from '../components/taiji/level-01/Level01Quali
 import { resolveEffectivePermission, resolveLevel01Mode } from '../components/taiji/level-01/Level01Fallback';
 import { canAutoStartLevel01Sensors, createGravityEstimate, readMotionEvent } from '../components/taiji/level-01/Level01Orientation';
 import { LEVEL01_REENTRY_CHEER_PROGRESS, LEVEL01_REENTRY_DURATION_SECONDS, level01ReentryCheer, level01ReentryPose, level01ReentrySoundEnvelope, level01ReentryTimeline, shouldTriggerLevel01Reentry } from '../components/taiji/level-01/Level01Reentry';
+import { LEVEL01_ENTRANCE_DURATION_SECONDS, level01EntrancePose } from '../components/taiji/level-01/Level01Entrance';
 import { MAX_FLICK_SPIN_SPEED, MAX_SAFE_ROTATION_SPEED, WAKE_THRESHOLD } from '../components/taiji/level-01/level01.constants';
 import { Level01MotionGameEngine, type TaijiMotionGameInput } from '../components/taiji/level-01/Level01MotionGameEngine';
+import { rotationBurstTimeline, rotationFeedbackProfile, TAIJI_PENTATONIC_HZ } from '../components/taiji/level-01/Level01SensoryFeedback';
 
 function assert(condition: boolean, message: string) {
   if (!condition) throw new Error(message);
@@ -61,6 +63,10 @@ const reentryMiddleSound = level01ReentrySoundEnvelope(0.5);
 const reentryEndSound = level01ReentrySoundEnvelope(1);
 assert(reentryPeakSound.frequency > reentryStartSound.frequency && reentryStartSound.frequency > reentryMiddleSound.frequency && reentryMiddleSound.frequency > reentryEndSound.frequency, 're-entry sound follows the launch then decelerating spin');
 assert(reentryPeakSound.gain > reentryStartSound.gain && reentryStartSound.gain > reentryMiddleSound.gain && reentryEndSound.gain <= 0.00011, 're-entry sound fades cleanly to silence at visual settle');
+const entrancePeak = level01EntrancePose(LEVEL01_ENTRANCE_DURATION_SECONDS * 0.24, false);
+assert(entrancePeak.active && entrancePeak.z > 0 && entrancePeak.scale > 1, 'level-01 user activation has a clear bounded forward impact');
+assert(Math.abs(entrancePeak.rx) > 0 && Math.abs(entrancePeak.ry) > 0 && Math.abs(entrancePeak.rz) > 0, 'entry surprise uses cross-axis rotation');
+assert(!level01EntrancePose(LEVEL01_ENTRANCE_DURATION_SECONDS, false).active, 'entry surprise runs once and hands off cleanly');
 
 assert(Math.abs(calculateTilt(3, 4) - 5) < 1e-9, 'tilt uses hypot');
 assert(resolveBalanceState(1.2) === 'BALANCED', 'inside 2.5° is balanced');
@@ -151,6 +157,32 @@ for (let i = 0; i < 90; i += 1) {
   });
 }
 assert(flicked.angularVelocity < flickSpeed, 'inertial flick spin decays with friction after the motion ends');
+
+const threeAxis = createPhysicsState();
+for (let i = 0; i < 150; i += 1) {
+  integrateLevel01Physics(threeAxis, {
+    alpha: 0, beta: 0, gamma: 0,
+    rotationRate: 420, acceleration: 5,
+    rotationAlpha: 280, rotationBeta: -240, rotationGamma: 200,
+    accelerationX: 4, accelerationY: -3, accelerationZ: 2,
+    now: i * (1000 / 60), delta: 1 / 60, reducedMotion: false,
+  });
+}
+const threeAxisPose = visualPoseFromPhysics(threeAxis, true);
+assert(Math.abs(threeAxis.axisAngleX) > Math.PI * 2, 'vertical hand motion can rotate continuously beyond 360 degrees');
+assert(Math.abs(threeAxis.axisAngleY) > Math.PI * 2, 'wrist turn can rotate continuously beyond 360 degrees');
+assert(Math.abs(threeAxis.axisAngleZ) > Math.PI * 2, 'lateral hand motion can rotate continuously beyond 360 degrees');
+assert(Math.abs(threeAxisPose.visualOffset.x) <= 0.018 && Math.abs(threeAxisPose.visualOffset.y) <= 0.018, 'movement follow and jump remain inside the card-safe bound');
+const axisSpeedBeforeStop = Math.hypot(threeAxis.axisVelocityX, threeAxis.axisVelocityY, threeAxis.axisVelocityZ);
+for (let i = 0; i < 90; i += 1) {
+  integrateLevel01Physics(threeAxis, {
+    alpha: 0, beta: 0, gamma: 0, rotationRate: 0, acceleration: 0,
+    rotationAlpha: 0, rotationBeta: 0, rotationGamma: 0,
+    accelerationX: 0, accelerationY: 0, accelerationZ: 0,
+    now: 2200 + i * (1000 / 60), delta: 1 / 60, reducedMotion: false,
+  });
+}
+assert(Math.hypot(threeAxis.axisVelocityX, threeAxis.axisVelocityY, threeAxis.axisVelocityZ) < axisSpeedBeforeStop, 'all three axes coast down naturally after the phone stops');
 
 let locked = createPhysicsState();
 let sawLockChime = false;
@@ -278,6 +310,16 @@ quality.update(slowMetrics, 0);
 assert(quality.update(slowMetrics, 1700) === 'BALANCED', 'sustained sub-45 FPS degrades quality one level');
 const criticalMetrics = { fps: 24, averageFrameMs: 42, droppedFrames: 30, longTasks: 3, memoryPressure: false };
 assert(quality.update(criticalMetrics, 1900) === 'LOW', 'sub-30 FPS immediately protects the device with LOW quality');
+
+assert(TAIJI_PENTATONIC_HZ.length === 5 && TAIJI_PENTATONIC_HZ.every((frequency, index) => index === 0 || frequency > TAIJI_PENTATONIC_HZ[index - 1]), 'rotation sound uses one ordered, consonant five-note palette');
+const gentleFeedback = rotationFeedbackProfile({ spin: 0.42, energy: 0.3, pulseIndex: 2 });
+assert(gentleFeedback.gain <= 0.038 && gentleFeedback.durationMs <= 124, 'rotation tone stays brief and under the local gain ceiling');
+assert(Math.abs(gentleFeedback.harmonicFrequency / gentleFeedback.frequency - 1.5) < 1e-9, 'rotation tone uses a consonant perfect-fifth harmonic');
+assert(gentleFeedback.hapticMs >= 5 && gentleFeedback.hapticMs <= 14, 'the matching rotation haptic is light and bounded');
+assert(rotationFeedbackProfile({ spin: 1, energy: 1, pulseIndex: 4, reducedMotion: true }).hapticMs === 0, 'reduced motion keeps sound restrained and removes rotation haptics');
+const sensoryBurst = rotationBurstTimeline(4, 0.8, 0.72);
+assert(sensoryBurst.length === 4 && sensoryBurst.every((beat, index) => index === 0 || beat.offsetMs > sensoryBurst[index - 1].offsetMs), 'audio and haptic burst share one deterministic beat timeline');
+assert(sensoryBurst.every((beat) => beat.gain <= 0.038 && beat.hapticMs <= 14), 'every synchronized burst beat stays inside audio and vibration safety caps');
 
 const motionGameInput = (overrides: Partial<TaijiMotionGameInput> = {}): TaijiMotionGameInput => ({
   alpha: 0,

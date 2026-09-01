@@ -2,6 +2,7 @@ import { HAPTIC_RATE_LIMIT_MS } from './level01.constants';
 import { LEVEL01_REENTRY_CHEER_PROGRESS, LEVEL01_REENTRY_DURATION_SECONDS } from './Level01Reentry';
 import type { BalanceState, Level01TiltDirection } from './Level01Physics';
 import type { Level01GameEvent } from './Level01Runtime';
+import { rotationBurstTimeline } from './Level01SensoryFeedback';
 
 export type HapticMode = 'LIVE' | 'NO_HAPTIC_MODE';
 
@@ -9,6 +10,7 @@ export class Level01HapticController {
   mode: HapticMode = 'NO_HAPTIC_MODE';
   private enabled = true;
   private lastPulseAt = 0;
+  private lastRotationPulseAt = -Infinity;
   private lastBalanceAt = 0;
   private reducedMotion = false;
   private hasVibrated = false;
@@ -16,6 +18,7 @@ export class Level01HapticController {
   private lastDirection: Level01TiltDirection | null = null;
   private lastDirectionAt = 0;
   private reentryCheerTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastActivationImpactAt = -Infinity;
 
   constructor() {
     this.syncSupport();
@@ -33,6 +36,15 @@ export class Level01HapticController {
   armFromUserGesture() {
     this.armedByUserGesture = true;
     this.syncSupport();
+  }
+
+  playActivationImpact(now: number) {
+    if (!this.enabled || this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return false;
+    if (now - this.lastActivationImpactAt < 700) return false;
+    this.lastActivationImpactAt = now;
+    // Noticeable in the palm, but short and bounded: impact → recoil.
+    this.safeVibrate([18, 38, 26]);
+    return true;
   }
 
   syncSupport() {
@@ -67,18 +79,30 @@ export class Level01HapticController {
 
   scheduleVisualBurst(turns: number, durationSeconds: number, momentum: number) {
     if (!this.enabled || this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return;
-    const safeTurns = Math.max(1, Math.min(5, Math.round(turns)));
-    const strength = safeTurns >= 5 ? 13 : safeTurns >= 3 ? 10 : 7;
-    const gap = Math.max(72, Math.min(160, Math.round((durationSeconds * 1000) / safeTurns) - 18));
+    const timeline = rotationBurstTimeline(turns, durationSeconds, momentum);
     const pattern: number[] = [];
-    for (let index = 0; index < safeTurns; index += 1) {
-      pattern.push(Math.min(15, strength + Math.round(momentum * 2)));
-      if (index < safeTurns - 1) pattern.push(gap);
+    for (let index = 0; index < timeline.length; index += 1) {
+      const beat = timeline[index];
+      pattern.push(beat.hapticMs);
+      const next = timeline[index + 1];
+      if (next) pattern.push(Math.max(52, next.offsetMs - beat.offsetMs - beat.hapticMs));
     }
     this.safeVibrate(pattern);
   }
 
-  pulse(input: { now: number; motionEnergy: number; balanceState: BalanceState; lockChime: boolean; direction: Level01TiltDirection | null; gameEvent?: Level01GameEvent }) {
+  pulseRotation(input: { now: number; hapticMs: number; intensity: number }) {
+    if (!this.enabled || this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture || input.hapticMs <= 0) return false;
+    const cooldown = Math.round(250 - Math.max(0, Math.min(1, input.intensity)) * 32);
+    if (input.now - this.lastRotationPulseAt < cooldown) return false;
+    this.lastRotationPulseAt = input.now;
+    const primary = Math.max(4, Math.min(16, Math.round(input.hapticMs)));
+    // Web vibration exposes duration, not motor amplitude. A single short tap
+    // reads as light; high-energy turns add a tiny delayed recoil that reads heavier.
+    this.safeVibrate(input.intensity >= 0.76 ? [primary, 34, Math.max(5, primary - 4)] : primary);
+    return true;
+  }
+
+  pulse(input: { now: number; motionEnergy: number; balanceState: BalanceState; lockChime: boolean; direction: Level01TiltDirection | null; gameEvent?: Level01GameEvent; rotationSynchronized?: boolean; suppressDirectional?: boolean }) {
     if (!this.enabled || this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return false;
     if (input.balanceState === 'LOCKED' && !input.lockChime) return;
 
@@ -99,7 +123,7 @@ export class Level01HapticController {
     // A deliberate, clear four-way tilt gets one light acknowledgement. The
     // direction must change and pass a cooldown, so held/rough sensor data
     // cannot become a continuous vibration.
-    if (input.direction && input.motionEnergy >= 0.16
+    if (!input.suppressDirectional && input.direction && input.motionEnergy >= 0.16
       && input.direction !== this.lastDirection
       && input.now - this.lastDirectionAt >= 280) {
       this.lastDirection = input.direction;
@@ -108,6 +132,8 @@ export class Level01HapticController {
       return true;
     }
     if (!input.direction) this.lastDirection = null;
+
+    if (input.rotationSynchronized) return false;
 
     if (input.now - this.lastPulseAt < HAPTIC_RATE_LIMIT_MS) return;
     if (input.motionEnergy < 0.28) return;
