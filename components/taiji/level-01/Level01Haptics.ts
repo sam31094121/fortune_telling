@@ -1,6 +1,7 @@
 import { HAPTIC_RATE_LIMIT_MS } from './level01.constants';
 import { LEVEL01_REENTRY_CHEER_PROGRESS, LEVEL01_REENTRY_DURATION_SECONDS } from './Level01Reentry';
 import type { BalanceState, Level01TiltDirection } from './Level01Physics';
+import type { Level01GameEvent } from './Level01Runtime';
 
 export type HapticMode = 'LIVE' | 'NO_HAPTIC_MODE';
 
@@ -71,14 +72,21 @@ export class Level01HapticController {
     this.safeVibrate(pattern);
   }
 
-  pulse(input: { now: number; motionEnergy: number; balanceState: BalanceState; lockChime: boolean; direction: Level01TiltDirection | null }) {
+  pulse(input: { now: number; motionEnergy: number; balanceState: BalanceState; lockChime: boolean; direction: Level01TiltDirection | null; gameEvent?: Level01GameEvent }) {
     if (this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return false;
     if (input.balanceState === 'LOCKED' && !input.lockChime) return;
 
-    if (input.lockChime || input.balanceState === 'BALANCED') {
+    if (input.lockChime || input.gameEvent === 'LOCK_COMPLETE' || input.gameEvent === 'BALANCE_ENTER') {
       if (input.now - this.lastBalanceAt < 900) return;
       this.lastBalanceAt = input.now;
-      this.safeVibrate(input.lockChime ? [16, 40, 22] : [12]);
+      this.safeVibrate(input.lockChime || input.gameEvent === 'LOCK_COMPLETE' ? [16, 40, 22] : [12]);
+      return false;
+    }
+
+    if (input.gameEvent === 'BALANCE_BREAK') {
+      if (input.now - this.lastBalanceAt < 420) return false;
+      this.lastBalanceAt = input.now;
+      this.safeVibrate(7);
       return false;
     }
 
@@ -113,3 +121,5 @@ export class Level01HapticController {
     }
   }
 }
+
+export { Level01HapticController as Level01HapticEngine };

@@ -12,8 +12,12 @@ import {
   resolveLevel01TiltDirection,
   resolveBalanceState,
   shortestAngleDelta,
+  unwrapAngle,
   visualPoseFromPhysics,
 } from '../components/taiji/level-01/Level01Physics';
+import { Level01CalibrationEngine } from '../components/taiji/level-01/Level01Calibration';
+import { Level01GameController } from '../components/taiji/level-01/Level01GameController';
+import { Level01QualityManager } from '../components/taiji/level-01/Level01QualityManager';
 import { resolveEffectivePermission, resolveLevel01Mode } from '../components/taiji/level-01/Level01Fallback';
 import { canAutoStartLevel01Sensors, createGravityEstimate, readMotionEvent } from '../components/taiji/level-01/Level01Orientation';
 import { LEVEL01_REENTRY_CHEER_PROGRESS, LEVEL01_REENTRY_DURATION_SECONDS, level01ReentryCheer, level01ReentryPose, level01ReentrySoundEnvelope, level01ReentryTimeline, shouldTriggerLevel01Reentry } from '../components/taiji/level-01/Level01Reentry';
@@ -27,6 +31,7 @@ assert(normalizeAngle(365) === 5, '365 wraps onto the 360 cycle');
 assert(normalizeAngle(-90) === 270, 'negative angle wraps');
 assert(Math.abs(shortestAngleDelta(359, 1) - 2) < 1e-9, '359→1 must be +2 not -358');
 assert(Math.abs(shortestAngleDelta(10, 350) + 20) < 1e-9, '10→350 must be -20');
+assert(unwrapAngle(359, 0) === 360 && unwrapAngle(360, 1) === 361, 'heading unwrap preserves 359→0→1 continuity');
 assert(Math.abs(lowPassAngle(359, 1) - 359.24) < 1e-6, 'circular low-pass must not jump across 0/360');
 assert(Math.abs(frameRateIndependentFactor(1 / 60) - 0.12) < 1e-9, '60fps smoothing preserves the calibrated response');
 assert(level01BubbleOffset(0.8) === 0 && level01BubbleOffset(30) === 18, 'bubble applies a dead zone and safe clamp from shared tilt state');
@@ -60,6 +65,8 @@ assert(Math.abs(calculateTilt(3, 4) - 5) < 1e-9, 'tilt uses hypot');
 assert(resolveBalanceState(1.2) === 'BALANCED', 'inside 2.5° is balanced');
 assert(resolveBalanceState(5) === 'APPROACHING', 'inside 8° is approaching');
 assert(resolveBalanceState(12) === 'UNBALANCED', 'beyond 8° is unbalanced');
+assert(resolveBalanceState(4, 'HOLDING') === 'BALANCED', 'exit threshold keeps a holding phone stable through the 3° boundary');
+assert(resolveBalanceState(5.2, 'HOLDING') === 'APPROACHING', 'crossing 5° exits the balanced hysteresis band');
 assert(resolveLevel01TiltDirection(1, 1) === null, 'small natural movement stays inside the four-way feedback dead zone');
 assert(resolveLevel01TiltDirection(0, 12) === 'E' && resolveLevel01TiltDirection(0, -12) === 'W', 'horizontal tilt maps to a stable east/west pair');
 assert(resolveLevel01TiltDirection(12, 0) === 'S' && resolveLevel01TiltDirection(-12, 0) === 'N', 'vertical tilt maps to a stable north/south pair');
@@ -96,7 +103,7 @@ integrateLevel01Physics(state, {
   reducedMotion: false,
 });
 assert(state.angularVelocity <= MAX_SAFE_ROTATION_SPEED, 'rotation must respect max safe speed');
-assert(state.balanceState === 'BALANCED' || state.balanceState === 'UNBALANCED' || state.balanceState === 'APPROACHING', 'valid state');
+assert(state.balanceState === 'BALANCED' || state.balanceState === 'HOLDING' || state.balanceState === 'UNBALANCED' || state.balanceState === 'APPROACHING', 'valid state');
 
 const expressive = createPhysicsState();
 for (let i = 0; i < 12; i += 1) {
@@ -235,5 +242,38 @@ assert(
   resolveEffectivePermission({ permission: 'denied', sensorTimedOut: false, hasSensorData: false }) === 'denied',
   '使用者拒絕授權維持拒絕',
 );
+
+const calibration = new Level01CalibrationEngine();
+calibration.reset(0);
+for (let index = 0; index < 10; index += 1) {
+  calibration.push({ alpha: 358 + index * 0.2, beta: 7 + index * 0.02, gamma: -3 + index * 0.01, receivedAt: index * 45 });
+}
+assert(calibration.ready, 'stable 300–600ms sensor samples complete automatic calibration');
+const corrected = calibration.apply({ alpha: 361, beta: 8, gamma: -2 });
+assert(Math.abs(corrected.beta) < 1.1 && Math.abs(corrected.gamma) < 1.1, 'calibration removes the real holding baseline');
+
+const game = new Level01GameController();
+game.beginPermission(0);
+game.beginCalibration(20);
+game.ready(420);
+game.activate(900);
+let gameSnapshot = game.sync({ balanceState: 'BALANCED', balanceProgress: 1, holdProgress: 0.2, motionEnergy: 0, now: 920 });
+assert(gameSnapshot.state === 'ACTIVE', 'a still device cannot complete the level before the player creates motion');
+game.sync({ balanceState: 'UNBALANCED', balanceProgress: 0.2, holdProgress: 0, motionEnergy: 0.5, now: 930 });
+gameSnapshot = game.sync({ balanceState: 'BALANCED', balanceProgress: 0.92, holdProgress: 0.2, motionEnergy: 0.1, now: 940 });
+assert(gameSnapshot.state === 'BALANCED' && gameSnapshot.combo === 1, 'state machine enters balanced and starts a lightweight combo');
+gameSnapshot = game.sync({ balanceState: 'HOLDING', balanceProgress: 0.98, holdProgress: 0.7, motionEnergy: 0.05, now: 1450 });
+assert(gameSnapshot.state === 'HOLDING' && gameSnapshot.holdProgress === 0.7, 'state machine exposes hold progress');
+game.sync({ balanceState: 'LOCKED', balanceProgress: 1, holdProgress: 1, motionEnergy: 0, now: 1800 });
+gameSnapshot = game.sync({ balanceState: 'LOCKED', balanceProgress: 1, holdProgress: 1, motionEnergy: 0, now: 2800 });
+assert(gameSnapshot.state === 'LEVEL_COMPLETE' && gameSnapshot.score.overall > 0, 'locked state settles into completion with a local score');
+
+const quality = new Level01QualityManager();
+quality.quality = 'HIGH';
+const slowMetrics = { fps: 38, averageFrameMs: 27, droppedFrames: 18, longTasks: 1, memoryPressure: false };
+quality.update(slowMetrics, 0);
+assert(quality.update(slowMetrics, 1700) === 'BALANCED', 'sustained sub-45 FPS degrades quality one level');
+const criticalMetrics = { fps: 24, averageFrameMs: 42, droppedFrames: 30, longTasks: 3, memoryPressure: false };
+assert(quality.update(criticalMetrics, 1900) === 'LOW', 'sub-30 FPS immediately protects the device with LOW quality');
 
 console.log('Taiji Level 01 physics lock passed');

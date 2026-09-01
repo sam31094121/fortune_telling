@@ -6,6 +6,11 @@
   z-index: 4;
   pointer-events: none;
   transform: translate3d(0, 0, 0);
+  aspect-ratio: 1;
+  contain: layout paint style;
+  --balance-angle: 0deg;
+  --hold-angle: 0deg;
+  --motion-energy: 0;
 }
 
 /* LEVEL_01 ONLY: the sensor trigger reads as the taiji ball's live ground shadow,
@@ -35,17 +40,15 @@
   border-radius: 999px;
   background: transparent;
   padding: 0;
-  cursor: pointer;
-  pointer-events: auto;
+  pointer-events: none;
   isolation: isolate;
   will-change: transform;
   -webkit-tap-highlight-color: transparent;
 }
 
-.orientationCue { position: absolute; inset: 5%; pointer-events: none; visibility: hidden; /* Keep level-01 direction logic ready for an explicit future restore. */ color: rgba(253,230,138,.46); font-size: 10px; font-weight: 900; letter-spacing: .08em; text-shadow: 0 1px 6px rgba(2,6,23,.72); }
-.orientationCue span { position: absolute; transition: color .18s ease, text-shadow .18s ease, transform .18s ease; }
+.worldReference { position: absolute; inset: 7%; pointer-events: none; color: rgba(253,230,138,.5); font-size: 10px; font-weight: 900; letter-spacing: .08em; text-shadow: 0 1px 6px rgba(2,6,23,.72); z-index: 3; }
+.worldReference span { position: absolute; transition: color .18s ease, text-shadow .18s ease, transform .18s ease; }
 .cueNorth { top: 0; left: 50%; transform: translateX(-50%); }.cueEast { right: 0; top: 50%; transform: translateY(-50%); }.cueSouth { bottom: 0; left: 50%; transform: translateX(-50%); }.cueWest { left: 0; top: 50%; transform: translateY(-50%); }
-.cueSouth { opacity: 0; }
 .overlay[data-level01-direction='N'] .cueNorth, .overlay[data-level01-direction='E'] .cueEast, .overlay[data-level01-direction='S'] .cueSouth, .overlay[data-level01-direction='W'] .cueWest { color: #fff3bf; text-shadow: 0 0 10px rgba(253,230,138,.9); transform: translateX(-50%) scale(1.16); }
 .overlay[data-level01-direction='E'] .cueEast, .overlay[data-level01-direction='W'] .cueWest { transform: translateY(-50%) scale(1.16); }
 
@@ -142,6 +145,202 @@
 
 .balanceWell:focus-visible { outline: 2px solid #fde68a; outline-offset: 3px; }
 
+.pointerSurface {
+  position: absolute;
+  inset: 4%;
+  z-index: 5;
+  border-radius: 50%;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+}
+
+.pointerSurface:active { cursor: grabbing; }
+
+.energyField {
+  position: absolute;
+  inset: 13%;
+  z-index: 2;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: calc(.08 + var(--motion-energy) * .48);
+  transform: scale(calc(1 + var(--motion-energy) * .08));
+  background: radial-gradient(circle, rgba(253,230,138,.02) 48%, rgba(250,204,21,.24) 68%, transparent 74%);
+  filter: blur(5px);
+  transition: opacity 120ms linear;
+}
+
+.balanceRing {
+  position: absolute;
+  inset: 4.5%;
+  z-index: 4;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    conic-gradient(from -90deg, rgba(255,248,215,.96) var(--hold-angle), transparent var(--hold-angle)),
+    conic-gradient(from -90deg, rgba(250,204,21,.72) var(--balance-angle), rgba(255,255,255,.07) var(--balance-angle));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+  filter: drop-shadow(0 0 7px rgba(250,204,21,.5));
+  opacity: .82;
+}
+
+.startPanel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 8;
+  width: min(72%, 238px);
+  transform: translate(-50%, -50%);
+  display: grid;
+  gap: 9px;
+  justify-items: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.startPanel p,
+.fallbackHint {
+  margin: 0;
+  color: rgba(255,248,226,.82);
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-shadow: 0 2px 8px rgba(2,6,23,.9);
+}
+
+.startButton {
+  pointer-events: auto;
+  min-width: 122px;
+  min-height: 42px;
+  padding: 10px 19px;
+  border: 1px solid rgba(253,230,138,.68);
+  border-radius: 999px;
+  background: linear-gradient(145deg, rgba(15,23,42,.92), rgba(75,50,10,.82));
+  color: #fff8dc;
+  font-weight: 900;
+  letter-spacing: .12em;
+  box-shadow: 0 8px 24px rgba(2,6,23,.42), inset 0 1px 0 rgba(255,255,255,.16);
+}
+
+.stateMessage {
+  position: absolute;
+  left: 50%;
+  bottom: 2.5%;
+  z-index: 9;
+  width: 74%;
+  transform: translateX(-50%);
+  color: rgba(255,248,226,.92);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-align: center;
+  text-shadow: 0 2px 9px rgba(2,6,23,.95);
+}
+
+.controls,
+.recoveryPanel {
+  position: absolute;
+  left: 50%;
+  top: 5%;
+  z-index: 10;
+  display: flex;
+  gap: 6px;
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+
+.recoveryPanel { top: 50%; transform: translate(-50%, -50%); }
+
+.controls button,
+.recoveryPanel button {
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid rgba(253,230,138,.38);
+  border-radius: 999px;
+  background: rgba(2,6,23,.7);
+  color: #fef3c7;
+  font-size: 10px;
+  font-weight: 800;
+  backdrop-filter: blur(6px);
+}
+
+.fallbackHint {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  z-index: 9;
+  width: 72%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.combo {
+  position: absolute;
+  right: 8%;
+  top: 17%;
+  z-index: 8;
+  color: #fde68a;
+  font-size: 11px;
+  font-weight: 900;
+  text-shadow: 0 0 9px rgba(250,204,21,.66);
+}
+
+.completeCard {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 12;
+  min-width: 178px;
+  transform: translate(-50%, -50%);
+  display: grid;
+  gap: 5px;
+  padding: 14px 18px;
+  border: 1px solid rgba(253,230,138,.58);
+  border-radius: 18px;
+  background: rgba(2,6,23,.82);
+  color: #fff8dc;
+  text-align: center;
+  box-shadow: 0 12px 38px rgba(2,6,23,.54), 0 0 24px rgba(250,204,21,.14);
+  pointer-events: none;
+}
+
+.completeCard span { color: #fde68a; font-size: 12px; }
+
+.qualityBadge {
+  position: absolute;
+  right: 7%;
+  bottom: 7%;
+  z-index: 7;
+  color: rgba(255,255,255,.34);
+  font-size: 8px;
+  pointer-events: none;
+}
+
+.errorFallback {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  color: #fef3c7;
+  font-size: 12px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.overlay[data-level01-state='HOLDING'] .balanceRing,
+.overlay[data-level01-state='LOCKED'] .balanceRing,
+.overlay[data-level01-state='LEVEL_COMPLETE'] .balanceRing {
+  filter: drop-shadow(0 0 11px rgba(253,230,138,.86));
+  opacity: 1;
+}
+
+.overlay[data-level01-quality='BALANCED'] .energyField { filter: blur(3px); }
+.overlay[data-level01-quality='BALANCED'] .particlePair { opacity: calc(var(--particle-opacity) * .72); }
+.overlay[data-level01-quality='LOW'] .particlePair,
+.overlay[data-level01-quality='LOW'] .energyField { display: none; }
+.overlay[data-level01-quality='LOW'] .balanceRing { filter: none; }
+
 @media (prefers-reduced-motion: reduce) {
   .balanceWell {
     transform: translate3d(-50%, 0, 0);
@@ -163,4 +362,7 @@
     opacity: 0.42;
     will-change: auto;
   }
+
+  .energyField { display: none; }
+  .balanceRing { transition: none; filter: none; }
 }

@@ -1,12 +1,12 @@
 import {
   APPROACHING_THRESHOLD_DEG,
+  BALANCED_CONFIRM_MS,
   DAMPING,
   FLICK_ACCELERATION_THRESHOLD,
   FLICK_COAST_DAMPING,
   FLICK_RESPONSE_DAMPING,
   FLICK_ROTATION_THRESHOLD,
   FRAME_DELTA_CAP,
-  LEVEL_THRESHOLD_DEG,
   LOCKED_DAMPING,
   LOCKED_HOLD_MS,
   LOW_PASS_FACTOR,
@@ -22,8 +22,14 @@ import {
   VISUAL_BURST_COOLDOWN_MS,
   VISUAL_BURST_MIN_TILT_DEG,
 } from './level01.constants';
+import {
+  level01BalanceProgress,
+  level01HoldProgress,
+  resolveLevel01BalanceState,
+  type Level01BalanceState,
+} from './Level01BalanceEngine';
 
-export type BalanceState = 'UNBALANCED' | 'APPROACHING' | 'BALANCED' | 'LOCKED';
+export type BalanceState = Level01BalanceState;
 export type Level01TiltDirection = 'N' | 'E' | 'S' | 'W';
 
 export interface MotionSnapshot {
@@ -34,6 +40,8 @@ export interface MotionSnapshot {
   acceleration: number;
   motionEnergy: number;
   balanceState: BalanceState;
+  balanceProgress: number;
+  holdProgress: number;
 }
 
 export interface Level01VisualPose {
@@ -43,6 +51,8 @@ export interface Level01VisualPose {
   spinAngle: number;
   motionEnergy: number;
   balanceState: BalanceState;
+  balanceProgress: number;
+  holdProgress: number;
   visualMomentum: number;
   visualBurstId: number;
   visualBurstTurns: number;
@@ -57,6 +67,8 @@ export interface PhysicsState {
   acceleration: number;
   motionEnergy: number;
   balanceState: BalanceState;
+  balanceProgress: number;
+  holdProgress: number;
   angularVelocity: number;
   spinAngle: number;
   balancedSince: number;
@@ -80,6 +92,11 @@ export function shortestAngleDelta(fromDeg: number, toDeg: number) {
   if (delta > 180) delta -= 360;
   if (delta < -180) delta += 360;
   return delta;
+}
+
+/** Preserve heading continuity across the 359° → 0° boundary. */
+export function unwrapAngle(previousUnwrapped: number, currentWrapped: number) {
+  return previousUnwrapped + shortestAngleDelta(previousUnwrapped, currentWrapped);
 }
 
 export function lowPass(previous: number, current: number, factor = LOW_PASS_FACTOR) {
@@ -124,10 +141,11 @@ export function resolveLevel01TiltDirection(beta: number, gamma: number): Level0
   return beta >= 0 ? 'S' : 'N';
 }
 
-export function resolveBalanceState(tilt: number): Exclude<BalanceState, 'LOCKED'> {
-  if (tilt <= LEVEL_THRESHOLD_DEG) return 'BALANCED';
-  if (tilt <= APPROACHING_THRESHOLD_DEG) return 'APPROACHING';
-  return 'UNBALANCED';
+export function resolveBalanceState(
+  tilt: number,
+  previousState: BalanceState = 'UNBALANCED',
+): Exclude<BalanceState, 'HOLDING' | 'LOCKED'> {
+  return resolveLevel01BalanceState(tilt, previousState);
 }
 
 export function calculateMotionEnergy(input: {
@@ -154,6 +172,8 @@ export function createPhysicsState(): PhysicsState {
     acceleration: 0,
     motionEnergy: 0,
     balanceState: 'UNBALANCED',
+    balanceProgress: 0,
+    holdProgress: 0,
     angularVelocity: 0,
     spinAngle: 0,
     balancedSince: -1,
@@ -214,7 +234,8 @@ export function integrateLevel01Physics(
   state.motionEnergy = clamp01(motionEnergy);
 
   const tilt = calculateTilt(state.beta, state.gamma);
-  const candidate = resolveBalanceState(tilt);
+  const candidate = resolveBalanceState(tilt, state.balanceState);
+  state.balanceProgress = level01BalanceProgress(tilt);
   state.lockChimePending = false;
 
   if (state.balanceState === 'LOCKED') {
@@ -223,10 +244,10 @@ export function integrateLevel01Physics(
       state.balancedSince = -1;
     }
   } else if (candidate === 'BALANCED') {
-    if (state.balanceState !== 'BALANCED' || state.balancedSince < 0) {
+    if ((state.balanceState !== 'BALANCED' && state.balanceState !== 'HOLDING') || state.balancedSince < 0) {
       state.balancedSince = input.now;
     }
-    state.balanceState = 'BALANCED';
+    state.balanceState = input.now - state.balancedSince >= BALANCED_CONFIRM_MS ? 'HOLDING' : 'BALANCED';
     if (state.balancedSince >= 0 && input.now - state.balancedSince >= LOCKED_HOLD_MS) {
       state.balanceState = 'LOCKED';
       state.lockChimePending = true;
@@ -235,6 +256,7 @@ export function integrateLevel01Physics(
     state.balanceState = candidate;
     state.balancedSince = -1;
   }
+  state.holdProgress = level01HoldProgress(state.balancedSince, input.now, state.balanceState);
 
   const maxSpeed = input.reducedMotion
     ? MAX_SAFE_ROTATION_SPEED * REDUCED_MOTION_SPEED_SCALE
@@ -313,6 +335,8 @@ export function visualPoseFromPhysics(state: PhysicsState, driving: boolean): Le
     spinAngle: state.spinAngle,
     motionEnergy: state.motionEnergy,
     balanceState: state.balanceState,
+    balanceProgress: state.balanceProgress,
+    holdProgress: state.holdProgress,
     visualMomentum: Math.min(1, Math.abs(state.visualBurstVelocity) / 34),
     visualBurstId: state.visualBurstId,
     visualBurstTurns: state.visualBurstTurns,
@@ -329,5 +353,23 @@ export function snapshotFromPhysics(state: PhysicsState): MotionSnapshot {
     acceleration: state.acceleration,
     motionEnergy: state.motionEnergy,
     balanceState: state.balanceState,
+    balanceProgress: state.balanceProgress,
+    holdProgress: state.holdProgress,
   };
+}
+
+export class Level01PhysicsEngine {
+  readonly state = createPhysicsState();
+
+  step(input: Parameters<typeof integrateLevel01Physics>[1]) {
+    return integrateLevel01Physics(this.state, input);
+  }
+
+  pose(driving: boolean) {
+    return visualPoseFromPhysics(this.state, driving);
+  }
+
+  snapshot() {
+    return snapshotFromPhysics(this.state);
+  }
 }

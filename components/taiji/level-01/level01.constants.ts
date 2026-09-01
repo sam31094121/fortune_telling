@@ -5,11 +5,22 @@
 
 export const LEVEL_01_LAYER = 1;
 
-export const LEVEL_THRESHOLD_DEG = 2.5;
+export const ENTER_BALANCE_THRESHOLD_DEG = 3;
+export const EXIT_BALANCE_THRESHOLD_DEG = 5;
+// Backwards-compatible LEVEL_01-only alias for the original physics tests.
+export const LEVEL_THRESHOLD_DEG = ENTER_BALANCE_THRESHOLD_DEG;
 export const APPROACHING_THRESHOLD_DEG = 8;
-export const LOCKED_HOLD_MS = 750;
+export const BALANCED_CONFIRM_MS = 90;
+export const LOCKED_HOLD_MS = 800;
+export const LEVEL_COMPLETE_DELAY_MS = 900;
 export const WAKE_THRESHOLD = 0.22;
 export const LOW_PASS_FACTOR = 0.12;
+export const SENSOR_DEAD_ZONE_DEG = 0.65;
+export const SENSOR_ROTATION_DEAD_ZONE = 1.5;
+export const SENSOR_SPIKE_THRESHOLD_DEG = 82;
+export const SENSOR_CALIBRATION_MIN_MS = 360;
+export const SENSOR_CALIBRATION_MAX_MS = 620;
+export const SENSOR_CALIBRATION_MIN_SAMPLES = 8;
 export const MAX_SAFE_ROTATION_SPEED = 4.2;
 // 快甩時允許的短暫慣性上限；與一般傾斜的低速轉動分開校準。
 export const MAX_FLICK_SPIN_SPEED = 12;
@@ -35,6 +46,12 @@ export const FRAME_DELTA_CAP = 1 / 45;
 export const HUD_REFRESH_MS = 160;
 export const VISUAL_BURST_COOLDOWN_MS = 620;
 export const VISUAL_BURST_MIN_TILT_DEG = 1.7;
+export const PERFORMANCE_SAMPLE_MS = 1000;
+export const QUALITY_DEGRADE_FPS = 45;
+export const QUALITY_CRITICAL_FPS = 30;
+export const QUALITY_RECOVER_FPS = 56;
+export const QUALITY_DEGRADE_HOLD_MS = 1500;
+export const QUALITY_RECOVER_HOLD_MS = 8000;
 
 export const MOTION_ENERGY_WEIGHTS = {
   orientation: 0.3,
