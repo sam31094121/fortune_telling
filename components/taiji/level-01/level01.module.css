@@ -160,10 +160,10 @@
   width: 11px;
   height: 11px;
   transform: translate(-50%, -50%);
-  border: 1px solid rgba(253, 230, 138, .5);
+  border: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 34% 30%, rgba(71, 85, 105, .62), #030712 48%, #000 100%);
-  box-shadow: 0 0 7px rgba(253, 230, 138, .18), inset 0 1px 2px rgba(255,255,255,.16);
+  background: radial-gradient(circle at 38% 34%, #182033 0%, #05070d 46%, #000 100%);
+  box-shadow: 0 0 8px 3px rgba(0,0,0,.58), 0 0 13px rgba(15,23,42,.48);
   opacity: .86;
   animation: chaseLightArrive .34s cubic-bezier(.16,.9,.24,1) both, chaseCounterLightBreathe 1.15s .34s ease-in-out infinite;
 }
@@ -199,8 +199,8 @@
 }
 
 @keyframes chaseCounterLightBreathe {
-  0%, 100% { opacity: .7; box-shadow: 0 0 5px rgba(253,230,138,.12), inset 0 1px 2px rgba(255,255,255,.12); }
-  50% { opacity: 1; box-shadow: 0 0 11px rgba(253,230,138,.28), inset 0 1px 3px rgba(255,255,255,.22); }
+  0%, 100% { opacity: .72; box-shadow: 0 0 6px 2px rgba(0,0,0,.5), 0 0 10px rgba(15,23,42,.38); }
+  50% { opacity: 1; box-shadow: 0 0 11px 5px rgba(0,0,0,.72), 0 0 17px rgba(15,23,42,.6); }
 }
 
 .pointerSurface {

@@ -133,7 +133,7 @@ function RuntimeOverlay({
       {motionGameActive && !pose.staticMode && pose.gameState !== 'LEVEL_COMPLETE' && (
         <div className={styles.chaseField} aria-label={`追光目標：${pose.motionGame.chase.direction}`} data-direction={pose.motionGame.chase.direction}>
           <span key={`${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={styles.chaseLight} />
-          <span key={`yin-${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={styles.chaseCounterLight} aria-hidden="true" />
+          <span key={`yin-${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={styles.chaseCounterLight} data-screen-arrow-target="level01-yin-light" aria-hidden="true" />
         </div>
       )}
 
