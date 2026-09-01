@@ -255,6 +255,34 @@ export class Level01SoundEngine {
         crack.start(now);
         crack.stop(now + 0.45);
       }
+
+      // The visual burn aftershock starts after the lightning web lands. A
+      // filtered low growl expands across the stereo field, then folds inward
+      // with the red spatial wave instead of adding another sharp peak.
+      const aftershockAt = now + 0.285;
+      const burn = this.context.createOscillator();
+      const burnFilter = this.context.createBiquadFilter();
+      const burnGain = this.context.createGain();
+      const burnPan = this.context.createStereoPanner();
+      burn.type = 'triangle';
+      burn.frequency.setValueAtTime(148, aftershockAt);
+      burn.frequency.exponentialRampToValueAtTime(46, aftershockAt + 0.42);
+      burnFilter.type = 'lowpass';
+      burnFilter.frequency.setValueAtTime(760, aftershockAt);
+      burnFilter.frequency.exponentialRampToValueAtTime(180, aftershockAt + 0.44);
+      burnFilter.Q.value = 1.15;
+      burnGain.gain.setValueAtTime(0.0001, aftershockAt);
+      burnGain.gain.exponentialRampToValueAtTime(0.034, aftershockAt + 0.055);
+      burnGain.gain.exponentialRampToValueAtTime(0.0001, aftershockAt + 0.48);
+      burnPan.pan.setValueAtTime(-0.46, aftershockAt);
+      burnPan.pan.linearRampToValueAtTime(0.42, aftershockAt + 0.22);
+      burnPan.pan.linearRampToValueAtTime(0, aftershockAt + 0.46);
+      burn.connect(burnFilter);
+      burnFilter.connect(burnGain);
+      burnGain.connect(burnPan);
+      burnPan.connect(this.master);
+      burn.start(aftershockAt);
+      burn.stop(aftershockAt + 0.5);
       this.master.gain.setTargetAtTime(Math.min(AUDIO_GAIN_LIMIT, 0.72), now, 0.006);
     } catch {
       // Thunder is enhancement-only; visual capture and haptics remain playable.

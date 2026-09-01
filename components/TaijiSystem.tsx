@@ -783,6 +783,20 @@ function Level01SpatialLightning({ active }: { active: boolean }) {
       rotation: [number, number, number];
     }) => {
       const geometry = new THREE.TorusGeometry(input.radius, input.tube, 7, 34, input.arc);
+      const positions = geometry.attributes.position as THREE.BufferAttribute;
+      const vertex = new THREE.Vector3();
+      for (let index = 0; index < positions.count; index += 1) {
+        vertex.fromBufferAttribute(positions, index);
+        const angle = Math.atan2(vertex.y, vertex.x);
+        const heatWarp = 1 + Math.sin(angle * 3.7 + input.delay * 31) * .034
+          + Math.sin(angle * 11.3 - input.delay * 17) * .014;
+        vertex.x *= heatWarp;
+        vertex.y *= heatWarp;
+        vertex.z += Math.sin(angle * 7.1 + input.delay * 23) * .022;
+        positions.setXYZ(index, vertex.x, vertex.y, vertex.z);
+      }
+      positions.needsUpdate = true;
+      geometry.computeVertexNormals();
       const material = new THREE.MeshBasicMaterial({
         color: input.color,
         transparent: true,
@@ -862,10 +876,10 @@ function Level01SpatialLightning({ active }: { active: boolean }) {
     });
     // Broken, depth-layered burn aftershock. Partial arcs avoid framing the orb
     // with a static ring while still creating a strong front/back spatial wave.
-    createAftershockArc({ radius: 1.08, tube: .11, arc: Math.PI * 1.38, color: 0xff2d12, opacity: .72, delay: .285, z: .78, rotation: [.18, -.12, -.7] });
-    createAftershockArc({ radius: 1.18, tube: .075, arc: Math.PI * 1.08, color: 0xff8a1f, opacity: .62, delay: .3, z: 1.08, rotation: [-.16, .2, 1.08] });
-    createAftershockArc({ radius: 1.28, tube: .13, arc: Math.PI * .82, color: 0xb3130b, opacity: .42, delay: .315, z: .22, rotation: [.34, -.28, 2.14] });
-    createAftershockArc({ radius: 1.42, tube: .055, arc: Math.PI * .72, color: 0xffc14a, opacity: .48, delay: .33, z: 1.34, rotation: [-.3, .38, -.08] });
+    createAftershockArc({ radius: 1.08, tube: .09, arc: Math.PI * 1.38, color: 0xa72b16, opacity: .54, delay: .285, z: .78, rotation: [.18, -.12, -.7] });
+    createAftershockArc({ radius: 1.18, tube: .06, arc: Math.PI * 1.08, color: 0xd66a2c, opacity: .45, delay: .3, z: 1.08, rotation: [-.16, .2, 1.08] });
+    createAftershockArc({ radius: 1.28, tube: .105, arc: Math.PI * .82, color: 0x520b08, opacity: .34, delay: .315, z: .22, rotation: [.34, -.28, 2.14] });
+    createAftershockArc({ radius: 1.42, tube: .042, arc: Math.PI * .72, color: 0xe4a15d, opacity: .38, delay: .33, z: 1.34, rotation: [-.3, .38, -.08] });
     return root;
   }, []);
 
