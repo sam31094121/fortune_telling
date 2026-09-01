@@ -4,6 +4,7 @@ export {
   calculateTilt,
   clamp01,
   integrateLevel01Physics,
+  level01LivingScale,
   lowPass,
   lowPassAngle,
   normalizeAngle,

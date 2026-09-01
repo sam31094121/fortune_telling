@@ -24,6 +24,7 @@ import { LEVEL01_REENTRY_CHEER_PROGRESS, LEVEL01_REENTRY_DURATION_SECONDS, level
 import { LEVEL01_ENTRANCE_DURATION_SECONDS, level01EntrancePose } from '../components/taiji/level-01/Level01Entrance';
 import { MAX_FLICK_SPIN_SPEED, MAX_SAFE_ROTATION_SPEED, WAKE_THRESHOLD } from '../components/taiji/level-01/level01.constants';
 import { Level01MotionGameEngine, type TaijiMotionGameInput } from '../components/taiji/level-01/Level01MotionGameEngine';
+import { level01LivingScale } from '../components/taiji/level-01/Level01Physics';
 import { rotationBurstTimeline, rotationFeedbackProfile, TAIJI_ACTIVATION_FEEDBACK, TAIJI_PENTATONIC_HZ } from '../components/taiji/level-01/Level01SensoryFeedback';
 
 function assert(condition: boolean, message: string) {
@@ -405,5 +406,13 @@ for (let frame = 0; frame < 30 * 120; frame += 1) {
   }));
 }
 assert(Number.isFinite(longRun.snapshot().motionMagnitude) && longRun.snapshot().motionMagnitude <= 1, '30-second 120Hz simulation remains finite and bounded');
+
+const calmBreath = Array.from({ length: 351 }, (_, frame) => level01LivingScale(frame / 100, 0));
+assert(Math.min(...calmBreath) >= 0.97 && Math.max(...calmBreath) <= 1.04, 'living breath stays inside the approved 97% to 104% scale');
+assert(level01LivingScale(1, 0.8) !== level01LivingScale(1, 0), 'motion energy changes the same living-wave cadence');
+assert(level01LivingScale(0.055, 0, 0.055) > level01LivingScale(0.055, 0), 'touch rhythm adds a subtle first heartbeat pulse');
+assert(level01LivingScale(0.19, 0, 0.19) > level01LivingScale(0.19, 0), 'touch rhythm adds a softer rebound pulse');
+const reducedBreath = Array.from({ length: 421 }, (_, frame) => level01LivingScale(frame / 100, 1, 0.055, true));
+assert(Math.min(...reducedBreath) >= 0.99 && Math.max(...reducedBreath) <= 1.01, 'reduced motion keeps only a restrained breath and removes heartbeat pulses');
 
 console.log('Taiji Level 01 physics lock passed');

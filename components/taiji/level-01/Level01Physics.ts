@@ -435,6 +435,34 @@ export function visualPoseFromPhysics(state: PhysicsState, driving: boolean): Le
   };
 }
 
+/**
+ * A bounded, frame-clock-driven living scale for Level 01 only.
+ * Motion changes the cadence, while a short double pulse gives touch/flick
+ * feedback without starting another animation loop.
+ */
+export function level01LivingScale(
+  elapsedSeconds: number,
+  motionEnergy: number,
+  pulseElapsedSeconds = Number.POSITIVE_INFINITY,
+  reducedMotion = false,
+) {
+  const energy = clamp01(motionEnergy);
+  const period = reducedMotion ? 4.2 : 3.5 - energy * 1.2;
+  const phase = (Math.max(0, elapsedSeconds) / period) * Math.PI * 2;
+  const midpoint = reducedMotion ? 1 : 1.005;
+  const amplitude = reducedMotion ? 0.01 : 0.035;
+  const breath = midpoint - Math.cos(phase) * amplitude;
+
+  if (reducedMotion || !Number.isFinite(pulseElapsedSeconds)) {
+    return Math.max(reducedMotion ? 0.99 : 0.97, Math.min(reducedMotion ? 1.01 : 1.04, breath));
+  }
+  const pulse = (center: number, width: number, height: number) => {
+    const distance = Math.abs(pulseElapsedSeconds - center);
+    return distance >= width ? 0 : (1 - distance / width) * height;
+  };
+  return Math.max(0.97, Math.min(1.04, breath + pulse(0.055, 0.055, 0.006) + pulse(0.19, 0.075, 0.0035)));
+}
+
 export function snapshotFromPhysics(state: PhysicsState): MotionSnapshot {
   return {
     alpha: state.alpha,

@@ -54,6 +54,7 @@ import {
   Level01FrameBinder,
   Level01TaijiMotionController,
   Level01TaijiOverlay,
+  level01LivingScale,
   level01EntrancePose,
   level01ReentryPose,
   shouldTriggerLevel01Reentry,
@@ -984,6 +985,7 @@ function TaijiCore({
   const totemScaleRef = useRef(1);
   const totemZRef = useRef(0);
   const pulseRef = useRef(0);
+  const level01LivingPulseRef = useRef({ activationId: 0, burstId: 0, startedAt: -Infinity });
   const prevStageRef = useRef<Stage>(stageFromDepth(journeyRef.current.current));
   const outerMatRef = useRef<THREE.MeshBasicMaterial>(null);
   /* 顯微鏡（2026-08-17）：宏觀外殼群組與量子層群組 */
@@ -1141,6 +1143,13 @@ function TaijiCore({
       entranceState.startedAt = t;
       pulseRef.current = Math.max(pulseRef.current, 0.82);
     }
+    const livingPulse = level01LivingPulseRef.current;
+    const visualBurstId = level01PoseRef?.current?.visualBurstId ?? 0;
+    if (layer === 1 && (activationId !== livingPulse.activationId || visualBurstId !== livingPulse.burstId)) {
+      livingPulse.activationId = activationId;
+      livingPulse.burstId = visualBurstId;
+      livingPulse.startedAt = t;
+    }
     const entrance = level01EntrancePose(t - entranceState.startedAt, reducedMotionRef.current);
     const reentryState = level01ReentryRef.current;
     if (shouldTriggerLevel01Reentry(reentryState.previousLayer, layer) && !reducedMotionRef.current) {
@@ -1215,9 +1224,11 @@ function TaijiCore({
       groupRef.current.scale.setScalar(1);
     } else if (level01Drive && level01PoseRef?.current) {
       const pose = level01PoseRef.current;
+      const livingScale = level01LivingScale(t, pose.motionEnergy, t - livingPulse.startedAt, reducedMotionRef.current);
+      const livingLift = reducedMotionRef.current ? 0 : ((livingScale - 0.97) / 0.07) * 0.018;
       groupRef.current.rotation.set(pose.visualEuler.x, pose.visualEuler.y + reentryState.tailAngle, pose.visualEuler.z);
-      groupRef.current.position.set(pose.visualOffset.x, pose.visualOffset.y, pose.visualOffset.z);
-      groupRef.current.scale.setScalar(1);
+      groupRef.current.position.set(pose.visualOffset.x, pose.visualOffset.y + livingLift, pose.visualOffset.z);
+      groupRef.current.scale.setScalar(livingScale);
     } else if (separate) {
       groupRef.current.position.set(0, 0, 0);
       groupRef.current.scale.setScalar(1);
