@@ -335,6 +335,9 @@ type TaijiQuality = {
   quantumPairs: number;
   quantumLinks: number;
   ultraTexture: boolean;
+  // LEVEL_01 專屬裝飾效果（例如雷擊粒子/光子幾何）讀這個旗標降密度；
+  // 不影響任何材質/貼圖解析度，「解析度只准往上」規則不受影響。
+  lowPower: boolean;
 };
 
 function useTaijiCanvasQuality(wrapperRef: { current: HTMLElement | null }) {
@@ -347,6 +350,7 @@ function useTaijiCanvasQuality(wrapperRef: { current: HTMLElement | null }) {
     quantumPairs: 1400,
     quantumLinks: 64,
     ultraTexture: false,
+    lowPower: false,
   });
 
   useEffect(() => {
@@ -385,6 +389,7 @@ function useTaijiCanvasQuality(wrapperRef: { current: HTMLElement | null }) {
         quantumPairs: isCompactViewport ? (strongPhone ? 1200 : lowPower ? 500 : 800) : (strongDesktop ? 2000 : 1200),
         quantumLinks: isCompactViewport ? (lowPower ? 28 : 44) : (strongDesktop ? 80 : 56),
         ultraTexture: (!isCompactViewport && strongDesktop) || (strongPhone && memory >= 8),
+        lowPower,
       };
       /* 【穩定性｜2026-08-17】只有數值真的變了才更新 state。
          手機捲動時網址列縮放會連續觸發 resize；每更新一次就會重設 drawing buffer
@@ -396,7 +401,8 @@ function useTaijiCanvasQuality(wrapperRef: { current: HTMLElement | null }) {
           && prev.shadowResolution === next.shadowResolution
           && prev.quantumPairs === next.quantumPairs
           && prev.quantumLinks === next.quantumLinks
-          && prev.ultraTexture === next.ultraTexture;
+          && prev.ultraTexture === next.ultraTexture
+          && prev.lowPower === next.lowPower;
         return same ? prev : next;
       });
     };
@@ -710,11 +716,14 @@ function TaijiPerformanceGovernor({ active }: { active: boolean }) {
   return null;
 }
 
-function Level01SpatialLightning({ active, poseRef }: { active: boolean; poseRef?: { current: { visualEuler: { x: number; y: number; z: number } } } }) {
+function Level01SpatialLightning({ active, poseRef, lowPower = false }: { active: boolean; poseRef?: { current: { visualEuler: { x: number; y: number; z: number } } }; lowPower?: boolean }) {
   const wasActiveRef = useRef(false);
   const strikeStartedAtRef = useRef(-Infinity);
   const previewStartedAtRef = useRef<number | null>(null);
   const group = useMemo(() => {
+    // 低階裝置降幾何密度（弧線分段數、管截面邊數），不動任何材質/貼圖解析度，
+    // 也不減少雷擊本身的股數——每一道黑粒子/白光子的形狀都還在，只是多邊形變少。
+    const segmentScale = lowPower ? 0.55 : 1;
     const root = new THREE.Group();
     class LightningPolyline extends THREE.Curve<THREE.Vector3> {
       constructor(private readonly nodes: THREE.Vector3[]) { super(); }
@@ -734,8 +743,8 @@ function Level01SpatialLightning({ active, poseRef }: { active: boolean; poseRef
       blackCore?: boolean;
     }) => {
       const curve = new LightningPolyline(input.points);
-      const tubularSegments = Math.max(18, input.points.length * 8);
-      const radialSegments = input.glow ? 7 : 6;
+      const tubularSegments = Math.max(10, Math.round(Math.max(18, input.points.length * 8) * segmentScale));
+      const radialSegments = Math.max(4, Math.round((input.glow ? 7 : 6) * segmentScale));
       const geometry = new THREE.TubeGeometry(curve, tubularSegments, input.radius, radialSegments, false);
       const positions = geometry.attributes.position as THREE.BufferAttribute;
       const center = new THREE.Vector3();
@@ -782,7 +791,13 @@ function Level01SpatialLightning({ active, poseRef }: { active: boolean; poseRef
       z: number;
       rotation: [number, number, number];
     }) => {
-      const geometry = new THREE.TorusGeometry(input.radius, input.tube, 7, 34, input.arc);
+      const geometry = new THREE.TorusGeometry(
+        input.radius,
+        input.tube,
+        Math.max(5, Math.round(7 * segmentScale)),
+        Math.max(16, Math.round(34 * segmentScale)),
+        input.arc,
+      );
       const positions = geometry.attributes.position as THREE.BufferAttribute;
       const vertex = new THREE.Vector3();
       for (let index = 0; index < positions.count; index += 1) {
@@ -892,7 +907,7 @@ function Level01SpatialLightning({ active, poseRef }: { active: boolean; poseRef
     createAftershockArc({ radius: 1.28, tube: .105, arc: Math.PI * .82, color: 0x520b08, opacity: .34, delay: .315, z: .22, rotation: [.34, -.28, 2.14] });
     createAftershockArc({ radius: 1.42, tube: .042, arc: Math.PI * .72, color: 0xe4a15d, opacity: .38, delay: .33, z: 1.34, rotation: [-.3, .38, -.08] });
     return root;
-  }, []);
+  }, [lowPower]);
 
   useEffect(() => () => {
     group.children.forEach((child) => {
@@ -2273,7 +2288,7 @@ export default function TaijiSystem({
         >
           <AdaptiveEvents />
           <Level01FrameBinder controller={level01Controller} enabled={displayLayer === 1} />
-          {displayLayer === 1 && showLayerReviewPanel && <Level01SpatialLightning active={touchActive} poseRef={level01PoseRef} />}
+          {displayLayer === 1 && showLayerReviewPanel && <Level01SpatialLightning active={touchActive} poseRef={level01PoseRef} lowPower={canvasQuality.lowPower} />}
           <TaijiPerformanceGovernor active={touchActive} />
           {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
               頂部暖色柔光箱＋側面冷色燈條＋背部輪廓光，球面反射出真實的影棚光形，
