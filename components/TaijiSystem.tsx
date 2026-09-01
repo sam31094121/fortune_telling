@@ -833,6 +833,15 @@ function Level01SpatialLightning({ active, ballRef }: { active: boolean; ballRef
       new THREE.Vector3(-1.25, .28, .76), new THREE.Vector3(-.82, .2, 1.02),
     ];
     const rightSurge = leftSurge.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
+    // Photon and dark-particle discharges braid through alternating front/back
+    // depth before striking opposite sides of the Taiji. This reads as one
+    // entangled weapon rather than two unrelated bolts.
+    const photonEntanglement = [
+      leftMain[0], new THREE.Vector3(-2.28, -1.5, .22), new THREE.Vector3(-1.66, -1.18, .72),
+      new THREE.Vector3(-1.14, -.86, .08), new THREE.Vector3(-.56, -.48, .88),
+      new THREE.Vector3(.02, -.18, .12), new THREE.Vector3(.46, .02, 1.02), rightMain[rightMain.length - 1],
+    ];
+    const particleEntanglement = photonEntanglement.map((point) => new THREE.Vector3(-point.x, point.y, 1.1 - point.z * .56));
     const leftBranchA = [leftMain[3], new THREE.Vector3(-2.7, -.58, .72), new THREE.Vector3(-2.52, -.18, .24)];
     const leftBranchB = [leftMain[6], new THREE.Vector3(-2.28, .36, .5), new THREE.Vector3(-2.05, .68, .1)];
     const rightBranchA = leftBranchA.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
@@ -859,6 +868,8 @@ function Level01SpatialLightning({ active, ballRef }: { active: boolean; ballRef
     addLayeredBolt(rightMain, 0x02020a, 0x60a5fa, .084, .025, true);
     addLayeredBolt(leftSurge, 0xffffff, 0x67e8f9, .058, .055);
     addLayeredBolt(rightSurge, 0x02020a, 0x818cf8, .06, .075, true);
+    addLayeredBolt(photonEntanglement, 0xfffbea, 0x7dd3fc, .054, .078);
+    addLayeredBolt(particleEntanglement, 0x02030a, 0x6366f1, .056, .092, true);
     addLayeredBolt(leftBranchA, 0xffffff, 0x67e8f9, .034, .065);
     addLayeredBolt(leftBranchB, 0xfff4b8, 0xfbbf24, .029, .1);
     addLayeredBolt(rightBranchA, 0x03030b, 0x818cf8, .036, .09, true);
@@ -1184,6 +1195,7 @@ function TaijiCore({
   ultraTexture,
   onCoreClick,
   level01PoseRef,
+  level01ImpactActive = false,
   onLevel01Reentry,
   ballWorldRef,
 }: {
@@ -1195,6 +1207,7 @@ function TaijiCore({
   ultraTexture: boolean;
   onCoreClick: () => void;
   level01PoseRef?: { current: Level01Pose };
+  level01ImpactActive?: boolean;
   onLevel01Reentry?: () => void;
   /** LEVEL_01 ONLY：外部想讀球體即時世界座標時用；不影響 LEVEL_02～24 既有行為。 */
   ballWorldRef?: { current: THREE.Mesh | null };
@@ -1221,6 +1234,7 @@ function TaijiCore({
     cycleElapsed: 0,
     scale: 1,
   });
+  const level01ImpactRef = useRef({ wasActive: false, startedAt: -Infinity });
   const prevStageRef = useRef<Stage>(stageFromDepth(journeyRef.current.current));
   const outerMatRef = useRef<THREE.MeshBasicMaterial>(null);
   /* 顯微鏡（2026-08-17）：宏觀外殼群組與量子層群組 */
@@ -1372,6 +1386,9 @@ function TaijiCore({
     const settleSoft = Math.min(1, frameDelta * 1.35);
     const settleSlow = Math.min(1, frameDelta * 0.95);
     const t = state.clock.elapsedTime;
+    const impactState = level01ImpactRef.current;
+    if (layer === 1 && level01ImpactActive && !impactState.wasActive) impactState.startedAt = t;
+    impactState.wasActive = level01ImpactActive;
     const level01Drive = Boolean(level01PoseRef?.current?.driving) && layer === 1;
     const entranceState = level01EntranceRef.current;
     const activationId = level01PoseRef?.current?.activationId ?? 0;
@@ -1492,6 +1509,19 @@ function TaijiCore({
       }
       groupRef.current.rotation.x += (Math.sin(t * 0.1) * 0.02 - groupRef.current.rotation.x) * settleSlow;
       groupRef.current.rotation.z = 0;
+    }
+
+    // LEVEL_01 impact recoil: one short, damped displacement on lightning hit.
+    // The base pose is rewritten every frame above, so the orb returns exactly
+    // to its controller position when the strike finishes without residual drift.
+    // The recoil begins only after the travelling bolts reach the orb. Keeping
+    // this delay aligned with the impact-web delay preserves physical causality.
+    const impactAge = t - impactState.startedAt - .17;
+    if (layer === 1 && !reducedMotionRef.current && impactAge >= 0 && impactAge < .42) {
+      const impactEnvelope = Math.exp(-impactAge * 7.2) * (1 - impactAge / .42);
+      groupRef.current.position.x += Math.sin(impactAge * 78) * .075 * impactEnvelope;
+      groupRef.current.position.y += Math.sin(impactAge * 53 + 1.1) * .034 * impactEnvelope;
+      groupRef.current.rotation.z += Math.sin(impactAge * 74) * .045 * impactEnvelope;
     }
 
     if (diskRef.current) {
@@ -2256,6 +2286,7 @@ export default function TaijiSystem({
             ultraTexture={canvasQuality.ultraTexture}
             onCoreClick={handleCoreClick}
             level01PoseRef={level01PoseRef}
+            level01ImpactActive={touchActive}
             onLevel01Reentry={() => level01Controller.playReentryWhoosh()}
             ballWorldRef={level01BallRef}
           />

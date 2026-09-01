@@ -151,10 +151,32 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 34%, #fffef2 0 18%, #fde68a 38%, rgba(250, 204, 21, .18) 72%, transparent 74%);
-  box-shadow: 0 0 9px rgba(253, 230, 138, .9), 0 0 22px rgba(250, 204, 21, .44);
+  background: radial-gradient(circle, #fff 0 13%, #fff7c2 22%, rgba(253, 224, 71, .56) 42%, rgba(125, 211, 252, .12) 68%, transparent 74%);
+  box-shadow: 0 0 7px rgba(255, 255, 255, .96), 0 0 18px rgba(253, 224, 71, .52), 0 0 30px rgba(125, 211, 252, .2);
   transform: translate(-50%, -50%);
   animation: chaseLightArrive .34s cubic-bezier(.16,.9,.24,1) both, chaseLightBreathe 1.15s .34s ease-in-out infinite;
+}
+
+/* 白色核心：集中光子，不顯示預告線或移動軌跡。 */
+.chaseLight::before,
+.chaseLight::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  pointer-events: none;
+}
+
+.chaseLight::before {
+  display: none;
+}
+
+.chaseLight::after {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  box-shadow: -11px -6px 0 rgba(255,255,255,.72), -18px 4px 0 rgba(253,224,71,.42), -7px 9px 0 rgba(125,211,252,.46);
+  animation: photonGather 1.15s ease-in-out infinite;
 }
 
 .chaseCounterLight {
@@ -164,10 +186,33 @@
   transform: translate(-50%, -50%);
   border: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 34%, #182033 0%, #05070d 46%, #000 100%);
-  box-shadow: 0 0 8px 3px rgba(0,0,0,.58), 0 0 13px rgba(15,23,42,.48);
+  background: radial-gradient(circle, #020307 0 32%, #000 54%, rgba(15,23,42,.72) 70%, transparent 76%);
+  box-shadow: 0 0 8px 3px rgba(0,0,0,.64), 0 0 17px rgba(30,41,59,.54);
   opacity: .86;
   animation: chaseLightArrive .34s cubic-bezier(.16,.9,.24,1) both, chaseCounterLightBreathe 1.15s .34s ease-in-out infinite;
+}
+
+/* 黑色核心：暗粒子聚散，以密度呈現力量，不加亮色框線。 */
+.chaseCounterLight::before,
+.chaseCounterLight::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.chaseCounterLight::before {
+  box-shadow: -10px -7px 0 #02040a, 8px -10px 0 #090d18, 12px 5px 0 #000, -8px 10px 0 #111827;
+  animation: darkParticleOrbit 1.15s ease-in-out infinite;
+}
+
+.chaseCounterLight::after {
+  box-shadow: -15px 2px 0 rgba(0,0,0,.82), 4px 14px 0 rgba(2,6,23,.9), 15px -3px 0 rgba(15,23,42,.72);
+  animation: darkParticleGather 1.15s ease-in-out infinite;
 }
 
 /* 第一層遊戲起點：陰陽雙光固定守在球體下方兩側，方向判定仍留在引擎內。 */
@@ -211,6 +256,21 @@
 @keyframes chaseCounterLightBreathe {
   0%, 100% { opacity: .72; box-shadow: 0 0 6px 2px rgba(0,0,0,.5), 0 0 10px rgba(15,23,42,.38); }
   50% { opacity: 1; box-shadow: 0 0 11px 5px rgba(0,0,0,.72), 0 0 17px rgba(15,23,42,.6); }
+}
+
+@keyframes photonGather {
+  0%, 100% { opacity: .38; transform: translate(-50%, -50%) rotate(0deg) scale(.82); }
+  50% { opacity: .96; transform: translate(-50%, -50%) rotate(28deg) scale(1.08); }
+}
+
+@keyframes darkParticleOrbit {
+  0%, 100% { opacity: .5; transform: translate(-50%, -50%) rotate(0deg) scale(1.08); }
+  50% { opacity: .92; transform: translate(-50%, -50%) rotate(-32deg) scale(.76); }
+}
+
+@keyframes darkParticleGather {
+  0%, 100% { opacity: .36; transform: translate(-50%, -50%) rotate(18deg) scale(1.16); }
+  50% { opacity: .86; transform: translate(-50%, -50%) rotate(-16deg) scale(.7); }
 }
 
 .pointerSurface {
@@ -310,6 +370,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .chaseLight, .chaseCounterLight { animation: none; }
+  .chaseLight::before, .chaseLight::after,
+  .chaseCounterLight::before, .chaseCounterLight::after { animation: none; }
   .overlay[data-taiji-interacting='true'] .chaseLight,
   .overlay[data-taiji-interacting='true'] .chaseCounterLight { animation: none; }
   .taijiCanvasPressed { transform: scale(.985); }
