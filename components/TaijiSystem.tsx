@@ -710,7 +710,7 @@ function TaijiPerformanceGovernor({ active }: { active: boolean }) {
   return null;
 }
 
-function Level01SpatialLightning({ active }: { active: boolean }) {
+function Level01SpatialLightning({ active, ballRef }: { active: boolean; ballRef?: { current: THREE.Mesh | null } }) {
   const wasActiveRef = useRef(false);
   const strikeStartedAtRef = useRef(-Infinity);
   const previewStartedAtRef = useRef<number | null>(null);
@@ -1185,6 +1185,7 @@ function TaijiCore({
   onCoreClick,
   level01PoseRef,
   onLevel01Reentry,
+  ballWorldRef,
 }: {
   attractTick?: number;
   theme: TaijiVisualTheme;
@@ -1195,6 +1196,8 @@ function TaijiCore({
   onCoreClick: () => void;
   level01PoseRef?: { current: Level01Pose };
   onLevel01Reentry?: () => void;
+  /** LEVEL_01 ONLY：外部想讀球體即時世界座標時用；不影響 LEVEL_02～24 既有行為。 */
+  ballWorldRef?: { current: THREE.Mesh | null };
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const diskRef = useRef<THREE.Mesh>(null);
@@ -1776,7 +1779,11 @@ function TaijiCore({
       )}
       {/* 真實感升級（2026-08-14）：PBR 清漆層物理材質——上釉瓷器的真實反射，自發光大幅收斂 */}
       {ballTexture && (
-        <mesh ref={diskRef} geometry={taijiBallGeo} renderOrder={separate ? 1 : 2}>
+        <mesh
+          ref={(node) => { diskRef.current = node; if (ballWorldRef) ballWorldRef.current = node; }}
+          geometry={taijiBallGeo}
+          renderOrder={separate ? 1 : 2}
+        >
           <meshPhysicalMaterial
             ref={ballMatRef}
             map={ballTexture}
@@ -1986,6 +1993,8 @@ export default function TaijiSystem({
   const level01Controller = level01ControllerRef.current;
   const level01PoseRef = useRef(level01Controller.pose);
   level01PoseRef.current = level01Controller.pose;
+  // LEVEL_01 ONLY：讓魚眼閃電能讀到球體目前的即時世界座標與旋轉，不影響 LEVEL_02～24。
+  const level01BallRef = useRef<THREE.Mesh | null>(null);
   const [level01Driving, setLevel01Driving] = useState(false);
   const [showLayerReviewPanel, setShowLayerReviewPanel] = useState(false);
   const [taijiInView, setTaijiInView] = useState(true);
@@ -2248,6 +2257,7 @@ export default function TaijiSystem({
             onCoreClick={handleCoreClick}
             level01PoseRef={level01PoseRef}
             onLevel01Reentry={() => level01Controller.playReentryWhoosh()}
+            ballWorldRef={level01BallRef}
           />
           <OrbitControls
             makeDefault
