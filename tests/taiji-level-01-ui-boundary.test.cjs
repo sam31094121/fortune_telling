@@ -45,6 +45,7 @@ if (!overlay.includes('非命理分析') || motionGame.includes('five-element-en
 if (overlay.includes('用力甩手機')) throw new Error('unsafe phone-shaking copy is forbidden');
 if (!controller.includes('unityReady') || !controller.includes('>= 1500')) throw new Error('unity must hold before the homepage exploration CTA appears');
 if ((poseDriver.match(/useFrame\(/g) || []).length !== 1 || controller.includes('requestAnimationFrame(')) throw new Error('level 01 must use exactly one R3F frame-clock callback and no private RAF loop');
+if (!taijiSystem.includes('Math.exp(-frameDelta / 0.5)') || !taijiSystem.includes('Math.exp(-frameDelta / 0.24)')) throw new Error('level 01 living cadence and scale handoff must remain delta-time smoothed');
 if (sensor.includes('setState(') || sensor.includes('setPose(')) throw new Error('sensor event handlers may update refs/controllers only');
 if (!taijiSystem.includes("motionGamePose") || !taijiSystem.includes("motionStageRank >= 3")) throw new Error('the existing 3D core must reveal motion-game stages only under the level-01 flag');
 if (!taijiSystem.includes('level01SurfaceEnergy') || !taijiSystem.includes('ballMat.envMapIntensity')) throw new Error('level 01 surface detail must respond through existing material uniforms, not extra geometry');

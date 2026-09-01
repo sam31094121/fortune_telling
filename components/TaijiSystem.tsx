@@ -985,7 +985,14 @@ function TaijiCore({
   const totemScaleRef = useRef(1);
   const totemZRef = useRef(0);
   const pulseRef = useRef(0);
-  const level01LivingPulseRef = useRef({ activationId: 0, burstId: 0, startedAt: -Infinity });
+  const level01LivingPulseRef = useRef({
+    activationId: 0,
+    burstId: 0,
+    startedAt: -Infinity,
+    smoothedEnergy: 0,
+    cycleElapsed: 0,
+    scale: 1,
+  });
   const prevStageRef = useRef<Stage>(stageFromDepth(journeyRef.current.current));
   const outerMatRef = useRef<THREE.MeshBasicMaterial>(null);
   /* 顯微鏡（2026-08-17）：宏觀外殼群組與量子層群組 */
@@ -1150,6 +1157,11 @@ function TaijiCore({
       livingPulse.burstId = visualBurstId;
       livingPulse.startedAt = t;
     }
+    const livingEnergyTarget = level01PoseRef?.current?.motionEnergy ?? 0;
+    const livingEnergyBlend = 1 - Math.exp(-frameDelta / 0.5);
+    livingPulse.smoothedEnergy += (livingEnergyTarget - livingPulse.smoothedEnergy) * livingEnergyBlend;
+    const livingPeriod = 3.5 - Math.min(1, Math.max(0, livingPulse.smoothedEnergy)) * 1.2;
+    livingPulse.cycleElapsed += frameDelta * (3.5 / livingPeriod);
     const entrance = level01EntrancePose(t - entranceState.startedAt, reducedMotionRef.current);
     const reentryState = level01ReentryRef.current;
     if (shouldTriggerLevel01Reentry(reentryState.previousLayer, layer) && !reducedMotionRef.current) {
@@ -1213,6 +1225,7 @@ function TaijiCore({
       );
       groupRef.current.position.set(entrance.x, entrance.y, entrance.z);
       groupRef.current.scale.setScalar(entrance.scale);
+      livingPulse.scale = entrance.scale;
     } else if (layer === 1 && reentry.active) {
       const pose = level01PoseRef?.current;
       groupRef.current.rotation.set(
@@ -1222,9 +1235,13 @@ function TaijiCore({
       );
       groupRef.current.position.set(reentry.x, reentry.y, reentry.z);
       groupRef.current.scale.setScalar(1);
+      livingPulse.scale = 1;
     } else if (level01Drive && level01PoseRef?.current) {
       const pose = level01PoseRef.current;
-      const livingScale = level01LivingScale(t, pose.motionEnergy, t - livingPulse.startedAt, reducedMotionRef.current);
+      const livingScaleTarget = level01LivingScale(livingPulse.cycleElapsed, 0, t - livingPulse.startedAt, reducedMotionRef.current);
+      const livingScaleBlend = 1 - Math.exp(-frameDelta / 0.24);
+      livingPulse.scale += (livingScaleTarget - livingPulse.scale) * livingScaleBlend;
+      const livingScale = livingPulse.scale;
       const livingLift = reducedMotionRef.current ? 0 : ((livingScale - 0.97) / 0.07) * 0.018;
       groupRef.current.rotation.set(pose.visualEuler.x, pose.visualEuler.y + reentryState.tailAngle, pose.visualEuler.z);
       groupRef.current.position.set(pose.visualOffset.x, pose.visualOffset.y + livingLift, pose.visualOffset.z);
