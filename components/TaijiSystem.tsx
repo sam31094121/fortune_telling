@@ -711,12 +711,15 @@ function TaijiPerformanceGovernor({ active }: { active: boolean }) {
 }
 
 function Level01SpatialLightning({ active }: { active: boolean }) {
+  const wasActiveRef = useRef(false);
+  const strikeStartedAtRef = useRef(-Infinity);
   const group = useMemo(() => {
     const root = new THREE.Group();
     const createBolt = (points: THREE.Vector3[], color: number, opacity: number, zOffset: number) => {
       const offset = new THREE.Vector3(0, 0, zOffset);
       const geometry = new THREE.BufferGeometry().setFromPoints(points.map((point) => point.clone().add(offset)));
       const material = new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending });
+      material.userData.baseOpacity = opacity;
       root.add(new THREE.Line(geometry, material));
     };
     const left = [
@@ -725,10 +728,20 @@ function Level01SpatialLightning({ active }: { active: boolean }) {
       new THREE.Vector3(-1.02, -1.02, .34), new THREE.Vector3(-.68, -.58, .88),
     ];
     const right = left.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
-    createBolt(left, 0xfff4c2, .82, .08);
-    createBolt(left, 0x818cf8, .28, -.14);
-    createBolt(right, 0x11112b, .86, .08);
-    createBolt(right, 0x6366f1, .34, -.14);
+    const leftBranchA = [left[2], new THREE.Vector3(-1.95, -1.08, .48), new THREE.Vector3(-1.72, -.9, .22)];
+    const leftBranchB = [left[3], new THREE.Vector3(-1.28, -1.22, .42), new THREE.Vector3(-1.08, -1.3, .08)];
+    const rightBranchA = leftBranchA.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
+    const rightBranchB = leftBranchB.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
+    createBolt(left, 0xffffff, .96, .12);
+    createBolt(left, 0xfbbf24, .58, -.08);
+    createBolt(left, 0x67e8f9, .32, -.18);
+    createBolt(right, 0x000008, .96, .12);
+    createBolt(right, 0x312e81, .72, -.05);
+    createBolt(right, 0x67e8f9, .62, -.18);
+    createBolt(leftBranchA, 0xffffff, .74, .03);
+    createBolt(leftBranchB, 0xfef08a, .58, -.04);
+    createBolt(rightBranchA, 0x11103a, .78, .03);
+    createBolt(rightBranchB, 0x67e8f9, .58, -.04);
     root.renderOrder = 8;
     return root;
   }, []);
@@ -742,15 +755,25 @@ function Level01SpatialLightning({ active }: { active: boolean }) {
   }, [group]);
 
   useFrame(({ clock }, delta) => {
-    const target = active ? 1 : .54;
+    if (active && !wasActiveRef.current) strikeStartedAtRef.current = clock.elapsedTime;
+    wasActiveRef.current = active;
+    const strikeAge = clock.elapsedTime - strikeStartedAtRef.current;
+    const strikeEnvelope = !active ? 0
+      : strikeAge < .07 ? 1
+        : strikeAge < .14 ? .08
+          : strikeAge < .23 ? .88
+            : strikeAge < .34 ? .18
+              : strikeAge < .52 ? .58 * (1 - (strikeAge - .34) / .18)
+                : 0;
+    const target = active ? 1 : .82;
     const easing = 1 - Math.exp(-delta * (active ? 18 : 7));
     group.scale.x += (target - group.scale.x) * easing;
     group.scale.y += (target - group.scale.y) * easing;
-    group.rotation.y = Math.sin(clock.elapsedTime * 8.5) * (active ? .055 : .018);
-    group.rotation.x = -.08 + Math.cos(clock.elapsedTime * 6.2) * (active ? .028 : .009);
-    group.children.forEach((child, index) => {
+    group.rotation.y = Math.sin(clock.elapsedTime * 38) * .055 * strikeEnvelope;
+    group.rotation.x = -.08 + Math.cos(clock.elapsedTime * 31) * .032 * strikeEnvelope;
+    group.children.forEach((child) => {
       const material = (child as THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>).material;
-      material.opacity = (index % 2 === 0 ? .82 : .3) * (active ? .98 : .34);
+      material.opacity = Number(material.userData.baseOpacity ?? .5) * strikeEnvelope;
     });
   });
 
