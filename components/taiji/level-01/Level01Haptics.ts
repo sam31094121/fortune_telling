@@ -2,7 +2,7 @@ import { HAPTIC_RATE_LIMIT_MS } from './level01.constants';
 import { LEVEL01_REENTRY_CHEER_PROGRESS, LEVEL01_REENTRY_DURATION_SECONDS } from './Level01Reentry';
 import type { BalanceState, Level01TiltDirection } from './Level01Physics';
 import type { Level01GameEvent } from './Level01Runtime';
-import { rotationBurstTimeline } from './Level01SensoryFeedback';
+import { rotationBurstTimeline, TAIJI_ACTIVATION_FEEDBACK } from './Level01SensoryFeedback';
 
 export type HapticMode = 'LIVE' | 'NO_HAPTIC_MODE';
 
@@ -19,6 +19,7 @@ export class Level01HapticController {
   private lastDirectionAt = 0;
   private reentryCheerTimer: ReturnType<typeof setTimeout> | null = null;
   private lastActivationImpactAt = -Infinity;
+  private lastChaseHitAt = -Infinity;
 
   constructor() {
     this.syncSupport();
@@ -43,7 +44,16 @@ export class Level01HapticController {
     if (now - this.lastActivationImpactAt < 700) return false;
     this.lastActivationImpactAt = now;
     // Noticeable in the palm, but short and bounded: impact → recoil.
-    this.safeVibrate([18, 38, 26]);
+    this.safeVibrate([...TAIJI_ACTIVATION_FEEDBACK.hapticPattern]);
+    return true;
+  }
+
+  playChaseHit(now: number, hits: number) {
+    if (!this.enabled || this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return false;
+    if (now - this.lastChaseHitAt < 240) return false;
+    this.lastChaseHitAt = now;
+    const primary = Math.min(15, 6 + Math.max(0, hits - 1) * 2);
+    this.safeVibrate(hits >= 4 ? [primary, 34, 9] : primary);
     return true;
   }
 

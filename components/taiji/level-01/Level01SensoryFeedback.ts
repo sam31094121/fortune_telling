@@ -1,5 +1,16 @@
 export const TAIJI_PENTATONIC_HZ = [130.81, 146.83, 164.81, 196, 220] as const;
 
+/** One deterministic entrance contract shared by motion, sound and palm feedback. */
+export const TAIJI_ACTIVATION_FEEDBACK = {
+  durationSeconds: 0.92,
+  turns: 2,
+  forwardDistance: 0.12,
+  impactStartHz: 92,
+  impactEndHz: 58,
+  impactDurationSeconds: 0.2,
+  hapticPattern: [18, 38, 26] as const,
+} as const;
+
 export type RotationFeedbackProfile = {
   frequency: number;
   harmonicFrequency: number;

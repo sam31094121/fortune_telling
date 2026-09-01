@@ -142,6 +142,51 @@
 
 .balanceWell:focus-visible { outline: 2px solid #fde68a; outline-offset: 3px; }
 
+.chaseField {
+  position: absolute;
+  inset: 12%;
+  z-index: 6;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.chaseLight {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #fffef2 0 18%, #fde68a 38%, rgba(250, 204, 21, .18) 72%, transparent 74%);
+  box-shadow: 0 0 9px rgba(253, 230, 138, .9), 0 0 22px rgba(250, 204, 21, .44);
+  transform: translate(-50%, -50%);
+  animation: chaseLightArrive .34s cubic-bezier(.16,.9,.24,1) both, chaseLightBreathe 1.15s .34s ease-in-out infinite;
+}
+
+.chaseField[data-direction='N'] .chaseLight { left: 50%; top: 5%; }
+.chaseField[data-direction='E'] .chaseLight { left: 95%; top: 50%; }
+.chaseField[data-direction='S'] .chaseLight { left: 50%; top: 89%; }
+.chaseField[data-direction='W'] .chaseLight { left: 5%; top: 50%; }
+
+.chaseField small {
+  position: absolute;
+  left: 50%;
+  top: 14%;
+  transform: translateX(-50%);
+  color: rgba(255, 248, 220, .68);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-shadow: 0 2px 7px rgba(2, 6, 23, .94);
+}
+
+@keyframes chaseLightArrive {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(.3); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes chaseLightBreathe {
+  0%, 100% { opacity: .72; filter: brightness(.92); }
+  50% { opacity: 1; filter: brightness(1.28); }
+}
+
 .pointerSurface {
   position: absolute;
   inset: 4%;
@@ -166,27 +211,20 @@
   place-content: end center;
   gap: 2px;
   padding: 0 12px 17px;
-  border: 1px solid rgba(253, 230, 138, .34);
+  border: 0;
   border-radius: 50%;
-  background: radial-gradient(circle, transparent 51%, rgba(250, 204, 21, .055) 70%, rgba(2, 6, 23, .12) 100%);
+  background: transparent;
   color: #fff8dc;
   text-shadow: 0 2px 9px rgba(2, 6, 23, .96);
-  box-shadow: 0 0 0 0 rgba(253, 230, 138, .24), inset 0 0 24px rgba(253, 230, 138, .045);
+  box-shadow: none;
   pointer-events: auto;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  animation: touchInvitationPulse 1.85s ease-out infinite;
 }
 
 .touchInvitation span { font-size: 12px; font-weight: 900; letter-spacing: .16em; }
 .touchInvitation small { color: rgba(255, 248, 220, .7); font-size: 8px; letter-spacing: .08em; }
 .touchInvitation:active { transform: translate(-50%, -50%) scale(.965); }
-
-@keyframes touchInvitationPulse {
-  0% { box-shadow: 0 0 0 0 rgba(253, 230, 138, .28), inset 0 0 24px rgba(253, 230, 138, .04); }
-  62% { box-shadow: 0 0 0 12px rgba(253, 230, 138, 0), inset 0 0 34px rgba(253, 230, 138, .085); }
-  100% { box-shadow: 0 0 0 17px rgba(253, 230, 138, 0), inset 0 0 24px rgba(253, 230, 138, .04); }
-}
 
 .startPanel {
   position: absolute;
@@ -461,7 +499,7 @@
 .overlay[data-level01-quality='LOW'] .particlePair { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .touchInvitation { animation: none; }
+  .chaseLight { animation: none; }
   .balanceWell {
     transform: translate3d(-50%, 0, 0);
     will-change: auto;

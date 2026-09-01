@@ -24,7 +24,7 @@ import { LEVEL01_REENTRY_CHEER_PROGRESS, LEVEL01_REENTRY_DURATION_SECONDS, level
 import { LEVEL01_ENTRANCE_DURATION_SECONDS, level01EntrancePose } from '../components/taiji/level-01/Level01Entrance';
 import { MAX_FLICK_SPIN_SPEED, MAX_SAFE_ROTATION_SPEED, WAKE_THRESHOLD } from '../components/taiji/level-01/level01.constants';
 import { Level01MotionGameEngine, type TaijiMotionGameInput } from '../components/taiji/level-01/Level01MotionGameEngine';
-import { rotationBurstTimeline, rotationFeedbackProfile, TAIJI_PENTATONIC_HZ } from '../components/taiji/level-01/Level01SensoryFeedback';
+import { rotationBurstTimeline, rotationFeedbackProfile, TAIJI_ACTIVATION_FEEDBACK, TAIJI_PENTATONIC_HZ } from '../components/taiji/level-01/Level01SensoryFeedback';
 
 function assert(condition: boolean, message: string) {
   if (!condition) throw new Error(message);
@@ -67,6 +67,8 @@ const entrancePeak = level01EntrancePose(LEVEL01_ENTRANCE_DURATION_SECONDS * 0.2
 assert(entrancePeak.active && entrancePeak.z > 0 && entrancePeak.scale > 1, 'level-01 user activation has a clear bounded forward impact');
 assert(Math.abs(entrancePeak.rx) > 0 && Math.abs(entrancePeak.ry) > 0 && Math.abs(entrancePeak.rz) > 0, 'entry surprise uses cross-axis rotation');
 assert(!level01EntrancePose(LEVEL01_ENTRANCE_DURATION_SECONDS, false).active, 'entry surprise runs once and hands off cleanly');
+assert(LEVEL01_ENTRANCE_DURATION_SECONDS === TAIJI_ACTIVATION_FEEDBACK.durationSeconds && TAIJI_ACTIVATION_FEEDBACK.turns === 2, 'entry motion, sound and haptic use one deterministic timing contract');
+assert(TAIJI_ACTIVATION_FEEDBACK.hapticPattern.join(',') === '18,38,26', 'entry palm impact keeps a fixed impact-pause-recoil proportion');
 
 assert(Math.abs(calculateTilt(3, 4) - 5) < 1e-9, 'tilt uses hypot');
 assert(resolveBalanceState(1.2) === 'BALANCED', 'inside 2.5° is balanced');
@@ -377,6 +379,19 @@ const fireSnapshot = waterGame.update(motionGameInput({ now: 1200, acceleration:
 assert(fireSnapshot.visualElement === '火', 'a safe burst maps to Fire');
 const earthSnapshot = waterGame.update(motionGameInput({ now: 2100, beta: 0, gamma: 0, acceleration: 0, rotationRate: 0, motionEnergy: 0, balanceState: 'BALANCED' }));
 assert(earthSnapshot.visualElement === '地', 'a stable horizontal phone maps to Earth');
+
+const chaseGame = new Level01MotionGameEngine();
+for (let frame = 0; frame <= 10; frame += 1) {
+  chaseGame.update(motionGameInput({ now: frame * 16, beta: 0, gamma: 12, motionEnergy: 0.18 }));
+}
+assert(chaseGame.snapshot().chase.hits === 1 && chaseGame.snapshot().chase.direction === 'N', 'holding the first east light briefly absorbs it and advances the target');
+for (let frame = 11; frame <= 25; frame += 1) {
+  chaseGame.update(motionGameInput({ now: frame * 16, beta: 0, gamma: 0, motionEnergy: 0 }));
+}
+for (let frame = 26; frame <= 36; frame += 1) {
+  chaseGame.update(motionGameInput({ now: frame * 16, beta: -12, gamma: 0, motionEnergy: 0.18 }));
+}
+assert(chaseGame.snapshot().chase.hits === 2 && chaseGame.snapshot().chase.hitId === 2, 'the next north light advances only after a deliberate matching tilt');
 
 const longRun = new Level01MotionGameEngine();
 for (let frame = 0; frame < 30 * 120; frame += 1) {

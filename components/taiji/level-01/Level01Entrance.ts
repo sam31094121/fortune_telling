@@ -1,4 +1,6 @@
-export const LEVEL01_ENTRANCE_DURATION_SECONDS = 0.92;
+import { TAIJI_ACTIVATION_FEEDBACK } from './Level01SensoryFeedback';
+
+export const LEVEL01_ENTRANCE_DURATION_SECONDS = TAIJI_ACTIVATION_FEEDBACK.durationSeconds;
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const easeOutCubic = (value: number) => 1 - (1 - value) ** 3;
@@ -12,12 +14,12 @@ export function level01EntrancePose(elapsedSeconds: number, reducedMotion: boole
   const launch = Math.sin(Math.min(1, progress / 0.42) * Math.PI);
   const settle = 1 - easeOutCubic(progress);
   const strength = reducedMotion ? 0.34 : 1;
-  const turns = easeOutCubic(progress) * Math.PI * 4;
+  const turns = easeOutCubic(progress) * Math.PI * 2 * TAIJI_ACTIVATION_FEEDBACK.turns;
   return {
     active: true,
     x: Math.sin(progress * Math.PI * 2.1) * 0.035 * settle * strength,
     y: launch * 0.052 * strength,
-    z: launch * 0.12 * strength,
+    z: launch * TAIJI_ACTIVATION_FEEDBACK.forwardDistance * strength,
     rx: turns * 0.52 * strength,
     ry: turns * strength,
     rz: -turns * 0.38 * strength,

@@ -107,6 +107,7 @@ export class Level01TaijiMotionController {
   private lastActivationAt = -Infinity;
   private manualFallback = false;
   private activationId = 0;
+  private lastChaseHitId = 0;
   private pointer: PointerInput = {
     active: false,
     beta: 0,
@@ -528,6 +529,11 @@ export class Level01TaijiMotionController {
         reducedMotion: this.reducedMotion || this.staticMode,
       })
       : this.motionGame.snapshot();
+    if (motionGame.chase.hitId !== this.lastChaseHitId) {
+      this.lastChaseHitId = motionGame.chase.hitId;
+      this.audio.playChaseHit(motionGame.chase.hits);
+      this.haptics.playChaseHit(now, motionGame.chase.hits);
+    }
     const stageReadyForUnity = !this.featureEnabled || motionGame.stage === 'FIVE_ELEMENTS' || motionGame.stage === 'UNITY';
     const balanceStateForGame = !stageReadyForUnity && this.physics.balanceState === 'LOCKED'
       ? 'BALANCED'
@@ -622,6 +628,8 @@ export class Level01TaijiMotionController {
       this.soundPreference.recordEvent({ variant, replayed: this.hasArmedBefore });
       this.hasArmedBefore = true;
       this.activationEventRecorded = false;
+      // 背景確認跨使用者聚合有沒有已經產生真正的贏家；不 await，不擋這次的儀式節奏。
+      void this.soundPreference.refreshWinnerFromServer();
     }).finally(() => {
       this.activationArmInFlight = false;
     });
@@ -769,7 +777,7 @@ export class Level01TaijiMotionController {
     this.pose.visualBurstDuration = visual.visualBurstDuration;
     this.pose.snapshot = snapshotFromPhysics(this.physics);
     this.renderer.render(this.physics, visual.visualMomentum, visual.balanceProgress, game.holdProgress, this.quality.quality);
-    const hudKey = `${this.pose.mode}|${permission}|${driving}|${game.state}|${this.pose.hapticMode}|${this.pose.quality}|${this.audioEnabled}|${this.hapticEnabled}|${this.motionEnabled}|${this.staticMode}|${motionGame.state}|${motionGame.stage}|${motionGame.visualElement}|${motionGame.customerState}|${motionGame.combo}|${this.pose.unityReady}`;
+    const hudKey = `${this.pose.mode}|${permission}|${driving}|${game.state}|${this.pose.hapticMode}|${this.pose.quality}|${this.audioEnabled}|${this.hapticEnabled}|${this.motionEnabled}|${this.staticMode}|${motionGame.state}|${motionGame.stage}|${motionGame.visualElement}|${motionGame.customerState}|${motionGame.combo}|${motionGame.chase.direction}|${motionGame.chase.hitId}|${this.pose.unityReady}`;
     if (hudKey !== this.lastHudKey) {
       this.lastHudKey = hudKey;
       const notify = this.onChange;

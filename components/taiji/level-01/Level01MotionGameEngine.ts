@@ -4,6 +4,7 @@ export type TaijiMotionPhase = 'STILL' | 'FLOW' | 'MOVE' | 'SHAKE' | 'BURST';
 export type TaijiMotionStage = 'TAIJI' | 'LIANGYI' | 'SIXIANG' | 'BAGUA' | 'FIVE_ELEMENTS' | 'UNITY';
 export type TaijiVisualElement = '空' | '風' | '水' | '火' | '地';
 export type TaijiCustomerState = '動' | '流' | '定' | '平衡' | '歸一';
+export type TaijiChaseDirection = 'N' | 'E' | 'S' | 'W';
 
 export type TaijiMotionState = {
   orientation: { alpha: number; beta: number; gamma: number };
@@ -23,6 +24,7 @@ export type TaijiMotionGameSnapshot = TaijiMotionState & {
   message: string;
   combo: number;
   burstId: number;
+  chase: { direction: TaijiChaseDirection; hits: number; hitId: number; progress: number };
 };
 
 export type TaijiMotionGameInput = {
@@ -49,6 +51,9 @@ const BURST_HOLD_MS = 800;
 const BURST_COOLDOWN_MS = 620;
 const SAFE_BURST_THRESHOLD = 0.58;
 const STAGES: TaijiMotionStage[] = ['TAIJI', 'LIANGYI', 'SIXIANG', 'BAGUA', 'FIVE_ELEMENTS'];
+const CHASE_SEQUENCE: readonly TaijiChaseDirection[] = ['E', 'N', 'W', 'S', 'N', 'E', 'S', 'W'];
+const CHASE_HOLD_MS = 135;
+const CHASE_COOLDOWN_MS = 260;
 
 const messageFor = (state: TaijiCustomerState, stage: TaijiMotionStage) => {
   if (state === '歸一') return '歸一完成';
@@ -81,6 +86,11 @@ export class Level01MotionGameEngine {
   private lastBurstAt = -Infinity;
   private burstArmed = true;
   private stage: TaijiMotionStage = 'TAIJI';
+  private chaseIndex = 0;
+  private chaseHits = 0;
+  private chaseHitId = 0;
+  private chaseHoldSince = -1;
+  private lastChaseHitAt = -Infinity;
   private snapshotValue: TaijiMotionGameSnapshot = {
     orientation: { alpha: 0, beta: 0, gamma: 0 },
     acceleration: { x: 0, y: 0, z: 0, magnitude: 0 },
@@ -96,6 +106,7 @@ export class Level01MotionGameEngine {
     message: '輕輕移動手機，喚醒太極',
     combo: 0,
     burstId: 0,
+    chase: { direction: CHASE_SEQUENCE[0], hits: 0, hitId: 0, progress: 0 },
   };
 
   reset() {
@@ -105,6 +116,11 @@ export class Level01MotionGameEngine {
     this.lastBurstAt = -Infinity;
     this.burstArmed = true;
     this.stage = 'TAIJI';
+    this.chaseIndex = 0;
+    this.chaseHits = 0;
+    this.chaseHitId = 0;
+    this.chaseHoldSince = -1;
+    this.lastChaseHitAt = -Infinity;
     this.snapshotValue = {
       orientation: { alpha: 0, beta: 0, gamma: 0 },
       acceleration: { x: 0, y: 0, z: 0, magnitude: 0 },
@@ -120,6 +136,7 @@ export class Level01MotionGameEngine {
       message: '輕輕移動手機，喚醒太極',
       combo: 0,
       burstId: 0,
+      chase: { direction: CHASE_SEQUENCE[0], hits: 0, hitId: 0, progress: 0 },
     };
   }
 
@@ -139,6 +156,7 @@ export class Level01MotionGameEngine {
       message: '太極正跟隨你的移動',
       combo: this.combo,
       burstId: this.burstId,
+      chase: { direction: CHASE_SEQUENCE[this.chaseIndex], hits: this.chaseHits, hitId: this.chaseHitId, progress: 0 },
     };
     return this.snapshotValue;
   }
@@ -193,6 +211,29 @@ export class Level01MotionGameEngine {
     if (this.stage === 'UNITY') customerState = '歸一';
     const visualElement = elementFor(phase, Math.max(motionMagnitude, targetEnergy), input.beta, input.gamma, input.balanceState, this.stage);
 
+    const chaseDirection: TaijiChaseDirection | null = Math.hypot(input.beta, input.gamma) < 7
+      ? null
+      : Math.abs(input.gamma) >= Math.abs(input.beta)
+        ? input.gamma >= 0 ? 'E' : 'W'
+        : input.beta >= 0 ? 'S' : 'N';
+    const chaseTarget = CHASE_SEQUENCE[this.chaseIndex];
+    const chaseMatching = chaseDirection === chaseTarget && targetEnergy >= 0.06;
+    if (chaseMatching) {
+      if (this.chaseHoldSince < 0) this.chaseHoldSince = input.now;
+      if (input.now - this.chaseHoldSince >= CHASE_HOLD_MS && input.now - this.lastChaseHitAt >= CHASE_COOLDOWN_MS) {
+        this.lastChaseHitAt = input.now;
+        this.chaseHits += 1;
+        this.chaseHitId += 1;
+        this.chaseIndex = (this.chaseIndex + 1) % CHASE_SEQUENCE.length;
+        this.chaseHoldSince = -1;
+        this.combo = Math.min(4, Math.max(this.combo, Math.min(4, this.chaseHits)));
+        this.stage = STAGES[this.combo];
+      }
+    } else {
+      this.chaseHoldSince = -1;
+    }
+    const chaseProgress = this.chaseHoldSince < 0 ? 0 : clamp01((input.now - this.chaseHoldSince) / CHASE_HOLD_MS);
+
     this.snapshotValue = {
       orientation: { alpha: input.alpha, beta: input.beta, gamma: input.gamma },
       acceleration: { x: input.accelerationX ?? 0, y: input.accelerationY ?? 0, z: input.accelerationZ ?? 0, magnitude: input.acceleration },
@@ -208,6 +249,12 @@ export class Level01MotionGameEngine {
       message: messageFor(customerState, this.stage),
       combo: this.combo,
       burstId: this.burstId,
+      chase: {
+        direction: CHASE_SEQUENCE[this.chaseIndex],
+        hits: this.chaseHits,
+        hitId: this.chaseHitId,
+        progress: chaseProgress,
+      },
     };
     return this.snapshotValue;
   }

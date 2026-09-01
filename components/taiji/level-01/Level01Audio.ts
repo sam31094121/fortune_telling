@@ -6,6 +6,7 @@ import {
   pentatonicFrequency,
   rotationBurstTimeline,
   rotationFeedbackProfile,
+  TAIJI_ACTIVATION_FEEDBACK,
   type RotationFeedbackProfile,
 } from './Level01SensoryFeedback';
 import type { TaijiSoundVariant } from '@/lib/taiji/experience-types';
@@ -202,6 +203,17 @@ export class Level01SoundEngine {
     });
   }
 
+  playChaseHit(hits: number) {
+    if (!this.enabled || this.paused || this.blocked || !this.context || !this.toneFilter || !this.master) return;
+    const intensity = Math.min(1, 0.48 + Math.max(0, hits - 1) * 0.12);
+    this.schedulePentatonicTone(rotationFeedbackProfile({
+      spin: intensity,
+      energy: intensity,
+      pulseIndex: hits + 1,
+      reducedMotion: this.reducedMotion,
+    }), this.context.currentTime + 0.004);
+  }
+
   playReentryWhoosh() {
     if (this.reducedMotion || this.blocked || !this.context || !this.master || !this.osc) return;
     const now = this.context.currentTime;
@@ -285,15 +297,15 @@ export class Level01SoundEngine {
       const impact = this.context.createOscillator();
       const impactGain = this.context.createGain();
       impact.type = 'sine';
-      impact.frequency.setValueAtTime(92, now);
-      impact.frequency.exponentialRampToValueAtTime(58, now + 0.16);
+      impact.frequency.setValueAtTime(TAIJI_ACTIVATION_FEEDBACK.impactStartHz, now);
+      impact.frequency.exponentialRampToValueAtTime(TAIJI_ACTIVATION_FEEDBACK.impactEndHz, now + TAIJI_ACTIVATION_FEEDBACK.impactDurationSeconds * 0.8);
       impactGain.gain.setValueAtTime(0.0001, now);
       impactGain.gain.exponentialRampToValueAtTime(0.046, now + 0.012);
-      impactGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+      impactGain.gain.exponentialRampToValueAtTime(0.0001, now + TAIJI_ACTIVATION_FEEDBACK.impactDurationSeconds);
       impact.connect(impactGain);
       impactGain.connect(this.master);
       impact.start(now);
-      impact.stop(now + 0.22);
+      impact.stop(now + TAIJI_ACTIVATION_FEEDBACK.impactDurationSeconds + 0.02);
     } catch {
       // Activation chime is enhancement-only; the ritual continues silently.
     }

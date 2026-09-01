@@ -20,6 +20,7 @@ const EMPTY_MOTION_GAME: Level01Pose['motionGame'] = {
   message: '輕輕移動手機，喚醒太極',
   combo: 0,
   burstId: 0,
+  chase: { direction: 'E', hits: 0, hitId: 0, progress: 0 },
 };
 
 const clonePose = (pose: Level01Pose): Level01Pose => {
@@ -35,6 +36,7 @@ const clonePose = (pose: Level01Pose): Level01Pose => {
       acceleration: { ...motionGame.acceleration },
       rotation: { ...motionGame.rotation },
       level: { ...motionGame.level },
+      chase: { ...motionGame.chase },
     },
   };
 };
@@ -158,6 +160,13 @@ function RuntimeOverlay({
         <span className={styles.particlePair}><span /><span /></span>
         <span ref={bubbleRef} className={styles.balanceBubble} />
       </div>
+
+      {motionGameActive && !pose.staticMode && pose.gameState !== 'LEVEL_COMPLETE' && (
+        <div className={styles.chaseField} aria-label={`追光目標：${pose.motionGame.chase.direction}`} data-direction={pose.motionGame.chase.direction}>
+          <span key={`${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={styles.chaseLight} />
+          <small>追光 {pose.motionGame.chase.hits}/4</small>
+        </div>
+      )}
 
       {pose.gameState === 'IDLE' && pose.motionGameEnabled && (
         <button type="button" className={styles.touchInvitation} onClick={arm} aria-label="輕觸太極，立即感受回應">
