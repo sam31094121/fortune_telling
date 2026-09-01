@@ -23,7 +23,6 @@ import {
   TILT_DAMPING,
   WAKE_THRESHOLD,
   VISUAL_BURST_COOLDOWN_MS,
-  VISUAL_BURST_MIN_TILT_DEG,
 } from './level01.constants';
 import {
   level01BalanceProgress,
@@ -317,7 +316,11 @@ export function integrateLevel01Physics(
     beta: prevBeta,
     gamma: prevGamma,
   });
-  const baseTarget = state.balanceState === 'LOCKED' ? 0 : state.motionEnergy * maxSpeed;
+  // Gentle movement must feel gentle. A progressive curve keeps low-speed hand
+  // motion precise, while still reaching the full safe speed when the customer
+  // deliberately moves quickly.
+  const proportionalEnergy = state.motionEnergy ** 1.45;
+  const baseTarget = state.balanceState === 'LOCKED' ? 0 : proportionalEnergy * maxSpeed;
   const flickTarget = state.balanceState === 'LOCKED' || flick.direction === 0
     ? 0
     : flick.direction * (MAX_SAFE_ROTATION_SPEED + flick.strength * (MAX_FLICK_SPIN_SPEED - MAX_SAFE_ROTATION_SPEED));
@@ -379,11 +382,11 @@ export function integrateLevel01Physics(
   const burstDirection = Math.sign(state.gamma) || Math.sign(state.beta) || flick.direction;
   const canStartBurst = !input.reducedMotion && !burstActive && burstDirection !== 0
     && input.now - state.lastVisualBurstAt >= VISUAL_BURST_COOLDOWN_MS
-    && (flick.strength > 0 || (tilt >= VISUAL_BURST_MIN_TILT_DEG && state.motionEnergy >= 0.14));
+    && flick.strength >= 0.1;
   if (canStartBurst) {
-    const turns = flick.strength > 0 ? 5 : tilt >= APPROACHING_THRESHOLD_DEG ? 3 : 2;
+    const turns = flick.strength >= 0.62 ? 5 : flick.strength >= 0.32 ? 3 : 2;
     state.visualBurstStartedAt = input.now;
-    state.visualBurstDuration = flick.strength > 0 ? 0.9 : 0.58;
+    state.visualBurstDuration = flick.strength >= 0.62 ? 0.9 : flick.strength >= 0.32 ? 0.72 : 0.58;
     state.visualBurstTurns = turns;
     state.visualBurstDirection = burstDirection;
     state.visualBurstAngle = 0;

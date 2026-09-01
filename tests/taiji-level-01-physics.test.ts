@@ -128,7 +128,8 @@ for (let i = 0; i < 12; i += 1) {
   });
 }
 const expressivePose = visualPoseFromPhysics(expressive, true);
-assert(expressive.visualBurstTurns >= 2 && expressivePose.visualMomentum > 0, 'a clear small tilt gets a bounded visual flourish without changing balance rules');
+assert(expressive.visualBurstTurns === 0 && expressivePose.visualMomentum === 0, 'a clear small tilt stays proportional and never causes an unsolicited fast flourish');
+assert(expressive.angularVelocity < MAX_SAFE_ROTATION_SPEED * 0.7, 'gentle motion remains visibly slower than the normal safe-speed ceiling');
 
 const flicked = createPhysicsState();
 for (let i = 0; i < 8; i += 1) {
