@@ -2382,6 +2382,9 @@ export default function HomePage() {
 
   // 監聽步驟切換、結果生成、解鎖與錯誤狀態，自動平滑定位，避免螢幕異常跳動與跑版
   useEffect(() => {
+    // The dedicated Taiji game owns the entry viewport. Do not let the legacy
+    // form/quest guide pull customers away from the orb after it has focused.
+    if (new URLSearchParams(window.location.search).get('taijiMotionGame') === '1') return;
     const timer = setTimeout(() => {
       if (data) {
         const targetId = isUnlocked ? 'vip-result-anchor' : 'match-result-anchor';
@@ -2412,6 +2415,24 @@ export default function HomePage() {
   // 注入性能 CSS
   useEffect(() => {
     injectPerformanceCSS();
+  }, []);
+
+  // Dedicated Level 01 entry: ignore the browser's previous scroll restoration
+  // and place the customer directly at the Taiji. Two bounded placements cover
+  // the initial layout pass without creating a scroll loop or ongoing work.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('taijiMotionGame') !== '1') return;
+    const focusTaiji = () => document.getElementById('home-top-empty-shell-card')
+      ?.scrollIntoView({ behavior: 'auto', block: 'start' });
+    const frame = window.requestAnimationFrame(focusTaiji);
+    const settleTimer = window.setTimeout(focusTaiji, 160);
+    const restoreOverrideTimer = window.setTimeout(focusTaiji, 1250);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(settleTimer);
+      window.clearTimeout(restoreOverrideTimer);
+    };
   }, []);
 
   const stepIndex = STEP_ORDER.indexOf(step);

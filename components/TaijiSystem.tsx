@@ -906,7 +906,9 @@ function Level01SpatialLightning({ active, ballRef }: { active: boolean; ballRef
     if (previewStartedAtRef.current == null) previewStartedAtRef.current = clock.elapsedTime + .16;
     if (active && !wasActiveRef.current) strikeStartedAtRef.current = clock.elapsedTime;
     wasActiveRef.current = active;
-    const previewAge = (clock.elapsedTime - previewStartedAtRef.current + 3.4) % 3.4;
+    // Review mode demonstrates the weapon once per screen mount. Repeating on
+    // a timer made the scene feel noisy and could replay without user intent.
+    const previewAge = clock.elapsedTime - previewStartedAtRef.current;
     const previewActive = previewAge >= 0 && previewAge < .62;
     const striking = active || previewActive;
     const strikeAge = active ? clock.elapsedTime - strikeStartedAtRef.current : previewAge;

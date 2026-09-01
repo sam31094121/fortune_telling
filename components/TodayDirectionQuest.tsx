@@ -266,6 +266,7 @@ export default function TodayDirectionQuest() {
 
   useEffect(() => {
     if (stage !== 'reward') return;
+    if (new URLSearchParams(window.location.search).get('taijiMotionGame') === '1') return;
     const frame = window.requestAnimationFrame(() => {
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       rewardRef.current?.scrollIntoView({
