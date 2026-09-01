@@ -743,7 +743,11 @@ function Level01SpatialLightning({ active }: { active: boolean }) {
       for (let ring = 0; ring <= tubularSegments; ring += 1) {
         const progress = ring / tubularSegments;
         curve.getPointAt(progress, center);
-        const taper = Math.max(.18, 1.05 - progress * .67 + Math.sin(progress * Math.PI * 9) * .11);
+        // The tiny lower core is the weapon muzzle: the discharge grows as it
+        // travels upward, instead of looking like a bolt falling from above.
+        const dominoGrowth = .24 + Math.pow(progress, .72) * 1.08;
+        const livingPulse = 1 + Math.sin(progress * Math.PI * 9) * .09;
+        const taper = Math.max(.2, dominoGrowth * livingPulse);
         for (let side = 0; side <= radialSegments; side += 1) {
           const index = ring * (radialSegments + 1) + side;
           vertex.fromBufferAttribute(positions, index).sub(center).multiplyScalar(taper).add(center);
@@ -777,14 +781,15 @@ function Level01SpatialLightning({ active }: { active: boolean }) {
       new THREE.Vector3(-.82, .2, .98),
     ];
     const rightMain = leftMain.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
-    const leftCanopy = [
-      leftMain[0], new THREE.Vector3(-3.02, -1.25, .36), new THREE.Vector3(-2.72, -.62, -.04),
-      new THREE.Vector3(-2.95, .06, .48), new THREE.Vector3(-2.5, .72, .08),
-      new THREE.Vector3(-2.16, 1.38, .62), new THREE.Vector3(-1.65, 1.74, .16),
-      new THREE.Vector3(-1.18, 1.52, .72), new THREE.Vector3(-.72, 1.18, .28),
-      new THREE.Vector3(-.26, .9, .86), new THREE.Vector3(.08, .7, 1.2),
+    // Side discharges also grow out of the same core-to-Taiji trajectory. They
+    // never form a canopy above the orb, so the direction always reads upward.
+    const leftSurge = [
+      leftMain[0], new THREE.Vector3(-2.94, -1.55, .34), new THREE.Vector3(-2.66, -1.16, -.02),
+      new THREE.Vector3(-2.73, -.77, .5), new THREE.Vector3(-2.31, -.48, .1),
+      new THREE.Vector3(-2.08, -.12, .66), new THREE.Vector3(-1.58, .1, .18),
+      new THREE.Vector3(-1.25, .28, .76), new THREE.Vector3(-.82, .2, 1.02),
     ];
-    const rightCanopy = leftCanopy.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
+    const rightSurge = leftSurge.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
     const leftBranchA = [leftMain[3], new THREE.Vector3(-2.7, -.58, .72), new THREE.Vector3(-2.52, -.18, .24)];
     const leftBranchB = [leftMain[6], new THREE.Vector3(-2.28, .36, .5), new THREE.Vector3(-2.05, .68, .1)];
     const rightBranchA = leftBranchA.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
@@ -796,8 +801,8 @@ function Level01SpatialLightning({ active }: { active: boolean }) {
     };
     addLayeredBolt(leftMain, 0xfff7cf, 0xfbbf24, .082, 0);
     addLayeredBolt(rightMain, 0x02020a, 0x60a5fa, .084, .025, true);
-    addLayeredBolt(leftCanopy, 0xffffff, 0x67e8f9, .058, .055);
-    addLayeredBolt(rightCanopy, 0x02020a, 0x818cf8, .06, .075, true);
+    addLayeredBolt(leftSurge, 0xffffff, 0x67e8f9, .058, .055);
+    addLayeredBolt(rightSurge, 0x02020a, 0x818cf8, .06, .075, true);
     addLayeredBolt(leftBranchA, 0xffffff, 0x67e8f9, .034, .065);
     addLayeredBolt(leftBranchB, 0xfff4b8, 0xfbbf24, .029, .1);
     addLayeredBolt(rightBranchA, 0x03030b, 0x818cf8, .036, .09, true);
