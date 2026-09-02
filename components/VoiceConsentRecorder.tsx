@@ -274,7 +274,7 @@ export default function VoiceConsentRecorder({
     onAiVoiceGenderChange?.(gender);
   }
 
-  function useAiVoice(gender = selectedAiGender) {
+  function applyAiVoice(gender = selectedAiGender) {
     if (disabled || status === 'recording' || status === 'analyzing') return;
     clearRecordingTimers();
     stopStream();
@@ -430,7 +430,7 @@ export default function VoiceConsentRecorder({
           </button>
           <button
             type="button"
-            onClick={() => useAiVoice(selectedAiGender)}
+            onClick={() => applyAiVoice(selectedAiGender)}
             disabled={disabled || status === 'recording'}
             className="voice-recorder-quick-actions__ai"
           >
@@ -534,7 +534,7 @@ export default function VoiceConsentRecorder({
             </button>
             <button
               type="button"
-              onClick={() => useAiVoice(selectedAiGender)}
+              onClick={() => applyAiVoice(selectedAiGender)}
               disabled={disabled || status === 'recording' || status === 'analyzing'}
               className="rounded-xl border border-amber-200/45 bg-amber-300/16 px-3 py-2.5 text-xs font-black text-amber-100 transition hover:border-amber-200/80 disabled:cursor-not-allowed disabled:opacity-45"
             >

@@ -20,7 +20,7 @@
     "components/taiji/v7/useTaijiPerformance.ts": "3e9b29800a749f4ca0d688f4533dc4d98b19e0e36a227f94a87d48bb56e0453e",
     "components/taiji/useTaijiPerformance.ts": "28f11b8ee639d046a1f2a98174dead6876a9ae3f29dd304be248488ce52e9dbd",
     "components/taiji/taijiMagnifier.ts": "5554e45d0384631c138e1103e0b4a203bd7a2a79ca19cfc37f633bd9f764bc66",
-    "components/taiji/TaijiWebGL3D.tsx": "7cbff953c44059339f9b96d2f7485e1a41843fca499bb0cfedbe59504abbd2ae",
+    "components/taiji/TaijiWebGL3D.tsx": "0415977f9c4e341d75757c5081b45daa683616a259b921321eafb3efa1f3313c",
     "components/UnifiedTaijiCore.tsx": "24387e173e266bc139362912971aa975cc5fb38fe4780881fb1dd63abbe846ce",
     "components/UnifiedTaijiCore.module.css": "29aeb7c8afdc73a5c640ee29297360e31ba76c851fe00cf45296a07321cbe984",
     "components/TaijiSystem.module.css": "dc7c9b250664dc52c937e89a41dbc3fdf92c376fba75f581acd8012b48d4cb93"

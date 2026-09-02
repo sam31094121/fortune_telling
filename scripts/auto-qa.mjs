@@ -538,28 +538,28 @@ async function run() {
     report.homepage = await checkHomepage(modules);
     console.log(`[Auto QA] PASS Home / ${modules.length} module entry markers (${report.homepage.durationMs}ms)`);
 
-    for (const module of modules) {
+    for (const qaModule of modules) {
       const moduleReport = {
-        id: module.id,
-        title: module.title,
-        href: module.href,
-        api: module.api,
+        id: qaModule.id,
+        title: qaModule.title,
+        href: qaModule.href,
+        api: qaModule.api,
         checks: [],
       };
       report.modules.push(moduleReport);
 
-      await addCheck(report, moduleReport, 'enter module page', module.href, () => checkPageRoute(module));
+      await addCheck(report, moduleReport, 'enter module page', qaModule.href, () => checkPageRoute(qaModule));
 
       for (const mode of modes) {
         const modeLabel = mode === 'self' ? 'SELF' : 'OTHER';
-        await addCheck(report, moduleReport, `${modeLabel}: submit data, API, backend, result, integration`, module.api, () => module.check(mode));
+        await addCheck(report, moduleReport, `${modeLabel}: submit data, API, backend, result, integration`, qaModule.api, () => qaModule.check(mode));
       }
 
-      await addCheck(report, moduleReport, 'return home after module flow', '/', () => checkReturnHome(module));
+      await addCheck(report, moduleReport, 'return home after module flow', '/', () => checkReturnHome(qaModule));
 
       const failed = moduleReport.checks.some((check) => check.status === 'failed');
       if (!failed) report.summary.passed += 1;
-      console.log(`[Auto QA] DONE ${module.title}`);
+      console.log(`[Auto QA] DONE ${qaModule.title}`);
     }
 
     report.ok = report.summary.failed === 0;

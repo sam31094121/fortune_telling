@@ -94,7 +94,7 @@ export function createAnalysisJob(input: {
   }
 
   const createdAt = nowIso();
-  const module = getModuleByAnalysisType(input.analysisType);
+  const analysisModule = getModuleByAnalysisType(input.analysisType);
   const job: AnalysisJob = {
     id: randomUUID(),
     jobId: 'job_' + randomUUID(),
@@ -106,7 +106,7 @@ export function createAnalysisJob(input: {
     status: 'QUEUED',
     progressStage: 'WAITING_FOR_WORKER',
     progressPercent: null,
-    message: module?.loadingCopy.queued ?? '\u5df2\u6536\u5230\u5206\u6790\u8acb\u6c42\uff0c\u6b63\u5728\u5b89\u6392\u771f\u5be6\u904b\u7b97\u3002',
+    message: analysisModule?.loadingCopy.queued ?? '\u5df2\u6536\u5230\u5206\u6790\u8acb\u6c42\uff0c\u6b63\u5728\u5b89\u6392\u771f\u5be6\u904b\u7b97\u3002',
     requestPayloadHash,
     resultId: null,
     errorCode: null,

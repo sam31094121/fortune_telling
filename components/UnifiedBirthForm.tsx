@@ -242,7 +242,6 @@ export function UnifiedBirthForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const completed = [
     fields.name ? { id: 'name', label: '姓名', done: (value.name ?? '').trim().length >= 2, text: (value.name ?? '').trim().length >= 2 ? '已確認' : '待填寫' } : null,
     fields.birthDate ? { id: 'birthDate', label: '萬年曆生日', done: Boolean(value.birthDate), text: value.birthDate ? `西元 ${value.birthDate}` : '待換算' } : null,

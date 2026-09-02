@@ -88,7 +88,7 @@ export function normalizeAnalysisType(value: unknown): AnalysisType | null {
 }
 
 export function moduleIdForAnalysisType(analysisType: AnalysisType): AnalysisModuleId {
-  const module = getModuleByAnalysisType(analysisType);
-  if (!module) throw new Error('\u672a\u8a3b\u518a\u7684\u5206\u6790\u6a21\u7d44\u3002');
-  return module.moduleId;
+  const analysisModule = getModuleByAnalysisType(analysisType);
+  if (!analysisModule) throw new Error('\u672a\u8a3b\u518a\u7684\u5206\u6790\u6a21\u7d44\u3002');
+  return analysisModule.moduleId;
 }

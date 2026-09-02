@@ -501,10 +501,11 @@ export default function TaijiWebGL3D({
       ro.observe(host);
       cleanupFns.push(() => ro.disconnect());
 
-      const clock = new THREE.Clock();
+      const timer = new THREE.Timer();
       let elapsed = 0;
-      const tick = () => {
-        const dt = Math.min(clock.getDelta(), 0.05);
+      const tick = (timestamp: number) => {
+        timer.update(timestamp);
+        const dt = Math.min(timer.getDelta(), 0.05);
         elapsed += dt;
         const t = elapsed;
         const currentStage = stages[stageIndex];
@@ -556,7 +557,7 @@ export default function TaijiWebGL3D({
             raf = null;
           }
         } else if (raf == null && !disposed) {
-          clock.getDelta();
+          timer.reset();
           raf = requestAnimationFrame(tick);
         }
       };
