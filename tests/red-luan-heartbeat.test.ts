@@ -8,6 +8,7 @@ import {
   buildSingleRedLuanAnnualRhythm,
   buildSingleRedLuanHeartbeat,
   buildRedLuanAffinityProfile,
+  buildRedLuanNextEncounters,
   buildSingleRedLuanMonthlyRhythm,
   buildZiweiLovePersonSignal,
   normalizeRedLuanAttractedType,
@@ -256,6 +257,38 @@ for (const month of monthly) {
   assert.ok(month.evidence.every((item) => item.precision === 'SOLAR_TERM_MONTH_BRANCH'));
 }
 assert.equal(RED_LUAN_SOLAR_MONTHS.length, 12);
+
+// ---- 下一次是什麼時候：從今天往後掃，會跨年 ----
+const nextFromSep = buildRedLuanNextEncounters({ yearBranch: '午', dayBranch: '子', dayMasterStem: '甲', fromDate: '2026-09-03' });
+assert.equal(nextFromSep.fromDate, '2026-09-03');
+assert.ok(nextFromSep.upcoming.length > 0);
+assert.deepEqual(
+  nextFromSep.upcoming.map((item) => item.startsOn),
+  [...nextFromSep.upcoming.map((item) => item.startsOn)].sort(),
+  '未來月份必須依時間排序',
+);
+assert.ok(nextFromSep.upcoming.every((item) => item.startsOn >= '2026-09-08' || item.monthsAway === 0), '不得回頭給已經過去的月份');
+assert.ok(nextFromSep.upcoming.some((item) => item.gregorianYear > 2026), '今年掃完要接著掃明年');
+assert.ok(nextFromSep.upcoming.every((item) => item.monthsAway >= 0));
+// 六沖不算「會碰到」的訊號，不得混進來。
+assert.ok(nextFromSep.upcoming.every((item) => item.evidence.every((row) => row.id !== 'day_branch_clash')));
+// 相吸與貴人分流。
+assert.ok(nextFromSep.soulResonance === null || nextFromSep.soulResonance.kind !== 'BENEFACTOR');
+assert.ok(nextFromSep.benefactor === null || nextFromSep.benefactor.kind !== 'SOUL_RESONANCE');
+for (const item of nextFromSep.upcoming) {
+  assert.ok(item.magnet.length > 0 && item.action.length > 0, '每個月份都要有磁鐵與臨門一腳的話術');
+  assert.ok(item.mechanism.length > 0, '話術底下必須掛真實心理機制');
+  assert.ok(item.loveWords.length > 0, '前端要有給客戶看的愛情用詞');
+  // 高端術語留後端稽核，前端顯示的愛情用詞不得夾帶括號英文術語。
+  assert.ok(item.loveWords.every((word) => !/[（(][A-Za-z]/.test(word)), `愛情用詞不該出現術語：${item.loveWords.join('、')}`);
+  assert.ok(item.mechanism.every((term) => /[（(][A-Za-z]/.test(term)), '後端機制必須是可查證的正式術語');
+  assert.equal(item.endsOn > item.startsOn, true);
+}
+// 同一組輸入永遠同一結果。
+assert.deepEqual(buildRedLuanNextEncounters({ yearBranch: '午', dayBranch: '子', dayMasterStem: '甲', fromDate: '2026-09-03' }), nextFromSep);
+// 換一個起點，第一筆就要跟著往後移。
+const nextFromDec = buildRedLuanNextEncounters({ yearBranch: '午', dayBranch: '子', dayMasterStem: '甲', fromDate: '2026-12-20' });
+assert.ok((nextFromDec.upcoming[0]?.startsOn ?? '') > (nextFromSep.upcoming[0]?.startsOn ?? ''), '起點往後，下一次也要往後');
 
 // ---- 有緣方向 ----
 const affinity = buildRedLuanAffinityProfile({ yearBranch: '午', dayBranch: '子', dayMasterStem: '甲', ziwei: singleUnknownHour.ziwei, attractedType: 'WARM_STEADY' });

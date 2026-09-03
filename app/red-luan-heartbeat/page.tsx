@@ -17,6 +17,16 @@ type MonthlyRhythm = {
   status: 'RULE_HIT' | 'NO_RULE_HIT'; precision: 'SOLAR_TERM_MONTH_BRANCH'; hitCount: number;
   evidence: TimelineEvidence[]; limitation: string;
 };
+type Encounter = {
+  gregorianYear: number; monthIndex: number; monthBranch: string; jieqi: string; lunarLabel: string;
+  startsOn: string; endsOn: string; monthsAway: number;
+  kind: 'SOUL_RESONANCE' | 'BENEFACTOR' | 'BOTH';
+  labels: string[]; magnet: string; action: string; loveWords: string[]; mechanism: string[]; evidence: TimelineEvidence[];
+};
+type NextEncounters = {
+  fromDate: string; soulResonance: Encounter | null; benefactor: Encounter | null;
+  upcoming: Encounter[]; monthsScanned: number; limitation: string;
+};
 type AffinityProfile = {
   status: 'READY';
   branches: Array<{ label: string; branch: string; zodiac: string; direction: string; trait: string; appearance: string; careers: string[]; ruleId: string; basis: string }>;
@@ -67,6 +77,7 @@ type Reading = {
     usage: 'REFLECTION_GUIDANCE_ONLY';
   };
   affinity: AffinityProfile;
+  nextEncounters: NextEncounters;
   ichingReading: IChingReading;
   contextAlignment: {
     mode: 'REFLECTION_GUIDANCE_ONLY';
@@ -298,6 +309,50 @@ function ContextChoiceGroup({
         </button>
       )}
     </fieldset>
+  );
+}
+
+const MONTH_DAY = (iso: string) => `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}`;
+
+/** 「還有幾個月」講成人話。0 就是現在這個月，跨年的講明是明年。 */
+function awayLabel(encounter: Encounter, fromDate: string) {
+  if (encounter.monthsAway === 0) return '就是現在這個月';
+  const crossesYear = encounter.gregorianYear > Number(fromDate.slice(0, 4));
+  return `${crossesYear ? '明年・' : ''}還有 ${encounter.monthsAway} 個月`;
+}
+
+/** 首屏那一句：什麼時候、是哪一種。 */
+function EncounterCard({ encounter, fromDate, title, tone }: { encounter: Encounter | null; fromDate: string; title: string; tone: 'rose' | 'amber' }) {
+  const ring = tone === 'rose' ? 'border-rose-200/30 bg-rose-300/[0.1]' : 'border-amber-200/30 bg-amber-300/[0.1]';
+  const text = tone === 'rose' ? 'text-rose-100' : 'text-amber-100';
+  const big = tone === 'rose' ? 'text-rose-50' : 'text-amber-50';
+  if (!encounter) {
+    return (
+      <div className={`rounded-2xl border p-5 ${ring}`}>
+        <p className={`text-sm font-black ${text}`}>{title}</p>
+        <p className={`mt-2 text-xl font-black leading-tight ${big}`}>未來一年半內沒有命中</p>
+        <p className="mt-2 text-sm leading-6 text-white/65">這一路的力道不在時間上；與其等，不如把自己準備好。</p>
+      </div>
+    );
+  }
+  return (
+    <div className={`rounded-2xl border p-5 ${ring}`}>
+      <p className={`text-sm font-black ${text}`}>{title}</p>
+      <p className={`mt-2 text-3xl font-black leading-tight ${big}`}>
+        {encounter.gregorianYear} 年{encounter.lunarLabel}
+      </p>
+      <p className={`mt-1 text-base font-black ${text}`}>
+        {MONTH_DAY(encounter.startsOn)} – {MONTH_DAY(encounter.endsOn)}　{awayLabel(encounter, fromDate)}
+      </p>
+      <p className="mt-2 text-sm leading-6 text-white/70">命中：{encounter.labels.join('、')}（{encounter.jieqi}起算，{encounter.monthBranch}月）</p>
+      <p className="mt-3 text-sm leading-7 text-white/85">{encounter.magnet}</p>
+      <p className="mt-2 rounded-2xl border border-emerald-200/20 bg-emerald-300/[0.08] p-3 text-sm leading-7 text-emerald-50">{encounter.action}</p>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {encounter.loveWords.map((word) => (
+          <span key={word} className="rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-1 text-[11px] font-bold text-white/70">{word}</span>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -542,26 +597,48 @@ function RedLuanHeartbeatExperience() {
         {reading.ichingReading && reading.affinity && <section id="red-luan-spark" className="scroll-mt-5 rounded-3xl border border-rose-200/30 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.16),transparent_46%),rgba(15,23,42,0.86)] p-5 shadow-[0_18px_52px_rgba(244,63,94,0.14)]">
           <p className="text-xs font-black tracking-[0.18em] text-rose-200">易經起卦・{reading.ichingReading.spark.title}</p>
 
-          <div className="mt-4 rounded-2xl border border-amber-200/30 bg-amber-300/[0.1] p-5">
-            <p className="text-sm font-black text-amber-100">你什麼時候會碰到？</p>
-            {(reading.result.monthlyRhythm?.peakMonths?.length ?? 0) > 0 ? (
-              <>
-                <p className="mt-2 text-3xl font-black leading-tight text-amber-50">
-                  {reading.result.monthlyRhythm.year} 年{(reading.result.monthlyRhythm?.peakMonths ?? []).map((month) => month.lunarLabel).join('、')}
-                </p>
-                <p className="mt-2 text-sm font-bold text-amber-100/80">
-                  {(reading.result.monthlyRhythm?.peakMonths ?? []).map((month) => `${month.jieqi}起 ${month.gregorianHint}`).join('　｜　')}
-                </p>
-              </>
-            ) : (
-              <p className="mt-2 text-2xl font-black leading-tight text-amber-50">{reading.result.monthlyRhythm.year} 年這一路在「養」不在「動」</p>
-            )}
-          </div>
+          {reading.nextEncounters && (
+            <div className="mt-4 space-y-3">
+              <EncounterCard
+                encounter={reading.nextEncounters.soulResonance}
+                fromDate={reading.nextEncounters.fromDate}
+                title="下一次紅鸞心動・會碰到跟你相吸的人"
+                tone="rose"
+              />
+              {reading.nextEncounters.benefactor
+                && reading.nextEncounters.benefactor.startsOn !== reading.nextEncounters.soulResonance?.startsOn && (
+                <EncounterCard
+                  encounter={reading.nextEncounters.benefactor}
+                  fromDate={reading.nextEncounters.fromDate}
+                  title="下一次遇貴人"
+                  tone="amber"
+                />
+              )}
+            </div>
+          )}
 
           <div className="mt-3 rounded-2xl border border-rose-200/30 bg-rose-300/[0.1] p-5">
             <p className="text-sm font-black text-rose-100">{reading.affinity.partnerLabel === '對方' ? '對方長什麼樣子？' : `會跟你來電的，是哪一型的${reading.affinity.partnerLabel}？`}</p>
             <p className="mt-2 text-3xl font-black leading-tight text-rose-50">{reading.affinity.typeHeadline}</p>
             <p className="mt-2 text-sm leading-6 text-white/70">{reading.affinity.typeSummary}</p>
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-violet-200/30 bg-violet-400/[0.1] p-4">
+            <p className="text-sm font-black text-violet-100">想聽誰替你解這一卦？</p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {(reading.ichingReading.teachers ?? []).map((teacher) => (
+                <button
+                  key={teacher.key}
+                  type="button"
+                  aria-pressed={teacherKey === teacher.key}
+                  onClick={() => { setTeacherKey(teacher.key); setOpenedFolds((current) => (current.includes('teachers') ? current : [...current, 'teachers'])); }}
+                  className={`rounded-2xl border px-4 py-4 text-left transition ${teacherKey === teacher.key ? 'border-violet-100/70 bg-violet-300/25 text-violet-50 shadow-[0_0_22px_rgba(167,139,250,0.22)]' : 'border-white/12 bg-white/[0.05] text-white/70'}`}
+                >
+                  <span className="block text-lg font-black">{teacher.name}</span>
+                  <span className="mt-1 block text-[11px] leading-4 opacity-75">{teacher.tagline}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           <p className="mt-4 text-xs leading-5 text-white/45">以下想看再打開就好，不看也不影響上面的結論。</p>

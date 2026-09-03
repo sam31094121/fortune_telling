@@ -698,6 +698,186 @@ const ZIWEI_STAR_CAREER: Record<string, string> = {
   破軍: '工程技術、變動性強的行業',
 };
 
+/** 節氣月起始的國曆概略日（±1 天，實際交界以節氣時刻為準）。 */
+const SOLAR_MONTH_START: Record<number, [month: number, day: number]> = {
+  1: [2, 4], 2: [3, 6], 3: [4, 5], 4: [5, 6], 5: [6, 6], 6: [7, 7],
+  7: [8, 8], 8: [9, 8], 9: [10, 8], 10: [11, 7], 11: [12, 7], 12: [1, 6],
+};
+
+export type RedLuanEncounterKind = 'SOUL_RESONANCE' | 'BENEFACTOR' | 'BOTH';
+
+export type RedLuanEncounter = {
+  gregorianYear: number;
+  monthIndex: number;
+  monthBranch: Branch;
+  jieqi: string;
+  lunarLabel: string;
+  startsOn: string;
+  endsOn: string;
+  /** 距今幾個節氣月；0＝就是現在這個月。 */
+  monthsAway: number;
+  kind: RedLuanEncounterKind;
+  /** 命中的規則名稱，例如 ['紅鸞', '天喜']。 */
+  labels: string[];
+  /** 這個月的吸力會怎麼顯現——講給客戶聽的一句話。 */
+  magnet: string;
+  /** 臨門一腳：吸力再明顯，也要有人先伸手。 */
+  action: string;
+  /** 前端給客戶看的：把機制講成愛情的話，不是術語。 */
+  loveWords: string[];
+  /** 後端運算與稽核用的正式心理學術語；前端不直接顯示，收在證據層供查證。 */
+  mechanism: string[];
+  evidence: RedLuanTimelineEvidence[];
+};
+
+/**
+ * 「磁鐵」那一段的話術與其心理學骨架。
+ *
+ * 吸力為什麼會「特別明顯」，有真實機制可講：命中的月份代表這段時間你會更常
+ * 出現在特定場域（接近性效應），重複照面本身就會提升好感（單純曝光效應），
+ * 而節奏變動帶來的心跳加速容易被讀成心動（錯誤歸因激發）。
+ *
+ * 為什麼「只差伸手那一下」也有機制：想做與真的做之間有落差（意圖—行動落差），
+ * 落差多半由怕被拒絕撐著（拒絕敏感度）。解法不是勇氣，是先把句子準備好
+ * （執行意圖）——先開口的人啟動的是自我揭露互惠。
+ */
+const ENCOUNTER_COPY: Record<RedLuanEncounterKind, { magnet: string; action: string; loveWords: string[]; mechanism: string[] }> = {
+  SOUL_RESONANCE: {
+    magnet: '這個月的吸力會很明顯——像磁鐵一樣，你自己會知道是誰。不是玄，是你這段時間會一直跟同一個人照到面，看久了心就軟了。',
+    action: '差的只是當下你有沒有伸出手、有沒有把那一句話講出口。先想好要說什麼，機會來的時候才不會又吞回去。',
+    loveWords: ['你們會一直出現在同一個地方', '看久了，心就會軟', '想了很多次，就差說出口那一次', '先想好要說什麼，當下才不會愣住'],
+    mechanism: ['接近性效應（Propinquity Effect）', '單純曝光效應（Mere Exposure Effect）', '意圖—行動落差（Intention–Behavior Gap）', '執行意圖（Implementation Intentions）'],
+  },
+  BENEFACTOR: {
+    magnet: '這個月比較容易碰到願意拉你一把的人。訊號通常不是轟轟烈烈的，是有人多問你一句、多留一下。',
+    action: '貴人不會自己猜到你需要什麼——把你要的事講清楚，別人才接得住。開口求助不是欠人情，是給對方一個靠近你的入口。',
+    loveWords: ['別人比你以為的更願意幫你', '讓人幫你一次，關係反而更近', '說出需要，才有人接得住'],
+    mechanism: ['求助低估效應（Underestimating Compliance）', '富蘭克林效應（Ben Franklin Effect）', '社會支持動員（Social Support Mobilisation）'],
+  },
+  BOTH: {
+    magnet: '這個月兩股力道會一起來——相吸的那一種，和願意拉你一把的那一種。吸力會很明顯，像磁鐵，你會分得出來是誰。',
+    action: '兩邊都只差你先動那一下：想靠近的就伸手，需要幫忙的就開口。先把話準備好，當下就不會愣住。',
+    loveWords: ['你們會一直出現在同一個地方', '看久了，心就會軟', '你先說一句真心話，對方才敢說第二句', '想歸想，手要伸出去才算'],
+    mechanism: ['接近性效應（Propinquity Effect）', '單純曝光效應（Mere Exposure Effect）', '意圖—行動落差（Intention–Behavior Gap）', '自我揭露互惠（Reciprocal Self-Disclosure）'],
+  },
+};
+
+export type RedLuanNextEncounters = {
+  fromDate: string;
+  /** 下一次「兩人相吸」的月份：紅鸞、天喜、桃花或日支六合命中。 */
+  soulResonance: RedLuanEncounter | null;
+  /** 下一次貴人月份：天乙貴人命中。 */
+  benefactor: RedLuanEncounter | null;
+  /** 掃描範圍內全部命中的月份，依時間排序。 */
+  upcoming: RedLuanEncounter[];
+  monthsScanned: number;
+  limitation: string;
+};
+
+function pad2(value: number) {
+  return String(value).padStart(2, '0');
+}
+
+function isoDate(year: number, month: number, day: number) {
+  return `${year}-${pad2(month)}-${pad2(day)}`;
+}
+
+/** 從某個國曆年往後列出所有節氣月窗口，依起始日排序。 */
+function solarMonthWindows(fromYear: number, years: number) {
+  const windows: Array<{ gregorianYear: number; monthIndex: number; branch: Branch; jieqi: string; lunarLabel: string; startsOn: string }> = [];
+  for (let year = fromYear; year < fromYear + years; year += 1) {
+    for (const month of RED_LUAN_SOLAR_MONTHS) {
+      const [gm, gd] = SOLAR_MONTH_START[month.index];
+      windows.push({
+        gregorianYear: year,
+        monthIndex: month.index,
+        branch: month.branch,
+        jieqi: month.jieqi,
+        lunarLabel: month.lunarLabel,
+        startsOn: isoDate(year, gm, gd),
+      });
+    }
+  }
+  windows.sort((a, b) => a.startsOn.localeCompare(b.startsOn));
+  return windows;
+}
+
+/**
+ * 「下一次是什麼時候」：從指定日期往後掃節氣月，找出下一個命中的月份。
+ *
+ * 會跨年——今年剩下的月份都沒命中，就往明年找。規則與年度／月度層完全相同，
+ * 只是改成以「今天之後」為起點；紅鸞、天喜、桃花與日支六合歸為「相吸」，
+ * 天乙貴人歸為「貴人」，兩者分開回報，因為客戶問的是不同的事。
+ */
+export function buildRedLuanNextEncounters(input: {
+  yearBranch: string;
+  dayBranch: string;
+  dayMasterStem?: string;
+  fromDate: string;
+  monthsAhead?: number;
+}): RedLuanNextEncounters {
+  if (!isBranch(input.yearBranch) || !isBranch(input.dayBranch)) {
+    throw new Error('RED_LUAN_HEARTBEAT_INVALID_BAZI_BRANCH');
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.fromDate)) throw new Error('RED_LUAN_HEARTBEAT_INVALID_FROM_DATE');
+  const monthsAhead = Math.min(Math.max(input.monthsAhead ?? 18, 1), 36);
+  const fromYear = Number(input.fromDate.slice(0, 4)) - 1;
+  const windows = solarMonthWindows(fromYear, Math.ceil(monthsAhead / 12) + 3);
+
+  // 找出「今天所在」的那個窗口：起始日 <= today 的最後一個。
+  let currentIndex = -1;
+  for (let i = 0; i < windows.length; i += 1) {
+    if (windows[i].startsOn <= input.fromDate) currentIndex = i;
+    else break;
+  }
+  if (currentIndex < 0) currentIndex = 0;
+
+  const slice = windows.slice(currentIndex, currentIndex + monthsAhead);
+  const upcoming: RedLuanEncounter[] = [];
+
+  for (let offset = 0; offset < slice.length; offset += 1) {
+    const window = slice[offset];
+    const monthRows = buildSingleRedLuanMonthlyRhythm({
+      yearBranch: input.yearBranch,
+      dayBranch: input.dayBranch,
+      dayMasterStem: input.dayMasterStem,
+      year: window.gregorianYear,
+    });
+    const row = monthRows.find((item) => item.monthIndex === window.monthIndex);
+    if (!row || row.evidence.length === 0) continue;
+    // 六沖不是相吸也不是貴人，這裡不當成「會碰到」的訊號。
+    const meaningful = row.evidence.filter((item) => item.id !== 'day_branch_clash');
+    if (meaningful.length === 0) continue;
+    const hasResonance = meaningful.some((item) => item.id !== 'tianyi');
+    const hasBenefactor = meaningful.some((item) => item.id === 'tianyi');
+    const next = windows[currentIndex + offset + 1];
+    const kind: RedLuanEncounterKind = hasResonance && hasBenefactor ? 'BOTH' : hasBenefactor ? 'BENEFACTOR' : 'SOUL_RESONANCE';
+    upcoming.push({
+      ...ENCOUNTER_COPY[kind],
+      gregorianYear: window.gregorianYear,
+      monthIndex: window.monthIndex,
+      monthBranch: window.branch,
+      jieqi: window.jieqi,
+      lunarLabel: window.lunarLabel,
+      startsOn: window.startsOn,
+      endsOn: next ? next.startsOn : window.startsOn,
+      monthsAway: offset,
+      kind,
+      labels: [...new Set(meaningful.map((item) => item.label))],
+      evidence: meaningful,
+    });
+  }
+
+  return {
+    fromDate: input.fromDate,
+    soulResonance: upcoming.find((item) => item.kind !== 'BENEFACTOR') ?? null,
+    benefactor: upcoming.find((item) => item.kind !== 'SOUL_RESONANCE') ?? null,
+    upcoming,
+    monthsScanned: slice.length,
+    limitation: '節氣交界日為概略值（±1 天），實際起訖以八字排盤引擎的節氣時刻為準；命中表示該月地支觸發規則，不保證發生特定事件。',
+  };
+}
+
 /** 地支 → 生肖／方位／相處特質。特質描述的是「相處起來的樣子」，不是人格診斷。 */
 const BRANCH_AFFINITY: Record<Branch, { zodiac: string; direction: string; trait: string }> = {
   子: { zodiac: '鼠', direction: '北方', trait: '反應快、話題多，靠機靈與貼心拉近距離' },

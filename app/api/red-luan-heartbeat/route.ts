@@ -5,6 +5,7 @@ import { isValidBirthday } from '@/lib/validation';
 import {
   buildRedLuanContextAlignment,
   buildRedLuanAffinityProfile,
+  buildRedLuanNextEncounters,
   defaultPartnerGenderFor,
   validateRedLuanPartnerGender,
   type RedLuanPartnerGender,
@@ -45,6 +46,11 @@ function exactTimeBranch(time?: string) {
   const hour = Number(time.slice(0, 2));
   const index = shichenFromClockHour(hour);
   return SHICHEN_LIST[index];
+}
+
+function currentTaipeiDate() {
+  const parts = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Taipei' }).format(new Date());
+  return parts;
 }
 
 function currentTaipeiYear() {
@@ -206,6 +212,12 @@ export async function POST(request: Request) {
       attractedType,
       partnerGender: person.partnerGender ?? defaultPartnerGenderFor(person.gender),
     });
+    const nextEncounters = buildRedLuanNextEncounters({
+      yearBranch: core.pillars.year.earthlyBranch,
+      dayBranch: core.pillars.day.earthlyBranch,
+      dayMasterStem: core.dayMaster.stem,
+      fromDate: currentTaipeiDate(),
+    });
     const ichingReading = buildRedLuanIChingReading({
       name: person.name.trim(),
       birthDate: core.calendar.solarDate,
@@ -225,6 +237,7 @@ export async function POST(request: Request) {
       },
       contextAlignment,
       affinity,
+      nextEncounters,
       ichingReading,
       result: { ...result, culturalReading },
     });
