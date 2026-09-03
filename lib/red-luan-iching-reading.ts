@@ -50,6 +50,8 @@ export type RedLuanTeacherReading = {
   key: RedLuanTeacher;
   name: string;
   tagline: string;
+  /** 按鈕上的內容預告——客戶要知道按下去會拿到什麼，才會想按。 */
+  preview: string;
   opening: string;
   /** 逐層揭露；兩位老師層數與口吻不同，但引用的是同一顆卦。 */
   sections: Array<{ title: string; text: string }>;
@@ -159,10 +161,10 @@ export function buildRedLuanIChingReading(input: {
       const karmic = KARMIC_BY_LOWER_TRIGRAM[hexagram.lower.name];
       return {
         title: '今生來世・上輩子相欠的那一筆',
-        owed: `${karmic.owed}。你的卦下卦是${hexagram.lower.name}（${hexagram.lower.attribute}），欠的就記在這裡。`,
+        owed: `${karmic.owed}。`,
         lesson: `${karmic.lesson}。`,
-        reunion: `${KARMIC_REUNION_BY_LINE[hexagram.changingLine] ?? KARMIC_REUNION_BY_LINE[2]}——動爻落在第${hexagram.changingLine}爻，重逢的口子就開在這裡。`,
-        note: '這是易經式的文化敘事，用來把「為什麼一直遇到同一種人」講成可以理解、可以改寫的東西；不是對前世的事實陳述，也不是預測。心理學上這叫重新框架（Reframing）與未完成事件（Unfinished Business）。',
+        reunion: `${KARMIC_REUNION_BY_LINE[hexagram.changingLine] ?? KARMIC_REUNION_BY_LINE[2]}。`,
+        note: '這是用來把「為什麼一直遇到同一種人」講成可以理解、也可以改寫的東西，不是對前世的事實陳述。',
       };
     })(),
     teachers: buildTeacherReadings({ hexagram, patternName, empathic, affinity: input.affinity, monthsPhrase: months, hasPeak: input.peakMonths.length > 0, year: input.year }),
@@ -215,7 +217,8 @@ function buildTeacherReadings(input: {
     {
       key: 'iching',
       name: '易經老師',
-      tagline: '沉穩導師・由外而內把話說清楚',
+      tagline: '沉穩導師',
+      preview: '把時間、對象、你該做什麼，一條一條講清楚',
       opening: empathic.greeting,
       sections: ichingSections,
       closing: `${empathic.soulFriendVow}\n${empathic.closing}`,
@@ -223,7 +226,8 @@ function buildTeacherReadings(input: {
     {
       key: 'ghost',
       name: '鬼魅老師',
-      tagline: '門外低語・磁場、詭異、因果',
+      tagline: '門外低語',
+      preview: '說出你身上那道還沒散掉的舊迴聲',
       opening: `……你先別出聲。我隔著門替你卜這一卦——${hexagram.hexagramName}，第${hexagram.kingWen}卦，${hexagram.glyph}。格局是「${patternName}」。門外的東西，我看見了。`,
       sections: ghostSections,
       closing: `聽清楚：${empathic.absolution.split('聽清楚')[0].trim()}那不是你的錯。門我替你留著，要不要走出來，你自己決定。`,

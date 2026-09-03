@@ -21,7 +21,7 @@ type Encounter = {
   gregorianYear: number; monthIndex: number; monthBranch: string; jieqi: string; lunarLabel: string;
   startsOn: string; endsOn: string; monthsAway: number;
   kind: 'SOUL_RESONANCE' | 'BENEFACTOR' | 'BOTH';
-  labels: string[]; magnet: string; action: string; loveWords: string[]; mechanism: string[]; evidence: TimelineEvidence[];
+  labels: string[]; monthLine: string; magnet: string; action: string; loveWords: string[]; mechanism: string[]; evidence: TimelineEvidence[];
 };
 type NextEncounters = {
   fromDate: string; soulResonance: Encounter | null; benefactor: Encounter | null;
@@ -49,7 +49,7 @@ type IChingReading = {
   onion: Array<{ step: number; layer: string; point: string; term?: string }>;
   closing: string;
   karmicBond: { title: string; owed: string; lesson: string; reunion: string; note: string };
-  teachers: Array<{ key: string; name: string; tagline: string; opening: string; sections: Array<{ title: string; text: string }>; closing: string }>;
+  teachers: Array<{ key: string; name: string; tagline: string; preview: string; opening: string; sections: Array<{ title: string; text: string }>; closing: string }>;
   seedText: string;
 };
 type BaziSignal = { annualYear: number; annualBranch: string; inputCompleteness: string; natalEvidence: Evidence[]; annualTriggers: Evidence[]; limitations: string[]; sources: Array<{ title: string; reference: string }> };
@@ -354,7 +354,7 @@ function EncounterCard({ encounter, fromDate, title, tone }: { encounter: Encoun
         {MONTH_DAY(encounter.startsOn)} – {MONTH_DAY(encounter.endsOn)}　{awayLabel(encounter, fromDate)}
       </p>
       <p className="mt-1 text-xs font-bold text-white/45">農曆{encounter.lunarLabel}・{encounter.jieqi}起</p>
-      <p className="mt-2 text-sm leading-6 text-white/70">這個月走{encounter.labels.map((l) => LABEL_WORDS[l] ?? l).join('、')}</p>
+      <p className="mt-2 text-sm leading-6 text-white/70">{encounter.monthLine}</p>
       <p className="mt-3 text-sm leading-7 text-white/85">{encounter.magnet}</p>
       <p className="mt-2 rounded-2xl border border-emerald-200/20 bg-emerald-300/[0.08] p-3 text-sm leading-7 text-emerald-50">{encounter.action}</p>
       <div className="mt-3 flex flex-wrap gap-1.5">
@@ -373,6 +373,7 @@ function EncounterCard({ encounter, fromDate, title, tone }: { encounter: Encoun
 function Fold({
   title,
   badge,
+  teaser,
   foldKey,
   opened,
   onToggle,
@@ -380,6 +381,7 @@ function Fold({
 }: {
   title: string;
   badge?: string;
+  teaser?: string;
   foldKey: string;
   opened: string[];
   onToggle: (key: string) => void;
@@ -394,9 +396,12 @@ function Fold({
         onClick={() => onToggle(foldKey)}
         className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition hover:bg-white/[0.03]"
       >
-        <span className="flex min-w-0 items-center gap-2">
-          <span className="text-sm font-black text-white">{title}</span>
-          {badge && <span className="shrink-0 rounded-full border border-white/15 px-2 py-0.5 text-[10px] font-black text-white/55">{badge}</span>}
+        <span className="min-w-0">
+          <span className="flex items-center gap-2">
+            <span className="text-sm font-black text-white">{title}</span>
+            {badge && <span className="shrink-0 rounded-full border border-white/15 px-2 py-0.5 text-[10px] font-black text-white/55">{badge}</span>}
+          </span>
+          {teaser && !isOpen && <span className="mt-1 block text-xs leading-5 text-white/45">{teaser}</span>}
         </span>
         <span className={`shrink-0 text-xs font-black text-white/45 transition ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true">▼</span>
       </button>
@@ -612,7 +617,7 @@ function RedLuanHeartbeatExperience() {
               <EncounterCard
                 encounter={reading.nextEncounters.soulResonance}
                 fromDate={reading.nextEncounters.fromDate}
-                title="下一次紅鸞心動・會碰到跟你相吸的人"
+                title={reading.nextEncounters.soulResonance?.kind === 'BOTH' ? '下一次紅鸞心動・桃花和貴人同一個月' : '下一次紅鸞心動・會碰到跟你相吸的人'}
                 tone="rose"
               />
               {reading.nextEncounters.benefactor
@@ -655,7 +660,7 @@ function RedLuanHeartbeatExperience() {
                   className={`rounded-2xl border px-4 py-4 text-left transition ${teacherKey === teacher.key ? 'border-violet-100/70 bg-violet-300/25 text-violet-50 shadow-[0_0_22px_rgba(167,139,250,0.22)]' : 'border-white/12 bg-white/[0.05] text-white/70'}`}
                 >
                   <span className="block text-lg font-black">{teacher.name}</span>
-                  <span className="mt-1 block text-[11px] leading-4 opacity-75">{teacher.tagline}</span>
+                  <span className="mt-1 block text-[11px] leading-4 opacity-75">{teacher.preview}</span>
                 </button>
               ))}
             </div>
@@ -667,7 +672,22 @@ function RedLuanHeartbeatExperience() {
           <p className="mt-4 text-xs leading-5 text-white/45">以下想看再打開就好，不看也不影響上面的結論。</p>
 
           <div className="mt-2 space-y-2">
-            <Fold title="一層一層看他是誰" badge={`${(reading.affinity.onionLayers ?? []).length} 層`} foldKey="onion" opened={openedFolds} onToggle={toggleFold}>
+            {reading.ichingReading && <>
+            <Fold title="為什麼會是你？" badge="越後面越深" teaser={reading.ichingReading.onion?.[0]?.point} foldKey="psych" opened={openedFolds} onToggle={toggleFold}>
+              <div className="space-y-2">
+                {(reading.ichingReading.onion ?? []).map((layer) => (
+                  <article key={layer.step} className="rounded-2xl border border-white/10 bg-black/22 p-4">
+                    <p className="text-[10px] font-black tracking-[0.14em] text-cyan-100">第 {layer.step} 層・{layer.layer}</p>
+                    <p className="mt-2 text-sm leading-7 text-white/85">{layer.point}</p>
+                    {layer.term && <p className="mt-1 text-[11px] leading-5 text-white/40">{layer.term}</p>}
+                  </article>
+                ))}
+              </div>
+              <p className="mt-3 text-[11px] leading-5 text-white/40">心理學名詞是真實學術用語，可以自行查證。這是自我反思，不是心理診斷。</p>
+            </Fold>
+            </>}
+
+            <Fold title="一層一層看他是誰" badge="4 層" teaser="他在哪一行、從哪個方向來，一層一層拆給你看" foldKey="onion" opened={openedFolds} onToggle={toggleFold}>
               <div className="space-y-2">
                 {(reading.affinity.onionLayers ?? []).map((layer, index) => {
                   const unlocked = index <= peeled;
@@ -693,7 +713,7 @@ function RedLuanHeartbeatExperience() {
             </Fold>
 
             {reading.ichingReading && <>
-            <Fold title={`你的卦・${reading.ichingReading.patternName}`} badge={reading.ichingReading.hexagram.glyph} foldKey="hexagram" opened={openedFolds} onToggle={toggleFold}>
+            <Fold title={`你的卦・${reading.ichingReading.patternName}`} badge={reading.ichingReading.hexagram.glyph} teaser="六十四格裡就這一格是你" foldKey="hexagram" opened={openedFolds} onToggle={toggleFold}>
               <div className="flex flex-wrap items-center gap-3">
                 <span className="text-5xl leading-none text-rose-100" aria-hidden="true">{reading.ichingReading.hexagram.glyph}</span>
                 <div>
@@ -709,27 +729,15 @@ function RedLuanHeartbeatExperience() {
               <p className="mt-3 text-[11px] leading-5 text-white/45">起卦依據：{reading.ichingReading.seedText}（梅花易數生辰起卦，同一生辰永遠同一卦，可回查驗算）。</p>
             </Fold>
 
-            <Fold title="你這個人・一層一句" badge={`${(reading.ichingReading.onion ?? []).length} 層`} foldKey="psych" opened={openedFolds} onToggle={toggleFold}>
-              <div className="space-y-2">
-                {(reading.ichingReading.onion ?? []).map((layer) => (
-                  <article key={layer.step} className="rounded-2xl border border-white/10 bg-black/22 p-4">
-                    <p className="text-[10px] font-black tracking-[0.14em] text-cyan-100">第 {layer.step} 層・{layer.layer}</p>
-                    <p className="mt-2 text-sm leading-7 text-white/85">{layer.point}</p>
-                    {layer.term && <p className="mt-1 text-[11px] leading-5 text-white/40">{layer.term}</p>}
-                  </article>
-                ))}
-              </div>
-              <p className="mt-3 text-[11px] leading-5 text-white/45">四層都取自同一顆卦：上卦看你的外顯、下卦看你的內在、動爻看你此刻的心思。心理學名詞是真實學術用語，可以自行查證；這是自我反思，不是心理診斷。</p>
-            </Fold>
 
-            <Fold title={reading.ichingReading.karmicBond.title} badge="因果" foldKey="karmic" opened={openedFolds} onToggle={toggleFold}>
+            <Fold title={reading.ichingReading.karmicBond.title} badge="因果" teaser={reading.ichingReading.karmicBond.owed} foldKey="karmic" opened={openedFolds} onToggle={toggleFold}>
               <p className="text-sm leading-7 text-white/78">{reading.ichingReading.karmicBond.owed}</p>
               <p className="mt-2 text-sm leading-7 text-amber-100">{reading.ichingReading.karmicBond.lesson}</p>
               <p className="mt-2 rounded-2xl border border-rose-200/20 bg-rose-300/[0.08] p-4 text-sm leading-7 text-rose-50">{reading.ichingReading.karmicBond.reunion}</p>
               <p className="mt-3 text-[11px] leading-5 text-white/45">{reading.ichingReading.karmicBond.note}</p>
             </Fold>
 
-            <Fold title="同一卦・兩種說法" badge="易經／鬼魅" foldKey="teachers" opened={openedFolds} onToggle={toggleFold}>
+            <Fold title="同一卦・兩種說法" badge="易經／鬼魅" teaser="兩位老師講法完全不同，挑一個聽" foldKey="teachers" opened={openedFolds} onToggle={toggleFold}>
               <div className="grid gap-2 sm:grid-cols-2">
                 {(reading.ichingReading.teachers ?? []).map((teacher) => (
                   <button key={teacher.key} type="button" aria-pressed={teacherKey === teacher.key} onClick={() => setTeacherKey(teacher.key)} className={`rounded-2xl border px-4 py-3 text-left transition ${teacherKey === teacher.key ? 'border-violet-200/70 bg-violet-300/20 text-violet-50' : 'border-white/10 bg-white/[0.04] text-white/65'}`}>

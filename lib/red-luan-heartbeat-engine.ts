@@ -789,6 +789,8 @@ export type RedLuanEncounter = {
   magnet: string;
   /** 臨門一腳：吸力再明顯，也要有人先伸手。 */
   action: string;
+  /** 首屏那一行：這個月是什麼在動，講人話。 */
+  monthLine: string;
   /** 前端給客戶看的：把機制講成愛情的話，不是術語。 */
   loveWords: string[];
   /** 後端運算與稽核用的正式心理學術語；前端不直接顯示，收在證據層供查證。 */
@@ -807,20 +809,23 @@ export type RedLuanEncounter = {
  * 落差多半由怕被拒絕撐著（拒絕敏感度）。解法不是勇氣，是先把句子準備好
  * （執行意圖）——先開口的人啟動的是自我揭露互惠。
  */
-const ENCOUNTER_COPY: Record<RedLuanEncounterKind, { magnet: string; action: string; loveWords: string[]; mechanism: string[] }> = {
+const ENCOUNTER_COPY: Record<RedLuanEncounterKind, { monthLine: string; magnet: string; action: string; loveWords: string[]; mechanism: string[] }> = {
   SOUL_RESONANCE: {
+    monthLine: '這個月你的桃花最旺',
     magnet: '這個月的吸力會很明顯——像磁鐵一樣，你自己會知道是誰。不是玄，是你這段時間會一直跟同一個人照到面，看久了心就軟了。',
     action: '差的只是當下你有沒有伸出手、有沒有把那一句話講出口。先想好要說什麼，機會來的時候才不會又吞回去。',
     loveWords: ['你們會一直出現在同一個地方', '看久了，心就會軟', '想了很多次，就差說出口那一次', '先想好要說什麼，當下才不會愣住'],
     mechanism: ['接近性效應（Propinquity Effect）', '單純曝光效應（Mere Exposure Effect）', '意圖—行動落差（Intention–Behavior Gap）', '執行意圖（Implementation Intentions）'],
   },
   BENEFACTOR: {
+    monthLine: '這個月貴人星到位',
     magnet: '這個月比較容易碰到願意拉你一把的人。訊號通常不是轟轟烈烈的，是有人多問你一句、多留一下。',
     action: '貴人不會自己猜到你需要什麼——把你要的事講清楚，別人才接得住。開口求助不是欠人情，是給對方一個靠近你的入口。',
     loveWords: ['別人比你以為的更願意幫你', '讓人幫你一次，關係反而更近', '說出需要，才有人接得住'],
     mechanism: ['求助低估效應（Underestimating Compliance）', '富蘭克林效應（Ben Franklin Effect）', '社會支持動員（Social Support Mobilisation）'],
   },
   BOTH: {
+    monthLine: '這個月桃花和貴人一起到',
     magnet: '這個月兩股力道會一起來——相吸的那一種，和願意拉你一把的那一種。吸力會很明顯，像磁鐵，你會分得出來是誰。',
     action: '兩邊都只差你先動那一下：想靠近的就伸手，需要幫忙的就開口。先把話準備好，當下就不會愣住。',
     loveWords: ['你們會一直出現在同一個地方', '看久了，心就會軟', '你先說一句真心話，對方才敢說第二句', '想歸想，手要伸出去才算'],
@@ -934,10 +939,22 @@ export function buildRedLuanNextEncounters(input: {
     });
   }
 
+  // 兩張卡各自講各自的事。若同一個月同時命中兩者，貴人卡改用貴人專屬話術，
+  // 否則兩張卡會出現一模一樣的段落，讀起來像罐頭。
+  const resonanceHit = upcoming.find((item) => item.kind !== 'BENEFACTOR');
+  const benefactorHit = upcoming.find((item) => item.kind !== 'SOUL_RESONANCE');
+  // 同一個月同時中兩者時只會顯示一張卡，那張卡要講「兩股一起到」，
+  // 否則客戶會漏掉貴人也在這個月。分開月份時才各講各的。
+  const sameMonth = Boolean(resonanceHit && benefactorHit && resonanceHit.startsOn === benefactorHit.startsOn);
+  const asRole = (encounter: RedLuanEncounter | undefined, role: RedLuanEncounterKind) => {
+    if (!encounter) return null;
+    return sameMonth ? encounter : { ...encounter, ...ENCOUNTER_COPY[role] };
+  };
+
   return {
     fromDate: input.fromDate,
-    soulResonance: upcoming.find((item) => item.kind !== 'BENEFACTOR') ?? null,
-    benefactor: upcoming.find((item) => item.kind !== 'SOUL_RESONANCE') ?? null,
+    soulResonance: asRole(resonanceHit, 'SOUL_RESONANCE'),
+    benefactor: asRole(benefactorHit, 'BENEFACTOR'),
     upcoming,
     monthsScanned: slice.length,
     limitation: '節氣交界日為概略值（±1 天），實際起訖以八字排盤引擎的節氣時刻為準；命中表示該月地支觸發規則，不保證發生特定事件。',
@@ -1111,7 +1128,7 @@ export function buildRedLuanAffinityProfile(input: {
         // 這種互相打架的描述，客戶讀完只會問「所以到底是哪一種」。
         headline: leadRow ? leadRow.appearance.split('，')[0] : '',
         detail: leadRow
-          ? `最主要的是${leadRow.label}落在${leadRow.branch}（屬${leadRow.zodiac}）這一路：${leadRow.appearance}。${
+          ? `最主要的一型是這樣：${leadRow.appearance}。${
             uniqueBranches.length > 1
               ? `另外還有 ${uniqueBranches.length - 1} 種可能：${uniqueBranches.filter((row) => row.branch !== leadRow.branch).map((row) => `${row.appearance.split('，')[0]}（${row.zodiac}）`).join('、')}。`
               : ''
@@ -1131,7 +1148,7 @@ export function buildRedLuanAffinityProfile(input: {
         title: '第三層・在做什麼的人',
         // 客戶要的是記得住的人選，不是二十個職業的清單。
         headline: leadRow.careers.slice(0, 3).join('、'),
-        detail: `${leadRow.branch}（屬${leadRow.zodiac}）這一路的氣性最常落在${leadRow.careers.join('、')}。${
+        detail: `最常出現在${leadRow.careers.join('、')}這些行業。${
           spouseStars.find((star) => star.career) ? `紫微主星再指一次：${spouseStars.find((star) => star.career)?.career}。` : ''
         }這是行業場域的傳統對應，不是說對方一定做這些。`,
       },
@@ -1139,7 +1156,7 @@ export function buildRedLuanAffinityProfile(input: {
         step: 4,
         title: '第四層・從哪個方向來',
         headline: leadRow.direction,
-        detail: `主要看${leadRow.branch}＝${leadRow.direction}。${
+        detail: `主要在${leadRow.direction}。${
           uniqueBranches.length > 1
             ? `次要的還有${uniqueBranches.filter((row) => row.branch !== leadRow.branch).map((row) => row.direction).join('、')}。`
             : ''
