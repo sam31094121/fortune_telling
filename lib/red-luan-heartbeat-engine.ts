@@ -660,6 +660,44 @@ export function buildSingleRedLuanAnnualRhythm(input: {
   });
 }
 
+/**
+ * 地支 → 外型印象與常見職業領域。
+ * 這是十二地支五行氣性的傳統對應（木主生發、火主外放、金主精整、水主流動、土主承載），
+ * 描述的是「第一眼的印象」與「常出現的行業場域」，不是對任何人的斷定。
+ */
+const BRANCH_PERSON_PROFILE: Record<Branch, { appearance: string; careers: string[] }> = {
+  子: { appearance: '清秀機靈，眼神有神、反應寫在臉上', careers: ['業務', '行銷企劃', '媒體傳播', '運輸物流', '飲料餐飲'] },
+  丑: { appearance: '厚實穩重，五官敦厚、講話慢但踏實', careers: ['金融', '營建', '公職', '倉儲管理', '農牧食品'] },
+  寅: { appearance: '骨架大、氣勢足，走進來會被注意到的那種', careers: ['主管職', '軍警消', '教育', '法律', '創業'] },
+  卯: { appearance: '乾淨秀氣，笑起來柔和、給人沒有壓力的感覺', careers: ['設計', '文創出版', '教育', '園藝', '美容美髮'] },
+  辰: { appearance: '身形有份量、氣場大，說話有條理', careers: ['工程', '資訊科技', '專案管理', '土木建築', '研發'] },
+  巳: { appearance: '五官立體、眼神深，安靜但存在感強', careers: ['醫療', '研究', '精密製造', '法務', '金融分析'] },
+  午: { appearance: '陽光外向，笑容外放、走路帶風', careers: ['演藝表演', '餐飲', '業務', '體育健身', '消防'] },
+  未: { appearance: '面相溫和，眼神軟、天生讓人放鬆', careers: ['護理照護', '餐飲', '社福', '藝術', '幼教'] },
+  申: { appearance: '精瘦靈活，手腳快、講話節奏明快', careers: ['工程師', '機械技術', '交通運輸', '貿易', '資訊'] },
+  酉: { appearance: '乾淨整齊，講究穿搭與細節，看起來很清爽', careers: ['醫師', '會計', '精品零售', '金工珠寶', '品管'] },
+  戌: { appearance: '陽剛可靠，兄弟型、義氣寫在臉上', careers: ['軍警消', '保全', '法務', '獸醫', '資安'] },
+  亥: { appearance: '圓潤親和，好接近、聊兩句就熟', careers: ['醫護', '宗教心靈', '藝術', '公益社工', '海洋水產'] },
+};
+
+/** 紫微主星 → 常見職業場域。只取實際排出的星，不補星。 */
+const ZIWEI_STAR_CAREER: Record<string, string> = {
+  紫微: '管理職、公職、企業主管',
+  天機: '企劃、顧問、研發、幕僚',
+  太陽: '教育、公關、業務主管',
+  武曲: '金融、軍警、技術專業',
+  天同: '服務業、餐飲、社福',
+  廉貞: '業務、公關、資訊',
+  天府: '財務、行政、經營管理',
+  太陰: '文書、設計、照護',
+  貪狼: '演藝、業務、教育訓練',
+  巨門: '律師、教師、媒體、口才專業',
+  天相: '幕僚、秘書、協調整合',
+  天梁: '醫療、教育、宗教、稽核',
+  七殺: '軍警、業務開發、創業',
+  破軍: '工程技術、變動性強的行業',
+};
+
 /** 地支 → 生肖／方位／相處特質。特質描述的是「相處起來的樣子」，不是人格診斷。 */
 const BRANCH_AFFINITY: Record<Branch, { zodiac: string; direction: string; trait: string }> = {
   子: { zodiac: '鼠', direction: '北方', trait: '反應快、話題多，靠機靈與貼心拉近距離' },
@@ -711,9 +749,11 @@ const ATTRACTED_TYPE_COPY: Record<RedLuanAttractedType, { label: string; note: s
 export type RedLuanAffinityProfile = {
   status: 'READY';
   /** 由八字規則推出的有緣方向；每一條都附規則出處。 */
-  branches: Array<{ label: string; branch: Branch; zodiac: string; direction: string; trait: string; ruleId: string; basis: string }>;
+  branches: Array<{ label: string; branch: Branch; zodiac: string; direction: string; trait: string; appearance: string; careers: string[]; ruleId: string; basis: string }>;
   /** 紫微夫妻宮及三方四正實際排出的主星特質。時辰未知時為空陣列。 */
-  spouseStars: Array<{ palace: string; star: string; trait: string }>;
+  spouseStars: Array<{ palace: string; star: string; trait: string; career: string }>;
+  /** 洋蔥式逐層揭露：由外而內，一層講一件事。 */
+  onionLayers: Array<{ step: number; title: string; headline: string; detail: string }>;
   selfReportedType: RedLuanAttractedType | RedLuanContextUnspecified;
   selfReportedLabel: string;
   limitations: string[];
@@ -744,7 +784,7 @@ export function buildRedLuanAffinityProfile(input: {
         label: '天乙貴人', branch, ruleId: 'TW_SHENSHA_BASIC_V1_TIANYI', basis: `日干${input.dayMasterStem}之天乙貴人位`,
       }))
       : []),
-  ].map((row) => ({ ...row, ...BRANCH_AFFINITY[row.branch] }));
+  ].map((row) => ({ ...row, ...BRANCH_AFFINITY[row.branch], ...BRANCH_PERSON_PROFILE[row.branch] }));
 
   const seen = new Set<string>();
   const branches = rows.filter((row) => {
@@ -758,21 +798,63 @@ export function buildRedLuanAffinityProfile(input: {
     palace.majorStars
       .map((star) => star.replace(/（.*?）/g, ''))
       .filter((star) => ZIWEI_STAR_AFFINITY[star])
-      .map((star) => ({ palace: palace.palace, star, trait: ZIWEI_STAR_AFFINITY[star] })),
+      .map((star) => ({ palace: palace.palace, star, trait: ZIWEI_STAR_AFFINITY[star], career: ZIWEI_STAR_CAREER[star] ?? '' })),
   );
 
   const selfReportedType = input.attractedType && input.attractedType !== RED_LUAN_CONTEXT_UNSPECIFIED
     ? input.attractedType
     : RED_LUAN_CONTEXT_UNSPECIFIED;
 
+  // 同一個地支可能同時是天喜與桃花，講給客戶聽時只算一次。
+  const uniqueBranches = branches.filter((row, index, all) => all.findIndex((item) => item.branch === row.branch) === index);
+  const careerPool = [...new Set([
+    ...uniqueBranches.flatMap((row) => row.careers),
+    ...spouseStars.map((star) => star.career).filter(Boolean),
+  ])];
+
+  const onionLayers: Array<{ step: number; title: string; headline: string; detail: string }> = uniqueBranches.length > 0
+    ? [
+      {
+        step: 1,
+        title: '第一眼・外型印象',
+        headline: uniqueBranches.map((row) => row.appearance.split('，')[0]).join('、'),
+        detail: `你的紅鸞、天喜、桃花與貴人落在${uniqueBranches.map((row) => `${row.branch}（屬${row.zodiac}）`).join('、')}。這幾個地支的氣性，對到人身上的第一印象是：${uniqueBranches.map((row) => row.appearance).join('；')}。`,
+      },
+      {
+        step: 2,
+        title: '第二層・相處起來',
+        headline: uniqueBranches.slice(0, 2).map((row) => row.trait.split('，')[0]).join('、'),
+        detail: `真的接觸之後，會發現對方${uniqueBranches.map((row) => row.trait).join('；或是')}。${spouseStars.length > 0 ? `紫微夫妻宮這邊補一筆：${spouseStars.map((star) => star.trait).join('、')}。` : ''}`,
+      },
+      {
+        step: 3,
+        title: '第三層・在做什麼的人',
+        headline: careerPool.slice(0, 5).join('、'),
+        detail: `地支氣性常落在這些場域：${uniqueBranches.map((row) => `${row.branch}→${row.careers.join('／')}`).join('；')}。${spouseStars.length > 0 ? `紫微主星再指一次：${spouseStars.map((star) => `${star.star}→${star.career}`).filter((line) => !line.endsWith('→')).join('；')}。` : '時辰未知，紫微這一路先不補。'}這是行業場域的傳統對應，不是說一定是這些職業。`,
+      },
+      {
+        step: 4,
+        title: '第四層・從哪個方向來',
+        headline: [...new Set(uniqueBranches.map((row) => row.direction))].join('、'),
+        detail: `方位取自這幾個地支的傳統對應：${uniqueBranches.map((row) => `${row.branch}＝${row.direction}`).join('、')}。可以當成活動範圍的參考，不是指定地點。`,
+      },
+    ]
+    : [{
+      step: 1,
+      title: '第一眼・外型印象',
+      headline: '本命四柱未見這組神煞現位',
+      detail: '紅鸞、天喜、桃花與貴人都沒有落在你的四柱上，這一路先不強斷。這不代表沒有緣分，只代表這組規則沒有給出方向。',
+    }];
+
   return {
     status: 'READY',
     branches,
     spouseStars,
+    onionLayers,
     selfReportedType,
     selfReportedLabel: selfReportedType === RED_LUAN_CONTEXT_UNSPECIFIED ? '未填寫' : ATTRACTED_TYPE_COPY[selfReportedType].label,
     limitations: [
-      '生肖與方位是紅鸞、天喜、桃花、天乙貴人所落地支的傳統對應，不是對某個特定對象的指認。',
+      '生肖、方位、外型印象與職業場域，都是紅鸞、天喜、桃花、天乙貴人所落地支的傳統五行對應，不是對某個特定對象的指認，也不保證對方一定是這些條件。',
       ...(spouseStars.length > 0 ? [] : ['未取得紫微夫妻宮主星（時辰未知或該宮無主星），本層只列八字方向。']),
       '你自己填的偏好只做對照顯示，不參與任何排盤或規則運算。',
     ],

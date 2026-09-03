@@ -15,8 +15,21 @@
  */
 
 import { castHexagramFromBirth, type IChingReading } from './iching-engine';
-import { buildEmpathicFromHexagram, patternNameOf } from './iching-psychology';
+import { buildEmpathicFromHexagram, buildGhostDecoding, patternNameOf } from './iching-psychology';
 import type { RedLuanAffinityProfile, RedLuanMonthlyRhythm } from './red-luan-heartbeat-engine';
+
+export const RED_LUAN_TEACHERS = ['iching', 'ghost'] as const;
+export type RedLuanTeacher = (typeof RED_LUAN_TEACHERS)[number];
+
+export type RedLuanTeacherReading = {
+  key: RedLuanTeacher;
+  name: string;
+  tagline: string;
+  opening: string;
+  /** 逐層揭露；兩位老師層數與口吻不同，但引用的是同一顆卦。 */
+  sections: Array<{ title: string; text: string }>;
+  closing: string;
+};
 
 export type RedLuanIChingReading = {
   hexagram: {
@@ -47,6 +60,8 @@ export type RedLuanIChingReading = {
   /** 剝洋蔥四層＋核心，沿用共感引擎；同一顆卦。 */
   onion: Array<{ layer: string; text: string }>;
   closing: string;
+  /** 兩位老師＝同一場卜卦的兩種話術分身（手冊 §六）。同一顆卦，不同口吻與切入層次。 */
+  teachers: RedLuanTeacherReading[];
   /** 起卦依據，可回查驗算。 */
   seedText: string;
 };
@@ -119,6 +134,68 @@ export function buildRedLuanIChingReading(input: {
       { layer: '核心｜那不是你的錯', text: empathic.absolution },
     ],
     closing: empathic.closing,
+    teachers: buildTeacherReadings({ hexagram, patternName, empathic, affinity: input.affinity, monthsPhrase: months, hasPeak: input.peakMonths.length > 0, year: input.year }),
     seedText: hexagram.seedText,
   };
+}
+
+/**
+ * 兩位老師（手冊 §六 話術分身原則）：
+ * 易經老師＝沉穩導師，由外而內把卦義與命盤方向講清楚；
+ * 鬼魅老師＝門外低語，走磁場／詭異／因果三段，神秘口氣是外衣、心理機制是骨架。
+ * 兩位讀的是同一顆卦、同一份證據，差別只在切入順序與語氣。
+ */
+function buildTeacherReadings(input: {
+  hexagram: IChingReading;
+  patternName: string;
+  empathic: ReturnType<typeof buildEmpathicFromHexagram>;
+  affinity: RedLuanAffinityProfile;
+  monthsPhrase: string;
+  hasPeak: boolean;
+  year: number;
+}): RedLuanTeacherReading[] {
+  const { hexagram, patternName, empathic, affinity } = input;
+  const ghost = buildGhostDecoding(hexagram);
+  const timing = input.hasPeak
+    ? `${input.year} 年的 ${input.monthsPhrase}`
+    : `${input.year} 年沒有月份命中這組規則`;
+
+  const ichingSections = [
+    ...affinity.onionLayers.map((layer) => ({ title: layer.title, text: `${layer.headline}。${layer.detail}` })),
+    { title: '第五層・什麼時候', text: input.hasPeak
+      ? `時間落在${timing}。這幾個月的流月地支，正好踩在你命盤紅鸞、天喜、桃花或貴人的位置上——不是我說的，是規則算出來的，證據每一條都可以往下核對。`
+      : `${timing}。今年這一路的力道在「養」不在「動」；與其等時間，不如把自己準備好。` },
+    { title: '卦示・怎麼做', text: `你的卦是${hexagram.hexagramName}（第${hexagram.kingWen}卦），格局是「${patternName}」。${hexagram.essence}。${hexagram.advice}` },
+  ];
+
+  const ghostSections = [
+    { title: '【磁場】干擾判讀', text: ghost.field },
+    { title: '【詭異】異象顯跡', text: ghost.spirit },
+    { title: '【因果】因果鏈拆解', text: ghost.karma },
+    { title: '【門縫】會靠近的那個人', text: affinity.onionLayers.length > 0
+      ? `我從門縫看出去……有一個影子的輪廓浮出來了：${affinity.onionLayers[0].headline}。再靠近一點看——${affinity.onionLayers.find((layer) => layer.step === 3)?.headline ?? '場域還看不清'}。方位在${affinity.onionLayers.find((layer) => layer.step === 4)?.headline ?? '未定'}。這不是預言，是你命盤裡紅鸞、天喜、桃花與貴人所在地支的氣性——影子是它們投出來的。`
+      : '我從門縫看出去……這一年門外沒有停留的影子。不是空，是還沒到；這組規則沒有給出方向，我就不替你捏一個出來。' },
+    { title: '【倒數】時間', text: input.hasPeak
+      ? `時間我已經看到了——${timing}。過了那幾個月，磁場會再沉下去。要不要在那之前把自己準備好，是你的決定，不是卦的決定。`
+      : `${timing}。門外安靜的年份不用硬敲；${hexagram.advice}` },
+  ];
+
+  return [
+    {
+      key: 'iching',
+      name: '易經老師',
+      tagline: '沉穩導師・由外而內把話說清楚',
+      opening: empathic.greeting,
+      sections: ichingSections,
+      closing: `${empathic.soulFriendVow}\n${empathic.closing}`,
+    },
+    {
+      key: 'ghost',
+      name: '鬼魅老師',
+      tagline: '門外低語・磁場、詭異、因果',
+      opening: `……你先別出聲。我隔著門替你卜這一卦——${hexagram.hexagramName}，第${hexagram.kingWen}卦，${hexagram.glyph}。格局是「${patternName}」。門外的東西，我看見了。`,
+      sections: ghostSections,
+      closing: `聽清楚：${empathic.absolution.split('聽清楚')[0].trim()}那不是你的錯。門我替你留著，要不要走出來，你自己決定。`,
+    },
+  ];
 }

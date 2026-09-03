@@ -291,6 +291,35 @@ const ichingNoPeak = buildRedLuanIChingReading({ ...ichingInput, peakMonths: [] 
 assert.ok(ichingNoPeak.spark.heaven.length > 0);
 assert.equal(ichingNoPeak.spark.heaven.includes('窗口'), false, '沒命中就不能講成有窗口');
 
+// ---- 洋蔥層：外型 → 相處 → 職業 → 方位 ----
+assert.deepEqual(affinity.onionLayers.map((layer) => layer.step), [1, 2, 3, 4]);
+assert.ok(affinity.onionLayers.every((layer) => layer.headline && layer.detail));
+assert.ok(affinity.onionLayers[2].title.includes('在做什麼'), '第三層必須是職業類型');
+assert.ok(affinity.branches.every((row) => row.appearance && row.careers.length > 0), '每個方向都要有外型與職業對應');
+// 未見神煞現位時只給一層，且不得假裝看得到方向。
+const blankAffinity = buildRedLuanAffinityProfile({ yearBranch: '子', dayBranch: '子', ziwei: singleUnknownHour.ziwei });
+assert.ok(blankAffinity.onionLayers.length >= 1);
+
+// ---- 兩位老師：同一顆卦、不同話術 ----
+assert.deepEqual(ichingA.teachers.map((t) => t.key), ['iching', 'ghost']);
+const [ichingTeacher, ghostTeacher] = ichingA.teachers;
+assert.equal(ichingTeacher.name, '易經老師');
+assert.equal(ghostTeacher.name, '鬼魅老師');
+assert.notEqual(ichingTeacher.opening, ghostTeacher.opening, '兩位老師的開場必須不同');
+assert.notDeepEqual(ichingTeacher.sections, ghostTeacher.sections, '兩位老師的段落必須不同');
+assert.ok(ichingTeacher.sections.length >= 4 && ghostTeacher.sections.length >= 4);
+for (const teacher of ichingA.teachers) {
+  assert.ok(teacher.sections.every((section) => section.title && section.text.length > 10));
+  assert.ok(teacher.closing.length > 0);
+  // 手冊 §十一：同一模組的卦象與話術必須是同一顆卦。
+  assert.ok(
+    [teacher.opening, ...teacher.sections.map((s) => s.text), teacher.closing].join('').includes(ichingA.hexagram.name),
+    `${teacher.name} 必須引用同一顆卦`,
+  );
+}
+assert.ok(ghostTeacher.sections.some((s) => s.title.includes('磁場')));
+assert.ok(ghostTeacher.sections.some((s) => s.title.includes('因果')));
+
 const aiEvidencePayload = buildRedLuanAiEvidencePayload(oneYearResult);
 const serializedAiPayload = JSON.stringify(aiEvidencePayload);
 for (const privateField of ['relationshipStatus', 'familyResponsibility', 'currentExpectation', ...Object.values(selfReportedContextA), ...Object.values(selfReportedContextB)]) {
