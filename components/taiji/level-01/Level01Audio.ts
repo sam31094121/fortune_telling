@@ -5,18 +5,42 @@ import type { TaijiSoundVariant } from '@/lib/taiji/experience-types';
 
 export type Level01StrikeOrigin = 'N' | 'E' | 'S' | 'W';
 
-type ThunderAsset = {
+type ThunderSource = {
   path: string;
+};
+
+type ThunderProfile = {
+  sourceIndex: number;
   maxDuration: number;
   playbackRate: number;
   gain: number;
+  lowpassHz?: number;
+  tailSeconds?: number;
+  tailMix?: number;
 };
 
-const THUNDER_ASSETS: readonly ThunderAsset[] = [
-  { path: '/audio/taiji/lightning-strike.mp3', maxDuration: 1.08, playbackRate: 1, gain: .88 },
-  { path: '/audio/taiji/dry-thunder.mp3', maxDuration: 3.6, playbackRate: .98, gain: .78 },
-  { path: '/audio/taiji/loud-thunder.mp3', maxDuration: 4.4, playbackRate: 1.02, gain: .72 },
-  { path: '/audio/taiji/peals-of-thunder.mp3', maxDuration: 4.8, playbackRate: .96, gain: .7 },
+const THUNDER_SOURCES: readonly ThunderSource[] = [
+  { path: '/audio/taiji/lightning-strike.mp3' },
+  { path: '/audio/taiji/dry-thunder.mp3' },
+  { path: '/audio/taiji/loud-thunder.mp3' },
+  { path: '/audio/taiji/peals-of-thunder.mp3' },
+] as const;
+
+// Eight distinct acoustic identities, derived from four small source files.
+// This keeps mobile transfer/decode cost bounded while preventing clicks from
+// cycling through an obviously short, repetitive four-sound loop.
+const THUNDER_PROFILES: readonly ThunderProfile[] = [
+  // Original four voices: preserve their existing order and acoustic settings.
+  { sourceIndex: 0, maxDuration: 1.08, playbackRate: 1, gain: .88 },
+  { sourceIndex: 1, maxDuration: 3.6, playbackRate: .98, gain: .78 },
+  { sourceIndex: 2, maxDuration: 4.4, playbackRate: 1.02, gain: .72 },
+  { sourceIndex: 3, maxDuration: 4.8, playbackRate: .96, gain: .7 },
+  // Four additional natural-force continuations. Each leaves a small bounded
+  // tail so the next strike grows out of the previous one instead of cutting.
+  { sourceIndex: 2, maxDuration: 4.4, playbackRate: .79, gain: .72, lowpassHz: 880, tailSeconds: .24, tailMix: .18 }, // 地裂
+  { sourceIndex: 3, maxDuration: 4.8, playbackRate: .78, gain: .66, lowpassHz: 1350, tailSeconds: .32, tailMix: .22 }, // 潮湧
+  { sourceIndex: 1, maxDuration: 3.6, playbackRate: .83, gain: .58, lowpassHz: 1900, tailSeconds: .28, tailMix: .24 }, // 風暴
+  { sourceIndex: 0, maxDuration: 1.08, playbackRate: .72, gain: .63, lowpassHz: 1500, tailSeconds: .2, tailMix: .2 }, // 旋風
 ] as const;
 
 const ORIGIN_PAN: Record<Level01StrikeOrigin, number> = {
@@ -136,9 +160,9 @@ export class Level01SoundEngine {
     const now = this.context.currentTime;
     if (now - this.lastLightningAt < .72) return;
 
-    const available = THUNDER_ASSETS
-      .map((asset, index) => ({ asset, buffer: this.thunderBuffers[index] }))
-      .filter((entry): entry is { asset: ThunderAsset; buffer: AudioBuffer } => Boolean(entry.buffer));
+    const available = THUNDER_PROFILES
+      .map((profile) => ({ profile, buffer: this.thunderBuffers[profile.sourceIndex] }))
+      .filter((entry): entry is { profile: ThunderProfile; buffer: AudioBuffer } => Boolean(entry.buffer));
     if (available.length === 0) return;
 
     // Direction controls only the spatial origin. The real recordings rotate on
@@ -150,33 +174,48 @@ export class Level01SoundEngine {
 
     try {
       const impactAt = now + .17;
-      const duration = Math.min(voice.buffer.duration / voice.asset.playbackRate, voice.asset.maxDuration);
+      const duration = Math.min(voice.buffer.duration / voice.profile.playbackRate, voice.profile.maxDuration);
       const source = this.context.createBufferSource();
-      const filter = this.context.createBiquadFilter();
+      const highpass = this.context.createBiquadFilter();
+      const lowpass = this.context.createBiquadFilter();
+      const tailDelay = this.context.createDelay(.75);
+      const tailGain = this.context.createGain();
       const gain = this.context.createGain();
       const panner = this.context.createStereoPanner();
       source.buffer = voice.buffer;
-      source.playbackRate.setValueAtTime(voice.asset.playbackRate, impactAt);
-      filter.type = 'highpass';
-      filter.frequency.setValueAtTime(34, impactAt);
-      filter.Q.value = .38;
+      source.playbackRate.setValueAtTime(voice.profile.playbackRate, impactAt);
+      highpass.type = 'highpass';
+      highpass.frequency.setValueAtTime(34, impactAt);
+      highpass.Q.value = .38;
+      lowpass.type = 'lowpass';
+      lowpass.frequency.setValueAtTime(voice.profile.lowpassHz ?? 20000, impactAt);
+      lowpass.Q.value = .42;
+      tailDelay.delayTime.setValueAtTime(voice.profile.tailSeconds ?? .01, impactAt);
+      tailGain.gain.setValueAtTime(voice.profile.tailMix ?? 0, impactAt);
       gain.gain.setValueAtTime(.0001, impactAt);
-      gain.gain.exponentialRampToValueAtTime(voice.asset.gain, impactAt + .012);
+      gain.gain.exponentialRampToValueAtTime(voice.profile.gain, impactAt + .012);
       if (duration > .24) {
-        gain.gain.setValueAtTime(voice.asset.gain, impactAt + Math.max(.04, duration - .18));
+        gain.gain.setValueAtTime(voice.profile.gain, impactAt + Math.max(.04, duration - .18));
       }
       gain.gain.exponentialRampToValueAtTime(.0001, impactAt + duration);
       panner.pan.setValueAtTime(ORIGIN_PAN[origin], impactAt);
       panner.pan.linearRampToValueAtTime(0, impactAt + Math.min(.26, duration * .32));
-      source.connect(filter);
-      filter.connect(gain);
+      source.connect(highpass);
+      highpass.connect(lowpass);
+      lowpass.connect(gain);
+      lowpass.connect(tailDelay);
+      tailDelay.connect(tailGain);
       gain.connect(panner);
+      tailGain.connect(panner);
       panner.connect(this.master);
       this.activeSources.add(source);
       source.onended = () => {
         this.activeSources.delete(source);
         source.disconnect();
-        filter.disconnect();
+        highpass.disconnect();
+        lowpass.disconnect();
+        tailDelay.disconnect();
+        tailGain.disconnect();
         gain.disconnect();
         panner.disconnect();
       };
@@ -205,7 +244,7 @@ export class Level01SoundEngine {
 
   private preloadThunderBytes() {
     if (this.thunderBytesPromise || typeof window === 'undefined' || typeof window.fetch !== 'function') return;
-    this.thunderBytesPromise = Promise.all(THUNDER_ASSETS.map(async ({ path }) => {
+    this.thunderBytesPromise = Promise.all(THUNDER_SOURCES.map(async ({ path }) => {
       try {
         const response = await window.fetch(path, { cache: 'force-cache' });
         if (!response.ok) return null;
