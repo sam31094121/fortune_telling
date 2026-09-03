@@ -1057,14 +1057,14 @@ function Level01SpatialLightning({ active, origin, variant, lowPower = false }: 
                 : 0;
     const spatialEnvelope = envelopeAt(strikeAge);
     const patternWeights = [
-      { core: 1, braid: .28, impact: .7, storm: .22, shell: .66, aftershock: .38 }, // cardinal fracture
-      { core: 1, braid: .1, impact: .9, storm: .14, shell: .3, aftershock: .22 }, // forked strike
-      { core: .58, braid: .18, impact: .42, storm: 1, shell: .24, aftershock: .3 }, // descending storm
-      { core: .32, braid: .2, impact: .74, storm: .16, shell: 1, aftershock: .46 }, // sphere cage
-      { core: .72, braid: 1, impact: .82, storm: .18, shell: .42, aftershock: .26 }, // entangled cross
-      { core: .3, braid: .16, impact: .55, storm: .12, shell: .84, aftershock: 1 }, // burning orbit
-      { core: 1, braid: .52, impact: 1, storm: .58, shell: .38, aftershock: .72 }, // rupture
-      { core: .48, braid: .92, impact: .7, storm: .46, shell: .76, aftershock: .52 }, // convergence
+      { core: 1, braid: 0, impact: .18, storm: 0, shell: 0, aftershock: 0 }, // lightning strike: one clean cut
+      { core: .88, braid: .12, impact: .54, storm: 0, shell: 0, aftershock: 0 }, // dry thunder: sparse fork
+      { core: 1, braid: .18, impact: .9, storm: 0, shell: 0, aftershock: .46 }, // loud thunder: violent rupture
+      { core: .34, braid: .38, impact: .48, storm: 0, shell: 0, aftershock: .72 }, // peals: echoing scars
+      { core: .78, braid: 0, impact: 1, storm: 0, shell: .14, aftershock: 1 }, // earth rift
+      { core: .18, braid: 0, impact: .32, storm: 0, shell: .42, aftershock: .8 }, // tidal surge
+      { core: .28, braid: .1, impact: .38, storm: .72, shell: 0, aftershock: .22 }, // typhoon
+      { core: .42, braid: .78, impact: .34, storm: .28, shell: .12, aftershock: .18 }, // tornado
     ] as const;
     const selectedVariant = Number.isFinite(variant) ? Math.abs(Math.trunc(variant)) : 0;
     const patternWeight = patternWeights[selectedVariant % patternWeights.length] ?? patternWeights[0];
