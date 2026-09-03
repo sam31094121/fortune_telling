@@ -809,6 +809,43 @@ function RedLuanHeartbeatExperience() {
 
           <div className="mt-2 space-y-2">
             {reading.ichingReading && <>
+            {/* 補填區原本埋在證據折疊的第二層裡，客戶找不到。提到頂層。 */}
+            <Fold
+              title="想讓引導更貼近你嗎？"
+              badge={answeredCount > 0 ? `已填 ${answeredCount} 項` : '選填'}
+              teaser="回答幾題，下面的引導會換成更貼近你的說法；全部跳過也不影響上面的答案"
+              foldKey="refine"
+              opened={openedFolds}
+              onToggle={toggleFold}
+            >
+          <div className="mt-4 space-y-3">
+            {CONTEXT_GROUPS.map((group) => (
+              <div key={group.field} data-context-field={group.field}>
+                <ContextChoiceGroup
+                  title={group.title}
+                  reason={group.reason}
+                  tone={group.tone}
+                  value={context[group.field]}
+                  options={group.options}
+                  disabled={loading}
+                  onChange={(value) => updateContext(group.field, value as SelfReportedContext[typeof group.field])}
+                />
+              </div>
+            ))}
+          </div>
+
+          {contextDirty && (
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => { void submit(form, context, 'refine'); }}
+              className="mt-4 w-full rounded-2xl border border-amber-100/60 bg-amber-300/20 px-4 py-3 text-sm font-black text-amber-50 transition disabled:opacity-60"
+            >
+              {loading ? '更新引導中…' : answeredCount > 0 ? `套用這 ${answeredCount} 項，更新引導` : '清空選擇，改回中性引導'}
+            </button>
+          )}
+            </Fold>
+
             <Fold title="為什麼會是你？" badge="越後面越深" teaser={reading.ichingReading.onion?.[0]?.point} foldKey="psych" opened={openedFolds} onToggle={toggleFold}>
               <div className="space-y-2">
                 {(reading.ichingReading.onion ?? []).map((layer) => (
@@ -849,7 +886,7 @@ function RedLuanHeartbeatExperience() {
             </Fold>
 
             {reading.ichingReading && <>
-            <Fold title={`你的卦・${reading.ichingReading.patternName}`} badge={reading.ichingReading.hexagram.glyph} teaser="六十四格裡就這一格是你" foldKey="hexagram" opened={openedFolds} onToggle={toggleFold}>
+            <Fold title={`你的卦・${reading.ichingReading.patternName}`} badge={reading.ichingReading.hexagram.glyph} teaser={`六十四格裡就「${reading.ichingReading.patternName}」這一格是你`} foldKey="hexagram" opened={openedFolds} onToggle={toggleFold}>
               <div className="flex flex-wrap items-center gap-3">
                 <span className="text-5xl leading-none text-rose-100" aria-hidden="true">{reading.ichingReading.hexagram.glyph}</span>
                 <div>
@@ -931,32 +968,6 @@ function RedLuanHeartbeatExperience() {
           <h3 className="mt-2 text-xl font-black text-white">想讓引導更貼近你嗎？</h3>
           <p className="mt-2 text-sm leading-7 text-white/65">上面的命盤證據已經算完並凍結了，跟下面填不填無關。這幾題只決定引導的語氣要往哪個方向講，你可以全部跳過、只答一題，或隨時改。</p>
 
-          <div className="mt-4 space-y-3">
-            {CONTEXT_GROUPS.map((group) => (
-              <div key={group.field} data-context-field={group.field}>
-                <ContextChoiceGroup
-                  title={group.title}
-                  reason={group.reason}
-                  tone={group.tone}
-                  value={context[group.field]}
-                  options={group.options}
-                  disabled={loading}
-                  onChange={(value) => updateContext(group.field, value as SelfReportedContext[typeof group.field])}
-                />
-              </div>
-            ))}
-          </div>
-
-          {contextDirty && (
-            <button
-              type="button"
-              disabled={loading}
-              onClick={() => { void submit(form, context, 'refine'); }}
-              className="mt-4 w-full rounded-2xl border border-amber-100/60 bg-amber-300/20 px-4 py-3 text-sm font-black text-amber-50 transition disabled:opacity-60"
-            >
-              {loading ? '更新引導中…' : answeredCount > 0 ? `套用這 ${answeredCount} 項，更新引導` : '清空選擇，改回中性引導'}
-            </button>
-          )}
 
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
             {CONTEXT_GROUPS.map((group) => (

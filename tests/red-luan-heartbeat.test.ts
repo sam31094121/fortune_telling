@@ -458,7 +458,10 @@ assert.ok(pageSource.includes('getIdentityRequiredMessage()'));
 // they never gate submission: chart evidence is frozen before that stage, so a
 // customer who skips every question still gets the full deterministic result.
 assert.ok(pageSource.indexOf('onClick={() => { void submit(form); }}') < pageSource.indexOf('data-context-field='));
-assert.ok(pageSource.indexOf('id="red-luan-layer-1"') < pageSource.indexOf('data-context-field='));
+// 補填區必須在頂層折疊，不能埋在證據折疊的第二層裡——客戶找不到就等於沒有。
+assert.ok(pageSource.indexOf('foldKey="refine"') < pageSource.indexOf('id="red-luan-layer-1"'), '補填區要在層鏈之前');
+assert.ok(pageSource.indexOf('data-context-field=') < pageSource.indexOf('id="red-luan-layer-1"'), '補填題目不得埋在層鏈裡');
+assert.ok(pageSource.includes('想讓引導更貼近你嗎？'));
 assert.equal(pageSource.includes('id="red-luan-relationship-context"'), false, 'relationship questions must not sit in the pre-submit form');
 assert.equal(pageSource.includes('完成三項選擇後開始'), false, 'submit must not be gated on the optional context');
 assert.equal(pageSource.includes('請完成此刻的關係位置'), false, 'the blocking context error must be gone');
