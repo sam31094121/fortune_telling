@@ -14,6 +14,7 @@ import {
   normalizeRedLuanAttractedType,
   normalizeRedLuanSelfReportedContext,
   RED_LUAN_CONTEXT_UNSPECIFIED,
+  RED_LUAN_ATTRACTED_TYPE_OPTIONS,
   RED_LUAN_SOLAR_MONTHS,
   validateRedLuanAttractedType,
   RED_LUAN_CURRENT_EXPECTATIONS,
@@ -545,3 +546,18 @@ const rawDescription = descriptionLine.replace('DESCRIPTION:', '');
 assert.equal(/[^\\],/.test(rawDescription), false, '半形逗號必須跳脫');
 
 console.log('Red Luan follow-up actions passed');
+
+// ---- 核心一・品質：前端不得自己編出看起來像運算結果的東西 ----
+// 折疊徽章的層數必須來自實際資料。命盤無命中時只有 1 層，寫死「4 層」就是說謊。
+assert.equal(pageSource.includes('badge="4 層"'), false, '層數不得寫死，要用 onionLayers.length');
+assert.ok(pageSource.includes('(reading.affinity.onionLayers ?? []).length} 層'));
+
+// 選項標籤在前端與引擎各存一份，會各改各的。這裡鎖住兩邊一字不差。
+const engineSource = readFileSync(join(process.cwd(), 'lib/red-luan-heartbeat-engine.ts'), 'utf8');
+for (const option of RED_LUAN_ATTRACTED_TYPE_OPTIONS) {
+  assert.ok(engineSource.includes(`'${option.label}'`), `引擎缺少標籤 ${option.label}`);
+  assert.ok(pageSource.includes(`'${option.label}'`), `前端缺少標籤 ${option.label}`);
+  assert.ok(pageSource.includes(`'${option.note}'`), `前端缺少說明 ${option.note}（引擎已寫好卻沒顯示）`);
+}
+
+console.log('Red Luan frontend-honesty checks passed');

@@ -134,12 +134,13 @@ const EMPTY_CONTEXT: SelfReportedContext = {
   currentExpectation: '', attractedType: '', relationshipStatus: '', familyResponsibility: '',
 };
 
-const ATTRACTED_TYPE_OPTIONS: Array<{ value: AttractedType; label: string }> = [
-  { value: 'WARM_STEADY', label: '溫柔穩定型' },
-  { value: 'BRIGHT_OUTGOING', label: '明亮外向型' },
-  { value: 'CLEAR_RATIONAL', label: '理性清楚型' },
-  { value: 'MATURE_CARING', label: '成熟照顧型' },
-  { value: 'FREE_INSPIRED', label: '自由靈感型' },
+// 必須與引擎的 ATTRACTED_TYPE_COPY 一字不差；測試會鎖住，避免兩邊各改各的。
+const ATTRACTED_TYPE_OPTIONS: Array<{ value: AttractedType; label: string; note: string }> = [
+  { value: 'WARM_STEADY', label: '溫柔穩定型', note: '話不用多，但讓人安心' },
+  { value: 'BRIGHT_OUTGOING', label: '明亮外向型', note: '氣氛帶得起來，主動靠近' },
+  { value: 'CLEAR_RATIONAL', label: '理性清楚型', note: '講道理、界線分明' },
+  { value: 'MATURE_CARING', label: '成熟照顧型', note: '扛得住，也照顧得到你' },
+  { value: 'FREE_INSPIRED', label: '自由靈感型', note: '有自己的世界，不被框住' },
 ];
 
 const RELATIONSHIP_STATUS_OPTIONS: Array<{ value: RelationshipStatus; label: string }> = [
@@ -170,7 +171,7 @@ const CONTEXT_GROUPS: Array<{
   title: string;
   reason: string;
   tone: 'pink' | 'cyan' | 'amber';
-  options: ReadonlyArray<{ value: string; label: string }>;
+  options: ReadonlyArray<{ value: string; label: string; note?: string }>;
 }> = [
   { field: 'currentExpectation', title: '你想先看哪個方向？', reason: '決定下面的引導從哪一種節奏開始講。', tone: 'pink', options: CURRENT_EXPECTATION_OPTIONS },
   { field: 'attractedType', title: '你比較容易被哪一型吸引？', reason: '拿來跟命盤算出的有緣方向對照，看合不合得上。', tone: 'pink', options: ATTRACTED_TYPE_OPTIONS },
@@ -282,7 +283,7 @@ function ContextChoiceGroup({
   reason: string;
   tone: 'pink' | 'cyan' | 'amber';
   value: string;
-  options: ReadonlyArray<{ value: string; label: string }>;
+  options: ReadonlyArray<{ value: string; label: string; note?: string }>;
   disabled: boolean;
   onChange: (value: string) => void;
 }) {
@@ -296,6 +297,7 @@ function ContextChoiceGroup({
             key={option.value}
             active={value === option.value}
             title={option.label}
+            description={'note' in option ? (option as { note?: string }).note : undefined}
             tone={tone}
             compact
             disabled={disabled}
@@ -821,7 +823,7 @@ function RedLuanHeartbeatExperience() {
             </Fold>
             </>}
 
-            <Fold title="一層一層看他是誰" badge="4 層" teaser="他在哪一行、從哪個方向來，一層一層拆給你看" foldKey="onion" opened={openedFolds} onToggle={toggleFold}>
+            <Fold title="一層一層看他是誰" badge={`${(reading.affinity.onionLayers ?? []).length} 層`} teaser="他在哪一行、從哪個方向來，一層一層拆給你看" foldKey="onion" opened={openedFolds} onToggle={toggleFold}>
               <div className="space-y-2">
                 {(reading.affinity.onionLayers ?? []).map((layer, index) => {
                   const unlocked = index <= peeled;
