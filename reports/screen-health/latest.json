@@ -3,8 +3,8 @@
   "version": "screen-health-monitor-v1",
   "baseUrl": "http://localhost:8888",
   "port": 8888,
-  "startedAt": "2026-09-03T14:46:33.391Z",
-  "completedAt": "2026-09-03T14:46:36.181Z",
+  "startedAt": "2026-09-03T15:00:38.671Z",
+  "completedAt": "2026-09-03T15:00:48.341Z",
   "mode": "ONCE",
   "scanProfile": "MOBILE_FIRST",
   "autoRepair": true,
@@ -23,7 +23,7 @@
       "path": "/",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 96,
+      "durationMs": 116,
       "htmlLength": 63728,
       "error": null,
       "issue": null
@@ -35,7 +35,7 @@
       "path": "/internal/health/ready",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 23,
+      "durationMs": 2064,
       "htmlLength": 95,
       "error": null,
       "issue": null
@@ -47,8 +47,8 @@
       "path": "/nameology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 79,
-      "htmlLength": 30680,
+      "durationMs": 1199,
+      "htmlLength": 30679,
       "error": null,
       "issue": null
     },
@@ -59,7 +59,7 @@
       "path": "/insight",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 84,
+      "durationMs": 482,
       "htmlLength": 31216,
       "error": null,
       "issue": null
@@ -71,7 +71,7 @@
       "path": "/numerology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 50,
+      "durationMs": 339,
       "htmlLength": 30185,
       "error": null,
       "issue": null
@@ -83,7 +83,7 @@
       "path": "/match",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 61,
+      "durationMs": 635,
       "htmlLength": 30689,
       "error": null,
       "issue": null
@@ -95,7 +95,7 @@
       "path": "/music",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 60,
+      "durationMs": 454,
       "htmlLength": 26452,
       "error": null,
       "issue": null
@@ -107,8 +107,8 @@
       "path": "/bazi",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 71,
-      "htmlLength": 29401,
+      "durationMs": 637,
+      "htmlLength": 29400,
       "error": null,
       "issue": null
     },
@@ -119,8 +119,8 @@
       "path": "/zodiac",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 92,
-      "htmlLength": 30502,
+      "durationMs": 456,
+      "htmlLength": 30503,
       "error": null,
       "issue": null
     },
@@ -131,8 +131,8 @@
       "path": "/tarot",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 60,
-      "htmlLength": 77723,
+      "durationMs": 410,
+      "htmlLength": 77725,
       "error": null,
       "issue": null
     },
@@ -143,7 +143,7 @@
       "path": "/growth-center",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 35,
+      "durationMs": 650,
       "htmlLength": 22031,
       "error": null,
       "issue": null
@@ -152,10 +152,10 @@
       "id": "HOME_VISUAL_STYLES",
       "module": "home_visual_styles",
       "title": "首頁手機視覺樣式",
-      "path": "/_next/static/css/app/page.css?v=1788446794127",
+      "path": "/_next/static/css/app/page.css?v=1788447646149",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 71,
+      "durationMs": 126,
       "htmlLength": 20127,
       "error": null,
       "issue": null
@@ -181,7 +181,7 @@
       "sourcePath": "components/TodayDirectionQuest.tsx",
       "status": "PASSED",
       "httpStatus": null,
-      "durationMs": 0,
+      "durationMs": 1,
       "htmlLength": 22318,
       "error": null,
       "issue": null
@@ -221,7 +221,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1329,
+      "durationMs": 1387,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -236,7 +236,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 329,
+      "durationMs": 357,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -251,12 +251,12 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 331,
+      "durationMs": 338,
       "htmlLength": 0,
       "error": null,
       "issue": null,
       "output": "> blood-type-compatibility@0.1.0 test:taiji-lock\n> node tests/taiji-level-02-24-lock.test.cjs\n\nTaiji Level 02-24 Regression Lock passed"
     }
   ],
-  "recoveryStatus": "NOT_NEEDED"
+  "recoveryStatus": "RECOVERED"
 }
