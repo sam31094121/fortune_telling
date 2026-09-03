@@ -1099,31 +1099,51 @@ export function buildRedLuanAffinityProfile(input: {
     ...spouseStars.map((star) => star.career).filter(Boolean),
   ])];
 
+  // 紅鸞是這張卡的主星，排序時優先；其次天喜、桃花，最後貴人。
+  const leadPriority = ['紅鸞', '天喜', '桃花', '天乙貴人'];
+  const leadRow = [...uniqueBranches].sort((a, b) => leadPriority.indexOf(a.label) - leadPriority.indexOf(b.label))[0];
   const onionLayers: Array<{ step: number; title: string; headline: string; detail: string }> = uniqueBranches.length > 0
     ? [
       {
         step: 1,
         title: '第一眼・外型印象',
-        headline: uniqueBranches.map((row) => row.appearance.split('，')[0]).join('、'),
-        detail: `你的紅鸞、天喜、桃花與貴人落在${uniqueBranches.map((row) => `${row.branch}（屬${row.zodiac}）`).join('、')}。這幾個地支的氣性，對到人身上的第一印象是：${uniqueBranches.map((row) => row.appearance).join('；')}。`,
+        // 只講主導的那一型。把四個地支的特徵串成一行，會出現「清瘦」又「厚實」
+        // 這種互相打架的描述，客戶讀完只會問「所以到底是哪一種」。
+        headline: leadRow ? leadRow.appearance.split('，')[0] : '',
+        detail: leadRow
+          ? `最主要的是${leadRow.label}落在${leadRow.branch}（屬${leadRow.zodiac}）這一路：${leadRow.appearance}。${
+            uniqueBranches.length > 1
+              ? `另外還有 ${uniqueBranches.length - 1} 種可能：${uniqueBranches.filter((row) => row.branch !== leadRow.branch).map((row) => `${row.appearance.split('，')[0]}（${row.zodiac}）`).join('、')}。`
+              : ''
+          }`
+          : '',
       },
       {
         step: 2,
         title: '第二層・相處起來',
-        headline: uniqueBranches.slice(0, 2).map((row) => row.trait.split('，')[0]).join('、'),
-        detail: `真的接觸之後，會發現對方${uniqueBranches.map((row) => row.trait).join('；或是')}。${spouseStars.length > 0 ? `紫微夫妻宮這邊補一筆：${spouseStars.map((star) => star.trait).join('、')}。` : ''}`,
+        headline: leadRow ? leadRow.trait.split('，')[0] : '',
+        detail: `真的接觸之後，最可能的是${leadRow.trait}。${
+          spouseStars.length > 0 ? `紫微夫妻宮補一筆：${spouseStars[0].trait}。` : ''
+        }`,
       },
       {
         step: 3,
         title: '第三層・在做什麼的人',
-        headline: careerPool.slice(0, 5).join('、'),
-        detail: `地支氣性常落在這些場域：${uniqueBranches.map((row) => `${row.branch}→${row.careers.join('／')}`).join('；')}。${spouseStars.length > 0 ? `紫微主星再指一次：${spouseStars.map((star) => `${star.star}→${star.career}`).filter((line) => !line.endsWith('→')).join('；')}。` : '時辰未知，紫微這一路先不補。'}這是行業場域的傳統對應，不是說一定是這些職業。`,
+        // 客戶要的是記得住的人選，不是二十個職業的清單。
+        headline: leadRow.careers.slice(0, 3).join('、'),
+        detail: `${leadRow.branch}（屬${leadRow.zodiac}）這一路的氣性最常落在${leadRow.careers.join('、')}。${
+          spouseStars.find((star) => star.career) ? `紫微主星再指一次：${spouseStars.find((star) => star.career)?.career}。` : ''
+        }這是行業場域的傳統對應，不是說對方一定做這些。`,
       },
       {
         step: 4,
         title: '第四層・從哪個方向來',
-        headline: [...new Set(uniqueBranches.map((row) => row.direction))].join('、'),
-        detail: `方位取自這幾個地支的傳統對應：${uniqueBranches.map((row) => `${row.branch}＝${row.direction}`).join('、')}。可以當成活動範圍的參考，不是指定地點。`,
+        headline: leadRow.direction,
+        detail: `主要看${leadRow.branch}＝${leadRow.direction}。${
+          uniqueBranches.length > 1
+            ? `次要的還有${uniqueBranches.filter((row) => row.branch !== leadRow.branch).map((row) => row.direction).join('、')}。`
+            : ''
+        }當成常出沒的範圍參考就好，不是指定地點。`,
       },
     ]
     : [{
@@ -1135,8 +1155,7 @@ export function buildRedLuanAffinityProfile(input: {
 
   // 客戶最想看的那一句：把最強的那個地支講成一句人話。
   // 排序取紅鸞優先，其次天喜、桃花，最後貴人——紅鸞是這張卡的主星。
-  const priority = ['紅鸞', '天喜', '桃花', '天乙貴人'];
-  const lead = [...uniqueBranches].sort((a, b) => priority.indexOf(a.label) - priority.indexOf(b.label))[0];
+  const lead = leadRow;
   const typeHeadline = lead
     ? `${lead.appearance.split('，')[0]}的${partnerLabel}`
     : `這一年命盤沒有指出特定類型的${partnerLabel}`;

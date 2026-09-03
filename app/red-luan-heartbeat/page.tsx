@@ -687,7 +687,9 @@ function RedLuanHeartbeatExperience() {
               {peeled < (reading.affinity.onionLayers ?? []).length - 1 && (
                 <button type="button" onClick={() => setPeeled((current) => current + 1)} className="mt-3 w-full rounded-2xl border border-cyan-200/35 bg-cyan-300/12 px-4 py-3 text-sm font-black text-cyan-50 transition">再剝一層 →</button>
               )}
-              <p className="mt-3 text-xs leading-6 text-white/50">你自己填的是「{reading.affinity.selfReportedLabel}」，只放在這裡跟命盤方向對照，不參與任何運算。</p>
+              {reading.affinity.selfReportedType !== 'UNSPECIFIED' && (
+                <p className="mt-3 text-xs leading-6 text-white/50">你填的是「{reading.affinity.selfReportedLabel}」，放在這裡跟命盤方向對照，不參與運算。</p>
+              )}
             </Fold>
 
             {reading.ichingReading && <>

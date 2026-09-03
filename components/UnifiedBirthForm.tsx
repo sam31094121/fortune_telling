@@ -142,7 +142,7 @@ export function HourBranchSelector({ value, unknown, missing, onChange }: { valu
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <ChoiceButton active={Boolean(unknown || value === 'unknown')} alert={missing} onClick={() => onChange('unknown')}>
           <span className="block text-base font-black">不知道出生時辰</span>
-          <span className="mt-1.5 block text-xs font-semibold leading-5">先建立三柱分析；補充出生時辰後，再建立完整四柱。</span>
+          <span className="mt-1.5 block text-xs font-semibold leading-5">不知道也沒關係，先算得出來的部分；之後補上時辰會更完整。</span>
         </ChoiceButton>
         <ChoiceButton active={knownSelected} alert={missing} tone="cyan" onClick={() => onChange((knownSelected ? value : 'wu') as BirthHourBranch)}>
           <span className="block text-base font-black">我知道出生時辰</span>
@@ -301,8 +301,8 @@ export function UnifiedBirthForm({
           <label className="block text-sm font-black text-[color:var(--text-main)]">3. 性別 {value.gender && <span className="ml-2 text-green-400">完成</span>}</label>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {[
-              { label: '女性', value: 'female' as const, description: '以女性資料規則進行本卡片分析。' },
-              { label: '男性', value: 'male' as const, description: '以男性資料規則進行本卡片分析。' },
+              { label: '女性', value: 'female' as const, description: '用女性的算法。' },
+              { label: '男性', value: 'male' as const, description: '用男性的算法。' },
             ].map((item) => (
               <ChoiceButton key={item.value} active={value.gender === item.value} alert={hasMissing(missing, 'gender')} onClick={() => onChange({ ...value, gender: item.value })}>
                 <span className="block text-base font-black">{item.label}</span>
