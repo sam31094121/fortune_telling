@@ -50,6 +50,7 @@ if (!runtime.includes("| 'HOLDING'") || !runtime.includes("| 'SENSOR_LOST'") || 
 if (!sensor.includes('SENSOR_SPIKE_THRESHOLD_DEG') || !sensor.includes('unwrapAngle') || !sensor.includes('SENSOR_DEAD_ZONE_DEG')) throw new Error('sensor fusion must reject spikes, unwrap headings, and apply a dead zone');
 if (!quality.includes('QUALITY_RECOVER_HOLD_MS') || !quality.includes("this.quality = 'LOW'")) throw new Error('adaptive quality must include hysteresis and an immediate low-quality guard');
 if (!audio.includes('DynamicsCompressorNode') || audio.includes('createOscillator(') || audio.includes('ambientOsc') || audio.includes('balanceOsc')) throw new Error('audio must use a limiter and must not create continuous ambient, motion, or balance oscillators');
+if (!audio.includes('isReadyForPlayback()') || !controller.includes('MOBILE_AUDIO_READY_LOCK') || !controller.includes("this.armAudioFromUserGesture(phase === 'press', strikeOrigin)")) throw new Error('mobile thunder must wait for a genuinely running, decoded audio graph before the first strike');
 if (!controller.includes('Level01RuntimeBoundary') || !errorBoundary.includes('getDerivedStateFromError')) throw new Error('level 01 errors must be contained locally');
 if (!haptics.includes('gameEvent') || !haptics.includes('armedByUserGesture')) throw new Error('haptics must be event-driven and gesture-gated');
 if (!styles.includes('aspect-ratio: 1') || !styles.includes("data-level01-quality='LOW'")) throw new Error('level 01 must reserve layout and expose quality-specific visual reductions');

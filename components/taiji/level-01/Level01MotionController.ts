@@ -198,7 +198,10 @@ export class Level01TaijiMotionController {
 
   playTouchReboundFeedback(phase: 'press' | 'release' = 'press', strikeOrigin: Level01StrikeOrigin = 'N') {
     if (this.disposed) return false;
-    this.armAudioFromUserGesture();
+    // MOBILE_AUDIO_READY_LOCK: a strike that also unlocks or resumes audio is
+    // queued until the context and decoded thunder are genuinely ready. If the
+    // graph is already running, the same call plays immediately instead.
+    this.armAudioFromUserGesture(phase === 'press', strikeOrigin);
     this.haptics.armFromUserGesture();
     const profile = rotationFeedbackProfile({
       spin: phase === 'press' ? 0.46 : 0.3,
@@ -207,7 +210,6 @@ export class Level01TaijiMotionController {
       reducedMotion: this.reducedMotion,
     });
     this.audio.playRotationPulse(profile);
-    if (phase === 'press') this.audio.playLightningStrike(strikeOrigin);
     return phase === 'press' ? this.haptics.playTouchRebound(this.now()) : true;
   }
 
@@ -651,9 +653,12 @@ export class Level01TaijiMotionController {
   }
 
   private armAudioFromUserGesture(playInitialLightning = false, strikeOrigin: Level01StrikeOrigin = 'N') {
-    if (!this.audioEnabled || this.activationArmInFlight) return;
-    const requestedAt = this.now();
-    if (requestedAt - this.lastActivationAt < 700) return;
+    if (!this.audioEnabled) return;
+    if (this.audio.isReadyForPlayback()) {
+      if (playInitialLightning) this.audio.playLightningStrike(strikeOrigin);
+      return;
+    }
+    if (this.activationArmInFlight) return;
     this.activationArmInFlight = true;
     void this.audio.armFromUserGesture().then((ready) => {
       if (!ready || this.disposed) return;

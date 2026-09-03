@@ -68,6 +68,15 @@ export class Level01SoundEngine {
     }
   }
 
+  isReadyForPlayback() {
+    return this.enabled
+      && !this.paused
+      && !this.blocked
+      && this.context?.state === 'running'
+      && Boolean(this.master)
+      && this.thunderBuffers.some(Boolean);
+  }
+
   async armFromUserGesture() {
     if (this.blocked || !this.enabled) return false;
     try {
