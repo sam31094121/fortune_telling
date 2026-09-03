@@ -1,9 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
+import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
+import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-public-access';
 
 type Evidence = { label: string; targetBranch: string; evidence: string };
@@ -14,17 +17,21 @@ type ZiweiSignal = { status: 'READY' | 'UNAVAILABLE_BIRTH_TIME_REQUIRED'; inputC
 type RelationshipStatus = 'SINGLE_NEVER_MARRIED' | 'DATING' | 'MARRIED' | 'SEPARATED' | 'DIVORCED' | 'WIDOWED';
 type FamilyResponsibility = 'NO_CHILDREN_OR_PRIMARY_CARE' | 'LIVE_WITH_OR_CARE_FOR_PARENTS' | 'HAS_CHILDREN' | 'CARE_FOR_OTHER_FAMILY';
 type CurrentExpectation = 'MEET_SOMEONE' | 'STABLE_RELATIONSHIP' | 'MARRIAGE_PLANNING' | 'REPAIR_RELATIONSHIP';
+/** Server-side marker for a question the customer chose not to answer. */
+type Unspecified = 'UNSPECIFIED';
+/** `''` is the local "not chosen yet" state; the API turns it into UNSPECIFIED. */
 type SelfReportedContext = {
   relationshipStatus: RelationshipStatus | '';
   familyResponsibility: FamilyResponsibility | '';
   currentExpectation: CurrentExpectation | '';
 };
+type ContextField = keyof SelfReportedContext;
 type Reading = {
   person: { name: string; birthDate: string; hourKnown: boolean };
   relationshipPosition: {
-    relationshipStatus: RelationshipStatus;
-    familyResponsibility: FamilyResponsibility;
-    currentExpectation: CurrentExpectation;
+    relationshipStatus: RelationshipStatus | Unspecified;
+    familyResponsibility: FamilyResponsibility | Unspecified;
+    currentExpectation: CurrentExpectation | Unspecified;
     usage: 'REFLECTION_GUIDANCE_ONLY';
   };
   contextAlignment: {
@@ -32,9 +39,10 @@ type Reading = {
     alignmentStatus: 'EVIDENCE_AVAILABLE' | 'NO_VERIFIED_YEARLY_RULE_HIT';
     calculationOrder: {
       stageOne: { label: 'BAZI_ZIWEI_EVIDENCE'; baziStatus: 'PASSED' | 'BLOCKED'; ziweiStatus: 'READY' | 'UNAVAILABLE_BIRTH_TIME_REQUIRED'; evidenceFrozenBeforeContext: true };
-      stageTwo: { label: 'RELATIONSHIP_CONTEXT_ALIGNMENT'; status: 'COMPUTED'; inputFields: ['relationshipStatus', 'familyResponsibility', 'currentExpectation'] };
+      stageTwo: { label: 'RELATIONSHIP_CONTEXT_ALIGNMENT'; status: 'COMPUTED'; inputFields: ['relationshipStatus', 'familyResponsibility', 'currentExpectation']; providedFields: ContextField[]; unspecifiedFields: ContextField[] };
     };
-    relationshipPosition: { relationshipStatus: RelationshipStatus; familyResponsibility: FamilyResponsibility; currentExpectation: CurrentExpectation };
+    contextCompleteness: 'NONE' | 'PARTIAL' | 'COMPLETE';
+    relationshipPosition: { relationshipStatus: RelationshipStatus | Unspecified; familyResponsibility: FamilyResponsibility | Unspecified; currentExpectation: CurrentExpectation | Unspecified };
     annualEvidence: { precision: 'ANNUAL_BRANCH'; years: number[]; evidenceCount: number };
     themeTitle: string;
     guidancePrompt: string;
@@ -91,6 +99,31 @@ const CURRENT_EXPECTATION_OPTIONS: Array<{ value: CurrentExpectation; label: str
   { value: 'MARRIAGE_PLANNING', label: '婚姻規劃' },
   { value: 'REPAIR_RELATIONSHIP', label: '修復關係' },
 ];
+
+const CONTEXT_GROUPS: Array<{
+  field: ContextField;
+  title: string;
+  reason: string;
+  tone: 'pink' | 'cyan' | 'amber';
+  options: ReadonlyArray<{ value: string; label: string }>;
+}> = [
+  { field: 'currentExpectation', title: '你想先看哪個方向？', reason: '決定下面的引導從哪一種節奏開始講。', tone: 'pink', options: CURRENT_EXPECTATION_OPTIONS },
+  { field: 'relationshipStatus', title: '目前的關係現況', reason: '只用來調整界線與步調的建議語氣。', tone: 'cyan', options: RELATIONSHIP_STATUS_OPTIONS },
+  { field: 'familyResponsibility', title: '現在主要的生活責任', reason: '用來估算你實際可運用的時間，不做家庭狀況推論。', tone: 'amber', options: FAMILY_RESPONSIBILITY_OPTIONS },
+];
+
+const CONTEXT_FIELD_LABELS: Record<ContextField, string> = {
+  relationshipStatus: '關係現況',
+  familyResponsibility: '生活責任',
+  currentExpectation: '期待方向',
+};
+
+/** Renders a stored position, including the deliberate "left blank" state. */
+function contextValueLabel(field: ContextField, value: string) {
+  if (!value || value === 'UNSPECIFIED') return '未填寫・中性引導';
+  const group = CONTEXT_GROUPS.find((item) => item.field === field);
+  return group?.options.find((option) => option.value === value)?.label ?? '未填寫・中性引導';
+}
 
 const HOUR_BRANCH_KEYS = ['zi', 'chou', 'yin', 'mao', 'chen', 'si', 'wu', 'wei', 'shen', 'you', 'xu', 'hai'] as const;
 
@@ -164,39 +197,55 @@ function EvidenceList({ title, items, empty }: { title: string; items: Evidence[
   );
 }
 
-function ContextChoiceGroup<T extends string>({
+/**
+ * One optional context question. Every group can be skipped or cleared: the
+ * chart evidence is already frozen by the time these are asked, so a blank
+ * answer only means the guidance for that dimension stays neutral.
+ */
+function ContextChoiceGroup({
   title,
+  reason,
+  tone,
   value,
   options,
-  missing,
   disabled,
   onChange,
 }: {
   title: string;
-  value: T | '';
-  options: Array<{ value: T; label: string }>;
-  missing: boolean;
+  reason: string;
+  tone: 'pink' | 'cyan' | 'amber';
+  value: string;
+  options: ReadonlyArray<{ value: string; label: string }>;
   disabled: boolean;
-  onChange: (value: T) => void;
+  onChange: (value: string) => void;
 }) {
   return (
-    <fieldset className={`rounded-2xl border p-4 ${missing ? 'border-rose-300/50 bg-rose-500/10' : 'border-white/10 bg-black/15'}`}>
+    <fieldset className="rounded-2xl border border-white/10 bg-black/15 p-4">
       <legend className="px-1 text-sm font-black text-amber-50">{title}</legend>
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <p className="mt-1 text-xs leading-5 text-white/50">{reason}　可以跳過。</p>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {options.map((option) => (
-          <button
+          <FriendlyChoiceCard
             key={option.value}
-            type="button"
+            active={value === option.value}
+            title={option.label}
+            tone={tone}
+            compact
             disabled={disabled}
-            aria-pressed={value === option.value}
-            onClick={() => onChange(option.value)}
-            className={`min-h-12 rounded-xl border px-3 py-3 text-left text-xs font-bold leading-5 transition disabled:opacity-60 ${value === option.value ? 'border-amber-200/70 bg-amber-300/15 text-amber-50 shadow-[0_0_18px_rgba(251,191,36,0.12)]' : 'border-white/10 bg-white/[0.04] text-white/70'}`}
-          >
-            {option.label}
-          </button>
+            onClick={() => onChange(value === option.value ? '' : option.value)}
+          />
         ))}
       </div>
-      {missing && !value && <p className="mt-3 text-xs font-bold text-rose-100">請選擇一項，再繼續探索。</p>}
+      {value && (
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => onChange('')}
+          className="mt-3 text-xs font-bold text-white/45 underline underline-offset-4 transition hover:text-white/70 disabled:opacity-50"
+        >
+          清除這一題
+        </button>
+      )}
     </fieldset>
   );
 }
@@ -216,13 +265,20 @@ function RedLuanHeartbeatExperience() {
   const [form, setForm] = useState<BirthProfile>(EMPTY_FORM);
   const [context, setContext] = useState<SelfReportedContext>(EMPTY_CONTEXT);
   const [missing, setMissing] = useState<string[]>([]);
-  const [contextMissing, setContextMissing] = useState<Array<keyof SelfReportedContext>>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [reading, setReading] = useState<Reading | null>(null);
   const [openedLayer, setOpenedLayer] = useState(0);
   const [alignmentChoice, setAlignmentChoice] = useState('');
   const [reflectionChoice, setReflectionChoice] = useState('');
+  /** The context the visible reading was actually built from. */
+  const [appliedContext, setAppliedContext] = useState<SelfReportedContext>(EMPTY_CONTEXT);
+
+  useEffect(() => {
+    const clearIdentityError = () => setError((current) => (current === getIdentityRequiredMessage() ? '' : current));
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+  }, []);
 
   function birthMissingFields(profile: BirthProfile) {
     const timeUnknown = profile.timeUnknown === true || profile.birthHourBranch === 'unknown';
@@ -230,26 +286,26 @@ function RedLuanHeartbeatExperience() {
       (profile.name ?? '').trim().length < 2 ? 'name' : '',
       !profile.birthDate ? 'birthDate' : '',
       !profile.gender ? 'gender' : '',
-      !timeUnknown && !profile.birthHourBranch ? 'birthHourBranch' : '',
+      timeUnknown || !profile.birthHourBranch ? 'birthHourBranch' : '',
     ].filter(Boolean);
   }
 
-  async function submit(profile: BirthProfile) {
+  async function submit(profile: BirthProfile, submittedContext: SelfReportedContext = context, mode: 'initial' | 'refine' = 'initial') {
     if (loading) return;
+    if (!getAnalysisIdentityTarget()) {
+      setError(getIdentityRequiredMessage());
+      document.querySelector('.identity-split-selector, [aria-label="選擇本次分析對象"]')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      return;
+    }
     const nextMissing = birthMissingFields(profile);
     setMissing(nextMissing);
     if (nextMissing.length > 0) {
-      setError('請先完成出生資料，再選擇此刻的關係位置。');
+      setError('請先完成含出生時辰的資料；紅鸞結果必須同時通過八字與紫微核對。');
       document.querySelector(`[data-field="${nextMissing[0]}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
       return;
     }
-    const nextContextMissing = (Object.keys(context) as Array<keyof SelfReportedContext>).filter((key) => !context[key]);
-    setContextMissing(nextContextMissing);
-    if (nextContextMissing.length > 0) {
-      setError('請完成此刻的關係位置；三項只用來選擇引導方向，不會改變命盤運算。');
-      document.querySelector(`[data-context-field="${nextContextMissing[0]}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      return;
-    }
+    // The relationship-position questions are intentionally not gated here: chart
+    // evidence is frozen before that stage, so blanks cost the customer nothing.
     const timeUnknown = profile.timeUnknown === true || profile.birthHourBranch === 'unknown';
     const traditionalHour = timeUnknown ? undefined : toTraditionalHourBranch(profile.birthHourBranch);
     setLoading(true);
@@ -266,18 +322,22 @@ function RedLuanHeartbeatExperience() {
           timePrecision: timeUnknown ? 'UNKNOWN_TIME' : 'TRADITIONAL_HOUR',
           birthHourBranch: traditionalHour,
           gender: profile.gender,
-          relationshipStatus: context.relationshipStatus,
-          familyResponsibility: context.familyResponsibility,
-          currentExpectation: context.currentExpectation,
+          relationshipStatus: submittedContext.relationshipStatus,
+          familyResponsibility: submittedContext.familyResponsibility,
+          currentExpectation: submittedContext.currentExpectation,
         }),
       });
       const payload = await response.json() as Reading & { error?: string; message?: string };
       if (!response.ok) throw new Error(payload.error || payload.message || '目前無法完成核對，請稍後再試。');
       setReading(payload);
-      setOpenedLayer(0);
+      setAppliedContext(submittedContext);
       setAlignmentChoice('');
-      setReflectionChoice('');
-      requestAnimationFrame(() => document.getElementById('red-luan-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      if (mode === 'initial') {
+        setOpenedLayer(0);
+        setReflectionChoice('');
+      }
+      const anchor = mode === 'refine' ? 'red-luan-layer-1' : 'red-luan-result';
+      requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : '目前無法完成核對，請稍後再試。');
     } finally {
@@ -292,11 +352,11 @@ function RedLuanHeartbeatExperience() {
 
   function updateContext<Key extends keyof SelfReportedContext>(key: Key, value: SelfReportedContext[Key]) {
     setContext((current) => ({ ...current, [key]: value }));
-    setContextMissing((current) => current.filter((item) => item !== key));
     setError('');
   }
 
-  const contextComplete = Boolean(context.relationshipStatus && context.familyResponsibility && context.currentExpectation);
+  const contextDirty = (Object.keys(EMPTY_CONTEXT) as ContextField[]).some((field) => context[field] !== appliedContext[field]);
+  const answeredCount = (Object.keys(EMPTY_CONTEXT) as ContextField[]).filter((field) => context[field]).length;
 
   return (
     <main className="mx-auto min-h-screen max-w-3xl px-4 py-6 pb-16 sm:px-6">
@@ -308,6 +368,7 @@ function RedLuanHeartbeatExperience() {
 
       <section className="red-luan-unified-flow mt-5 rounded-3xl border border-white/12 bg-slate-950/70 p-5 shadow-[0_18px_48px_rgba(2,6,23,0.35)]">
         <div className="mb-5 flex items-center justify-between gap-3"><div><p className="text-xs font-black tracking-[0.16em] text-amber-200">單人資料・沿用八字正式輸入</p><h2 className="mt-1 text-xl font-black text-white">你的出生資料</h2></div><span className="rounded-full border border-white/15 px-3 py-1 text-xs font-bold text-white/70">只填一位</span></div>
+        <IdentitySplitSelector className="mb-5" nextStepLabel="接著填出生資料" />
         <UnifiedBirthForm
           value={form}
           fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, calendarType: true }}
@@ -320,53 +381,17 @@ function RedLuanHeartbeatExperience() {
           onChange={(profile) => setForm((current) => ({ ...current, ...profile }))}
           onSubmit={(profile) => { void submit(profile); }}
         />
+        <p className="mt-3 rounded-2xl border border-violet-200/15 bg-violet-300/[0.06] px-4 py-3 text-xs leading-6 text-violet-50/75">出生時辰是本功能的必要資料：系統會先核對八字四柱，再建立紫微本命夫妻宮；任一項無法確認，就不生成紅鸞解讀。</p>
 
-        <section id="red-luan-relationship-context" className="mt-5 scroll-mt-5 border-t border-amber-200/20 pt-5">
-          <h2 className="text-xl font-black text-white">5. 此刻的關係位置</h2>
-          <p className="mt-2 text-sm font-bold text-white/65">選擇最貼近此刻的位置。</p>
-
-          <div className="mt-4 space-y-3">
-            <div data-context-field="relationshipStatus">
-              <ContextChoiceGroup
-                title="關係現況"
-                value={context.relationshipStatus}
-                options={RELATIONSHIP_STATUS_OPTIONS}
-                missing={contextMissing.includes('relationshipStatus')}
-                disabled={loading}
-                onChange={(value) => updateContext('relationshipStatus', value)}
-              />
-            </div>
-            <div data-context-field="familyResponsibility">
-              <ContextChoiceGroup
-                title="目前主要家庭責任"
-                value={context.familyResponsibility}
-                options={FAMILY_RESPONSIBILITY_OPTIONS}
-                missing={contextMissing.includes('familyResponsibility')}
-                disabled={loading}
-                onChange={(value) => updateContext('familyResponsibility', value)}
-              />
-            </div>
-            <div data-context-field="currentExpectation">
-              <ContextChoiceGroup
-                title="期待方向"
-                value={context.currentExpectation}
-                options={CURRENT_EXPECTATION_OPTIONS}
-                missing={contextMissing.includes('currentExpectation')}
-                disabled={loading}
-                onChange={(value) => updateContext('currentExpectation', value)}
-              />
-            </div>
-          </div>
-
-        </section>
         <button
           type="button"
           disabled={loading}
           onClick={() => { void submit(form); }}
-          className={`mt-5 inline-flex w-full items-center justify-center rounded-full border px-6 py-4 text-sm font-black transition disabled:opacity-60 ${contextComplete ? 'border-amber-100/65 bg-amber-300/20 text-amber-50 shadow-[0_0_24px_rgba(251,191,36,0.16)]' : 'border-white/10 bg-white/[0.04] text-white/55'}`}
+          className="mt-5 inline-flex w-full items-center justify-center rounded-full border border-amber-100/65 bg-amber-300/20 px-6 py-4 text-sm font-black text-amber-50 shadow-[0_0_24px_rgba(251,191,36,0.16)] transition disabled:opacity-60"
         >
-          {loading ? '確定性規則核對中…' : contextComplete ? '開始核對關係主題' : '完成三項選擇後開始'}
+          {loading ? '確定性規則核對中…' : '開始核對關係主題'}
         </button>
+        <p className="mt-3 text-center text-xs leading-5 text-white/45">關係現況等問題留到結果頁再問，想跳過也可以。</p>
         {error && <p className="mt-5 rounded-2xl border border-rose-300/30 bg-rose-500/10 p-3 text-sm font-bold text-rose-100">{error}</p>}
       </section>
       <style jsx>{`
@@ -406,9 +431,46 @@ function RedLuanHeartbeatExperience() {
         </section>
 
         {openedLayer >= 1 && <section id="red-luan-layer-1" className="scroll-mt-5 rounded-3xl border border-rose-200/20 bg-rose-400/[0.07] p-5">
-          <p className="text-xs font-black tracking-[0.18em] text-rose-200">第二層・此刻位置</p><h3 className="mt-2 text-xl font-black text-white">你為這次關係主題選擇的位置</h3><p className="mt-2 text-sm leading-7 text-white/65">這三格是你主動提供的當下狀況，不是命盤推論。你可以核對、不同意或重新填寫；系統不會從中推斷未填資訊。</p>
-          <div className="mt-4 grid gap-2 sm:grid-cols-3"><div className="rounded-2xl border border-white/10 bg-black/15 p-4"><p className="text-xs text-white/45">關係現況</p><p className="mt-2 text-sm font-black text-white">{RELATIONSHIP_STATUS_OPTIONS.find((item) => item.value === reading.relationshipPosition.relationshipStatus)?.label}</p></div><div className="rounded-2xl border border-white/10 bg-black/15 p-4"><p className="text-xs text-white/45">主要家庭責任</p><p className="mt-2 text-sm font-black text-white">{FAMILY_RESPONSIBILITY_OPTIONS.find((item) => item.value === reading.relationshipPosition.familyResponsibility)?.label}</p></div><div className="rounded-2xl border border-white/10 bg-black/15 p-4"><p className="text-xs text-white/45">期待方向</p><p className="mt-2 text-sm font-black text-white">{CURRENT_EXPECTATION_OPTIONS.find((item) => item.value === reading.relationshipPosition.currentExpectation)?.label}</p></div></div>
-          <p className="mt-4 text-xs leading-6 text-white/50">本層只確認「此刻位置」，尚未改變或重算第一層證據。</p>
+          <p className="text-xs font-black tracking-[0.18em] text-rose-200">第二層・此刻位置</p>
+          <h3 className="mt-2 text-xl font-black text-white">想讓引導更貼近你嗎？</h3>
+          <p className="mt-2 text-sm leading-7 text-white/65">上面的命盤證據已經算完並凍結了，跟下面填不填無關。這幾題只決定引導的語氣要往哪個方向講，你可以全部跳過、只答一題，或隨時改。</p>
+
+          <div className="mt-4 space-y-3">
+            {CONTEXT_GROUPS.map((group) => (
+              <div key={group.field} data-context-field={group.field}>
+                <ContextChoiceGroup
+                  title={group.title}
+                  reason={group.reason}
+                  tone={group.tone}
+                  value={context[group.field]}
+                  options={group.options}
+                  disabled={loading}
+                  onChange={(value) => updateContext(group.field, value as SelfReportedContext[typeof group.field])}
+                />
+              </div>
+            ))}
+          </div>
+
+          {contextDirty && (
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => { void submit(form, context, 'refine'); }}
+              className="mt-4 w-full rounded-2xl border border-amber-100/60 bg-amber-300/20 px-4 py-3 text-sm font-black text-amber-50 transition disabled:opacity-60"
+            >
+              {loading ? '更新引導中…' : answeredCount > 0 ? `套用這 ${answeredCount} 項，更新引導` : '清空選擇，改回中性引導'}
+            </button>
+          )}
+
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            {CONTEXT_GROUPS.map((group) => (
+              <div key={group.field} className="rounded-2xl border border-white/10 bg-black/15 p-4">
+                <p className="text-xs text-white/45">{CONTEXT_FIELD_LABELS[group.field]}</p>
+                <p className="mt-2 text-sm font-black text-white">{contextValueLabel(group.field, reading.relationshipPosition[group.field])}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-xs leading-6 text-white/50">目前引導依「{reading.contextAlignment.contextCompleteness === 'NONE' ? '完全未填寫' : `你填寫的 ${reading.contextAlignment.calculationOrder.stageTwo.providedFields.length} 項`}」產生；未填的項目一律走中性引導，系統不會回推。第一層證據不受影響。</p>
           <button type="button" onClick={() => openLayer(2)} className="mt-5 w-full rounded-2xl border border-amber-200/25 bg-amber-300/10 px-4 py-3 text-sm font-black text-amber-50">打開第三層・情境交叉 →</button>
         </section>}
 
@@ -418,16 +480,19 @@ function RedLuanHeartbeatExperience() {
           <p className="mt-2 text-sm leading-7 text-white/70">這是客戶自述與已驗證年度規則證據的交叉呈現，用來增加引導貼合度。關係情境運算依你的自述調整引導，不改變八字排盤、紅鸞規則、年份證據或品質門控，也不代表命盤計算精準度提高。</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl border border-cyan-200/20 bg-cyan-300/[0.06] p-4"><p className="text-xs font-black text-cyan-100">第一階段・先完成並凍結</p><p className="mt-2 text-sm font-bold text-white">八字：{statusLabel(reading.contextAlignment.calculationOrder.stageOne.baziStatus)}｜紫微：{ziweiStatusLabel(reading.contextAlignment.calculationOrder.stageOne.ziweiStatus)}</p><p className="mt-2 text-xs leading-5 text-white/55">出生資料標準化 → 八字確定性規則 → 時辰足夠時使用既有紫微引擎；證據先凍結。</p></div>
-            <div className="rounded-2xl border border-amber-200/20 bg-amber-300/[0.06] p-4"><p className="text-xs font-black text-amber-100">第二階段・再做情境交叉</p><p className="mt-2 text-sm font-bold text-white">關係位置三格：已完成運算</p><p className="mt-2 text-xs leading-5 text-white/55">只調整心理學自我反思與易經式文化引導，不能回頭改寫第一階段。</p></div>
+            <div className="rounded-2xl border border-amber-200/20 bg-amber-300/[0.06] p-4"><p className="text-xs font-black text-amber-100">第二階段・再做情境交叉</p><p className="mt-2 text-sm font-bold text-white">關係位置：已完成運算（填寫 {reading.contextAlignment.calculationOrder.stageTwo.providedFields.length} 項、留白 {reading.contextAlignment.calculationOrder.stageTwo.unspecifiedFields.length} 項）</p><p className="mt-2 text-xs leading-5 text-white/55">只調整心理學自我反思與易經式文化引導，不能回頭改寫第一階段；留白的項目走中性引導。</p></div>
           </div>
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3"><p className="text-[10px] font-black tracking-[0.12em] text-white/45">關係現況</p><p className="mt-2 text-sm font-black text-white">{RELATIONSHIP_STATUS_OPTIONS.find((item) => item.value === reading.relationshipPosition.relationshipStatus)?.label}</p></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3"><p className="text-[10px] font-black tracking-[0.12em] text-white/45">支持系統</p><p className="mt-2 text-sm font-black text-white">{FAMILY_RESPONSIBILITY_OPTIONS.find((item) => item.value === reading.relationshipPosition.familyResponsibility)?.label}</p></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3"><p className="text-[10px] font-black tracking-[0.12em] text-white/45">期待方向</p><p className="mt-2 text-sm font-black text-white">{CURRENT_EXPECTATION_OPTIONS.find((item) => item.value === reading.relationshipPosition.currentExpectation)?.label}</p></div>
+            {CONTEXT_GROUPS.map((group) => (
+              <div key={group.field} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                <p className="text-[10px] font-black tracking-[0.12em] text-white/45">{CONTEXT_FIELD_LABELS[group.field]}</p>
+                <p className="mt-2 text-sm font-black text-white">{contextValueLabel(group.field, reading.relationshipPosition[group.field])}</p>
+              </div>
+            ))}
           </div>
           <section className="mt-4 rounded-2xl border border-rose-200/15 bg-rose-300/[0.06] p-4"><p className="text-xs font-black tracking-[0.14em] text-rose-100">與年度規則證據並列</p><p className="mt-2 text-sm leading-7 text-white/70">{reading.contextAlignment.annualEvidence.years.length > 0 ? `目前已驗證規則共有 ${reading.contextAlignment.annualEvidence.evidenceCount} 筆證據，出現在 ${reading.contextAlignment.annualEvidence.years.join('、')} 年；只作為可留意的年度節奏。` : '目前年度範圍內沒有本組已驗證規則命中；這不代表沒有關係機會。'}</p></section>
           <h4 className="mt-5 text-lg font-black text-amber-50">{reading.contextAlignment.themeTitle}</h4>
-          <p className="mt-1 text-xs leading-5 text-white/55">以下三個方向由後端依你明確選擇的三項資料逐一組合。可任選一項，也可以不選；這不是人格分析或心理測驗。</p>
+          <p className="mt-1 text-xs leading-5 text-white/55">以下三個方向由後端逐一組合：你填寫的項目走對應引導，留白的項目走中性引導。可任選一項，也可以不選；這不是人格分析或心理測驗。</p>
           <div className="mt-4 grid gap-3">{reading.contextAlignment.actionDirections.map((direction) => <button key={direction.id} type="button" onClick={() => setAlignmentChoice(direction.id)} aria-pressed={alignmentChoice === direction.id} className={`rounded-2xl border p-4 text-left transition ${alignmentChoice === direction.id ? 'border-amber-100/40 bg-amber-200/15' : 'border-white/10 bg-black/10'}`}><strong className="text-sm text-amber-50">{direction.title}</strong><span className="mt-2 block text-sm leading-6 text-white/75">易經式比喻：{direction.symbolism}</span><span className="mt-2 block text-sm leading-6 text-white/70">自我反思：{direction.reflectionQuestion}</span><span className="mt-2 block text-xs leading-5 text-emerald-100">可選小步：{direction.action}</span></button>)}</div>
           {alignmentChoice && <p className="mt-4 rounded-2xl border border-emerald-200/15 bg-emerald-300/[0.06] p-4 text-sm leading-7 text-emerald-50">你選擇先從「{reading.contextAlignment.actionDirections.find((item) => item.id === alignmentChoice)?.title}」開始。這只是可修改、可停止的自我反思方向。</p>}
           <p className="mt-4 text-[11px] leading-5 text-white/45">不推斷焦慮、依附型態、創傷、性格或未填資訊；不作心理診斷或婚姻預測；自述資料不送入 AI。</p>

@@ -5,6 +5,7 @@ import { isValidBirthday } from '@/lib/validation';
 import {
   buildRedLuanContextAlignment,
   buildSingleRedLuanHeartbeat,
+  normalizeRedLuanSelfReportedContext,
   validateRedLuanSelfReportedContext,
   type RedLuanSelfReportedContext,
 } from '@/lib/red-luan-heartbeat-engine';
@@ -24,7 +25,7 @@ type SinglePersonRequest = {
   birthTime?: string;
   birthHourBranch?: string;
   gender: 'male' | 'female';
-} & RedLuanSelfReportedContext;
+} & Partial<RedLuanSelfReportedContext>;
 
 function resolvedTimePrecision(person: Partial<SinglePersonRequest>) {
   if (person.timePrecision) return person.timePrecision;
@@ -102,6 +103,14 @@ export async function POST(request: Request) {
     const selectedHour = timePrecision === 'TRADITIONAL_HOUR'
       ? SHICHEN_LIST.find((item) => item.branch === person.birthHourBranch)
       : exactHour;
+    if (!hourKnown || !selectedHour) {
+      return friendlyErrorResponse(
+        requestId,
+        'BIRTH_TIME_REQUIRED_FOR_BAZI_ZIWEI_CROSS_CHECK',
+        '請提供可確認的出生時辰；本功能必須完成八字四柱與紫微本命夫妻宮核對後，才會生成紅鸞解讀。',
+        422,
+      );
+    }
     const core = createBaziCore({
       name: person.name.trim(),
       birthDate: person.birthDate,
@@ -161,11 +170,21 @@ export async function POST(request: Request) {
       },
       timelineYears: 6,
     });
-    const selfReportedContext: RedLuanSelfReportedContext = {
+    if (result.ziwei.status !== 'READY' || !result.ziwei.palaces?.some((palace) => palace.palace === '夫妻宮')) {
+      return friendlyErrorResponse(
+        requestId,
+        'ZIWEI_VALIDATION_NOT_READY',
+        '紫微本命夫妻宮尚未完成核對，暫不生成紅鸞解讀。',
+        422,
+      );
+    }
+    // Every context field is optional; blanks collapse to UNSPECIFIED here so the
+    // response always reports a complete, explicit position.
+    const selfReportedContext: RedLuanSelfReportedContext = normalizeRedLuanSelfReportedContext({
       relationshipStatus: person.relationshipStatus,
       familyResponsibility: person.familyResponsibility,
       currentExpectation: person.currentExpectation,
-    };
+    });
     const contextAlignment = buildRedLuanContextAlignment(selfReportedContext, result);
     const culturalReading = await generateRedLuanCulturalReading(result);
 

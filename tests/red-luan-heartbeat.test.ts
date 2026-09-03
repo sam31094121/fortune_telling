@@ -8,6 +8,8 @@ import {
   buildSingleRedLuanAnnualRhythm,
   buildSingleRedLuanHeartbeat,
   buildZiweiLovePersonSignal,
+  normalizeRedLuanSelfReportedContext,
+  RED_LUAN_CONTEXT_UNSPECIFIED,
   RED_LUAN_CURRENT_EXPECTATIONS,
   RED_LUAN_FAMILY_RESPONSIBILITIES,
   RED_LUAN_RELATIONSHIP_STATUSES,
@@ -137,6 +139,22 @@ assert.match(validateRedLuanSelfReportedContext({ ...selfReportedContextA, relat
 assert.match(validateRedLuanSelfReportedContext({ ...selfReportedContextA, familyResponsibility: 'UNKNOWN' }) ?? '', /家庭責任/);
 assert.match(validateRedLuanSelfReportedContext({ ...selfReportedContextA, currentExpectation: 'UNKNOWN' }) ?? '', /期待/);
 
+// Every context field is optional: blank, missing and UNSPECIFIED all validate.
+assert.equal(validateRedLuanSelfReportedContext({}), null, '完全未填寫必須是合法輸入');
+assert.equal(validateRedLuanSelfReportedContext(undefined), null);
+assert.equal(validateRedLuanSelfReportedContext(null), null);
+assert.equal(validateRedLuanSelfReportedContext({ relationshipStatus: '', familyResponsibility: '', currentExpectation: '' }), null);
+assert.equal(validateRedLuanSelfReportedContext({ ...selfReportedContextA, familyResponsibility: '' }), null, '部分填寫必須是合法輸入');
+assert.equal(validateRedLuanSelfReportedContext(RED_LUAN_CONTEXT_UNSPECIFIED), '關係位置資料格式無效。');
+
+const normalizedBlank = normalizeRedLuanSelfReportedContext({ relationshipStatus: '', currentExpectation: 'UNKNOWN' });
+assert.deepEqual(normalizedBlank, {
+  relationshipStatus: RED_LUAN_CONTEXT_UNSPECIFIED,
+  familyResponsibility: RED_LUAN_CONTEXT_UNSPECIFIED,
+  currentExpectation: RED_LUAN_CONTEXT_UNSPECIFIED,
+}, '空白、缺漏與不合法值一律收斂為 UNSPECIFIED');
+assert.equal(normalizeRedLuanSelfReportedContext(selfReportedContextA).relationshipStatus, RED_LUAN_RELATIONSHIP_STATUSES[0]);
+
 const deterministicBeforeContextValidation = structuredClone(oneYearResult);
 const contextAlignmentA = buildRedLuanContextAlignment(selfReportedContextA, oneYearResult);
 const contextAlignmentB = buildRedLuanContextAlignment(selfReportedContextB, oneYearResult);
@@ -157,6 +175,40 @@ assert.notEqual(contextAlignmentA.actionDirections[2].reflectionQuestion, expect
 for (const direction of contextAlignmentA.actionDirections) {
   assert.ok(direction.symbolism && direction.reflectionQuestion && direction.action);
 }
+
+// Skipping every question must still produce a complete, usable alignment, and
+// must not disturb the frozen chart evidence in any way.
+const deterministicBeforeEmptyContext = structuredClone(oneYearResult);
+const emptyContextAlignment = buildRedLuanContextAlignment({}, oneYearResult);
+assert.deepEqual(oneYearResult, deterministicBeforeEmptyContext, '未填寫關係位置不得改寫命盤或年度規則結果');
+assert.deepEqual(emptyContextAlignment.annualEvidence, contextAlignmentA.annualEvidence, '未填寫不得改變年度證據');
+assert.equal(emptyContextAlignment.alignmentStatus, contextAlignmentA.alignmentStatus);
+assert.equal(emptyContextAlignment.calculationOrder.stageOne.evidenceFrozenBeforeContext, true);
+assert.equal(emptyContextAlignment.calculationOrder.stageTwo.status, 'COMPUTED');
+assert.equal(emptyContextAlignment.contextCompleteness, 'NONE');
+assert.deepEqual(emptyContextAlignment.calculationOrder.stageTwo.providedFields, []);
+assert.deepEqual(emptyContextAlignment.calculationOrder.stageTwo.unspecifiedFields, ['relationshipStatus', 'familyResponsibility', 'currentExpectation']);
+assert.deepEqual(emptyContextAlignment.relationshipPosition, {
+  relationshipStatus: RED_LUAN_CONTEXT_UNSPECIFIED,
+  familyResponsibility: RED_LUAN_CONTEXT_UNSPECIFIED,
+  currentExpectation: RED_LUAN_CONTEXT_UNSPECIFIED,
+});
+assert.equal(emptyContextAlignment.actionDirections.length, 3, '未填寫仍要給滿三個中性方向');
+for (const direction of emptyContextAlignment.actionDirections) {
+  assert.ok(direction.symbolism && direction.reflectionQuestion && direction.action);
+}
+assert.ok(emptyContextAlignment.guidancePrompt.length > 0);
+assert.ok(emptyContextAlignment.themeTitle.length > 0);
+assert.ok(emptyContextAlignment.limitations.some((line) => line.includes('中性引導')), '未填寫時必須明說採用中性引導');
+
+const partialContextAlignment = buildRedLuanContextAlignment({ currentExpectation: RED_LUAN_CURRENT_EXPECTATIONS[0] }, oneYearResult);
+assert.equal(partialContextAlignment.contextCompleteness, 'PARTIAL');
+assert.deepEqual(partialContextAlignment.calculationOrder.stageTwo.providedFields, ['currentExpectation']);
+assert.equal(partialContextAlignment.contextCompleteness !== contextAlignmentA.contextCompleteness, true);
+assert.equal(contextAlignmentA.contextCompleteness, 'COMPLETE');
+// Answering a question must actually change that dimension's guidance.
+assert.notEqual(partialContextAlignment.actionDirections[2].reflectionQuestion, emptyContextAlignment.actionDirections[2].reflectionQuestion);
+assert.equal(partialContextAlignment.actionDirections[0].reflectionQuestion, emptyContextAlignment.actionDirections[0].reflectionQuestion, '未答的維度必須維持中性引導');
 
 const aiEvidencePayload = buildRedLuanAiEvidencePayload(oneYearResult);
 const serializedAiPayload = JSON.stringify(aiEvidencePayload);
@@ -194,7 +246,7 @@ assert.throws(() => buildSingleRedLuanAnnualRhythm({
 const pageSource = readFileSync(join(process.cwd(), 'app/red-luan-heartbeat/page.tsx'), 'utf8');
 const routeSource = readFileSync(join(process.cwd(), 'app/api/red-luan-heartbeat/route.ts'), 'utf8');
 const homeSource = readFileSync(join(process.cwd(), 'app/page.tsx'), 'utf8');
-assert.equal(RED_LUAN_PUBLIC_ARCHIVED, true);
+assert.equal(RED_LUAN_PUBLIC_ARCHIVED, false);
 assert.equal(RED_LUAN_ARCHIVE_COPY.message, '正在優化・強化中');
 assert.ok(homeSource.includes('RED_LUAN_PUBLIC_ARCHIVED ?'));
 assert.ok(homeSource.includes('aria-disabled="true"'));
@@ -204,21 +256,37 @@ assert.ok(pageSource.includes('return RED_LUAN_PUBLIC_ARCHIVED ? <RedLuanArchive
 assert.ok(pageSource.includes('返回首頁'));
 assert.ok(routeSource.indexOf('if (RED_LUAN_PUBLIC_ARCHIVED)') < routeSource.indexOf('request.json()'));
 assert.ok(routeSource.includes("'RED_LUAN_ARCHIVED'"));
+assert.ok(pageSource.includes("timeUnknown || !profile.birthHourBranch ? 'birthHourBranch'"));
+assert.ok(routeSource.includes("'BIRTH_TIME_REQUIRED_FOR_BAZI_ZIWEI_CROSS_CHECK'"));
+assert.ok(routeSource.includes("result.ziwei.status !== 'READY'"));
+assert.ok(routeSource.indexOf("result.ziwei.status !== 'READY'") < routeSource.indexOf('generateRedLuanCulturalReading(result)'));
 assert.ok(pageSource.includes("import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm'"));
 assert.ok(pageSource.includes('<UnifiedBirthForm'));
 assert.equal(pageSource.includes('aria-label="出生年份"'), false);
-assert.ok(pageSource.includes('5. 此刻的關係位置'));
 assert.ok(pageSource.includes(".mega-friendly-form > button[type='submit']"));
 assert.ok(pageSource.includes('.mega-friendly-form > section:last-child'));
 assert.equal(pageSource.includes('continueToContext'), false);
-assert.ok(pageSource.indexOf('<UnifiedBirthForm') < pageSource.indexOf('id="red-luan-relationship-context"'));
-assert.ok(pageSource.indexOf('id="red-luan-relationship-context"') < pageSource.indexOf('onClick={() => { void submit(form); }}'));
-assert.ok(pageSource.includes('id="red-luan-relationship-context" className="mt-5 scroll-mt-5 border-t border-amber-200/20 pt-5"'));
-const relationshipInputSection = pageSource.slice(pageSource.indexOf('id="red-luan-relationship-context"'), pageSource.indexOf('onClick={() => { void submit(form); }}'));
-assert.ok(relationshipInputSection.includes('選擇最貼近此刻的位置。'));
-for (const removedCopy of ['同一份資料・最後三格', '不送入 AI', '請依現在的實際狀況選擇', '自述內容不參與', 'hint=']) {
-  assert.equal(relationshipInputSection.includes(removedCopy), false, `relationship input still contains verbose copy: ${removedCopy}`);
-}
+
+// The analysis target ("我自己" / "親朋好友") is picked before any birth data,
+// matching every other module.
+assert.ok(pageSource.includes('<IdentitySplitSelector'));
+assert.ok(pageSource.includes("import IdentitySplitSelector from '@/components/IdentitySplitSelector'"));
+assert.ok(pageSource.indexOf('<IdentitySplitSelector') < pageSource.indexOf('<UnifiedBirthForm'));
+assert.ok(pageSource.includes('getIdentityRequiredMessage()'));
+
+// The relationship-position questions are asked AFTER the reading exists, and
+// they never gate submission: chart evidence is frozen before that stage, so a
+// customer who skips every question still gets the full deterministic result.
+assert.ok(pageSource.indexOf('onClick={() => { void submit(form); }}') < pageSource.indexOf('data-context-field='));
+assert.ok(pageSource.indexOf('id="red-luan-layer-1"') < pageSource.indexOf('data-context-field='));
+assert.equal(pageSource.includes('id="red-luan-relationship-context"'), false, 'relationship questions must not sit in the pre-submit form');
+assert.equal(pageSource.includes('完成三項選擇後開始'), false, 'submit must not be gated on the optional context');
+assert.equal(pageSource.includes('請完成此刻的關係位置'), false, 'the blocking context error must be gone');
+assert.equal(pageSource.includes('contextMissing'), false, 'the context "missing" gate must be gone');
+// Reuses the shared choice component instead of a page-local duplicate.
+assert.ok(pageSource.includes("import FriendlyChoiceCard from '@/components/FriendlyChoiceCard'"));
+assert.ok(pageSource.includes('<FriendlyChoiceCard'));
+assert.ok(pageSource.includes('清除這一題'));
 for (const title of ['第一層・命理底盤', '第二層・此刻位置', '第三層・情境交叉', '第四層・問心', '第五層・易經引導']) {
   assert.ok(pageSource.includes(title), `missing onion layer: ${title}`);
 }
@@ -232,9 +300,10 @@ assert.ok(pageSource.includes('aria-pressed={alignmentChoice === direction.id}')
 assert.ok(pageSource.includes('品質門控通過前不會傳給 AI'));
 assert.ok(pageSource.includes('不是超自然權威'));
 assert.ok(pageSource.includes('此刻的關係位置'));
-for (const label of ['關係現況', '目前主要家庭責任', '期待方向', '未婚單身', '交往中', '已婚', '分居', '離異', '喪偶', '認識對象', '穩定交往', '婚姻規劃', '修復關係']) {
+for (const label of ['關係現況', '生活責任', '期待方向', '未婚單身', '交往中', '已婚', '分居', '離異', '喪偶', '認識對象', '穩定交往', '婚姻規劃', '修復關係']) {
   assert.ok(pageSource.includes(label), `missing relationship context option: ${label}`);
 }
+assert.ok(pageSource.includes('未填寫・中性引導'), 'a skipped question must render as an explicit state, not blank');
 assert.ok(pageSource.includes('已完成情境運算'));
 assert.ok(pageSource.includes('關係情境運算依你的自述調整引導，不改變八字排盤'));
 assert.ok(pageSource.includes('不推斷焦慮、依附型態、創傷、性格或未填資訊'));

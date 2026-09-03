@@ -49,11 +49,28 @@ export const RED_LUAN_CURRENT_EXPECTATIONS = [
   'MEET_SOMEONE', 'STABLE_RELATIONSHIP', 'MARRIAGE_PLANNING', 'REPAIR_RELATIONSHIP',
 ] as const;
 
+/**
+ * Marks a context field the customer has not answered. The three self-reported
+ * fields are optional by design: chart evidence is frozen before this stage, so
+ * leaving them blank costs no precision. It only means the guidance copy for
+ * that dimension stays neutral instead of tailored.
+ */
+export const RED_LUAN_CONTEXT_UNSPECIFIED = 'UNSPECIFIED';
+
+export type RedLuanRelationshipStatus = (typeof RED_LUAN_RELATIONSHIP_STATUSES)[number];
+export type RedLuanFamilyResponsibility = (typeof RED_LUAN_FAMILY_RESPONSIBILITIES)[number];
+export type RedLuanCurrentExpectation = (typeof RED_LUAN_CURRENT_EXPECTATIONS)[number];
+export type RedLuanContextUnspecified = typeof RED_LUAN_CONTEXT_UNSPECIFIED;
+
 export type RedLuanSelfReportedContext = {
-  relationshipStatus: (typeof RED_LUAN_RELATIONSHIP_STATUSES)[number];
-  familyResponsibility: (typeof RED_LUAN_FAMILY_RESPONSIBILITIES)[number];
-  currentExpectation: (typeof RED_LUAN_CURRENT_EXPECTATIONS)[number];
+  relationshipStatus: RedLuanRelationshipStatus | RedLuanContextUnspecified;
+  familyResponsibility: RedLuanFamilyResponsibility | RedLuanContextUnspecified;
+  currentExpectation: RedLuanCurrentExpectation | RedLuanContextUnspecified;
 };
+
+export type RedLuanContextField = keyof RedLuanSelfReportedContext;
+
+export type RedLuanContextCompleteness = 'NONE' | 'PARTIAL' | 'COMPLETE';
 
 export type RedLuanContextAlignment = {
   mode: 'REFLECTION_GUIDANCE_ONLY';
@@ -69,8 +86,12 @@ export type RedLuanContextAlignment = {
       label: 'RELATIONSHIP_CONTEXT_ALIGNMENT';
       status: 'COMPUTED';
       inputFields: ['relationshipStatus', 'familyResponsibility', 'currentExpectation'];
+      /** Fields the customer actually answered; the rest fall back to neutral guidance. */
+      providedFields: RedLuanContextField[];
+      unspecifiedFields: RedLuanContextField[];
     };
   };
+  contextCompleteness: RedLuanContextCompleteness;
   relationshipPosition: RedLuanSelfReportedContext;
   annualEvidence: {
     precision: 'ANNUAL_BRANCH';
@@ -93,20 +114,45 @@ export type RedLuanContextAlignment = {
  * Validates customer-provided context only. These fields are deliberately not
  * accepted by buildSingleRedLuanHeartbeat, so they cannot alter chart rules,
  * evidence, quality gates, or timeline precision.
+ *
+ * Every field is optional: blank is a valid answer and produces neutral guidance
+ * for that dimension. Only a value outside the published option list is an error.
  */
 export function validateRedLuanSelfReportedContext(value: unknown): string | null {
-  if (!value || typeof value !== 'object') return '請完成此刻的關係位置。';
-  const context = value as Partial<RedLuanSelfReportedContext>;
-  if (!RED_LUAN_RELATIONSHIP_STATUSES.includes(context.relationshipStatus as RedLuanSelfReportedContext['relationshipStatus'])) {
-    return '請選擇目前的關係現況。';
+  if (value === null || value === undefined) return null;
+  if (typeof value !== 'object') return '關係位置資料格式無效。';
+  const context = value as Partial<Record<RedLuanContextField, unknown>>;
+  if (!isBlankContextValue(context.relationshipStatus) && !RED_LUAN_RELATIONSHIP_STATUSES.includes(context.relationshipStatus as RedLuanRelationshipStatus)) {
+    return '關係現況的選項無效。';
   }
-  if (!RED_LUAN_FAMILY_RESPONSIBILITIES.includes(context.familyResponsibility as RedLuanSelfReportedContext['familyResponsibility'])) {
-    return '請選擇目前主要家庭責任。';
+  if (!isBlankContextValue(context.familyResponsibility) && !RED_LUAN_FAMILY_RESPONSIBILITIES.includes(context.familyResponsibility as RedLuanFamilyResponsibility)) {
+    return '家庭責任的選項無效。';
   }
-  if (!RED_LUAN_CURRENT_EXPECTATIONS.includes(context.currentExpectation as RedLuanSelfReportedContext['currentExpectation'])) {
-    return '請選擇目前期待的方向。';
+  if (!isBlankContextValue(context.currentExpectation) && !RED_LUAN_CURRENT_EXPECTATIONS.includes(context.currentExpectation as RedLuanCurrentExpectation)) {
+    return '期待方向的選項無效。';
   }
   return null;
+}
+
+function isBlankContextValue(value: unknown) {
+  return value === undefined || value === null || value === '' || value === RED_LUAN_CONTEXT_UNSPECIFIED;
+}
+
+/**
+ * Turns anything the client sent into a complete context object, with every
+ * unanswered or blank field collapsed to UNSPECIFIED. Invalid values are treated
+ * as unanswered here; `validateRedLuanSelfReportedContext` is what rejects them.
+ */
+export function normalizeRedLuanSelfReportedContext(value: unknown): RedLuanSelfReportedContext {
+  const context = (value && typeof value === 'object' ? value : {}) as Partial<Record<RedLuanContextField, unknown>>;
+  const pick = <Option extends string>(raw: unknown, allowed: readonly Option[]) => (
+    !isBlankContextValue(raw) && allowed.includes(raw as Option) ? raw as Option : RED_LUAN_CONTEXT_UNSPECIFIED
+  );
+  return {
+    relationshipStatus: pick(context.relationshipStatus, RED_LUAN_RELATIONSHIP_STATUSES),
+    familyResponsibility: pick(context.familyResponsibility, RED_LUAN_FAMILY_RESPONSIBILITIES),
+    currentExpectation: pick(context.currentExpectation, RED_LUAN_CURRENT_EXPECTATIONS),
+  };
 }
 
 type ContextGuidanceModule = { theme: string; symbolism: string; reflectionQuestion: string; action: string };
@@ -118,6 +164,7 @@ const RELATIONSHIP_GUIDANCE: Record<RedLuanSelfReportedContext['relationshipStat
   SEPARATED: { theme: '先界後行', symbolism: '水有岸才可安行；先定界線，再看是否前進。', reflectionQuestion: '什麼樣的聯絡方式與距離，對你現在而言較尊重也較安全？', action: '先確認安全、尊重且雙方願意的聯絡界線，再決定是否安排下一次對話。' },
   DIVORCED: { theme: '整序再啟', symbolism: '一卦既終，不催下一卦；先由自己決定何時再啟。', reflectionQuestion: '如果重新開放連結，你希望保留哪些步調與選擇權？', action: '按自己的步調決定是否開放新的社交連結，不需要配合任何命理時程。' },
   WIDOWED: { theme: '敬昔迎今', symbolism: '珍重走過的篇章，也容許新的陪伴依自己的節奏靠近。', reflectionQuestion: '此刻你願意接受的是陪伴、社交，還是先保留自己的時間？', action: '尊重自己的步調，選擇是否接受一段低壓力的陪伴或社交邀請。' },
+  UNSPECIFIED: { theme: '界線自訂', symbolism: '未定之爻不強斷，界線由當事人自己畫。', reflectionQuestion: '此刻你希望與人的距離是再靠近一點，還是先保留自己的空間？', action: '照自己的舒適距離決定互動頻率；願意時再補上關係現況，引導會更貼近。' },
 };
 
 const FAMILY_GUIDANCE: Record<RedLuanSelfReportedContext['familyResponsibility'], ContextGuidanceModule> = {
@@ -125,6 +172,7 @@ const FAMILY_GUIDANCE: Record<RedLuanSelfReportedContext['familyResponsibility']
   LIVE_WITH_OR_CARE_FOR_PARENTS: { theme: '承責有度', symbolism: '承載不是停滯；先定份量，才能讓生活繼續流動。', reflectionQuestion: '在照顧父母之外，你希望如何保留自己的時間與支持？', action: '先盤點照顧安排與可運用時間，再選擇不增加負擔的互動方式。' },
   HAS_CHILDREN: { theme: '護持並行', symbolism: '一邊護持既有責任，一邊為自己的關係需要留一條路。', reflectionQuestion: '什麼樣的安排能同時尊重照顧責任與你的關係需求？', action: '選擇不影響照顧責任、時間界線清楚的相處安排。' },
   CARE_FOR_OTHER_FAMILY: { theme: '分力安行', symbolism: '先量可用之力，再選可長久的步幅。', reflectionQuestion: '目前可運用的時間與心力到哪裡，哪些支持可以先安排？', action: '先確認目前可負擔的時間與心力，再決定互動頻率。' },
+  UNSPECIFIED: { theme: '量力而行', symbolism: '行有餘力則進，力有未逮則守。', reflectionQuestion: '扣掉現有的責任，你每週還剩下多少真正屬於自己的時間？', action: '先估算自己可運用的時間再安排互動，不需要為了配合任何時程勉強自己。' },
 };
 
 const EXPECTATION_GUIDANCE: Record<RedLuanSelfReportedContext['currentExpectation'], ContextGuidanceModule & { prompt: string }> = {
@@ -155,6 +203,13 @@ const EXPECTATION_GUIDANCE: Record<RedLuanSelfReportedContext['currentExpectatio
     reflectionQuestion: '若要開始修復，你希望先從哪一件小事建立可對話的空間？',
     prompt: '這一段時間，你想先為哪一種修復節奏留出空間？',
     action: '先確認雙方是否願意對話，再從一件可具體說明的小事開始；任何一方都可以停止。',
+  },
+  UNSPECIFIED: {
+    theme: '順勢而觀',
+    symbolism: '方向未定時先觀其變，不急於落子。',
+    reflectionQuestion: '如果現在不必給出答案，你最想先弄清楚的是哪一件事？',
+    prompt: '這一段時間，你想先觀察哪一種關係節奏？',
+    action: '先把年度訊號當成觀察窗口；等自己的方向清楚了，再決定要不要行動。',
   },
 };
 
@@ -285,15 +340,24 @@ export type SingleRedLuanHeartbeatResult = {
  * chart result and is intentionally separate from the calculation quality gate.
  */
 export function buildRedLuanContextAlignment(
-  context: RedLuanSelfReportedContext,
+  context: unknown,
   result: SingleRedLuanHeartbeatResult,
 ): RedLuanContextAlignment {
   const contextError = validateRedLuanSelfReportedContext(context);
   if (contextError) throw new Error(`RED_LUAN_CONTEXT_INVALID:${contextError}`);
+  const normalized = normalizeRedLuanSelfReportedContext(context);
+  const contextFields: RedLuanContextField[] = ['relationshipStatus', 'familyResponsibility', 'currentExpectation'];
+  const providedFields = contextFields.filter((field) => normalized[field] !== RED_LUAN_CONTEXT_UNSPECIFIED);
+  const unspecifiedFields = contextFields.filter((field) => normalized[field] === RED_LUAN_CONTEXT_UNSPECIFIED);
   const evidenceRows = result.annualRhythm.filter((item) => item.evidence.length > 0);
-  const relationship = RELATIONSHIP_GUIDANCE[context.relationshipStatus];
-  const family = FAMILY_GUIDANCE[context.familyResponsibility];
-  const expectation = EXPECTATION_GUIDANCE[context.currentExpectation];
+  const relationship = RELATIONSHIP_GUIDANCE[normalized.relationshipStatus];
+  const family = FAMILY_GUIDANCE[normalized.familyResponsibility];
+  const expectation = EXPECTATION_GUIDANCE[normalized.currentExpectation];
+  const answeredThemes = [
+    normalized.relationshipStatus !== RED_LUAN_CONTEXT_UNSPECIFIED ? relationship.theme : '',
+    normalized.familyResponsibility !== RED_LUAN_CONTEXT_UNSPECIFIED ? family.theme : '',
+    normalized.currentExpectation !== RED_LUAN_CONTEXT_UNSPECIFIED ? expectation.theme : '',
+  ].filter(Boolean);
   return {
     mode: 'REFLECTION_GUIDANCE_ONLY',
     alignmentStatus: evidenceRows.length > 0 ? 'EVIDENCE_AVAILABLE' : 'NO_VERIFIED_YEARLY_RULE_HIT',
@@ -308,15 +372,18 @@ export function buildRedLuanContextAlignment(
         label: 'RELATIONSHIP_CONTEXT_ALIGNMENT',
         status: 'COMPUTED',
         inputFields: ['relationshipStatus', 'familyResponsibility', 'currentExpectation'],
+        providedFields,
+        unspecifiedFields,
       },
     },
-    relationshipPosition: { ...context },
+    contextCompleteness: providedFields.length === 0 ? 'NONE' : unspecifiedFields.length === 0 ? 'COMPLETE' : 'PARTIAL',
+    relationshipPosition: { ...normalized },
     annualEvidence: {
       precision: 'ANNUAL_BRANCH',
       years: evidenceRows.map((item) => item.year),
       evidenceCount: evidenceRows.reduce((total, item) => total + item.evidence.length, 0),
     },
-    themeTitle: `${relationship.theme}・${family.theme}・${expectation.theme}`,
+    themeTitle: answeredThemes.length > 0 ? answeredThemes.join('・') : '年度訊號・方向留白',
     guidancePrompt: expectation.prompt,
     actionDirections: [
       { id: 'relationship_rhythm', title: `界線與步調・${relationship.theme}`, symbolism: relationship.symbolism, reflectionQuestion: relationship.reflectionQuestion, action: relationship.action },
@@ -327,6 +394,9 @@ export function buildRedLuanContextAlignment(
       '這是客戶自述與已驗證年度規則證據的交叉呈現，只用來增加引導貼合度。',
       '自述資料不改變八字排盤、紅鸞規則、年份證據或品質門控，也不提高命盤計算精準度。',
       '本層不推斷未填資訊、人格、焦慮、依附型態或創傷，不作心理診斷或婚姻預測。',
+      ...(unspecifiedFields.length > 0
+        ? ['未填寫的項目一律採用中性引導，系統不會反推或補齊；命盤證據在此之前已完成並凍結，不因此有任何差異。']
+        : []),
     ],
   };
 }
