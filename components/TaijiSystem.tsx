@@ -892,6 +892,61 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
       [new THREE.Vector3(-.18, .92, 1.08), new THREE.Vector3(-.02, .48, 1.3), new THREE.Vector3(-.06, -.62, 1.12)],
       [new THREE.Vector3(.22, .64, 1.14), new THREE.Vector3(.08, .18, 1.32), new THREE.Vector3(.42, -.28, 1.18)],
     ];
+    // A strike should not read as a single flat rail. These sky lanes form a
+    // bounded storm volume: distant blue-violet forks fall behind the orb,
+    // warmer foreground forks cross its face, and every lane is pulled toward
+    // the same impact field. The deterministic offsets keep the cloud-like
+    // scale without a noisy random flicker on phones.
+    const stormLaneCount = lowPower ? 6 : 10;
+    const stormLanes = Array.from({ length: stormLaneCount }, (_, lane) => {
+      const normalized = lane / (stormLaneCount - 1);
+      const x = -3.15 + normalized * 6.3;
+      const depthBand = [-.72, .18, 1.08][lane % 3];
+      const wobble = Math.sin(lane * 7.17) * .26;
+      const startY = 3.15 + (lane % 2) * .38;
+      const impactX = x * .22 + Math.sin(lane * 2.9) * .32;
+      const impactY = .28 + Math.cos(lane * 5.1) * .52;
+      return [
+        new THREE.Vector3(x, startY, depthBand),
+        new THREE.Vector3(x + wobble, 2.35, depthBand + Math.sin(lane * 1.7) * .34),
+        new THREE.Vector3(x - wobble * 1.38, 1.48, depthBand - .24),
+        new THREE.Vector3(x * .56 + wobble, .82, depthBand + .38),
+        new THREE.Vector3(impactX, impactY, .72 + (lane % 3) * .18),
+      ];
+    });
+    // The impact must wrap the whole Taiji, not merely paint the camera-facing
+    // hemisphere. Meridian fractures and offset latitude scars build a spatial
+    // lightning cage around the sphere, so a spinning Taiji keeps passing
+    // through charged seams on every side.
+    const shellRadius = 1.26;
+    const shellPoint = (azimuth: number, elevation: number, radius = shellRadius) => new THREE.Vector3(
+      Math.cos(elevation) * Math.cos(azimuth) * radius,
+      Math.sin(elevation) * radius,
+      Math.cos(elevation) * Math.sin(azimuth) * radius,
+    );
+    const shellMeridians = Array.from({ length: lowPower ? 4 : 6 }, (_, lane) => {
+      const azimuth = lane * Math.PI / (lowPower ? 2 : 3) + .18;
+      return Array.from({ length: 8 }, (_, step) => {
+        const progress = step / 7;
+        const elevation = -1.22 + progress * 2.44;
+        return shellPoint(
+          azimuth + Math.sin(step * 4.3 + lane * 2.1) * .12,
+          elevation,
+          shellRadius + Math.sin(step * 3.7 + lane) * .045,
+        );
+      });
+    });
+    const shellLatitudes = [-.66, -.23, .24, .67].map((elevation, lane) => (
+      Array.from({ length: 10 }, (_, step) => {
+        const progress = step / 9;
+        const azimuth = -Math.PI + progress * Math.PI * 2;
+        return shellPoint(
+          azimuth,
+          elevation + Math.sin(step * 5.6 + lane * 1.8) * .075,
+          shellRadius + Math.cos(step * 4.1 + lane) * .035,
+        );
+      })
+    ));
     const addLayeredBolt = (points: THREE.Vector3[], core: number, rim: number, radius: number, delay = 0, blackCore = false, origin: Level01StrikeOrigin | 'IMPACT' = 'IMPACT') => {
       createBolt({ points, color: rim, opacity: .2, radius: radius * 2.15, delay, glow: true, origin });
       createBolt({ points, color: rim, opacity: .48, radius: radius * 1.42, delay, glow: true, origin });
@@ -925,6 +980,30 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
         index < 2 ? .046 : .027,
         .17 + index * .018,
         !fromYin,
+      );
+    });
+    stormLanes.forEach((points, lane) => {
+      const foreground = lane % 3 === 2;
+      const nearCore = foreground ? 0xfffbeb : 0x08091e;
+      const rim = foreground ? 0xfbbf24 : lane % 2 === 0 ? 0x60a5fa : 0x818cf8;
+      addLayeredBolt(
+        points,
+        nearCore,
+        rim,
+        foreground ? .043 : .035,
+        .018 + (lane % 5) * .028,
+        !foreground,
+      );
+    });
+    [...shellMeridians, ...shellLatitudes].forEach((points, lane) => {
+      const whiteHot = lane % 3 === 0;
+      addLayeredBolt(
+        points,
+        whiteHot ? 0xfff8da : 0x090817,
+        whiteHot ? 0xfbbf24 : lane % 2 === 0 ? 0x67e8f9 : 0x818cf8,
+        whiteHot ? .034 : .027,
+        .16 + (lane % 6) * .018,
+        !whiteHot,
       );
     });
     // Broken, depth-layered burn aftershock. Partial arcs avoid framing the orb

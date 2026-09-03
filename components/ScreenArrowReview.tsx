@@ -7,15 +7,24 @@ type TargetRect = { left: number; top: number; width: number; height: number };
 const HASH_PREFIX = '#screen-arrow=';
 const CARD_HASH_PREFIX = '#screen-arrow-card=';
 const DATA_HASH_PREFIX = '#screen-arrow-target=';
+const ID_HASH_PREFIX = '#screen-arrow-id=';
 
 function readTarget() {
   if (typeof window === 'undefined') return { text: '', mode: 'text' as const };
-  const mode: 'text' | 'card' | 'data' = window.location.hash.startsWith(DATA_HASH_PREFIX)
+  const mode: 'text' | 'card' | 'data' | 'id' = window.location.hash.startsWith(ID_HASH_PREFIX)
+    ? 'id'
+    : window.location.hash.startsWith(DATA_HASH_PREFIX)
     ? 'data'
     : window.location.hash.startsWith(CARD_HASH_PREFIX)
       ? 'card'
       : 'text';
-  const prefix = mode === 'data' ? DATA_HASH_PREFIX : mode === 'card' ? CARD_HASH_PREFIX : HASH_PREFIX;
+  const prefix = mode === 'id'
+    ? ID_HASH_PREFIX
+    : mode === 'data'
+      ? DATA_HASH_PREFIX
+      : mode === 'card'
+        ? CARD_HASH_PREFIX
+        : HASH_PREFIX;
   if (!window.location.hash.startsWith(prefix)) return { text: '', mode: 'text' as const };
   try {
     return { text: decodeURIComponent(window.location.hash.slice(prefix.length)).trim(), mode };
@@ -24,8 +33,9 @@ function readTarget() {
   }
 }
 
-function findTarget(targetText: string, mode: 'text' | 'card' | 'data') {
+function findTarget(targetText: string, mode: 'text' | 'card' | 'data' | 'id') {
   if (!targetText) return null;
+  if (mode === 'id') return document.getElementById(targetText);
   if (mode === 'data') {
     return Array.from(document.querySelectorAll<HTMLElement>('[data-screen-arrow-target]'))
       .find((element) => element.dataset.screenArrowTarget === targetText) ?? null;
@@ -42,6 +52,7 @@ export default function ScreenArrowReview() {
   useEffect(() => {
     let currentTarget: HTMLElement | null = null;
     let animationFrame = 0;
+    const resizeObserver = new ResizeObserver(() => followTarget());
 
     function measureTarget() {
       if (!currentTarget) return;
@@ -64,6 +75,8 @@ export default function ScreenArrowReview() {
         return;
       }
       currentTarget = target;
+      resizeObserver.disconnect();
+      resizeObserver.observe(target);
       target.scrollIntoView({ block: 'center', behavior: 'auto' });
       followTarget();
     }
@@ -74,6 +87,7 @@ export default function ScreenArrowReview() {
     window.addEventListener('scroll', followTarget, true);
     return () => {
       window.cancelAnimationFrame(animationFrame);
+      resizeObserver.disconnect();
       window.removeEventListener('hashchange', update);
       window.removeEventListener('resize', followTarget);
       window.removeEventListener('scroll', followTarget, true);
