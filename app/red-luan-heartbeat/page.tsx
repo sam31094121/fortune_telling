@@ -8,6 +8,8 @@ import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT, setAnalysisIdentityTarget } from '@/lib/identity-split-client';
  import { downloadRedLuanReminder, shareRedLuanReading, type RedLuanReminder } from '@/lib/red-luan-followup';
+import { readCanonicalBirthProfile, saveCanonicalBirthProfile } from '@/lib/canonical-birth-profile-client';
+import { fromUnifiedBirthProfile, toUnifiedBirthProfile } from '@/lib/canonical-birth-profile';
 import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-public-access';
 
 type Evidence = { label: string; targetBranch: string; evidence: string };
@@ -491,6 +493,8 @@ function RedLuanHeartbeatExperience() {
   const [followUp, setFollowUp] = useState<'idle' | 'reminded' | 'shared' | 'copied' | 'failed'>('idle');
   /** 起卦儀式的第幾句；-1 代表沒有在進行。 */
   const [ritualStep, setRitualStep] = useState(-1);
+  /** 上次填過的人；有的話就直接請他一鍵重看，不必再走一次表單。 */
+  const [returningName, setReturningName] = useState('');
 
   /** 幫朋友算：切成訪客身分、清掉這次的結果與填答，捲回表單。 */
   function startGuestReading() {
@@ -508,6 +512,15 @@ function RedLuanHeartbeatExperience() {
   function toggleFold(key: string) {
     setOpenedFolds((current) => (current.includes(key) ? current.filter((item) => item !== key) : [...current, key]));
   }
+
+  useEffect(() => {
+    // 之前算過的人回來時直接認出他。被行事曆提醒回來的客戶最需要這個。
+    const saved = readCanonicalBirthProfile();
+    if (saved?.birthDate && saved.name) {
+      const profile = toUnifiedBirthProfile(saved);
+      if (profile.name && profile.birthDate && profile.gender) setReturningName(profile.name);
+    }
+  }, []);
 
   useEffect(() => {
     const clearIdentityError = () => setError((current) => (current === getIdentityRequiredMessage() ? '' : current));
@@ -542,6 +555,10 @@ function RedLuanHeartbeatExperience() {
     }
     // The relationship-position questions are intentionally not gated here: chart
     // evidence is frozen before that stage, so blanks cost the customer nothing.
+    if (getAnalysisIdentityTarget() === 'self') {
+      saveCanonicalBirthProfile(fromUnifiedBirthProfile(profile));
+      setReturningName((profile.name ?? '').trim());
+    }
     const timeUnknown = profile.timeUnknown === true || profile.birthHourBranch === 'unknown';
     const traditionalHour = timeUnknown ? undefined : toTraditionalHourBranch(profile.birthHourBranch);
     setLoading(true);
@@ -619,6 +636,25 @@ function RedLuanHeartbeatExperience() {
 
       <section className="red-luan-unified-flow mt-5 rounded-3xl border border-white/12 bg-slate-950/70 p-5 shadow-[0_18px_48px_rgba(2,6,23,0.35)]">
         <div className="mb-5 flex items-center justify-between gap-3"><div><p className="text-xs font-black tracking-[0.16em] text-amber-200">只要生日和時辰</p><h2 className="mt-1 text-xl font-black text-white">你的出生資料</h2></div><span className="rounded-full border border-white/15 px-3 py-1 text-xs font-bold text-white/70">只填一位</span></div>
+        {/*
+          回訪辨識：出生資料早就存著，表單也會自動帶入，但客戶回來時
+          沒有任何東西告訴他「你的紅鸞月剩幾天」——他得自己再按一次才知道。
+          被行事曆叫回來的人，第一眼就該看到這張。
+        */}
+        {returningName && !reading && !loading && (
+          <div className="mb-5 rounded-2xl border border-rose-200/35 bg-rose-300/[0.1] p-4">
+            <p className="text-sm font-black text-rose-50">{returningName}，歡迎回來</p>
+            <p className="mt-1 text-xs leading-5 text-white/60">資料都還在，直接看你現在的紅鸞就好。</p>
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => { void submit(form); }}
+              className="mt-3 w-full rounded-2xl border border-rose-100/60 bg-rose-300/25 px-4 py-3 text-sm font-black text-rose-50 transition disabled:opacity-60"
+            >
+              直接看我的紅鸞 →
+            </button>
+          </div>
+        )}
         <IdentitySplitSelector className="mb-5" nextStepLabel="接著填出生資料" />
         <UnifiedBirthForm
           value={form}
@@ -758,7 +794,12 @@ function RedLuanHeartbeatExperience() {
           {reading.unlocks && !reading.unlocks.hexagram && (
             <p className="mt-4 rounded-2xl border border-cyan-200/25 bg-cyan-300/[0.08] p-4 text-sm leading-7 text-cyan-50">🔒 {reading.unlocks.note}</p>
           )}
-          <p className="mt-4 text-xs leading-5 text-white/45">以下想看再打開就好，不看也不影響上面的結論。</p>
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <p className="text-xs leading-5 text-white/45">以下想看再打開就好，不看也不影響上面的結論。</p>
+            <span className="shrink-0 rounded-full border border-white/15 px-2.5 py-1 text-[10px] font-black text-white/55">
+              已拆 {openedFolds.filter((key) => key !== 'evidence').length} / 5
+            </span>
+          </div>
 
           <div className="mt-2 space-y-2">
             {reading.ichingReading && <>
