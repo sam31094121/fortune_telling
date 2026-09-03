@@ -1,5 +1,5 @@
 import { FRAME_DELTA_CAP, MAX_FLICK_SPIN_SPEED, SENSOR_WARMUP_TIMEOUT_MS } from './level01.constants';
-import { Level01SoundEngine } from './Level01Audio';
+import { Level01SoundEngine, type Level01StrikeOrigin } from './Level01Audio';
 import { resolveEffectivePermission, resolveLevel01Mode, type Level01Mode, type Level01Permission } from './Level01Fallback';
 import { Level01GameController, type Level01GameSnapshot } from './Level01GameController';
 import { isTaijiMotionGameV1Enabled } from './Level01FeatureFlags';
@@ -175,7 +175,7 @@ export class Level01TaijiMotionController {
     }
   }
 
-  async armFromUserGesture() {
+  async armFromUserGesture(initialStrikeOrigin: Level01StrikeOrigin = 'N') {
     if (this.disposed || this.permission === 'pending') return this.pose;
     return this.boundary.run(this.pose, () => {
       const now = this.now();
@@ -186,7 +186,7 @@ export class Level01TaijiMotionController {
       this.lastStaticAdvanceAt = -Infinity;
       this.syncEnvironment();
       this.game.beginPermission(now);
-      this.armAudioFromUserGesture();
+      this.armAudioFromUserGesture(true, initialStrikeOrigin);
       this.haptics.armFromUserGesture();
       this.activationId += 1;
       this.haptics.playActivationImpact(now);
@@ -196,7 +196,7 @@ export class Level01TaijiMotionController {
     });
   }
 
-  playTouchReboundFeedback(phase: 'press' | 'release' = 'press') {
+  playTouchReboundFeedback(phase: 'press' | 'release' = 'press', strikeOrigin: Level01StrikeOrigin = 'N') {
     if (this.disposed) return false;
     this.armAudioFromUserGesture();
     this.haptics.armFromUserGesture();
@@ -207,7 +207,7 @@ export class Level01TaijiMotionController {
       reducedMotion: this.reducedMotion,
     });
     this.audio.playRotationPulse(profile);
-    if (phase === 'press') this.audio.playLightningStrike();
+    if (phase === 'press') this.audio.playLightningStrike(strikeOrigin);
     return phase === 'press' ? this.haptics.playTouchRebound(this.now()) : true;
   }
 
@@ -650,7 +650,7 @@ export class Level01TaijiMotionController {
     this.haptics.pulseRotation({ now, hapticMs: profile.hapticMs, intensity: profile.intensity });
   }
 
-  private armAudioFromUserGesture() {
+  private armAudioFromUserGesture(playInitialLightning = false, strikeOrigin: Level01StrikeOrigin = 'N') {
     if (!this.audioEnabled || this.activationArmInFlight) return;
     const requestedAt = this.now();
     if (requestedAt - this.lastActivationAt < 700) return;
@@ -662,6 +662,10 @@ export class Level01TaijiMotionController {
       const variant = this.soundVariant ?? this.soundPreference.resolveVariant();
       this.soundVariant = variant;
       this.audio.playActivationChime(variant);
+      // The first mobile press is also the browser's audio-unlock gesture.
+      // Schedule the strike only after resume succeeds, otherwise the visual
+      // lightning appears while the first thunder is silently discarded.
+      if (playInitialLightning) this.audio.playLightningStrike(strikeOrigin);
       this.armedAudioAt = this.now();
       this.lastActivationAt = this.armedAudioAt;
       this.soundPreference.recordEvent({ variant, replayed: this.hasArmedBefore });

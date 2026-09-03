@@ -215,12 +215,12 @@
   animation: darkParticleGather 1.15s var(--core-phase, 0s) ease-in-out infinite;
 }
 
-/* 第一層四核心循環：左上光子 → 右上粒子 → 右下光子 → 左下粒子。
+/* 第一層四核心循環：正上光子 → 正右粒子 → 正下光子 → 正左粒子。
    四顆只用錯相呼吸傳遞能量，不畫圓框或預告軌跡。 */
-.chaseField .chaseLight { left: 97%; top: 94%; --core-phase: -.575s; }
-.chaseField .chaseCounterLight { left: 3%; top: 94%; --core-phase: -.8625s; }
-.chaseField .chasePhotonTop { left: 3%; top: 6%; --core-phase: 0s; }
-.chaseField .chaseParticleTop { left: 97%; top: 6%; --core-phase: -.2875s; }
+.chaseField .chaseLight { left: 50%; top: 97%; --core-phase: -.575s; }
+.chaseField .chaseCounterLight { left: 3%; top: 50%; --core-phase: -.8625s; }
+.chaseField .chasePhotonNorth { left: 50%; top: 3%; --core-phase: 0s; }
+.chaseField .chaseParticleEast { left: 97%; top: 50%; --core-phase: -.2875s; }
 
 .overlay[data-taiji-interacting='true'] .chaseLight,
 .overlay[data-taiji-interacting='true'] .chaseCounterLight {

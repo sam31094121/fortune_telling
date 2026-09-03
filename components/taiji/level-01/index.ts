@@ -34,5 +34,6 @@ export { Level01RenderEngine } from './Level01RenderEngine';
 export { Level01PerformanceGuard } from './Level01PerformanceGuard';
 export { Level01RuntimeBoundary } from './Level01RuntimeBoundary';
 export { Level01AudioEngine } from './Level01Audio';
+export type { Level01StrikeOrigin } from './Level01Audio';
 export { Level01HapticEngine } from './Level01Haptics';
 export type { Level01GameState, Level01Runtime, Level01Score, QualityLevel } from './Level01Runtime';

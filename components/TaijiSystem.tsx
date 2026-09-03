@@ -49,7 +49,6 @@ import TaijiQuantumField from './taiji/TaijiQuantumField';
 import TaijiEntanglementCore from './taiji/TaijiEntanglementCore';
 import TaijiCellularCore from './taiji/TaijiCellularCore';
 import TaijiAbyssField from './taiji/TaijiAbyssField';
-import { useTaijiJourneyGestures } from './taiji/taijiMagnifier';
 import {
   Level01FrameBinder,
   Level01TaijiMotionController,
@@ -59,6 +58,7 @@ import {
   level01ReentryPose,
   shouldTriggerLevel01Reentry,
   type Level01Pose,
+  type Level01StrikeOrigin,
 } from './taiji/level-01';
 import styles from './TaijiSystem.module.css';
 import level01Styles from './taiji/level-01/level01.module.css';
@@ -716,7 +716,7 @@ function TaijiPerformanceGovernor({ active }: { active: boolean }) {
   return null;
 }
 
-function Level01SpatialLightning({ active, poseRef, lowPower = false }: { active: boolean; poseRef?: { current: { visualEuler: { x: number; y: number; z: number } } }; lowPower?: boolean }) {
+function Level01SpatialLightning({ active, origin, lowPower = false }: { active: boolean; origin: Level01StrikeOrigin; lowPower?: boolean }) {
   const wasActiveRef = useRef(false);
   const strikeStartedAtRef = useRef(-Infinity);
   const previewStartedAtRef = useRef<number | null>(null);
@@ -741,6 +741,7 @@ function Level01SpatialLightning({ active, poseRef, lowPower = false }: { active
       delay?: number;
       glow?: boolean;
       blackCore?: boolean;
+      origin?: Level01StrikeOrigin | 'IMPACT';
     }) => {
       const curve = new LightningPolyline(input.points);
       const tubularSegments = Math.max(10, Math.round(Math.max(18, input.points.length * 8) * segmentScale));
@@ -777,7 +778,10 @@ function Level01SpatialLightning({ active, poseRef, lowPower = false }: { active
       material.userData.baseOpacity = input.opacity;
       material.userData.delay = input.delay ?? 0;
       material.userData.glow = Boolean(input.glow);
+      material.userData.origin = input.origin ?? 'IMPACT';
       const mesh = new THREE.Mesh(geometry, material);
+      mesh.userData.basePosition = mesh.position.clone();
+      mesh.userData.baseRotation = mesh.rotation.clone();
       mesh.renderOrder = input.glow ? 7 : 9;
       root.add(mesh);
     };
@@ -824,30 +828,37 @@ function Level01SpatialLightning({ active, poseRef, lowPower = false }: { active
       material.userData.baseOpacity = input.opacity;
       material.userData.delay = input.delay;
       material.userData.aftershock = true;
+      material.userData.origin = 'IMPACT';
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.z = input.z;
       mesh.rotation.set(...input.rotation);
+      mesh.userData.basePosition = mesh.position.clone();
+      mesh.userData.baseRotation = mesh.rotation.clone();
       mesh.renderOrder = 8;
       root.add(mesh);
     };
     const leftMain = [
-      new THREE.Vector3(-2.82, -1.92, .18), new THREE.Vector3(-2.54, -1.48, .58),
-      new THREE.Vector3(-2.76, -1.12, .08), new THREE.Vector3(-2.3, -.78, .52),
-      new THREE.Vector3(-2.47, -.42, .04), new THREE.Vector3(-1.92, -.18, .62),
-      new THREE.Vector3(-2.02, .08, .14), new THREE.Vector3(-1.52, .18, .72),
-      new THREE.Vector3(-1.37, .38, .24), new THREE.Vector3(-1.18, .24, .78),
-      new THREE.Vector3(-.82, .2, .98),
+      new THREE.Vector3(-2.82, .02, .18), new THREE.Vector3(-2.54, .18, .58),
+      new THREE.Vector3(-2.76, -.12, .08), new THREE.Vector3(-2.3, .16, .52),
+      new THREE.Vector3(-2.47, -.14, .04), new THREE.Vector3(-1.92, .12, .62),
+      new THREE.Vector3(-2.02, -.1, .14), new THREE.Vector3(-1.52, .14, .72),
+      new THREE.Vector3(-1.37, -.12, .24), new THREE.Vector3(-1.18, .1, .78),
+      new THREE.Vector3(-.82, .02, .98),
     ];
     const rightMain = leftMain.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
-    // Side discharges also grow out of the same core-to-Taiji trajectory. They
-    // never form a canopy above the orb, so the direction always reads upward.
+    const topMain = leftMain.map((point) => new THREE.Vector3(-point.y, -point.x, point.z));
+    const bottomMain = topMain.map((point) => new THREE.Vector3(point.x, -point.y, point.z));
+    // Every secondary discharge grows out of the same core-to-Taiji trajectory;
+    // there is no pre-drawn rail between a weapon core and the orb.
     const leftSurge = [
-      leftMain[0], new THREE.Vector3(-2.94, -1.55, .34), new THREE.Vector3(-2.66, -1.16, -.02),
-      new THREE.Vector3(-2.73, -.77, .5), new THREE.Vector3(-2.31, -.48, .1),
+      leftMain[0], new THREE.Vector3(-2.94, -.16, .34), new THREE.Vector3(-2.66, .14, -.02),
+      new THREE.Vector3(-2.73, -.18, .5), new THREE.Vector3(-2.31, .16, .1),
       new THREE.Vector3(-2.08, -.12, .66), new THREE.Vector3(-1.58, .1, .18),
-      new THREE.Vector3(-1.25, .28, .76), new THREE.Vector3(-.82, .2, 1.02),
+      new THREE.Vector3(-1.25, -.08, .76), new THREE.Vector3(-.82, .02, 1.02),
     ];
     const rightSurge = leftSurge.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
+    const topSurge = leftSurge.map((point) => new THREE.Vector3(-point.y, -point.x, point.z));
+    const bottomSurge = topSurge.map((point) => new THREE.Vector3(point.x, -point.y, point.z));
     // Photon and dark-particle discharges braid through alternating front/back
     // depth before striking opposite sides of the Taiji. This reads as one
     // entangled weapon rather than two unrelated bolts.
@@ -857,41 +868,53 @@ function Level01SpatialLightning({ active, poseRef, lowPower = false }: { active
       new THREE.Vector3(.02, -.18, .12), new THREE.Vector3(.46, .02, 1.02), rightMain[rightMain.length - 1],
     ];
     const particleEntanglement = photonEntanglement.map((point) => new THREE.Vector3(-point.x, point.y, 1.1 - point.z * .56));
+    const photonEntanglementVertical = photonEntanglement.map((point) => new THREE.Vector3(-point.y, -point.x, point.z));
+    const particleEntanglementVertical = photonEntanglementVertical.map((point) => new THREE.Vector3(point.x, -point.y, 1.1 - point.z * .56));
     const leftBranchA = [leftMain[3], new THREE.Vector3(-2.7, -.58, .72), new THREE.Vector3(-2.52, -.18, .24)];
     const leftBranchB = [leftMain[6], new THREE.Vector3(-2.28, .36, .5), new THREE.Vector3(-2.05, .68, .1)];
     const rightBranchA = leftBranchA.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
     const rightBranchB = leftBranchB.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
-    // Impact phase: after the two weapon bolts reach the orb, the charge races
+    // Impact phase: after all four weapon bolts reach the orb, the charge races
     // across its near surface as a broken lightning web. Every strand begins at
     // one of the two impact points, so it reads as a consequence of the shot.
     const leftImpact = leftMain[leftMain.length - 1];
     const rightImpact = rightMain[rightMain.length - 1];
+    const topImpact = topMain[topMain.length - 1];
+    const bottomImpact = bottomMain[bottomMain.length - 1];
     const impactWeb = [
       [leftImpact, new THREE.Vector3(-.58, .62, 1.12), new THREE.Vector3(-.18, .92, 1.08), new THREE.Vector3(.22, .64, 1.14), rightImpact],
       [leftImpact, new THREE.Vector3(-.44, -.12, 1.2), new THREE.Vector3(-.06, -.62, 1.12), new THREE.Vector3(.42, -.28, 1.18), rightImpact],
+      [topImpact, new THREE.Vector3(-.42, .5, 1.18), new THREE.Vector3(.04, .08, 1.3), new THREE.Vector3(.38, -.48, 1.16), bottomImpact],
+      [topImpact, new THREE.Vector3(.46, .44, 1.14), new THREE.Vector3(-.08, -.04, 1.28), new THREE.Vector3(-.36, -.52, 1.2), bottomImpact],
       [leftImpact, new THREE.Vector3(-.72, .06, 1.16), new THREE.Vector3(-.32, .02, 1.28), new THREE.Vector3(.04, .42, 1.24)],
       [rightImpact, new THREE.Vector3(.7, .12, 1.16), new THREE.Vector3(.34, .04, 1.28), new THREE.Vector3(.02, -.42, 1.24)],
       [new THREE.Vector3(-.18, .92, 1.08), new THREE.Vector3(-.02, .48, 1.3), new THREE.Vector3(-.06, -.62, 1.12)],
       [new THREE.Vector3(.22, .64, 1.14), new THREE.Vector3(.08, .18, 1.32), new THREE.Vector3(.42, -.28, 1.18)],
     ];
-    const addLayeredBolt = (points: THREE.Vector3[], core: number, rim: number, radius: number, delay = 0, blackCore = false) => {
-      createBolt({ points, color: rim, opacity: .2, radius: radius * 2.15, delay, glow: true });
-      createBolt({ points, color: rim, opacity: .48, radius: radius * 1.42, delay, glow: true });
-      createBolt({ points, color: core, opacity: .98, radius, delay, blackCore });
+    const addLayeredBolt = (points: THREE.Vector3[], core: number, rim: number, radius: number, delay = 0, blackCore = false, origin: Level01StrikeOrigin | 'IMPACT' = 'IMPACT') => {
+      createBolt({ points, color: rim, opacity: .2, radius: radius * 2.15, delay, glow: true, origin });
+      createBolt({ points, color: rim, opacity: .48, radius: radius * 1.42, delay, glow: true, origin });
+      createBolt({ points, color: core, opacity: .98, radius, delay, blackCore, origin });
     };
-    // The two low, side-mounted emitters are deliberately heavier than the
-    // impact web: photons (left) and dark particles (right) must read as two
-    // unmistakable explosive lightning weapons even at phone scale.
-    addLayeredBolt(leftMain, 0xfff7cf, 0xfbbf24, .126, 0);
-    addLayeredBolt(rightMain, 0x02020a, 0x60a5fa, .13, .025, true);
-    addLayeredBolt(leftSurge, 0xffffff, 0x67e8f9, .088, .055);
-    addLayeredBolt(rightSurge, 0x02020a, 0x818cf8, .092, .075, true);
-    addLayeredBolt(photonEntanglement, 0xfffbea, 0x7dd3fc, .078, .078);
-    addLayeredBolt(particleEntanglement, 0x02030a, 0x6366f1, .08, .092, true);
-    addLayeredBolt(leftBranchA, 0xffffff, 0x67e8f9, .05, .065);
-    addLayeredBolt(leftBranchB, 0xfff4b8, 0xfbbf24, .043, .1);
-    addLayeredBolt(rightBranchA, 0x03030b, 0x818cf8, .052, .09, true);
-    addLayeredBolt(rightBranchB, 0x050512, 0x67e8f9, .044, .12, true);
+    // Four cardinal emitters alternate photon / dark-particle material and
+    // converge on one impact. They remain unmistakable at phone scale without
+    // bringing back the level-24 satellite field.
+    addLayeredBolt(leftMain, 0xfff7cf, 0xfbbf24, .126, 0, false, 'W');
+    addLayeredBolt(rightMain, 0xfff7cf, 0x67e8f9, .126, .025, false, 'E');
+    addLayeredBolt(bottomMain, 0x02020a, 0x60a5fa, .13, .05, true, 'S');
+    addLayeredBolt(topMain, 0x02020a, 0x818cf8, .13, .075, true, 'N');
+    addLayeredBolt(leftSurge, 0xffffff, 0x67e8f9, .088, .055, false, 'W');
+    addLayeredBolt(rightSurge, 0xffffff, 0xfbbf24, .088, .075, false, 'E');
+    addLayeredBolt(bottomSurge, 0x02020a, 0x818cf8, .092, .09, true, 'S');
+    addLayeredBolt(topSurge, 0x02020a, 0x60a5fa, .092, .11, true, 'N');
+    addLayeredBolt(photonEntanglement, 0xfffbea, 0x7dd3fc, .078, .17);
+    addLayeredBolt(particleEntanglement, 0x02030a, 0x6366f1, .08, .182, true);
+    addLayeredBolt(photonEntanglementVertical, 0xfffbea, 0xfbbf24, .078, .194);
+    addLayeredBolt(particleEntanglementVertical, 0x02030a, 0x6366f1, .08, .206, true);
+    addLayeredBolt(leftBranchA, 0xffffff, 0x67e8f9, .05, .065, false, 'W');
+    addLayeredBolt(leftBranchB, 0xfff4b8, 0xfbbf24, .043, .1, false, 'W');
+    addLayeredBolt(rightBranchA, 0xffffff, 0x67e8f9, .052, .09, false, 'E');
+    addLayeredBolt(rightBranchB, 0xfff4b8, 0xfbbf24, .044, .12, false, 'E');
     impactWeb.forEach((points, index) => {
       const fromYin = index % 2 === 0;
       addLayeredBolt(
@@ -949,35 +972,32 @@ function Level01SpatialLightning({ active, poseRef, lowPower = false }: { active
     group.scale.y += (target - group.scale.y) * easing;
     group.scale.z += ((.9 + spatialEnvelope * .28) - group.scale.z) * easing;
     group.position.z = -.16 + spatialEnvelope * .34;
-    // The two strike origins are authored as fixed local points around the orb's
-    // default pose. Without this, they'd drift away from the yin/yang eyes once
-    // Level01 physics tilts or spins the ball; matching the ball's own live Euler
-    // pose first keeps the weapon glued to the eyes at any orientation, then the
-    // small ambient sway below is layered on top exactly as before.
-    if (poseRef?.current) {
-      const ballEuler = poseRef.current.visualEuler;
-      group.rotation.set(ballEuler.x, ballEuler.y, ballEuler.z);
-      group.rotateY(Math.sin(clock.elapsedTime * 41) * .045);
-      group.rotateX(-.045 + Math.cos(clock.elapsedTime * 37) * .022);
-    } else {
-      group.rotation.y = Math.sin(clock.elapsedTime * 41) * .045;
-      group.rotation.x = -.045 + Math.cos(clock.elapsedTime * 37) * .022;
-    }
+    // Lightning belongs to the fixed card-space weapons, not to the rotating
+    // Taiji mesh. The orb may tilt or spin freely without dragging the emission
+    // origin, impact point, 3D depth or short 4D distortion out of alignment.
+    group.rotation.set(0, 0, 0);
     group.children.forEach((child) => {
       const bolt = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
       const material = bolt.material;
       const localAge = strikeAge - Number(material.userData.delay ?? 0);
       const envelope = envelopeAt(localAge);
-      material.opacity = Number(material.userData.baseOpacity ?? .5) * envelope;
+      const boltOrigin = material.userData.origin as Level01StrikeOrigin | 'IMPACT' | undefined;
+      const originWeight = boltOrigin === 'IMPACT' || boltOrigin === origin ? 1 : 0;
+      material.opacity = Number(material.userData.baseOpacity ?? .5) * envelope * originWeight;
       const phase = Number(material.userData.delay ?? 0);
       const pulse = 1 + Math.sin((clock.elapsedTime + phase) * 72) * .09 * envelope;
       const aftershockExpansion = material.userData.aftershock
         ? .76 + Math.max(0, Math.min(1, localAge / .24)) * .52
         : 1;
       bolt.scale.set(pulse * aftershockExpansion, pulse * aftershockExpansion, pulse * aftershockExpansion);
-      bolt.rotation.z = Math.sin(clock.elapsedTime * 53 + phase * 41) * .018 * envelope;
-      bolt.position.x = Math.sin(clock.elapsedTime * 67 + phase * 29) * .018 * envelope;
-      bolt.position.y = Math.cos(clock.elapsedTime * 61 + phase * 37) * .014 * envelope;
+      const baseRotation = bolt.userData.baseRotation as THREE.Euler;
+      const basePosition = bolt.userData.basePosition as THREE.Vector3;
+      bolt.rotation.set(baseRotation.x, baseRotation.y, baseRotation.z + Math.sin(clock.elapsedTime * 53 + phase * 41) * .018 * envelope);
+      bolt.position.set(
+        basePosition.x + Math.sin(clock.elapsedTime * 67 + phase * 29) * .018 * envelope,
+        basePosition.y + Math.cos(clock.elapsedTime * 61 + phase * 37) * .014 * envelope,
+        basePosition.z,
+      );
     });
   });
 
@@ -1404,12 +1424,10 @@ function TaijiCore({
     const progress24 = progressFromDepth(depth);
     const layer = layerFromDepth(depth);
     const motionGamePose = layer === 1 && level01PoseRef?.current?.motionGameEnabled ? level01PoseRef.current : null;
-    const motionStageRank = motionGamePose
-      ? ['TAIJI', 'LIANGYI', 'SIXIANG', 'BAGUA', 'FIVE_ELEMENTS', 'UNITY'].indexOf(motionGamePose.motionGame.stage)
-      : -1;
-    // Level 01 stays visually Tai Chi. Its local game may progress internally,
-    // but Liangyi and later macro layers only appear after leaving Level 01.
-    const motionSplit = layer === 1 ? 0 : motionStageRank >= 1 ? Math.min(.82, .42 + motionStageRank * .1) : 0;
+    // First-layer game progress remains internal. It must never reveal the
+    // macro evolution meshes (two forms, four symbols, bagua satellites); the
+    // customer surface stays one Taiji plus the four photon/particle weapons.
+    const motionSplit = 0;
     const split = Math.max(liangyiAmount(depth), motionSplit);
     const separate = split > 0.04;
     const offset = 0.88 * split;
@@ -1611,17 +1629,12 @@ function TaijiCore({
     const warming = warm.warming;
     const warmScale = 0.0001;
     const macroVisible = macroFade > 0.02;
-    const haloVisible = Boolean(
-      motionGamePose
-      && !motionGamePose.reducedMotion
-      && motionGamePose.quality !== 'LOW'
-      && (motionStageRank >= 4 || motionGamePose.motionEnergy > .28),
-    );
+    const haloVisible = false;
     if (macroGroupRef.current) macroGroupRef.current.visible = macroVisible;
     if (energyFieldRef.current) energyFieldRef.current.visible = haloVisible;
     if (outerShellRef.current) outerShellRef.current.visible = haloVisible;
 
-    const showLiangyi = (split > 0.04 && shellFade > 0.02) || motionStageRank >= 1;
+    const showLiangyi = split > 0.04 && shellFade > 0.02;
     if (yinRef.current) {
       yinRef.current.visible = showLiangyi || warming;
       yinRef.current.scale.setScalar(showLiangyi ? scale : warmScale);
@@ -1630,10 +1643,10 @@ function TaijiCore({
       yangRef.current.visible = showLiangyi || warming;
       yangRef.current.scale.setScalar(showLiangyi ? scale : warmScale);
     }
-    const showSixiang = (sixiangPresence(depth) > 0.04 && macroVisible) || motionStageRank >= 2;
+    const showSixiang = sixiangPresence(depth) > 0.04 && macroVisible;
     if (sixiangGroupRef.current) {
       sixiangGroupRef.current.visible = showSixiang || warming;
-      sixiangGroupRef.current.scale.setScalar(showSixiang ? Math.max(sixiangPresence(depth), motionStageRank >= 2 ? .72 : 0) : warmScale);
+      sixiangGroupRef.current.scale.setScalar(showSixiang ? sixiangPresence(depth) : warmScale);
     }
 
     const ballMat = ballMatRef.current;
@@ -1723,9 +1736,9 @@ function TaijiCore({
       yangRef.current.rotation.y -= frameDelta * 0.13 * spinBoost;
     }
     if (baguaOrbitRef.current) {
-      const showBagua = (baguaPresence(depth) > 0.04 && macroVisible) || motionStageRank >= 3;
+      const showBagua = baguaPresence(depth) > 0.04 && macroVisible;
       baguaOrbitRef.current.visible = showBagua || warming;
-      baguaOrbitRef.current.scale.setScalar(showBagua ? Math.max(baguaPresence(depth), motionStageRank >= 3 ? .78 : 0) : warmScale);
+      baguaOrbitRef.current.scale.setScalar(showBagua ? baguaPresence(depth) : warmScale);
       baguaOrbitRef.current.rotation.z += frameDelta * (0.008 + progress24 * 0.004);
       baguaOrbitRef.current.rotation.x = Math.sin(t * 0.045) * 0.012;
       baguaOrbitRef.current.rotation.y = Math.cos(t * 0.04) * 0.009;
@@ -2059,12 +2072,15 @@ export default function TaijiSystem({
   const [attractTick, setAttractTick] = useState(0);
   const [touchActive, setTouchActive] = useState(false);
   const [touchRebounding, setTouchRebounding] = useState(false);
+  const [lightningOrigin, setLightningOrigin] = useState<Level01StrikeOrigin>('N');
   const touchReboundTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastClickAtRef = useRef(0);
   const touchRef = useRef({ active: false, x: 0, y: 0 });
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const [showLayerReviewPanel, setShowLayerReviewPanel] = useState(false);
   const canvasQuality = useTaijiCanvasQuality(wrapperRef);
-  useTaijiJourneyGestures(wrapperRef, journeyRef);
+  // 客戶入口固定使用第一層四核心；二十四層只由審查面板切換，
+  // 不再讓手機捏合或滾輪把客戶畫面誤帶到八卦小行星層。
   const level01ControllerRef = useRef<Level01TaijiMotionController | null>(null);
   if (level01ControllerRef.current == null) {
     level01ControllerRef.current = new Level01TaijiMotionController();
@@ -2075,7 +2091,6 @@ export default function TaijiSystem({
   // LEVEL_01 ONLY：讓魚眼閃電能讀到球體目前的即時世界座標與旋轉，不影響 LEVEL_02～24。
   const level01BallRef = useRef<THREE.Mesh | null>(null);
   const [level01Driving, setLevel01Driving] = useState(false);
-  const [showLayerReviewPanel, setShowLayerReviewPanel] = useState(false);
   const [taijiInView, setTaijiInView] = useState(true);
 
   const TAIJI_DAILY_KEY = 'tdh:taiji24:daily:v1';
@@ -2098,8 +2113,10 @@ export default function TaijiSystem({
       const saved = JSON.parse(raw) as { date?: string; awakened?: boolean };
       if (saved.date === todayKey() && saved.awakened) {
         setTodayAwakened(true);
-        jumpJourney(journeyRef.current, TAIJI_DEPTH_MAX);
-        setDisplayLayer(TAIJI_DEPTH_MAX);
+        // 完成紀錄只保留成果，不再把客戶首頁切回第二十四層。
+        // 審查者仍可透過 taijiStep / 面板查看完整二十四層素材。
+        jumpJourney(journeyRef.current, TAIJI_DEPTH_MIN);
+        setDisplayLayer(TAIJI_DEPTH_MIN);
       }
     } catch { /* localStorage 受限時靜默略過 */ }
   }, []);
@@ -2212,8 +2229,15 @@ export default function TaijiSystem({
     touchRef.current.x = event.clientX;
     touchRef.current.y = event.clientY;
     setTouchActive(true);
-    if (displayLayer === 1 && level01Controller.pose.permission === 'idle') void level01Controller.armFromUserGesture();
-    else if (displayLayer === 1) level01Controller.playTouchReboundFeedback();
+    const rect = event.currentTarget.getBoundingClientRect();
+    const dx = event.clientX - (rect.left + rect.width / 2);
+    const dy = event.clientY - (rect.top + rect.height / 2);
+    const strikeOrigin: Level01StrikeOrigin = Math.abs(dx) > Math.abs(dy)
+      ? (dx >= 0 ? 'E' : 'W')
+      : (dy >= 0 ? 'S' : 'N');
+    setLightningOrigin(strikeOrigin);
+    if (displayLayer === 1 && level01Controller.pose.permission === 'idle') void level01Controller.armFromUserGesture(strikeOrigin);
+    else if (displayLayer === 1) level01Controller.playTouchReboundFeedback('press', strikeOrigin);
     if (displayLayer !== 1 && navigator.vibrate) navigator.vibrate(8);
   }, [displayLayer, level01Controller]);
 
@@ -2309,7 +2333,7 @@ export default function TaijiSystem({
           <AdaptiveEvents />
           <Level01FrameBinder controller={level01Controller} enabled={displayLayer === 1} />
           {displayLayer === 1 && level01Controller.pose.motionGameEnabled && (
-            <Level01SpatialLightning active={touchActive} poseRef={level01PoseRef} lowPower={canvasQuality.lowPower} />
+            <Level01SpatialLightning active={touchActive} origin={lightningOrigin} lowPower={canvasQuality.lowPower} />
           )}
           <TaijiPerformanceGovernor active={touchActive} />
           {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
