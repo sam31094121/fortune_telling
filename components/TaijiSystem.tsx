@@ -49,6 +49,7 @@ import TaijiQuantumField from './taiji/TaijiQuantumField';
 import TaijiEntanglementCore from './taiji/TaijiEntanglementCore';
 import TaijiCellularCore from './taiji/TaijiCellularCore';
 import TaijiAbyssField from './taiji/TaijiAbyssField';
+import { useTaijiJourneyGestures } from './taiji/taijiMagnifier';
 import {
   Level01FrameBinder,
   Level01TaijiMotionController,
@@ -2079,8 +2080,9 @@ export default function TaijiSystem({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [showLayerReviewPanel, setShowLayerReviewPanel] = useState(false);
   const canvasQuality = useTaijiCanvasQuality(wrapperRef);
-  // 客戶入口固定使用第一層四核心；二十四層只由審查面板切換，
-  // 不再讓手機捏合或滾輪把客戶畫面誤帶到八卦小行星層。
+  // 第一層內部遊戲仍保持純太極與四核心；使用者明確雙指縮放時，
+  // 才沿既有旅程從第一層進入第二至第二十四層。
+  useTaijiJourneyGestures(wrapperRef, journeyRef);
   const level01ControllerRef = useRef<Level01TaijiMotionController | null>(null);
   if (level01ControllerRef.current == null) {
     level01ControllerRef.current = new Level01TaijiMotionController();
