@@ -119,14 +119,10 @@ export async function POST(request: Request) {
     const selectedHour = timePrecision === 'TRADITIONAL_HOUR'
       ? SHICHEN_LIST.find((item) => item.branch === person.birthHourBranch)
       : exactHour;
-    if (!hourKnown || !selectedHour) {
-      return friendlyErrorResponse(
-        requestId,
-        'BIRTH_TIME_REQUIRED_FOR_BAZI_ZIWEI_CROSS_CHECK',
-        '請提供可確認的出生時辰；本功能必須完成八字四柱與紫微本命夫妻宮核對後，才會生成紅鸞解讀。',
-        422,
-      );
-    }
+    // 出生時辰是加值，不是前提（見 docs/red-luan-engineering-audit.md）。
+    // 月份、有緣方向只用年支／日支／日干，全部來自年月日；時辰只多解鎖紫微夫妻宮與生辰卦。
+    // 未知時辰時這兩項明說不可用，絕不以預設午時充數。
+    const ziweiReady = hourKnown && Boolean(selectedHour);
     const core = createBaziCore({
       name: person.name.trim(),
       birthDate: person.birthDate,
@@ -186,14 +182,8 @@ export async function POST(request: Request) {
       },
       timelineYears: 6,
     });
-    if (result.ziwei.status !== 'READY' || !result.ziwei.palaces?.some((palace) => palace.palace === '夫妻宮')) {
-      return friendlyErrorResponse(
-        requestId,
-        'ZIWEI_VALIDATION_NOT_READY',
-        '紫微本命夫妻宮尚未完成核對，暫不生成紅鸞解讀。',
-        422,
-      );
-    }
+    // 紫微排不出來就明說不可用，不擋掉整份解讀。
+    const ziweiAvailable = result.ziwei.status === 'READY' && Boolean(result.ziwei.palaces?.some((palace) => palace.palace === '夫妻宮'));
     // Every context field is optional; blanks collapse to UNSPECIFIED here so the
     // response always reports a complete, explicit position.
     const selfReportedContext: RedLuanSelfReportedContext = normalizeRedLuanSelfReportedContext({
@@ -218,14 +208,17 @@ export async function POST(request: Request) {
       dayMasterStem: core.dayMaster.stem,
       fromDate: currentTaipeiDate(),
     });
-    const ichingReading = buildRedLuanIChingReading({
-      name: person.name.trim(),
-      birthDate: core.calendar.solarDate,
-      shichenIndex: hourKnown && selectedHour ? SHICHEN_LIST.findIndex((item) => item.branch === selectedHour.branch) : null,
-      year: result.annualYear,
-      peakMonths: result.monthlyRhythm.peakMonths,
-      affinity,
-    });
+    // 稽核規則：未知時辰不採預設午時，因此無時辰就不起生辰卦，明說要補時辰才解鎖。
+    const ichingReading = ziweiReady && selectedHour
+      ? buildRedLuanIChingReading({
+        name: person.name.trim(),
+        birthDate: core.calendar.solarDate,
+        shichenIndex: SHICHEN_LIST.findIndex((item) => item.branch === selectedHour.branch),
+        year: result.annualYear,
+        peakMonths: result.monthlyRhythm.peakMonths,
+        affinity,
+      })
+      : null;
     const culturalReading = await generateRedLuanCulturalReading(result);
 
     return NextResponse.json({
@@ -238,6 +231,11 @@ export async function POST(request: Request) {
       contextAlignment,
       affinity,
       nextEncounters,
+      unlocks: {
+        ziwei: ziweiAvailable,
+        hexagram: ichingReading !== null,
+        note: ichingReading === null ? '補上出生時辰，還能解鎖你的卦象、兩位老師的解讀，以及紫微夫妻宮。' : '',
+      },
       ichingReading,
       result: { ...result, culturalReading },
     });

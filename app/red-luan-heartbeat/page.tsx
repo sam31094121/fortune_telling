@@ -79,7 +79,8 @@ type Reading = {
   };
   affinity: AffinityProfile;
   nextEncounters: NextEncounters;
-  ichingReading: IChingReading;
+  ichingReading: IChingReading | null;
+  unlocks?: { ziwei: boolean; hexagram: boolean; note: string };
   contextAlignment: {
     mode: 'REFLECTION_GUIDANCE_ONLY';
     alignmentStatus: 'EVIDENCE_AVAILABLE' | 'NO_VERIFIED_YEARLY_RULE_HIT';
@@ -313,6 +314,13 @@ function ContextChoiceGroup({
   );
 }
 
+/** 內部規則名 → 客戶看得懂的字。 */
+const LABEL_WORDS: Record<string, string> = {
+  天乙貴人: '貴人',
+  日支六合: '合得來',
+  日支六沖: '容易起波瀾',
+};
+
 const MONTH_DAY = (iso: string) => `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}`;
 
 /** 「還有幾個月」講成人話。0 就是現在這個月，跨年的講明是明年。 */
@@ -340,12 +348,13 @@ function EncounterCard({ encounter, fromDate, title, tone }: { encounter: Encoun
     <div className={`rounded-2xl border p-5 ${ring}`}>
       <p className={`text-sm font-black ${text}`}>{title}</p>
       <p className={`mt-2 text-3xl font-black leading-tight ${big}`}>
-        {encounter.gregorianYear} 年{encounter.lunarLabel}
+        {Number(encounter.startsOn.slice(0, 4))} 年 {Number(encounter.startsOn.slice(5, 7))} 月
       </p>
       <p className={`mt-1 text-base font-black ${text}`}>
         {MONTH_DAY(encounter.startsOn)} – {MONTH_DAY(encounter.endsOn)}　{awayLabel(encounter, fromDate)}
       </p>
-      <p className="mt-2 text-sm leading-6 text-white/70">這個月走{encounter.labels.join('、')}</p>
+      <p className="mt-1 text-xs font-bold text-white/45">農曆{encounter.lunarLabel}・{encounter.jieqi}起</p>
+      <p className="mt-2 text-sm leading-6 text-white/70">這個月走{encounter.labels.map((l) => LABEL_WORDS[l] ?? l).join('、')}</p>
       <p className="mt-3 text-sm leading-7 text-white/85">{encounter.magnet}</p>
       <p className="mt-2 rounded-2xl border border-emerald-200/20 bg-emerald-300/[0.08] p-3 text-sm leading-7 text-emerald-50">{encounter.action}</p>
       <div className="mt-3 flex flex-wrap gap-1.5">
@@ -465,7 +474,8 @@ function RedLuanHeartbeatExperience() {
       (profile.name ?? '').trim().length < 2 ? 'name' : '',
       !profile.birthDate ? 'birthDate' : '',
       !profile.gender ? 'gender' : '',
-      timeUnknown || !profile.birthHourBranch ? 'birthHourBranch' : '',
+      // 時辰是加值不是前提：沒有時辰照樣算得出月份與人選，只是少了卦象與紫微。
+      '',
     ].filter(Boolean);
   }
 
@@ -479,7 +489,7 @@ function RedLuanHeartbeatExperience() {
     const nextMissing = birthMissingFields(profile);
     setMissing(nextMissing);
     if (nextMissing.length > 0) {
-      setError('請先完成含出生時辰的資料；紅鸞結果必須同時通過八字與紫微核對。');
+      setError('請先把姓名、生日和性別填完。');
       document.querySelector(`[data-field="${nextMissing[0]}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
       return;
     }
@@ -564,7 +574,7 @@ function RedLuanHeartbeatExperience() {
           onChange={(profile) => setForm((current) => ({ ...current, ...profile }))}
           onSubmit={(profile) => { void submit(profile); }}
         />
-        <p className="mt-3 rounded-2xl border border-violet-200/15 bg-violet-300/[0.06] px-4 py-3 text-xs leading-6 text-violet-50/75">出生時辰一定要填——沒有時辰算不出紅鸞的月份。</p>
+        <p className="mt-3 rounded-2xl border border-violet-200/15 bg-violet-300/[0.06] px-4 py-3 text-xs leading-6 text-violet-50/75">不知道時辰也可以算月份和人選；補上時辰還能多解鎖你的卦象。</p>
 
         <button
           type="button"
@@ -595,7 +605,7 @@ function RedLuanHeartbeatExperience() {
           <h2 className="text-2xl font-black text-white">{reading.person.name}，這是你的紅鸞</h2>
         </header>
 
-        {reading.ichingReading && reading.affinity && <section id="red-luan-spark" className="scroll-mt-5 rounded-3xl border border-rose-200/30 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.16),transparent_46%),rgba(15,23,42,0.86)] p-5 shadow-[0_18px_52px_rgba(244,63,94,0.14)]">
+        {reading.affinity && <section id="red-luan-spark" className="scroll-mt-5 rounded-3xl border border-rose-200/30 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.16),transparent_46%),rgba(15,23,42,0.86)] p-5 shadow-[0_18px_52px_rgba(244,63,94,0.14)]">
 
           {reading.nextEncounters && (
             <div className="mt-4 space-y-3">
@@ -633,7 +643,7 @@ function RedLuanHeartbeatExperience() {
             </div>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-violet-200/30 bg-violet-400/[0.1] p-4">
+          {reading.ichingReading && <div className="mt-4 rounded-2xl border border-violet-200/30 bg-violet-400/[0.1] p-4">
             <p className="text-sm font-black text-violet-100">想聽誰替你解這一卦？</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               {(reading.ichingReading.teachers ?? []).map((teacher) => (
@@ -649,8 +659,11 @@ function RedLuanHeartbeatExperience() {
                 </button>
               ))}
             </div>
-          </div>
+          </div>}
 
+          {reading.unlocks && !reading.unlocks.hexagram && (
+            <p className="mt-4 rounded-2xl border border-cyan-200/25 bg-cyan-300/[0.08] p-4 text-sm leading-7 text-cyan-50">🔒 {reading.unlocks.note}</p>
+          )}
           <p className="mt-4 text-xs leading-5 text-white/45">以下想看再打開就好，不看也不影響上面的結論。</p>
 
           <div className="mt-2 space-y-2">
@@ -677,6 +690,7 @@ function RedLuanHeartbeatExperience() {
               <p className="mt-3 text-xs leading-6 text-white/50">你自己填的是「{reading.affinity.selfReportedLabel}」，只放在這裡跟命盤方向對照，不參與任何運算。</p>
             </Fold>
 
+            {reading.ichingReading && <>
             <Fold title={`你的卦・${reading.ichingReading.patternName}`} badge={reading.ichingReading.hexagram.glyph} foldKey="hexagram" opened={openedFolds} onToggle={toggleFold}>
               <div className="flex flex-wrap items-center gap-3">
                 <span className="text-5xl leading-none text-rose-100" aria-hidden="true">{reading.ichingReading.hexagram.glyph}</span>
@@ -739,6 +753,7 @@ function RedLuanHeartbeatExperience() {
                 );
               })()}
             </Fold>
+            </>}
           </div>
 
           <p className="mt-4 text-[11px] leading-5 text-white/45">月份以節氣為界，不是國曆一號起算。</p>
@@ -842,7 +857,7 @@ function RedLuanHeartbeatExperience() {
         </section>}
 
         {openedLayer >= 4 && <section id="red-luan-layer-4" className="scroll-mt-5 space-y-4">
-          <section className="rounded-3xl border border-rose-200/20 bg-rose-400/[0.07] p-5">
+          {reading.ichingReading && <section className="rounded-3xl border border-rose-200/20 bg-rose-400/[0.07] p-5">
             <p className="text-xs font-black tracking-[0.18em] text-rose-200">易經卜卦・{reading.ichingReading.patternName}</p>
             {reading.ichingReading.ritualOpening.split('\n').filter(Boolean).map((line) => (
               <p key={line.slice(0, 14)} className="mt-3 text-sm leading-7 text-white/78">{line}</p>
@@ -858,7 +873,7 @@ function RedLuanHeartbeatExperience() {
             </div>
             <p className="mt-4 rounded-2xl border border-emerald-200/15 bg-emerald-300/[0.06] p-4 text-sm leading-7 text-emerald-50">{reading.ichingReading.closing}</p>
             <p className="mt-3 text-[11px] leading-5 text-white/45">卦義出自六十四卦知識庫，起卦依生辰（梅花易數）決定；同一生辰永遠同一卦，可回查驗算。這是文化探索與自我反思，不是心理診斷。</p>
-          </section>
+          </section>}
           <section className="rounded-3xl border border-cyan-200/20 bg-cyan-300/[0.06] p-5"><p className="text-xs font-black tracking-[0.18em] text-cyan-200">第五層・易經引導</p><div className="mt-2 flex flex-wrap items-center gap-2"><h3 className="text-lg font-black text-white">{reading.result.culturalReading.status === 'READY' ? '易經文化表達層' : '文化引導目前鎖定'}</h3><span className={`rounded-full border px-2.5 py-1 text-[10px] font-black ${reading.result.culturalReading.gate.status === 'PASSED' ? 'border-emerald-200/20 text-emerald-100' : 'border-rose-200/20 text-rose-100'}`}>門控：{statusLabel(reading.result.culturalReading.gate.status)}</span></div><p className="mt-2 text-xs leading-5 text-white/50">易經表達層只把已通過的證據寫成文化反思，不是超自然權威，也不參與排盤或預言。</p>
             {reading.result.culturalReading.status === 'READY' ? <><p className="mt-3 text-sm leading-7 text-white/75">{reading.result.culturalReading.summary}</p><div className="mt-4 space-y-3">{reading.result.culturalReading.yearlyGuidance?.map((item) => <article key={`${item.year}-${item.theme}`} className="rounded-2xl border border-white/10 bg-black/15 p-4"><h4 className="font-black text-cyan-50">{item.year}・{item.theme}</h4><p className="mt-2 text-sm leading-6 text-white/70">{item.reflection}</p><p className="mt-2 text-sm leading-6 text-cyan-100">行動參考：{item.action}</p></article>)}</div></> : <p className="mt-3 rounded-2xl border border-rose-200/15 bg-rose-300/[0.06] p-4 text-sm leading-7 text-white/70">{reading.result.culturalReading.status === 'UNAVAILABLE_AI_NOT_CONFIGURED' ? '後端證據已完成，但文化表達服務未設定，因此不以假文字代替。' : reading.result.culturalReading.status === 'BLOCKED_BY_VALIDATION' ? `資料尚未通過完整品質門控，易經表達層不會收到未驗證結果。${reading.result.culturalReading.gate.reasons.join('；')}。` : '文化表達服務暫時無法使用；後端規則證據仍維持原樣。'}</p>}
             <p className="mt-3 text-[11px] leading-5 text-white/45">門控檢查到 {reading.result.culturalReading.gate.evidenceCount} 筆具規則編號的主引擎年度證據；品質門控通過前不會傳給表達層。固定排除：{reading.result.culturalReading.gate.withheldFields.join('、')}。</p>

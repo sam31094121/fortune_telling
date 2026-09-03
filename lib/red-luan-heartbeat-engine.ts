@@ -665,19 +665,85 @@ export function buildSingleRedLuanAnnualRhythm(input: {
  * 這是十二地支五行氣性的傳統對應（木主生發、火主外放、金主精整、水主流動、土主承載），
  * 描述的是「第一眼的印象」與「常出現的行業場域」，不是對任何人的斷定。
  */
-const BRANCH_PERSON_PROFILE: Record<Branch, { appearance: string; careers: string[] }> = {
-  子: { appearance: '清秀機靈，眼神有神、反應寫在臉上', careers: ['業務', '行銷企劃', '媒體傳播', '運輸物流', '飲料餐飲'] },
-  丑: { appearance: '厚實穩重，五官敦厚、講話慢但踏實', careers: ['金融', '營建', '公職', '倉儲管理', '農牧食品'] },
-  寅: { appearance: '骨架大、氣勢足，走進來會被注意到的那種', careers: ['主管職', '軍警消', '教育', '法律', '創業'] },
-  卯: { appearance: '乾淨秀氣，笑起來柔和、給人沒有壓力的感覺', careers: ['設計', '文創出版', '教育', '園藝', '美容美髮'] },
-  辰: { appearance: '身形有份量、氣場大，說話有條理', careers: ['工程', '資訊科技', '專案管理', '土木建築', '研發'] },
-  巳: { appearance: '五官立體、眼神深，安靜但存在感強', careers: ['醫療', '研究', '精密製造', '法務', '金融分析'] },
-  午: { appearance: '陽光外向，笑容外放、走路帶風', careers: ['演藝表演', '餐飲', '業務', '體育健身', '消防'] },
-  未: { appearance: '面相溫和，眼神軟、天生讓人放鬆', careers: ['護理照護', '餐飲', '社福', '藝術', '幼教'] },
-  申: { appearance: '精瘦靈活，手腳快、講話節奏明快', careers: ['工程師', '機械技術', '交通運輸', '貿易', '資訊'] },
-  酉: { appearance: '乾淨整齊，講究穿搭與細節，看起來很清爽', careers: ['醫師', '會計', '精品零售', '金工珠寶', '品管'] },
-  戌: { appearance: '陽剛可靠，兄弟型、義氣寫在臉上', careers: ['軍警消', '保全', '法務', '獸醫', '資安'] },
-  亥: { appearance: '圓潤親和，好接近、聊兩句就熟', careers: ['醫護', '宗教心靈', '藝術', '公益社工', '海洋水產'] },
+const BRANCH_PERSON_PROFILE: Record<Branch, {
+  appearance: string;
+  /** 依對象性別給不同的外型描述——男生填就講女生，女生填就講男生。 */
+  male: string;
+  female: string;
+  careers: string[];
+}> = {
+  子: {
+    appearance: '清秀機靈，眼神有神、反應寫在臉上',
+    male: '中等身材偏瘦，短髮清爽，眼睛有神，反應快、話題多',
+    female: '身形小巧靈動，眼睛大而有神，很會聊，心思轉得快',
+    careers: ['業務', '行銷企劃', '媒體傳播', '運輸物流', '飲料餐飲'],
+  },
+  丑: {
+    appearance: '厚實穩重，五官敦厚、講話慢但踏實',
+    male: '骨架厚實、身形穩重，短髮，話不多但答應的事一定做到',
+    female: '身形溫厚，多半是長髮，安靜可靠，很會照顧身邊的人',
+    careers: ['金融', '營建', '公職', '倉儲管理', '農牧食品'],
+  },
+  寅: {
+    appearance: '骨架大、氣勢足，走進來會被注意到的那種',
+    male: '個子偏高、骨架大，走路有風，敢帶頭，站出來有氣勢',
+    female: '身形高挑有氣場，多半是俐落造型，個性爽快、敢做決定',
+    careers: ['主管職', '軍警消', '教育', '法律', '創業'],
+  },
+  卯: {
+    appearance: '乾淨秀氣，笑起來柔和、給人沒有壓力的感覺',
+    male: '身形清瘦乾淨，髮型整齊，講話溫和有禮貌，不給人壓力',
+    female: '秀氣白淨，長髮居多，笑起來柔和，很懂得體貼別人',
+    careers: ['設計', '文創出版', '教育', '園藝', '美容美髮'],
+  },
+  辰: {
+    appearance: '身形有份量、氣場大，說話有條理',
+    male: '身材有份量、體格厚實，講話有條理，做事先想好再動',
+    female: '身形勻稱有存在感，造型俐落，有主見也扛得住事情',
+    careers: ['工程', '資訊科技', '專案管理', '土木建築', '研發'],
+  },
+  巳: {
+    appearance: '五官立體、眼神深，安靜但存在感強',
+    male: '五官立體、身形精瘦，眼神深，安靜但存在感很強',
+    female: '五官深邃、身形纖細，多半長髮，心思細膩、觀察很久才交心',
+    careers: ['醫療', '研究', '精密製造', '法務', '金融分析'],
+  },
+  午: {
+    appearance: '陽光外向，笑容外放、走路帶風',
+    male: '身形結實、笑起來很陽光，短髮居多，講話有感染力',
+    female: '亮眼有活力，長髮多半有造型，笑容外放，人緣很好',
+    careers: ['演藝表演', '餐飲', '業務', '體育健身', '消防'],
+  },
+  未: {
+    appearance: '面相溫和，眼神軟、天生讓人放鬆',
+    male: '身形不強勢、面相和善，脾氣好，很會替人著想',
+    female: '面相溫柔、長髮居多，說話輕，心地軟、天生會照顧人',
+    careers: ['護理照護', '餐飲', '社福', '藝術', '幼教'],
+  },
+  申: {
+    appearance: '精瘦靈活，手腳快、講話節奏明快',
+    male: '身形精瘦靈活、手腳快，短髮清爽，講話節奏明快',
+    female: '身形輕盈、動作俐落，短髮或紮起來，聰明反應快',
+    careers: ['工程師', '機械技術', '交通運輸', '貿易', '資訊'],
+  },
+  酉: {
+    appearance: '乾淨整齊，講究穿搭與細節，看起來很清爽',
+    male: '中等身材、短髮乾淨，穿著整齊有品味，做事有分寸',
+    female: '五官清秀、頭髮直順，打扮講究但不誇張，說話有分寸',
+    careers: ['醫師', '會計', '精品零售', '金工珠寶', '品管'],
+  },
+  戌: {
+    appearance: '陽剛可靠，兄弟型、義氣寫在臉上',
+    male: '個子偏高、肩膀寬，短髮，就是那種可靠的兄弟型，講義氣',
+    female: '偏中性帥氣，多半是俐落短髮或紮起來，直爽、重承諾',
+    careers: ['軍警消', '保全', '法務', '獸醫', '資安'],
+  },
+  亥: {
+    appearance: '圓潤親和，好接近、聊兩句就熟',
+    male: '體型偏厚實、笑容親和，好接近，脾氣好不計較',
+    female: '圓潤親和、長髮柔順，情緒穩，待在旁邊很放鬆、懂得感恩',
+    careers: ['醫護', '宗教心靈', '藝術', '公益社工', '海洋水產'],
+  },
 };
 
 /** 紫微主星 → 常見職業場域。只取實際排出的星，不補星。 */
@@ -984,6 +1050,8 @@ export function buildRedLuanAffinityProfile(input: {
   if (!isBranch(input.yearBranch) || !isBranch(input.dayBranch)) {
     throw new Error('RED_LUAN_HEARTBEAT_INVALID_BAZI_BRANCH');
   }
+  const partnerGender = input.partnerGender ?? 'any';
+  const partnerLabel = redLuanPartnerLabel(partnerGender);
   const rows: RedLuanAffinityProfile['branches'] = [
     { label: '紅鸞', branch: redLuanBranchOf(input.yearBranch), ruleId: 'RED_LUAN_BY_YEAR_BRANCH_V1', basis: `年支${input.yearBranch}起紅鸞` },
     { label: '天喜', branch: tianXiBranchOf(input.yearBranch), ruleId: 'TIAN_XI_OPPOSITE_RED_LUAN_V1', basis: `年支${input.yearBranch}起天喜` },
@@ -994,7 +1062,16 @@ export function buildRedLuanAffinityProfile(input: {
         label: '天乙貴人', branch, ruleId: 'TW_SHENSHA_BASIC_V1_TIANYI', basis: `日干${input.dayMasterStem}之天乙貴人位`,
       }))
       : []),
-  ].map((row) => ({ ...row, ...BRANCH_AFFINITY[row.branch], ...BRANCH_PERSON_PROFILE[row.branch] }));
+  ].map((row) => {
+    const person = BRANCH_PERSON_PROFILE[row.branch];
+    return {
+      ...row,
+      ...BRANCH_AFFINITY[row.branch],
+      careers: person.careers,
+      // 男生填就講女生、女生填就講男生；未指定才用中性描述。
+      appearance: partnerGender === 'any' ? person.appearance : person[partnerGender],
+    };
+  });
 
   const seen = new Set<string>();
   const branches = rows.filter((row) => {
@@ -1056,8 +1133,6 @@ export function buildRedLuanAffinityProfile(input: {
       detail: '紅鸞、天喜、桃花與貴人都沒有落在你的四柱上，這一路先不強斷。這不代表沒有緣分，只代表這組規則沒有給出方向。',
     }];
 
-  const partnerGender = input.partnerGender ?? 'any';
-  const partnerLabel = redLuanPartnerLabel(partnerGender);
   // 客戶最想看的那一句：把最強的那個地支講成一句人話。
   // 排序取紅鸞優先，其次天喜、桃花，最後貴人——紅鸞是這張卡的主星。
   const priority = ['紅鸞', '天喜', '桃花', '天乙貴人'];

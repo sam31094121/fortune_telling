@@ -408,9 +408,13 @@ assert.ok(pageSource.includes('return RED_LUAN_PUBLIC_ARCHIVED ? <RedLuanArchive
 assert.ok(pageSource.includes('返回首頁'));
 assert.ok(routeSource.indexOf('if (RED_LUAN_PUBLIC_ARCHIVED)') < routeSource.indexOf('request.json()'));
 assert.ok(routeSource.includes("'RED_LUAN_ARCHIVED'"));
-assert.ok(pageSource.includes("timeUnknown || !profile.birthHourBranch ? 'birthHourBranch'"));
-assert.ok(routeSource.includes("'BIRTH_TIME_REQUIRED_FOR_BAZI_ZIWEI_CROSS_CHECK'"));
-assert.ok(routeSource.includes("result.ziwei.status !== 'READY'"));
+// 出生時辰是加值不是前提：不知道時辰仍要拿得到月份與人選，
+// 只有紫微夫妻宮與生辰卦鎖住，而且明說未解鎖、不以預設午時充數。
+assert.equal(routeSource.includes("'BIRTH_TIME_REQUIRED_FOR_BAZI_ZIWEI_CROSS_CHECK'"), false, '不得因為沒有時辰就擋掉整份解讀');
+assert.equal(routeSource.includes("'ZIWEI_VALIDATION_NOT_READY'"), false, '紫微排不出來要降級，不是回 422');
+assert.ok(routeSource.includes('const ziweiReady = hourKnown'));
+assert.ok(routeSource.includes('unlocks:'), '回應要告訴前端哪些項目還沒解鎖');
+assert.equal(pageSource.includes("timeUnknown || !profile.birthHourBranch ? 'birthHourBranch'"), false, '時辰不得再列為必填');
 assert.ok(routeSource.indexOf("result.ziwei.status !== 'READY'") < routeSource.indexOf('generateRedLuanCulturalReading(result)'));
 assert.ok(pageSource.includes("import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm'"));
 assert.ok(pageSource.includes('<UnifiedBirthForm'));
