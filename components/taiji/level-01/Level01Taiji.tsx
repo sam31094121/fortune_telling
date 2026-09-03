@@ -53,7 +53,9 @@ function RuntimeOverlay({
   onDrivingChange?: (driving: boolean) => void;
 }) {
   const [pose, setPose] = useState<Level01Pose>(() => clonePose(controller.pose));
+  const [strikeCount, setStrikeCount] = useState(0);
   const bubbleRef = useRef<HTMLSpanElement>(null);
+  const wasInteractingRef = useRef(false);
 
   useEffect(() => {
     controller.setOnChange((next) => setPose(clonePose(next)));
@@ -78,6 +80,13 @@ function RuntimeOverlay({
     void controller.attemptAutomaticSensorStart().then((next) => setPose(clonePose(next)));
   }, [controller, visible]);
 
+  useEffect(() => {
+    if (interacting && !wasInteractingRef.current) {
+      setStrikeCount((count) => Math.min(8, count + 1));
+    }
+    wasInteractingRef.current = Boolean(interacting);
+  }, [interacting]);
+
   const startToday = useCallback(() => {
     controller.recordNextStepCompleted();
     document.getElementById('home-eight-card-route')?.scrollIntoView({ behavior: pose.reducedMotion ? 'auto' : 'smooth', block: 'start' });
@@ -99,6 +108,7 @@ function RuntimeOverlay({
 
   const fallbackPlayable = pose.gameState === 'FALLBACK' || (pose.motionGameEnabled && pose.staticMode);
   const motionGameActive = pose.motionGameEnabled;
+  const charge = Math.min(8, Math.max(strikeCount, pose.motionGame.chase.hits));
   return (
     <div
       className={styles.overlay}
@@ -143,6 +153,19 @@ function RuntimeOverlay({
           <span key={`particle-east-${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={`${styles.chaseCounterLight} ${styles.chaseParticleEast}`} aria-hidden="true" />
           <span key={`${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={styles.chaseLight} />
           <span key={`yin-${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={styles.chaseCounterLight} data-screen-arrow-target="level01-yin-light" aria-hidden="true" />
+        </div>
+      )}
+
+      {motionGameActive && (
+        <div className={styles.strikeFeedback} role="status" aria-live="polite">
+          <div className={styles.strikeFeedbackHeading}>
+            <span>雷印</span>
+            <strong>{charge === 8 ? '歸一' : '甦醒中'}</strong>
+          </div>
+          <div className={styles.strikeMeter} aria-hidden="true">
+            {Array.from({ length: 8 }, (_, index) => <i key={index} data-filled={index < charge ? 'true' : 'false'} />)}
+          </div>
+          <small>{charge === 8 ? '一道完整的痕，靜靜留在太極裡。' : '每一次觸碰，都留下新的雷痕。'}</small>
         </div>
       )}
 

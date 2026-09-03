@@ -897,7 +897,7 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
     // warmer foreground forks cross its face, and every lane is pulled toward
     // the same impact field. The deterministic offsets keep the cloud-like
     // scale without a noisy random flicker on phones.
-    const stormLaneCount = lowPower ? 6 : 10;
+    const stormLaneCount = lowPower ? 3 : 5;
     const stormLanes = Array.from({ length: stormLaneCount }, (_, lane) => {
       const normalized = lane / (stormLaneCount - 1);
       const x = -3.15 + normalized * 6.3;
@@ -924,8 +924,9 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
       Math.sin(elevation) * radius,
       Math.cos(elevation) * Math.sin(azimuth) * radius,
     );
-    const shellMeridians = Array.from({ length: lowPower ? 4 : 6 }, (_, lane) => {
-      const azimuth = lane * Math.PI / (lowPower ? 2 : 3) + .18;
+    const shellMeridianCount = lowPower ? 3 : 4;
+    const shellMeridians = Array.from({ length: shellMeridianCount }, (_, lane) => {
+      const azimuth = lane * Math.PI / 2 + .18;
       return Array.from({ length: 8 }, (_, step) => {
         const progress = step / 7;
         const elevation = -1.22 + progress * 2.44;
@@ -936,7 +937,7 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
         );
       });
     });
-    const shellLatitudes = [-.66, -.23, .24, .67].map((elevation, lane) => (
+    const shellLatitudes = [-.42, .42].map((elevation, lane) => (
       Array.from({ length: 10 }, (_, step) => {
         const progress = step / 9;
         const azimuth = -Math.PI + progress * Math.PI * 2;
@@ -996,12 +997,12 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
       );
     });
     [...shellMeridians, ...shellLatitudes].forEach((points, lane) => {
-      const whiteHot = lane % 3 === 0;
+      const whiteHot = lane === 0;
       addLayeredBolt(
         points,
         whiteHot ? 0xfff8da : 0x090817,
         whiteHot ? 0xfbbf24 : lane % 2 === 0 ? 0x67e8f9 : 0x818cf8,
-        whiteHot ? .034 : .027,
+        whiteHot ? .04 : .022,
         .16 + (lane % 6) * .018,
         !whiteHot,
       );
