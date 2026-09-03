@@ -1554,6 +1554,18 @@ function TaijiCore({
       groupRef.current.position.x += Math.sin(impactAge * 78) * .075 * impactEnvelope;
       groupRef.current.position.y += Math.sin(impactAge * 53 + 1.1) * .034 * impactEnvelope;
       groupRef.current.rotation.z += Math.sin(impactAge * 74) * .045 * impactEnvelope;
+
+      // Short "four-dimensional" peak: the stable 3D orb is briefly pulled
+      // through depth and time on impact, then mathematically returns to its
+      // exact base transform at the end of the same bounded window.
+      const impactProgress = Math.min(1, impactAge / .42);
+      const spacetimeWarp = Math.sin(impactProgress * Math.PI) ** 2 * Math.exp(-impactProgress * .45);
+      groupRef.current.position.z += spacetimeWarp * .12;
+      groupRef.current.scale.x *= 1 + spacetimeWarp * .038;
+      groupRef.current.scale.y *= 1 - spacetimeWarp * .026;
+      groupRef.current.scale.z *= 1 + spacetimeWarp * .15;
+      groupRef.current.rotation.x += Math.sin(impactProgress * Math.PI * 2) * .032 * spacetimeWarp;
+      groupRef.current.rotation.y -= Math.sin(impactProgress * Math.PI) * .026 * spacetimeWarp;
     }
 
     if (diskRef.current) {
