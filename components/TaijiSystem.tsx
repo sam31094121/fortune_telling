@@ -879,16 +879,19 @@ function Level01SpatialLightning({ active, poseRef, lowPower = false }: { active
       createBolt({ points, color: rim, opacity: .48, radius: radius * 1.42, delay, glow: true });
       createBolt({ points, color: core, opacity: .98, radius, delay, blackCore });
     };
-    addLayeredBolt(leftMain, 0xfff7cf, 0xfbbf24, .082, 0);
-    addLayeredBolt(rightMain, 0x02020a, 0x60a5fa, .084, .025, true);
-    addLayeredBolt(leftSurge, 0xffffff, 0x67e8f9, .058, .055);
-    addLayeredBolt(rightSurge, 0x02020a, 0x818cf8, .06, .075, true);
-    addLayeredBolt(photonEntanglement, 0xfffbea, 0x7dd3fc, .054, .078);
-    addLayeredBolt(particleEntanglement, 0x02030a, 0x6366f1, .056, .092, true);
-    addLayeredBolt(leftBranchA, 0xffffff, 0x67e8f9, .034, .065);
-    addLayeredBolt(leftBranchB, 0xfff4b8, 0xfbbf24, .029, .1);
-    addLayeredBolt(rightBranchA, 0x03030b, 0x818cf8, .036, .09, true);
-    addLayeredBolt(rightBranchB, 0x050512, 0x67e8f9, .03, .12, true);
+    // The two low, side-mounted emitters are deliberately heavier than the
+    // impact web: photons (left) and dark particles (right) must read as two
+    // unmistakable explosive lightning weapons even at phone scale.
+    addLayeredBolt(leftMain, 0xfff7cf, 0xfbbf24, .126, 0);
+    addLayeredBolt(rightMain, 0x02020a, 0x60a5fa, .13, .025, true);
+    addLayeredBolt(leftSurge, 0xffffff, 0x67e8f9, .088, .055);
+    addLayeredBolt(rightSurge, 0x02020a, 0x818cf8, .092, .075, true);
+    addLayeredBolt(photonEntanglement, 0xfffbea, 0x7dd3fc, .078, .078);
+    addLayeredBolt(particleEntanglement, 0x02030a, 0x6366f1, .08, .092, true);
+    addLayeredBolt(leftBranchA, 0xffffff, 0x67e8f9, .05, .065);
+    addLayeredBolt(leftBranchB, 0xfff4b8, 0xfbbf24, .043, .1);
+    addLayeredBolt(rightBranchA, 0x03030b, 0x818cf8, .052, .09, true);
+    addLayeredBolt(rightBranchB, 0x050512, 0x67e8f9, .044, .12, true);
     impactWeb.forEach((points, index) => {
       const fromYin = index % 2 === 0;
       addLayeredBolt(
