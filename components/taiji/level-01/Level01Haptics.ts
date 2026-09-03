@@ -53,9 +53,10 @@ export class Level01HapticController {
     if (!this.enabled || this.mode !== 'LIVE' || this.reducedMotion || !this.armedByUserGesture) return false;
     if (now - this.lastTouchReboundAt < 420) return false;
     this.lastTouchReboundAt = now;
-    // Web vibration cannot set motor amplitude. Two short, separated pulses
-    // create the device-independent impression of compression then recoil.
-    this.safeVibrate([7, 30, 11]);
+    // A tiny charge cue is followed by the impact exactly when the four audio
+    // voices converge and the Taiji recoils (about 170ms after press).
+    // Web vibration cannot set amplitude, so pulse length carries the weight.
+    this.safeVibrate([5, 150, 17, 34, 24, 46, 9]);
     return true;
   }
 

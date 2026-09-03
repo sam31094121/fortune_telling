@@ -42,6 +42,7 @@ export class Level01SoundEngine {
   private reentryUntil = 0;
   private lastTiltAccentAt = 0;
   private lastLightningAt = -Infinity;
+  private lightningVariantIndex = 0;
 
   setReducedMotion(value: boolean) {
     this.reducedMotion = value;
@@ -221,20 +222,88 @@ export class Level01SoundEngine {
     if (now - this.lastLightningAt < 0.72) return;
     this.lastLightningAt = now;
     try {
-      // Large perceived scale, bounded peak: a sharp electric crack rides over
-      // a low falling pressure wave, both contained by the shared compressor.
+      // Four authored thunder shapes rotate deterministically. The experience
+      // stays varied like natural thunder without random timing or volume.
+      const thunderShapes = [
+        { spacing: 1, pitch: 1, boomStart: 86, boomEnd: 38, tail: 0.62 },
+        { spacing: 0.9, pitch: 0.92, boomStart: 78, boomEnd: 34, tail: 0.7 },
+        { spacing: 1.12, pitch: 1.08, boomStart: 94, boomEnd: 41, tail: 0.58 },
+        { spacing: 0.96, pitch: 0.86, boomStart: 72, boomEnd: 31, tail: 0.74 },
+      ] as const;
+      const thunderShape = thunderShapes[this.lightningVariantIndex % thunderShapes.length];
+      this.lightningVariantIndex += 1;
+      // The four visible cores hand energy around the field before impact:
+      // upper-left photon -> upper-right particle -> lower-right photon ->
+      // lower-left particle. Bright filtered cracks and dark pressure pulses
+      // alternate across stereo, then meet at the Taiji on the visual hit.
+      const impactAt = now + 0.17;
+      if (this.airTexture) {
+        const fourCoreVoices = [
+          { offset: 0, pan: -0.72, startHz: 2800, endHz: 980, gain: 0.026, type: 'bandpass' as BiquadFilterType },
+          { offset: 0.045, pan: 0.72, startHz: 720, endHz: 210, gain: 0.03, type: 'lowpass' as BiquadFilterType },
+          { offset: 0.09, pan: 0.68, startHz: 2500, endHz: 840, gain: 0.027, type: 'bandpass' as BiquadFilterType },
+          { offset: 0.135, pan: -0.68, startHz: 650, endHz: 180, gain: 0.032, type: 'lowpass' as BiquadFilterType },
+        ];
+        fourCoreVoices.forEach((voice) => {
+          const source = this.context!.createBufferSource();
+          const filter = this.context!.createBiquadFilter();
+          const gain = this.context!.createGain();
+          const panner = this.context!.createStereoPanner();
+          const startsAt = now + voice.offset * thunderShape.spacing;
+          source.buffer = this.airTexture;
+          filter.type = voice.type;
+          filter.frequency.setValueAtTime(voice.startHz * thunderShape.pitch, startsAt);
+          filter.frequency.exponentialRampToValueAtTime(voice.endHz * thunderShape.pitch, startsAt + 0.16);
+          filter.Q.value = voice.type === 'bandpass' ? 1.1 : 0.72;
+          gain.gain.setValueAtTime(0.0001, startsAt);
+          gain.gain.exponentialRampToValueAtTime(voice.gain, startsAt + 0.008);
+          gain.gain.exponentialRampToValueAtTime(0.0001, startsAt + 0.18);
+          panner.pan.setValueAtTime(voice.pan, startsAt);
+          panner.pan.linearRampToValueAtTime(0, impactAt);
+          source.connect(filter);
+          filter.connect(gain);
+          gain.connect(panner);
+          panner.connect(this.master!);
+          source.start(startsAt);
+          source.stop(startsAt + 0.2);
+        });
+      }
+
+      // Large perceived scale, bounded peak: the centered electric crack and
+      // low falling pressure wave land only after all four voices converge.
       const boom = this.context.createOscillator();
       const boomGain = this.context.createGain();
       boom.type = 'sine';
-      boom.frequency.setValueAtTime(86, now);
-      boom.frequency.exponentialRampToValueAtTime(38, now + 0.46);
-      boomGain.gain.setValueAtTime(0.0001, now);
-      boomGain.gain.exponentialRampToValueAtTime(0.085, now + 0.018);
-      boomGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.58);
+      boom.frequency.setValueAtTime(thunderShape.boomStart, impactAt);
+      boom.frequency.exponentialRampToValueAtTime(thunderShape.boomEnd, impactAt + 0.46);
+      boomGain.gain.setValueAtTime(0.0001, impactAt);
+      boomGain.gain.exponentialRampToValueAtTime(0.085, impactAt + 0.018);
+      boomGain.gain.exponentialRampToValueAtTime(0.0001, impactAt + thunderShape.tail);
       boom.connect(boomGain);
       boomGain.connect(this.master);
-      boom.start(now);
-      boom.stop(now + 0.62);
+      boom.start(impactAt);
+      boom.stop(impactAt + thunderShape.tail + 0.04);
+
+      // A filtered, non-tonal growl gives the strike an angry natural body;
+      // the compressor contains the peak while the tail follows the orb recoil.
+      const growl = this.context.createOscillator();
+      const growlFilter = this.context.createBiquadFilter();
+      const growlGain = this.context.createGain();
+      growl.type = 'sawtooth';
+      growl.frequency.setValueAtTime(thunderShape.boomStart * 1.34, impactAt);
+      growl.frequency.exponentialRampToValueAtTime(Math.max(32, thunderShape.boomEnd), impactAt + thunderShape.tail);
+      growlFilter.type = 'lowpass';
+      growlFilter.frequency.setValueAtTime(360 * thunderShape.pitch, impactAt);
+      growlFilter.frequency.exponentialRampToValueAtTime(115, impactAt + thunderShape.tail);
+      growlFilter.Q.value = 0.86;
+      growlGain.gain.setValueAtTime(0.0001, impactAt);
+      growlGain.gain.exponentialRampToValueAtTime(0.036, impactAt + 0.025);
+      growlGain.gain.exponentialRampToValueAtTime(0.0001, impactAt + thunderShape.tail);
+      growl.connect(growlFilter);
+      growlFilter.connect(growlGain);
+      growlGain.connect(this.master);
+      growl.start(impactAt);
+      growl.stop(impactAt + thunderShape.tail + 0.05);
 
       if (this.airTexture) {
         const crack = this.context.createBufferSource();
@@ -242,18 +311,18 @@ export class Level01SoundEngine {
         const crackGain = this.context.createGain();
         crack.buffer = this.airTexture;
         crackFilter.type = 'bandpass';
-        crackFilter.frequency.setValueAtTime(1900, now);
-        crackFilter.frequency.exponentialRampToValueAtTime(420, now + 0.34);
+        crackFilter.frequency.setValueAtTime(1900, impactAt);
+        crackFilter.frequency.exponentialRampToValueAtTime(420, impactAt + 0.34);
         crackFilter.Q.value = 0.74;
-        crackGain.gain.setValueAtTime(0.0001, now);
-        crackGain.gain.exponentialRampToValueAtTime(0.072, now + 0.006);
-        crackGain.gain.exponentialRampToValueAtTime(0.012, now + 0.1);
-        crackGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+        crackGain.gain.setValueAtTime(0.0001, impactAt);
+        crackGain.gain.exponentialRampToValueAtTime(0.072, impactAt + 0.006);
+        crackGain.gain.exponentialRampToValueAtTime(0.012, impactAt + 0.1);
+        crackGain.gain.exponentialRampToValueAtTime(0.0001, impactAt + 0.42);
         crack.connect(crackFilter);
         crackFilter.connect(crackGain);
         crackGain.connect(this.master);
-        crack.start(now);
-        crack.stop(now + 0.45);
+        crack.start(impactAt);
+        crack.stop(impactAt + 0.45);
       }
 
       // The visual burn aftershock starts after the lightning web lands. A
