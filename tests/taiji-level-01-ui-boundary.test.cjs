@@ -53,6 +53,7 @@ if (!audio.includes('DynamicsCompressorNode') || audio.includes('createOscillato
 if (!controller.includes('Level01RuntimeBoundary') || !errorBoundary.includes('getDerivedStateFromError')) throw new Error('level 01 errors must be contained locally');
 if (!haptics.includes('gameEvent') || !haptics.includes('armedByUserGesture')) throw new Error('haptics must be event-driven and gesture-gated');
 if (!styles.includes('aspect-ratio: 1') || !styles.includes("data-level01-quality='LOW'")) throw new Error('level 01 must reserve layout and expose quality-specific visual reductions');
+if (!styles.includes('SINGLE_CORE_LOCK') || (styles.match(/display: none;/g) || []).length < 3) throw new Error('the four level-01 weapon cores must not spawn decorative satellite dots');
 if (overlay.includes("window.addEventListener('pointerdown'") || overlay.includes("window.addEventListener('touchstart'")) throw new Error('sensor permission must not be requested from an unrelated page gesture');
 if (!featureFlag.includes('NEXT_PUBLIC_TAIJI_MOTION_GAME_V1') || !featureFlag.includes('taijiMotionGame')) throw new Error('motion game must remain behind its independent rollout and review flag');
 if (!featureFlag.includes('return true;')) throw new Error('the mobile-validated level 01 experience must be enabled by default');
