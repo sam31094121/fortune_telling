@@ -717,7 +717,7 @@ function TaijiPerformanceGovernor({ active }: { active: boolean }) {
   return null;
 }
 
-function Level01SpatialLightning({ active, origin, lowPower = false }: { active: boolean; origin: Level01StrikeOrigin; lowPower?: boolean }) {
+function Level01SpatialLightning({ active, origin, variant, lowPower = false }: { active: boolean; origin: Level01StrikeOrigin; variant: number; lowPower?: boolean }) {
   const wasActiveRef = useRef(false);
   const strikeStartedAtRef = useRef(-Infinity);
   const previewStartedAtRef = useRef<number | null>(null);
@@ -743,6 +743,7 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
       glow?: boolean;
       blackCore?: boolean;
       origin?: Level01StrikeOrigin | 'IMPACT';
+      pattern?: 'core' | 'braid' | 'impact' | 'storm' | 'shell';
     }) => {
       const curve = new LightningPolyline(input.points);
       const tubularSegments = Math.max(10, Math.round(Math.max(18, input.points.length * 8) * segmentScale));
@@ -780,6 +781,7 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
       material.userData.delay = input.delay ?? 0;
       material.userData.glow = Boolean(input.glow);
       material.userData.origin = input.origin ?? 'IMPACT';
+      material.userData.pattern = input.pattern ?? 'core';
       const mesh = new THREE.Mesh(geometry, material);
       mesh.userData.basePosition = mesh.position.clone();
       mesh.userData.baseRotation = mesh.rotation.clone();
@@ -830,6 +832,7 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
       material.userData.delay = input.delay;
       material.userData.aftershock = true;
       material.userData.origin = 'IMPACT';
+      material.userData.pattern = 'aftershock';
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.z = input.z;
       mesh.rotation.set(...input.rotation);
@@ -948,10 +951,10 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
         );
       })
     ));
-    const addLayeredBolt = (points: THREE.Vector3[], core: number, rim: number, radius: number, delay = 0, blackCore = false, origin: Level01StrikeOrigin | 'IMPACT' = 'IMPACT') => {
-      createBolt({ points, color: rim, opacity: .2, radius: radius * 2.15, delay, glow: true, origin });
-      createBolt({ points, color: rim, opacity: .48, radius: radius * 1.42, delay, glow: true, origin });
-      createBolt({ points, color: core, opacity: .98, radius, delay, blackCore, origin });
+    const addLayeredBolt = (points: THREE.Vector3[], core: number, rim: number, radius: number, delay = 0, blackCore = false, origin: Level01StrikeOrigin | 'IMPACT' = 'IMPACT', pattern: 'core' | 'braid' | 'impact' | 'storm' | 'shell' = 'core') => {
+      createBolt({ points, color: rim, opacity: .2, radius: radius * 2.15, delay, glow: true, origin, pattern });
+      createBolt({ points, color: rim, opacity: .48, radius: radius * 1.42, delay, glow: true, origin, pattern });
+      createBolt({ points, color: core, opacity: .98, radius, delay, blackCore, origin, pattern });
     };
     // Four cardinal emitters alternate photon / dark-particle material and
     // converge on one impact. They remain unmistakable at phone scale without
@@ -964,10 +967,10 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
     addLayeredBolt(rightSurge, 0xffffff, 0xfbbf24, .088, .075, false, 'E');
     addLayeredBolt(bottomSurge, 0x02020a, 0x818cf8, .092, .09, true, 'S');
     addLayeredBolt(topSurge, 0x02020a, 0x60a5fa, .092, .11, true, 'N');
-    addLayeredBolt(photonEntanglement, 0xfffbea, 0x7dd3fc, .078, .17);
-    addLayeredBolt(particleEntanglement, 0x02030a, 0x6366f1, .08, .182, true);
-    addLayeredBolt(photonEntanglementVertical, 0xfffbea, 0xfbbf24, .078, .194);
-    addLayeredBolt(particleEntanglementVertical, 0x02030a, 0x6366f1, .08, .206, true);
+    addLayeredBolt(photonEntanglement, 0xfffbea, 0x7dd3fc, .078, .17, false, 'IMPACT', 'braid');
+    addLayeredBolt(particleEntanglement, 0x02030a, 0x6366f1, .08, .182, true, 'IMPACT', 'braid');
+    addLayeredBolt(photonEntanglementVertical, 0xfffbea, 0xfbbf24, .078, .194, false, 'IMPACT', 'braid');
+    addLayeredBolt(particleEntanglementVertical, 0x02030a, 0x6366f1, .08, .206, true, 'IMPACT', 'braid');
     addLayeredBolt(leftBranchA, 0xffffff, 0x67e8f9, .05, .065, false, 'W');
     addLayeredBolt(leftBranchB, 0xfff4b8, 0xfbbf24, .043, .1, false, 'W');
     addLayeredBolt(rightBranchA, 0xffffff, 0x67e8f9, .052, .09, false, 'E');
@@ -981,6 +984,8 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
         index < 2 ? .046 : .027,
         .17 + index * .018,
         !fromYin,
+        'IMPACT',
+        'impact',
       );
     });
     stormLanes.forEach((points, lane) => {
@@ -994,6 +999,8 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
         foreground ? .043 : .035,
         .018 + (lane % 5) * .028,
         !foreground,
+        'IMPACT',
+        'storm',
       );
     });
     [...shellMeridians, ...shellLatitudes].forEach((points, lane) => {
@@ -1005,6 +1012,8 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
         whiteHot ? .04 : .022,
         .16 + (lane % 6) * .018,
         !whiteHot,
+        'IMPACT',
+        'shell',
       );
     });
     // Broken, depth-layered burn aftershock. Partial arcs avoid framing the orb
@@ -1047,6 +1056,18 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
             : age < .62 ? .7 * (1 - (age - .28) / .34)
                 : 0;
     const spatialEnvelope = envelopeAt(strikeAge);
+    const patternWeights = [
+      { core: 1, braid: .28, impact: .7, storm: .22, shell: .66, aftershock: .38 }, // cardinal fracture
+      { core: 1, braid: .1, impact: .9, storm: .14, shell: .3, aftershock: .22 }, // forked strike
+      { core: .58, braid: .18, impact: .42, storm: 1, shell: .24, aftershock: .3 }, // descending storm
+      { core: .32, braid: .2, impact: .74, storm: .16, shell: 1, aftershock: .46 }, // sphere cage
+      { core: .72, braid: 1, impact: .82, storm: .18, shell: .42, aftershock: .26 }, // entangled cross
+      { core: .3, braid: .16, impact: .55, storm: .12, shell: .84, aftershock: 1 }, // burning orbit
+      { core: 1, braid: .52, impact: 1, storm: .58, shell: .38, aftershock: .72 }, // rupture
+      { core: .48, braid: .92, impact: .7, storm: .46, shell: .76, aftershock: .52 }, // convergence
+    ] as const;
+    const selectedVariant = Number.isFinite(variant) ? Math.abs(Math.trunc(variant)) : 0;
+    const patternWeight = patternWeights[selectedVariant % patternWeights.length] ?? patternWeights[0];
     const target = striking ? 1 : .9;
     const easing = 1 - Math.exp(-delta * (striking ? 18 : 7));
     group.scale.x += (target - group.scale.x) * easing;
@@ -1064,7 +1085,9 @@ function Level01SpatialLightning({ active, origin, lowPower = false }: { active:
       const envelope = envelopeAt(localAge);
       const boltOrigin = material.userData.origin as Level01StrikeOrigin | 'IMPACT' | undefined;
       const originWeight = boltOrigin === 'IMPACT' || boltOrigin === origin ? 1 : 0;
-      material.opacity = Number(material.userData.baseOpacity ?? .5) * envelope * originWeight;
+      const pattern = material.userData.pattern as keyof typeof patternWeight | undefined;
+      const structureWeight = pattern ? patternWeight[pattern] : 1;
+      material.opacity = Number(material.userData.baseOpacity ?? .5) * envelope * originWeight * structureWeight;
       const phase = Number(material.userData.delay ?? 0);
       const pulse = 1 + Math.sin((clock.elapsedTime + phase) * 72) * .09 * envelope;
       const aftershockExpansion = material.userData.aftershock
@@ -2164,6 +2187,8 @@ export default function TaijiSystem({
   const [touchActive, setTouchActive] = useState(false);
   const [touchRebounding, setTouchRebounding] = useState(false);
   const [lightningOrigin, setLightningOrigin] = useState<Level01StrikeOrigin>('N');
+  const [lightningVariant, setLightningVariant] = useState(0);
+  const lightningVariantRef = useRef(0);
   const touchReboundTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastClickAtRef = useRef(0);
   const touchRef = useRef({ active: false, x: 0, y: 0 });
@@ -2328,6 +2353,8 @@ export default function TaijiSystem({
       ? (dx >= 0 ? 'E' : 'W')
       : (dy >= 0 ? 'S' : 'N');
     setLightningOrigin(strikeOrigin);
+    setLightningVariant(lightningVariantRef.current);
+    lightningVariantRef.current = (lightningVariantRef.current + 1) % 8;
     if (displayLayer === 1 && level01Controller.pose.permission === 'idle') void level01Controller.armFromUserGesture(strikeOrigin);
     else if (displayLayer === 1) level01Controller.playTouchReboundFeedback('press', strikeOrigin);
     if (displayLayer !== 1 && navigator.vibrate) navigator.vibrate(8);
@@ -2425,7 +2452,7 @@ export default function TaijiSystem({
           <AdaptiveEvents />
           <Level01FrameBinder controller={level01Controller} enabled={displayLayer === 1} />
           {displayLayer === 1 && level01Controller.pose.motionGameEnabled && (
-            <Level01SpatialLightning active={touchActive} origin={lightningOrigin} lowPower={canvasQuality.lowPower} />
+            <Level01SpatialLightning active={touchActive} origin={lightningOrigin} variant={lightningVariant} lowPower={canvasQuality.lowPower} />
           )}
           <TaijiPerformanceGovernor active={touchActive} />
           {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
