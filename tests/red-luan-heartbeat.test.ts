@@ -349,7 +349,14 @@ assert.equal(ichingTeacher.name, '易經老師');
 assert.equal(ghostTeacher.name, '鬼魅老師');
 assert.notEqual(ichingTeacher.opening, ghostTeacher.opening, '兩位老師的開場必須不同');
 assert.notDeepEqual(ichingTeacher.sections, ghostTeacher.sections, '兩位老師的段落必須不同');
-assert.ok(ichingTeacher.sections.length >= 4 && ghostTeacher.sections.length >= 4);
+// 易經老師刻意精簡：對象一句帶過（細節在自己的折疊裡），重點放時間與卦示。
+assert.ok(ichingTeacher.sections.length >= 3, '易經老師至少要有對象、時間、卦示');
+assert.ok(ghostTeacher.sections.length >= 4);
+assert.equal(
+  ichingTeacher.sections.filter((section) => /第.層/.test(section.title)).length,
+  0,
+  '四層細節不得在老師這裡再講一次',
+);
 for (const teacher of ichingA.teachers) {
   assert.ok(teacher.sections.every((section) => section.title && section.text.length > 10));
   assert.ok(teacher.closing.length > 0);

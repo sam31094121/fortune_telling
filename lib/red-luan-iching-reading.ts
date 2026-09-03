@@ -197,9 +197,18 @@ function buildTeacherReadings(input: {
   const ghost = buildGhostDecoding(hexagram);
   const timing = input.hasPeak ? input.monthsPhrase : `${input.year} 年沒有月份命中這組規則`;
 
+  // 「他是誰」那四層在自己的折疊裡已經講過一次，這裡不再複述，
+  // 只留一句收攏，其餘留給時間與卦示——否則客戶會覺得同一段話被灌了兩次水。
   const ichingSections = [
-    ...affinity.onionLayers.map((layer) => ({ title: layer.title, text: `${layer.headline}。${layer.detail}` })),
-    { title: '第五層・什麼時候', text: input.hasPeak
+    ...(affinity.onionLayers.length > 0
+      ? [{
+        title: '先講對象',
+        text: `會靠近你的，最主要是${affinity.onionLayers[0].headline}這一型${
+          affinity.onionLayers[2] ? `，常出現在${affinity.onionLayers[2].headline}` : ''
+        }。細節你可以自己翻「一層一層看他是誰」，我這邊先講時間。`,
+      }]
+      : []),
+    { title: '什麼時候', text: input.hasPeak
       ? `時間落在${timing}。這個月的流月地支，正好踩在你命盤紅鸞、天喜、桃花或貴人的位置上——不是我說的，是規則算出來的，證據每一條都可以往下核對。`
       : `${timing}。今年這一路的力道在「養」不在「動」；與其等時間，不如把自己準備好。` },
     { title: '卦示・怎麼做', text: `你的卦是${hexagram.hexagramName}（第${hexagram.kingWen}卦），格局是「${patternName}」。${hexagram.essence}。${hexagram.advice}` },

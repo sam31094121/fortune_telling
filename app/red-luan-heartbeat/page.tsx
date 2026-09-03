@@ -6,7 +6,8 @@ import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthFo
 import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
-import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT, setAnalysisIdentityTarget } from '@/lib/identity-split-client';
+ import { downloadRedLuanReminder, shareRedLuanReading, type RedLuanReminder } from '@/lib/red-luan-followup';
 import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-public-access';
 
 type Evidence = { label: string; targetBranch: string; evidence: string };
@@ -321,6 +322,18 @@ const LABEL_WORDS: Record<string, string> = {
   日支六沖: '容易起波瀾',
 };
 
+/** 結尾三個動作共用的摘要。 */
+function reminderOf(reading: Reading): RedLuanReminder {
+  const encounter = reading.nextEncounters.soulResonance ?? reading.nextEncounters.benefactor;
+  return {
+    name: reading.person.name,
+    startsOn: encounter?.startsOn ?? '',
+    endsOn: encounter?.endsOn ?? '',
+    monthLine: encounter?.monthLine ?? '',
+    typeHeadline: reading.affinity.typeHeadline,
+  };
+}
+
 const MONTH_DAY = (iso: string) => `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}`;
 
 /** 「還有幾個月」講成人話。0 就是現在這個月，跨年的講明是明年。 */
@@ -370,6 +383,12 @@ function EncounterCard({ encounter, fromDate, title, tone }: { encounter: Encoun
  * 折疊區塊：預設收起，但標題與徽章一直看得見，讓客戶知道底下還有東西。
  * 這不是隱藏——想深入就按開，關掉也不影響上面已經給出的結論。
  */
+const RITUAL_LINES = [
+  '把手心的溫度，透過螢幕傳過來……',
+  '先靜下來，慢慢呼吸。心靜了，卦才感受得到你。',
+  '卦成了。',
+];
+
 function Fold({
   title,
   badge,
@@ -462,6 +481,22 @@ function RedLuanHeartbeatExperience() {
   const [teacherKey, setTeacherKey] = useState('iching');
   /** 目前展開的折疊區塊。預設全部收起，首屏只留客戶最想看的兩個答案。 */
   const [openedFolds, setOpenedFolds] = useState<string[]>([]);
+  const [followUp, setFollowUp] = useState<'idle' | 'reminded' | 'shared' | 'copied' | 'failed'>('idle');
+  /** 起卦儀式的第幾句；-1 代表沒有在進行。 */
+  const [ritualStep, setRitualStep] = useState(-1);
+
+  /** 幫朋友算：切成訪客身分、清掉這次的結果與填答，捲回表單。 */
+  function startGuestReading() {
+    setAnalysisIdentityTarget('guest');
+    setReading(null);
+    setForm(EMPTY_FORM);
+    setContext(EMPTY_CONTEXT);
+    setAppliedContext(EMPTY_CONTEXT);
+    setFollowUp('idle');
+    setError('');
+    setMissing([]);
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
 
   function toggleFold(key: string) {
     setOpenedFolds((current) => (current.includes(key) ? current.filter((item) => item !== key) : [...current, key]));
@@ -524,6 +559,15 @@ function RedLuanHeartbeatExperience() {
       });
       const payload = await response.json() as Reading & { error?: string; message?: string };
       if (!response.ok) throw new Error(payload.error || payload.message || '目前無法完成核對，請稍後再試。');
+      if (mode === 'initial') {
+        // 運算其實 0.3 秒就好了。這 2.4 秒是把手冊裡的卜卦儀式演完再揭曉——
+        // 過程被看見時，結果才像卜出來的，而不是查表查出來的。
+        for (let step = 0; step < RITUAL_LINES.length; step += 1) {
+          setRitualStep(step);
+          await new Promise((resolve) => { setTimeout(resolve, step === RITUAL_LINES.length - 1 ? 700 : 850); });
+        }
+        setRitualStep(-1);
+      }
       setReading(payload);
       setAppliedContext(submittedContext);
       setAlignmentChoice('');
@@ -533,12 +577,14 @@ function RedLuanHeartbeatExperience() {
         setPeeled(0);
         setTeacherKey('iching');
         setOpenedFolds([]);
+        setFollowUp('idle');
       }
       const anchor = mode === 'refine' ? 'red-luan-layer-1' : 'red-luan-result';
       requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : '目前無法完成核對，請稍後再試。');
     } finally {
+      setRitualStep(-1);
       setLoading(false);
     }
   }
@@ -587,8 +633,21 @@ function RedLuanHeartbeatExperience() {
           onClick={() => { void submit(form); }}
           className="mt-5 inline-flex w-full items-center justify-center rounded-full border border-amber-100/65 bg-amber-300/20 px-6 py-4 text-sm font-black text-amber-50 shadow-[0_0_24px_rgba(251,191,36,0.16)] transition disabled:opacity-60"
         >
-          {loading ? '推算中…' : '算我的紅鸞'}
+          {loading ? '起卦中…' : '算我的紅鸞'}
         </button>
+        {ritualStep >= 0 && (
+          <div className="mt-4 rounded-2xl border border-rose-200/30 bg-rose-400/[0.08] p-6 text-center" role="status" aria-live="polite">
+            <div className="flex flex-col-reverse items-center gap-1.5" aria-hidden="true">
+              {[0, 1, 2, 3, 4, 5].map((line) => (
+                <span
+                  key={line}
+                  className={`h-1.5 w-16 rounded-full transition-all duration-500 ${line <= ritualStep * 2 + 1 ? 'bg-rose-200/80' : 'bg-white/10'}`}
+                />
+              ))}
+            </div>
+            <p className="mt-4 text-sm font-bold leading-7 text-rose-50">{RITUAL_LINES[ritualStep]}</p>
+          </div>
+        )}
         <p className="mt-3 text-center text-xs leading-5 text-white/45">其他問題結果出來再問，想跳過也可以。</p>
         {error && <p className="mt-5 rounded-2xl border border-rose-300/30 bg-rose-500/10 p-3 text-sm font-bold text-rose-100">{error}</p>}
       </section>
@@ -892,6 +951,49 @@ function RedLuanHeartbeatExperience() {
         </section>}
         </div>
         </Fold>
+        {/*
+          結尾原本只有免責＋返回首頁：客戶剛拿到「幾月會碰到誰」，卻沒有任何下一步。
+          三個動作全在本機完成——行事曆不需要通知權限，分享優先用系統面板。
+        */}
+        {reading.nextEncounters?.soulResonance && (
+          <section className="rounded-3xl border border-amber-200/25 bg-amber-300/[0.07] p-5">
+            <p className="text-sm font-black text-amber-100">接下來</p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+              <button
+                type="button"
+                onClick={() => setFollowUp(downloadRedLuanReminder(reminderOf(reading)) ? 'reminded' : 'failed')}
+                className="rounded-2xl border border-amber-200/45 bg-amber-300/15 px-4 py-4 text-left transition hover:bg-amber-300/25"
+              >
+                <span className="block text-base font-black text-amber-50">提醒我 {Number(reading.nextEncounters.soulResonance.startsOn.slice(5, 7))} 月</span>
+                <span className="mt-1 block text-[11px] leading-4 text-amber-100/75">加進你自己的行事曆</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => { void shareRedLuanReading(reminderOf(reading)).then((outcome) => setFollowUp(outcome === 'failed' ? 'failed' : outcome)); }}
+                className="rounded-2xl border border-rose-200/45 bg-rose-300/15 px-4 py-4 text-left transition hover:bg-rose-300/25"
+              >
+                <span className="block text-base font-black text-rose-50">分享這張卡</span>
+                <span className="mt-1 block text-[11px] leading-4 text-rose-100/75">傳給想跟你一起看的人</span>
+              </button>
+              <button
+                type="button"
+                onClick={startGuestReading}
+                className="rounded-2xl border border-cyan-200/45 bg-cyan-300/15 px-4 py-4 text-left transition hover:bg-cyan-300/25"
+              >
+                <span className="block text-base font-black text-cyan-50">幫朋友算一次</span>
+                <span className="mt-1 block text-[11px] leading-4 text-cyan-100/75">不會存進你的成長檔</span>
+              </button>
+            </div>
+            {followUp !== 'idle' && (
+              <p className="mt-3 text-xs leading-6 text-emerald-100" role="status" aria-live="polite">
+                {followUp === 'reminded' && '行事曆檔已下載，打開它就會加進你的行事曆，前一天會提醒你。'}
+                {followUp === 'shared' && '已開啟分享。'}
+                {followUp === 'copied' && '已複製到剪貼簿，可以直接貼給朋友。'}
+                {followUp === 'failed' && '這個裝置不支援，可以直接截圖分享。'}
+              </p>
+            )}
+          </section>
+        )}
         <p className="text-[11px] leading-5 text-white/40">本服務是文化探索與自我反思，不是心理診斷，也不是確定預測。</p>
       </section>}
 
