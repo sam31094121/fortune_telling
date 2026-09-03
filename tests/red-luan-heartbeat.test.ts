@@ -287,6 +287,21 @@ for (const item of nextFromSep.upcoming) {
 // 同一組輸入永遠同一結果。
 assert.deepEqual(buildRedLuanNextEncounters({ yearBranch: '午', dayBranch: '子', dayMasterStem: '甲', fromDate: '2026-09-03' }), nextFromSep);
 // 換一個起點，第一筆就要跟著往後移。
+// 天數倒數：月數會把急迫感磨掉（差 5 天卻說「還有 1 個月」）。
+for (const item of nextFromSep.upcoming) {
+  assert.ok(item.daysAway >= 0);
+  assert.equal(item.daysAway, item.isCurrent ? 0 : item.daysAway, '已經開始的月份不得還有倒數天數');
+  assert.ok(item.daysLeft >= 0);
+  if (!item.isCurrent) assert.equal(item.daysLeft, 0);
+}
+// 站在窗口正中間問，要回報「進行中」與剩餘天數，而不是把它算成過去或未來。
+const insideWindow = buildRedLuanNextEncounters({ yearBranch: '午', dayBranch: '子', dayMasterStem: '甲', fromDate: '2026-09-20' });
+const current = insideWindow.upcoming[0];
+assert.equal(current.isCurrent, true, '9/20 落在 9/8 起的酉月裡，必須算成進行中');
+assert.equal(current.daysAway, 0);
+assert.ok(current.daysLeft > 0 && current.daysLeft <= 31, `剩餘天數要落在一個月內，實際 ${current.daysLeft}`);
+assert.ok(current.startsOn <= '2026-09-20' && '2026-09-20' < current.endsOn);
+
 const nextFromDec = buildRedLuanNextEncounters({ yearBranch: '午', dayBranch: '子', dayMasterStem: '甲', fromDate: '2026-12-20' });
 assert.ok((nextFromDec.upcoming[0]?.startsOn ?? '') > (nextFromSep.upcoming[0]?.startsOn ?? ''), '起點往後，下一次也要往後');
 

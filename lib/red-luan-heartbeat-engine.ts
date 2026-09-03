@@ -782,6 +782,12 @@ export type RedLuanEncounter = {
   endsOn: string;
   /** 距今幾個節氣月；0＝就是現在這個月。 */
   monthsAway: number;
+  /** 距離開始還有幾天；已經開始就是 0。天數比月數具體，客戶更有感。 */
+  daysAway: number;
+  /** 正在這個月裡面時，還剩幾天；不在裡面就是 0。 */
+  daysLeft: number;
+  /** 今天是否就落在這個窗口內。 */
+  isCurrent: boolean;
   kind: RedLuanEncounterKind;
   /** 命中的規則名稱，例如 ['紅鸞', '天喜']。 */
   labels: string[];
@@ -847,6 +853,14 @@ export type RedLuanNextEncounters = {
 
 function pad2(value: number) {
   return String(value).padStart(2, '0');
+}
+
+/** 兩個 YYYY-MM-DD 之間差幾天（UTC 起算，避免時區把日期算偏）。 */
+function daysBetween(fromIso: string, toIso: string) {
+  const from = Date.parse(`${fromIso}T00:00:00Z`);
+  const to = Date.parse(`${toIso}T00:00:00Z`);
+  if (!Number.isFinite(from) || !Number.isFinite(to)) return 0;
+  return Math.round((to - from) / 86400000);
 }
 
 function isoDate(year: number, month: number, day: number) {
@@ -922,6 +936,8 @@ export function buildRedLuanNextEncounters(input: {
     const hasResonance = meaningful.some((item) => item.id !== 'tianyi');
     const hasBenefactor = meaningful.some((item) => item.id === 'tianyi');
     const next = windows[currentIndex + offset + 1];
+    const endsOn = next ? next.startsOn : window.startsOn;
+    const isCurrent = window.startsOn <= input.fromDate && input.fromDate < endsOn;
     const kind: RedLuanEncounterKind = hasResonance && hasBenefactor ? 'BOTH' : hasBenefactor ? 'BENEFACTOR' : 'SOUL_RESONANCE';
     upcoming.push({
       ...ENCOUNTER_COPY[kind],
@@ -931,8 +947,11 @@ export function buildRedLuanNextEncounters(input: {
       jieqi: window.jieqi,
       lunarLabel: window.lunarLabel,
       startsOn: window.startsOn,
-      endsOn: next ? next.startsOn : window.startsOn,
+      endsOn,
       monthsAway: offset,
+      daysAway: Math.max(0, daysBetween(input.fromDate, window.startsOn)),
+      daysLeft: isCurrent ? Math.max(0, daysBetween(input.fromDate, endsOn)) : 0,
+      isCurrent,
       kind,
       labels: [...new Set(meaningful.map((item) => item.label))],
       evidence: meaningful,

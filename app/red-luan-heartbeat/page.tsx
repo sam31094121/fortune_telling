@@ -20,7 +20,7 @@ type MonthlyRhythm = {
 };
 type Encounter = {
   gregorianYear: number; monthIndex: number; monthBranch: string; jieqi: string; lunarLabel: string;
-  startsOn: string; endsOn: string; monthsAway: number;
+  startsOn: string; endsOn: string; monthsAway: number; daysAway: number; daysLeft: number; isCurrent: boolean;
   kind: 'SOUL_RESONANCE' | 'BENEFACTOR' | 'BOTH';
   labels: string[]; monthLine: string; magnet: string; action: string; loveWords: string[]; mechanism: string[]; evidence: TimelineEvidence[];
 };
@@ -336,10 +336,17 @@ function reminderOf(reading: Reading): RedLuanReminder {
 
 const MONTH_DAY = (iso: string) => `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}`;
 
-/** 「還有幾個月」講成人話。0 就是現在這個月，跨年的講明是明年。 */
+/**
+ * 倒數講成人話。天數比月數具體得多——「還有 23 天」會讓人想做點什麼，
+ * 「還有 1 個月」不會（時間貼現，Temporal Discounting）。
+ * 已經進到那個月裡面時改講還剩幾天，這是客戶被行事曆提醒回來時看到的那一句。
+ */
 function awayLabel(encounter: Encounter, fromDate: string) {
-  if (encounter.monthsAway === 0) return '就是現在這個月';
-  const crossesYear = encounter.gregorianYear > Number(fromDate.slice(0, 4));
+  if (encounter.isCurrent) {
+    return encounter.daysLeft > 0 ? `就是這個月・還剩 ${encounter.daysLeft} 天` : '就是今天';
+  }
+  const crossesYear = encounter.startsOn.slice(0, 4) > fromDate.slice(0, 4);
+  if (encounter.daysAway <= 45) return `還有 ${encounter.daysAway} 天`;
   return `${crossesYear ? '明年・' : ''}還有 ${encounter.monthsAway} 個月`;
 }
 
@@ -707,6 +714,29 @@ function RedLuanHeartbeatExperience() {
             </div>
           </div>
 
+          {/*
+            未來一年的節奏一眼看完：客戶會為了「我今年還有幾次」而把這張卡存起來，
+            也讓被行事曆叫回來的人知道下一次在哪，不必重算。
+          */}
+          {(reading.nextEncounters?.upcoming?.length ?? 0) > 0 && (
+            <div className="mt-4 rounded-2xl border border-white/12 bg-black/25 p-4">
+              <p className="text-sm font-black text-white">接下來一年，你有 {reading.nextEncounters.upcoming.filter((item) => item.daysAway <= 365).length} 次機會</p>
+              <div className="mt-3 space-y-1.5">
+                {reading.nextEncounters.upcoming.filter((item) => item.daysAway <= 365).map((item) => (
+                  <div key={item.startsOn} className={`flex items-center gap-3 rounded-xl border px-3 py-2 ${item.isCurrent ? 'border-rose-200/50 bg-rose-300/15' : 'border-white/10 bg-white/[0.03]'}`}>
+                    <span className={`w-20 shrink-0 text-sm font-black ${item.isCurrent ? 'text-rose-50' : 'text-white/80'}`}>
+                      {Number(item.startsOn.slice(0, 4))}/{Number(item.startsOn.slice(5, 7))}
+                    </span>
+                    <span className="min-w-0 flex-1 text-xs text-white/60">{item.monthLine}</span>
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-black ${item.kind === 'BENEFACTOR' ? 'bg-amber-300/20 text-amber-100' : 'bg-rose-300/20 text-rose-100'}`}>
+                      {item.kind === 'BENEFACTOR' ? '貴人' : item.kind === 'BOTH' ? '桃花＋貴人' : '桃花'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 text-[11px] leading-5 text-white/40">機會不等於一定發生，但這幾個月的節奏值得留意。</p>
+            </div>
+          )}
           {reading.ichingReading && <div className="mt-4 rounded-2xl border border-violet-200/30 bg-violet-400/[0.1] p-4">
             <p className="text-sm font-black text-violet-100">想聽誰替你解這一卦？</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
