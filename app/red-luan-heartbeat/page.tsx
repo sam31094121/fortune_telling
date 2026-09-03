@@ -586,7 +586,8 @@ function RedLuanHeartbeatExperience() {
       });
       const payload = await response.json() as Reading & { error?: string; message?: string };
       if (!response.ok) throw new Error(payload.error || payload.message || '目前無法完成核對，請稍後再試。');
-      if (mode === 'initial') {
+      // 這個人已經看過儀式了（回訪一鍵重看），就不再演一次。
+      if (mode === 'initial' && !returningName) {
         // 運算其實 0.3 秒就好了。這 2.4 秒是把手冊裡的卜卦儀式演完再揭曉——
         // 過程被看見時，結果才像卜出來的，而不是查表查出來的。
         for (let step = 0; step < RITUAL_LINES.length; step += 1) {
@@ -800,7 +801,7 @@ function RedLuanHeartbeatExperience() {
           <div className="mt-4 flex items-center justify-between gap-3">
             <p className="text-xs leading-5 text-white/45">以下想看再打開就好，不看也不影響上面的結論。</p>
             <span className="shrink-0 rounded-full border border-white/15 px-2.5 py-1 text-[10px] font-black text-white/55">
-              已拆 {openedFolds.filter((key) => key !== 'evidence').length} / 5
+              已拆 {openedFolds.filter((key) => key !== 'evidence').length} / {reading.ichingReading ? 5 : 2}
             </span>
           </div>
 
