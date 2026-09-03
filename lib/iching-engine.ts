@@ -52,7 +52,7 @@ const KING_WEN: number[][] = [
 
 // 易經知識庫（data/iching-hexagrams.json）：64 卦的卦義精要與行動語，
 // 起卦後由這裡取回真正的易經論述，不是憑空生成。
-import HEXAGRAM_KNOWLEDGE from '@/data/iching-hexagrams.json';
+import HEXAGRAM_KNOWLEDGE from '../data/iching-hexagrams.json';
 
 type HexagramKnowledgeEntry = { name: string; essence: string; advice: string };
 

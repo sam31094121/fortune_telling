@@ -12,6 +12,28 @@ import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-
 type Evidence = { label: string; targetBranch: string; evidence: string };
 type TimelineEvidence = { label: string; ruleId: string; ruleVersion: string; evidenceBranches: string[]; evidence: string; source: string; precision: string };
 type AnnualRhythm = { year: number; annualBranch: string; status: 'RULE_HIT' | 'NO_RULE_HIT'; precision: string; evidence: TimelineEvidence[]; limitation: string };
+type MonthlyRhythm = {
+  year: number; monthIndex: number; monthBranch: string; jieqi: string; lunarLabel: string; gregorianHint: string;
+  status: 'RULE_HIT' | 'NO_RULE_HIT'; precision: 'SOLAR_TERM_MONTH_BRANCH'; hitCount: number;
+  evidence: TimelineEvidence[]; limitation: string;
+};
+type AffinityProfile = {
+  status: 'READY';
+  branches: Array<{ label: string; branch: string; zodiac: string; direction: string; trait: string; ruleId: string; basis: string }>;
+  spouseStars: Array<{ palace: string; star: string; trait: string }>;
+  selfReportedType: string;
+  selfReportedLabel: string;
+  limitations: string[];
+};
+type IChingReading = {
+  hexagram: { name: string; kingWen: number; glyph: string; upperName: string; lowerName: string; upperSymbol: string; lowerSymbol: string; changingLine: number; essence: string; judgment: string; advice: string };
+  patternName: string;
+  ritualOpening: string;
+  spark: { title: string; heaven: string; human: string; earth: string; fire: string };
+  onion: Array<{ layer: string; text: string }>;
+  closing: string;
+  seedText: string;
+};
 type BaziSignal = { annualYear: number; annualBranch: string; inputCompleteness: string; natalEvidence: Evidence[]; annualTriggers: Evidence[]; limitations: string[]; sources: Array<{ title: string; reference: string }> };
 type ZiweiSignal = { status: 'READY' | 'UNAVAILABLE_BIRTH_TIME_REQUIRED'; inputCompleteness: string; palaces?: Array<{ palace: string; earthlyBranch: string; majorStars: string[]; minorStars: string[] }>; limitations: string[] };
 type RelationshipStatus = 'SINGLE_NEVER_MARRIED' | 'DATING' | 'MARRIED' | 'SEPARATED' | 'DIVORCED' | 'WIDOWED';
@@ -19,11 +41,13 @@ type FamilyResponsibility = 'NO_CHILDREN_OR_PRIMARY_CARE' | 'LIVE_WITH_OR_CARE_F
 type CurrentExpectation = 'MEET_SOMEONE' | 'STABLE_RELATIONSHIP' | 'MARRIAGE_PLANNING' | 'REPAIR_RELATIONSHIP';
 /** Server-side marker for a question the customer chose not to answer. */
 type Unspecified = 'UNSPECIFIED';
+type AttractedType = 'WARM_STEADY' | 'BRIGHT_OUTGOING' | 'CLEAR_RATIONAL' | 'MATURE_CARING' | 'FREE_INSPIRED';
 /** `''` is the local "not chosen yet" state; the API turns it into UNSPECIFIED. */
 type SelfReportedContext = {
+  currentExpectation: CurrentExpectation | '';
+  attractedType: AttractedType | '';
   relationshipStatus: RelationshipStatus | '';
   familyResponsibility: FamilyResponsibility | '';
-  currentExpectation: CurrentExpectation | '';
 };
 type ContextField = keyof SelfReportedContext;
 type Reading = {
@@ -32,8 +56,11 @@ type Reading = {
     relationshipStatus: RelationshipStatus | Unspecified;
     familyResponsibility: FamilyResponsibility | Unspecified;
     currentExpectation: CurrentExpectation | Unspecified;
+    attractedType: AttractedType | Unspecified;
     usage: 'REFLECTION_GUIDANCE_ONLY';
   };
+  affinity: AffinityProfile;
+  ichingReading: IChingReading;
   contextAlignment: {
     mode: 'REFLECTION_GUIDANCE_ONLY';
     alignmentStatus: 'EVIDENCE_AVAILABLE' | 'NO_VERIFIED_YEARLY_RULE_HIT';
@@ -54,7 +81,14 @@ type Reading = {
     validation: { primaryEngine: string; primaryEngineVersion: string; primaryRuleSet: string; primaryStatus: 'PASSED' | 'BLOCKED'; qualityGateStatus: 'PASSED' | 'BLOCKED' | 'REVIEW_REQUIRED' | 'NOT_TESTED'; independentReference: string; goldenCases: string; totalCompared: number; matchedCount: number; differences: Array<{ path: string; severity: string; message: string }>; verifiedScope: string[]; unverifiedScope: string[] };
     bazi: BaziSignal;
     annualRhythm: AnnualRhythm[];
-    monthlyRhythm: { status: 'UNAVAILABLE_RULE_SOURCE_REQUIRED'; precision: 'YEAR_ONLY'; limitation: string };
+    monthlyRhythm: {
+      status: 'READY';
+      precision: 'SOLAR_TERM_MONTH_BRANCH';
+      year: number;
+      months: MonthlyRhythm[];
+      peakMonths: MonthlyRhythm[];
+      limitation: string;
+    };
     ziwei: ZiweiSignal;
     crossCheck: { status: 'READY' | 'PARTIAL'; summary: string; limitation: string };
     iching: { limitation: string };
@@ -74,8 +108,16 @@ const EMPTY_FORM: BirthProfile = {
 };
 
 const EMPTY_CONTEXT: SelfReportedContext = {
-  relationshipStatus: '', familyResponsibility: '', currentExpectation: '',
+  currentExpectation: '', attractedType: '', relationshipStatus: '', familyResponsibility: '',
 };
+
+const ATTRACTED_TYPE_OPTIONS: Array<{ value: AttractedType; label: string }> = [
+  { value: 'WARM_STEADY', label: '溫柔穩定型' },
+  { value: 'BRIGHT_OUTGOING', label: '明亮外向型' },
+  { value: 'CLEAR_RATIONAL', label: '理性清楚型' },
+  { value: 'MATURE_CARING', label: '成熟照顧型' },
+  { value: 'FREE_INSPIRED', label: '自由靈感型' },
+];
 
 const RELATIONSHIP_STATUS_OPTIONS: Array<{ value: RelationshipStatus; label: string }> = [
   { value: 'SINGLE_NEVER_MARRIED', label: '未婚單身' },
@@ -108,14 +150,16 @@ const CONTEXT_GROUPS: Array<{
   options: ReadonlyArray<{ value: string; label: string }>;
 }> = [
   { field: 'currentExpectation', title: '你想先看哪個方向？', reason: '決定下面的引導從哪一種節奏開始講。', tone: 'pink', options: CURRENT_EXPECTATION_OPTIONS },
+  { field: 'attractedType', title: '你比較容易被哪一型吸引？', reason: '拿來跟命盤算出的有緣方向對照，看合不合得上。', tone: 'pink', options: ATTRACTED_TYPE_OPTIONS },
   { field: 'relationshipStatus', title: '目前的關係現況', reason: '只用來調整界線與步調的建議語氣。', tone: 'cyan', options: RELATIONSHIP_STATUS_OPTIONS },
   { field: 'familyResponsibility', title: '現在主要的生活責任', reason: '用來估算你實際可運用的時間，不做家庭狀況推論。', tone: 'amber', options: FAMILY_RESPONSIBILITY_OPTIONS },
 ];
 
 const CONTEXT_FIELD_LABELS: Record<ContextField, string> = {
+  currentExpectation: '期待方向',
+  attractedType: '喜歡的類型',
   relationshipStatus: '關係現況',
   familyResponsibility: '生活責任',
-  currentExpectation: '期待方向',
 };
 
 /** Renders a stored position, including the deliberate "left blank" state. */
@@ -255,7 +299,31 @@ function CalculationEvidence({ result }: { result: Reading['result'] }) {
     <div className="mt-4 space-y-4">
       <section className="rounded-2xl border border-white/12 bg-slate-950/70 p-4"><EvidenceList title="本命・紅鸞／天喜／咸池桃花" items={result.bazi.natalEvidence} empty="本命四柱中未見這些規則現位；這不代表關係好或不好。" /><div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-sm font-black text-white/80">來源</p>{result.bazi.sources.map((source) => <p key={source.title} className="mt-2 text-xs leading-5 text-white/60">{source.title}：{source.reference}</p>)}</div></section>
       <section className="rounded-2xl border border-rose-200/20 bg-rose-400/[0.06] p-4"><h3 className="text-lg font-black text-white">未來 {result.annualRhythm.length} 年</h3><p className="mt-2 text-sm leading-7 text-white/65">紅鸞、天喜、咸池桃花、天乙貴人與日支六合／六沖分開列證；沒有權重分數。</p><div className="mt-4 space-y-3">{result.annualRhythm.map((year) => <article key={year.year} className="rounded-2xl border border-white/10 bg-black/15 p-4"><div className="flex items-center justify-between gap-3"><h4 className="font-black text-white">{year.year} 年・{year.annualBranch}年</h4><span className={`rounded-full border px-2.5 py-1 text-[10px] font-black ${year.status === 'RULE_HIT' ? 'border-rose-200/30 bg-rose-300/10 text-rose-100' : 'border-white/10 text-white/45'}`}>{year.status === 'RULE_HIT' ? '有規則命中' : '無本組規則命中'}</span></div>{year.evidence.length > 0 ? <ul className="mt-3 space-y-3">{year.evidence.map((item) => <li key={`${year.year}-${item.ruleId}-${item.evidence}`} data-rule-id={item.ruleId} data-rule-version={item.ruleVersion} className="text-sm leading-6 text-white/75"><span className="font-black text-rose-100">{item.label}</span>　{item.evidence}<span className="mt-1 block text-[11px] text-white/45">{ruleIdentifierLabel(item.ruleId)}｜{ruleVersionLabel(item.ruleVersion)}｜證據 {item.evidenceBranches.join('・')}｜{item.source}</span></li>)}</ul> : <p className="mt-3 text-sm text-white/55">本年度未命中目前已驗證的規則；這不等於沒有關係機會。</p>}<p className="mt-3 text-[11px] leading-5 text-white/40">精度：年度地支。{year.limitation}</p></article>)}</div></section>
-      <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-xs font-black tracking-[0.18em] text-white/55">月份節奏</p><h3 className="mt-2 text-lg font-black text-white">目前未計算</h3><p className="mt-2 text-sm leading-7 text-white/70">{result.monthlyRhythm.limitation}</p></section>
+      <section className="rounded-2xl border border-amber-200/20 bg-amber-300/[0.06] p-4">
+        <p className="text-xs font-black tracking-[0.18em] text-amber-200">月份節奏・{result.monthlyRhythm.year} 年十二節氣月</p>
+        <h3 className="mt-2 text-lg font-black text-white">與年度同一組規則，改以流月地支觸發</h3>
+        <div className="mt-4 space-y-2">
+          {result.monthlyRhythm.months.map((month) => (
+            <article key={month.monthIndex} className={`rounded-2xl border p-3 ${month.status === 'RULE_HIT' ? 'border-amber-200/30 bg-black/20' : 'border-white/10 bg-white/[0.03]'}`}>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h4 className="text-sm font-black text-white">{month.lunarLabel}・{month.monthBranch}月　<span className="text-xs font-bold text-white/55">{month.jieqi}起　{month.gregorianHint}</span></h4>
+                <span className={`rounded-full border px-2.5 py-1 text-[10px] font-black ${month.status === 'RULE_HIT' ? 'border-amber-200/30 bg-amber-300/10 text-amber-100' : 'border-white/10 text-white/40'}`}>{month.status === 'RULE_HIT' ? `命中 ${month.hitCount} 條` : '無規則命中'}</span>
+              </div>
+              {month.evidence.length > 0 && (
+                <ul className="mt-2 space-y-2">
+                  {month.evidence.map((item) => (
+                    <li key={`${month.monthIndex}-${item.ruleId}-${item.evidence}`} data-rule-id={item.ruleId} data-rule-version={item.ruleVersion} className="text-xs leading-5 text-white/70">
+                      <span className="font-black text-amber-100">{item.label}</span>　{item.evidence}
+                      <span className="mt-1 block text-[10px] text-white/40">{ruleIdentifierLabel(item.ruleId)}｜{ruleVersionLabel(item.ruleVersion)}｜精度：節氣月支</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </article>
+          ))}
+        </div>
+        <p className="mt-3 text-[11px] leading-5 text-white/45">{result.monthlyRhythm.limitation}</p>
+      </section>
       <section className="rounded-2xl border border-violet-200/20 bg-violet-400/[0.07] p-4"><div className="flex flex-wrap items-center gap-2"><p className="text-xs font-black tracking-[0.18em] text-violet-200">紫微本命夫妻宮</p><span className="rounded-full border border-violet-200/20 px-2 py-1 text-[10px] font-black text-violet-100">{ziweiStatusLabel(result.ziwei.status)}</span></div>{result.ziwei.status === 'READY' ? <div className="mt-4 space-y-3">{result.ziwei.palaces?.map((palace) => <article key={`${palace.palace}-${palace.earthlyBranch}`} className="rounded-2xl border border-white/10 bg-black/15 p-4"><h4 className="font-black text-white">{palace.palace}・{palace.earthlyBranch}</h4><p className="mt-2 text-sm leading-6 text-white/75">主星：{palace.majorStars.join('、') || '—'}</p><p className="mt-1 text-sm leading-6 text-white/60">輔星：{palace.minorStars.join('、') || '—'}</p></article>)}</div> : <p className="mt-3 rounded-2xl border border-violet-200/15 bg-violet-300/[0.08] p-4 text-sm leading-7 text-violet-50">尚未填出生時辰，因此不顯示紫微夫妻宮資料，也不以預設時辰代替。</p>}<p className="mt-3 text-xs leading-6 text-white/50">{result.crossCheck.summary} {result.crossCheck.limitation}</p></section>
     </div>
   );
@@ -325,6 +393,7 @@ function RedLuanHeartbeatExperience() {
           relationshipStatus: submittedContext.relationshipStatus,
           familyResponsibility: submittedContext.familyResponsibility,
           currentExpectation: submittedContext.currentExpectation,
+          attractedType: submittedContext.attractedType,
         }),
       });
       const payload = await response.json() as Reading & { error?: string; message?: string };
@@ -406,11 +475,67 @@ function RedLuanHeartbeatExperience() {
         <header className="rounded-3xl border border-cyan-200/25 bg-cyan-300/[0.08] p-5">
           <p className="text-xs font-black tracking-[0.18em] text-cyan-200">五層探索・由你決定步調</p>
           <h2 className="mt-2 text-2xl font-black text-white">{reading.person.name}的關係主題參考</h2>
-          <p className="mt-2 text-sm leading-7 text-white/70">後端規則證據不會被 AI 改寫。你可以逐層閱讀、停下或略過行動選擇；本服務不是心理診斷或確定預測。</p>
+          <p className="mt-2 text-sm leading-7 text-white/70">規則證據一經算出就凍結，易經表達層只負責轉述，不會改寫它。你可以逐層閱讀、停下或略過行動選擇；本服務不是心理診斷或確定預測。</p>
           <ol className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5" aria-label="桃花紅鸞五層探索進度">
             {ONION_LAYERS.map((layer, index) => <li key={layer.title}><button type="button" disabled={index > openedLayer} onClick={() => document.getElementById(`red-luan-layer-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })} aria-current={index === openedLayer ? 'step' : undefined} className={`h-full w-full rounded-2xl border px-3 py-3 text-left transition ${index <= openedLayer ? 'border-cyan-200/25 bg-cyan-300/[0.08] text-white' : 'border-white/10 bg-white/[0.03] text-white/35'}`}><span className="text-[10px] font-black tracking-[0.12em]">第 {index + 1} 層{index > openedLayer ? '・鎖定' : ''}</span><strong className="mt-1 block text-sm">{layer.title}</strong><span className="mt-1 block text-[10px] leading-4 opacity-70">{layer.subtitle}</span></button></li>)}
           </ol>
         </header>
+
+        <section id="red-luan-spark" className="scroll-mt-5 rounded-3xl border border-rose-200/30 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.16),transparent_46%),rgba(15,23,42,0.86)] p-5 shadow-[0_18px_52px_rgba(244,63,94,0.14)]">
+          <p className="text-xs font-black tracking-[0.18em] text-rose-200">易經起卦・{reading.ichingReading.spark.title}</p>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <span className="text-5xl leading-none text-rose-100" aria-hidden="true">{reading.ichingReading.hexagram.glyph}</span>
+            <div>
+              <h3 className="text-2xl font-black text-white">{reading.ichingReading.patternName}</h3>
+              <p className="mt-1 text-sm font-bold text-rose-100/80">{reading.ichingReading.hexagram.name}・第 {reading.ichingReading.hexagram.kingWen} 卦（{reading.ichingReading.hexagram.upperSymbol}{reading.ichingReading.hexagram.lowerSymbol}）・動爻第 {reading.ichingReading.hexagram.changingLine} 爻</p>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-2xl border border-amber-200/25 bg-amber-300/[0.08] p-4">
+            <p className="text-xs font-black tracking-[0.14em] text-amber-100">{reading.result.monthlyRhythm.year} 年・最容易勾動的月份</p>
+            {reading.result.monthlyRhythm.peakMonths.length > 0 ? (
+              <>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  {reading.result.monthlyRhythm.peakMonths.map((month) => (
+                    <div key={month.monthIndex} className="rounded-2xl border border-amber-200/30 bg-black/25 p-3">
+                      <p className="text-lg font-black text-amber-50">{month.lunarLabel}・{month.monthBranch}月</p>
+                      <p className="mt-1 text-xs font-bold text-amber-100/80">{month.jieqi}起　{month.gregorianHint}</p>
+                      <p className="mt-2 text-[11px] leading-5 text-white/60">命中 {month.hitCount} 條規則：{month.evidence.map((item) => item.label).join('、')}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs leading-6 text-white/55">月份以節氣為界，不是國曆一號起算。這幾個月是流月地支踩中你命盤紅鸞、天喜、桃花或貴人位的窗口，證據可以往下翻查；命中不等於一定發生什麼事。</p>
+              </>
+            ) : (
+              <p className="mt-2 text-sm leading-7 text-white/70">{reading.result.monthlyRhythm.year} 年十二個節氣月裡，這組規則都沒有命中你的月支。今年的節奏在「養」不在「動」——不是沒有機會，是機會不從時間這一路來。</p>
+            )}
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-cyan-200/20 bg-cyan-300/[0.06] p-4">
+            <p className="text-xs font-black tracking-[0.14em] text-cyan-100">跟你比較容易來電的方向</p>
+            {reading.affinity.branches.length > 0 ? (
+              <div className="mt-3 space-y-2">
+                {reading.affinity.branches.filter((row, index, all) => all.findIndex((item) => item.branch === row.branch) === index).map((row) => (
+                  <div key={row.branch} className="rounded-xl border border-white/10 bg-black/20 p-3">
+                    <p className="text-sm font-black text-white">{row.branch}・屬{row.zodiac}　<span className="text-cyan-100/80">{row.direction}</span></p>
+                    <p className="mt-1 text-xs leading-5 text-white/65">{row.trait}</p>
+                  </div>
+                ))}
+              </div>
+            ) : <p className="mt-2 text-sm leading-7 text-white/70">本命四柱未見這組神煞現位，方位這一路先不強斷。</p>}
+            {reading.affinity.spouseStars.length > 0 && (
+              <p className="mt-3 text-xs leading-6 text-white/60">紫微夫妻宮再補一筆：{reading.affinity.spouseStars.map((star) => `${star.star}（${star.trait}）`).join('、')}。</p>
+            )}
+            <p className="mt-3 text-xs leading-6 text-white/50">你自己填的是「{reading.affinity.selfReportedLabel}」，只放在這裡跟命盤方向對照，不參與任何運算。{reading.affinity.selfReportedType === 'UNSPECIFIED' ? '想對照的話，往下第二層可以補填。' : ''}</p>
+          </div>
+
+          <div className="mt-4 space-y-2">
+            {[reading.ichingReading.spark.heaven, reading.ichingReading.spark.human, reading.ichingReading.spark.earth, reading.ichingReading.spark.fire].map((line) => (
+              <p key={line.slice(0, 12)} className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm leading-7 text-white/78">{line}</p>
+            ))}
+          </div>
+          <p className="mt-4 text-[11px] leading-5 text-white/45">起卦依據：{reading.ichingReading.seedText}（梅花易數生辰起卦，同一生辰永遠同一卦，可回查驗算）。此為文化探索，不是心理診斷或確定預測。</p>
+        </section>
 
         <section id="red-luan-layer-0" className="scroll-mt-5 rounded-3xl border border-cyan-200/20 bg-slate-950/75 p-5">
           <p className="text-xs font-black tracking-[0.18em] text-cyan-200">第一層・命理底盤</p>
@@ -470,7 +595,7 @@ function RedLuanHeartbeatExperience() {
               </div>
             ))}
           </div>
-          <p className="mt-4 text-xs leading-6 text-white/50">目前引導依「{reading.contextAlignment.contextCompleteness === 'NONE' ? '完全未填寫' : `你填寫的 ${reading.contextAlignment.calculationOrder.stageTwo.providedFields.length} 項`}」產生；未填的項目一律走中性引導，系統不會回推。第一層證據不受影響。</p>
+          <p className="mt-4 text-xs leading-6 text-white/50">未填的項目一律走中性引導，系統不會回推。四題全部留白也照樣算得出月份與卦象——第一層證據在這之前就已經凍結，不受這裡影響。</p>
           <button type="button" onClick={() => openLayer(2)} className="mt-5 w-full rounded-2xl border border-amber-200/25 bg-amber-300/10 px-4 py-3 text-sm font-black text-amber-50">打開第三層・情境交叉 →</button>
         </section>}
 
@@ -495,7 +620,7 @@ function RedLuanHeartbeatExperience() {
           <p className="mt-1 text-xs leading-5 text-white/55">以下三個方向由後端逐一組合：你填寫的項目走對應引導，留白的項目走中性引導。可任選一項，也可以不選；這不是人格分析或心理測驗。</p>
           <div className="mt-4 grid gap-3">{reading.contextAlignment.actionDirections.map((direction) => <button key={direction.id} type="button" onClick={() => setAlignmentChoice(direction.id)} aria-pressed={alignmentChoice === direction.id} className={`rounded-2xl border p-4 text-left transition ${alignmentChoice === direction.id ? 'border-amber-100/40 bg-amber-200/15' : 'border-white/10 bg-black/10'}`}><strong className="text-sm text-amber-50">{direction.title}</strong><span className="mt-2 block text-sm leading-6 text-white/75">易經式比喻：{direction.symbolism}</span><span className="mt-2 block text-sm leading-6 text-white/70">自我反思：{direction.reflectionQuestion}</span><span className="mt-2 block text-xs leading-5 text-emerald-100">可選小步：{direction.action}</span></button>)}</div>
           {alignmentChoice && <p className="mt-4 rounded-2xl border border-emerald-200/15 bg-emerald-300/[0.06] p-4 text-sm leading-7 text-emerald-50">你選擇先從「{reading.contextAlignment.actionDirections.find((item) => item.id === alignmentChoice)?.title}」開始。這只是可修改、可停止的自我反思方向。</p>}
-          <p className="mt-4 text-[11px] leading-5 text-white/45">不推斷焦慮、依附型態、創傷、性格或未填資訊；不作心理診斷或婚姻預測；自述資料不送入 AI。</p>
+          <p className="mt-4 text-[11px] leading-5 text-white/45">不推斷焦慮、依附型態、創傷、性格或未填資訊；不作心理診斷或婚姻預測；自述資料不送入易經表達層。</p>
           <button type="button" onClick={() => openLayer(3)} className="mt-5 w-full rounded-2xl border border-amber-200/25 bg-amber-300/10 px-4 py-3 text-sm font-black text-amber-50">打開第四層・問心 →</button>
         </section>}
 
@@ -507,9 +632,25 @@ function RedLuanHeartbeatExperience() {
         </section>}
 
         {openedLayer >= 4 && <section id="red-luan-layer-4" className="scroll-mt-5 space-y-4">
-          <section className="rounded-3xl border border-cyan-200/20 bg-cyan-300/[0.06] p-5"><p className="text-xs font-black tracking-[0.18em] text-cyan-200">第五層・易經引導</p><div className="mt-2 flex flex-wrap items-center gap-2"><h3 className="text-lg font-black text-white">{reading.result.culturalReading.status === 'READY' ? 'AI 文化表達層' : '文化引導目前鎖定'}</h3><span className={`rounded-full border px-2.5 py-1 text-[10px] font-black ${reading.result.culturalReading.gate.status === 'PASSED' ? 'border-emerald-200/20 text-emerald-100' : 'border-rose-200/20 text-rose-100'}`}>門控：{statusLabel(reading.result.culturalReading.gate.status)}</span></div><p className="mt-2 text-xs leading-5 text-white/50">AI 只負責把已通過證據寫成易經文化反思，不是超自然權威，也不參與排盤或預言。</p>
-            {reading.result.culturalReading.status === 'READY' ? <><p className="mt-3 text-sm leading-7 text-white/75">{reading.result.culturalReading.summary}</p><div className="mt-4 space-y-3">{reading.result.culturalReading.yearlyGuidance?.map((item) => <article key={`${item.year}-${item.theme}`} className="rounded-2xl border border-white/10 bg-black/15 p-4"><h4 className="font-black text-cyan-50">{item.year}・{item.theme}</h4><p className="mt-2 text-sm leading-6 text-white/70">{item.reflection}</p><p className="mt-2 text-sm leading-6 text-cyan-100">行動參考：{item.action}</p></article>)}</div></> : <p className="mt-3 rounded-2xl border border-rose-200/15 bg-rose-300/[0.06] p-4 text-sm leading-7 text-white/70">{reading.result.culturalReading.status === 'UNAVAILABLE_AI_NOT_CONFIGURED' ? '後端證據已完成，但文化表達服務未設定，因此不以假文字代替。' : reading.result.culturalReading.status === 'BLOCKED_BY_VALIDATION' ? `資料尚未通過完整品質門控，AI 不會收到未驗證結果。${reading.result.culturalReading.gate.reasons.join('；')}。` : '文化表達服務暫時無法使用；後端規則證據仍維持原樣。'}</p>}
-            <p className="mt-3 text-[11px] leading-5 text-white/45">門控檢查到 {reading.result.culturalReading.gate.evidenceCount} 筆具規則編號的主引擎年度證據；品質門控通過前不會傳給 AI。固定排除：{reading.result.culturalReading.gate.withheldFields.join('、')}。</p>
+          <section className="rounded-3xl border border-rose-200/20 bg-rose-400/[0.07] p-5">
+            <p className="text-xs font-black tracking-[0.18em] text-rose-200">易經卜卦・{reading.ichingReading.patternName}</p>
+            {reading.ichingReading.ritualOpening.split('\n').filter(Boolean).map((line) => (
+              <p key={line.slice(0, 14)} className="mt-3 text-sm leading-7 text-white/78">{line}</p>
+            ))}
+            <div className="mt-4 space-y-2">
+              {reading.ichingReading.onion.map((step) => (
+                <article key={step.layer} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                  <p className="text-[10px] font-black tracking-[0.14em] text-rose-100">{step.layer}</p>
+                  <p className="mt-2 text-sm leading-7 text-white/78">{step.text}</p>
+                </article>
+              ))}
+            </div>
+            <p className="mt-4 rounded-2xl border border-emerald-200/15 bg-emerald-300/[0.06] p-4 text-sm leading-7 text-emerald-50">{reading.ichingReading.closing}</p>
+            <p className="mt-3 text-[11px] leading-5 text-white/45">卦義出自六十四卦知識庫，起卦依生辰（梅花易數）決定；同一生辰永遠同一卦，可回查驗算。這是文化探索與自我反思，不是心理診斷。</p>
+          </section>
+          <section className="rounded-3xl border border-cyan-200/20 bg-cyan-300/[0.06] p-5"><p className="text-xs font-black tracking-[0.18em] text-cyan-200">第五層・易經引導</p><div className="mt-2 flex flex-wrap items-center gap-2"><h3 className="text-lg font-black text-white">{reading.result.culturalReading.status === 'READY' ? '易經文化表達層' : '文化引導目前鎖定'}</h3><span className={`rounded-full border px-2.5 py-1 text-[10px] font-black ${reading.result.culturalReading.gate.status === 'PASSED' ? 'border-emerald-200/20 text-emerald-100' : 'border-rose-200/20 text-rose-100'}`}>門控：{statusLabel(reading.result.culturalReading.gate.status)}</span></div><p className="mt-2 text-xs leading-5 text-white/50">易經表達層只把已通過的證據寫成文化反思，不是超自然權威，也不參與排盤或預言。</p>
+            {reading.result.culturalReading.status === 'READY' ? <><p className="mt-3 text-sm leading-7 text-white/75">{reading.result.culturalReading.summary}</p><div className="mt-4 space-y-3">{reading.result.culturalReading.yearlyGuidance?.map((item) => <article key={`${item.year}-${item.theme}`} className="rounded-2xl border border-white/10 bg-black/15 p-4"><h4 className="font-black text-cyan-50">{item.year}・{item.theme}</h4><p className="mt-2 text-sm leading-6 text-white/70">{item.reflection}</p><p className="mt-2 text-sm leading-6 text-cyan-100">行動參考：{item.action}</p></article>)}</div></> : <p className="mt-3 rounded-2xl border border-rose-200/15 bg-rose-300/[0.06] p-4 text-sm leading-7 text-white/70">{reading.result.culturalReading.status === 'UNAVAILABLE_AI_NOT_CONFIGURED' ? '後端證據已完成，但文化表達服務未設定，因此不以假文字代替。' : reading.result.culturalReading.status === 'BLOCKED_BY_VALIDATION' ? `資料尚未通過完整品質門控，易經表達層不會收到未驗證結果。${reading.result.culturalReading.gate.reasons.join('；')}。` : '文化表達服務暫時無法使用；後端規則證據仍維持原樣。'}</p>}
+            <p className="mt-3 text-[11px] leading-5 text-white/45">門控檢查到 {reading.result.culturalReading.gate.evidenceCount} 筆具規則編號的主引擎年度證據；品質門控通過前不會傳給表達層。固定排除：{reading.result.culturalReading.gate.withheldFields.join('、')}。</p>
           </section>
           <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-black tracking-[0.18em] text-white/55">易經補卦狀態</p><p className="mt-2 text-sm leading-7 text-white/70">{reading.result.iching.limitation}</p></section>
         </section>}

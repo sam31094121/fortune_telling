@@ -256,7 +256,7 @@ export type RedLuanTimelineEvidence = {
   evidenceBranches: string[];
   evidence: string;
   source: string;
-  precision: 'ANNUAL_BRANCH';
+  precision: 'ANNUAL_BRANCH' | 'SOLAR_TERM_MONTH_BRANCH';
 };
 
 export type RedLuanAnnualRhythm = {
@@ -318,8 +318,12 @@ export type SingleRedLuanHeartbeatResult = {
   bazi: BaziLovePersonSignal;
   annualRhythm: RedLuanAnnualRhythm[];
   monthlyRhythm: {
-    status: 'UNAVAILABLE_RULE_SOURCE_REQUIRED';
-    precision: 'YEAR_ONLY';
+    status: 'READY';
+    precision: 'SOLAR_TERM_MONTH_BRANCH';
+    year: number;
+    months: RedLuanMonthlyRhythm[];
+    /** 命中規則最多的月份，最多三個；同分依節氣先後排列。 */
+    peakMonths: RedLuanMonthlyRhythm[];
     limitation: string;
   };
   ziwei: ZiweiLovePersonSignal;
@@ -425,8 +429,145 @@ function pairMatches(left: Branch, right: Branch, pairs: Array<[Branch, Branch]>
   return pairs.some(([a, b]) => (a === left && b === right) || (a === right && b === left));
 }
 
-function timelineEvidence(input: Omit<RedLuanTimelineEvidence, 'precision'>): RedLuanTimelineEvidence {
-  return { ...input, precision: 'ANNUAL_BRANCH' };
+function timelineEvidence(
+  input: Omit<RedLuanTimelineEvidence, 'precision'>,
+  precision: RedLuanTimelineEvidence['precision'] = 'ANNUAL_BRANCH',
+): RedLuanTimelineEvidence {
+  return { ...input, precision };
+}
+
+/**
+ * 節氣月（非國曆月）：月支由節氣定義，正月起於立春、月月固定，
+ * 與年份無關，因此不需星曆即可決定性取得。國曆區間為概略值，
+ * 交界日以八字排盤引擎的節氣時刻為準。
+ */
+export const RED_LUAN_SOLAR_MONTHS = [
+  { index: 1, branch: '寅', jieqi: '立春', lunarLabel: '正月', gregorianHint: '約 2/4 – 3/5' },
+  { index: 2, branch: '卯', jieqi: '驚蟄', lunarLabel: '二月', gregorianHint: '約 3/6 – 4/4' },
+  { index: 3, branch: '辰', jieqi: '清明', lunarLabel: '三月', gregorianHint: '約 4/5 – 5/5' },
+  { index: 4, branch: '巳', jieqi: '立夏', lunarLabel: '四月', gregorianHint: '約 5/6 – 6/5' },
+  { index: 5, branch: '午', jieqi: '芒種', lunarLabel: '五月', gregorianHint: '約 6/6 – 7/6' },
+  { index: 6, branch: '未', jieqi: '小暑', lunarLabel: '六月', gregorianHint: '約 7/7 – 8/7' },
+  { index: 7, branch: '申', jieqi: '立秋', lunarLabel: '七月', gregorianHint: '約 8/8 – 9/7' },
+  { index: 8, branch: '酉', jieqi: '白露', lunarLabel: '八月', gregorianHint: '約 9/8 – 10/7' },
+  { index: 9, branch: '戌', jieqi: '寒露', lunarLabel: '九月', gregorianHint: '約 10/8 – 11/6' },
+  { index: 10, branch: '亥', jieqi: '立冬', lunarLabel: '十月', gregorianHint: '約 11/7 – 12/6' },
+  { index: 11, branch: '子', jieqi: '大雪', lunarLabel: '十一月', gregorianHint: '約 12/7 – 隔年 1/5' },
+  { index: 12, branch: '丑', jieqi: '小寒', lunarLabel: '十二月', gregorianHint: '約 1/6 – 2/3' },
+] as const satisfies ReadonlyArray<{ index: number; branch: Branch; jieqi: string; lunarLabel: string; gregorianHint: string }>;
+
+export type RedLuanSolarMonth = (typeof RED_LUAN_SOLAR_MONTHS)[number];
+
+export type RedLuanMonthlyRhythm = {
+  year: number;
+  monthIndex: number;
+  monthBranch: Branch;
+  jieqi: string;
+  lunarLabel: string;
+  gregorianHint: string;
+  status: 'RULE_HIT' | 'NO_RULE_HIT';
+  precision: 'SOLAR_TERM_MONTH_BRANCH';
+  /** 命中的規則數；用來排序「哪幾個月最densely命中」，不是機率或分數。 */
+  hitCount: number;
+  evidence: RedLuanTimelineEvidence[];
+  limitation: string;
+};
+
+/**
+ * 月度節奏：把年度用的同一組規則（紅鸞／天喜／桃花／天乙貴人／日支六合六沖）
+ * 改以流月地支為觸發對象。規則編號、版本與出處完全沿用年度層，
+ * 唯一差別是精度從年支變成節氣月支——不是新流派，也沒有新的機率模型。
+ */
+export function buildSingleRedLuanMonthlyRhythm(input: {
+  yearBranch: string;
+  dayBranch: string;
+  dayMasterStem?: string;
+  year: number;
+}): RedLuanMonthlyRhythm[] {
+  if (!isBranch(input.yearBranch) || !isBranch(input.dayBranch)) {
+    throw new Error('RED_LUAN_HEARTBEAT_INVALID_BAZI_BRANCH');
+  }
+  if (!Number.isInteger(input.year)) throw new Error('RED_LUAN_HEARTBEAT_INVALID_YEAR_RANGE');
+  const yearBranch = input.yearBranch;
+  const dayBranch = input.dayBranch;
+
+  const targets: Array<{ id: RedLuanTimelineEvidence['id']; label: string; branch: Branch; scope: string; ruleId: string; source: string }> = [
+    { id: 'red_luan', label: '紅鸞', branch: redLuanBranchOf(yearBranch), scope: `年支${yearBranch}之紅鸞位`, ruleId: 'RED_LUAN_BY_YEAR_BRANCH_V1', source: '《星學大成》〈論紅鸞天喜〉' },
+    { id: 'tian_xi', label: '天喜', branch: tianXiBranchOf(yearBranch), scope: `年支${yearBranch}之天喜位`, ruleId: 'TIAN_XI_OPPOSITE_RED_LUAN_V1', source: '《星學大成》〈論紅鸞天喜〉' },
+    { id: 'peach_blossom', label: '桃花', branch: PEACH_BY_TRINE_BRANCH[yearBranch], scope: `年支${yearBranch}三合局沐浴位`, ruleId: 'TW_SHENSHA_BASIC_V1_TAOHUA', source: '專案既有八字神煞規則' },
+    { id: 'peach_blossom', label: '桃花', branch: PEACH_BY_TRINE_BRANCH[dayBranch], scope: `日支${dayBranch}三合局沐浴位`, ruleId: 'TW_SHENSHA_BASIC_V1_TAOHUA', source: '專案既有八字神煞規則' },
+  ];
+  const seen = new Set<string>();
+  const uniqueTargets = targets.filter((target) => {
+    const key = `${target.id}:${target.branch}:${target.scope}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return RED_LUAN_SOLAR_MONTHS.map((month) => {
+    const monthBranch = month.branch;
+    const period = `${input.year} 年${month.lunarLabel}（${month.jieqi}起，${month.gregorianHint}）`;
+    const evidence: RedLuanTimelineEvidence[] = uniqueTargets
+      .filter((target) => target.branch === monthBranch)
+      .map((target) => timelineEvidence({
+        id: target.id,
+        label: target.label,
+        ruleId: target.ruleId,
+        ruleVersion: RED_LUAN_HEARTBEAT_BAZI_VERSION,
+        evidenceBranches: [target.branch, monthBranch],
+        evidence: `${period}流月支${monthBranch}命中${target.scope}`,
+        source: target.source,
+      }, 'SOLAR_TERM_MONTH_BRANCH'));
+
+    if (isStem(input.dayMasterStem) && TIANYI_BY_DAY_STEM[input.dayMasterStem].includes(monthBranch)) {
+      evidence.push(timelineEvidence({
+        id: 'tianyi',
+        label: '天乙貴人',
+        ruleId: 'TW_SHENSHA_BASIC_V1_TIANYI',
+        ruleVersion: 'TW_SHENSHA_BASIC_V1',
+        evidenceBranches: [input.dayMasterStem, monthBranch],
+        evidence: `${period}流月支${monthBranch}命中日干${input.dayMasterStem}之天乙貴人位${TIANYI_BY_DAY_STEM[input.dayMasterStem].join('/')}`,
+        source: '專案既有八字神煞規則',
+      }, 'SOLAR_TERM_MONTH_BRANCH'));
+    }
+    if (pairMatches(dayBranch, monthBranch, DAY_BRANCH_SIX_COMBINE)) {
+      evidence.push(timelineEvidence({
+        id: 'day_branch_combine',
+        label: '日支六合',
+        ruleId: 'DAY_BRANCH_SIX_COMBINE_V1',
+        ruleVersion: 'TW_TRADITIONAL_BAZI_V1',
+        evidenceBranches: [dayBranch, monthBranch],
+        evidence: `本命日支${dayBranch}與${period}流月支${monthBranch}構成六合`,
+        source: '專案既有干支作用規則',
+      }, 'SOLAR_TERM_MONTH_BRANCH'));
+    }
+    if (pairMatches(dayBranch, monthBranch, DAY_BRANCH_SIX_CLASH)) {
+      evidence.push(timelineEvidence({
+        id: 'day_branch_clash',
+        label: '日支六沖',
+        ruleId: 'DAY_BRANCH_SIX_CLASH_V1',
+        ruleVersion: 'TW_TRADITIONAL_BAZI_V1',
+        evidenceBranches: [dayBranch, monthBranch],
+        evidence: `本命日支${dayBranch}與${period}流月支${monthBranch}構成六沖`,
+        source: '專案既有干支作用規則',
+      }, 'SOLAR_TERM_MONTH_BRANCH'));
+    }
+
+    return {
+      year: input.year,
+      monthIndex: month.index,
+      monthBranch,
+      jieqi: month.jieqi,
+      lunarLabel: month.lunarLabel,
+      gregorianHint: month.gregorianHint,
+      status: evidence.length > 0 ? 'RULE_HIT' : 'NO_RULE_HIT',
+      precision: 'SOLAR_TERM_MONTH_BRANCH',
+      hitCount: evidence.length,
+      evidence,
+      limitation: '月份以節氣為界，非國曆一號起算；命中表示該月地支觸發規則，不保證發生特定事件。',
+    };
+  });
 }
 
 export function buildSingleRedLuanAnnualRhythm(input: {
@@ -517,6 +658,148 @@ export function buildSingleRedLuanAnnualRhythm(input: {
       limitation: '僅表示年度地支規則命中，不代表必然發生戀愛、婚姻或特定事件。',
     };
   });
+}
+
+/** 地支 → 生肖／方位／相處特質。特質描述的是「相處起來的樣子」，不是人格診斷。 */
+const BRANCH_AFFINITY: Record<Branch, { zodiac: string; direction: string; trait: string }> = {
+  子: { zodiac: '鼠', direction: '北方', trait: '反應快、話題多，靠機靈與貼心拉近距離' },
+  丑: { zodiac: '牛', direction: '東北方', trait: '穩重耐磨，話不多但答應的事會做到' },
+  寅: { zodiac: '虎', direction: '東北方', trait: '有衝勁、敢帶頭，相處時節奏明快' },
+  卯: { zodiac: '兔', direction: '東方', trait: '溫和好相處，善於察言觀色、不給壓力' },
+  辰: { zodiac: '龍', direction: '東南方', trait: '格局大、有想法，容易讓人跟著他的方向走' },
+  巳: { zodiac: '蛇', direction: '東南方', trait: '心思細、觀察久，熟了之後才交出真心' },
+  午: { zodiac: '馬', direction: '南方', trait: '熱情外放、行動力強，喜歡就直接靠近' },
+  未: { zodiac: '羊', direction: '西南方', trait: '體貼會照顧人，把對方的舒服放前面' },
+  申: { zodiac: '猴', direction: '西南方', trait: '靈活風趣，聊得開、氣氛容易熱起來' },
+  酉: { zodiac: '雞', direction: '西方', trait: '講究細節與品味，標準清楚也願意說明白' },
+  戌: { zodiac: '狗', direction: '西北方', trait: '忠誠可靠，界線分明，一旦認定就守得住' },
+  亥: { zodiac: '豬', direction: '西北方', trait: '包容度高、情緒穩，讓人待著很放鬆' },
+};
+
+/** 紫微主星 → 相處特質。只取夫妻宮及三方四正實際排出的星，不補星。 */
+const ZIWEI_STAR_AFFINITY: Record<string, string> = {
+  紫微: '有主見、撐得住場面，習慣被依靠',
+  天機: '腦子轉得快，喜歡把事情想通再行動',
+  太陽: '大方外向，願意主動付出與照亮別人',
+  武曲: '務實重承諾，用行動而不是甜言表達',
+  天同: '性情溫和知足，相處沒有壓迫感',
+  廉貞: '個性鮮明有稜角，愛憎分明',
+  天府: '穩健會持家，重視安全感與累積',
+  太陰: '細膩體貼，情緒感受力強',
+  貪狼: '多才多藝、魅力強，社交場合很吃得開',
+  巨門: '善於言辭、講究說清楚，會把話攤開講',
+  天相: '公道熱心，願意居中協調',
+  天梁: '成熟有長者風範，遇事扛得住',
+  七殺: '果斷獨立，說走就走的行動派',
+  破軍: '敢破敢立，不走既定路線',
+};
+
+export const RED_LUAN_ATTRACTED_TYPES = [
+  'WARM_STEADY', 'BRIGHT_OUTGOING', 'CLEAR_RATIONAL', 'MATURE_CARING', 'FREE_INSPIRED',
+] as const;
+
+export type RedLuanAttractedType = (typeof RED_LUAN_ATTRACTED_TYPES)[number];
+
+const ATTRACTED_TYPE_COPY: Record<RedLuanAttractedType, { label: string; note: string }> = {
+  WARM_STEADY: { label: '溫柔穩定型', note: '話不用多，但讓人安心' },
+  BRIGHT_OUTGOING: { label: '明亮外向型', note: '氣氛帶得起來，主動靠近' },
+  CLEAR_RATIONAL: { label: '理性清楚型', note: '講道理、界線分明' },
+  MATURE_CARING: { label: '成熟照顧型', note: '扛得住，也照顧得到你' },
+  FREE_INSPIRED: { label: '自由靈感型', note: '有自己的世界，不被框住' },
+};
+
+export type RedLuanAffinityProfile = {
+  status: 'READY';
+  /** 由八字規則推出的有緣方向；每一條都附規則出處。 */
+  branches: Array<{ label: string; branch: Branch; zodiac: string; direction: string; trait: string; ruleId: string; basis: string }>;
+  /** 紫微夫妻宮及三方四正實際排出的主星特質。時辰未知時為空陣列。 */
+  spouseStars: Array<{ palace: string; star: string; trait: string }>;
+  selfReportedType: RedLuanAttractedType | RedLuanContextUnspecified;
+  selfReportedLabel: string;
+  limitations: string[];
+};
+
+/**
+ * 有緣人方向：紅鸞／天喜／桃花／天乙貴人所落的地支，翻成生肖與方位；
+ * 紫微夫妻宮主星翻成相處特質。這是「容易對上頻率的類型」的傳統文化描述，
+ * 不是對特定人的預測，也不推斷對方的身分。
+ */
+export function buildRedLuanAffinityProfile(input: {
+  yearBranch: string;
+  dayBranch: string;
+  dayMasterStem?: string;
+  ziwei: ZiweiLovePersonSignal;
+  attractedType?: RedLuanAttractedType | RedLuanContextUnspecified;
+}): RedLuanAffinityProfile {
+  if (!isBranch(input.yearBranch) || !isBranch(input.dayBranch)) {
+    throw new Error('RED_LUAN_HEARTBEAT_INVALID_BAZI_BRANCH');
+  }
+  const rows: RedLuanAffinityProfile['branches'] = [
+    { label: '紅鸞', branch: redLuanBranchOf(input.yearBranch), ruleId: 'RED_LUAN_BY_YEAR_BRANCH_V1', basis: `年支${input.yearBranch}起紅鸞` },
+    { label: '天喜', branch: tianXiBranchOf(input.yearBranch), ruleId: 'TIAN_XI_OPPOSITE_RED_LUAN_V1', basis: `年支${input.yearBranch}起天喜` },
+    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.yearBranch], ruleId: 'TW_SHENSHA_BASIC_V1_TAOHUA', basis: `年支${input.yearBranch}三合局沐浴位` },
+    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.dayBranch], ruleId: 'TW_SHENSHA_BASIC_V1_TAOHUA', basis: `日支${input.dayBranch}三合局沐浴位` },
+    ...(isStem(input.dayMasterStem)
+      ? TIANYI_BY_DAY_STEM[input.dayMasterStem].map((branch) => ({
+        label: '天乙貴人', branch, ruleId: 'TW_SHENSHA_BASIC_V1_TIANYI', basis: `日干${input.dayMasterStem}之天乙貴人位`,
+      }))
+      : []),
+  ].map((row) => ({ ...row, ...BRANCH_AFFINITY[row.branch] }));
+
+  const seen = new Set<string>();
+  const branches = rows.filter((row) => {
+    const key = `${row.label}:${row.branch}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  const spouseStars = (input.ziwei.palaces ?? []).flatMap((palace) =>
+    palace.majorStars
+      .map((star) => star.replace(/（.*?）/g, ''))
+      .filter((star) => ZIWEI_STAR_AFFINITY[star])
+      .map((star) => ({ palace: palace.palace, star, trait: ZIWEI_STAR_AFFINITY[star] })),
+  );
+
+  const selfReportedType = input.attractedType && input.attractedType !== RED_LUAN_CONTEXT_UNSPECIFIED
+    ? input.attractedType
+    : RED_LUAN_CONTEXT_UNSPECIFIED;
+
+  return {
+    status: 'READY',
+    branches,
+    spouseStars,
+    selfReportedType,
+    selfReportedLabel: selfReportedType === RED_LUAN_CONTEXT_UNSPECIFIED ? '未填寫' : ATTRACTED_TYPE_COPY[selfReportedType].label,
+    limitations: [
+      '生肖與方位是紅鸞、天喜、桃花、天乙貴人所落地支的傳統對應，不是對某個特定對象的指認。',
+      ...(spouseStars.length > 0 ? [] : ['未取得紫微夫妻宮主星（時辰未知或該宮無主星），本層只列八字方向。']),
+      '你自己填的偏好只做對照顯示，不參與任何排盤或規則運算。',
+    ],
+  };
+}
+
+export function redLuanAttractedTypeLabel(value: string) {
+  return ATTRACTED_TYPE_COPY[value as RedLuanAttractedType]?.label ?? '未填寫';
+}
+
+export const RED_LUAN_ATTRACTED_TYPE_OPTIONS = RED_LUAN_ATTRACTED_TYPES.map((value) => ({
+  value, ...ATTRACTED_TYPE_COPY[value],
+}));
+
+/**
+ * 偏好型別與其他自述欄位一樣是選填：空白合法，只有超出選項清單才算錯。
+ * 這個欄位不參與排盤或規則運算，只在有緣方向那一段做對照顯示。
+ */
+export function validateRedLuanAttractedType(value: unknown): string | null {
+  if (isBlankContextValue(value)) return null;
+  return RED_LUAN_ATTRACTED_TYPES.includes(value as RedLuanAttractedType) ? null : '喜歡的類型選項無效。';
+}
+
+export function normalizeRedLuanAttractedType(value: unknown): RedLuanAttractedType | RedLuanContextUnspecified {
+  return !isBlankContextValue(value) && RED_LUAN_ATTRACTED_TYPES.includes(value as RedLuanAttractedType)
+    ? value as RedLuanAttractedType
+    : RED_LUAN_CONTEXT_UNSPECIFIED;
 }
 
 function branchEvidence(label: RedLuanEvidence['label'], targetBranch: Branch, scope: string) {
@@ -680,11 +963,27 @@ export function buildSingleRedLuanHeartbeat(input: {
       fromYear: input.annualYear,
       toYear: input.annualYear + timelineYears - 1,
     }),
-    monthlyRhythm: {
-      status: 'UNAVAILABLE_RULE_SOURCE_REQUIRED',
-      precision: 'YEAR_ONLY',
-      limitation: '專案目前沒有完成獨立來源與黃金案例驗證的月份規則，因此不輸出高機率月份、月份分數或事件預測。',
-    },
+    monthlyRhythm: (() => {
+      const months = buildSingleRedLuanMonthlyRhythm({
+        yearBranch: input.yearBranch,
+        dayBranch: input.dayBranch,
+        dayMasterStem: input.dayMasterStem,
+        year: input.annualYear,
+      });
+      const peakMonths = months
+        .filter((month) => month.hitCount > 0)
+        .sort((a, b) => (b.hitCount - a.hitCount) || (a.monthIndex - b.monthIndex))
+        .slice(0, 3)
+        .sort((a, b) => a.monthIndex - b.monthIndex);
+      return {
+        status: 'READY' as const,
+        precision: 'SOLAR_TERM_MONTH_BRANCH' as const,
+        year: input.annualYear,
+        months,
+        peakMonths,
+        limitation: '月份由年度同一組規則改以節氣月支觸發，規則編號與出處不變；月份以節氣為界，命中不等於必然發生事件。',
+      };
+    })(),
     ziwei,
     crossCheck: {
       status: ziweiReady ? 'READY' : 'PARTIAL',

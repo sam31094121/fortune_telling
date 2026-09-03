@@ -4,11 +4,16 @@ import { SHICHEN_LIST, shichenFromClockHour } from '@/lib/shichen-engine';
 import { isValidBirthday } from '@/lib/validation';
 import {
   buildRedLuanContextAlignment,
+  buildRedLuanAffinityProfile,
   buildSingleRedLuanHeartbeat,
+  normalizeRedLuanAttractedType,
   normalizeRedLuanSelfReportedContext,
+  validateRedLuanAttractedType,
   validateRedLuanSelfReportedContext,
+  type RedLuanAttractedType,
   type RedLuanSelfReportedContext,
 } from '@/lib/red-luan-heartbeat-engine';
+import { buildRedLuanIChingReading } from '@/lib/red-luan-iching-reading';
 import { generateRedLuanCulturalReading } from '@/lib/red-luan-cultural-reading';
 import { createRequestId, friendlyErrorResponse } from '@/lib/api-stability';
 import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-public-access';
@@ -25,7 +30,7 @@ type SinglePersonRequest = {
   birthTime?: string;
   birthHourBranch?: string;
   gender: 'male' | 'female';
-} & Partial<RedLuanSelfReportedContext>;
+} & Partial<RedLuanSelfReportedContext> & { attractedType?: RedLuanAttractedType | 'UNSPECIFIED' };
 
 function resolvedTimePrecision(person: Partial<SinglePersonRequest>) {
   if (person.timePrecision) return person.timePrecision;
@@ -72,7 +77,7 @@ function validate(body: unknown): string | null {
     currentExpectation: person.currentExpectation,
   });
   if (contextError) return contextError;
-  return null;
+  return validateRedLuanAttractedType(person.attractedType);
 }
 
 export async function POST(request: Request) {
@@ -186,15 +191,35 @@ export async function POST(request: Request) {
       currentExpectation: person.currentExpectation,
     });
     const contextAlignment = buildRedLuanContextAlignment(selfReportedContext, result);
+    const attractedType = normalizeRedLuanAttractedType(person.attractedType);
+    // 有緣方向與卦象都建立在已凍結的 result 上，不回頭改寫任何證據。
+    const affinity = buildRedLuanAffinityProfile({
+      yearBranch: core.pillars.year.earthlyBranch,
+      dayBranch: core.pillars.day.earthlyBranch,
+      dayMasterStem: core.dayMaster.stem,
+      ziwei: result.ziwei,
+      attractedType,
+    });
+    const ichingReading = buildRedLuanIChingReading({
+      name: person.name.trim(),
+      birthDate: core.calendar.solarDate,
+      shichenIndex: hourKnown && selectedHour ? SHICHEN_LIST.findIndex((item) => item.branch === selectedHour.branch) : null,
+      year: result.annualYear,
+      peakMonths: result.monthlyRhythm.peakMonths,
+      affinity,
+    });
     const culturalReading = await generateRedLuanCulturalReading(result);
 
     return NextResponse.json({
       person: { name: person.name.trim(), birthDate: core.calendar.solarDate, hourKnown },
       relationshipPosition: {
         ...selfReportedContext,
+        attractedType,
         usage: 'REFLECTION_GUIDANCE_ONLY',
       },
       contextAlignment,
+      affinity,
+      ichingReading,
       result: { ...result, culturalReading },
     });
   } catch (error) {

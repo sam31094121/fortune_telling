@@ -7,9 +7,14 @@ import {
   buildRedLuanContextAlignment,
   buildSingleRedLuanAnnualRhythm,
   buildSingleRedLuanHeartbeat,
+  buildRedLuanAffinityProfile,
+  buildSingleRedLuanMonthlyRhythm,
   buildZiweiLovePersonSignal,
+  normalizeRedLuanAttractedType,
   normalizeRedLuanSelfReportedContext,
   RED_LUAN_CONTEXT_UNSPECIFIED,
+  RED_LUAN_SOLAR_MONTHS,
+  validateRedLuanAttractedType,
   RED_LUAN_CURRENT_EXPECTATIONS,
   RED_LUAN_FAMILY_RESPONSIBILITIES,
   RED_LUAN_RELATIONSHIP_STATUSES,
@@ -17,6 +22,7 @@ import {
   tianXiBranchOf,
   validateRedLuanSelfReportedContext,
 } from '../lib/red-luan-heartbeat-engine';
+import { buildRedLuanIChingReading } from '../lib/red-luan-iching-reading';
 import { buildRedLuanAiEvidencePayload, inspectRedLuanAiGate } from '../lib/red-luan-cultural-reading';
 import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '../lib/red-luan-public-access';
 
@@ -71,8 +77,26 @@ const singleUnknownHour = buildSingleRedLuanHeartbeat({
 assert.equal(singleUnknownHour.ziwei.status, 'UNAVAILABLE_BIRTH_TIME_REQUIRED');
 assert.equal(singleUnknownHour.crossCheck.status, 'PARTIAL');
 assert.ok(singleUnknownHour.iching.limitation.includes('不生成卦象'));
-assert.equal(singleUnknownHour.monthlyRhythm.status, 'UNAVAILABLE_RULE_SOURCE_REQUIRED');
-assert.equal(singleUnknownHour.monthlyRhythm.precision, 'YEAR_ONLY');
+// 月份改為以節氣月支觸發同一組規則，因此時辰未知也算得出來（月支不依賴時柱）。
+assert.equal(singleUnknownHour.monthlyRhythm.status, 'READY');
+assert.equal(singleUnknownHour.monthlyRhythm.precision, 'SOLAR_TERM_MONTH_BRANCH');
+assert.equal(singleUnknownHour.monthlyRhythm.months.length, 12, '一年固定十二個節氣月');
+assert.deepEqual(
+  singleUnknownHour.monthlyRhythm.months.map((month) => month.monthBranch),
+  ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑'],
+  '節氣月支固定由寅月起，與年份無關',
+);
+assert.ok(singleUnknownHour.monthlyRhythm.peakMonths.length <= 3);
+for (const peak of singleUnknownHour.monthlyRhythm.peakMonths) {
+  assert.ok(peak.hitCount > 0, '高峰月必須真的有規則命中');
+  assert.ok(peak.evidence.every((item) => item.ruleId && item.ruleVersion && item.source), '每筆月度證據都要帶規則編號與出處');
+  assert.ok(peak.evidence.every((item) => item.precision === 'SOLAR_TERM_MONTH_BRANCH'));
+}
+assert.deepEqual(
+  [...singleUnknownHour.monthlyRhythm.peakMonths].sort((a, b) => a.monthIndex - b.monthIndex).map((m) => m.monthIndex),
+  singleUnknownHour.monthlyRhythm.peakMonths.map((m) => m.monthIndex),
+  '高峰月依節氣先後排列',
+);
 
 const detailed2026 = buildSingleRedLuanAnnualRhythm({
   yearBranch: '子',
@@ -210,6 +234,63 @@ assert.equal(contextAlignmentA.contextCompleteness, 'COMPLETE');
 assert.notEqual(partialContextAlignment.actionDirections[2].reflectionQuestion, emptyContextAlignment.actionDirections[2].reflectionQuestion);
 assert.equal(partialContextAlignment.actionDirections[0].reflectionQuestion, emptyContextAlignment.actionDirections[0].reflectionQuestion, '未答的維度必須維持中性引導');
 
+// ---- 月度節奏：同一組規則改以節氣月支觸發 ----
+const monthly = buildSingleRedLuanMonthlyRhythm({ yearBranch: '午', dayBranch: '子', dayMasterStem: '甲', year: 2026 });
+assert.equal(monthly.length, 12);
+assert.deepEqual(monthly.map((m) => m.monthIndex), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+assert.deepEqual(monthly.map((m) => m.jieqi)[0], '立春', '正月起於立春');
+assert.deepEqual(
+  buildSingleRedLuanMonthlyRhythm({ yearBranch: '午', dayBranch: '子', dayMasterStem: '甲', year: 2026 }),
+  monthly,
+  '月度節奏必須是決定性的：同輸入同輸出',
+);
+// 年支午 → 紅鸞在酉、天喜在卯，因此酉月與卯月必須命中。
+assert.ok(monthly.find((m) => m.monthBranch === '酉')?.evidence.some((e) => e.ruleId === 'RED_LUAN_BY_YEAR_BRANCH_V1'));
+assert.ok(monthly.find((m) => m.monthBranch === '卯')?.evidence.some((e) => e.ruleId === 'TIAN_XI_OPPOSITE_RED_LUAN_V1'));
+// 日支子 → 六合在丑、六沖在午。
+assert.ok(monthly.find((m) => m.monthBranch === '丑')?.evidence.some((e) => e.ruleId === 'DAY_BRANCH_SIX_COMBINE_V1'));
+assert.ok(monthly.find((m) => m.monthBranch === '午')?.evidence.some((e) => e.ruleId === 'DAY_BRANCH_SIX_CLASH_V1'));
+for (const month of monthly) {
+  assert.equal(month.hitCount, month.evidence.length);
+  assert.equal(month.status, month.evidence.length > 0 ? 'RULE_HIT' : 'NO_RULE_HIT');
+  assert.ok(month.evidence.every((item) => item.precision === 'SOLAR_TERM_MONTH_BRANCH'));
+}
+assert.equal(RED_LUAN_SOLAR_MONTHS.length, 12);
+
+// ---- 有緣方向 ----
+const affinity = buildRedLuanAffinityProfile({ yearBranch: '午', dayBranch: '子', dayMasterStem: '甲', ziwei: singleUnknownHour.ziwei, attractedType: 'WARM_STEADY' });
+assert.equal(affinity.status, 'READY');
+assert.ok(affinity.branches.length > 0);
+assert.ok(affinity.branches.every((row) => row.ruleId && row.zodiac && row.direction && row.trait), '每個方向都要有規則編號與生肖方位');
+assert.ok(affinity.branches.some((row) => row.label === '紅鸞' && row.branch === '酉'));
+assert.equal(affinity.selfReportedLabel, '溫柔穩定型');
+assert.equal(affinity.spouseStars.length, 0, '時辰未知時不得補紫微主星');
+assert.equal(
+  buildRedLuanAffinityProfile({ yearBranch: '午', dayBranch: '子', dayMasterStem: '甲', ziwei: singleUnknownHour.ziwei }).selfReportedLabel,
+  '未填寫',
+);
+assert.equal(validateRedLuanAttractedType(''), null);
+assert.equal(validateRedLuanAttractedType(undefined), null);
+assert.equal(validateRedLuanAttractedType('WARM_STEADY'), null);
+assert.match(validateRedLuanAttractedType('NOPE') ?? '', /類型/);
+assert.equal(normalizeRedLuanAttractedType('NOPE'), RED_LUAN_CONTEXT_UNSPECIFIED);
+
+// ---- 易經層：同一生辰永遠同一卦，且只起一顆卦 ----
+const ichingInput = { name: '測試', birthDate: '1990-05-12', shichenIndex: 6, year: 2026, peakMonths: monthly.filter((m) => m.hitCount > 0).slice(0, 3), affinity };
+const ichingA = buildRedLuanIChingReading(ichingInput);
+const ichingB = buildRedLuanIChingReading(ichingInput);
+assert.deepEqual(ichingA, ichingB, '易經層必須是決定性的');
+assert.ok(ichingA.hexagram.kingWen >= 1 && ichingA.hexagram.kingWen <= 64);
+assert.ok(ichingA.patternName.endsWith('格'));
+assert.equal(ichingA.onion.length, 5, '剝洋蔥四層＋核心');
+assert.ok(ichingA.spark.heaven.includes('2026'));
+assert.ok(ichingA.spark.human.includes(ichingA.hexagram.name), '天人勾動地火必須引用同一顆卦');
+assert.ok(ichingA.seedText.includes('1990-05-12'), '起卦依據要可回查');
+// 沒有任何命中月份時也要給得出話術，不能空白或當掉。
+const ichingNoPeak = buildRedLuanIChingReading({ ...ichingInput, peakMonths: [] });
+assert.ok(ichingNoPeak.spark.heaven.length > 0);
+assert.equal(ichingNoPeak.spark.heaven.includes('窗口'), false, '沒命中就不能講成有窗口');
+
 const aiEvidencePayload = buildRedLuanAiEvidencePayload(oneYearResult);
 const serializedAiPayload = JSON.stringify(aiEvidencePayload);
 for (const privateField of ['relationshipStatus', 'familyResponsibility', 'currentExpectation', ...Object.values(selfReportedContextA), ...Object.values(selfReportedContextB)]) {
@@ -297,7 +378,13 @@ assert.ok(pageSource.includes('openedLayer >= 3'));
 assert.ok(pageSource.includes('openedLayer >= 4'));
 assert.ok(pageSource.includes('aria-pressed={reflectionChoice === choice.id}'));
 assert.ok(pageSource.includes('aria-pressed={alignmentChoice === direction.id}'));
-assert.ok(pageSource.includes('品質門控通過前不會傳給 AI'));
+// docs/iching-skill-manual.md §七 前端鐵律：客戶只看到「易經」二字。
+// 內部狀態鍵（UNAVAILABLE_AI_NOT_CONFIGURED）不對客戶顯示，因此只檢查文案。
+for (const forbidden of ['AI 文化表達層', '不會被 AI 改寫', '不送入 AI', '不會傳給 AI', 'AI 不會收到', 'AI 只負責']) {
+  assert.equal(pageSource.includes(forbidden), false, `前端仍出現 AI 字樣：${forbidden}`);
+}
+assert.ok(pageSource.includes('易經文化表達層'));
+assert.ok(pageSource.includes('品質門控通過前不會傳給表達層'));
 assert.ok(pageSource.includes('不是超自然權威'));
 assert.ok(pageSource.includes('此刻的關係位置'));
 for (const label of ['關係現況', '生活責任', '期待方向', '未婚單身', '交往中', '已婚', '分居', '離異', '喪偶', '認識對象', '穩定交往', '婚姻規劃', '修復關係']) {
