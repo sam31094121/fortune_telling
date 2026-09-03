@@ -746,8 +746,35 @@ const ATTRACTED_TYPE_COPY: Record<RedLuanAttractedType, { label: string; note: s
   FREE_INSPIRED: { label: '自由靈感型', note: '有自己的世界，不被框住' },
 };
 
+export const RED_LUAN_PARTNER_GENDERS = ['male', 'female', 'any'] as const;
+export type RedLuanPartnerGender = (typeof RED_LUAN_PARTNER_GENDERS)[number];
+
+/**
+ * 對象稱呼。預設由客戶性別取傳統的異性對應，客戶可以自己改成另一個或「都可以」，
+ * 所以這只是預設值，不是對任何人的假定。
+ */
+export function redLuanPartnerLabel(gender: RedLuanPartnerGender) {
+  return gender === 'male' ? '男生' : gender === 'female' ? '女生' : '對方';
+}
+
+export function defaultPartnerGenderFor(selfGender?: string): RedLuanPartnerGender {
+  if (selfGender === 'female') return 'male';
+  if (selfGender === 'male') return 'female';
+  return 'any';
+}
+
+export function validateRedLuanPartnerGender(value: unknown): string | null {
+  if (isBlankContextValue(value)) return null;
+  return RED_LUAN_PARTNER_GENDERS.includes(value as RedLuanPartnerGender) ? null : '對象性別選項無效。';
+}
+
 export type RedLuanAffinityProfile = {
   status: 'READY';
+  /** 客戶最想看的一句話：直接講明是哪一型的男生／女生。 */
+  typeHeadline: string;
+  typeSummary: string;
+  partnerGender: RedLuanPartnerGender;
+  partnerLabel: string;
   /** 由八字規則推出的有緣方向；每一條都附規則出處。 */
   branches: Array<{ label: string; branch: Branch; zodiac: string; direction: string; trait: string; appearance: string; careers: string[]; ruleId: string; basis: string }>;
   /** 紫微夫妻宮及三方四正實際排出的主星特質。時辰未知時為空陣列。 */
@@ -770,6 +797,7 @@ export function buildRedLuanAffinityProfile(input: {
   dayMasterStem?: string;
   ziwei: ZiweiLovePersonSignal;
   attractedType?: RedLuanAttractedType | RedLuanContextUnspecified;
+  partnerGender?: RedLuanPartnerGender;
 }): RedLuanAffinityProfile {
   if (!isBranch(input.yearBranch) || !isBranch(input.dayBranch)) {
     throw new Error('RED_LUAN_HEARTBEAT_INVALID_BAZI_BRANCH');
@@ -846,8 +874,25 @@ export function buildRedLuanAffinityProfile(input: {
       detail: '紅鸞、天喜、桃花與貴人都沒有落在你的四柱上，這一路先不強斷。這不代表沒有緣分，只代表這組規則沒有給出方向。',
     }];
 
+  const partnerGender = input.partnerGender ?? 'any';
+  const partnerLabel = redLuanPartnerLabel(partnerGender);
+  // 客戶最想看的那一句：把最強的那個地支講成一句人話。
+  // 排序取紅鸞優先，其次天喜、桃花，最後貴人——紅鸞是這張卡的主星。
+  const priority = ['紅鸞', '天喜', '桃花', '天乙貴人'];
+  const lead = [...uniqueBranches].sort((a, b) => priority.indexOf(a.label) - priority.indexOf(b.label))[0];
+  const typeHeadline = lead
+    ? `${lead.appearance.split('，')[0]}的${partnerLabel}`
+    : `這一年命盤沒有指出特定類型的${partnerLabel}`;
+  const typeSummary = lead
+    ? `${lead.appearance}。相處起來${lead.trait}。常出現在${lead.careers.slice(0, 3).join('、')}這些場域。`
+    : '紅鸞、天喜、桃花與貴人都沒有落在你的四柱上，這一路先不強斷。';
+
   return {
     status: 'READY',
+    typeHeadline,
+    typeSummary,
+    partnerGender,
+    partnerLabel,
     branches,
     spouseStars,
     onionLayers,

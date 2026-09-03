@@ -22,6 +22,10 @@ type AffinityProfile = {
   branches: Array<{ label: string; branch: string; zodiac: string; direction: string; trait: string; appearance: string; careers: string[]; ruleId: string; basis: string }>;
   spouseStars: Array<{ palace: string; star: string; trait: string; career: string }>;
   onionLayers: Array<{ step: number; title: string; headline: string; detail: string }>;
+  typeHeadline: string;
+  typeSummary: string;
+  partnerGender: string;
+  partnerLabel: string;
   selfReportedType: string;
   selfReportedLabel: string;
   limitations: string[];
@@ -31,8 +35,9 @@ type IChingReading = {
   patternName: string;
   ritualOpening: string;
   spark: { title: string; heaven: string; human: string; earth: string; fire: string };
-  onion: Array<{ layer: string; text: string }>;
+  onion: Array<{ step: number; layer: string; point: string; term?: string }>;
   closing: string;
+  karmicBond: { title: string; owed: string; lesson: string; reunion: string; note: string };
   teachers: Array<{ key: string; name: string; tagline: string; opening: string; sections: Array<{ title: string; text: string }>; closing: string }>;
   seedText: string;
 };
@@ -296,6 +301,45 @@ function ContextChoiceGroup({
   );
 }
 
+/**
+ * 折疊區塊：預設收起，但標題與徽章一直看得見，讓客戶知道底下還有東西。
+ * 這不是隱藏——想深入就按開，關掉也不影響上面已經給出的結論。
+ */
+function Fold({
+  title,
+  badge,
+  foldKey,
+  opened,
+  onToggle,
+  children,
+}: {
+  title: string;
+  badge?: string;
+  foldKey: string;
+  opened: string[];
+  onToggle: (key: string) => void;
+  children: React.ReactNode;
+}) {
+  const isOpen = opened.includes(foldKey);
+  return (
+    <section className="overflow-hidden rounded-2xl border border-white/12 bg-black/20">
+      <button
+        type="button"
+        aria-expanded={isOpen}
+        onClick={() => onToggle(foldKey)}
+        className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition hover:bg-white/[0.03]"
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          <span className="text-sm font-black text-white">{title}</span>
+          {badge && <span className="shrink-0 rounded-full border border-white/15 px-2 py-0.5 text-[10px] font-black text-white/55">{badge}</span>}
+        </span>
+        <span className={`shrink-0 text-xs font-black text-white/45 transition ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true">▼</span>
+      </button>
+      {isOpen && <div className="border-t border-white/10 p-4">{children}</div>}
+    </section>
+  );
+}
+
 function CalculationEvidence({ result }: { result: Reading['result'] }) {
   return (
     <div className="mt-4 space-y-4">
@@ -346,6 +390,12 @@ function RedLuanHeartbeatExperience() {
   /** 洋蔥剝到第幾層（0 = 只開第一層）。 */
   const [peeled, setPeeled] = useState(0);
   const [teacherKey, setTeacherKey] = useState('iching');
+  /** 目前展開的折疊區塊。預設全部收起，首屏只留客戶最想看的兩個答案。 */
+  const [openedFolds, setOpenedFolds] = useState<string[]>([]);
+
+  function toggleFold(key: string) {
+    setOpenedFolds((current) => (current.includes(key) ? current.filter((item) => item !== key) : [...current, key]));
+  }
 
   useEffect(() => {
     const clearIdentityError = () => setError((current) => (current === getIdentityRequiredMessage() ? '' : current));
@@ -411,6 +461,7 @@ function RedLuanHeartbeatExperience() {
         setReflectionChoice('');
         setPeeled(0);
         setTeacherKey('iching');
+        setOpenedFolds([]);
       }
       const anchor = mode === 'refine' ? 'red-luan-layer-1' : 'red-luan-result';
       requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
@@ -490,111 +541,120 @@ function RedLuanHeartbeatExperience() {
 
         {reading.ichingReading && reading.affinity && <section id="red-luan-spark" className="scroll-mt-5 rounded-3xl border border-rose-200/30 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.16),transparent_46%),rgba(15,23,42,0.86)] p-5 shadow-[0_18px_52px_rgba(244,63,94,0.14)]">
           <p className="text-xs font-black tracking-[0.18em] text-rose-200">易經起卦・{reading.ichingReading.spark.title}</p>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <span className="text-5xl leading-none text-rose-100" aria-hidden="true">{reading.ichingReading.hexagram.glyph}</span>
-            <div>
-              <h3 className="text-2xl font-black text-white">{reading.ichingReading.patternName}</h3>
-              <p className="mt-1 text-sm font-bold text-rose-100/80">{reading.ichingReading.hexagram.name}・第 {reading.ichingReading.hexagram.kingWen} 卦（{reading.ichingReading.hexagram.upperSymbol}{reading.ichingReading.hexagram.lowerSymbol}）・動爻第 {reading.ichingReading.hexagram.changingLine} 爻</p>
-            </div>
-          </div>
 
-          <div className="mt-5 rounded-2xl border border-amber-200/25 bg-amber-300/[0.08] p-4">
-            <p className="text-xs font-black tracking-[0.14em] text-amber-100">{reading.result.monthlyRhythm.year} 年・最容易勾動的月份</p>
+          <div className="mt-4 rounded-2xl border border-amber-200/30 bg-amber-300/[0.1] p-5">
+            <p className="text-sm font-black text-amber-100">你什麼時候會碰到？</p>
             {(reading.result.monthlyRhythm?.peakMonths?.length ?? 0) > 0 ? (
               <>
-                <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                  {(reading.result.monthlyRhythm?.peakMonths ?? []).map((month) => (
-                    <div key={month.monthIndex} className="rounded-2xl border border-amber-200/30 bg-black/25 p-3">
-                      <p className="text-lg font-black text-amber-50">{month.lunarLabel}・{month.monthBranch}月</p>
-                      <p className="mt-1 text-xs font-bold text-amber-100/80">{month.jieqi}起　{month.gregorianHint}</p>
-                      <p className="mt-2 text-[11px] leading-5 text-white/60">命中 {month.hitCount} 條規則：{month.evidence.map((item) => item.label).join('、')}</p>
-                    </div>
-                  ))}
-                </div>
-                <p className="mt-3 text-xs leading-6 text-white/55">月份以節氣為界，不是國曆一號起算。這幾個月是流月地支踩中你命盤紅鸞、天喜、桃花或貴人位的窗口，證據可以往下翻查；命中不等於一定發生什麼事。</p>
+                <p className="mt-2 text-3xl font-black leading-tight text-amber-50">
+                  {reading.result.monthlyRhythm.year} 年{(reading.result.monthlyRhythm?.peakMonths ?? []).map((month) => month.lunarLabel).join('、')}
+                </p>
+                <p className="mt-2 text-sm font-bold text-amber-100/80">
+                  {(reading.result.monthlyRhythm?.peakMonths ?? []).map((month) => `${month.jieqi}起 ${month.gregorianHint}`).join('　｜　')}
+                </p>
               </>
             ) : (
-              <p className="mt-2 text-sm leading-7 text-white/70">{reading.result.monthlyRhythm.year} 年十二個節氣月裡，這組規則都沒有命中你的月支。今年的節奏在「養」不在「動」——不是沒有機會，是機會不從時間這一路來。</p>
+              <p className="mt-2 text-2xl font-black leading-tight text-amber-50">{reading.result.monthlyRhythm.year} 年這一路在「養」不在「動」</p>
             )}
           </div>
 
-          <div className="mt-4 rounded-2xl border border-cyan-200/20 bg-cyan-300/[0.06] p-4">
-            <p className="text-xs font-black tracking-[0.14em] text-cyan-100">會靠近你的，大概是什麼樣的人</p>
-            <p className="mt-1 text-xs leading-5 text-white/50">一層一層看，不用一次看完。</p>
-            <div className="mt-3 space-y-2">
-              {(reading.affinity.onionLayers ?? []).map((layer, index) => {
-                const unlocked = index <= peeled;
-                return (
-                  <article key={layer.step} className={`rounded-2xl border p-4 transition ${unlocked ? 'border-cyan-200/25 bg-black/25' : 'border-white/10 bg-white/[0.03]'}`}>
-                    <p className={`text-[10px] font-black tracking-[0.14em] ${unlocked ? 'text-cyan-100' : 'text-white/30'}`}>{layer.title}</p>
-                    {unlocked ? (
-                      <>
-                        <p className="mt-2 text-lg font-black text-white">{layer.headline}</p>
-                        <p className="mt-2 text-xs leading-6 text-white/65">{layer.detail}</p>
-                      </>
-                    ) : (
-                      <p className="mt-2 text-sm font-bold text-white/35">🎁 未拆</p>
-                    )}
-                  </article>
-                );
-              })}
-            </div>
-            {peeled < (reading.affinity.onionLayers ?? []).length - 1 && (
-              <button
-                type="button"
-                onClick={() => setPeeled((current) => current + 1)}
-                className="mt-3 w-full rounded-2xl border border-cyan-200/35 bg-cyan-300/12 px-4 py-3 text-sm font-black text-cyan-50 transition"
-              >
-                再剝一層 →
-              </button>
-            )}
-            <p className="mt-3 text-xs leading-6 text-white/50">你自己填的是「{reading.affinity.selfReportedLabel}」，只放在這裡跟命盤方向對照，不參與任何運算。{reading.affinity.selfReportedType === 'UNSPECIFIED' ? '想對照的話，往下第二層可以補填。' : ''}</p>
+          <div className="mt-3 rounded-2xl border border-rose-200/30 bg-rose-300/[0.1] p-5">
+            <p className="text-sm font-black text-rose-100">{reading.affinity.partnerLabel === '對方' ? '對方長什麼樣子？' : `會跟你來電的，是哪一型的${reading.affinity.partnerLabel}？`}</p>
+            <p className="mt-2 text-3xl font-black leading-tight text-rose-50">{reading.affinity.typeHeadline}</p>
+            <p className="mt-2 text-sm leading-6 text-white/70">{reading.affinity.typeSummary}</p>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-violet-200/25 bg-violet-400/[0.08] p-4">
-            <p className="text-xs font-black tracking-[0.14em] text-violet-100">同一卦・兩種說法</p>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              {(reading.ichingReading.teachers ?? []).map((teacher) => (
-                <button
-                  key={teacher.key}
-                  type="button"
-                  aria-pressed={teacherKey === teacher.key}
-                  onClick={() => setTeacherKey(teacher.key)}
-                  className={`rounded-2xl border px-4 py-3 text-left transition ${teacherKey === teacher.key ? 'border-violet-200/70 bg-violet-300/20 text-violet-50' : 'border-white/10 bg-white/[0.04] text-white/65'}`}
-                >
-                  <span className="block text-base font-black">{teacher.name}</span>
-                  <span className="mt-1 block text-[11px] leading-4 opacity-75">{teacher.tagline}</span>
-                </button>
-              ))}
-            </div>
-            {(() => {
-              const teacher = (reading.ichingReading.teachers ?? []).find((item) => item.key === teacherKey) ?? (reading.ichingReading.teachers ?? [])[0];
-              if (!teacher) return null;
-              return (
-                <div className="mt-4 space-y-2">
-                  {teacher.opening.split('\n').filter(Boolean).map((line) => (
-                    <p key={line.slice(0, 14)} className="text-sm leading-7 text-white/78">{line}</p>
-                  ))}
-                  {teacher.sections.map((section) => (
-                    <article key={section.title} className="rounded-2xl border border-white/10 bg-black/22 p-4">
-                      <p className="text-[10px] font-black tracking-[0.14em] text-violet-100">{section.title}</p>
-                      <p className="mt-2 text-sm leading-7 text-white/78">{section.text}</p>
+          <p className="mt-4 text-xs leading-5 text-white/45">以下想看再打開就好，不看也不影響上面的結論。</p>
+
+          <div className="mt-2 space-y-2">
+            <Fold title="一層一層看他是誰" badge={`${(reading.affinity.onionLayers ?? []).length} 層`} foldKey="onion" opened={openedFolds} onToggle={toggleFold}>
+              <div className="space-y-2">
+                {(reading.affinity.onionLayers ?? []).map((layer, index) => {
+                  const unlocked = index <= peeled;
+                  return (
+                    <article key={layer.step} className={`rounded-2xl border p-4 transition ${unlocked ? 'border-cyan-200/25 bg-black/25' : 'border-white/10 bg-white/[0.03]'}`}>
+                      <p className={`text-[10px] font-black tracking-[0.14em] ${unlocked ? 'text-cyan-100' : 'text-white/30'}`}>{layer.title}</p>
+                      {unlocked ? (
+                        <>
+                          <p className="mt-2 text-lg font-black text-white">{layer.headline}</p>
+                          <p className="mt-2 text-xs leading-6 text-white/65">{layer.detail}</p>
+                        </>
+                      ) : <p className="mt-2 text-sm font-bold text-white/35">🎁 未拆</p>}
                     </article>
-                  ))}
-                  {teacher.closing.split('\n').filter(Boolean).map((line) => (
-                    <p key={line.slice(0, 14)} className="rounded-2xl border border-emerald-200/15 bg-emerald-300/[0.06] p-4 text-sm leading-7 text-emerald-50">{line}</p>
-                  ))}
+                  );
+                })}
+              </div>
+              {peeled < (reading.affinity.onionLayers ?? []).length - 1 && (
+                <button type="button" onClick={() => setPeeled((current) => current + 1)} className="mt-3 w-full rounded-2xl border border-cyan-200/35 bg-cyan-300/12 px-4 py-3 text-sm font-black text-cyan-50 transition">再剝一層 →</button>
+              )}
+              <p className="mt-3 text-xs leading-6 text-white/50">你自己填的是「{reading.affinity.selfReportedLabel}」，只放在這裡跟命盤方向對照，不參與任何運算。</p>
+            </Fold>
+
+            <Fold title={`你的卦・${reading.ichingReading.patternName}`} badge={reading.ichingReading.hexagram.glyph} foldKey="hexagram" opened={openedFolds} onToggle={toggleFold}>
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-5xl leading-none text-rose-100" aria-hidden="true">{reading.ichingReading.hexagram.glyph}</span>
+                <div>
+                  <p className="text-xl font-black text-white">{reading.ichingReading.patternName}</p>
+                  <p className="mt-1 text-sm font-bold text-rose-100/80">{reading.ichingReading.hexagram.name}・第 {reading.ichingReading.hexagram.kingWen} 卦（{reading.ichingReading.hexagram.upperSymbol}{reading.ichingReading.hexagram.lowerSymbol}）・動爻第 {reading.ichingReading.hexagram.changingLine} 爻</p>
                 </div>
-              );
-            })()}
+              </div>
+              <div className="mt-3 space-y-2">
+                {[reading.ichingReading.spark.heaven, reading.ichingReading.spark.human, reading.ichingReading.spark.earth, reading.ichingReading.spark.fire].map((line) => (
+                  <p key={line.slice(0, 12)} className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm leading-7 text-white/78">{line}</p>
+                ))}
+              </div>
+              <p className="mt-3 text-[11px] leading-5 text-white/45">起卦依據：{reading.ichingReading.seedText}（梅花易數生辰起卦，同一生辰永遠同一卦，可回查驗算）。</p>
+            </Fold>
+
+            <Fold title="你這個人・一層一句" badge={`${(reading.ichingReading.onion ?? []).length} 層`} foldKey="psych" opened={openedFolds} onToggle={toggleFold}>
+              <div className="space-y-2">
+                {(reading.ichingReading.onion ?? []).map((layer) => (
+                  <article key={layer.step} className="rounded-2xl border border-white/10 bg-black/22 p-4">
+                    <p className="text-[10px] font-black tracking-[0.14em] text-cyan-100">第 {layer.step} 層・{layer.layer}</p>
+                    <p className="mt-2 text-sm leading-7 text-white/85">{layer.point}</p>
+                    {layer.term && <p className="mt-1 text-[11px] leading-5 text-white/40">{layer.term}</p>}
+                  </article>
+                ))}
+              </div>
+              <p className="mt-3 text-[11px] leading-5 text-white/45">四層都取自同一顆卦：上卦看你的外顯、下卦看你的內在、動爻看你此刻的心思。心理學名詞是真實學術用語，可以自行查證；這是自我反思，不是心理診斷。</p>
+            </Fold>
+
+            <Fold title={reading.ichingReading.karmicBond.title} badge="因果" foldKey="karmic" opened={openedFolds} onToggle={toggleFold}>
+              <p className="text-sm leading-7 text-white/78">{reading.ichingReading.karmicBond.owed}</p>
+              <p className="mt-2 text-sm leading-7 text-amber-100">{reading.ichingReading.karmicBond.lesson}</p>
+              <p className="mt-2 rounded-2xl border border-rose-200/20 bg-rose-300/[0.08] p-4 text-sm leading-7 text-rose-50">{reading.ichingReading.karmicBond.reunion}</p>
+              <p className="mt-3 text-[11px] leading-5 text-white/45">{reading.ichingReading.karmicBond.note}</p>
+            </Fold>
+
+            <Fold title="同一卦・兩種說法" badge="易經／鬼魅" foldKey="teachers" opened={openedFolds} onToggle={toggleFold}>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {(reading.ichingReading.teachers ?? []).map((teacher) => (
+                  <button key={teacher.key} type="button" aria-pressed={teacherKey === teacher.key} onClick={() => setTeacherKey(teacher.key)} className={`rounded-2xl border px-4 py-3 text-left transition ${teacherKey === teacher.key ? 'border-violet-200/70 bg-violet-300/20 text-violet-50' : 'border-white/10 bg-white/[0.04] text-white/65'}`}>
+                    <span className="block text-base font-black">{teacher.name}</span>
+                    <span className="mt-1 block text-[11px] leading-4 opacity-75">{teacher.tagline}</span>
+                  </button>
+                ))}
+              </div>
+              {(() => {
+                const teacher = (reading.ichingReading.teachers ?? []).find((item) => item.key === teacherKey) ?? (reading.ichingReading.teachers ?? [])[0];
+                if (!teacher) return null;
+                return (
+                  <div className="mt-4 space-y-2">
+                    {teacher.opening.split('\n').filter(Boolean).map((line) => <p key={line.slice(0, 14)} className="text-sm leading-7 text-white/78">{line}</p>)}
+                    {teacher.sections.map((section) => (
+                      <article key={section.title} className="rounded-2xl border border-white/10 bg-black/22 p-4">
+                        <p className="text-[10px] font-black tracking-[0.14em] text-violet-100">{section.title}</p>
+                        <p className="mt-2 text-sm leading-7 text-white/78">{section.text}</p>
+                      </article>
+                    ))}
+                    {teacher.closing.split('\n').filter(Boolean).map((line) => <p key={line.slice(0, 14)} className="rounded-2xl border border-emerald-200/15 bg-emerald-300/[0.06] p-4 text-sm leading-7 text-emerald-50">{line}</p>)}
+                  </div>
+                );
+              })()}
+            </Fold>
           </div>
 
-          <div className="mt-4 space-y-2">
-            {[reading.ichingReading.spark.heaven, reading.ichingReading.spark.human, reading.ichingReading.spark.earth, reading.ichingReading.spark.fire].map((line) => (
-              <p key={line.slice(0, 12)} className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm leading-7 text-white/78">{line}</p>
-            ))}
-          </div>
-          <p className="mt-4 text-[11px] leading-5 text-white/45">起卦依據：{reading.ichingReading.seedText}（梅花易數生辰起卦，同一生辰永遠同一卦，可回查驗算）。此為文化探索，不是心理診斷或確定預測。</p>
+          <p className="mt-4 text-[11px] leading-5 text-white/45">月份以節氣為界，不是國曆一號起算；命中表示該月地支觸發規則，不保證發生特定事件。此為文化探索，不是心理診斷或確定預測。</p>
         </section>}
 
         <section id="red-luan-layer-0" className="scroll-mt-5 rounded-3xl border border-cyan-200/20 bg-slate-950/75 p-5">
@@ -700,8 +760,9 @@ function RedLuanHeartbeatExperience() {
             <div className="mt-4 space-y-2">
               {(reading.ichingReading.onion ?? []).map((step) => (
                 <article key={step.layer} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <p className="text-[10px] font-black tracking-[0.14em] text-rose-100">{step.layer}</p>
-                  <p className="mt-2 text-sm leading-7 text-white/78">{step.text}</p>
+                  <p className="text-[10px] font-black tracking-[0.14em] text-rose-100">第 {step.step} 層・{step.layer}</p>
+                  <p className="mt-2 text-sm leading-7 text-white/85">{step.point}</p>
+                  {step.term && <p className="mt-1 text-[11px] leading-5 text-white/40">{step.term}</p>}
                 </article>
               ))}
             </div>

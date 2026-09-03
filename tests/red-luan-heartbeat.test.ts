@@ -282,7 +282,16 @@ const ichingB = buildRedLuanIChingReading(ichingInput);
 assert.deepEqual(ichingA, ichingB, '易經層必須是決定性的');
 assert.ok(ichingA.hexagram.kingWen >= 1 && ichingA.hexagram.kingWen <= 64);
 assert.ok(ichingA.patternName.endsWith('格'));
-assert.equal(ichingA.onion.length, 5, '剝洋蔥四層＋核心');
+// 心理學洋蔥：四層，一層一句重點，不繞圈。
+assert.equal(ichingA.onion.length, 4);
+assert.deepEqual(ichingA.onion.map((layer) => layer.step), [1, 2, 3, 4]);
+assert.deepEqual(ichingA.onion.map((layer) => layer.layer), ['別人看到的你', '其實的你', '你現在在想的', '那不是你的錯']);
+for (const layer of ichingA.onion) {
+  assert.ok(layer.point.length > 0);
+  assert.ok(layer.point.length <= 60, `第 ${layer.step} 層太長，洋蔥要講重點：${layer.point}`);
+}
+assert.ok(ichingA.onion.slice(0, 3).every((layer) => layer.term), '前三層要附心理學名詞');
+assert.equal(ichingA.onion[3].term, undefined, '核心層只需要一句話，不掛名詞');
 assert.ok(ichingA.spark.heaven.includes('2026'));
 assert.ok(ichingA.spark.human.includes(ichingA.hexagram.name), '天人勾動地火必須引用同一顆卦');
 assert.ok(ichingA.seedText.includes('1990-05-12'), '起卦依據要可回查');

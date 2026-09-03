@@ -15,8 +15,33 @@
  */
 
 import { castHexagramFromBirth, type IChingReading } from './iching-engine';
-import { buildEmpathicFromHexagram, buildGhostDecoding, patternNameOf } from './iching-psychology';
+import { buildConciseOnion, buildEmpathicFromHexagram, buildGhostDecoding, patternNameOf, type ConciseOnionLayer } from './iching-psychology';
 import type { RedLuanAffinityProfile, RedLuanMonthlyRhythm } from './red-luan-heartbeat-engine';
+
+/**
+ * 姻緣因果層（今生來世）：以下卦（內核）取「上輩子相欠的是什麼」，
+ * 動爻取「這一世會怎麼再遇上」。這是易經式的文化敘事與心理學重新框架，
+ * 不是對前世的事實主張——底下綁的是真實心理機制，跟其他層一致。
+ */
+const KARMIC_BY_LOWER_TRIGRAM: Record<string, { owed: string; lesson: string }> = {
+  乾: { owed: '上輩子你替人扛了太多，該你的位子讓了出去', lesson: '這一世要學的是：可以承擔，但不必獨自承擔' },
+  兌: { owed: '上輩子有一句話沒說完，兩個人就散了', lesson: '這一世要學的是：把話說出口，不要再等對的時機' },
+  離: { owed: '上輩子你一直照亮別人，沒有人回頭照亮你', lesson: '這一世要學的是：允許自己被看見、被照顧' },
+  震: { owed: '上輩子你動得太快，還沒等到對方跟上就走遠了', lesson: '這一世要學的是：慢半拍，等一個能同行的人' },
+  巽: { owed: '上輩子你太順著別人，把自己的方向讓掉了', lesson: '這一世要學的是：溫柔可以有，但方向要自己拿' },
+  坎: { owed: '上輩子有一段沒渡過的險，你一個人撐了過去', lesson: '這一世要學的是：讓人幫你，不必每次都自己渡' },
+  艮: { owed: '上輩子你在門前停住了，該靠近的那一步沒有跨', lesson: '這一世要學的是：界線守得住，也要記得開門' },
+  坤: { owed: '上輩子你承接了所有人的重量，包括不屬於你的', lesson: '這一世要學的是：放下不是你的那一份' },
+};
+
+const KARMIC_REUNION_BY_LINE: Record<number, string> = {
+  1: '這一世的重逢會從一個很平常的開頭開始——不是轟轟烈烈，是某個你差點錯過的日常場合',
+  2: '這一世的重逢會發生在「有人終於聽懂你」的那一刻——你不用解釋，對方就接上了',
+  3: '這一世的重逢會出現在你正責怪自己的時候——有人替你說了一句「那不是你的錯」',
+  4: '這一世的重逢會來自一句你原本不打算說的話——說出口之後，路就開了',
+  5: '這一世的重逢會在你累到想放下的時候出現——有人問你「你還好嗎」，而且是真的在問',
+  6: '這一世的重逢會發生在你終於願意放手之後——手放開了，新的才進得來',
+};
 
 export const RED_LUAN_TEACHERS = ['iching', 'ghost'] as const;
 export type RedLuanTeacher = (typeof RED_LUAN_TEACHERS)[number];
@@ -57,9 +82,11 @@ export type RedLuanIChingReading = {
     earth: string;
     fire: string;
   };
-  /** 剝洋蔥四層＋核心，沿用共感引擎；同一顆卦。 */
-  onion: Array<{ layer: string; text: string }>;
+  /** 心理學洋蔥：一層一句重點，不繞圈。同一顆卦。 */
+  onion: ConciseOnionLayer[];
   closing: string;
+  /** 姻緣因果：上輩子相欠、這一世再聚。文化敘事＋心理學重新框架，非事實主張。 */
+  karmicBond: { title: string; owed: string; lesson: string; reunion: string; note: string };
   /** 兩位老師＝同一場卜卦的兩種話術分身（手冊 §六）。同一顆卦，不同口吻與切入層次。 */
   teachers: RedLuanTeacherReading[];
   /** 起卦依據，可回查驗算。 */
@@ -126,14 +153,18 @@ export function buildRedLuanIChingReading(input: {
     patternName,
     ritualOpening: empathic.greeting,
     spark: { title: '天人勾動地火', heaven, human, earth, fire },
-    onion: [
-      { layer: '第一層｜人格外殼', text: empathic.iKnowYourSurface },
-      { layer: '第二層｜殼下的自我', text: empathic.iKnowYourInside },
-      { layer: '第三層｜此刻的心思', text: empathic.iKnowYourMindNow },
-      { layer: '第四層｜外冷內熱', text: empathic.specialYou },
-      { layer: '核心｜那不是你的錯', text: empathic.absolution },
-    ],
+    onion: buildConciseOnion(hexagram),
     closing: empathic.closing,
+    karmicBond: (() => {
+      const karmic = KARMIC_BY_LOWER_TRIGRAM[hexagram.lower.name];
+      return {
+        title: '今生來世・上輩子相欠的那一筆',
+        owed: `${karmic.owed}。你的卦下卦是${hexagram.lower.name}（${hexagram.lower.attribute}），欠的就記在這裡。`,
+        lesson: `${karmic.lesson}。`,
+        reunion: `${KARMIC_REUNION_BY_LINE[hexagram.changingLine] ?? KARMIC_REUNION_BY_LINE[2]}——動爻落在第${hexagram.changingLine}爻，重逢的口子就開在這裡。`,
+        note: '這是易經式的文化敘事，用來把「為什麼一直遇到同一種人」講成可以理解、可以改寫的東西；不是對前世的事實陳述，也不是預測。心理學上這叫重新框架（Reframing）與未完成事件（Unfinished Business）。',
+      };
+    })(),
     teachers: buildTeacherReadings({ hexagram, patternName, empathic, affinity: input.affinity, monthsPhrase: months, hasPeak: input.peakMonths.length > 0, year: input.year }),
     seedText: hexagram.seedText,
   };

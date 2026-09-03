@@ -287,3 +287,32 @@ export function formatEmpathicReading(reading: EmpathicReading): string {
     reading.closing,
   ].join('\n');
 }
+
+export type ConciseOnionLayer = {
+  step: number;
+  /** 這一層在講什麼，四個字以內。 */
+  layer: string;
+  /** 一句話的重點，不繞。素材本身就是短句，這裡不再加包裝。 */
+  point: string;
+  /** 對應的心理學專有名詞；核心層刻意沒有，那一層只需要一句話。 */
+  term?: string;
+};
+
+/**
+ * 精簡版剝洋蔥：一層一句話，講重點但有溫度。
+ *
+ * 與 buildEmpathicFromHexagram 用的是同一批素材、同一顆卦，差別在於這裡直接取原始
+ * 短句，不做「我懂你…心理學叫這個…但我更願意說」那種鋪陳。要完整話術時用共感版，
+ * 要客戶三秒看懂時用這一版。
+ */
+export function buildConciseOnion(hexagram: IChingReading): ConciseOnionLayer[] {
+  const upper = TRIGRAM_PSYCHOLOGY[hexagram.upper.name];
+  const lower = TRIGRAM_PSYCHOLOGY[hexagram.lower.name];
+  const mind = CHANGING_LINE_MIND[hexagram.changingLine] ?? CHANGING_LINE_MIND[2];
+  return [
+    { step: 1, layer: '別人看到的你', point: upper.persona, term: upper.personaTerm },
+    { step: 2, layer: '其實的你', point: lower.inner, term: lower.innerTerm },
+    { step: 3, layer: '你現在在想的', point: mind.thought, term: mind.term },
+    { step: 4, layer: '那不是你的錯', point: TRIGRAM_SOUL[hexagram.lower.name].wound },
+  ];
+}

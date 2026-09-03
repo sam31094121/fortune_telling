@@ -5,6 +5,9 @@ import { isValidBirthday } from '@/lib/validation';
 import {
   buildRedLuanContextAlignment,
   buildRedLuanAffinityProfile,
+  defaultPartnerGenderFor,
+  validateRedLuanPartnerGender,
+  type RedLuanPartnerGender,
   buildSingleRedLuanHeartbeat,
   normalizeRedLuanAttractedType,
   normalizeRedLuanSelfReportedContext,
@@ -30,7 +33,7 @@ type SinglePersonRequest = {
   birthTime?: string;
   birthHourBranch?: string;
   gender: 'male' | 'female';
-} & Partial<RedLuanSelfReportedContext> & { attractedType?: RedLuanAttractedType | 'UNSPECIFIED' };
+} & Partial<RedLuanSelfReportedContext> & { attractedType?: RedLuanAttractedType | 'UNSPECIFIED'; partnerGender?: RedLuanPartnerGender };
 
 function resolvedTimePrecision(person: Partial<SinglePersonRequest>) {
   if (person.timePrecision) return person.timePrecision;
@@ -77,7 +80,9 @@ function validate(body: unknown): string | null {
     currentExpectation: person.currentExpectation,
   });
   if (contextError) return contextError;
-  return validateRedLuanAttractedType(person.attractedType);
+  const attractedTypeError = validateRedLuanAttractedType(person.attractedType);
+  if (attractedTypeError) return attractedTypeError;
+  return validateRedLuanPartnerGender(person.partnerGender);
 }
 
 export async function POST(request: Request) {
@@ -199,6 +204,7 @@ export async function POST(request: Request) {
       dayMasterStem: core.dayMaster.stem,
       ziwei: result.ziwei,
       attractedType,
+      partnerGender: person.partnerGender ?? defaultPartnerGenderFor(person.gender),
     });
     const ichingReading = buildRedLuanIChingReading({
       name: person.name.trim(),
