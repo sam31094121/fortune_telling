@@ -24,6 +24,7 @@ import {
   validateRedLuanSelfReportedContext,
 } from '../lib/red-luan-heartbeat-engine';
 import { buildRedLuanIChingReading } from '../lib/red-luan-iching-reading';
+import { buildRedLuanIcs, buildRedLuanShareText } from '../lib/red-luan-followup';
 import { buildRedLuanAiEvidencePayload, inspectRedLuanAiGate } from '../lib/red-luan-cultural-reading';
 import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '../lib/red-luan-public-access';
 
@@ -503,3 +504,44 @@ for (const simplified of ['资料', '时间', '验证', '规则', '关系', '显
 }
 
 console.log('Red Luan heartbeat rules passed');
+
+// ---- 結尾三動作：分享與行事曆是傳播與回訪的實際載體 ----
+const reminderFixture = {
+  name: '林小雨',
+  startsOn: '2026-09-08',
+  endsOn: '2026-10-08',
+  monthLine: '這個月桃花和貴人一起到',
+  typeHeadline: '中等身材、短髮乾淨的男生',
+  daysAway: 5,
+  topCandidate: '醫師、會計',
+  url: 'https://example.test/red-luan-heartbeat',
+};
+
+const shareText = buildRedLuanShareText(reminderFixture);
+// 沒有連結的分享等於斷頭：收到的人讀完無從自己試一次。
+assert.ok(shareText.includes(reminderFixture.url), '分享文字一定要帶連結');
+assert.ok(shareText.includes('2026 年 9 月'));
+assert.ok(shareText.includes('還有 5 天'), '具體天數才是分享時最抓人的地方');
+assert.ok(shareText.includes(reminderFixture.topCandidate));
+assert.equal(buildRedLuanShareText({ ...reminderFixture, daysAway: 0 }).includes('就是這個月'), true);
+
+const ics = buildRedLuanIcs(reminderFixture);
+const icsLines = ics.split('\r\n');
+assert.equal(icsLines[0], 'BEGIN:VCALENDAR');
+assert.equal(icsLines[icsLines.length - 1], 'END:VCALENDAR');
+// 31 天的整天事件會橫跨行事曆一整個月，多數人會直接刪掉；只放開窗那一天。
+assert.ok(icsLines.includes('DTSTART;VALUE=DATE:20260908'));
+assert.ok(icsLines.includes('DTEND;VALUE=DATE:20260909'), '提醒必須是單日，不是整個月的橫幅');
+assert.ok(icsLines.some((line) => line.startsWith('DTSTAMP:') && !line.includes('20260908T000000Z')), 'DTSTAMP 要是產生時間');
+assert.ok(icsLines.some((line) => line === 'TRIGGER:-P1D'), '前一天要提醒');
+// 提醒跳出來時客戶多半忘了細節，整段內容與回卡片的路都要在裡面。
+const descriptionLine = icsLines.find((line) => line.startsWith('DESCRIPTION:') && line.includes('容易來電')) ?? '';
+assert.ok(descriptionLine.includes(reminderFixture.url), '行事曆說明要帶回卡片的連結');
+assert.ok(descriptionLine.includes(reminderFixture.topCandidate));
+// .ics 規格：逗號與分號必須跳脫，否則整個欄位會被解析器截斷。
+assert.equal(descriptionLine.includes('，常出現在'), true);
+// .ics 規格：未跳脫的半形逗號會讓解析器把整個欄位截斷。
+const rawDescription = descriptionLine.replace('DESCRIPTION:', '');
+assert.equal(/[^\\],/.test(rawDescription), false, '半形逗號必須跳脫');
+
+console.log('Red Luan follow-up actions passed');

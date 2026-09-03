@@ -20,6 +20,12 @@ export type RedLuanReminder = {
   monthLine: string;
   /** 例如「中等身材、短髮乾淨的男生」。 */
   typeHeadline: string;
+  /** 還有幾天；0 代表已經在這個月裡面。 */
+  daysAway: number;
+  /** 最主要的人選，例如「醫師、會計」。分享時最抓眼球的就是這一段。 */
+  topCandidate: string;
+  /** 卡片網址，分享一定要帶——沒有連結，收到的人無從嘗試。 */
+  url: string;
 };
 
 function pad(value: number) {
@@ -45,9 +51,14 @@ function escapeText(value: string) {
 
 export function buildRedLuanIcs(reminder: RedLuanReminder) {
   const summary = escapeText(`紅鸞心動・${reminder.monthLine}`);
-  const description = escapeText(
-    `${reminder.monthLine}。\n容易來電的類型：${reminder.typeHeadline}。\n\n吸力會很明顯，差的只是你有沒有先開口。先想好要說什麼，當下就不會愣住。`,
-  );
+  // 提醒跳出來時，客戶多半忘了細節——所以整段內容都要在這裡，包含回卡片的路。
+  const description = escapeText([
+    `${reminder.monthLine}（${reminder.startsOn} 到 ${reminder.endsOn}）。`,
+    `容易來電的類型：${reminder.typeHeadline}${reminder.topCandidate ? `，常出現在${reminder.topCandidate}` : ''}。`,
+    '',
+    '吸力會很明顯，差的只是你有沒有先開口。先想好要說什麼，當下就不會愣住。',
+    ...(reminder.url ? ['', `重看你的紅鸞：${reminder.url}`] : []),
+  ].join('\n'));
   return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -55,9 +66,9 @@ export function buildRedLuanIcs(reminder: RedLuanReminder) {
     'CALSCALE:GREGORIAN',
     'BEGIN:VEVENT',
     `UID:red-luan-${icsDate(reminder.startsOn)}@taiji-fortune`,
-    `DTSTAMP:${icsDate(reminder.startsOn)}T000000Z`,
+    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,
     `DTSTART;VALUE=DATE:${icsDate(reminder.startsOn)}`,
-    `DTEND;VALUE=DATE:${nextDay(reminder.endsOn)}`,
+    `DTEND;VALUE=DATE:${nextDay(reminder.startsOn)}`,
     `SUMMARY:${summary}`,
     `DESCRIPTION:${description}`,
     'BEGIN:VALARM',
@@ -88,9 +99,22 @@ export function downloadRedLuanReminder(reminder: RedLuanReminder) {
   }
 }
 
+/**
+ * 分享文字。最抓人的是具體性——月份、剩幾天、對方是哪一型、做什麼的。
+ * 一定要帶連結：沒有連結，收到的人讀完只能羨慕，無從自己試一次。
+ */
 export function buildRedLuanShareText(reminder: RedLuanReminder) {
   const [year, month] = [Number(reminder.startsOn.slice(0, 4)), Number(reminder.startsOn.slice(5, 7))];
-  return `我的紅鸞心動算出來了：${year} 年 ${month} 月，${reminder.monthLine}。容易來電的是${reminder.typeHeadline}。`;
+  const when = reminder.daysAway === 0 ? '就是這個月' : `還有 ${reminder.daysAway} 天`;
+  const who = reminder.topCandidate
+    ? `${reminder.typeHeadline}（${reminder.topCandidate}那一型）`
+    : reminder.typeHeadline;
+  return [
+    `我的紅鸞心動算出來了：${year} 年 ${month} 月，${when}。`,
+    `會跟我來電的是${who}。`,
+    '',
+    `你也算算自己的 👉 ${reminder.url}`,
+  ].join('\n');
 }
 
 /** 優先用系統分享面板，沒有就複製到剪貼簿。回傳實際用了哪一種。 */
@@ -98,7 +122,8 @@ export async function shareRedLuanReading(reminder: RedLuanReminder): Promise<'s
   const text = buildRedLuanShareText(reminder);
   try {
     if (typeof navigator !== 'undefined' && navigator.share) {
-      await navigator.share({ title: '桃花・紅鸞心動', text });
+      // url 另外帶：分享面板會把它變成可點的預覽卡，而不是純文字裡的一段網址。
+      await navigator.share({ title: '桃花・紅鸞心動', text, url: reminder.url });
       return 'shared';
     }
     await navigator.clipboard.writeText(text);

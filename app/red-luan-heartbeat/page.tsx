@@ -333,6 +333,9 @@ function reminderOf(reading: Reading): RedLuanReminder {
     endsOn: encounter?.endsOn ?? '',
     monthLine: encounter?.monthLine ?? '',
     typeHeadline: reading.affinity.typeHeadline,
+    daysAway: encounter?.daysAway ?? 0,
+    topCandidate: reading.affinity.candidates?.[0]?.career ?? '',
+    url: typeof window === 'undefined' ? '' : `${window.location.origin}/red-luan-heartbeat`,
   };
 }
 
