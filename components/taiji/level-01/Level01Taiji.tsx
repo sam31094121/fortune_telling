@@ -98,7 +98,7 @@ function RuntimeOverlay({
   if (!visible) return null;
 
   const fallbackPlayable = pose.gameState === 'FALLBACK' || (pose.motionGameEnabled && pose.staticMode);
-  const motionGameActive = pose.motionGameEnabled && pose.gameState !== 'IDLE';
+  const motionGameActive = pose.motionGameEnabled;
   return (
     <div
       className={styles.overlay}
@@ -133,7 +133,7 @@ function RuntimeOverlay({
         <span ref={bubbleRef} className={styles.balanceBubble} />
       </div>
 
-      {motionGameActive && !pose.staticMode && pose.gameState !== 'LEVEL_COMPLETE' && (
+      {motionGameActive && pose.gameState !== 'LEVEL_COMPLETE' && (
         <div
           className={styles.chaseField}
           aria-label={`追光目標：${pose.motionGame.chase.direction}`}

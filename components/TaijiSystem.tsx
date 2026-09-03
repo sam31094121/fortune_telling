@@ -927,15 +927,20 @@ function Level01SpatialLightning({ active, poseRef, lowPower = false }: { active
     // Review mode demonstrates the weapon once per screen mount. Repeating on
     // a timer made the scene feel noisy and could replay without user intent.
     const previewAge = clock.elapsedTime - previewStartedAtRef.current;
-    const previewActive = previewAge >= 0 && previewAge < .62;
-    const striking = active || previewActive;
-    const strikeAge = active ? clock.elapsedTime - strikeStartedAtRef.current : previewAge;
+    const previewActive = previewAge >= 0 && previewAge < .72;
+    const gestureStrikeAge = clock.elapsedTime - strikeStartedAtRef.current;
+    // A phone tap is often shorter than a frame capture. Latch every accepted
+    // press into one complete, bounded discharge so releasing the finger cannot
+    // cut the lightning off before the customer sees the impact.
+    const gestureStrikeActive = gestureStrikeAge >= 0 && gestureStrikeAge < .72;
+    const striking = gestureStrikeActive || previewActive;
+    const strikeAge = gestureStrikeActive ? gestureStrikeAge : previewAge;
     const envelopeAt = (age: number) => !striking || age < 0 ? 0
       : age < .055 ? 1
         : age < .105 ? .08
           : age < .19 ? .94
             : age < .28 ? .16
-              : age < .46 ? .7 * (1 - (age - .28) / .18)
+            : age < .62 ? .7 * (1 - (age - .28) / .34)
                 : 0;
     const spatialEnvelope = envelopeAt(strikeAge);
     const target = striking ? 1 : .9;
@@ -2303,7 +2308,9 @@ export default function TaijiSystem({
         >
           <AdaptiveEvents />
           <Level01FrameBinder controller={level01Controller} enabled={displayLayer === 1} />
-          {displayLayer === 1 && showLayerReviewPanel && <Level01SpatialLightning active={touchActive} poseRef={level01PoseRef} lowPower={canvasQuality.lowPower} />}
+          {displayLayer === 1 && level01Controller.pose.motionGameEnabled && (
+            <Level01SpatialLightning active={touchActive} poseRef={level01PoseRef} lowPower={canvasQuality.lowPower} />
+          )}
           <TaijiPerformanceGovernor active={touchActive} />
           {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
               頂部暖色柔光箱＋側面冷色燈條＋背部輪廓光，球面反射出真實的影棚光形，
