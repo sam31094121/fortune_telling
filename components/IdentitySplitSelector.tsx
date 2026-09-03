@@ -103,7 +103,7 @@ export default function IdentitySplitSelector({
       <section className={`rounded-2xl border-2 bg-black/18 p-3 shadow-[0_12px_32px_rgba(2,6,23,0.18)] backdrop-blur-sm sm:p-4 ${effectiveSelected === null ? 'sm:animate-[pulse_1.6s_ease-in-out_infinite] border-amber-100 shadow-[0_0_28px_rgba(251,191,36,0.32)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#080a10]' : 'border-cyan-200/25'} ${className}`}>
       <div className="flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-200/75">0 · ANALYSIS TARGET</p>
+          <p className="text-[10px] font-black tracking-[0.16em] text-cyan-200/75">第 0 步・這次要算誰</p>
           <h2 className="mt-1 text-base font-black leading-tight text-cyan-50 sm:text-lg">
             {'先選擇：自己使用，還是親朋好友使用'}
           </h2>

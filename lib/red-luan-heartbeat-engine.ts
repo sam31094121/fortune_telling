@@ -961,6 +961,8 @@ export type RedLuanAffinityProfile = {
   spouseStars: Array<{ palace: string; star: string; trait: string; career: string }>;
   /** 洋蔥式逐層揭露：由外而內，一層講一件事。 */
   onionLayers: Array<{ step: number; title: string; headline: string; detail: string }>;
+  /** 收斂成 1–3 個具體人選，客戶要的是「誰」，不是一串場域清單。 */
+  candidates: Array<{ rank: number; career: string; look: string; basis: string }>;
   selfReportedType: RedLuanAttractedType | RedLuanContextUnspecified;
   selfReportedLabel: string;
   limitations: string[];
@@ -1067,10 +1069,19 @@ export function buildRedLuanAffinityProfile(input: {
     ? `${lead.appearance}。相處起來${lead.trait}。常出現在${lead.careers.slice(0, 3).join('、')}這些場域。`
     : '紅鸞、天喜、桃花與貴人都沒有落在你的四柱上，這一路先不強斷。';
 
+  // 每個地支只出一個人選，最多三個——客戶記得住的是人，不是清單。
+  const candidates = uniqueBranches.slice(0, 3).map((row, index) => ({
+    rank: index + 1,
+    career: row.careers.slice(0, 2).join('、'),
+    look: row.appearance.split('，')[0],
+    basis: `${row.label}落在${row.branch}（屬${row.zodiac}・${row.direction}）`,
+  }));
+
   return {
     status: 'READY',
     typeHeadline,
     typeSummary,
+    candidates,
     partnerGender,
     partnerLabel,
     branches,

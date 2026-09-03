@@ -32,6 +32,7 @@ type AffinityProfile = {
   branches: Array<{ label: string; branch: string; zodiac: string; direction: string; trait: string; appearance: string; careers: string[]; ruleId: string; basis: string }>;
   spouseStars: Array<{ palace: string; star: string; trait: string; career: string }>;
   onionLayers: Array<{ step: number; title: string; headline: string; detail: string }>;
+  candidates: Array<{ rank: number; career: string; look: string; basis: string }>;
   typeHeadline: string;
   typeSummary: string;
   partnerGender: string;
@@ -344,7 +345,7 @@ function EncounterCard({ encounter, fromDate, title, tone }: { encounter: Encoun
       <p className={`mt-1 text-base font-black ${text}`}>
         {MONTH_DAY(encounter.startsOn)} – {MONTH_DAY(encounter.endsOn)}　{awayLabel(encounter, fromDate)}
       </p>
-      <p className="mt-2 text-sm leading-6 text-white/70">命中：{encounter.labels.join('、')}（{encounter.jieqi}起算，{encounter.monthBranch}月）</p>
+      <p className="mt-2 text-sm leading-6 text-white/70">這個月走{encounter.labels.join('、')}</p>
       <p className="mt-3 text-sm leading-7 text-white/85">{encounter.magnet}</p>
       <p className="mt-2 rounded-2xl border border-emerald-200/20 bg-emerald-300/[0.08] p-3 text-sm leading-7 text-emerald-50">{encounter.action}</p>
       <div className="mt-3 flex flex-wrap gap-1.5">
@@ -543,13 +544,13 @@ function RedLuanHeartbeatExperience() {
   return (
     <main className="mx-auto min-h-screen max-w-3xl px-4 py-6 pb-16 sm:px-6">
       <header className="rounded-3xl border border-rose-200/25 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.18),transparent_44%),linear-gradient(135deg,rgba(31,17,34,0.98),rgba(9,17,35,0.98))] p-6 shadow-[0_18px_60px_rgba(244,63,94,0.13)]">
-        <p className="text-xs font-black tracking-[0.22em] text-rose-200">個人關係主題參考</p>
+        <p className="text-xs font-black tracking-[0.22em] text-rose-200">桃花・紅鸞</p>
         <h1 className="mt-2 font-serif text-3xl font-black text-rose-50">桃花・紅鸞心動</h1>
-        <p className="mt-3 text-sm leading-7 text-white/75">填寫自己的出生資料，核對傳統文化中的年度關係主題訊號。這不是配對，也不預測事件。</p>
+        <p className="mt-3 text-sm leading-7 text-white/75">填生日和時辰，算出你下一次紅鸞心動是什麼時候、會碰到哪一型的人。</p>
       </header>
 
       <section className="red-luan-unified-flow mt-5 rounded-3xl border border-white/12 bg-slate-950/70 p-5 shadow-[0_18px_48px_rgba(2,6,23,0.35)]">
-        <div className="mb-5 flex items-center justify-between gap-3"><div><p className="text-xs font-black tracking-[0.16em] text-amber-200">單人資料・沿用八字正式輸入</p><h2 className="mt-1 text-xl font-black text-white">你的出生資料</h2></div><span className="rounded-full border border-white/15 px-3 py-1 text-xs font-bold text-white/70">只填一位</span></div>
+        <div className="mb-5 flex items-center justify-between gap-3"><div><p className="text-xs font-black tracking-[0.16em] text-amber-200">只要生日和時辰</p><h2 className="mt-1 text-xl font-black text-white">你的出生資料</h2></div><span className="rounded-full border border-white/15 px-3 py-1 text-xs font-bold text-white/70">只填一位</span></div>
         <IdentitySplitSelector className="mb-5" nextStepLabel="接著填出生資料" />
         <UnifiedBirthForm
           value={form}
@@ -557,13 +558,13 @@ function RedLuanHeartbeatExperience() {
           missing={missing}
           disabled={loading}
           isSubmitting={loading}
-          submitLabel="開始核對關係主題"
-          loadingLabel="確定性規則核對中…"
+          submitLabel="算我的紅鸞"
+          loadingLabel="推算中…"
           dateAccent="amber"
           onChange={(profile) => setForm((current) => ({ ...current, ...profile }))}
           onSubmit={(profile) => { void submit(profile); }}
         />
-        <p className="mt-3 rounded-2xl border border-violet-200/15 bg-violet-300/[0.06] px-4 py-3 text-xs leading-6 text-violet-50/75">出生時辰是本功能的必要資料：系統會先核對八字四柱，再建立紫微本命夫妻宮；任一項無法確認，就不生成紅鸞解讀。</p>
+        <p className="mt-3 rounded-2xl border border-violet-200/15 bg-violet-300/[0.06] px-4 py-3 text-xs leading-6 text-violet-50/75">出生時辰一定要填——沒有時辰算不出紅鸞的月份。</p>
 
         <button
           type="button"
@@ -571,9 +572,9 @@ function RedLuanHeartbeatExperience() {
           onClick={() => { void submit(form); }}
           className="mt-5 inline-flex w-full items-center justify-center rounded-full border border-amber-100/65 bg-amber-300/20 px-6 py-4 text-sm font-black text-amber-50 shadow-[0_0_24px_rgba(251,191,36,0.16)] transition disabled:opacity-60"
         >
-          {loading ? '確定性規則核對中…' : '開始核對關係主題'}
+          {loading ? '推算中…' : '算我的紅鸞'}
         </button>
-        <p className="mt-3 text-center text-xs leading-5 text-white/45">關係現況等問題留到結果頁再問，想跳過也可以。</p>
+        <p className="mt-3 text-center text-xs leading-5 text-white/45">其他問題結果出來再問，想跳過也可以。</p>
         {error && <p className="mt-5 rounded-2xl border border-rose-300/30 bg-rose-500/10 p-3 text-sm font-bold text-rose-100">{error}</p>}
       </section>
       <style jsx>{`
@@ -585,17 +586,16 @@ function RedLuanHeartbeatExperience() {
       `}</style>
 
       {reading && <section id="red-luan-result" className="mt-6 scroll-mt-5 space-y-4" aria-live="polite">
+        {/*
+          結果頁只給兩個答案：什麼時候、會碰到誰。
+          原本的五層進度條有四層寫「鎖定」，客戶還沒拿到東西就先看到四道關卡；
+          免責與後端稽核資料也全部往後收，讓它們在「想查」時才出現。
+        */}
         <header className="rounded-3xl border border-cyan-200/25 bg-cyan-300/[0.08] p-5">
-          <p className="text-xs font-black tracking-[0.18em] text-cyan-200">五層探索・由你決定步調</p>
-          <h2 className="mt-2 text-2xl font-black text-white">{reading.person.name}的關係主題參考</h2>
-          <p className="mt-2 text-sm leading-7 text-white/70">規則證據一經算出就凍結，易經表達層只負責轉述，不會改寫它。你可以逐層閱讀、停下或略過行動選擇；本服務不是心理診斷或確定預測。</p>
-          <ol className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5" aria-label="桃花紅鸞五層探索進度">
-            {ONION_LAYERS.map((layer, index) => <li key={layer.title}><button type="button" disabled={index > openedLayer} onClick={() => document.getElementById(`red-luan-layer-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })} aria-current={index === openedLayer ? 'step' : undefined} className={`h-full w-full rounded-2xl border px-3 py-3 text-left transition ${index <= openedLayer ? 'border-cyan-200/25 bg-cyan-300/[0.08] text-white' : 'border-white/10 bg-white/[0.03] text-white/35'}`}><span className="text-[10px] font-black tracking-[0.12em]">第 {index + 1} 層{index > openedLayer ? '・鎖定' : ''}</span><strong className="mt-1 block text-sm">{layer.title}</strong><span className="mt-1 block text-[10px] leading-4 opacity-70">{layer.subtitle}</span></button></li>)}
-          </ol>
+          <h2 className="text-2xl font-black text-white">{reading.person.name}，這是你的紅鸞</h2>
         </header>
 
         {reading.ichingReading && reading.affinity && <section id="red-luan-spark" className="scroll-mt-5 rounded-3xl border border-rose-200/30 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.16),transparent_46%),rgba(15,23,42,0.86)] p-5 shadow-[0_18px_52px_rgba(244,63,94,0.14)]">
-          <p className="text-xs font-black tracking-[0.18em] text-rose-200">易經起卦・{reading.ichingReading.spark.title}</p>
 
           {reading.nextEncounters && (
             <div className="mt-4 space-y-3">
@@ -620,7 +620,17 @@ function RedLuanHeartbeatExperience() {
           <div className="mt-3 rounded-2xl border border-rose-200/30 bg-rose-300/[0.1] p-5">
             <p className="text-sm font-black text-rose-100">{reading.affinity.partnerLabel === '對方' ? '對方長什麼樣子？' : `會跟你來電的，是哪一型的${reading.affinity.partnerLabel}？`}</p>
             <p className="mt-2 text-3xl font-black leading-tight text-rose-50">{reading.affinity.typeHeadline}</p>
-            <p className="mt-2 text-sm leading-6 text-white/70">{reading.affinity.typeSummary}</p>
+            <div className="mt-4 space-y-2">
+              {(reading.affinity.candidates ?? []).map((candidate) => (
+                <div key={candidate.rank} className="flex items-start gap-3 rounded-2xl border border-white/12 bg-black/25 p-3">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-rose-300/25 text-xs font-black text-rose-50">{candidate.rank}</span>
+                  <span className="min-w-0">
+                    <span className="block text-base font-black text-white">{candidate.career}</span>
+                    <span className="mt-0.5 block text-xs leading-5 text-white/60">{candidate.look}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="mt-4 rounded-2xl border border-violet-200/30 bg-violet-400/[0.1] p-4">
@@ -731,9 +741,12 @@ function RedLuanHeartbeatExperience() {
             </Fold>
           </div>
 
-          <p className="mt-4 text-[11px] leading-5 text-white/45">月份以節氣為界，不是國曆一號起算；命中表示該月地支觸發規則，不保證發生特定事件。此為文化探索，不是心理診斷或確定預測。</p>
+          <p className="mt-4 text-[11px] leading-5 text-white/45">月份以節氣為界，不是國曆一號起算。</p>
         </section>}
 
+        {/* 完整推算過程：後端證據、品質門控、規則編號。想查的人才需要打開。 */}
+        <Fold title="完整推算過程與證據" badge="想查再看" foldKey="evidence" opened={openedFolds} onToggle={toggleFold}>
+        <div className="space-y-4">
         <section id="red-luan-layer-0" className="scroll-mt-5 rounded-3xl border border-cyan-200/20 bg-slate-950/75 p-5">
           <p className="text-xs font-black tracking-[0.18em] text-cyan-200">第一層・命理底盤</p>
           <h3 className="mt-2 text-xl font-black text-white">先完成八字＋可用紫微的確定性運算</h3>
@@ -852,6 +865,9 @@ function RedLuanHeartbeatExperience() {
           </section>
           <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-black tracking-[0.18em] text-white/55">易經補卦狀態</p><p className="mt-2 text-sm leading-7 text-white/70">{reading.result.iching.limitation}</p></section>
         </section>}
+        </div>
+        </Fold>
+        <p className="text-[11px] leading-5 text-white/40">本服務是文化探索與自我反思，不是心理診斷，也不是確定預測。</p>
       </section>}
 
       <Link href="/" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-cyan-100 underline underline-offset-4">⌂ 返回首頁</Link>
