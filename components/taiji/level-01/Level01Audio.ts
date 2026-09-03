@@ -24,23 +24,26 @@ const THUNDER_SOURCES: readonly ThunderSource[] = [
   { path: '/audio/taiji/dry-thunder.mp3' },
   { path: '/audio/taiji/loud-thunder.mp3' },
   { path: '/audio/taiji/peals-of-thunder.mp3' },
+  { path: '/audio/taiji/earth-rift.mp3' },
+  { path: '/audio/taiji/tide-surge.flac' },
+  { path: '/audio/taiji/typhoon-wind.m4a' },
+  { path: '/audio/taiji/tornado-wind.m4a' },
 ] as const;
 
-// Eight distinct acoustic identities, derived from four small source files.
-// This keeps mobile transfer/decode cost bounded while preventing clicks from
-// cycling through an obviously short, repetitive four-sound loop.
+// The first four recordings are unchanged. The final four are short CC0 field
+// recordings that give each natural-force strike a distinct, physical texture.
 const THUNDER_PROFILES: readonly ThunderProfile[] = [
   // Original four voices: preserve their existing order and acoustic settings.
   { sourceIndex: 0, maxDuration: 1.08, playbackRate: 1, gain: .88 },
   { sourceIndex: 1, maxDuration: 3.6, playbackRate: .98, gain: .78 },
   { sourceIndex: 2, maxDuration: 4.4, playbackRate: 1.02, gain: .72 },
   { sourceIndex: 3, maxDuration: 4.8, playbackRate: .96, gain: .7 },
-  // Four additional natural-force continuations. Each leaves a small bounded
-  // tail so the next strike grows out of the previous one instead of cutting.
-  { sourceIndex: 2, maxDuration: 4.4, playbackRate: .79, gain: .72, lowpassHz: 880, tailSeconds: .24, tailMix: .18 }, // 地裂
-  { sourceIndex: 3, maxDuration: 4.8, playbackRate: .78, gain: .66, lowpassHz: 1350, tailSeconds: .32, tailMix: .22 }, // 潮湧
-  { sourceIndex: 1, maxDuration: 3.6, playbackRate: .83, gain: .58, lowpassHz: 1900, tailSeconds: .28, tailMix: .24 }, // 風暴
-  { sourceIndex: 0, maxDuration: 1.08, playbackRate: .72, gain: .63, lowpassHz: 1500, tailSeconds: .2, tailMix: .2 }, // 旋風
+  // New natural-force recordings: a small delayed tail blends each release
+  // into the next contact without turning the experience into ambient audio.
+  { sourceIndex: 4, maxDuration: 4.6, playbackRate: 1, gain: .68, lowpassHz: 980, tailSeconds: .18, tailMix: .16 }, // 地裂
+  { sourceIndex: 5, maxDuration: 5.1, playbackRate: 1, gain: .64, lowpassHz: 5200, tailSeconds: .28, tailMix: .18 }, // 潮湧
+  { sourceIndex: 6, maxDuration: 5.2, playbackRate: 1, gain: .58, lowpassHz: 6800, tailSeconds: .22, tailMix: .14 }, // 颱風
+  { sourceIndex: 7, maxDuration: 5.2, playbackRate: 1, gain: .6, lowpassHz: 5400, tailSeconds: .16, tailMix: .16 }, // 龍捲風
 ] as const;
 
 const ORIGIN_PAN: Record<Level01StrikeOrigin, number> = {
