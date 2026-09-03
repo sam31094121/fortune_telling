@@ -154,7 +154,7 @@
   background: #fffbea;
   box-shadow: 0 0 4px rgba(255,255,255,.98), 0 0 10px rgba(253,224,71,.56), 3px -2px 18px rgba(125,211,252,.18);
   transform: translate(-50%, -50%);
-  animation: chaseLightArrive .34s cubic-bezier(.16,.9,.24,1) both, chaseLightBreathe 1.15s .34s ease-in-out infinite;
+  animation: chaseLightArrive .34s cubic-bezier(.16,.9,.24,1) both, chaseLightBreathe 1.15s calc(.34s + var(--core-phase, 0s)) ease-in-out infinite;
 }
 
 /* 白色核心：集中光子，不顯示預告線或移動軌跡。 */
@@ -176,7 +176,7 @@
   height: 3px;
   border-radius: 50%;
   box-shadow: -11px -6px 0 rgba(255,255,255,.72), -18px 4px 0 rgba(253,224,71,.42), -7px 9px 0 rgba(125,211,252,.46);
-  animation: photonGather 1.15s ease-in-out infinite;
+  animation: photonGather 1.15s var(--core-phase, 0s) ease-in-out infinite;
 }
 
 .chaseCounterLight {
@@ -189,7 +189,7 @@
   background: radial-gradient(ellipse at 46% 42%, #000 0 36%, #02040b 55%, rgba(15,23,42,.64) 68%, transparent 76%);
   box-shadow: 0 0 7px 3px rgba(0,0,0,.72), -2px 2px 16px rgba(38,74,122,.52), 3px -2px 22px rgba(21,36,65,.42);
   opacity: .94;
-  animation: chaseLightArrive .34s cubic-bezier(.16,.9,.24,1) both, chaseCounterLightBreathe 1.15s .34s ease-in-out infinite;
+  animation: chaseLightArrive .34s cubic-bezier(.16,.9,.24,1) both, chaseCounterLightBreathe 1.15s calc(.34s + var(--core-phase, 0s)) ease-in-out infinite;
 }
 
 /* 黑色核心：暗粒子聚散，以密度呈現力量，不加亮色框線。 */
@@ -207,17 +207,20 @@
 
 .chaseCounterLight::before {
   box-shadow: -9px -7px 0 #08101f, 7px -9px 0 #20395e, 11px 4px 0 #000, -8px 9px 0 #1c3152, 3px 12px 0 #0b1628;
-  animation: darkParticleOrbit 1.15s ease-in-out infinite;
+  animation: darkParticleOrbit 1.15s var(--core-phase, 0s) ease-in-out infinite;
 }
 
 .chaseCounterLight::after {
   box-shadow: -14px 2px 0 rgba(0,0,0,.9), 4px 13px 0 rgba(8,20,40,.96), 14px -3px 0 rgba(35,65,105,.88), -4px -14px 0 rgba(18,39,70,.84);
-  animation: darkParticleGather 1.15s ease-in-out infinite;
+  animation: darkParticleGather 1.15s var(--core-phase, 0s) ease-in-out infinite;
 }
 
-/* 第一層遊戲起點：陰陽雙光固定守在球體下方兩側，方向判定仍留在引擎內。 */
-.chaseField .chaseLight { left: 97%; top: 94%; }
-.chaseField .chaseCounterLight { left: 3%; top: 94%; }
+/* 第一層四核心循環：左上光子 → 右上粒子 → 右下光子 → 左下粒子。
+   四顆只用錯相呼吸傳遞能量，不畫圓框或預告軌跡。 */
+.chaseField .chaseLight { left: 97%; top: 94%; --core-phase: -.575s; }
+.chaseField .chaseCounterLight { left: 3%; top: 94%; --core-phase: -.8625s; }
+.chaseField .chasePhotonTop { left: 3%; top: 6%; --core-phase: 0s; }
+.chaseField .chaseParticleTop { left: 97%; top: 6%; --core-phase: -.2875s; }
 
 .overlay[data-taiji-interacting='true'] .chaseLight,
 .overlay[data-taiji-interacting='true'] .chaseCounterLight {
