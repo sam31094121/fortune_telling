@@ -16,7 +16,7 @@
 
 import { castHexagramFromBirth, type IChingReading } from './iching-engine';
 import { buildConciseOnion, buildEmpathicFromHexagram, buildGhostDecoding, patternNameOf, type ConciseOnionLayer } from './iching-psychology';
-import type { RedLuanAffinityProfile, RedLuanMonthlyRhythm } from './red-luan-heartbeat-engine';
+import type { RedLuanAffinityProfile, RedLuanEncounter, RedLuanMonthlyRhythm } from './red-luan-heartbeat-engine';
 
 /**
  * 姻緣因果層（今生來世）：以下卦（內核）取「上輩子相欠的是什麼」，
@@ -109,15 +109,20 @@ export function buildRedLuanIChingReading(input: {
   shichenIndex?: number | null;
   year: number;
   peakMonths: RedLuanMonthlyRhythm[];
+  /** 首屏用的「下一次」；老師必須引用同一個時間，不能各說各話。 */
+  nextEncounter?: RedLuanEncounter | null;
   affinity: RedLuanAffinityProfile;
 }): RedLuanIChingReading {
   const hexagram: IChingReading = castHexagramFromBirth(input.birthDate, input.shichenIndex ?? null);
   const empathic = buildEmpathicFromHexagram(input.name, hexagram);
   const patternName = patternNameOf(hexagram);
 
-  const months = input.peakMonths.length > 0
-    ? input.peakMonths.map(monthPhrase).join('、')
-    : '今年十二個節氣月裡，這組規則都沒有命中';
+  // 優先用「下一次」，跟首屏同一個答案；沒有才退回整年高峰。
+  const months = input.nextEncounter
+    ? `${Number(input.nextEncounter.startsOn.slice(0, 4))} 年 ${Number(input.nextEncounter.startsOn.slice(5, 7))} 月（${input.nextEncounter.jieqi}起）`
+    : input.peakMonths.length > 0
+      ? `${input.year} 年 ${input.peakMonths.map(monthPhrase).join('、')}`
+      : '今年十二個節氣月裡，這組規則都沒有命中';
   // 同一個地支可能同時是天喜與桃花，講給客戶聽時只講一次。
   const uniqueBranches = input.affinity.branches.filter(
     (row, index, all) => all.findIndex((item) => item.branch === row.branch) === index,
@@ -126,8 +131,9 @@ export function buildRedLuanIChingReading(input: {
   const traits = uniqueBranches.slice(0, 2).map((row) => row.trait);
   const starTraits = input.affinity.spouseStars.slice(0, 2).map((row) => row.trait);
 
-  const heaven = input.peakMonths.length > 0
-    ? `【天】流月天時：${input.year} 年的 ${months}，流月地支正好踩中你命盤的紅鸞、天喜、桃花或貴人位——這幾個月是你今年最容易被勾動的窗口。`
+  const hasTiming = Boolean(input.nextEncounter) || input.peakMonths.length > 0;
+  const heaven = hasTiming
+    ? `【天】流月天時：時間落在${months}，流月地支正好踩中你命盤的紅鸞、天喜、桃花或貴人位——這是你下一個最容易被勾動的窗口。`
     : `【天】流月天時：${input.year} 年這十二個節氣月，紅鸞、天喜、桃花與貴人規則都沒有命中你的月支。今年的節奏在「養」不在「動」，不是沒有機會，是機會不從時間這一路來。`;
 
   const human = `【人】本命根基：你的卦是${hexagram.hexagramName}（第${hexagram.kingWen}卦 ${hexagram.glyph}），上${hexagram.upper.nature}下${hexagram.lower.nature}——外顯是${hexagram.upper.attribute}，底盤是${hexagram.lower.attribute}。六十四格裡就這一格是你：「${patternName}」。`;
@@ -167,7 +173,7 @@ export function buildRedLuanIChingReading(input: {
         note: '這是用來把「為什麼一直遇到同一種人」講成可以理解、也可以改寫的東西，不是對前世的事實陳述。',
       };
     })(),
-    teachers: buildTeacherReadings({ hexagram, patternName, empathic, affinity: input.affinity, monthsPhrase: months, hasPeak: input.peakMonths.length > 0, year: input.year }),
+    teachers: buildTeacherReadings({ hexagram, patternName, empathic, affinity: input.affinity, monthsPhrase: months, hasPeak: hasTiming, year: input.year }),
     seedText: hexagram.seedText,
   };
 }
@@ -189,14 +195,12 @@ function buildTeacherReadings(input: {
 }): RedLuanTeacherReading[] {
   const { hexagram, patternName, empathic, affinity } = input;
   const ghost = buildGhostDecoding(hexagram);
-  const timing = input.hasPeak
-    ? `${input.year} 年的 ${input.monthsPhrase}`
-    : `${input.year} 年沒有月份命中這組規則`;
+  const timing = input.hasPeak ? input.monthsPhrase : `${input.year} 年沒有月份命中這組規則`;
 
   const ichingSections = [
     ...affinity.onionLayers.map((layer) => ({ title: layer.title, text: `${layer.headline}。${layer.detail}` })),
     { title: '第五層・什麼時候', text: input.hasPeak
-      ? `時間落在${timing}。這幾個月的流月地支，正好踩在你命盤紅鸞、天喜、桃花或貴人的位置上——不是我說的，是規則算出來的，證據每一條都可以往下核對。`
+      ? `時間落在${timing}。這個月的流月地支，正好踩在你命盤紅鸞、天喜、桃花或貴人的位置上——不是我說的，是規則算出來的，證據每一條都可以往下核對。`
       : `${timing}。今年這一路的力道在「養」不在「動」；與其等時間，不如把自己準備好。` },
     { title: '卦示・怎麼做', text: `你的卦是${hexagram.hexagramName}（第${hexagram.kingWen}卦），格局是「${patternName}」。${hexagram.essence}。${hexagram.advice}` },
   ];
@@ -209,7 +213,7 @@ function buildTeacherReadings(input: {
       ? `我從門縫看出去……有一個影子的輪廓浮出來了：${affinity.onionLayers[0].headline}。再靠近一點看——${affinity.onionLayers.find((layer) => layer.step === 3)?.headline ?? '場域還看不清'}。方位在${affinity.onionLayers.find((layer) => layer.step === 4)?.headline ?? '未定'}。這不是預言，是你命盤裡紅鸞、天喜、桃花與貴人所在地支的氣性——影子是它們投出來的。`
       : '我從門縫看出去……這一年門外沒有停留的影子。不是空，是還沒到；這組規則沒有給出方向，我就不替你捏一個出來。' },
     { title: '【倒數】時間', text: input.hasPeak
-      ? `時間我已經看到了——${timing}。過了那幾個月，磁場會再沉下去。要不要在那之前把自己準備好，是你的決定，不是卦的決定。`
+      ? `時間我已經看到了——${timing}。過了這個月，磁場會再沉下去。要不要在那之前把自己準備好，是你的決定，不是卦的決定。`
       : `${timing}。門外安靜的年份不用硬敲；${hexagram.advice}` },
   ];
 

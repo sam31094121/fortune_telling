@@ -216,6 +216,7 @@ export async function POST(request: Request) {
         shichenIndex: SHICHEN_LIST.findIndex((item) => item.branch === selectedHour.branch),
         year: result.annualYear,
         peakMonths: result.monthlyRhythm.peakMonths,
+        nextEncounter: nextEncounters.soulResonance ?? nextEncounters.benefactor,
         affinity,
       })
       : null;
