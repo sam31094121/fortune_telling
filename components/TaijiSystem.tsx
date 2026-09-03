@@ -1662,9 +1662,19 @@ function TaijiCore({
       // LEVEL 01 surface refinement: reuse material uniforms only. Motion makes
       // the glaze read more crisply, then it eases back without extra geometry.
       ballMat.bumpScale = 0.01 + surfaceD * 0.075 + level01SurfaceEnergy * 0.007;
-      ballMat.roughness = 0.28 + surfaceD * 0.22 - level01SurfaceEnergy * 0.055;
-      ballMat.clearcoatRoughness = 0.1 + surfaceD * 0.16 - level01SurfaceEnergy * 0.025;
-      ballMat.envMapIntensity = 1.46 + level01SurfaceEnergy * 0.2;
+      // LEVEL_01_JADE_GLAZE: a softer, narrower reflection keeps the first
+      // layer dimensional without making the black-jade surface look plastic.
+      if (layer === 1) {
+        ballMat.clearcoat = 0.72 + level01SurfaceEnergy * 0.06;
+        ballMat.roughness = 0.34 + surfaceD * 0.14 - level01SurfaceEnergy * 0.03;
+        ballMat.clearcoatRoughness = 0.18 + surfaceD * 0.1 - level01SurfaceEnergy * 0.012;
+        ballMat.envMapIntensity = 0.94 + level01SurfaceEnergy * 0.08;
+      } else {
+        ballMat.clearcoat = 1;
+        ballMat.roughness = 0.28 + surfaceD * 0.22 - level01SurfaceEnergy * 0.055;
+        ballMat.clearcoatRoughness = 0.1 + surfaceD * 0.16 - level01SurfaceEnergy * 0.025;
+        ballMat.envMapIntensity = 1.46 + level01SurfaceEnergy * 0.2;
+      }
       ballMat.emissiveIntensity = (separate ? 0.035 : 0.052) + level01SurfaceEnergy * 0.018;
       diskRef.current.visible = opacity > 0.004;
       if (opacity > 0.004 && diskRef.current.scale.lengthSq() < 0.0001) {
