@@ -66,6 +66,7 @@
   background: radial-gradient(ellipse at center, rgba(253, 230, 138, 0.12) 0%, rgba(250, 204, 21, 0.045) 40%, transparent 74%);
   opacity: calc(var(--shadow-glow) * 0.58);
   transform: rotateZ(var(--shadow-angle));
+  animation: level01FocusBreath 5.4s ease-in-out infinite;
   pointer-events: none;
   z-index: -3;
 }
@@ -82,6 +83,39 @@
   opacity: var(--shadow-glow);
   pointer-events: none;
   z-index: -1;
+  animation: level01FocusGlow 5.4s ease-in-out infinite;
+}
+
+/* A quiet resting breath keeps the first view grounded.  The same shadow gets
+   one brief, non-verbal acknowledgement when a real point strike begins. */
+.overlay[data-taiji-interacting='true'] .balanceWell::after {
+  animation: level01FirstStrikeGroundFlash 680ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.overlay[data-taiji-interacting='true'] .shadowGlow {
+  animation: level01FirstStrikeGlow 680ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+@keyframes level01FocusBreath {
+  0%, 100% { opacity: calc(var(--shadow-glow) * 0.48); }
+  50% { opacity: calc(var(--shadow-glow) * 0.7); }
+}
+
+@keyframes level01FocusGlow {
+  0%, 100% { opacity: calc(var(--shadow-glow) * 0.78); transform: translate3d(-50%, -50%, 0) scale(.97); }
+  50% { opacity: var(--shadow-glow); transform: translate3d(-50%, -50%, 0) scale(1.035); }
+}
+
+@keyframes level01FirstStrikeGroundFlash {
+  0% { opacity: calc(var(--shadow-glow) * 0.58); }
+  28% { opacity: calc(var(--shadow-glow) * 1.22); }
+  100% { opacity: calc(var(--shadow-glow) * 0.58); }
+}
+
+@keyframes level01FirstStrikeGlow {
+  0% { opacity: var(--shadow-glow); transform: translate3d(-50%, -50%, 0) scale(1); }
+  28% { opacity: calc(var(--shadow-glow) * 1.42); transform: translate3d(-50%, -50%, 0) scale(1.11); }
+  100% { opacity: var(--shadow-glow); transform: translate3d(-50%, -50%, 0) scale(1); }
 }
 
 /* A paired photon marker is part of the shadow, not a separate meter. Its
@@ -499,6 +533,7 @@
   .chaseCounterLight::before, .chaseCounterLight::after { animation: none; }
   .overlay[data-taiji-interacting='true'] .chaseLight,
   .overlay[data-taiji-interacting='true'] .chaseCounterLight { animation: none; }
+  .balanceWell::after, .shadowGlow { animation: none; }
   .taijiCanvasPressed { transform: scale(.985); }
   .taijiCanvasRebound { animation: none; }
   .balanceWell {
