@@ -977,10 +977,12 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
     // Four cardinal emitters alternate photon / dark-particle material and
     // converge on one impact. They remain unmistakable at phone scale without
     // bringing back the level-24 satellite field.
-    addLayeredBolt(leftMain, 0xfff7cf, 0xfbbf24, .126, 0, false, 'W', 'core', true);
-    addLayeredBolt(rightMain, 0xfff7cf, 0x67e8f9, .126, .025, false, 'E', 'core', true);
-    addLayeredBolt(bottomMain, 0x02020a, 0x60a5fa, .13, .05, true, 'S', 'core', true);
-    addLayeredBolt(topMain, 0x02020a, 0x818cf8, .13, .075, true, 'N', 'core', true);
+    // Main strike colour is deliberately the inverse of its emitting point:
+    // dark points throw a broad white bolt; light points throw a broad black bolt.
+    addLayeredBolt(leftMain, 0xffffff, 0xeaf6ff, .19, 0, false, 'W', 'core', true);
+    addLayeredBolt(rightMain, 0xffffff, 0xeaf6ff, .19, .025, false, 'E', 'core', true);
+    addLayeredBolt(bottomMain, 0x010104, 0x242433, .195, .05, true, 'S', 'core', true);
+    addLayeredBolt(topMain, 0x010104, 0x242433, .195, .075, true, 'N', 'core', true);
     addLayeredBolt(leftSurge, 0xffffff, 0x67e8f9, .088, .055, false, 'W');
     addLayeredBolt(rightSurge, 0xffffff, 0xfbbf24, .088, .075, false, 'E');
     addLayeredBolt(bottomSurge, 0x02020a, 0x818cf8, .092, .09, true, 'S');
@@ -1234,6 +1236,93 @@ function Level01LightningScars({ scar, lowPower = false }: {
   }, [scarGroup]);
 
   return scar ? <primitive object={scarGroup} /> : null;
+}
+
+/* Persistent layer: unlike the card-space return route above, this web is
+   authored in the Taiji's local coordinates. Each accepted strike adds one
+   quiet seam, so the sphere gradually remembers its own lightning without
+   leaving a screen-fixed overlay behind. */
+function Level01AccumulatedLightningWeb({ strikes, flashStrikeId, lowPower = false, ballWorldRef }: {
+  strikes: Array<{ id: number; origin: Level01StrikeOrigin; variant: number }>;
+  flashStrikeId: number;
+  lowPower?: boolean;
+  ballWorldRef?: { current: THREE.Mesh | null };
+}) {
+  const flashStartedAtRef = useRef<number | null>(null);
+  const seenFlashIdRef = useRef(flashStrikeId);
+  const web = useMemo(() => {
+    const root = new THREE.Group();
+    const originPoint: Record<Level01StrikeOrigin, THREE.Vector3> = {
+      N: new THREE.Vector3(0, .88, .24), E: new THREE.Vector3(.88, 0, .24),
+      S: new THREE.Vector3(0, -.88, .24), W: new THREE.Vector3(-.88, 0, .24),
+    };
+    const seenOrigins = new Map<Level01StrikeOrigin, number>();
+    strikes.forEach((strike) => {
+      const count = (seenOrigins.get(strike.origin) ?? 0) + 1;
+      seenOrigins.set(strike.origin, count);
+      const source = originPoint[strike.origin];
+      const sign = strike.origin === 'E' || strike.origin === 'N' ? 1 : -1;
+      const seed = strike.variant * 1.73 + count * .41;
+      const localPaths = [
+        [source, new THREE.Vector3(sign * .48, .32 + Math.sin(seed) * .16, .58), new THREE.Vector3(.06, -.1, .7), new THREE.Vector3(-sign * .4, -.44, .48)],
+        [source, new THREE.Vector3(sign * .52, -.22 + Math.cos(seed) * .14, -.36), new THREE.Vector3(-.14, .36, -.62), new THREE.Vector3(-sign * .48, .16, -.28)],
+      ];
+      const color = strike.origin === 'N' || strike.origin === 'S' ? 0x22d3ee : 0xa855f7;
+      localPaths.forEach((points, pathIndex) => {
+        const guide = new THREE.CatmullRomCurve3(points, false, 'centripetal');
+        const surface = guide.getPoints(lowPower ? 14 : 24).map((point) => point.normalize().multiplyScalar(1.092));
+        const curve = new THREE.CatmullRomCurve3(surface, false, 'centripetal');
+        const geometry = new THREE.TubeGeometry(curve, lowPower ? 16 : 24, (pathIndex === 0 ? .012 : .009) + Math.min(count, 3) * .002, lowPower ? 4 : 5, false);
+        const material = new THREE.MeshBasicMaterial({
+          color,
+          transparent: true,
+          opacity: (pathIndex === 0 ? .16 : .1) + Math.min(count, 3) * .035,
+          depthWrite: false,
+          depthTest: true,
+          blending: THREE.NormalBlending,
+          toneMapped: false,
+        });
+        material.userData.baseOpacity = material.opacity;
+        material.userData.baseColor = material.color.clone();
+        const seam = new THREE.Mesh(geometry, material);
+        seam.renderOrder = 4;
+        root.add(seam);
+      });
+    });
+    return root;
+  }, [lowPower, strikes]);
+
+  useFrame(({ clock }) => {
+    const ball = ballWorldRef?.current;
+    if (!ball) return;
+    ball.getWorldPosition(web.position);
+    ball.getWorldQuaternion(web.quaternion);
+    ball.getWorldScale(web.scale);
+    if (seenFlashIdRef.current !== flashStrikeId) {
+      seenFlashIdRef.current = flashStrikeId;
+      flashStartedAtRef.current = clock.elapsedTime;
+    }
+    const flashAge = flashStartedAtRef.current == null ? -Infinity : clock.elapsedTime - flashStartedAtRef.current;
+    const flash = flashAge < LEVEL01_STRIKE_IMPACT_SECONDS ? 0
+      : Math.max(0, 1 - (flashAge - LEVEL01_STRIKE_IMPACT_SECONDS) / .42);
+    web.children.forEach((child) => {
+      const mesh = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
+      const baseOpacity = Number(mesh.material.userData.baseOpacity ?? .12);
+      const baseColor = mesh.material.userData.baseColor as THREE.Color | undefined;
+      if (baseColor) mesh.material.color.copy(baseColor).lerp(new THREE.Color(0xe0faff), flash * .68);
+      mesh.material.opacity = Math.min(.82, baseOpacity + flash * .48);
+    });
+  });
+
+  useEffect(() => () => {
+    web.children.forEach((child) => {
+      const mesh = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
+      mesh.geometry.dispose();
+      mesh.material.dispose();
+    });
+  }, [web]);
+
+  return strikes.length ? <primitive object={web} /> : null;
 }
 
 /** 光線科技③：黃金時刻掃光——主光緩慢繞行，球面高光如夕陽流動（人類最愛的 golden hour） */
@@ -2318,6 +2407,7 @@ export default function TaijiSystem({
   const [lightningVariant, setLightningVariant] = useState(0);
   const [lightningStrikeId, setLightningStrikeId] = useState(0);
   const [lightningScar, setLightningScar] = useState<{ id: number; origin: Level01StrikeOrigin; variant: number } | null>(null);
+  const [lightningWeb, setLightningWeb] = useState<Array<{ id: number; origin: Level01StrikeOrigin; variant: number }>>([]);
   const lightningVariantRef = useRef(0);
   const lightningReleaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lightningScarClearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -2490,6 +2580,9 @@ export default function TaijiSystem({
     setLightningStrikeId((id) => {
       const nextId = id + 1;
       setLightningScar({ id: nextId, origin: strikeOrigin, variant });
+      // Keep a compact, session-local 3D memory of completed hits. The
+      // temporary route above still clears independently after it returns.
+      setLightningWeb((current) => [...current, { id: nextId, origin: strikeOrigin, variant }].slice(-12));
       return nextId;
     });
     // .17s impact arrival (the shared audio cue) + .22s traced growth + .90s inspection hold +
@@ -2623,6 +2716,12 @@ export default function TaijiSystem({
               <Level01LightningScars
                 scar={lightningScar}
                 lowPower={canvasQuality.lowPower}
+              />
+              <Level01AccumulatedLightningWeb
+                strikes={lightningWeb}
+                flashStrikeId={lightningStrikeId}
+                lowPower={canvasQuality.lowPower}
+                ballWorldRef={level01BallRef}
               />
             </>
           )}
