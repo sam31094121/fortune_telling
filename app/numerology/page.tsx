@@ -48,7 +48,28 @@ type NumberResult = {
   };
 };
 
+type SavedNumberReflection = {
+  savedAt: string;
+  numberLabel: string;
+  verdict: string;
+  takeaway: string;
+};
+
 const VALID_LENGTHS = new Set([2, 3, 4, 5, 6, 7, 8, 9, 10]);
+const SAVED_NUMBER_REFLECTION_KEY = 'numerology-last-reflection-v1';
+
+function readSavedNumberReflection(): SavedNumberReflection | null {
+  try {
+    const raw = window.localStorage.getItem(SAVED_NUMBER_REFLECTION_KEY);
+    if (!raw) return null;
+    const saved = JSON.parse(raw) as Partial<SavedNumberReflection>;
+    return typeof saved.savedAt === 'string' && typeof saved.numberLabel === 'string' && typeof saved.verdict === 'string' && typeof saved.takeaway === 'string'
+      ? { savedAt: saved.savedAt, numberLabel: saved.numberLabel, verdict: saved.verdict, takeaway: saved.takeaway }
+      : null;
+  } catch {
+    return null;
+  }
+}
 
 const PURPOSE_OPTIONS: Array<{ id: NumberPurpose; label: string; shortLabel: string; detail: string }> = [
   { id: 'general', label: '萬用碼', shortLabel: '這組數字', detail: '不限定用途，直接看整體結構' },
@@ -223,6 +244,7 @@ export default function NumerologyPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [purpose, setPurpose] = useState<NumberPurpose>('general');
+  const [savedReflection, setSavedReflection] = useState<SavedNumberReflection | null>(null);
   const resultRef = useRef<HTMLElement>(null);
   const numberInputRef = useRef<HTMLInputElement>(null);
 
@@ -232,6 +254,10 @@ export default function NumerologyPage() {
     };
     window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
     return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+  }, []);
+
+  useEffect(() => {
+    setSavedReflection(readSavedNumberReflection());
   }, []);
 
   const cleanValue = cleanNumber(value);
@@ -326,6 +352,22 @@ export default function NumerologyPage() {
     clearNumerologyInput();
   }
 
+  function saveCurrentReflection() {
+    if (!result || !crossVerdictComplete || !result.iching) return;
+    const next: SavedNumberReflection = {
+      savedAt: new Date().toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' }),
+      numberLabel: result.valueMasked ?? `已分析的${result.value.length}碼數字`,
+      verdict: overallTier.label,
+      takeaway: result.iching.verdictLine,
+    };
+    try {
+      window.localStorage.setItem(SAVED_NUMBER_REFLECTION_KEY, JSON.stringify(next));
+    } catch {
+      // Saving is optional; the analysis still works without browser storage.
+    }
+    setSavedReflection(next);
+  }
+
   return (
     <main className="min-h-screen bg-[#080a10] px-4 py-5 text-[color:var(--text-main)] sm:px-6">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
@@ -374,6 +416,17 @@ export default function NumerologyPage() {
           <DailyAnalysisNotice moduleName="易經論數字" />
           <IdentitySplitSelector nextStepLabel="接著選用途並輸入數字" />
         </section>
+
+        {savedReflection && !result && (
+          <section className="rounded-2xl border border-cyan-200/25 bg-cyan-300/[0.06] px-4 py-3" aria-label="上次收藏的數字解讀">
+            <p className="text-[10px] font-black tracking-[0.18em] text-cyan-100/75">上次收藏・{savedReflection.savedAt}</p>
+            <div className="mt-1 flex items-center justify-between gap-3">
+              <p className="text-sm font-black text-cyan-50">{savedReflection.numberLabel}・{savedReflection.verdict}</p>
+              <span className="rounded-full border border-cyan-200/30 px-2.5 py-1 text-[10px] font-black text-cyan-100">已保留</span>
+            </div>
+            <p className="mt-1 text-xs font-bold leading-5 text-white/70">{savedReflection.takeaway}</p>
+          </section>
+        )}
 
         <section className="rounded-[26px] border border-white/12 bg-[linear-gradient(160deg,rgba(12,15,22,0.98),rgba(18,29,32,0.92),rgba(8,10,16,0.98))] p-4 shadow-[0_18px_55px_rgba(0,0,0,0.28)] sm:p-5">
           {/* 「請填阿拉伯數字」引導卡已隱藏（2026-08-11）：依指示不顯示 */}
@@ -634,6 +687,14 @@ export default function NumerologyPage() {
                 <p className="mt-3 text-[11px] font-bold leading-5 text-white/54">金錢、感情兩個中軸各自融合 4 個面向的平均分數，共用同一條八階能量線，最高「大吉」、最低「大凶」。能量線保留大吉、大吉帶吉、吉、半吉、凶帶吉、凶、大凶帶凶、大凶八個位置，呈現分數落點的細微差異；但最終判定只會落在大吉、大吉帶吉、吉、凶、大凶帶凶、大凶六種標籤：55 至 59 分會跳至「吉」，50 至 54 分會跳至「凶」，所以「半吉」與「凶帶吉」只作為視覺刻度、不會成為判定落點。原始分數與 8 個面向的計算依據完整保留。分級門檻依這套固定規則實際算出的分數範圍校準，不是機率統計或人生保證。</p>
               )}
               <p className="mt-3 text-[11px] font-semibold leading-5 text-white/50">這不是在幫你貼標籤，是想讓你先看懂自己此刻站在哪一階；易經懂你走到這裡的不容易，才知道下一步怎麼走最順。</p>
+            </section>
+
+            <section className="rounded-2xl border border-cyan-200/25 bg-cyan-300/[0.06] p-4" aria-label="收藏這次解讀">
+              <p className="text-[10px] font-black tracking-[0.18em] text-cyan-100">留給下次的自己</p>
+              <p className="mt-2 text-sm font-bold leading-6 text-white/82">收藏本次重點；下次開啟時會先顯示這句提醒，不保存完整輸入數字。</p>
+              <button type="button" onClick={saveCurrentReflection} className="mt-3 min-h-[46px] w-full rounded-xl border border-cyan-200/55 bg-cyan-200 px-4 text-sm font-black text-slate-950">
+                {savedReflection?.numberLabel === (result.valueMasked ?? `已分析的${result.value.length}碼數字`) ? '已收藏這次解讀' : '收藏本次重點'}
+              </button>
             </section>
 
             {/* 「補充：結構重點」是 8 個原始面向的強弱清單，跟上方金錢／感情兩個中軸完全重複，已依指示隱藏；保留程式碼供之後需要時叫醒。 */}
