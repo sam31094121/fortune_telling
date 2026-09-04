@@ -1264,19 +1264,24 @@ function Level01AccumulatedLightningWeb({ strikes, flashStrikeId, lowPower = fal
       const sign = strike.origin === 'E' || strike.origin === 'N' ? 1 : -1;
       const seed = strike.variant * 1.73 + count * .41;
       const localPaths = [
-        [source, new THREE.Vector3(sign * .48, .32 + Math.sin(seed) * .16, .58), new THREE.Vector3(.06, -.1, .7), new THREE.Vector3(-sign * .4, -.44, .48)],
-        [source, new THREE.Vector3(sign * .52, -.22 + Math.cos(seed) * .14, -.36), new THREE.Vector3(-.14, .36, -.62), new THREE.Vector3(-sign * .48, .16, -.28)],
+        { points: [source, new THREE.Vector3(sign * .48, .32 + Math.sin(seed) * .16, .58), new THREE.Vector3(.06, -.1, .7), new THREE.Vector3(-sign * .4, -.44, .48)], core: false },
+        { points: [source, new THREE.Vector3(sign * .52, -.22 + Math.cos(seed) * .14, -.36), new THREE.Vector3(-.14, .36, -.62), new THREE.Vector3(-sign * .48, .16, -.28)], core: false },
+        // A dense, asymmetric core rupture: it remains on the ball's real
+        // surface and only exists during this bounded strike/recovery event.
+        { points: [new THREE.Vector3(-.42 * sign, .24 + Math.sin(seed) * .13, .86), new THREE.Vector3(-.12, .08, 1.04), new THREE.Vector3(.08 + Math.cos(seed) * .1, -.1, 1.075), new THREE.Vector3(.44 * sign, -.28 + Math.sin(seed * 1.7) * .11, .82)], core: true },
+        { points: [new THREE.Vector3(-.3 * sign, -.34, .88), new THREE.Vector3(-.04, -.08 + Math.cos(seed) * .12, 1.09), new THREE.Vector3(.14, .16, 1.06), new THREE.Vector3(.34 * sign, .38, .84)], core: true },
+        { points: [new THREE.Vector3(-.18, .44 * sign, .86), new THREE.Vector3(.02 + Math.sin(seed) * .11, .08, 1.1), new THREE.Vector3(-.08, -.16, 1.07), new THREE.Vector3(.24, -.42 * sign, .84)], core: true },
       ];
       const color = strike.origin === 'N' || strike.origin === 'S' ? 0x22d3ee : 0xa855f7;
-      localPaths.forEach((points, pathIndex) => {
+      localPaths.forEach(({ points, core }, pathIndex) => {
         const guide = new THREE.CatmullRomCurve3(points, false, 'centripetal');
         const surface = guide.getPoints(lowPower ? 14 : 24).map((point) => point.normalize().multiplyScalar(1.092));
         const curve = new THREE.CatmullRomCurve3(surface, false, 'centripetal');
-        const geometry = new THREE.TubeGeometry(curve, lowPower ? 16 : 24, (pathIndex === 0 ? .022 : .016) + Math.min(count, 3) * .003, lowPower ? 4 : 5, false);
+        const geometry = new THREE.TubeGeometry(curve, lowPower ? 16 : 24, (core ? .03 : pathIndex === 0 ? .022 : .016) + Math.min(count, 3) * .003, lowPower ? 4 : 5, false);
         const material = new THREE.MeshBasicMaterial({
           color,
           transparent: true,
-          opacity: (pathIndex === 0 ? .12 : .075) + Math.min(count, 3) * .025,
+          opacity: (core ? .08 : pathIndex === 0 ? .12 : .075) + Math.min(count, 3) * .025,
           depthWrite: false,
           depthTest: true,
           blending: THREE.NormalBlending,
@@ -1284,6 +1289,7 @@ function Level01AccumulatedLightningWeb({ strikes, flashStrikeId, lowPower = fal
         });
         material.userData.baseOpacity = material.opacity;
         material.userData.baseColor = material.color.clone();
+        material.userData.coreRupture = core;
         const seam = new THREE.Mesh(geometry, material);
         seam.renderOrder = 4;
         root.add(seam);
@@ -1310,7 +1316,8 @@ function Level01AccumulatedLightningWeb({ strikes, flashStrikeId, lowPower = fal
       const baseOpacity = Number(mesh.material.userData.baseOpacity ?? .12);
       const baseColor = mesh.material.userData.baseColor as THREE.Color | undefined;
       if (baseColor) mesh.material.color.copy(baseColor).lerp(new THREE.Color(0xe0faff), flash * .68);
-      mesh.material.opacity = Math.min(.92, baseOpacity + flash * .68);
+      const coreRupture = Boolean(mesh.material.userData.coreRupture);
+      mesh.material.opacity = Math.min(.96, baseOpacity + flash * (coreRupture ? .86 : .68));
     });
   });
 
