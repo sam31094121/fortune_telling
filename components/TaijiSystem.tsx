@@ -1111,10 +1111,10 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
   return <primitive object={group} />;
 }
 
-/* Persistent scars are deliberately separate from the live discharge. The
-   Taiji mesh stays untouched: these are small, depth-tested spatial seams that
-   sit both in front of and behind the sphere, so each strike can remain as a
-   readable part of the growing network without rotating or deforming the ball. */
+/* Persistent scars are deliberately separate from the live discharge. They sit
+   within the Taiji volume (not outside its shell): the low-opacity carbon and
+   ember seams are rendered as an internal cross-section, so the sphere stays
+   whole while every strike remains visibly trapped inside it. */
 function Level01LightningScars({ strikes, lowPower = false }: {
   strikes: Array<{ id: number; origin: Level01StrikeOrigin; variant: number }>;
   lowPower?: boolean;
@@ -1122,16 +1122,16 @@ function Level01LightningScars({ strikes, lowPower = false }: {
   const scarGroup = useMemo(() => {
     const root = new THREE.Group();
     const originPoint: Record<Level01StrikeOrigin, THREE.Vector3> = {
-      N: new THREE.Vector3(0, 1.24, .18), E: new THREE.Vector3(1.24, 0, .18),
-      S: new THREE.Vector3(0, -1.24, .18), W: new THREE.Vector3(-1.24, 0, .18),
+      N: new THREE.Vector3(0, .88, .24), E: new THREE.Vector3(.88, 0, .24),
+      S: new THREE.Vector3(0, -.88, .24), W: new THREE.Vector3(-.88, 0, .24),
     };
     strikes.forEach(({ origin, variant }, strikeIndex) => {
       const seed = variant * 1.73 + strikeIndex * .91;
       const start = originPoint[origin];
       const sign = origin === 'E' || origin === 'N' ? 1 : -1;
       const paths = [
-        [start, new THREE.Vector3(sign * .55, .42 + Math.sin(seed) * .2, 1.19), new THREE.Vector3(.08, -.12, 1.3), new THREE.Vector3(-sign * .48, -.55, 1.06)],
-        [start, new THREE.Vector3(sign * .66, -.28 + Math.cos(seed) * .18, .92), new THREE.Vector3(-.18, .46, 1.24), new THREE.Vector3(-sign * .62, .2, .76)],
+        [start, new THREE.Vector3(sign * .48, .32 + Math.sin(seed) * .16, .58), new THREE.Vector3(.06, -.1, .7), new THREE.Vector3(-sign * .4, -.44, .48)],
+        [start, new THREE.Vector3(sign * .52, -.22 + Math.cos(seed) * .14, .36), new THREE.Vector3(-.14, .36, .62), new THREE.Vector3(-sign * .48, .16, .28)],
       ];
       paths.forEach((points, pathIndex) => {
         const curve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
@@ -1141,9 +1141,13 @@ function Level01LightningScars({ strikes, lowPower = false }: {
         const material = new THREE.MeshBasicMaterial({
           color: 0x160806,
           transparent: true,
-          opacity: pathIndex === 0 ? .82 : .66,
+          opacity: pathIndex === 0 ? .5 : .38,
           depthWrite: false,
-          depthTest: true,
+          // The sphere's opaque PBR shell normally hides inner geometry.
+          // Do not depth-test this deliberately dim interior cross-section;
+          // its reduced radius, low luminance and transparent ember core make
+          // it read as a subsurface scar rather than an exterior wire.
+          depthTest: false,
           blending: THREE.NormalBlending,
           toneMapped: false,
         });
@@ -1154,9 +1158,9 @@ function Level01LightningScars({ strikes, lowPower = false }: {
         const emberMaterial = new THREE.MeshBasicMaterial({
           color: (variant + strikeIndex + pathIndex) % 3 === 0 ? 0x9d3412 : 0x5b160b,
           transparent: true,
-          opacity: pathIndex === 0 ? .34 : .22,
+          opacity: pathIndex === 0 ? .18 : .12,
           depthWrite: false,
-          depthTest: true,
+          depthTest: false,
           blending: THREE.AdditiveBlending,
           toneMapped: false,
         });
@@ -2562,6 +2566,10 @@ export default function TaijiSystem({
           </Environment>
           {/* 鏡頭只保留太極、粒子與光子：不放小行星、星雲或任何外部物件。 */}
           <ambientLight intensity={0.22} />
+          {/* A bounded, in-volume scan light: it only rises during a strike,
+              reads through the ceramic as a brief technological core pulse,
+              then leaves the charcoal/ember scars as the dominant residue. */}
+          {displayLayer === 1 && <pointLight position={[0, 0, 0.18]} color="#67e8f9" intensity={touchActive ? 1.15 : 0} distance={2.1} decay={2} />}
           <KeyLightSweep theme={journeyTheme} progress24={progressFromDepth(displayLayer)} />
           <pointLight position={[-4, -2.5, 2.5]} intensity={0.3} color="#6fa8c0" />
           <pointLight position={[0, 2.2, -4.5]} intensity={1.15} color={journeyTheme.accent} />
