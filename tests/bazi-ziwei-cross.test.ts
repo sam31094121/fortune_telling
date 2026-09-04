@@ -20,7 +20,9 @@
 import { createBaziCore, BRANCHES, type Branch } from '../lib/bazi/engine';
 import { calculateZiweiSanFang } from '../lib/ziwei-sanfang-engine';
 import { computeShichenProfile } from '../lib/shichen-engine';
-import { castHexagramFromBirth } from '../lib/iching-engine';
+import { castHexagram, castHexagramFromBirth } from '../lib/iching-engine';
+import fsForPage from 'node:fs';
+import pathForPage from 'node:path';
 import { patternNameOf } from '../lib/iching-psychology';
 import { assertThreeCoreConsistent, computeThreeCore } from '../lib/three-core-engine';
 
@@ -252,6 +254,50 @@ for (const item of CASES) {
   check('靈魂配對・無時辰方三柱照常成立',
     [bNoHour.pillars.year.ganZhi, bNoHour.pillars.month.ganZhi, bNoHour.pillars.day.ganZhi],
     [B.pillars.year.ganZhi, B.pillars.month.ganZhi, B.pillars.day.ganZhi]);
+}
+
+// ============================================================================
+// 逐卡三合一：《姓名學》
+//
+// 這張卡只有第一層與第三層——第二層紫微本來就不在它的範圍內，這不是缺失。
+// 特別之處在第三層：未知時辰時「不用生辰起卦」（避免補午時），改用姓名象徵起卦，
+// 並在呈現層標明 method，前端也告訴客戶「沒有補造出生時辰」。
+// 這裡守的是：兩種起卦法不得混為一談，也不得因為想給一顆卦就偷偷補時辰。
+// ============================================================================
+{
+  const core = createBaziCore({
+    gender: 'female', birthDate: '1990-05-20', calendarType: 'SOLAR',
+    birthTimeKnown: true, traditionalHour: '亥', timezone: 'Asia/Taipei',
+  });
+  check('姓名學・四柱取自核心引擎',
+    [core.pillars.year.ganZhi, core.pillars.month.ganZhi, core.pillars.day.ganZhi],
+    ['庚午', '辛巳', '乙酉']);
+  check('姓名學・日柱對得上獨立錨點', core.pillars.day.ganZhi, anchorDayPillar('1990-05-20'));
+
+  // 有時辰：必須與紫微卡、紅鸞卡同一顆生辰卦
+  const birthHex = castHexagramFromBirth('1990-05-20', 11);
+  check('姓名學・有時辰時與全站同一顆生辰卦', birthHex.hexagramName, '山火賁');
+  check('姓名學・生辰卦可回查', birthHex.seedText, '梅花易數|1990-05-20|時辰12');
+
+  // 無時辰：不得用生辰起卦（那會被迫補時辰），必須另走姓名象徵起卦
+  const noHourCore = createBaziCore({
+    gender: 'female', birthDate: '1990-05-20', calendarType: 'SOLAR',
+    birthTimeKnown: false, timezone: 'Asia/Taipei',
+  });
+  check('姓名學・無時辰時柱必須是 UNKNOWN', noHourCore.pillars.hour, 'UNKNOWN');
+  check('姓名學・無時辰三柱照常成立',
+    [noHourCore.pillars.year.ganZhi, noHourCore.pillars.month.ganZhi, noHourCore.pillars.day.ganZhi],
+    ['庚午', '辛巳', '乙酉']);
+
+  // 象徵起卦與生辰起卦必須是兩套：同一個人不得因為換了起卦法而拿到同一顆卦
+  // （若相同，代表其中一條路徑偷偷補了時辰）
+  const symbolicHex = castHexagram('王思妤', '1990-05-20', '姓名象徵參考');
+  check('姓名學・象徵起卦與生辰起卦不得相同', symbolicHex.kingWen === birthHex.kingWen, false);
+  check('姓名學・象徵起卦依據可回查', symbolicHex.seedText, '王思妤|1990-05-20|姓名象徵參考');
+
+  // 前端必須告訴客戶「沒有補造出生時辰」
+  const nameologyPage = fsForPage.readFileSync(pathForPage.join(process.cwd(), 'app/nameology/page.tsx'), 'utf8');
+  check('姓名學・前端明示未補造時辰', nameologyPage.includes('沒有補造出生時辰'), true);
 }
 
 // ============================================================================
