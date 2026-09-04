@@ -13550,12 +13550,12 @@ body.app-touching .home-taiji-cinema * {
   border-bottom: 1px solid rgba(212, 180, 104, 0.38);
   padding: 0.1rem 0.25rem 0.52rem;
   color: #f1f4ee;
-  /* Reuse the local CJK serif stack: it gives the Tarot title a refined,
-     engraved character without introducing a network font dependency. */
-  font-family: "Noto Serif TC", "Songti TC", "PMingLiU", "MingLiU", ui-serif, serif;
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: 0.055em;
+  /* Local calligraphic CJK stack: keeps the title artistic without adding a
+     remote font dependency, then falls back to the project serif family. */
+  font-family: "DFKai-SB", "KaiTi", "STKaiti", "BiauKai", var(--font-serif), serif;
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: 0.018em;
   text-align: center;
   text-shadow:
     0 1px 0 rgba(255, 255, 255, 0.18),
@@ -13576,13 +13576,13 @@ body.app-touching .home-taiji-cinema * {
 .tarot-brand-mark__ai {
   color: #d7b86e;
   font-size: 3.15rem;
-  letter-spacing: 0.075em;
+  letter-spacing: 0.035em;
 }
 
 .tarot-brand-mark__name {
   color: #f1f4ee;
   font-size: 3rem;
-  letter-spacing: 0.055em;
+  letter-spacing: 0.018em;
   white-space: nowrap;
 }
 
