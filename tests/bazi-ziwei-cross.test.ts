@@ -22,6 +22,7 @@ import { calculateZiweiSanFang } from '../lib/ziwei-sanfang-engine';
 import { computeShichenProfile } from '../lib/shichen-engine';
 import { castHexagramFromBirth } from '../lib/iching-engine';
 import { patternNameOf } from '../lib/iching-psychology';
+import { assertThreeCoreConsistent, computeThreeCore } from '../lib/three-core-engine';
 
 let pass = 0;
 let fail = 0;
@@ -196,6 +197,67 @@ for (const item of CASES) {
   check('紅鸞・卦象與易經層一致', hex.hexagramName, '山火賁');
   check('紅鸞・格局名', patternNameOf(hex), '山鎮抱火格');
   check('紅鸞・起卦依據可回查', hex.seedText, '梅花易數|1990-05-20|時辰12');
+}
+
+// ============================================================================
+// 三合一運算核心（lib/three-core-engine.ts）
+//
+// 這支引擎是後端唯一的三核心入口，職責不只是算，更是「只准算一次、自己驗自己」。
+// 這裡驗它的自檢真的有效——包括時辰未知時不代填、不硬排、不硬起卦。
+// ============================================================================
+{
+  // 已知時辰：三層齊備，自檢必須全過
+  const known = computeThreeCore({ birthDate: '1990-05-20', gender: 'female', hourBranchIndex: 11 });
+  check('三合一引擎・已知時辰自檢通過', known.crossCheck.passed, true);
+  check('三合一引擎・四柱', [known.bazi.year, known.bazi.month, known.bazi.day, known.bazi.hour], ['庚午', '辛巳', '乙酉', '丁亥']);
+  check('三合一引擎・日主', `${known.bazi.dayMaster}${known.bazi.dayMasterElement}`, '乙木');
+  check('三合一引擎・第二層可用', known.ziwei.status, 'READY');
+  check('三合一引擎・第三層可用', known.iching.status, 'READY');
+  check('三合一引擎・時辰已知不需補齊提示', known.unlockNote, null);
+  if (known.ziwei.status === 'READY') {
+    check(
+      '三合一引擎・第二層四柱等於第一層',
+      [known.ziwei.analysis.bazi.year, known.ziwei.analysis.bazi.month, known.ziwei.analysis.bazi.day],
+      [known.bazi.year, known.bazi.month, known.bazi.day],
+    );
+  }
+  if (known.iching.status === 'READY') {
+    check('三合一引擎・卦象', known.iching.reading.hexagramName, '山火賁');
+    check('三合一引擎・格局名', known.iching.patternName, '山鎮抱火格');
+  }
+
+  // 未知時辰：三柱照給，但不得代填、不得硬排、不得硬起卦
+  const unknown = computeThreeCore({ birthDate: '1990-05-20', gender: 'female', hourBranchIndex: null });
+  check('三合一引擎・未知時辰自檢通過', unknown.crossCheck.passed, true);
+  check('三合一引擎・未知時辰仍給三柱', [unknown.bazi.year, unknown.bazi.month, unknown.bazi.day], ['庚午', '辛巳', '乙酉']);
+  check('三合一引擎・未知時辰不代填時柱', unknown.bazi.hour, null);
+  check('三合一引擎・未知時辰不硬排命宮', unknown.ziwei.status, 'UNAVAILABLE_BIRTH_TIME_REQUIRED');
+  check('三合一引擎・未知時辰不硬起卦', unknown.iching.status, 'UNAVAILABLE_BIRTH_TIME_REQUIRED');
+  check('三合一引擎・未知時辰四柱版五行為 null', unknown.bazi.elementBalanceFourPillar, null);
+  check('三合一引擎・未知時辰帶補齊提示', typeof unknown.unlockNote === 'string' && unknown.unlockNote.length > 0, true);
+  // 三柱五行與時辰無關，兩種情況必須相同
+  check('三合一引擎・三柱五行不受時辰影響', unknown.bazi.elementBalanceThreePillar, known.bazi.elementBalanceThreePillar);
+
+  // 正統鎖定案跑一次
+  const locked = computeThreeCore({ birthDate: '1974-07-02', gender: 'female', hourBranchIndex: 2 });
+  check('三合一引擎・正統鎖定四柱', [locked.bazi.year, locked.bazi.month, locked.bazi.day, locked.bazi.hour], ['甲寅', '庚午', '甲辰', '丙寅']);
+
+  // 反向驗證：三層打架時 assertThreeCoreConsistent 必須擋下
+  const broken: typeof known = {
+    ...known,
+    crossCheck: {
+      passed: false,
+      checks: known.crossCheck.checks,
+      failedReasons: ['第二層四柱必須等於第一層：不一致'],
+    },
+  };
+  let blocked = false;
+  try { assertThreeCoreConsistent(broken); } catch { blocked = true; }
+  check('三合一引擎・三層打架時必須擋下', blocked, true);
+  // 正常結果不得被誤擋
+  let passedThrough = true;
+  try { assertThreeCoreConsistent(known); } catch { passedThrough = false; }
+  check('三合一引擎・正常結果不得誤擋', passedThrough, true);
 }
 
 console.log(`\n三核心交叉驗證（八字 → 紫微 → 易經）— PASS ${pass} / FAIL ${fail}`);

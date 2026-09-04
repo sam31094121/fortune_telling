@@ -35,7 +35,7 @@
     "audit:red-luan": "tsc tools/red-luan-engineering-audit.ts lib/red-luan-engineering-audit.ts lib/red-luan-heartbeat-engine.ts lib/bazi/engine.ts lib/ziwei/engine.ts --outDir .red-luan-audit-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .red-luan-audit-build/tools/red-luan-engineering-audit.js",
     "test:red-luan-audit": "tsc tests/red-luan-engineering-audit.test.ts lib/red-luan-engineering-audit.ts lib/red-luan-heartbeat-engine.ts lib/bazi/engine.ts lib/ziwei/engine.ts --outDir .red-luan-audit-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .red-luan-audit-test-build/tests/red-luan-engineering-audit.test.js",
     "test:ziwei-unknown-time": "node tests/ziwei-unknown-time.test.cjs",
-    "test:bazi-ziwei-cross": "tsc tests/bazi-ziwei-cross.test.ts lib/bazi/engine.ts lib/ziwei-sanfang-engine.ts lib/shichen-engine.ts lib/iching-engine.ts lib/iching-psychology.ts --outDir .bazi-ziwei-cross-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck --resolveJsonModule && node .bazi-ziwei-cross-build/tests/bazi-ziwei-cross.test.js",
+    "test:bazi-ziwei-cross": "tsc tests/bazi-ziwei-cross.test.ts lib/bazi/engine.ts lib/ziwei-sanfang-engine.ts lib/shichen-engine.ts lib/iching-engine.ts lib/iching-psychology.ts lib/three-core-engine.ts --outDir .bazi-ziwei-cross-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck --resolveJsonModule && node .bazi-ziwei-cross-build/tests/bazi-ziwei-cross.test.js",
     "test:three-core": "npm run test:bazi-ziwei-cross"
   },
   "dependencies": {

@@ -198,3 +198,64 @@
 
 照抄 `tests/bazi-ziwei-cross.test.ts` 最後那一段〈逐卡三合一〉：
 把該卡用到的引擎接進來，逐層比對即可。**沒有進守門測試的卡，不算做完三合一。**
+
+---
+
+## 八、後端運算檔案（鎖死用）
+
+三合一不只活在測試與文件裡，它是**後端真正跑的那支引擎**：
+
+### `lib/three-core-engine.ts`
+
+```ts
+import { computeThreeCore, assertThreeCoreConsistent } from '@/lib/three-core-engine';
+
+const result = computeThreeCore({
+  birthDate: '1990-05-20',
+  gender: 'female',
+  hourBranchIndex: 11,   // 0=子 … 11=亥；null 代表不知道時辰
+});
+
+assertThreeCoreConsistent(result);   // 三層對不起來就擋下，不讓它出去
+```
+
+| 回傳 | 內容 |
+|---|---|
+| `bazi` | 四柱、日主、年月日時支、三柱五行、四柱五行、節氣、農曆 |
+| `ziwei` | `READY` 或 `UNAVAILABLE_BIRTH_TIME_REQUIRED`（附原因） |
+| `iching` | `READY`（卦象＋格局名）或 `UNAVAILABLE_BIRTH_TIME_REQUIRED` |
+| `crossCheck` | **引擎自己驗自己**的結果，含逐項明細與失敗原因 |
+| `unlockNote` | 時辰未知時的補齊提示；已知時為 `null` |
+
+### 引擎內建的自檢（每次呼叫都跑）
+
+| 檢查 | 守什麼 |
+|---|---|
+| `BAZI_PILLARS_PRESENT` | 第一層四柱齊備 |
+| `HOUR_NOT_FABRICATED` | **時辰未知時時柱必須是 null**，不得代填 |
+| `ZIWEI_BAZI_MATCHES_CORE` | **第二層四柱必須等於第一層** |
+| `ZIWEI_NOT_FORCED` | 時辰未知時不得硬排命宮 |
+| `ICHING_SEED_TRACEABLE` | 起卦依據可回查 |
+| `ICHING_PATTERN_DERIVED` | 格局名由卦象推出 |
+| `ICHING_NOT_FORCED` | 時辰未知時不得硬起卦 |
+
+`assertThreeCoreConsistent()` 用在「要把結果送去表達層／回傳前端」之前。
+三層對不起來卻照樣輸出，就是那個 bug 能活這麼久的原因——**寧可擋掉，
+不要讓客戶拿到互相矛盾的命盤。**
+
+### 未知時辰的實測行為
+
+```
+四柱      庚午 辛巳 乙酉 null      ← 三柱照給，時柱不代填
+紫微      UNAVAILABLE_BIRTH_TIME_REQUIRED
+易經      UNAVAILABLE_BIRTH_TIME_REQUIRED
+三柱五行  與已知時辰時完全相同     ← 與時辰無關，任何時候都成立
+四柱五行  null                     ← 不給含推估時柱的版本
+補齊提示  有
+自檢      通過
+```
+
+### 反向驗證
+
+故意讓第二層算出不同的月柱 → `test:three-core` 立即在六組案例全數報錯；
+故意讓起卦偏移一個卦位 → 卦象與格局名兩處報錯。還原後 69/69 通過。
