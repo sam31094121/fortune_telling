@@ -610,10 +610,10 @@ export default function NumerologyPage() {
             )}
 
             {result.googleExplanation && (
-              <article className="rounded-2xl border border-blue-200/25 bg-blue-300/[0.07] p-4">
-                <p className="text-[10px] font-black tracking-[0.18em] text-blue-100">延伸解說</p>
-                <p className="mt-2 text-sm font-bold leading-7 text-white/82">{result.googleExplanation}</p>
-              </article>
+              <details className="rounded-2xl border border-blue-200/25 bg-blue-300/[0.07] p-4">
+                <summary className="cursor-pointer text-sm font-black text-blue-100">深入看延伸解說</summary>
+                <p className="mt-3 text-sm font-bold leading-7 text-white/82">{result.googleExplanation}</p>
+              </details>
             )}
 
             {/* 「可運用・本次最強」「先留意・本次待補強」兩張卡片與下方金錢／感情吉凶判定內容重複，已依指示隱藏；保留程式碼供之後需要時叫醒。 */}
@@ -676,19 +676,25 @@ export default function NumerologyPage() {
                 <p className="mt-3 text-[10px] font-bold text-white/40">以下是這項判定融合出來的組成依據：金錢、感情兩個中軸。</p>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {twoAxisScores.map((axis) => (
-                  <div key={axis.id} className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm font-black text-white/85">{axis.icon} {axis.label}</span>
-                      <span className={`text-sm font-black ${axis.tier.labelTone}`}>{axis.tier.label}</span>
+              <details className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
+                <summary className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-cyan-50">
+                  深入看金錢與感情強弱
+                  <span className="text-[10px] text-cyan-100/60">展開</span>
+                </summary>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {twoAxisScores.map((axis) => (
+                    <div key={axis.id} className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-sm font-black text-white/85">{axis.icon} {axis.label}</span>
+                        <span className={`text-sm font-black ${axis.tier.labelTone}`}>{axis.tier.label}</span>
+                      </div>
+                      <p className="mt-2 text-xs font-bold leading-5 text-white/60">{axis.tier.feel}</p>
+                      <p className="mt-2 text-[10px] font-semibold leading-4 text-white/40">{axis.note}</p>
+                      <EnergyLine tier={axis.tier} />
                     </div>
-                    <p className="mt-2 text-xs font-bold leading-5 text-white/60">{axis.tier.feel}</p>
-                    <p className="mt-2 text-[10px] font-semibold leading-4 text-white/40">{axis.note}</p>
-                    <EnergyLine tier={axis.tier} />
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </details>
               {/* 技術性校準說明對客戶沒意義，已依指示隱藏；保留程式碼供之後需要時叫醒。 */}
               {false && (
                 <p className="mt-3 text-[11px] font-bold leading-5 text-white/54">金錢、感情兩個中軸各自融合 4 個面向的平均分數，共用同一條八階能量線，最高「大吉」、最低「大凶」。能量線保留大吉、大吉帶吉、吉、半吉、凶帶吉、凶、大凶帶凶、大凶八個位置，呈現分數落點的細微差異；但最終判定只會落在大吉、大吉帶吉、吉、凶、大凶帶凶、大凶六種標籤：55 至 59 分會跳至「吉」，50 至 54 分會跳至「凶」，所以「半吉」與「凶帶吉」只作為視覺刻度、不會成為判定落點。原始分數與 8 個面向的計算依據完整保留。分級門檻依這套固定規則實際算出的分數範圍校準，不是機率統計或人生保證。</p>
