@@ -126,7 +126,12 @@ export class Level01SoundEngine {
         this.master.connect(this.compressor);
         this.compressor.connect(this.context.destination);
       }
-      if (this.context.state === 'suspended') await this.context.resume();
+      // This method is entered directly from a black/white point pointer
+      // gesture. Prime the graph before its first await so Safari and mobile
+      // Chromium both record the real point tap as the audio unlock gesture;
+      // decoding may finish later, but the running context remains permitted.
+      this.primeFromUserGesture();
+      if (this.context.state !== 'running') await this.context.resume();
       await this.decodeThunderAssets();
       return this.thunderBuffers.some(Boolean);
     } catch {
@@ -278,6 +283,26 @@ export class Level01SoundEngine {
       try { source.stop(); } catch { /* already stopped */ }
     });
     this.activeSources.clear();
+  }
+
+  private primeFromUserGesture() {
+    if (!this.context || !this.master) return;
+    try {
+      const source = this.context.createBufferSource();
+      const gain = this.context.createGain();
+      source.buffer = this.context.createBuffer(1, 1, this.context.sampleRate);
+      gain.gain.value = 0;
+      source.connect(gain);
+      gain.connect(this.master);
+      source.start();
+      source.stop(this.context.currentTime + .01);
+      source.onended = () => {
+        source.disconnect();
+        gain.disconnect();
+      };
+    } catch {
+      // The real strike still attempts playback after the context resumes.
+    }
   }
 
   private disposeGraph() {
