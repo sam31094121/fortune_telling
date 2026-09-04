@@ -35,3 +35,37 @@ assert.ok(page.includes("if (!card || analysis?.timeConfidence !== 'exact') retu
 assert.ok(page.includes("result?.ziweiSanFang?.timeConfidence === 'exact' && result?.ritualSteps?.length"));
 assert.ok(!page.includes('暫以午時權重換算'));
 console.log('PASS: unknown time has no verified ritual or star card; exact-time path retained; cached UI guarded');
+
+// ---- 品質核心：前端不准編結論 ----
+// 解讀文字與五行統計都必須來自引擎；呈現層自己寫一段看起來像判讀的話，
+// 就等於前端在編結論（2026-09-04 自我審查發現並修正）。
+assert.ok(
+  !/const YEAR_RELATION_PLAIN/.test(page),
+  '五行關係的白話解讀不得寫在前端，必須由 annual-fortune-engine 產出',
+);
+assert.ok(
+  !/const ZIWEI_STEM_ELEMENT|const ZIWEI_BRANCH_ELEMENT/.test(page),
+  '前端不得自備天干地支五行對照表自行統計，必須用引擎的 elementBalanceThreePillar',
+);
+assert.ok(page.includes('yearRelationPlain'), '前端要顯示引擎產出的白話解讀');
+assert.ok(page.includes('elementBalanceThreePillar'), '三柱五行分布要用引擎欄位');
+
+const annualEngine = fs.readFileSync(path.join(root, 'lib/annual-fortune-engine.ts'), 'utf8');
+assert.ok(annualEngine.includes('yearRelationPlain'), '引擎必須輸出白話解讀欄位');
+const sanfangEngine = fs.readFileSync(path.join(root, 'lib/ziwei-sanfang-engine.ts'), 'utf8');
+assert.ok(sanfangEngine.includes('elementBalanceThreePillar'), '引擎必須輸出三柱五行分布');
+
+// ---- 信任核心：不得端出系統自己否認的宣稱 ----
+// scoreMethodology 明講「未採用人群百分位」，畫面就不能寫「超越全國 N% 的人」。
+// 只鎖真的會渲染出去的寫法；註解裡為了說明而引用舊字串是允許的。
+const pageWithoutComments = page.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+assert.ok(
+  !/超越全國/.test(pageWithoutComments),
+  '後端已否認人群百分位，前端不得宣稱超越全國多少人',
+);
+assert.ok(!/percentile\}%/.test(pageWithoutComments), '不得渲染 percentile 百分位數字');
+
+// ---- 服務核心：無時辰不得是死路 ----
+assert.ok(page.includes('補上出生時辰，解鎖完整命盤'), '無時辰結果頁必須有可點的補時辰入口');
+
+console.log('PASS: 前端不編結論、不做已否認的宣稱、無時辰不是死路');

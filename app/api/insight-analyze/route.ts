@@ -14,6 +14,9 @@ const analysisCache = new Map<string, { result: unknown; timestamp: number }>();
 const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 分鐘快取
 
 const ipCache = new Map<string, { count: number; resetTime: number }>();
+/** 一次完整體驗只會用掉 1～2 次；15 次留給重算與同一個出口 IP 後面的其他人。 */
+const RATE_LIMIT_MAX = 15;
+const RATE_LIMIT_WINDOW_MS = 60_000;
 
 function cleanIpCache() {
   const now = Date.now();
@@ -98,15 +101,32 @@ export async function POST(request: Request) {
 
   cleanIpCache();
 
+  /*
+    只擋、先不計數。
+
+    原本計數器在驗證之前就 +1，於是：客戶打錯生日被擋下的 400 照樣扣額度、
+    連伺服器快取命中（本來零成本）也扣額度。額度又只有 5 次／60 秒／每個 IP——
+    行動網路走 CGNAT，同一個出口 IP 後面可能是幾千人，第一次來的客戶什麼都還沒做完
+    就被告知「請求過於頻繁」。
+    現在改成：驗證通過、且真的要進運算時才計數，並把額度放寬到 15。
+  */
   const limitRecord = ipCache.get(ip);
-  if (limitRecord && now < limitRecord.resetTime) {
-    if (limitRecord.count >= 5) {
-      return friendlyErrorResponse(requestId, 'RATE_LIMITED', '請求過於頻繁，請稍後再試。', 429);
-    }
-    limitRecord.count += 1;
-  } else {
-    ipCache.set(ip, { count: 1, resetTime: now + 60_000 });
+  const withinWindow = Boolean(limitRecord && now < limitRecord.resetTime);
+  if (withinWindow && (limitRecord as { count: number }).count >= RATE_LIMIT_MAX) {
+    const retryAfterSec = Math.max(1, Math.ceil(((limitRecord as { resetTime: number }).resetTime - now) / 1000));
+    return friendlyErrorResponse(
+      requestId,
+      'RATE_LIMITED',
+      `太多人同時在算，約 ${retryAfterSec} 秒後再按一次就好。你填的資料都還在。`,
+      429,
+      { 'Retry-After': String(retryAfterSec) },
+    );
   }
+  const countThisRequest = () => {
+    const record = ipCache.get(ip);
+    if (record && Date.now() < record.resetTime) record.count += 1;
+    else ipCache.set(ip, { count: 1, resetTime: Date.now() + RATE_LIMIT_WINDOW_MS });
+  };
 
   let body: InsightRequest;
 
@@ -134,6 +154,9 @@ export async function POST(request: Request) {
       headers: { 'X-Cache': 'HIT' },
     });
   }
+
+  // 到這裡才是真的要花運算資源，這時候才計入額度。
+  countThisRequest();
 
   try {
     const result = await generateInsightAnalysis(body);

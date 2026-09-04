@@ -15,6 +15,7 @@ import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import { searchCities, findCityById, type CityEntry } from '@/lib/city-directory';
 import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
+import { clearZiweiResult, describeSavedAt, readZiweiResult, saveZiweiResult } from '@/lib/ziwei-result-cache';
 import { getFiveElementShortName, type FiveElementIntegrationResult, type FiveElementKey } from '@/lib/five-element-engine';
 import type { InsightRitualStep } from '@/lib/insight-engine';
 import type { ZiweiDestinyCard as ZiweiDestinyCardModel } from '@/lib/ziwei-destiny-card';
@@ -112,6 +113,7 @@ interface InsightResult {
       hour: string;
       dayMaster: string;
       elementBalance: Record<string, number>;
+      elementBalanceThreePillar?: Record<string, number>;
     };
     palaces: {
       key: 'MING' | 'CAI_BO' | 'GUAN_LU' | 'QIAN_YI';
@@ -245,6 +247,7 @@ interface InsightResult {
       dayMaster: string;
       yearRelation: string;
       elementBalanceSummary: string;
+      yearRelationPlain?: string;
       advice: string;
     };
     sanFangFourZheng: {
@@ -702,8 +705,9 @@ function ScoreEvidenceCard({ item }: { item: InsightResult['statisticalAnalysis'
           <p className="font-semibold text-[color:var(--text-main)]">{item.dimension}</p>
           <p className="mt-1 text-xs text-[color:var(--text-muted)]">{item.globalComparison}</p>
         </div>
-        <div className="text-right">
-          <p className="text-3xl font-bold text-[color:var(--text-main)]">{item.score}</p>
+        {/* shrink-0：窄螢幕上分數欄會被壓縮，兩位數的「68」曾被斷成「6」「8」兩行。 */}
+        <div className="shrink-0 text-right">
+          <p className="whitespace-nowrap text-3xl font-bold tabular-nums text-[color:var(--text-main)]">{item.score}</p>
           <p className="text-xs text-[color:var(--text-muted)]">分</p>
         </div>
       </div>
@@ -712,10 +716,14 @@ function ScoreEvidenceCard({ item }: { item: InsightResult['statisticalAnalysis'
         <div className="h-full rounded-full transition-all" style={{ width: `${item.score}%`, background: color }} />
       </div>
 
-      <div className="mt-4 grid gap-2 text-xs text-[color:var(--text-sub)] sm:grid-cols-2">
-        <p>超越全國：{item.percentile}% 的人</p>
-        {item.sampleSize && <p>樣本基準：{item.sampleSize.toLocaleString()}</p>}
-      </div>
+      {/*
+        原本這裡寫「超越全國：{percentile}% 的人」——但後端的 scoreMethodology 明講
+        「未採用人群百分位；目前沒有可驗證的外部樣本資料集」，percentile 實際回傳 0。
+        端出一個系統自己否認的宣稱，比不講更傷信任。只留真的成立的那句。
+      */}
+      {item.formula && (
+        <p className="mt-4 text-xs leading-6 text-[color:var(--text-muted)]">計算方式：{item.formula}</p>
+      )}
 
       {item.sourceBreakdown && (
         <div className="mt-4 grid gap-2">
@@ -872,6 +880,328 @@ function ZiweiSanFangPanel({ analysis }: { analysis?: InsightResult['ziweiSanFan
           ))}
         </div>
       </div>}
+    </section>
+  );
+}
+
+/**
+ * 「我真的懂你」——首頁承諾的那份禮物。
+ *
+ * psychologyInsights 後端一直都有算（五條，含〈易經心理學・我最懂你〉），
+ * 但前端從來沒有渲染過：整份型別裡它只出現在 interface，一次都沒被用到。
+ * 首頁卡片寫著「🎁 拆開有禮：你的特殊格局名稱，和一句『我真的懂你』」，
+ * 客戶走完全程卻一個字都看不到——承諾與產出對不上，是最傷信任的一種。
+ */
+function InsightPsychologyCard({ insights }: { insights?: InsightResult['psychologyInsights'] }) {
+  const items = (insights ?? []).filter((item) => item?.title && item?.description);
+  if (items.length === 0) return null;
+  const [lead, ...rest] = items;
+
+  return (
+    <section className="fortune-card border-rose-300/25 p-6 sm:p-8">
+      <p className="text-xs uppercase tracking-[0.35em] text-rose-300">拆開有禮</p>
+      <h3 className="mt-3 font-serif text-2xl text-rose-100">{lead.title}</h3>
+      <p className="mt-4 whitespace-pre-line text-sm leading-8 text-[color:var(--text-sub)]">{lead.description}</p>
+      {rest.length > 0 && (
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          {rest.map((item) => (
+            <article key={item.title} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+              <p className="text-sm font-black text-rose-100">{item.title}</p>
+              <p className="mt-2 whitespace-pre-line text-xs leading-6 text-[color:var(--text-sub)]">{item.description}</p>
+            </article>
+          ))}
+        </div>
+      )}
+      <p className="mt-5 text-[11px] leading-6 text-[color:var(--text-muted)]">
+        這一段是依你的命盤與出生資料寫成的自我反思材料，不是心理診斷，也不是對未來的斷言。
+      </p>
+    </section>
+  );
+}
+
+/**
+ * 接下來可以做的事。
+ *
+ * personalizedRecommendations 與 annualFortune.recommendations 後端各算了四條，
+ * 兩邊都沒有渲染。客戶讀完命盤，最想知道的「那我現在該做什麼」整段是空的。
+ */
+function InsightActionCard({
+  personal,
+  annual,
+}: {
+  personal?: string[];
+  annual?: string[];
+}) {
+  // 兩邊偶爾會講到同一件事，合併後去重，不要讓客戶讀到兩次一樣的話。
+  const merged = [...(annual ?? []), ...(personal ?? [])]
+    .map((item) => item?.trim())
+    .filter((item): item is string => Boolean(item));
+  const actions = merged.filter((item, index) => merged.indexOf(item) === index).slice(0, 6);
+  if (actions.length === 0) return null;
+
+  return (
+    <section className="fortune-card border-emerald-300/25 p-6 sm:p-8">
+      <p className="text-xs uppercase tracking-[0.35em] text-emerald-300">接下來</p>
+      <h3 className="mt-3 font-serif text-2xl text-emerald-100">今年可以先做這幾件事</h3>
+      <div className="mt-5 grid gap-2.5">
+        {actions.map((action, index) => (
+          <div key={action} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/20 p-4">
+            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-300/20 text-xs font-black text-emerald-100">
+              {index + 1}
+            </span>
+            <p className="min-w-0 text-sm leading-7 text-[color:var(--text-sub)]">{action}</p>
+          </div>
+        ))}
+      </div>
+      <p className="mt-4 text-[11px] leading-6 text-[color:var(--text-muted)]">
+        這些是可選的小步驟，不是必須照做的指令；做不到也不影響上面的命盤結論。
+      </p>
+    </section>
+  );
+}
+
+/**
+ * 這份判定怎麼來的——信任度的核心。
+ *
+ * 後端把最能建立信任的東西全部算好了：四項資料品質評估（各自帶說明）、
+ * 計算公式、以及三句罕見誠實的聲明（不是大數據樣本、不採人群百分位、同分不人為拆分），
+ * 還有十二項指標的逐項算式「安全感需求 = 85×50% + 50×40% + 50×10% = 67.5，四捨五入 68」。
+ * 這些一項都沒顯示過。
+ *
+ * 卡片只在驗證清單裡寫了一句「本次判定準確度評估完成 ✓」——宣稱看得到，證據看不到，
+ * 對信任來說剛好是反的。這一區把證據補上，並且刻意不把分數包裝成「算命準確率」。
+ */
+function InsightTrustCard({
+  analysis,
+  meta,
+  breakdown,
+  methodology,
+  metrics,
+}: {
+  analysis?: InsightResult['ziweiSanFang'];
+  meta?: InsightResult['meta'];
+  breakdown?: InsightResult['accuracyBreakdown'];
+  methodology?: InsightResult['scoreMethodology'];
+  metrics?: InsightResult['statisticalAnalysis'];
+}) {
+  const bazi = analysis?.bazi;
+  const hasAnything = Boolean(bazi?.day || breakdown?.length || methodology || metrics?.length);
+  if (!hasAnything) return null;
+  const timeKnown = analysis?.timeConfidence === 'exact';
+
+  return (
+    <section className="fortune-card border-cyan-300/25 p-6 sm:p-8">
+      <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">可回查</p>
+      <h3 className="mt-3 font-serif text-2xl text-cyan-100">這份判定怎麼來的</h3>
+      <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--text-sub)]">
+        下面每一項都可以自己核對。命盤排錯了，後面寫得再好也沒有意義——所以先把依據攤開。
+      </p>
+
+      {bazi?.day && (
+        <div className="mt-6">
+          <p className="text-xs font-black tracking-[0.16em] text-cyan-200">命盤依據・四柱</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {[
+              { label: '年柱', value: bazi.year },
+              { label: '月柱', value: bazi.month },
+              { label: '日柱', value: bazi.day },
+              { label: '時柱', value: timeKnown ? bazi.hour : '待補' },
+            ].map((pillar) => (
+              <div
+                key={pillar.label}
+                className={`rounded-2xl border px-3 py-3 text-center ${pillar.value === '待補' ? 'border-dashed border-amber-400/40 bg-amber-950/15' : 'border-cyan-400/20 bg-cyan-950/20'}`}
+              >
+                <p className="text-xs text-[color:var(--text-muted)]">{pillar.label}</p>
+                <p className={`mt-1 font-serif text-lg font-black ${pillar.value === '待補' ? 'text-amber-200/80' : 'text-cyan-100'}`}>
+                  {pillar.value || '—'}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 grid gap-2 text-xs leading-6 text-[color:var(--text-muted)] sm:grid-cols-2">
+            <p>日主：{bazi.dayMaster || '—'}（由日柱天干決定，與時辰無關）</p>
+            <p>月柱以節氣為界，不是國曆一號；時區採台灣標準時間。</p>
+            {meta?.shichenLabel && <p>時辰：{timeKnown ? meta.shichenLabel : '未確認，時柱不計入'}</p>}
+            {analysis?.methodVersion && <p>規則版本：{analysis.methodVersion}</p>}
+          </div>
+        </div>
+      )}
+
+      {(breakdown?.length ?? 0) > 0 && (
+        <div className="mt-6">
+          <p className="text-xs font-black tracking-[0.16em] text-cyan-200">資料品質・四項評估</p>
+          {/* 刻意不寫「準確度」：這幾項評的是輸入資料完不完整、來源一致不一致，不是預測會不會成真。 */}
+          <p className="mt-1.5 text-xs leading-6 text-[color:var(--text-muted)]">
+            評的是「資料完不完整、規則有沒有跑齊」，不是「預測會不會成真」。命理不做準確率宣稱。
+          </p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {(breakdown ?? []).map((item) => (
+              <div key={item.label} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="text-sm font-black text-white">{item.label}</p>
+                  <p className="text-lg font-black text-cyan-100">{item.value}</p>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full rounded-full bg-cyan-300/70" style={{ width: `${Math.max(0, Math.min(100, item.value))}%` }} />
+                </div>
+                <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {methodology && (
+        <div className="mt-6 rounded-2xl border border-amber-300/25 bg-amber-950/15 p-5">
+          <p className="text-xs font-black tracking-[0.16em] text-amber-200">我們沒有做的事</p>
+          <div className="mt-3 space-y-2 text-xs leading-6 text-[color:var(--text-sub)]">
+            <p>· 計算公式：{methodology.formula}</p>
+            <p>· {methodology.sampleBasis}</p>
+            <p>· {methodology.percentile}</p>
+            <p>· {methodology.duplicatePolicy}</p>
+          </div>
+        </div>
+      )}
+
+      {(metrics?.length ?? 0) > 0 && (
+        <details className="group mt-6 rounded-2xl border border-white/12 bg-black/20">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 [&::-webkit-details-marker]:hidden">
+            <span className="text-sm font-black text-white">每一個分數的算式（{metrics?.length} 項）</span>
+            <span className="shrink-0 text-xs font-black text-white/50">
+              <span className="group-open:hidden">展開驗算 ▾</span>
+              <span className="hidden group-open:inline">收起 ▴</span>
+            </span>
+          </summary>
+          <div className="grid gap-3 border-t border-white/10 p-4">
+            {(metrics ?? []).map((item) => (
+              <ScoreEvidenceCard key={item.dimension} item={item} />
+            ))}
+          </div>
+        </details>
+      )}
+    </section>
+  );
+}
+
+/**
+ * 無時辰時，客戶到底能拿到什麼。
+ *
+ * 原本這條路徑（而且它是預設選項）等十一秒之後只回三百多個字，內容是三次
+ * 「你要有時辰才行」，連補時辰的按鈕都沒有——但表單和首頁都承諾過「先以生日資料
+ * 完成趨勢參考」。
+ *
+ * 這一區只放「不需要時辰就成立」的東西：年月日三柱、日主、今年干支與日主的生剋。
+ * 刻意不用 plainSummary、統計指標與三方四正——那些在時辰未知時是用暫定良辰算的，
+ * 端出去就違背了這張卡自己寫的「不代填午時」。時柱明確標成「待補」，不留白讓人誤會。
+ */
+function NoHourTrendCard({
+  analysis,
+  annual,
+  meta,
+  onFillHour,
+}: {
+  analysis?: InsightResult['ziweiSanFang'];
+  annual?: InsightResult['annualFortune'];
+  meta?: InsightResult['meta'];
+  onFillHour: () => void;
+}) {
+  if (!analysis || analysis.timeConfidence === 'exact') return null;
+  const bazi = analysis.bazi;
+  if (!bazi?.day) return null;
+
+  const threePillars = [
+    { label: '年柱', value: bazi.year },
+    { label: '月柱', value: bazi.month },
+    { label: '日柱', value: bazi.day },
+  ];
+  // 五行分布與白話解讀都由引擎產出，前端只負責顯示——不自己數、也不自己編。
+  const balance = bazi.elementBalanceThreePillar ?? {};
+  const relation = annual?.baziFocus?.yearRelation ?? '';
+  const relationPlain = annual?.baziFocus?.yearRelationPlain ?? '';
+
+  return (
+    <section className="fortune-card border-cyan-400/25 p-6 sm:p-8">
+      <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">不需要時辰也算得出來</p>
+      <h3 className="mt-3 font-serif text-2xl text-cyan-100">你的三柱與今年</h3>
+      <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--text-sub)]">
+        出生時辰只影響命宮與十二宮。年、月、日三柱和今年的流年關係，靠生日就算得出來——
+        以下每一項都不含任何推估時辰，時柱直接標成待補。
+      </p>
+
+      <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {threePillars.map((pillar) => (
+          <div key={pillar.label} className="rounded-2xl border border-cyan-400/20 bg-cyan-950/20 px-3 py-4 text-center">
+            <p className="text-xs text-[color:var(--text-muted)]">{pillar.label}</p>
+            <p className="mt-1.5 font-serif text-xl font-black text-cyan-100">{pillar.value || '—'}</p>
+          </div>
+        ))}
+        <div className="rounded-2xl border border-dashed border-amber-400/40 bg-amber-950/15 px-3 py-4 text-center">
+          <p className="text-xs text-[color:var(--text-muted)]">時柱</p>
+          <p className="mt-1.5 font-serif text-xl font-black text-amber-200/80">待補</p>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+          <p className="text-xs text-[color:var(--text-muted)]">你的日主</p>
+          <p className="mt-1.5 text-lg font-black text-cyan-100">{bazi.dayMaster || meta?.wuxing || '—'}</p>
+          <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">
+            日主由日柱天干決定，跟出生時辰無關——這是整張命盤裡最先確定的一個點。
+          </p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+          <p className="text-xs text-[color:var(--text-muted)]">三柱五行分布</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {Object.entries(balance).map(([element, count]) => (
+              <span
+                key={element}
+                className={`rounded-full border px-2.5 py-1 text-xs font-bold ${count > 0 ? 'border-cyan-300/35 bg-cyan-300/10 text-cyan-100' : 'border-white/10 text-white/35'}`}
+              >
+                {element} {count}
+              </span>
+            ))}
+          </div>
+          <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">只統計年、月、日三柱；補上時辰後會再加一柱。</p>
+        </div>
+      </div>
+
+      {annual?.ganzhi && (
+        <div className="mt-4 rounded-2xl border border-amber-400/25 bg-amber-950/15 p-5">
+          <p className="text-xs font-black tracking-[0.2em] text-amber-200">
+            {annual.year} {annual.ganzhi}年・{annual.yearElement}
+          </p>
+          {relation && (
+            <p className="mt-2 text-lg font-black text-amber-100">
+              對你的日主{bazi.dayMaster}形成「{relation}」
+            </p>
+          )}
+          {relationPlain && <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{relationPlain}</p>}
+          <p className="mt-3 text-xs leading-6 text-[color:var(--text-muted)]">
+            這一段只用到日主與流年干支，兩者都跟時辰無關，補上時辰也不會改變。
+          </p>
+        </div>
+      )}
+
+      <div className="mt-5 rounded-2xl border border-white/10 bg-black/25 p-5">
+        <p className="text-sm font-black text-white">補上時辰才算得出來的部分</p>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {['命宮與十二宮', '三方四正', '主星與四化', '命盤格局', '稱骨重量', '兩位老師解盤', '命宮塔羅'].map((item) => (
+            <span key={item} className="rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 text-xs font-bold text-white/60">
+              🔒 {item}
+            </span>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={onFillHour}
+          className="mt-4 w-full rounded-2xl border border-cyan-300/55 bg-cyan-400/18 px-4 py-4 text-sm font-black text-cyan-50 transition hover:bg-cyan-400/28"
+        >
+          補上出生時辰，解鎖完整命盤 →
+        </button>
+        <p className="mt-2 text-xs leading-6 text-[color:var(--text-muted)]">
+          不知道也沒關係：問一下家裡，或翻出生證明、寶寶手冊上的時間。上面這三柱不會因此改變。
+        </p>
+      </div>
     </section>
   );
 }
@@ -3818,9 +4148,30 @@ function ZiweiTwelvePalaceCards({
                 <span className={`pointer-events-none absolute -right-2 -top-8 font-serif text-[118px] font-black leading-none opacity-[0.08] ${visual.accent}`}>{visual.glyph}</span>
                 <span className="pointer-events-none absolute bottom-5 right-5 h-2 w-2 rounded-full bg-white/60 shadow-[0_0_18px_rgba(255,255,255,0.95)]" />
                 <summary className="relative flex min-h-[132px] cursor-pointer touch-manipulation select-none list-none items-center justify-between gap-4 rounded-2xl px-3 py-4 [-webkit-tap-highlight-color:transparent] [&::-webkit-details-marker]:hidden">
-                  <div>
+                  {/*
+                    收合狀態原本十二張卡寫的都是同一句「點選按鈕展開完整資料」，
+                    命宮和父母宮長得一模一樣，客戶不知道該點哪一個，也看不出哪一宮重要。
+                    主星、亮度、四化這些資料本來就在 palace 裡，收合時先給一行摘要。
+                  */}
+                  <div className="min-w-0">
                     <h4 className="font-serif text-[2.6rem] font-black leading-none tracking-[0.08em] text-white drop-shadow-[0_4px_18px_rgba(255,255,255,0.16)] sm:text-5xl">{palaceName}</h4>
-                    <p className={`mt-3 text-xs font-black tracking-[0.12em] ${visual.accent}`}>點選按鈕展開完整資料</p>
+                    <p className={`mt-2.5 text-sm font-black leading-6 ${visual.accent} group-open:hidden`}>
+                      {palace.majorStars.length ? palace.majorStars.join('・') : '無主星・借對宮判讀'}
+                      {palace.majorStars.length > 0 && brightnessByStar.get(palace.majorStars[0]) && (
+                        <span className="ml-1.5 text-xs font-bold opacity-70">
+                          {normalizeBrightness(brightnessByStar.get(palace.majorStars[0]))}
+                        </span>
+                      )}
+                    </p>
+                    {(palace.transformations?.length ?? 0) > 0 && (
+                      <span className="mt-2 inline-block rounded-full border border-amber-200/40 bg-amber-300/15 px-2.5 py-0.5 text-[11px] font-black text-amber-100 group-open:hidden">
+                        四化 {formatStars(palace.transformations ?? [], '—')}
+                      </span>
+                    )}
+                    <p className={`mt-2 text-xs font-black tracking-[0.12em] ${visual.accent} opacity-70`}>
+                      <span className="group-open:hidden">點開看完整星曜與解讀</span>
+                      <span className="hidden group-open:inline">完整資料如下</span>
+                    </p>
                   </div>
                   <span className={`rounded-full border px-4 py-2 text-sm font-black shadow-[0_8px_20px_rgba(2,6,23,0.2)] ${visual.chip}`}><span className="group-open:hidden">查看{palaceName}資料</span><span className="hidden group-open:inline">收起資料</span></span>
                 </summary>
@@ -4226,15 +4577,27 @@ function InsightAnalyticalConsole({
 }) {
   const [logs, setLogs] = useState<string[]>([]);
 
+  /*
+    實測整段運算約 16 秒，原本只有 4 行、1.8 秒就全部跑完，
+    剩下十幾秒畫面完全不動——客戶會開始懷疑是不是當掉了。
+    這裡把步驟拉長到覆蓋整段等待，每一行都對應後端真的在做的事。
+  */
   const fullLogs = useMemo(() => [
     `【資料確認】正在整理本次輸入資料：${name || '未填寫姓名'}`,
-    `【紫微排盤】正在建立命盤、三方四正與年度資料…`,
-    `【規則運算】依出生日期與時辰執行排盤與交叉整理…`,
-    `【白話整理】正在把命盤資訊轉成可閱讀的重點說明…`,
+    '【四柱定位】換算年、月、日、時四柱與日主五行…',
+    '【紫微排盤】建立十二宮位與十四主星落宮…',
+    '【四化飛星】判讀祿、權、科、忌的飛化路徑…',
+    '【三方四正】交叉比對命、財、官、遷四宮訊號…',
+    '【流年運算】把今年干支疊上命盤，計算年度方向…',
+    '【五行整合】彙整四柱與星曜的五元素強弱…',
+    '【白話整理】把命盤資訊轉成可閱讀的重點說明…',
   ], [name]);
+
+  const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
     setLogs([]);
+    setElapsed(0);
     let currentIndex = 0;
     const interval = setInterval(() => {
       if (currentIndex < fullLogs.length) {
@@ -4243,8 +4606,13 @@ function InsightAnalyticalConsole({
       } else {
         clearInterval(interval);
       }
-    }, 450);
-    return () => clearInterval(interval);
+    }, 1700);
+    // 步驟跑完之後仍在等 AI：用秒數讓客戶看得到畫面還活著。
+    const ticker = setInterval(() => setElapsed((value) => value + 1), 1000);
+    return () => {
+      clearInterval(interval);
+      clearInterval(ticker);
+    };
   }, [fullLogs]);
 
   return (
@@ -4261,9 +4629,13 @@ function InsightAnalyticalConsole({
                 {log}
               </p>
             ))}
-            {logs.length < fullLogs.length && (
+            {logs.length < fullLogs.length ? (
               <p className="text-cyan-400">
                 【天盤運轉】正在解密命相運算軌道...<span className="console-cursor" />
+              </p>
+            ) : (
+              <p className="text-cyan-400">
+                【收尾】兩位老師正在讀你的命盤，已經 {elapsed} 秒…<span className="console-cursor" />
               </p>
             )}
           </div>
@@ -4434,6 +4806,28 @@ export default function InsightPage() {
   const mainRef = useRef<HTMLElement>(null);
   const errorBannerRef = useRef<HTMLDivElement>(null);
 
+  /**
+   * 從結果頁跳回時辰欄位，並把 12 張時辰卡打開、不預選任何一張。
+   *
+   * 捲動有退路：部分 in-app 瀏覽器與開啟「減少動態效果」的裝置會直接忽略 smooth，
+   * 畫面完全不動，客戶按了按鈕看不到任何變化，就會認定按鈕是壞的。
+   */
+  function jumpToHourPicker() {
+    setInput((prev) => ({ ...prev, shichen: typeof prev.shichen === 'number' ? prev.shichen : 'known' }));
+    setResult(null);
+    /*
+      收掉結果會讓頁面高度整個塌下來，只捲一次會停在舊版面算出來的位置。
+      分三次校正：第一次先到位，後兩次在版面穩定後修正落點。
+      最後一次用瞬間捲動收尾，避免 smooth 被裝置忽略時停在半路。
+    */
+    [90, 320, 620].forEach((delay, index) => {
+      window.setTimeout(() => {
+        const target = document.querySelector('[data-field="birthHourBranch"]');
+        target?.scrollIntoView(index === 2 ? { block: 'center' } : { behavior: 'smooth', block: 'center' });
+      }, delay);
+    });
+  }
+
   function jumpToTodayResult() {
     const existing = readDailyAnalysis<InsightResult>('ziwei');
     if (existing) {
@@ -4443,6 +4837,25 @@ export default function InsightPage() {
     }
     window.setTimeout(() => mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
   }
+
+  /*
+    重新整理、切換 App 回來、或按到上一頁時，把 24 小時內算過的結果還原。
+    連同當時的出生資料一起還原——只還原結果卻忘記時辰，客戶按重新分析
+    又會掉回「不知道時辰」，等於白還原。
+  */
+  useEffect(() => {
+    const cached = readZiweiResult<InsightResult, InsightData>();
+    if (!cached) return;
+    setInput((prev) => ({ ...prev, ...cached.input }));
+    setResult(cached.result);
+    setRestoredAt(cached.savedAt);
+    showRitualCompleteImmediately(cached.result.ritualSteps);
+    if (cached.input?.gender) {
+      setSelectionConfirm((prev) => ({ ...prev, gender: true }));
+    }
+    // 只在首次掛載還原一次。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 檢測 Fast Refresh 或 Chunk 載入錯誤，自動維修重新載入，防禦白屏
   useEffect(() => {
@@ -4477,6 +4890,8 @@ export default function InsightPage() {
   const [ritualCollapsed, setRitualCollapsed] = useState(false);
   const ritualTimerRef = useRef<number | null>(null);
   const submitLockRef = useRef(false);
+  /** 這份結果是從本機還原的，值為當初算出來的時間；重新算過就清掉。 */
+  const [restoredAt, setRestoredAt] = useState<number | null>(null);
 
   const isCurrentInputResult = (record: DailyAnalysisRecord<InsightResult> | null) => {
     const saved = record?.result.meta;
@@ -4727,6 +5142,9 @@ export default function InsightPage() {
 
         const json = (await response.json()) as InsightResult;
         setResult(json);
+        // 兩支 AI 跑十六秒才有的東西，不能只活在記憶體裡：重新整理或手機回收分頁就沒了。
+        saveZiweiResult<InsightResult, InsightData>(json, input);
+        setRestoredAt(null);
         setDailyRecord(saveDailyAnalysis<InsightResult>('ziwei', json));
         markGrowthModuleCompleted('ziwei', json.fiveElement?.brandElement);
         if (json.ritualSteps?.length) {
@@ -4815,6 +5233,21 @@ export default function InsightPage() {
             </section>
 
             <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="易經紫微斗數" onViewResult={dailyRecord ? jumpToTodayResult : undefined} />
+            {/*
+              客戶從首頁點「易經紫微斗數」進來，第一屏原本是「返回首頁」接著就是
+              「第 0 步・這次要算誰」——沒有卡片名稱、沒有一句承諾，直接開口要資料。
+              （原本的大標放在一個 hidden 容器裡，依隱藏永久生效原則不叫醒它，另做這一列。）
+            */}
+            {!result && !loading && (
+              <header className="mb-4 rounded-3xl border border-indigo-400/25 bg-[linear-gradient(135deg,rgba(30,27,75,0.85),rgba(2,6,23,0.92))] p-5 sm:p-6">
+                <p className="text-[11px] font-black tracking-[0.28em] text-indigo-300">易經 · 紫微斗數命盤</p>
+                <h1 className="mt-2 font-serif text-2xl font-black text-indigo-50 sm:text-3xl">看懂你的命盤，掌握今年方向</h1>
+                <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">
+                  填生日就能看三柱與今年流年；補上時辰，再解鎖命宮、十二宮、四化與兩位老師解盤。
+                </p>
+              </header>
+            )}
+
             <div id="input-form" className="fortune-card p-4 sm:p-8 scroll-mt-20">
               {loading && <InsightAnalyticalConsole name={input.name} />}
               <div className={loading ? 'hidden' : 'space-y-6 sm:space-y-8'}>
@@ -4991,12 +5424,14 @@ export default function InsightPage() {
                           <button
                             key={s.branchIndex}
                             type="button"
+                            // 只用顏色標示選中，讀屏無從得知選了哪一張，色弱與強光下也難分辨。
+                            aria-pressed={selected}
                             onClick={() => setInput({ ...input, shichen: s.branchIndex })}
                             className={`rounded-xl border px-3 py-3 text-left transition-all ${
                               selected ? 'border-cyan-200 bg-cyan-400/20 text-cyan-100 shadow-[0_0_18px_rgba(255,255,255,0.18)]' : 'border-white/10 bg-white/5 hover:border-cyan-300/50 hover:bg-cyan-400/10'
                             }`}
                           >
-                            <p className={`text-base font-bold ${selected ? 'text-cyan-100' : 'text-[color:var(--text-main)]'}`}>{s.label}</p>
+                            <p className={`text-base font-bold ${selected ? 'text-cyan-100' : 'text-[color:var(--text-main)]'}`}>{selected ? '✓ ' : ''}{s.label}</p>
                             <p className="mt-0.5 text-xs font-semibold text-[color:var(--text-sub)]">{s.range}</p>
                             <p className="mt-1 text-[11px] leading-4 text-[color:var(--text-muted)]">{s.imagery}</p>
                           </button>
@@ -5169,17 +5604,47 @@ export default function InsightPage() {
               </svg>
             </div>
             {result?.ziweiSanFang?.timeConfidence === 'exact' && result?.ritualSteps?.length ? (
-              <div
-                className="grid overflow-hidden transition-[grid-template-rows] duration-500 ease-out"
-                style={{ gridTemplateRows: ritualCollapsed ? '0fr' : '1fr' }}
-              >
-                <div className="min-h-0 pb-5">
-                  <ZiweiRitualStepsPanel steps={result.ritualSteps} revealCount={ritualRevealCount} collapsing={ritualCollapsed} />
+              <>
+                <div
+                  className="grid overflow-hidden transition-[grid-template-rows] duration-500 ease-out"
+                  style={{ gridTemplateRows: ritualCollapsed ? '0fr' : '1fr' }}
+                  aria-hidden={ritualCollapsed || undefined}
+                >
+                  <div className="min-h-0 pb-5">
+                    <ZiweiRitualStepsPanel steps={result.ritualSteps} revealCount={ritualRevealCount} collapsing={ritualCollapsed} />
+                  </div>
                 </div>
-              </div>
+                {/*
+                  這 12 項是真實的後端檢查，是整張卡最有力的可信度證據；
+                  原本演完就收合成一條看不見的 20px，客戶再也叫不回來，
+                  隱藏的文字卻還留在無障礙樹裡被讀屏唸出來。
+                */}
+                {ritualCollapsed && (
+                  <button
+                    type="button"
+                    onClick={() => setRitualCollapsed(false)}
+                    aria-expanded={false}
+                    className="mb-5 flex w-full items-center justify-between gap-3 rounded-2xl border border-emerald-300/25 bg-emerald-950/20 px-4 py-3 text-left transition hover:border-emerald-300/50 hover:bg-emerald-950/35"
+                  >
+                    <span className="text-sm font-black text-emerald-100">
+                      命盤逐宮驗證・{result.ritualSteps.length}/{result.ritualSteps.length} 通過
+                    </span>
+                    <span className="shrink-0 text-xs font-black text-emerald-200/80">看驗證明細 ▾</span>
+                  </button>
+                )}
+              </>
             ) : null}
             <div className={`space-y-6 transition-opacity duration-500 ${result?.ziweiSanFang?.timeConfidence !== 'exact' || !result?.ritualSteps?.length || ritualCollapsed ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
             <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="易經紫微斗數" onViewResult={jumpToTodayResult} />
+            {/* 還原回來時要講清楚這份是什麼時候算的，否則客戶會以為系統只是沒反應。 */}
+            {restoredAt !== null && (
+              <div className="mb-5 rounded-2xl border border-cyan-400/25 bg-cyan-950/20 p-4" role="status">
+                <p className="text-sm font-black text-cyan-100">{`這是你${describeSavedAt(restoredAt)}算過的命盤，幫你留著了`}</p>
+                <p className="mt-1.5 text-xs leading-6 text-[color:var(--text-sub)]">
+                  出生資料也一起還原了，不用重填。想換資料或重算，按下面的「重新分析」。
+                </p>
+              </div>
+            )}
             <div className="fortune-card relative hidden overflow-hidden border-amber-400/25 bg-slate-950/55 p-6 sm:p-8">
               <div className="pointer-events-none absolute inset-4 border border-cyan-400/10" />
               <div className="relative flex flex-col gap-5 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
@@ -5207,6 +5672,14 @@ export default function InsightPage() {
 
             <ZiweiDestinyCardView card={result?.destinyCard} subjectName={input.name} subjectBirthDate={input.birthDate} analysis={result?.ziweiSanFang} annual={result?.annualFortune} analysisId={result?.presentation?.analysisId ?? result?.analysisId} fiveElement={result?.fiveElement} />
 
+            {/* 無時辰時，這是客戶唯一拿得到實質內容的地方；有時辰時整段不渲染。 */}
+            <NoHourTrendCard
+              analysis={result?.ziweiSanFang}
+              annual={result?.annualFortune}
+              meta={result?.meta}
+              onFillHour={jumpToHourPicker}
+            />
+
             <SanFangSummaryCard analysis={result?.ziweiSanFang} plainSummary={result?.plainSummary} meta={result?.meta} />
 
             <ZiweiTwelvePalaceCards
@@ -5222,6 +5695,24 @@ export default function InsightPage() {
 
             <FiveElementPriorityCard result={result?.fiveElement} />
 
+            {/* 首頁承諾的「我真的懂你」，後端一直有算，之前一個字都沒顯示。 */}
+            <InsightPsychologyCard insights={result?.psychologyInsights} />
+
+            {/* 讀完命盤最想知道的「那我現在該做什麼」。 */}
+            <InsightActionCard
+              personal={result?.personalizedRecommendations}
+              annual={result?.annualFortune?.recommendations}
+            />
+
+            {/* 信任核心：把四柱、資料品質、公式與逐項算式攤開讓客戶自己核對。 */}
+            <InsightTrustCard
+              analysis={result?.ziweiSanFang}
+              meta={result?.meta}
+              breakdown={result?.accuracyBreakdown}
+              methodology={result?.scoreMethodology}
+              metrics={result?.statisticalAnalysis}
+            />
+
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={() => {
@@ -5230,6 +5721,9 @@ export default function InsightPage() {
                     jumpToTodayResult();
                     return;
                   }
+                  // 客戶明確要重算：本機那份就不該再被還原回來。
+                  clearZiweiResult();
+                  setRestoredAt(null);
                   setResult(null);
                 }}
                 className="vip-gold-btn flex-1 py-4 text-sm"

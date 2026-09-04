@@ -59,6 +59,8 @@ export interface AnnualFortuneAnalysis {
   baziFocus: {
     dayMaster: string;
     yearRelation: string;
+    /** 五行關係的白話說明。必須由引擎產出——前端不得自己編一段看起來像解讀的話。 */
+    yearRelationPlain: string;
     elementBalanceSummary: string;
     advice: string;
   };
@@ -257,6 +259,25 @@ function getElementRelation(dayMasterElement: string, annualElement: string) {
   return '五行關係待校';
 }
 
+/**
+ * 五行關係的白話說明。
+ *
+ * 這一段原本被寫在前端頁面裡——引擎只給「日主向外輸出」四個字，
+ * 解讀的句子卻由呈現層自己編出來，違反「前端不准編結論」。
+ * 說法屬於判讀的一部分，必須跟規則一起放在引擎、一起被版本管理。
+ */
+const YEAR_RELATION_PLAIN: Record<string, string> = {
+  比和: '今年的氣和你同一路。順手的事會更順，但也容易一頭栽進去——記得留一點餘裕給自己。',
+  流年生扶日主: '今年的氣在補你。該休息就休息、該開口就開口，你會發現拿到的比預期多。',
+  日主向外輸出: '今年你會一直在輸出——把想法變成作品、把能力變成收入。輸出得越具體，回報越明確；但別把自己耗乾。',
+  日主可制化流年: '今年的事情多半掌握得住。你有能力把局面拿回手上，前提是願意先動手，不要一直等時機。',
+  流年帶來壓力鍛鍊: '今年會有點磨。壓力不是來擋你的，是來把能力磨出來的——把事情拆小，一次做一件就好。',
+};
+
+function getYearRelationPlain(relation: string) {
+  return YEAR_RELATION_PLAIN[relation] ?? '';
+}
+
 function relationScore(relation: string) {
   if (relation === '比和') return 8;
   if (relation.includes('生扶')) return 12;
@@ -402,9 +423,18 @@ function buildPalaceFortune(
     pickStable(copy.strengths, seed, 1),
     `${PALACE_SCORE_LABELS[sortedScores[0][0] as keyof AnnualPalaceFortune['scores']]} ${sortedScores[0][1]}分`,
   ];
+  /*
+    第二條張力原本是一個二選一：壓力 >= 70 寫 A，否則一律寫
+    「避免把能量分散在不必要承諾」。多數宮位的壓力值都在 70 以下，
+    於是命宮、財帛宮、官祿宮、遷移宮四宮同時出現一模一樣的句子——
+    客戶一眼就看得出來是模板。改成從各宮自己的張力池再取一條不重複的。
+  */
+  const firstTension = tabooCount > 0 ? '四化忌帶來年度壓力' : pickStable(copy.tensions, seed, 2);
+  const alternateTension = copy.tensions.find((item) => item !== firstTension)
+    ?? pickStable(copy.tensions, seed, 3);
   const tensions = [
-    tabooCount > 0 ? '四化忌帶來年度壓力' : pickStable(copy.tensions, seed, 2),
-    scores.pressure >= 70 ? '責任集中時要拆階段處理' : '避免把能量分散在不必要承諾',
+    firstTension,
+    scores.pressure >= 70 ? '責任集中時要拆階段處理' : alternateTension,
   ];
   const behaviorTags = [...new Set([
     ...copy.tags,
@@ -506,6 +536,7 @@ export function calculateAnnualFortune(input: AnnualFortuneInput): AnnualFortune
     baziFocus: {
       dayMaster,
       yearRelation: relation,
+      yearRelationPlain: getYearRelationPlain(relation),
       elementBalanceSummary: balanceSummary,
       advice: `${balanceSummary}${relation.includes('壓力') ? '今年遇到壓力時，先把節奏放慢，壓力會變成磨出能力的材料。' : '今年適合把順勢而來的資源整理成固定節奏，讓好運變成可持續的成果。'}`,
     },

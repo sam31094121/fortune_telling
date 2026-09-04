@@ -16,6 +16,8 @@ export function friendlyErrorResponse(
   code: string,
   message: string,
   status: number,
+  /** 額外標頭，例如 429 要帶的 Retry-After。省略時行為與原本完全相同。 */
+  extraHeaders?: Record<string, string>,
 ) {
   return NextResponse.json(
     {
@@ -27,7 +29,7 @@ export function friendlyErrorResponse(
     },
     {
       status,
-      headers: { 'Cache-Control': 'no-store' },
+      headers: { 'Cache-Control': 'no-store', ...extraHeaders },
     },
   );
 }

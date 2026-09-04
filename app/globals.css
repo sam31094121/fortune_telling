@@ -25001,3 +25001,79 @@ a.home-feature-launch::after {
 .numerology-hexagram-disclosure summary:hover .numerology-hexagram-disclosure__trigger { border-color: rgba(254,240,138,.78); background: rgba(254,240,138,.18); }
 .numerology-hexagram-disclosure[open] .numerology-hexagram-disclosure__trigger { border-color: rgba(254,240,138,.82); background: rgba(254,240,138,.2); }
 .numerology-hexagram-disclosure[open] .numerology-hexagram-disclosure__trigger span { display: inline-block; transform: rotate(180deg); }
+
+/* ==========================================================================
+   列印樣式（2026-09-04）
+
+   「匯出報告」按的是 window.print()，但全站原本沒有任何列印樣式。
+   頁面是深色主題（背景近黑、文字是奶白與淺青），瀏覽器預設不印背景色，
+   於是奶白文字印在白紙上，對比約 1.15:1 ——實測等於印出一疊白紙。
+
+   這裡把列印時的畫面整個翻成白底黑字，並把動畫、裝飾、導覽與互動控制項
+   拿掉，只留客戶真正要留存的內容。
+   ========================================================================== */
+@media print {
+  @page {
+    margin: 14mm 12mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+
+  /* 深色主題把顏色寫在無數個 utility class 上，逐一覆蓋不切實際；
+     直接讓所有元素回到黑字透明底，再單獨處理需要框線的區塊。 */
+  body * {
+    background-image: none !important;
+    background-color: transparent !important;
+    color: #111111 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    animation: none !important;
+    transition: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+  }
+
+  .fortune-card,
+  details,
+  section {
+    border-color: #bbbbbb !important;
+  }
+
+  .fortune-card,
+  section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  h1, h2, h3, h4 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* 純裝飾與互動控制項不進紙本 */
+  button,
+  a[href="/"],
+  svg,
+  canvas,
+  video,
+  [aria-hidden='true'] {
+    display: none !important;
+  }
+
+  /* 摺疊區在紙上要全部攤開，客戶才不會拿到一疊「請點選展開」 */
+  details > summary {
+    display: none !important;
+  }
+  details > *:not(summary) {
+    display: block !important;
+  }
+
+  /* 螢幕上用來收合的 grid 動畫，列印時強制展開 */
+  .grid[style*='grid-template-rows'] {
+    grid-template-rows: 1fr !important;
+  }
+}

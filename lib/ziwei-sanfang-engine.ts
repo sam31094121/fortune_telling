@@ -1,7 +1,7 @@
 import { calculateTrueSolarTime } from '@ziweijs/core';
-import { LunarHour } from 'tyme4ts';
 import { getShichenInfo } from './shichen-engine';
 import { assertChartCertifiedForAi, generateZiweiChart, type ZiweiBirthInput } from './ziwei/chartEngine';
+import { BRANCHES, createBaziCore, type Branch } from './bazi/engine';
 
 const PALACE_CONFIG = [
   { key: 'MING', name: '命宮', focus: '核心人格與行動動能' },
@@ -147,6 +147,12 @@ export interface ZiweiSanFangAnalysis {
     hour: string;
     dayMaster: string;
     elementBalance: Record<string, number>;
+    /**
+     * 只統計年、月、日三柱的五行分布。
+     * 時辰未確認時，四柱版的 elementBalance 含推估時柱，不能拿給客戶看；
+     * 這一份與時辰無關，任何時候都成立。由引擎產出，前端不自己數。
+     */
+    elementBalanceThreePillar: Record<string, number>;
   };
   palaces: ZiweiPalaceEvidence[];
   allPalaces: ZiweiFullPalaceEvidence[];
@@ -816,22 +822,34 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
     timeIndex,
   });
   assertChartCertifiedForAi(chart, { isTimeKnown: true, birthDate: input.birthDate, gender: input.gender });
-  const eightChar = LunarHour.fromYmdHms(
-    calculationDate.getFullYear(),
-    calculationDate.getMonth() + 1,
-    calculationDate.getDate(),
-    calculationDate.getHours(),
-    calculationDate.getMinutes(),
-    calculationDate.getSeconds(),
-  ).getEightChar();
+  /*
+    八字改用專案自己的引擎（lib/bazi/engine.ts，81 項黃金案例全數通過）。
+
+    原本用 tyme4ts 的 LunarHour.fromYmdHms() 餵入「國曆」年月日——但那個類別吃的是
+    農曆年月日。1990-05-20 的農曆是四月廿六，把國曆 5/20 當農曆 5/20，整整差了 24 天，
+    日柱因此算成戊申（正確為乙酉），連帶讓日主變成戊土（正確為乙木），
+    整段流年的生剋關係與建議全部建立在錯的日主上。
+    同一份回應裡 meta.dayPillar 一直是對的，兩邊互相矛盾。
+  */
+  const baziCore = createBaziCore({
+    gender: input.gender,
+    birthDate: `${calculationDate.getFullYear()}-${calculationDate.getMonth() + 1}-${calculationDate.getDate()}`,
+    calendarType: 'SOLAR',
+    birthTimeKnown: true,
+    traditionalHour: BRANCHES[(timeIndex === 12 ? 0 : timeIndex) % 12] as Branch,
+    timezone: 'Asia/Taipei',
+  });
+  const hourPillar = baziCore.pillars.hour;
   const bazi = {
-    year: eightChar.getYear().getName(),
-    month: eightChar.getMonth().getName(),
-    day: eightChar.getDay().getName(),
-    hour: eightChar.getHour().getName(),
+    year: baziCore.pillars.year.ganZhi,
+    month: baziCore.pillars.month.ganZhi,
+    day: baziCore.pillars.day.ganZhi,
+    hour: hourPillar === 'UNKNOWN' ? '' : hourPillar.ganZhi,
   };
   const pillars = [bazi.year, bazi.month, bazi.day, bazi.hour];
   const elementBalance = getElementBalance(pillars);
+  // 三柱版：不含時柱，時辰未確認時唯一能誠實呈現給客戶的五行分布。
+  const elementBalanceThreePillar = getElementBalance([bazi.year, bazi.month, bazi.day]);
   const dayMaster = bazi.day.charAt(0);
   const dayMasterElement = STEM_ELEMENT[dayMaster] ?? '未知';
 
@@ -906,6 +924,7 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
       hour: bazi.hour,
       dayMaster: `${dayMaster}${dayMasterElement}`,
       elementBalance,
+      elementBalanceThreePillar,
     },
     palaces: visiblePalaces,
     allPalaces,
