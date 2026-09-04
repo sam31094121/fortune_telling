@@ -28,6 +28,11 @@ type DrawnCard = {
   position: DrawnPosition;
 };
 
+type TarotQuestProgress = {
+  completedDay: string;
+  totalCompleted: number;
+};
+
 const SOURCE_BASE = '/tarot/freecodecamp-js-fortune-teller';
 const AUDIO = {
   dealAll: `${SOURCE_BASE}/assets/media/audio/dealAllCards.mp3`,
@@ -74,6 +79,24 @@ function stopAllAudio(root: HTMLElement | null) {
 }
 
 const SAFE_READING_FALLBACK = '系統暫時無法完成整合，請稍後重試；不會影響已經翻開的牌面。';
+const TAROT_QUEST_STORAGE_KEY = 'tarot-daily-quest-progress-v1';
+
+function todayInTaipei() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' }).format(new Date());
+}
+
+function readTarotQuestProgress(): TarotQuestProgress | null {
+  try {
+    const saved = window.localStorage.getItem(TAROT_QUEST_STORAGE_KEY);
+    if (!saved) return null;
+    const parsed = JSON.parse(saved) as Partial<TarotQuestProgress>;
+    return typeof parsed.completedDay === 'string' && typeof parsed.totalCompleted === 'number'
+      ? { completedDay: parsed.completedDay, totalCompleted: parsed.totalCompleted }
+      : null;
+  } catch {
+    return null;
+  }
+}
 
 function toSafeReadingErrorMessage(caught: unknown): string {
   const message = caught instanceof Error ? caught.message : '';
@@ -117,6 +140,8 @@ export default function TarotOriginalFortuneTeller({
   const [aiReadingState, setAiReadingState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const [aiReading, setAiReading] = useState<TarotReadingApiResponse | null>(null);
   const [aiReadingError, setAiReadingError] = useState('');
+  const [questStarted, setQuestStarted] = useState(false);
+  const [questProgress, setQuestProgress] = useState<TarotQuestProgress | null>(null);
   const growthSyncedReadingRef = useRef<string | null>(null);
 
   const orderedDeck = useMemo(
@@ -141,6 +166,10 @@ export default function TarotOriginalFortuneTeller({
       timersRef.current = [];
       stopAllAudio(rootRef.current);
     };
+  }, []);
+
+  useEffect(() => {
+    setQuestProgress(readTarotQuestProgress());
   }, []);
 
   const runSingleShuffle = useCallback(() => {
@@ -363,6 +392,20 @@ export default function TarotOriginalFortuneTeller({
     revealCard(activePosition);
   }, [activePosition, revealCard]);
 
+  const completeTodayQuest = useCallback(() => {
+    const today = todayInTaipei();
+    const current = readTarotQuestProgress();
+    const next = current?.completedDay === today
+      ? current
+      : { completedDay: today, totalCompleted: (current?.totalCompleted ?? 0) + 1 };
+    try {
+      window.localStorage.setItem(TAROT_QUEST_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      // The quest remains usable even when browser storage is unavailable.
+    }
+    setQuestProgress(next);
+  }, []);
+
   return (
     <section
       ref={rootRef}
@@ -530,6 +573,32 @@ export default function TarotOriginalFortuneTeller({
                   <p className="pt-2 text-[0.7rem] opacity-75">{aiReading.interpretation.disclaimer}</p>
                 </div>
               </details>
+
+              {scope === 'self' && (
+                <section className="tarot-daily-quest" aria-label="今日關卡">
+                  <div className="tarot-daily-quest__header">
+                    <div>
+                      <p>今日關卡</p>
+                      <h2>{questProgress?.completedDay === todayInTaipei() ? '今天已完成' : '把這張牌帶進今天'}</h2>
+                    </div>
+                    <span>覺察值 {questProgress?.totalCompleted ?? 0}</span>
+                  </div>
+                  {!questStarted && questProgress?.completedDay !== todayInTaipei() && (
+                    <button type="button" className="tarot-daily-quest__start" onClick={() => setQuestStarted(true)}>
+                      開啟 20 秒關卡
+                    </button>
+                  )}
+                  {questStarted && questProgress?.completedDay !== todayInTaipei() && (
+                    <div className="tarot-daily-quest__mission">
+                      <p>{aiReading.interpretation.actionSuggestion}</p>
+                      <button type="button" onClick={completeTodayQuest}>我今天會做到</button>
+                    </div>
+                  )}
+                  {questProgress?.completedDay === todayInTaipei() && (
+                    <p className="tarot-daily-quest__done">已記下今天的一步；明天回來，會接續你的下一個關卡。</p>
+                  )}
+                </section>
+              )}
             </div>
           )}
 
