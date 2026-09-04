@@ -1210,20 +1210,21 @@ function Level01LightningScars({ scar, lowPower = false, ballWorldRef }: {
         : age < 1.74 ? 1
           : Math.max(0, 1 - (age - 1.74) / 1.12);
     const retract = age < 1.74 ? 0 : Math.min(1, (age - 1.74) / 1.12);
-    // White-node strikes recover in a crisp cyan current; black-node strikes
-    // recover in indigo. The draw range always contracts toward path index 0,
-    // which is the actual tapped point, so colour and direction stay truthful.
+    // Recovery must read as technology, not a dim continuation of the charcoal
+    // scar: white-node routes become electric cyan; black-node routes become
+    // luminous ultraviolet. The draw range contracts toward index 0, the real
+    // tapped point, so the distinct energy always returns to its own source.
     const recoveryColor = scar.origin === 'N' || scar.origin === 'S'
-      ? new THREE.Color(0x67e8f9)
-      : new THREE.Color(0x818cf8);
-    const recoveryPulse = .64 + .36 * (Math.sin(age * 34) * .5 + .5);
+      ? new THREE.Color(0x22d3ee)
+      : new THREE.Color(0xa855f7);
+    const recoveryPulse = .72 + .28 * (Math.sin(age * 38) * .5 + .5);
     scarGroup.children.forEach((child) => {
       const mesh = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
       const count = mesh.geometry.index?.count ?? mesh.geometry.attributes.position.count;
       mesh.geometry.setDrawRange(0, Math.max(0, Math.round(count * draw)));
       const baseColor = mesh.material.userData.baseColor as THREE.Color | undefined;
-      if (baseColor) mesh.material.color.copy(baseColor).lerp(recoveryColor, retract * recoveryPulse);
-      mesh.material.opacity = Number(mesh.material.userData.baseOpacity ?? .4) * draw * (retract ? recoveryPulse : 1);
+      if (baseColor) mesh.material.color.copy(baseColor).lerp(recoveryColor, retract ? .82 + .18 * recoveryPulse : 0);
+      mesh.material.opacity = Number(mesh.material.userData.baseOpacity ?? .4) * draw * (retract ? .9 + .1 * recoveryPulse : 1);
     });
   });
 
