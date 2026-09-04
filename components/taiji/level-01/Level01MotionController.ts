@@ -308,6 +308,17 @@ export class Level01TaijiMotionController {
     return this.audioEnabled;
   }
 
+  /** A visible first-layer control calls this from a real user gesture. It is
+   * intentionally explicit so browsers can resume/decode Web Audio without
+   * relying on an ambiguous first strike on the Taiji. */
+  enableAudioFromUserGesture(strikeOrigin: Level01StrikeOrigin = 'N') {
+    this.audioEnabled = true;
+    this.audio.setEnabled(true);
+    this.armAudioFromUserGesture(true, strikeOrigin);
+    this.publish(false, this.game.snapshot());
+    return this.audioEnabled;
+  }
+
   toggleHaptics() {
     this.hapticEnabled = !this.hapticEnabled;
     if (this.hapticEnabled) this.haptics.armFromUserGesture();

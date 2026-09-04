@@ -1111,13 +1111,14 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
   return <primitive object={group} />;
 }
 
-/* Persistent scars are deliberately separate from the live discharge. They sit
-   within the Taiji volume (not outside its shell): the low-opacity carbon and
-   ember seams are rendered as an internal cross-section, so the sphere stays
-   whole while every strike remains visibly trapped inside it. */
-function Level01LightningScars({ strikes, lowPower = false }: {
+/* Persistent scars are deliberately separate from the live discharge. Their
+   paths live in the Taiji sphere's local space and cling to its curved shell;
+   normal depth testing means the far hemisphere is genuinely occluded until
+   the visitor rotates to it, rather than reading as a screen overlay. */
+function Level01LightningScars({ strikes, lowPower = false, ballWorldRef }: {
   strikes: Array<{ id: number; origin: Level01StrikeOrigin; variant: number }>;
   lowPower?: boolean;
+  ballWorldRef?: { current: THREE.Mesh | null };
 }) {
   const scarGroup = useMemo(() => {
     const root = new THREE.Group();
@@ -1131,10 +1132,21 @@ function Level01LightningScars({ strikes, lowPower = false }: {
       const sign = origin === 'E' || origin === 'N' ? 1 : -1;
       const paths = [
         [start, new THREE.Vector3(sign * .48, .32 + Math.sin(seed) * .16, .58), new THREE.Vector3(.06, -.1, .7), new THREE.Vector3(-sign * .4, -.44, .48)],
-        [start, new THREE.Vector3(sign * .52, -.22 + Math.cos(seed) * .14, .36), new THREE.Vector3(-.14, .36, .62), new THREE.Vector3(-sign * .48, .16, .28)],
+        // A companion seam travels over the side and onto the back hemisphere.
+        // It is invisible from the front by depth occlusion, then becomes a
+        // distinct accumulated mark when the ball is turned around.
+        [start, new THREE.Vector3(sign * .52, -.22 + Math.cos(seed) * .14, -.36), new THREE.Vector3(-.14, .36, -.62), new THREE.Vector3(-sign * .48, .16, -.28)],
       ];
       paths.forEach((points, pathIndex) => {
-        const curve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
+        const guideCurve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
+        // Project the whole sampled curve back to the sphere: a TubeGeometry
+        // otherwise joins control points through the ball's centre and makes a
+        // fake, front-facing overlay instead of a tangible 3D surface scar.
+        // The visible Taiji shell has a radius of 1.08.  Keep the charcoal seam
+        // one hundredth beyond it so its own surface is rendered, while still
+        // close enough to read as an embedded mark rather than a floating ring.
+        const surfacePoints = guideCurve.getPoints(lowPower ? 16 : 28).map((point) => point.normalize().multiplyScalar(1.092));
+        const curve = new THREE.CatmullRomCurve3(surfacePoints, false, 'centripetal');
         // 雷擊木：先留下厚而不規則的炭化裂縫，再在縫心保留極弱的餘燼。
         // 深色外殼是累積的主體，不讓雷網退成乾淨的藍白光線。
         const geometry = new THREE.TubeGeometry(curve, lowPower ? 18 : 28, pathIndex === 0 ? .027 : .019, lowPower ? 4 : 5, false);
@@ -1143,11 +1155,7 @@ function Level01LightningScars({ strikes, lowPower = false }: {
           transparent: true,
           opacity: pathIndex === 0 ? .5 : .38,
           depthWrite: false,
-          // The sphere's opaque PBR shell normally hides inner geometry.
-          // Do not depth-test this deliberately dim interior cross-section;
-          // its reduced radius, low luminance and transparent ember core make
-          // it read as a subsurface scar rather than an exterior wire.
-          depthTest: false,
+          depthTest: true,
           blending: THREE.NormalBlending,
           toneMapped: false,
         });
@@ -1160,7 +1168,7 @@ function Level01LightningScars({ strikes, lowPower = false }: {
           transparent: true,
           opacity: pathIndex === 0 ? .18 : .12,
           depthWrite: false,
-          depthTest: false,
+          depthTest: true,
           blending: THREE.AdditiveBlending,
           toneMapped: false,
         });
@@ -1171,6 +1179,17 @@ function Level01LightningScars({ strikes, lowPower = false }: {
     });
     return root;
   }, [lowPower, strikes]);
+
+  // Paths are authored in the sphere's local coordinates. Keep their root on
+  // the real sphere transform so marks cannot stay screen-fixed while a user
+  // inspects, drags, or later moves the Taiji.
+  useFrame(() => {
+    const ball = ballWorldRef?.current;
+    if (!ball) return;
+    ball.getWorldPosition(scarGroup.position);
+    ball.getWorldQuaternion(scarGroup.quaternion);
+    ball.getWorldScale(scarGroup.scale);
+  });
 
   useEffect(() => () => {
     scarGroup.children.forEach((child) => {
@@ -2558,7 +2577,11 @@ export default function TaijiSystem({
           {displayLayer === 1 && level01Controller.pose.motionGameEnabled && (
             <>
               <Level01SpatialLightning active={touchActive} origin={lightningOrigin} variant={lightningVariant} strikeId={lightningStrikeId} lowPower={canvasQuality.lowPower} />
-              <Level01LightningScars strikes={lightningScars} lowPower={canvasQuality.lowPower} />
+              <Level01LightningScars
+                strikes={lightningScars}
+                lowPower={canvasQuality.lowPower}
+                ballWorldRef={level01BallRef}
+              />
             </>
           )}
           <TaijiPerformanceGovernor active={touchActive} />

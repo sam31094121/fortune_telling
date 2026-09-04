@@ -56,6 +56,7 @@ function RuntimeOverlay({
 }) {
   const [pose, setPose] = useState<Level01Pose>(() => clonePose(controller.pose));
   const [strikeCount, setStrikeCount] = useState(0);
+  const [audioArmed, setAudioArmed] = useState(false);
   const bubbleRef = useRef<HTMLSpanElement>(null);
   const wasInteractingRef = useRef(false);
 
@@ -182,6 +183,26 @@ function RuntimeOverlay({
           </div>
           <small>{charge === 8 ? '一道完整的痕，靜靜留在太極裡。' : '每一次觸碰，都留下新的雷痕。'}</small>
         </div>
+      )}
+
+      {motionGameActive && (
+        <button
+          type="button"
+          className={styles.audioControl}
+          aria-pressed={audioArmed && pose.audioEnabled}
+          onClick={() => {
+            if (audioArmed && pose.audioEnabled) {
+              controller.toggleAudio();
+              setAudioArmed(false);
+              return;
+            }
+            controller.enableAudioFromUserGesture('N');
+            setAudioArmed(true);
+          }}
+        >
+          <span aria-hidden="true">{audioArmed && pose.audioEnabled ? '🔊' : '🔈'}</span>
+          {audioArmed && pose.audioEnabled ? '雷聲已開啟・點黑白點試聽' : '開啟雷聲'}
+        </button>
       )}
 
       {pose.gameState === 'LEVEL_COMPLETE' && (
