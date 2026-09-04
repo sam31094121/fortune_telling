@@ -24,7 +24,7 @@ import { castHexagram, castHexagramFromBirth } from '../lib/iching-engine';
 import fsForPage from 'node:fs';
 import pathForPage from 'node:path';
 import { patternNameOf } from '../lib/iching-psychology';
-import { assertThreeCoreConsistent, computeThreeCore } from '../lib/three-core-engine';
+import { assertThreeCoreConsistent, computeThreeCore, ICHING_RITUAL_STEPS } from '../lib/three-core-engine';
 
 let pass = 0;
 let fail = 0;
@@ -334,6 +334,8 @@ for (const item of CASES) {
   check('三合一引擎・未知時辰不代填時柱', unknown.bazi.hour, null);
   check('三合一引擎・未知時辰不硬排命宮', unknown.ziwei.status, 'UNAVAILABLE_BIRTH_TIME_REQUIRED');
   check('三合一引擎・未知時辰不硬起卦', unknown.iching.status, 'UNAVAILABLE_BIRTH_TIME_REQUIRED');
+  // 命盤沒鎖定就沒有儀式，也就沒有卦——順序不可顛倒
+  check('三合一引擎・命盤未鎖定時不得有卦', 'reading' in unknown.iching, false);
   check('三合一引擎・未知時辰四柱版五行為 null', unknown.bazi.elementBalanceFourPillar, null);
   check('三合一引擎・未知時辰帶補齊提示', typeof unknown.unlockNote === 'string' && unknown.unlockNote.length > 0, true);
   // 三柱五行與時辰無關，兩種情況必須相同
@@ -342,6 +344,30 @@ for (const item of CASES) {
   // 正統鎖定案跑一次
   const locked = computeThreeCore({ birthDate: '1974-07-02', gender: 'female', hourBranchIndex: 2 });
   check('三合一引擎・正統鎖定四柱', [locked.bazi.year, locked.bazi.month, locked.bazi.day, locked.bazi.hour], ['甲寅', '庚午', '甲辰', '丙寅']);
+
+  /*
+    儀式關卡：八字命盤鎖定 → 過正統儀式 → 才成為易經。順序不可顛倒。
+    直接驗「命盤沒鎖定時，儀式必須不成立」——這是關卡真正在守的那條線。
+  */
+  {
+    const noHour = computeThreeCore({ birthDate: '1990-05-20', gender: 'female', hourBranchIndex: null });
+    // 命盤未鎖定（時柱為 null）→ 不得有已完成的儀式，也不得有卦
+    const ritualOfNoHour = 'ritual' in noHour.iching ? noHour.iching.ritual : null;
+    check('儀式關卡・命盤未鎖定時儀式不得成立', ritualOfNoHour?.completed ?? false, false);
+    check('儀式關卡・命盤未鎖定時不得有卦', 'reading' in noHour.iching, false);
+    check('儀式關卡・命盤鎖定時儀式才成立',
+      known.iching.status === 'READY' && known.iching.ritual.completed, true);
+    // 儀式必須綁定命盤指紋：換一張命盤就是另一場儀式
+    const other = computeThreeCore({ birthDate: '1988-11-03', gender: 'male', hourBranchIndex: 4 });
+    const fpA = known.iching.status === 'READY' ? known.iching.ritual.chartFingerprint : '';
+    const fpB = other.iching.status === 'READY' ? other.iching.ritual.chartFingerprint : '';
+    check('儀式關卡・不同命盤不得共用同一場儀式', fpA === fpB, false);
+    // 儀式五步各自綁一道正統驗證閘（曆法／四柱／十神／大運），不是齊頭式的布林
+    if (known.iching.status === 'READY') {
+      const ids = known.iching.ritual.steps.map((step) => step.id);
+      check('儀式關卡・五步順序固定', ids, ['TEMPERATURE', 'STILLNESS', 'HEXAGRAM_FORMED', 'ONION', 'CONFIDANT']);
+    }
+  }
 
   // 反向驗證：三層打架時 assertThreeCoreConsistent 必須擋下
   const broken: typeof known = {

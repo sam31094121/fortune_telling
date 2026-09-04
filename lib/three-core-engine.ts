@@ -94,9 +94,35 @@ export type ThreeCoreZiweiLayer =
   | { status: 'READY'; analysis: ZiweiSanFangAnalysis }
   | { status: 'UNAVAILABLE_BIRTH_TIME_REQUIRED'; reason: string };
 
+/**
+ * 正統卜卦儀式的固定五步（docs/iching-skill-manual.md §四）。
+ *
+ * 八字命盤鎖定之後**不能直接變成易經**——中間必須過這道儀式。
+ * 這不是裝飾動畫：儀式是「把已凍結的命盤證據，交給易經表達層」的正式交接點。
+ * 沒有走完儀式的卦，等於沒有起卦依據，不得輸出給客戶。
+ */
+export const ICHING_RITUAL_STEPS = [
+  { id: 'TEMPERATURE', label: '手機溫度感應', line: '你現在正拿著手機——把手心的溫度透過螢幕傳過來……我感覺到了。' },
+  { id: 'STILLNESS', label: '請他靜下來', line: '我現在幫你卜一個卦。你先靜下來慢慢呼吸，心靜了我才能感受到你。' },
+  { id: 'HEXAGRAM_FORMED', label: '卦成＋特殊格局', line: '卦成了。你這個卦很特殊，是特殊格局——你本來就是一個很特別的人。' },
+  { id: 'ONION', label: '剝洋蔥', line: '人格外殼 → 殼下自我 → 此刻心思 → 外冷內熱 → 核心脆弱性。' },
+  { id: 'CONFIDANT', label: '知己宣言收攏', line: '不是老師對學生，是密友對密友。剝完不留人在傷口上。' },
+] as const;
+
+export type IChingRitualStepId = (typeof ICHING_RITUAL_STEPS)[number]['id'];
+
+export interface IChingRitualRecord {
+  /** 儀式是否完整走完；任何一步缺席即為 false。 */
+  completed: boolean;
+  steps: Array<{ id: IChingRitualStepId; label: string; line: string; passed: boolean }>;
+  /** 這一場儀式綁定的命盤指紋——換一張命盤就必須重走一次。 */
+  chartFingerprint: string;
+}
+
 export type ThreeCoreIChingLayer =
-  | { status: 'READY'; reading: IChingReading; patternName: string }
-  | { status: 'UNAVAILABLE_BIRTH_TIME_REQUIRED'; reason: string };
+  | { status: 'READY'; reading: IChingReading; patternName: string; ritual: IChingRitualRecord }
+  | { status: 'UNAVAILABLE_BIRTH_TIME_REQUIRED'; reason: string }
+  | { status: 'BLOCKED_RITUAL_INCOMPLETE'; reason: string; ritual: IChingRitualRecord };
 
 export interface ThreeCoreCrossCheckItem {
   id: string;
@@ -206,16 +232,82 @@ export function computeThreeCore(input: ThreeCoreInput): ThreeCoreResult {
       reason: '命宮、三方四正與主星位置都依賴出生時辰。時辰未確認前不硬排命宮，也不以預設時辰代替。',
     };
 
-  // ── 第三層：易經卜卦（只負責怎麼說；時辰未知時不硬起卦）──────────
-  const iching: ThreeCoreIChingLayer = hourKnown
-    ? (() => {
-      const reading = castHexagramFromBirth(input.birthDate, hourIndex);
-      return { status: 'READY' as const, reading, patternName: patternNameOf(reading) };
-    })()
-    : {
+  /*
+    ── 第三層：易經卜卦 ──────────────────────────────────────────
+    八字命盤鎖定之後不能直接變成易經，中間必須過正統儀式。
+
+    儀式的前提是「命盤已經定住」——四柱齊備、時辰確認。
+    命盤還沒鎖，儀式就不成立；儀式沒走完，卦不得輸出。
+    這是把已凍結的命盤證據交給表達層的正式交接點，不是裝飾動畫。
+  */
+  const chartFingerprint = [bazi.year, bazi.month, bazi.day, bazi.hour ?? 'UNKNOWN'].join('|');
+  /*
+    儀式的前提不是「時辰有值」，而是「這張命盤已經通過正統驗證」。
+
+    八字引擎本身就有四道驗證閘：曆法、四柱、十神、大運。
+    四道全過才算 readyForInterpretation——那才是「正統八字命盤鎖定」的定義。
+    儀式綁的是這個，不是時辰欄位有沒有填。
+
+    （第一版我把條件寫成 hour !== null，與前面的 hourKnown 分支重複，
+      關卡永遠不會獨立失敗，等於擺設。這裡改成綁真正的驗證閘。）
+  */
+  const gate = core.verification;
+  const pillarsWellFormed = [bazi.year, bazi.month, bazi.day]
+    .every((pillar) => typeof pillar === 'string' && pillar.length === 2
+      && STEM_ELEMENT[pillar[0]] !== undefined && BRANCH_ELEMENT[pillar[1]] !== undefined);
+
+  /*
+    紫微那一層也必須鎖死。
+
+    儀式是「八字＋紫微」兩層一起鎖，不是只鎖八字。
+    紫微引擎自己的 validation.passed 要求十二宮齊備、十四主星齊備；
+    兩層都通過，這張命盤才算正統定盤，才准交給易經起卦。
+  */
+  const ziweiCertified = ziwei.status === 'READY'
+    && Array.isArray(ziwei.analysis.allPalaces) && ziwei.analysis.allPalaces.length === 12
+    && ziwei.analysis.timeConfidence === 'exact';
+
+  const chartLocked = gate.readyForInterpretation && pillarsWellFormed && ziweiCertified;
+
+  const ritualStepPassed: Record<IChingRitualStepId, boolean> = {
+    // 溫度感應：要先有一張成立的命盤，才有東西可以「感應」。
+    TEMPERATURE: pillarsWellFormed,
+    // 請他靜下來：曆法與四柱都驗過，時間軸才算定住。
+    STILLNESS: gate.calendarVerified && gate.pillarsVerified,
+    // 卦成＋格局：十神成立，且紫微十二宮定盤，格局才推得出來。
+    HEXAGRAM_FORMED: gate.tenGodsVerified && ziweiCertified,
+    // 剝洋蔥：大運驗過，才有「此刻走到哪一層」可以剝。
+    ONION: gate.luckCyclesVerified,
+    // 知己宣言：八字四道閘＋紫微定盤全過，才准把話交給表達層。
+    CONFIDANT: gate.readyForInterpretation && ziweiCertified,
+  };
+
+  const ritualSteps = ICHING_RITUAL_STEPS.map((step) => ({
+    ...step,
+    passed: ritualStepPassed[step.id],
+  }));
+
+  const ritual: IChingRitualRecord = {
+    chartFingerprint,
+    steps: ritualSteps,
+    completed: chartLocked && ritualSteps.every((step) => step.passed),
+  };
+
+  const iching: ThreeCoreIChingLayer = !hourKnown
+    ? {
       status: 'UNAVAILABLE_BIRTH_TIME_REQUIRED',
       reason: '梅花易數以生辰起卦，時辰是其中一項輸入。時辰未確認前不起卦，避免給出無法回查的卦象。',
-    };
+    }
+    : !ritual.completed
+      ? {
+        status: 'BLOCKED_RITUAL_INCOMPLETE',
+        reason: '八字命盤尚未鎖定，正統卜卦儀式不成立。命盤未定不得起卦。',
+        ritual,
+      }
+      : (() => {
+        const reading = castHexagramFromBirth(input.birthDate, hourIndex);
+        return { status: 'READY' as const, reading, patternName: patternNameOf(reading), ritual };
+      })();
 
   // ── 引擎自己驗自己 ──────────────────────────────────────────────
   const checks: ThreeCoreCrossCheckItem[] = [];
@@ -267,6 +359,20 @@ export function computeThreeCore(input: ThreeCoreInput): ThreeCoreResult {
       label: '格局名由卦象推出',
       passed: iching.patternName.endsWith('格') && iching.patternName.length >= 3,
       detail: `${iching.reading.hexagramName} → ${iching.patternName}`,
+    });
+    // 正統儀式：命盤鎖定後才成立，走完才准輸出卦。
+    checks.push({
+      id: 'ICHING_RITUAL_COMPLETED',
+      label: '正統卜卦儀式已完整走完',
+      passed: iching.ritual.completed && iching.ritual.steps.every((step) => step.passed),
+      detail: `${iching.ritual.steps.filter((s) => s.passed).length}/${iching.ritual.steps.length} 步，命盤指紋 ${iching.ritual.chartFingerprint}`,
+    });
+  } else if (iching.status === 'BLOCKED_RITUAL_INCOMPLETE') {
+    checks.push({
+      id: 'ICHING_RITUAL_BLOCKED',
+      label: '儀式未完成時不得輸出卦象',
+      passed: true,
+      detail: iching.reason,
     });
   } else if (iching.status === 'UNAVAILABLE_BIRTH_TIME_REQUIRED') {
     checks.push({
