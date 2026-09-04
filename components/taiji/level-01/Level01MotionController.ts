@@ -314,7 +314,9 @@ export class Level01TaijiMotionController {
   enableAudioFromUserGesture(strikeOrigin: Level01StrikeOrigin = 'N') {
     this.audioEnabled = true;
     this.audio.setEnabled(true);
-    this.armAudioFromUserGesture(true, strikeOrigin);
+    // This visible control grants browser audio permission only. Sound begins
+    // at the next actual lightning point, never as an unrelated unlock cue.
+    this.armAudioFromUserGesture(false, strikeOrigin);
     this.publish(false, this.game.snapshot());
     return this.audioEnabled;
   }

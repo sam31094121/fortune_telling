@@ -20,25 +20,26 @@ type ThunderProfile = {
 };
 
 const THUNDER_SOURCES: readonly ThunderSource[] = [
-  { path: '/audio/taiji/cc0-sfx-100-v2/sfx100v2_thunder_01.ogg' },
-  { path: '/audio/taiji/cc0-sfx-100-v2/sfx100v2_wood_03.ogg' },
-  { path: '/audio/taiji/cc0-fire-crackle.ogg' },
-  { path: '/audio/taiji/cc0-ignition.flac' },
+  { path: '/audio/taiji/lightning-strike.mp3' },
+  { path: '/audio/taiji/dry-thunder.mp3' },
+  { path: '/audio/taiji/loud-thunder.mp3' },
+  { path: '/audio/taiji/peals-of-thunder.mp3' },
 ] as const;
 
-// CC0 palette: thunder (impact), wood (fracture), fire (ember) and ignition
-// (electrical spark). Eight profiles reuse this tightly related palette with
-// different timing/filtering, so consecutive strikes feel like one evolving
-// burned object rather than eight copies of the same hit.
+// Original four real thunder recordings only. The latter four profiles are
+// variations of those same recordings; no fire, ignition, wood, ember or other
+// field-recording asset participates in the first-layer audio path.
 const THUNDER_PROFILES: readonly ThunderProfile[] = [
-  { sourceIndex: 3, maxDuration: .78, playbackRate: 1.08, gain: .46, lowpassHz: 6800, tailSeconds: .06, tailMix: .06 },
-  { sourceIndex: 0, maxDuration: 1.12, playbackRate: .96, gain: .66, lowpassHz: 3400, tailSeconds: .12, tailMix: .12 },
-  { sourceIndex: 1, maxDuration: .86, playbackRate: .9, gain: .54, lowpassHz: 2100, tailSeconds: .15, tailMix: .14 },
-  { sourceIndex: 2, maxDuration: 1.4, playbackRate: 1.04, gain: .3, lowpassHz: 5400, tailSeconds: .22, tailMix: .2 },
-  { sourceIndex: 0, maxDuration: 1.42, playbackRate: .82, gain: .72, lowpassHz: 1600, tailSeconds: .26, tailMix: .2 },
-  { sourceIndex: 1, maxDuration: 1.06, playbackRate: .76, gain: .62, lowpassHz: 1350, tailSeconds: .28, tailMix: .24 },
-  { sourceIndex: 2, maxDuration: 1.7, playbackRate: .9, gain: .34, lowpassHz: 3600, tailSeconds: .34, tailMix: .28 },
-  { sourceIndex: 0, maxDuration: 1.65, playbackRate: .72, gain: .76, lowpassHz: 1120, tailSeconds: .38, tailMix: .3 },
+  // Original four voices: retain their established order and acoustic settings.
+  { sourceIndex: 0, maxDuration: 1.08, playbackRate: 1, gain: .88 },
+  { sourceIndex: 1, maxDuration: 3.6, playbackRate: .98, gain: .78 },
+  { sourceIndex: 2, maxDuration: 4.4, playbackRate: 1.02, gain: .72 },
+  { sourceIndex: 3, maxDuration: 4.8, playbackRate: .96, gain: .7 },
+  // Same four thunder voices form the second half of the eight-step cadence.
+  { sourceIndex: 2, maxDuration: 4.4, playbackRate: .79, gain: .72, lowpassHz: 880, tailSeconds: .24, tailMix: .18 },
+  { sourceIndex: 3, maxDuration: 4.8, playbackRate: .78, gain: .66, lowpassHz: 1350, tailSeconds: .32, tailMix: .22 },
+  { sourceIndex: 1, maxDuration: 3.6, playbackRate: .83, gain: .58, lowpassHz: 1900, tailSeconds: .28, tailMix: .24 },
+  { sourceIndex: 0, maxDuration: 1.08, playbackRate: .72, gain: .63, lowpassHz: 1500, tailSeconds: .2, tailMix: .2 },
 ] as const;
 
 const ORIGIN_PAN: Record<Level01StrikeOrigin, number> = {
