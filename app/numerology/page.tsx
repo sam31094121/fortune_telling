@@ -7,7 +7,7 @@ import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
-import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT, type AnalysisIdentityTarget } from '@/lib/identity-split-client';
 import { getNumerologyDisplayTier, NUMEROLOGY_ENERGY_LINE_STEPS, type NumerologyDisplayTier } from '@/lib/numerology-display-tiers';
 import { getNumerologyExtremeCopy, getNumerologyExtremeVisual } from '@/lib/numerology-extreme-visual';
 import { hasCompleteNumberCrossVerdict } from '@/lib/number-cross-gate';
@@ -245,6 +245,7 @@ export default function NumerologyPage() {
   const [loading, setLoading] = useState(false);
   const [purpose, setPurpose] = useState<NumberPurpose>('general');
   const [savedReflection, setSavedReflection] = useState<SavedNumberReflection | null>(null);
+  const [identityTarget, setIdentityTarget] = useState<AnalysisIdentityTarget | null>(null);
   const resultRef = useRef<HTMLElement>(null);
   const numberInputRef = useRef<HTMLInputElement>(null);
 
@@ -252,8 +253,14 @@ export default function NumerologyPage() {
     const clearIdentityError = () => {
       setError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
     };
+    const refreshIdentityTarget = () => setIdentityTarget(getAnalysisIdentityTarget());
+    refreshIdentityTarget();
     window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
-    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, refreshIdentityTarget);
+    return () => {
+      window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+      window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, refreshIdentityTarget);
+    };
   }, []);
 
   useEffect(() => {
@@ -353,7 +360,7 @@ export default function NumerologyPage() {
   }
 
   function saveCurrentReflection() {
-    if (!result || !crossVerdictComplete || !result.iching) return;
+    if (identityTarget !== 'self' || !result || !crossVerdictComplete || !result.iching) return;
     const next: SavedNumberReflection = {
       savedAt: new Date().toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' }),
       numberLabel: result.valueMasked ?? `已分析的${result.value.length}碼數字`,
@@ -417,7 +424,7 @@ export default function NumerologyPage() {
           <IdentitySplitSelector nextStepLabel="接著選用途並輸入數字" />
         </section>
 
-        {savedReflection && !result && (
+        {identityTarget === 'self' && savedReflection && !result && (
           <section className="rounded-2xl border border-cyan-200/25 bg-cyan-300/[0.06] px-4 py-3" aria-label="上次收藏的數字解讀">
             <p className="text-[10px] font-black tracking-[0.18em] text-cyan-100/75">上次收藏・{savedReflection.savedAt}</p>
             <div className="mt-1 flex items-center justify-between gap-3">
@@ -689,13 +696,13 @@ export default function NumerologyPage() {
               <p className="mt-3 text-[11px] font-semibold leading-5 text-white/50">這不是在幫你貼標籤，是想讓你先看懂自己此刻站在哪一階；易經懂你走到這裡的不容易，才知道下一步怎麼走最順。</p>
             </section>
 
-            <section className="rounded-2xl border border-cyan-200/25 bg-cyan-300/[0.06] p-4" aria-label="收藏這次解讀">
+            {identityTarget === 'self' && <section className="rounded-2xl border border-cyan-200/25 bg-cyan-300/[0.06] p-4" aria-label="收藏這次解讀">
               <p className="text-[10px] font-black tracking-[0.18em] text-cyan-100">留給下次的自己</p>
               <p className="mt-2 text-sm font-bold leading-6 text-white/82">收藏本次重點；下次開啟時會先顯示這句提醒，不保存完整輸入數字。</p>
               <button type="button" onClick={saveCurrentReflection} className="mt-3 min-h-[46px] w-full rounded-xl border border-cyan-200/55 bg-cyan-200 px-4 text-sm font-black text-slate-950">
                 {savedReflection?.numberLabel === (result.valueMasked ?? `已分析的${result.value.length}碼數字`) ? '已收藏這次解讀' : '收藏本次重點'}
               </button>
-            </section>
+            </section>}
 
             {/* 「補充：結構重點」是 8 個原始面向的強弱清單，跟上方金錢／感情兩個中軸完全重複，已依指示隱藏；保留程式碼供之後需要時叫醒。 */}
             {false && (
