@@ -2589,6 +2589,9 @@ export default function TaijiSystem({
     // 1.12s endpoint-first retraction. State then unmounts the completed path.
     lightningScarClearTimerRef.current = setTimeout(() => {
       setLightningScar(null);
+      // The temporary web is a recovery visualization, not permanent damage:
+      // once its source-bound technology has returned, the Taiji is clean.
+      setLightningWeb([]);
       lightningScarClearTimerRef.current = null;
     }, 2410);
     setTouchActive(true);

@@ -768,7 +768,10 @@ export class Level01TaijiMotionController {
       const stored = window.localStorage.getItem('taijiMotionGameV1.preferences');
       if (!stored) return;
       const preferences = JSON.parse(stored) as { audio?: boolean; haptic?: boolean; mode?: 'motion' | 'static' };
-      if (typeof preferences.audio === 'boolean') this.audioEnabled = preferences.audio;
+      // The customer surface has no visible audio switch. A historical local
+      // mute must not silently defeat the first real black/white-point strike;
+      // each fresh visit starts with the explicit product default enabled.
+      if (preferences.audio === true) this.audioEnabled = true;
       if (typeof preferences.haptic === 'boolean') this.hapticEnabled = preferences.haptic;
       if (preferences.mode === 'static') {
         this.staticMode = true;
