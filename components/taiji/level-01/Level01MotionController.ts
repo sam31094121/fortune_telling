@@ -570,6 +570,9 @@ export class Level01TaijiMotionController {
       now,
       delta: Math.min(delta, FRAME_DELTA_CAP),
       reducedMotion: this.reducedMotion,
+      // Device alpha is useful for balance telemetry but may drift while a
+      // phone is still. Only a real drag (plus its damping tail) can spin it.
+      allowSpin: fallback && (this.pointer.active || Math.abs(this.physics.angularVelocity) > .001),
     });
     const visual = visualPoseFromPhysics(this.physics, true);
     const motionGame = this.featureEnabled

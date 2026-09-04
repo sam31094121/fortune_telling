@@ -246,6 +246,9 @@ export function integrateLevel01Physics(
     rotationAlpha?: number;
     rotationBeta?: number;
     rotationGamma?: number;
+    // Absolute device heading must never create idle spin. Only a deliberate
+    // pointer-drag inertia window opts into Y-axis rotational drive.
+    allowSpin?: boolean;
     now: number;
     delta: number;
     reducedMotion: boolean;
@@ -311,7 +314,8 @@ export function integrateLevel01Physics(
   const maxSpeed = input.reducedMotion
     ? MAX_SAFE_ROTATION_SPEED * REDUCED_MOTION_SPEED_SCALE
     : MAX_SAFE_ROTATION_SPEED;
-  const flick = input.reducedMotion ? { strength: 0, direction: 0 } : resolveFlick(state, {
+  const spinAllowed = input.allowSpin ?? true;
+  const flick = input.reducedMotion || !spinAllowed ? { strength: 0, direction: 0 } : resolveFlick(state, {
     alpha: prevAlpha,
     beta: prevBeta,
     gamma: prevGamma,
@@ -320,7 +324,7 @@ export function integrateLevel01Physics(
   // motion precise, while still reaching the full safe speed when the customer
   // deliberately moves quickly.
   const proportionalEnergy = state.motionEnergy ** 1.45;
-  const baseTarget = state.balanceState === 'LOCKED' ? 0 : proportionalEnergy * maxSpeed;
+  const baseTarget = !spinAllowed || state.balanceState === 'LOCKED' ? 0 : proportionalEnergy * maxSpeed;
   const flickTarget = state.balanceState === 'LOCKED' || flick.direction === 0
     ? 0
     : flick.direction * (MAX_SAFE_ROTATION_SPEED + flick.strength * (MAX_FLICK_SPIN_SPEED - MAX_SAFE_ROTATION_SPEED));
@@ -360,7 +364,7 @@ export function integrateLevel01Physics(
       : current * axisDamping;
   };
   state.axisVelocityX = nextAxisVelocity(state.axisVelocityX, input.rotationBeta ?? 0);
-  state.axisVelocityY = nextAxisVelocity(state.axisVelocityY, input.rotationAlpha ?? 0);
+  state.axisVelocityY = nextAxisVelocity(state.axisVelocityY, spinAllowed ? input.rotationAlpha ?? 0 : 0);
   state.axisVelocityZ = nextAxisVelocity(state.axisVelocityZ, input.rotationGamma ?? 0);
   state.axisAngleX += state.axisVelocityX * delta;
   state.axisAngleY += state.axisVelocityY * delta;
@@ -413,12 +417,11 @@ export function integrateLevel01Physics(
 }
 
 export function visualPoseFromPhysics(state: PhysicsState, driving: boolean): Level01VisualPose {
-  const heading = (normalizeAngle(state.alpha) * Math.PI) / 180;
   return {
     driving,
     visualEuler: {
       x: mapTiltAxis(state.dampedBeta) + state.axisAngleX,
-      y: heading + state.spinAngle + state.visualBurstAngle + state.axisAngleY,
+      y: state.spinAngle + state.visualBurstAngle + state.axisAngleY,
       z: mapTiltAxis(state.dampedGamma) + state.axisAngleZ,
     },
     visualOffset: { x: state.motionOffsetX, y: state.motionOffsetY, z: state.motionOffsetZ },

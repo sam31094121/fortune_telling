@@ -1590,6 +1590,8 @@ function TaijiCore({
   onCoreClick,
   level01PoseRef,
   level01ImpactActive = false,
+  level01ImpactOrigin = 'N',
+  level01ImpactId = 0,
   onLevel01Reentry,
   ballWorldRef,
 }: {
@@ -1602,6 +1604,8 @@ function TaijiCore({
   onCoreClick: () => void;
   level01PoseRef?: { current: Level01Pose };
   level01ImpactActive?: boolean;
+  level01ImpactOrigin?: Level01StrikeOrigin;
+  level01ImpactId?: number;
   onLevel01Reentry?: () => void;
   /** LEVEL_01 ONLY：外部想讀球體即時世界座標時用；不影響 LEVEL_02～24 既有行為。 */
   ballWorldRef?: { current: THREE.Mesh | null };
@@ -1628,7 +1632,15 @@ function TaijiCore({
     cycleElapsed: 0,
     scale: 1,
   });
-  const level01ImpactRef = useRef({ wasActive: false, startedAt: -Infinity });
+  const level01ImpactRef = useRef({
+    lastImpactId: 0,
+    pending: [] as Array<{ arrivesAt: number; origin: Level01StrikeOrigin }> ,
+    angleX: 0,
+    angleY: 0,
+    velocityX: 0,
+    velocityY: 0,
+    lastArrivalAt: -Infinity,
+  });
   const prevStageRef = useRef<Stage>(stageFromDepth(journeyRef.current.current));
   const outerMatRef = useRef<THREE.MeshBasicMaterial>(null);
   /* 顯微鏡（2026-08-17）：宏觀外殼群組與量子層群組 */
@@ -1779,8 +1791,23 @@ function TaijiCore({
     const settleSlow = Math.min(1, frameDelta * 0.95);
     const t = state.clock.elapsedTime;
     const impactState = level01ImpactRef.current;
-    if (layer === 1 && level01ImpactActive && !impactState.wasActive) impactState.startedAt = t;
-    impactState.wasActive = level01ImpactActive;
+    // Fast Refresh can preserve a ref created by an earlier schema. Repair it
+    // in place so a live edit cannot interrupt the canvas render loop.
+    if (!Array.isArray(impactState.pending)) {
+      impactState.lastImpactId = 0;
+      impactState.pending = [];
+      impactState.angleX = 0;
+      impactState.angleY = 0;
+      impactState.velocityX = 0;
+      impactState.velocityY = 0;
+      impactState.lastArrivalAt = -Infinity;
+    }
+    // Queue each distinct strike so rapid clicks keep their unfinished momentum
+    // instead of resetting it. Arrival remains synchronized with the .17s bolt.
+    if (layer === 1 && level01ImpactId !== impactState.lastImpactId) {
+      impactState.lastImpactId = level01ImpactId;
+      if (level01ImpactId > 0) impactState.pending.push({ arrivesAt: t + LEVEL01_STRIKE_IMPACT_SECONDS, origin: level01ImpactOrigin });
+    }
     const level01Drive = Boolean(level01PoseRef?.current?.driving) && layer === 1;
     const entranceState = level01EntranceRef.current;
     const activationId = level01PoseRef?.current?.activationId ?? 0;
@@ -1903,29 +1930,41 @@ function TaijiCore({
       groupRef.current.rotation.z = 0;
     }
 
-    // LEVEL_01 impact recoil: one short, damped displacement on lightning hit.
+    // LEVEL_01 impact recoil: directional impulses accumulate briefly, then a
+    // bounded spring returns the actual orb to rest. It never translates the
+    // ball or its cardinal dots, and cannot become a permanent auto-rotation.
     // The base pose is rewritten every frame above, so the orb returns exactly
     // to its controller position when the strike finishes without residual drift.
     // The recoil begins only after the travelling bolts reach the orb. Keeping
     // this delay aligned with the impact-web delay preserves physical causality.
-    const impactAge = t - impactState.startedAt - .17;
-    if (layer === 1 && !reducedMotionRef.current && impactAge >= 0 && impactAge < .42) {
-      const impactEnvelope = Math.exp(-impactAge * 7.2) * (1 - impactAge / .42);
-      groupRef.current.position.x += Math.sin(impactAge * 78) * .075 * impactEnvelope;
-      groupRef.current.position.y += Math.sin(impactAge * 53 + 1.1) * .034 * impactEnvelope;
-      groupRef.current.rotation.z += Math.sin(impactAge * 74) * .045 * impactEnvelope;
-
-      // Short "four-dimensional" peak: the stable 3D orb is briefly pulled
-      // through depth and time on impact, then mathematically returns to its
-      // exact base transform at the end of the same bounded window.
-      const impactProgress = Math.min(1, impactAge / .42);
-      const spacetimeWarp = Math.sin(impactProgress * Math.PI) ** 2 * Math.exp(-impactProgress * .45);
-      groupRef.current.position.z += spacetimeWarp * .12;
-      groupRef.current.scale.x *= 1 + spacetimeWarp * .038;
-      groupRef.current.scale.y *= 1 - spacetimeWarp * .026;
-      groupRef.current.scale.z *= 1 + spacetimeWarp * .15;
-      groupRef.current.rotation.x += Math.sin(impactProgress * Math.PI * 2) * .032 * spacetimeWarp;
-      groupRef.current.rotation.y -= Math.sin(impactProgress * Math.PI) * .026 * spacetimeWarp;
+    if (layer === 1 && !reducedMotionRef.current) {
+      const rotationImpulse: Record<Level01StrikeOrigin, { x: number; y: number }> = {
+        N: { x: -.82, y: 0 }, S: { x: .82, y: 0 },
+        E: { x: 0, y: -.98 }, W: { x: 0, y: .98 },
+      };
+      while (impactState.pending[0]?.arrivesAt <= t) {
+        const pending = impactState.pending.shift()!;
+        const impulse = rotationImpulse[pending.origin];
+        impactState.velocityX = THREE.MathUtils.clamp(impactState.velocityX + impulse.x, -1.65, 1.65);
+        impactState.velocityY = THREE.MathUtils.clamp(impactState.velocityY + impulse.y, -1.85, 1.85);
+        impactState.lastArrivalAt = pending.arrivesAt;
+      }
+      // Critically damped enough to settle after a short visible response, but
+      // deliberately retains a prior hit's remaining velocity for a new hit.
+      const impactDamping = Math.exp(-8.8 * frameDelta);
+      impactState.velocityX = (impactState.velocityX - impactState.angleX * 17 * frameDelta) * impactDamping;
+      impactState.velocityY = (impactState.velocityY - impactState.angleY * 17 * frameDelta) * impactDamping;
+      impactState.angleX = THREE.MathUtils.clamp(impactState.angleX + impactState.velocityX * frameDelta, -.12, .12);
+      impactState.angleY = THREE.MathUtils.clamp(impactState.angleY + impactState.velocityY * frameDelta, -.14, .14);
+      const impactAge = t - impactState.lastArrivalAt;
+      const impactWave = impactAge >= 0 && impactAge < .42
+        ? Math.sin((impactAge / .42) * Math.PI) * (1 - (impactAge / .42) * .45)
+        : 0;
+      groupRef.current.scale.x *= 1 + impactWave * .02;
+      groupRef.current.scale.y *= 1 - impactWave * .014;
+      groupRef.current.scale.z *= 1 + impactWave * .07;
+      groupRef.current.rotation.x += impactState.angleX;
+      groupRef.current.rotation.y += impactState.angleY;
     }
 
     if (diskRef.current) {
@@ -2774,10 +2813,9 @@ export default function TaijiSystem({
             ultraTexture={canvasQuality.ultraTexture}
             onCoreClick={handleCoreClick}
             level01PoseRef={level01PoseRef}
-            // Impact energy is carried by the lightning mesh itself. Keeping
-            // this false prevents any recoil, scale or orientation change to
-            // the fixed Taiji ball.
-            level01ImpactActive={false}
+            level01ImpactActive={touchActive}
+            level01ImpactOrigin={lightningOrigin}
+            level01ImpactId={lightningStrikeId}
             onLevel01Reentry={() => level01Controller.playReentryWhoosh()}
             ballWorldRef={level01BallRef}
           />
