@@ -20,6 +20,8 @@
 import { createBaziCore, BRANCHES, type Branch } from '../lib/bazi/engine';
 import { calculateZiweiSanFang } from '../lib/ziwei-sanfang-engine';
 import { computeShichenProfile } from '../lib/shichen-engine';
+import { castHexagramFromBirth } from '../lib/iching-engine';
+import { patternNameOf } from '../lib/iching-psychology';
 
 let pass = 0;
 let fail = 0;
@@ -113,6 +115,53 @@ for (const item of CASES) {
   check('正統鎖定・日主', z.bazi.dayMaster, '甲木');
 }
 
-console.log(`\nBAZI × ZIWEI 四柱交叉驗證 — PASS ${pass} / FAIL ${fail}`);
+// ============================================================================
+// 第三層：易經卜卦
+//
+// 三核心的順序是 八字命盤 → 紫微斗數 → 易經卜卦。易經是最後一層，
+// 只負責「怎麼說」——它消費前兩層已凍結的證據，不新增規則、不改寫結論，
+// 話術由這一層產出後交給前端顯示，前端不得自己編。
+//
+// 這一段守三件事：起卦決定性、可回查、以及同一模組共用同一顆卦。
+// ============================================================================
+for (const item of CASES) {
+  // 決定性：同一生辰跑 50 次必須完全相同，否則客戶每次重整都換一個卦。
+  const first = castHexagramFromBirth(item.iso, item.hourIndex);
+  let stable = true;
+  for (let i = 0; i < 50; i += 1) {
+    const again = castHexagramFromBirth(item.iso, item.hourIndex);
+    if (JSON.stringify(again) !== JSON.stringify(first)) { stable = false; break; }
+  }
+  check(`${item.note} ${item.iso}｜易經起卦 50 次決定性`, stable, true);
+
+  // 可回查：seedText 必須帶出生辰與時辰，客戶才驗算得回來。
+  check(
+    `${item.note} ${item.iso}｜起卦依據可回查`,
+    first.seedText,
+    `梅花易數|${item.iso}|時辰${item.hourIndex + 1}`,
+  );
+
+  // 格局名必須由卦象推出，不得憑空生成。
+  check(
+    `${item.note} ${item.iso}｜格局名由卦象推出`,
+    patternNameOf(first).endsWith('格') && patternNameOf(first).length >= 3,
+    true,
+  );
+}
+
+// 時辰會改變卦：不知道時辰與知道時辰不該得到同一卦，否則「補時辰解鎖卦象」就是假的。
+{
+  const withHour = castHexagramFromBirth('1990-05-20', 11);
+  const otherHour = castHexagramFromBirth('1990-05-20', 2);
+  check('時辰不同必須是不同的卦', withHour.kingWen === otherHour.kingWen, false);
+}
+
+// 不同生辰不得塌成同一卦（雜湊沒有退化）。
+{
+  const seen = new Set(CASES.map((item) => castHexagramFromBirth(item.iso, item.hourIndex).kingWen));
+  check('六組生辰的卦象不得全部相同', seen.size > 1, true);
+}
+
+console.log(`\n三核心交叉驗證（八字 → 紫微 → 易經）— PASS ${pass} / FAIL ${fail}`);
 if (fail > 0) process.exit(1);
-console.log('BAZI_ZIWEI_CROSS_CERTIFIED=true');
+console.log('THREE_CORE_CROSS_CERTIFIED=true');

@@ -23,5 +23,11 @@
 對照組 1974-07-08 → 辛未（小暑後）
 ```
 
-以 `npm run test:bazi-ziwei-cross` 守住：兩張卡的四柱必須一致，
+完整制度見 `docs/three-core-cross-validation-skill.md`（三核心交叉技能）。
+
+三層順序：**八字命盤 → 紫微斗數 → 易經卜卦 → 前端只顯示**。
+易經層負責產出話術交給前端，前端不得自己編結論、自己算數字。
+
+**立下這種鐵律時，必須同時生出一支 CI 測試**——沒有測試的鐵律等於沒有鐵律。
+以 `npm run test:three-core` 守住：兩張卡的四柱必須一致，
 且紫微卡回應內的 `meta.dayPillar` 與 `ziweiSanFang.bazi.day` 不得矛盾。
