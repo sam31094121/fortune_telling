@@ -1311,12 +1311,15 @@ function Level01AccumulatedLightningWeb({ strikes, flashStrikeId, lowPower = fal
     const flashAge = flashStartedAtRef.current == null ? -Infinity : clock.elapsedTime - flashStartedAtRef.current;
     const flash = flashAge < LEVEL01_STRIKE_IMPACT_SECONDS ? 0
       : Math.max(0, 1 - (flashAge - LEVEL01_STRIKE_IMPACT_SECONDS) / .42);
-    // A bounded multi-beat impact tremor belongs to the core web, not to the
-    // Taiji transform: it reads as a continuing hit without moving the ball,
-    // its four points, or leaving rotational momentum behind.
-    const tremor = flash * Math.sin(Math.max(0, flashAge - LEVEL01_STRIKE_IMPACT_SECONDS) * 78) * .024;
-    web.scale.multiplyScalar(1 + tremor);
-    web.position.z += tremor * .18;
+    // One directional impact wave: compress at the exact arrival, carry its
+    // force through the core web, then settle once. This avoids a dizzying
+    // high-frequency shake while keeping the ball and cardinal points fixed.
+    const impactAge = Math.max(0, flashAge - LEVEL01_STRIKE_IMPACT_SECONDS);
+    const impactWave = impactAge < .24 ? Math.sin((impactAge / .24) * Math.PI) * (1 - impactAge / .24) : 0;
+    web.scale.x *= 1 + impactWave * .045;
+    web.scale.y *= 1 - impactWave * .032;
+    web.scale.z *= 1 + impactWave * .068;
+    web.position.z += impactWave * .014;
     web.children.forEach((child) => {
       const mesh = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
       const baseOpacity = Number(mesh.material.userData.baseOpacity ?? .12);
