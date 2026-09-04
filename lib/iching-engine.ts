@@ -118,6 +118,56 @@ export function castHexagram(...inputs: Array<string | number | null | undefined
  * 動爻＝（年＋月＋日＋時辰數）除以 6 取餘（餘 0 作 8／6）。
  * 八字輸入正確，卦就固定——同一生辰永遠同一卦，可回查可驗證。
  */
+/**
+ * 起卦前的正統定盤憑證。
+ *
+ * 【禁止造假】八字命盤與紫微命盤都必須先通過各自的正統驗證閘、走完卜卦儀式，
+ * 才准生成卦象。沒有憑證就起卦＝造假，這裡直接擋下，不是警告而已。
+ *
+ * 憑證由 lib/three-core-engine.ts 的 computeThreeCore() 產出——那是唯一的簽發者。
+ * 任何呼叫端都不得自己捏一份憑證出來。
+ */
+export interface IChingCastCertificate {
+  /** 八字四道驗證閘全過（曆法／四柱／十神／大運）。 */
+  baziVerified: boolean;
+  /** 紫微十二宮定盤、時辰已確認。 */
+  ziweiCertified: boolean;
+  /** 正統卜卦儀式五步全部走完。 */
+  ritualCompleted: boolean;
+  /** 這張命盤的四柱指紋，供回查。 */
+  chartFingerprint: string;
+}
+
+/**
+ * 憑證檢核。三項缺一不可，缺了就丟例外——寧可不出卦，不出假卦。
+ */
+export function assertCastCertificate(cert: IChingCastCertificate | undefined, where: string): void {
+  const missing: string[] = [];
+  if (!cert) {
+    throw new Error(`ICHING_CAST_WITHOUT_CERTIFICATE: ${where} 未提供正統定盤憑證，禁止起卦。`);
+  }
+  if (!cert.baziVerified) missing.push('八字四柱未通過正統驗證閘');
+  if (!cert.ziweiCertified) missing.push('紫微十二宮未定盤');
+  if (!cert.ritualCompleted) missing.push('正統卜卦儀式未走完');
+  if (missing.length > 0) {
+    throw new Error(`ICHING_CAST_BLOCKED: ${where} ${missing.join('；')}。禁止造假，命盤未鎖死不得起卦。`);
+  }
+}
+
+/**
+ * 正統起卦（八字＋紫微鎖死＋儀式走完之後才准呼叫）。
+ *
+ * 這是「經過儀式的卦」的唯一入口。castHexagramFromBirth 保留給尚未遷移的
+ * 呼叫端，但新程式一律走這裡——憑證不合格就丟例外，不會靜靜地出一顆假卦。
+ */
+export function castHexagramCertified(
+  cert: IChingCastCertificate,
+  birthDate: string,
+  shichenIndex: number,
+): IChingReading {
+  assertCastCertificate(cert, 'castHexagramCertified');
+  return castHexagramFromBirth(birthDate, shichenIndex);
+}
 export function castHexagramFromBirth(birthDate: string, shichenIndex?: number | null): IChingReading {
   const [y, m, d] = birthDate.split('-').map((v) => Number(v) || 0);
   const hour = typeof shichenIndex === 'number' && Number.isFinite(shichenIndex) ? shichenIndex + 1 : 7; // 未知時辰以午時（第 7 支）計

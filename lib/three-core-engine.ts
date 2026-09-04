@@ -46,7 +46,7 @@
 
 import { BRANCHES, createBaziCore, type Branch } from './bazi/engine';
 import { calculateZiweiSanFang, type ZiweiSanFangAnalysis } from './ziwei-sanfang-engine';
-import { castHexagramFromBirth, type IChingReading } from './iching-engine';
+import { castHexagramCertified, type IChingCastCertificate, type IChingReading } from './iching-engine';
 import { patternNameOf } from './iching-psychology';
 
 export const THREE_CORE_ENGINE = {
@@ -120,7 +120,7 @@ export interface IChingRitualRecord {
 }
 
 export type ThreeCoreIChingLayer =
-  | { status: 'READY'; reading: IChingReading; patternName: string; ritual: IChingRitualRecord }
+  | { status: 'READY'; reading: IChingReading; patternName: string; ritual: IChingRitualRecord; certificate: IChingCastCertificate }
   | { status: 'UNAVAILABLE_BIRTH_TIME_REQUIRED'; reason: string }
   | { status: 'BLOCKED_RITUAL_INCOMPLETE'; reason: string; ritual: IChingRitualRecord };
 
@@ -305,8 +305,19 @@ export function computeThreeCore(input: ThreeCoreInput): ThreeCoreResult {
         ritual,
       }
       : (() => {
-        const reading = castHexagramFromBirth(input.birthDate, hourIndex);
-        return { status: 'READY' as const, reading, patternName: patternNameOf(reading), ritual };
+        /*
+          禁止造假：不直接呼叫 castHexagramFromBirth，而是帶憑證走正統入口。
+          憑證三項（八字驗證閘、紫微定盤、儀式走完）缺一，castHexagramCertified
+          會直接丟例外——寧可不出卦，不出假卦。
+        */
+        const certificate: IChingCastCertificate = {
+          baziVerified: gate.readyForInterpretation && pillarsWellFormed,
+          ziweiCertified,
+          ritualCompleted: ritual.completed,
+          chartFingerprint,
+        };
+        const reading = castHexagramCertified(certificate, input.birthDate, hourIndex);
+        return { status: 'READY' as const, reading, patternName: patternNameOf(reading), ritual, certificate };
       })();
 
   // ── 引擎自己驗自己 ──────────────────────────────────────────────
