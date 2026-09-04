@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
-import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
+import { HOUR_BRANCH_PENDING, UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { runAnalysisJobClient } from '@/lib/analysis-job-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
@@ -440,7 +440,11 @@ export default function BaziPage() {
       form.name.trim().length < 2 ? 'name' : '',
       !form.birthDate ? 'birthDate' : '',
       !form.gender ? 'gender' : '',
-      !form.timeUnknown && !form.birthHourBranch ? 'birthHourBranch' : '',
+      // 'pending' 是「按了我知道時辰、但還沒點任何一張卡」的懸空狀態。
+      // 放行就會拿一個客戶沒選過的時辰去排時柱、十神與大運。
+      !form.timeUnknown && (!form.birthHourBranch || form.birthHourBranch === HOUR_BRANCH_PENDING)
+        ? 'birthHourBranch'
+        : '',
     ].filter(Boolean);
 
     setMissing(nextMissing);
@@ -549,6 +553,9 @@ export default function BaziPage() {
           submitLabel={getDailyAnalysisButtonLabel(dailyRecord)}
           loadingLabel="八字三層資料流運算中..."
           dateAccent="amber"
+          // 時辰決定時柱，時柱決定十神、大運與整張命盤的走向。
+          // 預先塞一個值等於替客戶決定他的八字——他沒選過，畫面卻標「完成」。
+          requireExplicitHourPick
           onChange={(profile) => {
             setForm((current) => ({
               ...current,
