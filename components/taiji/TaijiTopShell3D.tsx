@@ -11,12 +11,44 @@
  */
 
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import { Component, useEffect, useState, type ReactNode } from 'react';
 import { canMountTaiji3D } from './taijiDeviceGate';
 
 /* 圖案全面換新（2026-08-13 依業主檔案）：改掛 TaijiSystem V2（R3F 版）。
    舊 TaijiWebGL3D 保留原檔未刪，要回退時把下面這行換回 './TaijiWebGL3D' 即可。 */
-const TaijiSystem = dynamic(() => import('@/components/TaijiSystem'), { ssr: false });
+/*
+  動態載入必須有失敗退路。
+
+  iOS Safari 在記憶體吃緊、切換 App 回來、或網路不穩時，chunk 載入失敗的機率
+  遠高於桌機。原本沒有 loading 也沒有錯誤處理——chunk 一失敗，Next.js 的
+  dynamic 就靜靜地什麼都不渲染，客戶看到的又是一片空白。
+
+  loading 期間先給靜態太極；載入失敗時 onError 會讓外層切到靜態退路。
+*/
+const TaijiSystem = dynamic(() => import('@/components/TaijiSystem'), {
+  ssr: false,
+  loading: () => <StaticTaiji state="loading" />,
+});
+
+/** 3D 不在時的太極。太極是唯一核心，任何情況下都不該是一片空白。 */
+function StaticTaiji({ state, src = '/taiji.png' }: { state: 'loading' | 'static'; src?: string }) {
+  return (
+    <div
+      className="relative grid w-full place-items-center rounded-[28px] py-6"
+      data-taiji-fallback={state}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt="太極"
+        width={200}
+        height={200}
+        className={`h-[min(52vw,200px)] w-[min(52vw,200px)] select-none drop-shadow-[0_0_36px_rgba(148,163,255,0.35)] ${state === 'loading' ? 'animate-pulse' : ''}`}
+        draggable={false}
+      />
+    </div>
+  );
+}
 
 export default function TaijiTopShell3D({
   textureUrl,
@@ -85,26 +117,57 @@ export default function TaijiTopShell3D({
     客戶看到的是一個空的區塊。太極是唯一核心，任何情況下都不該消失。
   */
   if (!ready) {
-    return (
-      <div
-        className="relative grid w-full place-items-center rounded-[28px] py-6"
-        data-taiji-fallback={fallback ? 'static' : 'loading'}
-      >
-        <img
-          src={textureUrl ?? '/taiji.png'}
-          alt="太極"
-          width={200}
-          height={200}
-          className={`h-[min(52vw,200px)] w-[min(52vw,200px)] select-none drop-shadow-[0_0_36px_rgba(148,163,255,0.35)] ${fallback ? '' : 'animate-pulse'}`}
-          draggable={false}
-        />
-      </div>
-    );
+    return <StaticTaiji state={fallback ? 'static' : 'loading'} src={textureUrl ?? '/taiji.png'} />;
   }
 
+  /*
+    掛上之後還是可能倒：
+      · chunk 載入失敗（iOS Safari 記憶體吃緊、切 App 回來、網路不穩時特別常見）
+      · WebGL context lost（iOS 在背景或記憶體壓力下會主動回收 GL context）
+      · 元件執行期例外
+    這三種發生時，React 會卸掉整棵子樹——客戶看到的又是一片空白。
+    用錯誤邊界接住，退回靜態太極；太極不會消失。
+  */
   return (
-    <div className="relative w-full overflow-visible rounded-[28px]">
-      <TaijiSystem textureUrl={textureUrl ?? '/taiji.png'} videoUrl={videoUrl} />
-    </div>
+    <TaijiMountBoundary fallback={<StaticTaiji state="static" src={textureUrl ?? '/taiji.png'} />}>
+      <div className="relative w-full overflow-visible rounded-[28px]">
+        <TaijiSystem textureUrl={textureUrl ?? '/taiji.png'} videoUrl={videoUrl} />
+      </div>
+    </TaijiMountBoundary>
   );
+}
+
+/** 太極掛載錯誤邊界：3D 倒了就換靜態圖，不讓首屏開天窗。 */
+class TaijiMountBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { crashed: boolean }
+> {
+  state = { crashed: false };
+
+  static getDerivedStateFromError() {
+    return { crashed: true };
+  }
+
+  componentDidMount() {
+    // iOS 在記憶體壓力下會主動回收 GL context；收到就換靜態圖。
+    this.onContextLost = (event: Event) => {
+      event.preventDefault();
+      this.setState({ crashed: true });
+    };
+    window.addEventListener('webglcontextlost', this.onContextLost, true);
+  }
+
+  componentWillUnmount() {
+    if (this.onContextLost) window.removeEventListener('webglcontextlost', this.onContextLost, true);
+  }
+
+  private onContextLost?: (event: Event) => void;
+
+  componentDidCatch(error: Error) {
+    console.warn('[taiji] 3D 掛載失敗，改用靜態太極：', error.message);
+  }
+
+  render() {
+    return this.state.crashed ? this.props.fallback : this.props.children;
+  }
 }

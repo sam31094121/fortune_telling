@@ -162,4 +162,27 @@ assert.ok(
 assert.ok(/canMountTaiji3D/.test(shellCode), 'TaijiTopShell3D 必須使用共用守門');
 assert.ok(/isLowPowerDevice|isStrongPhoneDevice/.test(systemCode), 'TaijiSystem 必須使用共用低功耗判定');
 
+// ---- 三道退路：任何一種失敗都不得讓首屏空白 ----
+// iOS Safari 在記憶體吃緊、切 App 回來、網路不穩時特別容易觸發這三種。
+assert.ok(
+  shellCode.includes("loading: () => <StaticTaiji"),
+  'dynamic 必須有 loading 退路——chunk 載入中不得空白',
+);
+assert.ok(
+  shellCode.includes('TaijiMountBoundary'),
+  '必須有錯誤邊界接住 chunk 載入失敗與執行期例外',
+);
+assert.ok(
+  shellCode.includes('getDerivedStateFromError'),
+  '錯誤邊界必須實作 getDerivedStateFromError',
+);
+assert.ok(
+  shellCode.includes("addEventListener('webglcontextlost'"),
+  'iOS 會在記憶體壓力下回收 GL context，必須監聽 webglcontextlost',
+);
+assert.ok(
+  /StaticTaiji/.test(shellCode) && /alt="太極"/.test(shellCode),
+  '三種退路都必須收斂到同一個靜態太極元件',
+);
+
 console.log('PASS: 太極在 Apple 手機可見；圖案不被硬體數字誤擋、畫質不被鎖低、遊戲授權走手勢且有手動退路');
