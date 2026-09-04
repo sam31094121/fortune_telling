@@ -58,3 +58,4 @@ t12
 
 .vercel
 .env*
+.bazi-ziwei-cross-build/
