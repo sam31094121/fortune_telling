@@ -162,6 +162,42 @@ for (const item of CASES) {
   check('六組生辰的卦象不得全部相同', seen.size > 1, true);
 }
 
+// ============================================================================
+// 逐卡三合一：把同一套方法對準單一張卡
+//
+// 三合一不只是「跑一次全域檢查」，它要能對準任何一張卡，
+// 驗那張卡自己的八字、紫微、易經是否與三個核心一致。
+// 這裡以《桃花紅鸞心動》為第一張——它三層俱全，是最完整的樣本。
+//
+// 新增卡片時照抄這一段：把該卡的引擎接進來，逐層比對即可。
+// ============================================================================
+{
+  // 紅鸞卡的四柱來自 API 端的 createBaziCore（app/api/red-luan-heartbeat/route.ts）。
+  // 這裡直接以同一支核心引擎重算，確認紅鸞用的年支／日支沒有走樣。
+  const core = createBaziCore({
+    gender: 'female', birthDate: '1990-05-20', calendarType: 'SOLAR',
+    birthTimeKnown: true, traditionalHour: '亥', timezone: 'Asia/Taipei',
+  });
+  check('紅鸞・年支取自核心引擎', core.pillars.year.earthlyBranch, '午');
+  check('紅鸞・日支取自核心引擎', core.pillars.day.earthlyBranch, '酉');
+  check('紅鸞・日柱對得上獨立錨點', core.pillars.day.ganZhi, anchorDayPillar('1990-05-20'));
+
+  // 紅鸞的紫微夫妻宮必須與紫微卡同一顆盤。
+  const ziwei = calculateZiweiSanFang({
+    birthDate: '1990-05-20', birthTime: '21:30', gender: 'female',
+    shichen: 11, isTimeConfirmed: true, longitude: null,
+  });
+  const fuQi = ziwei.allPalaces.find((palace) => /夫妻/.test(palace.name));
+  check('紅鸞・夫妻宮與紫微卡同一顆盤（宮位地支）', fuQi?.branch, '辰');
+  check('紅鸞・夫妻宮主星', fuQi?.majorStars, ['天同']);
+
+  // 紅鸞的卦必須與全站易經層同一顆——同模組不得出現兩顆卦。
+  const hex = castHexagramFromBirth('1990-05-20', 11);
+  check('紅鸞・卦象與易經層一致', hex.hexagramName, '山火賁');
+  check('紅鸞・格局名', patternNameOf(hex), '山鎮抱火格');
+  check('紅鸞・起卦依據可回查', hex.seedText, '梅花易數|1990-05-20|時辰12');
+}
+
 console.log(`\n三核心交叉驗證（八字 → 紫微 → 易經）— PASS ${pass} / FAIL ${fail}`);
 if (fail > 0) process.exit(1);
 console.log('THREE_CORE_CROSS_CERTIFIED=true');
