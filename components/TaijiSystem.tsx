@@ -1930,32 +1930,32 @@ function TaijiCore({
       groupRef.current.rotation.z = 0;
     }
 
-    // LEVEL_01 impact recoil: directional impulses accumulate briefly, then a
-    // bounded spring returns the actual orb to rest. It never translates the
-    // ball or its cardinal dots, and cannot become a permanent auto-rotation.
-    // The base pose is rewritten every frame above, so the orb returns exactly
-    // to its controller position when the strike finishes without residual drift.
+    // LEVEL_01 impact recoil: directional impulses retain the accumulated
+    // orientation. Repeated hits can cross full turns; after input stops only
+    // velocity decays, so the orb rests at its last honest physical heading.
+    // It never translates the ball or its cardinal dots, and cannot become an
+    // autonomous rotation without a strike.
     // The recoil begins only after the travelling bolts reach the orb. Keeping
     // this delay aligned with the impact-web delay preserves physical causality.
     if (layer === 1 && !reducedMotionRef.current) {
       const rotationImpulse: Record<Level01StrikeOrigin, { x: number; y: number }> = {
-        N: { x: -.82, y: 0 }, S: { x: .82, y: 0 },
-        E: { x: 0, y: -.98 }, W: { x: 0, y: .98 },
+        N: { x: -.72, y: 0 }, S: { x: .72, y: 0 },
+        E: { x: 0, y: -.86 }, W: { x: 0, y: .86 },
       };
       while (impactState.pending[0]?.arrivesAt <= t) {
         const pending = impactState.pending.shift()!;
         const impulse = rotationImpulse[pending.origin];
-        impactState.velocityX = THREE.MathUtils.clamp(impactState.velocityX + impulse.x, -1.65, 1.65);
-        impactState.velocityY = THREE.MathUtils.clamp(impactState.velocityY + impulse.y, -1.85, 1.85);
+        impactState.velocityX = THREE.MathUtils.clamp(impactState.velocityX + impulse.x, -4.8, 4.8);
+        impactState.velocityY = THREE.MathUtils.clamp(impactState.velocityY + impulse.y, -5.4, 5.4);
         impactState.lastArrivalAt = pending.arrivesAt;
       }
-      // Critically damped enough to settle after a short visible response, but
-      // deliberately retains a prior hit's remaining velocity for a new hit.
-      const impactDamping = Math.exp(-8.8 * frameDelta);
-      impactState.velocityX = (impactState.velocityX - impactState.angleX * 17 * frameDelta) * impactDamping;
-      impactState.velocityY = (impactState.velocityY - impactState.angleY * 17 * frameDelta) * impactDamping;
-      impactState.angleX = THREE.MathUtils.clamp(impactState.angleX + impactState.velocityX * frameDelta, -.12, .12);
-      impactState.angleY = THREE.MathUtils.clamp(impactState.angleY + impactState.velocityY * frameDelta, -.14, .14);
+      // No restoring spring: it would erase a real full-circle accumulation.
+      // Exponential damping still guarantees a finite, quiet stop after input.
+      const impactDamping = Math.exp(-1.7 * frameDelta);
+      impactState.velocityX *= impactDamping;
+      impactState.velocityY *= impactDamping;
+      impactState.angleX += impactState.velocityX * frameDelta;
+      impactState.angleY += impactState.velocityY * frameDelta;
       const impactAge = t - impactState.lastArrivalAt;
       const impactWave = impactAge >= 0 && impactAge < .42
         ? Math.sin((impactAge / .42) * Math.PI) * (1 - (impactAge / .42) * .45)
