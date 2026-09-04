@@ -71,17 +71,19 @@ assert.ok(
 );
 
 // ---- ② 內層畫質：Apple 行動裝置不得被打成低功耗 ----
+// 判定已抽到 taijiDeviceGate.ts；這裡確認 TaijiSystem 真的在用共用版本，
+// 而不是自己再寫一套（多套判定＝下一次漂移的起點）。
 assert.ok(
-  /isAppleMobile/.test(systemCode),
-  'TaijiSystem 必須辨識 Apple 行動裝置，避免用不可信的硬體數字把 iPhone 打成最低畫質',
+  systemCode.includes('isLowPowerDevice(deviceSignals)'),
+  'TaijiSystem 的 lowPower 必須來自共用判定 isLowPowerDevice',
 );
 assert.ok(
-  /const lowPower = !isAppleMobile/.test(systemCode),
-  'lowPower 判定必須排除 Apple 行動裝置',
+  systemCode.includes('isStrongPhoneDevice(deviceSignals)'),
+  'TaijiSystem 的 strongPhone 必須來自共用判定 isStrongPhoneDevice',
 );
 assert.ok(
-  /const strongPhone = isAppleMobile/.test(systemCode),
-  'Apple 行動裝置應視為高效能手機（其 GPU 實際優於多數 Android 旗艦）',
+  !systemCode.includes('cores <= 4 || memory <= 4'),
+  'TaijiSystem 不得再自行用 cores/memory 判低功耗',
 );
 
 // ---- 行為重現：以 iPhone 的實際回報值跑一次判定 ----
@@ -131,5 +133,33 @@ assert.ok(
     '客戶拒絕感測器授權時，遊戲仍須以手動模式可玩，不得變成死路',
   );
 }
+
+// ---- 機型矩陣：每一台裝置都必須看得到太極（純函式，不需瀏覽器）----
+{
+  const ts = require('typescript');
+  const gateSrc = fs.readFileSync(path.join(root, 'components/taiji/taijiDeviceGate.ts'), 'utf8');
+  const js = ts.transpileModule(gateSrc, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
+  const mod = { exports: {} };
+  new Function('exports', 'module', js)(mod.exports, mod);
+  const { canMountTaiji3D, isLowPowerDevice, isStrongPhoneDevice, TAIJI_DEVICE_FIXTURES } = mod.exports;
+
+  for (const fixture of TAIJI_DEVICE_FIXTURES) {
+    assert.equal(canMountTaiji3D(fixture.signals), true, fixture.name + ' 必須看得到太極');
+  }
+
+  const iphone = TAIJI_DEVICE_FIXTURES.find((f) => /iPhone/.test(f.name)).signals;
+  const ipad = TAIJI_DEVICE_FIXTURES.find((f) => /iPad/.test(f.name)).signals;
+  assert.equal(isLowPowerDevice(iphone), false, 'iPhone 不得被判低功耗');
+  assert.equal(isStrongPhoneDevice(iphone), true, 'iPhone 應享有高畫質');
+  assert.equal(isLowPowerDevice(ipad), false, 'iPad（UA 偽裝成 MacIntel）不得被判低功耗');
+
+  // 該擋的仍要擋：沒有 WebGL、或客戶要求減少動態
+  assert.equal(canMountTaiji3D({ ...iphone, webgl: false }), false, '沒有 WebGL 時不得掛載 3D');
+  assert.equal(canMountTaiji3D({ ...iphone, reducedMotion: true }), false, '客戶要求減少動態時不得掛載 3D');
+}
+
+// ---- 兩個元件都必須用同一份守門，不得各自再寫一套 ----
+assert.ok(/canMountTaiji3D/.test(shellCode), 'TaijiTopShell3D 必須使用共用守門');
+assert.ok(/isLowPowerDevice|isStrongPhoneDevice/.test(systemCode), 'TaijiSystem 必須使用共用低功耗判定');
 
 console.log('PASS: 太極在 Apple 手機可見；圖案不被硬體數字誤擋、畫質不被鎖低、遊戲授權走手勢且有手動退路');

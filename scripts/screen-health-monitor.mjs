@@ -129,6 +129,12 @@ const TAIJI_LEVEL01_CHECKS = [
     script: 'test:taiji-level-01',
   },
   {
+    id: 'TAIJI_IOS',
+    module: 'taiji_ios_visibility',
+    title: '太極在 Apple 手機可見（圖案與遊戲）',
+    script: 'test:taiji-ios',
+  },
+  {
     id: 'HOME_TAIJI_LEVEL01_UI',
     module: 'taiji_level_01_ui',
     title: '第一層太極啟動與降級介面邊界',

@@ -12,6 +12,7 @@
 
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
+import { canMountTaiji3D } from './taijiDeviceGate';
 
 /* 圖案全面換新（2026-08-13 依業主檔案）：改掛 TaijiSystem V2（R3F 版）。
    舊 TaijiWebGL3D 保留原檔未刪，要回退時把下面這行換回 './TaijiWebGL3D' 即可。 */
@@ -48,7 +49,15 @@ export default function TaijiTopShell3D({
         離開視野停 frameloop。那一層才是該做降級的地方——
         依太極憲章，省效能要從材質與剔除下手，不是把整個核心關掉。
       */
-      if (!webgl || reduced) {
+      // 判定抽在 taijiDeviceGate.ts，健檢與 CI 可直接餵 iPhone 參數驗證。
+      const mountable = canMountTaiji3D({
+        webgl,
+        reducedMotion: Boolean(reduced),
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        maxTouchPoints: navigator.maxTouchPoints,
+      });
+      if (!mountable) {
         setFallback(true);
         return;
       }

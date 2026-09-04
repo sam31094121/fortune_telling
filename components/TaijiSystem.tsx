@@ -13,6 +13,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { isLowPowerDevice, isStrongPhoneDevice } from '@/components/taiji/taijiDeviceGate';
 import {
   OrbitControls,
   Sparkles,
@@ -389,11 +390,18 @@ function useTaijiCanvasQuality(wrapperRef: { current: HTMLElement | null }) {
         Apple 行動裝置改以「不低於一般手機」對待，實際負載仍由下方的
         DPR 上限、粒子預算與離屏停 frameloop 控制。（2026-09-04 客訴）
       */
-      const isAppleMobile = /iPad|iPhone|iPod/.test(navigator.userAgent)
-        || (navigator.platform === 'MacIntel' && (navigator.maxTouchPoints ?? 0) > 1);
-
-      const lowPower = !isAppleMobile && (cores <= 4 || memory <= 4);
-      const strongPhone = isAppleMobile || (cores >= 8 && memory >= 6);
+      // 判定抽在 taijiDeviceGate.ts，與外層守門共用同一份規則。
+      const deviceSignals = {
+        webgl: true,
+        reducedMotion: false,
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        maxTouchPoints: navigator.maxTouchPoints,
+        hardwareConcurrency: cores,
+        deviceMemory: nav.deviceMemory,
+      };
+      const lowPower = isLowPowerDevice(deviceSignals);
+      const strongPhone = isStrongPhoneDevice(deviceSignals);
       const strongDesktop = cores >= 8 && memory >= 8;
 
       const deviceDpr = Math.max(1, window.devicePixelRatio || 1);
