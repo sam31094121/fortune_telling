@@ -185,4 +185,30 @@ assert.ok(
   '三種退路都必須收斂到同一個靜態太極元件',
 );
 
+// ---- 不需主動開啟任何功能：打開就能看、能玩 ----
+// 客戶要求：不用按任何按鈕、不跳任何權限視窗，iPhone 開啟即可正常使用。
+{
+  const controller = fs.readFileSync(path.join(root, 'components/taiji/level-01/Level01MotionController.ts'), 'utf8');
+  const orientation = fs.readFileSync(path.join(root, 'components/taiji/level-01/Level01Orientation.ts'), 'utf8');
+
+  // 顯示：掛載不得依賴任何使用者動作，只看 WebGL 與 reduced-motion
+  assert.ok(
+    !/onClick|onPointerDown|requestPermission/.test(shellCode),
+    '太極的顯示不得依賴使用者點擊或權限授權，打開就要看得到',
+  );
+
+  // 權限：iOS 不得自動彈出權限視窗（那會被 Safari 直接拒絕，也打擾客戶）
+  assert.ok(
+    orientation.includes('Safari/iOS is intentionally excluded'),
+    'iOS 不得自動請求感測器權限',
+  );
+
+  // 遊戲：iOS 拿不到感測器時必須直接進手動模式，不是停在那裡等授權
+  assert.ok(
+    controller.includes('canAutoStartLevel01Sensors()')
+      && controller.includes('manualFallback = true'),
+    'iOS 未授權時必須自動進手動模式，客戶用手指就能玩，不需主動開啟任何功能',
+  );
+}
+
 console.log('PASS: 太極在 Apple 手機可見；圖案不被硬體數字誤擋、畫質不被鎖低、遊戲授權走手勢且有手動退路');
