@@ -66,42 +66,8 @@ export default function TarotPageClient() {
   const [activeScope, setActiveScope] = useState<TarotReadingScope>('self');
   const [activeSessionId, setActiveSessionId] = useState('');
   const [adminMode, setAdminMode] = useState(false);
-  const [previewDeck, setPreviewDeck] = useState(() => [...TAROT_CARDS]);
-  // Start compact so a phone never hydrates 78 moving images before its
-  // capability check completes. Desktop promotes itself immediately after mount.
-  const [compactPreview, setCompactPreview] = useState(true);
-
-  useEffect(() => {
-    const compactMedia = window.matchMedia('(max-width: 720px), (pointer: coarse), (prefers-reduced-motion: reduce)');
-    const updatePreviewMode = () => {
-      const navigatorInfo = navigator as Navigator & { deviceMemory?: number };
-      const lowPower = (navigatorInfo.deviceMemory ?? 8) <= 4 || (navigatorInfo.hardwareConcurrency ?? 8) <= 4;
-      setCompactPreview(compactMedia.matches || lowPower);
-    };
-    updatePreviewMode();
-    compactMedia.addEventListener?.('change', updatePreviewMode);
-    return () => compactMedia.removeEventListener?.('change', updatePreviewMode);
-  }, []);
-
-  useEffect(() => {
-    if (compactPreview) return;
-    // At the end of every visible shuffle, the top card is moved underneath
-    // the deck. The next cycle therefore starts with a genuinely new card.
-    const cycleTimer = window.setInterval(() => {
-      setPreviewDeck((current) => {
-        if (current.length < 2) return current;
-        const topCard = current[current.length - 1];
-        return [topCard, ...current.slice(0, -1)];
-      });
-    }, 4500);
-    return () => window.clearInterval(cycleTimer);
-  }, [compactPreview]);
 
   const cardsById = useMemo(() => new Map(TAROT_CARDS.map((card) => [card.id, card] as const)), []);
-  const visiblePreviewDeck = useMemo(
-    () => compactPreview ? previewDeck.slice(0, 3) : previewDeck,
-    [compactPreview, previewDeck],
-  );
   const trimmedQuestionLength = tarotQuestion.trim().length;
   const questionReady = trimmedQuestionLength >= 4;
   const submitLabel = isGenerating
@@ -386,42 +352,6 @@ export default function TarotPageClient() {
             </div>
           </section>
 
-          <aside className="fortune-card tarot-experience-hero tarot-experience-hero--deck border-cyan-200/20 p-4 sm:p-5" aria-label="塔羅牌庫預覽">
-              <div
-                className={`tarot-experience-deck-preview ${compactPreview ? 'tarot-experience-deck-preview--compact' : 'tarot-experience-deck-preview--fancy-shuffling'}`}
-                aria-label={compactPreview ? '塔羅牌庫預覽' : '78 張塔羅牌正在洗牌'}
-              >
-                {visiblePreviewDeck.map((card, index) => {
-                  const leftPile = index < 39;
-                  const pileIndex = leftPile ? index : index - 39;
-                  const interlaceIndex = leftPile ? pileIndex * 2 : pileIndex * 2 + 1;
-                  const interlaceOffset = (interlaceIndex % 11) - 5;
-                  return (
-                    <span key={card.id} className="tarot-experience-deck-preview__card" data-arcana={card.arcana} data-preview-index={index} style={{
-                      ['--preview-x' as string]: '0rem',
-                      ['--preview-y' as string]: `${(pileIndex % 7) * 0.012}rem`,
-                      ['--preview-rot' as string]: `${((pileIndex % 5) - 2) * 0.38}deg`,
-                      ['--preview-depth' as string]: `${visiblePreviewDeck.length - index}px`,
-                      ['--preview-delay' as string]: `${(interlaceIndex % 13) * 10}ms`,
-                      ['--preview-ridge' as string]: `${0.12 + (pileIndex % 9) * 0.008}rem`,
-                      ['--preview-warmth' as string]: `${0.58 + (index % 5) * 0.045}`,
-                      ['--preview-pile-x' as string]: leftPile ? '-4.25rem' : '4.25rem',
-                      ['--preview-pile-y' as string]: `${-0.72 + (pileIndex % 7) * 0.032}rem`,
-                      ['--preview-pile-rot' as string]: leftPile ? '-10deg' : '10deg',
-                      ['--preview-bridge-x' as string]: leftPile ? '-1.87rem' : '1.87rem',
-                      ['--preview-bridge-rot' as string]: leftPile ? '-4.2deg' : '4.2deg',
-                      ['--preview-interlace-x' as string]: `${interlaceOffset * 0.045}rem`,
-                      ['--preview-interlace-y' as string]: `${(interlaceIndex % 10) * 0.028}rem`,
-                      ['--preview-interlace-rot' as string]: `${interlaceOffset * 0.32}deg`,
-                      ['--preview-interlace-depth' as string]: `${interlaceIndex}px`,
-                      zIndex: interlaceIndex + 1,
-                    }}>
-                      <img src={card.imageUrl} alt="" loading="lazy" aria-hidden="true" />
-                    </span>
-                  );
-                })}
-              </div>
-          </aside>
           </div>
         )}
 
