@@ -25,6 +25,7 @@ import fsForPage from 'node:fs';
 import pathForPage from 'node:path';
 import { patternNameOf } from '../lib/iching-psychology';
 import { assertThreeCoreConsistent, computeThreeCore, ICHING_RITUAL_STEPS } from '../lib/three-core-engine';
+import { assertCastCertificate, castHexagramCertified } from '../lib/iching-engine';
 
 let pass = 0;
 let fail = 0;
@@ -366,6 +367,41 @@ for (const item of CASES) {
     if (known.iching.status === 'READY') {
       const ids = known.iching.ritual.steps.map((step) => step.id);
       check('儀式關卡・五步順序固定', ids, ['TEMPERATURE', 'STILLNESS', 'HEXAGRAM_FORMED', 'ONION', 'CONFIDANT']);
+    }
+  }
+
+  /*
+    禁止造假：沒有正統定盤憑證就起卦，必須直接丟例外。
+    八字驗證閘、紫微定盤、儀式走完——三項缺一都不准出卦。
+  */
+  {
+    const good = { baziVerified: true, ziweiCertified: true, ritualCompleted: true, chartFingerprint: 'x' };
+    const cases: Array<[string, Record<string, unknown> | undefined]> = [
+      ['完全沒有憑證', undefined],
+      ['八字未通過驗證閘', { ...good, baziVerified: false }],
+      ['紫微未定盤', { ...good, ziweiCertified: false }],
+      ['儀式未走完', { ...good, ritualCompleted: false }],
+    ];
+    for (const [label, cert] of cases) {
+      let blocked = false;
+      try {
+        assertCastCertificate(cert as never, 'test');
+      } catch { blocked = true; }
+      check(`禁止造假・${label}必須擋下`, blocked, true);
+    }
+    // 憑證齊全才准出卦
+    let issued = '';
+    try {
+      issued = castHexagramCertified(good, '1990-05-20', 11).hexagramName;
+    } catch { issued = 'THREW'; }
+    check('禁止造假・憑證齊全才出卦', issued, '山火賁');
+
+    // 引擎簽發的憑證必須三項全真
+    if (known.iching.status === 'READY') {
+      check('憑證・八字已驗證', known.iching.certificate.baziVerified, true);
+      check('憑證・紫微已定盤', known.iching.certificate.ziweiCertified, true);
+      check('憑證・儀式已走完', known.iching.certificate.ritualCompleted, true);
+      check('憑證・綁定命盤指紋', known.iching.certificate.chartFingerprint, '庚午|辛巳|乙酉|丁亥');
     }
   }
 
