@@ -13,6 +13,7 @@
 import dynamic from 'next/dynamic';
 import { Component, useEffect, useState, type ReactNode } from 'react';
 import { canMountTaiji3D } from './taijiDeviceGate';
+import styles from './TaijiFormlessField.module.css';
 
 /* 圖案全面換新（2026-08-13 依業主檔案）：改掛 TaijiSystem V2（R3F 版）。
    舊 TaijiWebGL3D 保留原檔未刪，要回退時把下面這行換回 './TaijiWebGL3D' 即可。 */
@@ -30,22 +31,28 @@ const TaijiSystem = dynamic(() => import('@/components/TaijiSystem'), {
   loading: () => <StaticTaiji state="loading" />,
 });
 
-/** 3D 不在時的太極。太極是唯一核心，任何情況下都不該是一片空白。 */
-function StaticTaiji({ state, src = '/taiji.png' }: { state: 'loading' | 'static'; src?: string }) {
+/**
+ * 3D 不在時的太極 —— 無極場。
+ *
+ * 業主定調：「太極是要一種神秘感的遊戲，所以無形勝有形。」
+ * 所以這裡不放圖、不畫邊、不包框：兩團陰陽輝光以不同週期反向相推，
+ * 交界不畫成線，讓它在光暗相接處自己浮出來。看得到，卻抓不到邊。
+ *
+ * 全 CSS，不碰 WebGL、不載圖檔——chunk 掉、GL context 被回收、記憶體吃緊時，
+ * iPhone 一樣顯示得出來。太極是唯一核心，任何情況下都不該是一片空白。
+ */
+function StaticTaiji({ state }: { state: 'loading' | 'static' }) {
   return (
-    <div
-      className="relative grid w-full place-items-center rounded-[28px] py-6"
-      data-taiji-fallback={state}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt="太極"
-        width={200}
-        height={200}
-        className={`h-[min(52vw,200px)] w-[min(52vw,200px)] select-none drop-shadow-[0_0_36px_rgba(148,163,255,0.35)] ${state === 'loading' ? 'animate-pulse' : ''}`}
-        draggable={false}
-      />
+    <div className="relative grid w-full place-items-center py-6" data-taiji-fallback={state}>
+      <div
+        className={`${styles.field} ${state === 'loading' ? styles.loading : ''}`}
+        role="img"
+        aria-label="太極"
+      >
+        <span className={styles.haze} />
+        <span className={styles.veil} />
+        <span className={styles.figure} />
+      </div>
     </div>
   );
 }
@@ -117,7 +124,7 @@ export default function TaijiTopShell3D({
     客戶看到的是一個空的區塊。太極是唯一核心，任何情況下都不該消失。
   */
   if (!ready) {
-    return <StaticTaiji state={fallback ? 'static' : 'loading'} src={textureUrl ?? '/taiji.png'} />;
+    return <StaticTaiji state={fallback ? 'static' : 'loading'} />;
   }
 
   /*
@@ -129,7 +136,7 @@ export default function TaijiTopShell3D({
     用錯誤邊界接住，退回靜態太極；太極不會消失。
   */
   return (
-    <TaijiMountBoundary fallback={<StaticTaiji state="static" src={textureUrl ?? '/taiji.png'} />}>
+    <TaijiMountBoundary fallback={<StaticTaiji state="static" />}>
       <div className="relative w-full overflow-visible rounded-[28px]">
         <TaijiSystem textureUrl={textureUrl ?? '/taiji.png'} videoUrl={videoUrl} />
       </div>

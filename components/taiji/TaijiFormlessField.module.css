@@ -1,0 +1,153 @@
+/*
+  無極場 · 3D 未掛載時的太極（2026-09-04 依業主指示）
+
+  業主定調：「太極是要一種神秘感的遊戲，所以無形勝有形。」
+
+  原本這裡是一張 /taiji.png——平的、邊緣是硬的、外面還包一個圓角方框。
+  那是最「有形」的作法：把太極一次講死，客戶一眼看完就沒有了；
+  而且和首頁早先拿掉外框的決定（粒子與光子連宇宙都框不住）互相矛盾。
+
+  改成無極場：陰陽本體用漸層堆出來，S 界不畫線，讓它在光暗相接處自己浮出來；
+  外面再罩一層反向緩推的氣與呼吸的暈。看得出是太極，卻抓不到邊。
+
+  全部是 CSS 漸層與變換，不碰 WebGL、不載圖檔，
+  所以 iPhone 在 chunk 掉、GL context 被回收、記憶體吃緊時一樣顯示得出來。
+  依太極憲章，這是「擴充退路」，不是把核心換掉：3D 能掛時仍然掛 3D。
+*/
+
+.field {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(52vw, 200px);
+  height: min(52vw, 200px);
+  isolation: isolate;
+}
+
+/*
+  content 只能給偽元素。Chrome 支援在一般元素上用 content 做「元素替換」，
+  span 一旦吃到 content: '' 就被替換成空內容，整層背景不繪製——實測畫面全黑。
+  所以偽元素與實體元素拆成兩條規則，不共用。
+*/
+.field::after {
+  content: '';
+}
+
+.field::after,
+.figure,
+.veil,
+.haze {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/*
+  陰陽本體。由下往上疊（CSS 背景是先列先蓋）：
+    conic 主體  右陽左陰
+    上方暗圓    陽中之陰，把 S 的上半弧推出來
+    下方亮圓    陰中之陽，推出下半弧
+    兩顆極點
+  最後整層 blur——所有交界一次全部化開，畫面上找不到任何一條線。
+*/
+.figure {
+  background:
+    radial-gradient(ellipse 6% 6% at 50% 25%, rgba(255, 250, 232, 0.72) 0%, rgba(255, 250, 232, 0) 100%),
+    radial-gradient(ellipse 6% 6% at 50% 75%, rgba(10, 8, 24, 0.72) 0%, rgba(10, 8, 24, 0) 100%),
+    radial-gradient(ellipse 25% 25% at 50% 75%, rgba(255, 247, 224, 0.8) 0%, rgba(255, 247, 224, 0.78) 84%, rgba(255, 247, 224, 0) 100%),
+    radial-gradient(ellipse 25% 25% at 50% 25%, rgba(10, 8, 24, 0.62) 0%, rgba(10, 8, 24, 0.6) 84%, rgba(10, 8, 24, 0) 100%),
+    conic-gradient(
+      from 0deg,
+      rgba(255, 247, 224, 0.8) 0deg 180deg,
+      rgba(10, 8, 24, 0.62) 180deg 360deg
+    );
+  filter: blur(9px) drop-shadow(0 0 18px rgba(196, 186, 255, 0.28));
+  opacity: 0.88;
+  animation: taijiTurn 26s linear infinite;
+}
+
+/*
+  氣。與本體反向緩推，週期刻意錯開，兩者永遠不會回到同一個相位——
+  盯著看會覺得它一直在變，卻說不出哪裡變了。
+*/
+.veil {
+  background: conic-gradient(
+    from 200deg,
+    rgba(255, 255, 255, 0) 0deg,
+    rgba(226, 232, 255, 0.26) 58deg,
+    rgba(255, 255, 255, 0) 132deg,
+    rgba(255, 255, 255, 0) 214deg,
+    rgba(178, 164, 255, 0.2) 282deg,
+    rgba(255, 255, 255, 0) 352deg
+  );
+  filter: blur(13px);
+  mix-blend-mode: screen;
+  animation: taijiTurn 71s linear infinite reverse;
+}
+
+/* 外圍呼吸的暈：讓它有「還在動」的感覺，但抓不到形狀 */
+.haze {
+  inset: -20%;
+  background: radial-gradient(
+    circle,
+    rgba(148, 163, 255, 0.28) 0%,
+    rgba(148, 163, 255, 0.11) 40%,
+    rgba(148, 163, 255, 0) 68%
+  );
+  filter: blur(15px);
+  animation: taijiBreath 7.5s ease-in-out infinite;
+}
+
+/* 邊際不收邊：最外圈再化開一次，讓圓周本身也沒有可指認的界線 */
+.field::after {
+  background: radial-gradient(
+    circle,
+    rgba(7, 6, 15, 0) 0%,
+    rgba(7, 6, 15, 0) 76%,
+    rgba(7, 6, 15, 0.55) 100%
+  );
+  filter: blur(9px);
+}
+
+/* 還在等 3D 進場時整團場再淡一點，讀起來像「將起未起」 */
+.loading .figure,
+.loading .veil,
+.loading .haze {
+  opacity: 0.74;
+}
+
+@keyframes taijiTurn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes taijiBreath {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/*
+  客戶要求減少動態時：氣停下來，但太極不消失。
+  依太極憲章，核心在任何情況下都必須在場。
+*/
+@media (prefers-reduced-motion: reduce) {
+  .figure,
+  .veil,
+  .haze,
+  .field::after {
+    animation: none;
+  }
+  .haze {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}

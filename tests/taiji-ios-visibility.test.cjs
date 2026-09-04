@@ -66,8 +66,8 @@ assert.ok(
   '必須有可辨識的靜態太極退路（data-taiji-fallback）',
 );
 assert.ok(
-  /alt="太極"/.test(shellCode),
-  '靜態退路必須是看得見的太極圖，且有無障礙文字',
+  /aria-label="太極"/.test(shellCode),
+  '退路必須是看得見的太極，且有無障礙文字',
 );
 
 // ---- ② 內層畫質：Apple 行動裝置不得被打成低功耗 ----
@@ -181,9 +181,56 @@ assert.ok(
   'iOS 會在記憶體壓力下回收 GL context，必須監聽 webglcontextlost',
 );
 assert.ok(
-  /StaticTaiji/.test(shellCode) && /alt="太極"/.test(shellCode),
-  '三種退路都必須收斂到同一個靜態太極元件',
+  /StaticTaiji/.test(shellCode) && /aria-label="太極"/.test(shellCode),
+  '三種退路都必須收斂到同一個太極退路元件，並保有無障礙名稱',
 );
+
+// ---- 無形勝有形：退路的太極不得是一張硬邊的圖 ----
+// 業主定調「太極是要一種神秘感的遊戲，所以無形勝有形」。
+// 退路改成純 CSS 的無極場：不放圖、不畫邊、不包框，
+// 陰陽兩團輝光以不同週期反向相推，交界不畫線，讓它自己浮出來。
+// 這同時也是穩定性保障——不依賴任何圖檔請求，chunk 掉一樣顯示得出來。
+assert.ok(!/<img/.test(shellCode), '太極退路不得用 <img>，必須是無形的能量場');
+{
+  // 只看退路元件本身：3D 那條路仍然要吃 textureUrl 的材質，不在此限。
+  const formlessCss = fs.readFileSync(path.join(root, 'components/taiji/TaijiFormlessField.module.css'), 'utf8');
+  const body = shellCode.slice(
+    shellCode.indexOf('function StaticTaiji('),
+    shellCode.indexOf('export default function TaijiTopShell3D('),
+  );
+  assert.ok(body.length > 0, '找不到太極退路元件');
+  assert.ok(!/\.(png|jpe?g|webp|svg)/.test(body), '太極退路不得載入圖檔');
+  assert.ok(/styles\.field/.test(body), '太極退路必須渲染無極場');
+  // 每一個 styles.X 都必須在樣式檔裡真的定義得到。
+  // 實測踩過：CSS 類別改名但 TSX 沒跟著改，styles.yang 變成 undefined，
+  // 那一層直接不上樣式——太極看起來就是不見了，而且不會有任何錯誤訊息。
+  const used = [...body.matchAll(/styles\.([A-Za-z0-9_]+)/g)].map((m) => m[1]);
+  assert.ok(used.length >= 4, '太極退路至少要有場與三層');
+  for (const cls of new Set(used)) {
+    assert.ok(
+      formlessCss.split(/[^A-Za-z0-9_-]/).includes(cls),
+      `TSX 用到 styles.${cls}，但 TaijiFormlessField.module.css 沒有定義 .${cls}`,
+    );
+  }
+}
+{
+  const formlessPath = path.join(root, 'components/taiji/TaijiFormlessField.module.css');
+  assert.ok(fs.existsSync(formlessPath), '無極場樣式檔必須存在');
+  const formless = fs.readFileSync(formlessPath, 'utf8');
+  assert.ok(
+    !/border(-(top|right|bottom|left|width|style|color))?\s*:/.test(formless),
+    '無極場不得有任何邊線——無形勝有形',
+  );
+  assert.ok(
+    /prefers-reduced-motion/.test(formless) && /animation:\s*none/.test(formless),
+    '客戶要求減少動態時氣要停',
+  );
+  const reduced = formless.slice(formless.indexOf('@media (prefers-reduced-motion: reduce)'));
+  assert.ok(
+    !/display:\s*none|visibility:\s*hidden|opacity:\s*0\s*;/.test(reduced),
+    '減少動態時不得把太極藏起來（太極憲章：核心不得消失）',
+  );
+}
 
 // ---- 不需主動開啟任何功能：打開就能看、能玩 ----
 // 客戶要求：不用按任何按鈕、不跳任何權限視窗，iPhone 開啟即可正常使用。
