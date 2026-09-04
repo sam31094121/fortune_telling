@@ -380,8 +380,20 @@ function useTaijiCanvasQuality(wrapperRef: { current: HTMLElement | null }) {
       const cores = nav.hardwareConcurrency ?? 4;
       const memory = nav.deviceMemory ?? 4;
       const isCompactViewport = window.matchMedia('(max-width: 760px)').matches;
-      const lowPower = cores <= 4 || memory <= 4;
-      const strongPhone = cores >= 8 && memory >= 6;
+
+      /*
+        iOS 例外：Safari 完全不支援 deviceMemory，且出於指紋防護對「所有 iPhone」
+        一律只回報 hardwareConcurrency = 4——iPhone 15 Pro Max 也是 4。
+        直接用這兩個數字判低功耗，會把整個 iOS 打成最低畫質；
+        但 iPhone 的 GPU 實際上比多數 Android 旗艦強。
+        Apple 行動裝置改以「不低於一般手機」對待，實際負載仍由下方的
+        DPR 上限、粒子預算與離屏停 frameloop 控制。（2026-09-04 客訴）
+      */
+      const isAppleMobile = /iPad|iPhone|iPod/.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && (navigator.maxTouchPoints ?? 0) > 1);
+
+      const lowPower = !isAppleMobile && (cores <= 4 || memory <= 4);
+      const strongPhone = isAppleMobile || (cores >= 8 && memory >= 6);
       const strongDesktop = cores >= 8 && memory >= 8;
 
       const deviceDpr = Math.max(1, window.devicePixelRatio || 1);
