@@ -200,6 +200,61 @@ for (const item of CASES) {
 }
 
 // ============================================================================
+// 逐卡三合一：《靈魂配對》
+//
+// 雙人卡，第一層要各自成立、第二層要逐人分開判定、第三層目前明確標示
+// 「雙人起卦規則尚未選定，不生成卦象」——這是誠實的空缺，不是漏做。
+// 這裡守的重點是：不得因為是雙人卡就把某一方的缺項用另一方補上。
+// ============================================================================
+{
+  const A = createBaziCore({
+    gender: 'female', birthDate: '1990-05-20', calendarType: 'SOLAR',
+    birthTimeKnown: true, traditionalHour: '亥', timezone: 'Asia/Taipei',
+  });
+  const B = createBaziCore({
+    gender: 'male', birthDate: '1988-11-03', calendarType: 'SOLAR',
+    birthTimeKnown: true, traditionalHour: '辰', timezone: 'Asia/Taipei',
+  });
+  check('靈魂配對・A 日柱對得上獨立錨點', A.pillars.day.ganZhi, anchorDayPillar('1990-05-20'));
+  check('靈魂配對・B 日柱對得上獨立錨點', B.pillars.day.ganZhi, anchorDayPillar('1988-11-03'));
+  check('靈魂配對・A 年支日支', [A.pillars.year.earthlyBranch, A.pillars.day.earthlyBranch], ['午', '酉']);
+  check('靈魂配對・B 年支日支', [B.pillars.year.earthlyBranch, B.pillars.day.earthlyBranch], ['辰', '戌']);
+
+  // 兩人的紫微必須各自獨立成盤，不得互相沾染。
+  const zA = calculateZiweiSanFang({
+    birthDate: '1990-05-20', birthTime: '21:30', gender: 'female',
+    shichen: 11, isTimeConfirmed: true, longitude: null,
+  });
+  const zB = calculateZiweiSanFang({
+    birthDate: '1988-11-03', birthTime: '07:30', gender: 'male',
+    shichen: 4, isTimeConfirmed: true, longitude: null,
+  });
+  check('靈魂配對・A 夫妻宮與紫微卡同一顆盤', zA.allPalaces.find((p) => /夫妻/.test(p.name))?.branch, '辰');
+  /*
+    「兩人未互相沾染」不能用命宮地支是否相同來判——十二宮只有十二個地支，
+    兩張不同的盤命宮落在同一支是常見巧合（實測這兩位就同樣落在午，
+    但四柱與命宮主星完全不同）。用整張盤的指紋比才可靠。
+  */
+  const fingerprint = (a: typeof zA) => JSON.stringify([
+    a.bazi.year, a.bazi.month, a.bazi.day, a.bazi.hour,
+    ...a.allPalaces.map((p) => `${p.name}:${p.branch}:${p.majorStars.join('/')}`),
+  ]);
+  check('靈魂配對・兩人是兩張不同的盤（未互相沾染）', fingerprint(zA) === fingerprint(zB), false);
+  check('靈魂配對・A 四柱', [zA.bazi.year, zA.bazi.month, zA.bazi.day, zA.bazi.hour], ['庚午', '辛巳', '乙酉', '丁亥']);
+  check('靈魂配對・B 四柱', [zB.bazi.year, zB.bazi.month, zB.bazi.day, zB.bazi.hour], ['戊辰', '壬戌', '壬戌', '甲辰']);
+
+  // 逐人獨立：一方有時辰、一方沒有時，不得用有的那方替沒有的補。
+  const bNoHour = createBaziCore({
+    gender: 'male', birthDate: '1988-11-03', calendarType: 'SOLAR',
+    birthTimeKnown: false, timezone: 'Asia/Taipei',
+  });
+  check('靈魂配對・無時辰方時柱必須是 UNKNOWN', bNoHour.pillars.hour, 'UNKNOWN');
+  check('靈魂配對・無時辰方三柱照常成立',
+    [bNoHour.pillars.year.ganZhi, bNoHour.pillars.month.ganZhi, bNoHour.pillars.day.ganZhi],
+    [B.pillars.year.ganZhi, B.pillars.month.ganZhi, B.pillars.day.ganZhi]);
+}
+
+// ============================================================================
 // 三合一運算核心（lib/three-core-engine.ts）
 //
 // 這支引擎是後端唯一的三核心入口，職責不只是算，更是「只准算一次、自己驗自己」。
