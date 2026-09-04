@@ -173,7 +173,7 @@ function RuntimeOverlay({
       )}
 
       {motionGameActive && (
-        <div className={styles.strikeFeedback} role="status" aria-live="polite">
+        <div className={styles.screenReaderOnly} role="status" aria-live="polite">
           <div className={styles.strikeFeedbackHeading}>
             <span>雷印</span>
             <strong>{charge === 8 ? '歸一' : '甦醒中'}</strong>
@@ -188,7 +188,7 @@ function RuntimeOverlay({
       {motionGameActive && (
         <button
           type="button"
-          className={styles.audioControl}
+          className={styles.screenReaderOnly}
           aria-pressed={audioArmed && pose.audioEnabled}
           onClick={() => {
             if (audioArmed && pose.audioEnabled) {
@@ -206,7 +206,7 @@ function RuntimeOverlay({
       )}
 
       {pose.gameState === 'LEVEL_COMPLETE' && (
-        <div className={styles.completeCard} role="status">
+        <div className={styles.screenReaderOnly} role="status">
           <strong>{pose.motionGameEnabled ? '● 歸一完成' : '第一層・平衡完成'}</strong>
           {!pose.motionGameEnabled && <span>平衡度 {pose.score.overall}</span>}
           {pose.motionGameEnabled && pose.unityReady && <button type="button" onClick={startToday}>開始今日探索</button>}
