@@ -32,6 +32,9 @@ export const MAX_TILT_VISUAL_ANGLE_DEG = 28;
 // Prevent sustained shaking from becoming a continuous vibration on a phone.
 export const HAPTIC_RATE_LIMIT_MS = 320;
 export const AUDIO_GAIN_LIMIT = 0.28;
+// Shared by the real-audio scheduler and the 3D route envelope: this is the
+// single arrival instant for a cardinal strike.
+export const LEVEL01_STRIKE_IMPACT_SECONDS = .17;
 export const DAMPING = 3.4;
 export const LOCKED_DAMPING = 5.8;
 export const REDUCED_MOTION_SPEED_SCALE = 0.28;

@@ -63,11 +63,31 @@ import {
 } from './taiji/level-01';
 import styles from './TaijiSystem.module.css';
 import level01Styles from './taiji/level-01/level01.module.css';
+import { LEVEL01_STRIKE_IMPACT_SECONDS } from './taiji/level-01/level01.constants';
 
 type Stage = TaijiMacroStage;
 
 const FRAME_DELTA_CAP = 1 / 45;
 type NavigatorWithDeviceMemory = Navigator & { deviceMemory?: number };
+
+// One physical route is the contract for each first-layer strike.  The live
+// bolt, its retained technological trace, and its reverse return all receive
+// fresh copies of these same coordinates; no second decorative path may drift
+// away from the source that was actually touched.
+function level01StrikeRoutePoints(origin: Level01StrikeOrigin) {
+  const west = [
+    new THREE.Vector3(-2.82, .02, .18), new THREE.Vector3(-2.54, .18, .58),
+    new THREE.Vector3(-2.76, -.12, .08), new THREE.Vector3(-2.3, .16, .52),
+    new THREE.Vector3(-2.47, -.14, .04), new THREE.Vector3(-1.92, .12, .62),
+    new THREE.Vector3(-2.02, -.1, .14), new THREE.Vector3(-1.52, .14, .72),
+    new THREE.Vector3(-1.37, -.12, .24), new THREE.Vector3(-1.18, .1, .78),
+    new THREE.Vector3(-.82, .02, .98),
+  ];
+  if (origin === 'W') return west;
+  if (origin === 'E') return west.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
+  const north = west.map((point) => new THREE.Vector3(-point.y, -point.x, point.z));
+  return origin === 'N' ? north : north.map((point) => new THREE.Vector3(point.x, -point.y, point.z));
+}
 
 const BAGUA = [
   { name: '乾', symbol: '☰', angle: 0 },
@@ -745,6 +765,7 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
       delay?: number;
       glow?: boolean;
       blackCore?: boolean;
+      sharedRoute?: boolean;
       origin?: Level01StrikeOrigin | 'IMPACT';
       pattern?: 'core' | 'braid' | 'impact' | 'storm' | 'shell';
     }) => {
@@ -785,6 +806,7 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
       material.userData.glow = Boolean(input.glow);
       material.userData.origin = input.origin ?? 'IMPACT';
       material.userData.pattern = input.pattern ?? 'core';
+      material.userData.sharedRoute = Boolean(input.sharedRoute);
       const mesh = new THREE.Mesh(geometry, material);
       mesh.userData.basePosition = mesh.position.clone();
       mesh.userData.baseRotation = mesh.rotation.clone();
@@ -844,17 +866,10 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
       mesh.renderOrder = 8;
       root.add(mesh);
     };
-    const leftMain = [
-      new THREE.Vector3(-2.82, .02, .18), new THREE.Vector3(-2.54, .18, .58),
-      new THREE.Vector3(-2.76, -.12, .08), new THREE.Vector3(-2.3, .16, .52),
-      new THREE.Vector3(-2.47, -.14, .04), new THREE.Vector3(-1.92, .12, .62),
-      new THREE.Vector3(-2.02, -.1, .14), new THREE.Vector3(-1.52, .14, .72),
-      new THREE.Vector3(-1.37, -.12, .24), new THREE.Vector3(-1.18, .1, .78),
-      new THREE.Vector3(-.82, .02, .98),
-    ];
-    const rightMain = leftMain.map((point) => new THREE.Vector3(-point.x, point.y, point.z));
-    const topMain = leftMain.map((point) => new THREE.Vector3(-point.y, -point.x, point.z));
-    const bottomMain = topMain.map((point) => new THREE.Vector3(point.x, -point.y, point.z));
+    const leftMain = level01StrikeRoutePoints('W');
+    const rightMain = level01StrikeRoutePoints('E');
+    const topMain = level01StrikeRoutePoints('N');
+    const bottomMain = level01StrikeRoutePoints('S');
     // Every secondary discharge grows out of the same core-to-Taiji trajectory;
     // there is no pre-drawn rail between a weapon core and the orb.
     const leftSurge = [
@@ -954,18 +969,18 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
         );
       })
     ));
-    const addLayeredBolt = (points: THREE.Vector3[], core: number, rim: number, radius: number, delay = 0, blackCore = false, origin: Level01StrikeOrigin | 'IMPACT' = 'IMPACT', pattern: 'core' | 'braid' | 'impact' | 'storm' | 'shell' = 'core') => {
-      createBolt({ points, color: rim, opacity: .2, radius: radius * 2.15, delay, glow: true, origin, pattern });
-      createBolt({ points, color: rim, opacity: .48, radius: radius * 1.42, delay, glow: true, origin, pattern });
-      createBolt({ points, color: core, opacity: .98, radius, delay, blackCore, origin, pattern });
+    const addLayeredBolt = (points: THREE.Vector3[], core: number, rim: number, radius: number, delay = 0, blackCore = false, origin: Level01StrikeOrigin | 'IMPACT' = 'IMPACT', pattern: 'core' | 'braid' | 'impact' | 'storm' | 'shell' = 'core', sharedRoute = false) => {
+      createBolt({ points, color: rim, opacity: .2, radius: radius * 2.15, delay, glow: true, origin, pattern, sharedRoute });
+      createBolt({ points, color: rim, opacity: .48, radius: radius * 1.42, delay, glow: true, origin, pattern, sharedRoute });
+      createBolt({ points, color: core, opacity: .98, radius, delay, blackCore, origin, pattern, sharedRoute });
     };
     // Four cardinal emitters alternate photon / dark-particle material and
     // converge on one impact. They remain unmistakable at phone scale without
     // bringing back the level-24 satellite field.
-    addLayeredBolt(leftMain, 0xfff7cf, 0xfbbf24, .126, 0, false, 'W');
-    addLayeredBolt(rightMain, 0xfff7cf, 0x67e8f9, .126, .025, false, 'E');
-    addLayeredBolt(bottomMain, 0x02020a, 0x60a5fa, .13, .05, true, 'S');
-    addLayeredBolt(topMain, 0x02020a, 0x818cf8, .13, .075, true, 'N');
+    addLayeredBolt(leftMain, 0xfff7cf, 0xfbbf24, .126, 0, false, 'W', 'core', true);
+    addLayeredBolt(rightMain, 0xfff7cf, 0x67e8f9, .126, .025, false, 'E', 'core', true);
+    addLayeredBolt(bottomMain, 0x02020a, 0x60a5fa, .13, .05, true, 'S', 'core', true);
+    addLayeredBolt(topMain, 0x02020a, 0x818cf8, .13, .075, true, 'N', 'core', true);
     addLayeredBolt(leftSurge, 0xffffff, 0x67e8f9, .088, .055, false, 'W');
     addLayeredBolt(rightSurge, 0xffffff, 0xfbbf24, .088, .075, false, 'E');
     addLayeredBolt(bottomSurge, 0x02020a, 0x818cf8, .092, .09, true, 'S');
@@ -1087,10 +1102,19 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
       const localAge = strikeAge - Number(material.userData.delay ?? 0);
       const envelope = envelopeAt(localAge);
       const boltOrigin = material.userData.origin as Level01StrikeOrigin | 'IMPACT' | undefined;
-      const originWeight = boltOrigin === 'IMPACT' || boltOrigin === origin ? 1 : 0;
+      const isSharedRoute = Boolean(material.userData.sharedRoute);
+      // The visible discharge is the one route selected by this strike event.
+      // Other prebuilt geometries stay inert so they cannot masquerade as a
+      // second origin or leave a mismatched after-image.
+      const originWeight = isSharedRoute && boltOrigin === origin ? 1 : 0;
       const pattern = material.userData.pattern as keyof typeof patternWeight | undefined;
       const structureWeight = pattern ? patternWeight[pattern] : 1;
       material.opacity = Number(material.userData.baseOpacity ?? .5) * envelope * originWeight * structureWeight;
+      if (isSharedRoute && boltOrigin === origin) {
+        const count = bolt.geometry.index?.count ?? bolt.geometry.attributes.position.count;
+        const travel = Math.max(0, Math.min(1, localAge / LEVEL01_STRIKE_IMPACT_SECONDS));
+        bolt.geometry.setDrawRange(0, Math.max(0, Math.round(count * travel)));
+      }
       const phase = Number(material.userData.delay ?? 0);
       const pulse = 1 + Math.sin((clock.elapsedTime + phase) * 72) * .09 * envelope;
       const aftershockExpansion = material.userData.aftershock
@@ -1111,46 +1135,24 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
   return <primitive object={group} />;
 }
 
-/* A lightning-wood trace is a single, bounded after-image. It lives in sphere
-   coordinates and retracts along its exact struck route rather than building a
-   permanent screen-facing history. */
-function Level01LightningScars({ scar, lowPower = false, ballWorldRef }: {
+/* A lightning-wood trace is a single, bounded after-image laid directly over
+   the incoming route. It retracts to the touched cardinal source, never along
+   a separately invented surface seam. */
+function Level01LightningScars({ scar, lowPower = false }: {
   scar: { id: number; origin: Level01StrikeOrigin; variant: number } | null;
   lowPower?: boolean;
-  ballWorldRef?: { current: THREE.Mesh | null };
 }) {
   const startedAtRef = useRef<number | null>(null);
   const scarGroup = useMemo(() => {
     const root = new THREE.Group();
     if (!scar) return root;
-    const originPoint: Record<Level01StrikeOrigin, THREE.Vector3> = {
-      N: new THREE.Vector3(0, .88, .24), E: new THREE.Vector3(.88, 0, .24),
-      S: new THREE.Vector3(0, -.88, .24), W: new THREE.Vector3(-.88, 0, .24),
-    };
     const { origin, variant } = scar;
-    const seed = variant * 1.73;
-    const start = originPoint[origin];
-    const sign = origin === 'E' || origin === 'N' ? 1 : -1;
     const sourceIsWhite = origin === 'N' || origin === 'S';
     const traceColor = sourceIsWhite ? 0x22d3ee : 0xa855f7;
     const traceCoreColor = sourceIsWhite ? 0xe0faff : 0xf3e8ff;
-      const paths = [
-        [start, new THREE.Vector3(sign * .48, .32 + Math.sin(seed) * .16, .58), new THREE.Vector3(.06, -.1, .7), new THREE.Vector3(-sign * .4, -.44, .48)],
-        // A companion seam travels over the side and onto the back hemisphere.
-        // It is invisible from the front by depth occlusion, then becomes a
-        // distinct accumulated mark when the ball is turned around.
-        [start, new THREE.Vector3(sign * .52, -.22 + Math.cos(seed) * .14, -.36), new THREE.Vector3(-.14, .36, -.62), new THREE.Vector3(-sign * .48, .16, -.28)],
-      ];
+      const paths = [level01StrikeRoutePoints(origin)];
     paths.forEach((points, pathIndex) => {
-        const guideCurve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
-        // Project the whole sampled curve back to the sphere: a TubeGeometry
-        // otherwise joins control points through the ball's centre and makes a
-        // fake, front-facing overlay instead of a tangible 3D surface scar.
-        // The visible Taiji shell has a radius of 1.08.  Keep the charcoal seam
-        // one hundredth beyond it so its own surface is rendered, while still
-        // close enough to read as an embedded mark rather than a floating ring.
-        const surfacePoints = guideCurve.getPoints(lowPower ? 16 : 28).map((point) => point.normalize().multiplyScalar(1.092));
-        const curve = new THREE.CatmullRomCurve3(surfacePoints, false, 'centripetal');
+        const curve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
         // The visible trace is deliberately technological light, not a static
         // charcoal crack: it makes both the struck route and its later return
         // to the exact source point legible at a glance.
@@ -1194,26 +1196,17 @@ function Level01LightningScars({ scar, lowPower = false, ballWorldRef }: {
     });
   }, [scarGroup]);
 
-  // Paths are authored in the sphere's local coordinates. Keep their root on
-  // the real sphere transform so marks cannot stay screen-fixed while a user
-  // inspects, drags, or later moves the Taiji.
   useFrame(({ clock }) => {
-    const ball = ballWorldRef?.current;
-    if (ball) {
-      ball.getWorldPosition(scarGroup.position);
-      ball.getWorldQuaternion(scarGroup.quaternion);
-      ball.getWorldScale(scarGroup.scale);
-    }
     if (!scar) return;
     if (startedAtRef.current == null) startedAtRef.current = clock.elapsedTime;
     const age = clock.elapsedTime - startedAtRef.current;
     // Live bolt reaches the sphere first; trace grows, remains inspectable,
     // then its endpoint travels back to the origin over the same geometry.
-    const draw = age < .62 ? 0
-      : age < .84 ? (age - .62) / .22
-        : age < 1.74 ? 1
-          : Math.max(0, 1 - (age - 1.74) / 1.12);
-    const retract = age < 1.74 ? 0 : Math.min(1, (age - 1.74) / 1.12);
+    const draw = age < LEVEL01_STRIKE_IMPACT_SECONDS ? 0
+      : age < LEVEL01_STRIKE_IMPACT_SECONDS + .22 ? (age - LEVEL01_STRIKE_IMPACT_SECONDS) / .22
+        : age < 1.29 ? 1
+          : Math.max(0, 1 - (age - 1.29) / 1.12);
+    const retract = age < 1.29 ? 0 : Math.min(1, (age - 1.29) / 1.12);
     // Recovery must read as technology, not a dim continuation of the charcoal
     // scar: white-node routes become electric cyan; black-node routes become
     // luminous ultraviolet. The draw range contracts toward index 0, the real
@@ -2499,12 +2492,12 @@ export default function TaijiSystem({
       setLightningScar({ id: nextId, origin: strikeOrigin, variant });
       return nextId;
     });
-    // .62s impact arrival + .22s traced growth + .90s inspection hold +
+    // .17s impact arrival (the shared audio cue) + .22s traced growth + .90s inspection hold +
     // 1.12s endpoint-first retraction. State then unmounts the completed path.
     lightningScarClearTimerRef.current = setTimeout(() => {
       setLightningScar(null);
       lightningScarClearTimerRef.current = null;
-    }, 2860);
+    }, 2410);
     setTouchActive(true);
     // 雷網只在固定的太極表面上生長：保留既有聲音/觸覺回饋，但不以這個
     // 入雷口重新啟動感測器或任何會改變球體姿態的進場動畫。
@@ -2630,7 +2623,6 @@ export default function TaijiSystem({
               <Level01LightningScars
                 scar={lightningScar}
                 lowPower={canvasQuality.lowPower}
-                ballWorldRef={level01BallRef}
               />
             </>
           )}

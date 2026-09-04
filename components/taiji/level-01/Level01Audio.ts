@@ -1,4 +1,4 @@
-import { AUDIO_GAIN_LIMIT } from './level01.constants';
+import { AUDIO_GAIN_LIMIT, LEVEL01_STRIKE_IMPACT_SECONDS } from './level01.constants';
 import type { BalanceState, Level01TiltDirection } from './Level01Physics';
 import type { RotationFeedbackProfile } from './Level01SensoryFeedback';
 import type { TaijiSoundVariant } from '@/lib/taiji/experience-types';
@@ -181,7 +181,7 @@ export class Level01SoundEngine {
     this.lastLightningAt = now;
 
     try {
-      const impactAt = now + .17;
+      const impactAt = now + LEVEL01_STRIKE_IMPACT_SECONDS;
       const duration = Math.min(voice.buffer.duration / voice.profile.playbackRate, voice.profile.maxDuration);
       const source = this.context.createBufferSource();
       const highpass = this.context.createBiquadFilter();
