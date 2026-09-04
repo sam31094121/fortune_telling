@@ -9,6 +9,20 @@ The original four recordings are redistributed under the [Pixabay Content Licens
 | `loud-thunder.mp3` | Loud Thunder | Universfield | https://pixabay.com/sound-effects/nature-loud-thunder-192165/ |
 | `peals-of-thunder.mp3` | Peals of Thunder | Universfield | https://pixabay.com/sound-effects/nature-peals-of-thunder-191992/ |
 
+## Escalation cannon impacts (steps 5–8 only)
+
+The following non-verbal impacts are from Thimras's *Battle at sea* set under
+[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/): they can be used
+commercially without permission. They are used only as short one-shots after
+the original four thunder steps; the first four files and their playback
+parameters remain unchanged.
+
+| Local file | Source file | Creator | License | Source |
+| --- | --- | --- | --- | --- |
+| `cc0-cannon-fire.ogg` | `cannon_fire.ogg` | Thimras | CC0 1.0 | https://opengameart.org/content/battle-at-sea |
+| `cc0-cannon-hit.ogg` | `cannon_hit.ogg` | Thimras | CC0 1.0 | https://opengameart.org/content/battle-at-sea |
+| `cc0-cannon-hit-cannon.ogg` | `cannon_hit_cannon.ogg` | Thimras | CC0 1.0 | https://opengameart.org/content/battle-at-sea |
+
 ## Added natural-force recordings
 
 | Local file | Title | Creator | License | Source |

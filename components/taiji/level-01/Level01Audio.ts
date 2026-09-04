@@ -24,22 +24,26 @@ const THUNDER_SOURCES: readonly ThunderSource[] = [
   { path: '/audio/taiji/dry-thunder.mp3' },
   { path: '/audio/taiji/loud-thunder.mp3' },
   { path: '/audio/taiji/peals-of-thunder.mp3' },
+  { path: '/audio/taiji/cc0-cannon-fire.ogg' },
+  { path: '/audio/taiji/cc0-cannon-hit.ogg' },
+  { path: '/audio/taiji/cc0-cannon-hit-cannon.ogg' },
 ] as const;
 
-// Original four real thunder recordings only. The latter four profiles are
-// variations of those same recordings; no fire, ignition, wood, ember or other
-// field-recording asset participates in the first-layer audio path.
+// The first four are intentionally frozen: do not alter their source, order,
+// duration, rate or gain. The last four add bounded CC0 cannon impacts so the
+// second half escalates without altering the established thunder opening.
 const THUNDER_PROFILES: readonly ThunderProfile[] = [
   // Original four voices: retain their established order and acoustic settings.
   { sourceIndex: 0, maxDuration: 1.08, playbackRate: 1, gain: .88 },
   { sourceIndex: 1, maxDuration: 3.6, playbackRate: .98, gain: .78 },
   { sourceIndex: 2, maxDuration: 4.4, playbackRate: 1.02, gain: .72 },
   { sourceIndex: 3, maxDuration: 4.8, playbackRate: .96, gain: .7 },
-  // Same four thunder voices form the second half of the eight-step cadence.
-  { sourceIndex: 2, maxDuration: 4.4, playbackRate: .79, gain: .72, lowpassHz: 880, tailSeconds: .24, tailMix: .18 },
-  { sourceIndex: 3, maxDuration: 4.8, playbackRate: .78, gain: .66, lowpassHz: 1350, tailSeconds: .32, tailMix: .22 },
-  { sourceIndex: 1, maxDuration: 3.6, playbackRate: .83, gain: .58, lowpassHz: 1900, tailSeconds: .28, tailMix: .24 },
-  { sourceIndex: 0, maxDuration: 1.08, playbackRate: .72, gain: .63, lowpassHz: 1500, tailSeconds: .2, tailMix: .2 },
+  // Escalation remains non-verbal, short and impact-focused; a touch of tail
+  // connects it to the preceding thunder instead of creating ambient battle FX.
+  { sourceIndex: 4, maxDuration: 1.16, playbackRate: .96, gain: .68, lowpassHz: 6200, tailSeconds: .08, tailMix: .08 },
+  { sourceIndex: 5, maxDuration: 1.34, playbackRate: .92, gain: .72, lowpassHz: 5400, tailSeconds: .12, tailMix: .1 },
+  { sourceIndex: 6, maxDuration: 1.48, playbackRate: .88, gain: .76, lowpassHz: 4800, tailSeconds: .16, tailMix: .12 },
+  { sourceIndex: 4, maxDuration: 1.28, playbackRate: .78, gain: .8, lowpassHz: 3600, tailSeconds: .2, tailMix: .14 },
 ] as const;
 
 const ORIGIN_PAN: Record<Level01StrikeOrigin, number> = {

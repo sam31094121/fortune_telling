@@ -1131,6 +1131,9 @@ function Level01LightningScars({ scar, lowPower = false, ballWorldRef }: {
     const seed = variant * 1.73;
     const start = originPoint[origin];
     const sign = origin === 'E' || origin === 'N' ? 1 : -1;
+    const sourceIsWhite = origin === 'N' || origin === 'S';
+    const traceColor = sourceIsWhite ? 0x22d3ee : 0xa855f7;
+    const traceCoreColor = sourceIsWhite ? 0xe0faff : 0xf3e8ff;
       const paths = [
         [start, new THREE.Vector3(sign * .48, .32 + Math.sin(seed) * .16, .58), new THREE.Vector3(.06, -.1, .7), new THREE.Vector3(-sign * .4, -.44, .48)],
         // A companion seam travels over the side and onto the back hemisphere.
@@ -1148,13 +1151,14 @@ function Level01LightningScars({ scar, lowPower = false, ballWorldRef }: {
         // close enough to read as an embedded mark rather than a floating ring.
         const surfacePoints = guideCurve.getPoints(lowPower ? 16 : 28).map((point) => point.normalize().multiplyScalar(1.092));
         const curve = new THREE.CatmullRomCurve3(surfacePoints, false, 'centripetal');
-        // 雷擊木：先留下厚而不規則的炭化裂縫，再在縫心保留極弱的餘燼。
-        // 深色外殼是累積的主體，不讓雷網退成乾淨的藍白光線。
+        // The visible trace is deliberately technological light, not a static
+        // charcoal crack: it makes both the struck route and its later return
+        // to the exact source point legible at a glance.
         const geometry = new THREE.TubeGeometry(curve, lowPower ? 18 : 28, pathIndex === 0 ? .027 : .019, lowPower ? 4 : 5, false);
         const material = new THREE.MeshBasicMaterial({
-          color: 0x160806,
+          color: traceColor,
           transparent: true,
-          opacity: pathIndex === 0 ? .5 : .38,
+          opacity: pathIndex === 0 ? .72 : .56,
           depthWrite: false,
           depthTest: true,
           blending: THREE.NormalBlending,
@@ -1165,9 +1169,9 @@ function Level01LightningScars({ scar, lowPower = false, ballWorldRef }: {
         root.add(mesh);
         const emberGeometry = new THREE.TubeGeometry(curve, lowPower ? 16 : 24, pathIndex === 0 ? .008 : .005, lowPower ? 3 : 4, false);
         const emberMaterial = new THREE.MeshBasicMaterial({
-          color: (variant + pathIndex) % 3 === 0 ? 0x9d3412 : 0x5b160b,
+          color: traceCoreColor,
           transparent: true,
-          opacity: pathIndex === 0 ? .18 : .12,
+          opacity: pathIndex === 0 ? .48 : .32,
           depthWrite: false,
           depthTest: true,
           blending: THREE.AdditiveBlending,
