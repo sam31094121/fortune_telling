@@ -1311,6 +1311,12 @@ function Level01AccumulatedLightningWeb({ strikes, flashStrikeId, lowPower = fal
     const flashAge = flashStartedAtRef.current == null ? -Infinity : clock.elapsedTime - flashStartedAtRef.current;
     const flash = flashAge < LEVEL01_STRIKE_IMPACT_SECONDS ? 0
       : Math.max(0, 1 - (flashAge - LEVEL01_STRIKE_IMPACT_SECONDS) / .42);
+    // A bounded multi-beat impact tremor belongs to the core web, not to the
+    // Taiji transform: it reads as a continuing hit without moving the ball,
+    // its four points, or leaving rotational momentum behind.
+    const tremor = flash * Math.sin(Math.max(0, flashAge - LEVEL01_STRIKE_IMPACT_SECONDS) * 78) * .024;
+    web.scale.multiplyScalar(1 + tremor);
+    web.position.z += tremor * .18;
     web.children.forEach((child) => {
       const mesh = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
       const baseOpacity = Number(mesh.material.userData.baseOpacity ?? .12);
