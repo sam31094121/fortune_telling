@@ -14290,6 +14290,44 @@ body.app-touching .home-taiji-cinema * {
   will-change: transform;
 }
 
+/* Phone, coarse-pointer and reduced-motion mode render only three cards (the
+   component selects them) and keep this preview completely still. This avoids
+   hidden 78-card compositing work on the customer-facing first screen. */
+.tarot-experience-deck-preview--compact {
+  perspective: none;
+  transform-style: flat;
+}
+
+.tarot-experience-deck-preview--compact::before {
+  animation: none;
+  filter: none;
+  opacity: 0.42;
+}
+
+.tarot-experience-deck-preview--compact::after {
+  filter: none;
+  opacity: 0.58;
+}
+
+.tarot-experience-deck-preview--compact .tarot-experience-deck-preview__card {
+  animation: none !important;
+  transition: none;
+  will-change: auto;
+  filter: none;
+  transform-style: flat;
+}
+
+.tarot-experience-deck-preview--compact .tarot-experience-deck-preview__card img {
+  filter: none;
+  mix-blend-mode: normal;
+  opacity: 0.9;
+}
+
+.tarot-experience-deck-preview--compact .tarot-experience-deck-preview__card::after {
+  mix-blend-mode: normal;
+  opacity: 0.36;
+}
+
 @keyframes tarotPreviewFancyRiffle {
   0%, 9% {
     transform:

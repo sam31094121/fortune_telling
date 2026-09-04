@@ -67,8 +67,24 @@ export default function TarotPageClient() {
   const [activeSessionId, setActiveSessionId] = useState('');
   const [adminMode, setAdminMode] = useState(false);
   const [previewDeck, setPreviewDeck] = useState(() => [...TAROT_CARDS]);
+  // Start compact so a phone never hydrates 78 moving images before its
+  // capability check completes. Desktop promotes itself immediately after mount.
+  const [compactPreview, setCompactPreview] = useState(true);
 
   useEffect(() => {
+    const compactMedia = window.matchMedia('(max-width: 720px), (pointer: coarse), (prefers-reduced-motion: reduce)');
+    const updatePreviewMode = () => {
+      const navigatorInfo = navigator as Navigator & { deviceMemory?: number };
+      const lowPower = (navigatorInfo.deviceMemory ?? 8) <= 4 || (navigatorInfo.hardwareConcurrency ?? 8) <= 4;
+      setCompactPreview(compactMedia.matches || lowPower);
+    };
+    updatePreviewMode();
+    compactMedia.addEventListener?.('change', updatePreviewMode);
+    return () => compactMedia.removeEventListener?.('change', updatePreviewMode);
+  }, []);
+
+  useEffect(() => {
+    if (compactPreview) return;
     // At the end of every visible shuffle, the top card is moved underneath
     // the deck. The next cycle therefore starts with a genuinely new card.
     const cycleTimer = window.setInterval(() => {
@@ -79,9 +95,13 @@ export default function TarotPageClient() {
       });
     }, 4500);
     return () => window.clearInterval(cycleTimer);
-  }, []);
+  }, [compactPreview]);
 
   const cardsById = useMemo(() => new Map(TAROT_CARDS.map((card) => [card.id, card] as const)), []);
+  const visiblePreviewDeck = useMemo(
+    () => compactPreview ? previewDeck.slice(0, 3) : previewDeck,
+    [compactPreview, previewDeck],
+  );
   const trimmedQuestionLength = tarotQuestion.trim().length;
   const questionReady = trimmedQuestionLength >= 4;
   const submitLabel = isGenerating
@@ -368,10 +388,10 @@ export default function TarotPageClient() {
 
           <aside className="fortune-card tarot-experience-hero tarot-experience-hero--deck border-cyan-200/20 p-4 sm:p-5" aria-label="塔羅牌庫預覽">
               <div
-                className="tarot-experience-deck-preview tarot-experience-deck-preview--fancy-shuffling"
-                aria-label="78 張塔羅牌正在洗牌"
+                className={`tarot-experience-deck-preview ${compactPreview ? 'tarot-experience-deck-preview--compact' : 'tarot-experience-deck-preview--fancy-shuffling'}`}
+                aria-label={compactPreview ? '塔羅牌庫預覽' : '78 張塔羅牌正在洗牌'}
               >
-                {previewDeck.map((card, index) => {
+                {visiblePreviewDeck.map((card, index) => {
                   const leftPile = index < 39;
                   const pileIndex = leftPile ? index : index - 39;
                   const interlaceIndex = leftPile ? pileIndex * 2 : pileIndex * 2 + 1;
@@ -381,7 +401,7 @@ export default function TarotPageClient() {
                       ['--preview-x' as string]: '0rem',
                       ['--preview-y' as string]: `${(pileIndex % 7) * 0.012}rem`,
                       ['--preview-rot' as string]: `${((pileIndex % 5) - 2) * 0.38}deg`,
-                      ['--preview-depth' as string]: `${78 - index}px`,
+                      ['--preview-depth' as string]: `${visiblePreviewDeck.length - index}px`,
                       ['--preview-delay' as string]: `${(interlaceIndex % 13) * 10}ms`,
                       ['--preview-ridge' as string]: `${0.12 + (pileIndex % 9) * 0.008}rem`,
                       ['--preview-warmth' as string]: `${0.58 + (index % 5) * 0.045}`,
