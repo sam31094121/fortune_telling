@@ -979,10 +979,10 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
     // bringing back the level-24 satellite field.
     // Main strike colour is deliberately the inverse of its emitting point:
     // dark points throw a broad white bolt; light points throw a broad black bolt.
-    addLayeredBolt(leftMain, 0xffffff, 0xeaf6ff, .19, 0, false, 'W', 'core', true);
-    addLayeredBolt(rightMain, 0xffffff, 0xeaf6ff, .19, .025, false, 'E', 'core', true);
-    addLayeredBolt(bottomMain, 0x010104, 0x242433, .195, .05, true, 'S', 'core', true);
-    addLayeredBolt(topMain, 0x010104, 0x242433, .195, .075, true, 'N', 'core', true);
+    addLayeredBolt(leftMain, 0xffffff, 0xeaf6ff, .265, 0, false, 'W', 'core', true);
+    addLayeredBolt(rightMain, 0xffffff, 0xeaf6ff, .265, .025, false, 'E', 'core', true);
+    addLayeredBolt(bottomMain, 0x010104, 0x242433, .27, .05, true, 'S', 'core', true);
+    addLayeredBolt(topMain, 0x010104, 0x242433, .27, .075, true, 'N', 'core', true);
     addLayeredBolt(leftSurge, 0xffffff, 0x67e8f9, .088, .055, false, 'W');
     addLayeredBolt(rightSurge, 0xffffff, 0xfbbf24, .088, .075, false, 'E');
     addLayeredBolt(bottomSurge, 0x02020a, 0x818cf8, .092, .09, true, 'S');
@@ -1272,11 +1272,11 @@ function Level01AccumulatedLightningWeb({ strikes, flashStrikeId, lowPower = fal
         const guide = new THREE.CatmullRomCurve3(points, false, 'centripetal');
         const surface = guide.getPoints(lowPower ? 14 : 24).map((point) => point.normalize().multiplyScalar(1.092));
         const curve = new THREE.CatmullRomCurve3(surface, false, 'centripetal');
-        const geometry = new THREE.TubeGeometry(curve, lowPower ? 16 : 24, (pathIndex === 0 ? .012 : .009) + Math.min(count, 3) * .002, lowPower ? 4 : 5, false);
+        const geometry = new THREE.TubeGeometry(curve, lowPower ? 16 : 24, (pathIndex === 0 ? .022 : .016) + Math.min(count, 3) * .003, lowPower ? 4 : 5, false);
         const material = new THREE.MeshBasicMaterial({
           color,
           transparent: true,
-          opacity: (pathIndex === 0 ? .16 : .1) + Math.min(count, 3) * .035,
+          opacity: (pathIndex === 0 ? .12 : .075) + Math.min(count, 3) * .025,
           depthWrite: false,
           depthTest: true,
           blending: THREE.NormalBlending,
@@ -1310,7 +1310,7 @@ function Level01AccumulatedLightningWeb({ strikes, flashStrikeId, lowPower = fal
       const baseOpacity = Number(mesh.material.userData.baseOpacity ?? .12);
       const baseColor = mesh.material.userData.baseColor as THREE.Color | undefined;
       if (baseColor) mesh.material.color.copy(baseColor).lerp(new THREE.Color(0xe0faff), flash * .68);
-      mesh.material.opacity = Math.min(.82, baseOpacity + flash * .48);
+      mesh.material.opacity = Math.min(.92, baseOpacity + flash * .68);
     });
   });
 
