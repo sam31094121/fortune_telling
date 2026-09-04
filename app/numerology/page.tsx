@@ -339,7 +339,7 @@ export default function NumerologyPage() {
             <div className="min-w-0">
               <p className="text-[10px] font-black tracking-[0.2em] text-amber-200/85">數字文化解讀</p>
               <h1 className="mt-2 font-serif text-3xl font-black leading-tight text-amber-50">易經論數字</h1>
-              {/* 說明句已依指示隱藏：客戶直接看輸入規格與結果即可。 */}
+              <p className="mt-2 text-sm font-bold leading-6 text-amber-50/82">免費輸入一組數字，30 秒看它的節奏訊號。</p>
             </div>
             <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-amber-200/35 bg-amber-300/12 font-serif text-3xl font-black text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.2)]">
               數
@@ -388,9 +388,9 @@ export default function NumerologyPage() {
           )}
           <div className="flex items-end justify-between gap-3">
             <div>
-              <p className="text-[10px] font-black tracking-[0.2em] text-cyan-100/70">第二步</p>
-              <h2 className="mt-1 font-serif text-2xl font-black text-cyan-50">輸入數字</h2>
-              <p className="mt-1 text-xs font-black text-amber-100/80">支援 2 到 10 碼數字</p>
+              <p className="text-[10px] font-black tracking-[0.2em] text-cyan-100/70">免費立即解讀</p>
+              <h2 className="mt-1 font-serif text-2xl font-black text-cyan-50">輸入一組數字</h2>
+              <p className="mt-1 text-xs font-black text-amber-100/80">2 到 10 碼都可以</p>
             </div>
             <span className="rounded-full border border-cyan-200/25 bg-cyan-300/10 px-3 py-1 text-[11px] font-black text-cyan-100">
               {cleanValue.length}/10
@@ -401,9 +401,8 @@ export default function NumerologyPage() {
             <span className="block h-2 rounded-full bg-gradient-to-r from-amber-300 via-cyan-200 to-emerald-300 transition-all duration-300" style={{ width: `${progress}%` }} />
           </div>
 
-          <div className="mt-3 rounded-2xl border border-cyan-100/15 bg-cyan-200/[0.045] px-3 py-2.5 text-center">
-            <p className="text-[10px] font-black tracking-[0.16em] text-cyan-100/65">第二步 · 選擇解讀用途（可略過，預設萬用碼）</p>
-            <p className="mt-1 text-[11px] font-bold text-white/60">不確定用途？直接使用閃爍的萬用碼；需要時再選車牌、電話或出生年月日。</p>
+          <details className="mt-3 rounded-2xl border border-cyan-100/15 bg-cyan-200/[0.045] px-3 py-2.5 text-center">
+            <summary className="cursor-pointer text-[11px] font-black text-cyan-100/80">這組數字要用在哪裡？可略過</summary>
             <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {PURPOSE_OPTIONS.map((option) => (
                 <button
@@ -419,10 +418,10 @@ export default function NumerologyPage() {
               ))}
             </div>
             <p className="mt-2 text-[11px] font-bold text-white/58">目前：{purposeOption.label}。依輸入位數與組合進行判定。</p>
-          </div>
+          </details>
 
-          <p className="mt-3 rounded-xl border-2 border-amber-100 bg-amber-300/20 px-3 py-2 text-center text-[12px] font-black text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.32)] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#112026]">
-            第三步 · 直接輸入 0–9 數字，例如 2559（全形數字也可）
+          <p className="mt-3 text-center text-[12px] font-black text-amber-50/88">
+            直接輸入 0–9，例如 2559
           </p>
 
           <input
@@ -437,9 +436,9 @@ export default function NumerologyPage() {
             }}
             onFocus={() => setError('')}
             placeholder="1688"
-            aria-label="第 3 步，輸入數字"
+            aria-label="輸入數字"
             style={numberInputDigitStyle}
-            className="fortune-number-max-input mt-4 min-h-[168px] w-full rounded-[30px] border-2 border-amber-100 bg-black/55 px-2 py-8 text-center font-mono font-black leading-none text-amber-50 shadow-[inset_0_0_42px_rgba(251,191,36,0.16),0_0_44px_rgba(251,191,36,0.32)] outline-none transition placeholder:text-white/24 ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#112026] focus:shadow-[inset_0_0_42px_rgba(251,191,36,0.2),0_0_52px_rgba(251,191,36,0.4)] sm:min-h-[196px]"
+            className="fortune-number-max-input mt-3 min-h-[96px] w-full rounded-[24px] border-2 border-amber-100 bg-black/55 px-2 py-5 text-center font-mono font-black leading-none text-amber-50 shadow-[inset_0_0_42px_rgba(251,191,36,0.16),0_0_44px_rgba(251,191,36,0.32)] outline-none transition placeholder:text-white/24 ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#112026] focus:shadow-[inset_0_0_42px_rgba(251,191,36,0.2),0_0_52px_rgba(251,191,36,0.4)] sm:min-h-[112px]"
           />
 
           {/* 範例說明已依指示隱藏；客戶只需看上方的位數引導後直接輸入。 */}
@@ -470,7 +469,7 @@ export default function NumerologyPage() {
               disabled={loading}
               className="min-h-[58px] min-w-0 flex-1 rounded-2xl border border-amber-200/55 bg-amber-300 px-5 py-4 text-base font-black text-slate-950 shadow-[0_0_30px_rgba(251,191,36,0.24)] transition active:scale-[0.99] disabled:opacity-50"
             >
-              {loading ? '易經正在完成判定' : '立即開始'}
+              {loading ? '易經正在完成判定' : '30 秒看數字訊號'}
             </button>
             <button type="button" onClick={clearNumerologyInput} disabled={loading} className="min-h-[58px] shrink-0 rounded-2xl border border-white/25 bg-white/[0.06] px-4 py-4 text-sm font-black text-white/82 transition hover:border-cyan-100/55 hover:bg-cyan-200/[0.1] active:scale-[0.98] disabled:opacity-50">清除</button>
           </div>
