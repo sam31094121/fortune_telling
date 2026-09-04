@@ -42,3 +42,10 @@ parameters remain unchanged.
 | `cc0-sfx-100-v2/sfx100v2_wood_03.ogg` | 100 CC0 SFX #2 — wood | rubberduck | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | https://opengameart.org/content/100-cc0-sfx-2 |
 
 No file is looped or used as an ambient bed. The new palette is played only through bounded Web Audio one-shots with filtering, gain and delay-tail adjustments; it is not re-licensed.
+
+## Real-time lightning visuals
+
+| Local file | Title | Creator | License | Source | Runtime use |
+| --- | --- | --- | --- | --- | --- |
+| `lightning-sprite-cc0.png` | Lightning Sprite Texture | EVIL_ENT | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) | https://opengameart.org/content/lightning-sprite-texture | Reserved texture asset for the WebGL lightning material palette. |
+| `lightning-impact-cc0.png` | Radial lightning effect | 13rice | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) | https://opengameart.org/content/radial-lightning-effect | Additive, depth-tested impact bloom at the end of the selected 3D strike route. |

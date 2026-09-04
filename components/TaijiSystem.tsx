@@ -12,7 +12,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
 import {
   OrbitControls,
   Sparkles,
@@ -741,6 +741,7 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
   // Kept in the render contract so a repeated click can be distinguished from
   // a held pointer by React; the live envelope itself remains frame-driven.
   void strikeId;
+  const impactTexture = useLoader(THREE.TextureLoader, '/audio/taiji/lightning-impact-cc0.png');
   const wasActiveRef = useRef(false);
   const strikeStartedAtRef = useRef(-Infinity);
   const previewStartedAtRef = useRef<number | null>(null);
@@ -983,6 +984,18 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
     addLayeredBolt(rightMain, 0xffffff, 0xeaf6ff, .19, .025, false, 'E', 'core', true);
     addLayeredBolt(bottomMain, 0x010104, 0x242433, .195, .05, true, 'S', 'core', true);
     addLayeredBolt(topMain, 0x010104, 0x242433, .195, .075, true, 'N', 'core', true);
+    // CC0 radial sprite: a tiny impact bloom supplements (never replaces) the
+    // true 3D tube route, so mobile users retain depth and the named source.
+    ([['W', leftMain], ['E', rightMain], ['S', bottomMain], ['N', topMain]] as const).forEach(([routeOrigin, points]) => {
+      const material = new THREE.SpriteMaterial({ map: impactTexture, color: routeOrigin === 'N' || routeOrigin === 'S' ? 0x90909a : 0xffffff, transparent: true, opacity: 0, depthWrite: false, depthTest: true, blending: THREE.AdditiveBlending });
+      material.userData.origin = routeOrigin;
+      material.userData.baseOpacity = .42;
+      const sprite = new THREE.Sprite(material);
+      sprite.position.copy(points[points.length - 1]);
+      sprite.scale.set(.78, .78, 1);
+      sprite.userData.impactSprite = true;
+      root.add(sprite);
+    });
     addLayeredBolt(leftSurge, 0xffffff, 0x67e8f9, .088, .055, false, 'W');
     addLayeredBolt(rightSurge, 0xffffff, 0xfbbf24, .088, .075, false, 'E');
     addLayeredBolt(bottomSurge, 0x02020a, 0x818cf8, .092, .09, true, 'S');
@@ -1043,10 +1056,14 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
     createAftershockArc({ radius: 1.28, tube: .105, arc: Math.PI * .82, color: 0x520b08, opacity: .34, delay: .315, z: .22, rotation: [.34, -.28, 2.14] });
     createAftershockArc({ radius: 1.42, tube: .042, arc: Math.PI * .72, color: 0xe4a15d, opacity: .38, delay: .33, z: 1.34, rotation: [-.3, .38, -.08] });
     return root;
-  }, [lowPower]);
+  }, [impactTexture, lowPower]);
 
   useEffect(() => () => {
     group.children.forEach((child) => {
+      if (child.userData.impactSprite) {
+        (child as THREE.Sprite).material.dispose();
+        return;
+      }
       const bolt = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
       bolt.geometry.dispose();
       bolt.material.dispose();
@@ -1099,6 +1116,13 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
     // origin, impact point, 3D depth or short 4D distortion out of alignment.
     group.rotation.set(0, 0, 0);
     group.children.forEach((child) => {
+      if (child.userData.impactSprite) {
+        const sprite = child as THREE.Sprite;
+        const material = sprite.material as THREE.SpriteMaterial;
+        const selected = material.userData.origin === origin;
+        material.opacity = selected ? Number(material.userData.baseOpacity ?? .4) * spatialEnvelope : 0;
+        return;
+      }
       const bolt = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
       const material = bolt.material;
       const localAge = strikeAge - Number(material.userData.delay ?? 0);
