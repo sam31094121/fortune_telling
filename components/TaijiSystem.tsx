@@ -2293,7 +2293,16 @@ export default function TaijiSystem({
 
   const markLayer = useCallback((layer: number, playSound: boolean) => {
     const next = Math.max(TAIJI_DEPTH_MIN, Math.min(TAIJI_DEPTH_MAX, Math.round(layer)));
-    setJourneyTarget(journeyRef.current, next);
+    // 第一層是固定互動底座，不是過場目標。若只更新 target，上一層的
+    // current 會在數個 frame 內慢慢回落，round() 期間仍可能回報第 2 層。
+    // Explicitly selecting/returning to layer 1 must therefore clear both
+    // current and target atomically, with no residual auto-transition.
+    if (next === TAIJI_DEPTH_MIN) {
+      jumpJourney(journeyRef.current, TAIJI_DEPTH_MIN);
+      setDisplayLayer(TAIJI_DEPTH_MIN);
+    } else {
+      setJourneyTarget(journeyRef.current, next);
+    }
     setVisualPulse(performance.now());
     if (!playSound) return;
     const engine = soundRef.current ?? new Taiji24SoundEngine();
