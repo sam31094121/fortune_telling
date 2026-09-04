@@ -12,6 +12,24 @@ export type BirthGender = 'male' | 'female';
 export type BirthCalendarType = 'solar' | 'lunar';
 export type BirthHourBranch = 'zi' | 'chou' | 'yin' | 'mao' | 'chen' | 'si' | 'wu' | 'wei' | 'shen' | 'you' | 'xu' | 'hai' | 'unknown';
 
+/**
+ * 「按了我知道時辰，但還沒點任何一張卡」的中間狀態。
+ *
+ * 原本按下「我知道出生時辰」會直接把值設成午時，欄位立刻顯示「完成」、送出鍵亮起——
+ * 客戶沒選過，卻拿到用午時排出來的卦象與紫微夫妻宮，而且畫面告訴他已經完成了。
+ * 這個哨兵值讓面板打開、但不算完成，逼使用者真的點一張。
+ *
+ * 只有傳入 requireExplicitHourPick 的頁面才會產生這個值，其他頁面行為完全不變。
+ */
+export const HOUR_BRANCH_PENDING = 'pending';
+
+/** 時辰是否真的被選過（'pending' 不算）。 */
+export function isHourBranchChosen(value: BirthProfile): boolean {
+  if (value.timeUnknown) return true;
+  const branch = value.birthHourBranch;
+  return Boolean(branch && branch !== HOUR_BRANCH_PENDING);
+}
+
 export type BirthProfile = {
   name?: string;
   gender?: BirthGender | string;
@@ -44,6 +62,16 @@ type UnifiedBirthFormProps = {
   loadingLabel?: string;
   isSubmitting?: boolean;
   dateAccent?: 'violet' | 'amber' | 'pink' | 'cyan';
+  /**
+   * 按「我知道出生時辰」時不預先塞值，客戶一定要自己點一張時辰卡。
+   * 預設 false＝維持既有行為，不影響其他已上線的卡片。
+   */
+  requireExplicitHourPick?: boolean;
+  /**
+   * 呼叫端已經用 CSS 把送出鈕與進度總覽藏起來、改用自己的按鈕時傳 true：
+   * 這裡會一併從無障礙樹與 Tab 順序移除，讀屏才不會唸到兩顆同名按鈕。
+   */
+  hideSubmitChrome?: boolean;
   onChange: (value: BirthProfile) => void;
   onSubmit: (value: BirthProfile) => void;
 };
@@ -93,7 +121,7 @@ function isFieldDone(value: BirthProfile, key: string): boolean {
   if (key === 'birthDate') return Boolean(value.birthDate);
   if (key === 'gender') return Boolean(value.gender);
   if (key === 'birthPlace') return Boolean(value.country && value.city);
-  if (key === 'birthHourBranch') return Boolean(value.timeUnknown || value.birthHourBranch);
+  if (key === 'birthHourBranch') return isHourBranchChosen(value);
   return false;
 }
 
@@ -121,8 +149,10 @@ function ChoiceButton({ active, alert, children, onClick, tone = 'amber' }: { ac
   );
 }
 
-export function HourBranchSelector({ value, unknown, missing, onChange }: { value?: string; unknown?: boolean; missing?: boolean; onChange: (branch: BirthHourBranch) => void }) {
+export function HourBranchSelector({ value, unknown, missing, requireExplicitPick = false, onChange }: { value?: string; unknown?: boolean; missing?: boolean; requireExplicitPick?: boolean; onChange: (branch: BirthHourBranch) => void }) {
   const knownSelected = Boolean(value && value !== 'unknown' && !unknown);
+  /** 面板開著、但客戶還沒點任何一張卡。 */
+  const awaitingPick = value === HOUR_BRANCH_PENDING;
   /* 手機修復（2026-08-12）：展開時辰卡後自動捲到眼前，客戶才知道要在這裡點選（原本展開在畫面外，像壞掉） */
   const panelRef = useRef<HTMLDivElement | null>(null);
   const prevKnownRef = useRef(knownSelected);
@@ -144,7 +174,7 @@ export function HourBranchSelector({ value, unknown, missing, onChange }: { valu
           <span className="block text-base font-black">不知道出生時辰</span>
           <span className="mt-1.5 block text-xs font-semibold leading-5">不知道也沒關係，先算得出來的部分；之後補上時辰會更完整。</span>
         </ChoiceButton>
-        <ChoiceButton active={knownSelected} alert={missing} tone="cyan" onClick={() => onChange((knownSelected ? value : 'wu') as BirthHourBranch)}>
+        <ChoiceButton active={knownSelected} alert={missing} tone="cyan" onClick={() => onChange((knownSelected ? value : requireExplicitPick ? HOUR_BRANCH_PENDING : 'wu') as BirthHourBranch)}>
           <span className="block text-base font-black">我知道出生時辰</span>
           <span className="mt-1.5 block text-xs font-semibold leading-5">點下去會展開 12 張時辰卡，直接點選，不需手打。</span>
         </ChoiceButton>
@@ -159,6 +189,11 @@ export function HourBranchSelector({ value, unknown, missing, onChange }: { valu
           {selectedItem && (
             <div className="mb-3 rounded-xl border border-cyan-200/45 bg-cyan-300/12 px-4 py-2.5 text-sm font-black text-cyan-50">
               ✓ 已選擇：{selectedItem.label}（{selectedItem.range}）——選錯可直接點別張更換
+            </div>
+          )}
+          {awaitingPick && (
+            <div className="mb-3 rounded-xl border border-amber-200/45 bg-amber-300/12 px-4 py-2.5 text-sm font-black text-amber-50" role="status">
+              還沒選——下面 12 張點一張就好。不確定的話，回上面選「不知道出生時辰」也算得出來。
             </div>
           )}
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
@@ -196,6 +231,8 @@ export function UnifiedBirthForm({
   loadingLabel = '運算中...',
   isSubmitting = false,
   dateAccent = 'amber',
+  requireExplicitHourPick = false,
+  hideSubmitChrome = false,
   onChange,
   onSubmit,
 }: UnifiedBirthFormProps) {
@@ -247,7 +284,7 @@ export function UnifiedBirthForm({
     fields.birthDate ? { id: 'birthDate', label: '萬年曆生日', done: Boolean(value.birthDate), text: value.birthDate ? `西元 ${value.birthDate}` : '待換算' } : null,
     fields.gender ? { id: 'gender', label: '性別', done: Boolean(value.gender), text: value.gender === 'male' ? '男性' : value.gender === 'female' ? '女性' : '待選擇' } : null,
     fields.birthPlace ? { id: 'birthPlace', label: '出生地', done: Boolean(value.country && value.city), text: value.country && value.city ? `${value.country} ${value.city}` : '待填寫' } : null,
-    fields.birthHourBranch ? { id: 'birthHourBranch', label: '出生時辰', done: Boolean(value.timeUnknown || value.birthHourBranch), text: value.timeUnknown ? '不確定' : value.birthHourBranch ? '已確認' : '待選擇' } : null,
+    fields.birthHourBranch ? { id: 'birthHourBranch', label: '出生時辰', done: isHourBranchChosen(value), text: value.timeUnknown ? '不確定' : isHourBranchChosen(value) ? '已確認' : '待選擇' } : null,
   ].filter(Boolean) as Array<{ id: string; label: string; done: boolean; text: string }>;
 
   return (
@@ -327,11 +364,12 @@ export function UnifiedBirthForm({
 
       {fields.birthHourBranch && (
         <section data-field="birthHourBranch" className={fieldFrameClass(missing, 'birthHourBranch', value)}>
-          <label className="block text-sm font-black text-[color:var(--text-main)]">{[fields.name, fields.birthDate, fields.gender, fields.birthPlace].filter(Boolean).length + 1}. 出生時辰 {(value.timeUnknown || value.birthHourBranch) && <span className="ml-2 text-green-400">完成</span>}</label>
+          <label className="block text-sm font-black text-[color:var(--text-main)]">{[fields.name, fields.birthDate, fields.gender, fields.birthPlace].filter(Boolean).length + 1}. 出生時辰 {isHourBranchChosen(value) && <span className="ml-2 text-green-400">完成</span>}</label>
           <HourBranchSelector
             value={value.birthHourBranch}
             unknown={value.timeUnknown}
             missing={hasMissing(missing, 'birthHourBranch')}
+            requireExplicitPick={requireExplicitHourPick}
             onChange={(birthHourBranch) => {
               const isUnknown = birthHourBranch === 'unknown';
               onChange({
@@ -348,15 +386,17 @@ export function UnifiedBirthForm({
 
       {/* 完成引導：全部填好 → 金色光芒 + 明確指引（資料未完成則低調提示） */}
       {completed.every((item) => item.done) && !isSubmitting ? (
-        <p className="mega-submit-guide" aria-live="polite">
+        <p className="mega-submit-guide" aria-live="polite" aria-hidden={hideSubmitChrome || undefined}>
           <span aria-hidden="true">✨</span> 資料全部完成！點下方金色按鈕開始 <span className="mega-submit-guide__arrow" aria-hidden="true">⬇</span>
         </p>
       ) : (
-        <p className="text-center text-xs font-semibold text-white/40">完成上方欄位後，開始鍵會亮起金色光芒</p>
+        <p className="text-center text-xs font-semibold text-white/40" aria-hidden={hideSubmitChrome || undefined}>完成上方欄位後，開始鍵會亮起金色光芒</p>
       )}
       <button
         type="submit"
         disabled={disabled || isSubmitting}
+        aria-hidden={hideSubmitChrome || undefined}
+        tabIndex={hideSubmitChrome ? -1 : undefined}
         className={
           completed.every((item) => item.done)
             ? 'mega-submit-ready inline-flex w-full items-center justify-center gap-2 rounded-full disabled:opacity-60'
@@ -368,7 +408,7 @@ export function UnifiedBirthForm({
       </button>
 
       {/* 資料填寫進度總覽：移至送出鈕下方（2026-08-11）——按下開始時直接看到哪裡沒填 */}
-      <section className="rounded-[28px] border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.16),rgba(15,23,42,0.78)_58%,rgba(2,6,23,0.94)_100%)] p-5 shadow-[0_0_34px_rgba(251,191,36,0.12)]">
+      <section aria-hidden={hideSubmitChrome || undefined} className="rounded-[28px] border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.16),rgba(15,23,42,0.78)_58%,rgba(2,6,23,0.94)_100%)] p-5 shadow-[0_0_34px_rgba(251,191,36,0.12)]">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">資料填寫</p>
         <h2 className="mt-3 text-2xl font-black leading-8 text-amber-50">依序完成欄位，易經才會開始運算</h2>
         <div className={`mt-4 grid gap-2 ${completed.length >= 5 ? 'sm:grid-cols-5' : 'sm:grid-cols-4'}`}>

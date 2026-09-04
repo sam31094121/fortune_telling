@@ -65,6 +65,8 @@ function validate(body: unknown): string | null {
   }
   if (typeof person.birthDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(person.birthDate)) return '生日日期無效。';
   const [year, month, day] = person.birthDate.split('-').map(Number);
+  // 沒有下限時，1800 年的生日照樣算得出結果——客戶多打一位數字就會拿到一份看似正常的命盤。
+  if (year < 1900) return '生日年份看起來怪怪的，再確認一下。';
   if ((person.calendarType ?? 'SOLAR') === 'SOLAR' && !isValidBirthday(person.birthDate)) return '國曆生日日期無效或晚於今天。';
   if (person.calendarType === 'LUNAR' && (year < 1900 || year > new Date().getFullYear() || month < 1 || month > 12 || day < 1 || day > 30)) {
     return '農曆生日日期超出目前支援範圍。';

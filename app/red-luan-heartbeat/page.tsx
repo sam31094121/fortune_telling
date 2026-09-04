@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
+import { HOUR_BRANCH_PENDING } from '@/components/UnifiedBirthForm';
 import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT, setAnalysisIdentityTarget } from '@/lib/identity-split-client';
- import { downloadRedLuanReminder, shareRedLuanReading, type RedLuanReminder } from '@/lib/red-luan-followup';
+ import { downloadRedLuanReminder, RED_LUAN_SHARE_MARK, shareRedLuanReading, type RedLuanReminder, type RedLuanReminderMonth } from '@/lib/red-luan-followup';
+import { buildRedLuanReturnLine, readRedLuanReturnVisit, saveRedLuanReturnVisit, taipeiToday, type RedLuanReturnVisit } from '@/lib/red-luan-return-visit';
 import { readCanonicalBirthProfile, saveCanonicalBirthProfile } from '@/lib/canonical-birth-profile-client';
 import { fromUnifiedBirthProfile, toUnifiedBirthProfile } from '@/lib/canonical-birth-profile';
 import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-public-access';
@@ -326,6 +328,64 @@ const LABEL_WORDS: Record<string, string> = {
   日支六沖: '容易起波瀾',
 };
 
+/**
+ * 捲到某一區，而且一定要真的捲到。
+ *
+ * 兩個實際會壞掉的情況：
+ *   1. 部分 in-app 瀏覽器與開啟「減少動態效果」的裝置直接忽略 smooth，畫面完全不動，
+ *      客戶按了按鈕看不到任何變化，就會認定按鈕是壞的。所以沒動就用瞬間捲動補上。
+ *   2. requestAnimationFrame 在分頁被切到背景時不會觸發——客戶送出後切去別的 App、
+ *      回來時結果早就算好了，畫面卻停在表單。所以改用 timeout 排程。
+ * 動畫可以沒有，回饋不能沒有。
+ */
+function scrollToTarget(find: () => Element | null | undefined, block: ScrollLogicalPosition = 'start') {
+  window.setTimeout(() => {
+    const element = find();
+    if (!element) return;
+    const before = window.scrollY;
+    element.scrollIntoView({ behavior: 'smooth', block });
+    window.setTimeout(() => {
+      if (Math.abs(window.scrollY - before) < 4) find()?.scrollIntoView({ block });
+    }, 260);
+  }, 0);
+}
+
+/**
+ * 這份結果實際會渲染出來的折疊區（不含最底下的證據區）。
+ *
+ * 分母以前寫死成 5，但有時辰時真的可以拆的是 6 個，沒時辰時只有 1 個——
+ * 客戶會看到「已拆 6 / 5」這種一看就壞掉的數字，然後開始懷疑命盤也是亂算的。
+ */
+function giftFoldKeysOf(reading: Reading): string[] {
+  return reading.ichingReading
+    ? ['refine', 'psych', 'onion', 'hexagram', 'karmic', 'teachers']
+    : ['onion'];
+}
+
+/**
+ * 後端自己一定回中文；會漏出英文的是瀏覽器層的錯誤（斷網、逾時、被中斷）。
+ * 「Failed to fetch」對客戶等於什麼都沒說，還會讓他以為是自己弄壞的。
+ */
+function friendlyRequestError(error: unknown) {
+  if (error instanceof Error) {
+    const message = error.message.trim();
+    if (message && /[一-鿿]/.test(message)) return message;
+  }
+  return '網路好像斷了。連線回來以後再按一次就好，你填的資料都還在。';
+}
+
+/**
+ * 未來一年的每一個機會月。
+ *
+ * 引擎本來就算得出來，以前卻只把「下一個」放進行事曆——一整年只跟客戶接觸一次。
+ * 這張卡的結果是靜態的，行事曆是唯一會自己把人叫回來的東西，所以要整年一起給。
+ */
+function reminderMonthsOf(reading: Reading): RedLuanReminderMonth[] {
+  return (reading.nextEncounters?.upcoming ?? [])
+    .filter((item) => item.daysAway <= 365)
+    .map((item) => ({ startsOn: item.startsOn, endsOn: item.endsOn, monthLine: item.monthLine, kind: item.kind }));
+}
+
 /** 結尾三個動作共用的摘要。 */
 function reminderOf(reading: Reading): RedLuanReminder {
   const encounter = reading.nextEncounters.soulResonance ?? reading.nextEncounters.benefactor;
@@ -337,6 +397,7 @@ function reminderOf(reading: Reading): RedLuanReminder {
     typeHeadline: reading.affinity.typeHeadline,
     daysAway: encounter?.daysAway ?? 0,
     topCandidate: reading.affinity.candidates?.[0]?.career ?? '',
+    hexagramLocked: reading.ichingReading === null,
     url: typeof window === 'undefined' ? '' : `${window.location.origin}/red-luan-heartbeat`,
   };
 }
@@ -349,11 +410,13 @@ const MONTH_DAY = (iso: string) => `${Number(iso.slice(5, 7))}/${Number(iso.slic
  * 已經進到那個月裡面時改講還剩幾天，這是客戶被行事曆提醒回來時看到的那一句。
  */
 function awayLabel(encounter: Encounter, fromDate: string) {
+  // 「還剩」與「還有」只差一個字，兩張卡並排時客戶會讀成同一件事。
+  // 進行中的講「這一段還剩」，還沒到的講「才開始」，字面上徹底分開。
   if (encounter.isCurrent) {
-    return encounter.daysLeft > 0 ? `就是這個月・還剩 ${encounter.daysLeft} 天` : '就是今天';
+    return encounter.daysLeft > 0 ? `這一段還剩 ${encounter.daysLeft} 天` : '就是今天';
   }
   const crossesYear = encounter.startsOn.slice(0, 4) > fromDate.slice(0, 4);
-  if (encounter.daysAway <= 45) return `還有 ${encounter.daysAway} 天`;
+  if (encounter.daysAway <= 45) return `還有 ${encounter.daysAway} 天才開始`;
   return `${crossesYear ? '明年・' : ''}還有 ${encounter.monthsAway} 個月`;
 }
 
@@ -374,8 +437,16 @@ function EncounterCard({ encounter, fromDate, title, tone }: { encounter: Encoun
   return (
     <div className={`rounded-2xl border p-5 ${ring}`}>
       <p className={`text-sm font-black ${text}`}>{title}</p>
+      {/*
+        節氣月以立秋、白露這種節氣為界，不是國曆一號。所以九月四日的客戶，
+        「現在這一段」的起始日其實寫著八月八日——直接印「2026 年 8 月」，
+        他讀到的是一個已經過去的月份，下一行卻說「就是這個月」，自打嘴巴。
+        進行中的那一段不講月份數字，只講「現在」。
+      */}
       <p className={`mt-2 text-3xl font-black leading-tight ${big}`}>
-        {Number(encounter.startsOn.slice(0, 4))} 年 {Number(encounter.startsOn.slice(5, 7))} 月
+        {encounter.isCurrent
+          ? '就是現在這一段'
+          : `${Number(encounter.startsOn.slice(0, 4))} 年 ${Number(encounter.startsOn.slice(5, 7))} 月`}
       </p>
       <p className={`mt-1 text-base font-black ${text}`}>
         {MONTH_DAY(encounter.startsOn)} – {MONTH_DAY(encounter.endsOn)}　{awayLabel(encounter, fromDate)}
@@ -408,6 +479,7 @@ function Fold({
   badge,
   teaser,
   foldKey,
+  anchorId,
   opened,
   onToggle,
   children,
@@ -416,13 +488,15 @@ function Fold({
   badge?: string;
   teaser?: string;
   foldKey: string;
+  /** 讓別處的按鈕可以把這一區捲到眼前。 */
+  anchorId?: string;
   opened: string[];
   onToggle: (key: string) => void;
   children: React.ReactNode;
 }) {
   const isOpen = opened.includes(foldKey);
   return (
-    <section className="overflow-hidden rounded-2xl border border-white/12 bg-black/20">
+    <section id={anchorId} className="scroll-mt-5 overflow-hidden rounded-2xl border border-white/12 bg-black/20">
       <button
         type="button"
         aria-expanded={isOpen}
@@ -500,6 +574,22 @@ function RedLuanHeartbeatExperience() {
   const [ritualStep, setRitualStep] = useState(-1);
   /** 上次填過的人；有的話就直接請他一鍵重看，不必再走一次表單。 */
   const [returningName, setReturningName] = useState('');
+  /** 上次來留下的痕跡：倒數走到哪、拆到第幾層、有沒有填時辰。 */
+  const [returnVisit, setReturnVisit] = useState<RedLuanReturnVisit | null>(null);
+  /** 上一次是哪一種送出失敗；有值就代表可以原封不動再送一次。 */
+  const [retryMode, setRetryMode] = useState<'initial' | 'refine' | null>(null);
+  /** 這次要算誰。身分會存在本機，重新載入後仍是上次那個。 */
+  const [identityTarget, setIdentityTarget] = useState<string | null>(null);
+  /** 是不是從朋友分享的連結點進來的。 */
+  const [fromShare, setFromShare] = useState(false);
+  /** 滑到結果深處時，把「哪一天、還有幾天」變成隨身可見的浮標。 */
+  const [showJumpPill, setShowJumpPill] = useState(false);
+  /**
+   * 送出的同步鎖。
+   * loading 是 React 狀態，同一個 tick 內連點兩下時第二下還讀到舊值，
+   * 於是後端被打兩次、兩段儀式互相蓋掉。ref 才擋得住。
+   */
+  const submitLock = useRef(false);
 
   /** 幫朋友算：切成訪客身分、清掉這次的結果與填答，捲回表單。 */
   function startGuestReading() {
@@ -510,12 +600,33 @@ function RedLuanHeartbeatExperience() {
     setAppliedContext(EMPTY_CONTEXT);
     setFollowUp('idle');
     setError('');
+    setRetryMode(null);
     setMissing([]);
-    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    // 不清掉的話，畫面會一邊要客戶填朋友的資料、一邊叫著上一位的名字說
+    // 「資料都還在」，而那顆按鈕按下去只會噴「請先填寫姓名」。
+    setReturningName('');
+    scrollToTarget(() => document.querySelector('.red-luan-unified-flow'));
+  }
+
+  function rememberOpenedFolds(next: string[]) {
+    // 拆過的層記在本機：下次回來才講得出「你還有 N 層沒拆完」。
+    saveRedLuanReturnVisit({ openedGiftKeys: next.filter((item) => item !== 'evidence') });
+    return next;
   }
 
   function toggleFold(key: string) {
-    setOpenedFolds((current) => (current.includes(key) ? current.filter((item) => item !== key) : [...current, key]));
+    setOpenedFolds((current) => rememberOpenedFolds(current.includes(key) ? current.filter((item) => item !== key) : [...current, key]));
+  }
+
+  /** 只開不關；從別處（例如上面的老師選擇卡）把某一區打開時用。 */
+  function toggleFoldOpen(key: string) {
+    setOpenedFolds((current) => (current.includes(key) ? current : rememberOpenedFolds([...current, key])));
+  }
+
+  /** 從結果區跳回時辰欄位，並把 12 張時辰卡打開、不預先選任何一張。 */
+  function jumpToHourPicker() {
+    setForm((current) => ({ ...current, birthHourBranch: HOUR_BRANCH_PENDING, timeUnknown: false, birthTime: undefined }));
+    scrollToTarget(() => document.querySelector('[data-field="birthHourBranch"]'), 'center');
   }
 
   useEffect(() => {
@@ -525,37 +636,95 @@ function RedLuanHeartbeatExperience() {
       const profile = toUnifiedBirthProfile(saved);
       if (profile.name && profile.birthDate && profile.gender) setReturningName(profile.name);
     }
+    setReturnVisit(readRedLuanReturnVisit());
+    // 直接讀 location，不用 useSearchParams：那個 hook 需要 Suspense 邊界，
+    // 而這裡只是要一個開關，不值得為它改動整頁的渲染結構。
+    setFromShare(window.location.search.includes(RED_LUAN_SHARE_MARK));
   }, []);
+
+  /*
+    結果頁全部展開將近兩萬像素。客戶滑到深處時，最重要的那件事
+    ——哪一天、還有幾天——早就留在最頂端看不見了。
+    這顆浮標只在捲過首屏之後出現，點一下回到那張卡。
+  */
+  useEffect(() => {
+    if (!reading) {
+      setShowJumpPill(false);
+      return;
+    }
+    // 只看月份卡本身。red-luan-spark 把所有折疊區都包在裡面，
+    // 拿它判斷的話，展開之後它幾乎等於整頁，浮標永遠不會出現。
+    const monthCards = document.getElementById('red-luan-when');
+    if (!monthCards) return;
+    /*
+      位置量一次就好，捲動時只做數字比較。
+      兩萬像素的頁面上，每一幀呼叫 getBoundingClientRect 都會逼出重排，手機上直接掉幀。
+      折疊區展開、或轉成橫向時版面會變高，所以那兩種時機重新量一次。
+    */
+    let cardsBottom = 0;
+    const measure = () => { cardsBottom = window.scrollY + monthCards.getBoundingClientRect().bottom; };
+    const update = () => setShowJumpPill(window.scrollY > cardsBottom);
+    const remeasure = () => { measure(); update(); };
+    remeasure();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', remeasure);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', remeasure);
+    };
+  }, [reading, openedFolds, peeled]);
 
   useEffect(() => {
-    const clearIdentityError = () => setError((current) => (current === getIdentityRequiredMessage() ? '' : current));
-    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
-    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+    const onIdentityChanged = () => {
+      setError((current) => (current === getIdentityRequiredMessage() ? '' : current));
+      setIdentityTarget(getAnalysisIdentityTarget());
+    };
+    setIdentityTarget(getAnalysisIdentityTarget());
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, onIdentityChanged);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, onIdentityChanged);
   }, []);
 
+  /**
+   * 回訪的人按「直接看我的紅鸞」。
+   *
+   * 不能只呼叫 submit(form)：身分若還停在「親朋好友」（上次幫朋友算完就存著了），
+   * 表單是空的，按下去只會被擋下來說「請先填寫姓名」——最熟的客戶拿到最差的招呼。
+   * 這裡直接把身分切回本人、從本機檔案取出資料，一次做完。
+   */
+  function viewMyReadingAgain() {
+    setAnalysisIdentityTarget('self');
+    const saved = readCanonicalBirthProfile();
+    const profile = saved ? { ...form, ...toUnifiedBirthProfile(saved) } : form;
+    setForm(profile);
+    void submit(profile);
+  }
+
   function birthMissingFields(profile: BirthProfile) {
-    const timeUnknown = profile.timeUnknown === true || profile.birthHourBranch === 'unknown';
     return [
       (profile.name ?? '').trim().length < 2 ? 'name' : '',
       !profile.birthDate ? 'birthDate' : '',
       !profile.gender ? 'gender' : '',
       // 時辰是加值不是前提：沒有時辰照樣算得出月份與人選，只是少了卦象與紫微。
-      '',
+      // 但「按了我知道、卻還沒點任何一張卡」是懸空狀態，放行就會拿到別人的時辰。
+      profile.birthHourBranch === HOUR_BRANCH_PENDING ? 'birthHourBranch' : '',
     ].filter(Boolean);
   }
 
   async function submit(profile: BirthProfile, submittedContext: SelfReportedContext = context, mode: 'initial' | 'refine' = 'initial') {
-    if (loading) return;
+    if (loading || submitLock.current) return;
     if (!getAnalysisIdentityTarget()) {
       setError(getIdentityRequiredMessage());
-      document.querySelector('.identity-split-selector, [aria-label="選擇本次分析對象"]')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      scrollToTarget(() => document.querySelector('.identity-split-selector, [aria-label="選擇本次分析對象"]'), 'center');
       return;
     }
     const nextMissing = birthMissingFields(profile);
     setMissing(nextMissing);
     if (nextMissing.length > 0) {
-      setError('請先把姓名、生日和性別填完。');
-      document.querySelector(`[data-field="${nextMissing[0]}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      setRetryMode(null);
+      setError(nextMissing[0] === 'birthHourBranch'
+        ? '你按了「我知道出生時辰」，請點一張時辰卡；不確定的話改回「不知道出生時辰」也算得出來。'
+        : '請先把姓名、生日和性別填完。');
+      scrollToTarget(() => document.querySelector(`[data-field="${nextMissing[0]}"]`), 'center');
       return;
     }
     // The relationship-position questions are intentionally not gated here: chart
@@ -566,8 +735,28 @@ function RedLuanHeartbeatExperience() {
     }
     const timeUnknown = profile.timeUnknown === true || profile.birthHourBranch === 'unknown';
     const traditionalHour = timeUnknown ? undefined : toTraditionalHourBranch(profile.birthHourBranch);
+    submitLock.current = true;
     setLoading(true);
     setError('');
+    setRetryMode(null);
+    /*
+      儀式跟後端「同時」開始。
+      原本是等結果回來才演那 2.4 秒——本機 0.2 秒看不出問題，但客戶在弱網路上，
+      fetch 那幾秒畫面只有按鈕文字變成「起卦中…」，其餘完全靜止，像當掉。
+      並行之後：網路快時儀式是等待的下限，網路慢時儀式蓋住等待。
+    */
+    let ritualLive = true;
+    // 回訪的人不必再從第一句聽起，但也不能一句都不演——1.5 秒的收尾就夠。
+    const ritualFrom = returningName ? 1 : 0;
+    const ritual = mode === 'initial'
+      ? (async () => {
+        for (let step = ritualFrom; step < RITUAL_LINES.length; step += 1) {
+          if (!ritualLive) return;
+          setRitualStep(step);
+          await new Promise((resolve) => { setTimeout(resolve, step === RITUAL_LINES.length - 1 ? 700 : 850); });
+        }
+      })()
+      : Promise.resolve();
     try {
       const response = await fetch('/api/red-luan-heartbeat', {
         method: 'POST',
@@ -588,16 +777,8 @@ function RedLuanHeartbeatExperience() {
       });
       const payload = await response.json() as Reading & { error?: string; message?: string };
       if (!response.ok) throw new Error(payload.error || payload.message || '目前無法完成核對，請稍後再試。');
-      // 這個人已經看過儀式了（回訪一鍵重看），就不再演一次。
-      if (mode === 'initial' && !returningName) {
-        // 運算其實 0.3 秒就好了。這 2.4 秒是把手冊裡的卜卦儀式演完再揭曉——
-        // 過程被看見時，結果才像卜出來的，而不是查表查出來的。
-        for (let step = 0; step < RITUAL_LINES.length; step += 1) {
-          setRitualStep(step);
-          await new Promise((resolve) => { setTimeout(resolve, step === RITUAL_LINES.length - 1 ? 700 : 850); });
-        }
-        setRitualStep(-1);
-      }
+      // 結果先回來也要把儀式演完，不然畫面會閃一下就跳走，反而像出錯。
+      await ritual;
       setReading(payload);
       setAppliedContext(submittedContext);
       setAlignmentChoice('');
@@ -609,11 +790,24 @@ function RedLuanHeartbeatExperience() {
         setOpenedFolds([]);
         setFollowUp('idle');
       }
+      // 回訪記憶：下次進來才講得出「上次還有 87 天，現在剩 4 天」這種每次都不一樣的話。
+      const headline = payload.nextEncounters?.soulResonance ?? payload.nextEncounters?.benefactor ?? null;
+      saveRedLuanReturnVisit({
+        lastViewedOn: taipeiToday(),
+        encounterStartsOn: headline?.startsOn ?? '',
+        daysAway: headline?.daysAway ?? 0,
+        giftTotal: giftFoldKeysOf(payload).length,
+        hourKnown: payload.person.hourKnown,
+      });
       const anchor = mode === 'refine' ? 'red-luan-layer-1' : 'red-luan-result';
-      requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      scrollToTarget(() => document.getElementById(anchor));
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : '目前無法完成核對，請稍後再試。');
+      ritualLive = false;
+      setError(friendlyRequestError(requestError));
+      setRetryMode(mode);
     } finally {
+      ritualLive = false;
+      submitLock.current = false;
       setRitualStep(-1);
       setLoading(false);
     }
@@ -621,7 +815,7 @@ function RedLuanHeartbeatExperience() {
 
   function openLayer(layer: number) {
     setOpenedLayer((current) => Math.max(current, layer));
-    requestAnimationFrame(() => document.getElementById(`red-luan-layer-${layer}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    scrollToTarget(() => document.getElementById(`red-luan-layer-${layer}`));
   }
 
   function updateContext<Key extends keyof SelfReportedContext>(key: Key, value: SelfReportedContext[Key]) {
@@ -631,6 +825,19 @@ function RedLuanHeartbeatExperience() {
 
   const contextDirty = (Object.keys(EMPTY_CONTEXT) as ContextField[]).some((field) => context[field] !== appliedContext[field]);
   const answeredCount = (Object.keys(EMPTY_CONTEXT) as ContextField[]).filter((field) => context[field]).length;
+  /** 折疊區分母以實際渲染的為準，不寫死。 */
+  const giftFoldKeys = reading ? giftFoldKeysOf(reading) : [];
+  const openedGiftCount = openedFolds.filter((key) => giftFoldKeys.includes(key)).length;
+  /** 結尾動作的主角：沒有桃花月就退回貴人月，兩個都沒有也不能整段消失。 */
+  const followUpEncounter = reading ? (reading.nextEncounters?.soulResonance ?? reading.nextEncounters?.benefactor ?? null) : null;
+  /** 回訪時那一句「上次沒有的話」。 */
+  const returnLine = buildRedLuanReturnLine(returnVisit);
+  /** 全部拆完了沒。滿格卻沒有任何回饋，等於這個計數器白做。 */
+  const allGiftsOpened = giftFoldKeys.length > 0 && openedGiftCount >= giftFoldKeys.length;
+  /** 浮標上的字：只留最關鍵的日期與天數。 */
+  const jumpPillLabel = followUpEncounter
+    ? `${MONTH_DAY(followUpEncounter.startsOn)}・${followUpEncounter.isCurrent ? `還剩 ${followUpEncounter.daysLeft} 天` : `還有 ${followUpEncounter.daysAway} 天`}`
+    : '';
 
   return (
     <main className="mx-auto min-h-screen max-w-3xl px-4 py-6 pb-16 sm:px-6">
@@ -647,14 +854,30 @@ function RedLuanHeartbeatExperience() {
           沒有任何東西告訴他「你的紅鸞月剩幾天」——他得自己再按一次才知道。
           被行事曆叫回來的人，第一眼就該看到這張。
         */}
-        {returningName && !reading && !loading && (
+        {/*
+          從朋友分享的連結點進來的人，是被「我算出我哪個月會心動」勾過來的，
+          落地卻只看到一張空表單——承諾與畫面對不上，傳播鏈就斷在這裡。
+          先講一句銜接的話，再讓他填。連結上只帶固定標記，不帶任何個人資料。
+        */}
+        {fromShare && !returningName && !reading && !loading && (
+          <div className="mb-5 rounded-2xl border border-amber-200/40 bg-amber-300/[0.1] p-4">
+            <p className="text-sm font-black text-amber-50">有人把他的紅鸞傳給你了</p>
+            <p className="mt-1.5 text-xs leading-5 text-white/70">他已經算出自己下一次心動是哪個月、會碰到哪一型的人。你的呢？只要生日，不用註冊、不用付費。</p>
+          </div>
+        )}
+        {returningName && identityTarget !== 'guest' && !reading && !loading && (
           <div className="mb-5 rounded-2xl border border-rose-200/35 bg-rose-300/[0.1] p-4">
             <p className="text-sm font-black text-rose-50">{returningName}，歡迎回來</p>
+            {/*
+              回來的人如果看到跟上次一模一樣的畫面，就不會有第三次。
+              倒數天數每天都在變，這一句是他這次才看得到的東西。
+            */}
+            {returnLine && <p className="mt-1.5 text-sm font-black leading-6 text-amber-100">{returnLine}</p>}
             <p className="mt-1 text-xs leading-5 text-white/60">資料都還在，直接看你現在的紅鸞就好。</p>
             <button
               type="button"
               disabled={loading}
-              onClick={() => { void submit(form); }}
+              onClick={viewMyReadingAgain}
               className="mt-3 w-full rounded-2xl border border-rose-100/60 bg-rose-300/25 px-4 py-3 text-sm font-black text-rose-50 transition disabled:opacity-60"
             >
               直接看我的紅鸞 →
@@ -671,6 +894,10 @@ function RedLuanHeartbeatExperience() {
           submitLabel="算我的紅鸞"
           loadingLabel="推算中…"
           dateAccent="amber"
+          // 時辰決定卦象與紫微夫妻宮，預先塞一個值等於替客戶決定他的命盤。
+          requireExplicitHourPick
+          // 這頁用自己的金色按鈕，表單內建的送出鈕已用 CSS 藏起來，一併移出讀屏。
+          hideSubmitChrome
           onChange={(profile) => setForm((current) => ({ ...current, ...profile }))}
           onSubmit={(profile) => { void submit(profile); }}
         />
@@ -698,7 +925,22 @@ function RedLuanHeartbeatExperience() {
           </div>
         )}
         <p className="mt-3 text-center text-xs leading-5 text-white/45">其他問題結果出來再問，想跳過也可以。</p>
-        {error && <p className="mt-5 rounded-2xl border border-rose-300/30 bg-rose-500/10 p-3 text-sm font-bold text-rose-100">{error}</p>}
+        {error && (
+          <div className="mt-5 rounded-2xl border border-rose-300/30 bg-rose-500/10 p-4" role="alert">
+            <p className="text-sm font-bold leading-6 text-rose-100">{error}</p>
+            {/* 出錯之後只留一句話、沒有出路，客戶就只能離開。 */}
+            {retryMode && (
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => { void submit(form, retryMode === 'refine' ? context : appliedContext, retryMode); }}
+                className="mt-3 w-full rounded-2xl border border-rose-100/60 bg-rose-300/20 px-4 py-3 text-sm font-black text-rose-50 transition disabled:opacity-60"
+              >
+                {loading ? '重新起卦中…' : '再試一次'}
+              </button>
+            )}
+          </div>
+        )}
       </section>
       <style jsx>{`
         .red-luan-unified-flow :global(.mega-friendly-form > p),
@@ -716,12 +958,17 @@ function RedLuanHeartbeatExperience() {
         */}
         <header className="rounded-3xl border border-cyan-200/25 bg-cyan-300/[0.08] p-5">
           <h2 className="text-2xl font-black text-white">{reading.person.name}，這是你的紅鸞</h2>
+          {/*
+            回訪那一句原本只出現在送出前，客戶按下去就消失了——
+            他最後停留的畫面，反而沒有任何「這次跟上次不一樣」的證據。
+          */}
+          {returnLine && <p className="mt-2 text-sm font-black leading-6 text-amber-100">{returnLine}</p>}
         </header>
 
         {reading.affinity && <section id="red-luan-spark" className="scroll-mt-5 rounded-3xl border border-rose-200/30 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.16),transparent_46%),rgba(15,23,42,0.86)] p-5 shadow-[0_18px_52px_rgba(244,63,94,0.14)]">
 
           {reading.nextEncounters && (
-            <div className="mt-4 space-y-3">
+            <div id="red-luan-when" className="mt-4 scroll-mt-5 space-y-3">
               <EncounterCard
                 encounter={reading.nextEncounters.soulResonance}
                 fromDate={reading.nextEncounters.fromDate}
@@ -787,7 +1034,12 @@ function RedLuanHeartbeatExperience() {
                   key={teacher.key}
                   type="button"
                   aria-pressed={teacherKey === teacher.key}
-                  onClick={() => { setTeacherKey(teacher.key); setOpenedFolds((current) => (current.includes('teachers') ? current : [...current, 'teachers'])); }}
+                  // 展開的區塊在一千多像素以外，不捲過去等於畫面沒反應——客戶會以為按鈕壞了。
+                  onClick={() => {
+                    setTeacherKey(teacher.key);
+                    toggleFoldOpen('teachers');
+                    scrollToTarget(() => document.getElementById('red-luan-teachers'));
+                  }}
                   className={`rounded-2xl border px-4 py-4 text-left transition ${teacherKey === teacher.key ? 'border-violet-100/70 bg-violet-300/25 text-violet-50 shadow-[0_0_22px_rgba(167,139,250,0.22)]' : 'border-white/12 bg-white/[0.05] text-white/70'}`}
                 >
                   <span className="block text-lg font-black">{teacher.name}</span>
@@ -797,13 +1049,27 @@ function RedLuanHeartbeatExperience() {
             </div>
           </div>}
 
+          {/*
+            原本只有一句話說「補上時辰可以解鎖」，卻沒有任何入口——
+            客戶要自己滑過整個結果頁再滑過整張表單去找，於是這一池人全部流失。
+          */}
           {reading.unlocks && !reading.unlocks.hexagram && (
-            <p className="mt-4 rounded-2xl border border-cyan-200/25 bg-cyan-300/[0.08] p-4 text-sm leading-7 text-cyan-50">🔒 {reading.unlocks.note}</p>
+            <div className="mt-4 rounded-2xl border border-cyan-200/25 bg-cyan-300/[0.08] p-4">
+              <p className="text-sm leading-7 text-cyan-50">🔒 {reading.unlocks.note}</p>
+              <button
+                type="button"
+                onClick={jumpToHourPicker}
+                className="mt-3 w-full rounded-2xl border border-cyan-100/55 bg-cyan-300/20 px-4 py-3 text-sm font-black text-cyan-50 transition"
+              >
+                補上時辰，解鎖我的卦象 →
+              </button>
+              <p className="mt-2 text-[11px] leading-5 text-cyan-100/60">不知道也沒關係：問一下家裡，或翻出生證明上的時間，下次回來再補都可以。上面的月份與人選不會因此改變。</p>
+            </div>
           )}
           <div className="mt-4 flex items-center justify-between gap-3">
             <p className="text-xs leading-5 text-white/45">以下想看再打開就好，不看也不影響上面的結論。</p>
-            <span className="shrink-0 rounded-full border border-white/15 px-2.5 py-1 text-[10px] font-black text-white/55">
-              已拆 {openedFolds.filter((key) => key !== 'evidence').length} / {reading.ichingReading ? 5 : 2}
+            <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-black ${allGiftsOpened ? 'border-amber-200/45 bg-amber-300/15 text-amber-100' : 'border-white/15 text-white/55'}`}>
+              {allGiftsOpened ? '全部拆完了 ✦' : `已拆 ${openedGiftCount} / ${giftFoldKeys.length}`}
             </span>
           </div>
 
@@ -865,7 +1131,7 @@ function RedLuanHeartbeatExperience() {
                 {(reading.affinity.onionLayers ?? []).map((layer, index) => {
                   const unlocked = index <= peeled;
                   return (
-                    <article key={layer.step} className={`rounded-2xl border p-4 transition ${unlocked ? 'border-cyan-200/25 bg-black/25' : 'border-white/10 bg-white/[0.03]'}`}>
+                    <article key={layer.step} id={`red-luan-onion-${index}`} className={`scroll-mt-5 rounded-2xl border p-4 transition ${unlocked ? 'border-cyan-200/25 bg-black/25' : 'border-white/10 bg-white/[0.03]'}`}>
                       <p className={`text-[10px] font-black tracking-[0.14em] ${unlocked ? 'text-cyan-100' : 'text-white/30'}`}>{layer.title}</p>
                       {unlocked ? (
                         <>
@@ -878,7 +1144,8 @@ function RedLuanHeartbeatExperience() {
                 })}
               </div>
               {peeled < (reading.affinity.onionLayers ?? []).length - 1 && (
-                <button type="button" onClick={() => setPeeled((current) => current + 1)} className="mt-3 w-full rounded-2xl border border-cyan-200/35 bg-cyan-300/12 px-4 py-3 text-sm font-black text-cyan-50 transition">再剝一層 →</button>
+                // 跟老師鈕同一類問題：剝開的那一層在畫面外，不捲過去就像沒反應。
+                <button type="button" onClick={() => { setPeeled((current) => current + 1); scrollToTarget(() => document.getElementById(`red-luan-onion-${peeled + 1}`), 'center'); }} className="mt-3 w-full rounded-2xl border border-cyan-200/35 bg-cyan-300/12 px-4 py-3 text-sm font-black text-cyan-50 transition">再剝一層 →</button>
               )}
               {reading.affinity.selfReportedType !== 'UNSPECIFIED' && (
                 <p className="mt-3 text-xs leading-6 text-white/50">你填的是「{reading.affinity.selfReportedLabel}」，放在這裡跟命盤方向對照，不參與運算。</p>
@@ -910,7 +1177,7 @@ function RedLuanHeartbeatExperience() {
               <p className="mt-3 text-[11px] leading-5 text-white/45">{reading.ichingReading.karmicBond.note}</p>
             </Fold>
 
-            <Fold title="同一卦・兩種說法" badge="易經／鬼魅" teaser="兩位老師講法完全不同，挑一個聽" foldKey="teachers" opened={openedFolds} onToggle={toggleFold}>
+            <Fold title="同一卦・兩種說法" badge="易經／鬼魅" teaser="兩位老師講法完全不同，挑一個聽" foldKey="teachers" anchorId="red-luan-teachers" opened={openedFolds} onToggle={toggleFold}>
               <div className="grid gap-2 sm:grid-cols-2">
                 {(reading.ichingReading.teachers ?? []).map((teacher) => (
                   <button key={teacher.key} type="button" aria-pressed={teacherKey === teacher.key} onClick={() => setTeacherKey(teacher.key)} className={`rounded-2xl border px-4 py-3 text-left transition ${teacherKey === teacher.key ? 'border-violet-200/70 bg-violet-300/20 text-violet-50' : 'border-white/10 bg-white/[0.04] text-white/65'}`}>
@@ -939,6 +1206,33 @@ function RedLuanHeartbeatExperience() {
             </>}
           </div>
 
+          {/* 滿格卻沒有任何回饋，這個計數器就只是裝飾。拆完的人該被接住，並且拿到下一步。 */}
+          {allGiftsOpened && (
+            <div className="mt-4 rounded-2xl border border-amber-200/35 bg-amber-300/[0.1] p-4">
+              {/*
+                沒填時辰的人只有一層可拆，講「1 層都拆完了」既怪又空。
+                他剛把看得到的部分讀完，正是最願意去問家裡自己幾點生的那一刻。
+              */}
+              {reading.ichingReading ? (
+                <>
+                  <p className="text-sm font-black text-amber-50">{giftFoldKeys.length} 層都拆完了</p>
+                  <p className="mt-1.5 text-xs leading-6 text-white/70">這一份你已經看完了。接下來要做的只有一件事：把月份放進行事曆，時間到了它會自己來提醒你。</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-black text-amber-50">看得到的部分，你都看完了</p>
+                  <p className="mt-1.5 text-xs leading-6 text-white/70">補上出生時辰，還有五層在等你：你的卦、上輩子相欠的那一筆、兩位老師的解讀，還有紫微夫妻宮。</p>
+                  <button
+                    type="button"
+                    onClick={jumpToHourPicker}
+                    className="mt-3 w-full rounded-2xl border border-cyan-100/55 bg-cyan-300/20 px-4 py-3 text-sm font-black text-cyan-50 transition"
+                  >
+                    補上時辰，解鎖剩下五層 →
+                  </button>
+                </>
+              )}
+            </div>
+          )}
           <p className="mt-4 text-[11px] leading-5 text-white/45">月份以節氣為界，不是國曆一號起算。</p>
         </section>}
 
@@ -1043,49 +1337,74 @@ function RedLuanHeartbeatExperience() {
           結尾原本只有免責＋返回首頁：客戶剛拿到「幾月會碰到誰」，卻沒有任何下一步。
           三個動作全在本機完成——行事曆不需要通知權限，分享優先用系統面板。
         */}
-        {reading.nextEncounters?.soulResonance && (
-          <section className="rounded-3xl border border-amber-200/25 bg-amber-300/[0.07] p-5">
-            <p className="text-sm font-black text-amber-100">接下來</p>
-            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+        <section className="rounded-3xl border border-amber-200/25 bg-amber-300/[0.07] p-5">
+          <p className="text-sm font-black text-amber-100">接下來</p>
+          <div className={`mt-3 grid gap-2 ${followUpEncounter ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
+            {/*
+              這張卡的結果是靜態的，行事曆是唯一會自己把客戶叫回來的東西。
+              引擎明明算得出未來一年的每一個機會月，以前卻只放一個——一年只接觸一次。
+            */}
+            {followUpEncounter && (
               <button
                 type="button"
-                onClick={() => setFollowUp(downloadRedLuanReminder(reminderOf(reading)) ? 'reminded' : 'failed')}
+                onClick={() => setFollowUp(downloadRedLuanReminder(reminderOf(reading), reminderMonthsOf(reading)) ? 'reminded' : 'failed')}
                 className="rounded-2xl border border-amber-200/45 bg-amber-300/15 px-4 py-4 text-left transition hover:bg-amber-300/25"
               >
-                <span className="block text-base font-black text-amber-50">提醒我 {Number(reading.nextEncounters.soulResonance.startsOn.slice(5, 7))} 月</span>
-                <span className="mt-1 block text-[11px] leading-4 text-amber-100/75">加進你自己的行事曆</span>
+                <span className="block text-base font-black text-amber-50">
+                  {reminderMonthsOf(reading).length > 1
+                    ? `把這 ${reminderMonthsOf(reading).length} 個月全放進行事曆`
+                    : `提醒我 ${Number(followUpEncounter.startsOn.slice(5, 7))} 月`}
+                </span>
+                <span className="mt-1 block text-[11px] leading-4 text-amber-100/75">未來一年的每一次，都幫你先記好</span>
               </button>
-              <button
-                type="button"
-                onClick={() => { void shareRedLuanReading(reminderOf(reading)).then((outcome) => setFollowUp(outcome === 'failed' ? 'failed' : outcome)); }}
-                className="rounded-2xl border border-rose-200/45 bg-rose-300/15 px-4 py-4 text-left transition hover:bg-rose-300/25"
-              >
-                <span className="block text-base font-black text-rose-50">分享這張卡</span>
-                <span className="mt-1 block text-[11px] leading-4 text-rose-100/75">傳給想跟你一起看的人</span>
-              </button>
-              <button
-                type="button"
-                onClick={startGuestReading}
-                className="rounded-2xl border border-cyan-200/45 bg-cyan-300/15 px-4 py-4 text-left transition hover:bg-cyan-300/25"
-              >
-                <span className="block text-base font-black text-cyan-50">幫朋友算一次</span>
-                <span className="mt-1 block text-[11px] leading-4 text-cyan-100/75">不會存進你的成長檔</span>
-              </button>
-            </div>
-            {followUp !== 'idle' && (
-              <p className="mt-3 text-xs leading-6 text-emerald-100" role="status" aria-live="polite">
-                {followUp === 'reminded' && '行事曆檔已下載，打開它就會加進你的行事曆，前一天會提醒你。'}
-                {followUp === 'shared' && '已開啟分享。'}
-                {followUp === 'copied' && '已複製到剪貼簿，可以直接貼給朋友。'}
-                {followUp === 'failed' && '這個裝置不支援，可以直接截圖分享。'}
-              </p>
             )}
-          </section>
-        )}
+            <button
+              type="button"
+              onClick={() => { void shareRedLuanReading(reminderOf(reading), reminderMonthsOf(reading).length).then((outcome) => setFollowUp(outcome === 'failed' ? 'failed' : outcome)); }}
+              className="rounded-2xl border border-rose-200/45 bg-rose-300/15 px-4 py-4 text-left transition hover:bg-rose-300/25"
+            >
+              <span className="block text-base font-black text-rose-50">分享這張卡</span>
+              <span className="mt-1 block text-[11px] leading-4 text-rose-100/75">傳給想跟你一起看的人</span>
+            </button>
+            <button
+              type="button"
+              onClick={startGuestReading}
+              className="rounded-2xl border border-cyan-200/45 bg-cyan-300/15 px-4 py-4 text-left transition hover:bg-cyan-300/25"
+            >
+              <span className="block text-base font-black text-cyan-50">幫朋友算一次</span>
+              <span className="mt-1 block text-[11px] leading-4 text-cyan-100/75">不會存進你的成長檔</span>
+            </button>
+          </div>
+          {/* 沒命中的人最需要被接住，以前這裡整段不渲染，他只拿到一行免責聲明。 */}
+          {!followUpEncounter && (
+            <p className="mt-3 text-xs leading-6 text-white/60">未來一年半沒有命中不代表沒有機會——這一路的力道不在時間上。與其等一個月份，不如把自己準備好。</p>
+          )}
+          {followUp !== 'idle' && (
+            <p className="mt-3 text-xs leading-6 text-emerald-100" role="status" aria-live="polite">
+              {followUp === 'reminded' && '行事曆檔已下載，打開它就會全部加進你的行事曆；每一個月份都會在開始前提醒你一次。'}
+              {followUp === 'shared' && '已開啟分享。'}
+              {followUp === 'copied' && '已複製到剪貼簿，可以直接貼給朋友。'}
+              {followUp === 'failed' && '這個裝置不支援，可以直接截圖分享。'}
+            </p>
+          )}
+        </section>
         <p className="text-[11px] leading-5 text-white/40">本服務是文化探索與自我反思，不是心理診斷，也不是確定預測。</p>
       </section>}
 
       <Link href="/" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-cyan-100 underline underline-offset-4">⌂ 返回首頁</Link>
+
+      {showJumpPill && jumpPillLabel && (
+        <button
+          type="button"
+          onClick={() => scrollToTarget(() => document.getElementById('red-luan-when'))}
+          aria-label={`回到你的紅鸞月・${jumpPillLabel}`}
+          className="fixed bottom-4 right-4 z-40 inline-flex min-h-11 items-center gap-1.5 rounded-full border border-rose-100/45 bg-[#2b0f1d]/92 px-4 py-2.5 text-xs font-black text-rose-50 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur transition hover:border-rose-100/70"
+        >
+          <span aria-hidden="true">鸞</span>
+          <span>{jumpPillLabel}</span>
+          <span aria-hidden="true">↑</span>
+        </button>
+      )}
     </main>
   );
 }
