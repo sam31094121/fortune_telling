@@ -239,13 +239,8 @@ export default function TarotPageClient() {
           <section className="fortune-card tarot-experience-hero tarot-experience-hero--primary border-cyan-200/25 p-5 sm:p-7">
             <div className="tarot-experience-copy">
                 {/* 主標視覺強化（2026-08-12 依指示）：超大置中主標，強烈視覺衝擊 */}
-                <div className="tarot-brand-kicker">
-                  <span aria-hidden="true" />
-                  <p>I-CHING TAROT</p>
-                  <span aria-hidden="true" />
-                </div>
                 <h1 className="tarot-brand-mark" aria-label="古老塔羅牌">
-                  <span className="tarot-brand-mark__ai">易經</span>
+                  <span className="tarot-brand-mark__ai">古老</span>
                   <span className="tarot-brand-mark__name">塔羅牌</span>
                 </h1>
                 <div className="tarot-brand-divider" aria-hidden="true">
