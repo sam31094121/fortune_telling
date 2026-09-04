@@ -979,10 +979,10 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
     // bringing back the level-24 satellite field.
     // Main strike colour is deliberately the inverse of its emitting point:
     // dark points throw a broad white bolt; light points throw a broad black bolt.
-    addLayeredBolt(leftMain, 0xffffff, 0xeaf6ff, .265, 0, false, 'W', 'core', true);
-    addLayeredBolt(rightMain, 0xffffff, 0xeaf6ff, .265, .025, false, 'E', 'core', true);
-    addLayeredBolt(bottomMain, 0x010104, 0x242433, .27, .05, true, 'S', 'core', true);
-    addLayeredBolt(topMain, 0x010104, 0x242433, .27, .075, true, 'N', 'core', true);
+    addLayeredBolt(leftMain, 0xffffff, 0xeaf6ff, .33, 0, false, 'W', 'core', true);
+    addLayeredBolt(rightMain, 0xffffff, 0xeaf6ff, .33, .025, false, 'E', 'core', true);
+    addLayeredBolt(bottomMain, 0x010104, 0x242433, .335, .05, true, 'S', 'core', true);
+    addLayeredBolt(topMain, 0x010104, 0x242433, .335, .075, true, 'N', 'core', true);
     addLayeredBolt(leftSurge, 0xffffff, 0x67e8f9, .088, .055, false, 'W');
     addLayeredBolt(rightSurge, 0xffffff, 0xfbbf24, .088, .075, false, 'E');
     addLayeredBolt(bottomSurge, 0x02020a, 0x818cf8, .092, .09, true, 'S');
@@ -1277,7 +1277,7 @@ function Level01AccumulatedLightningWeb({ strikes, flashStrikeId, lowPower = fal
         const guide = new THREE.CatmullRomCurve3(points, false, 'centripetal');
         const surface = guide.getPoints(lowPower ? 14 : 24).map((point) => point.normalize().multiplyScalar(1.092));
         const curve = new THREE.CatmullRomCurve3(surface, false, 'centripetal');
-        const geometry = new THREE.TubeGeometry(curve, lowPower ? 16 : 24, (core ? .03 : pathIndex === 0 ? .022 : .016) + Math.min(count, 3) * .003, lowPower ? 4 : 5, false);
+        const geometry = new THREE.TubeGeometry(curve, lowPower ? 16 : 24, (core ? .042 : pathIndex === 0 ? .022 : .016) + Math.min(count, 3) * .003, lowPower ? 4 : 5, false);
         const material = new THREE.MeshBasicMaterial({
           color,
           transparent: true,
@@ -1315,11 +1315,11 @@ function Level01AccumulatedLightningWeb({ strikes, flashStrikeId, lowPower = fal
     // force through the core web, then settle once. This avoids a dizzying
     // high-frequency shake while keeping the ball and cardinal points fixed.
     const impactAge = Math.max(0, flashAge - LEVEL01_STRIKE_IMPACT_SECONDS);
-    const impactWave = impactAge < .24 ? Math.sin((impactAge / .24) * Math.PI) * (1 - impactAge / .24) : 0;
-    web.scale.x *= 1 + impactWave * .045;
-    web.scale.y *= 1 - impactWave * .032;
-    web.scale.z *= 1 + impactWave * .068;
-    web.position.z += impactWave * .014;
+    const impactWave = impactAge < .32 ? Math.sin((impactAge / .32) * Math.PI) * (1 - impactAge / .32) : 0;
+    web.scale.x *= 1 + impactWave * .075;
+    web.scale.y *= 1 - impactWave * .052;
+    web.scale.z *= 1 + impactWave * .11;
+    web.position.z += impactWave * .022;
     web.children.forEach((child) => {
       const mesh = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
       const baseOpacity = Number(mesh.material.userData.baseOpacity ?? .12);
