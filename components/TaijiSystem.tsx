@@ -1111,25 +1111,26 @@ function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower =
   return <primitive object={group} />;
 }
 
-/* Persistent scars are deliberately separate from the live discharge. Their
-   paths live in the Taiji sphere's local space and cling to its curved shell;
-   normal depth testing means the far hemisphere is genuinely occluded until
-   the visitor rotates to it, rather than reading as a screen overlay. */
-function Level01LightningScars({ strikes, lowPower = false, ballWorldRef }: {
-  strikes: Array<{ id: number; origin: Level01StrikeOrigin; variant: number }>;
+/* A lightning-wood trace is a single, bounded after-image. It lives in sphere
+   coordinates and retracts along its exact struck route rather than building a
+   permanent screen-facing history. */
+function Level01LightningScars({ scar, lowPower = false, ballWorldRef }: {
+  scar: { id: number; origin: Level01StrikeOrigin; variant: number } | null;
   lowPower?: boolean;
   ballWorldRef?: { current: THREE.Mesh | null };
 }) {
+  const startedAtRef = useRef<number | null>(null);
   const scarGroup = useMemo(() => {
     const root = new THREE.Group();
+    if (!scar) return root;
     const originPoint: Record<Level01StrikeOrigin, THREE.Vector3> = {
       N: new THREE.Vector3(0, .88, .24), E: new THREE.Vector3(.88, 0, .24),
       S: new THREE.Vector3(0, -.88, .24), W: new THREE.Vector3(-.88, 0, .24),
     };
-    strikes.forEach(({ origin, variant }, strikeIndex) => {
-      const seed = variant * 1.73 + strikeIndex * .91;
-      const start = originPoint[origin];
-      const sign = origin === 'E' || origin === 'N' ? 1 : -1;
+    const { origin, variant } = scar;
+    const seed = variant * 1.73;
+    const start = originPoint[origin];
+    const sign = origin === 'E' || origin === 'N' ? 1 : -1;
       const paths = [
         [start, new THREE.Vector3(sign * .48, .32 + Math.sin(seed) * .16, .58), new THREE.Vector3(.06, -.1, .7), new THREE.Vector3(-sign * .4, -.44, .48)],
         // A companion seam travels over the side and onto the back hemisphere.
@@ -1137,7 +1138,7 @@ function Level01LightningScars({ strikes, lowPower = false, ballWorldRef }: {
         // distinct accumulated mark when the ball is turned around.
         [start, new THREE.Vector3(sign * .52, -.22 + Math.cos(seed) * .14, -.36), new THREE.Vector3(-.14, .36, -.62), new THREE.Vector3(-sign * .48, .16, -.28)],
       ];
-      paths.forEach((points, pathIndex) => {
+    paths.forEach((points, pathIndex) => {
         const guideCurve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
         // Project the whole sampled curve back to the sphere: a TubeGeometry
         // otherwise joins control points through the ball's centre and makes a
@@ -1164,7 +1165,7 @@ function Level01LightningScars({ strikes, lowPower = false, ballWorldRef }: {
         root.add(mesh);
         const emberGeometry = new THREE.TubeGeometry(curve, lowPower ? 16 : 24, pathIndex === 0 ? .008 : .005, lowPower ? 3 : 4, false);
         const emberMaterial = new THREE.MeshBasicMaterial({
-          color: (variant + strikeIndex + pathIndex) % 3 === 0 ? 0x9d3412 : 0x5b160b,
+          color: (variant + pathIndex) % 3 === 0 ? 0x9d3412 : 0x5b160b,
           transparent: true,
           opacity: pathIndex === 0 ? .18 : .12,
           depthWrite: false,
@@ -1176,19 +1177,54 @@ function Level01LightningScars({ strikes, lowPower = false, ballWorldRef }: {
         ember.renderOrder = 6;
         root.add(ember);
       });
-    });
     return root;
-  }, [lowPower, strikes]);
+  }, [lowPower, scar]);
+
+  useEffect(() => {
+    startedAtRef.current = null;
+    scarGroup.children.forEach((child) => {
+      const mesh = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
+      mesh.material.userData.baseOpacity = mesh.material.opacity;
+      mesh.material.userData.baseColor = mesh.material.color.clone();
+      mesh.geometry.setDrawRange(0, 0);
+    });
+  }, [scarGroup]);
 
   // Paths are authored in the sphere's local coordinates. Keep their root on
   // the real sphere transform so marks cannot stay screen-fixed while a user
   // inspects, drags, or later moves the Taiji.
-  useFrame(() => {
+  useFrame(({ clock }) => {
     const ball = ballWorldRef?.current;
-    if (!ball) return;
-    ball.getWorldPosition(scarGroup.position);
-    ball.getWorldQuaternion(scarGroup.quaternion);
-    ball.getWorldScale(scarGroup.scale);
+    if (ball) {
+      ball.getWorldPosition(scarGroup.position);
+      ball.getWorldQuaternion(scarGroup.quaternion);
+      ball.getWorldScale(scarGroup.scale);
+    }
+    if (!scar) return;
+    if (startedAtRef.current == null) startedAtRef.current = clock.elapsedTime;
+    const age = clock.elapsedTime - startedAtRef.current;
+    // Live bolt reaches the sphere first; trace grows, remains inspectable,
+    // then its endpoint travels back to the origin over the same geometry.
+    const draw = age < .62 ? 0
+      : age < .84 ? (age - .62) / .22
+        : age < 1.74 ? 1
+          : Math.max(0, 1 - (age - 1.74) / 1.12);
+    const retract = age < 1.74 ? 0 : Math.min(1, (age - 1.74) / 1.12);
+    // White-node strikes recover in a crisp cyan current; black-node strikes
+    // recover in indigo. The draw range always contracts toward path index 0,
+    // which is the actual tapped point, so colour and direction stay truthful.
+    const recoveryColor = scar.origin === 'N' || scar.origin === 'S'
+      ? new THREE.Color(0x67e8f9)
+      : new THREE.Color(0x818cf8);
+    const recoveryPulse = .64 + .36 * (Math.sin(age * 34) * .5 + .5);
+    scarGroup.children.forEach((child) => {
+      const mesh = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
+      const count = mesh.geometry.index?.count ?? mesh.geometry.attributes.position.count;
+      mesh.geometry.setDrawRange(0, Math.max(0, Math.round(count * draw)));
+      const baseColor = mesh.material.userData.baseColor as THREE.Color | undefined;
+      if (baseColor) mesh.material.color.copy(baseColor).lerp(recoveryColor, retract * recoveryPulse);
+      mesh.material.opacity = Number(mesh.material.userData.baseOpacity ?? .4) * draw * (retract ? recoveryPulse : 1);
+    });
   });
 
   useEffect(() => () => {
@@ -1199,7 +1235,7 @@ function Level01LightningScars({ strikes, lowPower = false, ballWorldRef }: {
     });
   }, [scarGroup]);
 
-  return <primitive object={scarGroup} />;
+  return scar ? <primitive object={scarGroup} /> : null;
 }
 
 /** 光線科技③：黃金時刻掃光——主光緩慢繞行，球面高光如夕陽流動（人類最愛的 golden hour） */
@@ -2283,9 +2319,10 @@ export default function TaijiSystem({
   const [lightningOrigin, setLightningOrigin] = useState<Level01StrikeOrigin>('N');
   const [lightningVariant, setLightningVariant] = useState(0);
   const [lightningStrikeId, setLightningStrikeId] = useState(0);
-  const [lightningScars, setLightningScars] = useState<Array<{ id: number; origin: Level01StrikeOrigin; variant: number }>>([]);
+  const [lightningScar, setLightningScar] = useState<{ id: number; origin: Level01StrikeOrigin; variant: number } | null>(null);
   const lightningVariantRef = useRef(0);
   const lightningReleaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lightningScarClearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchReboundTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastClickAtRef = useRef(0);
   const touchRef = useRef({ active: false, x: 0, y: 0 });
@@ -2447,15 +2484,22 @@ export default function TaijiSystem({
 
   const triggerLightning = useCallback((strikeOrigin: Level01StrikeOrigin) => {
     if (lightningReleaseTimerRef.current) clearTimeout(lightningReleaseTimerRef.current);
+    if (lightningScarClearTimerRef.current) clearTimeout(lightningScarClearTimerRef.current);
     const variant = lightningVariantRef.current;
     setLightningOrigin(strikeOrigin);
     setLightningVariant(variant);
     lightningVariantRef.current = (variant + 1) % 8;
     setLightningStrikeId((id) => {
       const nextId = id + 1;
-      setLightningScars((scars) => [...scars.slice(-11), { id: nextId, origin: strikeOrigin, variant }]);
+      setLightningScar({ id: nextId, origin: strikeOrigin, variant });
       return nextId;
     });
+    // .62s impact arrival + .22s traced growth + .90s inspection hold +
+    // 1.12s endpoint-first retraction. State then unmounts the completed path.
+    lightningScarClearTimerRef.current = setTimeout(() => {
+      setLightningScar(null);
+      lightningScarClearTimerRef.current = null;
+    }, 2860);
     setTouchActive(true);
     // 雷網只在固定的太極表面上生長：保留既有聲音/觸覺回饋，但不以這個
     // 入雷口重新啟動感測器或任何會改變球體姿態的進場動畫。
@@ -2505,6 +2549,7 @@ export default function TaijiSystem({
   useEffect(() => () => {
     if (touchReboundTimerRef.current) clearTimeout(touchReboundTimerRef.current);
     if (lightningReleaseTimerRef.current) clearTimeout(lightningReleaseTimerRef.current);
+    if (lightningScarClearTimerRef.current) clearTimeout(lightningScarClearTimerRef.current);
   }, []);
 
   /* textureUrl / videoUrl 保留 API 相容；視覺已改為程式生成圖騰，不再需要外部貼圖 */
@@ -2578,7 +2623,7 @@ export default function TaijiSystem({
             <>
               <Level01SpatialLightning active={touchActive} origin={lightningOrigin} variant={lightningVariant} strikeId={lightningStrikeId} lowPower={canvasQuality.lowPower} />
               <Level01LightningScars
-                strikes={lightningScars}
+                scar={lightningScar}
                 lowPower={canvasQuality.lowPower}
                 ballWorldRef={level01BallRef}
               />
