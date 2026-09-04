@@ -20,30 +20,25 @@ type ThunderProfile = {
 };
 
 const THUNDER_SOURCES: readonly ThunderSource[] = [
-  { path: '/audio/taiji/lightning-strike.mp3' },
-  { path: '/audio/taiji/dry-thunder.mp3' },
-  { path: '/audio/taiji/loud-thunder.mp3' },
-  { path: '/audio/taiji/peals-of-thunder.mp3' },
-  { path: '/audio/taiji/earth-rift.mp3' },
-  { path: '/audio/taiji/tide-surge.flac' },
-  { path: '/audio/taiji/typhoon-wind.m4a' },
-  { path: '/audio/taiji/tornado-wind.m4a' },
+  { path: '/audio/taiji/cc0-sfx-100-v2/sfx100v2_thunder_01.ogg' },
+  { path: '/audio/taiji/cc0-sfx-100-v2/sfx100v2_wood_03.ogg' },
+  { path: '/audio/taiji/cc0-fire-crackle.ogg' },
+  { path: '/audio/taiji/cc0-ignition.flac' },
 ] as const;
 
-// The first four recordings are unchanged. The final four are short CC0 field
-// recordings that give each natural-force strike a distinct, physical texture.
+// CC0 palette: thunder (impact), wood (fracture), fire (ember) and ignition
+// (electrical spark). Eight profiles reuse this tightly related palette with
+// different timing/filtering, so consecutive strikes feel like one evolving
+// burned object rather than eight copies of the same hit.
 const THUNDER_PROFILES: readonly ThunderProfile[] = [
-  // Original four voices: preserve their existing order and acoustic settings.
-  { sourceIndex: 0, maxDuration: 1.08, playbackRate: 1, gain: .88 },
-  { sourceIndex: 1, maxDuration: 3.6, playbackRate: .98, gain: .78 },
-  { sourceIndex: 2, maxDuration: 4.4, playbackRate: 1.02, gain: .72 },
-  { sourceIndex: 3, maxDuration: 4.8, playbackRate: .96, gain: .7 },
-  // New natural-force recordings: a small delayed tail blends each release
-  // into the next contact without turning the experience into ambient audio.
-  { sourceIndex: 4, maxDuration: 4.6, playbackRate: 1, gain: .68, lowpassHz: 980, tailSeconds: .18, tailMix: .16 }, // 地裂
-  { sourceIndex: 5, maxDuration: 5.1, playbackRate: 1, gain: .64, lowpassHz: 5200, tailSeconds: .28, tailMix: .18 }, // 潮湧
-  { sourceIndex: 6, maxDuration: 5.2, playbackRate: 1, gain: .58, lowpassHz: 6800, tailSeconds: .22, tailMix: .14 }, // 颱風
-  { sourceIndex: 7, maxDuration: 5.2, playbackRate: 1, gain: .6, lowpassHz: 5400, tailSeconds: .16, tailMix: .16 }, // 龍捲風
+  { sourceIndex: 3, maxDuration: .78, playbackRate: 1.08, gain: .46, lowpassHz: 6800, tailSeconds: .06, tailMix: .06 },
+  { sourceIndex: 0, maxDuration: 1.12, playbackRate: .96, gain: .66, lowpassHz: 3400, tailSeconds: .12, tailMix: .12 },
+  { sourceIndex: 1, maxDuration: .86, playbackRate: .9, gain: .54, lowpassHz: 2100, tailSeconds: .15, tailMix: .14 },
+  { sourceIndex: 2, maxDuration: 1.4, playbackRate: 1.04, gain: .3, lowpassHz: 5400, tailSeconds: .22, tailMix: .2 },
+  { sourceIndex: 0, maxDuration: 1.42, playbackRate: .82, gain: .72, lowpassHz: 1600, tailSeconds: .26, tailMix: .2 },
+  { sourceIndex: 1, maxDuration: 1.06, playbackRate: .76, gain: .62, lowpassHz: 1350, tailSeconds: .28, tailMix: .24 },
+  { sourceIndex: 2, maxDuration: 1.7, playbackRate: .9, gain: .34, lowpassHz: 3600, tailSeconds: .34, tailMix: .28 },
+  { sourceIndex: 0, maxDuration: 1.65, playbackRate: .72, gain: .76, lowpassHz: 1120, tailSeconds: .38, tailMix: .3 },
 ] as const;
 
 const ORIGIN_PAN: Record<Level01StrikeOrigin, number> = {

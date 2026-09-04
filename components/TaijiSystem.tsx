@@ -717,7 +717,10 @@ function TaijiPerformanceGovernor({ active }: { active: boolean }) {
   return null;
 }
 
-function Level01SpatialLightning({ active, origin, variant, lowPower = false }: { active: boolean; origin: Level01StrikeOrigin; variant: number; lowPower?: boolean }) {
+function Level01SpatialLightning({ active, origin, variant, strikeId, lowPower = false }: { active: boolean; origin: Level01StrikeOrigin; variant: number; strikeId: number; lowPower?: boolean }) {
+  // Kept in the render contract so a repeated click can be distinguished from
+  // a held pointer by React; the live envelope itself remains frame-driven.
+  void strikeId;
   const wasActiveRef = useRef(false);
   const strikeStartedAtRef = useRef(-Infinity);
   const previewStartedAtRef = useRef<number | null>(null);
@@ -1106,6 +1109,74 @@ function Level01SpatialLightning({ active, origin, variant, lowPower = false }: 
   });
 
   return <primitive object={group} />;
+}
+
+/* Persistent scars are deliberately separate from the live discharge. The
+   Taiji mesh stays untouched: these are small, depth-tested spatial seams that
+   sit both in front of and behind the sphere, so each strike can remain as a
+   readable part of the growing network without rotating or deforming the ball. */
+function Level01LightningScars({ strikes, lowPower = false }: {
+  strikes: Array<{ id: number; origin: Level01StrikeOrigin; variant: number }>;
+  lowPower?: boolean;
+}) {
+  const scarGroup = useMemo(() => {
+    const root = new THREE.Group();
+    const originPoint: Record<Level01StrikeOrigin, THREE.Vector3> = {
+      N: new THREE.Vector3(0, 1.24, .18), E: new THREE.Vector3(1.24, 0, .18),
+      S: new THREE.Vector3(0, -1.24, .18), W: new THREE.Vector3(-1.24, 0, .18),
+    };
+    strikes.forEach(({ origin, variant }, strikeIndex) => {
+      const seed = variant * 1.73 + strikeIndex * .91;
+      const start = originPoint[origin];
+      const sign = origin === 'E' || origin === 'N' ? 1 : -1;
+      const paths = [
+        [start, new THREE.Vector3(sign * .55, .42 + Math.sin(seed) * .2, 1.19), new THREE.Vector3(.08, -.12, 1.3), new THREE.Vector3(-sign * .48, -.55, 1.06)],
+        [start, new THREE.Vector3(sign * .66, -.28 + Math.cos(seed) * .18, .92), new THREE.Vector3(-.18, .46, 1.24), new THREE.Vector3(-sign * .62, .2, .76)],
+      ];
+      paths.forEach((points, pathIndex) => {
+        const curve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
+        // 雷擊木：先留下厚而不規則的炭化裂縫，再在縫心保留極弱的餘燼。
+        // 深色外殼是累積的主體，不讓雷網退成乾淨的藍白光線。
+        const geometry = new THREE.TubeGeometry(curve, lowPower ? 18 : 28, pathIndex === 0 ? .027 : .019, lowPower ? 4 : 5, false);
+        const material = new THREE.MeshBasicMaterial({
+          color: 0x160806,
+          transparent: true,
+          opacity: pathIndex === 0 ? .82 : .66,
+          depthWrite: false,
+          depthTest: true,
+          blending: THREE.NormalBlending,
+          toneMapped: false,
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.renderOrder = 5;
+        root.add(mesh);
+        const emberGeometry = new THREE.TubeGeometry(curve, lowPower ? 16 : 24, pathIndex === 0 ? .008 : .005, lowPower ? 3 : 4, false);
+        const emberMaterial = new THREE.MeshBasicMaterial({
+          color: (variant + strikeIndex + pathIndex) % 3 === 0 ? 0x9d3412 : 0x5b160b,
+          transparent: true,
+          opacity: pathIndex === 0 ? .34 : .22,
+          depthWrite: false,
+          depthTest: true,
+          blending: THREE.AdditiveBlending,
+          toneMapped: false,
+        });
+        const ember = new THREE.Mesh(emberGeometry, emberMaterial);
+        ember.renderOrder = 6;
+        root.add(ember);
+      });
+    });
+    return root;
+  }, [lowPower, strikes]);
+
+  useEffect(() => () => {
+    scarGroup.children.forEach((child) => {
+      const mesh = child as THREE.Mesh<THREE.TubeGeometry, THREE.MeshBasicMaterial>;
+      mesh.geometry.dispose();
+      mesh.material.dispose();
+    });
+  }, [scarGroup]);
+
+  return <primitive object={scarGroup} />;
 }
 
 /** 光線科技③：黃金時刻掃光——主光緩慢繞行，球面高光如夕陽流動（人類最愛的 golden hour） */
@@ -2188,7 +2259,10 @@ export default function TaijiSystem({
   const [touchRebounding, setTouchRebounding] = useState(false);
   const [lightningOrigin, setLightningOrigin] = useState<Level01StrikeOrigin>('N');
   const [lightningVariant, setLightningVariant] = useState(0);
+  const [lightningStrikeId, setLightningStrikeId] = useState(0);
+  const [lightningScars, setLightningScars] = useState<Array<{ id: number; origin: Level01StrikeOrigin; variant: number }>>([]);
   const lightningVariantRef = useRef(0);
+  const lightningReleaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchReboundTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastClickAtRef = useRef(0);
   const touchRef = useRef({ active: false, x: 0, y: 0 });
@@ -2339,26 +2413,42 @@ export default function TaijiSystem({
     };
   }, []);
 
+  const triggerLightning = useCallback((strikeOrigin: Level01StrikeOrigin) => {
+    if (lightningReleaseTimerRef.current) clearTimeout(lightningReleaseTimerRef.current);
+    const variant = lightningVariantRef.current;
+    setLightningOrigin(strikeOrigin);
+    setLightningVariant(variant);
+    lightningVariantRef.current = (variant + 1) % 8;
+    setLightningStrikeId((id) => {
+      const nextId = id + 1;
+      setLightningScars((scars) => [...scars.slice(-11), { id: nextId, origin: strikeOrigin, variant }]);
+      return nextId;
+    });
+    setTouchActive(true);
+    // 雷網只在固定的太極表面上生長：保留既有聲音/觸覺回饋，但不以這個
+    // 入雷口重新啟動感測器或任何會改變球體姿態的進場動畫。
+    if (displayLayer === 1) level01Controller.playTouchReboundFeedback('press', strikeOrigin);
+    lightningReleaseTimerRef.current = setTimeout(() => {
+      setTouchActive(false);
+      lightningReleaseTimerRef.current = null;
+    }, 96);
+  }, [displayLayer, level01Controller]);
+
   const handleTouchStart = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     if (touchReboundTimerRef.current) clearTimeout(touchReboundTimerRef.current);
     setTouchRebounding(false);
     touchRef.current.active = true;
     touchRef.current.x = event.clientX;
     touchRef.current.y = event.clientY;
-    setTouchActive(true);
     const rect = event.currentTarget.getBoundingClientRect();
     const dx = event.clientX - (rect.left + rect.width / 2);
     const dy = event.clientY - (rect.top + rect.height / 2);
     const strikeOrigin: Level01StrikeOrigin = Math.abs(dx) > Math.abs(dy)
       ? (dx >= 0 ? 'E' : 'W')
       : (dy >= 0 ? 'S' : 'N');
-    setLightningOrigin(strikeOrigin);
-    setLightningVariant(lightningVariantRef.current);
-    lightningVariantRef.current = (lightningVariantRef.current + 1) % 8;
-    if (displayLayer === 1 && level01Controller.pose.permission === 'idle') void level01Controller.armFromUserGesture(strikeOrigin);
-    else if (displayLayer === 1) level01Controller.playTouchReboundFeedback('press', strikeOrigin);
+    triggerLightning(strikeOrigin);
     if (displayLayer !== 1 && navigator.vibrate) navigator.vibrate(8);
-  }, [displayLayer, level01Controller]);
+  }, [displayLayer, triggerLightning]);
 
   const handleTouchMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     if (!touchRef.current.active) return;
@@ -2382,6 +2472,7 @@ export default function TaijiSystem({
 
   useEffect(() => () => {
     if (touchReboundTimerRef.current) clearTimeout(touchReboundTimerRef.current);
+    if (lightningReleaseTimerRef.current) clearTimeout(lightningReleaseTimerRef.current);
   }, []);
 
   /* textureUrl / videoUrl 保留 API 相容；視覺已改為程式生成圖騰，不再需要外部貼圖 */
@@ -2452,7 +2543,10 @@ export default function TaijiSystem({
           <AdaptiveEvents />
           <Level01FrameBinder controller={level01Controller} enabled={displayLayer === 1} />
           {displayLayer === 1 && level01Controller.pose.motionGameEnabled && (
-            <Level01SpatialLightning active={touchActive} origin={lightningOrigin} variant={lightningVariant} lowPower={canvasQuality.lowPower} />
+            <>
+              <Level01SpatialLightning active={touchActive} origin={lightningOrigin} variant={lightningVariant} strikeId={lightningStrikeId} lowPower={canvasQuality.lowPower} />
+              <Level01LightningScars strikes={lightningScars} lowPower={canvasQuality.lowPower} />
+            </>
           )}
           <TaijiPerformanceGovernor active={touchActive} />
           {/* 真實感核心（2026-08-14）：程式生成影棚環境光（IBL）——
@@ -2480,7 +2574,10 @@ export default function TaijiSystem({
             ultraTexture={canvasQuality.ultraTexture}
             onCoreClick={handleCoreClick}
             level01PoseRef={level01PoseRef}
-            level01ImpactActive={touchActive}
+            // Impact energy is carried by the lightning mesh itself. Keeping
+            // this false prevents any recoil, scale or orientation change to
+            // the fixed Taiji ball.
+            level01ImpactActive={false}
             onLevel01Reentry={() => level01Controller.playReentryWhoosh()}
             ballWorldRef={level01BallRef}
           />
@@ -2491,7 +2588,9 @@ export default function TaijiSystem({
             enableDamping
             dampingFactor={0.11}
             rotateSpeed={0.52}
-            autoRotate={!touchActive && !level01Driving}
+            // The user may still drag to inspect the 3D sphere, but the resting
+            // ball must not rotate by itself while the lightning wood accumulates.
+            autoRotate={false}
             autoRotateSpeed={0.16}
             touches={{ ONE: THREE.TOUCH.ROTATE }}
           />
@@ -2502,6 +2601,7 @@ export default function TaijiSystem({
           visible={displayLayer === 1}
           interacting={touchActive}
           onDrivingChange={setLevel01Driving}
+          onStrike={triggerLightning}
         />
         {/* 客戶頁只保留可直接點擊的太極圖騰；倍率／步數／解析度等驗收輔助資訊不對外顯示。 */}
       </div>

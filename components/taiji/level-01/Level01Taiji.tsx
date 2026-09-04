@@ -46,11 +46,13 @@ function RuntimeOverlay({
   visible,
   interacting,
   onDrivingChange,
+  onStrike,
 }: {
   controller: Level01TaijiMotionController;
   visible: boolean;
   interacting?: boolean;
   onDrivingChange?: (driving: boolean) => void;
+  onStrike?: (origin: 'N' | 'E' | 'S' | 'W') => void;
 }) {
   const [pose, setPose] = useState<Level01Pose>(() => clonePose(controller.pose));
   const [strikeCount, setStrikeCount] = useState(0);
@@ -153,6 +155,19 @@ function RuntimeOverlay({
           <span key={`particle-east-${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={`${styles.chaseCounterLight} ${styles.chaseParticleEast}`} aria-hidden="true" />
           <span key={`${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={styles.chaseLight} />
           <span key={`yin-${pose.motionGame.chase.direction}-${pose.motionGame.chase.hitId}`} className={styles.chaseCounterLight} data-screen-arrow-target="level01-yin-light" aria-hidden="true" />
+          {(['N', 'E', 'S', 'W'] as const).map((origin) => (
+            <button
+              key={`strike-entry-${origin}`}
+              type="button"
+              className={`${styles.strikeEntry} ${styles[`strikeEntry${origin}`]}`}
+              aria-label={`從${origin === 'N' ? '上方白點' : origin === 'E' ? '右側黑點' : origin === 'S' ? '下方白點' : '左側黑點'}引入雷擊`}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onStrike?.(origin);
+              }}
+            />
+          ))}
         </div>
       )}
 
@@ -186,6 +201,7 @@ export default function Level01TaijiOverlay(props: {
   visible: boolean;
   interacting?: boolean;
   onDrivingChange?: (driving: boolean) => void;
+  onStrike?: (origin: 'N' | 'E' | 'S' | 'W') => void;
 }) {
   return (
     <Level01ErrorBoundary fallback={<div className={styles.errorFallback}>第一層已切換為安全觀賞模式</div>}>

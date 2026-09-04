@@ -218,6 +218,32 @@
 .chaseField .chasePhotonNorth { left: 50%; top: 3%; --core-phase: 0s; }
 .chaseField .chaseParticleEast { left: 97%; top: 50%; --core-phase: -.2875s; }
 
+/* The four existing cardinal dots stay visually and spatially unchanged. These
+   transparent, generously-sized controls make each one a real touch entry for
+   a strike without turning the resting scene into a moving control panel. */
+.strikeEntry {
+  position: absolute;
+  z-index: 8;
+  width: 28px;
+  height: 28px;
+  margin: -14px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.strikeEntryN { left: 50%; top: 3%; }
+.strikeEntryE { left: 97%; top: 50%; }
+.strikeEntryS { left: 50%; top: 90%; }
+.strikeEntryW { left: 3%; top: 50%; }
+.strikeEntry:focus-visible { outline: 2px solid rgba(253, 230, 138, .94); outline-offset: 4px; }
+
 .overlay[data-taiji-interacting='true'] .chaseLight,
 .overlay[data-taiji-interacting='true'] .chaseCounterLight {
   animation: weaponCoreDischarge .52s cubic-bezier(.12,.72,.2,1) both;
