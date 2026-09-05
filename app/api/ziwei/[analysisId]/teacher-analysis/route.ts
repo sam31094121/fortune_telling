@@ -5,6 +5,7 @@ import { buildPalaceContext, ZIWEI_TEACHER_PALACE_ORDER } from '@/lib/ziwei-teac
 import { runTeacher } from '@/lib/ziwei-teacher/teachers';
 import type { PalaceId, TeacherId } from '@/lib/ziwei-teacher/types';
 import type { ZiweiBirthInput } from '@/lib/ziwei/engine';
+import { runThreeInOne } from '@/lib/three-in-one';
 
 /**
  * 紫微三老師 API（規格「十七」）
@@ -59,6 +60,16 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   const chart = record.chart;
+  const verifiedInput = chart.birthInput;
+  const threeInOne = await runThreeInOne({
+    birthDate: verifiedInput.date,
+    birthTime: null,
+    hourBranchIndex: verifiedInput.timeIndex === 12 ? 0 : verifiedInput.timeIndex,
+    gender: verifiedInput.gender === '女' ? 'female' : 'male',
+  });
+  if (threeInOne.status !== 'PASSED') {
+    return friendlyErrorResponse(requestId, 'THREE_IN_ONE_LOCKED', '🔒 三合一核對未完成，老師解盤暫不開啟。', 422);
+  }
   const nowBucket = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' }).format(new Date());
   const cacheKey = hashedCacheKey([analysisId, palaceId, teacherId, chart.engineVersion, PROMPT_VERSION, nowBucket]);
   const cached = teacherCache.get(cacheKey);

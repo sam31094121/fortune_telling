@@ -73,4 +73,13 @@ assert.ok(!pageWithoutComments.includes('良辰暫定盤'), '無時辰不得在�
 const insightEngine = fs.readFileSync(path.join(root, 'lib/insight-engine.ts'), 'utf8');
 assert.ok(!insightEngine.includes('系統依生日自動選用良辰吉時'), '後端提示不得把未知時辰說成自動選良辰');
 
+for (const route of [
+  'app/api/ziwei/[analysisId]/teacher-analysis/route.ts',
+  'app/api/ziwei/[analysisId]/entertainment-analysis/route.ts',
+]) {
+  const routeSource = fs.readFileSync(path.join(root, route), 'utf8');
+  assert.ok(routeSource.includes('runThreeInOne'), `${route} 必須經過三合一驗證`);
+  assert.ok(routeSource.includes("threeInOne.status !== 'PASSED'"), `${route} 未通過三合一時必須鎖定`);
+}
+
 console.log('PASS: 前端不編結論、不做已否認的宣稱、無時辰不是死路');

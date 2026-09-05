@@ -6,6 +6,7 @@ import { runEntertainmentTeacher } from '@/lib/ziwei-teacher/entertainment';
 import type { EntertainmentTeacherId } from '@/lib/ziwei-teacher/entertainment-types';
 import type { PalaceId } from '@/lib/ziwei-teacher/types';
 import type { ZiweiBirthInput } from '@/lib/ziwei/engine';
+import { runThreeInOne } from '@/lib/three-in-one';
 
 /**
  * 紫微娛樂老師 API（恐怖／鬼魅）
@@ -58,6 +59,16 @@ export async function POST(request: Request, context: RouteContext) {
     return friendlyErrorResponse(requestId, 'CHART_NOT_FOUND', '找不到已驗證的命盤，請重新完成一次紫微分析。', 404);
   }
   const chart = record.chart;
+  const verifiedInput = chart.birthInput;
+  const threeInOne = await runThreeInOne({
+    birthDate: verifiedInput.date,
+    birthTime: null,
+    hourBranchIndex: verifiedInput.timeIndex === 12 ? 0 : verifiedInput.timeIndex,
+    gender: verifiedInput.gender === '女' ? 'female' : 'male',
+  });
+  if (threeInOne.status !== 'PASSED') {
+    return friendlyErrorResponse(requestId, 'THREE_IN_ONE_LOCKED', '🔒 三合一核對未完成，鬼魅模式暫不開啟。', 422);
+  }
 
   const cacheKey = hashedCacheKey([analysisId, palaceId, teacherId, chart.engineVersion, PROMPT_VERSION]);
   const cached = entertainmentCache.get(cacheKey);
