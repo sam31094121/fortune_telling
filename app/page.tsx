@@ -3065,11 +3065,11 @@ export default function HomePage() {
                 <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-rose-100/40 bg-rose-200/10 font-serif text-3xl font-black text-rose-100 shadow-[0_0_28px_rgba(251,113,133,0.24)]" aria-hidden="true">鸞</div>
                 <div className="min-w-0 flex-1">
                   <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-rose-50 sm:text-2xl">桃花・紅鸞心動</h2>
-                  <p className="mt-1 text-xs leading-5 text-rose-50/75">算出你下一次紅鸞心動是哪個月，還有會跟你來電的是哪一型的人。</p>
+                  <p className="mt-1 text-xs leading-5 text-rose-50/75">抽出心動月份、對象類型與相遇提示。</p>
                 </div>
               </div>
               <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-rose-100/45 bg-rose-200/12 px-5 py-3 text-xs font-bold text-rose-50 transition group-hover:bg-rose-200/22">
-                <span>算我的紅鸞</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
+                <span>抽出我的心動月份</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
               </div>
             </Link>
           )}

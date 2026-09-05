@@ -844,7 +844,15 @@ function RedLuanHeartbeatExperience() {
       <header className="rounded-3xl border border-rose-200/25 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.18),transparent_44%),linear-gradient(135deg,rgba(31,17,34,0.98),rgba(9,17,35,0.98))] p-6 shadow-[0_18px_60px_rgba(244,63,94,0.13)]">
         <p className="text-xs font-black tracking-[0.22em] text-rose-200">桃花・紅鸞</p>
         <h1 className="mt-2 font-serif text-3xl font-black text-rose-50">桃花・紅鸞心動</h1>
-        <p className="mt-3 text-sm leading-7 text-white/75">填生日和時辰，算出你下一次紅鸞心動是什麼時候、會碰到哪一型的人。</p>
+        <p className="mt-3 text-sm leading-7 text-white/75">抽出下一次心動的月份與對象。</p>
+        <div className="mt-4 grid grid-cols-3 gap-2" aria-label="完成資料後可解鎖三份結果">
+          {['心動月份', '對象類型', '相遇提示'].map((label) => (
+            <div key={label} className="rounded-2xl border border-rose-100/20 bg-black/20 px-2 py-3 text-center">
+              <span className="block text-base" aria-hidden="true">🔒</span>
+              <span className="mt-1 block text-[11px] font-black text-rose-50/80">{label}</span>
+            </div>
+          ))}
+        </div>
       </header>
 
       <section className="red-luan-unified-flow mt-5 rounded-3xl border border-white/12 bg-slate-950/70 p-5 shadow-[0_18px_48px_rgba(2,6,23,0.35)]">
@@ -891,7 +899,7 @@ function RedLuanHeartbeatExperience() {
           missing={missing}
           disabled={loading}
           isSubmitting={loading}
-          submitLabel="算我的紅鸞"
+          submitLabel="抽出我的心動月份"
           loadingLabel="推算中…"
           dateAccent="amber"
           // 時辰決定卦象與紫微夫妻宮，預先塞一個值等於替客戶決定他的命盤。
@@ -909,7 +917,7 @@ function RedLuanHeartbeatExperience() {
           onClick={() => { void submit(form); }}
           className="mt-5 inline-flex w-full items-center justify-center rounded-full border border-amber-100/65 bg-amber-300/20 px-6 py-4 text-sm font-black text-amber-50 shadow-[0_0_24px_rgba(251,191,36,0.16)] transition disabled:opacity-60"
         >
-          {loading ? '起卦中…' : '算我的紅鸞'}
+          {loading ? '解鎖中…' : '抽出我的心動月份'}
         </button>
         {ritualStep >= 0 && (
           <div className="mt-4 rounded-2xl border border-rose-200/30 bg-rose-400/[0.08] p-6 text-center" role="status" aria-live="polite">
@@ -957,7 +965,8 @@ function RedLuanHeartbeatExperience() {
           免責與後端稽核資料也全部往後收，讓它們在「想查」時才出現。
         */}
         <header className="rounded-3xl border border-cyan-200/25 bg-cyan-300/[0.08] p-5">
-          <h2 className="text-2xl font-black text-white">{reading.person.name}，這是你的紅鸞</h2>
+          <p className="text-xs font-black tracking-[0.18em] text-cyan-100/75">三份驚喜已解鎖</p>
+          <h2 className="mt-1 text-2xl font-black text-white">{reading.person.name}，這是你的紅鸞</h2>
           {/*
             回訪那一句原本只出現在送出前，客戶按下去就消失了——
             他最後停留的畫面，反而沒有任何「這次跟上次不一樣」的證據。
