@@ -16,6 +16,8 @@
  * 先前儀式關卡就是這樣變成擺設的（條件與前面的分支重複，永遠不會獨立失敗）。
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
 import * as ziweiEngine from '../lib/ziwei-sanfang-engine';
 import {
   PILLAR_LABELS,
@@ -260,6 +262,30 @@ async function main() {
   {
     const restored = await runThreeInOne(ANCHOR);
     eq('注入還原後回到 PASSED', restored.status, 'PASSED');
+  }
+
+  console.log('\n【九】前端顯示閘：不能偷偷跳過');
+  {
+    const gate = fs.readFileSync(path.resolve(process.cwd(), 'components/ThreeInOneGate.tsx'), 'utf8');
+
+    // children＝完整結果。只有 PASSED 那一支可以渲染它，其餘兩支都不行。
+    const passedBranch = gate.slice(
+      gate.indexOf("result.status === 'PASSED'"),
+      gate.indexOf("result.status === 'ABNORMAL'"),
+    );
+    const restBranches = gate.slice(gate.indexOf("result.status === 'ABNORMAL'"));
+    check('PASSED 分支才渲染完整結果', passedBranch.includes('{children}'));
+    check('異常與失敗分支一律不得渲染完整結果', !restBranches.includes('{children}'));
+
+    check('三種狀態都要有可辨識標記',
+      gate.includes('data-three-in-one="PASSED"')
+      && gate.includes('data-three-in-one="ABNORMAL"')
+      && gate.includes('data-three-in-one="FAILED"'));
+
+    // 前端不准編結論：異常說明必須來自後端，不得在元件裡自己寫一段。
+    check('客戶訊息來自後端欄位', gate.includes('result.report.customerMessage'));
+    check('差異兩邊原值都照實顯示', gate.includes('diff.bazi') && gate.includes('diff.ziwei'));
+    check('不得在前端自行判斷是否通過', !/verifyFourPillars|differences\.length ===/.test(gate));
   }
 
   console.log(`\n三合一整合層 — PASS ${pass} / FAIL ${fail}`);

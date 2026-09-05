@@ -142,6 +142,12 @@ const TAIJI_LEVEL01_CHECKS = [
     script: 'test:taiji-level-01-ui',
   },
   {
+    id: 'THREE_IN_ONE_INTEGRATION',
+    module: 'three_in_one_integration',
+    title: '三合一整合：八字×紫微四柱核對，缺一不成立',
+    script: 'test:three-in-one',
+  },
+  {
     id: 'HOME_TAIJI_LEVEL02_24_LOCK',
     module: 'taiji_level_02_24_lock',
     title: '太極第 2～24 層隔離鎖定',
