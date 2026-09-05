@@ -424,7 +424,7 @@ export default function TarotOriginalFortuneTeller({
       <audio className="reveal__piano-sfx" src={AUDIO.piano} preload="auto" />
 
       <div className="tarot-original-status">
-        <h1>你的三張牌</h1>
+        <h1>命運三張牌</h1>
         <span>{enforceAiCopywritingTone(question)}</span>
       </div>
 
