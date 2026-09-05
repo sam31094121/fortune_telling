@@ -28,18 +28,19 @@
 
 守門：`npm run test:three-in-one`（70 項）、健檢第 21 項。
 
-## 口令：「神獸卡遊戲」
+## 口令：「神獸卡遊戲」／「戰鬥卡片」／「卡片對打」
 
-沿用 `lib/beast-game/` 的 BeastCardGameCore，**不得建立第二套遊戲核心**。
-新內容只能補入 Card Registry（`cards/beasts/`）、Skill Registry（`cards/skills/`）、
+**神獸卡的一切只有一份檔案：`docs/beast-game-skill.md`（十八章）。**
+規則、卡片正統規格、戰鬥演出、本體聲音、卡圖生產規格、交付清單、公平性實測
+全部在裡面。**不得再開第二份神獸卡文件，也不得建立第二套遊戲核心。**
+
+沿用 `lib/beast-game/` 的 BeastCardGameCore。新內容只能補入
+Card Registry（`cards/beasts/`）、Skill Registry（`cards/skills/`）、
 Effect Registry、Game Mode——加卡加技能都不必改引擎。
 
-每新增一張卡必須通過 `npm run test:beast-game`（156 項）：
+每新增一張卡必須通過 `npm run test:beast-game`：
 id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡在預算帶內。
 不合格就進不了正式牌庫（registry 真的會擋下，不是印警告）。
-
-完整制度見 `docs/beast-game-skill.md`（技能檔案）與
-`docs/three-core-cross-validation-skill.md` 〈十、神獸卡遊戲核心〉。
 
 卡片一律走正統規格 63×88mm（`components/BeastCardFrame.module.css` 是唯一來源），
 守門 `npm run test:beast-card-spec`。
@@ -47,12 +48,7 @@ id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡�
 **對手目前只有電腦。真人對戰尚未開放**——畫面上不得出現「線上對戰」
 之類的字眼，也不得用電腦冒充真人。要做之前先看技能檔案〈六〉。
 
-
-### 口令：「戰鬥卡片」／「卡片對打」
-
-戰鬥演出（揭牌節奏、神獸本體衝鋒、三維對撞、三段式音效）
-一律沿用 `docs/beast-game-skill.md`〈八、戰鬥卡片技能〉的架構補全，
-**不得另做一套戰鬥演出**。
+### 戰鬥演出（技能檔案〈八〉）
 
 **動畫不得決定戰鬥結果**（規格第十二條）：後端已經把整場算完，
 演出層只決定什麼時候把哪一段揭給你看。快轉、自動翻、重播，結果一樣。

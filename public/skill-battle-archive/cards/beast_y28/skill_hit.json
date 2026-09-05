@@ -1,0 +1,8 @@
+{
+  "skillId": "skill_hit",
+  "name": "命中衝擊",
+  "enabled": true,
+  "durationMs": 400,
+  "poolId": "beast_y28",
+  "displayName": "軫水蚓・幼子"
+}

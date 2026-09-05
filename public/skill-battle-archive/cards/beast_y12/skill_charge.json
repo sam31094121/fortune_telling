@@ -1,0 +1,14 @@
+{
+  "skillId": "skill_charge",
+  "name": "本體衝鋒",
+  "enabled": true,
+  "clip": "../clips/charge-battle.png",
+  "body": "../body.png",
+  "durationMs": 1600,
+  "spawn": {
+    "from": "selfSlot",
+    "to": "targetSlot"
+  },
+  "poolId": "beast_y12",
+  "displayName": "危月燕・幼子"
+}

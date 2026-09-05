@@ -76,7 +76,7 @@ const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 
   const ritual = read('components/BeastDuelRitual.tsx');
   assert.ok(!ritual.includes('data-sound-toggle'), '戰鬥不需要另外開啟音效');
-  assert.ok(ritual.includes("if (ready) { sound.current.play(CLASH_FX.flip, 0.3);"), '揭牌點擊直接啟動音效');
+  assert.ok(ritual.includes("if (ready) { playPlayerBeastVoice(sound.current.play, 'player', player[0].id);"), '揭牌點擊直接啟動玩家本體音效');
 }
 
 /* ── 四、演出不得決定結果（規格第十二條） ───────────────────────── */
@@ -105,7 +105,7 @@ const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
   const doc = read('docs/beast-game-skill.md');
   assert.ok(doc.includes('戰鬥儀式感'), '技能檔案要有戰鬥儀式感這一節');
   assert.ok(/動畫不得決定戰鬥結果/.test(doc), '要寫明演出不決定結果這條線');
-  assert.ok(/tornado-wind|earth-rift/.test(doc), '要列出用了哪些既有素材');
+  assert.ok(doc.includes('public/audio/beast-voices/manifest.json') && doc.includes('CREDITS.md'), '要連結實際使用的本體聲音素材及授權');
   assert.ok(/還沒做的/.test(doc), '沒做的要照實列出來，不得假裝做完了');
 }
 
@@ -187,7 +187,7 @@ console.log('PASS: 逐張交替揭牌、素材真的存在、音效有紀律、�
     '各元素的撞擊材質不得全部一樣——風撞木、地撞石、空撞金屬才是符合邏輯');
 
   const ritual = read('components/BeastDuelRitual.tsx');
-  assert.ok(ritual.includes('playClashSequence'), '交鋒要用三段式，不是單一聲');
+  assert.ok(ritual.includes('playPlayerBeastVoice'), '交鋒依新規格只播玩家本體聲音');
 }
 
 console.log('PASS: 手動翻牌、本體立繪帶 alpha、三段式音效各元素材質不同');
@@ -198,11 +198,15 @@ console.log('PASS: 手動翻牌、本體立繪帶 alpha、三段式音效各元�
   assert.ok(fs.existsSync(dir), '本體立繪資料夾必須存在');
   const files = fs.readdirSync(dir).filter((f) => f.endsWith('.webp'));
 
-  // 二十八隻成獸＋二十八隻幼子，涵蓋六十張卡（四象共用首宿的成獸）
+  // 二十八隻成獸＋二十八隻幼子＋四象各自的本體。
   const adults = files.filter((f) => /^\d{2}\.webp$/.test(f));
   const youngs = files.filter((f) => /^\d{2}y\.webp$/.test(f));
   assert.equal(adults.length, 28, `成獸本體要二十八隻，實際 ${adults.length}`);
   assert.equal(youngs.length, 28, `幼子本體要二十八隻，實際 ${youngs.length}`);
+  for (const guardian of ['qinglong', 'zhuque', 'baihu', 'xuanwu']) {
+    assert.ok(files.includes(`guardian-${guardian}.webp`), `${guardian} 要有自己的本體`);
+  }
+  assert.equal(files.length, 60, '六十張都必須有獨立本體檔');
 
   // 幼子不得直接用成獸的圖——那是拿大人的圖冒充小孩
   for (const id of ['01', '06', '13']) {

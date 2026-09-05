@@ -1,0 +1,5 @@
+﻿* 由 scripts/gen-beast-spirits.mjs 以既有插畫為底重繪並去背，
+* 存在 public/beast-game/spirit/NN.png。卡片 id 帶宿號，
+export function spiritArtFor(cardId: string): string | null {
+return `/beast-game/spirit/${id}${form === 'y' ? 'y' : ''}.webp`;
+return id ? `/beast-game/spirit/${id}.webp` : null;

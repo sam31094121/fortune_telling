@@ -25,6 +25,31 @@
 
 export type BattleElement = 'SPACE' | 'AIR' | 'WATER' | 'FIRE' | 'EARTH';
 
+/** 本體聲音由卡片身份決定，與元素、對手或勝負無關。 */
+export function beastVoiceFor(cardId: string): string | null {
+  const beast = /^beast_[ay](\d{2})$/.exec(cardId);
+  const guardian = /^beast_g_(qinglong|zhuque|baihu|xuanwu)$/.test(cardId);
+  if (!guardian && (!beast || Number(beast[1]) < 1 || Number(beast[1]) > 28)) return null;
+  return `/audio/beast-voices/${cardId}.mp3`;
+}
+
+/** 對手動畫照常進行，但絕不播放對手本體叫聲。 */
+export function playPlayerBeastVoice(
+  play: (src: string, volume?: number, rate?: number) => void,
+  side: 'player' | 'opponent',
+  cardId: string,
+): void {
+  if (side !== 'player') return;
+  const voice = beastVoiceFor(cardId);
+  if (voice) play(voice, 0.55, 1);
+}
+
+function reportVoice(src: string, status: 'playing' | 'blocked' | 'stopped') {
+  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('beast-voice-status', { detail: { src, status } }));
+  }
+}
+
 export interface ElementFx {
   /** 出招音效。用既有的太極音效庫，不另外找。 */
   attack: string;
@@ -161,14 +186,16 @@ export function createSoundPlayer(): {
 } {
   const cache = new Map<string, HTMLAudioElement>();
   const stops = new Map<string, number>();
+  let activeVoice: HTMLAudioElement | undefined;
 
 
   return {
     dispose() {
       stops.forEach((timer) => window.clearTimeout(timer));
-      cache.forEach((audio) => audio.pause());
+      cache.forEach((audio, src) => { audio.pause(); reportVoice(src, 'stopped'); });
       stops.clear();
       cache.clear();
+      activeVoice = undefined;
     },
     play(src: string, volume = 0.45, rate = 1) {
       if (typeof window === 'undefined') return;
@@ -183,10 +210,15 @@ export function createSoundPlayer(): {
         audio.volume = volume;
         audio.playbackRate = rate;
         audio.preservesPitch = false;
+        const isVoice = src.startsWith('/audio/beast-voices/');
+        if (isVoice) {
+          activeVoice?.pause();
+          activeVoice = audio;
+        }
         window.clearTimeout(stops.get(src));
-        stops.set(src, window.setTimeout(() => audio.pause(), 1100));
+        stops.set(src, window.setTimeout(() => audio.pause(), isVoice ? 2400 : 1100));
         // 播放被拒絕（未經手勢、格式不支援）就算了，不能讓遊戲卡住。
-        void audio.play().catch(() => {});
+        void audio.play().then(() => reportVoice(src, 'playing')).catch(() => reportVoice(src, 'blocked'));
       } catch {
         /* 音效永遠是加分項，壞掉不影響遊戲。 */
       }
@@ -236,13 +268,21 @@ export function spiritArtFor(cardId: string): string | null {
     return `/beast-game/spirit/${id}${form === 'y' ? 'y' : ''}.webp`;
   }
 
-  // 四象各自對應牠統領的第一宿，用那一隻的成獸本體代表。
+  // 四象使用自己的本體，不可用首宿動物冒充。
   const guardian: Record<string, string> = {
-    beast_g_qinglong: '01',
-    beast_g_zhuque: '22',
-    beast_g_baihu: '15',
-    beast_g_xuanwu: '08',
+    beast_g_qinglong: 'qinglong',
+    beast_g_zhuque: 'zhuque',
+    beast_g_baihu: 'baihu',
+    beast_g_xuanwu: 'xuanwu',
   };
   const id = guardian[cardId];
-  return id ? `/beast-game/spirit/${id}.webp` : null;
+  return id ? `/beast-game/spirit/guardian-${id}.webp` : null;
 }
+
+/** 《技能戰鬥檔案》演出技能（本體衝鋒／命中／隨時戰鬥）。數值技能不在此。 */
+export {
+  skillBodyArtFor,
+  loadCardBattleSkills,
+  presentationSkillsFor,
+  PRESENTATION_SKILL_IDS,
+} from './beast-skill-archive';

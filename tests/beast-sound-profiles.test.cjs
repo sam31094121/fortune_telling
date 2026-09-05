@@ -16,7 +16,7 @@ const context = { exports: {}, window: {
   pause() {}
 } };
 vm.runInNewContext(compiled, context);
-const { cardSoundProfile, createSoundPlayer, playClashSequence } = context.exports;
+const { cardSoundProfile, createSoundPlayer, playClashSequence, beastVoiceFor, playPlayerBeastVoice } = context.exports;
 for (const element of ['AIR', 'SPACE', 'WATER', 'FIRE', 'EARTH']) {
   const profiles = new Set();
   for (const form of ['a', 'y']) for (let i = 1; i <= 28; i++) {
@@ -40,3 +40,31 @@ assert.equal(timers.size, 2);
 stop();
 assert.equal(timers.size, 0, '跳過時不遺留延遲撞擊');
 console.log('PASS: 卡片音效組合唯一、素材存在、直接播放、離場取消');
+
+const manifest = JSON.parse(fs.readFileSync('public/audio/beast-voices/manifest.json', 'utf8'));
+assert.equal(Object.keys(manifest.cards).length, 60);
+const hashes = new Set();
+for (const [id, card] of Object.entries(manifest.cards)) {
+  const path = beastVoiceFor(id);
+  assert.ok(path, id);
+  const bytes = fs.readFileSync(`public${path}`);
+  assert.ok(bytes.length > 1500, `${id}: voice file is missing or empty`);
+  hashes.add(require('node:crypto').createHash('sha256').update(bytes).digest('hex'));
+  const provenance = manifest.sources[card.source];
+  assert.ok(provenance?.author && provenance?.license && provenance?.sourceUrl, `${id}: missing provenance`);
+  const playerCalls = [];
+  playPlayerBeastVoice((src) => playerCalls.push(src), 'opponent', id);
+  assert.equal(playerCalls.length, 0, `${id}: opponent must remain silent`);
+  playPlayerBeastVoice((src) => playerCalls.push(src), 'player', id);
+  assert.deepEqual(playerCalls, [path], `${id}: player must use its own voice`);
+}
+assert.equal(hashes.size, 60, '成品不能只是複製同一檔案換名稱；此檢查不代替聽感驗收');
+for (const id of ['beast_a00', 'beast_y29', '../evil', 'beast_g_unknown']) assert.equal(beastVoiceFor(id), null);
+const ritualSource = fs.readFileSync('components/BeastDuelRitual.tsx', 'utf8');
+assert.ok(!ritualSource.includes('playClashSequence'), '本體聲音不得再混用舊的雙方撞擊序列');
+assert.ok(!ritualSource.includes('sound.current.play('), '所有儀式聲音必須通過玩家本體守門');
+console.log('PASS: 六十張本體聲音有來源、對手完全靜音、玩家按卡片發聲');
+for (const guardian of ['qinglong', 'zhuque', 'baihu', 'xuanwu']) {
+  assert.equal(context.exports.spiritArtFor(`beast_g_${guardian}`), `/beast-game/spirit/guardian-${guardian}.webp`);
+}
+assert.ok(fs.readFileSync('components/BeastClash3D.tsx', 'utf8').includes('aria-label="雙方神獸本體交戰"'), '有意義的戰鬥畫面不可被當作隱藏裝飾');

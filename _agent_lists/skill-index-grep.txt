@@ -1,0 +1,40 @@
+﻿balance.ts:13:import { getSkill, type SkillDefinition } from '../../cards/skills';
+balance.ts:55:export const COST_BUDGET: Record<number, { min: number; max: number }> = {
+balance.ts:99:skillScore: number;
+balance.ts:120:const skillIds = [...card.skills, ...card.passive];
+balance.ts:121:const skillScore = skillIds.reduce((sum, id) => {
+balance.ts:126:const powerBudget = Math.round(statScore + skillScore);
+balance.ts:140:skillScore: Math.round(skillScore),
+balance.ts:145:detail: `數值 ${Math.round(statScore)} ＋ 技能 ${Math.round(skillScore)} ＝ ${powerBudget}`
+battle.ts:13:import { getSkill, type SkillDefinition } from '../../cards/skills';
+battle.ts:74:export function triggerSkills(params: {
+battle.ts:85:const ids = trigger === 'PASSIVE' ? card.passive : card.skills;
+battle.ts:175:triggerSkills({
+battle.ts:186:triggerSkills({
+effects.ts:19:export const EFFECT_TYPES = [
+effects.ts:34:export type EffectType = (typeof EFFECT_TYPES)[number];
+effects.ts:37:type: EffectType;
+effects.ts:72:type: EffectType;
+effects.ts:96:export const MINIMUM_DAMAGE = 1;
+effects.ts:98:export const DEFENSE_DAMAGE_FACTOR = 0.5;
+effects.ts:167:const EFFECT_HANDLERS: Record<EffectType, EffectHandler> = {
+effects.ts:288:export function isEffectType(value: unknown): value is EffectType {
+elements.ts:18:export const ELEMENTS = ['SPACE', 'AIR', 'WATER', 'FIRE', 'EARTH'] as const;
+elements.ts:22:export const ELEMENT_LABEL: Record<BeastElement, string> = {
+elements.ts:31:export const WUXING_TO_ELEMENT: Record<'金' | '木' | '水' | '火' | '土', BeastElement> = {
+elements.ts:51:export const MANSION_CHAR_TO_ELEMENT: Record<string, BeastElement> = {
+elements.ts:82:export const ELEMENT_COUNTER: Record<BeastElement, BeastElement> = {
+elements.ts:90:export const ELEMENT_ADVANTAGE_MULTIPLIER = 1.2;
+elements.ts:91:export const ELEMENT_DISADVANTAGE_MULTIPLIER = 0.9;
+index.ts:10:* 想加技能就加 cards/skills/，兩者都不必動 lib/beast-game/ 裡的任何一支引擎。
+index.ts:34:export type { EffectSpec, EffectType, BeastInstance, EffectLogEntry } from './effects';
+index.ts:40:export { instantiate, performAttack, triggerSkills, orderBySpeed } from './battle';
+index.ts:68:export { SKILLS, getSkill, allSkillIds } from '../../cards/skills';
+index.ts:69:export type { SkillDefinition, SkillTrigger } from '../../cards/skills';
+registry.ts:13:import { allSkillIds } from '../../cards/skills';
+schema.ts:18:export const GAME_CORE_VERSION = '1.3.0';
+schema.ts:27:export const RARITIES = ['N', 'R', 'SR', 'SSR', 'UR'] as const;
+schema.ts:30:export const CARD_CATEGORIES = ['DIVINE_BEAST'] as const;
+schema.ts:37:export const CARD_FORMS = ['YOUNG', 'ADULT', 'GUARDIAN'] as const;
+schema.ts:73:skills: string[];
+schema.ts:165:if (!Array.isArray(card.skills)) bad('skills', 'skills 必須是陣列');

@@ -1,0 +1,1455 @@
+{
+  "title": "技能戰鬥檔案",
+  "version": "1.3.0",
+  "updatedAt": "2026-09-05T16:50:00+00:00",
+  "count": 60,
+  "skillCatalog": {
+    "version": "2.0.0",
+    "skills": [
+      {
+        "id": "skill_charge",
+        "name": "本體衝鋒",
+        "type": "approach",
+        "durationMs": 1600,
+        "trigger": "onReveal",
+        "desc": "蓋牌翻開時，本體以 3D 立體從己方牌位衝向對方牌位交戰",
+        "assetKey": "clips.chargeBattle",
+        "readyRequires": [
+          "body.png",
+          "clips/charge-battle.png"
+        ]
+      },
+      {
+        "id": "skill_hit",
+        "name": "命中衝擊",
+        "type": "impact",
+        "durationMs": 400,
+        "trigger": "afterCharge",
+        "desc": "衝鋒抵達對方牌位時的命中特效"
+      },
+      {
+        "id": "skill_ready_battle",
+        "name": "隨時戰鬥",
+        "type": "passive",
+        "trigger": "always",
+        "desc": "資產就緒後可隨時呼叫進戰鬥，無需現場生成；戰鬥卡技能檔已登錄即可出戰",
+        "alwaysReady": true
+      }
+    ]
+  },
+  "includedSkills": [
+    "skill_charge",
+    "skill_hit",
+    "skill_ready_battle"
+  ],
+  "usage": {
+    "onReveal": "skill_charge → skill_hit",
+    "passive": "skill_ready_battle（隨時戰鬥：檔案就緒即可出戰）",
+    "load": "讀取本檔 cards/{poolId}/skills.json"
+  },
+  "cards": [
+    {
+      "poolId": "beast_a01",
+      "workIndex": "01",
+      "name": "角木蛟",
+      "lineage": "adult",
+      "element": "風",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a01.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a01.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a01/skills.json"
+    },
+    {
+      "poolId": "beast_a02",
+      "workIndex": "02",
+      "name": "亢金龍",
+      "lineage": "adult",
+      "element": "空",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a02.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a02.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a02/skills.json"
+    },
+    {
+      "poolId": "beast_a03",
+      "workIndex": "03",
+      "name": "氐土貉",
+      "lineage": "adult",
+      "element": "地",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a03.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a03.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a03/skills.json"
+    },
+    {
+      "poolId": "beast_a04",
+      "workIndex": "04",
+      "name": "房日兔",
+      "lineage": "adult",
+      "element": "火",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a04.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a04.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a04/skills.json"
+    },
+    {
+      "poolId": "beast_a05",
+      "workIndex": "05",
+      "name": "心月狐",
+      "lineage": "adult",
+      "element": "水",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a05.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a05.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a05/skills.json"
+    },
+    {
+      "poolId": "beast_a06",
+      "workIndex": "06",
+      "name": "尾火虎",
+      "lineage": "adult",
+      "element": "火",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a06.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a06.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a06/skills.json"
+    },
+    {
+      "poolId": "beast_a07",
+      "workIndex": "07",
+      "name": "箕水豹",
+      "lineage": "adult",
+      "element": "水",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a07.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a07.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a07/skills.json"
+    },
+    {
+      "poolId": "beast_a08",
+      "workIndex": "08",
+      "name": "斗木獬",
+      "lineage": "adult",
+      "element": "風",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a08.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a08.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a08/skills.json"
+    },
+    {
+      "poolId": "beast_a09",
+      "workIndex": "09",
+      "name": "牛金牛",
+      "lineage": "adult",
+      "element": "空",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a09.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a09.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a09/skills.json"
+    },
+    {
+      "poolId": "beast_a10",
+      "workIndex": "10",
+      "name": "女土蝠",
+      "lineage": "adult",
+      "element": "地",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a10.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a10.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a10/skills.json"
+    },
+    {
+      "poolId": "beast_a11",
+      "workIndex": "11",
+      "name": "虛日鼠",
+      "lineage": "adult",
+      "element": "火",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a11.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a11.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a11/skills.json"
+    },
+    {
+      "poolId": "beast_a12",
+      "workIndex": "12",
+      "name": "危月燕",
+      "lineage": "adult",
+      "element": "水",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a12.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a12.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a12/skills.json"
+    },
+    {
+      "poolId": "beast_a13",
+      "workIndex": "13",
+      "name": "室火豬",
+      "lineage": "adult",
+      "element": "火",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a13.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a13.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a13/skills.json"
+    },
+    {
+      "poolId": "beast_a14",
+      "workIndex": "14",
+      "name": "壁水貐",
+      "lineage": "adult",
+      "element": "水",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a14.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a14.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a14/skills.json"
+    },
+    {
+      "poolId": "beast_a15",
+      "workIndex": "15",
+      "name": "奎木狼",
+      "lineage": "adult",
+      "element": "風",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a15.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a15.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a15/skills.json"
+    },
+    {
+      "poolId": "beast_a16",
+      "workIndex": "16",
+      "name": "婁金狗",
+      "lineage": "adult",
+      "element": "空",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a16.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a16.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a16/skills.json"
+    },
+    {
+      "poolId": "beast_a17",
+      "workIndex": "17",
+      "name": "胃土雉",
+      "lineage": "adult",
+      "element": "地",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a17.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a17.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a17/skills.json"
+    },
+    {
+      "poolId": "beast_a18",
+      "workIndex": "18",
+      "name": "昴日雞",
+      "lineage": "adult",
+      "element": "火",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a18.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a18.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a18/skills.json"
+    },
+    {
+      "poolId": "beast_a19",
+      "workIndex": "19",
+      "name": "畢月烏",
+      "lineage": "adult",
+      "element": "水",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a19.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a19.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a19/skills.json"
+    },
+    {
+      "poolId": "beast_a20",
+      "workIndex": "20",
+      "name": "觜火猴",
+      "lineage": "adult",
+      "element": "火",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a20.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a20.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a20/skills.json"
+    },
+    {
+      "poolId": "beast_a21",
+      "workIndex": "21",
+      "name": "參水猿",
+      "lineage": "adult",
+      "element": "水",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a21.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a21.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a21/skills.json"
+    },
+    {
+      "poolId": "beast_a22",
+      "workIndex": "22",
+      "name": "井木犴",
+      "lineage": "adult",
+      "element": "風",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a22.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a22.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a22/skills.json"
+    },
+    {
+      "poolId": "beast_a23",
+      "workIndex": "23",
+      "name": "鬼金羊",
+      "lineage": "adult",
+      "element": "空",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a23.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a23.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a23/skills.json"
+    },
+    {
+      "poolId": "beast_a24",
+      "workIndex": "24",
+      "name": "柳土獐",
+      "lineage": "adult",
+      "element": "地",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a24.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a24.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a24/skills.json"
+    },
+    {
+      "poolId": "beast_a25",
+      "workIndex": "25",
+      "name": "星日馬",
+      "lineage": "adult",
+      "element": "火",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a25.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a25.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a25/skills.json"
+    },
+    {
+      "poolId": "beast_a26",
+      "workIndex": "26",
+      "name": "張月鹿",
+      "lineage": "adult",
+      "element": "水",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a26.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a26.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a26/skills.json"
+    },
+    {
+      "poolId": "beast_a27",
+      "workIndex": "27",
+      "name": "翼火蛇",
+      "lineage": "adult",
+      "element": "火",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a27.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a27.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a27/skills.json"
+    },
+    {
+      "poolId": "beast_a28",
+      "workIndex": "28",
+      "name": "軫水蚓",
+      "lineage": "adult",
+      "element": "水",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_a28.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_a28.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_a28/skills.json"
+    },
+    {
+      "poolId": "beast_y01",
+      "workIndex": "29",
+      "name": "角木蛟・幼子",
+      "lineage": "young",
+      "element": "風",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y01.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y01.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y01/skills.json"
+    },
+    {
+      "poolId": "beast_y02",
+      "workIndex": "30",
+      "name": "亢金龍・幼子",
+      "lineage": "young",
+      "element": "空",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y02.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y02.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y02/skills.json"
+    },
+    {
+      "poolId": "beast_y03",
+      "workIndex": "31",
+      "name": "氐土貉・幼子",
+      "lineage": "young",
+      "element": "地",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y03.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y03.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y03/skills.json"
+    },
+    {
+      "poolId": "beast_y04",
+      "workIndex": "32",
+      "name": "房日兔・幼子",
+      "lineage": "young",
+      "element": "火",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y04.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y04.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y04/skills.json"
+    },
+    {
+      "poolId": "beast_y05",
+      "workIndex": "33",
+      "name": "心月狐・幼子",
+      "lineage": "young",
+      "element": "水",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y05.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y05.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y05/skills.json"
+    },
+    {
+      "poolId": "beast_y06",
+      "workIndex": "34",
+      "name": "尾火虎・幼子",
+      "lineage": "young",
+      "element": "火",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y06.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y06.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y06/skills.json"
+    },
+    {
+      "poolId": "beast_y07",
+      "workIndex": "35",
+      "name": "箕水豹・幼子",
+      "lineage": "young",
+      "element": "水",
+      "group": "東方蒼龍",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y07.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y07.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y07/skills.json"
+    },
+    {
+      "poolId": "beast_y08",
+      "workIndex": "36",
+      "name": "斗木獬・幼子",
+      "lineage": "young",
+      "element": "風",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y08.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y08.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y08/skills.json"
+    },
+    {
+      "poolId": "beast_y09",
+      "workIndex": "37",
+      "name": "牛金牛・幼子",
+      "lineage": "young",
+      "element": "空",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y09.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y09.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y09/skills.json"
+    },
+    {
+      "poolId": "beast_y10",
+      "workIndex": "38",
+      "name": "女土蝠・幼子",
+      "lineage": "young",
+      "element": "地",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y10.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y10.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y10/skills.json"
+    },
+    {
+      "poolId": "beast_y11",
+      "workIndex": "39",
+      "name": "虛日鼠・幼子",
+      "lineage": "young",
+      "element": "火",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y11.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y11.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y11/skills.json"
+    },
+    {
+      "poolId": "beast_y12",
+      "workIndex": "40",
+      "name": "危月燕・幼子",
+      "lineage": "young",
+      "element": "水",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y12.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y12.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y12/skills.json"
+    },
+    {
+      "poolId": "beast_y13",
+      "workIndex": "41",
+      "name": "室火豬・幼子",
+      "lineage": "young",
+      "element": "火",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y13.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y13.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y13/skills.json"
+    },
+    {
+      "poolId": "beast_y14",
+      "workIndex": "42",
+      "name": "壁水貐・幼子",
+      "lineage": "young",
+      "element": "水",
+      "group": "北方玄武",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y14.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y14.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y14/skills.json"
+    },
+    {
+      "poolId": "beast_y15",
+      "workIndex": "43",
+      "name": "奎木狼・幼子",
+      "lineage": "young",
+      "element": "風",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y15.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y15.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y15/skills.json"
+    },
+    {
+      "poolId": "beast_y16",
+      "workIndex": "44",
+      "name": "婁金狗・幼子",
+      "lineage": "young",
+      "element": "空",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y16.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y16.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y16/skills.json"
+    },
+    {
+      "poolId": "beast_y17",
+      "workIndex": "45",
+      "name": "胃土雉・幼子",
+      "lineage": "young",
+      "element": "地",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y17.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y17.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y17/skills.json"
+    },
+    {
+      "poolId": "beast_y18",
+      "workIndex": "46",
+      "name": "昴日雞・幼子",
+      "lineage": "young",
+      "element": "火",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y18.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y18.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y18/skills.json"
+    },
+    {
+      "poolId": "beast_y19",
+      "workIndex": "47",
+      "name": "畢月烏・幼子",
+      "lineage": "young",
+      "element": "水",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y19.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y19.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y19/skills.json"
+    },
+    {
+      "poolId": "beast_y20",
+      "workIndex": "48",
+      "name": "觜火猴・幼子",
+      "lineage": "young",
+      "element": "火",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y20.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y20.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y20/skills.json"
+    },
+    {
+      "poolId": "beast_y21",
+      "workIndex": "49",
+      "name": "參水猿・幼子",
+      "lineage": "young",
+      "element": "水",
+      "group": "西方白虎",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y21.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y21.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y21/skills.json"
+    },
+    {
+      "poolId": "beast_y22",
+      "workIndex": "50",
+      "name": "井木犴・幼子",
+      "lineage": "young",
+      "element": "風",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y22.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y22.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y22/skills.json"
+    },
+    {
+      "poolId": "beast_y23",
+      "workIndex": "51",
+      "name": "鬼金羊・幼子",
+      "lineage": "young",
+      "element": "空",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y23.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y23.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y23/skills.json"
+    },
+    {
+      "poolId": "beast_y24",
+      "workIndex": "52",
+      "name": "柳土獐・幼子",
+      "lineage": "young",
+      "element": "地",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y24.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y24.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y24/skills.json"
+    },
+    {
+      "poolId": "beast_y25",
+      "workIndex": "53",
+      "name": "星日馬・幼子",
+      "lineage": "young",
+      "element": "火",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y25.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y25.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y25/skills.json"
+    },
+    {
+      "poolId": "beast_y26",
+      "workIndex": "54",
+      "name": "張月鹿・幼子",
+      "lineage": "young",
+      "element": "水",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y26.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y26.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y26/skills.json"
+    },
+    {
+      "poolId": "beast_y27",
+      "workIndex": "55",
+      "name": "翼火蛇・幼子",
+      "lineage": "young",
+      "element": "火",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y27.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y27.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y27/skills.json"
+    },
+    {
+      "poolId": "beast_y28",
+      "workIndex": "56",
+      "name": "軫水蚓・幼子",
+      "lineage": "young",
+      "element": "水",
+      "group": "南方朱雀",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_y28.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_y28.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_y28/skills.json"
+    },
+    {
+      "poolId": "beast_g_qinglong",
+      "workIndex": "57",
+      "name": "青龍",
+      "lineage": "guardian",
+      "element": "風",
+      "group": "東・春",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_g_qinglong.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_g_qinglong.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_g_qinglong/skills.json"
+    },
+    {
+      "poolId": "beast_g_zhuque",
+      "workIndex": "58",
+      "name": "朱雀",
+      "lineage": "guardian",
+      "element": "火",
+      "group": "南・夏",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_g_zhuque.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_g_zhuque.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_g_zhuque/skills.json"
+    },
+    {
+      "poolId": "beast_g_baihu",
+      "workIndex": "59",
+      "name": "白虎",
+      "lineage": "guardian",
+      "element": "空",
+      "group": "西・秋",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_g_baihu.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_g_baihu.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_g_baihu/skills.json"
+    },
+    {
+      "poolId": "beast_g_xuanwu",
+      "workIndex": "60",
+      "name": "玄武",
+      "lineage": "guardian",
+      "element": "水",
+      "group": "北・冬",
+      "skills": [
+        "skill_charge",
+        "skill_hit",
+        "skill_ready_battle"
+      ],
+      "skillNames": [
+        "本體衝鋒",
+        "命中衝擊",
+        "隨時戰鬥"
+      ],
+      "battleReady": true,
+      "body": "/beast-game/skill-bodies/beast_g_xuanwu.webp",
+      "chargeClip": "/beast-game/skill-bodies/beast_g_xuanwu.webp",
+      "skillsPath": "/skill-battle-archive/cards/beast_g_xuanwu/skills.json"
+    }
+  ],
+  "product": {
+    "brand": "太極命理",
+    "site": "https://heaven-earth-humanity-pair.vercel.app",
+    "purpose": "本檔專供太極命理使用，不是獨立 demo",
+    "battleMode": {
+      "id": "best_of_three",
+      "name": "三戰兩勝",
+      "winsRequired": 2,
+      "maxRounds": 3,
+      "cardType": "專用戰鬥卡片",
+      "usesArchive": "技能戰鬥檔案",
+      "perRoundSkills": [
+        "skill_charge",
+        "skill_hit"
+      ],
+      "betweenRounds": "skill_ready_battle",
+      "desc": "每場最多三局，先勝兩局者勝；每局翻開專用戰鬥卡，讀技能戰鬥檔案出本體衝鋒"
+    },
+    "features": {
+      "battle_system": {
+        "id": "feature_battle",
+        "name": "戰鬥功能（三戰兩勝）",
+        "routes": [
+          "/beast-game"
+        ],
+        "loads": "技能戰鬥檔案",
+        "skillsUsed": [
+          "skill_charge",
+          "skill_hit",
+          "skill_ready_battle"
+        ],
+        "flow": [
+          "selectCard",
+          "reveal",
+          "skill_charge",
+          "skill_hit",
+          "skill_ready_battle"
+        ],
+        "desc": "對戰場翻牌後讀取技能戰鬥檔案，播放本體衝鋒與命中，並可隨時再戰",
+        "mode": "三戰兩勝"
+      },
+      "star_beast_card_battle": {
+        "id": "feature_star_beast_card_battle",
+        "name": "神獸卡片戰鬥功能（三戰兩勝專用）",
+        "routes": [
+          "/star-beasts",
+          "/beast-game"
+        ],
+        "loads": "技能戰鬥檔案/cards/{poolId}/skills.json",
+        "skillsUsed": [
+          "skill_charge",
+          "skill_hit",
+          "skill_ready_battle"
+        ],
+        "cardPool": [
+          "beast_a*",
+          "beast_y*",
+          "beast_g_*"
+        ],
+        "desc": "神獸卡（本體／幼子／四象）出戰時，一律從技能戰鬥檔案讀技能，不現場生成",
+        "mode": "三戰兩勝專用戰鬥卡片"
+      }
+    }
+  },
+  "integration": {
+    "targetApp": "太極命理 Next.js",
+    "publicPaths": {
+      "archive": "public/skill-battle-archive/",
+      "bodies": "public/beast-game/skill-bodies/",
+      "docs": "docs/skill-battle-archive/"
+    },
+    "runtime": {
+      "index": "/skill-battle-archive/index.json",
+      "cardSkills": "/skill-battle-archive/cards/{poolId}/skills.json",
+      "body": "/beast-game/skill-bodies/{poolId}.webp",
+      "loader": "lib/beast-skill-archive.ts",
+      "fx": "lib/beast-battle-fx.ts"
+    },
+    "status": "wired_into_taiji_beast_game",
+    "mode": "三戰兩勝",
+    "note": "演出技能（衝鋒／命中／隨時戰鬥）走技能戰鬥檔案；數值技能仍走 cards/skills Effect Engine 13 種",
+    "displayName": "技能戰鬥檔案"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "skillId": "skill_hit",
+  "name": "命中衝擊",
+  "enabled": true,
+  "durationMs": 400,
+  "poolId": "beast_y01",
+  "displayName": "角木蛟・幼子"
+}

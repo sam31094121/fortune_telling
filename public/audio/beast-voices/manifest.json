@@ -1,0 +1,768 @@
+{
+  "version": 1,
+  "sources": {
+    "dog": {
+      "file": "sources/17851672.ogg",
+      "title": "Barking of a dog.ogg",
+      "author": "Amada44",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Barking_of_a_dog.ogg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "kind": "field-recording"
+    },
+    "monkey": {
+      "file": "sources/84506544.wav",
+      "title": "Brown woolly monkey alarm call.wav",
+      "author": "Kai Medina (Mk170101)",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Brown_woolly_monkey_alarm_call.wav",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "kind": "field-recording"
+    },
+    "crow": {
+      "file": "sources/3029376.ogg",
+      "title": "Corvus brachyrhynchos call.ogg",
+      "author": "United States Geological Survey",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Corvus_brachyrhynchos_call.ogg",
+      "license": "Public domain",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "kind": "field-recording"
+    },
+    "swallow": {
+      "file": "sources/23929087.ogg",
+      "title": "Hirundo rustica - Barn Swallow - XC83449.ogg",
+      "author": "Jonathon Jongsma",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hirundo_rustica_-_Barn_Swallow_-_XC83449.ogg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "kind": "field-recording"
+    },
+    "cow": {
+      "file": "sources/2185049.ogg",
+      "title": "Mudchute cow 1.ogg",
+      "author": "Secretlondon",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mudchute_cow_1.ogg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "kind": "field-recording"
+    },
+    "pig": {
+      "file": "sources/2185056.ogg",
+      "title": "Mudchute pig 1.ogg",
+      "author": "Secretlondon",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mudchute_pig_1.ogg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "kind": "field-recording"
+    },
+    "wolf": {
+      "file": "sources/206870.ogg",
+      "title": "Wolf howls.ogg",
+      "author": "U.S. Fish and Wildlife Service",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wolf_howls.ogg",
+      "license": "Public domain",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "kind": "field-recording"
+    },
+    "dragon": {
+      "file": "sources/dragon.mp3",
+      "title": "Designed dragon roar",
+      "author": "JoelAudio",
+      "sourceUrl": "https://freesound.org/people/JoelAudio/sounds/85568/",
+      "downloadUrl": "https://cdn.freesound.org/previews/85/85568_1206321-hq.mp3",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "kind": "sound-design"
+    },
+    "tiger": {
+      "file": "sources/tiger.mp3",
+      "title": "Tiger Roar",
+      "author": "lauramellis",
+      "sourceUrl": "https://freesound.org/people/lauramellis/sounds/263115/",
+      "downloadUrl": "https://cdn.freesound.org/previews/263/263115_672090-hq.mp3",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "kind": "field-recording"
+    },
+    "bat": {
+      "file": "sources/bat.mp3",
+      "title": "Cartoon Bat / Mouse Squeak",
+      "author": "Breviceps",
+      "sourceUrl": "https://freesound.org/people/Breviceps/sounds/445958/",
+      "downloadUrl": "https://cdn.freesound.org/previews/445/445958_9159316-hq.mp3",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "kind": "sound-design"
+    },
+    "mouse": {
+      "file": "sources/mouse.mp3",
+      "title": "Mouse (human imitation)",
+      "author": "AntumDeluge",
+      "sourceUrl": "https://freesound.org/people/AntumDeluge/sounds/188043/",
+      "downloadUrl": "https://cdn.freesound.org/previews/188/188043_3403708-hq.mp3",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "kind": "foley"
+    },
+    "deer": {
+      "file": "sources/deer.mp3",
+      "title": "Red Deer Stag Bellowing",
+      "author": "naturenotesuk",
+      "sourceUrl": "https://freesound.org/people/naturenotesuk/sounds/757773/",
+      "downloadUrl": "https://cdn.freesound.org/previews/757/757773_7455632-hq.mp3",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "kind": "field-recording"
+    },
+    "fox": {
+      "file": "sources/fox.mp3",
+      "title": "Fox Barking",
+      "author": "gadzooks",
+      "sourceUrl": "https://freesound.org/people/gadzooks/sounds/397655/",
+      "downloadUrl": "https://cdn.freesound.org/previews/397/397655_44431-hq.mp3",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "kind": "field-recording"
+    },
+    "snake": {
+      "file": "sources/snake.mp3",
+      "title": "Hissing snake sound effect",
+      "author": "Garuda1982",
+      "sourceUrl": "https://freesound.org/people/Garuda1982/sounds/541656/",
+      "downloadUrl": "https://cdn.freesound.org/previews/541/541656_2061858-hq.mp3",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "kind": "sound-design"
+    },
+    "pheasant": {
+      "file": "sources/pheasant.mp3",
+      "title": "Pheasant Phasianus colchicus",
+      "author": "klankbeeld",
+      "sourceUrl": "https://freesound.org/people/klankbeeld/sounds/197433/",
+      "downloadUrl": "https://cdn.freesound.org/previews/197/197433_1648170-hq.mp3",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "kind": "field-recording"
+    },
+    "ape": {
+      "file": "sources/ape.mp3",
+      "title": "Chimpanzee Noisy Before Demo",
+      "author": "craigsmith",
+      "sourceUrl": "https://freesound.org/people/craigsmith/sounds/678059/",
+      "downloadUrl": "https://cdn.freesound.org/previews/678/678059_2524442-hq.mp3",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "kind": "field-recording"
+    },
+    "horse": {
+      "file": "sources/horse.mp3",
+      "title": "Horse Neigh 2",
+      "author": "GoodListener",
+      "sourceUrl": "https://freesound.org/people/GoodListener/sounds/322450/",
+      "downloadUrl": "https://cdn.freesound.org/previews/322/322450_5033007-hq.mp3",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "kind": "field-recording"
+    },
+    "sheep": {
+      "file": "sources/sheep.mp3",
+      "title": "Loud Sheep Bah",
+      "author": "Breviceps",
+      "sourceUrl": "https://freesound.org/people/Breviceps/sounds/644830/",
+      "downloadUrl": "https://cdn.freesound.org/previews/644/644830_9159316-hq.mp3",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "kind": "field-recording"
+    },
+    "rooster": {
+      "file": "sources/rooster.mp3",
+      "title": "Rooster crow",
+      "author": "arelitron",
+      "sourceUrl": "https://freesound.org/people/arelitron/sounds/582624/",
+      "downloadUrl": "https://cdn.freesound.org/previews/582/582624_8006819-hq.mp3",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "kind": "field-recording"
+    },
+    "leopard": {
+      "file": "sources/leopard.mp3",
+      "title": "Leopard's Cough Isolated",
+      "author": "drobiumdesign",
+      "sourceUrl": "https://freesound.org/people/drobiumdesign/sounds/346402/",
+      "downloadUrl": "https://cdn.freesound.org/previews/346/346402_5481596-hq.mp3",
+      "license": "CC BY 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by/3.0/",
+      "kind": "field-recording"
+    },
+    "rabbit": {
+      "file": "sources/rabbit.mp3",
+      "title": "Rabbit Squeaking 1",
+      "author": "kessir",
+      "sourceUrl": "https://freesound.org/people/kessir/sounds/385850/",
+      "downloadUrl": "https://cdn.freesound.org/previews/385/385850_4521595-hq.mp3",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "kind": "field-recording"
+    },
+    "bird": {
+      "file": "sources/bird.ogg",
+      "title": "Bald Eagle Yellowstone National Park",
+      "author": "National Park Service",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bald_Eagle_Yellowstone_National_Park.ogg",
+      "license": "Public domain (US federal work)",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-USGov-NPS",
+      "kind": "field-recording"
+    },
+    "earth-spirit": {
+      "file": "sources/earth-spirit.mp3",
+      "title": "Earth spirit voiced resonance",
+      "author": "Project sound design",
+      "sourceUrl": "scripts/build-beast-voices.py",
+      "license": "Project original",
+      "licenseUrl": "",
+      "kind": "synthesized-fictional-voice"
+    }
+  },
+  "cards": {
+    "beast_a01": {
+      "name": "角木蛟",
+      "source": "dragon",
+      "pitch": 0.895,
+      "echoMs": 63,
+      "design": "蛟：龍吼設計底材，較輕的喉音；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_y01": {
+      "name": "角木蛟・幼子",
+      "source": "dragon",
+      "pitch": 1.165,
+      "echoMs": 78,
+      "design": "蛟：龍吼設計底材，較輕的喉音；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_a02": {
+      "name": "亢金龍",
+      "source": "dragon",
+      "pitch": 0.92,
+      "echoMs": 66,
+      "design": "龍吼設計音，非真實龍錄音；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_y02": {
+      "name": "亢金龍・幼子",
+      "source": "dragon",
+      "pitch": 1.19,
+      "echoMs": 81,
+      "design": "龍吼設計音，非真實龍錄音；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_a03": {
+      "name": "氐土貉",
+      "source": "dog",
+      "pitch": 0.945,
+      "echoMs": 69,
+      "design": "貉神獸：以犬科短聲設計，並非貉的實錄；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_y03": {
+      "name": "氐土貉・幼子",
+      "source": "dog",
+      "pitch": 1.215,
+      "echoMs": 84,
+      "design": "貉神獸：以犬科短聲設計，並非貉的實錄；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_a04": {
+      "name": "房日兔",
+      "source": "rabbit",
+      "pitch": 0.97,
+      "echoMs": 72,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 1.12
+    },
+    "beast_y04": {
+      "name": "房日兔・幼子",
+      "source": "rabbit",
+      "pitch": 1.24,
+      "echoMs": 87,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 1.12
+    },
+    "beast_a05": {
+      "name": "心月狐",
+      "source": "fox",
+      "pitch": 0.995,
+      "echoMs": 75,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 14.72
+    },
+    "beast_y05": {
+      "name": "心月狐・幼子",
+      "source": "fox",
+      "pitch": 1.265,
+      "echoMs": 90,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 14.72
+    },
+    "beast_a06": {
+      "name": "尾火虎",
+      "source": "tiger",
+      "pitch": 1.02,
+      "echoMs": 78,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.92
+    },
+    "beast_y06": {
+      "name": "尾火虎・幼子",
+      "source": "tiger",
+      "pitch": 1.29,
+      "echoMs": 93,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.92
+    },
+    "beast_a07": {
+      "name": "箕水豹",
+      "source": "leopard",
+      "pitch": 0.87,
+      "echoMs": 81,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_y07": {
+      "name": "箕水豹・幼子",
+      "source": "leopard",
+      "pitch": 1.14,
+      "echoMs": 96,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_a08": {
+      "name": "斗木獬",
+      "source": "cow",
+      "pitch": 0.895,
+      "echoMs": 84,
+      "design": "獬神獸：以牛類低鳴設計，並非獬的實錄；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.42
+    },
+    "beast_y08": {
+      "name": "斗木獬・幼子",
+      "source": "cow",
+      "pitch": 1.165,
+      "echoMs": 99,
+      "design": "獬神獸：以牛類低鳴設計，並非獬的實錄；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.42
+    },
+    "beast_a09": {
+      "name": "牛金牛",
+      "source": "cow",
+      "pitch": 0.92,
+      "echoMs": 87,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.42
+    },
+    "beast_y09": {
+      "name": "牛金牛・幼子",
+      "source": "cow",
+      "pitch": 1.19,
+      "echoMs": 102,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.42
+    },
+    "beast_a10": {
+      "name": "女土蝠",
+      "source": "bat",
+      "pitch": 0.945,
+      "echoMs": 90,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_y10": {
+      "name": "女土蝠・幼子",
+      "source": "bat",
+      "pitch": 1.215,
+      "echoMs": 105,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_a11": {
+      "name": "虛日鼠",
+      "source": "mouse",
+      "pitch": 0.97,
+      "echoMs": 93,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_y11": {
+      "name": "虛日鼠・幼子",
+      "source": "mouse",
+      "pitch": 1.24,
+      "echoMs": 108,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_a12": {
+      "name": "危月燕",
+      "source": "swallow",
+      "pitch": 0.995,
+      "echoMs": 96,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 14.62
+    },
+    "beast_y12": {
+      "name": "危月燕・幼子",
+      "source": "swallow",
+      "pitch": 1.265,
+      "echoMs": 111,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 14.62
+    },
+    "beast_a13": {
+      "name": "室火豬",
+      "source": "pig",
+      "pitch": 1.02,
+      "echoMs": 99,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_y13": {
+      "name": "室火豬・幼子",
+      "source": "pig",
+      "pitch": 1.29,
+      "echoMs": 114,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_a14": {
+      "name": "壁水貐",
+      "source": "dragon",
+      "pitch": 0.87,
+      "echoMs": 102,
+      "design": "貐神獸：低沉神獸咆哮設計；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_y14": {
+      "name": "壁水貐・幼子",
+      "source": "dragon",
+      "pitch": 1.14,
+      "echoMs": 117,
+      "design": "貐神獸：低沉神獸咆哮設計；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_a15": {
+      "name": "奎木狼",
+      "source": "wolf",
+      "pitch": 0.895,
+      "echoMs": 105,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.12
+    },
+    "beast_y15": {
+      "name": "奎木狼・幼子",
+      "source": "wolf",
+      "pitch": 1.165,
+      "echoMs": 120,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.12
+    },
+    "beast_a16": {
+      "name": "婁金狗",
+      "source": "dog",
+      "pitch": 0.92,
+      "echoMs": 108,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_y16": {
+      "name": "婁金狗・幼子",
+      "source": "dog",
+      "pitch": 1.19,
+      "echoMs": 123,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_a17": {
+      "name": "胃土雉",
+      "source": "pheasant",
+      "pitch": 0.945,
+      "echoMs": 111,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.02
+    },
+    "beast_y17": {
+      "name": "胃土雉・幼子",
+      "source": "pheasant",
+      "pitch": 1.215,
+      "echoMs": 126,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.02
+    },
+    "beast_a18": {
+      "name": "昴日雞",
+      "source": "rooster",
+      "pitch": 0.97,
+      "echoMs": 114,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.42
+    },
+    "beast_y18": {
+      "name": "昴日雞・幼子",
+      "source": "rooster",
+      "pitch": 1.24,
+      "echoMs": 129,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.42
+    },
+    "beast_a19": {
+      "name": "畢月烏",
+      "source": "crow",
+      "pitch": 0.995,
+      "echoMs": 117,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 3.62
+    },
+    "beast_y19": {
+      "name": "畢月烏・幼子",
+      "source": "crow",
+      "pitch": 1.265,
+      "echoMs": 132,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 3.62
+    },
+    "beast_a20": {
+      "name": "觜火猴",
+      "source": "monkey",
+      "pitch": 1.02,
+      "echoMs": 120,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 5.52
+    },
+    "beast_y20": {
+      "name": "觜火猴・幼子",
+      "source": "monkey",
+      "pitch": 1.29,
+      "echoMs": 135,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 5.52
+    },
+    "beast_a21": {
+      "name": "參水猿",
+      "source": "ape",
+      "pitch": 0.87,
+      "echoMs": 123,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 2.22
+    },
+    "beast_y21": {
+      "name": "參水猿・幼子",
+      "source": "ape",
+      "pitch": 1.14,
+      "echoMs": 138,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 2.22
+    },
+    "beast_a22": {
+      "name": "井木犴",
+      "source": "deer",
+      "pitch": 0.895,
+      "echoMs": 126,
+      "design": "犴神獸：以鹿科鳴聲設計；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 4.72
+    },
+    "beast_y22": {
+      "name": "井木犴・幼子",
+      "source": "deer",
+      "pitch": 1.165,
+      "echoMs": 141,
+      "design": "犴神獸：以鹿科鳴聲設計；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 4.72
+    },
+    "beast_a23": {
+      "name": "鬼金羊",
+      "source": "sheep",
+      "pitch": 0.92,
+      "echoMs": 129,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 2.42
+    },
+    "beast_y23": {
+      "name": "鬼金羊・幼子",
+      "source": "sheep",
+      "pitch": 1.19,
+      "echoMs": 144,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 2.42
+    },
+    "beast_a24": {
+      "name": "柳土獐",
+      "source": "deer",
+      "pitch": 0.945,
+      "echoMs": 132,
+      "design": "獐神獸：以鹿科鳴聲設計，並非獐的實錄；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 4.72
+    },
+    "beast_y24": {
+      "name": "柳土獐・幼子",
+      "source": "deer",
+      "pitch": 1.215,
+      "echoMs": 147,
+      "design": "獐神獸：以鹿科鳴聲設計，並非獐的實錄；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 4.72
+    },
+    "beast_a25": {
+      "name": "星日馬",
+      "source": "horse",
+      "pitch": 0.97,
+      "echoMs": 135,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_y25": {
+      "name": "星日馬・幼子",
+      "source": "horse",
+      "pitch": 1.24,
+      "echoMs": 150,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_a26": {
+      "name": "張月鹿",
+      "source": "deer",
+      "pitch": 0.995,
+      "echoMs": 138,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 4.72
+    },
+    "beast_y26": {
+      "name": "張月鹿・幼子",
+      "source": "deer",
+      "pitch": 1.265,
+      "echoMs": 153,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 4.72
+    },
+    "beast_a27": {
+      "name": "翼火蛇",
+      "source": "snake",
+      "pitch": 1.02,
+      "echoMs": 141,
+      "design": "依本體叫聲整理，保留物種音色；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.02
+    },
+    "beast_y27": {
+      "name": "翼火蛇・幼子",
+      "source": "snake",
+      "pitch": 1.29,
+      "echoMs": 156,
+      "design": "依本體叫聲整理，保留物種音色；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.02
+    },
+    "beast_a28": {
+      "name": "軫水蚓",
+      "source": "earth-spirit",
+      "pitch": 0.87,
+      "echoMs": 144,
+      "design": "蚓神獸：原創地靈共鳴，非真實蚯蚓叫聲；成獸採厚實音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.12
+    },
+    "beast_y28": {
+      "name": "軫水蚓・幼子",
+      "source": "earth-spirit",
+      "pitch": 1.14,
+      "echoMs": 159,
+      "design": "蚓神獸：原創地靈共鳴，非真實蚯蚓叫聲；幼子採輕亮音色",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.12
+    },
+    "beast_g_qinglong": {
+      "name": "青龍",
+      "source": "dragon",
+      "pitch": 0.77,
+      "echoMs": 160,
+      "design": "四象本體音色設計；使用相應本體底材，非神獸實錄",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0
+    },
+    "beast_g_zhuque": {
+      "name": "朱雀",
+      "source": "bird",
+      "pitch": 0.9,
+      "echoMs": 190,
+      "design": "四象本體音色設計；使用相應本體底材，非神獸實錄",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.42
+    },
+    "beast_g_baihu": {
+      "name": "白虎",
+      "source": "tiger",
+      "pitch": 0.8,
+      "echoMs": 135,
+      "design": "四象本體音色設計；使用相應本體底材，非神獸實錄",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.92
+    },
+    "beast_g_xuanwu": {
+      "name": "玄武",
+      "source": "snake",
+      "pitch": 0.7,
+      "echoMs": 210,
+      "design": "四象本體音色設計；龜蛇神獸採低沉吐息，非玄武實錄",
+      "reviewStatus": "awaiting-listening-review",
+      "clipStartSeconds": 0.02
+    }
+  }
+}

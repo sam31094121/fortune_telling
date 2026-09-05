@@ -14,13 +14,14 @@ import styles from './BeastDuelRitual.module.css';
 const BeastClash3D = dynamic(() => import('./BeastClash3D'), { ssr: false });
 import frameStyles from './BeastCardFrame.module.css';
 import {
-  CLASH_FX,
   ELEMENT_FX,
-  playClashSequence,
+  playPlayerBeastVoice,
   spiritArtFor,
   REVEAL_INTERVAL_MS,
   REVEAL_ORDER,
   createSoundPlayer,
+  loadCardBattleSkills,
+  presentationSkillsFor,
   type BattleElement,
 } from '@/lib/beast-battle-fx';
 
@@ -57,6 +58,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
   const [pairBeat, setPairBeat] = useState(0);
   const [pairResult, setPairResult] = useState<PairResult | null>(null);
   const [shownScore, setShownScore] = useState({ player: 0, opponent: 0 });
+  const [chargeSkillLabel, setChargeSkillLabel] = useState<string | null>(null);
   /** 這一瞬間正在撞的是誰。做卡片對撞用。 */
   const [clashing, setClashing] = useState<{ side: 'player' | 'opponent'; index: number } | null>(null);
   /**
@@ -75,6 +77,40 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
     void import('./BeastClash3D');
     return () => playerSound.dispose();
   }, []);
+
+  /** 預載《技能戰鬥檔案》演出技能（衝鋒／命中／隨時戰鬥）；失敗不擋儀式。 */
+  const skillCacheRef = useRef<Record<string, ReturnType<typeof presentationSkillsFor>>>({});
+  useEffect(() => {
+    const ids = [...player.map((c) => c.id), ...(opponent ?? []).map((c) => c.id)];
+    let cancelled = false;
+    void (async () => {
+      for (const id of ids) {
+        if (cancelled || skillCacheRef.current[id]) continue;
+        const raw = await loadCardBattleSkills(id);
+        if (cancelled) return;
+        skillCacheRef.current[id] = presentationSkillsFor(raw?.skills);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [player, opponent]);
+
+  useEffect(() => {
+    if (pairClash == null || !opponent) {
+      setChargeSkillLabel(null);
+      return;
+    }
+    const id = player[pairClash]?.id;
+    const skills = id ? skillCacheRef.current[id] : undefined;
+    setChargeSkillLabel(skills?.charge.name ?? '本體衝鋒');
+  }, [pairClash, player, opponent]);
+
+  useEffect(() => {
+    // 暖好這一局會使用的六張本體，避免首次揭牌先看到空白舞台。
+    for (const card of [...player, ...(opponent ?? [])]) {
+      const src = spiritArtFor(card.id);
+      if (src) { const image = new Image(); image.src = src; }
+    }
+  }, [player, opponent]);
   const dialog = useRef<HTMLDivElement>(null);
   const completeRef = useRef(onComplete);
   const cancelRef = useRef(onCancel);
@@ -139,12 +175,12 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
     const timer = window.setTimeout(() => {
       const step = REVEAL_ORDER[revealCount];
       setClashing(step);
-      sound.current.play(CLASH_FX.flip, 0.3);
+      if (step.side === 'player') playPlayerBeastVoice(sound.current.play, step.side, player[step.index].id);
       setRevealCount((value) => value + 1);
       window.setTimeout(() => setClashing(null), 260);
     }, revealCount === 0 ? 200 : REVEAL_INTERVAL_MS);
     return () => window.clearTimeout(timer);
-  }, [phase, revealCount, autoFlip, pairClash]);
+  }, [phase, revealCount, autoFlip, pairClash, player]);
 
   // 每組雙方都揭開才演出，不預先展示未翻開的神獸或虛構傷害。
   useEffect(() => {
@@ -161,15 +197,12 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
     setPairResult(null);
     setPairSide(actionSide(0));
     setPairBeat(0);
-    const first = actionSide(0) === 'player' ? player[index] : opponent[index];
-    const stopSound = playClashSequence(sound.current.play, first.element as BattleElement, false, first.id);
-    const sounds = [stopSound];
+    playPlayerBeastVoice(sound.current.play, actionSide(0), player[index].id);
     const replies = [1, 2, 3].map((beat) => window.setTimeout(() => {
       const side = actionSide(beat);
-      const card = side === 'player' ? player[index] : opponent[index];
       setPairSide(side);
       setPairBeat(beat);
-      sounds.push(playClashSequence(sound.current.play, card.element as BattleElement, false, card.id));
+      playPlayerBeastVoice(sound.current.play, side, player[index].id);
     }, beat * 1400));
     const verdict = window.setTimeout(() => { if (result) { setPairResult(result); setShownScore(result.score); } }, 6000);
     const timer = window.setTimeout(() => {
@@ -180,7 +213,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
         else setAutoFlip(false);
       }
     }, result ? 8000 : 6000);
-    return () => { window.clearTimeout(timer); window.clearTimeout(verdict); replies.forEach(window.clearTimeout); sounds.forEach((stop) => stop()); };
+    return () => { window.clearTimeout(timer); window.clearTimeout(verdict); replies.forEach(window.clearTimeout); };
   }, [phase, revealCount, player, opponent, pairs]);
 
   /** 手動翻下一張。點卡片或按「翻下一張」都走這裡。 */
@@ -188,7 +221,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
     if (phase !== 'revealing' || revealCount >= REVEAL_ORDER.length || pairClash !== null) return;
     const step = REVEAL_ORDER[revealCount];
     setClashing(step);
-    sound.current.play(CLASH_FX.flip, 0.3);
+    if (step.side === 'player') playPlayerBeastVoice(sound.current.play, step.side, player[step.index].id);
     setRevealCount((value) => value + 1);
     window.setTimeout(() => setClashing(null), 260);
   }
@@ -208,23 +241,12 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
     return () => window.clearTimeout(timer);
   }, [phase, moment, highlights.length, revealCount, pairClash, pairs]);
 
-  /*
-    交鋒時的聲音。
-
-    用出手方的元素配對應的音效（風→龍捲風、火→火焰、地→地裂…），
-    全部是專案裡既有的太極音效，沒有新素材。
-    重擊（有人陣亡）換成雷聲，讓「這一下很重」聽得出來。
-  */
+  // 舊版整場回放同樣只播放玩家本體，不能混入對手或泛用撞擊聲。
   useEffect(() => {
     if (phase !== 'clash') return;
     const event = highlights[moment];
-    if (!event) return;
-    const attacker = event.side === 'PLAYER' ? player : opponent;
-    const element = attacker?.[0]?.element as BattleElement | undefined;
-    // 三段式：蓄力 → 撞擊 → 餘響。一聲「碰」不夠猛。
-    const heavy = /陣亡|擊倒|本命/.test(event.note ?? '');
-    if (element) return playClashSequence(sound.current.play, element, heavy, attacker?.[0]?.id);
-    else sound.current.play(CLASH_FX.impact, 0.45);
+    if (!event || event.side !== 'PLAYER') return;
+    if (player[0]) playPlayerBeastVoice(sound.current.play, 'player', player[0].id);
   }, [phase, moment, highlights, player, opponent]);
 
   function row(cards: RitualCard[] | null, side: 'player' | 'opponent') {
@@ -274,16 +296,26 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       {row(opponent, 'opponent')}
       <div className={`${styles.center} ${phase === 'clash' || pairClash !== null ? styles.clash : ''}`} role="status" aria-live="polite" style={{ position: 'relative' }}>
         {pairClash !== null && player[pairClash] && opponent?.[pairClash] && (
-          <BeastClash3D
-            playerArt={player[pairClash].thumbnail}
-            opponentArt={opponent[pairClash].thumbnail}
-            playerSpirit={spiritArtFor(player[pairClash].id)}
-            opponentSpirit={spiritArtFor(opponent[pairClash].id)}
-            attacker={pairSide}
-            glow={ELEMENT_FX[(pairSide === 'player' ? player[pairClash] : opponent[pairClash]).element as BattleElement]?.glow ?? '#fff'}
-            beat={pairClash * 4 + pairBeat}
-            outcome={pairResult?.winner}
-          />
+          <>
+            {chargeSkillLabel ? (
+              <div
+                style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(0,0,0,.55)', color: '#fff', fontSize: 13, letterSpacing: '.08em' }}
+                aria-live="polite"
+              >
+                {chargeSkillLabel}
+              </div>
+            ) : null}
+            <BeastClash3D
+              playerArt={player[pairClash].thumbnail}
+              opponentArt={opponent[pairClash].thumbnail}
+              playerSpirit={spiritArtFor(player[pairClash].id)}
+              opponentSpirit={spiritArtFor(opponent[pairClash].id)}
+              attacker={pairSide}
+              glow={ELEMENT_FX[(pairSide === 'player' ? player[pairClash] : opponent[pairClash]).element as BattleElement]?.glow ?? '#fff'}
+              beat={pairClash * 4 + pairBeat}
+              outcome={pairResult?.winner}
+            />
+          </>
         )}
         {/*
           三維對撞。只在交鋒階段掛載，演完就卸掉——
@@ -356,9 +388,10 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
         </div>
       )}
 
-      {!revealed ? <button type="button" className={styles.action} disabled={!ready} onClick={() => { if (ready) { sound.current.play(CLASH_FX.flip, 0.3); setPhase('revealing'); } }}>
+      {!revealed ? <button type="button" className={styles.action} disabled={!ready} onClick={() => { if (ready) { playPlayerBeastVoice(sound.current.play, 'player', player[0].id); setPhase('revealing'); } }}>
         {ready ? '一起揭牌' : '等待對手就緒…'}
       </button> : <button type="button" className={styles.skip} onClick={() => completeRef.current()}>略過動畫・看戰果</button>}
+      <a className={styles.skip} href="/audio/beast-voices/credits.html" target="_blank" rel="noreferrer">聲音來源</a>
     </div>
   </div>;
 }

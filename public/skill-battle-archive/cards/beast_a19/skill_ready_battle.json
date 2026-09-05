@@ -1,0 +1,9 @@
+{
+  "skillId": "skill_ready_battle",
+  "name": "隨時戰鬥",
+  "enabled": true,
+  "alwaysReady": true,
+  "note": "列入戰鬥卡片技能檔；檔案就緒即可隨時出戰",
+  "poolId": "beast_a19",
+  "displayName": "畢月烏"
+}

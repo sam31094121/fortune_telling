@@ -393,72 +393,8 @@ WAITING_INPUT → BAZI_RUNNING → ZIWEI_RUNNING → VERIFYING_FOUR_PILLARS
 
 ---
 
-## 十、神獸卡遊戲核心（口令「神獸卡遊戲」｜2026-09-05）
+## 十、神獸卡遊戲核心
 
-### 一句話
-
-一個遊戲核心、一套卡片格式、一套技能系統、一套效果系統、一套戰鬥規則。
-**以後新增神獸卡＝新增資料，不是重寫程式。**
-
-### 架構
-
-```
-cards/beasts/*.ts     卡片資料（一張一個檔）
-cards/skills/index.ts 技能登錄中心
-        ↓
-lib/beast-game/
-  schema.ts    卡片格式＋品質驗證（不合格禁止進正式牌庫）
-  elements.ts  五元素（接平台既有對照，不另立第二套）
-  registry.ts  卡片登錄中心
-  effects.ts   效果核心（13 種 EffectType，唯一會改狀態的地方）
-  battle.ts    戰鬥核心（傷害公式、技能觸發、出手順序）
-  turn.ts      回合核心＋牌組系統（七階段轉移表、種子亂數）
-  balance.ts   平衡評分（Power Budget／BALANCE_WARNING）
-  index.ts     BeastCardGameCore 對外唯一入口
-```
-
-守門：`npm run test:beast-game`（156 項）、健檢第 23 項
-
-### 怎麼加一張卡
-
-1. `cards/beasts/<slug>.ts` 照 `BeastCard` 寫資料
-2. `lib/beast-game/registry.ts` 的 `REGISTERED` 加一行
-3. 跑 `npm run test:beast-game`
-
-驗證不過就進不了正式牌庫——這是真的擋，不是印警告。
-**任何一支引擎都不用改。**
-
-### 怎麼加一個技能
-
-`cards/skills/index.ts` 加一筆，`effects` 只能用既有的 13 種 EffectType。
-Battle Engine 不認得任何技能的名字（測試會擋），所以加技能不必動它。
-
-### 幾條硬規則
-
-| 規則 | 實作位置 |
-|---|---|
-| 前端不准自己扣血、算勝負 | 全部在 `battle.ts`／`effects.ts`，純函式無 React |
-| 動畫不得決定戰鬥結果 | `GameState.timeline` 先算完，前端照著播 |
-| 七階段不得跳關 | `turn.ts` 的 `NEXT_PHASE` 轉移表，違規丟例外 |
-| 同一招不得無限放 | `usesPerBattle` + `SkillUsage` |
-| 稀有度不等於絕對戰力 | `rarityIsNotPower()`，預算帶必須重疊 |
-| 手牌不得載高清圖 | 三段式 `thumbnail`／`front`／`high`，測試比對檔案大小 |
-| 同一場要能重現 | 種子亂數，同 seed 同結果（可回查客訴） |
-
-### 第一階段實測（6 張卡）
-
-```
-角木蛟 SR 296  亢金龍 SSR 296  氐土貉 N 277
-房日兔 R  275  心月狐 R   299  尾火虎 SR 321
-稀有度重疊：N最高277 vs R最低275／R最高299 vs SR最低296／SR最高321 vs SSR最低296
-縮圖 26–33KB（原圖 2.8MB），手牌只載縮圖
-```
-
-### 過程中被自己的檢查抓到的兩件事
-
-1. **稀有度變成絕對戰力**：第一版數值排出來 SR 最低 310 > R 最高 286，
-   `rarityIsNotPower()` 直接報錯。調整 SR 下修、R 上修才通過。
-2. **常駐被動把預算炸掉**：被動用 `duration: 99` 表示常駐，
-   技能分算出 588，比整張卡的數值分還高三倍。改成邊際遞減並封在四回合。
-
-兩件都不是「感覺怪怪的」，是算出來的數字報錯。這就是第十九條要的效果。
+本節已整併進 `docs/beast-game-skill.md`〈九、遊戲核心〉。
+神獸卡的一切——規則、卡片規格、戰鬥演出、聲音、卡圖生產、交付——
+都只在那一份檔案裡，**這裡不留第二份**。

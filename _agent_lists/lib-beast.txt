@@ -1,0 +1,11 @@
+﻿beast-game
+bazi-four-pillar-beasts.ts
+beast-battle-fx.ts
+beast-collection-ledger.ts
+beast-collection.ts
+beast-growth-rewards.ts
+beast-owned-cards.ts
+beast-ritual.ts
+nameology-total-beast.ts
+self-star-beast.ts
+ziwei-star-beast-link.ts

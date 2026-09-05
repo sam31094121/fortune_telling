@@ -1,0 +1,52 @@
+{
+  "poolId": "beast_a28",
+  "displayName": "軫水蚓",
+  "lineage": "adult",
+  "workIndex": "28",
+  "skills": [
+    {
+      "skillId": "skill_charge",
+      "name": "本體衝鋒",
+      "enabled": true,
+      "clip": "/beast-game/skill-bodies/beast_a28.webp",
+      "body": "/beast-game/skill-bodies/beast_a28.webp",
+      "durationMs": 1600,
+      "spawn": {
+        "from": "selfSlot",
+        "to": "targetSlot"
+      }
+    },
+    {
+      "skillId": "skill_hit",
+      "name": "命中衝擊",
+      "enabled": true,
+      "durationMs": 400
+    },
+    {
+      "skillId": "skill_ready_battle",
+      "name": "隨時戰鬥",
+      "enabled": true,
+      "alwaysReady": true,
+      "note": "列入戰鬥卡片技能檔；檔案就緒即可隨時出戰"
+    },
+    {
+      "skillId": "mode_best_of_three",
+      "name": "三戰兩勝",
+      "enabled": true,
+      "type": "match_rule"
+    }
+  ],
+  "battleReady": true,
+  "features": [
+    "feature_battle",
+    "feature_star_beast_card_battle"
+  ],
+  "featureNames": [
+    "戰鬥功能",
+    "神獸卡片戰鬥功能",
+    "三戰兩勝"
+  ],
+  "product": "太極命理",
+  "matchMode": "三戰兩勝",
+  "cardRole": "專用戰鬥卡片"
+}

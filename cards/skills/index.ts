@@ -175,3 +175,9 @@ export function getSkill(id: string): SkillDefinition | undefined {
 export function allSkillIds(): Set<string> {
   return new Set(SKILL_MAP.keys());
 }
+
+/** 三戰兩勝演出技能（對照《技能戰鬥檔案》；不進 Effect Engine）。 */
+export {
+  BATTLE_PRESENTATION_SKILLS,
+  getBattlePresentationSkill,
+} from './battle-presentation';

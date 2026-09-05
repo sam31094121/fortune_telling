@@ -204,7 +204,8 @@ export default function BeastClash3D({
   return (
     <div
       data-beast-clash-3d
-      aria-hidden="true"
+      role="img"
+      aria-label="雙方神獸本體交戰"
       className="pointer-events-none absolute inset-0"
     >
       <Canvas
@@ -220,7 +221,7 @@ export default function BeastClash3D({
         <CardPlane
           art={playerSpirit ?? playerArt}
           spirit={Boolean(playerSpirit)}
-          home={[-1.35, -0.15, 0]}
+          home={[-1.05, -0.15, 0]}
           lunging={lunging && attacker === 'player'}
           recoiling={impact && attacker === 'opponent'}
           lost={outcome === 'OPPONENT'} won={outcome === 'PLAYER'}
@@ -229,7 +230,7 @@ export default function BeastClash3D({
         <CardPlane
           art={opponentSpirit ?? opponentArt}
           spirit={Boolean(opponentSpirit)}
-          home={[1.35, 0.15, 0]}
+          home={[1.05, 0.15, 0]}
           lunging={lunging && attacker === 'opponent'}
           recoiling={impact && attacker === 'player'}
           lost={outcome === 'PLAYER'} won={outcome === 'OPPONENT'}
