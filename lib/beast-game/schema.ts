@@ -15,7 +15,7 @@
 import { isBeastElement, type BeastElement } from './elements';
 
 /** 遊戲核心版本。與任何一張卡的 version 無關，不得混用。 */
-export const GAME_CORE_VERSION = '1.2.0';
+export const GAME_CORE_VERSION = '1.3.0';
 
 /**
  * 1.1.0 加了兩件事，都是「六十張卡的遊戲」必要的，不是為了某一張卡：

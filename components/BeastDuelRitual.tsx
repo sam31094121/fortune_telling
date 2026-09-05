@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { selectRitualHighlights, type RitualTurn } from '@/lib/beast-ritual';
+import type { PairResult } from '@/lib/beast-game/series';
 import styles from './BeastDuelRitual.module.css';
 
 /*
@@ -29,13 +30,14 @@ type Props = {
   opponent: RitualCard[] | null;
   timeline?: RitualTurn[];
   replay?: boolean;
+  pairs?: PairResult[];
   onComplete: () => void;
   onCancel: () => void;
 };
 const ELEMENTS: Record<string, string> = { SPACE: '空', AIR: '風', WATER: '水', FIRE: '火', EARTH: '地' };
 const POSITIONS = ['前鋒', '中軍', '後陣'];
 
-export default function BeastDuelRitual({ player, opponent, timeline, replay, onComplete, onCancel }: Props) {
+export default function BeastDuelRitual({ player, opponent, timeline, replay, pairs, onComplete, onCancel }: Props) {
   const [dealt, setDealt] = useState(false);
   const [phase, setPhase] = useState<'covered' | 'revealing' | 'clash'>('covered');
   const [moment, setMoment] = useState(0);
@@ -53,6 +55,8 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, on
   const [pairClash, setPairClash] = useState<number | null>(null);
   const [pairSide, setPairSide] = useState<'player' | 'opponent'>('player');
   const [pairBeat, setPairBeat] = useState(0);
+  const [pairResult, setPairResult] = useState<PairResult | null>(null);
+  const [shownScore, setShownScore] = useState({ player: 0, opponent: 0 });
   /** 這一瞬間正在撞的是誰。做卡片對撞用。 */
   const [clashing, setClashing] = useState<{ side: 'player' | 'opponent'; index: number } | null>(null);
   /**
@@ -147,21 +151,37 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, on
     if (phase !== 'revealing' || revealCount === 0 || revealCount % 2 !== 0) return;
     const index = revealCount / 2 - 1;
     if (!player[index] || !opponent?.[index]) return;
+    const result = pairs?.[index];
+    const actionSide = (beat: number) => {
+      if (!result?.actions.length) return beat % 2 === 0 ? 'player' : 'opponent';
+      const action = result.actions[Math.round(beat * (result.actions.length - 1) / 3)];
+      return action.side === 'PLAYER' ? 'player' : 'opponent';
+    };
     setPairClash(index);
-    setPairSide('player');
+    setPairResult(null);
+    setPairSide(actionSide(0));
     setPairBeat(0);
-    const stopSound = playClashSequence(sound.current.play, player[index].element as BattleElement, false, player[index].id);
+    const first = actionSide(0) === 'player' ? player[index] : opponent[index];
+    const stopSound = playClashSequence(sound.current.play, first.element as BattleElement, false, first.id);
     const sounds = [stopSound];
     const replies = [1, 2, 3].map((beat) => window.setTimeout(() => {
-      const side = beat % 2 === 0 ? 'player' : 'opponent';
+      const side = actionSide(beat);
       const card = side === 'player' ? player[index] : opponent[index];
       setPairSide(side);
       setPairBeat(beat);
       sounds.push(playClashSequence(sound.current.play, card.element as BattleElement, false, card.id));
     }, beat * 1400));
-    const timer = window.setTimeout(() => setPairClash(null), 6000);
-    return () => { window.clearTimeout(timer); replies.forEach(window.clearTimeout); sounds.forEach((stop) => stop()); };
-  }, [phase, revealCount, player, opponent]);
+    const verdict = window.setTimeout(() => { if (result) { setPairResult(result); setShownScore(result.score); } }, 6000);
+    const timer = window.setTimeout(() => {
+      setPairClash(null);
+      if (pairs && index === pairs.length - 1) completeRef.current();
+      else if (pairs && index === 1) {
+        if (result && (result.score.player === 2 || result.score.opponent === 2)) setRevealCount(REVEAL_ORDER.length);
+        else setAutoFlip(false);
+      }
+    }, result ? 8000 : 6000);
+    return () => { window.clearTimeout(timer); window.clearTimeout(verdict); replies.forEach(window.clearTimeout); sounds.forEach((stop) => stop()); };
+  }, [phase, revealCount, player, opponent, pairs]);
 
   /** 手動翻下一張。點卡片或按「翻下一張」都走這裡。 */
   function flipNext() {
@@ -174,6 +194,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, on
   }
 
   useEffect(() => {
+    if (pairs) return;
     if (phase === 'covered') return;
     const timer = window.setTimeout(() => {
       if (phase === 'revealing') {
@@ -185,7 +206,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, on
       else completeRef.current();
     }, phase === 'revealing' ? 900 : 1500);
     return () => window.clearTimeout(timer);
-  }, [phase, moment, highlights.length, revealCount, pairClash]);
+  }, [phase, moment, highlights.length, revealCount, pairClash, pairs]);
 
   /*
     交鋒時的聲音。
@@ -245,10 +266,11 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, on
   return <div ref={dialog} tabIndex={-1} role="dialog" aria-modal="true" aria-label="雙方揭牌儀式" className={styles.stage} data-duel-ritual data-ritual-phase={!opponentReady ? 'waiting' : !dealt ? 'dealing' : phase}>
     <div className={styles.table}>
       <div className={styles.topline}>
-        <h2>三席對陣{replay ? '・重播' : ''}</h2>
+        <h2>{pairs ? '三戰兩勝' : '三席對陣'}{replay ? '・重播' : ''}</h2>
         <button type="button" className={styles.close} onClick={onCancel} disabled={!opponentReady}>{opponentReady ? '查看結算' : '準備中'}</button>
       </div>
       <div className={styles.label}><span>電腦對手</span><small>{revealed ? '開場陣容' : '三張待揭'}</small></div>
+      {pairs && <p role="status" aria-label="目前比分">你 {shownScore.player} : {shownScore.opponent} 對手</p>}
       {row(opponent, 'opponent')}
       <div className={`${styles.center} ${phase === 'clash' || pairClash !== null ? styles.clash : ''}`} role="status" aria-live="polite" style={{ position: 'relative' }}>
         {pairClash !== null && player[pairClash] && opponent?.[pairClash] && (
@@ -260,6 +282,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, on
             attacker={pairSide}
             glow={ELEMENT_FX[(pairSide === 'player' ? player[pairClash] : opponent[pairClash]).element as BattleElement]?.glow ?? '#fff'}
             beat={pairClash * 4 + pairBeat}
+            outcome={pairResult?.winner}
           />
         )}
         {/*
@@ -277,9 +300,12 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, on
             beat={moment}
           />
         )}
-        {pairClash !== null ? <>
+        {pairResult && pairClash !== null ? <>
+          <strong>{pairResult.winner === 'PLAYER' ? '這一局・你贏了' : pairResult.winner === 'OPPONENT' ? '這一局・對手獲勝' : '這一局・平手'}</strong>
+          <p>比分 {pairResult.score.player} : {pairResult.score.opponent}{pairResult.index === 1 ? (pairResult.score.player === 2 || pairResult.score.opponent === 2 ? '・第三組即將自動揭牌' : '・親手揭開決勝局') : pairResult.index === 2 ? '・三局完成' : '・準備下一組'}</p>
+        </> : pairClash !== null ? <>
           <strong>{POSITIONS[pairClash]}・神獸交鋒</strong>
-          <p>雙方現身・開場演武</p>
+          <p>{pairs ? '神獸交鋒・勝負即將揭曉' : '雙方現身・開場演武'}</p>
         </> : phase === 'clash' && event ? <>
           <strong key={moment}>第 {event.turn} 回合・{event.side === 'PLAYER' ? '我方' : '對手'}</strong>
           <p>{event.note}</p>

@@ -67,6 +67,7 @@ type DuelResult = {
     forfeitedCardName: string | null;
   };
   winner?: string;
+  series?: { pairs: import('@/lib/beast-game/series').PairResult[]; score: { player: number; opponent: number } };
   turns?: number;
   life?: { player: number; opponent: number };
   timeline?: Array<{ turn: number; side: string; phase: string; note: string }>;
@@ -96,9 +97,9 @@ function slotLabel(index: number): string {
 }
 
 const SLOT_META = [
-  { name: '前鋒', hint: '承受攻擊' },
-  { name: '中軍', hint: '接替前鋒' },
-  { name: '後陣', hint: '後方支援' },
+  { name: '前鋒', hint: '第一局單挑' },
+  { name: '中軍', hint: '第二局單挑' },
+  { name: '後陣', hint: '第三局單挑' },
 ];
 
 /**
@@ -764,7 +765,7 @@ export default function BeastGamePage() {
                 {duel.winner === 'PLAYER' ? '你贏了' : duel.winner === 'OPPONENT' ? '你輸了' : '平手'}
               </p>
               <p className="mt-1 text-xs text-white/60">
-                共 {duel.turns} 回合・本命 {duel.life?.player} : {duel.life?.opponent}
+                {duel.series ? `共 ${duel.turns} 局・比分 ${duel.series.score.player} : ${duel.series.score.opponent}` : `共 ${duel.turns} 回合・本命 ${duel.life?.player} : ${duel.life?.opponent}`}
               </p>
               {selectRitualHighlights(duel.timeline).slice(-1).map((entry) => (
                 <p key={`${entry.turn}-${entry.side}`} className="mt-2 text-xs leading-6 text-amber-100/80">
@@ -991,6 +992,7 @@ export default function BeastGamePage() {
       )}
       {ritual && <BeastDuelRitual player={ritual.player} opponent={ritual.opponent}
         timeline={ritual.result?.timeline} replay={ritual.replay}
+        pairs={ritual.result?.series?.pairs}
         onComplete={completeRitual} onCancel={cancelRitual} />}
     </main>
   );

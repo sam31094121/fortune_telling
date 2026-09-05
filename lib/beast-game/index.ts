@@ -67,3 +67,5 @@ export type { GameState, PlayerState, TurnPhase, LineupSetup } from './turn';
 
 export { SKILLS, getSkill, allSkillIds } from '../../cards/skills';
 export type { SkillDefinition, SkillTrigger } from '../../cards/skills';
+export { playSeries } from './series';
+export type { PairResult } from './series';

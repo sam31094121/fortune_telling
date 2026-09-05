@@ -55,6 +55,7 @@ export interface ClashProps {
   glow: string;
   /** 每次這個值變動就重演一次衝撞。用回合序號即可。 */
   beat: number;
+  outcome?: 'PLAYER' | 'OPPONENT' | 'DRAW';
 }
 
 /** 卡片比例沿用正統規格 63×88，三維空間裡也不能變形。 */
@@ -71,6 +72,8 @@ function CardPlane({
   glow,
   spirit,
   recoiling,
+  lost,
+  won,
 }: {
   art: string;
   home: [number, number, number];
@@ -79,6 +82,8 @@ function CardPlane({
   /** 有本體立繪就用本體，沒有才退回卡面。 */
   spirit?: boolean;
   recoiling: boolean;
+  lost?: boolean;
+  won?: boolean;
 }) {
   const texture = useLoader(THREE.TextureLoader, art);
   const mesh = useRef<THREE.Mesh>(null);
@@ -106,6 +111,10 @@ function CardPlane({
     node.rotation.y = direction * t * -0.12;
     const scale = 1 + t * 0.16;
     node.scale.set(scale * (1 + hit * 0.06), scale * (1 - hit * 0.08), 1);
+    const material = node.material as THREE.MeshBasicMaterial;
+    material.opacity += ((lost ? 0 : 1) - material.opacity) * Math.min(1, delta * 4);
+    if (lost) node.position.x -= direction * (1 - material.opacity) * 0.65;
+    if (won) node.scale.multiplyScalar(1.1);
   });
 
   return (
@@ -118,7 +127,7 @@ function CardPlane({
       <meshBasicMaterial
         map={texture}
         toneMapped={false}
-        transparent={spirit}
+        transparent
         alphaTest={spirit ? 0.08 : 0}
       />
       {/* 衝出去時吃到元素光，讓出手方看得出來是誰。卡面才畫光框，本體不畫（會變成方框）。 */}
@@ -165,6 +174,7 @@ export default function BeastClash3D({
   attacker,
   glow,
   beat,
+  outcome,
 }: ClashProps) {
   const [lunging, setLunging] = useState(false);
   const [impact, setImpact] = useState(false);
@@ -213,6 +223,7 @@ export default function BeastClash3D({
           home={[-1.35, -0.15, 0]}
           lunging={lunging && attacker === 'player'}
           recoiling={impact && attacker === 'opponent'}
+          lost={outcome === 'OPPONENT'} won={outcome === 'PLAYER'}
           glow={glow}
         />
         <CardPlane
@@ -221,6 +232,7 @@ export default function BeastClash3D({
           home={[1.35, 0.15, 0]}
           lunging={lunging && attacker === 'opponent'}
           recoiling={impact && attacker === 'player'}
+          lost={outcome === 'PLAYER'} won={outcome === 'OPPONENT'}
           glow={glow}
         />
         <Impact active={impact} glow={glow} />

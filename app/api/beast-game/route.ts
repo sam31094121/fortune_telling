@@ -5,16 +5,14 @@ import { resolveStake, validateStake } from '@/lib/beast-game/stake';
 import { evaluateBalance } from '@/lib/beast-game/balance';
 import { getSkill } from '@/cards/skills';
 import { GAME_CORE_VERSION } from '@/lib/beast-game/schema';
+import { playSeries } from '@/lib/beast-game/series';
 import {
   DECK_SIZE,
   LINEUP_SLOTS,
   MAX_LINEUP_COST,
   STARTING_LIFE,
-  buildDeck,
   buildLineup,
-  createDuel,
   createRng,
-  playToEnd,
   validateLineup,
 } from '@/lib/beast-game/turn';
 
@@ -115,15 +113,9 @@ export async function POST(request: Request) {
     回傳的 fairness 欄位就是給客戶看的那份對照。
   */
   const opponentLineup = buildLineup(ids, rng);
-  const playerDeck = buildDeck(ids, rng);
-  const opponentDeck = buildDeck(ids, rng);
   // Lock the opponent's stake before resolving combat; no choosing prizes after seeing the winner.
   const opponentStakeId = ids[Math.floor(rng() * ids.length)];
-  const state = playToEnd(createDuel({
-    player: { lineup: chosen, deck: playerDeck },
-    opponent: { lineup: opponentLineup, deck: opponentDeck },
-    seed,
-  }));
+  const series = playSeries(chosen, opponentLineup, seed);
 
   /*
     對手也押一張，同樣從卡池抽、同樣用這一場的種子——
@@ -132,7 +124,7 @@ export async function POST(request: Request) {
   const stakeOutcome = resolveStake({
     playerStake: stakeCardId as string,
     opponentStake: opponentStakeId,
-    winner: state.winner,
+    winner: series.winner,
   });
   const nameOf = (id: string) => playableCards().find((c) => c.id === id)?.name ?? id;
 
@@ -152,10 +144,11 @@ export async function POST(request: Request) {
     },
     seed,
     isReplay,
-    firstPlayer: state.firstPlayer,
-    winner: state.winner,
-    turns: state.turn,
-    life: { player: state.players.PLAYER.life, opponent: state.players.OPPONENT.life },
+    firstPlayer: series.firstPlayer,
+    winner: series.winner,
+    series,
+    turns: series.pairs.length,
+    life: { player: series.score.player, opponent: series.score.opponent },
     opponentLineup: opponentLineup.map((id) => playableCards().find((c) => c.id === id)?.name ?? id),
     opponentLineupIds: opponentLineup,
     /*
@@ -164,19 +157,17 @@ export async function POST(request: Request) {
     */
     fairness: {
       seedSource: isReplay ? '重播（沿用你指定的種子）' : '伺服器產生，客戶端無法指定',
-      firstPlayer: state.firstPlayer === 'PLAYER' ? '你先手（本場由種子擲出）' : '對手先手（本場由種子擲出）',
+      firstPlayer: '每局依速度決定先手，同速由本場種子決定',
       sameRules: [
-        `雙方本命都是 ${STARTING_LIFE}`,
-        `雙方牌組都是 ${DECK_SIZE} 張，從同一個 ${ids.length} 張卡池抽`,
-        '雙方氣的成長完全相同（每回合上限 +1，上限十）',
-        '雙方出戰三席都是三張，開場都在場上',
+        '三局取多勝；二比零時第三組自動揭牌，一比一時親手揭開決勝局',
+        '每局重置生命與技能次數，沿用卡片屬性、元素相剋與戰鬥技能',
+        '單挑不抽牌、不補位，抽棄牌技能在此模式不生效',
         `雙方開場布陣最多 ${MAX_LINEUP_COST} 氣，同一卡不能重複上陣`,
-        '後手方多抽一張牌，補償先手的節奏優勢',
-        '先手方第一回合不進攻',
+        '百次行動仍未分勝負則該局平手，最多三局按勝局數結算；同分退回押注',
       ],
       replayable: '記下這顆種子，用「重播這一場」可以完整重現同一場對戰。',
     },
-    timeline: state.timeline,
-    log: state.log,
+    timeline: [],
+    log: series.pairs.flatMap((pair) => pair.actions),
   }, { headers: { 'Cache-Control': 'no-store' } });
 }
