@@ -1,9 +1,25 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { selectRitualHighlights, type RitualTurn } from '@/lib/beast-ritual';
 import styles from './BeastDuelRitual.module.css';
+
+/*
+  三維對撞只在交鋒階段用，所以動態載入——
+  沒打到交鋒的人不該為了它下載 three.js。
+  掛不上（舊瀏覽器、沒有 WebGL）就當作沒有，靜態版面照常運作。
+*/
+const BeastClash3D = dynamic(() => import('./BeastClash3D'), { ssr: false });
 import frameStyles from './BeastCardFrame.module.css';
+import {
+  CLASH_FX,
+  ELEMENT_FX,
+  REVEAL_INTERVAL_MS,
+  REVEAL_ORDER,
+  createSoundPlayer,
+  type BattleElement,
+} from '@/lib/beast-battle-fx';
 
 type RitualCard = { id: string; name: string; thumbnail: string; element: string };
 type Props = {
@@ -21,6 +37,21 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, on
   const [dealt, setDealt] = useState(false);
   const [phase, setPhase] = useState<'covered' | 'revealing' | 'clash'>('covered');
   const [moment, setMoment] = useState(0);
+  /**
+   * 已經翻開幾張。
+   *
+   * 業主定調：「一張一張地翻牌，不要一次就六張牌一起翻。
+   * 要同時『我翻一張，對方翻一張』的概念。」
+   *
+   * 原本用一個布林 revealed 控制全部六張，所以是六張同時翻。
+   * 改成計數：照 REVEAL_ORDER（我的前鋒→對方前鋒→我的中軍→…）
+   * 一張一張翻，客戶看得出誰對上誰。
+   */
+  const [revealCount, setRevealCount] = useState(0);
+  /** 這一瞬間正在撞的是誰。做卡片對撞用。 */
+  const [clashing, setClashing] = useState<{ side: 'player' | 'opponent'; index: number } | null>(null);
+  const [soundOn, setSoundOn] = useState(false);
+  const sound = useRef(createSoundPlayer());
   const dialog = useRef<HTMLDivElement>(null);
   const completeRef = useRef(onComplete);
   const cancelRef = useRef(onCancel);
@@ -30,6 +61,11 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, on
   const ready = dealt && opponent?.length === 3;
   const opponentReady = opponent?.length === 3;
   const revealed = phase !== 'covered';
+  /** 某一張翻開了沒。逐張揭牌就是靠這個判斷。 */
+  const isRevealed = (side: 'player' | 'opponent', index: number) => {
+    const order = REVEAL_ORDER.findIndex((step) => step.side === side && step.index === index);
+    return order >= 0 && order < revealCount;
+  };
 
   useEffect(() => {
     const previousFocus = document.activeElement as HTMLElement | null;
@@ -59,38 +95,94 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, on
     return () => window.clearTimeout(timer);
   }, [opponentReady]);
 
+  /*
+    逐張揭牌。
+
+    照 REVEAL_ORDER 一張一張翻：我的前鋒 → 對方前鋒 → 我的中軍 → …
+    每翻一張放一次輕音，並讓那張卡短暫發光——客戶看得出「現在翻的是這張」。
+
+    減少動態時直接六張全開，不折磨人。
+  */
+  useEffect(() => {
+    if (phase !== 'revealing') return;
+    if (revealCount >= REVEAL_ORDER.length) return;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) { setRevealCount(REVEAL_ORDER.length); return; }
+
+    const timer = window.setTimeout(() => {
+      const step = REVEAL_ORDER[revealCount];
+      setClashing(step);
+      sound.current.play(CLASH_FX.flip, 0.3);
+      setRevealCount((value) => value + 1);
+      window.setTimeout(() => setClashing(null), 260);
+    }, revealCount === 0 ? 200 : REVEAL_INTERVAL_MS);
+    return () => window.clearTimeout(timer);
+  }, [phase, revealCount]);
+
   useEffect(() => {
     if (phase === 'covered') return;
     const timer = window.setTimeout(() => {
       if (phase === 'revealing') {
+        // 六張都翻完才進交鋒，否則客戶還沒看清楚就跳過去了。
+        if (revealCount < REVEAL_ORDER.length) return;
         if (!highlights.length) completeRef.current();
         else setPhase('clash');
       } else if (moment + 1 < highlights.length) setMoment((value) => value + 1);
       else completeRef.current();
-    }, phase === 'revealing' ? 1000 : 1300);
+    }, phase === 'revealing' ? 900 : 1500);
     return () => window.clearTimeout(timer);
-  }, [phase, moment, highlights.length]);
+  }, [phase, moment, highlights.length, revealCount]);
+
+  /*
+    交鋒時的聲音。
+
+    用出手方的元素配對應的音效（風→龍捲風、火→火焰、地→地裂…），
+    全部是專案裡既有的太極音效，沒有新素材。
+    重擊（有人陣亡）換成雷聲，讓「這一下很重」聽得出來。
+  */
+  useEffect(() => {
+    if (phase !== 'clash') return;
+    const event = highlights[moment];
+    if (!event) return;
+    const attacker = event.side === 'PLAYER' ? player : opponent;
+    const element = attacker?.[0]?.element as BattleElement | undefined;
+    const fx = element ? ELEMENT_FX[element] : null;
+    sound.current.play(fx?.attack ?? CLASH_FX.impact, 0.4);
+    if (/陣亡|擊倒|本命/.test(event.note ?? '')) {
+      window.setTimeout(() => sound.current.play(CLASH_FX.heavyImpact, 0.5), 220);
+    }
+  }, [phase, moment, highlights, player, opponent]);
 
   function row(cards: RitualCard[] | null, side: 'player' | 'opponent') {
     return <div className={`${styles.row} ${side === 'opponent' && opponentReady && !dealt ? styles.dealing : ''}`} aria-label={side === 'player' ? '你的三張出戰牌' : '電腦對手的三張出戰牌'}>
       {POSITIONS.map((position, index) => {
         const card = cards?.[index];
+        // 每一張自己判斷翻了沒——原本一個布林控制全部六張，所以六張同時翻。
+        const open = isRevealed(side, index);
+        const flipping = clashing?.side === side && clashing.index === index;
+        const glow = card ? ELEMENT_FX[card.element as BattleElement]?.glow : undefined;
         return <div key={position} className={styles.slot} data-ritual-slot={side} data-ritual-card={card?.id}>
-          <div className={`${frameStyles.card} ${styles.card} ${revealed ? styles.revealed : ''}`} data-revealed={revealed ? 'yes' : 'no'}>
-            <div className={styles.face} aria-hidden={revealed}>
+          <div
+            className={`${frameStyles.card} ${styles.card} ${open ? styles.revealed : ''}`}
+            data-revealed={open ? 'yes' : 'no'}
+            data-flipping={flipping ? 'yes' : 'no'}
+            style={flipping && glow ? { boxShadow: `0 0 0 2px ${glow}, 0 0 26px ${glow}` } : undefined}
+          >
+            <div className={styles.face} aria-hidden={open}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {card && <img src="/tarot/card-back-luxe.png" alt={`${side === 'player' ? '你' : '對手'}的${position}牌背`} />}
             </div>
-            <div className={`${styles.face} ${styles.front}`} aria-hidden={!revealed}>
+            <div className={`${styles.face} ${styles.front}`} aria-hidden={!open}>
               {card && <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={card.thumbnail} alt={revealed ? card.name : ''} />
-                {revealed && <small>{ELEMENTS[card.element]}</small>}
+                <img src={card.thumbnail} alt={open ? card.name : ''} />
+                {open && <small>{ELEMENTS[card.element]}</small>}
               </>}
             </div>
           </div>
-          <div className={styles.caption} aria-label={revealed ? `${position}：${card?.name ?? ''}` : position}>
-            <strong title={revealed ? `${position}：${card?.name ?? ''}` : undefined}>{revealed ? card?.name : position}</strong>
+          <div className={styles.caption} aria-label={open ? `${position}：${card?.name ?? ''}` : position}>
+            <strong title={open ? `${position}：${card?.name ?? ''}` : undefined}>{open ? card?.name : position}</strong>
           </div>
         </div>;
       })}
@@ -106,10 +198,30 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, on
       </div>
       <div className={styles.label}><span>電腦對手</span><small>{revealed ? '開場陣容' : '三張待揭'}</small></div>
       {row(opponent, 'opponent')}
-      <div className={`${styles.center} ${phase === 'clash' ? styles.clash : ''}`} role="status" aria-live="polite">
+      <div className={`${styles.center} ${phase === 'clash' ? styles.clash : ''}`} role="status" aria-live="polite" style={{ position: 'relative' }}>
+        {/*
+          三維對撞。只在交鋒階段掛載，演完就卸掉——
+          不長期佔著 WebGL context（太極憲章：手機優先 60FPS）。
+        */}
+        {phase === 'clash' && event && player[0] && opponent?.[0] && (
+          <BeastClash3D
+            playerArt={player[0].thumbnail}
+            opponentArt={opponent[0].thumbnail}
+            attacker={event.side === 'PLAYER' ? 'player' : 'opponent'}
+            glow={ELEMENT_FX[(event.side === 'PLAYER' ? player[0] : opponent[0]).element as BattleElement]?.glow ?? '#fff'}
+            beat={moment}
+          />
+        )}
         {phase === 'clash' && event ? <>
           <strong key={moment}>第 {event.turn} 回合・{event.side === 'PLAYER' ? '我方' : '對手'}</strong>
           <p>{event.note}</p>
+        </> : phase === 'revealing' && revealCount < REVEAL_ORDER.length ? <>
+          {/* 逐張揭牌時要講出現在翻的是誰的哪一席，客戶才跟得上。 */}
+          <strong key={revealCount}>
+            {REVEAL_ORDER[revealCount]?.side === 'player' ? '你的' : '對手的'}
+            {POSITIONS[REVEAL_ORDER[revealCount]?.index ?? 0]}
+          </strong>
+          <p>一張一張揭・{revealCount} / {REVEAL_ORDER.length}</p>
         </> : <>
           <strong>{revealed ? '雙方揭牌' : ready ? '等你一起揭牌' : '對手理牌中…'}</strong>
           <p>{revealed ? '守護陣已展開' : ready ? '雙方三席已鎖定' : '你的三張已入陣'}</p>
@@ -117,6 +229,27 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, on
       </div>
       <div className={styles.label}><span>你的神獸</span><small>{revealed ? '開場陣容' : '親手選定'}</small></div>
       {row(player, 'player')}
+
+      {/*
+        音效開關。
+
+        預設關閉——沒有人希望一進來就被聲音嚇到，要開由客戶自己決定。
+        音效用的是專案裡既有的太極 CC0 音效庫，沒有新素材。
+      */}
+      <button
+        type="button"
+        className={styles.skip}
+        data-sound-toggle={soundOn ? 'on' : 'off'}
+        onClick={() => {
+          const next = !soundOn;
+          setSoundOn(next);
+          sound.current.setEnabled(next);
+          if (next) sound.current.play(CLASH_FX.flip, 0.25);
+        }}
+      >
+        {soundOn ? '🔊 戰鬥音效：開' : '🔈 戰鬥音效：關'}
+      </button>
+
       {!revealed ? <button type="button" className={styles.action} disabled={!ready} onClick={() => { if (ready) setPhase('revealing'); }}>
         {ready ? '一起揭牌' : '等待對手就緒…'}
       </button> : <button type="button" className={styles.skip} onClick={() => completeRef.current()}>略過動畫・看戰果</button>}

@@ -45,7 +45,8 @@
     "test:star-beast-entry-api": "node tests/star-beast-entry.api.test.cjs",
     "test:screen-health-policy": "node tests/screen-health-recovery-policy.test.cjs",
     "test:beast-card-spec": "node tests/beast-card-spec.test.cjs",
-    "test:beast-stake": "node tests/beast-stake.test.cjs && node tests/beast-collection.test.cjs"
+    "test:beast-stake": "node tests/beast-stake.test.cjs && node tests/beast-collection.test.cjs",
+    "test:beast-ritual": "node tests/beast-battle-ritual.test.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",
