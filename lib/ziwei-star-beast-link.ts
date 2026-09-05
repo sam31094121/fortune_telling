@@ -1,5 +1,5 @@
-import starBeastsData from '@/data/star-beasts.json';
-import type { FiveElementKey } from '@/lib/five-element-engine';
+import starBeastsData from '../data/star-beasts.json';
+import type { FiveElementKey } from './five-element-engine';
 
 type StarBeastSeason = 'spring' | 'summer' | 'autumn' | 'winter';
 

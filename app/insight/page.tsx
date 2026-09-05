@@ -30,7 +30,7 @@ import MegaInputGuide from '@/components/MegaInputGuide';
 import { calculateBoneWeight, formatQian } from '@/lib/bone-weight';
 import { WaterTreasureOrb } from '@/components/bazi/customer/WaterTreasureOrb';
 import { useElementTreasureRitual } from '@/components/five-elements/useElementTreasureRitual';
-import { deriveZiweiStarBeastLink } from '@/lib/ziwei-star-beast-link';
+import type { ThreeInOneResult, ZiweiStarBeastCard } from '@/lib/three-in-one';
 import StarBeastLineageReveal from '@/components/StarBeastLineageReveal';
 
 // 時辰：null=未選、'unknown'=自動良辰、'known'=準備選時辰、0–11=已選時辰
@@ -46,6 +46,10 @@ interface InsightData {
 }
 
 interface InsightResult {
+  /** 四張紫微神獸卡。由後端三合一產出；三合一沒成立時是空陣列。 */
+  starBeasts?: ZiweiStarBeastCard[];
+  /** 三合一狀態。無時辰時帶著寫明四層怎麼算的無時辰算法。 */
+  threeInOne?: ThreeInOneResult;
   analysisId?: string;
   presentation?: ZiweiPresentationBundle;
   accuracyScore: number;
@@ -1206,7 +1210,14 @@ function NoHourTrendCard({
   );
 }
 
-function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: InsightResult['ziweiSanFang']; plainSummary?: string; meta?: InsightResult['meta'] }) {
+function SanFangSummaryCard({ analysis, plainSummary, meta, starBeasts, threeInOne }: {
+  analysis?: InsightResult['ziweiSanFang'];
+  plainSummary?: string;
+  meta?: InsightResult['meta'];
+  /** 四張紫微神獸卡。由後端三合一產出，前端只顯示，不自己推。 */
+  starBeasts?: ZiweiStarBeastCard[];
+  threeInOne?: ThreeInOneResult;
+}) {
   if (!analysis) return null;
 
   const boneWeight = analysis.timeConfidence === 'exact' ? calculateBoneWeight(meta?.birthDate, meta?.shichen) : null;
@@ -1332,7 +1343,32 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
           })}
         </div>
 
-        <section className="mt-3 rounded-2xl border border-white/10 bg-black/20 p-3" aria-label="紫微斗數與二十八宿神獸連結">
+        {/*
+          神獸區塊要跟著三合一走。
+          沒有四張卡（時辰未知、紫微未定盤、或四柱核對沒過）就不畫卡，
+          改把「為什麼這次沒有」講出來——不是靜靜地不見，也不是拿估的命盤硬畫。
+        */}
+        {(starBeasts?.length ?? 0) === 0 ? (
+          <section
+            className="mt-3 rounded-2xl border border-white/10 bg-black/20 p-3"
+            aria-label="紫微神獸卡本次不產出"
+            data-star-beasts="UNAVAILABLE"
+          >
+            <p className="text-[10px] font-black tracking-[0.16em] text-cyan-100">紫微斗數 × 二十八宿神獸</p>
+            <p className="mt-2 text-[11px] font-semibold leading-5 text-white/60">
+              {threeInOne?.status === 'TIME_UNKNOWN'
+                ? threeInOne.noHourMethod.layers.find((layer) => layer.layer === '神獸卡')?.reason
+                  ?? '這次沒有出生時辰，命宮定不了，四張神獸卡不產出。'
+                : '本次三合一未成立，四張神獸卡不產出。'}
+            </p>
+            <p className="mt-2 text-[11px] font-bold leading-5 text-cyan-100/80">
+              {threeInOne?.status === 'TIME_UNKNOWN'
+                ? threeInOne.noHourMethod.unlock
+                : '命盤鎖定後就會出現。'}
+            </p>
+          </section>
+        ) : (
+        <section className="mt-3 rounded-2xl border border-white/10 bg-black/20 p-3" aria-label="紫微斗數與二十八宿神獸連結" data-star-beasts="READY">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <p className="text-[10px] font-black tracking-[0.16em] text-cyan-100">紫微斗數 × 二十八宿神獸</p>
@@ -1350,7 +1386,13 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
               .filter((otherKey) => otherKey !== key)
               .map((otherKey) => palaceMap.get(otherKey))
               .filter((candidate): candidate is ZiweiFullPalace => Boolean(candidate));
-            const link = palace ? deriveZiweiStarBeastLink({ palace, bodyPalace, crossPalaces }) : null;
+            /*
+              神獸改由後端三合一產出（lib/three-in-one.ts 的 buildZiweiStarBeasts）。
+              原本這一行在瀏覽器裡推神獸——那是命理推論，前端不得自己算；
+              而且它整條依賴命宮，沒有時辰時照樣會渲染出四張卡，等於拿估的命盤當真的。
+              現在只查後端給的那四張，查不到就不顯示。
+            */
+            const link = starBeasts?.find((card) => card.palaceKey === key) ?? null;
             const visual = link ? beastVisualTone[link.season] : null;
             return (
               <article key={`${key}-star-beast`} className={`relative min-h-[280px] overflow-hidden rounded-[26px] border p-4 shadow-[0_18px_42px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.14)] ${link ? `bg-gradient-to-br ${visual?.panel}` : tone.card}`}>
@@ -1396,6 +1438,7 @@ function SanFangSummaryCard({ analysis, plainSummary, meta }: { analysis?: Insig
           })}
         </div>
         </section>
+        )}
 
         <div className="hidden mt-4 grid grid-cols-3 gap-2" aria-hidden="true">
           {[
@@ -5680,7 +5723,7 @@ export default function InsightPage() {
               onFillHour={jumpToHourPicker}
             />
 
-            <SanFangSummaryCard analysis={result?.ziweiSanFang} plainSummary={result?.plainSummary} meta={result?.meta} />
+            <SanFangSummaryCard analysis={result?.ziweiSanFang} plainSummary={result?.plainSummary} meta={result?.meta} starBeasts={result?.starBeasts} threeInOne={result?.threeInOne} />
 
             <ZiweiTwelvePalaceCards
               analysis={result?.ziweiSanFang}

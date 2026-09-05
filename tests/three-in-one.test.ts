@@ -152,6 +152,38 @@ async function main() {
     eq('檢核清單五項全過', ok.checklist.map((i) => i.state), ['PASSED', 'PASSED', 'PASSED', 'PASSED', 'PASSED']);
   }
 
+  console.log('\n【三之二】四張紫微神獸卡：後端產出，綁在三合一裡');
+  {
+    assertThreeInOnePassed(ok);
+    const cards = ok.result.starBeasts;
+    eq('四張卡：命宮、遷移、官祿、財帛', cards.map((c) => c.palaceKey), ['MING', 'QIAN_YI', 'GUAN_LU', 'CAI_BO']);
+
+    for (const card of cards) {
+      check(`${card.palaceName}：有神獸`, card.beastName.length > 0, `${card.beastName}（${card.seasonLabel}）`);
+      check(`${card.palaceName}：有圖`, card.beastImage.length > 0);
+      check(`${card.palaceName}：卡號在 1–28`, card.beastId >= 1 && card.beastId <= 28, String(card.beastId));
+      // 依據要說得出來——前端只顯示，不自己補說明
+      check(`${card.palaceName}：有推導依據`, card.evidence.includes(card.palaceName) && card.evidence.length >= 10,
+        card.evidence.slice(0, 40));
+      check(`${card.palaceName}：依據要標明四象方位`, card.evidence.includes(card.seasonLabel));
+    }
+
+    // 同一張命盤跑兩次，四張卡必須一模一樣（可回查）
+    const again = await runThreeInOne(ANCHOR);
+    if (again.status === 'PASSED') {
+      eq('同一命盤 → 同樣四張卡',
+        again.result.starBeasts.map((c) => c.beastId), cards.map((c) => c.beastId));
+    }
+
+    // 換一個人就該是另一組（否則等於沒在看命盤）
+    const other = await runThreeInOne({ birthDate: '1990-05-20', birthTime: '14:00', gender: 'male' });
+    if (other.status === 'PASSED') {
+      check('換人 → 神獸組合不得完全相同',
+        JSON.stringify(other.result.starBeasts.map((c) => c.beastId)) !== JSON.stringify(cards.map((c) => c.beastId)),
+        other.result.starBeasts.map((c) => `${c.palaceName}:${c.beastName}`).join(' '));
+    }
+  }
+
   console.log('\n【四】三套共用同一份出生資料');
   {
     const again = await runThreeInOne({ ...ANCHOR });
@@ -204,10 +236,11 @@ async function main() {
       eq('三合一不成立', noTime.display.combined, false);
 
       const m = noTime.noHourMethod;
-      eq('三層都要交代', m.layers.map((l) => l.layer), ['八字', '紫微', '易經']);
+      eq('四層都要交代（含神獸卡）', m.layers.map((l) => l.layer), ['八字', '紫微', '神獸卡', '易經']);
       eq('八字算得出來', m.layers[0].available, true);
       eq('紫微不算', m.layers[1].available, false);
-      eq('易經改走象徵起卦，算得出來', m.layers[2].available, true);
+      eq('神獸卡不給', m.layers[2].available, false);
+      eq('易經改走象徵起卦，算得出來', m.layers[3].available, true);
 
       // 每一層都要有「怎麼算」與「為什麼只能這樣」，不能只有一句系統限制
       for (const layer of m.layers) {
@@ -216,7 +249,9 @@ async function main() {
       }
 
       check('紫微要講出命宮定不了的機制', m.layers[1].reason.includes('命宮'));
-      check('易經要明說不是生辰卦', m.layers[2].reason.includes('不是你的生辰卦'));
+      check('神獸卡要講出依賴命宮', m.layers[2].reason.includes('命宮'));
+      check('神獸卡要說明時柱那張也不給', m.layers[2].method.includes('時柱那張不給'));
+      check('易經要明說不是生辰卦', m.layers[3].reason.includes('不是你的生辰卦'));
       check('要說明核對為何不執行', m.crossCheck.includes('沒有排盤'));
       check('要說明補時辰能解鎖什麼', m.unlock.includes('補上出生時辰'));
 
@@ -352,6 +387,24 @@ async function main() {
     // 藏起來就不算告知：這一段不得包在 details/summary 裡
     check('說明不得折疊', !branch.includes('<details') && !branch.includes('<summary'));
     check('無時辰時不得渲染完整結果', !branch.includes('{children}'));
+  }
+
+  console.log('\n【九之三】神獸卡：前端不得自己推，也不得無條件渲染');
+  {
+    const insight = fs.readFileSync(path.resolve(process.cwd(), 'app/insight/page.tsx'), 'utf8');
+    check('前端不得再自行推導神獸', !insight.includes('deriveZiweiStarBeastLink'));
+    check('神獸改由後端三合一提供', insight.includes('starBeasts?.find((card) => card.palaceKey === key)'));
+    check('沒有卡就不畫，改講為什麼', insight.includes('data-star-beasts="UNAVAILABLE"'));
+    check('有卡才畫神獸區塊', insight.includes('data-star-beasts="READY"'));
+    check('無時辰時原因取自後端無時辰算法', insight.includes("layer.layer === '神獸卡'"));
+
+    // 推導規則本身仍留在既有引擎，沒有被重寫成第二套
+    const link = fs.readFileSync(path.resolve(process.cwd(), 'lib/ziwei-star-beast-link.ts'), 'utf8');
+    check('神獸推導規則仍在既有引擎', link.includes('export function deriveZiweiStarBeastLink'));
+    const tio = fs.readFileSync(path.resolve(process.cwd(), 'lib/three-in-one.ts'), 'utf8');
+    check('三合一是呼叫既有引擎，不是另寫一套', tio.includes('deriveZiweiStarBeastLink('));
+    check('三合一沒有自己重寫四象對照表',
+      !/SEASON_BY_BRANCH|STAR_ELEMENT\s*[:=]\s*\{/.test(tio));
   }
 
   console.log(`\n三合一整合層 — PASS ${pass} / FAIL ${fail}`);

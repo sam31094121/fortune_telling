@@ -55,6 +55,7 @@
  */
 
 import { shichenFromClockHour } from './shichen-engine';
+import { deriveZiweiStarBeastLink } from './ziwei-star-beast-link';
 import {
   isZiweiCertified,
   runBaziLayer,
@@ -243,6 +244,40 @@ export interface ThreeInOneFailureReport {
   nextStep: string | null;
 }
 
+/**
+ * 紫微神獸卡（命宮、遷移、官祿、財帛四張）。
+ *
+ * 業主定調：「新增的 4 張神獸卡，紫微神獸卡也要列入三合一。」
+ *
+ * 所以它不再由前端自己推。神獸是從宮位地支的三合方位與宮內主星五行推出來的，
+ * 那是一條命理推論——前端算它，就是前端在編結論。
+ * 而且它整條依賴命宮：命宮要時辰才定得了，沒有時辰就不該有這四張卡。
+ * 現在綁在三合一裡：紫微定盤且四柱核對通過，才會有這四張。
+ */
+export interface ZiweiStarBeastCard {
+  palaceKey: 'MING' | 'QIAN_YI' | 'GUAN_LU' | 'CAI_BO';
+  palaceName: string;
+  /** 神獸本體（圖、名、寓意）。這是資料不是推論，整包給前端顯示。 */
+  beast: {
+    id: number;
+    name: string;
+    image: string;
+    youngDivineImage: string;
+    coreMeaning: string;
+    season: string;
+  };
+  beastId: number;
+  beastName: string;
+  beastImage: string;
+  season: 'spring' | 'summer' | 'autumn' | 'winter';
+  seasonLabel: string;
+  sourceStar: string | null;
+  borrowedPalaceName: string | null;
+  productElement: string;
+  /** 這張卡怎麼推出來的，原文顯示給客戶看，前端不改寫。 */
+  evidence: string;
+}
+
 export interface ThreeInOneSuccess {
   success: true;
   completed: true;
@@ -256,6 +291,8 @@ export interface ThreeInOneSuccess {
     bazi: ThreeCoreBaziLayer;
     ziwei: Extract<ThreeCoreZiweiLayer, { status: 'READY' }>;
     yijing: Extract<ThreeCoreIChingLayer, { status: 'READY' }>;
+    /** 四張紫微神獸卡。只有三合一成立時才會有。 */
+    starBeasts: ZiweiStarBeastCard[];
   };
 }
 
@@ -294,7 +331,7 @@ export interface ThreeInOneFailure {
  * 這份東西是要直接端到客戶面前的——不是註解，是說明。
  */
 export interface NoHourMethodLayer {
-  layer: '八字' | '紫微' | '易經';
+  layer: '八字' | '紫微' | '易經' | '神獸卡';
   /** 沒有時辰時，這一層實際採用的算法。 */
   method: string;
   /** 為什麼只能這樣——講機制，不講「系統限制」這種空話。 */
@@ -361,6 +398,16 @@ export function buildNoHourMethod(bazi: ThreeCoreBaziLayer): NoHourMethod {
         available: false,
       },
       {
+        layer: '神獸卡',
+        method: '紫微神獸卡（命宮、遷移、官祿、財帛四張）不產出。'
+          + `八字四柱神獸只給年、月、日三張（${bazi.year}／${bazi.month}／${bazi.day}），時柱那張不給；`
+          + '姓名總格神獸照給——它算的是筆畫總格，跟時辰無關。',
+        reason: '紫微神獸是從宮位地支的三合方位與宮內主星五行推出來的，'
+          + '整條依賴命宮；命宮沒定住，四張卡就都是猜的。'
+          + '時柱神獸同理：沒有時柱就沒有那一張，不拿別柱頂替。',
+        available: false,
+      },
+      {
         layer: '易經',
         method: '不用生辰起卦，改走姓名象徵起卦：以姓名、生日與固定主題，依既有字串雜湊規則產生。',
         reason: '梅花易數生辰起卦的下卦與動爻都含時辰數，沒有時辰就算不出來。'
@@ -372,7 +419,8 @@ export function buildNoHourMethod(bazi: ThreeCoreBaziLayer): NoHourMethod {
     crossCheck: '八字與紫微的四柱核對這次不執行：紫微沒有排盤，沒有東西可以核對。'
       + '三柱本身仍由同一支八字引擎產出，來源單一。',
     unlock: '補上出生時辰，就會解鎖：完整四柱（含時柱）、紫微十二宮與三方四正、'
-      + '你的生辰卦與卜卦儀式，以及八字×紫微的四柱交叉核對。',
+      + '四張紫微神獸卡與時柱神獸、你的生辰卦與卜卦儀式，'
+      + '以及八字×紫微的四柱交叉核對。',
     honesty: '這份結果是在沒有出生時辰的條件下算的。'
       + '我們沒有用預設時辰替你補上，也沒有把象徵卦說成生辰卦。'
       + '能算的部分照實給，不能算的部分直接告訴你不能算。',
@@ -408,6 +456,62 @@ function checklistOf(
     { id: 'YIJING', label: '易經資料完成', state: states.yijing, detail: details.YIJING },
     { id: 'COMBINED', label: '三合一驗證完成', state: states.combined, detail: details.COMBINED },
   ];
+}
+
+const STAR_BEAST_PALACES = ['MING', 'QIAN_YI', 'GUAN_LU', 'CAI_BO'] as const;
+
+/**
+ * 四張紫微神獸卡。
+ *
+ * 只在三合一成立之後才呼叫——它整條依賴命宮，而命宮要時辰才定得了。
+ * 推導規則沿用既有的 lib/ziwei-star-beast-link.ts，一行都沒有改寫；
+ * 這裡只是把它從瀏覽器搬到後端，讓它跟其他兩層走同一道閘。
+ */
+function buildZiweiStarBeasts(
+  ziwei: Extract<ThreeCoreZiweiLayer, { status: 'READY' }>,
+): ZiweiStarBeastCard[] {
+  const all = ziwei.analysis.allPalaces;
+  const cards: ZiweiStarBeastCard[] = [];
+
+  for (const key of STAR_BEAST_PALACES) {
+    const palace = all.find((item) => item.key === key);
+    if (!palace) continue;
+    const crossPalaces = STAR_BEAST_PALACES
+      .filter((other) => other !== key)
+      .map((other) => all.find((item) => item.key === other))
+      .filter((candidate): candidate is typeof palace => Boolean(candidate));
+
+    const link = deriveZiweiStarBeastLink({
+      palace,
+      bodyPalace: ziwei.analysis.bodyPalace,
+      crossPalaces,
+    });
+    if (!link.beast) continue;
+
+    cards.push({
+      palaceKey: key,
+      palaceName: palace.name,
+      beast: {
+        id: link.beast.id,
+        name: link.beast.name,
+        image: link.beast.image,
+        youngDivineImage: link.beast.youngDivineImage,
+        coreMeaning: link.beast.coreMeaning,
+        season: link.beast.season,
+      },
+      beastId: link.beast.id,
+      beastName: link.beast.name,
+      beastImage: link.beast.image,
+      season: link.season,
+      seasonLabel: link.seasonLabel,
+      sourceStar: link.sourceStar,
+      borrowedPalaceName: link.borrowedPalaceName,
+      productElement: link.productElement,
+      evidence: link.evidence,
+    });
+  }
+
+  return cards;
 }
 
 /**
@@ -761,7 +865,7 @@ export async function runThreeInOne(input: UnifiedInput): Promise<ThreeInOneResu
       },
     ),
     display: { bazi: true, ziwei: true, yijing: true, combined: true },
-    result: { bazi, ziwei, yijing },
+    result: { bazi, ziwei, yijing, starBeasts: buildZiweiStarBeasts(ziwei) },
   };
 }
 

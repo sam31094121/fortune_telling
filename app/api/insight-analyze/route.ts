@@ -3,6 +3,7 @@ import { generateInsightAnalysis } from '@/lib/insight-engine';
 import type { InsightRequest } from '@/lib/types';
 import { isValidBirthday } from '@/lib/validation';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
+import { runThreeInOne } from '@/lib/three-in-one';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // 設定最大執行時間 60 秒
@@ -159,7 +160,29 @@ export async function POST(request: Request) {
   countThisRequest();
 
   try {
-    const result = await generateInsightAnalysis(body);
+    const analysis = await generateInsightAnalysis(body);
+
+    /*
+      三合一：紫微神獸卡由這裡產出，不由前端推。
+
+      業主定調：「新增的 4 張神獸卡，紫微神獸卡也要列入三合一。」
+
+      神獸是從宮位地支的三合方位與宮內主星五行推出來的，那是一條命理推論；
+      前端算它就是前端在編結論。而且它整條依賴命宮——命宮要時辰才定得了，
+      所以它必須跟其他兩層走同一道閘：紫微定盤且四柱核對通過才有這四張。
+      沒有時辰時 threeInOne 會是 TIME_UNKNOWN，帶著寫明四層怎麼算的無時辰算法。
+    */
+    const threeInOne = await runThreeInOne({
+      birthDate: body.birthDate,
+      birthTime: null,
+      hourBranchIndex: typeof body.shichen === 'number' ? body.shichen : null,
+      gender: body.gender === 'female' ? 'female' : 'male',
+    });
+    const result = {
+      ...analysis,
+      threeInOne,
+      starBeasts: threeInOne.status === 'PASSED' ? threeInOne.result.starBeasts : [],
+    };
 
     // 儲存到快取
     analysisCache.set(cacheKey, { result, timestamp: Date.now() });
