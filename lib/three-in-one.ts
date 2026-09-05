@@ -77,6 +77,15 @@ export interface UnifiedInput {
   birthDate: string;
   /** HH:mm。時辰未知時傳 null——不代填，也不用預設值。 */
   birthTime: string | null;
+  /**
+   * 時辰地支索引（0＝子 … 11＝亥）。
+   *
+   * 卡片如果本來就讓客戶選十二時辰（姓名學、紅鸞都是），直接傳這個，
+   * 不要為了配合 birthTime 的格式先換算成 HH:mm 再換回來——
+   * 那一來一回就是資料在傳遞中被改寫的機會，而那正是四柱核對要抓的東西。
+   * 有值時優先於 birthTime。
+   */
+  hourBranchIndex?: number | null;
   gender: 'male' | 'female';
   /** 真太陽時校正用；沒有就不校正，不臆測。 */
   longitude?: number | null;
@@ -96,17 +105,29 @@ export type ThreeInOneStatus =
   | 'VERIFYING_FOUR_PILLARS'
   | 'YIJING_RUNNING'
   | 'PASSED'
+  /**
+   * 無時辰模式。這不是失敗，是另一套算法。
+   *
+   * 業主定調：「沒有時辰，就要有『沒有時辰』的算法。不能硬算，也不能用騙的，
+   * 要真實以告沒有時辰的算法。」
+   *
+   * 所以缺時辰時不是回一句「不能算」了事，而是走一套講得出來、
+   * 可回查、也照實告知的降級算法：八字給三柱、紫微不排、易經改象徵起卦。
+   */
+  | 'TIME_UNKNOWN'
   | 'ABNORMAL'
   | 'FAILED';
 
 /** 合法轉移表。寫死在這裡，任何跳關都會在執行期就爆掉，而不是靜靜地過去。 */
 const ALLOWED_TRANSITIONS: Record<ThreeInOneStatus, ThreeInOneStatus[]> = {
   WAITING_INPUT: ['BAZI_RUNNING', 'FAILED'],
-  BAZI_RUNNING: ['ZIWEI_RUNNING', 'FAILED'],
+  // 八字算完才知道要走完整流程還是無時辰模式——三柱本來就算得出來。
+  BAZI_RUNNING: ['ZIWEI_RUNNING', 'TIME_UNKNOWN', 'FAILED'],
   ZIWEI_RUNNING: ['VERIFYING_FOUR_PILLARS', 'FAILED'],
   VERIFYING_FOUR_PILLARS: ['YIJING_RUNNING', 'ABNORMAL'],
   YIJING_RUNNING: ['PASSED', 'FAILED'],
   PASSED: [],
+  TIME_UNKNOWN: [],
   ABNORMAL: [],
   FAILED: [],
 };
@@ -266,7 +287,97 @@ export interface ThreeInOneFailure {
   partial: { bazi: ThreeCoreBaziLayer | null };
 }
 
-export type ThreeInOneResult = ThreeInOneSuccess | ThreeInOneAbnormal | ThreeInOneFailure;
+/**
+ * 無時辰算法的正式定義。
+ *
+ * 每一層各自講清楚：這一層在沒有時辰時怎麼算、為什麼只能這樣算、算不算得出來。
+ * 這份東西是要直接端到客戶面前的——不是註解，是說明。
+ */
+export interface NoHourMethodLayer {
+  layer: '八字' | '紫微' | '易經';
+  /** 沒有時辰時，這一層實際採用的算法。 */
+  method: string;
+  /** 為什麼只能這樣——講機制，不講「系統限制」這種空話。 */
+  reason: string;
+  /** 這一層在無時辰下算不算得出來。 */
+  available: boolean;
+}
+
+export interface NoHourMethod {
+  title: string;
+  layers: NoHourMethodLayer[];
+  /** 交叉核對在無時辰下怎麼處理。 */
+  crossCheck: string;
+  /** 補上時辰之後會解鎖什麼。 */
+  unlock: string;
+  /** 誠實聲明：這段會原文顯示給客戶看。 */
+  honesty: string;
+}
+
+export interface ThreeInOneTimeUnknown {
+  success: false;
+  completed: false;
+  status: 'TIME_UNKNOWN';
+  trace: ThreeInOneStatus[];
+  verification: { fourPillars: false; bazi: true; ziwei: false; yijing: false };
+  /** 年月日三柱照給——它們本來就不依賴時辰。 */
+  threePillars: { year: string; month: string; day: string };
+  noHourMethod: NoHourMethod;
+  checklist: ThreeInOneChecklistItem[];
+  display: ThreeInOneDisplay;
+  result: { bazi: ThreeCoreBaziLayer };
+}
+
+export type ThreeInOneResult =
+  | ThreeInOneSuccess
+  | ThreeInOneTimeUnknown
+  | ThreeInOneAbnormal
+  | ThreeInOneFailure;
+
+/**
+ * 無時辰算法（三層逐一交代）。
+ *
+ * 這不是「算不出來」的藉口清單，是一套講得出來的降級算法：
+ * 能算的照算並說明依據，不能算的直接說不能算與為什麼，
+ * 一律不以預設時辰代替。
+ */
+export function buildNoHourMethod(bazi: ThreeCoreBaziLayer): NoHourMethod {
+  return {
+    title: '無時辰算法：三柱成立、紫微不排、易經改走象徵起卦',
+    layers: [
+      {
+        layer: '八字',
+        method: `採年、月、日三柱（${bazi.year}／${bazi.month}／${bazi.day}），時柱留空不推定。`
+          + `日主「${bazi.dayMaster}」由日柱天干決定，十神與大運照常成立。`,
+        reason: '日主看日干、大運看月柱與年干陰陽及性別——這三件事本來就不依賴時辰，'
+          + '所以三柱這一段是完整的，不是打折的。時柱缺了就缺了，不補。',
+        available: true,
+      },
+      {
+        layer: '紫微',
+        method: '不排盤。這一層在無時辰時沒有結果。',
+        reason: '命宮由月支與時支共同定位，缺時支就定不了命宮；命宮一動，十二宮全部跟著移。'
+          + '用預設時辰硬排，等於整張盤都是猜的，錯得無聲無息。所以寧可不排。',
+        available: false,
+      },
+      {
+        layer: '易經',
+        method: '不用生辰起卦，改走姓名象徵起卦：以姓名、生日與固定主題，依既有字串雜湊規則產生。',
+        reason: '梅花易數生辰起卦的下卦與動爻都含時辰數，沒有時辰就算不出來。'
+          + '象徵卦是另一套規則、另一個依據，同一組輸入永遠同一卦、可回查，'
+          + '但它不是你的生辰卦，也不等同傳統占筮——這一點不會含糊帶過。',
+        available: true,
+      },
+    ],
+    crossCheck: '八字與紫微的四柱核對這次不執行：紫微沒有排盤，沒有東西可以核對。'
+      + '三柱本身仍由同一支八字引擎產出，來源單一。',
+    unlock: '補上出生時辰，就會解鎖：完整四柱（含時柱）、紫微十二宮與三方四正、'
+      + '你的生辰卦與卜卦儀式，以及八字×紫微的四柱交叉核對。',
+    honesty: '這份結果是在沒有出生時辰的條件下算的。'
+      + '我們沒有用預設時辰替你補上，也沒有把象徵卦說成生辰卦。'
+      + '能算的部分照實給，不能算的部分直接告訴你不能算。',
+  };
+}
 
 const NOTHING_VISIBLE: ThreeInOneDisplay = { bazi: false, ziwei: false, yijing: false, combined: false };
 
@@ -308,7 +419,9 @@ function checklistOf(
 export async function runThreeInOne(input: UnifiedInput): Promise<ThreeInOneResult> {
   const machine = new ThreeInOneStateMachine();
 
-  const hourBranchIndex = toHourBranchIndex(input.birthTime);
+  const hourBranchIndex = typeof input.hourBranchIndex === 'number'
+    ? input.hourBranchIndex
+    : toHourBranchIndex(input.birthTime);
   const coreInput: ThreeCoreInput = {
     birthDate: input.birthDate,
     gender: input.gender,
@@ -412,6 +525,42 @@ export async function runThreeInOne(input: UnifiedInput): Promise<ThreeInOneResu
       },
       display: NOTHING_VISIBLE,
       partial: { bazi },
+    };
+  }
+
+  /*
+    ── 1.5 沒有時辰：走「無時辰算法」，不是回一句不能算 ──────────────
+
+    業主定調：「沒有時辰，就要有『沒有時辰』的算法。不能硬算，也不能用騙的，
+    要真實以告沒有時辰的算法。」
+
+    所以這裡不再往下跑紫微再報 ZIWEI_FAILED——那讀起來像系統壞了。
+    改成一個明確的模式：三柱照給、紫微不排、易經改象徵起卦，
+    每一層為什麼只能這樣算，全部寫在 noHourMethod 裡直接端給客戶看。
+  */
+  if (hourBranchIndex === null) {
+    machine.to('TIME_UNKNOWN');
+    const noHourMethod = buildNoHourMethod(bazi);
+    return {
+      success: false,
+      completed: false,
+      status: 'TIME_UNKNOWN',
+      trace: machine.trace,
+      verification: { fourPillars: false, bazi: true, ziwei: false, yijing: false },
+      threePillars: { year: bazi.year, month: bazi.month, day: bazi.day },
+      noHourMethod,
+      checklist: checklistOf(
+        { bazi: 'PASSED', ziwei: 'ABNORMAL', fourPillars: 'PENDING', yijing: 'PASSED', combined: 'PENDING' },
+        {
+          BAZI: `${bazi.year} ${bazi.month} ${bazi.day}（三柱成立，時柱不推定）`,
+          ZIWEI: '不排盤：命宮要月支＋時支，缺時支就定不了，不以預設時辰代替',
+          FOUR_PILLARS: '本次不執行：紫微沒有排盤，沒有東西可以核對',
+          YIJING: '改走姓名象徵起卦，不是生辰卦',
+          COMBINED: '三合一不成立——缺紫微這一層',
+        },
+      ),
+      display: { bazi: true, ziwei: false, yijing: false, combined: false },
+      result: { bazi },
     };
   }
 
@@ -624,11 +773,17 @@ export async function runThreeInOne(input: UnifiedInput): Promise<ThreeInOneResu
  */
 export function assertThreeInOnePassed(result: ThreeInOneResult): asserts result is ThreeInOneSuccess {
   if (result.status !== 'PASSED') {
-    const detail = result.status === 'ABNORMAL'
-      ? result.report.differences
+    let detail: string;
+    if (result.status === 'ABNORMAL') {
+      detail = result.report.differences
         .map((d) => `${PILLAR_LABELS[d.pillar]} 八字「${d.bazi}」≠ 紫微「${d.ziwei}」`)
-        .join('；')
-      : result.report.reason;
+        .join('；');
+    } else if (result.status === 'TIME_UNKNOWN') {
+      // 無時辰不是壞掉，是另一套算法；訊息要講得出走了哪一套。
+      detail = result.noHourMethod.title;
+    } else {
+      detail = result.report.reason;
+    }
     throw new Error(`THREE_IN_ONE_NOT_PASSED: ${result.status} — ${detail}`);
   }
 }

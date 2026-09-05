@@ -47,6 +47,17 @@ function Checklist({ items }: { items: ThreeInOneChecklistItem[] }) {
   );
 }
 
+/**
+ * 只顯示狀態，不管 children。
+ *
+ * 給那種「本來就有一套無時辰算法、結果照樣要給客戶看」的卡片用——
+ * 例如姓名學：沒有時辰時它仍然有姓名象徵卦可以給，
+ * 但必須先把「這次是怎麼算的」攤在客戶面前，不是折疊起來。
+ */
+export function ThreeInOneStatusPanel({ result }: { result: ThreeInOneResult }) {
+  return <ThreeInOneGate result={result}>{null}</ThreeInOneGate>;
+}
+
 export default function ThreeInOneGate({
   result,
   children,
@@ -105,6 +116,61 @@ export default function ThreeInOneGate({
             <p className="mt-3 whitespace-pre-line text-xs leading-6 text-[color:var(--text-muted)]">
               {result.report.customerMessage}
             </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /*
+    無時辰模式。
+
+    業主定調：「沒有時辰，就要有『沒有時辰』的算法。不能硬算，也不能用騙的，
+    要真實以告沒有時辰的算法。」
+
+    所以這一段不是折疊起來的小字免責聲明——是攤開在畫面上的說明：
+    每一層在沒有時辰時實際怎麼算、為什麼只能這樣算、哪一層直接不算。
+    姓名學卡原本把這件事藏在兩層 <details> 裡面，客戶要點兩次才看得到，
+    那不算「告知」。
+  */
+  if (result.status === 'TIME_UNKNOWN') {
+    return (
+      <div data-three-in-one="TIME_UNKNOWN">
+        <div className="rounded-2xl border border-sky-400/25 bg-sky-400/5 px-4 py-3">
+          <p className="text-sm font-bold text-sky-100">{result.noHourMethod.title}</p>
+          <p className="mt-1.5 text-xs leading-6 text-[color:var(--text-sub)]">
+            {result.noHourMethod.honesty}
+          </p>
+
+          <ul className="mt-3 space-y-2">
+            {result.noHourMethod.layers.map((layer) => (
+              <li
+                key={layer.layer}
+                className="rounded-xl bg-black/25 px-3 py-2.5"
+                data-no-hour-layer={layer.layer}
+                data-layer-available={layer.available ? 'yes' : 'no'}
+              >
+                <p className="text-xs font-bold">
+                  <span className={layer.available ? 'text-emerald-300' : 'text-rose-300'}>
+                    {layer.available ? '算得出來' : '不算'}
+                  </span>
+                  <span className="ml-2 text-[color:var(--text-sub)]">{layer.layer}</span>
+                </p>
+                <p className="mt-1 text-xs leading-6 text-[color:var(--text-sub)]">{layer.method}</p>
+                <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">{layer.reason}</p>
+              </li>
+            ))}
+          </ul>
+
+          <p className="mt-3 border-t border-sky-400/15 pt-3 text-xs leading-6 text-[color:var(--text-muted)]">
+            {result.noHourMethod.crossCheck}
+          </p>
+          <p className="mt-2 text-xs font-bold leading-6 text-sky-100">
+            {result.noHourMethod.unlock}
+          </p>
+
+          <div className="mt-3 border-t border-sky-400/15 pt-3">
+            <Checklist items={result.checklist} />
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ import { loadLocalNameologyDictionary } from '@/lib/nameology-dictionary-loader'
 import type { Gender } from '@/lib/types';
 import { isValidBirthday } from '@/lib/validation';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
+import { runThreeInOne } from '@/lib/three-in-one';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 20;
@@ -104,14 +105,41 @@ export async function POST(request: Request) {
     const fiveElement = buildNameologyFiveElementResult(analysis);
     // 易經起卦：有生日用梅花易數生辰起卦，沒有生日就以姓名起卦，附進姓名學結論
     // 未知時辰不可在生辰起卦中補午時；此時僅保留明示的字串象徵起卦。
-    const gua = normalized.shichen !== null && normalized.shichen !== undefined
-      ? castHexagramFromBirth(normalized.birthDate, normalized.shichen)
+    /*
+      三合一：時辰要算進去，沒有時辰也要照實告知。
+
+      業主定調：「三合一＝易經姓名學＝時辰也要算進去，如果沒有時辰，也一樣要告知。」
+      所以這張卡不再只跑第一層與第三層——時辰已知時走完整三合一
+      （八字 → 紫微 → 四柱交叉核對 → 易經），時辰未知時拿到的是
+      TIME_UNKNOWN 與一份寫明每一層怎麼算的無時辰算法，直接端給客戶看。
+
+      注意：三合一的成敗不影響姓名學本身。姓名學的三才五格與字義五行
+      本來就不依賴時辰，該給的照給；三合一只決定「命盤這一側」能給到哪裡。
+    */
+    const threeInOne = await runThreeInOne({
+      birthDate: normalized.birthDate,
+      birthTime: null,
+      hourBranchIndex: normalized.shichen ?? null,
+      gender: normalized.gender === 'female' ? 'female' : 'male',
+    });
+
+    const hasHour = normalized.shichen !== null && normalized.shichen !== undefined;
+    /*
+      有時辰時，卦直接取三合一裡那顆——它已經過八字＋紫微定盤與正統卜卦儀式，
+      而且與紫微卡、紅鸞卡是同一顆生辰卦。三合一沒成立就退回原本的生辰起卦，
+      不讓命盤那一側的問題把姓名學的卦一起帶走。
+      沒有時辰時走姓名象徵起卦——明示不是生辰卦，不補造時辰。
+    */
+    const gua = hasHour
+      ? (threeInOne.status === 'PASSED'
+        ? threeInOne.result.yijing.reading
+        : castHexagramFromBirth(normalized.birthDate, normalized.shichen as number))
       : castHexagram(normalized.name, normalized.birthDate, '姓名象徵參考');
     analysis.iching = presentNameologyIChing(gua, normalized.shichen != null);
     // 易經心理學共感層：與姓名卦同一顆卦（剝洋蔥＋我懂你＋核心脆弱性），有溫度的輸出
     const empathic = buildEmpathicFromHexagram(normalized.name, gua);
     analysis.corePersonality = `${analysis.corePersonality}${formatHexagramLine(gua)}：${gua.essence}——${gua.advice}\n${empathic.specialYou}\n${empathic.absolution}`;
-    const result = { ok: true, mode: 'nameology', analysis, nameScores, fiveElement, standardOutput: analysis.standardOutput, verification: analysis.standardOutput.verification, iching: { line: formatHexagramLine(gua), essence: gua.essence, advice: gua.advice }, empathicReading: formatEmpathicReading(empathic), ghostDecoding: buildGhostDecoding(gua) };
+    const result = { ok: true, mode: 'nameology', threeInOne, analysis, nameScores, fiveElement, standardOutput: analysis.standardOutput, verification: analysis.standardOutput.verification, iching: { line: formatHexagramLine(gua), essence: gua.essence, advice: gua.advice }, empathicReading: formatEmpathicReading(empathic), ghostDecoding: buildGhostDecoding(gua) };
 
     analysisCache.set(cacheKey, { result, timestamp: Date.now() });
     if (analysisCache.size > 100) {

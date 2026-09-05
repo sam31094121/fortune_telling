@@ -9,6 +9,8 @@ import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import type { Gender } from '@/lib/types';
 import type { NameologyAnalysis, NameologyProfessionalCharacter, NameologyRitualStep } from '@/lib/nameology-engine';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
+import type { ThreeInOneResult } from '@/lib/three-in-one';
+import { ThreeInOneStatusPanel } from '@/components/ThreeInOneGate';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
@@ -28,6 +30,8 @@ type NameologyResponse = {
   mode: 'nameology';
   analysis: NameologyAnalysis;
   fiveElement: FiveElementIntegrationResult;
+  /** 舊的快取結果沒有這個欄位，所以是選配——讀回來時用 ?? null 承接。 */
+  threeInOne?: ThreeInOneResult;
 };
 
 type FormState = {
@@ -38,7 +42,7 @@ type FormState = {
 };
 
 type SelectionConfirm = { gender: boolean };
-type NameologyDailyResult = { analysis: NameologyAnalysis; fiveElement: FiveElementIntegrationResult };
+type NameologyDailyResult = { analysis: NameologyAnalysis; fiveElement: FiveElementIntegrationResult; threeInOne?: ThreeInOneResult };
 
 
 
@@ -945,6 +949,8 @@ export default function NameologyPage() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [selectionConfirm, setSelectionConfirm] = useState<SelectionConfirm>(initialSelectionConfirm);
   const [result, setResult] = useState<NameologyAnalysis | null>(null);
+  // 三合一（八字→紫微→四柱核對→易經）。沒有時辰時會是 TIME_UNKNOWN，帶著無時辰算法。
+  const [threeInOne, setThreeInOne] = useState<ThreeInOneResult | null>(null);
   const [fiveElement, setFiveElement] = useState<FiveElementIntegrationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -976,6 +982,7 @@ export default function NameologyPage() {
       setError('');
       setResult(null);
       setFiveElement(null);
+      setThreeInOne(null);
       setDailyRecord(null);
       clearRitualTimer();
       resultInputKeyRef.current = '';
@@ -1008,6 +1015,7 @@ export default function NameologyPage() {
           resultInputKeyRef.current = saved.inputKey;
           setResult(saved.result.analysis);
           setFiveElement(saved.result.fiveElement);
+          setThreeInOne(saved.result.threeInOne ?? null);
           showRitualCompleteImmediately(saved.result.analysis.ritualSteps);
         }
       }
@@ -1034,6 +1042,7 @@ export default function NameologyPage() {
       clearRitualTimer();
       setResult(null);
       setFiveElement(null);
+      setThreeInOne(null);
       setDailyRecord(null);
       resultInputKeyRef.current = '';
     }
@@ -1060,6 +1069,7 @@ export default function NameologyPage() {
     setShowShichen(false);
     setResult(null);
     setFiveElement(null);
+    setThreeInOne(null);
     setDailyRecord(null);
     setError('');
     setIsLoading(false);
@@ -1112,6 +1122,7 @@ export default function NameologyPage() {
     setDailyRecord(record);
     setResult(record.result.analysis);
     setFiveElement(record.result.fiveElement);
+    setThreeInOne(record.result.threeInOne ?? null);
     showRitualCompleteImmediately(record.result.analysis.ritualSteps);
   }, []);
 
@@ -1151,6 +1162,7 @@ export default function NameologyPage() {
         setDailyRecord(existing);
         setResult(existing.result.analysis);
         setFiveElement(existing.result.fiveElement);
+        setThreeInOne(existing.result.threeInOne ?? null);
         showRitualCompleteImmediately(existing.result.analysis.ritualSteps);
         window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
         return;
@@ -1179,6 +1191,7 @@ export default function NameologyPage() {
     setError('');
     setResult(null);
     setFiveElement(null);
+    setThreeInOne(null);
     clearRitualTimer();
     setRitualRevealCount(0);
     setRitualCollapsed(false);
@@ -1205,6 +1218,7 @@ export default function NameologyPage() {
       resultInputKeyRef.current = requestInputKey;
       setResult((data as NameologyResponse).analysis);
       setFiveElement((data as NameologyResponse).fiveElement);
+      setThreeInOne((data as NameologyResponse).threeInOne ?? null);
       if (getAnalysisIdentityTarget() === 'self') {
         saveNameologySelfProfile(snapshot.form);
         const existingCanonical = readCanonicalBirthProfile();
@@ -1403,10 +1417,24 @@ export default function NameologyPage() {
           {result && fiveElement && (
             <div className="space-y-5 animate-fade-in">
               <ResultPanel analysis={result} fiveElement={fiveElement} />
+              {/*
+                三合一狀態與無時辰算法。
+
+                業主定調：「三合一＝易經姓名學＝時辰也要算進去，如果沒有時辰，也一樣要告知。」
+                所以這一段擺在卦象前面，而且是攤開的。
+                原本「這顆卦是不是生辰卦」藏在兩層 <details> 裡，
+                客戶要點兩次才看得到——那不算告知。
+              */}
+              {threeInOne && <div className="mb-4"><ThreeInOneStatusPanel result={threeInOne} /></div>}
               {result.iching ? (
                 <details aria-label="姓名學易經卦象" className="fortune-card overflow-hidden border-amber-300/25 bg-amber-950/15 p-4 text-amber-50 sm:p-5">
                   <summary className="flex min-h-[52px] cursor-pointer items-center justify-between gap-3">
-                    <span className="text-sm font-black">易經文化參考</span>
+                    <span className="text-sm font-black">
+                      易經文化參考
+                      <span className="ml-2 rounded-full bg-amber-200/15 px-2 py-0.5 text-[11px] font-bold text-amber-100">
+                        {result.iching.method === 'birth-date-hour' ? '生辰卦（含時辰）' : '姓名象徵卦（無時辰）'}
+                      </span>
+                    </span>
                     <span className="text-xs font-bold text-amber-100/70">想看卦象依據再展開</span>
                   </summary>
                   <div className="mt-4 flex items-center gap-4">

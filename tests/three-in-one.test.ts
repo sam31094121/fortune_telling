@@ -31,6 +31,7 @@ import {
   type UnifiedInput,
 } from '../lib/three-in-one';
 
+const assertGate = (cond: boolean, label: string) => check(label, cond);
 let pass = 0;
 let fail = 0;
 
@@ -166,19 +167,68 @@ async function main() {
       other.result.yijing.ritual.chartFingerprint);
   }
 
-  console.log('\n【五】時辰未知：停在紫微，不硬排、不硬起卦');
+  console.log('\n【四之二】直接給時辰地支序（姓名學、紅鸞這類本來就讓客戶選十二時辰的卡）');
+  {
+    const byIndex = await runThreeInOne({
+      birthDate: ANCHOR.birthDate, birthTime: null, hourBranchIndex: 2, gender: 'female',
+    });
+    eq('地支序也走得完整流程', byIndex.status, 'PASSED');
+    if (byIndex.status === 'PASSED') {
+      eq('與 HH:mm 走出同一組四柱', byIndex.fourPillars.bazi, ok.fourPillars.bazi);
+      eq('與 HH:mm 走出同一顆卦',
+        byIndex.result.yijing.reading.hexagramName, ok.result.yijing.reading.hexagramName);
+    }
+    // 地支序優先於 birthTime——兩者衝突時不得各算各的
+    const conflict = await runThreeInOne({
+      birthDate: ANCHOR.birthDate, birthTime: '23:00', hourBranchIndex: 2, gender: 'female',
+    });
+    if (conflict.status === 'PASSED') {
+      eq('地支序優先，不受 birthTime 干擾', conflict.fourPillars.bazi.hour, '丙寅');
+    } else {
+      check('地支序優先，不受 birthTime 干擾', false, conflict.status);
+    }
+  }
+
+  console.log('\n【五】無時辰：要有「沒有時辰」的算法，而且要照實講');
   {
     const noTime = await runThreeInOne({ ...ANCHOR, birthTime: null });
-    eq('狀態為 FAILED', noTime.status, 'FAILED');
-    check('失敗類型為紫微未完成', noTime.status === 'FAILED' && noTime.failureType === 'ZIWEI_FAILED');
-    eq('停在紫微那一關', noTime.trace, ['WAITING_INPUT', 'BAZI_RUNNING', 'ZIWEI_RUNNING', 'FAILED']);
-    check('三合一不得成立', noTime.completed === false && noTime.display.combined === false);
-    check('紫微與易經都不得顯示', noTime.display.ziwei === false && noTime.display.yijing === false);
-    check('八字三柱照給，不一起扣住', noTime.display.bazi === true);
-    check('有補時辰的下一步指引',
-      noTime.status === 'FAILED' && typeof noTime.report.nextStep === 'string'
-      && noTime.report.nextStep.includes('時辰'));
-    throws('未通過時 assert 必須擋下', () => assertThreeInOnePassed(noTime), 'THREE_IN_ONE_NOT_PASSED');
+    eq('狀態為 TIME_UNKNOWN（不是 FAILED——這不是壞掉）', noTime.status, 'TIME_UNKNOWN');
+    eq('八字算完就分流，不再空跑紫微', noTime.trace, ['WAITING_INPUT', 'BAZI_RUNNING', 'TIME_UNKNOWN']);
+    check('三合一不得成立', noTime.completed === false);
+
+    if (noTime.status === 'TIME_UNKNOWN') {
+      // 三柱本來就不依賴時辰，照給
+      eq('年月日三柱照給', noTime.threePillars, { year: '甲寅', month: '庚午', day: '甲辰' });
+      eq('八字可顯示', noTime.display.bazi, true);
+      eq('紫微不顯示', noTime.display.ziwei, false);
+      eq('三合一不成立', noTime.display.combined, false);
+
+      const m = noTime.noHourMethod;
+      eq('三層都要交代', m.layers.map((l) => l.layer), ['八字', '紫微', '易經']);
+      eq('八字算得出來', m.layers[0].available, true);
+      eq('紫微不算', m.layers[1].available, false);
+      eq('易經改走象徵起卦，算得出來', m.layers[2].available, true);
+
+      // 每一層都要有「怎麼算」與「為什麼只能這樣」，不能只有一句系統限制
+      for (const layer of m.layers) {
+        check(`${layer.layer}：說明方法`, layer.method.length >= 15, layer.method.slice(0, 30));
+        check(`${layer.layer}：說明原因`, layer.reason.length >= 15, layer.reason.slice(0, 30));
+      }
+
+      check('紫微要講出命宮定不了的機制', m.layers[1].reason.includes('命宮'));
+      check('易經要明說不是生辰卦', m.layers[2].reason.includes('不是你的生辰卦'));
+      check('要說明核對為何不執行', m.crossCheck.includes('沒有排盤'));
+      check('要說明補時辰能解鎖什麼', m.unlock.includes('補上出生時辰'));
+
+      // 不能用騙的
+      check('誠實聲明：沒有用預設時辰補', m.honesty.includes('沒有用預設時辰'));
+      check('誠實聲明：沒有把象徵卦說成生辰卦', m.honesty.includes('象徵卦說成生辰卦'));
+
+      const allText = JSON.stringify(m);
+      check('全份說明不得提到以午時代替', !allText.includes('以午時計') && !allText.includes('預設午時'));
+    }
+
+    throws('未通過時 assert 仍要擋下', () => assertThreeInOnePassed(noTime), 'THREE_IN_ONE_NOT_PASSED');
   }
 
   console.log('\n【六】輸入無法辨識：什麼都不顯示');
@@ -286,6 +336,22 @@ async function main() {
     check('客戶訊息來自後端欄位', gate.includes('result.report.customerMessage'));
     check('差異兩邊原值都照實顯示', gate.includes('diff.bazi') && gate.includes('diff.ziwei'));
     check('不得在前端自行判斷是否通過', !/verifyFourPillars|differences\.length ===/.test(gate));
+  }
+
+  console.log('\n【九之二】無時辰說明必須攤開，不得折疊藏起來');
+  {
+    const gate = fs.readFileSync(path.resolve(process.cwd(), 'components/ThreeInOneGate.tsx'), 'utf8');
+    const branch = gate.slice(gate.indexOf("result.status === 'TIME_UNKNOWN'"), gate.indexOf('data-three-in-one="FAILED"'));
+    assertGate(branch.length > 0, '必須有無時辰模式的分支');
+    check('三層說明逐一列出', branch.includes('noHourMethod.layers.map'));
+    check('每一層標明算不算得出來', branch.includes('layer.available'));
+    check('顯示怎麼算', branch.includes('layer.method'));
+    check('顯示為什麼只能這樣算', branch.includes('layer.reason'));
+    check('顯示誠實聲明', branch.includes('noHourMethod.honesty'));
+    check('顯示補時辰能解鎖什麼', branch.includes('noHourMethod.unlock'));
+    // 藏起來就不算告知：這一段不得包在 details/summary 裡
+    check('說明不得折疊', !branch.includes('<details') && !branch.includes('<summary'));
+    check('無時辰時不得渲染完整結果', !branch.includes('{children}'));
   }
 
   console.log(`\n三合一整合層 — PASS ${pass} / FAIL ${fail}`);
