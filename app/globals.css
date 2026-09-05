@@ -16547,6 +16547,18 @@ body.app-touching .home-taiji-cinema * {
 }
 
 @media (max-width: 760px) {
+  .tarot-original-shell--revealing .reveal__three-cards {
+    aspect-ratio: auto;
+    grid-template-rows: auto auto auto;
+    align-content: start;
+  }
+
+  .tarot-original-shell--revealing .reveal__card-stage {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 275 / 480;
+  }
+
   .tarot-original-shell .reveal.reveal--finished {
     padding: 1rem 0.8rem;
   }
