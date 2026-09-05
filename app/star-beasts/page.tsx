@@ -51,13 +51,13 @@ const SEASON_NAMES: Record<Exclude<Season, 'all'>, string> = {
 };
 
 const FORMS: Array<{ id: Form; label: string; detail: string }> = [
-  { id: 'awakened', label: '本命神獸', detail: '先認識與你共鳴的成年守護神獸' },
+  { id: 'awakened', label: '本體神獸', detail: '二十八張成年守護神獸' },
   { id: 'young', label: '神獸幼子', detail: '查看同血統的幼子與守護延續' },
 ];
 
 const FORM_LABELS: Record<Form, string> = {
   young: '神獸幼子',
-  awakened: '本命神獸',
+  awakened: '本體神獸',
 };
 
 export default function StarBeastsPage() {
@@ -124,19 +124,19 @@ export default function StarBeastsPage() {
           <div className="pointer-events-none absolute right-5 top-5 font-serif text-7xl font-black text-amber-100/[0.06] sm:right-10 sm:text-9xl">28</div>
           <p className="text-xs font-black tracking-[0.28em] text-amber-200/85">THE TWENTY-EIGHT MANSIONS</p>
           <h1 className="mt-3 font-serif text-4xl font-black tracking-wide text-white sm:text-6xl">星宿神獸卡片</h1>
-          <p className="mt-4 text-sm text-slate-300">先遇見專屬於你的守護神獸。</p>
+          <p className="mt-4 text-sm text-slate-300">收藏本體神獸與神獸幼子，共五十六張。</p>
           {savedGuardianId ? (
             <button type="button" onClick={() => setSelectedId(savedGuardianId)} className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full border border-amber-100/55 bg-amber-300/20 px-6 text-sm font-black text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.18)] transition hover:bg-amber-300/30">
-              查看我的本命神獸
+              查看我的本體神獸
             </button>
           ) : (
             <Link href="/bazi" className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full border border-amber-100/55 bg-amber-300/20 px-6 text-sm font-black text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.18)] transition hover:bg-amber-300/30">
-              找出我的本命神獸
+              找出我的本體神獸
             </Link>
           )}
           <details className="mt-4 max-w-2xl text-xs text-slate-400">
             <summary className="cursor-pointer font-bold text-slate-300">這裡有什麼？</summary>
-            <p className="mt-2 leading-6">二十八星宿分為春夏秋冬，每隻都有本命神獸與同血統幼子。</p>
+            <p className="mt-2 leading-6">二十八星宿分為春夏秋冬，每一宿都有本體神獸與神獸幼子。</p>
           </details>
         </header>
 
@@ -152,7 +152,7 @@ export default function StarBeastsPage() {
           </div>
         </section>
 
-        <section className="mt-4" aria-label="選擇本命神獸或神獸幼子">
+        <section className="mt-4" aria-label="選擇本體神獸或神獸幼子">
           <div className="flex w-full rounded-2xl border border-white/10 bg-slate-950/55 p-1.5 shadow-lg sm:inline-flex sm:w-auto">
             {FORMS.map((item) => (
               <button key={item.id} type="button" onClick={() => setForm(item.id)} aria-pressed={form === item.id}
@@ -248,7 +248,7 @@ export default function StarBeastsPage() {
                     </button>
                   ))}
                 </div>
-                <p className="mt-3 text-xs leading-6 text-slate-400">本命神獸是你的成年守護象徵；神獸幼子承接相同物種、元素與星宿血統，供你查看、收藏與守護。</p>
+                <p className="mt-3 text-xs leading-6 text-slate-400">本體神獸與神獸幼子是兩張獨立收藏卡，彼此共享星宿血統。</p>
                 <div className="mt-5 rounded-2xl border border-amber-200/20 bg-amber-300/[0.07] p-4">
                   <p className="text-xs font-black tracking-[0.16em] text-amber-200/80">核心意義</p>
                   <p className="mt-2 font-serif text-2xl font-black text-amber-50">{selected.coreMeaning}</p>
