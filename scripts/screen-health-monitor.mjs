@@ -6,6 +6,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
+import { canRecoverService } from './screen-health-recovery-policy.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -31,6 +32,7 @@ const NEXT_ERR_LOG = path.join(PROJECT_ROOT, '.screen-health-next.err.log');
 const CARD_ROUTES = [
   { id: 'CARD_01', module: 'nameology', title: 'AI 姓名學', path: '/nameology' },
   { id: 'CARD_BEAST_GAME', module: 'beast_game_lineup', title: '神獸決鬥組陣台', path: '/beast-game' },
+  { id: 'CARD_STAR_BEASTS', module: 'star_beasts', title: '神獸圖鑑與本人神獸入口', path: '/star-beasts' },
   { id: 'CARD_02', module: 'ziwei', title: '紫微斗數', path: '/insight' },
   { id: 'CARD_03', module: 'numerology', title: '易經論數字', path: '/numerology' },
   { id: 'CARD_04', module: 'soul_match', title: '靈魂配對', path: '/match' },
@@ -121,7 +123,7 @@ const HOME_COMPONENT_CHECKS = [
 // cannot prove that the motion physics, audio guard, re-entry path and the
 // LEVEL_02–24 firewall remain intact, so run its deterministic checks as part
 // of every health scan. These tests use synthetic sensor values only.
-const TAIJI_LEVEL01_CHECKS = [
+const BEHAVIOR_CHECKS = [
   {
     id: 'HOME_TAIJI_LEVEL01_MOTION',
     module: 'taiji_level_01_motion',
@@ -151,8 +153,22 @@ const TAIJI_LEVEL01_CHECKS = [
   {
     id: 'BEAST_CARD_GAME_CORE',
     module: 'beast_card_game_core',
-    title: '神獸卡遊戲核心：六十張、三席出戰、分得出輸贏',
-    script: 'test:beast-game',
+    title: '神獸公平性：六十張、三席十二氣、技能對象與一千局抽樣',
+    script: 'test:beast-fairness',
+    timeoutMs: 45000,
+  },
+  {
+    id: 'STAR_BEAST_SELF_ENTRY_API',
+    module: 'star_beast_self_entry_api',
+    title: '本人神獸入口：無假時辰、生日核對與對戰陣容限制',
+    script: 'test:star-beast-entry-api',
+    timeoutMs: 45000,
+  },
+  {
+    id: 'HEALTH_RECOVERY_POLICY',
+    module: 'health_recovery_policy',
+    title: '健康檢查復原界線：規則失敗不重啟服務',
+    script: 'test:screen-health-policy',
   },
   {
     id: 'THREE_IN_ONE_INTEGRATION',
@@ -374,7 +390,8 @@ async function checkHealthScript(check) {
     const { stdout, stderr } = await execFileAsync(command, commandArgs, {
       cwd: PROJECT_ROOT,
       windowsHide: true,
-      timeout: TIMEOUT_MS,
+      timeout: check.timeoutMs ?? TIMEOUT_MS,
+      env: { ...process.env, SCREEN_HEALTH_BASE_URL: BASE_URL },
       maxBuffer: 1024 * 1024,
     });
     return {
@@ -398,7 +415,7 @@ async function checkHealthScript(check) {
       durationMs: Date.now() - startedAt,
       htmlLength: 0,
       error: detail,
-      issue: `mobile Taiji verification failed: ${detail}`,
+      issue: `${check.title} verification failed: ${detail}`,
     };
   }
 }
@@ -423,7 +440,7 @@ async function scanScreenHealth() {
     await log(`${result.status} ${result.title} homepage interaction coverage (${result.durationMs}ms)`, result.status === 'PASSED' ? 'INFO' : 'WARN');
   }
 
-  for (const check of TAIJI_LEVEL01_CHECKS) {
+  for (const check of BEHAVIOR_CHECKS) {
     const result = await checkHealthScript(check);
     routes.push(result);
     await log(`${result.status} ${result.title} health verification (${result.durationMs}ms)`, result.status === 'PASSED' ? 'INFO' : 'WARN');
@@ -598,14 +615,14 @@ async function runOnce() {
   await log(`Screen health scan started (${MOBILE_FIRST ? 'mobile-first' : 'standard'} profile).`);
   let report = await scanScreenHealth();
 
-  if (!report.ok && AUTO_REPAIR) {
+  if (canRecoverService(report, AUTO_REPAIR)) {
     const reason = report.failedRoutes.map((route) => `${route.title} ${route.path}`).join(', ');
     await writeReport({ ...report, recoveryStatus: 'REPAIRING' });
     await repairScreenHealth(reason);
     report = await scanScreenHealth();
     report.recoveryStatus = report.ok ? 'RECOVERED' : 'RECHECK_FAILED';
   } else {
-    report.recoveryStatus = report.ok ? 'NOT_NEEDED' : 'DISABLED';
+    report.recoveryStatus = report.ok ? 'NOT_NEEDED' : AUTO_REPAIR ? 'NOT_APPLICABLE' : 'DISABLED';
   }
 
   await writeReport(report);

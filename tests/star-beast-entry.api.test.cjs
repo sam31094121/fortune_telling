@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
-const base = 'http://localhost:8888';
+const base = (process.env.SCREEN_HEALTH_BASE_URL || 'http://localhost:8888').replace(/\/$/, '');
 async function post(path, input) {
-  const response = await fetch(base + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+  const response = await fetch(base + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input), signal: AbortSignal.timeout(12000) });
   return { status: response.status, body: await response.json() };
 }
 (async () => {
@@ -25,7 +25,7 @@ async function post(path, input) {
     assert.equal(result.status, 422);
     assert.equal(result.body.ok, false);
   }
-  const pool = await (await fetch(base + '/api/beast-game')).json();
+  const pool = await (await fetch(base + '/api/beast-game', { signal: AbortSignal.timeout(12000) })).json();
   assert.equal(pool.cards.length, 60);
   assert.equal(pool.rules.lineupBudget, 12);
   const ids = pool.cards.filter(card => card.form === 'YOUNG').slice(0, 4).map(card => card.id);

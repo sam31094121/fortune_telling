@@ -42,7 +42,8 @@
     "test:iching-hour": "node tests/iching-no-fabricated-hour.test.cjs",
     "test:beast-game": "tsc -p tsconfig.beast-game.json && node .beast-game-build/tests/beast-game.test.js",
     "test:beast-fairness": "npm run test:beast-game && node tests/beast-game-review.test.cjs && node scripts/audit-beast-game-balance.cjs",
-    "test:star-beast-entry-api": "node tests/star-beast-entry.api.test.cjs"
+    "test:star-beast-entry-api": "node tests/star-beast-entry.api.test.cjs",
+    "test:screen-health-policy": "node tests/screen-health-recovery-policy.test.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

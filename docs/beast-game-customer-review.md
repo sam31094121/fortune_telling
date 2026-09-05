@@ -22,6 +22,8 @@
 
 測試命令：`npm run test:beast-fairness`、`npm run test:star-beast-entry-api`、`npm run build`、`node scripts/screen-health-monitor.mjs --no-repair --mobile-first`。
 
+公平性完整測試、本人神獸 API 以及神獸圖鑑路由已納入固定健康檢查。使用合成測試資料，不發獎、不改客戶收藏；規則失敗不會自動重啟服務。
+
 固定樣本一千局（五百組陣容互換，涵蓋六十張卡）：先手勝 513、後手勝 478、平手 9，非平局先手勝率 51.77%，平均 10.42 回合。這是特定採樣下的回歸檢查；未窮舉所有組合，也未驗證高手最佳策略。
 
 ## 客戶接受度與下一批
