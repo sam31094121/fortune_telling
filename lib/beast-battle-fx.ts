@@ -285,4 +285,5 @@ export {
   loadCardBattleSkills,
   presentationSkillsFor,
   PRESENTATION_SKILL_IDS,
+  chargeVideoFor,
 } from './beast-skill-archive';

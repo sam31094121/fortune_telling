@@ -4,6 +4,8 @@ import { playableCards } from '@/lib/beast-game/registry';
 import { resolveStake, validateStake } from '@/lib/beast-game/stake';
 import { evaluateBalance } from '@/lib/beast-game/balance';
 import { getSkill } from '@/cards/skills';
+import { BATTLE_PRESENTATION_SKILLS } from '@/cards/skills/battle-presentation';
+import { skillBodyArtFor } from '@/lib/beast-skill-archive';
 import { GAME_CORE_VERSION } from '@/lib/beast-game/schema';
 import { playSeries } from '@/lib/beast-game/series';
 import {
@@ -25,6 +27,15 @@ export const dynamic = 'force-dynamic';
  * 動畫只能播放「已經算好的事實」。所以決鬥在這裡跑完才回前端。
  */
 export async function GET() {
+  // 數值技能（Effect Engine）與《技能戰鬥檔案》演出技能共存：分開回傳，互不取代。
+  const battleSkills = BATTLE_PRESENTATION_SKILLS.map((skill) => ({
+    id: skill.id,
+    name: skill.name,
+    trigger: '演出・三戰兩勝',
+    description: skill.description,
+    source: '技能戰鬥檔案',
+  }));
+
   const cards = playableCards().map((card) => ({
     id: card.id,
     name: card.name,
@@ -43,6 +54,10 @@ export async function GET() {
         ? { id: skill.id, name: skill.name, trigger: skill.trigger, description: skill.description }
         : { id, name: id, trigger: 'PASSIVE' as const, description: '' };
     }),
+    /** 《技能戰鬥檔案》：本體衝鋒／命中衝擊／隨時戰鬥（與數值技能共存） */
+    battleSkills,
+    skillBody: skillBodyArtFor(card.id),
+    skillArchive: `/skill-battle-archive/cards/${card.id}/skills.json`,
     power: evaluateBalance(card).powerBudget,
   }));
 

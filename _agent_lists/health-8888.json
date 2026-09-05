@@ -1,0 +1,73 @@
+﻿{
+    "at":  "2026-09-06 01:07:40",
+    "host":  "localhost:8888",
+    "cards":  60,
+    "a01_num":  3,
+    "a01_battle":  3,
+    "coexist":  true,
+    "checks":  [
+                   {
+                       "name":  "home",
+                       "path":  "/",
+                       "ok":  true,
+                       "status":  200,
+                       "len":  69223
+                   },
+                   {
+                       "name":  "beast-game",
+                       "path":  "/beast-game",
+                       "ok":  true,
+                       "status":  200,
+                       "len":  30092
+                   },
+                   {
+                       "name":  "skill-index",
+                       "path":  "/skill-battle-archive/index.json",
+                       "ok":  true,
+                       "status":  200,
+                       "len":  40308
+                   },
+                   {
+                       "name":  "skill-a01",
+                       "path":  "/skill-battle-archive/cards/beast_a01/skills.json",
+                       "ok":  true,
+                       "status":  200,
+                       "len":  1193
+                   },
+                   {
+                       "name":  "body",
+                       "path":  "/beast-game/skill-bodies/beast_g_qinglong.webp",
+                       "ok":  true,
+                       "status":  200,
+                       "len":  58370
+                   },
+                   {
+                       "name":  "spirit",
+                       "path":  "/beast-game/spirit/01.webp",
+                       "ok":  true,
+                       "status":  200,
+                       "len":  75968
+                   },
+                   {
+                       "name":  "api-skills",
+                       "path":  "/api/beast-skills?poolId=beast_a01",
+                       "ok":  true,
+                       "status":  200,
+                       "len":  1193
+                   },
+                   {
+                       "name":  "api-beast",
+                       "path":  "/api/beast-game",
+                       "ok":  true,
+                       "status":  200,
+                       "len":  81626
+                   },
+                   {
+                       "name":  "platform",
+                       "path":  "/platform-center",
+                       "ok":  true,
+                       "status":  200,
+                       "len":  217297
+                   }
+               ]
+}

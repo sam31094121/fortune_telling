@@ -10,21 +10,14 @@
       "enabled": true,
       "clip": "/beast-game/skill-bodies/beast_a01.webp",
       "body": "/beast-game/skill-bodies/beast_a01.webp",
-      "durationMs": 6000,
+      "durationMs": 2000,
       "spawn": {
         "from": "selfSlot",
         "to": "targetSlot"
       },
       "video": "/skill-battle-archive/cards/beast_a01/clips/charge-battle.webm",
       "videoMp4": "/skill-battle-archive/cards/beast_a01/clips/charge-battle.mp4",
-      "playOnBattleStart": true,
-      "audioLogic": [
-        "build_0_2s",
-        "rush_1_8_4_5s",
-        "bite_4_0s",
-        "tail_4_2s"
-      ],
-      "narrative": "底氣蓄力→霸氣衝鋒→咬擊命中→餘韻"
+      "playOnBattleStart": true
     },
     {
       "skillId": "skill_hit",
@@ -60,6 +53,5 @@
   "matchMode": "三戰兩勝",
   "cardRole": "專用戰鬥卡片",
   "battleStartVideo": "/skill-battle-archive/cards/beast_a01/clips/charge-battle.webm",
-  "playChargeVideoOnStart": true,
-  "chargeVideoDurationMs": 6000
+  "playChargeVideoOnStart": true
 }

@@ -1,0 +1,32 @@
+﻿{
+    "at":  "2026-09-06 01:11:08",
+    "zone":  "UTC+8",
+    "backend":  {
+                    "cards":  60,
+                    "a01":  {
+                                "id":  "beast_a01",
+                                "name":  "è§æ¨è",
+                                "battleSkills":  [
+                                                     "skill_charge",
+                                                     "skill_hit",
+                                                     "skill_ready_battle"
+                                                 ],
+                                "skillArchive":  "/skill-battle-archive/cards/beast_a01/skills.json",
+                                "skillBody":  "/beast-game/skill-bodies/beast_a01.webp",
+                                "numericalSkills":  [
+                                                        "skill_101",
+                                                        "skill_106",
+                                                        "skill_111"
+                                                    ]
+                            },
+                    "archiveSkillCount":  4,
+                    "archiveCardPoolId":  "beast_a01",
+                    "apiBeastGameOk":  true,
+                    "coreVersion":  "1.3.0"
+                },
+    "frontend":  {
+                     "note":  "右側螢幕顯示後端結果看板，供精準維修",
+                     "beastGameUser":  "http://localhost:8888/beast-game",
+                     "board":  "http://127.0.0.1:8899/health-8888-board.html"
+                 }
+}

@@ -1,0 +1,18 @@
+﻿{
+    "source":  "LOCAL localhost:8888",
+    "at":  "2026-09-06 01:29:12",
+    "cards":  60,
+    "a01_name":  "è§æ¨è",
+    "numerical":  [
+                      "skill_101 é¢¨å",
+                      "skill_106 å¾¡é¢¨",
+                      "skill_111 ç¾è¡"
+                  ],
+    "battle":  [
+                   "skill_charge æ¬é«è¡é",
+                   "skill_hit å½ä¸­è¡æ",
+                   "skill_ready_battle é¨ææ°é¬¥"
+               ],
+    "skillBody":  "/beast-game/skill-bodies/beast_a01.webp",
+    "skillArchive":  "/skill-battle-archive/cards/beast_a01/skills.json"
+}
