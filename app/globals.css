@@ -16493,9 +16493,39 @@ body.app-touching .home-taiji-cinema * {
   overflow-wrap: anywhere;
 }
 
+.tarot-original-shell--draw-ready .tarot-original-status span {
+  max-width: 34rem;
+  margin-inline: auto;
+  line-height: 1.55;
+}
+
+.tarot-original-shell--revealing {
+  min-height: 0;
+  overflow: visible;
+  padding: 1.25rem 0;
+}
+
+.tarot-original-shell--revealing .tarot-original-status {
+  position: relative;
+  inset: auto;
+  width: min(720px, calc(100% - 2rem));
+  margin: 0 auto;
+  transform: none;
+}
+
+.tarot-original-shell--revealing .reveal,
+.tarot-original-shell--revealing .reveal.reveal--finished {
+  position: relative;
+  inset: auto;
+  min-height: 0;
+  padding: 1.25rem 1rem 1rem;
+  overflow: visible;
+  grid-template-rows: auto auto auto auto auto;
+}
+
 @media (max-width: 760px) {
   .tarot-original-shell .reveal.reveal--finished {
-    padding: 4.75rem 0.8rem 1rem;
+    padding: 1rem 0.8rem;
   }
 
   .tarot-original-shell .reveal.reveal--finished .reveal__interpretation {
