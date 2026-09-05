@@ -60,6 +60,13 @@ const GROWTH_ORB_CHAPTERS: Array<{
   { element: 'EARTH', chapter: '第五篇・尚未開放', meaning: '完成前一篇後，等待下一組八關開放。', requiredModules: [], enabled: false },
 ];
 const CHECKIN_STORAGE_KEY = 'tdh_growth_checkin_history_v4';
+const BEAST_GROWTH_STAGES = ['萌芽', '甦醒', '發光', '覺醒'] as const;
+
+function taipeiDateKey() {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+}
 
 const GROWTH_PREFERENCES: Array<{ id: GrowthPreferenceId; label: string; body: string }> = [
   { id: 'daily', label: '每日一句', body: '每天只給我一句提醒。' },
@@ -237,7 +244,7 @@ export default function GrowthCenterPage() {
 
   const checkInKey = useMemo(() => {
     if (!data) return '';
-    return `${data.longTermEcosystem.monthKey}:${data.weeklyReport.weekKey}:${data.personalizationSeed}`;
+    return `${data.longTermEcosystem.monthKey}:DAY-${taipeiDateKey()}:${data.personalizationSeed}`;
   }, [data]);
 
   const checkedIn = Boolean(checkInKey && checkHistory[checkInKey]);
@@ -256,19 +263,22 @@ export default function GrowthCenterPage() {
   const completedModuleSet = useMemo(() => new Set(data?.progress.completedModules ?? []), [data]);
   const unlockedCardIds = useMemo(() => {
     const moduleCards = [...completedModuleSet].map((module) => MODULE_CARD_IDS[module]).filter((id): id is number => Boolean(id));
-    const weeklyCards = WEEKLY_CARD_IDS.slice(0, lifetimeCheckInCount);
+    const weeklyCards = WEEKLY_CARD_IDS.slice(0, Math.floor(lifetimeCheckInCount / BEAST_GROWTH_STAGES.length));
     return [...new Set([...moduleCards, ...weeklyCards])].sort((a, b) => a - b);
   }, [completedModuleSet, lifetimeCheckInCount]);
   const unlockedCards = useMemo(() => unlockedCardIds.map((id) => STAR_BEASTS.find((beast) => beast.id === id)).filter((beast): beast is typeof STAR_BEASTS[number] => Boolean(beast)), [unlockedCardIds]);
   const nextCard = STAR_BEASTS.find((beast) => !unlockedCardIds.includes(beast.id)) ?? null;
   const explorationBeastCount = Math.min(completedModuleSet.size, Object.keys(MODULE_CARD_IDS).length);
   const weeklyBeastCount = Math.max(0, unlockedCards.length - explorationBeastCount);
+  const beastGrowthStep = lifetimeCheckInCount % BEAST_GROWTH_STAGES.length;
+  const beastGrowthStage = BEAST_GROWTH_STAGES[beastGrowthStep];
+  const beastGrowthProgress = beastGrowthStep;
   const nextBeastMilestone = explorationBeastCount < 8
     ? `再完成 ${8 - explorationBeastCount} 張首頁探索卡，就能集齊第一階段 8 張幼體。`
     : nextCard
       ? checkedIn
-        ? '本週任務已完成；下一張幼體會在下週新任務開啟後繼續累積。'
-        : '八大探索已貫通；完成本週唯一任務，就能喚醒下一張幼體。'
+        ? `今天完成。神獸目前：${beastGrowthStage}。`
+        : `今天再走一步，進度不會歸零。`
       : '28 張星宿幼體已全數喚醒，下一階段將進入完整體覺醒。';
   const growthOrbChapters = useMemo(() => GROWTH_ORB_CHAPTERS.map((chapter) => {
     const completedRequirements = chapter.requiredModules.filter((moduleId) => completedModuleSet.has(moduleId));
@@ -299,18 +309,12 @@ export default function GrowthCenterPage() {
       : '上次你說中斷了，沒關係，這週重新開始一樣算數，易經記得你走過的每一步。'
     : null;
 
-  const daysUntilWeekReset = useMemo(() => {
-    const day = new Date().getDay();
-    return day === 0 ? 0 : 7 - day;
-  }, []);
-  const streakAtRisk = weeklyStreak >= 1 && !checkedIn && daysUntilWeekReset <= 2;
-
   function handleCheckIn() {
     if (!checkInKey || !data) return;
     const next = { ...checkHistory, [checkInKey]: new Date().toISOString() };
     setCheckHistory(next);
     writeHistory(next);
-    trackEvent('growth_checkin', { week_key: data.weeklyReport.weekKey, streak: weeklyStreak + 1 });
+    trackEvent('growth_daily_checkin', { date_key: taipeiDateKey(), total: lifetimeCheckInCount + 1 });
   }
 
   function togglePreference(id: GrowthPreferenceId) {
@@ -337,7 +341,7 @@ export default function GrowthCenterPage() {
   async function handleShareProgress() {
     if (!data) return;
     trackEvent('growth_share', { streak: weeklyStreak, orb_count: collectedOrbCount, beast_count: unlockedCards.length });
-    const shareText = `我在太極命理 易經的成長中心已經連續 ${weeklyStreak} 週回來，收集了 ${collectedOrbCount} 顆五元素寶珠、喚醒了 ${unlockedCards.length} 張星宿幼體，一起來看看你的方向吧。`;
+    const shareText = `我在太極命理 易經的成長中心完成了 ${lifetimeCheckInCount} 天小任務，收集了 ${collectedOrbCount} 顆寶珠、喚醒了 ${unlockedCards.length} 張星宿幼體。`;
     const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/growth-center` : '/growth-center';
     try {
       if (typeof navigator !== 'undefined' && navigator.share) {
@@ -408,9 +412,6 @@ export default function GrowthCenterPage() {
               )}
               {lastFollowUpRecall && (
                 <p className="mt-4 rounded-xl border border-sky-200/25 bg-sky-300/12 px-4 py-3 text-sm font-black leading-6 text-sky-100">💬 {lastFollowUpRecall}</p>
-              )}
-              {streakAtRisk && (
-                <p className="mt-4 rounded-xl border border-rose-300/35 bg-rose-400/15 px-4 py-3 text-sm font-black leading-6 text-rose-100">⏳ 你已連續 {weeklyStreak} 週回來，這週還沒完成任務，剩不到 {daysUntilWeekReset} 天記錄就會中斷，現在回來完成今天的任務就能保住。</p>
               )}
             </section>
 
@@ -498,12 +499,12 @@ export default function GrowthCenterPage() {
 
             <section className="growth-engagement-panel rounded-2xl border border-cyan-300/25 bg-cyan-300/8 p-5 shadow-[0_0_28px_rgba(34,211,238,0.1)]">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">今天只做一件事</p>
-              <h2 className="mt-3 text-2xl font-black leading-8 text-cyan-50">{data.weeklyTask.title}</h2>
+              <h2 className="mt-3 text-2xl font-black leading-8 text-cyan-50">今天的一小步</h2>
               <p className="mt-3 rounded-2xl border border-cyan-200/20 bg-black/20 px-4 py-4 text-base font-black leading-8 text-cyan-50">{data.weeklyTask.task}</p>
-              <p className="mt-3 text-base font-semibold leading-7 text-[color:var(--text-sub)]">{data.weeklyTask.reason}</p>
+              <details className="growth-detail-drawer mt-3"><summary>為什麼做這件事</summary><p className="mt-2 text-sm font-semibold leading-6 text-[color:var(--text-sub)]">{data.weeklyTask.reason}</p></details>
               <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
                 <button type="button" onClick={handleCheckIn} disabled={checkedIn} className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-cyan-200/40 bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 shadow-[0_0_22px_rgba(34,211,238,0.18)] transition active:scale-[0.98] disabled:bg-emerald-300 disabled:text-emerald-950 sm:w-auto">
-                  {checkedIn ? '本週任務已收到' : '我今天會做這一件事'}
+                  {checkedIn ? '✓ 今天完成了' : '完成今天任務'}
                 </button>
                 {(weeklyStreak >= 2 || collectedOrbCount >= 1 || unlockedCards.length >= 1) && (
                   <button type="button" onClick={handleShareProgress} className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-cyan-200/30 bg-black/20 px-5 py-3 text-sm font-black text-cyan-100 transition active:scale-[0.98] sm:w-auto">
@@ -511,18 +512,18 @@ export default function GrowthCenterPage() {
                   </button>
                 )}
                 <span className="text-xs font-bold leading-6 text-[color:var(--text-muted)]">
-                  本月回來 {monthCheckInCount} 次，累計 {lifetimeCheckInCount} 次。
+                  本月完成 {monthCheckInCount} 天，累計 {lifetimeCheckInCount} 天。
                   {weeklyStreak >= 2 && <span className="ml-2 rounded-full border border-amber-200/30 bg-amber-300/12 px-2 py-0.5 text-amber-100">🔥 連續 {weeklyStreak} 週</span>}
                 </span>
               </div>
             </section>
 
             <section className="relative overflow-hidden rounded-2xl border border-amber-300/30 bg-[radial-gradient(circle_at_92%_12%,rgba(251,191,36,0.2),transparent_28%),linear-gradient(135deg,rgba(31,23,58,0.92),rgba(8,15,31,0.96))] p-5 shadow-[0_0_30px_rgba(251,191,36,0.12)]">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">二十八宿・星宿幼體收藏</p>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">我的星宿神獸</p>
               <div className="mt-3 flex items-end justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-black leading-8 text-amber-50">完成一個階段，喚醒一張星宿幼體</h2>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-[color:var(--text-sub)]">八張探索卡各自留下通關印記；完成探索與每週成長任務，才依序喚醒下一張幼體。既有進度會延續，不重新抽卡。</p>
+                  <h2 className="text-2xl font-black leading-8 text-amber-50">每天一步，神獸就會成長</h2>
+                  <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">中斷不歸零，回來繼續。</p>
                 </div>
                 <p className="shrink-0 font-serif text-4xl font-black text-amber-100">{unlockedCards.length}<span className="text-lg text-amber-100/60">/28</span></p>
               </div>
@@ -533,11 +534,27 @@ export default function GrowthCenterPage() {
                   <p className="mt-1 text-[10px] font-semibold leading-4 text-slate-300">一張首頁卡，只留下自己的一枚通關印記。</p>
                 </div>
                 <div className="rounded-xl border border-cyan-200/20 bg-cyan-300/[0.07] px-3 py-3">
-                  <p className="text-[10px] font-black tracking-[0.14em] text-cyan-200">第二階段・每週陪伴</p>
+                  <p className="text-[10px] font-black tracking-[0.14em] text-cyan-200">第二階段・每日養成</p>
                   <p className="mt-1 text-xl font-black text-cyan-50">{weeklyBeastCount}<span className="text-xs text-cyan-100/55">/20 張</span></p>
-                  <p className="mt-1 text-[10px] font-semibold leading-4 text-slate-300">每週完成一次真實任務，依序喚醒下一張。</p>
+                  <p className="mt-1 text-[10px] font-semibold leading-4 text-slate-300">每四次完成，覺醒一張。</p>
                 </div>
               </div>
+              {nextCard && (
+                <div className="mt-4 rounded-2xl border border-amber-200/30 bg-black/25 p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="relative h-28 w-20 shrink-0 overflow-hidden rounded-xl border border-amber-200/30 bg-slate-950">
+                      <img src={nextCard.youngDivineImage} alt={`${nextCard.name}養成中`} className={`h-full w-full object-cover transition ${beastGrowthStep === 0 ? 'opacity-25 grayscale' : beastGrowthStep === 1 ? 'opacity-55' : 'opacity-100 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]'}`} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-black text-amber-200">{nextCard.name}・{beastGrowthStage}</p>
+                      <div className="mt-3 grid grid-cols-4 gap-1" aria-label={`神獸成長 ${beastGrowthProgress} / 4`}>
+                        {BEAST_GROWTH_STAGES.map((stage, index) => <span key={stage} className={`h-2 rounded-full ${index < beastGrowthProgress ? 'bg-amber-300' : 'bg-white/10'}`} />)}
+                      </div>
+                      <p className="mt-2 text-xs font-bold text-slate-300">{beastGrowthProgress}/4</p>
+                    </div>
+                  </div>
+                </div>
+              )}
               <p className="mt-3 rounded-xl border border-amber-200/20 bg-amber-300/[0.08] px-3 py-2.5 text-xs font-black leading-5 text-amber-100">{nextBeastMilestone}</p>
               <div className="mt-4 grid grid-cols-7 gap-2 sm:grid-cols-9">
                 {STAR_BEASTS.map((beast) => {
