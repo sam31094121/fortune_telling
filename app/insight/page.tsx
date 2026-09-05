@@ -768,9 +768,9 @@ function ZiweiSanFangPanel({ analysis }: { analysis?: InsightResult['ziweiSanFan
     return (
       <section className="fortune-card p-6 sm:p-8">
         <p className="text-xs uppercase tracking-[0.35em] text-amber-300">紫微斗數核心三方四正</p>
-        <h3 className="mt-3 font-serif text-2xl text-amber-100">等待真實出生時辰定盤</h3>
+        <h3 className="mt-3 font-serif text-2xl text-amber-100">🔒 補上時辰即可解鎖</h3>
         <p className="mt-4 max-w-3xl border-l-2 border-amber-400 px-4 text-sm leading-7 text-amber-100/85">
-          命宮、財帛宮、官祿宮與遷移宮會隨時辰改變。為了避免把預設時辰誤當成你的命盤，系統已暫停顯示單一宮位、主星、四化與格局。
+          未使用預設時辰。命宮、主星與三方四正會在你選擇時辰後顯示。
         </p>
         <div className="mt-6 grid gap-3 border-y border-white/10 py-4 sm:grid-cols-3">
           <div>
@@ -1466,7 +1466,7 @@ function AnnualFortunePanel({ analysis }: { analysis?: InsightResult['annualFort
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
           <p className="text-xs font-semibold text-amber-200">今年流年定盤狀態</p>
           <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">
-            {analysis.timeConfidence === 'exact' ? '已使用真實時辰，只判讀今年命盤三方四正年度走勢。' : '目前採良辰暫定盤，只先看今年趨勢；補上真實時辰後可再校正今年走勢。'}
+            {analysis.timeConfidence === 'exact' ? '已使用你選擇的時辰。' : '未使用時辰；紫微流年宮位已鎖定。'}
           </p>
         </div>
       </div>
@@ -3939,9 +3939,9 @@ function ZiweiTwelvePalaceCards({
     return (
       <section className="fortune-card p-5 sm:p-7">
         <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-300">ZI WEI TIME CHECK</p>
-        <h2 className="mt-3 font-serif text-2xl font-black leading-tight text-amber-100 sm:text-3xl">時辰尚未確認，先不硬排命宮。</h2>
+        <h2 className="mt-3 font-serif text-2xl font-black leading-tight text-amber-100 sm:text-3xl">🔒 補上時辰，解鎖紫微命盤</h2>
         <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
-          紫微斗數的命宮、三方四正與主星位置都依賴出生時辰。資料未確認前，系統只保留趨勢提示，不輸出單一命盤故事，避免誤導客戶。
+          目前只顯示不需要時辰的結果，不替你猜時辰。
         </p>
         <section className="mt-5 rounded-[24px] border-2 border-purple-200/25 bg-purple-950/18 p-4" aria-label="兩位老師解盤">
           <p className="text-[11px] font-black tracking-[0.18em] text-purple-100">兩位老師解盤</p>
@@ -5512,7 +5512,7 @@ export default function InsightPage() {
                       ? 'bg-green-500/20 text-green-300 border border-green-400/30'
                       : 'bg-white/10 text-[color:var(--text-muted)] border border-white/10'
                   }`}>
-                  ✓ 時辰 {typeof input.shichen === 'number' ? SHICHEN_LIST[input.shichen].label : input.shichen === 'known' ? '等待選擇' : '自動良辰'}
+                  ✓ 時辰 {typeof input.shichen === 'number' ? SHICHEN_LIST[input.shichen].label : input.shichen === 'known' ? '等待選擇' : '未提供'}
                   </div>
                 </div>
               </div>

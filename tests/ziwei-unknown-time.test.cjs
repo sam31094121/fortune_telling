@@ -67,5 +67,10 @@ assert.ok(!/percentile\}%/.test(pageWithoutComments), '不得渲染 percentile �
 
 // ---- 服務核心：無時辰不得是死路 ----
 assert.ok(page.includes('補上出生時辰，解鎖完整命盤'), '無時辰結果頁必須有可點的補時辰入口');
+assert.ok(page.includes('🔒 補上時辰即可解鎖'), '無時辰的紫微區必須顯示鎖定提示');
+assert.ok(!pageWithoutComments.includes('良辰暫定盤'), '無時辰不得在畫面宣稱使用暫定盤');
+
+const insightEngine = fs.readFileSync(path.join(root, 'lib/insight-engine.ts'), 'utf8');
+assert.ok(!insightEngine.includes('系統依生日自動選用良辰吉時'), '後端提示不得把未知時辰說成自動選良辰');
 
 console.log('PASS: 前端不編結論、不做已否認的宣稱、無時辰不是死路');

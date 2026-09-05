@@ -523,7 +523,7 @@ export function calculateAnnualFortune(input: AnnualFortuneInput): AnnualFortune
   const balanceSummary = elementBalanceSummary(input.ziweiSanFang.bazi.elementBalance);
   const confidenceNote = input.ziweiSanFang.timeConfidence === 'exact'
     ? '此區只判讀今年流年運勢，並已使用使用者選定時辰。'
-    : '此區只判讀今年流年運勢；目前先採暫定良辰，真實時辰可再校正今年三方四正細節。';
+    : '本次未使用出生時辰；需要時辰的紫微宮位與三方四正維持鎖定。';
 
   return {
     year,

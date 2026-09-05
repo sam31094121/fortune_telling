@@ -25,6 +25,7 @@ import {
 } from './ziwei-presentation-service';
 import { createZiweiCore } from './ziwei/engine';
 import { saveVerifiedZiweiChart } from './ziwei-chart-store';
+import { runThreeInOne, type ThreeInOneResult } from './three-in-one';
 
 const MODEL_NAME = 'gemini-2.5-flash';
 const GEMINI_TIMEOUT_MS = 20000;
@@ -166,6 +167,7 @@ function buildInsightRitualSteps(input: {
 
 export interface InsightAnalysisResponse {
   analysisId: string;
+  threeInOne: ThreeInOneResult;
   presentation: ZiweiPresentationBundle;
   accuracyScore: number;
   dataSourceCount: number;
@@ -643,6 +645,16 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
   // Unknown hours may retain a neutral model fallback for general text, but never
   // qualify a single Ziwei chart as confirmed.
   const shichenBranchIndex = typeof request.shichen === 'number' ? request.shichen : null;
+  const threeInOne = await runThreeInOne({
+    birthDate: request.birthDate,
+    birthTime: null,
+    hourBranchIndex: shichenBranchIndex,
+    gender: request.gender,
+    longitude: request.longitude ?? null,
+  });
+  if (threeInOne.status !== 'PASSED' && threeInOne.status !== 'TIME_UNKNOWN') {
+    throw new Error(`THREE_IN_ONE_GATE:${threeInOne.status}`);
+  }
   const shichen = computeShichenProfile({ birthDate: request.birthDate, shichenBranchIndex });
   const selectedHour = `${String(shichen.shichen.startHour).padStart(2, '0')}:00`;
   const ziweiSanFang = calculateZiweiSanFang({
@@ -744,7 +756,7 @@ ${iching
 - 四柱: ${ziweiSanFang.bazi.year} ${ziweiSanFang.bazi.month} ${ziweiSanFang.bazi.day} ${ziweiSanFang.bazi.hour}
 - 日主: ${ziweiSanFang.bazi.dayMaster}
 - 命、財帛、官祿、遷移宮: ${ziweiSanFang.timeConfidence === 'exact' ? ziweiSanFang.palaces.map((palace) => `${palace.name}(${palace.majorStars.join('、') || '無主星'})`).join('；') : '時辰未確認，不提供單一命宮或格局'}
-  - 時辰可靠度: ${ziweiSanFang.timeConfidence === 'exact' ? '使用者已提供時辰' : '系統依生日自動選用良辰吉時，待真實時辰校正'}
+  - 時辰可靠度: ${ziweiSanFang.timeConfidence === 'exact' ? '使用者已提供時辰' : '未提供；沒有使用預設時辰，需要時辰的內容不得輸出'}
 
 【已由後端固定計算的今年流年運勢：只講今年，不是終身本命】
 - 年份: ${annualFortune.year} ${annualFortune.ganzhi}年
@@ -921,6 +933,7 @@ ${buildAiCopywritingInstruction('天地人 易經紫微洞察系統')}
 
   return {
     analysisId,
+    threeInOne,
     presentation,
     ritualSteps,
     accuracyScore,

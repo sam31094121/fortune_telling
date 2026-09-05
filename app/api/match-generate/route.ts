@@ -15,6 +15,7 @@ import { analyzeBazi } from '@/lib/bazi-engine';
 import { deriveBaziPillarBeast } from '@/lib/bazi-four-pillar-beasts';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { buildBaziLovePersonSignal, buildZiweiLovePersonSignal, type RedLuanHeartbeatResult } from '@/lib/red-luan-heartbeat-engine';
+import { runThreeInOne } from '@/lib/three-in-one';
 
 export const dynamic = 'force-dynamic';
 
@@ -539,6 +540,19 @@ export async function POST(request: Request) {
   try {
     const { profile: profileA, display: displayA } = buildProfile(body.personA);
     const { profile: profileB, display: displayB } = buildProfile(body.personB);
+    const hourIndex = (person: PersonInput) => {
+      if (!person.birthHourBranch || person.birthHourBranch === 'unknown') return null;
+      const item = SHICHEN_LIST.find((entry) => entry.branch === person.birthHourBranch);
+      return item?.branchIndex ?? null;
+    };
+    const [threeInOneA, threeInOneB] = await Promise.all([
+      runThreeInOne({ birthDate: body.personA.birthDate, birthTime: null, hourBranchIndex: hourIndex(body.personA), gender: body.personA.gender }),
+      runThreeInOne({ birthDate: body.personB.birthDate, birthTime: null, hourBranchIndex: hourIndex(body.personB), gender: body.personB.gender }),
+    ]);
+    const validThreeInOne = [threeInOneA, threeInOneB].every((item) => item.status === 'PASSED' || item.status === 'TIME_UNKNOWN');
+    if (!validThreeInOne) {
+      return friendlyErrorResponse(requestId, 'THREE_IN_ONE_NOT_VERIFIED', '其中一人的三合一核對未通過，暫不顯示配對結果。', 422);
+    }
 
     const rawResult = computeCompatibility(profileA, profileB);
     const result = stabilizeMatchResult(rawResult);
@@ -588,6 +602,7 @@ export async function POST(request: Request) {
     const reinforcementLayer = buildSoulMatchReinforcementLayer(aiInterpretationLayer);
 
     const responseData = {
+      threeInOne: { personA: threeInOneA, personB: threeInOneB },
       result: finalResult,
       displayA,
       displayB,

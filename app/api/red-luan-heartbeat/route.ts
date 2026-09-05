@@ -21,6 +21,7 @@ import { buildRedLuanIChingReading } from '@/lib/red-luan-iching-reading';
 import { generateRedLuanCulturalReading } from '@/lib/red-luan-cultural-reading';
 import { createRequestId, friendlyErrorResponse } from '@/lib/api-stability';
 import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-public-access';
+import { runThreeInOne } from '@/lib/three-in-one';
 
 export const dynamic = 'force-dynamic';
 
@@ -138,6 +139,15 @@ export async function POST(request: Request) {
       birthCountry: 'TW',
       birthCity: 'Taipei',
     });
+    const threeInOne = await runThreeInOne({
+      birthDate: core.calendar.solarDate,
+      birthTime: null,
+      hourBranchIndex: selectedHour?.branchIndex ?? null,
+      gender: person.gender,
+    });
+    if (threeInOne.status !== 'PASSED' && threeInOne.status !== 'TIME_UNKNOWN') {
+      return friendlyErrorResponse(requestId, 'THREE_IN_ONE_NOT_VERIFIED', '三合一核對未通過，暫不顯示命盤結果。', 422);
+    }
     const primaryReady = core.verification.calendarVerified && core.verification.pillarsVerified && core.verification.tenGodsVerified;
     if (!primaryReady) {
       return friendlyErrorResponse(requestId, 'BAZI_INPUT_NOT_VERIFIED', '出生資料尚未通過確定性排盤核對，暫不進入紅鸞運算。', 422);
@@ -225,6 +235,7 @@ export async function POST(request: Request) {
     const culturalReading = await generateRedLuanCulturalReading(result);
 
     return NextResponse.json({
+      threeInOne,
       person: { name: person.name.trim(), birthDate: core.calendar.solarDate, hourKnown },
       relationshipPosition: {
         ...selfReportedContext,
