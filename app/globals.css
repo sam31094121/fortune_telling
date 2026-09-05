@@ -16464,6 +16464,49 @@ body.app-touching .home-taiji-cinema * {
     max-width: 112px;
   }
 }
+
+/* Completed tarot reading: let every text block own its natural height. */
+.tarot-original-shell:has(.reveal--finished) {
+  min-height: 0;
+  overflow: visible;
+}
+
+.tarot-original-shell .reveal.reveal--finished {
+  position: relative;
+  inset: auto;
+  min-height: 100%;
+  overflow: visible;
+  grid-template-rows: auto auto auto auto auto;
+}
+
+.tarot-original-shell .reveal.reveal--finished .reveal__interpretation,
+.tarot-original-shell .reveal.reveal--finished .reveal__content {
+  position: relative;
+  min-width: 0;
+  height: auto;
+  overflow: visible;
+}
+
+.tarot-original-shell .reveal.reveal--finished .reveal__meaning-card {
+  position: relative;
+  height: auto;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .tarot-original-shell .reveal.reveal--finished {
+    padding: 4.75rem 0.8rem 1rem;
+  }
+
+  .tarot-original-shell .reveal.reveal--finished .reveal__interpretation {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .tarot-original-shell .reveal.reveal--finished .reveal__meaning-card p {
+    line-height: 1.7;
+  }
+}
 /* Taiji three-depth sculpture: layer 1 core, layer 2 five orbiting planets, layer 3 luminous space. */
 .home-taiji-cinema.taiji-open-stage {
   --taiji-layer-core-z: 74px;
