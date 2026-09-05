@@ -233,10 +233,15 @@ export type EmpathicReading = {
 
 /**
  * 「我最懂你」共感解盤：以生辰八字起卦，產出第一人稱共感文字。
- * name 會被直接喊出來；shichenIndex 未知可傳 null（依梅花易數以午時計）。
+ * name 會被直接喊出來。
+ *
+ * shichenIndex 是必填的。原本的說明寫著「未知可傳 null（依梅花易數以午時計）」——
+ * 那句話就是代填時辰的來源：客戶沒給時辰，系統自己當成午時，
+ * 然後把結果當成他的生辰卦講給他聽。時辰未知時請不要呼叫這支，
+ * 改在畫面上請客戶補時辰。
  */
-export function buildEmpathicReading(name: string, birthDate: string, shichenIndex?: number | null): EmpathicReading {
-  return buildEmpathicFromHexagram(name, castHexagramFromBirth(birthDate, shichenIndex ?? null));
+export function buildEmpathicReading(name: string, birthDate: string, shichenIndex: number): EmpathicReading {
+  return buildEmpathicFromHexagram(name, castHexagramFromBirth(birthDate, shichenIndex));
 }
 
 /**

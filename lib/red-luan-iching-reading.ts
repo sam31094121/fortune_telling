@@ -106,14 +106,15 @@ function monthPhrase(month: RedLuanMonthlyRhythm) {
 export function buildRedLuanIChingReading(input: {
   name: string;
   birthDate: string;
-  shichenIndex?: number | null;
+  /** 必填。紅鸞卡在無時辰時本來就不起卦（見 route.ts 的 selectedHour 判斷），型別一併鎖死。 */
+  shichenIndex: number;
   year: number;
   peakMonths: RedLuanMonthlyRhythm[];
   /** 首屏用的「下一次」；老師必須引用同一個時間，不能各說各話。 */
   nextEncounter?: RedLuanEncounter | null;
   affinity: RedLuanAffinityProfile;
 }): RedLuanIChingReading {
-  const hexagram: IChingReading = castHexagramFromBirth(input.birthDate, input.shichenIndex ?? null);
+  const hexagram: IChingReading = castHexagramFromBirth(input.birthDate, input.shichenIndex);
   const empathic = buildEmpathicFromHexagram(input.name, hexagram);
   const patternName = patternNameOf(hexagram);
 

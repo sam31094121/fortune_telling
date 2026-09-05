@@ -170,7 +170,32 @@ export function castHexagramCertified(
 }
 export function castHexagramFromBirth(birthDate: string, shichenIndex?: number | null): IChingReading {
   const [y, m, d] = birthDate.split('-').map((v) => Number(v) || 0);
-  const hour = typeof shichenIndex === 'number' && Number.isFinite(shichenIndex) ? shichenIndex + 1 : 7; // 未知時辰以午時（第 7 支）計
+  /*
+    時辰未知不得代填。
+
+    原本這一行是「未知時辰以午時（第 7 支）計」——時辰不知道就當午時。
+    結果是：沒填時辰的客戶，拿到的是用假時辰起的卦，
+    而且在星座卡與 AI 摘要裡被包裝成「易經卜卦判定」的斷言句。
+    那就是造假，而且和 three-core-engine 自己寫的
+    unknownTimePolicy「不代填時辰、不硬排命宮、不硬起卦」直接矛盾。
+
+    現在改成擋下來。時辰未知時有兩條正當出路：
+      · 請客戶補時辰（首選——補了才有正統的卦）
+      · 改用 castHexagram() 明示為象徵起卦，並在畫面上講清楚不是生辰卦
+    寧可不出卦，不出假卦。
+  */
+  if (
+    typeof shichenIndex !== 'number'
+    || !Number.isInteger(shichenIndex)
+    || shichenIndex < 0
+    || shichenIndex > 11
+  ) {
+    throw new Error(
+      'ICHING_HOUR_FABRICATED: 生辰起卦必須有真實時辰（0–11 地支序），不得以午時代填。'
+      + '時辰未知時請客戶補上時辰，或改用 castHexagram() 明示為象徵起卦。',
+    );
+  }
+  const hour = shichenIndex + 1;
   const base = y + m + d;
   const upperIdx = ((base % 8) + 7) % 8; // 餘 1 為乾…餘 0 為坤，對映 TRIGRAMS 索引
   const lowerIdx = (((base + hour) % 8) + 7) % 8;

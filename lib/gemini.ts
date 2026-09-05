@@ -1,6 +1,4 @@
 import { GoogleGenAI, Type } from '@google/genai';
-import { castHexagramFromBirth, formatHexagramLine } from './iching-engine';
-import { formatGhostDecoding } from './iching-psychology';
 import { getBirthPersonalityScores, getBirthZodiac } from './birth-model-db';
 import { getBloodTypeDescription, getBloodTypePersonalityScores } from './blood-model-db';
 import { generateGenderAdjustments, getGenderCorrectionExplanation } from './gender-corrector';
@@ -140,11 +138,14 @@ ${buildAiCopywritingInstruction('天地人 易經人格解碼系統')}
 1. 生日是人格骨架，血型只能補充生日，姓名只能深化天地，性別只能修飾外在呈現。
 2. 任何後面的分析都不得推翻前面的分析。
 3. 用詞只能使用「補充、深化、校正、細化、調和」，不可使用「相反、推翻、其實不是、完全改變」。
-4. 語氣要肯定、直接、有力量，全部使用「易經卜卦判定」「易經卜卦分析」開頭的斷言句，不可浮誇、不可搞笑、不可模糊。
+4. 語氣要肯定、直接、有力量，用「命格判定」「人格分析」開頭的斷言句，不可浮誇、不可搞笑、不可模糊。本次沒有卦象，禁止使用「易經卜卦判定」「卦象顯示」這類把結論掛在卦上的說法。
 5. 最後結語必須帶到「以善為本、多行善能讓命運更順」的價值，但不要說教。
 
-易經卦象（後端已以梅花易數生辰起卦，摘要中須自然引用印證，不可自行改卦）：
-${(() => { const gua = castHexagramFromBirth(person.birthday, null); return `${formatHexagramLine(gua)}；卦義：${gua.essence}；卦示行動：${gua.advice}`; })()}
+易經卦象：本次不提供。
+這條分析只有出生日期、血型、姓名與性別，沒有出生時辰；生辰卦一定要有時辰才起得出來，
+系統不會用預設時辰替客戶決定，所以這次不起卦。
+你也不可以自己編一個卦、卦名、爻辭或卦義——沒有卦就不要提卦。
+如果要談「補上出生時辰可以解鎖完整卦象」，可以，但只能當成邀請，不能當成已經算出來的結論。
 
 人物資料：
 - 姓名：${person.name}
@@ -192,7 +193,7 @@ ${buildAiCopywritingInstruction('天地人 易經人格解碼系統')}
 1. 只能描述生日骨架與血型補充。
 2. 不可假裝已經分析姓名或最終命運。
 3. 血型只能補充，不能推翻生日。
-4. 語氣要肯定、直接、有力量，全部使用「易經卜卦判定」「易經卜卦分析」開頭的斷言句，不可浮誇、不可模糊。
+4. 語氣要肯定、直接、有力量，用「命格判定」「人格分析」開頭的斷言句，不可浮誇、不可模糊。本次沒有卦象，禁止使用「易經卜卦判定」「卦象顯示」這類把結論掛在卦上的說法。
 
 人物資料：
 - 生日：${birthday}
@@ -581,8 +582,11 @@ ${lifeSongInstructionBlock}
 ━━━ 生命歌曲創作任務 ━━━
 ${lifeSongInstructionBlock}
 
-━━━ 易經卦象（後端已以梅花易數生辰起卦，音樂敘事須自然引用此卦意象，不可自行改卦）━━━
-${(() => { const gua = castHexagramFromBirth(input.birthDate, null); return `${formatHexagramLine(gua)}；卦義：${gua.essence}；卦示行動：${gua.advice}\n鬼魅拆卦素材（靈異・磁場・因果；music_narrative 與 wisdom_note 可借其意象與心理機制，不可照抄）：\n${formatGhostDecoding(gua)}`; })()}
+━━━ 易經卦象：本次不提供 ━━━
+音樂報告的輸入只有出生日期，沒有出生時辰。生辰卦一定要有時辰才起得出來，
+系統不會用預設時辰替客戶決定，所以這次不起卦。
+music_narrative 與 wisdom_note 請就人物命格、血型、聲線與年代本身書寫，
+不可自己編卦名、爻辭、卦義或鬼魅拆卦素材——沒有卦就不要提卦。
 
 ━━━ 人物命格 ━━━
 姓名：${input.name}

@@ -1,0 +1,46 @@
+#!/bin/bash
+#
+# 推送閘：沒驗過的東西不准上正式站
+#
+# 為什麼要有這個：
+# 2026-09-05 發現 commit「111111」把還在施工中的 lib/three-in-one.ts 掃進去
+# 並且推上 origin/main——那時候它的測試還沒寫完。推上去就是 Vercel 部署，
+# 等於半成品直接進正式站。
+#
+# 找不到是哪個工具做的（作者是使用者本人、時間也不規律），所以改成守在出口：
+# 不管是誰、用什麼方式推，命理三核心的守門測試沒過就不放行。
+#
+# 真的要跳過（例如只推文件、或正在救火）：
+#   SKIP_PUSH_GATE=1 git push
+#
+set -u
+
+if [ "${SKIP_PUSH_GATE:-0}" = "1" ]; then
+  echo "⚠️  已略過推送閘（SKIP_PUSH_GATE=1）"
+  exit 0
+fi
+
+echo "🔒 推送閘：跑命理三核心守門測試…"
+
+FAILED=""
+for t in test:three-core test:three-in-one test:taiji-ios; do
+  if npm run "$t" >/tmp/push-gate.log 2>&1; then
+    echo "   ✓ $t"
+  else
+    echo "   ✗ $t"
+    FAILED="$FAILED $t"
+  fi
+done
+
+if [ -n "$FAILED" ]; then
+  echo
+  echo "❌ 推送被擋下。沒過的：$FAILED"
+  echo "   最後的輸出："
+  tail -20 /tmp/push-gate.log | sed 's/^/   /'
+  echo
+  echo "   修好再推。真的要跳過：SKIP_PUSH_GATE=1 git push"
+  exit 1
+fi
+
+echo "✅ 守門測試全過，放行"
+exit 0

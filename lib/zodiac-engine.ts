@@ -2,6 +2,7 @@
 import { findCityById, getDefaultCity, type CityEntry } from './city-directory';
 import { castHexagramFromBirth, formatHexagramLine } from './iching-engine';
 import { formatGhostDecoding } from './iching-psychology';
+import { shichenFromClockHour } from './shichen-engine';
 import { zonedTimeToUtc } from './timezone-utils';
 
 export type ZodiacSignKey =
@@ -846,9 +847,21 @@ export function analyzeZodiac(input: ZodiacAnalysisInput): ZodiacAnalysisResult 
     strengths: profile.strengths,
     blindSpots: profile.blindSpots,
     currentAdvice: (() => {
-      // 易經起卦（梅花易數・生辰起卦法）：星座建議附上易經卦象印證
-      // ＋鬼魅老師標準檔案輸出（靈異・磁場・因果，全站八卡標配）
-      const gua = castHexagramFromBirth(birthDate, null);
+      /*
+        易經起卦（梅花易數・生辰起卦法）：星座建議附上卦象印證
+        ＋鬼魅老師標準檔案輸出（靈異・磁場・因果，全站八卡標配）
+
+        原本這裡傳 null，引擎會偷偷以午時代填——沒填出生時間的客戶，
+        看到的是用假時辰起的卦，還被寫成「卦示行動」。那是造假。
+
+        改成：有出生時間就用真時辰起卦（這張卡本來就收了 birthTime，
+        只是一直沒往下傳）；沒有就不起卦，改成補時間的入口。
+      */
+      const shichenIndex = birthTime ? shichenFromClockHour(Number(birthTime.slice(0, 2))) : null;
+      if (shichenIndex === null) {
+        return `${profile.currentAdvice}\n（補上出生時間，即可解鎖你的易經卦象與拆卦。目前資料只到出生日期，不足以起生辰卦——我們不會用預設時辰替你決定。）`;
+      }
+      const gua = castHexagramFromBirth(birthDate, shichenIndex);
       return `${profile.currentAdvice}（${formatHexagramLine(gua)}：${gua.essence}——${gua.advice}）\n${formatGhostDecoding(gua)}`;
     })(),
     weeklyReminder: profile.weeklyReminder,

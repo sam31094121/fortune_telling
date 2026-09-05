@@ -263,7 +263,8 @@ function buildLocalInsightNarrative(input: {
   analysis: ZiweiSanFangAnalysis;
   annual: AnnualFortuneAnalysis;
   isTimeKnown: boolean;
-  iching: IChingReading;
+  /** 時辰未知時為 null——沒有卦就不要提卦。 */
+  iching: IChingReading | null;
 }): {
   psychology_insights: Array<{ title: string; description: string; confidence: number }>;
   recommendations: string[];
@@ -296,11 +297,17 @@ function buildLocalInsightNarrative(input: {
       description: `${input.annual.year} 年主題是「${input.annual.annualTheme}」。今年的選擇以這條主軸為準，偏離主軸的機會再亮眼也先放後面。`,
       confidence: 76,
     },
-    {
-      title: '易經卦象印證',
-      description: `${formatHexagramLine(input.iching)}。${input.iching.judgment}${input.iching.advice}`,
-      confidence: 80,
-    },
+    ...(input.iching
+      ? [{
+        title: '易經卦象印證',
+        description: `${formatHexagramLine(input.iching)}。${input.iching.judgment}${input.iching.advice}`,
+        confidence: 80,
+      }]
+      : [{
+        title: '易經卦象：補上時辰即可解鎖',
+        description: '生辰起卦要有出生時辰才起得出來。目前資料只到出生日期，系統不會用預設時辰替你決定，所以這次不起卦。補上時辰後，卦象與拆卦會一起解鎖。',
+        confidence: 0,
+      }]),
   ];
 
   const recommendations = [
@@ -315,7 +322,9 @@ function buildLocalInsightNarrative(input: {
     `事業面官祿宮${stars('GUAN_LU')}、財帛宮${stars('CAI_BO')}互為表裡——${focus('GUAN_LU')}與${focus('CAI_BO')}同步整理，收入與成果才會對得上。` +
     `對外的遷移宮${stars('QIAN_YI')}提醒你：${focus('QIAN_YI')}顧好了，機會自然靠近。` +
     `${input.annual.year} 年流年主題「${input.annual.annualTheme}」是全年判斷的準繩；把每個決定放回這條主軸檢查，就不會被短期波動帶偏。` +
-    `易經以你的生辰起卦得「${input.iching.hexagramName}」，與命盤互為印證：${input.iching.advice}`;
+    (input.iching
+      ? `易經以你的生辰起卦得「${input.iching.hexagramName}」，與命盤互為印證：${input.iching.advice}`
+      : '易經生辰卦需要出生時辰才起得出來；補上時辰後，卦象會與這張命盤互相印證。');
 
   return { psychology_insights, recommendations, summary };
 }
@@ -664,9 +673,21 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
   });
   // 易經起卦（梅花易數・生辰起卦法）：八字輸入正確，卦就固定——
   // 同一生辰永遠同一卦，AI 與本地後備兩條路都以此卦論述，可回查可驗證。
-  const iching = castHexagramFromBirth(request.birthDate, typeof request.shichen === 'number' ? request.shichen : null);
+  /*
+    時辰未知就不起卦。
+
+    原本這裡在時辰未知時傳 null，引擎會偷偷以午時代填——
+    客戶沒填時辰，卻拿到一顆用假時辰起的卦，還被寫成「以你的生辰起卦得…」。
+    現在改成不起卦；下面每一處引用卦的地方都要能承受 null，
+    畫面上改走「補上出生時辰解鎖卦象」那條路。
+  */
+  const iching = typeof request.shichen === 'number'
+    ? castHexagramFromBirth(request.birthDate, request.shichen)
+    : null;
   // 易經心理學「我最懂你」共感層（心靈捕手版）：先算好，AI 提示詞與置頂洞察共用同一份。
-  const empathic = buildEmpathicReading(request.name.trim(), request.birthDate, typeof request.shichen === 'number' ? request.shichen : null);
+  const empathic = typeof request.shichen === 'number'
+    ? buildEmpathicReading(request.name.trim(), request.birthDate, request.shichen)
+    : null;
 
   // 構建分析提示
   const analysisPrompt = `
@@ -678,15 +699,19 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
 - 生日: ${request.birthDate} (星座: ${birthZodiac})
 - 性別: ${request.gender === 'female' ? '女性' : '男性'}
 
-【易經心理學・我最懂你（後端已運算的共感層；心靈捕手式知己口吻＋剝洋蔥層層深入核心脆弱性）】
+${empathic
+    ? `【易經心理學・我最懂你（後端已運算的共感層；心靈捕手式知己口吻＋剝洋蔥層層深入核心脆弱性）】
 ${formatEmpathicReading(empathic)}
-共感層使用規則：整份解讀的語氣要像上面這位「最懂他的密友」——不是老師對學生，是知己對知己；plain_summary 與 summary 開頭要能讓他感覺「你真的懂我」，可自然呼應上述心理學名詞（${empathic.psychologyTerms.join('、')}），但不可推翻其中的判定，也不可重複整段照抄。
+共感層使用規則：整份解讀的語氣要像上面這位「最懂他的密友」——不是老師對學生，是知己對知己；plain_summary 與 summary 開頭要能讓他感覺「你真的懂我」，可自然呼應上述心理學名詞（${empathic.psychologyTerms.join('、')}），但不可推翻其中的判定，也不可重複整段照抄。`
+    : '【易經心理學・我最懂你】本次不提供：共感層以生辰卦為底，沒有時辰就沒有卦。語氣仍要像知己，但不可引用任何卦象。'}
 
-【易經卦象（後端已決定性起卦，請在分析中引用印證，不可自行改卦）】
+${iching
+    ? `【易經卦象（後端已決定性起卦，請在分析中引用印證，不可自行改卦）】
 - 本卦：${iching.hexagramName}（上${iching.upper.nature}${iching.upper.symbol}・下${iching.lower.nature}${iching.lower.symbol}）
 - 動爻：第${iching.changingLine}爻
 - 卦義：${iching.judgment}
-- 卦示行動：${iching.advice}
+- 卦示行動：${iching.advice}`
+    : '【易經卦象】本次不提供。客戶沒有填出生時辰，生辰卦起不出來，系統也不會用預設時辰代填。你不可以自己編卦名、爻辭或卦義——沒有卦就不要提卦；可以邀請他補上時辰來解鎖。'}
 
 【八字時辰（人 30% 子層，供八字與紫微斗數分析）】
   - 出生時間: ${selectedHour} · ${shichen.shichen.label}（${shichen.shichen.range}）
@@ -817,18 +842,22 @@ ${buildAiCopywritingInstruction('天地人 易經紫微洞察系統')}
 
   // 易經心理學「我最懂你」共感層（lib/iching-psychology.ts 技能檔案）：
   // 永遠置頂顯示——不論 AI 或本地後備哪條路。
-  aiAnalysis.psychology_insights.unshift({
-    title: '易經心理學・我最懂你',
-    description: formatEmpathicReading(empathic),
-    confidence: 88,
-  });
+  if (empathic) {
+    aiAnalysis.psychology_insights.unshift({
+      title: '易經心理學・我最懂你',
+      description: formatEmpathicReading(empathic),
+      confidence: 88,
+    });
+  }
   // 鬼魅老師標準檔案輸出：靈異・磁場・因果（與同一顆生辰卦拆解，全站八卡標配）
-  aiAnalysis.psychology_insights.push({
-    title: '鬼魅拆卦・靈異磁場因果',
-    description: formatGhostDecoding(iching),
-    confidence: 84,
-  });
-  aiAnalysis.summary = `${empathic.greeting} ${aiAnalysis.summary}`;
+  if (iching) {
+    aiAnalysis.psychology_insights.push({
+      title: '鬼魅拆卦・靈異磁場因果',
+      description: formatGhostDecoding(iching),
+      confidence: 84,
+    });
+  }
+  if (empathic) aiAnalysis.summary = `${empathic.greeting} ${aiAnalysis.summary}`;
 
   const ritualSteps = buildInsightRitualSteps({
     shichen,

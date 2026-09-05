@@ -142,6 +142,12 @@ const TAIJI_LEVEL01_CHECKS = [
     script: 'test:taiji-level-01-ui',
   },
   {
+    id: 'ICHING_NO_FABRICATED_HOUR',
+    module: 'iching_no_fabricated_hour',
+    title: '易經起卦不得代填午時；無時辰改給補時辰出路',
+    script: 'test:iching-hour',
+  },
+  {
     id: 'THREE_IN_ONE_INTEGRATION',
     module: 'three_in_one_integration',
     title: '三合一整合：八字×紫微四柱核對，缺一不成立',
