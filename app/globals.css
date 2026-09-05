@@ -16499,6 +16499,17 @@ body.app-touching .home-taiji-cinema * {
   line-height: 1.55;
 }
 
+.tarot-original-shell--revealing .tarot-original-status h1 {
+  font-family: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: transparent;
+  background: linear-gradient(180deg, #fff7d6 0%, #f3ce78 58%, #c58b38 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  text-shadow: 0 3px 20px rgba(245, 190, 80, 0.22);
+}
+
 .tarot-original-shell--revealing {
   min-height: 0;
   overflow: visible;
@@ -16518,7 +16529,7 @@ body.app-touching .home-taiji-cinema * {
   position: relative;
   inset: auto;
   min-height: 0;
-  padding: 1.25rem 1rem 1rem;
+  padding: 0.75rem 1rem 1rem;
   overflow: visible;
   grid-template-rows: auto auto auto auto auto;
 }
