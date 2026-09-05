@@ -85,6 +85,7 @@ function CardPlane({
   recoiling,
   lost,
   won,
+  shown,
 }: {
   art: string;
   home: [number, number, number];
@@ -95,6 +96,14 @@ function CardPlane({
   recoiling: boolean;
   lost?: boolean;
   won?: boolean;
+  /*
+    閒置時不顯示本體。
+
+    這一段的容器在還沒交鋒時很矮，本體站上去會壓到
+    「你的前鋒」與「一張一張揭・n/6」那兩行字（實測過）。
+    舞台留著就有「站在台上打」的感覺，本體等交鋒再現身。
+  */
+  shown: boolean;
 }) {
   const texture = useLoader(THREE.TextureLoader, art);
   const mesh = useRef<THREE.Mesh>(null);
@@ -129,7 +138,7 @@ function CardPlane({
   });
 
   return (
-    <mesh ref={mesh} position={home}>
+    <mesh ref={mesh} position={home} visible={shown}>
       <planeGeometry args={spirit ? [SPIRIT_W, SPIRIT_H] : [CARD_W, CARD_H]} />
       {/*
         本體立繪帶 alpha，要開 transparent 才不會出現黑框；
@@ -149,6 +158,56 @@ function CardPlane({
         </mesh>
       )}
     </mesh>
+  );
+}
+
+/**
+ * 格鬥舞台。
+ *
+ * 業主定調：「可以直接優化一張大卡片伸出的舞台（格鬥舞台的概念），
+ * 用大數據去找授權現有的素材，作為舞台的概念。」
+ *
+ * 【為什麼要有舞台】
+ *
+ * 客戶審查時實測到的問題：交鋒舞台約 317×210 CSS px，
+ * 但除了衝鋒那 0.6 秒之外**整片是空的**——按下一張之前一直盯著一塊黑。
+ * 有地面才有「站在台上打」的感覺，沒有地面本體就是浮在虛空裡。
+ *
+ * 【素材沿用既有的，不另外找】
+ *
+ * `cc0-emerald-relief.jpg` 是專案裡本來就有的 CC0 材質（207KB），
+ * WaterTreasureOrb 已經在用——載入行為驗證過，不多一個新資產。
+ *
+ * 【手機優先】
+ *
+ * 一個平面、一張既有材質、不開陰影、不用後製。
+ * 舞台**常駐可見**（交鋒結束也還在），只有本體跟著交鋒開關——
+ * 這樣不必為了填空白再多畫東西。
+ */
+function Arena() {
+  const texture = useLoader(THREE.TextureLoader, '/textures/polyhaven/cc0-emerald-relief.jpg');
+  const ground = useMemo(() => {
+    const map = texture.clone();
+    map.wrapS = THREE.RepeatWrapping;
+    map.wrapT = THREE.RepeatWrapping;
+    map.repeat.set(3, 1.4);
+    map.needsUpdate = true;
+    return map;
+  }, [texture]);
+
+  return (
+    <group position={[0, -1.02, -0.5]}>
+      {/* 地面。壓暗並半透明，讓它是舞台不是主角——本體才是主角。 */}
+      <mesh rotation={[-1.28, 0, 0]}>
+        <planeGeometry args={[7.4, 3.6]} />
+        <meshBasicMaterial map={ground} color="#33506b" toneMapped={false} transparent opacity={0.5} depthWrite={false} />
+      </mesh>
+      {/* 台面中央的光暈，把視線收到兩隻交會的位置。用既有的撞擊光素材。 */}
+      <mesh position={[0, 0.02, 0.7]} rotation={[-1.28, 0, 0]}>
+        <planeGeometry args={[3.4, 1.9]} />
+        <meshBasicMaterial color="#7dd3fc" toneMapped={false} transparent opacity={0.1} depthWrite={false} />
+      </mesh>
+    </group>
   );
 }
 
@@ -221,14 +280,20 @@ export default function BeastClash3D({
       aria-label="雙方神獸本體交戰"
       className="pointer-events-none absolute inset-0"
       /*
-        閒置時只是隱藏，不是卸載——卸載會丟掉 WebGL context。
-        用 opacity 過場，順便讓本體收尾時不會硬切。
+        整個元件常駐，絕不卸載——卸載會丟掉 WebGL context。
+
+        **舞台一直看得見**，淡的是本體不是舞台：
+        交鋒結束就整片變黑的話，客戶按下一張之前都在盯著一塊空的，
+        那正是客戶審查時量到的問題。
       */
-      style={{ opacity: active ? 1 : 0, transition: 'opacity 220ms ease' }}
+      style={{ opacity: 1 }}
     >
       <Canvas
-        /* 沒在交鋒就停止算圖：常駐不等於一直吃 GPU（手機優先 60FPS）。 */
-        frameloop={active ? 'always' : 'never'}
+        /*
+          交鋒中連續算圖；閒置改成 demand——畫一次把舞台留在畫面上就停。
+          用 never 的話舞台根本不會被畫出來，等於沒有舞台（手機優先 60FPS）。
+        */
+        frameloop={active ? 'always' : 'demand'}
         dpr={[1, 1.8]}
         camera={{ position: [0, 0, 4.2], fov: 42 }}
         gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
@@ -238,6 +303,7 @@ export default function BeastClash3D({
           衝過去的是神獸本體，不是卡。
           沒有立繪（還沒生成）才退回卡面——不會開天窗。
         */}
+        <Arena />
         <CardPlane
           art={playerSpirit ?? playerArt}
           spirit={Boolean(playerSpirit)}
@@ -245,6 +311,7 @@ export default function BeastClash3D({
           lunging={lunging && attacker === 'player'}
           recoiling={impact && attacker === 'opponent'}
           lost={outcome === 'OPPONENT'} won={outcome === 'PLAYER'}
+          shown={active}
           glow={glow}
         />
         <CardPlane
@@ -254,6 +321,7 @@ export default function BeastClash3D({
           lunging={lunging && attacker === 'opponent'}
           recoiling={impact && attacker === 'player'}
           lost={outcome === 'PLAYER'} won={outcome === 'OPPONENT'}
+          shown={active}
           glow={glow}
         />
         <Impact active={impact} glow={glow} />

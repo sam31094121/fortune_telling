@@ -26,6 +26,13 @@
 .clash strong { animation: glimmer .8s ease-out; }
 .center.clash { min-height: 210px; grid-template-rows: 24px 1fr; align-items: end; border-radius: 16px; background: radial-gradient(ellipse, #22365180, #070d1800 75%); }
 .center.clash strong, .center.clash p { position: relative; z-index: 1; text-shadow: 0 2px 6px #000; pointer-events: none; }
+/*
+  交鋒時本體是亮的，字壓在上面仍然讀不出來（實測：標題整段被火兔蓋住）。
+  疊層順序沒問題，問題是對比，所以給標題一層深色底而不是把它移開——
+  移開會變成又一個浮動元素，那正是先前疊字的原因。
+*/
+.center.clash strong { padding: 1px 10px; border-radius: 999px; background: #060c16a8; }
+.center.clash p { padding: 1px 8px; border-radius: 999px; background: #060c1685; }
 .action { width: 100%; min-height: 48px; margin-top: 12px; border-radius: 14px; background: linear-gradient(100deg, #ffe8a1, #f0b86d); font-size: 15px; font-weight: 900; color: #302113; }
 .action:disabled { background: #ffffff12; color: #a3a6b7; }
 .skip { width: 100%; min-height: 48px; margin-top: 12px; color: #b6bfcc; font-size: 12px; }
@@ -41,4 +48,107 @@
   grid-template-columns: 1fr auto;
   gap: 8px;
   align-items: center;
+}
+
+/*
+  格鬥舞台
+  ============================================================================
+
+  業主定調：「優化一張大卡片伸出的舞台（格鬥舞台的概念），
+  用大數據去找授權現有的素材，作為舞台的概念。」
+
+  【為什麼是純 CSS，不貼材質圖】
+
+  舞台在手機上實測只有約 317×210 CSS px。專案裡的授權材質圖最小的也有 212KB，
+  貼上去等於為了一塊比名片還小的地板讓客戶多下載兩百多 KB——
+  手機優先是憲章，不是建議。所以地板、邊界、角落全部用漸層畫，零位元組。
+
+  唯一用到的圖是 lightning-impact-cc0.png（59.9KB）：那張在交鋒時
+  BeastClash3D 本來就會載入當撞擊閃光，拿來當能量環是**零額外流量**。
+
+  【為什麼舞台朝向玩家】
+
+  版面上對手在上、玩家在下。所以地板近端（亮、實）在下方，遠端（暗、虛）在上方——
+  這是從玩家席位看出去的視角。業主定調「要以玩家而不是以對家為主」，
+  連舞台的透視原點都跟著玩家走。
+*/
+.arena {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  pointer-events: none;
+  /* 交鋒方的元素光色由 TSX 傳入；沒有就用中性色，不會開天窗。 */
+  --arena-glow: #7dd3fc;
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+.clash .arena { opacity: 1; }
+
+/* 地板：近端（玩家側）亮而實，遠端（對手側）暗而虛。 */
+.arenaFloor {
+  position: absolute;
+  inset: 42% -12% -18% -12%;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 50% 100%, color-mix(in srgb, var(--arena-glow) 26%, transparent) 0%, transparent 62%),
+    radial-gradient(ellipse at 50% 100%, #16233a 0%, #0a1120 55%, transparent 78%);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--arena-glow) 38%, transparent);
+  /*
+    地平線那道弧原本是實邊，看起來像一個貼上去的橢圓，不像地面。
+    往上淡出，弧頂就融進遠景霧氣裡——邊界要有，但不能看得出是邊界。
+  */
+  mask-image: linear-gradient(180deg, transparent, #000 22%);
+}
+
+/* 遠端的地平線霧氣：把對手側推遠，讓縱深看得出來。 */
+.arenaHaze {
+  position: absolute;
+  inset: 0 0 55% 0;
+  background: linear-gradient(#0a112000, color-mix(in srgb, var(--arena-glow) 10%, transparent));
+}
+
+/*
+  兩側角柱。左右各一道立面光，讓「這是一個場地」而不是一塊背景。
+  玩家角（下緣）比對手角亮一階——場子是玩家的。
+*/
+.arenaPost {
+  position: absolute;
+  top: 34%;
+  bottom: 0;
+  width: 14%;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--arena-glow) 22%, transparent));
+  mask-image: linear-gradient(180deg, transparent, #000 70%);
+}
+.arenaPost:first-of-type { left: 0; }
+.arenaPost:last-of-type { right: 0; transform: scaleX(-1); }
+
+/*
+  能量環。用既有的撞擊圖，交鋒時緩慢轉，撞擊那一刻由三維層再閃一次。
+  這裡刻意做得很淡——舞台是襯底，主角是神獸本體。
+*/
+.arenaRing {
+  position: absolute;
+  left: 50%;
+  top: 74%;
+  width: 96%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: url('/audio/taiji/lightning-impact-cc0.png') center / contain no-repeat;
+  /*
+    這張是閃電爆裂圖，不是圓環。第一版放大到 132% 又擺在中央，
+    尖角散到舞台上半部，看起來像天空飄著碎片——是雜訊不是氣氛。
+    壓小、下移到地板上、加模糊再降透明度，它就只剩「地面有東西在轉」的暗示。
+  */
+  filter: blur(6px);
+  opacity: .06;
+  mix-blend-mode: screen;
+  animation: arenaSpin 18s linear infinite;
+}
+@keyframes arenaSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .arena { transition: none; }
+  .arenaRing { animation: none; }
 }

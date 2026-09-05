@@ -15,9 +15,8 @@
         "from": "selfSlot",
         "to": "targetSlot"
       },
-      "video": "/skill-battle-archive/cards/beast_a02/clips/charge-battle.webm",
-      "videoMp4": "/skill-battle-archive/cards/beast_a02/clips/charge-battle.mp4",
-      "playOnBattleStart": true
+      "playOnBattleStart": true,
+      "pendingSixSecondClip": true
     },
     {
       "skillId": "skill_hit",

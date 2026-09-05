@@ -7,7 +7,28 @@ const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.Modu
 const timers = new Map();
 let nextTimer = 0;
 let plays = 0;
-const context = { exports: {}, window: {
+/*
+  沙箱要有 require。
+
+  beast-battle-fx.ts 現在會 `export { ... } from './beast-skill-archive'`
+  （《技能戰鬥檔案》的讀取層），轉成 CommonJS 之後就是一句 require。
+  沙箱沒有 require，整支檔案在第一行就炸掉——而這支測試先前
+  沒有登記成 npm script，所以炸了半天沒有人知道。
+
+  這裡只轉譯要測的那一個模組，相依的模組給它同樣的轉譯待遇；
+  用不到的部分不會被呼叫，但至少不會在載入時就死。
+*/
+const loadTs = (rel) => {
+  const src = fs.readFileSync(rel, 'utf8');
+  const out = ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
+  const box = { exports: {}, require: () => ({}), window: undefined, fetch: undefined };
+  vm.runInNewContext(out, box);
+  return box.exports;
+};
+const context = { exports: {}, require: (id) => {
+  if (id === './beast-skill-archive') return loadTs('lib/beast-skill-archive.ts');
+  throw new Error('沙箱沒有準備這個模組：' + id);
+}, window: {
   setTimeout(fn) { timers.set(++nextTimer, fn); return nextTimer; },
   clearTimeout(id) { timers.delete(id); },
   matchMedia: () => ({ matches: true }),

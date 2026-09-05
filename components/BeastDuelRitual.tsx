@@ -338,6 +338,24 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       {pairs && <p role="status" aria-label="目前比分">你 {shownScore.player} : {shownScore.opponent} 對手</p>}
       {row(opponent, 'opponent')}
       <div className={`${styles.center} ${phase === 'clash' || pairClash !== null ? styles.clash : ''}`} role="status" aria-live="polite" style={{ position: 'relative' }}>
+        {/*
+          格鬥舞台。襯在最底層（z-index 0），三維本體與文字都壓在它上面。
+          地板近端朝玩家、角柱玩家側較亮——舞台的視角原點跟著玩家走。
+          元素光色沿用同一份 ELEMENT_FX，不另外定一套顏色。
+        */}
+        <div
+          className={styles.arena}
+          aria-hidden="true"
+          style={{ ["--arena-glow" as string]: clashCards
+            ? ELEMENT_FX[(clashCards.attacker === 'player' ? clashCards.me : clashCards.foe).element as BattleElement]?.glow ?? '#7dd3fc'
+            : '#7dd3fc' }}
+        >
+          <div className={styles.arenaHaze} />
+          <div className={styles.arenaFloor} />
+          <div className={styles.arenaPost} />
+          <div className={styles.arenaPost} />
+          <div className={styles.arenaRing} />
+        </div>
         {pairClash !== null && player[pairClash] && opponent?.[pairClash] && (
           <>
             {chargeVideoSrc ? (

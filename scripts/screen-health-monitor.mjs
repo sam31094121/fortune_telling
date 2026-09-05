@@ -157,6 +157,18 @@ const BEHAVIOR_CHECKS = [
     script: 'test:beast-stake',
   },
   {
+    id: 'BEAST_CHARGE_CLIP',
+    module: 'beast_charge_clip',
+    title: '六秒衝鋒影片：一條龍串接、本體 1:1、聲音以玩家為主',
+    script: 'test:beast-clip',
+  },
+  {
+    id: 'BEAST_BEAST_VOICE',
+    module: 'beast_beast_voice',
+    title: '本體叫聲：六十張各有來源、對手完全靜音',
+    script: 'test:beast-voice',
+  },
+  {
     id: 'BEAST_CARD_SPEC',
     module: 'beast_card_spec',
     title: '神獸卡正統規格：63×88、四處共用、放牌不跳版',
