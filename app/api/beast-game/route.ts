@@ -115,9 +115,13 @@ export async function POST(request: Request) {
     回傳的 fairness 欄位就是給客戶看的那份對照。
   */
   const opponentLineup = buildLineup(ids, rng);
+  const playerDeck = buildDeck(ids, rng);
+  const opponentDeck = buildDeck(ids, rng);
+  // Lock the opponent's stake before resolving combat; no choosing prizes after seeing the winner.
+  const opponentStakeId = ids[Math.floor(rng() * ids.length)];
   const state = playToEnd(createDuel({
-    player: { lineup: chosen, deck: buildDeck(ids, rng) },
-    opponent: { lineup: opponentLineup, deck: buildDeck(ids, rng) },
+    player: { lineup: chosen, deck: playerDeck },
+    opponent: { lineup: opponentLineup, deck: opponentDeck },
     seed,
   }));
 
@@ -125,7 +129,6 @@ export async function POST(request: Request) {
     對手也押一張，同樣從卡池抽、同樣用這一場的種子——
     「雙方各放一張」不是說說而已，對手押的是哪一張會一起回傳。
   */
-  const opponentStakeId = ids[Math.floor(rng() * ids.length)];
   const stakeOutcome = resolveStake({
     playerStake: stakeCardId as string,
     opponentStake: opponentStakeId,

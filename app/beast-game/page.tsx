@@ -22,10 +22,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import BeastDuelRitual from '@/components/BeastDuelRitual';
+import BeastStakeResult from '@/components/BeastStakeResult';
 import { selectRitualHighlights } from '@/lib/beast-ritual';
 import frameStyles from '@/components/BeastCardFrame.module.css';
 import { describeStakeRisk } from '@/lib/beast-game/stake';
-import { applyStakeOutcome, COLLECTION_STORAGE_NOTICE } from '@/lib/beast-collection';
+import { runOwnedDuel, retryStakeSettlement, recoverPendingDuel, subscribeCollection, type Settlement } from '@/lib/beast-collection';
+import { NO_OWNED_CARDS_GUIDE, readOwnedCards, type OwnedCards } from '@/lib/beast-owned-cards';
 
 type Skill = { id: string; name: string; trigger: string; description: string };
 type Card = {
@@ -58,6 +60,7 @@ type DuelResult = {
     forfeitedCardId: string | null;
     netChange: number;
     message: string;
+    stakes: { player: string; opponent: string };
     playerStakeName: string;
     opponentStakeName: string;
     gainedCardName: string | null;
@@ -218,11 +221,38 @@ export default function BeastGamePage() {
   const [recommendNote, setRecommendNote] = useState<string | null>(null);
   /** 押注結果有沒有真的存進這台裝置。null＝這次不涉及發獎（例如重播）。 */
   const [stakeSaved, setStakeSaved] = useState<boolean | null>(null);
-  const [collectionCount, setCollectionCount] = useState(0);
+  const [settlement, setSettlement] = useState<Settlement | null>(null);
+  const [settling, setSettling] = useState(false);
+  const lastMatch = useRef<{ player: Card[]; opponent: Card[]; result: DuelResult } | null>(null);
+  /**
+   * 我擁有哪些卡（羈絆解鎖＋決鬥贏來）。
+   * 押注只能押自己的卡，所以賭注格只列這些，不是整個六十張卡池。
+   */
+  const [owned, setOwned] = useState<OwnedCards>({ all: [], fromBond: [], fromDuel: [], counts: new Map() });
   const dialogRef = useRef<HTMLDivElement>(null);
   const duelInFlight = useRef(false);
   const duelRequest = useRef(0);
   const resultRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const refresh = () => setOwned(readOwnedCards());
+    const unsubscribe = subscribeCollection(refresh);
+    refresh();
+    let cancelled = false;
+    void (async () => {
+      // React Strict Mode can dispose the first effect before it consumes a recovery journal.
+      await Promise.resolve();
+      if (cancelled) return;
+      const recovered = await recoverPendingDuel<DuelResult>();
+      if (cancelled) return;
+      if (recovered.result && recovered.settlement) {
+        setDuel(recovered.result);
+        showSettlement(recovered.settlement);
+      } else if (recovered.interrupted) setPlacementNote('上一場連線中斷，押注卡未扣除。');
+      refresh();
+    })().catch(() => { /* A live match in another tab holds the lock. Starting still checks ownership. */ });
+    return () => { cancelled = true; unsubscribe(); };
+  }, []);
 
   useEffect(() => () => { duelRequest.current += 1; }, []);
   useEffect(() => {
@@ -292,6 +322,8 @@ export default function BeastGamePage() {
       })
       .finally(() => { if (!cancelled) setLoading(false); });
 
+    setOwned(readOwnedCards());
+
     // 第一次來的人才看引導，看過就不再擋路。
     if (!readLocal(ONBOARDING_SEEN_KEY)) setShowGuide(true);
     return () => { cancelled = true; };
@@ -328,7 +360,7 @@ export default function BeastGamePage() {
   const filledCount = lineup.filter(Boolean).length;
   const lineupCost = lineup.reduce((sum, id) => sum + (id ? byId.get(id)?.cost ?? 0 : 0), 0);
   const overBudget = lineupBudget !== null && lineupCost > lineupBudget;
-  const ready = filledCount === 3 && lineupBudget !== null && !overBudget && Boolean(board.stake);
+  const ready = filledCount === 3 && lineupBudget !== null && !overBudget && Boolean(board.stake && owned.counts.get(board.stake)) && !owned.storageError && stakeSaved !== false;
 
   /**
    * 把一張卡放進目前選中的格子。
@@ -344,14 +376,14 @@ export default function BeastGamePage() {
     setBoard((prev) => {
       // activeSlot 為 3 代表現在放的是賭注卡，不是出戰三席。
       if (prev.activeSlot === 3) {
-        return { ...prev, stake: card.id };
+        return readOwnedCards().counts.has(card.id) ? { ...prev, stake: card.id } : prev;
       }
       // 同一張已經在別格就先拿掉，避免一張卡站兩個位置。
       const next = prev.lineup.map((id) => (id === card.id ? null : id));
       next[prev.activeSlot] = card.id;
       const nextEmpty = next.findIndex((id) => !id);
       // 三席放滿之後自動跳到賭注格——客戶不用自己找下一步在哪。
-      const nextSlot = nextEmpty === -1 ? (prev.stake ? prev.activeSlot : 3) : nextEmpty;
+      const nextSlot = nextEmpty === -1 ? prev.activeSlot : nextEmpty;
       return { ...prev, lineup: next, activeSlot: nextSlot };
     });
     setCandidate(null);
@@ -372,77 +404,89 @@ export default function BeastGamePage() {
   }
 
 
+  function showSettlement(value: Settlement) {
+    setSettlement(value);
+    setStakeSaved(value.saved);
+    // 贏來的卡馬上就能拿去押下一場；輸掉的實際副本不會被補回。
+    const current = readOwnedCards();
+    setOwned(current);
+    if (value.saved) setBoard((prev) => ({ ...prev, stake: prev.stake && current.counts.has(prev.stake) ? prev.stake : null }));
+  }
+
+  async function retrySettlement() {
+    if (!settlement || !duel?.stake || settling) return;
+    setSettling(true);
+    try { showSettlement(await retryStakeSettlement(settlement.matchId, duel.stake)); }
+    catch (error) { setPlacementNote(error instanceof Error ? error.message : '保存尚未完成，請再試一次。'); }
+    finally { setSettling(false); }
+  }
+
   async function startDuel(replaySeed?: number) {
-    if (!ready || duelInFlight.current) return;
+    if (duelInFlight.current) return;
+    if (replaySeed !== undefined) {
+      const previous = lastMatch.current;
+      if (!previous || previous.result.seed !== replaySeed || stakeSaved === false) return;
+      duelInFlight.current = true;
+      setDueling(true);
+      setStakeSaved(null);
+      setSettlement(null);
+      setDuel(null);
+      // A replay only plays the original snapshot; it never requests another award.
+      setRitual({ ...previous, result: { ...previous.result, isReplay: true }, replay: true });
+      return;
+    }
+    if (!ready || !board.stake) return;
     const player = lineup.map((id) => id ? byId.get(id) : undefined).filter((card): card is Card => Boolean(card));
     if (player.length !== 3) return;
     const request = ++duelRequest.current;
     duelInFlight.current = true;
     setDueling(true);
     setDuel(null);
-    setRitual({ player, opponent: null, result: null, replay: replaySeed !== undefined });
+    setSettlement(null);
+    setStakeSaved(null);
+    setRitual({ player, opponent: null, result: null, replay: false });
     try {
-      const data = await fetchJson<DuelResult>('/api/beast-game', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(replaySeed === undefined
-          ? { lineup, stake: board.stake }
-          : { lineup, stake: board.stake, replaySeed }),
-      }, 20000, 1);
+      const { result: data, settlement: applied } = await runOwnedDuel(board.stake, async () => {
+        // Mutating requests are not automatically retried with a fresh random opponent.
+        const result = await fetchJson<DuelResult>('/api/beast-game', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lineup, stake: board.stake }),
+        }, 20000, 0);
+        const ids = result.opponentLineupIds;
+        if (!result.ok || !Array.isArray(ids) || ids.length !== 3 || new Set(ids).size !== 3 || ids.some((id) => !byId.has(id))) {
+          throw new Error(result.error ?? '對手陣容不完整，押注卡未扣除。');
+        }
+        return result;
+      });
+      // Settlement has already committed, even if the customer closed this page during the request.
       if (request !== duelRequest.current) return;
-      if (!data.ok) throw new Error(data.error ?? '對手尚未準備好，請重新啟陣。');
-      const ids = data.opponentLineupIds;
-      const opponent = Array.isArray(ids) ? ids.map((id) => byId.get(id)).filter((card): card is Card => Boolean(card)) : [];
-      if (opponent.length !== 3 || new Set(ids).size !== 3) {
-        throw new Error('對手陣容不完整，請重新啟陣。');
-      }
-      // 只展示本次核心實際使用的三張牌，不另抽一組當作動畫。
-      setRitual({ player, opponent, result: data, replay: Boolean(data.isReplay) });
+      const opponent = data.opponentLineupIds!.map((id) => byId.get(id)!);
+      if (!data.isReplay) showSettlement(applied);
+      lastMatch.current = { player, opponent, result: data };
+      setRitual({ player, opponent, result: data, replay: false });
     } catch (error) {
       if (request !== duelRequest.current) return;
-      // 逾時或斷線：講人話，而且讓客戶知道再按一次就好，不是壞掉了。
       setRitual(null);
       setDuel({ ok: false, error: error instanceof Error ? error.message : String(error) });
       duelInFlight.current = false;
       setDueling(false);
+      setOwned(readOwnedCards());
     }
   }
 
-  function cancelRitual() {
-    duelRequest.current += 1;
+  function completeRitual() {
+    if (!ritual?.result) return;
+    setDuel(ritual.result);
     setRitual(null);
     duelInFlight.current = false;
     setDueling(false);
   }
 
-  function completeRitual() {
-    if (!ritual?.result) return;
-    const result = ritual.result;
-    cancelRitual();
-    setDuel(result);
-
-    /*
-      押注結算落地。
-
-      「贏要有獎勵，獎勵要很清楚地告知。會分配在哪裡？」——
-      贏來的卡寫進收藏，輸掉的從收藏移除，兩者都留紀錄，
-      客戶隨時查得到自己什麼時候得到、什麼時候失去了哪一張。
-
-      重播不重複發獎：同一場重播十次不會變成十張卡，
-      否則客戶只要一直按重播就能刷卡，那等於獎勵是假的。
-
-      saved 為 false 代表這台裝置存不進去（無痕視窗、封鎖 storage、配額滿）。
-      這時一定要照實說沒存到——不能顯示「已放進收藏」然後其實沒有。
-    */
-    if (result.ok && result.stake && !result.isReplay) {
-      const applied = applyStakeOutcome(result.stake);
-      setStakeSaved(applied.saved);
-      setCollectionCount(applied.collection.cards.length);
-    } else {
-      setStakeSaved(null);
-    }
+  function cancelRitual() {
+    // Once the battle is decided, closing the animation shows its receipt, never erases its loss.
+    if (ritual?.result) completeRitual();
   }
-
   return (
     <main className="mx-auto min-h-screen w-full max-w-3xl px-4 pb-24 pt-6 text-white sm:px-6">
       <header className="mb-5">
@@ -511,7 +555,7 @@ export default function BeastGamePage() {
               <div key={index} className="min-w-0">
                 <button
                   type="button"
-                  disabled={dueling}
+                  disabled={dueling || stakeSaved === false}
                   onClick={() => setBoard((prev) => ({ ...prev, activeSlot: index }))}
                   data-slot={index}
                   data-slot-filled={card ? 'yes' : 'no'}
@@ -562,7 +606,7 @@ export default function BeastGamePage() {
                   {card && (
                     <button
                       type="button"
-                      disabled={dueling}
+                      disabled={dueling || stakeSaved === false}
                       onClick={() => clearSlot(index)}
                       className="h-11 w-full rounded-lg border border-white/15 text-xs font-bold text-white/60"
                     >
@@ -579,7 +623,7 @@ export default function BeastGamePage() {
         <div className="mt-2.5 flex items-center gap-2">
           <button
             type="button"
-            disabled={dueling}
+            disabled={dueling || stakeSaved === false}
             onClick={applyRecommendation}
             data-recommend
             className="min-h-[40px] flex-1 rounded-xl border border-cyan-300/40 text-xs font-bold text-cyan-100"
@@ -589,7 +633,7 @@ export default function BeastGamePage() {
           {lineup.some(Boolean) && (
             <button
               type="button"
-              disabled={dueling}
+              disabled={dueling || stakeSaved === false}
               onClick={() => { if (duelInFlight.current) return; setBoard({ lineup: [null, null, null], activeSlot: 0, stake: null }); setRecommendNote(null); setPlacementNote(''); setDuel(null); }}
               className="min-h-[40px] rounded-xl border border-white/15 px-4 text-xs font-bold text-white/55"
             >
@@ -605,50 +649,92 @@ export default function BeastGamePage() {
         {/*
           賭注格。
 
-          業主定調：「輸贏雙方各放一張卡片進去，贏的人可以獲得一張卡片，
-          輸的人那張卡片則會被沒收。」
+          業主定調：「押注的牌要從成長中心獲得的卡片押注，
+          如果贏得勝利，也要歸為成長中心獲得的卡片獎勵。」
 
-          這是整套遊戲唯一會拿走客戶東西的地方，所以：
-            · 風險寫在按下開始之前，不是結算之後
-            · 明寫「輸了這張會被沒收」，不用「本次未獲得獎勵」這種軟話
-            · 沒放賭注卡就不能開戰（後端也擋一次）
+          所以這裡列的不是六十張卡池，是**你自己的卡**——
+          羈絆解鎖的加上決鬥贏來的。一張都沒有時不能只把按鈕變灰，
+          要講得出為什麼沒有、去哪裡拿。
         */}
         <div className="mt-3 rounded-2xl border border-amber-300/25 bg-amber-300/[0.05] p-3" data-stake-slot>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setBoard((prev) => ({ ...prev, activeSlot: 3 }))}
-              data-stake-target
-              data-stake-filled={stakeCard ? 'yes' : 'no'}
-              className={`${frameStyles.card} w-16 shrink-0 overflow-hidden border-2 ${
-                stakeCard ? 'border-solid border-amber-300/60' : 'border-dashed border-amber-200/40'
-              } ${activeSlot === 3 ? 'ring-2 ring-amber-300/70' : ''}`}
-            >
-              {stakeCard ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={stakeCard.thumbnail} alt="" aria-hidden="true" className={frameStyles.art} />
-              ) : (
-                <span className="grid h-full w-full place-items-center text-[10px] font-bold text-amber-100/70">
-                  放賭注
-                </span>
-              )}
-            </button>
-
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-black text-amber-100">{stakeRisk.headline}</p>
-              <p className="mt-1 text-[11px] leading-5 text-white/60">{stakeRisk.detail}</p>
-              {stakeCard && (
-                <button
-                  type="button"
-                  onClick={() => setBoard((prev) => ({ ...prev, stake: null }))}
-                  className="mt-1.5 text-[11px] font-bold text-white/45 underline"
-                >
-                  換一張
-                </button>
-              )}
+          {owned.storageError ? <p role="alert" className="text-sm text-amber-100">{owned.storageError}</p> : owned.all.length === 0 ? (
+            <div data-stake-empty>
+              <p className="text-xs font-black text-amber-100">{NO_OWNED_CARDS_GUIDE.headline}</p>
+              <p className="mt-1 text-[11px] leading-5 text-white/60">{NO_OWNED_CARDS_GUIDE.body}</p>
+              <Link
+                href={NO_OWNED_CARDS_GUIDE.href}
+                className="mt-2.5 inline-block min-h-11 rounded-xl bg-amber-300 px-4 py-3 text-xs font-black text-slate-950"
+              >
+                {NO_OWNED_CARDS_GUIDE.action}
+              </Link>
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-3">
+                <div
+                  data-stake-target
+                  data-stake-filled={stakeCard ? 'yes' : 'no'}
+                  className={`${frameStyles.card} w-16 shrink-0 overflow-hidden border-2 ${
+                    stakeCard ? 'border-solid border-amber-300/60' : 'border-dashed border-amber-200/40'
+                  }`}
+                >
+                  {stakeCard ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={stakeCard.thumbnail} alt="" aria-hidden="true" className={frameStyles.art} />
+                  ) : (
+                    <span className="grid h-full w-full place-items-center text-[10px] font-bold text-amber-100/70">
+                      選一張
+                    </span>
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-black text-amber-100">{stakeRisk.headline}</p>
+                  <p className="mt-1 text-[11px] leading-5 text-white/60">{stakeRisk.detail}</p>
+                </div>
+              </div>
+
+              {/* 只列自己的卡。押不是從六十張裡挑，是從你手上有的挑。 */}
+              <p className="mt-2.5 text-[11px] font-bold text-white/50">
+                成長中心的卡（{owned.all.length} 種）・點一張押注
+              </p>
+              <ul className="mt-1.5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin] [scrollbar-color:#bba16655_transparent]" data-owned-cards>
+                {owned.all.map((cardId) => {
+                  const card = byId.get(cardId);
+                  if (!card) return null;
+                  const chosen = board.stake === cardId;
+                  const count = owned.counts.get(cardId) ?? 1;
+                  return (
+                    <li key={cardId} className="w-16 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => { if (!duelInFlight.current) setBoard((prev) => ({ ...prev, stake: cardId })); }}
+                        disabled={dueling || stakeSaved === false}
+                        aria-label={`押上${card.name}，持有${count}張`}
+                        aria-pressed={chosen}
+                        data-owned-card={cardId}
+                        data-chosen={chosen ? 'yes' : 'no'}
+                        className={`${frameStyles.card} relative w-full overflow-hidden border-2 ${
+                          chosen ? 'border-amber-300' : 'border-white/15'
+                        }`}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={card.thumbnail} alt={card.name} loading="lazy" className={frameStyles.art} />
+                        {count > 1 && (
+                          <span className="absolute right-0.5 top-0.5 rounded-full bg-black/80 px-1 text-[9px] font-black">
+                            ×{count}
+                          </span>
+                        )}
+                      </button>
+                      <p className="mt-1 text-center text-[10px] leading-4 text-white/70">{card.name}</p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
         </div>
+
 
         <button
           type="button"
@@ -661,7 +747,7 @@ export default function BeastGamePage() {
               ? 'bg-gradient-to-r from-amber-300 to-rose-300 text-slate-950'
               : 'cursor-not-allowed bg-white/10 text-white/40'}`}
         >
-          {dueling ? '雙方準備中…' : overBudget ? '超過布陣上限' : ready ? '親手啟陣' : `還要再放 ${3 - filledCount} 張才能開始`}
+          {dueling ? '雙方準備中…' : stakeSaved === false ? '請先保存上一場結果' : overBudget ? '超過布陣上限' : ready ? '確認押注，親手啟陣' : filledCount < 3 ? `還要再放 ${3 - filledCount} 張出戰卡` : '先選一張收藏卡押注'}
         </button>
         <p aria-live="polite" className={`mt-3 text-center text-sm ${overBudget ? 'text-rose-200' : 'text-cyan-100'}`}>
           布陣 {lineupCost} / {lineupBudget ?? '—'} 氣{overBudget ? '・換一張低氣卡' : ''}
@@ -703,65 +789,24 @@ export default function BeastGamePage() {
                   它被放到哪裡（成長中心的決鬥收藏）
                   以及——如果沒存成功，要照實說沒存到
               */}
-              {duel.stake && (
-                <div
-                  data-stake-result
-                  data-stake-verdict={duel.stake.verdict}
-                  className={`mt-3 rounded-xl border p-3 ${
-                    duel.stake.verdict === 'WON'
-                      ? 'border-amber-300/40 bg-amber-300/[0.08]'
-                      : duel.stake.verdict === 'LOST'
-                        ? 'border-rose-400/35 bg-rose-400/[0.07]'
-                        : 'border-white/15 bg-white/[0.04]'
-                  }`}
-                >
-                  <p className="text-xs font-black">
-                    {duel.stake.verdict === 'WON' ? '獎勵：你多了一張神獸卡'
-                      : duel.stake.verdict === 'LOST' ? '沒收：你少了一張神獸卡'
-                        : '押注退回'}
-                  </p>
-                  <p className="mt-1 text-[11px] leading-5 text-white/65">{duel.stake.message}</p>
+              {/*
+                獎勵／沒收的大提示。
 
-                  <dl className="mt-2 grid grid-cols-2 gap-2 text-[11px]">
-                    <div className="rounded-lg bg-black/25 px-2 py-1.5">
-                      <dt className="text-white/40">你押上的</dt>
-                      <dd className="font-bold">{duel.stake.playerStakeName}</dd>
-                    </div>
-                    <div className="rounded-lg bg-black/25 px-2 py-1.5">
-                      <dt className="text-white/40">對手押上的</dt>
-                      <dd className="font-bold">{duel.stake.opponentStakeName}</dd>
-                    </div>
-                  </dl>
+                業主定調：「旁邊要有一個很清楚的引導，說你多了這一張卡片、
+                贏了這一張卡片的概念。輸了也要很清楚，這張卡片就像輸掉了
+                或者是沒收的概念，輸掉的概念也要很清楚地告知。」
 
-                  {duel.stake.verdict === 'WON' && (
-                    <p className="mt-2 text-[11px] font-bold leading-5 text-amber-100">
-                      「{duel.stake.gainedCardName}」已放進
-                      <Link href="/growth-center" className="mx-1 underline">成長中心・決鬥收藏</Link>
-                      {collectionCount > 0 && `（目前 ${collectionCount} 張）`}
-                    </p>
-                  )}
-                  {duel.stake.verdict === 'LOST' && (
-                    <p className="mt-2 text-[11px] font-bold leading-5 text-rose-100">
-                      「{duel.stake.forfeitedCardName}」已從
-                      <Link href="/growth-center" className="mx-1 underline">成長中心・決鬥收藏</Link>
-                      移除。
-                    </p>
-                  )}
-
-                  {stakeSaved === false && (
-                    <p className="mt-2 rounded-lg bg-black/35 px-2 py-1.5 text-[11px] leading-5 text-amber-200">
-                      這台裝置存不進收藏（可能是無痕視窗或瀏覽器封鎖了網站資料），
-                      所以這次的結果沒有被記錄下來。
-                    </p>
-                  )}
-                  {duel.isReplay && (
-                    <p className="mt-2 text-[11px] leading-5 text-white/45">
-                      這是重播，不會重複發獎，也不會重複沒收。
-                    </p>
-                  )}
-                  <p className="mt-2 text-[10px] leading-4 text-white/35">{COLLECTION_STORAGE_NOTICE}</p>
-                </div>
-              )}
+                所以不是一行小字，是把那張卡本人放出來，配上 ＋1 / −1。
+                贏的時候看得到自己多了哪一張，輸的時候看得到被拿走的是哪一張。
+              */}
+              {duel.stake && <BeastStakeResult
+                outcome={duel.stake}
+                card={byId.get(duel.stake.gainedCardId ?? duel.stake.forfeitedCardId ?? duel.stake.stakes.player)}
+                settlement={settlement}
+                isReplay={Boolean(duel.isReplay)}
+                retrying={settling}
+                onRetry={retrySettlement}
+              />}
               {duel.fairness && (
                 <details data-fairness className="mt-3 rounded-xl border border-emerald-300/20 bg-emerald-300/[0.05] p-3">
                   <summary className="min-h-11 cursor-pointer text-sm font-bold text-emerald-100">查看本場規則</summary>
@@ -784,7 +829,7 @@ export default function BeastGamePage() {
                   <button
                     type="button"
                     onClick={() => startDuel(duel.seed)}
-                    disabled={dueling}
+                    disabled={dueling || !lastMatch.current || stakeSaved === false}
                     data-replay
                     className="mt-2.5 min-h-[40px] w-full rounded-xl border border-emerald-300/35 text-[11px] font-bold text-emerald-100"
                   >
@@ -834,7 +879,7 @@ export default function BeastGamePage() {
                 <button
                   type="button"
                   onClick={() => setCandidate(card)}
-                  disabled={dueling}
+                  disabled={dueling || stakeSaved === false}
                   aria-label={`選擇${card.name}，${ELEMENT_LABEL[card.element]}，${card.cost}氣`}
                   data-card-id={card.id}
                   data-placed={placed ? 'yes' : 'no'}
@@ -887,7 +932,7 @@ export default function BeastGamePage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={candidate.front} alt={candidate.name} className={frameStyles.art} />
             </div>
-            <button type="button" disabled={dueling} onClick={() => place(candidate)} className="mt-5 min-h-12 w-full rounded-2xl bg-gradient-to-r from-amber-200 to-amber-400 px-4 text-sm font-black text-slate-950">
+            <button type="button" disabled={dueling || stakeSaved === false} onClick={() => place(candidate)} className="mt-5 min-h-12 w-full rounded-2xl bg-gradient-to-r from-amber-200 to-amber-400 px-4 text-sm font-black text-slate-950">
               放入{slotLabel(activeSlot)}
             </button>
             <button type="button" onClick={() => setCandidate(null)} className="mt-2 min-h-11 w-full text-sm text-white/70">再選一張</button>

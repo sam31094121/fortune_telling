@@ -102,7 +102,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, on
     <div className={styles.table}>
       <div className={styles.topline}>
         <h2>三席對陣{replay ? '・重播' : ''}</h2>
-        <button type="button" className={styles.close} onClick={onCancel}>返回布陣</button>
+        <button type="button" className={styles.close} onClick={onCancel} disabled={!opponentReady}>{opponentReady ? '查看結算' : '準備中'}</button>
       </div>
       <div className={styles.label}><span>電腦對手</span><small>{revealed ? '開場陣容' : '三張待揭'}</small></div>
       {row(opponent, 'opponent')}

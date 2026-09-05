@@ -69,7 +69,7 @@ export function resolveStake(input: StakeInput): StakeResult {
       gainedCardId: input.opponentStake,
       forfeitedCardId: null,
       netChange: 1,
-      message: '你贏了這一場，對手押上的神獸卡歸你，已放進你的收藏。',
+      message: '你贏了這一場，獲得對手押上的神獸卡。',
       stakes,
     };
   }
@@ -80,7 +80,7 @@ export function resolveStake(input: StakeInput): StakeResult {
       gainedCardId: null,
       forfeitedCardId: input.playerStake,
       netChange: -1,
-      message: '你輸了這一場，你押上的那張神獸卡被沒收了，已從你的收藏移除。',
+      message: '你輸了這一場，押上的神獸卡被沒收一張。',
       stakes,
     };
   }
@@ -112,14 +112,14 @@ export function describeStakeRisk(stakeCardName: string | null): {
   if (!stakeCardName) {
     return {
       canStart: false,
-      headline: '還要放一張賭注卡',
-      detail: '賭注格要放一張神獸卡才能開始。贏了拿走對手押的那張，輸了這張會被沒收。',
+      headline: '從成長收藏選一張押注',
+      detail: '贏：多一張。輸：押注卡被沒收。平手：原卡退回。',
     };
   }
   return {
     canStart: true,
     headline: `你押上的是「${stakeCardName}」`,
-    detail: `贏了：對手押的那張歸你。輸了：「${stakeCardName}」會被沒收，從你的收藏移除。平手：各自拿回。`,
+    detail: `贏：原卡保留，再贏一張。輸：沒收「${stakeCardName}」一張。平手：退回。`,
   };
 }
 

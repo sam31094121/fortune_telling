@@ -14,6 +14,9 @@ import type { GrowthCenterResult, GrowthElement, GrowthModuleId, GrowthPreferenc
 import { WaterTreasureOrb, type ProductElement } from '@/components/bazi/customer/WaterTreasureOrb';
 import starBeastsData from '@/data/star-beasts.json';
 import DuelCollectionShelf from '@/components/DuelCollectionShelf';
+import { MODULE_CARD_IDS } from '@/lib/beast-owned-cards';
+import { deriveUnlockedMansions } from '@/lib/beast-growth-rewards';
+import { COLLECTION_UPDATED } from '@/lib/beast-collection';
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 import { trackEvent } from '@/lib/analytics';
 
@@ -119,8 +122,8 @@ const PREFERENCE_SOUL_RESPONSES: Record<GrowthPreferenceId, { affirm: string; re
 };
 
 const STAR_BEASTS = starBeastsData.items as Array<{ id: number; name: string; image: string; youngDivineImage: string; coreMeaning: string }>;
-const MODULE_CARD_IDS: Record<string, number> = { number: 1, ziwei: 2, bazi: 3, nameology: 4, zodiac: 5, soul_match: 6, music: 7, tarot: 8 };
-const WEEKLY_CARD_IDS = STAR_BEASTS.map((beast) => beast.id).filter((id) => !Object.values(MODULE_CARD_IDS).includes(id));
+// 解鎖規則的唯一來源在 lib/beast-owned-cards.ts——押注畫面也要用同一套，
+// 各寫一套遲早會變成「成長中心說你有、押注畫面說你沒有」。
 
 function formatNextUpdate(value: string) {
   return value.replace('T00:00:00+08:00', ' 00:00');
@@ -136,12 +139,14 @@ function readHistory(): CheckInHistory {
   }
 }
 
-function writeHistory(history: CheckInHistory) {
-  if (typeof window === 'undefined') return;
+function writeHistory(history: CheckInHistory): boolean {
+  if (typeof window === 'undefined') return false;
   try {
     window.localStorage.setItem(CHECKIN_STORAGE_KEY, JSON.stringify(history));
+    window.dispatchEvent(new Event(COLLECTION_UPDATED));
+    return true;
   } catch {
-    // Some mobile in-app browsers block localStorage. The page still works without persistence.
+    return false;
   }
 }
 
@@ -200,6 +205,7 @@ export default function GrowthCenterPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [checkHistory, setCheckHistory] = useState<CheckInHistory>({});
+  const [checkInError, setCheckInError] = useState('');
   const [preferences, setPreferences] = useState<GrowthPreferenceId[]>([]);
   const [followUpAnswer, setFollowUpAnswer] = useState<'' | 'continued' | 'paused'>('');
   const [retryToken, setRetryToken] = useState(0);
@@ -263,11 +269,7 @@ export default function GrowthCenterPage() {
   const isReturningAfterGap = lifetimeCheckInCount > 0 && weeklyStreak === 0;
   const greeting = useMemo(() => greetingByHour(new Date().getHours()), []);
   const completedModuleSet = useMemo(() => new Set(data?.progress.completedModules ?? []), [data]);
-  const unlockedCardIds = useMemo(() => {
-    const moduleCards = [...completedModuleSet].map((module) => MODULE_CARD_IDS[module]).filter((id): id is number => Boolean(id));
-    const weeklyCards = WEEKLY_CARD_IDS.slice(0, Math.floor(lifetimeCheckInCount / BEAST_BOND_STAGES.length));
-    return [...new Set([...moduleCards, ...weeklyCards])].sort((a, b) => a - b);
-  }, [completedModuleSet, lifetimeCheckInCount]);
+  const unlockedCardIds = useMemo(() => deriveUnlockedMansions([...completedModuleSet], checkHistory), [completedModuleSet, checkHistory]);
   const unlockedCards = useMemo(() => unlockedCardIds.map((id) => STAR_BEASTS.find((beast) => beast.id === id)).filter((beast): beast is typeof STAR_BEASTS[number] => Boolean(beast)), [unlockedCardIds]);
   const nextCard = STAR_BEASTS.find((beast) => !unlockedCardIds.includes(beast.id)) ?? null;
   const explorationBeastCount = Math.min(completedModuleSet.size, Object.keys(MODULE_CARD_IDS).length);
@@ -281,7 +283,7 @@ export default function GrowthCenterPage() {
       ? checkedIn
         ? `今天完成。${BEAST_BOND_RESPONSES[beastBondStep]}`
         : `今天再走一步，進度不會歸零。`
-      : '28 組本體神獸與神獸幼子已全部收藏。';
+      : '28 組羈絆已全部解鎖，目前持有卡片請看「我的神獸收藏」。';
   const growthOrbChapters = useMemo(() => GROWTH_ORB_CHAPTERS.map((chapter) => {
     const completedRequirements = chapter.requiredModules.filter((moduleId) => completedModuleSet.has(moduleId));
     const unlocked = chapter.enabled && chapter.requiredModules.length === 8 && completedRequirements.length === 8;
@@ -314,8 +316,9 @@ export default function GrowthCenterPage() {
   function handleCheckIn() {
     if (!checkInKey || !data) return;
     const next = { ...checkHistory, [checkInKey]: new Date().toISOString() };
+    if (!writeHistory(next)) { setCheckInError('今天的進度尚未保存，請再試一次。'); return; }
+    setCheckInError('');
     setCheckHistory(next);
-    writeHistory(next);
     trackEvent('growth_daily_checkin', { date_key: taipeiDateKey(), total: lifetimeCheckInCount + 1 });
   }
 
@@ -513,6 +516,7 @@ export default function GrowthCenterPage() {
                     分享我的進度
                   </button>
                 )}
+                {checkInError && <p role="alert" className="text-xs text-amber-200">{checkInError}</p>}
                 <span className="text-xs font-bold leading-6 text-[color:var(--text-muted)]">
                   本月完成 {monthCheckInCount} 天，累計 {lifetimeCheckInCount} 天。
                   {weeklyStreak >= 2 && <span className="ml-2 rounded-full border border-amber-200/30 bg-amber-300/12 px-2 py-0.5 text-amber-100">🔥 連續 {weeklyStreak} 週</span>}
@@ -520,12 +524,13 @@ export default function GrowthCenterPage() {
               </div>
             </section>
 
-            <section className="relative overflow-hidden rounded-2xl border border-amber-300/30 bg-[radial-gradient(circle_at_92%_12%,rgba(251,191,36,0.2),transparent_28%),linear-gradient(135deg,rgba(31,23,58,0.92),rgba(8,15,31,0.96))] p-5 shadow-[0_0_30px_rgba(251,191,36,0.12)]">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">免費收藏獎勵</p>
+            <DuelCollectionShelf revision={lifetimeCheckInCount} />
+            <section id="beast-rewards" className="relative scroll-mt-4 overflow-hidden rounded-2xl border border-amber-300/30 bg-[radial-gradient(circle_at_92%_12%,rgba(251,191,36,0.2),transparent_28%),linear-gradient(135deg,rgba(31,23,58,0.92),rgba(8,15,31,0.96))] p-5 shadow-[0_0_30px_rgba(251,191,36,0.12)]">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">羈絆解鎖進度</p>
               <div className="mt-3 flex items-end justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-black leading-8 text-amber-50">每天一步，收下一份守護</h2>
-                  <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">中斷不歸零，回來繼續。</p>
+                  <p className="mt-2 text-sm font-semibold text-[color:var(--text-sub)]">進度不歸零；已領過的獎勵不會重發。</p>
                 </div>
                 <p className="shrink-0 font-serif text-4xl font-black text-amber-100">{unlockedCards.length}<span className="text-lg text-amber-100/60">/28 組</span></p>
               </div>
@@ -574,8 +579,6 @@ export default function GrowthCenterPage() {
               <Link href="/star-beasts" className="mt-4 inline-flex rounded-full border border-amber-200/35 px-4 py-2 text-xs font-black text-amber-100 transition hover:bg-amber-300/10">查看完整神獸圖鑑</Link>
             </section>
 
-            {/* 決鬥贏來的卡放這裡。與上面的羈絆收藏分開——來源不同，不能混在一起講。 */}
-            <DuelCollectionShelf />
 
             <section className="growth-preference-panel rounded-2xl border border-fuchsia-300/25 bg-fuchsia-300/8 p-5">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-fuchsia-200">我喜歡怎麼被陪伴</p>
