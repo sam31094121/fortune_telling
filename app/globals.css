@@ -16523,6 +16523,29 @@ body.app-touching .home-taiji-cinema * {
   grid-template-rows: auto auto auto auto auto;
 }
 
+.tarot-original-shell--revealing .reveal__title {
+  display: none;
+}
+
+.tarot-original-shell--revealing .reveal__spread {
+  padding-bottom: 1rem;
+}
+
+.tarot-original-shell--revealing .reveal__card-name {
+  min-height: 2.8rem;
+  margin-top: 0.75rem;
+  line-height: 1.35;
+}
+
+.tarot-original-shell--revealing .reveal__interpretation {
+  margin-top: 0.75rem;
+}
+
+.tarot-original-shell--revealing .reveal__actions {
+  width: min(100%, 24rem);
+  margin-top: 1.25rem;
+}
+
 @media (max-width: 760px) {
   .tarot-original-shell .reveal.reveal--finished {
     padding: 1rem 0.8rem;
