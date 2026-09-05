@@ -269,19 +269,31 @@ scripts/gen-beast-card-art.mjs   三段式卡圖產生器
    —— 以圖生圖是為了讓生出來的還是那一隻，不是另外畫一隻新的
 2. 把純黑鍵成透明（黑底去背比複雜背景可靠，所以是「請它畫在黑底上」
    而不是「請它給我透明背景」）
-3. 存成 `public/beast-game/spirit/NN.png`
+3. 縮到 512 高、轉 WebP。原始尺寸一張 1.4MB，五十六張就 84MB——
+   手機優先的憲章下不能接受，而且三維場景裡本體最多佔螢幕一半高，512 綽綽有餘
+4. 存成 `public/beast-game/spirit/NN.webp`（成獸）與 `NNy.webp`（幼子）
+
+**成獸與幼子分開生成。** 幼子用成獸的立繪，就是拿大人的圖冒充小孩，
+所以幼子有自己的提示詞（圓身、大頭大眼、短肢）與自己的參考圖。
+二十八成獸 ＋ 二十八幼子 ＝ 涵蓋全部六十張卡（四象共用牠統領首宿的成獸）。
 
 ```bash
-node scripts/gen-beast-spirits.mjs --limit 2            # 先試兩張
-node scripts/gen-beast-spirits.mjs --limit 60           # 全部
-node scripts/gen-beast-spirits.mjs --only 1,2 --force   # 重生指定幾隻
+node scripts/gen-beast-spirits.mjs --limit 2                    # 先試兩張成獸
+node scripts/gen-beast-spirits.mjs --limit 28                   # 成獸全部
+node scripts/gen-beast-spirits.mjs --young --limit 28           # 幼子全部
+node scripts/gen-beast-spirits.mjs --young --only 13,20 --force # 重生指定幾隻
+npm run check:beast-spirits                                     # 檢查有沒有沒去乾淨的
 ```
 
 **這支會花錢**（呼叫付費影像 API），所以預設只跑 `--limit` 指定的張數、
 已存在的檔案預設跳過、每一張都印出結果與檔案大小——跑到哪裡看得見。
 
-卡片對應本體：`spiritArtFor(cardId)`。`beast_a01` 與 `beast_y01` 共用第 01 隻本體，
-四象各自對應牠統領的第一宿。沒有立繪就退回卡面，不會開天窗。
+**品質檢查是必要的。** 影像模型偶爾會無視指示回一張白底圖，
+那種圖經過黑底去背之後背景原封不動，結果就是一塊白方塊衝過去。
+實測五十六張裡有三張是這樣（13y／20y／21y）。
+`npm run check:beast-spirits` 用「透明像素低於三成五」抓出來，重生即可。
+
+卡片對應本體：`spiritArtFor(cardId)`。沒有立繪就退回卡面，不會開天窗。
 
 
 ### 三段式猛烈音效
