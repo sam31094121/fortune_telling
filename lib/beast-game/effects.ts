@@ -94,6 +94,8 @@ export interface EffectContext {
 
 /** 傷害底值。規格第八條：最低傷害不得小於設定底值。 */
 export const MINIMUM_DAMAGE = 1;
+/** 防禦折算為減傷，避免普遍只剩 1 點傷害、勝負由疲勞先後決定。 */
+export const DEFENSE_DAMAGE_FACTOR = 0.5;
 
 /** 目前有效的屬性值＝基礎值＋所有進行中的加減益。負值一律夾到 0。 */
 export function effectiveStat(beast: BeastInstance, stat: 'attack' | 'defense' | 'speed'): number {
@@ -126,9 +128,10 @@ export function computeDamage(input: {
 }): { damage: number; multiplier: number; detail: string } {
   const multiplier = elementMultiplier(input.attackerElement, input.defenderElement);
   const boosted = input.attack * (1 + (input.boostPercent ?? 0) / 100);
-  const raw = boosted * multiplier - input.defense;
+  const defenseReduction = input.defense * DEFENSE_DAMAGE_FACTOR;
+  const raw = boosted * multiplier - defenseReduction;
   const damage = Math.max(MINIMUM_DAMAGE, Math.round(raw));
-  const detail = `攻${Math.round(boosted)} × 元素${multiplier} − 防${input.defense} = ${damage}`
+  const detail = `攻${Math.round(boosted)} × 元素${multiplier} − 防${input.defense} × ${DEFENSE_DAMAGE_FACTOR} = ${damage}`
     + (damage === MINIMUM_DAMAGE && raw < MINIMUM_DAMAGE ? `（低於底值 ${MINIMUM_DAMAGE}，取底值）` : '');
   return { damage, multiplier, detail };
 }

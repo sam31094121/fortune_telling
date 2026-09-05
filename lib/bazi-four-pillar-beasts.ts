@@ -1,4 +1,4 @@
-import starBeastsData from '@/data/star-beasts.json';
+import starBeastsData from '../data/star-beasts.json';
 
 type Season = 'spring' | 'summer' | 'autumn' | 'winter';
 type SourceElement = 'wood' | 'fire' | 'earth' | 'metal' | 'water';

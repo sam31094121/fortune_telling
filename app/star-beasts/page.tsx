@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import starBeastsData from '@/data/star-beasts.json';
+import SelfStarBeastEntry from '@/components/SelfStarBeastEntry';
 
 type Season = 'all' | 'spring' | 'summer' | 'autumn' | 'winter';
 type Form = 'young' | 'awakened';
@@ -92,24 +93,10 @@ export default function StarBeastsPage() {
   const [season, setSeason] = useState<Season>('all');
   const [form, setForm] = useState<Form>('awakened');
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [savedGuardianId, setSavedGuardianId] = useState<number | null>(null);
   const visibleBeasts = useMemo(() => BEASTS
     .filter((beast) => season === 'all' || beast.season === season)
     .toSorted((a, b) => SEASON_ORDER[a.season] - SEASON_ORDER[b.season] || a.id - b.id), [season]);
   const selected = selectedId === null ? null : BEASTS.find((beast) => beast.id === selectedId) ?? null;
-
-  useEffect(() => {
-    for (let index = 0; index < window.localStorage.length; index += 1) {
-      const key = window.localStorage.key(index);
-      if (!key?.startsWith('star-beast-guardian:')) continue;
-      const savedName = window.localStorage.getItem(key);
-      const guardian = BEASTS.find((beast) => beast.name === savedName);
-      if (guardian) {
-        setSavedGuardianId(guardian.id);
-        break;
-      }
-    }
-  }, []);
 
   useEffect(() => {
     if (!selected) return;
@@ -152,16 +139,9 @@ export default function StarBeastsPage() {
           <div className="pointer-events-none absolute right-5 top-5 font-serif text-7xl font-black text-amber-100/[0.06] sm:right-10 sm:text-9xl">28</div>
           <p className="text-xs font-black tracking-[0.28em] text-amber-200/85">THE TWENTY-EIGHT MANSIONS</p>
           <h1 className="mt-3 font-serif text-4xl font-black tracking-wide text-white sm:text-6xl">星宿神獸卡片</h1>
-          <p className="mt-4 text-sm text-slate-300">收藏本體神獸與神獸幼子，共五十六張。</p>
-          {savedGuardianId ? (
-            <button type="button" onClick={() => setSelectedId(savedGuardianId)} className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full border border-amber-100/55 bg-amber-300/20 px-6 text-sm font-black text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.18)] transition hover:bg-amber-300/30">
-              查看我的本體神獸
-            </button>
-          ) : (
-            <Link href="/bazi" className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full border border-amber-100/55 bg-amber-300/20 px-6 text-sm font-black text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.18)] transition hover:bg-amber-300/30">
-              找出我的本體神獸
-            </Link>
-          )}
+          <p className="mt-4 text-sm text-slate-300">本體二十八・幼子二十八・四象四，共六十張。</p>
+          <SelfStarBeastEntry onFound={(id) => { setForm('awakened'); setSeason('all'); setSelectedId(id); }} />
+          <Link href="/beast-game" className="mt-4 inline-flex min-h-12 items-center rounded-full border border-cyan-100/30 px-6 text-sm font-bold text-cyan-100">親手布陣・六十張神獸卡</Link>
           <details className="mt-4 max-w-2xl text-xs text-slate-400">
             <summary className="cursor-pointer font-bold text-slate-300">這裡有什麼？</summary>
             <p className="mt-2 leading-6">二十八星宿分為春夏秋冬，每一宿都有本體神獸與神獸幼子。</p>

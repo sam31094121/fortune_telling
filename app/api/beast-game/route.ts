@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { playableCards } from '@/lib/beast-game/registry';
 import { evaluateBalance } from '@/lib/beast-game/balance';
@@ -55,7 +56,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  let body: { lineup?: Array<string | null>; seed?: number };
+  let body: { lineup?: Array<string | null>; replaySeed?: number };
   try {
     body = await request.json();
   } catch {
@@ -65,6 +66,9 @@ export async function POST(request: Request) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
     return NextResponse.json({ ok: false, error: '請選擇三張出戰卡。' }, { status: 400 });
   }
+  if (body.replaySeed !== undefined && (!Number.isInteger(body.replaySeed) || body.replaySeed < 0 || body.replaySeed >= 2 ** 31)) {
+    return NextResponse.json({ ok: false, error: '重播資料無效，請重新啟陣。' }, { status: 400 });
+  }
   const lineup = Array.isArray(body.lineup) ? body.lineup : [];
   const verdict = validateLineup(lineup);
   if (!verdict.ready) {
@@ -72,27 +76,64 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: verdict.reason }, { status: 400 });
   }
 
+  /*
+    種子由伺服器產生，客戶不能指定。
+
+    原本直接收 body.seed。那等於讓人可以一直換種子試到贏為止——
+    對單機對戰來說不是我們在作假，但「公平對決」這四個字就站不住了。
+
+    replaySeed 是唯一的例外：用同一顆種子把同一場重播一次，
+    結果一定一模一樣（這正是可回查的意義），並且會標成重播、不算新戰績。
+  */
+  const isReplay = Number.isInteger(body.replaySeed);
+  const seed = isReplay
+    ? Number(body.replaySeed)
+    : Math.floor(randomInt(0, 2 ** 31 - 1));
+
   const chosen = lineup.filter((id): id is string => Boolean(id));
-  const seed = Number.isFinite(body.seed) ? Number(body.seed) : Date.now() % 100000;
   const ids = playableCards().map((card) => card.id);
   const rng = createRng(seed);
 
+  /*
+    對手用完全一樣的規則產生：同一個卡池、同樣的三席、同樣二十張牌組。
+    對手沒有額外本命、沒有額外氣、沒有專屬卡——想確認的話，
+    回傳的 fairness 欄位就是給客戶看的那份對照。
+  */
+  const opponentLineup = buildLineup(ids, rng);
   const state = playToEnd(createDuel({
     player: { lineup: chosen, deck: buildDeck(ids, rng) },
-    // 對手的三席也從卡池抽，同一顆種子可重現。
-    opponent: {
-      lineup: buildLineup(ids, rng),
-      deck: buildDeck(ids, rng),
-    },
+    opponent: { lineup: opponentLineup, deck: buildDeck(ids, rng) },
     seed,
   }));
 
   return NextResponse.json({
     ok: true,
     seed,
+    isReplay,
+    firstPlayer: state.firstPlayer,
     winner: state.winner,
     turns: state.turn,
     life: { player: state.players.PLAYER.life, opponent: state.players.OPPONENT.life },
+    opponentLineup: opponentLineup.map((id) => playableCards().find((c) => c.id === id)?.name ?? id),
+    opponentLineupIds: opponentLineup,
+    /*
+      公平性對照表。直接端給客戶看——
+      「我們沒有偷偷讓對手比較強」這句話要有東西可以對，不能只是宣告。
+    */
+    fairness: {
+      seedSource: isReplay ? '重播（沿用你指定的種子）' : '伺服器產生，客戶端無法指定',
+      firstPlayer: state.firstPlayer === 'PLAYER' ? '你先手（本場由種子擲出）' : '對手先手（本場由種子擲出）',
+      sameRules: [
+        `雙方本命都是 ${STARTING_LIFE}`,
+        `雙方牌組都是 ${DECK_SIZE} 張，從同一個 ${ids.length} 張卡池抽`,
+        '雙方氣的成長完全相同（每回合上限 +1，上限十）',
+        '雙方出戰三席都是三張，開場都在場上',
+        `雙方開場布陣最多 ${MAX_LINEUP_COST} 氣，同一卡不能重複上陣`,
+        '後手方多抽一張牌，補償先手的節奏優勢',
+        '先手方第一回合不進攻',
+      ],
+      replayable: '記下這顆種子，用「重播這一場」可以完整重現同一場對戰。',
+    },
     timeline: state.timeline,
     log: state.log,
   }, { headers: { 'Cache-Control': 'no-store' } });

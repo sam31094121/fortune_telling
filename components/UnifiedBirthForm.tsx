@@ -72,6 +72,8 @@ type UnifiedBirthFormProps = {
    * 這裡會一併從無障礙樹與 Tab 順序移除，讀屏才不會唸到兩顆同名按鈕。
    */
   hideSubmitChrome?: boolean;
+  /** 呼叫端已核對本人資料時，避免再次由全域儲存覆蓋。 */
+  autoFillIdentity?: boolean;
   onChange: (value: BirthProfile) => void;
   onSubmit: (value: BirthProfile) => void;
 };
@@ -233,6 +235,7 @@ export function UnifiedBirthForm({
   dateAccent = 'amber',
   requireExplicitHourPick = false,
   hideSubmitChrome = false,
+  autoFillIdentity = true,
   onChange,
   onSubmit,
 }: UnifiedBirthFormProps) {
@@ -243,6 +246,7 @@ export function UnifiedBirthForm({
   onChangeRef.current = onChange;
 
   useEffect(() => {
+    if (!autoFillIdentity) return;
     const applyIdentity = (target: AnalysisIdentityTarget | null) => {
       if (target === 'self') {
         const saved = readSelfBirthProfile();

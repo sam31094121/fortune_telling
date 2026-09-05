@@ -84,6 +84,32 @@ function isSemver(value: string): boolean {
     && parts.every((part) => part.length > 0 && [...part].every((ch) => ch >= '0' && ch <= '9'));
 }
 
+/**
+ * 去掉註解，只留真的會執行的程式碼。
+ *
+ * 註解為了說明「原本錯在哪」而引用舊寫法是允許的，
+ * 但檢查不能把那段說明當成違規——這一點在 iching 那支測試上踩過同樣的坑。
+ * 用逐行狀態機而不是正規表示式：區塊註解的內文常常不是以 * 開頭。
+ */
+function codeWithoutComments(source: string): string {
+  const out: string[] = [];
+  let inBlock = false;
+  for (const line of source.split('\n')) {
+    const t = line.trim();
+    if (inBlock) {
+      if (t.includes('*/')) inBlock = false;
+      continue;
+    }
+    if (t.startsWith('/*') || t.startsWith('{/*')) {
+      if (!t.includes('*/')) inBlock = true;
+      continue;
+    }
+    if (t.startsWith('//') || t.startsWith('*')) continue;
+    out.push(line);
+  }
+  return out.join('\n');
+}
+
 const root = process.cwd();
 const assetExists = (p: string) => fs.existsSync(path.join(root, 'public', p.replace(/^\//, '')));
 const sizeOf = (p: string) => fs.statSync(path.join(root, 'public', p.replace(/^\//, ''))).size;
@@ -186,7 +212,7 @@ console.log('\n【三】五元素：只有一套，不得另立');
 console.log('\n【四】傷害公式：前端不准自己算，底值不得被穿');
 {
   const normal = computeDamage({ attack: 60, defense: 20, attackerElement: 'AIR', defenderElement: 'WATER' });
-  eq('攻60 防20 無相剋 → 40', normal.damage, 40);
+  eq('攻60 防20 折算50% → 50', normal.damage, 50);
 
   const advantage = computeDamage({ attack: 60, defense: 20, attackerElement: 'AIR', defenderElement: 'EARTH' });
   check('風剋地：傷害更高', advantage.damage > normal.damage, `${advantage.damage} > ${normal.damage}`);
@@ -310,8 +336,8 @@ console.log('\n【八】出戰三席：放滿才准開戰，站位決定誰先�
   // 打一回合，確認挨打的是前鋒不是後面
   const frontHpBefore = duel.players.PLAYER.field[0].instance.hp;
   const backHpBefore = duel.players.PLAYER.field[2].instance.hp;
-  playTurn(duel); // 玩家回合
-  playTurn(duel); // 對手回合，會打到玩家的前鋒
+  // 先後手是擲出來的，所以多跑幾個回合，確保對手一定出手過。
+  for (let i = 0; i < 4; i += 1) playTurn(duel);
   const front = duel.players.PLAYER.field.find((u) => u.slot === 0);
   const back = duel.players.PLAYER.field.find((u) => u.slot === 2);
   check('前鋒先挨打',
@@ -333,22 +359,26 @@ console.log('\n【九】核心可以玩：抽得到、叫得出、打得動、�
   check('牌組只含正式牌庫的卡', playerDeck.every((id) => ids.includes(id)));
 
   const game = createGame({ playerDeck, opponentDeck, seed: 20260905 });
-  eq('先手起手 5 張', game.players.PLAYER.hand.length, OPENING_HAND);
-  eq('後手多一張補償', game.players.OPPONENT.hand.length, OPENING_HAND + 1);
+  const first = game.firstPlayer;
+  const second = first === 'PLAYER' ? 'OPPONENT' : 'PLAYER';
+  eq('先手起手 5 張', game.players[first].hand.length, OPENING_HAND);
+  eq('後手多一張補償', game.players[second].hand.length, OPENING_HAND + SECOND_PLAYER_BONUS_CARD);
+  check('先後手由種子決定，不是固定客戶先', ['PLAYER','OPPONENT'].includes(first), first);
+  check('擲先手要寫進戰報', game.timeline.some((t) => t.note.includes('擲先手')), game.timeline[0]?.note ?? '');
   eq('雙方本命都是 30',
     [game.players.PLAYER.life, game.players.OPPONENT.life], [STARTING_LIFE, STARTING_LIFE]);
 
   playTurn(game);
-  eq('第一回合氣上限為 2', game.players.PLAYER.manaCap, 2);
+  eq('第一回合氣上限為 2', game.players[first].manaCap, 2);
   check('第一回合只召得動便宜的',
-    game.players.PLAYER.field.every((u) => u.card.cost <= 2),
-    game.players.PLAYER.field.map((u) => `${u.card.name}(${u.card.cost}氣)`).join('、') || '（無）');
-  check('場上不得超過 3 隻', game.players.PLAYER.field.length <= MAX_FIELD);
+    game.players[first].field.every((u) => u.card.cost <= 2),
+    game.players[first].field.map((u) => u.card.name + '(' + u.card.cost + '氣)').join('、') || '（無）');
+  check('場上不得超過 3 隻', game.players[first].field.length <= MAX_FIELD);
 
   const finished = playToEnd(game);
   check('打得完，分得出結果', finished.winner !== null, String(finished.winner));
-  check('氣上限不得超過十', finished.players.PLAYER.manaCap <= MAX_MANA_CAP,
-    String(finished.players.PLAYER.manaCap));
+  check('氣上限不得超過十', finished.players[first].manaCap <= MAX_MANA_CAP,
+    String(finished.players[first].manaCap));
   check('戰鬥有實際傷害紀錄', finished.log.some((e) => e.type === 'DAMAGE' && e.applied > 0));
   check('本命有被打到',
     finished.players.PLAYER.life < STARTING_LIFE || finished.players.OPPONENT.life < STARTING_LIFE,
@@ -379,6 +409,28 @@ console.log('\n【九】核心可以玩：抽得到、叫得出、打得動、�
   // 疲勞機制加進來之前，十二場有七場平手（五成八）——客戶等於白打一場。
   const draws = results.filter((r) => r === 'DRAW').length;
   check('平手不得過半', draws <= 3, draws + '/12 場平手');
+
+  // 公平性：先後手隨機之後，長期勝率不得偏向任何一邊。
+  // 這一條是「禁止作假」的量化版本——不是宣稱公平，是每次 CI 都量一次。
+  const many: string[] = [];
+  for (let seed = 1; seed <= 60; seed += 1) {
+    const r = createRng(seed * 104729);
+    const g = playToEnd(createGame({ playerDeck: buildDeck(ids, r), opponentDeck: buildDeck(ids, r), seed: seed * 31 }));
+    many.push(String(g.winner));
+  }
+  const pWin = many.filter((r) => r === 'PLAYER').length;
+  const oWin = many.filter((r) => r === 'OPPONENT').length;
+  const decided = pWin + oWin;
+  const share = decided === 0 ? 0.5 : pWin / decided;
+  check('六十場勝率不得偏向任何一邊（0.3–0.7）', share >= 0.3 && share <= 0.7,
+    '玩家 ' + pWin + ' 勝／對手 ' + oWin + ' 勝／勝率 ' + share.toFixed(2));
+
+  const firsts = new Set<string>();
+  for (let seed = 1; seed <= 20; seed += 1) {
+    const r = createRng(seed);
+    firsts.add(createGame({ playerDeck: buildDeck(ids, r), opponentDeck: buildDeck(ids, r), seed: seed * 977 }).firstPlayer);
+  }
+  eq('先手不是固定同一邊', firsts.size, 2);
   const wins = results.filter((r) => r === 'PLAYER').length;
   const losses = results.filter((r) => r === 'OPPONENT').length;
   check('先手不得穩贏（後手至少要贏得了幾場）', losses >= 2, `先手 ${wins} 勝／後手 ${losses} 勝`);
@@ -476,6 +528,96 @@ console.log('\n【十二】資料與畫面分離、不得為新卡改核心');
     check(`${file} 不含 React`, !src.includes('react') && !src.includes('jsx'));
   }
 }
+console.log('\n【十三】禁止作假：公平性要量得出來，不能只是宣稱');
+{
+  const ids = registry.cards.map((c) => c.id);
+
+  // 對手不得有任何額外資源
+  const r = createRng(31337);
+  const g = createGame({ playerDeck: buildDeck(ids, r), opponentDeck: buildDeck(ids, r), seed: 31337 });
+  eq('雙方本命相同', g.players.PLAYER.life, g.players.OPPONENT.life);
+  eq('雙方氣上限相同', g.players.PLAYER.manaCap, g.players.OPPONENT.manaCap);
+  // 抽過牌之後兩邊牌組張數本來就會差一張（後手多抽一張），
+  // 所以要比的是「牌組＋手牌」——那才是起始資源。
+  eq('雙方起始牌量相同',
+    g.players.PLAYER.deck.length + g.players.PLAYER.hand.length,
+    g.players.OPPONENT.deck.length + g.players.OPPONENT.hand.length);
+  eq('雙方疲勞都從零開始', [g.players.PLAYER.fatigue, g.players.OPPONENT.fatigue], [0, 0]);
+
+  // 起手張數的差只能來自「後手補一張」，不能來自身分
+  const firstSide = g.firstPlayer;
+  const secondSide = firstSide === 'PLAYER' ? 'OPPONENT' : 'PLAYER';
+  eq('先手起手就是基準張數', g.players[firstSide].hand.length, OPENING_HAND);
+  eq('後手就是基準加補償', g.players[secondSide].hand.length, OPENING_HAND + SECOND_PLAYER_BONUS_CARD);
+
+  // 核心不得有任何偏袒某一邊的寫死判斷
+  const turnSrc = fs.readFileSync(path.join(root, 'lib/beast-game/turn.ts'), 'utf8');
+  const codeOnly = codeWithoutComments(turnSrc);
+  check('先後手不得寫死成 PLAYER', !codeOnly.includes("active: 'PLAYER'"));
+  check('首回合不進攻是綁先手，不是綁 PLAYER',
+    codeOnly.includes('state.active === state.firstPlayer'));
+  check('補償是給後手，不是給對手', !codeOnly.includes('players.OPPONENT, OPENING_HAND +'));
+
+  // 前端不得有任何自己算勝負的程式
+  const pageSrc = fs.readFileSync(path.join(root, 'app/beast-game/page.tsx'), 'utf8');
+  const pageCode = codeWithoutComments(pageSrc);
+  for (const forbidden of ['playToEnd', 'performAttack', 'computeDamage', 'createDuel', 'resolveEffects']) {
+    check(`組陣台不得自己跑 ${forbidden}`, !pageCode.includes(forbidden));
+  }
+  // winner === 只是顯示用的比較，不是在算勝負；真正該擋的是前端匯入引擎。
+  check('組陣台不得匯入遊戲引擎',
+    !codeWithoutComments(pageSrc).includes("from '@/lib/beast-game")
+    && !codeWithoutComments(pageSrc).includes("from '../../lib/beast-game"));
+
+  // 客戶不得指定種子（只能重播），否則可以一直換種子試到贏
+  const apiSrc = fs.readFileSync(path.join(root, 'app/api/beast-game/route.ts'), 'utf8');
+  check('決鬥種子由伺服器產生', apiSrc.includes('randomInt'));
+  check('重播是唯一能指定種子的路徑', apiSrc.includes('replaySeed'));
+  check('不得直接採用客戶端傳來的 seed', !codeWithoutComments(apiSrc).includes('body.seed'));
+
+  // 同一顆種子必須完全重現——這是「可回查」的定義
+  const deckA = buildDeck(ids, createRng(7));
+  const deckB = buildDeck(ids, createRng(8));
+  const a = playToEnd(createGame({ playerDeck: deckA, opponentDeck: deckB, seed: 555 }));
+  const b = playToEnd(createGame({ playerDeck: deckA, opponentDeck: deckB, seed: 555 }));
+  eq('同種子 → 同勝負', a.winner, b.winner);
+  eq('同種子 → 同先手', a.firstPlayer, b.firstPlayer);
+  eq('同種子 → 同本命', [a.players.PLAYER.life, a.players.OPPONENT.life],
+    [b.players.PLAYER.life, b.players.OPPONENT.life]);
+}
+
+console.log('\n【十四】友善引導：新手要進得來');
+{
+  const pageSrc = fs.readFileSync(path.join(root, 'app/beast-game/page.tsx'), 'utf8');
+  check('有新手三步驟', pageSrc.includes('const ONBOARDING') && pageSrc.includes('data-onboarding'));
+  check('引導看過就不再擋路', pageSrc.includes('ONBOARDING_SEEN_KEY'));
+  check('提供選卡建議入口', pageSrc.includes('data-recommend'));
+  check('推薦要講得出理由，不是亂數', pageSrc.includes('data-recommend-note') && pageSrc.includes('reason'));
+  check('公平性直接顯示給客戶', pageSrc.includes('data-fairness'));
+  check('可以重播同一場驗證', pageSrc.includes('data-replay'));
+
+  // 推薦出來的陣容必須真的能開戰
+  const rec = registry.cards.length >= 3;
+  check('卡池夠推薦三張', rec);
+}
+
+console.log('\n【十五】穩定性：連線不穩、存壞了，都不能讓整頁壞掉');
+{
+  const pageSrc = fs.readFileSync(path.join(root, 'app/beast-game/page.tsx'), 'utf8');
+  check('請求有逾時', pageSrc.includes('AbortController') && pageSrc.includes('setTimeout'));
+  check('請求有重試', pageSrc.includes('retries'));
+  check('逾時要講人話', pageSrc.includes('連線逾時'));
+  check('本機儲存一律包 try/catch', pageSrc.includes('function readLocal') && pageSrc.includes('function writeLocal'));
+  check('存壞的舊資料要忽略，不得讓整頁開不起來', pageSrc.includes('存壞了就當作沒存過'));
+  check('卡池認不得的 id 要自動忽略', pageSrc.includes('known.has(id)'));
+  check('載入失敗有錯誤畫面', pageSrc.includes('loadError'));
+
+  const apiSrc = fs.readFileSync(path.join(root, 'app/api/beast-game/route.ts'), 'utf8');
+  check('API 擋掉壞掉的 JSON', apiSrc.includes('請傳入有效的 JSON'));
+  check('API 擋掉沒放滿的陣容', apiSrc.includes('validateLineup'));
+  check('API 不快取戰果', apiSrc.includes('no-store'));
+}
+
 
 console.log(`\n神獸卡遊戲核心（六十張） — PASS ${pass} / FAIL ${fail}`);
 if (fail > 0) process.exit(1);

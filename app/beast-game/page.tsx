@@ -19,7 +19,7 @@
  * （規格第八、十二條）。畫面不自己扣血、不自己判勝負。
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 
 type Skill = { id: string; name: string; trigger: string; description: string };
@@ -41,6 +41,11 @@ type Card = {
 
 type DuelResult = {
   ok: boolean;
+  seed?: number;
+  isReplay?: boolean;
+  firstPlayer?: string;
+  opponentLineup?: string[];
+  fairness?: { seedSource: string; firstPlayer: string; sameRules: string[]; replayable: string };
   winner?: string;
   turns?: number;
   life?: { player: number; opponent: number };
@@ -66,10 +71,98 @@ const FORM_LABEL: Record<Card['form'], string> = {
 
 /** 三席的名稱與作用。站位有意義，所以要寫出來給客戶看。 */
 const SLOT_META = [
-  { name: '前鋒', hint: '第一個挨打，適合硬的' },
-  { name: '中軍', hint: '前鋒倒了才輪到' },
-  { name: '後陣', hint: '被保護著，適合能打的' },
+  { name: '前鋒', hint: '承受攻擊' },
+  { name: '中軍', hint: '接替前鋒' },
+  { name: '後陣', hint: '後方支援' },
 ];
+
+/**
+ * 新手三步驟。
+ *
+ * 客戶第一次進來看到六十張卡、五個元素、七個成本階梯，很容易直接關掉。
+ * 所以第一屏先講清楚只有三件事要做，而且看完就收起來，不再擋路。
+ */
+const ONBOARDING = [
+  { step: '1', title: '選卡', body: '挑喜歡的神獸。' },
+  { step: '2', title: '放入', body: '親手確認三個站位。' },
+  { step: '3', title: '啟陣', body: '三席合計最多十二氣。' },
+];
+
+const ONBOARDING_SEEN_KEY = 'beast_game_onboarding_seen_v1';
+const LINEUP_KEY = 'beast_game_lineup_v1';
+
+/**
+ * 讀寫本機儲存。
+ *
+ * 無痕視窗、關閉網站資料、部分 in-app 瀏覽器都會讓這裡直接丟例外，
+ * 所以一律包 try/catch，讀不到就當作沒存過——不能因為記不住就整頁壞掉。
+ */
+function readLocal(key: string): string | null {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeLocal(key: string, value: string): void {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    /* 配額滿或被封鎖：記不住而已，不影響這一次能不能玩。 */
+  }
+}
+
+/**
+ * 帶逾時與重試的 fetch。
+ *
+ * 手機在電梯裡、切換基地台、背景回前景時，請求卡住不回應是常態。
+ * 沒有逾時的話畫面就一直停在「決鬥進行中…」，客戶只會以為壞了。
+ */
+async function fetchJson<T>(input: string, init?: RequestInit, timeoutMs = 15000, retries = 1): Promise<T> {
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(input, { ...init, signal: controller.signal });
+      const data = (await res.json()) as T;
+      return data;
+    } catch (error) {
+      if (attempt === retries) {
+        const aborted = error instanceof DOMException && error.name === 'AbortError';
+        throw new Error(aborted ? '連線逾時了，請確認網路後再試一次。' : '連線不穩，請稍後再試一次。');
+      }
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  throw new Error('連線不穩，請稍後再試一次。');
+}
+
+/**
+ * 幫新手挑一套能打的陣容。
+ *
+ * 規則講得出來：一張硬的當前鋒、一張均衡的當中軍、一張能打的當後陣，
+ * 而且三張的氣加起來不會太重。這不是亂數——按下去看得到為什麼是這三張。
+ */
+function recommendLineup(cards: Card[]): { lineup: string[]; reason: string } {
+  const affordable = cards.filter((card) => card.cost <= 4);
+  const pool = affordable.length >= 3 ? affordable : cards;
+  const byDefense = [...pool].sort((a, b) => (b.stats.defense + b.stats.hp) - (a.stats.defense + a.stats.hp));
+  const byAttack = [...pool].sort((a, b) => b.stats.attack - a.stats.attack);
+
+  const front = byDefense[0];
+  const back = byAttack.find((card) => card.id !== front.id) ?? byAttack[0];
+  const mid = [...pool]
+    .sort((a, b) => (b.stats.attack + b.stats.defense) - (a.stats.attack + a.stats.defense))
+    .find((card) => card.id !== front.id && card.id !== back.id) ?? pool[0];
+
+  return {
+    lineup: [front.id, mid.id, back.id],
+    reason: `前鋒挑最耐打的 ${front.name}、中軍挑攻守均衡的 ${mid.name}、`
+      + `後陣挑攻擊最高的 ${back.name}——共 ${front.cost + mid.cost + back.cost} 氣。`,
+  };
+}
 
 export default function BeastGamePage() {
   const [cards, setCards] = useState<Card[]>([]);
@@ -91,26 +184,99 @@ export default function BeastGamePage() {
   const [costFilter, setCostFilter] = useState<number | 'ALL'>('ALL');
 
   const [detail, setDetail] = useState<Card | null>(null);
+  const [candidate, setCandidate] = useState<Card | null>(null);
+  const [placementNote, setPlacementNote] = useState('');
   const [duel, setDuel] = useState<DuelResult | null>(null);
   const [dueling, setDueling] = useState(false);
   const [lineupBudget, setLineupBudget] = useState<number | null>(null);
+  const [showGuide, setShowGuide] = useState(false);
+  const [recommendNote, setRecommendNote] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const duelInFlight = useRef(false);
+
+  useEffect(() => {
+    if (!candidate && !detail) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const dialog = dialogRef.current;
+    dialog?.querySelector<HTMLElement>('button')?.focus();
+    function handleKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') { setCandidate(null); setDetail(null); }
+      if (event.key !== 'Tab' || !dialog) return;
+      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), [tabindex="0"]'));
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKey);
+      previousFocus?.focus({ preventScroll: true });
+    };
+  }, [candidate, detail]);
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/beast-game')
-      .then((res) => res.json())
+    // 帶逾時與重試：手機切基地台、背景回前景時請求卡住是常態，
+    // 沒有逾時就會一直停在載入中，客戶只會以為壞了。
+    fetchJson<{ ok: boolean; cards?: Card[]; rules?: { lineupBudget?: number }; error?: string }>('/api/beast-game')
       .then((data) => {
         if (cancelled) return;
-        if (!data?.ok) throw new Error(data?.error ?? '卡池載入失敗');
-        setCards(data.cards as Card[]);
-        setLineupBudget(data.rules.lineupBudget);
+        if (!data?.ok || !Array.isArray(data.cards)) throw new Error(data?.error ?? '卡池載入失敗');
+        setCards(data.cards);
+        setLineupBudget(data.rules?.lineupBudget ?? null);
+
+        // 還原上次的陣容。存的是 id，卡池換過就自動忽略認不得的。
+        const saved = readLocal(LINEUP_KEY);
+        if (saved) {
+          try {
+            const ids = JSON.parse(saved) as Array<string | null>;
+            const known = new Set(data.cards.map((card) => card.id));
+            if (Array.isArray(ids) && ids.length === 3) {
+              const seen = new Set<string>();
+              const restored = ids.map((id) => {
+                if (typeof id !== 'string' || !known.has(id) || seen.has(id)) return null;
+                seen.add(id);
+                return id;
+              });
+              const firstEmpty = restored.findIndex((id) => !id);
+              setBoard({ lineup: restored, activeSlot: firstEmpty === -1 ? 0 : firstEmpty });
+            }
+          } catch {
+            /* 存壞了就當作沒存過，不要讓舊資料把整頁弄爛。 */
+          }
+        }
       })
       .catch((error: unknown) => {
         if (!cancelled) setLoadError(error instanceof Error ? error.message : String(error));
       })
       .finally(() => { if (!cancelled) setLoading(false); });
+
+    // 第一次來的人才看引導，看過就不再擋路。
+    if (!readLocal(ONBOARDING_SEEN_KEY)) setShowGuide(true);
     return () => { cancelled = true; };
   }, []);
+
+  // 陣容改了就記起來，下次進來不用重挑。
+  useEffect(() => {
+    if (!loading) writeLocal(LINEUP_KEY, JSON.stringify(lineup));
+  }, [lineup, loading]);
+
+  function dismissGuide() {
+    setShowGuide(false);
+    writeLocal(ONBOARDING_SEEN_KEY, '1');
+  }
+
+  function applyRecommendation() {
+    if (cards.length < 3 || duelInFlight.current) return;
+    const { lineup: picked } = recommendLineup(cards);
+    const suggestion = cards.find((card) => card.id === picked[activeSlot]);
+    if (suggestion) setCandidate(suggestion);
+    setRecommendNote('先看建議，由你確認放入。');
+  }
 
   const byId = useMemo(() => new Map(cards.map((card) => [card.id, card])), [cards]);
 
@@ -134,6 +300,7 @@ export default function BeastGamePage() {
    * 一次更新一個物件就不會有這個問題。
    */
   function place(card: Card) {
+    if (duelInFlight.current) return;
     setBoard((prev) => {
       // 同一張已經在別格就先拿掉，避免一張卡站兩個位置。
       const next = prev.lineup.map((id) => (id === card.id ? null : id));
@@ -141,30 +308,38 @@ export default function BeastGamePage() {
       const nextEmpty = next.findIndex((id) => !id);
       return { lineup: next, activeSlot: nextEmpty === -1 ? prev.activeSlot : nextEmpty };
     });
+    setCandidate(null);
+    setDuel(null);
+    setPlacementNote(`${card.name}已放入${SLOT_META[activeSlot].name}`);
   }
 
   function clearSlot(index: number) {
+    if (duelInFlight.current) return;
     setBoard((prev) => ({
       lineup: prev.lineup.map((id, i) => (i === index ? null : id)),
       activeSlot: index,
     }));
+    setDuel(null);
   }
 
 
-  async function startDuel() {
-    if (!ready || dueling) return;
+  async function startDuel(replaySeed?: number) {
+    if (!ready || duelInFlight.current) return;
+    duelInFlight.current = true;
     setDueling(true);
     setDuel(null);
     try {
-      const res = await fetch('/api/beast-game', {
+      const data = await fetchJson<DuelResult>('/api/beast-game', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lineup }),
-      });
-      setDuel(await res.json());
+        body: JSON.stringify(replaySeed === undefined ? { lineup } : { lineup, replaySeed }),
+      }, 20000, 1);
+      setDuel(data);
     } catch (error) {
+      // 逾時或斷線：講人話，而且讓客戶知道再按一次就好，不是壞掉了。
       setDuel({ ok: false, error: error instanceof Error ? error.message : String(error) });
     } finally {
+      duelInFlight.current = false;
       setDueling(false);
     }
   }
@@ -180,6 +355,45 @@ export default function BeastGamePage() {
           選三張、放入格子。前鋒守護後方，雙方布陣上限相同。
         </p>
       </header>
+
+      {/*
+        新手引導。第一次來才出現，看完收起來就不再擋路。
+        六十張卡、五個元素、七個成本階梯，一次全丟出來很容易讓人直接關掉。
+      */}
+      {showGuide && (
+        <section data-onboarding className="mb-4 rounded-2xl border border-cyan-300/25 bg-cyan-300/[0.06] p-4">
+          <h2 className="text-sm font-black text-cyan-100">三步就能開始，不用先懂規則</h2>
+          <ol className="mt-2.5 space-y-2">
+            {ONBOARDING.map((item) => (
+              <li key={item.step} className="flex gap-2.5">
+                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-cyan-300 text-[11px] font-black text-slate-950">
+                  {item.step}
+                </span>
+                <span className="min-w-0">
+                  <span className="text-xs font-black">{item.title}</span>
+                  <span className="mt-0.5 block text-[11px] leading-5 text-white/60">{item.body}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={() => { applyRecommendation(); dismissGuide(); }}
+              className="min-h-[44px] flex-1 rounded-xl bg-cyan-300 text-xs font-black text-slate-950"
+            >
+              看一張建議
+            </button>
+            <button
+              type="button"
+              onClick={dismissGuide}
+              className="min-h-[44px] rounded-xl border border-white/20 px-4 text-xs font-bold text-white/70"
+            >
+              我自己挑
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* ── 出戰三席：這一頁的主角 ────────────────────────────────── */}
       <section aria-label="出戰三席" data-lineup-slots className="mb-5">
@@ -198,6 +412,7 @@ export default function BeastGamePage() {
               <div key={index} className="min-w-0">
                 <button
                   type="button"
+                  disabled={dueling}
                   onClick={() => setBoard((prev) => ({ ...prev, activeSlot: index }))}
                   data-slot={index}
                   data-slot-filled={card ? 'yes' : 'no'}
@@ -239,8 +454,9 @@ export default function BeastGamePage() {
                 {card && (
                   <button
                     type="button"
+                    disabled={dueling}
                     onClick={() => clearSlot(index)}
-                    className="mt-1 w-full rounded-lg border border-white/15 py-1 text-[10px] font-bold text-white/60"
+                    className="mt-1 min-h-11 w-full rounded-lg border border-white/15 py-1 text-xs font-bold text-white/60"
                   >
                     移出
                   </button>
@@ -250,10 +466,37 @@ export default function BeastGamePage() {
           })}
         </div>
 
+        {/* 建議只打開一張預覽，仍由客戶親手確認放入。 */}
+        <div className="mt-2.5 flex items-center gap-2">
+          <button
+            type="button"
+            disabled={dueling}
+            onClick={applyRecommendation}
+            data-recommend
+            className="min-h-[40px] flex-1 rounded-xl border border-cyan-300/40 text-xs font-bold text-cyan-100"
+          >
+            看一張建議
+          </button>
+          {lineup.some(Boolean) && (
+            <button
+              type="button"
+              disabled={dueling}
+              onClick={() => { if (duelInFlight.current) return; setBoard({ lineup: [null, null, null], activeSlot: 0 }); setRecommendNote(null); setPlacementNote(''); setDuel(null); }}
+              className="min-h-[40px] rounded-xl border border-white/15 px-4 text-xs font-bold text-white/55"
+            >
+              全部清空
+            </button>
+          )}
+        </div>
+        {recommendNote && (
+          <p data-recommend-note className="mt-2 rounded-xl bg-white/5 px-3 py-2 text-[11px] leading-5 text-white/60">
+            {recommendNote}
+          </p>
+        )}
         <button
           type="button"
           disabled={!ready || dueling}
-          onClick={startDuel}
+          onClick={() => startDuel()}
           data-start-duel
           data-ready={ready ? 'yes' : 'no'}
           className={`mt-4 min-h-[52px] w-full rounded-2xl text-base font-black transition
@@ -261,11 +504,12 @@ export default function BeastGamePage() {
               ? 'bg-gradient-to-r from-amber-300 to-rose-300 text-slate-950'
               : 'cursor-not-allowed bg-white/10 text-white/40'}`}
         >
-          {dueling ? '決鬥進行中…' : overBudget ? '超過布陣上限' : ready ? '開始決鬥' : `還要再放 ${3 - filledCount} 張才能開始`}
+          {dueling ? '守護陣結算中…' : overBudget ? '超過布陣上限' : ready ? '親手啟陣' : `還要再放 ${3 - filledCount} 張才能開始`}
         </button>
         <p aria-live="polite" className={`mt-3 text-center text-sm ${overBudget ? 'text-rose-200' : 'text-cyan-100'}`}>
           布陣 {lineupCost} / {lineupBudget ?? '—'} 氣{overBudget ? '・換一張低氣卡' : ''}
         </p>
+        <p role="status" className="mt-2 min-h-5 text-center text-xs text-amber-100">{placementNote}</p>
       </section>
 
       {/* ── 決鬥結果：後端算完才回來，畫面只顯示 ─────────────────── */}
@@ -279,6 +523,43 @@ export default function BeastGamePage() {
               <p className="mt-1 text-xs text-white/60">
                 共 {duel.turns} 回合・本命 {duel.life?.player} : {duel.life?.opponent}
               </p>
+              {/*
+                公平性對照。
+
+                「我們沒有讓對手比較強」這句話要有東西可以對，不能只是宣告。
+                所以把雙方同規則的每一條、先後手怎麼決定、種子哪裡來的，
+                全部列出來給客戶看，而且可以用同一顆種子重播驗證。
+              */}
+              {duel.fairness && (
+                <details data-fairness className="mt-3 rounded-xl border border-emerald-300/20 bg-emerald-300/[0.05] p-3">
+                  <summary className="min-h-11 cursor-pointer text-sm font-bold text-emerald-100">查看本場規則</summary>
+                  <p className="mt-1.5 text-[11px] leading-5 text-white/60">
+                    {duel.firstPlayer === 'PLAYER' ? '你先手' : '對手先手'}・開場隨機決定{duel.isReplay ? '・本場重播' : ''}
+                  </p>
+                  <ul className="mt-2 space-y-1">
+                    {duel.fairness.sameRules.map((rule) => (
+                      <li key={rule} className="flex gap-1.5 text-[11px] leading-5 text-white/55">
+                        <span className="text-emerald-300">✓</span>
+                        <span>{rule}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {duel.opponentLineup && (
+                    <p className="mt-1.5 text-[11px] leading-5 text-white/45">
+                      對手這次的三席：{duel.opponentLineup.join('、')}
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => startDuel(duel.seed)}
+                    disabled={dueling}
+                    data-replay
+                    className="mt-2.5 min-h-[40px] w-full rounded-xl border border-emerald-300/35 text-[11px] font-bold text-emerald-100"
+                  >
+                    重播這一場
+                  </button>
+                </details>
+              )}
               <details className="mt-3">
                 <summary className="min-h-[40px] cursor-pointer text-xs font-bold text-cyan-200">看戰報</summary>
                 <ol className="mt-2 space-y-1 text-[11px] leading-5 text-white/55">
@@ -320,7 +601,9 @@ export default function BeastGamePage() {
               <article key={card.id} className="min-w-0">
                 <button
                   type="button"
-                  onClick={() => place(card)}
+                  onClick={() => setCandidate(card)}
+                  disabled={dueling}
+                  aria-label={`選擇${card.name}，${ELEMENT_LABEL[card.element]}，${card.cost}氣`}
                   data-card-id={card.id}
                   data-placed={placed ? 'yes' : 'no'}
                   className={`relative aspect-[3/4] w-full overflow-hidden rounded-xl border bg-black/40 text-left transition
@@ -354,7 +637,7 @@ export default function BeastGamePage() {
                 <button
                   type="button"
                   onClick={() => setDetail(card)}
-                  className="mt-1 w-full text-center text-[10px] font-bold text-white/45"
+                  className="mt-1 min-h-11 w-full text-center text-xs font-bold text-white/60"
                 >
                   詳細
                 </button>
@@ -364,10 +647,26 @@ export default function BeastGamePage() {
         </div>
       </section>
 
+      {candidate && (
+        <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="確認放入神獸" className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/85 px-5 py-4">
+          <div className="max-h-[90dvh] w-full max-w-sm overflow-y-auto rounded-3xl border border-amber-200/40 bg-slate-950 p-5 text-center shadow-2xl">
+            <p className="mb-3 text-sm font-bold text-amber-100">{candidate.name}・{SLOT_META[activeSlot].name}</p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={candidate.front} alt={candidate.name} className="mx-auto max-h-[38vh] w-auto rounded-xl object-contain" />
+            <button type="button" disabled={dueling} onClick={() => place(candidate)} className="mt-5 min-h-12 w-full rounded-2xl bg-gradient-to-r from-amber-200 to-amber-400 px-4 text-sm font-black text-slate-950">
+              放入{SLOT_META[activeSlot].name}
+            </button>
+            <button type="button" onClick={() => setCandidate(null)} className="mt-2 min-h-11 w-full text-sm text-white/70">再選一張</button>
+          </div>
+        </div>
+      )}
+
       {/* ── 第三層：詳細資料（點開才載中等圖）───────────────────── */}
       {detail && (
         <div
+          ref={dialogRef}
           role="dialog"
+          aria-modal="true"
           aria-label={`${detail.name} 詳細資料`}
           className="fixed inset-0 z-50 grid place-items-end bg-black/70 sm:place-items-center"
           onClick={() => setDetail(null)}
@@ -429,7 +728,7 @@ function FilterRow<T extends string | number>({ label, value, onChange, options 
             key={key}
             type="button"
             onClick={() => onChange(key as never)}
-            className={`min-h-[34px] shrink-0 rounded-full px-3 text-[11px] font-bold transition
+            className={`min-h-[44px] shrink-0 rounded-full px-3 text-[11px] font-bold transition
               ${String(value) === key ? 'bg-cyan-300 text-slate-950' : 'bg-white/8 text-white/60'}`}
           >
             {text}

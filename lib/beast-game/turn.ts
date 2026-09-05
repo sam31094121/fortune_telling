@@ -127,6 +127,8 @@ export interface GameState {
   turn: number;
   phase: TurnPhase;
   active: PlayerSide;
+  /** 這一場誰先手。由種子決定，寫進戰報供客戶回查。 */
+  firstPlayer: PlayerSide;
   players: Record<PlayerSide, PlayerState>;
   log: EffectLogEntry[];
   /** 每一階段做了什麼，照順序記下來。前端照這份播動畫。 */
@@ -172,11 +174,30 @@ function discardFrom(player: PlayerState, count: number): number {
   return discarded;
 }
 
-export function createGame(options: { playerDeck: string[]; opponentDeck: string[]; seed: number }): GameState {
+export function createGame(options: {
+  playerDeck: string[];
+  opponentDeck: string[];
+  seed: number;
+}): GameState {
+  /*
+    先後手由種子決定，不是固定客戶先。
+
+    原本寫死 active: 'PLAYER'，客戶永遠先手——而實測先手勝率約六成七。
+    等於我們默默送客戶一個結構性優勢，卻在畫面上講「公平對決」。
+    那是作假：不是算錯，是說的和做的不一樣。
+
+    現在用同一顆種子擲一次，先後手照結果走；誰先手會寫進戰報，
+    客戶看得到，也可以用同一顆種子重播驗證。
+  */
+  const coin = createRng(options.seed ^ 0x5f3759df);
+  const firstPlayer: PlayerSide = coin() < 0.5 ? 'PLAYER' : 'OPPONENT';
+  const secondPlayer: PlayerSide = firstPlayer === 'PLAYER' ? 'OPPONENT' : 'PLAYER';
+
   const state: GameState = {
     turn: 1,
     phase: 'TURN_START',
-    active: 'PLAYER',
+    active: firstPlayer,
+    firstPlayer,
     players: {
       PLAYER: newPlayer('PLAYER', [...options.playerDeck]),
       OPPONENT: newPlayer('OPPONENT', [...options.opponentDeck]),
@@ -190,12 +211,22 @@ export function createGame(options: { playerDeck: string[]; opponentDeck: string
   /*
     後手補一張牌。
 
-    實測十二場先手十二勝、後手零勝——先手拿到的節奏優勢完全沒有補償，
-    那不是遊戲，是擲骰子決定誰先動。多一張牌是卡牌遊戲的通行做法，
+    實測只給先手不給後手時，十二場先手十二勝、後手零勝——
+    先手拿到的節奏優勢完全沒有補償。多一張牌是卡牌遊戲的通行做法，
     代價小、看得懂，而且不必動任何一張卡的數值。
+    補的是「後手」，不是固定補給對手——先後手是隨機的。
   */
-  drawFrom(state.players.PLAYER, OPENING_HAND);
-  drawFrom(state.players.OPPONENT, OPENING_HAND + SECOND_PLAYER_BONUS_CARD);
+  drawFrom(state.players[firstPlayer], OPENING_HAND);
+  drawFrom(state.players[secondPlayer], OPENING_HAND + SECOND_PLAYER_BONUS_CARD);
+
+  state.timeline.push({
+    turn: 0,
+    side: firstPlayer,
+    phase: 'TURN_START',
+    note: `擲先手：${firstPlayer === 'PLAYER' ? '你先手' : '對手先手'}`
+      + `（種子 ${options.seed}，同一顆種子重播結果一定相同）`,
+  });
+
   return state;
 }
 
@@ -327,7 +358,7 @@ export function playTurn(state: GameState): GameState {
     讓先手第一回合只能布陣與召喚、不能攻擊，是自動對戰常見的解法：
     規則簡單、客戶看得懂，而且不必動任何一張卡的數值。
   */
-  const firstTurnNoAttack = state.turn === 1 && state.active === 'PLAYER';
+  const firstTurnNoAttack = state.turn === 1 && state.active === state.firstPlayer;
   if (firstTurnNoAttack) {
     note(state, phase, '先手第一回合不進攻（後手補償）');
   }
@@ -401,7 +432,7 @@ export function playTurn(state: GameState): GameState {
 
   if (!state.winner) {
     state.active = state.active === 'PLAYER' ? 'OPPONENT' : 'PLAYER';
-    if (state.active === 'PLAYER') state.turn += 1;
+    if (state.active === state.firstPlayer) state.turn += 1;
     if (state.turn > MAX_TURNS) state.winner = 'DRAW';
   }
 

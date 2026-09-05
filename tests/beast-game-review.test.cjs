@@ -18,6 +18,12 @@ function durable(card, id) {
   unit.hp = unit.maxHp = 10000;
   return unit;
 }
+// These interaction regressions explicitly start with PLAYER, independent of the initiative coin.
+function playerTurn(game) {
+  game.active = 'PLAYER';
+  game.firstPlayer = 'PLAYER';
+  return game;
+}
 
 check('lineup rejects a fourth occupied slot', () => {
   assert.equal(core.validateLineup(ids).ready, false);
@@ -31,7 +37,7 @@ check('core rejects duplicate starters instead of trusting the UI', () => {
 check('a one-turn stun survives until the target gets a turn', () => {
   const tiger = cards.find(c => c.id === 'beast_g_baihu');
   const target = cards.find(c => c.id === 'beast_g_xuanwu');
-  const game = core.createGame({ playerDeck: [], opponentDeck: [], seed: 1 });
+  const game = playerTurn(core.createGame({ playerDeck: [], opponentDeck: [], seed: 1 }));
   game.turn = 2;
   game.players.PLAYER.field = [{ card: tiger, instance: durable(tiger, 'tiger'), slot: 0 }];
   game.players.OPPONENT.field = [{ card: target, instance: durable(target, 'target'), slot: 0 }];
@@ -60,7 +66,7 @@ check('each card instance retains its own limited skill uses', () => {
 });
 check('a replacement occupies the vacant frontline slot', () => {
   const card = cards.find(c => c.form === 'YOUNG' && c.cost === 1);
-  const game = core.createGame({ playerDeck: [], opponentDeck: [], seed: 2 });
+  const game = playerTurn(core.createGame({ playerDeck: [], opponentDeck: [], seed: 2 }));
   game.players.PLAYER.field = [1, 2].map(slot => ({ card, instance: durable(card, `slot-${slot}`), slot }));
   game.players.PLAYER.hand = [card.id];
   core.playTurn(game);
@@ -82,7 +88,7 @@ check('opponents are unique, affordable and reproducible for 100 seeds', () => {
 check('stunned target misses its action and recovers after its own turn', () => {
   const tiger = cards.find(card => card.id === 'beast_g_baihu');
   const card = cards.find(card => card.id === 'beast_g_xuanwu');
-  const game = core.createGame({ playerDeck: [], opponentDeck: [], seed: 1 });
+  const game = playerTurn(core.createGame({ playerDeck: [], opponentDeck: [], seed: 1 }));
   game.turn = 2;
   game.players.PLAYER.field = [{ card: tiger, instance: durable(tiger, 'tiger'), slot: 0 }];
   game.players.OPPONENT.field = [{ card, instance: durable(card, 'target'), slot: 0 }];
