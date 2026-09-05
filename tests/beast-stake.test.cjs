@@ -97,9 +97,23 @@ const stake = loadModule('lib/beast-game/stake.ts');
   const api = read('app/api/beast-game/route.ts');
   assert.ok(api.includes('resolveStake'), '押注結算必須在後端做');
   assert.ok(api.includes('validateStake'), '後端要擋沒放賭注卡的請求');
+  /*
+    勝負只能來自 Game Core 跑出來的那一場。
+
+    這裡不再綁死變數叫什麼（原本寫死 state.winner，核心 1.3.0 改成三局
+    逐組結算後變數改名 series，規則沒鬆但測試先壞了——那是把「抓錯」
+    變成「誤報」）。改成兩面夾：
+      正面：resolveStake 的 winner 必須取自某個本地結算結果的 .winner
+      反面：winner 絕對不准取自 body（前端傳什麼就算什麼＝可以自己宣布贏）
+  */
+  const stakeCall = /resolveStake\(\{[\s\S]*?\}\)/.exec(api)?.[0] ?? '';
   assert.ok(
-    /winner: state\.winner/.test(api),
-    '勝負必須取自 Game Core，不得採用前端傳來的結果',
+    /winner: (?!body)[A-Za-z_$][\w$]*\.winner/.test(stakeCall),
+    '勝負必須取自 Game Core 的結算結果，不得採用前端傳來的結果',
+  );
+  assert.ok(
+    !/winner:\s*body\b/.test(api) && !/body\.winner/.test(api),
+    '後端不得採信前端送來的 winner——那等於讓人自己宣布贏',
   );
 
   const page = read('app/beast-game/page.tsx');
