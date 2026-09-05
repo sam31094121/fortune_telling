@@ -25,6 +25,9 @@ export interface PresentationSkill {
   durationMs?: number;
   body?: string;
   clip?: string;
+  /** 衝鋒影片（webm 優先）。只有實際備好影片的卡才有這兩欄。 */
+  video?: string;
+  videoMp4?: string;
 }
 
 export interface CardBattleSkills {
@@ -56,6 +59,19 @@ export interface SkillArchiveIndex {
 /** 戰鬥本體（技能檔對應立繪）。有檔才回路徑；沒有就讓 caller 退回 spirit 去背圖。 */
 export function skillBodyArtFor(cardId: string): string {
   return `/beast-game/skill-bodies/${cardId}.webp`;
+}
+
+/**
+ * 本體衝鋒影片的慣例路徑。
+ *
+ * 只給路徑，不保證檔案存在——六十張裡目前只有少數幾張備好影片。
+ * **呼叫端必須先確認技能檔案真的宣告了 video 才掛上去**：
+ * 沒影片卻硬掛，<video> 會 404 成一塊黑底方塊，
+ * 蓋掉底下的三維對撞——那比不放影片更糟。
+ */
+export function chargeVideoFor(cardId: string): { webm: string; mp4: string } {
+  const base = `/skill-battle-archive/cards/${cardId}/clips/charge-battle`;
+  return { webm: `${base}.webm`, mp4: `${base}.mp4` };
 }
 
 /** 單卡演出技能路徑（可 fetch）。 */

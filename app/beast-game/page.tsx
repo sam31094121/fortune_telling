@@ -29,7 +29,7 @@ import { describeStakeRisk } from '@/lib/beast-game/stake';
 import { runOwnedDuel, retryStakeSettlement, recoverPendingDuel, subscribeCollection, type Settlement } from '@/lib/beast-collection';
 import { NO_OWNED_CARDS_GUIDE, readOwnedCards, type OwnedCards } from '@/lib/beast-owned-cards';
 
-type Skill = { id: string; name: string; trigger: string; description: string };
+type Skill = { id: string; name: string; trigger: string; description: string; source?: string };
 type Card = {
   id: string;
   name: string;
@@ -43,6 +43,10 @@ type Card = {
   story: string;
   mansionId: number;
   skills: Skill[];
+  /** 《技能戰鬥檔案》演出技能；與數值 skills 共存 */
+  battleSkills?: Skill[];
+  skillBody?: string;
+  skillArchive?: string;
   power: number;
 };
 
@@ -108,12 +112,21 @@ const SLOT_META = [
  * 客戶第一次進來看到六十張卡、五個元素、七個成本階梯，很容易直接關掉。
  * 所以第一屏先講清楚只有三件事要做，而且看完就收起來，不再擋路。
  */
+/*
+  四步，不是三步。
+
+  第一版寫「三步」——選卡、放入、啟陣。實際以客戶身分走一遍才發現：
+  三步做完，啟陣仍是灰的，因為還要一張押注卡，而那張要去成長中心領。
+  客戶把三席排好、興致最高的那一刻撞牆，而牆上的字他第一屏沒看過。
+
+  講三步做四步就是騙，所以照實寫四步。
+*/
 const ONBOARDING = [
   { step: '1', title: '選卡', body: '挑喜歡的神獸。' },
   { step: '2', title: '放入', body: '親手確認三個站位。' },
-  { step: '3', title: '啟陣', body: '三席合計最多十二氣。' },
+  { step: '3', title: '押注', body: '從你的收藏拿一張出來賭。沒有卡先去成長中心領。' },
+  { step: '4', title: '啟陣', body: '三席合計最多十二氣。' },
 ];
-
 const ONBOARDING_SEEN_KEY = 'beast_game_onboarding_seen_v1';
 const LINEUP_KEY = 'beast_game_lineup_v1';
 
@@ -506,7 +519,7 @@ export default function BeastGamePage() {
       */}
       {showGuide && (
         <section data-onboarding className="mb-4 rounded-2xl border border-cyan-300/25 bg-cyan-300/[0.06] p-4">
-          <h2 className="text-sm font-black text-cyan-100">三步就能開始，不用先懂規則</h2>
+          <h2 className="text-sm font-black text-cyan-100">四步就能開始，不用先懂規則</h2>
           <ol className="mt-2.5 space-y-2">
             {ONBOARDING.map((item) => (
               <li key={item.step} className="flex gap-2.5">
@@ -972,7 +985,7 @@ export default function BeastGamePage() {
                 </div>
               ))}
             </dl>
-            <h4 className="mt-4 text-xs font-black text-cyan-200">技能</h4>
+            <h4 className="mt-4 text-xs font-black text-cyan-200">數值技能</h4>
             <ul className="mt-1.5 space-y-1.5">
               {detail.skills.map((skill) => (
                 <li key={skill.id} className="rounded-xl bg-white/5 px-3 py-2">
@@ -981,6 +994,19 @@ export default function BeastGamePage() {
                 </li>
               ))}
             </ul>
+            <h4 className="mt-4 text-xs font-black text-amber-200">戰鬥演出・技能戰鬥檔案</h4>
+            <p className="mt-1 text-[10px] leading-5 text-white/45">與數值技能共存。三戰兩勝翻牌時讀此檔出本體衝鋒，不取代 Effect Engine。</p>
+            <ul className="mt-1.5 space-y-1.5">
+              {(detail.battleSkills ?? []).map((skill) => (
+                <li key={skill.id} className="rounded-xl bg-amber-400/10 px-3 py-2 ring-1 ring-amber-300/20">
+                  <p className="text-xs font-bold">{skill.name}<span className="ml-2 text-[10px] font-normal text-amber-100/50">{skill.trigger}</span></p>
+                  <p className="mt-0.5 text-[11px] leading-5 text-white/55">{skill.description}</p>
+                </li>
+              ))}
+            </ul>
+            {detail.skillBody ? (
+              <p className="mt-2 text-[10px] text-white/40">戰鬥本體：{detail.skillBody}</p>
+            ) : null}
             <h4 className="mt-4 text-xs font-black text-cyan-200">神獸故事</h4>
             <p className="mt-1 text-[11px] leading-6 text-white/60">{detail.story}</p>
             <button type="button" onClick={() => setDetail(null)}

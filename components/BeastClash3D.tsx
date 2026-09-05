@@ -56,6 +56,17 @@ export interface ClashProps {
   /** 每次這個值變動就重演一次衝撞。用回合序號即可。 */
   beat: number;
   outcome?: 'PLAYER' | 'OPPONENT' | 'DRAW';
+  /**
+   * 現在是不是交鋒中。
+   *
+   * **這個元件必須整場常駐，靠這個旗標開關，不可以掛上去又卸掉。**
+   * 每卸一次就丟掉一個 WebGL context；一場六次交鋒加重播，
+   * 很快撞到瀏覽器的 context 上限，主控台開始噴
+   * `THREE.WebGLRenderer: Context Lost.`，舞台從此整片空白——
+   * 業主要的「本體衝過去對打」就這樣消失了（實測過）。
+   * 太極憲章那條「物件永遠掛載、用開關切換」講的就是這件事。
+   */
+  active?: boolean;
 }
 
 /** 卡片比例沿用正統規格 63×88，三維空間裡也不能變形。 */
@@ -175,6 +186,7 @@ export default function BeastClash3D({
   glow,
   beat,
   outcome,
+  active = true,
 }: ClashProps) {
   const [lunging, setLunging] = useState(false);
   const [impact, setImpact] = useState(false);
@@ -189,26 +201,34 @@ export default function BeastClash3D({
     }
   }, []);
 
-  // 每次 beat 變動演一次：衝出去，短暫停留，收回來。
+  // 每次 beat 變動演一次：衝出去，短暫停留，收回來。不在交鋒中就不演。
   useEffect(() => {
-    if (reduced) return;
+    if (reduced || !active) { setLunging(false); setImpact(false); return; }
     const start = setTimeout(() => setLunging(true), 40);
     const contact = setTimeout(() => setImpact(true), 170);
     const settle = setTimeout(() => setImpact(false), 430);
     const stop = setTimeout(() => setLunging(false), 620);
     return () => { clearTimeout(start); clearTimeout(stop); clearTimeout(contact); clearTimeout(settle); };
-  }, [beat, reduced]);
+  }, [beat, reduced, active]);
 
   if (reduced) return null;
 
   return (
     <div
       data-beast-clash-3d
+      data-clash-active={active ? 'yes' : 'no'}
       role="img"
       aria-label="雙方神獸本體交戰"
       className="pointer-events-none absolute inset-0"
+      /*
+        閒置時只是隱藏，不是卸載——卸載會丟掉 WebGL context。
+        用 opacity 過場，順便讓本體收尾時不會硬切。
+      */
+      style={{ opacity: active ? 1 : 0, transition: 'opacity 220ms ease' }}
     >
       <Canvas
+        /* 沒在交鋒就停止算圖：常駐不等於一直吃 GPU（手機優先 60FPS）。 */
+        frameloop={active ? 'always' : 'never'}
         dpr={[1, 1.8]}
         camera={{ position: [0, 0, 4.2], fov: 42 }}
         gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
