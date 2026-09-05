@@ -70,12 +70,13 @@ const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 /* ── 三、音效的紀律 ─────────────────────────────────────────────── */
 {
   const fx = read('lib/beast-battle-fx.ts');
-  assert.ok(/let enabled = false/.test(fx), '音效必須預設關閉，不得一進頁面就出聲');
+  assert.ok(!/let enabled = false|!enabled|reducedMotion\(\)/.test(fx), '戰鬥音效不可被預設靜音或減少動態關閉');
   assert.ok(/catch/.test(fx), '播放失敗要靜靜跳過，不得讓遊戲卡住');
-  assert.ok(/prefers-reduced-motion/.test(fx), '要尊重減少動態的設定');
+  assert.ok(/typeof window === 'undefined'/.test(fx), '伺服器端不可建立音效');
 
   const ritual = read('components/BeastDuelRitual.tsx');
-  assert.ok(ritual.includes('data-sound-toggle'), '要有可辨識的音效開關');
+  assert.ok(!ritual.includes('data-sound-toggle'), '戰鬥不需要另外開啟音效');
+  assert.ok(ritual.includes("if (ready) { sound.current.play(CLASH_FX.flip, 0.3);"), '揭牌點擊直接啟動音效');
 }
 
 /* ── 四、演出不得決定結果（規格第十二條） ───────────────────────── */
@@ -109,3 +110,115 @@ const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 }
 
 console.log('PASS: 逐張交替揭牌、素材真的存在、音效有紀律、演出不決定結果');
+
+/* ── 六、翻牌：手動為主，自動為輔 ───────────────────────────────── */
+{
+  const ritual = read('components/BeastDuelRitual.tsx');
+  assert.ok(/const \[autoFlip, setAutoFlip\] = useState\(false\)/.test(ritual),
+    '翻牌必須預設手動——客戶自己一張一張翻，不是一按就自動跑完');
+  assert.ok(ritual.includes('data-flip-next'), '要有「翻下一張」的手動按鈕');
+  assert.ok(ritual.includes('data-auto-flip'), '要有切換自動翻牌的箭頭');
+  assert.ok(/if \(!autoFlip\) return;/.test(ritual),
+    '手動模式下自動計時器不得偷偷幫客戶翻');
+  assert.ok(/function flipNext/.test(ritual), '手動翻牌要有自己的入口');
+}
+
+/* ── 七、神獸本體立繪 ───────────────────────────────────────────── */
+{
+  const fx = read('lib/beast-battle-fx.ts');
+  assert.ok(fx.includes('spiritArtFor'), '要有卡片對應本體立繪的函式');
+  assert.ok(/beast_g_qinglong/.test(fx), '四象也要對得到本體');
+
+  const clash = read('components/BeastClash3D.tsx');
+  assert.ok(clash.includes('playerSpirit'), '三維對撞要吃本體立繪');
+  assert.ok(/alphaTest/.test(clash), '去背立繪要開 alphaTest，邊緣才不會有一圈灰');
+  assert.ok(/playerSpirit \?\? playerArt/.test(clash),
+    '沒有立繪時要退回卡面，不得開天窗');
+
+  // 產生器要存在，而且不能一聲不響跑完六十張花錢
+  const gen = read('scripts/gen-beast-spirits.mjs');
+  assert.ok(/--limit/.test(gen), '產生器要能限制張數，不得預設跑完全部');
+  assert.ok(/已存在/.test(gen), '已存在的檔案要跳過，避免重複付費');
+  assert.ok(/keyOutBlack/.test(gen), '要有去背步驟');
+
+  // 已經生成的立繪必須真的帶 alpha
+  const dir = path.join(root, 'public/beast-game/spirit');
+  if (fs.existsSync(dir)) {
+    const files = fs.readdirSync(dir).filter((f) => /\.(png|webp)$/.test(f));
+    assert.ok(files.length > 0, '至少要有一張本體立繪');
+    for (const file of files) {
+      const buffer = fs.readFileSync(path.join(dir, file));
+      if (file.endsWith('.webp')) {
+        assert.equal(buffer.toString('ascii', 0, 4), 'RIFF', `${file} 必須是有效 WebP`);
+        assert.equal(buffer.toString('ascii', 8, 12), 'WEBP', `${file} 必須是有效 WebP`);
+        let hasAlpha = false;
+        for (let offset = 12; offset + 8 <= buffer.length;) {
+          const kind = buffer.toString('ascii', offset, offset + 4);
+          const size = buffer.readUInt32LE(offset + 4);
+          assert.ok(offset + 8 + size <= buffer.length, `${file} 區塊不可截斷`);
+          if (kind === 'ALPH') hasAlpha = true;
+          if (kind === 'VP8L' && size >= 5 && buffer[offset + 8] === 0x2f) {
+            hasAlpha ||= Boolean(buffer.readUInt32LE(offset + 9) & 0x10000000);
+          }
+          offset += 8 + size + (size % 2);
+        }
+        assert.ok(hasAlpha, `${file} 必須帶 alpha 通道`);
+        continue;
+      }
+      // PNG 色彩型別在 IHDR 第 25 byte：6 = RGBA、4 = 灰階+alpha
+      const colourType = buffer[25];
+      assert.ok([4, 6].includes(colourType),
+        `${file} 必須帶 alpha 通道（色彩型別 ${colourType}）——沒去背就不是本體立繪`);
+    }
+  }
+}
+
+/* ── 八、三段式猛烈音效 ─────────────────────────────────────────── */
+{
+  const fx = read('lib/beast-battle-fx.ts');
+  assert.ok(fx.includes('playClashSequence'), '要有三段式撞擊的播放函式');
+  for (const layer of ['charge', 'impact', 'tail']) {
+    assert.ok(new RegExp(`${layer}:`).test(fx), `三段式要有 ${layer} 這一層`);
+  }
+  // 五個元素的撞擊材質要不一樣，否則「符合邏輯的聲音」就是空話
+  const impacts = [...fx.matchAll(/impact: `\$\{SFX\}\/([\w.-]+)`/g)].map((m) => m[1]);
+  assert.ok(impacts.length >= 4, '至少四個元素要有自己的撞擊音');
+  assert.ok(new Set(impacts).size >= 3,
+    '各元素的撞擊材質不得全部一樣——風撞木、地撞石、空撞金屬才是符合邏輯');
+
+  const ritual = read('components/BeastDuelRitual.tsx');
+  assert.ok(ritual.includes('playClashSequence'), '交鋒要用三段式，不是單一聲');
+}
+
+console.log('PASS: 手動翻牌、本體立繪帶 alpha、三段式音效各元素材質不同');
+
+/* ── 九、六十張都要有本體，而且背景要真的去乾淨 ─────────────────── */
+{
+  const dir = path.join(root, 'public/beast-game/spirit');
+  assert.ok(fs.existsSync(dir), '本體立繪資料夾必須存在');
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith('.webp'));
+
+  // 二十八隻成獸＋二十八隻幼子，涵蓋六十張卡（四象共用首宿的成獸）
+  const adults = files.filter((f) => /^\d{2}\.webp$/.test(f));
+  const youngs = files.filter((f) => /^\d{2}y\.webp$/.test(f));
+  assert.equal(adults.length, 28, `成獸本體要二十八隻，實際 ${adults.length}`);
+  assert.equal(youngs.length, 28, `幼子本體要二十八隻，實際 ${youngs.length}`);
+
+  // 幼子不得直接用成獸的圖——那是拿大人的圖冒充小孩
+  for (const id of ['01', '06', '13']) {
+    const adult = fs.readFileSync(path.join(dir, `${id}.webp`));
+    const young = fs.readFileSync(path.join(dir, `${id}y.webp`));
+    assert.ok(!adult.equals(young), `${id} 的幼子與成獸不得是同一張圖`);
+  }
+
+  // 檔案要夠小，六十張本體不能把手機拖垮
+  const total = files.reduce((sum, f) => sum + fs.statSync(path.join(dir, f)).size, 0);
+  assert.ok(total < 8 * 1024 * 1024,
+    `本體立繪合計要小於 8MB，實際 ${(total / 1024 / 1024).toFixed(1)}MB`);
+
+  // 有品質檢查腳本，而且門檻寫在裡面
+  const checker = read('scripts/check-beast-spirits.mjs');
+  assert.ok(/MIN_TRANSPARENT/.test(checker), '要有去背成功與否的判準，不能只憑肉眼看');
+}
+
+console.log('PASS: 二十八成獸＋二十八幼子本體齊備、幼子不與成獸共用、合計夠小');

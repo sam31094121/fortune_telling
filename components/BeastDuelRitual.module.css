@@ -24,6 +24,8 @@
 .center strong { font-size: 16px; line-height: 24px; color: #ffdfa4; }
 .center p { max-width: 350px; font-size: 11px; line-height: 18px; color: #b9c5d9; }
 .clash strong { animation: glimmer .8s ease-out; }
+.center.clash { min-height: 210px; grid-template-rows: 24px 1fr; align-items: end; border-radius: 16px; background: radial-gradient(ellipse, #22365180, #070d1800 75%); }
+.center.clash strong, .center.clash p { position: relative; z-index: 1; text-shadow: 0 2px 6px #000; pointer-events: none; }
 .action { width: 100%; min-height: 48px; margin-top: 12px; border-radius: 14px; background: linear-gradient(100deg, #ffe8a1, #f0b86d); font-size: 15px; font-weight: 900; color: #302113; }
 .action:disabled { background: #ffffff12; color: #a3a6b7; }
 .skip { width: 100%; min-height: 48px; margin-top: 12px; color: #b6bfcc; font-size: 12px; }
@@ -32,3 +34,11 @@
 @media (max-height: 700px) { .table { max-width: 320px; padding: 12px; } }
 @media (max-width: 350px) { .caption strong { font-size: 10px; } }
 @media (prefers-reduced-motion: reduce) { .card { transition: none; } .dealing .card, .clash strong { animation: none; } }
+
+/* 翻牌控制：手動一張一張翻，或切成自動。兩顆按鈕並排，手機一手可及。 */
+.flipControls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}

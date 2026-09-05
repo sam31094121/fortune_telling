@@ -12,12 +12,13 @@
  *       會旋轉、會衝過去、撞擊時會震、會閃光。六十張都通用，
  *       貼圖就是各自的卡面，所以每一張衝過去的都是牠自己。
  *
- * 沒做：神獸「去背之後」的角色本體跑過去。
- *       原因是素材：public/star-beasts 的圖沒有 alpha 通道（實測 3 channels），
- *       是完整背景的插畫，不是去背的角色圖。直接丟進三維場景會變成
- *       「一塊會飛的長方形插畫」，那比現在更糟。
- *       要做到角色本體對打，需要六十張去背角色圖或六十個 3D 模型——
- *       這兩樣都得另外產出，見 docs/beast-game-skill.md〈十〉。
+ * 做了：神獸**本體**跑過去。六十張各自有一張去背全身立繪
+ *       （scripts/gen-beast-spirits.mjs 以既有插畫為底重繪並去背），
+ *       翻牌後衝出去的是那隻神獸本人，不是一張卡在飛。
+ *
+ * 沒做：真正的多邊形 3D 模型（.glb）。這裡是三維空間中的立繪，
+ *       有透視、深度、位移、光影——但轉到側面不會有厚度。
+ *       要真正的模型得另外委製，見 docs/beast-game-skill.md〈十〉。
  *
  * 【效能紀律（太極憲章）】
  *
@@ -34,7 +35,7 @@
  */
 
 import { Canvas, useFrame, useLoader } from '@react-three/fiber';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 export type ClashSide = 'player' | 'opponent';
@@ -44,6 +45,10 @@ export interface ClashProps {
   playerArt: string;
   /** 對方出戰卡的卡面圖。 */
   opponentArt: string;
+  /** 我方神獸的去背本體立繪。沒有就退回卡面。 */
+  playerSpirit?: string | null;
+  /** 對方神獸的去背本體立繪。 */
+  opponentSpirit?: string | null;
   /** 這一次是誰出手。換人時卡片會從對應方向衝出去。 */
   attacker: ClashSide;
   /** 出手方的元素光色，來自 lib/beast-battle-fx 的對照表。 */
@@ -55,23 +60,32 @@ export interface ClashProps {
 /** 卡片比例沿用正統規格 63×88，三維空間裡也不能變形。 */
 const CARD_W = 1.26;
 const CARD_H = 1.76;
+/** 本體立繪是 848×1259（約 0.674），比卡片瘦長一點，用自己的比例免得變形。 */
+const SPIRIT_W = 1.5;
+const SPIRIT_H = 2.23;
 
 function CardPlane({
   art,
   home,
   lunging,
   glow,
+  spirit,
+  recoiling,
 }: {
   art: string;
   home: [number, number, number];
   lunging: boolean;
   glow: string;
+  /** 有本體立繪就用本體，沒有才退回卡面。 */
+  spirit?: boolean;
+  recoiling: boolean;
 }) {
   const texture = useLoader(THREE.TextureLoader, art);
   const mesh = useRef<THREE.Mesh>(null);
   const progress = useRef(0);
+  const recoil = useRef(0);
 
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
     const node = mesh.current;
     if (!node) return;
 
@@ -79,27 +93,41 @@ function CardPlane({
     const target = lunging ? 1 : 0;
     progress.current += (target - progress.current) * Math.min(1, delta * (lunging ? 14 : 6));
     const t = progress.current;
+    recoil.current += ((recoiling ? 1 : 0) - recoil.current) * Math.min(1, delta * 12);
+    const hit = recoil.current;
 
     // 往對面衝：home 在自己這側，衝到中間交會。
     const direction = home[0] < 0 ? 1 : -1;
-    node.position.x = home[0] + direction * t * Math.abs(home[0]) * 0.92;
+    node.position.x = home[0] + direction * (t * Math.abs(home[0]) * 0.92 - hit * 0.32);
+    node.position.y = home[1] + Math.sin(t * Math.PI) * 0.28 + hit * 0.08 + Math.sin(clock.elapsedTime * 3) * 0.025;
     node.position.z = home[2] + t * 0.55;
     // 衝的時候壓低、微傾，看起來像撲上去而不是平移。
-    node.rotation.z = direction * t * 0.34;
-    node.rotation.y = direction * t * -0.5;
+    node.rotation.z = direction * (t * 0.2 - hit * 0.18);
+    node.rotation.y = direction * t * -0.12;
     const scale = 1 + t * 0.16;
-    node.scale.set(scale, scale, 1);
+    node.scale.set(scale * (1 + hit * 0.06), scale * (1 - hit * 0.08), 1);
   });
 
   return (
     <mesh ref={mesh} position={home}>
-      <planeGeometry args={[CARD_W, CARD_H]} />
-      <meshBasicMaterial map={texture} toneMapped={false} />
-      {/* 衝出去時卡緣吃到元素光，讓出手方看得出來是誰。 */}
-      <mesh position={[0, 0, -0.01]}>
-        <planeGeometry args={[CARD_W * 1.1, CARD_H * 1.08]} />
-        <meshBasicMaterial color={glow} transparent opacity={lunging ? 0.55 : 0} />
-      </mesh>
+      <planeGeometry args={spirit ? [SPIRIT_W, SPIRIT_H] : [CARD_W, CARD_H]} />
+      {/*
+        本體立繪帶 alpha，要開 transparent 才不會出現黑框；
+        alphaTest 把幾乎全透明的像素直接丟掉，邊緣才不會有一圈灰。
+      */}
+      <meshBasicMaterial
+        map={texture}
+        toneMapped={false}
+        transparent={spirit}
+        alphaTest={spirit ? 0.08 : 0}
+      />
+      {/* 衝出去時吃到元素光，讓出手方看得出來是誰。卡面才畫光框，本體不畫（會變成方框）。 */}
+      {!spirit && (
+        <mesh position={[0, 0, -0.01]}>
+          <planeGeometry args={[CARD_W * 1.1, CARD_H * 1.08]} />
+          <meshBasicMaterial color={glow} transparent opacity={lunging ? 0.55 : 0} />
+        </mesh>
+      )}
     </mesh>
   );
 }
@@ -129,9 +157,17 @@ function Impact({ active, glow }: { active: boolean; glow: string }) {
   );
 }
 
-export default function BeastClash3D({ playerArt, opponentArt, attacker, glow, beat }: ClashProps) {
+export default function BeastClash3D({
+  playerArt,
+  opponentArt,
+  playerSpirit,
+  opponentSpirit,
+  attacker,
+  glow,
+  beat,
+}: ClashProps) {
   const [lunging, setLunging] = useState(false);
-  const lastBeat = useRef(-1);
+  const [impact, setImpact] = useState(false);
 
   // 減少動態時整個不掛載，交給原本的靜態版面——不是把動畫調慢，是不做。
   const reduced = useMemo(() => {
@@ -144,11 +180,14 @@ export default function BeastClash3D({ playerArt, opponentArt, attacker, glow, b
   }, []);
 
   // 每次 beat 變動演一次：衝出去，短暫停留，收回來。
-  if (beat !== lastBeat.current && !reduced) {
-    lastBeat.current = beat;
-    setTimeout(() => setLunging(true), 40);
-    setTimeout(() => setLunging(false), 620);
-  }
+  useEffect(() => {
+    if (reduced) return;
+    const start = setTimeout(() => setLunging(true), 40);
+    const contact = setTimeout(() => setImpact(true), 170);
+    const settle = setTimeout(() => setImpact(false), 430);
+    const stop = setTimeout(() => setLunging(false), 620);
+    return () => { clearTimeout(start); clearTimeout(stop); clearTimeout(contact); clearTimeout(settle); };
+  }, [beat, reduced]);
 
   if (reduced) return null;
 
@@ -164,19 +203,27 @@ export default function BeastClash3D({ playerArt, opponentArt, attacker, glow, b
         gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
       >
         {/* 只有兩張卡與一片光。不是六十個模型——手機跑得動才有意義。 */}
+        {/*
+          衝過去的是神獸本體，不是卡。
+          沒有立繪（還沒生成）才退回卡面——不會開天窗。
+        */}
         <CardPlane
-          art={playerArt}
+          art={playerSpirit ?? playerArt}
+          spirit={Boolean(playerSpirit)}
           home={[-1.35, -0.15, 0]}
           lunging={lunging && attacker === 'player'}
+          recoiling={impact && attacker === 'opponent'}
           glow={glow}
         />
         <CardPlane
-          art={opponentArt}
+          art={opponentSpirit ?? opponentArt}
+          spirit={Boolean(opponentSpirit)}
           home={[1.35, 0.15, 0]}
           lunging={lunging && attacker === 'opponent'}
+          recoiling={impact && attacker === 'player'}
           glow={glow}
         />
-        <Impact active={lunging} glow={glow} />
+        <Impact active={impact} glow={glow} />
       </Canvas>
     </div>
   );
