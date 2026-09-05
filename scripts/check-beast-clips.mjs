@@ -189,6 +189,42 @@ export function auditClips() {
       }
     }
 
+
+    /*
+      逐部位審查：以產線寫下的 qa-report.json 為準，不是我這邊重判。
+
+      業主定調要逐項看頭、身體、手腳、嘴巴、牙齒、眼睛、指甲、尾巴，
+      「如果不對，要自動進入細修的狀態」。那是**看畫面**才判得出來的事，
+      這支腳本讀不了影格（這台沒有 ffmpeg），硬要在這裡宣稱通過就是作假。
+
+      所以分工是：產線負責看畫面並把結論寫進 qa-report.json，
+      這裡負責**不准繞過那份結論**。沒有報告、報告說沒過、
+      或任何一個部位沒過，就一律不算合格——兩套審查合成一套，
+      不會出現「閘門綠燈但實際上動作是假的」這種矛盾。
+    */
+    const qaPath = path.join(clips, 'qa-report.json');
+    if (!fs.existsSync(qaPath)) {
+      problems.push('沒有 qa-report.json——逐部位審查沒有紀錄，不能算通過');
+    } else {
+      let qa = null;
+      try { qa = JSON.parse(fs.readFileSync(qaPath, 'utf8')); }
+      catch { problems.push('qa-report.json 讀不動'); }
+      if (qa) {
+        const failed = Object.entries(qa.checklist ?? {})
+          .filter(([, v]) => !v?.pass)
+          .map(([k]) => k);
+        if (failed.length) {
+          problems.push(`逐部位未過：${failed.join('、')}（共 ${failed.length} 項）`);
+        }
+        if (qa.overall_pass === false) problems.push('產線判定 overall_pass=false');
+        if (qa.human_review?.result === 'FAIL') {
+          const issues = (qa.human_review.issues ?? []).slice(0, 2).join('；');
+          problems.push(`人工複核 FAIL${issues ? '：' + issues : ''}`);
+        }
+        if (qa.limitation) notes.push(`產線註記：${String(qa.limitation).slice(0, 90)}`);
+      }
+    }
+
     rows.push({ cardId, state: problems.length ? 'FAIL' : notes.length ? 'WARN' : 'OK', seconds, kb, dims, problems, notes });
   }
 

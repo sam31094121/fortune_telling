@@ -86,6 +86,37 @@
 }
 .clash .arena { opacity: 1; }
 
+/*
+  實景襯底：Poly Haven「Circus Arena」CC0（授權見同資料夾 LICENSE.txt）。
+
+  這張圖原本躺在 public/beast-game/stage/ 沒有任何程式引用——
+  素材產好卻沒接上，等於沒有。接進來當舞台實景，
+  我原本畫的地板與霧氣改成壓在它上面的氛圍層：
+  實景負責「這是一個場地」，漸層負責「這一局是什麼元素、誰是主場」。
+  兩套舞台併成一套，不要一個用圖、一個用漸層各演各的。
+
+  壓暗到 .34 是刻意的：主角是神獸本體，舞台搶戲就本末倒置。
+*/
+.arenaBackdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 62%;
+  opacity: .34;
+  filter: saturate(.7) brightness(.62);
+  /*
+    頂端淡出。
+
+    標題「前鋒・本體衝鋒」就壓在這一層的最上緣；實景一鋪上去，
+    亮底把字洗掉了（加襯底之前是讀得清楚的，這是我自己造成的回退）。
+    加深色晶片不夠——那只是補救對比。從根本讓實景在標題那條帶不存在，
+    字就回到原本的深色底上，而神獸交戰的地面照樣看得見。
+  */
+  mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, .3) 15%, #000 36%);
+}
+
 /* 地板：近端（玩家側）亮而實，遠端（對手側）暗而虛。 */
 .arenaFloor {
   position: absolute;

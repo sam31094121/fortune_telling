@@ -350,6 +350,14 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
             ? ELEMENT_FX[(clashCards.attacker === 'player' ? clashCards.me : clashCards.foe).element as BattleElement]?.glow ?? '#7dd3fc'
             : '#7dd3fc' }}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/beast-game/stage/default/circus_arena.jpg"
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className={styles.arenaBackdrop}
+          />
           <div className={styles.arenaHaze} />
           <div className={styles.arenaFloor} />
           <div className={styles.arenaPost} />
