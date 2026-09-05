@@ -153,7 +153,6 @@ export default function TarotOriginalFortuneTeller({
     return new Map(drawnCards.map((drawnCard) => [drawnCard.position, drawnCard] as const));
   }, [drawnCards]);
   const hasRevealedCards = revealed.size > 0;
-  const scopeLabel = scope === 'self' ? '我自己｜保留成長累積' : '親朋好友｜單次抽牌';
 
   useEffect(() => {
     setDeckDealt(true);
@@ -428,7 +427,6 @@ export default function TarotOriginalFortuneTeller({
         <p>THREE CARD DRAW</p>
         <h1>塔羅三張牌</h1>
         <span>{enforceAiCopywritingTone(question)}</span>
-        <strong className="mt-2 inline-flex rounded-full border border-amber-200/30 bg-amber-300/12 px-3 py-1 text-xs font-black text-amber-100">{scopeLabel}</strong>
       </div>
 
       <section className={`cards ${deckDealt ? 'cards--dealt' : ''}`} data-shuffle={shuffleTick}>
