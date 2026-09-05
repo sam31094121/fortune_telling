@@ -6,6 +6,8 @@ import starBeastsData from '@/data/star-beasts.json';
 
 type Season = 'all' | 'spring' | 'summer' | 'autumn' | 'winter';
 type Form = 'young' | 'awakened';
+type Element = '木' | '火' | '土' | '金' | '水';
+type ProductElement = '空' | '風' | '水' | '火' | '地';
 
 type StarBeast = {
   id: number;
@@ -27,6 +29,25 @@ const FOUR_GUARDIANS = [
   { name: '白虎', direction: '西', season: '秋', element: '金', image: '/star-beasts/four-guardians/baihu.png', accent: 'text-amber-100' },
   { name: '玄武', direction: '北', season: '冬', element: '水', image: '/star-beasts/four-guardians/xuanwu.png', accent: 'text-cyan-100' },
 ] as const;
+
+const ELEMENT_RULES: Record<Element, { generates: Element; overcomes: Element }> = {
+  木: { generates: '火', overcomes: '土' },
+  火: { generates: '土', overcomes: '金' },
+  土: { generates: '金', overcomes: '水' },
+  金: { generates: '水', overcomes: '木' },
+  水: { generates: '木', overcomes: '火' },
+};
+
+const PRODUCT_ELEMENT: Record<Element, ProductElement> = {
+  金: '空', 木: '風', 水: '水', 火: '火', 土: '地',
+};
+
+const elementForBeast = (name: string): Element => {
+  const luminary = name[1];
+  if (luminary === '日') return '火';
+  if (luminary === '月') return '水';
+  return (['木', '火', '土', '金', '水'].includes(luminary) ? luminary : '土') as Element;
+};
 
 const SEASON_ORDER: Record<Exclude<Season, 'all'>, number> = {
   spring: 0,
@@ -163,7 +184,10 @@ export default function StarBeastsPage() {
                 </div>
                 <div className="flex items-center justify-between gap-2 px-3 py-3">
                   <h3 className={`font-serif text-lg font-black ${guardian.accent}`}>{guardian.name}</h3>
-                  <p className="text-[11px] font-bold text-slate-400">{guardian.direction}・{guardian.season}・{guardian.element}</p>
+                  <div className="text-right text-[11px] font-bold text-slate-400">
+                    <p>{guardian.direction}・{guardian.season}・{PRODUCT_ELEMENT[guardian.element]}</p>
+                    <p className="mt-0.5 text-amber-100/70">生{PRODUCT_ELEMENT[ELEMENT_RULES[guardian.element].generates]}・剋{PRODUCT_ELEMENT[ELEMENT_RULES[guardian.element].overcomes]}</p>
+                  </div>
                 </div>
               </article>
             ))}
@@ -270,6 +294,11 @@ export default function StarBeastsPage() {
               <div className="flex min-w-0 flex-col justify-center">
                 <p className="text-sm font-bold text-slate-400">{selected.animal}・{selected.symbolicPart}</p>
                 <h2 className="mt-2 font-serif text-4xl font-black text-white">{selected.name}</h2>
+                <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
+                  <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5">{PRODUCT_ELEMENT[elementForBeast(selected.name)]}元素</span>
+                  <span className="rounded-full border border-emerald-200/25 bg-emerald-300/10 px-3 py-1.5 text-emerald-100">生・{PRODUCT_ELEMENT[ELEMENT_RULES[elementForBeast(selected.name)].generates]}</span>
+                  <span className="rounded-full border border-rose-200/25 bg-rose-300/10 px-3 py-1.5 text-rose-100">剋・{PRODUCT_ELEMENT[ELEMENT_RULES[elementForBeast(selected.name)].overcomes]}</span>
+                </div>
                 <div className="mt-4 flex w-full max-w-full rounded-xl border border-white/10 bg-white/[0.04] p-1 sm:w-fit">
                   {FORMS.map((item) => (
                     <button key={item.id} type="button" onClick={() => setForm(item.id)} aria-pressed={form === item.id}
