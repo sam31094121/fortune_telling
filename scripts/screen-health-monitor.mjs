@@ -30,6 +30,7 @@ const NEXT_ERR_LOG = path.join(PROJECT_ROOT, '.screen-health-next.err.log');
 
 const CARD_ROUTES = [
   { id: 'CARD_01', module: 'nameology', title: 'AI 姓名學', path: '/nameology' },
+  { id: 'CARD_BEAST_GAME', module: 'beast_game_lineup', title: '神獸決鬥組陣台', path: '/beast-game' },
   { id: 'CARD_02', module: 'ziwei', title: '紫微斗數', path: '/insight' },
   { id: 'CARD_03', module: 'numerology', title: '易經論數字', path: '/numerology' },
   { id: 'CARD_04', module: 'soul_match', title: '靈魂配對', path: '/match' },
@@ -150,7 +151,7 @@ const TAIJI_LEVEL01_CHECKS = [
   {
     id: 'BEAST_CARD_GAME_CORE',
     module: 'beast_card_game_core',
-    title: '神獸卡遊戲核心：抽得到、叫得出、打得動、分得出輸贏',
+    title: '神獸卡遊戲核心：六十張、三席出戰、分得出輸贏',
     script: 'test:beast-game',
   },
   {

@@ -1,30 +1,33 @@
 /**
- * 神獸卡｜心月狐
+ * 神獸卡｜心月狐（成獸）
  *
  * 這是**資料**，不是程式（規格第三、十六條）。
  * 技能只寫 id，內容在 cards/skills；效果種類全部來自 Effect Engine。
- * 要調整這張卡就改這裡的數值與 version，不動遊戲核心。
+ *
+ * 由 scripts/gen-beast-cards.mjs 產生。手動微調過的話，在檔案開頭加一行
+ * 註解標記（見產生器裡的 MANUAL_MARK），重跑時就會跳過這個檔案。
  */
 
 import type { BeastCard } from '../../lib/beast-game/schema';
 
 const card: BeastCard = {
-  id: 'beast_005',
+  id: 'beast_a05',
   name: '心月狐',
   category: 'DIVINE_BEAST',
   element: 'WATER',
   rarity: 'R',
-  stats: { hp: 112, attack: 58, defense: 52, speed: 78 },
-  skills: ['skill_006', 'skill_007'],
+  form: 'ADULT',
+  cost: 5,
+  stats: { hp: 143, attack: 62, defense: 58, speed: 74 },
+  skills: ['skill_103'],
   passive: [],
   art: {
-    // 三段式（規格第十四條）：手牌只載 thumbnail，詳細頁才載 high。
-    thumbnail: '/beast-game/thumb/05.webp',
-    front: '/beast-game/front/05.webp',
+    thumbnail: '/beast-game/thumb/adult-05.webp',
+    front: '/beast-game/front/adult-05.webp',
     high: '/star-beasts/adult-divine-v2/05.png',
     back: '/beast-game/card-back.webp',
   },
-  story: '蒼龍之心，月曜所司。太陰屬水，狐性多慧——不以硬碰硬取勝，靠水幕與月華把戰線拉長。',
+  story: '蒼龍心臟，二十八宿第 5 宿。核心寓意：權謀多疑。心思極其細密，洞察力驚人，具神秘魅力；內心佔有慾強。',
   mansionId: 5,
   version: '1.0.0',
 };

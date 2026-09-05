@@ -1,30 +1,33 @@
 /**
- * 神獸卡｜亢金龍
+ * 神獸卡｜亢金龍（成獸）
  *
  * 這是**資料**，不是程式（規格第三、十六條）。
  * 技能只寫 id，內容在 cards/skills；效果種類全部來自 Effect Engine。
- * 要調整這張卡就改這裡的數值與 version，不動遊戲核心。
+ *
+ * 由 scripts/gen-beast-cards.mjs 產生。手動微調過的話，在檔案開頭加一行
+ * 註解標記（見產生器裡的 MANUAL_MARK），重跑時就會跳過這個檔案。
  */
 
 import type { BeastCard } from '../../lib/beast-game/schema';
 
 const card: BeastCard = {
-  id: 'beast_002',
+  id: 'beast_a02',
   name: '亢金龍',
   category: 'DIVINE_BEAST',
   element: 'SPACE',
-  rarity: 'SSR',
-  stats: { hp: 105, attack: 58, defense: 52, speed: 70 },
-  skills: ['skill_001', 'skill_003'],
+  rarity: 'SR',
+  form: 'ADULT',
+  cost: 5,
+  stats: { hp: 129, attack: 62, defense: 64, speed: 69 },
+  skills: ['skill_102', 'skill_107'],
   passive: [],
   art: {
-    // 三段式（規格第十四條）：手牌只載 thumbnail，詳細頁才載 high。
-    thumbnail: '/beast-game/thumb/02.webp',
-    front: '/beast-game/front/02.webp',
+    thumbnail: '/beast-game/thumb/adult-02.webp',
+    front: '/beast-game/front/adult-02.webp',
     high: '/star-beasts/adult-divine-v2/02.png',
     back: '/beast-game/card-back.webp',
   },
-  story: '蒼龍之頸，金鱗覆身。亢者高也，居高而不折——守勢中帶著反擊的餘裕，護體與吐息同源。',
+  story: '蒼龍咽喉，二十八宿第 2 宿。核心寓意：正直威權。風骨高尚，嫉惡如仇，重視名譽；性格倔強，不願流於俗套。',
   mansionId: 2,
   version: '1.0.0',
 };

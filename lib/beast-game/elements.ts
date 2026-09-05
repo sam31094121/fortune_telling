@@ -59,7 +59,7 @@ export const MANSION_CHAR_TO_ELEMENT: Record<string, BeastElement> = {
 };
 
 /**
- * 從二十八宿名稱取元素，例如「奎木狼」→ AIR。
+ * 從二十八宿名稱取元素：取名字中間那個字（木金土日月火水）去對照。
  * 取不到就回 null——不猜，讓卡片驗證去擋。
  */
 export function elementFromMansionName(name: string): BeastElement | null {

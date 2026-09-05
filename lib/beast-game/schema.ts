@@ -15,12 +15,27 @@
 import { isBeastElement, type BeastElement } from './elements';
 
 /** 遊戲核心版本。與任何一張卡的 version 無關，不得混用。 */
-export const GAME_CORE_VERSION = '1.0.0';
+export const GAME_CORE_VERSION = '1.2.0';
+
+/**
+ * 1.1.0 加了兩件事，都是「六十張卡的遊戲」必要的，不是為了某一張卡：
+ *   · 召喚成本（氣）——沒有成本曲線，四象第一回合就能下場，那不叫遊戲
+ *   · 本命值——原本要打到對手手牌牌庫全空才分勝負，六十張卡會拖到天亮
+ * 卡片版本仍各自獨立（規格第二十條），不隨核心版本走。
+ */
 
 export const RARITIES = ['N', 'R', 'SR', 'SSR', 'UR'] as const;
 export type Rarity = (typeof RARITIES)[number];
 
 export const CARD_CATEGORIES = ['DIVINE_BEAST'] as const;
+
+/**
+ * 卡片形態。同一隻神獸有幼子與成獸兩種形態，四象自成一類。
+ * 這是既有素材本來就有的分別（star-beasts.json 的 image 與 youngDivineImage），
+ * 不是為了湊數新造的。
+ */
+export const CARD_FORMS = ['YOUNG', 'ADULT', 'GUARDIAN'] as const;
+export type CardForm = (typeof CARD_FORMS)[number];
 export type CardCategory = (typeof CARD_CATEGORIES)[number];
 
 export interface BeastStats {
@@ -50,6 +65,9 @@ export interface BeastCard {
   /** 副元素。可以沒有；有也只能一個。 */
   subElement?: BeastElement | null;
   rarity: Rarity;
+  form: CardForm;
+  /** 召喚需要的氣。幼子 1–2、成獸 3–5、四象 7–8。 */
+  cost: number;
   stats: BeastStats;
   /** 技能 id，實際內容在 Skill Registry。卡片不自帶技能程式。 */
   skills: string[];
@@ -111,6 +129,23 @@ export function validateCard(
 
   if (!(RARITIES as readonly string[]).includes(card.rarity)) {
     bad('rarity', `稀有度不合法：${String(card.rarity)}`);
+  }
+
+  if (!(CARD_FORMS as readonly string[]).includes(card.form)) {
+    bad('form', `形態不合法：${String(card.form)}`);
+  }
+
+  // 成本要在合理帶內，而且要跟形態對得上——幼子不該比成獸貴。
+  const COST_BY_FORM: Record<string, { min: number; max: number }> = {
+    YOUNG: { min: 1, max: 2 },
+    ADULT: { min: 3, max: 5 },
+    GUARDIAN: { min: 7, max: 8 },
+  };
+  const costBand = COST_BY_FORM[card.form];
+  if (!Number.isInteger(card.cost)) {
+    bad('cost', `成本必須是整數，收到 ${String(card.cost)}`);
+  } else if (costBand && (card.cost < costBand.min || card.cost > costBand.max)) {
+    bad('cost', `${card.form} 的成本應在 ${costBand.min}–${costBand.max}，收到 ${card.cost}`);
   }
 
   // ✓ 數值合法

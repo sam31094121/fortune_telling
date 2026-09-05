@@ -41,14 +41,29 @@ const TRIGGER_FREQUENCY: Record<SkillDefinition['trigger'], number> = {
   PASSIVE: 1.0,
 };
 
-/** 稀有度的預算帶。刻意重疊很多——規格第五條：稀有度不等於絕對戰力。 */
-export const RARITY_BUDGET: Record<Rarity, { min: number; max: number }> = {
-  N: { min: 250, max: 340 },
-  R: { min: 265, max: 365 },
-  SR: { min: 280, max: 390 },
-  SSR: { min: 295, max: 410 },
-  UR: { min: 305, max: 430 },
+/**
+ * 預算帶以**成本**為軸，不是稀有度。
+ *
+ * 一開始我把預算帶掛在稀有度上，六十張卡一進來就爆了：
+ * R 同時出現在幼子（成本 2）與成獸（成本 3），同一個帶要涵蓋
+ * 一百多分到三百多分，那條帶寬到沒有意義，等於沒有在管。
+ *
+ * 真正決定一張卡該多強的是「要付多少氣」，這也是卡牌遊戲的通則。
+ * 稀有度負責的是稀有度該負責的事——特殊能力、戰術價值、視覺質感，
+ * 而「稀有度不等於絕對戰力」則由 rarityIsNotPower() 另外把關（規格第五條）。
+ */
+export const COST_BUDGET: Record<number, { min: number; max: number }> = {
+  1: { min: 70, max: 150 },
+  2: { min: 100, max: 195 },
+  3: { min: 210, max: 300 },
+  4: { min: 235, max: 335 },
+  5: { min: 260, max: 375 },
+  7: { min: 330, max: 470 },
+  8: { min: 360, max: 500 },
 };
+
+/** 找不到對應成本時的保底帶，避免整個驗證靜靜地跳過。 */
+const FALLBACK_BUDGET = { min: 0, max: Number.MAX_SAFE_INTEGER };
 
 function effectValue(effect: EffectSpec): number {
   const weight = EFFECT_WEIGHT[effect.type] ?? 1;
@@ -79,6 +94,7 @@ export interface BalanceReport {
   cardId: string;
   name: string;
   rarity: Rarity;
+  cost: number;
   statScore: number;
   skillScore: number;
   powerBudget: number;
@@ -108,7 +124,7 @@ export function evaluateBalance(card: BeastCard): BalanceReport {
   }, 0);
 
   const powerBudget = Math.round(statScore + skillScore);
-  const band = RARITY_BUDGET[card.rarity];
+  const band = COST_BUDGET[card.cost] ?? FALLBACK_BUDGET;
   const deviation = powerBudget < band.min
     ? band.min - powerBudget
     : powerBudget > band.max
@@ -119,6 +135,7 @@ export function evaluateBalance(card: BeastCard): BalanceReport {
     cardId: card.id,
     name: card.name,
     rarity: card.rarity,
+    cost: card.cost,
     statScore: Math.round(statScore),
     skillScore: Math.round(skillScore),
     powerBudget,
@@ -126,7 +143,7 @@ export function evaluateBalance(card: BeastCard): BalanceReport {
     status: deviation === 0 ? 'OK' : 'BALANCE_WARNING',
     deviation,
     detail: `數值 ${Math.round(statScore)} ＋ 技能 ${Math.round(skillScore)} ＝ ${powerBudget}`
-      + `（${card.rarity} 預算帶 ${band.min}–${band.max}）`
+      + `（成本 ${card.cost} 的預算帶 ${band.min}–${band.max}）`
       + (deviation === 0 ? '' : `，超出 ${deviation}`),
   };
 }
@@ -134,37 +151,44 @@ export function evaluateBalance(card: BeastCard): BalanceReport {
 /**
  * 稀有度不得直接等於戰力（規格第五條）。
  *
- * 檢查方式：把每張卡的預算按稀有度排序，如果高稀有的最低值
- * 一定大於低稀有的最高值，那就是「UR 一定打贏 R」，這條就違反了。
+ * 判準要在**同一個成本階梯裡**比，不能跨成本比。
+ * 跨成本比的話，成本 7 的 UR 當然比成本 3 的 R 強——那是成本換來的，
+ * 不是稀有度換來的，那樣檢查只會逼人把高成本卡做弱，反而是錯的平衡。
+ *
+ * 真正要擋的是：付一樣多的氣，稀有度高的就一定比較強。
+ * 所以看同一個成本裡，稀有度高的最低值有沒有壓過稀有度低的最高值。
+ * 只有單一稀有度的成本階梯（例如四象只有 UR）跳過，沒有可比對象。
  */
 export function rarityIsNotPower(cards: BeastCard[]): { passed: boolean; detail: string } {
-  const byRarity = new Map<Rarity, number[]>();
+  const byCost = new Map<number, Map<Rarity, number[]>>();
   for (const card of cards) {
-    const list = byRarity.get(card.rarity) ?? [];
+    const tier = byCost.get(card.cost) ?? new Map<Rarity, number[]>();
+    const list = tier.get(card.rarity) ?? [];
     list.push(evaluateBalance(card).powerBudget);
-    byRarity.set(card.rarity, list);
+    tier.set(card.rarity, list);
+    byCost.set(card.cost, tier);
   }
 
-  const present = RARITIES.filter((rarity) => (byRarity.get(rarity)?.length ?? 0) > 0);
-  if (present.length < 2) {
-    return { passed: true, detail: '牌庫目前只有一種稀有度，這一條暫時不適用。' };
-  }
-
-  const overlaps: string[] = [];
-  for (let i = 0; i < present.length - 1; i += 1) {
-    const lower = byRarity.get(present[i])!;
-    const higher = byRarity.get(present[i + 1])!;
-    const lowerMax = Math.max(...lower);
-    const higherMin = Math.min(...higher);
-    overlaps.push(`${present[i]}最高 ${lowerMax} vs ${present[i + 1]}最低 ${higherMin}`);
-    if (higherMin > lowerMax) {
-      return {
-        passed: false,
-        detail: `${present[i + 1]} 的最低戰力仍高於 ${present[i]} 的最高戰力——`
-          + `稀有度變成絕對戰力了。${overlaps.join('；')}`,
-      };
+  const notes: string[] = [];
+  for (const [cost, tier] of [...byCost.entries()].sort((a, b) => a[0] - b[0])) {
+    const present = RARITIES.filter((rarity) => (tier.get(rarity)?.length ?? 0) > 0);
+    if (present.length < 2) {
+      notes.push(`成本 ${cost}：只有 ${present.join("")} 一種稀有度，不適用`);
+      continue;
     }
+    for (let i = 0; i < present.length - 1; i += 1) {
+      const lowerMax = Math.max(...tier.get(present[i])!);
+      const higherMin = Math.min(...tier.get(present[i + 1])!);
+      if (higherMin > lowerMax) {
+        return {
+          passed: false,
+          detail: `成本 ${cost}：${present[i + 1]} 的最低戰力 ${higherMin} 仍高於 `
+            + `${present[i]} 的最高戰力 ${lowerMax}——付一樣的氣，稀有度就決定強弱了。`,
+        };
+      }
+    }
+    notes.push(`成本 ${cost}：${present.join("/")} 互有重疊`);
   }
 
-  return { passed: true, detail: `稀有度之間有重疊，戰力不由稀有度決定。${overlaps.join('；')}` };
+  return { passed: true, detail: `同成本下稀有度不決定強弱。${notes.join("；")}` };
 }

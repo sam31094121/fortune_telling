@@ -48,13 +48,14 @@ export function instantiate(card: BeastCard, instanceId: string): BeastInstance 
 /** 技能使用次數紀錄。整場共用一份，避免同一招無限放。 */
 export type SkillUsage = Map<string, number>;
 
-export function canUseSkill(skill: SkillDefinition, usage: SkillUsage): boolean {
+export function canUseSkill(skill: SkillDefinition, usage: SkillUsage, instanceId: string): boolean {
   if (skill.usesPerBattle == null) return true;
-  return (usage.get(skill.id) ?? 0) < skill.usesPerBattle;
+  return (usage.get(`${instanceId}:${skill.id}`) ?? 0) < skill.usesPerBattle;
 }
 
-function markUsed(skill: SkillDefinition, usage: SkillUsage): void {
-  usage.set(skill.id, (usage.get(skill.id) ?? 0) + 1);
+function markUsed(skill: SkillDefinition, usage: SkillUsage, instanceId: string): void {
+  const key = `${instanceId}:${skill.id}`;
+  usage.set(key, (usage.get(key) ?? 0) + 1);
 }
 
 export interface BattleContext {
@@ -85,19 +86,23 @@ export function triggerSkills(params: {
   for (const id of ids) {
     const skill = getSkill(id);
     if (!skill || skill.trigger !== trigger) continue;
-    if (!canUseSkill(skill, context.usage)) continue;
+    if (!canUseSkill(skill, context.usage, self.instanceId)) continue;
 
-    const target = skill.targeting === 'ENEMY' ? enemy : self;
-    if (skill.targeting === 'ENEMY' && (!target || target.defeated)) continue;
-
-    resolveEffects(skill.effects, {
-      source: self,
-      target,
-      baseAttack: params.baseAttack ?? 0,
-      side: context.side,
-      log: context.log,
-    });
-    markUsed(skill, context.usage);
+    let resolved = false;
+    for (const effect of skill.effects) {
+      const targeting = effect.target ?? skill.targeting;
+      const target = targeting === 'ENEMY' ? enemy : self;
+      if (targeting === 'ENEMY' && (!target || target.defeated)) continue;
+      resolveEffects([effect], {
+        source: self,
+        target,
+        baseAttack: params.baseAttack ?? 0,
+        side: context.side,
+        log: context.log,
+      });
+      resolved = true;
+    }
+    if (resolved) markUsed(skill, context.usage, self.instanceId);
   }
 }
 
@@ -125,6 +130,8 @@ export function performAttack(params: {
   defenderCard: BeastCard;
   defender: BeastInstance;
   context: BattleContext;
+  /** 受創反應使用守方的抽牌與技能次數。 */
+  defenderContext?: BattleContext;
 }): AttackResult {
   const { attacker, defender, context } = params;
   const log: EffectLogEntry[] = [];
@@ -181,7 +188,7 @@ export function performAttack(params: {
       self: defender,
       enemy: attacker,
       trigger: 'ON_DAMAGED',
-      context,
+      context: params.defenderContext ?? context,
     });
   }
 

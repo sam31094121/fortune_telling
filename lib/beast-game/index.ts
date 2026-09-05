@@ -34,7 +34,7 @@ export { EFFECT_TYPES, resolveEffects, computeDamage, tickDurations, MINIMUM_DAM
 export type { EffectSpec, EffectType, BeastInstance, EffectLogEntry } from './effects';
 
 export { buildRegistry, cardRegistry, getCard, playableCards } from './registry';
-export { evaluateBalance, rarityIsNotPower, RARITY_BUDGET } from './balance';
+export { evaluateBalance, rarityIsNotPower, COST_BUDGET } from './balance';
 export type { BalanceReport } from './balance';
 
 export { instantiate, performAttack, triggerSkills, orderBySpeed } from './battle';
@@ -54,8 +54,16 @@ export {
   playTurn,
   playToEnd,
   assertPhaseTransition,
+  LINEUP_SLOTS,
+  MAX_LINEUP_COST,
+  buildLineup,
+  STARTING_LIFE,
+  MAX_MANA_CAP,
+  createDuel,
+  deployLineup,
+  validateLineup,
 } from './turn';
-export type { GameState, PlayerState, TurnPhase } from './turn';
+export type { GameState, PlayerState, TurnPhase, LineupSetup } from './turn';
 
 export { SKILLS, getSkill, allSkillIds } from '../../cards/skills';
 export type { SkillDefinition, SkillTrigger } from '../../cards/skills';

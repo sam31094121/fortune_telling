@@ -36,6 +36,8 @@ export type EffectType = (typeof EFFECT_TYPES)[number];
 export interface EffectSpec {
   type: EffectType;
   value: number;
+  /** 混合技能可逐項指定作用對象，避免把自己的增益送給敵方。 */
+  target?: 'SELF' | 'ENEMY';
   /** 持續回合數。加減益與暈眩用得到；傷害、治療不需要。 */
   duration?: number;
   /** 只有 ELEMENT_BOOST 用：加成哪一個元素。 */
