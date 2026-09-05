@@ -21,6 +21,13 @@ type StarBeast = {
 
 const BEASTS = starBeastsData.items as StarBeast[];
 
+const FOUR_GUARDIANS = [
+  { name: '青龍', direction: '東', season: '春', element: '木', image: '/star-beasts/four-guardians/qinglong.png', accent: 'text-emerald-100' },
+  { name: '朱雀', direction: '南', season: '夏', element: '火', image: '/star-beasts/four-guardians/zhuque.png', accent: 'text-rose-100' },
+  { name: '白虎', direction: '西', season: '秋', element: '金', image: '/star-beasts/four-guardians/baihu.png', accent: 'text-amber-100' },
+  { name: '玄武', direction: '北', season: '冬', element: '水', image: '/star-beasts/four-guardians/xuanwu.png', accent: 'text-cyan-100' },
+] as const;
+
 const SEASON_ORDER: Record<Exclude<Season, 'all'>, number> = {
   spring: 0,
   summer: 1,
@@ -139,6 +146,29 @@ export default function StarBeastsPage() {
             <p className="mt-2 leading-6">二十八星宿分為春夏秋冬，每一宿都有本體神獸與神獸幼子。</p>
           </details>
         </header>
+
+        <section className="mt-7" aria-labelledby="four-guardians-title">
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold tracking-[0.18em] text-amber-200/75">FOUR GUARDIANS</p>
+              <h2 id="four-guardians-title" className="mt-1 font-serif text-2xl font-black">紫微四大神獸</h2>
+            </div>
+            <span className="text-xs font-bold text-slate-400">四方守護</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {FOUR_GUARDIANS.map((guardian) => (
+              <article key={guardian.name} className="group overflow-hidden rounded-2xl border border-amber-200/20 bg-slate-950/70 shadow-lg">
+                <div className="aspect-[2/3] overflow-hidden bg-black">
+                  <img src={guardian.image} alt={`${guardian.name}・${guardian.direction}方守護神`} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.025]" />
+                </div>
+                <div className="flex items-center justify-between gap-2 px-3 py-3">
+                  <h3 className={`font-serif text-lg font-black ${guardian.accent}`}>{guardian.name}</h3>
+                  <p className="text-[11px] font-bold text-slate-400">{guardian.direction}・{guardian.season}・{guardian.element}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
 
         <section className="mt-7" aria-label="依四象篩選神獸卡片">
           <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none]">
