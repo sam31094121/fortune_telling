@@ -11,6 +11,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { selectRitualHighlights, type RitualTurn } from '../lib/beast-ritual';
 import { SKILLS, getSkill } from '../cards/skills';
 import { evaluateBalance, rarityIsNotPower } from '../lib/beast-game/balance';
 import { instantiate, performAttack, type BattleContext } from '../lib/beast-game/battle';
@@ -618,6 +619,27 @@ console.log('\n【十五】穩定性：連線不穩、存壞了，都不能讓�
   check('API 不快取戰果', apiSrc.includes('no-store'));
 }
 
+
+console.log('\n【十六】揭牌儀式：只播放真實交鋒，保留最後回合');
+{
+  const timeline: RitualTurn[] = Array.from({ length: 100 }, (_, i) => ({
+    turn: i + 1, side: i % 2 ? 'OPPONENT' : 'PLAYER', phase: 'BATTLE',
+    note: i % 3 === 0 ? '2 次交戰、1 次直擊' : '0 次交戰、0 次直擊',
+  }));
+  timeline.push({ turn: 101, side: 'OPPONENT', phase: 'DRAW', note: '牌庫已空，受到疲勞傷害' });
+  const before = JSON.stringify(timeline);
+  const highlights = selectRitualHighlights(timeline);
+  eq('只取三段，避免手機長篇戰報擋住牌面', highlights.length, 3);
+  eq('包含六十筆以後真正的最後事件', highlights[2], timeline[100]);
+  check('每段皆來自原始對戰紀錄', highlights.every((entry) => timeline.includes(entry)));
+  check('不更動原始對戰', JSON.stringify(timeline) === before);
+  eq('沒有攻擊就不編造交鋒', selectRitualHighlights([
+    { turn: 1, side: 'PLAYER', phase: 'BATTLE', note: '0 次交戰、0 次直擊' },
+    { turn: 1, side: 'SYSTEM', phase: 'BATTLE', note: '3 次交戰' },
+    { turn: 2, side: 'OPPONENT', phase: 'SUMMON', note: '放入一張神獸' },
+  ]), []);
+  eq('未收到紀錄時不提前播放', selectRitualHighlights(), []);
+}
 
 console.log(`\n神獸卡遊戲核心（六十張） — PASS ${pass} / FAIL ${fail}`);
 if (fail > 0) process.exit(1);

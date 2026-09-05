@@ -21,6 +21,9 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import BeastDuelRitual from '@/components/BeastDuelRitual';
+import { selectRitualHighlights } from '@/lib/beast-ritual';
+import frameStyles from '@/components/BeastCardFrame.module.css';
 
 type Skill = { id: string; name: string; trigger: string; description: string };
 type Card = {
@@ -45,6 +48,7 @@ type DuelResult = {
   isReplay?: boolean;
   firstPlayer?: string;
   opponentLineup?: string[];
+  opponentLineupIds?: string[];
   fairness?: { seedSource: string; firstPlayer: string; sameRules: string[]; replayable: string };
   winner?: string;
   turns?: number;
@@ -188,11 +192,21 @@ export default function BeastGamePage() {
   const [placementNote, setPlacementNote] = useState('');
   const [duel, setDuel] = useState<DuelResult | null>(null);
   const [dueling, setDueling] = useState(false);
+  const [ritual, setRitual] = useState<{ player: Card[]; opponent: Card[] | null; result: DuelResult | null; replay: boolean } | null>(null);
   const [lineupBudget, setLineupBudget] = useState<number | null>(null);
   const [showGuide, setShowGuide] = useState(false);
   const [recommendNote, setRecommendNote] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const duelInFlight = useRef(false);
+  const duelRequest = useRef(0);
+  const resultRef = useRef<HTMLElement>(null);
+
+  useEffect(() => () => { duelRequest.current += 1; }, []);
+  useEffect(() => {
+    if (!duel) return;
+    resultRef.current?.scrollIntoView({ block: 'start' });
+    resultRef.current?.focus({ preventScroll: true });
+  }, [duel]);
 
   useEffect(() => {
     if (!candidate && !detail) return;
@@ -325,23 +339,50 @@ export default function BeastGamePage() {
 
   async function startDuel(replaySeed?: number) {
     if (!ready || duelInFlight.current) return;
+    const player = lineup.map((id) => id ? byId.get(id) : undefined).filter((card): card is Card => Boolean(card));
+    if (player.length !== 3) return;
+    const request = ++duelRequest.current;
     duelInFlight.current = true;
     setDueling(true);
     setDuel(null);
+    setRitual({ player, opponent: null, result: null, replay: replaySeed !== undefined });
     try {
       const data = await fetchJson<DuelResult>('/api/beast-game', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(replaySeed === undefined ? { lineup } : { lineup, replaySeed }),
       }, 20000, 1);
-      setDuel(data);
+      if (request !== duelRequest.current) return;
+      if (!data.ok) throw new Error(data.error ?? '對手尚未準備好，請重新啟陣。');
+      const ids = data.opponentLineupIds;
+      const opponent = Array.isArray(ids) ? ids.map((id) => byId.get(id)).filter((card): card is Card => Boolean(card)) : [];
+      if (opponent.length !== 3 || new Set(ids).size !== 3) {
+        throw new Error('對手陣容不完整，請重新啟陣。');
+      }
+      // 只展示本次核心實際使用的三張牌，不另抽一組當作動畫。
+      setRitual({ player, opponent, result: data, replay: Boolean(data.isReplay) });
     } catch (error) {
+      if (request !== duelRequest.current) return;
       // 逾時或斷線：講人話，而且讓客戶知道再按一次就好，不是壞掉了。
+      setRitual(null);
       setDuel({ ok: false, error: error instanceof Error ? error.message : String(error) });
-    } finally {
       duelInFlight.current = false;
       setDueling(false);
     }
+  }
+
+  function cancelRitual() {
+    duelRequest.current += 1;
+    setRitual(null);
+    duelInFlight.current = false;
+    setDueling(false);
+  }
+
+  function completeRitual() {
+    if (!ritual?.result) return;
+    const result = ritual.result;
+    cancelRitual();
+    setDuel(result);
   }
 
   return (
@@ -352,7 +393,7 @@ export default function BeastGamePage() {
         </Link>
         <h1 className="mt-2 font-serif text-2xl font-black sm:text-3xl">神獸決鬥・組陣台</h1>
         <p className="mt-1.5 text-xs leading-6 text-white/60">
-          選三張、放入格子。前鋒守護後方，雙方布陣上限相同。
+          六十張神獸，選三張入陣，與電腦對手一起揭牌。
         </p>
       </header>
 
@@ -417,7 +458,7 @@ export default function BeastGamePage() {
                   data-slot={index}
                   data-slot-filled={card ? 'yes' : 'no'}
                   aria-label={`${SLOT_META[index].name}${card ? `：${card.name}` : '：空格'}`}
-                  className={`relative flex aspect-[3/4] w-full flex-col items-center justify-center overflow-hidden rounded-2xl border-2 transition
+                  className={`${frameStyles.card} relative flex w-full flex-col items-center justify-center overflow-hidden border-2 transition
                     ${card
                       ? `border-solid bg-black/40 ${ELEMENT_TONE[card.element]}`
                       : 'border-dashed border-white/25 bg-white/[0.03] text-white/45'}
@@ -432,7 +473,7 @@ export default function BeastGamePage() {
                         aria-hidden="true"
                         loading="lazy"
                         decoding="async"
-                        className="absolute inset-0 h-full w-full object-cover object-top opacity-70"
+                        className={`${frameStyles.art} absolute inset-0 opacity-70`}
                       />
                       <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent px-1.5 pb-1.5 pt-6 text-[11px] font-black leading-4">
                         {card.name}
@@ -451,16 +492,26 @@ export default function BeastGamePage() {
 
                 <p className="mt-1.5 text-center text-[11px] font-black text-white/80">{SLOT_META[index].name}</p>
                 <p className="text-center text-[10px] leading-4 text-white/40">{SLOT_META[index].hint}</p>
-                {card && (
-                  <button
-                    type="button"
-                    disabled={dueling}
-                    onClick={() => clearSlot(index)}
-                    className="mt-1 min-h-11 w-full rounded-lg border border-white/15 py-1 text-xs font-bold text-white/60"
-                  >
-                    移出
-                  </button>
-                )}
+                {/*
+                  「移出」永遠佔位。
+
+                  原本只有放了卡才長出這顆按鈕，結果放進去的瞬間
+                  整個出戰三席區塊從 395px 變成 443px，下面的內容整片往下跳 48px——
+                  這就是業主說的「卡片放進去都會跑掉」。
+                  空格時放一顆同高度的透明佔位，版面就不會因為放牌而位移。
+                */}
+                <div className="mt-1 h-11">
+                  {card && (
+                    <button
+                      type="button"
+                      disabled={dueling}
+                      onClick={() => clearSlot(index)}
+                      className="h-11 w-full rounded-lg border border-white/15 text-xs font-bold text-white/60"
+                    >
+                      移出
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -504,7 +555,7 @@ export default function BeastGamePage() {
               ? 'bg-gradient-to-r from-amber-300 to-rose-300 text-slate-950'
               : 'cursor-not-allowed bg-white/10 text-white/40'}`}
         >
-          {dueling ? '守護陣結算中…' : overBudget ? '超過布陣上限' : ready ? '親手啟陣' : `還要再放 ${3 - filledCount} 張才能開始`}
+          {dueling ? '雙方準備中…' : overBudget ? '超過布陣上限' : ready ? '親手啟陣' : `還要再放 ${3 - filledCount} 張才能開始`}
         </button>
         <p aria-live="polite" className={`mt-3 text-center text-sm ${overBudget ? 'text-rose-200' : 'text-cyan-100'}`}>
           布陣 {lineupCost} / {lineupBudget ?? '—'} 氣{overBudget ? '・換一張低氣卡' : ''}
@@ -514,7 +565,7 @@ export default function BeastGamePage() {
 
       {/* ── 決鬥結果：後端算完才回來，畫面只顯示 ─────────────────── */}
       {duel && (
-        <section aria-label="決鬥結果" data-duel-result className="mb-5 rounded-2xl border border-white/12 bg-black/30 p-4">
+        <section ref={resultRef} tabIndex={-1} aria-label="決鬥結果" data-duel-result className="mb-5 scroll-mt-6 rounded-2xl border border-white/12 bg-black/30 p-4">
           {duel.ok ? (
             <>
               <p className="text-lg font-black">
@@ -523,6 +574,11 @@ export default function BeastGamePage() {
               <p className="mt-1 text-xs text-white/60">
                 共 {duel.turns} 回合・本命 {duel.life?.player} : {duel.life?.opponent}
               </p>
+              {selectRitualHighlights(duel.timeline).slice(-1).map((entry) => (
+                <p key={`${entry.turn}-${entry.side}`} className="mt-2 text-xs leading-6 text-amber-100/80">
+                  最後交鋒・第 {entry.turn} 回合 {entry.side === 'PLAYER' ? '我方' : '對手'}：{entry.note}
+                </p>
+              ))}
               {/*
                 公平性對照。
 
@@ -563,9 +619,9 @@ export default function BeastGamePage() {
               <details className="mt-3">
                 <summary className="min-h-[40px] cursor-pointer text-xs font-bold text-cyan-200">看戰報</summary>
                 <ol className="mt-2 space-y-1 text-[11px] leading-5 text-white/55">
-                  {(duel.timeline ?? []).slice(0, 60).map((entry, i) => (
+                  {(duel.timeline ?? []).map((entry, i) => (
                     <li key={i}>
-                      <span className="text-white/35">T{entry.turn} {entry.phase}</span> {entry.note}
+                      <span className="text-white/35">第 {entry.turn} 回合・{entry.side === 'PLAYER' ? '我方' : entry.side === 'OPPONENT' ? '對手' : '雙方'}</span> {entry.note}
                     </li>
                   ))}
                 </ol>
@@ -606,7 +662,7 @@ export default function BeastGamePage() {
                   aria-label={`選擇${card.name}，${ELEMENT_LABEL[card.element]}，${card.cost}氣`}
                   data-card-id={card.id}
                   data-placed={placed ? 'yes' : 'no'}
-                  className={`relative aspect-[3/4] w-full overflow-hidden rounded-xl border bg-black/40 text-left transition
+                  className={`${frameStyles.card} relative w-full overflow-hidden border bg-black/40 text-left transition
                     ${placed ? 'border-cyan-300/80 opacity-55' : `${ELEMENT_TONE[card.element]}`}`}
                 >
                   {/* 手牌與卡池一律只載縮圖（規格第十四條）。 */}
@@ -617,7 +673,7 @@ export default function BeastGamePage() {
                     aria-hidden="true"
                     loading="lazy"
                     decoding="async"
-                    className="absolute inset-0 h-full w-full object-cover object-top"
+                    className={`${frameStyles.art} absolute inset-0`}
                   />
                   <span className="absolute left-1 top-1 rounded-full bg-black/75 px-1.5 py-0.5 text-[10px] font-black">
                     {card.cost}
@@ -651,8 +707,10 @@ export default function BeastGamePage() {
         <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="確認放入神獸" className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/85 px-5 py-4">
           <div className="max-h-[90dvh] w-full max-w-sm overflow-y-auto rounded-3xl border border-amber-200/40 bg-slate-950 p-5 text-center shadow-2xl">
             <p className="mb-3 text-sm font-bold text-amber-100">{candidate.name}・{SLOT_META[activeSlot].name}</p>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={candidate.front} alt={candidate.name} className="mx-auto max-h-[38vh] w-auto rounded-xl object-contain" />
+            <div className={`${frameStyles.card} ${frameStyles.preview}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={candidate.front} alt={candidate.name} className={frameStyles.art} />
+            </div>
             <button type="button" disabled={dueling} onClick={() => place(candidate)} className="mt-5 min-h-12 w-full rounded-2xl bg-gradient-to-r from-amber-200 to-amber-400 px-4 text-sm font-black text-slate-950">
               放入{SLOT_META[activeSlot].name}
             </button>
@@ -675,9 +733,10 @@ export default function BeastGamePage() {
             className="max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-slate-950 p-4 sm:max-w-md sm:rounded-3xl"
             onClick={(event) => event.stopPropagation()}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={detail.front} alt={detail.name} loading="lazy" decoding="async"
-              className="mx-auto h-56 w-auto rounded-2xl object-contain" />
+            <div className={`${frameStyles.card} ${frameStyles.preview}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={detail.front} alt={detail.name} loading="lazy" decoding="async" className={frameStyles.art} />
+            </div>
             <h3 className="mt-3 font-serif text-xl font-black">{detail.name}</h3>
             <p className="mt-1 text-xs text-white/55">
               {FORM_LABEL[detail.form]}・{ELEMENT_LABEL[detail.element]}・{detail.rarity}・{detail.cost} 氣
@@ -709,6 +768,9 @@ export default function BeastGamePage() {
           </div>
         </div>
       )}
+      {ritual && <BeastDuelRitual player={ritual.player} opponent={ritual.opponent}
+        timeline={ritual.result?.timeline} replay={ritual.replay}
+        onComplete={completeRitual} onCancel={cancelRitual} />}
     </main>
   );
 }

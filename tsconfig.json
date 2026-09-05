@@ -31,9 +31,10 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    ".next-production/types/**/*.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    ".next-production/types/**/*.ts"
+    ".next-production-final-duel-ritual/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

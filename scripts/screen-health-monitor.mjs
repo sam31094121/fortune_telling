@@ -151,11 +151,23 @@ const BEHAVIOR_CHECKS = [
     script: 'test:iching-hour',
   },
   {
+    id: 'BEAST_CARD_SPEC',
+    module: 'beast_card_spec',
+    title: '神獸卡正統規格：63×88、四處共用、放牌不跳版',
+    script: 'test:beast-card-spec',
+  },
+  {
     id: 'BEAST_CARD_GAME_CORE',
     module: 'beast_card_game_core',
     title: '神獸公平性：六十張、三席十二氣、技能對象與一千局抽樣',
     script: 'test:beast-fairness',
     timeoutMs: 45000,
+  },
+  {
+    id: 'BEAST_CARD_FRAME_SPEC',
+    module: 'beast_card_frame_spec',
+    title: '神獸卡框：六十張、出戰格、揭牌與預覽共用規格',
+    script: 'test:beast-card-spec',
   },
   {
     id: 'STAR_BEAST_SELF_ENTRY_API',

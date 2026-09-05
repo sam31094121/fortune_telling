@@ -38,7 +38,14 @@ Effect Registry、Game Mode——加卡加技能都不必改引擎。
 id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡在預算帶內。
 不合格就進不了正式牌庫（registry 真的會擋下，不是印警告）。
 
-完整制度見 `docs/three-core-cross-validation-skill.md` 〈十、神獸卡遊戲核心〉。
+完整制度見 `docs/beast-game-skill.md`（技能檔案）與
+`docs/three-core-cross-validation-skill.md` 〈十、神獸卡遊戲核心〉。
+
+卡片一律走正統規格 63×88mm（`components/BeastCardFrame.module.css` 是唯一來源），
+守門 `npm run test:beast-card-spec`。
+
+**對手目前只有電腦。真人對戰尚未開放**——畫面上不得出現「線上對戰」
+之類的字眼，也不得用電腦冒充真人。要做之前先看技能檔案〈六〉。
 
 ## 命盤架構鐵律：八字為核心，紫微為第二輪
 

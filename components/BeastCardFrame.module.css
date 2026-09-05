@@ -1,0 +1,101 @@
+/*
+  神獸卡・正統卡片規格（唯一來源）
+  ============================================================================
+
+  業主定調：「全部的牌要有正統牌組、正統遊戲卡片的概念，不要看起來很籠統、
+  胡亂拼湊，或者是空間概念都跑掉……放進去規格都一致，空間和距離都剛剛好。」
+
+  【比例】
+  實體集換式卡牌的通用規格是 63 × 88 mm（等同撲克牌的 2.5" × 3.5"），
+  比例 0.716。原本這裡寫 4 / 7 ＝ 0.571——那比正統卡片窄了一截，
+  排起來會像細長的貼紙，不像一副牌。現在改成 63 / 88，
+  六十張卡、出戰三席、揭牌儀式、放大預覽全部吃同一個比例。
+
+  【圖窗】
+  原本整張卡 object-fit: contain，圖會在卡裡留白，而且每張留白的位置
+  還不一樣——這就是「空間跑掉」的來源。
+  正統卡片是「框 + 圖窗」：圖填滿圖窗（cover），框的尺寸固定，
+  所以六十張放在一起時每一張的邊界、圓角、內距都對得齊。
+
+  【尺度】
+  卡片內的字級與內距用 cqw（容器寬度百分比），不用固定 px——
+  同一張卡在手牌、在三席、在放大預覽是不同大小，
+  用固定 px 會讓小卡的字爆框、大卡的字縮成一團。
+*/
+
+.card {
+  /* 63 × 88 mm：實體卡牌的通用規格 */
+  aspect-ratio: 63 / 88;
+  border-radius: clamp(6px, 5cqw, 14px);
+  container-type: inline-size;
+  position: relative;
+  overflow: hidden;
+  /* 六十張並排時，每張的外緣要一致——邊框寬度也跟著卡寬走 */
+  box-sizing: border-box;
+}
+
+/*
+  圖窗。填滿、置頂對齊——神獸的頭在圖的上半部，
+  置中會把臉切掉，置頂才看得到是哪一隻。
+*/
+.art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  display: block;
+}
+
+/*
+  放大預覽。這裡是唯一要看清楚整張圖的地方，所以用 contain 不裁切，
+  並補一層深底，讓留白看起來是卡框的一部分，不是破圖。
+*/
+.preview {
+  width: min(100%, 22dvh);
+  margin-inline: auto;
+  border: 1px solid #d4b67688;
+  background: #10121c;
+}
+
+.preview .art,
+.previewArt {
+  object-fit: contain;
+  object-position: center;
+  background: #10121c;
+}
+
+/*
+  卡面上的角標（氣、元素、名字）。
+  位置與大小一律跟著卡寬走，所以在手牌、三席、預覽三種尺寸下
+  看起來是同一張卡的不同大小，而不是三種設計。
+*/
+.corner {
+  position: absolute;
+  top: 3.5cqw;
+  border-radius: 999px;
+  padding: 1cqw 2.5cqw;
+  font-size: clamp(8px, 8cqw, 13px);
+  font-weight: 900;
+  line-height: 1.2;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.cornerStart { left: 3.5cqw; }
+.cornerEnd { right: 3.5cqw; }
+
+/* 名字條。固定高度，六十張並排時底部一定對齊。 */
+.nameBar {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 8cqw 3cqw 3cqw;
+  font-size: clamp(9px, 8.5cqw, 14px);
+  font-weight: 900;
+  line-height: 1.25;
+  text-align: center;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.55) 55%, transparent);
+  /* 名字長短不一，但條的高度要一致——超出就省略，不許把卡撐高 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

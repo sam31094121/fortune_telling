@@ -1,0 +1,34 @@
+.stage { position: fixed; inset: 0; z-index: 1000; overflow-y: auto; display: flex; flex-direction: column; padding: 12px; background: radial-gradient(ellipse at 50% 42%, #242147, #090b18 75%); color: #fff; }
+.table { width: 100%; max-width: 440px; margin: auto; padding: 16px; border: 1px solid #bba16655; border-radius: 24px; background: #080b18d9; box-shadow: 0 0 60px #81704525; }
+.topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.topline h2 { font-size: 17px; color: #ffe4a4; font-family: serif; font-weight: 800; }
+.close { min-height: 44px; padding: 6px 10px; color: #bac1d0; font-size: 12px; }
+.label { display: flex; justify-content: space-between; margin: 6px 0; font-size: 12px; color: #d9cfae; }
+.label small { color: #939eaf; font-size: 11px; }
+.row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.slot { min-width: 0; perspective: 900px; }
+.card { position: relative; width: 100%; transform-style: preserve-3d; transition: transform .72s ease-in-out; }
+/* Clip each face, not the rotating container: hidden overflow flattens 3D. */
+.slot > .card { overflow: visible; }
+.card.revealed { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; overflow: hidden; border-radius: 10px; border: 1px solid #d4b67688; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: #13121d; }
+.face img { width: 100%; height: 100%; object-fit: contain; object-position: center; }
+.front { transform: rotateY(180deg); box-shadow: 0 0 18px #ead19735; }
+.front small { position: absolute; top: 5px; right: 5px; padding: 2px 5px; background: #000c; border-radius: 8px; font-size: 10px; color: #fce9b8; }
+.caption { margin-top: 4px; text-align: center; }
+.caption strong { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; line-height: 16px; color: #e5dfcf; }
+.dealing .card { animation: deal .65s both; }
+.dealing .slot:nth-child(2) .card { animation-delay: .3s; }
+.dealing .slot:nth-child(3) .card { animation-delay: .6s; }
+.center { display: grid; grid-template-rows: 24px minmax(36px, auto); align-items: center; justify-items: center; gap: 4px; padding: 4px 2px; text-align: center; }
+.center strong { font-size: 16px; line-height: 24px; color: #ffdfa4; }
+.center p { max-width: 350px; font-size: 11px; line-height: 18px; color: #b9c5d9; }
+.clash strong { animation: glimmer .8s ease-out; }
+.action { width: 100%; min-height: 48px; margin-top: 12px; border-radius: 14px; background: linear-gradient(100deg, #ffe8a1, #f0b86d); font-size: 15px; font-weight: 900; color: #302113; }
+.action:disabled { background: #ffffff12; color: #a3a6b7; }
+.skip { width: 100%; min-height: 48px; margin-top: 12px; color: #b6bfcc; font-size: 12px; }
+@keyframes deal { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: none; } }
+@keyframes glimmer { from { opacity: .4; transform: scale(.96); } to { opacity: 1; transform: none; } }
+@media (max-height: 700px) { .table { max-width: 320px; padding: 12px; } }
+@media (max-width: 350px) { .caption strong { font-size: 10px; } }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } .dealing .card, .clash strong { animation: none; } }
