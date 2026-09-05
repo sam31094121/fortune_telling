@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
-import MegaInputGuide from '@/components/MegaInputGuide';
 import TarotDeckAdminReview from '@/features/tarot/components/TarotDeckAdminReview';
 import TarotOriginalFortuneTeller from '@/features/tarot/components/TarotOriginalFortuneTeller';
 import { TAROT_CARD_BACK_URL } from '@/features/tarot/constants/cardBack';
@@ -250,24 +249,15 @@ export default function TarotPageClient() {
                   </div>
                 </div>
 
-                <IdentitySplitSelector className="mt-5" />
                 {/* 資料分流說明卡已隱藏（2026-08-11）：內部機制說明，客戶不用看 */}
                 <div className="mt-4 hidden rounded-2xl border border-amber-200/20 bg-amber-300/10 px-4 py-3 text-sm font-black leading-7 text-amber-100">
                   易經卜卦判定：塔羅牌已接入資料分流。選「我自己」會保留給個人成長中心累積；選「親朋好友」只完成本次單次抽牌，不寫入會員成長資料。
                 </div>
 
-                <MegaInputGuide
-                  title="請寫一句你想問的事"
-                  steps={['先選分析對象', '輸入至少 4 個字的問題', '看清楚問題後再開始洗牌']}
-                  example="我現在最需要看清楚的是什麼？"
-                  tone="cyan"
-                  className="mt-4"
-                />
-
                 <form className="tarot-question-entry mt-4" onSubmit={(event) => { event.preventDefault(); void beginShuffle(); }}>
                   <div className="tarot-question-entry__label-row">
                     <label htmlFor="tarot-question-entry">
-                      請專注你現在最想了解的一件事
+                      今天想問什麼？
                     </label>
                     <span>{trimmedQuestionLength}/160</span>
                   </div>
@@ -280,7 +270,7 @@ export default function TarotPageClient() {
                     }}
                     maxLength={160}
                     rows={4}
-                    placeholder="請輸入你想問的一件事，例如：我現在最需要看清楚的是什麼？"
+                    placeholder="說出或寫下你的問題，例如：我今天的任務能完成嗎？"
                     className="tarot-question-entry__textarea"
                   />
                   <p className={`tarot-question-entry__field-hint ${questionReady ? 'tarot-question-entry__field-hint--ready' : ''}`}>
@@ -290,6 +280,7 @@ export default function TarotPageClient() {
                         ? '請輸入至少 4 個字，或直接點選下方範例。'
                         : '請輸入至少 4 個字。'}
                   </p>
+                  <IdentitySplitSelector compact className="mt-3" nextStepLabel="接著開始洗牌" />
                   {/* 範例問題卡片依需求隱藏；SHOW_QUESTION_EXAMPLES 改回 true 即可恢復 */}
                   {SHOW_QUESTION_EXAMPLES && (
                     <div className="tarot-question-entry__examples">
@@ -324,12 +315,6 @@ export default function TarotPageClient() {
                       {error}
                     </p>
                   )}
-                  {/* 友善引導：告訴客戶下一步該做什麼 */}
-                  <p className="mt-5 text-center text-sm font-bold leading-7 text-cyan-100/85 sm:text-left">
-                    {questionReady || dailyRecord
-                      ? '\u2728 \u554f\u984c\u6e96\u5099\u597d\u4e86\uff0c\u9ede\u4e0b\u65b9\u958b\u59cb\u6d17\u724c\u2014\u2014\u724c\u6703\u7b49\u4f60\u9078\u5b83'
-                      : '\ud83d\udc46 \u5148\u5728\u4e0a\u65b9\u5beb\u4e0b\u4f60\u6700\u60f3\u554f\u7684\u4e00\u4ef6\u4e8b\uff0c\u6309\u9215\u5c31\u6703\u4eae\u8d77\u4f86'}
-                  </p>
                   <div className="tarot-question-entry__actions mt-3">
                     <button
                       type="submit"
