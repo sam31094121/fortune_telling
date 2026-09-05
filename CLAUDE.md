@@ -28,6 +28,18 @@
 
 守門：`npm run test:three-in-one`（70 項）、健檢第 21 項。
 
+## 口令：「神獸卡遊戲」
+
+沿用 `lib/beast-game/` 的 BeastCardGameCore，**不得建立第二套遊戲核心**。
+新內容只能補入 Card Registry（`cards/beasts/`）、Skill Registry（`cards/skills/`）、
+Effect Registry、Game Mode——加卡加技能都不必改引擎。
+
+每新增一張卡必須通過 `npm run test:beast-game`（156 項）：
+id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡在預算帶內。
+不合格就進不了正式牌庫（registry 真的會擋下，不是印警告）。
+
+完整制度見 `docs/three-core-cross-validation-skill.md` 〈十、神獸卡遊戲核心〉。
+
 ## 命盤架構鐵律：八字為核心，紫微為第二輪
 
 順序固定：**先算八字命盤 → 再跑紫微斗數**。一切以八字命盤為主。

@@ -148,6 +148,12 @@ const TAIJI_LEVEL01_CHECKS = [
     script: 'test:iching-hour',
   },
   {
+    id: 'BEAST_CARD_GAME_CORE',
+    module: 'beast_card_game_core',
+    title: '神獸卡遊戲核心：抽得到、叫得出、打得動、分得出輸贏',
+    script: 'test:beast-game',
+  },
+  {
     id: 'THREE_IN_ONE_INTEGRATION',
     module: 'three_in_one_integration',
     title: '三合一整合：八字×紫微四柱核對，缺一不成立',

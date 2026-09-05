@@ -60,3 +60,4 @@ t12
 .env*
 .bazi-ziwei-cross-build/
 .three-in-one-build/
+.beast-game-build/

@@ -39,7 +39,8 @@
     "test:three-core": "npm run test:bazi-ziwei-cross",
     "test:taiji-ios": "node tests/taiji-ios-visibility.test.cjs",
     "test:three-in-one": "tsc tests/three-in-one.test.ts lib/bazi/engine.ts lib/ziwei-sanfang-engine.ts lib/shichen-engine.ts lib/iching-engine.ts lib/iching-psychology.ts lib/three-core-engine.ts lib/three-in-one.ts lib/ziwei-star-beast-link.ts lib/five-element-engine.ts --outDir .three-in-one-build --module commonjs --target es2022 --moduleResolution node --esModuleInterop --resolveJsonModule --types node --skipLibCheck && node .three-in-one-build/tests/three-in-one.test.js",
-    "test:iching-hour": "node tests/iching-no-fabricated-hour.test.cjs"
+    "test:iching-hour": "node tests/iching-no-fabricated-hour.test.cjs",
+    "test:beast-game": "tsc -p tsconfig.beast-game.json && node .beast-game-build/tests/beast-game.test.js"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",
