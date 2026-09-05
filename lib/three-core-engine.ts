@@ -44,7 +44,7 @@
  * 守門測試：npm run test:three-core
  */
 
-import { BRANCHES, createBaziCore, type Branch } from './bazi/engine';
+import { BRANCHES, createBaziCore, type BaziProfessionalResult, type Branch } from './bazi/engine';
 import { calculateZiweiSanFang, type ZiweiSanFangAnalysis } from './ziwei-sanfang-engine';
 import { castHexagramCertified, type IChingCastCertificate, type IChingReading } from './iching-engine';
 import { patternNameOf } from './iching-psychology';
@@ -179,12 +179,21 @@ function elementBalanceOf(pillars: string[]): Record<string, number> {
  * 呼叫端拿到的結果若 crossCheck.passed 為 false，代表三層之間不一致，
  * 不得當成正常結果輸出給客戶——那正是先前兩套八字打架卻沒人發現的情境。
  */
-export function computeThreeCore(input: ThreeCoreInput): ThreeCoreResult {
+/**
+ * 第一層：八字命盤。整份系統唯一的四柱來源。
+ *
+ * 抽成獨立函式，是為了讓三合一整合層能照規格順序自己串
+ * （八字 → 紫微 → 四柱核對 → 易經），中途插得進那道核對閘，
+ * 而不必再實作第二套排盤邏輯。內容與抽出前逐字相同。
+ */
+export function runBaziLayer(input: ThreeCoreInput): {
+  core: BaziProfessionalResult;
+  bazi: ThreeCoreBaziLayer;
+} {
   const hourIndex = isKnownHour(input.hourBranchIndex) ? input.hourBranchIndex : null;
   const hourKnown = hourIndex !== null;
   const hourBranch = hourKnown ? (BRANCHES[hourIndex] as Branch) : null;
 
-  // ── 第一層：八字命盤（唯一四柱來源）────────────────────────────────
   const core = createBaziCore({
     gender: input.gender,
     birthDate: input.birthDate,
@@ -214,32 +223,67 @@ export function computeThreeCore(input: ThreeCoreInput): ThreeCoreResult {
     lunarDate: core.calendar.lunarDate,
   };
 
-  // ── 第二層：紫微斗數（消費第一層；時辰未知時不硬排）──────────────
-  const ziwei: ThreeCoreZiweiLayer = hourKnown
-    ? {
-      status: 'READY',
-      analysis: calculateZiweiSanFang({
-        birthDate: input.birthDate,
-        birthTime: `${String(hourIndex === 0 ? 0 : hourIndex * 2 - 1).padStart(2, '0')}:30`,
-        gender: input.gender,
-        shichen: hourIndex,
-        isTimeConfirmed: true,
-        longitude: input.longitude ?? null,
-      }),
-    }
-    : {
+  return { core, bazi };
+}
+
+/** 第二層：紫微斗數。消費第一層；時辰未知時不硬排命宮。 */
+export function runZiweiLayer(input: ThreeCoreInput): ThreeCoreZiweiLayer {
+  const hourIndex = isKnownHour(input.hourBranchIndex) ? input.hourBranchIndex : null;
+  if (hourIndex === null) {
+    return {
       status: 'UNAVAILABLE_BIRTH_TIME_REQUIRED',
       reason: '命宮、三方四正與主星位置都依賴出生時辰。時辰未確認前不硬排命宮，也不以預設時辰代替。',
     };
+  }
+  return {
+    status: 'READY',
+    analysis: calculateZiweiSanFang({
+      birthDate: input.birthDate,
+      birthTime: `${String(hourIndex === 0 ? 0 : hourIndex * 2 - 1).padStart(2, '0')}:30`,
+      gender: input.gender,
+      shichen: hourIndex,
+      isTimeConfirmed: true,
+      longitude: input.longitude ?? null,
+    }),
+  };
+}
 
-  /*
-    ── 第三層：易經卜卦 ──────────────────────────────────────────
-    八字命盤鎖定之後不能直接變成易經，中間必須過正統儀式。
+/**
+ * 紫微是否已正統定盤。
+ *
+ * 用紫微引擎自己的成盤條件：十二宮齊備、時辰確認。
+ * 儀式是「八字＋紫微」兩層一起鎖，不是只鎖八字。
+ */
+export function isZiweiCertified(ziwei: ThreeCoreZiweiLayer): boolean {
+  return ziwei.status === 'READY'
+    && Array.isArray(ziwei.analysis.allPalaces) && ziwei.analysis.allPalaces.length === 12
+    && ziwei.analysis.timeConfidence === 'exact';
+}
 
-    儀式的前提是「命盤已經定住」——四柱齊備、時辰確認。
-    命盤還沒鎖，儀式就不成立；儀式沒走完，卦不得輸出。
-    這是把已凍結的命盤證據交給表達層的正式交接點，不是裝飾動畫。
-  */
+/** 四柱格式是否成立（兩字、天干地支都認得）。 */
+export function pillarsWellFormedOf(bazi: ThreeCoreBaziLayer): boolean {
+  return [bazi.year, bazi.month, bazi.day]
+    .every((pillar) => typeof pillar === 'string' && pillar.length === 2
+      && STEM_ELEMENT[pillar[0]] !== undefined && BRANCH_ELEMENT[pillar[1]] !== undefined);
+}
+
+/*
+  ── 第三層：易經卜卦 ──────────────────────────────────────────
+  八字命盤鎖定之後不能直接變成易經，中間必須過正統儀式。
+
+  儀式的前提是「命盤已經定住」——四柱齊備、時辰確認、兩層都驗過。
+  命盤還沒鎖，儀式就不成立；儀式沒走完，卦不得輸出。
+  這是把已凍結的命盤證據交給表達層的正式交接點，不是裝飾動畫。
+*/
+export function runIChingLayer(params: {
+  input: ThreeCoreInput;
+  core: BaziProfessionalResult;
+  bazi: ThreeCoreBaziLayer;
+  ziwei: ThreeCoreZiweiLayer;
+}): ThreeCoreIChingLayer {
+  const { input, core, bazi, ziwei } = params;
+  const hourIndex = isKnownHour(input.hourBranchIndex) ? input.hourBranchIndex : null;
+
   const chartFingerprint = [bazi.year, bazi.month, bazi.day, bazi.hour ?? 'UNKNOWN'].join('|');
   /*
     儀式的前提不是「時辰有值」，而是「這張命盤已經通過正統驗證」。
@@ -252,21 +296,8 @@ export function computeThreeCore(input: ThreeCoreInput): ThreeCoreResult {
       關卡永遠不會獨立失敗，等於擺設。這裡改成綁真正的驗證閘。）
   */
   const gate = core.verification;
-  const pillarsWellFormed = [bazi.year, bazi.month, bazi.day]
-    .every((pillar) => typeof pillar === 'string' && pillar.length === 2
-      && STEM_ELEMENT[pillar[0]] !== undefined && BRANCH_ELEMENT[pillar[1]] !== undefined);
-
-  /*
-    紫微那一層也必須鎖死。
-
-    儀式是「八字＋紫微」兩層一起鎖，不是只鎖八字。
-    紫微引擎自己的 validation.passed 要求十二宮齊備、十四主星齊備；
-    兩層都通過，這張命盤才算正統定盤，才准交給易經起卦。
-  */
-  const ziweiCertified = ziwei.status === 'READY'
-    && Array.isArray(ziwei.analysis.allPalaces) && ziwei.analysis.allPalaces.length === 12
-    && ziwei.analysis.timeConfidence === 'exact';
-
+  const pillarsWellFormed = pillarsWellFormedOf(bazi);
+  const ziweiCertified = isZiweiCertified(ziwei);
   const chartLocked = gate.readyForInterpretation && pillarsWellFormed && ziweiCertified;
 
   const ritualStepPassed: Record<IChingRitualStepId, boolean> = {
@@ -293,32 +324,43 @@ export function computeThreeCore(input: ThreeCoreInput): ThreeCoreResult {
     completed: chartLocked && ritualSteps.every((step) => step.passed),
   };
 
-  const iching: ThreeCoreIChingLayer = !hourKnown
-    ? {
+  if (hourIndex === null) {
+    return {
       status: 'UNAVAILABLE_BIRTH_TIME_REQUIRED',
       reason: '梅花易數以生辰起卦，時辰是其中一項輸入。時辰未確認前不起卦，避免給出無法回查的卦象。',
-    }
-    : !ritual.completed
-      ? {
-        status: 'BLOCKED_RITUAL_INCOMPLETE',
-        reason: '八字命盤尚未鎖定，正統卜卦儀式不成立。命盤未定不得起卦。',
-        ritual,
-      }
-      : (() => {
-        /*
-          禁止造假：不直接呼叫 castHexagramFromBirth，而是帶憑證走正統入口。
-          憑證三項（八字驗證閘、紫微定盤、儀式走完）缺一，castHexagramCertified
-          會直接丟例外——寧可不出卦，不出假卦。
-        */
-        const certificate: IChingCastCertificate = {
-          baziVerified: gate.readyForInterpretation && pillarsWellFormed,
-          ziweiCertified,
-          ritualCompleted: ritual.completed,
-          chartFingerprint,
-        };
-        const reading = castHexagramCertified(certificate, input.birthDate, hourIndex);
-        return { status: 'READY' as const, reading, patternName: patternNameOf(reading), ritual, certificate };
-      })();
+    };
+  }
+
+  if (!ritual.completed) {
+    return {
+      status: 'BLOCKED_RITUAL_INCOMPLETE',
+      reason: '八字命盤尚未鎖定，正統卜卦儀式不成立。命盤未定不得起卦。',
+      ritual,
+    };
+  }
+
+  /*
+    禁止造假：不直接呼叫 castHexagramFromBirth，而是帶憑證走正統入口。
+    憑證三項（八字驗證閘、紫微定盤、儀式走完）缺一，castHexagramCertified
+    會直接丟例外——寧可不出卦，不出假卦。
+  */
+  const certificate: IChingCastCertificate = {
+    baziVerified: gate.readyForInterpretation && pillarsWellFormed,
+    ziweiCertified,
+    ritualCompleted: ritual.completed,
+    chartFingerprint,
+  };
+  const reading = castHexagramCertified(certificate, input.birthDate, hourIndex);
+  return { status: 'READY', reading, patternName: patternNameOf(reading), ritual, certificate };
+}
+
+export function computeThreeCore(input: ThreeCoreInput): ThreeCoreResult {
+  const hourIndex = isKnownHour(input.hourBranchIndex) ? input.hourBranchIndex : null;
+  const hourKnown = hourIndex !== null;
+
+  const { core, bazi } = runBaziLayer(input);
+  const ziwei = runZiweiLayer(input);
+  const iching = runIChingLayer({ input, core, bazi, ziwei });
 
   // ── 引擎自己驗自己 ──────────────────────────────────────────────
   const checks: ThreeCoreCrossCheckItem[] = [];

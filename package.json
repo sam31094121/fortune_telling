@@ -37,7 +37,8 @@
     "test:ziwei-unknown-time": "node tests/ziwei-unknown-time.test.cjs",
     "test:bazi-ziwei-cross": "tsc tests/bazi-ziwei-cross.test.ts lib/bazi/engine.ts lib/ziwei-sanfang-engine.ts lib/shichen-engine.ts lib/iching-engine.ts lib/iching-psychology.ts lib/three-core-engine.ts --outDir .bazi-ziwei-cross-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --resolveJsonModule --types node --skipLibCheck --resolveJsonModule && node .bazi-ziwei-cross-build/tests/bazi-ziwei-cross.test.js",
     "test:three-core": "npm run test:bazi-ziwei-cross",
-    "test:taiji-ios": "node tests/taiji-ios-visibility.test.cjs"
+    "test:taiji-ios": "node tests/taiji-ios-visibility.test.cjs",
+    "test:three-in-one": "tsc tests/three-in-one.test.ts lib/bazi/engine.ts lib/ziwei-sanfang-engine.ts lib/shichen-engine.ts lib/iching-engine.ts lib/iching-psychology.ts lib/three-core-engine.ts lib/three-in-one.ts --outDir .three-in-one-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --resolveJsonModule --types node --skipLibCheck && node .three-in-one-build/tests/three-in-one.test.js"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",
