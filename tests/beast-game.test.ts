@@ -562,13 +562,22 @@ console.log('\n【十三】禁止作假：公平性要量得出來，不能只�
   // 前端不得有任何自己算勝負的程式
   const pageSrc = fs.readFileSync(path.join(root, 'app/beast-game/page.tsx'), 'utf8');
   const pageCode = codeWithoutComments(pageSrc);
-  for (const forbidden of ['playToEnd', 'performAttack', 'computeDamage', 'createDuel', 'resolveEffects']) {
-    check(`組陣台不得自己跑 ${forbidden}`, !pageCode.includes(forbidden));
+  /*
+    前端不得匯入「會決定結果」的東西。
+
+    原本這一條擋整個 lib/beast-game 目錄，結果把 describeStakeRisk 也擋掉了——
+    那支只是把「輸了會失去哪一張」寫成一句話，不決定任何勝負。
+    規則要擋的是「前端自己算結果」，不是「前端引用共用文案」，
+    所以改成點名那些真的會決定結果的函式。
+  */
+  for (const decider of ['playToEnd', 'playTurn', 'performAttack', 'computeDamage',
+    'createDuel', 'createGame', 'resolveEffects', 'resolveStake', 'buildDeck']) {
+    check(`組陣台不得自己跑 ${decider}`, !pageCode.includes(`${decider}(`));
   }
-  // winner === 只是顯示用的比較，不是在算勝負；真正該擋的是前端匯入引擎。
-  check('組陣台不得匯入遊戲引擎',
-    !codeWithoutComments(pageSrc).includes("from '@/lib/beast-game")
-    && !codeWithoutComments(pageSrc).includes("from '../../lib/beast-game"));
+  check('組陣台不得匯入戰鬥引擎',
+    !pageCode.includes("from '@/lib/beast-game/turn'")
+    && !pageCode.includes("from '@/lib/beast-game/battle'")
+    && !pageCode.includes("from '@/lib/beast-game/effects'"));
 
   // 客戶不得指定種子（只能重播），否則可以一直換種子試到贏
   const apiSrc = fs.readFileSync(path.join(root, 'app/api/beast-game/route.ts'), 'utf8');

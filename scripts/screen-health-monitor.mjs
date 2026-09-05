@@ -151,6 +151,12 @@ const BEHAVIOR_CHECKS = [
     script: 'test:iching-hour',
   },
   {
+    id: 'BEAST_STAKE_REWARD',
+    module: 'beast_stake_reward',
+    title: '押注獎勵：後端結算、沒收明確告知、重播不重複發獎',
+    script: 'test:beast-stake',
+  },
+  {
     id: 'BEAST_CARD_SPEC',
     module: 'beast_card_spec',
     title: '神獸卡正統規格：63×88、四處共用、放牌不跳版',

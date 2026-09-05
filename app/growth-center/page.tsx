@@ -13,6 +13,7 @@ import { GROWTH_MODULES } from '@/lib/growth-center-engine';
 import type { GrowthCenterResult, GrowthElement, GrowthModuleId, GrowthPreferenceId } from '@/lib/growth-center-engine';
 import { WaterTreasureOrb, type ProductElement } from '@/components/bazi/customer/WaterTreasureOrb';
 import starBeastsData from '@/data/star-beasts.json';
+import DuelCollectionShelf from '@/components/DuelCollectionShelf';
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 import { trackEvent } from '@/lib/analytics';
 
@@ -572,6 +573,9 @@ export default function GrowthCenterPage() {
               </div>}
               <Link href="/star-beasts" className="mt-4 inline-flex rounded-full border border-amber-200/35 px-4 py-2 text-xs font-black text-amber-100 transition hover:bg-amber-300/10">查看完整神獸圖鑑</Link>
             </section>
+
+            {/* 決鬥贏來的卡放這裡。與上面的羈絆收藏分開——來源不同，不能混在一起講。 */}
+            <DuelCollectionShelf />
 
             <section className="growth-preference-panel rounded-2xl border border-fuchsia-300/25 bg-fuchsia-300/8 p-5">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-fuchsia-200">我喜歡怎麼被陪伴</p>

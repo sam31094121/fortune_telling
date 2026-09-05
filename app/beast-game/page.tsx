@@ -24,6 +24,8 @@ import Link from 'next/link';
 import BeastDuelRitual from '@/components/BeastDuelRitual';
 import { selectRitualHighlights } from '@/lib/beast-ritual';
 import frameStyles from '@/components/BeastCardFrame.module.css';
+import { describeStakeRisk } from '@/lib/beast-game/stake';
+import { applyStakeOutcome, COLLECTION_STORAGE_NOTICE } from '@/lib/beast-collection';
 
 type Skill = { id: string; name: string; trigger: string; description: string };
 type Card = {
@@ -50,6 +52,17 @@ type DuelResult = {
   opponentLineup?: string[];
   opponentLineupIds?: string[];
   fairness?: { seedSource: string; firstPlayer: string; sameRules: string[]; replayable: string };
+  stake?: {
+    verdict: 'WON' | 'LOST' | 'RETURNED';
+    gainedCardId: string | null;
+    forfeitedCardId: string | null;
+    netChange: number;
+    message: string;
+    playerStakeName: string;
+    opponentStakeName: string;
+    gainedCardName: string | null;
+    forfeitedCardName: string | null;
+  };
   winner?: string;
   turns?: number;
   life?: { player: number; opponent: number };
@@ -74,6 +87,11 @@ const FORM_LABEL: Record<Card['form'], string> = {
 };
 
 /** 三席的名稱與作用。站位有意義，所以要寫出來給客戶看。 */
+/** 目前這一格叫什麼。3 是賭注格，不在 SLOT_META 裡，直接索引會炸。 */
+function slotLabel(index: number): string {
+  return SLOT_META[index]?.name ?? '賭注';
+}
+
 const SLOT_META = [
   { name: '前鋒', hint: '承受攻擊' },
   { name: '中軍', hint: '接替前鋒' },
@@ -177,9 +195,11 @@ export default function BeastGamePage() {
    * 三個格子與目前選中的格子放在同一個 state。
    * 分開放會讓 place() 讀到上一輪的 lineup（見下面 place 的說明）。
    */
-  const [board, setBoard] = useState<{ lineup: Array<string | null>; activeSlot: number }>({
+  const [board, setBoard] = useState<{ lineup: Array<string | null>; activeSlot: number; stake: string | null }>({
     lineup: [null, null, null],
     activeSlot: 0,
+    // 賭注卡。activeSlot === 3 代表現在要放的是賭注，不是出戰三席。
+    stake: null,
   });
   const { lineup, activeSlot } = board;
 
@@ -196,6 +216,9 @@ export default function BeastGamePage() {
   const [lineupBudget, setLineupBudget] = useState<number | null>(null);
   const [showGuide, setShowGuide] = useState(false);
   const [recommendNote, setRecommendNote] = useState<string | null>(null);
+  /** 押注結果有沒有真的存進這台裝置。null＝這次不涉及發獎（例如重播）。 */
+  const [stakeSaved, setStakeSaved] = useState<boolean | null>(null);
+  const [collectionCount, setCollectionCount] = useState(0);
   const dialogRef = useRef<HTMLDivElement>(null);
   const duelInFlight = useRef(false);
   const duelRequest = useRef(0);
@@ -257,7 +280,7 @@ export default function BeastGamePage() {
                 return id;
               });
               const firstEmpty = restored.findIndex((id) => !id);
-              setBoard({ lineup: restored, activeSlot: firstEmpty === -1 ? 0 : firstEmpty });
+              setBoard((prev) => ({ ...prev, lineup: restored, activeSlot: firstEmpty === -1 ? 0 : firstEmpty }));
             }
           } catch {
             /* 存壞了就當作沒存過，不要讓舊資料把整頁弄爛。 */
@@ -293,6 +316,9 @@ export default function BeastGamePage() {
   }
 
   const byId = useMemo(() => new Map(cards.map((card) => [card.id, card])), [cards]);
+  const stakeCard = board.stake ? byId.get(board.stake) ?? null : null;
+  // 風險說明要在按下開始之前就看得到，不是結算之後才補一句。
+  const stakeRisk = describeStakeRisk(stakeCard?.name ?? null);
 
   const filtered = useMemo(() => cards.filter((card) =>
     (elementFilter === 'ALL' || card.element === elementFilter)
@@ -302,7 +328,7 @@ export default function BeastGamePage() {
   const filledCount = lineup.filter(Boolean).length;
   const lineupCost = lineup.reduce((sum, id) => sum + (id ? byId.get(id)?.cost ?? 0 : 0), 0);
   const overBudget = lineupBudget !== null && lineupCost > lineupBudget;
-  const ready = filledCount === 3 && lineupBudget !== null && !overBudget;
+  const ready = filledCount === 3 && lineupBudget !== null && !overBudget && Boolean(board.stake);
 
   /**
    * 把一張卡放進目前選中的格子。
@@ -316,20 +342,29 @@ export default function BeastGamePage() {
   function place(card: Card) {
     if (duelInFlight.current) return;
     setBoard((prev) => {
+      // activeSlot 為 3 代表現在放的是賭注卡，不是出戰三席。
+      if (prev.activeSlot === 3) {
+        return { ...prev, stake: card.id };
+      }
       // 同一張已經在別格就先拿掉，避免一張卡站兩個位置。
       const next = prev.lineup.map((id) => (id === card.id ? null : id));
       next[prev.activeSlot] = card.id;
       const nextEmpty = next.findIndex((id) => !id);
-      return { lineup: next, activeSlot: nextEmpty === -1 ? prev.activeSlot : nextEmpty };
+      // 三席放滿之後自動跳到賭注格——客戶不用自己找下一步在哪。
+      const nextSlot = nextEmpty === -1 ? (prev.stake ? prev.activeSlot : 3) : nextEmpty;
+      return { ...prev, lineup: next, activeSlot: nextSlot };
     });
     setCandidate(null);
     setDuel(null);
-    setPlacementNote(`${card.name}已放入${SLOT_META[activeSlot].name}`);
+    setPlacementNote(activeSlot === 3
+      ? `${card.name}已押上賭注`
+      : `${card.name}已放入${slotLabel(activeSlot)}`);
   }
 
   function clearSlot(index: number) {
     if (duelInFlight.current) return;
     setBoard((prev) => ({
+      ...prev,
       lineup: prev.lineup.map((id, i) => (i === index ? null : id)),
       activeSlot: index,
     }));
@@ -350,7 +385,9 @@ export default function BeastGamePage() {
       const data = await fetchJson<DuelResult>('/api/beast-game', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(replaySeed === undefined ? { lineup } : { lineup, replaySeed }),
+        body: JSON.stringify(replaySeed === undefined
+          ? { lineup, stake: board.stake }
+          : { lineup, stake: board.stake, replaySeed }),
       }, 20000, 1);
       if (request !== duelRequest.current) return;
       if (!data.ok) throw new Error(data.error ?? '對手尚未準備好，請重新啟陣。');
@@ -383,6 +420,27 @@ export default function BeastGamePage() {
     const result = ritual.result;
     cancelRitual();
     setDuel(result);
+
+    /*
+      押注結算落地。
+
+      「贏要有獎勵，獎勵要很清楚地告知。會分配在哪裡？」——
+      贏來的卡寫進收藏，輸掉的從收藏移除，兩者都留紀錄，
+      客戶隨時查得到自己什麼時候得到、什麼時候失去了哪一張。
+
+      重播不重複發獎：同一場重播十次不會變成十張卡，
+      否則客戶只要一直按重播就能刷卡，那等於獎勵是假的。
+
+      saved 為 false 代表這台裝置存不進去（無痕視窗、封鎖 storage、配額滿）。
+      這時一定要照實說沒存到——不能顯示「已放進收藏」然後其實沒有。
+    */
+    if (result.ok && result.stake && !result.isReplay) {
+      const applied = applyStakeOutcome(result.stake);
+      setStakeSaved(applied.saved);
+      setCollectionCount(applied.collection.cards.length);
+    } else {
+      setStakeSaved(null);
+    }
   }
 
   return (
@@ -532,7 +590,7 @@ export default function BeastGamePage() {
             <button
               type="button"
               disabled={dueling}
-              onClick={() => { if (duelInFlight.current) return; setBoard({ lineup: [null, null, null], activeSlot: 0 }); setRecommendNote(null); setPlacementNote(''); setDuel(null); }}
+              onClick={() => { if (duelInFlight.current) return; setBoard({ lineup: [null, null, null], activeSlot: 0, stake: null }); setRecommendNote(null); setPlacementNote(''); setDuel(null); }}
               className="min-h-[40px] rounded-xl border border-white/15 px-4 text-xs font-bold text-white/55"
             >
               全部清空
@@ -544,6 +602,54 @@ export default function BeastGamePage() {
             {recommendNote}
           </p>
         )}
+        {/*
+          賭注格。
+
+          業主定調：「輸贏雙方各放一張卡片進去，贏的人可以獲得一張卡片，
+          輸的人那張卡片則會被沒收。」
+
+          這是整套遊戲唯一會拿走客戶東西的地方，所以：
+            · 風險寫在按下開始之前，不是結算之後
+            · 明寫「輸了這張會被沒收」，不用「本次未獲得獎勵」這種軟話
+            · 沒放賭注卡就不能開戰（後端也擋一次）
+        */}
+        <div className="mt-3 rounded-2xl border border-amber-300/25 bg-amber-300/[0.05] p-3" data-stake-slot>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setBoard((prev) => ({ ...prev, activeSlot: 3 }))}
+              data-stake-target
+              data-stake-filled={stakeCard ? 'yes' : 'no'}
+              className={`${frameStyles.card} w-16 shrink-0 overflow-hidden border-2 ${
+                stakeCard ? 'border-solid border-amber-300/60' : 'border-dashed border-amber-200/40'
+              } ${activeSlot === 3 ? 'ring-2 ring-amber-300/70' : ''}`}
+            >
+              {stakeCard ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={stakeCard.thumbnail} alt="" aria-hidden="true" className={frameStyles.art} />
+              ) : (
+                <span className="grid h-full w-full place-items-center text-[10px] font-bold text-amber-100/70">
+                  放賭注
+                </span>
+              )}
+            </button>
+
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-black text-amber-100">{stakeRisk.headline}</p>
+              <p className="mt-1 text-[11px] leading-5 text-white/60">{stakeRisk.detail}</p>
+              {stakeCard && (
+                <button
+                  type="button"
+                  onClick={() => setBoard((prev) => ({ ...prev, stake: null }))}
+                  className="mt-1.5 text-[11px] font-bold text-white/45 underline"
+                >
+                  換一張
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
         <button
           type="button"
           disabled={!ready || dueling}
@@ -586,6 +692,76 @@ export default function BeastGamePage() {
                 所以把雙方同規則的每一條、先後手怎麼決定、種子哪裡來的，
                 全部列出來給客戶看，而且可以用同一顆種子重播驗證。
               */}
+              {/*
+                獎勵告知。
+
+                業主定調：「贏要有獎勵，獎勵要很清楚地告知。會分配在哪裡？
+                遊戲的定義就是會獲得獎勵，再指引到我的成長。」
+
+                所以這一段有三件事一定要講：
+                  得到／失去了哪一張（用卡名，不用「本次未獲得獎勵」這種軟話）
+                  它被放到哪裡（成長中心的決鬥收藏）
+                  以及——如果沒存成功，要照實說沒存到
+              */}
+              {duel.stake && (
+                <div
+                  data-stake-result
+                  data-stake-verdict={duel.stake.verdict}
+                  className={`mt-3 rounded-xl border p-3 ${
+                    duel.stake.verdict === 'WON'
+                      ? 'border-amber-300/40 bg-amber-300/[0.08]'
+                      : duel.stake.verdict === 'LOST'
+                        ? 'border-rose-400/35 bg-rose-400/[0.07]'
+                        : 'border-white/15 bg-white/[0.04]'
+                  }`}
+                >
+                  <p className="text-xs font-black">
+                    {duel.stake.verdict === 'WON' ? '獎勵：你多了一張神獸卡'
+                      : duel.stake.verdict === 'LOST' ? '沒收：你少了一張神獸卡'
+                        : '押注退回'}
+                  </p>
+                  <p className="mt-1 text-[11px] leading-5 text-white/65">{duel.stake.message}</p>
+
+                  <dl className="mt-2 grid grid-cols-2 gap-2 text-[11px]">
+                    <div className="rounded-lg bg-black/25 px-2 py-1.5">
+                      <dt className="text-white/40">你押上的</dt>
+                      <dd className="font-bold">{duel.stake.playerStakeName}</dd>
+                    </div>
+                    <div className="rounded-lg bg-black/25 px-2 py-1.5">
+                      <dt className="text-white/40">對手押上的</dt>
+                      <dd className="font-bold">{duel.stake.opponentStakeName}</dd>
+                    </div>
+                  </dl>
+
+                  {duel.stake.verdict === 'WON' && (
+                    <p className="mt-2 text-[11px] font-bold leading-5 text-amber-100">
+                      「{duel.stake.gainedCardName}」已放進
+                      <Link href="/growth-center" className="mx-1 underline">成長中心・決鬥收藏</Link>
+                      {collectionCount > 0 && `（目前 ${collectionCount} 張）`}
+                    </p>
+                  )}
+                  {duel.stake.verdict === 'LOST' && (
+                    <p className="mt-2 text-[11px] font-bold leading-5 text-rose-100">
+                      「{duel.stake.forfeitedCardName}」已從
+                      <Link href="/growth-center" className="mx-1 underline">成長中心・決鬥收藏</Link>
+                      移除。
+                    </p>
+                  )}
+
+                  {stakeSaved === false && (
+                    <p className="mt-2 rounded-lg bg-black/35 px-2 py-1.5 text-[11px] leading-5 text-amber-200">
+                      這台裝置存不進收藏（可能是無痕視窗或瀏覽器封鎖了網站資料），
+                      所以這次的結果沒有被記錄下來。
+                    </p>
+                  )}
+                  {duel.isReplay && (
+                    <p className="mt-2 text-[11px] leading-5 text-white/45">
+                      這是重播，不會重複發獎，也不會重複沒收。
+                    </p>
+                  )}
+                  <p className="mt-2 text-[10px] leading-4 text-white/35">{COLLECTION_STORAGE_NOTICE}</p>
+                </div>
+              )}
               {duel.fairness && (
                 <details data-fairness className="mt-3 rounded-xl border border-emerald-300/20 bg-emerald-300/[0.05] p-3">
                   <summary className="min-h-11 cursor-pointer text-sm font-bold text-emerald-100">查看本場規則</summary>
@@ -646,7 +822,7 @@ export default function BeastGamePage() {
       {/* ── 卡池 ──────────────────────────────────────────────────── */}
       <section aria-label="神獸卡池" data-card-pool>
         <p className="mb-2 text-xs text-white/50">
-          {loading ? '卡池載入中…' : `${filtered.length} / ${cards.length} 張・點卡片放進「${SLOT_META[activeSlot].name}」`}
+          {loading ? '卡池載入中…' : `${filtered.length} / ${cards.length} 張・點卡片放進「${slotLabel(activeSlot)}」`}
         </p>
         {loadError && <p className="rounded-xl border border-rose-400/30 p-3 text-sm text-rose-200">{loadError}</p>}
 
@@ -706,13 +882,13 @@ export default function BeastGamePage() {
       {candidate && (
         <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="確認放入神獸" className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/85 px-5 py-4">
           <div className="max-h-[90dvh] w-full max-w-sm overflow-y-auto rounded-3xl border border-amber-200/40 bg-slate-950 p-5 text-center shadow-2xl">
-            <p className="mb-3 text-sm font-bold text-amber-100">{candidate.name}・{SLOT_META[activeSlot].name}</p>
+            <p className="mb-3 text-sm font-bold text-amber-100">{candidate.name}・{slotLabel(activeSlot)}</p>
             <div className={`${frameStyles.card} ${frameStyles.preview}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={candidate.front} alt={candidate.name} className={frameStyles.art} />
             </div>
             <button type="button" disabled={dueling} onClick={() => place(candidate)} className="mt-5 min-h-12 w-full rounded-2xl bg-gradient-to-r from-amber-200 to-amber-400 px-4 text-sm font-black text-slate-950">
-              放入{SLOT_META[activeSlot].name}
+              放入{slotLabel(activeSlot)}
             </button>
             <button type="button" onClick={() => setCandidate(null)} className="mt-2 min-h-11 w-full text-sm text-white/70">再選一張</button>
           </div>

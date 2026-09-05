@@ -1,6 +1,7 @@
 import { randomInt } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { playableCards } from '@/lib/beast-game/registry';
+import { resolveStake, validateStake } from '@/lib/beast-game/stake';
 import { evaluateBalance } from '@/lib/beast-game/balance';
 import { getSkill } from '@/cards/skills';
 import { GAME_CORE_VERSION } from '@/lib/beast-game/schema';
@@ -56,7 +57,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  let body: { lineup?: Array<string | null>; replaySeed?: number };
+  let body: { lineup?: Array<string | null>; replaySeed?: number; stake?: string };
   try {
     body = await request.json();
   } catch {
@@ -74,6 +75,20 @@ export async function POST(request: Request) {
   if (!verdict.ready) {
     // 三席沒放滿就不開戰，而且要講得出理由——不是把按鈕變灰就算了。
     return NextResponse.json({ ok: false, error: verdict.reason }, { status: 400 });
+  }
+
+  /*
+    賭注卡。
+
+    這是整套遊戲唯一會拿走客戶東西的機制，所以在這裡就要擋：
+    沒放賭注卡不准開戰。押注前必須知道自己押了什麼，
+    不能打完才發現有押注這回事。
+  */
+  const stakeCardId = typeof body.stake === 'string' ? body.stake : null;
+  const knownIds = new Set(playableCards().map((card) => card.id));
+  const stakeCheck = validateStake(stakeCardId, (id) => knownIds.has(id));
+  if (!stakeCheck.ready) {
+    return NextResponse.json({ ok: false, error: stakeCheck.reason }, { status: 400 });
   }
 
   /*
@@ -106,8 +121,32 @@ export async function POST(request: Request) {
     seed,
   }));
 
+  /*
+    對手也押一張，同樣從卡池抽、同樣用這一場的種子——
+    「雙方各放一張」不是說說而已，對手押的是哪一張會一起回傳。
+  */
+  const opponentStakeId = ids[Math.floor(rng() * ids.length)];
+  const stakeOutcome = resolveStake({
+    playerStake: stakeCardId as string,
+    opponentStake: opponentStakeId,
+    winner: state.winner,
+  });
+  const nameOf = (id: string) => playableCards().find((c) => c.id === id)?.name ?? id;
+
   return NextResponse.json({
     ok: true,
+    /*
+      押注結算。由伺服器算，前端不得自己判斷誰拿走誰的卡。
+      gained／forfeited 一律帶名字，客戶看到的是「你失去了尾火虎」，
+      不是「本次未獲得獎勵」這種把沒收藏起來的說法。
+    */
+    stake: {
+      ...stakeOutcome,
+      playerStakeName: nameOf(stakeOutcome.stakes.player),
+      opponentStakeName: nameOf(stakeOutcome.stakes.opponent),
+      gainedCardName: stakeOutcome.gainedCardId ? nameOf(stakeOutcome.gainedCardId) : null,
+      forfeitedCardName: stakeOutcome.forfeitedCardId ? nameOf(stakeOutcome.forfeitedCardId) : null,
+    },
     seed,
     isReplay,
     firstPlayer: state.firstPlayer,

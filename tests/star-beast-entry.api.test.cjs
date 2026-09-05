@@ -32,18 +32,20 @@ async function post(path, input) {
   for (const bad of [null, { lineup: ids }, { lineup: [ids[0], ids[0], ids[1]] }, { lineup: pool.cards.filter(card => card.form === 'GUARDIAN').slice(0, 3).map(card => card.id) }]) {
     assert.equal((await post('/api/beast-game', bad)).status, 400);
   }
+  // 賭注是規則的一部分：沒放賭注卡不得開戰。
+  assert.equal((await post('/api/beast-game', { lineup: ids.slice(0, 3) })).status, 400, 'no stake must be rejected');
   for (const replaySeed of [0, 1, 42, 89, 101, 102, 200, 999, 1729, 65536]) {
-    const match = await post('/api/beast-game', { lineup: ids.slice(0, 3), replaySeed });
+    const match = await post('/api/beast-game', { lineup: ids.slice(0, 3), stake: ids[3] ?? ids[0], replaySeed });
     assert.equal(match.status, 200, `legal opponent for replay ${replaySeed}`);
     assert.equal(new Set(match.body.opponentLineupIds).size, 3);
     assert(match.body.opponentLineupIds.reduce((sum, id) => sum + pool.cards.find(c => c.id === id).cost, 0) <= 12);
-    const replay = await post('/api/beast-game', { lineup: ids.slice(0, 3), replaySeed });
+    const replay = await post('/api/beast-game', { lineup: ids.slice(0, 3), stake: ids[3] ?? ids[0], replaySeed });
     assert.deepEqual(replay.body.life, match.body.life);
     assert.deepEqual(replay.body.timeline, match.body.timeline);
   }
   for (const replaySeed of [-1, 3.5, 2 ** 31, '42']) {
-    assert.equal((await post('/api/beast-game', { lineup: ids.slice(0, 3), replaySeed })).status, 400);
+    assert.equal((await post('/api/beast-game', { lineup: ids.slice(0, 3), stake: ids[3] ?? ids[0], replaySeed })).status, 400);
   }
-  assert.equal((await post('/api/beast-game', { lineup: ids.slice(0, 3) })).status, 200);
+  assert.equal((await post('/api/beast-game', { lineup: ids.slice(0, 3), stake: ids[3] ?? ids[0] })).status, 200);
   console.log('PASS: guardian input, unknown-hour integrity, deterministic mapping and duel API limits');
 })().catch(error => { console.error(error); process.exitCode = 1; });
