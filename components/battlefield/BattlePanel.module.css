@@ -271,3 +271,41 @@
   .critical .life,
   .struck { animation: none; }
 }
+
+/* ── 武器條 ───────────────────────────────────────────────────────
+   業主：「戰鬥卡片要帶有科技功能的武器的概念……暴風型的。」
+   放在血條下面一行：客戶先看血、再看這一擊是什麼武器打出去的。
+   刻意做得窄——武器是資訊，不是主角，主角是那兩隻神獸。 */
+.weapon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-left: 2px solid currentColor;
+  border-radius: 0 8px 8px 0;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.weaponName {
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.weaponClass {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: currentColor;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.weaponClass span { color: #0b1220; }
+
+.weaponPart {
+  margin-left: auto;
+  opacity: 0.7;
+  font-weight: 700;
+}

@@ -257,7 +257,7 @@ export const REVEAL_INTERVAL_MS = 620;
  * 存在 public/beast-game/spirit/NN.png。卡片 id 帶宿號，
  * 所以 beast_a01 / beast_y01 / 四象 都對得回同一隻本體。
  *
- * 沒有立繪時回 null——三維演出會退回用卡面，不會開天窗。
+ * 沒有立繪時回 null；保留舞台，不用卡面冒充本體。
  */
 export function spiritArtFor(cardId: string): string | null {
   // 成獸與幼子是不同形態，本體立繪也分開——幼子用成獸的圖，
@@ -287,3 +287,100 @@ export {
   PRESENTATION_SKILL_IDS,
   chargeVideoFor,
 } from './beast-skill-archive';
+
+/* ────────────────────────────────────────────────────────────────────────────
+   出手時間軸：靈魂、武器、動作合成一條
+   ──────────────────────────────────────────────────────────────────────── */
+
+/**
+ * 一次出手該聽到什麼、在第幾毫秒。
+ *
+ * 業主定調：「要整個靈魂配合聲音配音＝武器和神獸的動作」「要有邏輯的連貫」。
+ *
+ * 【為什麼要這一支】
+ *
+ * 在這之前有三套聲音各走各的：
+ *   本體叫聲   playPlayerBeastVoice()
+ *   三段式交鋒 playClashSequence()
+ *   武器音     weapons.ts 自己一組
+ * 三套各有各的音色與時間點，同一次出手可能聽到三種不搭的聲音——
+ * 那不是氣勢，是雜訊。
+ *
+ * 所以合成一條時間軸，而且**全部取自同一張卡的音色**
+ * （cardSoundProfile），武器不另立一套палитра。這樣「這一擊是誰打的」
+ * 從叫聲、蓄力到命中都是同一個聲音身分。
+ *
+ * 【順序就是動作的邏輯】
+ *
+ *   0ms    吼      牠先出聲——動作是從吼開始的，不是打完才叫
+ *   170ms  蓄力    武器上電，聲音跟著動作起
+ *   430ms  命中    接觸的那一刻
+ *   620ms  餘響    收招
+ *
+ * 這幾個時間點與 BeastClash3D 的衝鋒節奏（40／170／430／620）對齊，
+ * 聲音才會落在畫面該落的位置。改動畫就要一起改這裡，
+ * 否則會出現「打到了才聽到蓄力」。
+ */
+export interface ActionSound {
+  /** 距離出手起點幾毫秒。 */
+  at: number;
+  src: string;
+  volume: number;
+  rate: number;
+  /** 這一聲是什麼，給測試與除錯看。 */
+  what: 'voice' | 'charge' | 'strike' | 'tail';
+}
+
+/** 出手節奏的時間點。與 BeastClash3D 的衝鋒動畫對齊。 */
+export const ACTION_BEATS = { voice: 0, charge: 170, strike: 430, tail: 620 } as const;
+
+/**
+ * 組出一次出手的完整聲音。
+ *
+ * side 不是玩家就**不放本體叫聲**——業主定調以玩家為主，
+ * 對手的攻擊照常演、照常有武器聲，但不會用牠的叫聲蓋過你的神獸。
+ */
+export function beastActionTimeline(
+  cardId: string,
+  element: BattleElement,
+  side: 'player' | 'opponent',
+  heavy = false,
+): ActionSound[] {
+  const profile = cardSoundProfile(cardId, element);
+  const rate = profile.rate;
+  const out: ActionSound[] = [];
+
+  const voice = side === 'player' ? beastVoiceFor(cardId) : null;
+  if (voice) out.push({ at: ACTION_BEATS.voice, src: voice, volume: 0.55, rate: 1, what: 'voice' });
+
+  out.push({ at: ACTION_BEATS.charge, src: profile.charge, volume: 0.32, rate, what: 'charge' });
+  out.push({ at: ACTION_BEATS.strike, src: profile.impact, volume: heavy ? 0.62 : 0.48, rate, what: 'strike' });
+  out.push({
+    at: ACTION_BEATS.tail,
+    src: heavy ? CLASH_FX.heavyImpact : profile.tail,
+    volume: heavy ? 0.55 : 0.3,
+    rate,
+    what: 'tail',
+  });
+  return out;
+}
+
+/**
+ * 播一次完整出手。回傳取消函式——中途離開要停得掉，
+ * 不然離開戰鬥之後聲音還在響。
+ */
+export function playBeastAction(
+  play: (src: string, volume?: number, rate?: number) => void,
+  cardId: string,
+  element: BattleElement,
+  side: 'player' | 'opponent',
+  heavy = false,
+): () => void {
+  if (typeof window === 'undefined') return () => {};
+  const timers = beastActionTimeline(cardId, element, side, heavy).map((cue) =>
+    cue.at === 0
+      ? (play(cue.src, cue.volume, cue.rate), 0)
+      : window.setTimeout(() => play(cue.src, cue.volume, cue.rate), cue.at),
+  );
+  return () => timers.forEach((id) => id && window.clearTimeout(id));
+}

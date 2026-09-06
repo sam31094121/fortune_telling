@@ -67,7 +67,8 @@
     "test:beast-battlefield": "node scripts/beast-build.mjs && node tests/beast-battlefield.test.mjs",
     "test:beast-bridge": "node scripts/beast-build.mjs && node tests/beast-battle-bridge.test.mjs",
     "build:beast": "node scripts/beast-build.mjs",
-    "test:beast-interactive:full": "node scripts/beast-build.mjs && node tests/beast-interactive.test.cjs"
+    "test:beast-interactive:full": "node scripts/beast-build.mjs && node tests/beast-interactive.test.cjs",
+    "test:beast-weapons": "node scripts/beast-build.mjs && node tests/beast-weapons.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

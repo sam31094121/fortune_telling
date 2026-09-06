@@ -18,7 +18,14 @@
  */
 
 import styles from './BattlePanel.module.css';
-import { ELEMENT_FX, type BattleElement } from '@/lib/beast-battle-fx';
+import { useEffect, useRef } from 'react';
+import {
+  ELEMENT_FX,
+  createSoundPlayer,
+  playBeastAction,
+  type BattleElement,
+} from '@/lib/beast-battle-fx';
+import { weaponFor } from '@/lib/beast-game/weapons';
 import {
   legalActions,
   profile,
@@ -76,6 +83,21 @@ export function FighterStatus({ match, side, label }: { match: Match; side: Side
         <span className={styles.energy} aria-label={`氣 ${team.energy}`}>氣 {team.energy}</span>
       </div>
       <VitalBar hp={fighter.hp} maxHp={fighter.maxHp} shield={fighter.shield} beat={match.revision} />
+      {/*
+        武器條。名字取自這一宿的身體部位，型別目前全是暴風型。
+        **只是顯示**——傷害仍然由 interactive.ts 算，這裡一個數字都不參與。
+      */}
+      {(() => {
+        const weapon = weaponFor(fighter.cardId, fighter.name, fighter.element);
+        const glow = ELEMENT_FX[fighter.element as BattleElement]?.glow ?? '#94a3b8';
+        return (
+          <p className={styles.weapon} style={{ color: glow }} title={weapon.exposed}>
+            <span className={styles.weaponClass}><span>{weapon.weaponClass}</span></span>
+            <span className={styles.weaponName}>{weapon.name}</span>
+            <span className={styles.weaponPart}>{weapon.part}</span>
+          </p>
+        );
+      })()}
       <p className={styles.roster}>
         {team.team.map((f, index) => (
           <span key={f.instanceId} className={index === team.active ? styles.onField : f.defeated ? styles.down : ''}>
@@ -158,6 +180,26 @@ export default function BattlePanel({
   busy?: boolean;
 }) {
   const finished = match.status === 'FINISHED';
+
+  /*
+    出手的聲音：靈魂、武器、動作走同一條時間軸。
+
+    吼 → 蓄力 → 命中 → 餘響，全部取自同一張卡的音色，
+    時間點與三維衝鋒動畫對齊（見 beastActionTimeline 的說明）。
+    這裡只負責「什麼時候放」，放什麼、幾毫秒都在那條時間軸裡定義——
+    畫面自己排一套順序，就會跟動畫對不上。
+  */
+  const sound = useRef<ReturnType<typeof createSoundPlayer> | null>(null);
+  if (sound.current === null && typeof window !== 'undefined') sound.current = createSoundPlayer();
+  useEffect(() => () => sound.current?.dispose(), []);
+
+  const active = match.player.team[match.player.active];
+  useEffect(() => {
+    // revision 0 是還沒出過招——開場不放攻擊聲。
+    if (!sound.current || match.revision === 0 || match.status !== 'PLAYING') return;
+    const heavy = match.opponent.team.some((f) => f.defeated);
+    return playBeastAction(sound.current.play, active.cardId, active.element as BattleElement, 'player', heavy);
+  }, [match.revision]);
   return (
     <section className={styles.panel} data-battle-panel data-status={match.status}>
       <FighterStatus match={match} side="opponent" label="對手" />

@@ -191,6 +191,13 @@ const BEHAVIOR_CHECKS = [
     timeoutMs: 60000,
   },
   {
+    id: 'BEAST_WEAPONS',
+    module: 'beast_weapons',
+    title: '暴風型武器：部位對得上文件、六十把不重複、聲音只有一個來源',
+    script: 'test:beast-weapons',
+    timeoutMs: 60000,
+  },
+  {
     id: 'BEAST_CHARGE_CLIP',
     module: 'beast_charge_clip',
     title: '六秒影片播放條件與玩家音訊路徑（不含逐片驗收）',
