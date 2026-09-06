@@ -39,8 +39,25 @@ export const CHARGE_SPEC = {
   seconds: 6,
   /** 允許的誤差。影片編碼的時基不一定整除，±0.05 秒人耳分不出來。 */
   toleranceSec: 0.05,
-  /** 單卡 mp4 + webm 合計上限（KB）。見〈手機容量預算〉。 */
+  /** 正式的那一組 mp4 + webm 合計上限（KB）。見〈手機容量預算〉。 */
   maxCardKb: 2400,
+  /**
+   * 整個 clips/ 資料夾的上限（KB）。
+   *
+   * **public/ 底下的東西會原封不動部署給客戶**，不是只有程式引用到的那兩支。
+   * 實測 beast_a01 的資料夾裡除了正式檔，還躺著 charge-battle.v2.* 與 .v3.*
+   * 共 9.4MB 的舊版本，以及 sfx 變體 3.3MB——加起來 17.8MB。
+   * 六十張就是 1GB。只算正式檔會嚴重低估實際要部署的量。
+   */
+  maxFolderKb: 2600,
+  /**
+   * 位元率上限（kbps）。
+   *
+   * 實測 a01 的 mp4 是 4594 kbps，webm 同內容只要 2033——
+   * 同一段畫面差 2.3 倍，代表 mp4 那一路編得太鬆，不是內容需要那麼多。
+   * 舞台在手機上只顯示約 317×210 CSS px，這個位元率遠超過看得出差別的範圍。
+   */
+  maxKbps: 1600,
   /** 六十張合計上限（MB）。 */
   maxTotalMb: 140,
   /**
@@ -202,6 +219,38 @@ export function auditClips() {
       或任何一個部位沒過，就一律不算合格——兩套審查合成一套，
       不會出現「閘門綠燈但實際上動作是假的」這種矛盾。
     */
+
+    /*
+      整個資料夾的量，以及有沒有殘留的版本檔。
+
+      public/ 底下的檔案會原封不動部署，不是只有程式 import 到的才會上線。
+      實測 a01 的 clips/ 裡躺著 charge-battle.v2.* 與 .v3.*，
+      那是產線的中間版本——留在 public/ 等於讓每個客戶的部署包多背 9.4MB。
+      中間版本該留在 .tmp/ 或 reports/，不該進 public/。
+    */
+    const folderFiles = fs.readdirSync(clips);
+    const folderKb = Math.round(
+      folderFiles.reduce((sum, f) => sum + fs.statSync(path.join(clips, f)).size, 0) / 1024,
+    );
+    if (folderKb > CHARGE_SPEC.maxFolderKb) {
+      problems.push(`clips/ 整包 ${folderKb}KB 超過 ${CHARGE_SPEC.maxFolderKb}KB——public/ 會整包部署`);
+    }
+    const strays = folderFiles.filter((f) => /^charge-battle[.]v[0-9]+[.](mp4|webm)$/.test(f));
+    if (strays.length) {
+      problems.push(
+        `public/ 裡殘留 ${strays.length} 個版本檔（${strays.slice(0, 3).join('、')}${strays.length > 3 ? '…' : ''}）`
+        + '——中間版本請留在 .tmp/，不要進 public/',
+      );
+    }
+
+    // 位元率。同一段畫面 mp4 比 webm 多花兩倍以上，就是編得太鬆，不是內容需要。
+    if (hasMp4 && seconds) {
+      const kbps = Math.round((fs.statSync(mp4).size / 1024) * 8 / seconds);
+      if (kbps > CHARGE_SPEC.maxKbps) {
+        problems.push(`mp4 ${kbps} kbps 超過 ${CHARGE_SPEC.maxKbps}——舞台只顯示約 317×210，看不出差別`);
+      }
+    }
+
     const qaPath = path.join(clips, 'qa-report.json');
     if (!fs.existsSync(qaPath)) {
       problems.push('沒有 qa-report.json——逐部位審查沒有紀錄，不能算通過');
@@ -225,7 +274,7 @@ export function auditClips() {
       }
     }
 
-    rows.push({ cardId, state: problems.length ? 'FAIL' : notes.length ? 'WARN' : 'OK', seconds, kb, dims, problems, notes });
+    rows.push({ cardId, state: problems.length ? 'FAIL' : notes.length ? 'WARN' : 'OK', seconds, kb, folderKb, dims, problems, notes });
   }
 
   const totalMb = +(totalKb / 1024).toFixed(1);
@@ -247,6 +296,9 @@ if (process.argv[1] && process.argv[1].endsWith("check-beast-clips.mjs")) {
     for (const row of fail) {
       console.log(`  ✗ ${row.cardId}  ${row.seconds ?? '?'} 秒  ${row.kb ?? '?'}KB`);
       for (const p of row.problems) console.log(`      ${p}`);
+      // 沒過的卡也要印提醒事項——否則「解析度過剩」這種事會被擋下的原因蓋掉，
+      // 一次只修一項，來回好幾趟才知道全部要改什麼。
+      for (const n of row.notes ?? []) console.log(`      △ ${n}`);
     }
     for (const row of ok) {
       console.log(`  ${row.state === 'WARN' ? '△' : '✓'} ${row.cardId}  ${row.seconds} 秒  ${row.kb}KB  ${row.dims ? row.dims.width + '×' + row.dims.height : ''}`);
@@ -264,7 +316,7 @@ if (process.argv[1] && process.argv[1].endsWith("check-beast-clips.mjs")) {
       推估的意義是提早知道會不會爆，算法一鬆就失去意義。
     */
     const basis = ok.length ? ok : report.rows.filter((r) => r.kb);
-    const avgKb = basis.length ? basis.reduce((sum, r) => sum + r.kb, 0) / basis.length : 0;
+    const avgKb = basis.length ? basis.reduce((sum, r) => sum + (r.folderKb ?? r.kb), 0) / basis.length : 0;
     const projectedMb = +((avgKb * 60) / 1024).toFixed(1);
     console.log(
       `目前容量 ${report.totalMb}MB`
