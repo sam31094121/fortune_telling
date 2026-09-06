@@ -14,7 +14,8 @@ import type { GrowthCenterResult, GrowthElement, GrowthModuleId, GrowthPreferenc
 import { WaterTreasureOrb, type ProductElement } from '@/components/bazi/customer/WaterTreasureOrb';
 import starBeastsData from '@/data/star-beasts.json';
 import DuelCollectionShelf from '@/components/DuelCollectionShelf';
-import { MODULE_CARD_IDS } from '@/lib/beast-owned-cards';
+import { BOND_STEPS_PER_CARD, MODULE_CARD_IDS, WEEKLY_CARD_ID_POOL } from '@/lib/beast-owned-cards';
+import BeastBondDetail, { type BondUnlockHint } from '@/components/BeastBondDetail';
 import { deriveUnlockedMansions } from '@/lib/beast-growth-rewards';
 import { COLLECTION_UPDATED } from '@/lib/beast-collection';
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
@@ -121,7 +122,7 @@ const PREFERENCE_SOUL_RESPONSES: Record<GrowthPreferenceId, { affirm: string; re
   },
 };
 
-const STAR_BEASTS = starBeastsData.items as Array<{ id: number; name: string; image: string; youngDivineImage: string; coreMeaning: string }>;
+const STAR_BEASTS = starBeastsData.items as Array<{ id: number; name: string; image: string; youngDivineImage: string; coreMeaning: string; symbolicPart: string; traits: string }>;
 // 解鎖規則的唯一來源在 lib/beast-owned-cards.ts——押注畫面也要用同一套，
 // 各寫一套遲早會變成「成長中心說你有、押注畫面說你沒有」。
 
@@ -210,6 +211,8 @@ export default function GrowthCenterPage() {
   const [followUpAnswer, setFollowUpAnswer] = useState<'' | 'continued' | 'paused'>('');
   const [retryToken, setRetryToken] = useState(0);
   const [soulResponse, setSoulResponse] = useState<{ id: GrowthPreferenceId; kind: 'affirm' | 'release'; tick: number } | null>(null);
+  /** 圖鑑牆上被點開的那一格。null＝彈窗關著。 */
+  const [bondDetailId, setBondDetailId] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -284,6 +287,30 @@ export default function GrowthCenterPage() {
         ? `今天完成。${BEAST_BOND_RESPONSES[beastBondStep]}`
         : `今天再走一步，進度不會歸零。`
       : '28 組羈絆已全部解鎖，目前持有卡片請看「我的神獸收藏」。';
+  /*
+    被點開那一格的完整內容。解鎖與否只問 unlockedCardIds（唯一來源），
+    怎麼解鎖只問 MODULE_CARD_IDS 與 WEEKLY_CARD_ID_POOL——
+    跟發卡走同一套規則，彈窗才不會說出跟牆上不一樣的話。
+  */
+  const bondDetail = useMemo(() => {
+    if (bondDetailId === null) return null;
+    const beast = STAR_BEASTS.find((item) => item.id === bondDetailId);
+    if (!beast) return null;
+    const unlocked = unlockedCardIds.includes(beast.id);
+    let hint: BondUnlockHint | null = null;
+    if (!unlocked) {
+      const moduleId = Object.keys(MODULE_CARD_IDS).find((id) => MODULE_CARD_IDS[id] === beast.id);
+      const moduleMeta = moduleId ? GROWTH_MODULES.find((item) => item.id === moduleId) : null;
+      if (moduleMeta) {
+        hint = { kind: 'module', title: moduleMeta.title, href: moduleMeta.href };
+      } else {
+        const required = (WEEKLY_CARD_ID_POOL.indexOf(beast.id) + 1) * BOND_STEPS_PER_CARD;
+        hint = { kind: 'daily', required, remaining: Math.max(1, required - lifetimeCheckInCount) };
+      }
+    }
+    return { beast, unlocked, hint };
+  }, [bondDetailId, unlockedCardIds, lifetimeCheckInCount]);
+
   const growthOrbChapters = useMemo(() => GROWTH_ORB_CHAPTERS.map((chapter) => {
     const completedRequirements = chapter.requiredModules.filter((moduleId) => completedModuleSet.has(moduleId));
     const unlocked = chapter.enabled && chapter.requiredModules.length === 8 && completedRequirements.length === 8;
@@ -510,7 +537,7 @@ export default function GrowthCenterPage() {
               </div>
             </section>
 
-            <section className="growth-engagement-panel rounded-2xl border border-cyan-300/25 bg-cyan-300/8 p-5 shadow-[0_0_28px_rgba(34,211,238,0.1)]">
+            <section id="daily-step" className="growth-engagement-panel scroll-mt-4 rounded-2xl border border-cyan-300/25 bg-cyan-300/8 p-5 shadow-[0_0_28px_rgba(34,211,238,0.1)]">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">今天只做一件事</p>
               <h2 className="mt-3 text-2xl font-black leading-8 text-cyan-50">今天的一小步</h2>
               <p className="mt-3 rounded-2xl border border-cyan-200/20 bg-black/20 px-4 py-4 text-base font-black leading-8 text-cyan-50">{data.weeklyTask.task}</p>
@@ -571,20 +598,36 @@ export default function GrowthCenterPage() {
                 </div>
               )}
               <p className="mt-3 rounded-xl border border-amber-200/20 bg-amber-300/[0.08] px-3 py-2.5 text-xs font-black leading-5 text-amber-100">{nextBeastMilestone}</p>
-              <div className="mt-4 grid grid-cols-7 gap-2 sm:grid-cols-9">
+              {/*
+                每一格都要能點。實測客戶回饋：這面牆看起來「只是一幅畫，
+                沒有任何功能」——因為它原本真的只是 <div>。
+                亮格點開講賞罰與出戰，暗格點開講怎麼解鎖，牆才有存在的理由。
+              */}
+              <div className="mt-4 grid grid-cols-7 gap-2 sm:grid-cols-9" role="group" aria-label="二十八組星宿羈絆，點任一格看詳情">
                 {STAR_BEASTS.map((beast) => {
                   const unlocked = unlockedCardIds.includes(beast.id);
-                  return <div key={beast.id} className={`relative aspect-[275/480] overflow-hidden rounded-lg border ${unlocked ? 'border-amber-200/45 bg-slate-950' : 'border-white/10 bg-slate-950/55'}`} title={unlocked ? beast.name : '尚未解鎖'}>
+                  return <button type="button" key={beast.id} onClick={() => setBondDetailId(beast.id)} className={`relative aspect-[275/480] overflow-hidden rounded-lg border p-0 transition active:scale-95 ${unlocked ? 'border-amber-200/45 bg-slate-950' : 'border-white/10 bg-slate-950/55'}`} aria-label={unlocked ? `${beast.name}・已解鎖，點開看能做什麼` : '尚未解鎖，點開看怎麼解'}>
                     {unlocked ? <><img src={beast.image} alt={`${beast.name}本體神獸`} className="h-full w-full object-cover" /><img src={beast.youngDivineImage} alt={`${beast.name}神獸幼子`} className="absolute bottom-1 right-1 h-[42%] w-[42%] rounded border border-cyan-100/50 object-cover shadow-lg" /></> : <span className="grid h-full place-items-center text-xs font-black text-white/35">？</span>}
-                  </div>;
+                  </button>;
                 })}
               </div>
+              <p className="mt-2 text-[11px] font-semibold leading-4 text-slate-400">
+                點任何一格：<span className="text-amber-100">亮的</span>看牠能替你打什麼仗，<span className="text-white/70">暗的</span>看怎麼把牠帶回家。每一組解鎖都是真的發卡，可押注出戰——贏再得一張、輸會被沒收。
+              </p>
               {nextCard && <div className="mt-4 flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-3">
                 <img src={nextCard.youngDivineImage} alt="下一組神獸幼子" className="h-16 w-11 rounded-md object-cover opacity-70" />
                 <p className="text-sm font-bold leading-6 text-slate-200">下一組羈絆：<span className="text-amber-100">{nextCard.name}</span><br /><span className="text-xs text-slate-400">完成每日一步，收下本體神獸與神獸幼子。</span></p>
               </div>}
               <Link href="/star-beasts" className="mt-4 inline-flex rounded-full border border-amber-200/35 px-4 py-2 text-xs font-black text-amber-100 transition hover:bg-amber-300/10">查看完整神獸圖鑑</Link>
             </section>
+            {bondDetail && (
+              <BeastBondDetail
+                beast={bondDetail.beast}
+                unlocked={bondDetail.unlocked}
+                hint={bondDetail.hint}
+                onClose={() => setBondDetailId(null)}
+              />
+            )}
 
 
             <section className="growth-preference-panel rounded-2xl border border-fuchsia-300/25 bg-fuchsia-300/8 p-5">
