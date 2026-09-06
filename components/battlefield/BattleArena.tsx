@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { CardSlot, HandZone, type BattlefieldCardArt } from './GameBattlefield';
 import { VitalBar } from './BattlePanel';
 import { legalDestinations, type BattleState, type Destination } from '@/lib/beast-game/battlefield';
