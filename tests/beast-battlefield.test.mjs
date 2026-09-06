@@ -11,6 +11,7 @@
 
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { stripComments } from './helpers/strip-comments.mjs';
 import {
   BENCH_SIZE,
   OPENING_HAND,
@@ -24,34 +25,6 @@ import {
   assertOneZone,
   shuffle,
 } from '../.beast-game-build/lib/beast-game/battlefield.js';
-
-/**
- * 把 JS 的註解剝掉，只留下真正會執行的程式碼。
- *
- * 逐字掃描而不是用正規式：正規式碰到字串裡的 // 或 /* 會誤判，
- * 而誤判的方向剛好是最糟的那一邊——把真的違規當成註解放行。
- */
-function stripComments(source) {
-  let out = '';
-  let mode = 'code';
-  for (let i = 0; i < source.length; i += 1) {
-    const two = source.slice(i, i + 2);
-    if (mode === 'code') {
-      if (two === '//') { mode = 'line'; i += 1; continue; }
-      if (two === '/*') { mode = 'block'; i += 1; continue; }
-      if (source[i] === "'" || source[i] === '"' || source[i] === '`') { mode = source[i]; out += source[i]; continue; }
-      out += source[i];
-    } else if (mode === 'line') {
-      if (source[i] === '\n') { mode = 'code'; out += '\n'; }
-    } else if (mode === 'block') {
-      if (two === '*/') { mode = 'code'; i += 1; }
-    } else {
-      out += source[i];
-      if (source[i] === mode && source[i - 1] !== '\\') mode = 'code';
-    }
-  }
-  return out;
-}
 
 /** 固定種子的 rng，測試才可重現。 */
 function seeded(seed) {

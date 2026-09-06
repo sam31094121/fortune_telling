@@ -184,6 +184,13 @@ const BEHAVIOR_CHECKS = [
     timeoutMs: 60000,
   },
   {
+    id: 'BEAST_BATTLE_BRIDGE',
+    module: 'beast_battle_bridge',
+    title: '戰場接戰鬥：橋接只翻譯不當裁判，勝負只來自核心',
+    script: 'test:beast-bridge',
+    timeoutMs: 60000,
+  },
+  {
     id: 'BEAST_CHARGE_CLIP',
     module: 'beast_charge_clip',
     title: '六秒影片播放條件與玩家音訊路徑（不含逐片驗收）',

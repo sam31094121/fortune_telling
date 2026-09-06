@@ -27,6 +27,9 @@ import {
   type BattleState,
   type Destination,
 } from '@/lib/beast-game/battlefield';
+import BattlePanel from '@/components/battlefield/BattlePanel';
+import { autoPlaceOpponent, canStartBattle, startFromField } from '@/lib/beast-game/battle-bridge';
+import { advance, type Action, type Match } from '@/lib/beast-game/interactive';
 
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
 const DECK_SIZE = 20;
@@ -61,6 +64,8 @@ function buildDeck(ids: string[], rng: () => number, size: number): string[] {
 export default function BattlefieldPage() {
   const [cards, setCards] = useState<BattlefieldCardArt[]>([]);
   const [state, setState] = useState<BattleState | null>(null);
+  /** 開戰之後的戰鬥狀態。null＝還在佈陣。 */
+  const [match, setMatch] = useState<Match | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [seed, setSeed] = useState(1);
 
@@ -83,8 +88,39 @@ export default function BattlefieldPage() {
     if (!cards.length) return;
     const ids = cards.map((card) => card.id);
     const rng = seeded(seed);
-    setState(newBattle(buildDeck(ids, rng, DECK_SIZE), buildDeck(ids, rng, DECK_SIZE), rng));
+    const fresh = newBattle(buildDeck(ids, rng, DECK_SIZE), buildDeck(ids, rng, DECK_SIZE), rng);
+    // 對手用同一套佈陣規則自動上場——沒有特權、沒有額外格子。
+    setState(autoPlaceOpponent(fresh, rng));
+    setMatch(null);
   }, [cards, seed]);
+
+  /** 從目前的佈陣開戰。種子固定，同一局可重播。 */
+  const start = useCallback(() => {
+    if (!state) return;
+    try {
+      setMatch(startFromField(state, seed * 7919));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '還不能開戰。');
+    }
+  }, [state, seed]);
+
+  /**
+   * 出招。
+   *
+   * 只把動作交給 advance()，對手要出什麼由它自己的 AI 決定（預設參數）。
+   * 這裡不挑對手的動作，也不預測結果——**畫面不是裁判**。
+   */
+  const act = useCallback((action: Action) => {
+    setMatch((current) => {
+      if (!current || current.status !== 'PLAYING') return current;
+      try {
+        return advance(current, action);
+      } catch {
+        // 不合法的動作根本不會出現在畫面上；真的發生就維持原狀，不要亂改狀態。
+        return current;
+      }
+    });
+  }, []);
 
   const handleSelect = useCallback((cardId: string) => {
     setState((current) => (current ? selectCard(current, cardId) : current));
@@ -103,6 +139,7 @@ export default function BattlefieldPage() {
     });
   }, []);
 
+  const startCheck = useMemo(() => (state ? canStartBattle(state) : { ready: false as const }), [state]);
   const placed = useMemo(() => {
     if (!state) return 0;
     return (state.player.active ? 1 : 0) + state.player.bench.filter(Boolean).length;
@@ -115,8 +152,16 @@ export default function BattlefieldPage() {
           ← 神獸決鬥・組陣台
         </Link>
         <h1 className="mt-1 font-serif text-2xl font-black">神獸戰場</h1>
+        {/*
+          這行字要跟著功能走。它原本寫「尚未接上傷害、能量與勝負」，
+          V2 接上之後那句就變成假的——畫面說的話必須跟實際做的一致。
+        */}
+        <p className="mt-1 text-xs text-amber-200">
+          戰場操作預覽：每副試用牌 20 張，不扣收藏。
+          {match ? '傷害、氣與勝負由後端規則判定，畫面只顯示。' : '佈陣完成後即可開戰。'}
+        </p>
         <p className="mt-1 text-xs leading-5 text-white/60">
-          點一張卡選取，發光的格子就是能放的位置。主戰一格、後備 {BENCH_SIZE} 格。
+          點一張卡，再點發光的格子放牌；電腦也可拖曳手牌。主戰一格、後備 {BENCH_SIZE} 格。
         </p>
 
         {error ? (
@@ -133,15 +178,30 @@ export default function BattlefieldPage() {
                 onDestination={handleDestination}
               />
             </div>
-            <p className="mt-3 text-center text-xs text-white/60" data-placed>
-              已上場 {placed} 隻（主戰 {state.player.active ? 1 : 0}・後備 {state.player.bench.filter(Boolean).length}）
-            </p>
+            {match ? (
+              <BattlePanel match={match} onAction={act} />
+            ) : (
+              <>
+                <p className="mt-3 text-center text-xs text-white/60" data-placed>
+                  已上場 {placed} 隻（主戰 {state.player.active ? 1 : 0}・後備 {state.player.bench.filter(Boolean).length}）
+                </p>
+                <button
+                  type="button"
+                  data-start-battle
+                  disabled={!startCheck.ready}
+                  className="mt-2 min-h-11 w-full rounded-xl bg-amber-200 text-sm font-black text-slate-950 disabled:bg-white/10 disabled:text-white/50"
+                  onClick={start}
+                >
+                  {startCheck.ready ? '開戰' : ('reason' in startCheck && startCheck.reason) || '還不能開戰'}
+                </button>
+              </>
+            )}
             <button
               type="button"
               className="mt-3 min-h-11 w-full rounded-xl border border-white/20 text-sm font-bold text-white/80"
-              onClick={() => setSeed((value) => value + 1)}
+              onClick={() => { setSeed((value) => value + 1); setError(null); }}
             >
-              重新發牌
+              {match ? '重新發牌，再打一場' : '重新發牌'}
             </button>
           </>
         )}

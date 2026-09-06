@@ -50,6 +50,7 @@ export function CardSlot({
   legalTarget,
   label,
   onClick,
+  onDragSelect,
 }: {
   card?: BattlefieldCardArt;
   selected?: boolean;
@@ -57,12 +58,30 @@ export function CardSlot({
   /** 無障礙名稱。空格也要說得出這是哪一格，不能只有一個框。 */
   label: string;
   onClick?: () => void;
+  onDragSelect?: () => void;
 }) {
   const classes = [styles.slot, selected ? styles.selected : '', legalTarget ? styles.legal : '']
     .filter(Boolean)
     .join(' ');
   return (
-    <button type="button" className={classes} onClick={onClick} aria-label={label} aria-pressed={selected}>
+    <button type="button" className={classes} onClick={onClick} aria-label={label} aria-pressed={selected}
+      draggable={Boolean(card && onDragSelect)}
+      onDragStart={event => {
+        if (!card || !onDragSelect) return;
+        event.dataTransfer.setData('application/x-beast-card', card.id);
+        event.dataTransfer.effectAllowed = 'move';
+        onDragSelect();
+      }}
+      onDragOver={event => {
+        if (legalTarget && event.dataTransfer.types.includes('application/x-beast-card')) {
+          event.preventDefault(); event.dataTransfer.dropEffect = 'move';
+        }
+      }}
+      onDrop={event => {
+        if (legalTarget && event.dataTransfer.types.includes('application/x-beast-card')) {
+          event.preventDefault(); onClick?.();
+        }
+      }}>
       {card ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={card.thumbnail} alt={card.name} loading="lazy" decoding="async" draggable={false} />
@@ -152,6 +171,7 @@ export function HandZone({
               selected={cardId === selectedCardId}
               label={card ? `手牌：${card.name}` : `手牌：${cardId}`}
               onClick={onCard ? () => onCard(cardId) : undefined}
+              onDragSelect={onCard ? () => { if (selectedCardId !== cardId) onCard(cardId); } : undefined}
             />
           </div>
         );

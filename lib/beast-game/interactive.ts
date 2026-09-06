@@ -5,6 +5,8 @@ import { effectiveStat, resolveEffects, type BeastInstance, type EffectSpec, typ
 import { createRng } from './turn';
 
 export const INTERACTIVE_VERSION = 'turn-based-1.0.0';
+/** 一隊最多幾隻＝戰場的主戰一格＋後備五格。 */
+export const MAX_TEAM = 6;
 export type Role = '主攻' | '守護' | '控制' | '輔助' | '反擊' | '速度';
 const adult: Role[] = ['主攻','反擊','守護','輔助','控制','主攻','速度','控制','守護','控制','速度','輔助','反擊','守護','主攻','反擊','輔助','輔助','控制','控制','反擊','守護','輔助','速度','主攻','輔助','控制','守護'];
 const young: Role[] = ['速度','守護','守護','輔助','控制','主攻','速度','輔助','守護','控制','速度','速度','守護','守護','主攻','反擊','輔助','輔助','控制','速度','主攻','守護','輔助','速度','速度','輔助','控制','守護'];
@@ -50,7 +52,17 @@ function fighter(id:string):Fighter {
   return {...instantiate({...card,stats},id),cooldown:0,counter:false};
 }
 export function newMatch(ids:string[],foes:string[],seed:number):Match {
-  for(const team of [ids,foes]) if(team.length!==3||new Set(team).size!==3||team.some(id=>!getCard(id))) throw new Error('請選三張不重複的神獸。');
+  /*
+    隊伍大小放寬到 1–6。
+
+    原本寫死三張。戰場 V1 是主戰一格＋後備五格，上場的可能是一到六隻，
+    寫死三張就接不上——而 advance()、legalActions()、chooseAI() 對隊伍大小
+    本來就是泛型的（team.every / team[active] / team.flatMap），
+    只有這一行的守衛在擋。所以是放寬守衛，不是改戰鬥邏輯。
+
+    上限六隻＝主戰一＋後備五，與戰場格數一致；再多就是畫面放不下。
+  */
+  for(const team of [ids,foes]) if(team.length<1||team.length>MAX_TEAM||new Set(team).size!==team.length||team.some(id=>!getCard(id))) throw new Error(`請選 1–${MAX_TEAM} 張不重複的神獸。`);
   return {version:INTERACTIVE_VERSION,seed,round:1,revision:0,status:'PLAYING',winner:null,
     player:{team:ids.map(fighter),active:0,energy:2},opponent:{team:foes.map(fighter),active:0,energy:2},log:[],history:[]};
 }

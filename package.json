@@ -64,7 +64,8 @@
     "test:beast-skill-registration": "node tests/beast-skill-production-record.test.mjs",
     "hooks:install": "node scripts/install-hooks.mjs",
     "test:beast-interactive": "tsc -p tsconfig.beast-game.json && node tests/beast-interactive.test.cjs",
-    "test:beast-battlefield": "tsc -p tsconfig.beast-game.json && node tests/beast-battlefield.test.mjs"
+    "test:beast-battlefield": "tsc -p tsconfig.beast-game.json && node tests/beast-battlefield.test.mjs",
+    "test:beast-bridge": "tsc -p tsconfig.beast-game.json && node tests/beast-battle-bridge.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

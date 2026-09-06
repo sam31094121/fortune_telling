@@ -1,0 +1,203 @@
+/*
+  戰鬥面板・版面
+  ============================================================================
+
+  業主定調〈十五〉：戰場不要塞滿文字。卡片負責角色視覺，
+  戰場只顯示玩家、對手、回合、HP、必要狀態、可執行動作。
+
+  所以這裡只有血條、氣、隊伍狀態點、動作鈕與戰報——
+  完整故事與技能全文留在卡片詳情，不擠進戰鬥畫面。
+*/
+
+.panel {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.status {
+  display: grid;
+  gap: 5px;
+}
+
+.statusHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: #b9c5d9;
+}
+
+.statusHead strong {
+  font-size: 13px;
+  font-weight: 900;
+  color: #e6edf8;
+}
+
+.energy {
+  flex: none;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(125, 211, 252, 0.16);
+  font-size: 11px;
+  font-weight: 900;
+  color: #7dd3fc;
+}
+
+/* ── 血條 ─────────────────────────────────────────────────────── */
+
+.vital {
+  position: relative;
+  height: 16px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.life {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, #f0b86d, #ffe8a1);
+  transition: width 260ms ease;
+}
+
+/* 護盾接在血條右邊，因為它是「先扣的那一段」。 */
+.guard {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #7dd3fc, #bae6fd);
+  transition: width 260ms ease, left 260ms ease;
+}
+
+.vitalText {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 900;
+  color: #0b1220;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* ── 隊伍狀態點 ───────────────────────────────────────────────── */
+
+.roster {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #93a4c0;
+}
+
+.onField { color: #ffdfa4; }
+.down { color: #f87171; }
+
+.rosterText { margin-left: 4px; }
+
+/* ── 動作 ─────────────────────────────────────────────────────── */
+
+.actions {
+  display: grid;
+  gap: 6px;
+}
+
+.actionButton,
+.skillButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* 手機最小可點高度。動作按錯一次可能就輸掉一場。 */
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 900;
+  touch-action: manipulation;
+}
+
+.actionButton {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e6edf8;
+}
+
+.skillButton {
+  border: 1px solid rgba(255, 223, 164, 0.5);
+  background: linear-gradient(100deg, #ffe8a1, #f0b86d);
+  color: #302113;
+}
+
+.actionButton:disabled,
+.skillButton:disabled {
+  opacity: 0.5;
+}
+
+.cost {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.skillDesc {
+  font-size: 11px;
+  line-height: 17px;
+  color: #93a4c0;
+}
+
+.hint {
+  font-size: 12px;
+  color: #93a4c0;
+}
+
+/* ── 結果與戰報 ───────────────────────────────────────────────── */
+
+.result {
+  display: grid;
+  gap: 2px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255, 223, 164, 0.1);
+  text-align: center;
+  font-size: 17px;
+  font-weight: 900;
+  color: #ffdfa4;
+}
+
+.result small {
+  font-size: 11px;
+  font-weight: 700;
+  color: #b9c5d9;
+}
+
+.log {
+  display: grid;
+  gap: 3px;
+  max-height: 132px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+  line-height: 17px;
+  overscroll-behavior-y: contain;
+}
+
+.log li {
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.mine { background: rgba(255, 223, 164, 0.08); color: #ffdfa4; }
+.theirs { background: rgba(255, 255, 255, 0.04); color: #b9c5d9; }
+
+@media (prefers-reduced-motion: reduce) {
+  .life, .guard { transition: none; }
+}
