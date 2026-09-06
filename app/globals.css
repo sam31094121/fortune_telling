@@ -5111,7 +5111,14 @@ body.app-lite-effects .home-line-share-card::after {
 .home-ai-feedback-action {
   display: inline-flex;
   min-width: 0;
-  min-height: 2rem;
+  /*
+    手機最小可點高度 44px。
+
+    原本是 2rem（32px），實測算出來 34px——手指按得到，但按不準，
+    而這兩顆是並排的「認同／不認同」，按錯一顆送出的是相反的意思。
+    專案其他地方都用 min-h-11（44px），這裡是漏網的。
+  */
+  min-height: 2.75rem;
   align-items: center;
   justify-content: center;
   gap: 0.32rem;
@@ -5176,7 +5183,16 @@ body.app-lite-effects .home-line-share-card::after {
   }
 
   .home-ai-feedback-action {
-    min-height: 2.15rem;
+    /*
+      手機不縮可點區。
+
+      這一條原本在 @media (max-width: 430px) 裡把高度降到 2.15rem（34.4px）——
+      正好是最需要觸控準度的地方反而把靶縮小，而且蓋掉了全站的
+      button { min-height: 44px }。這兩顆是並排的「認同／不認同」，
+      按錯一顆送出的是相反的意思。
+      字可以小，靶不能小：font-size 維持不動，只把高度補回 44px。
+    */
+    min-height: 2.75rem;
     font-size: clamp(0.72rem, 3.45vw, 0.82rem);
   }
 }
