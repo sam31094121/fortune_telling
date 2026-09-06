@@ -67,6 +67,23 @@ export function startFromField(state: BattleState, seed: number): Match {
   return newMatch(fieldTeam(state, 'PLAYER'), fieldTeam(state, 'OPPONENT'), seed);
 }
 
+/** Project the resolved match onto the table; never calculate combat here. */
+export function fieldFromMatch(state: BattleState, match: Match): BattleState {
+  const next = structuredClone(state);
+  next.turn = match.round;
+  next.phase = match.status === 'FINISHED' ? 'END' : 'BATTLE';
+  next.selectedCardId = null;
+  for (const key of ['player', 'opponent'] as const) {
+    const side = match[key];
+    const active = side.team[side.active];
+    next[key].active = active && !active.defeated ? active.cardId : null;
+    const livingBench = side.team.filter((f, index) => index !== side.active && !f.defeated).map(f => f.cardId);
+    next[key].bench = Array.from({length: 5}, (_, index) => livingBench[index] ?? null);
+    next[key].discard = [...new Set([...state[key].discard, ...side.team.filter(f => f.defeated).map(f => f.cardId)])];
+  }
+  return next;
+}
+
 /**
  * 對手自動佈陣。
  *

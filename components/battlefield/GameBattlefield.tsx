@@ -238,8 +238,8 @@ export function TurnIndicator({ state, inBattle }: { state: BattleState; inBattl
   if (inBattle) {
     return (
       <div className={styles.center} role="status" aria-live="polite">
-        <p className={styles.vs}>交戰中</p>
-        <p className={styles.hint}>下方選擇你的動作</p>
+        <p className={styles.vs}>{state.phase === 'END' ? '本場已結束' : '交戰中'}</p>
+        <p className={styles.hint}>{state.phase === 'END' ? '下方查看結果，或重新發牌再挑戰' : '下方選擇你的動作'}</p>
       </div>
     );
   }

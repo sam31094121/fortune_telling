@@ -28,7 +28,7 @@ import {
   type Destination,
 } from '@/lib/beast-game/battlefield';
 import BattlePanel from '@/components/battlefield/BattlePanel';
-import { autoPlaceOpponent, canStartBattle, startFromField } from '@/lib/beast-game/battle-bridge';
+import { autoPlaceOpponent, canStartBattle, startFromField, fieldFromMatch } from '@/lib/beast-game/battle-bridge';
 import { advance, type Action, type Match } from '@/lib/beast-game/interactive';
 
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
@@ -68,20 +68,25 @@ export default function BattlefieldPage() {
   const [match, setMatch] = useState<Match | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [seed, setSeed] = useState(1);
+  const [loadAttempt, setLoadAttempt] = useState(0);
 
   useEffect(() => {
+    let disposed = false;
+    setError(null);
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 12000);
     fetch('/api/beast-game', { signal: controller.signal })
-      .then((res) => res.json())
+      .then((res) => { if (!res.ok) throw new Error('卡池連線失敗'); return res.json(); })
       .then((data) => {
         if (!data?.ok || !Array.isArray(data.cards)) throw new Error('卡池回應不正確');
+        if (disposed) return;
+        setError(null);
         setCards(data.cards as BattlefieldCardArt[]);
       })
-      .catch(() => setError('卡池沒有載入成功。請重新整理，或稍後再試。'))
+      .catch(() => { if (!disposed) setError('卡池暫時無法載入，請點下方按鈕再試一次。收藏不受影響。'); })
       .finally(() => clearTimeout(timer));
-    return () => { clearTimeout(timer); controller.abort(); };
-  }, []);
+    return () => { disposed = true; clearTimeout(timer); controller.abort(); };
+  }, [loadAttempt]);
 
   // 卡池到齊才開桌。開桌本身是純函式，換種子就是重開一局。
   useEffect(() => {
@@ -173,23 +178,23 @@ export default function BattlefieldPage() {
           這行字要跟著功能走。它原本寫「尚未接上傷害、能量與勝負」，
           V2 接上之後那句就變成假的——畫面說的話必須跟實際做的一致。
         */}
-        <p className="mt-1 text-xs text-amber-200">
-          戰場操作預覽：每副試用牌 20 張，不扣收藏。
-          {match ? '傷害、氣與勝負由後端規則判定，畫面只顯示。' : '佈陣完成後即可開戰。'}
+        <p className="mt-2 text-sm leading-6 text-amber-200">
+          60 種神獸收藏，本次體驗使用 20 張試用牌，不扣收藏。
+          {match ? '本場為電腦對戰體驗。' : '先選主戰與後備，再按開戰。'}
         </p>
-        <p className="mt-1 text-xs leading-5 text-white/60">
+        <p className="mt-2 text-sm leading-6 text-slate-200">
           點一張卡，再點發光的格子放牌；電腦也可拖曳手牌。主戰一格、後備 {BENCH_SIZE} 格。
         </p>
 
         {error ? (
-          <p role="alert" className="mt-4 rounded-xl bg-amber-300/10 p-3 text-sm text-amber-100">{error}</p>
+          <div role="alert" className="mt-4 rounded-xl bg-amber-300/10 p-3 text-sm text-amber-100"><p>{error}</p><button type="button" className="mt-3 min-h-11 rounded-lg bg-amber-200 px-4 font-bold text-slate-950" onClick={() => { setError(null); setLoadAttempt(n => n + 1); }}>重新載入卡池</button></div>
         ) : !state ? (
           <p className="mt-4 text-sm text-white/60">正在發牌…</p>
         ) : (
           <>
             <div className="mt-3">
               <GameBattlefield
-                state={state}
+                state={match ? fieldFromMatch(state, match) : state}
                 cards={cards}
                 inBattle={Boolean(match)}
                 onSelect={handleSelect}

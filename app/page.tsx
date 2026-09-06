@@ -2659,6 +2659,9 @@ export default function HomePage() {
           </Link>
         </div>
 
+        <Link href="/beast-game/battlefield" className="mx-auto mb-4 flex min-h-12 w-full max-w-[440px] items-center justify-between rounded-xl border border-amber-200/50 bg-slate-950/80 px-4 py-3 text-sm font-bold text-amber-100">
+          <span>神獸戰場 · 免費試玩</span><span aria-hidden="true">開始 →</span>
+        </Link>
         {/* 2026-08-21 依業主指示拿掉外框：粒子與光子連宇宙都框不住，太極不該被裝在
             一個有邊線、有暗底的卡片裡——讓它直接浮在頁面本身的星空背景上，
             從第一眼（×1）就沒有邊界，不是放大之後才「無限」。 */}
@@ -3084,11 +3087,11 @@ export default function HomePage() {
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-100">28 星宿・四象收藏</span>
                 <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-amber-50 sm:text-2xl">星宿神獸卡片</h2>
-                <p className="mt-1 text-xs text-slate-300">完整收藏二十八星宿神獸；依春夏秋冬瀏覽，點選卡片閱讀守護意義與特質。</p>
+                <p className="mt-1 text-sm text-slate-200">28 張本體、28 張幼子、4 張四象，共 60 種神獸。瀏覽卡片，認識各自的守護特質。</p>
               </div>
             </div>
             <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-amber-200/40 bg-amber-300/15 px-5 py-3 text-xs font-bold text-amber-50 transition group-hover:bg-amber-300/25">
-              <span>查看 28 張卡片</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
+              <span>查看 60 種神獸</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
           </div>
