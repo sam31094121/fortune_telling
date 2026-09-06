@@ -441,6 +441,28 @@ async function checkHomeComponent(component) {
   }
 }
 
+/**
+ * 共用的神獸 TypeScript 編譯，整場健檢只做一次。
+ *
+ * 五支守門測試都以編譯開頭、都寫到同一個 .beast-game-build/。
+ * 循序跑時只是浪費四次各 1.4 秒；改成並行之後會互相覆蓋輸出——
+ * 那種錯不會每次發生，只會偶爾紅一次，最難查。所以先編好再放行。
+ */
+async function runSharedBeastBuild() {
+  const startedAt = Date.now();
+  try {
+    await execFileAsync(
+      process.platform === 'win32' ? 'cmd.exe' : 'npm',
+      process.platform === 'win32' ? ['/d', '/s', '/c', 'npm.cmd run build:beast'] : ['run', 'build:beast'],
+      { cwd: PROJECT_ROOT, windowsHide: true, timeout: 120000, maxBuffer: 1024 * 1024 },
+    );
+    await log(`神獸測試產物編譯完成（${Date.now() - startedAt}ms），子行程不再重複編譯`, 'INFO');
+  } catch (error) {
+    // 編不起來就讓各支自己編——寧可慢，也不要因為這一步而整場紅。
+    await log(`共用編譯沒成功，改由各支自行編譯：${error instanceof Error ? error.message : String(error)}`, 'WARN');
+  }
+}
+
 async function checkHealthScript(check) {
   const startedAt = Date.now();
   // npm.cmd is a batch file on Windows and cannot be spawned directly with
@@ -456,7 +478,8 @@ async function checkHealthScript(check) {
       cwd: PROJECT_ROOT,
       windowsHide: true,
       timeout: check.timeoutMs ?? TIMEOUT_MS,
-      env: { ...process.env, SCREEN_HEALTH_BASE_URL: BASE_URL },
+      // 共用的 TypeScript 產物在下面編過一次了，子行程不必各編各的。
+      env: { ...process.env, SCREEN_HEALTH_BASE_URL: BASE_URL, BEAST_BUILD_READY: '1' },
       maxBuffer: 1024 * 1024,
     });
     return {
@@ -505,8 +528,32 @@ async function scanScreenHealth() {
     await log(`${result.status} ${result.title} homepage interaction coverage (${result.durationMs}ms)`, result.status === 'PASSED' ? 'INFO' : 'WARN');
   }
 
+  /*
+    守門測試：先編一次，再並行跑。
+
+    原本是循序，十九項一項一項排隊，其中最久的一項就 16 秒；
+    但它們彼此independent——各自跑自己的斷言，不共用狀態。
+    唯一會互相踩到的是那五支寫同一個 .beast-game-build/ 的，
+    所以先在這裡編好、設 BEAST_BUILD_READY=1，子行程就不會再各編各的。
+
+    上限四個同時跑：再多不會更快（機器就那些核），
+    而且同時開太多 node 反而會讓有 timeout 的項目誤判成逾時。
+  */
+  await runSharedBeastBuild();
+  const CONCURRENCY = 4;
+  const queue = [...BEHAVIOR_CHECKS];
+  const behaviourResults = [];
+  await Promise.all(
+    Array.from({ length: Math.min(CONCURRENCY, queue.length) }, async () => {
+      for (let check = queue.shift(); check; check = queue.shift()) {
+        behaviourResults.push(await checkHealthScript(check));
+      }
+    }),
+  );
+  // 回報順序照設定檔排，不照完成先後——每次跑出來的報告要長得一樣，才比對得出差異。
   for (const check of BEHAVIOR_CHECKS) {
-    const result = await checkHealthScript(check);
+    const result = behaviourResults.find((r) => r.id === check.id);
+    if (!result) continue;
     routes.push(result);
     await log(`${result.status} ${result.title} health verification (${result.durationMs}ms)`, result.status === 'PASSED' ? 'INFO' : 'WARN');
   }
