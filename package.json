@@ -50,7 +50,13 @@
     "check:beast-spirits": "node scripts/check-beast-spirits.mjs",
     "check:beast-clips": "node scripts/check-beast-clips.mjs",
     "test:beast-clip": "node tests/beast-charge-clip.test.cjs",
-    "test:beast-voice": "node tests/beast-sound-profiles.test.cjs"
+    "test:beast-voice": "node tests/beast-sound-profiles.test.cjs",
+    "test:beast-release": "tsc -p tsconfig.beast-game.json && node .beast-game-build/tests/beast-charge-release.test.js",
+    "check:beast-releases": "tsc -p tsconfig.beast-game.json && node scripts/check-beast-releases.mjs",
+    "build:beast-audio-6s": "node scripts/build-beast-six-second-audio.mjs --all",
+    "sync:beast-production": "node scripts/sync-beast-production.mjs",
+    "test:beast-mobile": "node tests/beast-mobile-release.cjs",
+    "test:beast-retry": "node tests/beast-production-retry.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

@@ -157,9 +157,29 @@ const BEHAVIOR_CHECKS = [
     script: 'test:beast-stake',
   },
   {
+    id: 'BEAST_CHARGE_RELEASE',
+    module: 'beast_charge_release',
+    title: '衝鋒釋出：只放行通過審查的素材，未過的不上場',
+    script: 'test:beast-release',
+    timeoutMs: 60000,
+  },
+  {
+    id: 'BEAST_RELEASE_AUDIT',
+    module: 'beast_release_audit',
+    title: '釋出稽核：技能檔庫與實際檔案逐張對得上',
+    script: 'check:beast-releases',
+    timeoutMs: 60000,
+  },
+  {
+    id: 'BEAST_PRODUCTION_RETRY',
+    module: 'beast_production_retry',
+    title: '重產流程：身分對應、明確細修、三次上限',
+    script: 'test:beast-retry',
+  },
+  {
     id: 'BEAST_CHARGE_CLIP',
     module: 'beast_charge_clip',
-    title: '六秒衝鋒影片：一條龍串接、本體 1:1、聲音以玩家為主',
+    title: '六秒影片播放條件與玩家音訊路徑（不含逐片驗收）',
     script: 'test:beast-clip',
   },
   {
