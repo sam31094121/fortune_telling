@@ -70,7 +70,8 @@
     "test:beast-interactive:full": "node scripts/beast-build.mjs && node tests/beast-interactive.test.cjs",
     "test:beast-weapons": "node scripts/beast-build.mjs && node tests/beast-weapons.test.mjs",
     "test:no-fake-counters": "node tests/no-fabricated-counters.test.mjs",
-    "test:beast-reward": "node scripts/beast-build.mjs && node tests/beast-reward-claim.test.mjs"
+    "test:beast-reward": "node scripts/beast-build.mjs && node tests/beast-reward-claim.test.mjs",
+    "test:beast-element-concept": "node scripts/beast-build.mjs && node tests/beast-element-concept.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

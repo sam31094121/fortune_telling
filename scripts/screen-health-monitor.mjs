@@ -198,6 +198,13 @@ const BEHAVIOR_CHECKS = [
     timeoutMs: 60000,
   },
   {
+    id: 'BEAST_ELEMENT_CONCEPT',
+    module: 'beast_element_concept',
+    title: '核心概念：相生相剋大於戰鬥力，帶剋的低戰力打得贏',
+    script: 'test:beast-element-concept',
+    timeoutMs: 90000,
+  },
+  {
     id: 'NO_FABRICATED_COUNTERS',
     module: 'no_fabricated_counters',
     title: '禁止作假：計數器沒有憑空底數，也不會自己長大',
