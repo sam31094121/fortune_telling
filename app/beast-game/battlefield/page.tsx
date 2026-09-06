@@ -35,8 +35,12 @@ import BattlePanel from '@/components/battlefield/BattlePanel';
 import { autoPlaceOpponent, canStartBattle, startFromField } from '@/lib/beast-game/battle-bridge';
 import { advance, type Action, type Match } from '@/lib/beast-game/interactive';
 import StakeSlot, { type StakeCard } from '@/components/battlefield/StakeSlot';
-import { readCollection, runOwnedDuel, countByCard } from '@/lib/beast-collection';
+import { readCollection, runOwnedDuel, countByCard, subscribeCollection, retryStakeSettlement, recoverPendingDuel, type Settlement } from '@/lib/beast-collection';
 import { resolveStake } from '@/lib/beast-game/stake';
+import type { StakeOutcome } from '@/lib/beast-collection-ledger';
+import { namedStakeOutcome } from '@/lib/beast-stake-presentation';
+import BeastStakeResult from '@/components/BeastStakeResult';
+import BeastBattleVoice from '@/components/BeastBattleVoice';
 
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
 const DECK_SIZE = 20;
@@ -78,7 +82,17 @@ export default function BattlefieldPage() {
   /** 押注格：戰鬥前堵住輸贏的那一格。沒押就開不了戰。 */
   const [stakeCardId, setStakeCardId] = useState<string | null>(null);
   const [ownedStake, setOwnedStake] = useState<StakeCard[]>([]);
-  const [settlement, setSettlement] = useState<string | null>(null);
+  const [settlement, setSettlement] = useState<Settlement | null>(null);
+  const [outcome, setOutcome] = useState<StakeOutcome | null>(null);
+  const [battleStake, setBattleStake] = useState<string | null>(null);
+  const [battleVoiceId, setBattleVoiceId] = useState('');
+  const [settling, setSettling] = useState(false);
+  const [stakeError, setStakeError] = useState('');
+  const [movement, setMovement] = useState('');
+  const [recovering, setRecovering] = useState(true);
+  const alive = useRef(true);
+  const starting = useRef(false);
+  const pendingBattle = useRef<{ resolve: (value: { ok: true; stake: StakeOutcome }) => void; reject: (reason: Error) => void } | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [inspection, setInspection] = useState<{ cardId: string; side: 'player' | 'opponent' } | null>(null);
   const controlScroll = useRef<HTMLDivElement>(null);
@@ -91,6 +105,23 @@ export default function BattlefieldPage() {
     controlScroll.current?.scrollTo({ top: 0 });
   }, []);
   useEffect(()=>{if(match?.status==='FINISHED')recordBeastGameCompleted('battlefield');},[match?.status]);
+  useEffect(() => {
+    alive.current = true;
+    const timer = setTimeout(() => {
+      void recoverPendingDuel<{ ok: boolean; stake?: StakeOutcome }>().then(recovered => {
+        if (!alive.current) return;
+        if (recovered.result?.stake) setOutcome(recovered.result.stake);
+        if (recovered.settlement) setSettlement(recovered.settlement);
+        if (recovered.interrupted) setMovement('上一場已中斷，押注卡未扣除。請重新選卡。');
+      }).catch(cause => { if (alive.current) setStakeError(cause instanceof Error ? cause.message : '暫時無法讀取押注紀錄。'); })
+        .finally(() => { if (alive.current) setRecovering(false); });
+    }, 0);
+    return () => {
+      alive.current = false; clearTimeout(timer);
+      pendingBattle.current?.reject(new Error('本場中斷，押注卡未扣除。'));
+      pendingBattle.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     let disposed = false;
@@ -120,20 +151,33 @@ export default function BattlefieldPage() {
     setState(autoPlaceOpponent(fresh, rng));
     setMatch(null);
     setStakeCardId(null);
-    setSettlement(null);
     setInspection(null);
   }, [cards, seed]);
 
   /** 從目前的佈陣開戰。種子固定，同一局可重播。 */
-  const start = useCallback(() => {
-    if (!state) return;
+  const start = useCallback(async () => {
+    if (!state || starting.current || recovering || settlement?.saved === false) return;
+    starting.current = true;
+    setStakeError('');
     try {
-      setMatch(startFromField(state, seed * 7919));
+      const next = startFromField(state, seed * 7919);
+      if (!stakeCardId && ownedStake.length) throw new Error('請先選 1 張押注卡。');
+      setOutcome(null); setSettlement(null); setBattleStake(stakeCardId);
+      setBattleVoiceId(crypto.randomUUID());
       setInspection(null);
+      if (!stakeCardId) { setMatch(next); return; }
+      setSettling(true);
+      // Reserve the actual copy before combat. The shared transaction settles once or releases on interruption.
+      const completed = await runOwnedDuel(stakeCardId, () => new Promise<{ ok: true; stake: StakeOutcome }>((resolve, reject) => {
+        if (!alive.current) { reject(new Error('本場中斷，押注卡未扣除。')); return; }
+        pendingBattle.current = { resolve, reject };
+        setMatch(next);
+      }));
+      if (alive.current) { setOutcome(completed.result.stake); setSettlement(completed.settlement); }
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '還不能開戰。');
-    }
-  }, [state, seed]);
+      if (alive.current) setStakeError(cause instanceof Error ? cause.message : '還不能開戰，押注卡未扣除。');
+    } finally { starting.current = false; if (alive.current) setSettling(false); }
+  }, [state, seed, stakeCardId, ownedStake.length, recovering, settlement]);
 
   /**
    * 出招。
@@ -158,28 +202,34 @@ export default function BattlefieldPage() {
   }, []);
 
   const handleDestination = useCallback((to: Destination) => {
-    setState((current) => {
-      if (!current?.selectedCardId) return current;
-      try {
-        return moveCard(current, 'PLAYER', current.selectedCardId, to);
-      } catch {
-        // 非法移動在引擎就被擋下了。畫面本來就不該給出非法的格子，
-        // 真的走到這裡代表有 bug——取消選取，不要讓客戶卡在半途。
-        return selectCard(current, null);
-      }
-    });
-  }, []);
+    if (!state?.selectedCardId) return;
+    try {
+      const id = state.selectedCardId;
+      const from = state.player.active === id ? '主戰' : state.player.bench.includes(id) ? `後備 ${state.player.bench.indexOf(id) + 1}` : '手牌';
+      const destination = to.zone === 'ACTIVE' ? '主戰' : to.zone === 'BENCH' ? `後備 ${to.slotIndex + 1}` : '棄牌區';
+      const next = moveCard(state, 'PLAYER', id, to);
+      const outgoing = to.zone === 'ACTIVE' ? state.player.active : null;
+      const outgoingTo = outgoing ? next.player.bench.includes(outgoing) ? `後備 ${next.player.bench.indexOf(outgoing) + 1}` : '棄牌區' : '';
+      setState(next);
+      setMovement(`「${cards.find(card => card.id === id)?.name}」1 張：${from} → ${destination}。${outgoing ? `「${cards.find(card => card.id === outgoing)?.name}」1 張：主戰 → ${outgoingTo}。` : ''}佈陣移動不扣卡，押注張數不變。`);
+    } catch { setMovement('這個位置不能放入，請點選發光的空格。'); }
+  }, [state, cards]);
 
   /* 可以拿來押的，是成長收藏裡真正擁有的那些——不是卡池六十張。 */
   useEffect(() => {
     if (!cards.length) return;
-    const collection = readCollection();
-    const owned = [...countByCard(collection).keys()]
-      .map((id) => cards.find((card) => card.id === id))
-      .filter((card): card is BattlefieldCardArt => Boolean(card))
-      .map((card) => ({ id: card.id, name: card.name, thumbnail: card.thumbnail }));
-    setOwnedStake(owned);
-  }, [cards, seed]);
+    const refresh = () => {
+      const collection = readCollection();
+      if (collection.storageError) setStakeError(collection.storageError);
+      const owned = [...countByCard(collection)].flatMap(([id, count]) => {
+        const card = cards.find(item => item.id === id);
+        return card ? [{ id, name: card.name, thumbnail: card.thumbnail, count }] : [];
+      });
+      setOwnedStake(owned);
+    };
+    refresh();
+    return subscribeCollection(refresh);
+  }, [cards]);
 
   /*
     結算：戰鬥打完才動收藏。
@@ -189,18 +239,32 @@ export default function BattlefieldPage() {
     勝負來自 match.winner，這裡不重算。
   */
   useEffect(() => {
-    if (!match || match.status !== 'FINISHED' || !stakeCardId || settlement) return;
+    if (!match || match.status !== 'FINISHED' || !battleStake || !pendingBattle.current) return;
     const opponentStake = match.opponent.team[0]?.cardId;
     if (!opponentStake) return;
     const outcome = resolveStake({
-      playerStake: stakeCardId,
+      playerStake: battleStake,
       opponentStake,
       winner: match.winner === 'player' ? 'PLAYER' : match.winner === 'opponent' ? 'OPPONENT' : 'DRAW',
     });
-    void runOwnedDuel(stakeCardId, async () => ({ ok: true as const, stake: outcome }))
-      .then(({ result }) => setSettlement(result.stake.message))
-      .catch((cause: unknown) => setSettlement(cause instanceof Error ? cause.message : '押注結算失敗。'));
-  }, [match, stakeCardId, settlement]);
+    const pending = pendingBattle.current;
+    pendingBattle.current = null;
+    setOutcome(outcome);
+    pending.resolve({ ok: true, stake: outcome });
+  }, [match, battleStake]);
+
+  const retrySettlement = async () => {
+    if (!settlement || !outcome || settling) return;
+    setSettling(true);
+    try { setSettlement(await retryStakeSettlement(settlement.matchId, outcome)); setStakeError(''); }
+    catch (cause) { setStakeError(cause instanceof Error ? cause.message : '請重試保存。'); }
+    finally { setSettling(false); }
+  };
+  const redeal = () => {
+    if (settling || settlement?.saved === false) return;
+    setSettlement(null); setOutcome(null); setBattleStake(null); setMovement(''); setStakeError('');
+    setSeed(value => value + 1); setError(null);
+  };
 
   /*
     體驗戰：成長收藏空著的人免押注也能開戰。
@@ -210,15 +274,18 @@ export default function BattlefieldPage() {
     純粹讓人先打過一場、看懂相剋，再去領卡打正式戰。
     有收藏卡的人不走這條路：有東西可押的人就要押，賞罰才成立。
   */
-  const isTrial = ownedStake.length === 0;
+  const isTrial = match ? !battleStake : ownedStake.length === 0;
   const startCheck = useMemo(() => {
     const base = state ? canStartBattle(state) : { ready: false as const };
+    if (recovering || settling) return { ready: false as const, reason: '正在核對押注紀錄…' };
+    if (settlement?.saved === false) return { ready: false as const, reason: '請先保存上一場結果' };
+    if (stakeError) return { ready: false as const, reason: '請先處理押注提示' };
     if (!base.ready) return base;
     // 佈陣完成之後才輪到押注：先後順序不能顛倒，
     // 不然客戶會先選好賭注、才發現主戰還沒放。
-    if (!stakeCardId && !isTrial) return { ready: false as const, reason: '先押一張收藏卡' };
+    if ((!stakeCardId || !ownedStake.some(card => card.id === stakeCardId)) && !isTrial) return { ready: false as const, reason: '先押一張收藏卡' };
     return base;
-  }, [state, stakeCardId, isTrial]);
+  }, [state, stakeCardId, isTrial, recovering, settling, settlement, stakeError, ownedStake]);
   const placed = useMemo(() => {
     if (!state) return 0;
     return (state.player.active ? 1 : 0) + state.player.bench.filter(Boolean).length;
@@ -263,34 +330,41 @@ export default function BattlefieldPage() {
                   })()}
                   onClose={closeInspection} />}
                 <div hidden={Boolean(inspection)}>
+                {stakeError && <p role="alert" className={styles.notice}>{stakeError}<button type="button" className={styles.restart} onClick={() => {
+                  if (readCollection().storageError) return;
+                  setStakeError('');
+                }}>重新核對</button></p>}
+                {outcome && <BeastStakeResult outcome={namedStakeOutcome(outcome, id => cards.find(card => card.id === id)?.name ?? '神獸卡')}
+                  card={cards.find(card => card.id === (outcome.gainedCardId ?? outcome.forfeitedCardId ?? outcome.stakes.player))}
+                  cards={cards} settlement={settlement} isReplay={false} retrying={settling} onRetry={() => void retrySettlement()} />}
                 {match ? (
                   <>
+                    {match.status === 'PLAYING' && <p className={styles.notice} data-battle-stake>{battleStake
+                      ? `本場押注 1 張：${cards.find(card => card.id === battleStake)?.name}。贏 +1／輸 −1／平手 0。換卡與倒下不扣卡。`
+                      : '本場押注 0 張・體驗戰。贏得 0 張／輸掉 0 張。'}</p>}
                     <BattlePanel match={match} onAction={act} compact cards={cards} />
                     {match.status === 'FINISHED' && isTrial && (
                       <p role="status" className={styles.notice} data-trial-note>
-                        體驗戰結束：沒有押卡、發卡或沒收。可重新發牌，換一組戰術再挑戰。
+                        體驗戰結束：押注 0 張・贏得 0 張・輸掉 0 張。沒有押卡、發卡或沒收。可重新發牌，換一組戰術再挑戰。
                       </p>
                     )}
-                    {settlement && (
-                      <p role="status" className={styles.notice} data-settlement>
-                        {settlement}
-                        {match.winner === 'opponent' && <span> 看本場敗因，換個相剋的元素再挑戰。</span>}
-                      </p>
-                    )}
+                    {match.status === 'FINISHED' && isTrial && <BeastBattleVoice id={`trial:${battleVoiceId}`}
+                      text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場對手獲勝。' : '本場平手。'}這是免押體驗戰。押注零張，贏得零張，輸掉零張。可以換一組戰術再挑戰。`} />}
                   </>
                 ) : (
                   <>
+                    {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}
                     <PreparationControls state={state} cards={cards} onSelect={handleSelect} onDestination={handleDestination} onInspect={inspectCard} />
                     <details className={styles.details}>
-                      <summary>{isTrial ? '體驗戰・免押卡' : stakeCardId ? '已押：' + ownedStake.find(card => card.id === stakeCardId)?.name : '③ 選一張收藏卡押上・輸了會被沒收'}</summary>
-                      <StakeSlot owned={ownedStake} selected={stakeCardId} trial={isTrial}
+                      <summary>{isTrial ? '體驗戰・押注 0 張' : stakeCardId ? '押注籌碼 1 張：' + ownedStake.find(card => card.id === stakeCardId)?.name : '③ 押注籌碼 0 張・請選 1 張'}</summary>
+                      <StakeSlot owned={ownedStake} selected={stakeCardId} trial={isTrial} locked={settling || settlement?.saved === false}
                         steps={[
                           { label: '選主戰', done: Boolean(state.player.active) },
                           { label: '擺後備・可略', done: state.player.bench.some(Boolean) },
                           { label: isTrial ? '體驗免押' : '押注', done: isTrial || Boolean(stakeCardId) },
                           { label: '開戰', done: false },
                         ]}
-                        onSelect={cardId => setStakeCardId(current => current === cardId ? null : cardId)} />
+                        onSelect={cardId => { if (settling || settlement?.saved === false) return; setStakeCardId(current => current === cardId ? null : cardId); }} />
                     </details>
                     {startCheck.ready && placed < opponentPlaced && (
                       <p className={styles.notice} data-outnumbered>
@@ -302,7 +376,7 @@ export default function BattlefieldPage() {
                       <p>60 種神獸，出戰使用 20 張試用牌。先點手牌，再點發光的主戰或後備格；點場上卡片可換位。手機不用拖曳。每回合親手選攻擊、技能或換卡。</p>
                       <p>{isTrial ? '體驗戰免押卡，不發卡也不沒收。' : '正式戰押一張收藏卡；輸了會被沒收，贏了保留並再得一張，平手退回。'}</p>
                       <p><Link href="/beast-game">自由組隊：從 60 張卡中親手選三張 →</Link></p>
-                      <button type="button" className={styles.restart} onClick={() => { setSeed(value => value + 1); setError(null); }}>重新發牌</button>
+                      <button type="button" className={styles.restart} disabled={settling || settlement?.saved === false} onClick={redeal}>重新發牌</button>
                     </details>
                   </>
                 )}
@@ -310,13 +384,14 @@ export default function BattlefieldPage() {
               </div>
               {!match ? (
                 <div className={styles.footer}>
-                  <button type="button" data-start-battle disabled={!startCheck.ready} className={styles.start} onClick={start}>
-                    {startCheck.ready ? (isTrial ? '開始體驗戰（免押卡）' : '開戰') : ('reason' in startCheck && startCheck.reason) || '還不能開戰'}
+                  {!isTrial && <p className={styles.stakeConfirm}>押注 {stakeCardId ? 1 : 0} 張・獲勝 +1／落敗 −1／平手 0</p>}
+                  <button type="button" data-start-battle disabled={!startCheck.ready} className={styles.start} onClick={() => void start()}>
+                    {startCheck.ready ? (isTrial ? '開始體驗戰（免押卡）' : '確認押 1 張，開戰') : ('reason' in startCheck && startCheck.reason) || '還不能開戰'}
                   </button>
                 </div>
               ) : match.status === 'FINISHED' ? (
                 <div className={styles.footer}>
-                  <button type="button" className={styles.restart} onClick={() => { setSeed(value => value + 1); setError(null); }}>重新發牌，再打一場</button>
+                  <button type="button" className={styles.restart} disabled={settling || settlement?.saved === false} onClick={redeal}>{settling ? '正在保存卡片結算…' : settlement?.saved === false ? '請先重試保存結果' : '重新發牌，再打一場'}</button>
                 </div>
               ) : null}
             </section>

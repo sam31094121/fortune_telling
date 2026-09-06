@@ -39,6 +39,7 @@ export interface StakeCard {
   id: string;
   name: string;
   thumbnail: string;
+  count: number;
 }
 
 export interface StakeStep {
@@ -47,7 +48,7 @@ export interface StakeStep {
 }
 
 export default function StakeSlot({
-  owned, selected, steps, onSelect, trial,
+  owned, selected, steps, onSelect, trial, locked = false,
 }: {
   /** 可以拿來押的卡：成長中心真正擁有的那些。 */
   owned: StakeCard[];
@@ -57,6 +58,7 @@ export default function StakeSlot({
   onSelect: (cardId: string) => void;
   /** 體驗戰：收藏空著、免押注。格子的說法要跟著換，不能還喊「先押一張」。 */
   trial?: boolean;
+  locked?: boolean;
 }) {
   const sound = useRef<ReturnType<typeof createSoundPlayer> | null>(null);
   if (sound.current === null && typeof window !== 'undefined') sound.current = createSoundPlayer();
@@ -80,6 +82,12 @@ export default function StakeSlot({
   const pickerRef = useRef<HTMLDivElement>(null);
   const picked = useMemo(() => owned.find((card) => card.id === selected) ?? null, [owned, selected]);
   const [announceText, setAnnounceText] = useState('');
+  const [movement, setMovement] = useState('');
+  const choose = (card: StakeCard) => {
+    setMovement(card.id === selected ? `已取回「${card.name}」1 張，押注 0 張；持有張數不變。`
+      : `已將「${card.name}」1 張放入押注格${picked ? `，原「${picked.name}」1 張取回` : ''}。尚未扣卡。`);
+    onSelect(card.id);
+  };
   useEffect(() => {
     setAnnounceText(
       currentIndex < 0
@@ -126,9 +134,9 @@ export default function StakeSlot({
           className={styles.slot}
           data-stake-target
           aria-label={picked ? `已押上${picked.name}，點此重新選擇` : trial ? '體驗戰免押卡' : '押注格，點此選一張收藏卡'}
-          disabled={trial}
+          disabled={trial || locked}
           onClick={() => {
-            if (picked) onSelect(picked.id); // 再點一次＝取消，回到等待狀態
+            if (picked) choose(picked);
             pickerRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
             pickerRef.current?.querySelector('button')?.focus();
           }}
@@ -157,8 +165,10 @@ export default function StakeSlot({
         <div className={styles.slotText}>
           {picked ? (
             <>
-              <strong>你押上的是「{picked.name}」</strong>
-              <span className={styles.risk}>贏：原卡保留，再贏一張。輸：這張被沒收。平手：退回。</span>
+              <strong>押注籌碼 1 張・{picked.name}</strong>
+              <span>持有 {picked.count} 張・本場只押 1 張</span>
+              <span className={styles.risk}>贏得 1 張／輸掉 1 張／平手 0 張增減。獲勝時原押注 1 張保留。</span>
+              <span>點押注卡可取回；開戰前選卡不扣卡。</span>
             </>
           ) : trial ? (
             <>
@@ -167,12 +177,14 @@ export default function StakeSlot({
             </>
           ) : (
             <>
-              <strong>先押一張，才開得了戰</strong>
+              <strong>押注籌碼 0 張・請選 1 張</strong>
               <span className={styles.risk}>從你持有的卡片挑一張。輸了它會真的被沒收。</span>
             </>
           )}
         </div>
       </div>
+      {movement && <p className={styles.movement} role="status">{movement}</p>}
+      {owned.length > 0 && <p className={styles.movement}>持有共 {owned.reduce((total, card) => total + card.count, 0)} 張・{owned.length} 種。出戰卡的移動與倒下不扣卡，只結算押注格。</p>}
 
       {owned.length === 0 ? (
         <div className={styles.empty2}>
@@ -186,10 +198,11 @@ export default function StakeSlot({
               key={card.id}
               type="button"
               className={[styles.pick, card.id === selected ? styles.picked : ''].filter(Boolean).join(' ')}
-              aria-label={`押上${card.name}`}
+              aria-label={`押上${card.name} 1 張，持有 ${card.count} 張${card.id === selected ? '，再點可取回' : ''}`}
               aria-pressed={card.id === selected}
+              disabled={locked}
               onClick={() => {
-                onSelect(card.id);
+                choose(card);
                 // 押下去給一聲確認——這一下是有代價的，值得一個回饋。
                 sound.current?.play(CLASH_FX.impact, 0.28);
                 // 回到格子：客戶剛做的決定要看得到結果，不是留在小卡列上猜。
@@ -201,6 +214,9 @@ export default function StakeSlot({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={card.thumbnail} alt={card.name} loading="lazy" decoding="async" />
+              <strong>{card.name}</strong>
+              <span>持有 {card.count} 張</span>
+              <span>{card.id === selected ? '已選 1 張・取回' : '點選押 1 張'}</span>
             </button>
           ))}
         </div>

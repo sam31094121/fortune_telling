@@ -5,12 +5,15 @@ import type {StakeOutcome} from '@/lib/beast-collection-ledger';
 import BeastElementRitual from './BeastElementRitual';
 import styles from './GrowthStakeSlots.module.css';
 import {recordBeastGameCompleted} from '@/lib/growth-center-client';
+import BeastStakeResult from './BeastStakeResult';
+import {namedStakeOutcome} from '@/lib/beast-stake-presentation';
 type Card={id:string;name:string;thumbnail:string};
 type Result={ok:boolean;stake?:StakeOutcome;error?:string};
 export default function GrowthStakeSlots({collection,pool}:{collection:BeastCollection;pool:Map<string,Card>}){
  const [ids,setIds]=useState<string[]>([]),[busy,setBusy]=useState(false),[error,setError]=useState('');
  const [outcome,setOutcome]=useState<StakeOutcome|null>(null),[saved,setSaved]=useState<Settlement|null>(null);
  const [guided,setGuided]=useState(true);
+ const [movement,setMovement]=useState('');
  const slots=useRef<HTMLDivElement>(null),picker=useRef<HTMLSelectElement>(null);
  const show=(element:HTMLElement|null)=>element?.scrollIntoView({block:'center',behavior:'auto'});
  useEffect(()=>{if(guided&&(ids.length||saved))show(slots.current);},[ids,saved,guided]);
@@ -31,18 +34,21 @@ export default function GrowthStakeSlots({collection,pool}:{collection:BeastColl
   </div>
   <p className="mt-2 text-sm leading-6">只可押已入庫的收藏卡，60 張戰鬥試用牌不能押。贈送的 28 張幼子入庫後才能使用。一次可押 1～5 張，一張、兩張都能玩，不必放滿。第一張與電腦自動單挑；輸了只沒收你押的牌，贏了原牌保留並另送一張，平手原牌保留。</p>
   <ol className={styles.steps} aria-label="押牌三步驟"><li>① 選卡：下方選單只列你的收藏。</li><li>② 放牌：選好會自動放進押注格；點「取回」可取消。</li><li>③ 開戰：核對張數後按金色按鈕，格子裡的牌才正式成為賭注。</li></ol>
+  <p className="mt-2 text-sm">持有共 {collection.cards.length} 張・目前押注 {displayed.length} 張</p>
+  {movement&&!outcome&&<p role="status" className="mt-2 text-sm text-amber-100">{movement}</p>}
   <div ref={slots} className={styles.slots}>
-   {Array.from({length:5},(_,i)=>{const entry=displayed[i],card=pool.get(entry?.cardId??'');return <div key={i}><p>押注格 {i+1}{i===0?' · 出戰':''}</p><div className={styles.slot+' '+(lost?styles.lost:'')}>{card?<img src={card.thumbnail} alt={card.name}/>:<button type="button" className={styles.addCard} disabled={busy||Boolean(saved)} onClick={()=>{show(picker.current);picker.current?.focus({preventScroll:true});}}>＋ 選收藏卡<br/><small>{i===0?'先放一張就能玩':'選填，不必放滿'}</small></button>}</div><p className="text-sm">{card?.name}{lost?' · 已沒收':''}</p>{entry&&!outcome&&<button className="min-h-11 underline" disabled={busy} onClick={()=>setIds(v=>v.filter(id=>id!==entry.id))}>取回第 {i+1} 張</button>}</div>})}
+   {Array.from({length:5},(_,i)=>{const entry=displayed[i],card=pool.get(entry?.cardId??'');return <div key={i}><p>押注格 {i+1}{i===0?' · 出戰':''}</p><div className={styles.slot+' '+(lost?styles.lost:'')}>{card?<img src={card.thumbnail} alt={card.name}/>:<button type="button" className={styles.addCard} disabled={busy||Boolean(saved)} onClick={()=>{show(picker.current);picker.current?.focus({preventScroll:true});}}>＋ 選收藏卡<br/><small>{i===0?'先放一張就能玩':'選填，不必放滿'}</small></button>}</div><p className="text-sm">{card?.name}{lost?' · 已沒收':''}</p>{entry&&!outcome&&<button className="min-h-11 underline" disabled={busy} onClick={()=>{setIds(v=>v.filter(id=>id!==entry.id));setMovement(`已取回「${card?.name??"卡片"}」1 張，押注剩 ${selected.length-1} 張。持有張數不變。`);}}>取回第 {i+1} 張</button>}</div>})}
    <div><p>獎勵卡格</p><div className={`${styles.slot} ${won?styles.won:''}`}>{won&&reward?<img src={reward.thumbnail} alt={`已入庫獎勵：${reward.name}`}/>:<span>{busy?'結算中…':lost?'本場沒有獎勵':'獲勝入庫後亮起'}</span>}</div>{won&&<p className="text-sm">{reward?.name??'獎勵卡'} · 已加入收藏</p>}</div>
   </div>
   {selected.length>0&&!outcome&&<p className={styles.confirm}>本次押 {selected.length} 張：輸了沒收這 {selected.length} 張；贏了保留這 {selected.length} 張，另送 1 張。目前只是放牌，還沒有扣卡。</p>}
   {guided&&selected.length<5&&!saved&&<p className={styles.arrow}><span aria-hidden="true">↓</span> 點選一張卡，它就會出現在上方押注格</p>}
   <label htmlFor="growth-stake-entry" className="text-sm">選收藏卡放入押注格（1～5 張）</label>
-  <select ref={picker} id="growth-stake-entry" className="mt-2 min-h-11 w-full rounded-lg bg-slate-900 p-2 text-white" value="" disabled={busy||selected.length>=5||Boolean(saved)} onChange={e=>{const id=e.target.value;if(id&&!ids.includes(id))setIds([...selected.map(c=>c.id),id]);setError('');}}><option value="">點這裡選一張收藏卡</option>{collection.cards.map((c,i)=>!ids.includes(c.id)&&<option key={c.id} value={c.id}>{pool.get(c.cardId)?.name??c.cardId} · 收藏第 {i+1} 張</option>)}</select>
+  <select ref={picker} id="growth-stake-entry" className="mt-2 min-h-11 w-full rounded-lg bg-slate-900 p-2 text-white" value="" disabled={busy||selected.length>=5||Boolean(saved)} onChange={e=>{const id=e.target.value;if(id&&!ids.includes(id)){setIds([...selected.map(c=>c.id),id]);setMovement(`已放入「${pool.get(collection.cards.find(c=>c.id===id)?.cardId??'')?.name??'卡片'}」1 張，押注共 ${selected.length+1} 張。尚未扣卡。`);}setError('');}}><option value="">點這裡選一張收藏卡</option>{collection.cards.map((c,i)=>!ids.includes(c.id)&&<option key={c.id} value={c.id}>{pool.get(c.cardId)?.name??c.cardId} · 收藏第 {i+1} 張</option>)}</select>
   {guided&&selected.length>0&&!outcome&&<p className={styles.arrow}><span aria-hidden="true">↓</span> 已放好 {selected.length} 張，不必放滿；確認後按下方開戰</p>}
   <button className="mt-3 min-h-11 w-full rounded-xl bg-amber-200 p-3 font-bold text-slate-950 disabled:opacity-40" disabled={selected.length<1||selected.length>5||busy||Boolean(collection.storageError)||Boolean(saved)} onClick={()=>void play()}>{busy?'結算中…':selected.length?`確認押 ${selected.length} 張，開始對戰`:'先選一張收藏卡，就能開戰'}</button>
-  {saved?.saved&&<><p role="status" className="mt-2 text-sm">{won?'原押注卡保留，額外一張獎勵已入庫。':lost?'已精準沒收押注收藏，其他卡保留。':'本場平手，押注卡保留。'}</p><button className="min-h-11 underline" onClick={()=>{setIds([]);setOutcome(null);setSaved(null);setError('');}}>重新選牌</button></>}
-  {saved&&!saved.saved&&<div role="alert"><p>{saved.error??'結算尚未保存。'}</p><button className="min-h-11 underline" disabled={busy} onClick={()=>void retry()}>重試保存結果</button></div>}
+  {outcome&&<BeastStakeResult outcome={namedStakeOutcome(outcome,id=>pool.get(id)?.name??'神獸卡')} cards={[...pool.values()]}
+    card={pool.get(outcome.gainedCardId??outcome.forfeitedCardId??outcome.stakes.player)} settlement={saved} isReplay={false} retrying={busy} onRetry={()=>void retry()}/>}
+  {saved?.saved&&<button className="min-h-11 underline" onClick={()=>{setIds([]);setOutcome(null);setSaved(null);setError('');setMovement('已清空押注格，可以重新選卡。');}}>重新選牌</button>}
   {error&&<p role="alert" className="mt-2 text-sm text-rose-200">{error}</p>}
   {collection.cards.length===0&&<p className="mt-2 text-sm">你還沒有收藏卡。先完成遊戲並領取 28 張幼子入庫，再回來選一張就能玩。</p>}
  </section>;

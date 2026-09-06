@@ -389,6 +389,10 @@ export default function BeastGamePage() {
    */
   function place(card: Card) {
     if (duelInFlight.current) return;
+    if (activeSlot === 3 && !readOwnedCards().counts.has(card.id)) {
+      setPlacementNote('這張是試用出戰卡，沒有持有副本可押注。請從持有卡片選擇。');
+      return;
+    }
     setBoard((prev) => {
       // activeSlot 為 3 代表現在放的是賭注卡，不是出戰三席。
       if (prev.activeSlot === 3) {
@@ -405,12 +409,13 @@ export default function BeastGamePage() {
     setCandidate(null);
     setDuel(null);
     setPlacementNote(activeSlot === 3
-      ? `${card.name}已押上賭注`
-      : `${card.name}已放入${slotLabel(activeSlot)}`);
+      ? `已將「${card.name}」1 張放入押注格${stakeCard ? `，原「${stakeCard.name}」1 張取回` : ''}。目前未扣卡。`
+      : `「${card.name}」${lineup.includes(card.id) ? `從${slotLabel(lineup.indexOf(card.id))}移至` : '放入'}${slotLabel(activeSlot)}${lineup[activeSlot] && lineup[activeSlot] !== card.id ? `，${byId.get(lineup[activeSlot]!)?.name}移出陣容` : ''}。出戰移動不扣卡。`);
   }
 
   function clearSlot(index: number) {
     if (duelInFlight.current) return;
+    setPlacementNote(`已將「${byId.get(lineup[index] ?? '')?.name ?? '卡片'}」移出${slotLabel(index)}。持有與押注張數不變。`);
     setBoard((prev) => ({
       ...prev,
       lineup: prev.lineup.map((id, i) => (i === index ? null : id)),
@@ -708,12 +713,18 @@ export default function BeastGamePage() {
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-black text-amber-100">{stakeRisk.headline}</p>
                   <p className="mt-1 text-[11px] leading-5 text-white/60">{stakeRisk.detail}</p>
+                  <p className="mt-1 text-sm text-amber-100">押注籌碼 {stakeCard ? 1 : 0} 張{stakeCard ? `・${stakeCard.name}持有 ${owned.counts.get(stakeCard.id) ?? 0} 張` : ''}</p>
+                  {stakeCard && <button type="button" className="min-h-11 text-sm underline" disabled={dueling || stakeSaved === false} onClick={() => {
+                    if (duelInFlight.current) return;
+                    setBoard(prev => ({ ...prev, stake: null }));
+                    setPlacementNote(`已取回「${stakeCard.name}」1 張，押注 0 張；尚未扣卡。`);
+                  }}>取回押注卡</button>}
                 </div>
               </div>
 
               {/* 只列自己的卡。押不是從六十張裡挑，是從你手上有的挑。 */}
               <p className="mt-2.5 text-[11px] font-bold text-white/50">
-                你持有的卡（{owned.all.length} 種）・點一張押注
+                持有共 {[...owned.counts.values()].reduce((sum, n) => sum + n, 0)} 張（{owned.all.length} 種）・本場押 1 張
               </p>
               <ul className="mt-1.5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin] [scrollbar-color:#bba16655_transparent]" data-owned-cards>
                 {owned.all.map((cardId) => {
@@ -725,7 +736,10 @@ export default function BeastGamePage() {
                     <li key={cardId} className="w-16 shrink-0">
                       <button
                         type="button"
-                        onClick={() => { if (!duelInFlight.current) setBoard((prev) => ({ ...prev, stake: cardId })); }}
+                        onClick={() => { if (!duelInFlight.current) {
+                          setBoard((prev) => ({ ...prev, stake: cardId }));
+                          setPlacementNote(`已將「${card.name}」1 張放入押注格${stakeCard && stakeCard.id !== cardId ? `，原「${stakeCard.name}」1 張取回` : ''}。尚未扣卡。`);
+                        } }}
                         disabled={dueling || stakeSaved === false}
                         aria-label={`押上${card.name}，持有${count}張`}
                         aria-pressed={chosen}
@@ -737,9 +751,9 @@ export default function BeastGamePage() {
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={card.thumbnail} alt={card.name} loading="lazy" className={frameStyles.art} />
-                        {count > 1 && (
+                        {(
                           <span className="absolute right-0.5 top-0.5 rounded-full bg-black/80 px-1 text-[9px] font-black">
-                            ×{count}
+                            持有 {count} 張
                           </span>
                         )}
                       </button>
@@ -764,7 +778,7 @@ export default function BeastGamePage() {
               ? 'bg-gradient-to-r from-amber-300 to-rose-300 text-slate-950'
               : 'cursor-not-allowed bg-white/10 text-white/40'}`}
         >
-          {dueling ? '雙方準備中…' : stakeSaved === false ? '請先保存上一場結果' : overBudget ? '超過布陣上限' : ready ? '確認押注，親手啟陣' : filledCount < 3 ? `還要再放 ${3 - filledCount} 張出戰卡` : '先選一張收藏卡押注'}
+          {dueling ? '雙方準備中…' : stakeSaved === false ? '請先保存上一場結果' : overBudget ? '超過布陣上限' : ready ? '確認押 1 張，親手啟陣' : filledCount < 3 ? `還要再放 ${3 - filledCount} 張出戰卡` : '先選一張收藏卡押注'}
         </button>
         <p aria-live="polite" className={`mt-3 text-center text-sm ${overBudget ? 'text-rose-200' : 'text-cyan-100'}`}>
           布陣 {lineupCost} / {lineupBudget ?? '—'} 氣{overBudget ? '・換一張低氣卡' : ''}
@@ -818,6 +832,7 @@ export default function BeastGamePage() {
               */}
               {duel.stake && <BeastStakeResult
                 outcome={duel.stake}
+                cards={cards}
                 card={byId.get(duel.stake.gainedCardId ?? duel.stake.forfeitedCardId ?? duel.stake.stakes.player)}
                 settlement={settlement}
                 isReplay={Boolean(duel.isReplay)}

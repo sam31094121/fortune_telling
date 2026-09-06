@@ -238,7 +238,8 @@ export default function BattlePanel({
   const active = match.player.team[match.player.active];
   useEffect(() => {
     // revision 0 是還沒出過招——開場不放攻擊聲。
-    if (!sound.current || match.revision === 0 || match.status !== 'PLAYING') return;
+    if (match.status === 'FINISHED') { sound.current?.dispose(); return; }
+    if (!sound.current || match.revision === 0) return;
     const heavy = match.opponent.team.some((f) => f.defeated);
     return playBeastAction(sound.current.play, active.cardId, active.element as BattleElement, 'player', heavy);
   }, [match.revision, match.status, match.opponent.team, active.cardId, active.element]);

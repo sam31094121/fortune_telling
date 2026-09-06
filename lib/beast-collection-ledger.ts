@@ -29,6 +29,28 @@ export interface CollectionReceipt {
   remaining: number;
   total: number;
   forfeitedEntryIds?: string[];
+  /** Snapshot of the committed movement, so later games cannot change this receipt. */
+  stakedCount?: number;
+  beforeTotal?: number;
+  gainedCount?: number;
+  lostCount?: number;
+  cardChanges?: Array<{ cardId: string; before: number; after: number; gained: number; lost: number }>;
+}
+
+function receiptMovement(before: CollectionEntry[], after: CollectionEntry[], stakedCount: number) {
+  const beforeIds = new Set(before.map(card => card.id)), afterIds = new Set(after.map(card => card.id));
+  const added = after.filter(card => !beforeIds.has(card.id));
+  const removed = before.filter(card => !afterIds.has(card.id));
+  const changedIds = [...new Set([...added, ...removed].map(card => card.cardId))];
+  return {
+    stakedCount, beforeTotal: before.length, gainedCount: added.length, lostCount: removed.length,
+    cardChanges: changedIds.map(cardId => ({ cardId,
+      before: before.filter(card => card.cardId === cardId).length,
+      after: after.filter(card => card.cardId === cardId).length,
+      gained: added.filter(card => card.cardId === cardId).length,
+      lost: removed.filter(card => card.cardId === cardId).length,
+    })),
+  };
 }
 export interface BeastCollection {
   cards: CollectionEntry[];
@@ -111,7 +133,7 @@ export function settleCard(current: BeastCollection, matchId: string, outcome: S
   if (outcome.verdict === 'WON') cards.unshift({ id: `duel:${matchId}`, cardId: outcome.gainedCardId!, at, source: 'DUEL_WIN' });
   if (outcome.verdict === 'LOST') cards.splice(index, 1);
   const cardId = outcome.gainedCardId ?? outcome.forfeitedCardId ?? pending.cardId;
-  const receipt: CollectionReceipt = { matchId, verdict: outcome.verdict, cardId, remaining: cards.filter((card) => card.cardId === cardId).length, total: cards.length };
+  const receipt: CollectionReceipt = { matchId, verdict: outcome.verdict, cardId, remaining: cards.filter((card) => card.cardId === cardId).length, total: cards.length, ...receiptMovement(current.cards, cards, 1) };
   const kind: CollectionHistoryItem['kind'] = outcome.verdict === 'WON' ? 'WON' : outcome.verdict === 'LOST' ? 'FORFEITED' : 'RETURNED';
   return {
     collection: { ...current, cards, pending: null, receipts: { ...current.receipts, [matchId]: receipt }, history: [{ at, kind, cardId, note: outcome.message, remaining: receipt.remaining }, ...current.history].slice(0, 60) },
@@ -139,7 +161,7 @@ function settleOwnedStakes(current:BeastCollection,matchId:string,outcome:StakeO
  if(won?outcome.gainedCardId!==outcome.stakes.opponent:outcome.gainedCardId!==null)throw new Error('獎勵數量不符');
  let cards=current.cards.filter(c=>!lost||!removed.includes(c.id));
  if(won)cards=[...cards,{id:`duel:${matchId}`,cardId:outcome.gainedCardId!,source:'DUEL_WIN' as const,at}];
- const receipt:CollectionReceipt={matchId,verdict:outcome.verdict,cardId:outcome.gainedCardId,total:cards.length,remaining:won?cards.filter(c=>c.cardId===outcome.gainedCardId).length:0,forfeitedEntryIds:removed};
+ const receipt:CollectionReceipt={matchId,verdict:outcome.verdict,cardId:outcome.gainedCardId,total:cards.length,remaining:won?cards.filter(c=>c.cardId===outcome.gainedCardId).length:0,forfeitedEntryIds:removed,...receiptMovement(current.cards,cards,entries.length)};
  const history:CollectionHistoryItem[]=lost?entries.map(e=>({at,kind:'FORFEITED',cardId:e.cardId,note:'所選押注卡，已精準沒收',remaining:cards.filter(c=>c.cardId===e.cardId).length})):[{at,kind:won?'WON':'RETURNED',cardId:outcome.gainedCardId,note:won?'原押注卡保留，額外獎勵一張':'原押注卡退回'}];
  return {collection:{...current,cards,pending:null,receipts:{...current.receipts,[matchId]:receipt},history:[...history,...current.history].slice(0,60)},receipt,duplicate:false};
 }

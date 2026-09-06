@@ -16,6 +16,7 @@ import starBeastsData from '@/data/star-beasts.json';
 import DuelCollectionShelf from '@/components/DuelCollectionShelf';
 import { BOND_STEPS_PER_CARD, MODULE_CARD_IDS, WEEKLY_CARD_ID_POOL } from '@/lib/beast-owned-cards';
 import BeastBondDetail, { type BondUnlockHint } from '@/components/BeastBondDetail';
+import BeastBondCelebration from '@/components/BeastBondCelebration';
 import { deriveUnlockedMansions } from '@/lib/beast-growth-rewards';
 import { COLLECTION_UPDATED } from '@/lib/beast-collection';
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
@@ -65,6 +66,8 @@ const GROWTH_ORB_CHAPTERS: Array<{
   { element: 'EARTH', chapter: '第五篇・尚未開放', meaning: '完成前一篇後，等待下一組八關開放。', requiredModules: [], enabled: false },
 ];
 const CHECKIN_STORAGE_KEY = 'tdh_growth_checkin_history_v4';
+/** 已經慶祝過的羈絆。慶祝只在「解鎖那一刻」發生一次，不重播。 */
+const BOND_CELEBRATED_KEY = 'tdh_bond_celebrated_v1';
 const BEAST_BOND_STAGES = ['相遇', '回應', '共鳴', '結契'] as const;
 const BEAST_BOND_RESPONSES = ['幼子已注意到你。', '幼子記住了今天這一步。', '本體神獸的守護正在靠近。', '本體與幼子羈絆已完成。'] as const;
 
@@ -213,6 +216,8 @@ export default function GrowthCenterPage() {
   const [soulResponse, setSoulResponse] = useState<{ id: GrowthPreferenceId; kind: 'affirm' | 'release'; tick: number } | null>(null);
   /** 圖鑑牆上被點開的那一格。null＝彈窗關著。 */
   const [bondDetailId, setBondDetailId] = useState<number | null>(null);
+  /** 正在慶祝的新解鎖羈絆。null＝沒有待慶祝的。 */
+  const [celebrationId, setCelebrationId] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -310,6 +315,47 @@ export default function GrowthCenterPage() {
     }
     return { beast, unlocked, hint };
   }, [bondDetailId, unlockedCardIds, lifetimeCheckInCount]);
+
+  /*
+    解鎖的那一刻要被慶祝，而不是下次進頁面才默默多一格亮的。
+
+    規則：
+    - 第一次見到這個客戶（沒有慶祝紀錄）→ 把現況記為基準，不慶祝。
+      不然功能上線那天，老客戶會被過去累積的解鎖轟炸一輪。
+    - 之後 unlockedCardIds 多出來的才是「新解鎖」，一次慶祝一張，
+      關掉一張自動接下一張。
+    - 一定等 data 到齊才判斷：資料沒回來前模組解鎖是缺的，
+      這時寫基準會把舊解鎖誤判成新的。
+    - localStorage 壞掉就不慶祝——慶祝失敗不能把成長中心弄壞。
+  */
+  useEffect(() => {
+    if (!data || celebrationId !== null) return;
+    try {
+      const raw = window.localStorage.getItem(BOND_CELEBRATED_KEY);
+      if (!raw) {
+        window.localStorage.setItem(BOND_CELEBRATED_KEY, JSON.stringify(unlockedCardIds));
+        return;
+      }
+      const seen = new Set<number>(JSON.parse(raw) as number[]);
+      const fresh = unlockedCardIds.find((id) => !seen.has(id));
+      if (fresh !== undefined) setCelebrationId(fresh);
+    } catch { /* 慶祝是錦上添花，讀不到紀錄就安靜跳過。 */ }
+  }, [data, unlockedCardIds, celebrationId]);
+
+  function dismissCelebration() {
+    if (celebrationId === null) return;
+    try {
+      const raw = window.localStorage.getItem(BOND_CELEBRATED_KEY);
+      const seen = new Set<number>(raw ? (JSON.parse(raw) as number[]) : []);
+      seen.add(celebrationId);
+      window.localStorage.setItem(BOND_CELEBRATED_KEY, JSON.stringify([...seen]));
+      // 一次慶祝一張：關掉這張，看看還有沒有排隊的下一張。
+      const next = unlockedCardIds.find((id) => !seen.has(id));
+      setCelebrationId(next ?? null);
+    } catch {
+      setCelebrationId(null);
+    }
+  }
 
   const growthOrbChapters = useMemo(() => GROWTH_ORB_CHAPTERS.map((chapter) => {
     const completedRequirements = chapter.requiredModules.filter((moduleId) => completedModuleSet.has(moduleId));
@@ -628,6 +674,11 @@ export default function GrowthCenterPage() {
                 onClose={() => setBondDetailId(null)}
               />
             )}
+            {(() => {
+              if (celebrationId === null) return null;
+              const beast = STAR_BEASTS.find((item) => item.id === celebrationId);
+              return beast ? <BeastBondCelebration beast={beast} onClose={dismissCelebration} /> : null;
+            })()}
 
 
             <section className="growth-preference-panel rounded-2xl border border-fuchsia-300/25 bg-fuchsia-300/8 p-5">

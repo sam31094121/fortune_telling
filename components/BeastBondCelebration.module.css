@@ -1,0 +1,148 @@
+/*
+  羈絆解鎖慶祝・版面與翻牌
+  ============================================================================
+  翻牌只是演出：卡片內容早已發進收藏，動畫快慢與有無都不影響結果。
+  手機優先：整個舞台限制在小螢幕一屏內，不需要捲動就看得完。
+*/
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(2, 6, 16, 0.86);
+}
+
+.stage {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.kicker {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.35em;
+  color: #ffdfa4;
+  text-indent: 0.35em; /* 置中補償字距造成的右偏 */
+}
+
+/* ── 翻牌 ─────────────────────────────────────────────────────── */
+
+.card {
+  width: clamp(160px, 52vw, 200px);
+  aspect-ratio: 275 / 480;
+  perspective: 900px;
+}
+
+.inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: bondFlip 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.35s forwards;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 223, 164, 0.5);
+  backface-visibility: hidden;
+  box-shadow: 0 0 34px rgba(251, 191, 36, 0.22);
+}
+
+.face img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.front {
+  transform: rotateY(180deg);
+}
+
+.young {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 40% !important;
+  height: auto !important;
+  border-radius: 8px;
+  border: 1px solid rgba(207, 250, 254, 0.55);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes bondFlip {
+  to { transform: rotateY(180deg); }
+}
+
+/* ── 文字與動作 ───────────────────────────────────────────────── */
+
+.name {
+  margin-top: 6px;
+  font-family: var(--font-serif, serif);
+  font-size: 26px;
+  font-weight: 900;
+  color: #fffbeb;
+}
+
+.meaning {
+  font-size: 12px;
+  font-weight: 900;
+  color: #67e8f9;
+}
+
+.grant {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  color: #cbd5e1;
+}
+
+.actions {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.primary,
+.secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.primary {
+  background: #fde68a;
+  color: #0f172a;
+}
+
+.secondary {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* 減少動態：直接亮出正面，慶祝照樣完整，只是不轉。 */
+@media (prefers-reduced-motion: reduce) {
+  .inner {
+    animation: none;
+    transform: rotateY(180deg);
+  }
+}

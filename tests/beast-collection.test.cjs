@@ -123,6 +123,39 @@ async function main() {
     assert.throws(() => ledger.settleCard({ ...reserved, cards: [] }, 'mismatch', result('OPPONENT').stake, '2026-09-05'), /不存在/);
     assert.equal(reserved.cards.length, 1);
   });
+  check('committed receipts contain immutable before/after counts', () => {
+    const r = oneLost.settlement.receipt;
+    assert.equal(r.stakedCount, 1); assert.equal(r.lostCount, 1); assert.equal(r.gainedCount, 0);
+    assert.equal(r.beforeTotal - r.total, 1);
+    assert.deepEqual(JSON.parse(JSON.stringify(r.cardChanges)), [{ cardId:a, before:2, after:1, gained:0, lost:1 }]);
+  });
+  for (const n of [1, 2, 3, 5]) for (const winner of ['PLAYER', 'OPPONENT', 'DRAW']) {
+    const initial = { cards: Array.from({length:6}, (_, i) => ({ id:`copy:${i}`, cardId:i<3?a:y, at:'2026-09-07', source:'DUEL_WIN' })), history:[] };
+    const entries = initial.cards.slice(0,n).map(({id,cardId})=>({id,cardId}));
+    const out = { ...rules.resolveStake({playerStake:a,opponentStake:b,winner}), selectedEntries:entries, forfeitedEntryIds:winner==='OPPONENT'?entries.map(e=>e.id):[] };
+    const reserved = ledger.reserveOwnedStakes(initial,entries.map(e=>e.id),`multi:${n}:${winner}`,'now');
+    const settled = ledger.settleCard(reserved,reserved.pending.id,out,'now');
+    check(`${n} staked copies / ${winner}: exact counts, no duplicate settlement, honest customer receipt`, () => {
+      assert.equal(settled.receipt.stakedCount,n);
+      assert.equal(settled.receipt.lostCount,winner==='OPPONENT'?n:0);
+      assert.equal(settled.receipt.gainedCount,winner==='PLAYER'?1:0);
+      assert.equal(settled.receipt.beforeTotal,6);
+      assert.equal(settled.receipt.total,6+(winner==='PLAYER'?1:winner==='OPPONENT'?-n:0));
+      const again=ledger.settleCard(settled.collection,reserved.pending.id,out,'later');
+      assert.equal(again.duplicate,true); assert.equal(again.receipt,settled.receipt);
+      const named=h.load('lib/beast-stake-presentation.ts').namedStakeOutcome(out,id=>id===a?'角木蛟':id===y?'角木蛟・幼子':'亢金龍');
+      const text=renderToStaticMarkup(React.createElement(Panel,{...props,outcome:named,settlement:{saved:true,receipt:settled.receipt,matchId:reserved.pending.id}}));
+      assert.match(text,new RegExp(`你的押注籌碼・${n} 張`));
+      assert.match(text,new RegExp(`目前持有 ${settled.receipt.total} 張卡片`));
+      assert.match(text,/播報獎賞|播報結算/);
+      if(winner==='OPPONENT')assert.match(text,new RegExp(`輸掉 −${n} 張`));
+      assert.equal(initial.cards.length,6);
+    });
+  }
+  check('failed and replay results never mount reward speech',()=>{
+    assert.doesNotMatch(html(failed.settlement),/data-result-voice/);
+    assert.doesNotMatch(html(oneLost.settlement,true),/data-result-voice/);
+  });
   console.log('PASS:', checks, 'collection and customer-receipt regression checks');
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

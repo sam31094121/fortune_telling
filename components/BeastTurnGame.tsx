@@ -7,6 +7,7 @@ import type { interactiveCatalog, Match, Action } from '@/lib/beast-game/interac
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import BattleArena from './battlefield/BattleArena';
 import BattlePanel from './battlefield/BattlePanel';
+import BeastBattleVoice from './BeastBattleVoice';
 import BattleCardGuide from './battlefield/BattleCardGuide';
 import BeastCardTile, { CardDetailSheet } from './battlefield/BeastCardTile';
 import styles from './BeastTurnGame.module.css';
@@ -89,7 +90,9 @@ export default function BeastTurnGame() {
               {inspection && <BattleCardGuide cardId={inspection.cardId} fighter={inspected} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
               <div hidden={Boolean(inspection)}>
                 <BattlePanel match={match} onAction={(action: Action) => void send('ACTION', { action })} busy={busy} compact cards={cards} />
-                {match.status === 'FINISHED' ? <p className={battleStyles.notice}>本場結束，持有卡片不扣除。可回到組隊更換陣容。</p> : <details className={battleStyles.details}>
+                {match.status === 'FINISHED' ? <><p className={battleStyles.notice}>本場押注 0 張・贏得 0 張・輸掉 0 張。持有卡片不扣除，可回到組隊更換陣容。</p>
+                  <BeastBattleVoice id={`free:${match.seed}:${account?.revision}`} text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場對手獲勝。' : '本場平手。'}自由組隊免押卡，贏得零張，輸掉零張。可以更換陣容再挑戰。`} />
+                </> : <details className={battleStyles.details}>
                   <summary>對戰規則與離場</summary>
                   <p>切換先於攻擊；其餘按速度。同速隨機決定，最多 80 回合。擊倒對方三隻即獲勝。</p>
                   <p>本模式免押卡。空、風、水、火、地的相剋與技能效果，可點戰鬥卡查看。</p>
