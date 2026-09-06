@@ -1,11 +1,23 @@
-.stage { position: fixed; inset: 0; z-index: 1000; overflow-y: auto; display: flex; flex-direction: column; padding: 12px; background: radial-gradient(ellipse at 50% 42%, #242147, #090b18 75%); color: #fff; }
-.table { width: 100%; max-width: 440px; margin: auto; padding: 16px; border: 1px solid #bba16655; border-radius: 24px; background: #080b18d9; box-shadow: 0 0 60px #81704525; }
-.topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.topline h2 { font-size: 17px; color: #ffe4a4; font-family: serif; font-weight: 800; }
+.stage { position: fixed; inset: 0; height: 100dvh; z-index: 1000; overflow: hidden; padding: max(4px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background: #090b18 center 64% / cover; color: #fff; }
+.table { width: 100%; max-width: 640px; height: 100%; min-height: 0; margin: auto; display: grid; grid-template-rows: 44px minmax(0, 1fr); border: 1px solid #bba16655; border-radius: 18px; background: #080b18d9; box-shadow: 0 0 60px #81704525; overflow: hidden; }
+.duelSplit { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+.visualPane { min-height: 0; display: grid; grid-template-rows: 28px minmax(0, 1fr); padding: 0 8px 6px; overflow: hidden; }
+.venueHeading { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #ffe4a4; }
+.controlPane { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; border-top: 2px solid #7dd3fc; background: #101b2d; overflow: hidden; }
+.handScroll { min-height: 0; overflow-y: auto; padding: 4px 10px; overscroll-behavior-y: contain; scrollbar-width: thin; }
+.commands { padding: 4px 10px; border-top: 1px solid #4b5e78; }
+.commands button { min-height: 48px; margin-top: 2px; touch-action: manipulation; }
+.rules { margin-top: 6px; border-top: 1px solid #475569; font-size: 12px; line-height: 1.7; color: #c7d9ef; }
+.rules summary, .rules a { display: block; min-height: 44px; align-content: center; cursor: pointer; }
+.waitingCards { position: absolute; inset: 12% 9% 25%; z-index: 1; display: flex; gap: 20px; justify-content: center; align-items: center; pointer-events: none; }
+.waitingCards > div { min-width: 0; height: 100%; width: 45%; display: grid; grid-template-rows: minmax(0, 1fr) 22px; text-align: center; font-size: 12px; }
+.waitingCards img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 10px #0009); }
+.topline { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; }
+.topline h2 { font-size: 16px; color: #ffe4a4; font-weight: 800; }
 .close { min-height: 44px; padding: 6px 10px; color: #bac1d0; font-size: 12px; }
 .label { display: flex; justify-content: space-between; margin: 6px 0; font-size: 12px; color: #d9cfae; }
 .label small { color: #939eaf; font-size: 11px; }
-.row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.row { width: min(100%, 224px); margin-inline: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .slot { min-width: 0; perspective: 900px; }
 .card { position: relative; width: 100%; transform-style: preserve-3d; transition: transform .72s ease-in-out; }
 /* Clip each face, not the rotating container: hidden overflow flattens 3D. */
@@ -20,12 +32,12 @@
 .dealing .card { animation: deal .65s both; }
 .dealing .slot:nth-child(2) .card { animation-delay: .3s; }
 .dealing .slot:nth-child(3) .card { animation-delay: .6s; }
-.center { display: grid; grid-template-rows: 24px minmax(36px, auto); align-items: center; justify-items: center; gap: 4px; padding: 4px 2px; text-align: center; }
+.center { min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; padding: 8px 4px; text-align: center; overflow: hidden; border-radius: 14px; }
+.center > strong, .center > p { position: relative; z-index: 3; padding: 2px 8px; background: #060c16db; border-radius: 8px; pointer-events: none; }
 .center strong { font-size: 16px; line-height: 24px; color: #ffdfa4; }
 .center p { max-width: 350px; font-size: 11px; line-height: 18px; color: #b9c5d9; }
 .clash strong { animation: glimmer .8s ease-out; }
-.center.clash { min-height: clamp(200px, 26svh, 240px); grid-template-rows: 24px 1fr; align-items: end; border-radius: 16px; background: radial-gradient(ellipse, #22365180, #070d1800 75%); }
-.stage[data-ritual-phase="revealing"] .row { width: min(100%, 250px); margin-inline: auto; }
+.center.clash { background: radial-gradient(ellipse, #22365180, #070d1800 75%); }
 .chargeVideo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 2; border-radius: 16px; background: #080b18; pointer-events: none; }
 .center.clash strong, .center.clash p { position: relative; z-index: 3; text-shadow: 0 2px 6px #000; pointer-events: none; }
 /*
@@ -40,7 +52,17 @@
 .skip { width: 100%; min-height: 48px; margin-top: 12px; color: #b6bfcc; font-size: 12px; }
 @keyframes deal { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: none; } }
 @keyframes glimmer { from { opacity: .4; transform: scale(.96); } to { opacity: 1; transform: none; } }
-@media (max-height: 700px) { .table { max-width: 320px; padding: 12px; } }
+@media (max-height: 700px) {
+  .row { width: min(100%, 150px); }
+  .label { margin: 1px 0; font-size: 11px; line-height: 14px; }
+  .caption { margin-top: 2px; }
+  .caption strong { line-height: 14px; }
+}
+@media (orientation: landscape) and (max-height: 540px) {
+  .table { max-width: 1100px; }
+  .duelSplit { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  .controlPane { border-top: 0; border-left: 2px solid #7dd3fc; }
+}
 @media (max-width: 350px) { .caption strong { font-size: 10px; } }
 @media (prefers-reduced-motion: reduce) { .card { transition: none; } .dealing .card, .clash strong { animation: none; } }
 
@@ -52,28 +74,7 @@
   align-items: center;
 }
 
-/*
-  格鬥舞台
-  ============================================================================
-
-  業主定調：「優化一張大卡片伸出的舞台（格鬥舞台的概念），
-  用大數據去找授權現有的素材，作為舞台的概念。」
-
-  【為什麼是純 CSS，不貼材質圖】
-
-  舞台在手機上實測只有約 317×210 CSS px。專案裡的授權材質圖最小的也有 212KB，
-  貼上去等於為了一塊比名片還小的地板讓客戶多下載兩百多 KB——
-  手機優先是憲章，不是建議。所以地板、邊界、角落全部用漸層畫，零位元組。
-
-  唯一用到的圖是 lightning-impact-cc0.png（59.9KB）：那張在交鋒時
-  BeastClash3D 本來就會載入當撞擊閃光，拿來當能量環是**零額外流量**。
-
-  【為什麼舞台朝向玩家】
-
-  版面上對手在上、玩家在下。所以地板近端（亮、實）在下方，遠端（暗、虛）在上方——
-  這是從玩家席位看出去的視角。業主定調「要以玩家而不是以對家為主」，
-  連舞台的透視原點都跟著玩家走。
-*/
+/* The licensed ring backdrop is shared by the game entrance and combat stage. */
 .arena {
   position: absolute;
   inset: 0;
@@ -83,22 +84,12 @@
   pointer-events: none;
   /* 交鋒方的元素光色由 TSX 傳入；沒有就用中性色，不會開天窗。 */
   --arena-glow: #7dd3fc;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 260ms ease;
 }
 .clash .arena { opacity: 1; }
 
-/*
-  實景襯底：Poly Haven「Circus Arena」CC0（授權見同資料夾 LICENSE.txt）。
-
-  這張圖原本躺在 public/beast-game/stage/ 沒有任何程式引用——
-  素材產好卻沒接上，等於沒有。接進來當舞台實景，
-  我原本畫的地板與霧氣改成壓在它上面的氛圍層：
-  實景負責「這是一個場地」，漸層負責「這一局是什麼元素、誰是主場」。
-  兩套舞台併成一套，不要一個用圖、一個用漸層各演各的。
-
-  壓暗到 .34 是刻意的：主角是神獸本體，舞台搶戲就本末倒置。
-*/
+/* A mobile WebP and a dark top edge keep both the venue and the battle text visible. */
 .arenaBackdrop {
   position: absolute;
   inset: 0;
@@ -106,8 +97,8 @@
   height: 100%;
   object-fit: cover;
   object-position: center 62%;
-  opacity: .34;
-  filter: saturate(.7) brightness(.62);
+  opacity: .72;
+  filter: saturate(.72) brightness(.8);
   /*
     頂端淡出。
 

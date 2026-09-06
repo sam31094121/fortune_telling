@@ -1,34 +1,26 @@
 import type { Metadata } from 'next';
 
-/**
- * 組陣台自己的分享中繼資料。
- *
- * page.tsx 是 client component，不能匯出 metadata，所以放在這一層。
- * 沒有這個檔案時，瀏覽器分頁標題是站台通用的「☯ 太極命理 易經｜天地人智慧分析系統」——
- * 客戶開著好幾個分頁時，找不到哪一個是遊戲；分享出去別人也看不出點進來會得到什麼。
- *
- * 圖沿用站台既有的分享圖，不放沒驗證過的動態圖。
- */
+/** Game-only metadata and visual boundary; accounting stays in its existing services. */
 export const metadata: Metadata = {
-  title: '神獸・回合對戰｜六十張神獸，親手決定每一回合',
-  description: '選三隻已收藏神獸，以攻擊、技能與切換迎戰電腦。能量、速度、屬性與職責影響戰術；每回合由後端結算，擊倒對方三隻獲勝。',
+  title: '神獸戰鬥｜卡片戰場與格鬥競技場',
+  description: '六十張神獸卡，親手選卡、佈陣、攻擊與施放技能。五元素相剋，手機同步看戰況與操控。',
   alternates: { canonical: '/beast-game' },
   openGraph: {
-    title: '二十八宿・神獸決鬥',
+    title: '神獸戰鬥｜卡片戰場與格鬥競技場',
     description: '六十張神獸卡，選三隻出戰，親手選擇攻擊、技能與切換。',
     url: '/beast-game',
     type: 'article',
     locale: 'zh_TW',
-    images: [{ url: '/images/og-taichi-preview.jpg', width: 1024, height: 1024, alt: '二十八宿・神獸決鬥' }],
+    images: [{ url: '/beast-game/stage/venues/forest-battle.webp', width: 1104, height: 621, alt: '神獸卡片戰場' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: '二十八宿・神獸決鬥',
+    title: '神獸戰鬥｜卡片戰場與格鬥競技場',
     description: '六十張神獸卡，選三隻出戰，親手選擇攻擊、技能與切換。',
-    images: ['/images/og-taichi-preview.jpg'],
+    images: ['/beast-game/stage/venues/forest-battle.webp'],
   },
 };
 
 export default function BeastGameLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <div data-game-mode="battle" className="min-h-dvh bg-slate-950 font-sans text-slate-100">{children}</div>;
 }

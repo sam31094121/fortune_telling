@@ -1,4 +1,6 @@
 .arena {
+  position: relative;
+  isolation: isolate;
   min-height: 0;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
@@ -9,6 +11,10 @@
   border-radius: 18px 18px 0 0;
   background: radial-gradient(ellipse at 50% 65%, #263d60, #0c152a 72%);
 }
+.backdrop { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 60%; pointer-events: none; }
+.arena::before { content: ''; position: absolute; z-index: 1; inset: 0; background: linear-gradient(180deg, #061021ed 0%, #06102178 36%, #0610215c 60%, #061021f0 100%); pointer-events: none; }
+.arenaHeading, .fighters, .arenaNote { position: relative; z-index: 2; }
+.fighterHeading { border-radius: 8px; padding: 2px; background: #061021b3; }
 .arenaHeading, .handHeading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #b6c8e0; }
 .arenaHeading strong { color: #ffe4a6; font-size: 14px; }
 .fighters { position: relative; min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }

@@ -1,0 +1,23 @@
+Battle venues — existing CC0 assets, optimized for mobile
+=======================================================
+
+forest-battle.webp (1104 x 621)
+Display name: 霧林戰場 / card battle
+Original: battleback1.png from Backgrounds by Nidhoggn
+Source: https://opengameart.org/node/79322
+Download: https://opengameart.org/sites/default/files/battleback1.png
+License: CC0 1.0 Universal, as declared by the author on the source page.
+Processing: PNG converted to WebP quality 82; no generated or repainted content.
+
+ring-arena.webp (1104 x 621)
+Display name: 環形競技場 / fighting arena
+Original: Circus Arena by Oliksiy Yakovlyev, Poly Haven
+Source: https://polyhaven.com/a/circus_arena
+License: CC0 1.0 Universal; https://polyhaven.com/license
+Processing: resized and WebP quality 78, from the existing locally licensed
+stage/default/circus_arena_wide.jpg; original source notes in ../default/LICENSE.txt.
+
+License deed for both: https://creativecommons.org/publicdomain/zero/1.0/
+Commercial use, modification and redistribution permitted. Attribution not required.
+Source pages and original authors retained here for provenance.
+Verified 2026-09-06. These backgrounds confer no game effects or elemental bonuses.

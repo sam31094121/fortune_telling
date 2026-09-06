@@ -1,5 +1,7 @@
 'use client';
 
+import { BATTLE_VENUES } from '@/lib/beast-game/venues';
+
 import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { selectRitualHighlights, type RitualTurn } from '@/lib/beast-ritual';
@@ -310,7 +312,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
           >
             <div className={styles.face} aria-hidden={open}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              {card && <img src="/tarot/card-back-luxe.png" alt={`${side === 'player' ? '你' : '對手'}的${position}牌背`} />}
+              {card && <img src="/beast-game/card-back.webp" alt={`${side === 'player' ? '你' : '對手'}的${position}牌背`} />}
             </div>
             <div className={`${styles.face} ${styles.front}`} aria-hidden={!open}>
               {card && <>
@@ -359,16 +361,17 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
         }
       : null;
   const clashActive = clashPairReady || clashTurnReady;
+  const previewIndex = Math.min(Math.floor(revealCount / 2), 2);
 
-  return <div ref={dialog} tabIndex={-1} role="dialog" aria-modal="true" aria-label="雙方揭牌儀式" className={styles.stage} data-duel-ritual data-ritual-phase={!opponentReady ? 'waiting' : !dealt ? 'dealing' : phase}>
+  return <div ref={dialog} tabIndex={-1} role="dialog" aria-modal="true" aria-label="雙方揭牌儀式" className={styles.stage} data-battle-venue="fighting" style={{ backgroundImage: `linear-gradient(#070f21b8, #070f21eb), url("${BATTLE_VENUES.fighting.image}")` }} data-duel-ritual data-ritual-phase={!opponentReady ? 'waiting' : !dealt ? 'dealing' : phase}>
     <div className={styles.table}>
       <div className={styles.topline}>
-        <h2>{pairs ? '三戰兩勝' : '三席對陣'}{replay ? '・重播' : ''}</h2>
+        <h2>格鬥場・{pairs ? '三戰兩勝' : '三席對陣'}{replay ? '・重播' : ''}</h2>
         <button type="button" className={styles.close} onClick={onCancel} disabled={!opponentReady}>{opponentReady ? '查看結算' : '準備中'}</button>
       </div>
-      <div className={styles.label}><span>電腦對手</span><small>{revealed ? '開場陣容' : '三張待揭'}</small></div>
-      {pairs && <p role="status" aria-label="目前比分">你 {shownScore.player} : {shownScore.opponent} 對手</p>}
-      {row(opponent, 'opponent')}
+      <div className={styles.duelSplit}>
+      <section className={styles.visualPane} aria-label="格鬥畫面" data-duel-visual>
+      <div className={styles.venueHeading}><span>{BATTLE_VENUES.fighting.name}</span>{pairs && <p role="status" aria-label="目前比分">你 {shownScore.player} : {shownScore.opponent} 對手</p>}</div>
       <div className={`${styles.center} ${phase === 'clash' || pairClash !== null ? styles.clash : ''}`} role="status" aria-live="polite" style={{ position: 'relative' }}>
         {/*
           格鬥舞台。襯在最底層（z-index 0），三維本體與文字都壓在它上面。
@@ -384,7 +387,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/beast-game/stage/default/circus_arena.jpg"
+            src={BATTLE_VENUES.fighting.image}
             alt=""
             loading="lazy"
             decoding="async"
@@ -396,6 +399,16 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
           <div className={styles.arenaPost} />
           <div className={styles.arenaRing} />
         </div>
+        {!clashActive && <div className={styles.waitingCards} aria-hidden="true">
+          {(['player', 'opponent'] as const).map(side => {
+            const card = (side === 'player' ? player : opponent)?.[previewIndex];
+            return <div key={side}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={card && isRevealed(side, previewIndex) ? card.thumbnail : '/beast-game/card-back.webp'} alt="" />
+              <span>{side === 'player' ? '你' : '對手'}・{POSITIONS[previewIndex]}</span>
+            </div>;
+          })}
+        </div>}
         {pairClash !== null && player[pairClash] && opponent?.[pairClash] && (
           <>
             {chargePuppetPoolId ? (
@@ -474,8 +487,16 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
           <p>{revealed ? '守護陣已展開' : ready ? '雙方三席已鎖定' : '你的三張已入陣'}</p>
         </>}
       </div>
+      </section>
+      <section className={styles.controlPane} aria-label="揭牌操控" data-duel-controls>
+      <div className={styles.handScroll}>
+      <div className={styles.label}><span>電腦對手</span><small>{revealed ? '開場陣容' : '三張待揭'}</small></div>
+      {row(opponent, 'opponent')}
       <div className={styles.label}><span>你的神獸</span><small>{revealed ? '開場陣容' : '親手選定'}</small></div>
       {row(player, 'player')}
+      <details className={styles.rules}><summary>格鬥規則與素材</summary><p>雙方依前鋒、中軍、後陣逐組交鋒，共三局。二比零後自動揭開第三組；一比一時親手揭開決勝局。</p>{revealed && <button type="button" className={styles.skip} onClick={() => completeRef.current()}>略過動畫・看戰果</button>}<a href="/audio/beast-voices/credits.html" target="_blank" rel="noreferrer">聲音來源</a></details>
+      </div>
+      <div className={styles.commands}>
 
       {/*
         翻牌控制。
@@ -509,10 +530,12 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
         </div>
       )}
 
-      {!revealed ? <button type="button" className={styles.action} disabled={!ready} onClick={() => { if (ready) { playPlayerBeastVoice(sound.current.play, 'player', player[0].id); setPhase('revealing'); } }}>
+      {!revealed && <button type="button" className={styles.action} disabled={!ready} onClick={() => { if (ready) { playPlayerBeastVoice(sound.current.play, 'player', player[0].id); setPhase('revealing'); } }}>
         {ready ? '一起揭牌' : '等待對手就緒…'}
-      </button> : <button type="button" className={styles.skip} onClick={() => completeRef.current()}>略過動畫・看戰果</button>}
-      <a className={styles.skip} href="/audio/beast-voices/credits.html" target="_blank" rel="noreferrer">聲音來源</a>
+      </button>}
+      </div>
+      </section>
+      </div>
     </div>
   </div>;
 }

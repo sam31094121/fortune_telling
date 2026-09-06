@@ -1,100 +1,139 @@
 'use client';
-import {useEffect,useRef,useState} from 'react';
-import Link from 'next/link';
-import {recordBeastGameCompleted} from '@/lib/growth-center-client';
-import {readOwnedCards} from '@/lib/beast-owned-cards';
-import {spiritArtFor} from '@/lib/beast-battle-fx';
-import type {interactiveCatalog,Match,Action} from '@/lib/beast-game/interactive';
-import styles from './BeastTurnGame.module.css';
-import BeastDuelArchive from './BeastDuelArchive';
-import BeastCardTile, { CardDetailSheet } from './battlefield/BeastCardTile';
-type Card=ReturnType<typeof interactiveCatalog>[number];
-type Account={owned:string[];experience:Record<string,number>;match:Match|null;summonDay:string|null;imported:boolean;revision:number};
-const labels:Record<string,string>={SPACE:'空',AIR:'風',WATER:'水',FIRE:'火',EARTH:'地'};
-export default function BeastTurnGame(){
- const [cards,setCards]=useState<Card[]>([]),[account,setAccount]=useState<Account|null>(null),[selected,setSelected]=useState<string[]>([]),[error,setError]=useState(''),[busy,setBusy]=useState(false),[tab,setTab]=useState('組隊'),[filter,setFilter]=useState('全部'),[detail,setDetail]=useState<Card|null>(null),[switching,setSwitching]=useState(false),[anim,setAnim]=useState(false),[history,setHistory]=useState<string[]>([]),[notice,setNotice]=useState('');
- const audio=useRef<HTMLAudioElement|null>(null),pending=useRef(false),timer=useRef<ReturnType<typeof setTimeout>|null>(null);
- const screen=useRef<HTMLElement|null>(null);
- useEffect(()=>{if(account?.match?.status==='FINISHED')recordBeastGameCompleted('battlefield');},[account?.match?.status]);
- useEffect(()=>{screen.current?.scrollIntoView({block:'start'});},[account?.match?.status]);
- async function load(){try{const r=await fetch('/api/beast-game/turns',{signal:AbortSignal.timeout(15000)});const d=await r.json();if(!d.ok)throw Error(d.error);setCards(d.cards);setAccount(d.account);setError('');}catch(e){setError(String(e));}}
- useEffect(()=>{void load();return()=>{audio.current?.pause();if(timer.current)clearTimeout(timer.current);};},[]);
- async function send(type:string,extra:Record<string,unknown>={}){
-  if(!account||pending.current)return;pending.current=true;setBusy(true);setError('');setNotice('');
-  try{const r=await fetch('/api/beast-game/turns',{method:'POST',signal:AbortSignal.timeout(15000),headers:{'Content-Type':'application/json'},body:JSON.stringify({type,revision:account.revision,requestId:crypto.randomUUID(),...extra})});const d=await r.json();if(!d.ok)throw Error(d.error);
-   setAccount(d.account);setSwitching(false);
-   if(type==='ACTION'){setAnim(true);timer.current=setTimeout(()=>setAnim(false),1400);const logs=d.account.match?.log??[];setHistory(h=>[...logs.map((l:{text:string})=>l.text),...h].slice(0,40));const own=logs.find((l:{side:string})=>l.side==='player');if(own){audio.current?.pause();audio.current=new Audio(`/audio/beast-voices/${own.cardId}.mp3`);audio.current.volume=.55;void audio.current.play().catch(()=>setNotice('瀏覽器尚未允許聲音；下次點擊操作時會再嘗試播放。'));}}
-   if(type==='START'){setHistory([]);setTab('組隊');setDetail(null);}
-   if(type==='SUMMON'){const fresh=d.account.owned.find((id:string)=>!account.owned.includes(id));setNotice(fresh?`召喚成功：${cards.find(c=>c.id===fresh)?.name}`:'抽到已收藏神獸，已增加該卡 1 點成長。');}
-   if(type==='EVOLVE')setNotice('覺醒成功！成獸已加入收藏，幼子保留。');
-   if(type==='LEAVE')audio.current?.pause();
-  }catch(e){setError(e instanceof Error?e.message:'連線中斷，請重新載入確認是否已保存。');}
-  finally{pending.current=false;setBusy(false);}
- }
- const match=account?.match,lookup=(id:string)=>cards.find(c=>c.id===id)!;
- const owned=cards.filter(c=>account?.owned.includes(c.id));
- const top=<><header className={styles.header}><h1>神獸・回合對戰</h1><Link href="/beast-game/lineup">組陣台・押注</Link><Link href="/beast-game/battlefield">神獸戰場</Link><Link href="/">回首頁</Link></header><p className={styles.muted}>選三隻神獸，親手決定攻擊、技能與換陣。擊倒對方三隻即獲勝。</p>{error&&<p role="alert" className={styles.error}>{error} <button onClick={()=>void load()}>重新載入</button></p>}{notice&&<p role="status">{notice}</p>}</>;
- if(!account)return <main ref={screen} className={styles.page}>{top}<p>正在讀取神獸收藏…</p></main>;
- if(match&&match.status==='PLAYING'){
-  const me=match.player.team[match.player.active],foe=match.opponent.team[match.opponent.active],p=lookup(me.cardId);
-  const forced=me.defeated,enemyForced=foe.defeated;
-  const act=(action:Action)=>void send('ACTION',{action});
-  return <main ref={screen} className={styles.page}>{top}<div className={styles.header}><strong>第 {match.round} 回合</strong><span>能量 {match.player.energy}／6</span></div>
-   <div className={styles.status}><strong>對手・{foe.name}</strong><span>　{foe.hp}／{foe.maxHp} HP · 盾 {foe.shield}</span><progress value={foe.hp} max={foe.maxHp}/><small>剩餘 {match.opponent.team.filter(f=>!f.defeated).length} 隻 · 能量 {match.opponent.energy}</small></div>
-   <div className={`${styles.stage} ${anim?styles.attack:''}`} aria-label="雙方神獸交戰舞台"><img src={spiritArtFor(me.cardId)??lookup(me.cardId).front} alt={me.name}/><img src={spiritArtFor(foe.cardId)??lookup(foe.cardId).front} alt={foe.name}/></div>
-   <div className={styles.status}><strong>我方・{me.name}</strong><span>　{me.hp}／{me.maxHp} HP · 盾 {me.shield}</span><progress value={me.hp} max={me.maxHp}/><span className={styles.badge}>{p.role} · {labels[p.element]} · {p.tier} 階</span></div>
-   <p className={styles.muted}>{p.skillName}：{p.description} 消耗 {p.cost} 能量；冷卻剩餘 {me.cooldown} 回合。</p>
-   <BeastDuelArchive key={me.cardId} cardId={me.cardId} skillName={p.skillName} description={p.description}/>
-   {(switching||forced)&&<div className={styles.panel}><strong>{forced?'選擇下一隻出戰神獸':'切換會占用本回合行動'}</strong><div className={styles.toolbar}>{match.player.team.map((f,index)=><button key={f.cardId} disabled={busy||f.defeated||index===match.player.active} onClick={()=>act({type:'SWITCH',index})}>{f.name} {f.hp} HP</button>)}</div></div>}
-   {enemyForced&&!forced&&<button disabled={busy} onClick={()=>act({type:'ATTACK'})}>對手神獸已倒下，繼續下一隻</button>}
-   <div className={styles.actions}><button disabled={busy||anim||forced||enemyForced} onClick={()=>act({type:'ATTACK'})}>攻擊</button><button disabled={busy||anim||forced||enemyForced||me.cooldown>0||match.player.energy<p.cost} onClick={()=>act({type:'SKILL'})}>技能 · {p.cost}</button><button disabled={busy||anim||enemyForced} onClick={()=>setSwitching(s=>!s)}>切換</button></div>
-   <details open><summary>戰鬥紀錄</summary><div className={styles.log}>{history.length?history.map((t,i)=><p key={i}>{t}</p>):<p>選擇第一個動作開始戰鬥。</p>}</div></details><button disabled={busy} onClick={()=>void send('LEAVE')}>離開戰鬥（不扣卡、不計成長）</button><p className={styles.muted}>切換先於攻擊；其餘按速度。同速由伺服器亂數判定。最多 80 回合，未分勝負則平手。</p><Link href="/audio/beast-voices/credits.html">本體聲音與授權來源</Link>
-  </main>;
- }
- return <main ref={screen} className={styles.page}>{top}{match?.status==='FINISHED'&&<div className={styles.result}><h2>{match.winner==='player'?'你獲勝了！':match.winner==='opponent'?'本場對手獲勝':'本場平手'}</h2><p>三隻出戰神獸各獲得 1 點成長。收藏卡不扣除。</p><button disabled={busy} onClick={()=>void send('LEAVE')}>回到組隊</button></div>}
-  <nav className={styles.toolbar}>{['組隊','圖鑑','召喚','成長'].map(t=><button key={t} aria-pressed={tab===t} onClick={()=>{setTab(t);setDetail(null);}}>{t}</button>)}</nav>
-  <p>已收藏 {account.owned.length}／60　<small>出戰不限收藏，六十張都能上場</small></p>
-  {tab==='召喚'?<section className={styles.panel}><h2>五元素召喚</h2><p>每天免費一次。60 張神獸各有 1／60 機率；重複取得轉為該卡 1 點成長。</p><p className={styles.muted}>每日以 UTC 00:00（臺灣 08:00）重置。</p><button disabled={busy||account.summonDay===new Date().toISOString().slice(0,10)} onClick={()=>void send('SUMMON')}>召喚神獸</button></section>:<>
-  {/*
-    三席用卡片，不用文字鈕。
 
-    業主定調：「只能用卡片點擊，禁止用字幕點擊方式。」
-    原本是三顆寫著「主戰・選一張」的文字按鈕——那就是用字幕點擊。
-    現在空格顯示牌背、放了就顯示那張卡，點卡片本身把它移出。
-  */}
-  {tab==='組隊'&&<><div className={styles.slots}>{[0,1,2].map(i=>{const id=selected[i];const c=id?lookup(id):null;
-   return <div key={i} className={styles.card}>{c
-    ?<BeastCardTile card={c} selected onOpen={()=>setSelected(s=>s.filter((_,j)=>j!==i))}/>
-    :<BeastCardTile card={{id:'empty'+i,name:i===0?'主戰':'備戰',thumbnail:'/beast-game/card-back.webp',element:''}} onOpen={()=>{}}/>}</div>;})}</div>
-   <button disabled={busy||selected.length!==3||!!match} onClick={()=>void send('START',{lineup:selected})}>開始回合對戰</button>
-   <p className={styles.muted}>點卡片入陣，再點一次看詳情。第一隻先出場，其餘可在回合中切換。三張不可重複。</p></>}
-  <div className={styles.filters}>{['全部',...Object.keys(labels)].map(e=><button key={e} aria-pressed={filter===e} onClick={()=>setFilter(e)}>{labels[e]??e}</button>)}</div>
-  {/*
-    卡片格：只有卡面與名字，其餘全部折進底部詳情。
-    業主定調「主軸卡片顯示出來就好，剩下的說明都折起來，點閱才展開」。
-    尺寸與框架由 BeastCardTile 決定，六十張長得一樣。
-  */}
-  <div className={styles.grid}>{(tab==='成長'?owned:cards).filter(c=>(filter==='全部'||c.element===filter)&&(tab!=='成長'||c.form==='YOUNG')).map(c=>{const has=account.owned.includes(c.id);return <div className={styles.card} key={c.id}>
-   <BeastCardTile card={c} owned={has} selected={selected.includes(c.id)} onOpen={()=>{
-     // 組隊分頁：第一下入陣，已在陣中的再點才看詳情。
-     if(tab!=='組隊'){setDetail(c);return;}
-     if(selected.includes(c.id)){setDetail(c);return;}
-     if(selected.length<3)setSelected(s=>[...s,c.id]); else setDetail(c);
-   }}/>
-  </div>;})}</div>
-  </>}
-  {/*
-    詳情從底部升起，不是插在頁面中間。
-    插在中間會把整個格線推開，客戶關掉之後找不回原本在看哪一張。
-  */}
-  {/* 選卡不得由文字發動——組隊分頁的詳情只看資料，入陣要點卡片。
-      覺醒不是選卡，是一個動作，留著。 */}
-  {detail&&<CardDetailSheet card={detail} owned={account.owned.includes(detail.id)}
-    note={tab==='成長'?`成長 ${account.experience[detail.id]??0}／3`:undefined}
-    actionLabel={tab==='成長'&&(account.experience[detail.id]??0)>=3&&detail.evolution&&!account.owned.includes(detail.evolution)?'覺醒成獸':undefined}
-    onAction={tab==='成長'?()=>void send('EVOLVE',{cardId:detail.id}):undefined}
-    onClose={()=>setDetail(null)}/>}
-  {!account.imported&&<button disabled={busy} onClick={()=>void send('IMPORT',{legacyIds:readOwnedCards().all})}>匯入這個瀏覽器原有收藏</button>}
-  <p className={styles.muted}>收藏保存在目前伺服器，以此瀏覽器識別；尚未提供跨裝置登入。首次提供三張入門卡。舊收藏匯入不移除原紀錄。</p><Link href="/audio/beast-voices/credits.html">聲音來源與授權</Link>
- </main>;
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { recordBeastGameCompleted } from '@/lib/growth-center-client';
+import type { interactiveCatalog, Match, Action } from '@/lib/beast-game/interactive';
+import { BATTLE_VENUES } from '@/lib/beast-game/venues';
+import BattleArena from './battlefield/BattleArena';
+import BattlePanel from './battlefield/BattlePanel';
+import BattleCardGuide from './battlefield/BattleCardGuide';
+import BeastCardTile, { CardDetailSheet } from './battlefield/BeastCardTile';
+import styles from './BeastTurnGame.module.css';
+import battleStyles from './battlefield/BattleScreen.module.css';
+import venueStyles from './battlefield/BattleVenue.module.css';
+
+type Card = ReturnType<typeof interactiveCatalog>[number];
+// Account progression remains on the server; this screen reads only battle data.
+type Account = { owned: string[]; match: Match | null; revision: number };
+const labels: Record<string, string> = { SPACE: '空', AIR: '風', WATER: '水', FIRE: '火', EARTH: '地' };
+
+export default function BeastTurnGame() {
+  const [cards, setCards] = useState<Card[]>([]);
+  const [account, setAccount] = useState<Account | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState('組隊');
+  const [filter, setFilter] = useState('全部');
+  const [detail, setDetail] = useState<Card | null>(null);
+  const [inspection, setInspection] = useState<{ cardId: string; side: 'player' | 'opponent' } | null>(null);
+  const pending = useRef(false);
+  const scroll = useRef<HTMLDivElement>(null);
+  const match = account?.match;
+
+  // Keep completion accounting invisible to the battle interface.
+  useEffect(() => { if (match?.status === 'FINISHED') recordBeastGameCompleted('battlefield'); }, [match?.status]);
+
+  async function load(signal?: AbortSignal) {
+    try {
+      const res = await fetch('/api/beast-game/turns', { signal: signal ?? AbortSignal.timeout(15000) });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error ?? '卡池讀取失敗');
+      if (signal?.aborted) return;
+      setCards(data.cards); setAccount(data.account); setError('');
+    } catch (cause) {
+      if (!signal?.aborted) setError(cause instanceof Error ? cause.message : '連線中斷，請重新載入。');
+    }
+  }
+  useEffect(() => {
+    let disposed = false;
+    const controller = new AbortController();
+    const timer = setTimeout(() => { controller.abort(); if (!disposed) setError('卡池讀取逾時，請重新載入。'); }, 15000);
+    void load(controller.signal).finally(() => clearTimeout(timer));
+    return () => { disposed = true; clearTimeout(timer); controller.abort(); };
+  }, []);
+
+  async function send(type: 'START' | 'ACTION' | 'LEAVE', extra: Record<string, unknown> = {}) {
+    if (!account || pending.current) return;
+    pending.current = true; setBusy(true); setError('');
+    try {
+      const res = await fetch('/api/beast-game/turns', {
+        method: 'POST', signal: AbortSignal.timeout(15000), headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, revision: account.revision, requestId: crypto.randomUUID(), ...extra }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error ?? '戰鬥操作未完成');
+      setAccount(data.account);
+      if (type !== 'ACTION') { setInspection(null); setDetail(null); setTab('組隊'); }
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '連線中斷，請重新載入確認戰況。');
+    } finally { pending.current = false; setBusy(false); }
+  }
+
+  const errorNotice = error && <p role="alert" className={styles.error}>{error} <button type="button" disabled={busy} onClick={() => void load()}>重新載入戰況</button></p>;
+
+  if (match) {
+    const inspected = inspection ? match[inspection.side].team.find(f => f.cardId === inspection.cardId) : undefined;
+    const other = inspection?.side === 'opponent' ? match.player : match.opponent;
+    const inspect = (cardId: string, side: 'player' | 'opponent') => { setInspection({ cardId, side }); scroll.current?.scrollTo({ top: 0 }); };
+    return <main className={battleStyles.page} data-mobile-battle>
+      <div className={battleStyles.shell}>
+        <header className={battleStyles.header}><h1>卡片戰鬥</h1><span>自由組隊・戰鬥／操控 50:50</span></header>
+        <div className={battleStyles.split} data-battle-split>
+          <BattleArena match={match} cards={cards} onInspect={inspect} />
+          <section className={battleStyles.controls} aria-label="手部操控" data-battle-controls>
+            <div className={battleStyles.controlsHeading}><strong>{inspection ? '能力與相剋' : match.status === 'FINISHED' ? '對戰結果' : '選擇本回合動作'}</strong><span>{busy ? '出招中…' : '自由組隊・免押卡'}</span></div>
+            <div className={battleStyles.controlScroll} ref={scroll} data-control-scroll>
+              {errorNotice}
+              {inspection && <BattleCardGuide cardId={inspection.cardId} fighter={inspected} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
+              <div hidden={Boolean(inspection)}>
+                <BattlePanel match={match} onAction={(action: Action) => void send('ACTION', { action })} busy={busy} compact cards={cards} />
+                {match.status === 'FINISHED' ? <p className={battleStyles.notice}>本場結束，持有卡片不扣除。可回到組隊更換陣容。</p> : <details className={battleStyles.details}>
+                  <summary>對戰規則與離場</summary>
+                  <p>切換先於攻擊；其餘按速度。同速隨機決定，最多 80 回合。擊倒對方三隻即獲勝。</p>
+                  <p>本模式免押卡。空、風、水、火、地的相剋與技能效果，可點戰鬥卡查看。</p>
+                  <button type="button" className={battleStyles.restart} disabled={busy} onClick={() => void send('LEAVE')}>離開本場，回到組隊（不扣卡）</button>
+                </details>}
+              </div>
+            </div>
+            {match.status === 'FINISHED' && <div className={battleStyles.footer}><button type="button" className={battleStyles.start} disabled={busy} onClick={() => void send('LEAVE')}>回到組隊，再戰一場</button></div>}
+          </section>
+        </div>
+      </div>
+    </main>;
+  }
+
+  return <main className={styles.page}>
+    <header className={venueStyles.banner} data-battle-venue="cards">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" />
+      <p>卡片模式・{BATTLE_VENUES.cards.name}</p><h1>神獸戰鬥・自由組隊</h1>
+      <p>選三張卡，親手決定攻擊、技能與換陣。擊倒對方三隻即獲勝。</p>
+      <nav aria-label="戰鬥模式"><Link href="/beast-game/battlefield">抽牌戰場</Link><Link href="/beast-game/lineup">格鬥競技場</Link></nav>
+    </header>
+    {errorNotice}
+    {!account ? <p>正在讀取戰鬥卡…</p> : <>
+      <nav className={styles.toolbar} aria-label="戰鬥卡片"><button aria-pressed={tab === '組隊'} onClick={() => { setTab('組隊'); setDetail(null); }}>組隊</button><button aria-pressed={tab === '圖鑑'} onClick={() => { setTab('圖鑑'); setDetail(null); }}>戰鬥圖鑑</button></nav>
+      <p className={styles.muted}>60 張卡皆可出戰・本模式免押卡</p>
+      {tab === '組隊' && <>
+        <div className={styles.slots}>{[0, 1, 2].map(i => {
+          const card = cards.find(c => c.id === selected[i]);
+          return <div key={i} className={styles.card}>{card
+            ? <BeastCardTile card={card} selected onOpen={() => setSelected(s => s.filter((_, j) => j !== i))} />
+            : <BeastCardTile card={{ id: 'empty' + i, name: i === 0 ? '主戰' : '備戰', thumbnail: '/beast-game/card-back.webp', element: '' }} onOpen={() => {}} />}</div>;
+        })}</div>
+        <button disabled={busy || selected.length !== 3} onClick={() => void send('START', { lineup: selected })}>開始回合對戰</button>
+        <p className={styles.muted}>點卡片入陣，再點陣中卡可移出。第一張先出場，其餘可在回合中切換。三張不可重複。</p>
+      </>}
+      <div className={styles.filters}>{['全部', ...Object.keys(labels)].map(element => <button key={element} aria-pressed={filter === element} onClick={() => setFilter(element)}>{labels[element] ?? element}</button>)}</div>
+      <div className={styles.grid}>{cards.filter(c => filter === '全部' || c.element === filter).map(card => <div className={styles.card} key={card.id}>
+        <BeastCardTile card={card} selected={selected.includes(card.id)} onOpen={() => {
+          if (tab !== '組隊' || selected.includes(card.id) || selected.length >= 3) setDetail(card);
+          else setSelected(s => [...s, card.id]);
+        }} />
+      </div>)}</div>
+      {detail && <CardDetailSheet card={{ ...detail, story: undefined }} onClose={() => setDetail(null)} />}
+    </>}
+  </main>;
 }

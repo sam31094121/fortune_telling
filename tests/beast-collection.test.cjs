@@ -109,11 +109,12 @@ async function main() {
   const props = { outcome: { ...result('OPPONENT').stake, playerStakeName: '角木蛟', opponentStakeName: '亢金龍', gainedCardName: null, forfeitedCardName: '角木蛟' }, card: { name: '角木蛟', thumbnail: '/test.png' }, isReplay: false, retrying: false, onRetry() {} };
   const html = (settlement, isReplay = false) => renderToStaticMarkup(React.createElement(Panel, { ...props, settlement, isReplay }));
   check('saved loss names card, minus one, and actual remaining copies', () => { const text = html(oneLost.settlement); assert.match(text, /輸掉 −1/); assert.match(text, /角木蛟/); assert.match(text, /還有 1 張/); });
-  check('failed storage never displays saved loss or removal overlay', () => { const text = html(failed.settlement); assert.match(text, /待保存/); assert.doesNotMatch(text, /輸掉 −1|已從成長中心扣除|grayscale/); });
+  check('failed storage never displays saved loss or removal overlay', () => { const text = html(failed.settlement); assert.match(text, /待保存/); assert.doesNotMatch(text, /輸掉 −1|已從持有卡片扣除|grayscale/); });
   check('replay clearly says no new inventory change', () => { const text = html(oneLost.settlement, true); assert.match(text, /本次不發獎，也不扣卡/); assert.doesNotMatch(text, /輸掉 −1/); });
-  check('saved win explicitly names prize and links the growth collection', () => {
+  check('saved win names prize and held total within battle mode', () => {
     const text = renderToStaticMarkup(React.createElement(Panel, { ...props, outcome: { ...props.outcome, verdict: 'WON', gainedCardName: '亢金龍', forfeitedCardName: null }, settlement: won.settlement }));
-    assert.match(text, /獲得 ＋1/); assert.match(text, /你多了一張「亢金龍」/); assert.match(text, /growth-center#beast-collection/);
+    assert.match(text, /獲得 ＋1/); assert.match(text, /你多了一張「亢金龍」/); assert.match(text, /目前持有 2 張卡片/);
+    assert.doesNotMatch(text, /成長中心|growth-center#/);
   });
   const ledger = h.load('lib/beast-collection-ledger.ts');
   const reserved = ledger.reserveCard(ledger.grantGrowthCards({ cards: [], history: [] }, [a], '2026-09-05'), a, 'mismatch', '2026-09-05');

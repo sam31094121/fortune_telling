@@ -156,10 +156,12 @@ const stake = loadModule('lib/beast-game/stake.ts');
   assert.ok(read('components/BeastStakeResult.tsx').includes('COLLECTION_STORAGE_NOTICE'), '戰果頁也要顯示儲存說明');
 }
 
-/* ── 八、獎勵要指引到成長中心 ───────────────────────────────────── */
+/* ── 八、戰鬥前端獨立，收藏帳本仍共用 ──────────────────────────── */
 {
   const page = read('components/BeastLegacyGame.tsx');
-  assert.ok(/growth-center#beast-collection/.test(read('components/BeastStakeResult.tsx')), '獎勵直接指引成長中心收藏格');
+  const receipt = read('components/BeastStakeResult.tsx');
+  assert.ok(!/growth-center#/.test(receipt), '新規格：結算留在戰鬥模式，不導向成長中心');
+  assert.ok(receipt.includes('data-held-card-total'), '結算仍明確顯示持有張數');
 
   const shelf = read('components/DuelCollectionShelf.tsx');
   assert.ok(shelf.includes('data-duel-collection'), '成長中心要有可辨識的收藏格');

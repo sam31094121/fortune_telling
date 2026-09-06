@@ -8,25 +8,28 @@ import type { Match } from '@/lib/beast-game/interactive';
 import { describeMatchup } from '@/lib/beast-element-guide';
 import { ELEMENT_LABEL, type BeastElement } from '@/lib/beast-game/elements';
 import { combatGuideFor, elementPercent } from '@/lib/beast-game/combat-guide';
+import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import styles from './BattleArena.module.css';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 
 /** Both fighters stay above the controls. All displayed combat values come from Match. */
-export default function BattleArena({ state, cards, match, onInspect }: FieldProps & {
-  match: Match | null; onInspect: (id: string, side: 'player' | 'opponent') => void;
-}) {
+export default function BattleArena({ state, cards, match, onInspect }: {
+  cards: BattlefieldCardArt[]; onInspect: (id: string, side: 'player' | 'opponent') => void;
+} & ({ match: Match; state?: BattleState } | { match: Match | null; state: BattleState })) {
   const lookup = useMemo(() => new Map(cards.map(card => [card.id, card])), [cards]);
-  const mine = match ? lookup.get(match.player.team[match.player.active].cardId) : lookup.get(state.player.active ?? '');
-  const foe = match ? lookup.get(match.opponent.team[match.opponent.active].cardId) : lookup.get(state.opponent.active ?? '');
+  const mine = match ? lookup.get(match.player.team[match.player.active].cardId) : lookup.get(state?.player.active ?? '');
+  const foe = match ? lookup.get(match.opponent.team[match.opponent.active].cardId) : lookup.get(state?.opponent.active ?? '');
   const matchup = mine && foe ? describeMatchup(mine.element as BeastElement, foe.element as BeastElement) : null;
   const finished = match?.status === 'FINISHED';
 
   return (
-    <section className={styles.arena} aria-label="戰鬥畫面" data-battle-visual>
+    <section className={styles.arena} aria-label="戰鬥畫面" data-battle-visual data-battle-venue="cards">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className={styles.backdrop} src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" decoding="async" />
       <div className={styles.arenaHeading}>
         <strong>{finished ? '本場結束' : match ? `第 ${match.round} 回合` : '佈陣預覽'}</strong>
-        <span>{match ? '電腦對戰' : '下方選卡・點格子放入'}</span>
+        <span>{BATTLE_VENUES.cards.name}・卡片戰鬥</span>
       </div>
       <div className={styles.fighters}>
         {(['player', 'opponent'] as const).map(side => {
@@ -56,7 +59,7 @@ export default function BattleArena({ state, cards, match, onInspect }: FieldPro
                   <VitalBar hp={fighter.hp} maxHp={fighter.maxHp} shield={fighter.shield} />
                   <p>{ELEMENT_LABEL[fighter.element]}・氣 {team.energy}<span>{team.team.filter(f => !f.defeated).length}/{team.team.length} 存活</span></p>
                 </div>
-              ) : <p className={styles.previewStats}>{card ? ELEMENT_LABEL[card.element as BeastElement] : '未選'}・上場 {(state[side].active ? 1 : 0) + state[side].bench.filter(Boolean).length} 隻</p>}
+              ) : <p className={styles.previewStats}>{card ? ELEMENT_LABEL[card.element as BeastElement] : '未選'}・上場 {(state?.[side].active ? 1 : 0) + (state?.[side].bench.filter(Boolean).length ?? 0)} 隻</p>}
             </div>
           );
         })}

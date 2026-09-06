@@ -27,7 +27,9 @@ import { selectRitualHighlights } from '@/lib/beast-ritual';
 import frameStyles from '@/components/BeastCardFrame.module.css';
 import { describeStakeRisk } from '@/lib/beast-game/stake';
 import { runOwnedDuel, retryStakeSettlement, recoverPendingDuel, subscribeCollection, type Settlement } from '@/lib/beast-collection';
-import { NO_OWNED_CARDS_GUIDE, readOwnedCards, type OwnedCards } from '@/lib/beast-owned-cards';
+import { readOwnedCards, type OwnedCards } from '@/lib/beast-owned-cards';
+import { BATTLE_NO_STAKE_GUIDE, BATTLE_VENUES } from '@/lib/beast-game/venues';
+import venueStyles from './battlefield/BattleVenue.module.css';
 
 type Skill = { id: string; name: string; trigger: string; description: string; source?: string };
 type Card = {
@@ -124,7 +126,7 @@ const SLOT_META = [
 const ONBOARDING = [
   { step: '1', title: '選卡', body: '挑喜歡的神獸。' },
   { step: '2', title: '放入', body: '親手確認三個站位。' },
-  { step: '3', title: '押注', body: '從你的收藏拿一張出來賭。沒有卡先去成長中心領。' },
+  { step: '3', title: '押注', body: '從持有卡片押一張，輸了會被沒收。無卡可先進卡片體驗戰。' },
   { step: '4', title: '啟陣', body: '三席合計最多十二氣。' },
 ];
 const ONBOARDING_SEEN_KEY = 'beast_game_onboarding_seen_v1';
@@ -503,14 +505,15 @@ export default function BeastGamePage() {
   }
   return (
     <main className="mx-auto min-h-screen w-full max-w-3xl px-4 pb-24 pt-6 text-white sm:px-6">
-      <header className="mb-5">
-        <Link href="/star-beasts" className="text-xs font-bold tracking-widest text-cyan-200/70">
-          ← 二十八宿神獸圖鑑
-        </Link>
-        <h1 className="mt-2 font-serif text-2xl font-black sm:text-3xl">神獸決鬥・組陣台</h1>
+      <header className={venueStyles.banner} data-battle-venue="fighting">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={BATTLE_VENUES.fighting.image} alt="" aria-hidden="true" />
+        <p>格鬥模式・{BATTLE_VENUES.fighting.name}</p>
+        <h1>神獸決鬥・組陣台</h1>
         <p className="mt-1.5 text-xs leading-6 text-white/60">
           六十張神獸，選三張入陣，與電腦對手一起揭牌。
         </p>
+        <nav aria-label="戰鬥模式"><Link href="/beast-game/battlefield">卡片戰場</Link><Link href="/beast-game">自由組隊</Link></nav>
       </header>
 
       {/*
@@ -673,13 +676,13 @@ export default function BeastGamePage() {
         <div className="mt-3 rounded-2xl border border-amber-300/25 bg-amber-300/[0.05] p-3" data-stake-slot>
           {owned.storageError ? <p role="alert" className="text-sm text-amber-100">{owned.storageError}</p> : owned.all.length === 0 ? (
             <div data-stake-empty>
-              <p className="text-xs font-black text-amber-100">{NO_OWNED_CARDS_GUIDE.headline}</p>
-              <p className="mt-1 text-[11px] leading-5 text-white/60">{NO_OWNED_CARDS_GUIDE.body}</p>
+              <p className="text-xs font-black text-amber-100">{BATTLE_NO_STAKE_GUIDE.headline}</p>
+              <p className="mt-1 text-[11px] leading-5 text-white/60">{BATTLE_NO_STAKE_GUIDE.body}</p>
               <Link
-                href={NO_OWNED_CARDS_GUIDE.href}
+                href={BATTLE_NO_STAKE_GUIDE.href}
                 className="mt-2.5 inline-block min-h-11 rounded-xl bg-amber-300 px-4 py-3 text-xs font-black text-slate-950"
               >
-                {NO_OWNED_CARDS_GUIDE.action}
+                {BATTLE_NO_STAKE_GUIDE.action}
               </Link>
             </div>
           ) : (
@@ -710,7 +713,7 @@ export default function BeastGamePage() {
 
               {/* 只列自己的卡。押不是從六十張裡挑，是從你手上有的挑。 */}
               <p className="mt-2.5 text-[11px] font-bold text-white/50">
-                成長中心的卡（{owned.all.length} 種）・點一張押注
+                你持有的卡（{owned.all.length} 種）・點一張押注
               </p>
               <ul className="mt-1.5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin] [scrollbar-color:#bba16655_transparent]" data-owned-cards>
                 {owned.all.map((cardId) => {
@@ -778,7 +781,7 @@ export default function BeastGamePage() {
                 {duel.winner === 'PLAYER' ? '你贏了' : duel.winner === 'OPPONENT' ? '你輸了' : '平手'}
               </p>
               <p className="mt-1 text-xs text-white/60">
-                {duel.series ? `共 ${duel.turns} 局・比分 ${duel.series.score.player} : ${duel.series.score.opponent}` : `共 ${duel.turns} 回合・本命 ${duel.life?.player} : ${duel.life?.opponent}`}
+                {duel.series ? `共 ${duel.turns} 局・比分 ${duel.series.score.player} : ${duel.series.score.opponent}` : `共 ${duel.turns} 回合・生命 ${duel.life?.player} : ${duel.life?.opponent}`}
               </p>
               {selectRitualHighlights(duel.timeline).slice(-1).map((entry) => (
                 <p key={`${entry.turn}-${entry.side}`} className="mt-2 text-xs leading-6 text-amber-100/80">
@@ -972,7 +975,7 @@ export default function BeastGamePage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={detail.front} alt={detail.name} loading="lazy" decoding="async" className={frameStyles.art} />
             </div>
-            <h3 className="mt-3 font-serif text-xl font-black">{detail.name}</h3>
+            <h3 className="mt-3 text-xl font-black">{detail.name}</h3>
             <p className="mt-1 text-xs text-white/55">
               {FORM_LABEL[detail.form]}・{ELEMENT_LABEL[detail.element]}・{detail.rarity}・{detail.cost} 氣
             </p>
@@ -994,8 +997,8 @@ export default function BeastGamePage() {
                 </li>
               ))}
             </ul>
-            <h4 className="mt-4 text-xs font-black text-amber-200">戰鬥演出・技能戰鬥檔案</h4>
-            <p className="mt-1 text-[10px] leading-5 text-white/45">與數值技能共存。三戰兩勝翻牌時讀此檔出本體衝鋒，不取代 Effect Engine。</p>
+            <h4 className="mt-4 text-xs font-black text-amber-200">交鋒招式</h4>
+            <p className="mt-1 text-[11px] leading-5 text-white/60">翻牌後展開交鋒；技能效果與勝負以本場戰報為準。</p>
             <ul className="mt-1.5 space-y-1.5">
               {(detail.battleSkills ?? []).map((skill) => (
                 <li key={skill.id} className="rounded-xl bg-amber-400/10 px-3 py-2 ring-1 ring-amber-300/20">
@@ -1007,8 +1010,6 @@ export default function BeastGamePage() {
             {detail.skillBody ? (
               <p className="mt-2 text-[10px] text-white/40">戰鬥本體：{detail.skillBody}</p>
             ) : null}
-            <h4 className="mt-4 text-xs font-black text-cyan-200">神獸故事</h4>
-            <p className="mt-1 text-[11px] leading-6 text-white/60">{detail.story}</p>
             <button type="button" onClick={() => setDetail(null)}
               className="mt-4 min-h-[48px] w-full rounded-2xl bg-white/10 text-sm font-black">
               關閉

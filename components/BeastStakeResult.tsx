@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import frameStyles from './BeastCardFrame.module.css';
 import { COLLECTION_STORAGE_NOTICE, type Settlement } from '@/lib/beast-collection';
 
@@ -37,8 +36,8 @@ export default function BeastStakeResult({ outcome, card, settlement, isReplay, 
         <p className="mt-1 text-xs leading-5 text-white/70">
           {isReplay ? '本次不發獎，也不扣卡。'
             : !saved ? '尚未完成發獎或扣卡，請重試保存。'
-              : won ? '已放進成長中心，你原本押的卡也保留。'
-                : lost ? `已從成長中心扣除。這張還有 ${receipt?.remaining ?? 0} 張。`
+              : won ? '已加入持有卡片，你原本押的卡也保留。'
+                : lost ? `已從持有卡片扣除。這張還有 ${receipt?.remaining ?? 0} 張。`
                   : '這場平手，收藏張數不變。'}
         </p>
       </div>
@@ -48,7 +47,7 @@ export default function BeastStakeResult({ outcome, card, settlement, isReplay, 
       <div className="rounded-lg bg-black/25 px-2 py-2"><dt className="text-white/50">電腦押的</dt><dd>{outcome.opponentStakeName}</dd></div>
     </dl>
     {!saved && !isReplay && <button type="button" disabled={retrying} onClick={onRetry} className="mt-3 min-h-11 w-full rounded-xl bg-amber-200 px-3 py-2 text-sm font-black text-slate-950">{retrying ? '保存中…' : '重試保存這場結果'}</button>}
-    <Link href="/growth-center#beast-collection" className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-amber-200/40 px-3 py-2 text-sm font-bold text-amber-100">查看成長中心收藏{saved && receipt ? `（${receipt.total} 張）` : ''}</Link>
+    {saved && receipt && <p className="mt-3 text-sm text-amber-100" data-held-card-total>目前持有 {receipt.total} 張卡片，可繼續選卡出戰。</p>}
     <p className="mt-2 text-[10px] leading-4 text-white/50">{COLLECTION_STORAGE_NOTICE}</p>
   </section>;
 }

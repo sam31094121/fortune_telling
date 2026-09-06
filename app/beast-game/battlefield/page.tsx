@@ -23,7 +23,7 @@ import type { BattlefieldCardArt } from '@/components/battlefield/GameBattlefiel
 import BattleArena, { PreparationControls } from '@/components/battlefield/BattleArena';
 import BattleCardGuide from '@/components/battlefield/BattleCardGuide';
 import type { BeastElement } from '@/lib/beast-game/elements';
-import styles from './page.module.css';
+import styles from '@/components/battlefield/BattleScreen.module.css';
 import {
   moveCard,
   newBattle,
@@ -78,8 +78,6 @@ export default function BattlefieldPage() {
   /** 押注格：戰鬥前堵住輸贏的那一格。沒押就開不了戰。 */
   const [stakeCardId, setStakeCardId] = useState<string | null>(null);
   const [ownedStake, setOwnedStake] = useState<StakeCard[]>([]);
-  /** 首次禮包領了沒。戰後那顆「領取首次禮包」的鈕只該給還沒領的人看。 */
-  const [starterClaimed, setStarterClaimed] = useState(false);
   const [settlement, setSettlement] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [inspection, setInspection] = useState<{ cardId: string; side: 'player' | 'opponent' } | null>(null);
@@ -181,7 +179,6 @@ export default function BattlefieldPage() {
       .filter((card): card is BattlefieldCardArt => Boolean(card))
       .map((card) => ({ id: card.id, name: card.name, thumbnail: card.thumbnail }));
     setOwnedStake(owned);
-    setStarterClaimed(Boolean(collection.starterPack));
   }, [cards, seed]);
 
   /*
@@ -240,8 +237,8 @@ export default function BattlefieldPage() {
     <main className={styles.page} data-mobile-battle>
       <div className={styles.shell}>
         <header className={styles.header}>
-          <Link href="/beast-game">← 組陣台</Link>
-          <h1>神獸戰場</h1>
+          <Link href="/beast-game/lineup">格鬥場 ↗</Link>
+          <h1>卡片戰鬥</h1>
           <span>戰鬥／操控 50:50</span>
         </header>
         {error ? (
@@ -268,10 +265,10 @@ export default function BattlefieldPage() {
                 <div hidden={Boolean(inspection)}>
                 {match ? (
                   <>
-                    <BattlePanel match={match} onAction={act} starterClaimed={starterClaimed} compact cards={cards} />
+                    <BattlePanel match={match} onAction={act} compact cards={cards} />
                     {match.status === 'FINISHED' && isTrial && (
                       <p role="status" className={styles.notice} data-trial-note>
-                        這是體驗戰：沒押卡、不發卡也不沒收。可到成長中心領收藏卡，再挑戰正式戰。
+                        體驗戰結束：沒有押卡、發卡或沒收。可重新發牌，換一組戰術再挑戰。
                       </p>
                     )}
                     {settlement && (
@@ -304,6 +301,7 @@ export default function BattlefieldPage() {
                       <summary>玩法與重新發牌</summary>
                       <p>60 種神獸，出戰使用 20 張試用牌。先點手牌，再點發光的主戰或後備格；點場上卡片可換位。手機不用拖曳。每回合親手選攻擊、技能或換卡。</p>
                       <p>{isTrial ? '體驗戰免押卡，不發卡也不沒收。' : '正式戰押一張收藏卡；輸了會被沒收，贏了保留並再得一張，平手退回。'}</p>
+                      <p><Link href="/beast-game">自由組隊：從 60 張卡中親手選三張 →</Link></p>
                       <button type="button" className={styles.restart} onClick={() => { setSeed(value => value + 1); setError(null); }}>重新發牌</button>
                     </details>
                   </>

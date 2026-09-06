@@ -112,7 +112,7 @@ export function describeStakeRisk(stakeCardName: string | null): {
   if (!stakeCardName) {
     return {
       canStart: false,
-      headline: '從成長收藏選一張押注',
+      headline: '從持有卡片選一張押注',
       detail: '贏：多一張。輸：押注卡被沒收。平手：原卡退回。',
     };
   }

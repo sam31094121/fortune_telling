@@ -125,7 +125,8 @@ export default function StakeSlot({
           type="button"
           className={styles.slot}
           data-stake-target
-          aria-label={picked ? `已押上${picked.name}，點此重新選擇` : '押注格，點此選一張收藏卡'}
+          aria-label={picked ? `已押上${picked.name}，點此重新選擇` : trial ? '體驗戰免押卡' : '押注格，點此選一張收藏卡'}
+          disabled={trial}
           onClick={() => {
             if (picked) onSelect(picked.id); // 再點一次＝取消，回到等待狀態
             pickerRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -149,7 +150,7 @@ export default function StakeSlot({
               */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/beast-game/card-back.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" />
-              <span className={styles.empty}>押上<br />一張</span>
+              <span className={styles.empty}>{trial ? <>體驗<br />免押</> : <>押上<br />一張</>}</span>
             </>
           )}
         </button>
@@ -162,12 +163,12 @@ export default function StakeSlot({
           ) : trial ? (
             <>
               <strong>體驗戰・免押注</strong>
-              <span className={styles.risk}>這一場不押卡、不發卡也不沒收，放心練。領到收藏卡後就是正式戰。</span>
+              <span className={styles.risk}>這一場不押卡、不發卡也不沒收。選好主戰卡即可開戰。</span>
             </>
           ) : (
             <>
               <strong>先押一張，才開得了戰</strong>
-              <span className={styles.risk}>從你的成長收藏挑一張。輸了它會真的被沒收。</span>
+              <span className={styles.risk}>從你持有的卡片挑一張。輸了它會真的被沒收。</span>
             </>
           )}
         </div>
@@ -175,16 +176,8 @@ export default function StakeSlot({
 
       {owned.length === 0 ? (
         <div className={styles.empty2}>
-          <strong>成長收藏裡還沒有卡</strong>
-          <span>體驗戰隨時可打；想打有賞有罰的正式戰，先完成使命領一張。</span>
-          {/*
-            死路必須開門。實測：新客戶走到這裡整個流程就停了——
-            訊息說「去完成使命」，卻沒有一條路過去。
-            戰後面板有這個連結，但輸在起跑點的人根本走不到戰後。
-          */}
-          <a href="/growth-center#beast-collection" className={styles.emptyCta}>
-            到成長中心領卡，領完回來開戰 →
-          </a>
+          <strong>本場使用試用戰鬥卡</strong>
+          <span>試用卡可佈陣和出招，不列入持有卡片，也不能押注。</span>
         </div>
       ) : (
         <div ref={pickerRef} className={styles.picker} role="group" aria-label="從收藏選一張押注">

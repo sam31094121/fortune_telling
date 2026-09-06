@@ -67,6 +67,7 @@
     "test:beast-battlefield": "node scripts/beast-build.mjs && node tests/beast-battlefield.test.mjs",
     "test:beast-bridge": "node scripts/beast-build.mjs && node tests/beast-battle-bridge.test.mjs",
     "test:beast-combat-guide": "node scripts/beast-build.mjs && node tests/beast-combat-guide.test.mjs",
+    "test:beast-battle-mode": "node tests/beast-battle-mode.test.cjs",
     "build:beast": "node scripts/beast-build.mjs",
     "test:beast-interactive:full": "node scripts/beast-build.mjs && node tests/beast-interactive.test.cjs",
     "test:beast-weapons": "node scripts/beast-build.mjs && node tests/beast-weapons.test.mjs",
