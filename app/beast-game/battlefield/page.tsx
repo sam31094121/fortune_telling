@@ -18,6 +18,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import {recordBeastGameCompleted} from '@/lib/growth-center-client';
 import GameBattlefield, { type BattlefieldCardArt } from '@/components/battlefield/GameBattlefield';
 import {
   BENCH_SIZE,
@@ -69,6 +70,7 @@ export default function BattlefieldPage() {
   const [error, setError] = useState<string | null>(null);
   const [seed, setSeed] = useState(1);
   const [loadAttempt, setLoadAttempt] = useState(0);
+  useEffect(()=>{if(match?.status==='FINISHED')recordBeastGameCompleted('battlefield');},[match?.status]);
 
   useEffect(() => {
     let disposed = false;

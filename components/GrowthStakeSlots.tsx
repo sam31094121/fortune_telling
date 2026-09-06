@@ -3,6 +3,7 @@ import {useEffect,useState} from 'react';
 import {runOwnedDuel,retryStakeSettlement,recoverPendingDuel,type BeastCollection,type Settlement} from '@/lib/beast-collection';
 import type {StakeOutcome} from '@/lib/beast-collection-ledger';
 import styles from './GrowthStakeSlots.module.css';
+import {recordBeastGameCompleted} from '@/lib/growth-center-client';
 type Card={id:string;name:string;thumbnail:string};
 type Result={ok:boolean;stake?:StakeOutcome;error?:string};
 export default function GrowthStakeSlots({collection,pool}:{collection:BeastCollection;pool:Map<string,Card>}){
@@ -11,6 +12,7 @@ export default function GrowthStakeSlots({collection,pool}:{collection:BeastColl
  useEffect(()=>{let disposed=false;const timer=setTimeout(()=>{void recoverPendingDuel<Result>().then(r=>{if(disposed)return;if(r.result?.stake)setOutcome(r.result.stake);if(r.settlement)setSaved(r.settlement);}).catch(e=>{if(!disposed)setError(e.message);});},0);return()=>{disposed=true;clearTimeout(timer);};},[]);
  const selected=collection.cards.find(c=>c.id===id),stake=pool.get(outcome?.stakes.player??selected?.cardId??''),reward=pool.get(outcome?.gainedCardId??'');
  const won=saved?.saved&&outcome?.verdict==='WON',lost=saved?.saved&&outcome?.verdict==='LOST';
+ useEffect(()=>{if(saved?.saved)recordBeastGameCompleted('stake-duel');},[saved?.saved]);
  async function play(){if(!selected||busy)return;setBusy(true);setError('');setSaved(null);setOutcome(null);try{const result=await runOwnedDuel<Result>(selected.cardId,async()=>{const r=await fetch('/api/beast-game/stake-duel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cardId:selected.cardId}),signal:AbortSignal.timeout(20000)});return r.json();},selected.id);setOutcome(result.result.stake??null);setSaved(result.settlement);}catch(e){setError(e instanceof Error?e.message:'連線中斷，沒有扣卡。');}finally{setBusy(false);}}
  async function retry(){if(!saved||!outcome||busy)return;setBusy(true);try{setSaved(await retryStakeSettlement(saved.matchId,outcome));}catch(e){setError(String(e));}finally{setBusy(false);}}
  return <section aria-label="收藏押注決鬥" className="mt-4 rounded-xl border border-amber-200/30 p-3">

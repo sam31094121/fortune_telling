@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
+import {recordBeastGameCompleted} from '@/lib/growth-center-client';
 import {readOwnedCards} from '@/lib/beast-owned-cards';
 import {spiritArtFor} from '@/lib/beast-battle-fx';
 import type {interactiveCatalog,Match,Action} from '@/lib/beast-game/interactive';
@@ -13,6 +14,7 @@ export default function BeastTurnGame(){
  const [cards,setCards]=useState<Card[]>([]),[account,setAccount]=useState<Account|null>(null),[selected,setSelected]=useState<string[]>([]),[error,setError]=useState(''),[busy,setBusy]=useState(false),[tab,setTab]=useState('組隊'),[filter,setFilter]=useState('全部'),[detail,setDetail]=useState<Card|null>(null),[switching,setSwitching]=useState(false),[anim,setAnim]=useState(false),[history,setHistory]=useState<string[]>([]),[notice,setNotice]=useState('');
  const audio=useRef<HTMLAudioElement|null>(null),pending=useRef(false),timer=useRef<ReturnType<typeof setTimeout>|null>(null);
  const screen=useRef<HTMLElement|null>(null);
+ useEffect(()=>{if(account?.match?.status==='FINISHED')recordBeastGameCompleted('battlefield');},[account?.match?.status]);
  useEffect(()=>{screen.current?.scrollIntoView({block:'start'});},[account?.match?.status]);
  async function load(){try{const r=await fetch('/api/beast-game/turns',{signal:AbortSignal.timeout(15000)});const d=await r.json();if(!d.ok)throw Error(d.error);setCards(d.cards);setAccount(d.account);setError('');}catch(e){setError(String(e));}}
  useEffect(()=>{void load();return()=>{audio.current?.pause();if(timer.current)clearTimeout(timer.current);};},[]);

@@ -22,3 +22,12 @@ for(const verdict of ['WON','RETURNED']){
  assert.ok(r.collection.cards.some(c=>c.id==='chosen'));
 }
 console.log('PASS: 精準沒收指定實例、同名副本保留、重播不重扣、勝利加一、平手不變');
+const empty={cards:[],history:[],receipts:{}};
+const pack=exportsObject.grantStarterPack(empty,'receipt-28','now');
+assert.equal(pack.cards.length,28);
+assert.equal(new Set(pack.cards.map(c=>c.cardId)).size,28);
+assert.ok(pack.cards.every(c=>/^beast_y\d\d$/.test(c.cardId)));
+const reservedPack=reserveCard(pack,'beast_y01','loss','now',pack.cards[0].id);
+const lostPack=settleCard(reservedPack,'loss',{verdict:'LOST',gainedCardId:null,forfeitedCardId:'beast_y01',stakes:{player:'beast_y01',opponent:other}},'now').collection;
+assert.equal(exportsObject.grantStarterPack(exportsObject.migrateCollection(lostPack),'receipt-28','later').cards.length,27);
+console.log('PASS: 完整28種幼子、首次只發一次、重載後不補回被沒收幼子');

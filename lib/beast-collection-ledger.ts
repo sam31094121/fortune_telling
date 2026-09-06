@@ -34,6 +34,7 @@ export interface BeastCollection {
   receipts?: Record<string, CollectionReceipt>;
   pending?: { id: string; cardId: string; entryId: string; at: string } | null;
   storageError?: string;
+  starterPack?: string;
 }
 
 export function isBeastCardId(value: unknown): value is string {
@@ -53,6 +54,7 @@ export function migrateCollection(value: unknown): BeastCollection {
     granted: Array.isArray(old.granted) ? old.granted : [],
     receipts: old.receipts && typeof old.receipts === 'object' ? old.receipts : {},
     pending: old.pending ?? null,
+    starterPack: typeof old.starterPack === 'string' ? old.starterPack : undefined,
   };
 }
 
@@ -65,6 +67,13 @@ export function grantGrowthCards(current: BeastCollection, cardIds: string[], at
     cards.push({ id: `growth:${cardId}`, cardId, at, source: 'GROWTH' });
   }
   return { ...current, cards, granted: [...granted] };
+}
+
+export function grantStarterPack(current: BeastCollection, receipt: string, at: string): BeastCollection {
+  if (current.starterPack) return current;
+  if (!receipt) throw new Error('獎勵收據不存在');
+  const cards = Array.from({length:28}, (_, i) => ({id:`starter:${receipt}:${i+1}`,cardId:`beast_y${String(i+1).padStart(2,'0')}`,at,source:'GROWTH' as const}));
+  return {...current,starterPack:receipt,cards:[...current.cards,...cards]};
 }
 
 export function reserveCard(current: BeastCollection, cardId: string, matchId: string, at: string, entryId?: string): BeastCollection {

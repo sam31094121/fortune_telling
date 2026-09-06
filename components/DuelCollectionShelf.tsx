@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import GrowthStakeSlots from './GrowthStakeSlots';
+import StarterPackBanner from './StarterPackBanner';
 import frameStyles from '@/components/BeastCardFrame.module.css';
 import { COLLECTION_STORAGE_NOTICE, countByCard, readCollection, subscribeCollection, type BeastCollection } from '@/lib/beast-collection';
 
@@ -44,11 +45,12 @@ export default function DuelCollectionShelf({ revision = 0 }: { revision?: numbe
       <span className="text-sm font-bold text-white/70" data-collection-count>目前 {collection.cards.length} 張</span>
     </div>
     <p className="mt-1 text-xs leading-5 text-white/60">成長獎勵與對戰贏來的卡，都在這裡。</p>
+    <StarterPackBanner claimed={Boolean(collection.starterPack)}/>
     <GrowthStakeSlots collection={collection} pool={pool}/>
     {collection.storageError ? <p role="alert" className="mt-3 text-sm text-amber-200">{collection.storageError}</p>
       : collection.cards.length === 0 ? <div className="mt-3 rounded-xl border border-dashed border-white/20 px-3 py-4 text-center">
         <p className="text-sm font-bold">目前沒有可押注的卡</p>
-        <p className="mt-1 text-xs leading-5 text-white/60">完成首頁探索，或累計四次每日任務，領取一組神獸。</p>
+        <p className="mt-1 text-xs leading-5 text-white/60">完成首頁探索或任一項遊戲，首次即可領取 28 張神獸幼子。</p>
         <Link href="/#home-eight-card-route" className="mt-2 inline-flex min-h-11 items-center rounded-xl border border-amber-200/40 px-4 text-sm text-amber-100">去首頁探索</Link>
       </div> : <>
         <ul className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-6">

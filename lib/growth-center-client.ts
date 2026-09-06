@@ -81,6 +81,12 @@ export function markGrowthModuleCompleted(moduleId: GrowthModuleId, element?: Gr
   return true;
 }
 
+export function recordBeastGameCompleted(game:'battlefield'|'stake-duel') {
+  if(typeof window==='undefined')return;
+  writeJson('tdh_beast_completed_game_receipt_v1',{game,at:new Date().toISOString()});
+  try{window.localStorage.setItem('tdh_beast_completed_game_v1',game);window.dispatchEvent(new Event('tdh-growth-progress-updated'));}catch{/* Reward can be retried after storage is available. */}
+}
+
 export function getGrowthElements() {
   const raw = readJson<Record<string, GrowthElement>>(ELEMENT_STORAGE_KEY, {});
   return Object.fromEntries(
@@ -129,4 +135,3 @@ export function buildGrowthCenterQuery() {
   if (preferences.length > 0) params.set('preferences', preferences.join(','));
   return params;
 }
-

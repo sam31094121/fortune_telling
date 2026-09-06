@@ -373,6 +373,14 @@ export default function GrowthCenterPage() {
           <Link href="/" className="feature-home-link feature-home-link--cyan shrink-0">返回首頁</Link>
         </header>
 
+        <section aria-label="直接玩神獸" className="mb-4 rounded-2xl border border-amber-200/40 bg-slate-950/80 p-4">
+          <h2 className="text-xl font-bold text-amber-100">神獸遊戲・直接開玩</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-200">不用完成探索、不用先取得收藏卡。免費戰場提供試用牌，進去就能佈陣開戰。</p>
+          <Link href="/beast-game/battlefield" className="mt-3 flex min-h-12 items-center justify-center rounded-xl bg-amber-200 px-4 py-3 font-bold text-slate-950">立即玩神獸戰場（免費、不扣卡）</Link>
+          <Link href="/star-beasts" className="mt-2 flex min-h-11 items-center justify-center text-sm text-cyan-100 underline">自由瀏覽 60 種神獸</Link>
+        </section>
+        <DuelCollectionShelf revision={lifetimeCheckInCount} />
+
         {loading && (
           <section className="rounded-2xl border border-cyan-300/20 bg-cyan-300/8 p-5 shadow-[0_0_28px_rgba(34,211,238,0.1)]">
             <p className="text-sm font-black text-cyan-100">易經正在整理你的本週陪伴內容</p>
@@ -524,7 +532,6 @@ export default function GrowthCenterPage() {
               </div>
             </section>
 
-            <DuelCollectionShelf revision={lifetimeCheckInCount} />
             <section id="beast-rewards" className="relative scroll-mt-4 overflow-hidden rounded-2xl border border-amber-300/30 bg-[radial-gradient(circle_at_92%_12%,rgba(251,191,36,0.2),transparent_28%),linear-gradient(135deg,rgba(31,23,58,0.92),rgba(8,15,31,0.96))] p-5 shadow-[0_0_30px_rgba(251,191,36,0.12)]">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">羈絆解鎖進度</p>
               <div className="mt-3 flex items-end justify-between gap-4">

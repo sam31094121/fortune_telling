@@ -1,7 +1,7 @@
 'use client';
 
 import { deriveUnlockedMansions, gameCardIdsForMansion } from './beast-growth-rewards';
-import { grantGrowthCards, migrateCollection, reserveCard, settleCard, type BeastCollection, type CollectionReceipt, type StakeOutcome } from './beast-collection-ledger';
+import { grantGrowthCards, grantStarterPack, migrateCollection, reserveCard, settleCard, type BeastCollection, type CollectionReceipt, type StakeOutcome } from './beast-collection-ledger';
 export type { BeastCollection, CollectionEntry, CollectionHistoryItem, CollectionReceipt } from './beast-collection-ledger';
 
 const COLLECTION_KEY = 'tdh_beast_collection_v1';
@@ -121,4 +121,14 @@ export async function clearCollection(): Promise<void> {
     if (current.pending) throw new Error('請先完成上一場結算。');
     write({ ...current, cards: [], history: [] });
   });
+}
+
+export async function claimStarterPack(completed:string,profileId:string):Promise<void>{
+ if(!navigator.locks)throw new Error('請使用支援安全保存的瀏覽器。');
+ await navigator.locks.request(LOCK,async()=>{
+  const current=readStrict();if(current.starterPack)return;
+  const response=await fetch('/api/beast-game/starter-pack',{method:'POST',headers:{'Content-Type':'application/json','x-growth-profile':profileId},body:JSON.stringify({completed}),signal:AbortSignal.timeout(15000)});
+  const result=await response.json();if(!response.ok||!result.ok||typeof result.receipt!=='string')throw new Error(result.error??'獎勵尚未保存');
+  write(grantStarterPack(current,result.receipt,now()));
+ });
 }
