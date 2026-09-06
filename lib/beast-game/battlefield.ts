@@ -44,6 +44,16 @@ export interface PlayerBattleState {
   /** 固定長度 BENCH_SIZE，空格是 null——格子是位置，不是清單。 */
   bench: Array<string | null>;
   discard: string[];
+  /**
+   * 目前蓋著的卡。
+   *
+   * 業主定調：「某些神獸先以背面進場，對方不知道是哪一隻；
+   * 達到條件後翻牌 → 神獸顯形 → 技能發動。」
+   *
+   * 只記在場上（主戰／後備）的那幾張。離開場面就自動不再蓋著——
+   * 一張進了棄牌堆還標成「蓋著」，之後誰都說不清它到底翻過沒有。
+   */
+  faceDown: string[];
 }
 
 export interface BattleState {
@@ -84,7 +94,7 @@ export function shuffle<T>(items: readonly T[], rng: () => number): T[] {
 }
 
 function emptySide(deck: string[]): PlayerBattleState {
-  return { deck, hand: [], active: null, bench: Array(BENCH_SIZE).fill(null), discard: [] };
+  return { deck, hand: [], active: null, bench: Array(BENCH_SIZE).fill(null), discard: [], faceDown: [] };
 }
 
 const sideKey = (side: PlayerSide) => (side === 'PLAYER' ? 'player' : 'opponent');
@@ -204,6 +214,9 @@ function removeEverywhere(s: PlayerBattleState, cardId: string): void {
   s.discard = s.discard.filter((id) => id !== cardId);
   s.bench = s.bench.map((slot) => (slot === cardId ? null : slot));
   if (s.active === cardId) s.active = null;
+  // 離開場面就不再是「蓋著」。一張進了棄牌堆還標成蓋著，
+  // 之後誰都說不清它到底翻過沒有。
+  s.faceDown = s.faceDown.filter((id) => id !== cardId);
 }
 
 /**
@@ -217,7 +230,18 @@ export function moveCard(
   side: PlayerSide,
   cardId: string,
   to: Destination,
+  options: { faceDown?: boolean } = {},
 ): BattleState {
+  /*
+    蓋牌的守衛排在合法性之前。
+
+    兩個都會擋下來，但訊息不一樣：「不能放到那裡」講的是位置，
+    「棄牌堆沒有蓋牌這回事」講的是呼叫端把參數用錯了。
+    後者更具體，先報它才幫得上忙。
+  */
+  if (options.faceDown && to.zone === 'DISCARD') {
+    throw new Error('棄牌堆沒有蓋牌這回事。');
+  }
   if (!canMove(state, side, cardId, to)) {
     throw new Error(`這張卡不能放到那裡：${cardId} → ${to.zone}`);
   }
@@ -249,8 +273,63 @@ export function moveCard(
     s.discard.push(cardId);
   }
 
+  // 蓋著進場：只有進到場上（主戰／後備）才成立。
+  if (options.faceDown && !s.faceDown.includes(cardId)) s.faceDown.push(cardId);
+
   next.selectedCardId = null;
   assertOneZone(next);
+  return next;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   蓋牌與翻牌
+   ──────────────────────────────────────────────────────────────────────── */
+
+/** 這張卡現在是不是蓋著的。 */
+export function isFaceDown(state: BattleState, side: PlayerSide, cardId: string): boolean {
+  return state[sideKey(side)].faceDown.includes(cardId);
+}
+
+/**
+ * 翻牌顯形。
+ *
+ * 業主定調：「達到條件後翻牌 → 神獸顯形 → 技能發動。」
+ * 這裡只負責翻——條件由呼叫端決定，技能由 interactive.ts 執行。
+ * 翻一張沒有蓋著的卡是呼叫端的錯，所以丟例外而不是靜靜略過。
+ */
+export function flipUp(state: BattleState, side: PlayerSide, cardId: string): BattleState {
+  if (!isFaceDown(state, side, cardId)) throw new Error(`這張卡本來就是正面的：${cardId}`);
+  const next = clone(state);
+  const s = next[sideKey(side)];
+  s.faceDown = s.faceDown.filter((id) => id !== cardId);
+  return next;
+}
+
+/** 對手蓋著的卡在畫面上的代號。不是卡片 id，因為根本不該知道是哪一張。 */
+export const HIDDEN_CARD = '__FACE_DOWN__';
+
+/**
+ * 把狀態改成「某一方看得到的樣子」。
+ *
+ * **講清楚目前的限制**：這一版整份狀態都在瀏覽器裡，
+ * 對手蓋的牌是什麼，打開開發者工具就看得到。
+ * 真正的隱藏必須由伺服器持有狀態、只回傳這個函式的結果。
+ *
+ * 先做出這個形狀，是為了之後搬上伺服器時不必改介面——
+ * 而不是假裝現在就藏得住。畫面請用它取值，不要直接讀對手的 bench／active。
+ */
+export function redactFor(state: BattleState, viewer: PlayerSide): BattleState {
+  const foeKey = viewer === 'PLAYER' ? 'opponent' : 'player';
+  const next = clone(state);
+  const foe = next[foeKey];
+  const hide = (cardId: string | null) =>
+    cardId && foe.faceDown.includes(cardId) ? HIDDEN_CARD : cardId;
+  foe.active = hide(foe.active);
+  foe.bench = foe.bench.map(hide);
+  // 手牌與牌庫本來就不該讓對方看見內容，只留張數。
+  foe.hand = foe.hand.map(() => HIDDEN_CARD);
+  foe.deck = foe.deck.map(() => HIDDEN_CARD);
+  foe.faceDown = [];
   return next;
 }
 
@@ -295,6 +374,15 @@ export function assertOneZone(state: BattleState): void {
         throw new Error(`${side} 的「${entry[0]}」同時出現在 ${entry[1]} 個位置`);
       }
     }
+    // 蓋著的卡一定要真的在場上。標記留在不在場的卡上，
+    // 之後就會出現「翻不開的牌」或「翻了兩次的牌」。
+    for (const cardId of s.faceDown) {
+      const onField = s.active === cardId || s.bench.includes(cardId);
+      if (!onField) throw new Error(`${side} 的「${cardId}」標成蓋著，卻不在場上`);
+    }
+    if (new Set(s.faceDown).size !== s.faceDown.length) {
+      throw new Error(`${side} 的蓋牌清單有重複`);
+    }
   }
 }
 
@@ -305,6 +393,7 @@ function cloneSide(s: PlayerBattleState): PlayerBattleState {
     active: s.active,
     bench: s.bench.slice(),
     discard: s.discard.slice(),
+    faceDown: s.faceDown.slice(),
   };
 }
 

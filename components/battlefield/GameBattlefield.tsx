@@ -48,6 +48,7 @@ export function CardSlot({
   card,
   selected,
   legalTarget,
+  faceDown,
   label,
   onClick,
   onDragSelect,
@@ -55,6 +56,8 @@ export function CardSlot({
   card?: BattlefieldCardArt;
   selected?: boolean;
   legalTarget?: boolean;
+  /** 蓋著的卡畫牌背，不畫卡面——**卡面一旦畫出來就等於沒蓋**。 */
+  faceDown?: boolean;
   /** 無障礙名稱。空格也要說得出這是哪一格，不能只有一個框。 */
   label: string;
   onClick?: () => void;
@@ -82,7 +85,9 @@ export function CardSlot({
           event.preventDefault(); onClick?.();
         }
       }}>
-      {card ? (
+      {card && faceDown ? (
+        <span className={styles.pileBack} aria-hidden="true">☯</span>
+      ) : card ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={card.thumbnail} alt={card.name} loading="lazy" decoding="async" draggable={false} />
       ) : (
@@ -123,13 +128,15 @@ export function ActiveCardSlot({
 }
 
 export function BenchZone({
-  bench, lookup, selectedCardId, legalSlots, sideLabel, onSlot,
+  bench, lookup, selectedCardId, legalSlots, sideLabel, faceDown = [], onSlot,
 }: {
   bench: Array<string | null>;
   lookup: CardLookup;
   selectedCardId: string | null;
   /** 目前可以放進去的格號。空陣列＝這一區現在都不能放。 */
   legalSlots: number[];
+  /** 這一側蓋著的卡。 */
+  faceDown?: string[];
   sideLabel: string;
   onSlot?: (index: number) => void;
 }) {
@@ -137,13 +144,16 @@ export function BenchZone({
     <div className={styles.bench}>
       {bench.map((cardId, index) => {
         const card = cardId ? lookup(cardId) : undefined;
+        // 蓋著的判斷只看這一格實際擺著誰；空格永遠不是蓋著的。
+        const hidden = cardId !== null && faceDown.includes(cardId);
         return (
           <CardSlot
             key={index}
             card={card}
             selected={Boolean(cardId) && cardId === selectedCardId}
             legalTarget={legalSlots.includes(index)}
-            label={card ? `${sideLabel}後備第 ${index + 1} 格：${card.name}` : `${sideLabel}後備第 ${index + 1} 格：空格`}
+            faceDown={hidden}
+            label={card ? (hidden ? `${sideLabel}後備第 ${index + 1} 格：蓋著的神獸` : `${sideLabel}後備第 ${index + 1} 格：${card.name}`) : `${sideLabel}後備第 ${index + 1} 格：空格`}
             onClick={onSlot ? () => onSlot(index) : undefined}
           />
         );
@@ -249,6 +259,7 @@ export function OpponentField({ state, lookup }: { state: BattleState; lookup: C
         lookup={lookup}
         selectedCardId={null}
         legalSlots={[]}
+        faceDown={state.opponent.faceDown}
         sideLabel="對手"
       />
       <ActiveCardSlot cardId={state.opponent.active} lookup={lookup} sideLabel="對手" />
@@ -292,6 +303,7 @@ export function PlayerField({
         lookup={lookup}
         selectedCardId={selected}
         legalSlots={benchLegal}
+        faceDown={state.player.faceDown}
         sideLabel="你的"
         onSlot={(index) => {
           if (benchLegal.includes(index)) onDestination({ zone: 'BENCH', slotIndex: index });

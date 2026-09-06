@@ -5,6 +5,7 @@ import {readOwnedCards} from '@/lib/beast-owned-cards';
 import {spiritArtFor} from '@/lib/beast-battle-fx';
 import type {interactiveCatalog,Match,Action} from '@/lib/beast-game/interactive';
 import styles from './BeastTurnGame.module.css';
+import BeastDuelArchive from './BeastDuelArchive';
 type Card=ReturnType<typeof interactiveCatalog>[number];
 type Account={owned:string[];experience:Record<string,number>;match:Match|null;summonDay:string|null;imported:boolean;revision:number};
 const labels:Record<string,string>={SPACE:'空',AIR:'風',WATER:'水',FIRE:'火',EARTH:'地'};
@@ -29,7 +30,7 @@ export default function BeastTurnGame(){
  }
  const match=account?.match,lookup=(id:string)=>cards.find(c=>c.id===id)!;
  const owned=cards.filter(c=>account?.owned.includes(c.id));
- const top=<><header className={styles.header}><h1>神獸・回合對戰</h1><Link href="/">回首頁</Link></header><p className={styles.muted}>選三隻神獸，親手決定攻擊、技能與換陣。擊倒對方三隻即獲勝。</p>{error&&<p role="alert" className={styles.error}>{error} <button onClick={()=>void load()}>重新載入</button></p>}{notice&&<p role="status">{notice}</p>}</>;
+ const top=<><header className={styles.header}><h1>神獸・回合對戰</h1><Link href="/beast-game/battlefield">神獸戰場</Link><Link href="/">回首頁</Link></header><p className={styles.muted}>選三隻神獸，親手決定攻擊、技能與換陣。擊倒對方三隻即獲勝。</p>{error&&<p role="alert" className={styles.error}>{error} <button onClick={()=>void load()}>重新載入</button></p>}{notice&&<p role="status">{notice}</p>}</>;
  if(!account)return <main ref={screen} className={styles.page}>{top}<p>正在讀取神獸收藏…</p></main>;
  if(match&&match.status==='PLAYING'){
   const me=match.player.team[match.player.active],foe=match.opponent.team[match.opponent.active],p=lookup(me.cardId);
@@ -40,6 +41,7 @@ export default function BeastTurnGame(){
    <div className={`${styles.stage} ${anim?styles.attack:''}`} aria-label="雙方神獸交戰舞台"><img src={spiritArtFor(me.cardId)??lookup(me.cardId).front} alt={me.name}/><img src={spiritArtFor(foe.cardId)??lookup(foe.cardId).front} alt={foe.name}/></div>
    <div className={styles.status}><strong>我方・{me.name}</strong><span>　{me.hp}／{me.maxHp} HP · 盾 {me.shield}</span><progress value={me.hp} max={me.maxHp}/><span className={styles.badge}>{p.role} · {labels[p.element]} · {p.tier} 階</span></div>
    <p className={styles.muted}>{p.skillName}：{p.description} 消耗 {p.cost} 能量；冷卻剩餘 {me.cooldown} 回合。</p>
+   <BeastDuelArchive key={me.cardId} cardId={me.cardId} skillName={p.skillName} description={p.description}/>
    {(switching||forced)&&<div className={styles.panel}><strong>{forced?'選擇下一隻出戰神獸':'切換會占用本回合行動'}</strong><div className={styles.toolbar}>{match.player.team.map((f,index)=><button key={f.cardId} disabled={busy||f.defeated||index===match.player.active} onClick={()=>act({type:'SWITCH',index})}>{f.name} {f.hp} HP</button>)}</div></div>}
    {enemyForced&&!forced&&<button disabled={busy} onClick={()=>act({type:'ATTACK'})}>對手神獸已倒下，繼續下一隻</button>}
    <div className={styles.actions}><button disabled={busy||anim||forced||enemyForced} onClick={()=>act({type:'ATTACK'})}>攻擊</button><button disabled={busy||anim||forced||enemyForced||me.cooldown>0||match.player.energy<p.cost} onClick={()=>act({type:'SKILL'})}>技能 · {p.cost}</button><button disabled={busy||anim||enemyForced} onClick={()=>setSwitching(s=>!s)}>切換</button></div>

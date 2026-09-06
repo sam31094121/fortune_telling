@@ -24,6 +24,10 @@ import {
   selectCard,
   assertOneZone,
   shuffle,
+  isFaceDown,
+  flipUp,
+  redactFor,
+  HIDDEN_CARD,
 } from '../.beast-game-build/lib/beast-game/battlefield.js';
 
 /** 固定種子的 rng，測試才可重現。 */
@@ -192,6 +196,66 @@ const fresh = () => newBattle(deckA, deckB, seeded(7));
   assert.notDeepEqual(a, c, '不同種子要洗出不同順序');
 }
 
+/* ── 九之二、蓋牌（業主定調的差異化功能） ───────────────────────── */
+{
+  let s = fresh();
+  const card = s.player.hand[0];
+
+  // 蓋著進場：位置照舊，只是背面朝上。
+  s = moveCard(s, 'PLAYER', card, { zone: 'BENCH', slotIndex: 0 }, { faceDown: true });
+  assert.equal(s.player.bench[0], card, '蓋著也是實際佔一格');
+  assert.ok(isFaceDown(s, 'PLAYER', card), '應該是蓋著的');
+  assert.doesNotThrow(() => assertOneZone(s), '蓋牌不得破壞一卡一區');
+
+  // 翻牌顯形。
+  s = flipUp(s, 'PLAYER', card);
+  assert.ok(!isFaceDown(s, 'PLAYER', card), '翻過就不是蓋著了');
+  assert.equal(s.player.bench[0], card, '翻牌不會讓它換位置');
+  assert.throws(() => flipUp(s, 'PLAYER', card), /本來就是正面/, '翻一張正面的卡要擋下來——那是呼叫端的錯');
+
+  // 離場自動清掉標記：一張進了棄牌堆還標成蓋著，之後說不清翻過沒有。
+  let leaving = fresh();
+  const gone = leaving.player.hand[0];
+  leaving = moveCard(leaving, 'PLAYER', gone, { zone: 'ACTIVE' }, { faceDown: true });
+  assert.ok(isFaceDown(leaving, 'PLAYER', gone), '蓋著上主戰');
+  leaving = moveCard(leaving, 'PLAYER', gone, { zone: 'BENCH', slotIndex: 4 });
+  assert.ok(!isFaceDown(leaving, 'PLAYER', gone), '再移動時沒指定蓋牌，就該翻回正面');
+
+  assert.throws(
+    () => moveCard(fresh(), 'PLAYER', fresh().player.hand[0], { zone: 'DISCARD' }, { faceDown: true }),
+    /棄牌堆沒有蓋牌/,
+    '棄牌不能蓋著',
+  );
+
+  // 不變式：標記留在不在場的卡上要炸。
+  const broken = JSON.parse(JSON.stringify(fresh()));
+  broken.player.faceDown = ['不在場的卡'];
+  assert.throws(() => assertOneZone(broken), /卻不在場上/, '蓋牌標記必須指向場上的卡');
+}
+
+/* ── 九之三、對手蓋的牌不該被看見 ───────────────────────────────── */
+{
+  let s = fresh();
+  const secret = s.opponent.hand[0];
+  s = moveCard(s, 'OPPONENT', secret, { zone: 'ACTIVE' }, { faceDown: true });
+
+  const view = redactFor(s, 'PLAYER');
+  assert.equal(view.opponent.active, HIDDEN_CARD, '**對手蓋著的主戰不得回傳真實卡片 id**');
+  assert.ok(!JSON.stringify(view.opponent).includes(secret), '整個對手區塊都不該出現那張卡的 id');
+  assert.ok(view.opponent.hand.every((id) => id === HIDDEN_CARD), '對手手牌只留張數，不留內容');
+  assert.equal(view.opponent.hand.length, s.opponent.hand.length, '張數要保留，客戶要看得到對手有幾張');
+  assert.ok(view.opponent.deck.every((id) => id === HIDDEN_CARD), '對手牌庫同理');
+
+  // 我自己的東西不得被遮。
+  assert.deepEqual(view.player, s.player, '遮蔽只作用在對手那一側');
+
+  // 沒蓋的照常看得見——遮蔽不是把整個對手區塗黑。
+  let open = fresh();
+  const shown = open.opponent.hand[0];
+  open = moveCard(open, 'OPPONENT', shown, { zone: 'ACTIVE' });
+  assert.equal(redactFor(open, 'PLAYER').opponent.active, shown, '沒蓋的卡照常顯示');
+}
+
 /* ── 十、規則不得寫死在畫面（業主第十八條） ─────────────────────── */
 {
   /*
@@ -223,4 +287,6 @@ console.log('PASS: 一張卡只能存在一個位置，違反會丟例外');
 console.log('PASS: 合法位置只有一份，非法移動擋得下來');
 console.log('PASS: 主戰／後備互換、後備滿了換不下來');
 console.log('PASS: 雙方完全分離、選取是狀態、舊狀態不可變');
+console.log('PASS: 蓋牌進場、翻牌顯形、離場自動翻回正面');
+console.log('PASS: 對手蓋著的牌不回傳真實 id，張數照留');
 console.log('PASS: 戰場層不重算傷害與勝負');
