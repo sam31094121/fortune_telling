@@ -209,6 +209,24 @@
   color: #b9c5d9;
 }
 
+/*
+  可以點的提示。手牌在摺線之下時，這顆鈕負責把人帶過去——
+  長得要像可以按的東西，不能跟旁邊的灰字混在一起。
+*/
+.hintAction {
+  justify-self: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 223, 164, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 223, 164, 0.1);
+  font-size: 12px;
+  font-weight: 900;
+  color: #ffdfa4;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* 減少動態：合法目標改成靜態外框，不閃。 */
 @media (prefers-reduced-motion: reduce) {
   .legal { animation: none; }

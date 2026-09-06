@@ -170,6 +170,14 @@ export default function StakeSlot({
         <div className={styles.empty2}>
           <strong>成長收藏裡還沒有卡</strong>
           <span>完成使命領一張，才有東西可以押。</span>
+          {/*
+            死路必須開門。實測：新客戶走到這裡整個流程就停了——
+            訊息說「去完成使命」，卻沒有一條路過去。
+            戰後面板有這個連結，但輸在起跑點的人根本走不到戰後。
+          */}
+          <a href="/growth-center#beast-collection" className={styles.emptyCta}>
+            到成長中心領卡，領完回來開戰 →
+          </a>
         </div>
       ) : (
         <div ref={pickerRef} className={styles.picker} role="group" aria-label="從收藏選一張押注">

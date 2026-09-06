@@ -189,6 +189,19 @@
   color: #b9c5d9;
 }
 
+/* 死路上的那扇門：沒有卡可押時，唯一的出路要長得像按鈕。 */
+.emptyCta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: 10px;
+  background: #ffdfa4;
+  font-weight: 900;
+  color: #0b1729;
+  text-decoration: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .empty { animation: none; }
 }

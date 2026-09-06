@@ -175,11 +175,13 @@ export function BattleLog({ match }: { match: Match }) {
 }
 
 export default function BattlePanel({
-  match, onAction, busy,
+  match, onAction, busy, starterClaimed,
 }: {
   match: Match;
   onAction: (action: Action) => void;
   busy?: boolean;
+  /** 首次禮包已領。領過的人不該再看到「領取首次禮包」——畫面不能說謊。 */
+  starterClaimed?: boolean;
 }) {
   const finished = match.status === 'FINISHED';
 
@@ -250,7 +252,7 @@ export default function BattlePanel({
       )}
 
       <BattleLog match={match} />
-      {finished&&<a href="/growth-center#beast-collection" className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-amber-200 p-3 font-bold text-slate-950">到成長中心領取首次 28 張幼子禮包</a>}
+      {finished&&!starterClaimed&&<a href="/growth-center#beast-collection" className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-amber-200 p-3 font-bold text-slate-950">到成長中心領取首次 28 張幼子禮包</a>}
     </section>
   );
 }

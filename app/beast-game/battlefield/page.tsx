@@ -77,6 +77,8 @@ export default function BattlefieldPage() {
   /** 押注格：戰鬥前堵住輸贏的那一格。沒押就開不了戰。 */
   const [stakeCardId, setStakeCardId] = useState<string | null>(null);
   const [ownedStake, setOwnedStake] = useState<StakeCard[]>([]);
+  /** 首次禮包領了沒。戰後那顆「領取首次禮包」的鈕只該給還沒領的人看。 */
+  const [starterClaimed, setStarterClaimed] = useState(false);
   const [settlement, setSettlement] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
   useEffect(()=>{if(match?.status==='FINISHED')recordBeastGameCompleted('battlefield');},[match?.status]);
@@ -183,6 +185,7 @@ export default function BattlefieldPage() {
       .filter((card): card is BattlefieldCardArt => Boolean(card))
       .map((card) => ({ id: card.id, name: card.name, thumbnail: card.thumbnail }));
     setOwnedStake(owned);
+    setStarterClaimed(Boolean(collection.starterPack));
   }, [cards, seed]);
 
   /*
@@ -217,6 +220,15 @@ export default function BattlefieldPage() {
   const placed = useMemo(() => {
     if (!state) return 0;
     return (state.player.active ? 1 : 0) + state.player.bench.filter(Boolean).length;
+  }, [state]);
+  /*
+    對手上了幾隻。開戰前要把「你 1 隻、對手 3 隻」講出來——
+    實測：後備標著「可略」，客戶真的略過，然後在不知情下押著收藏卡
+    打一場一對三。輸了卡被沒收，他不會覺得自己學到教訓，只會覺得被坑。
+  */
+  const opponentPlaced = useMemo(() => {
+    if (!state) return 0;
+    return (state.opponent.active ? 1 : 0) + state.opponent.bench.filter(Boolean).length;
   }, [state]);
 
   return (
@@ -257,10 +269,20 @@ export default function BattlefieldPage() {
             </div>
             {match ? (
               <>
-                <BattlePanel match={match} onAction={act} />
+                <BattlePanel match={match} onAction={act} starterClaimed={starterClaimed} />
                 {settlement && (
                   <p role="status" className="mt-2 rounded-xl bg-amber-300/10 p-3 text-sm leading-6 text-amber-100" data-settlement>
                     {settlement}
+                    {/*
+                      沒收之後不能就這樣放人走。敗因說明就在上方面板裡，
+                      把「輸了」跟「怎麼贏回來」接在同一口氣講完，
+                      客戶才會按下面那顆「重新發牌，再打一場」。
+                    */}
+                    {match.winner === 'opponent' && (
+                      <span className="mt-1 block text-amber-200/80">
+                        看上方的敗因說明，換個相剋的元素，把它贏回來。
+                      </span>
+                    )}
                   </p>
                 )}
               </>
@@ -307,6 +329,19 @@ export default function BattlefieldPage() {
                   ]}
                   onSelect={(cardId) => setStakeCardId((current) => (current === cardId ? null : cardId))}
                 />
+                {startCheck.ready && placed < opponentPlaced && (
+                  <p
+                    className="mt-2 rounded-r-xl border-l-4 border-rose-400 bg-white/[0.04] px-3 py-2 text-xs leading-5 text-rose-200"
+                    data-outnumbered
+                  >
+                    <strong className="block text-sm font-black">
+                      以寡敵眾：你 {placed} 隻、對手 {opponentPlaced} 隻
+                    </strong>
+                    <span className="text-white/70">
+                      後備還有空位，多擺幾隻再開戰更有勝算。押上的卡輸了會被沒收。
+                    </span>
+                  </p>
+                )}
                 <button
                   type="button"
                   data-start-battle

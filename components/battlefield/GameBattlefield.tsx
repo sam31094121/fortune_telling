@@ -250,9 +250,26 @@ export function TurnIndicator({ state, inBattle }: { state: BattleState; inBattl
         第 {state.turn} 回合・{mine ? '你的回合' : '對手回合'}
         {state.phase === 'PREPARE' ? '・佈陣中' : ''}
       </p>
-      <p className={styles.hint}>
-        {state.selectedCardId ? '已選取——點發光的格子放下' : '點一張卡開始'}
-      </p>
+      {state.selectedCardId ? (
+        <p className={styles.hint}>已選取——點發光的格子放下</p>
+      ) : (
+        /*
+          手機第一屏放不下整張桌子，手牌在摺線之下——
+          實測 390×844：提示說「點一張卡」，但畫面上一張可點的卡都沒有。
+          所以這句話自己要能點：點了就把手牌捲進視野，指路不能只用嘴。
+        */
+        <button
+          type="button"
+          className={styles.hintAction}
+          onClick={() =>
+            document
+              .querySelector('[aria-label="你的手牌"]')
+              ?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+          }
+        >
+          點下方手牌開始 ↓
+        </button>
+      )}
     </div>
   );
 }
