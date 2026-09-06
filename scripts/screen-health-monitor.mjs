@@ -202,6 +202,13 @@ const BEHAVIOR_CHECKS = [
     timeoutMs: 45000,
   },
   {
+    id: 'BEAST_INTERACTIVE',
+    module: 'beast_interactive',
+    title: '新回合制：六十張定位、能量、補位與一萬場鏡像抽樣',
+    script: 'test:beast-interactive',
+    timeoutMs: 45000,
+  },
+  {
     id: 'STAR_BEAST_SELF_ENTRY_API',
     module: 'star_beast_self_entry_api',
     title: '本人神獸入口：無假時辰、生日核對與對戰陣容限制',

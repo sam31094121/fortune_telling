@@ -560,7 +560,7 @@ console.log('\n【十三】禁止作假：公平性要量得出來，不能只�
   check('補償是給後手，不是給對手', !codeOnly.includes('players.OPPONENT, OPENING_HAND +'));
 
   // 前端不得有任何自己算勝負的程式
-  const pageSrc = fs.readFileSync(path.join(root, 'app/beast-game/page.tsx'), 'utf8');
+  const pageSrc = fs.readFileSync(path.join(root, 'components/BeastLegacyGame.tsx'), 'utf8');
   const pageCode = codeWithoutComments(pageSrc);
   /*
     前端不得匯入「會決定結果」的東西。
@@ -598,7 +598,7 @@ console.log('\n【十三】禁止作假：公平性要量得出來，不能只�
 
 console.log('\n【十四】友善引導：新手要進得來');
 {
-  const pageSrc = fs.readFileSync(path.join(root, 'app/beast-game/page.tsx'), 'utf8');
+  const pageSrc = fs.readFileSync(path.join(root, 'components/BeastLegacyGame.tsx'), 'utf8');
   check('有新手三步驟', pageSrc.includes('const ONBOARDING') && pageSrc.includes('data-onboarding'));
   check('引導看過就不再擋路', pageSrc.includes('ONBOARDING_SEEN_KEY'));
   check('提供選卡建議入口', pageSrc.includes('data-recommend'));
@@ -613,7 +613,7 @@ console.log('\n【十四】友善引導：新手要進得來');
 
 console.log('\n【十五】穩定性：連線不穩、存壞了，都不能讓整頁壞掉');
 {
-  const pageSrc = fs.readFileSync(path.join(root, 'app/beast-game/page.tsx'), 'utf8');
+  const pageSrc = fs.readFileSync(path.join(root, 'components/BeastLegacyGame.tsx'), 'utf8');
   check('請求有逾時', pageSrc.includes('AbortController') && pageSrc.includes('setTimeout'));
   check('請求有重試', pageSrc.includes('retries'));
   check('逾時要講人話', pageSrc.includes('連線逾時'));

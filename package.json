@@ -61,7 +61,8 @@
     "test:beast-production-preview": "node tests/beast-production-preview.cjs",
     "produce:beast-videos": "node scripts/beast-first-pass.mjs",
     "test:beast-voice-mix": "node tests/beast-voice-mix.test.mjs",
-    "hooks:install": "node scripts/install-hooks.mjs"
+    "hooks:install": "node scripts/install-hooks.mjs",
+    "test:beast-interactive": "tsc -p tsconfig.beast-game.json && node tests/beast-interactive.test.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

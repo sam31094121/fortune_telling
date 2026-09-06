@@ -43,7 +43,7 @@ assert.ok(
 /* ── 三、四個使用卡片的地方都必須吃同一份規格 ───────────────────── */
 {
   const surfaces = [
-    ['app/beast-game/page.tsx', '組陣台（六十張卡池、出戰三席、放大預覽）'],
+    ['components/BeastLegacyGame.tsx', '組陣台（六十張卡池、出戰三席、放大預覽）'],
     ['components/BeastDuelRitual.tsx', '揭牌儀式'],
   ];
   for (const [file, label] of surfaces) {
@@ -75,7 +75,7 @@ assert.ok(
 console.log('PASS: 六十張卡、三席、儀式、預覽共用同一份正統卡片規格（63×88mm）');
 /* ── 五、放牌不得讓版面跳動 ────────────────────────────────────── */
 {
-  const page = read('app/beast-game/page.tsx');
+  const page = read('components/BeastLegacyGame.tsx');
   // 「移出」原本只有放了卡才長出來，放牌瞬間整區從 395px 變 443px，
   // 下面的內容整片往下跳——那就是「卡片放進去都會跑掉」。
   assert.ok(

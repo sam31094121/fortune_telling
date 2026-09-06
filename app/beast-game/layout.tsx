@@ -10,12 +10,12 @@ import type { Metadata } from 'next';
  * 圖沿用站台既有的分享圖，不放沒驗證過的動態圖。
  */
 export const metadata: Metadata = {
-  title: '二十八宿・神獸決鬥｜六十張神獸卡，選三張入陣',
-  description: '從六十張神獸卡挑三隻布陣，前鋒、中軍、後陣各自單挑，三戰兩勝。對手是電腦，勝負由後端算完才演出，動畫不決定結果。',
+  title: '神獸・回合對戰｜六十張神獸，親手決定每一回合',
+  description: '選三隻已收藏神獸，以攻擊、技能與切換迎戰電腦。能量、速度、屬性與職責影響戰術；每回合由後端結算，擊倒對方三隻獲勝。',
   alternates: { canonical: '/beast-game' },
   openGraph: {
     title: '二十八宿・神獸決鬥',
-    description: '六十張神獸卡，選三張入陣，三局單挑定勝負。',
+    description: '六十張神獸卡，選三隻出戰，親手選擇攻擊、技能與切換。',
     url: '/beast-game',
     type: 'article',
     locale: 'zh_TW',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: '二十八宿・神獸決鬥',
-    description: '六十張神獸卡，選三張入陣，三局單挑定勝負。',
+    description: '六十張神獸卡，選三隻出戰，親手選擇攻擊、技能與切換。',
     images: ['/images/og-taichi-preview.jpg'],
   },
 };

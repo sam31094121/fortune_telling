@@ -1,0 +1,311 @@
+{
+  "version": "turn-based-1.0.0",
+  "matches": 10000,
+  "policy": "deterministic skill-first, mirrored lineups; not human strategy coverage",
+  "playerWins": 4782,
+  "draws": 553,
+  "maxRounds": 80,
+  "stats": {
+    "beast_y14": {
+      "appearances": 1012,
+      "wins": 460,
+      "draws": 80
+    },
+    "beast_a14": {
+      "appearances": 1078,
+      "wins": 568,
+      "draws": 144
+    },
+    "beast_y19": {
+      "appearances": 1000,
+      "wins": 523,
+      "draws": 30
+    },
+    "beast_a19": {
+      "appearances": 936,
+      "wins": 539,
+      "draws": 38
+    },
+    "beast_y03": {
+      "appearances": 950,
+      "wins": 458,
+      "draws": 68
+    },
+    "beast_a03": {
+      "appearances": 1008,
+      "wins": 549,
+      "draws": 145
+    },
+    "beast_y08": {
+      "appearances": 1016,
+      "wins": 378,
+      "draws": 52
+    },
+    "beast_a08": {
+      "appearances": 994,
+      "wins": 572,
+      "draws": 49
+    },
+    "beast_y04": {
+      "appearances": 928,
+      "wins": 334,
+      "draws": 50
+    },
+    "beast_a04": {
+      "appearances": 1048,
+      "wins": 419,
+      "draws": 98
+    },
+    "beast_g_baihu": {
+      "appearances": 1000,
+      "wins": 533,
+      "draws": 31
+    },
+    "beast_g_qinglong": {
+      "appearances": 1024,
+      "wins": 566,
+      "draws": 48
+    },
+    "beast_g_xuanwu": {
+      "appearances": 968,
+      "wins": 593,
+      "draws": 64
+    },
+    "beast_g_zhuque": {
+      "appearances": 1028,
+      "wins": 494,
+      "draws": 17
+    },
+    "beast_y23": {
+      "appearances": 994,
+      "wins": 353,
+      "draws": 59
+    },
+    "beast_a23": {
+      "appearances": 1072,
+      "wins": 451,
+      "draws": 116
+    },
+    "beast_y07": {
+      "appearances": 1074,
+      "wins": 463,
+      "draws": 22
+    },
+    "beast_a07": {
+      "appearances": 996,
+      "wins": 577,
+      "draws": 26
+    },
+    "beast_y01": {
+      "appearances": 1072,
+      "wins": 468,
+      "draws": 23
+    },
+    "beast_a01": {
+      "appearances": 916,
+      "wins": 485,
+      "draws": 20
+    },
+    "beast_y22": {
+      "appearances": 948,
+      "wins": 368,
+      "draws": 77
+    },
+    "beast_a22": {
+      "appearances": 994,
+      "wins": 480,
+      "draws": 159
+    },
+    "beast_y02": {
+      "appearances": 1002,
+      "wins": 351,
+      "draws": 88
+    },
+    "beast_a02": {
+      "appearances": 1012,
+      "wins": 409,
+      "draws": 25
+    },
+    "beast_y15": {
+      "appearances": 1064,
+      "wins": 602,
+      "draws": 36
+    },
+    "beast_a15": {
+      "appearances": 976,
+      "wins": 528,
+      "draws": 30
+    },
+    "beast_y24": {
+      "appearances": 970,
+      "wins": 450,
+      "draws": 36
+    },
+    "beast_a24": {
+      "appearances": 1064,
+      "wins": 570,
+      "draws": 38
+    },
+    "beast_y16": {
+      "appearances": 1030,
+      "wins": 390,
+      "draws": 30
+    },
+    "beast_a16": {
+      "appearances": 938,
+      "wins": 368,
+      "draws": 53
+    },
+    "beast_y18": {
+      "appearances": 1050,
+      "wins": 390,
+      "draws": 59
+    },
+    "beast_a18": {
+      "appearances": 1036,
+      "wins": 409,
+      "draws": 97
+    },
+    "beast_y09": {
+      "appearances": 1032,
+      "wins": 399,
+      "draws": 73
+    },
+    "beast_a09": {
+      "appearances": 1022,
+      "wins": 445,
+      "draws": 159
+    },
+    "beast_y10": {
+      "appearances": 994,
+      "wins": 570,
+      "draws": 28
+    },
+    "beast_a10": {
+      "appearances": 968,
+      "wins": 564,
+      "draws": 34
+    },
+    "beast_y21": {
+      "appearances": 998,
+      "wins": 626,
+      "draws": 24
+    },
+    "beast_a21": {
+      "appearances": 1030,
+      "wins": 478,
+      "draws": 38
+    },
+    "beast_y13": {
+      "appearances": 1008,
+      "wins": 323,
+      "draws": 78
+    },
+    "beast_a13": {
+      "appearances": 934,
+      "wins": 429,
+      "draws": 33
+    },
+    "beast_y06": {
+      "appearances": 1010,
+      "wins": 520,
+      "draws": 24
+    },
+    "beast_a06": {
+      "appearances": 956,
+      "wins": 487,
+      "draws": 26
+    },
+    "beast_y17": {
+      "appearances": 970,
+      "wins": 413,
+      "draws": 59
+    },
+    "beast_a17": {
+      "appearances": 972,
+      "wins": 511,
+      "draws": 76
+    },
+    "beast_y12": {
+      "appearances": 1026,
+      "wins": 479,
+      "draws": 26
+    },
+    "beast_a12": {
+      "appearances": 1038,
+      "wins": 554,
+      "draws": 116
+    },
+    "beast_y05": {
+      "appearances": 982,
+      "wins": 497,
+      "draws": 30
+    },
+    "beast_a05": {
+      "appearances": 956,
+      "wins": 544,
+      "draws": 37
+    },
+    "beast_y25": {
+      "appearances": 1014,
+      "wins": 394,
+      "draws": 28
+    },
+    "beast_a25": {
+      "appearances": 1056,
+      "wins": 537,
+      "draws": 22
+    },
+    "beast_y11": {
+      "appearances": 1000,
+      "wins": 435,
+      "draws": 25
+    },
+    "beast_a11": {
+      "appearances": 1034,
+      "wins": 462,
+      "draws": 15
+    },
+    "beast_y27": {
+      "appearances": 888,
+      "wins": 391,
+      "draws": 21
+    },
+    "beast_a27": {
+      "appearances": 1010,
+      "wins": 506,
+      "draws": 31
+    },
+    "beast_y26": {
+      "appearances": 1000,
+      "wins": 387,
+      "draws": 33
+    },
+    "beast_a26": {
+      "appearances": 946,
+      "wins": 457,
+      "draws": 108
+    },
+    "beast_y28": {
+      "appearances": 928,
+      "wins": 401,
+      "draws": 59
+    },
+    "beast_a28": {
+      "appearances": 1016,
+      "wins": 543,
+      "draws": 137
+    },
+    "beast_y20": {
+      "appearances": 1024,
+      "wins": 410,
+      "draws": 23
+    },
+    "beast_a20": {
+      "appearances": 990,
+      "wins": 481,
+      "draws": 47
+    }
+  },
+  "flags": []
+}

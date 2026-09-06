@@ -116,7 +116,7 @@ const stake = loadModule('lib/beast-game/stake.ts');
     '後端不得採信前端送來的 winner——那等於讓人自己宣布贏',
   );
 
-  const page = read('app/beast-game/page.tsx');
+  const page = read('components/BeastLegacyGame.tsx');
   const code = page
     .split('\n')
     .filter((line) => {
@@ -133,7 +133,7 @@ const stake = loadModule('lib/beast-game/stake.ts');
 
 /* ── 六、重播不得重複發獎 ───────────────────────────────────────── */
 {
-  const page = read('app/beast-game/page.tsx');
+  const page = read('components/BeastLegacyGame.tsx');
   assert.ok(
     /!result\.isReplay|!data\.isReplay/.test(page),
     '重播必須跳過發獎，否則一直按重播就能刷卡',
@@ -148,7 +148,7 @@ const stake = loadModule('lib/beast-game/stake.ts');
   assert.ok(store.includes('try {') && store.includes('catch'), '讀寫都要包 try/catch');
   assert.ok(/history/.test(store), '沒收要留紀錄，客戶要查得到什麼時候失去什麼');
 
-  const page = read('app/beast-game/page.tsx');
+  const page = read('components/BeastLegacyGame.tsx');
   assert.ok(
     /stakeSaved === false/.test(page),
     '存不進去時要照實告訴客戶，不得顯示「已放進收藏」卻其實沒存到',
@@ -158,7 +158,7 @@ const stake = loadModule('lib/beast-game/stake.ts');
 
 /* ── 八、獎勵要指引到成長中心 ───────────────────────────────────── */
 {
-  const page = read('app/beast-game/page.tsx');
+  const page = read('components/BeastLegacyGame.tsx');
   assert.ok(/growth-center#beast-collection/.test(read('components/BeastStakeResult.tsx')), '獎勵直接指引成長中心收藏格');
 
   const shelf = read('components/DuelCollectionShelf.tsx');
@@ -202,7 +202,7 @@ console.log('PASS: 押注結算只在後端、沒收明確告知、重播不重�
     '解鎖對照表不得在成長中心裡再寫一份',
   );
 
-  const page = read('app/beast-game/page.tsx');
+  const page = read('components/BeastLegacyGame.tsx');
   assert.ok(page.includes('readOwnedCards'), '賭注格要讀「我的卡」');
   assert.ok(page.includes('data-owned-cards'), '賭注要從自己的卡裡挑，不是六十張卡池');
   assert.ok(page.includes('data-stake-empty'), '一張都沒有時要有可辨識的引導區塊');
