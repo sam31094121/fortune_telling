@@ -23,6 +23,8 @@
 
 import { useEffect } from 'react';
 import styles from './BeastCardTile.module.css';
+// 正統比例與圖窗的唯一來源。這裡不重新定義，只疊手感與狀態。
+import frame from '@/components/BeastCardFrame.module.css';
 
 export interface BeastTileCard {
   id: string;
@@ -63,12 +65,18 @@ export function BeastCardTile({
       aria-label={`${card.name}，${ELEMENT_LABEL[card.element] ?? card.element}${selected ? '，已選取' : ''}`}
       aria-pressed={selected}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={card.thumbnail} alt="" loading="lazy" decoding="async" />
-      {owned && <span className={styles.owned}>藏</span>}
-      <span className={styles.name}>
+      {/*
+        卡身用正統卡框（63 × 88，撲克牌形）。比例、圖窗、名字條都來自
+        BeastCardFrame——那是被 test:beast-card-spec 鎖住的唯一來源。
+        這裡只多一層手感：厚度、投影、按下去的回饋。
+      */}
+      <span className={`${frame.card} ${styles.body}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className={frame.art} src={card.thumbnail} alt="" loading="lazy" decoding="async" />
         <span className={styles.dot} style={{ color: ELEMENT_COLOR[card.element] ?? '#94a3b8' }} aria-hidden="true" />
-        <span className={styles.nameText}>{card.name}</span>
+        {owned && <span className={styles.owned}>藏</span>}
+        {/* 名字條高度固定，六十張並排時底部一定對齊。 */}
+        <span className={`${frame.nameBar} ${styles.name}`} style={{ display: 'block' }}>{card.name}</span>
       </span>
     </button>
   );
@@ -103,9 +111,9 @@ export function CardDetailSheet({
       <button type="button" className={styles.backdrop} aria-label="關閉卡片詳情" onClick={onClose} />
       <section className={styles.sheet} role="dialog" aria-modal="true" aria-label={`${card.name} 詳細資料`} data-card-sheet>
         <div className={styles.sheetHead}>
-          <div className={styles.sheetArt}>
+          <div className={`${styles.sheetArt} ${frame.card}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={card.thumbnail} alt="" />
+            <img className={frame.art} src={card.thumbnail} alt="" />
           </div>
           <div className={styles.sheetTitle}>
             <strong>{card.name}</strong>

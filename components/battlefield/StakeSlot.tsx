@@ -75,6 +75,7 @@ export default function StakeSlot({
     announced.current = currentIndex;
   }, [currentIndex]);
 
+  const pickerRef = useRef<HTMLDivElement>(null);
   const picked = useMemo(() => owned.find((card) => card.id === selected) ?? null, [owned, selected]);
   const [announceText, setAnnounceText] = useState('');
   useEffect(() => {
@@ -105,7 +106,30 @@ export default function StakeSlot({
       <p className="sr-only" role="status" aria-live="polite">{announceText}</p>
 
       <div className={styles.slotRow}>
-        <div className={styles.slot} data-stake-target>
+        {/*
+          押注格本身可以點。
+
+          業主定調：「壓住的卡片，只要點擊壓住的框架，再回到卡片點擊，
+          連貫起來就可以。」
+
+          原本格子是死的：要換一張，得自己往下找那排小卡。
+          現在點格子就把選卡列帶到眼前並聚焦第一張——
+          「點格子 → 點卡 → 回到格子」變成一個閉環，
+          不需要客戶自己在畫面上找路。
+
+          已經押了的再點一次＝要換，所以先清掉，回到「等你押」的狀態。
+        */}
+        <button
+          type="button"
+          className={styles.slot}
+          data-stake-target
+          aria-label={picked ? `已押上${picked.name}，點此重新選擇` : '押注格，點此選一張收藏卡'}
+          onClick={() => {
+            if (picked) onSelect(picked.id); // 再點一次＝取消，回到等待狀態
+            pickerRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            pickerRef.current?.querySelector('button')?.focus();
+          }}
+        >
           {picked ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={picked.thumbnail} alt={picked.name} loading="lazy" decoding="async" />
@@ -126,7 +150,7 @@ export default function StakeSlot({
               <span className={styles.empty}>押上<br />一張</span>
             </>
           )}
-        </div>
+        </button>
         <div className={styles.slotText}>
           {picked ? (
             <>
@@ -148,7 +172,7 @@ export default function StakeSlot({
           <span>完成使命領一張，才有東西可以押。</span>
         </div>
       ) : (
-        <div className={styles.picker} role="group" aria-label="從收藏選一張押注">
+        <div ref={pickerRef} className={styles.picker} role="group" aria-label="從收藏選一張押注">
           {owned.map((card) => (
             <button
               key={card.id}
@@ -160,6 +184,11 @@ export default function StakeSlot({
                 onSelect(card.id);
                 // 押下去給一聲確認——這一下是有代價的，值得一個回饋。
                 sound.current?.play(CLASH_FX.impact, 0.28);
+                // 回到格子：客戶剛做的決定要看得到結果，不是留在小卡列上猜。
+                requestAnimationFrame(() => {
+                  const slot = document.querySelector<HTMLElement>('[data-stake-target]');
+                  slot?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                });
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}

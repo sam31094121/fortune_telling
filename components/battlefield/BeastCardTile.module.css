@@ -1,119 +1,148 @@
 /*
-  神獸卡片框架・手機優先
+  神獸卡片框架・手感層
   ============================================================================
 
-  業主定調：「把卡片的主軸卡片顯示出來就好，剩下的說明都把它折起來，
-  客戶需要看的時候再點閱。簡單、簡潔、有力，乾淨俐落，
-  每一張卡片都一樣，用這種高規格、科技感。」
+  業主定調：「把它用成更標準的遊戲卡框架（遊戲牌的框架），不用多出來空間，
+  剛剛好就可以……我要正統的、更標準的，有大數據、現有的素材拿來使用就好，
+  要有手感的感覺，長方形或撲克牌形。」
 
-  【主軸是卡面，不是文字】
+  【比例不在這裡定】
 
-  原本每一格底下掛著「風 · II 階 · 主攻 · 已收藏」四段小字，
-  六十格排下來就是一面字牆——**卡面被文字擠成配角**。
-  現在格子裡只有卡面與名字，其餘全部收進底部詳情。
+  正統規格是 components/BeastCardFrame.module.css 的 63 × 88
+  （實體集換式卡牌／撲克牌的通用尺寸），而且它被 test:beast-card-spec
+  鎖成唯一來源。這一份**不重新定義比例**，只疊上手感與狀態——
+  兩個地方各寫一套比例，遲早對不齊。
 
-  想知道的人點一下就有；不想知道的人不必先讀完才看得到圖。
+  【手感從哪裡來】
 
-  【科技感靠結構，不靠更亮】
+  真的卡片有三件事：厚度、邊、按下去會動。
+    厚度 —— 內縮一圈亮邊，像印刷卡的白邊
+    邊   —— 外緣一道暗影，卡片浮在桌面上而不是貼在螢幕上
+    回饋 —— 按下去縮一點點並壓深，手指離開才彈回
 
-  等寬邊框、掃描線、一枚元素色點。沒有霓虹、沒有漸層轟炸——
-  乾淨俐落的意思是「該有的都在，多的一個都沒有」。
-
-  【每一張都一樣】
-
-  尺寸、比例、圓角、邊框、名字位置全部由這一份決定。
-  任何地方要顯示神獸卡，都用這個元件，不另外排一套版。
+  刻意不做傾斜與 3D 翻轉：那在手機上會誤觸，而且六十張一起動很暈。
+  手感是「按得出來」，不是「動得多」。
 */
 
 .tile {
   position: relative;
   display: block;
   width: 100%;
-  /* 正方形，與戰場卡槽同一個比例。 */
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 14px;
-  background: #0a1120;
+  border: 0;
+  background: transparent;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  /* 按下去縮一點點。100ms 是手指還沒離開就看得到的最短時間。 */
+  transition: transform 100ms ease;
 }
 
-.tile img {
+.tile:active { transform: scale(0.97); }
+
+/* 卡身：厚度與邊。比例由 BeastCardFrame 提供，這裡只加質感。 */
+.body {
+  /*
+    一定要 block。這是一個 <span>，預設 inline——
+    而 aspect-ratio 對 inline 元素無效，卡片會被內容撐成細長條，
+    名字還會擠成直排。實測踩過：比例變成 0.43，不是 0.716。
+  */
   display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* 掃描線：像儀器面板，不像貼紙。淡到幾乎看不見才對。 */
-.tile::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    180deg,
-    transparent 0 3px,
-    rgba(255, 255, 255, 0.035) 3px 4px
-  );
-}
-
-/*
-  名字壓在底部。
-
-  用漸層而不是實色條：實色條會在卡面上切一刀，
-  漸層讓字浮在畫面上，卡面仍然是完整的一張。
-*/
-.name {
-  position: absolute;
-  inset: auto 0 0 0;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 14px 7px 6px;
-  background: linear-gradient(transparent, rgba(6, 12, 22, 0.9));
-  font-size: 11px;
-  font-weight: 900;
-  line-height: 15px;
-  color: #e6edf8;
-  text-align: left;
-}
-
-.nameText {
-  min-width: 0;
+  position: relative;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /*
+    低調奢華的金，靠三層薄的，不靠一層厚的：
+
+      外框   一條細金線（0.5px 級的視覺重量），不是粗描邊
+      內緣   一圈更暗的金，做出「燙金印在深色卡紙上」的厚度
+      外暈   極淡的金色光暈，只在邊緣一兩個像素看得見
+
+    刻意不用飽和的黃：那會變成廉價的塑膠感。
+    用偏灰的暖金（#c9a961 系）配深底，才是壓得住的貴氣。
+  */
+  border: 1px solid rgba(201, 169, 97, 0.62);
+  box-shadow:
+    /* 燙金的內緣厚度 */
+    inset 0 0 0 1px rgba(201, 169, 97, 0.22),
+    /* 卡紙的高光，很淡 */
+    inset 0 1px 0 rgba(255, 245, 220, 0.14),
+    /* 金色光芒：小半徑、低透明度，是光暈不是霓虹 */
+    0 0 8px rgba(201, 169, 97, 0.16),
+    /* 浮在桌面上的深影 */
+    0 4px 12px rgba(0, 0, 0, 0.55);
+  background: #0d1018;
 }
 
-/* 元素只用一枚色點。寫「風」要三個字寬，一個點就夠了。 */
+/* 按下去：光暈收掉、影子壓扁，像卡片真的被按進桌面。 */
+.tile:active .body {
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 169, 97, 0.3),
+    inset 0 2px 10px rgba(0, 0, 0, 0.6),
+    0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* 選取：金邊。卡片本身不變形，只有邊變。 */
+/* 選取：金線變亮、光暈放大一點。仍然不刺眼——奢華是克制的。 */
+.selected .body {
+  border-color: rgba(240, 209, 138, 0.95);
+  box-shadow:
+    inset 0 0 0 1px rgba(240, 209, 138, 0.35),
+    0 0 0 1px rgba(240, 209, 138, 0.55),
+    0 0 14px rgba(201, 169, 97, 0.34),
+    0 4px 14px rgba(0, 0, 0, 0.55);
+}
+
+/* 元素色點放在左上角，跟著卡寬走，六十張並排時位置一致。 */
 .dot {
-  flex: none;
-  width: 7px;
-  height: 7px;
+  position: absolute;
+  top: 4cqw;
+  left: 4cqw;
+  width: 6cqw;
+  height: 6cqw;
+  max-width: 9px;
+  max-height: 9px;
   border-radius: 50%;
   box-shadow: 0 0 7px currentColor;
 }
 
-/* 收藏與否是一枚角標，不是一行字。 */
+/* 收藏角標。用既有卡框的 corner 尺度，不另訂一套。 */
 .owned {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  padding: 0 5px;
+  top: 3.5cqw;
+  right: 3.5cqw;
+  padding: 0.5cqw 2cqw;
   border-radius: 999px;
-  background: rgba(255, 223, 164, 0.9);
-  font-size: 9px;
+  background: rgba(255, 223, 164, 0.92);
+  font-size: clamp(8px, 7cqw, 11px);
   font-weight: 900;
-  line-height: 15px;
+  line-height: 1.5;
   color: #302113;
 }
 
-.selected {
-  border-color: #ffdfa4;
-  box-shadow: 0 0 0 2px rgba(255, 223, 164, 0.55);
+/* 卡框裡的角標與名字條都是 span，同樣要 block 才吃得到定位與省略。 */
+.dot, .owned { display: block; }
+
+/*
+  名字條的比例。
+
+  正統卡框給的漸層高度是為了大卡設計的；在這種小卡上實測佔了 23%，
+  卡面只剩四分之三，比例就不對了。**這裡只調自己這一層的內距**，
+  不去動 BeastCardFrame——那是四個介面共用的唯一來源，
+  為了一個地方好看去改它，另外三個就跟著歪。
+
+  收到約 18%：名字讀得完，卡面仍然是主角。
+  字用暖白帶金，不用純白——純白在深色卡上會跳出來搶戲。
+*/
+.name {
+  padding-top: 5.5cqw;
+  padding-bottom: 2.5cqw;
+  font-size: clamp(9px, 9cqw, 13px);
+  color: #f0e2c4;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile { transition: none; }
+  .tile:active { transform: none; }
 }
 
 /* ── 底部詳情 ─────────────────────────────────────────────────── */
@@ -152,12 +181,12 @@
   gap: 10px;
 }
 
+/* 比例由 frame.card 決定（63×88），這裡只給寬度與圓角。 */
 .sheetArt {
   flex: none;
-  width: 76px;
-  aspect-ratio: 1 / 1;
+  width: 68px;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .sheetArt img { display: block; width: 100%; height: 100%; object-fit: cover; }

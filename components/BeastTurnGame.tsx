@@ -55,7 +55,19 @@ export default function BeastTurnGame(){
   <nav className={styles.toolbar}>{['組隊','圖鑑','召喚','成長'].map(t=><button key={t} aria-pressed={tab===t} onClick={()=>{setTab(t);setDetail(null);}}>{t}</button>)}</nav>
   <p>已收藏 {account.owned.length}／60　<small>出戰不限收藏，六十張都能上場</small></p>
   {tab==='召喚'?<section className={styles.panel}><h2>五元素召喚</h2><p>每天免費一次。60 張神獸各有 1／60 機率；重複取得轉為該卡 1 點成長。</p><p className={styles.muted}>每日以 UTC 00:00（臺灣 08:00）重置。</p><button disabled={busy||account.summonDay===new Date().toISOString().slice(0,10)} onClick={()=>void send('SUMMON')}>召喚神獸</button></section>:<>
-  {tab==='組隊'&&<><div className={styles.slots}>{[0,1,2].map(i=><button key={i} onClick={()=>setSelected(s=>s.filter((_,j)=>j!==i))}>{selected[i]?lookup(selected[i]).name:`${i===0?'主戰':'備戰'}・選一張`}</button>)}</div><button disabled={busy||selected.length!==3||!!match} onClick={()=>void send('START',{lineup:selected})}>開始回合對戰</button><p className={styles.muted}>第一隻先出場，其餘可在回合中切換。三張不可重複。</p></>}
+  {/*
+    三席用卡片，不用文字鈕。
+
+    業主定調：「只能用卡片點擊，禁止用字幕點擊方式。」
+    原本是三顆寫著「主戰・選一張」的文字按鈕——那就是用字幕點擊。
+    現在空格顯示牌背、放了就顯示那張卡，點卡片本身把它移出。
+  */}
+  {tab==='組隊'&&<><div className={styles.slots}>{[0,1,2].map(i=>{const id=selected[i];const c=id?lookup(id):null;
+   return <div key={i} className={styles.card}>{c
+    ?<BeastCardTile card={c} selected onOpen={()=>setSelected(s=>s.filter((_,j)=>j!==i))}/>
+    :<BeastCardTile card={{id:'empty'+i,name:i===0?'主戰':'備戰',thumbnail:'/beast-game/card-back.webp',element:''}} onOpen={()=>{}}/>}</div>;})}</div>
+   <button disabled={busy||selected.length!==3||!!match} onClick={()=>void send('START',{lineup:selected})}>開始回合對戰</button>
+   <p className={styles.muted}>點卡片入陣，再點一次看詳情。第一隻先出場，其餘可在回合中切換。三張不可重複。</p></>}
   <div className={styles.filters}>{['全部',...Object.keys(labels)].map(e=><button key={e} aria-pressed={filter===e} onClick={()=>setFilter(e)}>{labels[e]??e}</button>)}</div>
   {/*
     卡片格：只有卡面與名字，其餘全部折進底部詳情。
@@ -63,22 +75,24 @@ export default function BeastTurnGame(){
     尺寸與框架由 BeastCardTile 決定，六十張長得一樣。
   */}
   <div className={styles.grid}>{(tab==='成長'?owned:cards).filter(c=>(filter==='全部'||c.element===filter)&&(tab!=='成長'||c.form==='YOUNG')).map(c=>{const has=account.owned.includes(c.id);return <div className={styles.card} key={c.id}>
-   <BeastCardTile card={c} owned={has} selected={selected.includes(c.id)} onOpen={()=>setDetail(c)}/>
+   <BeastCardTile card={c} owned={has} selected={selected.includes(c.id)} onOpen={()=>{
+     // 組隊分頁：第一下入陣，已在陣中的再點才看詳情。
+     if(tab!=='組隊'){setDetail(c);return;}
+     if(selected.includes(c.id)){setDetail(c);return;}
+     if(selected.length<3)setSelected(s=>[...s,c.id]); else setDetail(c);
+   }}/>
   </div>;})}</div>
   </>}
   {/*
     詳情從底部升起，不是插在頁面中間。
     插在中間會把整個格線推開，客戶關掉之後找不回原本在看哪一張。
   */}
+  {/* 選卡不得由文字發動——組隊分頁的詳情只看資料，入陣要點卡片。
+      覺醒不是選卡，是一個動作，留著。 */}
   {detail&&<CardDetailSheet card={detail} owned={account.owned.includes(detail.id)}
     note={tab==='成長'?`成長 ${account.experience[detail.id]??0}／3`:undefined}
-    actionLabel={tab==='組隊'
-      ?(selected.includes(detail.id)?'移出隊伍':'選入隊伍')
-      :tab==='成長'&&(account.experience[detail.id]??0)>=3&&detail.evolution&&!account.owned.includes(detail.evolution)
-        ?'覺醒成獸':undefined}
-    onAction={tab==='組隊'
-      ?()=>setSelected(s=>s.includes(detail.id)?s.filter(id=>id!==detail.id):s.length<3?[...s,detail.id]:s)
-      :tab==='成長'?()=>void send('EVOLVE',{cardId:detail.id}):undefined}
+    actionLabel={tab==='成長'&&(account.experience[detail.id]??0)>=3&&detail.evolution&&!account.owned.includes(detail.evolution)?'覺醒成獸':undefined}
+    onAction={tab==='成長'?()=>void send('EVOLVE',{cardId:detail.id}):undefined}
     onClose={()=>setDetail(null)}/>}
   {!account.imported&&<button disabled={busy} onClick={()=>void send('IMPORT',{legacyIds:readOwnedCards().all})}>匯入這個瀏覽器原有收藏</button>}
   <p className={styles.muted}>收藏保存在目前伺服器，以此瀏覽器識別；尚未提供跨裝置登入。首次提供三張入門卡。舊收藏匯入不移除原紀錄。</p><Link href="/audio/beast-voices/credits.html">聲音來源與授權</Link>
