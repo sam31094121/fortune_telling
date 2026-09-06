@@ -31,6 +31,9 @@ import {
 import BattlePanel from '@/components/battlefield/BattlePanel';
 import { autoPlaceOpponent, canStartBattle, startFromField, fieldFromMatch } from '@/lib/beast-game/battle-bridge';
 import { advance, type Action, type Match } from '@/lib/beast-game/interactive';
+import StakeSlot, { type StakeCard } from '@/components/battlefield/StakeSlot';
+import { readCollection, runOwnedDuel, countByCard } from '@/lib/beast-collection';
+import { resolveStake } from '@/lib/beast-game/stake';
 
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
 const DECK_SIZE = 20;
@@ -69,6 +72,10 @@ export default function BattlefieldPage() {
   const [match, setMatch] = useState<Match | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [seed, setSeed] = useState(1);
+  /** 押注格：戰鬥前堵住輸贏的那一格。沒押就開不了戰。 */
+  const [stakeCardId, setStakeCardId] = useState<string | null>(null);
+  const [ownedStake, setOwnedStake] = useState<StakeCard[]>([]);
+  const [settlement, setSettlement] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
   useEffect(()=>{if(match?.status==='FINISHED')recordBeastGameCompleted('battlefield');},[match?.status]);
 
@@ -99,6 +106,8 @@ export default function BattlefieldPage() {
     // 對手用同一套佈陣規則自動上場——沒有特權、沒有額外格子。
     setState(autoPlaceOpponent(fresh, rng));
     setMatch(null);
+    setStakeCardId(null);
+    setSettlement(null);
   }, [cards, seed]);
 
   /** 從目前的佈陣開戰。種子固定，同一局可重播。 */
@@ -163,7 +172,46 @@ export default function BattlefieldPage() {
     });
   }, []);
 
-  const startCheck = useMemo(() => (state ? canStartBattle(state) : { ready: false as const }), [state]);
+  /* 可以拿來押的，是成長收藏裡真正擁有的那些——不是卡池六十張。 */
+  useEffect(() => {
+    if (!cards.length) return;
+    const collection = readCollection();
+    const owned = [...countByCard(collection).keys()]
+      .map((id) => cards.find((card) => card.id === id))
+      .filter((card): card is BattlefieldCardArt => Boolean(card))
+      .map((card) => ({ id: card.id, name: card.name, thumbnail: card.thumbnail }));
+    setOwnedStake(owned);
+  }, [cards, seed]);
+
+  /*
+    結算：戰鬥打完才動收藏。
+
+    走 runOwnedDuel——它有跨分頁鎖、失敗會回滾、還有崩潰復原日誌。
+    另外寫一套「應該也可以」的結算，就是拿客戶的收藏在冒險。
+    勝負來自 match.winner，這裡不重算。
+  */
+  useEffect(() => {
+    if (!match || match.status !== 'FINISHED' || !stakeCardId || settlement) return;
+    const opponentStake = match.opponent.team[0]?.cardId;
+    if (!opponentStake) return;
+    const outcome = resolveStake({
+      playerStake: stakeCardId,
+      opponentStake,
+      winner: match.winner === 'player' ? 'PLAYER' : match.winner === 'opponent' ? 'OPPONENT' : 'DRAW',
+    });
+    void runOwnedDuel(stakeCardId, async () => ({ ok: true as const, stake: outcome }))
+      .then(({ result }) => setSettlement(result.stake.message))
+      .catch((cause: unknown) => setSettlement(cause instanceof Error ? cause.message : '押注結算失敗。'));
+  }, [match, stakeCardId, settlement]);
+
+  const startCheck = useMemo(() => {
+    const base = state ? canStartBattle(state) : { ready: false as const };
+    if (!base.ready) return base;
+    // 佈陣完成之後才輪到押注：先後順序不能顛倒，
+    // 不然客戶會先選好賭注、才發現主戰還沒放。
+    if (!stakeCardId) return { ready: false as const, reason: '先押一張收藏卡' };
+    return base;
+  }, [state, stakeCardId]);
   const placed = useMemo(() => {
     if (!state) return 0;
     return (state.player.active ? 1 : 0) + state.player.bench.filter(Boolean).length;
@@ -181,7 +229,9 @@ export default function BattlefieldPage() {
           V2 接上之後那句就變成假的——畫面說的話必須跟實際做的一致。
         */}
         <p className="mt-2 text-sm leading-6 text-amber-200">
-          60 種神獸收藏，本次體驗使用 20 張試用牌，不扣收藏。
+          60 種神獸收藏，出戰使用 20 張試用牌。
+          {/* 押注是真的會扣的，這句不能再寫「不扣收藏」——畫面說的話要跟做的一致。 */}
+          <strong className="text-amber-100">押上去的那一張輸了會真的被沒收。</strong>
           {match ? '本場為電腦對戰體驗。' : '先選主戰與後備，再按開戰。'}
         </p>
         <p className="mt-2 text-sm leading-6 text-slate-200">
@@ -204,12 +254,32 @@ export default function BattlefieldPage() {
               />
             </div>
             {match ? (
-              <BattlePanel match={match} onAction={act} />
+              <>
+                <BattlePanel match={match} onAction={act} />
+                {settlement && (
+                  <p role="status" className="mt-2 rounded-xl bg-amber-300/10 p-3 text-sm leading-6 text-amber-100" data-settlement>
+                    {settlement}
+                  </p>
+                )}
+              </>
             ) : (
               <>
                 <p className="mt-3 text-center text-xs text-white/60" data-placed>
                   已上場 {placed} 隻（主戰 {state.player.active ? 1 : 0}・後備 {state.player.bench.filter(Boolean).length}）
                 </p>
+                <StakeSlot
+                  owned={ownedStake}
+                  selected={stakeCardId}
+                  steps={[
+                    { label: '選主戰', done: Boolean(state.player.active) },
+                    // 後備不是開戰的必要條件（canStartBattle 只要主戰＋押注）。
+                    // 標成必經步驟會讓客戶以為卡住了，所以寫明可略。
+                    { label: '擺後備・可略', done: state.player.bench.some(Boolean) },
+                    { label: '押注', done: Boolean(stakeCardId) },
+                    { label: '開戰', done: false },
+                  ]}
+                  onSelect={(cardId) => setStakeCardId((current) => (current === cardId ? null : cardId))}
+                />
                 <button
                   type="button"
                   data-start-battle

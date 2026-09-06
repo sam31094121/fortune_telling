@@ -1,0 +1,194 @@
+/*
+  押注格・科技感
+  ============================================================================
+
+  業主定調：「在戰鬥開始前堵住輸贏的格子，讓客戶可以壓卡片，
+  科技感的格式，客戶自己選擇卡片，自己壓賭注的卡片要有聲的引導，先後順序。」
+
+  【設計分寸】
+
+  「堵住」是這一格的重點：沒押注就開不了戰，而且要看得出來是被擋住的，
+  不是壞掉。所以空的時候不是一個灰框，是一個**明顯在等東西**的凹槽——
+  有掃描線、有脈動、有「押上一張」的字。
+
+  科技感靠三件事，不是靠更亮：
+    刻度與掃描線 —— 像儀器面板，不像貼紙
+    等寬數字     —— 讀數穩定
+    步驟編號     —— 先後順序一眼看得出來，這是業主特別要的
+*/
+
+.panel {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(125, 211, 252, 0.06), transparent 60%),
+    rgba(255, 255, 255, 0.03);
+}
+
+/* ── 先後順序 ─────────────────────────────────────────────────── */
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.step {
+  display: grid;
+  gap: 2px;
+  padding: 6px 4px;
+  border-top: 2px solid rgba(255, 255, 255, 0.12);
+  text-align: center;
+  font-size: 10px;
+  line-height: 14px;
+  color: #7c8aa3;
+}
+
+.stepIndex {
+  font-size: 11px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 做完的：確定，但不搶眼。 */
+.done {
+  border-top-color: rgba(125, 211, 252, 0.5);
+  color: #7dd3fc;
+}
+
+/* 正在做的：唯一亮著的那一格。 */
+.current {
+  border-top-color: #ffdfa4;
+  color: #ffdfa4;
+}
+
+.current .stepIndex {
+  text-shadow: 0 0 10px rgba(255, 223, 164, 0.6);
+}
+
+/* ── 押注格本身 ───────────────────────────────────────────────── */
+
+.slotRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.slot {
+  position: relative;
+  flex: none;
+  width: clamp(84px, 24vw, 112px);
+  /* 與戰場卡槽同一個比例，不另立一套。 */
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid rgba(125, 211, 252, 0.4);
+  border-radius: 14px;
+  background: rgba(125, 211, 252, 0.05);
+  touch-action: manipulation;
+}
+
+.slot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 空著的時候要看得出「在等東西」，而不是壞掉。 */
+.empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 900;
+  color: #7dd3fc;
+  /* 壓在牌背上要讀得出來，所以給一層深色底。 */
+  background: rgba(6, 12, 22, 0.62);
+  animation: waiting 2.2s ease-in-out infinite;
+}
+
+@keyframes waiting {
+  50% { opacity: 0.45; }
+}
+
+/* 掃描線：像儀器，不像貼紙。 */
+.slot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0 3px,
+    rgba(125, 211, 252, 0.07) 3px 4px
+  );
+}
+
+.slotText {
+  display: grid;
+  gap: 3px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #b9c5d9;
+}
+
+.slotText strong {
+  font-size: 13px;
+  font-weight: 900;
+  color: #e6edf8;
+}
+
+.risk {
+  font-size: 11px;
+  line-height: 17px;
+  color: #ffdfa4;
+}
+
+/* ── 選卡 ─────────────────────────────────────────────────────── */
+
+.picker {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px;
+  overscroll-behavior-x: contain;
+}
+
+.pick {
+  flex: 0 0 clamp(60px, 18vw, 80px);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 0;
+  touch-action: manipulation;
+}
+
+.pick img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.picked {
+  border-color: #ffdfa4;
+  box-shadow: 0 0 0 2px rgba(255, 223, 164, 0.5);
+}
+
+.empty2 {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 19px;
+  color: #b9c5d9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .empty { animation: none; }
+}
