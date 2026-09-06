@@ -59,24 +59,34 @@ function normalizeCounterValue(value: LocalCounterValue | undefined, now: Date):
     typeof updatedAt === 'string' &&
     !Number.isNaN(Date.parse(updatedAt))
   ) {
-    return { displayCount: Math.max(displayCount, VISITOR_MIN_DISPLAY_COUNT), updatedAt, visitIds };
+    /*
+      以 visitIds 為準，不以存下來的 displayCount 為準。
+
+      原本取兩者較大值，代表一旦 displayCount 被灌到一百多萬，
+      就算 visitIds 是空的也會永遠贏——改資料檔沒有用，
+      跑著的伺服器會把記憶體裡那個數字寫回去。
+
+      真相是「有幾個人來過」，那是數得出來的。
+      彙總欄位只是快取，不該凌駕它所彙總的東西。
+    */
+    return { displayCount: visitIds.length, updatedAt, visitIds };
   }
 
-  return { displayCount: VISITOR_MIN_DISPLAY_COUNT, updatedAt: now.toISOString(), visitIds };
+  return { displayCount: visitIds.length, updatedAt: now.toISOString(), visitIds };
 }
 
-function projectCounter(counter: StoredCounter, now = new Date()): StoredCounter {
-  const updatedAtMs = Date.parse(counter.updatedAt);
-  const elapsedMs = Math.max(0, now.getTime() - (Number.isNaN(updatedAtMs) ? now.getTime() : updatedAtMs));
-  const elapsedIncrements = Math.floor(elapsedMs / COUNTER_AUTO_INCREMENT_INTERVAL_MS);
+function projectCounter(counter: StoredCounter): StoredCounter {
+  /*
+    這裡原本會依「距離上次更新過了多久」自動把 displayCount 加上去。
 
-  if (elapsedIncrements <= 0) return counter;
+    **這是在伺服器端憑空長流量**，比前端那條嚴重得多：
+    前端的假心跳只影響那一個瀏覽器，這一條影響每一個人，
+    而且會被寫回資料檔固化下來。放著不動它也會一直漲。
 
-  return {
-    ...counter,
-    displayCount: counter.displayCount + elapsedIncrements,
-    updatedAt: new Date(updatedAtMs + elapsedIncrements * COUNTER_AUTO_INCREMENT_INTERVAL_MS).toISOString(),
-  };
+    專案鐵律是禁止作假。計數只在真的有人造訪時才變，
+    所以這個函式現在原樣回傳。
+  */
+  return counter;
 }
 
 async function readCounters({ projectElapsed = true } = {}): Promise<NormalizedCounters> {
@@ -90,7 +100,7 @@ async function readCounters({ projectElapsed = true } = {}): Promise<NormalizedC
 
       for (const featureKey of Object.values(FEATURE_KEYS)) {
         const normalized = normalizeCounterValue(stored[featureKey], now);
-        const projected = projectElapsed ? projectCounter(normalized, now) : normalized;
+        const projected = projectElapsed ? projectCounter(normalized) : normalized;
         if (projected.displayCount > initial[featureKey].displayCount) {
           initial[featureKey] = projected;
         }

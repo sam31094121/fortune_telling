@@ -5,7 +5,18 @@ import path from 'node:path';
 
 import { resolveLocalDataDirectory } from './local-data-directory';
 
-export const AI_LIKE_INITIAL_COUNT = 630_628;
+/*
+  底數歸零。
+
+  這個常數原本是 630,628——不管實際有幾個人，畫面至少顯示這個數。
+  於是 number／iching／karma 三個功能顯示「1,271,2xx 人」，
+  而真實訪客是 0。認同數同理：顯示 630,674，真實 46。
+
+  專案鐵律第一條是禁止作假。虛增的社會證明是對客戶說謊，
+  不因為「別人都這樣做」而變成可以。歸零之後數字會很難看，
+  但難看的真話勝過好看的假話。
+*/
+export const AI_LIKE_INITIAL_COUNT = 0;
 
 const DATA_DIRECTORY = resolveLocalDataDirectory();
 const COUNTER_FILE = path.join(DATA_DIRECTORY, 'ai-like-counter.json');
@@ -51,7 +62,20 @@ function normalizeCounter(value: unknown): StoredAiLikeCounter {
   const safeHighestCount = Number.isSafeInteger(highestCount) && highestCount >= AI_LIKE_INITIAL_COUNT
     ? highestCount
     : AI_LIKE_INITIAL_COUNT;
-  const permanentCount = Math.max(safeTotalCount, safeHighestCount, countFromLogs);
+  /*
+    以「真實紀錄」為準，不是以存下來的彙總欄位為準。
+
+    原本是 Math.max(存的總數, 存的最高值, 從紀錄算出來的)。
+    那代表一旦 totalCount 被灌到 630,674，就算實際只有 46 個裝置按過，
+    它也會永遠贏——而且每次寫回檔案，虛增值就再固化一次。
+    改資料檔沒有用，跑著的伺服器會把記憶體裡那個數字寫回去。
+
+    真相是 deviceIds／logs：誰按過就是誰按過，數得出來。
+    彙總欄位只是快取，不該凌駕它所彙總的東西。
+  */
+  const permanentCount = countFromLogs;
+  void safeTotalCount;
+  void safeHighestCount;
 
   return {
     totalCount: permanentCount,

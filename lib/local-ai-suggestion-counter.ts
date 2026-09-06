@@ -5,7 +5,12 @@ import path from 'node:path';
 
 import { resolveLocalDataDirectory } from './local-data-directory';
 
-export const AI_SUGGESTION_INITIAL_COUNT = 168;
+/*
+  底數歸零。與 AI_LIKE_INITIAL_COUNT 同一件事：
+  畫面寫「不認同 204 人」，實際只有 36 個裝置按過，
+  其中 168 是憑空加上去的。禁止作假。
+*/
+export const AI_SUGGESTION_INITIAL_COUNT = 0;
 
 const DATA_DIRECTORY = resolveLocalDataDirectory();
 const COUNTER_FILE = path.join(DATA_DIRECTORY, 'ai-suggestion-counter.json');
@@ -51,7 +56,14 @@ function normalizeCounter(value: unknown): StoredAiSuggestionCounter {
   const safeHighestCount = Number.isSafeInteger(highestCount) && highestCount >= AI_SUGGESTION_INITIAL_COUNT
     ? highestCount
     : AI_SUGGESTION_INITIAL_COUNT;
-  const permanentCount = Math.max(safeTotalCount, safeHighestCount, countFromLogs);
+  /*
+    以真實紀錄為準，不以存下來的彙總欄位為準。
+    存的 totalCount 一旦被灌過，Math.max 會讓它永遠贏，
+    而且每次寫回檔案就再固化一次——改資料檔沒有用。
+  */
+  const permanentCount = countFromLogs;
+  void safeTotalCount;
+  void safeHighestCount;
 
   return {
     totalCount: permanentCount,

@@ -14,12 +14,19 @@ export const FEATURE_KEYS = {
 
 export type FeatureKey = (typeof FEATURE_KEYS)[keyof typeof FEATURE_KEYS];
 
-const MINIMUM_DISPLAY_COUNT = 1_011_500;
-const FRONTEND_CATCH_UP_INTERVAL_MS = 18_000;
-const FRONTEND_MIN_INCREMENT_DELAY_MS = 7_000;
-const FRONTEND_MAX_INCREMENT_DELAY_MS = 24_000;
+/*
+  底數歸零。
+
+  這個常數原本是 1,011,500——不管實際有幾個人，畫面至少顯示這個數。
+  於是 number／iching／karma 三個功能顯示「1,271,2xx 人」，
+  而真實訪客是 0。認同數同理：顯示 630,674，真實 46。
+
+  專案鐵律第一條是禁止作假。虛增的社會證明是對客戶說謊，
+  不因為「別人都這樣做」而變成可以。歸零之後數字會很難看，
+  但難看的真話勝過好看的假話。
+*/
+const MINIMUM_DISPLAY_COUNT = 0;
 const BACKEND_SYNC_INTERVAL_MS = 60_000;
-const MAX_VISIBLE_CATCH_UP_INCREMENT = 30;
 const VISITOR_FETCH_TIMEOUT_MS = 8_000;
 
 type StoredCounter = {
@@ -50,12 +57,16 @@ function readStoredDisplayCount(featureKey: FeatureKey) {
     const stored = JSON.parse(rawValue) as Partial<StoredCounter>;
     if (!isSafeDisplayCount(stored.displayCount) || typeof stored.updatedAt !== 'number') return null;
 
-    const elapsedIntervals = Math.max(
-      0,
-      Math.floor((Date.now() - stored.updatedAt) / FRONTEND_CATCH_UP_INTERVAL_MS),
-    );
+    /*
+      這裡原本會依「離開了多久」把讀出來的數字往上加，最多一次加 30。
 
-    return stored.displayCount + Math.min(elapsedIntervals, MAX_VISIBLE_CATCH_UP_INCREMENT);
+      也就是說：關掉分頁去吃個飯，回來數字自己漲了——
+      而那段時間一個訪客都沒有。這是第二條捏造路徑，
+      比計時器那條更難發現，因為它藏在「讀取」裡。
+
+      現在讀到多少就是多少。
+    */
+    return stored.displayCount;
   } catch {
     return null;
   }
@@ -120,16 +131,6 @@ function getCounterSyncIntervalMs(permanent: boolean) {
   return isMobileOrSocialBrowser() ? 180_000 : BACKEND_SYNC_INTERVAL_MS;
 }
 
-function getFrontendIncrementRangeMs() {
-  return isMobileOrSocialBrowser()
-    ? { min: 16_000, max: 38_000, catchUp: 30_000 }
-    : {
-        min: FRONTEND_MIN_INCREMENT_DELAY_MS,
-        max: FRONTEND_MAX_INCREMENT_DELAY_MS,
-        catchUp: FRONTEND_CATCH_UP_INTERVAL_MS,
-      };
-}
-
 async function fetchVisitorRecord(url: string, options: RequestInit = {}) {
   const requestController = new AbortController();
   const timeoutId = window.setTimeout(() => requestController.abort(), VISITOR_FETCH_TIMEOUT_MS);
@@ -180,7 +181,17 @@ export default function FeatureVisitorCounter({
         const requestedCount =
           typeof nextDisplayCount === 'function' ? nextDisplayCount(currentBaseCount) : nextDisplayCount;
         const safeRequestedCount = isSafeDisplayCount(requestedCount) ? requestedCount : currentBaseCount;
-        const nextCount = Math.max(currentBaseCount, safeRequestedCount);
+        /*
+          原本是 Math.max(現在的, 新來的)——數字只能往上，不能往下。
+
+          用意大概是「不要讓客戶看到數字倒退」，但代價是：
+          虛增時期存進 localStorage 的 1,085,024 永遠降不回來，
+          就算伺服器已經回報真實的 1,869 也一樣。
+          於是「歸真」只對新客戶生效，看過假數字的人繼續看假數字。
+
+          伺服器才是真相來源。它說多少就是多少——**包括變少**。
+        */
+        const nextCount = safeRequestedCount;
 
         writeStoredDisplayCount(featureKey, nextCount);
         return nextCount;
@@ -197,54 +208,18 @@ export default function FeatureVisitorCounter({
     }
   }, [commitDisplayCount, featureKey]);
 
-  useEffect(() => {
-    if (hiddenCounter || permanent) return;
+  /*
+    這裡原本有一個「自己長大」的計時器：每 7–24 秒把顯示數字 +1，
+    切回分頁還會依離開時間補算，最多一次補 30。
+    也就是說沒有任何人造訪，數字也會一直往上跑。
 
-    let lastTickAt = Date.now();
-    let timeoutId: number | undefined;
+    實測資料：number／iching／karma 三個功能顯示「1,271,2xx 人瀏覽」，
+    而 visitIds 是空陣列——一個真實訪客都沒有。
 
-    function getNextDelay() {
-      const range = getFrontendIncrementRangeMs();
-      return Math.floor(range.min + Math.random() * (range.max - range.min));
-    }
-
-    function applyElapsedIncrement() {
-      const now = Date.now();
-      const elapsedIntervals = Math.floor((now - lastTickAt) / getFrontendIncrementRangeMs().catchUp);
-
-      if (elapsedIntervals <= 0) return;
-
-      lastTickAt += elapsedIntervals * getFrontendIncrementRangeMs().catchUp;
-      commitDisplayCount((currentCount) => currentCount + Math.min(elapsedIntervals, MAX_VISIBLE_CATCH_UP_INCREMENT));
-    }
-
-    function scheduleNextIncrement() {
-      timeoutId = window.setTimeout(() => {
-        if (document.visibilityState === 'visible') {
-          lastTickAt = Date.now();
-          commitDisplayCount((currentCount) => currentCount + 1);
-        }
-
-        scheduleNextIncrement();
-      }, getNextDelay());
-    }
-
-    function handlePageVisible() {
-      if (document.visibilityState === 'visible') {
-        applyElapsedIncrement();
-      }
-    }
-
-    scheduleNextIncrement();
-    document.addEventListener('visibilitychange', handlePageVisible);
-    window.addEventListener('focus', applyElapsedIncrement);
-
-    return () => {
-      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
-      document.removeEventListener('visibilitychange', handlePageVisible);
-      window.removeEventListener('focus', applyElapsedIncrement);
-    };
-  }, [commitDisplayCount, hiddenCounter, permanent]);
+    專案鐵律是禁止作假。把假的流量做成會呼吸的樣子，不是行銷手法，
+    是對客戶說謊。整段連同它的常數一起刪掉：
+    數字只有在後端記錄到真實造訪時才會變。
+  */
 
   useEffect(() => {
     if (hiddenCounter) return;

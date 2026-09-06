@@ -2,7 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-const INITIAL_COUNT = 630_628;
+/*
+  底數歸零。
+
+  這個常數原本是 630,628——不管實際有幾個人，畫面至少顯示這個數。
+  於是 number／iching／karma 三個功能顯示「1,271,2xx 人」，
+  而真實訪客是 0。認同數同理：顯示 630,674，真實 46。
+
+  專案鐵律第一條是禁止作假。虛增的社會證明是對客戶說謊，
+  不因為「別人都這樣做」而變成可以。歸零之後數字會很難看，
+  但難看的真話勝過好看的假話。
+*/
+const INITIAL_COUNT = 0;
 const DEVICE_ID_KEY = 'taiji_ai_like_device_id_v1';
 const LIKED_KEY = 'taiji_ai_like_done_v1';
 const HIGHEST_COUNT_KEY = 'taiji_ai_like_highest_count_v1';

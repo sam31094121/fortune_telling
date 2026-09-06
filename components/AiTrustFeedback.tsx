@@ -2,8 +2,30 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-const LIKE_INITIAL_COUNT = 630_628;
-const SUGGESTION_INITIAL_COUNT = 168;
+/*
+  底數歸零。
+
+  這個常數原本是 630,628——不管實際有幾個人，畫面至少顯示這個數。
+  於是 number／iching／karma 三個功能顯示「1,271,2xx 人」，
+  而真實訪客是 0。認同數同理：顯示 630,674，真實 46。
+
+  專案鐵律第一條是禁止作假。虛增的社會證明是對客戶說謊，
+  不因為「別人都這樣做」而變成可以。歸零之後數字會很難看，
+  但難看的真話勝過好看的假話。
+*/
+const LIKE_INITIAL_COUNT = 0;
+/*
+  底數歸零。
+
+  這個常數原本是 168——不管實際有幾個人，畫面至少顯示這個數。
+  於是 number／iching／karma 三個功能顯示「1,271,2xx 人」，
+  而真實訪客是 0。認同數同理：顯示 630,674，真實 46。
+
+  專案鐵律第一條是禁止作假。虛增的社會證明是對客戶說謊，
+  不因為「別人都這樣做」而變成可以。歸零之後數字會很難看，
+  但難看的真話勝過好看的假話。
+*/
+const SUGGESTION_INITIAL_COUNT = 0;
 const DEVICE_ID_KEY = 'taiji_ai_feedback_device_id_v1';
 const LEGACY_LIKE_DEVICE_ID_KEY = 'taiji_ai_like_device_id_v1';
 const LEGACY_SUGGESTION_DEVICE_ID_KEY = 'taiji_ai_suggestion_device_id_v1';
@@ -282,11 +304,14 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
 
   const commitLikeCount = useCallback((nextCount: unknown) => {
     setLikeCount((currentCount) => {
-      const permanentCount = Math.max(
-        currentCount,
-        readStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, LIKE_INITIAL_COUNT),
-        normalizeTotalCount(nextCount, LIKE_INITIAL_COUNT),
-      );
+      /*
+        原本取「目前值、localStorage 最高值、伺服器值」三者的最大。
+
+        數字只能往上不能往下，於是虛增時期存下的 630,674
+        永遠壓著真實的 46——歸真只對沒看過的人生效。
+        伺服器是真相來源，它說多少就是多少，包括變少。
+      */
+      const permanentCount = normalizeTotalCount(nextCount, LIKE_INITIAL_COUNT);
       writeStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, permanentCount, LIKE_INITIAL_COUNT);
       return permanentCount;
     });
@@ -294,11 +319,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
 
   const commitImproveCount = useCallback((nextCount: unknown) => {
     setImproveCount((currentCount) => {
-      const permanentCount = Math.max(
-        currentCount,
-        readStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, SUGGESTION_INITIAL_COUNT),
-        normalizeTotalCount(nextCount, SUGGESTION_INITIAL_COUNT),
-      );
+      const permanentCount = normalizeTotalCount(nextCount, SUGGESTION_INITIAL_COUNT);
       writeStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, permanentCount, SUGGESTION_INITIAL_COUNT);
       return permanentCount;
     });
@@ -306,11 +327,12 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
 
   const commitAcceptedLikeCount = useCallback((nextCount: unknown) => {
     setLikeCount((currentCount) => {
-      const permanentCount = Math.max(
-        currentCount + 1,
-        readStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, LIKE_INITIAL_COUNT),
-        normalizeTotalCount(nextCount, LIKE_INITIAL_COUNT),
-      );
+      /*
+        自己按下去立刻 +1 是合理的樂觀更新——那一票確實是你投的。
+        但不再參考 localStorage 的歷史最高值：那裡存著虛增時期的數字，
+        會把真實值壓在下面。只取「我剛投的」與「伺服器說的」較大者。
+      */
+      const permanentCount = Math.max(currentCount + 1, normalizeTotalCount(nextCount, LIKE_INITIAL_COUNT));
       writeStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, permanentCount, LIKE_INITIAL_COUNT);
       return permanentCount;
     });
@@ -318,11 +340,12 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
 
   const commitAcceptedImproveCount = useCallback((nextCount: unknown) => {
     setImproveCount((currentCount) => {
-      const permanentCount = Math.max(
-        currentCount + 1,
-        readStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, SUGGESTION_INITIAL_COUNT),
-        normalizeTotalCount(nextCount, SUGGESTION_INITIAL_COUNT),
-      );
+      /*
+        自己按下去立刻 +1 是合理的樂觀更新——那一票確實是你投的。
+        但不再參考 localStorage 的歷史最高值：那裡存著虛增時期的數字，
+        會把真實值壓在下面。只取「我剛投的」與「伺服器說的」較大者。
+      */
+      const permanentCount = Math.max(currentCount + 1, normalizeTotalCount(nextCount, SUGGESTION_INITIAL_COUNT));
       writeStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, permanentCount, SUGGESTION_INITIAL_COUNT);
       return permanentCount;
     });

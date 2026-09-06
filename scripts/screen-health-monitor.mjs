@@ -198,6 +198,12 @@ const BEHAVIOR_CHECKS = [
     timeoutMs: 60000,
   },
   {
+    id: 'NO_FABRICATED_COUNTERS',
+    module: 'no_fabricated_counters',
+    title: '禁止作假：計數器沒有憑空底數，也不會自己長大',
+    script: 'test:no-fake-counters',
+  },
+  {
     id: 'BEAST_CHARGE_CLIP',
     module: 'beast_charge_clip',
     title: '六秒影片播放條件與玩家音訊路徑（不含逐片驗收）',
