@@ -309,3 +309,28 @@
   opacity: 0.7;
   font-weight: 700;
 }
+
+/*
+  ── 相剋提示 ──────────────────────────────────────────────────
+  業主定調：讓客戶學會相生相剋，不是只讓規則存在。
+
+  三個顏色對應三種關係：占上風（金）、吃虧（紅）、互不相剋（灰）。
+  用顏色是為了不用讀字就先知道方向，字才是解釋為什麼。
+*/
+.matchup {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border-left: 3px solid currentColor;
+  border-radius: 0 10px 10px 0;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.matchup strong { font-size: 13px; font-weight: 900; }
+.matchup span { color: #b9c5d9; }
+
+.advantage { color: #ffdfa4; }
+.disadvantage { color: #fb7185; }
+.neutral { color: #93a4c0; }

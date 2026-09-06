@@ -34,6 +34,8 @@ import { advance, type Action, type Match } from '@/lib/beast-game/interactive';
 import StakeSlot, { type StakeCard } from '@/components/battlefield/StakeSlot';
 import { readCollection, runOwnedDuel, countByCard } from '@/lib/beast-collection';
 import { resolveStake } from '@/lib/beast-game/stake';
+import { describeMatchup } from '@/lib/beast-element-guide';
+import type { BeastElement } from '@/lib/beast-game/elements';
 
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
 const DECK_SIZE = 20;
@@ -267,6 +269,31 @@ export default function BattlefieldPage() {
                 <p className="mt-3 text-center text-xs text-white/60" data-placed>
                   已上場 {placed} 隻（主戰 {state.player.active ? 1 : 0}・後備 {state.player.bench.filter(Boolean).length}）
                 </p>
+                {/*
+                  出戰前的相剋提示。
+
+                  技能檔案〈二十一〉量過：帶剋的幼子百分之百打贏被剋的四象。
+                  規則早就成立，缺的是客戶在**按下開戰之前**看不看得出來——
+                  打完才知道帶錯元素，就只剩懊悔，學不到東西。
+                */}
+                {(() => {
+                  const mineId = state.player.active;
+                  const foeId = state.opponent.active;
+                  if (!mineId || !foeId) return null;
+                  const mine = cards.find((card) => card.id === mineId);
+                  const foe = cards.find((card) => card.id === foeId);
+                  if (!mine || !foe) return null;
+                  const matchup = describeMatchup(mine.element as BeastElement, foe.element as BeastElement);
+                  const tone = matchup.kind === 'ADVANTAGE' ? 'border-amber-300 text-amber-100'
+                    : matchup.kind === 'DISADVANTAGE' ? 'border-rose-400 text-rose-200'
+                    : 'border-white/25 text-white/70';
+                  return (
+                    <p className={`mt-3 rounded-r-xl border-l-4 bg-white/[0.04] px-3 py-2 text-xs leading-5 ${tone}`} data-pre-matchup={matchup.kind}>
+                      <strong className="block text-sm font-black">{matchup.headline}</strong>
+                      <span className="text-white/70">{matchup.reason}</span>
+                    </p>
+                  );
+                })()}
                 <StakeSlot
                   owned={ownedStake}
                   selected={stakeCardId}

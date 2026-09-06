@@ -26,6 +26,8 @@ import {
   type BattleElement,
 } from '@/lib/beast-battle-fx';
 import { weaponFor } from '@/lib/beast-game/weapons';
+import { describeMatchup, explainOutcome } from '@/lib/beast-element-guide';
+import type { BeastElement } from '@/lib/beast-game/elements';
 import {
   legalActions,
   profile,
@@ -205,10 +207,43 @@ export default function BattlePanel({
       <FighterStatus match={match} side="opponent" label="對手" />
       <FighterStatus match={match} side="player" label="你" />
 
+      {/*
+        相剋提示。這是「客戶學得到」的關鍵——
+        規則早就成立（帶剋的幼子百分之百打贏被剋的四象），
+        但客戶看不出來，打輸只會覺得對面比較強。
+        所以出戰中就把「你剋他／他剋你」寫在血條下面。
+      */}
+      {(() => {
+        const mine = match.player.team[match.player.active];
+        const foe = match.opponent.team[match.opponent.active];
+        const matchup = describeMatchup(mine.element as BeastElement, foe.element as BeastElement);
+        const tone = matchup.kind === 'ADVANTAGE' ? styles.advantage
+          : matchup.kind === 'DISADVANTAGE' ? styles.disadvantage : styles.neutral;
+        return (
+          <p className={`${styles.matchup} ${tone}`} data-matchup={matchup.kind}>
+            <strong>{matchup.headline}</strong>
+            <span>{matchup.reason}</span>
+          </p>
+        );
+      })()}
+
       {finished ? (
         <p className={styles.result} role="status" data-winner={match.winner ?? 'NONE'}>
           {match.winner === 'player' ? '你贏了' : match.winner === 'opponent' ? '對手獲勝' : '平手'}
           <small>共 {match.round - 1} 回合</small>
+          {/*
+            業主定調第三件：「輸掉時講得出原因，而不是只說『你輸了』。」
+            把「我輸了」跟「我帶錯元素」接起來，客戶才學得到。
+          */}
+          <small data-outcome-reason>
+            {explainOutcome(
+              match.winner,
+              describeMatchup(
+                match.player.team[match.player.active].element as BeastElement,
+                match.opponent.team[match.opponent.active].element as BeastElement,
+              ),
+            )}
+          </small>
         </p>
       ) : (
         <BattleActionBar match={match} onAction={onAction} busy={busy} />

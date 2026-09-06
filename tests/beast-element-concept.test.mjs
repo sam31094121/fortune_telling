@@ -15,6 +15,7 @@ import { stripComments } from './helpers/strip-comments.mjs';
 import { newMatch, advance, chooseAI } from '../.beast-game-build/lib/beast-game/interactive.js';
 import { playableCards } from '../.beast-game-build/lib/beast-game/registry.js';
 import { elementMultiplier, ELEMENT_COUNTER } from '../.beast-game-build/lib/beast-game/elements.js';
+import { describeMatchup, explainOutcome } from '../.beast-game-build/lib/beast-element-guide.js';
 
 /* ── 一、相剋表沿用五行，不是隨便配的 ───────────────────────────── */
 {
@@ -98,6 +99,35 @@ import { elementMultiplier, ELEMENT_COUNTER } from '../.beast-game-build/lib/bea
   );
 }
 
+/* ── 三之二、客戶看得到的三件事 ─────────────────────────────────── */
+{
+  // 出戰前就要看得出剋、被剋、無關——打完才知道帶錯，只剩懊悔，學不到東西。
+  assert.equal(describeMatchup('WATER', 'FIRE').kind, 'ADVANTAGE');
+  assert.equal(describeMatchup('FIRE', 'WATER').kind, 'DISADVANTAGE');
+  assert.equal(describeMatchup('FIRE', 'FIRE').kind, 'NEUTRAL');
+
+  for (const pair of [['WATER', 'FIRE'], ['FIRE', 'WATER'], ['FIRE', 'FIRE']]) {
+    const m = describeMatchup(pair[0], pair[1]);
+    assert.ok(m.headline.length > 3, '一句話就要看得懂是哪一種關係');
+    assert.ok(m.reason.length > 6, '要講得出為什麼——只給結論學不到東西');
+  }
+
+  // 倍率不得自己另算一套：說明裡的數字要等於傷害公式用的那一個。
+  assert.equal(describeMatchup('WATER', 'FIRE').multiplier, elementMultiplier('WATER', 'FIRE'));
+
+  // 輸掉時要把「我輸了」跟「我帶錯元素」接起來。
+  const lost = explainOutcome('opponent', describeMatchup('FIRE', 'WATER'));
+  assert.ok(/被剋/.test(lost), '被剋而輸，要講得出是被剋，不能只說「你輸了」');
+  assert.ok(/不是牠比較強/.test(lost), '要點破「對面比較強」這個錯誤直覺');
+  assert.ok(!lost.includes('**'), '畫面直接印這段字，星號不會變粗體，只會看起來壞掉');
+
+  const guide = fs.readFileSync('lib/beast-element-guide.ts', 'utf8');
+  assert.ok(
+    !/attack|hp|damage/i.test(stripComments(guide)),
+    '說明層只翻譯不算數值——倍率來自 elementMultiplier，畫面自己算會跟實際傷害對不上',
+  );
+}
+
 /* ── 四、概念要寫在技能檔案裡 ───────────────────────────────────── */
 {
   const doc = fs.readFileSync('docs/beast-game-skill.md', 'utf8');
@@ -112,4 +142,5 @@ import { elementMultiplier, ELEMENT_COUNTER } from '../.beast-game-build/lib/bea
 console.log('PASS: 相剋表沿用五行，形成完整的環');
 console.log('PASS: 帶剋的低戰力打得贏被剋的高戰力');
 console.log('PASS: 倍率有份量，但沒有大到讓數值與技能失去意義');
+console.log('PASS: 出戰前、交戰中、結果都講得出剋／被剋，且不自己算數值');
 console.log('PASS: 核心概念寫在技能檔案裡');
