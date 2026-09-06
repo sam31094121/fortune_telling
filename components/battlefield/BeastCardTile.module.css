@@ -1,0 +1,240 @@
+/*
+  神獸卡片框架・手機優先
+  ============================================================================
+
+  業主定調：「把卡片的主軸卡片顯示出來就好，剩下的說明都把它折起來，
+  客戶需要看的時候再點閱。簡單、簡潔、有力，乾淨俐落，
+  每一張卡片都一樣，用這種高規格、科技感。」
+
+  【主軸是卡面，不是文字】
+
+  原本每一格底下掛著「風 · II 階 · 主攻 · 已收藏」四段小字，
+  六十格排下來就是一面字牆——**卡面被文字擠成配角**。
+  現在格子裡只有卡面與名字，其餘全部收進底部詳情。
+
+  想知道的人點一下就有；不想知道的人不必先讀完才看得到圖。
+
+  【科技感靠結構，不靠更亮】
+
+  等寬邊框、掃描線、一枚元素色點。沒有霓虹、沒有漸層轟炸——
+  乾淨俐落的意思是「該有的都在，多的一個都沒有」。
+
+  【每一張都一樣】
+
+  尺寸、比例、圓角、邊框、名字位置全部由這一份決定。
+  任何地方要顯示神獸卡，都用這個元件，不另外排一套版。
+*/
+
+.tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  /* 正方形，與戰場卡槽同一個比例。 */
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: #0a1120;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 掃描線：像儀器面板，不像貼紙。淡到幾乎看不見才對。 */
+.tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0 3px,
+    rgba(255, 255, 255, 0.035) 3px 4px
+  );
+}
+
+/*
+  名字壓在底部。
+
+  用漸層而不是實色條：實色條會在卡面上切一刀，
+  漸層讓字浮在畫面上，卡面仍然是完整的一張。
+*/
+.name {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 14px 7px 6px;
+  background: linear-gradient(transparent, rgba(6, 12, 22, 0.9));
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 15px;
+  color: #e6edf8;
+  text-align: left;
+}
+
+.nameText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 元素只用一枚色點。寫「風」要三個字寬，一個點就夠了。 */
+.dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  box-shadow: 0 0 7px currentColor;
+}
+
+/* 收藏與否是一枚角標，不是一行字。 */
+.owned {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(255, 223, 164, 0.9);
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 15px;
+  color: #302113;
+}
+
+.selected {
+  border-color: #ffdfa4;
+  box-shadow: 0 0 0 2px rgba(255, 223, 164, 0.55);
+}
+
+/* ── 底部詳情 ─────────────────────────────────────────────────── */
+
+.sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 60;
+  max-height: 78vh;
+  overflow-y: auto;
+  padding: 14px 16px calc(16px + env(safe-area-inset-bottom));
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid rgba(125, 211, 252, 0.3);
+  background: #0b1524;
+  box-shadow: 0 -18px 48px rgba(0, 0, 0, 0.55);
+  overscroll-behavior: contain;
+  animation: rise 220ms ease-out;
+}
+
+@keyframes rise {
+  from { transform: translateY(14px); opacity: 0; }
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 59;
+  border: 0;
+  padding: 0;
+  background: rgba(2, 6, 14, 0.62);
+}
+
+.sheetHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sheetArt {
+  flex: none;
+  width: 76px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.sheetArt img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.sheetTitle {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sheetTitle strong {
+  font-size: 16px;
+  font-weight: 900;
+  color: #ffdfa4;
+}
+
+.sheetTitle span {
+  font-size: 11px;
+  line-height: 17px;
+  color: #93a4c0;
+}
+
+/* 數值排成儀表，等寬對齊——讀數要穩。 */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.stat {
+  display: grid;
+  gap: 1px;
+  padding: 6px 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  text-align: center;
+}
+
+.statValue {
+  font-size: 15px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: #e6edf8;
+}
+
+.statLabel {
+  font-size: 10px;
+  color: #7c8aa3;
+}
+
+.block {
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 20px;
+  color: #b9c5d9;
+}
+
+.block strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #7dd3fc;
+}
+
+.close {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+  font-weight: 900;
+  color: #e6edf8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet { animation: none; }
+}

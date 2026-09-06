@@ -7,6 +7,7 @@ import {spiritArtFor} from '@/lib/beast-battle-fx';
 import type {interactiveCatalog,Match,Action} from '@/lib/beast-game/interactive';
 import styles from './BeastTurnGame.module.css';
 import BeastDuelArchive from './BeastDuelArchive';
+import BeastCardTile, { CardDetailSheet } from './battlefield/BeastCardTile';
 type Card=ReturnType<typeof interactiveCatalog>[number];
 type Account={owned:string[];experience:Record<string,number>;match:Match|null;summonDay:string|null;imported:boolean;revision:number};
 const labels:Record<string,string>={SPACE:'空',AIR:'風',WATER:'水',FIRE:'火',EARTH:'地'};
@@ -56,9 +57,29 @@ export default function BeastTurnGame(){
   {tab==='召喚'?<section className={styles.panel}><h2>五元素召喚</h2><p>每天免費一次。60 張神獸各有 1／60 機率；重複取得轉為該卡 1 點成長。</p><p className={styles.muted}>每日以 UTC 00:00（臺灣 08:00）重置。</p><button disabled={busy||account.summonDay===new Date().toISOString().slice(0,10)} onClick={()=>void send('SUMMON')}>召喚神獸</button></section>:<>
   {tab==='組隊'&&<><div className={styles.slots}>{[0,1,2].map(i=><button key={i} onClick={()=>setSelected(s=>s.filter((_,j)=>j!==i))}>{selected[i]?lookup(selected[i]).name:`${i===0?'主戰':'備戰'}・選一張`}</button>)}</div><button disabled={busy||selected.length!==3||!!match} onClick={()=>void send('START',{lineup:selected})}>開始回合對戰</button><p className={styles.muted}>第一隻先出場，其餘可在回合中切換。三張不可重複。</p></>}
   <div className={styles.filters}>{['全部',...Object.keys(labels)].map(e=><button key={e} aria-pressed={filter===e} onClick={()=>setFilter(e)}>{labels[e]??e}</button>)}</div>
-  <div className={styles.grid}>{(tab==='成長'?owned:cards).filter(c=>(filter==='全部'||c.element===filter)&&(tab!=='成長'||c.form==='YOUNG')).map(c=>{const has=account.owned.includes(c.id);return <div className={styles.card} key={c.id}><button onClick={()=>{setDetail(c);if(tab==='組隊')setSelected(s=>s.includes(c.id)?s.filter(id=>id!==c.id):s.length<3?[...s,c.id]:s);}} aria-pressed={selected.includes(c.id)} aria-label={`${c.name}${selected.includes(c.id)?'，已上陣':''}`}><img src={c.thumbnail} alt={c.name} loading="lazy"/><strong>{c.name}</strong><small>{labels[c.element]} · {c.tier} 階 · {c.role}{has?" · 已收藏":""}</small></button>{tab==='成長'&&<><small>成長 {account.experience[c.id]??0}／3</small><button disabled={busy||(account.experience[c.id]??0)<3||account.owned.includes(c.evolution!)} onClick={()=>void send('EVOLVE',{cardId:c.id})}>{account.owned.includes(c.evolution!)?'已收藏成獸':'覺醒成獸'}</button></>}</div>;})}</div>
+  {/*
+    卡片格：只有卡面與名字，其餘全部折進底部詳情。
+    業主定調「主軸卡片顯示出來就好，剩下的說明都折起來，點閱才展開」。
+    尺寸與框架由 BeastCardTile 決定，六十張長得一樣。
+  */}
+  <div className={styles.grid}>{(tab==='成長'?owned:cards).filter(c=>(filter==='全部'||c.element===filter)&&(tab!=='成長'||c.form==='YOUNG')).map(c=>{const has=account.owned.includes(c.id);return <div className={styles.card} key={c.id}>
+   <BeastCardTile card={c} owned={has} selected={selected.includes(c.id)} onOpen={()=>setDetail(c)}/>
+  </div>;})}</div>
   </>}
-  {detail&&<section className={styles.panel}><h2>{detail.name} · {detail.rarity}</h2><p>{detail.role}／{detail.tier} 階／{labels[detail.element]}</p><p>HP {detail.stats.hp} · 攻 {detail.stats.attack} · 防 {detail.stats.defense} · 速 {detail.stats.speed}</p><p>{detail.skillName}：{detail.description}</p><p>被動：{detail.passive}</p><p className={styles.muted}>{detail.story}</p><button onClick={()=>setDetail(null)}>收起介紹</button></section>}
+  {/*
+    詳情從底部升起，不是插在頁面中間。
+    插在中間會把整個格線推開，客戶關掉之後找不回原本在看哪一張。
+  */}
+  {detail&&<CardDetailSheet card={detail} owned={account.owned.includes(detail.id)}
+    note={tab==='成長'?`成長 ${account.experience[detail.id]??0}／3`:undefined}
+    actionLabel={tab==='組隊'
+      ?(selected.includes(detail.id)?'移出隊伍':'選入隊伍')
+      :tab==='成長'&&(account.experience[detail.id]??0)>=3&&detail.evolution&&!account.owned.includes(detail.evolution)
+        ?'覺醒成獸':undefined}
+    onAction={tab==='組隊'
+      ?()=>setSelected(s=>s.includes(detail.id)?s.filter(id=>id!==detail.id):s.length<3?[...s,detail.id]:s)
+      :tab==='成長'?()=>void send('EVOLVE',{cardId:detail.id}):undefined}
+    onClose={()=>setDetail(null)}/>}
   {!account.imported&&<button disabled={busy} onClick={()=>void send('IMPORT',{legacyIds:readOwnedCards().all})}>匯入這個瀏覽器原有收藏</button>}
   <p className={styles.muted}>收藏保存在目前伺服器，以此瀏覽器識別；尚未提供跨裝置登入。首次提供三張入門卡。舊收藏匯入不移除原紀錄。</p><Link href="/audio/beast-voices/credits.html">聲音來源與授權</Link>
  </main>;
