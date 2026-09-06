@@ -24,8 +24,8 @@ const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 
   // 掛不掛，取決於技能檔案有沒有宣告 video——不是猜路徑存不存在。
   assert.ok(
-    /setChargeVideoSrc\(\s*id && skills\?\.charge\.video \?/.test(ritual),
-    '影片層必須以「技能檔案宣告了 video」為條件，不得無條件掛上',
+    /releasedChargeFor\(skills\?\.charge, id, opponent\[pairClash\]\?\.id/.test(ritual) && /setChargeVideoSrc\(release\?\.webm \?\? null\)/.test(ritual),
+    '影片層必須驗證已審查發布及實際雙方身分，僅宣告 video 不夠',
   );
   assert.ok(
     !/setChargeVideoSrc\(vids\.webm\)/.test(ritual),
@@ -71,6 +71,30 @@ const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
     if (!charge?.video) continue; // 還沒宣告的不掛，不在這支的守備範圍
     assert.equal(charge.durationMs, 6000, `${cardId} 宣告了影片就必須是六秒配方`);
   }
+}
+
+/* ── 二之二、六十隻都要有影片（業主定調 2026-09-06） ─────────────── */
+{
+  const gate = fs.readFileSync(path.join(root, 'scripts/check-beast-clips.mjs'), 'utf8');
+  assert.ok(/targetCards: 60/.test(gate), '目標是六十隻，一支都不能少');
+  assert.ok(/--strict/.test(gate), '要能一行指令問「全部完成了嗎」，不是靠印象答');
+
+  const doc = read('docs/beast-game-skill.md');
+  assert.ok(
+    doc.includes('每一支都要有動畫影片'),
+    '業主定調要寫在技能檔案裡——決定不能只存在對話中',
+  );
+  assert.ok(
+    /影片是正式路線，不是備援/.test(doc),
+    '影片是正式路線這件事要寫明；分層傀儡引擎曾把 mp4 降級成 fallback，與定調相反',
+  );
+
+  // 在六十支到齊之前，沒有影片的卡要有東西可演，不能開天窗。
+  const ritual = read('components/BeastDuelRitual.tsx');
+  assert.ok(
+    ritual.includes('BeastClash3D'),
+    '缺片的卡要退回三維立繪——六十支到齊之前不能開天窗',
+  );
 }
 
 /* ── 三、以玩家為主 ─────────────────────────────────────────────── */

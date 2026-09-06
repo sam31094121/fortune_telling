@@ -71,6 +71,15 @@ export const CHARGE_SPEC = {
   maxHeight: 480,
   /** 聲音四段，順序固定：底氣蓄力 → 霸氣衝鋒 → 咬擊命中 → 餘韻。 */
   audioStages: ['build', 'rush', 'bite', 'tail'],
+  /**
+   * 目標張數。
+   *
+   * 業主定調：「每一支都要有動畫影片。從第一隻到 60 隻。」
+   * 所以「還沒產」不是一個可以長期停在那裡的狀態，是進度條上的缺口。
+   * --strict 會在沒到 60/60 之前回傳非零，讓「全部完成了嗎」
+   * 變成一行指令問得到答案的事，而不是靠印象。
+   */
+  targetCards: 60,
 };
 
 /**
@@ -308,6 +317,15 @@ if (process.argv[1] && process.argv[1].endsWith("check-beast-clips.mjs")) {
       `\n合格 ${ok.length}（其中 ${warn.length} 張解析度過剩） ／ 要細修 ${fail.length} ／ 待重產 ${pending.length} ／ 還沒產 ${missing.length}`
       + `　共 ${report.rows.length} 張`,
     );
+    // 進度條：一眼看得出離「六十隻都有影片」還差多少。
+    const done = ok.length;
+    const target = CHARGE_SPEC.targetCards;
+    const filled = Math.round((done / target) * 30);
+    console.log(
+      `
+動畫影片進度  [${"█".repeat(filled)}${"░".repeat(30 - filled)}]  ${done} / ${target}`
+      + (done < target ? `　還差 ${target - done} 支` : "　全部到齊"),
+    );
     /*
       推估要用「合格卡」的平均，不能用全部的平均。
 
@@ -343,6 +361,20 @@ if (process.argv[1] && process.argv[1].endsWith("check-beast-clips.mjs")) {
       + '。修好再入庫。',
     );
     process.exit(1);
+  }
+  /*
+    --strict：沒到 60/60 就回傳非零。
+
+    平常跑不擋（批次進行中天天都是紅的沒有意義），
+    但要宣稱「六十隻都有影片了」的時候，用這個問，不是用印象答。
+  */
+  if (process.argv.includes('--strict')) {
+    const done = report.rows.filter((r) => r.state === 'OK' || r.state === 'WARN').length;
+    if (done < CHARGE_SPEC.targetCards) {
+      console.log(`
+--strict：${done} / ${CHARGE_SPEC.targetCards}，還不能說完成。`);
+      process.exit(1);
+    }
   }
   process.exit(0);
 }

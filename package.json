@@ -56,7 +56,8 @@
     "build:beast-audio-6s": "node scripts/build-beast-six-second-audio.mjs --all",
     "sync:beast-production": "node scripts/sync-beast-production.mjs",
     "test:beast-mobile": "node tests/beast-mobile-release.cjs",
-    "test:beast-retry": "node tests/beast-production-retry.test.mjs"
+    "test:beast-retry": "node tests/beast-production-retry.test.mjs",
+    "check:beast-clips:strict": "node scripts/check-beast-clips.mjs --strict"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",
