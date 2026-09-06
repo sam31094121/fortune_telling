@@ -47,7 +47,7 @@ export interface StakeStep {
 }
 
 export default function StakeSlot({
-  owned, selected, steps, onSelect,
+  owned, selected, steps, onSelect, trial,
 }: {
   /** 可以拿來押的卡：成長中心真正擁有的那些。 */
   owned: StakeCard[];
@@ -55,6 +55,8 @@ export default function StakeSlot({
   /** 先後順序。最後一個未完成的就是「現在該做的」。 */
   steps: StakeStep[];
   onSelect: (cardId: string) => void;
+  /** 體驗戰：收藏空著、免押注。格子的說法要跟著換，不能還喊「先押一張」。 */
+  trial?: boolean;
 }) {
   const sound = useRef<ReturnType<typeof createSoundPlayer> | null>(null);
   if (sound.current === null && typeof window !== 'undefined') sound.current = createSoundPlayer();
@@ -157,6 +159,11 @@ export default function StakeSlot({
               <strong>你押上的是「{picked.name}」</strong>
               <span className={styles.risk}>贏：原卡保留，再贏一張。輸：這張被沒收。平手：退回。</span>
             </>
+          ) : trial ? (
+            <>
+              <strong>體驗戰・免押注</strong>
+              <span className={styles.risk}>這一場不押卡、不發卡也不沒收，放心練。領到收藏卡後就是正式戰。</span>
+            </>
           ) : (
             <>
               <strong>先押一張，才開得了戰</strong>
@@ -169,7 +176,7 @@ export default function StakeSlot({
       {owned.length === 0 ? (
         <div className={styles.empty2}>
           <strong>成長收藏裡還沒有卡</strong>
-          <span>完成使命領一張，才有東西可以押。</span>
+          <span>體驗戰隨時可打；想打有賞有罰的正式戰，先完成使命領一張。</span>
           {/*
             死路必須開門。實測：新客戶走到這裡整個流程就停了——
             訊息說「去完成使命」，卻沒有一條路過去。

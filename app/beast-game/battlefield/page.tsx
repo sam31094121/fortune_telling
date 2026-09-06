@@ -19,9 +19,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {recordBeastGameCompleted} from '@/lib/growth-center-client';
-import GameBattlefield, { type BattlefieldCardArt } from '@/components/battlefield/GameBattlefield';
+import type { BattlefieldCardArt } from '@/components/battlefield/GameBattlefield';
+import BattleArena, { PreparationControls } from '@/components/battlefield/BattleArena';
+import styles from './page.module.css';
 import {
-  BENCH_SIZE,
   moveCard,
   newBattle,
   selectCard,
@@ -29,13 +30,11 @@ import {
   type Destination,
 } from '@/lib/beast-game/battlefield';
 import BattlePanel from '@/components/battlefield/BattlePanel';
-import { autoPlaceOpponent, canStartBattle, startFromField, fieldFromMatch } from '@/lib/beast-game/battle-bridge';
+import { autoPlaceOpponent, canStartBattle, startFromField } from '@/lib/beast-game/battle-bridge';
 import { advance, type Action, type Match } from '@/lib/beast-game/interactive';
 import StakeSlot, { type StakeCard } from '@/components/battlefield/StakeSlot';
 import { readCollection, runOwnedDuel, countByCard } from '@/lib/beast-collection';
 import { resolveStake } from '@/lib/beast-game/stake';
-import { describeMatchup } from '@/lib/beast-element-guide';
-import type { BeastElement } from '@/lib/beast-game/elements';
 
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
 const DECK_SIZE = 20;
@@ -142,23 +141,6 @@ export default function BattlefieldPage() {
     });
   }, []);
 
-  /*
-    開戰之後把畫面帶到戰鬥面板。
-
-    實測：按下開戰、面板確實出現了，但它在整張桌子下面，
-    手機上完全在視窗外——客戶按完鈕看不到任何變化，
-    會以為沒反應而再按一次。按鈕做了事，就要讓人看見它做了什麼。
-
-    用 nearest 而不是 center：只捲到剛好看得到，不把戰場推出畫面，
-    客戶還是要同時看到雙方場上有誰。
-  */
-  useEffect(() => {
-    // 只在剛開戰那一刻捲一次。revision 0 就是還沒出過招的那一場——
-    // 每次出招都捲會把畫面拉來拉去，比不捲更煩。
-    if (!match || match.revision !== 0) return;
-    document.querySelector('[data-battle-panel]')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }, [match]);
-
   const handleSelect = useCallback((cardId: string) => {
     setState((current) => (current ? selectCard(current, cardId) : current));
   }, []);
@@ -209,14 +191,23 @@ export default function BattlefieldPage() {
       .catch((cause: unknown) => setSettlement(cause instanceof Error ? cause.message : '押注結算失敗。'));
   }, [match, stakeCardId, settlement]);
 
+  /*
+    體驗戰：成長收藏空著的人免押注也能開戰。
+
+    實測過的死路：新客戶沒有收藏卡＝押不了注＝完全開不了戰，
+    只能先繞去成長中心。體驗戰把牆拆掉——不押卡、不發卡、不沒收，
+    純粹讓人先打過一場、看懂相剋，再去領卡打正式戰。
+    有收藏卡的人不走這條路：有東西可押的人就要押，賞罰才成立。
+  */
+  const isTrial = ownedStake.length === 0;
   const startCheck = useMemo(() => {
     const base = state ? canStartBattle(state) : { ready: false as const };
     if (!base.ready) return base;
     // 佈陣完成之後才輪到押注：先後順序不能顛倒，
     // 不然客戶會先選好賭注、才發現主戰還沒放。
-    if (!stakeCardId) return { ready: false as const, reason: '先押一張收藏卡' };
+    if (!stakeCardId && !isTrial) return { ready: false as const, reason: '先押一張收藏卡' };
     return base;
-  }, [state, stakeCardId]);
+  }, [state, stakeCardId, isTrial]);
   const placed = useMemo(() => {
     if (!state) return 0;
     return (state.player.active ? 1 : 0) + state.player.bench.filter(Boolean).length;
@@ -232,135 +223,83 @@ export default function BattlefieldPage() {
   }, [state]);
 
   return (
-    <main className="min-h-screen bg-slate-950 px-3 py-4 text-slate-100">
-      <div className="mx-auto max-w-[520px]">
-        <Link href="/beast-game" className="inline-flex min-h-11 items-center text-sm text-cyan-200">
-          ← 神獸決鬥・組陣台
-        </Link>
-        <h1 className="mt-1 font-serif text-2xl font-black">神獸戰場</h1>
-        {/*
-          這行字要跟著功能走。它原本寫「尚未接上傷害、能量與勝負」，
-          V2 接上之後那句就變成假的——畫面說的話必須跟實際做的一致。
-        */}
-        <p className="mt-2 text-sm leading-6 text-amber-200">
-          60 種神獸收藏，出戰使用 20 張試用牌。
-          {/* 押注是真的會扣的，這句不能再寫「不扣收藏」——畫面說的話要跟做的一致。 */}
-          <strong className="text-amber-100">押上去的那一張輸了會真的被沒收。</strong>
-          {match ? '本場為電腦對戰體驗。' : '先選主戰與後備，再按開戰。'}
-        </p>
-        <p className="mt-2 text-sm leading-6 text-slate-200">
-          點一張卡，再點發光的格子放牌；電腦也可拖曳手牌。主戰一格、後備 {BENCH_SIZE} 格。
-        </p>
-
+    <main className={styles.page} data-mobile-battle>
+      <div className={styles.shell}>
+        <header className={styles.header}>
+          <Link href="/beast-game">← 組陣台</Link>
+          <h1>神獸戰場</h1>
+          <span>戰鬥／操控 50:50</span>
+        </header>
         {error ? (
-          <div role="alert" className="mt-4 rounded-xl bg-amber-300/10 p-3 text-sm text-amber-100"><p>{error}</p><button type="button" className="mt-3 min-h-11 rounded-lg bg-amber-200 px-4 font-bold text-slate-950" onClick={() => { setError(null); setLoadAttempt(n => n + 1); }}>重新載入卡池</button></div>
-        ) : !state ? (
-          <p className="mt-4 text-sm text-white/60">正在發牌…</p>
-        ) : (
-          <>
-            <div className="mt-3">
-              <GameBattlefield
-                state={match ? fieldFromMatch(state, match) : state}
-                cards={cards}
-                inBattle={Boolean(match)}
-                onSelect={handleSelect}
-                onDestination={handleDestination}
-              />
-            </div>
-            {match ? (
-              <>
-                <BattlePanel match={match} onAction={act} starterClaimed={starterClaimed} />
-                {settlement && (
-                  <p role="status" className="mt-2 rounded-xl bg-amber-300/10 p-3 text-sm leading-6 text-amber-100" data-settlement>
-                    {settlement}
-                    {/*
-                      沒收之後不能就這樣放人走。敗因說明就在上方面板裡，
-                      把「輸了」跟「怎麼贏回來」接在同一口氣講完，
-                      客戶才會按下面那顆「重新發牌，再打一場」。
-                    */}
-                    {match.winner === 'opponent' && (
-                      <span className="mt-1 block text-amber-200/80">
-                        看上方的敗因說明，換個相剋的元素，把它贏回來。
-                      </span>
+          <div role="alert" className={styles.loading}>
+            <p>{error}</p>
+            <button type="button" className={styles.restart} onClick={() => { setError(null); setLoadAttempt(n => n + 1); }}>重新載入卡池</button>
+          </div>
+        ) : !state ? <p className={styles.loading}>正在發牌…</p> : (
+          <div className={styles.split} data-battle-split>
+            <BattleArena state={state} cards={cards} match={match} />
+            <section className={styles.controls} aria-label="手部操控" data-battle-controls>
+              <div className={styles.controlsHeading}>
+                <strong>{match ? (match.status === 'FINISHED' ? '對戰結果' : '選擇本回合動作') : '親手佈陣'}</strong>
+                <span>{match ? '戰況同步顯示' : '你 ' + placed + ' 隻・對手 ' + opponentPlaced + ' 隻'}</span>
+              </div>
+              <div className={styles.controlScroll} key={match ? 'battle' : 'prepare'} data-control-scroll>
+                {match ? (
+                  <>
+                    <BattlePanel match={match} onAction={act} starterClaimed={starterClaimed} compact cards={cards} />
+                    {match.status === 'FINISHED' && isTrial && (
+                      <p role="status" className={styles.notice} data-trial-note>
+                        這是體驗戰：沒押卡、不發卡也不沒收。可到成長中心領收藏卡，再挑戰正式戰。
+                      </p>
                     )}
-                  </p>
+                    {settlement && (
+                      <p role="status" className={styles.notice} data-settlement>
+                        {settlement}
+                        {match.winner === 'opponent' && <span> 看本場敗因，換個相剋的元素再挑戰。</span>}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <PreparationControls state={state} cards={cards} onSelect={handleSelect} onDestination={handleDestination} />
+                    <details className={styles.details}>
+                      <summary>{isTrial ? '體驗戰・免押卡' : stakeCardId ? '已押：' + ownedStake.find(card => card.id === stakeCardId)?.name : '③ 選一張收藏卡押上・輸了會被沒收'}</summary>
+                      <StakeSlot owned={ownedStake} selected={stakeCardId} trial={isTrial}
+                        steps={[
+                          { label: '選主戰', done: Boolean(state.player.active) },
+                          { label: '擺後備・可略', done: state.player.bench.some(Boolean) },
+                          { label: isTrial ? '體驗免押' : '押注', done: isTrial || Boolean(stakeCardId) },
+                          { label: '開戰', done: false },
+                        ]}
+                        onSelect={cardId => setStakeCardId(current => current === cardId ? null : cardId)} />
+                    </details>
+                    {startCheck.ready && placed < opponentPlaced && (
+                      <p className={styles.notice} data-outnumbered>
+                        你 {placed} 隻、對手 {opponentPlaced} 隻；可再放後備增援。{!isTrial && '押上的卡輸了會被沒收。'}
+                      </p>
+                    )}
+                    <details className={styles.details}>
+                      <summary>玩法與重新發牌</summary>
+                      <p>60 種神獸，出戰使用 20 張試用牌。先點手牌，再點發光的主戰或後備格；點場上卡片可換位。手機不用拖曳。每回合親手選攻擊、技能或換卡。</p>
+                      <p>{isTrial ? '體驗戰免押卡，不發卡也不沒收。' : '正式戰押一張收藏卡；輸了會被沒收，贏了保留並再得一張，平手退回。'}</p>
+                      <button type="button" className={styles.restart} onClick={() => { setSeed(value => value + 1); setError(null); }}>重新發牌</button>
+                    </details>
+                  </>
                 )}
-              </>
-            ) : (
-              <>
-                <p className="mt-3 text-center text-xs text-white/60" data-placed>
-                  已上場 {placed} 隻（主戰 {state.player.active ? 1 : 0}・後備 {state.player.bench.filter(Boolean).length}）
-                </p>
-                {/*
-                  出戰前的相剋提示。
-
-                  技能檔案〈二十一〉量過：帶剋的幼子百分之百打贏被剋的四象。
-                  規則早就成立，缺的是客戶在**按下開戰之前**看不看得出來——
-                  打完才知道帶錯元素，就只剩懊悔，學不到東西。
-                */}
-                {(() => {
-                  const mineId = state.player.active;
-                  const foeId = state.opponent.active;
-                  if (!mineId || !foeId) return null;
-                  const mine = cards.find((card) => card.id === mineId);
-                  const foe = cards.find((card) => card.id === foeId);
-                  if (!mine || !foe) return null;
-                  const matchup = describeMatchup(mine.element as BeastElement, foe.element as BeastElement);
-                  const tone = matchup.kind === 'ADVANTAGE' ? 'border-amber-300 text-amber-100'
-                    : matchup.kind === 'DISADVANTAGE' ? 'border-rose-400 text-rose-200'
-                    : 'border-white/25 text-white/70';
-                  return (
-                    <p className={`mt-3 rounded-r-xl border-l-4 bg-white/[0.04] px-3 py-2 text-xs leading-5 ${tone}`} data-pre-matchup={matchup.kind}>
-                      <strong className="block text-sm font-black">{matchup.headline}</strong>
-                      <span className="text-white/70">{matchup.reason}</span>
-                    </p>
-                  );
-                })()}
-                <StakeSlot
-                  owned={ownedStake}
-                  selected={stakeCardId}
-                  steps={[
-                    { label: '選主戰', done: Boolean(state.player.active) },
-                    // 後備不是開戰的必要條件（canStartBattle 只要主戰＋押注）。
-                    // 標成必經步驟會讓客戶以為卡住了，所以寫明可略。
-                    { label: '擺後備・可略', done: state.player.bench.some(Boolean) },
-                    { label: '押注', done: Boolean(stakeCardId) },
-                    { label: '開戰', done: false },
-                  ]}
-                  onSelect={(cardId) => setStakeCardId((current) => (current === cardId ? null : cardId))}
-                />
-                {startCheck.ready && placed < opponentPlaced && (
-                  <p
-                    className="mt-2 rounded-r-xl border-l-4 border-rose-400 bg-white/[0.04] px-3 py-2 text-xs leading-5 text-rose-200"
-                    data-outnumbered
-                  >
-                    <strong className="block text-sm font-black">
-                      以寡敵眾：你 {placed} 隻、對手 {opponentPlaced} 隻
-                    </strong>
-                    <span className="text-white/70">
-                      後備還有空位，多擺幾隻再開戰更有勝算。押上的卡輸了會被沒收。
-                    </span>
-                  </p>
-                )}
-                <button
-                  type="button"
-                  data-start-battle
-                  disabled={!startCheck.ready}
-                  className="mt-2 min-h-11 w-full rounded-xl bg-amber-200 text-sm font-black text-slate-950 disabled:bg-white/10 disabled:text-white/50"
-                  onClick={start}
-                >
-                  {startCheck.ready ? '開戰' : ('reason' in startCheck && startCheck.reason) || '還不能開戰'}
-                </button>
-              </>
-            )}
-            <button
-              type="button"
-              className="mt-3 min-h-11 w-full rounded-xl border border-white/20 text-sm font-bold text-white/80"
-              onClick={() => { setSeed((value) => value + 1); setError(null); }}
-            >
-              {match ? '重新發牌，再打一場' : '重新發牌'}
-            </button>
-          </>
+              </div>
+              {!match ? (
+                <div className={styles.footer}>
+                  <button type="button" data-start-battle disabled={!startCheck.ready} className={styles.start} onClick={start}>
+                    {startCheck.ready ? (isTrial ? '開始體驗戰（免押卡）' : '開戰') : ('reason' in startCheck && startCheck.reason) || '還不能開戰'}
+                  </button>
+                </div>
+              ) : match.status === 'FINISHED' ? (
+                <div className={styles.footer}>
+                  <button type="button" className={styles.restart} onClick={() => { setSeed(value => value + 1); setError(null); }}>重新發牌，再打一場</button>
+                </div>
+              ) : null}
+            </section>
+          </div>
         )}
       </div>
     </main>

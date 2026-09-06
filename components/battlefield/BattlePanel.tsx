@@ -19,6 +19,7 @@
 
 import styles from './BattlePanel.module.css';
 import { useEffect, useRef } from 'react';
+import type { BattlefieldCardArt } from './GameBattlefield';
 import {
   ELEMENT_FX,
   createSoundPlayer,
@@ -61,7 +62,7 @@ export function VitalBar({
       <span className={styles.life} style={{ width: `${life}%` }} />
       {guard > 0 && <span className={styles.guard} style={{ width: `${guard}%`, left: `${life}%` }} />}
       <span className={styles.vitalText}>
-        {hp} / {maxHp}{shield > 0 ? ` ＋${shield}` : ''}
+        <b>{hp} / {maxHp}{shield > 0 ? ` ＋${shield}` : ''}</b>
       </span>
     </div>
   );
@@ -121,16 +122,51 @@ export function FighterStatus({ match, side, label }: { match: Match; side: Side
  * 冷卻中就沒有技能鈕、被打倒就只剩換位。**畫面不自己判斷能不能按**。
  */
 export function BattleActionBar({
-  match, onAction, busy,
+  match, onAction, busy, compact, cards = [],
 }: {
   match: Match;
   onAction: (action: Action) => void;
   busy?: boolean;
+  compact?: boolean;
+  cards?: BattlefieldCardArt[];
 }) {
   if (match.status !== 'PLAYING') return null;
   const actions = legalActions(match, 'player');
   const active = match.player.team[match.player.active];
   const skill = profile(active.cardId);
+
+  if (compact) {
+    const attack = actions.find(action => action.type === 'ATTACK');
+    const special = actions.find(action => action.type === 'SKILL');
+    const switches = actions.filter((action): action is Extract<Action, { type: 'SWITCH' }> => action.type === 'SWITCH');
+    return (
+      <div className={styles.compactActions}>
+        <p className={styles.activeHint}>{active.defeated ? '主戰已倒下，請點後備接替' : `操控：${active.name}・氣 ${match.player.energy}`}</p>
+        <div className={styles.primaryActions} role="group" aria-label="攻擊與技能">
+          <button type="button" className={styles.actionButton} disabled={busy || !attack} onClick={() => attack && onAction(attack)}>普通攻擊<small>不耗氣</small></button>
+          <button type="button" className={styles.skillButton} disabled={busy || !special} onClick={() => special && onAction(special)}>
+            {skill.skillName}<small>{active.defeated ? '請先換卡' : active.cooldown > 0 ? `冷卻 ${active.cooldown} 回合` : `耗氣 ${skill.cost}${!special ? '・氣不足' : ''}`}</small>
+          </button>
+        </div>
+        <div className={styles.reserveCards} role="group" aria-label="點戰鬥卡換上場">
+          {match.player.team.map((fighter, index) => {
+            const action = switches.find(candidate => candidate.index === index);
+            const art = cards.find(card => card.id === fighter.cardId);
+            return (
+              <button key={fighter.instanceId} type="button" disabled={busy || !action}
+                className={styles.reserveCard} aria-label={`${index === match.player.active ? '目前主戰' : fighter.defeated ? '已倒下' : '換上'} ${fighter.name}`}
+                onClick={() => action && onAction(action)}>
+                {art && <img src={art.thumbnail} alt="" draggable={false} /> /* eslint-disable-line @next/next/no-img-element */}
+                <strong>{fighter.name}</strong>
+                <span>{index === match.player.active ? '主戰' : fighter.defeated ? '已倒下' : '點卡換上'}・{fighter.hp}/{fighter.maxHp}</span>
+              </button>
+            );
+          })}
+        </div>
+        <details className={styles.battleDetails}><summary>技能說明</summary><p>{skill.description}</p></details>
+      </div>
+    );
+  }
 
   const label = (action: Action) => {
     if (action.type === 'ATTACK') return '普通攻擊';
@@ -175,13 +211,15 @@ export function BattleLog({ match }: { match: Match }) {
 }
 
 export default function BattlePanel({
-  match, onAction, busy, starterClaimed,
+  match, onAction, busy, starterClaimed, compact, cards,
 }: {
   match: Match;
   onAction: (action: Action) => void;
   busy?: boolean;
   /** 首次禮包已領。領過的人不該再看到「領取首次禮包」——畫面不能說謊。 */
   starterClaimed?: boolean;
+  compact?: boolean;
+  cards?: BattlefieldCardArt[];
 }) {
   const finished = match.status === 'FINISHED';
 
@@ -203,11 +241,11 @@ export default function BattlePanel({
     if (!sound.current || match.revision === 0 || match.status !== 'PLAYING') return;
     const heavy = match.opponent.team.some((f) => f.defeated);
     return playBeastAction(sound.current.play, active.cardId, active.element as BattleElement, 'player', heavy);
-  }, [match.revision]);
+  }, [match.revision, match.status, match.opponent.team, active.cardId, active.element]);
   return (
-    <section className={styles.panel} data-battle-panel data-status={match.status}>
-      <FighterStatus match={match} side="opponent" label="對手" />
-      <FighterStatus match={match} side="player" label="你" />
+    <section className={compact ? styles.compactPanel : styles.panel} data-battle-panel data-status={match.status}>
+      {!compact && <><FighterStatus match={match} side="opponent" label="對手" />
+      <FighterStatus match={match} side="player" label="你" /></>}
 
       {/*
         相剋提示。這是「客戶學得到」的關鍵——
@@ -215,7 +253,7 @@ export default function BattlePanel({
         但客戶看不出來，打輸只會覺得對面比較強。
         所以出戰中就把「你剋他／他剋你」寫在血條下面。
       */}
-      {(() => {
+      {!compact && (() => {
         const mine = match.player.team[match.player.active];
         const foe = match.opponent.team[match.opponent.active];
         const matchup = describeMatchup(mine.element as BeastElement, foe.element as BeastElement);
@@ -248,10 +286,10 @@ export default function BattlePanel({
           </small>
         </p>
       ) : (
-        <BattleActionBar match={match} onAction={onAction} busy={busy} />
+        <BattleActionBar match={match} onAction={onAction} busy={busy} compact={compact} cards={cards} />
       )}
 
-      <BattleLog match={match} />
+      {compact ? <details className={styles.battleDetails}><summary>本回合戰報{match.log.length ? `・${match.log.length} 則` : ''}</summary><BattleLog match={match} /></details> : <BattleLog match={match} />}
       {finished&&!starterClaimed&&<a href="/growth-center#beast-collection" className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-amber-200 p-3 font-bold text-slate-950">到成長中心領取首次 28 張幼子禮包</a>}
     </section>
   );

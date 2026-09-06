@@ -1,0 +1,37 @@
+.page {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  padding: env(safe-area-inset-top, 0px) max(8px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(8px, env(safe-area-inset-left, 0px));
+  background: #050b18;
+  color: #e7eef9;
+}
+.shell { width: 100%; max-width: 640px; height: 100%; min-height: 0; margin: auto; display: grid; grid-template-rows: 44px minmax(0, 1fr); }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.header a { display: flex; align-items: center; min-height: 44px; font-size: 12px; color: #bae6fd; }
+.header h1 { font-size: 16px; font-weight: 900; }
+.header span { font-size: 11px; color: #94adc9; }
+.split { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+.controls { min-height: 0; display: grid; grid-template-rows: 30px minmax(0, 1fr) auto; border: 1px solid #526386; border-top: 2px solid #7dd3fc; border-radius: 0 0 16px 16px; background: #101b2d; overflow: hidden; }
+.controlsHeading { display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 12px; color: #c7e8fd; }
+.controlScroll { min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; padding: 8px 10px; scrollbar-width: thin; }
+.footer { padding: 6px 10px; border-top: 1px solid #3b4e69; background: #101b2d; }
+.start, .restart { min-height: 44px; width: 100%; padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 13px; touch-action: manipulation; }
+.start { background: #ffe4a6; color: #211a0c; }
+.start:disabled { background: #26354a; color: #a2b4cb; }
+.restart { border: 1px solid #526386; color: #c9d9eb; }
+.details { margin-top: 8px; border-top: 1px solid #344860; font-size: 12px; color: #c0d0e4; }
+.details summary { min-height: 44px; display: list-item; align-content: center; cursor: pointer; color: #c3eaff; }
+.details p { line-height: 1.7; }
+.notice { margin-top: 8px; padding: 8px; background: #ffffff08; border-left: 3px solid #fcd789; font-size: 12px; line-height: 18px; color: #f7dea4; }
+.loading { padding: 24px 12px; }
+.controlScroll > :first-child { margin-top: 0; }
+.page button:focus-visible, .page summary:focus-visible, .page a:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px; }
+@media (max-height: 650px) {
+  .controlScroll { padding-top: 4px; padding-bottom: 4px; }
+}
+@media (orientation: landscape) and (max-height: 540px) {
+  .shell { max-width: 1100px; }
+  .split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  .controls { border-top: 1px solid #526386; border-left: 2px solid #7dd3fc; border-radius: 0 16px 16px 0; }
+}
