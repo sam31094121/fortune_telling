@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import GrowthStakeSlots from './GrowthStakeSlots';
 import frameStyles from '@/components/BeastCardFrame.module.css';
 import { COLLECTION_STORAGE_NOTICE, countByCard, readCollection, subscribeCollection, type BeastCollection } from '@/lib/beast-collection';
 
@@ -43,6 +44,7 @@ export default function DuelCollectionShelf({ revision = 0 }: { revision?: numbe
       <span className="text-sm font-bold text-white/70" data-collection-count>目前 {collection.cards.length} 張</span>
     </div>
     <p className="mt-1 text-xs leading-5 text-white/60">成長獎勵與對戰贏來的卡，都在這裡。</p>
+    <GrowthStakeSlots collection={collection} pool={pool}/>
     {collection.storageError ? <p role="alert" className="mt-3 text-sm text-amber-200">{collection.storageError}</p>
       : collection.cards.length === 0 ? <div className="mt-3 rounded-xl border border-dashed border-white/20 px-3 py-4 text-center">
         <p className="text-sm font-bold">目前沒有可押注的卡</p>

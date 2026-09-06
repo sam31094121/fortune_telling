@@ -67,10 +67,10 @@ export function grantGrowthCards(current: BeastCollection, cardIds: string[], at
   return { ...current, cards, granted: [...granted] };
 }
 
-export function reserveCard(current: BeastCollection, cardId: string, matchId: string, at: string): BeastCollection {
+export function reserveCard(current: BeastCollection, cardId: string, matchId: string, at: string, entryId?: string): BeastCollection {
   if (current.pending) throw new Error('上一場尚待結算，請先處理上一場。');
   if (current.receipts?.[matchId]) throw new Error('這一場已經結算。');
-  const card = current.cards.find((entry) => entry.cardId === cardId);
+  const card = current.cards.find((entry) => entry.cardId === cardId && (!entryId || entry.id === entryId));
   if (!card) throw new Error('這張卡已不在你的成長收藏，請重新選擇。');
   return { ...current, pending: { id: matchId, cardId, entryId: card.id, at } };
 }

@@ -70,10 +70,10 @@ function applyStakeOutcome(matchId: string, outcome: StakeOutcome): Settlement {
 }
 
 /** Reserve a real copy before requesting; settle the API result before playing animations. */
-export async function runOwnedDuel<T extends AwardResult>(cardId: string, play: () => Promise<T>): Promise<{ result: T; settlement: Settlement }> {
+export async function runOwnedDuel<T extends AwardResult>(cardId: string, play: () => Promise<T>, entryId?: string): Promise<{ result: T; settlement: Settlement }> {
   return exclusive(async () => {
     const matchId = crypto.randomUUID();
-    write(reserveCard(readStrict(), cardId, matchId, now()));
+    write(reserveCard(readStrict(), cardId, matchId, now(), entryId));
     let result: T;
     try {
       result = await play();
