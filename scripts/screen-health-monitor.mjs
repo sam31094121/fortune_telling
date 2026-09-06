@@ -177,6 +177,13 @@ const BEHAVIOR_CHECKS = [
     script: 'test:beast-retry',
   },
   {
+    id: 'BEAST_BATTLEFIELD',
+    module: 'beast_battlefield',
+    title: '神獸戰場：一卡一區、合法位置唯一來源、雙方分離',
+    script: 'test:beast-battlefield',
+    timeoutMs: 60000,
+  },
+  {
     id: 'BEAST_CHARGE_CLIP',
     module: 'beast_charge_clip',
     title: '六秒影片播放條件與玩家音訊路徑（不含逐片驗收）',
