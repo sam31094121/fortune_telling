@@ -204,6 +204,13 @@ const BEHAVIOR_CHECKS = [
     script: 'test:no-fake-counters',
   },
   {
+    id: 'BEAST_REWARD_CLAIM',
+    module: 'beast_reward_claim',
+    title: '獎勵儀式：發獎不等於入袋，領了才算收藏',
+    script: 'test:beast-reward',
+    timeoutMs: 60000,
+  },
+  {
     id: 'BEAST_CHARGE_CLIP',
     module: 'beast_charge_clip',
     title: '六秒影片播放條件與玩家音訊路徑（不含逐片驗收）',

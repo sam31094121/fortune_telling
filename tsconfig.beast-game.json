@@ -11,5 +11,5 @@
     "paths": { "@/*": ["./*"] },
     "types": ["node"]
   },
-  "include": ["tests/beast-game.test.ts", "lib/beast-game/**/*.ts", "cards/**/*.ts"]
+  "include": ["tests/beast-game.test.ts", "tests/beast-charge-release.test.ts", "lib/beast-game/**/*.ts", "lib/beast-collection-ledger.ts", "cards/**/*.ts"]
 }

@@ -34,6 +34,10 @@ export interface BeastCollection {
   receipts?: Record<string, CollectionReceipt>;
   pending?: { id: string; cardId: string; entryId: string; at: string } | null;
   storageError?: string;
+  /** 完成使命後躺在獎項格子裡、還沒被領走的獎勵。 */
+  rewards?: PendingReward[];
+  /** 已經領過的獎勵 id。擋重複領，也擋重複發。 */
+  claimedRewards?: string[];
   starterPack?: string;
 }
 
@@ -108,4 +112,92 @@ export function settleCard(current: BeastCollection, matchId: string, outcome: S
     collection: { ...current, cards, pending: null, receipts: { ...current.receipts, [matchId]: receipt }, history: [{ at, kind, cardId, note: outcome.message, remaining: receipt.remaining }, ...current.history].slice(0, 60) },
     receipt, duplicate: false,
   };
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   待領取獎勵：完成使命 → 出現在獎項格子 → 客戶親手收下
+   ──────────────────────────────────────────────────────────────────────── */
+
+/**
+ * 一份還沒被領走的獎勵。
+ *
+ * 業主定調：「只要完成任務，就送一張卡片當獎勵。只要有使命未完成的，
+ * 去把它完成，就會有獎勵跑出來，會顯示在獎項的格子裡。
+ * 客戶要去把它收集起來，才算是真正的收藏的過程，有儀式感。」
+ *
+ * 【為什麼不直接放進收藏】
+ *
+ * 原本 grantGrowthCards() 是完成就自動入袋。那樣效率最高，
+ * 但客戶少了「我把它收下來」的那一下——**收藏的重量來自親手拿到**，
+ * 不是來自數字變大。東西悄悄多一張，跟自己去領一張，是兩種感受。
+ *
+ * 所以中間多一個狀態：獎勵先躺在格子裡等你，領了才進收藏。
+ */
+export interface PendingReward {
+  /** 這一份獎勵的識別。重複領取靠它擋。 */
+  id: string;
+  cardId: string;
+  /** 為什麼給你——「完成八關探索」之類。格子上要說得出來。 */
+  reason: string;
+  at: string;
+}
+
+/**
+ * 完成使命，把獎勵放進格子。
+ *
+ * **不進收藏**——只是出現在那裡等人來領。
+ * 同一個 id 只會出現一次：任務重複回報不會變成兩份獎勵。
+ */
+export function offerReward(
+  current: BeastCollection,
+  reward: { id: string; cardId: string; reason: string },
+  at: string,
+): BeastCollection {
+  if (!isBeastCardId(reward.cardId)) throw new Error('獎勵卡片不存在');
+  if (!reward.id) throw new Error('獎勵需要識別碼，否則擋不住重複發放');
+  const rewards = current.rewards ?? [];
+  // 已經在格子裡，或已經領過了，都不再發一次。
+  if (rewards.some((item) => item.id === reward.id)) return current;
+  if ((current.claimedRewards ?? []).includes(reward.id)) return current;
+  return { ...current, rewards: [...rewards, { ...reward, at }] };
+}
+
+/**
+ * 領取獎勵：從格子移進收藏。
+ *
+ * 這一步是儀式的核心，所以它做的事很單純也很明確——
+ * 格子裡少一份，收藏裡多一張，並記下這份獎勵已經領過。
+ *
+ * 領一份不存在的獎勵會丟例外，不是靜靜忽略：
+ * 靜靜忽略會讓「我明明按了」變成無從查起。
+ */
+export function claimReward(
+  current: BeastCollection,
+  rewardId: string,
+  at: string,
+): { collection: BeastCollection; claimed: PendingReward } {
+  const rewards = current.rewards ?? [];
+  const reward = rewards.find((item) => item.id === rewardId);
+  if (!reward) throw new Error('這份獎勵不在格子裡，可能已經領過了。');
+
+  const claimedRewards = new Set(current.claimedRewards ?? []);
+  claimedRewards.add(reward.id);
+
+  return {
+    collection: {
+      ...current,
+      rewards: rewards.filter((item) => item.id !== rewardId),
+      claimedRewards: [...claimedRewards],
+      cards: [
+        ...current.cards,
+        { id: `reward:${reward.id}`, cardId: reward.cardId, at, source: 'GROWTH' },
+      ],
+    },
+    claimed: reward,
+  };
+}
+
+/** 格子裡還有幾份沒領。畫面用它決定要不要提示。 */
+export function unclaimedRewardCount(current: BeastCollection): number {
+  return (current.rewards ?? []).length;
 }

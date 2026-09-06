@@ -44,7 +44,20 @@ export async function POST(req:Request){
         a.owned=[...new Set([...a.owned,...b.legacyIds])];a.imported=true;break;
       case 'START':
         if(a.match?.status==='PLAYING')throw new Error('請先完成目前戰鬥，或選擇離開戰鬥。');
-        if(!Array.isArray(b.lineup)||b.lineup.some(id=>!a.owned.includes(id)))throw new Error('只能使用已收藏神獸。');
+        /*
+          出戰不限收藏——業主定調「把個人成長中心的鎖打開，讓客戶無限暢玩」。
+
+          原本只能派已收藏的神獸，而卡片靠一天一次召喚累積，
+          要湊齊六十張得花好幾週。新客戶開局只有三張，
+          等於「想玩就先等」——那是把體驗鎖在收集進度後面。
+
+          現在任何一張正式牌庫裡的神獸都能上場。
+          **收藏沒有因此變成沒意義**：它仍然是押注的來源、
+          仍然是完成使命後領獎的去處。改的是「能不能玩」，
+          不是「擁有什麼」——暢玩與收藏是兩件事。
+        */
+        if(!Array.isArray(b.lineup)||b.lineup.length!==3||new Set(b.lineup).size!==3)throw new Error('請選三張不重複的神獸。');
+        if(b.lineup.some(id=>!ids.includes(id)))throw new Error('這張神獸不在正式牌庫裡。');
         a.match=newMatch(b.lineup,pick(3),randomInt(2147483647));a.awardedRevision=null;break;
       case 'ACTION':
         if(!a.match||!b.action)throw new Error('請先組隊開戰。');
