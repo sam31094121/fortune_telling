@@ -7,12 +7,15 @@ import { legalDestinations, type BattleState, type Destination } from '@/lib/bea
 import type { Match } from '@/lib/beast-game/interactive';
 import { describeMatchup } from '@/lib/beast-element-guide';
 import { ELEMENT_LABEL, type BeastElement } from '@/lib/beast-game/elements';
+import { combatGuideFor, elementPercent } from '@/lib/beast-game/combat-guide';
 import styles from './BattleArena.module.css';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 
 /** Both fighters stay above the controls. All displayed combat values come from Match. */
-export default function BattleArena({ state, cards, match }: FieldProps & { match: Match | null }) {
+export default function BattleArena({ state, cards, match, onInspect }: FieldProps & {
+  match: Match | null; onInspect: (id: string, side: 'player' | 'opponent') => void;
+}) {
   const lookup = useMemo(() => new Map(cards.map(card => [card.id, card])), [cards]);
   const mine = match ? lookup.get(match.player.team[match.player.active].cardId) : lookup.get(state.player.active ?? '');
   const foe = match ? lookup.get(match.opponent.team[match.opponent.active].cardId) : lookup.get(state.opponent.active ?? '');
@@ -30,17 +33,23 @@ export default function BattleArena({ state, cards, match }: FieldProps & { matc
           const team = match?.[side];
           const fighter = team?.team[team.active];
           const card = side === 'player' ? mine : foe;
+          const guide = card ? combatGuideFor(card.id, fighter) : null;
           const label = side === 'player' ? '你' : '對手';
           return (
             <div className={styles.fighter} key={side} data-fighter={side}>
-              <p className={styles.fighterName}><span>{label}</span><strong>{card?.name ?? '等待主戰'}</strong></p>
+              <div className={styles.fighterHeading}>
+                <p className={styles.fighterName}><span>{label}</span><strong>{card?.name ?? '等待主戰'}</strong></p>
+                {guide && <p className={styles.fighterIdentity}><strong>{guide.elementLabel}系・{guide.role}型</strong><span>{guide.guardian}・{guide.form}</span></p>}
+              </div>
               <div className={styles.artSpace}>
-                <div key={`${card?.id}-${match?.revision ?? 0}`} className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''} ${match?.revision && match.log.some(entry => entry.side === side) ? styles.acted : ''}`}>
+                <button type="button" disabled={!card} aria-label={card ? `查看${card.name}的能力與相剋` : '等待主戰卡上場'} onClick={() => card && onInspect(card.id, side)}
+                  key={`${card?.id}-${match?.revision ?? 0}`} className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''} ${match?.revision && match.log.some(entry => entry.side === side) ? styles.acted : ''}`}>
                   {card ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={card.thumbnail} alt={`${label}主戰：${card.name}`} draggable={false} />
                   ) : <span className={styles.empty}>主戰卡<br />等待上場</span>}
-                </div>
+                  {card && <span className={styles.inspectLabel}>能力／相剋 ↗</span>}
+                </button>
               </div>
               {fighter && team ? (
                 <div className={styles.fighterVitals}>
@@ -56,21 +65,22 @@ export default function BattleArena({ state, cards, match }: FieldProps & { matc
       <p className={styles.arenaNote} role="status" data-matchup={matchup?.kind}>
         {finished ? (match.winner === 'player' ? '你贏了' : match.winner === 'opponent' ? '對手獲勝' : '平手')
           : match?.player.team[match.player.active].defeated ? '主戰已倒下，請在下方換上後備'
-          : matchup?.headline ?? '先在下方選一張手牌，再點主戰格'}
+          : matchup && mine && foe ? `${matchup.headline}・攻擊元素 ${elementPercent(mine.element as BeastElement, foe.element as BeastElement)}` : '先在下方選一張手牌，再點主戰格'}
       </p>
     </section>
   );
 }
 
 /** Tap-to-place controls share the same legal destinations as the original table. */
-export function PreparationControls({ state, cards, onSelect, onDestination }: FieldProps & {
-  onSelect: (id: string) => void; onDestination: (to: Destination) => void;
+export function PreparationControls({ state, cards, onSelect, onDestination, onInspect }: FieldProps & {
+  onSelect: (id: string) => void; onDestination: (to: Destination) => void; onInspect: (id: string) => void;
 }) {
   const lookup = useMemo(() => {
     const map = new Map(cards.map(card => [card.id, card]));
     return (id: string) => map.get(id);
   }, [cards]);
   const selected = state.selectedCardId;
+  const inspectId = selected ?? state.player.active;
   const legal = selected ? legalDestinations(state, 'PLAYER', selected) : [];
   const destinations: Destination[] = [{ zone: 'ACTIVE' }, ...state.player.bench.map((_, slotIndex) => ({ zone: 'BENCH' as const, slotIndex }))];
 
@@ -94,6 +104,7 @@ export function PreparationControls({ state, cards, onSelect, onDestination }: F
       </div>
       <div className={styles.handHeading}><strong>你的手牌・{state.player.hand.length}</strong><span>牌庫 {state.player.deck.length}・棄牌 {state.player.discard.length}</span></div>
       <HandZone hand={state.player.hand} lookup={lookup} selectedCardId={selected} onCard={onSelect} />
+      {inspectId && <button type="button" className={styles.selectedInfo} onClick={() => onInspect(inspectId)}>查看{lookup(inspectId)?.name}的類型、能力與相剋 →</button>}
     </section>
   );
 }

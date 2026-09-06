@@ -16,11 +16,13 @@
  * 傷害與勝負更不在這裡——那在 interactive.ts，戰場層一行都不重算。
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {recordBeastGameCompleted} from '@/lib/growth-center-client';
 import type { BattlefieldCardArt } from '@/components/battlefield/GameBattlefield';
 import BattleArena, { PreparationControls } from '@/components/battlefield/BattleArena';
+import BattleCardGuide from '@/components/battlefield/BattleCardGuide';
+import type { BeastElement } from '@/lib/beast-game/elements';
 import styles from './page.module.css';
 import {
   moveCard,
@@ -80,6 +82,16 @@ export default function BattlefieldPage() {
   const [starterClaimed, setStarterClaimed] = useState(false);
   const [settlement, setSettlement] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
+  const [inspection, setInspection] = useState<{ cardId: string; side: 'player' | 'opponent' } | null>(null);
+  const controlScroll = useRef<HTMLDivElement>(null);
+  const inspectCard = useCallback((cardId: string, side: 'player' | 'opponent' = 'player') => {
+    setInspection({ cardId, side });
+    controlScroll.current?.scrollTo({ top: 0 });
+  }, []);
+  const closeInspection = useCallback(() => {
+    setInspection(null);
+    controlScroll.current?.scrollTo({ top: 0 });
+  }, []);
   useEffect(()=>{if(match?.status==='FINISHED')recordBeastGameCompleted('battlefield');},[match?.status]);
 
   useEffect(() => {
@@ -111,6 +123,7 @@ export default function BattlefieldPage() {
     setMatch(null);
     setStakeCardId(null);
     setSettlement(null);
+    setInspection(null);
   }, [cards, seed]);
 
   /** 從目前的佈陣開戰。種子固定，同一局可重播。 */
@@ -118,6 +131,7 @@ export default function BattlefieldPage() {
     if (!state) return;
     try {
       setMatch(startFromField(state, seed * 7919));
+      setInspection(null);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : '還不能開戰。');
     }
@@ -237,13 +251,21 @@ export default function BattlefieldPage() {
           </div>
         ) : !state ? <p className={styles.loading}>正在發牌…</p> : (
           <div className={styles.split} data-battle-split>
-            <BattleArena state={state} cards={cards} match={match} />
+            <BattleArena state={state} cards={cards} match={match} onInspect={inspectCard} />
             <section className={styles.controls} aria-label="手部操控" data-battle-controls>
               <div className={styles.controlsHeading}>
-                <strong>{match ? (match.status === 'FINISHED' ? '對戰結果' : '選擇本回合動作') : '親手佈陣'}</strong>
-                <span>{match ? '戰況同步顯示' : '你 ' + placed + ' 隻・對手 ' + opponentPlaced + ' 隻'}</span>
+                <strong>{inspection ? '能力與相剋' : match ? (match.status === 'FINISHED' ? '對戰結果' : '選擇本回合動作') : '親手佈陣'}</strong>
+                <span>{inspection ? '查看不消耗回合' : match ? '戰況同步顯示' : '你 ' + placed + ' 隻・對手 ' + opponentPlaced + ' 隻'}</span>
               </div>
-              <div className={styles.controlScroll} key={match ? 'battle' : 'prepare'} data-control-scroll>
+              <div className={styles.controlScroll} ref={controlScroll} key={match ? 'battle' : 'prepare'} data-control-scroll>
+                {inspection && <BattleCardGuide key={`${inspection.side}-${inspection.cardId}`} cardId={inspection.cardId}
+                  fighter={match?.[inspection.side].team.find(fighter => fighter.cardId === inspection.cardId)}
+                  opponentElement={(() => {
+                    const other = inspection.side === 'player' ? 'opponent' : 'player';
+                    return match ? match[other].team[match[other].active].element : cards.find(card => card.id === state[other].active)?.element as BeastElement | undefined;
+                  })()}
+                  onClose={closeInspection} />}
+                <div hidden={Boolean(inspection)}>
                 {match ? (
                   <>
                     <BattlePanel match={match} onAction={act} starterClaimed={starterClaimed} compact cards={cards} />
@@ -261,7 +283,7 @@ export default function BattlefieldPage() {
                   </>
                 ) : (
                   <>
-                    <PreparationControls state={state} cards={cards} onSelect={handleSelect} onDestination={handleDestination} />
+                    <PreparationControls state={state} cards={cards} onSelect={handleSelect} onDestination={handleDestination} onInspect={inspectCard} />
                     <details className={styles.details}>
                       <summary>{isTrial ? '體驗戰・免押卡' : stakeCardId ? '已押：' + ownedStake.find(card => card.id === stakeCardId)?.name : '③ 選一張收藏卡押上・輸了會被沒收'}</summary>
                       <StakeSlot owned={ownedStake} selected={stakeCardId} trial={isTrial}
@@ -286,6 +308,7 @@ export default function BattlefieldPage() {
                     </details>
                   </>
                 )}
+                </div>
               </div>
               {!match ? (
                 <div className={styles.footer}>

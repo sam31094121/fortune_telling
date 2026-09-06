@@ -17,7 +17,7 @@
 .fighterName span { color: #9fc5ef; font-size: 11px; }
 .fighterName strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .artSpace { min-height: 0; display: grid; place-items: center; container-type: size; }
-.art { width: min(100cqw, 100cqh, 220px); aspect-ratio: 1; overflow: hidden; border: 1px solid #d8b771; border-radius: 16px; box-shadow: 0 10px 24px #0008; background: #0a1429; }
+.art { position: relative; width: min(100cqw, 100cqh, 220px); min-width: 44px; min-height: 44px; aspect-ratio: 1; padding: 0; overflow: hidden; border: 1px solid #d8b771; border-radius: 16px; box-shadow: 0 10px 24px #0008; background: #0a1429; touch-action: manipulation; }
 .art img { width: 100%; height: 100%; object-fit: cover; }
 .empty { height: 100%; display: grid; place-content: center; text-align: center; color: #91a6c5; font-size: 13px; }
 .fighterVitals { display: grid; gap: 5px; }
@@ -39,6 +39,12 @@
 .preparation [role='group'] { padding: 3px; gap: 8px; }
 .preparation [role='group'] > div { flex-basis: 60px; width: 60px; }
 .preparation button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.fighterHeading { display: grid; gap: 3px; }
+.fighterIdentity { display: grid; text-align: center; font-size: 11px; line-height: 15px; }
+.fighterIdentity strong { color: #ffe1a0; }
+.fighterIdentity span { color: #b5cce4; font-size: 10px; }
+.inspectLabel { position: absolute; right: 0; bottom: 0; left: 0; padding: 3px 1px; background: #071321e8; color: #e4f3ff; font-size: 10px; }
+.selectedInfo { min-height: 44px; text-align: left; color: #d1edff; font-size: 12px; border-top: 1px solid #3b526c; touch-action: manipulation; }
 @media (max-height: 650px) {
   .preparation { gap: 4px; }
   .destination { max-width: 44px; gap: 2px; }

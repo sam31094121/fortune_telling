@@ -20,6 +20,8 @@
 import styles from './BattlePanel.module.css';
 import { useEffect, useRef } from 'react';
 import type { BattlefieldCardArt } from './GameBattlefield';
+import { effectiveStat } from '@/lib/beast-game/effects';
+import { ELEMENT_LABEL } from '@/lib/beast-game/elements';
 import {
   ELEMENT_FX,
   createSoundPlayer,
@@ -141,9 +143,9 @@ export function BattleActionBar({
     const switches = actions.filter((action): action is Extract<Action, { type: 'SWITCH' }> => action.type === 'SWITCH');
     return (
       <div className={styles.compactActions}>
-        <p className={styles.activeHint}>{active.defeated ? '主戰已倒下，請點後備接替' : `操控：${active.name}・氣 ${match.player.energy}`}</p>
+        <p className={styles.activeHint}>{active.defeated ? '主戰已倒下，請點後備接替' : `${skill.role}型・攻 ${effectiveStat(active, 'attack')}／防 ${effectiveStat(active, 'defense')}／速 ${effectiveStat(active, 'speed')}`}</p>
         <div className={styles.primaryActions} role="group" aria-label="攻擊與技能">
-          <button type="button" className={styles.actionButton} disabled={busy || !attack} onClick={() => attack && onAction(attack)}>普通攻擊<small>不耗氣</small></button>
+          <button type="button" className={styles.actionButton} disabled={busy || !attack} onClick={() => attack && onAction(attack)}>普通攻擊<small>{ELEMENT_LABEL[active.element]}系・不耗氣</small></button>
           <button type="button" className={styles.skillButton} disabled={busy || !special} onClick={() => special && onAction(special)}>
             {skill.skillName}<small>{active.defeated ? '請先換卡' : active.cooldown > 0 ? `冷卻 ${active.cooldown} 回合` : `耗氣 ${skill.cost}${!special ? '・氣不足' : ''}`}</small>
           </button>
