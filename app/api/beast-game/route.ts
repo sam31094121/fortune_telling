@@ -7,6 +7,7 @@ import { getSkill } from '@/cards/skills';
 import { BATTLE_PRESENTATION_SKILLS } from '@/cards/skills/battle-presentation';
 import { skillBodyArtFor } from '@/lib/beast-skill-archive';
 import { GAME_CORE_VERSION } from '@/lib/beast-game/schema';
+import {interactiveCatalog} from '@/lib/beast-game/interactive';
 import { playSeries } from '@/lib/beast-game/series';
 import {
   DECK_SIZE,
@@ -27,6 +28,10 @@ export const dynamic = 'force-dynamic';
  * 動畫只能播放「已經算好的事實」。所以決鬥在這裡跑完才回前端。
  */
 export async function GET() {
+  const functions = new Map(interactiveCatalog().map(card => [card.id, {
+    role: card.role, tier: card.tier, skillName: card.skillName, description: card.description,
+    cost: card.cost, stats: card.stats,
+  }]));
   // 數值技能（Effect Engine）與《技能戰鬥檔案》演出技能共存：分開回傳，互不取代。
   const battleSkills = BATTLE_PRESENTATION_SKILLS.map((skill) => ({
     id: skill.id,
@@ -38,6 +43,7 @@ export async function GET() {
 
   const cards = playableCards().map((card) => ({
     id: card.id,
+    combat: functions.get(card.id),
     name: card.name,
     element: card.element,
     rarity: card.rarity,

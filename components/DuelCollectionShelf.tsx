@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import GrowthStakeSlots from './GrowthStakeSlots';
 import StarterPackBanner from './StarterPackBanner';
-import frameStyles from '@/components/BeastCardFrame.module.css';
+import BeastTechCard, {type TechCardData} from './BeastTechCard';
 import { COLLECTION_STORAGE_NOTICE, countByCard, readCollection, subscribeCollection, type BeastCollection } from '@/lib/beast-collection';
 
-type PoolCard = { id: string; name: string; thumbnail: string; element: string };
+type PoolCard = TechCardData;
 const ELEMENT_LABEL: Record<string, string> = { SPACE: '空', AIR: '風', WATER: '水', FIRE: '火', EARTH: '地' };
 
 export default function DuelCollectionShelf({ revision = 0 }: { revision?: number }) {
@@ -15,6 +15,7 @@ export default function DuelCollectionShelf({ revision = 0 }: { revision?: numbe
   const [pool, setPool] = useState<Map<string, PoolCard>>(new Map());
   const [loaded, setLoaded] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [showAll,setShowAll]=useState(false);
   useEffect(() => {
     if (window.location.hash === '#beast-collection') document.getElementById('beast-collection')?.scrollIntoView({ block: 'start' });
   }, []);
@@ -48,27 +49,16 @@ export default function DuelCollectionShelf({ revision = 0 }: { revision?: numbe
     <StarterPackBanner claimed={Boolean(collection.starterPack)}/>
     <GrowthStakeSlots collection={collection} pool={pool}/>
     {collection.storageError ? <p role="alert" className="mt-3 text-sm text-amber-200">{collection.storageError}</p>
-      : collection.cards.length === 0 ? <div className="mt-3 rounded-xl border border-dashed border-white/20 px-3 py-4 text-center">
+      : collection.cards.length === 0 && !showAll ? <div className="mt-3 rounded-xl border border-dashed border-white/20 px-3 py-4 text-center">
         <p className="text-sm font-bold">目前沒有可押注的卡</p>
         <p className="mt-1 text-xs leading-5 text-white/60">完成首頁探索或任一項遊戲，首次即可領取 28 張神獸幼子。</p>
+        <button className="mt-2 min-h-11 px-3 text-sm text-cyan-100 underline" onClick={()=>setShowAll(true)}>先看 60 種科技功能卡</button>
         <Link href="/#home-eight-card-route" className="mt-2 inline-flex min-h-11 items-center rounded-xl border border-amber-200/40 px-4 text-sm text-amber-100">去首頁探索</Link>
       </div> : <>
-        <ul className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-6">
-          {[...counts.entries()].map(([cardId, count]) => {
-            const card = pool.get(cardId);
-            const growth = collection.cards.filter((entry) => entry.cardId === cardId && entry.source === 'GROWTH').length;
-            return <li key={cardId} className="min-w-0" data-collected-card={cardId}>
-              <div className={`${frameStyles.card} relative overflow-hidden border border-amber-200/30`}>
-                {card ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={card.thumbnail} alt={card.name} loading="lazy" decoding="async" className={frameStyles.art} />
-                ) : <span className="grid h-full place-items-center text-xs text-white/50">{loaded ? '圖片待載' : '載入中'}</span>}
-                <span className="absolute right-1 top-1 rounded-full bg-black/85 px-1.5 text-xs font-bold">×{count}</span>
-              </div>
-              <p className="mt-1 text-center text-xs font-bold leading-5 break-words">{card?.name ?? cardId}{card && <span className="ml-1 text-white/50">·{ELEMENT_LABEL[card.element]}</span>}</p>
-              <p className="text-center text-[10px] leading-4 text-white/50">{growth > 0 ? `成長 ${growth}` : ''}{growth > 0 && count > growth ? ' · ' : ''}{count > growth ? `對戰 ${count - growth}` : ''}</p>
-            </li>;
-          })}
+        <div className="mt-4 flex flex-wrap gap-2"><button className="min-h-11 rounded-lg border border-cyan-200/40 px-3 text-sm" aria-pressed={!showAll} onClick={()=>setShowAll(false)}>我的功能卡</button><button className="min-h-11 rounded-lg border border-cyan-200/40 px-3 text-sm" aria-pressed={showAll} onClick={()=>setShowAll(true)}>60 種科技圖鑑</button></div>
+        <p className="mt-2 text-sm leading-6 text-slate-200">每張都有元素、定位與技能。點「查看技能」認識用途，再到上方選自己持有的卡押注。</p>
+        <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {(showAll?[...pool.keys()]:[...counts.keys()]).map(cardId=>{const card=pool.get(cardId);return <li key={cardId} data-collected-card={counts.has(cardId)?cardId:undefined}>{card?<BeastTechCard card={card} count={counts.get(cardId)??0}/>:<p className="text-sm">{loaded?'圖片待載':'載入中'} · {cardId}</p>}</li>;})}
         </ul>
         <Link href="/beast-game" className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-amber-200 px-4 text-sm font-black text-slate-950">選一張收藏卡去對戰</Link>
       </>}
