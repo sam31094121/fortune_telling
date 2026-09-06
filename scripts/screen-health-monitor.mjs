@@ -218,7 +218,7 @@ const BEHAVIOR_CHECKS = [
   {
     id: 'BEAST_INTERACTIVE',
     module: 'beast_interactive',
-    title: '新回合制：六十張定位、能量、補位與一萬場鏡像抽樣',
+    title: '新回合制：六十張定位、能量、補位與一千場煙霧抽樣',
     script: 'test:beast-interactive',
     timeoutMs: 45000,
   },

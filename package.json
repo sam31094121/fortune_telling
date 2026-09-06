@@ -63,10 +63,11 @@
     "test:beast-voice-mix": "node tests/beast-voice-mix.test.mjs",
     "test:beast-skill-registration": "node tests/beast-skill-production-record.test.mjs",
     "hooks:install": "node scripts/install-hooks.mjs",
-    "test:beast-interactive": "node scripts/beast-build.mjs && node tests/beast-interactive.test.cjs",
+    "test:beast-interactive": "node scripts/beast-build.mjs && node tests/beast-interactive.test.cjs --seeds 500",
     "test:beast-battlefield": "node scripts/beast-build.mjs && node tests/beast-battlefield.test.mjs",
     "test:beast-bridge": "node scripts/beast-build.mjs && node tests/beast-battle-bridge.test.mjs",
-    "build:beast": "node scripts/beast-build.mjs"
+    "build:beast": "node scripts/beast-build.mjs",
+    "test:beast-interactive:full": "node scripts/beast-build.mjs && node tests/beast-interactive.test.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",
