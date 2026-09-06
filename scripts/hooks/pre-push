@@ -2,15 +2,26 @@
 #
 # 推送閘：沒驗過的東西不准上正式站
 #
-# 為什麼要有這個：
-# 2026-09-05 發現 commit「111111」把還在施工中的 lib/three-in-one.ts 掃進去
-# 並且推上 origin/main——那時候它的測試還沒寫完。推上去就是 Vercel 部署，
+# 【為什麼要有這個】
+#
+# 2026-09-05：commit「111111」把還在施工中的 lib/three-in-one.ts 掃進去
+# 並推上 origin/main，那時它的測試還沒寫完。推上去就是 Vercel 部署，
 # 等於半成品直接進正式站。
 #
-# 找不到是哪個工具做的（作者是使用者本人、時間也不規律），所以改成守在出口：
-# 不管是誰、用什麼方式推，命理三核心的守門測試沒過就不放行。
+# 2026-09-06：同一個「111111」又把紅的 build 推上 main——
+# lib/beast-battle-fx.ts 匯出 chargeVideoFor，但 beast-skill-archive.ts
+# 根本沒有那個函式。**第一版的推送閘擋不下來，因為它只跑測試、不編譯。**
+# 測試全過、專案卻編不起來，是完全可能的。
 #
-# 真的要跳過（例如只推文件、或正在救火）：
+# 找不到是哪個工具在推（作者是使用者本人、時間也不規律），
+# 所以守在出口：不管是誰、用什麼方式推，編不過或守門沒過就不放行。
+#
+# 【為什麼把編譯放第一個】
+#
+# 編不過是最硬的失敗——後面的測試就算全過也沒有意義，
+# 而且這正是實際發生過的那一次。先編譯，快速失敗。
+#
+# 真的要跳過（只推文件、或正在救火）：
 #   SKIP_PUSH_GATE=1 git push
 #
 set -u
@@ -20,11 +31,30 @@ if [ "${SKIP_PUSH_GATE:-0}" = "1" ]; then
   exit 0
 fi
 
-echo "🔒 推送閘：跑命理三核心守門測試…"
+LOG=$(mktemp 2>/dev/null || echo /tmp/push-gate.log)
 
+echo "🔒 推送閘"
+
+# 一、編得起來嗎。這一項擋的是 2026-09-06 那次紅 build 上線。
+echo "   … 編譯中（這一項最久，先跑，快速失敗）"
+if npm run build >"$LOG" 2>&1; then
+  echo "   ✓ 編譯"
+else
+  echo "   ✗ 編譯"
+  echo
+  echo "❌ 推送被擋下：專案編不起來。"
+  grep -E "Failed to compile|Type error|error TS" "$LOG" | head -5 | sed 's/^/   /'
+  echo
+  echo "   修好再推。真的要跳過：SKIP_PUSH_GATE=1 git push"
+  exit 1
+fi
+
+# 二、守門測試。命理三核心是招牌，神獸是目前主要施工面。
 FAILED=""
-for t in test:three-core test:three-in-one test:taiji-ios; do
-  if npm run "$t" >/tmp/push-gate.log 2>&1; then
+for t in test:three-core test:three-in-one test:taiji-ios \
+         test:beast-game test:beast-ritual test:beast-clip test:beast-voice; do
+  # 不印「進行中」—— 在管線或 CI 記錄裡不會清行，會留下半截字。
+  if npm run "$t" >"$LOG" 2>&1; then
     echo "   ✓ $t"
   else
     echo "   ✗ $t"
@@ -36,11 +66,11 @@ if [ -n "$FAILED" ]; then
   echo
   echo "❌ 推送被擋下。沒過的：$FAILED"
   echo "   最後的輸出："
-  tail -20 /tmp/push-gate.log | sed 's/^/   /'
+  tail -15 "$LOG" | sed 's/^/   /'
   echo
   echo "   修好再推。真的要跳過：SKIP_PUSH_GATE=1 git push"
   exit 1
 fi
 
-echo "✅ 守門測試全過，放行"
+echo "✅ 編譯與守門測試全過，放行"
 exit 0

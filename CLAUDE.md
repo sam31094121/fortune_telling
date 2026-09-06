@@ -62,6 +62,25 @@ id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡�
 並以 `npm run check:beast-spirits` 確認去背成功——去背失敗會變成
 一塊白方塊衝過去，這種事不能靠肉眼看。
 
+
+## 推送閘：編不過就不准上正式站
+
+`git push` 會先跑 **編譯 ＋ 七支守門測試**，任何一項沒過就擋下來。
+推上 origin/main 等於 Vercel 部署，等於正式站，所以守在出口。
+
+```bash
+npm run hooks:install     # 換機器或重新 clone 之後要跑一次
+SKIP_PUSH_GATE=1 git push # 真的要跳過（只推文件、或正在救火）
+```
+
+**閘門的來源在 `scripts/hooks/`，不是 `.git/hooks/`**——後者不在版控裡，
+重新 clone 就消失。改閘門要改 `scripts/hooks/` 再 `npm run hooks:install`。
+
+為什麼編譯排第一：2026-09-06 有一次紅 build 被推上 main
+（`beast-battle-fx` 匯出 `chargeVideoFor`，但 `beast-skill-archive` 沒有那個函式）。
+**當時的推送閘只跑測試、不編譯，所以擋不下來**——
+測試全過、專案卻編不起來，是完全可能的。
+
 ## 命盤架構鐵律：八字為核心，紫微為第二輪
 
 順序固定：**先算八字命盤 → 再跑紫微斗數**。一切以八字命盤為主。
