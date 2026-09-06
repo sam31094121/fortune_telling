@@ -30,7 +30,7 @@ export default function BeastTurnGame(){
  }
  const match=account?.match,lookup=(id:string)=>cards.find(c=>c.id===id)!;
  const owned=cards.filter(c=>account?.owned.includes(c.id));
- const top=<><header className={styles.header}><h1>神獸・回合對戰</h1><Link href="/beast-game/battlefield">神獸戰場</Link><Link href="/">回首頁</Link></header><p className={styles.muted}>選三隻神獸，親手決定攻擊、技能與換陣。擊倒對方三隻即獲勝。</p>{error&&<p role="alert" className={styles.error}>{error} <button onClick={()=>void load()}>重新載入</button></p>}{notice&&<p role="status">{notice}</p>}</>;
+ const top=<><header className={styles.header}><h1>神獸・回合對戰</h1><Link href="/beast-game/lineup">組陣台・押注</Link><Link href="/beast-game/battlefield">神獸戰場</Link><Link href="/">回首頁</Link></header><p className={styles.muted}>選三隻神獸，親手決定攻擊、技能與換陣。擊倒對方三隻即獲勝。</p>{error&&<p role="alert" className={styles.error}>{error} <button onClick={()=>void load()}>重新載入</button></p>}{notice&&<p role="status">{notice}</p>}</>;
  if(!account)return <main ref={screen} className={styles.page}>{top}<p>正在讀取神獸收藏…</p></main>;
  if(match&&match.status==='PLAYING'){
   const me=match.player.team[match.player.active],foe=match.opponent.team[match.opponent.active],p=lookup(me.cardId);
