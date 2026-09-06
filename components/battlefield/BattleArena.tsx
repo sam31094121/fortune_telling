@@ -84,19 +84,21 @@ export function PreparationControls({ state, cards, onSelect, onDestination, onI
   }, [cards]);
   const selected = state.selectedCardId;
   const inspectId = selected ?? state.player.active;
-  const legal = selected ? legalDestinations(state, 'PLAYER', selected) : [];
-  const destinations: Destination[] = [{ zone: 'ACTIVE' }, ...state.player.bench.map((_, slotIndex) => ({ zone: 'BENCH' as const, slotIndex }))];
+  const legal = useMemo(() => selected ? legalDestinations(state, 'PLAYER', selected) : [], [state, selected]);
+  const destinations = useMemo<Destination[]>(() =>
+    [{ zone: 'ACTIVE' }, ...state.player.bench.map((_, slotIndex) => ({ zone: 'BENCH' as const, slotIndex }))]
+  , [state.player.bench]);
 
   return (
     <section className={styles.preparation} aria-label="選卡與放牌">
       <p className={styles.selectionHint} role="status">{selected ? `已選 ${lookup(selected)?.name}，點亮格放入` : '① 點手牌　② 點主戰或後備格'}</p>
       <div className={styles.destinations}>
-        {destinations.map(to => {
+        {destinations.map((to, idx) => {
           const id = to.zone === 'ACTIVE' ? state.player.active : to.zone === 'BENCH' ? state.player.bench[to.slotIndex] : null;
           const label = to.zone === 'ACTIVE' ? '主戰' : to.zone === 'BENCH' ? `後備 ${to.slotIndex + 1}` : '';
           const allowed = legal.some(d => d.zone === to.zone && (d.zone !== 'BENCH' || (to.zone === 'BENCH' && d.slotIndex === to.slotIndex)));
           return (
-            <div className={styles.destination} key={label}>
+            <div className={styles.destination} key={`${to.zone}-${to.zone === 'BENCH' ? to.slotIndex : 'active'}`}>
               <span>{label}</span>
               <CardSlot card={id ? lookup(id) : undefined} selected={Boolean(id && id === selected)} legalTarget={allowed}
                 label={`你的${label}：${id ? lookup(id)?.name : '空格'}`}
