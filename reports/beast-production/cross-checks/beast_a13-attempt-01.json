@@ -1,0 +1,41 @@
+{
+  "cardId": "beast_a13",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T03:14:58.680Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "bbccbfe2b3a8c5ba84abbae106dc3a7cdd3d80ec2a49f768444306e0e2b4204c",
+  "referenceSha256": "571bfbda153a7ab406e6de526f17a494f1286d0cbac68ac448ab7a574b9a38ed",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "method": "Canonical sources and 2 fps contact sheet.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a13/attempt-01/contact-sheet.jpg",
+      "sha256": "4173ae6b6e11817ca2f1480b709d848f6d009eb612b25788a26482e3128be0a4"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖黑色熔岩裂紋、背部層疊棘甲變成灰棕野豬身體加背部火焰。"
+    },
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖厚重捲曲火尾變成細豬尾加末端火焰。"
+    },
+    "identity": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "保留野豬物種仍不足以保留原始熔岩神獸本體。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": null,
+      "evidence": "本次 2 fps 初篩不能確認三次獨立咬合、放開及反力；仍需密集影格與聲畫驗收。"
+    }
+  },
+  "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。"
+}

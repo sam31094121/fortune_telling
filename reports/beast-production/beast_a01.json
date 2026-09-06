@@ -1,0 +1,1178 @@
+{
+  "cardId": "beast_a01",
+  "name": "角木蛟",
+  "reference": "public/beast-game/spirit/01.webp",
+  "referenceSha256": "8d31956ddb9589c3a6e39a342aa83c41f7bbaf096715361679dd3adc0e2ecc6b",
+  "durationSeconds": 6,
+  "perspective": "player",
+  "opponentVoice": false,
+  "timeline": [
+    {
+      "phase": "build",
+      "start": 0,
+      "end": 2
+    },
+    {
+      "phase": "rush",
+      "start": 1.8,
+      "end": 4.5
+    },
+    {
+      "phase": "bite",
+      "start": 4,
+      "end": 4.2
+    },
+    {
+      "phase": "tail",
+      "start": 4.2,
+      "end": 6
+    }
+  ],
+  "state": "needs-refinement",
+  "checks": {
+    "head": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "body": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "limbs": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "mouth": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "teethOrBeak": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "eyes": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "clawsOrHooves": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "tail": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "identity": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "contact": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "playerVoice": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "continuity": {
+      "status": "unreviewed",
+      "evidence": null
+    }
+  },
+  "attemptLimit": 9,
+  "prompt": "[# Sources <FIRST_FRAME>@Image1 <LAST_FRAME>@Image1] Animate IMAGE 1 as the exact starting AND ending scene, preserving the rendered characters, original armor details, materials, lighting and stage throughout. Complete the bite and return naturally to the same original resting pose by 6 seconds. This is image-to-video animation of the existing scene, not recreation of it. Keep all appendages inside the frame with a little edge margin. The protagonist initiates the action; the opponent only crouches and reacts, never charges first. Create exactly 6 seconds of continuous creature footage, one shot with no cuts. The existing right-side creature is the protagonist 角木蛟; the existing left-side creature is its silent training opponent. Reproduce these exact individual creatures in their original detailed rendering style. Preserve facial structure, species, colors, markings, complex filigree armor, central chest jewels, limb ornaments, appendages and proportions throughout. Do not simplify ornamental details or replace their materials. Never add horns or wings absent in either source. Keep the protagonist's source-facing orientation and place the opponent toward that side, both visible from the first frame; do not spin or redesign them. Camera stays fixed, showing full bodies and a dark stone stage with margin for every appendage. This is clean footage, without HUD, health bars, interface, text, titles, names, icons, captions or frames. Animate anatomical joints and weight transfer, never slide a card or rigid cutout. 0-2s: grounded breath and proud species-appropriate call, body braces. 1.8-3.6s: the protagonist pushes off in a short forceful lunge toward the opponent's armored shoulder, appendages follow naturally. Arrange the silent opponent crouched so that its shoulder is at the protagonist's mouth height. At 3.8s open the protagonist's natural jaw or beak and place that shoulder clearly between its upper and lower jaw. At exactly 4.0s CLOSE the jaw or beak onto that shoulder, hold the visible non-gory grip until 4.2s with a slight pull and immediate opponent recoil. Do not merely stop in front of the opponent, nuzzle or headbutt; visible mouth closure around its shoulder is essential. 4.2-6s: release and settle, the same protagonist's call decays. Opponent reacts but remains completely silent. No blood, humans, music, camera orbit, body morphing, new teeth or extra limbs, image crossfades or rectangular backgrounds. Bird species retain a beak without invented teeth; legless species retain their anatomy. The protagonist's head and contact are the focal point. Finish the complete action by 6s.",
+  "startedAt": "2026-09-06T02:06:30.528Z",
+  "finishedAt": "2026-09-06T02:08:26.042Z",
+  "candidateSha256": "4a3152f323b2c803f2857f4a5f67c2b15f58835d71a803eb111b0bdf12826d29",
+  "reviewedAt": "2026-09-05T19:15:27.256Z",
+  "attempt": 10,
+  "aspectRatio": "16:9",
+  "history": [
+    {
+      "attempt": 1,
+      "state": "needs-refinement",
+      "candidateSha256": "5a14b7c2f0bd2534edbefb569f3b1fd444224092979aae7727502f4c8a1ac0aa",
+      "checks": {
+        "head": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "body": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "limbs": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "mouth": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "teethOrBeak": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "eyes": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "clawsOrHooves": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "tail": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "identity": {
+          "status": "fail",
+          "evidence": "Contact sheet at 0–5.5s: stocky short-necked quadruped, pale segmented belly, shortened mane and altered horns; canonical spirit/01.webp has a long ornate green/gold form. Not a 1:1 match."
+        },
+        "contact": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "playerVoice": {
+          "status": "unreviewed",
+          "evidence": "Audio stream exists but has not been listened to or compared with the voice manifest."
+        },
+        "continuity": {
+          "status": "unreviewed",
+          "evidence": null
+        }
+      },
+      "startedAt": "2026-09-05T19:12:47.687Z",
+      "finishedAt": "2026-09-05T19:14:09.045Z"
+    },
+    {
+      "attempt": 2,
+      "state": "needs-refinement",
+      "candidateSha256": "5f0ec57f3b40415ecb203c93503f5259bd170014e1e7f962304269c6c6cbbf2a",
+      "checks": {
+        "head": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "body": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "limbs": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "mouth": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "teethOrBeak": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "eyes": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "clawsOrHooves": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "tail": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "identity": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "contact": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "playerVoice": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "continuity": {
+          "status": "unreviewed",
+          "evidence": null
+        }
+      },
+      "automaticReview": {
+        "checks": {
+          "head": {
+            "status": "fail",
+            "timestampSeconds": 1,
+            "evidence": "Morphs, loses whiskers."
+          },
+          "body": {
+            "status": "fail",
+            "timestampSeconds": 2,
+            "evidence": "Morphs to muscular biped."
+          },
+          "limbs": {
+            "status": "fail",
+            "timestampSeconds": 2,
+            "evidence": "Change to muscular arms."
+          },
+          "mouth": {
+            "status": "fail",
+            "timestampSeconds": 3,
+            "evidence": "Structure changes."
+          },
+          "teethOrBeak": {
+            "status": "fail",
+            "timestampSeconds": 4,
+            "evidence": "Changes during morph."
+          },
+          "eyes": {
+            "status": "fail",
+            "timestampSeconds": 1,
+            "evidence": "Glow lost."
+          },
+          "clawsOrHooves": {
+            "status": "fail",
+            "timestampSeconds": 4,
+            "evidence": "Shape changes."
+          },
+          "tail": {
+            "status": "fail",
+            "timestampSeconds": 2,
+            "evidence": "Becomes thick/solid."
+          },
+          "identity": {
+            "status": "fail",
+            "timestampSeconds": 2,
+            "evidence": "Design morphs completely."
+          },
+          "contact": {
+            "status": "pass",
+            "timestampSeconds": 4,
+            "evidence": "Bite occurs."
+          },
+          "playerVoice": {
+            "status": "fail",
+            "timestampSeconds": 3,
+            "evidence": "Timbre mismatch."
+          },
+          "continuity": {
+            "status": "fail",
+            "timestampSeconds": 5,
+            "evidence": "Opponent head sticks to hand."
+          }
+        },
+        "overall": "fail",
+        "refinement": "Fails identity match due to severe morphing. Voice mismatch."
+      },
+      "startedAt": "2026-09-05T19:18:38.084Z",
+      "finishedAt": "2026-09-05T19:19:48.370Z"
+    },
+    {
+      "attempt": 3,
+      "state": "needs-refinement",
+      "candidateSha256": "6bc2ec81f36156883d3f74b9774e74c620487ec192a1402d0866368f7b6507ba",
+      "checks": {
+        "head": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "body": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "limbs": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "mouth": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "teethOrBeak": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "eyes": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "clawsOrHooves": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "tail": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "identity": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "contact": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "playerVoice": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "continuity": {
+          "status": "unreviewed",
+          "evidence": null
+        }
+      },
+      "automaticReview": {
+        "checks": {
+          "head": {
+            "status": "fail",
+            "timestampSeconds": [
+              0,
+              6
+            ],
+            "evidence": "Wrong horns, mane."
+          },
+          "body": {
+            "status": "fail",
+            "timestampSeconds": [
+              0,
+              6
+            ],
+            "evidence": "No gold filigree."
+          },
+          "limbs": {
+            "status": "fail",
+            "timestampSeconds": [
+              0,
+              6
+            ],
+            "evidence": "No gold accents."
+          },
+          "mouth": {
+            "status": "pass",
+            "timestampSeconds": [
+              0,
+              6
+            ],
+            "evidence": "Present."
+          },
+          "teethOrBeak": {
+            "status": "pass",
+            "timestampSeconds": [
+              0,
+              6
+            ],
+            "evidence": "Present."
+          },
+          "eyes": {
+            "status": "fail",
+            "timestampSeconds": [
+              0,
+              6
+            ],
+            "evidence": "Wrong color."
+          },
+          "clawsOrHooves": {
+            "status": "fail",
+            "timestampSeconds": [
+              0,
+              6
+            ],
+            "evidence": "Wrong color."
+          },
+          "tail": {
+            "status": "fail",
+            "timestampSeconds": [
+              0,
+              6
+            ],
+            "evidence": "Wrong design."
+          },
+          "identity": {
+            "status": "fail",
+            "timestampSeconds": [
+              0,
+              6
+            ],
+            "evidence": "Design mismatch."
+          },
+          "contact": {
+            "status": "pass",
+            "timestampSeconds": [
+              3,
+              4
+            ],
+            "evidence": "Bite occurs."
+          },
+          "playerVoice": {
+            "status": "fail",
+            "timestampSeconds": [
+              0,
+              6
+            ],
+            "evidence": "Spoken letters, wrong roar."
+          },
+          "continuity": {
+            "status": "pass",
+            "timestampSeconds": [
+              0,
+              6
+            ],
+            "evidence": "Consistent."
+          }
+        },
+        "overall": "fail",
+        "refinement": "Fix design and audio."
+      },
+      "startedAt": "2026-09-05T19:21:09.899Z",
+      "finishedAt": "2026-09-05T19:22:01.821Z"
+    },
+    {
+      "attempt": 4,
+      "state": "needs-refinement",
+      "candidateSha256": "7ca3424a322e85ab86e9afff7b6efd59212be6e77c9228cd07954e2cd0f4034d",
+      "checks": {
+        "head": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "body": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "limbs": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "mouth": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "teethOrBeak": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "eyes": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "clawsOrHooves": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "tail": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "identity": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "contact": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "playerVoice": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "continuity": {
+          "status": "unreviewed",
+          "evidence": null
+        }
+      },
+      "automaticReview": {
+        "checks": {
+          "head": {
+            "status": "fail",
+            "timestampSeconds": "0-6",
+            "evidence": "Different horns, missing long whiskers, altered mane."
+          },
+          "body": {
+            "status": "fail",
+            "timestampSeconds": "0-6",
+            "evidence": "Lacks ornate chest piece and gold filigree."
+          },
+          "limbs": {
+            "status": "fail",
+            "timestampSeconds": "0-6",
+            "evidence": "Different styling, missing flowing leg hair."
+          },
+          "mouth": {
+            "status": "pass",
+            "timestampSeconds": "3-4",
+            "evidence": "Opens and closes during bite."
+          },
+          "teethOrBeak": {
+            "status": "pass",
+            "timestampSeconds": "3-4",
+            "evidence": "Teeth visible."
+          },
+          "eyes": {
+            "status": "pass",
+            "timestampSeconds": "0-6",
+            "evidence": "Green glow present."
+          },
+          "clawsOrHooves": {
+            "status": "pass",
+            "timestampSeconds": "0-6",
+            "evidence": "Claws present."
+          },
+          "tail": {
+            "status": "fail",
+            "timestampSeconds": "0-6",
+            "evidence": "Reptilian tail instead of bushy flowing tail."
+          },
+          "identity": {
+            "status": "fail",
+            "timestampSeconds": "0-6",
+            "evidence": "Generic dragon design, not the canonical ornate creature."
+          },
+          "contact": {
+            "status": "pass",
+            "timestampSeconds": "3-4",
+            "evidence": "Bites opponent."
+          },
+          "playerVoice": {
+            "status": "pass",
+            "timestampSeconds": "2-4",
+            "evidence": "Roar matches reference timbre."
+          },
+          "continuity": {
+            "status": "fail",
+            "timestampSeconds": "3-4",
+            "evidence": "Opponent pops in, neck stretches unnaturally."
+          }
+        },
+        "overall": "fail",
+        "refinement": "Fix creature design to match canonical image. Fix opponent pop-in."
+      },
+      "startedAt": "2026-09-05T19:24:09.788Z",
+      "finishedAt": "2026-09-05T19:24:59.351Z"
+    },
+    {
+      "attempt": 5,
+      "state": "needs-refinement",
+      "candidateSha256": "2d80df39d54e2846fc9858851d121583380b2f59dd054b59db93eae155d5cd7a",
+      "checks": {
+        "head": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "body": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "limbs": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "mouth": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "teethOrBeak": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "eyes": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "clawsOrHooves": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "tail": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "identity": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "contact": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "playerVoice": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "continuity": {
+          "status": "unreviewed",
+          "evidence": null
+        }
+      },
+      "automaticReview": {
+        "checks": {
+          "head": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "Whiskers are shorter and mane is less voluminous than reference."
+          },
+          "body": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "Armor consists of solid plates instead of intricate filigree; missing chest orb."
+          },
+          "limbs": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "Armor plating on limbs does not match reference design."
+          },
+          "mouth": {
+            "status": "pass",
+            "timestampSeconds": 0,
+            "evidence": "Mouth opens during roar."
+          },
+          "teethOrBeak": {
+            "status": "pass",
+            "timestampSeconds": 0,
+            "evidence": "Teeth are visible."
+          },
+          "eyes": {
+            "status": "pass",
+            "timestampSeconds": 0,
+            "evidence": "Eyes are clearly visible."
+          },
+          "clawsOrHooves": {
+            "status": "pass",
+            "timestampSeconds": 0,
+            "evidence": "Claws are present and visible."
+          },
+          "tail": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "Tail is spiky, lacking the flowing, leafy design of the reference."
+          },
+          "identity": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "Multiple design mismatches including armor, mane, and tail."
+          },
+          "contact": {
+            "status": "fail",
+            "timestampSeconds": 4,
+            "evidence": "Player stops short; no contact or jaw closure occurs."
+          },
+          "playerVoice": {
+            "status": "pass",
+            "timestampSeconds": 0,
+            "evidence": "Roar timbre matches the provided reference."
+          },
+          "continuity": {
+            "status": "pass",
+            "timestampSeconds": 0,
+            "evidence": "Visuals remain consistent without major glitches."
+          },
+          "opponentIdentity": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "Opponent lacks the specific intricate armor and flowing mane of reference D."
+          }
+        },
+        "overall": "fail",
+        "refinement": "Both player and opponent identities fail due to simplified armor and altered mane/tail designs. The required contact and bite action at 4s is missing entirely."
+      },
+      "startedAt": "2026-09-06T01:38:40.258Z",
+      "finishedAt": "2026-09-06T01:39:20.014Z"
+    },
+    {
+      "attempt": 6,
+      "state": "needs-refinement",
+      "candidateSha256": "86fbb6a2346f987f685db64c668cf75dd441f9c29d50ebc3f60ae7c54eb6ad29",
+      "checks": {
+        "head": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "body": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "limbs": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "mouth": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "teethOrBeak": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "eyes": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "clawsOrHooves": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "tail": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "identity": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "contact": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "playerVoice": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "continuity": {
+          "status": "unreviewed",
+          "evidence": null
+        }
+      },
+      "automaticReview": {
+        "checks": {
+          "head": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "Mane is rendered as solid hair rather than ethereal energy; whiskers are thicker than reference."
+          },
+          "body": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "Chest armor is simplified, lacking the intricate gold filigree and the central glowing green orb."
+          },
+          "limbs": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "Gold detailing and armor on the legs are significantly simplified compared to the reference."
+          },
+          "mouth": {
+            "status": "pass",
+            "timestampSeconds": 0,
+            "evidence": "Mouth structure is consistent with the reference."
+          },
+          "teethOrBeak": {
+            "status": "pass",
+            "timestampSeconds": 3,
+            "evidence": "Teeth are visible and appropriate for the design."
+          },
+          "eyes": {
+            "status": "pass",
+            "timestampSeconds": 0,
+            "evidence": "Eyes exhibit the correct green glow."
+          },
+          "clawsOrHooves": {
+            "status": "pass",
+            "timestampSeconds": 0,
+            "evidence": "Claws are present and correctly structured."
+          },
+          "tail": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "Tail is a standard solid appendage with a small tuft, missing the massive, flowing ethereal volume of the reference."
+          },
+          "identity": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "Fails strict 1:1 match due to simplified armor, solid instead of ethereal hair/energy, and altered tail design."
+          },
+          "contact": {
+            "status": "pass",
+            "timestampSeconds": 3,
+            "evidence": "Player successfully makes contact and closes jaw on the opponent's neck."
+          },
+          "playerVoice": {
+            "status": "pass",
+            "timestampSeconds": 2,
+            "evidence": "The roar timbre matches the provided audio reference."
+          },
+          "continuity": {
+            "status": "pass",
+            "timestampSeconds": 0,
+            "evidence": "The video displays a coherent sequence of build-up, rush, bite, and recovery."
+          },
+          "opponentIdentity": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "Opponent model lacks the distinct teal/green accents in the mane and tail, and features simplified armor."
+          }
+        },
+        "overall": "fail",
+        "refinement": "While the animation sequence, contact, and audio integration are successful, both character models fail the strict 1:1 design requirements. The player model simplifies the intricate chest armor (missing the green orb) and replaces ethereal, flowing energy manes/tails with solid hair. The opponent model similarly suffers from simplified armor and is missing the specific teal/green hair accents. Future iterations must strictly adhere to the complex filigree, materials, and ethereal elements of the canonical designs."
+      },
+      "startedAt": "2026-09-06T01:42:06.025Z",
+      "finishedAt": "2026-09-06T01:43:20.398Z"
+    },
+    {
+      "attempt": 7,
+      "state": "needs-refinement",
+      "candidateSha256": "a6685a010d1da9dadb06170fa3a6643dbfd83f8ab51af374e23eec9c23678e95",
+      "checks": {
+        "head": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "body": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "limbs": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "mouth": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "teethOrBeak": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "eyes": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "clawsOrHooves": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "tail": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "identity": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "contact": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "playerVoice": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "continuity": {
+          "status": "unreviewed",
+          "evidence": null
+        }
+      },
+      "automaticReview": {
+        "checks": {
+          "head": {
+            "status": "pass",
+            "timestampSeconds": "0-5",
+            "evidence": "Green head with gold horns and flowing mane matches canonical image A."
+          },
+          "body": {
+            "status": "pass",
+            "timestampSeconds": "0-5",
+            "evidence": "Green scales with intricate gold filigree armor match the reference."
+          },
+          "limbs": {
+            "status": "pass",
+            "timestampSeconds": "0-5",
+            "evidence": "Four legs with correct proportions and armor placement are present."
+          },
+          "mouth": {
+            "status": "pass",
+            "timestampSeconds": "1-4",
+            "evidence": "Mouth opens naturally for the roar and subsequent bite action."
+          },
+          "teethOrBeak": {
+            "status": "pass",
+            "timestampSeconds": "1-4",
+            "evidence": "Sharp teeth are clearly visible during the roar and bite."
+          },
+          "eyes": {
+            "status": "pass",
+            "timestampSeconds": "0-5",
+            "evidence": "Glowing green eyes match the canonical design."
+          },
+          "clawsOrHooves": {
+            "status": "pass",
+            "timestampSeconds": "0-5",
+            "evidence": "Sharp claws are visible on the feet, matching the reference."
+          },
+          "tail": {
+            "status": "pass",
+            "timestampSeconds": "0-5",
+            "evidence": "Flowing green tail is present and matches the design."
+          },
+          "identity": {
+            "status": "pass",
+            "timestampSeconds": "0-5",
+            "evidence": "The player dragon (right) strictly adheres to the design of canonical image A."
+          },
+          "contact": {
+            "status": "pass",
+            "timestampSeconds": "4",
+            "evidence": "The player dragon successfully makes contact and closes its jaws on the opponent."
+          },
+          "playerVoice": {
+            "status": "pass",
+            "timestampSeconds": "1-3",
+            "evidence": "The roar's timbre matches the provided audio reference B."
+          },
+          "continuity": {
+            "status": "fail",
+            "timestampSeconds": "4-5",
+            "evidence": "The video freezes immediately after the bite, lacking the required recovery phase and falling short of the 6-second duration."
+          },
+          "opponentIdentity": {
+            "status": "pass",
+            "timestampSeconds": "0-5",
+            "evidence": "The opponent dragon (left) accurately matches the white and gold design of canonical image D."
+          }
+        },
+        "overall": "fail",
+        "refinement": "Both dragon identities are accurately rendered, and the initial action sequence (build, roar, rush, bite) is executed well with matching audio. However, the video fails because it freezes at the point of contact (4s), completely omitting the required recovery phase and not meeting the 6-second duration requirement. The animation must continue smoothly through the entire requested sequence."
+      },
+      "startedAt": "2026-09-06T01:55:17.268Z",
+      "providerReturnedAt": "2026-09-06T01:56:06.056Z",
+      "finishedAt": "2026-09-06T01:56:06.191Z",
+      "preview": "reports/beast-production/previews/beast_a01-attempt-07.mp4",
+      "previewSha256": "925a7314608e5d0fa48c2d3d687067cc11261f5ad9a7e98423ed90ee9799867c",
+      "previewDurationSeconds": 6
+    },
+    {
+      "attempt": 8,
+      "state": "needs-refinement",
+      "candidateSha256": "ae2659ad7287543fb43dc10ecfa63e6753114aa0cdf24e60d73703569af93ba6",
+      "checks": {
+        "head": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "body": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "limbs": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "mouth": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "teethOrBeak": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "eyes": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "clawsOrHooves": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "tail": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "identity": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "contact": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "playerVoice": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "continuity": {
+          "status": "unreviewed",
+          "evidence": null
+        }
+      },
+      "automaticReview": {
+        "checks": {
+          "head": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "鬃毛質地與角設計與原圖不符。"
+          },
+          "body": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "缺少胸部綠寶石，金色盔甲細節被簡化。"
+          },
+          "limbs": {
+            "status": "pass",
+            "timestampSeconds": 0,
+            "evidence": "四肢數量與基本結構正確。"
+          },
+          "mouth": {
+            "status": "pass",
+            "timestampSeconds": 3,
+            "evidence": "成功張嘴並進行咬合動作。"
+          },
+          "teethOrBeak": {
+            "status": "pass",
+            "timestampSeconds": 3,
+            "evidence": "咬合時牙齒清晰可見。"
+          },
+          "eyes": {
+            "status": "pass",
+            "timestampSeconds": 0,
+            "evidence": "眼睛清晰可見。"
+          },
+          "clawsOrHooves": {
+            "status": "pass",
+            "timestampSeconds": 0,
+            "evidence": "爪子清晰可見。"
+          },
+          "tail": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "尾巴形狀改變，缺乏原圖的綠色火焰特效。"
+          },
+          "identity": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "整體設計因缺少寶石、盔甲簡化及尾巴錯誤而失敗。"
+          },
+          "contact": {
+            "status": "pass",
+            "timestampSeconds": 3,
+            "evidence": "成功接觸並咬住對手頸部。"
+          },
+          "playerVoice": {
+            "status": "pass",
+            "timestampSeconds": 2,
+            "evidence": "吼叫聲音色與參考音頻一致。"
+          },
+          "continuity": {
+            "status": "fail",
+            "timestampSeconds": 3,
+            "evidence": "交戰期間雙方龍的身體、四肢與尾巴出現明顯變形。"
+          },
+          "opponentIdentity": {
+            "status": "fail",
+            "timestampSeconds": 0,
+            "evidence": "對手缺少胸部寶石，鬃毛與尾巴缺乏綠色點綴，尾巴形狀完全錯誤。"
+          }
+        },
+        "overall": "fail",
+        "refinement": "雙方龍的設計均未能精確還原，皆缺少關鍵的胸部寶石，且尾巴與鬃毛細節錯誤。動態交戰時出現明顯的形體變形，儘管接觸動作與音效符合要求，整體視覺仍不合格。"
+      },
+      "visualCrossCheck": null,
+      "startedAt": "2026-09-06T01:59:35.870Z",
+      "providerReturnedAt": "2026-09-06T02:00:45.530Z",
+      "finishedAt": "2026-09-06T02:00:53.138Z"
+    },
+    {
+      "attempt": 9,
+      "state": "provider-rejected",
+      "providerStatus": 400,
+      "providerMessage": "400 Image-to-video does not support more than 2 images.",
+      "startedAt": "2026-09-06T02:05:25.363Z",
+      "providerReturnedAt": "2026-09-06T02:05:33.620Z"
+    }
+  ],
+  "refinement": "Animate a precomposed scene that preserves both original designs; previous separate-subject generation simplified armor, mane and tail. Keep canonical identity checks unchanged.",
+  "automaticReview": {
+    "checks": {
+      "head": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "頭角與鬃毛特徵與參考圖相符。"
+      },
+      "body": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "胸前綠色寶石與盔甲紋理相符。"
+      },
+      "limbs": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "四肢數量與比例正確。"
+      },
+      "mouth": {
+        "status": "pass",
+        "timestampSeconds": 4,
+        "evidence": "4秒處有明顯的張嘴與咬合動作。"
+      },
+      "teethOrBeak": {
+        "status": "pass",
+        "timestampSeconds": 4,
+        "evidence": "咬合時可見牙齒細節。"
+      },
+      "eyes": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "眼睛發光特徵相符。"
+      },
+      "clawsOrHooves": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "爪子形態與原設一致。"
+      },
+      "tail": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "尾巴從原設的捲曲狀變為向後直伸，拓撲結構完全錯誤。"
+      },
+      "identity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "尾巴結構改變導致整體造型不符1:1設計要求。"
+      },
+      "contact": {
+        "status": "pass",
+        "timestampSeconds": 4,
+        "evidence": "4秒附近有實際的肢體接觸與咬合動作。"
+      },
+      "playerVoice": {
+        "status": "pass",
+        "timestampSeconds": 2,
+        "evidence": "咆哮聲的音色與參考音頻相符。"
+      },
+      "continuity": {
+        "status": "fail",
+        "timestampSeconds": 4,
+        "evidence": "4.5秒處畫面突兀跳剪回起始姿勢，缺乏連貫的恢復動作。"
+      },
+      "opponentIdentity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "對手胸前缺少綠色寶石，且盔甲細節被簡化。"
+      }
+    },
+    "overall": "fail",
+    "refinement": "修正玩家尾巴為原設的捲曲形態；修復4.5秒處的跳剪，確保攻擊後的恢復動作連貫；補齊對手胸前的綠色寶石並還原其盔甲細節。"
+  },
+  "conditioning": "omni-first-last-scene",
+  "sourceSeconds": 6,
+  "methodRevisionReason": "Animate a precomposed scene that preserves both original designs; previous separate-subject generation simplified armor, mane and tail. Keep canonical identity checks unchanged. Explicit FIRST_FRAME/LAST_FRAME role binding and image_to_video task now replace ambiguous scene prompting, following the documented controls.",
+  "releaseStatus": "pending",
+  "provider": "gemini-omni-1.1-flash",
+  "opponentId": "beast_a02",
+  "opponentReference": "public/beast-game/spirit/02.webp",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "purpose": "paired-skill-candidate",
+  "recipeVersion": "omni-6s-explicit-first-last-scene-v4",
+  "visualCrossCheck": null,
+  "previewSha256": "db7fd9208ebf63e5b23f0a4b64eb65484746e3cfbbde7550d2e68f50bb683b62",
+  "previewDurationSeconds": 6,
+  "sceneReference": ".tmp/beast-production/beast_a01/staging/paired-source-v1.png",
+  "sceneReferenceSha256": "bf7d8839430371bf7c0c336eec9b9e2cd505aea32b701ac0e6e43e77a421b063",
+  "omniInteractionId": "v1_ChdEc3VjYXB6X0RzNmd2cjBQMkk3ZS1RNBIXRHN1Y2Fwel9EczZndnIwUDJJN2UtUTQ",
+  "providerReturnedAt": "2026-09-06T02:08:25.906Z",
+  "nativeCandidateSha256": "77572ef103d0fc3840fed6f4d4c42b9dce0e6d185a3090beddc76c2d9708ff8b",
+  "actualNativeDuration": 6.016,
+  "audioOverride": {
+    "source": "public/audio/beast-voices/beast_a01.mp3",
+    "sixSecondCandidateSha256": "bab6e067f430b6b4fcb47b18762294f48bb81507b0f49bd1008d914a3343bd88",
+    "nativeAudioRemoved": true,
+    "reviewStatus": "unreviewed"
+  },
+  "preview": "reports/beast-production/previews/beast_a01-attempt-10.mp4"
+}

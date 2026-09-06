@@ -4,11 +4,157 @@
   "enabled": true,
   "clip": "../clips/charge-battle.png",
   "body": "../body.png",
-  "durationMs": 1600,
+  "durationMs": 6000,
   "spawn": {
     "from": "selfSlot",
     "to": "targetSlot"
   },
   "poolId": "beast_a19",
-  "displayName": "畢月烏"
+  "displayName": "畢月烏",
+  "production": {
+    "version": "six-second-mutual-bite-v2",
+    "registrationStatus": "registered",
+    "state": "needs-refinement",
+    "canonicalReference": "/beast-game/spirit/19.webp",
+    "referenceSha256": "03ec164087aa3905c421000a9f6b8909e6f84898e5732113302412e0e9ce21b1",
+    "jobReport": "reports/beast-production/beast_a19.json",
+    "latestAttempt": 2,
+    "voiceCandidate": ".tmp/beast-production/beast_a19/voice/player-six-second-v2.wav",
+    "voiceReview": "awaiting-audiovisual-review",
+    "voice": {
+      "source": "/audio/beast-voices/beast_a19.mp3",
+      "sourceSha256": "9e12d250729c341cb7d60bb89dfee5518caed5939d64a4a355358fa27ea1a094",
+      "candidateSha256": "9777ba4c038efe05784c5c49970a143a76a497f35474b270b608241746319a23",
+      "provenanceReport": ".tmp/beast-production/beast_a19/voice/provenance-v2.json",
+      "durationSeconds": 6,
+      "technicalCheck": "passed",
+      "reviewStatus": "awaiting-audiovisual-review"
+    },
+    "timeline": [
+      {
+        "phase": "build",
+        "start": 0,
+        "end": 1.8
+      },
+      {
+        "phase": "rush",
+        "start": 1.8,
+        "end": 2.5
+      },
+      {
+        "phase": "player-bite",
+        "start": 2.5,
+        "end": 2.8
+      },
+      {
+        "phase": "opponent-counterbite",
+        "start": 2.8,
+        "end": 3.3
+      },
+      {
+        "phase": "player-finisher",
+        "start": 3.6,
+        "end": 4.2
+      },
+      {
+        "phase": "recovery",
+        "start": 4.2,
+        "end": 6
+      }
+    ],
+    "requiredChecks": [
+      "identity",
+      "opponentIdentity",
+      "head",
+      "body",
+      "limbs",
+      "mouth",
+      "teethOrBeak",
+      "eyes",
+      "clawsOrHooves",
+      "tail",
+      "contact",
+      "reciprocalBite",
+      "playerVoice",
+      "continuity",
+      "mobilePlayback"
+    ],
+    "candidateContractVersion": "single-bite-legacy",
+    "perspective": "player",
+    "opponentVoice": false,
+    "candidate": {
+      "status": "available-for-review",
+      "attempt": 2,
+      "contractVersion": "single-bite-legacy",
+      "opponentId": "beast_a02",
+      "workspaceFile": "reports/beast-production/previews/beast_a19-attempt-02.mp4",
+      "candidateSha256": "87837cdcfaa3a115722052f2643df1a1954be7046f2e4054c0faa326e67f73b6",
+      "previewSha256": "d0ee2e645975b55cdd16f2e9ffd3f1595a0d9580bd4c279b0236e97f579f125b",
+      "durationSeconds": 6,
+      "access": "local-review-only"
+    },
+    "review": {
+      "status": "initial-visual-screening-recorded",
+      "visualReport": "reports/beast-production/cross-checks/beast_a19-attempt-02.json",
+      "modelReport": ".tmp/beast-production/beast_a19/attempt-02/model-review.json",
+      "failedParts": [
+        {
+          "part": "head",
+          "evidence": "0.75秒頭部突現白色冠羽，不符設定。"
+        },
+        {
+          "part": "body",
+          "evidence": "胸甲簡化，缺失寶石。"
+        },
+        {
+          "part": "limbs",
+          "evidence": "交戰時翅膀嚴重變形。"
+        },
+        {
+          "part": "tail",
+          "evidence": "缺失尾部鏈條裝飾。"
+        },
+        {
+          "part": "identity",
+          "evidence": "冠羽與裝甲錯誤導致特徵不符。"
+        },
+        {
+          "part": "contact",
+          "evidence": "4.0 秒時玩家喙已退離對手，主要碰撞較早發生，未符合 4 秒收尾咬擊。"
+        },
+        {
+          "part": "playerVoice",
+          "evidence": "混入非玩家低吼聲。"
+        },
+        {
+          "part": "continuity",
+          "evidence": "銀色對手在玩家攻擊前先向右突進，與玩家先發動的順序不一致。"
+        },
+        {
+          "part": "opponentIdentity",
+          "evidence": "原始銀色胸甲改為較突出的金色肩胸甲，對手尾部也變成更細的鱗片長尾。"
+        }
+      ],
+      "outstandingChecks": [
+        "identity",
+        "opponentIdentity",
+        "head",
+        "body",
+        "limbs",
+        "mouth",
+        "teethOrBeak",
+        "eyes",
+        "clawsOrHooves",
+        "tail",
+        "contact",
+        "reciprocalBite",
+        "playerVoice",
+        "continuity",
+        "mobilePlayback"
+      ],
+      "correctionsToModel": "原始亢金龍胸前沒有模型所要求的大綠寶石，不能依此新增胸珠；以實際銀色甲紋與青銀鬃尾作比對。",
+      "fullAudiovisualAcceptance": "pending"
+    },
+    "blocker": null
+  }
 }

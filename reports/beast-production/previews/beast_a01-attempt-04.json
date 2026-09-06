@@ -1,0 +1,91 @@
+{
+  "status": "rejected-not-for-battle",
+  "cardId": "beast_a01",
+  "reference": "public/beast-game/spirit/01.webp",
+  "referenceSha256": "8d31956ddb9589c3a6e39a342aa83c41f7bbaf096715361679dd3adc0e2ecc6b",
+  "assessment": {
+    "checks": {
+      "head": {
+        "status": "fail",
+        "timestampSeconds": "0-6",
+        "evidence": "Different horns, missing long whiskers, altered mane."
+      },
+      "body": {
+        "status": "fail",
+        "timestampSeconds": "0-6",
+        "evidence": "Lacks ornate chest piece and gold filigree."
+      },
+      "limbs": {
+        "status": "fail",
+        "timestampSeconds": "0-6",
+        "evidence": "Different styling, missing flowing leg hair."
+      },
+      "mouth": {
+        "status": "pass",
+        "timestampSeconds": "3-4",
+        "evidence": "Opens and closes during bite."
+      },
+      "teethOrBeak": {
+        "status": "pass",
+        "timestampSeconds": "3-4",
+        "evidence": "Teeth visible."
+      },
+      "eyes": {
+        "status": "pass",
+        "timestampSeconds": "0-6",
+        "evidence": "Green glow present."
+      },
+      "clawsOrHooves": {
+        "status": "pass",
+        "timestampSeconds": "0-6",
+        "evidence": "Claws present."
+      },
+      "tail": {
+        "status": "fail",
+        "timestampSeconds": "0-6",
+        "evidence": "Reptilian tail instead of bushy flowing tail."
+      },
+      "identity": {
+        "status": "fail",
+        "timestampSeconds": "0-6",
+        "evidence": "Generic dragon design, not the canonical ornate creature."
+      },
+      "contact": {
+        "status": "pass",
+        "timestampSeconds": "3-4",
+        "evidence": "Bites opponent."
+      },
+      "playerVoice": {
+        "status": "pass",
+        "timestampSeconds": "2-4",
+        "evidence": "Roar matches reference timbre."
+      },
+      "continuity": {
+        "status": "fail",
+        "timestampSeconds": "3-4",
+        "evidence": "Opponent pops in, neck stretches unnaturally."
+      }
+    },
+    "overall": "fail",
+    "refinement": "Fix creature design to match canonical image. Fix opponent pop-in."
+  },
+  "audio": {
+    "cardId": "beast_a01",
+    "durationSeconds": 6,
+    "source": "public/audio/beast-voices/beast_a01.mp3",
+    "sourceSha256": "bc45654192a0a799cf90ce61358458a5206b53bc02ac568703bc7332876cefb9",
+    "originalRecording": {
+      "file": "sources/dragon.mp3",
+      "title": "Designed dragon roar",
+      "author": "JoelAudio",
+      "sourceUrl": "https://freesound.org/people/JoelAudio/sounds/85568/",
+      "downloadUrl": "https://cdn.freesound.org/previews/85/85568_1206321-hq.mp3",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "kind": "sound-design"
+    },
+    "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
+    "status": "awaiting-audiovisual-review",
+    "createdAt": "2026-09-05T19:25:05.308Z"
+  }
+}

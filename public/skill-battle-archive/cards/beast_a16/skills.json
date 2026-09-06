@@ -10,10 +10,152 @@
       "enabled": true,
       "clip": "/beast-game/skill-bodies/beast_a16.webp",
       "body": "/beast-game/skill-bodies/beast_a16.webp",
-      "durationMs": 1600,
+      "durationMs": 6000,
       "spawn": {
         "from": "selfSlot",
         "to": "targetSlot"
+      },
+      "production": {
+        "version": "six-second-mutual-bite-v2",
+        "registrationStatus": "registered",
+        "state": "needs-refinement",
+        "canonicalReference": "/beast-game/spirit/16.webp",
+        "referenceSha256": "3902a23eff898f2465753b61140e971f8d24bf1b5c8395ae02b63a1bdc562ea0",
+        "jobReport": "reports/beast-production/beast_a16.json",
+        "latestAttempt": 1,
+        "voiceCandidate": ".tmp/beast-production/beast_a16/voice/player-six-second-v2.wav",
+        "voiceReview": "awaiting-audiovisual-review",
+        "voice": {
+          "source": "/audio/beast-voices/beast_a16.mp3",
+          "sourceSha256": "c113adedb8433b981aad80d3e7a7a39c91f06a667384362362f037cb1b2feb30",
+          "candidateSha256": "b45cdaeecf5dedd543b771aff785dd3866689942ebc169c787077ffd39c2d19b",
+          "provenanceReport": ".tmp/beast-production/beast_a16/voice/provenance-v2.json",
+          "durationSeconds": 6,
+          "technicalCheck": "passed",
+          "reviewStatus": "awaiting-audiovisual-review"
+        },
+        "timeline": [
+          {
+            "phase": "build",
+            "start": 0,
+            "end": 1.8
+          },
+          {
+            "phase": "rush",
+            "start": 1.8,
+            "end": 2.5
+          },
+          {
+            "phase": "player-bite",
+            "start": 2.5,
+            "end": 2.8
+          },
+          {
+            "phase": "opponent-counterbite",
+            "start": 2.8,
+            "end": 3.3
+          },
+          {
+            "phase": "player-finisher",
+            "start": 3.6,
+            "end": 4.2
+          },
+          {
+            "phase": "recovery",
+            "start": 4.2,
+            "end": 6
+          }
+        ],
+        "requiredChecks": [
+          "identity",
+          "opponentIdentity",
+          "head",
+          "body",
+          "limbs",
+          "mouth",
+          "teethOrBeak",
+          "eyes",
+          "clawsOrHooves",
+          "tail",
+          "contact",
+          "reciprocalBite",
+          "playerVoice",
+          "continuity",
+          "mobilePlayback"
+        ],
+        "candidateContractVersion": "single-bite-legacy",
+        "perspective": "player",
+        "opponentVoice": false,
+        "candidate": {
+          "status": "available-for-review",
+          "attempt": 1,
+          "contractVersion": "single-bite-legacy",
+          "opponentId": "beast_a02",
+          "workspaceFile": "reports/beast-production/previews/beast_a16-attempt-01.mp4",
+          "candidateSha256": "bceb29d9ce446587f3b9df65e02c9660810166b4e5a1e0a2ec0b173b41cb008c",
+          "previewSha256": "4cc61423195635fa82d2415496ab09c97956bb4b61939c094cba4ba3158db280",
+          "durationSeconds": 6,
+          "access": "local-review-only"
+        },
+        "review": {
+          "status": "initial-visual-screening-recorded",
+          "visualReport": "reports/beast-production/cross-checks/beast_a16-attempt-01.json",
+          "modelReport": ".tmp/beast-production/beast_a16/attempt-01/model-review.json",
+          "failedParts": [
+            {
+              "part": "head",
+              "evidence": "頭部缺乏原圖的白色毛髮與特定紋理。"
+            },
+            {
+              "part": "body",
+              "evidence": "原圖金毛、金鱗與圓形胸飾被改為雕紋甲片配短毛，胸部裝飾配置不同。"
+            },
+            {
+              "part": "limbs",
+              "evidence": "四肢紋理簡化，與原設不符。"
+            },
+            {
+              "part": "clawsOrHooves",
+              "evidence": "爪子細節被簡化。"
+            },
+            {
+              "part": "tail",
+              "evidence": "原圖寬厚火焰紋金色捲尾變成普通較細蓬毛尾。"
+            },
+            {
+              "part": "identity",
+              "evidence": "主角遺失白毛、捲尾與裝甲細節。"
+            },
+            {
+              "part": "continuity",
+              "evidence": "咬合後退回原位的動作僵硬不自然。"
+            },
+            {
+              "part": "opponentIdentity",
+              "evidence": "對手改為銀色尖刺蜥龍，原有青銀長鬃與流線尾部缺失。"
+            }
+          ],
+          "outstandingChecks": [
+            "identity",
+            "opponentIdentity",
+            "head",
+            "body",
+            "limbs",
+            "mouth",
+            "teethOrBeak",
+            "eyes",
+            "clawsOrHooves",
+            "tail",
+            "contact",
+            "reciprocalBite",
+            "playerVoice",
+            "continuity",
+            "mobilePlayback"
+          ],
+          "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。",
+          "fullAudiovisualAcceptance": "pending"
+        },
+        "blocker": null
       }
     },
     {

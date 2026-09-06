@@ -1,0 +1,4548 @@
+{
+  "startedAt": "2026-09-06T02:41:05.991Z",
+  "completedAt": "2026-09-06T02:41:11.144Z",
+  "count": 60,
+  "technicalPassed": 60,
+  "audiovisualApproved": 0,
+  "rows": [
+    {
+      "cardId": "beast_a01",
+      "name": "角木蛟",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.27,
+      "source": "public/audio/beast-voices/beast_a01.mp3",
+      "sourceSha256": "bc45654192a0a799cf90ce61358458a5206b53bc02ac568703bc7332876cefb9",
+      "outputSha256": "8d2a6ed735ca5205b243a83efe83eef1dd31e806015aba714088033ce1d11f87",
+      "originalRecording": {
+        "file": "sources/dragon.mp3",
+        "title": "Designed dragon roar",
+        "author": "JoelAudio",
+        "sourceUrl": "https://freesound.org/people/JoelAudio/sounds/85568/",
+        "downloadUrl": "https://cdn.freesound.org/previews/85/85568_1206321-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "sound-design"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:06.086Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y01",
+      "name": "角木蛟・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.43,
+      "source": "public/audio/beast-voices/beast_y01.mp3",
+      "sourceSha256": "e3fbd8650b7eb3d6a427c0d89631733ada9e99b3d620e352fad21373b17dbee1",
+      "outputSha256": "4ab99177d971d8782baba102bcc3209178aab72005787e181d8d63a9cc4d4398",
+      "originalRecording": {
+        "file": "sources/dragon.mp3",
+        "title": "Designed dragon roar",
+        "author": "JoelAudio",
+        "sourceUrl": "https://freesound.org/people/JoelAudio/sounds/85568/",
+        "downloadUrl": "https://cdn.freesound.org/previews/85/85568_1206321-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "sound-design"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:06.167Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a02",
+      "name": "亢金龍",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.45,
+      "source": "public/audio/beast-voices/beast_a02.mp3",
+      "sourceSha256": "d86a1d386dbb4111af23c4ececab9361e48097c658b7e67fe0247d109169d207",
+      "outputSha256": "656ea6ea01a29ee612c986d7823ccd98301f0a29a887ba7f05ca54d81e6e20da",
+      "originalRecording": {
+        "file": "sources/dragon.mp3",
+        "title": "Designed dragon roar",
+        "author": "JoelAudio",
+        "sourceUrl": "https://freesound.org/people/JoelAudio/sounds/85568/",
+        "downloadUrl": "https://cdn.freesound.org/previews/85/85568_1206321-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "sound-design"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:06.248Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y02",
+      "name": "亢金龍・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.53,
+      "source": "public/audio/beast-voices/beast_y02.mp3",
+      "sourceSha256": "e21ca77a91f320e7416198a4f278cea67de7e8e91f1b7885301a077d9395f469",
+      "outputSha256": "8fefe286f04eff250acba069caafbc232aad2a1799b4748a446fff8355257ca5",
+      "originalRecording": {
+        "file": "sources/dragon.mp3",
+        "title": "Designed dragon roar",
+        "author": "JoelAudio",
+        "sourceUrl": "https://freesound.org/people/JoelAudio/sounds/85568/",
+        "downloadUrl": "https://cdn.freesound.org/previews/85/85568_1206321-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "sound-design"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:06.336Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a03",
+      "name": "氐土貉",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -24.76,
+      "source": "public/audio/beast-voices/beast_a03.mp3",
+      "sourceSha256": "8c8ed8b747caaeb35c104d7054be09c5418ed3d3127c3cd8f2480c50d7b7d480",
+      "outputSha256": "6f64a5dc94456c704ac8e499c111ca3f1dea0a454f10895a053661fe57559b29",
+      "originalRecording": {
+        "file": "sources/17851672.ogg",
+        "title": "Barking of a dog.ogg",
+        "author": "Amada44",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Barking_of_a_dog.ogg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:06.423Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y03",
+      "name": "氐土貉・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -24.05,
+      "source": "public/audio/beast-voices/beast_y03.mp3",
+      "sourceSha256": "e3ea1ea22a3158bf01940fa2980fb2544673aa57853a3d469bae328494b38e04",
+      "outputSha256": "9ff54ad2892f909b38f5da51e8c4b451b7ce879f0eb0124a339332e58440e2ad",
+      "originalRecording": {
+        "file": "sources/17851672.ogg",
+        "title": "Barking of a dog.ogg",
+        "author": "Amada44",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Barking_of_a_dog.ogg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:06.507Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a04",
+      "name": "房日兔",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -22.8,
+      "source": "public/audio/beast-voices/beast_a04.mp3",
+      "sourceSha256": "65a746c75ff49e4c018f070aafb4e7ee59d1aaedd0b266afa184d14a42ae88ba",
+      "outputSha256": "7f22b0be5e7ca2a199e6ea94d7c466a2b91802671b7021bce1175595079d01d7",
+      "originalRecording": {
+        "file": "sources/rabbit.mp3",
+        "title": "Rabbit Squeaking 1",
+        "author": "kessir",
+        "sourceUrl": "https://freesound.org/people/kessir/sounds/385850/",
+        "downloadUrl": "https://cdn.freesound.org/previews/385/385850_4521595-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:06.585Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y04",
+      "name": "房日兔・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -23.23,
+      "source": "public/audio/beast-voices/beast_y04.mp3",
+      "sourceSha256": "d2a96e051cc80316fdc6f9dbfe3bdb467480c72d8bc686b8ccca524c9b179aff",
+      "outputSha256": "b7b60c25572d80f3b6ccdb529b0fdd5c294752ff7b4aacef4ad67c406f597fd4",
+      "originalRecording": {
+        "file": "sources/rabbit.mp3",
+        "title": "Rabbit Squeaking 1",
+        "author": "kessir",
+        "sourceUrl": "https://freesound.org/people/kessir/sounds/385850/",
+        "downloadUrl": "https://cdn.freesound.org/previews/385/385850_4521595-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:06.669Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a05",
+      "name": "心月狐",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -24.85,
+      "source": "public/audio/beast-voices/beast_a05.mp3",
+      "sourceSha256": "152f240c070f981be347152a59a0fb702d4317b729150f37162ada723dfc481b",
+      "outputSha256": "47c1e386343761a06d13847a308df995fa4c00a0e08fa9925f7018d335cc5d87",
+      "originalRecording": {
+        "file": "sources/fox.mp3",
+        "title": "Fox Barking",
+        "author": "gadzooks",
+        "sourceUrl": "https://freesound.org/people/gadzooks/sounds/397655/",
+        "downloadUrl": "https://cdn.freesound.org/previews/397/397655_44431-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:06.745Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y05",
+      "name": "心月狐・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -25.12,
+      "source": "public/audio/beast-voices/beast_y05.mp3",
+      "sourceSha256": "bdbba9e49df82f5463743d4f279bf5c115da79831c59d048c6995515f7daf902",
+      "outputSha256": "94c8560f0cdf6a5499a2fa6747d6a3260674dd6d4393340f05ecd7783756ca07",
+      "originalRecording": {
+        "file": "sources/fox.mp3",
+        "title": "Fox Barking",
+        "author": "gadzooks",
+        "sourceUrl": "https://freesound.org/people/gadzooks/sounds/397655/",
+        "downloadUrl": "https://cdn.freesound.org/previews/397/397655_44431-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:06.821Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a06",
+      "name": "尾火虎",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18.13,
+      "source": "public/audio/beast-voices/beast_a06.mp3",
+      "sourceSha256": "021ab567e4dc3cfa4a8ea1cb297bfe0766b5a0ce05dd8e35a2d31661a9e8cdfd",
+      "outputSha256": "fb813434bc9941e84f8acb6b5aa0da234dc86606d2af84266a1572d31994683a",
+      "originalRecording": {
+        "file": "sources/tiger.mp3",
+        "title": "Tiger Roar",
+        "author": "lauramellis",
+        "sourceUrl": "https://freesound.org/people/lauramellis/sounds/263115/",
+        "downloadUrl": "https://cdn.freesound.org/previews/263/263115_672090-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:06.906Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y06",
+      "name": "尾火虎・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18.87,
+      "source": "public/audio/beast-voices/beast_y06.mp3",
+      "sourceSha256": "20323cb53b2fda79100b4f35d5e5930375e48a4f2316dcda904117340736c4a1",
+      "outputSha256": "23143b56ec170ab7f35a5defe136319f4f02418a4ac2d8f70d07e4792e60286c",
+      "originalRecording": {
+        "file": "sources/tiger.mp3",
+        "title": "Tiger Roar",
+        "author": "lauramellis",
+        "sourceUrl": "https://freesound.org/people/lauramellis/sounds/263115/",
+        "downloadUrl": "https://cdn.freesound.org/previews/263/263115_672090-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:07.001Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a07",
+      "name": "箕水豹",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -22.45,
+      "source": "public/audio/beast-voices/beast_a07.mp3",
+      "sourceSha256": "479db62a8c8864da1b11527f605efd333939f77128e5dddd7757b90b8dc44ee7",
+      "outputSha256": "0f69b7c6c0713ed2929e5c2c50159d1099d8f163b3b994a18731ea1757529bb1",
+      "originalRecording": {
+        "file": "sources/leopard.mp3",
+        "title": "Leopard's Cough Isolated",
+        "author": "drobiumdesign",
+        "sourceUrl": "https://freesound.org/people/drobiumdesign/sounds/346402/",
+        "downloadUrl": "https://cdn.freesound.org/previews/346/346402_5481596-hq.mp3",
+        "license": "CC BY 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by/3.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:07.118Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y07",
+      "name": "箕水豹・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -23.09,
+      "source": "public/audio/beast-voices/beast_y07.mp3",
+      "sourceSha256": "fe22f023e5ceae8647d0926ac5569d2df66804e7c7aefd7fc431cfabd42f8b92",
+      "outputSha256": "4a433fc11f42ae45f47029d7f43db6c49892a94a50d30f718f65d398a36344f7",
+      "originalRecording": {
+        "file": "sources/leopard.mp3",
+        "title": "Leopard's Cough Isolated",
+        "author": "drobiumdesign",
+        "sourceUrl": "https://freesound.org/people/drobiumdesign/sounds/346402/",
+        "downloadUrl": "https://cdn.freesound.org/previews/346/346402_5481596-hq.mp3",
+        "license": "CC BY 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by/3.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:07.198Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a08",
+      "name": "斗木獬",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.42,
+      "source": "public/audio/beast-voices/beast_a08.mp3",
+      "sourceSha256": "e028f3df565b81c428b314383af11698d54daec3a57a6e8c2d6f263e9e1e1995",
+      "outputSha256": "54616545691e97b1b8e4be960532687983cb1ca369ff43ab520a96014ff36169",
+      "originalRecording": {
+        "file": "sources/2185049.ogg",
+        "title": "Mudchute cow 1.ogg",
+        "author": "Secretlondon",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mudchute_cow_1.ogg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:07.283Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y08",
+      "name": "斗木獬・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18.93,
+      "source": "public/audio/beast-voices/beast_y08.mp3",
+      "sourceSha256": "3b9c5a21a09adc3be78a5eca3fb114660ff24c799edf0dc978b1d1563e851430",
+      "outputSha256": "e622646fffeccb6bde472d3d528248b77d0cb9c0fc57f6717f65fad7b94a5410",
+      "originalRecording": {
+        "file": "sources/2185049.ogg",
+        "title": "Mudchute cow 1.ogg",
+        "author": "Secretlondon",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mudchute_cow_1.ogg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:07.366Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a09",
+      "name": "牛金牛",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -20.06,
+      "source": "public/audio/beast-voices/beast_a09.mp3",
+      "sourceSha256": "e4181891c53946fa4a397bc51e066916af8f686eb533a5e353b3e3175b0bc118",
+      "outputSha256": "5f647a38e083ea37b6a1e095b4093a591445fdbebace8a065ee515e74c6a2abb",
+      "originalRecording": {
+        "file": "sources/2185049.ogg",
+        "title": "Mudchute cow 1.ogg",
+        "author": "Secretlondon",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mudchute_cow_1.ogg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:07.445Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y09",
+      "name": "牛金牛・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.56,
+      "source": "public/audio/beast-voices/beast_y09.mp3",
+      "sourceSha256": "5e32f1fd26d715c459d2834c04a5d57ce09b30451e1159d7586a903d9a519282",
+      "outputSha256": "3db9b4ed3041385c4063979990ea227d4968753499674a16c27c5b35c1a807eb",
+      "originalRecording": {
+        "file": "sources/2185049.ogg",
+        "title": "Mudchute cow 1.ogg",
+        "author": "Secretlondon",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mudchute_cow_1.ogg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:07.529Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a10",
+      "name": "女土蝠",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -23.63,
+      "source": "public/audio/beast-voices/beast_a10.mp3",
+      "sourceSha256": "c649a3ac1628503ec61d06bf69e28a848e6190ac109ec8d12fcab85c40a2112b",
+      "outputSha256": "04be9819fff8b4ec5c344d71ecf4dec25b2024d0811178deaa006dae58382b2a",
+      "originalRecording": {
+        "file": "sources/bat.mp3",
+        "title": "Cartoon Bat / Mouse Squeak",
+        "author": "Breviceps",
+        "sourceUrl": "https://freesound.org/people/Breviceps/sounds/445958/",
+        "downloadUrl": "https://cdn.freesound.org/previews/445/445958_9159316-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "sound-design"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:07.618Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y10",
+      "name": "女土蝠・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -22.32,
+      "source": "public/audio/beast-voices/beast_y10.mp3",
+      "sourceSha256": "016c609bc76ec0b5c0613fcc0ac6c18abe5a8b1ff91293d9bb7051fc53d968be",
+      "outputSha256": "786b32e03e096d7d4b498fe8a50b5ef442329f903a851ad2eee66148c965d7fe",
+      "originalRecording": {
+        "file": "sources/bat.mp3",
+        "title": "Cartoon Bat / Mouse Squeak",
+        "author": "Breviceps",
+        "sourceUrl": "https://freesound.org/people/Breviceps/sounds/445958/",
+        "downloadUrl": "https://cdn.freesound.org/previews/445/445958_9159316-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "sound-design"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:07.701Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a11",
+      "name": "虛日鼠",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18.76,
+      "source": "public/audio/beast-voices/beast_a11.mp3",
+      "sourceSha256": "aa697aa6294839e62f985ee04832f3896b06999336688018fdca3ad97c930f5b",
+      "outputSha256": "2b3f867ee7e4be5a4aede219593e8bc83c863a976de7820e3f2a34ca9e132503",
+      "originalRecording": {
+        "file": "sources/mouse.mp3",
+        "title": "Mouse (human imitation)",
+        "author": "AntumDeluge",
+        "sourceUrl": "https://freesound.org/people/AntumDeluge/sounds/188043/",
+        "downloadUrl": "https://cdn.freesound.org/previews/188/188043_3403708-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "foley"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:07.783Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y11",
+      "name": "虛日鼠・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18.98,
+      "source": "public/audio/beast-voices/beast_y11.mp3",
+      "sourceSha256": "a3933514762224e40212b4bff8e413d5c58232b7f3efb92e714ec1c239d5c0ed",
+      "outputSha256": "f5744e71fba6f0a9358815f8e7563c44e936abdd7e67d0e1a3dbb72837bbaaff",
+      "originalRecording": {
+        "file": "sources/mouse.mp3",
+        "title": "Mouse (human imitation)",
+        "author": "AntumDeluge",
+        "sourceUrl": "https://freesound.org/people/AntumDeluge/sounds/188043/",
+        "downloadUrl": "https://cdn.freesound.org/previews/188/188043_3403708-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "foley"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:07.865Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a12",
+      "name": "危月燕",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -22,
+      "source": "public/audio/beast-voices/beast_a12.mp3",
+      "sourceSha256": "543ec288dde6fabba68e4a6925fa3ea14871c1460c12227c32c33c9d8cddc131",
+      "outputSha256": "ed278da7e7e9f403ad4823dbd57015160b5d944f6a3477a512e344e791618818",
+      "originalRecording": {
+        "file": "sources/23929087.ogg",
+        "title": "Hirundo rustica - Barn Swallow - XC83449.ogg",
+        "author": "Jonathon Jongsma",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hirundo_rustica_-_Barn_Swallow_-_XC83449.ogg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:07.947Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y12",
+      "name": "危月燕・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -23.05,
+      "source": "public/audio/beast-voices/beast_y12.mp3",
+      "sourceSha256": "83af1baa149fab4122964e64f5b5036957b2080f337a4455a091a88ceeb2a421",
+      "outputSha256": "83ed9d8bb15670d6ab9af40037443ccf38b1c8750c07478e8fb8c9641c29da59",
+      "originalRecording": {
+        "file": "sources/23929087.ogg",
+        "title": "Hirundo rustica - Barn Swallow - XC83449.ogg",
+        "author": "Jonathon Jongsma",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hirundo_rustica_-_Barn_Swallow_-_XC83449.ogg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:08.026Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a13",
+      "name": "室火豬",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -24,
+      "source": "public/audio/beast-voices/beast_a13.mp3",
+      "sourceSha256": "3a55402a0fc37ff58bd4f6b22be96fa755027a89ab4dd7928d1ad68ff2360721",
+      "outputSha256": "80160fc5352383fc329d03f7088e739bc39163da3e5d07b0676c150e5db1b3da",
+      "originalRecording": {
+        "file": "sources/2185056.ogg",
+        "title": "Mudchute pig 1.ogg",
+        "author": "Secretlondon",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mudchute_pig_1.ogg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:08.103Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y13",
+      "name": "室火豬・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -23.81,
+      "source": "public/audio/beast-voices/beast_y13.mp3",
+      "sourceSha256": "d3a7b43c111daa1cb27a3f23fe26946664e6301fef0d46336fad868c71684715",
+      "outputSha256": "0e6805f842a48eead2da484d8dbace52251cf0ae678f4516f38a21537839c45a",
+      "originalRecording": {
+        "file": "sources/2185056.ogg",
+        "title": "Mudchute pig 1.ogg",
+        "author": "Secretlondon",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mudchute_pig_1.ogg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:08.183Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a14",
+      "name": "壁水貐",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.55,
+      "source": "public/audio/beast-voices/beast_a14.mp3",
+      "sourceSha256": "d9da928d37e5b2e964bbd47aba45cb71ed02b4eaa12b50ee6c068c1b6ec792ca",
+      "outputSha256": "6e968fcfe0c48765c405fc0dc0bbb956713f617d118f9495694fcca11f14b2db",
+      "originalRecording": {
+        "file": "sources/dragon.mp3",
+        "title": "Designed dragon roar",
+        "author": "JoelAudio",
+        "sourceUrl": "https://freesound.org/people/JoelAudio/sounds/85568/",
+        "downloadUrl": "https://cdn.freesound.org/previews/85/85568_1206321-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "sound-design"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:08.261Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y14",
+      "name": "壁水貐・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.8,
+      "source": "public/audio/beast-voices/beast_y14.mp3",
+      "sourceSha256": "6133d41553e30dbb3d813fa5057e819d1c1632cc2ca67deae36164a305c75910",
+      "outputSha256": "81a131ff321bbb7722129971704a8f490e1ba01b0445451bfcec626b5c8f7b79",
+      "originalRecording": {
+        "file": "sources/dragon.mp3",
+        "title": "Designed dragon roar",
+        "author": "JoelAudio",
+        "sourceUrl": "https://freesound.org/people/JoelAudio/sounds/85568/",
+        "downloadUrl": "https://cdn.freesound.org/previews/85/85568_1206321-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "sound-design"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:08.345Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a15",
+      "name": "奎木狼",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18.07,
+      "source": "public/audio/beast-voices/beast_a15.mp3",
+      "sourceSha256": "b0c6aa96f7b790f37b1d9b726113ccc0c962e740c0be7b001793041ef73485be",
+      "outputSha256": "674bb653410d3fb566349f76ca4d7018e529a0ce944bb358b5b6f548dd9b6a9a",
+      "originalRecording": {
+        "file": "sources/206870.ogg",
+        "title": "Wolf howls.ogg",
+        "author": "U.S. Fish and Wildlife Service",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wolf_howls.ogg",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:08.437Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y15",
+      "name": "奎木狼・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -17.36,
+      "source": "public/audio/beast-voices/beast_y15.mp3",
+      "sourceSha256": "3a9744e9a9e74482e81da25f7fe7fe64a51838398cd973c43686d96f8aa1caff",
+      "outputSha256": "d53d2bf384b21e492d87e3b2c95a1703e7d0ec7d6830c7d48c56cbc31ab3edea",
+      "originalRecording": {
+        "file": "sources/206870.ogg",
+        "title": "Wolf howls.ogg",
+        "author": "U.S. Fish and Wildlife Service",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wolf_howls.ogg",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:08.527Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a16",
+      "name": "婁金狗",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -24.84,
+      "source": "public/audio/beast-voices/beast_a16.mp3",
+      "sourceSha256": "c113adedb8433b981aad80d3e7a7a39c91f06a667384362362f037cb1b2feb30",
+      "outputSha256": "b45cdaeecf5dedd543b771aff785dd3866689942ebc169c787077ffd39c2d19b",
+      "originalRecording": {
+        "file": "sources/17851672.ogg",
+        "title": "Barking of a dog.ogg",
+        "author": "Amada44",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Barking_of_a_dog.ogg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:08.613Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y16",
+      "name": "婁金狗・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -23.96,
+      "source": "public/audio/beast-voices/beast_y16.mp3",
+      "sourceSha256": "b34fe7a9c7991b54679fc3dad40e77bb4c29ef51236b70712a30b5473cd36b3e",
+      "outputSha256": "f868e218d5b6ac544bbe5dca3bdac23fc390d883be3d9bf049758df2d74a0d05",
+      "originalRecording": {
+        "file": "sources/17851672.ogg",
+        "title": "Barking of a dog.ogg",
+        "author": "Amada44",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Barking_of_a_dog.ogg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:08.695Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a17",
+      "name": "胃土雉",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.62,
+      "source": "public/audio/beast-voices/beast_a17.mp3",
+      "sourceSha256": "0fab60fa6fc4c7550608c2a431f54bcd482e771398c642061963992e71729c1e",
+      "outputSha256": "e6c37fc19030d9559abb305319e803415b78166d5410ff7e812e0dcac077aba2",
+      "originalRecording": {
+        "file": "sources/pheasant.mp3",
+        "title": "Pheasant Phasianus colchicus",
+        "author": "klankbeeld",
+        "sourceUrl": "https://freesound.org/people/klankbeeld/sounds/197433/",
+        "downloadUrl": "https://cdn.freesound.org/previews/197/197433_1648170-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:08.773Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y17",
+      "name": "胃土雉・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -20.64,
+      "source": "public/audio/beast-voices/beast_y17.mp3",
+      "sourceSha256": "076b702a424709fba97a241dde01e7d19594f2a06e9c4475a2ee2748b936071d",
+      "outputSha256": "f4d6a0cdc8ea62cfde3d27fe9256f29dffcdab508b16a3269067b3a5054a5a5a",
+      "originalRecording": {
+        "file": "sources/pheasant.mp3",
+        "title": "Pheasant Phasianus colchicus",
+        "author": "klankbeeld",
+        "sourceUrl": "https://freesound.org/people/klankbeeld/sounds/197433/",
+        "downloadUrl": "https://cdn.freesound.org/previews/197/197433_1648170-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:08.852Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a18",
+      "name": "昴日雞",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18.44,
+      "source": "public/audio/beast-voices/beast_a18.mp3",
+      "sourceSha256": "9d323a6b983fa57a3b2896e70e950b89c933e7a4f6346405e811f6d1b2a1e295",
+      "outputSha256": "34b46fa0713240d76f72413add801e4f0f3d741fb04d90236d66d7c692ff7413",
+      "originalRecording": {
+        "file": "sources/rooster.mp3",
+        "title": "Rooster crow",
+        "author": "arelitron",
+        "sourceUrl": "https://freesound.org/people/arelitron/sounds/582624/",
+        "downloadUrl": "https://cdn.freesound.org/previews/582/582624_8006819-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:08.936Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y18",
+      "name": "昴日雞・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.26,
+      "source": "public/audio/beast-voices/beast_y18.mp3",
+      "sourceSha256": "d9d763fad69d6767f845aa078d76ececa5dbcee9ac21a339002dd9b794fa65e7",
+      "outputSha256": "699fd399adf1fb64cb338548d843e18bd54ec14c29f4a97bb5fe5c9cc98250ee",
+      "originalRecording": {
+        "file": "sources/rooster.mp3",
+        "title": "Rooster crow",
+        "author": "arelitron",
+        "sourceUrl": "https://freesound.org/people/arelitron/sounds/582624/",
+        "downloadUrl": "https://cdn.freesound.org/previews/582/582624_8006819-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:09.023Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a19",
+      "name": "畢月烏",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18.57,
+      "source": "public/audio/beast-voices/beast_a19.mp3",
+      "sourceSha256": "9e12d250729c341cb7d60bb89dfee5518caed5939d64a4a355358fa27ea1a094",
+      "outputSha256": "9777ba4c038efe05784c5c49970a143a76a497f35474b270b608241746319a23",
+      "originalRecording": {
+        "file": "sources/3029376.ogg",
+        "title": "Corvus brachyrhynchos call.ogg",
+        "author": "United States Geological Survey",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Corvus_brachyrhynchos_call.ogg",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:09.107Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y19",
+      "name": "畢月烏・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -20.66,
+      "source": "public/audio/beast-voices/beast_y19.mp3",
+      "sourceSha256": "eeabb7a6c80687e56133b45a69291a78031059b1691e001ed36407747ad0d97e",
+      "outputSha256": "fd0c40054581921ee26d0a041c8bb548f84898a447dc27d8394f790f2fdbdf6e",
+      "originalRecording": {
+        "file": "sources/3029376.ogg",
+        "title": "Corvus brachyrhynchos call.ogg",
+        "author": "United States Geological Survey",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Corvus_brachyrhynchos_call.ogg",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:09.190Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a20",
+      "name": "觜火猴",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18.2,
+      "source": "public/audio/beast-voices/beast_a20.mp3",
+      "sourceSha256": "d6550f74cd1b0078d628cfd4dc6199450ad2c777bb58d107e1a755b8cd2f59ba",
+      "outputSha256": "14477ec807404c66b9c65b847b281491b7c03a412dfa81f01305a3840ef0c2b3",
+      "originalRecording": {
+        "file": "sources/84506544.wav",
+        "title": "Brown woolly monkey alarm call.wav",
+        "author": "Kai Medina (Mk170101)",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Brown_woolly_monkey_alarm_call.wav",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:09.276Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y20",
+      "name": "觜火猴・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.61,
+      "source": "public/audio/beast-voices/beast_y20.mp3",
+      "sourceSha256": "33051bd3ee06b2fb7205afcf6cc04b244aa5b3bad111e77f7b72edeee5c00d73",
+      "outputSha256": "3f0b5ae330a36667d688bf76714817a2a4428dd81f26eb93badde69f509e5e5c",
+      "originalRecording": {
+        "file": "sources/84506544.wav",
+        "title": "Brown woolly monkey alarm call.wav",
+        "author": "Kai Medina (Mk170101)",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Brown_woolly_monkey_alarm_call.wav",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:09.353Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a21",
+      "name": "參水猿",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -20.34,
+      "source": "public/audio/beast-voices/beast_a21.mp3",
+      "sourceSha256": "6e088d16972c3c4e50604bc545f8b48c0860953f971b49767232722787425165",
+      "outputSha256": "c7ca27c2072b914d71706dd9d3b70ee6f64db971e9b15489dbfb386d2934899a",
+      "originalRecording": {
+        "file": "sources/ape.mp3",
+        "title": "Chimpanzee Noisy Before Demo",
+        "author": "craigsmith",
+        "sourceUrl": "https://freesound.org/people/craigsmith/sounds/678059/",
+        "downloadUrl": "https://cdn.freesound.org/previews/678/678059_2524442-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:09.444Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y21",
+      "name": "參水猿・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -23.14,
+      "source": "public/audio/beast-voices/beast_y21.mp3",
+      "sourceSha256": "2e68f30ff2770211f419ecda4d48a14d5458c4189ce1e6d56d0f291e8ea0eb03",
+      "outputSha256": "fa9ccc43164b576d083d8f68a2d8a24100c95bbf03c076e6179affa30c0a467f",
+      "originalRecording": {
+        "file": "sources/ape.mp3",
+        "title": "Chimpanzee Noisy Before Demo",
+        "author": "craigsmith",
+        "sourceUrl": "https://freesound.org/people/craigsmith/sounds/678059/",
+        "downloadUrl": "https://cdn.freesound.org/previews/678/678059_2524442-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:09.533Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a22",
+      "name": "井木犴",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -17.82,
+      "source": "public/audio/beast-voices/beast_a22.mp3",
+      "sourceSha256": "17dbcda4f0393ead93f8913bf7d669e7348271e3b388d20dfcf8326dd2443dea",
+      "outputSha256": "483cdb17835aec899abfdc59314d2fa5bb6d5d821aba91fe9f895847fdb685fb",
+      "originalRecording": {
+        "file": "sources/deer.mp3",
+        "title": "Red Deer Stag Bellowing",
+        "author": "naturenotesuk",
+        "sourceUrl": "https://freesound.org/people/naturenotesuk/sounds/757773/",
+        "downloadUrl": "https://cdn.freesound.org/previews/757/757773_7455632-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:09.618Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y22",
+      "name": "井木犴・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -17.93,
+      "source": "public/audio/beast-voices/beast_y22.mp3",
+      "sourceSha256": "5568aa814274e81fa24eb53806ec32628e2311e88d28458aafabd3731e2d61f5",
+      "outputSha256": "6e9c445f0966b9a02827d55c16dfe155e4854a9489100990726c7559c232f906",
+      "originalRecording": {
+        "file": "sources/deer.mp3",
+        "title": "Red Deer Stag Bellowing",
+        "author": "naturenotesuk",
+        "sourceUrl": "https://freesound.org/people/naturenotesuk/sounds/757773/",
+        "downloadUrl": "https://cdn.freesound.org/previews/757/757773_7455632-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:09.703Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a23",
+      "name": "鬼金羊",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18.45,
+      "source": "public/audio/beast-voices/beast_a23.mp3",
+      "sourceSha256": "3559fafa924d390dd7023863bccd826af4db1332151f4d3a33d6cead7b766df7",
+      "outputSha256": "d840b85ce87485104efa2b2682a006e0b5cdd213f730482568e61bf71d3e3f2b",
+      "originalRecording": {
+        "file": "sources/sheep.mp3",
+        "title": "Loud Sheep Bah",
+        "author": "Breviceps",
+        "sourceUrl": "https://freesound.org/people/Breviceps/sounds/644830/",
+        "downloadUrl": "https://cdn.freesound.org/previews/644/644830_9159316-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:09.785Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y23",
+      "name": "鬼金羊・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.64,
+      "source": "public/audio/beast-voices/beast_y23.mp3",
+      "sourceSha256": "ee780767149fe2bbf1e627eecc47ae99dd396ebcd88b4c1501bd0994471f729b",
+      "outputSha256": "1bf0b01101c9c8eec5b4a9b652144f0691218af5e0d3aad5bb88b33ae4a99caa",
+      "originalRecording": {
+        "file": "sources/sheep.mp3",
+        "title": "Loud Sheep Bah",
+        "author": "Breviceps",
+        "sourceUrl": "https://freesound.org/people/Breviceps/sounds/644830/",
+        "downloadUrl": "https://cdn.freesound.org/previews/644/644830_9159316-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:09.880Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a24",
+      "name": "柳土獐",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18.64,
+      "source": "public/audio/beast-voices/beast_a24.mp3",
+      "sourceSha256": "9637b3ca8934b9faac9131852e2e361508012594fe5ea7b6910f367a6c0b8aee",
+      "outputSha256": "1109e806369c94a7c34fe33b8d691c573d53f0ffe2027ef2bfaf2704baaada84",
+      "originalRecording": {
+        "file": "sources/deer.mp3",
+        "title": "Red Deer Stag Bellowing",
+        "author": "naturenotesuk",
+        "sourceUrl": "https://freesound.org/people/naturenotesuk/sounds/757773/",
+        "downloadUrl": "https://cdn.freesound.org/previews/757/757773_7455632-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:09.965Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y24",
+      "name": "柳土獐・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.32,
+      "source": "public/audio/beast-voices/beast_y24.mp3",
+      "sourceSha256": "c98c63950b3b9d6522b6570d9b421328961ab673a38844887743701874cf6f80",
+      "outputSha256": "fd3f7fb72b53d5130b4db97b3d8a6abc205411b1be814a03a8763edbfb2fe665",
+      "originalRecording": {
+        "file": "sources/deer.mp3",
+        "title": "Red Deer Stag Bellowing",
+        "author": "naturenotesuk",
+        "sourceUrl": "https://freesound.org/people/naturenotesuk/sounds/757773/",
+        "downloadUrl": "https://cdn.freesound.org/previews/757/757773_7455632-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:10.047Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a25",
+      "name": "星日馬",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -20.5,
+      "source": "public/audio/beast-voices/beast_a25.mp3",
+      "sourceSha256": "98ded6ff7d8915ee95d3ee42d84f1269ba60ca05b72f96990c361da95cc4bc89",
+      "outputSha256": "c5849ac1ac009e369f04a9fa8541e1739471d7ddb4f134459621bc6c35bc0235",
+      "originalRecording": {
+        "file": "sources/horse.mp3",
+        "title": "Horse Neigh 2",
+        "author": "GoodListener",
+        "sourceUrl": "https://freesound.org/people/GoodListener/sounds/322450/",
+        "downloadUrl": "https://cdn.freesound.org/previews/322/322450_5033007-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:10.129Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y25",
+      "name": "星日馬・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -20.6,
+      "source": "public/audio/beast-voices/beast_y25.mp3",
+      "sourceSha256": "8bb2a2e7757091847a2d426ad81c5585b1a7bb547c0e33f196c0515c601fbd12",
+      "outputSha256": "59646c0fb46c4b0833d127cd1fb63a0495d47f645821218d77a044d9d24e34fd",
+      "originalRecording": {
+        "file": "sources/horse.mp3",
+        "title": "Horse Neigh 2",
+        "author": "GoodListener",
+        "sourceUrl": "https://freesound.org/people/GoodListener/sounds/322450/",
+        "downloadUrl": "https://cdn.freesound.org/previews/322/322450_5033007-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:10.227Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a26",
+      "name": "張月鹿",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -17.75,
+      "source": "public/audio/beast-voices/beast_a26.mp3",
+      "sourceSha256": "48dd42c139c0ae8b89bda918519b9fc277add725c765a7dde5c73f39135e509e",
+      "outputSha256": "88c9beb72e0d073d3250ca64a683e1ecaa940235a4d1a3deb6f1c28c68385b0f",
+      "originalRecording": {
+        "file": "sources/deer.mp3",
+        "title": "Red Deer Stag Bellowing",
+        "author": "naturenotesuk",
+        "sourceUrl": "https://freesound.org/people/naturenotesuk/sounds/757773/",
+        "downloadUrl": "https://cdn.freesound.org/previews/757/757773_7455632-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:10.315Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y26",
+      "name": "張月鹿・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18,
+      "source": "public/audio/beast-voices/beast_y26.mp3",
+      "sourceSha256": "2034fdfbef0f67c9b996c1d081c9e507aed8180ba9ef7e005890910ea496b769",
+      "outputSha256": "a79ba7f7301a74f775e38486193cd54ffaee9bfc783b245bce754da58283fa2e",
+      "originalRecording": {
+        "file": "sources/deer.mp3",
+        "title": "Red Deer Stag Bellowing",
+        "author": "naturenotesuk",
+        "sourceUrl": "https://freesound.org/people/naturenotesuk/sounds/757773/",
+        "downloadUrl": "https://cdn.freesound.org/previews/757/757773_7455632-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:10.405Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a27",
+      "name": "翼火蛇",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -22.31,
+      "source": "public/audio/beast-voices/beast_a27.mp3",
+      "sourceSha256": "dc25b1b4569800413f1116464528df2a7c3dcd6538749dd87ce8a9d3dbfb1b33",
+      "outputSha256": "6e7f281471310ce34fe4c0d0528afd1db3b1df546bb8cc0f8fc9de77fe5fedb8",
+      "originalRecording": {
+        "file": "sources/snake.mp3",
+        "title": "Hissing snake sound effect",
+        "author": "Garuda1982",
+        "sourceUrl": "https://freesound.org/people/Garuda1982/sounds/541656/",
+        "downloadUrl": "https://cdn.freesound.org/previews/541/541656_2061858-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "sound-design"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:10.500Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y27",
+      "name": "翼火蛇・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -21.66,
+      "source": "public/audio/beast-voices/beast_y27.mp3",
+      "sourceSha256": "41c1e80f3d262a9ce9479746f624997064e28eff631447caed9f9c6846c494e1",
+      "outputSha256": "bb9e850d4c6954cddf373cb59bf4a5fa825857cb19bb307cecb9d930e8ee86d0",
+      "originalRecording": {
+        "file": "sources/snake.mp3",
+        "title": "Hissing snake sound effect",
+        "author": "Garuda1982",
+        "sourceUrl": "https://freesound.org/people/Garuda1982/sounds/541656/",
+        "downloadUrl": "https://cdn.freesound.org/previews/541/541656_2061858-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "sound-design"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:10.595Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_a28",
+      "name": "軫水蚓",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -13.86,
+      "source": "public/audio/beast-voices/beast_a28.mp3",
+      "sourceSha256": "f2f1365b580aece760ebbea55f92a0d4ab8803ca03bb889097f85a2ae19c48f8",
+      "outputSha256": "77c6fea3960cf7924a50a298e4240d1f33ac091d76f210754755ee46ee44fd6c",
+      "originalRecording": {
+        "file": "sources/earth-spirit.mp3",
+        "title": "Earth spirit voiced resonance",
+        "author": "Project sound design",
+        "sourceUrl": "scripts/build-beast-voices.py",
+        "license": "Project original",
+        "licenseUrl": "",
+        "kind": "synthesized-fictional-voice"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:10.683Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_y28",
+      "name": "軫水蚓・幼子",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -13.53,
+      "source": "public/audio/beast-voices/beast_y28.mp3",
+      "sourceSha256": "993b91ae1f27cebce41494301074a4e3e21ea91ad8e0d62c36ce6ff54ce89141",
+      "outputSha256": "e15a28785a15976ecef1e4dc0e244632057376775693529c313dda7f0cf09eb5",
+      "originalRecording": {
+        "file": "sources/earth-spirit.mp3",
+        "title": "Earth spirit voiced resonance",
+        "author": "Project sound design",
+        "sourceUrl": "scripts/build-beast-voices.py",
+        "license": "Project original",
+        "licenseUrl": "",
+        "kind": "synthesized-fictional-voice"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:10.771Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_g_qinglong",
+      "name": "青龍",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18.85,
+      "source": "public/audio/beast-voices/beast_g_qinglong.mp3",
+      "sourceSha256": "ad158d5d0841e173234569039b98de69b63d2bce405e309cb4adf67127736fa3",
+      "outputSha256": "f9ee4cf26f0fdc1a264ca511d7088ac56c479a67326e344bab6bdd20e7306f07",
+      "originalRecording": {
+        "file": "sources/dragon.mp3",
+        "title": "Designed dragon roar",
+        "author": "JoelAudio",
+        "sourceUrl": "https://freesound.org/people/JoelAudio/sounds/85568/",
+        "downloadUrl": "https://cdn.freesound.org/previews/85/85568_1206321-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "sound-design"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:10.864Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_g_zhuque",
+      "name": "朱雀",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -18.85,
+      "source": "public/audio/beast-voices/beast_g_zhuque.mp3",
+      "sourceSha256": "760a3af0f3d268ea9174d91b74d603dd08abf6fee1adce42968cc89b1097f753",
+      "outputSha256": "5a6b82fbf364cb5dddb9872bd76ac2e7d6ed0c81f6b681e1bab7b89ea7d29d34",
+      "originalRecording": {
+        "file": "sources/bird.ogg",
+        "title": "Bald Eagle Yellowstone National Park",
+        "author": "National Park Service",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bald_Eagle_Yellowstone_National_Park.ogg",
+        "license": "Public domain (US federal work)",
+        "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-USGov-NPS",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:10.955Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_g_baihu",
+      "name": "白虎",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -19.16,
+      "source": "public/audio/beast-voices/beast_g_baihu.mp3",
+      "sourceSha256": "3a52f2353db8dc43fdc47d56550fe848922500daffac4d3a3a990f0d4778c48e",
+      "outputSha256": "c4438b9b3cd94ddc6f0f78b39d1fb9391beca3b6deeff872d5d78abe843f9263",
+      "originalRecording": {
+        "file": "sources/tiger.mp3",
+        "title": "Tiger Roar",
+        "author": "lauramellis",
+        "sourceUrl": "https://freesound.org/people/lauramellis/sounds/263115/",
+        "downloadUrl": "https://cdn.freesound.org/previews/263/263115_672090-hq.mp3",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+        "kind": "field-recording"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:11.052Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    },
+    {
+      "cardId": "beast_g_xuanwu",
+      "name": "玄武",
+      "durationSeconds": 6,
+      "peakDbfs": -1.41,
+      "rmsDbfs": -23.29,
+      "source": "public/audio/beast-voices/beast_g_xuanwu.mp3",
+      "sourceSha256": "b6141e7dac0fbaa7de9bcfba773a01cee973662a40ba54af0739a3b27f1922cd",
+      "outputSha256": "4823b8920910a3f01dcb7d7874231a847dc1a1210e336bd16adb18c57027eeee",
+      "originalRecording": {
+        "file": "sources/snake.mp3",
+        "title": "Hissing snake sound effect",
+        "author": "Garuda1982",
+        "sourceUrl": "https://freesound.org/people/Garuda1982/sounds/541656/",
+        "downloadUrl": "https://cdn.freesound.org/previews/541/541656_2061858-hq.mp3",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "kind": "sound-design"
+      },
+      "recipe": {
+        "implementation": "sample-aligned canonical PCM gain/cut mix; short calls repeat with 60ms gaps and 5ms edge fades, never stretched",
+        "sampleRate": 48000,
+        "segments": [
+          {
+            "phase": "build",
+            "at": 0,
+            "from": 0,
+            "seconds": 1.8,
+            "gain": 0.24,
+            "fadeIn": 0.15,
+            "fadeOut": 0.3
+          },
+          {
+            "phase": "rush",
+            "at": 1.8,
+            "from": 0,
+            "seconds": 1.4,
+            "gain": 0.8,
+            "fadeIn": 0.12,
+            "fadeOut": 0.25
+          },
+          {
+            "phase": "first-bite",
+            "at": 2.5,
+            "from": 0.3,
+            "seconds": 0.25,
+            "gain": 0.6,
+            "fadeIn": 0.015,
+            "fadeOut": 0.08
+          },
+          {
+            "phase": "finisher",
+            "at": 3.4,
+            "from": 0,
+            "seconds": 0.8,
+            "gain": 0.85,
+            "fadeIn": 0.06,
+            "fadeOut": 0.2
+          },
+          {
+            "phase": "recovery",
+            "at": 4.2,
+            "from": 0.2,
+            "seconds": 1.8,
+            "gain": 0.4,
+            "fadeIn": 0.08,
+            "fadeOut": 1.7
+          }
+        ]
+      },
+      "status": "awaiting-audiovisual-review",
+      "technicalCheck": "passed",
+      "createdAt": "2026-09-06T02:41:11.142Z",
+      "contractVersion": "six-second-mutual-bite-v2",
+      "voiceProcessing": "Original pitch, timing and spectrum retained; only cuts, gain and fades. No opponent vocal layer."
+    }
+  ]
+}

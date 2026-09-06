@@ -1,0 +1,41 @@
+{
+  "cardId": "beast_a02",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T03:14:58.656Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "051dbec3bd8aa31e8474bc59e3cf4f1062fe1a6b4167794c72d593e43dcbd847",
+  "referenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "opponentReferenceSha256": "8d31956ddb9589c3a6e39a342aa83c41f7bbaf096715361679dd3adc0e2ecc6b",
+  "method": "Canonical sources and 2 fps contact sheet.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a02/attempt-01/contact-sheet.jpg",
+      "sha256": "81b1495c5a25d52859987c1a5a226a15e4afe3480281cf4eb1c429aaf6c7d4f3"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖銀色曲線胸甲與青銀長鬃被簡化成較細瘦的銀龍與少量金色胸飾。"
+    },
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖寬厚的青銀飄帶狀尾部變成細長鱗尾與小尾簇，未保留本體尾型。"
+    },
+    "identity": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "頭鬃、胸甲與尾部同時簡化，不能判為原始亢金龍 1:1。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": null,
+      "evidence": "本次 2 fps 初篩不能確認三次獨立咬合、放開及反力；仍需密集影格與聲畫驗收。"
+    }
+  },
+  "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。"
+}

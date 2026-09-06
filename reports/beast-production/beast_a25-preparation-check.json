@@ -1,0 +1,14 @@
+{
+  "at": "2026-09-06T03:47:29.518Z",
+  "cardId": "beast_a25",
+  "state": "source-scene-prepared",
+  "result": "PASS",
+  "sourceSceneSha256": "04e1217bd6bdabedfa1ab921496463ba5b02a090dc7ca6951ef0960552ca69aa",
+  "promptCount": 2,
+  "voiceHashMatched": true,
+  "skillFilesAndApiMatched": true,
+  "videoRequestsThisTurn": 0,
+  "videoCandidate": null,
+  "generatedCandidates": 21,
+  "scope": "Source preparation and registration only; not six-second video acceptance."
+}

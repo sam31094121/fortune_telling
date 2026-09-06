@@ -10,10 +10,156 @@
       "enabled": true,
       "clip": "/beast-game/skill-bodies/beast_a06.webp",
       "body": "/beast-game/skill-bodies/beast_a06.webp",
-      "durationMs": 1600,
+      "durationMs": 6000,
       "spawn": {
         "from": "selfSlot",
         "to": "targetSlot"
+      },
+      "production": {
+        "version": "six-second-mutual-bite-v2",
+        "registrationStatus": "registered",
+        "state": "needs-refinement",
+        "canonicalReference": "/beast-game/spirit/06.webp",
+        "referenceSha256": "80b685b74b137076bc32e0582f4271780a13a9500b104a0bb7e8594063be8342",
+        "jobReport": "reports/beast-production/beast_a06.json",
+        "latestAttempt": 1,
+        "voiceCandidate": ".tmp/beast-production/beast_a06/voice/player-six-second-v2.wav",
+        "voiceReview": "awaiting-audiovisual-review",
+        "voice": {
+          "source": "/audio/beast-voices/beast_a06.mp3",
+          "sourceSha256": "021ab567e4dc3cfa4a8ea1cb297bfe0766b5a0ce05dd8e35a2d31661a9e8cdfd",
+          "candidateSha256": "fb813434bc9941e84f8acb6b5aa0da234dc86606d2af84266a1572d31994683a",
+          "provenanceReport": ".tmp/beast-production/beast_a06/voice/provenance-v2.json",
+          "durationSeconds": 6,
+          "technicalCheck": "passed",
+          "reviewStatus": "awaiting-audiovisual-review"
+        },
+        "timeline": [
+          {
+            "phase": "build",
+            "start": 0,
+            "end": 1.8
+          },
+          {
+            "phase": "rush",
+            "start": 1.8,
+            "end": 2.5
+          },
+          {
+            "phase": "player-bite",
+            "start": 2.5,
+            "end": 2.8
+          },
+          {
+            "phase": "opponent-counterbite",
+            "start": 2.8,
+            "end": 3.3
+          },
+          {
+            "phase": "player-finisher",
+            "start": 3.6,
+            "end": 4.2
+          },
+          {
+            "phase": "recovery",
+            "start": 4.2,
+            "end": 6
+          }
+        ],
+        "requiredChecks": [
+          "identity",
+          "opponentIdentity",
+          "head",
+          "body",
+          "limbs",
+          "mouth",
+          "teethOrBeak",
+          "eyes",
+          "clawsOrHooves",
+          "tail",
+          "contact",
+          "reciprocalBite",
+          "playerVoice",
+          "continuity",
+          "mobilePlayback"
+        ],
+        "candidateContractVersion": "single-bite-legacy",
+        "perspective": "player",
+        "opponentVoice": false,
+        "candidate": {
+          "status": "available-for-review",
+          "attempt": 1,
+          "contractVersion": "single-bite-legacy",
+          "opponentId": "beast_a02",
+          "workspaceFile": "reports/beast-production/previews/beast_a06-attempt-01.mp4",
+          "candidateSha256": "f7285d25787f18f933243df327db86c08110e9685b45da5adee657d4dec8c80a",
+          "previewSha256": "2c1396af28ce7948033c62aae93d21a8d5a7e75128751bc7139fc522dc89ac54",
+          "durationSeconds": 6,
+          "access": "local-review-only"
+        },
+        "review": {
+          "status": "initial-visual-screening-recorded",
+          "visualReport": "reports/beast-production/cross-checks/beast_a06-attempt-01.json",
+          "modelReport": ".tmp/beast-production/beast_a06/attempt-01/model-review.json",
+          "failedParts": [
+            {
+              "part": "head",
+              "evidence": "Missing silver armor and forehead jewel."
+            },
+            {
+              "part": "body",
+              "evidence": "原圖為大面積金藍胸甲與中央藍珠，候選改成普通虎身加背部火焰／小肩飾。"
+            },
+            {
+              "part": "limbs",
+              "evidence": "Missing armor plating and blue claws."
+            },
+            {
+              "part": "clawsOrHooves",
+              "evidence": "Claws are not blue."
+            },
+            {
+              "part": "tail",
+              "evidence": "原圖整條尾部是粗大的藍色星光盤繞造型，候選為虎紋細尾末端加火。"
+            },
+            {
+              "part": "identity",
+              "evidence": "Major design deviations including missing armor, incorrect tail, and wrong coat colors."
+            },
+            {
+              "part": "contact",
+              "evidence": "Player approaches but fails to make actual bite contact with the opponent."
+            },
+            {
+              "part": "opponentIdentity",
+              "evidence": "對手新增原始亢金龍沒有的蝙蝠狀翅膀。"
+            },
+            {
+              "part": "presentation",
+              "evidence": "影片自行加上血條與 PLAYER 文字。"
+            }
+          ],
+          "outstandingChecks": [
+            "identity",
+            "opponentIdentity",
+            "head",
+            "body",
+            "limbs",
+            "mouth",
+            "teethOrBeak",
+            "eyes",
+            "clawsOrHooves",
+            "tail",
+            "contact",
+            "reciprocalBite",
+            "playerVoice",
+            "continuity",
+            "mobilePlayback"
+          ],
+          "correctionsToModel": null,
+          "fullAudiovisualAcceptance": "pending"
+        },
+        "blocker": null
       }
     },
     {

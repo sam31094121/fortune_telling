@@ -4,11 +4,141 @@
   "enabled": true,
   "clip": "../clips/charge-battle.png",
   "body": "../body.png",
-  "durationMs": 1600,
+  "durationMs": 6000,
   "spawn": {
     "from": "selfSlot",
     "to": "targetSlot"
   },
   "poolId": "beast_a01",
-  "displayName": "角木蛟"
+  "displayName": "角木蛟",
+  "production": {
+    "version": "six-second-mutual-bite-v2",
+    "registrationStatus": "registered",
+    "state": "needs-refinement",
+    "canonicalReference": "/beast-game/spirit/01.webp",
+    "referenceSha256": "8d31956ddb9589c3a6e39a342aa83c41f7bbaf096715361679dd3adc0e2ecc6b",
+    "jobReport": "reports/beast-production/beast_a01.json",
+    "latestAttempt": 10,
+    "voiceCandidate": ".tmp/beast-production/beast_a01/voice/player-six-second-v2.wav",
+    "voiceReview": "awaiting-audiovisual-review",
+    "voice": {
+      "source": "/audio/beast-voices/beast_a01.mp3",
+      "sourceSha256": "bc45654192a0a799cf90ce61358458a5206b53bc02ac568703bc7332876cefb9",
+      "candidateSha256": "8d2a6ed735ca5205b243a83efe83eef1dd31e806015aba714088033ce1d11f87",
+      "provenanceReport": ".tmp/beast-production/beast_a01/voice/provenance-v2.json",
+      "durationSeconds": 6,
+      "technicalCheck": "passed",
+      "reviewStatus": "awaiting-audiovisual-review"
+    },
+    "timeline": [
+      {
+        "phase": "build",
+        "start": 0,
+        "end": 1.8
+      },
+      {
+        "phase": "rush",
+        "start": 1.8,
+        "end": 2.5
+      },
+      {
+        "phase": "player-bite",
+        "start": 2.5,
+        "end": 2.8
+      },
+      {
+        "phase": "opponent-counterbite",
+        "start": 2.8,
+        "end": 3.3
+      },
+      {
+        "phase": "player-finisher",
+        "start": 3.6,
+        "end": 4.2
+      },
+      {
+        "phase": "recovery",
+        "start": 4.2,
+        "end": 6
+      }
+    ],
+    "requiredChecks": [
+      "identity",
+      "opponentIdentity",
+      "head",
+      "body",
+      "limbs",
+      "mouth",
+      "teethOrBeak",
+      "eyes",
+      "clawsOrHooves",
+      "tail",
+      "contact",
+      "reciprocalBite",
+      "playerVoice",
+      "continuity",
+      "mobilePlayback"
+    ],
+    "candidateContractVersion": "single-bite-legacy",
+    "perspective": "player",
+    "opponentVoice": false,
+    "candidate": {
+      "status": "available-for-review",
+      "attempt": 10,
+      "contractVersion": "single-bite-legacy",
+      "opponentId": "beast_a02",
+      "workspaceFile": "reports/beast-production/previews/beast_a01-attempt-10.mp4",
+      "candidateSha256": "4a3152f323b2c803f2857f4a5f67c2b15f58835d71a803eb111b0bdf12826d29",
+      "previewSha256": "db7fd9208ebf63e5b23f0a4b64eb65484746e3cfbbde7550d2e68f50bb683b62",
+      "durationSeconds": 6,
+      "access": "local-review-only"
+    },
+    "review": {
+      "status": "initial-visual-screening-recorded",
+      "visualReport": "reports/beast-production/cross-checks/beast_a01-attempt-10.json",
+      "modelReport": ".tmp/beast-production/beast_a01/attempt-10/model-review.json",
+      "failedParts": [
+        {
+          "part": "tail",
+          "evidence": "尾巴從原設的捲曲狀變為向後直伸，拓撲結構完全錯誤。"
+        },
+        {
+          "part": "identity",
+          "evidence": "尾巴結構改變導致整體造型不符1:1設計要求。"
+        },
+        {
+          "part": "continuity",
+          "evidence": "4.5秒處畫面突兀跳剪回起始姿勢，缺乏連貫的恢復動作。"
+        },
+        {
+          "part": "opponentIdentity",
+          "evidence": "對手胸前缺少綠色寶石，且盔甲細節被簡化。"
+        },
+        {
+          "part": "mobilePlayback",
+          "evidence": "5.5 秒完整影格右緣裁掉玩家尾部；收勢時須保持完整本體在畫面內。"
+        }
+      ],
+      "outstandingChecks": [
+        "identity",
+        "opponentIdentity",
+        "head",
+        "body",
+        "limbs",
+        "mouth",
+        "teethOrBeak",
+        "eyes",
+        "clawsOrHooves",
+        "tail",
+        "contact",
+        "reciprocalBite",
+        "playerVoice",
+        "continuity",
+        "mobilePlayback"
+      ],
+      "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。",
+      "fullAudiovisualAcceptance": "pending"
+    },
+    "blocker": null
+  }
 }

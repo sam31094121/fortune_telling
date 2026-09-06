@@ -15,7 +15,7 @@
  * 一個數字都不重算——畫面自己算一套，遲早跟實際傷害對不上。
  */
 
-import { elementMultiplier, ELEMENT_LABEL, type BeastElement } from './beast-game/elements';
+import { elementMultiplier, ELEMENT_COUNTER, ELEMENT_LABEL, type BeastElement } from './beast-game/elements';
 
 export type Matchup = 'ADVANTAGE' | 'DISADVANTAGE' | 'NEUTRAL';
 
@@ -95,4 +95,36 @@ export function explainOutcome(
       : `對手獲勝。${tail}`;
   }
   return `平手。${tail}`;
+}
+
+
+/**
+ * 這一隻剋誰、被誰剋。
+ *
+ * 業主定調：「卡片裡面也會有相生相剋的概念……要讓客戶學會相生相剋。」
+ *
+ * 只寫自己的元素是不夠的——客戶看到「火」不會自動知道火剋空、被水剋。
+ * 要學得會，卡片上就得把那兩個關係直接寫出來。
+ *
+ * 關係取自 ELEMENT_COUNTER，與傷害公式同一份表；這裡不另建對照。
+ */
+export function describeCardElement(element: BeastElement): {
+  self: string;
+  beats: string;
+  beatenBy: string;
+  line: string;
+} {
+  const self = ELEMENT_LABEL[element] ?? element;
+  const prey = ELEMENT_COUNTER[element];
+  const predatorKey = (Object.keys(ELEMENT_COUNTER) as BeastElement[])
+    .find((key) => ELEMENT_COUNTER[key] === element);
+  const beats = ELEMENT_LABEL[prey] ?? prey;
+  const beatenBy = predatorKey ? (ELEMENT_LABEL[predatorKey] ?? predatorKey) : '—';
+  return {
+    self,
+    beats,
+    beatenBy,
+    // 一行講完兩個方向：帶牠去打誰、避開誰。
+    line: `${self}剋${beats}，被${beatenBy}剋`,
+  };
 }

@@ -88,4 +88,5 @@ console.log('PASS: 六十張本體聲音有來源、對手完全靜音、玩家�
 for (const guardian of ['qinglong', 'zhuque', 'baihu', 'xuanwu']) {
   assert.equal(context.exports.spiritArtFor(`beast_g_${guardian}`), `/beast-game/spirit/guardian-${guardian}.webp`);
 }
-assert.ok(fs.readFileSync('components/BeastClash3D.tsx', 'utf8').includes('aria-label="雙方神獸本體交戰"'), '有意義的戰鬥畫面不可被當作隱藏裝飾');
+const clashSource = fs.readFileSync('components/BeastClash3D.tsx', 'utf8');
+assert.ok(clashSource.includes('role="img"') && /aria-label=\{contextLost \? '神獸本體靜態展示' : '雙方神獸本體交戰'\}/.test(clashSource), '戰鬥與靜態備援都須提供正確的可及性名稱');

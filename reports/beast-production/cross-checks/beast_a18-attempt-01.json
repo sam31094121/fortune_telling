@@ -1,0 +1,46 @@
+{
+  "cardId": "beast_a18",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T03:14:58.699Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "eb876e95a07c9876608f106d928d44427c4ab97dd333fb9828a68f7bd7865577",
+  "referenceSha256": "bee2dc59491f08e9c18aad6fab7a7a3041bf4bc9a4703cb89fe490ed86c13707",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "method": "Canonical sources and 2 fps contact sheet.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a18/attempt-01/contact-sheet.jpg",
+      "sha256": "aa72a57a1dc8c8f41307ef488465456bc91f96683a0766991092b5db4608a405"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "head": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖繁複金色火冠變成普通雞冠上方的小火焰，冠飾設計不同。"
+    },
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖火焰金羽、太陽胸飾變成普通金羽與更小的胸飾。"
+    },
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖火焰羽尾變成普通細長公雞尾羽加橙色末端。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "對手改為尖刺銀鱗龍，未保留青銀長鬃與流線尾飾。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": null,
+      "evidence": "本次 2 fps 初篩不能確認三次獨立咬合、放開及反力；仍需密集影格與聲畫驗收。"
+    }
+  },
+  "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。"
+}

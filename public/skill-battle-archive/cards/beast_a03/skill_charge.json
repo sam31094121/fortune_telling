@@ -4,11 +4,153 @@
   "enabled": true,
   "clip": "../clips/charge-battle.png",
   "body": "../body.png",
-  "durationMs": 1600,
+  "durationMs": 6000,
   "spawn": {
     "from": "selfSlot",
     "to": "targetSlot"
   },
   "poolId": "beast_a03",
-  "displayName": "氐土貉"
+  "displayName": "氐土貉",
+  "production": {
+    "version": "six-second-mutual-bite-v2",
+    "registrationStatus": "registered",
+    "state": "needs-refinement",
+    "canonicalReference": "/beast-game/spirit/03.webp",
+    "referenceSha256": "bb9e1dc907dec05bc5cd16514c770bf11c23308a59e9db75e1e8ee5a632ff0cc",
+    "jobReport": "reports/beast-production/beast_a03.json",
+    "latestAttempt": 1,
+    "voiceCandidate": ".tmp/beast-production/beast_a03/voice/player-six-second-v2.wav",
+    "voiceReview": "awaiting-audiovisual-review",
+    "voice": {
+      "source": "/audio/beast-voices/beast_a03.mp3",
+      "sourceSha256": "8c8ed8b747caaeb35c104d7054be09c5418ed3d3127c3cd8f2480c50d7b7d480",
+      "candidateSha256": "6f64a5dc94456c704ac8e499c111ca3f1dea0a454f10895a053661fe57559b29",
+      "provenanceReport": ".tmp/beast-production/beast_a03/voice/provenance-v2.json",
+      "durationSeconds": 6,
+      "technicalCheck": "passed",
+      "reviewStatus": "awaiting-audiovisual-review"
+    },
+    "timeline": [
+      {
+        "phase": "build",
+        "start": 0,
+        "end": 1.8
+      },
+      {
+        "phase": "rush",
+        "start": 1.8,
+        "end": 2.5
+      },
+      {
+        "phase": "player-bite",
+        "start": 2.5,
+        "end": 2.8
+      },
+      {
+        "phase": "opponent-counterbite",
+        "start": 2.8,
+        "end": 3.3
+      },
+      {
+        "phase": "player-finisher",
+        "start": 3.6,
+        "end": 4.2
+      },
+      {
+        "phase": "recovery",
+        "start": 4.2,
+        "end": 6
+      }
+    ],
+    "requiredChecks": [
+      "identity",
+      "opponentIdentity",
+      "head",
+      "body",
+      "limbs",
+      "mouth",
+      "teethOrBeak",
+      "eyes",
+      "clawsOrHooves",
+      "tail",
+      "contact",
+      "reciprocalBite",
+      "playerVoice",
+      "continuity",
+      "mobilePlayback"
+    ],
+    "candidateContractVersion": "single-bite-legacy",
+    "perspective": "player",
+    "opponentVoice": false,
+    "candidate": {
+      "status": "available-for-review",
+      "attempt": 1,
+      "contractVersion": "single-bite-legacy",
+      "opponentId": "beast_a02",
+      "workspaceFile": "reports/beast-production/previews/beast_a03-attempt-01.mp4",
+      "candidateSha256": "478db557c25171a6bc89b4c2f5be66d570b53d5e7e0060f69b750c479f428234",
+      "previewSha256": "3f47c1a706ee79b28ddc4021b9b8657dc55c147c349f88b39ced4c81d6453271",
+      "durationSeconds": 6,
+      "access": "local-review-only"
+    },
+    "review": {
+      "status": "initial-visual-screening-recorded",
+      "visualReport": "reports/beast-production/cross-checks/beast_a03-attempt-01.json",
+      "modelReport": ".tmp/beast-production/beast_a03/attempt-01/model-review.json",
+      "failedParts": [
+        {
+          "part": "head",
+          "evidence": "Missing horns and crystalline texture from canonical design."
+        },
+        {
+          "part": "body",
+          "evidence": "原圖大量金黑角狀甲片變成普通毛皮與背部尖刺，裝甲分布不同。"
+        },
+        {
+          "part": "limbs",
+          "evidence": "前肢缺少原圖厚實、層疊的金色甲片。"
+        },
+        {
+          "part": "tail",
+          "evidence": "原圖厚重甲片尾變成普通環紋毛尾。"
+        },
+        {
+          "part": "identity",
+          "evidence": "Player design misses key crystalline armor, colors, and horns."
+        },
+        {
+          "part": "contact",
+          "evidence": "Player bumps opponent but no jaw closure or bite occurs."
+        },
+        {
+          "part": "continuity",
+          "evidence": "Requested bite action is missing from the sequence."
+        },
+        {
+          "part": "opponentIdentity",
+          "evidence": "亢金龍被新增大型蝙蝠狀翅膀，原始對手沒有翅膀。"
+        }
+      ],
+      "outstandingChecks": [
+        "identity",
+        "opponentIdentity",
+        "head",
+        "body",
+        "limbs",
+        "mouth",
+        "teethOrBeak",
+        "eyes",
+        "clawsOrHooves",
+        "tail",
+        "contact",
+        "reciprocalBite",
+        "playerVoice",
+        "continuity",
+        "mobilePlayback"
+      ],
+      "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。",
+      "fullAudiovisualAcceptance": "pending"
+    },
+    "blocker": null
+  }
 }

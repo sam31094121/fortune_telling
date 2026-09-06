@@ -4,11 +4,149 @@
   "enabled": true,
   "clip": "../clips/charge-battle.png",
   "body": "../body.png",
-  "durationMs": 1600,
+  "durationMs": 6000,
   "spawn": {
     "from": "selfSlot",
     "to": "targetSlot"
   },
   "poolId": "beast_a11",
-  "displayName": "虛日鼠"
+  "displayName": "虛日鼠",
+  "production": {
+    "version": "six-second-mutual-bite-v2",
+    "registrationStatus": "registered",
+    "state": "needs-refinement",
+    "canonicalReference": "/beast-game/spirit/11.webp",
+    "referenceSha256": "c8cb7cfa5d82452a7037a4d442739984d9d315decf39b335511867af06015d4a",
+    "jobReport": "reports/beast-production/beast_a11.json",
+    "latestAttempt": 1,
+    "voiceCandidate": ".tmp/beast-production/beast_a11/voice/player-six-second-v2.wav",
+    "voiceReview": "awaiting-audiovisual-review",
+    "voice": {
+      "source": "/audio/beast-voices/beast_a11.mp3",
+      "sourceSha256": "aa697aa6294839e62f985ee04832f3896b06999336688018fdca3ad97c930f5b",
+      "candidateSha256": "2b3f867ee7e4be5a4aede219593e8bc83c863a976de7820e3f2a34ca9e132503",
+      "provenanceReport": ".tmp/beast-production/beast_a11/voice/provenance-v2.json",
+      "durationSeconds": 6,
+      "technicalCheck": "passed",
+      "reviewStatus": "awaiting-audiovisual-review"
+    },
+    "timeline": [
+      {
+        "phase": "build",
+        "start": 0,
+        "end": 1.8
+      },
+      {
+        "phase": "rush",
+        "start": 1.8,
+        "end": 2.5
+      },
+      {
+        "phase": "player-bite",
+        "start": 2.5,
+        "end": 2.8
+      },
+      {
+        "phase": "opponent-counterbite",
+        "start": 2.8,
+        "end": 3.3
+      },
+      {
+        "phase": "player-finisher",
+        "start": 3.6,
+        "end": 4.2
+      },
+      {
+        "phase": "recovery",
+        "start": 4.2,
+        "end": 6
+      }
+    ],
+    "requiredChecks": [
+      "identity",
+      "opponentIdentity",
+      "head",
+      "body",
+      "limbs",
+      "mouth",
+      "teethOrBeak",
+      "eyes",
+      "clawsOrHooves",
+      "tail",
+      "contact",
+      "reciprocalBite",
+      "playerVoice",
+      "continuity",
+      "mobilePlayback"
+    ],
+    "candidateContractVersion": "single-bite-legacy",
+    "perspective": "player",
+    "opponentVoice": false,
+    "candidate": {
+      "status": "available-for-review",
+      "attempt": 1,
+      "contractVersion": "single-bite-legacy",
+      "opponentId": "beast_a02",
+      "workspaceFile": "reports/beast-production/previews/beast_a11-attempt-01.mp4",
+      "candidateSha256": "c65ff05aa7dc0f96beae56b48f77fb123f71d22021dc022eb68713b25b530fa1",
+      "previewSha256": "4662e93d4ad8de579b707623af22e12ae9a1cdc617829d6dce10cb1d7fbdc3cb",
+      "durationSeconds": 6,
+      "access": "local-review-only"
+    },
+    "review": {
+      "status": "initial-visual-screening-recorded",
+      "visualReport": "reports/beast-production/cross-checks/beast_a11-attempt-01.json",
+      "modelReport": ".tmp/beast-production/beast_a11/attempt-01/model-review.json",
+      "failedParts": [
+        {
+          "part": "head",
+          "evidence": "角變成單一藍色結構，非兩根獨立的角，耳朵比例較小。"
+        },
+        {
+          "part": "body",
+          "evidence": "原圖深藍灰毛鱗與金色胸肢紋飾變成普通灰鼠配星空斑塊。"
+        },
+        {
+          "part": "limbs",
+          "evidence": "呈現普通老鼠四肢，缺乏原圖的修長與風格化設計。"
+        },
+        {
+          "part": "eyes",
+          "evidence": "眼睛為純黑色，而原設定為金色。"
+        },
+        {
+          "part": "tail",
+          "evidence": "原圖厚大的藍色星空捲尾變成細粉色裸尾。"
+        },
+        {
+          "part": "identity",
+          "evidence": "角、尾巴、眼睛及整體毛髮質感與原設定嚴重不符。"
+        },
+        {
+          "part": "opponentIdentity",
+          "evidence": "對手變成綠寶石金甲尖刺蜥龍，缺少原圖銀色曲線甲片與青銀長鬃尾。"
+        }
+      ],
+      "outstandingChecks": [
+        "identity",
+        "opponentIdentity",
+        "head",
+        "body",
+        "limbs",
+        "mouth",
+        "teethOrBeak",
+        "eyes",
+        "clawsOrHooves",
+        "tail",
+        "contact",
+        "reciprocalBite",
+        "playerVoice",
+        "continuity",
+        "mobilePlayback"
+      ],
+      "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。",
+      "fullAudiovisualAcceptance": "pending"
+    },
+    "blocker": null
+  }
 }

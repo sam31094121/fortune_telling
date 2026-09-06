@@ -4,11 +4,129 @@
   "enabled": true,
   "clip": "../clips/charge-battle.png",
   "body": "../body.png",
-  "durationMs": 1600,
+  "durationMs": 6000,
   "spawn": {
     "from": "selfSlot",
     "to": "targetSlot"
   },
   "poolId": "beast_a22",
-  "displayName": "井木犴"
+  "displayName": "井木犴",
+  "production": {
+    "version": "six-second-mutual-bite-v2",
+    "registrationStatus": "registered",
+    "state": "needs-refinement",
+    "canonicalReference": "/beast-game/spirit/22.webp",
+    "referenceSha256": "e2a460b2009ef1b8bf7fb07c9ab139c57bd251a7df545cbd909b3d2046d82a2c",
+    "jobReport": "reports/beast-production/beast_a22.json",
+    "latestAttempt": 1,
+    "voiceCandidate": ".tmp/beast-production/beast_a22/voice/player-six-second-v2.wav",
+    "voiceReview": "awaiting-audiovisual-review",
+    "voice": {
+      "source": "/audio/beast-voices/beast_a22.mp3",
+      "sourceSha256": "17dbcda4f0393ead93f8913bf7d669e7348271e3b388d20dfcf8326dd2443dea",
+      "candidateSha256": "483cdb17835aec899abfdc59314d2fa5bb6d5d821aba91fe9f895847fdb685fb",
+      "provenanceReport": ".tmp/beast-production/beast_a22/voice/provenance-v2.json",
+      "durationSeconds": 6,
+      "technicalCheck": "passed",
+      "reviewStatus": "awaiting-audiovisual-review"
+    },
+    "timeline": [
+      {
+        "phase": "build",
+        "start": 0,
+        "end": 1.8
+      },
+      {
+        "phase": "rush",
+        "start": 1.8,
+        "end": 2.5
+      },
+      {
+        "phase": "player-bite",
+        "start": 2.5,
+        "end": 2.8
+      },
+      {
+        "phase": "opponent-counterbite",
+        "start": 2.8,
+        "end": 3.3
+      },
+      {
+        "phase": "player-finisher",
+        "start": 3.6,
+        "end": 4.2
+      },
+      {
+        "phase": "recovery",
+        "start": 4.2,
+        "end": 6
+      }
+    ],
+    "requiredChecks": [
+      "identity",
+      "opponentIdentity",
+      "head",
+      "body",
+      "limbs",
+      "mouth",
+      "teethOrBeak",
+      "eyes",
+      "clawsOrHooves",
+      "tail",
+      "contact",
+      "reciprocalBite",
+      "playerVoice",
+      "continuity",
+      "mobilePlayback"
+    ],
+    "candidateContractVersion": "single-bite-legacy",
+    "perspective": "player",
+    "opponentVoice": false,
+    "candidate": {
+      "status": "available-for-review",
+      "attempt": 1,
+      "contractVersion": "single-bite-legacy",
+      "opponentId": "beast_a02",
+      "workspaceFile": "reports/beast-production/previews/beast_a22-attempt-01.mp4",
+      "candidateSha256": "7512b03bf2b0ad168379670dfdff14f7c64aeda936fd11d6d1f86c199098261c",
+      "previewSha256": "0d3c010dfa6fd5ee91a5ef3f40c0e42c91c9f675c6aa2e214e4a9aac43bef199",
+      "durationSeconds": 6,
+      "access": "local-review-only"
+    },
+    "review": {
+      "status": "initial-visual-screening-recorded",
+      "visualReport": "reports/beast-production/cross-checks/beast_a22-attempt-01.json",
+      "modelReport": ".tmp/beast-production/beast_a22/model-review.json",
+      "failedParts": [
+        {
+          "part": "continuity",
+          "evidence": "銀龍在約 1.0 秒先向玩家突進，玩家接著才出招，與玩家先咬的安排不同。"
+        },
+        {
+          "part": "opponentIdentity",
+          "evidence": "銀色對手在動作中胸肩甲改成較大金色塊面，與原圖銀色曲線甲片不同。"
+        }
+      ],
+      "outstandingChecks": [
+        "identity",
+        "opponentIdentity",
+        "head",
+        "body",
+        "limbs",
+        "mouth",
+        "teethOrBeak",
+        "eyes",
+        "clawsOrHooves",
+        "tail",
+        "contact",
+        "reciprocalBite",
+        "playerVoice",
+        "continuity",
+        "mobilePlayback"
+      ],
+      "correctionsToModel": "不採用模型要求新增白色身體紋理、玩家額珠或對手綠胸珠的建議：原图没有這些明確特徵。模型的互咬 pass 仍待逐格確認。",
+      "fullAudiovisualAcceptance": "pending"
+    },
+    "blocker": null
+  }
 }

@@ -10,10 +10,107 @@
       "enabled": true,
       "clip": "/beast-game/skill-bodies/beast_y20.webp",
       "body": "/beast-game/skill-bodies/beast_y20.webp",
-      "durationMs": 1600,
+      "durationMs": 6000,
       "spawn": {
         "from": "selfSlot",
         "to": "targetSlot"
+      },
+      "production": {
+        "version": "six-second-mutual-bite-v2",
+        "registrationStatus": "registered",
+        "state": "awaiting-generation",
+        "canonicalReference": "/beast-game/spirit/20y.webp",
+        "referenceSha256": "6023a48787357866e24d2bde5d08b00195222e077af36c642cc02b5c3b92a26a",
+        "jobReport": "reports/beast-production/beast_y20.json",
+        "latestAttempt": 0,
+        "voiceCandidate": ".tmp/beast-production/beast_y20/voice/player-six-second-v2.wav",
+        "voiceReview": "awaiting-audiovisual-review",
+        "voice": {
+          "source": "/audio/beast-voices/beast_y20.mp3",
+          "sourceSha256": "33051bd3ee06b2fb7205afcf6cc04b244aa5b3bad111e77f7b72edeee5c00d73",
+          "candidateSha256": "3f0b5ae330a36667d688bf76714817a2a4428dd81f26eb93badde69f509e5e5c",
+          "provenanceReport": ".tmp/beast-production/beast_y20/voice/provenance-v2.json",
+          "durationSeconds": 6,
+          "technicalCheck": "passed",
+          "reviewStatus": "awaiting-audiovisual-review"
+        },
+        "timeline": [
+          {
+            "phase": "build",
+            "start": 0,
+            "end": 1.8
+          },
+          {
+            "phase": "rush",
+            "start": 1.8,
+            "end": 2.5
+          },
+          {
+            "phase": "player-bite",
+            "start": 2.5,
+            "end": 2.8
+          },
+          {
+            "phase": "opponent-counterbite",
+            "start": 2.8,
+            "end": 3.3
+          },
+          {
+            "phase": "player-finisher",
+            "start": 3.6,
+            "end": 4.2
+          },
+          {
+            "phase": "recovery",
+            "start": 4.2,
+            "end": 6
+          }
+        ],
+        "requiredChecks": [
+          "identity",
+          "opponentIdentity",
+          "head",
+          "body",
+          "limbs",
+          "mouth",
+          "teethOrBeak",
+          "eyes",
+          "clawsOrHooves",
+          "tail",
+          "contact",
+          "reciprocalBite",
+          "playerVoice",
+          "continuity",
+          "mobilePlayback"
+        ],
+        "candidateContractVersion": "single-bite-legacy",
+        "perspective": "player",
+        "opponentVoice": false,
+        "candidate": null,
+        "review": {
+          "status": "awaiting-candidate",
+          "visualReport": null,
+          "failedParts": [],
+          "outstandingChecks": [
+            "identity",
+            "opponentIdentity",
+            "head",
+            "body",
+            "limbs",
+            "mouth",
+            "teethOrBeak",
+            "eyes",
+            "clawsOrHooves",
+            "tail",
+            "contact",
+            "reciprocalBite",
+            "playerVoice",
+            "continuity",
+            "mobilePlayback"
+          ],
+          "correctionsToModel": null
+        },
+        "blocker": null
       }
     },
     {

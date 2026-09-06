@@ -1,0 +1,180 @@
+{
+  "cardId": "beast_a06",
+  "name": "尾火虎",
+  "reference": "public/beast-game/spirit/06.webp",
+  "referenceSha256": "80b685b74b137076bc32e0582f4271780a13a9500b104a0bb7e8594063be8342",
+  "durationSeconds": 6,
+  "perspective": "player",
+  "opponentVoice": false,
+  "timeline": [
+    {
+      "phase": "build",
+      "start": 0,
+      "end": 2
+    },
+    {
+      "phase": "rush",
+      "start": 1.8,
+      "end": 4.5
+    },
+    {
+      "phase": "bite",
+      "start": 4,
+      "end": 4.2
+    },
+    {
+      "phase": "tail",
+      "start": 4.2,
+      "end": 6
+    }
+  ],
+  "state": "needs-refinement",
+  "checks": {
+    "head": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "body": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "limbs": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "mouth": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "teethOrBeak": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "eyes": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "clawsOrHooves": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "tail": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "identity": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "contact": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "playerVoice": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "continuity": {
+      "status": "unreviewed",
+      "evidence": null
+    }
+  },
+  "attemptLimit": 3,
+  "prompt": "Create exactly 6 seconds of a single continuous sparring shot, no cuts. Image 1 is the PLAYER 尾火虎 (beast_a06). Image 2 is the silent opponent (beast_a02). Reproduce these exact individual creatures: preserve facial structure, species, colors, markings, ornaments, appendages and proportions throughout. Keep the player's source-facing orientation and place the opponent toward that side, both visible from the first frame; do not spin or redesign the creatures. Camera stays fixed, showing full bodies and a dark stone sparring stage with margin for every appendage. Animate anatomical joints and weight transfer, never slide a card or rigid cutout. 0-2s: grounded breath and species-appropriate proud call, body braces. 1.8-3.8s: the same player pushes off in a short forceful lunge toward the opponent's shoulder, appendages follow naturally. 3.8-4.0s: natural jaw or beak opens. At exactly 4.0s the PLAYER closes its jaws or beak onto the opponent's shoulder; show clear non-gory contact and opponent recoil. 4.2-6s: release and settle, coherent player's call decays. Opponent reacts but remains completely silent. No blood, humans, words, music, camera orbit, body morphing, new teeth or extra limbs, image crossfades or rectangular backgrounds. Bird species retain a beak without invented teeth; legless species retain their anatomy. The player's head and contact are the focal point. Finish the complete action by 6s.",
+  "attempt": 1,
+  "provider": "gemini-omni-1.1-flash",
+  "methodRevisionReason": "Newly verified Omni model supports subject references and local conversational edits. Preserve the source-facing direction and distinguish both canonical actors; previous Veo candidates failed identity.",
+  "opponentId": "beast_a02",
+  "opponentReference": "public/beast-game/spirit/02.webp",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "conditioning": "omni-subject-reference",
+  "sourceSeconds": 6,
+  "aspectRatio": "16:9",
+  "releaseStatus": "pending",
+  "purpose": "paired-skill-candidate",
+  "startedAt": "2026-09-06T01:49:21.669Z",
+  "omniInteractionId": "v1_ChZ3OGFjYW9MZ0lNbWo5dE1QakpESUdREhZ3OGFjYW9MZ0lNbWo5dE1QakpESUdR",
+  "providerReturnedAt": "2026-09-06T01:50:01.569Z",
+  "nativeCandidateSha256": "b980e80c3ac64b178be4a43e003105869917aa9fd2db0c75829d300c77a71fbc",
+  "actualNativeDuration": 6.016,
+  "candidateSha256": "f7285d25787f18f933243df327db86c08110e9685b45da5adee657d4dec8c80a",
+  "finishedAt": "2026-09-06T01:50:01.695Z",
+  "audioOverride": {
+    "source": "public/audio/beast-voices/beast_a06.mp3",
+    "sixSecondCandidateSha256": "a8b2fffc6f3307b47a24e806eca6a332bcd177b3b9dec058ccff25646ede2a9c",
+    "nativeAudioRemoved": true,
+    "reviewStatus": "unreviewed"
+  },
+  "automaticReview": {
+    "checks": {
+      "head": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Missing silver armor and forehead jewel."
+      },
+      "body": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Lacks white stripes and extensive silver armor."
+      },
+      "limbs": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Missing armor plating and blue claws."
+      },
+      "mouth": {
+        "status": "pass",
+        "timestampSeconds": 1,
+        "evidence": "Opens during roar."
+      },
+      "teethOrBeak": {
+        "status": "pass",
+        "timestampSeconds": 1,
+        "evidence": "Teeth visible when mouth opens."
+      },
+      "eyes": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "Visible."
+      },
+      "clawsOrHooves": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Claws are not blue."
+      },
+      "tail": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Missing dragon head at the tip; incorrect structure."
+      },
+      "identity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Major design deviations including missing armor, incorrect tail, and wrong coat colors."
+      },
+      "contact": {
+        "status": "fail",
+        "timestampSeconds": 3,
+        "evidence": "Player approaches but fails to make actual bite contact with the opponent."
+      },
+      "playerVoice": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "Timbre matches the provided reference."
+      },
+      "continuity": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "Motion sequence is generally fluid."
+      },
+      "opponentIdentity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Video opponent has large wings; canonical reference does not."
+      }
+    },
+    "overall": "fail",
+    "refinement": "Both character models fail identity checks: the player lacks armor and the correct tail, while the opponent incorrectly has wings. Furthermore, the required physical bite contact is missing."
+  },
+  "preview": "reports/beast-production/previews/beast_a06-attempt-01.mp4"
+}

@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-06T03:26:42.134Z",
+  "registered": 60,
+  "candidates": 21,
+  "missing": 39,
+  "voiceCandidates": 60,
+  "currentVisualReports": 21,
+  "skillFiles": 120,
+  "apiCards": 60,
+  "approvedMovies": 0,
+  "status": "PASS",
+  "scope": "Registration, file references and API consistency; not audiovisual acceptance."
+}

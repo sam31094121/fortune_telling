@@ -1,0 +1,24 @@
+{
+  "cardId": "beast_a05",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T02:07:18.446Z",
+  "reviewer": "Codex visual comparison of canonical images and extracted frames",
+  "candidateSha256": "cb6eb247cda24bed1b0388ce3fc6db1abc0ae464d951b7b0213c8a6e623deb34",
+  "referenceSha256": "7e9d8c9c6d82cc1c912c7bfaec9b53e0a8190cb3dafbf4937ad248620d514707",
+  "method": "Contact sheet at 2 fps; a01 v7 additionally checked recovery at 4 fps and a01 v8 contact at full resolution.",
+  "scope": "Only listed visual discrepancies are assessed. This record is not an audio listening review or approval.",
+  "overall": "fail",
+  "checks": {
+    "limbs": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖四肢的金色護腕與飾片在候選被省略／簡化。"
+    },
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖胸前金色鑲邊與青色寶石的細密飾紋未完整保留。"
+    }
+  },
+  "correctionsToModel": null
+}

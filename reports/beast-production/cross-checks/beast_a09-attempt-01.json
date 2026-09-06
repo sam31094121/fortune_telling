@@ -1,0 +1,41 @@
+{
+  "cardId": "beast_a09",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T03:14:58.665Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "89baf965e269f657be176e4faafbf802b0585b9548b116aa16f0d44cb8e7310d",
+  "referenceSha256": "a8be1c550856a1fc827885e0a3ecedf66534230b4dc14f26d7d4a8764c833ba1",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "method": "Canonical sources and 2 fps contact sheet.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a09/attempt-01/contact-sheet.jpg",
+      "sha256": "9892c5b2391ccdaaf26eac5dcc2cf7b4878af6e01ba64ea910a2307fdf31a282"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "head": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖金色寬大上彎月牙角變成較小、較窄的角。"
+    },
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "金棕毛色與細密金紋變成灰白身體配大塊金甲。"
+    },
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖青色流光尾部變成細小普通牛尾，缺少原有流光輪廓。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": null,
+      "evidence": "本次 2 fps 初篩不能確認三次獨立咬合、放開及反力；仍需密集影格與聲畫驗收。"
+    }
+  },
+  "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。"
+}

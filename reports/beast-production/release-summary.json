@@ -1,0 +1,368 @@
+{
+  "at": "2026-09-06T13:39:53.105Z",
+  "approved": 0,
+  "pending": 60,
+  "failed": 0,
+  "rows": [
+    {
+      "cardId": "beast_a01",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": true
+    },
+    {
+      "cardId": "beast_a02",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a03",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a04",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a05",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a06",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a07",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a08",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a09",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a10",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a11",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a12",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a13",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a14",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a15",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a16",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a17",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a18",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a19",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a20",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a21",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a22",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a23",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a24",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a25",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a26",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a27",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_a28",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y01",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y02",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y03",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y04",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y05",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y06",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y07",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y08",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y09",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y10",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y11",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y12",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y13",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y14",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y15",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y16",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y17",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y18",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y19",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y20",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y21",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y22",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y23",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y24",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y25",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y26",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y27",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_y28",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_g_qinglong",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_g_zhuque",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_g_baihu",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    },
+    {
+      "cardId": "beast_g_xuanwu",
+      "state": "PENDING",
+      "reason": "No approved release; runtime blocks this video",
+      "declaredVideo": false
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "cardId": "beast_a04",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T02:07:18.442Z",
+  "reviewer": "Codex visual comparison of canonical images and extracted frames",
+  "candidateSha256": "1702bb9170885a7e4babd3ceb654fce6469f05fbb5fc3daeaabd4d0b667d510f",
+  "referenceSha256": "182fce5ea0b8a48f868250906b2cb3adc67d43051e53b8a7445b296c0d23cf3c",
+  "method": "Contact sheet at 2 fps; a01 v7 additionally checked recovery at 4 fps and a01 v8 contact at full resolution.",
+  "scope": "Only listed visual discrepancies are assessed. This record is not an audio listening review or approval.",
+  "overall": "fail",
+  "checks": {
+    "head": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "候選額頭有細長直角，原圖是金色額飾與耳根結構，形狀不一致。"
+    },
+    "limbs": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖前後肢有突出的金色護甲與爪飾，候選改為較平素的兔形四肢。"
+    },
+    "contact": {
+      "status": "fail",
+      "timestampSeconds": 4,
+      "evidence": "咬擊格只見頭部撞近對手胸口，沒有清楚包住目標的上下顎闭合。"
+    },
+    "presentation": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "影片自行加入血條、PLAYER 與角色標籤。"
+    }
+  },
+  "correctionsToModel": null
+}

@@ -1,0 +1,34 @@
+{
+  "cardId": "beast_a19",
+  "attempt": 2,
+  "recordedAt": "2026-09-06T02:47:32.514Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "87837cdcfaa3a115722052f2643df1a1954be7046f2e4054c0faa326e67f73b6",
+  "referenceSha256": "03ec164087aa3905c421000a9f6b8909e6f84898e5732113302412e0e9ce21b1",
+  "method": "Canonical full-body source and 2 fps contact sheet. Unobservable jaw closure remains unverified.",
+  "scope": "Listed visual observations only; no claim of audio listening approval.",
+  "overall": "fail",
+  "checks": {
+    "contact": {
+      "status": "fail",
+      "timestampSeconds": 4,
+      "evidence": "4.0 秒時玩家喙已退離對手，主要碰撞較早發生，未符合 4 秒收尾咬擊。"
+    },
+    "continuity": {
+      "status": "fail",
+      "timestampSeconds": 1,
+      "evidence": "銀色對手在玩家攻擊前先向右突進，與玩家先發動的順序不一致。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": 2,
+      "evidence": "多格接觸被翅膀及頸部遮住，無法確認三次獨立上下喙／顎閉合，不可判通過。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 3,
+      "evidence": "原始銀色胸甲改為較突出的金色肩胸甲，對手尾部也變成更細的鱗片長尾。"
+    }
+  },
+  "correctionsToModel": "原始亢金龍胸前沒有模型所要求的大綠寶石，不能依此新增胸珠；以實際銀色甲紋與青銀鬃尾作比對。"
+}

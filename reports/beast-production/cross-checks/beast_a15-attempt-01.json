@@ -1,0 +1,41 @@
+{
+  "cardId": "beast_a15",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T03:14:58.687Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "4ec88d8597d8f9c9d3e3cfd7092ff2d7431227306759d7ef726f9cb5683cf28e",
+  "referenceSha256": "a5ed446c94935d1f167f66553d7ffeda3884df92aefc24c9480585e25e408f82",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "method": "Canonical sources and 2 fps contact sheet.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a15/attempt-01/contact-sheet.jpg",
+      "sha256": "e143d0a891545a4e3485f364fcdcaf2e5ffa3cc855f3a16e6c33be96d4ad2ac3"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖厚金鬃與金綠軀幹細紋變成細瘦普通狼體加綠葉頸圈。"
+    },
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖巨大的綠葉流線尾變成細普通狼尾與小葉尾簇。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "對手新增大型蝙蝠翅膀，與無翼亢金龍原圖不符。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": null,
+      "evidence": "本次 2 fps 初篩不能確認三次獨立咬合、放開及反力；仍需密集影格與聲畫驗收。"
+    }
+  },
+  "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。"
+}

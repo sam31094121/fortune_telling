@@ -1,0 +1,9 @@
+{
+  "default": "circus_arena.jpg",
+  "wide": "circus_arena_wide.jpg",
+  "license": "CC0",
+  "source": "https://polyhaven.com/a/circus_arena",
+  "crop": "center-lower 9:16",
+  "author": "Oliksiy Yakovlyev (Poly Haven)",
+  "asset": "circus_arena"
+}

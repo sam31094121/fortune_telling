@@ -10,10 +10,148 @@
       "enabled": true,
       "clip": "/beast-game/skill-bodies/beast_a14.webp",
       "body": "/beast-game/skill-bodies/beast_a14.webp",
-      "durationMs": 1600,
+      "durationMs": 6000,
       "spawn": {
         "from": "selfSlot",
         "to": "targetSlot"
+      },
+      "production": {
+        "version": "six-second-mutual-bite-v2",
+        "registrationStatus": "registered",
+        "state": "needs-refinement",
+        "canonicalReference": "/beast-game/spirit/14.webp",
+        "referenceSha256": "50919e446b3f90ec95282ad6468cb1aa8e1071d1bd3f678574eea8dbb28c4927",
+        "jobReport": "reports/beast-production/beast_a14.json",
+        "latestAttempt": 1,
+        "voiceCandidate": ".tmp/beast-production/beast_a14/voice/player-six-second-v2.wav",
+        "voiceReview": "awaiting-audiovisual-review",
+        "voice": {
+          "source": "/audio/beast-voices/beast_a14.mp3",
+          "sourceSha256": "d9da928d37e5b2e964bbd47aba45cb71ed02b4eaa12b50ee6c068c1b6ec792ca",
+          "candidateSha256": "6e968fcfe0c48765c405fc0dc0bbb956713f617d118f9495694fcca11f14b2db",
+          "provenanceReport": ".tmp/beast-production/beast_a14/voice/provenance-v2.json",
+          "durationSeconds": 6,
+          "technicalCheck": "passed",
+          "reviewStatus": "awaiting-audiovisual-review"
+        },
+        "timeline": [
+          {
+            "phase": "build",
+            "start": 0,
+            "end": 1.8
+          },
+          {
+            "phase": "rush",
+            "start": 1.8,
+            "end": 2.5
+          },
+          {
+            "phase": "player-bite",
+            "start": 2.5,
+            "end": 2.8
+          },
+          {
+            "phase": "opponent-counterbite",
+            "start": 2.8,
+            "end": 3.3
+          },
+          {
+            "phase": "player-finisher",
+            "start": 3.6,
+            "end": 4.2
+          },
+          {
+            "phase": "recovery",
+            "start": 4.2,
+            "end": 6
+          }
+        ],
+        "requiredChecks": [
+          "identity",
+          "opponentIdentity",
+          "head",
+          "body",
+          "limbs",
+          "mouth",
+          "teethOrBeak",
+          "eyes",
+          "clawsOrHooves",
+          "tail",
+          "contact",
+          "reciprocalBite",
+          "playerVoice",
+          "continuity",
+          "mobilePlayback"
+        ],
+        "candidateContractVersion": "single-bite-legacy",
+        "perspective": "player",
+        "opponentVoice": false,
+        "candidate": {
+          "status": "available-for-review",
+          "attempt": 1,
+          "contractVersion": "single-bite-legacy",
+          "opponentId": "beast_a02",
+          "workspaceFile": "reports/beast-production/previews/beast_a14-attempt-01.mp4",
+          "candidateSha256": "afcd461fd6512bd3c59a914e40e3e7dc2d98814465ea314cdd82f96419680a91",
+          "previewSha256": "829893b9143be52bf83913c424619cc5569344d41e51c3dc6b16189aa0830c5f",
+          "durationSeconds": 6,
+          "access": "local-review-only"
+        },
+        "review": {
+          "status": "initial-visual-screening-recorded",
+          "visualReport": "reports/beast-production/cross-checks/beast_a14-attempt-01.json",
+          "modelReport": ".tmp/beast-production/beast_a14/attempt-01/model-review.json",
+          "failedParts": [
+            {
+              "part": "limbs",
+              "evidence": "原图四肢厚實雕花冰甲被簡化，未保留腕踝冰飾輪廓。"
+            },
+            {
+              "part": "tail",
+              "evidence": "原圖寬厚雕塑狀冰尾变成較細尾部，開場尾端又被畫面右側裁掉。"
+            },
+            {
+              "part": "identity",
+              "evidence": "因尾巴設計嚴重不符，整體角色還原度失敗。"
+            },
+            {
+              "part": "playerVoice",
+              "evidence": "音軌包含額外雜音與重複吼叫，未完全契合參考音檔的純粹度。"
+            },
+            {
+              "part": "continuity",
+              "evidence": "衝刺與咬合過程中，角色模型與尾巴出現不自然的形變。"
+            },
+            {
+              "part": "opponentIdentity",
+              "evidence": "對手缺少原圖D的綠色鬃毛、特定金色裝甲細節，且姿態不符。"
+            },
+            {
+              "part": "mobilePlayback",
+              "evidence": "開場完整本體未入鏡，右側尾端被裁切。"
+            }
+          ],
+          "outstandingChecks": [
+            "identity",
+            "opponentIdentity",
+            "head",
+            "body",
+            "limbs",
+            "mouth",
+            "teethOrBeak",
+            "eyes",
+            "clawsOrHooves",
+            "tail",
+            "contact",
+            "reciprocalBite",
+            "playerVoice",
+            "continuity",
+            "mobilePlayback"
+          ],
+          "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。",
+          "fullAudiovisualAcceptance": "pending"
+        },
+        "blocker": null
       }
     },
     {

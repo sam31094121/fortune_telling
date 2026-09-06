@@ -1,0 +1,41 @@
+{
+  "cardId": "beast_a14",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T03:14:58.683Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "afcd461fd6512bd3c59a914e40e3e7dc2d98814465ea314cdd82f96419680a91",
+  "referenceSha256": "50919e446b3f90ec95282ad6468cb1aa8e1071d1bd3f678574eea8dbb28c4927",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "method": "Canonical sources and 2 fps contact sheet.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a14/attempt-01/contact-sheet.jpg",
+      "sha256": "5263b653d2ea3a49db7e968cdc315f9edb15f515b6d7caa2061ef43bfe6c7d52"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "limbs": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原图四肢厚實雕花冰甲被簡化，未保留腕踝冰飾輪廓。"
+    },
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖寬厚雕塑狀冰尾变成較細尾部，開場尾端又被畫面右側裁掉。"
+    },
+    "mobilePlayback": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "開場完整本體未入鏡，右側尾端被裁切。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": null,
+      "evidence": "本次 2 fps 初篩不能確認三次獨立咬合、放開及反力；仍需密集影格與聲畫驗收。"
+    }
+  },
+  "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。"
+}

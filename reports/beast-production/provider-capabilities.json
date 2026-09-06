@@ -1,0 +1,37 @@
+{
+  "at": "2026-09-06T01:37:05.716Z",
+  "models": [
+    {
+      "name": "models/gemini-omni-flash-preview",
+      "actions": [
+        "generateContent",
+        "countTokens"
+      ]
+    },
+    {
+      "name": "models/gemini-omni-1.1-flash",
+      "actions": [
+        "generateContent",
+        "countTokens"
+      ]
+    },
+    {
+      "name": "models/veo-3.1-generate-preview",
+      "actions": [
+        "predictLongRunning"
+      ]
+    },
+    {
+      "name": "models/veo-3.1-fast-generate-preview",
+      "actions": [
+        "predictLongRunning"
+      ]
+    },
+    {
+      "name": "models/veo-3.1-lite-generate-preview",
+      "actions": [
+        "predictLongRunning"
+      ]
+    }
+  ]
+}

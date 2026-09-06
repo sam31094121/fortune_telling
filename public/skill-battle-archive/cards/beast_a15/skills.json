@@ -10,10 +10,144 @@
       "enabled": true,
       "clip": "/beast-game/skill-bodies/beast_a15.webp",
       "body": "/beast-game/skill-bodies/beast_a15.webp",
-      "durationMs": 1600,
+      "durationMs": 6000,
       "spawn": {
         "from": "selfSlot",
         "to": "targetSlot"
+      },
+      "production": {
+        "version": "six-second-mutual-bite-v2",
+        "registrationStatus": "registered",
+        "state": "needs-refinement",
+        "canonicalReference": "/beast-game/spirit/15.webp",
+        "referenceSha256": "a5ed446c94935d1f167f66553d7ffeda3884df92aefc24c9480585e25e408f82",
+        "jobReport": "reports/beast-production/beast_a15.json",
+        "latestAttempt": 1,
+        "voiceCandidate": ".tmp/beast-production/beast_a15/voice/player-six-second-v2.wav",
+        "voiceReview": "awaiting-audiovisual-review",
+        "voice": {
+          "source": "/audio/beast-voices/beast_a15.mp3",
+          "sourceSha256": "b0c6aa96f7b790f37b1d9b726113ccc0c962e740c0be7b001793041ef73485be",
+          "candidateSha256": "674bb653410d3fb566349f76ca4d7018e529a0ce944bb358b5b6f548dd9b6a9a",
+          "provenanceReport": ".tmp/beast-production/beast_a15/voice/provenance-v2.json",
+          "durationSeconds": 6,
+          "technicalCheck": "passed",
+          "reviewStatus": "awaiting-audiovisual-review"
+        },
+        "timeline": [
+          {
+            "phase": "build",
+            "start": 0,
+            "end": 1.8
+          },
+          {
+            "phase": "rush",
+            "start": 1.8,
+            "end": 2.5
+          },
+          {
+            "phase": "player-bite",
+            "start": 2.5,
+            "end": 2.8
+          },
+          {
+            "phase": "opponent-counterbite",
+            "start": 2.8,
+            "end": 3.3
+          },
+          {
+            "phase": "player-finisher",
+            "start": 3.6,
+            "end": 4.2
+          },
+          {
+            "phase": "recovery",
+            "start": 4.2,
+            "end": 6
+          }
+        ],
+        "requiredChecks": [
+          "identity",
+          "opponentIdentity",
+          "head",
+          "body",
+          "limbs",
+          "mouth",
+          "teethOrBeak",
+          "eyes",
+          "clawsOrHooves",
+          "tail",
+          "contact",
+          "reciprocalBite",
+          "playerVoice",
+          "continuity",
+          "mobilePlayback"
+        ],
+        "candidateContractVersion": "single-bite-legacy",
+        "perspective": "player",
+        "opponentVoice": false,
+        "candidate": {
+          "status": "available-for-review",
+          "attempt": 1,
+          "contractVersion": "single-bite-legacy",
+          "opponentId": "beast_a02",
+          "workspaceFile": "reports/beast-production/previews/beast_a15-attempt-01.mp4",
+          "candidateSha256": "4ec88d8597d8f9c9d3e3cfd7092ff2d7431227306759d7ef726f9cb5683cf28e",
+          "previewSha256": "99573eaf6438e9a3a60b1d79079311b13e1b22525a3ab31959131e7bf347455d",
+          "durationSeconds": 6,
+          "access": "local-review-only"
+        },
+        "review": {
+          "status": "initial-visual-screening-recorded",
+          "visualReport": "reports/beast-production/cross-checks/beast_a15-attempt-01.json",
+          "modelReport": ".tmp/beast-production/beast_a15/attempt-01/model-review.json",
+          "failedParts": [
+            {
+              "part": "head",
+              "evidence": "玩家鬃毛變為綠葉，原設定為金黃毛髮。"
+            },
+            {
+              "part": "body",
+              "evidence": "原圖厚金鬃與金綠軀幹細紋變成細瘦普通狼體加綠葉頸圈。"
+            },
+            {
+              "part": "limbs",
+              "evidence": "玩家四肢缺少原設定的藤蔓細節。"
+            },
+            {
+              "part": "tail",
+              "evidence": "原圖巨大的綠葉流線尾變成細普通狼尾與小葉尾簇。"
+            },
+            {
+              "part": "identity",
+              "evidence": "玩家外觀多處細節（如鬃毛材質、藤蔓）與設定圖A不符。"
+            },
+            {
+              "part": "opponentIdentity",
+              "evidence": "對手新增大型蝙蝠翅膀，與無翼亢金龍原圖不符。"
+            }
+          ],
+          "outstandingChecks": [
+            "identity",
+            "opponentIdentity",
+            "head",
+            "body",
+            "limbs",
+            "mouth",
+            "teethOrBeak",
+            "eyes",
+            "clawsOrHooves",
+            "tail",
+            "contact",
+            "reciprocalBite",
+            "playerVoice",
+            "continuity",
+            "mobilePlayback"
+          ],
+          "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。",
+          "fullAudiovisualAcceptance": "pending"
+        },
+        "blocker": null
       }
     },
     {

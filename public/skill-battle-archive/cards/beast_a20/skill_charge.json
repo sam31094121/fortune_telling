@@ -4,11 +4,161 @@
   "enabled": true,
   "clip": "../clips/charge-battle.png",
   "body": "../body.png",
-  "durationMs": 1600,
+  "durationMs": 6000,
   "spawn": {
     "from": "selfSlot",
     "to": "targetSlot"
   },
   "poolId": "beast_a20",
-  "displayName": "觜火猴"
+  "displayName": "觜火猴",
+  "production": {
+    "version": "six-second-mutual-bite-v2",
+    "registrationStatus": "registered",
+    "state": "needs-refinement",
+    "canonicalReference": "/beast-game/spirit/20.webp",
+    "referenceSha256": "76f3f98a663f1e0d719ddcdc19324dc3a344d576b825c1a9d4270548379d1b2b",
+    "jobReport": "reports/beast-production/beast_a20.json",
+    "latestAttempt": 1,
+    "voiceCandidate": ".tmp/beast-production/beast_a20/voice/player-six-second-v2.wav",
+    "voiceReview": "awaiting-audiovisual-review",
+    "voice": {
+      "source": "/audio/beast-voices/beast_a20.mp3",
+      "sourceSha256": "d6550f74cd1b0078d628cfd4dc6199450ad2c777bb58d107e1a755b8cd2f59ba",
+      "candidateSha256": "14477ec807404c66b9c65b847b281491b7c03a412dfa81f01305a3840ef0c2b3",
+      "provenanceReport": ".tmp/beast-production/beast_a20/voice/provenance-v2.json",
+      "durationSeconds": 6,
+      "technicalCheck": "passed",
+      "reviewStatus": "awaiting-audiovisual-review"
+    },
+    "timeline": [
+      {
+        "phase": "build",
+        "start": 0,
+        "end": 1.8
+      },
+      {
+        "phase": "rush",
+        "start": 1.8,
+        "end": 2.5
+      },
+      {
+        "phase": "player-bite",
+        "start": 2.5,
+        "end": 2.8
+      },
+      {
+        "phase": "opponent-counterbite",
+        "start": 2.8,
+        "end": 3.3
+      },
+      {
+        "phase": "player-finisher",
+        "start": 3.6,
+        "end": 4.2
+      },
+      {
+        "phase": "recovery",
+        "start": 4.2,
+        "end": 6
+      }
+    ],
+    "requiredChecks": [
+      "identity",
+      "opponentIdentity",
+      "head",
+      "body",
+      "limbs",
+      "mouth",
+      "teethOrBeak",
+      "eyes",
+      "clawsOrHooves",
+      "tail",
+      "contact",
+      "reciprocalBite",
+      "playerVoice",
+      "continuity",
+      "mobilePlayback"
+    ],
+    "candidateContractVersion": "single-bite-legacy",
+    "perspective": "player",
+    "opponentVoice": false,
+    "candidate": {
+      "status": "available-for-review",
+      "attempt": 1,
+      "contractVersion": "single-bite-legacy",
+      "opponentId": "beast_a02",
+      "workspaceFile": "reports/beast-production/previews/beast_a20-attempt-01.mp4",
+      "candidateSha256": "95efeee52fae1f22343cf3be1e988d456d805103c02944f5e294d29c5e70d147",
+      "previewSha256": "6c09a45898333bc7afa9e4f446993c56a62912fdd6d6e2cfa7c4a2bfc9fea715",
+      "durationSeconds": 6,
+      "access": "local-review-only"
+    },
+    "review": {
+      "status": "initial-visual-screening-recorded",
+      "visualReport": "reports/beast-production/cross-checks/beast_a20-attempt-01.json",
+      "modelReport": ".tmp/beast-production/beast_a20/attempt-01/model-review.json",
+      "failedParts": [
+        {
+          "part": "limbs",
+          "evidence": "衝刺時右臂不自然拉長變形。"
+        },
+        {
+          "part": "mouth",
+          "evidence": "1.0秒時嘴部變形成獅嘴。"
+        },
+        {
+          "part": "teethOrBeak",
+          "evidence": "牙齒隨獅子頭部變形而改變。"
+        },
+        {
+          "part": "eyes",
+          "evidence": "眼睛在變形過程中改變。"
+        },
+        {
+          "part": "clawsOrHooves",
+          "evidence": "爪子在動作中變形且失去細節。"
+        },
+        {
+          "part": "tail",
+          "evidence": "尾巴形狀在動畫過程中發生改變。"
+        },
+        {
+          "part": "playerVoice",
+          "evidence": "聲音為低沉獅吼與參考音檔不符。"
+        },
+        {
+          "part": "continuity",
+          "evidence": "嚴重的角色變形破壞了視覺連貫性。"
+        },
+        {
+          "part": "opponentIdentity",
+          "evidence": "衝鋒中對手尾部變為細長鱗尾，未保留原圖寬厚青銀流線尾型。"
+        },
+        {
+          "part": "reciprocalBite",
+          "evidence": "2.5–2.8 秒密集影格顯示玩家用前肢抵住龍嘴，玩家嘴巴遠離對手肩部，缺少新配方要求的玩家首咬；後續頭部靠近不能補成三次互咬。"
+        }
+      ],
+      "outstandingChecks": [
+        "identity",
+        "opponentIdentity",
+        "head",
+        "body",
+        "limbs",
+        "mouth",
+        "teethOrBeak",
+        "eyes",
+        "clawsOrHooves",
+        "tail",
+        "contact",
+        "reciprocalBite",
+        "playerVoice",
+        "continuity",
+        "mobilePlayback"
+      ],
+      "correctionsToModel": "模型聲稱 1 秒變獅子、胸星消失，與實際完整影格不符；不以這些錯誤理由重畫。互咬仍依 12 fps 接觸影格判定失敗。",
+      "fullAudiovisualAcceptance": "pending"
+    },
+    "blocker": null
+  }
 }

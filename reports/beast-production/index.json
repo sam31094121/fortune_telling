@@ -1,0 +1,247 @@
+{
+  "updatedAt": "2026-09-06T03:46:37.372Z",
+  "count": 60,
+  "approved": 0,
+  "jobs": [
+    {
+      "cardId": "beast_a01",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a02",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a03",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a04",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a05",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a06",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a07",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a08",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a09",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a10",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a11",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a12",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a13",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a14",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a15",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a16",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a17",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a18",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a19",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a20",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a21",
+      "state": "quota-blocked"
+    },
+    {
+      "cardId": "beast_a22",
+      "state": "needs-refinement"
+    },
+    {
+      "cardId": "beast_a23",
+      "state": "quota-blocked"
+    },
+    {
+      "cardId": "beast_a24",
+      "state": "quota-blocked"
+    },
+    {
+      "cardId": "beast_a25",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_a26",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_a27",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_a28",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y01",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y02",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y03",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y04",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y05",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y06",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y07",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y08",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y09",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y10",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y11",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y12",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y13",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y14",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y15",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y16",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y17",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y18",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y19",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y20",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y21",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y22",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y23",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y24",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y25",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y26",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y27",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_y28",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_g_qinglong",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_g_zhuque",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_g_baihu",
+      "state": "awaiting-generation"
+    },
+    {
+      "cardId": "beast_g_xuanwu",
+      "state": "awaiting-generation"
+    }
+  ]
+}

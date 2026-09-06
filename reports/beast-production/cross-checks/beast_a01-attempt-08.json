@@ -1,0 +1,29 @@
+{
+  "cardId": "beast_a01",
+  "attempt": 8,
+  "recordedAt": "2026-09-06T02:07:18.476Z",
+  "reviewer": "Codex visual comparison of canonical images and extracted frames",
+  "candidateSha256": "ae2659ad7287543fb43dc10ecfa63e6753114aa0cdf24e60d73703569af93ba6",
+  "referenceSha256": "8d31956ddb9589c3a6e39a342aa83c41f7bbaf096715361679dd3adc0e2ecc6b",
+  "method": "Contact sheet at 2 fps; a01 v7 additionally checked recovery at 4 fps and a01 v8 contact at full resolution.",
+  "scope": "Only listed visual discrepancies are assessed. This record is not an audio listening review or approval.",
+  "overall": "fail",
+  "checks": {
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 3,
+      "evidence": "銀色對手尾部由原圖寬厚的青銀流蘇變成細長鱗片尾，玩家尾部亦變細。"
+    },
+    "continuity": {
+      "status": "fail",
+      "timestampSeconds": 1,
+      "evidence": "銀色對手先撲向玩家，之後玩家再咬擊，動作焦點與玩家先蓄力衝鋒的安排不一致。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 3,
+      "evidence": "銀色對手胸甲轉成突出的金色胸片，前後尾型改變。"
+    }
+  },
+  "correctionsToModel": "畫面可見玩家綠色胸珠，模型所稱缺少胸珠不準確；不沿用這項錯誤判斷。"
+}

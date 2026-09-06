@@ -1,0 +1,181 @@
+{
+  "cardId": "beast_a14",
+  "name": "壁水貐",
+  "reference": "public/beast-game/spirit/14.webp",
+  "referenceSha256": "50919e446b3f90ec95282ad6468cb1aa8e1071d1bd3f678574eea8dbb28c4927",
+  "durationSeconds": 6,
+  "perspective": "player",
+  "opponentVoice": false,
+  "timeline": [
+    {
+      "phase": "build",
+      "start": 0,
+      "end": 2
+    },
+    {
+      "phase": "rush",
+      "start": 1.8,
+      "end": 4.5
+    },
+    {
+      "phase": "bite",
+      "start": 4,
+      "end": 4.2
+    },
+    {
+      "phase": "tail",
+      "start": 4.2,
+      "end": 6
+    }
+  ],
+  "state": "needs-refinement",
+  "checks": {
+    "head": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "body": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "limbs": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "mouth": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "teethOrBeak": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "eyes": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "clawsOrHooves": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "tail": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "identity": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "contact": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "playerVoice": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "continuity": {
+      "status": "unreviewed",
+      "evidence": null
+    }
+  },
+  "attemptLimit": 3,
+  "prompt": "Create exactly 6 seconds of continuous creature footage, one shot with no cuts. Image 1 is the protagonist 壁水貐; image 2 is its silent training opponent. Reproduce these exact individual creatures in their original detailed rendering style. Preserve facial structure, species, colors, markings, complex filigree armor, central chest jewels, limb ornaments, appendages and proportions throughout. Do not simplify ornamental details or replace their materials. Never add horns or wings absent in either source. Keep the protagonist's source-facing orientation and place the opponent toward that side, both visible from the first frame; do not spin or redesign them. Camera stays fixed, showing full bodies and a dark stone stage with margin for every appendage. This is clean footage, without HUD, health bars, interface, text, titles, names, icons, captions or frames. Animate anatomical joints and weight transfer, never slide a card or rigid cutout. 0-2s: grounded breath and proud species-appropriate call, body braces. 1.8-3.6s: the protagonist pushes off in a short forceful lunge toward the opponent's armored shoulder, appendages follow naturally. Arrange the silent opponent crouched so that its shoulder is at the protagonist's mouth height. At 3.8s open the protagonist's natural jaw or beak and place that shoulder clearly between its upper and lower jaw. At exactly 4.0s CLOSE the jaw or beak onto that shoulder, hold the visible non-gory grip until 4.2s with a slight pull and immediate opponent recoil. Do not merely stop in front of the opponent, nuzzle or headbutt; visible mouth closure around its shoulder is essential. 4.2-6s: release and settle, the same protagonist's call decays. Opponent reacts but remains completely silent. No blood, humans, music, camera orbit, body morphing, new teeth or extra limbs, image crossfades or rectangular backgrounds. Bird species retain a beak without invented teeth; legless species retain their anatomy. The protagonist's head and contact are the focal point. Finish the complete action by 6s.",
+  "attempt": 1,
+  "provider": "gemini-omni-1.1-flash",
+  "methodRevisionReason": "Newly verified Omni model supports subject references and local conversational edits. Preserve the source-facing direction and distinguish both canonical actors; previous Veo candidates failed identity.",
+  "opponentId": "beast_a02",
+  "opponentReference": "public/beast-game/spirit/02.webp",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "conditioning": "omni-subject-reference",
+  "sourceSeconds": 6,
+  "aspectRatio": "16:9",
+  "releaseStatus": "pending",
+  "purpose": "paired-skill-candidate",
+  "recipeVersion": "omni-6s-no-hud-articulated-bite-v2",
+  "startedAt": "2026-09-06T02:01:24.000Z",
+  "omniInteractionId": "v1_Chdsc21jYXNtcUdiQ1B2cjBQdmVTUnVROBIXbHNtY2FzbXFHYkNQdnIwUHZlU1J1UTg",
+  "providerReturnedAt": "2026-09-06T02:02:03.680Z",
+  "nativeCandidateSha256": "e6245de5489739b92e9ed2be0e8dc200170bf88a0b529816d68402d01afa230d",
+  "actualNativeDuration": 6.016,
+  "candidateSha256": "afcd461fd6512bd3c59a914e40e3e7dc2d98814465ea314cdd82f96419680a91",
+  "finishedAt": "2026-09-06T02:02:03.800Z",
+  "audioOverride": {
+    "source": "public/audio/beast-voices/beast_a14.mp3",
+    "sixSecondCandidateSha256": "ab724be97f341c748b02fb726093ff9128d8f8bb5b5bf9bade2986fa4601bfac",
+    "nativeAudioRemoved": true,
+    "reviewStatus": "unreviewed"
+  },
+  "automaticReview": {
+    "checks": {
+      "head": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "頭部形狀與冰晶特徵與原圖相符。"
+      },
+      "body": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "身體斑紋與肩部裝甲設計相符。"
+      },
+      "limbs": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "四肢數量與基本比例正確。"
+      },
+      "mouth": {
+        "status": "pass",
+        "timestampSeconds": 3,
+        "evidence": "嘴部能正常張開與閉合。"
+      },
+      "teethOrBeak": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "標誌性的劍齒特徵存在。"
+      },
+      "eyes": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "眼睛顏色與位置相符。"
+      },
+      "clawsOrHooves": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "爪子特徵清晰可見。"
+      },
+      "tail": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "尾巴呈現普通毛茸茸狀，完全缺失原圖複雜的冰晶漩渦設計。"
+      },
+      "identity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "因尾巴設計嚴重不符，整體角色還原度失敗。"
+      },
+      "contact": {
+        "status": "pass",
+        "timestampSeconds": 4,
+        "evidence": "在4秒附近成功展現咬合並與對手產生實體接觸。"
+      },
+      "playerVoice": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "音軌包含額外雜音與重複吼叫，未完全契合參考音檔的純粹度。"
+      },
+      "continuity": {
+        "status": "fail",
+        "timestampSeconds": 2,
+        "evidence": "衝刺與咬合過程中，角色模型與尾巴出現不自然的形變。"
+      },
+      "opponentIdentity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "對手缺少原圖D的綠色鬃毛、特定金色裝甲細節，且姿態不符。"
+      }
+    },
+    "overall": "fail",
+    "refinement": "必須將玩家尾巴修正為原圖的冰晶漩渦形態。對手設計需嚴格參照圖D，加入綠色鬃毛與正確的裝甲細節。清理音軌以確保只有單一乾淨的吼叫聲，並減少動畫過程中的模型形變。"
+  },
+  "preview": "reports/beast-production/previews/beast_a14-attempt-01.mp4"
+}

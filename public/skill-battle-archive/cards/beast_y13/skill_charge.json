@@ -4,11 +4,108 @@
   "enabled": true,
   "clip": "../clips/charge-battle.png",
   "body": "../body.png",
-  "durationMs": 1600,
+  "durationMs": 6000,
   "spawn": {
     "from": "selfSlot",
     "to": "targetSlot"
   },
   "poolId": "beast_y13",
-  "displayName": "室火豬・幼子"
+  "displayName": "室火豬・幼子",
+  "production": {
+    "version": "six-second-mutual-bite-v2",
+    "registrationStatus": "registered",
+    "state": "awaiting-generation",
+    "canonicalReference": "/beast-game/spirit/13y.webp",
+    "referenceSha256": "8df0a32a923c83dc35e20f5eb7bf4dcc96c9d468f14bf204d478464debf4c4b8",
+    "jobReport": "reports/beast-production/beast_y13.json",
+    "latestAttempt": 0,
+    "voiceCandidate": ".tmp/beast-production/beast_y13/voice/player-six-second-v2.wav",
+    "voiceReview": "awaiting-audiovisual-review",
+    "voice": {
+      "source": "/audio/beast-voices/beast_y13.mp3",
+      "sourceSha256": "d3a7b43c111daa1cb27a3f23fe26946664e6301fef0d46336fad868c71684715",
+      "candidateSha256": "0e6805f842a48eead2da484d8dbace52251cf0ae678f4516f38a21537839c45a",
+      "provenanceReport": ".tmp/beast-production/beast_y13/voice/provenance-v2.json",
+      "durationSeconds": 6,
+      "technicalCheck": "passed",
+      "reviewStatus": "awaiting-audiovisual-review"
+    },
+    "timeline": [
+      {
+        "phase": "build",
+        "start": 0,
+        "end": 1.8
+      },
+      {
+        "phase": "rush",
+        "start": 1.8,
+        "end": 2.5
+      },
+      {
+        "phase": "player-bite",
+        "start": 2.5,
+        "end": 2.8
+      },
+      {
+        "phase": "opponent-counterbite",
+        "start": 2.8,
+        "end": 3.3
+      },
+      {
+        "phase": "player-finisher",
+        "start": 3.6,
+        "end": 4.2
+      },
+      {
+        "phase": "recovery",
+        "start": 4.2,
+        "end": 6
+      }
+    ],
+    "requiredChecks": [
+      "identity",
+      "opponentIdentity",
+      "head",
+      "body",
+      "limbs",
+      "mouth",
+      "teethOrBeak",
+      "eyes",
+      "clawsOrHooves",
+      "tail",
+      "contact",
+      "reciprocalBite",
+      "playerVoice",
+      "continuity",
+      "mobilePlayback"
+    ],
+    "candidateContractVersion": "single-bite-legacy",
+    "perspective": "player",
+    "opponentVoice": false,
+    "candidate": null,
+    "review": {
+      "status": "awaiting-candidate",
+      "visualReport": null,
+      "failedParts": [],
+      "outstandingChecks": [
+        "identity",
+        "opponentIdentity",
+        "head",
+        "body",
+        "limbs",
+        "mouth",
+        "teethOrBeak",
+        "eyes",
+        "clawsOrHooves",
+        "tail",
+        "contact",
+        "reciprocalBite",
+        "playerVoice",
+        "continuity",
+        "mobilePlayback"
+      ],
+      "correctionsToModel": null
+    },
+    "blocker": null
+  }
 }

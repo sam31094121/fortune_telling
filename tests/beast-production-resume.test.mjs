@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {recordProviderError} from '../scripts/beast-provider-error.mjs';
+import {awaitOmniResponse} from '../scripts/beast-omni-result.mjs';
+const at='2026-09-06T02:20:04.946Z';
+const daily=recordProviderError({omniInteractionId:'existing-id'},{status:429,message:'generate_requests_per_model_per_day Please retry in 21h40m4.477939133s. test-secret'},'test-secret',at);
+assert.equal(daily.state,'quota-blocked');assert.equal(daily.quota.scope,'daily');assert.equal(daily.omniInteractionId,'existing-id');
+assert.equal(daily.quota.retryAt,'2026-09-07T00:00:09.946Z');assert.ok(!daily.providerMessage.includes('test-secret'));
+const monthly=recordProviderError({},{status:429,message:'Your project has exceeded its monthly spending cap.'},'',at);
+assert.equal(monthly.quota.scope,'monthly-spend');assert.equal(monthly.quota.retryAt,null);
+const job={cardId:'beast_a01'};let saved,calls=0;
+await assert.rejects(awaitOmniResponse({interactions:{get:async(id)=>{calls++;assert.equal(id,'durable-id');assert.equal(saved.omniInteractionId,id);throw new Error('transport dropped');},create:()=>{throw new Error('Must never submit a paid request');}}},job,{id:'durable-id',status:'in_progress'},{pause:async()=>{},persist:(_file,value)=>{saved=structuredClone(value);}}),/transport dropped/);
+assert.equal(calls,1);assert.equal(job.omniInteractionId,'durable-id');assert.equal(saved.state,'generating');
+const completedReply={id:'durable-id',status:'completed',output_video:{data:'saved-bytes'}};let savedImmediate=false;
+const completed=await awaitOmniResponse({},job,completedReply,{persist:()=>{savedImmediate=true;}});
+assert.equal(completed,completedReply);assert.equal(savedImmediate,true);
+console.log('PASS: quota scopes and retry time, redaction, durable id before polling, no paid resubmission');

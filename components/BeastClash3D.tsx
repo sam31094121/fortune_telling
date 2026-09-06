@@ -8,9 +8,8 @@
  *
  * 【先講清楚這支做了什麼、沒做什麼】
  *
- * 做了：真的三維場景。兩張卡是三維空間裡的物件，有透視、有深度、
- *       會旋轉、會衝過去、撞擊時會震、會閃光。六十張都通用，
- *       貼圖就是各自的卡面，所以每一張衝過去的都是牠自己。
+ * 做了：三維舞台與各自的去背立繪，有位移與撞擊提示。
+ *       這是既有的立繪演出，不是已驗收的六秒關節動畫。
  *
  * 做了：神獸**本體**跑過去。六十張各自有一張去背全身立繪
  *       （scripts/gen-beast-spirits.mjs 以既有插畫為底重繪並去背），
@@ -23,9 +22,9 @@
  * 【效能紀律（太極憲章）】
  *
  * 手機優先 60FPS。所以：
- *   場上永遠只有兩張卡與一片撞擊光，不是六十個模型
- *   不開陰影、不用後製、材質只有兩張已經在手牌載過的縮圖
- *   只在交鋒階段掛載，演完就卸掉，不長期佔著 WebGL context
+ *   場上最多兩張本體立繪與一片撞擊光
+ *   不開陰影、不用後製，素材先行預載
+ *   整場保留同一個 WebGL context，閒置時按需繪製
  *   prefers-reduced-motion 直接不掛載，交給原本的靜態版面
  *
  * 【動畫不得決定結果（規格第十二條）】
@@ -35,23 +34,29 @@
  */
 
 import { Canvas, useFrame, useLoader } from '@react-three/fiber';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import * as THREE from 'three';
 
 export type ClashSide = 'player' | 'opponent';
+
+class CanvasBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() { return this.state.failed ? this.props.fallback : this.props.children; }
+}
 
 export interface ClashProps {
   /** 我方出戰卡的卡面圖（縮圖，手牌已經載過，不會多一次請求）。 */
   playerArt: string;
   /** 對方出戰卡的卡面圖。 */
   opponentArt: string;
-  /** 我方神獸的去背本體立繪。沒有就退回卡面。 */
+  /** 我方神獸的去背本體立繪。缺少時保留舞台，不替換成卡面。 */
   playerSpirit?: string | null;
   /** 對方神獸的去背本體立繪。 */
   opponentSpirit?: string | null;
   /** 這一次是誰出手。換人時卡片會從對應方向衝出去。 */
   attacker: ClashSide;
-  /** 出手方的元素光色，來自 lib/beast-battle-fx 的對照表。 */
+  /** 玩家元素光色，來自 lib/beast-battle-fx 的對照表。 */
   glow: string;
   /** 每次這個值變動就重演一次衝撞。用回合序號即可。 */
   beat: number;
@@ -91,7 +96,7 @@ function CardPlane({
   home: [number, number, number];
   lunging: boolean;
   glow: string;
-  /** 有本體立繪就用本體，沒有才退回卡面。 */
+  /** 是否使用本體立繪比例。 */
   spirit?: boolean;
   recoiling: boolean;
   lost?: boolean;
@@ -237,8 +242,6 @@ function Impact({ active, glow }: { active: boolean; glow: string }) {
 }
 
 export default function BeastClash3D({
-  playerArt,
-  opponentArt,
   playerSpirit,
   opponentSpirit,
   attacker,
@@ -249,6 +252,17 @@ export default function BeastClash3D({
 }: ClashProps) {
   const [lunging, setLunging] = useState(false);
   const [impact, setImpact] = useState(false);
+  const [contextLost, setContextLost] = useState(false);
+  const renderer = useRef<THREE.WebGLRenderer | null>(null);
+
+  useEffect(() => {
+    // Some mobile/automated browsers lose the GPU context without forwarding its event.
+    // Keep a static view of the actual beasts visible while that context is unavailable.
+    const check = () => { if (renderer.current) setContextLost(renderer.current.getContext().isContextLost()); };
+    check();
+    const timer = window.setInterval(check, 500);
+    return () => window.clearInterval(timer);
+  }, []);
 
   // 減少動態時整個不掛載，交給原本的靜態版面——不是把動畫調慢，是不做。
   const reduced = useMemo(() => {
@@ -272,12 +286,19 @@ export default function BeastClash3D({
 
   if (reduced) return null;
 
+  const staticBeasts = active ? <div data-beast-static-fallback className="absolute inset-0 grid grid-cols-2 items-center gap-3 p-8" aria-label="神獸本體靜態展示">
+    {[playerSpirit, opponentSpirit].map((src, index) => src ? (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img key={index} src={src} alt={index === 0 ? '玩家神獸本體' : '對手神獸本體'} className="h-full max-h-full w-full min-h-0 object-contain" />
+    ) : <span key={index} />)}
+  </div> : null;
+
   return (
     <div
       data-beast-clash-3d
       data-clash-active={active ? 'yes' : 'no'}
       role="img"
-      aria-label="雙方神獸本體交戰"
+      aria-label={contextLost ? '神獸本體靜態展示' : '雙方神獸本體交戰'}
       className="pointer-events-none absolute inset-0"
       /*
         整個元件常駐，絕不卸載——卸載會丟掉 WebGL context。
@@ -286,26 +307,31 @@ export default function BeastClash3D({
         交鋒結束就整片變黑的話，客戶按下一張之前都在盯著一塊空的，
         那正是客戶審查時量到的問題。
       */
-      style={{ opacity: 1 }}
+      style={{ opacity: 1, zIndex: 1 }}
     >
+      {contextLost && staticBeasts}
+      <CanvasBoundary fallback={staticBeasts}>
       <Canvas
         /*
           交鋒中連續算圖；閒置改成 demand——畫一次把舞台留在畫面上就停。
           用 never 的話舞台根本不會被畫出來，等於沒有舞台（手機優先 60FPS）。
         */
-        frameloop={active ? 'always' : 'demand'}
+        frameloop={contextLost ? 'never' : active ? 'always' : 'demand'}
+        style={{ visibility: contextLost ? 'hidden' : 'visible' }}
+        fallback={staticBeasts}
+        onCreated={({ gl }) => { renderer.current = gl; setContextLost(gl.getContext().isContextLost()); }}
         dpr={[1, 1.8]}
         camera={{ position: [0, 0, 4.2], fov: 42 }}
         gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
       >
-        {/* 只有兩張卡與一片光。不是六十個模型——手機跑得動才有意義。 */}
+        {/* 最多兩張本體立繪與一片光。 */}
         {/*
           衝過去的是神獸本體，不是卡。
-          沒有立繪（還沒生成）才退回卡面——不會開天窗。
+          缺少立繪時保留舞台，不以卡面冒充本體。
         */}
         <Arena />
-        <CardPlane
-          art={playerSpirit ?? playerArt}
+        {playerSpirit && <CardPlane
+          art={playerSpirit}
           spirit={Boolean(playerSpirit)}
           home={[-1.05, -0.15, 0]}
           lunging={lunging && attacker === 'player'}
@@ -313,9 +339,9 @@ export default function BeastClash3D({
           lost={outcome === 'OPPONENT'} won={outcome === 'PLAYER'}
           shown={active}
           glow={glow}
-        />
-        <CardPlane
-          art={opponentSpirit ?? opponentArt}
+        />}
+        {opponentSpirit && <CardPlane
+          art={opponentSpirit}
           spirit={Boolean(opponentSpirit)}
           home={[1.05, 0.15, 0]}
           lunging={lunging && attacker === 'opponent'}
@@ -323,9 +349,10 @@ export default function BeastClash3D({
           lost={outcome === 'PLAYER'} won={outcome === 'OPPONENT'}
           shown={active}
           glow={glow}
-        />
+        />}
         <Impact active={impact} glow={glow} />
       </Canvas>
+      </CanvasBoundary>
     </div>
   );
 }

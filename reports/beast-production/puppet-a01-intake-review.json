@@ -1,0 +1,87 @@
+{
+  "reviewedAt": "2026-09-06T01:39:41.739Z",
+  "cardId": "beast_a01",
+  "status": "needs-refinement",
+  "files": [
+    {
+      "layer": "torso",
+      "file": "public/beast-game/puppets/beast_a01/torso.png",
+      "sha256": "43cd60b045fd0cb3fe9b124f824388d0f77f4365effbe618bbc46265d3f451b6",
+      "width": 768,
+      "height": 512,
+      "hasAlpha": true
+    },
+    {
+      "layer": "rear_limb",
+      "file": "public/beast-game/puppets/beast_a01/rear_limb.png",
+      "sha256": "7bce47ea31cb046d923e458680fadaf495325cbe59881c56d7957db787f35b90",
+      "width": 768,
+      "height": 512,
+      "hasAlpha": true
+    },
+    {
+      "layer": "tail",
+      "file": "public/beast-game/puppets/beast_a01/tail.png",
+      "sha256": "aa3ef39cd3853e5de1c48a401929b1d644930b3bec18ba2851c69b55dcb63436",
+      "width": 768,
+      "height": 512,
+      "hasAlpha": true
+    },
+    {
+      "layer": "front_limb",
+      "file": "public/beast-game/puppets/beast_a01/front_limb.png",
+      "sha256": "9b160af74214aa1f5826fabf22fb011baa5ee7978f82ef3f992ed2eccf760042",
+      "width": 768,
+      "height": 512,
+      "hasAlpha": true
+    },
+    {
+      "layer": "head_upper",
+      "file": "public/beast-game/puppets/beast_a01/head_upper.png",
+      "sha256": "0cc3e6120857fcad418eb4598d9e8f623c70514ea5ba1dc8e62472ee07610bf1",
+      "width": 768,
+      "height": 512,
+      "hasAlpha": true
+    },
+    {
+      "layer": "jaw_mouth",
+      "file": "public/beast-game/puppets/beast_a01/jaw_mouth.png",
+      "sha256": "bbe51e2c39fe23b1a34ecbae7e766643da991cfac9ea8ce234453061b90fa088",
+      "width": 768,
+      "height": 512,
+      "hasAlpha": true
+    }
+  ],
+  "missingLayers": [],
+  "canonicalReference": "public/beast-game/spirit/01.webp",
+  "approvedForBattle": false,
+  "visualFindings": [
+    "Six files now exist but use the same incorrect dark-teal dragon rather than canonical green/gold armored beast.",
+    "Torso includes the head; upper-head includes mouth and paw; jaw includes upper skull and horns. Moving these overlapping parts would duplicate anatomy.",
+    "Elliptical masks leave large pieces of the stage background attached to front limb, jaw and tail. They are not clean anatomical layers."
+  ],
+  "history": [
+    {
+      "reviewedAt": "2026-09-06T01:35:02.291Z",
+      "files": [
+        {
+          "layer": "torso",
+          "file": "public/beast-game/puppets/beast_a01/torso.png",
+          "sha256": "5d10c3343d5c4b78eb19729b481854ab83b52c6bbf1d210326e3032da2a56f27",
+          "isOpaque": false
+        },
+        {
+          "layer": "jaw_mouth",
+          "file": "public/beast-game/puppets/beast_a01/jaw_mouth.png",
+          "sha256": "a955893e75d4e4b3c3bc52cb9e8a9c66bfec676deb863e00c30141666fde67b7",
+          "isOpaque": false
+        }
+      ],
+      "visualFindings": [
+        "Both delivered files show the complete creature and arena background rather than an isolated torso and jaw.",
+        "The dark teal serpentine dragon differs from canonical spirit/01.webp in horns, gold armor, body proportions and pose.",
+        "Do not wire these full-scene images into independently transformed body layers."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "cardId": "beast_a13",
+  "name": "室火豬",
+  "reference": "public/beast-game/spirit/13.webp",
+  "referenceSha256": "571bfbda153a7ab406e6de526f17a494f1286d0cbac68ac448ab7a574b9a38ed",
+  "durationSeconds": 6,
+  "perspective": "player",
+  "opponentVoice": false,
+  "timeline": [
+    {
+      "phase": "build",
+      "start": 0,
+      "end": 2
+    },
+    {
+      "phase": "rush",
+      "start": 1.8,
+      "end": 4.5
+    },
+    {
+      "phase": "bite",
+      "start": 4,
+      "end": 4.2
+    },
+    {
+      "phase": "tail",
+      "start": 4.2,
+      "end": 6
+    }
+  ],
+  "state": "needs-refinement",
+  "checks": {
+    "head": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "body": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "limbs": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "mouth": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "teethOrBeak": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "eyes": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "clawsOrHooves": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "tail": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "identity": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "contact": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "playerVoice": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "continuity": {
+      "status": "unreviewed",
+      "evidence": null
+    }
+  },
+  "attemptLimit": 3,
+  "prompt": "Create exactly 6 seconds of continuous creature footage, one shot with no cuts. Image 1 is the protagonist 室火豬; image 2 is its silent training opponent. Reproduce these exact individual creatures in their original detailed rendering style. Preserve facial structure, species, colors, markings, complex filigree armor, central chest jewels, limb ornaments, appendages and proportions throughout. Do not simplify ornamental details or replace their materials. Never add horns or wings absent in either source. Keep the protagonist's source-facing orientation and place the opponent toward that side, both visible from the first frame; do not spin or redesign them. Camera stays fixed, showing full bodies and a dark stone stage with margin for every appendage. This is clean footage, without HUD, health bars, interface, text, titles, names, icons, captions or frames. Animate anatomical joints and weight transfer, never slide a card or rigid cutout. 0-2s: grounded breath and proud species-appropriate call, body braces. 1.8-3.6s: the protagonist pushes off in a short forceful lunge toward the opponent's armored shoulder, appendages follow naturally. Arrange the silent opponent crouched so that its shoulder is at the protagonist's mouth height. At 3.8s open the protagonist's natural jaw or beak and place that shoulder clearly between its upper and lower jaw. At exactly 4.0s CLOSE the jaw or beak onto that shoulder, hold the visible non-gory grip until 4.2s with a slight pull and immediate opponent recoil. Do not merely stop in front of the opponent, nuzzle or headbutt; visible mouth closure around its shoulder is essential. 4.2-6s: release and settle, the same protagonist's call decays. Opponent reacts but remains completely silent. No blood, humans, music, camera orbit, body morphing, new teeth or extra limbs, image crossfades or rectangular backgrounds. Bird species retain a beak without invented teeth; legless species retain their anatomy. The protagonist's head and contact are the focal point. Finish the complete action by 6s.",
+  "attempt": 1,
+  "provider": "gemini-omni-1.1-flash",
+  "methodRevisionReason": "Newly verified Omni model supports subject references and local conversational edits. Preserve the source-facing direction and distinguish both canonical actors; previous Veo candidates failed identity.",
+  "opponentId": "beast_a02",
+  "opponentReference": "public/beast-game/spirit/02.webp",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "conditioning": "omni-subject-reference",
+  "sourceSeconds": 6,
+  "aspectRatio": "16:9",
+  "releaseStatus": "pending",
+  "purpose": "paired-skill-candidate",
+  "recipeVersion": "omni-6s-no-hud-articulated-bite-v2",
+  "startedAt": "2026-09-06T01:59:35.661Z",
+  "omniInteractionId": "v1_ChdLc21jYXVpbEpZNmUxZThQenFyNDJBOBIXS3NtY2F1aWxKWTZlMWU4UHpxcjQyQTg",
+  "providerReturnedAt": "2026-09-06T02:00:15.614Z",
+  "nativeCandidateSha256": "6f64d2ac4cbf90b8306a4c81ae81678c9df1bb1c27fa132a5118f7624bc3efae",
+  "actualNativeDuration": 6.016,
+  "candidateSha256": "bbccbfe2b3a8c5ba84abbae106dc3a7cdd3d80ec2a49f768444306e0e2b4204c",
+  "finishedAt": "2026-09-06T02:00:15.719Z",
+  "audioOverride": {
+    "source": "public/audio/beast-voices/beast_a13.mp3",
+    "sixSecondCandidateSha256": "f1adca7fb992d698570e74f321f2f559d5770f9b181760b1e5d443050c10de60",
+    "nativeAudioRemoved": true,
+    "reviewStatus": "unreviewed"
+  },
+  "automaticReview": {
+    "checks": {
+      "head": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "顏色錯誤，無圖騰。"
+      },
+      "body": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "棕色而非白色，無漩渦圖騰。"
+      },
+      "limbs": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "顏色與紋理不符。"
+      },
+      "mouth": {
+        "status": "fail",
+        "timestampSeconds": 4,
+        "evidence": "未執行咬合，顏色錯誤。"
+      },
+      "teethOrBeak": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "獠牙平滑，無華麗圖騰。"
+      },
+      "eyes": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "眼睛特徵相符。"
+      },
+      "clawsOrHooves": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "具備蹄部特徵。"
+      },
+      "tail": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "細長且僅末端著火，非粗壯火焰尾。"
+      },
+      "identity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "顏色、圖騰、獠牙與尾巴皆與參考圖A不符。"
+      },
+      "contact": {
+        "status": "fail",
+        "timestampSeconds": 3,
+        "evidence": "未發生接觸與咬合。"
+      },
+      "playerVoice": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "音色與參考檔相符。"
+      },
+      "continuity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "僅平移，無完整攻擊動作序列。"
+      },
+      "opponentIdentity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "盔甲簡化，鬃毛顏色與角形狀不符參考圖D。"
+      }
+    },
+    "overall": "fail",
+    "refinement": "角色設計嚴重偏離參考圖，缺乏圖騰與細節。動畫僅為平移，未達成接觸與咬合要求。"
+  },
+  "preview": "reports/beast-production/previews/beast_a13-attempt-01.mp4"
+}

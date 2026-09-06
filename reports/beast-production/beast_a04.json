@@ -1,0 +1,180 @@
+{
+  "cardId": "beast_a04",
+  "name": "房日兔",
+  "reference": "public/beast-game/spirit/04.webp",
+  "referenceSha256": "182fce5ea0b8a48f868250906b2cb3adc67d43051e53b8a7445b296c0d23cf3c",
+  "durationSeconds": 6,
+  "perspective": "player",
+  "opponentVoice": false,
+  "timeline": [
+    {
+      "phase": "build",
+      "start": 0,
+      "end": 2
+    },
+    {
+      "phase": "rush",
+      "start": 1.8,
+      "end": 4.5
+    },
+    {
+      "phase": "bite",
+      "start": 4,
+      "end": 4.2
+    },
+    {
+      "phase": "tail",
+      "start": 4.2,
+      "end": 6
+    }
+  ],
+  "state": "needs-refinement",
+  "checks": {
+    "head": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "body": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "limbs": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "mouth": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "teethOrBeak": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "eyes": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "clawsOrHooves": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "tail": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "identity": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "contact": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "playerVoice": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "continuity": {
+      "status": "unreviewed",
+      "evidence": null
+    }
+  },
+  "attemptLimit": 3,
+  "prompt": "Create exactly 6 seconds of a single continuous sparring shot, no cuts. Image 1 is the PLAYER 房日兔 (beast_a04). Image 2 is the silent opponent (beast_a02). Reproduce these exact individual creatures: preserve facial structure, species, colors, markings, ornaments, appendages and proportions throughout. Keep the player's source-facing orientation and place the opponent toward that side, both visible from the first frame; do not spin or redesign the creatures. Camera stays fixed, showing full bodies and a dark stone sparring stage with margin for every appendage. Animate anatomical joints and weight transfer, never slide a card or rigid cutout. 0-2s: grounded breath and species-appropriate proud call, body braces. 1.8-3.8s: the same player pushes off in a short forceful lunge toward the opponent's shoulder, appendages follow naturally. 3.8-4.0s: natural jaw or beak opens. At exactly 4.0s the PLAYER closes its jaws or beak onto the opponent's shoulder; show clear non-gory contact and opponent recoil. 4.2-6s: release and settle, coherent player's call decays. Opponent reacts but remains completely silent. No blood, humans, words, music, camera orbit, body morphing, new teeth or extra limbs, image crossfades or rectangular backgrounds. Bird species retain a beak without invented teeth; legless species retain their anatomy. The player's head and contact are the focal point. Finish the complete action by 6s.",
+  "attempt": 1,
+  "provider": "gemini-omni-1.1-flash",
+  "methodRevisionReason": "Newly verified Omni model supports subject references and local conversational edits. Preserve the source-facing direction and distinguish both canonical actors; previous Veo candidates failed identity.",
+  "opponentId": "beast_a02",
+  "opponentReference": "public/beast-game/spirit/02.webp",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "conditioning": "omni-subject-reference",
+  "sourceSeconds": 6,
+  "aspectRatio": "16:9",
+  "releaseStatus": "pending",
+  "purpose": "paired-skill-candidate",
+  "startedAt": "2026-09-06T01:46:53.898Z",
+  "omniInteractionId": "v1_ChdMc2FjYXRpRE42T0IxZThQckxiRXdBOBIXTHNhY2F0aURONk9CMWU4UHJMYkV3QTg",
+  "providerReturnedAt": "2026-09-06T01:47:32.860Z",
+  "nativeCandidateSha256": "6089bcb07566e937b62e1d3bd9f1bdef20936dcf45788246820e7d2ebdd38319",
+  "actualNativeDuration": 6.016,
+  "candidateSha256": "1702bb9170885a7e4babd3ceb654fce6469f05fbb5fc3daeaabd4d0b667d510f",
+  "finishedAt": "2026-09-06T01:47:32.991Z",
+  "audioOverride": {
+    "source": "public/audio/beast-voices/beast_a04.mp3",
+    "sixSecondCandidateSha256": "8d6668e68de7eee2ec6381e0e2f6040b08d1b250923450b072d787b312d31cea",
+    "nativeAudioRemoved": true,
+    "reviewStatus": "unreviewed"
+  },
+  "automaticReview": {
+    "checks": {
+      "head": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "Horn and ear structures match reference."
+      },
+      "body": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "Ornate golden patterns match."
+      },
+      "limbs": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "Limb count and proportions align."
+      },
+      "mouth": {
+        "status": "pass",
+        "timestampSeconds": 1,
+        "evidence": "Mouth articulates for vocalization."
+      },
+      "teethOrBeak": {
+        "status": "unverified",
+        "timestampSeconds": 1,
+        "evidence": "Internal mouth details not clearly visible."
+      },
+      "eyes": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "Eye design matches."
+      },
+      "clawsOrHooves": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "Claws match reference."
+      },
+      "tail": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "Fiery tail effect matches."
+      },
+      "identity": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "Overall player design is consistent with reference A."
+      },
+      "opponentIdentity": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "Dragon design matches reference D."
+      },
+      "contact": {
+        "status": "fail",
+        "timestampSeconds": 4,
+        "evidence": "Player lunges but fails to execute jaw closure on the opponent."
+      },
+      "playerVoice": {
+        "status": "pass",
+        "timestampSeconds": 1,
+        "evidence": "Audio timbre matches reference B."
+      },
+      "continuity": {
+        "status": "pass",
+        "timestampSeconds": 3,
+        "evidence": "Forms remain stable during movement."
+      }
+    },
+    "overall": "fail",
+    "refinement": "Character identities and audio match references well. The generation fails because the player character does not perform the required jaw closure/bite on the opponent during the lunge."
+  },
+  "preview": "reports/beast-production/previews/beast_a04-attempt-01.mp4"
+}

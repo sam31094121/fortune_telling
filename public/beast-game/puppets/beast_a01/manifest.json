@@ -1,0 +1,40 @@
+{
+  "poolId": "beast_a01",
+  "name": "角木蛟",
+  "durationSec": 6.0,
+  "timeline": {
+    "build": [
+      0,
+      1.8
+    ],
+    "rush": [
+      1.8,
+      3.8
+    ],
+    "bite": [
+      3.8,
+      6.0
+    ]
+  },
+  "layers": [
+    "torso",
+    "rear_limb",
+    "tail",
+    "front_limb",
+    "head_upper",
+    "jaw_mouth"
+  ],
+  "paths": {
+    "torso": "/beast-game/puppets/beast_a01/torso.png",
+    "rear_limb": "/beast-game/puppets/beast_a01/rear_limb.png",
+    "tail": "/beast-game/puppets/beast_a01/tail.png",
+    "front_limb": "/beast-game/puppets/beast_a01/front_limb.png",
+    "head_upper": "/beast-game/puppets/beast_a01/head_upper.png",
+    "jaw_mouth": "/beast-game/puppets/beast_a01/jaw_mouth.png",
+    "full_body": "/beast-game/puppets/beast_a01/full_body.png"
+  },
+  "stage": "/beast-game/stage/default/circus_arena.jpg",
+  "motion": "engine_layered_puppet_v1.2",
+  "cut": "v5_polygon_ellipse_feather4px",
+  "notes": "Prefer engine over mp4; jaw peak>=2.6, limb amp>=40, tail +/-36deg. jaw_mouth=jaw only; torso punched."
+}

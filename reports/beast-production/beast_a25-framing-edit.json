@@ -1,0 +1,12 @@
+{
+  "recordedAt": "2026-09-06T03:44:55.547Z",
+  "input": "C:/Users/DRAGON/.codex/generated_images/01a072f4-3f65-7422-a363-c60ee233bf57/exec-68034adb-e366-45f1-a3ba-246b891ac032.png",
+  "observedIssue": "Silver opponent's lowest tail plume reaches and is clipped by the bottom image edge; full-body mobile framing needs more space.",
+  "prompt": "Change only the camera framing of this existing image. Zoom OUT approximately 20% and extend the same stone arena around the edges so the COMPLETE silver dragon tail, including every bottom plume tip, is inside the frame with at least 10% empty margin below and beside it. Keep the entire horse's flame wings, mane, tail and hooves inside similar margins. Preserve both existing creatures pixel-faithfully in design: same exact silver dragon armor, face, horns and mane; same black orange gold horse body, original flame wing ornaments, chest star, face, flame mane, tail and original four legs. Do not redesign, recolor, mirror or change their poses. Maintain the same left silver dragon facing right and right fire horse facing left, the same relative scale, ground contact, lighting and environment. Output one landscape 16:9 complete-body starting frame. No new text, frame, UI, figures or objects.",
+  "status": "framing-correction-inspected",
+  "videoProduced": false,
+  "output": "C:/Users/DRAGON/.codex/generated_images/01a072f4-3f65-7422-a363-c60ee233bf57/exec-36b3d1cb-844e-4878-9959-148d293c8712.png",
+  "outputSha256": "04e1217bd6bdabedfa1ab921496463ba5b02a090dc7ca6951ef0960552ca69aa",
+  "review": "The dragon tail is fully inside the frame with ground margin; the horse keeps visible flame wings, chest star, mane, tail and supporting feet. Motion and exact anatomy remain unapproved.",
+  "reviewedAt": "2026-09-06T03:46:36.780Z"
+}

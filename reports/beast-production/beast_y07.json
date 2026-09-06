@@ -1,0 +1,84 @@
+{
+  "cardId": "beast_y07",
+  "name": "箕水豹・幼子",
+  "reference": "public/beast-game/spirit/07y.webp",
+  "referenceSha256": "40aba14567a9daa87a462645e7efa2402df789b5475f6e0c4b3895cdcd1444d7",
+  "durationSeconds": 6,
+  "perspective": "player",
+  "opponentVoice": false,
+  "timeline": [
+    {
+      "phase": "build",
+      "start": 0,
+      "end": 2
+    },
+    {
+      "phase": "rush",
+      "start": 1.8,
+      "end": 4.5
+    },
+    {
+      "phase": "bite",
+      "start": 4,
+      "end": 4.2
+    },
+    {
+      "phase": "tail",
+      "start": 4.2,
+      "end": 6
+    }
+  ],
+  "state": "awaiting-generation",
+  "checks": {
+    "head": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "body": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "limbs": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "mouth": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "teethOrBeak": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "eyes": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "clawsOrHooves": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "tail": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "identity": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "contact": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "playerVoice": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "continuity": {
+      "status": "unreviewed",
+      "evidence": null
+    }
+  },
+  "attemptLimit": 3,
+  "prompt": "Create exactly six seconds of continuous creature combat animation. The attached image is the player's 箕水豹・幼子 (beast_y07), the canonical identity. Preserve its exact head, horns, eye shape, scales, color, body proportions, species and number of limbs, claws, and tail. Animate the actual creature with articulated anatomy, never a moving card or flat cutout. Player is the visual and audio protagonist. 0–2s grounded breath and restrained species-appropriate growl, weight and limbs preparing. 1.8–4s a forceful, articulated charge toward a visible silent generic sparring creature on the right. At 4.0s actual mouth closure makes visible non-gory bite contact with the opponent's shoulder; beaked species use their beak, never invent teeth or limbs. 4.2–6s release, recoil, natural tail inertia and a coherent fading player's call. Opponent reacts but stays silent. No human narration or words, no music masking the player, no substitute thunder roar. Maintain one consistent vocal identity through breath, roar, contact and decay. Keep all body parts within a landscape 16:9 view suitable for a small mobile arena, continuous camera, no cuts, text, card borders, invented sigils, extra limbs, morphing or detached jaws. Use a simple dark sparring arena. This is a reusable generic-opponent skill demonstration, not a claim to depict the currently selected live opponent."
+}

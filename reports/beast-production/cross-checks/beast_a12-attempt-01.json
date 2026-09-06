@@ -1,0 +1,41 @@
+{
+  "cardId": "beast_a12",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T03:14:58.676Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "b40638732b18040f0504861fa90dc82d05849f78bf8c433f3d41111f35aebbb0",
+  "referenceSha256": "ab7b62ed9de376b0c2b0b7b8cc68d5898da1dcc97cc5876a76fceac081e07304",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "method": "Canonical sources and 2 fps contact sheet.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a12/attempt-01/contact-sheet.jpg",
+      "sha256": "00e3babf20827f4f15922f39e649b0fcfa7ba095f5f64f0c6bedfe9907c05313"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖深藍星空羽翼變成較淺的普通藍羽，未保留星空材質與羽片裝飾。"
+    },
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖寬大繁複的藍色流線長尾變成稀疏細尾羽。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "對手鬃毛與尾部變成一般尖刺鱗龍，缺少原始青銀流線毛飾。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": null,
+      "evidence": "本次 2 fps 初篩不能確認三次獨立咬合、放開及反力；仍需密集影格與聲畫驗收。"
+    }
+  },
+  "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。"
+}

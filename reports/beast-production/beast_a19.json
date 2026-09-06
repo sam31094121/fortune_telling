@@ -1,0 +1,250 @@
+{
+  "cardId": "beast_a19",
+  "name": "畢月烏",
+  "reference": "public/beast-game/spirit/19.webp",
+  "referenceSha256": "03ec164087aa3905c421000a9f6b8909e6f84898e5732113302412e0e9ce21b1",
+  "durationSeconds": 6,
+  "perspective": "player",
+  "opponentVoice": false,
+  "timeline": [
+    {
+      "phase": "build",
+      "start": 0,
+      "end": 2
+    },
+    {
+      "phase": "rush",
+      "start": 1.8,
+      "end": 4.5
+    },
+    {
+      "phase": "bite",
+      "start": 4,
+      "end": 4.2
+    },
+    {
+      "phase": "tail",
+      "start": 4.2,
+      "end": 6
+    }
+  ],
+  "state": "needs-refinement",
+  "checks": {
+    "head": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "body": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "limbs": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "mouth": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "teethOrBeak": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "eyes": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "clawsOrHooves": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "tail": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "identity": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "contact": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "playerVoice": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "continuity": {
+      "status": "unreviewed",
+      "evidence": null
+    }
+  },
+  "attemptLimit": 3,
+  "prompt": "Animate exactly the supplied scene as a single continuous six-second shot. Keep its two existing creatures' anatomy, proportions, colors, facial shapes, ornaments, chest jewelry, original limb count, wings if present and detailed flowing tails throughout. Do not recreate or simplify them. The RIGHT creature (畢月烏) is the protagonist; the LEFT creature is its silent opponent. Fixed camera, complete bodies within frame, no UI, names, text, borders, bars, added wings or horns. Bird species use their natural beak and keep exactly two legs, never add teeth or mammal hands. 0-2s: the protagonist breathes, calls proudly in its own species' voice and braces its existing limbs or wings. 1.8-3.6s: the protagonist makes one short forceful lunge left, with actual anatomical articulation and weight transfer; winged birds may flap forward and their original feathers and tail follow. The opponent only crouches and reacts, never attacks first. The opponent lowers its near shoulder to the protagonist's mouth height. At 3.8s the protagonist opens its natural jaw or beak around the opponent's shoulder below the neck. At exactly 4.0s close that jaw or beak onto the shoulder and pull briefly, causing the opponent to recoil. Clear visible non-gory contact, no blood or injury. Release at 4.2s, recover original pose by 5.4s, let mane, feathers and tail settle through 6s. The opponent remains silent, only protagonist vocal identity. No speech, music, changes of camera, new designs, morphs, still-frame freeze or image sliding. The whole action and recovery completes in six seconds.",
+  "attempt": 2,
+  "provider": "veo-3.1-generate-preview",
+  "methodRevisionReason": "Newly verified Omni model supports subject references and local conversational edits. Preserve the source-facing direction and distinguish both canonical actors; previous Veo candidates failed identity.",
+  "opponentId": "beast_a02",
+  "opponentReference": "public/beast-game/spirit/02.webp",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "conditioning": "first-frame-scene",
+  "sourceSeconds": 6,
+  "aspectRatio": "16:9",
+  "releaseStatus": "pending",
+  "purpose": "paired-skill-candidate",
+  "recipeVersion": "veo-6s-preserved-first-scene-v1",
+  "startedAt": "2026-09-06T02:26:19.654Z",
+  "history": [
+    {
+      "attempt": 1,
+      "state": "submission-uncertain",
+      "provider": "gemini-omni-1.1-flash",
+      "checks": {
+        "head": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "body": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "limbs": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "mouth": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "teethOrBeak": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "eyes": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "clawsOrHooves": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "tail": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "identity": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "contact": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "playerVoice": {
+          "status": "unreviewed",
+          "evidence": null
+        },
+        "continuity": {
+          "status": "unreviewed",
+          "evidence": null
+        }
+      },
+      "startedAt": "2026-09-06T02:11:59.406Z",
+      "providerReturnedAt": "2026-09-06T02:12:59.239Z",
+      "providerMessage": "Unable to make request: TypeError: fetch failed",
+      "originalOutcome": "unknown",
+      "requestManifest": ".tmp/beast-production/beast_a19/attempt-01/request-manifest.json"
+    }
+  ],
+  "refinement": "Original transport failed without returning an interaction id; read-only collection recovery returned 404. The user explicitly authorized paid regeneration. Preserve that request as unresolved and create this distinct version using a corrected composed first frame and a durable Veo operation; previous billing remains unknown.",
+  "candidateSha256": "87837cdcfaa3a115722052f2643df1a1954be7046f2e4054c0faa326e67f73b6",
+  "automaticReview": {
+    "checks": {
+      "head": {
+        "status": "fail",
+        "timestampSeconds": 0.75,
+        "evidence": "0.75秒頭部突現白色冠羽，不符設定。"
+      },
+      "body": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "胸甲簡化，缺失寶石。"
+      },
+      "limbs": {
+        "status": "fail",
+        "timestampSeconds": 2,
+        "evidence": "交戰時翅膀嚴重變形。"
+      },
+      "mouth": {
+        "status": "pass",
+        "timestampSeconds": 0.5,
+        "evidence": "正常張開。"
+      },
+      "teethOrBeak": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "形狀相符。"
+      },
+      "eyes": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "顏色相符。"
+      },
+      "clawsOrHooves": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "特徵相符。"
+      },
+      "tail": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "缺失尾部鏈條裝飾。"
+      },
+      "identity": {
+        "status": "fail",
+        "timestampSeconds": 0.75,
+        "evidence": "冠羽與裝甲錯誤導致特徵不符。"
+      },
+      "contact": {
+        "status": "fail",
+        "timestampSeconds": 4,
+        "evidence": "4秒時未發生接觸與咬合，提早於2秒發生。"
+      },
+      "playerVoice": {
+        "status": "fail",
+        "timestampSeconds": 0.5,
+        "evidence": "混入非玩家低吼聲。"
+      },
+      "continuity": {
+        "status": "fail",
+        "timestampSeconds": 2,
+        "evidence": "交戰時模型融合變形。"
+      },
+      "opponentIdentity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "缺失胸前綠寶石與裝甲細節。"
+      }
+    },
+    "overall": "fail",
+    "refinement": "角色外觀多處錯誤（玩家多出冠羽、缺鏈條；對手缺寶石）。動作時間軸錯誤（4秒無接觸）。交戰時模型崩壞。音效違規混音。需全面重製。"
+  },
+  "visualCrossCheck": null,
+  "finishedAt": "2026-09-06T02:27:55.252Z",
+  "replacementReason": "Original transport failed without returning an interaction id; read-only collection recovery returned 404. The user explicitly authorized paid regeneration. Preserve that request as unresolved and create this distinct version using a corrected composed first frame and a durable Veo operation; previous billing remains unknown.",
+  "previousRequestOutcome": "unknown; no claim about previous billing",
+  "sceneReference": ".tmp/beast-production/beast_a19/staging/paired-source-v2-framed.png",
+  "sceneReferenceSha256": "645b0a7df2fa6c278f760c97c111f527eed21baf81acbd45ccebaa804ab0a5dd",
+  "providerReturnedAt": "2026-09-06T02:27:50.973Z",
+  "nativeCandidateSha256": "989c5550105e9b044498b764341b929379246161d41659b3eb67488020ae14f9",
+  "audioOverride": {
+    "source": "public/audio/beast-voices/beast_a19.mp3",
+    "sixSecondCandidateSha256": "e856bf1f7e84dd2dd0b9a7a841a2eebdb19ba6f1037f7649a5f6ffa63a925ee3",
+    "nativeAudioRemoved": true,
+    "reviewStatus": "unreviewed"
+  },
+  "reviewSamplingFps": 4,
+  "preview": "reports/beast-production/previews/beast_a19-attempt-02.mp4",
+  "previewSha256": "d0ee2e645975b55cdd16f2e9ffd3f1595a0d9580bd4c279b0236e97f579f125b",
+  "previewDurationSeconds": 6
+}

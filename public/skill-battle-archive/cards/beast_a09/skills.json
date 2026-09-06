@@ -10,10 +10,160 @@
       "enabled": true,
       "clip": "/beast-game/skill-bodies/beast_a09.webp",
       "body": "/beast-game/skill-bodies/beast_a09.webp",
-      "durationMs": 1600,
+      "durationMs": 6000,
       "spawn": {
         "from": "selfSlot",
         "to": "targetSlot"
+      },
+      "production": {
+        "version": "six-second-mutual-bite-v2",
+        "registrationStatus": "registered",
+        "state": "needs-refinement",
+        "canonicalReference": "/beast-game/spirit/09.webp",
+        "referenceSha256": "a8be1c550856a1fc827885e0a3ecedf66534230b4dc14f26d7d4a8764c833ba1",
+        "jobReport": "reports/beast-production/beast_a09.json",
+        "latestAttempt": 1,
+        "voiceCandidate": ".tmp/beast-production/beast_a09/voice/player-six-second-v2.wav",
+        "voiceReview": "awaiting-audiovisual-review",
+        "voice": {
+          "source": "/audio/beast-voices/beast_a09.mp3",
+          "sourceSha256": "e4181891c53946fa4a397bc51e066916af8f686eb533a5e353b3e3175b0bc118",
+          "candidateSha256": "5f647a38e083ea37b6a1e095b4093a591445fdbebace8a065ee515e74c6a2abb",
+          "provenanceReport": ".tmp/beast-production/beast_a09/voice/provenance-v2.json",
+          "durationSeconds": 6,
+          "technicalCheck": "passed",
+          "reviewStatus": "awaiting-audiovisual-review"
+        },
+        "timeline": [
+          {
+            "phase": "build",
+            "start": 0,
+            "end": 1.8
+          },
+          {
+            "phase": "rush",
+            "start": 1.8,
+            "end": 2.5
+          },
+          {
+            "phase": "player-bite",
+            "start": 2.5,
+            "end": 2.8
+          },
+          {
+            "phase": "opponent-counterbite",
+            "start": 2.8,
+            "end": 3.3
+          },
+          {
+            "phase": "player-finisher",
+            "start": 3.6,
+            "end": 4.2
+          },
+          {
+            "phase": "recovery",
+            "start": 4.2,
+            "end": 6
+          }
+        ],
+        "requiredChecks": [
+          "identity",
+          "opponentIdentity",
+          "head",
+          "body",
+          "limbs",
+          "mouth",
+          "teethOrBeak",
+          "eyes",
+          "clawsOrHooves",
+          "tail",
+          "contact",
+          "reciprocalBite",
+          "playerVoice",
+          "continuity",
+          "mobilePlayback"
+        ],
+        "candidateContractVersion": "single-bite-legacy",
+        "perspective": "player",
+        "opponentVoice": false,
+        "candidate": {
+          "status": "available-for-review",
+          "attempt": 1,
+          "contractVersion": "single-bite-legacy",
+          "opponentId": "beast_a02",
+          "workspaceFile": "reports/beast-production/previews/beast_a09-attempt-01.mp4",
+          "candidateSha256": "89baf965e269f657be176e4faafbf802b0585b9548b116aa16f0d44cb8e7310d",
+          "previewSha256": "f7cdfbb83c236b0a6c2147e7c32b6ef447dfce4ecf19be84d18e6bab6e63f8cc",
+          "durationSeconds": 6,
+          "access": "local-review-only"
+        },
+        "review": {
+          "status": "initial-visual-screening-recorded",
+          "visualReport": "reports/beast-production/cross-checks/beast_a09-attempt-01.json",
+          "modelReport": ".tmp/beast-production/beast_a09/attempt-01/model-review.json",
+          "failedParts": [
+            {
+              "part": "head",
+              "evidence": "原圖金色寬大上彎月牙角變成較小、較窄的角。"
+            },
+            {
+              "part": "body",
+              "evidence": "金棕毛色與細密金紋變成灰白身體配大塊金甲。"
+            },
+            {
+              "part": "limbs",
+              "evidence": "Player limbs lack the detailed gold armor patterns."
+            },
+            {
+              "part": "mouth",
+              "evidence": "Player mouth does not articulate during the roar audio."
+            },
+            {
+              "part": "eyes",
+              "evidence": "Player eyes lack the glowing white appearance of the canonical design."
+            },
+            {
+              "part": "clawsOrHooves",
+              "evidence": "Player hooves are plain and lack the gold armor covering."
+            },
+            {
+              "part": "tail",
+              "evidence": "原圖青色流光尾部變成細小普通牛尾，缺少原有流光輪廓。"
+            },
+            {
+              "part": "identity",
+              "evidence": "Overall player design fails 1:1 match due to armor, horn, and color discrepancies."
+            },
+            {
+              "part": "contact",
+              "evidence": "No rush, contact, or jaw closure occurs; the video is largely static."
+            },
+            {
+              "part": "opponentIdentity",
+              "evidence": "Opponent design lacks teal accents, and armor styling differs significantly from the reference."
+            }
+          ],
+          "outstandingChecks": [
+            "identity",
+            "opponentIdentity",
+            "head",
+            "body",
+            "limbs",
+            "mouth",
+            "teethOrBeak",
+            "eyes",
+            "clawsOrHooves",
+            "tail",
+            "contact",
+            "reciprocalBite",
+            "playerVoice",
+            "continuity",
+            "mobilePlayback"
+          ],
+          "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。",
+          "fullAudiovisualAcceptance": "pending"
+        },
+        "blocker": null
       }
     },
     {

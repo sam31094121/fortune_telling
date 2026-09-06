@@ -4,11 +4,118 @@
   "enabled": true,
   "clip": "../clips/charge-battle.png",
   "body": "../body.png",
-  "durationMs": 1600,
+  "durationMs": 6000,
   "spawn": {
     "from": "selfSlot",
     "to": "targetSlot"
   },
   "poolId": "beast_a25",
-  "displayName": "星日馬"
+  "displayName": "星日馬",
+  "production": {
+    "version": "six-second-mutual-bite-v2",
+    "registrationStatus": "registered",
+    "state": "awaiting-generation",
+    "canonicalReference": "/beast-game/spirit/25.webp",
+    "referenceSha256": "3c04a07fffa2a029d459d2976c7e18660b65d3a5dac65d90d8011648e6b03058",
+    "jobReport": "reports/beast-production/beast_a25.json",
+    "latestAttempt": 0,
+    "voiceCandidate": ".tmp/beast-production/beast_a25/voice/player-six-second-v2.wav",
+    "voiceReview": "awaiting-audiovisual-review",
+    "voice": {
+      "source": "/audio/beast-voices/beast_a25.mp3",
+      "sourceSha256": "98ded6ff7d8915ee95d3ee42d84f1269ba60ca05b72f96990c361da95cc4bc89",
+      "candidateSha256": "c5849ac1ac009e369f04a9fa8541e1739471d7ddb4f134459621bc6c35bc0235",
+      "provenanceReport": ".tmp/beast-production/beast_a25/voice/provenance-v2.json",
+      "durationSeconds": 6,
+      "technicalCheck": "passed",
+      "reviewStatus": "awaiting-audiovisual-review"
+    },
+    "timeline": [
+      {
+        "phase": "build",
+        "start": 0,
+        "end": 1.8
+      },
+      {
+        "phase": "rush",
+        "start": 1.8,
+        "end": 2.5
+      },
+      {
+        "phase": "player-bite",
+        "start": 2.5,
+        "end": 2.8
+      },
+      {
+        "phase": "opponent-counterbite",
+        "start": 2.8,
+        "end": 3.3
+      },
+      {
+        "phase": "player-finisher",
+        "start": 3.6,
+        "end": 4.2
+      },
+      {
+        "phase": "recovery",
+        "start": 4.2,
+        "end": 6
+      }
+    ],
+    "requiredChecks": [
+      "identity",
+      "opponentIdentity",
+      "head",
+      "body",
+      "limbs",
+      "mouth",
+      "teethOrBeak",
+      "eyes",
+      "clawsOrHooves",
+      "tail",
+      "contact",
+      "reciprocalBite",
+      "playerVoice",
+      "continuity",
+      "mobilePlayback"
+    ],
+    "candidateContractVersion": "six-second-mutual-bite-v2",
+    "perspective": "player",
+    "opponentVoice": false,
+    "candidate": null,
+    "review": {
+      "status": "awaiting-candidate",
+      "visualReport": null,
+      "failedParts": [],
+      "outstandingChecks": [
+        "identity",
+        "opponentIdentity",
+        "head",
+        "body",
+        "limbs",
+        "mouth",
+        "teethOrBeak",
+        "eyes",
+        "clawsOrHooves",
+        "tail",
+        "contact",
+        "reciprocalBite",
+        "playerVoice",
+        "continuity",
+        "mobilePlayback"
+      ],
+      "correctionsToModel": null
+    },
+    "sourceScene": {
+      "status": "prepared-for-animation",
+      "workspaceFile": ".tmp/beast-production/beast_a25/staging/paired-source-v1.png",
+      "sha256": "04e1217bd6bdabedfa1ab921496463ba5b02a090dc7ca6951ef0960552ca69aa",
+      "opponentId": "beast_a02",
+      "preparationReport": "reports/beast-production/beast_a25-preparation.json",
+      "provenanceReport": ".tmp/beast-production/beast_a25/staging/provenance.json",
+      "review": "Framing was widened after the first image clipped the silver tail. Both complete bodies are now inside the frame. The player at right retains a horse face, two ornate flame wings with amber ornaments, chest star, flame mane and plume tail; the silver opponent at left retains its wingless armor, mane and full tail. Supporting feet are visible. This accepts only the starting scene; exact anatomy, three distinct bites, force and player audio still need video review.",
+      "access": "local-source-image-only"
+    },
+    "blocker": null
+  }
 }

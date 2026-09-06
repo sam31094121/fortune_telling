@@ -10,13 +10,14 @@
         "id": "skill_charge",
         "name": "本體衝鋒",
         "type": "approach",
-        "durationMs": 1600,
+        "durationMs": 6000,
         "trigger": "onReveal",
-        "desc": "蓋牌翻開時，本體以 3D 立體從己方牌位衝向對方牌位交戰",
+        "desc": "玩家先咬、對手反咬、玩家再次命中與收勢；六秒聲畫須符合雙方本體及玩家原聲",
         "assetKey": "clips.chargeBattle",
         "readyRequires": [
-          "body.png",
-          "clips/charge-battle.png"
+          "approved review with evidence and hashes",
+          "matching player and opponent",
+          "decodable six-second MP4 and WebM"
         ]
       },
       {
@@ -1451,5 +1452,16 @@
     "mode": "三戰兩勝",
     "note": "演出技能（衝鋒／命中／隨時戰鬥）走技能戰鬥檔案；數值技能仍走 cards/skills Effect Engine 13 種",
     "displayName": "技能戰鬥檔案"
+  },
+  "production": {
+    "version": "six-second-mutual-bite-v2",
+    "registrationCatalog": "/skill-battle-archive/production-catalog.json",
+    "registeredSkills": 60,
+    "candidateMovies": 21,
+    "missingMovies": 39,
+    "jobIndex": "reports/beast-production/index.json",
+    "audioReview": "reports/beast-production/audio-summary-mutual.json",
+    "releaseAudit": "reports/beast-production/release-summary.json",
+    "approvedMovies": 0
   }
 }

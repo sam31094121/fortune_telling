@@ -1,0 +1,39 @@
+{
+  "cardId": "beast_a24",
+  "name": "柳土獐",
+  "recordedAt": "2026-09-06T03:33:08.938Z",
+  "request": "Continue generating the next beast's animation",
+  "targetDurationSeconds": 6,
+  "recipe": "six-second-mutual-bite-v2",
+  "playerReference": "public/beast-game/spirit/24.webp",
+  "opponentReference": "public/beast-game/spirit/02.webp",
+  "voiceCandidate": ".tmp/beast-production/beast_a24/voice/player-six-second-v2.wav",
+  "imageTool": "built-in image_gen",
+  "status": "source-scene-ready-video-quota-blocked",
+  "videoProduced": false,
+  "knownProviderBlocker": {
+    "cardId": "beast_a23",
+    "observedAt": "2026-09-06T03:22:43.150Z",
+    "scope": "monthly-spend"
+  },
+  "submissionPolicy": "One explicitly requested next-beast attempt after source-scene inspection. Stop on provider refusal; a source scene does not count as a video.",
+  "scene": ".tmp/beast-production/beast_a24/staging/paired-source-v1.png",
+  "sceneSha256": "9c236b692a5f324e3d7352389cf2aa82387e2b1bb783d0c7882d5d1bc284a8c0",
+  "sceneReview": "Player deer on right faces the dragon on left. Full antlers, green-gold spiral armor, hooves and large leaf-feather tail remain visible; dragon retains wingless silver curved plates and flowing mane/tail. Starting-frame conditioning candidate only: hoof grounding, jaw closure and exact anatomy must still be checked in the resulting motion.",
+  "sceneRecordedAt": "2026-09-06T03:33:42.556Z",
+  "videoAttempt": 1,
+  "videoStartedAt": "2026-09-06T03:33:43.282Z",
+  "videoReturnedAt": "2026-09-06T03:33:46.246Z",
+  "providerBlocker": {
+    "observedAt": "2026-09-06T03:33:46.246Z",
+    "scope": "monthly-spend",
+    "retryAt": null,
+    "resumeExisting": false
+  },
+  "jobReport": "reports/beast-production/beast_a24.json",
+  "registeredSkill": "public/skill-battle-archive/cards/beast_a24/skill_charge.json",
+  "updatedAt": "2026-09-06T03:34:45.531Z",
+  "imagePrompt": "Use case: compositing, identity-preserve. Asset: one 16:9 full-body starting frame for articulated six-second creature combat. Image 1 is the exact canonical player 柳土獐, a green-gold antlered deer with layered leaflike mane, golden branching antlers, ornate spiral shoulder/hip armor, fine gold green scales, four cloven hooves and an enormous thick leaf-feather plume tail. Image 2 is the exact canonical opponent 亢金龍, a silver plated dragon with gilded edges, pale jade-silver flowing mane and ornate long curled flowing tail, four limbs, no wings. Place the deer on the RIGHT facing LEFT exactly as in its original reference. Place the silver dragon on the LEFT facing RIGHT exactly as in its reference. Render complete original individual bodies faithfully with unchanged faces, ear shape, ornaments, limb number, antler branches, materials and full tail design. Do not redesign either creature. No antlers or fangs added to the dragon, no carnivore teeth added to the deer. Preserve all existing dragon horns. A dark circular stone sparring stage, coherent soft rim light and realistic intricate fantasy art matching the references. Camera wide enough for 12% edge margin around the highest antlers and furthest tail tips, both full bodies visible. Their faces are roughly one head length apart; the dragon crouches calmly to match the deer's shoulder/mouth height for later mutual bite contact. This is their resting pose before the player initiates the charge. No attack yet. No foreground props, words, card border, HUD, health bars, UI, people, gore, blood, unrelated symbols or extra appendages. The player deer is the main visual subject. Match the actual provided bodies 1:1 as closely as possible; do not simplify their ornate armor or tails. One scene, not a collage or comparison sheet.",
+  "promptRecoveredAt": "2026-09-06T03:44:18.409Z",
+  "promptRecoverySource": "Exact original image_gen prompt retained in the completed generation tool session; earlier copy occurred before the session store was available."
+}

@@ -1,0 +1,41 @@
+{
+  "cardId": "beast_a11",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T03:14:58.672Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "c65ff05aa7dc0f96beae56b48f77fb123f71d22021dc022eb68713b25b530fa1",
+  "referenceSha256": "c8cb7cfa5d82452a7037a4d442739984d9d315decf39b335511867af06015d4a",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "method": "Canonical sources and 2 fps contact sheet.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a11/attempt-01/contact-sheet.jpg",
+      "sha256": "903fd1e144eb7a9ed88c7e1e595945ce2813e22ff53a1fc5ab8f10b741ada346"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖深藍灰毛鱗與金色胸肢紋飾變成普通灰鼠配星空斑塊。"
+    },
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖厚大的藍色星空捲尾變成細粉色裸尾。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "對手變成綠寶石金甲尖刺蜥龍，缺少原圖銀色曲線甲片與青銀長鬃尾。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": null,
+      "evidence": "本次 2 fps 初篩不能確認三次獨立咬合、放開及反力；仍需密集影格與聲畫驗收。"
+    }
+  },
+  "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。"
+}

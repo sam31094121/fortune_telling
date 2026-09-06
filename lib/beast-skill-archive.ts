@@ -8,6 +8,7 @@
  * 規格第十二條：動畫不得決定戰鬥結果。這裡讀到的只有素材路徑與時長。
  */
 
+import type { ChargeRelease } from './beast-charge-release';
 export const SKILL_ARCHIVE_INDEX = '/skill-battle-archive/index.json' as const;
 
 export const PRESENTATION_SKILL_IDS = [
@@ -28,6 +29,8 @@ export interface PresentationSkill {
   /** 衝鋒影片（webm 優先）。只有實際備好影片的卡才有這兩欄。 */
   video?: string;
   videoMp4?: string;
+  /** Approved asset paths and exact actors; pending candidates are never match playback. */
+  release?: ChargeRelease;
 }
 
 export interface CardBattleSkills {
@@ -65,7 +68,7 @@ export function skillBodyArtFor(cardId: string): string {
  * 本體衝鋒影片的慣例路徑。
  *
  * 只給路徑，不保證檔案存在——六十張裡目前只有少數幾張備好影片。
- * **呼叫端必須先確認技能檔案真的宣告了 video 才掛上去**：
+ * 實戰呼叫端必須通過 releasedChargeFor 的逐項審查與當局雙方身分比對：
  * 沒影片卻硬掛，<video> 會 404 成一塊黑底方塊，
  * 蓋掉底下的三維對撞——那比不放影片更糟。
  */
@@ -125,7 +128,7 @@ export function presentationSkillsFor(
       durationMs: ms,
     };
   return {
-    charge: find('skill_charge', '本體衝鋒', 1600),
+    charge: find('skill_charge', '本體衝鋒', 6000),
     hit: find('skill_hit', '命中衝擊', 400),
     ready: find('skill_ready_battle', '隨時戰鬥', 0),
   };

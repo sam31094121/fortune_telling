@@ -1,0 +1,180 @@
+{
+  "cardId": "beast_a08",
+  "name": "斗木獬",
+  "reference": "public/beast-game/spirit/08.webp",
+  "referenceSha256": "203a4078079ec5692f8e0d0c198e4f1c95bda484fcfda4b46fd01ade2f43b3fc",
+  "durationSeconds": 6,
+  "perspective": "player",
+  "opponentVoice": false,
+  "timeline": [
+    {
+      "phase": "build",
+      "start": 0,
+      "end": 2
+    },
+    {
+      "phase": "rush",
+      "start": 1.8,
+      "end": 4.5
+    },
+    {
+      "phase": "bite",
+      "start": 4,
+      "end": 4.2
+    },
+    {
+      "phase": "tail",
+      "start": 4.2,
+      "end": 6
+    }
+  ],
+  "state": "needs-refinement",
+  "checks": {
+    "head": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "body": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "limbs": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "mouth": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "teethOrBeak": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "eyes": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "clawsOrHooves": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "tail": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "identity": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "contact": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "playerVoice": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "continuity": {
+      "status": "unreviewed",
+      "evidence": null
+    }
+  },
+  "attemptLimit": 3,
+  "prompt": "Create exactly 6 seconds of a single continuous sparring shot, no cuts. Image 1 is the PLAYER 斗木獬 (beast_a08). Image 2 is the silent opponent (beast_a02). Reproduce these exact individual creatures: preserve facial structure, species, colors, markings, ornaments, appendages and proportions throughout. Keep the player's source-facing orientation and place the opponent toward that side, both visible from the first frame; do not spin or redesign the creatures. Camera stays fixed, showing full bodies and a dark stone sparring stage with margin for every appendage. Animate anatomical joints and weight transfer, never slide a card or rigid cutout. 0-2s: grounded breath and species-appropriate proud call, body braces. 1.8-3.8s: the same player pushes off in a short forceful lunge toward the opponent's shoulder, appendages follow naturally. 3.8-4.0s: natural jaw or beak opens. At exactly 4.0s the PLAYER closes its jaws or beak onto the opponent's shoulder; show clear non-gory contact and opponent recoil. 4.2-6s: release and settle, coherent player's call decays. Opponent reacts but remains completely silent. No blood, humans, words, music, camera orbit, body morphing, new teeth or extra limbs, image crossfades or rectangular backgrounds. Bird species retain a beak without invented teeth; legless species retain their anatomy. The player's head and contact are the focal point. Finish the complete action by 6s.",
+  "attempt": 1,
+  "provider": "gemini-omni-1.1-flash",
+  "methodRevisionReason": "Newly verified Omni model supports subject references and local conversational edits. Preserve the source-facing direction and distinguish both canonical actors; previous Veo candidates failed identity.",
+  "opponentId": "beast_a02",
+  "opponentReference": "public/beast-game/spirit/02.webp",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "conditioning": "omni-subject-reference",
+  "sourceSeconds": 6,
+  "aspectRatio": "16:9",
+  "releaseStatus": "pending",
+  "purpose": "paired-skill-candidate",
+  "startedAt": "2026-09-06T01:51:36.458Z",
+  "omniInteractionId": "v1_ChdTTWVjYXV6ZUhKanMxZThQd09MMmlRURIXU01lY2F1emVISmpzMWU4UHdPTDJpUVE",
+  "providerReturnedAt": "2026-09-06T01:52:15.859Z",
+  "nativeCandidateSha256": "24e8a0eb1eca780118be5dac83e200c3739a29f9a6bea15f4e278805bc363e13",
+  "actualNativeDuration": 6.016,
+  "candidateSha256": "176e72995215d19469563d0b5a32ed9e9f49532409d703c6e11555c3cf6d68ba",
+  "finishedAt": "2026-09-06T01:52:15.985Z",
+  "audioOverride": {
+    "source": "public/audio/beast-voices/beast_a08.mp3",
+    "sixSecondCandidateSha256": "f6898b216fb68281dd6b48bf5c55fbbb0ba3148fb5c94d64e018d705e725751d",
+    "nativeAudioRemoved": true,
+    "reviewStatus": "unreviewed"
+  },
+  "automaticReview": {
+    "checks": {
+      "head": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Shape mismatch, added gold ornaments."
+      },
+      "body": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Texture mismatch, added gold armor."
+      },
+      "limbs": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Proportion mismatch, added gold armor."
+      },
+      "mouth": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Shape mismatch."
+      },
+      "teethOrBeak": {
+        "status": "unverified",
+        "timestampSeconds": 0,
+        "evidence": "Not clearly visible."
+      },
+      "eyes": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Glowing in video, not in reference."
+      },
+      "clawsOrHooves": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Video shows claws, reference has hooves."
+      },
+      "tail": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Shape and texture mismatch."
+      },
+      "identity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Major design deviations including armor and claws."
+      },
+      "contact": {
+        "status": "fail",
+        "timestampSeconds": 3,
+        "evidence": "No contact or bite occurs."
+      },
+      "playerVoice": {
+        "status": "pass",
+        "timestampSeconds": 2,
+        "evidence": "Timbre matches reference."
+      },
+      "continuity": {
+        "status": "fail",
+        "timestampSeconds": 4,
+        "evidence": "Unnatural snap back to starting position."
+      },
+      "opponentIdentity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Video opponent has wings, reference is wingless."
+      }
+    },
+    "overall": "fail",
+    "refinement": "Both characters fail identity checks; player has claws instead of hooves and added armor, opponent has wings unlike the wingless reference. Animation lacks required contact and features an unnatural snap back."
+  },
+  "preview": "reports/beast-production/previews/beast_a08-attempt-01.mp4"
+}

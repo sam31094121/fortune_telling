@@ -1,0 +1,141 @@
+{
+  "at": "2026-09-06T01:15:18.832Z",
+  "scope": "Development preview with isolated storage; no anatomical or audiovisual movie approval",
+  "rows": [
+    {
+      "width": 360,
+      "scenario": "tie",
+      "status": "PASS",
+      "layout": {
+        "width": 360,
+        "scroll": 360,
+        "buttons": [
+          {
+            "text": "查看結算",
+            "height": 44
+          },
+          {
+            "text": "翻開你的中軍",
+            "height": 48
+          },
+          {
+            "text": "➤ 自動翻牌",
+            "height": 48
+          },
+          {
+            "text": "略過動畫・看戰果",
+            "height": 48
+          }
+        ],
+        "stage": [
+          24,
+          219.4375
+        ]
+      },
+      "renderer": [
+        {
+          "lost": true,
+          "hidden": true
+        }
+      ],
+      "players": [
+        "beast_g_zhuque",
+        "beast_y20",
+        "beast_y04"
+      ],
+      "voicePlays": 11,
+      "unapprovedMovieRequests": 0,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "scenario": "sweep",
+      "status": "PASS",
+      "layout": {
+        "width": 390,
+        "scroll": 390,
+        "buttons": [
+          {
+            "text": "查看結算",
+            "height": 44
+          },
+          {
+            "text": "翻開你的中軍",
+            "height": 48
+          },
+          {
+            "text": "➤ 自動翻牌",
+            "height": 48
+          },
+          {
+            "text": "略過動畫・看戰果",
+            "height": 48
+          }
+        ],
+        "stage": [
+          24,
+          219.4375
+        ]
+      },
+      "renderer": [
+        {
+          "lost": true,
+          "hidden": true
+        }
+      ],
+      "players": [
+        "beast_a22",
+        "beast_g_baihu",
+        "beast_y20"
+      ],
+      "voicePlays": 11,
+      "unapprovedMovieRequests": 0,
+      "errors": []
+    },
+    {
+      "width": 430,
+      "scenario": "skip",
+      "status": "PASS",
+      "layout": {
+        "width": 430,
+        "scroll": 430,
+        "buttons": [
+          {
+            "text": "查看結算",
+            "height": 44
+          },
+          {
+            "text": "翻開你的中軍",
+            "height": 48
+          },
+          {
+            "text": "➤ 自動翻牌",
+            "height": 48
+          },
+          {
+            "text": "略過動畫・看戰果",
+            "height": 48
+          }
+        ],
+        "stage": [
+          24,
+          219.4375
+        ]
+      },
+      "renderer": [
+        {
+          "lost": true,
+          "hidden": true
+        }
+      ],
+      "players": [
+        "beast_g_zhuque",
+        "beast_y20",
+        "beast_y04"
+      ],
+      "voicePlays": 2,
+      "unapprovedMovieRequests": 0,
+      "errors": []
+    }
+  ]
+}

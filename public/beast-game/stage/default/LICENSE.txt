@@ -1,0 +1,18 @@
+Circus Arena stage backdrop — Poly Haven CC0 1.0 Universal
+================================================================
+Asset: Circus Arena HDRI
+Source: https://polyhaven.com/a/circus_arena
+Author (per Poly Haven): Oliksiy Yakovlyev
+License: CC0 1.0 Universal (public domain dedication)
+Official: https://polyhaven.com/license
+CC0 deed: https://creativecommons.org/publicdomain/zero/1.0/
+
+Commercial use: YES | Attribution: NOT required (appreciated)
+Modify / redistribute: YES
+
+Derived files in this folder:
+- circus_arena.jpg — center-lower 9:16 mobile-safe crop (720x1280)
+- circus_arena_wide.jpg — 16:9 wide crop (1920x1080)
+Both derived from Poly Haven official tonemapped JPG (CC0).
+
+Installed for 太極命理 /beast-game Phase P1 (2026-09-06 UTC+8).

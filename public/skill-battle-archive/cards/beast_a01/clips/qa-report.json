@@ -1,0 +1,660 @@
+{
+  "poolId": "beast_a01",
+  "pipeline": "body_charge_6s_v4",
+  "version": "v4",
+  "animation_mode": "layered_puppet_torso_only_v4",
+  "timeline": {
+    "build": [
+      0.0,
+      1.8
+    ],
+    "rush": [
+      1.8,
+      3.8
+    ],
+    "bite_tail": [
+      3.8,
+      6.0
+    ]
+  },
+  "outputs": {
+    "mp4": "/workspace/beast-body-motion/beast_a01/v4/charge-battle.mp4",
+    "webm": "/workspace/beast-body-motion/beast_a01/v4/charge-battle.webm",
+    "contact_sheets": {
+      "build": "/workspace/beast-body-motion/beast_a01/v4/contact/contact_build.jpg",
+      "rush": "/workspace/beast-body-motion/beast_a01/v4/contact/contact_rush.jpg",
+      "bite": "/workspace/beast-body-motion/beast_a01/v4/contact/contact_bite.jpg"
+    },
+    "audit_stills": {
+      "sec_01": "/workspace/beast-body-motion/beast_a01/v4/audit/sec_01.jpg",
+      "sec_02": "/workspace/beast-body-motion/beast_a01/v4/audit/sec_02.jpg",
+      "sec_03": "/workspace/beast-body-motion/beast_a01/v4/audit/sec_03.jpg",
+      "sec_04": "/workspace/beast-body-motion/beast_a01/v4/audit/sec_04.jpg",
+      "sec_05": "/workspace/beast-body-motion/beast_a01/v4/audit/sec_05.jpg",
+      "sec_06": "/workspace/beast-body-motion/beast_a01/v4/audit/sec_06.jpg"
+    },
+    "layers_dir": "/workspace/beast-body-motion/beast_a01/v4/layers"
+  },
+  "probe": {
+    "width": 720,
+    "height": 1280,
+    "duration": 6.0
+  },
+  "layer_meta": {
+    "source": "/workspace/beast-duel-spec/beast-battle/beast_a01/body.png",
+    "body_size": [
+      1536,
+      1024
+    ],
+    "regions": {
+      "head_box": [
+        0,
+        0,
+        645,
+        634
+      ],
+      "jaw_box": [
+        30,
+        286,
+        583,
+        593
+      ],
+      "front_box": [
+        0,
+        563,
+        614,
+        1024
+      ],
+      "rear_box": [
+        537,
+        563,
+        1105,
+        1024
+      ],
+      "tail_box": [
+        844,
+        0,
+        1536,
+        563
+      ],
+      "torso_box": [
+        230,
+        153,
+        1152,
+        870
+      ]
+    },
+    "method": "torso_punched_elliptical_alpha_masks_from_body.png_v4",
+    "never_card": true,
+    "no_full_body_composite": true,
+    "composite_order": [
+      "torso",
+      "rear_limb",
+      "tail",
+      "front_limb",
+      "head_upper",
+      "jaw_mouth"
+    ],
+    "qa_regions": {
+      "jaw_region": [
+        280,
+        440,
+        560,
+        720
+      ],
+      "limb_region": [
+        120,
+        500,
+        420,
+        800
+      ],
+      "body_center": [
+        180,
+        360,
+        540,
+        900
+      ]
+    }
+  },
+  "qa_gates": {
+    "body_scale_delta": {
+      "pass": true,
+      "delta": 0.025,
+      "min": 1.0,
+      "max": 1.025,
+      "threshold": 0.03,
+      "rule": "body_scale_delta ≤ 0.03 (breathe only; no Ken Burns)"
+    },
+    "jaw_region_pixel_diff": {
+      "pass": true,
+      "mean_pixel_diff": 75.195,
+      "threshold": 12.0,
+      "detail": {
+        "box": [
+          280,
+          440,
+          560,
+          720
+        ],
+        "build_frame": 15,
+        "open_frame": 120,
+        "mean_pixel_diff": 75.195,
+        "threshold": 12.0,
+        "pass": true
+      },
+      "rule": "jaw_region mean pixel diff (build vs max-open) ≥ 12.0"
+    },
+    "limb_region_pixel_diff": {
+      "pass": true,
+      "mean_pixel_diff": 61.07,
+      "threshold": 8.0,
+      "detail": {
+        "box": [
+          120,
+          500,
+          420,
+          800
+        ],
+        "build_frame": 15,
+        "rush_mid_frame": 84,
+        "mean_pixel_diff": 61.07,
+        "threshold": 8.0,
+        "pass": true
+      },
+      "rule": "limb_region mean pixel diff rush mid vs build ≥ 8.0"
+    },
+    "duration_6s": {
+      "pass": true,
+      "actual": 6.0,
+      "rule": "duration == 6.0"
+    },
+    "jaw_param_obvious": {
+      "pass": true,
+      "max_jaw_open": 1.0,
+      "max_y_scale": 1.95,
+      "max_dy": 48.0,
+      "rule": "jaw_open→1, y_scale≥1.8, dy≥40"
+    },
+    "limbs_tail_motion": {
+      "pass": true,
+      "detail": {
+        "pass": true,
+        "front_dx_range": 76.0,
+        "front_dy_peak_abs": 43.3,
+        "rear_dx_range": 72.2,
+        "tail_angle_swing": 40.2,
+        "note": "limbs+tail meet ≥30–50px / ≥20°"
+      },
+      "rule": "limbs dx/dy ≥30–50; tail swing ≥20°"
+    },
+    "no_full_body_underlay": {
+      "pass": true,
+      "note": "compose uses torso-only; full_body never alpha_composited",
+      "rule": "do not paste opaque full_body under parts"
+    },
+    "no_zoompan": {
+      "pass": true,
+      "note": "pipeline never invokes ffmpeg zoompan"
+    }
+  },
+  "gate_numbers": {
+    "body_scale_delta": 0.025,
+    "body_scale_min": 1.0,
+    "body_scale_max": 1.025,
+    "jaw_region_mean_pixel_diff": 75.195,
+    "limb_region_mean_pixel_diff": 61.07,
+    "duration": 6.0,
+    "max_jaw_y_scale": 1.95,
+    "max_jaw_dy": 48.0,
+    "front_dx_range": 76.0,
+    "tail_angle_swing": 40.2
+  },
+  "human_gate": {
+    "notes": "v3 HUMAN FAIL: whole-body zoom masquerading as motion (body_scale 1.00→1.34 Ken Burns); full_body pasted under parts so independent jaw/limb/tail motion nearly invisible to human eye.",
+    "v3_fail_quoted": "whole-body zoom masquerading as motion",
+    "gates": {
+      "body_scale_delta": {
+        "pass": true,
+        "delta": 0.025,
+        "min": 1.0,
+        "max": 1.025,
+        "threshold": 0.03,
+        "rule": "body_scale_delta ≤ 0.03 (breathe only; no Ken Burns)"
+      },
+      "jaw_region_pixel_diff": {
+        "pass": true,
+        "mean_pixel_diff": 75.195,
+        "threshold": 12.0,
+        "detail": {
+          "box": [
+            280,
+            440,
+            560,
+            720
+          ],
+          "build_frame": 15,
+          "open_frame": 120,
+          "mean_pixel_diff": 75.195,
+          "threshold": 12.0,
+          "pass": true
+        },
+        "rule": "jaw_region mean pixel diff (build vs max-open) ≥ 12.0"
+      },
+      "limb_region_pixel_diff": {
+        "pass": true,
+        "mean_pixel_diff": 61.07,
+        "threshold": 8.0,
+        "detail": {
+          "box": [
+            120,
+            500,
+            420,
+            800
+          ],
+          "build_frame": 15,
+          "rush_mid_frame": 84,
+          "mean_pixel_diff": 61.07,
+          "threshold": 8.0,
+          "pass": true
+        },
+        "rule": "limb_region mean pixel diff rush mid vs build ≥ 8.0"
+      },
+      "duration_6s": {
+        "pass": true,
+        "actual": 6.0,
+        "rule": "duration == 6.0"
+      },
+      "jaw_param_obvious": {
+        "pass": true,
+        "max_jaw_open": 1.0,
+        "max_y_scale": 1.95,
+        "max_dy": 48.0,
+        "rule": "jaw_open→1, y_scale≥1.8, dy≥40"
+      },
+      "limbs_tail_motion": {
+        "pass": true,
+        "detail": {
+          "pass": true,
+          "front_dx_range": 76.0,
+          "front_dy_peak_abs": 43.3,
+          "rear_dx_range": 72.2,
+          "tail_angle_swing": 40.2,
+          "note": "limbs+tail meet ≥30–50px / ≥20°"
+        },
+        "rule": "limbs dx/dy ≥30–50; tail swing ≥20°"
+      },
+      "no_full_body_underlay": {
+        "pass": true,
+        "note": "compose uses torso-only; full_body never alpha_composited",
+        "rule": "do not paste opaque full_body under parts"
+      },
+      "no_zoompan": {
+        "pass": true,
+        "note": "pipeline never invokes ffmpeg zoompan"
+      }
+    },
+    "all_gates_pass": true
+  },
+  "checklist": {
+    "head": {
+      "pass": true,
+      "note": "head lean + jaw hole cleared from head_upper"
+    },
+    "body": {
+      "pass": true,
+      "note": "body.png torso-punched; NEVER card.png; no zoompan"
+    },
+    "limbs": {
+      "pass": true,
+      "note": "limbs+tail meet ≥30–50px / ≥20°"
+    },
+    "mouth": {
+      "pass": true,
+      "note": "obvious jaw open/snap"
+    },
+    "teeth": {
+      "pass": true,
+      "note": "jaw_mouth layer from body.png"
+    },
+    "eyes": {
+      "pass": true,
+      "note": "head layer advances via translate"
+    },
+    "nails": {
+      "pass": true,
+      "note": "front/rear limb layers"
+    },
+    "tail": {
+      "pass": true,
+      "note": "tail swing 40.2°"
+    },
+    "sound": {
+      "pass": true,
+      "note": {
+        "sfx": "real+procedural_creature_v4",
+        "phases": {
+          "build": "loud modulated growl (sine stacks + noise) + charge",
+          "rush": "whoosh + rising roar swell",
+          "bite": "crunch snap + impact + thunder tail"
+        },
+        "files": [
+          "/workspace/anim-sfx/charge.m4a",
+          "/workspace/anim-sfx/impact.ogg",
+          "/workspace/anim-sfx/thunder.mp3"
+        ]
+      }
+    },
+    "duration_6s": {
+      "pass": true,
+      "actual": 6.0
+    },
+    "mobile_safe": {
+      "pass": true,
+      "resolution": [
+        720,
+        1280
+      ]
+    },
+    "body_scale_cap": {
+      "pass": true,
+      "delta": 0.025
+    },
+    "torso_only_composite": {
+      "pass": true,
+      "note": "no full_body underlay"
+    }
+  },
+  "overall_pass": true,
+  "params_samples": [
+    {
+      "i": 0,
+      "t": 0.0,
+      "phase": "build",
+      "jaw_open": 0.0,
+      "jaw_y_scale": 1.0,
+      "jaw_extra_dy": 0.0,
+      "body_scale": 1.0,
+      "body_cy": 0.6,
+      "front_dx": -6,
+      "front_dy": 8.0,
+      "rear_dx": 6,
+      "rear_dy": 6,
+      "tail_angle": 0.0,
+      "head_dx": -10.0
+    },
+    {
+      "i": 15,
+      "t": 0.5,
+      "phase": "build",
+      "jaw_open": 0.031,
+      "jaw_y_scale": 1.029,
+      "jaw_extra_dy": 1.5,
+      "body_scale": 1.0145,
+      "body_cy": 0.5908,
+      "front_dx": -6,
+      "front_dy": 11.9,
+      "rear_dx": 6,
+      "rear_dy": 6,
+      "tail_angle": 11.6,
+      "head_dx": -14.6
+    },
+    {
+      "i": 30,
+      "t": 1.0,
+      "phase": "build",
+      "jaw_open": 0.039,
+      "jaw_y_scale": 1.037,
+      "jaw_extra_dy": 1.9,
+      "body_scale": 1.0047,
+      "body_cy": 0.5882,
+      "front_dx": -6,
+      "front_dy": 6.6,
+      "rear_dx": 6,
+      "rear_dy": 6,
+      "tail_angle": 6.0,
+      "head_dx": -15.9
+    },
+    {
+      "i": 45,
+      "t": 1.5,
+      "phase": "build",
+      "jaw_open": 0.02,
+      "jaw_y_scale": 1.019,
+      "jaw_extra_dy": 1.0,
+      "body_scale": 1.0036,
+      "body_cy": 0.594,
+      "front_dx": -6,
+      "front_dy": 4.5,
+      "rear_dx": 6,
+      "rear_dy": 6,
+      "tail_angle": -8.5,
+      "head_dx": -13.0
+    },
+    {
+      "i": 54,
+      "t": 1.8,
+      "phase": "rush",
+      "jaw_open": 0.04,
+      "jaw_y_scale": 1.038,
+      "jaw_extra_dy": 1.9,
+      "body_scale": 1.015,
+      "body_cy": 0.59,
+      "front_dx": 10.0,
+      "front_dy": -10.0,
+      "rear_dx": -10.0,
+      "rear_dy": 34.9,
+      "tail_angle": 12.0,
+      "head_dx": -12.0
+    },
+    {
+      "i": 55,
+      "t": 1.833,
+      "phase": "rush",
+      "jaw_open": 0.046,
+      "jaw_y_scale": 1.044,
+      "jaw_extra_dy": 2.2,
+      "body_scale": 1.0166,
+      "body_cy": 0.5864,
+      "front_dx": 18.3,
+      "front_dy": -17.3,
+      "rear_dx": -17.9,
+      "rear_dy": 37.9,
+      "tail_angle": 13.6,
+      "head_dx": -10.9
+    },
+    {
+      "i": 56,
+      "t": 1.867,
+      "phase": "rush",
+      "jaw_open": 0.052,
+      "jaw_y_scale": 1.049,
+      "jaw_extra_dy": 2.5,
+      "body_scale": 1.0181,
+      "body_cy": 0.5828,
+      "front_dx": 26.3,
+      "front_dy": -24.2,
+      "rear_dx": -25.5,
+      "rear_dy": 39.6,
+      "tail_angle": 15.2,
+      "head_dx": -9.8
+    },
+    {
+      "i": 60,
+      "t": 2.0,
+      "phase": "rush",
+      "jaw_open": 0.076,
+      "jaw_y_scale": 1.072,
+      "jaw_extra_dy": 3.6,
+      "body_scale": 1.0231,
+      "body_cy": 0.5691,
+      "front_dx": 48.0,
+      "front_dy": -43.3,
+      "rear_dx": -46.1,
+      "rear_dy": 32.8,
+      "tail_angle": 19.9,
+      "head_dx": -5.5
+    },
+    {
+      "i": 75,
+      "t": 2.5,
+      "phase": "rush",
+      "jaw_open": 0.166,
+      "jaw_y_scale": 1.158,
+      "jaw_extra_dy": 8.0,
+      "body_scale": 1.0134,
+      "body_cy": 0.5265,
+      "front_dx": -28.0,
+      "front_dy": -43.3,
+      "rear_dx": 26.1,
+      "rear_dy": 32.8,
+      "tail_angle": -2.1,
+      "head_dx": 7.6
+    },
+    {
+      "i": 84,
+      "t": 2.8,
+      "phase": "rush",
+      "jaw_open": 0.22,
+      "jaw_y_scale": 1.209,
+      "jaw_extra_dy": 10.6,
+      "body_scale": 1.005,
+      "body_cy": 0.5075,
+      "front_dx": 10.0,
+      "front_dy": -10.0,
+      "rear_dx": -10.0,
+      "rear_dy": 34.9,
+      "tail_angle": -19.0,
+      "head_dx": 13.5
+    },
+    {
+      "i": 90,
+      "t": 3.0,
+      "phase": "rush",
+      "jaw_open": 0.256,
+      "jaw_y_scale": 1.243,
+      "jaw_extra_dy": 12.3,
+      "body_scale": 1.0091,
+      "body_cy": 0.4976,
+      "front_dx": 48.0,
+      "front_dy": -43.3,
+      "rear_dx": -46.1,
+      "rear_dy": 32.8,
+      "tail_angle": -16.6,
+      "head_dx": 16.6
+    },
+    {
+      "i": 105,
+      "t": 3.5,
+      "phase": "rush",
+      "jaw_open": 0.346,
+      "jaw_y_scale": 1.329,
+      "jaw_extra_dy": 16.6,
+      "body_scale": 1.0249,
+      "body_cy": 0.4825,
+      "front_dx": -28.0,
+      "front_dy": -43.3,
+      "rear_dx": 26.1,
+      "rear_dy": 32.8,
+      "tail_angle": -3.1,
+      "head_dx": 21.2
+    },
+    {
+      "i": 114,
+      "t": 3.8,
+      "phase": "bite",
+      "jaw_open": 0.4,
+      "jaw_y_scale": 1.38,
+      "jaw_extra_dy": 19.2,
+      "body_scale": 1.02,
+      "body_cy": 0.48,
+      "front_dx": 28,
+      "front_dy": -30,
+      "rear_dx": -14,
+      "rear_dy": 12,
+      "tail_angle": -12.0,
+      "head_dx": 22.0
+    },
+    {
+      "i": 120,
+      "t": 4.0,
+      "phase": "bite",
+      "jaw_open": 0.853,
+      "jaw_y_scale": 1.81,
+      "jaw_extra_dy": 40.9,
+      "body_scale": 1.02,
+      "body_cy": 0.4498,
+      "front_dx": 28,
+      "front_dy": -30,
+      "rear_dx": -14,
+      "rear_dy": 12,
+      "tail_angle": 6.0,
+      "head_dx": 29.6
+    },
+    {
+      "i": 126,
+      "t": 4.2,
+      "phase": "bite",
+      "jaw_open": 1.0,
+      "jaw_y_scale": 1.95,
+      "jaw_extra_dy": 48.0,
+      "body_scale": 1.02,
+      "body_cy": 0.4402,
+      "front_dx": 22,
+      "front_dy": -22,
+      "rear_dx": -10,
+      "rear_dy": 14,
+      "tail_angle": 1.5,
+      "head_dx": 30
+    },
+    {
+      "i": 135,
+      "t": 4.5,
+      "phase": "bite",
+      "jaw_open": 0.339,
+      "jaw_y_scale": 1.322,
+      "jaw_extra_dy": 16.3,
+      "body_scale": 1.02,
+      "body_cy": 0.4563,
+      "front_dx": 22,
+      "front_dy": -22,
+      "rear_dx": -10,
+      "rear_dy": 14,
+      "tail_angle": -20.3,
+      "head_dx": 30
+    },
+    {
+      "i": 150,
+      "t": 5.0,
+      "phase": "bite",
+      "jaw_open": 0.0,
+      "jaw_y_scale": 1.0,
+      "jaw_extra_dy": 0.0,
+      "body_scale": 1.0149,
+      "body_cy": 0.472,
+      "front_dx": 18.4,
+      "front_dy": -17.2,
+      "rear_dx": -7.0,
+      "rear_dy": 11.6,
+      "tail_angle": 7.6,
+      "head_dx": 25.8
+    },
+    {
+      "i": 165,
+      "t": 5.5,
+      "phase": "bite",
+      "jaw_open": 0.0,
+      "jaw_y_scale": 1.0,
+      "jaw_extra_dy": 0.0,
+      "body_scale": 1.0112,
+      "body_cy": 0.486,
+      "front_dx": 14.2,
+      "front_dy": -11.6,
+      "rear_dx": -3.5,
+      "rear_dy": 8.8,
+      "tail_angle": -6.5,
+      "head_dx": 20.9
+    }
+  ],
+  "limitation": "Not true skeletal/IK. Torso-punched layered cutout puppet from body.png (torso/head/jaw/front/rear/tail) with per-layer affine + jaw Y-scale snap. Gaps vs true IK: no bone hierarchy, no joint constraints, jaw is 2D stretch/rotate not hinged mandible, limb motion is offset/rotate not articulated, punched torso may show seam gaps at joints. v4 fixes v3 fail: whole-body zoom masquerading as motion — body_scale now breathe-only (≤1.03) and rush is translate; no full_body underlay.",
+  "v3_failure_addressed": "v3 HUMAN FAIL: whole-body zoom masquerading as motion (body_scale 1.00→1.34 Ken Burns); full_body pasted under parts so independent jaw/limb/tail motion nearly invisible to human eye."
+}

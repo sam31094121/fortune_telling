@@ -1,0 +1,41 @@
+{
+  "cardId": "beast_a16",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T03:14:58.691Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "bceb29d9ce446587f3b9df65e02c9660810166b4e5a1e0a2ec0b173b41cb008c",
+  "referenceSha256": "3902a23eff898f2465753b61140e971f8d24bf1b5c8395ae02b63a1bdc562ea0",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "method": "Canonical sources and 2 fps contact sheet.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a16/attempt-01/contact-sheet.jpg",
+      "sha256": "6ca82b89671a3e3033f5b73c44c0e0edad64b9f1c2927926ca6cd70132fab1e5"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖金毛、金鱗與圓形胸飾被改為雕紋甲片配短毛，胸部裝飾配置不同。"
+    },
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖寬厚火焰紋金色捲尾變成普通較細蓬毛尾。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "對手改為銀色尖刺蜥龍，原有青銀長鬃與流線尾部缺失。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": null,
+      "evidence": "本次 2 fps 初篩不能確認三次獨立咬合、放開及反力；仍需密集影格與聲畫驗收。"
+    }
+  },
+  "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。"
+}

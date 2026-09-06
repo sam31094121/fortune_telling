@@ -1,0 +1,54 @@
+{
+  "cardId": "beast_a20",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T03:14:58.703Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "95efeee52fae1f22343cf3be1e988d456d805103c02944f5e294d29c5e70d147",
+  "referenceSha256": "76f3f98a663f1e0d719ddcdc19324dc3a344d576b825c1a9d4270548379d1b2b",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "method": "Canonical sources and 2 fps contact sheet. Additional extracted frames: identity-1s.png, counterbite-12fps.jpg.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a20/attempt-01/contact-sheet.jpg",
+      "sha256": "1ed38642296fa4a130e77eab94d167a2702a3baa9c01c9f6897a3dba0d901894"
+    },
+    {
+      "file": ".tmp/beast-production/beast_a20/attempt-01/identity-1s.png",
+      "sha256": "463e3a210ca2e5d99df1ed77b3686f417a4a6f06af9f4651a612d3b158a4e87e"
+    },
+    {
+      "file": ".tmp/beast-production/beast_a20/attempt-01/counterbite-12fps.jpg",
+      "sha256": "225daa12b1697f64916904acaf74c5e3db31eacebf159c50f8551a9d731d1940"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "head": {
+      "status": "unverified",
+      "timestampSeconds": 1,
+      "evidence": "1 秒完整影格仍可見猴鼻、猴耳與猴形面部，不能採用模型「已變成獅子」的說法；其餘影格頭部細節仍待驗收。"
+    },
+    "body": {
+      "status": "unverified",
+      "timestampSeconds": 1,
+      "evidence": "1 秒完整影格胸前亮星仍在，不能依模型說法補畫不存在的缺失；整片甲紋與比例仍待逐格核對。"
+    },
+    "identity": {
+      "status": "unverified",
+      "timestampSeconds": 1,
+      "evidence": "更正模型錯認不等於通過；保留猴形與胸星的實際證據，不宣稱整片 1:1。"
+    },
+    "reciprocalBite": {
+      "status": "fail",
+      "timestampSeconds": 2.5,
+      "evidence": "2.5–2.8 秒密集影格顯示玩家用前肢抵住龍嘴，玩家嘴巴遠離對手肩部，缺少新配方要求的玩家首咬；後續頭部靠近不能補成三次互咬。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 2.5,
+      "evidence": "衝鋒中對手尾部變為細長鱗尾，未保留原圖寬厚青銀流線尾型。"
+    }
+  },
+  "correctionsToModel": "模型聲稱 1 秒變獅子、胸星消失，與實際完整影格不符；不以這些錯誤理由重畫。互咬仍依 12 fps 接觸影格判定失敗。"
+}

@@ -1,0 +1,46 @@
+{
+  "cardId": "beast_a03",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T03:14:58.661Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "478db557c25171a6bc89b4c2f5be66d570b53d5e7e0060f69b750c479f428234",
+  "referenceSha256": "bb9e1dc907dec05bc5cd16514c770bf11c23308a59e9db75e1e8ee5a632ff0cc",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "method": "Canonical sources and 2 fps contact sheet.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a03/attempt-01/contact-sheet.jpg",
+      "sha256": "0601845d7fbe4c445521e40609e8f2370775c46d108051a8e902bd655b5c9d06"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖大量金黑角狀甲片變成普通毛皮與背部尖刺，裝甲分布不同。"
+    },
+    "limbs": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "前肢缺少原圖厚實、層疊的金色甲片。"
+    },
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖厚重甲片尾變成普通環紋毛尾。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "亢金龍被新增大型蝙蝠狀翅膀，原始對手沒有翅膀。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": null,
+      "evidence": "本次 2 fps 初篩不能確認三次獨立咬合、放開及反力；仍需密集影格與聲畫驗收。"
+    }
+  },
+  "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。"
+}

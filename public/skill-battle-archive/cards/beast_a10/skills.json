@@ -10,10 +10,144 @@
       "enabled": true,
       "clip": "/beast-game/skill-bodies/beast_a10.webp",
       "body": "/beast-game/skill-bodies/beast_a10.webp",
-      "durationMs": 1600,
+      "durationMs": 6000,
       "spawn": {
         "from": "selfSlot",
         "to": "targetSlot"
+      },
+      "production": {
+        "version": "six-second-mutual-bite-v2",
+        "registrationStatus": "registered",
+        "state": "needs-refinement",
+        "canonicalReference": "/beast-game/spirit/10.webp",
+        "referenceSha256": "25726b710a69b15f73a364b4825ab0ca470aea664442213a88fd95c4619f491d",
+        "jobReport": "reports/beast-production/beast_a10.json",
+        "latestAttempt": 1,
+        "voiceCandidate": ".tmp/beast-production/beast_a10/voice/player-six-second-v2.wav",
+        "voiceReview": "awaiting-audiovisual-review",
+        "voice": {
+          "source": "/audio/beast-voices/beast_a10.mp3",
+          "sourceSha256": "c649a3ac1628503ec61d06bf69e28a848e6190ac109ec8d12fcab85c40a2112b",
+          "candidateSha256": "04be9819fff8b4ec5c344d71ecf4dec25b2024d0811178deaa006dae58382b2a",
+          "provenanceReport": ".tmp/beast-production/beast_a10/voice/provenance-v2.json",
+          "durationSeconds": 6,
+          "technicalCheck": "passed",
+          "reviewStatus": "awaiting-audiovisual-review"
+        },
+        "timeline": [
+          {
+            "phase": "build",
+            "start": 0,
+            "end": 1.8
+          },
+          {
+            "phase": "rush",
+            "start": 1.8,
+            "end": 2.5
+          },
+          {
+            "phase": "player-bite",
+            "start": 2.5,
+            "end": 2.8
+          },
+          {
+            "phase": "opponent-counterbite",
+            "start": 2.8,
+            "end": 3.3
+          },
+          {
+            "phase": "player-finisher",
+            "start": 3.6,
+            "end": 4.2
+          },
+          {
+            "phase": "recovery",
+            "start": 4.2,
+            "end": 6
+          }
+        ],
+        "requiredChecks": [
+          "identity",
+          "opponentIdentity",
+          "head",
+          "body",
+          "limbs",
+          "mouth",
+          "teethOrBeak",
+          "eyes",
+          "clawsOrHooves",
+          "tail",
+          "contact",
+          "reciprocalBite",
+          "playerVoice",
+          "continuity",
+          "mobilePlayback"
+        ],
+        "candidateContractVersion": "single-bite-legacy",
+        "perspective": "player",
+        "opponentVoice": false,
+        "candidate": {
+          "status": "available-for-review",
+          "attempt": 1,
+          "contractVersion": "single-bite-legacy",
+          "opponentId": "beast_a02",
+          "workspaceFile": "reports/beast-production/previews/beast_a10-attempt-01.mp4",
+          "candidateSha256": "f26796d449a69492d3737475eb7455eb7b398cde8024f773bc4d1c79ec991b0e",
+          "previewSha256": "47feae119d3fd741b245edfffa68a88e75d93b8bc804ad8567581d0ce23900de",
+          "durationSeconds": 6,
+          "access": "local-review-only"
+        },
+        "review": {
+          "status": "initial-visual-screening-recorded",
+          "visualReport": "reports/beast-production/cross-checks/beast_a10-attempt-01.json",
+          "modelReport": ".tmp/beast-production/beast_a10/attempt-01/model-review.json",
+          "failedParts": [
+            {
+              "part": "head",
+              "evidence": "原圖藍色晶甲面部變成白毛長吻與金色角冠，改變頭部本體設計。"
+            },
+            {
+              "part": "body",
+              "evidence": "原圖深藍晶甲胸腹被白灰長毛取代；銀河翅膀相似不代表整隻一致。"
+            },
+            {
+              "part": "limbs",
+              "evidence": "Video player lacks the specific crystal formations on the legs seen in Image A."
+            },
+            {
+              "part": "tail",
+              "evidence": "Video player tail tip is different from the distinct crystal cluster in Image A."
+            },
+            {
+              "part": "identity",
+              "evidence": "Player design fails multiple 1:1 checks including head shape, mane presence, and body texture."
+            },
+            {
+              "part": "opponentIdentity",
+              "evidence": "亢金龍新增大型蝙蝠狀翅膀，原圖沒有此構造。"
+            }
+          ],
+          "outstandingChecks": [
+            "identity",
+            "opponentIdentity",
+            "head",
+            "body",
+            "limbs",
+            "mouth",
+            "teethOrBeak",
+            "eyes",
+            "clawsOrHooves",
+            "tail",
+            "contact",
+            "reciprocalBite",
+            "playerVoice",
+            "continuity",
+            "mobilePlayback"
+          ],
+          "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。",
+          "fullAudiovisualAcceptance": "pending"
+        },
+        "blocker": null
       }
     },
     {

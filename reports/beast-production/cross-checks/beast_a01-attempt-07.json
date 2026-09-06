@@ -1,0 +1,29 @@
+{
+  "cardId": "beast_a01",
+  "attempt": 7,
+  "recordedAt": "2026-09-06T02:07:18.472Z",
+  "reviewer": "Codex visual comparison of canonical images and extracted frames",
+  "candidateSha256": "a6685a010d1da9dadb06170fa3a6643dbfd83f8ab51af374e23eec9c23678e95",
+  "referenceSha256": "8d31956ddb9589c3a6e39a342aa83c41f7bbaf096715361679dd3adc0e2ecc6b",
+  "method": "Contact sheet at 2 fps; a01 v7 additionally checked recovery at 4 fps and a01 v8 contact at full resolution.",
+  "scope": "Only listed visual discrepancies are assessed. This record is not an audio listening review or approval.",
+  "overall": "fail",
+  "checks": {
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 2.5,
+      "evidence": "衝刺時原本較厚的葉狀盤繞尾飾變為細長尾部，仍需按原圖比對修正。"
+    },
+    "contact": {
+      "status": "fail",
+      "timestampSeconds": 4,
+      "evidence": "咬住位置為對手臉部／上頸，而非預定肩部；頭部與對手鬃毛交疊不易辨識咬合邊界。"
+    },
+    "continuity": {
+      "status": "fail",
+      "timestampSeconds": 5.5,
+      "evidence": "4.0–5.75 秒的細分影格可見後段放開與移動，模型所稱完全凍結不準確；但放開延至約 5.5 秒，尚未符合 4.2 秒收勢安排。"
+    }
+  },
+  "correctionsToModel": null
+}

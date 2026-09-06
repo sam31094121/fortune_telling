@@ -1,0 +1,181 @@
+{
+  "cardId": "beast_a11",
+  "name": "虛日鼠",
+  "reference": "public/beast-game/spirit/11.webp",
+  "referenceSha256": "c8cb7cfa5d82452a7037a4d442739984d9d315decf39b335511867af06015d4a",
+  "durationSeconds": 6,
+  "perspective": "player",
+  "opponentVoice": false,
+  "timeline": [
+    {
+      "phase": "build",
+      "start": 0,
+      "end": 2
+    },
+    {
+      "phase": "rush",
+      "start": 1.8,
+      "end": 4.5
+    },
+    {
+      "phase": "bite",
+      "start": 4,
+      "end": 4.2
+    },
+    {
+      "phase": "tail",
+      "start": 4.2,
+      "end": 6
+    }
+  ],
+  "state": "needs-refinement",
+  "checks": {
+    "head": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "body": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "limbs": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "mouth": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "teethOrBeak": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "eyes": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "clawsOrHooves": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "tail": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "identity": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "contact": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "playerVoice": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "continuity": {
+      "status": "unreviewed",
+      "evidence": null
+    }
+  },
+  "attemptLimit": 3,
+  "prompt": "Create exactly 6 seconds of continuous creature footage, one shot with no cuts. Image 1 is the protagonist 虛日鼠; image 2 is its silent training opponent. Reproduce these exact individual creatures in their original detailed rendering style. Preserve facial structure, species, colors, markings, complex filigree armor, central chest jewels, limb ornaments, appendages and proportions throughout. Do not simplify ornamental details or replace their materials. Never add horns or wings absent in either source. Keep the protagonist's source-facing orientation and place the opponent toward that side, both visible from the first frame; do not spin or redesign them. Camera stays fixed, showing full bodies and a dark stone stage with margin for every appendage. This is clean footage, without HUD, health bars, interface, text, titles, names, icons, captions or frames. Animate anatomical joints and weight transfer, never slide a card or rigid cutout. 0-2s: grounded breath and proud species-appropriate call, body braces. 1.8-3.6s: the protagonist pushes off in a short forceful lunge toward the opponent's armored shoulder, appendages follow naturally. Arrange the silent opponent crouched so that its shoulder is at the protagonist's mouth height. At 3.8s open the protagonist's natural jaw or beak and place that shoulder clearly between its upper and lower jaw. At exactly 4.0s CLOSE the jaw or beak onto that shoulder, hold the visible non-gory grip until 4.2s with a slight pull and immediate opponent recoil. Do not merely stop in front of the opponent, nuzzle or headbutt; visible mouth closure around its shoulder is essential. 4.2-6s: release and settle, the same protagonist's call decays. Opponent reacts but remains completely silent. No blood, humans, music, camera orbit, body morphing, new teeth or extra limbs, image crossfades or rectangular backgrounds. Bird species retain a beak without invented teeth; legless species retain their anatomy. The protagonist's head and contact are the focal point. Finish the complete action by 6s.",
+  "attempt": 1,
+  "provider": "gemini-omni-1.1-flash",
+  "methodRevisionReason": "Newly verified Omni model supports subject references and local conversational edits. Preserve the source-facing direction and distinguish both canonical actors; previous Veo candidates failed identity.",
+  "opponentId": "beast_a02",
+  "opponentReference": "public/beast-game/spirit/02.webp",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "conditioning": "omni-subject-reference",
+  "sourceSeconds": 6,
+  "aspectRatio": "16:9",
+  "releaseStatus": "pending",
+  "purpose": "paired-skill-candidate",
+  "recipeVersion": "omni-6s-no-hud-articulated-bite-v2",
+  "startedAt": "2026-09-06T01:54:58.504Z",
+  "omniInteractionId": "v1_ChdRY2ljYXBmNEpjcTd2cjBQbi1HczhBOBIXUWNpY2FwZjRKY3E3dnIwUG4tR3M4QTg",
+  "providerReturnedAt": "2026-09-06T01:56:21.194Z",
+  "nativeCandidateSha256": "f6b851ca39b26b450c239630c72bf0d6b38e40ebf4ead30709b5d1fe87a3302b",
+  "actualNativeDuration": 6.016,
+  "candidateSha256": "c65ff05aa7dc0f96beae56b48f77fb123f71d22021dc022eb68713b25b530fa1",
+  "finishedAt": "2026-09-06T01:56:21.317Z",
+  "audioOverride": {
+    "source": "public/audio/beast-voices/beast_a11.mp3",
+    "sixSecondCandidateSha256": "206b1af98f1a8e6f5f2cd57c541aabfb64567a48597937c706a1f806fa8173d9",
+    "nativeAudioRemoved": true,
+    "reviewStatus": "unreviewed"
+  },
+  "automaticReview": {
+    "checks": {
+      "head": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "角變成單一藍色結構，非兩根獨立的角，耳朵比例較小。"
+      },
+      "body": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "星空紋理僅限於局部，未如原圖般自然融入全身毛髮。"
+      },
+      "limbs": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "呈現普通老鼠四肢，缺乏原圖的修長與風格化設計。"
+      },
+      "mouth": {
+        "status": "pass",
+        "timestampSeconds": 1,
+        "evidence": "嘴部動作正常，能張開吼叫與咬合。"
+      },
+      "teethOrBeak": {
+        "status": "pass",
+        "timestampSeconds": 1,
+        "evidence": "張嘴時可清晰看見牙齒。"
+      },
+      "eyes": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "眼睛為純黑色，而原設定為金色。"
+      },
+      "clawsOrHooves": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "四肢末端可見爪子。"
+      },
+      "tail": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "尾巴為普通粉色肉質，完全缺失原圖的星空紋理與粗長形態。"
+      },
+      "identity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "角、尾巴、眼睛及整體毛髮質感與原設定嚴重不符。"
+      },
+      "contact": {
+        "status": "pass",
+        "timestampSeconds": 4,
+        "evidence": "玩家角色在4秒左右確實衝撞並咬住對手胸部。"
+      },
+      "playerVoice": {
+        "status": "pass",
+        "timestampSeconds": 1,
+        "evidence": "吼叫音色與提供的參考音頻一致。"
+      },
+      "continuity": {
+        "status": "pass",
+        "timestampSeconds": 0,
+        "evidence": "影片播放期間角色模型與動作保持連貫，無明顯崩壞。"
+      },
+      "opponentIdentity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "對手變為金色機械龍，與原圖的銀白色、具備鬃毛的生物龍完全不同。"
+      }
+    },
+    "overall": "fail",
+    "refinement": "玩家角色需修正為兩根獨立的角、金色眼睛，並換上帶有星空紋理的粗長尾巴。對手模型需徹底重做，還原為銀白色、帶有綠色鬃毛與精緻鱗片裝甲的龍，而非目前的金色機械構造。"
+  },
+  "preview": "reports/beast-production/previews/beast_a11-attempt-01.mp4"
+}

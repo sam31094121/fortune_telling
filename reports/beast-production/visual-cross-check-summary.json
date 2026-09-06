@@ -1,0 +1,591 @@
+{
+  "recordedAt": "2026-09-06T03:14:58.718Z",
+  "generatedCandidates": 21,
+  "currentCandidateInitialVisualReviews": 21,
+  "approved": 0,
+  "scope": "Initial screening only; full anatomy/contact/audio verification is outstanding.",
+  "rows": [
+    {
+      "position": 1,
+      "cardId": "beast_a01",
+      "name": "角木蛟",
+      "attempt": 10,
+      "report": "reports/beast-production/cross-checks/beast_a01-attempt-10.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "mobilePlayback",
+          "status": "fail",
+          "timestampSeconds": 5.5,
+          "evidence": "5.5 秒完整影格右緣裁掉玩家尾部；收勢時須保持完整本體在畫面內。"
+        }
+      ]
+    },
+    {
+      "position": 2,
+      "cardId": "beast_a02",
+      "name": "亢金龍",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a02-attempt-01.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖銀色曲線胸甲與青銀長鬃被簡化成較細瘦的銀龍與少量金色胸飾。"
+        },
+        {
+          "part": "tail",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖寬厚的青銀飄帶狀尾部變成細長鱗尾與小尾簇，未保留本體尾型。"
+        },
+        {
+          "part": "identity",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "頭鬃、胸甲與尾部同時簡化，不能判為原始亢金龍 1:1。"
+        }
+      ]
+    },
+    {
+      "position": 3,
+      "cardId": "beast_a03",
+      "name": "氐土貉",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a03-attempt-01.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖大量金黑角狀甲片變成普通毛皮與背部尖刺，裝甲分布不同。"
+        },
+        {
+          "part": "limbs",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "前肢缺少原圖厚實、層疊的金色甲片。"
+        },
+        {
+          "part": "tail",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖厚重甲片尾變成普通環紋毛尾。"
+        },
+        {
+          "part": "opponentIdentity",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "亢金龍被新增大型蝙蝠狀翅膀，原始對手沒有翅膀。"
+        }
+      ]
+    },
+    {
+      "position": 4,
+      "cardId": "beast_a04",
+      "name": "房日兔",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a04-attempt-01.json",
+      "scope": "Only listed visual discrepancies are assessed. This record is not an audio listening review or approval.",
+      "failures": [
+        {
+          "part": "head",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "候選額頭有細長直角，原圖是金色額飾與耳根結構，形狀不一致。"
+        },
+        {
+          "part": "limbs",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖前後肢有突出的金色護甲與爪飾，候選改為較平素的兔形四肢。"
+        },
+        {
+          "part": "contact",
+          "status": "fail",
+          "timestampSeconds": 4,
+          "evidence": "咬擊格只見頭部撞近對手胸口，沒有清楚包住目標的上下顎闭合。"
+        },
+        {
+          "part": "presentation",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "影片自行加入血條、PLAYER 與角色標籤。"
+        }
+      ]
+    },
+    {
+      "position": 5,
+      "cardId": "beast_a05",
+      "name": "心月狐",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a05-attempt-01.json",
+      "scope": "Only listed visual discrepancies are assessed. This record is not an audio listening review or approval.",
+      "failures": [
+        {
+          "part": "limbs",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖四肢的金色護腕與飾片在候選被省略／簡化。"
+        },
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖胸前金色鑲邊與青色寶石的細密飾紋未完整保留。"
+        }
+      ]
+    },
+    {
+      "position": 6,
+      "cardId": "beast_a06",
+      "name": "尾火虎",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a06-attempt-01.json",
+      "scope": "Only listed visual discrepancies are assessed. This record is not an audio listening review or approval.",
+      "failures": [
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖為大面積金藍胸甲與中央藍珠，候選改成普通虎身加背部火焰／小肩飾。"
+        },
+        {
+          "part": "tail",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖整條尾部是粗大的藍色星光盤繞造型，候選為虎紋細尾末端加火。"
+        },
+        {
+          "part": "opponentIdentity",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "對手新增原始亢金龍沒有的蝙蝠狀翅膀。"
+        },
+        {
+          "part": "presentation",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "影片自行加上血條與 PLAYER 文字。"
+        }
+      ]
+    },
+    {
+      "position": 7,
+      "cardId": "beast_a07",
+      "name": "箕水豹",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a07-attempt-01.json",
+      "scope": "Only listed visual discrepancies are assessed. This record is not an audio listening review or approval.",
+      "failures": [
+        {
+          "part": "head",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖額頭金紋、面部輪廓與大片鬃流，候選改為普通豹頭加小束藍火。"
+        },
+        {
+          "part": "tail",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖粗大的流動水光尾形被改成細長豹尾加末端火焰。"
+        },
+        {
+          "part": "limbs",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖大面積青金色腿甲在候選中被簡化為普通豹腿。"
+        }
+      ]
+    },
+    {
+      "position": 8,
+      "cardId": "beast_a08",
+      "name": "斗木獬",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a08-attempt-01.json",
+      "scope": "Only listed visual discrepancies are assessed. This record is not an audio listening review or approval.",
+      "failures": [
+        {
+          "part": "head",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖是較短且寬的獬豸面部，候選變成狹長龍吻與長條鬃毛。"
+        },
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖厚實的青色毛鱗及胸飾被簡化，身形與原有輪廓不同。"
+        },
+        {
+          "part": "opponentIdentity",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "亢金龍被加上大型翅膀，與原圖不符。"
+        }
+      ]
+    },
+    {
+      "position": 9,
+      "cardId": "beast_a09",
+      "name": "牛金牛",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a09-attempt-01.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "head",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖金色寬大上彎月牙角變成較小、較窄的角。"
+        },
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "金棕毛色與細密金紋變成灰白身體配大塊金甲。"
+        },
+        {
+          "part": "tail",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖青色流光尾部變成細小普通牛尾，缺少原有流光輪廓。"
+        }
+      ]
+    },
+    {
+      "position": 10,
+      "cardId": "beast_a10",
+      "name": "女土蝠",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a10-attempt-01.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "head",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖藍色晶甲面部變成白毛長吻與金色角冠，改變頭部本體設計。"
+        },
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖深藍晶甲胸腹被白灰長毛取代；銀河翅膀相似不代表整隻一致。"
+        },
+        {
+          "part": "opponentIdentity",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "亢金龍新增大型蝙蝠狀翅膀，原圖沒有此構造。"
+        }
+      ]
+    },
+    {
+      "position": 11,
+      "cardId": "beast_a11",
+      "name": "虛日鼠",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a11-attempt-01.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖深藍灰毛鱗與金色胸肢紋飾變成普通灰鼠配星空斑塊。"
+        },
+        {
+          "part": "tail",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖厚大的藍色星空捲尾變成細粉色裸尾。"
+        },
+        {
+          "part": "opponentIdentity",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "對手變成綠寶石金甲尖刺蜥龍，缺少原圖銀色曲線甲片與青銀長鬃尾。"
+        }
+      ]
+    },
+    {
+      "position": 12,
+      "cardId": "beast_a12",
+      "name": "危月燕",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a12-attempt-01.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖深藍星空羽翼變成較淺的普通藍羽，未保留星空材質與羽片裝飾。"
+        },
+        {
+          "part": "tail",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖寬大繁複的藍色流線長尾變成稀疏細尾羽。"
+        },
+        {
+          "part": "opponentIdentity",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "對手鬃毛與尾部變成一般尖刺鱗龍，缺少原始青銀流線毛飾。"
+        }
+      ]
+    },
+    {
+      "position": 13,
+      "cardId": "beast_a13",
+      "name": "室火豬",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a13-attempt-01.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖黑色熔岩裂紋、背部層疊棘甲變成灰棕野豬身體加背部火焰。"
+        },
+        {
+          "part": "tail",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖厚重捲曲火尾變成細豬尾加末端火焰。"
+        },
+        {
+          "part": "identity",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "保留野豬物種仍不足以保留原始熔岩神獸本體。"
+        }
+      ]
+    },
+    {
+      "position": 14,
+      "cardId": "beast_a14",
+      "name": "壁水貐",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a14-attempt-01.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "limbs",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原图四肢厚實雕花冰甲被簡化，未保留腕踝冰飾輪廓。"
+        },
+        {
+          "part": "tail",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖寬厚雕塑狀冰尾变成較細尾部，開場尾端又被畫面右側裁掉。"
+        },
+        {
+          "part": "mobilePlayback",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "開場完整本體未入鏡，右側尾端被裁切。"
+        }
+      ]
+    },
+    {
+      "position": 15,
+      "cardId": "beast_a15",
+      "name": "奎木狼",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a15-attempt-01.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖厚金鬃與金綠軀幹細紋變成細瘦普通狼體加綠葉頸圈。"
+        },
+        {
+          "part": "tail",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖巨大的綠葉流線尾變成細普通狼尾與小葉尾簇。"
+        },
+        {
+          "part": "opponentIdentity",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "對手新增大型蝙蝠翅膀，與無翼亢金龍原圖不符。"
+        }
+      ]
+    },
+    {
+      "position": 16,
+      "cardId": "beast_a16",
+      "name": "婁金狗",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a16-attempt-01.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖金毛、金鱗與圓形胸飾被改為雕紋甲片配短毛，胸部裝飾配置不同。"
+        },
+        {
+          "part": "tail",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖寬厚火焰紋金色捲尾變成普通較細蓬毛尾。"
+        },
+        {
+          "part": "opponentIdentity",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "對手改為銀色尖刺蜥龍，原有青銀長鬃與流線尾部缺失。"
+        }
+      ]
+    },
+    {
+      "position": 17,
+      "cardId": "beast_a17",
+      "name": "胃土雉",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a17-attempt-01.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖銳利金葉狀羽片與嵌入胸羽的角形寶飾變成普通金羽，並新增大型圓形橙金吊飾。"
+        },
+        {
+          "part": "tail",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖寬大層疊金羽尾變成稀疏細長尾羽。"
+        },
+        {
+          "part": "opponentIdentity",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "對手的青銀長鬃與飄帶尾被一般鱗龍外形取代。"
+        }
+      ]
+    },
+    {
+      "position": 18,
+      "cardId": "beast_a18",
+      "name": "昴日雞",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a18-attempt-01.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "head",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖繁複金色火冠變成普通雞冠上方的小火焰，冠飾設計不同。"
+        },
+        {
+          "part": "body",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖火焰金羽、太陽胸飾變成普通金羽與更小的胸飾。"
+        },
+        {
+          "part": "tail",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "原圖火焰羽尾變成普通細長公雞尾羽加橙色末端。"
+        },
+        {
+          "part": "opponentIdentity",
+          "status": "fail",
+          "timestampSeconds": 0,
+          "evidence": "對手改為尖刺銀鱗龍，未保留青銀長鬃與流線尾飾。"
+        }
+      ]
+    },
+    {
+      "position": 19,
+      "cardId": "beast_a19",
+      "name": "畢月烏",
+      "attempt": 2,
+      "report": "reports/beast-production/cross-checks/beast_a19-attempt-02.json",
+      "scope": "Listed visual observations only; no claim of audio listening approval.",
+      "failures": [
+        {
+          "part": "contact",
+          "status": "fail",
+          "timestampSeconds": 4,
+          "evidence": "4.0 秒時玩家喙已退離對手，主要碰撞較早發生，未符合 4 秒收尾咬擊。"
+        },
+        {
+          "part": "continuity",
+          "status": "fail",
+          "timestampSeconds": 1,
+          "evidence": "銀色對手在玩家攻擊前先向右突進，與玩家先發動的順序不一致。"
+        },
+        {
+          "part": "opponentIdentity",
+          "status": "fail",
+          "timestampSeconds": 3,
+          "evidence": "原始銀色胸甲改為較突出的金色肩胸甲，對手尾部也變成更細的鱗片長尾。"
+        }
+      ]
+    },
+    {
+      "position": 20,
+      "cardId": "beast_a20",
+      "name": "觜火猴",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a20-attempt-01.json",
+      "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+      "failures": [
+        {
+          "part": "reciprocalBite",
+          "status": "fail",
+          "timestampSeconds": 2.5,
+          "evidence": "2.5–2.8 秒密集影格顯示玩家用前肢抵住龍嘴，玩家嘴巴遠離對手肩部，缺少新配方要求的玩家首咬；後續頭部靠近不能補成三次互咬。"
+        },
+        {
+          "part": "opponentIdentity",
+          "status": "fail",
+          "timestampSeconds": 2.5,
+          "evidence": "衝鋒中對手尾部變為細長鱗尾，未保留原圖寬厚青銀流線尾型。"
+        }
+      ]
+    },
+    {
+      "position": 22,
+      "cardId": "beast_a22",
+      "name": "井木犴",
+      "attempt": 1,
+      "report": "reports/beast-production/cross-checks/beast_a22-attempt-01.json",
+      "scope": "Listed visual observations only; no claim of audio listening approval.",
+      "failures": [
+        {
+          "part": "opponentIdentity",
+          "status": "fail",
+          "timestampSeconds": 3,
+          "evidence": "銀色對手在動作中胸肩甲改成較大金色塊面，與原圖銀色曲線甲片不同。"
+        },
+        {
+          "part": "continuity",
+          "status": "fail",
+          "timestampSeconds": 1,
+          "evidence": "銀龍在約 1.0 秒先向玩家突進，玩家接著才出招，與玩家先咬的安排不同。"
+        }
+      ]
+    }
+  ]
+}

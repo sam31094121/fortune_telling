@@ -1,0 +1,181 @@
+{
+  "cardId": "beast_a09",
+  "name": "牛金牛",
+  "reference": "public/beast-game/spirit/09.webp",
+  "referenceSha256": "a8be1c550856a1fc827885e0a3ecedf66534230b4dc14f26d7d4a8764c833ba1",
+  "durationSeconds": 6,
+  "perspective": "player",
+  "opponentVoice": false,
+  "timeline": [
+    {
+      "phase": "build",
+      "start": 0,
+      "end": 2
+    },
+    {
+      "phase": "rush",
+      "start": 1.8,
+      "end": 4.5
+    },
+    {
+      "phase": "bite",
+      "start": 4,
+      "end": 4.2
+    },
+    {
+      "phase": "tail",
+      "start": 4.2,
+      "end": 6
+    }
+  ],
+  "state": "needs-refinement",
+  "checks": {
+    "head": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "body": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "limbs": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "mouth": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "teethOrBeak": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "eyes": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "clawsOrHooves": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "tail": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "identity": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "contact": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "playerVoice": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "continuity": {
+      "status": "unreviewed",
+      "evidence": null
+    }
+  },
+  "attemptLimit": 3,
+  "prompt": "Create exactly 6 seconds of continuous creature footage, one shot with no cuts. Image 1 is the protagonist 牛金牛; image 2 is its silent training opponent. Reproduce these exact individual creatures in their original detailed rendering style. Preserve facial structure, species, colors, markings, complex filigree armor, central chest jewels, limb ornaments, appendages and proportions throughout. Do not simplify ornamental details or replace their materials. Never add horns or wings absent in either source. Keep the protagonist's source-facing orientation and place the opponent toward that side, both visible from the first frame; do not spin or redesign them. Camera stays fixed, showing full bodies and a dark stone stage with margin for every appendage. This is clean footage, without HUD, health bars, interface, text, titles, names, icons, captions or frames. Animate anatomical joints and weight transfer, never slide a card or rigid cutout. 0-2s: grounded breath and proud species-appropriate call, body braces. 1.8-3.6s: the protagonist pushes off in a short forceful lunge toward the opponent's armored shoulder, appendages follow naturally. Arrange the silent opponent crouched so that its shoulder is at the protagonist's mouth height. At 3.8s open the protagonist's natural jaw or beak and place that shoulder clearly between its upper and lower jaw. At exactly 4.0s CLOSE the jaw or beak onto that shoulder, hold the visible non-gory grip until 4.2s with a slight pull and immediate opponent recoil. Do not merely stop in front of the opponent, nuzzle or headbutt; visible mouth closure around its shoulder is essential. 4.2-6s: release and settle, the same protagonist's call decays. Opponent reacts but remains completely silent. No blood, humans, music, camera orbit, body morphing, new teeth or extra limbs, image crossfades or rectangular backgrounds. Bird species retain a beak without invented teeth; legless species retain their anatomy. The protagonist's head and contact are the focal point. Finish the complete action by 6s.",
+  "attempt": 1,
+  "provider": "gemini-omni-1.1-flash",
+  "methodRevisionReason": "Newly verified Omni model supports subject references and local conversational edits. Preserve the source-facing direction and distinguish both canonical actors; previous Veo candidates failed identity.",
+  "opponentId": "beast_a02",
+  "opponentReference": "public/beast-game/spirit/02.webp",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "conditioning": "omni-subject-reference",
+  "sourceSeconds": 6,
+  "aspectRatio": "16:9",
+  "releaseStatus": "pending",
+  "purpose": "paired-skill-candidate",
+  "recipeVersion": "omni-6s-no-hud-articulated-bite-v2",
+  "startedAt": "2026-09-06T01:52:45.589Z",
+  "omniInteractionId": "v1_ChdrTWVjYXF1WkdhcloxZThQdnBuejRROBIXa01lY2FxdVpHYXJaMWU4UHZwbno0UTg",
+  "providerReturnedAt": "2026-09-06T01:53:25.211Z",
+  "nativeCandidateSha256": "8b67bceddcb4bc9b5f6c46c361e299b9043c2849adafdf57294281afb93df80a",
+  "actualNativeDuration": 6.016,
+  "candidateSha256": "89baf965e269f657be176e4faafbf802b0585b9548b116aa16f0d44cb8e7310d",
+  "finishedAt": "2026-09-06T01:53:25.325Z",
+  "audioOverride": {
+    "source": "public/audio/beast-voices/beast_a09.mp3",
+    "sixSecondCandidateSha256": "7ee64aac61287fa7b746d17c07e68c489dfb745d55abaa53ec40f607032e2945",
+    "nativeAudioRemoved": true,
+    "reviewStatus": "unreviewed"
+  },
+  "automaticReview": {
+    "checks": {
+      "head": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Player horns are less curved and lack the specific texture of the reference."
+      },
+      "body": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Player armor consists of solid plates rather than the intricate filigree seen in the reference."
+      },
+      "limbs": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Player limbs lack the detailed gold armor patterns."
+      },
+      "mouth": {
+        "status": "fail",
+        "timestampSeconds": 2,
+        "evidence": "Player mouth does not articulate during the roar audio."
+      },
+      "teethOrBeak": {
+        "status": "unverified",
+        "timestampSeconds": 0,
+        "evidence": "Not clearly visible for detailed comparison."
+      },
+      "eyes": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Player eyes lack the glowing white appearance of the canonical design."
+      },
+      "clawsOrHooves": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Player hooves are plain and lack the gold armor covering."
+      },
+      "tail": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Player tail is missing the distinct teal accents."
+      },
+      "identity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Overall player design fails 1:1 match due to armor, horn, and color discrepancies."
+      },
+      "contact": {
+        "status": "fail",
+        "timestampSeconds": 4,
+        "evidence": "No rush, contact, or jaw closure occurs; the video is largely static."
+      },
+      "playerVoice": {
+        "status": "pass",
+        "timestampSeconds": 1,
+        "evidence": "Audio timbre matches the provided reference."
+      },
+      "continuity": {
+        "status": "pass",
+        "timestampSeconds": 3,
+        "evidence": "Video maintains coherence without morphing, though it lacks required motion."
+      },
+      "opponentIdentity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "Opponent design lacks teal accents, and armor styling differs significantly from the reference."
+      }
+    },
+    "overall": "fail",
+    "refinement": "The video fails to provide a 1:1 design match for either the player or the opponent. Furthermore, the required action sequence involving a rush, contact, and bite is completely absent, as the video remains mostly static."
+  },
+  "preview": "reports/beast-production/previews/beast_a09-attempt-01.mp4"
+}

@@ -1,0 +1,29 @@
+{
+  "cardId": "beast_a07",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T02:07:18.464Z",
+  "reviewer": "Codex visual comparison of canonical images and extracted frames",
+  "candidateSha256": "5184ef208676bcc0ecd1bb6ba764d44274cf09f5e1c1882878e74d29831d1fc6",
+  "referenceSha256": "71869c97c3d23813854e3a10e417e55e880e73a33478cb88e23022351b1479d5",
+  "method": "Contact sheet at 2 fps; a01 v7 additionally checked recovery at 4 fps and a01 v8 contact at full resolution.",
+  "scope": "Only listed visual discrepancies are assessed. This record is not an audio listening review or approval.",
+  "overall": "fail",
+  "checks": {
+    "head": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖額頭金紋、面部輪廓與大片鬃流，候選改為普通豹頭加小束藍火。"
+    },
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖粗大的流動水光尾形被改成細長豹尾加末端火焰。"
+    },
+    "limbs": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖大面積青金色腿甲在候選中被簡化為普通豹腿。"
+    }
+  },
+  "correctionsToModel": null
+}

@@ -10,10 +10,121 @@
       "enabled": true,
       "clip": "/beast-game/skill-bodies/beast_a24.webp",
       "body": "/beast-game/skill-bodies/beast_a24.webp",
-      "durationMs": 1600,
+      "durationMs": 6000,
       "spawn": {
         "from": "selfSlot",
         "to": "targetSlot"
+      },
+      "production": {
+        "version": "six-second-mutual-bite-v2",
+        "registrationStatus": "registered",
+        "state": "quota-blocked",
+        "canonicalReference": "/beast-game/spirit/24.webp",
+        "referenceSha256": "c4836a08abdc75650ca4d421be039d1a9ddda8bd5cd8e301f3c28093db8b3dd3",
+        "jobReport": "reports/beast-production/beast_a24.json",
+        "latestAttempt": 1,
+        "voiceCandidate": ".tmp/beast-production/beast_a24/voice/player-six-second-v2.wav",
+        "voiceReview": "awaiting-audiovisual-review",
+        "voice": {
+          "source": "/audio/beast-voices/beast_a24.mp3",
+          "sourceSha256": "9637b3ca8934b9faac9131852e2e361508012594fe5ea7b6910f367a6c0b8aee",
+          "candidateSha256": "1109e806369c94a7c34fe33b8d691c573d53f0ffe2027ef2bfaf2704baaada84",
+          "provenanceReport": ".tmp/beast-production/beast_a24/voice/provenance-v2.json",
+          "durationSeconds": 6,
+          "technicalCheck": "passed",
+          "reviewStatus": "awaiting-audiovisual-review"
+        },
+        "timeline": [
+          {
+            "phase": "build",
+            "start": 0,
+            "end": 1.8
+          },
+          {
+            "phase": "rush",
+            "start": 1.8,
+            "end": 2.5
+          },
+          {
+            "phase": "player-bite",
+            "start": 2.5,
+            "end": 2.8
+          },
+          {
+            "phase": "opponent-counterbite",
+            "start": 2.8,
+            "end": 3.3
+          },
+          {
+            "phase": "player-finisher",
+            "start": 3.6,
+            "end": 4.2
+          },
+          {
+            "phase": "recovery",
+            "start": 4.2,
+            "end": 6
+          }
+        ],
+        "requiredChecks": [
+          "identity",
+          "opponentIdentity",
+          "head",
+          "body",
+          "limbs",
+          "mouth",
+          "teethOrBeak",
+          "eyes",
+          "clawsOrHooves",
+          "tail",
+          "contact",
+          "reciprocalBite",
+          "playerVoice",
+          "continuity",
+          "mobilePlayback"
+        ],
+        "candidateContractVersion": "six-second-mutual-bite-v2",
+        "perspective": "player",
+        "opponentVoice": false,
+        "candidate": null,
+        "review": {
+          "status": "awaiting-candidate",
+          "visualReport": null,
+          "failedParts": [],
+          "outstandingChecks": [
+            "identity",
+            "opponentIdentity",
+            "head",
+            "body",
+            "limbs",
+            "mouth",
+            "teethOrBeak",
+            "eyes",
+            "clawsOrHooves",
+            "tail",
+            "contact",
+            "reciprocalBite",
+            "playerVoice",
+            "continuity",
+            "mobilePlayback"
+          ],
+          "correctionsToModel": null
+        },
+        "sourceScene": {
+          "status": "prepared-for-animation",
+          "workspaceFile": ".tmp/beast-production/beast_a24/staging/paired-source-v1.png",
+          "sha256": "9c236b692a5f324e3d7352389cf2aa82387e2b1bb783d0c7882d5d1bc284a8c0",
+          "opponentId": "beast_a02",
+          "preparationReport": "reports/beast-production/beast_a24-preparation.json",
+          "provenanceReport": ".tmp/beast-production/beast_a24/staging/provenance.json",
+          "review": "Player deer on right faces the dragon on left. Full antlers, green-gold spiral armor, hooves and large leaf-feather tail remain visible; dragon retains wingless silver curved plates and flowing mane/tail. Starting-frame conditioning candidate only: hoof grounding, jaw closure and exact anatomy must still be checked in the resulting motion.",
+          "access": "local-source-image-only"
+        },
+        "blocker": {
+          "scope": "monthly-spend",
+          "observedAt": "2026-09-06T03:33:46.246Z",
+          "retryAt": null
+        }
       }
     },
     {

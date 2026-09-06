@@ -1,0 +1,185 @@
+{
+  "cardId": "beast_a20",
+  "name": "觜火猴",
+  "reference": "public/beast-game/spirit/20.webp",
+  "referenceSha256": "76f3f98a663f1e0d719ddcdc19324dc3a344d576b825c1a9d4270548379d1b2b",
+  "durationSeconds": 6,
+  "perspective": "player",
+  "opponentVoice": false,
+  "timeline": [
+    {
+      "phase": "build",
+      "start": 0,
+      "end": 2
+    },
+    {
+      "phase": "rush",
+      "start": 1.8,
+      "end": 4.5
+    },
+    {
+      "phase": "bite",
+      "start": 4,
+      "end": 4.2
+    },
+    {
+      "phase": "tail",
+      "start": 4.2,
+      "end": 6
+    }
+  ],
+  "state": "needs-refinement",
+  "checks": {
+    "head": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "body": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "limbs": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "mouth": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "teethOrBeak": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "eyes": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "clawsOrHooves": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "tail": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "identity": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "contact": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "playerVoice": {
+      "status": "unreviewed",
+      "evidence": null
+    },
+    "continuity": {
+      "status": "unreviewed",
+      "evidence": null
+    }
+  },
+  "attemptLimit": 3,
+  "prompt": "[# Sources <FIRST_FRAME>@Image1 <LAST_FRAME>@Image1] Animate IMAGE 1 as the exact starting AND ending scene, preserving the rendered characters, original armor details, materials, lighting and stage throughout. Complete the bite and return naturally to the same original resting pose by 6 seconds. This is image-to-video animation of the existing scene, not recreation of it. Keep all appendages inside the frame with a little edge margin. The protagonist initiates the action; the opponent only crouches and reacts, never charges first. Create exactly 6 seconds of continuous creature footage, one shot with no cuts. The existing right-side creature is the protagonist 觜火猴; the existing left-side creature is its silent training opponent. Reproduce these exact individual creatures in their original detailed rendering style. Preserve facial structure, species, colors, markings, complex filigree armor, central chest jewels, limb ornaments, appendages and proportions throughout. Do not simplify ornamental details or replace their materials. Never add horns or wings absent in either source. Keep the protagonist's source-facing orientation and place the opponent toward that side, both visible from the first frame; do not spin or redesign them. Camera stays fixed, showing full bodies and a dark stone stage with margin for every appendage. This is clean footage, without HUD, health bars, interface, text, titles, names, icons, captions or frames. Animate anatomical joints and weight transfer, never slide a card or rigid cutout. 0-2s: grounded breath and proud species-appropriate call, body braces. 1.8-3.6s: the protagonist pushes off in a short forceful lunge toward the opponent's armored shoulder, appendages follow naturally. Arrange the silent opponent crouched so that its shoulder is at the protagonist's mouth height. At 3.8s open the protagonist's natural jaw or beak and place that shoulder clearly between its upper and lower jaw. At exactly 4.0s CLOSE the jaw or beak onto that shoulder, hold the visible non-gory grip until 4.2s with a slight pull and immediate opponent recoil. Do not merely stop in front of the opponent, nuzzle or headbutt; visible mouth closure around its shoulder is essential. 4.2-6s: release and settle, the same protagonist's call decays. Opponent reacts but remains completely silent. No blood, humans, music, camera orbit, body morphing, new teeth or extra limbs, image crossfades or rectangular backgrounds. Bird species retain a beak without invented teeth; legless species retain their anatomy. The protagonist's head and contact are the focal point. Finish the complete action by 6s.",
+  "attempt": 1,
+  "provider": "gemini-omni-1.1-flash",
+  "methodRevisionReason": "Animate a precomposed scene that preserves both original designs; previous separate-subject generation simplified armor, mane and tail. Keep canonical identity checks unchanged. Explicit FIRST_FRAME/LAST_FRAME role binding and image_to_video task now replace ambiguous scene prompting, following the documented controls.",
+  "opponentId": "beast_a02",
+  "opponentReference": "public/beast-game/spirit/02.webp",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "conditioning": "omni-first-last-scene",
+  "sourceSeconds": 6,
+  "aspectRatio": "16:9",
+  "releaseStatus": "pending",
+  "purpose": "paired-skill-candidate",
+  "sceneReference": ".tmp\\beast-production\\beast_a20\\staging\\paired-source-v1.png",
+  "sceneReferenceSha256": "f294d82a5b12a96cac20e374acd424c6658c9b423b8c0318465bcd321b8920a9",
+  "recipeVersion": "omni-6s-explicit-first-last-scene-v4",
+  "startedAt": "2026-09-06T02:18:15.762Z",
+  "omniInteractionId": "v1_ChdiODJjYW9IcUFiQ3p2cjBQdzRYLTRBRRIXYjgyY2FvSHFBYkN6dnIwUHc0WC00QUU",
+  "omniAcceptedAt": "2026-09-06T02:18:25.749Z",
+  "providerReturnedAt": "2026-09-06T02:19:12.489Z",
+  "nativeCandidateSha256": "46c2df48b2eea7c61c646b8b4dae62ff109277a89298e5c957a1cf0684fdec72",
+  "actualNativeDuration": 6.016,
+  "candidateSha256": "95efeee52fae1f22343cf3be1e988d456d805103c02944f5e294d29c5e70d147",
+  "finishedAt": "2026-09-06T02:19:12.731Z",
+  "audioOverride": {
+    "source": "public/audio/beast-voices/beast_a20.mp3",
+    "sixSecondCandidateSha256": "8a60a743265081d8361769c41d86c65ee4bbb29f22c4a57cfdb99be2b80ace02",
+    "nativeAudioRemoved": true,
+    "reviewStatus": "unreviewed"
+  },
+  "automaticReview": {
+    "checks": {
+      "head": {
+        "status": "fail",
+        "timestampSeconds": 1,
+        "evidence": "1.0秒時頭部變形成獅子。"
+      },
+      "body": {
+        "status": "fail",
+        "timestampSeconds": 1,
+        "evidence": "胸前寶石消失裝甲細節簡化。"
+      },
+      "limbs": {
+        "status": "fail",
+        "timestampSeconds": 2.25,
+        "evidence": "衝刺時右臂不自然拉長變形。"
+      },
+      "mouth": {
+        "status": "fail",
+        "timestampSeconds": 1,
+        "evidence": "1.0秒時嘴部變形成獅嘴。"
+      },
+      "teethOrBeak": {
+        "status": "fail",
+        "timestampSeconds": 1,
+        "evidence": "牙齒隨獅子頭部變形而改變。"
+      },
+      "eyes": {
+        "status": "fail",
+        "timestampSeconds": 1,
+        "evidence": "眼睛在變形過程中改變。"
+      },
+      "clawsOrHooves": {
+        "status": "fail",
+        "timestampSeconds": 2.25,
+        "evidence": "爪子在動作中變形且失去細節。"
+      },
+      "tail": {
+        "status": "fail",
+        "timestampSeconds": 2,
+        "evidence": "尾巴形狀在動畫過程中發生改變。"
+      },
+      "identity": {
+        "status": "fail",
+        "timestampSeconds": 1,
+        "evidence": "未保持設計變形成獅子且遺失胸前寶石。"
+      },
+      "contact": {
+        "status": "pass",
+        "timestampSeconds": 4,
+        "evidence": "4.0秒時確實咬住對手脖子。"
+      },
+      "playerVoice": {
+        "status": "fail",
+        "timestampSeconds": 1,
+        "evidence": "聲音為低沉獅吼與參考音檔不符。"
+      },
+      "continuity": {
+        "status": "fail",
+        "timestampSeconds": 1,
+        "evidence": "嚴重的角色變形破壞了視覺連貫性。"
+      },
+      "opponentIdentity": {
+        "status": "fail",
+        "timestampSeconds": 0,
+        "evidence": "對手龍缺乏參考圖中的胸前寶石與複雜裝甲。"
+      }
+    },
+    "overall": "fail",
+    "refinement": "需修正角色變形問題確保猴子特徵與裝甲細節保持不變對手龍需加入寶石與正確裝甲聲音需替換為參考音檔。"
+  },
+  "reviewSamplingFps": 4,
+  "preview": "reports/beast-production/previews/beast_a20-attempt-01.mp4"
+}

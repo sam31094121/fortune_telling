@@ -4,11 +4,157 @@
   "enabled": true,
   "clip": "../clips/charge-battle.png",
   "body": "../body.png",
-  "durationMs": 1600,
+  "durationMs": 6000,
   "spawn": {
     "from": "selfSlot",
     "to": "targetSlot"
   },
   "poolId": "beast_a07",
-  "displayName": "箕水豹"
+  "displayName": "箕水豹",
+  "production": {
+    "version": "six-second-mutual-bite-v2",
+    "registrationStatus": "registered",
+    "state": "needs-refinement",
+    "canonicalReference": "/beast-game/spirit/07.webp",
+    "referenceSha256": "71869c97c3d23813854e3a10e417e55e880e73a33478cb88e23022351b1479d5",
+    "jobReport": "reports/beast-production/beast_a07.json",
+    "latestAttempt": 1,
+    "voiceCandidate": ".tmp/beast-production/beast_a07/voice/player-six-second-v2.wav",
+    "voiceReview": "awaiting-audiovisual-review",
+    "voice": {
+      "source": "/audio/beast-voices/beast_a07.mp3",
+      "sourceSha256": "479db62a8c8864da1b11527f605efd333939f77128e5dddd7757b90b8dc44ee7",
+      "candidateSha256": "0f69b7c6c0713ed2929e5c2c50159d1099d8f163b3b994a18731ea1757529bb1",
+      "provenanceReport": ".tmp/beast-production/beast_a07/voice/provenance-v2.json",
+      "durationSeconds": 6,
+      "technicalCheck": "passed",
+      "reviewStatus": "awaiting-audiovisual-review"
+    },
+    "timeline": [
+      {
+        "phase": "build",
+        "start": 0,
+        "end": 1.8
+      },
+      {
+        "phase": "rush",
+        "start": 1.8,
+        "end": 2.5
+      },
+      {
+        "phase": "player-bite",
+        "start": 2.5,
+        "end": 2.8
+      },
+      {
+        "phase": "opponent-counterbite",
+        "start": 2.8,
+        "end": 3.3
+      },
+      {
+        "phase": "player-finisher",
+        "start": 3.6,
+        "end": 4.2
+      },
+      {
+        "phase": "recovery",
+        "start": 4.2,
+        "end": 6
+      }
+    ],
+    "requiredChecks": [
+      "identity",
+      "opponentIdentity",
+      "head",
+      "body",
+      "limbs",
+      "mouth",
+      "teethOrBeak",
+      "eyes",
+      "clawsOrHooves",
+      "tail",
+      "contact",
+      "reciprocalBite",
+      "playerVoice",
+      "continuity",
+      "mobilePlayback"
+    ],
+    "candidateContractVersion": "single-bite-legacy",
+    "perspective": "player",
+    "opponentVoice": false,
+    "candidate": {
+      "status": "available-for-review",
+      "attempt": 1,
+      "contractVersion": "single-bite-legacy",
+      "opponentId": "beast_a02",
+      "workspaceFile": "reports/beast-production/previews/beast_a07-attempt-01.mp4",
+      "candidateSha256": "5184ef208676bcc0ecd1bb6ba764d44274cf09f5e1c1882878e74d29831d1fc6",
+      "previewSha256": "3d76187585db61064083a161ce6cddc84832c9516abd4cf550391d28e4ed7b94",
+      "durationSeconds": 6,
+      "access": "local-review-only"
+    },
+    "review": {
+      "status": "initial-visual-screening-recorded",
+      "visualReport": "reports/beast-production/cross-checks/beast_a07-attempt-01.json",
+      "modelReport": ".tmp/beast-production/beast_a07/attempt-01/model-review.json",
+      "failedParts": [
+        {
+          "part": "head",
+          "evidence": "原圖額頭金紋、面部輪廓與大片鬃流，候選改為普通豹頭加小束藍火。"
+        },
+        {
+          "part": "body",
+          "evidence": "Missing full-body intricate gold filigree armor."
+        },
+        {
+          "part": "limbs",
+          "evidence": "原圖大面積青金色腿甲在候選中被簡化為普通豹腿。"
+        },
+        {
+          "part": "clawsOrHooves",
+          "evidence": "Missing distinct blue glowing claws."
+        },
+        {
+          "part": "tail",
+          "evidence": "原圖粗大的流動水光尾形被改成細長豹尾加末端火焰。"
+        },
+        {
+          "part": "identity",
+          "evidence": "Design is a simplified version, missing core intricate armor features."
+        },
+        {
+          "part": "contact",
+          "evidence": "Player lunges but does not make contact or bite the opponent."
+        },
+        {
+          "part": "continuity",
+          "evidence": "Required bite and contact action is missing."
+        },
+        {
+          "part": "opponentIdentity",
+          "evidence": "Opponent lacks intricate filigree armor, has different chest armor and head shape."
+        }
+      ],
+      "outstandingChecks": [
+        "identity",
+        "opponentIdentity",
+        "head",
+        "body",
+        "limbs",
+        "mouth",
+        "teethOrBeak",
+        "eyes",
+        "clawsOrHooves",
+        "tail",
+        "contact",
+        "reciprocalBite",
+        "playerVoice",
+        "continuity",
+        "mobilePlayback"
+      ],
+      "correctionsToModel": null,
+      "fullAudiovisualAcceptance": "pending"
+    },
+    "blocker": null
+  }
 }

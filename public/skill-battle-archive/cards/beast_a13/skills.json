@@ -10,10 +10,160 @@
       "enabled": true,
       "clip": "/beast-game/skill-bodies/beast_a13.webp",
       "body": "/beast-game/skill-bodies/beast_a13.webp",
-      "durationMs": 1600,
+      "durationMs": 6000,
       "spawn": {
         "from": "selfSlot",
         "to": "targetSlot"
+      },
+      "production": {
+        "version": "six-second-mutual-bite-v2",
+        "registrationStatus": "registered",
+        "state": "needs-refinement",
+        "canonicalReference": "/beast-game/spirit/13.webp",
+        "referenceSha256": "571bfbda153a7ab406e6de526f17a494f1286d0cbac68ac448ab7a574b9a38ed",
+        "jobReport": "reports/beast-production/beast_a13.json",
+        "latestAttempt": 1,
+        "voiceCandidate": ".tmp/beast-production/beast_a13/voice/player-six-second-v2.wav",
+        "voiceReview": "awaiting-audiovisual-review",
+        "voice": {
+          "source": "/audio/beast-voices/beast_a13.mp3",
+          "sourceSha256": "3a55402a0fc37ff58bd4f6b22be96fa755027a89ab4dd7928d1ad68ff2360721",
+          "candidateSha256": "80160fc5352383fc329d03f7088e739bc39163da3e5d07b0676c150e5db1b3da",
+          "provenanceReport": ".tmp/beast-production/beast_a13/voice/provenance-v2.json",
+          "durationSeconds": 6,
+          "technicalCheck": "passed",
+          "reviewStatus": "awaiting-audiovisual-review"
+        },
+        "timeline": [
+          {
+            "phase": "build",
+            "start": 0,
+            "end": 1.8
+          },
+          {
+            "phase": "rush",
+            "start": 1.8,
+            "end": 2.5
+          },
+          {
+            "phase": "player-bite",
+            "start": 2.5,
+            "end": 2.8
+          },
+          {
+            "phase": "opponent-counterbite",
+            "start": 2.8,
+            "end": 3.3
+          },
+          {
+            "phase": "player-finisher",
+            "start": 3.6,
+            "end": 4.2
+          },
+          {
+            "phase": "recovery",
+            "start": 4.2,
+            "end": 6
+          }
+        ],
+        "requiredChecks": [
+          "identity",
+          "opponentIdentity",
+          "head",
+          "body",
+          "limbs",
+          "mouth",
+          "teethOrBeak",
+          "eyes",
+          "clawsOrHooves",
+          "tail",
+          "contact",
+          "reciprocalBite",
+          "playerVoice",
+          "continuity",
+          "mobilePlayback"
+        ],
+        "candidateContractVersion": "single-bite-legacy",
+        "perspective": "player",
+        "opponentVoice": false,
+        "candidate": {
+          "status": "available-for-review",
+          "attempt": 1,
+          "contractVersion": "single-bite-legacy",
+          "opponentId": "beast_a02",
+          "workspaceFile": "reports/beast-production/previews/beast_a13-attempt-01.mp4",
+          "candidateSha256": "bbccbfe2b3a8c5ba84abbae106dc3a7cdd3d80ec2a49f768444306e0e2b4204c",
+          "previewSha256": "221938a4207a95a4b5a0b14e389bd3ef1a86a8c2f3499fecdc53307259c56dd4",
+          "durationSeconds": 6,
+          "access": "local-review-only"
+        },
+        "review": {
+          "status": "initial-visual-screening-recorded",
+          "visualReport": "reports/beast-production/cross-checks/beast_a13-attempt-01.json",
+          "modelReport": ".tmp/beast-production/beast_a13/attempt-01/model-review.json",
+          "failedParts": [
+            {
+              "part": "head",
+              "evidence": "顏色錯誤，無圖騰。"
+            },
+            {
+              "part": "body",
+              "evidence": "原圖黑色熔岩裂紋、背部層疊棘甲變成灰棕野豬身體加背部火焰。"
+            },
+            {
+              "part": "limbs",
+              "evidence": "顏色與紋理不符。"
+            },
+            {
+              "part": "mouth",
+              "evidence": "未執行咬合，顏色錯誤。"
+            },
+            {
+              "part": "teethOrBeak",
+              "evidence": "獠牙平滑，無華麗圖騰。"
+            },
+            {
+              "part": "tail",
+              "evidence": "原圖厚重捲曲火尾變成細豬尾加末端火焰。"
+            },
+            {
+              "part": "identity",
+              "evidence": "保留野豬物種仍不足以保留原始熔岩神獸本體。"
+            },
+            {
+              "part": "contact",
+              "evidence": "未發生接觸與咬合。"
+            },
+            {
+              "part": "continuity",
+              "evidence": "僅平移，無完整攻擊動作序列。"
+            },
+            {
+              "part": "opponentIdentity",
+              "evidence": "盔甲簡化，鬃毛顏色與角形狀不符參考圖D。"
+            }
+          ],
+          "outstandingChecks": [
+            "identity",
+            "opponentIdentity",
+            "head",
+            "body",
+            "limbs",
+            "mouth",
+            "teethOrBeak",
+            "eyes",
+            "clawsOrHooves",
+            "tail",
+            "contact",
+            "reciprocalBite",
+            "playerVoice",
+            "continuity",
+            "mobilePlayback"
+          ],
+          "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。",
+          "fullAudiovisualAcceptance": "pending"
+        },
+        "blocker": null
       }
     },
     {

@@ -1,0 +1,33 @@
+// Export a reviewable mobile file from an existing candidate. Never generates or approves media.
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {referenceFor,withJobLock} from './beast-six-second-production.mjs';
+import {mp4Seconds} from './check-beast-clips.mjs';
+import {writeJsonAtomic} from './beast-production-io.mjs';
+const id=process.argv[2]; referenceFor(id);
+const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const ffmpeg=process.env.FFMPEG??path.resolve('.tmp/python-media/imageio_ffmpeg/binaries/ffmpeg-win-x86_64-v7.1.exe');
+await withJobLock(id,async()=>{
+  const file=`reports/beast-production/${id}.json`;
+  const job=JSON.parse(fs.readFileSync(file,'utf8'));
+  const attempt=Number(process.argv[3]??job.attempt);
+  if(!Number.isInteger(attempt)||attempt<1)throw new Error('Invalid version');
+  const version=attempt===job.attempt?job:job.history?.find(row=>row.attempt===attempt);
+  if(!version?.automaticReview||!version.candidateSha256)throw new Error('Candidate review record is required before publishing a local preview');
+  let directory=path.join('.tmp/beast-production',id,`attempt-${String(attempt).padStart(2,'0')}`);
+  if(attempt===1&&!fs.existsSync(path.join(directory,'candidate.mp4')))directory=path.join('.tmp/beast-production',id);
+  const candidate=path.join(directory,'candidate.mp4');
+  if(hash(candidate)!==version.candidateSha256)throw new Error('Reviewed candidate changed');
+  execFileSync(ffmpeg,['-v','error','-xerror','-i',candidate,'-map','0:v:0','-map','0:a:0','-f','null','-'],{windowsHide:true});
+  const preview=`reports/beast-production/previews/${id}-attempt-${String(attempt).padStart(2,'0')}.mp4`;
+  if(!fs.existsSync(preview))execFileSync(ffmpeg,['-v','error','-i',candidate,'-vf','scale=854:480:force_original_aspect_ratio=decrease,pad=854:480:(ow-iw)/2:(oh-ih)/2','-c:v','libx264','-crf','23','-pix_fmt','yuv420p','-c:a','aac','-b:a','128k','-t','6','-movflags','+faststart',preview],{windowsHide:true});
+  const seconds=mp4Seconds(preview);
+  if(Math.abs(seconds-6)>.05)throw new Error('Preview is not six seconds');
+  const sheet=path.join(directory,'contact-sheet.jpg');
+  if(!fs.existsSync(sheet))execFileSync(ffmpeg,['-v','error','-i',candidate,'-vf','fps=2,scale=384:-1,tile=4x3','-frames:v','1',sheet],{windowsHide:true});
+  Object.assign(version,{preview,previewSha256:hash(preview),previewDurationSeconds:seconds});
+  writeJsonAtomic(file,job);
+  console.log(JSON.stringify({id,attempt,preview,seconds,state:version.state}));
+});

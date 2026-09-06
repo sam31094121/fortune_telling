@@ -15,7 +15,7 @@ import { stripComments } from './helpers/strip-comments.mjs';
 import { newMatch, advance, chooseAI } from '../.beast-game-build/lib/beast-game/interactive.js';
 import { playableCards } from '../.beast-game-build/lib/beast-game/registry.js';
 import { elementMultiplier, ELEMENT_COUNTER } from '../.beast-game-build/lib/beast-game/elements.js';
-import { describeMatchup, explainOutcome } from '../.beast-game-build/lib/beast-element-guide.js';
+import { describeMatchup, explainOutcome, describeCardElement } from '../.beast-game-build/lib/beast-element-guide.js';
 
 /* ── 一、相剋表沿用五行，不是隨便配的 ───────────────────────────── */
 {
@@ -128,6 +128,43 @@ import { describeMatchup, explainOutcome } from '../.beast-game-build/lib/beast-
   );
 }
 
+/* ── 三之三、卡片本身就要教得會相剋 ─────────────────────────────── */
+{
+  // 只寫「火」不夠——客戶看到那個字不會自動知道火剋空、被水剋。
+  const fire = describeCardElement('FIRE');
+  assert.equal(fire.beats, '空', '火剋空');
+  assert.equal(fire.beatenBy, '水', '火被水剋');
+  assert.ok(/剋/.test(fire.line) && /被/.test(fire.line), '一行要講完兩個方向');
+
+  // 五個元素首尾相接：每一隻都剋一個、也被一個剋，沒有例外。
+  for (const element of ['SPACE', 'AIR', 'WATER', 'FIRE', 'EARTH']) {
+    const d = describeCardElement(element);
+    assert.notEqual(d.beats, '—', `${d.self} 要剋得到某個元素`);
+    assert.notEqual(d.beatenBy, '—', `${d.self} 要被某個元素剋`);
+    assert.notEqual(d.beats, d.self, '不會自己剋自己');
+    assert.notEqual(d.beatenBy, d.self, '不會自己被自己剋');
+  }
+
+  // 相剋要排在戰鬥力前面：順序反過來就變成教客戶挑數字大的。
+  /*
+    比的是「渲染出來的順序」，所以要先把註解剝掉。
+
+    第一版直接對整份檔案 indexOf，結果抓到解釋這件事的那句註解
+    （「相剋關係放在戰鬥力前面」本身就含「戰鬥力」三個字），
+    於是測試報告順序錯了——實際渲染順序是對的。
+    測試抓到自己的說明文字，是這個專案已經踩過三次的坑。
+  */
+  const tile = stripComments(fs.readFileSync('components/battlefield/BeastCardTile.tsx', 'utf8'));
+  const counterAt = tile.indexOf('五元素相剋');
+  const powerAt = tile.indexOf('戰鬥力');
+  assert.ok(counterAt > 0 && powerAt > 0, '卡片詳情要同時有相剋與戰鬥力');
+  assert.ok(
+    counterAt < powerAt,
+    '相剋要排在戰鬥力前面——先懂相剋再看數值，'
+    + '順序反過來等於教客戶挑數字大的就好',
+  );
+}
+
 /* ── 四、概念要寫在技能檔案裡 ───────────────────────────────────── */
 {
   const doc = fs.readFileSync('docs/beast-game-skill.md', 'utf8');
@@ -143,4 +180,5 @@ console.log('PASS: 相剋表沿用五行，形成完整的環');
 console.log('PASS: 帶剋的低戰力打得贏被剋的高戰力');
 console.log('PASS: 倍率有份量，但沒有大到讓數值與技能失去意義');
 console.log('PASS: 出戰前、交戰中、結果都講得出剋／被剋，且不自己算數值');
+console.log('PASS: 卡片本身寫出剋誰／被誰剋，且排在戰鬥力前面');
 console.log('PASS: 核心概念寫在技能檔案裡');

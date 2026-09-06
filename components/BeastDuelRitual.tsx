@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { selectRitualHighlights, type RitualTurn } from '@/lib/beast-ritual';
 import type { PairResult } from '@/lib/beast-game/series';
 import styles from './BeastDuelRitual.module.css';
+import { releasedChargeFor } from '@/lib/beast-charge-release';
 
 /*
   三維對撞只在交鋒階段用，所以動態載入——
@@ -14,6 +15,7 @@ import styles from './BeastDuelRitual.module.css';
 const BeastClash3D = dynamic(() => import('./BeastClash3D'), { ssr: false });
 import type { ClashSide } from './BeastClash3D';
 import frameStyles from './BeastCardFrame.module.css';
+import BeastLayeredPuppet, { probePuppetManifest } from './BeastLayeredPuppet';
 import {
   ELEMENT_FX,
   playPlayerBeastVoice,
@@ -23,7 +25,6 @@ import {
   createSoundPlayer,
   loadCardBattleSkills,
   presentationSkillsFor,
-  chargeVideoFor,
   type BattleElement,
 } from '@/lib/beast-battle-fx';
 
@@ -62,6 +63,10 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
   const [shownScore, setShownScore] = useState({ player: 0, opponent: 0 });
   const [chargeSkillLabel, setChargeSkillLabel] = useState<string | null>(null);
   const [chargeVideoSrc, setChargeVideoSrc] = useState<string | null>(null);
+  const [chargeVideoFallback, setChargeVideoFallback] = useState<string | null>(null);
+  const [chargePuppetPoolId, setChargePuppetPoolId] = useState<string | null>(null);
+  const [videoVisible, setVideoVisible] = useState(false);
+  const videoPlayingRef = useRef(false);
   /** 這一瞬間正在撞的是誰。做卡片對撞用。 */
   const [clashing, setClashing] = useState<{ side: 'player' | 'opponent'; index: number } | null>(null);
   /**
@@ -101,19 +106,32 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
     if (pairClash == null || !opponent) {
       setChargeSkillLabel(null);
       setChargeVideoSrc(null);
+      setChargeVideoFallback(null);
+      setChargePuppetPoolId(null);
+      setVideoVisible(false);
+      videoPlayingRef.current = false;
       return;
     }
     const id = player[pairClash]?.id;
     const skills = id ? skillCacheRef.current[id] : undefined;
     setChargeSkillLabel(skills?.charge.name ?? '本體衝鋒');
-    /*
-      戰鬥卡片啟動：只有《技能戰鬥檔案》真的宣告了影片的卡才掛影片層。
-
-      六十張裡目前只有少數幾張備好衝鋒影片。沒影片卻硬掛，
-      <video> 會 404 成一塊黑底方塊，整個蓋掉底下的三維對撞——
-      那比不放影片更糟。沒有影片就走既有的本體衝鋒，不會開天窗。
-    */
-    setChargeVideoSrc(id && skills?.charge.video ? chargeVideoFor(id).webm : null);
+    // A declaration alone is not proof: match both actual actors and all reviewed checks.
+    const release = id ? releasedChargeFor(skills?.charge, id, opponent[pairClash]?.id ?? '') : null;
+    setChargeVideoSrc(release?.webm ?? null);
+    setChargeVideoFallback(release?.mp4 ?? null);
+    setVideoVisible(false);
+    videoPlayingRef.current = false;
+    // 引擎分層傀儡優先；releasedCharge video 仍作 fallback
+    let cancelled = false;
+    setChargePuppetPoolId(null);
+    if (id) {
+      void (async () => {
+        const hasPuppet = await probePuppetManifest(id);
+        if (cancelled) return;
+        setChargePuppetPoolId(hasPuppet ? id : null);
+      })();
+    }
+    return () => { cancelled = true; };
   }, [pairClash, player, opponent]);
 
   useEffect(() => {
@@ -214,18 +232,32 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       const side = actionSide(beat);
       setPairSide(side);
       setPairBeat(beat);
-      playPlayerBeastVoice(sound.current.play, side, player[index].id);
+      if (!videoPlayingRef.current) playPlayerBeastVoice(sound.current.play, side, player[index].id);
     }, beat * 1400));
-    const verdict = window.setTimeout(() => { if (result) { setPairResult(result); setShownScore(result.score); } }, 6000);
-    const timer = window.setTimeout(() => {
+    const timers: number[] = [];
+    const started = performance.now();
+    const finishPair = () => {
       setPairClash(null);
       if (pairs && index === pairs.length - 1) completeRef.current();
       else if (pairs && index === 1) {
         if (result && (result.score.player === 2 || result.score.opponent === 2)) setRevealCount(REVEAL_ORDER.length);
         else setAutoFlip(false);
       }
-    }, result ? 8000 : 6000);
-    return () => { window.clearTimeout(timer); window.clearTimeout(verdict); replies.forEach(window.clearTimeout); };
+    };
+    const showVerdict = () => {
+      // Let a late-starting approved clip finish its six seconds; never stall a match indefinitely.
+      if (videoPlayingRef.current && performance.now() - started < 12000) {
+        timers.push(window.setTimeout(showVerdict, 100));
+        return;
+      }
+      videoPlayingRef.current = false;
+      setChargeVideoSrc(null);
+      setVideoVisible(false);
+      if (result) { setPairResult(result); setShownScore(result.score); }
+      timers.push(window.setTimeout(finishPair, result ? 2000 : 0));
+    };
+    timers.push(window.setTimeout(showVerdict, 6000));
+    return () => { timers.forEach(window.clearTimeout); replies.forEach(window.clearTimeout); };
   }, [phase, revealCount, player, opponent, pairs]);
 
   /** 手動翻下一張。點卡片或按「翻下一張」都走這裡。 */
@@ -347,7 +379,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
           className={styles.arena}
           aria-hidden="true"
           style={{ ["--arena-glow" as string]: clashCards
-            ? ELEMENT_FX[(clashCards.attacker === 'player' ? clashCards.me : clashCards.foe).element as BattleElement]?.glow ?? '#7dd3fc'
+            ? ELEMENT_FX[clashCards.me.element as BattleElement]?.glow ?? '#7dd3fc'
             : '#7dd3fc' }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -366,18 +398,35 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
         </div>
         {pairClash !== null && player[pairClash] && opponent?.[pairClash] && (
           <>
+            {chargePuppetPoolId ? (
+              <BeastLayeredPuppet
+                key={'puppet-' + chargePuppetPoolId + String(pairClash)}
+                poolId={chargePuppetPoolId}
+                playing={pairClash !== null}
+              />
+            ) : null}
             {chargeVideoSrc ? (
               <video
                 key={chargeVideoSrc + String(pairClash)}
                 autoPlay
                 playsInline
-                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 4, borderRadius: 16, background: '#000' }}
+                preload="auto"
+                aria-label={`${player[pairClash].name}的六秒交鋒`}
+                className={styles.chargeVideo}
+                style={{ opacity: chargePuppetPoolId ? 0 : (videoVisible ? 1 : 0) }}
                 src={chargeVideoSrc}
+                onLoadedMetadata={(e) => {
+                  if (!Number.isFinite(e.currentTarget.duration) || Math.abs(e.currentTarget.duration - 6) > 0.05) {
+                    e.currentTarget.pause(); setChargeVideoSrc(null); videoPlayingRef.current = false;
+                  }
+                }}
+                onPlaying={() => { sound.current.dispose(); videoPlayingRef.current = true; setVideoVisible(true); }}
+                onEnded={() => { videoPlayingRef.current = false; setChargeVideoSrc(null); setVideoVisible(false); }}
                 onError={(e) => {
                   const el = e.currentTarget;
-                  if (el.src.endsWith('.webm') && player[pairClash!]) {
-                    el.src = chargeVideoFor(player[pairClash!].id).mp4;
-                  }
+                  el.pause(); videoPlayingRef.current = false; setVideoVisible(false);
+                  if (chargeVideoFallback && chargeVideoSrc !== chargeVideoFallback) setChargeVideoSrc(chargeVideoFallback);
+                  else setChargeVideoSrc(null);
                 }}
               />
             ) : null}
@@ -390,7 +439,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
             playerSpirit={spiritArtFor(clashCards.me.id)}
             opponentSpirit={spiritArtFor(clashCards.foe.id)}
             attacker={clashCards.attacker}
-            glow={ELEMENT_FX[(clashCards.attacker === 'player' ? clashCards.me : clashCards.foe).element as BattleElement]?.glow ?? '#fff'}
+            glow={ELEMENT_FX[clashCards.me.element as BattleElement]?.glow ?? '#fff'}
             beat={clashCards.beat}
             outcome={clashCards.outcome}
             active={clashActive}

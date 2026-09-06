@@ -205,6 +205,13 @@ const BEHAVIOR_CHECKS = [
     timeoutMs: 90000,
   },
   {
+    id: 'BEAST_GUARDIANS',
+    module: 'beast_guardians',
+    title: '四大神獸：二十八宿歸屬不重不漏，強弱標示不說謊',
+    script: 'test:beast-guardians',
+    timeoutMs: 60000,
+  },
+  {
     id: 'NO_FABRICATED_COUNTERS',
     module: 'no_fabricated_counters',
     title: '禁止作假：計數器沒有憑空底數，也不會自己長大',

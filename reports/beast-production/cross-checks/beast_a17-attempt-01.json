@@ -1,0 +1,41 @@
+{
+  "cardId": "beast_a17",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T03:14:58.695Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "6a8ab9f1ba9b80bdb1ec81cc55d2ddbafed16698f6524d0af55d70f67cf7a9a2",
+  "referenceSha256": "0f7bdf74304d6c6dd36182c4b53604b55b1beb278e809e4a9c2afd0c7cdb38e3",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "method": "Canonical sources and 2 fps contact sheet.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a17/attempt-01/contact-sheet.jpg",
+      "sha256": "e70e07a818d778395026effd90532f20d6cb6d6f95efa1455fa9bc44673fe9de"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖銳利金葉狀羽片與嵌入胸羽的角形寶飾變成普通金羽，並新增大型圓形橙金吊飾。"
+    },
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖寬大層疊金羽尾變成稀疏細長尾羽。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "對手的青銀長鬃與飄帶尾被一般鱗龍外形取代。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": null,
+      "evidence": "本次 2 fps 初篩不能確認三次獨立咬合、放開及反力；仍需密集影格與聲畫驗收。"
+    }
+  },
+  "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。"
+}

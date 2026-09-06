@@ -23,6 +23,7 @@
     "lib/beast-game/**/*.ts",
     "lib/beast-collection-ledger.ts",
     "cards/**/*.ts",
-    "lib/beast-element-guide.ts"
+    "lib/beast-element-guide.ts",
+    "lib/beast-guardians.ts"
   ]
 }

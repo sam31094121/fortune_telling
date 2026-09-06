@@ -1,0 +1,41 @@
+{
+  "cardId": "beast_a10",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T03:14:58.669Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "f26796d449a69492d3737475eb7455eb7b398cde8024f773bc4d1c79ec991b0e",
+  "referenceSha256": "25726b710a69b15f73a364b4825ab0ca470aea664442213a88fd95c4619f491d",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "method": "Canonical sources and 2 fps contact sheet.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a10/attempt-01/contact-sheet.jpg",
+      "sha256": "b7929c6311f703bea75055197b9cc9be0a5e6ed64ef39368eaa777d0ebd4dcb4"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "head": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖藍色晶甲面部變成白毛長吻與金色角冠，改變頭部本體設計。"
+    },
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖深藍晶甲胸腹被白灰長毛取代；銀河翅膀相似不代表整隻一致。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "亢金龍新增大型蝙蝠狀翅膀，原圖沒有此構造。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": null,
+      "evidence": "本次 2 fps 初篩不能確認三次獨立咬合、放開及反力；仍需密集影格與聲畫驗收。"
+    }
+  },
+  "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。"
+}

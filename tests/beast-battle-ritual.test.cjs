@@ -132,8 +132,11 @@ console.log('PASS: 逐張交替揭牌、素材真的存在、音效有紀律、�
   const clash = read('components/BeastClash3D.tsx');
   assert.ok(clash.includes('playerSpirit'), '三維對撞要吃本體立繪');
   assert.ok(/alphaTest/.test(clash), '去背立繪要開 alphaTest，邊緣才不會有一圈灰');
-  assert.ok(/playerSpirit \?\? playerArt/.test(clash),
-    '沒有立繪時要退回卡面，不得開天窗');
+  assert.ok(!/Spirit \?\? .*Art/.test(clash),
+    '缺少本體時不得以飛行卡面冒充神獸');
+  assert.ok(clash.includes('{playerSpirit &&') && clash.includes('{opponentSpirit &&'),
+    '雙方僅在各自本體存在時掛載');
+  assert.ok(clash.includes('<Arena />'), '缺本體仍保留格鬥舞台');
 
   // 產生器要存在，而且不能一聲不響跑完六十張花錢
   const gen = read('scripts/gen-beast-spirits.mjs');

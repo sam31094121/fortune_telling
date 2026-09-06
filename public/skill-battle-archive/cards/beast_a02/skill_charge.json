@@ -4,11 +4,153 @@
   "enabled": true,
   "clip": "../clips/charge-battle.png",
   "body": "../body.png",
-  "durationMs": 1600,
+  "durationMs": 6000,
   "spawn": {
     "from": "selfSlot",
     "to": "targetSlot"
   },
   "poolId": "beast_a02",
-  "displayName": "亢金龍"
+  "displayName": "亢金龍",
+  "production": {
+    "version": "six-second-mutual-bite-v2",
+    "registrationStatus": "registered",
+    "state": "needs-refinement",
+    "canonicalReference": "/beast-game/spirit/02.webp",
+    "referenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+    "jobReport": "reports/beast-production/beast_a02.json",
+    "latestAttempt": 1,
+    "voiceCandidate": ".tmp/beast-production/beast_a02/voice/player-six-second-v2.wav",
+    "voiceReview": "awaiting-audiovisual-review",
+    "voice": {
+      "source": "/audio/beast-voices/beast_a02.mp3",
+      "sourceSha256": "d86a1d386dbb4111af23c4ececab9361e48097c658b7e67fe0247d109169d207",
+      "candidateSha256": "656ea6ea01a29ee612c986d7823ccd98301f0a29a887ba7f05ca54d81e6e20da",
+      "provenanceReport": ".tmp/beast-production/beast_a02/voice/provenance-v2.json",
+      "durationSeconds": 6,
+      "technicalCheck": "passed",
+      "reviewStatus": "awaiting-audiovisual-review"
+    },
+    "timeline": [
+      {
+        "phase": "build",
+        "start": 0,
+        "end": 1.8
+      },
+      {
+        "phase": "rush",
+        "start": 1.8,
+        "end": 2.5
+      },
+      {
+        "phase": "player-bite",
+        "start": 2.5,
+        "end": 2.8
+      },
+      {
+        "phase": "opponent-counterbite",
+        "start": 2.8,
+        "end": 3.3
+      },
+      {
+        "phase": "player-finisher",
+        "start": 3.6,
+        "end": 4.2
+      },
+      {
+        "phase": "recovery",
+        "start": 4.2,
+        "end": 6
+      }
+    ],
+    "requiredChecks": [
+      "identity",
+      "opponentIdentity",
+      "head",
+      "body",
+      "limbs",
+      "mouth",
+      "teethOrBeak",
+      "eyes",
+      "clawsOrHooves",
+      "tail",
+      "contact",
+      "reciprocalBite",
+      "playerVoice",
+      "continuity",
+      "mobilePlayback"
+    ],
+    "candidateContractVersion": "single-bite-legacy",
+    "perspective": "player",
+    "opponentVoice": false,
+    "candidate": {
+      "status": "available-for-review",
+      "attempt": 1,
+      "contractVersion": "single-bite-legacy",
+      "opponentId": "beast_a01",
+      "workspaceFile": "reports/beast-production/previews/beast_a02-attempt-01.mp4",
+      "candidateSha256": "051dbec3bd8aa31e8474bc59e3cf4f1062fe1a6b4167794c72d593e43dcbd847",
+      "previewSha256": "564bacd197990faf1cab7c4c43b1d133d55349bab811c94822c6bc0b8cb7e318",
+      "durationSeconds": 6,
+      "access": "local-review-only"
+    },
+    "review": {
+      "status": "initial-visual-screening-recorded",
+      "visualReport": "reports/beast-production/cross-checks/beast_a02-attempt-01.json",
+      "modelReport": ".tmp/beast-production/beast_a02/attempt-01/model-review.json",
+      "failedParts": [
+        {
+          "part": "head",
+          "evidence": "Player dragon's horns and mane are simplified and do not match the intricate design of reference A."
+        },
+        {
+          "part": "body",
+          "evidence": "原圖銀色曲線胸甲與青銀長鬃被簡化成較細瘦的銀龍與少量金色胸飾。"
+        },
+        {
+          "part": "limbs",
+          "evidence": "Player dragon's limbs lack the specific armor and scale details present in reference A."
+        },
+        {
+          "part": "tail",
+          "evidence": "原圖寬厚的青銀飄帶狀尾部變成細長鱗尾與小尾簇，未保留本體尾型。"
+        },
+        {
+          "part": "identity",
+          "evidence": "頭鬃、胸甲與尾部同時簡化，不能判為原始亢金龍 1:1。"
+        },
+        {
+          "part": "contact",
+          "evidence": "The player dragon lunges but does not make physical contact or close its jaws on the opponent."
+        },
+        {
+          "part": "continuity",
+          "evidence": "Disembodied tails are visible on the far left and right edges of the frame."
+        },
+        {
+          "part": "opponentIdentity",
+          "evidence": "Opponent design is simplified, lacking the wispy, flame-like mane and intricate armor of reference D."
+        }
+      ],
+      "outstandingChecks": [
+        "identity",
+        "opponentIdentity",
+        "head",
+        "body",
+        "limbs",
+        "mouth",
+        "teethOrBeak",
+        "eyes",
+        "clawsOrHooves",
+        "tail",
+        "contact",
+        "reciprocalBite",
+        "playerVoice",
+        "continuity",
+        "mobilePlayback"
+      ],
+      "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。",
+      "fullAudiovisualAcceptance": "pending"
+    },
+    "blocker": null
+  }
 }

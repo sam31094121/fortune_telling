@@ -10,10 +10,136 @@
       "enabled": true,
       "clip": "/beast-game/skill-bodies/beast_a05.webp",
       "body": "/beast-game/skill-bodies/beast_a05.webp",
-      "durationMs": 1600,
+      "durationMs": 6000,
       "spawn": {
         "from": "selfSlot",
         "to": "targetSlot"
+      },
+      "production": {
+        "version": "six-second-mutual-bite-v2",
+        "registrationStatus": "registered",
+        "state": "needs-refinement",
+        "canonicalReference": "/beast-game/spirit/05.webp",
+        "referenceSha256": "7e9d8c9c6d82cc1c912c7bfaec9b53e0a8190cb3dafbf4937ad248620d514707",
+        "jobReport": "reports/beast-production/beast_a05.json",
+        "latestAttempt": 1,
+        "voiceCandidate": ".tmp/beast-production/beast_a05/voice/player-six-second-v2.wav",
+        "voiceReview": "awaiting-audiovisual-review",
+        "voice": {
+          "source": "/audio/beast-voices/beast_a05.mp3",
+          "sourceSha256": "152f240c070f981be347152a59a0fb702d4317b729150f37162ada723dfc481b",
+          "candidateSha256": "47c1e386343761a06d13847a308df995fa4c00a0e08fa9925f7018d335cc5d87",
+          "provenanceReport": ".tmp/beast-production/beast_a05/voice/provenance-v2.json",
+          "durationSeconds": 6,
+          "technicalCheck": "passed",
+          "reviewStatus": "awaiting-audiovisual-review"
+        },
+        "timeline": [
+          {
+            "phase": "build",
+            "start": 0,
+            "end": 1.8
+          },
+          {
+            "phase": "rush",
+            "start": 1.8,
+            "end": 2.5
+          },
+          {
+            "phase": "player-bite",
+            "start": 2.5,
+            "end": 2.8
+          },
+          {
+            "phase": "opponent-counterbite",
+            "start": 2.8,
+            "end": 3.3
+          },
+          {
+            "phase": "player-finisher",
+            "start": 3.6,
+            "end": 4.2
+          },
+          {
+            "phase": "recovery",
+            "start": 4.2,
+            "end": 6
+          }
+        ],
+        "requiredChecks": [
+          "identity",
+          "opponentIdentity",
+          "head",
+          "body",
+          "limbs",
+          "mouth",
+          "teethOrBeak",
+          "eyes",
+          "clawsOrHooves",
+          "tail",
+          "contact",
+          "reciprocalBite",
+          "playerVoice",
+          "continuity",
+          "mobilePlayback"
+        ],
+        "candidateContractVersion": "single-bite-legacy",
+        "perspective": "player",
+        "opponentVoice": false,
+        "candidate": {
+          "status": "available-for-review",
+          "attempt": 1,
+          "contractVersion": "single-bite-legacy",
+          "opponentId": "beast_a02",
+          "workspaceFile": "reports/beast-production/previews/beast_a05-attempt-01.mp4",
+          "candidateSha256": "cb6eb247cda24bed1b0388ce3fc6db1abc0ae464d951b7b0213c8a6e623deb34",
+          "previewSha256": "8639c92a7f958882258d694a5eefafaf3a24b44fb61c4113928c77e9139a060b",
+          "durationSeconds": 6,
+          "access": "local-review-only"
+        },
+        "review": {
+          "status": "initial-visual-screening-recorded",
+          "visualReport": "reports/beast-production/cross-checks/beast_a05-attempt-01.json",
+          "modelReport": ".tmp/beast-production/beast_a05/attempt-01/model-review.json",
+          "failedParts": [
+            {
+              "part": "body",
+              "evidence": "原圖胸前金色鑲邊與青色寶石的細密飾紋未完整保留。"
+            },
+            {
+              "part": "limbs",
+              "evidence": "原圖四肢的金色護腕與飾片在候選被省略／簡化。"
+            },
+            {
+              "part": "identity",
+              "evidence": "Jewelry details do not match 1:1."
+            },
+            {
+              "part": "opponentIdentity",
+              "evidence": "Missing green mane and specific chest armor."
+            }
+          ],
+          "outstandingChecks": [
+            "identity",
+            "opponentIdentity",
+            "head",
+            "body",
+            "limbs",
+            "mouth",
+            "teethOrBeak",
+            "eyes",
+            "clawsOrHooves",
+            "tail",
+            "contact",
+            "reciprocalBite",
+            "playerVoice",
+            "continuity",
+            "mobilePlayback"
+          ],
+          "correctionsToModel": null,
+          "fullAudiovisualAcceptance": "pending"
+        },
+        "blocker": null
       }
     },
     {

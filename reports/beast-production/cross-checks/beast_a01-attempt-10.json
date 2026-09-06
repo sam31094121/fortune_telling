@@ -1,0 +1,35 @@
+{
+  "cardId": "beast_a01",
+  "attempt": 10,
+  "recordedAt": "2026-09-06T03:14:58.640Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "4a3152f323b2c803f2857f4a5f67c2b15f58835d71a803eb111b0bdf12826d29",
+  "referenceSha256": "8d31956ddb9589c3a6e39a342aa83c41f7bbaf096715361679dd3adc0e2ecc6b",
+  "opponentReferenceSha256": "a8fd9c37eb481e2a076d0d03c6d0275f01929a505b673c9adc6e0819ad40c884",
+  "method": "Canonical sources and 2 fps contact sheet. Additional extracted frames: recovery-5.5s.png.",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a01/attempt-10/contact-sheet.jpg",
+      "sha256": "1dab4aa385f45f53faecb82269855d136802821313af9dbe191115c76532a896"
+    },
+    {
+      "file": ".tmp/beast-production/beast_a01/attempt-10/recovery-5.5s.png",
+      "sha256": "b5703f3cb9c62b82d0404e4b8b37e99d04bb8b87b25a185cf4805d4bc15bc76e"
+    }
+  ],
+  "scope": "Initial visual discrepancy screening only; no audio listening approval, no complete frame-by-frame anatomical acceptance.",
+  "overall": "fail",
+  "checks": {
+    "mobilePlayback": {
+      "status": "fail",
+      "timestampSeconds": 5.5,
+      "evidence": "5.5 秒完整影格右緣裁掉玩家尾部；收勢時須保持完整本體在畫面內。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": 3,
+      "evidence": "接觸表顯示頭頸交纏與前肢支撐，無法證明三次獨立肩部咬合、放開與反力；不可沿用舊版單咬驗收。"
+    }
+  },
+  "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。"
+}

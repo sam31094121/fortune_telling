@@ -1,0 +1,56 @@
+{
+  "cardId": "beast_a22",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T02:47:32.531Z",
+  "reviewer": "Codex canonical-image and extracted-frame comparison",
+  "candidateSha256": "7512b03bf2b0ad168379670dfdff14f7c64aeda936fd11d6d1f86c199098261c",
+  "referenceSha256": "e2a460b2009ef1b8bf7fb07c9ab139c57bd251a7df545cbd909b3d2046d82a2c",
+  "method": "Canonical full-body source and 2 fps contact sheet. Unobservable jaw closure remains unverified. Additional 12 fps extracted contact frames from 2.5 to 3.5 seconds.",
+  "scope": "Listed visual observations only; no claim of audio listening approval.",
+  "overall": "fail",
+  "checks": {
+    "head": {
+      "status": "unverified",
+      "timestampSeconds": 0,
+      "evidence": "原圖是綠金色角飾與毛甲，模型提到必須補白色紋理並無原圖依據；頭角細節仍需完整逐格核對。"
+    },
+    "body": {
+      "status": "unverified",
+      "timestampSeconds": 0,
+      "evidence": "原圖沒有模型所說的大量白色胸腹紋理，不依這項判讀改色；仍保留本體細節待驗收。"
+    },
+    "limbs": {
+      "status": "unverified",
+      "timestampSeconds": 0,
+      "evidence": "原圖前肢為綠金色，沒有模型所稱白色紋理；不据此新增白紋。"
+    },
+    "identity": {
+      "status": "unverified",
+      "timestampSeconds": 0,
+      "evidence": "模型的不合格理由包含原圖不存在的白紋，必須改由原圖與逐格證據判斷，不因更正模型而自動通過。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 3,
+      "evidence": "銀色對手在動作中胸肩甲改成較大金色塊面，與原圖銀色曲線甲片不同。"
+    },
+    "continuity": {
+      "status": "fail",
+      "timestampSeconds": 1,
+      "evidence": "銀龍在約 1.0 秒先向玩家突進，玩家接著才出招，與玩家先咬的安排不同。"
+    },
+    "reciprocalBite": {
+      "status": "unverified",
+      "timestampSeconds": 3,
+      "evidence": "追加 2.5–3.5 秒、12 fps 接觸表可見雙方持續直立交纏、嘴部接近頭頸，仍無法明確辨識對手咬住玩家肩部並放開；不能採用模型三次互咬已通過的判定。"
+    }
+  },
+  "correctionsToModel": "不採用模型要求新增白色身體紋理、玩家額珠或對手綠胸珠的建議：原图没有這些明確特徵。模型的互咬 pass 仍待逐格確認。",
+  "additionalReviewAt": "2026-09-06T03:14:58.705Z",
+  "evidenceFiles": [
+    {
+      "file": ".tmp/beast-production/beast_a22/counterbite-12fps.jpg",
+      "sha256": "3e0146c206cdeb2b2f5a23b57aea2ff3937d6ab46f8a1026f3ca5324c651907c"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "at": "2026-09-06T02:46:41.873Z",
+  "generated": 21,
+  "range": true,
+  "traversalBlocked": true,
+  "rows": [
+    {
+      "width": 360,
+      "passed": true,
+      "seconds": 6
+    },
+    {
+      "width": 390,
+      "passed": true,
+      "seconds": 6
+    },
+    {
+      "width": 430,
+      "passed": true,
+      "seconds": 6
+    }
+  ]
+}

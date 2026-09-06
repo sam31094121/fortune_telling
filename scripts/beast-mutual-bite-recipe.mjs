@@ -1,0 +1,12 @@
+// User's revised choreography: both bodies bite, while the player's own voice leads.
+export const MUTUAL_BITE_VERSION = 'six-second-mutual-bite-v2';
+export const MUTUAL_BITE_TIMELINE = [
+  {phase:'build',start:0,end:1.8},
+  {phase:'rush',start:1.8,end:2.5},
+  {phase:'player-bite',start:2.5,end:2.8},
+  {phase:'opponent-counterbite',start:2.8,end:3.3},
+  {phase:'player-finisher',start:3.6,end:4.2},
+  {phase:'recovery',start:4.2,end:6},
+];
+export const MUTUAL_BITE_ACTION = `Exactly six seconds, one continuous fixed full-body shot. 0-1.8s: the protagonist braces, breathes and gives its own species' proud call; the opponent braces silently. 1.8-2.5s: the protagonist initiates a short powerful articulated lunge. 2.5-2.8s: the protagonist visibly closes its natural jaw or beak around the opponent's near armored shoulder, briefly grips, then releases. 2.8-3.3s: the opponent immediately counter-bites the protagonist's near shoulder with visible jaw or beak closure and release; the protagonist recoils and plants its feet. 3.6-4.2s: the protagonist drives a final forceful bite onto the opponent's shoulder, with the clearest jaw closure and opponent recoil at 4.0s. 4.2-6s: both release, separate, recover their original forms and let their tails, fur and feathers settle. Three distinct contacts, coherent forceful exchange, neither mouths merely touching nor headbutts. Keep heads and both jaw closures clearly visible. No blood, wounds or detached parts. Preserve the original species and anatomy of each individual: beaks have no teeth, hooves stay hooves, no invented fangs or limbs. The PLAYER initiates and remains the visual/audio focus. Only its own registered voice is used for breath, call and impact grunt; the counter-attacker remains vocally silent. No narrator, dialogue, generic shared roar, music, camera cut, card motion, morphing or frame freeze.`;
+export const MUTUAL_BITE_REVIEW = 'reciprocalBite must document three observable contacts: player jaw/beak closes on opponent at 2.5-2.8s, opponent counter-bites player at 2.8-3.3s, player final bite near 4.0s; then both release and recover by 6s. Visible anatomical jaw closure, grip and recoil are required for BOTH actors. Mutual lunges, nuzzles, headbutts, effects or a single-sided bite do not pass. Record observed times for all three contacts in evidence. If occluded or sampling misses closure, mark unverified rather than guessing.';

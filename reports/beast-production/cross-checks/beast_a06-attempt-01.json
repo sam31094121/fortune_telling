@@ -1,0 +1,34 @@
+{
+  "cardId": "beast_a06",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T02:07:18.450Z",
+  "reviewer": "Codex visual comparison of canonical images and extracted frames",
+  "candidateSha256": "f7285d25787f18f933243df327db86c08110e9685b45da5adee657d4dec8c80a",
+  "referenceSha256": "80b685b74b137076bc32e0582f4271780a13a9500b104a0bb7e8594063be8342",
+  "method": "Contact sheet at 2 fps; a01 v7 additionally checked recovery at 4 fps and a01 v8 contact at full resolution.",
+  "scope": "Only listed visual discrepancies are assessed. This record is not an audio listening review or approval.",
+  "overall": "fail",
+  "checks": {
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖為大面積金藍胸甲與中央藍珠，候選改成普通虎身加背部火焰／小肩飾。"
+    },
+    "tail": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖整條尾部是粗大的藍色星光盤繞造型，候選為虎紋細尾末端加火。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "對手新增原始亢金龍沒有的蝙蝠狀翅膀。"
+    },
+    "presentation": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "影片自行加上血條與 PLAYER 文字。"
+    }
+  },
+  "correctionsToModel": null
+}

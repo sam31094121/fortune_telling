@@ -1,0 +1,29 @@
+{
+  "cardId": "beast_a08",
+  "attempt": 1,
+  "recordedAt": "2026-09-06T02:07:18.468Z",
+  "reviewer": "Codex visual comparison of canonical images and extracted frames",
+  "candidateSha256": "176e72995215d19469563d0b5a32ed9e9f49532409d703c6e11555c3cf6d68ba",
+  "referenceSha256": "203a4078079ec5692f8e0d0c198e4f1c95bda484fcfda4b46fd01ade2f43b3fc",
+  "method": "Contact sheet at 2 fps; a01 v7 additionally checked recovery at 4 fps and a01 v8 contact at full resolution.",
+  "scope": "Only listed visual discrepancies are assessed. This record is not an audio listening review or approval.",
+  "overall": "fail",
+  "checks": {
+    "head": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖是較短且寬的獬豸面部，候選變成狹長龍吻與長條鬃毛。"
+    },
+    "body": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "原圖厚實的青色毛鱗及胸飾被簡化，身形與原有輪廓不同。"
+    },
+    "opponentIdentity": {
+      "status": "fail",
+      "timestampSeconds": 0,
+      "evidence": "亢金龍被加上大型翅膀，與原圖不符。"
+    }
+  },
+  "correctionsToModel": null
+}

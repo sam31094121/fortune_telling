@@ -4,11 +4,141 @@
   "enabled": true,
   "clip": "../clips/charge-battle.png",
   "body": "../body.png",
-  "durationMs": 1600,
+  "durationMs": 6000,
   "spawn": {
     "from": "selfSlot",
     "to": "targetSlot"
   },
   "poolId": "beast_a18",
-  "displayName": "昴日雞"
+  "displayName": "昴日雞",
+  "production": {
+    "version": "six-second-mutual-bite-v2",
+    "registrationStatus": "registered",
+    "state": "needs-refinement",
+    "canonicalReference": "/beast-game/spirit/18.webp",
+    "referenceSha256": "bee2dc59491f08e9c18aad6fab7a7a3041bf4bc9a4703cb89fe490ed86c13707",
+    "jobReport": "reports/beast-production/beast_a18.json",
+    "latestAttempt": 1,
+    "voiceCandidate": ".tmp/beast-production/beast_a18/voice/player-six-second-v2.wav",
+    "voiceReview": "awaiting-audiovisual-review",
+    "voice": {
+      "source": "/audio/beast-voices/beast_a18.mp3",
+      "sourceSha256": "9d323a6b983fa57a3b2896e70e950b89c933e7a4f6346405e811f6d1b2a1e295",
+      "candidateSha256": "34b46fa0713240d76f72413add801e4f0f3d741fb04d90236d66d7c692ff7413",
+      "provenanceReport": ".tmp/beast-production/beast_a18/voice/provenance-v2.json",
+      "durationSeconds": 6,
+      "technicalCheck": "passed",
+      "reviewStatus": "awaiting-audiovisual-review"
+    },
+    "timeline": [
+      {
+        "phase": "build",
+        "start": 0,
+        "end": 1.8
+      },
+      {
+        "phase": "rush",
+        "start": 1.8,
+        "end": 2.5
+      },
+      {
+        "phase": "player-bite",
+        "start": 2.5,
+        "end": 2.8
+      },
+      {
+        "phase": "opponent-counterbite",
+        "start": 2.8,
+        "end": 3.3
+      },
+      {
+        "phase": "player-finisher",
+        "start": 3.6,
+        "end": 4.2
+      },
+      {
+        "phase": "recovery",
+        "start": 4.2,
+        "end": 6
+      }
+    ],
+    "requiredChecks": [
+      "identity",
+      "opponentIdentity",
+      "head",
+      "body",
+      "limbs",
+      "mouth",
+      "teethOrBeak",
+      "eyes",
+      "clawsOrHooves",
+      "tail",
+      "contact",
+      "reciprocalBite",
+      "playerVoice",
+      "continuity",
+      "mobilePlayback"
+    ],
+    "candidateContractVersion": "single-bite-legacy",
+    "perspective": "player",
+    "opponentVoice": false,
+    "candidate": {
+      "status": "available-for-review",
+      "attempt": 1,
+      "contractVersion": "single-bite-legacy",
+      "opponentId": "beast_a02",
+      "workspaceFile": "reports/beast-production/previews/beast_a18-attempt-01.mp4",
+      "candidateSha256": "eb876e95a07c9876608f106d928d44427c4ab97dd333fb9828a68f7bd7865577",
+      "previewSha256": "2d51f4aad0f348b678e4cc29c6e091f55d60bc3e2776131ae22b11ee647fbb6d",
+      "durationSeconds": 6,
+      "access": "local-review-only"
+    },
+    "review": {
+      "status": "initial-visual-screening-recorded",
+      "visualReport": "reports/beast-production/cross-checks/beast_a18-attempt-01.json",
+      "modelReport": ".tmp/beast-production/beast_a18/attempt-01/model-review.json",
+      "failedParts": [
+        {
+          "part": "head",
+          "evidence": "原圖繁複金色火冠變成普通雞冠上方的小火焰，冠飾設計不同。"
+        },
+        {
+          "part": "body",
+          "evidence": "原圖火焰金羽、太陽胸飾變成普通金羽與更小的胸飾。"
+        },
+        {
+          "part": "tail",
+          "evidence": "原圖火焰羽尾變成普通細長公雞尾羽加橙色末端。"
+        },
+        {
+          "part": "identity",
+          "evidence": "多處火焰特徵不符。"
+        },
+        {
+          "part": "opponentIdentity",
+          "evidence": "對手改為尖刺銀鱗龍，未保留青銀長鬃與流線尾飾。"
+        }
+      ],
+      "outstandingChecks": [
+        "identity",
+        "opponentIdentity",
+        "head",
+        "body",
+        "limbs",
+        "mouth",
+        "teethOrBeak",
+        "eyes",
+        "clawsOrHooves",
+        "tail",
+        "contact",
+        "reciprocalBite",
+        "playerVoice",
+        "continuity",
+        "mobilePlayback"
+      ],
+      "correctionsToModel": "只依原圖及已檢查影格列出具體差異；未覆核項目不代表通過。",
+      "fullAudiovisualAcceptance": "pending"
+    },
+    "blocker": null
+  }
 }
