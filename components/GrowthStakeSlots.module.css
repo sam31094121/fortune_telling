@@ -11,3 +11,4 @@
 .confirm{padding:12px;border-radius:12px;background:#78350f55;color:#fef3c7;font-size:14px;line-height:1.8}
 @keyframes glow{50%{box-shadow:0 0 36px #fbbf24bb,inset 0 0 18px #fbbf2455}}
 @media(prefers-reduced-motion:reduce){.won{animation:none}}
+.steps{padding:12px 12px 12px 28px;margin:12px 0;background:#0f172a;border-radius:12px;color:#e2e8f0;font-size:15px;line-height:1.8}.addCard{width:100%;min-height:88px;color:#cffafe;font-weight:700;line-height:1.7}.addCard small{font-weight:400;color:#cbd5e1}

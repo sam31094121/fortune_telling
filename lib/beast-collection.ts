@@ -1,7 +1,7 @@
 'use client';
 
 import { deriveUnlockedMansions, gameCardIdsForMansion } from './beast-growth-rewards';
-import { grantGrowthCards, grantStarterPack, migrateCollection, reserveCard, reserveFive, settleCard, type BeastCollection, type CollectionReceipt, type StakeOutcome } from './beast-collection-ledger';
+import { grantGrowthCards, grantStarterPack, migrateCollection, reserveCard, reserveOwnedStakes, settleCard, type BeastCollection, type CollectionReceipt, type StakeOutcome } from './beast-collection-ledger';
 export type { BeastCollection, CollectionEntry, CollectionHistoryItem, CollectionReceipt } from './beast-collection-ledger';
 
 const COLLECTION_KEY = 'tdh_beast_collection_v1';
@@ -93,9 +93,9 @@ export async function retryStakeSettlement(matchId: string, outcome: StakeOutcom
   return exclusive(() => applyStakeOutcome(matchId, outcome));
 }
 
-export async function runOwnedFiveDuel(entryIds:string[],play:(entries:Array<{id:string;cardId:string}>)=>Promise<AwardResult>):Promise<{result:AwardResult;settlement:Settlement}>{
+export async function runOwnedStakesDuel(entryIds:string[],play:(entries:Array<{id:string;cardId:string}>)=>Promise<AwardResult>):Promise<{result:AwardResult;settlement:Settlement}>{
  return exclusive(async()=>{
-  const matchId=crypto.randomUUID();const reserved=reserveFive(readStrict(),entryIds,matchId,now());write(reserved);
+  const matchId=crypto.randomUUID();const reserved=reserveOwnedStakes(readStrict(),entryIds,matchId,now());write(reserved);
   let result:AwardResult;
   try{result=await play(reserved.pending!.entries!);if(!result.ok||!result.stake||result.isReplay)throw new Error(result.error??'沒有有效戰果，沒有扣卡。');}
   catch(e){const current=readStrict();if(current.pending?.id===matchId)write({...current,pending:null});throw e;}
