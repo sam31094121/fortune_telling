@@ -1,7 +1,7 @@
 'use client';
 
 import { deriveUnlockedMansions, gameCardIdsForMansion } from './beast-growth-rewards';
-import { grantGrowthCards, grantStarterPack, migrateCollection, reserveCard, settleCard, type BeastCollection, type CollectionReceipt, type StakeOutcome } from './beast-collection-ledger';
+import { grantGrowthCards, grantStarterPack, migrateCollection, reserveCard, reserveFive, settleCard, type BeastCollection, type CollectionReceipt, type StakeOutcome } from './beast-collection-ledger';
 export type { BeastCollection, CollectionEntry, CollectionHistoryItem, CollectionReceipt } from './beast-collection-ledger';
 
 const COLLECTION_KEY = 'tdh_beast_collection_v1';
@@ -91,6 +91,17 @@ export async function runOwnedDuel<T extends AwardResult>(cardId: string, play: 
 
 export async function retryStakeSettlement(matchId: string, outcome: StakeOutcome): Promise<Settlement> {
   return exclusive(() => applyStakeOutcome(matchId, outcome));
+}
+
+export async function runOwnedFiveDuel(entryIds:string[],play:(entries:Array<{id:string;cardId:string}>)=>Promise<AwardResult>):Promise<{result:AwardResult;settlement:Settlement}>{
+ return exclusive(async()=>{
+  const matchId=crypto.randomUUID();const reserved=reserveFive(readStrict(),entryIds,matchId,now());write(reserved);
+  let result:AwardResult;
+  try{result=await play(reserved.pending!.entries!);if(!result.ok||!result.stake||result.isReplay)throw new Error(result.error??'沒有有效戰果，沒有扣卡。');}
+  catch(e){const current=readStrict();if(current.pending?.id===matchId)write({...current,pending:null});throw e;}
+  try{window.localStorage.setItem(JOURNAL_KEY,JSON.stringify({matchId,result}));}catch{/* Ledger write still attempted; no saved claim on failure. */}
+  return {result,settlement:applyStakeOutcome(matchId,result.stake!)};
+ });
 }
 
 /** An interrupted request without a received outcome never confiscates a customer's card. */

@@ -31,3 +31,22 @@ const reservedPack=reserveCard(pack,'beast_y01','loss','now',pack.cards[0].id);
 const lostPack=settleCard(reservedPack,'loss',{verdict:'LOST',gainedCardId:null,forfeitedCardId:'beast_y01',stakes:{player:'beast_y01',opponent:other}},'now').collection;
 assert.equal(exportsObject.grantStarterPack(exportsObject.migrateCollection(lostPack),'receipt-28','later').cards.length,27);
 console.log('PASS: 完整28種幼子、首次只發一次、重載後不補回被沒收幼子');
+const {reserveFive}=exportsObject;
+const inventory={cards:Array.from({length:7},(_,i)=>({id:'copy'+i,cardId:card,source:'GROWTH'})),history:[],receipts:{}};
+const ids=inventory.cards.slice(1,6).map(c=>c.id);
+for(const invalid of [ids.slice(1),[...ids,'copy6'],[...ids.slice(1),'copy2'],[...ids.slice(1),'beast_y28']])assert.throws(()=>reserveFive(inventory,invalid,'batch','now'));
+assert.throws(()=>reserveFive(empty,ids,'batch','now'));
+for(const verdict of ['WON','LOST','RETURNED']){
+ const r=reserveFive(inventory,ids,'batch'+verdict,'now');
+ const outcome={verdict,stakes:{player:card,opponent:other},gainedCardId:verdict==='WON'?other:null,forfeitedCardId:verdict==='LOST'?card:null,selectedEntries:r.pending.entries,forfeitedEntryIds:verdict==='LOST'?ids:[]};
+ const settled=settleCard(r,r.pending.id,outcome,'now');
+ assert.equal(settled.collection.cards.length,verdict==='WON'?8:verdict==='LOST'?2:7);
+ assert.ok(settled.collection.cards.some(c=>c.id==='copy0'));
+ assert.ok(settled.collection.cards.some(c=>c.id==='copy6'));
+ assert.ok(settleCard(settled.collection,r.pending.id,outcome,'now').duplicate);
+ assert.throws(()=>settleCard(r,r.pending.id,{...outcome,selectedEntries:[...outcome.selectedEntries].reverse()},'now'));
+ assert.throws(()=>settleCard({...r,cards:r.cards.filter(c=>c.id!==ids[0])},r.pending.id,outcome,'now'));
+}
+const savedPack=exportsObject.migrateCollection(pack);
+assert.equal(reserveFive(savedPack,savedPack.cards.slice(0,5).map(c=>c.id),'pack','now').pending.entries.length,5);
+console.log('PASS: 五張真實收藏限定、排除試用牌、同名副本精準扣五、勝加一、平手保留、重播去重、入庫幼子可押');
