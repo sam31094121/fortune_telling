@@ -2,6 +2,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {runOwnedStakesDuel,retryStakeSettlement,recoverPendingDuel,type BeastCollection,type Settlement} from '@/lib/beast-collection';
 import type {StakeOutcome} from '@/lib/beast-collection-ledger';
+import BeastElementRitual from './BeastElementRitual';
 import styles from './GrowthStakeSlots.module.css';
 import {recordBeastGameCompleted} from '@/lib/growth-center-client';
 type Card={id:string;name:string;thumbnail:string};
@@ -11,7 +12,7 @@ export default function GrowthStakeSlots({collection,pool}:{collection:BeastColl
  const [outcome,setOutcome]=useState<StakeOutcome|null>(null),[saved,setSaved]=useState<Settlement|null>(null);
  const [guided,setGuided]=useState(true);
  const slots=useRef<HTMLDivElement>(null),picker=useRef<HTMLSelectElement>(null);
- const show=(element:HTMLElement|null)=>element?.scrollIntoView({block:'center',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+ const show=(element:HTMLElement|null)=>element?.scrollIntoView({block:'center',behavior:'auto'});
  useEffect(()=>{if(guided&&(ids.length||saved))show(slots.current);},[ids,saved,guided]);
  useEffect(()=>{let disposed=false;const timer=setTimeout(()=>{void recoverPendingDuel<Result>().then(r=>{if(disposed)return;if(r.result?.stake)setOutcome(r.result.stake);if(r.settlement)setSaved(r.settlement);}).catch(e=>{if(!disposed)setError(e.message);});},0);return()=>{disposed=true;clearTimeout(timer);};},[]);
  const selected=ids.map(id=>collection.cards.find(c=>c.id===id)).filter((c):c is BeastCollection['cards'][number]=>Boolean(c));
@@ -22,6 +23,7 @@ export default function GrowthStakeSlots({collection,pool}:{collection:BeastColl
  async function retry(){if(!saved||!outcome||busy)return;setBusy(true);try{setSaved(await retryStakeSettlement(saved.matchId,outcome));}catch(e){setError(String(e));}finally{setBusy(false);}}
  return <section aria-label="收藏押注決鬥" className="mt-4 rounded-xl border border-amber-200/30 p-3">
   <h3 className="text-lg font-bold text-amber-100">收藏押注決鬥</h3>
+  <BeastElementRitual lesson={outcome?.elementLesson}/>
   <div className={styles.guide}>
    <p role="status">{busy?'正在對戰，請等結算完成。':saved?.saved?'③ 看結果：押注卡與獎勵格已更新。':selected.length>0?`② 已放入 ${selected.length} 張，可以開戰，也可以繼續加牌（最多 5 張）。`:'① 先從下方選一張自己的收藏卡。'}</p>
    {!selected.length&&!busy&&!saved&&<button type="button" className={styles.helpButton} onClick={()=>{setGuided(true);show(picker.current);picker.current?.focus({preventScroll:true});}}>帶我選卡 <span aria-hidden="true">↓</span></button>}

@@ -18,6 +18,7 @@ export interface StakeOutcome {
   forfeitedCardId: string | null;
   message: string;
   stakes: { player: string; opponent: string };
+  elementLesson?: import('./beast-game/element-lesson').ElementLesson;
   selectedEntries?: Array<{id:string;cardId:string}>;
   forfeitedEntryIds?: string[];
 }
