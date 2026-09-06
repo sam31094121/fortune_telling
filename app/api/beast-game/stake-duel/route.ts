@@ -4,6 +4,7 @@ import {newMatch, advance, chooseAI} from '@/lib/beast-game/interactive';
 import {playableCards, getCard} from '@/lib/beast-game/registry';
 import {elementLesson} from '@/lib/beast-game/element-lesson';
 import {resolveStake} from '@/lib/beast-game/stake';
+import {adjudicate} from '@/lib/beast-game/adjudication';
 
 export const runtime = 'nodejs';
 /** Free collection duel: the server resolves both actors using the same engine and AI. */
@@ -20,8 +21,9 @@ export async function POST(request: Request) {
     const logs:string[]=[];
     for (let i = 0; i < 100 && match.status === 'PLAYING'; i++) { const round=match.round; match = advance(match, chooseAI(match, 'player')); logs.push(...match.log.map(entry=>`第 ${round} 回合 · ${entry.text}`)); }
     if (match.status !== 'FINISHED') throw new Error('對戰尚未完成，沒有扣卡。');
+    const judgment=adjudicate(match);
     const stake=resolveStake({playerStake:cardId,opponentStake:opponent,winner:match.winner === 'player' ? 'PLAYER' : match.winner === 'opponent' ? 'OPPONENT' : 'DRAW'});
-    return NextResponse.json({ok:true,rounds:match.round-1,stake:{...stake,elementLesson:elementLesson(cardId,opponent,match.winner!,logs),netChange:stake.verdict==='LOST'?-entries.length:stake.verdict==='WON'?1:0,selectedEntries:entries,forfeitedEntryIds:stake.verdict==='LOST'?entries.map(e=>e.id):[],message:stake.verdict==='LOST'?`押入的 ${entries.length} 張已輸掉`:stake.verdict==='WON'?`原 ${entries.length} 張保留，額外獎勵一張`:`原 ${entries.length} 張退回`}});
+    return NextResponse.json({ok:true,rounds:match.round-1,stake:{...stake,elementLesson:{...elementLesson(cardId,opponent,match.winner!,logs),judgment},netChange:stake.verdict==='LOST'?-entries.length:stake.verdict==='WON'?1:0,selectedEntries:entries,forfeitedEntryIds:stake.verdict==='LOST'?entries.map(e=>e.id):[],message:stake.verdict==='LOST'?`押入的 ${entries.length} 張已輸掉`:stake.verdict==='WON'?`原 ${entries.length} 張保留，額外獎勵一張`:`原 ${entries.length} 張退回`}});
   } catch (error) {
     return NextResponse.json({ok:false,error:error instanceof Error ? error.message : '對戰暫時無法開始。'}, {status:400});
   }

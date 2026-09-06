@@ -12,6 +12,7 @@ export function elementGuide() {
   };
 }
 export interface ElementLesson {
+  judgment?: ReturnType<typeof import('./adjudication').adjudicate>;
   player:string; opponent:string; relationship:string; impact:string; verdict:string; logs:string[];
 }
 export function elementLesson(playerId:string, opponentId:string, winner:'player'|'opponent'|'DRAW', logs:string[]):ElementLesson {
