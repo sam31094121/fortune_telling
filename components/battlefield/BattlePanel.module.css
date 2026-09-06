@@ -201,3 +201,73 @@
 @media (prefers-reduced-motion: reduce) {
   .life, .guard { transition: none; }
 }
+
+/*
+  ── 科技感細修 ──────────────────────────────────────────────────
+  業主：「細修提升科技功能的螢幕」。
+
+  分寸拿捏：這是戰鬥 HUD，不是霓虹招牌。加的東西必須「讓資訊更好讀」，
+  不能只是更亮。所以三件事：
+    血條加刻度 —— 掉了多少一眼看得出來，不用去讀數字
+    數字等寬  —— 從 160 掉到 96 時位數不會跳來跳去
+    出手掃光  —— 只在剛出招那一瞬間，不是永久動畫
+
+  太極憲章：手機優先 60FPS。所以只用 transform 與 opacity 動，
+  不動 layout；而且全部尊重 prefers-reduced-motion。
+*/
+
+/* 血條刻度：每 25% 一道，掉多少不用讀數字。 */
+.vital::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 calc(25% - 1px),
+    rgba(255, 255, 255, 0.18) calc(25% - 1px) 25%
+  );
+}
+
+/* 數字等寬，位數變動時不跳。 */
+.vitalText {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* 血量低於三成時脈動：不是裝飾，是警告。 */
+.critical .life {
+  background: linear-gradient(90deg, #fb7185, #fda4af);
+  animation: criticalPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes criticalPulse {
+  50% { opacity: 0.62; }
+}
+
+/* 出手那一瞬間掃一道光。只在 key 變動時跑一次，不是常駐動畫。 */
+.struck {
+  animation: sweep 420ms ease-out;
+}
+
+@keyframes sweep {
+  from { box-shadow: inset 0 0 0 0 rgba(255, 255, 255, 0.55); }
+  40% { box-shadow: inset 0 0 22px 2px rgba(255, 255, 255, 0.35); }
+  to { box-shadow: inset 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* 出戰方的名字掛一個元素色點，戰鬥中也看得出誰是什麼屬性。 */
+.elementDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border-radius: 50%;
+  vertical-align: baseline;
+  box-shadow: 0 0 8px currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .critical .life,
+  .struck { animation: none; }
+}

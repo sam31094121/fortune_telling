@@ -18,6 +18,7 @@
  */
 
 import styles from './BattlePanel.module.css';
+import { ELEMENT_FX, type BattleElement } from '@/lib/beast-battle-fx';
 import {
   legalActions,
   profile,
@@ -27,12 +28,27 @@ import {
 } from '@/lib/beast-game/interactive';
 
 /** 生命與護盾。護盾先扣，所以畫在血條上面一層。 */
-export function VitalBar({ hp, maxHp, shield }: { hp: number; maxHp: number; shield: number }) {
+export function VitalBar({
+  hp, maxHp, shield, beat,
+}: {
+  hp: number;
+  maxHp: number;
+  shield: number;
+  /** 每次數值變動就換一次，用來重播一次掃光。不是動畫常駐。 */
+  beat?: number;
+}) {
   const life = Math.max(0, Math.min(100, (hp / Math.max(1, maxHp)) * 100));
   // 護盾按同一條血量的比例畫，客戶才看得出「還要多打這麼多才見血」。
   const guard = Math.max(0, Math.min(100 - life, (shield / Math.max(1, maxHp)) * 100));
+  // 三成以下轉紅並脈動。這不是裝飾，是「快沒了」的警告。
+  const critical = life <= 30 && hp > 0;
   return (
-    <div className={styles.vital} role="img" aria-label={`生命 ${hp} / ${maxHp}${shield ? `，護盾 ${shield}` : ''}`}>
+    <div
+      key={beat}
+      className={[styles.vital, critical ? styles.critical : '', beat ? styles.struck : ''].filter(Boolean).join(' ')}
+      role="img"
+      aria-label={`生命 ${hp} / ${maxHp}${shield ? `，護盾 ${shield}` : ''}${critical ? '，命危' : ''}`}
+    >
       <span className={styles.life} style={{ width: `${life}%` }} />
       {guard > 0 && <span className={styles.guard} style={{ width: `${guard}%`, left: `${life}%` }} />}
       <span className={styles.vitalText}>
@@ -48,10 +64,18 @@ export function FighterStatus({ match, side, label }: { match: Match; side: Side
   return (
     <div className={styles.status}>
       <div className={styles.statusHead}>
-        <strong>{label}・{fighter.name}</strong>
+        <strong>
+          {/* 元素色點：戰鬥中也看得出誰是什麼屬性，不必回頭看卡面。 */}
+          <span
+            className={styles.elementDot}
+            style={{ color: ELEMENT_FX[fighter.element as BattleElement]?.glow ?? '#94a3b8' }}
+            aria-hidden="true"
+          />
+          {label}・{fighter.name}
+        </strong>
         <span className={styles.energy} aria-label={`氣 ${team.energy}`}>氣 {team.energy}</span>
       </div>
-      <VitalBar hp={fighter.hp} maxHp={fighter.maxHp} shield={fighter.shield} />
+      <VitalBar hp={fighter.hp} maxHp={fighter.maxHp} shield={fighter.shield} beat={match.revision} />
       <p className={styles.roster}>
         {team.team.map((f, index) => (
           <span key={f.instanceId} className={index === team.active ? styles.onField : f.defeated ? styles.down : ''}>

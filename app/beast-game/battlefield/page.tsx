@@ -122,6 +122,23 @@ export default function BattlefieldPage() {
     });
   }, []);
 
+  /*
+    開戰之後把畫面帶到戰鬥面板。
+
+    實測：按下開戰、面板確實出現了，但它在整張桌子下面，
+    手機上完全在視窗外——客戶按完鈕看不到任何變化，
+    會以為沒反應而再按一次。按鈕做了事，就要讓人看見它做了什麼。
+
+    用 nearest 而不是 center：只捲到剛好看得到，不把戰場推出畫面，
+    客戶還是要同時看到雙方場上有誰。
+  */
+  useEffect(() => {
+    // 只在剛開戰那一刻捲一次。revision 0 就是還沒出過招的那一場——
+    // 每次出招都捲會把畫面拉來拉去，比不捲更煩。
+    if (!match || match.revision !== 0) return;
+    document.querySelector('[data-battle-panel]')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [match]);
+
   const handleSelect = useCallback((cardId: string) => {
     setState((current) => (current ? selectCard(current, cardId) : current));
   }, []);
@@ -174,6 +191,7 @@ export default function BattlefieldPage() {
               <GameBattlefield
                 state={state}
                 cards={cards}
+                inBattle={Boolean(match)}
                 onSelect={handleSelect}
                 onDestination={handleDestination}
               />

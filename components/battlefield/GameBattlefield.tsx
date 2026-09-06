@@ -226,8 +226,23 @@ export function DiscardPile({
   );
 }
 
-export function TurnIndicator({ state }: { state: BattleState }) {
+export function TurnIndicator({ state, inBattle }: { state: BattleState; inBattle?: boolean }) {
   const mine = state.currentPlayer === 'PLAYER';
+  /*
+    開戰之後這一段不能再說「佈陣中／點一張卡開始」。
+
+    實測：按下開戰、戰鬥面板都出來了，中央還在叫客戶去點卡佈陣。
+    畫面說的話跟實際狀態不一致，比沒有提示更糟——
+    客戶會照著錯的指示做，然後以為是自己弄壞的。
+  */
+  if (inBattle) {
+    return (
+      <div className={styles.center} role="status" aria-live="polite">
+        <p className={styles.vs}>交戰中</p>
+        <p className={styles.hint}>下方選擇你的動作</p>
+      </div>
+    );
+  }
   return (
     <div className={styles.center} role="status" aria-live="polite">
       <p className={styles.vs}>VS</p>
@@ -327,10 +342,12 @@ export function PlayerField({
 }
 
 export default function GameBattlefield({
-  state, cards, onSelect, onDestination,
+  state, cards, inBattle, onSelect, onDestination,
 }: {
   state: BattleState;
   cards: BattlefieldCardArt[];
+  /** 已經開戰。開戰後中央提示要換一套說法。 */
+  inBattle?: boolean;
   onSelect: (cardId: string) => void;
   onDestination: (to: Destination) => void;
 }) {
@@ -342,7 +359,7 @@ export default function GameBattlefield({
   return (
     <div className={styles.table} data-battlefield data-bench-size={BENCH_SIZE}>
       <OpponentField state={state} lookup={lookup} />
-      <TurnIndicator state={state} />
+      <TurnIndicator state={state} inBattle={inBattle} />
       <PlayerField state={state} lookup={lookup} onSelect={onSelect} onDestination={onDestination} />
     </div>
   );
