@@ -343,9 +343,19 @@ export default function BattlefieldPage() {
                       ? `本場押注 1 張：${cards.find(card => card.id === battleStake)?.name}。贏 +1／輸 −1／平手 0。換卡與倒下不扣卡。`
                       : '本場押注 0 張・體驗戰。贏得 0 張／輸掉 0 張。'}</p>}
                     <BattlePanel match={match} onAction={act} compact cards={cards} />
-                    {match.status === 'FINISHED' && isTrial && (
-                      <p role="status" className={styles.notice} data-trial-note>
-                        體驗戰結束：押注 0 張・贏得 0 張・輸掉 0 張。沒有押卡、發卡或沒收。可重新發牌，換一組戰術再挑戰。
+                    {match.status === 'FINISHED' && (
+                      <p role="status" className={styles.notice} data-battle-result={match.winner}>
+                        {isTrial ? (
+                          <>體驗戰結束：押注 0 張・贏得 0 張・輸掉 0 張。</>
+                        ) : outcome ? (
+                          <>
+                            {outcome.verdict === 'WON' ? '✅ 獲勝！' : outcome.verdict === 'LOST' ? '❌ 落敗。' : '⚪ 平手。'}
+                            {' 押注 1 張・'}
+                            {outcome.verdict === 'WON' ? '✅ 贏得 1 張' : outcome.verdict === 'LOST' ? '❌ 輸掉 1 張' : '⚪ 保留 1 張'}
+                            {' ・'}
+                            {outcome.message}
+                          </>
+                        ) : null}
                       </p>
                     )}
                     {match.status === 'FINISHED' && isTrial && <BeastBattleVoice id={`trial:${battleVoiceId}`}
