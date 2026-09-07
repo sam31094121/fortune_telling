@@ -170,18 +170,25 @@ export function CardDetailSheet({
           );
         })()}
 
-        {card.stats && (
-          <div className={styles.stats}>
-            {([['生命', card.stats.hp], ['攻擊', card.stats.attack], ['防禦', card.stats.defense], ['速度', card.stats.speed]] as const).map(
-              ([label, value]) => (
-                <div key={label} className={styles.stat}>
-                  <span className={styles.statValue}>{value}</span>
-                  <span className={styles.statLabel}>{label}</span>
-                </div>
-              ),
-            )}
-          </div>
-        )}
+        {card.stats && (() => {
+          const max = Math.max(card.stats.hp, card.stats.attack, card.stats.defense, card.stats.speed);
+          const percentOf = (v: number) => Math.round((v / Math.max(max, 1)) * 100);
+          return (
+            <div className={styles.stats}>
+              {([['生命', card.stats.hp], ['攻擊', card.stats.attack], ['防禦', card.stats.defense], ['速度', card.stats.speed]] as const).map(
+                ([label, value]) => (
+                  <div key={label} className={styles.stat}>
+                    <span className={styles.statLabel}>{label}</span>
+                    <div className={styles.statBar}>
+                      <div className={styles.statBarFill} style={{ width: `${percentOf(value)}%` }} />
+                    </div>
+                    <span className={styles.statValue}>{value}</span>
+                  </div>
+                ),
+              )}
+            </div>
+          );
+        })()}
 
         {card.skillName && (
           <p className={styles.block}>
