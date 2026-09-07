@@ -16,10 +16,40 @@
 .controls { min-height: 0; display: grid; grid-template-rows: 30px minmax(0, 1fr) auto; border: 1px solid #526386; border-top: 2px solid #7dd3fc; border-radius: 0 0 16px 16px; background: #101b2d; overflow: hidden; }
 .controlsHeading { display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 12px; color: #c7e8fd; }
 .controlScroll { min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; padding: 8px 10px; scrollbar-width: thin; }
-.footer { padding: 6px 10px; border-top: 1px solid #3b4e69; background: #101b2d; }
+.footer {
+  padding: 6px 10px;
+  border-top: 1px solid #3b4e69;
+  background: #101b2d;
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+}
 .start, .restart { min-height: 44px; width: 100%; padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 13px; touch-action: manipulation; }
-.start { background: #ffe4a6; color: #211a0c; }
-.start:disabled { background: #26354a; color: #a2b4cb; }
+.start {
+  background: linear-gradient(135deg, #ffe4a6, #ffd580);
+  color: #211a0c;
+  min-height: 52px;
+  font-size: 15px;
+  font-weight: 900;
+  box-shadow: 0 8px 16px rgba(255, 228, 166, 0.3);
+  transition: all 0.3s ease;
+  animation: startPulse 2s ease-in-out infinite;
+}
+.start:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 8px rgba(255, 228, 166, 0.2);
+}
+.start:disabled {
+  background: #26354a;
+  color: #a2b4cb;
+  animation: none;
+  box-shadow: none;
+}
+@keyframes startPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
 .restart { border: 1px solid #526386; color: #c9d9eb; }
 .details { margin-top: 8px; border-top: 1px solid #344860; font-size: 12px; color: #c0d0e4; }
 .details summary { min-height: 44px; display: list-item; align-content: center; cursor: pointer; color: #c3eaff; }

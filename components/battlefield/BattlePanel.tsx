@@ -18,10 +18,11 @@
  */
 
 import styles from './BattlePanel.module.css';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import type { BattlefieldCardArt } from './GameBattlefield';
 import { effectiveStat } from '@/lib/beast-game/effects';
 import { ELEMENT_LABEL } from '@/lib/beast-game/elements';
+import { BattleEffectsLayer, useBattleEffects } from './BattleEffects';
 import {
   ELEMENT_FX,
   createSoundPlayer,
@@ -38,7 +39,6 @@ import {
   type Match,
   type Side,
 } from '@/lib/beast-game/interactive';
-import { BattleEffectsLayer, useBattleEffects } from './BattleEffects';
 
 /** 生命與護盾。護盾先扣，所以畫在血條上面一層。 */
 export function VitalBar({
@@ -249,7 +249,7 @@ export default function BattlePanel({
       });
       prevLogLength.current = match.log.length;
     }
-  }, [match.log, addDamagePopup, match.opponent.team, match.player.team]);
+  }, [match.log, addDamagePopup, match.revision]);
 
   /*
     出手的聲音：靈魂、武器、動作走同一條時間軸。
@@ -261,7 +261,9 @@ export default function BattlePanel({
   */
   const sound = useRef<ReturnType<typeof createSoundPlayer> | null>(null);
   if (sound.current === null && typeof window !== 'undefined') sound.current = createSoundPlayer();
-  useEffect(() => () => sound.current?.dispose(), []);
+  useEffect(() => {
+    return () => sound.current?.dispose();
+  }, []);
 
   const active = match.player.team[match.player.active];
   useEffect(() => {
