@@ -9,7 +9,8 @@
  */
 
 import { useCallback, useMemo, useState } from 'react';
-import type { StakeOutcome, Settlement } from '@/lib/beast-collection';
+import type { StakeOutcome } from '@/lib/beast-collection-ledger';
+import type { Settlement } from '@/lib/beast-collection';
 import type { StakeCard } from '@/components/battlefield/StakeSlot';
 
 export function useStakeManagement() {
