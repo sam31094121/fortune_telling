@@ -18,7 +18,7 @@
  */
 
 import styles from './BattlePanel.module.css';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { BattlefieldCardArt } from './GameBattlefield';
 import { effectiveStat } from '@/lib/beast-game/effects';
 import { ELEMENT_LABEL } from '@/lib/beast-game/elements';
@@ -38,6 +38,7 @@ import {
   type Match,
   type Side,
 } from '@/lib/beast-game/interactive';
+import { BattleEffectsLayer, useBattleEffects } from './BattleEffects';
 
 /** 生命與護盾。護盾先扣，所以畫在血條上面一層。 */
 export function VitalBar({
@@ -222,6 +223,33 @@ export default function BattlePanel({
   cards?: BattlefieldCardArt[];
 }) {
   const finished = match.status === 'FINISHED';
+  const { damagePopups, addDamagePopup } = useBattleEffects();
+  const prevLogLength = useRef(match.log.length);
+
+  /* 監聽戰報變化，觸發飄字 */
+  useEffect(() => {
+    const newLogCount = match.log.length - prevLogLength.current;
+    if (newLogCount > 0) {
+      const newLogs = match.log.slice(-newLogCount);
+      newLogs.forEach((log) => {
+        // 簡單解析傷害數字（格式：「xxx 造成 yyy 點傷害」或類似）
+        const damageMatch = log.text.match(/造成\s+(\d+)\s+點傷害/);
+        if (damageMatch) {
+          const damage = parseInt(damageMatch[1], 10);
+          const fighter = log.side === 'player'
+            ? match.opponent.team[match.opponent.active]
+            : match.player.team[match.player.active];
+
+          // 隨機位置（卡牌中心 ±20px）
+          const x = Math.random() * 40 - 20 + 100;
+          const y = Math.random() * 40 - 20 + 80;
+
+          addDamagePopup(damage, x, y, fighter.element as BeastElement, false);
+        }
+      });
+      prevLogLength.current = match.log.length;
+    }
+  }, [match.log, addDamagePopup, match.opponent.team, match.player.team]);
 
   /*
     出手的聲音：靈魂、武器、動作走同一條時間軸。
@@ -245,6 +273,9 @@ export default function BattlePanel({
   }, [match.revision, match.status, match.opponent.team, active.cardId, active.element]);
   return (
     <section className={compact ? styles.compactPanel : styles.panel} data-battle-panel data-status={match.status}>
+      {/* 戰鬥特效層 - 傷害飄字、閃光等 */}
+      <BattleEffectsLayer popups={damagePopups} />
+
       {!compact && <><FighterStatus match={match} side="opponent" label="對手" />
       <FighterStatus match={match} side="player" label="你" /></>}
 

@@ -1,0 +1,275 @@
+/* 戰鬥特效容器 */
+.effectsContainer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 100;
+}
+
+/* ============================================================================
+   傷害飄字
+   ========================================================================== */
+
+.damagePopup {
+  position: absolute;
+  font-weight: bold;
+  font-size: 1.8rem;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 101;
+
+  /* 上升 + 淡出 */
+  animation: popupRise 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes popupRise {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-80px) scale(0.8);
+  }
+}
+
+/* 普通傷害 - 紅色系 */
+.damagePopup .number {
+  color: #ff4444;
+  text-shadow:
+    0 0 8px rgba(255, 68, 68, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* 暴擊傷害 - 黃金色 */
+.damagePopup.critical .number {
+  color: #ffd700;
+  font-size: 2.2rem;
+  text-shadow:
+    0 0 16px rgba(255, 215, 0, 0.8),
+    0 0 8px rgba(255, 165, 0, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+  animation: criticalPulse 0.6s ease-out;
+}
+
+@keyframes criticalPulse {
+  0% {
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 治療飄字 - 綠色 */
+.damagePopup.heal .number {
+  color: #44dd44;
+  text-shadow:
+    0 0 8px rgba(68, 221, 68, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* 元素相關色彩 - 火元素範例 */
+.damagePopup.element-fire .number {
+  color: #ff5522;
+}
+
+.damagePopup.element-water .number {
+  color: #4488ff;
+}
+
+.damagePopup.element-wind .number {
+  color: #44dd88;
+}
+
+/* ============================================================================
+   命中閃光
+   ========================================================================== */
+
+.hitFlash {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 102;
+
+  /* 白色閃光 */
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+  box-shadow:
+    0 0 20px rgba(255, 255, 255, 0.6),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+
+  animation: flashPulse 0.15s ease-out forwards;
+}
+
+@keyframes flashPulse {
+  0% {
+    opacity: 1;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
+/* 暴擊閃光 - 黃金色更強 */
+.hitFlash.criticalFlash {
+  background: radial-gradient(circle, rgba(255, 215, 0, 1), rgba(255, 165, 0, 0.6), rgba(255, 215, 0, 0));
+  box-shadow:
+    0 0 40px rgba(255, 215, 0, 0.8),
+    0 0 20px rgba(255, 165, 0, 0.6),
+    inset 0 0 20px rgba(255, 215, 0, 0.6);
+
+  animation: criticalFlashPulse 0.2s ease-out forwards;
+}
+
+@keyframes criticalFlashPulse {
+  0% {
+    opacity: 1;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.5);
+  }
+}
+
+/* ============================================================================
+   攻擊方向光線
+   ========================================================================== */
+
+.attackLine {
+  position: absolute;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(100, 200, 255, 0.8),
+    transparent
+  );
+  box-shadow:
+    0 0 8px rgba(100, 200, 255, 0.6),
+    0 0 16px rgba(100, 200, 255, 0.3);
+  origin: left center;
+  pointer-events: none;
+  z-index: 99;
+
+  /* 閃現效果 */
+  animation: laserPulse 0.4s ease-out forwards;
+}
+
+@keyframes laserPulse {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+
+/* 元素特定顏色 */
+.attackLine[data-element='fire'] {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 100, 0, 0.8),
+    transparent
+  );
+  box-shadow:
+    0 0 8px rgba(255, 100, 0, 0.6),
+    0 0 16px rgba(255, 100, 0, 0.3);
+}
+
+.attackLine[data-element='water'] {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 150, 255, 0.8),
+    transparent
+  );
+  box-shadow:
+    0 0 8px rgba(0, 150, 255, 0.6),
+    0 0 16px rgba(0, 150, 255, 0.3);
+}
+
+.attackLine[data-element='wind'] {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(100, 220, 100, 0.8),
+    transparent
+  );
+  box-shadow:
+    0 0 8px rgba(100, 220, 100, 0.6),
+    0 0 16px rgba(100, 220, 100, 0.3);
+}
+
+/* ============================================================================
+   血條崩潰效果
+   ========================================================================== */
+
+.healthBarStrike {
+  animation: healthCrush 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes healthCrush {
+  0% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(0.8);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+/* 護盾碎裂 */
+.shieldBreak {
+  animation: shieldCrumble 0.4s ease-out forwards;
+}
+
+@keyframes shieldCrumble {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2) rotate(360deg);
+    filter: brightness(0.5);
+  }
+}
+
+/* ============================================================================
+   警告脈動 (生命危險)
+   ========================================================================== */
+
+.criticalPulseAnimation {
+  animation: healthCritical 0.6s ease-in-out infinite;
+}
+
+@keyframes healthCritical {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.4);
+  }
+}
