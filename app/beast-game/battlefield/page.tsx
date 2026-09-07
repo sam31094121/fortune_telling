@@ -340,8 +340,8 @@ export default function BattlefieldPage() {
                 {match ? (
                   <>
                     {match.status === 'PLAYING' && <p className={styles.notice} data-battle-stake>{battleStake
-                      ? `本場押注 1 張：${cards.find(card => card.id === battleStake)?.name}。贏 +1／輸 −1／平手 0。換卡與倒下不扣卡。`
-                      : '本場押注 0 張・體驗戰。贏得 0 張／輸掉 0 張。'}</p>}
+                      ? `💎 押注：${cards.find(card => card.id === battleStake)?.name}`
+                      : '🎮 體驗戰'}</p>}
                     <BattlePanel match={match} onAction={act} compact cards={cards} />
                     {match.status === 'FINISHED' && (
                       <p role="status" className={styles.notice} data-battle-result={match.winner}>
