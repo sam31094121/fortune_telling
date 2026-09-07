@@ -84,7 +84,7 @@ export function PreparationControls({ state, cards, onSelect, onDestination, onI
   }, [cards]);
   const selected = state.selectedCardId;
   const inspectId = selected ?? state.player.active;
-  const legal = useMemo(() => selected ? legalDestinations(state, 'PLAYER', selected) : [], [state.selectedCardId]);
+  const legal = useMemo(() => selected ? legalDestinations(state, 'PLAYER', selected) : [], [state, selected]);
   const destinations = useMemo<Destination[]>(() =>
     [{ zone: 'ACTIVE' }, ...state.player.bench.map((_, slotIndex) => ({ zone: 'BENCH' as const, slotIndex }))]
   , [state.player.bench.length]);

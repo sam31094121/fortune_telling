@@ -205,18 +205,20 @@ export default function BattlefieldPage() {
   }, []);
 
   const handleDestination = useCallback((to: Destination) => {
-    if (!state?.selectedCardId) return;
-    try {
-      const id = state.selectedCardId;
-      const from = state.player.active === id ? '主戰' : state.player.bench.includes(id) ? `後備 ${state.player.bench.indexOf(id) + 1}` : '手牌';
-      const destination = to.zone === 'ACTIVE' ? '主戰' : to.zone === 'BENCH' ? `後備 ${to.slotIndex + 1}` : '棄牌區';
-      const next = moveCard(state, 'PLAYER', id, to);
-      const outgoing = to.zone === 'ACTIVE' ? state.player.active : null;
-      const outgoingTo = outgoing ? next.player.bench.includes(outgoing) ? `後備 ${next.player.bench.indexOf(outgoing) + 1}` : '棄牌區' : '';
-      setState(next);
-      setMovement(`「${cards.find(card => card.id === id)?.name}」1 張：${from} → ${destination}。${outgoing ? `「${cards.find(card => card.id === outgoing)?.name}」1 張：主戰 → ${outgoingTo}。` : ''}佈陣移動不扣卡，押注張數不變。`);
-    } catch { setMovement('這個位置不能放入，請點選發光的空格。'); }
-  }, [state, cards]);
+    setState((current) => {
+      if (!current?.selectedCardId) return current;
+      try {
+        const id = current.selectedCardId;
+        const from = current.player.active === id ? '主戰' : current.player.bench.includes(id) ? `後備 ${current.player.bench.indexOf(id) + 1}` : '手牌';
+        const destination = to.zone === 'ACTIVE' ? '主戰' : to.zone === 'BENCH' ? `後備 ${to.slotIndex + 1}` : '棄牌區';
+        const next = moveCard(current, 'PLAYER', id, to);
+        const outgoing = to.zone === 'ACTIVE' ? current.player.active : null;
+        const outgoingTo = outgoing ? next.player.bench.includes(outgoing) ? `後備 ${next.player.bench.indexOf(outgoing) + 1}` : '棄牌區' : '';
+        setMovement(`「${cards.find(card => card.id === id)?.name}」1 張：${from} → ${destination}。${outgoing ? `「${cards.find(card => card.id === outgoing)?.name}」1 張：主戰 → ${outgoingTo}。` : ''}佈陣移動不扣卡，押注張數不變。`);
+        return next;
+      } catch { setMovement('這個位置不能放入，請點選發光的空格。'); return current; }
+    });
+  }, [cards]);
 
   /* 可以拿來押的，是成長收藏裡真正擁有的那些——不是卡池六十張。 */
   useEffect(() => {
