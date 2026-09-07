@@ -1,0 +1,356 @@
+/**
+ * 戰場5步清晰引導樣式
+ * ============================================================================
+ * 目的：簡潔、乾淨、易操控
+ */
+
+.guide {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(10, 15, 30, 0.95), rgba(5, 10, 25, 0.95));
+  border: 1px solid rgba(255, 200, 100, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   進度條：整體進度視覺化
+   ═════════════════════════════════════════════════════════════════════════ */
+
+.progressBar {
+  position: relative;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffc857, #ffe4a6);
+  transition: width 0.3s ease;
+  box-shadow: 0 0 8px rgba(255, 200, 100, 0.4);
+}
+
+.progressLabel {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  font-weight: bold;
+  color: #ffc857;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5步驟陣列：清晰的流程視覺
+   ═════════════════════════════════════════════════════════════════════════ */
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  position: relative;
+}
+
+.stepBox {
+  position: relative;
+  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+  font-size: 12px;
+}
+
+.stepBox.done {
+  background: rgba(100, 200, 100, 0.15);
+  border-color: rgba(100, 200, 100, 0.4);
+}
+
+.stepBox.current {
+  background: rgba(255, 200, 100, 0.2);
+  border-color: rgba(255, 200, 100, 0.6);
+  box-shadow: 0 0 16px rgba(255, 200, 100, 0.3);
+  transform: scale(1.05);
+}
+
+.stepNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  font-weight: bold;
+  color: #ffc857;
+  font-size: 14px;
+}
+
+.stepBox.done .stepNumber {
+  background: rgba(100, 200, 100, 0.4);
+  color: #ffffff;
+}
+
+.stepBox.current .stepNumber {
+  background: #ffc857;
+  color: #000;
+  animation: pulse 0.8s infinite;
+}
+
+.stepIcon {
+  font-size: 20px;
+  margin: 4px 0;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #d4d4d4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stepBox.done .stepLabel {
+  color: #a8e6a1;
+}
+
+.stepBox.current .stepLabel {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.stepCheck {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  background: #64c864;
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepArrow {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ffc857;
+  font-size: 16px;
+  animation: arrow-pulse 1s infinite;
+}
+
+.stepBox:last-child .stepArrow {
+  display: none;
+}
+
+.stepConnector {
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 200, 100, 0.3);
+  font-size: 12px;
+}
+
+.stepBox:last-child .stepConnector {
+  display: none;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes arrow-pulse {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  50% { transform: translateY(-50%) translateX(4px); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   狀態顯示：當前簡述
+   ═════════════════════════════════════════════════════════════════════════ */
+
+.statusBox {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid #ffc857;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #d4d4d4;
+  text-align: center;
+}
+
+.statusBox p {
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   開戰按鈕：醒目、難以錯過
+   ═════════════════════════════════════════════════════════════════════════ */
+
+.startButton {
+  position: relative;
+  min-height: 56px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #ffc857 0%, #ffe4a6 100%);
+  color: #000;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(255, 200, 100, 0.4);
+  overflow: hidden;
+}
+
+.startButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: left 0.3s ease;
+}
+
+.startButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(255, 200, 100, 0.6);
+}
+
+.startButton:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.startButton:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(255, 200, 100, 0.4);
+}
+
+.startIcon {
+  font-size: 18px;
+  display: inline-block;
+}
+
+.startText {
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+/* 禁用狀態：等待中 */
+.startButton:disabled {
+  background: linear-gradient(135deg, #888 0%, #999 100%);
+  color: #ccc;
+  cursor: not-allowed;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.waitIcon {
+  font-size: 18px;
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.waitText {
+  color: #aaa;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   提示訊息：無法開戰時的說明
+   ═════════════════════════════════════════════════════════════════════════ */
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(200, 150, 100, 0.1);
+  border: 1px solid rgba(200, 150, 100, 0.3);
+  border-radius: 8px;
+  font-size: 12px;
+  color: #d4a574;
+}
+
+.hintIcon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   手機版適應
+   ═════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .guide {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .stepsGrid {
+    gap: 4px;
+  }
+
+  .stepBox {
+    padding: 10px 6px;
+    font-size: 10px;
+  }
+
+  .stepIcon {
+    font-size: 18px;
+  }
+
+  .stepNumber {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .stepLabel {
+    font-size: 9px;
+  }
+
+  .startButton {
+    min-height: 48px;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .startIcon {
+    font-size: 16px;
+  }
+
+  .startText {
+    font-size: 12px;
+  }
+}

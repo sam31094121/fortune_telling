@@ -22,6 +22,7 @@ import {recordBeastGameCompleted} from '@/lib/growth-center-client';
 import type { BattlefieldCardArt } from '@/components/battlefield/GameBattlefield';
 import BattleArena, { PreparationControls } from '@/components/battlefield/BattleArena';
 import BattleCardGuide from '@/components/battlefield/BattleCardGuide';
+import BattleStartGuide from '@/components/battlefield/BattleStartGuide';
 import type { BeastElement } from '@/lib/beast-game/elements';
 import styles from '@/components/battlefield/BattleScreen.module.css';
 import {
@@ -392,20 +393,23 @@ export default function BattlefieldPage() {
               </div>
               {!match ? (
                 <div className={styles.footer}>
-                  {!isTrial && <p className={styles.stakeConfirm}>押注 {stakeCardIds.length} 張・獲勝 +1／落敗 −1／平手 0</p>}
-                  {!startCheck.ready && 'reason' in startCheck && <p id="battle-hint" style={{fontSize: '11px', color: '#93a4c0', marginBottom: '8px'}}>{startCheck.reason}</p>}
-                  <button type="button" data-start-battle disabled={!startCheck.ready} className={styles.start} onClick={() => void start()} aria-describedby={!startCheck.ready ? 'battle-hint' : undefined} aria-disabled={!startCheck.ready}>
-                    {startCheck.ready ? (isTrial ? '▶ 開始體驗戰（免押卡）' : `▶ 確認押 ${stakeCardIds.length} 張，開戰`) : (() => {
-                      const msg = ('reason' in startCheck && startCheck.reason) || '還不能開戰';
-                      if (msg.includes('主戰')) return '📋 選擇主戰卡';
-                      if (msg.includes('佈陣')) return '🤖 對手佈陣中…';
-                      if (msg.includes('最多')) return '⚠️ 上場卡太多';
-                      if (msg.includes('押注')) return '💎 選擇押注卡';
-                      if (msg.includes('保存')) return '💾 保存上場結果';
-                      if (msg.includes('核對')) return '🔄 核對押注紀錄…';
-                      return msg || '準備中…';
-                    })()}
-                  </button>
+                  <BattleStartGuide
+                    steps={[
+                      { step: 1, label: '選主戰卡', done: Boolean(state?.player.active), icon: '🐉' },
+                      { step: 2, label: '放後備卡', done: Boolean(state && state.player.bench.some(Boolean)), icon: '🛡️' },
+                      { step: 3, label: isTrial ? '免押注' : '選押注卡', done: isTrial || Boolean(stakeCardIds.length), icon: '💎' },
+                      { step: 4, label: '檢查陣容', done: Boolean(placed >= 1 && opponentPlaced >= 1), icon: '✓' },
+                      { step: 5, label: '開戰！', done: false, icon: '⚔️' },
+                    ]}
+                    status={isTrial
+                      ? `你 ${placed} 隻・對手 ${opponentPlaced} 隻・體驗戰`
+                      : `你 ${placed} 隻・對手 ${opponentPlaced} 隻・押注 ${stakeCardIds.length} 張`
+                    }
+                    canStart={startCheck.ready}
+                    startButtonText={isTrial ? '開始體驗戰' : `確認開戰`}
+                    onStart={() => void start()}
+                    blockReason={!startCheck.ready && 'reason' in startCheck ? startCheck.reason : undefined}
+                  />
                 </div>
               ) : match.status === 'FINISHED' ? (
                 <div className={styles.footer}>
