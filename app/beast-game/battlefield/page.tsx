@@ -96,6 +96,8 @@ export default function BattlefieldPage() {
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [inspection, setInspection] = useState<{ cardId: string; side: 'player' | 'opponent' } | null>(null);
   const controlScroll = useRef<HTMLDivElement>(null);
+  // 緩存選中的押注卡，避免重複查詢
+  const selectedStakeCard = useMemo(() => ownedStake.find(card => card.id === stakeCardIds[0]), [stakeCardIds, ownedStake]);
   const inspectCard = useCallback((cardId: string, side: 'player' | 'opponent' = 'player') => {
     setInspection({ cardId, side });
     controlScroll.current?.scrollTo({ top: 0 });
@@ -366,7 +368,7 @@ export default function BattlefieldPage() {
                     {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}
                     <PreparationControls state={state} cards={cards} onSelect={handleSelect} onDestination={handleDestination} onInspect={inspectCard} />
                     <details className={styles.details} hidden={Boolean(state.player.active && (isTrial || stakeCardIds.length))}>
-                      <summary>{isTrial ? '✓ 體驗戰' : stakeCardIds.length ? `✓ 押注：${ownedStake.find(card => card.id === stakeCardIds[0])?.name}` : '📋 佈陣進度'}</summary>
+                      <summary>{isTrial ? '✓ 體驗戰' : stakeCardIds.length ? `✓ 押注：${selectedStakeCard?.name}` : '📋 佈陣進度'}</summary>
                       <StakeSlot owned={ownedStake} selected={stakeCardIds[0]} trial={isTrial} locked={settling || settlement?.saved === false}
                         steps={[
                           { label: '主戰', done: Boolean(state.player.active) },
@@ -390,14 +392,18 @@ export default function BattlefieldPage() {
               </div>
               {!match ? (
                 <div className={styles.footer}>
-                  {!isTrial && <p className={styles.stakeConfirm}>押注 {stakeCardIds.length ? 1 : 0} 張・獲勝 +1／落敗 −1／平手 0</p>}
-                  <button type="button" data-start-battle disabled={!startCheck.ready} className={styles.start} onClick={() => void start()} data-hint={!startCheck.ready ? ('reason' in startCheck && startCheck.reason) || '還不能開戰' : ''}>
-                    {startCheck.ready ? (isTrial ? '▶ 開始體驗戰（免押卡）' : '▶ 確認押 1 張，開戰') : (() => {
-                      const msg = ('reason' in startCheck && startCheck.reason) || '';
+                  {!isTrial && <p className={styles.stakeConfirm}>押注 {stakeCardIds.length} 張・獲勝 +1／落敗 −1／平手 0</p>}
+                  {!startCheck.ready && 'reason' in startCheck && <p id="battle-hint" style={{fontSize: '11px', color: '#93a4c0', marginBottom: '8px'}}>{startCheck.reason}</p>}
+                  <button type="button" data-start-battle disabled={!startCheck.ready} className={styles.start} onClick={() => void start()} aria-describedby={!startCheck.ready ? 'battle-hint' : undefined} aria-disabled={!startCheck.ready}>
+                    {startCheck.ready ? (isTrial ? '▶ 開始體驗戰（免押卡）' : `▶ 確認押 ${stakeCardIds.length} 張，開戰`) : (() => {
+                      const msg = ('reason' in startCheck && startCheck.reason) || '還不能開戰';
                       if (msg.includes('主戰')) return '📋 選擇主戰卡';
                       if (msg.includes('佈陣')) return '🤖 對手佈陣中…';
                       if (msg.includes('最多')) return '⚠️ 上場卡太多';
-                      return '準備中…';
+                      if (msg.includes('押注')) return '💎 選擇押注卡';
+                      if (msg.includes('保存')) return '💾 保存上場結果';
+                      if (msg.includes('核對')) return '🔄 核對押注紀錄…';
+                      return msg || '準備中…';
                     })()}
                   </button>
                 </div>

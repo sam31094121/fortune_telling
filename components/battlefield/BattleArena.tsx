@@ -91,7 +91,7 @@ export function PreparationControls({ state, cards, onSelect, onDestination, onI
 
   return (
     <section className={styles.preparation} aria-label="選卡與放牌">
-      <p className={styles.selectionHint} role="status">{selected ? `已選 ${lookup(selected)?.name}，點亮格放入` : '① 點手牌　② 點主戰或後備格'}</p>
+      <p className={styles.selectionHint} role="status">{selected ? `已選 ${lookup(selected)?.name}，點亮格放入` : `① 點手牌　② 點主戰或後備格（最多 5 隻後備）`}</p>
       <div className={styles.destinations}>
         {destinations.map((to, idx) => {
           const id = to.zone === 'ACTIVE' ? state.player.active : to.zone === 'BENCH' ? state.player.bench[to.slotIndex] : null;
