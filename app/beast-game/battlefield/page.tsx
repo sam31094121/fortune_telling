@@ -79,8 +79,8 @@ export default function BattlefieldPage() {
   const [match, setMatch] = useState<Match | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [seed, setSeed] = useState(1);
-  /** 押注格：戰鬥前堵住輸贏的那一格。沒押就開不了戰。 */
-  const [stakeCardId, setStakeCardId] = useState<string | null>(null);
+  /** 押注卡：支持 1-5 張。 */
+  const [stakeCardIds, setStakeCardIds] = useState<string[]>([]);
   const [ownedStake, setOwnedStake] = useState<StakeCard[]>([]);
   const [settlement, setSettlement] = useState<Settlement | null>(null);
   const [outcome, setOutcome] = useState<StakeOutcome | null>(null);
@@ -150,7 +150,7 @@ export default function BattlefieldPage() {
     // 對手用同一套佈陣規則自動上場——沒有特權、沒有額外格子。
     setState(autoPlaceOpponent(fresh, rng));
     setMatch(null);
-    setStakeCardId(null);
+    setStakeCardIds([]);
     setInspection(null);
   }, [cards, seed]);
 
@@ -161,14 +161,14 @@ export default function BattlefieldPage() {
     setStakeError('');
     try {
       const next = startFromField(state, seed * 7919);
-      if (!stakeCardId && ownedStake.length) throw new Error('請先選 1 張押注卡。');
-      setOutcome(null); setSettlement(null); setBattleStake(stakeCardId);
+      if (!stakeCardIds.length && ownedStake.length) throw new Error('請先選 1-5 張押注卡。');
+      setOutcome(null); setSettlement(null); setBattleStake(stakeCardIds[0] || null);
       setBattleVoiceId(crypto.randomUUID());
       setInspection(null);
       if (!stakeCardId) { setMatch(next); return; }
       setSettling(true);
       // Reserve the actual copy before combat. The shared transaction settles once or releases on interruption.
-      const completed = await runOwnedDuel(stakeCardId, () => new Promise<{ ok: true; stake: StakeOutcome }>((resolve, reject) => {
+      const completed = await runOwnedDuel(stakeCardIds[0], () => new Promise<{ ok: true; stake: StakeOutcome }>((resolve, reject) => {
         if (!alive.current) { reject(new Error('本場中斷，押注卡未扣除。')); return; }
         pendingBattle.current = { resolve, reject };
         setMatch(next);
@@ -366,7 +366,7 @@ export default function BattlefieldPage() {
                     {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}
                     <PreparationControls state={state} cards={cards} onSelect={handleSelect} onDestination={handleDestination} onInspect={inspectCard} />
                     <details className={styles.details} hidden={Boolean(state.player.active && (isTrial || stakeCardId))}>
-                      <summary>{isTrial ? '✓ 體驗戰' : stakeCardId ? `✓ 押注：${ownedStake.find(card => card.id === stakeCardId)?.name}` : '📋 佈陣進度'}</summary>
+                      <summary>{isTrial ? '✓ 體驗戰' : stakeCardIds.length ? `✓ 押注：${ownedStake.find(card => card.id === stakeCardId)?.name}` : '📋 佈陣進度'}</summary>
                       <StakeSlot owned={ownedStake} selected={stakeCardId} trial={isTrial} locked={settling || settlement?.saved === false}
                         steps={[
                           { label: '主戰', done: Boolean(state.player.active) },
@@ -374,7 +374,7 @@ export default function BattlefieldPage() {
                           { label: isTrial ? '免押' : '押注', done: isTrial || Boolean(stakeCardId) },
                           { label: '戰鬥', done: startCheck.ready },
                         ]}
-                        onSelect={cardId => { if (settling || settlement?.saved === false) return; setStakeCardId(current => current === cardId ? null : cardId); }} />
+                        onSelect={cardId => { if (settling || settlement?.saved === false) return; setStakeCardIds(current => current.includes(cardId) ? current.filter(id => id !== cardId) : current.length < 5 ? [...current, cardId] : current); }} />
                     </details>
                     {startCheck.ready && placed < opponentPlaced && (
                       <p className={styles.notice} data-outnumbered>
@@ -390,7 +390,7 @@ export default function BattlefieldPage() {
               </div>
               {!match ? (
                 <div className={styles.footer}>
-                  {!isTrial && <p className={styles.stakeConfirm}>押注 {stakeCardId ? 1 : 0} 張・獲勝 +1／落敗 −1／平手 0</p>}
+                  {!isTrial && <p className={styles.stakeConfirm}>押注 {stakeCardIds.length ? 1 : 0} 張・獲勝 +1／落敗 −1／平手 0</p>}
                   <button type="button" data-start-battle disabled={!startCheck.ready} className={styles.start} onClick={() => void start()} data-hint={!startCheck.ready ? ('reason' in startCheck && startCheck.reason) || '還不能開戰' : ''}>
                     {startCheck.ready ? (isTrial ? '▶ 開始體驗戰（免押卡）' : '▶ 確認押 1 張，開戰') : (() => {
                       const msg = ('reason' in startCheck && startCheck.reason) || '';
