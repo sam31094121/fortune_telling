@@ -242,11 +242,8 @@ export default function BattlePanel({
             ? match.opponent.team[match.opponent.active]
             : match.player.team[match.player.active];
 
-          // 隨機位置（卡牌中心 ±20px）
-          const x = Math.random() * 40 - 20 + 100;
-          const y = Math.random() * 40 - 20 + 80;
-
-          addDamagePopup(damage, x, y, fighter.element as BeastElement, false);
+          // 固定位置（卡牌中心）
+          addDamagePopup(damage, 100, 80, fighter.element as BeastElement, false);
         }
       });
       prevLogLength.current = match.log.length;
