@@ -355,14 +355,14 @@ export default function BattlefieldPage() {
                   <>
                     {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}
                     <PreparationControls state={state} cards={cards} onSelect={handleSelect} onDestination={handleDestination} onInspect={inspectCard} />
-                    <details className={styles.details}>
-                      <summary>{isTrial ? '體驗戰・押注 0 張' : stakeCardId ? '押注籌碼 1 張：' + ownedStake.find(card => card.id === stakeCardId)?.name : '③ 押注籌碼 0 張・請選 1 張'}</summary>
+                    <details className={styles.details} hidden={Boolean(state.player.active && (isTrial || stakeCardId))}>
+                      <summary>{isTrial ? '✓ 體驗戰' : stakeCardId ? `✓ 押注：${ownedStake.find(card => card.id === stakeCardId)?.name}` : '📋 佈陣進度'}</summary>
                       <StakeSlot owned={ownedStake} selected={stakeCardId} trial={isTrial} locked={settling || settlement?.saved === false}
                         steps={[
-                          { label: '選主戰', done: Boolean(state.player.active) },
-                          { label: '擺後備・可略', done: state.player.bench.some(Boolean) },
-                          { label: isTrial ? '體驗免押' : '押注', done: isTrial || Boolean(stakeCardId) },
-                          { label: '開戰', done: false },
+                          { label: '主戰', done: Boolean(state.player.active) },
+                          { label: '後備', done: state.player.bench.some(Boolean) },
+                          { label: isTrial ? '免押' : '押注', done: isTrial || Boolean(stakeCardId) },
+                          { label: '戰鬥', done: startCheck.ready },
                         ]}
                         onSelect={cardId => { if (settling || settlement?.saved === false) return; setStakeCardId(current => current === cardId ? null : cardId); }} />
                     </details>
@@ -371,13 +371,9 @@ export default function BattlefieldPage() {
                         你 {placed} 隻、對手 {opponentPlaced} 隻；可再放後備增援。{!isTrial && '押上的卡輸了會被沒收。'}
                       </p>
                     )}
-                    <details className={styles.details}>
-                      <summary>玩法與重新發牌</summary>
-                      <p>60 種神獸，出戰使用 20 張試用牌。先點手牌，再點發光的主戰或後備格；點場上卡片可換位。手機不用拖曳。每回合親手選攻擊、技能或換卡。</p>
-                      <p>{isTrial ? '體驗戰免押卡，不發卡也不沒收。' : '正式戰押一張收藏卡；輸了會被沒收，贏了保留並再得一張，平手退回。'}</p>
-                      <p><Link href="/beast-game">自由組隊：從 60 張卡中親手選三張 →</Link></p>
-                      <button type="button" className={styles.restart} disabled={settling || settlement?.saved === false} onClick={redeal}>重新發牌</button>
-                    </details>
+                    <div className={styles.controls}>
+                      <button type="button" className={styles.restart} disabled={settling || settlement?.saved === false} onClick={redeal}>🔄 重新發牌</button>
+                    </div>
                   </>
                 )}
                 </div>
@@ -385,8 +381,14 @@ export default function BattlefieldPage() {
               {!match ? (
                 <div className={styles.footer}>
                   {!isTrial && <p className={styles.stakeConfirm}>押注 {stakeCardId ? 1 : 0} 張・獲勝 +1／落敗 −1／平手 0</p>}
-                  <button type="button" data-start-battle disabled={!startCheck.ready} className={styles.start} onClick={() => void start()}>
-                    {startCheck.ready ? (isTrial ? '開始體驗戰（免押卡）' : '確認押 1 張，開戰') : ('reason' in startCheck && startCheck.reason) || '還不能開戰'}
+                  <button type="button" data-start-battle disabled={!startCheck.ready} className={styles.start} onClick={() => void start()} data-hint={!startCheck.ready ? ('reason' in startCheck && startCheck.reason) || '還不能開戰' : ''}>
+                    {startCheck.ready ? (isTrial ? '▶ 開始體驗戰（免押卡）' : '▶ 確認押 1 張，開戰') : (() => {
+                      const msg = ('reason' in startCheck && startCheck.reason) || '';
+                      if (msg.includes('主戰')) return '📋 選擇主戰卡';
+                      if (msg.includes('佈陣')) return '🤖 對手佈陣中…';
+                      if (msg.includes('最多')) return '⚠️ 上場卡太多';
+                      return '準備中…';
+                    })()}
                   </button>
                 </div>
               ) : match.status === 'FINISHED' ? (
