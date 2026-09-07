@@ -211,22 +211,26 @@
 
 .startButton {
   position: relative;
-  min-height: 56px;
-  padding: 12px 20px;
+  min-height: 64px;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 12px;
   background: linear-gradient(135deg, #ffc857 0%, #ffe4a6 100%);
   color: #000;
   border: none;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: 700;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 900;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(255, 200, 100, 0.4);
+  box-shadow: 0 6px 24px rgba(255, 200, 100, 0.5);
   overflow: hidden;
+}
+
+.startButton:not(:disabled) {
+  animation: buttonPulse 2s ease-in-out infinite;
 }
 
 .startButton::before {
@@ -255,13 +259,14 @@
 }
 
 .startIcon {
-  font-size: 18px;
+  font-size: 24px;
   display: inline-block;
 }
 
 .startText {
-  font-size: 14px;
-  letter-spacing: 0.5px;
+  font-size: 17px;
+  letter-spacing: 1px;
+  font-weight: 900;
 }
 
 /* 禁用狀態：等待中 */
@@ -280,6 +285,11 @@
 @keyframes rotate {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@keyframes buttonPulse {
+  0%, 100% { box-shadow: 0 6px 24px rgba(255, 200, 100, 0.5); }
+  50% { box-shadow: 0 8px 32px rgba(255, 200, 100, 0.8); transform: scale(1.02); }
 }
 
 .waitText {

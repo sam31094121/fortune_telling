@@ -247,6 +247,26 @@ export const REVEAL_ORDER: Array<{ side: 'player' | 'opponent'; index: number }>
 /** 每翻一張之間的間隔（毫秒）。減少動態時直接全開，不折磨人。 */
 export const REVEAL_INTERVAL_MS = 620;
 
+/** 戰鬥結束音樂 */
+export const BATTLE_END_MUSIC = {
+  victory: '/audio/taiji/victory-fanfare.mp3',
+  defeat: '/audio/taiji/defeat-fanfare.mp3',
+} as const;
+
+/** 播放勝利音樂 */
+export function playVictoryMusic(
+  play: (src: string, volume?: number, rate?: number) => void,
+): void {
+  play(BATTLE_END_MUSIC.victory, 0.8, 1);
+}
+
+/** 播放失敗音樂 */
+export function playDefeatMusic(
+  play: (src: string, volume?: number, rate?: number) => void,
+): void {
+  play(BATTLE_END_MUSIC.defeat, 0.7, 1);
+}
+
 /**
  * 神獸本體立繪（去背）。
  *

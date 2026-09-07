@@ -366,3 +366,16 @@
 .battleDetails { font-size: 12px; color: #b9d1e5; }
 .battleDetails summary { min-height: 44px; align-content: center; cursor: pointer; }
 .battleDetails p { line-height: 1.7; }
+
+/* 手機版：隱藏非必要文字，保留關鍵資訊 */
+@media (max-width: 480px) {
+  .weapon { display: none; }
+  .weaponPart { display: none; }
+  .matchup span { font-size: 11px; }
+  .skillDesc { display: none; }
+  .activeHint { font-size: 11px; }
+  .primaryActions button { font-size: 12px; min-height: 52px; }
+  .primaryActions small { font-size: 10px; }
+  .result { font-size: 15px; }
+  .result small { font-size: 10px; }
+}

@@ -27,6 +27,8 @@ import {
   ELEMENT_FX,
   createSoundPlayer,
   playBeastAction,
+  playVictoryMusic,
+  playDefeatMusic,
   type BattleElement,
 } from '@/lib/beast-battle-fx';
 import { weaponFor } from '@/lib/beast-game/weapons';
@@ -268,11 +270,22 @@ export default function BattlePanel({
   const active = match.player.team[match.player.active];
   useEffect(() => {
     // revision 0 是還沒出過招——開場不放攻擊聲。
-    if (match.status === 'FINISHED') { sound.current?.dispose(); return; }
+    if (match.status === 'FINISHED') {
+      // 戰鬥結束時播放勝利或失敗音樂
+      if (sound.current) {
+        if (match.winner === 'player') {
+          playVictoryMusic(sound.current.play);
+        } else if (match.winner === 'opponent') {
+          playDefeatMusic(sound.current.play);
+        }
+      }
+      sound.current?.dispose();
+      return;
+    }
     if (!sound.current || match.revision === 0) return;
     const heavy = match.opponent.team.some((f) => f.defeated);
     return playBeastAction(sound.current.play, active.cardId, active.element as BattleElement, 'player', heavy);
-  }, [match.revision, match.status, match.opponent.team, active.cardId, active.element]);
+  }, [match.revision, match.status, match.winner, active.cardId, active.element]);
   return (
     <section className={compact ? styles.compactPanel : styles.panel} data-battle-panel data-status={match.status}>
       {/* 戰鬥特效層 - 傷害飄字、閃光等 */}

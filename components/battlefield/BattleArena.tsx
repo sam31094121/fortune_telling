@@ -65,7 +65,7 @@ export default function BattleArena({ state, cards, match, onInspect }: {
         })}
         <span className={styles.versus} aria-hidden="true">VS</span>
       </div>
-      <p className={styles.arenaNote} role="status" data-matchup={matchup?.kind}>
+      <p className={styles.arenaNote} role="status" aria-live="polite" data-matchup={matchup?.kind}>
         {finished ? (match.winner === 'player' ? '你贏了' : match.winner === 'opponent' ? '對手獲勝' : '平手')
           : match?.player.team[match.player.active].defeated ? '主戰已倒下，請在下方換上後備'
           : matchup && mine && foe ? `${matchup.headline}・攻擊元素 ${elementPercent(mine.element as BeastElement, foe.element as BeastElement)}` : '先在下方選一張手牌，再點主戰格'}
@@ -84,14 +84,14 @@ export function PreparationControls({ state, cards, onSelect, onDestination, onI
   }, [cards]);
   const selected = state.selectedCardId;
   const inspectId = selected ?? state.player.active;
-  const legal = useMemo(() => selected ? legalDestinations(state, 'PLAYER', selected) : [], [state, selected]);
+  const legal = useMemo(() => selected ? legalDestinations(state, 'PLAYER', selected) : [], [state.selectedCardId]);
   const destinations = useMemo<Destination[]>(() =>
     [{ zone: 'ACTIVE' }, ...state.player.bench.map((_, slotIndex) => ({ zone: 'BENCH' as const, slotIndex }))]
-  , [state.player.bench]);
+  , [state.player.bench.length]);
 
   return (
     <section className={styles.preparation} aria-label="選卡與放牌">
-      <p className={styles.selectionHint} role="status">{selected ? `已選 ${lookup(selected)?.name}，點亮格放入` : `① 點手牌　② 點主戰或後備格（最多 5 隻後備）`}</p>
+      <p className={styles.selectionHint} role="status" aria-live="polite">{selected ? `已選 ${lookup(selected)?.name}，點格放入` : `點手牌選卡・點格放牌`}</p>
       <div className={styles.destinations}>
         {destinations.map((to, idx) => {
           const id = to.zone === 'ACTIVE' ? state.player.active : to.zone === 'BENCH' ? state.player.bench[to.slotIndex] : null;
@@ -101,15 +101,16 @@ export function PreparationControls({ state, cards, onSelect, onDestination, onI
             <div className={styles.destination} key={`${to.zone}-${to.zone === 'BENCH' ? to.slotIndex : 'active'}`}>
               <span>{label}</span>
               <CardSlot card={id ? lookup(id) : undefined} selected={Boolean(id && id === selected)} legalTarget={allowed}
-                label={`你的${label}：${id ? lookup(id)?.name : '空格'}`}
+                label={`你的${label}：${id ? lookup(id)?.name : '空格'}${allowed ? '・可放牌' : id ? '・已放卡' : ''}`}
                 onClick={() => { if (allowed) onDestination(to); else if (id) onSelect(id); }} />
             </div>
           );
         })}
       </div>
-      <div className={styles.handHeading}><strong>你的手牌・{state.player.hand.length}</strong><span>牌庫 {state.player.deck.length}・棄牌 {state.player.discard.length}</span></div>
+      <div className={styles.handHeading}><strong>你的手牌・{state.player.hand.length}</strong><span className={styles.deckInfo}>牌庫 {state.player.deck.length}・棄牌 {state.player.discard.length}</span></div>
       <HandZone hand={state.player.hand} lookup={lookup} selectedCardId={selected} onCard={onSelect} />
-      {inspectId && <button type="button" className={styles.selectedInfo} onClick={() => onInspect(inspectId)}>查看{lookup(inspectId)?.name}的類型、能力與相剋 →</button>}
+      {selected && <p className={styles.selectedConfirm} role="status" aria-live="assertive">已選 <strong>{lookup(selected)?.name}</strong>・可點任何格子放牌</p>}
+      {inspectId && <button type="button" className={styles.selectedInfo} onClick={() => onInspect(inspectId)}>查看{lookup(inspectId)?.name} →</button>}
     </section>
   );
 }

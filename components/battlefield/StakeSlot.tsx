@@ -206,10 +206,10 @@ export default function StakeSlot({
                 // 押下去給一聲確認——這一下是有代價的，值得一個回饋。
                 sound.current?.play(CLASH_FX.impact, 0.28);
                 // 回到格子：客戶剛做的決定要看得到結果，不是留在小卡列上猜。
-                requestAnimationFrame(() => {
+                setTimeout(() => {
                   const slot = document.querySelector<HTMLElement>('[data-stake-target]');
                   slot?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                });
+                }, 100);
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}

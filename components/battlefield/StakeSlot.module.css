@@ -111,10 +111,13 @@
   /* 壓在牌背上要讀得出來，所以給一層深色底。 */
   background: rgba(6, 12, 22, 0.62);
   animation: waiting 2.2s ease-in-out infinite;
+  will-change: opacity;
+  backface-visibility: hidden;
 }
 
 @keyframes waiting {
-  50% { opacity: 0.45; }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 /* 掃描線：像儀器，不像貼紙。 */
@@ -207,4 +210,24 @@
 
 @media (prefers-reduced-motion: reduce) {
   .empty { animation: none; }
+}
+
+/* 手機版性能優化：簡化複雜效果 */
+@media (max-width: 480px) {
+  .pick {
+    flex: 0 0 88px;
+    border-radius: 8px;
+  }
+  .pick strong, .pick span {
+    font-size: 11px;
+    padding: 2px 3px;
+    line-height: 16px;
+  }
+  .pick strong {
+    min-height: 32px;
+  }
+  .movement {
+    font-size: 11px;
+    line-height: 18px;
+  }
 }
