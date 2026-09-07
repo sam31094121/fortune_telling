@@ -17,7 +17,9 @@
 .fighterHeading { border-radius: 8px; padding: 2px; background: #061021b3; }
 .arenaHeading, .handHeading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #b6c8e0; }
 .arenaHeading strong { color: #ffe4a6; font-size: 14px; }
-.fighters { position: relative; min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.fighters { position: relative; min-height: 0; display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; }
+.fighter[data-fighter='player'] { grid-template-rows: auto minmax(0, 1fr) auto; }
+.fighter[data-fighter='opponent'] .artSpace { place-items: flex-start; }
 .fighter { min-height: 0; min-width: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 7px; }
 .fighterName { display: grid; gap: 2px; text-align: center; font-size: 13px; line-height: 18px; }
 .fighterName span { color: #9fc5ef; font-size: 11px; }
