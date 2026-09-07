@@ -109,7 +109,6 @@ export function PreparationControls({ state, cards, onSelect, onDestination, onI
       </div>
       <div className={styles.handHeading}><strong>你的手牌・{state.player.hand.length}</strong><span className={styles.deckInfo}>牌庫 {state.player.deck.length}・棄牌 {state.player.discard.length}</span></div>
       <HandZone hand={state.player.hand} lookup={lookup} selectedCardId={selected} onCard={onSelect} />
-      {selected && <p className={styles.selectedConfirm} role="status" aria-live="assertive">已選 <strong>{lookup(selected)?.name}</strong>・可點任何格子放牌</p>}
       {inspectId && <button type="button" className={styles.selectedInfo} onClick={() => onInspect(inspectId)}>查看{lookup(inspectId)?.name} →</button>}
     </section>
   );

@@ -53,8 +53,6 @@
 .fighterIdentity strong { color: #ffe1a0; }
 .fighterIdentity span { color: #b5cce4; font-size: 10px; }
 .inspectLabel { position: absolute; right: 0; bottom: 0; left: 0; padding: 3px 1px; background: #071321e8; color: #e4f3ff; font-size: 10px; }
-.selectedConfirm { margin: 8px 0 0 0; padding: 8px 10px; border-radius: 8px; background: rgba(34, 197, 94, 0.15); border-left: 3px solid #22c55e; font-size: 13px; line-height: 20px; color: #d1fae5; }
-.selectedConfirm strong { color: #86efac; font-weight: 600; }
 .selectedInfo { min-height: 44px; text-align: left; color: #d1edff; font-size: 12px; border-top: 1px solid #3b526c; touch-action: manipulation; }
 @media (max-height: 650px) {
   .preparation { gap: 4px; }
@@ -76,7 +74,6 @@
   .fighterIdentity span { font-size: 9px; }
   .selectionHint { font-size: 11px; }
   .arenaNote { font-size: 11px; }
-  .selectedConfirm { font-size: 12px; padding: 6px 8px; margin: 6px 0 0 0; }
   .selectedInfo { font-size: 11px; }
 }
 @media (prefers-reduced-motion: reduce) { .acted { animation: none; } }
