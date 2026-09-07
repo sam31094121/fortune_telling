@@ -165,7 +165,7 @@ export default function BattlefieldPage() {
       setOutcome(null); setSettlement(null); setBattleStake(stakeCardIds[0] || null);
       setBattleVoiceId(crypto.randomUUID());
       setInspection(null);
-      if (!stakeCardId) { setMatch(next); return; }
+      if (!stakeCardIds.length) { setMatch(next); return; }
       setSettling(true);
       // Reserve the actual copy before combat. The shared transaction settles once or releases on interruption.
       const completed = await runOwnedDuel(stakeCardIds[0], () => new Promise<{ ok: true; stake: StakeOutcome }>((resolve, reject) => {
@@ -177,7 +177,7 @@ export default function BattlefieldPage() {
     } catch (cause) {
       if (alive.current) setStakeError(cause instanceof Error ? cause.message : '還不能開戰，押注卡未扣除。');
     } finally { starting.current = false; if (alive.current) setSettling(false); }
-  }, [state, seed, stakeCardId, ownedStake.length, recovering, settlement]);
+  }, [state, seed, stakeCardIds, ownedStake.length, recovering, settlement]);
 
   /**
    * 出招。
@@ -283,9 +283,9 @@ export default function BattlefieldPage() {
     if (!base.ready) return base;
     // 佈陣完成之後才輪到押注：先後順序不能顛倒，
     // 不然客戶會先選好賭注、才發現主戰還沒放。
-    if ((!stakeCardId || !ownedStake.some(card => card.id === stakeCardId)) && !isTrial) return { ready: false as const, reason: '先押一張收藏卡' };
+    if ((!stakeCardIds.length || !ownedStake.some(card => card.id === stakeCardIds[0])) && !isTrial) return { ready: false as const, reason: '先押一張收藏卡' };
     return base;
-  }, [state, stakeCardId, isTrial, recovering, settling, settlement, stakeError, ownedStake]);
+  }, [state, stakeCardIds, isTrial, recovering, settling, settlement, stakeError, ownedStake]);
   const placed = useMemo(() => {
     if (!state) return 0;
     return (state.player.active ? 1 : 0) + state.player.bench.filter(Boolean).length;
@@ -365,13 +365,13 @@ export default function BattlefieldPage() {
                   <>
                     {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}
                     <PreparationControls state={state} cards={cards} onSelect={handleSelect} onDestination={handleDestination} onInspect={inspectCard} />
-                    <details className={styles.details} hidden={Boolean(state.player.active && (isTrial || stakeCardId))}>
-                      <summary>{isTrial ? '✓ 體驗戰' : stakeCardIds.length ? `✓ 押注：${ownedStake.find(card => card.id === stakeCardId)?.name}` : '📋 佈陣進度'}</summary>
-                      <StakeSlot owned={ownedStake} selected={stakeCardId} trial={isTrial} locked={settling || settlement?.saved === false}
+                    <details className={styles.details} hidden={Boolean(state.player.active && (isTrial || stakeCardIds.length))}>
+                      <summary>{isTrial ? '✓ 體驗戰' : stakeCardIds.length ? `✓ 押注：${ownedStake.find(card => card.id === stakeCardIds[0])?.name}` : '📋 佈陣進度'}</summary>
+                      <StakeSlot owned={ownedStake} selected={stakeCardIds[0]} trial={isTrial} locked={settling || settlement?.saved === false}
                         steps={[
                           { label: '主戰', done: Boolean(state.player.active) },
                           { label: '後備', done: state.player.bench.some(Boolean) },
-                          { label: isTrial ? '免押' : '押注', done: isTrial || Boolean(stakeCardId) },
+                          { label: isTrial ? '免押' : '押注', done: isTrial || Boolean(stakeCardIds.length) },
                           { label: '戰鬥', done: startCheck.ready },
                         ]}
                         onSelect={cardId => { if (settling || settlement?.saved === false) return; setStakeCardIds(current => current.includes(cardId) ? current.filter(id => id !== cardId) : current.length < 5 ? [...current, cardId] : current); }} />
