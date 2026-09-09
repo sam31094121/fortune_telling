@@ -2,6 +2,7 @@
 import { profile } from './interactive';
 import { getCard } from './registry';
 import { describeCardElement } from '../beast-element-guide';
+import { ELEMENT_COUNTER, ELEMENT_LABEL, type BeastElement } from './elements';
 
 export function cardTactics(cardId: string) {
   const card = getCard(cardId);
@@ -16,10 +17,46 @@ export function cardTactics(cardId: string) {
     反擊: { strength: '先加自身護盾，受擊且存活時反擊24點。', weakness: '對手不攻擊就不觸發反擊；被直接擊倒也無法反擊。', timing: '預期對手攻擊、自己能撐住這一下時使用。' },
     速度: { strength: '傷害技能同時提高自身速度，爭取之後先行。', weakness: '速度不增加生命或防禦；已有先手時額外加速未必有收益。', timing: '需要爭取先出手，或以先手壓低敵方生命時使用。' },
   } as const;
+
   return {
     ...roles[skill.role],
     favorable: `對${relation.beats}系有元素攻擊優勢；不保證獲勝。`,
     counter: `避開${relation.beatenBy}系的相剋壓力。`,
     cost: `技能耗氣${skill.cost}；仍受冷卻限制。`,
+    teamHint: teamSynergyHint(card.element, skill.role),
+  };
+}
+
+/**
+ * 隊伍協同提示：告訴客戶帶哪個元素的隊友可以補這張牌的弱點。
+ *
+ * 邏輯固定：找出「誰能剋掉我的剋星」，推薦帶那個元素的牌。
+ * 例如我是風（被空剋），空被火剋，所以推薦帶火系隊友。
+ * 同時加上角色互補建議，讓客戶思考陣容組合而不只是單張數值。
+ */
+function teamSynergyHint(element: BeastElement, role: string): { allyElement: string; allyLabel: string; reason: string; roleComplement: string } {
+  // 剋星：誰剋我
+  const nemesisKey = (Object.keys(ELEMENT_COUNTER) as BeastElement[]).find(k => ELEMENT_COUNTER[k] === element) ?? element;
+  // 反制剋星：誰能剋掉剋星
+  const counterNemesis = ELEMENT_COUNTER[nemesisKey];
+
+  const allyLabel = ELEMENT_LABEL[counterNemesis];
+  const nemesisLabel = ELEMENT_LABEL[nemesisKey];
+  const selfLabel = ELEMENT_LABEL[element];
+
+  const roleComplements: Record<string, string> = {
+    主攻: '搭配一張守護或輔助，能讓你撐久一點，輸出機會更多。',
+    守護: '搭配一張主攻或速度，守住之後要有人收掉對手。',
+    控制: '搭配一張主攻，減攻後接著壓傷害效果最大。',
+    輔助: '搭配一張反擊，治療撐住、反擊施壓，讓對手難以集火。',
+    反擊: '搭配一張控制，先壓低對手攻擊、再用反擊吃一擊，觸發條件更穩。',
+    速度: '搭配一張主攻，你搶先手，隊友補收尾，形成連續壓力。',
+  };
+
+  return {
+    allyElement: counterNemesis,
+    allyLabel,
+    reason: `你是${selfLabel}系，${nemesisLabel}系會剋你；帶一張${allyLabel}系隊友，它可以壓制${nemesisLabel}對手。`,
+    roleComplement: roleComplements[role] ?? '根據對手陣容靈活搭配。',
   };
 }

@@ -1,6 +1,6 @@
 {
-  "startedAt": "2026-09-06T01:00:10.366Z",
-  "completedAt": "2026-09-06T01:00:16.239Z",
+  "startedAt": "2026-09-09T13:05:14.354Z",
+  "completedAt": "2026-09-09T13:05:19.098Z",
   "count": 60,
   "technicalPassed": 60,
   "audiovisualApproved": 0,
@@ -27,7 +27,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:10.730Z"
+      "createdAt": "2026-09-09T13:05:14.733Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y01",
@@ -51,7 +53,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:10.834Z"
+      "createdAt": "2026-09-09T13:05:14.814Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a02",
@@ -75,7 +79,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:10.926Z"
+      "createdAt": "2026-09-09T13:05:14.888Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y02",
@@ -99,7 +105,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:11.026Z"
+      "createdAt": "2026-09-09T13:05:14.966Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a03",
@@ -122,7 +130,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:11.122Z"
+      "createdAt": "2026-09-09T13:05:15.043Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y03",
@@ -145,7 +155,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:11.221Z"
+      "createdAt": "2026-09-09T13:05:15.127Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a04",
@@ -169,7 +181,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:11.315Z"
+      "createdAt": "2026-09-09T13:05:15.203Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y04",
@@ -193,7 +207,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:11.404Z"
+      "createdAt": "2026-09-09T13:05:15.277Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a05",
@@ -217,7 +233,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:11.495Z"
+      "createdAt": "2026-09-09T13:05:15.351Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y05",
@@ -241,7 +259,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:11.591Z"
+      "createdAt": "2026-09-09T13:05:15.423Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a06",
@@ -265,7 +285,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:11.687Z"
+      "createdAt": "2026-09-09T13:05:15.495Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y06",
@@ -289,7 +311,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:11.779Z"
+      "createdAt": "2026-09-09T13:05:15.567Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a07",
@@ -313,7 +337,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:11.868Z"
+      "createdAt": "2026-09-09T13:05:15.638Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y07",
@@ -337,7 +363,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:11.954Z"
+      "createdAt": "2026-09-09T13:05:15.705Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a08",
@@ -360,7 +388,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:12.052Z"
+      "createdAt": "2026-09-09T13:05:15.790Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y08",
@@ -383,7 +413,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:12.147Z"
+      "createdAt": "2026-09-09T13:05:15.863Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a09",
@@ -406,7 +438,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:12.241Z"
+      "createdAt": "2026-09-09T13:05:15.939Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y09",
@@ -429,7 +463,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:12.332Z"
+      "createdAt": "2026-09-09T13:05:16.014Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a10",
@@ -453,7 +489,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:12.424Z"
+      "createdAt": "2026-09-09T13:05:16.088Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y10",
@@ -477,7 +515,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:12.514Z"
+      "createdAt": "2026-09-09T13:05:16.160Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a11",
@@ -501,7 +541,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:12.605Z"
+      "createdAt": "2026-09-09T13:05:16.242Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y11",
@@ -525,7 +567,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:12.696Z"
+      "createdAt": "2026-09-09T13:05:16.314Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a12",
@@ -548,7 +592,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:12.791Z"
+      "createdAt": "2026-09-09T13:05:16.386Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y12",
@@ -571,7 +617,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:12.886Z"
+      "createdAt": "2026-09-09T13:05:16.462Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a13",
@@ -594,7 +642,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:12.978Z"
+      "createdAt": "2026-09-09T13:05:16.533Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y13",
@@ -617,7 +667,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:13.066Z"
+      "createdAt": "2026-09-09T13:05:16.604Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a14",
@@ -641,7 +693,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:13.161Z"
+      "createdAt": "2026-09-09T13:05:16.676Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y14",
@@ -665,7 +719,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:13.257Z"
+      "createdAt": "2026-09-09T13:05:16.748Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a15",
@@ -688,7 +744,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:13.352Z"
+      "createdAt": "2026-09-09T13:05:16.822Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y15",
@@ -711,7 +769,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:13.447Z"
+      "createdAt": "2026-09-09T13:05:16.898Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a16",
@@ -734,7 +794,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:13.541Z"
+      "createdAt": "2026-09-09T13:05:16.972Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y16",
@@ -757,7 +819,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:13.635Z"
+      "createdAt": "2026-09-09T13:05:17.046Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a17",
@@ -781,7 +845,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:13.727Z"
+      "createdAt": "2026-09-09T13:05:17.121Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y17",
@@ -805,7 +871,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:13.822Z"
+      "createdAt": "2026-09-09T13:05:17.196Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a18",
@@ -829,7 +897,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:13.917Z"
+      "createdAt": "2026-09-09T13:05:17.269Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y18",
@@ -853,7 +923,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:14.010Z"
+      "createdAt": "2026-09-09T13:05:17.341Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a19",
@@ -876,7 +948,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:14.102Z"
+      "createdAt": "2026-09-09T13:05:17.415Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y19",
@@ -899,7 +973,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:14.197Z"
+      "createdAt": "2026-09-09T13:05:17.490Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a20",
@@ -922,7 +998,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:14.289Z"
+      "createdAt": "2026-09-09T13:05:17.563Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y20",
@@ -945,7 +1023,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:14.381Z"
+      "createdAt": "2026-09-09T13:05:17.636Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a21",
@@ -969,7 +1049,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:14.473Z"
+      "createdAt": "2026-09-09T13:05:17.710Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y21",
@@ -993,7 +1075,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:14.567Z"
+      "createdAt": "2026-09-09T13:05:17.783Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a22",
@@ -1017,7 +1101,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:14.660Z"
+      "createdAt": "2026-09-09T13:05:17.856Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y22",
@@ -1041,7 +1127,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:14.755Z"
+      "createdAt": "2026-09-09T13:05:17.929Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a23",
@@ -1065,7 +1153,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:14.849Z"
+      "createdAt": "2026-09-09T13:05:18.003Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y23",
@@ -1089,7 +1179,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:14.938Z"
+      "createdAt": "2026-09-09T13:05:18.078Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a24",
@@ -1113,7 +1205,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:15.032Z"
+      "createdAt": "2026-09-09T13:05:18.152Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y24",
@@ -1137,7 +1231,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:15.122Z"
+      "createdAt": "2026-09-09T13:05:18.224Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a25",
@@ -1161,7 +1257,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:15.215Z"
+      "createdAt": "2026-09-09T13:05:18.296Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y25",
@@ -1185,7 +1283,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:15.306Z"
+      "createdAt": "2026-09-09T13:05:18.365Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a26",
@@ -1209,7 +1309,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:15.398Z"
+      "createdAt": "2026-09-09T13:05:18.437Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y26",
@@ -1233,7 +1335,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:15.490Z"
+      "createdAt": "2026-09-09T13:05:18.512Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a27",
@@ -1257,7 +1361,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:15.590Z"
+      "createdAt": "2026-09-09T13:05:18.585Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y27",
@@ -1281,7 +1387,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:15.679Z"
+      "createdAt": "2026-09-09T13:05:18.656Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_a28",
@@ -1304,7 +1412,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:15.771Z"
+      "createdAt": "2026-09-09T13:05:18.728Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_y28",
@@ -1327,7 +1437,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:15.864Z"
+      "createdAt": "2026-09-09T13:05:18.800Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_g_qinglong",
@@ -1351,7 +1463,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:15.957Z"
+      "createdAt": "2026-09-09T13:05:18.872Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_g_zhuque",
@@ -1374,7 +1488,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:16.051Z"
+      "createdAt": "2026-09-09T13:05:18.944Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_g_baihu",
@@ -1398,7 +1514,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:16.142Z"
+      "createdAt": "2026-09-09T13:05:19.021Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     },
     {
       "cardId": "beast_g_xuanwu",
@@ -1422,7 +1540,9 @@
       "recipe": "[0:a]aresample=48000,asplit=4[b][r][i][t];[b]atrim=0:1,asetpts=PTS-STARTPTS,atempo=0.5,lowpass=f=1400,volume=0.35,afade=t=in:d=0.15,afade=t=out:st=1.7:d=0.3,apad,atrim=duration=2[build];[r]atrim=0:2.2,asetpts=PTS-STARTPTS,atempo=0.815,afade=t=in:d=0.2,afade=t=out:st=2.4:d=0.3,apad,atrim=duration=2.7,adelay=1800:all=1[rush];[i]atrim=0.3:0.5,asetpts=PTS-STARTPTS,volume=0.65,afade=t=in:d=0.015,afade=t=out:st=0.12:d=0.08,adelay=4000:all=1[bite];[t]atrim=1:2,asetpts=PTS-STARTPTS,atempo=0.556,volume=0.5,afade=t=in:d=0.08,afade=t=out:st=0.1:d=1.7,apad,atrim=duration=1.8,adelay=4200:all=1[tail];[build][rush][bite][tail]amix=inputs=4:normalize=0:duration=longest,alimiter=limit=0.85:level=0:latency=1,apad,atrim=duration=6[out]",
       "status": "awaiting-audiovisual-review",
       "technicalCheck": "passed",
-      "createdAt": "2026-09-06T01:00:16.239Z"
+      "createdAt": "2026-09-09T13:05:19.097Z",
+      "contractVersion": "six-second-v1",
+      "voiceProcessing": "Legacy build/rush/bite/tail mix"
     }
   ]
 }
