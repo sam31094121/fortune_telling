@@ -98,6 +98,11 @@ export default function BattlefieldPage() {
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [inspection, setInspection] = useState<{ cardId: string; side: 'player' | 'opponent' } | null>(null);
   const controlScroll = useRef<HTMLDivElement>(null);
+  // Refs for stable callbacks — always holds the latest value without adding to deps arrays
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const cardsRef = useRef(cards);
+  cardsRef.current = cards;
   const [prepareView, setPrepareView] = useState<'formation' | 'stake' | 'help'>('formation');
   const [guideRequest, setGuideRequest] = useState<{ step: PreparationStep } | null>(null);
   const reviewStep = useCallback((step: PreparationStep) => {
@@ -246,20 +251,20 @@ export default function BattlefieldPage() {
   }, []);
 
   const handleDestination = useCallback((to: Destination) => {
-    setState((current) => {
-      if (!current?.selectedCardId) return current;
-      try {
-        const id = current.selectedCardId;
-        const from = current.player.active === id ? '主戰' : current.player.bench.includes(id) ? `後備 ${current.player.bench.indexOf(id) + 1}` : '手牌';
-        const destination = to.zone === 'ACTIVE' ? '主戰' : to.zone === 'BENCH' ? `後備 ${to.slotIndex + 1}` : '棄牌區';
-        const next = moveCard(current, 'PLAYER', id, to);
-        const outgoing = to.zone === 'ACTIVE' ? current.player.active : null;
-        const outgoingTo = outgoing ? next.player.bench.includes(outgoing) ? `後備 ${next.player.bench.indexOf(outgoing) + 1}` : '棄牌區' : '';
-        setMovement(`「${cards.find(card => card.id === id)?.name}」1 張：${from} → ${destination}。${outgoing ? `「${cards.find(card => card.id === outgoing)?.name}」1 張：主戰 → ${outgoingTo}。` : ''}佈陣移動不扣卡，押注張數不變。`);
-        return next;
-      } catch { setMovement('這個位置不能放入，請點選發光的空格。'); return current; }
-    });
-  }, [cards]);
+    const current = stateRef.current;
+    if (!current?.selectedCardId) return;
+    const cardList = cardsRef.current;
+    try {
+      const id = current.selectedCardId;
+      const from = current.player.active === id ? '主戰' : current.player.bench.includes(id) ? `後備 ${current.player.bench.indexOf(id) + 1}` : '手牌';
+      const destination = to.zone === 'ACTIVE' ? '主戰' : to.zone === 'BENCH' ? `後備 ${to.slotIndex + 1}` : '棄牌區';
+      const next = moveCard(current, 'PLAYER', id, to);
+      const outgoing = to.zone === 'ACTIVE' ? current.player.active : null;
+      const outgoingTo = outgoing ? next.player.bench.includes(outgoing) ? `後備 ${next.player.bench.indexOf(outgoing) + 1}` : '棄牌區' : '';
+      setState(next);
+      setMovement(`「${cardList.find(card => card.id === id)?.name}」1 張：${from} → ${destination}。${outgoing ? `「${cardList.find(card => card.id === outgoing)?.name}」1 張：主戰 → ${outgoingTo}。` : ''}佈陣移動不扣卡，押注張數不變。`);
+    } catch { setMovement('這個位置不能放入，請點選發光的空格。'); }
+  }, []);
 
   /* 可以拿來押的，是成長收藏裡真正擁有的那些——不是卡池六十張。 */
   useEffect(() => {
@@ -370,7 +375,7 @@ export default function BattlefieldPage() {
             <button type="button" className={styles.restart} onClick={() => { setError(null); setLoadAttempt(n => n + 1); }}>重新載入卡池</button>
           </div>
         ) : !state ? <p className={styles.loading}>正在發牌…</p> : (
-          <div className={styles.split} data-battle-split>
+          <div className={styles.split} data-battle-split data-inspecting={Boolean(inspection)}>
             <BattleArena state={state} cards={cards} match={match} onInspect={inspectCard} />
             <section className={styles.controls} aria-label="手部操控" data-battle-controls data-preparing={!match}>
               <div className={styles.controlsHeading}>

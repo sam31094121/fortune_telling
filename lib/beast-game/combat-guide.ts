@@ -17,7 +17,7 @@ export function combatGuideFor(cardId: string, fighter?: Fighter) {
   const element = current?.element ?? card.element;
   const wuxing = Object.entries(WUXING_TO_ELEMENT).find(([, value]) => value === element)?.[0] ?? '';
   return {
-    id: card.id, name: card.name, thumbnail: card.thumbnail,
+    id: card.id, name: card.name, thumbnail: card.thumbnail, front: card.front,
     system: '五元素回合制', form: FORM_LABEL[card.form], role: card.role,
     guardian: guardianOf(cardId)?.name ?? '四象神獸',
     element, elementLabel: ELEMENT_LABEL[element], wuxing,

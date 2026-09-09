@@ -98,3 +98,6 @@
   .controls { border-top: 1px solid #526386; border-left: 2px solid #7dd3fc; border-radius: 0 16px 16px 0; }
 }
 .stakeConfirm { margin: 0 0 4px; text-align: center; font-size: 12px; line-height: 18px; color: #fde68a; }
+/* Inspection is a focused view, not a small second card beneath the same artwork. */
+.split[data-inspecting='true'] { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+.split[data-inspecting='true'] > [data-battle-visual] { display: none; }

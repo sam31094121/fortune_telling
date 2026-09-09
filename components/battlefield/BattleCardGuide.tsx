@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { combatGuideFor, elementGuideRows, elementPercent } from '@/lib/beast-game/combat-guide';
 import { ELEMENTS, ELEMENT_LABEL, type BeastElement } from '@/lib/beast-game/elements';
 import type { Fighter } from '@/lib/beast-game/interactive';
@@ -9,22 +9,44 @@ import styles from './BattleCardGuide.module.css';
 export default function BattleCardGuide({ cardId, fighter, opponentElement, onClose }: {
   cardId: string; fighter?: Fighter; opponentElement?: BeastElement; onClose: () => void;
 }) {
-  const [tab, setTab] = useState<'card' | 'elements'>('card');
+  const [tab, setTab] = useState<'art' | 'card' | 'elements'>('art');
+  const root = useRef<HTMLElement>(null);
+  useEffect(() => {
+    root.current?.closest('[data-control-scroll]')?.scrollTo({ top: 0 });
+  }, [tab]);
   const guide = combatGuideFor(cardId, fighter);
   if (!guide) return <button type="button" onClick={onClose}>回到操控</button>;
   const rows = elementGuideRows();
 
   return (
-    <section className={styles.guide} aria-label={`${guide.name}的戰鬥資訊`} data-combat-guide>
+    <section ref={root} className={styles.guide} aria-label={`${guide.name}的戰鬥資訊`} data-combat-guide>
       <header className={styles.header}>
         <div><strong>{guide.name}</strong><span>{guide.system}・{fighter ? '目前能力' : '出戰能力'}</span></div>
         <button type="button" onClick={onClose}>回到操控</button>
       </header>
       <div className={styles.tabs} role="group" aria-label="戰鬥資訊分類">
+        <button type="button" aria-pressed={tab === 'art'} onClick={() => setTab('art')}>神獸卡面</button>
         <button type="button" aria-pressed={tab === 'card'} onClick={() => setTab('card')}>卡片能力</button>
         <button type="button" aria-pressed={tab === 'elements'} onClick={() => setTab('elements')}>五元素相剋</button>
       </div>
-      {tab === 'card' ? (
+      {tab === 'art' ? (
+        <article className={styles.showcase} data-card-showcase data-element={guide.element}>
+          <div className={styles.cardTitle}>
+            <span>{guide.elementLabel}系・{guide.role}型</span>
+            <strong>生命 {guide.stats.hp}/{guide.stats.maxHp}</strong>
+          </div>
+          {/* Only the inspected card loads full-size art; hands retain lightweight thumbnails. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={guide.front} alt={`${guide.name}完整卡面`} width={720} height={1080} decoding="async" className={styles.portrait} />
+          <div className={styles.cardCaption}>
+            <strong>{guide.name}</strong><span>{guide.guardian}・{guide.form}</span>
+          </div>
+          <button type="button" className={styles.skillEntry} onClick={() => setTab('card')}>
+            <span><strong>{guide.skill.name}</strong><small>耗氣 {guide.skill.cost}{guide.skill.cooldown > 0 ? `・冷卻 ${guide.skill.cooldown} 回合` : ''}</small></span>
+            <span>查看效果 →</span>
+          </button>
+        </article>
+      ) : tab === 'card' ? (
         <>
           <dl className={styles.identity}>
             <div><dt>所屬四象</dt><dd>{guide.guardian}</dd></div>

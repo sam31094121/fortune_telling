@@ -190,3 +190,25 @@ assert.match(forcedHtml, /選擇接替主戰的後備/);
 assert.doesNotMatch(forcedHtml, /普通攻擊|本回合指令/);
 assert.equal((forcedHtml.match(/<button\b/g) || []).length, 1, 'Only the living reserve is actionable');
 console.log('PASS: forced replacements are clearly labelled and do not masquerade as ignored attacks');
+
+// Full-size artwork is on demand; battle and hands keep the small portrait assets.
+const { combatGuideFor } = load('lib/beast-game/combat-guide.ts');
+for (const card of interactiveCatalog()) {
+  const guide = combatGuideFor(card.id);
+  assert.equal(guide.front, card.front);
+  assert.ok(fs.existsSync(path.join(root, 'public', guide.front)), `${card.id}: original artwork exists`);
+  const html = render(Guide, { cardId: card.id, onClose() {} });
+  assert.match(html, /data-card-showcase/, 'Default view puts the beast illustration first');
+  assert.equal((html.match(/<img\b/g) || []).length, 1, 'Inspect one original, not the whole catalog');
+  assert.ok(html.includes(`src="${card.front}"`));
+  for (const label of ['神獸卡面', '卡片能力', '五元素相剋', '回到操控', '查看效果']) assert.ok(html.includes(label));
+}
+assert.doesNotMatch(arena, /src="\/beast-game\/front\//, 'Combat keeps lightweight thumbnails');
+assert.match(arena, /width="256" height="384"/, 'Images reserve their portrait proportions');
+const guideCss = postcss.parse(fs.readFileSync(path.join(root, 'components/battlefield/BattleCardGuide.module.css'), 'utf8'));
+for (const [css, selector] of [[arenaCss, '.art img'], [guideCss, '.portrait']]) {
+  let fit;
+  css.walkRules(selector, rule => rule.walkDecls('object-fit', decl => { fit = decl.value; }));
+  assert.equal(fit, 'contain', `${selector}: keep the entire original illustration`);
+}
+console.log('PASS: all 60 original portraits are available, loaded one at a time, with abilities and return controls retained');

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { CardSlot, HandZone, type BattlefieldCardArt } from './GameBattlefield';
 import { VitalBar } from './BattlePanel';
 import { legalDestinations, type BattleState, type Destination } from '@/lib/beast-game/battlefield';
@@ -42,16 +42,15 @@ export default function BattleArena({ state, cards, match, onInspect }: {
             <div className={styles.fighter} key={side} data-fighter={side}>
               <div className={styles.fighterHeading}>
                 <p className={styles.fighterName}><span>{label}</span><strong>{card?.name ?? '等待主戰'}</strong></p>
-                {guide && <p className={styles.fighterIdentity}><strong>{guide.elementLabel}系・{guide.role}型</strong><span>{guide.guardian}・{guide.form}</span></p>}
+                {guide && <p className={styles.fighterIdentity}><strong>{guide.elementLabel}系・{guide.role}型</strong></p>}
               </div>
               <div className={styles.artSpace}>
-                <button type="button" disabled={!card} aria-label={card ? `查看${card.name}的能力與相剋` : '等待主戰卡上場'} onClick={() => card && onInspect(card.id, side)}
+                <button type="button" disabled={!card} aria-label={card ? `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => card && onInspect(card.id, side)}
                   key={`${card?.id}-${match?.revision ?? 0}`} className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''} ${match?.revision && match.log.some(entry => entry.side === side) ? styles.acted : ''}`}>
                   {card ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={card.thumbnail} alt={`${label}主戰：${card.name}`} draggable={false} />
+                    <img src={card.thumbnail} alt={`${label}主戰：${card.name}`} width={256} height={384} decoding="async" draggable={false} />
                   ) : <span className={styles.empty}>主戰卡<br />等待上場</span>}
-                  {card && <span className={styles.inspectLabel}>能力／相剋 ↗</span>}
                 </button>
               </div>
               {fighter && team ? (
@@ -76,7 +75,7 @@ export default function BattleArena({ state, cards, match, onInspect }: {
 }
 
 /** Tap-to-place controls share the same legal destinations as the original table. */
-export function PreparationControls({ state, cards, onSelect, onDestination, onInspect }: FieldProps & {
+export const PreparationControls = memo(function PreparationControls({ state, cards, onSelect, onDestination, onInspect }: FieldProps & {
   onSelect: (id: string) => void; onDestination: (to: Destination) => void; onInspect: (id: string) => void;
 }) {
   const lookup = useMemo(() => {
@@ -108,7 +107,7 @@ export function PreparationControls({ state, cards, onSelect, onDestination, onI
       <div ref={placement} className={styles.placement}>
       {selected && <div className={styles.placeActions}>
         {legal.some(to => to.zone === 'ACTIVE') && <button type="button" data-place-active onClick={() => onDestination({ zone: 'ACTIVE' })}>{state.player.active ? '換為主戰' : '放入主戰'}</button>}
-        <button type="button" onClick={() => onInspect(selected)}>查看能力</button>
+        <button type="button" onClick={() => onInspect(selected)}>卡面與能力</button>
       </div>}
       <p className={styles.selectionHint}>{selected ? '或點下方可放入的後備格' : '目前陣容・點已上場的卡可調整'}</p>
       <div className={styles.destinations}>
@@ -128,7 +127,7 @@ export function PreparationControls({ state, cards, onSelect, onDestination, onI
         })}
       </div>
       </div>
-      {inspectId && !selected && <button type="button" className={styles.selectedInfo} onClick={() => onInspect(inspectId)}>查看{lookup(inspectId)?.name}的能力 →</button>}
+      {inspectId && !selected && <button type="button" className={styles.selectedInfo} onClick={() => onInspect(inspectId)}>查看{lookup(inspectId)?.name}的卡面與能力 →</button>}
     </section>
   );
 }

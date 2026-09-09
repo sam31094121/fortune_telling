@@ -4,7 +4,7 @@
 .header strong { color: #ffe5af; font-size: 15px; }
 .header span, .note { color: #aec3dc; font-size: 11px; }
 .header button { flex: none; min-height: 44px; padding: 0 12px; border: 1px solid #80bbdf; border-radius: 10px; color: #ceefff; touch-action: manipulation; }
-.tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .tabs button { min-height: 44px; border: 1px solid #415b7a; border-radius: 10px; background: #192940; touch-action: manipulation; }
 .tabs button[aria-pressed='true'] { background: #d4efff; color: #0e2238; font-weight: 800; }
 .identity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
@@ -31,3 +31,19 @@
 .matrix td[data-tone='down'] { color: #fda7b4; }
 .matrix tr[data-current='true'] { background: #204156; font-weight: 800; }
 .matrix td[data-target='true'] { box-shadow: inset 0 0 0 2px #ffe2a1; }
+.showcase { --element-accent: #c7ddec; width: 100%; max-width: 320px; justify-self: center; overflow: hidden; border: 1px solid var(--element-accent); border-radius: 14px; background: #0b1725; }
+.showcase[data-element='SPACE'] { --element-accent: #d8deef; }
+.showcase[data-element='WIND'] { --element-accent: #99dfbf; }
+.showcase[data-element='WATER'] { --element-accent: #8ad8f4; }
+.showcase[data-element='FIRE'] { --element-accent: #ffb28d; }
+.showcase[data-element='EARTH'] { --element-accent: #dfca8f; }
+.cardTitle { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 8px; padding: 8px 10px; color: var(--element-accent); font-size: 12px; }
+.cardTitle strong { font-variant-numeric: tabular-nums; }
+.portrait { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: contain; }
+.cardCaption { display: grid; gap: 2px; padding: 10px 12px; }
+.cardCaption strong { font-size: 18px; color: #ffe5af; }
+.cardCaption span { font-size: 12px; color: #bfd0e3; }
+.skillEntry { width: 100%; min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; text-align: left; border-top: 1px solid #3d536b; background: #182c42; color: #d9efff; touch-action: manipulation; }
+.skillEntry > span:first-child { display: grid; }
+.skillEntry small { color: #c0d5e9; font-size: 12px; }
+.guide button:focus-visible { outline: 2px solid #fff; outline-offset: -3px; }

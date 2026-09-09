@@ -22,12 +22,12 @@
 .fighter[data-fighter='opponent'] { opacity: 0.85; max-height: 280px; }
 .fighter[data-fighter='opponent'] .artSpace { place-items: center; min-height: 0; }
 .fighter { min-height: 0; min-width: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 7px; }
-.fighterName { display: grid; gap: 2px; text-align: center; font-size: 13px; line-height: 18px; }
+.fighterName { display: flex; justify-content: center; gap: 5px; text-align: center; font-size: 13px; line-height: 18px; }
 .fighterName span { color: #9fc5ef; font-size: 11px; }
 .fighterName strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .artSpace { min-height: 0; display: grid; place-items: center; container-type: size; }
-.art { position: relative; width: min(100cqw, 100cqh, 220px); min-width: 44px; min-height: 44px; aspect-ratio: 1; padding: 0; overflow: hidden; border: 1px solid #d8b771; border-radius: 16px; box-shadow: 0 10px 24px #0008; background: #0a1429; touch-action: manipulation; }
-.art img { width: 100%; height: 100%; object-fit: cover; }
+.art { position: relative; width: min(100cqw, 66.666cqh, 180px); height: min(100cqh, 270px); min-width: 44px; min-height: 44px; padding: 0; overflow: hidden; border: 1px solid #d8b771; border-radius: 10px; box-shadow: 0 6px 14px #0008; background: #0a1429; touch-action: manipulation; }
+.art img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .empty { height: 100%; display: grid; place-content: center; text-align: center; color: #91a6c5; font-size: 13px; }
 .fighterVitals { display: grid; gap: 5px; }
 .fighterVitals p { display: flex; justify-content: space-between; gap: 4px; font-size: 11px; color: #c0d3ea; }
@@ -47,6 +47,8 @@
 .destination button { min-width: 44px; min-height: 44px; border-radius: 10px; }
 .preparation [role='group'] { padding: 3px; gap: 8px; }
 .preparation [role='group'] > div { flex-basis: 60px; width: 60px; }
+.preparation [role='group'] button { aspect-ratio: 2 / 3; }
+.preparation [role='group'] button img, .destination button img { object-fit: contain; }
 .preparation button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .fighterHeading { display: grid; gap: 3px; }
 .fighterIdentity { display: grid; text-align: center; font-size: 11px; line-height: 15px; }
@@ -70,6 +72,7 @@
   .fighter { gap: 4px; }
   .fighterName { display: flex; justify-content: center; gap: 4px; font-size: 12px; }
   .fighterVitals { gap: 2px; }
+  .fighterIdentity { display: none; }
 }
 @media (max-width: 480px) {
   .fighters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; }
