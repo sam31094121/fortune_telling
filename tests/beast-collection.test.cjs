@@ -115,6 +115,7 @@ async function main() {
     assert.match(text, /本場押注卡已扣除 1 張/);
     assert.match(text, /角木蛟/);
     assert.match(text, /還有 1 張/);
+    assert.doesNotMatch(text, /原押注卡保留 0 張/);
     assert.match(text, /grayscale/);
   });
   check('failed storage never displays saved loss or removal overlay', () => { const text = html(failed.settlement); assert.match(text, /待保存/); assert.doesNotMatch(text, /輸掉 −1|已從持有卡片扣除|grayscale/); });

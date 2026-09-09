@@ -154,11 +154,12 @@ assert.match(battlefieldPage, /onStart=\{\(\) => void start\(\)\}/, 'Starting re
 console.log('PASS: real readiness drives the highlighted step; recommendations do not block play; waiting and actionable guidance are distinct');
 
 const selected = ['beast_a01'];
-assert.equal(JSON.stringify(nextStakeSelection(selected, 'beast_a02')), '["beast_a02"]', 'Replacing a stake never appends a hidden second card');
+assert.equal(JSON.stringify(nextStakeSelection(selected, 'beast_a02')), '["beast_a01","beast_a02"]', 'Each tap adds one visible stake');
 assert.equal(JSON.stringify(nextStakeSelection(selected, 'beast_a01')), '[]', 'Tapping the selected stake withdraws it');
 assert.equal(JSON.stringify(nextStakeSelection([], 'beast_a02')), '["beast_a02"]');
+assert.equal(JSON.stringify(nextStakeSelection(['1','2','3','4','5'], '6')), '["1","2","3","4","5"]', 'Stake selection stops at five');
 assert.deepEqual(selected, ['beast_a01'], 'Selection helper does not mutate existing state');
-assert.match(battlefieldPage, /runOwnedDuel\(stakeCardIds\[0\]/, 'Existing single-card settlement is unchanged');
+assert.match(battlefieldPage, /runOwnedStakesDuel\(stakeCardIds/, 'Five actual collection entries use the shared atomic settlement');
 const compactActions = render(load('components/battlefield/BattlePanel.tsx').BattleActionBar, { match, onAction() { throw new Error('Read-only render'); }, compact: true, cards: interactiveCatalog() });
 assert.equal((compactActions.match(/<button\b/g) || []).length, 4, 'Combat starts with four clear commands');
 for (const text of ['普通攻擊', '技能', '換卡', '說明']) assert.ok(compactActions.includes(text));

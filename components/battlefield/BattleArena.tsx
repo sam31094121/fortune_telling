@@ -56,8 +56,7 @@ export default function BattleArena({ state, cards, match, onInspect }: {
           const rush = performed && (lastAction?.type === 'ATTACK' || (lastAction?.type === 'SKILL' && card && profile(card.id).effects.some(effect => effect.type === 'DAMAGE' && effect.target === 'ENEMY')));
           return (
             <div className={styles.fighter} key={side} data-fighter={side} aria-label={`${label}：${card?.name ?? '等待主戰'}`}>
-              <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} style={{ '--rush-direction': side === 'player' ? 1 : -1, '--trail-art': card ? `url("${card.thumbnail}")` : 'none' } as CSSProperties}>
-                {rush && [0, 1, 2].map(index => <span key={index} className={styles.trail} aria-hidden="true" style={{ '--trail-index': index } as CSSProperties} />)}
+              <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)}>
                 <button type="button" disabled={!card} aria-label={card ? `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => card && onInspect(card.id, side)}
                   className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''}`}>
                   {card ? (

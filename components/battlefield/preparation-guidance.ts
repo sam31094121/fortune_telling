@@ -23,7 +23,9 @@ export function preparationGuidance(input: {
   return { currentStep, actionLabels };
 }
 
-/** Match the existing single-card reservation, including replacement and withdrawal. */
+/** One tap toggles one real collection entry; formal battles cap the stake at five. */
 export function nextStakeSelection(current: string[], cardId: string): string[] {
-  return current[0] === cardId ? [] : [cardId];
+  return current.includes(cardId)
+    ? current.filter(id => id !== cardId)
+    : current.length < 5 ? [...current, cardId] : current;
 }

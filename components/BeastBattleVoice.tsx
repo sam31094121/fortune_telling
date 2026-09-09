@@ -13,21 +13,11 @@ export default function BeastBattleVoice({ id, text, reward = false }: { id: str
     player.current = voice;
     manual.current = false;
     setStatus('ready');
-    let attempted = false;
-    const auto = () => {
-      if (attempted || manual.current || document.hidden) return;
-      // Voices may arrive after mount. Do not auto-start repeatedly after a playback error.
-      if (!window.speechSynthesis.getVoices().some(v => /^zh([-_]|$)/i.test(v.lang))) { setStatus('unavailable'); return; }
-      attempted = true;
-      voice.speak(id, text, setStatus, true);
-    };
-    const timer = setTimeout(auto, 250);
-    const hide = () => { if (document.hidden) { attempted = true; voice.stop(); setStatus('ready'); } };
-    window.speechSynthesis.addEventListener('voiceschanged', auto);
+    // 解說完全由客戶決定是否播放；不自動開口，也不要求聽完。
+    const hide = () => { if (document.hidden) { voice.stop(); setStatus('ready'); } };
     document.addEventListener('visibilitychange', hide);
     return () => {
-      clearTimeout(timer); voice.stop(); player.current = null;
-      window.speechSynthesis.removeEventListener('voiceschanged', auto);
+      voice.stop(); player.current = null;
       document.removeEventListener('visibilitychange', hide);
     };
   }, [id, text]);
@@ -40,7 +30,7 @@ export default function BeastBattleVoice({ id, text, reward = false }: { id: str
         else setStatus('unavailable');
       }}>{status === 'speaking' ? '停止播報' : reward ? '播報獎賞' : '播報結算'}</button>
     <p className="mt-1 text-xs leading-5 text-white/60" role="status">
-      {status === 'unavailable' ? '語音暫時無法播放；結算已顯示，可點按重試。' : status === 'speaking' ? '正在播報本場卡片張數…' : '中文語音・可重聽，不會重複發獎或扣卡。'}
+      {status === 'unavailable' ? '語音暫時無法播放；結算文字仍可直接查看。' : status === 'speaking' ? '正在解說；可隨時按停止。' : '解說自由選擇，不播放也不影響結算。'}
     </p>
   </div>;
 }

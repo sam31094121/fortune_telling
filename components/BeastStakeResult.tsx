@@ -29,8 +29,9 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
   for (const label of stakes) counts.set(label, (counts.get(label) ?? 0) + 1);
   const stakeNames = [...counts].map(([label, count]) => `${label} ×${count}`).join('、');
   const changes = receipt?.cardChanges;
-  const movement = changes?.map(change => `${nameOf(change.cardId)}${change.gained ? `贏得 ${change.gained} 張` : `輸掉 ${change.lost} 張`}，還有 ${change.after} 張`).join('；');
-  const spoken = summary ? `${won ? '恭喜獲勝！' : lost ? '本場對手獲勝。' : '本場平手。'}你押了 ${summary.staked} 張，贏得 ${summary.gained} 張，輸掉 ${summary.lost} 張。${movement || (won ? `獎賞是${name}。` : `押注卡${stakeNames}。`)}原押注卡保留 ${summary.retained} 張。結算已保存，共持有 ${summary.total} 張。${lost ? '可以先查看相剋，再調整陣容。' : ''}` : '';
+  const movement = changes?.map(change => `${nameOf(change.cardId)}${change.gained ? `贏得 ${change.gained} 張` : `輸掉 ${change.lost} 張`}，${change.after > 0 ? `剩餘 ${change.after} 張` : '已無剩餘'}`).join('；');
+  const retained = summary && !lost ? `原押注卡保留 ${summary.retained} 張。` : '';
+  const spoken = summary ? `${won ? '恭喜獲勝！' : lost ? '本場對手獲勝。' : '本場平手。'}你押了 ${summary.staked} 張，贏得 ${summary.gained} 張，輸掉 ${summary.lost} 張。${movement || (won ? `獎賞是${name}。` : `押注卡${stakeNames}。`)}${retained}結算已保存，共持有 ${summary.total} 張。${lost ? '可以先查看相剋，再調整陣容。' : ''}` : '';
 
   return <section data-stake-result data-stake-verdict={outcome.verdict} data-settlement-saved={saved ? 'yes' : 'no'} aria-label="押注卡片結算"
     className={`mt-3 rounded-2xl border-2 p-3 ${lost ? 'border-rose-300/50 bg-rose-300/[0.06]' : 'border-amber-300/50 bg-amber-300/[0.06]'}`}>
@@ -68,9 +69,9 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
     {summary && <div className="mt-3 text-sm leading-6" data-card-movements>
       {changes?.length ? changes.map(change => <p key={change.cardId}>
         <strong>{nameOf(change.cardId)}</strong>：{change.gained ? `贏得 ${change.gained} 張` : `輸掉 ${change.lost} 張`}<br />
-        持有 {change.before} → {change.after} 張（還有 {change.after} 張）
+        持有 {change.before} → {change.after} 張（{change.after > 0 ? `剩餘 ${change.after} 張` : '已無剩餘'}）
       </p>) : !changes && receipt?.cardId ? <p>{name}：還有 {receipt.remaining} 張。</p> : null}
-      <p>原押注卡保留 {summary.retained} 張。</p>
+      {!lost && <p>原押注卡保留 {summary.retained} 張。</p>}
       <p className="mt-2 font-bold text-amber-100" data-held-card-total>持有總數 {summary.before} → {summary.total} 張<br />目前持有 {summary.total} 張卡片</p>
       {lost && summary.total === 0 && <p>目前沒有可押卡片，可先到卡片體驗戰免押練習。</p>}
       <p className="text-xs text-white/55">以上是這一場結算完成時的張數。</p>

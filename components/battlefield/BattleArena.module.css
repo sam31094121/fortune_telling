@@ -104,6 +104,9 @@
   .selectionHint { font-size: 12px; }
   .arenaNote { font-size: 11px; }
   .selectedInfo { font-size: 11px; }
+  .fighterName span { display: none; }
+  .fighterName { line-height: 14px; font-size: 10px; }
+  .fighterVitals { padding: 2px 3px 4px; }
 }
 @media (max-width: 600px) {
   .preparation [role='group'] > div { flex-basis: 64px; width: 64px; }
@@ -114,8 +117,9 @@
 }
 @media (prefers-reduced-motion: reduce) { .acted { animation: none; } .elementStrike { animation-duration: 360ms; } .strikeField, .strikeTrace, .strikeReadout { animation: none; } }
 .artSpace[data-rush='true'] { z-index: 3; }
-.artSpace[data-rush='true'] .art { animation: cardRush 560ms ease-in-out both; }
-.trail { position: absolute; width: min(100cqw, 66.666cqh, 180px); height: min(100cqh, 270px); border-radius: 10px; background-image: var(--trail-art); background-size: contain; background-repeat: no-repeat; background-position: center; pointer-events: none; animation: cardTrail 560ms ease-out both; animation-delay: calc(var(--trail-index) * 35ms); }
-@keyframes cardRush { 0%, 100% { transform: translateX(0) scale(1); } 45% { transform: translateX(calc(var(--rush-direction) * 65%)) scale(1.06); } }
-@keyframes cardTrail { 0%, 100% { opacity: 0; transform: translateX(0); } 30% { opacity: .24; } 65% { opacity: 0; transform: translateX(calc(var(--rush-direction) * 100%)); } }
-@media (prefers-reduced-motion: reduce) { .artSpace[data-rush='true'] .art { animation: none; } .trail { display: none; } }
+.artSpace[data-rush='true'] .art { animation: cardCharge 560ms cubic-bezier(.2,.75,.3,1) both; }
+@keyframes cardCharge {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); filter: brightness(1); }
+  42% { transform: translate3d(0, -3px, 18px) scale(1.035); filter: brightness(1.16); }
+}
+@media (prefers-reduced-motion: reduce) { .artSpace[data-rush='true'] .art { animation: none; } }

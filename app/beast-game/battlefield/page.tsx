@@ -37,7 +37,7 @@ import BattlePanel from '@/components/battlefield/BattlePanel';
 import { autoPlaceOpponent, canStartBattle, startFromField } from '@/lib/beast-game/battle-bridge';
 import { advance, type Action, type Match } from '@/lib/beast-game/interactive';
 import StakeSlot, { type StakeCard } from '@/components/battlefield/StakeSlot';
-import { readCollection, runOwnedDuel, countByCard, subscribeCollection, retryStakeSettlement, recoverPendingDuel, type Settlement } from '@/lib/beast-collection';
+import { readCollection, runOwnedStakesDuel, countByCard, subscribeCollection, retryStakeSettlement, recoverPendingDuel, type Settlement } from '@/lib/beast-collection';
 import { resolveStake } from '@/lib/beast-game/stake';
 import type { StakeOutcome } from '@/lib/beast-collection-ledger';
 import { namedStakeOutcome } from '@/lib/beast-stake-presentation';
@@ -83,7 +83,7 @@ export default function BattlefieldPage() {
   const [deckDraft, setDeckDraft] = useState<string[]>([]);
   const [deckEditorOpen, setDeckEditorOpen] = useState(false);
   const previousOpening = useRef<{ player: string[]; opponent: string[] }>({ player: [], opponent: [] });
-  /** 與既有結算一致：只選一張押注卡。 */
+  /** 正式戰固定押五張收藏紀錄；每個 id 都是可追溯的實際卡片副本。 */
   const [stakeCardIds, setStakeCardIds] = useState<string[]>([]);
   const [ownedStake, setOwnedStake] = useState<StakeCard[]>([]);
   const [settlement, setSettlement] = useState<Settlement | null>(null);
@@ -142,7 +142,9 @@ export default function BattlefieldPage() {
     controlScroll.current?.parentElement?.scrollTo({ top: 0 });
   };
   // 緩存選中的押注卡，避免重複查詢
-  const selectedStakeCard = useMemo(() => ownedStake.find(card => card.id === stakeCardIds[0]), [stakeCardIds, ownedStake]);
+  const selectedStakeCards = useMemo(() => stakeCardIds
+    .map(id => ownedStake.find(card => card.id === id))
+    .filter((card): card is StakeCard => Boolean(card)), [stakeCardIds, ownedStake]);
   const inspectCard = useCallback((cardId: string, side: 'player' | 'opponent' = 'player') => {
     setInspection({ cardId, side });
     controlScroll.current?.scrollTo({ top: 0 });
@@ -229,19 +231,27 @@ export default function BattlefieldPage() {
     setStakeError('');
     try {
       const next = startFromField(state, seed * 7919);
-      if (!stakeCardIds.length && ownedStake.length) throw new Error('請先選一張押注卡。');
-      setOutcome(null); setSettlement(null); setBattleStake(stakeCardIds[0] || null);
+      if (ownedStake.length && stakeCardIds.length !== 5) throw new Error('正式戰必須選滿五張押注卡。');
+      const representative = ownedStake.find(card => card.id === stakeCardIds[0]);
+      setOutcome(null); setSettlement(null); setBattleStake(representative?.cardId || null);
       setBattleVoiceId(crypto.randomUUID());
       setInspection(null);
       if (!stakeCardIds.length) { setMatch(next); return; }
       setSettling(true);
       // Reserve the actual copy before combat. The shared transaction settles once or releases on interruption.
-      const completed = await runOwnedDuel(stakeCardIds[0], () => new Promise<{ ok: true; stake: StakeOutcome }>((resolve, reject) => {
+      const completed = await runOwnedStakesDuel(stakeCardIds, entries => new Promise<{ ok: true; stake: StakeOutcome }>((resolve, reject) => {
         if (!alive.current) { reject(new Error('本場中斷，押注卡未扣除。')); return; }
-        pendingBattle.current = { resolve, reject };
+        pendingBattle.current = {
+          resolve: result => resolve({ ok: true, stake: {
+            ...result.stake,
+            selectedEntries: entries,
+            forfeitedEntryIds: result.stake.verdict === 'LOST' ? entries.map(entry => entry.id) : [],
+          } }),
+          reject,
+        };
         setMatch(next);
       }));
-      if (alive.current) { setOutcome(completed.result.stake); setSettlement(completed.settlement); }
+      if (alive.current && completed.result.stake) { setOutcome(completed.result.stake); setSettlement(completed.settlement); }
     } catch (cause) {
       if (alive.current) setStakeError(cause instanceof Error ? cause.message : '還不能開戰，押注卡未扣除。');
     } finally { starting.current = false; if (alive.current) setSettling(false); }
@@ -319,9 +329,14 @@ export default function BattlefieldPage() {
     const refresh = () => {
       const collection = readCollection();
       if (collection.storageError) setStakeError(collection.storageError);
-      const owned = [...countByCard(collection)].flatMap(([id, count]) => {
-        const card = cards.find(item => item.id === id);
-        return card ? [{ id, name: card.name, thumbnail: card.thumbnail, count }] : [];
+      const totals = countByCard(collection);
+      const seen = new Map<string, number>();
+      const owned = collection.cards.flatMap(entry => {
+        const card = cards.find(item => item.id === entry.cardId);
+        if (!card) return [];
+        const copy = (seen.get(entry.cardId) ?? 0) + 1;
+        seen.set(entry.cardId, copy);
+        return [{ id: entry.id, cardId: entry.cardId, name: card.name, thumbnail: card.thumbnail, count: totals.get(entry.cardId) ?? 1, copy }];
       });
       setOwnedStake(owned);
     };
@@ -402,7 +417,7 @@ export default function BattlefieldPage() {
     if (!base.ready) return base;
     // 佈陣完成之後才輪到押注：先後順序不能顛倒，
     // 不然客戶會先選好賭注、才發現主戰還沒放。
-    if ((!stakeCardIds.length || !ownedStake.some(card => card.id === stakeCardIds[0])) && !isTrial) return { ready: false as const, reason: '先押一張收藏卡' };
+    if ((!stakeCardIds.every(id => ownedStake.some(card => card.id === id)) || stakeCardIds.length !== 5) && !isTrial) return { ready: false as const, reason: `押注要選滿五張（目前 ${stakeCardIds.length}/5）` };
     return base;
   }, [formationCheck, stakeCardIds, isTrial, recovering, settling, settlement, stakeError, ownedStake]);
   const guidance = preparationGuidance({
@@ -503,9 +518,9 @@ export default function BattlefieldPage() {
                       {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}
                     </div>
                     <section hidden={prepareView !== 'stake'} className={styles.confirmation} data-preparation-progress tabIndex={-1} aria-label="開戰前確認">
-                      <h2>{isTrial ? '體驗戰確認' : '選一張押注卡'}</h2>
+                      <h2>{isTrial ? '體驗戰確認' : '選五張押注卡'}</h2>
                       {!state.player.active && <p className={styles.notice}>建議先到「選卡佈陣」放好主戰，再決定本場押注。</p>}
-                      <StakeSlot owned={ownedStake} selected={stakeCardIds[0]} trial={isTrial} locked={settling || settlement?.saved === false}
+                      <StakeSlot owned={ownedStake} selected={stakeCardIds} trial={isTrial} locked={settling || settlement?.saved === false}
                         steps={[]}
                         onSelect={cardId => { if (settling || settlement?.saved === false) return; setStakeCardIds(current => nextStakeSelection(current, cardId)); }} />
                     </section>
@@ -514,7 +529,7 @@ export default function BattlefieldPage() {
                       <ol>
                         <li><strong>點一次就完成佈陣</strong><p>第一張直接成為主戰，接著依序補入後備，不必重複點擊。</p></li>
                         <li><strong>陣容滿了再精準換位</strong><p>點已上場的卡即可選位置調整；查看能力不會出招。</p></li>
-                        <li><strong>確認後才開戰</strong><p>{isTrial ? '本場免押注，不發卡、不沒收。' : '押注一張收藏卡；贏得一張、輸掉一張，平手保留。換選押注卡不是多押一張。'}</p></li>
+                        <li><strong>選滿五張才開戰</strong><p>{isTrial ? '本場免押注，不發卡、不沒收。' : '贏了五張原卡保留、再送一張；輸了扣除實際押入的五張。'}</p></li>
                         <li><strong>每回合選一個動作</strong><p>普通攻擊、技能，或換上後備。按「說明」查看技能內容；它不會消耗回合。</p></li>
                       </ol>
                       <button type="button" className={styles.restart} onClick={() => reviewStep(guidance.currentStep)}>回到目前步驟</button>
@@ -542,7 +557,7 @@ export default function BattlefieldPage() {
                     startButtonText={isTrial ? '開始體驗戰' : `確認開戰`}
                     onStart={() => void start()}
                     blockReason={!startCheck.ready && 'reason' in startCheck ? startCheck.reason : undefined}
-                    riskNotice={state.player.active ? `${placed < opponentPlaced ? `你 ${placed} 隻、對手 ${opponentPlaced} 隻，可補後備。` : ''}${!isTrial && stakeCardIds.length ? `本場押「${selectedStakeCard?.name}」一張，輸了會失去這張卡。` : ''}` : undefined}
+                    riskNotice={state.player.active ? `${placed < opponentPlaced ? `你 ${placed} 隻、對手 ${opponentPlaced} 隻，可補後備。` : ''}${!isTrial && stakeCardIds.length ? `本場已押 ${stakeCardIds.length}/5 張${selectedStakeCards.length ? `：${selectedStakeCards.map(card => card.name).join('、')}` : ''}。輸了會扣除這五張。` : ''}` : undefined}
                   />
                 </div>
               ) : match?.status === 'FINISHED' && !inspection ? (

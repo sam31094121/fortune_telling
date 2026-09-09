@@ -36,10 +36,13 @@ import styles from './StakeSlot.module.css';
 import { createSoundPlayer, CLASH_FX } from '@/lib/beast-battle-fx';
 
 export interface StakeCard {
+  /** A real collection-entry id, not merely the card type. */
   id: string;
+  cardId: string;
   name: string;
   thumbnail: string;
   count: number;
+  copy: number;
 }
 
 export interface StakeStep {
@@ -52,7 +55,7 @@ export default function StakeSlot({
 }: {
   /** 可以拿來押的卡：成長中心真正擁有的那些。 */
   owned: StakeCard[];
-  selected: string | null;
+  selected: string[];
   /** 先後順序。最後一個未完成的就是「現在該做的」。 */
   steps: StakeStep[];
   onSelect: (cardId: string) => void;
@@ -80,12 +83,18 @@ export default function StakeSlot({
   }, [currentIndex]);
 
   const pickerRef = useRef<HTMLDivElement>(null);
-  const picked = useMemo(() => owned.find((card) => card.id === selected) ?? null, [owned, selected]);
+  const picked = useMemo(() => selected
+    .map(id => owned.find(card => card.id === id))
+    .filter((card): card is StakeCard => Boolean(card)), [owned, selected]);
   const [announceText, setAnnounceText] = useState('');
   const [movement, setMovement] = useState('');
   const choose = (card: StakeCard) => {
-    setMovement(card.id === selected ? `已取回「${card.name}」1 張，押注 0 張；持有張數不變。`
-      : `已將「${card.name}」1 張放入押注格${picked ? `，原「${picked.name}」1 張取回` : ''}。尚未扣卡。`);
+    const selectedNow = selected.includes(card.id);
+    setMovement(selectedNow
+      ? `已取回「${card.name}」1 張，目前押注 ${Math.max(0, selected.length - 1)}/5 張；持有張數不變。`
+      : selected.length >= 5
+        ? '已選滿五張；先點一張已選卡取回，再換另一張。'
+        : `已將「${card.name}」1 張放入押注格，目前 ${selected.length + 1}/5 張。尚未扣卡。`);
     onSelect(card.id);
   };
   useEffect(() => {
@@ -97,7 +106,7 @@ export default function StakeSlot({
   }, [currentIndex, steps]);
 
   return (
-    <section className={styles.panel} data-stake-slot data-needs-stake={!picked && !trial} aria-label="押注">
+    <section className={styles.panel} data-stake-slot data-needs-stake={picked.length !== 5 && !trial} aria-label="押注">
       {/* 先後順序：做完的變藍、正在做的變金，不必猜下一步。 */}
       {steps.length > 0 && <ol className={styles.steps}>
         {steps.map((step, index) => (
@@ -131,44 +140,31 @@ export default function StakeSlot({
         */}
         <button
           type="button"
-          className={styles.slot}
+          className={styles.stakeTray}
           data-stake-target
-          aria-label={picked ? `已押上${picked.name}，點此重新選擇` : trial ? '體驗戰免押卡' : '押注格，點此選一張收藏卡'}
+          aria-label={trial ? '體驗戰免押卡' : `押注格，已選 ${picked.length}/5 張，點此移到收藏卡`}
           disabled={trial || locked}
           onClick={() => {
-            if (picked) choose(picked);
             pickerRef.current?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
             pickerRef.current?.querySelector('button')?.focus({ preventScroll: true });
           }}
         >
-          {picked ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={picked.thumbnail} alt={picked.name} loading="lazy" decoding="async" />
-          ) : (
-            <>
-              {/*
-                空的押注格用既有授權的牌背「堵住」——業主定調要用現有授權素材。
-
-                為什麼用 beast-game/card-back.webp 而不是 tarot/card-back-luxe.png：
-                前者 6.2KB，後者 3.2MB。這一格在手機上只有約 100px 見方，
-                為它多載三百多倍的位元組沒有道理（太極憲章：手機優先）。
-
-                牌背蓋著＋「押上一張」的字，客戶一眼看得出這裡被擋著、
-                而且知道怎麼解開——灰掉的框只做到前一半。
-              */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/beast-game/card-back.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" />
-              <span className={styles.empty}>{trial ? <>體驗<br />免押</> : <>押上<br />一張</>}</span>
-            </>
-          )}
+          {Array.from({ length: 5 }, (_, index) => {
+            const card = picked[index];
+            return <span className={styles.stakeCell} key={card?.id ?? `empty-${index}`}>
+              {card ? <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={card.thumbnail} alt={card.name} loading="lazy" decoding="async" />
+              </> : <span aria-hidden="true">{index + 1}</span>}
+            </span>;
+          })}
         </button>
         <div className={styles.slotText}>
-          {picked ? (
+          {picked.length ? (
             <>
-              <strong>押注籌碼 1 張・{picked.name}</strong>
-              <span>持有 {picked.count} 張・本場只押 1 張</span>
-              <span className={styles.risk}>贏得 1 張／輸掉 1 張／平手 0 張增減。獲勝時原押注 1 張保留。</span>
-              <span>點押注卡可取回；開戰前選卡不扣卡。</span>
+              <strong>押注籌碼 {picked.length}/5 張</strong>
+              <span className={styles.risk}>選滿五張才開戰。贏：五張保留＋獎勵一張；輸：扣五張。</span>
+              <span>點下方卡片切換選取；開戰前不扣卡。</span>
             </>
           ) : trial ? (
             <>
@@ -177,8 +173,8 @@ export default function StakeSlot({
             </>
           ) : (
             <>
-              <strong>押注籌碼 0 張・請選 1 張</strong>
-              <span className={styles.risk}>從你持有的卡片挑一張。輸了它會真的被沒收。</span>
+              <strong>押注籌碼 0/5 張</strong>
+              <span className={styles.risk}>從持有卡片選滿五張。輸了才會扣除這五張。</span>
             </>
           )}
         </div>
@@ -192,14 +188,14 @@ export default function StakeSlot({
           <span>試用卡可佈陣和出招，不列入持有卡片，也不能押注。</span>
         </div>
       ) : (
-        <div ref={pickerRef} className={styles.picker} role="group" aria-label="從收藏選一張押注">
+        <div ref={pickerRef} className={styles.picker} role="group" aria-label="從收藏選五張押注">
           {owned.map((card) => (
             <button
               key={card.id}
               type="button"
-              className={[styles.pick, card.id === selected ? styles.picked : ''].filter(Boolean).join(' ')}
-              aria-label={`押上${card.name} 1 張，持有 ${card.count} 張${card.id === selected ? '，再點可取回' : ''}`}
-              aria-pressed={card.id === selected}
+              className={[styles.pick, selected.includes(card.id) ? styles.picked : ''].filter(Boolean).join(' ')}
+              aria-label={`${selected.includes(card.id) ? '取回' : '押上'}${card.name}第 ${card.copy} 張，已選 ${selected.length}/5 張`}
+              aria-pressed={selected.includes(card.id)}
               disabled={locked}
               onClick={() => {
                 choose(card);
@@ -212,8 +208,8 @@ export default function StakeSlot({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={card.thumbnail} alt={card.name} loading="lazy" decoding="async" />
               <strong>{card.name}</strong>
-              <span>持有 {card.count} 張</span>
-              <span>{card.id === selected ? '已選 1 張・取回' : '點選押 1 張'}</span>
+              <span>第 {card.copy}/{card.count} 張</span>
+              <span>{selected.includes(card.id) ? '已選・點擊取回' : selected.length < 5 ? '點擊押上' : '已選滿五張'}</span>
             </button>
           ))}
         </div>

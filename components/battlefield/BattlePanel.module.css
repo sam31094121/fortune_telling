@@ -380,5 +380,7 @@
   .primaryActions small { font-size: 11px; }
   .result { font-size: 15px; }
   .result small { font-size: 10px; }
+  .vitalText { font-size: 9px; letter-spacing: 0; }
+  .vitalText b { padding-inline: 4px; }
 }
 [data-swap-guide] .reserveCard:not(:disabled) { outline: 2px solid #ffe4a6; outline-offset: -2px; }
