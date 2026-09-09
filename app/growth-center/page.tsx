@@ -449,7 +449,7 @@ export default function GrowthCenterPage() {
         <section aria-label="直接玩神獸" className="mb-4 rounded-2xl border border-amber-200/40 bg-slate-950/80 p-4">
           <h2 className="text-xl font-bold text-amber-100">神獸遊戲・直接開玩</h2>
           <p className="mt-2 text-sm leading-6 text-slate-200">不用完成探索、不用先取得收藏卡。免費戰場提供試用牌，進去就能佈陣開戰。</p>
-          <Link href="/beast-game/battlefield" className="mt-3 flex min-h-12 items-center justify-center rounded-xl bg-amber-200 px-4 py-3 font-bold text-slate-950">立即玩神獸戰場（免費、不扣卡）</Link>
+          <Link href="/beast-game" className="mt-3 flex min-h-12 items-center justify-center rounded-xl bg-amber-200 px-4 py-3 font-bold text-slate-950">開始神獸遊戲（免押卡）</Link>
           <Link href="/star-beasts" className="mt-2 flex min-h-11 items-center justify-center text-sm text-cyan-100 underline">自由瀏覽 60 種神獸</Link>
         </section>
         <DuelCollectionShelf revision={lifetimeCheckInCount} />

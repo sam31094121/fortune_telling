@@ -1,6 +1,6 @@
 .guide { display: grid; gap: 5px; }
-.status { color: #d4e5f8; font-size: 12px; line-height: 18px; text-align: center; }
-.risk { color: #ffe3a3; font-size: 12px; line-height: 18px; }
+.status { color: #d4e5f8; font-size: 14px; line-height: 18px; text-align: center; }
+.risk { color: #ffe3a3; font-size: 14px; line-height: 18px; }
 .startButton {
   width: 100%; min-height: 48px; padding: 10px 12px;
   display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -12,4 +12,4 @@
 .startButton:active:not(:disabled) { background: #f5ce87; }
 .startButton:focus-visible { outline: 3px solid #b9eaff; outline-offset: 2px; }
 .startButton:disabled { border-color: #637890; background: #2c4058; color: #d2e0ee; cursor: wait; }
-.hint { color: #bacce1; font-size: 11px; line-height: 16px; text-align: center; }
+.hint { color: #bacce1; font-size: 13px; line-height: 16px; text-align: center; }

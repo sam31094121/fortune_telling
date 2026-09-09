@@ -167,7 +167,7 @@ export default function StakeSlot({
             <>
               <strong>押注籌碼 {picked.length}/5 張</strong>
               <span className={styles.risk}>選滿五張才開戰。贏：五張保留＋獎勵一張；輸：扣五張。</span>
-              <span>點下方卡片切換選取；開戰前不扣卡。</span>
+              <span>點卡選取或取消，開戰前不扣卡。</span>
             </>
           ) : trial ? (
             <>
@@ -183,7 +183,7 @@ export default function StakeSlot({
         </div>
       </div>
       {movement && <p className={styles.movement} role="status">{movement}</p>}
-      {owned.length > 0 && <p className={styles.movement}>持有共 {owned.reduce((total, card) => total + card.count, 0)} 張・{owned.length} 種。出戰卡的移動與倒下不扣卡，只結算押注格。</p>}
+      {owned.length > 0 && <details className={styles.movement}><summary>收藏與扣卡說明</summary><p>出戰卡的移動與倒下不扣卡，只結算押注格。收藏與結果儲存在本機。</p></details>}
 
       {owned.length === 0 ? (
         <div className={styles.empty2}>
@@ -239,7 +239,7 @@ export default function StakeSlot({
               <img src={card.thumbnail} alt={card.name} loading="lazy" decoding="async" draggable={false} />
               <strong>{card.name}</strong>
               <span>第 {card.copy}/{card.count} 張</span>
-              <span>{selectedIds.includes(card.id) ? '已選・點擊取回' : selectedIds.length < 5 ? '點擊押上' : '已選滿五張'}</span>
+              <span>{selectedIds.includes(card.id) ? '已選・取消' : selectedIds.length < 5 ? '選這張' : '已選滿五張'}</span>
             </button>
           ))}
         </div>

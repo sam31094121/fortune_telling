@@ -161,7 +161,12 @@ async function main() {
         assert.match(text,new RegExp(`輸掉 −${n} 張`));
         assert.match(text,new RegExp(`本場押注卡已扣除 ${n} 張`));
       }
-      if(winner==='PLAYER') assert.match(text,/獲得 ＋1 張/);
+      if(winner==='PLAYER') {
+        assert.match(text,/獲得 ＋1 張/);
+        assert.match(text,new RegExp(`原本 ${n} 張保留＋獎勵 1 張，本場共 ${n+1} 張`));
+        assert.ok(entries.every(entry => settled.collection.cards.some(card => card.id === entry.id)));
+        assert.equal(settled.collection.pending, null);
+      }
       if(winner==='DRAW') assert.match(text,/平手・增減 0 張/);
       for(const change of settled.receipt.cardChanges ?? []) {
         const remainingText = change.after > 0 ? `剩餘 ${change.after} 張` : '已無剩餘';

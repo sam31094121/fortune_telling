@@ -2659,8 +2659,8 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <Link href="/beast-game/battlefield" className="mx-auto mb-4 flex min-h-12 w-full max-w-[440px] items-center justify-between rounded-xl border border-amber-200/50 bg-slate-950/80 px-4 py-3 text-sm font-bold text-amber-100">
-          <span>神獸戰場 · 免費試玩</span><span aria-hidden="true">開始 →</span>
+        <Link href="/beast-game" className="mx-auto mb-4 flex min-h-12 w-full max-w-[440px] items-center justify-between rounded-xl border border-amber-200/50 bg-slate-950/80 px-4 py-3 text-sm font-bold text-amber-100">
+          <span>神獸遊戲 · 三卡免押</span><span aria-hidden="true">開始 →</span>
         </Link>
         {/* 2026-08-21 依業主指示拿掉外框：粒子與光子連宇宙都框不住，太極不該被裝在
             一個有邊線、有暗底的卡片裡——讓它直接浮在頁面本身的星空背景上，

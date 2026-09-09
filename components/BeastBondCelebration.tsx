@@ -67,7 +67,7 @@ export default function BeastBondCelebration({
         <p className={styles.meaning}>{beast.symbolicPart}・{beast.coreMeaning}</p>
         <p className={styles.grant}>本體與幼子各一張，已發進你的成長收藏。</p>
         <div className={styles.actions}>
-          <Link href="/beast-game/battlefield" className={styles.primary}>帶牠去神獸戰場出戰</Link>
+          <Link href="/beast-game" className={styles.primary}>開始神獸遊戲（免押卡）</Link>
           <button ref={closeRef} type="button" onClick={onClose} className={styles.secondary}>
             收下，繼續成長
           </button>

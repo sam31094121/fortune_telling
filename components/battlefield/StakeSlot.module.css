@@ -268,3 +268,8 @@
     line-height: 18px;
   }
 }
+
+/* Readable selection labels; keep the card strip native-scrollable. */
+.pick strong, .pick span { font-size: 14px; line-height: 20px; }
+.movement { font-size: 14px; line-height: 21px; }
+.movement summary { min-height: 44px; align-content: center; cursor: pointer; }

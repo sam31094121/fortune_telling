@@ -49,10 +49,10 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
           {isReplay ? '觀看原場戰果' : !summary ? '結算尚未保存'
             : won ? `你多了一張「${name}」` : lost ? `本場押注卡已扣除 ${summary.lost} 張` : `原押注 ${summary.staked} 張全部保留`}
         </h3>
-        <p className="mt-1 text-xs leading-5 text-white/70">
+        <p className="mt-1 text-sm leading-6 text-white/80">
           {isReplay ? '本次不發獎，也不扣卡。贏得 0 張・輸掉 0 張。'
             : !summary ? '尚未完成發獎或扣卡，請重試保存。'
-              : won ? `獎賞已加入持有卡片，原押注 ${summary.retained} 張保留。`
+              : won ? `原本 ${summary.retained} 張保留＋獎勵 ${summary.gained} 張，本場共 ${summary.retained + summary.gained} 張。`
                 : lost ? '已從持有卡片扣除。其他卡片保留；可先查看相剋，再調整陣容。'
                   : '這場平手，持有張數不變。'}
         </p>

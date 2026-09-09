@@ -120,7 +120,7 @@ export default function BeastTurnGame() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" />
       <h1>{prepareStep === 'select' ? '選三張神獸卡' : '確認你的陣容'}</h1>
-      <p>{prepareStep === 'select' ? '點卡選取，再點取消。第一張先出場。' : '看好陣容後，按下開始。'}</p>
+      <p>{prepareStep === 'select' ? '免押卡。點選三張，第一張先出場。' : '看好陣容後，按下開始。'}</p>
     </header>
     {errorNotice}
     {!account ? <p>正在讀取戰鬥卡…</p> : <>
@@ -136,7 +136,7 @@ export default function BeastTurnGame() {
               else setError('已選滿三張；先點已選的卡取消，再選另一張。');
             }} />
           </div>)}</div>
-          <details className={styles.muted}><summary>其他戰鬥模式</summary><nav className={styles.toolbar} aria-label="戰鬥模式"><Link href="/beast-game/battlefield">抽牌戰場</Link><Link href="/beast-game/lineup">格鬥競技場</Link></nav></details>
+          <details className={styles.muted}><summary>進階模式與押卡規則</summary><nav className={styles.toolbar} aria-label="戰鬥模式"><Link href="/beast-game/battlefield">五卡押注戰場（勝得 1、負扣 5）</Link><Link href="/beast-game/lineup">單卡押注競技場</Link></nav></details>
         </> : <>
           <div className={styles.slots}>{selected.map((id, i) => {
             const card = cards.find(c => c.id === id)!;

@@ -117,16 +117,16 @@ export default function BeastBondDetail({
               客戶第一次輸卡就會覺得被騙——誠實比誘因重要。
             */}
             <p className="mt-1.5 text-xs font-semibold leading-5 text-slate-300">
-              這不只是圖：牠是你能押上神獸戰場的戰力。
-              <span className="text-emerald-100">贏，再得一張</span>；
-              <span className="text-rose-200">輸，押上的那張會真的被沒收</span>。
+              先用三卡免押模式熟悉戰鬥。
+              <span className="text-emerald-100">進階押卡模式另行確認風險</span>；
+              <span className="text-rose-200">結果依所選模式結算</span>。
             </p>
             <div className="mt-2.5 grid gap-2">
               <Link
-                href="/beast-game/battlefield"
+                href="/beast-game"
                 className="flex min-h-11 items-center justify-center rounded-xl bg-amber-200 text-sm font-black text-slate-950"
               >
-                帶牠去神獸戰場出戰
+                開始神獸遊戲（免押卡）
               </Link>
               <Link
                 href="/star-beasts"

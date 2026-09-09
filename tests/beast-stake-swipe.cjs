@@ -1,4 +1,4 @@
-// Fresh QA collection only. Never starts a staked battle or touches a customer account.
+// Real localhost entry, isolated synthetic collection. Never starts a staked battle.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { chromium } = require('playwright');
@@ -6,22 +6,15 @@ fs.mkdirSync('reports/beast-relaxed', { recursive: true });
 (async () => {
   const browser = await chromium.launch({ headless: true, channel: 'msedge' });
   try {
-    for (const width of process.env.STAKE_TEST_WIDTH ? [Number(process.env.STAKE_TEST_WIDTH)] : [320, 360, 768]) {
-      const context = await browser.newContext({ viewport: { width, height: 844 }, isMobile: true, hasTouch: true });
+    for (const width of process.env.STAKE_TEST_WIDTH ? [Number(process.env.STAKE_TEST_WIDTH)] : [320, 360, 768, 1280]) {
+      const height = Number(process.env.STAKE_TEST_HEIGHT || 844);
+      const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 1000, hasTouch: true });
       await context.addInitScript(() => {
-        const set = Storage.prototype.setItem;
-        Storage.prototype.setItem = function(key, value) {
-          if (key === 'tdh_beast_collection_v1' && value.includes('qa:0')) {
-            const data = JSON.parse(value);
-            data.cards = Array.from({ length: 12 }, (_, i) => ({ id: `qa:${i}`, cardId: `beast_a${String(i + 1).padStart(2, '0')}`, source: 'DUEL_WIN', at: '2026-09-09' }));
-            value = JSON.stringify(data);
-          }
-          return set.call(this, key, value);
-        };
+        localStorage.setItem('tdh_beast_collection_v1', JSON.stringify({ cards: Array.from({ length: 12 }, (_, i) => ({ id: `qa:${i}`, cardId: `beast_a${String(i + 1).padStart(2, '0')}`, source: 'DUEL_WIN', at: '2026-09-09' })), history: [], receipts: {}, granted: [] }));
       });
       const page = await context.newPage();
-      await page.goto('http://127.0.0.1:8888/beast-game/qa-stakes');
-      await page.getByRole('button', { name: '獨立測試卡組進入戰場' }).tap();
+      await page.goto('http://localhost:8888/beast-game/battlefield');
+      for (let card = 0; card < 3; card++) await page.getByRole('button', { name: /^手牌：/ }).first().tap();
       await page.getByRole('button', { name: '押注確認', exact: true }).tap();
       const before = await page.evaluate(() => localStorage.getItem('tdh_beast_collection_v1'));
       const picker = page.getByRole('group', { name: '從收藏選五張押注', exact: true });
@@ -43,7 +36,7 @@ fs.mkdirSync('reports/beast-relaxed', { recursive: true });
       assert.equal(await picker.locator('[aria-pressed="true"]').count(), 0, 'Dragging must not select a stake');
       await picker.evaluate(e => { e.scrollLeft = 0; });
       const cdp = await context.newCDPSession(page);
-      const y = Math.min(810, rect.y + 55), x = rect.x + rect.width - 15;
+      const y = Math.min(height - 34, rect.y + 55), x = rect.x + rect.width - 15;
       await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
       for (let step = 1; step <= 12; step++) {
         await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x - step * (rect.width - 35) / 12, y }] });
@@ -78,7 +71,13 @@ fs.mkdirSync('reports/beast-relaxed', { recursive: true });
       assert.ok(await picker.evaluate(e => e.scrollLeft > 0), 'Next-row button provides a gesture-free route');
       await page.getByRole('button', { name: '前一排收藏卡', exact: true }).tap();
       assert.equal(await picker.evaluate(e => e.scrollLeft), 0);
-      for (let index = 7; index < 12; index++) await picker.getByRole('button').nth(index).tap();
+      for (let index = 7; index < 12; index++) {
+        const target = picker.getByRole('button').nth(index);
+        await target.tap();
+        const art = await target.locator('img').boundingBox();
+        const label = await target.getAttribute('aria-label');
+        assert.equal(await page.evaluate(({x,y}) => document.elementFromPoint(x,y)?.closest('button')?.getAttribute('aria-label'), {x:art.x + 12,y:art.y + 30}), label, `Card image remains touchable after selecting ${index - 6} stakes`);
+      }
       assert.equal(await picker.locator('[aria-pressed="true"]').count(), 5, 'All five slots can be filled from cards beyond the first row');
       for (let index = 7; index < 12; index++) await picker.getByRole('button').nth(index).tap();
       assert.equal(await picker.locator('[aria-pressed="true"]').count(), 0);

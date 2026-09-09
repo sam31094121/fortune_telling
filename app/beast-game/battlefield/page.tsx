@@ -82,6 +82,7 @@ export default function BattlefieldPage() {
   const [playerDeckIds, setPlayerDeckIds] = useState<string[]>([]);
   const [deckDraft, setDeckDraft] = useState<string[]>([]);
   const [deckEditorOpen, setDeckEditorOpen] = useState(false);
+  const replayPreferences = useRef<{ active: string | null; bench: Array<string | null>; stakes: string[] } | null>(null);
   const previousOpening = useRef<{ player: string[]; opponent: string[] }>({ player: [], opponent: [] });
   /** 正式戰固定押五張收藏紀錄；每個 id 都是可追溯的實際卡片副本。 */
   const [stakeCardIds, setStakeCardIds] = useState<string[]>([]);
@@ -142,9 +143,6 @@ export default function BattlefieldPage() {
     controlScroll.current?.parentElement?.scrollTo({ top: 0 });
   };
   // 緩存選中的押注卡，避免重複查詢
-  const selectedStakeCards = useMemo(() => stakeCardIds
-    .map(id => ownedStake.find(card => card.id === id))
-    .filter((card): card is StakeCard => Boolean(card)), [stakeCardIds, ownedStake]);
   const inspectCard = useCallback((cardId: string, side: 'player' | 'opponent' = 'player') => {
     setInspection({ cardId, side });
     controlScroll.current?.scrollTo({ top: 0 });
@@ -216,9 +214,30 @@ export default function BattlefieldPage() {
     const fresh = newBattle(playerOrder, opponentOrder, rng, false);
     previousOpening.current = { player: fresh.player.hand.slice(), opponent: fresh.opponent.hand.slice() };
     // 對手用同一套佈陣規則自動上場——沒有特權、沒有額外格子。
-    setState(autoPlaceOpponent(fresh, rng));
+    let prepared = autoPlaceOpponent(fresh, rng);
+    const preference = replayPreferences.current;
+    replayPreferences.current = null;
+    const available = readCollection();
+    const retainedStakes = available.storageError ? [] : (preference?.stakes ?? []).filter(id => available.cards.some(card => card.id === id));
+    let retained = 0;
+    if (preference) {
+      // Reuse only cards actually dealt; keep the original draw probabilities.
+      if (preference.active && prepared.player.hand.includes(preference.active)) {
+        prepared = moveCard(prepared, 'PLAYER', preference.active, { zone: 'ACTIVE' });
+        retained++;
+      }
+      preference.bench.forEach((id, slotIndex) => {
+        if (id && prepared.player.hand.includes(id)) {
+          prepared = moveCard(prepared, 'PLAYER', id, { zone: 'BENCH', slotIndex });
+          retained++;
+        }
+      });
+      setMovement(`已沿用本次抽到的 ${retained} 張陣容；其餘請補選。押卡偏好保留 ${retainedStakes.length}/5 張，請重新確認。`);
+      if (available.storageError) setStakeError(available.storageError);
+    }
+    setState(prepared);
     setMatch(null);
-    setStakeCardIds([]);
+    setStakeCardIds(retainedStakes);
     setInspection(null);
     setGuideRequest(null);
     setPrepareView('formation');
@@ -376,6 +395,7 @@ export default function BattlefieldPage() {
   const redeal = () => {
     if (settling || settlement?.saved === false) return;
     setSettlement(null); setOutcome(null); setBattleStake(null); setMovement(''); setStakeError('');
+    replayPreferences.current = match?.status === 'FINISHED' && state ? { active: state.player.active, bench: [...state.player.bench], stakes: [...stakeCardIds] } : null;
     setSeed(secureSeed()); setError(null);
   };
 
@@ -447,8 +467,8 @@ export default function BattlefieldPage() {
     <main className={styles.page} data-mobile-battle>
       <div className={styles.shell}>
         <header className={styles.header}>
-          <Link href="/beast-game/lineup">格鬥場 ↗</Link>
-          <h1>卡片戰鬥</h1>
+          <Link href="/beast-game">神獸遊戲首頁</Link>
+          <h1>五卡押注戰場</h1>
           <span>{match?.status === 'FINISHED' ? '本場結束' : match ? `第 ${match.round} 回合` : '準備出戰'}</span>
         </header>
         {error ? (
@@ -490,20 +510,8 @@ export default function BattlefieldPage() {
                       ? `💎 押注：${cards.find(card => card.id === battleStake)?.name}`
                       : '🎮 體驗戰'}</p>}
                     <BattlePanel match={match} onAction={act} compact cards={cards} />
-                    {match.status === 'FINISHED' && (
-                      <p role="status" className={styles.notice} data-battle-result={match.winner}>
-                        {isTrial ? (
-                          <>體驗戰結束：押注 0 張・贏得 0 張・輸掉 0 張。</>
-                        ) : outcome ? (
-                          <>
-                            {outcome.verdict === 'WON' ? '✅ 獲勝！' : outcome.verdict === 'LOST' ? '❌ 落敗。' : '⚪ 平手。'}
-                            {' 押注 1 張・'}
-                            {outcome.verdict === 'WON' ? '✅ 贏得 1 張' : outcome.verdict === 'LOST' ? '❌ 輸掉 1 張' : '⚪ 保留 1 張'}
-                            {' ・'}
-                            {outcome.message}
-                          </>
-                        ) : null}
-                      </p>
+                    {match.status === 'FINISHED' && isTrial && (
+                      <p role="status" className={styles.notice} data-battle-result={match.winner}>體驗戰結束：押注 0 張・贏得 0 張・輸掉 0 張。</p>
                     )}
                     {match.status === 'FINISHED' && isTrial && <BeastBattleVoice id={`trial:${battleVoiceId}`}
                       text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場對手獲勝。' : '本場平手。'}這是免押體驗戰。押注零張，贏得零張，輸掉零張。可以換一組戰術再挑戰。`} />}
@@ -557,12 +565,12 @@ export default function BattlefieldPage() {
                     startButtonText={isTrial ? '開始體驗戰' : `確認開戰`}
                     onStart={() => void start()}
                     blockReason={!startCheck.ready && 'reason' in startCheck ? startCheck.reason : undefined}
-                    riskNotice={state.player.active ? `${placed < opponentPlaced ? `你 ${placed} 隻、對手 ${opponentPlaced} 隻，可補後備。` : ''}${!isTrial && stakeCardIds.length ? `本場已押 ${stakeCardIds.length}/5 張${selectedStakeCards.length ? `：${selectedStakeCards.map(card => card.name).join('、')}` : ''}。輸了會扣除這五張。` : ''}` : undefined}
+                    riskNotice={state.player.active ? `${placed < opponentPlaced ? `你 ${placed} 隻、對手 ${opponentPlaced} 隻，可補後備。` : ''}${!isTrial && stakeCardIds.length ? `本場選押 ${stakeCardIds.length}/5 張。勝得 1 張；負扣 5 張。` : ''}` : undefined}
                   />
                 </div>
               ) : match?.status === 'FINISHED' && !inspection ? (
                 <div className={styles.footer}>
-                  <button type="button" className={styles.restart} disabled={settling || settlement?.saved === false} onClick={redeal}>{settling ? '正在保存卡片結算…' : settlement?.saved === false ? '請先重試保存結果' : '重新發牌，再打一場'}</button>
+                  <button type="button" className={styles.restart} disabled={settling || settlement?.saved === false} onClick={redeal}>{settling ? '正在保存卡片結算…' : settlement?.saved === false ? '請先重試保存結果' : '沿用可用選擇，再打一場'}</button>
                 </div>
               ) : null}
             </section>
