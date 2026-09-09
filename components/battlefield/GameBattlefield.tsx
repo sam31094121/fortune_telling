@@ -163,12 +163,14 @@ export function BenchZone({
 }
 
 export function HandZone({
-  hand, lookup, selectedCardId, onCard,
+  hand, lookup, selectedCardId, onCard, showNames = false, tapOnly = false,
 }: {
   hand: string[];
   lookup: CardLookup;
   selectedCardId: string | null;
   onCard?: (cardId: string) => void;
+  showNames?: boolean;
+  tapOnly?: boolean;
 }) {
   return (
     <div className={styles.hand} role="group" aria-label="你的手牌">
@@ -181,8 +183,9 @@ export function HandZone({
               selected={cardId === selectedCardId}
               label={card ? `手牌：${card.name}` : `手牌：${cardId}`}
               onClick={onCard ? () => onCard(cardId) : undefined}
-              onDragSelect={onCard ? () => { if (selectedCardId !== cardId) onCard(cardId); } : undefined}
+              onDragSelect={!tapOnly && onCard ? () => { if (selectedCardId !== cardId) onCard(cardId); } : undefined}
             />
+            {showNames && <span data-hand-name>{card?.name ?? '神獸卡'}</span>}
           </div>
         );
       })}

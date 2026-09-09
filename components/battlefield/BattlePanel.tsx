@@ -18,7 +18,7 @@
  */
 
 import styles from './BattlePanel.module.css';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { BattlefieldCardArt } from './GameBattlefield';
 import { effectiveStat } from '@/lib/beast-game/effects';
 import { ELEMENT_LABEL } from '@/lib/beast-game/elements';
@@ -135,6 +135,11 @@ export function BattleActionBar({
   compact?: boolean;
   cards?: BattlefieldCardArt[];
 }) {
+  const [commandView, setCommandView] = useState<'swap' | 'help' | null>(null);
+  const commandDetail = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (commandView) commandDetail.current?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+  }, [commandView]);
   if (match.status !== 'PLAYING') return null;
   const actions = legalActions(match, 'player');
   const active = match.player.team[match.player.active];
@@ -144,15 +149,40 @@ export function BattleActionBar({
     const attack = actions.find(action => action.type === 'ATTACK');
     const special = actions.find(action => action.type === 'SKILL');
     const switches = actions.filter((action): action is Extract<Action, { type: 'SWITCH' }> => action.type === 'SWITCH');
+    // The core's forced-replacement phase consumes neither an attack nor a round.
+    // Never label that transition as a normal attack that appears to do nothing.
+    if (active.defeated) return <div className={styles.compactActions}>
+      <p className={styles.activeHint} role="status">主戰已倒下，請選一張後備接替；這一步不出招。</p>
+      <div className={styles.reserveCards} role="group" aria-label="選擇接替主戰的後備">
+        {switches.map(action => {
+          const fighter = match.player.team[action.index];
+          const art = cards.find(card => card.id === fighter.cardId);
+          return <button type="button" key={fighter.instanceId} className={styles.reserveCard} disabled={busy}
+            aria-label={`換上 ${fighter.name}`} onClick={() => { setCommandView(null); onAction(action); }}>
+            {art && <img src={art.thumbnail} alt="" draggable={false} /> /* eslint-disable-line @next/next/no-img-element */}
+            <strong>{fighter.name}</strong><span>點卡接替・{fighter.hp}/{fighter.maxHp}</span>
+          </button>;
+        })}
+      </div>
+    </div>;
+    if (match.opponent.team[match.opponent.active].defeated && attack) return <div className={styles.compactActions}>
+      <p className={styles.activeHint} role="status">對手主戰已倒下，接下來由後備上場；這一步不出招。</p>
+      <button type="button" className={styles.actionButton} disabled={busy} onClick={() => { setCommandView(null); onAction(attack); }}>繼續，對手換卡</button>
+    </div>;
     return (
       <div className={styles.compactActions}>
-        <p className={styles.activeHint}>{active.defeated ? '主戰已倒下，請點後備接替' : `${skill.role}型・攻 ${effectiveStat(active, 'attack')}／防 ${effectiveStat(active, 'defense')}／速 ${effectiveStat(active, 'speed')}`}</p>
-        <div className={styles.primaryActions} role="group" aria-label="攻擊與技能">
+        <p className={styles.activeHint} role="status">{active.defeated ? '主戰已倒下，請點後備接替' : '輪到你了，選一個動作'}</p>
+        <div className={styles.primaryActions} role="group" aria-label="本回合指令">
           <button type="button" className={styles.actionButton} disabled={busy || !attack} onClick={() => attack && onAction(attack)}>普通攻擊<small>{ELEMENT_LABEL[active.element]}系・不耗氣</small></button>
           <button type="button" className={styles.skillButton} disabled={busy || !special} onClick={() => special && onAction(special)}>
-            {skill.skillName}<small>{active.defeated ? '請先換卡' : active.cooldown > 0 ? `冷卻 ${active.cooldown} 回合` : `耗氣 ${skill.cost}${!special ? '・氣不足' : ''}`}</small>
+            技能<small>{skill.skillName}・{active.defeated ? '請先換卡' : active.cooldown > 0 ? `冷卻 ${active.cooldown} 回合` : `耗氣 ${skill.cost}${!special ? '・氣不足' : ''}`}</small>
           </button>
+          <button type="button" className={styles.actionButton} aria-expanded={commandView === 'swap' || active.defeated} onClick={() => setCommandView(commandView === 'swap' ? null : 'swap')}>換卡<small>{switches.length ? '查看可換上的後備' : '目前沒有可換後備'}</small></button>
+          <button type="button" className={styles.actionButton} aria-expanded={commandView === 'help'} onClick={() => setCommandView(commandView === 'help' ? null : 'help')}>說明<small>只查看，不消耗回合</small></button>
         </div>
+        <div ref={commandDetail}>
+        {(commandView === 'swap' || active.defeated) && <>
+        {!switches.length && <p className={styles.activeHint}>目前沒有可換上的後備，可使用仍可用的攻擊或技能。</p>}
         <div className={styles.reserveCards} role="group" aria-label="點戰鬥卡換上場">
           {match.player.team.map((fighter, index) => {
             const action = switches.find(candidate => candidate.index === index);
@@ -160,7 +190,7 @@ export function BattleActionBar({
             return (
               <button key={fighter.instanceId} type="button" disabled={busy || !action}
                 className={styles.reserveCard} aria-label={`${index === match.player.active ? '目前主戰' : fighter.defeated ? '已倒下' : '換上'} ${fighter.name}`}
-                onClick={() => action && onAction(action)}>
+                onClick={() => { if (action) { setCommandView(null); onAction(action); } }}>
                 {art && <img src={art.thumbnail} alt="" draggable={false} /> /* eslint-disable-line @next/next/no-img-element */}
                 <strong>{fighter.name}</strong>
                 <span>{index === match.player.active ? '主戰' : fighter.defeated ? '已倒下' : '點卡換上'}・{fighter.hp}/{fighter.maxHp}</span>
@@ -168,7 +198,14 @@ export function BattleActionBar({
             );
           })}
         </div>
-        <details className={styles.battleDetails}><summary>技能說明</summary><p>{skill.description}</p></details>
+        </>}
+        {commandView === 'help' && <section className={styles.commandHelp} aria-label="回合操作說明">
+          <h3>{skill.skillName}</h3><p>{skill.description}</p>
+          <p>{skill.role}型・攻 {effectiveStat(active, 'attack')}／防 {effectiveStat(active, 'defense')}／速 {effectiveStat(active, 'speed')}</p>
+          <p>普通攻擊不耗氣；技能的氣量與冷卻會標在按鈕上。點「換卡」後，再親自選後備上場。</p>
+          <button type="button" className={styles.actionButton} onClick={() => setCommandView(null)}>收起說明</button>
+        </section>}
+        </div>
       </div>
     );
   }

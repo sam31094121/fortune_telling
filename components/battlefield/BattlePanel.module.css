@@ -366,6 +366,8 @@
 .battleDetails { font-size: 12px; color: #b9d1e5; }
 .battleDetails summary { min-height: 44px; align-content: center; cursor: pointer; }
 .battleDetails p { line-height: 1.7; }
+.commandHelp { display: grid; gap: 8px; padding: 12px; border: 1px solid #527493; border-radius: 12px; color: #cbdff1; font-size: 13px; line-height: 1.7; }
+.commandHelp h3 { color: #ffe5a3; font-weight: 800; }
 
 /* 手機版：隱藏非必要文字，保留關鍵資訊 */
 @media (max-width: 480px) {
@@ -374,8 +376,8 @@
   .matchup span { font-size: 11px; }
   .skillDesc { display: none; }
   .activeHint { font-size: 11px; }
-  .primaryActions button { font-size: 12px; min-height: 52px; }
-  .primaryActions small { font-size: 10px; }
+  .primaryActions button { font-size: 15px; min-height: 60px; }
+  .primaryActions small { font-size: 11px; }
   .result { font-size: 15px; }
   .result small { font-size: 10px; }
 }

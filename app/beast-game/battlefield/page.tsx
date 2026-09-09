@@ -23,6 +23,7 @@ import type { BattlefieldCardArt } from '@/components/battlefield/GameBattlefiel
 import BattleArena, { PreparationControls } from '@/components/battlefield/BattleArena';
 import BattleCardGuide from '@/components/battlefield/BattleCardGuide';
 import BattleStartGuide from '@/components/battlefield/BattleStartGuide';
+import { nextStakeSelection, preparationGuidance, type PreparationStep } from '@/components/battlefield/preparation-guidance';
 import type { BeastElement } from '@/lib/beast-game/elements';
 import styles from '@/components/battlefield/BattleScreen.module.css';
 import {
@@ -80,7 +81,7 @@ export default function BattlefieldPage() {
   const [match, setMatch] = useState<Match | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [seed, setSeed] = useState(1);
-  /** 押注卡：支持 1-5 張。 */
+  /** 與既有結算一致：只選一張押注卡。 */
   const [stakeCardIds, setStakeCardIds] = useState<string[]>([]);
   const [ownedStake, setOwnedStake] = useState<StakeCard[]>([]);
   const [settlement, setSettlement] = useState<Settlement | null>(null);
@@ -97,6 +98,42 @@ export default function BattlefieldPage() {
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [inspection, setInspection] = useState<{ cardId: string; side: 'player' | 'opponent' } | null>(null);
   const controlScroll = useRef<HTMLDivElement>(null);
+  const [prepareView, setPrepareView] = useState<'formation' | 'stake' | 'help'>('formation');
+  const [guideRequest, setGuideRequest] = useState<{ step: PreparationStep } | null>(null);
+  const reviewStep = useCallback((step: PreparationStep) => {
+    setInspection(null);
+    setPrepareView(step === 3 ? 'stake' : 'formation');
+    setGuideRequest({ step });
+  }, []);
+  useEffect(() => {
+    if (!guideRequest || match) return;
+    const frame = requestAnimationFrame(() => {
+      const root = controlScroll.current;
+      if (!root) return;
+      let target: HTMLElement | null = null;
+      if (guideRequest.step === 3) {
+        target = root.querySelector<HTMLElement>('[role="alert"], [data-preparation-progress]');
+      } else if (guideRequest.step === 5) {
+        target = root.parentElement?.querySelector<HTMLElement>('[data-start-confirmation]') ?? null;
+      } else {
+        target = root.querySelector<HTMLElement>(guideRequest.step === 4
+          ? '[aria-label="選卡與放牌"]' : '[data-place-active], [aria-label="你的手牌"] button');
+        if (guideRequest.step === 1) target = root.querySelector<HTMLElement>('[data-place-active]') ?? target;
+        target ??= root.querySelector<HTMLElement>('[aria-label="選卡與放牌"]');
+      }
+      if (!target) return;
+      target.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      target.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [guideRequest, match]);
+  const openPreparation = (view: 'formation' | 'stake' | 'help') => {
+    setInspection(null);
+    setGuideRequest(null);
+    setPrepareView(view);
+    controlScroll.current?.scrollTo({ top: 0 });
+    controlScroll.current?.parentElement?.scrollTo({ top: 0 });
+  };
   // 緩存選中的押注卡，避免重複查詢
   const selectedStakeCard = useMemo(() => ownedStake.find(card => card.id === stakeCardIds[0]), [stakeCardIds, ownedStake]);
   const inspectCard = useCallback((cardId: string, side: 'player' | 'opponent' = 'player') => {
@@ -157,6 +194,8 @@ export default function BattlefieldPage() {
     setMatch(null);
     setStakeCardIds([]);
     setInspection(null);
+    setGuideRequest(null);
+    setPrepareView('formation');
   }, [cards, seed]);
 
   /** 從目前的佈陣開戰。種子固定，同一局可重播。 */
@@ -166,7 +205,7 @@ export default function BattlefieldPage() {
     setStakeError('');
     try {
       const next = startFromField(state, seed * 7919);
-      if (!stakeCardIds.length && ownedStake.length) throw new Error('請先選 1-5 張押注卡。');
+      if (!stakeCardIds.length && ownedStake.length) throw new Error('請先選一張押注卡。');
       setOutcome(null); setSettlement(null); setBattleStake(stakeCardIds[0] || null);
       setBattleVoiceId(crypto.randomUUID());
       setInspection(null);
@@ -282,8 +321,9 @@ export default function BattlefieldPage() {
     有收藏卡的人不走這條路：有東西可押的人就要押，賞罰才成立。
   */
   const isTrial = match ? !battleStake : ownedStake.length === 0;
+  const formationCheck = useMemo(() => state ? canStartBattle(state) : { ready: false as const }, [state]);
   const startCheck = useMemo(() => {
-    const base = state ? canStartBattle(state) : { ready: false as const };
+    const base = formationCheck;
     if (recovering || settling) return { ready: false as const, reason: '正在核對押注紀錄…' };
     if (settlement?.saved === false) return { ready: false as const, reason: '請先保存上一場結果' };
     if (stakeError) return { ready: false as const, reason: '請先處理押注提示' };
@@ -292,7 +332,16 @@ export default function BattlefieldPage() {
     // 不然客戶會先選好賭注、才發現主戰還沒放。
     if ((!stakeCardIds.length || !ownedStake.some(card => card.id === stakeCardIds[0])) && !isTrial) return { ready: false as const, reason: '先押一張收藏卡' };
     return base;
-  }, [state, stakeCardIds, isTrial, recovering, settling, settlement, stakeError, ownedStake]);
+  }, [formationCheck, stakeCardIds, isTrial, recovering, settling, settlement, stakeError, ownedStake]);
+  const guidance = preparationGuidance({
+    ready: startCheck.ready,
+    hasActive: Boolean(state?.player.active),
+    formationReady: formationCheck.ready,
+    checkingRecords: recovering || settling,
+    recordProblem: settlement?.saved === false || Boolean(stakeError),
+    trial: isTrial,
+    hasSelection: Boolean(state?.selectedCardId),
+  });
   const placed = useMemo(() => {
     if (!state) return 0;
     return (state.player.active ? 1 : 0) + state.player.bench.filter(Boolean).length;
@@ -313,7 +362,7 @@ export default function BattlefieldPage() {
         <header className={styles.header}>
           <Link href="/beast-game/lineup">格鬥場 ↗</Link>
           <h1>卡片戰鬥</h1>
-          <span>戰鬥／操控 50:50</span>
+          <span>{match?.status === 'FINISHED' ? '本場結束' : match ? `第 ${match.round} 回合` : '準備出戰'}</span>
         </header>
         {error ? (
           <div role="alert" className={styles.loading}>
@@ -325,8 +374,12 @@ export default function BattlefieldPage() {
             <BattleArena state={state} cards={cards} match={match} onInspect={inspectCard} />
             <section className={styles.controls} aria-label="手部操控" data-battle-controls data-preparing={!match}>
               <div className={styles.controlsHeading}>
-                <strong>{inspection ? '能力與相剋' : match ? (match.status === 'FINISHED' ? '對戰結果' : '選擇本回合動作') : '親手佈陣'}</strong>
-                <span>{inspection ? '查看不消耗回合' : match ? '戰況同步顯示' : '你 ' + placed + ' 隻・對手 ' + opponentPlaced + ' 隻'}</span>
+                {!match && !inspection ? <nav className={styles.prepareNav} aria-label="出戰準備">
+                  <button type="button" aria-pressed={prepareView === 'formation'} onClick={() => openPreparation('formation')}>選卡佈陣</button>
+                  <button type="button" aria-pressed={prepareView === 'stake'} onClick={() => openPreparation('stake')}>{isTrial ? '體驗確認' : '押注確認'}</button>
+                  <button type="button" aria-pressed={prepareView === 'help'} onClick={() => openPreparation('help')}>玩法說明</button>
+                </nav> : <><strong>{inspection ? '能力與相剋' : match?.status === 'FINISHED' ? '對戰結果' : '選擇本回合動作'}</strong>
+                  <span>{inspection ? '查看不消耗回合' : '戰況同步顯示'}</span></>}
               </div>
               <div className={styles.controlScroll} ref={controlScroll} key={match ? 'battle' : 'prepare'} data-control-scroll>
                 {inspection && <BattleCardGuide key={`${inspection.side}-${inspection.cardId}`} cardId={inspection.cardId}
@@ -370,41 +423,42 @@ export default function BattlefieldPage() {
                   </>
                 ) : (
                   <>
-                    {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}
-                    <PreparationControls state={state} cards={cards} onSelect={handleSelect} onDestination={handleDestination} onInspect={inspectCard} />
-                    <details className={styles.details} hidden={Boolean(state.player.active && (isTrial || stakeCardIds.length))}>
-                      <summary>{isTrial ? '✓ 體驗戰' : stakeCardIds.length ? `✓ 押注：${selectedStakeCard?.name}` : '📋 佈陣進度'}</summary>
-                      <StakeSlot owned={ownedStake} selected={stakeCardIds[0]} trial={isTrial} locked={settling || settlement?.saved === false}
-                        steps={[
-                          { label: '主戰', done: Boolean(state.player.active) },
-                          { label: '後備', done: state.player.bench.some(Boolean) },
-                          { label: isTrial ? '免押' : '押注', done: isTrial || Boolean(stakeCardIds.length) },
-                          { label: '戰鬥', done: startCheck.ready },
-                        ]}
-                        onSelect={cardId => { if (settling || settlement?.saved === false) return; setStakeCardIds(current => current.includes(cardId) ? current.filter(id => id !== cardId) : current.length < 5 ? [...current, cardId] : current); }} />
-                    </details>
-                    {startCheck.ready && placed < opponentPlaced && (
-                      <p className={styles.notice} data-outnumbered>
-                        你 {placed} 隻、對手 {opponentPlaced} 隻；可再放後備增援。{!isTrial && '押上的卡輸了會被沒收。'}
-                      </p>
-                    )}
-                    <div className={styles.controls}>
-                      <button type="button" className={styles.restart} disabled={settling || settlement?.saved === false} onClick={redeal}>🔄 重新發牌</button>
+                    <div hidden={prepareView !== 'formation'}>
+                      <PreparationControls state={state} cards={cards} onSelect={handleSelect} onDestination={handleDestination} onInspect={inspectCard} />
+                      {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}
                     </div>
+                    <section hidden={prepareView !== 'stake'} className={styles.confirmation} data-preparation-progress tabIndex={-1} aria-label="開戰前確認">
+                      <h2>{isTrial ? '體驗戰確認' : '選一張押注卡'}</h2>
+                      {!state.player.active && <p className={styles.notice}>建議先到「選卡佈陣」放好主戰，再決定本場押注。</p>}
+                      <StakeSlot owned={ownedStake} selected={stakeCardIds[0]} trial={isTrial} locked={settling || settlement?.saved === false}
+                        steps={[]}
+                        onSelect={cardId => { if (settling || settlement?.saved === false) return; setStakeCardIds(current => nextStakeSelection(current, cardId)); }} />
+                    </section>
+                    <section hidden={prepareView !== 'help'} className={styles.help} aria-label="卡片戰鬥玩法說明">
+                      <h2>先選卡，再出戰</h2>
+                      <ol>
+                        <li><strong>選一張手牌</strong><p>點手牌後，會帶你到放置區；再點「放入主戰」。</p></li>
+                        <li><strong>後備是建議增援</strong><p>想補強陣容，選卡後點可放入的後備格。查看能力不會出招。</p></li>
+                        <li><strong>確認後才開戰</strong><p>{isTrial ? '本場免押注，不發卡、不沒收。' : '押注一張收藏卡；贏得一張、輸掉一張，平手保留。換選押注卡不是多押一張。'}</p></li>
+                        <li><strong>每回合選一個動作</strong><p>普通攻擊、技能，或換上後備。按「說明」查看技能內容；它不會消耗回合。</p></li>
+                      </ol>
+                      <button type="button" className={styles.restart} onClick={() => reviewStep(guidance.currentStep)}>回到目前步驟</button>
+                      <details className={styles.details}><summary>重新準備</summary>
+                        <p>重新發牌會清除本場佈陣與押注選擇，不會扣除收藏。</p>
+                        <button type="button" className={styles.restart} disabled={settling || settlement?.saved === false} onClick={redeal}>重新發牌</button>
+                      </details>
+                    </section>
                   </>
                 )}
                 </div>
               </div>
-              {!match ? (
+              {!match && !inspection ? (
                 <div className={styles.footer}>
                   <BattleStartGuide
-                    steps={[
-                      { step: 1, label: '選主戰卡', done: Boolean(state?.player.active), icon: '🐉' },
-                      { step: 2, label: '放後備卡', done: Boolean(state && state.player.bench.some(Boolean)), icon: '🛡️' },
-                      { step: 3, label: isTrial ? '免押注' : '選押注卡', done: isTrial || Boolean(stakeCardIds.length), icon: '💎' },
-                      { step: 4, label: '檢查陣容', done: Boolean(placed >= 1 && opponentPlaced >= 1), icon: '✓' },
-                      { step: 5, label: '開戰！', done: false, icon: '⚔️' },
-                    ]}
+                    currentStep={guidance.currentStep}
+                    actionLabels={guidance.actionLabels}
+                    onReviewStep={reviewStep}
+                    checkingRecords={recovering || settling}
                     status={isTrial
                       ? `你 ${placed} 隻・對手 ${opponentPlaced} 隻・體驗戰`
                       : `你 ${placed} 隻・對手 ${opponentPlaced} 隻・押注 ${stakeCardIds.length} 張`
@@ -413,9 +467,10 @@ export default function BattlefieldPage() {
                     startButtonText={isTrial ? '開始體驗戰' : `確認開戰`}
                     onStart={() => void start()}
                     blockReason={!startCheck.ready && 'reason' in startCheck ? startCheck.reason : undefined}
+                    riskNotice={state.player.active ? `${placed < opponentPlaced ? `你 ${placed} 隻、對手 ${opponentPlaced} 隻，可補後備。` : ''}${!isTrial && stakeCardIds.length ? `本場押「${selectedStakeCard?.name}」一張，輸了會失去這張卡。` : ''}` : undefined}
                   />
                 </div>
-              ) : match.status === 'FINISHED' ? (
+              ) : match?.status === 'FINISHED' && !inspection ? (
                 <div className={styles.footer}>
                   <button type="button" className={styles.restart} disabled={settling || settlement?.saved === false} onClick={redeal}>{settling ? '正在保存卡片結算…' : settlement?.saved === false ? '請先重試保存結果' : '重新發牌，再打一場'}</button>
                 </div>

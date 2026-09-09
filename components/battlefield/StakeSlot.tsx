@@ -99,7 +99,7 @@ export default function StakeSlot({
   return (
     <section className={styles.panel} data-stake-slot aria-label="押注">
       {/* 先後順序：做完的變藍、正在做的變金，不必猜下一步。 */}
-      <ol className={styles.steps}>
+      {steps.length > 0 && <ol className={styles.steps}>
         {steps.map((step, index) => (
           <li
             key={step.label}
@@ -110,10 +110,10 @@ export default function StakeSlot({
             <span>{step.label}</span>
           </li>
         ))}
-      </ol>
+      </ol>}
 
       {/* 聲音之外也要有字：關掉聲音或聽不到的人一樣要知道進度。 */}
-      <p className="sr-only" role="status" aria-live="polite">{announceText}</p>
+      {steps.length > 0 && <p className="sr-only" role="status" aria-live="polite">{announceText}</p>}
 
       <div className={styles.slotRow}>
         {/*

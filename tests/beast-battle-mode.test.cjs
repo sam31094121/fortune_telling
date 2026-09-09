@@ -25,7 +25,7 @@ function load(relative) {
     if (id === 'next/dynamic') return () => () => null;
     return id.startsWith('@/') ? load(id.slice(2)) : id.startsWith('.') ? load(path.resolve(path.dirname(file), id)) : require(id);
   };
-  vm.runInNewContext(source, { module, exports: module.exports, require: customRequire, console, setTimeout, clearTimeout, AbortController, crypto: require('node:crypto').webcrypto }, { filename: file });
+  vm.runInNewContext(source, { module, exports: module.exports, require: customRequire, console, setTimeout, clearTimeout, AbortController, structuredClone, crypto: require('node:crypto').webcrypto }, { filename: file });
   return module.exports;
 }
 const render = (component, props = {}) => renderToStaticMarkup(React.createElement(component, props));
@@ -96,13 +96,97 @@ function mobileDeclaration(css, media, selector, property) {
   return value;
 }
 const prepare = ".controls[data-preparing='true']";
-assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', prepare, 'display'), 'block');
-assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', prepare, 'overflow-y'), 'auto');
-assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', `${prepare} > .controlScroll`, 'overflow'), 'visible');
+assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', prepare, 'display'), 'grid');
+assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', prepare, 'overflow'), 'hidden');
+assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', `${prepare} > .controlScroll`, 'overflow-y'), 'auto');
 assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', `${prepare} > .footer`, 'position'), 'static');
 const battlefieldPage = fs.readFileSync(path.join(root, 'app/beast-game/battlefield/page.tsx'), 'utf8');
+assert.match(battlefieldPage, /match\?\.status === 'FINISHED' \? '本場結束'/, 'Finished battles do not advertise a next round');
 assert.match(battlefieldPage, /data-battle-controls data-preparing=\{!match\}/, 'Only preparation uses the combined phone scroll area');
-assert.equal((battlefieldPage.match(/parentElement\?\.scrollTo\(\{ top: 0 \}\)/g) || []).length, 2, 'Open and close inspection reset the phone scroll area');
-assert.equal(mobileDeclaration(arenaCss, '(max-width: 480px)', '.fighters', 'grid-template-columns'), 'minmax(0, 7fr) minmax(0, 3fr)');
+assert.equal((battlefieldPage.match(/parentElement\?\.scrollTo\(\{ top: 0 \}\)/g) || []).length, 3, 'Inspection and navigation reset the phone scroll area');
+assert.equal(mobileDeclaration(arenaCss, '(max-width: 480px)', '.fighters', 'grid-template-columns'), 'minmax(0, 1fr) minmax(0, 1fr)');
 assert.equal(mobileDeclaration(arenaCss, '(max-width: 480px)', '.fighter', 'height'), '100%');
 console.log('PASS: phone preparation can scroll past the guide; card artwork has a bounded grid track');
+
+const { preparationGuidance, nextStakeSelection } = load('components/battlefield/preparation-guidance.ts');
+const StartGuide = load('components/battlefield/BattleStartGuide.tsx').default;
+const baselineGuide = { ready: false, hasActive: false, formationReady: false, checkingRecords: false, recordProblem: false, trial: false };
+const preparationSteps = [
+  { step: 1, label: '選主戰卡', done: false, icon: '🐉' },
+  { step: 2, label: '補後備卡', done: false, icon: '🛡️', recommended: true },
+  { step: 3, label: '選押注卡', done: false, icon: '💎' },
+  { step: 4, label: '檢查陣容', done: false, icon: '✓' },
+  { step: 5, label: '開戰！', done: false, icon: '⚔️' },
+];
+for (const scenario of [
+  { name: 'no active card', input: {}, step: 1, reason: '先把一隻神獸放到主戰格。' },
+  { name: 'stake required, reserve only recommended', input: { hasActive: true, formationReady: true }, step: 3, reason: '先押一張收藏卡' },
+  { name: 'invalid formation', input: { hasActive: true }, step: 4, reason: '請確認陣容' },
+  { name: 'checking records', input: { checkingRecords: true }, step: 3, reason: '正在核對押注紀錄…' },
+  { name: 'record failure', input: { recordProblem: true }, step: 3, reason: '請先處理押注提示' },
+  { name: 'trial ready without reserve', input: { hasActive: true, formationReady: true, ready: true, trial: true }, step: 5 },
+  { name: 'staked formation ready', input: { hasActive: true, formationReady: true, ready: true }, step: 5 },
+]) {
+  const input = { ...baselineGuide, ...scenario.input };
+  const beforeInput = JSON.stringify(input);
+  const guidance = preparationGuidance(input);
+  assert.equal(guidance.currentStep, scenario.step, scenario.name);
+  const html = render(StartGuide, {
+    ...guidance, steps: preparationSteps, status: '系統測試資料', canStart: input.ready,
+    checkingRecords: input.checkingRecords, startButtonText: input.trial ? '開始體驗戰' : '確認開戰',
+    blockReason: scenario.reason, onReviewStep() {}, onStart() { throw new Error('Rendering must not start a battle'); },
+  });
+  assert.equal((html.match(/<button\b/g) || []).length, 1, 'One next action, not five competing steps');
+  assert.doesNotMatch(html, /progressBar|stepsGrid|⏳/, 'No permanent progress animation or fake waiting');
+  const action = html.match(/<button[^>]*data-start-confirmation="(?:true|false)"[^>]*>/)?.[0];
+  assert.ok(action, 'One separate battle-confirmation action');
+  assert.equal(action.includes('disabled=""'), input.checkingRecords, 'Only pending record work blocks navigation');
+  assert.ok(action.includes(`data-start-confirmation="${input.ready}"`));
+  if (!input.ready && !input.checkingRecords) assert.ok(action.includes(`aria-label="${guidance.actionLabels[scenario.step]}"`));
+  assert.equal(JSON.stringify(input), beforeInput, 'Guidance never mutates readiness');
+}
+assert.match(battlefieldPage, /hidden=\{prepareView !== 'stake'\}[^>]*data-preparation-progress/, 'Stake review remains reachable as a separate pane');
+assert.match(battlefieldPage, /hidden=\{prepareView !== 'help'\}/, 'Instructions do not occupy the main controls');
+assert.match(battlefieldPage, /!match && !inspection \?/, 'Inspection never competes with the start footer');
+assert.match(battlefieldPage, /後備是建議增援/);
+assert.match(battlefieldPage, /onReviewStep=\{reviewStep\}/);
+assert.match(battlefieldPage, /onStart=\{\(\) => void start\(\)\}/, 'Starting remains a separate explicit action');
+console.log('PASS: real readiness drives the highlighted step; recommendations do not block play; waiting and actionable guidance are distinct');
+
+const selected = ['beast_a01'];
+assert.equal(JSON.stringify(nextStakeSelection(selected, 'beast_a02')), '["beast_a02"]', 'Replacing a stake never appends a hidden second card');
+assert.equal(JSON.stringify(nextStakeSelection(selected, 'beast_a01')), '[]', 'Tapping the selected stake withdraws it');
+assert.equal(JSON.stringify(nextStakeSelection([], 'beast_a02')), '["beast_a02"]');
+assert.deepEqual(selected, ['beast_a01'], 'Selection helper does not mutate existing state');
+assert.match(battlefieldPage, /runOwnedDuel\(stakeCardIds\[0\]/, 'Existing single-card settlement is unchanged');
+const compactActions = render(load('components/battlefield/BattlePanel.tsx').BattleActionBar, { match, onAction() { throw new Error('Read-only render'); }, compact: true, cards: interactiveCatalog() });
+assert.equal((compactActions.match(/<button\b/g) || []).length, 4, 'Combat starts with four clear commands');
+for (const text of ['普通攻擊', '技能', '換卡', '說明']) assert.ok(compactActions.includes(text));
+assert.doesNotMatch(compactActions, /aria-label="點戰鬥卡換上場"/, 'Reserve choices open on demand');
+const prepSource = fs.readFileSync(path.join(root, 'components/battlefield/BattleArena.tsx'), 'utf8');
+assert.ok(prepSource.indexOf('<HandZone') < prepSource.indexOf('<div ref={placement}'), 'Choose the hand before choosing the destination');
+assert.match(prepSource, /requestAnimationFrame/);
+assert.match(prepSource, /data-place-active/);
+console.log('PASS: single-card selection matches settlement; four commands and separate help preserve game rules');
+
+const ActionBar = load('components/battlefield/BattlePanel.tsx').BattleActionBar;
+const { advance } = load('lib/beast-game/interactive.ts');
+const opponentDown = structuredClone(match);
+opponentDown.opponent.team[opponentDown.opponent.active].hp = 0;
+opponentDown.opponent.team[opponentDown.opponent.active].defeated = true;
+const replacementHtml = render(ActionBar, { match: opponentDown, compact: true, onAction() {} });
+assert.match(replacementHtml, /繼續，對手換卡/);
+assert.doesNotMatch(replacementHtml, /普通攻擊|耗氣/);
+const replaced = advance(opponentDown, { type: 'ATTACK' });
+assert.equal(replaced.round, opponentDown.round, 'Replacement is not a completed combat round');
+assert.equal(replaced.player.team[0].hp, opponentDown.player.team[0].hp);
+assert.equal(replaced.player.energy, opponentDown.player.energy);
+assert.equal(replaced.opponent.active, 1);
+assert.equal(replaced.opponent.team[1].hp, opponentDown.opponent.team[1].hp, 'Continue never attacks the replacement');
+const playerDown = structuredClone(match);
+playerDown.player.team[0].hp = 0; playerDown.player.team[0].defeated = true;
+const forcedHtml = render(ActionBar, { match: playerDown, compact: true, onAction() {}, cards: interactiveCatalog() });
+assert.match(forcedHtml, /選擇接替主戰的後備/);
+assert.doesNotMatch(forcedHtml, /普通攻擊|本回合指令/);
+assert.equal((forcedHtml.match(/<button\b/g) || []).length, 1, 'Only the living reserve is actionable');
+console.log('PASS: forced replacements are clearly labelled and do not masquerade as ignored attacks');

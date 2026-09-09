@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { CardSlot, HandZone, type BattlefieldCardArt } from './GameBattlefield';
 import { VitalBar } from './BattlePanel';
 import { legalDestinations, type BattleState, type Destination } from '@/lib/beast-game/battlefield';
@@ -68,6 +68,7 @@ export default function BattleArena({ state, cards, match, onInspect }: {
       <p className={styles.arenaNote} role="status" aria-live="polite" data-matchup={matchup?.kind}>
         {finished ? (match.winner === 'player' ? '你贏了' : match.winner === 'opponent' ? '對手獲勝' : '平手')
           : match?.player.team[match.player.active].defeated ? '主戰已倒下，請在下方換上後備'
+          : match?.opponent.team[match.opponent.active].defeated ? '對手主戰已倒下，請點繼續讓後備上場'
           : matchup && mine && foe ? `${matchup.headline}・攻擊元素 ${elementPercent(mine.element as BeastElement, foe.element as BeastElement)}` : '先在下方選一張手牌，再點主戰格'}
       </p>
     </section>
@@ -83,15 +84,33 @@ export function PreparationControls({ state, cards, onSelect, onDestination, onI
     return (id: string) => map.get(id);
   }, [cards]);
   const selected = state.selectedCardId;
+  const placement = useRef<HTMLDivElement>(null);
   const inspectId = selected ?? state.player.active;
   const legal = useMemo(() => selected ? legalDestinations(state, 'PLAYER', selected) : [], [state, selected]);
   const destinations = useMemo<Destination[]>(() =>
     [{ zone: 'ACTIVE' }, ...state.player.bench.map((_, slotIndex) => ({ zone: 'BENCH' as const, slotIndex }))]
   , [state.player.bench.length]);
+  useEffect(() => {
+    if (!selected) return;
+    const frame = requestAnimationFrame(() => {
+      const target = placement.current;
+      target?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+      target?.querySelector<HTMLButtonElement>('[data-place-active]')?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [selected]);
 
   return (
-    <section className={styles.preparation} aria-label="選卡與放牌">
-      <p className={styles.selectionHint} role="status" aria-live="polite">{selected ? `已選 ${lookup(selected)?.name}，點格放入` : `點手牌選卡・點格放牌`}</p>
+    <section className={styles.preparation} aria-label="選卡與放牌" tabIndex={-1}>
+      <p className={styles.selectionHint} role="status" aria-live="polite">{selected ? `已選 ${lookup(selected)?.name}，請選放置位置` : state.player.active ? '可選手牌補後備，或按下方按鈕繼續' : '先點一張手牌，選你的主戰神獸'}</p>
+      <div className={styles.handHeading}><strong>你的手牌・{state.player.hand.length}</strong><span className={styles.deckInfo}>牌庫 {state.player.deck.length}・棄牌 {state.player.discard.length}</span></div>
+      <HandZone hand={state.player.hand} lookup={lookup} selectedCardId={selected} onCard={onSelect} showNames tapOnly />
+      <div ref={placement} className={styles.placement}>
+      {selected && <div className={styles.placeActions}>
+        {legal.some(to => to.zone === 'ACTIVE') && <button type="button" data-place-active onClick={() => onDestination({ zone: 'ACTIVE' })}>{state.player.active ? '換為主戰' : '放入主戰'}</button>}
+        <button type="button" onClick={() => onInspect(selected)}>查看能力</button>
+      </div>}
+      <p className={styles.selectionHint}>{selected ? '或點下方可放入的後備格' : '目前陣容・點已上場的卡可調整'}</p>
       <div className={styles.destinations}>
         {destinations.map((to, idx) => {
           const id = to.zone === 'ACTIVE' ? state.player.active : to.zone === 'BENCH' ? state.player.bench[to.slotIndex] : null;
@@ -103,13 +122,13 @@ export function PreparationControls({ state, cards, onSelect, onDestination, onI
               <CardSlot card={id ? lookup(id) : undefined} selected={Boolean(id && id === selected)} legalTarget={allowed}
                 label={`你的${label}：${id ? lookup(id)?.name : '空格'}${allowed ? '・可放牌' : id ? '・已放卡' : ''}`}
                 onClick={() => { if (allowed) onDestination(to); else if (id) onSelect(id); }} />
+              <small>{allowed ? '放入' : id ? '已上場' : '空位'}</small>
             </div>
           );
         })}
       </div>
-      <div className={styles.handHeading}><strong>你的手牌・{state.player.hand.length}</strong><span className={styles.deckInfo}>牌庫 {state.player.deck.length}・棄牌 {state.player.discard.length}</span></div>
-      <HandZone hand={state.player.hand} lookup={lookup} selectedCardId={selected} onCard={onSelect} />
-      {inspectId && <button type="button" className={styles.selectedInfo} onClick={() => onInspect(inspectId)}>查看{lookup(inspectId)?.name} →</button>}
+      </div>
+      {inspectId && !selected && <button type="button" className={styles.selectedInfo} onClick={() => onInspect(inspectId)}>查看{lookup(inspectId)?.name}的能力 →</button>}
     </section>
   );
 }

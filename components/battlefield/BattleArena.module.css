@@ -17,10 +17,10 @@
 .fighterHeading { border-radius: 8px; padding: 2px; background: #061021b3; }
 .arenaHeading, .handHeading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #b6c8e0; }
 .arenaHeading strong { color: #ffe4a6; font-size: 14px; }
-.fighters { position: relative; min-height: 0; display: grid; grid-template-columns: 70% 30%; gap: 12px; align-items: start; }
-.fighter[data-fighter='player'] { grid-template-rows: auto minmax(0, 1fr) auto; min-height: auto; }
+.fighters { position: relative; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: stretch; }
+.fighter[data-fighter='player'] { grid-template-rows: auto minmax(0, 1fr) auto; min-height: 0; }
 .fighter[data-fighter='opponent'] { opacity: 0.85; max-height: 280px; }
-.fighter[data-fighter='opponent'] .artSpace { place-items: flex-start; min-height: 0; max-height: 140px; }
+.fighter[data-fighter='opponent'] .artSpace { place-items: center; min-height: 0; }
 .fighter { min-height: 0; min-width: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 7px; }
 .fighterName { display: grid; gap: 2px; text-align: center; font-size: 13px; line-height: 18px; }
 .fighterName span { color: #9fc5ef; font-size: 11px; }
@@ -54,6 +54,11 @@
 .fighterIdentity span { color: #b5cce4; font-size: 10px; }
 .inspectLabel { position: absolute; right: 0; bottom: 0; left: 0; padding: 3px 1px; background: #071321e8; color: #e4f3ff; font-size: 10px; }
 .selectedInfo { min-height: 44px; text-align: left; color: #d1edff; font-size: 12px; border-top: 1px solid #3b526c; touch-action: manipulation; }
+.placement { display: grid; gap: 8px; scroll-margin: 8px; }
+.preparation [data-hand-name] { display: block; text-align: center; color: #d5e8f7; font-size: 11px; line-height: 16px; margin-top: 4px; overflow-wrap: anywhere; }
+.placeActions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.placeActions button { min-height: 48px; border-radius: 10px; border: 1px solid #7cb6ce; color: #d3f1ff; background: #213e56; font-weight: 800; font-size: 14px; touch-action: manipulation; }
+.placeActions button[data-place-active] { color: #161b21; background: #d6edfa; }
 @media (max-height: 650px) {
   .preparation { gap: 4px; }
   .destination { max-width: 44px; gap: 2px; }
@@ -67,7 +72,7 @@
   .fighterVitals { gap: 2px; }
 }
 @media (max-width: 480px) {
-  .fighters { grid-template-columns: minmax(0, 7fr) minmax(0, 3fr); }
+  .fighters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; }
   .fighter { height: 100%; }
   .fighter[data-fighter='player'] { min-height: 0; }
   .deckInfo { display: none; }
@@ -75,8 +80,15 @@
   .fighterIdentity { font-size: 10px; line-height: 13px; }
   .fighterIdentity strong { font-size: 10px; }
   .fighterIdentity span { font-size: 9px; }
-  .selectionHint { font-size: 11px; }
+  .selectionHint { font-size: 12px; }
   .arenaNote { font-size: 11px; }
   .selectedInfo { font-size: 11px; }
+}
+@media (max-width: 600px) {
+  .preparation [role='group'] > div { flex-basis: 64px; width: 64px; }
+  .preparation button { animation: none; }
+  .destination { flex: 1 1 54px; min-width: 48px; max-width: 70px; }
+  .destination:first-child { flex: 1 1 54px; }
+  .fighterIdentity span { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .acted { animation: none; } }
