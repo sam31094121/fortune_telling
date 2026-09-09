@@ -29,6 +29,7 @@ export default function BattleArena({ state, cards, match, onInspect, playing = 
   const playerFighter = match?.player.team[match.player.active];
   const playerStrike = Boolean(match && match.revision > 0 && isDamagingAction(match, 'player'));
   const strikeElement = playerFighter?.element as BattleElement | undefined;
+  const playerAction = match ? performedAction(match, 'player') : null;
 
   return (
     <section className={styles.arena} aria-label="戰鬥畫面" data-battle-visual data-playback={playing ? 'acting' : 'ready'} data-battle-revision={match?.revision} data-battle-venue="cards">
@@ -39,7 +40,7 @@ export default function BattleArena({ state, cards, match, onInspect, playing = 
         <span>{BATTLE_VENUES.cards.name}・卡片戰鬥</span>
       </div>
       {playerStrike && strikeElement && <div key={`element-strike-${match?.revision}`} className={styles.elementStrike}
-        data-element={strikeElement} style={{ '--element-strike': ELEMENT_FX[strikeElement].glow, '--action-delay': `${Math.max(0, match?.log.findIndex(entry => entry.side === 'player' && entry.text.includes('：')) ?? 0) * COMBAT_BEAT_MS}ms` } as CSSProperties} aria-hidden="true">
+        data-element={strikeElement} data-skill={String(playerAction === 'SKILL')} style={{ '--element-strike': ELEMENT_FX[strikeElement].glow, '--action-delay': `${Math.max(0, match?.log.findIndex(entry => entry.side === 'player' && entry.text.includes('：')) ?? 0) * COMBAT_BEAT_MS}ms` } as CSSProperties} aria-hidden="true">
         <span className={styles.strikeField} />
         <span className={styles.strikeTrace} data-trace="one" />
         <span className={styles.strikeReadout}><b>{ELEMENT_FX[strikeElement].label}元素攻擊</b></span>

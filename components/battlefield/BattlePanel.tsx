@@ -27,6 +27,7 @@ import {
   beastVoiceFor,
   createSoundPlayer,
   playBeastAction,
+  playClashSequence,
   playVictoryMusic,
   playDefeatMusic,
   type BattleElement,
@@ -283,17 +284,49 @@ const BattlePanel = memo(function BattlePanel({
 
   useEffect(() => {
     if (!sound.current || match.revision === 0) return;
-    const action = performedAction(match, 'player');
-    if (action !== 'ATTACK' && action !== 'SKILL') return;
-    const fighter = match.player.team[match.player.active];
-    const order = match.log.findIndex(entry => entry.side === 'player' && entry.cardId === fighter.cardId);
-    let cancel: (() => void) | undefined;
-    const timer = window.setTimeout(() => {
-      if (!sound.current) return;
-      if (isDamagingAction(match, 'player')) cancel = playBeastAction(sound.current.play, fighter.cardId, fighter.element as BattleElement, 'player', false);
-      else { const voice = beastVoiceFor(fighter.cardId); if (voice) sound.current.play(voice, .55, 1); }
-    }, Math.max(0, order) * COMBAT_BEAT_MS);
-    return () => { window.clearTimeout(timer); cancel?.(); };
+    const timers: number[] = [];
+    const cancels: Array<() => void> = [];
+
+    // 偵測本回合是否造成 KO（重擊音效啟動 heavy=true）
+    const allChanges = match.log.flatMap(e => e.changes ?? []);
+    const isKoHit = (attackSide: 'player' | 'opponent') => {
+      const defSide = attackSide === 'player' ? 'opponent' : 'player';
+      const defCard = match[defSide].team[match[defSide].active].cardId;
+      return allChanges.some(c => c.side === defSide && c.cardId === defCard && c.hpBefore > 0 && c.hpAfter <= 0);
+    };
+
+    // 玩家出招：三段式（含 heavy 判斷）+ SKILL 加砲聲
+    const pAction = performedAction(match, 'player');
+    if (pAction === 'ATTACK' || pAction === 'SKILL') {
+      const fighter = match.player.team[match.player.active];
+      const order = match.log.findIndex(e => e.side === 'player' && e.cardId === fighter.cardId);
+      const heavy = isKoHit('player');
+      timers.push(window.setTimeout(() => {
+        if (!sound.current) return;
+        if (isDamagingAction(match, 'player')) {
+          cancels.push(playBeastAction(sound.current.play, fighter.cardId, fighter.element as BattleElement, 'player', heavy));
+          // 技能攻擊：加砲聲前奏，份量比普通攻擊重
+          if (pAction === 'SKILL') window.setTimeout(() => sound.current?.play('/audio/taiji/cc0-cannon-fire.ogg', heavy ? 0.52 : 0.38, 1), 80);
+        } else {
+          const voice = beastVoiceFor(fighter.cardId);
+          if (voice) sound.current.play(voice, .55, 1);
+        }
+      }, Math.max(0, order) * COMBAT_BEAT_MS));
+    }
+
+    // 對手出招：之前完全靜音，現在補上輕版三段交鋒聲
+    const oAction = performedAction(match, 'opponent');
+    if ((oAction === 'ATTACK' || oAction === 'SKILL') && isDamagingAction(match, 'opponent')) {
+      const oFighter = match.opponent.team[match.opponent.active];
+      const oOrder = match.log.findIndex(e => e.side === 'opponent' && e.cardId === oFighter.cardId);
+      const oHeavy = isKoHit('opponent');
+      timers.push(window.setTimeout(() => {
+        if (!sound.current) return;
+        cancels.push(playClashSequence(sound.current.play, oFighter.element as BattleElement, oHeavy, oFighter.cardId));
+      }, Math.max(0, oOrder) * COMBAT_BEAT_MS));
+    }
+
+    return () => { timers.forEach(id => window.clearTimeout(id)); cancels.forEach(fn => fn()); };
   }, [match]);
   useEffect(() => {
     if (!finished || busy || !sound.current) return;

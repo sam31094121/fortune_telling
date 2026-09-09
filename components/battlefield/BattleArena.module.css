@@ -242,6 +242,111 @@
   100%{ opacity: 0;  transform: scale(1.5); }
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   四層比例武器系統：太極素材淋漓盡致用法
+   Layer 1 普通攻擊 → elementStrike
+   Layer 2 技能攻擊 → + 旋轉太極 + 場內旋轉 + 砲聲（聲音在 BattlePanel）
+   Layer 3 KO 重擊 → + impactRing + heavy 音效
+   Layer 4 對手攻擊 → 輕版交鋒聲（之前靜音，現在有聲）
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── strikeField 內旋轉太極（FIRE / EARTH / AIR / WATER 元素共用） ── */
+.elementStrike[data-element='FIRE'] .strikeField::before,
+.elementStrike[data-element='EARTH'] .strikeField::before,
+.elementStrike[data-element='AIR'] .strikeField::before,
+.elementStrike[data-element='WATER'] .strikeField::before {
+  content: '';
+  position: absolute;
+  inset: 5%;
+  background: url('/assets/taiji/esoteric-taijitu-public-domain.svg') center / 88% no-repeat;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 16px var(--element-strike, #a7f3d0));
+  animation: strikeInnerSpin 620ms ease-out both;
+  animation-delay: var(--action-delay, 0ms);
+  pointer-events: none;
+}
+@keyframes strikeInnerSpin {
+  0%   { opacity: 0; transform: scale(0.18) rotate(-80deg); }
+  22%  { opacity: 0.82; transform: scale(1.06) rotate(135deg); }
+  68%  { opacity: 0.52; transform: scale(1.16) rotate(285deg); }
+  100% { opacity: 0;   transform: scale(1.38) rotate(380deg); }
+}
+
+/* SKILL 攻擊：strikeField 內太極更大更亮，旋轉更猛 */
+.elementStrike[data-skill='true'] .strikeField::before {
+  filter: drop-shadow(0 0 26px var(--element-strike, #a7f3d0)) brightness(1.4);
+  animation-duration: 800ms;
+  inset: -5%;
+}
+
+/* ── EARTH 元素：翡翠裂紋 + 木紋，厚德載物的質感 ── */
+.elementStrike[data-element='EARTH'] .strikeField {
+  background-image:
+    url('/textures/polyhaven/cc0-emerald-relief.jpg'),
+    url('/textures/polyhaven/cc0-fine-wood-relief.jpg'),
+    url('/assets/taiji/esoteric-taijitu-public-domain.svg'),
+    linear-gradient(134deg, transparent 34%, #fef3c7d6 35% 38%, transparent 39%),
+    linear-gradient(48deg, transparent 42%, #f59e0b9e 43% 47%, transparent 48%),
+    radial-gradient(ellipse at 50% 66%, #92400ea6, transparent 50%);
+  background-size: 72% 72%, 100% 100%, 55% 55%, cover, cover, cover;
+  background-position: 32% 42%, center, center, center, center, center;
+  background-blend-mode: overlay, soft-light, screen, normal, normal, normal;
+}
+
+/* ── AIR 元素：木紋疊加（巽卦風行木動） ── */
+.elementStrike[data-element='AIR'] .strikeField {
+  background-image:
+    url('/textures/polyhaven/cc0-fine-wood-relief.jpg'),
+    url('/assets/taiji/esoteric-taijitu-public-domain.svg'),
+    linear-gradient(112deg, transparent 24%, #d1fae5d9 42%, #67e8f9bc 47%, transparent 53%),
+    repeating-linear-gradient(164deg, transparent 0 10%, #a7f3d033 11%, transparent 13%);
+  background-size: 100% 100%, 58% 58%, cover, cover;
+  background-position: center, center, center, center;
+  background-blend-mode: soft-light, screen, normal, normal;
+}
+
+/* ── SPACE 元素：閃電精靈圖動態移位（雷從空中來） ── */
+.elementStrike[data-element='SPACE'] .strikeField::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/audio/taiji/lightning-sprite-cc0.png') center / cover no-repeat;
+  mix-blend-mode: screen;
+  animation: lightningShift 560ms steps(5, end) both;
+  animation-delay: var(--action-delay, 0ms);
+  pointer-events: none;
+}
+@keyframes lightningShift {
+  0%   { opacity: 0;   transform: scaleX(-1.05) translateX(-6%); }
+  14%  { opacity: 0.92; transform: scaleX(1)    translateX(0); }
+  38%  { opacity: 0.78; transform: scaleX(-1)   translateX(4%); }
+  65%  { opacity: 0.5;  transform: scaleX(1.05) translateX(-2%); }
+  100% { opacity: 0;   transform: scaleX(1)    translateX(0); }
+}
+
+/* ── SKILL 攻擊：雙層太極環（第二圈，外旋） ── */
+.elementStrike[data-skill='true'][data-element='FIRE'] .strikeField::after,
+.elementStrike[data-skill='true'][data-element='EARTH'] .strikeField::after,
+.elementStrike[data-skill='true'][data-element='AIR'] .strikeField::after,
+.elementStrike[data-skill='true'][data-element='WATER'] .strikeField::after,
+.elementStrike[data-skill='true'][data-element='SPACE'] .strikeField::after {
+  content: '';
+  position: absolute;
+  inset: -15%;
+  background: url('/assets/taiji/esoteric-taijitu-public-domain.svg') center / 70% no-repeat;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 22px var(--element-strike, #a7f3d0)) opacity(0.62);
+  animation: strikeOuterSpin 900ms ease-out both;
+  animation-delay: var(--action-delay, 0ms);
+  pointer-events: none;
+}
+@keyframes strikeOuterSpin {
+  0%   { opacity: 0; transform: scale(0.5) rotate(0deg); }
+  18%  { opacity: 0.58; transform: scale(1.12) rotate(-120deg); }
+  70%  { opacity: 0.32; transform: scale(1.25) rotate(-280deg); }
+  100% { opacity: 0;  transform: scale(1.45) rotate(-360deg); }
+}
+
 /* Keep actual life and this round's changes readable outside the animated portrait. */
 .fighter, .fighter[data-fighter='player'] { grid-template-rows: minmax(0, 1fr) auto; gap: 4px; }
 .fighter[data-fighter='opponent'] { opacity: 1; max-height: none; }
