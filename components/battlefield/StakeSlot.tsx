@@ -83,6 +83,8 @@ export default function StakeSlot({
   }, [currentIndex]);
 
   const pickerRef = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ id: number; x: number; left: number } | null>(null);
+  const dragged = useRef(false);
   const selectedIds = useMemo(() => selected ?? [], [selected]);
   const picked = useMemo(() => selectedIds
     .map(id => owned.find(card => card.id === id))
@@ -189,7 +191,34 @@ export default function StakeSlot({
           <span>試用卡可佈陣和出招，不列入持有卡片，也不能押注。</span>
         </div>
       ) : (
-        <div ref={pickerRef} className={styles.picker} role="group" aria-label="從收藏選五張押注">
+        <>
+        <div className={styles.pickerNavigation} aria-label="移動收藏卡列">
+          <button type="button" onClick={() => pickerRef.current?.scrollBy({ left: -pickerRef.current.clientWidth * .85, behavior: 'auto' })} aria-label="前一排收藏卡">← 前一排</button>
+          <span>左右滑動或拖動選卡</span>
+          <button type="button" onClick={() => pickerRef.current?.scrollBy({ left: pickerRef.current.clientWidth * .85, behavior: 'auto' })} aria-label="後一排收藏卡">後一排 →</button>
+        </div>
+        <div ref={pickerRef} className={styles.picker} role="group" aria-label="從收藏選五張押注"
+          onPointerDown={event => {
+            dragged.current = false;
+            if (event.pointerType === 'mouse' && event.button === 0) drag.current = { id: event.pointerId, x: event.clientX, left: event.currentTarget.scrollLeft };
+          }}
+          onPointerMove={event => {
+            const start = drag.current;
+            if (!start || start.id !== event.pointerId) return;
+            const distance = event.clientX - start.x;
+            if (Math.abs(distance) < 6 && !dragged.current) return;
+            dragged.current = true;
+            event.currentTarget.setPointerCapture(event.pointerId);
+            event.currentTarget.scrollLeft = start.left - distance;
+            event.preventDefault();
+          }}
+          onPointerUp={event => {
+            drag.current = null;
+            if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+          }}
+          onPointerCancel={() => { drag.current = null; }}
+          onPointerLeave={event => { if (!event.currentTarget.hasPointerCapture(event.pointerId)) drag.current = null; }}
+          onClickCapture={event => { if (dragged.current) { event.preventDefault(); event.stopPropagation(); dragged.current = false; } }}>
           {owned.map((card) => (
             <button
               key={card.id}
@@ -207,13 +236,14 @@ export default function StakeSlot({
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={card.thumbnail} alt={card.name} loading="lazy" decoding="async" />
+              <img src={card.thumbnail} alt={card.name} loading="lazy" decoding="async" draggable={false} />
               <strong>{card.name}</strong>
               <span>第 {card.copy}/{card.count} 張</span>
               <span>{selectedIds.includes(card.id) ? '已選・點擊取回' : selectedIds.length < 5 ? '點擊押上' : '已選滿五張'}</span>
             </button>
           ))}
         </div>
+        </>
       )}
     </section>
   );

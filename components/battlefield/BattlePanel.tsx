@@ -127,13 +127,15 @@ export function FighterStatus({ match, side, label }: { match: Match; side: Side
  * 冷卻中就沒有技能鈕、被打倒就只剩換位。**畫面不自己判斷能不能按**。
  */
 export function BattleActionBar({
-  match, onAction, busy, compact, cards = [],
+  match, onAction, busy, compact, cards = [], relaxed, onBrowse,
 }: {
   match: Match;
   onAction: (action: Action) => void;
   busy?: boolean;
   compact?: boolean;
   cards?: BattlefieldCardArt[];
+  relaxed?: boolean;
+  onBrowse?: () => void;
 }) {
   const [commandView, setCommandView] = useState<'swap' | 'help' | null>(null);
   const commandDetail = useRef<HTMLDivElement>(null);
@@ -171,14 +173,14 @@ export function BattleActionBar({
     </div>;
     return (
       <div className={styles.compactActions}>
-        <p className={styles.activeHint} role="status">{active.defeated ? '主戰已倒下，請點後備接替' : '輪到你了，選一個動作'}</p>
+        {!relaxed && !onBrowse && <p className={styles.activeHint} role="status">選一個動作</p>}
         <div className={styles.primaryActions} role="group" aria-label="本回合指令">
-          <button type="button" className={styles.actionButton} disabled={busy || !attack} onClick={() => attack && onAction(attack)}>普通攻擊<small>{ELEMENT_LABEL[active.element]}系・不耗氣</small></button>
+          <button type="button" className={styles.actionButton} disabled={busy || !attack} onClick={() => attack && onAction(attack)}>{relaxed && special ? '保留技能・普攻' : '普通攻擊'}<small>{ELEMENT_LABEL[active.element]}系・不耗氣</small></button>
           <button type="button" className={styles.skillButton} disabled={busy || !special} onClick={() => special && onAction(special)}>
             技能<small>{skill.skillName}・{active.defeated ? '請先換卡' : active.cooldown > 0 ? `冷卻 ${active.cooldown} 回合` : `耗氣 ${skill.cost}${!special ? '・氣不足' : ''}`}</small>
           </button>
-          <button type="button" className={styles.actionButton} aria-expanded={commandView === 'swap' || active.defeated} onClick={() => setCommandView(commandView === 'swap' ? null : 'swap')}>換卡<small>{switches.length ? '查看可換上的後備' : '目前沒有可換後備'}</small></button>
-          <button type="button" className={styles.actionButton} aria-expanded={commandView === 'help'} onClick={() => setCommandView(commandView === 'help' ? null : 'help')}>說明<small>只查看，不消耗回合</small></button>
+          <button type="button" className={styles.actionButton} aria-expanded={commandView === 'swap' || active.defeated} onClick={() => { onBrowse?.(); setCommandView(commandView === 'swap' ? null : 'swap'); }}>換卡<small>{switches.length ? '查看可換上的後備' : '目前沒有可換後備'}</small></button>
+          <button type="button" className={styles.actionButton} aria-expanded={commandView === 'help'} onClick={() => { onBrowse?.(); setCommandView(commandView === 'help' ? null : 'help'); }}>說明<small>只查看，不消耗回合</small></button>
         </div>
         <div ref={commandDetail}>
         {(commandView === 'swap' || active.defeated) && <>
@@ -203,7 +205,7 @@ export function BattleActionBar({
           <h3>{skill.skillName}</h3><p>{skill.description}</p>
           <p>{skill.role}型・攻 {effectiveStat(active, 'attack')}／防 {effectiveStat(active, 'defense')}／速 {effectiveStat(active, 'speed')}</p>
           <p>普通攻擊不耗氣；技能的氣量與冷卻會標在按鈕上。點「換卡」後，再親自選後備上場。</p>
-          <button type="button" className={styles.actionButton} onClick={() => setCommandView(null)}>收起說明</button>
+          <button type="button" className={styles.actionButton} onClick={() => { setCommandView(null); onBrowse?.(); }}>收起說明</button>
         </section>}
         </div>
       </div>
@@ -253,13 +255,15 @@ export function BattleLog({ match }: { match: Match }) {
 }
 
 const BattlePanel = memo(function BattlePanel({
-  match, onAction, busy, compact, cards,
+  match, onAction, busy, compact, cards, relaxed, onBrowse,
 }: {
   match: Match;
   onAction: (action: Action) => void;
   busy?: boolean;
   compact?: boolean;
   cards?: BattlefieldCardArt[];
+  relaxed?: boolean;
+  onBrowse?: () => void;
 }) {
   const finished = match.status === 'FINISHED';
   const { damagePopups, addDamagePopup } = useBattleEffects();
@@ -367,10 +371,10 @@ const BattlePanel = memo(function BattlePanel({
           </small>
         </p>
       ) : (
-        <BattleActionBar match={match} onAction={onAction} busy={busy} compact={compact} cards={cards} />
+        <BattleActionBar match={match} onAction={onAction} busy={busy} compact={compact} cards={cards} relaxed={relaxed} onBrowse={onBrowse} />
       )}
 
-      {compact ? <details className={styles.battleDetails}><summary>本回合戰報{match.log.length ? `・${match.log.length} 則` : ''}</summary><BattleLog match={match} /></details> : <BattleLog match={match} />}
+      {compact ? <details className={styles.battleDetails} onToggle={event => { if (event.currentTarget.open) onBrowse?.(); }}><summary>本回合戰報{match.log.length ? `・${match.log.length} 則` : ''}</summary><BattleLog match={match} /></details> : <BattleLog match={match} />}
     </section>
   );
 });

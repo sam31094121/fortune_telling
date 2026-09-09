@@ -25,7 +25,7 @@
 .strikeReadout b { color: var(--element-strike); font-size: 13px; letter-spacing: .12em; }
 .strikeReadout small { color: #dbeafe; font-size: 8px; letter-spacing: .14em; }
 @keyframes elementStrikeShell { 0% { opacity: 0; } 12%, 62% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes elementFieldBurst { 0% { opacity: 0; transform: translate3d(-12%, 5%, -120px) scale(.72) rotateX(8deg); } 28% { opacity: 1; transform: translate3d(3%, -2%, 20px) scale(1.08) rotateX(0); } 100% { opacity: 0; transform: translate3d(10%, -4%, 80px) scale(1.18) rotateX(-4deg); } }
+@keyframes elementFieldBurst { 0% { opacity: 0; transform: translate3d(-12%, 5%, -120px) scale(.72) rotateX(8deg); } 28% { opacity: .3; transform: translate3d(3%, -2%, 20px) scale(1.08) rotateX(0); } 100% { opacity: 0; transform: translate3d(10%, -4%, 80px) scale(1.18) rotateX(-4deg); } }
 @keyframes elementTrace { 0% { opacity: 0; transform: translate3d(-24px, 8px, -80px) scaleX(.05) skewX(-20deg); } 35% { opacity: 1; transform: translate3d(0, 0, 28px) scaleX(1.06) skewX(-6deg); } 100% { opacity: 0; transform: translate3d(26px, -5px, 90px) scaleX(1.16) skewX(0); } }
 @keyframes elementReadout { 0% { opacity: 0; transform: translate3d(18px, 0, 0); } 24%, 72% { opacity: 1; transform: translate3d(0, 0, 0); } 100% { opacity: 0; transform: translate3d(-8px, 0, 0); } }
 .arenaHeading, .fighters, .arenaNote { position: relative; z-index: 2; }
@@ -117,9 +117,17 @@
 }
 @media (prefers-reduced-motion: reduce) { .acted { animation: none; } .elementStrike { animation-duration: 360ms; } .strikeField, .strikeTrace, .strikeReadout { animation: none; } }
 .artSpace[data-rush='true'] { z-index: 3; }
-.artSpace[data-rush='true'] .art { animation: cardCharge 560ms cubic-bezier(.2,.75,.3,1) both; }
+.artSpace[data-rush='true'] .art { animation: cardCharge 560ms cubic-bezier(.2,.75,.3,1) both; animation-delay:var(--action-delay,0ms); }
 @keyframes cardCharge {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); filter: brightness(1); }
-  42% { transform: translate3d(0, -3px, 18px) scale(1.035); filter: brightness(1.16); }
+  34%, 46% { transform: translate3d(var(--strike-x,0px), -3px, 18px) scale(1.035); filter: brightness(1.12); }
 }
+.actionCue{position:absolute;z-index:5;top:6px;left:0;right:0;padding:4px;background:#071522e8;border:1px solid #ead397;border-radius:8px;text-align:center;color:#ffe4a6;font-size:12px;pointer-events:none;animation:actionCue 2.2s ease-out both;animation-delay:var(--action-delay,0ms)}
+.artSpace[data-hit='true'] .art img{animation:cardHit 480ms ease-out both;animation-delay:var(--hit-delay,0ms)}
+.artSpace[data-skill='true'][data-rush='false'] .art{animation:skillGlow 900ms ease-out both;animation-delay:var(--action-delay,0ms)}
+@keyframes cardHit{0%,100%{filter:brightness(1);transform:translateX(0)}30%,45%{filter:brightness(1.2);transform:translateX(calc(var(--strike-x,0px) * -.3))}}
+@keyframes skillGlow{0%,100%{box-shadow:0 6px 14px #0008}40%{box-shadow:0 0 22px #a7f3d0}}
+@keyframes actionCue{0%{opacity:0}10%,80%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.artSpace[data-hit='true'] .art img,.artSpace[data-skill='true'][data-rush='false'] .art,.actionCue{animation:none}}
 @media (prefers-reduced-motion: reduce) { .artSpace[data-rush='true'] .art { animation: none; } }
+.elementStrike,.strikeField,.strikeTrace,.strikeReadout{animation-delay:var(--action-delay,0ms)}

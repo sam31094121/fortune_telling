@@ -120,6 +120,8 @@
 /* Inspection is a focused view, not a small second card beneath the same artwork. */
 .split[data-inspecting='true'] { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
 .split[data-inspecting='true'] > [data-battle-visual] { display: none; }
+.split[data-stake-review='true'] { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+.split[data-stake-review='true'] > [data-battle-visual] { display: none; }
 .split[data-stake-review='true'] [data-stake-slot] > [role='group'] { order: -1; }
 .split[data-stake-review='true'] [data-needs-stake='true'] [role='group'] > button:first-child { outline: 2px solid #ffe4a6; outline-offset: -2px; }
 @media (max-width: 600px), (orientation: landscape) and (max-height: 540px) {

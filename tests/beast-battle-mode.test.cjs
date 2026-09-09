@@ -192,6 +192,16 @@ assert.doesNotMatch(forcedHtml, /普通攻擊|本回合指令/);
 assert.equal((forcedHtml.match(/<button\b/g) || []).length, 1, 'Only the living reserve is actionable');
 console.log('PASS: forced replacements are clearly labelled and do not masquerade as ignored attacks');
 
+const stunnedVisual = structuredClone(match);
+stunnedVisual.player.team[0].stunnedTurns = 1;
+const stunnedTurn = advance(stunnedVisual, { type: 'ATTACK' }, { type: 'ATTACK' });
+const stunnedArena = render(Arena, { match: stunnedTurn, cards: interactiveCatalog(), onInspect() {} });
+assert.doesNotMatch(stunnedArena, /data-element=/, 'A skipped player action must not create an element strike');
+assert.equal((stunnedArena.match(/data-rush="true"/g) || []).length, 1, 'Only the opponent actually attacked');
+const replacedArena = render(Arena, { match: replaced, cards: interactiveCatalog(), onInspect() {} });
+assert.doesNotMatch(replacedArena, /data-rush="true"|data-element=/, 'Replacement alone never plays an attack');
+console.log('PASS: visible strikes follow performed actions, not merely submitted commands');
+
 // Full-size artwork is on demand; battle and hands keep the small portrait assets.
 const { combatGuideFor } = load('lib/beast-game/combat-guide.ts');
 for (const card of interactiveCatalog()) {

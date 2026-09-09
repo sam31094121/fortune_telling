@@ -189,7 +189,14 @@
   overflow-x: auto;
   padding: 4px 2px;
   overscroll-behavior-x: contain;
+  cursor: grab;
+  user-select: none;
+  touch-action: manipulation;
 }
+.picker:active{cursor:grabbing}
+.pickerNavigation{order:-2;display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px;color:#b9c5d9}
+.pickerNavigation button{min-height:44px;padding:6px 10px;border:1px solid #7caaca;border-radius:9px;color:#e4f3ff;white-space:nowrap;touch-action:manipulation!important}
+.pickerNavigation span{text-align:center}
 
 .pick {
   flex: 0 0 100px;

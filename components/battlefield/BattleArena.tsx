@@ -25,14 +25,14 @@ export default function BattleArena({ state, cards, match, onInspect }: {
   const finished = match?.status === 'FINISHED';
   const lastPlayerAction = match?.history?.at(-1)?.player;
   const playerFighter = match?.player.team[match.player.active];
-  const playerStrike = Boolean(match && match.revision > 0 && playerFighter && (
+  const playerStrike = Boolean(match && match.revision > 0 && playerFighter && match.log.some(entry => entry.side === 'player' && entry.cardId === playerFighter.cardId && entry.text.includes('：')) && (
     lastPlayerAction?.type === 'ATTACK'
     || (lastPlayerAction?.type === 'SKILL' && profile(playerFighter.cardId).effects.some(effect => effect.type === 'DAMAGE' && effect.target === 'ENEMY'))
   ));
   const strikeElement = playerFighter?.element as BattleElement | undefined;
 
   return (
-    <section className={styles.arena} aria-label="戰鬥畫面" data-battle-visual data-battle-venue="cards">
+    <section className={styles.arena} aria-label="戰鬥畫面" data-battle-visual data-battle-revision={match?.revision} data-battle-venue="cards">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className={styles.backdrop} src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" decoding="async" />
       <div className="sr-only">
@@ -40,10 +40,10 @@ export default function BattleArena({ state, cards, match, onInspect }: {
         <span>{BATTLE_VENUES.cards.name}・卡片戰鬥</span>
       </div>
       {playerStrike && strikeElement && <div key={`element-strike-${match?.revision}`} className={styles.elementStrike}
-        data-element={strikeElement} style={{ '--element-strike': ELEMENT_FX[strikeElement].glow } as CSSProperties} aria-hidden="true">
+        data-element={strikeElement} style={{ '--element-strike': ELEMENT_FX[strikeElement].glow, '--action-delay': `${Math.max(0, match?.log.findIndex(entry => entry.side === 'player' && entry.text.includes('：')) ?? 0) * 650}ms` } as CSSProperties} aria-hidden="true">
         <span className={styles.strikeField} />
         <span className={styles.strikeTrace} data-trace="one" />
-        <span className={styles.strikeReadout}><b>{ELEMENT_FX[strikeElement].label}元素攻擊</b><small>ENERGY LOCK・命中同步</small></span>
+        <span className={styles.strikeReadout}><b>{ELEMENT_FX[strikeElement].label}元素攻擊</b></span>
       </div>}
       <div className={styles.fighters}>
         {(['player', 'opponent'] as const).map(side => {
@@ -54,9 +54,12 @@ export default function BattleArena({ state, cards, match, onInspect }: {
           const lastAction = match?.history?.at(-1)?.[side];
           const performed = Boolean(card && match?.log.some(entry => entry.side === side && entry.cardId === card.id && entry.text.includes('：')));
           const rush = performed && (lastAction?.type === 'ATTACK' || (lastAction?.type === 'SKILL' && card && profile(card.id).effects.some(effect => effect.type === 'DAMAGE' && effect.target === 'ENEMY')));
+          const actionOrder = match?.log.findIndex(entry => entry.side === side && entry.cardId === card?.id && entry.text.includes('：')) ?? -1;
+          const hitOrder = match?.log.findIndex(entry => entry.side !== side && entry.text.includes(' × 元素')) ?? -1;
           return (
             <div className={styles.fighter} key={side} data-fighter={side} aria-label={`${label}：${card?.name ?? '等待主戰'}`}>
-              <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)}>
+              <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} data-hit={hitOrder >= 0} data-skill={performed && lastAction?.type === 'SKILL'}
+                style={{ '--strike-x': side === 'player' ? '18px' : '-18px', '--action-delay': `${Math.max(0, actionOrder) * 650}ms`, '--hit-delay': `${Math.max(0, hitOrder) * 650 + 240}ms` } as CSSProperties}>
                 <button type="button" disabled={!card} aria-label={card ? `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => card && onInspect(card.id, side)}
                   className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''}`}>
                   {card ? (
@@ -64,6 +67,7 @@ export default function BattleArena({ state, cards, match, onInspect }: {
                     <img src={card.thumbnail} alt={`${label}主戰：${card.name}`} width={256} height={384} decoding="async" draggable={false} />
                   ) : <span className={styles.empty}>主戰卡<br />等待上場</span>}
                 </button>
+                {performed && <span className={styles.actionCue} role="status">{lastAction?.type === 'SKILL' && card ? profile(card.id).skillName : '普通攻擊'}</span>}
                 {fighter && team && (
                   <div className={styles.fighterVitals} aria-hidden="true">
                     <p className={styles.fighterName}><span>{label}</span><strong>{card?.name}</strong></p>
