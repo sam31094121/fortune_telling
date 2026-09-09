@@ -366,3 +366,183 @@
 @keyframes reserveEnter { from { opacity: .4; transform: translateY(20px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes cardHit { 0% { filter: brightness(1); transform: translateX(0) scale(1); } 18% { filter: brightness(2.2) saturate(0); transform: translateX(calc(var(--strike-x,0px) * var(--hit-weight,.3) * -1)) scale(.97); } 45% { filter: brightness(1.3); transform: translateX(calc(var(--strike-x,0px) * var(--hit-weight,.3) * -.4)); } 100% { filter: brightness(1); transform: translateX(0) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .artSpace[data-action] .art { animation: none; } }
+
+/* ═══════════════════════════════════════════════════════════════════
+   4K 電影畫質升級：太極氣場 × 科技 HUD × 武器光學
+   無極生太極，太極生兩儀——視覺即哲學，素材即武器
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 1. 戰場氣場底圖：太極緩緩呼吸（氣場感、意境感） ── */
+.arena::after {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  z-index: 1;
+  pointer-events: none;
+  background: url('/assets/taiji/esoteric-taijitu-public-domain.svg') center / 56% no-repeat;
+  opacity: 0.055;
+  animation: arenaTaijiField 52s linear infinite;
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+@keyframes arenaTaijiField {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── 2. 卡片全息掃光：高端全息感，每 7 秒一道光 ── */
+.art::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 9px;
+  background: linear-gradient(
+    112deg,
+    transparent 26%,
+    rgba(255,255,255,0.055) 37%,
+    rgba(185,238,255,0.12) 46%,
+    rgba(255,255,255,0.055) 55%,
+    transparent 64%
+  );
+  transform: translateX(-160%) skewX(-12deg);
+  animation: holoSweep 7s ease-in-out infinite;
+}
+@keyframes holoSweep {
+  0%, 52%, 100% { opacity: 0; transform: translateX(-160%) skewX(-12deg); }
+  56%  { opacity: 1; transform: translateX(-160%) skewX(-12deg); }
+  92%  { opacity: 1; transform: translateX(235%) skewX(-12deg); }
+  97%, 100% { opacity: 0; transform: translateX(235%) skewX(-12deg); }
+}
+
+/* ── 3. 科技 HUD 瞄準框：出招/受擊時四角亮起 ── */
+.art::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: 8px;
+  background:
+    linear-gradient(to right,  var(--element-strike, #7dd3fc) 13px, transparent 13px) top left     / 100% 2px no-repeat,
+    linear-gradient(to bottom, var(--element-strike, #7dd3fc) 13px, transparent 13px) top left     / 2px 100% no-repeat,
+    linear-gradient(to left,   var(--element-strike, #7dd3fc) 13px, transparent 13px) bottom right  / 100% 2px no-repeat,
+    linear-gradient(to top,    var(--element-strike, #7dd3fc) 13px, transparent 13px) bottom right  / 2px 100% no-repeat;
+  opacity: 0;
+}
+.artSpace[data-rush='true'] .art::after {
+  opacity: 1;
+  animation: techAimFlash 450ms ease-out both;
+  animation-delay: var(--action-delay, 0ms);
+}
+.artSpace[data-hit='true'] .art::after {
+  opacity: 1;
+  animation: techHitFlash 380ms ease-out both;
+  animation-delay: var(--hit-delay, 0ms);
+}
+@keyframes techAimFlash {
+  0% { opacity: 0; transform: scale(1.09); }
+  16%, 72% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; }
+}
+@keyframes techHitFlash {
+  0%, 18% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ── 4. 太極氣彈：精氣凝聚為彈，穿越戰場擊中對手 ── */
+.elementStrike::before {
+  content: '';
+  position: absolute;
+  width: 58px; height: 58px;
+  top: 36%; left: 10%;
+  border-radius: 50%;
+  background: url('/assets/taiji/esoteric-taijitu-public-domain.svg') center / 100% no-repeat;
+  filter:
+    drop-shadow(0 0 10px var(--element-strike, #7dd3fc))
+    drop-shadow(0 0 22px var(--element-strike, #7dd3fc))
+    brightness(1.18);
+  animation: taijiBolt 295ms cubic-bezier(.32,.02,.22,1) both;
+  animation-delay: var(--action-delay, 0ms);
+  z-index: 5;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+@keyframes taijiBolt {
+  0%   { opacity: 0;    transform: translate(0, 0)      scale(.22) rotate(0deg); }
+  10%  { opacity: 1;    transform: translate(6%, -4%)   scale(.62) rotate(65deg); }
+  78%  { opacity: 0.90; transform: translate(248%, -5%)  scale(.82) rotate(535deg); }
+  100% { opacity: 0;    transform: translate(318%, -5%)  scale(.15) rotate(720deg); }
+}
+/* SKILL 技能：氣彈更大、更亮、光暈三重 */
+.elementStrike[data-skill='true']::before {
+  width: 90px; height: 90px;
+  top: 28%; left: 8%;
+  filter:
+    drop-shadow(0 0 16px var(--element-strike, #a7f3d0))
+    drop-shadow(0 0 32px var(--element-strike, #a7f3d0))
+    drop-shadow(0 0 54px var(--element-strike, #a7f3d0))
+    brightness(1.44);
+  animation-duration: 335ms;
+}
+
+/* ── 5. 三重衝擊漣漪：KO 重擊同心圓爆開（之前只有一圈） ── */
+.artSpace[data-impact='strong'][data-hit='true']::before {
+  border: none;
+  box-shadow:
+    0 0 0 2px var(--element-strike, rgba(125,211,252,.92)),
+    0 0 0 14px rgba(125,211,252,.16),
+    0 0 0 32px rgba(125,211,252,.06),
+    inset 0 0 18px rgba(125,211,252,.22);
+  animation: impactTriple 530ms ease-out both;
+  animation-delay: var(--hit-delay, 0ms);
+}
+@keyframes impactTriple {
+  0%  { opacity: 1;   transform: scale(.36); }
+  50% { opacity: 0.72; transform: scale(1.04); }
+  100%{ opacity: 0;   transform: scale(1.9); }
+}
+
+/* ── 6. 出招卡片通電邊框光暈 ── */
+.artSpace[data-rush='true'] .art {
+  box-shadow:
+    0 0 0 2px var(--element-strike, #7dd3fc),
+    0 0 18px 6px var(--element-strike, rgba(125,211,252,.48)),
+    0 6px 14px #0009;
+}
+
+/* ── 7. 卡片 GPU 高畫質渲染：對比 +6%・飽和 +10% ── */
+.art img {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  filter: contrast(1.06) saturate(1.10);
+  will-change: filter, transform;
+}
+
+/* ── 8. WATER 水紋動態流淌：以柔克剛，水漫太極 ── */
+.elementStrike[data-element='WATER'] .strikeField::after {
+  content: '';
+  position: absolute;
+  inset: -8%;
+  background: url('/textures/cc0-y2k-water-texture.png') 65% 50% / 130% no-repeat;
+  mix-blend-mode: overlay;
+  filter: saturate(1.5) brightness(1.15) hue-rotate(185deg);
+  animation: waterFlow 650ms ease-out both;
+  animation-delay: var(--action-delay, 0ms);
+  pointer-events: none;
+}
+@keyframes waterFlow {
+  0%   { opacity: 0;    background-position: 115% 55%; }
+  18%  { opacity: 0.78; background-position: 65% 50%; }
+  72%  { opacity: 0.48; background-position: 42% 44%; }
+  100% { opacity: 0;    background-position: -8% 38%; }
+}
+
+/* ── 減少動態：關掉純裝飾層，保留戰鬥核心 ── */
+@media (prefers-reduced-motion: reduce) {
+  .arena::after { animation: none; opacity: 0; }
+  .art::before  { animation: none; opacity: 0; }
+  .elementStrike::before { animation: none; opacity: 0; }
+}
