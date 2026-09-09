@@ -46,7 +46,7 @@ export interface CombatChange {
 export interface Match {
   version:string; seed:number; round:number; revision:number; status:'PLAYING'|'FINISHED'; winner:Side|'DRAW'|null;
   player:{team:Fighter[];active:number;energy:number}; opponent:{team:Fighter[];active:number;energy:number};
-  log:Array<{side:Side;cardId:string;text:string;changes?:CombatChange[]}>;
+  log:Array<{side:Side;cardId:string;text:string;changes?:CombatChange[];action?:Action['type']|'REPLACEMENT'|'SKIP'}>;
   history:Array<{revision:number;player:Action;opponent:Action}>;
 }
 function fighter(id:string):Fighter {
@@ -95,7 +95,7 @@ export function advance(previous:Match,playerAction:Action,opponentAction:Action
   const actions={player:playerAction,opponent:opponentAction};
   // Forced replacement is a separate choice; no free attack or energy from either side.
   if(s.player.team[s.player.active].defeated||s.opponent.team[s.opponent.active].defeated) {
-    for(const side of ['player','opponent'] as Side[]) if(s[side].team[s[side].active].defeated){const a=actions[side];if(a.type==='SWITCH')s[side].active=a.index;}
+    for(const side of ['player','opponent'] as Side[]) if(s[side].team[s[side].active].defeated){const a=actions[side];if(a.type==='SWITCH'){s[side].active=a.index;s.log.push({side,cardId:s[side].team[a.index].cardId,action:'REPLACEMENT',text:`後備接替：${s[side].team[a.index].name}`});}}
     s.revision++; return s;
   }
   const speed=(side:Side)=>actions[side].type==='SWITCH'?10000:effectiveStat(s[side].team[s[side].active],'speed');
@@ -105,10 +105,10 @@ export function advance(previous:Match,playerAction:Action,opponentAction:Action
     if(f.defeated)continue;
     const existingModifiers=[...f.modifiers];
     const consumeStatus=()=>{for(const m of existingModifiers)m.remainingTurns--;f.modifiers=f.modifiers.filter(m=>m.remainingTurns>0);};
-    if(action.type==='SWITCH'){consumeStatus();t.active=action.index;s.log.push({side,cardId:t.team[t.active].cardId,text:`切換為${t.team[t.active].name}`});continue;}
+    if(action.type==='SWITCH'){consumeStatus();t.active=action.index;s.log.push({side,cardId:t.team[t.active].cardId,action:'SWITCH',text:`切換為${t.team[t.active].name}`});continue;}
     if(enemy.defeated)continue;
     const p=profile(f.cardId);const logs:EffectLogEntry[]=[];
-    if(f.stunnedTurns>0){f.stunnedTurns--;consumeStatus();s.log.push({side,cardId:f.cardId,text:'受到控制，本次不能行動。'});continue;}
+    if(f.stunnedTurns>0){f.stunnedTurns--;consumeStatus();s.log.push({side,cardId:f.cardId,action:'SKIP',text:'受到控制，本次不能行動。'});continue;}
     const effects=action.type==='SKILL'?p.effects:[{type:'DAMAGE',value:0,target:'ENEMY'} as EffectSpec];
     if(action.type==='SKILL'){t.energy-=p.cost;f.cooldown=3;if(p.role==='反擊')f.counter=true;}
     const before=enemy.hp+enemy.shield;
@@ -118,7 +118,7 @@ export function advance(previous:Match,playerAction:Action,opponentAction:Action
     for(const effect of effects)resolveEffects([effect],{source:f,target:effect.target==='SELF'?f:enemy,baseAttack:effectiveStat(f,'attack'),side:{draw:()=>0,discard:()=>0},log:logs});
     f.shield=Math.min(70,f.shield);
     if(enemy.counter&&enemy.hp+enemy.shield<before&&!enemy.defeated){enemy.counter=false;f.hp=Math.max(0,f.hp-24);f.defeated=f.hp===0;logs.push({type:'DAMAGE',sourceName:enemy.name,targetName:f.name,applied:24,detail:'迎擊反擊 24 點'});}
-    s.log.push({side,cardId:f.cardId,text:`${f.name}・${action.type==='SKILL'?p.skillName:'普通攻擊'}：${logs.map(l=>l.detail).join('；')}`,
+    s.log.push({side,cardId:f.cardId,action:action.type,text:`${f.name}・${action.type==='SKILL'?p.skillName:'普通攻擊'}：${logs.map(l=>l.detail).join('；')}`,
       changes: snapshots.map(({ side, fighter, hpBefore, shieldBefore }) => ({ side, cardId: fighter.cardId,
         hpBefore, hpAfter: fighter.hp, shieldBefore, shieldAfter: fighter.shield })),
     });

@@ -24,12 +24,14 @@ import { effectiveStat } from '@/lib/beast-game/effects';
 import { ELEMENT_LABEL } from '@/lib/beast-game/elements';
 import {
   ELEMENT_FX,
+  beastVoiceFor,
   createSoundPlayer,
   playBeastAction,
   playVictoryMusic,
   playDefeatMusic,
   type BattleElement,
 } from '@/lib/beast-battle-fx';
+import { performedAction, isDamagingAction, COMBAT_BEAT_MS } from '@/lib/beast-game/combat-presentation';
 import { weaponFor } from '@/lib/beast-game/weapons';
 import { describeMatchup, explainOutcome } from '@/lib/beast-element-guide';
 import type { BeastElement } from '@/lib/beast-game/elements';
@@ -178,8 +180,8 @@ export function BattleActionBar({
           <button type="button" className={styles.skillButton} disabled={busy || !special} onClick={() => special && onAction(special)}>
             技能<small>{skill.skillName.split('・').at(-1)}・{active.defeated ? '請先換卡' : active.cooldown > 0 ? `冷卻 ${active.cooldown} 回合` : `耗氣 ${skill.cost}${!special ? '・氣不足' : ''}`}</small>
           </button>
-          <button type="button" className={styles.actionButton} aria-expanded={commandView === 'swap' || active.defeated} onClick={() => { onBrowse?.(); setCommandView(commandView === 'swap' ? null : 'swap'); }}>換卡<small>{switches.length ? '點選後備' : '無可用後備'}</small></button>
-          <button type="button" className={styles.actionButton} aria-expanded={commandView === 'help'} onClick={() => { onBrowse?.(); setCommandView(commandView === 'help' ? null : 'help'); }}>說明<small>只查看，不消耗回合</small></button>
+          <button type="button" className={styles.actionButton} disabled={busy} aria-expanded={commandView === 'swap' || active.defeated} onClick={() => { onBrowse?.(); setCommandView(commandView === 'swap' ? null : 'swap'); }}>換卡<small>{switches.length ? '點選後備' : '無可用後備'}</small></button>
+          <button type="button" className={styles.actionButton} disabled={busy} aria-expanded={commandView === 'help'} onClick={() => { onBrowse?.(); setCommandView(commandView === 'help' ? null : 'help'); }}>說明<small>只查看，不消耗回合</small></button>
         </div>
         <div ref={commandDetail}>
         {(commandView === 'swap' || active.defeated) && <>
@@ -279,25 +281,25 @@ const BattlePanel = memo(function BattlePanel({
     return () => sound.current?.dispose();
   }, []);
 
-  const active = match.player.team[match.player.active];
   useEffect(() => {
-    // revision 0 是還沒出過招——開場不放攻擊聲。
-    if (match.status === 'FINISHED') {
-      // 戰鬥結束時播放勝利或失敗音樂
-      if (sound.current) {
-        if (match.winner === 'player') {
-          playVictoryMusic(sound.current.play);
-        } else if (match.winner === 'opponent') {
-          playDefeatMusic(sound.current.play);
-        }
-      }
-      sound.current?.dispose();
-      return;
-    }
     if (!sound.current || match.revision === 0) return;
-    const heavy = match.opponent.team.some((f) => f.defeated);
-    return playBeastAction(sound.current.play, active.cardId, active.element as BattleElement, 'player', heavy);
-  }, [match.revision, match.status, match.winner, active.cardId, active.element]);
+    const action = performedAction(match, 'player');
+    if (action !== 'ATTACK' && action !== 'SKILL') return;
+    const fighter = match.player.team[match.player.active];
+    const order = match.log.findIndex(entry => entry.side === 'player' && entry.cardId === fighter.cardId);
+    let cancel: (() => void) | undefined;
+    const timer = window.setTimeout(() => {
+      if (!sound.current) return;
+      if (isDamagingAction(match, 'player')) cancel = playBeastAction(sound.current.play, fighter.cardId, fighter.element as BattleElement, 'player', false);
+      else { const voice = beastVoiceFor(fighter.cardId); if (voice) sound.current.play(voice, .55, 1); }
+    }, Math.max(0, order) * COMBAT_BEAT_MS);
+    return () => { window.clearTimeout(timer); cancel?.(); };
+  }, [match]);
+  useEffect(() => {
+    if (!finished || busy || !sound.current) return;
+    if (match.winner === 'player') playVictoryMusic(sound.current.play);
+    else if (match.winner === 'opponent') playDefeatMusic(sound.current.play);
+  }, [finished, busy, match.winner]);
   return (
     <section className={compact ? styles.compactPanel : styles.panel} data-battle-panel data-status={match.status}>
 
@@ -324,7 +326,7 @@ const BattlePanel = memo(function BattlePanel({
         );
       })()}
 
-      {finished ? (
+      {finished && busy ? <p className={styles.activeHint} role="status">動作演出中，接著顯示結果…</p> : finished ? (
         <p className={styles.result} role="status" data-winner={match.winner ?? 'NONE'}>
           {match.winner === 'player' ? '你贏了' : match.winner === 'opponent' ? '對手獲勝' : '平手'}
           <small>共 {match.round - 1} 回合</small>

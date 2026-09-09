@@ -135,3 +135,5 @@
   .split[data-stake-review='true'] [aria-label='下一步操作'] > p { grid-column: 1; }
   .split[data-stake-review='true'] [data-start-confirmation] { grid-column: 2; grid-row: 1 / span 3; }
 }
+.homeLink { display: flex; align-items: center; justify-content: center; min-height: 44px; color: #cce8ff; font-size: 15px; text-decoration: underline; }
+.details a { display: flex; align-items: center; min-height: 44px; font-size: 15px; }

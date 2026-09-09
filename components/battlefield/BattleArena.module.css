@@ -140,3 +140,14 @@
 .fighterVitals .fighterName span { display: inline; flex-shrink: 0; font-size: 13px; }
 .fighterVitals .liveChange { display: block; min-height: 20px; color: #ffe4a6; font-size: 13px; line-height: 20px; text-align: center; overflow-wrap: anywhere; }
 .arenaNote { font-size: 14px; line-height: 20px; }
+.artSpace[data-action='SKILL'][data-rush='true'] .art { animation-name: skillCharge; animation-duration: 750ms; }
+.artSpace[data-action='SWITCH'] .art, .artSpace[data-action='REPLACEMENT'] .art { animation: reserveEnter 650ms ease-out both; animation-delay: var(--action-delay,0ms); }
+.artSpace[data-impact='strong'] { --hit-weight: .6; }
+.artSpace[data-impact='resisted'] { --hit-weight: .15; }
+.artSpace[data-impact='normal'] { --hit-weight: .3; }
+.elementBadge { position: absolute; left: 4px; bottom: 4px; padding: 2px 6px; border: 1px solid #829bb6; border-radius: 8px; background: #071321ed; color: #f1e7c9; font-size: 13px; pointer-events: none; }
+.defeated { opacity: .85; filter: grayscale(.25); border-color: #fda4af; }
+@keyframes skillCharge { 0%,100% { transform: translateX(0) scale(1); } 20% { transform: translateX(calc(var(--strike-x) * -.3)) scale(.98); box-shadow: 0 0 18px #d6bdfb; } 52%,65% { transform: translateX(calc(var(--strike-x) * 1.25)) scale(1.04); box-shadow: 0 0 24px #e9d5ff; } }
+@keyframes reserveEnter { from { opacity: .4; transform: translateY(20px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes cardHit { 0%,100% { filter: brightness(1); transform: translateX(0); } 30%,45% { filter: brightness(1.15); transform: translateX(calc(var(--strike-x,0px) * var(--hit-weight,.3) * -1)); } }
+@media (prefers-reduced-motion: reduce) { .artSpace[data-action] .art { animation: none; } }

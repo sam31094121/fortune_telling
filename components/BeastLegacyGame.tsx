@@ -519,6 +519,7 @@ export default function BeastGamePage() {
           六十張神獸，選三張入陣，與電腦對手一起揭牌。
         </p>
         <nav aria-label="戰鬥模式"><Link href="/beast-game/battlefield">卡片戰場</Link><Link href="/beast-game">自由組隊</Link></nav>
+        {!dueling && stakeSaved !== false && <Link href="/" className="inline-flex min-h-11 items-center rounded-xl border border-white/30 px-4 text-sm">回首頁</Link>}
       </header>
 
       {/*
@@ -789,6 +790,7 @@ export default function BeastGamePage() {
       {/* ── 決鬥結果：後端算完才回來，畫面只顯示 ─────────────────── */}
       {duel && (
         <section ref={resultRef} tabIndex={-1} aria-label="決鬥結果" data-duel-result className="mb-5 scroll-mt-6 rounded-2xl border border-white/12 bg-black/30 p-4">
+          {!dueling && stakeSaved !== false && <Link href="/" className="mb-3 flex min-h-11 items-center justify-center rounded-xl border border-cyan-200/40 px-4 text-sm font-bold text-cyan-100">回首頁</Link>}
           {duel.ok ? (
             <>
               <p className="text-lg font-black">

@@ -32,6 +32,7 @@ const render = (component, props = {}) => renderToStaticMarkup(React.createEleme
 const onlyBattle = html => {
   assert.doesNotMatch(html, /成長中心|成長收藏|每日任務|完成使命|召喚神獸|覺醒成獸|growth-center#/);
   for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
+    if (href === '/') { assert.ok(html.includes('>回首頁</a>'), 'Homepage exit is explicitly labelled'); continue; }
     if (href !== '/audio/beast-voices/credits.html') assert.ok(href.startsWith('/beast-game'), `Game navigation must stay in battle: ${href}`);
   }
 };
@@ -259,3 +260,19 @@ assert.match(impactHtml,/受傷 −3/);assert.match(impactHtml,/電腦/);
 const playingHtml=render(Arena,{match:shielded,cards:interactiveCatalog(),onInspect(){}});
 assert.doesNotMatch(playingHtml,/你贏了|對手獲勝|必勝/);
 console.log('PASS: recorded HP/shield loss, capped healing/shields, counter overkill, old logs and replacements display honestly');
+
+const presentation = load('lib/beast-game/combat-presentation.ts');
+assert.equal(presentation.performedAction(stunnedTurn, 'player'), 'SKIP');
+assert.equal(presentation.isDamagingAction(stunnedTurn, 'player'), false);
+assert.equal(presentation.performedAction(replaced, 'opponent'), 'REPLACEMENT');
+assert.equal(presentation.isDamagingAction(replaced, 'opponent'), false);
+assert.ok(presentation.combatPlaybackMs(replaced) > 0, 'Replacement has its own brief presentation');
+assert.equal(presentation.combatPlaybackMs(replaced, true), 180, 'Reduced motion stays brief');
+const voluntaryState=structuredClone(match);
+const voluntaryTurn=advance(voluntaryState,{type:'SWITCH',index:1},{type:'ATTACK'});
+assert.equal(presentation.performedAction(voluntaryTurn,'player'),'SWITCH');
+assert.equal(presentation.isDamagingAction(voluntaryTurn,'player'),false);
+const playbackHtml=render(Arena,{match:voluntaryTurn,cards:interactiveCatalog(),playing:true,onInspect(){}});
+assert.match(playbackHtml,/data-playback="acting"/);assert.match(playbackHtml,/data-action="SWITCH"/);
+assert.doesNotMatch(playbackHtml,/你贏了|對手獲勝/);
+console.log('PASS: typed performed actions distinguish attacks, skills, swaps, skipped actions and forced replacement');

@@ -14,6 +14,7 @@ import styles from './BeastTurnGame.module.css';
 import battleStyles from './battlefield/BattleScreen.module.css';
 import venueStyles from './battlefield/BattleVenue.module.css';
 import BattlePace from './battlefield/BattlePace';
+import { useCombatPlayback } from './battlefield/useCombatPlayback';
 
 type Card = ReturnType<typeof interactiveCatalog>[number];
 // Account progression remains on the server; this screen reads only battle data.
@@ -34,6 +35,7 @@ export default function BeastTurnGame() {
   const pending = useRef(false);
   const scroll = useRef<HTMLDivElement>(null);
   const match = account?.match;
+  const { playing, begin: beginPlayback, play: playRound, reset: resetPlayback } = useCombatPlayback();
 
   // Keep completion accounting invisible to the battle interface.
   useEffect(() => { if (match?.status === 'FINISHED') recordBeastGameCompleted('battlefield'); }, [match?.status]);
@@ -59,6 +61,7 @@ export default function BeastTurnGame() {
 
   const send = useCallback(async (type: 'START' | 'ACTION' | 'LEAVE', extra: Record<string, unknown> = {}) => {
     if (!account || pending.current) return;
+    if (type === 'ACTION' && !beginPlayback()) return;
     pending.current = true; setBusy(true); setError('');
     try {
       const res = await fetch('/api/beast-game/turns', {
@@ -68,14 +71,17 @@ export default function BeastTurnGame() {
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error ?? '戰鬥操作未完成');
       setAccount(data.account);
+      if (type === 'ACTION' && data.account.match) playRound(data.account.match);
+      else resetPlayback();
       if (type === 'START') setAutomatic(true);
       if (type === 'LEAVE') setAutomatic(false);
       if (type !== 'ACTION') { setInspection(null); setDetail(null); }
     } catch (cause) {
+      resetPlayback();
       setAutomatic(false);
       setError(cause instanceof Error ? cause.message : '連線中斷，請重新載入確認戰況。');
     } finally { pending.current = false; setBusy(false); }
-  }, [account]);
+  }, [account, beginPlayback, playRound, resetPlayback]);
 
   const act = useCallback((action: Action) => { scroll.current?.scrollTo({ top: 0 }); void send('ACTION', { action }); }, [send]);
 
@@ -89,26 +95,27 @@ export default function BeastTurnGame() {
       <div className={battleStyles.shell}>
         <header className={battleStyles.header}><h1>卡片戰鬥</h1><span>電腦對手・自由組隊</span></header>
         <div className={battleStyles.split} data-battle-split>
-          <BattleArena match={match} cards={cards} onInspect={inspect} />
+          <BattleArena match={match} cards={cards} onInspect={inspect} playing={playing} />
           <section className={battleStyles.controls} aria-label="手部操控" data-battle-controls>
-            <div className={battleStyles.controlsHeading}><strong>{inspection ? '能力與相剋' : match.status === 'FINISHED' ? '對戰結果' : `第 ${match.round} 回合`}</strong><span>{busy ? '出招中…' : match.status === 'FINISHED' ? '本場結束' : '對戰中'}</span></div>
+            <div className={battleStyles.controlsHeading}><strong>{inspection ? '能力與相剋' : match.status === 'FINISHED' && !playing ? '對戰結果' : `第 ${match.round} 回合`}</strong><span>{busy || playing ? '動作演出中…' : match.status === 'FINISHED' ? '本場結束' : '對戰中'}</span></div>
             <div className={battleStyles.controlScroll} ref={scroll} data-control-scroll>
               {errorNotice}
               {inspection && <BattleCardGuide cardId={inspection.cardId} fighter={inspected} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
               <div hidden={Boolean(inspection)}>
-                <BattlePace match={match} automatic={automatic} blocked={busy || Boolean(error) || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
-                <BattlePanel match={match} onAction={act} busy={busy} compact cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
-                {match.status === 'FINISHED' ? <><p className={battleStyles.notice}>本場結束，可回到組隊更換陣容。</p>
+                <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
+                <BattlePanel match={match} onAction={act} busy={busy || playing} compact cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
+                {match.status === 'FINISHED' && !playing ? <><p className={battleStyles.notice}>本場結束，可回到組隊更換陣容。</p>
                   <BeastBattleVoice id={`free:${match.seed}:${account?.revision}`} text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場對手獲勝。' : '本場平手。'}可以更換陣容再挑戰。`} />
                 </> : <details className={battleStyles.details} onToggle={event => { if (event.currentTarget.open) setAutomatic(false); }}>
                   <summary>對戰規則與離場</summary>
                   <p>切換先於攻擊；其餘按速度。同速隨機決定，最多 80 回合。擊倒對方三隻即獲勝。</p>
                   <p>點戰鬥卡查看相剋與技能效果。</p>
                   <button type="button" className={battleStyles.restart} disabled={busy} onClick={() => void send('LEAVE')}>離開本場，回到組隊</button>
+                  <p>離開會暫停本場免押戰鬥，不影響收藏。</p><Link href="/" className={styles.homeLink}>回首頁</Link>
                 </details>}
               </div>
             </div>
-            {match.status === 'FINISHED' && <div className={battleStyles.footer}><button type="button" className={battleStyles.start} style={{ animation: 'none' }} disabled={busy} onClick={() => void send('LEAVE')}>回到組隊，再戰一場</button></div>}
+            {match.status === 'FINISHED' && !playing && <div className={battleStyles.footer}><button type="button" className={battleStyles.start} style={{ animation: 'none' }} disabled={busy} onClick={() => void send('LEAVE')}>回到組隊，再戰一場</button><Link href="/" className={styles.homeLink}>回首頁</Link></div>}
           </section>
         </div>
       </div>
@@ -117,6 +124,7 @@ export default function BeastTurnGame() {
 
   return <main className={`${styles.page} ${styles.preparation}`}>
     <header className={venueStyles.banner} data-battle-venue="cards">
+      <Link href="/" className={styles.homeLink}>回首頁</Link>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" />
       <h1>{prepareStep === 'select' ? '選三張神獸卡' : '確認你的陣容'}</h1>

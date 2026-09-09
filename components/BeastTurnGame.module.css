@@ -5,3 +5,4 @@
 .pickCard{position:relative}.pickOrder{position:absolute;right:6px;top:6px;z-index:1;border-radius:8px;background:#ffe1a0;color:#241c0b;font-size:12px;font-weight:800;padding:4px 8px;pointer-events:none}.confirmName{font-size:13px;line-height:1.6;text-align:center;overflow-wrap:anywhere}.prepareContent .filters{display:grid;grid-template-columns:repeat(6,minmax(0,1fr))}.prepareContent .filters button{padding:10px 2px}@media(max-width:480px){.prepareContent .grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .calmBattle [aria-label='本回合指令']>button{height:78px;min-height:78px;overflow:auto}
 .calmBattle [data-battle-split]{grid-template-rows:minmax(150px,38fr) minmax(0,62fr)}
+.homeLink { display: flex; align-items: center; justify-content: center; min-height: 44px; color: #cce8ff; font-size: 15px; text-decoration: underline; }

@@ -40,6 +40,9 @@ fs.mkdirSync('reports/beast-relaxed', { recursive: true });
     assert.match(counts,/本場押注\s*5 張/);
     const contradictory = page.locator('[data-battle-result]');
     if(await contradictory.count()) assert.doesNotMatch(await contradictory.innerText(),/押注 1 張|輸掉 1 張|保留 1 張/,'Secondary result must agree with the five-card settlement');
+    const home=page.getByRole('link',{name:'回首頁',exact:true}).last();
+    assert.equal(await home.getAttribute('href'),'/');
+    const homeBox=await home.boundingBox();assert.ok(homeBox.height>=44&&homeBox.y+homeBox.height<=844);
     await page.screenshot({path:'reports/beast-relaxed/field-result.png'});
     const result = await page.locator('[data-stake-result]').getAttribute('data-stake-verdict');
     const count = await page.evaluate(()=>JSON.parse(localStorage.getItem('tdh_beast_collection_v1')).cards.length);
@@ -58,6 +61,8 @@ fs.mkdirSync('reports/beast-relaxed', { recursive: true });
     assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('tdh_beast_collection_v1')).cards.length), count, 'Replay never deducts cards');
     await page.getByRole('button',{name:'押注確認',exact:true}).tap();
     assert.equal(await picker.locator('[aria-pressed="true"]').count(), result === 'LOST' ? 0 : 5, 'Only still-owned stake copies are restored');
+    await page.getByRole('link',{name:'回首頁',exact:true}).first().tap();
+    await page.waitForURL('http://localhost:8888/');
     assert.deepEqual(errors,[]);
     console.log(JSON.stringify({passed:true,url:page.url(),width:390,steps,result,syntheticCardsAfter:count,checks:'formation, five later stakes, confirmation, full battle, exact settlement, restart'}));
   } finally { await browser.close(); }

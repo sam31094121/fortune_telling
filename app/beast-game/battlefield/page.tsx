@@ -45,6 +45,7 @@ import BeastStakeResult from '@/components/BeastStakeResult';
 import BeastBattleVoice from '@/components/BeastBattleVoice';
 import DeckBuilder from '@/components/battlefield/DeckBuilder';
 import { BATTLEFIELD_DECK_SIZE, buildFreshOpeningDeck, buildUniqueDeck, sanitizeDeckSelection } from '@/lib/beast-game/deck-builder';
+import { useCombatPlayback } from '@/components/battlefield/useCombatPlayback';
 
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
 const SAVED_DECK_KEY = 'taiji-beast-battlefield-deck-v1';
@@ -77,6 +78,7 @@ export default function BattlefieldPage() {
   const [state, setState] = useState<BattleState | null>(null);
   /** 開戰之後的戰鬥狀態。null＝還在佈陣。 */
   const [match, setMatch] = useState<Match | null>(null);
+  const { playing, begin: beginPlayback, play: playRound, reset: resetPlayback } = useCombatPlayback();
   const [error, setError] = useState<string | null>(null);
   const [seed, setSeed] = useState(secureSeed);
   const [playerDeckIds, setPlayerDeckIds] = useState<string[]>([]);
@@ -283,16 +285,13 @@ export default function BattlefieldPage() {
    * 這裡不挑對手的動作，也不預測結果——**畫面不是裁判**。
    */
   const act = useCallback((action: Action) => {
-    setMatch((current) => {
-      if (!current || current.status !== 'PLAYING') return current;
-      try {
-        return advance(current, action);
-      } catch {
-        // 不合法的動作根本不會出現在畫面上；真的發生就維持原狀，不要亂改狀態。
-        return current;
-      }
-    });
-  }, []);
+    if (!match || match.status !== 'PLAYING' || !beginPlayback()) return;
+    try {
+      const next = advance(match, action);
+      setMatch(next); playRound(next);
+      controlScroll.current?.scrollTo({ top: 0 });
+    } catch { resetPlayback(); }
+  }, [match, beginPlayback, playRound, resetPlayback]);
 
   const handleSelect = useCallback((cardId: string) => {
     setState((current) => {
@@ -467,9 +466,9 @@ export default function BattlefieldPage() {
     <main className={styles.page} data-mobile-battle>
       <div className={styles.shell}>
         <header className={styles.header}>
-          <Link href="/beast-game">神獸遊戲首頁</Link>
+          {match?.status === 'PLAYING' || settling || settlement?.saved === false ? <span>對戰中</span> : <Link href="/">回首頁</Link>}
           <h1>五卡押注戰場</h1>
-          <span>{match?.status === 'FINISHED' ? '本場結束' : match ? `第 ${match.round} 回合` : '準備出戰'}</span>
+          <span>{match?.status === 'FINISHED' && !playing ? '本場結束' : match ? `第 ${match.round} 回合` : '準備出戰'}</span>
         </header>
         {error ? (
           <div role="alert" className={styles.loading}>
@@ -478,14 +477,14 @@ export default function BattlefieldPage() {
           </div>
         ) : !state ? <p className={styles.loading}>正在發牌…</p> : (
           <div className={styles.split} data-battle-split data-inspecting={Boolean(inspection)} data-stake-review={!match && prepareView === 'stake'}>
-            <BattleArena state={state} cards={cards} match={match} onInspect={inspectCard} />
+            <BattleArena state={state} cards={cards} match={match} onInspect={inspectCard} playing={playing} />
             <section className={styles.controls} aria-label="手部操控" data-battle-controls data-preparing={!match}>
               <div className={styles.controlsHeading}>
                 {!match && !inspection ? <nav className={styles.prepareNav} aria-label="出戰準備">
                   <button type="button" aria-pressed={prepareView === 'formation'} onClick={() => openPreparation('formation')}>選卡佈陣</button>
                   <button type="button" aria-pressed={prepareView === 'stake'} onClick={() => openPreparation('stake')}>{isTrial ? '體驗確認' : '押注確認'}</button>
                   <button type="button" aria-pressed={prepareView === 'help'} onClick={() => openPreparation('help')}>玩法說明</button>
-                </nav> : <><strong>{inspection ? '能力與相剋' : match?.status === 'FINISHED' ? '對戰結果' : '選擇本回合動作'}</strong>
+                </nav> : <><strong>{inspection ? '能力與相剋' : playing ? '動作演出中' : match?.status === 'FINISHED' ? '對戰結果' : '選擇本回合動作'}</strong>
                   <span>{inspection ? '查看不消耗回合' : '戰況同步顯示'}</span></>}
               </div>
               <div className={styles.controlScroll} ref={controlScroll} key={match ? 'battle' : 'prepare'} data-control-scroll>
@@ -501,7 +500,7 @@ export default function BattlefieldPage() {
                   if (readCollection().storageError) return;
                   setStakeError('');
                 }}>重新核對</button></p>}
-                {outcome && <BeastStakeResult outcome={namedStakeOutcome(outcome, id => cards.find(card => card.id === id)?.name ?? '神獸卡')}
+                {outcome && !playing && <BeastStakeResult outcome={namedStakeOutcome(outcome, id => cards.find(card => card.id === id)?.name ?? '神獸卡')}
                   card={cards.find(card => card.id === (outcome.gainedCardId ?? outcome.forfeitedCardId ?? outcome.stakes.player))}
                   cards={cards} settlement={settlement} isReplay={false} retrying={settling} onRetry={() => void retrySettlement()} />}
                 {match ? (
@@ -509,8 +508,9 @@ export default function BattlefieldPage() {
                     {match.status === 'PLAYING' && <p className={styles.notice} data-battle-stake>{battleStake
                       ? `💎 押注：${cards.find(card => card.id === battleStake)?.name}`
                       : '🎮 體驗戰'}</p>}
-                    <BattlePanel match={match} onAction={act} compact cards={cards} />
-                    {match.status === 'FINISHED' && isTrial && (
+                    <BattlePanel match={match} onAction={act} busy={playing} compact cards={cards} />
+                    {match.status === 'PLAYING' && <details className={styles.details}><summary>離開本場</summary><p>回首頁會中斷本局，押卡不扣除。</p><Link href="/">回首頁</Link></details>}
+                    {match.status === 'FINISHED' && !playing && isTrial && (
                       <p role="status" className={styles.notice} data-battle-result={match.winner}>體驗戰結束：押注 0 張・贏得 0 張・輸掉 0 張。</p>
                     )}
                     {match.status === 'FINISHED' && isTrial && <BeastBattleVoice id={`trial:${battleVoiceId}`}
@@ -568,9 +568,10 @@ export default function BattlefieldPage() {
                     riskNotice={state.player.active ? `${placed < opponentPlaced ? `你 ${placed} 隻、對手 ${opponentPlaced} 隻，可補後備。` : ''}${!isTrial && stakeCardIds.length ? `本場選押 ${stakeCardIds.length}/5 張。勝得 1 張；負扣 5 張。` : ''}` : undefined}
                   />
                 </div>
-              ) : match?.status === 'FINISHED' && !inspection ? (
+              ) : match?.status === 'FINISHED' && !playing && !inspection ? (
                 <div className={styles.footer}>
                   <button type="button" className={styles.restart} disabled={settling || settlement?.saved === false} onClick={redeal}>{settling ? '正在保存卡片結算…' : settlement?.saved === false ? '請先重試保存結果' : '沿用可用選擇，再打一場'}</button>
+                  {!settling && settlement?.saved !== false && <Link href="/" className={styles.homeLink}>回首頁</Link>}
                 </div>
               ) : null}
             </section>
