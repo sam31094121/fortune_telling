@@ -131,3 +131,12 @@
 @media(prefers-reduced-motion:reduce){.artSpace[data-hit='true'] .art img,.artSpace[data-skill='true'][data-rush='false'] .art,.actionCue{animation:none}}
 @media (prefers-reduced-motion: reduce) { .artSpace[data-rush='true'] .art { animation: none; } }
 .elementStrike,.strikeField,.strikeTrace,.strikeReadout{animation-delay:var(--action-delay,0ms)}
+
+/* Keep actual life and this round's changes readable outside the animated portrait. */
+.fighter, .fighter[data-fighter='player'] { grid-template-rows: minmax(0, 1fr) auto; gap: 4px; }
+.fighter[data-fighter='opponent'] { opacity: 1; max-height: none; }
+.fighterVitals { position: static; transform: none; width: 100%; padding: 4px; background: #071321ed; border-radius: 8px; }
+.fighterVitals .fighterName { font-size: 14px; line-height: 20px; }
+.fighterVitals .fighterName span { display: inline; flex-shrink: 0; font-size: 13px; }
+.fighterVitals .liveChange { display: block; min-height: 20px; color: #ffe4a6; font-size: 13px; line-height: 20px; text-align: center; overflow-wrap: anywhere; }
+.arenaNote { font-size: 14px; line-height: 20px; }

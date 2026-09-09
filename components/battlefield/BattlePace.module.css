@@ -1,3 +1,6 @@
 .pace{padding:10px;border:1px solid #54718b;border-radius:12px;margin-bottom:8px;background:#142b3c;font-size:12px;line-height:1.6;color:#d4e6f2}
 .heading{display:flex;align-items:center;justify-content:space-between;gap:8px}.heading strong{color:#ffe3a0}.heading button{min-height:44px;padding:8px 12px;border:1px solid #92b4c9;border-radius:10px;flex-shrink:0;touch-action:manipulation}.pace p{margin:4px 0;overflow-wrap:anywhere}.track{height:4px;background:#31475a;overflow:hidden;border-radius:8px;margin-top:8px}.track span{display:block;height:100%;background:#8ed9e8;transform-origin:left;animation:advance 3.5s linear forwards}.feedback{border-top:1px solid #496178;margin-top:8px;padding-top:6px}.feedback strong{font-size:11px;color:#b8cbd9}@keyframes advance{from{transform:scaleX(0)}to{transform:scaleX(1)}}@media(prefers-reduced-motion:reduce){.track span{animation:none}}
 .pace>p{height:40px;overflow:auto}.feedback{height:84px;overflow-y:auto}
+
+.pace { font-size: 14px; line-height: 21px; }
+.pace > p { height: auto; min-height: 21px; }

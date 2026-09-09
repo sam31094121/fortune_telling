@@ -39,10 +39,14 @@ export function profile(id: string) {
 export type Side = 'player' | 'opponent';
 export type Action = {type:'ATTACK'} | {type:'SKILL'} | {type:'SWITCH'; index:number};
 export interface Fighter extends BeastInstance { cooldown:number; counter:boolean }
+export interface CombatChange {
+  side: Side; cardId: string;
+  hpBefore: number; hpAfter: number; shieldBefore: number; shieldAfter: number;
+}
 export interface Match {
   version:string; seed:number; round:number; revision:number; status:'PLAYING'|'FINISHED'; winner:Side|'DRAW'|null;
   player:{team:Fighter[];active:number;energy:number}; opponent:{team:Fighter[];active:number;energy:number};
-  log:Array<{side:Side;cardId:string;text:string}>;
+  log:Array<{side:Side;cardId:string;text:string;changes?:CombatChange[]}>;
   history:Array<{revision:number;player:Action;opponent:Action}>;
 }
 function fighter(id:string):Fighter {
@@ -108,10 +112,16 @@ export function advance(previous:Match,playerAction:Action,opponentAction:Action
     const effects=action.type==='SKILL'?p.effects:[{type:'DAMAGE',value:0,target:'ENEMY'} as EffectSpec];
     if(action.type==='SKILL'){t.energy-=p.cost;f.cooldown=3;if(p.role==='反擊')f.counter=true;}
     const before=enemy.hp+enemy.shield;
+    const snapshots = [{ side, fighter: f }, { side: foe, fighter: enemy }].map(({ side, fighter }) => ({
+      side, fighter, hpBefore: fighter.hp, shieldBefore: fighter.shield,
+    }));
     for(const effect of effects)resolveEffects([effect],{source:f,target:effect.target==='SELF'?f:enemy,baseAttack:effectiveStat(f,'attack'),side:{draw:()=>0,discard:()=>0},log:logs});
     f.shield=Math.min(70,f.shield);
     if(enemy.counter&&enemy.hp+enemy.shield<before&&!enemy.defeated){enemy.counter=false;f.hp=Math.max(0,f.hp-24);f.defeated=f.hp===0;logs.push({type:'DAMAGE',sourceName:enemy.name,targetName:f.name,applied:24,detail:'迎擊反擊 24 點'});}
-    s.log.push({side,cardId:f.cardId,text:`${f.name}・${action.type==='SKILL'?p.skillName:'普通攻擊'}：${logs.map(l=>l.detail).join('；')}`});
+    s.log.push({side,cardId:f.cardId,text:`${f.name}・${action.type==='SKILL'?p.skillName:'普通攻擊'}：${logs.map(l=>l.detail).join('；')}`,
+      changes: snapshots.map(({ side, fighter, hpBefore, shieldBefore }) => ({ side, cardId: fighter.cardId,
+        hpBefore, hpAfter: fighter.hp, shieldBefore, shieldAfter: fighter.shield })),
+    });
     consumeStatus();
   }
   // End of a complete round, both parties use identical resource rules.

@@ -223,3 +223,39 @@ for (const [css, selector] of [[arenaCss, '.art img'], [guideCss, '.portrait']])
   assert.equal(fit, 'contain', `${selector}: keep the entire original illustration`);
 }
 console.log('PASS: all 60 original portraits are available, loaded one at a time, with abilities and return controls retained');
+
+// Recorded changes must describe actual health movement, not raw formula damage.
+const { combatChanges } = load('lib/beast-game/combat-feedback.ts');
+const engine = load('lib/beast-game/interactive.ts');
+const impactMatch = (a = 'beast_a01', b = 'beast_a02') => {
+  const m = engine.newMatch([a], [b], 41);
+  m.player.team[0].speed = 999;
+  return m;
+};
+const overkill = impactMatch();
+overkill.opponent.team[0].hp = 3;
+const killed = advance(overkill, {type:'ATTACK'}, {type:'ATTACK'});
+assert.equal(combatChanges(killed,'opponent','beast_a02'),'受傷 −3');
+assert.equal(overkill.opponent.team[0].hp,3,'Recording never mutates the previous state');
+const counter = impactMatch();
+counter.player.team[0].hp = 10; counter.opponent.team[0].counter = true;
+const countered = advance(counter,{type:'ATTACK'},{type:'ATTACK'});
+assert.equal(combatChanges(countered,'player','beast_a01'),'受傷 −10','Counter overkill reports actual loss, not the nominal 24');
+const shield = impactMatch(); shield.opponent.team[0].shield = 70;
+const shielded = advance(shield,{type:'ATTACK'},{type:'ATTACK'});
+assert.equal(shielded.opponent.team[0].hp,shield.opponent.team[0].hp);
+assert.match(combatChanges(shielded,'opponent','beast_a02'),/^護盾 −\d+$/);
+const heal = impactMatch('beast_a04'); heal.player.team[0].hp=150;
+const healed = advance(heal,{type:'SKILL'},{type:'ATTACK'});
+assert.match(combatChanges(healed,'player','beast_a04'),/回復 ＋10/,'Healing is capped at actual maximum');
+const guard = impactMatch('beast_a03'); guard.player.team[0].shield=60;
+const guarded = advance(guard,{type:'SKILL'},{type:'ATTACK'});
+assert.match(combatChanges(guarded,'player','beast_a03'),/護盾 ＋10/,'Shield gain reflects the actual cap');
+assert.equal(combatChanges(replaced,'player',replaced.player.team[0].cardId),'','Replacement has no fabricated hit');
+const legacyLog = structuredClone(killed); legacyLog.log.forEach(entry=>delete entry.changes);
+assert.equal(combatChanges(legacyLog,'opponent','beast_a02'),'','Old saved matches never infer damage from formulas');
+const impactHtml=render(Arena,{match:killed,cards:interactiveCatalog(),onInspect(){}});
+assert.match(impactHtml,/受傷 −3/);assert.match(impactHtml,/電腦/);
+const playingHtml=render(Arena,{match:shielded,cards:interactiveCatalog(),onInspect(){}});
+assert.doesNotMatch(playingHtml,/你贏了|對手獲勝|必勝/);
+console.log('PASS: recorded HP/shield loss, capped healing/shields, counter overkill, old logs and replacements display honestly');

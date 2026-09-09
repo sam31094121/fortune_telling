@@ -72,6 +72,17 @@ const width = Number(process.env.BEAST_TEST_WIDTH || 390);
     await page.getByRole('button', { name: '收起說明' }).click();
     assert.equal(await page.locator('[data-control-scroll]').evaluate(node => node.scrollTop), 0, 'Closing help returns to the current battle and pause control');
 
+    const beforeSwap = data.account.match;
+    const voluntary = legalActions(beforeSwap,'player').find(action => action.type === 'SWITCH');
+    if(voluntary && !beforeSwap.player.team[beforeSwap.player.active].defeated && !beforeSwap.opponent.team[beforeSwap.opponent.active].defeated) {
+      await page.getByRole('button',{name:/^換卡/}).click();
+      const swapResponse=page.waitForResponse(r=>r.url().endsWith('/api/beast-game/turns')&&r.request().method()==='POST');
+      await page.getByRole('button',{name:'換上 '+beforeSwap.player.team[voluntary.index].name,exact:true}).click();
+      data=await(await swapResponse).json();
+      await page.locator(`[data-battle-revision="${data.account.match.revision}"]`).waitFor();
+      assert.equal(data.account.match.player.active,voluntary.index,'Voluntary swap uses the chosen fighter');
+      assert.equal(data.account.match.round,beforeSwap.round+1,'Voluntary swap follows the normal round rule');
+    }
     await page.screenshot({ path: `reports/beast-relaxed/${width}-battle.png` });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No horizontal overflow');
     const commandBounds = await page.getByRole('group', { name: '本回合指令' }).getByRole('button').evaluateAll(buttons => buttons.map(button => {
@@ -109,7 +120,19 @@ const width = Number(process.env.BEAST_TEST_WIDTH || 390);
       data = await (await response).json();
       assert.equal(data.ok, true);
       await page.locator(`[data-battle-revision="${data.account.match.revision}"]`).waitFor();
+      if (data.account.match.status === 'PLAYING') assert.equal(await page.locator('[data-winner]').count(),0,'Only a completed battle declares a winner');
       for (const side of ['player', 'opponent']) {
+        const fighter = data.account.match[side].team[data.account.match[side].active];
+        const vital = page.locator(`[data-live-vitals="${side}"]`);
+        assert.ok((await vital.innerText()).includes(`${fighter.hp} / ${fighter.maxHp}`),'Life display agrees with the authoritative response');
+        let lost=0, healed=0, shieldLost=0, shieldGained=0;
+        for(const entry of data.account.match.log) for(const change of entry.changes ?? []) {
+          if(change.side!==side || change.cardId!==fighter.cardId) continue;
+          lost+=Math.max(0,change.hpBefore-change.hpAfter);healed+=Math.max(0,change.hpAfter-change.hpBefore);
+          shieldLost+=Math.max(0,change.shieldBefore-change.shieldAfter);shieldGained+=Math.max(0,change.shieldAfter-change.shieldBefore);
+        }
+        const visibleChange = await page.locator(`[data-combat-change="${side}"]`).innerText();
+        for(const [amount,label] of [[lost,'受傷 −'],[healed,'回復 ＋'],[shieldLost,'護盾 −'],[shieldGained,'護盾 ＋']]) if(amount) assert.ok(visibleChange.includes(label+amount),'Damage and shields match actual recorded changes');
         const actualAttack = data.account.match.log.some(entry => entry.side === side && entry.text.includes(' × 元素'));
         const cue = page.locator(`[data-fighter="${side}"] [data-rush]`);
         assert.equal(await cue.getAttribute('data-rush'), String(actualAttack), 'Both visual attacks follow actual engine logs, including skipped turns and replacements');

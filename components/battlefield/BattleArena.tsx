@@ -11,6 +11,7 @@ import { elementPercent } from '@/lib/beast-game/combat-guide';
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import styles from './BattleArena.module.css';
 import { ELEMENT_FX, type BattleElement } from '@/lib/beast-battle-fx';
+import { combatChanges } from '@/lib/beast-game/combat-feedback';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 
@@ -50,7 +51,8 @@ export default function BattleArena({ state, cards, match, onInspect }: {
           const team = match?.[side];
           const fighter = team?.team[team.active];
           const card = side === 'player' ? mine : foe;
-          const label = side === 'player' ? '你' : '對手';
+          const label = side === 'player' ? '你' : '電腦';
+          const change = match && fighter ? combatChanges(match, side, fighter.cardId) : '';
           const lastAction = match?.history?.at(-1)?.[side];
           const performed = Boolean(card && match?.log.some(entry => entry.side === side && entry.cardId === card.id && entry.text.includes('：')));
           const rush = performed && (lastAction?.type === 'ATTACK' || (lastAction?.type === 'SKILL' && card && profile(card.id).effects.some(effect => effect.type === 'DAMAGE' && effect.target === 'ENEMY')));
@@ -68,13 +70,14 @@ export default function BattleArena({ state, cards, match, onInspect }: {
                   ) : <span className={styles.empty}>主戰卡<br />等待上場</span>}
                 </button>
                 {performed && <span className={styles.actionCue} role="status">{lastAction?.type === 'SKILL' && card ? profile(card.id).skillName : '普通攻擊'}</span>}
-                {fighter && team && (
-                  <div className={styles.fighterVitals} aria-hidden="true">
-                    <p className={styles.fighterName}><span>{label}</span><strong>{card?.name}</strong></p>
-                    <VitalBar hp={fighter.hp} maxHp={fighter.maxHp} shield={fighter.shield} />
-                  </div>
-                )}
               </div>
+              {fighter && team && (
+                <div className={styles.fighterVitals} data-live-vitals={side}>
+                  <p className={styles.fighterName}><span>{label}</span><strong>{card?.name}</strong></p>
+                  <VitalBar hp={fighter.hp} maxHp={fighter.maxHp} shield={fighter.shield} />
+                  <p className={styles.liveChange} key={match?.revision} data-combat-change={side} aria-live="polite">{change || `可戰 ${team.team.filter(f => !f.defeated).length}/${team.team.length} 隻`}</p>
+                </div>
+              )}
               {fighter && team ? (
                 <p className="sr-only">{ELEMENT_LABEL[fighter.element]}・氣 {team.energy}・{team.team.filter(f => !f.defeated).length}/{team.team.length} 存活</p>
               ) : <p className="sr-only">{card ? ELEMENT_LABEL[card.element as BeastElement] : '未選'}・上場 {(state?.[side].active ? 1 : 0) + (state?.[side].bench.filter(Boolean).length ?? 0)} 隻</p>}

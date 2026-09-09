@@ -22,7 +22,6 @@ import { memo, useEffect, useRef, useState } from 'react';
 import type { BattlefieldCardArt } from './GameBattlefield';
 import { effectiveStat } from '@/lib/beast-game/effects';
 import { ELEMENT_LABEL } from '@/lib/beast-game/elements';
-import { BattleEffectsLayer, useBattleEffects } from './BattleEffects';
 import {
   ELEMENT_FX,
   createSoundPlayer,
@@ -67,7 +66,7 @@ export function VitalBar({
       <span className={styles.life} style={{ width: `${life}%` }} />
       {guard > 0 && <span className={styles.guard} style={{ width: `${guard}%`, left: `${life}%` }} />}
       <span className={styles.vitalText}>
-        <b>{hp} / {maxHp}{shield > 0 ? ` ＋${shield}` : ''}</b>
+        <b>{hp} / {maxHp}{shield > 0 ? `・盾 ${shield}` : ''}</b>
       </span>
     </div>
   );
@@ -173,13 +172,13 @@ export function BattleActionBar({
     </div>;
     return (
       <div className={styles.compactActions}>
-        {!relaxed && !onBrowse && <p className={styles.activeHint} role="status">選一個動作</p>}
+        <p className={styles.activeHint} role="status" data-next-action>{busy ? '出招中…' : active.stunnedTurns > 0 ? '受控：本次出招會略過，仍可換卡' : `氣 ${match.player.energy}・${special ? '技能可用，或選攻擊／換卡' : '選普通攻擊或換卡'}`}</p>
         <div className={styles.primaryActions} role="group" aria-label="本回合指令">
           <button type="button" className={styles.actionButton} disabled={busy || !attack} onClick={() => attack && onAction(attack)}>{relaxed && special ? '保留技能・普攻' : '普通攻擊'}<small>{ELEMENT_LABEL[active.element]}系・不耗氣</small></button>
           <button type="button" className={styles.skillButton} disabled={busy || !special} onClick={() => special && onAction(special)}>
-            技能<small>{skill.skillName}・{active.defeated ? '請先換卡' : active.cooldown > 0 ? `冷卻 ${active.cooldown} 回合` : `耗氣 ${skill.cost}${!special ? '・氣不足' : ''}`}</small>
+            技能<small>{skill.skillName.split('・').at(-1)}・{active.defeated ? '請先換卡' : active.cooldown > 0 ? `冷卻 ${active.cooldown} 回合` : `耗氣 ${skill.cost}${!special ? '・氣不足' : ''}`}</small>
           </button>
-          <button type="button" className={styles.actionButton} aria-expanded={commandView === 'swap' || active.defeated} onClick={() => { onBrowse?.(); setCommandView(commandView === 'swap' ? null : 'swap'); }}>換卡<small>{switches.length ? '查看可換上的後備' : '目前沒有可換後備'}</small></button>
+          <button type="button" className={styles.actionButton} aria-expanded={commandView === 'swap' || active.defeated} onClick={() => { onBrowse?.(); setCommandView(commandView === 'swap' ? null : 'swap'); }}>換卡<small>{switches.length ? '點選後備' : '無可用後備'}</small></button>
           <button type="button" className={styles.actionButton} aria-expanded={commandView === 'help'} onClick={() => { onBrowse?.(); setCommandView(commandView === 'help' ? null : 'help'); }}>說明<small>只查看，不消耗回合</small></button>
         </div>
         <div ref={commandDetail}>
@@ -266,31 +265,6 @@ const BattlePanel = memo(function BattlePanel({
   onBrowse?: () => void;
 }) {
   const finished = match.status === 'FINISHED';
-  const { damagePopups, addDamagePopup } = useBattleEffects();
-  const prevLogLength = useRef(match.log.length);
-
-  /* 監聽戰報變化，觸發飄字 */
-  useEffect(() => {
-    const newLogCount = match.log.length - prevLogLength.current;
-    if (newLogCount > 0) {
-      const newLogs = match.log.slice(-newLogCount);
-      newLogs.forEach((log) => {
-        // 簡單解析傷害數字（格式：「xxx 造成 yyy 點傷害」或類似）
-        const damageMatch = log.text.match(/造成\s+(\d+)\s+點傷害/);
-        if (damageMatch) {
-          const damage = parseInt(damageMatch[1], 10);
-          const fighter = log.side === 'player'
-            ? match.opponent.team[match.opponent.active]
-            : match.player.team[match.player.active];
-
-          // 固定位置（卡牌中心）
-          addDamagePopup(damage, 100, 80, fighter.element as BeastElement, false);
-        }
-      });
-      prevLogLength.current = match.log.length;
-    }
-  }, [match.revision, addDamagePopup]);
-
   /*
     出手的聲音：靈魂、武器、動作走同一條時間軸。
 
@@ -326,8 +300,6 @@ const BattlePanel = memo(function BattlePanel({
   }, [match.revision, match.status, match.winner, active.cardId, active.element]);
   return (
     <section className={compact ? styles.compactPanel : styles.panel} data-battle-panel data-status={match.status}>
-      {/* 戰鬥特效層 - 傷害飄字、閃光等 */}
-      <BattleEffectsLayer popups={damagePopups} />
 
       {!compact && <><FighterStatus match={match} side="opponent" label="對手" />
       <FighterStatus match={match} side="player" label="你" /></>}

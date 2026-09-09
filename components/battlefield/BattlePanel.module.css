@@ -384,3 +384,10 @@
   .vitalText b { padding-inline: 4px; }
 }
 [data-swap-guide] .reserveCard:not(:disabled) { outline: 2px solid #ffe4a6; outline-offset: -2px; }
+.vital { min-height: 26px; }
+.vitalText { font-size: 13px; letter-spacing: 0; }
+.activeHint { font-size: 14px; line-height: 21px; }
+.primaryActions small { font-size: 13px; line-height: 18px; }
+.reserveCard strong { font-size: 14px; }
+.reserveCard span { font-size: 12px; }
+.actionButton:disabled, .skillButton:disabled { opacity: 1; background: #243449; color: #c3d0df; border-color: #526178; box-shadow: none; }

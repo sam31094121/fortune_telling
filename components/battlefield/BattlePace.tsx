@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { legalActions, profile, type Action, type Match } from '@/lib/beast-game/interactive';
+import { legalActions, type Action, type Match } from '@/lib/beast-game/interactive';
 import styles from './BattlePace.module.css';
-import { combatFeedback } from '@/lib/beast-game/combat-feedback';
 
 /** Only schedules a legal ordinary action; all combat stays on the server. */
 export default function BattlePace({ match, automatic, blocked, onAutomatic, onAction }: {
@@ -37,12 +36,7 @@ export default function BattlePace({ match, automatic, blocked, onAutomatic, onA
       <strong role="status">{blocked ? '等待戰況確認' : active.defeated ? '選後備，接續戰鬥' : automatic && waiting ? '技能就緒・等你決定' : running ? replacingOpponent ? '對手後備即將上場' : '自動普通攻擊中' : '已暫停・可手動出招'}</strong>
       <button type="button" disabled={blocked} aria-pressed={automatic} onClick={() => onAutomatic(!automatic)}>{automatic ? '暫停自動' : '開啟自動'}</button>
     </div>
-    <p>{waiting && !active.defeated ? `${profile(active.cardId).description}` : active.defeated ? '點後備接替，不消耗回合。' : '普通攻擊間隔 3.5 秒・技能就緒會等待。'}</p>
+    <p>{waiting && !active.defeated ? '選技能或保留技能；詳細效果在說明。' : active.defeated ? '點後備接替，不消耗回合。' : '普通攻擊間隔 3.5 秒・技能就緒會等待。'}</p>
     <div key={`${match.revision}:${running}`} className={styles.track} style={{ visibility: running ? 'visible' : 'hidden' }} aria-label={running ? `${delay / 1000} 秒後推進` : undefined}><span style={{ animationDuration: `${delay}ms` }} /></div>
-    <div className={styles.feedback} aria-live="polite" aria-atomic="true">
-      <strong>剛才發生了什麼</strong>
-      {match.log.length === 0 && <p>{match.revision === 0 ? '尚未出招' : '後備已上場'}</p>}
-      {match.log.map((entry, index) => <p key={index}>{entry.side === 'player' ? '我方' : '對手'}・{combatFeedback(entry.text)}</p>)}
-    </div>
   </section>;
 }
