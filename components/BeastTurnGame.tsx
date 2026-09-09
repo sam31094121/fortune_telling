@@ -136,6 +136,10 @@ export default function BeastTurnGame() {
         {prepareStep === 'select' ? <>
           <p className={styles.selectionCount} role="status">已選 {selected.length}/3{selected.length === 3 ? '・可以確認陣容了' : ''}</p>
           <div className={styles.filters} aria-label="元素篩選">{['全部', ...Object.keys(labels)].map(element => <button key={element} aria-pressed={filter === element} onClick={() => setFilter(element)}>{labels[element] ?? element}</button>)}</div>
+          <nav className={styles.modeNav} aria-label="其他戰鬥模式">
+            <Link href="/beast-game/battlefield" className={styles.modeLink}>⚔️ 五卡押注戰場<span>勝得 1・負扣 5</span></Link>
+            <Link href="/beast-game/lineup" className={styles.modeLink}>🎯 單卡押注競技場<span>組陣押注對決</span></Link>
+          </nav>
           <div className={styles.grid}>{cards.filter(c => filter === '全部' || c.element === filter).map(card => <div className={`${styles.card} ${styles.pickCard}`} key={card.id}>
             {selected.includes(card.id) && <span className={styles.pickOrder}>已選 {selected.indexOf(card.id) + 1}</span>}
             <BeastCardTile card={card} selected={selected.includes(card.id)} onOpen={() => {
@@ -144,7 +148,6 @@ export default function BeastTurnGame() {
               else setError('已選滿三張；先點已選的卡取消，再選另一張。');
             }} />
           </div>)}</div>
-          <details className={styles.muted}><summary>進階模式與押卡規則</summary><nav className={styles.toolbar} aria-label="戰鬥模式"><Link href="/beast-game/battlefield">五卡押注戰場（勝得 1、負扣 5）</Link><Link href="/beast-game/lineup">單卡押注競技場</Link></nav></details>
         </> : <>
           <div className={styles.slots}>{selected.map((id, i) => {
             const card = cards.find(c => c.id === id)!;

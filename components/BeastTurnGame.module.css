@@ -6,3 +6,7 @@
 .calmBattle [aria-label='本回合指令']>button{height:78px;min-height:78px;overflow:auto}
 .calmBattle [data-battle-split]{grid-template-rows:minmax(150px,38fr) minmax(0,62fr)}
 .homeLink { display: flex; align-items: center; justify-content: center; min-height: 44px; color: #cce8ff; font-size: 15px; text-decoration: underline; }
+.modeNav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px}
+.modeLink{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:56px;padding:8px 10px;border-radius:14px;border:1px solid #c6a66b88;background:#1a2535;color:#ffe8b3;font-size:13px;font-weight:700;text-align:center;text-decoration:none;gap:3px;transition:background .15s}
+.modeLink:hover,.modeLink:active{background:#2a3a50}
+.modeLink span{font-size:11px;font-weight:400;color:#b8c2ca;white-space:nowrap}
