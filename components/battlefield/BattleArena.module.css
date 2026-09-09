@@ -67,6 +67,9 @@
   .fighterVitals { gap: 2px; }
 }
 @media (max-width: 480px) {
+  .fighters { grid-template-columns: minmax(0, 7fr) minmax(0, 3fr); }
+  .fighter { height: 100%; }
+  .fighter[data-fighter='player'] { min-height: 0; }
   .deckInfo { display: none; }
   .inspectLabel { display: none; }
   .fighterIdentity { font-size: 10px; line-height: 13px; }

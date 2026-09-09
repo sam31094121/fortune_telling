@@ -102,10 +102,12 @@ export default function BattlefieldPage() {
   const inspectCard = useCallback((cardId: string, side: 'player' | 'opponent' = 'player') => {
     setInspection({ cardId, side });
     controlScroll.current?.scrollTo({ top: 0 });
+    controlScroll.current?.parentElement?.scrollTo({ top: 0 });
   }, [controlScroll]);
   const closeInspection = useCallback(() => {
     setInspection(null);
     controlScroll.current?.scrollTo({ top: 0 });
+    controlScroll.current?.parentElement?.scrollTo({ top: 0 });
   }, [controlScroll]);
   useEffect(()=>{if(match?.status==='FINISHED')recordBeastGameCompleted('battlefield');},[match?.status]);
   useEffect(() => {
@@ -321,7 +323,7 @@ export default function BattlefieldPage() {
         ) : !state ? <p className={styles.loading}>正在發牌…</p> : (
           <div className={styles.split} data-battle-split>
             <BattleArena state={state} cards={cards} match={match} onInspect={inspectCard} />
-            <section className={styles.controls} aria-label="手部操控" data-battle-controls>
+            <section className={styles.controls} aria-label="手部操控" data-battle-controls data-preparing={!match}>
               <div className={styles.controlsHeading}>
                 <strong>{inspection ? '能力與相剋' : match ? (match.status === 'FINISHED' ? '對戰結果' : '選擇本回合動作') : '親手佈陣'}</strong>
                 <span>{inspection ? '查看不消耗回合' : match ? '戰況同步顯示' : '你 ' + placed + ' 隻・對手 ' + opponentPlaced + ' 隻'}</span>

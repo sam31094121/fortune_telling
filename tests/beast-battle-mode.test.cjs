@@ -81,3 +81,28 @@ assert.match(trial, /不押卡、不發卡也不沒收/);
 onlyBattle(trial);
 console.log('PASS: battle entry, no-stake guidance, live combat, abilities and all outcomes stay in battle mode');
 console.log('PASS: two licensed mobile venues, read-only rendering and honest trial stakes');
+
+// Structural guard for the phone regression; real scrolling is also checked in-browser.
+// The preparation guide used to occupy the whole fixed footer, leaving an 8px hand area.
+const postcss = require('postcss');
+const screenCss = postcss.parse(fs.readFileSync(path.join(root, 'components/battlefield/BattleScreen.module.css'), 'utf8'));
+const arenaCss = postcss.parse(fs.readFileSync(path.join(root, 'components/battlefield/BattleArena.module.css'), 'utf8'));
+function mobileDeclaration(css, media, selector, property) {
+  let value;
+  css.walkAtRules('media', rule => {
+    if (rule.params !== media) return;
+    rule.walkRules(selector, style => style.walkDecls(property, decl => { value = decl.value; }));
+  });
+  return value;
+}
+const prepare = ".controls[data-preparing='true']";
+assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', prepare, 'display'), 'block');
+assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', prepare, 'overflow-y'), 'auto');
+assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', `${prepare} > .controlScroll`, 'overflow'), 'visible');
+assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', `${prepare} > .footer`, 'position'), 'static');
+const battlefieldPage = fs.readFileSync(path.join(root, 'app/beast-game/battlefield/page.tsx'), 'utf8');
+assert.match(battlefieldPage, /data-battle-controls data-preparing=\{!match\}/, 'Only preparation uses the combined phone scroll area');
+assert.equal((battlefieldPage.match(/parentElement\?\.scrollTo\(\{ top: 0 \}\)/g) || []).length, 2, 'Open and close inspection reset the phone scroll area');
+assert.equal(mobileDeclaration(arenaCss, '(max-width: 480px)', '.fighters', 'grid-template-columns'), 'minmax(0, 7fr) minmax(0, 3fr)');
+assert.equal(mobileDeclaration(arenaCss, '(max-width: 480px)', '.fighter', 'height'), '100%');
+console.log('PASS: phone preparation can scroll past the guide; card artwork has a bounded grid track');
