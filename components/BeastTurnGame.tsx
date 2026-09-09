@@ -28,7 +28,7 @@ export default function BeastTurnGame() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [automatic, setAutomatic] = useState(false);
-  const [prepareStep, setPrepareStep] = useState<'select' | 'confirm'>('select');
+  const [prepareStep, setPrepareStep] = useState<'mode' | 'select' | 'confirm'>('mode');
   const [filter, setFilter] = useState('全部');
   const [detail, setDetail] = useState<Card | null>(null);
   const [inspection, setInspection] = useState<{ cardId: string; side: 'player' | 'opponent' } | null>(null);
@@ -127,19 +127,36 @@ export default function BeastTurnGame() {
       <Link href="/" className={styles.homeLink}>回首頁</Link>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" />
-      <h1>{prepareStep === 'select' ? '選三張神獸卡' : '確認你的陣容'}</h1>
-      <p>{prepareStep === 'select' ? '免押卡。點選三張，第一張先出場。' : '看好陣容後，按下開始。'}</p>
+      <h1>{prepareStep === 'mode' ? '神獸戰鬥' : prepareStep === 'select' ? '選三張神獸卡' : '確認你的陣容'}</h1>
+      <p>{prepareStep === 'mode' ? '選擇你要玩的模式' : prepareStep === 'select' ? '免押卡。點選三張，第一張先出場。' : '看好陣容後，按下開始。'}</p>
     </header>
     {errorNotice}
     {!account ? <p>正在讀取戰鬥卡…</p> : <>
-      <section className={styles.prepareContent} aria-label={prepareStep === 'select' ? '選擇神獸卡' : '檢查陣容'}>
-        {prepareStep === 'select' ? <>
+      <section className={styles.prepareContent} aria-label={prepareStep === 'mode' ? '選擇模式' : prepareStep === 'select' ? '選擇神獸卡' : '檢查陣容'}>
+        {prepareStep === 'mode' ? <>
+          <div className={styles.modeCards}>
+            <button className={styles.modeCard} onClick={() => { setPrepareStep('select'); setError(''); }}>
+              <span className={styles.modeIcon}>⚡</span>
+              <strong>免押卡・輕鬆對戰</strong>
+              <span className={styles.modeDesc}>不消耗神獸卡，選三張對電腦，快速上手</span>
+              <span className={styles.modeBadge}>免費</span>
+            </button>
+            <Link href="/beast-game/battlefield" className={styles.modeCard}>
+              <span className={styles.modeIcon}>⚔️</span>
+              <strong>五卡押注戰場</strong>
+              <span className={styles.modeDesc}>押五張神獸卡出戰，勝得一張，敗扣五張</span>
+              <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>押注</span>
+            </Link>
+            <Link href="/beast-game/lineup" className={styles.modeCard}>
+              <span className={styles.modeIcon}>🎯</span>
+              <strong>單卡押注競技場</strong>
+              <span className={styles.modeDesc}>組陣三隻押注，挑戰對手，贏家得卡</span>
+              <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>押注</span>
+            </Link>
+          </div>
+        </> : prepareStep === 'select' ? <>
           <p className={styles.selectionCount} role="status">已選 {selected.length}/3{selected.length === 3 ? '・可以確認陣容了' : ''}</p>
           <div className={styles.filters} aria-label="元素篩選">{['全部', ...Object.keys(labels)].map(element => <button key={element} aria-pressed={filter === element} onClick={() => setFilter(element)}>{labels[element] ?? element}</button>)}</div>
-          <nav className={styles.modeNav} aria-label="其他戰鬥模式">
-            <Link href="/beast-game/battlefield" className={styles.modeLink}>⚔️ 五卡押注戰場<span>勝得 1・負扣 5</span></Link>
-            <Link href="/beast-game/lineup" className={styles.modeLink}>🎯 單卡押注競技場<span>組陣押注對決</span></Link>
-          </nav>
           <div className={styles.grid}>{cards.filter(c => filter === '全部' || c.element === filter).map(card => <div className={`${styles.card} ${styles.pickCard}`} key={card.id}>
             {selected.includes(card.id) && <span className={styles.pickOrder}>已選 {selected.indexOf(card.id) + 1}</span>}
             <BeastCardTile card={card} selected={selected.includes(card.id)} onOpen={() => {
@@ -158,7 +175,10 @@ export default function BeastTurnGame() {
         </>}
       </section>
       <footer className={styles.prepareFooter}>
-        {prepareStep === 'select' ? <button className={styles.startBattle} disabled={selected.length !== 3} onClick={() => { setPrepareStep('confirm'); setError(''); }}>確認陣容</button> : <>
+        {prepareStep === 'mode' ? null : prepareStep === 'select' ? <>
+          <button onClick={() => { setPrepareStep('mode'); setSelected([]); setError(''); }}>← 返回</button>
+          <button className={styles.startBattle} disabled={selected.length !== 3} onClick={() => { setPrepareStep('confirm'); setError(''); }}>確認陣容</button>
+        </> : <>
           <button disabled={busy} onClick={() => { setPrepareStep('select'); setDetail(null); }}>返回選卡</button>
           <button className={styles.startBattle} disabled={busy || selected.length !== 3} onClick={() => void send('START', { lineup: selected })}>{busy ? '正在準備戰場…' : '開始對戰・輕鬆自動'}</button>
         </>}

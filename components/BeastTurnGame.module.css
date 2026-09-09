@@ -10,3 +10,11 @@
 .modeLink{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:56px;padding:8px 10px;border-radius:14px;border:1px solid #c6a66b88;background:#1a2535;color:#ffe8b3;font-size:13px;font-weight:700;text-align:center;text-decoration:none;gap:3px;transition:background .15s}
 .modeLink:hover,.modeLink:active{background:#2a3a50}
 .modeLink span{font-size:11px;font-weight:400;color:#b8c2ca;white-space:nowrap}
+.modeCards{display:flex;flex-direction:column;gap:14px;padding:16px 4px 24px}
+.modeCard{display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:100%;min-height:110px;padding:18px 20px;border-radius:18px;border:1px solid #c6a66b66;background:linear-gradient(135deg,#1e2f44,#141d2e);color:#ffe8b3;text-decoration:none;cursor:pointer;position:relative;text-align:left;transition:background .15s,transform .1s}
+.modeCard:hover,.modeCard:active{background:linear-gradient(135deg,#253a56,#1a2538);transform:scale(1.01)}
+.modeCard strong{font-size:18px;font-weight:800;letter-spacing:.02em}
+.modeIcon{font-size:28px;line-height:1}
+.modeDesc{font-size:13px;color:#b8c2ca;line-height:1.5;max-width:280px}
+.modeBadge{position:absolute;top:14px;right:16px;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;background:#2a4a2a;color:#7ddb9b}
+.modeBadgeWager{background:#4a2a10;color:#f5b85a}
