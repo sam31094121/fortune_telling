@@ -1,5 +1,5 @@
 import { randomInt, randomUUID } from 'node:crypto';
-import { mkdir, readFile, writeFile, rename, rm } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, rename, rm, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { NextResponse } from 'next/server';
 import { advance, interactiveCatalog, newMatch, profile, type Action, type Match } from '@/lib/beast-game/interactive';
@@ -15,6 +15,8 @@ const pick=(count:number)=>{const pool=[...ids],out:string[]=[];while(out.length
 function accountId(req:Request){const raw=req.headers.get('cookie')?.split(';').map(s=>s.trim()).find(s=>s.startsWith(cookie+'='))?.slice(cookie.length+1);return raw&&/^[a-f0-9-]{36}$/.test(raw)?raw:null;}
 async function transact(req:Request, mutate?:(a:Account)=>void){
   const id=accountId(req)??randomUUID();await mkdir(root,{recursive:true});const file=path.join(root,id+'.json'),lock=file+'.lock';
+  // Clear stale lock: if lock is older than 10s the previous function was likely killed before cleanup.
+  try{const s=await stat(lock);if(Date.now()-s.mtimeMs>10000)await rm(lock,{recursive:true,force:true});}catch{/* no lock yet */}
   try{await mkdir(lock);}catch{return NextResponse.json({ok:false,error:'資料正在保存，請稍後重試。'},{status:409});}
   try{
     let a:Account;
