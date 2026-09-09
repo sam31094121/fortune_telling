@@ -1,13 +1,13 @@
 'use client';
 
-import { memo, useEffect, useMemo, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef, type CSSProperties } from 'react';
 import { CardSlot, HandZone, type BattlefieldCardArt } from './GameBattlefield';
 import { VitalBar } from './BattlePanel';
 import { legalDestinations, type BattleState, type Destination } from '@/lib/beast-game/battlefield';
-import type { Match } from '@/lib/beast-game/interactive';
+import { profile, type Match } from '@/lib/beast-game/interactive';
 import { describeMatchup } from '@/lib/beast-element-guide';
 import { ELEMENT_LABEL, type BeastElement } from '@/lib/beast-game/elements';
-import { combatGuideFor, elementPercent } from '@/lib/beast-game/combat-guide';
+import { elementPercent } from '@/lib/beast-game/combat-guide';
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import styles from './BattleArena.module.css';
 
@@ -27,7 +27,7 @@ export default function BattleArena({ state, cards, match, onInspect }: {
     <section className={styles.arena} aria-label="戰鬥畫面" data-battle-visual data-battle-venue="cards">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className={styles.backdrop} src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" decoding="async" />
-      <div className={styles.arenaHeading}>
+      <div className="sr-only">
         <strong>{finished ? '本場結束' : match ? `第 ${match.round} 回合` : '佈陣預覽'}</strong>
         <span>{BATTLE_VENUES.cards.name}・卡片戰鬥</span>
       </div>
@@ -36,17 +36,16 @@ export default function BattleArena({ state, cards, match, onInspect }: {
           const team = match?.[side];
           const fighter = team?.team[team.active];
           const card = side === 'player' ? mine : foe;
-          const guide = card ? combatGuideFor(card.id, fighter) : null;
           const label = side === 'player' ? '你' : '對手';
+          const lastAction = match?.history?.at(-1)?.[side];
+          const performed = Boolean(card && match?.log.some(entry => entry.side === side && entry.cardId === card.id && entry.text.includes('：')));
+          const rush = performed && (lastAction?.type === 'ATTACK' || (lastAction?.type === 'SKILL' && card && profile(card.id).effects.some(effect => effect.type === 'DAMAGE' && effect.target === 'ENEMY')));
           return (
-            <div className={styles.fighter} key={side} data-fighter={side}>
-              <div className={styles.fighterHeading}>
-                <p className={styles.fighterName}><span>{label}</span><strong>{card?.name ?? '等待主戰'}</strong></p>
-                {guide && <p className={styles.fighterIdentity}><strong>{guide.elementLabel}系・{guide.role}型</strong></p>}
-              </div>
-              <div className={styles.artSpace}>
+            <div className={styles.fighter} key={side} data-fighter={side} aria-label={`${label}：${card?.name ?? '等待主戰'}`}>
+              <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} style={{ '--rush-direction': side === 'player' ? 1 : -1, '--trail-art': card ? `url("${card.thumbnail}")` : 'none' } as CSSProperties}>
+                {rush && [0, 1, 2].map(index => <span key={index} className={styles.trail} aria-hidden="true" style={{ '--trail-index': index } as CSSProperties} />)}
                 <button type="button" disabled={!card} aria-label={card ? `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => card && onInspect(card.id, side)}
-                  key={`${card?.id}-${match?.revision ?? 0}`} className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''} ${match?.revision && match.log.some(entry => entry.side === side) ? styles.acted : ''}`}>
+                  className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''}`}>
                   {card ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={card.thumbnail} alt={`${label}主戰：${card.name}`} width={256} height={384} decoding="async" draggable={false} />
@@ -54,17 +53,16 @@ export default function BattleArena({ state, cards, match, onInspect }: {
                 </button>
               </div>
               {fighter && team ? (
-                <div className={styles.fighterVitals}>
+                <div className="sr-only">
                   <VitalBar hp={fighter.hp} maxHp={fighter.maxHp} shield={fighter.shield} />
                   <p>{ELEMENT_LABEL[fighter.element]}・氣 {team.energy}<span>{team.team.filter(f => !f.defeated).length}/{team.team.length} 存活</span></p>
                 </div>
-              ) : <p className={styles.previewStats}>{card ? ELEMENT_LABEL[card.element as BeastElement] : '未選'}・上場 {(state?.[side].active ? 1 : 0) + (state?.[side].bench.filter(Boolean).length ?? 0)} 隻</p>}
+              ) : <p className="sr-only">{card ? ELEMENT_LABEL[card.element as BeastElement] : '未選'}・上場 {(state?.[side].active ? 1 : 0) + (state?.[side].bench.filter(Boolean).length ?? 0)} 隻</p>}
             </div>
           );
         })}
-        <span className={styles.versus} aria-hidden="true">VS</span>
       </div>
-      <p className={styles.arenaNote} role="status" aria-live="polite" data-matchup={matchup?.kind}>
+      <p className="sr-only" role="status" aria-live="polite" data-matchup={matchup?.kind}>
         {finished ? (match.winner === 'player' ? '你贏了' : match.winner === 'opponent' ? '對手獲勝' : '平手')
           : match?.player.team[match.player.active].defeated ? '主戰已倒下，請在下方換上後備'
           : match?.opponent.team[match.opponent.active].defeated ? '對手主戰已倒下，請點繼續讓後備上場'
@@ -100,7 +98,7 @@ export const PreparationControls = memo(function PreparationControls({ state, ca
   }, [selected]);
 
   return (
-    <section className={styles.preparation} aria-label="選卡與放牌" tabIndex={-1}>
+    <section className={styles.preparation} aria-label="選卡與放牌" tabIndex={-1} data-needs-main={!selected && !state.player.active}>
       <p className={styles.selectionHint} role="status" aria-live="polite">{selected ? `已選 ${lookup(selected)?.name}，請選放置位置` : state.player.active ? '可選手牌補後備，或按下方按鈕繼續' : '先點一張手牌，選你的主戰神獸'}</p>
       <div className={styles.handHeading}><strong>你的手牌・{state.player.hand.length}</strong><span className={styles.deckInfo}>牌庫 {state.player.deck.length}・棄牌 {state.player.discard.length}</span></div>
       <HandZone hand={state.player.hand} lookup={lookup} selectedCardId={selected} onCard={onSelect} showNames tapOnly />

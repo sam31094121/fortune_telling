@@ -97,7 +97,7 @@ export default function StakeSlot({
   }, [currentIndex, steps]);
 
   return (
-    <section className={styles.panel} data-stake-slot aria-label="押注">
+    <section className={styles.panel} data-stake-slot data-needs-stake={!picked && !trial} aria-label="押注">
       {/* 先後順序：做完的變藍、正在做的變金，不必猜下一步。 */}
       {steps.length > 0 && <ol className={styles.steps}>
         {steps.map((step, index) => (
@@ -137,8 +137,8 @@ export default function StakeSlot({
           disabled={trial || locked}
           onClick={() => {
             if (picked) choose(picked);
-            pickerRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-            pickerRef.current?.querySelector('button')?.focus();
+            pickerRef.current?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+            pickerRef.current?.querySelector('button')?.focus({ preventScroll: true });
           }}
         >
           {picked ? (
@@ -205,11 +205,8 @@ export default function StakeSlot({
                 choose(card);
                 // 押下去給一聲確認——這一下是有代價的，值得一個回饋。
                 sound.current?.play(CLASH_FX.impact, 0.28);
-                // 回到格子：客戶剛做的決定要看得到結果，不是留在小卡列上猜。
-                setTimeout(() => {
-                  const slot = document.querySelector<HTMLElement>('[data-stake-target]');
-                  slot?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                }, 100);
+                // Keep the chosen card in view. Its pressed state and the confirmation
+                // footer show the result without a delayed scroll interrupting touch input.
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}

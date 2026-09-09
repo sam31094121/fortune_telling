@@ -101,3 +101,16 @@
 /* Inspection is a focused view, not a small second card beneath the same artwork. */
 .split[data-inspecting='true'] { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
 .split[data-inspecting='true'] > [data-battle-visual] { display: none; }
+.split[data-stake-review='true'] [data-stake-slot] > [role='group'] { order: -1; }
+.split[data-stake-review='true'] [data-needs-stake='true'] [role='group'] > button:first-child { outline: 2px solid #ffe4a6; outline-offset: -2px; }
+@media (max-width: 600px), (orientation: landscape) and (max-height: 540px) {
+  .split[data-stake-review='true'] { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  .split[data-stake-review='true'] > [data-battle-visual] { display: none; }
+  .split[data-stake-review='true'] > .controls > .footer { padding-top: 2px; padding-bottom: 2px; }
+  .split[data-stake-review='true'] .prepareNav { padding: 0; }
+}
+@media (orientation: landscape) and (max-height: 540px) {
+  .split[data-stake-review='true'] [aria-label='下一步操作'] { grid-template-columns: minmax(0, 1fr) minmax(180px, .65fr); align-items: center; column-gap: 12px; }
+  .split[data-stake-review='true'] [aria-label='下一步操作'] > p { grid-column: 1; }
+  .split[data-stake-review='true'] [data-start-confirmation] { grid-column: 2; grid-row: 1 / span 3; }
+}

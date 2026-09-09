@@ -59,22 +59,25 @@ fs.mkdirSync(output, { recursive: true });
         await stable();
         const fighterLayout = await page.locator('[data-fighter]').evaluateAll(nodes => nodes.map(node => {
           const art = node.querySelector('button').getBoundingClientRect();
-          const heading = node.firstElementChild.getBoundingClientRect();
-          const vitals = node.lastElementChild.getBoundingClientRect();
-          return { artTop: art.top, artBottom: art.bottom, headingBottom: heading.bottom, vitalsTop: vitals.top };
+          const frame = node.getBoundingClientRect();
+          return { artTop: art.top, artBottom: art.bottom, frameTop: frame.top, frameBottom: frame.bottom };
         }));
         for (const box of fighterLayout) {
-          assert.ok(box.artTop >= box.headingBottom - 1, 'Card art must not overlap the name');
-          assert.ok(box.artBottom <= box.vitalsTop + 1, 'Card art must not overlap life bars');
+          assert.ok(box.artTop >= box.frameTop - 1, 'Card art stays inside its frame');
+          assert.ok(box.artBottom <= box.frameBottom + 1, 'Card art stays inside the battlefield');
         }
         await page.screenshot({ path: `${output}/${width}-combat.png` });
-        const before = await page.locator('[data-battle-visual]').innerText();
+        const before = await page.locator('[data-battle-visual]').textContent();
         await page.getByRole('button', { name: '查看井木犴的卡面與能力', exact: true }).tap();
         await guide.getByRole('button', { name: '卡片能力', exact: true }).tap();
         await guide.getByRole('button', { name: '回到操控', exact: true }).tap();
-        assert.equal(await page.locator('[data-battle-visual]').innerText(), before, 'Inspection consumes no action or HP');
+        assert.equal(await page.locator('[data-battle-visual]').textContent(), before, 'Inspection consumes no action or HP');
         await commands.getByRole('button', { name: /^普通攻擊/ }).tap();
-        assert.notEqual(await page.locator('[data-battle-visual]').innerText(), before, 'Attack still advances combat');
+        assert.notEqual(await page.locator('[data-battle-visual]').textContent(), before, 'Attack still advances combat');
+        assert.equal(await page.locator('[data-fighter="player"] [data-rush="true"]').count(), 1, 'An executed attack has a visual rush');
+        await page.waitForTimeout(650);
+        const transform = await page.locator('[data-fighter="player"] button').evaluate(e => getComputedStyle(e).transform);
+        assert.ok(transform === 'none' || transform === 'matrix(1, 0, 0, 1, 0, 0)', 'Card returns after attacking');
         for (let action = 0; action < 100 && await page.locator('[data-battle-result]').count() === 0; action++) {
           const next = page.getByRole('button', { name: '繼續，對手換卡', exact: true });
           if (await next.count()) await next.tap();

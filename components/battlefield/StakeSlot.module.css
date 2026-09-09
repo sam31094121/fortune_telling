@@ -219,9 +219,9 @@
     border-radius: 8px;
   }
   .pick strong, .pick span {
-    font-size: 11px;
+    font-size: 12px;
     padding: 2px 3px;
-    line-height: 16px;
+    line-height: 18px;
   }
   .pick strong {
     min-height: 32px;

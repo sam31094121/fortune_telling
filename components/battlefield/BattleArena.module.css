@@ -3,7 +3,7 @@
   isolation: isolate;
   min-height: 0;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr);
   gap: 8px;
   padding: 10px 12px;
   overflow: hidden;
@@ -18,14 +18,14 @@
 .arenaHeading, .handHeading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #b6c8e0; }
 .arenaHeading strong { color: #ffe4a6; font-size: 14px; }
 .fighters { position: relative; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: stretch; }
-.fighter[data-fighter='player'] { grid-template-rows: auto minmax(0, 1fr) auto; min-height: 0; }
+.fighter[data-fighter='player'] { grid-template-rows: minmax(0, 1fr); min-height: 0; }
 .fighter[data-fighter='opponent'] { opacity: 0.85; max-height: 280px; }
 .fighter[data-fighter='opponent'] .artSpace { place-items: center; min-height: 0; }
-.fighter { min-height: 0; min-width: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 7px; }
+.fighter { min-height: 0; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr); gap: 7px; }
 .fighterName { display: flex; justify-content: center; gap: 5px; text-align: center; font-size: 13px; line-height: 18px; }
 .fighterName span { color: #9fc5ef; font-size: 11px; }
 .fighterName strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.artSpace { min-height: 0; display: grid; place-items: center; container-type: size; }
+.artSpace { position: relative; min-height: 0; display: grid; place-items: center; container-type: size; }
 .art { position: relative; width: min(100cqw, 66.666cqh, 180px); height: min(100cqh, 270px); min-width: 44px; min-height: 44px; padding: 0; overflow: hidden; border: 1px solid #d8b771; border-radius: 10px; box-shadow: 0 6px 14px #0008; background: #0a1429; touch-action: manipulation; }
 .art img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .empty { height: 100%; display: grid; place-content: center; text-align: center; color: #91a6c5; font-size: 13px; }
@@ -49,6 +49,7 @@
 .preparation [role='group'] > div { flex-basis: 60px; width: 60px; }
 .preparation [role='group'] button { aspect-ratio: 2 / 3; }
 .preparation [role='group'] button img, .destination button img { object-fit: contain; }
+.preparation[data-needs-main='true'] [role='group'] > div:first-child > button { outline: 2px solid #ffe4a6; outline-offset: 1px; }
 .preparation button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .fighterHeading { display: grid; gap: 3px; }
 .fighterIdentity { display: grid; text-align: center; font-size: 11px; line-height: 15px; }
@@ -95,3 +96,9 @@
   .fighterIdentity span { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .acted { animation: none; } }
+.artSpace[data-rush='true'] { z-index: 3; }
+.artSpace[data-rush='true'] .art { animation: cardRush 560ms ease-in-out both; }
+.trail { position: absolute; width: min(100cqw, 66.666cqh, 180px); height: min(100cqh, 270px); border-radius: 10px; background-image: var(--trail-art); background-size: contain; background-repeat: no-repeat; background-position: center; pointer-events: none; animation: cardTrail 560ms ease-out both; animation-delay: calc(var(--trail-index) * 35ms); }
+@keyframes cardRush { 0%, 100% { transform: translateX(0) scale(1); } 45% { transform: translateX(calc(var(--rush-direction) * 65%)) scale(1.06); } }
+@keyframes cardTrail { 0%, 100% { opacity: 0; transform: translateX(0); } 30% { opacity: .24; } 65% { opacity: 0; transform: translateX(calc(var(--rush-direction) * 100%)); } }
+@media (prefers-reduced-motion: reduce) { .artSpace[data-rush='true'] .art { animation: none; } .trail { display: none; } }
