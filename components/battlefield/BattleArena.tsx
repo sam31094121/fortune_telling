@@ -51,18 +51,21 @@ export default function BattleArena({ state, cards, match, onInspect }: {
                     <img src={card.thumbnail} alt={`${label}主戰：${card.name}`} width={256} height={384} decoding="async" draggable={false} />
                   ) : <span className={styles.empty}>主戰卡<br />等待上場</span>}
                 </button>
+                {fighter && team && (
+                  <div className={styles.fighterVitals} aria-hidden="true">
+                    <p className={styles.fighterName}><span>{label}</span><strong>{card?.name}</strong></p>
+                    <VitalBar hp={fighter.hp} maxHp={fighter.maxHp} shield={fighter.shield} />
+                  </div>
+                )}
               </div>
               {fighter && team ? (
-                <div className="sr-only">
-                  <VitalBar hp={fighter.hp} maxHp={fighter.maxHp} shield={fighter.shield} />
-                  <p>{ELEMENT_LABEL[fighter.element]}・氣 {team.energy}<span>{team.team.filter(f => !f.defeated).length}/{team.team.length} 存活</span></p>
-                </div>
+                <p className="sr-only">{ELEMENT_LABEL[fighter.element]}・氣 {team.energy}・{team.team.filter(f => !f.defeated).length}/{team.team.length} 存活</p>
               ) : <p className="sr-only">{card ? ELEMENT_LABEL[card.element as BeastElement] : '未選'}・上場 {(state?.[side].active ? 1 : 0) + (state?.[side].bench.filter(Boolean).length ?? 0)} 隻</p>}
             </div>
           );
         })}
       </div>
-      <p className="sr-only" role="status" aria-live="polite" data-matchup={matchup?.kind}>
+      <p className={styles.arenaNote} role="status" aria-live="polite" data-matchup={matchup?.kind}>
         {finished ? (match.winner === 'player' ? '你贏了' : match.winner === 'opponent' ? '對手獲勝' : '平手')
           : match?.player.team[match.player.active].defeated ? '主戰已倒下，請在下方換上後備'
           : match?.opponent.team[match.opponent.active].defeated ? '對手主戰已倒下，請點繼續讓後備上場'

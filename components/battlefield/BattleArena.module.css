@@ -29,7 +29,7 @@
 .art { position: relative; width: min(100cqw, 66.666cqh, 180px); height: min(100cqh, 270px); min-width: 44px; min-height: 44px; padding: 0; overflow: hidden; border: 1px solid #d8b771; border-radius: 10px; box-shadow: 0 6px 14px #0008; background: #0a1429; touch-action: manipulation; }
 .art img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .empty { height: 100%; display: grid; place-content: center; text-align: center; color: #91a6c5; font-size: 13px; }
-.fighterVitals { display: grid; gap: 5px; }
+.fighterVitals { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: min(100cqw, 66.666cqh, 180px); padding: 3px 6px 6px; background: linear-gradient(0deg, rgba(6,16,33,.95) 55%, rgba(6,16,33,0)); border-radius: 0 0 10px 10px; pointer-events: none; display: grid; gap: 2px; }
 .fighterVitals p { display: flex; justify-content: space-between; gap: 4px; font-size: 11px; color: #c0d3ea; }
 .previewStats { font-size: 12px; color: #c0d3ea; text-align: center; }
 .versus { position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%); color: #fadd9a; font-size: 12px; font-weight: 900; }
