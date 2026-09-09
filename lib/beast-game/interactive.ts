@@ -94,13 +94,6 @@ export function chooseAI(s:Match,side:Side):Action {
   const canSkill=actions.some(a=>a.type==='SKILL');
   const enemy=s[foe].team[s[foe].active];
 
-  // Proactive retreat: critically low HP and a reserve that can fight better.
-  if(f.hp/f.maxHp<0.18&&p.role!=='守護'){
-    const swaps=actions.filter((a):a is Extract<Action,{type:'SWITCH'}>=>(a.type==='SWITCH'));
-    const rescue=swaps.find(a=>t.team[a.index].hp>f.hp*2.5&&!t.team[a.index].defeated);
-    if(rescue)return rescue;
-  }
-
   // Role-specific skill timing — each role has a reason, not a blanket "always skill".
   if(canSkill){
     // Attacker and speed roles deal damage; skill is always the right tool.
@@ -108,7 +101,7 @@ export function chooseAI(s:Match,side:Side):Action {
     // Control: debuff the enemy — every opportunity counts.
     if(p.role==='控制')return {type:'SKILL'};
     // Guardian: shield only when meaningful headroom remains.
-    if(p.role==='守護'&&f.shield<25)return {type:'SKILL'};
+    if(p.role==='守護'&&f.shield===0)return {type:'SKILL'};
     // Support: heal once below 60 % to make the recovery meaningful.
     if(p.role==='輔助'&&f.hp<f.maxHp*0.6)return {type:'SKILL'};
     // Counter: set shield before taking a hit, not when already shielded.
