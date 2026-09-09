@@ -9,6 +9,17 @@ fs.mkdirSync(output, { recursive: true });
   try {
     for (const [width, height] of [[320, 480], [390, 844], [768, 1024], [844, 390]]) {
       const context = await browser.newContext({ viewport: { width, height }, isMobile: true, hasTouch: true });
+      await context.addInitScript(() => {
+        const original = Storage.prototype.setItem;
+        Storage.prototype.setItem = function(key, value) {
+          if (key === 'tdh_beast_collection_v1' && value.includes('qa:0')) {
+            const data = JSON.parse(value);
+            data.cards = Array.from({ length: 8 }, (_, i) => ({ id: `qa:${i}`, cardId: `beast_a${String(i + 1).padStart(2, '0')}`, source: 'DUEL_WIN', at: '2026-09-07' }));
+            value = JSON.stringify(data);
+          }
+          return original.call(this, key, value);
+        };
+      });
       const page = await context.newPage();
       const errors = [];
       page.on('pageerror', e => errors.push(e.message));
@@ -22,6 +33,25 @@ fs.mkdirSync(output, { recursive: true });
         await page.getByRole('button', { name: '押注確認', exact: true }).tap();
         const scroll = page.locator('[data-control-scroll]');
         const picker = page.getByRole('group', { name: '從收藏選一張押注', exact: true });
+        const geometry = await picker.evaluate(e => ({ width: e.clientWidth, total: e.scrollWidth, viewport: innerWidth }));
+        assert.ok(geometry.width < geometry.viewport, 'Picker stays inside the phone instead of being clipped');
+        assert.ok(geometry.total > geometry.width, 'Eight cards provide horizontal overflow');
+        const touch = await context.newCDPSession(page);
+        const bounds = await picker.boundingBox();
+        const startX = bounds.x + bounds.width - 20, touchY = bounds.y + 55;
+        await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: startX, y: touchY }] });
+        for (let step = 1; step <= 10; step++) {
+          await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: startX - step * (bounds.width - 40) / 10, y: touchY }] });
+          await page.waitForTimeout(20);
+        }
+        await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+        await page.waitForTimeout(200);
+        assert.ok(await picker.evaluate(e => e.scrollLeft) > 30, 'Horizontal finger swipe moves the card list');
+        await touch.detach();
+        await page.waitForTimeout(1000);
+        await picker.getByRole('button').last().tap();
+        assert.equal(await picker.getByRole('button').last().getAttribute('aria-pressed'), 'true', 'Last collected card is reachable');
+        await picker.getByRole('button').last().tap();
         if (width <= 600 || height <= 540) {
           assert.equal(await page.locator('[data-battle-visual]').isVisible(), false, 'Phone stake review gets a focused pane');
           const available = await scroll.evaluate(e => e.clientHeight);
@@ -51,6 +81,7 @@ fs.mkdirSync(output, { recursive: true });
           await page.waitForTimeout(150);
           assert.ok(await scroll.evaluate(e => e.scrollTop) > 10, 'Touch swipe scrolls the stake pane');
           await cdp.detach();
+          await page.waitForTimeout(1000);
         }
         await picker.getByRole('button').nth(1).tap();
         assert.equal(await picker.locator('[aria-pressed="true"]').count(), 0, 'Tap again cancels');

@@ -156,6 +156,7 @@
 /* ── 選卡 ─────────────────────────────────────────────────────── */
 
 .picker {
+  min-width: 0;
   display: flex;
   gap: 8px;
   overflow-x: auto;
@@ -169,7 +170,9 @@
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 12px;
   padding: 0;
-  touch-action: manipulation;
+  /* Global mobile button styles restrict gestures to pan-y. This horizontal
+     collection must allow both axes, including when a swipe starts on a card. */
+  touch-action: manipulation !important;
 }
 
 .pick img { display: block; width: 100%; aspect-ratio: 63 / 88; object-fit: cover; }
