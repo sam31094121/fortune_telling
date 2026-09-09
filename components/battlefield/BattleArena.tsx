@@ -99,12 +99,12 @@ export const PreparationControls = memo(function PreparationControls({ state, ca
 
   return (
     <section className={styles.preparation} aria-label="選卡與放牌" tabIndex={-1} data-needs-main={!selected && !state.player.active}>
-      <p className={styles.selectionHint} role="status" aria-live="polite">{selected ? `已選 ${lookup(selected)?.name}，請選放置位置` : state.player.active ? '可選手牌補後備，或按下方按鈕繼續' : '先點一張手牌，選你的主戰神獸'}</p>
+      <p className={styles.selectionHint} role="status" aria-live="polite">{selected ? `已選 ${lookup(selected)?.name}` : state.player.active ? '可選手牌補後備，或按下方按鈕繼續' : '① 點一張卡 ↓'}</p>
       <div className={styles.handHeading}><strong>你的手牌・{state.player.hand.length}</strong><span className={styles.deckInfo}>牌庫 {state.player.deck.length}・棄牌 {state.player.discard.length}</span></div>
       <HandZone hand={state.player.hand} lookup={lookup} selectedCardId={selected} onCard={onSelect} showNames tapOnly />
       <div ref={placement} className={styles.placement}>
-      {selected && <div className={styles.placeActions}>
-        {legal.some(to => to.zone === 'ACTIVE') && <button type="button" data-place-active onClick={() => onDestination({ zone: 'ACTIVE' })}>{state.player.active ? '換為主戰' : '放入主戰'}</button>}
+      {selected && <div className={styles.placeActions} data-guide-place={!state.player.active}>
+        {legal.some(to => to.zone === 'ACTIVE') && <button type="button" data-place-active onClick={() => onDestination({ zone: 'ACTIVE' })}>{!state.player.active && <span className={styles.stepMarker} aria-hidden="true">②</span>}{state.player.active ? '換為主戰' : '放入主戰'}</button>}
         <button type="button" onClick={() => onInspect(selected)}>卡面與能力</button>
       </div>}
       <p className={styles.selectionHint}>{selected ? '或點下方可放入的後備格' : '目前陣容・點已上場的卡可調整'}</p>

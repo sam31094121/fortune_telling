@@ -381,3 +381,4 @@
   .result { font-size: 15px; }
   .result small { font-size: 10px; }
 }
+[data-swap-guide] .reserveCard:not(:disabled) { outline: 2px solid #ffe4a6; outline-offset: -2px; }

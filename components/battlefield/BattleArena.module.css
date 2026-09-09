@@ -62,6 +62,8 @@
 .placeActions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .placeActions button { min-height: 48px; border-radius: 10px; border: 1px solid #7cb6ce; color: #d3f1ff; background: #213e56; font-weight: 800; font-size: 14px; touch-action: manipulation; }
 .placeActions button[data-place-active] { color: #161b21; background: #d6edfa; }
+.placeActions[data-guide-place='true'] [data-place-active] { outline: 2px solid #ffe4a6; outline-offset: 2px; }
+.stepMarker { margin-right: 6px; font-size: 20px; vertical-align: middle; }
 @media (max-height: 650px) {
   .preparation { gap: 4px; }
   .destination { max-width: 44px; gap: 2px; }

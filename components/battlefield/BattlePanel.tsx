@@ -183,7 +183,7 @@ export function BattleActionBar({
         <div ref={commandDetail}>
         {(commandView === 'swap' || active.defeated) && <>
         {!switches.length && <p className={styles.activeHint}>目前沒有可換上的後備，可使用仍可用的攻擊或技能。</p>}
-        <div className={styles.reserveCards} role="group" aria-label="點戰鬥卡換上場">
+        <div className={styles.reserveCards} role="group" aria-label="點戰鬥卡換上場" data-swap-guide>
           {match.player.team.map((fighter, index) => {
             const action = switches.find(candidate => candidate.index === index);
             const art = cards.find(card => card.id === fighter.cardId);
