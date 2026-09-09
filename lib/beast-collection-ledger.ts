@@ -134,7 +134,11 @@ export function settleCard(current: BeastCollection, matchId: string, outcome: S
     || (outcome.verdict === 'RETURNED' && (outcome.gainedCardId !== null || outcome.forfeitedCardId !== null))
     || !['WON', 'LOST', 'RETURNED'].includes(outcome.verdict)) throw new Error('戰果資料不完整，暫停結算。');
   const cards = [...current.cards];
-  if (outcome.verdict === 'WON') cards.unshift({ id: `duel:${matchId}`, cardId: outcome.gainedCardId!, at, source: 'DUEL_WIN' });
+  if (outcome.verdict === 'WON') {
+    cards.unshift({ id: `duel:${matchId}`, cardId: outcome.gainedCardId!, at, source: 'DUEL_WIN' });
+    const bonus = Math.min(3, Math.max(0, (outcome.gainedCount ?? 1) - 1));
+    for (let b = 0; b < bonus; b++) cards.unshift({ id: `duel:${matchId}:b${b}`, cardId: outcome.gainedCardId!, at, source: 'DUEL_WIN' });
+  }
   if (outcome.verdict === 'LOST') cards.splice(index, 1);
   const cardId = outcome.gainedCardId ?? outcome.forfeitedCardId ?? pending.cardId;
   const receipt: CollectionReceipt = { matchId, verdict: outcome.verdict, cardId, remaining: cards.filter((card) => card.cardId === cardId).length, total: cards.length, ...receiptMovement(current.cards, cards, 1) };

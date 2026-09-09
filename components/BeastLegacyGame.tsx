@@ -27,6 +27,7 @@ import { selectRitualHighlights } from '@/lib/beast-ritual';
 import frameStyles from '@/components/BeastCardFrame.module.css';
 import { describeStakeRisk } from '@/lib/beast-game/stake';
 import { runOwnedDuel, retryStakeSettlement, recoverPendingDuel, subscribeCollection, type Settlement } from '@/lib/beast-collection';
+import { judgeSeriesVictorySkill } from '@/lib/beast-game/iching-judgment';
 import { readOwnedCards, type OwnedCards } from '@/lib/beast-owned-cards';
 import { BATTLE_NO_STAKE_GUIDE, BATTLE_VENUES } from '@/lib/beast-game/venues';
 import venueStyles from './battlefield/BattleVenue.module.css';
@@ -71,6 +72,8 @@ type DuelResult = {
     opponentStakeName: string;
     gainedCardName: string | null;
     forfeitedCardName: string | null;
+    gainedCount?: number;
+    ichingJudgment?: import('@/lib/beast-game/iching-judgment').IchingJudgment;
   };
   winner?: string;
   series?: { pairs: import('@/lib/beast-game/series').PairResult[]; score: { player: number; opponent: number } };
@@ -366,7 +369,7 @@ export default function BeastGamePage() {
   const byId = useMemo(() => new Map(cards.map((card) => [card.id, card])), [cards]);
   const stakeCard = board.stake ? byId.get(board.stake) ?? null : null;
   // 風險說明要在按下開始之前就看得到，不是結算之後才補一句。
-  const stakeRisk = describeStakeRisk(stakeCard?.name ?? null);
+  const stakeRisk = describeStakeRisk(stakeCard?.name ?? null, 'SINGLE');
 
   const filtered = useMemo(() => cards.filter((card) =>
     (elementFilter === 'ALL' || card.element === elementFilter)
@@ -477,6 +480,10 @@ export default function BeastGamePage() {
         const ids = result.opponentLineupIds;
         if (!result.ok || !Array.isArray(ids) || ids.length !== 3 || new Set(ids).size !== 3 || ids.some((id) => !byId.has(id))) {
           throw new Error(result.error ?? '對手陣容不完整，押注卡未扣除。');
+        }
+        if (result.winner === 'PLAYER' && result.stake) {
+          const judgment = judgeSeriesVictorySkill(result);
+          result.stake = { ...result.stake, gainedCount: judgment.bonusCards, ichingJudgment: judgment };
         }
         return result;
       });

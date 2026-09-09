@@ -33,10 +33,9 @@ export default function BattlePace({ match, automatic, blocked, onAutomatic, onA
   if (match.status !== 'PLAYING') return null;
   return <section className={styles.pace} aria-label="戰鬥節奏">
     <div className={styles.heading}>
-      <strong role="status">{blocked ? '動作處理中' : active.defeated ? '選後備，接續戰鬥' : automatic && waiting ? '技能就緒・等你決定' : running ? replacingOpponent ? '對手後備即將上場' : '自動普通攻擊中' : '已暫停・可手動出招'}</strong>
-      <button type="button" disabled={blocked} aria-pressed={automatic} onClick={() => onAutomatic(!automatic)}>{automatic ? '暫停自動' : '開啟自動'}</button>
+      <strong role="status">{blocked ? '⚙' : active.defeated ? '⚠ 選後備' : automatic && waiting ? '⚡ 技能就緒' : running ? '▶ 自動' : '⏸ 暫停'}</strong>
+      <button type="button" disabled={blocked} aria-pressed={automatic} onClick={() => onAutomatic(!automatic)}>{automatic ? '暫停' : '自動'}</button>
     </div>
-    <p>{waiting && !active.defeated ? '選技能或保留技能；詳細效果在說明。' : active.defeated ? '點後備接替，不消耗回合。' : '普通攻擊間隔 3.5 秒・技能就緒會等待。'}</p>
     <div key={`${match.revision}:${running}`} className={styles.track} style={{ visibility: running ? 'visible' : 'hidden' }} aria-label={running ? `${delay / 1000} 秒後推進` : undefined}><span style={{ animationDuration: `${delay}ms` }} /></div>
   </section>;
 }

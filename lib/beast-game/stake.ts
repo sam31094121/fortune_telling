@@ -104,22 +104,26 @@ export function resolveStake(input: StakeInput): StakeResult {
  * 這段話要出現在「開始決鬥」之前，不是結算之後。
  * 客戶按下去的那一刻，就該已經知道輸了會失去哪一張。
  */
-export function describeStakeRisk(stakeCardName: string | null): {
+export function describeStakeRisk(stakeCardName: string | null, mode: 'SINGLE' | 'FIVE' = 'FIVE'): {
   canStart: boolean;
   headline: string;
   detail: string;
 } {
+  const rewardRange = mode === 'SINGLE' ? '1～4 張' : '5～20 張';
+  const lossNote = mode === 'SINGLE' ? '押注卡沒收' : '押注卡沒收五張';
   if (!stakeCardName) {
     return {
       canStart: false,
       headline: '從持有卡片選一張押注',
-      detail: '贏：原卡保留＋易經裁定賠你 5～20 張。輸：押注卡沒收。平手：退回。',
+      detail: `贏：得對手押注卡，易經裁定最多再得 ${rewardRange}。輸：${lossNote}。平手：退回。`,
     };
   }
   return {
     canStart: true,
     headline: `你押上的是「${stakeCardName}」`,
-    detail: `贏：原卡保留，易經裁定再賠你 5～20 張。輸：沒收「${stakeCardName}」五張。平手：退回。`,
+    detail: mode === 'SINGLE'
+      ? `贏：得對手押注卡，易經裁定最多再得 ${rewardRange}。輸：失去「${stakeCardName}」。平手：退回。`
+      : `贏：原卡保留，易經裁定再賠你 ${rewardRange}。輸：沒收「${stakeCardName}」五張。平手：退回。`,
   };
 }
 

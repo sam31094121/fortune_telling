@@ -98,3 +98,54 @@ export function judgeVictorySkill(match: Match): IchingJudgment {
     verdict: '澤水困境，仍舉勝旗，押五贏五，不多不少。',
   };
 }
+
+/**
+ * 單卡押注（組陣台）的易經判斷。
+ * 輸入是系列賽 DuelResult（不是 Match），獎勵卡數 1–4 張（押一賠一基底，技術最多再得三張）。
+ */
+export function judgeSeriesVictorySkill(duel: {
+  series?: { score: { player: number; opponent: number } };
+  turns?: number;
+  timeline?: Array<{ turn: number; side: string; phase: string; note: string }>;
+}): IchingJudgment {
+  const score = duel.series?.score ?? { player: 2, opponent: 0 };
+  const totalGames = Math.max(1, score.player + score.opponent);
+  const playerActions = (duel.timeline ?? []).filter(e => e.side === 'PLAYER');
+  const skillActions = playerActions.filter(e => e.phase === 'SKILL').length;
+  const skillRate = playerActions.length > 0 ? skillActions / playerActions.length : 0;
+  const turns = Math.max(1, duel.turns ?? 15);
+
+  const survivorScore = Math.round((score.player / totalGames) * 66);
+  const speedScore = Math.max(0, Math.round(24 - turns * 0.5));
+  const skillScore = Math.round(skillRate * 15);
+  const total = survivorScore + speedScore + skillScore;
+
+  if (total >= 90) {
+    return { hexagram: '乾', symbol: '☰', fullName: '乾卦・天行健', tier: 7,
+      bonusCards: 4, quote: '天行健，君子以自強不息。',
+      verdict: '三局全制，陽剛至極，天道厚賞高手。' };
+  }
+  if (total >= 75) {
+    return { hexagram: '大有', symbol: '☲', fullName: '大有卦・大業輝煌', tier: 6,
+      bonusCards: 3, quote: '大有，元亨。',
+      verdict: '上下順應，無往不利，大業已成。' };
+  }
+  if (total >= 60) {
+    return { hexagram: '豐', symbol: '☳', fullName: '豐卦・豐盛有餘', tier: 5,
+      bonusCards: 3, quote: '豐，亨，王假之。',
+      verdict: '雷火交攻，威震四方，豐盛有餘。' };
+  }
+  if (total >= 45) {
+    return { hexagram: '泰', symbol: '☷', fullName: '泰卦・天地交泰', tier: 4,
+      bonusCards: 2, quote: '泰，小往大來，吉亨。',
+      verdict: '天地相交，陰陽協和，吉象已現。' };
+  }
+  if (total >= 30) {
+    return { hexagram: '解', symbol: '☵', fullName: '解卦・雷水解難', tier: 3,
+      bonusCards: 2, quote: '解，利西南，無所往。',
+      verdict: '雷水解難，阻礙已去，前路已開。' };
+  }
+  return { hexagram: '蹇', symbol: '☶', fullName: '蹇卦・艱難克勝', tier: 2,
+    bonusCards: 1, quote: '蹇，利西南，不利東北。',
+    verdict: '水山險阻，跌宕前進，押一贏一，公平到底。' };
+}

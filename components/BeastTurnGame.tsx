@@ -97,21 +97,19 @@ export default function BeastTurnGame() {
         <div className={battleStyles.split} data-battle-split>
           <BattleArena match={match} cards={cards} onInspect={inspect} playing={playing} />
           <section className={battleStyles.controls} aria-label="手部操控" data-battle-controls>
-            <div className={battleStyles.controlsHeading}><strong>{inspection ? '能力與相剋' : match.status === 'FINISHED' && !playing ? '對戰結果' : `第 ${match.round} 回合`}</strong><span>{busy || playing ? '動作演出中…' : match.status === 'FINISHED' ? '本場結束' : '對戰中'}</span></div>
+            <div className={battleStyles.controlsHeading}><strong>{inspection ? '相剋' : match.status === 'FINISHED' && !playing ? '結果' : `R${match.round}`}</strong><span>{busy || playing ? '…' : match.status === 'FINISHED' ? '✓' : '⚔'}</span></div>
             <div className={battleStyles.controlScroll} ref={scroll} data-control-scroll>
               {errorNotice}
               {inspection && <BattleCardGuide cardId={inspection.cardId} fighter={inspected} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
               <div hidden={Boolean(inspection)}>
                 <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
                 <BattlePanel match={match} onAction={act} busy={busy || playing} compact cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
-                {match.status === 'FINISHED' && !playing ? <><p className={battleStyles.notice}>本場結束，可回到組隊更換陣容。</p>
+                {match.status === 'FINISHED' && !playing ? <>
                   <BeastBattleVoice id={`free:${match.seed}:${account?.revision}`} text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場對手獲勝。' : '本場平手。'}可以更換陣容再挑戰。`} />
                 </> : <details className={battleStyles.details} onToggle={event => { if (event.currentTarget.open) setAutomatic(false); }}>
-                  <summary>對戰規則與離場</summary>
-                  <p>切換先於攻擊；其餘按速度。同速隨機決定，最多 80 回合。擊倒對方三隻即獲勝。</p>
-                  <p>點戰鬥卡查看相剋與技能效果。</p>
-                  <button type="button" className={battleStyles.restart} disabled={busy} onClick={() => void send('LEAVE')}>離開本場，回到組隊</button>
-                  <p>離開會暫停本場免押戰鬥，不影響收藏。</p><Link href="/" className={styles.homeLink}>回首頁</Link>
+                  <summary>說明</summary>
+                  <p>切換先攻；同速隨機；最多 80 回；擊倒三隻獲勝。</p>
+                  <button type="button" className={battleStyles.restart} disabled={busy} onClick={() => void send('LEAVE')}>離開本場</button>
                 </details>}
               </div>
             </div>
@@ -150,7 +148,7 @@ export default function BeastTurnGame() {
             <Link href="/beast-game/lineup" className={styles.modeCard}>
               <span className={styles.modeIcon}>🎯</span>
               <strong>單卡押注競技場</strong>
-              <span className={styles.modeDesc}>組陣三隻押注出戰，贏家得卡</span>
+              <span className={styles.modeDesc}>押 1 張・贏得對手卡・易經裁定最多再得 4 張・輸失 1 張</span>
               <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>押注</span>
             </Link>
           </div>
