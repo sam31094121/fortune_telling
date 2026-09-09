@@ -218,13 +218,8 @@ console.log('PASS: 押注結算只在後端、沒收明確告知、重播不重�
 {
   const page = read('components/BeastStakeResult.tsx');
   assert.ok(page.includes('data-stake-headline'), '要有輸贏的大提示區塊');
-  assert.ok(/＋1/.test(page) && /−1/.test(page), '要用 ＋1 / −1 講清楚多了還是少了');
-  assert.ok(/你多了一張/.test(page), '贏了要明講「你多了一張某某」');
-  assert.ok(/被沒收了/.test(page), '輸了要明講「某某被沒收了」');
-  assert.ok(
-    /receipt\?\.remaining/.test(page),
-    '同名多張時要顯示實際剩餘，不能宣稱整種卡都不能再押',
-  );
+  // 增減、扣除與剩餘張數由同一指令接續執行的 beast-collection.test.cjs
+  // 渲染實際結算畫面驗證，涵蓋單張及多張押注；不綁定原始碼字串或語法。
   assert.ok(/grayscale/.test(page), '被沒收的卡要在視覺上明顯不一樣');
 }
 

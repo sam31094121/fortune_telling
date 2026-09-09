@@ -108,7 +108,15 @@ async function main() {
   const Panel = h.load('components/BeastStakeResult.tsx').default;
   const props = { outcome: { ...result('OPPONENT').stake, playerStakeName: '角木蛟', opponentStakeName: '亢金龍', gainedCardName: null, forfeitedCardName: '角木蛟' }, card: { name: '角木蛟', thumbnail: '/test.png' }, isReplay: false, retrying: false, onRetry() {} };
   const html = (settlement, isReplay = false) => renderToStaticMarkup(React.createElement(Panel, { ...props, settlement, isReplay }));
-  check('saved loss names card, minus one, and actual remaining copies', () => { const text = html(oneLost.settlement); assert.match(text, /輸掉 −1/); assert.match(text, /角木蛟/); assert.match(text, /還有 1 張/); });
+  check('saved loss names card, minus one, and actual remaining copies', () => {
+    const text = html(oneLost.settlement);
+    assert.match(text, /data-stake-headline/);
+    assert.match(text, /輸掉 −1 張/);
+    assert.match(text, /本場押注卡已扣除 1 張/);
+    assert.match(text, /角木蛟/);
+    assert.match(text, /還有 1 張/);
+    assert.match(text, /grayscale/);
+  });
   check('failed storage never displays saved loss or removal overlay', () => { const text = html(failed.settlement); assert.match(text, /待保存/); assert.doesNotMatch(text, /輸掉 −1|已從持有卡片扣除|grayscale/); });
   check('replay clearly says no new inventory change', () => { const text = html(oneLost.settlement, true); assert.match(text, /本次不發獎，也不扣卡/); assert.doesNotMatch(text, /輸掉 −1/); });
   check('saved win names prize and held total within battle mode', () => {
@@ -148,7 +156,15 @@ async function main() {
       assert.match(text,new RegExp(`你的押注籌碼・${n} 張`));
       assert.match(text,new RegExp(`目前持有 ${settled.receipt.total} 張卡片`));
       assert.match(text,/播報獎賞|播報結算/);
-      if(winner==='OPPONENT')assert.match(text,new RegExp(`輸掉 −${n} 張`));
+      if(winner==='OPPONENT') {
+        assert.match(text,new RegExp(`輸掉 −${n} 張`));
+        assert.match(text,new RegExp(`本場押注卡已扣除 ${n} 張`));
+      }
+      if(winner==='PLAYER') assert.match(text,/獲得 ＋1 張/);
+      if(winner==='DRAW') assert.match(text,/平手・增減 0 張/);
+      for(const change of settled.receipt.cardChanges ?? []) {
+        assert.match(text,new RegExp(`持有 ${change.before} → ${change.after} 張（還有 ${change.after} 張）`));
+      }
       assert.equal(initial.cards.length,6);
     });
   }
