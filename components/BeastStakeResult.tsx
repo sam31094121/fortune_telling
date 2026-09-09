@@ -33,6 +33,7 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
   const retained = summary && !lost ? `原押注卡保留 ${summary.retained} 張。` : '';
   const spoken = summary ? `${won ? '恭喜獲勝！' : lost ? '本場對手獲勝。' : '本場平手。'}你押了 ${summary.staked} 張，贏得 ${summary.gained} 張，輸掉 ${summary.lost} 張。${movement || (won ? `獎賞是${name}。` : `押注卡${stakeNames}。`)}${retained}結算已保存，共持有 ${summary.total} 張。${lost ? '可以先查看相剋，再調整陣容。' : ''}` : '';
 
+  const iching = outcome.ichingJudgment;
   return <section data-stake-result data-stake-verdict={outcome.verdict} data-settlement-saved={saved ? 'yes' : 'no'} aria-label="押注卡片結算"
     className={`mt-3 rounded-2xl border-2 p-3 ${lost ? 'border-rose-300/50 bg-rose-300/[0.06]' : 'border-amber-300/50 bg-amber-300/[0.06]'}`}>
     <div className="flex items-center gap-3" data-stake-headline role="status">
@@ -58,6 +59,17 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
         </p>
       </div>
     </div>
+    {iching && won && <div className="mt-3 rounded-xl bg-black/30 p-3" data-iching-judgment>
+      <p className="text-xs text-white/60 mb-1">易經技術判斷</p>
+      <div className="flex items-baseline gap-2">
+        <span className="text-2xl font-black text-amber-200">{iching.symbol} {iching.hexagram}卦</span>
+        <span className="text-xs text-white/70">第 {iching.tier} 等</span>
+      </div>
+      <p className="mt-1 text-sm font-bold text-amber-100">{iching.fullName}</p>
+      <p className="mt-1 text-xs leading-5 text-white/80">{iching.verdict}</p>
+      <p className="mt-1 text-xs text-amber-300/80 italic">「{iching.quote}」</p>
+      <p className="mt-2 text-base font-black text-amber-200">易經裁定：額外獎勵 +{iching.bonusCards} 張</p>
+    </div>}
     {summary && <dl className="mt-3 grid grid-cols-3 gap-2 text-center" data-stake-counts>
       {[['本場押注', summary.staked], ['贏得', summary.gained], ['輸掉', summary.lost]].map(([label, count]) =>
         <div key={label} className="rounded-xl bg-black/30 px-1 py-2"><dt className="text-xs text-white/70">{label}</dt><dd className="mt-1 text-lg font-black">{count} 張</dd></div>)}

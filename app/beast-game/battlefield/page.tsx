@@ -46,6 +46,7 @@ import BeastBattleVoice from '@/components/BeastBattleVoice';
 import DeckBuilder from '@/components/battlefield/DeckBuilder';
 import { BATTLEFIELD_DECK_SIZE, buildFreshOpeningDeck, buildUniqueDeck, sanitizeDeckSelection } from '@/lib/beast-game/deck-builder';
 import { useCombatPlayback } from '@/components/battlefield/useCombatPlayback';
+import { judgeVictorySkill } from '@/lib/beast-game/iching-judgment';
 
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
 const SAVED_DECK_KEY = 'taiji-beast-battlefield-deck-v1';
@@ -373,11 +374,16 @@ export default function BattlefieldPage() {
     if (!match || match.status !== 'FINISHED' || !battleStake || !pendingBattle.current) return;
     const opponentStake = match.opponent.team[0]?.cardId;
     if (!opponentStake) return;
-    const outcome = resolveStake({
+    const base = resolveStake({
       playerStake: battleStake,
       opponentStake,
       winner: match.winner === 'player' ? 'PLAYER' : match.winner === 'opponent' ? 'OPPONENT' : 'DRAW',
     });
+    // 易經判斷技術等級：只有玩家贏了才觸發，技術越高獎勵越多。
+    const judgment = base.verdict === 'WON' ? judgeVictorySkill(match) : null;
+    const outcome: StakeOutcome = judgment
+      ? { ...base, gainedCount: judgment.bonusCards, ichingJudgment: judgment }
+      : base;
     const pending = pendingBattle.current;
     pendingBattle.current = null;
     setOutcome(outcome);
