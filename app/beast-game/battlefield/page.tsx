@@ -255,7 +255,7 @@ export default function BattlefieldPage() {
     } catch (cause) {
       if (alive.current) setStakeError(cause instanceof Error ? cause.message : '還不能開戰，押注卡未扣除。');
     } finally { starting.current = false; if (alive.current) setSettling(false); }
-  }, [state, seed, stakeCardIds, ownedStake.length, recovering, settlement]);
+  }, [state, seed, stakeCardIds, ownedStake, recovering, settlement]);
 
   /**
    * 出招。

@@ -148,7 +148,7 @@ for (const scenario of [
 assert.match(battlefieldPage, /hidden=\{prepareView !== 'stake'\}[^>]*data-preparation-progress/, 'Stake review remains reachable as a separate pane');
 assert.match(battlefieldPage, /hidden=\{prepareView !== 'help'\}/, 'Instructions do not occupy the main controls');
 assert.match(battlefieldPage, /!match && !inspection \?/, 'Inspection never competes with the start footer');
-assert.match(battlefieldPage, /後備是建議增援/);
+assert.match(battlefieldPage, /陣容滿了再精準換位/);
 assert.match(battlefieldPage, /onReviewStep=\{reviewStep\}/);
 assert.match(battlefieldPage, /onStart=\{\(\) => void start\(\)\}/, 'Starting remains a separate explicit action');
 console.log('PASS: real readiness drives the highlighted step; recommendations do not block play; waiting and actionable guidance are distinct');

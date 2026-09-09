@@ -114,7 +114,7 @@ async function main() {
     assert.match(text, /輸掉 −1 張/);
     assert.match(text, /本場押注卡已扣除 1 張/);
     assert.match(text, /角木蛟/);
-    assert.match(text, /還有 1 張/);
+    assert.match(text, /剩餘 1 張/);
     assert.doesNotMatch(text, /原押注卡保留 0 張/);
     assert.match(text, /grayscale/);
   });
@@ -164,7 +164,8 @@ async function main() {
       if(winner==='PLAYER') assert.match(text,/獲得 ＋1 張/);
       if(winner==='DRAW') assert.match(text,/平手・增減 0 張/);
       for(const change of settled.receipt.cardChanges ?? []) {
-        assert.match(text,new RegExp(`持有 ${change.before} → ${change.after} 張（還有 ${change.after} 張）`));
+        const remainingText = change.after > 0 ? `剩餘 ${change.after} 張` : '已無剩餘';
+        assert.match(text,new RegExp(`持有 ${change.before} → ${change.after} 張（${remainingText}）`));
       }
       assert.equal(initial.cards.length,6);
     });

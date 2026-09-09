@@ -55,7 +55,7 @@ export default function StakeSlot({
 }: {
   /** 可以拿來押的卡：成長中心真正擁有的那些。 */
   owned: StakeCard[];
-  selected: string[];
+  selected: string[] | null;
   /** 先後順序。最後一個未完成的就是「現在該做的」。 */
   steps: StakeStep[];
   onSelect: (cardId: string) => void;
@@ -83,18 +83,19 @@ export default function StakeSlot({
   }, [currentIndex]);
 
   const pickerRef = useRef<HTMLDivElement>(null);
-  const picked = useMemo(() => selected
+  const selectedIds = useMemo(() => selected ?? [], [selected]);
+  const picked = useMemo(() => selectedIds
     .map(id => owned.find(card => card.id === id))
-    .filter((card): card is StakeCard => Boolean(card)), [owned, selected]);
+    .filter((card): card is StakeCard => Boolean(card)), [owned, selectedIds]);
   const [announceText, setAnnounceText] = useState('');
   const [movement, setMovement] = useState('');
   const choose = (card: StakeCard) => {
-    const selectedNow = selected.includes(card.id);
+    const selectedNow = selectedIds.includes(card.id);
     setMovement(selectedNow
-      ? `已取回「${card.name}」1 張，目前押注 ${Math.max(0, selected.length - 1)}/5 張；持有張數不變。`
-      : selected.length >= 5
+      ? `已取回「${card.name}」1 張，目前押注 ${Math.max(0, selectedIds.length - 1)}/5 張；持有張數不變。`
+      : selectedIds.length >= 5
         ? '已選滿五張；先點一張已選卡取回，再換另一張。'
-        : `已將「${card.name}」1 張放入押注格，目前 ${selected.length + 1}/5 張。尚未扣卡。`);
+        : `已將「${card.name}」1 張放入押注格，目前 ${selectedIds.length + 1}/5 張。尚未扣卡。`);
     onSelect(card.id);
   };
   useEffect(() => {
@@ -193,9 +194,9 @@ export default function StakeSlot({
             <button
               key={card.id}
               type="button"
-              className={[styles.pick, selected.includes(card.id) ? styles.picked : ''].filter(Boolean).join(' ')}
-              aria-label={`${selected.includes(card.id) ? '取回' : '押上'}${card.name}第 ${card.copy} 張，已選 ${selected.length}/5 張`}
-              aria-pressed={selected.includes(card.id)}
+              className={[styles.pick, selectedIds.includes(card.id) ? styles.picked : ''].filter(Boolean).join(' ')}
+              aria-label={`${selectedIds.includes(card.id) ? '取回' : '押上'}${card.name}第 ${card.copy} 張，已選 ${selectedIds.length}/5 張`}
+              aria-pressed={selectedIds.includes(card.id)}
               disabled={locked}
               onClick={() => {
                 choose(card);
@@ -209,7 +210,7 @@ export default function StakeSlot({
               <img src={card.thumbnail} alt={card.name} loading="lazy" decoding="async" />
               <strong>{card.name}</strong>
               <span>第 {card.copy}/{card.count} 張</span>
-              <span>{selected.includes(card.id) ? '已選・點擊取回' : selected.length < 5 ? '點擊押上' : '已選滿五張'}</span>
+              <span>{selectedIds.includes(card.id) ? '已選・點擊取回' : selectedIds.length < 5 ? '點擊押上' : '已選滿五張'}</span>
             </button>
           ))}
         </div>
