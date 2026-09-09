@@ -140,12 +140,12 @@ export default function BattlefieldPage() {
     setInspection({ cardId, side });
     controlScroll.current?.scrollTo({ top: 0 });
     controlScroll.current?.parentElement?.scrollTo({ top: 0 });
-  }, [controlScroll]);
+  }, []);
   const closeInspection = useCallback(() => {
     setInspection(null);
     controlScroll.current?.scrollTo({ top: 0 });
     controlScroll.current?.parentElement?.scrollTo({ top: 0 });
-  }, [controlScroll]);
+  }, []);
   useEffect(()=>{if(match?.status==='FINISHED')recordBeastGameCompleted('battlefield');},[match?.status]);
   useEffect(() => {
     alive.current = true;
@@ -297,7 +297,7 @@ export default function BattlefieldPage() {
     pendingBattle.current = null;
     setOutcome(outcome);
     pending.resolve({ ok: true, stake: outcome });
-  }, [match, battleStake]);
+  }, [match?.status, match?.winner, battleStake]);
 
   const retrySettlement = async () => {
     if (!settlement || !outcome || settling) return;

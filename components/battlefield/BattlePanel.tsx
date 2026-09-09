@@ -285,7 +285,7 @@ export default function BattlePanel({
       });
       prevLogLength.current = match.log.length;
     }
-  }, [match.log, addDamagePopup, match.revision]);
+  }, [match.revision, addDamagePopup]);
 
   /*
     出手的聲音：靈魂、武器、動作走同一條時間軸。
