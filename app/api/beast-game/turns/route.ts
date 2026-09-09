@@ -6,14 +6,14 @@ import { advance, interactiveCatalog, newMatch, profile, type Action, type Match
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
-const root=process.env.BEAST_DATA_DIR??path.join(process.cwd(),'data','beast-turn-accounts');
+// Vercel read-only filesystem: fall back to /tmp (ephemeral but writable; fine for free-play sessions)
+const root=process.env.BEAST_DATA_DIR??(process.env.VERCEL?'/tmp/beast-turn-accounts':path.join(process.cwd(),'data','beast-turn-accounts'));
 const cookie='beast_turn_account';
 type Account={owned:string[]; experience:Record<string,number>; match:Match|null; summonDay:string|null; imported:boolean; revision:number; lastRequest:string|null; awardedRevision:number|null};
 const catalog=interactiveCatalog();const ids=catalog.map(c=>c.id);
 const pick=(count:number)=>{const pool=[...ids],out:string[]=[];while(out.length<count)out.push(pool.splice(randomInt(pool.length),1)[0]);return out;};
 function accountId(req:Request){const raw=req.headers.get('cookie')?.split(';').map(s=>s.trim()).find(s=>s.startsWith(cookie+'='))?.slice(cookie.length+1);return raw&&/^[a-f0-9-]{36}$/.test(raw)?raw:null;}
 async function transact(req:Request, mutate?:(a:Account)=>void){
-  if(process.env.VERCEL&&!process.env.BEAST_DATA_DIR)return NextResponse.json({ok:false,error:'新版收藏儲存尚未配置，請稍後再試。'},{status:503});
   const id=accountId(req)??randomUUID();await mkdir(root,{recursive:true});const file=path.join(root,id+'.json'),lock=file+'.lock';
   try{await mkdir(lock);}catch{return NextResponse.json({ok:false,error:'資料正在保存，請稍後重試。'},{status:409});}
   try{
