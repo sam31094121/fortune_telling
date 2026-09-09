@@ -13,7 +13,7 @@ export default function BattlePace({ match, automatic, blocked, onAutomatic, onA
   const replacingOpponent = match.opponent.team[match.opponent.active].defeated;
   const skillReady = legalActions(match, 'player').some(action => action.type === 'SKILL');
   const waiting = active.defeated || (match.revision > 0 && skillReady && !replacingOpponent);
-  const delay = match.revision === 0 ? 900 : 3500;
+  const delay = match.revision === 0 ? 500 : 1400;
   const running = automatic && !blocked && !waiting && match.status === 'PLAYING';
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { profile, type Match, type Side } from './interactive';
 
-export const COMBAT_BEAT_MS = 650;
+export const COMBAT_BEAT_MS = 320;
 export function performedAction(match: Match, side: Side) {
   const cardId = match[side].team[match[side].active].cardId;
   const entry = match.log.find(item => item.side === side && item.cardId === cardId);
@@ -18,5 +18,5 @@ export function isDamagingAction(match: Match, side: Side) {
 export function combatPlaybackMs(match: Match, reduced = false) {
   if (!match.log.length) return 0;
   if (reduced) return 180;
-  return (match.log.length - 1) * COMBAT_BEAT_MS + 850;
+  return (match.log.length - 1) * COMBAT_BEAT_MS + 450;
 }

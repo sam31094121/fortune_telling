@@ -9,6 +9,7 @@ import { describeMatchup } from '@/lib/beast-element-guide';
 import { ELEMENT_LABEL, elementMultiplier, type BeastElement } from '@/lib/beast-game/elements';
 import { elementPercent } from '@/lib/beast-game/combat-guide';
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
+import { COMBAT_BEAT_MS } from '@/lib/beast-game/combat-presentation';
 import styles from './BattleArena.module.css';
 import { ELEMENT_FX, type BattleElement } from '@/lib/beast-battle-fx';
 import { performedAction, isDamagingAction } from '@/lib/beast-game/combat-presentation';
@@ -38,7 +39,7 @@ export default function BattleArena({ state, cards, match, onInspect, playing = 
         <span>{BATTLE_VENUES.cards.name}・卡片戰鬥</span>
       </div>
       {playerStrike && strikeElement && <div key={`element-strike-${match?.revision}`} className={styles.elementStrike}
-        data-element={strikeElement} style={{ '--element-strike': ELEMENT_FX[strikeElement].glow, '--action-delay': `${Math.max(0, match?.log.findIndex(entry => entry.side === 'player' && entry.text.includes('：')) ?? 0) * 650}ms` } as CSSProperties} aria-hidden="true">
+        data-element={strikeElement} style={{ '--element-strike': ELEMENT_FX[strikeElement].glow, '--action-delay': `${Math.max(0, match?.log.findIndex(entry => entry.side === 'player' && entry.text.includes('：')) ?? 0) * COMBAT_BEAT_MS}ms` } as CSSProperties} aria-hidden="true">
         <span className={styles.strikeField} />
         <span className={styles.strikeTrace} data-trace="one" />
         <span className={styles.strikeReadout}><b>{ELEMENT_FX[strikeElement].label}元素攻擊</b></span>
@@ -60,7 +61,7 @@ export default function BattleArena({ state, cards, match, onInspect, playing = 
           return (
             <div className={styles.fighter} key={side} data-fighter={side} aria-label={`${label}：${card?.name ?? '等待主戰'}`}>
               <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} data-hit={hitOrder >= 0} data-skill={action === 'SKILL'} data-action={action ?? 'NONE'} data-impact={multiplier > 1 ? 'strong' : multiplier < 1 ? 'resisted' : 'normal'}
-                style={{ '--strike-x': side === 'player' ? '18px' : '-18px', '--action-delay': `${Math.max(0, actionOrder) * 650}ms`, '--hit-delay': `${Math.max(0, hitOrder) * 650 + 430}ms` } as CSSProperties}>
+                style={{ '--strike-x': side === 'player' ? '18px' : '-18px', '--action-delay': `${Math.max(0, actionOrder) * COMBAT_BEAT_MS}ms`, '--hit-delay': `${Math.max(0, hitOrder) * COMBAT_BEAT_MS + 200}ms`, '--element-strike': card ? ELEMENT_FX[card.element as BattleElement]?.glow : undefined } as CSSProperties}>
                 <button type="button" disabled={!card || playing} aria-label={card ? `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => card && onInspect(card.id, side)}
                   className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''}`}>
                   {card ? (
