@@ -18,7 +18,7 @@
  */
 
 import styles from './BattlePanel.module.css';
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import type { BattlefieldCardArt } from './GameBattlefield';
 import { effectiveStat } from '@/lib/beast-game/effects';
 import { ELEMENT_LABEL } from '@/lib/beast-game/elements';
@@ -252,7 +252,7 @@ export function BattleLog({ match }: { match: Match }) {
   );
 }
 
-export default function BattlePanel({
+const BattlePanel = memo(function BattlePanel({
   match, onAction, busy, compact, cards,
 }: {
   match: Match;
@@ -373,4 +373,5 @@ export default function BattlePanel({
       {compact ? <details className={styles.battleDetails}><summary>本回合戰報{match.log.length ? `・${match.log.length} 則` : ''}</summary><BattleLog match={match} /></details> : <BattleLog match={match} />}
     </section>
   );
-}
+});
+export default BattlePanel;
