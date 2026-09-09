@@ -102,11 +102,11 @@ export default function BattlefieldPage() {
   const inspectCard = useCallback((cardId: string, side: 'player' | 'opponent' = 'player') => {
     setInspection({ cardId, side });
     controlScroll.current?.scrollTo({ top: 0 });
-  }, []);
+  }, [controlScroll]);
   const closeInspection = useCallback(() => {
     setInspection(null);
     controlScroll.current?.scrollTo({ top: 0 });
-  }, []);
+  }, [controlScroll]);
   useEffect(()=>{if(match?.status==='FINISHED')recordBeastGameCompleted('battlefield');},[match?.status]);
   useEffect(() => {
     alive.current = true;
