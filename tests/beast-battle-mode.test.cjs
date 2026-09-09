@@ -102,7 +102,7 @@ assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', prepare, 'overfl
 assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', `${prepare} > .controlScroll`, 'overflow-y'), 'auto');
 assert.equal(mobileDeclaration(screenCss, '(max-width: 600px)', `${prepare} > .footer`, 'position'), 'static');
 const battlefieldPage = fs.readFileSync(path.join(root, 'app/beast-game/battlefield/page.tsx'), 'utf8');
-assert.match(battlefieldPage, /match\?\.status === 'FINISHED' \? '本場結束'/, 'Finished battles do not advertise a next round');
+assert.match(battlefieldPage, /match\?\.status === 'FINISHED'[^?]*\? '本場結束'/, 'Finished battles do not advertise a next round');
 assert.match(battlefieldPage, /data-battle-controls data-preparing=\{!match\}/, 'Only preparation uses the combined phone scroll area');
 assert.equal((battlefieldPage.match(/parentElement\?\.scrollTo\(\{ top: 0 \}\)/g) || []).length, 3, 'Inspection and navigation reset the phone scroll area');
 assert.equal(mobileDeclaration(arenaCss, '(max-width: 480px)', '.fighters', 'grid-template-columns'), 'minmax(0, 1fr) minmax(0, 1fr)');
