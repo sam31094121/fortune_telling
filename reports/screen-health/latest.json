@@ -1,20 +1,144 @@
 {
-  "ok": true,
+  "ok": false,
   "version": "screen-health-monitor-v1",
   "baseUrl": "http://localhost:8888",
   "port": 8888,
-  "startedAt": "2026-09-06T13:39:39.255Z",
-  "completedAt": "2026-09-06T13:39:56.297Z",
+  "startedAt": "2026-09-08T01:31:32.389Z",
+  "completedAt": "2026-09-08T01:31:50.420Z",
   "mode": "ONCE",
   "scanProfile": "MOBILE_FIRST",
   "autoRepair": true,
   "summary": {
     "total": 42,
-    "passed": 42,
-    "failed": 0,
-    "screenStatus": "HEALTHY"
+    "passed": 18,
+    "failed": 24,
+    "screenStatus": "UNHEALTHY"
   },
-  "failedRoutes": [],
+  "failedRoutes": [
+    {
+      "id": "HOME_TAIJI_LEVEL01_MOTION",
+      "title": "第一層太極手機感測、慣性、水平儀與回場",
+      "path": "/",
+      "issue": "第一層太極手機感測、慣性、水平儀與回場 verification failed: spawn EPERM"
+    },
+    {
+      "id": "TAIJI_IOS",
+      "title": "太極在 Apple 手機可見（圖案與遊戲）",
+      "issue": "太極在 Apple 手機可見（圖案與遊戲） verification failed: spawn EPERM"
+    },
+    {
+      "id": "HOME_TAIJI_LEVEL01_UI",
+      "title": "第一層太極啟動與降級介面邊界",
+      "path": "/",
+      "issue": "第一層太極啟動與降級介面邊界 verification failed: spawn EPERM"
+    },
+    {
+      "id": "ICHING_NO_FABRICATED_HOUR",
+      "title": "易經起卦不得代填午時；無時辰改給補時辰出路",
+      "issue": "易經起卦不得代填午時；無時辰改給補時辰出路 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_STAKE_REWARD",
+      "title": "押注獎勵：後端結算、沒收明確告知、重播不重複發獎",
+      "issue": "押注獎勵：後端結算、沒收明確告知、重播不重複發獎 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_CHARGE_RELEASE",
+      "title": "衝鋒釋出：只放行通過審查的素材，未過的不上場",
+      "issue": "衝鋒釋出：只放行通過審查的素材，未過的不上場 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_RELEASE_AUDIT",
+      "title": "釋出稽核：技能檔庫與實際檔案逐張對得上",
+      "issue": "釋出稽核：技能檔庫與實際檔案逐張對得上 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_PRODUCTION_RETRY",
+      "title": "重產流程：身分對應、明確細修、三次上限",
+      "issue": "重產流程：身分對應、明確細修、三次上限 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_BATTLEFIELD",
+      "title": "神獸戰場：一卡一區、合法位置唯一來源、雙方分離",
+      "issue": "神獸戰場：一卡一區、合法位置唯一來源、雙方分離 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_BATTLE_BRIDGE",
+      "title": "戰場接戰鬥：橋接只翻譯不當裁判，勝負只來自核心",
+      "issue": "戰場接戰鬥：橋接只翻譯不當裁判，勝負只來自核心 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_WEAPONS",
+      "title": "暴風型武器：部位對得上文件、六十把不重複、聲音只有一個來源",
+      "issue": "暴風型武器：部位對得上文件、六十把不重複、聲音只有一個來源 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_ELEMENT_CONCEPT",
+      "title": "核心概念：相生相剋大於戰鬥力，帶剋的低戰力打得贏",
+      "issue": "核心概念：相生相剋大於戰鬥力，帶剋的低戰力打得贏 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_GUARDIANS",
+      "title": "四大神獸：二十八宿歸屬不重不漏，強弱標示不說謊",
+      "issue": "四大神獸：二十八宿歸屬不重不漏，強弱標示不說謊 verification failed: spawn EPERM"
+    },
+    {
+      "id": "NO_FABRICATED_COUNTERS",
+      "title": "禁止作假：計數器沒有憑空底數，也不會自己長大",
+      "issue": "禁止作假：計數器沒有憑空底數，也不會自己長大 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_REWARD_CLAIM",
+      "title": "獎勵儀式：發獎不等於入袋，領了才算收藏",
+      "issue": "獎勵儀式：發獎不等於入袋，領了才算收藏 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_CHARGE_CLIP",
+      "title": "六秒影片播放條件與玩家音訊路徑（不含逐片驗收）",
+      "issue": "六秒影片播放條件與玩家音訊路徑（不含逐片驗收） verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_BEAST_VOICE",
+      "title": "本體叫聲：六十張各有來源、對手完全靜音",
+      "issue": "本體叫聲：六十張各有來源、對手完全靜音 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_CARD_SPEC",
+      "title": "神獸卡正統規格：63×88、四處共用、放牌不跳版",
+      "issue": "神獸卡正統規格：63×88、四處共用、放牌不跳版 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_CARD_GAME_CORE",
+      "title": "神獸公平性：六十張、三席十二氣、技能對象與一千局抽樣",
+      "issue": "神獸公平性：六十張、三席十二氣、技能對象與一千局抽樣 verification failed: spawn EPERM"
+    },
+    {
+      "id": "BEAST_INTERACTIVE",
+      "title": "新回合制：六十張定位、能量、補位與一千場煙霧抽樣",
+      "issue": "新回合制：六十張定位、能量、補位與一千場煙霧抽樣 verification failed: spawn EPERM"
+    },
+    {
+      "id": "STAR_BEAST_SELF_ENTRY_API",
+      "title": "本人神獸入口：無假時辰、生日核對與對戰陣容限制",
+      "issue": "本人神獸入口：無假時辰、生日核對與對戰陣容限制 verification failed: spawn EPERM"
+    },
+    {
+      "id": "HEALTH_RECOVERY_POLICY",
+      "title": "健康檢查復原界線：規則失敗不重啟服務",
+      "issue": "健康檢查復原界線：規則失敗不重啟服務 verification failed: spawn EPERM"
+    },
+    {
+      "id": "THREE_IN_ONE_INTEGRATION",
+      "title": "三合一整合：八字×紫微四柱核對，缺一不成立",
+      "issue": "三合一整合：八字×紫微四柱核對，缺一不成立 verification failed: spawn EPERM"
+    },
+    {
+      "id": "HOME_TAIJI_LEVEL02_24_LOCK",
+      "title": "太極第 2～24 層隔離鎖定",
+      "path": "/",
+      "issue": "太極第 2～24 層隔離鎖定 verification failed: spawn EPERM"
+    }
+  ],
   "routes": [
     {
       "id": "HOME",
@@ -23,7 +147,7 @@
       "path": "/",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 123,
+      "durationMs": 330,
       "htmlLength": 64364,
       "error": null,
       "issue": null
@@ -35,7 +159,7 @@
       "path": "/internal/health/ready",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 1223,
+      "durationMs": 1009,
       "htmlLength": 95,
       "error": null,
       "issue": null
@@ -47,8 +171,8 @@
       "path": "/nameology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 1283,
-      "htmlLength": 30679,
+      "durationMs": 1795,
+      "htmlLength": 30680,
       "error": null,
       "issue": null
     },
@@ -59,8 +183,8 @@
       "path": "/beast-game",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 750,
-      "htmlLength": 22380,
+      "durationMs": 1241,
+      "htmlLength": 22851,
       "error": null,
       "issue": null
     },
@@ -71,7 +195,7 @@
       "path": "/star-beasts",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 1213,
+      "durationMs": 1002,
       "htmlLength": 86364,
       "error": null,
       "issue": null
@@ -83,7 +207,7 @@
       "path": "/insight",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 885,
+      "durationMs": 1794,
       "htmlLength": 31645,
       "error": null,
       "issue": null
@@ -95,7 +219,7 @@
       "path": "/numerology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 504,
+      "durationMs": 1926,
       "htmlLength": 30011,
       "error": null,
       "issue": null
@@ -107,7 +231,7 @@
       "path": "/match",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 682,
+      "durationMs": 985,
       "htmlLength": 30689,
       "error": null,
       "issue": null
@@ -119,7 +243,7 @@
       "path": "/music",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 589,
+      "durationMs": 913,
       "htmlLength": 26452,
       "error": null,
       "issue": null
@@ -131,7 +255,7 @@
       "path": "/bazi",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 761,
+      "durationMs": 1484,
       "htmlLength": 29400,
       "error": null,
       "issue": null
@@ -143,8 +267,8 @@
       "path": "/zodiac",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 586,
-      "htmlLength": 30503,
+      "durationMs": 997,
+      "htmlLength": 30502,
       "error": null,
       "issue": null
     },
@@ -155,7 +279,7 @@
       "path": "/tarot",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 504,
+      "durationMs": 1515,
       "htmlLength": 24250,
       "error": null,
       "issue": null
@@ -167,8 +291,8 @@
       "path": "/growth-center",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 1034,
-      "htmlLength": 27715,
+      "durationMs": 2827,
+      "htmlLength": 27790,
       "error": null,
       "issue": null
     },
@@ -176,10 +300,10 @@
       "id": "HOME_VISUAL_STYLES",
       "module": "home_visual_styles",
       "title": "首頁手機視覺樣式",
-      "path": "/_next/static/css/app/page.css?v=1788701989428",
+      "path": "/_next/static/css/app/page.css?v=1788831110281",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 142,
+      "durationMs": 170,
       "htmlLength": 24874,
       "error": null,
       "issue": null
@@ -192,7 +316,7 @@
       "sourcePath": "components/TaijiSystem.tsx",
       "status": "PASSED",
       "httpStatus": null,
-      "durationMs": 1,
+      "durationMs": 2,
       "htmlLength": 132911,
       "error": null,
       "issue": null
@@ -231,7 +355,7 @@
       "sourcePath": "app/page.tsx",
       "status": "PASSED",
       "httpStatus": null,
-      "durationMs": 1,
+      "durationMs": 2,
       "htmlLength": 206025,
       "error": null,
       "issue": null
@@ -242,28 +366,26 @@
       "title": "第一層太極手機感測、慣性、水平儀與回場",
       "path": "/",
       "script": "test:taiji-level-01",
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1216,
+      "durationMs": 1,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:taiji-level-01\n> tsc components/taiji/level-01/level01.constants.ts components/taiji/level-01/Level01Physics.ts components/taiji/level-01/Level01Fallback.ts components/taiji/level-01/Level01Orientation.ts components/taiji/level-01/Level01Entrance.ts components/taiji/level-01/Level01Reentry.ts components/taiji/level-01/Level01MotionGameEngine.ts components/taiji/level-01/Level01SensoryFeedback.ts tests/taiji-level-01-physics.test.ts --outDir .taiji-level-01-test-build --module commonjs --target es2020 --lib es2020,dom --moduleResolution node --esModuleInterop --skipLibCheck && node .taiji-level-01-test-build/tests/taiji-level-01-physics.test.js\n\nTaiji Level 01 physics lock passed"
+      "error": "spawn EPERM",
+      "issue": "第一層太極手機感測、慣性、水平儀與回場 verification failed: spawn EPERM"
     },
     {
       "id": "TAIJI_IOS",
       "module": "taiji_ios_visibility",
       "title": "太極在 Apple 手機可見（圖案與遊戲）",
       "script": "test:taiji-ios",
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 465,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:taiji-ios\n> node tests/taiji-ios-visibility.test.cjs\n\nPASS: 太極在 Apple 手機可見；圖案不被硬體數字誤擋、畫質不被鎖低、遊戲授權走手勢且有手動退路"
+      "error": "spawn EPERM",
+      "issue": "太極在 Apple 手機可見（圖案與遊戲） verification failed: spawn EPERM"
     },
     {
       "id": "HOME_TAIJI_LEVEL01_UI",
@@ -271,42 +393,39 @@
       "title": "第一層太極啟動與降級介面邊界",
       "path": "/",
       "script": "test:taiji-level-01-ui",
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 320,
+      "durationMs": 1,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:taiji-level-01-ui\n> node tests/taiji-level-01-ui-boundary.test.cjs\n\nTaiji Level 01 UI boundary passed"
+      "error": "spawn EPERM",
+      "issue": "第一層太極啟動與降級介面邊界 verification failed: spawn EPERM"
     },
     {
       "id": "ICHING_NO_FABRICATED_HOUR",
       "module": "iching_no_fabricated_hour",
       "title": "易經起卦不得代填午時；無時辰改給補時辰出路",
       "script": "test:iching-hour",
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 469,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:iching-hour\n> node tests/iching-no-fabricated-hour.test.cjs\n\nPASS: 生辰起卦不得代填午時；沒有時辰就不出卦，改給補時辰的出路"
+      "error": "spawn EPERM",
+      "issue": "易經起卦不得代填午時；無時辰改給補時辰出路 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_STAKE_REWARD",
       "module": "beast_stake_reward",
       "title": "押注獎勵：後端結算、沒收明確告知、重播不重複發獎",
       "script": "test:beast-stake",
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 841,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:beast-stake\n> node tests/beast-stake.test.cjs && node tests/beast-collection.test.cjs\n\nPASS: 押注結算只在後端、沒收明確告知、重播不重複發獎、收藏誠實揭露\nPASS: 押注只押自己的卡、解鎖規則唯一、輸贏有清楚的大提示\nPASS: one earned pair supplies exactly two independent copies\nPASS: unowned stake is blocked before any battle request\nPASS: losing growth copy actually removes one and reports remaining zero\nPASS: reload cannot silently regrant a lost growth reward\nPASS: duplicate loss receipt does not take a second card\nPASS: win keeps original stake and adds opponent card to same growth inventory\nPASS: two equal cards lose only one copy\nPASS: draw leaves inventory count unchanged\nPASS: replay cannot award or confiscate\nPASS: blocked storage prevents initiating wager\nPASS: failed settlement never claims a committed receipt\nPASS: reload recovers journal and settles exactly once\nPASS: retry after recovery remains idempotent\nPASS: cross-tab concurrent start/recovery cannot consume reserved card\nPASS: connection failure releases reservation without confiscation\nPASS: receipt deduplication survives visible history truncation\nPASS: legacy won duplicates preserved alongside one earned pair\nPASS: corrupt collection never overwritten with an empty collection\nPASS: malformed progress cannot grant phantom rewards\nPASS: four cumulative tasks unlock a pair without streak requirement\nPASS: saved loss names card, minus one, and actual remaining copies\nPASS: failed storage never displays saved loss or removal overlay\nPASS: replay clearly says no new inventory change\nPASS: saved win explicitly names prize and links the growth collection\nPASS: mismatched or absent reserved copy cannot be falsely confiscated\nPASS: 25 collection and customer-receipt regression checks"
+      "error": "spawn EPERM",
+      "issue": "押注獎勵：後端結算、沒收明確告知、重播不重複發獎 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_CHARGE_RELEASE",
@@ -314,14 +433,13 @@
       "title": "衝鋒釋出：只放行通過審查的素材，未過的不上場",
       "script": "test:beast-release",
       "timeoutMs": 60000,
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 359,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:beast-release\n> node scripts/beast-build.mjs && node .beast-game-build/tests/beast-charge-release.test.js\n\nPASS: only reviewed exact-player/exact-opponent six-second clips can play; previews and incomplete anatomy checks cannot"
+      "error": "spawn EPERM",
+      "issue": "衝鋒釋出：只放行通過審查的素材，未過的不上場 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_RELEASE_AUDIT",
@@ -329,28 +447,26 @@
       "title": "釋出稽核：技能檔庫與實際檔案逐張對得上",
       "script": "check:beast-releases",
       "timeoutMs": 60000,
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1458,
+      "durationMs": 1,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 check:beast-releases\n> node scripts/beast-build.mjs && node scripts/check-beast-releases.mjs\n\nApproved 0/60; pending 60; invalid releases 0. Approval is limited to each recorded opponent."
+      "error": "spawn EPERM",
+      "issue": "釋出稽核：技能檔庫與實際檔案逐張對得上 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_PRODUCTION_RETRY",
       "module": "beast_production_retry",
       "title": "重產流程：身分對應、明確細修、三次上限",
       "script": "test:beast-retry",
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1387,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:beast-retry\n> node tests/beast-production-retry.test.mjs && node tests/beast-production-io.test.mjs && node tests/beast-production-resume.test.mjs\n\nPASS: identity mapping, explicit refinement, history preservation and three-attempt limit\nPASS: requested quota continuation retains the refusal and cannot duplicate a pending/result-bearing request\nPASS: transient Windows rename locks recover; permanent errors preserve original and recovery file without touching any generation API\nbeast_a01: interaction id saved; following this existing request only\nbeast_a01: interaction id saved; following this existing request only\nPASS: quota scopes and retry time, redaction, durable id before polling, no paid resubmission"
+      "error": "spawn EPERM",
+      "issue": "重產流程：身分對應、明確細修、三次上限 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_BATTLEFIELD",
@@ -358,14 +474,13 @@
       "title": "神獸戰場：一卡一區、合法位置唯一來源、雙方分離",
       "script": "test:beast-battlefield",
       "timeoutMs": 60000,
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 348,
+      "durationMs": 1,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:beast-battlefield\n> node scripts/beast-build.mjs && node tests/beast-battlefield.test.mjs\n\nPASS: 開局、洗牌可重現、起始手牌\nPASS: 一張卡只能存在一個位置，違反會丟例外\nPASS: 合法位置只有一份，非法移動擋得下來\nPASS: 主戰／後備互換、後備滿了換不下來\nPASS: 雙方完全分離、選取是狀態、舊狀態不可變\nPASS: 蓋牌進場、翻牌顯形、離場自動翻回正面\nPASS: 對手蓋著的牌不回傳真實 id，張數照留\nPASS: 戰場層不重算傷害與勝負"
+      "error": "spawn EPERM",
+      "issue": "神獸戰場：一卡一區、合法位置唯一來源、雙方分離 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_BATTLE_BRIDGE",
@@ -373,14 +488,13 @@
       "title": "戰場接戰鬥：橋接只翻譯不當裁判，勝負只來自核心",
       "script": "test:beast-bridge",
       "timeoutMs": 60000,
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 365,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:beast-bridge\n> node scripts/beast-build.mjs && node tests/beast-battle-bridge.test.mjs\n\nPASS: 主戰排第一、場上就是隊伍\nPASS: 開戰條件講得出原因，條件不足擋得下來\nPASS: 對手同一套佈陣規則，不得動到玩家那一側\nPASS: 一到六隻都打得起來，同種子同結果\nPASS: 橋接層只翻譯不當裁判，勝負只來自核心"
+      "error": "spawn EPERM",
+      "issue": "戰場接戰鬥：橋接只翻譯不當裁判，勝負只來自核心 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_WEAPONS",
@@ -388,14 +502,13 @@
       "title": "暴風型武器：部位對得上文件、六十把不重複、聲音只有一個來源",
       "script": "test:beast-weapons",
       "timeoutMs": 60000,
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 353,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:beast-weapons\n> node scripts/beast-build.mjs && node tests/beast-weapons.test.mjs\n\nPASS: 武器只是演出，不碰傷害；戰鬥引擎也不讀武器表\nPASS: 二十八宿部位與專案文件逐字一致\nPASS: 六十張六十種武器，幼子與成獸分得出級數\nPASS: 每張都拿得到完整武器，裸露描述講得出機構\nPASS: 素材真的存在、沿用既有授權素材庫、授權查得到\nPASS: 聲音只有一個來源，武器不自帶音色\nPASS: 吼 → 蓄力 → 命中 → 餘響，且與三維衝鋒動畫對齊"
+      "error": "spawn EPERM",
+      "issue": "暴風型武器：部位對得上文件、六十把不重複、聲音只有一個來源 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_ELEMENT_CONCEPT",
@@ -403,14 +516,13 @@
       "title": "核心概念：相生相剋大於戰鬥力，帶剋的低戰力打得贏",
       "script": "test:beast-element-concept",
       "timeoutMs": 90000,
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 497,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:beast-element-concept\n> node scripts/beast-build.mjs && node tests/beast-element-concept.test.mjs\n\nPASS: 相剋表沿用五行，形成完整的環\nPASS: 帶剋的低戰力打得贏被剋的高戰力\nPASS: 倍率有份量，但沒有大到讓數值與技能失去意義\nPASS: 出戰前、交戰中、結果都講得出剋／被剋，且不自己算數值\nPASS: 卡片本身寫出剋誰／被誰剋，且排在戰鬥力前面\nPASS: 核心概念寫在技能檔案裡"
+      "error": "spawn EPERM",
+      "issue": "核心概念：相生相剋大於戰鬥力，帶剋的低戰力打得贏 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_GUARDIANS",
@@ -418,28 +530,26 @@
       "title": "四大神獸：二十八宿歸屬不重不漏，強弱標示不說謊",
       "script": "test:beast-guardians",
       "timeoutMs": 60000,
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 366,
+      "durationMs": 1,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:beast-guardians\n> node scripts/beast-build.mjs && node tests/beast-guardians.test.mjs\n\nPASS: 四大神獸各統領七宿，二十八宿不重不漏\nPASS: 幼子／成獸／四象分得出等級，同宿歸屬一致\nPASS: 強弱標示不說謊——壓平的分佈不做假星等\nPASS: 戰鬥力總分不回饋到戰鬥"
+      "error": "spawn EPERM",
+      "issue": "四大神獸：二十八宿歸屬不重不漏，強弱標示不說謊 verification failed: spawn EPERM"
     },
     {
       "id": "NO_FABRICATED_COUNTERS",
       "module": "no_fabricated_counters",
       "title": "禁止作假：計數器沒有憑空底數，也不會自己長大",
       "script": "test:no-fake-counters",
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 318,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:no-fake-counters\n> node tests/no-fabricated-counters.test.mjs\n\nPASS: 程式碼裡沒有憑空的計數底數\nPASS: 前端不會自己讓瀏覽數長大\nPASS: 伺服器端不會自己長大，彙總欄位不凌駕真實紀錄\nPASS: 存起來的數字不超過真實紀錄"
+      "error": "spawn EPERM",
+      "issue": "禁止作假：計數器沒有憑空底數，也不會自己長大 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_REWARD_CLAIM",
@@ -447,56 +557,52 @@
       "title": "獎勵儀式：發獎不等於入袋，領了才算收藏",
       "script": "test:beast-reward",
       "timeoutMs": 60000,
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 341,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:beast-reward\n> node scripts/beast-build.mjs && node tests/beast-reward-claim.test.mjs\n\nPASS: 發獎不等於入袋，領了才算收藏\nPASS: 不得重複發、不得重複領\nPASS: 壞資料擋在門口，多份獎勵各自獨立"
+      "error": "spawn EPERM",
+      "issue": "獎勵儀式：發獎不等於入袋，領了才算收藏 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_CHARGE_CLIP",
       "module": "beast_charge_clip",
       "title": "六秒影片播放條件與玩家音訊路徑（不含逐片驗收）",
       "script": "test:beast-clip",
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 303,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:beast-clip\n> node tests/beast-charge-clip.test.cjs\n\nPASS: 一條龍串接（宣告才掛、不硬掛）\nPASS: 六秒配方唯一規格、逐部位審查清單在案\nPASS: 聲音以玩家為主，對手不發自己的叫聲"
+      "error": "spawn EPERM",
+      "issue": "六秒影片播放條件與玩家音訊路徑（不含逐片驗收） verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_BEAST_VOICE",
       "module": "beast_beast_voice",
       "title": "本體叫聲：六十張各有來源、對手完全靜音",
       "script": "test:beast-voice",
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 502,
+      "durationMs": 1,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:beast-voice\n> node tests/beast-sound-profiles.test.cjs\n\nPASS: 卡片音效組合唯一、素材存在、直接播放、離場取消\nPASS: 六十張本體聲音有來源、對手完全靜音、玩家按卡片發聲"
+      "error": "spawn EPERM",
+      "issue": "本體叫聲：六十張各有來源、對手完全靜音 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_CARD_SPEC",
       "module": "beast_card_spec",
       "title": "神獸卡正統規格：63×88、四處共用、放牌不跳版",
       "script": "test:beast-card-spec",
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 303,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:beast-card-spec\n> node tests/beast-card-spec.test.cjs\n\nPASS: 六十張卡、三席、儀式、預覽共用同一份正統卡片規格（63×88mm）\nPASS: 放牌不會讓版面跳動"
+      "error": "spawn EPERM",
+      "issue": "神獸卡正統規格：63×88、四處共用、放牌不跳版 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_CARD_GAME_CORE",
@@ -504,14 +610,13 @@
       "title": "神獸公平性：六十張、三席十二氣、技能對象與一千局抽樣",
       "script": "test:beast-fairness",
       "timeoutMs": 45000,
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 986,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "公平性要量得出來，不能只是宣稱\n  PASS  雙方本命相同  30\n  PASS  雙方氣上限相同  1\n  PASS  雙方起始牌量相同  20\n  PASS  雙方疲勞都從零開始  0,0\n  PASS  先手起手就是基準張數  5\n  PASS  後手就是基準加補償  6\n  PASS  先後手不得寫死成 PLAYER\n  PASS  首回合不進攻是綁先手，不是綁 PLAYER\n  PASS  補償是給後手，不是給對手\n  PASS  組陣台不得自己跑 playToEnd\n  PASS  組陣台不得自己跑 playTurn\n  PASS  組陣台不得自己跑 performAttack\n  PASS  組陣台不得自己跑 computeDamage\n  PASS  組陣台不得自己跑 createDuel\n  PASS  組陣台不得自己跑 createGame\n  PASS  組陣台不得自己跑 resolveEffects\n  PASS  組陣台不得自己跑 resolveStake\n  PASS  組陣台不得自己跑 buildDeck\n  PASS  組陣台不得匯入戰鬥引擎\n  PASS  決鬥種子由伺服器產生\n  PASS  重播是唯一能指定種子的路徑\n  PASS  不得直接採用客戶端傳來的 seed\n  PASS  同種子 → 同勝負  PLAYER\n  PASS  同種子 → 同先手  PLAYER\n  PASS  同種子 → 同本命  30,0\n\n【十四】友善引導：新手要進得來\n  PASS  有新手三步驟\n  PASS  引導看過就不再擋路\n  PASS  提供選卡建議入口\n  PASS  推薦要講得出理由，不是亂數\n  PASS  公平性直接顯示給客戶\n  PASS  可以重播同一場驗證\n  PASS  卡池夠推薦三張\n\n【十五】穩定性：連線不穩、存壞了，都不能讓整頁壞掉\n  PASS  請求有逾時\n  PASS  請求有重試\n  PASS  逾時要講人話\n  PASS  本機儲存一律包 try/catch\n  PASS  存壞的舊資料要忽略，不得讓整頁開不起來\n  PASS  卡池認不得的 id 要自動忽略\n  PASS  載入失敗有錯誤畫面\n  PASS  API 擋掉壞掉的 JSON\n  PASS  API 擋掉沒放滿的陣容\n  PASS  API 不快取戰果\n\n【十六】揭牌儀式：只播放真實交鋒，保留最後回合\n  PASS  只取三段，避免手機長篇戰報擋住牌面  3\n  PASS  包含六十筆以後真正的最後事件  [object Object]\n  PASS  每段皆來自原始對戰紀錄\n  PASS  不更動原始對戰\n  PASS  沒有攻擊就不編造交鋒\n  PASS  未收到紀錄時不提前播放\n\n神獸卡遊戲核心（六十張） — PASS 194 / FAIL 0\nBEAST_GAME_CORE_CERTIFIED=true\nPASS lineup rejects a fourth occupied slot\nPASS core rejects duplicate starters instead of trusting the UI\nPASS a one-turn stun survives until the target gets a turn\nPASS fire guardian strengthens its own fire, never its enemy\nPASS each card instance retains its own limited skill uses\nPASS a replacement occupies the vacant frontline slot\nPASS high-rarity starters obey the shared budget\nPASS opponents are unique, affordable and reproducible for 100 seeds\nPASS stunned target misses its action and recovers after its own turn\nCustomer-flow review: 9/9 passed\n{\"games\":1000,\"firstWins\":513,\"secondWins\":478,\"draws\":9,\"fatigueGames\":417,\"totalRounds\":10415,\"averageRounds\":10.415,\"firstWinRate\":0.5176589303733602,\"startersCovered\":60,\"coreVersion\":\"1.3.0\"}"
+      "error": "spawn EPERM",
+      "issue": "神獸公平性：六十張、三席十二氣、技能對象與一千局抽樣 verification failed: spawn EPERM"
     },
     {
       "id": "BEAST_INTERACTIVE",
@@ -519,14 +624,13 @@
       "title": "新回合制：六十張定位、能量、補位與一千場煙霧抽樣",
       "script": "test:beast-interactive",
       "timeoutMs": 45000,
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 2010,
+      "durationMs": 1,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "s\": 74,\n      \"wins\": 49,\n      \"draws\": 0\n    },\n    {\n      \"id\": \"beast_a08\",\n      \"role\": \"控制\",\n      \"rate\": 0.6710526315789473,\n      \"appearances\": 76,\n      \"wins\": 51,\n      \"draws\": 0\n    },\n    {\n      \"id\": \"beast_y02\",\n      \"role\": \"守護\",\n      \"rate\": 0.33695652173913043,\n      \"appearances\": 92,\n      \"wins\": 29,\n      \"draws\": 4\n    },\n    {\n      \"id\": \"beast_y15\",\n      \"role\": \"主攻\",\n      \"rate\": 0.6741071428571429,\n      \"appearances\": 112,\n      \"wins\": 75,\n      \"draws\": 1\n    },\n    {\n      \"id\": \"beast_y16\",\n      \"role\": \"反擊\",\n      \"rate\": 0.30392156862745096,\n      \"appearances\": 102,\n      \"wins\": 27,\n      \"draws\": 8\n    },\n    {\n      \"id\": \"beast_a18\",\n      \"role\": \"輔助\",\n      \"rate\": 0.3333333333333333,\n      \"appearances\": 108,\n      \"wins\": 33,\n      \"draws\": 6\n    },\n    {\n      \"id\": \"beast_y21\",\n      \"role\": \"主攻\",\n      \"rate\": 0.6590909090909091,\n      \"appearances\": 110,\n      \"wins\": 71,\n      \"draws\": 3\n    },\n    {\n      \"id\": \"beast_y13\",\n      \"role\": \"守護\",\n      \"rate\": 0.28061224489795916,\n      \"appearances\": 98,\n      \"wins\": 21,\n      \"draws\": 13\n    },\n    {\n      \"id\": \"beast_a17\",\n      \"role\": \"輔助\",\n      \"rate\": 0.6923076923076923,\n      \"appearances\": 104,\n      \"wins\": 69,\n      \"draws\": 6\n    },\n    {\n      \"id\": \"beast_a12\",\n      \"role\": \"輔助\",\n      \"rate\": 0.7136363636363636,\n      \"appearances\": 110,\n      \"wins\": 66,\n      \"draws\": 25\n    },\n    {\n      \"id\": \"beast_y25\",\n      \"role\": \"速度\",\n      \"rate\": 0.34444444444444444,\n      \"appearances\": 90,\n      \"wins\": 30,\n      \"draws\": 2\n    },\n    {\n      \"id\": \"beast_a27\",\n      \"role\": \"控制\",\n      \"rate\": 0.3475609756097561,\n      \"appearances\": 82,\n      \"wins\": 26,\n      \"draws\": 5\n    },\n    {\n      \"id\": \"beast_a28\",\n      \"role\": \"守護\",\n      \"rate\": 0.6545454545454545,\n      \"appearances\": 110,\n      \"wins\": 68,\n      \"draws\": 8\n    }\n  ]\n}\n煙霧模式：1000 場，平衡閘門未評估（樣本不足會誤報）。完整驗證跑 npm run test:beast-interactive:full\nInteractive engine validation passed."
+      "error": "spawn EPERM",
+      "issue": "新回合制：六十張定位、能量、補位與一千場煙霧抽樣 verification failed: spawn EPERM"
     },
     {
       "id": "STAR_BEAST_SELF_ENTRY_API",
@@ -534,42 +638,39 @@
       "title": "本人神獸入口：無假時辰、生日核對與對戰陣容限制",
       "script": "test:star-beast-entry-api",
       "timeoutMs": 45000,
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 2540,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:star-beast-entry-api\n> node tests/star-beast-entry.api.test.cjs\n\nPASS: guardian input, unknown-hour integrity, deterministic mapping and duel API limits"
+      "error": "spawn EPERM",
+      "issue": "本人神獸入口：無假時辰、生日核對與對戰陣容限制 verification failed: spawn EPERM"
     },
     {
       "id": "HEALTH_RECOVERY_POLICY",
       "module": "health_recovery_policy",
       "title": "健康檢查復原界線：規則失敗不重啟服務",
       "script": "test:screen-health-policy",
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 322,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:screen-health-policy\n> node tests/screen-health-recovery-policy.test.cjs\n\nPASS: only explicit recovery of unavailable home/ready services may restart; gameplay and API assertions never do"
+      "error": "spawn EPERM",
+      "issue": "健康檢查復原界線：規則失敗不重啟服務 verification failed: spawn EPERM"
     },
     {
       "id": "THREE_IN_ONE_INTEGRATION",
       "module": "three_in_one_integration",
       "title": "三合一整合：八字×紫微四柱核對，缺一不成立",
       "script": "test:three-in-one",
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1647,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "字四柱神獸\n  PASS  神獸卡：說明原因  紫微神獸是從宮位地支的三合方位與宮內主星五行推出來的，整條依\n  PASS  易經：說明方法  不用生辰起卦，改走姓名象徵起卦：以姓名、生日與固定主題，依既\n  PASS  易經：說明原因  梅花易數生辰起卦的下卦與動爻都含時辰數，沒有時辰就算不出來。\n  PASS  紫微要講出命宮定不了的機制\n  PASS  神獸卡要講出依賴命宮\n  PASS  神獸卡要說明時柱那張也不給\n  PASS  易經要明說不是生辰卦\n  PASS  要說明核對為何不執行\n  PASS  要說明補時辰能解鎖什麼\n  PASS  誠實聲明：沒有用預設時辰補\n  PASS  誠實聲明：沒有把象徵卦說成生辰卦\n  PASS  全份說明不得提到以午時代替\n  PASS  未通過時 assert 仍要擋下  THREE_IN_ONE_NOT_PASSED: TIME_UNKNOWN — 無時辰算法：三柱成立、紫微不排、易經改走象徵起卦\n\n【六】輸入無法辨識：什麼都不顯示\n  PASS  狀態為 FAILED  FAILED\n  PASS  失敗類型為輸入無效\n  PASS  四塊全關  [object Object]\n\n【七】四柱不一致：立即停止、不顯示、不自動修正\n  PASS  注入確實生效（狀態不是 PASSED）  ABNORMAL\n  PASS  狀態為 ABNORMAL  ABNORMAL\n  PASS  異常類型  FOUR_PILLARS_MISMATCH\n  PASS  異常來源  BAZI_ZIWEI_CROSS_CHECK\n  PASS  停在核對那一關，沒有進入易經  WAITING_INPUT,BAZI_RUNNING,ZIWEI_RUNNING,VERIFYING_FOUR_PILLARS,ABNORMAL\n  PASS  trace 不得出現 YIJING_RUNNING\n  PASS  報告指出是月柱  month\n  PASS  報告保留兩邊原值  [object Object]\n  PASS  八字月柱原封不動  庚午\n  PASS  紫微月柱原封不動（不得被偷偷改成八字的）  辛未\n  PASS  紫微不顯示  false\n  PASS  易經不顯示  false\n  PASS  三合一不成立  false\n  PASS  八字仍可顯示  true\n  PASS  yijing 驗證為假  false\n  PASS  fourPillars 驗證為假  false\n  PASS  客戶訊息載明已停止運算\n  PASS  客戶訊息列出異常項目\n  PASS  客戶訊息列出兩邊的值\n  PASS  客戶訊息載明紫微不顯示\n  PASS  客戶訊息載明三合一不成立\n  PASS  檢核清單：八字紫微打勾、核對打叉、其後未進入  BAZI:PASSED,ZIWEI:PASSED,FOUR_PILLARS:ABNORMAL,YIJING:PENDING,COMBINED:PENDING\n  PASS  異常時 assert 必須擋下  THREE_IN_ONE_NOT_PASSED: ABNORMAL — 月柱 八字「庚午」≠ 紫微「辛未」\n\n【八】還原後必須回到正常\n  PASS  注入還原後回到 PASSED  PASSED\n\n【九】前端顯示閘：不能偷偷跳過\n  PASS  PASSED 分支才渲染完整結果\n  PASS  異常與失敗分支一律不得渲染完整結果\n  PASS  三種狀態都要有可辨識標記\n  PASS  客戶訊息來自後端欄位\n  PASS  差異兩邊原值都照實顯示\n  PASS  不得在前端自行判斷是否通過\n\n【九之二】無時辰說明必須攤開，不得折疊藏起來\n  PASS  必須有無時辰模式的分支\n  PASS  三層說明逐一列出\n  PASS  每一層標明算不算得出來\n  PASS  顯示怎麼算\n  PASS  顯示為什麼只能這樣算\n  PASS  顯示誠實聲明\n  PASS  顯示補時辰能解鎖什麼\n  PASS  說明不得折疊\n  PASS  無時辰時不得渲染完整結果\n\n【九之三】神獸卡：前端不得自己推，也不得無條件渲染\n  PASS  前端不得再自行推導神獸\n  PASS  神獸改由後端三合一提供\n  PASS  沒有卡就不畫，改講為什麼\n  PASS  有卡才畫神獸區塊\n  PASS  無時辰時原因取自後端無時辰算法\n  PASS  神獸推導規則仍在既有引擎\n  PASS  三合一是呼叫既有引擎，不是另寫一套\n  PASS  三合一沒有自己重寫四象對照表\n\n三合一整合層 — PASS 136 / FAIL 0\nTHREE_IN_ONE_CERTIFIED=true"
+      "error": "spawn EPERM",
+      "issue": "三合一整合：八字×紫微四柱核對，缺一不成立 verification failed: spawn EPERM"
     },
     {
       "id": "HOME_TAIJI_LEVEL02_24_LOCK",
@@ -577,15 +678,14 @@
       "title": "太極第 2～24 層隔離鎖定",
       "path": "/",
       "script": "test:taiji-lock",
-      "status": "PASSED",
+      "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 353,
+      "durationMs": 0,
       "htmlLength": 0,
-      "error": null,
-      "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:taiji-lock\n> node tests/taiji-level-02-24-lock.test.cjs\n\nTaiji Level 02-24 Regression Lock passed"
+      "error": "spawn EPERM",
+      "issue": "太極第 2～24 層隔離鎖定 verification failed: spawn EPERM"
     }
   ],
-  "recoveryStatus": "NOT_NEEDED"
+  "recoveryStatus": "NOT_APPLICABLE"
 }
