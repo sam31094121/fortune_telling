@@ -130,4 +130,4 @@ export const PreparationControls = memo(function PreparationControls({ state, ca
       {inspectId && !selected && <button type="button" className={styles.selectedInfo} onClick={() => onInspect(inspectId)}>查看{lookup(inspectId)?.name}的卡面與能力 →</button>}
     </section>
   );
-}
+});
