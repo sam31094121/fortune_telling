@@ -113,13 +113,13 @@ export function describeStakeRisk(stakeCardName: string | null): {
     return {
       canStart: false,
       headline: '從持有卡片選一張押注',
-      detail: '贏：多一張。輸：押注卡被沒收。平手：原卡退回。',
+      detail: '贏：原卡保留＋易經裁定賠你 5～20 張。輸：押注卡沒收。平手：退回。',
     };
   }
   return {
     canStart: true,
     headline: `你押上的是「${stakeCardName}」`,
-    detail: `贏：原卡保留，再贏一張。輸：沒收「${stakeCardName}」一張。平手：退回。`,
+    detail: `贏：原卡保留，易經裁定再賠你 5～20 張。輸：沒收「${stakeCardName}」五張。平手：退回。`,
   };
 }
 

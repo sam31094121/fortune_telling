@@ -144,7 +144,7 @@ export default function BeastTurnGame() {
             <Link href="/beast-game/battlefield" className={styles.modeCard}>
               <span className={styles.modeIcon}>⚔️</span>
               <strong>五卡押注戰場</strong>
-              <span className={styles.modeDesc}>壓 5 張神獸出戰・贏得 6 張・輸失 5 張</span>
+              <span className={styles.modeDesc}>壓 5 張・贏最少得 5 張・易經技術判斷最多 20 張・輸失 5 張</span>
               <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>押注</span>
             </Link>
             <Link href="/beast-game/lineup" className={styles.modeCard}>

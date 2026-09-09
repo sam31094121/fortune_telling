@@ -543,7 +543,7 @@ export default function BattlefieldPage() {
                       <ol>
                         <li><strong>點一次就完成佈陣</strong><p>第一張直接成為主戰，接著依序補入後備，不必重複點擊。</p></li>
                         <li><strong>陣容滿了再精準換位</strong><p>點已上場的卡即可選位置調整；查看能力不會出招。</p></li>
-                        <li><strong>選滿五張才開戰</strong><p>{isTrial ? '本場免押注，不發卡、不沒收。' : '贏了五張原卡保留、再送一張；輸了扣除實際押入的五張。'}</p></li>
+                        <li><strong>選滿五張才開戰</strong><p>{isTrial ? '本場免押注，不發卡、不沒收。' : '贏了押注卡全保留，易經判斷再賠你 5～20 張；輸了扣除押入的五張。'}</p></li>
                         <li><strong>每回合選一個動作</strong><p>普通攻擊、技能，或換上後備。按「說明」查看技能內容；它不會消耗回合。</p></li>
                       </ol>
                       <button type="button" className={styles.restart} onClick={() => reviewStep(guidance.currentStep)}>回到目前步驟</button>
