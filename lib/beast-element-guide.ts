@@ -74,27 +74,13 @@ export function explainOutcome(
   winner: 'player' | 'opponent' | 'DRAW' | null,
   matchup: ElementMatchup,
 ): string {
-  const tail = matchup.kind === 'NEUTRAL'
-    ? '這一場沒有相剋關係，勝負來自數值、技能與換陣時機。'
-    : `${matchup.headline}——${matchup.reason}`;
-
-  if (winner === 'player') {
-    return matchup.kind === 'ADVANTAGE'
-      ? `你贏了。${tail}帶對元素，這一場你從第一擊就占著便宜。`
-      : `你贏了。${tail}`;
-  }
-  if (winner === 'opponent') {
-    return matchup.kind === 'DISADVANTAGE'
-      /*
-        輸掉時最重要的一句：把「我輸了」跟「我帶錯元素」接起來。
-
-        不重複 reason 裡已經講過的「換一隻剋他的」——
-        同一件事說兩次，客戶會整段跳過，反而什麼都沒讀到。
-      */
-      ? `對手獲勝。不是牠比較強，是你這一隻被剋：${matchup.headline}，每一擊只剩 ${matchup.multiplier}。下一場換一隻剋牠的試試。`
-      : `對手獲勝。${tail}`;
-  }
-  return `平手。${tail}`;
+  const verdict = winner === 'player' ? '你贏了。' : winner === 'opponent' ? '對手獲勝。' : winner === 'DRAW' ? '平手。' : '尚未分出勝負。';
+  const observation = matchup.kind === 'DISADVANTAGE'
+    ? `末段對位被剋，攻擊元素倍率 ${matchup.multiplier}。下一場可考慮換元素。`
+    : matchup.kind === 'ADVANTAGE'
+      ? `末段對位有元素優勢，攻擊元素倍率 ${matchup.multiplier}。`
+      : '末段對位互不相剋，可查看技能與換卡時機。';
+  return verdict + observation + '這是末段對位，不是整場勝負的唯一原因。';
 }
 
 

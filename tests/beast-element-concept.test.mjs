@@ -118,7 +118,9 @@ import { describeMatchup, explainOutcome, describeCardElement } from '../.beast-
   // 輸掉時要把「我輸了」跟「我帶錯元素」接起來。
   const lost = explainOutcome('opponent', describeMatchup('FIRE', 'WATER'));
   assert.ok(/被剋/.test(lost), '被剋而輸，要講得出是被剋，不能只說「你輸了」');
-  assert.ok(/不是牠比較強/.test(lost), '要點破「對面比較強」這個錯誤直覺');
+  assert.ok(/末段對位/.test(lost), '只收到最後元素對位時，不得宣稱全場原因');
+  assert.ok(!/不是牠比較強|從第一擊/.test(lost), '不能由最後元素推論整場因果');
+  assert.ok(/尚未分出勝負/.test(explainOutcome(null, describeMatchup('FIRE', 'WATER'))));
   assert.ok(!lost.includes('**'), '畫面直接印這段字，星號不會變粗體，只會看起來壞掉');
 
   const guide = fs.readFileSync('lib/beast-element-guide.ts', 'utf8');

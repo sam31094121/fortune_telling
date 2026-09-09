@@ -67,6 +67,13 @@ export default function BattleCardGuide({ cardId, fighter, opponentElement, onCl
             <p>{guide.skill.description}</p>
             <p className={styles.note}>{guide.passive}</p>
           </article>
+          {guide.tactics && <details className={styles.details} data-card-tactics>
+            <summary>擅長什麼、怕什麼、何時上場</summary>
+            <p><strong>擅長：</strong>{guide.tactics.strength}</p>
+            <p><strong>要留意：</strong>{guide.tactics.weakness}{guide.tactics.counter}</p>
+            <p><strong>上場時機：</strong>{guide.tactics.timing}{guide.tactics.favorable}</p>
+            <p className={styles.note}>{guide.tactics.cost}本體、幼子與四象是身分，不是勝負保證。</p>
+          </details>}
           <details className={styles.details}>
             <summary>武裝部位與攻擊方式</summary>
             <p>{guide.weapon.name}・{guide.weapon.part}</p>

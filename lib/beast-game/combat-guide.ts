@@ -5,6 +5,7 @@ import { ELEMENT_LABEL, ELEMENTS, ELEMENT_COUNTER, WUXING_TO_ELEMENT, elementMul
 import { guardianOf } from '../beast-guardians';
 import { describeCardElement } from '../beast-element-guide';
 import { weaponFor } from './weapons';
+import { cardTactics } from './card-tactics';
 
 const catalog = new Map(interactiveCatalog().map(card => [card.id, card]));
 const FORM_LABEL = { YOUNG: '幼子', ADULT: '成獸', GUARDIAN: '四象' } as const;
@@ -32,6 +33,7 @@ export function combatGuideFor(cardId: string, fighter?: Fighter) {
     },
     skill: { name: card.skillName, description: card.description, cost: card.cost, cooldown: current?.cooldown ?? 0 },
     passive: card.passive,
+    tactics: cardTactics(card.id),
     weapon: weaponFor(card.id, card.name, element),
   };
 }

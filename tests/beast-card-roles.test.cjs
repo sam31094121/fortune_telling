@@ -1,0 +1,32 @@
+const assert=require('node:assert/strict');
+const {newMatch,advance,legalActions,interactiveCatalog}=require('../.beast-game-build/lib/beast-game/interactive');
+const {effectiveStat}=require('../.beast-game-build/lib/beast-game/effects');
+const {cardTactics}=require('../.beast-game-build/lib/beast-game/card-tactics');
+const report=require('../reports/beast-card-roles/audit.json');
+const cards=interactiveCatalog();
+assert.equal(cards.length,60);assert.equal(report.cards.length,60);
+for(const card of cards){
+  const notes=cardTactics(card.id);assert.ok(notes.strength&&notes.weakness&&notes.timing&&notes.counter);
+  const state=newMatch([card.id],['beast_a01','beast_a02'],61);
+  state.player.energy=card.cost-1;
+  assert.ok(!legalActions(state,'player').some(a=>a.type==='SKILL'),'Every identity pays its actual skill cost');
+  state.player.energy=card.cost;state.player.team[0].cooldown=1;
+  assert.ok(!legalActions(state,'player').some(a=>a.type==='SKILL'),'Every identity obeys cooldown');
+  state.player.team[0].cooldown=0;state.player.team[0].hp-=60;state.player.team[0].shield=10;
+  const next=advance(state,{type:'SKILL'},{type:'SWITCH',index:1});
+  const before=state.player.team[0],mine=next.player.team[0],enemy=next.opponent.team[1];
+  assert.equal(next.player.energy,1,'Exact skill cost is paid before symmetric round energy');
+  assert.equal(mine.cooldown,2,'Shared cooldown decrements at end of round');
+  if(card.role==='輔助')assert.equal(mine.hp,Math.min(mine.maxHp,before.hp+card.effects[0].value));
+  if(card.role==='守護'||card.role==='反擊')assert.equal(mine.shield,Math.min(70,10+card.effects[0].value));
+  if(card.role==='反擊')assert.equal(mine.counter,true,'A rival switch does not consume the counter');
+  if(['主攻','速度','控制'].includes(card.role))assert.ok(enemy.hp<enemy.maxHp,'Actual enemy damage, even after a legal switch');
+  if(card.role==='速度')assert.equal(effectiveStat(mine,'speed'),before.speed+20);
+  if(card.role==='控制')assert.equal(effectiveStat(enemy,'attack'),enemy.attack-card.effects[1].value);
+  const row=report.cards.find(r=>r.id===card.id);assert.deepEqual(row.stats,card.stats);assert.equal(row.skill,card.description);
+  assert.ok(row.winExample&&row.lossExample&&row.wins>0&&row.losses>0,'Every card has observed wins and losses, not guaranteed identity rank');
+}
+assert.ok(report.summary.youngOverGuardian>0&&report.summary.guardianOverYoung>0);
+assert.ok(report.summary.contextReversals.length>0,'Opening-only comparisons cannot establish universal dominance');
+assert.equal(report.summary.teamMatches,240);
+console.log('PASS: all 60 real roles, costs, cooldowns, targeting, healing/shields, counters and report consistency');
