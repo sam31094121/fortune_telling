@@ -98,6 +98,25 @@
   .controls { border-top: 1px solid #526386; border-left: 2px solid #7dd3fc; border-radius: 0 16px 16px 0; }
 }
 .stakeConfirm { margin: 0 0 4px; text-align: center; font-size: 12px; line-height: 18px; color: #fde68a; }
+.deckSummary { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; padding: 8px 10px; border: 1px solid #526386; border-radius: 10px; background: #15253a; color: #dbeafe; font-size: 12px; }
+.deckSummary button, .deckActions button { min-height: 44px; border: 1px solid #7dd3fc; border-radius: 9px; padding: 7px 10px; color: #e0f2fe; background: #173451; font-weight: 800; touch-action: manipulation; }
+.deckBuilder { display: grid; gap: 8px; margin-bottom: 10px; padding: 10px; border: 1px solid #7dd3fc; border-radius: 12px; background: #0b1728; }
+.deckBuilderHeading { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.deckBuilderHeading div { display: grid; gap: 3px; }
+.deckBuilderHeading strong { color: #fef3c7; font-size: 15px; }
+.deckBuilderHeading span, .deckHint { color: #b8c9dc; font-size: 11px; line-height: 1.5; }
+.deckBuilderHeading b { min-width: 52px; border-radius: 999px; padding: 5px 8px; text-align: center; color: #10243a; background: #bae6fd; font-size: 12px; }
+.deckGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; max-height: 330px; overflow-y: auto; padding-right: 2px; }
+.deckGrid button { position: relative; display: grid; grid-template-rows: 68px auto auto; gap: 2px; min-width: 0; min-height: 116px; overflow: hidden; border: 1px solid #425a77; border-radius: 9px; padding: 4px; color: #cbd5e1; background: #111d2e; touch-action: manipulation; }
+.deckGrid button[aria-pressed='true'] { border-color: #fde68a; background: #302b1b; box-shadow: inset 0 0 0 1px #fde68a; }
+.deckGrid button:disabled { opacity: .45; }
+.deckGrid img { width: 100%; height: 68px; border-radius: 6px; object-fit: cover; }
+.deckGrid span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 800; }
+.deckGrid small { color: #8fb0cc; font-size: 10px; }
+.deckGrid button[aria-pressed='true'] small { color: #fde68a; }
+.deckActions { display: grid; grid-template-columns: 1fr 1.6fr; gap: 6px; }
+.deckActions button:last-child { border-color: #fde68a; color: #211a0c; background: #fde68a; }
+.deckActions button:disabled { opacity: .45; }
 /* Inspection is a focused view, not a small second card beneath the same artwork. */
 .split[data-inspecting='true'] { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
 .split[data-inspecting='true'] > [data-battle-visual] { display: none; }

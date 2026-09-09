@@ -43,9 +43,11 @@ import type { StakeOutcome } from '@/lib/beast-collection-ledger';
 import { namedStakeOutcome } from '@/lib/beast-stake-presentation';
 import BeastStakeResult from '@/components/BeastStakeResult';
 import BeastBattleVoice from '@/components/BeastBattleVoice';
+import DeckBuilder from '@/components/battlefield/DeckBuilder';
+import { BATTLEFIELD_DECK_SIZE, buildFreshOpeningDeck, buildUniqueDeck, sanitizeDeckSelection } from '@/lib/beast-game/deck-builder';
 
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
-const DECK_SIZE = 20;
+const SAVED_DECK_KEY = 'taiji-beast-battlefield-deck-v1';
 
 /**
  * 種子亂數。
@@ -64,14 +66,10 @@ function seeded(seed: number) {
   };
 }
 
-function buildDeck(ids: string[], rng: () => number, size: number): string[] {
-  // 一副牌內不重複——同一張神獸不會在自己的牌庫裡出現兩次。
-  const pool = ids.slice();
-  const out: string[] = [];
-  while (out.length < size && pool.length) {
-    out.push(pool.splice(Math.floor(rng() * pool.length), 1)[0]);
-  }
-  return out;
+function secureSeed(): number {
+  const values = new Uint32Array(1);
+  globalThis.crypto?.getRandomValues?.(values);
+  return values[0] || (Date.now() >>> 0) || 1;
 }
 
 export default function BattlefieldPage() {
@@ -80,7 +78,11 @@ export default function BattlefieldPage() {
   /** 開戰之後的戰鬥狀態。null＝還在佈陣。 */
   const [match, setMatch] = useState<Match | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [seed, setSeed] = useState(1);
+  const [seed, setSeed] = useState(secureSeed);
+  const [playerDeckIds, setPlayerDeckIds] = useState<string[]>([]);
+  const [deckDraft, setDeckDraft] = useState<string[]>([]);
+  const [deckEditorOpen, setDeckEditorOpen] = useState(false);
+  const previousOpening = useRef<{ player: string[]; opponent: string[] }>({ player: [], opponent: [] });
   /** 與既有結算一致：只選一張押注卡。 */
   const [stakeCardIds, setStakeCardIds] = useState<string[]>([]);
   const [ownedStake, setOwnedStake] = useState<StakeCard[]>([]);
@@ -181,7 +183,20 @@ export default function BattlefieldPage() {
         if (!data?.ok || !Array.isArray(data.cards)) throw new Error('卡池回應不正確');
         if (disposed) return;
         setError(null);
-        setCards(data.cards as BattlefieldCardArt[]);
+        const loadedCards = data.cards as BattlefieldCardArt[];
+        const availableIds = loadedCards.map(card => card.id);
+        let saved: string[] = [];
+        try {
+          const raw = localStorage.getItem(SAVED_DECK_KEY);
+          saved = raw ? JSON.parse(raw) : [];
+        } catch { saved = []; }
+        const restored = sanitizeDeckSelection(saved, availableIds);
+        const initialDeck = restored.length === BATTLEFIELD_DECK_SIZE
+          ? restored
+          : buildUniqueDeck(availableIds, seeded(secureSeed()));
+        setCards(loadedCards);
+        setPlayerDeckIds(initialDeck);
+        setDeckDraft(initialDeck);
       })
       .catch(() => { if (!disposed) setError('卡池暫時無法載入，請點下方按鈕再試一次。收藏不受影響。'); })
       .finally(() => clearTimeout(timer));
@@ -190,10 +205,14 @@ export default function BattlefieldPage() {
 
   // 卡池到齊才開桌。開桌本身是純函式，換種子就是重開一局。
   useEffect(() => {
-    if (!cards.length) return;
+    if (!cards.length || playerDeckIds.length !== BATTLEFIELD_DECK_SIZE) return;
     const ids = cards.map((card) => card.id);
     const rng = seeded(seed);
-    const fresh = newBattle(buildDeck(ids, rng, DECK_SIZE), buildDeck(ids, rng, DECK_SIZE), rng);
+    const playerOrder = buildFreshOpeningDeck(playerDeckIds, previousOpening.current.player, rng);
+    const opponentSelection = buildUniqueDeck(ids, rng);
+    const opponentOrder = buildFreshOpeningDeck(opponentSelection, previousOpening.current.opponent, rng);
+    const fresh = newBattle(playerOrder, opponentOrder, rng, false);
+    previousOpening.current = { player: fresh.player.hand.slice(), opponent: fresh.opponent.hand.slice() };
     // 對手用同一套佈陣規則自動上場——沒有特權、沒有額外格子。
     setState(autoPlaceOpponent(fresh, rng));
     setMatch(null);
@@ -201,7 +220,7 @@ export default function BattlefieldPage() {
     setInspection(null);
     setGuideRequest(null);
     setPrepareView('formation');
-  }, [cards, seed]);
+  }, [cards, playerDeckIds, seed]);
 
   /** 從目前的佈陣開戰。種子固定，同一局可重播。 */
   const start = useCallback(async () => {
@@ -247,7 +266,35 @@ export default function BattlefieldPage() {
   }, []);
 
   const handleSelect = useCallback((cardId: string) => {
-    setState((current) => (current ? selectCard(current, cardId) : current));
+    setState((current) => {
+      if (!current) return current;
+
+      // 手機優先：手牌只點一次，就依序補入主戰與後備。
+      // 陣容已滿或點的是已上場卡時，才保留原本的精準換位流程。
+      if (current.player.hand.includes(cardId)) {
+        const emptyBenchSlot = current.player.bench.findIndex(id => !id);
+        const destination: Destination | null = !current.player.active
+          ? { zone: 'ACTIVE' }
+          : emptyBenchSlot >= 0
+            ? { zone: 'BENCH', slotIndex: emptyBenchSlot }
+            : null;
+
+        if (destination) {
+          try {
+            const next = moveCard(current, 'PLAYER', cardId, destination);
+            const cardName = cardsRef.current.find(card => card.id === cardId)?.name ?? '這張卡';
+            const targetName = destination.zone === 'ACTIVE' ? '主戰' : `後備 ${destination.slotIndex + 1}`;
+            setMovement(`「${cardName}」已一鍵放入${targetName}。佈陣移動不扣卡，押注張數不變。`);
+            return next;
+          } catch {
+            setMovement('這張卡暫時不能放入，請再點一次或選擇其他卡片。');
+            return current;
+          }
+        }
+      }
+
+      return selectCard(current, cardId);
+    });
   }, []);
 
   const handleDestination = useCallback((to: Destination) => {
@@ -302,7 +349,7 @@ export default function BattlefieldPage() {
     pendingBattle.current = null;
     setOutcome(outcome);
     pending.resolve({ ok: true, stake: outcome });
-  }, [match?.status, match?.winner, battleStake]);
+  }, [match, battleStake]);
 
   const retrySettlement = async () => {
     if (!settlement || !outcome || settling) return;
@@ -314,7 +361,27 @@ export default function BattlefieldPage() {
   const redeal = () => {
     if (settling || settlement?.saved === false) return;
     setSettlement(null); setOutcome(null); setBattleStake(null); setMovement(''); setStakeError('');
-    setSeed(value => value + 1); setError(null);
+    setSeed(secureSeed()); setError(null);
+  };
+
+  const openDeckBuilder = () => {
+    setDeckDraft(playerDeckIds);
+    setDeckEditorOpen(true);
+  };
+  const toggleDeckCard = (cardId: string) => {
+    setDeckDraft(current => current.includes(cardId)
+      ? current.filter(id => id !== cardId)
+      : current.length < BATTLEFIELD_DECK_SIZE ? [...current, cardId] : current);
+  };
+  const saveDeck = () => {
+    const next = sanitizeDeckSelection(deckDraft, cards.map(card => card.id));
+    if (next.length !== BATTLEFIELD_DECK_SIZE) return;
+    try { localStorage.setItem(SAVED_DECK_KEY, JSON.stringify(next)); } catch { /* Play remains available without persistence. */ }
+    setPlayerDeckIds(next);
+    previousOpening.current = { player: [], opponent: [] };
+    setDeckEditorOpen(false);
+    setSettlement(null); setOutcome(null); setBattleStake(null); setMovement(''); setStakeCardIds([]);
+    setSeed(secureSeed());
   };
 
   /*
@@ -429,6 +496,9 @@ export default function BattlefieldPage() {
                 ) : (
                   <>
                     <div hidden={prepareView !== 'formation'}>
+                      <DeckBuilder cards={cards} selectedIds={deckDraft} open={deckEditorOpen}
+                        onOpen={openDeckBuilder} onToggle={toggleDeckCard}
+                        onCancel={() => { setDeckDraft(playerDeckIds); setDeckEditorOpen(false); }} onSave={saveDeck} />
                       <PreparationControls state={state} cards={cards} onSelect={handleSelect} onDestination={handleDestination} onInspect={inspectCard} />
                       {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}
                     </div>
@@ -442,8 +512,8 @@ export default function BattlefieldPage() {
                     <section hidden={prepareView !== 'help'} className={styles.help} aria-label="卡片戰鬥玩法說明">
                       <h2>先選卡，再出戰</h2>
                       <ol>
-                        <li><strong>選一張手牌</strong><p>點手牌後，會帶你到放置區；再點「放入主戰」。</p></li>
-                        <li><strong>後備是建議增援</strong><p>想補強陣容，選卡後點可放入的後備格。查看能力不會出招。</p></li>
+                        <li><strong>點一次就完成佈陣</strong><p>第一張直接成為主戰，接著依序補入後備，不必重複點擊。</p></li>
+                        <li><strong>陣容滿了再精準換位</strong><p>點已上場的卡即可選位置調整；查看能力不會出招。</p></li>
                         <li><strong>確認後才開戰</strong><p>{isTrial ? '本場免押注，不發卡、不沒收。' : '押注一張收藏卡；贏得一張、輸掉一張，平手保留。換選押注卡不是多押一張。'}</p></li>
                         <li><strong>每回合選一個動作</strong><p>普通攻擊、技能，或換上後備。按「說明」查看技能內容；它不會消耗回合。</p></li>
                       </ol>

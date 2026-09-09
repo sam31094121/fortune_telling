@@ -13,6 +13,21 @@
 }
 .backdrop { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 60%; pointer-events: none; }
 .arena::before { content: ''; position: absolute; z-index: 1; inset: 0; background: linear-gradient(180deg, #061021ed 0%, #06102178 36%, #0610215c 60%, #061021f0 100%); pointer-events: none; }
+.elementStrike { position: absolute; z-index: 4; inset: 0; overflow: hidden; perspective: 620px; pointer-events: none; animation: elementStrikeShell 920ms ease-out both; }
+.strikeField { position: absolute; inset: -18%; opacity: .86; will-change: transform, opacity; animation: elementFieldBurst 920ms cubic-bezier(.16,.8,.25,1) both; }
+.elementStrike[data-element='SPACE'] .strikeField { background: radial-gradient(ellipse at 53% 46%, #ffffffeb 0 2%, #b9c9ffbf 4%, transparent 20%), linear-gradient(118deg, transparent 32%, #dbeafe8f 45%, #818cf89c 51%, transparent 62%), radial-gradient(ellipse at 50% 50%, #312e81a8, transparent 58%); }
+.elementStrike[data-element='AIR'] .strikeField { background: linear-gradient(112deg, transparent 24%, #d1fae5d9 42%, #67e8f9bc 47%, transparent 53%), repeating-linear-gradient(164deg, transparent 0 10%, #a7f3d033 11%, transparent 13%); }
+.elementStrike[data-element='WATER'] .strikeField { background: radial-gradient(ellipse at 50% 54%, #e0f2feea 0 4%, #38bdf8a6 12%, transparent 38%), linear-gradient(150deg, transparent 21%, #7dd3fca6 38%, #0369a1a8 52%, transparent 70%); }
+.elementStrike[data-element='FIRE'] .strikeField { background: radial-gradient(ellipse at 52% 55%, #fff7c2f0 0 3%, #fb923ccf 11%, #dc2626a8 25%, transparent 53%), linear-gradient(68deg, transparent 31%, #fef08ac4 43%, #f97316ba 49%, transparent 62%); }
+.elementStrike[data-element='EARTH'] .strikeField { background: linear-gradient(134deg, transparent 34%, #fef3c7d6 35% 38%, transparent 39%), linear-gradient(48deg, transparent 42%, #f59e0b9e 43% 47%, transparent 48%), radial-gradient(ellipse at 50% 66%, #92400ea6, transparent 50%); }
+.strikeTrace { position: absolute; top: 46%; left: 16%; width: 68%; height: 4px; border-radius: 99px; background: linear-gradient(90deg, transparent, var(--element-strike), #fff, var(--element-strike), transparent); box-shadow: 0 0 8px var(--element-strike), 0 9px 20px #0009; transform-origin: center; will-change: transform, opacity; animation: elementTrace 720ms ease-out both; }
+.strikeReadout { position: absolute; right: 10px; bottom: 26px; display: grid; gap: 1px; border-right: 3px solid var(--element-strike); padding: 4px 8px; text-align: right; color: #fff; background: linear-gradient(90deg, transparent, #061021d9); text-shadow: 0 1px 5px #000; animation: elementReadout 920ms ease-out both; }
+.strikeReadout b { color: var(--element-strike); font-size: 13px; letter-spacing: .12em; }
+.strikeReadout small { color: #dbeafe; font-size: 8px; letter-spacing: .14em; }
+@keyframes elementStrikeShell { 0% { opacity: 0; } 12%, 62% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes elementFieldBurst { 0% { opacity: 0; transform: translate3d(-12%, 5%, -120px) scale(.72) rotateX(8deg); } 28% { opacity: 1; transform: translate3d(3%, -2%, 20px) scale(1.08) rotateX(0); } 100% { opacity: 0; transform: translate3d(10%, -4%, 80px) scale(1.18) rotateX(-4deg); } }
+@keyframes elementTrace { 0% { opacity: 0; transform: translate3d(-24px, 8px, -80px) scaleX(.05) skewX(-20deg); } 35% { opacity: 1; transform: translate3d(0, 0, 28px) scaleX(1.06) skewX(-6deg); } 100% { opacity: 0; transform: translate3d(26px, -5px, 90px) scaleX(1.16) skewX(0); } }
+@keyframes elementReadout { 0% { opacity: 0; transform: translate3d(18px, 0, 0); } 24%, 72% { opacity: 1; transform: translate3d(0, 0, 0); } 100% { opacity: 0; transform: translate3d(-8px, 0, 0); } }
 .arenaHeading, .fighters, .arenaNote { position: relative; z-index: 2; }
 .fighterHeading { border-radius: 8px; padding: 2px; background: #061021b3; }
 .arenaHeading, .handHeading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #b6c8e0; }
@@ -97,7 +112,7 @@
   .destination:first-child { flex: 1 1 54px; }
   .fighterIdentity span { display: none; }
 }
-@media (prefers-reduced-motion: reduce) { .acted { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .acted { animation: none; } .elementStrike { animation-duration: 360ms; } .strikeField, .strikeTrace, .strikeReadout { animation: none; } }
 .artSpace[data-rush='true'] { z-index: 3; }
 .artSpace[data-rush='true'] .art { animation: cardRush 560ms ease-in-out both; }
 .trail { position: absolute; width: min(100cqw, 66.666cqh, 180px); height: min(100cqh, 270px); border-radius: 10px; background-image: var(--trail-art); background-size: contain; background-repeat: no-repeat; background-position: center; pointer-events: none; animation: cardTrail 560ms ease-out both; animation-delay: calc(var(--trail-index) * 35ms); }

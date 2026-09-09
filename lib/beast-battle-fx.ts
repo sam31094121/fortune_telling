@@ -373,6 +373,8 @@ export function beastActionTimeline(
   const voice = side === 'player' ? beastVoiceFor(cardId) : null;
   if (voice) out.push({ at: ACTION_BEATS.voice, src: voice, volume: 0.55, rate: 1, what: 'voice' });
 
+  // 五元素的材質聲先入場，讓客戶不用看文字也聽得出這是風、水、火、地或空。
+  out.push({ at: 70, src: ELEMENT_FX[element].attack, volume: heavy ? 0.34 : 0.26, rate: 1, what: 'charge' });
   out.push({ at: ACTION_BEATS.charge, src: profile.charge, volume: 0.32, rate, what: 'charge' });
   out.push({ at: ACTION_BEATS.strike, src: profile.impact, volume: heavy ? 0.62 : 0.48, rate, what: 'strike' });
   out.push({

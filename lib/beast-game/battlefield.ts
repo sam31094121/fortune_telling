@@ -114,13 +114,14 @@ export function newBattle(
   playerDeck: readonly string[],
   opponentDeck: readonly string[],
   rng: () => number,
+  shuffleDecks = true,
 ): BattleState {
   const state: BattleState = {
     turn: 1,
     currentPlayer: 'PLAYER',
     phase: 'PREPARE',
-    player: emptySide(shuffle(playerDeck, rng)),
-    opponent: emptySide(shuffle(opponentDeck, rng)),
+    player: emptySide(shuffleDecks ? shuffle(playerDeck, rng) : playerDeck.slice()),
+    opponent: emptySide(shuffleDecks ? shuffle(opponentDeck, rng) : opponentDeck.slice()),
     selectedCardId: null,
   };
   for (let i = 0; i < OPENING_HAND; i += 1) {

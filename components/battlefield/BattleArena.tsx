@@ -10,6 +10,7 @@ import { ELEMENT_LABEL, type BeastElement } from '@/lib/beast-game/elements';
 import { elementPercent } from '@/lib/beast-game/combat-guide';
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import styles from './BattleArena.module.css';
+import { ELEMENT_FX, type BattleElement } from '@/lib/beast-battle-fx';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 
@@ -22,6 +23,13 @@ export default function BattleArena({ state, cards, match, onInspect }: {
   const foe = match ? lookup.get(match.opponent.team[match.opponent.active].cardId) : lookup.get(state?.opponent.active ?? '');
   const matchup = mine && foe ? describeMatchup(mine.element as BeastElement, foe.element as BeastElement) : null;
   const finished = match?.status === 'FINISHED';
+  const lastPlayerAction = match?.history?.at(-1)?.player;
+  const playerFighter = match?.player.team[match.player.active];
+  const playerStrike = Boolean(match && match.revision > 0 && playerFighter && (
+    lastPlayerAction?.type === 'ATTACK'
+    || (lastPlayerAction?.type === 'SKILL' && profile(playerFighter.cardId).effects.some(effect => effect.type === 'DAMAGE' && effect.target === 'ENEMY'))
+  ));
+  const strikeElement = playerFighter?.element as BattleElement | undefined;
 
   return (
     <section className={styles.arena} aria-label="戰鬥畫面" data-battle-visual data-battle-venue="cards">
@@ -31,6 +39,12 @@ export default function BattleArena({ state, cards, match, onInspect }: {
         <strong>{finished ? '本場結束' : match ? `第 ${match.round} 回合` : '佈陣預覽'}</strong>
         <span>{BATTLE_VENUES.cards.name}・卡片戰鬥</span>
       </div>
+      {playerStrike && strikeElement && <div key={`element-strike-${match?.revision}`} className={styles.elementStrike}
+        data-element={strikeElement} style={{ '--element-strike': ELEMENT_FX[strikeElement].glow } as CSSProperties} aria-hidden="true">
+        <span className={styles.strikeField} />
+        <span className={styles.strikeTrace} data-trace="one" />
+        <span className={styles.strikeReadout}><b>{ELEMENT_FX[strikeElement].label}元素攻擊</b><small>ENERGY LOCK・命中同步</small></span>
+      </div>}
       <div className={styles.fighters}>
         {(['player', 'opponent'] as const).map(side => {
           const team = match?.[side];
@@ -86,10 +100,11 @@ export const PreparationControls = memo(function PreparationControls({ state, ca
   const selected = state.selectedCardId;
   const placement = useRef<HTMLDivElement>(null);
   const inspectId = selected ?? state.player.active;
+  const hasEmptyBench = state.player.bench.some(id => !id);
   const legal = useMemo(() => selected ? legalDestinations(state, 'PLAYER', selected) : [], [state, selected]);
   const destinations = useMemo<Destination[]>(() =>
     [{ zone: 'ACTIVE' }, ...state.player.bench.map((_, slotIndex) => ({ zone: 'BENCH' as const, slotIndex }))]
-  , [state.player.bench.length]);
+  , [state.player.bench]);
   useEffect(() => {
     if (!selected) return;
     const frame = requestAnimationFrame(() => {
@@ -102,7 +117,15 @@ export const PreparationControls = memo(function PreparationControls({ state, ca
 
   return (
     <section className={styles.preparation} aria-label="選卡與放牌" tabIndex={-1} data-needs-main={!selected && !state.player.active}>
-      <p className={styles.selectionHint} role="status" aria-live="polite">{selected ? `已選 ${lookup(selected)?.name}` : state.player.active ? '可選手牌補後備，或按下方按鈕繼續' : '① 點一張卡 ↓'}</p>
+      <p className={styles.selectionHint} role="status" aria-live="polite">{
+        selected
+          ? `已選 ${lookup(selected)?.name}，請選擇調整位置`
+          : !state.player.active
+            ? '點一張手牌，直接放入主戰'
+            : hasEmptyBench
+              ? '點手牌，依序補入後備'
+              : '陣容已滿；點已上場卡可調整位置'
+      }</p>
       <div className={styles.handHeading}><strong>你的手牌・{state.player.hand.length}</strong><span className={styles.deckInfo}>牌庫 {state.player.deck.length}・棄牌 {state.player.discard.length}</span></div>
       <HandZone hand={state.player.hand} lookup={lookup} selectedCardId={selected} onCard={onSelect} showNames tapOnly />
       <div ref={placement} className={styles.placement}>
@@ -110,7 +133,7 @@ export const PreparationControls = memo(function PreparationControls({ state, ca
         {legal.some(to => to.zone === 'ACTIVE') && <button type="button" data-place-active onClick={() => onDestination({ zone: 'ACTIVE' })}>{!state.player.active && <span className={styles.stepMarker} aria-hidden="true">②</span>}{state.player.active ? '換為主戰' : '放入主戰'}</button>}
         <button type="button" onClick={() => onInspect(selected)}>卡面與能力</button>
       </div>}
-      <p className={styles.selectionHint}>{selected ? '或點下方可放入的後備格' : '目前陣容・點已上場的卡可調整'}</p>
+      <p className={styles.selectionHint}>{selected ? '點下方主戰或後備位置完成調整' : '目前陣容・點已上場的卡可調整'}</p>
       <div className={styles.destinations}>
         {destinations.map((to, idx) => {
           const id = to.zone === 'ACTIVE' ? state.player.active : to.zone === 'BENCH' ? state.player.bench[to.slotIndex] : null;
