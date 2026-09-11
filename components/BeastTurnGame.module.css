@@ -32,3 +32,19 @@
 .modeDesc{font-size:13px;color:#b8c2ca;line-height:1.5;max-width:280px}
 .modeBadge{position:absolute;top:14px;right:16px;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;background:#2a4a2a;color:#7ddb9b}
 .modeBadgeWager{background:#4a2a10;color:#f5b85a}
+
+/* ── 進階玩法小按鈕（footer 左側） ── */
+.advancedBtn{min-height:52px;font-size:13px;color:#b8c2ca;background:transparent;border:1px solid #3f5268;white-space:nowrap}
+.advancedBtn:hover{border-color:#7dd3fc;color:#7dd3fc}
+
+/* ── 進階模式區標題 ── */
+.modeNavLabel{font-size:12px;color:#7b8fa3;text-align:center;margin:8px 0 4px;letter-spacing:.08em;text-transform:uppercase}
+
+/* ── 免費體驗大按鈕（進階頁頂部，讓新手可以快速回到選卡） ── */
+.freeEntryBtn{width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px 16px;border-radius:20px;border:2px solid rgba(255,220,80,0.7);background:linear-gradient(160deg,rgba(255,220,80,0.14),rgba(240,150,40,0.10));cursor:pointer;margin-bottom:8px;box-shadow:0 0 18px rgba(255,200,60,0.25);animation:freeEntryPulse 2.8s ease-in-out infinite}
+@keyframes freeEntryPulse{0%,100%{box-shadow:0 0 18px rgba(255,200,60,0.25)}50%{box-shadow:0 0 30px rgba(255,200,60,0.45),0 0 8px rgba(255,200,60,0.15) inset}}
+.freeEntryStep{font-size:11px;font-weight:800;color:#ffe1a0;letter-spacing:.12em;text-transform:uppercase;background:rgba(255,200,60,0.18);padding:3px 10px;border-radius:20px}
+.freeEntryIcon{font-size:36px;line-height:1}
+.freeEntryBtn strong{font-size:20px;font-weight:900;color:#ffe1a0;letter-spacing:.02em}
+.freeEntryDesc{font-size:13px;color:#b8c2ca;text-align:center;line-height:1.6}
+.freeEntryGo{font-size:15px;font-weight:800;color:#7dd3fc;letter-spacing:.04em;margin-top:4px}

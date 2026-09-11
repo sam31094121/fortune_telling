@@ -632,65 +632,70 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   左下角快捷區：技能＋換卡縮圖，靠左下，不佔中間戰鬥場
+   左側中間快捷區：技能＋換卡，固定在中間 40% 空戰場，不蓋住卡片
    ═══════════════════════════════════════════════════════════════════ */
 .sideSwap {
   position: absolute;
-  left: 6px;
-  bottom: 6px;
-  top: auto;
-  transform: none;
+  left: 5px;
+  top: 30%;
+  bottom: 30%;
   z-index: 8;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 5px;
   align-items: center;
+  transform: none;
 }
-/* 技能按鈕：金色系，放在換卡縮圖正上方 */
+/* 技能按鈕：金色系，帶科技光暈，讓客戶一眼看到 */
 .sideSkillBtn {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  background: linear-gradient(135deg, rgba(255,232,160,0.18), rgba(240,184,109,0.14));
-  border: 1px solid rgba(255,200,87,0.6);
+  background: linear-gradient(160deg, rgba(255,220,80,0.22), rgba(240,150,40,0.16));
+  border: 1.5px solid rgba(255,200,60,0.85);
   border-radius: 10px;
-  padding: 5px 3px;
-  width: 52px;
-  min-height: 44px;
+  padding: 6px 4px;
+  width: 50px;
+  min-height: 50px;
   cursor: pointer;
   color: #ffe8b3;
   touch-action: manipulation;
-  transition: border-color .15s, background .15s;
+  transition: all .15s;
+  box-shadow: 0 0 10px rgba(255,200,60,0.45), inset 0 0 6px rgba(255,200,60,0.08);
 }
-.sideSkillBtn > span:first-child { font-size: 16px; line-height: 1; }
-.sideSkillBtn > span:last-child { font-size: 9px; color: #7dd3fc; font-weight: 700; }
+.sideSkillBtn > span:first-child { font-size: 18px; line-height: 1; text-shadow: 0 0 8px rgba(255,200,60,0.9); }
+.sideSkillBtn > span:last-child { font-size: 9px; color: #7dd3fc; font-weight: 900; letter-spacing: .04em; }
 .sideSkillBtn:hover:not(:disabled), .sideSkillBtn:active:not(:disabled) {
-  border-color: rgba(255,200,87,1);
-  background: rgba(255,200,87,0.18);
+  border-color: #ffc857;
+  box-shadow: 0 0 16px rgba(255,200,60,0.75), inset 0 0 8px rgba(255,200,60,0.14);
+  transform: scale(1.05);
 }
-.sideSkillBtn:disabled { opacity: 0.45; cursor: default; }
+.sideSkillBtn:disabled { opacity: 0.38; cursor: default; box-shadow: none; }
 .swapCard {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  background: rgba(6,16,33,0.88);
-  border: 1px solid rgba(255,232,179,0.45);
+  background: rgba(6,16,40,0.9);
+  border: 1.5px solid rgba(125,211,252,0.6);
   border-radius: 10px;
   padding: 4px 3px;
-  width: 52px;
+  width: 50px;
   cursor: pointer;
-  color: #ffe8b3;
+  color: #e0f2fe;
   touch-action: manipulation;
-  transition: border-color .15s, background .15s;
-  min-height: 44px;
+  transition: all .15s;
+  min-height: 48px;
+  box-shadow: 0 0 8px rgba(125,211,252,0.3), inset 0 0 4px rgba(125,211,252,0.06);
 }
 .swapCard:hover:not(:disabled), .swapCard:active:not(:disabled) {
-  border-color: rgba(255,232,179,0.95);
-  background: rgba(255,232,179,0.14);
+  border-color: #7dd3fc;
+  box-shadow: 0 0 14px rgba(125,211,252,0.6), inset 0 0 6px rgba(125,211,252,0.12);
+  transform: scale(1.05);
 }
-.swapCard:disabled { opacity: 0.4; cursor: default; }
-.swapCard img { width: 36px; height: 50px; object-fit: contain; border-radius: 5px; pointer-events: none; }
-.swapCard span { font-size: 9px; font-weight: 700; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 46px; color: #cfe6ff; }
-.swapCard small { font-size: 8px; color: #7dd3fc; line-height: 1; }
+.swapCard:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
+.swapCard img { width: 34px; height: 48px; object-fit: contain; border-radius: 5px; pointer-events: none; }
+.swapCard span { font-size: 9px; font-weight: 700; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 46px; color: #bae6fd; }
+.swapCard small { font-size: 8px; color: #38bdf8; line-height: 1; font-weight: 700; }
