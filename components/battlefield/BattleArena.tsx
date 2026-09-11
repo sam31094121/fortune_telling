@@ -18,10 +18,11 @@ import { combatChanges } from '@/lib/beast-game/combat-feedback';
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 
 /** Both fighters stay above the controls. All displayed combat values come from Match. */
-export default function BattleArena({ state, cards, match, onInspect, onAttack, onSwap, playing = false }: {
+export default function BattleArena({ state, cards, match, onInspect, onAttack, onSwap, onSkill, playing = false }: {
   playing?: boolean; cards: BattlefieldCardArt[]; onInspect: (id: string, side: 'player' | 'opponent') => void;
   onAttack?: (() => void) | null;
   onSwap?: ((action: Action) => void) | null;
+  onSkill?: ((action: Action) => void) | null;
 } & ({ match: Match; state?: BattleState } | { match: Match | null; state: BattleState })) {
   const lookup = useMemo(() => new Map(cards.map(card => [card.id, card])), [cards]);
   const mine = match ? lookup.get(match.player.team[match.player.active].cardId) : lookup.get(state?.player.active ?? '');
@@ -81,19 +82,34 @@ export default function BattleArena({ state, cards, match, onInspect, onAttack, 
           );
         })}
       </div>
-      {match?.status === 'PLAYING' && onSwap && (() => {
-        const switches = legalActions(match, 'player').filter((a): a is Extract<Action, { type: 'SWITCH' }> => a.type === 'SWITCH');
-        if (!switches.length) return null;
+      {match?.status === 'PLAYING' && (onSwap !== undefined || onSkill !== undefined) && (() => {
+        const acts = legalActions(match, 'player');
+        const switches = onSwap !== undefined ? acts.filter((a): a is Extract<Action, { type: 'SWITCH' }> => a.type === 'SWITCH') : [];
+        const skillAct = acts.find(a => a.type === 'SKILL');
+        const activeFighter = match.player.team[match.player.active];
+        const skillProf = profile(activeFighter.cardId);
+        const showSkill = onSkill !== undefined;
+        const showSwap = onSwap !== undefined && switches.length > 0;
+        if (!showSkill && !showSwap) return null;
         return (
-          <div className={styles.sideSwap} aria-label="換卡">
-            {switches.map(action => {
+          <div className={styles.sideSwap} aria-label="左側快捷">
+            {showSkill && (
+              <button type="button" className={styles.sideSkillBtn}
+                disabled={playing || !onSkill || !skillAct}
+                aria-label={`技能 ${skillProf.skillName}`}
+                onClick={() => { if (onSkill && skillAct) onSkill(skillAct); }}>
+                <span aria-hidden="true">✦</span>
+                <span>{activeFighter.cooldown > 0 ? `冷${activeFighter.cooldown}` : `⚡${skillProf.cost}`}</span>
+              </button>
+            )}
+            {showSwap && switches.map(action => {
               const fighter = match.player.team[action.index];
               const art = cards.find(c => c.id === fighter.cardId);
               return (
                 <button key={fighter.instanceId} type="button"
                   className={styles.swapCard} disabled={playing}
                   aria-label={`換上 ${fighter.name}`}
-                  onClick={() => onSwap(action)}>
+                  onClick={() => { if (onSwap) onSwap(action); }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   {art && <img src={art.thumbnail} alt="" draggable={false} />}
                   <span>{fighter.name}</span>

@@ -187,10 +187,10 @@ export function BattleActionBar({
             <span aria-hidden="true" style={{ color: ELEMENT_FX[active.element as BattleElement]?.glow, textShadow: `0 0 10px ${ELEMENT_FX[active.element as BattleElement]?.glow}` }}>⚔</span>
             <small>{({SPACE:'◇',AIR:'≋',WATER:'◉',FIRE:'♨',EARTH:'▰'} as const)[active.element as BattleElement]}</small>
           </button>}
-          <button type="button" className={styles.skillButton} disabled={busy || !special} aria-label={`技能 ${skill.skillName}`} onClick={() => special && onAction(special)}>
+          {!swapOnSide && <button type="button" className={styles.skillButton} disabled={busy || !special} aria-label={`技能 ${skill.skillName}`} onClick={() => special && onAction(special)}>
             <span aria-hidden="true">✦</span>
             <small>{active.cooldown > 0 ? `冷${active.cooldown}` : `⚡${skill.cost}`}</small>
-          </button>
+          </button>}
           {!swapOnSide && <button type="button" className={styles.actionButton} disabled={busy} aria-label="換卡" aria-expanded={commandView === 'swap' || active.defeated} onClick={() => { onBrowse?.(); setCommandView(commandView === 'swap' ? null : 'swap'); }}>
             <span aria-hidden="true">⇌</span>
             <small>{switches.length || ' '}</small>

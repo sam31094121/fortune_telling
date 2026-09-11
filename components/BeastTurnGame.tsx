@@ -99,7 +99,8 @@ export default function BeastTurnGame() {
         <header className={battleStyles.header}><h1>卡片戰鬥</h1><span>電腦對手・自由組隊</span></header>
         <div className={battleStyles.split} data-battle-split>
           <BattleArena match={match} cards={cards} onInspect={inspect} onAttack={onAttack} playing={playing}
-            onSwap={match.status === 'PLAYING' && !busy && !playing ? (action) => act(action) : null} />
+            onSwap={match.status === 'PLAYING' && !busy && !playing ? (action) => act(action) : null}
+            onSkill={match.status === 'PLAYING' && !busy && !playing ? (action) => act(action) : null} />
           <section className={battleStyles.controls} aria-label="手部操控" data-battle-controls>
             <div className={battleStyles.controlsHeading}><strong>{inspection ? '相剋' : match.status === 'FINISHED' && !playing ? '結果' : `R${match.round}`}</strong><span>{busy || playing ? '…' : match.status === 'FINISHED' ? '✓' : '⚔'}</span></div>
             <div className={battleStyles.controlScroll} ref={scroll} data-control-scroll>

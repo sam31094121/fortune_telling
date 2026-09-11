@@ -485,7 +485,8 @@ export default function BattlefieldPage() {
           <div className={styles.split} data-battle-split data-inspecting={Boolean(inspection)} data-stake-review={!match && prepareView === 'stake'}>
             <BattleArena state={state} cards={cards} match={match} onInspect={inspectCard} playing={playing}
               onAttack={match?.status === 'PLAYING' && !playing ? (() => { const a = legalActions(match, 'player').find(x => x.type === 'ATTACK'); return a ? () => act(a) : null; })() : null}
-              onSwap={match?.status === 'PLAYING' && !playing ? (action) => act(action) : null} />
+              onSwap={match?.status === 'PLAYING' && !playing ? (action) => act(action) : null}
+              onSkill={match?.status === 'PLAYING' && !playing ? (action) => act(action) : null} />
             <section className={styles.controls} aria-label="手部操控" data-battle-controls data-preparing={!match}>
               <div className={styles.controlsHeading}>
                 {!match && !inspection ? <nav className={styles.prepareNav} aria-label="出戰準備">
