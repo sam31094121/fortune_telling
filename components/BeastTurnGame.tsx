@@ -98,7 +98,8 @@ export default function BeastTurnGame() {
       <div className={battleStyles.shell}>
         <header className={battleStyles.header}><h1>卡片戰鬥</h1><span>電腦對手・自由組隊</span></header>
         <div className={battleStyles.split} data-battle-split>
-          <BattleArena match={match} cards={cards} onInspect={inspect} onAttack={onAttack} playing={playing} />
+          <BattleArena match={match} cards={cards} onInspect={inspect} onAttack={onAttack} playing={playing}
+            onSwap={match.status === 'PLAYING' && !busy && !playing ? (action) => act(action) : null} />
           <section className={battleStyles.controls} aria-label="手部操控" data-battle-controls>
             <div className={battleStyles.controlsHeading}><strong>{inspection ? '相剋' : match.status === 'FINISHED' && !playing ? '結果' : `R${match.round}`}</strong><span>{busy || playing ? '…' : match.status === 'FINISHED' ? '✓' : '⚔'}</span></div>
             <div className={battleStyles.controlScroll} ref={scroll} data-control-scroll>
@@ -106,7 +107,7 @@ export default function BeastTurnGame() {
               {inspection && <BattleCardGuide cardId={inspection.cardId} fighter={inspected} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
               <div hidden={Boolean(inspection)}>
                 <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
-                <BattlePanel match={match} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
+                <BattlePanel match={match} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
                 {match.status === 'FINISHED' && !playing ? <>
                   <BeastBattleVoice id={`free:${match.seed}:${account?.revision}`} text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場對手獲勝。' : '本場平手。'}可以更換陣容再挑戰。`} />
                 </> : <details className={battleStyles.details} onToggle={event => { if (event.currentTarget.open) setAutomatic(false); }}>

@@ -614,3 +614,42 @@
   .artSpace[data-attackable='true'] .art { animation: none; }
   .artSpace[data-attackable='true']::after { animation: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   左側換卡浮條：後備卡縮圖直列，中間保留戰鬥場空間
+   ═══════════════════════════════════════════════════════════════════ */
+.sideSwap {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+}
+.swapCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: rgba(6,16,33,0.88);
+  border: 1px solid rgba(255,232,179,0.45);
+  border-radius: 10px;
+  padding: 4px 3px;
+  width: 52px;
+  cursor: pointer;
+  color: #ffe8b3;
+  touch-action: manipulation;
+  transition: border-color .15s, background .15s;
+  min-height: 44px;
+}
+.swapCard:hover:not(:disabled), .swapCard:active:not(:disabled) {
+  border-color: rgba(255,232,179,0.95);
+  background: rgba(255,232,179,0.14);
+}
+.swapCard:disabled { opacity: 0.4; cursor: default; }
+.swapCard img { width: 36px; height: 50px; object-fit: contain; border-radius: 5px; pointer-events: none; }
+.swapCard span { font-size: 9px; font-weight: 700; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 46px; color: #cfe6ff; }
+.swapCard small { font-size: 8px; color: #7dd3fc; line-height: 1; }

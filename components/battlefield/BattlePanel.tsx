@@ -129,13 +129,14 @@ export function FighterStatus({ match, side, label }: { match: Match; side: Side
  * 冷卻中就沒有技能鈕、被打倒就只剩換位。**畫面不自己判斷能不能按**。
  */
 export function BattleActionBar({
-  match, onAction, busy, compact, attackOnCard, cards = [], relaxed, onBrowse,
+  match, onAction, busy, compact, attackOnCard, swapOnSide, cards = [], relaxed, onBrowse,
 }: {
   match: Match;
   onAction: (action: Action) => void;
   busy?: boolean;
   compact?: boolean;
   attackOnCard?: boolean;
+  swapOnSide?: boolean;
   cards?: BattlefieldCardArt[];
   relaxed?: boolean;
   onBrowse?: () => void;
@@ -157,8 +158,8 @@ export function BattleActionBar({
     // The core's forced-replacement phase consumes neither an attack nor a round.
     // Never label that transition as a normal attack that appears to do nothing.
     if (active.defeated) return <div className={styles.compactActions}>
-      <p className={styles.activeHint} role="status">主戰已倒下，請選一張後備接替；這一步不出招。</p>
-      <div className={styles.reserveCards} role="group" aria-label="選擇接替主戰的後備">
+      <p className={styles.activeHint} role="status">{swapOnSide ? '主戰已倒下，點左側後備卡換上場；這一步不出招。' : '主戰已倒下，請選一張後備接替；這一步不出招。'}</p>
+      {!swapOnSide && <div className={styles.reserveCards} role="group" aria-label="選擇接替主戰的後備">
         {switches.map(action => {
           const fighter = match.player.team[action.index];
           const art = cards.find(card => card.id === fighter.cardId);
@@ -168,7 +169,7 @@ export function BattleActionBar({
             <strong>{fighter.name}</strong><span>點卡接替・{fighter.hp}/{fighter.maxHp}</span>
           </button>;
         })}
-      </div>
+      </div>}
     </div>;
     if (match.opponent.team[match.opponent.active].defeated && attack) return <div className={styles.compactActions}>
       <p className={styles.activeHint} role="status">對手主戰已倒下，接下來由後備上場；這一步不出招。</p>
@@ -190,10 +191,10 @@ export function BattleActionBar({
             <span aria-hidden="true">✦</span>
             <small>{active.cooldown > 0 ? `冷${active.cooldown}` : `⚡${skill.cost}`}</small>
           </button>
-          <button type="button" className={styles.actionButton} disabled={busy} aria-label="換卡" aria-expanded={commandView === 'swap' || active.defeated} onClick={() => { onBrowse?.(); setCommandView(commandView === 'swap' ? null : 'swap'); }}>
+          {!swapOnSide && <button type="button" className={styles.actionButton} disabled={busy} aria-label="換卡" aria-expanded={commandView === 'swap' || active.defeated} onClick={() => { onBrowse?.(); setCommandView(commandView === 'swap' ? null : 'swap'); }}>
             <span aria-hidden="true">⇌</span>
             <small>{switches.length || ' '}</small>
-          </button>
+          </button>}
           <button type="button" className={styles.actionButton} disabled={busy} aria-label="說明" aria-expanded={commandView === 'help'} onClick={() => { onBrowse?.(); setCommandView(commandView === 'help' ? null : 'help'); }}>
             <span aria-hidden="true">ℹ</span>
           </button>
@@ -271,13 +272,14 @@ export function BattleLog({ match }: { match: Match }) {
 }
 
 const BattlePanel = memo(function BattlePanel({
-  match, onAction, busy, compact, attackOnCard, cards, relaxed, onBrowse,
+  match, onAction, busy, compact, attackOnCard, swapOnSide, cards, relaxed, onBrowse,
 }: {
   match: Match;
   onAction: (action: Action) => void;
   busy?: boolean;
   compact?: boolean;
   attackOnCard?: boolean;
+  swapOnSide?: boolean;
   cards?: BattlefieldCardArt[];
   relaxed?: boolean;
   onBrowse?: () => void;
@@ -412,7 +414,7 @@ const BattlePanel = memo(function BattlePanel({
           </small>
         </p>
       ) : (
-        <BattleActionBar match={match} onAction={onAction} busy={busy} compact={compact} attackOnCard={attackOnCard} cards={cards} relaxed={relaxed} onBrowse={onBrowse} />
+        <BattleActionBar match={match} onAction={onAction} busy={busy} compact={compact} attackOnCard={attackOnCard} swapOnSide={swapOnSide} cards={cards} relaxed={relaxed} onBrowse={onBrowse} />
       )}
 
       {compact ? <details className={styles.battleDetails} onToggle={event => { if (event.currentTarget.open) onBrowse?.(); }}><summary>本回合戰報{match.log.length ? `・${match.log.length} 則` : ''}</summary><BattleLog match={match} /></details> : <BattleLog match={match} />}

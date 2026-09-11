@@ -4,7 +4,7 @@ import { memo, useEffect, useMemo, useRef, type CSSProperties } from 'react';
 import { CardSlot, HandZone, type BattlefieldCardArt } from './GameBattlefield';
 import { VitalBar } from './BattlePanel';
 import { legalDestinations, type BattleState, type Destination } from '@/lib/beast-game/battlefield';
-import { profile, type Match } from '@/lib/beast-game/interactive';
+import { legalActions, profile, type Action, type Match } from '@/lib/beast-game/interactive';
 import { describeMatchup } from '@/lib/beast-element-guide';
 import { ELEMENT_LABEL, elementMultiplier, type BeastElement } from '@/lib/beast-game/elements';
 import { elementPercent } from '@/lib/beast-game/combat-guide';
@@ -18,9 +18,10 @@ import { combatChanges } from '@/lib/beast-game/combat-feedback';
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 
 /** Both fighters stay above the controls. All displayed combat values come from Match. */
-export default function BattleArena({ state, cards, match, onInspect, onAttack, playing = false }: {
+export default function BattleArena({ state, cards, match, onInspect, onAttack, onSwap, playing = false }: {
   playing?: boolean; cards: BattlefieldCardArt[]; onInspect: (id: string, side: 'player' | 'opponent') => void;
   onAttack?: (() => void) | null;
+  onSwap?: ((action: Action) => void) | null;
 } & ({ match: Match; state?: BattleState } | { match: Match | null; state: BattleState })) {
   const lookup = useMemo(() => new Map(cards.map(card => [card.id, card])), [cards]);
   const mine = match ? lookup.get(match.player.team[match.player.active].cardId) : lookup.get(state?.player.active ?? '');
@@ -80,6 +81,29 @@ export default function BattleArena({ state, cards, match, onInspect, onAttack, 
           );
         })}
       </div>
+      {match?.status === 'PLAYING' && onSwap && (() => {
+        const switches = legalActions(match, 'player').filter((a): a is Extract<Action, { type: 'SWITCH' }> => a.type === 'SWITCH');
+        if (!switches.length) return null;
+        return (
+          <div className={styles.sideSwap} aria-label="換卡">
+            {switches.map(action => {
+              const fighter = match.player.team[action.index];
+              const art = cards.find(c => c.id === fighter.cardId);
+              return (
+                <button key={fighter.instanceId} type="button"
+                  className={styles.swapCard} disabled={playing}
+                  aria-label={`換上 ${fighter.name}`}
+                  onClick={() => onSwap(action)}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {art && <img src={art.thumbnail} alt="" draggable={false} />}
+                  <span>{fighter.name}</span>
+                  <small>{fighter.hp}/{fighter.maxHp}</small>
+                </button>
+              );
+            })}
+          </div>
+        );
+      })()}
       <p className={styles.arenaNote} role="status" aria-live="polite" data-matchup={matchup?.kind}>
         {playing ? '▶' : finished ? (match.winner === 'player' ? '◎' : match.winner === 'opponent' ? '✕' : '＝')
           : match?.player.team[match.player.active].defeated ? '⬇'
