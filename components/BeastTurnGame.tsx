@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { recordBeastGameCompleted } from '@/lib/growth-center-client';
+import { legalActions } from '@/lib/beast-game/interactive';
 import type { interactiveCatalog, Match, Action } from '@/lib/beast-game/interactive';
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import BattleArena from './battlefield/BattleArena';
@@ -91,11 +92,13 @@ export default function BeastTurnGame() {
     const inspected = inspection ? match[inspection.side].team.find(f => f.cardId === inspection.cardId) : undefined;
     const other = inspection?.side === 'opponent' ? match.player : match.opponent;
     const inspect = (cardId: string, side: 'player' | 'opponent') => { setAutomatic(false); setInspection({ cardId, side }); scroll.current?.scrollTo({ top: 0 }); };
+    const attackAction = match.status === 'PLAYING' && !busy && !playing ? legalActions(match, 'player').find(a => a.type === 'ATTACK') : undefined;
+    const onAttack = attackAction ? () => act(attackAction) : null;
     return <main className={`${battleStyles.page} ${styles.calmBattle}`} data-mobile-battle>
       <div className={battleStyles.shell}>
         <header className={battleStyles.header}><h1>卡片戰鬥</h1><span>電腦對手・自由組隊</span></header>
         <div className={battleStyles.split} data-battle-split>
-          <BattleArena match={match} cards={cards} onInspect={inspect} playing={playing} />
+          <BattleArena match={match} cards={cards} onInspect={inspect} onAttack={onAttack} playing={playing} />
           <section className={battleStyles.controls} aria-label="手部操控" data-battle-controls>
             <div className={battleStyles.controlsHeading}><strong>{inspection ? '相剋' : match.status === 'FINISHED' && !playing ? '結果' : `R${match.round}`}</strong><span>{busy || playing ? '…' : match.status === 'FINISHED' ? '✓' : '⚔'}</span></div>
             <div className={battleStyles.controlScroll} ref={scroll} data-control-scroll>
@@ -103,7 +106,7 @@ export default function BeastTurnGame() {
               {inspection && <BattleCardGuide cardId={inspection.cardId} fighter={inspected} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
               <div hidden={Boolean(inspection)}>
                 <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
-                <BattlePanel match={match} onAction={act} busy={busy || playing} compact cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
+                <BattlePanel match={match} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
                 {match.status === 'FINISHED' && !playing ? <>
                   <BeastBattleVoice id={`free:${match.seed}:${account?.revision}`} text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場對手獲勝。' : '本場平手。'}可以更換陣容再挑戰。`} />
                 </> : <details className={battleStyles.details} onToggle={event => { if (event.currentTarget.open) setAutomatic(false); }}>
@@ -153,14 +156,35 @@ export default function BeastTurnGame() {
             </Link>
           </div>
         </> : prepareStep === 'select' ? <>
-          <p className={styles.selectionCount} role="status">已選 {selected.length}/3{selected.length === 3 ? '・可以確認陣容了' : ''}</p>
+          {/* 大型引導：讓老人家也能一眼看懂選了幾張、還要選幾張 */}
+          <div className={styles.slotBar} role="status" aria-live="polite" aria-label={`已選 ${selected.length} 張，共需 3 張`}>
+            {[0, 1, 2].map(i => {
+              const card = cards.find(c => c.id === selected[i]);
+              return (
+                <div key={i} className={`${styles.slotBarCell} ${selected[i] ? styles.slotBarFilled : styles.slotBarEmpty}`}
+                  onClick={() => { if (selected[i]) setSelected(s => s.filter((_, idx) => idx !== i)); }}>
+                  {card
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={card.thumbnail} alt={card.name} />
+                    : <span className={styles.slotNum}>{i + 1}</span>}
+                  <small>{i === 0 ? '先出場' : `後備 ${i}`}</small>
+                </div>
+              );
+            })}
+          </div>
+          <p className={styles.pickHint} role="status">
+            {selected.length === 0 ? '點下方的卡片，選第 1 張（先出場）'
+              : selected.length === 1 ? '再選第 2 張（後備）'
+              : selected.length === 2 ? '再選第 3 張（後備）'
+              : '三張選好了！點下方「確認陣容」開始'}
+          </p>
           <div className={styles.filters} aria-label="元素篩選">{['全部', ...Object.keys(labels)].map(element => <button key={element} aria-pressed={filter === element} onClick={() => setFilter(element)}>{labels[element] ?? element}</button>)}</div>
           <div className={styles.grid}>{cards.filter(c => filter === '全部' || c.element === filter).map(card => <div className={`${styles.card} ${styles.pickCard}`} key={card.id}>
-            {selected.includes(card.id) && <span className={styles.pickOrder}>已選 {selected.indexOf(card.id) + 1}</span>}
+            {selected.includes(card.id) && <span className={styles.pickOrder}>第 {selected.indexOf(card.id) + 1} 張</span>}
             <BeastCardTile card={card} selected={selected.includes(card.id)} onOpen={() => {
               if (selected.includes(card.id)) setSelected(s => s.filter(id => id !== card.id));
               else if (selected.length < 3) setSelected(s => [...s, card.id]);
-              else setError('已選滿三張；先點已選的卡取消，再選另一張。');
+              else setError('已選滿三張；先點已選的卡取消，再換另一張。');
             }} />
           </div>)}</div>
         </> : <>

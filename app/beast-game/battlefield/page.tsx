@@ -35,7 +35,7 @@ import {
 } from '@/lib/beast-game/battlefield';
 import BattlePanel from '@/components/battlefield/BattlePanel';
 import { autoPlaceOpponent, canStartBattle, startFromField } from '@/lib/beast-game/battle-bridge';
-import { advance, type Action, type Match } from '@/lib/beast-game/interactive';
+import { advance, legalActions, type Action, type Match } from '@/lib/beast-game/interactive';
 import StakeSlot, { type StakeCard } from '@/components/battlefield/StakeSlot';
 import { readCollection, runOwnedStakesDuel, countByCard, subscribeCollection, retryStakeSettlement, recoverPendingDuel, type Settlement } from '@/lib/beast-collection';
 import { resolveStake } from '@/lib/beast-game/stake';
@@ -483,7 +483,7 @@ export default function BattlefieldPage() {
           </div>
         ) : !state ? <p className={styles.loading}>正在發牌…</p> : (
           <div className={styles.split} data-battle-split data-inspecting={Boolean(inspection)} data-stake-review={!match && prepareView === 'stake'}>
-            <BattleArena state={state} cards={cards} match={match} onInspect={inspectCard} playing={playing} />
+            <BattleArena state={state} cards={cards} match={match} onInspect={inspectCard} playing={playing} onAttack={match?.status === 'PLAYING' && !playing ? (() => { const a = legalActions(match, 'player').find(x => x.type === 'ATTACK'); return a ? () => act(a) : null; })() : null} />
             <section className={styles.controls} aria-label="手部操控" data-battle-controls data-preparing={!match}>
               <div className={styles.controlsHeading}>
                 {!match && !inspection ? <nav className={styles.prepareNav} aria-label="出戰準備">
@@ -514,7 +514,7 @@ export default function BattlefieldPage() {
                     {match.status === 'PLAYING' && <p className={styles.notice} data-battle-stake>{battleStake
                       ? `💎 押注：${cards.find(card => card.id === battleStake)?.name}`
                       : '🎮 體驗戰'}</p>}
-                    <BattlePanel match={match} onAction={act} busy={playing} compact cards={cards} />
+                    <BattlePanel match={match} onAction={act} busy={playing} compact attackOnCard={match?.status === 'PLAYING' && !playing && Boolean(legalActions(match, 'player').find(x => x.type === 'ATTACK'))} cards={cards} />
                     {match.status === 'PLAYING' && <details className={styles.details}><summary>離開本場</summary><p>回首頁會中斷本局，押卡不扣除。</p><Link href="/">回首頁</Link></details>}
                     {match.status === 'FINISHED' && !playing && isTrial && (
                       <p role="status" className={styles.notice} data-battle-result={match.winner}>體驗戰結束：押注 0 張・贏得 0 張・輸掉 0 張。</p>

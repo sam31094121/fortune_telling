@@ -18,8 +18,9 @@ import { combatChanges } from '@/lib/beast-game/combat-feedback';
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 
 /** Both fighters stay above the controls. All displayed combat values come from Match. */
-export default function BattleArena({ state, cards, match, onInspect, playing = false }: {
+export default function BattleArena({ state, cards, match, onInspect, onAttack, playing = false }: {
   playing?: boolean; cards: BattlefieldCardArt[]; onInspect: (id: string, side: 'player' | 'opponent') => void;
+  onAttack?: (() => void) | null;
 } & ({ match: Match; state?: BattleState } | { match: Match | null; state: BattleState })) {
   const lookup = useMemo(() => new Map(cards.map(card => [card.id, card])), [cards]);
   const mine = match ? lookup.get(match.player.team[match.player.active].cardId) : lookup.get(state?.player.active ?? '');
@@ -61,9 +62,9 @@ export default function BattleArena({ state, cards, match, onInspect, playing = 
           const multiplier = card && attacker ? elementMultiplier(attacker.element as BeastElement, card.element as BeastElement) : 1;
           return (
             <div className={styles.fighter} key={side} data-fighter={side} aria-label={`${label}：${card?.name ?? '等待主戰'}`}>
-              <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} data-hit={hitOrder >= 0} data-skill={action === 'SKILL'} data-action={action ?? 'NONE'} data-impact={multiplier > 1 ? 'strong' : multiplier < 1 ? 'resisted' : 'normal'}
+              <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} data-hit={hitOrder >= 0} data-skill={action === 'SKILL'} data-action={action ?? 'NONE'} data-impact={multiplier > 1 ? 'strong' : multiplier < 1 ? 'resisted' : 'normal'} data-attackable={side === 'player' && Boolean(onAttack) ? 'true' : undefined}
                 style={{ '--strike-x': side === 'player' ? '18px' : '-18px', '--action-delay': `${Math.max(0, actionOrder) * COMBAT_BEAT_MS}ms`, '--hit-delay': `${Math.max(0, hitOrder) * COMBAT_BEAT_MS + 200}ms`, '--element-strike': card ? ELEMENT_FX[card.element as BattleElement]?.glow : undefined } as CSSProperties}>
-                <button type="button" disabled={!card || playing} aria-label={card ? `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => card && onInspect(card.id, side)}
+                <button type="button" disabled={!card || playing} aria-label={card ? (side === 'player' && onAttack ? `攻擊！點擊 ${card.name}` : `查看${card.name}的卡面與能力`) : '等待主戰卡上場'} onClick={() => { if (side === 'player' && onAttack) { onAttack(); } else { card && onInspect(card.id, side); } }}
                   className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''}`}>
                   {card ? (
                     // eslint-disable-next-line @next/next/no-img-element

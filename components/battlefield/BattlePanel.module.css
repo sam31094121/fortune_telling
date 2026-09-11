@@ -177,20 +177,44 @@
 
 .result {
   display: grid;
-  gap: 2px;
-  padding: 10px;
-  border-radius: 12px;
-  background: rgba(255, 223, 164, 0.1);
+  gap: 4px;
+  padding: 14px 10px;
+  border-radius: 14px;
   text-align: center;
-  font-size: 17px;
+  font-size: 28px;
   font-weight: 900;
+  letter-spacing: .04em;
+  background: rgba(255, 223, 164, 0.08);
+  border: 2px solid rgba(255, 223, 164, 0.3);
   color: #ffdfa4;
+  text-shadow: 0 0 20px currentColor;
+}
+.result[data-winner='player'] {
+  background: rgba(0, 255, 160, 0.12);
+  border-color: rgba(0, 255, 160, 0.5);
+  color: #4dffc3;
+  text-shadow: 0 0 24px rgba(0,255,160,.7), 0 0 8px rgba(0,255,160,.5);
+  box-shadow: 0 0 28px rgba(0,255,160,.18), inset 0 0 12px rgba(0,255,160,.06);
+  animation: winPulse 1.2s ease-in-out infinite;
+}
+.result[data-winner='opponent'] {
+  background: rgba(255, 60, 80, 0.12);
+  border-color: rgba(255, 80, 80, 0.5);
+  color: #ff7b7b;
+  text-shadow: 0 0 20px rgba(255,80,80,.6);
+  box-shadow: 0 0 24px rgba(255,60,80,.18), inset 0 0 10px rgba(255,60,80,.06);
+}
+@keyframes winPulse {
+  0%, 100% { box-shadow: 0 0 28px rgba(0,255,160,.18), inset 0 0 12px rgba(0,255,160,.06); }
+  50% { box-shadow: 0 0 48px rgba(0,255,160,.38), inset 0 0 20px rgba(0,255,160,.12); }
 }
 
 .result small {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
-  color: #b9c5d9;
+  color: rgba(255,255,255,0.6);
+  text-shadow: none;
+  letter-spacing: .02em;
 }
 
 .log {

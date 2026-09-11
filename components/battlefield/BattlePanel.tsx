@@ -129,12 +129,13 @@ export function FighterStatus({ match, side, label }: { match: Match; side: Side
  * 冷卻中就沒有技能鈕、被打倒就只剩換位。**畫面不自己判斷能不能按**。
  */
 export function BattleActionBar({
-  match, onAction, busy, compact, cards = [], relaxed, onBrowse,
+  match, onAction, busy, compact, attackOnCard, cards = [], relaxed, onBrowse,
 }: {
   match: Match;
   onAction: (action: Action) => void;
   busy?: boolean;
   compact?: boolean;
+  attackOnCard?: boolean;
   cards?: BattlefieldCardArt[];
   relaxed?: boolean;
   onBrowse?: () => void;
@@ -179,12 +180,12 @@ export function BattleActionBar({
           {busy ? '▶' : active.stunnedTurns > 0 ? '⊘' : `⚡${match.player.energy}`}{!busy && special && !active.stunnedTurns ? ' · ✦' : ''}
         </p>
         <div className={styles.primaryActions} role="group" aria-label="本回合指令">
-          <button type="button" className={styles.actionButton} disabled={busy || !attack}
+          {!attackOnCard && <button type="button" className={styles.actionButton} disabled={busy || !attack}
             style={{ '--element-glow': ELEMENT_FX[active.element as BattleElement]?.glow } as React.CSSProperties}
             aria-label={relaxed && special ? '保留技能・普通攻擊' : '普通攻擊'} onClick={() => attack && onAction(attack)}>
             <span aria-hidden="true" style={{ color: ELEMENT_FX[active.element as BattleElement]?.glow, textShadow: `0 0 10px ${ELEMENT_FX[active.element as BattleElement]?.glow}` }}>⚔</span>
             <small>{({SPACE:'◇',AIR:'≋',WATER:'◉',FIRE:'♨',EARTH:'▰'} as const)[active.element as BattleElement]}</small>
-          </button>
+          </button>}
           <button type="button" className={styles.skillButton} disabled={busy || !special} aria-label={`技能 ${skill.skillName}`} onClick={() => special && onAction(special)}>
             <span aria-hidden="true">✦</span>
             <small>{active.cooldown > 0 ? `冷${active.cooldown}` : `⚡${skill.cost}`}</small>
@@ -270,12 +271,13 @@ export function BattleLog({ match }: { match: Match }) {
 }
 
 const BattlePanel = memo(function BattlePanel({
-  match, onAction, busy, compact, cards, relaxed, onBrowse,
+  match, onAction, busy, compact, attackOnCard, cards, relaxed, onBrowse,
 }: {
   match: Match;
   onAction: (action: Action) => void;
   busy?: boolean;
   compact?: boolean;
+  attackOnCard?: boolean;
   cards?: BattlefieldCardArt[];
   relaxed?: boolean;
   onBrowse?: () => void;
@@ -410,7 +412,7 @@ const BattlePanel = memo(function BattlePanel({
           </small>
         </p>
       ) : (
-        <BattleActionBar match={match} onAction={onAction} busy={busy} compact={compact} cards={cards} relaxed={relaxed} onBrowse={onBrowse} />
+        <BattleActionBar match={match} onAction={onAction} busy={busy} compact={compact} attackOnCard={attackOnCard} cards={cards} relaxed={relaxed} onBrowse={onBrowse} />
       )}
 
       {compact ? <details className={styles.battleDetails} onToggle={event => { if (event.currentTarget.open) onBrowse?.(); }}><summary>本回合戰報{match.log.length ? `・${match.log.length} 則` : ''}</summary><BattleLog match={match} /></details> : <BattleLog match={match} />}
