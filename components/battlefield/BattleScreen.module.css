@@ -72,7 +72,7 @@
 }
 /* A compact command footer has its own row; only the hand/help pane scrolls. */
 @media (max-width: 600px) {
-  .split { grid-template-rows: minmax(0, 62fr) minmax(0, 38fr); }
+  .split { grid-template-rows: minmax(0, 68fr) minmax(0, 32fr); }
   .controls[data-preparing='true'] {
     display: grid;
     overflow: hidden;

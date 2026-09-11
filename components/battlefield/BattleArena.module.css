@@ -20,24 +20,24 @@
 .elementStrike[data-element='WATER'] .strikeField { background: radial-gradient(ellipse at 50% 54%, #e0f2feea 0 4%, #38bdf8a6 12%, transparent 38%), linear-gradient(150deg, transparent 21%, #7dd3fca6 38%, #0369a1a8 52%, transparent 70%); }
 .elementStrike[data-element='FIRE'] .strikeField { background: radial-gradient(ellipse at 52% 55%, #fff7c2f0 0 3%, #fb923ccf 11%, #dc2626a8 25%, transparent 53%), linear-gradient(68deg, transparent 31%, #fef08ac4 43%, #f97316ba 49%, transparent 62%); }
 .elementStrike[data-element='EARTH'] .strikeField { background: linear-gradient(134deg, transparent 34%, #fef3c7d6 35% 38%, transparent 39%), linear-gradient(48deg, transparent 42%, #f59e0b9e 43% 47%, transparent 48%), radial-gradient(ellipse at 50% 66%, #92400ea6, transparent 50%); }
-.strikeTrace { position: absolute; top: 46%; left: 16%; width: 68%; height: 4px; border-radius: 99px; background: linear-gradient(90deg, transparent, var(--element-strike), #fff, var(--element-strike), transparent); box-shadow: 0 0 8px var(--element-strike), 0 9px 20px #0009; transform-origin: center; will-change: transform, opacity; animation: elementTrace 720ms ease-out both; }
+.strikeTrace { position: absolute; left: 50%; bottom: 30%; top: auto; width: 5px; height: 42%; margin-left: -2px; border-radius: 99px; background: linear-gradient(0deg, transparent, var(--element-strike), #fff, var(--element-strike), transparent); box-shadow: 0 0 10px var(--element-strike), 0 0 22px var(--element-strike); transform-origin: center bottom; will-change: transform, opacity; animation: elementTrace 720ms ease-out both; }
 .strikeReadout { position: absolute; right: 10px; bottom: 26px; display: grid; gap: 1px; border-right: 3px solid var(--element-strike); padding: 4px 8px; text-align: right; color: #fff; background: linear-gradient(90deg, transparent, #061021d9); text-shadow: 0 1px 5px #000; animation: elementReadout 920ms ease-out both; }
 .strikeReadout b { color: var(--element-strike); font-size: 13px; letter-spacing: .12em; }
 .strikeReadout small { color: #dbeafe; font-size: 8px; letter-spacing: .14em; }
 @keyframes elementStrikeShell { 0% { opacity: 0; } 8%, 55% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes elementFieldBurst { 0% { opacity: 0; transform: translate3d(-12%, 5%, -120px) scale(.6) rotateX(8deg); } 20% { opacity: .55; transform: translate3d(3%, -2%, 20px) scale(1.12) rotateX(0); } 100% { opacity: 0; transform: translate3d(10%, -4%, 80px) scale(1.22) rotateX(-4deg); } }
-@keyframes elementTrace { 0% { opacity: 0; transform: translate3d(-24px, 8px, -80px) scaleX(.02) skewX(-28deg); } 28% { opacity: 1; transform: translate3d(0, 0, 28px) scaleX(1.1) skewX(-4deg); } 100% { opacity: 0; transform: translate3d(26px, -5px, 90px) scaleX(1.2) skewX(0); } }
+@keyframes elementTrace { 0% { opacity: 0; transform: translate3d(8px, 24px, -80px) scaleY(.02) skewY(-14deg); } 28% { opacity: 1; transform: translate3d(0, 0, 28px) scaleY(1.1) skewY(-4deg); } 100% { opacity: 0; transform: translate3d(-5px, -28px, 90px) scaleY(1.25) skewY(0); } }
 @keyframes elementReadout { 0% { opacity: 0; transform: translate3d(18px, 0, 0); } 20%, 65% { opacity: 1; transform: translate3d(0, 0, 0); } 100% { opacity: 0; transform: translate3d(-8px, 0, 0); } }
 .arenaHeading, .fighters, .arenaNote { position: relative; z-index: 2; }
 .fighterHeading { border-radius: 8px; padding: 2px; background: #061021b3; }
 .arenaHeading, .handHeading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #b6c8e0; }
 .arenaHeading strong { color: #ffe4a6; font-size: 14px; }
-/* 垂直戰場：對手最頂、玩家最底，中間留出武器攻擊空間 */
+/* 垂直戰場：上 30% 對手・中 40% 空戰場・下 30% 玩家 */
 .fighters { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
-.fighter[data-fighter='opponent'] { order: 1; flex: none; height: auto; }
-.fighter[data-fighter='player'] { order: 2; flex: none; height: auto; }
-.fighter[data-fighter='opponent'] .artSpace { place-items: center; height: 150px; width: 110px; container-type: size; }
-.fighter[data-fighter='player'] .artSpace { place-items: center; height: 260px; width: 185px; container-type: size; }
+.fighter[data-fighter='opponent'] { order: 1; flex: 0 0 30%; height: 30%; display: flex; justify-content: center; align-items: flex-start; padding-top: 4px; }
+.fighter[data-fighter='player'] { order: 2; flex: 0 0 30%; height: 30%; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 4px; }
+.fighter[data-fighter='opponent'] .artSpace { place-items: center; height: 100%; width: 100px; container-type: size; }
+.fighter[data-fighter='player'] .artSpace { place-items: center; height: 100%; width: 155px; container-type: size; }
 .fighter { min-height: 0; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr); gap: 7px; }
 .fighterName { display: none; }
 .fighterName span { color: #9fc5ef; font-size: 11px; }
@@ -122,8 +122,9 @@
 .artSpace[data-rush='true'] { z-index: 3; }
 .artSpace[data-rush='true'] .art { animation: cardCharge 400ms cubic-bezier(.15,.75,.25,1) both; animation-delay:var(--action-delay,0ms); }
 @keyframes cardCharge {
-  0% { transform: translate3d(0, 0, 0) scale(1); filter: brightness(1); }
-  30%, 42% { transform: translate3d(var(--strike-x,0px), -5px, 24px) scale(1.06); filter: brightness(1.35) saturate(1.4); }
+  0%   { transform: translate3d(0, 0, 0) scale(1); filter: brightness(1); }
+  22%  { transform: translate3d(0, calc(var(--strike-y,-26px) * .55), 16px) scale(1.04); filter: brightness(1.22) saturate(1.3); }
+  44%  { transform: translate3d(0, var(--strike-y,-26px), 30px) scale(1.09); filter: brightness(1.42) saturate(1.55); }
   100% { transform: translate3d(0, 0, 0) scale(1); filter: brightness(1); }
 }
 /* actionCue：移到卡的上下邊，不遮牌面 */
@@ -355,8 +356,8 @@
   100% { opacity: 0;  transform: scale(1.45) rotate(-360deg); }
 }
 
-/* 垂直佈局：flex 子項各自按 artSpace 高度縮 */
-.fighter, .fighter[data-fighter='player'] { grid-template-rows: minmax(0, 1fr); gap: 0; height: auto; }
+/* 垂直佈局：30/40/30 - fighter 內部 grid 行列 */
+.fighter { grid-template-rows: minmax(0, 1fr); gap: 0; }
 .fighter[data-fighter='opponent'] { opacity: 0.88; max-height: none; }
 .fighter[data-fighter='player'] { }
 .fighterVitals .fighterName { display: none; }
@@ -370,9 +371,9 @@
 .elementBadge { display: inline-block; padding: 1px 6px; border: 1px solid #829bb6; border-radius: 6px; background: #071321ed; color: #f1e7c9; font-size: 11px; letter-spacing: .04em; pointer-events: none; }
 .elementBadge span { display: none; }
 .defeated { opacity: .85; filter: grayscale(.25); border-color: #fda4af; }
-@keyframes skillCharge { 0%,100% { transform: translateX(0) scale(1); } 20% { transform: translateX(calc(var(--strike-x) * -.3)) scale(.98); box-shadow: 0 0 18px #d6bdfb; } 52%,65% { transform: translateX(calc(var(--strike-x) * 1.25)) scale(1.04); box-shadow: 0 0 24px #e9d5ff; } }
+@keyframes skillCharge { 0%,100% { transform: translateY(0) scale(1); } 20% { transform: translateY(calc(var(--strike-y,-26px) * .28)) scale(.97); box-shadow: 0 0 22px #d6bdfb; } 52%,65% { transform: translateY(calc(var(--strike-y,-26px) * 1.22)) scale(1.06); box-shadow: 0 0 32px #e9d5ff; } }
 @keyframes reserveEnter { from { opacity: .4; transform: translateY(20px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
-@keyframes cardHit { 0% { filter: brightness(1); transform: translateX(0) scale(1); } 18% { filter: brightness(2.2) saturate(0); transform: translateX(calc(var(--strike-x,0px) * var(--hit-weight,.3) * -1)) scale(.97); } 45% { filter: brightness(1.3); transform: translateX(calc(var(--strike-x,0px) * var(--hit-weight,.3) * -.4)); } 100% { filter: brightness(1); transform: translateX(0) scale(1); } }
+@keyframes cardHit { 0% { filter: brightness(1); transform: translateY(0) scale(1); } 15% { filter: brightness(2.8) saturate(0); transform: translateY(calc(var(--strike-y,-26px) * var(--hit-weight,.3) * -1)) scale(.95); } 40% { filter: brightness(1.5); transform: translateY(calc(var(--strike-y,-26px) * var(--hit-weight,.3) * -.45)); } 65% { transform: translateY(calc(var(--strike-y,-26px) * var(--hit-weight,.3) * .12)); } 100% { filter: brightness(1); transform: translateY(0) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .artSpace[data-action] .art { animation: none; } }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -459,40 +460,44 @@
   100% { opacity: 0; }
 }
 
-/* ── 4. 太極氣彈：精氣凝聚為彈，穿越戰場擊中對手 ── */
+/* ── 4. 太極氣彈：從玩家直射向對手（垂直穿越中間戰場） ── */
 .elementStrike::before {
   content: '';
   position: absolute;
-  width: 58px; height: 58px;
-  top: 36%; left: 10%;
+  width: 62px; height: 62px;
+  bottom: 30%;
+  left: calc(50% - 31px);
+  top: auto;
   border-radius: 50%;
   background: url('/assets/taiji/esoteric-taijitu-public-domain.svg') center / 100% no-repeat;
   filter:
-    drop-shadow(0 0 10px var(--element-strike, #7dd3fc))
-    drop-shadow(0 0 22px var(--element-strike, #7dd3fc))
-    brightness(1.18);
-  animation: taijiBolt 295ms cubic-bezier(.32,.02,.22,1) both;
+    drop-shadow(0 0 14px var(--element-strike, #7dd3fc))
+    drop-shadow(0 0 28px var(--element-strike, #7dd3fc))
+    brightness(1.25);
+  animation: taijiBolt 310ms cubic-bezier(.32,.02,.22,1) both;
   animation-delay: var(--action-delay, 0ms);
   z-index: 5;
   mix-blend-mode: screen;
   pointer-events: none;
 }
 @keyframes taijiBolt {
-  0%   { opacity: 0;    transform: translate(0, 0)      scale(.22) rotate(0deg); }
-  10%  { opacity: 1;    transform: translate(6%, -4%)   scale(.62) rotate(65deg); }
-  78%  { opacity: 0.90; transform: translate(248%, -5%)  scale(.82) rotate(535deg); }
-  100% { opacity: 0;    transform: translate(318%, -5%)  scale(.15) rotate(720deg); }
+  0%   { opacity: 0;   transform: translateY(0)       scale(.2)  rotate(0deg); }
+  12%  { opacity: 1;   transform: translateY(-12%)    scale(.65) rotate(90deg); }
+  76%  { opacity: 0.95;transform: translateY(-490%)   scale(.88) rotate(540deg); }
+  100% { opacity: 0;   transform: translateY(-640%)   scale(.14) rotate(720deg); }
 }
 /* SKILL 技能：氣彈更大、更亮、光暈三重 */
 .elementStrike[data-skill='true']::before {
-  width: 90px; height: 90px;
-  top: 28%; left: 8%;
+  width: 96px; height: 96px;
+  bottom: 28%;
+  left: calc(50% - 48px);
+  top: auto;
   filter:
-    drop-shadow(0 0 16px var(--element-strike, #a7f3d0))
-    drop-shadow(0 0 32px var(--element-strike, #a7f3d0))
-    drop-shadow(0 0 54px var(--element-strike, #a7f3d0))
-    brightness(1.44);
-  animation-duration: 335ms;
+    drop-shadow(0 0 20px var(--element-strike, #a7f3d0))
+    drop-shadow(0 0 40px var(--element-strike, #a7f3d0))
+    drop-shadow(0 0 64px var(--element-strike, #a7f3d0))
+    brightness(1.55);
+  animation-duration: 350ms;
 }
 
 /* ── 5. 三重衝擊漣漪：KO 重擊同心圓爆開（之前只有一圈） ── */
@@ -559,31 +564,34 @@
    垂直佈局：對手在上（較小）、玩家在下（較大且可點擊攻擊）
    ═══════════════════════════════════════════════════════════════════ */
 
-/* 對手卡：縮至 70% 大小，稍微靠右（視覺上有距離感） */
+/* 對手卡：30% 區域，稍小，代表「遠在對面」 */
 .fighter[data-fighter='opponent'] .art {
-  width: min(100cqw, 70cqh, 150px);
-  height: min(90cqh, 220px);
+  width: min(100cqw, 68cqh, 110px);
+  height: min(94cqh, 160px);
   opacity: 0.9;
 }
 
-/* 玩家卡：放大至主視覺尺寸，有電光邊框 */
+/* 玩家卡：30% 區域，比對手略大，有電光邊框 */
 .fighter[data-fighter='player'] .art {
-  width: min(100cqw, 78cqh, 240px);
-  height: min(95cqh, 360px);
+  width: min(100cqw, 72cqh, 155px);
+  height: min(95cqh, 225px);
 }
 
-/* 可攻擊狀態：玩家卡閃爍元素色邊框 */
+/* 可攻擊狀態：玩家卡閃爍元素色邊框 + 輕微搖擺（戰鬥備戰） */
 .artSpace[data-attackable='true'] .art {
   box-shadow:
     0 0 0 2px var(--element-strike, #ffe8b3),
     0 0 20px 4px var(--element-strike, rgba(255,232,179,.35)),
     0 6px 14px #000a;
-  animation: attackReady 2s ease-in-out infinite;
+  animation: attackReady 2.2s ease-in-out infinite;
   cursor: pointer;
 }
 @keyframes attackReady {
-  0%, 100% { box-shadow: 0 0 0 2px var(--element-strike, #ffe8b3), 0 0 14px var(--element-strike, rgba(255,232,179,.25)), 0 6px 14px #000a; }
-  50%       { box-shadow: 0 0 0 2px var(--element-strike, #ffe8b3), 0 0 28px 6px var(--element-strike, rgba(255,232,179,.55)), 0 6px 14px #000a; }
+  0%   { box-shadow: 0 0 0 2px var(--element-strike,#ffe8b3), 0 0 14px var(--element-strike,rgba(255,232,179,.25)), 0 6px 14px #000a; transform: translateY(0) scale(1); }
+  20%  { transform: translateY(-5px) scale(1.02); box-shadow: 0 0 0 3px var(--element-strike,#ffe8b3), 0 0 32px 8px var(--element-strike,rgba(255,232,179,.6)), 0 6px 14px #000a; }
+  50%  { transform: translateY(0) scale(1); box-shadow: 0 0 0 2px var(--element-strike,#ffe8b3), 0 0 28px 6px var(--element-strike,rgba(255,232,179,.55)), 0 6px 14px #000a; }
+  72%  { transform: translateY(-3px) scale(1.01); }
+  100% { box-shadow: 0 0 0 2px var(--element-strike,#ffe8b3), 0 0 14px var(--element-strike,rgba(255,232,179,.25)), 0 6px 14px #000a; transform: translateY(0) scale(1); }
 }
 /* 可攻擊提示：卡片底部顯示「⚔ 點擊攻擊」 */
 .artSpace[data-attackable='true']::after {

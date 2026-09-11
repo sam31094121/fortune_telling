@@ -64,7 +64,7 @@ export default function BattleArena({ state, cards, match, onInspect, onAttack, 
           return (
             <div className={styles.fighter} key={side} data-fighter={side} aria-label={`${label}：${card?.name ?? '等待主戰'}`}>
               <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} data-hit={hitOrder >= 0} data-skill={action === 'SKILL'} data-action={action ?? 'NONE'} data-impact={multiplier > 1 ? 'strong' : multiplier < 1 ? 'resisted' : 'normal'} data-attackable={side === 'player' && Boolean(onAttack) ? 'true' : undefined}
-                style={{ '--strike-x': side === 'player' ? '18px' : '-18px', '--action-delay': `${Math.max(0, actionOrder) * COMBAT_BEAT_MS}ms`, '--hit-delay': `${Math.max(0, hitOrder) * COMBAT_BEAT_MS + 200}ms`, '--element-strike': card ? ELEMENT_FX[card.element as BattleElement]?.glow : undefined } as CSSProperties}>
+                style={{ '--strike-x': side === 'player' ? '18px' : '-18px', '--strike-y': side === 'player' ? '-26px' : '26px', '--action-delay': `${Math.max(0, actionOrder) * COMBAT_BEAT_MS}ms`, '--hit-delay': `${Math.max(0, hitOrder) * COMBAT_BEAT_MS + 200}ms`, '--element-strike': card ? ELEMENT_FX[card.element as BattleElement]?.glow : undefined } as CSSProperties}>
                 <button type="button" disabled={!card || playing} aria-label={card ? (side === 'player' && onAttack ? `攻擊！點擊 ${card.name}` : `查看${card.name}的卡面與能力`) : '等待主戰卡上場'} onClick={() => { if (side === 'player' && onAttack) { onAttack(); } else { card && onInspect(card.id, side); } }}
                   className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''}`}>
                   {card ? (
