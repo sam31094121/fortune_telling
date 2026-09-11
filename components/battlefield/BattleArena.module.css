@@ -728,3 +728,11 @@
   box-shadow: 0 0 8px rgba(56,189,248,0.8);
 }
 .swapCard { position: relative; }
+
+/* MOBILE-SWAP-REACH */
+/* 手機／窄螢：左手邊換卡夠不到 → 整塊隱藏，改走底部 BattlePanel「換卡」 */
+@media (max-width: 900px) {
+  .sideSwap {
+    display: none !important;
+  }
+}

@@ -472,3 +472,30 @@
 .primaryActions {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+
+/* MOBILE-SWAP-ENTRY */
+@media (max-width: 900px) {
+  .primaryActions {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .swapButton {
+    grid-column: 1 / -1;
+    min-height: 56px !important;
+    flex-direction: row !important;
+    justify-content: center;
+    gap: 8px !important;
+    font-size: 16px !important;
+  }
+  .swapButton strong {
+    font-size: 16px;
+  }
+  .swapCue {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+  .reserveCard {
+    min-height: 64px;
+    flex: 1 1 100%;
+  }
+}

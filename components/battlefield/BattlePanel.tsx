@@ -158,7 +158,7 @@ export function BattleActionBar({
     // The core's forced-replacement phase consumes neither an attack nor a round.
     // Never label that transition as a normal attack that appears to do nothing.
     if (active.defeated) return <div className={styles.compactActions}>
-      <p className={styles.activeHint} role="status">主戰已倒下——點下方「換卡」後備，或左側後備卡上場；這一步不出招。</p>
+      <p className={styles.activeHint} role="status">主戰已倒下——請點下方後備卡接替上場；這一步不出招。</p>
       <div className={styles.reserveCards} role="group" aria-label="選擇接替主戰的後備" data-swap-guide>
         {switches.map(action => {
           const fighter = match.player.team[action.index];
@@ -182,7 +182,7 @@ export function BattleActionBar({
           {!busy && switches.length ? ' · 可換卡' : ''}
         </p>
         {!!switches.length && commandView !== 'swap' && (
-          <p className={styles.swapCue} role="note">要換神獸：點右側「換卡」，或點左側後備縮圖</p>
+          <p className={styles.swapCue} role="note">要換神獸：點下方藍色「換卡」，再選後備上場（手機不用找左邊）</p>
         )}
         <div className={styles.primaryActions} role="group" aria-label="本回合指令">
           {!attackOnCard && <button type="button" className={styles.actionButton} disabled={busy || !attack}
@@ -226,7 +226,7 @@ export function BattleActionBar({
         {commandView === 'help' && <section className={styles.commandHelp} aria-label="回合操作說明">
           <h3>{skill.skillName}</h3><p>{skill.description}</p>
           <p>{skill.role}型・攻 {effectiveStat(active, 'attack')}／防 {effectiveStat(active, 'defense')}／速 {effectiveStat(active, 'speed')}</p>
-          <p>普通攻擊不耗氣；技能的氣量與冷卻會標在按鈕上。點下方「換卡」或左側後備縮圖，再選要上場的神獸。</p>
+          <p>普通攻擊不耗氣；技能的氣量與冷卻會標在按鈕上。手機請點下方藍色「換卡」，再選後備上場。</p>
           <button type="button" className={styles.actionButton} onClick={() => { setCommandView(null); onBrowse?.(); }}>收起說明</button>
         </section>}
         </div>
