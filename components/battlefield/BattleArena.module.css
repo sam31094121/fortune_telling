@@ -34,10 +34,18 @@
 .arenaHeading strong { color: #ffe4a6; font-size: 14px; }
 /* 垂直戰場：上 30% 對手・中 40% 空戰場・下 30% 玩家 */
 .fighters { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
-.fighter[data-fighter='opponent'] { order: 1; flex: 0 0 30%; height: 30%; display: flex; justify-content: center; align-items: flex-start; padding-top: 4px; }
-.fighter[data-fighter='player'] { order: 2; flex: 0 0 30%; height: 30%; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 4px; }
-.fighter[data-fighter='opponent'] .artSpace { place-items: center; height: 100%; width: 100px; container-type: size; }
-.fighter[data-fighter='player'] .artSpace { place-items: center; height: 100%; width: 155px; container-type: size; }
+.fighter[data-fighter='opponent'] { order: 1; flex: 0 0 30%; height: 30%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 4px; gap: 4px; }
+.fighter[data-fighter='player'] { order: 2; flex: 0 0 30%; height: 30%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 4px; gap: 4px; }
+.fighter[data-fighter='opponent'] .artSpace { place-items: center; flex: 1; min-height: 0; width: 100px; container-type: size; }
+.fighter[data-fighter='player'] .artSpace { place-items: center; flex: 1; min-height: 0; width: 155px; container-type: size; }
+/* 卡片下方資訊欄：HP 條 + 氣量，分開放在各自卡片正下方 */
+.arenaVital { width: 100%; display: flex; flex-direction: column; gap: 2px; align-items: stretch; }
+.fighter[data-fighter='opponent'] .arenaVital { max-width: 100px; }
+.fighter[data-fighter='player'] .arenaVital { max-width: 155px; }
+.arenaHpBar { position: relative; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.12); overflow: hidden; }
+.arenaHpBar > span { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #f0b86d, #ffe8a1); border-radius: inherit; transition: width 260ms ease; }
+.arenaHpBar.critical > span { background: linear-gradient(90deg, #fb7185, #fda4af); }
+.arenaEnergy { font-size: 9px; color: #00e5ff; font-weight: 900; text-align: center; letter-spacing: .05em; line-height: 1.2; }
 .fighter { min-height: 0; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr); gap: 7px; }
 .fighterName { display: none; }
 .fighterName span { color: #9fc5ef; font-size: 11px; }

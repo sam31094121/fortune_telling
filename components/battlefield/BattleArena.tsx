@@ -75,6 +75,18 @@ export default function BattleArena({ state, cards, match, onInspect, onAttack, 
                 </button>
                 {action && <span className={styles.actionCue} role="status" aria-label={action === 'SKILL' ? '技能' : action === 'ATTACK' ? '攻擊' : action === 'SKIP' ? '受控' : action === 'REPLACEMENT' ? '接替' : '換卡'}>{action === 'SKILL' ? '✦' : action === 'ATTACK' ? '⚔' : action === 'SKIP' ? '⊘' : action === 'REPLACEMENT' ? '⇄' : '⇌'}</span>}
               </div>
+              {fighter && match && team && (() => {
+                const hpPct = Math.max(0, Math.min(100, (fighter.hp / Math.max(1, fighter.maxHp)) * 100));
+                const isCritical = hpPct <= 30 && fighter.hp > 0;
+                return (
+                  <div className={styles.arenaVital} aria-hidden="true">
+                    <div className={`${styles.arenaHpBar}${isCritical ? ` ${styles.critical}` : ''}`}>
+                      <span style={{ width: `${hpPct}%` }} />
+                    </div>
+                    <span className={styles.arenaEnergy}>⚡{team.energy} · {fighter.hp}/{fighter.maxHp}</span>
+                  </div>
+                );
+              })()}
               {fighter && team ? (
                 <p className="sr-only">{ELEMENT_LABEL[fighter.element]}・氣 {team.energy}・{team.team.filter(f => !f.defeated).length}/{team.team.length} 存活</p>
               ) : <p className="sr-only">{card ? ELEMENT_LABEL[card.element as BeastElement] : '未選'}・上場 {(state?.[side].active ? 1 : 0) + (state?.[side].bench.filter(Boolean).length ?? 0)} 隻</p>}

@@ -353,24 +353,7 @@ const BattlePanel = memo(function BattlePanel({
   return (
     <section className={compact ? styles.compactPanel : styles.panel} data-battle-panel data-status={match.status}>
 
-      {compact && match.status === 'PLAYING' && (() => {
-        const pF = match.player.team[match.player.active];
-        const oF = match.opponent.team[match.opponent.active];
-        const pSymbol = ({SPACE:'◇',AIR:'≋',WATER:'◉',FIRE:'♨',EARTH:'▰'} as const)[pF.element as BattleElement];
-        const oSymbol = ({SPACE:'◇',AIR:'≋',WATER:'◉',FIRE:'♨',EARTH:'▰'} as const)[oF.element as BattleElement];
-        return (
-          <div className={styles.compactVitals}>
-            <div className={styles.compactVitalRow}>
-              <span className={styles.compactVitalLabel} style={{ color: ELEMENT_FX[pF.element as BattleElement]?.glow }}>{pSymbol}</span>
-              <VitalBar hp={pF.hp} maxHp={pF.maxHp} shield={pF.shield} beat={match.revision} />
-            </div>
-            <div className={styles.compactVitalRow}>
-              <span className={styles.compactVitalLabel} style={{ color: ELEMENT_FX[oF.element as BattleElement]?.glow }}>{oSymbol}</span>
-              <VitalBar hp={oF.hp} maxHp={oF.maxHp} shield={oF.shield} beat={match.revision} />
-            </div>
-          </div>
-        );
-      })()}
+      {/* HP 條已移到 BattleArena 各自卡片正下方，此處不再重複顯示 */}
 
       {!compact && <><FighterStatus match={match} side="opponent" label="對手" />
       <FighterStatus match={match} side="player" label="你" /></>}
