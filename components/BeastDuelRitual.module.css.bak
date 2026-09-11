@@ -3,23 +3,14 @@
 .duelSplit { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
 .visualPane { min-height: 0; display: grid; grid-template-rows: 28px minmax(0, 1fr); padding: 0 8px 6px; overflow: hidden; }
 .venueHeading { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #ffe4a4; }
-.controlPane { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; border-top: 2px solid #7dd3fc; background: #101b2d; overflow: hidden; /* lanes: opponent sticky-top, player below */ }
+.controlPane { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; border-top: 2px solid #7dd3fc; background: #101b2d; overflow: hidden; }
 .handScroll { min-height: 0; overflow-y: auto; padding: 4px 10px; overscroll-behavior-y: contain; scrollbar-width: thin; }
-.lanes { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
-.laneOpponent, .lanePlayer { display: flex; flex-direction: column; gap: 4px; }
-.laneLabel { position: sticky; top: 0; z-index: 2; margin: 0; padding: 6px 4px; background: #101b2df2; backdrop-filter: blur(6px); border-radius: 8px; min-height: 36px; align-items: center; }
-.laneOpponent .laneLabel span { color: #fca5a5; font-weight: 800; letter-spacing: 0.02em; }
-.lanePlayer .laneLabel span { color: #7dd3fc; font-weight: 800; letter-spacing: 0.02em; }
-.laneHint { margin: 0; text-align: center; font-size: 11px; line-height: 16px; color: #94a3b8; }
 .commands { padding: 4px 10px; border-top: 1px solid #4b5e78; }
 .commands button { min-height: 48px; margin-top: 2px; touch-action: manipulation; }
 .rules { margin-top: 6px; border-top: 1px solid #475569; font-size: 12px; line-height: 1.7; color: #c7d9ef; }
 .rules summary, .rules a { display: block; min-height: 44px; align-content: center; cursor: pointer; }
-/* Vertical preview: computer on top, customer at bottom (mobile-first). */
-.waitingCards { position: absolute; inset: 8% 22% 20%; z-index: 1; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; align-items: center; pointer-events: none; }
-.waitingCards > div { min-width: 0; width: min(48%, 132px); height: 44%; display: grid; grid-template-rows: minmax(0, 1fr) 22px; text-align: center; font-size: 12px; }
-.waitingOpponent span { color: #fca5a5; font-weight: 700; }
-.waitingPlayer span { color: #7dd3fc; font-weight: 700; }
+.waitingCards { position: absolute; inset: 12% 9% 25%; z-index: 1; display: flex; gap: 20px; justify-content: center; align-items: center; pointer-events: none; }
+.waitingCards > div { min-width: 0; height: 100%; width: 45%; display: grid; grid-template-rows: minmax(0, 1fr) 22px; text-align: center; font-size: 12px; }
 .waitingCards img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 10px #0009); }
 .topline { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; }
 .topline h2 { font-size: 16px; color: #ffe4a4; font-weight: 800; }
@@ -27,7 +18,7 @@
 .label { display: flex; justify-content: space-between; margin: 6px 0; font-size: 12px; color: #d9cfae; }
 .label small { color: #939eaf; font-size: 11px; }
 .row { width: min(100%, 224px); margin-inline: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.slot { min-width: 0; perspective: 900px; min-height: 44px; touch-action: manipulation; }
+.slot { min-width: 0; perspective: 900px; }
 .card { position: relative; width: 100%; transform-style: preserve-3d; transition: transform .72s ease-in-out; }
 /* Clip each face, not the rotating container: hidden overflow flattens 3D. */
 .slot > .card { overflow: visible; }
@@ -64,12 +55,8 @@
 @media (max-height: 700px) {
   .row { width: min(100%, 150px); }
   .label { margin: 1px 0; font-size: 11px; line-height: 14px; }
-  .laneLabel { padding: 4px; min-height: 32px; }
-  .laneHint { font-size: 10px; }
-  .lanes { gap: 6px; }
   .caption { margin-top: 2px; }
   .caption strong { line-height: 14px; }
-  .waitingCards { inset: 6% 26% 18%; gap: 4px; }
 }
 @media (orientation: landscape) and (max-height: 540px) {
   .table { max-width: 1100px; }

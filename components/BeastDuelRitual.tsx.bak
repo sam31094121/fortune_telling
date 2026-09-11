@@ -296,7 +296,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
   }, [phase, moment, highlights, player, opponent]);
 
   function row(cards: RitualCard[] | null, side: 'player' | 'opponent') {
-    return <div className={`${styles.row} ${side === 'opponent' && opponentReady && !dealt ? styles.dealing : ''}`} aria-label={side === 'player' ? '客戶（你）的三張出戰牌' : '電腦玩家的三張出戰牌'}>
+    return <div className={`${styles.row} ${side === 'opponent' && opponentReady && !dealt ? styles.dealing : ''}`} aria-label={side === 'player' ? '你的三張出戰牌' : '電腦對手的三張出戰牌'}>
       {POSITIONS.map((position, index) => {
         const card = cards?.[index];
         // 每一張自己判斷翻了沒——原本一個布林控制全部六張，所以六張同時翻。
@@ -400,22 +400,14 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
           <div className={styles.arenaRing} />
         </div>
         {!clashActive && <div className={styles.waitingCards} aria-hidden="true">
-          {(() => {
-            const oCard = opponent?.[previewIndex];
-            const pCard = player?.[previewIndex];
-            return <>
-              <div className={styles.waitingOpponent} key="opponent">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={oCard && isRevealed('opponent', previewIndex) ? oCard.thumbnail : '/beast-game/card-back.webp'} alt="" />
-                <span>電腦玩家・{POSITIONS[previewIndex]}</span>
-              </div>
-              <div className={styles.waitingPlayer} key="player">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={pCard && isRevealed('player', previewIndex) ? pCard.thumbnail : '/beast-game/card-back.webp'} alt="" />
-                <span>客戶（你）・{POSITIONS[previewIndex]}</span>
-              </div>
-            </>;
-          })()}
+          {(['player', 'opponent'] as const).map(side => {
+            const card = (side === 'player' ? player : opponent)?.[previewIndex];
+            return <div key={side}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={card && isRevealed(side, previewIndex) ? card.thumbnail : '/beast-game/card-back.webp'} alt="" />
+              <span>{side === 'player' ? '你' : '對手'}・{POSITIONS[previewIndex]}</span>
+            </div>;
+          })}
         </div>}
         {pairClash !== null && player[pairClash] && opponent?.[pairClash] && (
           <>
@@ -498,18 +490,11 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       </section>
       <section className={styles.controlPane} aria-label="揭牌操控" data-duel-controls>
       <div className={styles.handScroll}>
-      <div className={styles.lanes}>
-      <div className={styles.laneOpponent}>
-      <div className={`${styles.label} ${styles.laneLabel}`}><span>電腦玩家</span><small>{revealed ? '開場陣容' : '三張待揭'}・上位</small></div>
+      <div className={styles.label}><span>電腦對手</span><small>{revealed ? '開場陣容' : '三張待揭'}</small></div>
       {row(opponent, 'opponent')}
-      </div>
-      <p className={styles.laneHint} aria-hidden="true">上＝電腦玩家・下＝客戶（你）・元素見牌角標籤</p>
-      <div className={styles.lanePlayer}>
-      <div className={`${styles.label} ${styles.laneLabel}`}><span>客戶（你）</span><small>{revealed ? '開場陣容' : '親手選定'}・下位</small></div>
+      <div className={styles.label}><span>你的神獸</span><small>{revealed ? '開場陣容' : '親手選定'}</small></div>
       {row(player, 'player')}
-      </div>
-      </div>
-      <details className={styles.rules}><summary>格鬥規則與素材</summary><p>雙方依前鋒、中軍、後陣逐組交鋒，共三局。二比零後自動揭開第三組；一比一時親手揭開決勝局。操控區上方是電腦玩家，下方是客戶（你）。</p>{revealed && <button type="button" className={styles.skip} onClick={() => completeRef.current()}>略過動畫・看戰果</button>}<a href="/audio/beast-voices/credits.html" target="_blank" rel="noreferrer">聲音來源</a></details>
+      <details className={styles.rules}><summary>格鬥規則與素材</summary><p>雙方依前鋒、中軍、後陣逐組交鋒，共三局。二比零後自動揭開第三組；一比一時親手揭開決勝局。</p>{revealed && <button type="button" className={styles.skip} onClick={() => completeRef.current()}>略過動畫・看戰果</button>}<a href="/audio/beast-voices/credits.html" target="_blank" rel="noreferrer">聲音來源</a></details>
       </div>
       <div className={styles.commands}>
 
