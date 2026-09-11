@@ -384,10 +384,35 @@
   .vitalText b { padding-inline: 4px; }
 }
 [data-swap-guide] .reserveCard:not(:disabled) { outline: 2px solid #ffe4a6; outline-offset: -2px; }
-.vital { min-height: 26px; }
-.vitalText { font-size: 13px; letter-spacing: 0; }
-.activeHint { font-size: 14px; line-height: 21px; }
-.primaryActions small { font-size: 13px; line-height: 18px; }
-.reserveCard strong { font-size: 14px; }
-.reserveCard span { font-size: 12px; }
+.vital { min-height: 20px; }
+/* 戰鬥面板頂部：雙方血條 */
+.compactVitals { display: grid; gap: 4px; padding-bottom: 4px; }
+.compactVitalRow { display: grid; grid-template-columns: 16px minmax(0, 1fr); align-items: center; gap: 5px; }
+.compactVitalLabel { text-align: center; font-size: 12px; font-weight: 900; }
+.vitalText { display: none; }
+.rosterText { display: none; }
+.matchup span { display: none; }
+.matchup strong { font-size: 12px; }
+.matchup { padding: 4px 8px; min-height: 0; }
+.weaponName, .weaponPart { display: none; }
+.weaponClass span { font-size: 0; padding: 0; }
+.weaponClass { width: 8px; height: 8px; border-radius: 50%; padding: 0; }
+.weapon { padding: 2px 6px; gap: 4px; font-size: 10px; }
+.activeHint { font-size: 10px; line-height: 14px; color: #7a99b8; }
+.primaryActions small { font-size: 10px; line-height: 13px; opacity: .72; }
+.reserveCard strong { font-size: 13px; }
+.reserveCard span { font-size: 11px; }
 .actionButton:disabled, .skillButton:disabled { opacity: 1; background: #243449; color: #c3d0df; border-color: #526178; box-shadow: none; }
+/* 攻擊按鈕：元素光暈（--element-glow 由 TSX 注入） */
+.actionButton[style] { border-color: var(--element-glow, rgba(255,255,255,0.25)); box-shadow: 0 0 12px var(--element-glow, transparent), 0 4px 12px rgba(0,0,0,0.3); }
+.actionButton[style]:disabled { border-color: #526178; box-shadow: none; }
+.statusHead strong { font-size: 0; }
+.elementDot { width: 10px; height: 10px; margin-right: 0; }
+.energy { font-size: 10px; padding: 1px 7px; }
+/* 科技感能量 */
+.energy { background: rgba(0,229,255,0.12); color: #00e5ff; border: 1px solid rgba(0,229,255,0.35); box-shadow: 0 0 8px rgba(0,229,255,0.35), inset 0 0 4px rgba(0,229,255,0.08); font-variant-numeric: tabular-nums; letter-spacing:.06em; }
+/* 手機版換卡：垂直排列，不用橫向滾動 */
+@media (max-width: 600px) {
+  .reserveCards { flex-direction: column; overflow-x: visible; max-height: 260px; overflow-y: auto; }
+  .reserveCard { flex: none; width: 100%; min-height: 56px; }
+}

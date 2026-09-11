@@ -90,7 +90,7 @@ export function FighterStatus({ match, side, label }: { match: Match; side: Side
           />
           {label}・{fighter.name}
         </strong>
-        <span className={styles.energy} aria-label={`氣 ${team.energy}`}>氣 {team.energy}</span>
+        <span className={styles.energy} aria-label={`氣 ${team.energy}`}>⚡{team.energy}</span>
       </div>
       <VitalBar hp={fighter.hp} maxHp={fighter.maxHp} shield={fighter.shield} beat={match.revision} />
       {/*
@@ -175,14 +175,27 @@ export function BattleActionBar({
     </div>;
     return (
       <div className={styles.compactActions}>
-        <p className={styles.activeHint} role="status" data-next-action>{busy ? '出招中…' : active.stunnedTurns > 0 ? '受控：本次出招會略過，仍可換卡' : `氣 ${match.player.energy}・${special ? '技能可用，或選攻擊／換卡' : '選普通攻擊或換卡'}`}</p>
+        <p className={styles.activeHint} role="status" data-next-action aria-label={busy ? '出招中' : active.stunnedTurns > 0 ? '受控' : `氣 ${match.player.energy}`}>
+          {busy ? '▶' : active.stunnedTurns > 0 ? '⊘' : `⚡${match.player.energy}`}{!busy && special && !active.stunnedTurns ? ' · ✦' : ''}
+        </p>
         <div className={styles.primaryActions} role="group" aria-label="本回合指令">
-          <button type="button" className={styles.actionButton} disabled={busy || !attack} onClick={() => attack && onAction(attack)}>{relaxed && special ? '保留技能・普攻' : '普通攻擊'}<small>{ELEMENT_LABEL[active.element]}系・不耗氣</small></button>
-          <button type="button" className={styles.skillButton} disabled={busy || !special} onClick={() => special && onAction(special)}>
-            技能<small>{skill.skillName.split('・').at(-1)}・{active.defeated ? '請先換卡' : active.cooldown > 0 ? `冷卻 ${active.cooldown} 回合` : `耗氣 ${skill.cost}${!special ? '・氣不足' : ''}`}</small>
+          <button type="button" className={styles.actionButton} disabled={busy || !attack}
+            style={{ '--element-glow': ELEMENT_FX[active.element as BattleElement]?.glow } as React.CSSProperties}
+            aria-label={relaxed && special ? '保留技能・普通攻擊' : '普通攻擊'} onClick={() => attack && onAction(attack)}>
+            <span aria-hidden="true" style={{ color: ELEMENT_FX[active.element as BattleElement]?.glow, textShadow: `0 0 10px ${ELEMENT_FX[active.element as BattleElement]?.glow}` }}>⚔</span>
+            <small>{({SPACE:'◇',AIR:'≋',WATER:'◉',FIRE:'♨',EARTH:'▰'} as const)[active.element as BattleElement]}</small>
           </button>
-          <button type="button" className={styles.actionButton} disabled={busy} aria-expanded={commandView === 'swap' || active.defeated} onClick={() => { onBrowse?.(); setCommandView(commandView === 'swap' ? null : 'swap'); }}>換卡<small>{switches.length ? '點選後備' : '無可用後備'}</small></button>
-          <button type="button" className={styles.actionButton} disabled={busy} aria-expanded={commandView === 'help'} onClick={() => { onBrowse?.(); setCommandView(commandView === 'help' ? null : 'help'); }}>說明<small>只查看，不消耗回合</small></button>
+          <button type="button" className={styles.skillButton} disabled={busy || !special} aria-label={`技能 ${skill.skillName}`} onClick={() => special && onAction(special)}>
+            <span aria-hidden="true">✦</span>
+            <small>{active.cooldown > 0 ? `冷${active.cooldown}` : `⚡${skill.cost}`}</small>
+          </button>
+          <button type="button" className={styles.actionButton} disabled={busy} aria-label="換卡" aria-expanded={commandView === 'swap' || active.defeated} onClick={() => { onBrowse?.(); setCommandView(commandView === 'swap' ? null : 'swap'); }}>
+            <span aria-hidden="true">⇌</span>
+            <small>{switches.length || ' '}</small>
+          </button>
+          <button type="button" className={styles.actionButton} disabled={busy} aria-label="說明" aria-expanded={commandView === 'help'} onClick={() => { onBrowse?.(); setCommandView(commandView === 'help' ? null : 'help'); }}>
+            <span aria-hidden="true">ℹ</span>
+          </button>
         </div>
         <div ref={commandDetail}>
         {(commandView === 'swap' || active.defeated) && <>
@@ -335,6 +348,25 @@ const BattlePanel = memo(function BattlePanel({
   }, [finished, busy, match.winner]);
   return (
     <section className={compact ? styles.compactPanel : styles.panel} data-battle-panel data-status={match.status}>
+
+      {compact && match.status === 'PLAYING' && (() => {
+        const pF = match.player.team[match.player.active];
+        const oF = match.opponent.team[match.opponent.active];
+        const pSymbol = ({SPACE:'◇',AIR:'≋',WATER:'◉',FIRE:'♨',EARTH:'▰'} as const)[pF.element as BattleElement];
+        const oSymbol = ({SPACE:'◇',AIR:'≋',WATER:'◉',FIRE:'♨',EARTH:'▰'} as const)[oF.element as BattleElement];
+        return (
+          <div className={styles.compactVitals}>
+            <div className={styles.compactVitalRow}>
+              <span className={styles.compactVitalLabel} style={{ color: ELEMENT_FX[pF.element as BattleElement]?.glow }}>{pSymbol}</span>
+              <VitalBar hp={pF.hp} maxHp={pF.maxHp} shield={pF.shield} beat={match.revision} />
+            </div>
+            <div className={styles.compactVitalRow}>
+              <span className={styles.compactVitalLabel} style={{ color: ELEMENT_FX[oF.element as BattleElement]?.glow }}>{oSymbol}</span>
+              <VitalBar hp={oF.hp} maxHp={oF.maxHp} shield={oF.shield} beat={match.revision} />
+            </div>
+          </div>
+        );
+      })()}
 
       {!compact && <><FighterStatus match={match} side="opponent" label="對手" />
       <FighterStatus match={match} side="player" label="你" /></>}

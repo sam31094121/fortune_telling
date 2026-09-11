@@ -32,23 +32,24 @@
 .fighterHeading { border-radius: 8px; padding: 2px; background: #061021b3; }
 .arenaHeading, .handHeading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #b6c8e0; }
 .arenaHeading strong { color: #ffe4a6; font-size: 14px; }
-.fighters { position: relative; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: stretch; }
+.fighters { position: relative; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
 .fighter[data-fighter='player'] { grid-template-rows: minmax(0, 1fr); min-height: 0; }
 .fighter[data-fighter='opponent'] { opacity: 0.85; max-height: 280px; }
 .fighter[data-fighter='opponent'] .artSpace { place-items: center; min-height: 0; }
 .fighter { min-height: 0; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr); gap: 7px; }
-.fighterName { display: flex; justify-content: center; gap: 5px; text-align: center; font-size: 13px; line-height: 18px; }
+.fighterName { display: none; }
 .fighterName span { color: #9fc5ef; font-size: 11px; }
 .fighterName strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .artSpace { position: relative; min-height: 0; display: grid; place-items: center; container-type: size; }
-.art { position: relative; width: min(100cqw, 66.666cqh, 180px); height: min(100cqh, 270px); min-width: 44px; min-height: 44px; padding: 0; overflow: hidden; border: 1px solid #d8b771; border-radius: 10px; box-shadow: 0 6px 14px #0008; background: #0a1429; touch-action: manipulation; }
+.art { position: relative; width: min(100cqw, 75cqh, 280px); height: min(100cqh, 420px); min-width: 44px; min-height: 44px; padding: 0; overflow: hidden; border: 1px solid #d8b771; border-radius: 10px; box-shadow: 0 6px 14px #0008; background: #0a1429; touch-action: manipulation; }
+.fighter[data-fighter='opponent'] .art { width: min(100cqw, 75cqh, 190px); height: min(100cqh, 285px); }
 .art img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .empty { height: 100%; display: grid; place-content: center; text-align: center; color: #91a6c5; font-size: 13px; }
 .fighterVitals { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: min(100cqw, 66.666cqh, 180px); padding: 3px 6px 6px; background: linear-gradient(0deg, rgba(6,16,33,.95) 55%, rgba(6,16,33,0)); border-radius: 0 0 10px 10px; pointer-events: none; display: grid; gap: 2px; }
 .fighterVitals p { display: flex; justify-content: space-between; gap: 4px; font-size: 11px; color: #c0d3ea; }
 .previewStats { font-size: 12px; color: #c0d3ea; text-align: center; }
 .versus { position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%); color: #fadd9a; font-size: 12px; font-weight: 900; }
-.arenaNote { text-align: center; color: #d7e4f5; font-size: 12px; line-height: 18px; }
+.arenaNote { text-align: center; color: #d7e4f5; font-size: 13px; line-height: 18px; font-weight: 700; letter-spacing: .06em; }
 .arenaNote[data-matchup='ADVANTAGE'] { color: #ffe4a6; }
 .arenaNote[data-matchup='DISADVANTAGE'] { color: #fda4af; }
 .defeated { opacity: .42; filter: grayscale(.8); }
@@ -123,7 +124,12 @@
   30%, 42% { transform: translate3d(var(--strike-x,0px), -5px, 24px) scale(1.06); filter: brightness(1.35) saturate(1.4); }
   100% { transform: translate3d(0, 0, 0) scale(1); filter: brightness(1); }
 }
-.actionCue{position:absolute;z-index:5;top:6px;left:0;right:0;padding:5px 4px;background:#030e1ef5;border:1px solid var(--element-strike,#ead397);border-radius:8px;text-align:center;color:#ffe4a6;font-size:13px;font-weight:900;letter-spacing:.05em;pointer-events:none;text-shadow:0 0 12px var(--element-strike,#ffe4a6);box-shadow:0 0 14px var(--element-strike,#ead39744);animation:actionCue 1.5s ease-out both;animation-delay:var(--action-delay,0ms)}
+/* actionCue：移到卡側，不遮牌面 */
+.actionCue{position:absolute;z-index:5;top:50%;transform:translateY(-50%);padding:10px 4px;background:#030e1ef5;border:1px solid var(--element-strike,#ead397);color:#ffe4a6;font-size:18px;font-weight:900;pointer-events:none;text-shadow:0 0 12px var(--element-strike,#ffe4a6);box-shadow:0 0 14px var(--element-strike,#ead39744);animation:actionCue 1.5s ease-out both;animation-delay:var(--action-delay,0ms);writing-mode:vertical-rl;line-height:1;}
+/* 玩家（左欄）→ 右側邊緣（朝向對手） */
+.fighter[data-fighter='player'] .actionCue{right:0;border-radius:4px 0 0 4px;border-right:none;}
+/* 對手（右欄）→ 左側邊緣（朝向玩家） */
+.fighter[data-fighter='opponent'] .actionCue{left:0;border-radius:0 4px 4px 0;border-left:none;}
 .artSpace[data-hit='true'] .art img{animation:cardHit 480ms ease-out both;animation-delay:var(--hit-delay,0ms)}
 .artSpace[data-skill='true'][data-rush='false'] .art{animation:skillGlow 600ms ease-out both;animation-delay:var(--action-delay,0ms)}
 @keyframes cardHit{0%{filter:brightness(1);transform:translateX(0) scale(1)}18%{filter:brightness(2.4) saturate(0);transform:translateX(calc(var(--strike-x,0px)*var(--hit-weight,.3)*-1)) scale(.96)}45%{filter:brightness(1.3);transform:translateX(calc(var(--strike-x,0px)*var(--hit-weight,.3)*-.4))}100%{filter:brightness(1);transform:translateX(0) scale(1)}}
@@ -347,20 +353,19 @@
   100% { opacity: 0;  transform: scale(1.45) rotate(-360deg); }
 }
 
-/* Keep actual life and this round's changes readable outside the animated portrait. */
-.fighter, .fighter[data-fighter='player'] { grid-template-rows: minmax(0, 1fr) auto; gap: 4px; }
+/* 卡片填滿整個 artSpace，不需要第二行 */
+.fighter, .fighter[data-fighter='player'] { grid-template-rows: minmax(0, 1fr); gap: 0; }
 .fighter[data-fighter='opponent'] { opacity: 1; max-height: none; }
-.fighterVitals { position: static; transform: none; width: 100%; padding: 4px; background: #071321ed; border-radius: 8px; }
-.fighterVitals .fighterName { font-size: 14px; line-height: 20px; }
-.fighterVitals .fighterName span { display: inline; flex-shrink: 0; font-size: 13px; }
-.fighterVitals .liveChange { display: block; min-height: 20px; color: #ffe4a6; font-size: 13px; line-height: 20px; text-align: center; overflow-wrap: anywhere; }
-.arenaNote { font-size: 14px; line-height: 20px; }
+.fighterVitals .fighterName { display: none; }
+.fighterVitals .liveChange { display: block; min-height: 15px; color: #ffe4a6; font-size: 10px; line-height: 15px; text-align: center; overflow-wrap: anywhere; font-weight: 500; }
+.arenaNote { font-size: 11px; line-height: 16px; font-weight: 400; letter-spacing: .02em; }
 .artSpace[data-action='SKILL'][data-rush='true'] .art { animation-name: skillCharge; animation-duration: 750ms; }
 .artSpace[data-action='SWITCH'] .art, .artSpace[data-action='REPLACEMENT'] .art { animation: reserveEnter 650ms ease-out both; animation-delay: var(--action-delay,0ms); }
 .artSpace[data-impact='strong'] { --hit-weight: .6; }
 .artSpace[data-impact='resisted'] { --hit-weight: .15; }
 .artSpace[data-impact='normal'] { --hit-weight: .3; }
-.elementBadge { position: absolute; left: 4px; bottom: 4px; padding: 2px 6px; border: 1px solid #829bb6; border-radius: 8px; background: #071321ed; color: #f1e7c9; font-size: 13px; pointer-events: none; }
+.elementBadge { display: inline-block; padding: 1px 6px; border: 1px solid #829bb6; border-radius: 6px; background: #071321ed; color: #f1e7c9; font-size: 11px; letter-spacing: .04em; pointer-events: none; }
+.elementBadge span { display: none; }
 .defeated { opacity: .85; filter: grayscale(.25); border-color: #fda4af; }
 @keyframes skillCharge { 0%,100% { transform: translateX(0) scale(1); } 20% { transform: translateX(calc(var(--strike-x) * -.3)) scale(.98); box-shadow: 0 0 18px #d6bdfb; } 52%,65% { transform: translateX(calc(var(--strike-x) * 1.25)) scale(1.04); box-shadow: 0 0 24px #e9d5ff; } }
 @keyframes reserveEnter { from { opacity: .4; transform: translateY(20px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }

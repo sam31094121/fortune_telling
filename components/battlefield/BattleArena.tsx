@@ -70,16 +70,8 @@ export default function BattleArena({ state, cards, match, onInspect, playing = 
                     <img src={card.thumbnail} alt={`${label}主戰：${card.name}`} width={256} height={384} decoding="async" draggable={false} />
                   ) : <span className={styles.empty}>主戰卡<br />等待上場</span>}
                 </button>
-                {action && <span className={styles.actionCue} role="status">{action === 'SKILL' && card ? profile(card.id).skillName.split('・').at(-1) : action === 'ATTACK' ? '普通攻擊' : action === 'SKIP' ? '受控・未出招' : action === 'REPLACEMENT' ? '後備接替' : '換卡上場'}</span>}
-                {card && <span className={styles.elementBadge} aria-label={ELEMENT_LABEL[card.element as BeastElement]+'元素'}>{({SPACE:'◇',AIR:'≋',WATER:'◉',FIRE:'♨',EARTH:'▰'} as const)[card.element as BeastElement]} {ELEMENT_LABEL[card.element as BeastElement]}</span>}
+                {action && <span className={styles.actionCue} role="status" aria-label={action === 'SKILL' ? '技能' : action === 'ATTACK' ? '攻擊' : action === 'SKIP' ? '受控' : action === 'REPLACEMENT' ? '接替' : '換卡'}>{action === 'SKILL' ? '✦' : action === 'ATTACK' ? '⚔' : action === 'SKIP' ? '⊘' : action === 'REPLACEMENT' ? '⇄' : '⇌'}</span>}
               </div>
-              {fighter && team && (
-                <div className={styles.fighterVitals} data-live-vitals={side}>
-                  <p className={styles.fighterName}><span>{label}</span><strong>{card?.name}</strong></p>
-                  <VitalBar hp={fighter.hp} maxHp={fighter.maxHp} shield={fighter.shield} />
-                  <p className={styles.liveChange} key={match?.revision} data-combat-change={side} aria-live="polite">{change || `可戰 ${team.team.filter(f => !f.defeated).length}/${team.team.length} 隻`}</p>
-                </div>
-              )}
               {fighter && team ? (
                 <p className="sr-only">{ELEMENT_LABEL[fighter.element]}・氣 {team.energy}・{team.team.filter(f => !f.defeated).length}/{team.team.length} 存活</p>
               ) : <p className="sr-only">{card ? ELEMENT_LABEL[card.element as BeastElement] : '未選'}・上場 {(state?.[side].active ? 1 : 0) + (state?.[side].bench.filter(Boolean).length ?? 0)} 隻</p>}
@@ -88,10 +80,12 @@ export default function BattleArena({ state, cards, match, onInspect, playing = 
         })}
       </div>
       <p className={styles.arenaNote} role="status" aria-live="polite" data-matchup={matchup?.kind}>
-        {playing ? '動作演出中・接著顯示結果' : finished ? (match.winner === 'player' ? '你贏了' : match.winner === 'opponent' ? '對手獲勝' : '平手')
-          : match?.player.team[match.player.active].defeated ? '主戰已倒下，請在下方換上後備'
-          : match?.opponent.team[match.opponent.active].defeated ? '對手主戰已倒下，請點繼續讓後備上場'
-          : matchup && mine && foe ? `${matchup.headline}・攻擊元素 ${elementPercent(mine.element as BeastElement, foe.element as BeastElement)}` : '先在下方選一張手牌，再點主戰格'}
+        {playing ? '▶' : finished ? (match.winner === 'player' ? '◎' : match.winner === 'opponent' ? '✕' : '＝')
+          : match?.player.team[match.player.active].defeated ? '⬇'
+          : match?.opponent.team[match.opponent.active].defeated ? '▶'
+          : matchup?.kind === 'ADVANTAGE' ? `▲ ${elementPercent(mine!.element as BeastElement, foe!.element as BeastElement)}`
+          : matchup?.kind === 'DISADVANTAGE' ? `▼ ${elementPercent(mine!.element as BeastElement, foe!.element as BeastElement)}`
+          : matchup && mine && foe ? `◉ ${elementPercent(mine.element as BeastElement, foe.element as BeastElement)}` : '◉'}
       </p>
     </section>
   );
