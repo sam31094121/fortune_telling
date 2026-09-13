@@ -175,9 +175,10 @@
   .fighterIdentity { display: none; }
 }
 @media (max-width: 480px) {
-  .fighters { gap: 4px; }
+  .fighters { gap: 8px; }
   .fighter { height: auto; }
-  .fighter[data-fighter='player'] { min-height: 0; }
+  .fighter[data-fighter='opponent'] { gap: 6px; padding-top: 6px; }
+  .fighter[data-fighter='player'] { min-height: 0; gap: 12px; }
   .deckInfo { display: none; }
   .inspectLabel { display: none; }
   .fighterIdentity { font-size: 10px; line-height: 13px; }
