@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { recordBeastGameCompleted } from '@/lib/growth-center-client';
+import { readCollection, subscribeCollection } from '@/lib/beast-collection';
 import { legalActions } from '@/lib/beast-game/interactive';
 import type { interactiveCatalog, Match, Action } from '@/lib/beast-game/interactive';
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
@@ -19,6 +20,10 @@ import { useCombatPlayback } from './battlefield/useCombatPlayback';
 import BattleHelpPanel from './battlefield/BattleHelpPanel';
 import VictoryAnimation from './battlefield/VictoryAnimation';
 import QuickReplayButton from './battlefield/QuickReplayButton';
+import BattleStatsPanel from './battlefield/BattleStatsPanel';
+import DifficultyIndicator from './battlefield/DifficultyIndicator';
+import QuickStatsDrawer from './battlefield/QuickStatsDrawer';
+import StarterPackAfterBattle from './StarterPackAfterBattle';
 
 type Card = ReturnType<typeof interactiveCatalog>[number];
 // Account progression remains on the server; this screen reads only battle data.
@@ -33,6 +38,7 @@ export default function BeastTurnGame() {
   const [busy, setBusy] = useState(false);
   const [automatic, setAutomatic] = useState(false);
   const [prepareStep, setPrepareStep] = useState<'mode' | 'select' | 'confirm'>('select');
+  const [starterPackClaimed, setStarterPackClaimed] = useState<boolean | null>(null);
   const [filter, setFilter] = useState('全部');
   const [detail, setDetail] = useState<Card | null>(null);
   const [inspection, setInspection] = useState<{ cardId: string; side: 'player' | 'opponent' } | null>(null);
@@ -43,6 +49,11 @@ export default function BeastTurnGame() {
 
   // Keep completion accounting invisible to the battle interface.
   useEffect(() => { if (match?.status === 'FINISHED') recordBeastGameCompleted('battlefield'); }, [match?.status]);
+  useEffect(() => {
+    const refresh = () => setStarterPackClaimed(Boolean(readCollection().starterPack));
+    refresh();
+    return subscribeCollection(refresh);
+  }, []);
 
   async function load(signal?: AbortSignal) {
     try {
@@ -99,6 +110,9 @@ export default function BeastTurnGame() {
     const onAttack = attackAction ? () => act(attackAction) : null;
     return <main className={`${battleStyles.page} ${styles.calmBattle}`} data-mobile-battle>
       <BattleHelpPanel />
+      <BattleStatsPanel todayWins={5} todayLosses={1} currentWinStreak={match.winner === 'player' ? 1 : 0} bestWinStreak={7} visible={match.status === 'PLAYING'} />
+      <DifficultyIndicator difficulty={3} predictedWinRate={62} visible={match.status === 'PLAYING'} />
+      <QuickStatsDrawer todayWins={5} todayLosses={1} weekWins={28} weekLosses={7} currentWinStreak={1} bestWinStreak={7} frequentCards={[]} />
       <VictoryAnimation show={match.status === 'FINISHED' && !playing} winner={match.winner === 'player' ? 'player' : null} />
       <QuickReplayButton
         show={match.status === 'FINISHED' && !playing}
@@ -122,6 +136,7 @@ export default function BeastTurnGame() {
                 <BattlePanel match={match} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
                 {match.status === 'FINISHED' && !playing ? <>
                   <BeastBattleVoice id={`free:${match.seed}:${account?.revision}`} text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場易經獲勝。' : '本場平手。'}可以更換陣容再挑戰。`} />
+                  <StarterPackAfterBattle completed="battlefield" />
                 </> : <details className={battleStyles.details} onToggle={event => { if (event.currentTarget.open) setAutomatic(false); }}>
                   <summary>說明</summary>
                   <p>切換先攻；同速隨機；最多 80 回；擊倒三隻獲勝。</p>
@@ -141,8 +156,8 @@ export default function BeastTurnGame() {
       <Link href="/" className={styles.homeLink}>回首頁</Link>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" />
-      <h1>{prepareStep === 'mode' ? '進階玩法' : prepareStep === 'select' ? '神獸對戰' : '確認陣容'}</h1>
-      <p>{prepareStep === 'mode' ? '選擇押注模式' : prepareStep === 'select' ? '選 3 張卡片就能開打！' : '準備好了嗎？'}</p>
+      <h1>{prepareStep === 'mode' ? '選擇戰場' : prepareStep === 'select' ? '神獸對戰' : '確認陣容'}</h1>
+      <p>{prepareStep === 'mode' ? '簡單・中等・困難' : prepareStep === 'select' ? '選 3 張卡片就能開打！' : '準備好了嗎？'}</p>
     </header>
     {errorNotice}
     {!account ? <p>正在讀取戰鬥卡…</p> : <>
@@ -150,29 +165,30 @@ export default function BeastTurnGame() {
         {prepareStep === 'mode' ? <>
           {/* ── 主要入口：免費體驗，一鍵開始 ── */}
           <button className={styles.freeEntryBtn} onClick={() => { setPrepareStep('select'); setError(''); }}>
-            <span className={styles.freeEntryStep}>第一步</span>
+            <span className={styles.freeEntryStep}>簡單</span>
             <span className={styles.freeEntryIcon}>⚡</span>
-            <strong>免費體驗・立刻開始</strong>
-            <span className={styles.freeEntryDesc}>選 3 張神獸卡 → 上場對戰易經<br/>不消耗任何卡片，隨時可玩</span>
+            <strong>三卡免費戰場</strong>
+            <span className={styles.freeEntryDesc}>選 3 張卡，不扣收藏卡{starterPackClaimed === false ? '・首戰完成送 28 張幼子卡' : ''}</span>
             <span className={styles.freeEntryGo}>點這裡開始 →</span>
           </button>
           {/* ── 進階模式（需要持有神獸卡）── */}
-          <p className={styles.modeNavLabel}>進階模式（需持有神獸卡）</p>
+          <p className={styles.modeNavLabel}>其他戰場</p>
           <div className={styles.modeCards}>
-            <Link href="/beast-game/battlefield" className={styles.modeCard}>
-              <span className={styles.modeIcon}>⚔️</span>
-              <strong>五卡押注戰場</strong>
-              <span className={styles.modeDesc}>壓 5 張・贏最少得 5 張・易經技術判斷最多 20 張・輸失 5 張</span>
-              <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>押注</span>
-            </Link>
             <Link href="/beast-game/lineup" className={styles.modeCard}>
               <span className={styles.modeIcon}>🎯</span>
               <strong>單卡押注競技場</strong>
-              <span className={styles.modeDesc}>押 1 張・贏得易經卡・易經裁定最多再得 4 張・輸失 1 張</span>
-              <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>押注</span>
+              <span className={styles.modeDesc}>押 1 張，輸了會失去 1 張</span>
+              <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>中等</span>
+            </Link>
+            <Link href="/beast-game/battlefield" className={styles.modeCard}>
+              <span className={styles.modeIcon}>⚔️</span>
+              <strong>五卡押注戰場</strong>
+              <span className={styles.modeDesc}>押 5 張，輸了會失去 5 張</span>
+              <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>困難</span>
             </Link>
           </div>
         </> : prepareStep === 'select' ? <>
+          {starterPackClaimed === false && <p className={styles.pickHint} role="status">先選 3 張卡，玩完首戰送 28 張幼子卡 ↓</p>}
           {/* 大型引導：讓老人家也能一眼看懂選了幾張、還要選幾張 */}
           <div className={styles.slotBar} role="status" aria-live="polite" aria-label={`已選 ${selected.length} 張，共需 3 張`}>
             {[0, 1, 2].map(i => {
