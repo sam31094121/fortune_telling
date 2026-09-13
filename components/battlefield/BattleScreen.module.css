@@ -125,6 +125,9 @@
 .split[data-stake-review='true'] [data-stake-slot] > [role='group'] { order: -1; }
 .split[data-stake-review='true'] [data-needs-stake='true'] [role='group'] > button:first-child { outline: 2px solid #ffe4a6; outline-offset: -2px; }
 @media (max-width: 600px), (orientation: landscape) and (max-height: 540px) {
+  /* Give preparation cards the viewport instead of squeezing them below the arena. */
+  .split[data-preparing='true'] { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  .split[data-preparing='true'] > [data-battle-visual] { display: none; }
   .split[data-stake-review='true'] { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
   .split[data-stake-review='true'] > [data-battle-visual] { display: none; }
   .split[data-stake-review='true'] > .controls > .footer { padding-top: 2px; padding-bottom: 2px; }

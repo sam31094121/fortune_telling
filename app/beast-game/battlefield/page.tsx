@@ -482,7 +482,7 @@ export default function BattlefieldPage() {
             <button type="button" className={styles.restart} onClick={() => { setError(null); setLoadAttempt(n => n + 1); }}>重新載入卡池</button>
           </div>
         ) : !state ? <p className={styles.loading}>正在發牌…</p> : (
-          <div className={styles.split} data-battle-split data-inspecting={Boolean(inspection)} data-stake-review={!match && prepareView === 'stake'}>
+          <div className={styles.split} data-battle-split data-inspecting={Boolean(inspection)} data-preparing={!match} data-stake-review={!match && prepareView === 'stake'}>
             <BattleArena state={state} cards={cards} match={match} onInspect={inspectCard} playing={playing}
               onAttack={match?.status === 'PLAYING' && !playing ? (() => { const a = legalActions(match, 'player').find(x => x.type === 'ATTACK'); return a ? () => act(a) : null; })() : null}
               onSwap={match?.status === 'PLAYING' && !playing ? (action) => act(action) : null}
