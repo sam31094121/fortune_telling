@@ -11,9 +11,11 @@
 .cycleContainer h3 {
   margin: 0;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   color: #7dd3fc;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 12px rgba(125, 211, 252, 0.3);
+  text-transform: uppercase;
 }
 
 /* 五邊形寶珠軌道系統 */
@@ -52,29 +54,34 @@
 /* 相剋說明文字 */
 .relationText {
   display: grid;
-  gap: 4px;
+  gap: 6px;
   font-size: 11px;
   color: #b8c2ca;
-  line-height: 1.5;
-  padding: 8px;
-  background: rgba(59, 130, 246, 0.08);
+  line-height: 1.6;
+  padding: 10px;
+  background: rgba(59, 130, 246, 0.12);
   border-radius: 6px;
+  border-left: 2px solid rgba(251, 146, 60, 0.4);
 }
 
 .relationText p {
   margin: 0;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .relationText strong {
   color: #fbbf24;
+  text-shadow: 0 0 8px rgba(251, 146, 60, 0.2);
+  font-weight: 800;
 }
 
 .relationText small {
   display: block;
   color: #7dd3fc;
-  font-weight: 500;
-  margin-top: 2px;
+  font-weight: 600;
+  margin-top: 3px;
+  letter-spacing: 0.05em;
 }
 
 /* 手機版 */
