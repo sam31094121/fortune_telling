@@ -15,6 +15,7 @@ import { ELEMENT_FX, type BattleElement } from '@/lib/beast-battle-fx';
 import { performedAction, isDamagingAction } from '@/lib/beast-game/combat-presentation';
 import { combatChanges } from '@/lib/beast-game/combat-feedback';
 import ElementMatchupGuide from './ElementMatchupGuide';
+import MatchupSummary from './MatchupSummary';
 import PhotonParticleEffect from './PhotonParticleEffect';
 import RageComboEffect from './RageComboEffect';
 import TeamRosterPanel from './TeamRosterPanel';
@@ -152,12 +153,11 @@ export default function BattleArena({ state, cards, match, onInspect, onSwap, on
         </div>
       )}
 
-      {/* 相生相克教學卡片 - 戰鬥卡片下方 */}
+      {/* 相生相克 - 可展開的summary面板 */}
       {match && mine && foe && (
-        <ElementMatchupGuide
+        <MatchupSummary
           playerElement={mine.element as BeastElement}
           opponentElement={foe.element as BeastElement}
-          className={styles.matchupPanel}
         />
       )}
       {match?.status === 'PLAYING' && (onSwap !== undefined || onSkill !== undefined) && (() => {
