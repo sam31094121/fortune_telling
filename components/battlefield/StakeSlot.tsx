@@ -166,7 +166,7 @@ export default function StakeSlot({
           {picked.length ? (
             <>
               <strong>押注籌碼 {picked.length}/5 張</strong>
-              <span className={styles.risk}>選滿五張才開戰。贏：五張保留＋獎勵一張；輸：扣五張。</span>
+              <span className={styles.risk}>選滿五張才開戰。勝：原押五張保留，另得 5～20 張；負：扣本場五張。</span>
               <span>點卡選取或取消，開戰前不扣卡。</span>
             </>
           ) : trial ? (

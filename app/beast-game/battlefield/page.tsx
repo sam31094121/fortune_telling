@@ -574,7 +574,7 @@ export default function BattlefieldPage() {
                     startButtonText={isTrial ? '開始體驗戰' : `確認開戰`}
                     onStart={() => void start()}
                     blockReason={!startCheck.ready && 'reason' in startCheck ? startCheck.reason : undefined}
-                    riskNotice={state.player.active ? `${placed < opponentPlaced ? `你 ${placed} 隻、對手 ${opponentPlaced} 隻，可補後備。` : ''}${!isTrial && stakeCardIds.length ? `本場選押 ${stakeCardIds.length}/5 張。勝得 1 張；負扣 5 張。` : ''}` : undefined}
+                    riskNotice={state.player.active ? `${placed < opponentPlaced ? `你 ${placed} 隻、對手 ${opponentPlaced} 隻，可補後備。` : ''}${!isTrial && stakeCardIds.length ? `本場選押 ${stakeCardIds.length}/5 張。勝另得 5～20 張；負扣本場五張。` : ''}` : undefined}
                   />
                 </div>
               ) : match?.status === 'FINISHED' && !playing && !inspection ? (

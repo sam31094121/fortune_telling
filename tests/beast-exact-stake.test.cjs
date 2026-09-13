@@ -74,3 +74,9 @@ for(const rewardCount of [5,20]){
  assert.ok(settleCard(settled.collection,matchId,outcome,'now').duplicate);
 }
 console.log('PASS: 正式押五張勝局基本獎五張、技術上限二十張，原押卡保留且重試不重發');
+for(const path of ['components/battlefield/StakeSlot.tsx','app/beast-game/battlefield/page.tsx']){
+ const source=fs.readFileSync(path,'utf8');
+ assert.match(source,/5～20 張/);
+ assert.doesNotMatch(source,/勝得 1 張|獎勵一張/);
+}
+console.log('PASS: 五卡開戰前兩處提示與 5～20 張實際獎勵一致');
