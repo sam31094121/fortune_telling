@@ -99,6 +99,10 @@ const ELEMENT_TONE: Record<Card['element'], string> = {
 const FORM_LABEL: Record<Card['form'], string> = {
   YOUNG: '幼子', ADULT: '成獸', GUARDIAN: '四象',
 };
+const SKILL_TIMING: Record<string, string> = {
+  ON_ATTACK: '攻擊時', ON_SUMMON: '登場時', ON_TURN_START: '回合開始',
+  ON_TURN_END: '回合結束', ON_DAMAGED: '受到傷害時', PASSIVE: '被動效果',
+};
 
 /** 三席的名稱與作用。站位有意義，所以要寫出來給客戶看。 */
 /** 目前這一格叫什麼。3 是賭注格，不在 SLOT_META 裡，直接索引會炸。 */
@@ -254,6 +258,7 @@ export default function BeastGamePage() {
   const duelInFlight = useRef(false);
   const duelRequest = useRef(0);
   const resultRef = useRef<HTMLElement>(null);
+  const stakeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const refresh = () => setOwned(readOwnedCards());
@@ -526,9 +531,9 @@ export default function BeastGamePage() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={BATTLE_VENUES.fighting.image} alt="" aria-hidden="true" />
         <p>格鬥模式・{BATTLE_VENUES.fighting.name}</p>
-        <h1>神獸決鬥・組陣台</h1>
+        <h1>單卡押注競技場</h1>
         <p className="mt-1.5 text-xs leading-6 text-white/60">
-          六十張神獸，選三張入陣，與易經卦象一起揭牌。
+          選三張出戰、押一張收藏卡。三局取多勝，輸了只扣本場押的一張。
         </p>
         <nav aria-label="戰鬥模式"><Link href="/beast-game/battlefield">卡片戰場</Link><Link href="/beast-game">自由組隊</Link></nav>
         {!dueling && stakeSaved !== false && <Link href="/" className="inline-flex min-h-11 items-center rounded-xl border border-white/30 px-4 text-sm">回首頁</Link>}
@@ -702,7 +707,7 @@ export default function BeastGamePage() {
             </button>)}
           </div>
         </section>}
-        <div className="mt-3 rounded-2xl border border-amber-300/25 bg-amber-300/[0.05] p-3" data-stake-slot>
+        <div ref={stakeRef} tabIndex={-1} className="mt-3 scroll-mt-4 rounded-2xl border border-amber-300/25 bg-amber-300/[0.05] p-3" data-stake-slot>
           {owned.storageError ? <p role="alert" className="text-sm text-amber-100">{owned.storageError}</p> : owned.all.length === 0 ? (
             <div data-stake-empty>
               <p className="text-xs font-black text-amber-100">{BATTLE_NO_STAKE_GUIDE.headline}</p>
@@ -865,6 +870,12 @@ export default function BeastGamePage() {
                 retrying={settling}
                 onRetry={retrySettlement}
               />}
+              {!dueling && stakeSaved !== false && <button type="button" className="mt-3 min-h-12 w-full rounded-xl bg-amber-200 px-3 py-2 text-sm font-black text-slate-950" onClick={() => {
+                setBoard(prev => ({ ...prev, stake: null }));
+                setPlacementNote('已保留原三張出戰卡。請親選本場押注卡，確認後才開戰。');
+                stakeRef.current?.scrollIntoView({ block: 'start' });
+                stakeRef.current?.focus({ preventScroll: true });
+              }}>保留陣容，重新選押卡</button>}
               {duel.fairness && (
                 <details data-fairness className="mt-3 rounded-xl border border-emerald-300/20 bg-emerald-300/[0.05] p-3">
                   <summary className="min-h-11 cursor-pointer text-sm font-bold text-emerald-100">查看本場規則</summary>
@@ -889,7 +900,7 @@ export default function BeastGamePage() {
                     onClick={() => startDuel(duel.seed)}
                     disabled={dueling || !lastMatch.current || stakeSaved === false}
                     data-replay
-                    className="mt-2.5 min-h-[40px] w-full rounded-xl border border-emerald-300/35 text-[11px] font-bold text-emerald-100"
+                    className="mt-2.5 min-h-11 w-full rounded-xl border border-emerald-300/35 text-sm font-bold text-emerald-100"
                   >
                     重播這一場
                   </button>
@@ -972,6 +983,7 @@ export default function BeastGamePage() {
                 <button
                   type="button"
                   onClick={() => setDetail(card)}
+                  aria-label={`查看${card.name}的能力`}
                   className="mt-1 min-h-11 w-full text-center text-xs font-bold text-white/60"
                 >
                   詳細
@@ -1033,8 +1045,8 @@ export default function BeastGamePage() {
             <ul className="mt-1.5 space-y-1.5">
               {detail.skills.map((skill) => (
                 <li key={skill.id} className="rounded-xl bg-white/5 px-3 py-2">
-                  <p className="text-xs font-bold">{skill.name}<span className="ml-2 text-[10px] font-normal text-white/40">{skill.trigger}</span></p>
-                  <p className="mt-0.5 text-[11px] leading-5 text-white/55">{skill.description}</p>
+                  <p className="text-sm font-bold">{skill.name}<span className="ml-2 text-xs font-normal text-white/70">{SKILL_TIMING[skill.trigger] ?? '依技能條件觸發'}</span></p>
+                  <p className="mt-0.5 text-sm leading-6 text-white/75">{skill.description}</p>
                 </li>
               ))}
             </ul>
@@ -1048,9 +1060,6 @@ export default function BeastGamePage() {
                 </li>
               ))}
             </ul>
-            {detail.skillBody ? (
-              <p className="mt-2 text-[10px] text-white/40">戰鬥本體：{detail.skillBody}</p>
-            ) : null}
             <button type="button" onClick={() => setDetail(null)}
               className="mt-4 min-h-[48px] w-full rounded-2xl bg-white/10 text-sm font-black">
               關閉

@@ -1,6 +1,138 @@
-.pace{padding:10px;border:1px solid #54718b;border-radius:12px;margin-bottom:8px;background:#142b3c;font-size:12px;line-height:1.6;color:#d4e6f2}
-.heading{display:flex;align-items:center;justify-content:space-between;gap:8px}.heading strong{color:#ffe3a0}.heading button{min-height:44px;padding:8px 12px;border:1px solid #92b4c9;border-radius:10px;flex-shrink:0;touch-action:manipulation}.pace p{margin:4px 0;overflow-wrap:anywhere}.track{height:4px;background:#31475a;overflow:hidden;border-radius:8px;margin-top:8px}.track span{display:block;height:100%;background:#8ed9e8;transform-origin:left;animation:advance 3.5s linear forwards}.feedback{border-top:1px solid #496178;margin-top:8px;padding-top:6px}.feedback strong{font-size:11px;color:#b8cbd9}@keyframes advance{from{transform:scaleX(0)}to{transform:scaleX(1)}}@media(prefers-reduced-motion:reduce){.track span{animation:none}}
-.pace>p{height:40px;overflow:auto}.feedback{height:84px;overflow-y:auto}
+/* 戰鬥節奏控制面板 */
+.pace {
+  padding: 8px;
+  border: 1px solid #54718b;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  background: #142b3c;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #d4e6f2;
+}
 
-.pace { font-size: 14px; line-height: 21px; }
-.pace > p { height: auto; min-height: 21px; }
+/* 頭部：狀態 + 暫停按鈕 */
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 32px;
+}
+
+.heading strong {
+  font-size: 13px;
+  font-weight: 900;
+  color: #ffe3a0;
+  flex: 1;
+}
+
+/* 【黃金比例】暫停/自動按鈕 - 小按鈕化
+   從 44px 縮小到 36px，確保只是控制面板的附屬按鈕，不是焦點
+   視覺層級：卡片 >>> 操作按鈕 >>> 暫停按鈕
+ */
+.heading button {
+  min-height: 36px;
+  min-width: 60px;
+  padding: 6px 10px;
+  border: 1px solid #92b4c9;
+  border-radius: 8px;
+  background: rgba(20, 43, 60, 0.8);
+  color: #c0d6e8;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  touch-action: manipulation;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.heading button:hover {
+  border-color: #bae6fd;
+  background: rgba(20, 43, 60, 0.95);
+  color: #e0f2fe;
+  box-shadow: 0 0 8px rgba(125, 211, 252, 0.2);
+}
+
+.heading button:active {
+  transform: scale(0.96);
+}
+
+.heading button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 進度條 */
+.track {
+  height: 4px;
+  background: #31475a;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-top: 6px;
+}
+
+.track span {
+  display: block;
+  height: 100%;
+  background: #8ed9e8;
+  transform-origin: left;
+  animation: advance 3.5s linear forwards;
+}
+
+@keyframes advance {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* 反饋文字 */
+.feedback {
+  border-top: 1px solid #496178;
+  margin-top: 6px;
+  padding-top: 6px;
+  font-size: 12px;
+  color: #b8cbd9;
+  max-height: 84px;
+  overflow-y: auto;
+}
+
+.feedback strong {
+  font-size: 11px;
+  color: #d4e6f2;
+  font-weight: 700;
+}
+
+/* 動作減弱模式 */
+@media (prefers-reduced-motion: reduce) {
+  .track span {
+    animation: none;
+  }
+}
+
+/* 手機版 - 暫停按鈕更小 */
+@media (max-width: 480px) {
+  .pace {
+    padding: 6px;
+    margin-bottom: 6px;
+  }
+
+  .heading {
+    min-height: 28px;
+    gap: 6px;
+  }
+
+  .heading button {
+    min-height: 32px;
+    min-width: 48px;
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .track {
+    margin-top: 4px;
+  }
+
+  .feedback {
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+}

@@ -1,16 +1,14 @@
 'use client';
 
-import { memo, CSSProperties } from 'react';
+import { memo } from 'react';
 import styles from './UpgradePathHint.module.css';
 import type { Match } from '@/lib/beast-game/interactive';
-import type { BeastElement } from '@/lib/beast-game/elements';
 
 interface UpgradePathHintProps {
   match: Match;
-  cards: Array<{ id: string; name: string; element: BeastElement }>;
 }
 
-const UpgradePathHint = memo(function UpgradePathHint({ match, cards }: UpgradePathHintProps) {
+const UpgradePathHint = memo(function UpgradePathHint({ match }: UpgradePathHintProps) {
   if (match.status !== 'FINISHED') return null;
 
   const isVictory = match.winner === 'player';

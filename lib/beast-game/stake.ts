@@ -115,14 +115,16 @@ export function describeStakeRisk(stakeCardName: string | null, mode: 'SINGLE' |
     return {
       canStart: false,
       headline: '從持有卡片選一張押注',
-      detail: `贏：得對手押注卡，易經裁定最多再得 ${rewardRange}。輸：${lossNote}。平手：退回。`,
+      detail: mode === 'SINGLE'
+        ? `贏：原卡保留，依本場表現共贏得 ${rewardRange}（含對手押注卡）。輸：失去 1 張押注卡。平手：退回。`
+        : `贏：得對手押注卡，易經裁定最多再得 ${rewardRange}。輸：${lossNote}。平手：退回。`,
     };
   }
   return {
     canStart: true,
     headline: `你押上的是「${stakeCardName}」`,
     detail: mode === 'SINGLE'
-      ? `贏：得對手押注卡，易經裁定最多再得 ${rewardRange}。輸：失去「${stakeCardName}」。平手：退回。`
+      ? `贏：原卡保留，依本場表現共贏得 ${rewardRange}（含對手押注卡）。輸：失去「${stakeCardName}」1 張。平手：退回。`
       : `贏：原卡保留，易經裁定再賠你 ${rewardRange}。輸：沒收「${stakeCardName}」五張。平手：退回。`,
   };
 }

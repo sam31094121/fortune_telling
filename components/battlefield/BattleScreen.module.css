@@ -15,9 +15,11 @@
 .split {
   min-height: 0;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
-  gap: 12px;
-  padding: 12px 0;
+  /* 【黃金比例空間分配】對手卡 : 主戰場 : 控制面板 = 0.8 : 3.2 : auto
+     主戰場占 80% 視覺重點，對手卡縮小，控制面板按鈕化 */
+  grid-template-rows: minmax(0, 0.8fr) minmax(0, 3.2fr) minmax(0, auto);
+  gap: 8px;
+  padding: 8px 0;
 }
 .controls { min-height: 0; display: grid; grid-template-rows: 30px minmax(0, 1fr) auto; border: 1px solid #526386; border-top: 2px solid #7dd3fc; border-radius: 0 0 16px 16px; background: #101b2d; overflow: hidden; }
 .controlsHeading { display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 14px; color: #c7e8fd; }
