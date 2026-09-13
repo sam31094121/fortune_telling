@@ -1,0 +1,132 @@
+.quickActionContainer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 15;
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.backdrop {
+  position: absolute;
+  top: -200px;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
+  pointer-events: none;
+}
+
+.actionGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+  background: #0b1020;
+  border-top: 2px solid #3f5268;
+  border-radius: 20px 20px 0 0;
+}
+
+.primaryButton,
+.secondaryButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 12px;
+  min-height: 80px;
+  border-radius: 16px;
+  border: 2px solid;
+  background: linear-gradient(135deg, rgba(255, 225, 160, 0.08), rgba(255, 225, 160, 0.02));
+  color: #f6e7bd;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 700;
+  text-align: center;
+}
+
+.primaryButton {
+  border-color: #ffe1a0;
+  box-shadow: 0 0 20px rgba(255, 225, 160, 0.3), inset 0 0 10px rgba(255, 225, 160, 0.1);
+}
+
+.primaryButton:hover:not(:disabled) {
+  border-color: #ffe1a0;
+  box-shadow: 0 0 30px rgba(255, 225, 160, 0.6), inset 0 0 20px rgba(255, 225, 160, 0.2);
+  transform: scale(1.05);
+}
+
+.primaryButton:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.secondaryButton {
+  border-color: #526386;
+  box-shadow: 0 0 12px rgba(82, 99, 134, 0.3);
+}
+
+.secondaryButton:hover:not(:disabled) {
+  border-color: #7dd3fc;
+  color: #7dd3fc;
+  box-shadow: 0 0 20px rgba(125, 211, 252, 0.4);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.primaryButton strong {
+  font-size: 16px;
+  letter-spacing: 0.05em;
+}
+
+.secondaryButton strong {
+  font-size: 14px;
+  letter-spacing: 0.05em;
+}
+
+.primaryButton small,
+.secondaryButton small {
+  font-size: 11px;
+  color: #b8c2ca;
+  font-weight: 400;
+}
+
+@media (max-width: 480px) {
+  .actionGroup {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    padding: 12px 8px;
+    min-height: 70px;
+  }
+
+  .icon {
+    font-size: 24px;
+  }
+
+  .primaryButton strong,
+  .secondaryButton strong {
+    font-size: 13px;
+  }
+}

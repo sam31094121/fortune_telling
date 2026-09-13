@@ -1,0 +1,132 @@
+.helpContainer {
+  position: relative;
+  z-index: 10;
+}
+
+.helpButton {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  border: 2px solid #ffe1a0;
+  background: #1a2535;
+  color: #ffe1a0;
+  font-size: 24px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 0 12px rgba(255, 225, 160, 0.3);
+}
+
+.helpButton:hover {
+  box-shadow: 0 0 20px rgba(255, 225, 160, 0.6);
+  background: #2a3a50;
+}
+
+.helpButton:active {
+  transform: scale(0.95);
+}
+
+.helpPanel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.2s ease-out;
+  backdrop-filter: blur(2px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.helpContent {
+  background: #172231;
+  border: 2px solid #ffe1a0;
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  color: #f6e7bd;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.helpContent h3 {
+  color: #ffe1a0;
+  font-size: 16px;
+  font-weight: 800;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+
+.helpContent h3:first-child {
+  margin-top: 0;
+}
+
+.helpContent ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+}
+
+.helpContent li {
+  padding: 6px 0;
+  border-bottom: 1px solid #3f5268;
+}
+
+.helpContent li:last-child {
+  border-bottom: none;
+}
+
+.helpContent strong {
+  color: #ddc88b;
+  font-weight: 700;
+}
+
+.helpContent p {
+  margin: 8px 0;
+}
+
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #1a2535;
+  color: #ffe1a0;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background: #2a3a50;
+  transform: scale(1.1);
+}

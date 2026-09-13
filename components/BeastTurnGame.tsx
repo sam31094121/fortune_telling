@@ -16,6 +16,9 @@ import battleStyles from './battlefield/BattleScreen.module.css';
 import venueStyles from './battlefield/BattleVenue.module.css';
 import BattlePace from './battlefield/BattlePace';
 import { useCombatPlayback } from './battlefield/useCombatPlayback';
+import BattleHelpPanel from './battlefield/BattleHelpPanel';
+import VictoryAnimation from './battlefield/VictoryAnimation';
+import QuickReplayButton from './battlefield/QuickReplayButton';
 
 type Card = ReturnType<typeof interactiveCatalog>[number];
 // Account progression remains on the server; this screen reads only battle data.
@@ -95,6 +98,14 @@ export default function BeastTurnGame() {
     const attackAction = match.status === 'PLAYING' && !busy && !playing ? legalActions(match, 'player').find(a => a.type === 'ATTACK') : undefined;
     const onAttack = attackAction ? () => act(attackAction) : null;
     return <main className={`${battleStyles.page} ${styles.calmBattle}`} data-mobile-battle>
+      <BattleHelpPanel />
+      <VictoryAnimation show={match.status === 'FINISHED' && !playing} winner={match.winner === 'player' ? 'player' : null} />
+      <QuickReplayButton
+        show={match.status === 'FINISHED' && !playing}
+        disabled={busy}
+        onReplay={() => void send('START', { lineup: account?.match?.player.team.map(f => f.cardId).filter((id, idx) => idx < match.player.team.length) })}
+        onHome={() => void send('LEAVE')}
+      />
       <div className={battleStyles.shell}>
         <header className={battleStyles.header}><h1>卡片戰鬥</h1><span>易經卦象・自由組隊</span></header>
         <div className={battleStyles.split} data-battle-split>
@@ -179,18 +190,24 @@ export default function BeastTurnGame() {
             })}
           </div>
           <p className={styles.pickHint} role="status" aria-live="polite">
-            {selected.length === 0 ? '👆 點任何一張卡片開始選'
-              : selected.length === 1 ? `✔ 第1張選好了！再點一張`
-              : selected.length === 2 ? `✔ 第2張選好了！再點一張`
-              : '✅ 三張都好了！按下方「確認陣容 →」'}
+            {selected.length === 0 ? '👆 點任何一張卡片開始選 (0/3)'
+              : selected.length === 1 ? `✔ 第1張選好了！再點一張 (1/3)`
+              : selected.length === 2 ? `✔ 第2張選好了！再點一張 (2/3)`
+              : '✅ 三張選好了！按下方「開始對戰」'}
           </p>
           <div className={styles.filters} aria-label="元素篩選">{['全部', ...Object.keys(labels)].map(element => <button key={element} aria-pressed={filter === element} onClick={() => setFilter(element)}>{labels[element] ?? element}</button>)}</div>
           <div className={styles.grid}>{cards.filter(c => filter === '全部' || c.element === filter).map(card => <div className={`${styles.card} ${styles.pickCard}`} key={card.id}>
             {selected.includes(card.id) && <span className={styles.pickOrder}>第 {selected.indexOf(card.id) + 1} 張</span>}
             <BeastCardTile card={card} selected={selected.includes(card.id)} onOpen={() => {
-              if (selected.includes(card.id)) setSelected(s => s.filter(id => id !== card.id));
-              else if (selected.length < 3) setSelected(s => [...s, card.id]);
-              else setError('已選滿三張；先點已選的卡取消，再換另一張。');
+              if (selected.includes(card.id)) {
+                setSelected(s => s.filter(id => id !== card.id));
+                setError('');
+              } else if (selected.length < 3) {
+                setSelected(s => [...s, card.id]);
+                setError('');
+              } else {
+                setError('已選滿三張；先點已選的卡取消，再換另一張。');
+              }
             }} />
           </div>)}</div>
         </> : <>
@@ -207,10 +224,12 @@ export default function BeastTurnGame() {
           <button onClick={() => { setPrepareStep('select'); setError(''); }}>← 返回選卡</button>
         </> : prepareStep === 'select' ? <>
           <button className={styles.advancedBtn} onClick={() => { setPrepareStep('mode'); setSelected([]); setError(''); }}>進階玩法 ▸</button>
-          <button className={styles.startBattle} disabled={selected.length !== 3} onClick={() => { setPrepareStep('confirm'); setError(''); }}>確認陣容 →</button>
+          <button className={styles.startBattle} disabled={selected.length !== 3} onClick={() => { void send('START', { lineup: selected }); }} style={selected.length === 3 ? { boxShadow: '0 0 20px rgba(59, 130, 246, 0.35)' } : {}}>
+            {selected.length === 3 ? '✨ 開始對戰！' : `選滿 ${selected.length}/3 張`}
+          </button>
         </> : <>
           <button disabled={busy} onClick={() => { setPrepareStep('select'); setDetail(null); }}>← 返回選卡</button>
-          <button className={styles.startBattle} disabled={busy || selected.length !== 3} onClick={() => void send('START', { lineup: selected })}>{busy ? '正在準備戰場…' : '⚔ 開始對戰！'}</button>
+          <button className={styles.startBattle} disabled={busy || selected.length !== 3} onClick={() => void send('START', { lineup: selected })}>{busy ? '準備戰場中…' : '⚔ 開始對戰！'}</button>
         </>}
       </footer>
       {detail && <CardDetailSheet card={{ ...detail, story: undefined }} onClose={() => setDetail(null)} />}

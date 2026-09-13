@@ -24,7 +24,8 @@ export default function ElementMatchupGuide({
   const opponentGenerates = ELEMENT_GENERATES[opponentElement] === playerElement; // 對方生我
 
   return (
-    <div className={`${styles.matchupGuide} ${className}`}>
+    <details className={`${styles.matchupGuide} ${className}`}>
+      <summary>？相生相剋</summary>
       <div className={styles.elementPair}>
         {/* 玩家元素 */}
         <div className={styles.elementCard}>
@@ -85,7 +86,7 @@ export default function ElementMatchupGuide({
         {opponentGenerates && `${opponentLabel}生${playerLabel}，相生關係`}
         {!playerCounters && !opponentCounters && !playerGenerates && !opponentGenerates && '兩者無相生相剋關係'}
       </p>
-    </div>
+    </details>
   );
 }
 

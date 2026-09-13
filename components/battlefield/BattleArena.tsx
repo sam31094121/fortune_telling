@@ -15,11 +15,12 @@ import { ELEMENT_FX, type BattleElement } from '@/lib/beast-battle-fx';
 import { performedAction, isDamagingAction } from '@/lib/beast-game/combat-presentation';
 import { combatChanges } from '@/lib/beast-game/combat-feedback';
 import ElementMatchupGuide from './ElementMatchupGuide';
+import PhotonParticleEffect from './PhotonParticleEffect';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 
 /** Both fighters stay above the controls. All displayed combat values come from Match. */
-export default function BattleArena({ state, cards, match, onInspect, onAttack, onSwap, onSkill, playing = false, quietNote = false }: {
+export default function BattleArena({ state, cards, match, onInspect, onSwap, onSkill, playing = false }: {
   playing?: boolean; cards: BattlefieldCardArt[]; onInspect: (id: string, side: 'player' | 'opponent') => void;
   quietNote?: boolean;
   onAttack?: (() => void) | null;
@@ -66,14 +67,20 @@ export default function BattleArena({ state, cards, match, onInspect, onAttack, 
           const multiplier = card && attacker ? elementMultiplier(attacker.element as BeastElement, card.element as BeastElement) : 1;
           return (
             <div className={styles.fighter} key={side} data-fighter={side} aria-label={`${label}：${card?.name ?? '等待主戰'}`}>
-              <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} data-hit={hitOrder >= 0} data-skill={action === 'SKILL'} data-action={action ?? 'NONE'} data-impact={multiplier > 1 ? 'strong' : multiplier < 1 ? 'resisted' : 'normal'} data-attackable={side === 'player' && Boolean(onAttack) ? 'true' : undefined}
+              <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} data-hit={hitOrder >= 0} data-skill={action === 'SKILL'} data-action={action ?? 'NONE'} data-impact={multiplier > 1 ? 'strong' : multiplier < 1 ? 'resisted' : 'normal'}
                 style={{ '--strike-x': side === 'player' ? '18px' : '-18px', '--strike-y': side === 'player' ? '-26px' : '26px', '--action-delay': `${Math.max(0, actionOrder) * COMBAT_BEAT_MS}ms`, '--hit-delay': `${Math.max(0, hitOrder) * COMBAT_BEAT_MS + 200}ms`, '--element-strike': card ? ELEMENT_FX[card.element as BattleElement]?.glow : undefined } as CSSProperties}>
-                <button type="button" disabled={!card || playing} aria-label={card ? (side === 'player' && onAttack ? `攻擊！點擊 ${card.name}` : `查看${card.name}的卡面與能力`) : '等待主戰卡上場'} onClick={() => { if (side === 'player' && onAttack) { onAttack(); } else { card && onInspect(card.id, side); } }}
+                <PhotonParticleEffect
+                  active={performed && rush}
+                  element={card?.element}
+                  intensity={action === 'RAGE' ? 'heavy' : action === 'SKILL' ? 'medium' : 'light'}
+                  isSkill={action === 'SKILL' || action === 'RAGE'}
+                />
+                <button type="button" disabled={!card || playing} aria-label={card ? `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => { if (card) onInspect(card.id, side); }}
                   className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''}`}>
                   {card ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={card.thumbnail} alt={`${label}主戰：${card.name}`} width={256} height={384} decoding="async" draggable={false} />
-                  ) : <span className={styles.empty}>主戰卡<br />等待上場</span>}
+                    <img src={card.thumbnail} alt={card.name} width={256} height={384} decoding="async" draggable={false} />
+                  ) : <span className={styles.empty}>{side === 'player' ? '◎' : '☯'}</span>}
                 </button>
                 {action && <span className={styles.actionCue} role="status" aria-label={action === 'RAGE' ? '暴怒合體' : action === 'SKILL' ? '技能' : action === 'ATTACK' ? '攻擊' : action === 'SKIP' ? '受控' : action === 'REPLACEMENT' ? '接替' : '換卡'}>{action === 'RAGE' ? '🔥' : action === 'SKILL' ? '✦' : action === 'ATTACK' ? '⚔' : action === 'SKIP' ? '⊘' : action === 'REPLACEMENT' ? '⇄' : '⇌'}</span>}
               </div>
@@ -85,7 +92,7 @@ export default function BattleArena({ state, cards, match, onInspect, onAttack, 
                     <div className={`${styles.arenaHpBar}${isCritical ? ` ${styles.critical}` : ''}`}>
                       <span style={{ width: `${hpPct}%` }} />
                     </div>
-                    <span className={styles.arenaEnergy}>⚡{team.energy} · {fighter.hp}/{fighter.maxHp}</span>
+                    <span className={styles.arenaEnergy} aria-label={`氣 ${team.energy}，生命 ${fighter.hp}/${fighter.maxHp}`}>⚡{team.energy}</span>
                   </div>
                 );
               })()}
@@ -144,7 +151,7 @@ export default function BattleArena({ state, cards, match, onInspect, onAttack, 
           </div>
         );
       })()}
-      <p className={quietNote ? 'sr-only' : styles.arenaNote} role="status" aria-live="polite" data-matchup={matchup?.kind}>
+      <p className="sr-only" role="status" aria-live="polite" data-matchup={matchup?.kind}>
         {playing ? '▶' : finished ? (match.winner === 'player' ? '◎' : match.winner === 'opponent' ? '✕' : '＝')
           : match?.player.team[match.player.active].defeated ? '⬇'
           : match?.opponent.team[match.opponent.active].defeated ? '▶'

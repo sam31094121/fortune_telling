@@ -1,14 +1,36 @@
 .matchupGuide {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px;
+  padding: 0;
   border-radius: 12px;
-  border: 1px solid rgba(125, 211, 252, 0.3);
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(6, 16, 40, 0.6));
+  background: transparent;
   font-size: 12px;
   color: #ddeaf8;
 }
+
+.matchupGuide summary {
+  display: flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border: 1px solid rgba(125, 211, 252, 0.55);
+  border-radius: 10px;
+  background: rgba(6, 16, 40, 0.88);
+  color: #ddeaf8;
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+  touch-action: manipulation;
+}
+
+.matchupGuide summary::-webkit-details-marker { display: none; }
+.matchupGuide summary:focus-visible { outline: 2px solid #ffe4a6; outline-offset: 2px; }
+.matchupGuide[open] {
+  padding: 8px;
+  border: 1px solid rgba(125, 211, 252, 0.55);
+  background: rgba(6, 16, 40, 0.96);
+}
+.matchupGuide[open] summary { margin-bottom: 8px; }
 
 .elementPair {
   display: flex;
@@ -148,22 +170,32 @@
 }
 
 @media (max-width: 480px) {
-  .matchupGuide {
-    padding: 8px;
-    gap: 6px;
+  .matchupGuide[open] {
+    padding: 5px;
   }
 
+  .matchupGuide[open] summary { margin-bottom: 4px; }
+  .elementPair { gap: 4px; }
+
   .elementCard {
-    min-width: 42px;
-    padding: 4px 8px;
+    flex-direction: row;
+    min-width: 0;
+    gap: 2px;
+    padding: 2px 4px;
     font-size: 10px;
   }
 
   .elementSymbol {
-    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    font-size: 14px;
   }
+
+  .relationshipArea { min-width: 0; }
 
   .explanation {
     font-size: 9px;
+    line-height: 11px;
+    padding-top: 2px;
   }
 }

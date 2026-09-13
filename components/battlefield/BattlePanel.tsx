@@ -20,7 +20,6 @@
 import styles from './BattlePanel.module.css';
 import { memo, useEffect, useRef, useState } from 'react';
 import type { BattlefieldCardArt } from './GameBattlefield';
-import { effectiveStat } from '@/lib/beast-game/effects';
 import { ELEMENT_LABEL } from '@/lib/beast-game/elements';
 import {
   ELEMENT_FX,
@@ -70,9 +69,6 @@ export function VitalBar({
     >
       <span className={styles.life} style={{ width: `${life}%` }} />
       {guard > 0 && <span className={styles.guard} style={{ width: `${guard}%`, left: `${life}%` }} />}
-      <span className={styles.vitalText}>
-        <b>{hp} / {maxHp}{shield > 0 ? `・盾 ${shield}` : ''}</b>
-      </span>
     </div>
   );
 }
@@ -80,6 +76,7 @@ export function VitalBar({
 export function FighterStatus({ match, side, label }: { match: Match; side: Side; label: string }) {
   const team = match[side];
   const fighter = team.team[team.active];
+  const sideSymbol = side === 'player' ? '◎' : '☯';
   return (
     <div className={styles.status}>
       <div className={styles.statusHead}>
@@ -90,7 +87,7 @@ export function FighterStatus({ match, side, label }: { match: Match; side: Side
             style={{ color: ELEMENT_FX[fighter.element as BattleElement]?.glow ?? '#94a3b8' }}
             aria-hidden="true"
           />
-          {label}・{fighter.name}
+          {sideSymbol}
         </strong>
         <span className={styles.energy} aria-label={`氣 ${team.energy}`}>⚡{team.energy}</span>
       </div>
@@ -112,13 +109,10 @@ export function FighterStatus({ match, side, label }: { match: Match; side: Side
       })()}
       <p className={styles.roster}>
         {team.team.map((f, index) => (
-          <span key={f.instanceId} className={index === team.active ? styles.onField : f.defeated ? styles.down : ''}>
+          <span key={f.instanceId} className={index === team.active ? styles.onField : f.defeated ? styles.down : ''} aria-label={f.defeated ? '已倒下' : index === team.active ? '主戰' : '待命'}>
             {f.defeated ? '✕' : index === team.active ? '●' : '○'}
           </span>
         ))}
-        <span className={styles.rosterText}>
-          {team.team.filter((f) => !f.defeated).length} / {team.team.length} 還能戰
-        </span>
       </p>
     </div>
   );
@@ -143,7 +137,7 @@ export function BattleActionBar({
   relaxed?: boolean;
   onBrowse?: () => void;
 }) {
-  const [commandView, setCommandView] = useState<'swap' | 'help' | null>(null);
+  const [commandView, setCommandView] = useState<'swap' | null>(null);
   const commandDetail = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (commandView) commandDetail.current?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
@@ -184,9 +178,6 @@ export function BattleActionBar({
           {busy ? '▶' : active.stunnedTurns > 0 ? '⊘' : `⚡${match.player.energy}`}{!busy && special && !active.stunnedTurns ? ' · ✦' : ''}
           {!busy && switches.length ? ' · 可換卡' : ''}
         </p>
-        {!!switches.length && commandView !== 'swap' && (
-          <p className={styles.swapCue} role="note">要換神獸：點下方藍色「換卡」，再選後備上場（手機不用找左邊）</p>
-        )}
         <div className={styles.primaryActions} role="group" aria-label="本回合指令">
           {!attackOnCard && <button type="button" className={styles.actionButton} disabled={busy || !attack}
             style={{ '--element-glow': ELEMENT_FX[active.element as BattleElement]?.glow } as React.CSSProperties}
@@ -208,7 +199,6 @@ export function BattleActionBar({
             <span aria-hidden="true">🔥</span><strong>暴怒合體</strong><small>{rageUnavailableReason(match,'player') ?? '本場一次'}</small>
           </button>
         </div>
-        <button type="button" className={styles.helpEntry} disabled={busy} aria-expanded={commandView === 'help'} onClick={() => { onBrowse?.(); setCommandView(commandView === 'help' ? null : 'help'); }}>玩法說明</button>
         <div ref={commandDetail}>
         {(commandView === 'swap' || active.defeated) && <>
         {!switches.length && <p className={styles.activeHint}>目前沒有可換上的後備，可使用仍可用的攻擊或技能。</p>}
@@ -228,12 +218,6 @@ export function BattleActionBar({
           })}
         </div>
         </>}
-        {commandView === 'help' && <section className={styles.commandHelp} aria-label="回合操作說明">
-          <h3>{skill.skillName}</h3><p>{skill.description}</p>
-          <p>{skill.role}型・攻 {effectiveStat(active, 'attack')}／防 {effectiveStat(active, 'defense')}／速 {effectiveStat(active, 'speed')}</p>
-          <p>普通攻擊不耗氣；技能的氣量與冷卻會標在按鈕上。手機請點下方藍色「換卡」，再選後備上場。</p>
-          <button type="button" className={styles.actionButton} onClick={() => { setCommandView(null); onBrowse?.(); }}>收起說明</button>
-        </section>}
         </div>
       </div>
     );
@@ -256,14 +240,12 @@ export function BattleActionBar({
           className={action.type === 'SKILL' ? styles.skillButton : styles.actionButton}
           disabled={busy}
           onClick={() => onAction(action)}
+          aria-label={action.type === 'SKILL' ? `技能 ${skill.skillName}：${skill.description}` : label(action)}
         >
           {label(action)}
-          {action.type === 'SKILL' && <small className={styles.cost}>耗氣 {skill.cost}</small>}
+          {action.type === 'SKILL' && <small className={styles.cost}>⚡{skill.cost}</small>}
         </button>
       ))}
-      {actions.some((a) => a.type === 'SKILL') && (
-        <p className={styles.skillDesc}>{skill.description}</p>
-      )}
     </div>
   );
 }
@@ -283,7 +265,7 @@ export function BattleLog({ match }: { match: Match }) {
 }
 
 const BattlePanel = memo(function BattlePanel({
-  match, onAction, busy, compact, attackOnCard, swapOnSide, cards, relaxed, onBrowse,
+  match, onAction, busy, compact, swapOnSide, cards, relaxed, onBrowse,
 }: {
   match: Match;
   onAction: (action: Action) => void;
@@ -412,7 +394,7 @@ const BattlePanel = memo(function BattlePanel({
           </small>
         </p>
       ) : (
-        <BattleActionBar match={match} onAction={onAction} busy={busy} compact={compact} attackOnCard={attackOnCard} swapOnSide={swapOnSide} cards={cards} relaxed={relaxed} onBrowse={onBrowse} />
+        <BattleActionBar match={match} onAction={onAction} busy={busy} compact={compact} attackOnCard={false} swapOnSide={swapOnSide} cards={cards} relaxed={relaxed} onBrowse={onBrowse} />
       )}
 
       {compact ? <details className={styles.battleDetails} onToggle={event => { if (event.currentTarget.open) onBrowse?.(); }}><summary>本回合戰報{match.log.length ? `・${match.log.length} 則` : ''}</summary><BattleLog match={match} /></details> : <BattleLog match={match} />}
